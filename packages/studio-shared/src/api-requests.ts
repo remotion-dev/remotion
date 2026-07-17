@@ -818,6 +818,11 @@ export type InstallPackageRequest = {
 };
 export type InstallPackageResponse = {};
 
+export type SetPublicLicenseKeyRequest = {
+	licenseKey: string;
+};
+export type SetPublicLicenseKeyResponse = {};
+
 export type UndoRequest = {};
 export type UndoResponse =
 	| {
@@ -975,6 +980,10 @@ export type ApiRoutes = {
 	'/api/install-package': ReqAndRes<
 		InstallPackageRequest,
 		InstallPackageResponse
+	>;
+	'/api/set-public-license-key': ReqAndRes<
+		SetPublicLicenseKeyRequest,
+		SetPublicLicenseKeyResponse
 	>;
 	'/api/undo': ReqAndRes<UndoRequest, UndoResponse>;
 	'/api/redo': ReqAndRes<RedoRequest, RedoResponse>;

@@ -3,6 +3,7 @@ import React, {useCallback, useMemo, useState} from 'react';
 import {BACKGROUND, BORDER_BLACK, WHITE} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {useMenuStructure} from '../helpers/use-menu-structure';
+import {ConfigureLicenseNudge} from './ConfigureLicenseNudge';
 import {Row, Spacing} from './layout';
 import type {MenuId} from './Menu/MenuItem';
 import {MenuItem} from './Menu/MenuItem';
@@ -154,6 +155,9 @@ export const MenuToolbar: React.FC<{
 			<MenuBuildIndicator />
 			<div style={flex} />
 			<div style={fixedWidthRight}>
+				{readOnlyStudio ? null : (
+					<ConfigureLicenseNudge readOnlyStudio={readOnlyStudio} />
+				)}
 				{readOnlyStudio ? null : <UndoRedoButtons />}
 				<SidebarCollapserControls />
 			</div>

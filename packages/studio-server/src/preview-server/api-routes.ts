@@ -34,6 +34,7 @@ import {reorderSequenceHandler} from './routes/reorder-sequence';
 import {handleRestartStudio} from './routes/restart-studio';
 import {saveEffectPropsHandler} from './routes/save-effect-props';
 import {saveSequencePropsHandler} from './routes/save-sequence-props';
+import {handleSetPublicLicenseKey} from './routes/set-public-license-key';
 import {splitJsxSequenceHandler} from './routes/split-jsx-sequence';
 import {subscribeToDefaultProps} from './routes/subscribe-to-default-props';
 import {subscribeToFileExistence} from './routes/subscribe-to-file-existence';
@@ -97,6 +98,7 @@ export const allApiRoutes: {
 	'/api/rename-static-file': renameStaticFileHandler,
 	'/api/restart-studio': handleRestartStudio,
 	'/api/install-package': handleInstallPackage,
+	'/api/set-public-license-key': handleSetPublicLicenseKey,
 	'/api/insert-jsx-element': insertJsxElementHandler,
 	'/api/insert-element': insertElementHandler,
 	'/api/update-element-install-target': updateElementInstallTargetHandler,

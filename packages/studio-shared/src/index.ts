@@ -82,6 +82,8 @@ export {
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse,
 	SaveSequencePropsResult,
+	SetPublicLicenseKeyRequest,
+	SetPublicLicenseKeyResponse,
 	SimpleDiff,
 	SplitJsxSequenceRequest,
 	SplitJsxSequenceResponse,

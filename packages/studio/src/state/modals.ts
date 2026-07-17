@@ -187,6 +187,9 @@ export type ModalState =
 			packageManager: PackageManager;
 	  }
 	| {
+			type: 'configure-license';
+	  }
+	| {
 			type: 'quick-switcher';
 			mode: QuickSwitcherMode;
 			invocationTimestamp: number;
