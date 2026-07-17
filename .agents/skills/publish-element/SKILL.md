@@ -5,9 +5,9 @@ description: Finalize a developed Remotion Element, add it to the docs gallery, 
 
 # Publish a Remotion Element
 
-The source of truth is the [Element contributor guide](../../../packages/docs/elements/submit-an-element.mdx). Read it completely before making changes and follow it for all acceptance criteria. If this skill and the guide diverge, follow the guide.
+The source of truth for design and quality criteria is the [Element Guidelines](../../../packages/docs/elements/guidelines.mdx). Read them completely before making changes. If this skill and the guidelines diverge on acceptance criteria, follow the guidelines.
 
-This skill starts with an Element scaffold created by the [`new-element` skill](../new-element/SKILL.md). It does not create the initial development scaffold.
+This skill owns the technical publication workflow. It starts with an Element scaffold created by the [`scaffold-element` skill](../scaffold-element/SKILL.md) and does not create the initial development scaffold.
 
 ## 1. Confirm the Element is ready
 
@@ -16,7 +16,7 @@ Confirm these files and the matching entry in `packages/docs/src/components/Elem
 - `packages/docs/elements/<category>/<slug>/index.mdx`
 - `packages/docs/elements/<category>/<slug>/<slug>.tsx`
 
-Do not launch the Studio from this skill. Ask the developer to confirm that they developed and reviewed `element-<category>-<slug>` in the docs Remotion Studio. If more visual development is needed, give them these commands and stop the publishing workflow:
+Do not launch the Studio from this skill. Before continuing, require the developer to explicitly confirm that they visually reviewed `element-<category>-<slug>` in the docs Remotion Studio and that it looks correct. Do not infer approval from completed tests or from the agent's own inspection. If the developer has not approved it or more visual development is needed, give them these commands and stop the publishing workflow:
 
 ```bash
 bun run build
@@ -26,7 +26,9 @@ bun run remotion
 
 ## 2. Perform the publication review
 
-Review the finished source, MDX page, and central definition against the contributor guide. Resolve placeholder content and finalize the description, display name, contributors, dimensions, duration, preview padding, and poster frame.
+Review the finished source, MDX page, and central definition against the Element Guidelines. Resolve placeholder content and finalize the description, display name, contributors, dimensions, duration, preview padding, and poster frame.
+
+Re-check the technical implementation requirements from the [`scaffold-element` skill](../scaffold-element/SKILL.md): The reusable implementation must remain in one self-contained TSX file, fill its configured bounds without a wrapper `<Sequence>` or preview-only source padding, and leave outer placement to the surrounding project. Animated entrances must have exits with inline, hardcoded frame ranges on useful named `Interactive.*` elements. Inner control names must not repeat the Element display name.
 
 When the Element has Studio-editable controls, also review it using the [interactivity best practices skill](../interactivity-best-practices/SKILL.md).
 
@@ -58,7 +60,7 @@ bun test src/test/elements.test.ts
 
 ## 5. Render and inspect the previews
 
-Perform the preview verification required by the contributor guide:
+Perform the preview verification required by the Element Guidelines:
 
 ```bash
 cd packages/docs
@@ -66,7 +68,9 @@ bun run render-element-previews
 cd ../..
 ```
 
-Inspect `packages/docs/.element-previews/<category>/<slug>/preview.png` and `preview.mp4`, and give those paths to the developer for review. This command renders every Element and clears the previous preview output. Do not commit the ignored output or pass `--upload` unless uploading was explicitly requested and maintainer R2 credentials are available.
+Inspect `packages/docs/.element-previews/<category>/<slug>/preview.png` and `preview.mp4`, then give both paths to the developer for visual review. Stop and wait for the developer to explicitly confirm that both previews look correct. Do not run the final repository checks or finish the publishing workflow until that approval is received.
+
+This command renders every Element and clears the previous preview output. Do not commit the ignored output or pass `--upload` unless uploading was explicitly requested and maintainer R2 credentials are available.
 
 ## 6. Run final repository checks
 

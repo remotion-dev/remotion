@@ -4,6 +4,7 @@ import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
 const sidebars: SidebarsConfig = {
 	elementsSidebar: [
 		'index',
+		'guidelines',
 		'submit-an-element',
 		{
 			type: 'html',
