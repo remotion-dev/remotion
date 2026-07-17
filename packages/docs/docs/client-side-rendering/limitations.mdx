@@ -181,6 +181,49 @@ const MyComp = () => {
 };
 ```
 
+## Stacking context and paint order
+
+Client-side rendering paints elements in tree order (later siblings on top). That can differ from how a normal browser tab stacks the same markup, especially when an absolutely positioned label sits before an [`<Img>`](/docs/img) in the React tree.
+
+In the browser preview, the label may appear on top of the image. During client-side rendering, the image is painted after the label, so the image covers the text.
+
+```tsx twoslash title="Label before Img: browser may show text on top; client-side rendering paints Img last"
+import {Img, staticFile} from 'remotion';
+
+// ---cut---
+const ScaleDownPreview = () => {
+  return (
+    <div style={{backgroundColor: '#e0e0e0', position: 'relative'}}>
+      <div
+        style={{
+          position: 'absolute',
+          top: 5,
+          left: 5,
+          fontSize: 12,
+          fontWeight: 'bold',
+        }}
+      >
+        scale-down
+      </div>
+      <Img
+        src={staticFile('1.webp')}
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'scale-down',
+        }}
+      />
+    </div>
+  );
+};
+```
+
+Put overlays after the media they should cover (or wrap each layer in [`<AbsoluteFill>`](/docs/absolute-fill) in back-to-front order). See [Layers](/docs/layers).
+
+:::info
+Automatic [HTML-in-canvas capture](/docs/client-side-rendering/html-in-canvas) takes a full screenshot, so browser stacking applies there instead of this paint-order rule.
+:::
+
 ## Video and media constraints
 
 The limitations from [`@remotion/media`](/docs/media/support) apply.

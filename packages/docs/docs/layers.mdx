@@ -55,8 +55,11 @@ export const MyComp: React.FC = () => {
 The lower the absolutely positioned element is in the tree, the higher it will be in the layer stack.  
 If you are aware of this behavior, you can use it to your advantage and avoid using `z-index` in most cases.
 
+Client-side rendering follows the same back-to-front tree order and does not honor `z-index`. Browser stacking can still differ for some layouts (for example a label before an [`<Img>`](/docs/img)); see [Stacking context and paint order](/docs/client-side-rendering/limitations#stacking-context-and-paint-order).
+
 ## See also
 
 - [`<AbsoluteFill>`](/docs/absolute-fill)
 - [`<Sequence>`](/docs/sequence)
+- [Limitations of client-side rendering](/docs/client-side-rendering/limitations)
 - [Build a timeline-based video editor](/docs/building-a-timeline)
