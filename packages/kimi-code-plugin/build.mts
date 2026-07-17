@@ -9,8 +9,9 @@ import {
 	writeFileSync,
 } from 'node:fs';
 import {join, resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
 
-const __dirname = new URL('.', import.meta.url).pathname;
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const skillsOut = resolve(__dirname, 'skills');
 
 const packagesSkillsDir = resolve(__dirname, '..', 'skills', 'skills');
