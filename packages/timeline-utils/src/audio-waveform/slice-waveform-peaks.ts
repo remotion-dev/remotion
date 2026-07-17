@@ -25,8 +25,23 @@ export const sliceWaveformPeaks = ({
 		(startTimeInSeconds + durationInSeconds) * TARGET_SAMPLE_RATE,
 	);
 
-	return peaks.subarray(
-		Math.max(0, startPeakIndex),
-		Math.min(peaks.length, endPeakIndex),
+	const startIndex = Math.max(0, startPeakIndex);
+	const availableEnd = Math.min(
+		peaks.length,
+		Math.max(startIndex, endPeakIndex),
 	);
+	const available = peaks.subarray(startIndex, availableEnd);
+
+	// Peak slots that represent this timeline window after clamping a negative
+	// start (same as before). When playbackRate > 1 asks for media past EOF,
+	// pad with silence so drawBars compresses the real peaks instead of
+	// stretching them across the full sequence width.
+	const expectedLength = Math.max(0, endPeakIndex - startIndex);
+	if (available.length === expectedLength) {
+		return available;
+	}
+
+	const padded = new Float32Array(expectedLength);
+	padded.set(available);
+	return padded;
 };
