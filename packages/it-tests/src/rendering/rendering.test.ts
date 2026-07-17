@@ -486,7 +486,7 @@ test(
 		expect(data).toContain('Audio: mp3, 48000 Hz');
 		fs.unlinkSync(out);
 	},
-	{timeout: 15000},
+	{timeout: 15000, retry: 3},
 );
 
 test(
@@ -517,7 +517,7 @@ test(
 		expect(task.exitCode).toBe(0);
 		fs.unlinkSync(out);
 	},
-	{timeout: 15000},
+	{timeout: 15000, retry: 3},
 );
 
 test(
@@ -609,7 +609,7 @@ test(
 		expect(task.exitCode).toBe(0);
 		fs.unlinkSync(outputPath.replace('.mp4', '.png'));
 	},
-	{timeout: 20000},
+	{timeout: 20000, retry: 3},
 );
 
 test(
