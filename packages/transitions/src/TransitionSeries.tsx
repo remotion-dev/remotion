@@ -131,7 +131,7 @@ type SeriesSequenceProps = PropsWithChildren<
 	} & LayoutBasedProps &
 		Pick<
 			SequencePropsWithoutDuration,
-			'name' | 'showInTimeline' | 'freeze' | 'hidden'
+			'name' | 'showInTimeline' | 'freeze' | 'hidden' | 'trimBefore'
 		>
 >;
 
@@ -152,6 +152,7 @@ const transitionSeriesSequenceSchema = {
 	hidden: Internals.sequenceSchema.hidden,
 	showInTimeline: Internals.sequenceSchema.showInTimeline,
 	freeze: Internals.freezeField,
+	trimBefore: Internals.sequenceSchema.trimBefore,
 	layout: Internals.sequenceSchema.layout,
 } as const satisfies InteractivitySchema;
 

@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {AbsoluteFill} from 'remotion';
+import {AbsoluteFill, useCurrentFrame} from 'remotion';
 import {fade} from '../presentations/fade.js';
 import {linearTiming} from '../timings/linear-timing.js';
 import {TransitionSeries} from '../TransitionSeries.js';
@@ -89,4 +89,33 @@ test('TransitionSeries.Sequence ignores a from prop passed from JavaScript', () 
 	);
 
 	expect(outerHTML).toContain('D');
+});
+
+test('TransitionSeries.Sequence trimBefore shifts child frames without moving later sequences', () => {
+	const FrameLabel: React.FC<{readonly label: string}> = ({label}) => {
+		const frame = useCurrentFrame();
+		return <div>{`${label}${frame}`}</div>;
+	};
+
+	const content = (
+		<TransitionSeries>
+			<TransitionSeries.Sequence durationInFrames={40} trimBefore={12}>
+				<FrameLabel label="first" />
+			</TransitionSeries.Sequence>
+			<TransitionSeries.Transition
+				presentation={fade({})}
+				timing={linearTiming({durationInFrames: 10})}
+			/>
+			<TransitionSeries.Sequence durationInFrames={30}>
+				<FrameLabel label="second" />
+			</TransitionSeries.Sequence>
+		</TransitionSeries>
+	);
+
+	expect(renderForFrame(0, content)).toContain('first12');
+	expect(renderForFrame(1, content)).toContain('first13');
+	// Second sequence still starts at frame 30 after the 10-frame overlap.
+	expect(renderForFrame(29, content)).not.toContain('second');
+	expect(renderForFrame(30, content)).toContain('second0');
+	expect(renderForFrame(31, content)).toContain('second1');
 });

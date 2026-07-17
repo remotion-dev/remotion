@@ -25,6 +25,23 @@ type RegisteredSequence = {
 	readonly controls: SequenceControls | null;
 	readonly duration: number;
 	readonly from: number;
+	readonly trimBefore: number | null;
+};
+
+const waitForRegistered = async (
+	registeredSequences: readonly RegisteredSequence[],
+	predicate: (sequences: readonly RegisteredSequence[]) => boolean,
+) => {
+	const deadline = Date.now() + 2000;
+	while (Date.now() < deadline) {
+		if (predicate(registeredSequences)) {
+			return;
+		}
+
+		await new Promise((resolve) => setTimeout(resolve, 10));
+	}
+
+	throw new Error('Timed out waiting for sequence registration');
 };
 
 const remotionEnvironment = {
@@ -158,7 +175,13 @@ test('TransitionSeries registers with its own visual mode identity', async () =>
 		</SequenceTestWrapper>,
 	);
 
-	await new Promise((resolve) => setTimeout(resolve, 0));
+	await waitForRegistered(registeredSequences, (sequences) =>
+		sequences.some(
+			(sequence) =>
+				sequence.displayName === '<TS.Sequence>' &&
+				sequence.getStack() === childSequenceStack,
+		),
+	);
 
 	root.unmount();
 
@@ -233,7 +256,12 @@ test('TransitionSeries.Transition and Overlay register at their rendered timelin
 		</SequenceTestWrapper>,
 	);
 
-	await new Promise((resolve) => setTimeout(resolve, 10));
+	await waitForRegistered(
+		registeredSequences,
+		(sequences) =>
+			sequences.some((sequence) => sequence.getStack() === transitionStack) &&
+			sequences.some((sequence) => sequence.getStack() === overlayStack),
+	);
 
 	const transition = registeredSequences.find(
 		(sequence) => sequence.getStack() === transitionStack,
@@ -317,7 +345,12 @@ test('TransitionSeries.Sequence duration overrides cascade to later sequences', 
 		propStatuses: {},
 		dragOverrides: {},
 	});
-	await new Promise((resolve) => setTimeout(resolve, 10));
+	await waitForRegistered(registeredSequences, (sequences) =>
+		sequences.some(
+			(sequence) =>
+				sequence.getStack() === firstStack && sequence.controls !== null,
+		),
+	);
 
 	const firstSequence = registeredSequences.find(
 		(sequence) => sequence.getStack() === firstStack,
@@ -358,7 +391,14 @@ test('TransitionSeries.Sequence duration overrides cascade to later sequences', 
 
 	registeredSequences.length = 0;
 	renderTransitionSeries(makeDurationOverride(15));
-	await new Promise((resolve) => setTimeout(resolve, 10));
+	await waitForRegistered(
+		registeredSequences,
+		(sequences) =>
+			sequences.some(
+				(sequence) =>
+					sequence.getStack() === firstStack && sequence.duration === 15,
+			) && sequences.some((sequence) => sequence.getStack() === secondStack),
+	);
 
 	const updatedFirstSequence = registeredSequences.find(
 		(sequence) => sequence.getStack() === firstStack,
@@ -379,7 +419,12 @@ test('TransitionSeries.Sequence duration overrides cascade to later sequences', 
 
 	registeredSequences.length = 0;
 	renderTransitionSeries(makeDurationOverride(18));
-	await new Promise((resolve) => setTimeout(resolve, 10));
+	await waitForRegistered(registeredSequences, (sequences) =>
+		sequences.some(
+			(sequence) =>
+				sequence.getStack() === firstStack && sequence.duration === 18,
+		),
+	);
 
 	const repeatedlyUpdatedFirstSequence = registeredSequences.find(
 		(sequence) => sequence.getStack() === firstStack,
@@ -395,4 +440,87 @@ test('TransitionSeries.Sequence duration overrides cascade to later sequences', 
 	expect(repeatedlyUpdatedSecondSequence?.from).toBe(13);
 
 	root.unmount();
+});
+
+test('TransitionSeries.Sequence owns trimBefore without shifting later sequences', async () => {
+	const registeredSequences: RegisteredSequence[] = [];
+	const div = document.createElement('div');
+	const root = createRoot(div);
+	const firstStack = 'Error\n    at FirstTrimBeforeSequence';
+	const secondStack = 'Error\n    at SecondTrimBeforeSequence';
+	const transitionStack = 'Error\n    at TrimBeforeTransition';
+
+	root.render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+			overrideIdToNodePathMappings={{}}
+			propStatuses={{}}
+			dragOverrides={{}}
+		>
+			<TransitionSeries>
+				<TransitionSeries.Sequence
+					durationInFrames={40}
+					trimBefore={12}
+					{...({stack: firstStack} as {readonly stack: string})}
+				>
+					First
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Transition
+					timing={linearTiming({durationInFrames: 10})}
+					{...({stack: transitionStack} as {readonly stack: string})}
+				/>
+				<TransitionSeries.Sequence
+					durationInFrames={30}
+					{...({stack: secondStack} as {readonly stack: string})}
+				>
+					Second
+				</TransitionSeries.Sequence>
+			</TransitionSeries>
+		</SequenceTestWrapper>,
+	);
+
+	await waitForRegistered(
+		registeredSequences,
+		(sequences) =>
+			sequences.some(
+				(sequence) =>
+					sequence.getStack() === firstStack && sequence.trimBefore === 12,
+			) &&
+			sequences.some((sequence) => sequence.getStack() === secondStack) &&
+			sequences.some((sequence) => sequence.getStack() === transitionStack),
+	);
+
+	const firstSequence = registeredSequences.find(
+		(sequence) => sequence.getStack() === firstStack,
+	);
+	const secondSequence = registeredSequences.find(
+		(sequence) => sequence.getStack() === secondStack,
+	);
+	const transition = registeredSequences.find(
+		(sequence) => sequence.getStack() === transitionStack,
+	);
+
+	root.unmount();
+
+	expect(firstSequence?.displayName).toBe('<TS.Sequence>');
+	expect(firstSequence?.controls?.componentIdentity).toBe(
+		'dev.remotion.transitions.TransitionSeries.Sequence',
+	);
+	expect(firstSequence?.trimBefore).toBe(12);
+	expect(
+		firstSequence?.controls?.currentRuntimeValueDotNotation.trimBefore,
+	).toBe(12);
+	expect(firstSequence?.controls?.schema).toHaveProperty('trimBefore');
+	expect(firstSequence?.from).toBe(0);
+	expect(firstSequence?.duration).toBe(40);
+
+	// Sequential timing still follows durationInFrames and transition overlap,
+	// not the trimBefore source offset.
+	expect(transition?.from).toBe(30);
+	expect(transition?.duration).toBe(10);
+	expect(secondSequence?.from).toBe(30);
+	expect(secondSequence?.duration).toBe(30);
+	expect(secondSequence?.trimBefore).toBe(null);
 });
