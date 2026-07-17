@@ -1,64 +1,75 @@
 import {Composition, Folder} from 'remotion';
-import {
-	LogoOnlyOnWhiteSvg,
-	LogoOnlySvg,
-	LogoOnlyWhiteSvg,
-	LogoOnWhiteSvg,
-	LogoSvg,
-	LogoWhiteSvg,
-} from './Logos';
+import type {SvgLogoVariant} from './Logos';
+import {SvgLogo} from './Logos';
+
+const logos: readonly {
+	readonly id: string;
+	readonly variant: SvgLogoVariant;
+	readonly width: number;
+	readonly height: number;
+}[] = [
+	{id: 'SvgLogo', variant: 'compact-blue', width: 410, height: 425},
+	{
+		id: 'SvgLogoOnWhite',
+		variant: 'compact-blue-on-white',
+		width: 410,
+		height: 425,
+	},
+	{id: 'SvgLogoWhite', variant: 'compact-white', width: 410, height: 425},
+	{id: 'SvgLogoOnly', variant: 'square-blue', width: 1024, height: 1024},
+	{
+		id: 'SvgLogoOnlyOnWhite',
+		variant: 'square-blue-on-white',
+		width: 1024,
+		height: 1024,
+	},
+	{
+		id: 'SvgLogoOnlyWhite',
+		variant: 'square-white',
+		width: 1024,
+		height: 1024,
+	},
+	{
+		id: 'SvgBannerLight',
+		variant: 'banner-light',
+		width: 2000,
+		height: 800,
+	},
+	{
+		id: 'SvgBannerLightOnWhite',
+		variant: 'banner-light-on-white',
+		width: 2000,
+		height: 800,
+	},
+	{
+		id: 'SvgBannerDark',
+		variant: 'banner-dark',
+		width: 2000,
+		height: 800,
+	},
+	{
+		id: 'SvgBannerDarkOnBlack',
+		variant: 'banner-dark-on-black',
+		width: 2000,
+		height: 800,
+	},
+];
 
 export const SvgLogoCompositions = () => {
 	return (
 		<Folder name="svg-logos">
-			<Composition
-				id="SvgLogo"
-				component={LogoSvg}
-				width={410}
-				height={425}
-				fps={30}
-				durationInFrames={1}
-			/>
-			<Composition
-				id="SvgLogoOnWhite"
-				component={LogoOnWhiteSvg}
-				width={410}
-				height={425}
-				fps={30}
-				durationInFrames={1}
-			/>
-			<Composition
-				id="SvgLogoWhite"
-				component={LogoWhiteSvg}
-				width={410}
-				height={425}
-				fps={30}
-				durationInFrames={1}
-			/>
-			<Composition
-				id="SvgLogoOnly"
-				component={LogoOnlySvg}
-				width={1024}
-				height={1024}
-				fps={30}
-				durationInFrames={1}
-			/>
-			<Composition
-				id="SvgLogoOnlyOnWhite"
-				component={LogoOnlyOnWhiteSvg}
-				width={1024}
-				height={1024}
-				fps={30}
-				durationInFrames={1}
-			/>
-			<Composition
-				id="SvgLogoOnlyWhite"
-				component={LogoOnlyWhiteSvg}
-				width={1024}
-				height={1024}
-				fps={30}
-				durationInFrames={1}
-			/>
+			{logos.map((logo) => (
+				<Composition
+					key={logo.id}
+					id={logo.id}
+					component={SvgLogo}
+					defaultProps={{variant: logo.variant}}
+					width={logo.width}
+					height={logo.height}
+					fps={30}
+					durationInFrames={1}
+				/>
+			))}
 		</Folder>
 	);
 };
