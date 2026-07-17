@@ -177,6 +177,7 @@ export const addCommand = async ({
 	);
 
 	const task = spawn(manager.manager, command, {
+		...StudioServerInternals.getPackageManagerSpawnOptions(manager.manager),
 		env: {
 			...process.env,
 			ADBLOCK: '1',

@@ -252,6 +252,7 @@ const runPackageManagerCommand = async ({
 	logLevel: LogLevel;
 }) => {
 	const task = spawn(manager, command, {
+		...StudioServerInternals.getPackageManagerSpawnOptions(manager),
 		env: {
 			...process.env,
 			ADBLOCK: '1',

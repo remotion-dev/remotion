@@ -51,6 +51,7 @@ import {
 	getMaxTimelineTracks,
 	setMaxTimelineTracks,
 } from './max-timeline-tracks';
+import {getPackageManagerSpawnOptions} from './package-manager-spawn';
 import {
 	getPackageManager,
 	lockFilePaths,
@@ -65,6 +66,7 @@ export const StudioServerInternals = {
 	waitForLiveEventsListener,
 	lockFilePaths,
 	getPackageManager,
+	getPackageManagerSpawnOptions,
 	getMaxTimelineTracks,
 	setMaxTimelineTracks,
 	getLatestRemotionVersion,

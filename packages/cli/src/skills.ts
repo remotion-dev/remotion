@@ -1,5 +1,6 @@
 import {spawn} from 'node:child_process';
 import type {LogLevel} from '@remotion/renderer';
+import {StudioServerInternals} from '@remotion/studio-server';
 import {chalk} from './chalk';
 import {Log} from './log';
 
@@ -34,7 +35,7 @@ export const skillsCommand = (args: string[], logLevel: LogLevel) => {
 		return;
 	}
 
-	const command = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+	const command = 'npx';
 	const fullArgs = [
 		'-y',
 		'--loglevel=error',
@@ -45,6 +46,7 @@ export const skillsCommand = (args: string[], logLevel: LogLevel) => {
 	];
 
 	const child = spawn(command, fullArgs, {
+		...StudioServerInternals.getPackageManagerSpawnOptions(command),
 		stdio: 'inherit',
 	});
 

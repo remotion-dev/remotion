@@ -1,8 +1,12 @@
 import {expect, test} from 'bun:test';
 import {getPackageManagerSpawnOptions} from '../package-manager-spawn';
 
-test('Windows npm/yarn/pnpm need shell so .cmd shims can launch', () => {
+test('Windows npm/npx/yarn/pnpm need shell so .cmd shims can launch', () => {
 	expect(getPackageManagerSpawnOptions('npm', 'win32')).toEqual({
+		shell: true,
+		windowsHide: true,
+	});
+	expect(getPackageManagerSpawnOptions('npx', 'win32')).toEqual({
 		shell: true,
 		windowsHide: true,
 	});
