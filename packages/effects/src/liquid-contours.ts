@@ -15,14 +15,14 @@ const {createEffect, createWebGL2ContextError} = Internals;
 
 const DEFAULT_FIRST_COLOR = '#ff1a0a' as const;
 const DEFAULT_SECOND_COLOR = '#050505' as const;
-const DEFAULT_SPACING = 90 as const;
-const DEFAULT_SCALE = 320 as const;
-const DEFAULT_COMPLEXITY = 0.2 as const;
-const DEFAULT_SMOOTHNESS = 0.75 as const;
-const DEFAULT_SEED = 0 as const;
-const DEFAULT_OFFSET_X = 0 as const;
+const DEFAULT_SPACING = 62 as const;
+const DEFAULT_SCALE = 300 as const;
+const DEFAULT_COMPLEXITY = 0 as const;
+const DEFAULT_SMOOTHNESS = 1 as const;
+const DEFAULT_SEED = 4 as const;
+const DEFAULT_OFFSET_X = 13.4 as const;
 const DEFAULT_OFFSET_Y = 0 as const;
-const DEFAULT_PHASE = 0 as const;
+const DEFAULT_PHASE = 3.23 as const;
 
 export const liquidContoursSchema = {
 	firstColor: {
@@ -106,21 +106,21 @@ export type LiquidContoursParams = {
 	readonly firstColor?: string;
 	/** Second alternating band color. Defaults to `#050505`. */
 	readonly secondColor?: string;
-	/** Width of a pair of bands in pixels. Defaults to `90`. */
+	/** Width of a pair of bands in pixels. Defaults to `62`. */
 	readonly spacing?: number;
-	/** Size of the generated shapes in pixels. Defaults to `320`. */
+	/** Size of the generated shapes in pixels. Defaults to `300`. */
 	readonly scale?: number;
-	/** Amount of small-scale detail from `0` to `1`. Defaults to `0.2`. */
+	/** Amount of small-scale detail from `0` to `1`. Defaults to `0`. */
 	readonly complexity?: number;
-	/** Edge softness from `0` to `1`. Defaults to `0.75`. */
+	/** Edge softness from `0` to `1`. Defaults to `1`. */
 	readonly smoothness?: number;
-	/** Deterministic seed. Defaults to `0`. */
+	/** Deterministic seed. Defaults to `4`. */
 	readonly seed?: number;
-	/** Horizontal pattern offset in pixels. Defaults to `0`. */
+	/** Horizontal pattern offset in pixels. Defaults to `13.4`. */
 	readonly offsetX?: number;
 	/** Vertical pattern offset in pixels. Defaults to `0`. */
 	readonly offsetY?: number;
-	/** Shifts the alternating bands. Defaults to `0`. */
+	/** Shifts the alternating bands. Defaults to `3.23`. */
 	readonly phase?: number;
 };
 

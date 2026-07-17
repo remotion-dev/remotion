@@ -35,12 +35,13 @@ export const MyComp: React.FC = () => {
         liquidContours({
           firstColor: '#ff1a0a',
           secondColor: '#050505',
-          spacing: 90,
-          scale: 320,
-          complexity: 0.2,
-          smoothness: 0.75,
-          seed: 3,
-          phase: frame / 90,
+          spacing: 62,
+          scale: 300,
+          complexity: 0,
+          smoothness: 1,
+          seed: 4,
+          offsetX: 13.4,
+          phase: 3.23 + frame / 90,
         }),
       ]}
     />
@@ -62,29 +63,29 @@ Color of the second set of alternating bands. Defaults to `'#050505'`.
 
 ### `spacing?`
 
-Width of a pair of bands in pixels. Defaults to `90`. Must be greater than `0`.
+Width of a pair of bands in pixels. Defaults to `62`. Must be greater than `0`.
 
 ### `scale?`
 
-Size of the generated shapes in pixels. Defaults to `320`. Must be greater than `0`.
+Size of the generated shapes in pixels. Defaults to `300`. Must be greater than `0`.
 
 ### `complexity?`
 
-Amount of small-scale detail from `0` to `1`. Defaults to `0.2`.
+Amount of small-scale detail from `0` to `1`. Defaults to `0`.
 
 ### `smoothness?`
 
-Edge softness from `0` to `1`. Defaults to `0.75`.
+Edge softness from `0` to `1`. Defaults to `1`.
 
 ### `seed?`
 
-Seed for the deterministic contour field. Defaults to `0`.
+Seed for the deterministic contour field. Defaults to `4`.
 
 Change it to generate a different pattern.
 
 ### `offsetX?`
 
-Horizontal pattern offset in pixels. Defaults to `0`.
+Horizontal pattern offset in pixels. Defaults to `13.4`.
 
 ### `offsetY?`
 
@@ -92,7 +93,7 @@ Vertical pattern offset in pixels. Defaults to `0`.
 
 ### `phase?`
 
-Shifts the alternating bands. Defaults to `0`.
+Shifts the alternating bands. Defaults to `3.23`.
 
 Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) to make the bands flow.
 

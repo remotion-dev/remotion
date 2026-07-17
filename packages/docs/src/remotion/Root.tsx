@@ -759,14 +759,14 @@ export const RemotionRoot: React.FC = () => {
 					defaultProps={{
 						firstColor: '#ff1a0a',
 						secondColor: '#050505',
-						spacing: 90,
-						scale: 320,
-						complexity: 0.2,
-						smoothness: 0.75,
-						seed: 3,
-						offsetX: 0,
+						spacing: 62,
+						scale: 300,
+						complexity: 0,
+						smoothness: 1,
+						seed: 4,
+						offsetX: 13.4,
 						offsetY: 0,
-						phase: 0,
+						phase: 3.23,
 					}}
 				/>
 				<Still

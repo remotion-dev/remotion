@@ -28,7 +28,7 @@ import {linearGradient} from '../linear-gradient.js';
 import {linearProgressiveBlur} from '../linear-progressive-blur/index.js';
 import {linearProgressivePixelate} from '../linear-progressive-pixelate/index.js';
 import {lines} from '../lines.js';
-import {liquidContours} from '../liquid-contours.js';
+import {liquidContours, liquidContoursSchema} from '../liquid-contours.js';
 import {mirror} from '../mirror.js';
 import {
 	noiseDisplacement,
@@ -3734,6 +3734,7 @@ test('uvTranslate() offsets produce distinct effect keys', () => {
 
 test('liquidContours() accepts default params', () => {
 	expect(() => liquidContours()).not.toThrow();
+	expect(liquidContoursSchema.scale.default).toBe(300);
 });
 
 test('liquidContours() validates colors', () => {

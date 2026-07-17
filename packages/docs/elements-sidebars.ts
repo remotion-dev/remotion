@@ -17,6 +17,7 @@ const sidebars: SidebarsConfig = {
 			link: {type: 'doc', id: 'backgrounds/index'},
 			collapsed: false,
 			items: [
+				'backgrounds/liquid-contours/index',
 				'backgrounds/paper-texture/index',
 				'backgrounds/rotating-starburst/index',
 			],

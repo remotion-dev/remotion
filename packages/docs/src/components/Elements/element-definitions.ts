@@ -1,4 +1,5 @@
 import type {ComponentType} from 'react';
+import {LiquidContours} from '../../../elements/backgrounds/liquid-contours/liquid-contours';
 import {PaperTexture} from '../../../elements/backgrounds/paper-texture/paper-texture';
 import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburst/rotating-starburst';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
@@ -27,6 +28,23 @@ export type ElementDefinition = {
 };
 
 export const elementDefinitions = {
+	'backgrounds/liquid-contours': {
+		category: 'backgrounds',
+		component: LiquidContours,
+		contributors: [],
+		description:
+			'A flowing two-color background made from animated liquid contour bands.',
+		displayName: 'Liquid Contours',
+		durationInFrames: 240,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 120,
+		previewPadding: 0,
+		slug: 'backgrounds/liquid-contours',
+		width: 1920,
+	},
 	'backgrounds/paper-texture': {
 		category: 'backgrounds',
 		component: PaperTexture,
