@@ -2,6 +2,7 @@ import {spawn} from 'node:child_process';
 import {platform} from 'node:os';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
+import {getWindowsExplorerSelectArgs} from './windows-explorer-select';
 
 export const openDirectoryInFinder = (
 	dirToOpen: string,
@@ -15,7 +16,9 @@ export const openDirectoryInFinder = (
 	}
 
 	if (platform() === 'win32') {
-		const proc = spawn('explorer.exe', ['/select,', resolved]);
+		const proc = spawn('explorer.exe', getWindowsExplorerSelectArgs(resolved), {
+			windowsHide: true,
+		});
 
 		return new Promise<void>((resolve, reject) => {
 			proc.on('exit', (code) => {
