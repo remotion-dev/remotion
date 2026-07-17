@@ -9,8 +9,8 @@ export const LocationLowerThird: React.FC = () => {
 			name="Container"
 			style={{
 				position: 'relative',
-				width: 440,
-				height: 156,
+				width: 680,
+				height: 138,
 				boxSizing: 'border-box',
 				fontFamily: 'Arial, Helvetica, sans-serif',
 			}}
@@ -20,10 +20,10 @@ export const LocationLowerThird: React.FC = () => {
 				viewBox="0 0 64 80"
 				style={{
 					position: 'absolute',
-					left: 32,
-					top: 3,
-					width: 120,
-					height: 150,
+					left: 152,
+					top: 4,
+					width: 104,
+					height: 130,
 					overflow: 'visible',
 					filter: 'drop-shadow(0 6px 8px rgba(24, 24, 27, 0.14))',
 					opacity: interpolate(frame, [0, 9, 108, 119], [0, 1, 1, 0], {
@@ -45,7 +45,7 @@ export const LocationLowerThird: React.FC = () => {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					}),
-					transformOrigin: '60px 145px',
+					transformOrigin: '52px 126px',
 				}}
 			>
 				<path
@@ -87,17 +87,17 @@ export const LocationLowerThird: React.FC = () => {
 			<div
 				style={{
 					position: 'absolute',
-					left: 168,
-					top: 8,
-					width: 272,
-					height: 140,
+					left: 280,
+					top: 3,
+					width: 248,
+					height: 132,
 					display: 'flex',
 					flexDirection: 'column',
 				}}
 			>
 				<div
 					style={{
-						height: 96,
+						height: 82,
 						display: 'flex',
 						alignItems: 'center',
 						overflow: 'hidden',
@@ -108,12 +108,12 @@ export const LocationLowerThird: React.FC = () => {
 						dir="auto"
 						style={{
 							minWidth: 0,
-							maxWidth: 272,
+							maxWidth: 248,
 							overflow: 'hidden',
 							color: '#18181b',
-							fontSize: 64,
-							fontWeight: 600,
-							letterSpacing: -1.3,
+							fontSize: 54,
+							fontWeight: 700,
+							letterSpacing: -1,
 							lineHeight: 1,
 							textOverflow: 'ellipsis',
 							whiteSpace: 'nowrap',
@@ -139,7 +139,7 @@ export const LocationLowerThird: React.FC = () => {
 
 				<div
 					style={{
-						width: interpolate(frame, [20, 34, 91, 104], [0, 240, 240, 0], {
+						width: interpolate(frame, [20, 34, 91, 104], [0, 248, 248, 0], {
 							easing: Easing.out(Easing.cubic),
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
@@ -162,11 +162,11 @@ export const LocationLowerThird: React.FC = () => {
 						dir="auto"
 						style={{
 							minWidth: 0,
-							maxWidth: 272,
+							maxWidth: 248,
 							overflow: 'hidden',
-							color: '#3f3f46',
-							fontSize: 28,
-							fontWeight: 600,
+							color: '#52525b',
+							fontSize: 29,
+							fontWeight: 500,
 							lineHeight: 1,
 							textOverflow: 'ellipsis',
 							whiteSpace: 'nowrap',
