@@ -109,37 +109,6 @@ export const getSequenceContextMenuItems = ({
 			subMenu: null,
 			value: 'copy-file-location',
 		},
-		isInteractiveSvg
-			? {
-					type: 'item' as const,
-					id: 'copy-svg',
-					keyHint: null,
-					label: 'Copy SVG',
-					leftItem: null,
-					disabled: !sequence.refForOutline?.current,
-					onClick: () => {
-						const svg = sequence.refForOutline?.current;
-						if (!svg) {
-							return;
-						}
-
-						navigator.clipboard
-							.writeText(svg.outerHTML)
-							.then(() => {
-								showNotification('Copied SVG to clipboard', 1000);
-							})
-							.catch((err) => {
-								showNotification(
-									`Could not copy to clipboard: ${(err as Error).message}`,
-									1000,
-								);
-							});
-					},
-					quickSwitcherLabel: null,
-					subMenu: null,
-					value: 'copy-svg',
-				}
-			: null,
 		documentationLink
 			? {
 					type: 'item' as const,
@@ -176,6 +145,43 @@ export const getSequenceContextMenuItems = ({
 			? {
 					type: 'divider' as const,
 					id: 'sequence-link-divider',
+				}
+			: null,
+		isInteractiveSvg
+			? {
+					type: 'item' as const,
+					id: 'copy-svg',
+					keyHint: null,
+					label: 'Copy SVG',
+					leftItem: null,
+					disabled: !sequence.refForOutline?.current,
+					onClick: () => {
+						const svg = sequence.refForOutline?.current;
+						if (!svg) {
+							return;
+						}
+
+						navigator.clipboard
+							.writeText(svg.outerHTML)
+							.then(() => {
+								showNotification('Copied SVG to clipboard', 1000);
+							})
+							.catch((err) => {
+								showNotification(
+									`Could not copy to clipboard: ${(err as Error).message}`,
+									1000,
+								);
+							});
+					},
+					quickSwitcherLabel: null,
+					subMenu: null,
+					value: 'copy-svg',
+				}
+			: null,
+		isInteractiveSvg
+			? {
+					type: 'divider' as const,
+					id: 'copy-svg-divider',
 				}
 			: null,
 		sourceActions.length > 0

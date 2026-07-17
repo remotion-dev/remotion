@@ -135,7 +135,7 @@ test('Interactive.Svg context menu can copy the rendered SVG', () => {
 			controls: {
 				componentIdentity: 'dev.remotion.remotion.Interactive.Svg',
 			},
-			documentationLink: null,
+			documentationLink: 'https://www.remotion.dev/docs/interactive',
 			refForOutline: {
 				current: {outerHTML: '<svg><circle /></svg>'},
 			},
@@ -149,6 +149,15 @@ test('Interactive.Svg context menu can copy the rendered SVG', () => {
 
 	copySvg.onClick('copy-svg', null);
 	expect(copiedTexts).toEqual(['<svg><circle /></svg>']);
+
+	const docsIndex = items.findIndex(
+		(item) => item.id === 'open-component-docs',
+	);
+	const copySvgIndex = items.findIndex((item) => item.id === 'copy-svg');
+	expect(
+		items.slice(docsIndex + 1, copySvgIndex).map((item) => item.type),
+	).toEqual(['divider']);
+	expect(items[copySvgIndex + 1]?.type).toBe('divider');
 });
 
 test('sequence freeze context menu item is hidden for audio', () => {
