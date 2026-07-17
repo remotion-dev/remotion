@@ -10,6 +10,7 @@ import {
 	registerClientRender,
 	saveOutputFile,
 } from '../../api/save-render-output';
+import {isDevelopmentRenderHost} from '../../helpers/is-development-render-host';
 import type {
 	ClientRenderJob,
 	ClientRenderJobProgress,
@@ -18,6 +19,14 @@ import type {
 	GetBlobCallback,
 } from './client-side-render-types';
 import {RenderQueueContext} from './context';
+
+const getIsProductionClientRender = (): boolean => {
+	if (typeof window === 'undefined') {
+		return true;
+	}
+
+	return !isDevelopmentRenderHost(window.location.hostname);
+};
 
 type RenderResult = {
 	getBlob: GetBlobCallback;
@@ -77,6 +86,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 					mediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
 					logLevel: job.logLevel,
 					licenseKey: job.licenseKey ?? undefined,
+					isProduction: getIsProductionClientRender(),
 					scale: job.scale,
 					signal,
 				})
@@ -145,6 +155,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 				},
 				outputTarget: 'web-fs',
 				licenseKey: job.licenseKey ?? undefined,
+				isProduction: getIsProductionClientRender(),
 				pageResponsiveness: job.pageResponsiveness,
 			});
 

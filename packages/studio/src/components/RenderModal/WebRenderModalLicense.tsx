@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
 	BLUE,
 	INPUT_BACKGROUND,
@@ -6,6 +6,7 @@ import {
 	LIGHT_TEXT,
 	WHITE,
 } from '../../helpers/colors';
+import {getClientRenderBillingHint} from '../../helpers/is-development-render-host';
 import {Checkbox} from '../Checkbox';
 import {Spacing} from '../layout';
 import {RemotionInput} from '../NewComposition/RemInput';
@@ -212,8 +213,21 @@ export const WebRenderModalLicense: React.FC<WebRenderModalLicenseProps> = ({
 			[setLicenseKey],
 		);
 
+	const billingHint = useMemo(() => {
+		if (typeof window === 'undefined') {
+			return null;
+		}
+
+		return getClientRenderBillingHint(window.location.hostname);
+	}, []);
+
 	return (
 		<div style={tabContainer}>
+			{billingHint ? (
+				<div style={{...paddedDescriptionStyle, marginTop: 16}}>
+					{billingHint}
+				</div>
+			) : null}
 			<div style={descriptionStyle}>
 				Remotion is free if you are an individual or company with a headcount of
 				3 or less. See{' '}
