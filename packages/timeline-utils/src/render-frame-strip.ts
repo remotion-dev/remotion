@@ -6,7 +6,36 @@ import {
 } from './frame-database';
 
 export const WEBCODECS_TIMESCALE = 1_000_000;
-const MAX_TIME_DEVIATION = WEBCODECS_TIMESCALE * 0.05;
+export const MAX_TIME_DEVIATION = WEBCODECS_TIMESCALE * 0.05;
+
+export const getBestCachedFrameKeyForTimestamp = ({
+	keys,
+	timestamp,
+	maxDeviation = MAX_TIME_DEVIATION,
+}: {
+	keys: readonly FrameDatabaseKey[];
+	timestamp: number;
+	maxDeviation?: number;
+}): FrameDatabaseKey | null => {
+	let bestKey: FrameDatabaseKey | undefined;
+	let bestDistance = Infinity;
+
+	for (const key of keys) {
+		const distance = Math.abs(
+			getTimestampFromFrameDatabaseKey(key) - timestamp,
+		);
+		if (distance < bestDistance) {
+			bestDistance = distance;
+			bestKey = key;
+		}
+	}
+
+	if (!bestKey || bestDistance > maxDeviation) {
+		return null;
+	}
+
+	return bestKey;
+};
 
 export const getDurationOfOneFrame = ({
 	visualizationWidth,
@@ -171,17 +200,10 @@ export const fillWithCachedFrames = ({
 	const targets = Array.from(filledSlots.keys());
 
 	for (const timestamp of targets) {
-		let bestKey: FrameDatabaseKey | undefined;
-		let bestDistance = Infinity;
-		for (const key of keys) {
-			const distance = Math.abs(
-				getTimestampFromFrameDatabaseKey(key) - timestamp,
-			);
-			if (distance < bestDistance) {
-				bestDistance = distance;
-				bestKey = key;
-			}
-		}
+		const bestKey = getBestCachedFrameKeyForTimestamp({
+			keys,
+			timestamp,
+		});
 
 		if (!bestKey) {
 			continue;

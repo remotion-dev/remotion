@@ -1,7 +1,8 @@
 import type {VideoConfig} from 'remotion';
+import {SEQUENCE_BORDER_WIDTH} from './sequence-border-width';
 import {TIMELINE_PADDING} from './timeline-layout';
 
-export const SEQUENCE_BORDER_WIDTH = 1;
+export {SEQUENCE_BORDER_WIDTH} from './sequence-border-width';
 
 const getWidthOfTrack = ({
 	durationInFrames,

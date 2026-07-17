@@ -37,7 +37,9 @@ export {
 	ensureSlots,
 	fillFrameWhereItFits,
 	fillWithCachedFrames,
+	getBestCachedFrameKeyForTimestamp,
 	getDurationOfOneFrame,
+	MAX_TIME_DEVIATION,
 	WEBCODECS_TIMESCALE,
 } from './render-frame-strip';
 export {renderFrameStripToCanvas} from './render-frame-strip-to-canvas';
