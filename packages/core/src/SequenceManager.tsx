@@ -118,7 +118,7 @@ export type CanUpdateSequencePropsResponse =
 export const makeSequencePropsSubscriptionKey = (
 	key: SequencePropsSubscriptionKey,
 ): string => {
-	return `${key.nodePath.join('.')}.${key.sequenceKeys.join('.')}.${key.effectKeys.map((keys) => keys.join('.')).join('.')}`;
+	return `${key.absolutePath}\0${key.nodePath.join('.')}\0${key.sequenceKeys.join('.')}\0${key.effectKeys.map((keys) => keys.join('.')).join('.')}`;
 };
 
 export const VisualModePropStatusesContext =
