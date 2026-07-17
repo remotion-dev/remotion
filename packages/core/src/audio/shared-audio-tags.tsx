@@ -639,7 +639,9 @@ export const SharedAudioTagsContextProvider: React.FC<{
 						prevA.premounting === premounting &&
 						prevA.postmounting === postmounting;
 					if (isTheSame) {
-						return prevA;
+						return prevA.audioMounted === audioMounted
+							? prevA
+							: {...prevA, audioMounted};
 					}
 
 					changed = true;
@@ -654,7 +656,9 @@ export const SharedAudioTagsContextProvider: React.FC<{
 					};
 				}
 
-				return prevA;
+				return prevA.audioMounted === audioMounted
+					? prevA
+					: {...prevA, audioMounted};
 			});
 
 			if (changed) {
