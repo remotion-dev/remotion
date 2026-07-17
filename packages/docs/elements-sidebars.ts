@@ -18,6 +18,7 @@ const sidebars: SidebarsConfig = {
 			collapsed: false,
 			items: [
 				'backgrounds/liquid-contours/index',
+				'backgrounds/notebook-paper/index',
 				'backgrounds/paper-texture/index',
 				'backgrounds/rotating-starburst/index',
 			],

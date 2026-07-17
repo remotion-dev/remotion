@@ -1,5 +1,6 @@
 import type {ComponentType} from 'react';
 import {LiquidContours} from '../../../elements/backgrounds/liquid-contours/liquid-contours';
+import {NotebookPaper} from '../../../elements/backgrounds/notebook-paper/notebook-paper';
 import {PaperTexture} from '../../../elements/backgrounds/paper-texture/paper-texture';
 import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburst/rotating-starburst';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
@@ -43,6 +44,22 @@ export const elementDefinitions = {
 		posterFrame: 120,
 		previewPadding: 0,
 		slug: 'backgrounds/liquid-contours',
+		width: 1920,
+	},
+	'backgrounds/notebook-paper': {
+		category: 'backgrounds',
+		component: NotebookPaper,
+		contributors: [],
+		description: 'A white paper background with subtle blue gridlines.',
+		displayName: 'Notebook Paper',
+		durationInFrames: 120,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 0,
+		previewPadding: 0,
+		slug: 'backgrounds/notebook-paper',
 		width: 1920,
 	},
 	'backgrounds/paper-texture': {
