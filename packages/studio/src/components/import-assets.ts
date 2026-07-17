@@ -441,11 +441,15 @@ const getAssetElementFromStaticAsset = async (
 	return getAssetElementFromPath(assetPath);
 };
 
-export const pickFilesToImport = (): Promise<File[]> => {
+export const pickFilesToImport = ({
+	multiple = true,
+}: {
+	readonly multiple?: boolean;
+} = {}): Promise<File[]> => {
 	return new Promise((resolve) => {
 		const input = document.createElement('input');
 		input.type = 'file';
-		input.multiple = true;
+		input.multiple = multiple;
 		input.style.display = 'none';
 
 		let didResolve = false;

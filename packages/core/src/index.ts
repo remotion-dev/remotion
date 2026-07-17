@@ -17,6 +17,7 @@ import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {Folder, type TFolder} from './Folder.js';
 import type {StaticFile} from './get-static-files.js';
 import type {
+	AssetFieldSchema,
 	ArrayFieldSchema,
 	ArrayItemFieldSchema,
 	InteractivitySchemaField,
@@ -333,6 +334,7 @@ export type _InternalTypes = {
 
 export type {
 	AnyComposition,
+	AssetFieldSchema,
 	ArrayFieldSchema,
 	ArrayItemFieldSchema,
 	DelayRenderScope,

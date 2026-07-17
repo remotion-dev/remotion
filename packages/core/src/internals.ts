@@ -101,6 +101,7 @@ import {
 	sequenceVisualStyleSchema,
 	textSchema,
 	transformSchema,
+	type AssetFieldSchema,
 	type ArrayFieldSchema,
 	type ArrayItemFieldSchema,
 	type InteractivitySchemaField,
@@ -424,6 +425,7 @@ export const Internals = {
 
 export type {
 	ArrayFieldSchema,
+	AssetFieldSchema,
 	ArrayItemFieldSchema,
 	CannotUpdateSequenceReason,
 	CanUpdateEffectPropsResponse,
