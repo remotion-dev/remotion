@@ -2034,6 +2034,15 @@ export const articles = [
 		slug: 'effects/lines',
 	},
 	{
+		id: 'effects/liquid-contours',
+		title: 'liquidContours()',
+		relativePath: 'docs/effects/liquid-contours.mdx',
+		compId: 'articles-docs-effects-liquid-contours',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/liquid-contours',
+	},
+	{
 		id: 'effects/mirror',
 		title: 'mirror()',
 		relativePath: 'docs/effects/mirror.mdx',

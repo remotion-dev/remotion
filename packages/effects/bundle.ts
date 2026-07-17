@@ -33,6 +33,7 @@ const effectEntrypoints = [
 	'src/pixelate.ts',
 	'src/invert.ts',
 	'src/lines.ts',
+	'src/liquid-contours.ts',
 	'src/linear-gradient.ts',
 	'src/linear-gradient-tint.ts',
 	'src/linear-progressive-blur.ts',

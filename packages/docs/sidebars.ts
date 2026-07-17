@@ -302,6 +302,7 @@ const sidebars: SidebarsConfig = {
 				'effects/linear-progressive-pixelate',
 				'effects/light-trail',
 				'effects/lines',
+				'effects/liquid-contours',
 				'effects/mirror',
 				'effects/noise',
 				'effects/noise-displacement',

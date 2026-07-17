@@ -1,0 +1,112 @@
+---
+image: /generated/articles-docs-effects-liquid-contours.png
+slug: /effects/liquid-contours
+title: liquidContours()
+sidebar_label: liquidContours()
+crumb: '@remotion/effects'
+---
+
+# liquidContours()<AvailableFrom v="4.0.491" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Generates a two-color liquid contour background with broad, warped topographic bands.
+
+The effect replaces the source pixels. Use [`contourLines()`](/docs/effects/contour-lines) to draw thin contour lines over existing content instead.
+
+## Preview
+
+<EffectsDemo type="effects-liquid-contours" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {liquidContours} from '@remotion/effects/liquid-contours';
+import {Solid, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <Solid
+      width={1280}
+      height={720}
+      effects={[
+        liquidContours({
+          firstColor: '#ff1a0a',
+          secondColor: '#050505',
+          spacing: 90,
+          scale: 320,
+          complexity: 0.2,
+          smoothness: 0.75,
+          seed: 3,
+          phase: frame / 90,
+        }),
+      ]}
+    />
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `liquidContours()` without arguments.
+
+### `firstColor?`
+
+Color of the first set of alternating bands. Defaults to `'#ff1a0a'`.
+
+### `secondColor?`
+
+Color of the second set of alternating bands. Defaults to `'#050505'`.
+
+### `spacing?`
+
+Width of a pair of bands in pixels. Defaults to `90`. Must be greater than `0`.
+
+### `scale?`
+
+Size of the generated shapes in pixels. Defaults to `320`. Must be greater than `0`.
+
+### `complexity?`
+
+Amount of small-scale detail from `0` to `1`. Defaults to `0.2`.
+
+### `smoothness?`
+
+Edge softness from `0` to `1`. Defaults to `0.75`.
+
+### `seed?`
+
+Seed for the deterministic contour field. Defaults to `0`.
+
+Change it to generate a different pattern.
+
+### `offsetX?`
+
+Horizontal pattern offset in pixels. Defaults to `0`.
+
+### `offsetY?`
+
+Vertical pattern offset in pixels. Defaults to `0`.
+
+### `phase?`
+
+Shifts the alternating bands. Defaults to `0`.
+
+Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) to make the bands flow.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`liquidContours()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`contourLines()`](/docs/effects/contour-lines)
+- [`rings()`](/docs/effects/rings)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/liquid-contours.ts)
