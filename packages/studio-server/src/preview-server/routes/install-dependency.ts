@@ -8,6 +8,7 @@ import {
 } from '@remotion/studio-shared';
 import {VERSION} from 'remotion/version';
 import {getInstallCommand} from '../../helpers/install-command';
+import {getPackageManagerSpawnOptions} from '../../package-manager-spawn';
 import type {ApiHandler} from '../api-types';
 import {getPackageManager, lockFilePaths} from '../get-package-manager';
 
@@ -74,7 +75,12 @@ export const handleInstallPackage: ApiHandler<
 	const time = Date.now();
 	try {
 		await new Promise<void>((resolve, reject) => {
-			const cmd = spawn(manager.manager, command, {});
+			const cmd = spawn(
+				manager.manager,
+				command,
+				getPackageManagerSpawnOptions(manager.manager),
+			);
+			cmd.on('error', reject);
 			cmd.stdout.on('data', (d: Buffer) => {
 				const splitted = d.toString().trim().split('\n');
 				splitted.forEach((line) => {
