@@ -39,6 +39,7 @@ import {
 	LINEAR_PROGRESSIVE_PIXELATE_PREVIEW_PARAMS,
 } from '../../components/effects/effects-linear-progressive-pixelate-preview';
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
+import {EffectsLiquidContoursPreview} from '../../components/effects/effects-liquid-contours-preview';
 import {EffectsMirrorPreview} from '../../components/effects/effects-mirror-preview';
 import {
 	EffectsNoiseDisplacementPreview,
@@ -748,6 +749,24 @@ export const RemotionRoot: React.FC = () => {
 						offsetY: 0,
 						opacity: 0.65,
 						maskToSourceAlpha: false,
+					}}
+				/>
+				<Still
+					id="effects-liquid-contours-preview"
+					component={EffectsLiquidContoursPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						firstColor: '#ff1a0a',
+						secondColor: '#050505',
+						spacing: 62,
+						scale: 300,
+						complexity: 0,
+						smoothness: 1,
+						seed: 4,
+						offsetX: 13.4,
+						offsetY: 0,
+						phase: 3.23,
 					}}
 				/>
 				<Still

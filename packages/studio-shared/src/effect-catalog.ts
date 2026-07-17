@@ -653,6 +653,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-liquid-contours',
+		category: 'Generate',
+		label: 'liquidContours()',
+		description: 'Two-color liquid contour background',
+		effect: {
+			name: 'liquidContours',
+			importPath: '@remotion/effects/liquid-contours',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-checkerboard',
 		category: 'Generate',
 		label: 'checkerboard()',

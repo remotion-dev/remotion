@@ -169,6 +169,11 @@
 			"module": "./dist/esm/linear-gradient-tint.mjs",
 			"import": "./dist/esm/linear-gradient-tint.mjs"
 		},
+		"./liquid-contours": {
+			"types": "./dist/liquid-contours.d.ts",
+			"module": "./dist/esm/liquid-contours.mjs",
+			"import": "./dist/esm/liquid-contours.mjs"
+		},
 		"./linear-progressive-blur": {
 			"types": "./dist/linear-progressive-blur.d.ts",
 			"module": "./dist/esm/linear-progressive-blur.mjs",
@@ -403,6 +408,9 @@
 			],
 			"linear-gradient-tint": [
 				"dist/linear-gradient-tint.d.ts"
+			],
+			"liquid-contours": [
+				"dist/liquid-contours.d.ts"
 			],
 			"linear-progressive-blur": [
 				"dist/linear-progressive-blur.d.ts"
