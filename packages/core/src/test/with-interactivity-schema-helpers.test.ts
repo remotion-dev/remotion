@@ -254,18 +254,25 @@ test('textSchema exposes common text style fields', () => {
 		step: 0.05,
 		hiddenFromList: false,
 	});
-	expect(Object.keys(textSchema['style.fontWeight'].variants)).toEqual([
-		'100',
-		'200',
-		'300',
-		'400',
-		'500',
-		'600',
-		'700',
-		'800',
-		'900',
+	expect(textSchema['style.fontWeight']).toMatchObject({
+		type: 'font-weight',
+		default: undefined,
+		min: 1,
+		max: 1000,
+		step: 1,
+	});
+	expect(textSchema['style.fontWeight'].presets).toEqual([
 		'normal',
 		'bold',
+		100,
+		200,
+		300,
+		400,
+		500,
+		600,
+		700,
+		800,
+		900,
 	]);
 	expect(Object.keys(textSchema['style.fontStyle'].variants)).toEqual([
 		'normal',
@@ -429,4 +436,74 @@ test('end-to-end: layout=none drops style.scale from active props', () => {
 test('getNestedValue returns undefined for missing nested keys', () => {
 	expect(getNestedValue({a: {}}, 'a.b.c')).toBeUndefined();
 	expect(getNestedValue({a: {b: 1}}, 'a.b')).toBe(1);
+});
+
+test('fontWeight is a numeric font-weight field, not a 100-step enum', () => {
+	const fontWeight = textSchema['style.fontWeight'];
+	expect(fontWeight.type).toBe('font-weight');
+	// step 1 (not 100) is what makes an arbitrary weight like 650 valid and
+	// prevents snapping to the nearest 100.
+	expect(fontWeight.step).toBe(1);
+	expect(fontWeight.min).toBe(1);
+	expect(fontWeight.max).toBe(1000);
+	// 650 is a valid weight but not a quick preset; it lives in the 1..1000 range.
+	expect(fontWeight.presets).not.toContain(650);
+	expect(fontWeight.presets).toContain(700);
+	expect(fontWeight.presets).toContain('normal');
+	expect(fontWeight.presets).toContain('bold');
+});
+
+test('fontWeight: 650 is read from props and preserved as a number', () => {
+	const props = {style: {fontWeight: 650}};
+	const values = readValuesFromProps(props, ['style.fontWeight']);
+	expect(values['style.fontWeight']).toBe(650);
+	expect(typeof values['style.fontWeight']).toBe('number');
+
+	const merged = mergeValues({
+		flatSchema: getFlatSchemaWithAllKeys(textSchema),
+		props,
+		valuesDotNotation: values,
+		schemaKeys: ['style.fontWeight'],
+		propsToDelete: new Set(),
+	});
+	// The exact numeric value is written back unchanged and stays a number.
+	expect((merged.style as {fontWeight: unknown}).fontWeight).toBe(650);
+	expect(typeof (merged.style as {fontWeight: unknown}).fontWeight).toBe(
+		'number',
+	);
+});
+
+test('fontWeight string presets normal and bold survive as strings', () => {
+	for (const weight of ['normal', 'bold'] as const) {
+		const props = {style: {fontWeight: weight}};
+		const values = readValuesFromProps(props, ['style.fontWeight']);
+		expect(values['style.fontWeight']).toBe(weight);
+
+		const merged = mergeValues({
+			flatSchema: getFlatSchemaWithAllKeys(textSchema),
+			props,
+			valuesDotNotation: values,
+			schemaKeys: ['style.fontWeight'],
+			propsToDelete: new Set(),
+		});
+		expect((merged.style as {fontWeight: unknown}).fontWeight).toBe(weight);
+		expect(typeof (merged.style as {fontWeight: unknown}).fontWeight).toBe(
+			'string',
+		);
+	}
+});
+
+test('editing fontWeight to a new number saves a number, not a string', () => {
+	const props = {style: {fontWeight: 650}};
+	const merged = mergeValues({
+		flatSchema: getFlatSchemaWithAllKeys(textSchema),
+		props,
+		valuesDotNotation: {'style.fontWeight': 725},
+		schemaKeys: ['style.fontWeight'],
+		propsToDelete: new Set(),
+	});
+	expect((merged.style as {fontWeight: unknown}).fontWeight).toBe(725);
+	expect(typeof (merged.style as {fontWeight: unknown}).fontWeight).toBe(
+		'number',
+	);
 });

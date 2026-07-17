@@ -112,6 +112,19 @@ export type FontFamilyFieldSchema = {
 	keyframable?: false;
 };
 
+export type FontWeightFieldSchema = {
+	type: 'font-weight';
+	min?: number;
+	max?: number;
+	step?: number;
+	default: number | string | undefined;
+	description?: string;
+	// Quick-select presets. Strings like 'normal'/'bold' are saved as strings,
+	// numbers like 400 are saved as numbers.
+	presets: readonly (number | string)[];
+	keyframable?: false;
+};
+
 export type EnumFieldSchema = {
 	type: 'enum';
 	default: string;
@@ -197,6 +210,7 @@ export type VisibleFieldSchema =
 	| ColorFieldSchema
 	| TextContentFieldSchema
 	| FontFamilyFieldSchema
+	| FontWeightFieldSchema
 	| ArrayFieldSchema
 	| EnumFieldSchema;
 
@@ -276,22 +290,13 @@ export const textSchema = {
 		hiddenFromList: false,
 	},
 	'style.fontWeight': {
-		type: 'enum',
-		default: '400',
+		type: 'font-weight',
+		default: undefined,
 		description: 'Font weight',
-		variants: {
-			'100': {},
-			'200': {},
-			'300': {},
-			'400': {},
-			'500': {},
-			'600': {},
-			'700': {},
-			'800': {},
-			'900': {},
-			normal: {},
-			bold: {},
-		},
+		min: 1,
+		max: 1000,
+		step: 1,
+		presets: ['normal', 'bold', 100, 200, 300, 400, 500, 600, 700, 800, 900],
 	},
 	'style.fontStyle': {
 		type: 'enum',
