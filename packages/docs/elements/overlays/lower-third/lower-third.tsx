@@ -7,7 +7,7 @@ loadFont('normal', {
 	weights: ['500', '600', '700'],
 });
 
-export const LowerThird: React.FC = () => {
+export const NameLowerThird: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (

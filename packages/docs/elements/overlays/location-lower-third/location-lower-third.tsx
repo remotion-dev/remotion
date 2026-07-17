@@ -1,0 +1,195 @@
+import React from 'react';
+import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
+
+export const LocationLowerThird: React.FC = () => {
+	const frame = useCurrentFrame();
+
+	return (
+		<Interactive.Div
+			name="Container"
+			style={{
+				position: 'relative',
+				width: 440,
+				height: 156,
+				boxSizing: 'border-box',
+				fontFamily: 'Arial, Helvetica, sans-serif',
+			}}
+		>
+			<Interactive.Svg
+				name="Location pin"
+				viewBox="0 0 64 80"
+				style={{
+					position: 'absolute',
+					left: 32,
+					top: 3,
+					width: 120,
+					height: 150,
+					overflow: 'visible',
+					filter: 'drop-shadow(0 6px 8px rgba(24, 24, 27, 0.14))',
+					opacity: interpolate(frame, [0, 9, 108, 119], [0, 1, 1, 0], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					}),
+					translate: interpolate(
+						frame,
+						[0, 16, 106, 119],
+						['0px -10px', '0px 0px', '0px 0px', '0px -8px'],
+						{
+							easing: Easing.out(Easing.cubic),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+					scale: interpolate(frame, [0, 16, 106, 119], [0.88, 1, 1, 0.92], {
+						easing: Easing.out(Easing.cubic),
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					}),
+					transformOrigin: '60px 145px',
+				}}
+			>
+				<path
+					d="M32 3C15.4 3 4 15.4 4 31C4 50.8 22.1 69.6 29.3 76.2C30.8 77.6 33.2 77.6 34.7 76.2C41.9 69.6 60 50.8 60 31C60 15.4 48.6 3 32 3Z"
+					pathLength="1"
+					fill="#2563eb"
+					fillOpacity={interpolate(frame, [5, 18, 105, 114], [0, 1, 1, 0], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					})}
+					stroke="#1d4ed8"
+					strokeDasharray="1"
+					strokeDashoffset={interpolate(
+						frame,
+						[0, 16, 105, 116],
+						[1, 0, 0, 1],
+						{
+							easing: Easing.out(Easing.cubic),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					)}
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					strokeWidth="2.5"
+				/>
+				<circle
+					cx="32"
+					cy="30"
+					r={interpolate(frame, [10, 21, 102, 112], [0, 9, 9, 0], {
+						easing: Easing.out(Easing.cubic),
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					})}
+					fill="#eff6ff"
+				/>
+			</Interactive.Svg>
+
+			<div
+				style={{
+					position: 'absolute',
+					left: 168,
+					top: 8,
+					width: 272,
+					height: 140,
+					display: 'flex',
+					flexDirection: 'column',
+				}}
+			>
+				<div
+					style={{
+						height: 96,
+						display: 'flex',
+						alignItems: 'center',
+						overflow: 'hidden',
+					}}
+				>
+					<Interactive.Div
+						name="Location"
+						dir="auto"
+						style={{
+							minWidth: 0,
+							maxWidth: 272,
+							overflow: 'hidden',
+							color: '#18181b',
+							fontSize: 64,
+							fontWeight: 600,
+							letterSpacing: -1.3,
+							lineHeight: 1,
+							textOverflow: 'ellipsis',
+							whiteSpace: 'nowrap',
+							opacity: interpolate(frame, [14, 24, 94, 104], [0, 1, 1, 0], {
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							}),
+							translate: interpolate(
+								frame,
+								[14, 26, 94, 105],
+								['0px 24px', '0px 0px', '0px 0px', '0px -20px'],
+								{
+									easing: Easing.out(Easing.cubic),
+									extrapolateLeft: 'clamp',
+									extrapolateRight: 'clamp',
+								},
+							),
+						}}
+					>
+						Berlin
+					</Interactive.Div>
+				</div>
+
+				<div
+					style={{
+						width: interpolate(frame, [20, 34, 91, 104], [0, 240, 240, 0], {
+							easing: Easing.out(Easing.cubic),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
+						height: 1,
+						backgroundColor: 'rgba(24, 24, 27, 0.14)',
+					}}
+				/>
+
+				<div
+					style={{
+						minHeight: 0,
+						flex: 1,
+						display: 'flex',
+						alignItems: 'center',
+					}}
+				>
+					<Interactive.Div
+						name="Venue"
+						dir="auto"
+						style={{
+							minWidth: 0,
+							maxWidth: 272,
+							overflow: 'hidden',
+							color: '#3f3f46',
+							fontSize: 28,
+							fontWeight: 600,
+							lineHeight: 1,
+							textOverflow: 'ellipsis',
+							whiteSpace: 'nowrap',
+							opacity: interpolate(frame, [27, 37, 87, 97], [0, 1, 1, 0], {
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							}),
+							translate: interpolate(
+								frame,
+								[27, 39, 87, 98],
+								['0px 10px', '0px 0px', '0px 0px', '0px -8px'],
+								{
+									easing: Easing.out(Easing.cubic),
+									extrapolateLeft: 'clamp',
+									extrapolateRight: 'clamp',
+								},
+							),
+						}}
+					>
+						Local First Conf
+					</Interactive.Div>
+				</div>
+			</div>
+		</Interactive.Div>
+	);
+};

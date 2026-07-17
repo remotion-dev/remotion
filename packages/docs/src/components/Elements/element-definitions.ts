@@ -4,8 +4,8 @@ import {NotebookPaper} from '../../../elements/backgrounds/notebook-paper/notebo
 import {PaperTexture} from '../../../elements/backgrounds/paper-texture/paper-texture';
 import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburst/rotating-starburst';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
-import {EventLocationStrap} from '../../../elements/overlays/event-location-strap/event-location-strap';
-import {LowerThird} from '../../../elements/overlays/lower-third/lower-third';
+import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
+import {NameLowerThird} from '../../../elements/overlays/lower-third/lower-third';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
@@ -96,35 +96,29 @@ export const elementDefinitions = {
 		slug: 'backgrounds/rotating-starburst',
 		width: 1920,
 	},
-	'overlays/event-location-strap': {
+	'overlays/location-lower-third': {
 		category: 'overlays',
-		component: EventLocationStrap,
-		contributors: [
-			{
-				username: 'samohovets',
-				contribution: 'Author',
-			},
-		],
-		description:
-			'An animated broadcast strap for event status, location, venue, and date.',
-		displayName: 'Event / Location Strap',
+		component: LocationLowerThird,
+		contributors: [],
+		description: 'An animated lower third for an event location and venue.',
+		displayName: 'Location Lower Third',
 		durationInFrames: 120,
 		elementHeight: 156,
-		elementWidth: 760,
+		elementWidth: 440,
 		fps: 30,
 		height: 1080,
 		posterFrame: 60,
 		previewPadding: 260,
-		slug: 'overlays/event-location-strap',
+		slug: 'overlays/location-lower-third',
 		width: 1920,
 	},
 	'overlays/lower-third': {
 		category: 'overlays',
-		component: LowerThird,
+		component: NameLowerThird,
 		contributors: [],
 		description:
-			'A clean animated lower third for introducing a speaker, guest, or section.',
-		displayName: 'Lower Third',
+			'A clean animated lower third for introducing a speaker, guest, or host.',
+		displayName: 'Name Lower Third',
 		durationInFrames: 120,
 		elementHeight: 138,
 		elementWidth: 680,
