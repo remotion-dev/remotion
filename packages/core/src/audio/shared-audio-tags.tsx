@@ -525,7 +525,10 @@ export const SharedAudioTagsContextProvider: React.FC<{
 			}
 
 			if (data === undefined) {
-				current.src = EMPTY_AUDIO;
+				if (current.src !== EMPTY_AUDIO) {
+					current.src = EMPTY_AUDIO;
+				}
+
 				return;
 			}
 
