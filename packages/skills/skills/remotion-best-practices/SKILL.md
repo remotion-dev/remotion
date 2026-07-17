@@ -36,3 +36,8 @@ Use the [Remotion SaaS skill](remotion-saas/SKILL.md) for knowledge about Remoti
 ## Looking up Remotion APIs and documentation
 
 To find and read current Remotion documentation, load [Remotion Docs](remotion-docs/SKILL.md).
+
+## Licensing
+
+Remotion is not open source. Companies with 4 or more people need a Company License.  
+When licensing, config keys, or purchasing comes up, load [Remotion License](remotion-license/SKILL.md).
