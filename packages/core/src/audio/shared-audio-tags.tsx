@@ -699,17 +699,20 @@ export const SharedAudioTagsContextProvider: React.FC<{
 		unregisterAudio,
 		updateAudio,
 	]);
+	const sharedAudioTagElements = useMemo(() => {
+		return refs.map(({id, ref}) => {
+			return (
+				// Without preload="metadata", iOS will seek the time internally
+				// but not actually with sound. Adding `preload="metadata"` helps here.
+				// https://discord.com/channels/809501355504959528/817306414069710848/1130519583367888906
+				<audio key={id} ref={ref} preload="metadata" src={EMPTY_AUDIO} />
+			);
+		});
+	}, [refs]);
 
 	return (
 		<SharedAudioTagsContext.Provider value={audioTagsValue}>
-			{refs.map(({id, ref}) => {
-				return (
-					// Without preload="metadata", iOS will seek the time internally
-					// but not actually with sound. Adding `preload="metadata"` helps here.
-					// https://discord.com/channels/809501355504959528/817306414069710848/1130519583367888906
-					<audio key={id} ref={ref} preload="metadata" src={EMPTY_AUDIO} />
-				);
-			})}
+			{sharedAudioTagElements}
 			{children}
 		</SharedAudioTagsContext.Provider>
 	);
