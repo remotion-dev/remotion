@@ -16,6 +16,7 @@ test('uses the most recently focused Studio target even when older tabs keep upd
 		canInstall: true,
 		lastFocusedAt: 1000,
 		readOnly: false,
+		studioUrl: 'http://localhost:3000/older-composition',
 	});
 	updateElementInstallTarget({
 		requestId: null,
@@ -25,6 +26,7 @@ test('uses the most recently focused Studio target even when older tabs keep upd
 		canInstall: true,
 		lastFocusedAt: 2000,
 		readOnly: false,
+		studioUrl: 'http://localhost:3000/focused-composition',
 	});
 	updateElementInstallTarget({
 		requestId: null,
@@ -34,9 +36,13 @@ test('uses the most recently focused Studio target even when older tabs keep upd
 		canInstall: true,
 		lastFocusedAt: 1000,
 		readOnly: false,
+		studioUrl: 'http://localhost:3000/older-composition',
 	});
 
 	expect(getElementInstallTarget(null)?.clientId).toBe('focused-tab');
+	expect(getElementInstallTarget(null)?.studioUrl).toBe(
+		'http://localhost:3000/focused-composition',
+	);
 });
 
 test('falls back to update recency when focus timestamps match', async () => {
@@ -50,6 +56,7 @@ test('falls back to update recency when focus timestamps match', async () => {
 		canInstall: true,
 		lastFocusedAt: 1000,
 		readOnly: false,
+		studioUrl: 'http://localhost:3000/first-composition',
 	});
 
 	await new Promise((resolve) => setTimeout(resolve, 2));
@@ -62,6 +69,7 @@ test('falls back to update recency when focus timestamps match', async () => {
 		canInstall: true,
 		lastFocusedAt: 1000,
 		readOnly: false,
+		studioUrl: 'http://localhost:3000/second-composition',
 	});
 
 	expect(getElementInstallTarget(null)?.clientId).toBe('second-tab');
@@ -78,6 +86,7 @@ test('can select a target for a specific request', () => {
 		canInstall: true,
 		lastFocusedAt: 1000,
 		readOnly: false,
+		studioUrl: 'http://localhost:3000/first-composition',
 	});
 	updateElementInstallTarget({
 		requestId: 'second-request',
@@ -87,6 +96,7 @@ test('can select a target for a specific request', () => {
 		canInstall: true,
 		lastFocusedAt: 2000,
 		readOnly: false,
+		studioUrl: 'http://localhost:3000/second-composition',
 	});
 
 	expect(getElementInstallTarget('first-request')?.clientId).toBe('first-tab');

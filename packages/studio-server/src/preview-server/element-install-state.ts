@@ -8,6 +8,7 @@ export type ElementInstallTarget = {
 	canInstall: boolean;
 	lastFocusedAt: number | null;
 	readOnly: boolean;
+	studioUrl: string;
 	updatedAt: number;
 };
 
