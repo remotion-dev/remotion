@@ -1,8 +1,50 @@
 import React from 'react';
 import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
 
+const location = 'Berlin, Germany';
+const venue = 'LocalFirstConf, July 14';
+
 export const LocationLowerThird: React.FC = () => {
 	const frame = useCurrentFrame();
+	const visibleLocationCharacters = Math.floor(
+		interpolate(
+			frame,
+			[14, 38, 88, 108],
+			[0, location.length, location.length, 0],
+			{
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			},
+		),
+	);
+	const visibleVenueCharacters = Math.floor(
+		interpolate(frame, [27, 54, 82, 102], [0, venue.length, venue.length, 0], {
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		}),
+	);
+	const locationTranslateX =
+		interpolate(frame, [14, 28], [-36, 0], {
+			easing: Easing.out(Easing.cubic),
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		}) +
+		interpolate(frame, [92, 108], [0, -36], {
+			easing: Easing.in(Easing.cubic),
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		});
+	const venueTranslateX =
+		interpolate(frame, [27, 42], [-28, 0], {
+			easing: Easing.out(Easing.cubic),
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		}) +
+		interpolate(frame, [84, 102], [0, -28], {
+			easing: Easing.in(Easing.cubic),
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		});
 
 	return (
 		<Interactive.Div
@@ -20,7 +62,7 @@ export const LocationLowerThird: React.FC = () => {
 				viewBox="0 0 64 80"
 				style={{
 					position: 'absolute',
-					left: 152,
+					left: 56,
 					top: 4,
 					width: 104,
 					height: 130,
@@ -87,9 +129,9 @@ export const LocationLowerThird: React.FC = () => {
 			<div
 				style={{
 					position: 'absolute',
-					left: 280,
+					left: 184,
 					top: 3,
-					width: 248,
+					width: 440,
 					height: 132,
 					display: 'flex',
 					flexDirection: 'column',
@@ -108,46 +150,28 @@ export const LocationLowerThird: React.FC = () => {
 						dir="auto"
 						style={{
 							minWidth: 0,
-							maxWidth: 248,
+							maxWidth: 440,
 							overflow: 'hidden',
 							color: '#18181b',
 							fontSize: 54,
 							fontWeight: 700,
 							letterSpacing: -1,
 							lineHeight: 1,
+							clipPath: `inset(0 ${
+								100 - (visibleLocationCharacters / location.length) * 100
+							}% 0 0)`,
 							textOverflow: 'ellipsis',
 							whiteSpace: 'nowrap',
-							opacity: interpolate(frame, [14, 24, 94, 104], [0, 1, 1, 0], {
+							opacity: interpolate(frame, [14, 22, 98, 110], [0, 1, 1, 0], {
 								extrapolateLeft: 'clamp',
 								extrapolateRight: 'clamp',
 							}),
-							translate: interpolate(
-								frame,
-								[14, 26, 94, 105],
-								['0px 24px', '0px 0px', '0px 0px', '0px -20px'],
-								{
-									easing: Easing.out(Easing.cubic),
-									extrapolateLeft: 'clamp',
-									extrapolateRight: 'clamp',
-								},
-							),
+							translate: `${locationTranslateX}px 0px`,
 						}}
 					>
-						Berlin
+						{location}
 					</Interactive.Div>
 				</div>
-
-				<div
-					style={{
-						width: interpolate(frame, [20, 34, 91, 104], [0, 248, 248, 0], {
-							easing: Easing.out(Easing.cubic),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						}),
-						height: 1,
-						backgroundColor: 'rgba(24, 24, 27, 0.14)',
-					}}
-				/>
 
 				<div
 					style={{
@@ -155,6 +179,7 @@ export const LocationLowerThird: React.FC = () => {
 						flex: 1,
 						display: 'flex',
 						alignItems: 'center',
+						overflow: 'hidden',
 					}}
 				>
 					<Interactive.Div
@@ -162,31 +187,25 @@ export const LocationLowerThird: React.FC = () => {
 						dir="auto"
 						style={{
 							minWidth: 0,
-							maxWidth: 248,
+							maxWidth: 440,
 							overflow: 'hidden',
 							color: '#52525b',
 							fontSize: 29,
 							fontWeight: 500,
 							lineHeight: 1,
+							clipPath: `inset(0 ${
+								100 - (visibleVenueCharacters / venue.length) * 100
+							}% 0 0)`,
 							textOverflow: 'ellipsis',
 							whiteSpace: 'nowrap',
-							opacity: interpolate(frame, [27, 37, 87, 97], [0, 1, 1, 0], {
+							opacity: interpolate(frame, [27, 35, 92, 104], [0, 1, 1, 0], {
 								extrapolateLeft: 'clamp',
 								extrapolateRight: 'clamp',
 							}),
-							translate: interpolate(
-								frame,
-								[27, 39, 87, 98],
-								['0px 10px', '0px 0px', '0px 0px', '0px -8px'],
-								{
-									easing: Easing.out(Easing.cubic),
-									extrapolateLeft: 'clamp',
-									extrapolateRight: 'clamp',
-								},
-							),
+							translate: `${venueTranslateX}px 0px`,
 						}}
 					>
-						Local First Conf
+						{venue}
 					</Interactive.Div>
 				</div>
 			</div>
