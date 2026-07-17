@@ -1110,6 +1110,7 @@ const sidebars: SidebarsConfig = {
 				'audio/from-video',
 				'audio/visualization',
 				'audio/sfx',
+				'audio/generating-soundtrack',
 				'audio/exporting',
 				'audio/order-of-operations',
 			],

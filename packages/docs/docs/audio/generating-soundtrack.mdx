@@ -1,0 +1,103 @@
+---
+image: /generated/articles-docs-audio-generating-soundtrack.png
+title: Generating a soundtrack from a render
+sidebar_label: Generating a soundtrack
+crumb: Audio
+---
+
+The audio docs mostly assume you already have a finished track: you [import](/docs/audio/importing) it, then trim, delay, or [visualize](/docs/audio/visualization) it. For parameterized renders, each variation can have a different length and pacing, so one static file rarely fits all of them.
+
+Another pattern is to **render the composition first**, then generate a soundtrack from that finished video so the music matches the cut automatically. Nothing in Remotion core does this; you call a video-to-music API (or similar tool), then either mux the result onto the MP4 or feed it back through [`<Audio>`](/docs/media/audio).
+
+This page uses [Sonilo](https://sonilo.com) as a concrete example. The same shape works with any service that takes a video file and returns audio of matching length. A fuller vendor-neutral cookbook lives at [sonilo-video-to-music-cookbook](https://github.com/cindyxu1030/sonilo-video-to-music-cookbook).
+
+## Prerequisites
+
+- A Remotion project with a composition you can render
+- Access to a video-to-music API (example below uses Sonilo: [MCP server](https://github.com/sonilo-ai/sonilo-mcp) or REST API; you need an API key)
+- Optional: [FFmpeg](https://ffmpeg.org) on your `PATH` if you want the fast mux path
+
+Do not call a paid music API from the browser with a secret key. Keep the key on a server, in a CLI script, or in an MCP client environment.
+
+## 1. Render the cut
+
+```bash
+npx remotion render MyComp out/cut.mp4
+```
+
+If uploads are slow, a half-scale proxy is enough for timing. The soundtrack length still matches the composition:
+
+```bash
+npx remotion render MyComp out/proxy.mp4 --scale 0.5
+```
+
+## 2. Generate the soundtrack
+
+With the [Sonilo MCP server](https://github.com/sonilo-ai/sonilo-mcp) registered (needs `SONILO_API_KEY`):
+
+```ts
+// Pseudocode for the MCP tool / agent call
+video_to_music({
+  video_path: 'out/cut.mp4',
+  // Optional single style hint. Omit it and the model matches what it sees.
+  prompt: 'driving electronic, confident',
+});
+// -> soundtrack.m4a, matched to the render length
+```
+
+Via the REST API, create an async job for the same video and download the returned audio URL when the job finishes. See the [Sonilo docs](https://sonilo.com) for request shapes, webhooks, and licensing fields such as `license_id`.
+
+Keep API keys out of composition code and out of client bundles.
+
+## 3a. Fast path: mux with FFmpeg
+
+Copy the video stream and attach the new audio track:
+
+```bash
+ffmpeg -y -i out/cut.mp4 -i soundtrack.m4a \
+  -map 0:v -map 1:a -c:v copy -c:a aac -b:a 320k -shortest out/final.mp4
+```
+
+This is usually enough when you only need a finished file.
+
+## 3b. Remotion-native path: feed the track back as an asset
+
+Copy `soundtrack.m4a` into `public/` and wrap the composition:
+
+```tsx title="WithMusic.tsx"
+import {AbsoluteFill, staticFile} from 'remotion';
+import {Audio} from '@remotion/media';
+import {MyComp} from './MyComp';
+
+export const WithMusic: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <MyComp />
+      <Audio src={staticFile('soundtrack.m4a')} />
+    </AbsoluteFill>
+  );
+};
+```
+
+Then render the wrapped composition:
+
+```bash
+npx remotion render WithMusic out/final.mp4
+```
+
+This re-renders the video, so it is slower than muxing. The upside is that you can preview the track in the Remotion Studio, shape it with [`volume`](/docs/audio/volume), and keep the asset in the project for later renders.
+
+## Notes
+
+- **Length matching:** When the soundtrack is generated from a render of the same composition, it usually drops into `<Audio>` with no trimming. If you change the timeline, re-render and generate again.
+- **Voiceover:** Duck the bed under speech with a frame-driven `volume` callback (see [Controlling volume](/docs/audio/volume)). Prefer [`interpolate()`](/docs/interpolate) for smooth ramps instead of hard steps.
+- **Sound effects:** Some APIs can also return a separate effects track from the same video. Import that the same way as any other audio file.
+- **Licensing:** Third-party music APIs have their own terms. Confirm commercial use and attribution before you ship.
+
+## See also
+
+- [Importing audio](/docs/audio/importing)
+- [Controlling volume](/docs/audio/volume)
+- [Exporting audio](/docs/audio/exporting)
+- [`<Audio>`](/docs/media/audio)
+- [Sonilo Remotion recipe](https://github.com/cindyxu1030/sonilo-video-to-music-cookbook/blob/main/recipes/remotion.md)

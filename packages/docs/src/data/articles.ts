@@ -405,6 +405,15 @@ export const articles = [
 		slug: 'audio/pitch',
 	},
 	{
+		id: 'audio/generating-soundtrack',
+		title: 'Generating a soundtrack from a render',
+		relativePath: 'docs/audio/generating-soundtrack.mdx',
+		compId: 'articles-docs-audio-generating-soundtrack',
+		crumb: 'Audio',
+		noAi: false,
+		slug: 'audio/generating-soundtrack',
+	},
+	{
 		id: 'audio/sfx',
 		title: 'Sound effects',
 		relativePath: 'docs/audio/sfx.mdx',

@@ -38,6 +38,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'Visualizing audio'}</strong>
 					<div>Visualize audio elements</div>
 				</TOCItem>
+				<TOCItem link="/docs/audio/generating-soundtrack">
+					<strong>{'Generating a soundtrack'}</strong>
+					<div>Generate music from a rendered video</div>
+				</TOCItem>
 				<TOCItem link="/docs/audio/exporting">
 					<strong>{'Exporting audio'}</strong>
 					<div>Export audio</div>
