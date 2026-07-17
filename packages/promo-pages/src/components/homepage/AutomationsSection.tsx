@@ -50,6 +50,13 @@ const appPipeline: Array<{
 
 const launchOptions = [
 	{
+		title: 'Build a motion design system',
+		description:
+			'Collect logos, lower thirds, and other animated brand assets in Remotion Studio, then host and export them.',
+		link: '/docs/design-systems',
+		buttonText: 'Motion design systems',
+	},
+	{
 		title: 'Start from a template',
 		description:
 			'Use starter projects for SaaS workflows, social videos, slideshows, captions, and repeatable video products.',
