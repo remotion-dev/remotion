@@ -12,7 +12,7 @@ const isFiniteTimestamp = (value: number | null) => {
 export const updateElementInstallTargetHandler: ApiHandler<
 	UpdateElementInstallTargetRequest,
 	UpdateElementInstallTargetResponse
-> = ({input}) => {
+> = ({input, request}) => {
 	if (typeof input.clientId !== 'string' || input.clientId.length === 0) {
 		throw new Error('Invalid client ID');
 	}
@@ -34,6 +34,24 @@ export const updateElementInstallTargetHandler: ApiHandler<
 
 	if (input.compositionId !== null && typeof input.compositionId !== 'string') {
 		throw new Error('Invalid composition ID');
+	}
+
+	if (typeof input.studioUrl !== 'string') {
+		throw new Error('Invalid Studio URL');
+	}
+
+	let studioUrl: URL;
+	try {
+		studioUrl = new URL(input.studioUrl);
+	} catch {
+		throw new Error('Invalid Studio URL');
+	}
+
+	if (
+		typeof request.headers.origin !== 'string' ||
+		studioUrl.origin !== request.headers.origin
+	) {
+		throw new Error('Studio URL must match the request origin');
 	}
 
 	updateElementInstallTarget(input);

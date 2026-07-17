@@ -780,6 +780,7 @@ export type UpdateElementInstallTargetRequest = {
 	canInstall: boolean;
 	lastFocusedAt: number | null;
 	readOnly: boolean;
+	studioUrl: string;
 };
 
 export type UpdateElementInstallTargetResponse = {};

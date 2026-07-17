@@ -1,9 +1,14 @@
-import {existsSync, mkdirSync, writeFileSync} from 'fs';
+import {existsSync, mkdirSync, renameSync, unlinkSync, writeFileSync} from 'fs';
 import {dirname} from 'path';
 import {createInterface} from 'readline';
 import {rendererClassic, transformerTwoslash} from '@shikijs/twoslash';
 import {createHighlighter} from 'shiki';
 import {createTwoslasher} from 'twoslash';
+import {
+	getTwoslashCompilerOptions,
+	TWOSLASH_EXPLICIT_TRIGGER,
+	TWOSLASH_THEME,
+} from '../docusaurus-plugin/src/twoslash-cache.ts';
 
 // Exit code by which a worker asks to be replaced (memory recycling).
 // Keep in sync with prewarm-twoslash.ts.
@@ -19,19 +24,13 @@ const LANGS = ['tsx', 'ts', 'jsx', 'javascript'];
 
 // Create Language Service ONCE per worker — reused across all units
 const twoslasher = createTwoslasher({
-	compilerOptions: {
-		types: ['node'],
-		target: 99 /* ESNext */,
-		module: 99 /* ESNext */,
-		jsx: 4 /* ReactJSX */,
-		skipLibCheck: true,
-	},
+	compilerOptions: getTwoslashCompilerOptions(),
 });
 
 const transformer = transformerTwoslash({
 	twoslasher,
 	renderer: rendererClassic(),
-	explicitTrigger: false,
+	explicitTrigger: TWOSLASH_EXPLICIT_TRIGGER,
 });
 
 const send = (message) => {
@@ -39,7 +38,7 @@ const send = (message) => {
 };
 
 const highlighter = await createHighlighter({
-	themes: ['github-dark'],
+	themes: [TWOSLASH_THEME],
 	langs: LANGS,
 });
 
@@ -48,13 +47,22 @@ const processItem = (item) => {
 	try {
 		const html = highlighter.codeToHtml(item.code, {
 			lang: item.lang,
-			theme: 'github-dark',
+			theme: TWOSLASH_THEME,
 			transformers: [transformer],
 		});
 
 		const dir = dirname(item.cachePath);
 		if (!existsSync(dir)) mkdirSync(dir, {recursive: true});
-		writeFileSync(item.cachePath, html, 'utf8');
+		const temporaryCachePath = `${item.cachePath}.${process.pid}.tmp`;
+		try {
+			writeFileSync(temporaryCachePath, html, 'utf8');
+			renameSync(temporaryCachePath, item.cachePath);
+		} finally {
+			if (existsSync(temporaryCachePath)) {
+				unlinkSync(temporaryCachePath);
+			}
+		}
+
 		return {
 			cachePath: item.cachePath,
 			ms: Math.round(performance.now() - start),
