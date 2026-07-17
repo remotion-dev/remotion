@@ -23,12 +23,12 @@ export function Applications() {
 	return (
 		<AbsoluteFill>
 			<Sequence
-				durationInFrames={240}
+				durationInFrames={180}
 				name="Simple application slide"
 				style={{
 					translate: interpolate(
 						frame,
-						[0, 113, 127, 223, 239],
+						[0, 85, 95, 167, 179],
 						['0px 0px', '0px 0px', '-1240px 0px', '-1240px 0px', '0px 0px'],
 						{
 							extrapolateLeft: 'clamp',
@@ -60,12 +60,12 @@ export function Applications() {
 				<ApplicationSimpleApp />
 			</Sequence>
 			<Sequence
-				durationInFrames={240}
+				durationInFrames={180}
 				name="Video editor slide"
 				style={{
 					translate: interpolate(
 						frame,
-						[0, 113, 127, 223, 239],
+						[0, 85, 95, 167, 179],
 						['1240px 0px', '1240px 0px', '0px 0px', '0px 0px', '1240px 0px'],
 						{
 							extrapolateLeft: 'clamp',
@@ -96,7 +96,7 @@ export function Applications() {
 			>
 				<ApplicationVideoEditor />
 			</Sequence>
-			<Sequence durationInFrames={240}>
+			<Sequence>
 				<ApplicationRenderButton />
 			</Sequence>
 		</AbsoluteFill>

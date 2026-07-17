@@ -4,9 +4,9 @@ export function ApplicationVideoEditor() {
 	return (
 		<AbsoluteFill
 			style={{
+				display: 'flex',
+				justifyContent: 'center',
 				alignItems: 'center',
-				justifyContent: 'flex-start',
-        paddingTop: 62,
 			}}
 		>
 			<ExtrudeDiv
@@ -28,18 +28,6 @@ export function ApplicationVideoEditor() {
 				rotationX={-Math.PI / 24}
 				rotationY={-Math.PI / 30}
 				rotationZ={0.01}
-				scaleX={1.08}
-				scaleY={1.08}
-				scaleZ={1.08}
-				topFace={
-					<div
-						style={{
-							backgroundColor: '#262a31',
-							height: '100%',
-							width: '100%',
-						}}
-					/>
-				}
 				width={940}
 			>
 				<div
@@ -51,213 +39,13 @@ export function ApplicationVideoEditor() {
 						display: 'flex',
 						flexDirection: 'column',
 						fontFamily: 'GT Planar, sans-serif',
+						fontFeatureSettings: "'ss03'",
 						height: '100%',
 						overflow: 'hidden',
 						width: '100%',
 					}}
 				>
-					<div
-						style={{
-							alignItems: 'center',
-							backgroundColor: '#1d2026',
-							borderBottom: '2px solid #2b2f36',
-							display: 'flex',
-							height: 66,
-							justifyContent: 'space-between',
-							padding: '0 20px',
-						}}
-					>
-						<div style={{alignItems: 'center', display: 'flex', gap: 12}}>
-							<div
-								style={{
-									backgroundColor: '#0b84f3',
-									borderRadius: 9,
-									height: 34,
-									rotate: '45deg',
-									width: 34,
-								}}
-							/>
-							<div style={{fontSize: 20, fontWeight: 500}}>
-								Untitled project
-							</div>
-						</div>
-						<div style={{alignItems: 'center', display: 'flex', gap: 10}}>
-							<div
-								style={{
-									alignItems: 'center',
-									backgroundColor: '#2a2d33',
-									borderRadius: 9,
-									color: '#f5f7fa',
-									display: 'flex',
-									fontSize: 16,
-									height: 38,
-									justifyContent: 'center',
-									width: 38,
-								}}
-							>
-								↶
-							</div>
-							<div
-								style={{
-									alignItems: 'center',
-									backgroundColor: '#2a2d33',
-									borderRadius: 9,
-									color: '#f5f7fa',
-									display: 'flex',
-									fontSize: 16,
-									height: 38,
-									justifyContent: 'center',
-									width: 38,
-								}}
-							>
-								↷
-							</div>
-							<div
-								style={{
-									backgroundColor: '#292d34',
-									borderRadius: 9,
-									fontSize: 16,
-									padding: '10px 16px',
-								}}
-							>
-								1080 × 1080
-							</div>
-						</div>
-					</div>
 					<div style={{display: 'flex', flex: 1, minHeight: 0}}>
-						<div
-							style={{
-								backgroundColor: '#1b1e23',
-								borderRight: '2px solid #2b2f36',
-								display: 'flex',
-								flexDirection: 'column',
-								gap: 14,
-								padding: 18,
-								width: 180,
-							}}
-						>
-							<div style={{fontSize: 17, fontWeight: 500}}>Assets</div>
-							<div
-								style={{
-									backgroundColor: '#252930',
-									borderRadius: 8,
-									color: '#8f96a3',
-									fontSize: 14,
-									padding: '10px 12px',
-								}}
-							>
-								Search media
-							</div>
-							<div
-								style={{
-									display: 'grid',
-									gap: 10,
-									gridTemplateColumns: '1fr 1fr',
-								}}
-							>
-								<div
-									style={{
-										background: 'linear-gradient(145deg, #0b84f3, #15171b)',
-										border: '2px solid #363b45',
-										borderRadius: 9,
-										height: 82,
-									}}
-								/>
-								<div
-									style={{
-										background: 'linear-gradient(145deg, #f7c948, #15171b)',
-										border: '2px solid #363b45',
-										borderRadius: 9,
-										height: 82,
-									}}
-								/>
-								<div
-									style={{
-										background: 'linear-gradient(145deg, #fd4b61, #15171b)',
-										border: '2px solid #363b45',
-										borderRadius: 9,
-										height: 62,
-									}}
-								/>
-								<div
-									style={{
-										background: 'linear-gradient(145deg, #8b5cf6, #15171b)',
-										border: '2px solid #363b45',
-										borderRadius: 9,
-										height: 62,
-									}}
-								/>
-							</div>
-							<div style={{fontSize: 14, color: '#8f96a3'}}>Audio</div>
-							<div
-								style={{
-									alignItems: 'center',
-									backgroundColor: '#252930',
-									borderRadius: 9,
-									display: 'flex',
-									gap: 8,
-									height: 50,
-									padding: '0 10px',
-								}}
-							>
-								<div
-									style={{
-										backgroundColor: '#9aa1ad',
-										borderRadius: 2,
-										height: 12,
-										width: 5,
-									}}
-								/>
-								<div
-									style={{
-										backgroundColor: '#9aa1ad',
-										borderRadius: 2,
-										height: 24,
-										width: 5,
-									}}
-								/>
-								<div
-									style={{
-										backgroundColor: '#9aa1ad',
-										borderRadius: 2,
-										height: 18,
-										width: 5,
-									}}
-								/>
-								<div
-									style={{
-										backgroundColor: '#9aa1ad',
-										borderRadius: 2,
-										height: 30,
-										width: 5,
-									}}
-								/>
-								<div
-									style={{
-										backgroundColor: '#9aa1ad',
-										borderRadius: 2,
-										height: 16,
-										width: 5,
-									}}
-								/>
-								<div
-									style={{
-										backgroundColor: '#9aa1ad',
-										borderRadius: 2,
-										height: 26,
-										width: 5,
-									}}
-								/>
-								<div
-									style={{
-										backgroundColor: '#9aa1ad',
-										borderRadius: 2,
-										height: 10,
-										width: 5,
-									}}
-								/>
-							</div>
-						</div>
 						<div style={{display: 'flex', flex: 1, flexDirection: 'column'}}>
 							<div
 								style={{
@@ -289,10 +77,7 @@ export function ApplicationVideoEditor() {
 											lineHeight: 1.05,
 											textAlign: 'center',
 										}}
-									>
-										Make it
-										<br /> memorable.
-									</div>
+									/>
 									<div
 										style={{
 											border: '2px solid #0b84f3',
@@ -315,9 +100,8 @@ export function ApplicationVideoEditor() {
 									<div
 										style={{
 											alignItems: 'center',
-											backgroundColor: '#0b84f3',
 											borderRadius: 9,
-											color: '#f5f7fa',
+											color: '#8f96a3',
 											display: 'flex',
 											fontSize: 16,
 											height: 38,
@@ -329,7 +113,6 @@ export function ApplicationVideoEditor() {
 									</div>
 									<div style={{color: '#8f96a3', fontSize: 14}}>00:04:12</div>
 									<div style={{flex: 1}} />
-									<div style={{color: '#8f96a3', fontSize: 14}}>Fit · 100%</div>
 								</div>
 								<div
 									style={{
@@ -359,16 +142,6 @@ export function ApplicationVideoEditor() {
 												opacity: 0.9,
 												position: 'absolute',
 												width: '72%',
-											}}
-										/>
-										<div
-											style={{
-												backgroundColor: '#ff4b55',
-												bottom: -62,
-												left: '48%',
-												position: 'absolute',
-												top: -7,
-												width: 2,
 											}}
 										/>
 									</div>
@@ -412,6 +185,41 @@ export function ApplicationVideoEditor() {
 											}}
 										/>
 									</div>
+									<div
+										style={{
+											bottom: 0,
+											left: '48%',
+											pointerEvents: 'none',
+											position: 'absolute',
+											top: -7,
+											width: 1,
+											zIndex: 1,
+										}}
+									>
+										<div
+											style={{
+												backgroundColor: '#f02c00',
+												height: '100%',
+												width: 1,
+											}}
+										/>
+										<div
+											style={{
+												height: 20,
+												left: -8,
+												position: 'absolute',
+												top: 0,
+												width: 20,
+											}}
+										>
+											<svg width={17} viewBox="0 0 159 212">
+												<path
+													d="M17.0234375,1.07763419 L143.355469,1.07763419 C151.63974,1.07763419 158.355469,7.79336295 158.355469,16.0776342 L158.355469,69.390507 C158.355469,73.7938677 156.420655,77.9748242 153.064021,80.8248415 L89.3980057,134.881757 C83.7986799,139.635978 75.5802263,139.635978 69.9809005,134.881757 L6.66764807,81.1243622 C3.0872392,78.0843437 1.0234375,73.6246568 1.0234375,68.9277387 L1.0234375,17.0776342 C1.0234375,8.2410782 8.1868815,1.07763419 17.0234375,1.07763419 Z"
+													fill="#f02c00"
+												/>
+											</svg>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -426,7 +234,6 @@ export function ApplicationVideoEditor() {
 								width: 180,
 							}}
 						>
-							<div style={{fontSize: 17, fontWeight: 500}}>Inspector</div>
 							<div
 								style={{
 									backgroundColor: '#252930',

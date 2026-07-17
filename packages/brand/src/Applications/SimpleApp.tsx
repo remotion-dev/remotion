@@ -1,13 +1,24 @@
-import {AbsoluteFill, Img, staticFile} from 'remotion';
+import {
+	AbsoluteFill,
+	Easing,
+	Img,
+	interpolate,
+	staticFile,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 import {ExtrudeDiv} from '../3DContext/Div3D';
 
 export function ApplicationSimpleApp() {
+	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
+
 	return (
 		<AbsoluteFill
 			style={{
+				display: 'flex',
+				justifyContent: 'center',
 				alignItems: 'center',
-				justifyContent: 'flex-start',
-				paddingTop: 62,
 			}}
 		>
 			<ExtrudeDiv
@@ -24,15 +35,15 @@ export function ApplicationSimpleApp() {
 				}
 				cornerRadius={30}
 				depth={46}
-				height={724}
+				height={590}
 				name="Simple application"
 				rotationX={-Math.PI / 24}
 				rotationY={-Math.PI / 30}
 				rotationZ={0.01}
-				scaleX={1.08}
-				scaleY={1.08}
-				scaleZ={1.08}
 				width={820}
+				style={{
+					translate: '-3.9px 60.7px',
+				}}
 			>
 				<div
 					style={{
@@ -40,6 +51,7 @@ export function ApplicationSimpleApp() {
 						border: '4px solid #111111',
 						borderRadius: 30,
 						fontFamily: 'GT Planar, sans-serif',
+						fontFeatureSettings: "'ss03'",
 						height: '100%',
 						overflow: 'hidden',
 						width: '100%',
@@ -81,9 +93,6 @@ export function ApplicationSimpleApp() {
 								}}
 							/>
 						</div>
-						<div style={{color: '#4b5563', fontSize: 18, fontWeight: 500}}>
-							acme-video.app
-						</div>
 						<div style={{width: 66}} />
 					</div>
 					<div
@@ -97,8 +106,7 @@ export function ApplicationSimpleApp() {
 						<div
 							style={{
 								alignItems: 'center',
-								background:
-									'linear-gradient(145deg, #111827 0%, #172b4d 55%, #0b84f3 140%)',
+								backgroundColor: '#111827',
 								borderRadius: 18,
 								display: 'flex',
 								height: 332,
@@ -107,18 +115,6 @@ export function ApplicationSimpleApp() {
 								position: 'relative',
 							}}
 						>
-							<div
-								style={{
-									backgroundColor: 'rgba(11, 132, 243, 0.18)',
-									borderRadius: '50%',
-									filter: 'blur(2px)',
-									height: 330,
-									position: 'absolute',
-									right: -80,
-									top: -90,
-									width: 330,
-								}}
-							/>
 							<Img
 								src={staticFile('logo/remotion/withouttitle-white.png')}
 								style={{height: 164, objectFit: 'contain', width: 164}}
@@ -154,21 +150,29 @@ export function ApplicationSimpleApp() {
 								>
 									<div
 										style={{
-											backgroundColor: '#0b84f3',
+											backgroundColor: 'white',
 											borderRadius: 5,
 											height: '100%',
-											width: '38%',
+											width: interpolate(
+												frame,
+												[0, durationInFrames - 1],
+												['0%', '100%'],
+												{
+													easing: Easing.linear,
+													extrapolateLeft: 'clamp',
+													extrapolateRight: 'clamp',
+												},
+											),
 										}}
 									/>
 								</div>
 								<div style={{color: 'white', fontSize: 17}}>0:12 / 0:30</div>
 							</div>
 						</div>
-						<div style={{display: 'flex', gap: 18}}>
+						<div>
 							<div
 								style={{
 									display: 'flex',
-									flex: 1,
 									flexDirection: 'column',
 									gap: 10,
 								}}
@@ -190,119 +194,6 @@ export function ApplicationSimpleApp() {
 									}}
 								>
 									Summer collection
-								</div>
-							</div>
-							<div
-								style={{
-									display: 'flex',
-									flex: 1,
-									flexDirection: 'column',
-									gap: 10,
-								}}
-							>
-								<div style={{color: '#6b7280', fontSize: 18, fontWeight: 500}}>
-									Format
-								</div>
-								<div
-									style={{
-										alignItems: 'center',
-										backgroundColor: '#f8fafc',
-										border: '2px solid #d9dee7',
-										borderRadius: 12,
-										color: '#15171a',
-										display: 'flex',
-										fontSize: 22,
-										height: 58,
-										padding: '0 18px',
-									}}
-								>
-									Square · 1080p
-								</div>
-							</div>
-						</div>
-						<div style={{display: 'flex', gap: 18}}>
-							<div
-								style={{
-									display: 'flex',
-									flex: 1,
-									flexDirection: 'column',
-									gap: 10,
-								}}
-							>
-								<div style={{color: '#6b7280', fontSize: 18, fontWeight: 500}}>
-									Call to action
-								</div>
-								<div
-									style={{
-										alignItems: 'center',
-										backgroundColor: '#f8fafc',
-										border: '2px solid #d9dee7',
-										borderRadius: 12,
-										color: '#15171a',
-										display: 'flex',
-										fontSize: 22,
-										height: 58,
-										padding: '0 18px',
-									}}
-								>
-									Shop now
-								</div>
-							</div>
-							<div
-								style={{
-									display: 'flex',
-									flex: 1,
-									flexDirection: 'column',
-									gap: 10,
-								}}
-							>
-								<div style={{color: '#6b7280', fontSize: 18, fontWeight: 500}}>
-									Brand color
-								</div>
-								<div
-									style={{
-										alignItems: 'center',
-										display: 'flex',
-										gap: 12,
-										height: 58,
-									}}
-								>
-									<div
-										style={{
-											backgroundColor: '#0b84f3',
-											border: '5px solid white',
-											borderRadius: '50%',
-											height: 38,
-											width: 38,
-										}}
-									/>
-									<div
-										style={{
-											backgroundColor: '#fd4b61',
-											border: '2px solid #d9dee7',
-											borderRadius: '50%',
-											height: 38,
-											width: 38,
-										}}
-									/>
-									<div
-										style={{
-											backgroundColor: '#f6c945',
-											border: '2px solid #d9dee7',
-											borderRadius: '50%',
-											height: 38,
-											width: 38,
-										}}
-									/>
-									<div
-										style={{
-											backgroundColor: '#111827',
-											border: '2px solid #d9dee7',
-											borderRadius: '50%',
-											height: 38,
-											width: 38,
-										}}
-									/>
 								</div>
 							</div>
 						</div>

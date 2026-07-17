@@ -1,13 +1,14 @@
-import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {AbsoluteFill} from 'remotion';
 import {ExtrudeDiv} from '../3DContext/Div3D';
 
 export function ApplicationRenderButton() {
 	return (
 		<AbsoluteFill
 			style={{
+				display: 'flex',
+				justifyContent: 'center',
 				alignItems: 'center',
-				justifyContent: 'flex-start',
-				paddingTop: 840,
+				paddingTop: 700,
 			}}
 		>
 			<ExtrudeDiv
@@ -22,7 +23,6 @@ export function ApplicationRenderButton() {
 						}}
 					/>
 				}
-
 				cornerRadius={30}
 				depth={48}
 				height={104}
@@ -32,7 +32,11 @@ export function ApplicationRenderButton() {
 				rotationZ={0.01}
 				translationX={-4}
 				translationY={2}
-				width={370}
+				width={300}
+				style={{
+					translate: '262.5px 27.7px',
+					scale: 1.291,
+				}}
 			>
 				<div
 					style={{
@@ -43,6 +47,7 @@ export function ApplicationRenderButton() {
 						color: 'white',
 						display: 'flex',
 						fontFamily: 'GT Planar, sans-serif',
+						fontFeatureSettings: "'ss03'",
 						fontSize: 40,
 						fontWeight: 500,
 						gap: 22,
@@ -53,43 +58,7 @@ export function ApplicationRenderButton() {
 						width: '100%',
 					}}
 				>
-					<div
-						style={{
-							background:
-								'linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.8) 50%, transparent 80%)',
-							inset: 0,
-							opacity: interpolate(
-								useCurrentFrame() % 120,
-								[0, 70, 84, 98, 119],
-								[0, 0, 0.3, 0, 0],
-								{
-									extrapolateLeft: 'clamp',
-									extrapolateRight: 'clamp',
-								},
-							),
-							position: 'absolute',
-							translate: `${interpolate(
-								useCurrentFrame() % 120,
-								[70, 98],
-								[-370, 370],
-								{
-									extrapolateLeft: 'clamp',
-									extrapolateRight: 'clamp',
-								},
-							)}px 0px`,
-						}}
-					/>
-					<svg height={44} viewBox="0 0 48 48" width={44}>
-						<path
-							d="M24 7v23m0 0 9-9m-9 9-9-9M10 39h28"
-							fill="none"
-							stroke="currentColor"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							strokeWidth={5}
-						/>
-					</svg>
-					<span>Render video</span>
+					<span>Render</span>
 				</div>
 			</ExtrudeDiv>
 		</AbsoluteFill>
