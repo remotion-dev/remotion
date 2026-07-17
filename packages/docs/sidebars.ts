@@ -1426,6 +1426,7 @@ const sidebars: SidebarsConfig = {
 				'ai/skills',
 				'ai/claude-code-plugin',
 				'ai/codex-plugin',
+				'ai/kimi-code-plugin',
 				'ai/bolt',
 				'ai/chatbot',
 				'ai/generate',
