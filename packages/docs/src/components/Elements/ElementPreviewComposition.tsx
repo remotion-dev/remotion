@@ -21,22 +21,37 @@ export const getElementPreviewDimensions = (definition: ElementDefinition) => {
 	};
 };
 
+const getElementSequenceProps = (definition: ElementDefinition) => {
+	const {elementDurationInFrames, elementHeight, elementWidth} = definition;
+
+	return {
+		...(elementWidth === null ? {} : {width: elementWidth}),
+		...(elementHeight === null ? {} : {height: elementHeight}),
+		...(elementDurationInFrames === null
+			? {}
+			: {durationInFrames: elementDurationInFrames}),
+	};
+};
+
 export const ElementPreviewComposition: React.FC<{
 	readonly definition: ElementDefinition;
 }> = ({definition}) => {
 	const {
 		component: Component,
+		elementDurationInFrames,
 		elementHeight,
 		elementWidth,
 		previewPadding,
 	} = definition;
 	const hasElementDimensions = elementWidth !== null && elementHeight !== null;
+	const hasElementDuration = elementDurationInFrames !== null;
+	const sequenceProps = getElementSequenceProps(definition);
 
-	if (!hasElementDimensions) {
+	if (!hasElementDimensions && !hasElementDuration) {
 		return <Component />;
 	}
 
-	if (previewPadding > 0) {
+	if (hasElementDimensions && previewPadding > 0) {
 		return (
 			<AbsoluteFill
 				style={{
@@ -44,12 +59,12 @@ export const ElementPreviewComposition: React.FC<{
 					justifyContent: 'center',
 				}}
 			>
-				<Sequence height={elementHeight} layout="none" width={elementWidth}>
+				<Sequence {...sequenceProps} layout="none">
 					<div
 						style={{
-							height: elementHeight,
+							height: elementHeight!,
 							position: 'relative',
-							width: elementWidth,
+							width: elementWidth!,
 						}}
 					>
 						<Component />
@@ -60,7 +75,7 @@ export const ElementPreviewComposition: React.FC<{
 	}
 
 	return (
-		<Sequence height={elementHeight} width={elementWidth}>
+		<Sequence {...sequenceProps}>
 			<Component />
 		</Sequence>
 	);

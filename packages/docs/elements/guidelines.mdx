@@ -16,7 +16,17 @@ An Element should demonstrate one visual idea, technique, or workflow. It should
 
 If two variants are worth showing, prefer two separate Elements over a variant prop.
 
-The Elements gallery provides the preview dimensions, frame rate, and duration. The Element itself should remain a building block.
+The Elements gallery provides the preview composition size, frame rate, and duration. The Element itself should remain a building block.
+
+## Width, height, and duration
+
+Each Element page lists width, height, and duration. All three can be omitted or set:
+
+- Omit a value to inherit from the composition. In the docs preview this means leaving that prop off the wrapping [`<Sequence>`](/docs/sequence), so children see [`useVideoConfig()`](/docs/use-video-config) values.
+- Set width and/or height when the Element needs a fixed bounding box.
+- Set duration when the Element has a finite timing (for example entrance and exit animations). Omit duration when the Element should stay mounted for as long as its surrounding sequence.
+
+Background Elements usually omit width, height, and duration. Overlay and text Elements usually set all three.
 
 ## Make it portable
 

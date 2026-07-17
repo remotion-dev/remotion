@@ -18,6 +18,7 @@ export type ElementDefinition = {
 	readonly description: string;
 	readonly displayName: string;
 	readonly durationInFrames: number;
+	readonly elementDurationInFrames: number | null;
 	readonly elementHeight: number | null;
 	readonly elementWidth: number | null;
 	readonly fps: number;
@@ -37,6 +38,7 @@ export const elementDefinitions = {
 			'A flowing two-color background made from animated liquid contour bands.',
 		displayName: 'Liquid Contours',
 		durationInFrames: 240,
+		elementDurationInFrames: null,
 		elementHeight: null,
 		elementWidth: null,
 		fps: 30,
@@ -53,6 +55,7 @@ export const elementDefinitions = {
 		description: 'A white paper background with subtle blue gridlines.',
 		displayName: 'Notebook Paper',
 		durationInFrames: 120,
+		elementDurationInFrames: null,
 		elementHeight: null,
 		elementWidth: null,
 		fps: 30,
@@ -70,6 +73,7 @@ export const elementDefinitions = {
 			'A white paper texture background with a slowly changing posterized seed.',
 		displayName: 'Paper Texture',
 		durationInFrames: 120,
+		elementDurationInFrames: null,
 		elementHeight: null,
 		elementWidth: null,
 		fps: 30,
@@ -86,6 +90,7 @@ export const elementDefinitions = {
 		description: 'A solid background with a slowly rotating starburst effect.',
 		displayName: 'Rotating Starburst',
 		durationInFrames: 240,
+		elementDurationInFrames: null,
 		elementHeight: null,
 		elementWidth: null,
 		fps: 30,
@@ -103,6 +108,7 @@ export const elementDefinitions = {
 			'A clean animated lower third for introducing a speaker, guest, or section.',
 		displayName: 'Lower Third',
 		durationInFrames: 120,
+		elementDurationInFrames: 120,
 		elementHeight: 138,
 		elementWidth: 680,
 		fps: 30,
@@ -125,6 +131,7 @@ export const elementDefinitions = {
 			'A simple animated counter that smoothly counts from a start value to an end value.',
 		displayName: 'Number Counter',
 		durationInFrames: 120,
+		elementDurationInFrames: 120,
 		elementHeight: 200,
 		elementWidth: 640,
 		fps: 30,
@@ -142,6 +149,7 @@ export const elementDefinitions = {
 			'An animated hand-drawn circle with posterized drawing progress and shape changes.',
 		displayName: 'Circle Marker',
 		durationInFrames: 120,
+		elementDurationInFrames: 120,
 		elementHeight: 220,
 		elementWidth: 900,
 		fps: 30,
@@ -159,6 +167,7 @@ export const elementDefinitions = {
 			'An animated hand-drawn cross for removing a word or phrase with emphasis.',
 		displayName: 'Crossed Off',
 		durationInFrames: 120,
+		elementDurationInFrames: 120,
 		elementHeight: 220,
 		elementWidth: 900,
 		fps: 30,
@@ -176,6 +185,7 @@ export const elementDefinitions = {
 			'An animated hand-drawn line for striking through a word or phrase.',
 		displayName: 'Strike Through',
 		durationInFrames: 120,
+		elementDurationInFrames: 120,
 		elementHeight: 220,
 		elementWidth: 900,
 		fps: 30,
@@ -193,6 +203,7 @@ export const elementDefinitions = {
 			'A hand-drawn animated text marker for calling attention to one phrase.',
 		displayName: 'Text Marker',
 		durationInFrames: 120,
+		elementDurationInFrames: 120,
 		elementHeight: 220,
 		elementWidth: 900,
 		fps: 30,

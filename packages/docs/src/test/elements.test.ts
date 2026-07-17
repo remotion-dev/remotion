@@ -10,7 +10,10 @@ import {elementDefinitions} from '../components/Elements/element-definitions';
 import {
 	getElementCompositionId,
 	getElementDimensionsLabel,
+	getElementDurationLabel,
+	getElementHeightLabel,
 	getElementPreviewUrls,
+	getElementWidthLabel,
 } from '../components/Elements/element-utils';
 import {getElementPreviewDimensions} from '../components/Elements/ElementPreviewComposition';
 
@@ -238,6 +241,13 @@ describe('Element preview definitions', () => {
 			expect(definition.elementWidth === null).toBe(
 				definition.elementHeight === null,
 			);
+			if (definition.elementDurationInFrames !== null) {
+				expect(Number.isInteger(definition.elementDurationInFrames)).toBe(true);
+				expect(definition.elementDurationInFrames).toBeGreaterThan(0);
+				expect(definition.elementDurationInFrames).toBeLessThanOrEqual(
+					definition.durationInFrames,
+				);
+			}
 
 			const dimensions = getElementPreviewDimensions(definition);
 			expect(dimensions.width % 2).toBe(0);
@@ -250,6 +260,15 @@ describe('Element preview definitions', () => {
 		expect(getElementDimensionsLabel(adaptiveDefinition)).toBe(
 			'Adapts to composition',
 		);
+		expect(getElementWidthLabel(adaptiveDefinition)).toBe(
+			'Adapts to composition',
+		);
+		expect(getElementHeightLabel(adaptiveDefinition)).toBe(
+			'Adapts to composition',
+		);
+		expect(getElementDurationLabel(adaptiveDefinition)).toBe(
+			'Adapts to composition',
+		);
 		expect(getElementPreviewDimensions(adaptiveDefinition)).toEqual({
 			height: 1080,
 			width: 1920,
@@ -257,6 +276,11 @@ describe('Element preview definitions', () => {
 
 		const fixedDefinition = elementDefinitions['overlays/lower-third'];
 		expect(getElementDimensionsLabel(fixedDefinition)).toBe('680 × 138px');
+		expect(getElementWidthLabel(fixedDefinition)).toBe('680px');
+		expect(getElementHeightLabel(fixedDefinition)).toBe('138px');
+		expect(getElementDurationLabel(fixedDefinition)).toBe(
+			'120 frames (4s at 30fps)',
+		);
 		expect(getElementPreviewDimensions(fixedDefinition)).toEqual({
 			height: 738,
 			width: 1280,
@@ -277,6 +301,7 @@ describe('Element preview definitions', () => {
 			const source = readFileSync(element.tsxPath, 'utf8');
 			expect(definition.elementWidth).toBe(null);
 			expect(definition.elementHeight).toBe(null);
+			expect(definition.elementDurationInFrames).toBe(null);
 			expect(source).toContain('useVideoConfig()');
 			expect(source).not.toContain(`width={${definition.width}}`);
 			expect(source).not.toContain(`height={${definition.height}}`);

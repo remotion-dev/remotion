@@ -12,7 +12,11 @@ import React, {
 import {BlueButton, PlainButton} from '../../../components/layout/Button';
 import type {ElementDefinition} from './element-definitions';
 import {setElementDragData, setElementDragImage} from './element-drag-data';
-import {getElementDimensionsLabel} from './element-utils';
+import {
+	getElementDurationLabel,
+	getElementHeightLabel,
+	getElementWidthLabel,
+} from './element-utils';
 import {ElementPreview} from './ElementPreview';
 import {
 	ElementPreviewComposition,
@@ -318,8 +322,16 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 						<p className={styles.description}>{description}</p>
 						<dl className={styles.metadata}>
 							<div>
-								<dt>Dimensions</dt>
-								<dd>{getElementDimensionsLabel(definition)}</dd>
+								<dt>Width</dt>
+								<dd>{getElementWidthLabel(definition)}</dd>
+							</div>
+							<div>
+								<dt>Height</dt>
+								<dd>{getElementHeightLabel(definition)}</dd>
+							</div>
+							<div>
+								<dt>Duration</dt>
+								<dd>{getElementDurationLabel(definition)}</dd>
 							</div>
 						</dl>
 					</div>
