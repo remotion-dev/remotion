@@ -40,7 +40,7 @@ export const startStudio = async ({
 	maxTimelineTracks,
 	remotionRoot,
 	keyboardShortcutsEnabled,
-	relativePublicDir,
+	getRelativePublicDir,
 	webpackOverride,
 	poll,
 	getRenderDefaults,
@@ -73,7 +73,7 @@ export const startStudio = async ({
 	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	keyboardShortcutsEnabled: boolean;
-	relativePublicDir: string | null;
+	getRelativePublicDir: () => string | null;
 	webpackOverride: WebpackOverrideFn;
 	poll: number | null;
 	getRenderDefaults: () => RenderDefaults;
@@ -107,10 +107,13 @@ export const startStudio = async ({
 	getFileWatcherRegistry();
 
 	watchRootFile(remotionRoot, previewEntry);
-	const publicDir = getAbsolutePublicDir({
-		relativePublicDir,
-		remotionRoot,
-	});
+	const getPublicDir = () => {
+		return getAbsolutePublicDir({
+			relativePublicDir: getRelativePublicDir(),
+			remotionRoot,
+		});
+	};
+
 	const hash = crypto.randomBytes(6).toString('hex');
 
 	const outputHashPrefix = '/outputs-';
@@ -120,10 +123,11 @@ export const startStudio = async ({
 	const staticHash = `${staticHashPrefix}${hash}`;
 
 	initPublicFolderWatch({
-		publicDir,
+		getPublicDir,
 		remotionRoot,
 		onUpdate: () => {
 			waitForLiveEventsListener().then((listener) => {
+				const publicDir = getPublicDir();
 				const files = getFiles();
 				listener.sendEventToClient({
 					type: 'new-public-folder',
@@ -149,7 +153,7 @@ export const startStudio = async ({
 		maxTimelineTracks,
 		remotionRoot,
 		keyboardShortcutsEnabled,
-		publicDir,
+		getPublicDir,
 		webpackOverride,
 		poll,
 		staticHash,

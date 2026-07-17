@@ -90,7 +90,7 @@ test('serves file source from an origin-less GET request', async () => {
 			outputHash: '/outputs',
 			outputHashPrefix: '/outputs',
 			previewSampleRate: null,
-			publicDir: remotionRoot,
+			getPublicDir: () => remotionRoot,
 			queueMethods: {
 				addJob: () => undefined,
 				cancelJob: () => undefined,

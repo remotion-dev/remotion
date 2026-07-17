@@ -116,9 +116,11 @@ export const studioCommand = async (
 		commandLine: parsedCli,
 	}).value;
 
-	const relativePublicDir = publicDirOption.getValue({
-		commandLine: parsedCli,
-	}).value;
+	const getRelativePublicDir = () => {
+		return publicDirOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+	};
 
 	const enableCrossSiteIsolation = enableCrossSiteIsolationOption.getValue({
 		commandLine: parsedCli,
@@ -170,7 +172,7 @@ export const studioCommand = async (
 		keyboardShortcutsEnabled,
 		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 		remotionRoot,
-		relativePublicDir,
+		getRelativePublicDir,
 		webpackOverride: ConfigInternals.getWebpackOverrideFn(),
 		poll: webpackPollOption.getValue({commandLine: parsedCli}).value,
 		getRenderDefaults,

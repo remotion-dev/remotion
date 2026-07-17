@@ -48,7 +48,7 @@ export const startServer = async (options: {
 	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	keyboardShortcutsEnabled: boolean;
-	publicDir: string;
+	getPublicDir: () => string;
 	poll: number | null;
 	staticHash: string;
 	staticHashPrefix: string;
@@ -165,7 +165,7 @@ export const startServer = async (options: {
 					getEnvVariables: options.getEnvVariables,
 					remotionRoot: options.remotionRoot,
 					entryPoint: options.userDefinedComponent,
-					publicDir: options.publicDir,
+					getPublicDir: options.getPublicDir,
 					logLevel: options.logLevel,
 					getRenderQueue: options.getRenderQueue,
 					getRenderDefaults: options.getRenderDefaults,

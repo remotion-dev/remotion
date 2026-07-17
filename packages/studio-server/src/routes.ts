@@ -31,7 +31,11 @@ import {getStaticFileFallbackHint} from './preview-server/get-static-file-fallba
 import {handleRequest} from './preview-server/handler';
 import type {LiveEventsServer} from './preview-server/live-events';
 import {parseRequestBody} from './preview-server/parse-body';
-import {fetchFolder, getFiles} from './preview-server/public-folder';
+import {
+	fetchFolder,
+	getFiles,
+	syncPublicFolderWatch,
+} from './preview-server/public-folder';
 import {getEditorName} from './preview-server/routes/open-in-editor';
 import {serveStatic} from './preview-server/serve-static';
 import {validateSameOrigin} from './preview-server/validate-same-origin';
@@ -582,7 +586,7 @@ export const handleRoutes = ({
 	getEnvVariables,
 	remotionRoot,
 	entryPoint,
-	publicDir,
+	getPublicDir,
 	logLevel,
 	getRenderQueue,
 	getRenderDefaults,
@@ -606,7 +610,7 @@ export const handleRoutes = ({
 	getEnvVariables: () => Record<string, string>;
 	remotionRoot: string;
 	entryPoint: string;
-	publicDir: string;
+	getPublicDir: () => string;
 	logLevel: LogLevel;
 	getRenderQueue: () => RenderJob[];
 	getRenderDefaults: () => RenderDefaults;
@@ -619,6 +623,8 @@ export const handleRoutes = ({
 	enableCrossSiteIsolation: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
 }): Promise<void> => {
+	syncPublicFolderWatch();
+	const publicDir = getPublicDir();
 	const url = new URL(request.url as string, 'http://localhost');
 
 	if (url.pathname === '/api/file-source') {
