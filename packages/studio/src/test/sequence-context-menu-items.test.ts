@@ -8,14 +8,23 @@ const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
 	globalThis,
 	'window',
 );
+const originalNavigatorDescriptor = Object.getOwnPropertyDescriptor(
+	globalThis,
+	'navigator',
+);
 
 afterEach(() => {
 	if (originalWindowDescriptor) {
 		Object.defineProperty(globalThis, 'window', originalWindowDescriptor);
-		return;
+	} else {
+		Reflect.deleteProperty(globalThis, 'window');
 	}
 
-	Reflect.deleteProperty(globalThis, 'window');
+	if (originalNavigatorDescriptor) {
+		Object.defineProperty(globalThis, 'navigator', originalNavigatorDescriptor);
+	} else {
+		Reflect.deleteProperty(globalThis, 'navigator');
+	}
 });
 
 const installTestWindow = () => {
@@ -90,6 +99,56 @@ test('sequence context menu does not put two dividers between docs and rename', 
 	expect(
 		items.slice(docsIndex + 1, renameIndex).map((item) => item.type),
 	).toEqual(['divider']);
+});
+
+test('Interactive.Svg context menu can copy the rendered SVG', () => {
+	installTestWindow();
+
+	const copiedTexts: string[] = [];
+	Object.defineProperty(globalThis, 'navigator', {
+		configurable: true,
+		value: {
+			clipboard: {
+				writeText: (text: string) => {
+					copiedTexts.push(text);
+					return new Promise<void>(() => undefined);
+				},
+			},
+		},
+	});
+
+	const items = getSequenceContextMenuItems({
+		assetLinkInfo: null,
+		canOpenInEditor: false,
+		deleteDisabled: false,
+		disableInteractivityDisabled: false,
+		duplicateDisabled: false,
+		fileLocation: 'src/Video.tsx:10:2',
+		includeSourceEditItems: true,
+		onDeleteSequenceFromSource: noop,
+		onDisableSequenceInteractivity: noop,
+		onDuplicateSequenceFromSource: noop,
+		openInEditor: noop,
+		originalLocation: null,
+		selectAsset: noop,
+		sequence: {
+			controls: {
+				componentIdentity: 'dev.remotion.remotion.Interactive.Svg',
+			},
+			documentationLink: null,
+			refForOutline: {
+				current: {outerHTML: '<svg><circle /></svg>'},
+			},
+		} as unknown as TSequence,
+	});
+
+	const copySvg = items.find((item) => item.id === 'copy-svg');
+	if (copySvg?.type !== 'item') {
+		throw new Error('Expected copy SVG menu item');
+	}
+
+	copySvg.onClick('copy-svg', null);
+	expect(copiedTexts).toEqual(['<svg><circle /></svg>']);
 });
 
 test('sequence freeze context menu item is hidden for audio', () => {
