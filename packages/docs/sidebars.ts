@@ -1054,6 +1054,7 @@ const sidebars: SidebarsConfig = {
 			label: 'Designing visuals',
 			items: [
 				'layers',
+				'text-behind-video',
 				'transforms',
 				'assets',
 				'fonts',

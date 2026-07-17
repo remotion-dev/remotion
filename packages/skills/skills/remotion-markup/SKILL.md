@@ -140,6 +140,10 @@ export const Subtitle = () => {
 
 See [map.md](map.md) for choosing between simple static maps, Mapbox maps, and MapLibre maps.
 
+## Text behind video
+
+See [text-behind-video.md](text-behind-video.md) for placing text behind a subject using layer order with a greenscreen or transparent foreground.
+
 ## Text highlights and annotations
 
 See [text-highlights.md](text-highlights.md) for text highlights (highlight markers), circles, underlines, strike-throughs, crossed-off text, boxes, and brackets.

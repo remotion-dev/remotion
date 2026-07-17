@@ -7175,6 +7175,15 @@ export const articles = [
 		slug: 'testing',
 	},
 	{
+		id: 'text-behind-video',
+		title: 'Text behind video',
+		relativePath: 'docs/text-behind-video.mdx',
+		compId: 'articles-docs-text-behind-video',
+		crumb: 'How To',
+		noAi: false,
+		slug: 'text-behind-video',
+	},
+	{
 		id: 'text-highlights',
 		title: 'Text highlights',
 		relativePath: 'docs/text-highlights.mdx',

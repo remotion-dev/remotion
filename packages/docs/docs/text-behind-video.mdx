@@ -1,0 +1,145 @@
+---
+image: /generated/articles-docs-text-behind-video.png
+id: text-behind-video
+title: Text behind video
+sidebar_label: Text behind video
+crumb: 'How To'
+---
+
+Make text appear behind a person or object by stacking three layers: an optional background, the text, then a foreground subject with transparency.
+
+In Remotion, elements that appear later in the tree render on top. Prefer that order over `z-index`. See [Layers](/docs/layers).
+
+## With a greenscreen video
+
+Film or use a clip with a solid green background, then remove the green with [`colorKey()`](/docs/effects/color-key):
+
+```tsx twoslash title="TextBehindVideo.tsx"
+import {colorKey} from '@remotion/effects/color-key';
+import {Video} from '@remotion/media';
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const TextBehindVideo: React.FC = () => {
+  return (
+    <AbsoluteFill style={{backgroundColor: '#0b1020'}}>
+      <AbsoluteFill
+        style={{
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <div
+          style={{
+            fontSize: 120,
+            fontWeight: 800,
+            color: 'white',
+            textAlign: 'center',
+          }}
+        >
+          HELLO
+        </div>
+      </AbsoluteFill>
+      <AbsoluteFill>
+        <Video
+          src="https://remotion.media/greenscreen.mp4"
+          effects={[
+            colorKey({
+              similarity: 0.45,
+            }),
+          ]}
+        />
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+```
+
+`colorKey()` uses WebGL2. During rendering, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer).
+
+## With a transparent video
+
+If the foreground already has an alpha channel, embed it with [`<Video>` from `@remotion/media`](/docs/media/video). No color key is needed:
+
+```tsx twoslash title="TextBehindTransparentVideo.tsx"
+import {Video} from '@remotion/media';
+import React from 'react';
+import {AbsoluteFill, staticFile} from 'remotion';
+
+export const TextBehindTransparentVideo: React.FC = () => {
+  return (
+    <AbsoluteFill style={{backgroundColor: '#0b1020'}}>
+      <AbsoluteFill
+        style={{
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <div
+          style={{
+            fontSize: 120,
+            fontWeight: 800,
+            color: 'white',
+          }}
+        >
+          HELLO
+        </div>
+      </AbsoluteFill>
+      <AbsoluteFill>
+        <Video src={staticFile('subject-with-alpha.webm')} />
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+```
+
+See [Embedding transparent videos](/docs/videos/transparency) for formats and [`<OffthreadVideo>`](/docs/offthreadvideo) options.
+
+## With a cutout image
+
+The same stacking works with a transparent PNG or WebP subject:
+
+```tsx twoslash title="TextBehindImage.tsx"
+import React from 'react';
+import {AbsoluteFill, Img, staticFile} from 'remotion';
+
+export const TextBehindImage: React.FC = () => {
+  return (
+    <AbsoluteFill style={{backgroundColor: '#292929'}}>
+      <AbsoluteFill
+        style={{
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <div
+          style={{
+            fontSize: 200,
+            fontWeight: 900,
+            color: '#ccc',
+          }}
+        >
+          GOAT
+        </div>
+      </AbsoluteFill>
+      <AbsoluteFill>
+        <Img src={staticFile('subject.png')} />
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+```
+
+## Tips
+
+- Keep the text layer under the subject in the JSX tree so the subject covers the letters where they overlap.
+- For a full-frame background video plus text behind a person, render the background first, then the text, then the keyed or transparent subject.
+- Avoid `z-index` unless you have a specific reason. Layer order is enough for this effect.
+
+## See also
+
+- [Layers](/docs/layers)
+- [Greenscreen](/docs/greenscreen)
+- [`colorKey()`](/docs/effects/color-key)
+- [Embedding transparent videos](/docs/videos/transparency)
+- [`<AbsoluteFill>`](/docs/absolute-fill)
