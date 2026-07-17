@@ -54,36 +54,15 @@ const getVideoConfigValue = ({
 	return {identifier: node.name, value};
 };
 
-export const parseVideoConfigNumericExpression = ({
-	node,
+const parseMultiplication = ({
+	left,
+	right,
 	videoConfigValues,
 }: {
-	node: Expression;
+	left: Expression;
+	right: Expression;
 	videoConfigValues: VideoConfigIdentifierValues;
 }): VideoConfigNumericExpression | null => {
-	if (node.type === 'TSAsExpression') {
-		return parseVideoConfigNumericExpression({
-			node: node.expression as Expression,
-			videoConfigValues,
-		});
-	}
-
-	const literal = getNumericLiteral(node);
-	if (literal !== null) {
-		return {type: 'literal', value: literal};
-	}
-
-	const videoConfigValue = getVideoConfigValue({node, videoConfigValues});
-	if (videoConfigValue !== null) {
-		return {type: 'video-config-value', ...videoConfigValue};
-	}
-
-	if (node.type !== 'BinaryExpression' || node.operator !== '*') {
-		return null;
-	}
-
-	const left = node.left as Expression;
-	const right = node.right as Expression;
 	const leftNumber = getNumericLiteral(left);
 	const rightNumber = getNumericLiteral(right);
 	const leftVideoConfig = getVideoConfigValue({
@@ -123,6 +102,99 @@ export const parseVideoConfigNumericExpression = ({
 	};
 };
 
+const parseSubtraction = ({
+	left,
+	right,
+	videoConfigValues,
+}: {
+	left: Expression;
+	right: Expression;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): VideoConfigNumericExpression | null => {
+	const leftNumber = getNumericLiteral(left);
+	const rightNumber = getNumericLiteral(right);
+	const leftVideoConfig = getVideoConfigValue({
+		node: left,
+		videoConfigValues,
+	});
+	const rightVideoConfig = getVideoConfigValue({
+		node: right,
+		videoConfigValues,
+	});
+
+	const amountPosition =
+		leftNumber !== null && rightVideoConfig !== null
+			? 'left'
+			: rightNumber !== null && leftVideoConfig !== null
+				? 'right'
+				: null;
+	if (amountPosition === null) {
+		return null;
+	}
+
+	const amount = amountPosition === 'left' ? leftNumber! : rightNumber!;
+	const configValue =
+		amountPosition === 'left' ? rightVideoConfig! : leftVideoConfig!;
+	const value =
+		amountPosition === 'left'
+			? amount - configValue.value
+			: configValue.value - amount;
+	if (!Number.isFinite(value)) {
+		return null;
+	}
+
+	return {
+		type: 'video-config-subtraction',
+		identifier: configValue.identifier,
+		amount,
+		configValue: configValue.value,
+		amountPosition,
+		value,
+	};
+};
+
+export const parseVideoConfigNumericExpression = ({
+	node,
+	videoConfigValues,
+}: {
+	node: Expression;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): VideoConfigNumericExpression | null => {
+	if (node.type === 'TSAsExpression') {
+		return parseVideoConfigNumericExpression({
+			node: node.expression as Expression,
+			videoConfigValues,
+		});
+	}
+
+	const literal = getNumericLiteral(node);
+	if (literal !== null) {
+		return {type: 'literal', value: literal};
+	}
+
+	const videoConfigValue = getVideoConfigValue({node, videoConfigValues});
+	if (videoConfigValue !== null) {
+		return {type: 'video-config-value', ...videoConfigValue};
+	}
+
+	if (node.type !== 'BinaryExpression') {
+		return null;
+	}
+
+	const left = node.left as Expression;
+	const right = node.right as Expression;
+
+	if (node.operator === '*') {
+		return parseMultiplication({left, right, videoConfigValues});
+	}
+
+	if (node.operator === '-') {
+		return parseSubtraction({left, right, videoConfigValues});
+	}
+
+	return null;
+};
+
 const numericExpression = (value: number): ExpressionKind => {
 	if (value < 0) {
 		return b.unaryExpression('-', b.numericLiteral(-value), true);
@@ -148,18 +220,42 @@ export const updateVideoConfigNumericExpression = ({
 			: numericExpression(value);
 	}
 
-	if (expression.type !== 'video-config-multiplication' || value === 0) {
-		return numericExpression(value);
+	if (expression.type === 'video-config-multiplication') {
+		if (value === 0) {
+			return numericExpression(value);
+		}
+
+		const multiplier = value / expression.multiplicand;
+		if (!Number.isFinite(multiplier) || multiplier === 0) {
+			return numericExpression(value);
+		}
+
+		const factor = numericExpression(multiplier);
+		const identifier = b.identifier(expression.identifier);
+		return expression.factorPosition === 'left'
+			? b.binaryExpression('*', factor, identifier)
+			: b.binaryExpression('*', identifier, factor);
 	}
 
-	const multiplier = value / expression.multiplicand;
-	if (!Number.isFinite(multiplier) || multiplier === 0) {
-		return numericExpression(value);
+	if (expression.type === 'video-config-subtraction') {
+		const amount =
+			expression.amountPosition === 'left'
+				? value + expression.configValue
+				: expression.configValue - value;
+		if (!Number.isFinite(amount)) {
+			return numericExpression(value);
+		}
+
+		if (amount === 0 && expression.amountPosition === 'right') {
+			return b.identifier(expression.identifier);
+		}
+
+		const amountNode = numericExpression(amount);
+		const identifier = b.identifier(expression.identifier);
+		return expression.amountPosition === 'left'
+			? b.binaryExpression('-', amountNode, identifier)
+			: b.binaryExpression('-', identifier, amountNode);
 	}
 
-	const factor = numericExpression(multiplier);
-	const identifier = b.identifier(expression.identifier);
-	return expression.factorPosition === 'left'
-		? b.binaryExpression('*', factor, identifier)
-		: b.binaryExpression('*', identifier, factor);
+	return numericExpression(value);
 };

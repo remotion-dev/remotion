@@ -66,6 +66,35 @@ export const Example: React.FC = () => {
 	expect(output).toContain('opacity: 4 * fps');
 });
 
+test('updateSequenceProps preserves video config subtraction expressions', async () => {
+	const input = `import {Sequence, useVideoConfig} from 'remotion';
+
+export const Example: React.FC = () => {
+	const {durationInFrames} = useVideoConfig();
+	return (
+		<Sequence
+			from={durationInFrames - 10}
+			durationInFrames={(durationInFrames - 1) as number}
+		/>
+	);
+};
+`;
+	const {output} = await updateSequenceProps({
+		input,
+		nodePath: lineColumnToNodePath(input, 6),
+		updates: [
+			{key: 'from', value: 100, defaultValue: null},
+			{key: 'durationInFrames', value: 110, defaultValue: null},
+		],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+		videoConfigValues,
+	});
+
+	expect(output).toContain('from={durationInFrames - 20}');
+	expect(output).toContain('durationInFrames={durationInFrames - 10}');
+});
+
 test('updateSequenceProps should update a number value', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
 		videoConfigValues: null,

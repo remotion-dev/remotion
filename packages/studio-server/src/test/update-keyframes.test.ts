@@ -139,6 +139,60 @@ export const Example: React.FC = () => {
 	});
 });
 
+test('updateSequenceKeyframes updates a durationInFrames subtraction when moving a keyframe', async () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
+	return (
+		<Sequence style={{opacity: interpolate(frame, [0, durationInFrames - 1], [0, 1])}} />
+	);
+};
+`;
+	const {output, updatedNodePath} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, 8),
+		updates: [
+			{
+				key: 'style.opacity',
+				operation: {
+					type: 'move',
+					moves: [{fromFrame: 119, toFrame: 100}],
+				},
+			},
+		],
+		videoConfigValues,
+	});
+
+	expect(output).toContain('[0, durationInFrames - 20]');
+	const status = computeSequencePropsStatusFromContent({
+		fileContents: output,
+		nodePath: updatedNodePath,
+		componentIdentity: null,
+		keys: ['style.opacity'],
+		effects: [],
+		videoConfigValues,
+	});
+	expect(status.props['style.opacity']).toMatchObject({
+		status: 'keyframed',
+		keyframes: [
+			{frame: 0, value: 0},
+			{
+				frame: 100,
+				value: 1,
+				frameExpression: {
+					type: 'video-config-subtraction',
+					identifier: 'durationInFrames',
+					amount: 20,
+					amountPosition: 'right',
+				},
+			},
+		],
+	});
+});
+
 const colorInput = `import React from 'react';
 import {Solid, interpolateColors, useCurrentFrame} from 'remotion';
 

@@ -50,7 +50,7 @@ export const Example: React.FC = () => {
 			postmountFor={fps * 2.5}
 			offset={-1 * fps}
 			from={fps / 2}
-			style={{scale: interpolate(frame, [0, 3.33 * fps, durationInFrames], [2, 3, 4])}}
+			style={{scale: interpolate(frame, [0, 3.33 * fps, durationInFrames - 1], [2, 3, 4])}}
 		/>
 	);
 };
@@ -103,11 +103,15 @@ export const Example: React.FC = () => {
 				},
 			},
 			{
-				frame: 120,
+				frame: 119,
 				value: 4,
 				frameExpression: {
-					type: 'video-config-value',
+					type: 'video-config-subtraction',
 					identifier: 'durationInFrames',
+					amount: 1,
+					configValue: 120,
+					amountPosition: 'right',
+					value: 119,
 				},
 			},
 		],
