@@ -143,6 +143,19 @@ export const mergeValues = ({
 
 const stackToOverrideMap: Record<string, string> = {};
 
+export type WithInteractivitySchemaOptions<
+	S extends InteractivitySchema,
+	Props extends object,
+> = {
+	Component: React.ComponentType<
+		Props & {readonly controls: SequenceControls | undefined}
+	>;
+	componentName: string;
+	componentIdentity: JsxComponentIdentity | null;
+	schema: S;
+	supportsEffects: boolean;
+};
+
 export const withInteractivitySchema = <
 	S extends InteractivitySchema,
 	Props extends object,
@@ -152,15 +165,7 @@ export const withInteractivitySchema = <
 	componentIdentity,
 	schema,
 	supportsEffects,
-}: {
-	Component: React.ComponentType<
-		Props & {readonly controls: SequenceControls | undefined}
-	>;
-	componentName: string;
-	componentIdentity: JsxComponentIdentity | null;
-	schema: S;
-	supportsEffects: boolean;
-}): React.ComponentType<Props> => {
+}: WithInteractivitySchemaOptions<S, Props>): React.ComponentType<Props> => {
 	// Schema is static for a component, so we move this outside
 	const schemaWithSequenceName = extendSchemaWithSequenceName(schema);
 	const flatSchema = getFlatSchemaWithAllKeys(schemaWithSequenceName);

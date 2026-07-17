@@ -6,8 +6,23 @@ description: One sentence describing what this element shows.
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
 import {ElementComponent} from './element';
 
+export const elementDefinition = {
+  category: 'category',
+  component: ElementComponent,
+  contributors: [],
+  description: 'One short sentence explaining what this Element demonstrates and when to use it.',
+  displayName: 'Element title',
+  durationInFrames: 120,
+  elementHeight: null,
+  elementWidth: null,
+  fps: 30,
+  height: 1080,
+  posterFrame: 60,
+  previewPadding: 0,
+  slug: 'category/element-title',
+  width: 1920,
+};
+
 # Element title
 
-One short paragraph explaining what this element demonstrates and when to use it.
-
-<ElementPage component={ElementComponent} sourceFile="./element.tsx" />
+<ElementPage definition={elementDefinition} sourceFile="./element.tsx" />

@@ -19,9 +19,11 @@ import type {
 	CanUpdateSequencePropStatus,
 	ExtrapolateType,
 	InteractivitySchema,
+	InterpolateOutputOption,
 	JsxComponentIdentity,
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
+	VideoConfigValues,
 } from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {ComponentProp} from './component-drag-data';
@@ -277,6 +279,7 @@ export type SubscribeToSequencePropsRequest = {
 	keys: string[];
 	effects: string[][];
 	clientId: string;
+	videoConfigValues: VideoConfigValues;
 };
 
 export type SubscribeToSequencePropsResponse =
@@ -558,6 +561,7 @@ export type KeyframeSettings =
 				  }
 				| undefined;
 			posterize: number | undefined;
+			output: InterpolateOutputOption | undefined;
 	  }
 	| {
 			type: 'easing';
@@ -620,6 +624,7 @@ export type PasteEffectsRequest = {
 	type: EffectClipboardPasteType;
 	effects: EffectClipboardSnapshot[];
 	clientId: string;
+	insertAtIndices: number[] | null;
 };
 
 export type PasteEffectsResponse =
@@ -768,12 +773,14 @@ export type ElementInstallRequest = {
 };
 
 export type UpdateElementInstallTargetRequest = {
+	requestId: string | null;
 	clientId: string;
 	compositionFile: string | null;
 	compositionId: string | null;
 	canInstall: boolean;
 	lastFocusedAt: number | null;
 	readOnly: boolean;
+	studioUrl: string;
 };
 
 export type UpdateElementInstallTargetResponse = {};

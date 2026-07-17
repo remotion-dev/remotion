@@ -119,6 +119,7 @@ export const pasteEffects = async ({
 	targetSequenceNodePath,
 	type,
 	effects,
+	insertAtIndices,
 	prettierConfigOverride,
 }: {
 	readonly input: string;
@@ -126,6 +127,7 @@ export const pasteEffects = async ({
 	readonly targetSequenceNodePath: SequenceNodePath;
 	readonly type: EffectClipboardPasteType;
 	readonly effects: EffectClipboardSnapshot[];
+	readonly insertAtIndices: number[] | null;
 	readonly prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<{
 	readonly output: string;
@@ -164,6 +166,17 @@ export const pasteEffects = async ({
 
 	const existingAttr = findEffectsAttr(targetJsx.attributes ?? []);
 
+	if (insertAtIndices !== null) {
+		if (
+			type !== 'effects-additive' ||
+			insertAtIndices.length !== effectCalls.length ||
+			new Set(insertAtIndices).size !== insertAtIndices.length ||
+			insertAtIndices.some((index) => !Number.isInteger(index) || index < 0)
+		) {
+			throw new Error('Cannot paste effects: invalid insertion indices');
+		}
+	}
+
 	if (type === 'effects-replacing') {
 		if (existingAttr) {
 			removeEffectsAttr(targetJsx.attributes, existingAttr);
@@ -172,14 +185,41 @@ export const pasteEffects = async ({
 		if (effectCalls.length > 0) {
 			targetJsx.attributes.push(makeEffectsAttr(makeEffectsArray(effectCalls)));
 		}
-	} else if (existingAttr) {
-		getEffectsArray(existingAttr).elements.push(
-			...(effectCalls as ArrayExpression['elements']),
-		);
-	} else if (effectCalls.length > 0) {
-		targetJsx.attributes.push(makeEffectsAttr(makeEffectsArray(effectCalls)));
-	} else {
+	} else if (effectCalls.length === 0) {
 		throw new Error('Cannot paste effects: no effects were copied');
+	} else if (insertAtIndices === null) {
+		if (existingAttr) {
+			getEffectsArray(existingAttr).elements.push(
+				...(effectCalls as ArrayExpression['elements']),
+			);
+		} else {
+			targetJsx.attributes.push(makeEffectsAttr(makeEffectsArray(effectCalls)));
+		}
+	} else {
+		const elements = existingAttr
+			? getEffectsArray(existingAttr).elements
+			: ([] as ArrayExpression['elements']);
+		const indexedCalls = effectCalls
+			.map((effect, index) => ({
+				effect,
+				index: insertAtIndices[index] as number,
+			}))
+			.sort((left, right) => left.index - right.index);
+		for (const indexedCall of indexedCalls) {
+			elements.splice(
+				Math.min(indexedCall.index, elements.length),
+				0,
+				indexedCall.effect,
+			);
+		}
+
+		if (!existingAttr) {
+			targetJsx.attributes.push(
+				makeEffectsAttr(
+					b.arrayExpression(elements as never) as ArrayExpression,
+				),
+			);
+		}
 	}
 
 	const finalFile = serializeAst(ast);

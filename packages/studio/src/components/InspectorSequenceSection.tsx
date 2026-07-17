@@ -155,12 +155,14 @@ export const InspectorSequenceSection: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
 	readonly renderSectionHeader: (children: React.ReactNode) => React.ReactNode;
+	readonly renderTransformControls: () => React.ReactNode;
 }> = ({
 	sequence,
 	validatedLocation,
 	nodePathInfo,
 	keyframeDisplayOffset,
 	renderSectionHeader,
+	renderTransformControls,
 }) => {
 	const {tree} = useTimelineExpandedTree({
 		sequence,
@@ -315,6 +317,7 @@ export const InspectorSequenceSection: React.FC<{
 						<React.Fragment key={group.id}>
 							{i === 0 ? null : <div style={controlsEffectsDivider} />}
 							{renderSectionHeader(group.label)}
+							{group.id === 'transforms' ? renderTransformControls() : null}
 							{group.rows.map(renderRow)}
 						</React.Fragment>
 					))}

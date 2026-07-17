@@ -252,6 +252,10 @@ export const config: VercelConfig = {
 			permanent: false,
 		}),
 		routes.redirect('/effects', '/docs/effects', {permanent: false}),
+		routes.redirect('/design-systems', '/docs/design-systems', {
+			permanent: false,
+		}),
+		routes.redirect('/skills', '/docs/ai/skills', {permanent: false}),
 		routes.redirect(
 			'/repro',
 			'https://stackblitz.com/fork/github/remotion-dev/template-helloworld',
@@ -323,11 +327,9 @@ export const config: VercelConfig = {
 			'/docs/animation-math',
 			{permanent: false},
 		),
-		routes.redirect(
-			'/docs/video-vs-offthreadvideo',
-			'/docs/video-tags',
-			{permanent: false},
-		),
+		routes.redirect('/docs/video-vs-offthreadvideo', '/docs/video-tags', {
+			permanent: false,
+		}),
 		routes.redirect(
 			'/bbb.webm',
 			'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.720p.vp9.webm',

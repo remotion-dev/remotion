@@ -22,6 +22,123 @@ export const Example: React.FC = () => {
 };
 `;
 
+const videoConfigValues = {
+	durationInFrames: 120,
+	fps: 30,
+	height: 1080,
+	width: 1920,
+};
+
+test('updateSequenceKeyframes preserves representable video config frame expressions', async () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	const {fps, durationInFrames} = useVideoConfig();
+	return (
+		<Sequence style={{scale: interpolate(frame, [0, 3.33 * fps, durationInFrames], [2, 3, 4])}} />
+	);
+};
+`;
+	const added = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, 8),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {type: 'add', frame: 50, value: 2.5},
+			},
+		],
+		videoConfigValues,
+	});
+	expect(added.output).toContain('[0, 50, 3.33 * fps, durationInFrames]');
+
+	const {output, updatedNodePath} = await updateSequenceKeyframes({
+		input: added.output,
+		nodePath: added.updatedNodePath,
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'move',
+					moves: [{fromFrame: 99.9, toFrame: 100}],
+				},
+			},
+		],
+		videoConfigValues,
+	});
+
+	expect(output).toContain(
+		'[0, 50, 3.3333333333333335 * fps, durationInFrames]',
+	);
+	const status = computeSequencePropsStatusFromContent({
+		fileContents: output,
+		nodePath: updatedNodePath,
+		componentIdentity: null,
+		keys: ['style.scale'],
+		effects: [],
+		videoConfigValues,
+	});
+	expect(status.props['style.scale']).toMatchObject({
+		status: 'keyframed',
+		keyframes: [
+			{frame: 0, value: 2},
+			{frame: 50, value: 2.5},
+			{frame: 100, value: 3},
+			{frame: 120, value: 4},
+		],
+	});
+});
+
+test('updateSequenceKeyframes updates an fps multiplier when moving a keyframe', async () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	return (
+		<Sequence style={{opacity: interpolate(frame, [0, fps * 6], [0.35, 1])}} />
+	);
+};
+`;
+	const {output, updatedNodePath} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, 8),
+		updates: [
+			{
+				key: 'style.opacity',
+				operation: {
+					type: 'move',
+					moves: [
+						{fromFrame: 0, toFrame: 1},
+						{fromFrame: 180, toFrame: 160},
+					],
+				},
+			},
+		],
+		videoConfigValues,
+	});
+
+	expect(output).toContain('[1, fps * 5.333333333333333]');
+	const status = computeSequencePropsStatusFromContent({
+		fileContents: output,
+		nodePath: updatedNodePath,
+		componentIdentity: null,
+		keys: ['style.opacity'],
+		effects: [],
+		videoConfigValues,
+	});
+	expect(status.props['style.opacity']).toMatchObject({
+		status: 'keyframed',
+		keyframes: [
+			{frame: 1, value: 0.35},
+			{frame: 160, value: 1},
+		],
+	});
+});
+
 const colorInput = `import React from 'react';
 import {Solid, interpolateColors, useCurrentFrame} from 'remotion';
 
@@ -102,6 +219,27 @@ export const Comp = () => {
 };
 `;
 
+const scaleEffectInput = `import {scale} from '@remotion/effects/scale';
+import {HtmlInCanvas} from '@remotion/html-in-canvas';
+
+export const Comp = () => {
+	return (
+		<HtmlInCanvas effects={[scale({scale: 1})]}>
+			hi
+		</HtmlInCanvas>
+	);
+};
+`;
+
+const scaleEffectSchema = {
+	scale: {
+		type: 'number',
+		default: 1,
+		hiddenFromList: false,
+		defaultKeyframeOutput: 'perceptual-scale',
+	},
+} satisfies InteractivitySchema;
+
 const waveSchema = {
 	phase: {
 		type: 'number',
@@ -123,6 +261,7 @@ const getLine = (input: string, needle: string): number => {
 
 test('updateSequenceKeyframes adds a keyframe to an existing interpolation', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input: sequenceInput,
 		nodePath: lineColumnToNodePath(
 			sequenceInput,
@@ -156,6 +295,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {output} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
 		updates: [
@@ -185,6 +325,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {output} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
 		updates: [
@@ -214,6 +355,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {output} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
 		updates: [
@@ -246,6 +388,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {output} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
 		updates: [
@@ -264,6 +407,7 @@ export const Example: React.FC = () => {
 test('updateSequenceKeyframes updates a keyframe at the same frame', async () => {
 	const {output, oldValueStrings, newValueStrings} =
 		await updateSequenceKeyframes({
+			videoConfigValues: null,
 			input: sequenceInput,
 			nodePath: lineColumnToNodePath(
 				sequenceInput,
@@ -296,6 +440,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {output} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
 		updates: [
@@ -305,6 +450,7 @@ export const Example: React.FC = () => {
 					type: 'settings',
 					clamping: {left: 'extend', right: 'wrap'},
 					posterize: undefined,
+					output: undefined,
 				},
 			},
 		],
@@ -314,6 +460,72 @@ export const Example: React.FC = () => {
 	expect(output).toContain("extrapolateLeft: 'extend'");
 	expect(output).toContain("extrapolateRight: 'wrap'");
 	expect(output).not.toContain('posterize');
+});
+
+test('updateSequenceKeyframes updates output settings', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [0, 100], [2, 4])}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'settings',
+					clamping: {left: 'extend', right: 'extend'},
+					posterize: undefined,
+					output: 'perceptual-scale',
+				},
+			},
+		],
+	});
+
+	expect(output).toContain("output: 'perceptual-scale'");
+});
+
+test('updateSequenceKeyframes removes linear output settings', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<AbsoluteFill>
+\t\t\t<div style={{scale: interpolate(frame, [0, 100], [2, 4], {output: 'perceptual-scale'})}} />
+\t\t</AbsoluteFill>
+\t);
+};
+`;
+	const {output} = await updateSequenceKeyframes({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'settings',
+					clamping: {left: 'extend', right: 'extend'},
+					posterize: undefined,
+					output: 'linear',
+				},
+			},
+		],
+	});
+
+	expect(output).not.toContain('output');
 });
 
 test('updateSequenceKeyframes sets one easing segment and fills linear segments', async () => {
@@ -330,6 +542,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {output} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
 		updates: [
@@ -364,6 +577,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {output} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
 		updates: [
@@ -411,6 +625,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {output} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
 		updates: [
@@ -444,6 +659,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {output} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
 		updates: [
@@ -477,6 +693,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {output} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
 		updates: [
@@ -497,6 +714,7 @@ export const Example: React.FC = () => {
 
 test('updateSequenceKeyframes sets easing for color keyframes', async () => {
 	const {output} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input: colorInput,
 		nodePath: lineColumnToNodePath(colorInput, getLine(colorInput, '<Solid')),
 		updates: [
@@ -520,6 +738,7 @@ test('updateSequenceKeyframes sets easing for color keyframes', async () => {
 
 test('updateSequenceKeyframes only updates posterize for color keyframes', async () => {
 	const {output} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input: colorInput,
 		nodePath: lineColumnToNodePath(colorInput, getLine(colorInput, '<Solid')),
 		updates: [
@@ -529,6 +748,7 @@ test('updateSequenceKeyframes only updates posterize for color keyframes', async
 					type: 'settings',
 					clamping: {left: 'extend', right: 'wrap'},
 					posterize: 3,
+					output: undefined,
 				},
 			},
 		],
@@ -544,6 +764,7 @@ test('updateSequenceKeyframes only updates posterize for color keyframes', async
 
 test('updateSequenceKeyframes converts a static value to an interpolation', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input: sequenceInput,
 		nodePath: lineColumnToNodePath(
 			sequenceInput,
@@ -598,6 +819,7 @@ export const Example: React.FC = () => {
 		},
 	} satisfies InteractivitySchema;
 	const {output} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, '<div')),
 		schema,
@@ -636,6 +858,7 @@ test('updateSequenceKeyframes rejects non-keyframable fields', async () => {
 
 	await expect(
 		updateSequenceKeyframes({
+			videoConfigValues: null,
 			input: sequenceInput,
 			nodePath: lineColumnToNodePath(
 				sequenceInput,
@@ -655,6 +878,7 @@ test('updateSequenceKeyframes rejects non-keyframable fields', async () => {
 test('updateSequenceKeyframes rejects enum fields', async () => {
 	await expect(
 		updateSequenceKeyframes({
+			videoConfigValues: null,
 			input: sequenceInput,
 			nodePath: lineColumnToNodePath(
 				sequenceInput,
@@ -673,6 +897,7 @@ test('updateSequenceKeyframes rejects enum fields', async () => {
 
 test('updateSequenceKeyframes converts a static value to a single-keyframe interpolation at frame 0', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input: sequenceInput,
 		nodePath: lineColumnToNodePath(
 			sequenceInput,
@@ -690,6 +915,7 @@ test('updateSequenceKeyframes converts a static value to a single-keyframe inter
 	expect(output).toContain('opacity: interpolate(frame, [0], [0.75], {');
 	expect(output).toContain("extrapolateLeft: 'clamp'");
 	expect(output).toContain("extrapolateRight: 'clamp'");
+	expect(output).not.toContain('perceptual-scale');
 });
 
 test('updateSequenceKeyframes adds a missing nested prop before keyframing it', async () => {
@@ -705,6 +931,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'opacity')),
 		schema: NoReactInternals.sequenceSchema,
@@ -721,10 +948,12 @@ export const Example: React.FC = () => {
 	expect(output).toContain('scale: interpolate(frame, [30], [2], {');
 	expect(output).toContain("extrapolateLeft: 'clamp'");
 	expect(output).toContain("extrapolateRight: 'clamp'");
+	expect(output).toContain("output: 'perceptual-scale'");
 });
 
 test('updateSequenceKeyframes adds a keyframe to an existing color interpolation', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input: colorInput,
 		nodePath: lineColumnToNodePath(colorInput, getLine(colorInput, '<Solid')),
 		updates: [
@@ -749,6 +978,7 @@ test('updateSequenceKeyframes converts a static string value to a color interpol
 		"'red'",
 	);
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, '<Solid')),
 		updates: [
@@ -765,6 +995,7 @@ test('updateSequenceKeyframes converts a static string value to a color interpol
 
 test('updateSequenceKeyframes converts static translate to interpolate', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input: translateInput,
 		nodePath: lineColumnToNodePath(
 			translateInput,
@@ -802,6 +1033,7 @@ export const Example: React.FC = () => {
 `;
 	const {output, oldValueStrings, updatedNodePath} =
 		await updateSequenceKeyframes({
+			videoConfigValues: null,
 			input,
 			nodePath: lineColumnToNodePath(input, getLine(input, '<div')),
 			schema: translateSchema,
@@ -822,6 +1054,7 @@ export const Example: React.FC = () => {
 	expect(output).toContain('useCurrentFrame');
 	expect(output).toContain('interpolate');
 	const status = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: output,
 		nodePath: updatedNodePath,
 		componentIdentity: null,
@@ -835,6 +1068,7 @@ export const Example: React.FC = () => {
 		easing: [],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -850,6 +1084,7 @@ test('updateSequenceKeyframes migrates translate away from interpolateColors', a
 			"translate: interpolateColors(frame, [44], ['0px 59px'])",
 		);
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'translate')),
 		schema: translateSchema,
@@ -871,6 +1106,7 @@ test('updateSequenceKeyframes migrates translate away from interpolateColors', a
 
 test('updateSequenceKeyframes converts static rotate to interpolate', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input: rotateInput,
 		nodePath: lineColumnToNodePath(rotateInput, getLine(rotateInput, 'rotate')),
 		schema: rotateSchema,
@@ -901,6 +1137,7 @@ test('updateSequenceKeyframes migrates rotate away from interpolateColors', asyn
 			"rotate: interpolateColors(frame, [55], ['19deg'])",
 		);
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'rotate')),
 		schema: rotateSchema,
@@ -951,6 +1188,7 @@ export default CenteredSolid;
 `;
 	const nodePath = lineColumnToNodePath(input, getLine(input, '<Solid'));
 	const {output, updatedNodePath} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input,
 		nodePath,
 		updates: [
@@ -966,6 +1204,7 @@ export default CenteredSolid;
 	expect(output).toContain("extrapolateLeft: 'clamp'");
 	expect(output).toContain("extrapolateRight: 'clamp'");
 	const status = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: output,
 		nodePath: updatedNodePath,
 		componentIdentity: null,
@@ -979,11 +1218,13 @@ export default CenteredSolid;
 		easing: [],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
 test('updateSequenceKeyframes keeps an interpolation when one keyframe remains', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input: sequenceInput,
 		nodePath: lineColumnToNodePath(
 			sequenceInput,
@@ -1015,6 +1256,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {output} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
 		updates: [
@@ -1043,6 +1285,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const {output} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
 		updates: [
@@ -1066,6 +1309,7 @@ test('updateSequenceKeyframes moves overlapping selected keyframes together', as
 	);
 	const {output, oldValueStrings, newValueStrings} =
 		await updateSequenceKeyframes({
+			videoConfigValues: null,
 			input,
 			nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
 			updates: [
@@ -1100,6 +1344,7 @@ test('updateSequenceKeyframes resorts keyframes when moving past an adjacent key
 	);
 	const {output, oldValueStrings, newValueStrings} =
 		await updateSequenceKeyframes({
+			videoConfigValues: null,
 			input,
 			nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
 			updates: [
@@ -1136,6 +1381,7 @@ test('updateSequenceKeyframes replaces an existing keyframe when moving onto it'
 		);
 	const {output, oldValueStrings, newValueStrings} =
 		await updateSequenceKeyframes({
+			videoConfigValues: null,
 			input,
 			nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
 			updates: [
@@ -1164,6 +1410,7 @@ test('updateSequenceKeyframes allows moving keyframes outside the sequence range
 		'interpolate(frame, [0, 50, 100], [2, 3, 4])',
 	);
 	const {output, newValueStrings} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input,
 		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
 		updates: [
@@ -1195,6 +1442,7 @@ test('updateSequenceKeyframes converts the last keyframe to a static value', asy
 	);
 	const {output, oldValueStrings, newValueStrings, updatedNodePath} =
 		await updateSequenceKeyframes({
+			videoConfigValues: null,
 			input,
 			nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
 			updates: [
@@ -1209,6 +1457,7 @@ test('updateSequenceKeyframes converts the last keyframe to a static value', asy
 	expect(newValueStrings).toEqual(['320']);
 	expect(output).toContain('style={{scale: 320}}');
 	const status = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: output,
 		nodePath: updatedNodePath,
 		componentIdentity: null,
@@ -1223,6 +1472,7 @@ test('updateSequenceKeyframes converts the last keyframe to a static value', asy
 
 test('updateSequenceKeyframes keeps a color interpolation when one keyframe remains', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
+		videoConfigValues: null,
 		input: colorInput,
 		nodePath: lineColumnToNodePath(colorInput, getLine(colorInput, '<Solid')),
 		updates: [
@@ -1245,6 +1495,7 @@ test('updateEffectKeyframes converts a static value to a clamped interpolation',
 		'0.2',
 	);
 	const {serialized, oldValueStrings} = updateEffectKeyframesAst({
+		videoConfigValues: null,
 		input,
 		sequenceNodePath: lineColumnToNodePath(
 			input,
@@ -1263,10 +1514,34 @@ test('updateEffectKeyframes converts a static value to a clamped interpolation',
 	expect(serialized).toContain('amount: interpolate(frame, [40], [0.6], {');
 	expect(serialized).toContain('extrapolateLeft: "clamp"');
 	expect(serialized).toContain('extrapolateRight: "clamp"');
+	expect(serialized).not.toContain('perceptual-scale');
+});
+
+test('updateEffectKeyframes uses the schema keyframe output default', () => {
+	const {serialized} = updateEffectKeyframesAst({
+		videoConfigValues: null,
+		input: scaleEffectInput,
+		sequenceNodePath: lineColumnToNodePath(
+			scaleEffectInput,
+			getLine(scaleEffectInput, '<HtmlInCanvas'),
+		),
+		effectIndex: 0,
+		schema: scaleEffectSchema,
+		updates: [
+			{
+				key: 'scale',
+				operation: {type: 'add', frame: 40, value: 2},
+			},
+		],
+	});
+
+	expect(serialized).toContain('scale: interpolate(frame, [40], [2], {');
+	expect(serialized).toContain('output: "perceptual-scale"');
 });
 
 test('updateEffectKeyframes adds a missing prop before keyframing it', () => {
 	const {serialized, oldValueStrings} = updateEffectKeyframesAst({
+		videoConfigValues: null,
 		input: waveEffectInput,
 		sequenceNodePath: lineColumnToNodePath(
 			waveEffectInput,
@@ -1293,6 +1568,7 @@ test('updateEffectKeyframes adds a missing prop before keyframing it', () => {
 test('updateEffectKeyframes adds props to a zero-argument effect', () => {
 	const input = waveEffectInput.replace('wave({})', 'wave()');
 	const {serialized, oldValueStrings} = updateEffectKeyframesAst({
+		videoConfigValues: null,
 		input,
 		sequenceNodePath: lineColumnToNodePath(input, getLine(input, '<Solid')),
 		effectIndex: 0,
@@ -1312,6 +1588,7 @@ test('updateEffectKeyframes adds props to a zero-argument effect', () => {
 
 test('updateEffectKeyframes sets one easing segment and fills linear segments', () => {
 	const {serialized} = updateEffectKeyframesAst({
+		videoConfigValues: null,
 		input: effectInput,
 		sequenceNodePath: lineColumnToNodePath(
 			effectInput,
@@ -1343,6 +1620,7 @@ test('updateSequenceKeyframes converts the last color keyframe to a static value
 	);
 	const {output, oldValueStrings, newValueStrings, updatedNodePath} =
 		await updateSequenceKeyframes({
+			videoConfigValues: null,
 			input,
 			nodePath: lineColumnToNodePath(input, getLine(input, '<Solid')),
 			updates: [
@@ -1357,6 +1635,7 @@ test('updateSequenceKeyframes converts the last color keyframe to a static value
 	expect(newValueStrings).toEqual(["'blue'"]);
 	expect(output).toContain("color={'blue'}");
 	const status = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: output,
 		nodePath: updatedNodePath,
 		componentIdentity: null,
@@ -1371,6 +1650,7 @@ test('updateSequenceKeyframes converts the last color keyframe to a static value
 
 test('updateEffectKeyframes removes a keyframe from an effect prop interpolation', () => {
 	const {serialized, oldValueStrings, effectCallee} = updateEffectKeyframesAst({
+		videoConfigValues: null,
 		input: effectInput,
 		sequenceNodePath: lineColumnToNodePath(
 			effectInput,
@@ -1396,6 +1676,7 @@ test('updateEffectKeyframes removes a keyframe from an effect prop interpolation
 
 test('updateEffectKeyframes allows moving keyframes outside the sequence range', () => {
 	const {serialized, newValueStrings} = updateEffectKeyframesAst({
+		videoConfigValues: null,
 		input: effectInput,
 		sequenceNodePath: lineColumnToNodePath(
 			effectInput,
@@ -1426,6 +1707,7 @@ test('updateEffectKeyframes allows moving keyframes outside the sequence range',
 
 test('updateEffectKeyframes replaces an existing keyframe when moving onto it', () => {
 	const {serialized, newValueStrings} = updateEffectKeyframesAst({
+		videoConfigValues: null,
 		input: effectInput,
 		sequenceNodePath: lineColumnToNodePath(
 			effectInput,
@@ -1457,6 +1739,7 @@ test('updateEffectKeyframes keeps an effect prop interpolation with one keyframe
 		'interpolate(frame, [0, 100], [0.2, 0.8])',
 	);
 	const {serialized} = updateEffectKeyframesAst({
+		videoConfigValues: null,
 		input,
 		sequenceNodePath: lineColumnToNodePath(
 			input,
@@ -1481,6 +1764,7 @@ test('updateEffectKeyframes converts the last effect keyframe to a static value'
 	);
 	const {serialized, oldValueStrings, newValueStrings, effectCallee} =
 		updateEffectKeyframesAst({
+			videoConfigValues: null,
 			input,
 			sequenceNodePath: lineColumnToNodePath(
 				input,

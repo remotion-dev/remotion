@@ -86,11 +86,9 @@ This is useful to counteract quality loss when the canvas is scaled up – for e
 Children to draw to the canvas.  
 Children will be wrapped in a `<div>` with the given `width` and `height`.
 
-Do not nest `<HtmlInCanvas>` inside another `<HtmlInCanvas>`. Nesting is not supported and throws:
-
-```
-<HtmlInCanvas> effects cannot be nested together. Chrome will only display the outer effect. Consider merging the effects into one if you can.
-```
+Nesting `<HtmlInCanvas>` components is supported from <AvailableFrom v="4.0.491" inline />.
+Native browser support for nesting requires Chrome 152.0.7944.0 or later.
+Older Chrome versions support a single `<HtmlInCanvas>`, but do not correctly paint nested HTML-in-canvas subtrees.
 
 ### `effects?`<AvailableFrom v="4.0.464" />
 

@@ -33,6 +33,16 @@ import {PieDemo} from './Pie';
 import {PolygonDemo} from './Polygon';
 import {RectDemo} from './Rect';
 import {RippleDocsDemo} from './RippleDemo';
+import {RoughNotationAnimatedSeedDemo} from './RoughNotationAnimatedSeedDemo';
+import {RoughNotationBoxDemo} from './RoughNotationBoxDemo';
+import {RoughNotationBracketDemo} from './RoughNotationBracketDemo';
+import {RoughNotationCircleDemo} from './RoughNotationCircleDemo';
+import {RoughNotationCrossedOffDemo} from './RoughNotationCrossedOffDemo';
+import {RoughNotationHighlightDemo} from './RoughNotationHighlightDemo';
+import {RoughNotationPosterizedProgressDemo} from './RoughNotationPosterizedProgressDemo';
+import {RoughNotationPosterizedSeedDemo} from './RoughNotationPosterizedSeedDemo';
+import {RoughNotationStrikeThroughDemo} from './RoughNotationStrikeThroughDemo';
+import {RoughNotationUnderlineDemo} from './RoughNotationUnderlineDemo';
 import {RoundedTextBox} from './RoundedTextBox';
 import {ShaderDemoComp} from './ShaderDemo';
 import {SparkDemo} from './Spark';
@@ -1396,6 +1406,136 @@ export const lightLeakDemo: DemoType = {
 			optional: 'no',
 		},
 	],
+};
+
+export const roughNotationHighlightDemo: DemoType = {
+	comp: RoughNotationHighlightDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-highlight',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationUnderlineDemo: DemoType = {
+	comp: RoughNotationUnderlineDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-underline',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationStrikeThroughDemo: DemoType = {
+	comp: RoughNotationStrikeThroughDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-strike-through',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationCrossedOffDemo: DemoType = {
+	comp: RoughNotationCrossedOffDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-crossed-off',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationBoxDemo: DemoType = {
+	comp: RoughNotationBoxDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-box',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationBracketDemo: DemoType = {
+	comp: RoughNotationBracketDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-bracket',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationCircleDemo: DemoType = {
+	comp: RoughNotationCircleDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-circle',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationAnimatedSeedDemo: DemoType = {
+	comp: RoughNotationAnimatedSeedDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-animated-seed',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationPosterizedSeedDemo: DemoType = {
+	comp: RoughNotationPosterizedSeedDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-posterized-seed',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationPosterizedProgressDemo: DemoType = {
+	comp: RoughNotationPosterizedProgressDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-posterized-progress',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
 };
 
 export const starburstDemo: DemoType = {

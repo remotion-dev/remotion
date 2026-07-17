@@ -6,7 +6,7 @@
 	"scripts": {
 		"test": "turbo run lint test --no-update-notifier",
 		"ts-build": "tsc -b --verbose --watch",
-		"stylecheck": "turbo run lint formatting --no-update-notifier",
+		"stylecheck": "turbo run lint formatting --no-update-notifier && bun run checkskills",
 		"formatting": "turbo run formatting --no-update-notifier",
 		"format": "bun pre-commit.ts",
 		"build": "turbo run make --no-update-notifier",
@@ -44,6 +44,10 @@
 		"watchthree": "turbo watch make --experimental-write-cache --filter='@remotion/three'",
 		"release": "bun publish.ts && turbo run publishprivate --concurrency=1 && git push --tags && git push",
 		"publishtemplates": "cd packages/it-tests && bun src/templates/publish.ts",
+		"playground": "bun packages/skills-evals/src/playground.ts",
+		"checkskills": "bun packages/skills/scripts/sync-agent-skills.ts --check && bun packages/skills/scripts/sync-best-practices.ts --check && bun run validateskills",
+		"syncskills": "bun packages/skills/scripts/sync-agent-skills.ts && bun packages/skills/scripts/sync-best-practices.ts",
+		"validateskills": "bun packages/skills/scripts/validate-links.ts",
 		"cleantypes": "rm -rf packages/**/tsconfig.tsbuildinfo && rm -f packages/tsconfig.tsbuildinfo",
 		"clean": "turbo run clean && rm -rf packages/**/dist && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -f packages/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo && rm -rf .turbo",
 		"cleanall": "turbo run clean && rm -rf packages/**/dist && rm -rf packages/**/node_modules && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -f packages/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo && rm -rf .turbo",
@@ -94,6 +98,7 @@
 			"!packages/template-vercel/**",
 			"!packages/skills-evals/.runs/**",
 			"!packages/skills-evals/.site/**",
+			"!packages/skills-evals/.playground/**",
 			"!packages/bugs"
 		],
 		"catalog": {

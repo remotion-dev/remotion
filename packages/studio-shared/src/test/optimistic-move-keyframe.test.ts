@@ -20,6 +20,7 @@ const previous: CanUpdateSequencePropsResponse = {
 			easing: [{type: 'linear'}, {type: 'linear'}],
 			clamping: {left: 'extend', right: 'extend'},
 			posterize: undefined,
+			output: undefined,
 		},
 	},
 	effects: [
@@ -39,6 +40,7 @@ const previous: CanUpdateSequencePropsResponse = {
 					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
+					output: undefined,
 				},
 			},
 		},

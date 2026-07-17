@@ -231,7 +231,7 @@ const CompWhenItHasDimensions: React.FC<{
 	}
 
 	return (
-		<div style={outer}>
+		<div className="remotion-studio-composition-container" style={outer}>
 			<PortalContainer
 				contentDimensions={contentDimensions as Dimensions}
 				scale={scale}

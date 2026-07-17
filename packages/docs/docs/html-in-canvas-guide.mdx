@@ -16,7 +16,13 @@ crumb: 'Designing visuals'
   style={{width: '100%', borderRadius: 'var(--ifm-global-radius)', marginBottom: 0, aspectRatio: '3 / 1'}}
 />
 
-<SuggestedPrompts prompts={['use remotion html-in-canvas best practices. create a sample composition and apply a glitch effect to it!', 'use remotion html-in-canvas best practices. make a new composition and implement a subtle CRT convex shape shader on top of a HTML element. content: terminal and remotion themed. the command and output of "npx create-video@latest --yes --blank my-video" should be animated. then "claude" should be invoked and the prompt "Add a CRT effect using HTML-in-canvas " should be shown']} />
+<SuggestedPrompt prompt="/remotion-create Create a sample composition and apply an HTML-in-canvas glitch effect to it." />
+
+<SuggestedPrompt
+  prompt={
+    '/remotion-create Make a new composition with a subtle CRT convex-shape shader over an HTML element. Use a terminal and Remotion theme. Animate the command and output of "npx create-video@latest --yes --blank my-video", followed by invoking "claude" and entering the prompt "Add a CRT effect using HTML-in-canvas".'
+  }
+/>
 
 Regular video editors are canvas-based which allows for complex effects and compositing that is not possible with plain CSS.
 
@@ -93,8 +99,7 @@ You can also build your own — see [Making a custom HTML-in-canvas presentation
 HTML-in-canvas is only available in Chrome 149 and later with the `chrome://flags/#canvas-draw-element` flag enabled.  
 The API is unstable - Chrome may change the API or even remove it in the future.
 
-Nesting `<HtmlInCanvas>` inside another `<HtmlInCanvas>` is not supported. Chrome would only display the outer effect, so this is invalid in Remotion. It will throw an error.  
-If you need to combine multiple effects, try to merge them into a single `onPaint` callback.
+Nesting [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) components requires Chrome or Chromium `152.0.7944.0` or later.
 
 ## Rendering
 
@@ -120,7 +125,7 @@ If your machine has no GPU, we recommend `--gl=swangle` instead (default on Lamb
 
 ## AI agents
 
-Remotion publishes [Agent Skills](/docs/ai/skills) that teach AI agents like Claude Code, Codex and Cursor how to use [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) correctly — including the [`onInit`](/docs/remotion/html-in-canvas#oninit) / [`onPaint`](/docs/remotion/html-in-canvas#onpaint) lifecycle, the [`--gl=angle` flag](#rendering) and the [no-nesting rule](#limitations).
+Remotion publishes [Agent Skills](/docs/ai/skills) that teach AI agents like Claude Code, Codex and Cursor how to use [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) correctly — including the [`onInit`](/docs/remotion/html-in-canvas#oninit) / [`onPaint`](/docs/remotion/html-in-canvas#onpaint) lifecycle, the [`--gl=angle` flag](#rendering) and [nesting requirements](#limitations).
 
 Install them with:
 
@@ -130,11 +135,11 @@ npx skills add remotion-dev/skills
 
 ## Leveraging HTML-in-canvas for client-side rendering
 
-Not directly related, but also leveraging the same technology is the [HTML-in-canvas option in `@remotion/web-renderer`](/docs/client-side-rendering/html-in-canvas).
+Not directly related, but [`@remotion/web-renderer`](/docs/client-side-rendering/html-in-canvas) also uses this technology to capture frames.
 
-When enabled, the [client-side renderer](/docs/client-side-rendering) uses HTML-in-canvas to capture full frames in the browser, which can produce more accurate output than the default DOM compositor.
+The [client-side renderer](/docs/client-side-rendering) automatically uses HTML-in-canvas when the browser supports nested captures. This can produce more accurate output than the built-in DOM compositor.
 
-This mode cannot render compositions that contain [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) elements, because doing so would [nest HTML-in-canvas](#limitations) captures, which Chrome does not support.
+Compositions containing nested [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) elements require Chrome or Chromium `152.0.7944.0` or later.
 
 ## See also
 

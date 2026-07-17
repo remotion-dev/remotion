@@ -27,9 +27,11 @@ const leftChromeStyle: React.CSSProperties = {
 
 const keyframeControlsColumnBaseStyle: React.CSSProperties = {
 	alignItems: 'center',
+	boxSizing: 'border-box',
 	display: 'flex',
 	flexShrink: 0,
 	justifyContent: 'flex-start',
+	paddingLeft: TIMELINE_ROW_BASE_PADDING,
 };
 
 export const TimelineRowChrome: React.FC<{

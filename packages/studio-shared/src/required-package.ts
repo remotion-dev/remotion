@@ -1,4 +1,7 @@
 import type {InsertableCompositionElement} from './api-requests';
+import {isValidPackageName} from './package-name';
+
+export {isValidPackageName} from './package-name';
 
 export const getRequiredPackageForImportPath = (
 	importPath: string,
@@ -9,11 +12,15 @@ export const getRequiredPackageForImportPath = (
 
 	if (importPath.startsWith('@')) {
 		const [scope, scopedPackageName] = importPath.split('/');
-		return scope && scopedPackageName ? `${scope}/${scopedPackageName}` : null;
+		const scopedPackage =
+			scope && scopedPackageName ? `${scope}/${scopedPackageName}` : null;
+		return scopedPackage && isValidPackageName(scopedPackage)
+			? scopedPackage
+			: null;
 	}
 
 	const [packageName] = importPath.split('/');
-	return packageName || null;
+	return packageName && isValidPackageName(packageName) ? packageName : null;
 };
 
 export const getRequiredPackageForInsertableElement = (

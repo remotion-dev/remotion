@@ -54,5 +54,9 @@
 		{"path": "../elevenlabs"},
 		{"path": "../cli"}
 	],
-	"exclude": ["copy-convert.ts", "render-cards.ts"]
+	"exclude": [
+		"copy-convert.ts",
+		"render-cards.ts",
+		"render-element-previews.ts"
+	]
 }

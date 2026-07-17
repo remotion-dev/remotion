@@ -23,12 +23,23 @@ import * as recast from 'recast';
 import type {
 	CanUpdateSequencePropStatus,
 	ExtrapolateType,
-	InteractivitySchemaField,
-	SequenceNodePath,
 	InteractivitySchema,
+	InteractivitySchemaField,
+	InterpolateOutputOption,
+	SequenceNodePath,
+	VideoConfigNumericExpression,
+	VideoConfigValues,
 } from 'remotion';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {parseKeyframeEasingExpression} from '../../helpers/parse-keyframe-easing-expression';
+import {
+	parseVideoConfigNumericExpression,
+	updateVideoConfigNumericExpression,
+} from '../../helpers/video-config-numeric-expression';
+import {
+	getVideoConfigIdentifierValues,
+	type VideoConfigIdentifierValues,
+} from '../../helpers/video-config-values';
 import {
 	extractStaticValue,
 	findJsxElementAtNodePath,
@@ -157,6 +168,7 @@ export type KeyframeOperation =
 				  }
 				| undefined;
 			posterize: number | undefined;
+			output: InterpolateOutputOption | undefined;
 	  }
 	| {
 			type: 'easing';
@@ -192,6 +204,9 @@ type MissingPropInitialValue = {
 
 type InterpolateKeyframe = {
 	frame: number;
+	frameExpression: ExpressionKind;
+	frameNumericExpression: VideoConfigNumericExpression;
+	originalFrame: number;
 	output: ExpressionKind;
 	value: unknown;
 };
@@ -217,31 +232,15 @@ const getSupportedCallArgument = (
 	return arg as unknown as ExpressionKind | SpreadElementKind;
 };
 
-const getNumericValue = (node: Expression): number | null => {
-	if (node.type === 'NumericLiteral') {
-		return node.value;
-	}
-
-	if (
-		node.type === 'UnaryExpression' &&
-		(node.operator === '-' || node.operator === '+') &&
-		node.argument.type === 'NumericLiteral'
-	) {
-		return node.operator === '-' ? -node.argument.value : node.argument.value;
-	}
-
-	if (node.type === 'TSAsExpression') {
-		return getNumericValue(node.expression as Expression);
-	}
-
-	return null;
-};
-
 const getInterpolationExpression = (
 	node: Expression,
+	videoConfigValues: VideoConfigIdentifierValues,
 ): InterpolateExpression | null => {
 	if (node.type === 'TSAsExpression') {
-		return getInterpolationExpression(node.expression as Expression);
+		return getInterpolationExpression(
+			node.expression as Expression,
+			videoConfigValues,
+		);
 	}
 
 	if (
@@ -279,13 +278,19 @@ const getInterpolationExpression = (
 			return null;
 		}
 
-		const frame = getNumericValue(inputElement);
-		if (frame === null || !isStaticValue(outputElement)) {
+		const frameExpression = parseVideoConfigNumericExpression({
+			node: inputElement,
+			videoConfigValues,
+		});
+		if (frameExpression === null || !isStaticValue(outputElement)) {
 			return null;
 		}
 
 		keyframes.push({
-			frame,
+			frame: frameExpression.value,
+			frameExpression: inputElement as ExpressionKind,
+			frameNumericExpression: frameExpression,
+			originalFrame: frameExpression.value,
 			output: outputElement as ExpressionKind,
 			value: extractStaticValue(outputElement),
 		});
@@ -338,14 +343,26 @@ const createFrameExpression = (frame: number): ExpressionKind => {
 	return parseValueExpression(frame);
 };
 
-const createClampOptionsExpression = (): ExpressionKind => {
-	return b.objectExpression([
+const createClampOptionsExpression = ({
+	defaultOutput,
+}: {
+	defaultOutput: InterpolateOutputOption | null;
+}): ExpressionKind => {
+	const properties = [
 		b.objectProperty(b.identifier('extrapolateLeft'), b.stringLiteral('clamp')),
 		b.objectProperty(
 			b.identifier('extrapolateRight'),
 			b.stringLiteral('clamp'),
 		),
-	]) as ExpressionKind;
+	];
+
+	if (defaultOutput !== null && defaultOutput !== 'linear') {
+		properties.push(
+			b.objectProperty(b.identifier('output'), b.stringLiteral(defaultOutput)),
+		);
+	}
+
+	return b.objectExpression(properties) as ExpressionKind;
 };
 
 const createEmptyOptionsExpression = (): ObjectExpression =>
@@ -796,10 +813,26 @@ const validatePosterize = (posterize: number | undefined) => {
 	}
 };
 
+const validateOutput = (output: InterpolateOutputOption | undefined) => {
+	if (
+		output === undefined ||
+		output === 'linear' ||
+		output === 'perceptual-scale'
+	) {
+		return;
+	}
+
+	throw new Error(
+		'Cannot update keyframe settings: output must be "linear" or "perceptual-scale"',
+	);
+};
+
 const updateKeyframeSettings = ({
 	expression,
 	clamping,
 	posterize,
+	output,
+	videoConfigValues,
 }: {
 	expression: Expression;
 	clamping:
@@ -809,10 +842,13 @@ const updateKeyframeSettings = ({
 		  }
 		| undefined;
 	posterize: number | undefined;
+	output: InterpolateOutputOption | undefined;
+	videoConfigValues: VideoConfigIdentifierValues;
 }): ExpressionKind => {
 	validatePosterize(posterize);
+	validateOutput(output);
 
-	const existing = getInterpolationExpression(expression);
+	const existing = getInterpolationExpression(expression, videoConfigValues);
 	if (!existing) {
 		throw new Error('Cannot update keyframe settings on non-keyframed value');
 	}
@@ -838,6 +874,7 @@ const updateKeyframeSettings = ({
 			propertyName: 'extrapolateRight',
 			value: null,
 		});
+		setOptionsProperty({options, propertyName: 'output', value: null});
 	} else if (clamping) {
 		setOptionsProperty({
 			options,
@@ -848,6 +885,14 @@ const updateKeyframeSettings = ({
 			options,
 			propertyName: 'extrapolateRight',
 			value: b.stringLiteral(clamping.right),
+		});
+	}
+
+	if (!isColorInterpolation && output !== undefined) {
+		setOptionsProperty({
+			options,
+			propertyName: 'output',
+			value: output === 'linear' ? null : b.stringLiteral(output),
 		});
 	}
 
@@ -874,12 +919,14 @@ const updateKeyframeEasing = ({
 	expression,
 	segmentIndex,
 	easing,
+	videoConfigValues,
 }: {
 	expression: Expression;
 	segmentIndex: number;
 	easing: KeyframeEasing;
+	videoConfigValues: VideoConfigIdentifierValues;
 }): {expression: ExpressionKind; needsEasingImport: boolean} => {
-	const existing = getInterpolationExpression(expression);
+	const existing = getInterpolationExpression(expression, videoConfigValues);
 	if (!existing) {
 		throw new Error('Cannot update easing on non-keyframed value');
 	}
@@ -948,7 +995,14 @@ const createInterpolateExpression = ({
 	return b.callExpression(callee, [
 		input,
 		b.arrayExpression(
-			sortedKeyframes.map((keyframe) => createFrameExpression(keyframe.frame)),
+			sortedKeyframes.map((keyframe) =>
+				keyframe.frame === keyframe.originalFrame
+					? keyframe.frameExpression
+					: updateVideoConfigNumericExpression({
+							expression: keyframe.frameNumericExpression,
+							value: keyframe.frame,
+						}),
+			),
 		),
 		b.arrayExpression(sortedKeyframes.map((keyframe) => keyframe.output)),
 		...extraArgs,
@@ -973,18 +1027,20 @@ const addKeyframe = ({
 	frame,
 	value,
 	schema,
+	videoConfigValues,
 }: {
 	expression: Expression;
 	key: string;
 	frame: number;
 	value: unknown;
 	schema: InteractivitySchema | null;
+	videoConfigValues: VideoConfigIdentifierValues;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
 	if (!isSchemaFieldKeyframable({schema, key})) {
 		throw new Error(`Cannot add keyframe: "${key}" is not keyframable`);
 	}
 
-	const existing = getInterpolationExpression(expression);
+	const existing = getInterpolationExpression(expression, videoConfigValues);
 	const newOutput = parseValueExpression(value);
 
 	if (existing) {
@@ -1000,12 +1056,22 @@ const addKeyframe = ({
 		const existingIndex = existing.keyframes.findIndex(
 			(keyframe) => keyframe.frame === frame,
 		);
-		const nextKeyframes =
+		const nextKeyframes: InterpolateKeyframe[] =
 			existingIndex === -1
-				? [...existing.keyframes, {frame, output: newOutput, value}]
+				? [
+						...existing.keyframes,
+						{
+							frame,
+							frameExpression: createFrameExpression(frame),
+							frameNumericExpression: {type: 'literal', value: frame},
+							originalFrame: frame,
+							output: newOutput,
+							value,
+						},
+					]
 				: existing.keyframes.map((keyframe, index) =>
 						index === existingIndex
-							? {frame, output: newOutput, value}
+							? {...keyframe, output: newOutput, value}
 							: keyframe,
 					);
 		const normalizedEasing =
@@ -1039,12 +1105,26 @@ const addKeyframe = ({
 		};
 	}
 
-	if (!isStaticValue(expression)) {
+	const staticNumericExpression = parseVideoConfigNumericExpression({
+		node: expression,
+		videoConfigValues,
+	});
+	if (!isStaticValue(expression) && staticNumericExpression === null) {
 		throw new Error('Cannot add keyframe to computed expression');
 	}
 
-	const staticValue = extractStaticValue(expression);
-	const keyframes: InterpolateKeyframe[] = [{frame, output: newOutput, value}];
+	const staticValue =
+		staticNumericExpression?.value ?? extractStaticValue(expression);
+	const keyframes: InterpolateKeyframe[] = [
+		{
+			frame,
+			frameExpression: createFrameExpression(frame),
+			frameNumericExpression: {type: 'literal', value: frame},
+			originalFrame: frame,
+			output: newOutput,
+			value,
+		},
+	];
 
 	const callee = getInterpolationCalleeForValues({
 		schema,
@@ -1055,7 +1135,11 @@ const addKeyframe = ({
 	const extraArgs =
 		callee.type === 'Identifier' && callee.name === 'interpolateColors'
 			? []
-			: [createClampOptionsExpression()];
+			: [
+					createClampOptionsExpression({
+						defaultOutput: getDefaultKeyframeOutput({schema, key}),
+					}),
+				];
 
 	return {
 		expression: createInterpolateExpression({
@@ -1078,11 +1162,13 @@ const addKeyframe = ({
 const removeKeyframe = ({
 	expression,
 	frame,
+	videoConfigValues,
 }: {
 	expression: Expression;
 	frame: number;
+	videoConfigValues: VideoConfigIdentifierValues;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
-	const existing = getInterpolationExpression(expression);
+	const existing = getInterpolationExpression(expression, videoConfigValues);
 	if (!existing) {
 		throw new Error('Cannot remove keyframe from non-interpolated expression');
 	}
@@ -1129,14 +1215,16 @@ const removeKeyframe = ({
 const moveKeyframes = ({
 	expression,
 	moves,
+	videoConfigValues,
 }: {
 	expression: Expression;
 	moves: {
 		fromFrame: number;
 		toFrame: number;
 	}[];
+	videoConfigValues: VideoConfigIdentifierValues;
 }): ExpressionKind => {
-	const existing = getInterpolationExpression(expression);
+	const existing = getInterpolationExpression(expression, videoConfigValues);
 	if (!existing) {
 		throw new Error('Cannot move keyframe in non-interpolated expression');
 	}
@@ -1216,11 +1304,13 @@ const applyKeyframeOperation = ({
 	key,
 	operation,
 	schema,
+	videoConfigValues,
 }: {
 	expression: Expression;
 	key: string;
 	operation: KeyframeOperation;
 	schema: InteractivitySchema | null;
+	videoConfigValues: VideoConfigIdentifierValues;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
 	if (operation.type === 'add') {
 		return addKeyframe({
@@ -1229,6 +1319,7 @@ const applyKeyframeOperation = ({
 			frame: operation.frame,
 			value: operation.value,
 			schema,
+			videoConfigValues,
 		});
 	}
 
@@ -1238,6 +1329,8 @@ const applyKeyframeOperation = ({
 				expression,
 				clamping: operation.clamping,
 				posterize: operation.posterize,
+				output: operation.output,
+				videoConfigValues,
 			}),
 			introduced: noIntroducedIdentifiers,
 		};
@@ -1248,6 +1341,7 @@ const applyKeyframeOperation = ({
 			expression,
 			segmentIndex: operation.segmentIndex,
 			easing: operation.easing,
+			videoConfigValues,
 		});
 		return {
 			expression: updated.expression,
@@ -1260,12 +1354,20 @@ const applyKeyframeOperation = ({
 
 	if (operation.type === 'move') {
 		return {
-			expression: moveKeyframes({expression, moves: operation.moves}),
+			expression: moveKeyframes({
+				expression,
+				moves: operation.moves,
+				videoConfigValues,
+			}),
 			introduced: noIntroducedIdentifiers,
 		};
 	}
 
-	return removeKeyframe({expression, frame: operation.frame});
+	return removeKeyframe({
+		expression,
+		frame: operation.frame,
+		videoConfigValues,
+	});
 };
 
 const getExpressionFromJsxAttribute = (
@@ -1359,6 +1461,24 @@ const findFieldInSchema = (
 	}
 
 	return undefined;
+};
+
+const getDefaultKeyframeOutput = ({
+	schema,
+	key,
+}: {
+	schema: InteractivitySchema | null;
+	key: string;
+}): InterpolateOutputOption | null => {
+	const field = schema ? findFieldInSchema(schema, key) : undefined;
+	if (
+		(field?.type === 'number' || field?.type === 'scale') &&
+		field.defaultKeyframeOutput !== undefined
+	) {
+		return field.defaultKeyframeOutput;
+	}
+
+	return key === 'style.scale' ? 'perceptual-scale' : null;
 };
 
 const getInitialValueForMissingProp = ({
@@ -1575,11 +1695,13 @@ export const updateSequenceKeyframesAst = ({
 	nodePath,
 	updates,
 	schema,
+	videoConfigValues,
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequenceKeyframeUpdate[];
 	schema?: InteractivitySchema;
+	videoConfigValues: VideoConfigValues | null;
 }): {
 	serialized: string;
 	oldValueStrings: string[];
@@ -1588,6 +1710,10 @@ export const updateSequenceKeyframesAst = ({
 	updatedNodePath: SequenceNodePath;
 } => {
 	const ast = parseAst(input);
+	const videoConfigIdentifierValues = getVideoConfigIdentifierValues({
+		ast,
+		videoConfigValues,
+	});
 	const jsxPath = getAstNodePath(ast, nodePath);
 	const node = findJsxElementAtNodePath(ast, nodePath);
 	if (!node || !jsxPath) {
@@ -1626,6 +1752,7 @@ export const updateSequenceKeyframesAst = ({
 			key: update.key,
 			operation: update.operation,
 			schema: schema ?? null,
+			videoConfigValues: videoConfigIdentifierValues,
 		});
 		newValueStrings.push(recast.print(nextExpression).code);
 		prop.setExpression(nextExpression);
@@ -1675,12 +1802,14 @@ export const updateSequenceKeyframes = async ({
 	updates,
 	schema,
 	prettierConfigOverride,
+	videoConfigValues,
 }: {
 	input: string;
 	nodePath: SequenceNodePath;
 	updates: SequenceKeyframeUpdate[];
 	schema?: InteractivitySchema;
 	prettierConfigOverride?: Record<string, unknown> | null;
+	videoConfigValues: VideoConfigValues | null;
 }): Promise<{
 	output: string;
 	formatted: boolean;
@@ -1700,6 +1829,7 @@ export const updateSequenceKeyframes = async ({
 		nodePath,
 		updates,
 		schema,
+		videoConfigValues,
 	});
 	const {output, formatted} = await formatFileContent({
 		input: serialized,
@@ -1729,12 +1859,14 @@ export const updateEffectKeyframesAst = ({
 	effectIndex,
 	updates,
 	schema,
+	videoConfigValues,
 }: {
 	input: string;
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
 	updates: EffectKeyframeUpdate[];
 	schema?: InteractivitySchema;
+	videoConfigValues: VideoConfigValues | null;
 }): {
 	serialized: string;
 	oldValueStrings: string[];
@@ -1744,6 +1876,10 @@ export const updateEffectKeyframesAst = ({
 	updatedSequenceNodePath: SequenceNodePath;
 } => {
 	const ast = parseAst(input);
+	const videoConfigIdentifierValues = getVideoConfigIdentifierValues({
+		ast,
+		videoConfigValues,
+	});
 	const jsxPath = getAstNodePath(ast, sequenceNodePath);
 	const jsx = findJsxElementAtNodePath(ast, sequenceNodePath);
 	if (!jsx || !jsxPath) {
@@ -1789,6 +1925,7 @@ export const updateEffectKeyframesAst = ({
 			key: update.key,
 			operation: update.operation,
 			schema: schema ?? null,
+			videoConfigValues: videoConfigIdentifierValues,
 		});
 		newValueStrings.push(recast.print(nextExpression).code);
 		prop.setExpression(nextExpression);
@@ -1840,6 +1977,7 @@ export const updateEffectKeyframes = async ({
 	updates,
 	schema,
 	prettierConfigOverride,
+	videoConfigValues,
 }: {
 	input: string;
 	sequenceNodePath: SequenceNodePath;
@@ -1847,6 +1985,7 @@ export const updateEffectKeyframes = async ({
 	updates: EffectKeyframeUpdate[];
 	schema?: InteractivitySchema;
 	prettierConfigOverride?: Record<string, unknown> | null;
+	videoConfigValues: VideoConfigValues | null;
 }): Promise<{
 	output: string;
 	formatted: boolean;
@@ -1869,6 +2008,7 @@ export const updateEffectKeyframes = async ({
 		effectIndex,
 		updates,
 		schema,
+		videoConfigValues,
 	});
 	const {output, formatted} = await formatFileContent({
 		input: serialized,

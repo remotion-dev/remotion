@@ -74,6 +74,7 @@ type EnhancedTSequenceData =
 			volume: string | number;
 			doesVolumeChange: boolean;
 			startMediaFrom: number;
+			mediaFrameAtSequenceZero: number | null;
 			playbackRate: number;
 			frozenMediaFrame: number | null;
 	  }
@@ -83,6 +84,7 @@ type EnhancedTSequenceData =
 			volume: string | number;
 			doesVolumeChange: boolean;
 			startMediaFrom: number;
+			mediaFrameAtSequenceZero: number | null;
 			playbackRate: number;
 			frozenMediaFrame: number | null;
 	  }

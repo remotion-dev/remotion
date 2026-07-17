@@ -9,6 +9,7 @@ const makeKey = (nodePath: SequenceNodePath): SequencePropsSubscriptionKey => ({
 	effectKeys: [],
 	nodePath,
 	sequenceKeys: ['from', 'durationInFrames'],
+	videoConfigValues: null,
 });
 
 const makeNodePathInfo = (

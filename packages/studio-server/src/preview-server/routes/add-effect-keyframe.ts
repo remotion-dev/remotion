@@ -9,6 +9,7 @@ import {parseAst} from '../../codemods/parse-ast';
 import {updateEffectKeyframes} from '../../codemods/update-keyframes/update-keyframes';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
+import {getVideoConfigIdentifierValues} from '../../helpers/video-config-values';
 import type {ApiHandler} from '../api-types';
 import {
 	printUndoHint,
@@ -65,6 +66,7 @@ export const addEffectKeyframeHandler: ApiHandler<
 			sequenceNodePath: sequenceNodePath.nodePath,
 			effectIndex,
 			schema,
+			videoConfigValues: sequenceNodePath.videoConfigValues,
 			updates: [
 				{
 					key,
@@ -132,5 +134,9 @@ export const addEffectKeyframeHandler: ApiHandler<
 			jsx,
 			effectIndex,
 			keys: getAllSchemaKeys(schema),
+			videoConfigValues: getVideoConfigIdentifierValues({
+				ast,
+				videoConfigValues: sequenceNodePath.videoConfigValues,
+			}),
 		});
 	});

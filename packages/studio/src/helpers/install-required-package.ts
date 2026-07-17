@@ -3,7 +3,7 @@ import {showNotification} from '../components/Notifications/NotificationCenter';
 
 let installQueue: Promise<void> = Promise.resolve();
 
-const getMissingPackages = (packageNames: string[]) => {
+export const getMissingPackages = (packageNames: string[]) => {
 	const uniquePackageNames = Array.from(new Set(packageNames));
 	const installedPackages = window.remotion_installedPackages ?? [];
 

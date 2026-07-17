@@ -32,6 +32,7 @@ import {
 	getCenterPointWhileScrolling,
 	getEffectiveTranslation,
 } from '../helpers/get-effective-translation';
+import {getMissingPackages} from '../helpers/install-required-package';
 import {useCachedCompositionComponentInfo} from '../helpers/open-in-editor';
 import {
 	getRemoteAssetUrlFromDataTransfer,
@@ -72,6 +73,20 @@ import {useResolvedStack} from './Timeline/use-resolved-stack';
 const elementInstallCompositionIdStyle: React.CSSProperties = {
 	fontFamily: 'monospace',
 	fontSize: 13,
+};
+
+const elementInstallDependencyListStyle: React.CSSProperties = {
+	marginTop: 8,
+	marginBottom: 0,
+	paddingLeft: 24,
+	listStyleType: 'disc',
+};
+
+const elementInstallDependencyStyle: React.CSSProperties = {
+	color: 'inherit',
+	fontFamily: 'monospace',
+	fontSize: 13,
+	lineHeight: 1.5,
 };
 
 const elementInstallCodeDetailsStyle: React.CSSProperties = {
@@ -811,39 +826,34 @@ export const Canvas: React.FC<{
 		fetchMetadata();
 	}, [fetchMetadata]);
 
-	const updateElementInstallTarget = useCallback(() => {
-		if (previewServerClientId === null) {
-			return;
-		}
+	const updateElementInstallTarget = useCallback(
+		(requestId: string) => {
+			if (previewServerClientId === null) {
+				return;
+			}
 
-		callApi('/api/update-element-install-target', {
-			clientId: previewServerClientId,
-			compositionFile: canInstallElements ? compositionFile : null,
-			compositionId: canInstallElements ? currentCompositionId : null,
-			canInstall: canInstallElements,
-			lastFocusedAt: lastFocusedAtRef.current,
-			readOnly: window.remotion_isReadOnlyStudio,
-		}).catch(() => undefined);
-	}, [
-		canInstallElements,
-		compositionFile,
-		currentCompositionId,
-		previewServerClientId,
-	]);
-
-	useEffect(() => {
-		updateElementInstallTarget();
-		const interval = window.setInterval(updateElementInstallTarget, 2000);
-
-		return () => {
-			window.clearInterval(interval);
-		};
-	}, [updateElementInstallTarget]);
+			callApi('/api/update-element-install-target', {
+				requestId,
+				clientId: previewServerClientId,
+				compositionFile: canInstallElements ? compositionFile : null,
+				compositionId: canInstallElements ? currentCompositionId : null,
+				canInstall: canInstallElements,
+				lastFocusedAt: lastFocusedAtRef.current,
+				readOnly: window.remotion_isReadOnlyStudio,
+				studioUrl: window.location.href,
+			}).catch(() => undefined);
+		},
+		[
+			canInstallElements,
+			compositionFile,
+			currentCompositionId,
+			previewServerClientId,
+		],
+	);
 
 	useEffect(() => {
 		const markFocused = () => {
 			lastFocusedAtRef.current = Date.now();
-			updateElementInstallTarget();
 		};
 
 		window.addEventListener('focus', markFocused);
@@ -853,7 +863,17 @@ export const Canvas: React.FC<{
 			window.removeEventListener('focus', markFocused);
 			document.removeEventListener('pointerdown', markFocused, {capture: true});
 		};
-	}, [updateElementInstallTarget]);
+	}, []);
+
+	useEffect(() => {
+		return subscribeToEvent('request-element-install-target', (event) => {
+			if (event.type !== 'request-element-install-target') {
+				return;
+			}
+
+			updateElementInstallTarget(event.requestId);
+		});
+	}, [subscribeToEvent, updateElementInstallTarget]);
 
 	useEffect(() => {
 		if (installingElementName === null) {
@@ -914,6 +934,9 @@ export const Canvas: React.FC<{
 
 		const handleInstallRequest = async () => {
 			setInstallingElementName(activeElementInstallRequest.element.displayName);
+			const missingPackages = getMissingPackages(
+				activeElementInstallRequest.element.dependencies,
+			);
 			const accepted = await confirm({
 				title: 'Install Element',
 				message: (
@@ -924,6 +947,20 @@ export const Canvas: React.FC<{
 						</code>{' '}
 						composition? This will create an Element source file and update the
 						composition source.
+						{missingPackages.length > 0 ? (
+							<>
+								<br />
+								<br />
+								The following dependencies will also be installed:
+								<ul style={elementInstallDependencyListStyle}>
+									{missingPackages.map((packageName) => (
+										<li key={packageName} style={elementInstallDependencyStyle}>
+											{packageName}
+										</li>
+									))}
+								</ul>
+							</>
+						) : null}
 						<details style={elementInstallCodeDetailsStyle}>
 							<summary style={elementInstallCodeSummaryStyle}>
 								Preview Element source

@@ -24,7 +24,6 @@ const {
 	enableCrossSiteIsolationOption,
 	askAIOption,
 	interactivityOption,
-	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 	forceNewStudioOption,
 	numberOfSharedAudioTagsOption,
@@ -109,18 +108,6 @@ export const studioCommand = async (
 		commandLine: parsedCli,
 	}).value;
 
-	const experimentalClientSideRenderingEnabled =
-		experimentalClientSideRenderingOption.getValue({
-			commandLine: parsedCli,
-		}).value;
-
-	if (experimentalClientSideRenderingEnabled) {
-		Log.warn(
-			{indent: false, logLevel},
-			'Enabling WIP client-side rendering. Please see caveats on https://www.remotion.dev/docs/client-side-rendering/.',
-		);
-	}
-
 	const binariesDirectory = binariesDirectoryOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -155,6 +142,21 @@ export const studioCommand = async (
 		);
 	}
 
+	const getStudioRuntimeConfig = () => ({
+		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
+		askAIEnabled: askAIOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		interactivityEnabled: interactivityOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		keyboardShortcutsEnabled: keyboardShortcutsOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		bufferStateDelayInMilliseconds:
+			ConfigInternals.getBufferStateDelayInMilliseconds(),
+	});
+
 	const result = await StudioServerInternals.startStudio({
 		previewEntry: require.resolve('@remotion/studio/previewEntry'),
 		browserArgs: parsedCli['browser-args'],
@@ -166,7 +168,6 @@ export const studioCommand = async (
 		getEnvVariables: () => envVariables,
 		desiredPort,
 		keyboardShortcutsEnabled,
-		experimentalClientSideRenderingEnabled,
 		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 		remotionRoot,
 		relativePublicDir,
@@ -198,6 +199,7 @@ export const studioCommand = async (
 		interactivityEnabled,
 		forceNew: forceNewStudioOption.getValue({commandLine: parsedCli}).value,
 		rspack: useRspack,
+		getStudioRuntimeConfig,
 	});
 
 	if (result.type === 'already-running') {

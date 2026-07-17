@@ -4,10 +4,8 @@ description: A white animated paper texture background.
 ---
 
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
-import {PaperTexture} from './paper-texture';
+import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
 
 # Paper Texture
 
-A white paper texture background with a slowly changing posterized seed.
-
-<ElementPage component={PaperTexture} displayName="Paper Texture" slug="backgrounds/paper-texture" sourceFile="./paper-texture.tsx" />
+<ElementPage definition={elementDefinitions['backgrounds/paper-texture']} sourceFile="./paper-texture.tsx" />

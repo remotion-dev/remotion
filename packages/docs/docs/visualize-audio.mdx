@@ -67,9 +67,10 @@ Usually the values on left side of the array can become much larger than the val
 
 In this example, we render a bar chart visualizing the audio spectrum of an audio file we imported using [`useAudioData()`](/docs/use-audio-data) and `visualizeAudio()`.
 
-```tsx twoslash
+```tsx twoslash title="MyComponent.tsx"
+import {Audio} from '@remotion/media';
 import {useAudioData, visualizeAudio} from '@remotion/media-utils';
-import {Html5Audio, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const MyComponent: React.FC = () => {
   const frame = useCurrentFrame();
@@ -91,7 +92,7 @@ export const MyComponent: React.FC = () => {
   // the longer the bar
   return (
     <div>
-      <Html5Audio src={staticFile('music.mp3')} />
+      <Audio src={staticFile('music.mp3')} />
       {visualization.map((v) => {
         return <div style={{width: 1000 * v, height: 15, backgroundColor: 'blue'}} />;
       })}
@@ -152,5 +153,5 @@ const amplitudes = frequencyData.map((value) => {
 - [Audio visualization](/docs/audio/visualization)
 - [`useAudioData()`](/docs/use-audio-data)
 - [`getAudioData()`](/docs/get-audio-data)
-- [`<Html5Audio/>`](/docs/html5-audio)
+- [`<Audio>`](/docs/media/audio)
 - [Using audio](/docs/using-audio)

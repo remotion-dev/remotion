@@ -20,6 +20,7 @@ test('Should correctly separate discriminated union for layout', () => {
 			nodePath: [],
 			sequenceKeys: [],
 			effectKeys: [],
+			videoConfigValues: null,
 		},
 		propStatuses: {},
 		getDragOverrides: () => ({}),
@@ -38,6 +39,7 @@ test('Should expose absolute-fill variant fields when active', () => {
 			nodePath: [],
 			sequenceKeys: [],
 			effectKeys: [],
+			videoConfigValues: null,
 		},
 		propStatuses: {},
 		getDragOverrides: () => ({}),
@@ -65,6 +67,7 @@ test('Should be able to update a discriminated union', async () => {
 	assert(nodePath, 'No node path found');
 
 	const update = updateSequencePropsAst({
+		videoConfigValues: null,
 		input: file,
 		nodePath,
 		updates: [
@@ -97,6 +100,7 @@ test('Should remove variant-specific props when switching enum value', async () 
 	assert(nodePath, 'No node path found');
 
 	const update = updateSequencePropsAst({
+		videoConfigValues: null,
 		input: file,
 		nodePath,
 		updates: [
@@ -133,6 +137,7 @@ test('Should remove premountFor and styleWhile* when switching to layout="none"'
 	assert(nodePath, 'No node path found');
 
 	const update = updateSequencePropsAst({
+		videoConfigValues: null,
 		input: file,
 		nodePath,
 		updates: [

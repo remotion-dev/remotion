@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/timeline-utils"
 	},
 	"name": "@remotion/timeline-utils",
-	"version": "4.0.487",
+	"version": "4.0.490",
 	"description": "Internal utilities for rendering Remotion timelines",
 	"main": "dist/index.js",
 	"scripts": {

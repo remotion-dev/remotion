@@ -8,7 +8,6 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import minimist from 'minimist';
 
 const {
-	allowHtmlInCanvasOption,
 	benchmarkConcurrenciesOption,
 	beepOnFinishOption,
 	colorSpaceOption,
@@ -49,7 +48,6 @@ const {
 	packageManagerOption,
 	webpackPollOption,
 	keyboardShortcutsOption,
-	experimentalClientSideRenderingOption,
 	interactivityOption,
 	imageSequencePatternOption,
 	scaleOption,
@@ -151,12 +149,6 @@ export type CommandLineOptions = {
 	[keyboardShortcutsOption.cliFlag]: TypeOfOption<
 		typeof keyboardShortcutsOption
 	> | null;
-	[allowHtmlInCanvasOption.cliFlag]: TypeOfOption<
-		typeof allowHtmlInCanvasOption
-	>;
-	[experimentalClientSideRenderingOption.cliFlag]: TypeOfOption<
-		typeof experimentalClientSideRenderingOption
-	>;
 	[interactivityOption.cliFlag]: TypeOfOption<
 		typeof interactivityOption
 	> | null;
@@ -215,8 +207,6 @@ export const BooleanFlags = [
 	headlessOption.cliFlag,
 	keyboardShortcutsOption.cliFlag,
 	interactivityOption.cliFlag,
-	allowHtmlInCanvasOption.cliFlag,
-	experimentalClientSideRenderingOption.cliFlag,
 	ipv4Option.cliFlag,
 	beepOnFinishOption.cliFlag,
 	disableGitSourceOption.cliFlag,
@@ -233,8 +223,6 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	default: {
 		[overwriteOption.cliFlag]: null,
 		[bundleCacheOption.cliFlag]: null,
-		[allowHtmlInCanvasOption.cliFlag]: null,
-		[experimentalClientSideRenderingOption.cliFlag]: null,
 		[darkModeOption.cliFlag]: null,
 		[imageSequenceOption.cliFlag]: null,
 		[disableWebSecurityOption.cliFlag]: null,

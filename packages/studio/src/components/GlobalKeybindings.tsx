@@ -2,8 +2,7 @@ import type React from 'react';
 import {useCallback, useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../helpers/calculate-timeline';
-import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {SHOW_BROWSER_RENDERING} from '../helpers/show-browser-rendering';
+import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {timelineNodePathInfoToKey} from '../helpers/timeline-node-path-key';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {CheckerboardContext} from '../state/checkerboard';
@@ -27,9 +26,7 @@ const sequencePropShortcuts: Record<string, string> = {
 const hasOwnProperty = (obj: object, key: string) =>
 	Object.prototype.hasOwnProperty.call(obj, key);
 
-export const GlobalKeybindings: React.FC<{
-	readonly readOnlyStudio: boolean;
-}> = ({readOnlyStudio}) => {
+export const GlobalKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {setCheckerboard} = useContext(CheckerboardContext);
@@ -40,7 +37,6 @@ export const GlobalKeybindings: React.FC<{
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
-	const {type} = useContext(StudioServerConnectionCtx).previewServerState;
 	const {navigateToNextComposition, navigateToPreviousComposition} =
 		useCompositionNavigation();
 	const video = Internals.useVideo();
@@ -112,17 +108,12 @@ export const GlobalKeybindings: React.FC<{
 			return;
 		}
 
-		if (type !== 'connected' && !SHOW_BROWSER_RENDERING && !readOnlyStudio) {
-			showNotification('Studio server is offline', 2000);
-			return;
-		}
-
 		const renderButton = document.getElementById(
 			'render-modal-button',
 		) as HTMLDivElement;
 
 		renderButton.click();
-	}, [readOnlyStudio, type, video]);
+	}, [video]);
 
 	useEffect(() => {
 		const onSequencePropKey = (event: KeyboardEvent) => {
@@ -175,7 +166,7 @@ export const GlobalKeybindings: React.FC<{
 			commandCtrlKey: true,
 			preventDefault: true,
 		});
-		const cmdIKey = process.env.ASK_AI_ENABLED
+		const cmdIKey = getStudioAskAIEnabled()
 			? keybindings.registerKeybinding({
 					event: 'keydown',
 					key: 'i',

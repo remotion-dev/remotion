@@ -205,7 +205,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 		memorySizeInMb:
 			providerSpecifics.parseFunctionName(renderMetadata.rendererFunctionName)
 				?.memorySizeInMb ?? memorySizeInMb,
-		functionsInvoked: renderMetadata.estimatedRenderLambdaInvokations ?? 0,
+		functionsInvoked: overallProgress.lambdasInvoked ?? 0,
 		diskSizeInMb: providerSpecifics.getEphemeralStorageForPriceCalculation(),
 		timings: overallProgress.timings ?? [],
 		region,

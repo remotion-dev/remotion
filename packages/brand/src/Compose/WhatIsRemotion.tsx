@@ -3,7 +3,6 @@ import type {CalculateMetadataFunction} from 'remotion';
 import {
 	Easing,
 	Interactive,
-	Internals,
 	interpolate,
 	measureSpring,
 	OffthreadVideo,
@@ -143,7 +142,6 @@ const Label = Interactive.withSchema({
 });
 
 Label.displayName = 'Label';
-Internals.addSequenceStackTraces(Label);
 
 export const whatIsRemotionSchema = z.object({
 	fade: z.boolean(),

@@ -118,7 +118,13 @@ const KeyframedPropsTest: React.FC = () => {
 			<Sequence
 				name="keyframes should be shown at 0 and 100"
 				durationInFrames={120}
-				style={{scale: interpolate(frame, [0, 100], [2, 4])}}
+				style={{
+					scale: interpolate(frame, [0, 100], [2, 4], {
+						extrapolateLeft: 'extend',
+						extrapolateRight: 'extend',
+						output: 'perceptual-scale',
+					}),
+				}}
 			>
 				<div
 					style={{

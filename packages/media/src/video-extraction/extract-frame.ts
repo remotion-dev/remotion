@@ -12,6 +12,7 @@ type ExtractFrameResult =
 			durationInSeconds: number | null;
 	  }
 	| {type: 'cannot-decode'; durationInSeconds: number | null}
+	| {type: 'cannot-decode-prores'; durationInSeconds: number | null}
 	| {type: 'cannot-decode-alpha'; durationInSeconds: number | null}
 	| {type: 'unknown-container-format'}
 	| {type: 'network-error'};
@@ -60,6 +61,13 @@ const extractFrameInternal = async ({
 
 	if (video === 'cannot-decode') {
 		return {type: 'cannot-decode', durationInSeconds: mediaDurationInSeconds};
+	}
+
+	if (video === 'cannot-decode-prores') {
+		return {
+			type: 'cannot-decode-prores',
+			durationInSeconds: mediaDurationInSeconds,
+		};
 	}
 
 	if (video === 'unknown-container-format') {

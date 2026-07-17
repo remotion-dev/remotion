@@ -4,6 +4,7 @@ import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
 const sidebars: SidebarsConfig = {
 	elementsSidebar: [
 		'index',
+		'guidelines',
 		'submit-an-element',
 		{
 			type: 'html',
@@ -17,9 +18,18 @@ const sidebars: SidebarsConfig = {
 			link: {type: 'doc', id: 'backgrounds/index'},
 			collapsed: false,
 			items: [
+				'backgrounds/liquid-contours/index',
+				'backgrounds/notebook-paper/index',
 				'backgrounds/paper-texture/index',
 				'backgrounds/rotating-starburst/index',
 			],
+		},
+		{
+			type: 'category',
+			label: 'Data',
+			link: {type: 'doc', id: 'data/index'},
+			collapsed: false,
+			items: ['data/number-counter/index'],
 		},
 		{
 			type: 'category',
@@ -30,10 +40,15 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: 'Data',
-			link: {type: 'doc', id: 'data/index'},
+			label: 'Text',
+			link: {type: 'doc', id: 'text/index'},
 			collapsed: false,
-			items: ['data/number-counter/index'],
+			items: [
+				'text/circle-marker/index',
+				'text/crossed-off/index',
+				'text/strike-through/index',
+				'text/text-marker/index',
+			],
 		},
 	],
 };

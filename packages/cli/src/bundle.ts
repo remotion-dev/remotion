@@ -19,7 +19,6 @@ const {
 	disableGitSourceOption,
 	audioLatencyHintOption,
 	askAIOption,
-	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 	rspackOption,
 	outDirOption,
@@ -68,10 +67,6 @@ export const bundleCommand = async (
 		process.exit(1);
 	}
 
-	const experimentalClientSideRenderingEnabled =
-		experimentalClientSideRenderingOption.getValue({
-			commandLine: parsedCli,
-		}).value;
 	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
 	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
 		commandLine: parsedCli,
@@ -80,13 +75,6 @@ export const bundleCommand = async (
 	const shouldCache = bundleCacheOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-
-	if (experimentalClientSideRenderingEnabled) {
-		Log.warn(
-			{indent: false, logLevel},
-			'Enabling WIP client-side rendering. Please see caveats on https://www.remotion.dev/docs/client-side-rendering/.',
-		);
-	}
 
 	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
 	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
@@ -165,7 +153,6 @@ export const bundleCommand = async (
 		maxTimelineTracks: null,
 		publicPath,
 		audioLatencyHint,
-		experimentalClientSideRenderingEnabled,
 		askAIEnabled,
 		keyboardShortcutsEnabled,
 		rspack,

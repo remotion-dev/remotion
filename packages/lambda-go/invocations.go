@@ -1,23 +1,24 @@
 package lambda_go_sdk
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/lambda"
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/lambda"
 )
 
 func invokeRenderLambda(options RemotionOptions) (*RemotionRenderResponse, error) {
 
-	// Create a new AWS session
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		Config:            aws.Config{Region: aws.String(options.Region)},
-		SharedConfigState: session.SharedConfigEnable,
-	}))
-
-	// Create a new Lambda client
-	svc := lambda.New(sess)
+	awsConfig, configError := awsconfig.LoadDefaultConfig(
+		context.Background(),
+		awsconfig.WithRegion(options.Region),
+	)
+	if configError != nil {
+		return nil, fmt.Errorf("could not load AWS config: %w", configError)
+	}
+	svc := lambda.NewFromConfig(awsConfig)
 
 	internalParams, validateError := constructRenderInternals(&options)
 
@@ -27,20 +28,19 @@ func invokeRenderLambda(options RemotionOptions) (*RemotionRenderResponse, error
 
 	internalParamJsonObject, marshallingError := json.Marshal(internalParams)
 	if marshallingError != nil {
-
-		return nil, marshallingError
+		return nil, fmt.Errorf("could not serialize render parameters: %w", marshallingError)
 	}
 
 	invocationPayload := &lambda.InvokeInput{
-		FunctionName: aws.String(options.FunctionName),
+		FunctionName: new(options.FunctionName),
 		Payload:      internalParamJsonObject,
 	}
 
 	// Invoke Lambda function
-	invocationResult, invocationError := svc.Invoke(invocationPayload)
+	invocationResult, invocationError := svc.Invoke(context.Background(), invocationPayload)
 
 	if invocationError != nil {
-		return nil, invocationError
+		return nil, fmt.Errorf("could not invoke Lambda function %q: %w", options.FunctionName, invocationError)
 	}
 
 	// Unmarshal response from Lambda function
@@ -49,7 +49,7 @@ func invokeRenderLambda(options RemotionOptions) (*RemotionRenderResponse, error
 	responseMarshallingError := json.Unmarshal(invocationResult.Payload, &renderResponseOutput)
 
 	if responseMarshallingError != nil {
-		return nil, responseMarshallingError
+		return nil, fmt.Errorf("could not parse Lambda response: %w", responseMarshallingError)
 	}
 
 	return &renderResponseOutput, nil
@@ -57,14 +57,14 @@ func invokeRenderLambda(options RemotionOptions) (*RemotionRenderResponse, error
 
 func invokeRenderProgressLambda(config RenderConfig) (*RenderProgress, error) {
 
-	// Create a new AWS session
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		Config:            aws.Config{Region: aws.String(config.Region)},
-		SharedConfigState: session.SharedConfigEnable,
-	}))
-
-	// Create a new Lambda client
-	svc := lambda.New(sess)
+	awsConfig, configError := awsconfig.LoadDefaultConfig(
+		context.Background(),
+		awsconfig.WithRegion(config.Region),
+	)
+	if configError != nil {
+		return nil, fmt.Errorf("could not load AWS config: %w", configError)
+	}
+	svc := lambda.NewFromConfig(awsConfig)
 
 	internalParams, validateError := constructGetProgressInternals(&config)
 
@@ -74,20 +74,19 @@ func invokeRenderProgressLambda(config RenderConfig) (*RenderProgress, error) {
 
 	internalParamsJSON, marshallingError := json.Marshal(internalParams)
 	if marshallingError != nil {
-
-		return nil, marshallingError
+		return nil, fmt.Errorf("could not serialize progress parameters: %w", marshallingError)
 	}
 
 	invocationParams := &lambda.InvokeInput{
-		FunctionName: aws.String(config.FunctionName),
+		FunctionName: new(config.FunctionName),
 		Payload:      internalParamsJSON,
 	}
 
 	// Invoke Lambda function
-	invokeResult, invokeError := svc.Invoke(invocationParams)
+	invokeResult, invokeError := svc.Invoke(context.Background(), invocationParams)
 
 	if invokeError != nil {
-		return nil, invokeError
+		return nil, fmt.Errorf("could not invoke Lambda function %q: %w", config.FunctionName, invokeError)
 	}
 
 	// Unmarshal response from Lambda function
@@ -95,7 +94,7 @@ func invokeRenderProgressLambda(config RenderConfig) (*RenderProgress, error) {
 
 	resultUnmarshallError := json.Unmarshal(invokeResult.Payload, &renderProgressOutput)
 	if resultUnmarshallError != nil {
-		return nil, resultUnmarshallError
+		return nil, fmt.Errorf("could not parse Lambda progress response: %w", resultUnmarshallError)
 	}
 
 	return &renderProgressOutput, nil

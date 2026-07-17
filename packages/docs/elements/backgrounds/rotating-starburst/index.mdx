@@ -4,10 +4,8 @@ description: A Solid background with a slowly rotating starburst effect.
 ---
 
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
-import {RotatingStarburst} from './rotating-starburst';
+import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
 
 # Rotating Starburst
 
-A [`<Solid>`](/docs/solid) background with a slowly rotating [`starburst()`](/docs/starburst/starburst-effect) effect.
-
-<ElementPage component={RotatingStarburst} displayName="Rotating Starburst" durationInFrames={240} slug="backgrounds/rotating-starburst" sourceFile="./rotating-starburst.tsx" />
+<ElementPage definition={elementDefinitions['backgrounds/rotating-starburst']} sourceFile="./rotating-starburst.tsx" />

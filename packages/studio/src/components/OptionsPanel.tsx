@@ -9,7 +9,6 @@ import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
-import {SHOW_BROWSER_RENDERING} from '../helpers/show-browser-rendering';
 import {useZodIfPossible, useZodTypesIfPossible} from './get-zod-if-possible';
 import {InspectorPanel} from './InspectorPanel';
 import {showNotification} from './Notifications/NotificationCenter';
@@ -28,11 +27,7 @@ type OptionsSidebarPanel = 'inspector' | 'renders';
 
 const localStorageKey = 'remotion.sidebarPanel';
 
-const getSelectedPanel = (renderingAvailable: boolean): OptionsSidebarPanel => {
-	if (!renderingAvailable) {
-		return 'inspector';
-	}
-
+const getSelectedPanel = (): OptionsSidebarPanel => {
 	const panel = localStorage.getItem(localStorageKey);
 	if (panel === 'renders') {
 		return 'renders';
@@ -56,8 +51,6 @@ export const OptionsPanel: React.FC<{
 }> = ({readOnlyStudio}) => {
 	const {props, updateProps} = useContext(Internals.EditorPropsContext);
 
-	const renderingAvailable = !readOnlyStudio || SHOW_BROWSER_RENDERING;
-
 	const isMobileLayout = useMobileLayout();
 
 	const container: React.CSSProperties = useMemo(
@@ -72,9 +65,7 @@ export const OptionsPanel: React.FC<{
 		[isMobileLayout],
 	);
 
-	const [panel, setPanel] = useState<OptionsSidebarPanel>(() =>
-		getSelectedPanel(renderingAvailable),
-	);
+	const [panel, setPanel] = useState<OptionsSidebarPanel>(getSelectedPanel);
 	const onInspectorSelected = useCallback(() => {
 		setPanel('inspector');
 		persistSelectedOptionsSidebarPanel('inspector');
@@ -269,12 +260,10 @@ export const OptionsPanel: React.FC<{
 							<SchemaResetButton onClick={resetToOriginal} />
 						) : null}
 					</Tab>
-					{renderingAvailable ? (
-						<RendersTab
-							onClick={onRendersSelected}
-							selected={panel === 'renders'}
-						/>
-					) : null}
+					<RendersTab
+						onClick={onRendersSelected}
+						selected={panel === 'renders'}
+					/>
 				</Tabs>
 			</div>
 			{panel === 'inspector' ? (
@@ -284,7 +273,7 @@ export const OptionsPanel: React.FC<{
 					readOnlyStudio={readOnlyStudio}
 					setDefaultProps={setDefaultProps}
 				/>
-			) : !renderingAvailable ? null : (
+			) : (
 				<RenderQueue />
 			)}
 		</div>

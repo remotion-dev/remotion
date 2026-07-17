@@ -1,15 +1,16 @@
 import {paper} from '@remotion/effects/paper';
 import React from 'react';
-import {interpolate, Solid, useCurrentFrame} from 'remotion';
+import {interpolate, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const PaperTexture: React.FC = () => {
 	const frame = useCurrentFrame();
+	const {height, width} = useVideoConfig();
 
 	return (
 		<Solid
 			color="white"
-			width={1920}
-			height={1080}
+			width={width}
+			height={height}
 			effects={[
 				paper({
 					colorFront: 'white',

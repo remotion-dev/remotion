@@ -12,7 +12,6 @@ import {
 import React, {useContext, useMemo} from 'react';
 import {
 	Interactive,
-	Internals,
 	Sequence,
 	type InteractiveBaseProps,
 	type InteractivitySchema,
@@ -179,7 +178,6 @@ const make3DTransform = <ValueKey extends string>({
 	}) as unknown as React.FC<Props>;
 
 	Wrapped.displayName = componentName.slice(1, -1);
-	Internals.addSequenceStackTraces(Wrapped);
 
 	return Wrapped;
 };

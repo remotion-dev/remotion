@@ -19,11 +19,8 @@ export const ElementPreview: React.FC<ElementPreviewProps> = ({
 	return (
 		<div
 			style={{
-				border: '1px solid var(--ifm-color-emphasis-300)',
-				borderRadius: 12,
+				backgroundColor: '#f5f6f7',
 				overflow: 'hidden',
-				backgroundColor: 'var(--ifm-color-emphasis-100)',
-				marginBottom: 24,
 			}}
 		>
 			<Player

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Internals, Interactive} from 'remotion';
+import {Interactive} from 'remotion';
 import type {MakeCircleProps} from '../utils/make-circle';
 import {makeCircle} from '../utils/make-circle';
 import type {AllShapesProps} from './render-svg';
@@ -39,5 +39,3 @@ export const Circle = Interactive.withSchema({
 	schema: circleSchema,
 	supportsEffects: true,
 }) as React.FC<CircleProps>;
-
-Internals.addSequenceStackTraces(Circle);

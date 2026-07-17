@@ -274,6 +274,7 @@ export type {CompletedClientRender} from './render-job';
 export {
 	getRequiredPackageForEffectImportPath,
 	getRequiredPackageForInsertableElement,
+	isValidPackageName,
 } from './required-package';
 export {
 	SCHEMA_FIELD_GROUPS,
@@ -310,6 +311,7 @@ export {
 	type StudioEntryPointPaths,
 } from './studio-entry-points';
 export {studioHtml, type StudioHtmlOptions} from './studio-html';
+export type {StudioRuntimeConfig} from './studio-runtime-config';
 
 export type {VisualControlChange} from './codemods';
 export {

@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {getTimelineMediaStartFrame} from '../components/Timeline/get-timeline-media-start-frame';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 
 const getStack = () => null;
@@ -244,6 +245,7 @@ test('Should inherit loop display from parent for media tracks', () => {
 				startMediaFrom: 0,
 				playbackRate: 1,
 				frozenMediaFrame: null,
+				mediaFrameAtSequenceZero: null,
 				effects: [],
 				frozenFrame: null,
 			},
@@ -321,4 +323,77 @@ test('Should calculate sequence frame offset for trimBefore values', () => {
 
 	expect(calculated[0].sequence.from).toBe(0);
 	expect(calculated[0].sequenceFrameOffset).toBe(20);
+});
+
+test('Should account for a parent Sequence trimBefore in video thumbnails', () => {
+	const calculated = calculateTimeline({
+		overrideIdsToNodePaths: {},
+		sequences: [
+			{
+				displayName: 'Independent clip 01',
+				documentationLink: null,
+				duration: 54,
+				from: 24,
+				trimBefore: 24,
+				id: 'sequence',
+				parent: null,
+				rootId: 'root',
+				showInTimeline: true,
+				type: 'sequence',
+				nonce: [[0, 0]],
+				getStack,
+				refForOutline: null,
+				isInsideSeries: false,
+				premountDisplay: null,
+				postmountDisplay: null,
+				controls: null,
+				loopDisplay: undefined,
+				effects: [],
+				frozenFrame: null,
+			},
+			{
+				displayName: 'Independent video 01',
+				documentationLink: null,
+				duration: 54,
+				from: 0,
+				trimBefore: null,
+				id: 'video',
+				parent: 'sequence',
+				rootId: 'root',
+				showInTimeline: true,
+				type: 'video',
+				nonce: [[0, 1]],
+				getStack,
+				refForOutline: null,
+				isInsideSeries: false,
+				premountDisplay: null,
+				postmountDisplay: null,
+				controls: null,
+				loopDisplay: undefined,
+				effects: [],
+				frozenFrame: null,
+				frozenMediaFrame: null,
+				mediaFrameAtSequenceZero: 0,
+				src: 'https://remotion.media/video.mp4',
+				volume: 1,
+				doesVolumeChange: false,
+				startMediaFrom: 0,
+				playbackRate: 1,
+			},
+		],
+	});
+	const video = calculated.find((track) => track.sequence.type === 'video');
+
+	if (!video || video.sequence.type !== 'video') {
+		throw new Error('Expected a video track');
+	}
+
+	expect(
+		getTimelineMediaStartFrame({
+			startMediaFrom: video.sequence.startMediaFrom,
+			mediaFrameAtSequenceZero: video.sequence.mediaFrameAtSequenceZero,
+			sequenceFrameOffset: video.sequenceFrameOffset,
+			playbackRate: video.sequence.playbackRate,
+		}),
+	).toBe(24);
 });

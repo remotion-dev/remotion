@@ -12,8 +12,10 @@ import type {
 	GitSource,
 	RenderDefaults,
 	RenderJob,
+	StudioRuntimeConfig,
 } from '@remotion/studio-shared';
 import {getProjectName, parseElementDragData} from '@remotion/studio-shared';
+import {focusBrowserTab} from './better-opn';
 import {getCompletedClientRenders} from './client-render-queue';
 import {getFileSource} from './helpers/get-file-source';
 import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
@@ -37,6 +39,7 @@ import {reloadPreviouslySuppressedFiles} from './preview-server/watch-ignore-nex
 import type {RemotionConfigResponse} from './remotion-config-response';
 const loggedStaticFileHints = new Set<string>();
 const ELEMENT_INSTALL_FOCUS_MAX_AGE = 5 * 60 * 1000;
+const ELEMENT_INSTALL_TARGET_RESPONSE_WAIT = 250;
 
 const static404 = (response: ServerResponse): Promise<void> => {
 	response.writeHead(404);
@@ -123,11 +126,13 @@ const handleElementInstallOptions = ({
 };
 
 const handleElementInstallTarget = ({
+	liveEventsServer,
 	request,
 	response,
 	remotionRoot,
 	gitSource,
 }: {
+	liveEventsServer: LiveEventsServer;
 	request: IncomingMessage;
 	response: ServerResponse;
 	remotionRoot: string;
@@ -141,30 +146,42 @@ const handleElementInstallTarget = ({
 		return Promise.resolve();
 	}
 
-	const target = getElementInstallTarget();
-	const now = Date.now();
-	const targetIsLive =
-		target !== null && now - target.updatedAt < ELEMENT_INSTALL_TARGET_MAX_AGE;
-	const host = request.headers.host ?? null;
-	const port = host?.split(':').at(-1) ?? null;
-	setElementInstallCorsHeaders({request, response});
-	response.writeHead(200, {'Content-Type': 'application/json'});
-	response.end(
-		JSON.stringify({
-			type: 'remotion-studio',
-			projectName: getProjectName({
-				basename: path.basename,
-				gitSource,
-				resolvedRemotionRoot: remotionRoot,
-			}),
-			port: port === null ? null : Number(port),
-			lastFocusedAt: target?.lastFocusedAt ?? null,
-			canInstall: target !== null && target.canInstall && targetIsLive,
-			activeCompositionId: target?.compositionId ?? null,
-			readOnly: target?.readOnly ?? false,
-		}),
-	);
-	return Promise.resolve();
+	const requestId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+	liveEventsServer.sendEventToClient({
+		type: 'request-element-install-target',
+		requestId,
+	});
+
+	return new Promise<void>((resolve) => {
+		setTimeout(() => {
+			const target = getElementInstallTarget(requestId);
+			const now = Date.now();
+			const targetIsLive =
+				target !== null &&
+				now - target.updatedAt < ELEMENT_INSTALL_TARGET_MAX_AGE;
+			const host = request.headers.host ?? null;
+			const port = host?.split(':').at(-1) ?? null;
+			setElementInstallCorsHeaders({request, response});
+			response.writeHead(200, {'Content-Type': 'application/json'});
+			response.end(
+				JSON.stringify({
+					type: 'remotion-studio',
+					projectName: getProjectName({
+						basename: path.basename,
+						gitSource,
+						resolvedRemotionRoot: remotionRoot,
+					}),
+					port: port === null ? null : Number(port),
+					lastFocusedAt: target?.lastFocusedAt ?? null,
+					canInstall: target !== null && target.canInstall && targetIsLive,
+					activeCompositionId: target?.compositionId ?? null,
+					readOnly: target?.readOnly ?? false,
+				}),
+			);
+			resolve();
+		}, ELEMENT_INSTALL_TARGET_RESPONSE_WAIT);
+	});
 };
 
 const handleRequestElementInstall = async ({
@@ -205,7 +222,7 @@ const handleRequestElementInstall = async ({
 			return;
 		}
 
-		const target = getElementInstallTarget();
+		const target = getElementInstallTarget(null);
 		const now = Date.now();
 		const targetIsLive =
 			target !== null &&
@@ -258,6 +275,8 @@ const handleRequestElementInstall = async ({
 			return;
 		}
 
+		focusBrowserTab({url: target.studioUrl}).catch(() => undefined);
+
 		response.writeHead(200);
 		response.end(JSON.stringify({success: true, status: 'sent'}));
 	} catch (err) {
@@ -284,6 +303,7 @@ const handleFallback = async ({
 	gitSource,
 	logLevel,
 	enableCrossSiteIsolation,
+	getStudioRuntimeConfig,
 }: {
 	remotionRoot: string;
 	hash: string;
@@ -300,6 +320,7 @@ const handleFallback = async ({
 	gitSource: GitSource | null;
 	logLevel: LogLevel;
 	enableCrossSiteIsolation: boolean;
+	getStudioRuntimeConfig: () => StudioRuntimeConfig;
 }) => {
 	const acceptsHtml = (request.headers.accept ?? '').includes('text/html');
 	if (request.method === 'GET' && acceptsHtml) {
@@ -378,6 +399,7 @@ const handleFallback = async ({
 			mode: 'dev',
 			audioLatencyHint: audioLatencyHint ?? 'playback',
 			sampleRate: previewSampleRate,
+			studioRuntimeConfig: getStudioRuntimeConfig(),
 		}),
 	);
 };
@@ -387,17 +409,21 @@ const handleFileSource = async ({
 	remotionRoot,
 	search,
 	response,
+	request,
 }: {
 	method: string;
 	remotionRoot: string;
 	search: string;
 	response: ServerResponse;
+	request: IncomingMessage;
 }): Promise<void> => {
 	if (method === 'OPTIONS') {
 		response.writeHead(200);
 		response.end();
 		return Promise.resolve();
 	}
+
+	validateSameOrigin(request);
 
 	if (!search.startsWith('?')) {
 		throw new Error('query must start with ?');
@@ -567,6 +593,7 @@ export const handleRoutes = ({
 	audioLatencyHint,
 	previewSampleRate,
 	enableCrossSiteIsolation,
+	getStudioRuntimeConfig,
 }: {
 	staticHash: string;
 	staticHashPrefix: string;
@@ -590,6 +617,7 @@ export const handleRoutes = ({
 	audioLatencyHint: AudioContextLatencyCategory | null;
 	previewSampleRate: number | null;
 	enableCrossSiteIsolation: boolean;
+	getStudioRuntimeConfig: () => StudioRuntimeConfig;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -599,6 +627,7 @@ export const handleRoutes = ({
 			search: url.search,
 			method: request.method as string,
 			response,
+			request,
 		});
 	}
 
@@ -630,6 +659,7 @@ export const handleRoutes = ({
 
 		if (url.pathname === '/api/element-install-target') {
 			return handleElementInstallTarget({
+				liveEventsServer,
 				request,
 				response,
 				remotionRoot,
@@ -735,5 +765,6 @@ export const handleRoutes = ({
 		audioLatencyHint,
 		previewSampleRate,
 		enableCrossSiteIsolation,
+		getStudioRuntimeConfig,
 	});
 };

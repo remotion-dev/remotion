@@ -4,66 +4,27 @@ import {
 } from '@remotion/studio-shared';
 import React, {
 	useCallback,
+	useId,
 	useMemo,
 	useState,
-	type ComponentType,
 	type ReactNode,
 } from 'react';
-import {AbsoluteFill, Sequence} from 'remotion';
-import {Credits, type Contributor} from '../Credits';
+import {BlueButton, PlainButton} from '../../../components/layout/Button';
+import type {ElementDefinition} from './element-definitions';
 import {setElementDragData, setElementDragImage} from './element-drag-data';
+import {getElementDimensionsLabel} from './element-utils';
 import {ElementPreview} from './ElementPreview';
+import {
+	ElementPreviewComposition,
+	getElementPreviewDimensions,
+} from './ElementPreviewComposition';
+import styles from './ElementPage.module.css';
 
 type ElementPageProps = {
 	readonly children?: ReactNode;
-	readonly component: ComponentType<Record<string, never>>;
-	readonly contributors?: Contributor[];
-	readonly displayName?: string;
-	readonly durationInFrames?: number;
-	readonly elementHeight?: number;
-	readonly elementWidth?: number;
-	readonly fps?: number;
-	readonly height?: number;
-	readonly previewPadding?: number;
-	readonly slug?: string;
+	readonly definition: ElementDefinition;
+	readonly dependencies: string[];
 	readonly sourceCode?: string;
-	readonly width?: number;
-};
-
-const actionButtonStyle: React.CSSProperties = {
-	display: 'inline-flex',
-	alignItems: 'center',
-	gap: 10,
-	padding: '12px 16px',
-	borderRadius: 10,
-	border: '1px solid var(--ifm-color-emphasis-300)',
-	background: 'var(--ifm-background-surface-color)',
-	boxShadow: '0 6px 20px rgba(0, 0, 0, 0.08)',
-	fontWeight: 700,
-	userSelect: 'none',
-};
-
-const dragButtonStyle: React.CSSProperties = {
-	...actionButtonStyle,
-	cursor: 'grab',
-};
-
-const installButtonStyle: React.CSSProperties = {
-	...actionButtonStyle,
-	cursor: 'pointer',
-};
-
-const disabledInstallButtonStyle: React.CSSProperties = {
-	...installButtonStyle,
-	cursor: 'not-allowed',
-	opacity: 0.65,
-};
-
-const actionRowStyle: React.CSSProperties = {
-	display: 'flex',
-	flexWrap: 'wrap',
-	gap: 12,
-	alignItems: 'center',
 };
 
 type ElementInstallTarget = {
@@ -138,40 +99,35 @@ const findBestInstallTarget = async (): Promise<
 
 export const ElementPage: React.FC<ElementPageProps> = ({
 	children,
-	component,
-	contributors,
-	displayName,
-	durationInFrames = 120,
-	elementHeight,
-	elementWidth,
-	fps = 30,
-	height = 1080,
-	previewPadding = 0,
-	slug,
+	definition,
+	dependencies,
 	sourceCode,
-	width = 1920,
 }) => {
+	const {
+		contributors,
+		description,
+		displayName,
+		durationInFrames,
+		elementHeight,
+		elementWidth,
+		fps,
+		slug,
+	} = definition;
 	const [installStatus, setInstallStatus] = useState<InstallStatus>({
 		type: 'idle',
 	});
-	const hasElementDimensions =
-		elementWidth !== undefined && elementHeight !== undefined;
-	const previewWidth =
-		hasElementDimensions && previewPadding > 0
-			? elementWidth + previewPadding * 2
-			: width;
-	const previewHeight =
-		hasElementDimensions && previewPadding > 0
-			? elementHeight + previewPadding * 2
-			: height;
+	const [isSourceVisible, setIsSourceVisible] = useState(false);
+	const sourceId = useId();
+	const {height: previewHeight, width: previewWidth} =
+		getElementPreviewDimensions(definition);
 
 	const dragData = useMemo(() => {
-		if (!slug || !displayName || !sourceCode) {
+		if (!sourceCode) {
 			return null;
 		}
 
 		const dimensions: ComponentDimensions | null =
-			elementWidth !== undefined && elementHeight !== undefined
+			elementWidth !== null && elementHeight !== null
 				? {
 						width: elementWidth,
 						height: elementHeight,
@@ -179,12 +135,20 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				: null;
 
 		return makeElementDragData({
+			dependencies,
 			dimensions,
 			displayName,
 			slug,
 			sourceCode,
 		});
-	}, [displayName, elementHeight, elementWidth, slug, sourceCode]);
+	}, [
+		dependencies,
+		displayName,
+		elementHeight,
+		elementWidth,
+		slug,
+		sourceCode,
+	]);
 
 	const installElement = useCallback(async () => {
 		if (dragData === null) {
@@ -242,132 +206,154 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	}, [dragData]);
 
 	const PreviewComponent = useMemo(() => {
-		if (!hasElementDimensions) {
-			return component;
-		}
-
-		const Component = component;
-
-		return () => {
-			if (previewPadding > 0) {
-				return (
-					<AbsoluteFill
-						style={{
-							alignItems: 'center',
-							justifyContent: 'center',
-						}}
-					>
-						<Sequence height={elementHeight} layout="none" width={elementWidth}>
-							<div
-								style={{
-									height: elementHeight,
-									position: 'relative',
-									width: elementWidth,
-								}}
-							>
-								<Component />
-							</div>
-						</Sequence>
-					</AbsoluteFill>
-				);
-			}
-
-			return (
-				<Sequence height={elementHeight} width={elementWidth}>
-					<Component />
-				</Sequence>
-			);
-		};
-	}, [
-		component,
-		elementHeight,
-		elementWidth,
-		hasElementDimensions,
-		previewPadding,
-	]);
+		return () => <ElementPreviewComposition definition={definition} />;
+	}, [definition]);
 
 	return (
-		<>
-			<h2>Preview</h2>
-			<ElementPreview
-				component={PreviewComponent}
-				durationInFrames={durationInFrames}
-				fps={fps}
-				height={previewHeight}
-				width={previewWidth}
-			/>
-
-			<h2>Use it</h2>
-			<p>
-				Copy the source code into your Remotion project. The file exports the
-				Element component. Preview dimensions, frame rate, and duration are
-				supplied by the gallery.
-			</p>
-			{dragData === null ? null : (
-				<>
-					<p style={actionRowStyle}>
-						<button
-							disabled={installStatus.type === 'installing'}
-							onClick={installElement}
-							style={
-								installStatus.type === 'installing'
-									? disabledInstallButtonStyle
-									: installButtonStyle
-							}
-							title="Install into the most recently focused Remotion Studio"
-							type="button"
-						>
-							<span aria-hidden="true">＋</span>
-							{installStatus.type === 'installing'
-								? 'Finding Studio…'
-								: 'Install Element'}
-						</button>
-						<button
-							draggable
-							onDragStart={(event) => {
-								setElementDragData({
-									dataTransfer: event.dataTransfer,
-									dragData,
-								});
-								setElementDragImage(event.dataTransfer);
-							}}
-							style={dragButtonStyle}
-							title="Drag into Remotion Studio"
-							type="button"
-						>
-							<span aria-hidden="true">↘</span>
-							Drag into Remotion Studio
-						</button>
-					</p>
-					{installStatus.type === 'success' ||
-					installStatus.type === 'error' ? (
-						<p
-							style={{
-								color:
-									installStatus.type === 'success'
-										? 'var(--ifm-color-success-dark)'
-										: 'var(--ifm-color-danger-dark)',
-							}}
-						>
-							{installStatus.message}{' '}
-							{installStatus.type === 'success' ? (
-								<a
-									href={installStatus.studioUrl}
-									rel="noreferrer"
-									target="_blank"
-								>
-									Open Studio
-								</a>
-							) : null}
-						</p>
+		<div className={styles.workbench}>
+			<section aria-label="Preview" className={styles.previewColumn}>
+				<div className={styles.previewAndSource}>
+					<ElementPreview
+						component={PreviewComponent}
+						durationInFrames={durationInFrames}
+						fps={fps}
+						height={previewHeight}
+						width={previewWidth}
+					/>
+					{children ? (
+						<div className={styles.sourceArea}>
+							<div
+								aria-label="Element source code"
+								className={`${styles.sourceViewport} ${
+									isSourceVisible ? '' : styles.sourceViewportCollapsed
+								}`}
+								id={sourceId}
+								inert={!isSourceVisible}
+								role="region"
+							>
+								{children}
+							</div>
+							{isSourceVisible ? null : (
+								<div className={styles.sourceReveal}>
+									<button
+										aria-controls={sourceId}
+										aria-expanded={isSourceVisible}
+										className={styles.sourceToggle}
+										onClick={() => setIsSourceVisible(true)}
+										type="button"
+									>
+										View code
+									</button>
+								</div>
+							)}
+						</div>
 					) : null}
-				</>
-			)}
+				</div>
+			</section>
 
-			<h2>Source</h2>
-			{children}
+			<aside
+				aria-label="Element details and actions"
+				className={styles.actionsColumn}
+			>
+				<div className={styles.useIt}>
+					{dragData === null ? null : (
+						<>
+							<div className={styles.actionRow}>
+								<BlueButton
+									fullWidth
+									loading={installStatus.type === 'installing'}
+									onClick={installElement}
+									size="sm"
+									style={{padding: '7px 12px'}}
+									title="Install into the most recently focused Remotion Studio"
+								>
+									{installStatus.type === 'installing'
+										? 'Finding Studio…'
+										: 'Install Element'}
+								</BlueButton>
+								<PlainButton
+									draggable
+									fullWidth
+									loading={false}
+									onDragStart={(event) => {
+										setElementDragData({
+											dataTransfer: event.dataTransfer,
+											dragData,
+										});
+										setElementDragImage(event.dataTransfer);
+									}}
+									size="sm"
+									style={{cursor: 'grab', padding: '7px 12px'}}
+									title="Drag into Remotion Studio"
+								>
+									Drag into Studio
+								</PlainButton>
+							</div>
+							{installStatus.type === 'success' ||
+							installStatus.type === 'error' ? (
+								<p
+									aria-live="polite"
+									className={
+										installStatus.type === 'success'
+											? styles.successStatus
+											: styles.errorStatus
+									}
+								>
+									{installStatus.message}{' '}
+									{installStatus.type === 'success' ? (
+										<a
+											href={installStatus.studioUrl}
+											rel="noreferrer"
+											target="_blank"
+										>
+											Open Studio
+										</a>
+									) : null}
+								</p>
+							) : null}
+						</>
+					)}
 
-			{contributors?.length ? <Credits contributors={contributors} /> : null}
-		</>
+					<div className={styles.details}>
+						<p className={styles.description}>{description}</p>
+						<dl className={styles.metadata}>
+							<div>
+								<dt>Dimensions</dt>
+								<dd>{getElementDimensionsLabel(definition)}</dd>
+							</div>
+						</dl>
+					</div>
+
+					{contributors.length ? (
+						<div aria-label="Contributors" className={styles.contributors}>
+							<span className={styles.contributorsLabel}>Created by</span>
+							<div className={styles.contributorList}>
+								{contributors.map((contributor) => (
+									<a
+										key={contributor.username}
+										className={styles.contributor}
+										href={`https://github.com/${contributor.username}`}
+										rel="noopener noreferrer"
+										target="_blank"
+									>
+										<img
+											alt=""
+											className={styles.contributorAvatar}
+											src={`https://github.com/${contributor.username}.png`}
+										/>
+										<span className={styles.contributorText}>
+											<strong>@{contributor.username}</strong>
+											{contributor.contribution === 'Author' ? null : (
+												<span>{contributor.contribution}</span>
+											)}
+										</span>
+									</a>
+								))}
+							</div>
+						</div>
+					) : null}
+				</div>
+			</aside>
+		</div>
 	);
 };

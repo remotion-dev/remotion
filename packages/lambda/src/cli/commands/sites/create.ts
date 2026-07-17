@@ -35,7 +35,6 @@ const {
 	throwIfSiteExistsOption,
 	disableGitSourceOption,
 	askAIOption,
-	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 } = BrowserSafeApis.options;
 
@@ -174,10 +173,6 @@ export const sitesCreateSubcommand = async (
 	const askAIEnabled = askAIOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
-	const experimentalClientSideRenderingEnabled =
-		experimentalClientSideRenderingOption.getValue({
-			commandLine: CliInternals.parsedCli,
-		}).value;
 	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -227,7 +222,6 @@ export const sitesCreateSubcommand = async (
 			webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
 			bypassBucketNameValidation: Boolean(parsedLambdaCli['force-bucket-name']),
 			askAIEnabled,
-			experimentalClientSideRenderingEnabled,
 			keyboardShortcutsEnabled,
 		},
 		region: getAwsRegion(),

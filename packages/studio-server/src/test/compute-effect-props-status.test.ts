@@ -46,6 +46,7 @@ test('computeEffectPropStatus reports static props as canUpdate=true with codeVa
 	const input = buildInput('[tint({color: "red", opacity: 0.5})]');
 	const {ast, jsx} = findJsx(input);
 	const result = computeEffectPropStatus({
+		videoConfigValues: {},
 		ast,
 		jsx,
 		effectIndex: 0,
@@ -72,6 +73,7 @@ test('computeEffectPropStatus reports computed props', () => {
 	const input = buildInput('[tint({color: getColor(), opacity: 0.5})]');
 	const {ast, jsx} = findJsx(input);
 	const result = computeEffectPropStatus({
+		videoConfigValues: {},
 		ast,
 		jsx,
 		effectIndex: 0,
@@ -96,6 +98,7 @@ test('computeEffectPropStatus reports keyframes for inline interpolated effect p
 	);
 	const {ast, jsx} = findJsx(input);
 	const result = computeEffectPropStatus({
+		videoConfigValues: {},
 		ast,
 		jsx,
 		effectIndex: 0,
@@ -117,6 +120,39 @@ test('computeEffectPropStatus reports keyframes for inline interpolated effect p
 		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
+		output: undefined,
+	});
+});
+
+test('computeEffectPropStatus reports output for inline interpolated effect props', () => {
+	const input = buildInput(
+		"[tint({amount: interpolate(frame, [0, 100], [0.2, 0.8], {output: 'perceptual-scale'})})]",
+	);
+	const {ast, jsx} = findJsx(input);
+	const result = computeEffectPropStatus({
+		videoConfigValues: {},
+		ast,
+		jsx,
+		effectIndex: 0,
+		keys: ['amount'],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) {
+		throw new Error('expected canUpdate true');
+	}
+
+	expect(result.props.amount).toEqual({
+		status: 'keyframed',
+		interpolationFunction: 'interpolate',
+		keyframes: [
+			{frame: 0, value: 0.2},
+			{frame: 100, value: 0.8},
+		],
+		easing: [{type: 'linear'}],
+		clamping: {left: 'extend', right: 'extend'},
+		posterize: undefined,
+		output: 'perceptual-scale',
 	});
 });
 
@@ -137,6 +173,7 @@ export const Comp = () => {
 `;
 	const {ast, jsx} = findJsx(input);
 	const result = computeEffectPropStatus({
+		videoConfigValues: {},
 		ast,
 		jsx,
 		effectIndex: 0,
@@ -155,6 +192,7 @@ test('computeEffectPropStatus reports unset props as undefined codeValue', () =>
 	const input = buildInput('[tint({color: "red"})]');
 	const {ast, jsx} = findJsx(input);
 	const result = computeEffectPropStatus({
+		videoConfigValues: {},
 		ast,
 		jsx,
 		effectIndex: 0,
@@ -180,6 +218,7 @@ test('computeEffectPropStatus reports static array props', () => {
 	const input = buildInput('[tint({colors: ["red", "blue"]})]');
 	const {ast, jsx} = findJsx(input);
 	const result = computeEffectPropStatus({
+		videoConfigValues: {},
 		ast,
 		jsx,
 		effectIndex: 0,
@@ -201,6 +240,7 @@ test('computeEffectPropStatus reports arrays with computed items as computed', (
 	const input = buildInput('[tint({colors: ["red", getColor()]})]');
 	const {ast, jsx} = findJsx(input);
 	const result = computeEffectPropStatus({
+		videoConfigValues: {},
 		ast,
 		jsx,
 		effectIndex: 0,
@@ -219,6 +259,7 @@ test('computeEffectPropStatus flags non-call expressions', () => {
 	const input = buildInput('[someEffect, tint({color: "red"})]');
 	const {ast, jsx} = findJsx(input);
 	const result = computeEffectPropStatus({
+		videoConfigValues: {},
 		ast,
 		jsx,
 		effectIndex: 0,
@@ -237,6 +278,7 @@ test('computeEffectPropStatus flags out-of-range effect indices', () => {
 	const input = buildInput('[tint({color: "red"})]');
 	const {ast, jsx} = findJsx(input);
 	const result = computeEffectPropStatus({
+		videoConfigValues: {},
 		ast,
 		jsx,
 		effectIndex: 5,
@@ -255,6 +297,7 @@ test('computeEffectPropStatus treats non-object first arg as computed', () => {
 	const input = buildInput('[tint(getParams())]');
 	const {ast, jsx} = findJsx(input);
 	const result = computeEffectPropStatus({
+		videoConfigValues: {},
 		ast,
 		jsx,
 		effectIndex: 0,
@@ -273,6 +316,7 @@ test('computeEffectPropStatus treats zero-arg effect as editable with undefined 
 	const input = buildInput('[tint()]');
 	const {ast, jsx} = findJsx(input);
 	const result = computeEffectPropStatus({
+		videoConfigValues: {},
 		ast,
 		jsx,
 		effectIndex: 0,

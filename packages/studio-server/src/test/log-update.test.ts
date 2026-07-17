@@ -53,6 +53,7 @@ export const LightLeakExample: React.FC = () => {
 test('logUpdate emits Monokai-colored output after an AST update', async () => {
 	const {output, oldValueStrings, formatted, logLine} =
 		await updateSequenceProps({
+			videoConfigValues: null,
 			input,
 			nodePath: lineColumnToNodePath(input, 8),
 			updates: [{key: 'hueShift', value: 90, defaultValue: null}],
@@ -196,6 +197,7 @@ test('logUpdate emits change-from-default output for discriminated union enum ch
 
 	const {oldValueStrings, formatted, logLine, removedProps} =
 		await updateSequenceProps({
+			videoConfigValues: null,
 			input: fixture,
 			nodePath: lineColumnToNodePath(fixture, 3),
 			updates: [
@@ -264,6 +266,7 @@ test('Undo prop change should not nest key={key={value}} for re-added props', as
 	);
 
 	const {removedProps} = await updateSequenceProps({
+		videoConfigValues: null,
 		input: fixture,
 		nodePath: lineColumnToNodePath(fixture, 3),
 		updates: [

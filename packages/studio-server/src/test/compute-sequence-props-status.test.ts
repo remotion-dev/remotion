@@ -30,9 +30,94 @@ const getNodePathFromContent = (content: string, line: number) => {
 	return result;
 };
 
+const videoConfigValues = {
+	durationInFrames: 120,
+	fps: 30,
+	height: 1080,
+	width: 1920,
+};
+
+test('computeSequencePropsStatus should parse video config numeric expressions', () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	const {fps, durationInFrames} = useVideoConfig();
+	return (
+		<Sequence
+			premountFor={(2 * fps) as number}
+			postmountFor={fps * 2.5}
+			offset={-1 * fps}
+			from={fps / 2}
+			style={{scale: interpolate(frame, [0, 3.33 * fps, durationInFrames], [2, 3, 4])}}
+		/>
+	);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 8),
+		componentIdentity: null,
+		keys: ['premountFor', 'postmountFor', 'offset', 'from', 'style.scale'],
+		effects: [],
+		videoConfigValues,
+	});
+
+	expect(result.props.premountFor).toEqual({
+		status: 'static',
+		codeValue: 60,
+		numericExpression: {
+			type: 'video-config-multiplication',
+			identifier: 'fps',
+			multiplier: 2,
+			multiplicand: 30,
+			factorPosition: 'left',
+			value: 60,
+		},
+	});
+	expect(result.props.postmountFor).toMatchObject({
+		status: 'static',
+		codeValue: 75,
+		numericExpression: {
+			type: 'video-config-multiplication',
+			factorPosition: 'right',
+		},
+	});
+	expect(result.props.from).toEqual({status: 'computed'});
+	expect(result.props.offset).toMatchObject({
+		status: 'static',
+		codeValue: -30,
+		numericExpression: {multiplier: -1},
+	});
+	expect(result.props['style.scale']).toMatchObject({
+		status: 'keyframed',
+		keyframes: [
+			{frame: 0, value: 2},
+			{
+				frame: 99.9,
+				value: 3,
+				frameExpression: {
+					type: 'video-config-multiplication',
+					identifier: 'fps',
+				},
+			},
+			{
+				frame: 120,
+				value: 4,
+				frameExpression: {
+					type: 'video-config-value',
+					identifier: 'durationInFrames',
+				},
+			},
+		],
+	});
+});
+
 test('canUpdateSequenceProps should flag computed props', () => {
 	const filePath = path.join(__dirname, 'snapshots', 'light-leak-computed.tsx');
 	const result = computeSequencePropsStatus({
+		videoConfigValues: null,
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 8),
 		componentIdentity: null,
@@ -73,6 +158,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
@@ -93,6 +179,7 @@ export const Example: React.FC = () => {
 		easing: [{type: 'linear'}],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -112,6 +199,7 @@ export const Example: React.FC = () => {
 
 	expect(() =>
 		computeSequencePropsStatusFromContent({
+			videoConfigValues: null,
 			fileContents: input,
 			nodePath: getNodePathFromContent(input, 7),
 			componentIdentity: 'dev.remotion.shapes.Star',
@@ -119,6 +207,40 @@ export const Example: React.FC = () => {
 			effects: [],
 		}),
 	).toThrow(JsxElementIdentityMismatchError);
+});
+
+test('computeSequencePropsStatus should match hyphenated package imports by component identity', () => {
+	const input = `import React from 'react';
+import {Highlight} from '@remotion/rough-notation';
+
+export const Example: React.FC = () => {
+\treturn (
+\t\t<Highlight progress={1} color="yellow">
+\t\t\tHighlighted
+\t\t</Highlight>
+\t);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 6),
+		componentIdentity: 'dev.remotion.roughNotation.Highlight',
+		keys: ['progress', 'color'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props.progress).toEqual({
+		status: 'static',
+		codeValue: 1,
+	});
+	expect(result.props.color).toEqual({
+		status: 'static',
+		codeValue: 'yellow',
+	});
 });
 
 test('computeSequencePropsStatus should match namespace imports by component identity', () => {
@@ -132,6 +254,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 6),
 		componentIdentity: 'dev.remotion.remotion.Sequence',
@@ -160,6 +283,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
@@ -181,6 +305,7 @@ export const Example: React.FC = () => {
 		easing: [{type: 'bezier', x1: 0.42, y1: 0, x2: 1, y2: 1}, {type: 'linear'}],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: 2,
+		output: undefined,
 	});
 });
 
@@ -196,6 +321,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
@@ -226,6 +352,7 @@ export const Example: React.FC = () => {
 		],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -241,6 +368,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
@@ -261,6 +389,7 @@ export const Example: React.FC = () => {
 		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -283,6 +412,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
@@ -307,6 +437,7 @@ export const Example: React.FC = () => {
 		],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -323,6 +454,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 8),
 		componentIdentity: null,
@@ -350,6 +482,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
@@ -370,6 +503,7 @@ export const Example: React.FC = () => {
 		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -380,6 +514,7 @@ test('computeSequencePropsStatus should explain why outside-project file reads w
 
 	expect(() =>
 		computeSequencePropsStatus({
+			videoConfigValues: null,
 			fileName,
 			nodePath: [],
 			componentIdentity: null,
@@ -395,6 +530,7 @@ test('computeSequencePropsStatus should explain why outside-project file reads w
 test('computeSequencePropsStatus should detect static nested props', () => {
 	const filePath = path.join(__dirname, 'snapshots', 'nested-props.tsx');
 	const result = computeSequencePropsStatus({
+		videoConfigValues: null,
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 7),
 		componentIdentity: null,
@@ -419,6 +555,7 @@ test('computeSequencePropsStatus should detect static nested props', () => {
 test('computeSequencePropsStatus should flag computed nested props', () => {
 	const filePath = path.join(__dirname, 'snapshots', 'nested-props.tsx');
 	const result = computeSequencePropsStatus({
+		videoConfigValues: null,
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 8),
 		componentIdentity: null,
@@ -444,6 +581,7 @@ test('computeSequencePropsStatus should flag computed nested props', () => {
 test('computeSequencePropsStatus should flag computed when parent is not an object', () => {
 	const filePath = path.join(__dirname, 'snapshots', 'nested-props.tsx');
 	const result = computeSequencePropsStatus({
+		videoConfigValues: null,
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 9),
 		componentIdentity: null,
@@ -464,6 +602,7 @@ test('computeSequencePropsStatus should flag computed when parent is not an obje
 test('computeSequencePropsStatus should report unset nested props as undefined', () => {
 	const filePath = path.join(__dirname, 'snapshots', 'nested-props.tsx');
 	const result = computeSequencePropsStatus({
+		videoConfigValues: null,
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 7),
 		componentIdentity: null,
@@ -484,6 +623,7 @@ test('computeSequencePropsStatus should report unset nested props as undefined',
 test('computeSequencePropsStatus should report unset when parent attribute missing', () => {
 	const filePath = path.join(__dirname, 'snapshots', 'nested-props.tsx');
 	const result = computeSequencePropsStatus({
+		videoConfigValues: null,
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 10),
 		componentIdentity: null,
@@ -504,6 +644,7 @@ test('computeSequencePropsStatus should report unset when parent attribute missi
 test('computeSequencePropsStatus should return keyframes for interpolated style props', () => {
 	const filePath = path.join(__dirname, 'snapshots', 'keyframed-props.tsx');
 	const result = computeSequencePropsStatus({
+		videoConfigValues: null,
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 8),
 		componentIdentity: null,
@@ -525,6 +666,7 @@ test('computeSequencePropsStatus should return keyframes for interpolated style 
 		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -555,6 +697,7 @@ export const Example: React.FC = () => {
 `;
 
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
@@ -579,6 +722,7 @@ export const Example: React.FC = () => {
 		],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -599,6 +743,7 @@ export const Example: React.FC = () => {
 `;
 
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
@@ -626,6 +771,7 @@ export const Example: React.FC = () => {
 			right: 'identity',
 		},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -642,6 +788,7 @@ export const Example: React.FC = () => {
 `;
 
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
@@ -662,6 +809,45 @@ export const Example: React.FC = () => {
 		easing: [{type: 'linear'}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: 3,
+		output: undefined,
+	});
+});
+
+test('computeSequencePropsStatus should parse output on interpolated props', () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Sequence style={{scale: interpolate(frame, [0, 100], [1, 3], {output: 'perceptual-scale'})}} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
+		keys: ['style.scale'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.scale']).toEqual({
+		status: 'keyframed',
+		interpolationFunction: 'interpolate',
+		keyframes: [
+			{frame: 0, value: 1},
+			{frame: 100, value: 3},
+		],
+		easing: [{type: 'linear'}],
+		clamping: {left: 'extend', right: 'extend'},
+		posterize: undefined,
+		output: 'perceptual-scale',
 	});
 });
 
@@ -678,6 +864,7 @@ export const Example: React.FC = () => {
 `;
 
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
@@ -698,6 +885,36 @@ export const Example: React.FC = () => {
 		easing: [{type: 'linear'}],
 		clamping: {left: 'clamp', right: 'clamp'},
 		posterize: 3,
+		output: undefined,
+	});
+});
+
+test('computeSequencePropsStatus should bail on output for interpolated color props', () => {
+	const input = `import React from 'react';
+import {Solid, interpolateColors, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Solid color={interpolateColors(frame, [0, 100], ['red', 'blue'], {output: 'perceptual-scale'})} width={100} height={100} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
+		keys: ['color'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props.color).toEqual({
+		status: 'computed',
 	});
 });
 
@@ -715,6 +932,66 @@ export const Example: React.FC = () => {
 `;
 
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 8),
+		componentIdentity: null,
+		keys: ['style.scale'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.scale']).toEqual({
+		status: 'computed',
+	});
+});
+
+test('computeSequencePropsStatus should bail on arithmetic posterize expressions', () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Sequence style={{scale: interpolate(frame, [0, 100], [1, 3], {posterize: 5 + 5})}} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
+		keys: ['style.scale'],
+		effects: [],
+	});
+
+	expect(result.canUpdate).toBe(true);
+	if (!result.canUpdate) throw new Error('Expected canUpdate to be true');
+
+	expect(result.props['style.scale']).toEqual({
+		status: 'computed',
+	});
+});
+
+test('computeSequencePropsStatus should bail on computed output expressions', () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+\tconst frame = useCurrentFrame();
+\tconst output = 'perceptual-scale';
+\treturn (
+\t\t<Sequence style={{scale: interpolate(frame, [0, 100], [1, 3], {output})}} />
+\t);
+};
+`;
+
+	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 8),
 		componentIdentity: null,
@@ -745,6 +1022,7 @@ export const Example: React.FC = () => {
 `;
 
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
@@ -765,6 +1043,7 @@ export const Example: React.FC = () => {
 		easing: [{type: 'bezier', x1: 1 / 3, y1: 0, x2: 2 / 3, y2: 0}],
 		clamping: {left: 'extend', right: 'extend'},
 		posterize: undefined,
+		output: undefined,
 	});
 });
 
@@ -783,6 +1062,7 @@ export const Example: React.FC = () => {
 `;
 
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
@@ -829,6 +1109,7 @@ export const Example: React.FC = () => {
 `;
 
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 7),
 		componentIdentity: null,
@@ -853,6 +1134,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 5),
 		componentIdentity: null,
@@ -872,6 +1154,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 5),
 		componentIdentity: null,
@@ -891,6 +1174,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 5),
 		componentIdentity: null,
@@ -910,6 +1194,7 @@ export const Example: React.FC = () => {
 };
 `;
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 5),
 		componentIdentity: null,
@@ -929,6 +1214,7 @@ export const Example: React.FC<{text: string}> = ({text}) => {
 };
 `;
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: getNodePathFromContent(input, 5),
 		componentIdentity: null,

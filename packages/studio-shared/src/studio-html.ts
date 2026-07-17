@@ -3,6 +3,7 @@ import {Internals, VERSION} from 'remotion';
 import type {GitSource} from './git-source';
 import type {PackageManager} from './package-manager';
 import type {RenderDefaults} from './render-defaults';
+import type {StudioRuntimeConfig} from './studio-runtime-config';
 
 export type StudioHtmlOptions = {
 	staticHash: string;
@@ -30,6 +31,7 @@ export type StudioHtmlOptions = {
 	mode: 'dev' | 'bundle';
 	bundleScriptUrl?: string;
 	readOnlyStudio?: boolean;
+	studioRuntimeConfig?: StudioRuntimeConfig;
 };
 
 export const studioHtml = ({
@@ -58,6 +60,7 @@ export const studioHtml = ({
 	mode,
 	bundleScriptUrl,
 	readOnlyStudio,
+	studioRuntimeConfig,
 }: StudioHtmlOptions) => {
 	const scriptUrl = bundleScriptUrl ?? `${publicPath}bundle.js`;
 
@@ -90,6 +93,9 @@ export const studioHtml = ({
 		<script>window.remotion_publicPath = ${JSON.stringify(publicPath)};</script>
 		<script>window.remotion_audioEnabled = true;</script>
 		<script>window.remotion_videoEnabled = true;</script>
+		<script>window.remotion_studioConfig = ${JSON.stringify(
+			studioRuntimeConfig ?? null,
+		)};</script>
 		<script>window.remotion_renderDefaults = ${JSON.stringify(
 			renderDefaults,
 		)};</script>
