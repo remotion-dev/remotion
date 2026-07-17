@@ -66,6 +66,21 @@ test('parentSequence with subframe duration caps without truncation', () => {
 	expect(duration).toBe(23.5);
 });
 
+// Nested <Audio> inside Series.Sequence: useVideoConfig() returns the parent
+// sequence duration (23.5), so both inputs are fractional. Must not floor to 23.
+test('nested media under subframe parent keeps fractional duration', () => {
+	const duration = getTimelineDuration({
+		compositionDurationInFrames: 23.5,
+		playbackRate: 1,
+		trimBefore: undefined,
+		trimAfter: undefined,
+		parentSequenceDurationInFrames: 23.5,
+		loop: false,
+	});
+
+	expect(duration).toBe(23.5);
+});
+
 test('subframe sequence duration is not truncated', () => {
 	const duration = getTimelineDuration({
 		compositionDurationInFrames: 10.920000000000016,

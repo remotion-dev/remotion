@@ -4,7 +4,6 @@ import {
 	SEQUENCE_BORDER_WIDTH,
 	getTimelineSequenceLayout,
 } from '../helpers/get-timeline-sequence-layout';
-
 const makeVideoConfig = (durationInFrames: number): VideoConfig => ({
 	durationInFrames,
 	fps: 30,
@@ -161,6 +160,32 @@ test('adjacent sequences have no visual gap', () => {
 	expect(first.marginLeft + first.width + SEQUENCE_BORDER_WIDTH).toBe(
 		second.marginLeft,
 	);
+});
+
+test('audio layer width uses fractional maxMediaDuration', () => {
+	const floored = getTimelineSequenceLayout({
+		durationInFrames: 30,
+		startFrom: 0,
+		startFromMedia: 0,
+		maxMediaDuration: 23,
+		premountDisplay: null,
+		postmountDisplay: null,
+		video: makeVideoConfig(120),
+		windowWidth: 1000,
+	});
+	const fractional = getTimelineSequenceLayout({
+		durationInFrames: 30,
+		startFrom: 0,
+		startFromMedia: 0,
+		maxMediaDuration: 23.5,
+		premountDisplay: null,
+		postmountDisplay: null,
+		video: makeVideoConfig(120),
+		windowWidth: 1000,
+	});
+
+	expect(fractional.width).toBeGreaterThan(floored.width);
+	expect(fractional.naturalWidth).toBeGreaterThan(floored.naturalWidth);
 });
 
 test('media trimmed past its duration has zero width', () => {

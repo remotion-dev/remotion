@@ -1,6 +1,9 @@
 import {useEffect, useState} from 'react';
 import {type TSequence} from 'remotion';
+import {getMediaDurationInFrames} from './get-media-duration-in-frames';
 import {getMediaMetadata} from './use-media-metadata';
+
+export {getMediaDurationInFrames} from './get-media-duration-in-frames';
 
 const cache = new Map<string, number>();
 
@@ -46,7 +49,10 @@ export const useMaxMediaDuration = (s: TSequence, fps: number) => {
 					return;
 				}
 
-				const duration = Math.floor(metadata.duration * fps);
+				const duration = getMediaDurationInFrames({
+					durationInSeconds: metadata.duration,
+					fps,
+				});
 				cache.set(cacheKey, duration);
 				setMaxMediaDuration(duration);
 			})
