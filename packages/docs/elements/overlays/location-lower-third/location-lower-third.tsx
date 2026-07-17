@@ -23,28 +23,6 @@ export const LocationLowerThird: React.FC = () => {
 			extrapolateRight: 'clamp',
 		}),
 	);
-	const locationTranslateX =
-		interpolate(frame, [14, 28], [-36, 0], {
-			easing: Easing.out(Easing.cubic),
-			extrapolateLeft: 'clamp',
-			extrapolateRight: 'clamp',
-		}) +
-		interpolate(frame, [92, 108], [0, -36], {
-			easing: Easing.in(Easing.cubic),
-			extrapolateLeft: 'clamp',
-			extrapolateRight: 'clamp',
-		});
-	const venueTranslateX =
-		interpolate(frame, [27, 42], [-28, 0], {
-			easing: Easing.out(Easing.cubic),
-			extrapolateLeft: 'clamp',
-			extrapolateRight: 'clamp',
-		}) +
-		interpolate(frame, [84, 102], [0, -28], {
-			easing: Easing.in(Easing.cubic),
-			extrapolateLeft: 'clamp',
-			extrapolateRight: 'clamp',
-		});
 
 	return (
 		<Interactive.Div
@@ -166,7 +144,6 @@ export const LocationLowerThird: React.FC = () => {
 								extrapolateLeft: 'clamp',
 								extrapolateRight: 'clamp',
 							}),
-							translate: `${locationTranslateX}px 0px`,
 						}}
 					>
 						{location}
@@ -202,7 +179,6 @@ export const LocationLowerThird: React.FC = () => {
 								extrapolateLeft: 'clamp',
 								extrapolateRight: 'clamp',
 							}),
-							translate: `${venueTranslateX}px 0px`,
 						}}
 					>
 						{venue}
