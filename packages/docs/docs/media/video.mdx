@@ -75,6 +75,15 @@ At which frame this clip should start relative to the parent timeline. Default i
 
 For how many frames the clip stays mounted. Default is `Infinity`. Same meaning as [`durationInFrames`](/docs/sequence#durationinframes) on [`<Sequence>`](/docs/sequence).
 
+### `premountFor?`<AvailableFrom v="4.0.491" />
+
+[Premount](/docs/player/premounting) the video for a set number of frames so decoding can warm up before the clip becomes active.  
+Same meaning as [`premountFor`](/docs/sequence#premountfor) on [`<Sequence>`](/docs/sequence). While premounting, the canvas (or Html5 fallback) stays invisible.
+
+### `postmountFor?`<AvailableFrom v="4.0.491" />
+
+Same as `premountFor`, but keeps the video mounted after the clip has ended.
+
 :::note
 You can still wrap `<Video>` in an outer [`<Sequence>`](/docs/sequence). Timing [cascades](/docs/sequence#cascading) like nested sequences.
 :::

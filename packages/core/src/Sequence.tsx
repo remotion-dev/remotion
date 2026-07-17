@@ -45,11 +45,13 @@ export type AbsoluteFillLayout = {
 	className?: string;
 };
 
-export type LayoutAndStyle =
-	| AbsoluteFillLayout
-	| {
-			layout: 'none';
-	  };
+export type NoneLayout = {
+	layout: 'none';
+	premountFor?: number;
+	postmountFor?: number;
+};
+
+export type LayoutAndStyle = AbsoluteFillLayout | NoneLayout;
 
 export type SequencePropsWithoutDuration = {
 	readonly children?: React.ReactNode;
@@ -570,22 +572,10 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 	const frame =
 		useCurrentFrame() - parentPremountContext.premountFramesRemaining;
 
-	if (props.layout === 'none') {
-		throw new Error(
-			'`<Sequence>` with `premountFor` and `postmountFor` props does not support layout="none"',
-		);
-	}
-
-	const {
-		style: passedStyle,
-		from = 0,
-		durationInFrames = Infinity,
-		premountFor = 0,
-		postmountFor = 0,
-		styleWhilePremounted,
-		styleWhilePostmounted,
-		...otherProps
-	} = props;
+	const from = props.from ?? 0;
+	const durationInFrames = props.durationInFrames ?? Infinity;
+	const premountFor = props.premountFor ?? 0;
+	const postmountFor = props.postmountFor ?? 0;
 
 	const endThreshold = Math.ceil(from + durationInFrames - 1);
 	const premountingActive = frame < from && frame >= from - premountFor;
@@ -599,6 +589,12 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 			? from + durationInFrames - 1
 			: 0;
 	const isFreezingActive = premountingActive || postmountingActive;
+
+	const passedStyle = props.layout === 'none' ? undefined : props.style;
+	const styleWhilePremounted =
+		props.layout === 'none' ? undefined : props.styleWhilePremounted;
+	const styleWhilePostmounted =
+		props.layout === 'none' ? undefined : props.styleWhilePostmounted;
 
 	const style = useMemo(() => {
 		return {
@@ -619,6 +615,43 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 		styleWhilePostmounted,
 	]);
 
+	// layout="none" stays wrapperless: Sequence only controls the mount window and
+	// premounting flags. Media (e.g. <Video>) hide their own canvas/fallback.
+	if (props.layout === 'none') {
+		const {
+			from: _from,
+			durationInFrames: _durationInFrames,
+			premountFor: _premountFor,
+			postmountFor: _postmountFor,
+			...noneLayoutProps
+		} = props;
+
+		return (
+			<Freeze frame={freezeFrame} active={isFreezingActive}>
+				<SequenceInner
+					from={from}
+					durationInFrames={durationInFrames}
+					_remotionInternalPremountDisplay={premountFor}
+					_remotionInternalPostmountDisplay={postmountFor}
+					_remotionInternalIsPremounting={premountingActive}
+					_remotionInternalIsPostmounting={postmountingActive}
+					{...noneLayoutProps}
+				/>
+			</Freeze>
+		);
+	}
+
+	const {
+		style: _style,
+		from: _from,
+		durationInFrames: _durationInFrames,
+		premountFor: _premountFor,
+		postmountFor: _postmountFor,
+		styleWhilePremounted: _styleWhilePremounted,
+		styleWhilePostmounted: _styleWhilePostmounted,
+		...absoluteFillProps
+	} = props;
+
 	return (
 		<Freeze frame={freezeFrame} active={isFreezingActive}>
 			<SequenceInner
@@ -630,7 +663,7 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 				_remotionInternalPostmountDisplay={postmountFor}
 				_remotionInternalIsPremounting={premountingActive}
 				_remotionInternalIsPostmounting={postmountingActive}
-				{...otherProps}
+				{...absoluteFillProps}
 			/>
 		</Freeze>
 	);
@@ -646,18 +679,25 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 > = (props, ref) => {
 	const env = useRemotionEnvironment();
 	const {fps} = useVideoConfig();
-	if (props.layout !== 'none' && !env.isRendering) {
-		const effectivePremountFor = ENABLE_V5_BREAKING_CHANGES
-			? (props.premountFor ?? fps)
-			: props.premountFor;
-		if (effectivePremountFor || props.postmountFor) {
-			return (
-				<PremountedPostmountedSequence
-					ref={ref}
-					{...props}
-					premountFor={effectivePremountFor}
-				/>
-			);
+	if (!env.isRendering) {
+		if (props.layout === 'none') {
+			// layout="none" never auto-premounts (v5 default applies only to laid-out sequences).
+			if (props.premountFor || props.postmountFor) {
+				return <PremountedPostmountedSequence {...props} />;
+			}
+		} else {
+			const effectivePremountFor = ENABLE_V5_BREAKING_CHANGES
+				? (props.premountFor ?? fps)
+				: props.premountFor;
+			if (effectivePremountFor || props.postmountFor) {
+				return (
+					<PremountedPostmountedSequence
+						ref={ref}
+						{...props}
+						premountFor={effectivePremountFor}
+					/>
+				);
+			}
 		}
 	}
 

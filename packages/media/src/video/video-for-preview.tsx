@@ -77,6 +77,8 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly _experimentalInitiallyDrawCachedFrame: boolean;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
 	readonly refForOutline: React.RefObject<HTMLElement | null>;
+	readonly styleWhilePremounted: React.CSSProperties | undefined;
+	readonly styleWhilePostmounted: React.CSSProperties | undefined;
 };
 
 type VideoForPreviewAssertedShowingProps = VideoForPreviewProps;
@@ -111,6 +113,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 	effects,
 	setMediaDurationInSeconds,
 	refForOutline,
+	styleWhilePremounted,
+	styleWhilePostmounted,
 	...props
 }) => {
 	const src = usePreload(unpreloadedSrc);
@@ -512,12 +516,30 @@ const VideoForPreviewAssertedShowing: React.FC<
 	}, [effects, mediaPlayerReady, mediaPlayerRef]);
 
 	const actualStyle: React.CSSProperties = useMemo(() => {
+		if (isPremounting || isPostmounting) {
+			return {
+				...style,
+				objectFit: objectFitProp,
+				opacity: 0,
+				pointerEvents: 'none',
+				...(isPremounting ? styleWhilePremounted : {}),
+				...(isPostmounting ? styleWhilePostmounted : {}),
+			};
+		}
+
 		return {
 			...style,
 			// TODO: Previousy we did hide on isSequenceHidden
 			objectFit: objectFitProp,
 		};
-	}, [objectFitProp, style]);
+	}, [
+		isPostmounting,
+		isPremounting,
+		objectFitProp,
+		style,
+		styleWhilePostmounted,
+		styleWhilePremounted,
+	]);
 
 	if (shouldFallbackToNativeVideo && !disallowFallbackToOffthreadVideo) {
 		// <Video> will fallback to <VideoForPreview> anyway

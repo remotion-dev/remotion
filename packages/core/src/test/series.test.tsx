@@ -498,3 +498,68 @@ test('preserves the real sequence start while premounting', () => {
 		'frame <!-- -->0<!-- --> absoluteFrom <!-- -->106',
 	);
 });
+
+test('layout="none" premounts without an AbsoluteFill wrapper', () => {
+	const PremountFlagPrinter = () => {
+		const sequenceContext = React.useContext(Internals.SequenceContext);
+		return (
+			<div>
+				{sequenceContext?.premounting ? 'premounting' : 'active'} content
+			</div>
+		);
+	};
+
+	const premountHtml = renderForFrame(
+		40,
+		<WrapSequenceContext>
+			<Internals.RemotionEnvironmentContext
+				value={{
+					isRendering: false,
+					isClientSideRendering: false,
+					isPlayer: true,
+					isStudio: true,
+					isReadOnlyStudio: false,
+				}}
+			>
+				<Sequence
+					from={60}
+					durationInFrames={30}
+					layout="none"
+					premountFor={30}
+				>
+					<PremountFlagPrinter />
+				</Sequence>
+			</Internals.RemotionEnvironmentContext>
+		</WrapSequenceContext>,
+	);
+	expect(premountHtml).toContain('premounting');
+	expect(premountHtml).toContain('content');
+	expect(premountHtml).not.toContain('position:absolute');
+
+	const activeHtml = renderForFrame(
+		60,
+		<WrapSequenceContext>
+			<Internals.RemotionEnvironmentContext
+				value={{
+					isRendering: false,
+					isClientSideRendering: false,
+					isPlayer: true,
+					isStudio: true,
+					isReadOnlyStudio: false,
+				}}
+			>
+				<Sequence
+					from={60}
+					durationInFrames={30}
+					layout="none"
+					premountFor={30}
+				>
+					<PremountFlagPrinter />
+				</Sequence>
+			</Internals.RemotionEnvironmentContext>
+		</WrapSequenceContext>,
+	);
+	expect(activeHtml).toContain('active');
+	expect(activeHtml).toContain('content');
+	expect(activeHtml).not.toContain('position:absolute');
+});

@@ -61,9 +61,9 @@ In the [Remotion Studio](/docs/studio), a premounted component is indicated with
 <br />
 <br />
 
-A premounted [`<Sequence>`](/docs/sequence) does carry the styles `opacity: 0` and `pointer-events: none`.
+A premounted [`<Sequence>`](/docs/sequence) with `layout="absolute-fill"` (the default) carries the styles `opacity: 0` and `pointer-events: none` on its container.
 
-It is not possible to premount a [`<Sequence>`](/docs/sequence) with `layout="none"` because such a sequence does not have a container to apply the styles to.
+[`<Sequence layout="none">`](/docs/sequence) can also use `premountFor` / `postmountFor`. In that case Remotion keeps the sequence wrapperless and only controls the mount window plus premounting flags. Components that render media (for example [`<Video>`](/docs/media/video) from `@remotion/media`) hide their own canvas or fallback while premounting or postmounting.
 
 ## With `<Series>` and `<TransitionSeries>`
 

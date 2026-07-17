@@ -38,6 +38,7 @@ const videoSchema = {
 	},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
 	...Internals.transformSchema,
+	...Internals.premountSchema,
 } as const satisfies InteractivitySchema;
 
 const InnerVideo: React.FC<
@@ -61,6 +62,8 @@ const InnerVideo: React.FC<
 	onVideoFrame,
 	playbackRate,
 	style,
+	styleWhilePremounted,
+	styleWhilePostmounted,
 	trimAfter,
 	trimBefore,
 	volume,
@@ -157,6 +160,8 @@ const InnerVideo: React.FC<
 			playbackRate={playbackRate}
 			src={src}
 			style={style}
+			styleWhilePremounted={styleWhilePremounted}
+			styleWhilePostmounted={styleWhilePostmounted}
 			volume={volume}
 			showInTimeline={showInTimeline}
 			trimAfter={trimAfterValue}
@@ -219,6 +224,10 @@ const VideoInner: React.FC<
 	from,
 	freeze,
 	hidden,
+	premountFor,
+	postmountFor,
+	styleWhilePremounted,
+	styleWhilePostmounted,
 	...props
 }) => {
 	const fallbackLogLevel = Internals.useLogLevel();
@@ -298,6 +307,8 @@ const VideoInner: React.FC<
 			from={from ?? 0}
 			durationInFrames={basicInfo.duration}
 			freeze={freeze}
+			premountFor={premountFor}
+			postmountFor={postmountFor}
 			_remotionInternalStack={stack}
 			_remotionInternalIsMedia={isMedia}
 			name={name ?? '<Video>'}
@@ -334,6 +345,8 @@ const VideoInner: React.FC<
 				showInTimeline={showInTimeline ?? true}
 				src={src}
 				style={style ?? {}}
+				styleWhilePremounted={styleWhilePremounted}
+				styleWhilePostmounted={styleWhilePostmounted}
 				trimAfter={trimAfter}
 				trimBefore={trimBefore}
 				volume={volume ?? 1}

@@ -3,6 +3,7 @@ import type {
 	EffectDefinitionAndStack,
 	EffectsProp,
 	InteractiveBaseProps,
+	InteractivePremountProps,
 	LogLevel,
 	LoopVolumeCurveBehavior,
 	OnVideoFrame,
@@ -94,10 +95,13 @@ export type InnerVideoProps = MandatoryVideoProps &
 	Omit<OptionalVideoProps, 'effects'> &
 	NativeVideoProps & {
 		effects: EffectDefinitionAndStack<unknown>[];
+		styleWhilePremounted?: React.CSSProperties;
+		styleWhilePostmounted?: React.CSSProperties;
 	};
 
 export type VideoProps = MandatoryVideoProps &
 	Partial<OuterVideoProps> &
 	Partial<OptionalVideoProps> &
 	NativeVideoProps &
-	InteractiveBaseProps;
+	InteractiveBaseProps &
+	InteractivePremountProps;
