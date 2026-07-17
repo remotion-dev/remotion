@@ -1,3 +1,5 @@
+import {Interactive} from 'remotion';
+
 export const Banner = ({
 	theme,
 	withBackground,
@@ -10,7 +12,8 @@ export const Banner = ({
 	const markColor = theme === 'light' ? '#0B84F3' : 'white';
 
 	return (
-		<svg
+		<Interactive.Svg
+			name="Remotion banner"
 			width={2000}
 			height={800}
 			viewBox="0 0 2000 800"
@@ -137,6 +140,6 @@ export const Banner = ({
 					fill={markColor}
 				/>
 			</g>
-		</svg>
+		</Interactive.Svg>
 	);
 };
