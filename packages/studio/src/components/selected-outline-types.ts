@@ -1,5 +1,4 @@
 import type {
-	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
 	InteractivitySchema,
@@ -34,7 +33,6 @@ export type SelectedOutlineTarget = {
 	readonly scaleDrag: SelectedOutlineScaleDragTarget | null;
 	readonly rotationDrag: SelectedOutlineRotationDragTarget | null;
 	readonly transformOriginDrag: SelectedOutlineTransformOriginDragTarget | null;
-	readonly textEdit: SelectedOutlineTextEditTarget | null;
 	readonly uvHandles: readonly SelectedOutlineUvHandle[];
 };
 
@@ -42,11 +40,6 @@ export type SelectedOutlineEffectDropTarget = {
 	readonly clientId: string;
 	readonly fileName: string;
 	readonly nodePath: SequencePropsSubscriptionKey;
-};
-
-export type SelectedOutlineTextEditTarget = {
-	readonly nodePath: SequencePropsSubscriptionKey;
-	readonly propStatus: CanUpdateSequencePropStatus;
 };
 
 export type SelectedOutlineDragTarget = {

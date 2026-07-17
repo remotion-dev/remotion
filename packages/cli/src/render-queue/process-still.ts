@@ -8,7 +8,6 @@ import {renderStillFlow} from '../render-flows/still';
 const {
 	publicDirOption,
 	askAIOption,
-	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 	rspackOption,
 	browserExecutableOption,
@@ -40,10 +39,6 @@ export const processStill = async ({
 		commandLine: parsedCli,
 	}).value;
 	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
-	const experimentalClientSideRenderingEnabled =
-		experimentalClientSideRenderingOption.getValue({
-			commandLine: parsedCli,
-		}).value;
 	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -92,7 +87,6 @@ export const processStill = async ({
 		audioLatencyHint: null,
 		mediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
 		askAIEnabled,
-		experimentalClientSideRenderingEnabled,
 		keyboardShortcutsEnabled,
 		rspack,
 		shouldCache,

@@ -1,0 +1,35 @@
+---
+image: /generated/articles-docs-ai-claude-code-plugin.png
+crumb: 'AI'
+title: Claude Code plugin
+---
+
+Remotion maintains a [plugin for Claude Code](https://github.com/remotion-dev/claude-code-plugin).
+
+It can help you create and edit Remotion projects and includes [Remotion Agent Skills](/docs/ai/skills).
+
+## Installation
+
+Add the Remotion marketplace and install the plugin:
+
+```bash title="Terminal"
+claude plugin marketplace add remotion-dev/claude-code-plugin
+claude plugin install remotion@remotion
+```
+
+Restart Claude Code after installing the plugin.
+
+## Usage
+
+Ask Claude Code to create or edit a Remotion video. Claude Code automatically loads the relevant skills.
+
+You can also invoke the main skill directly:
+
+<SuggestedPrompt prompt="/remotion-best-practices Make an animated bar chart with 5 bars" />
+
+## See also
+
+- [Codex plugin](/docs/ai/codex-plugin)
+- [Remotion Agent Skills](/docs/ai/skills)
+- [Prompting videos with coding agents](/docs/ai/coding-agents)
+- [Plugin source code](https://github.com/remotion-dev/claude-code-plugin)

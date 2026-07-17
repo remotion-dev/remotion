@@ -28,7 +28,6 @@ const {
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
 	askAIOption,
-	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 	rspackOption,
 	browserExecutableOption,
@@ -216,9 +215,6 @@ export const still = async (
 		audioLatencyHint,
 		mediaCacheSizeInBytes,
 		askAIEnabled,
-		experimentalClientSideRenderingEnabled:
-			experimentalClientSideRenderingOption.getValue({commandLine: parsedCli})
-				.value,
 		keyboardShortcutsEnabled,
 		rspack,
 		shouldCache,

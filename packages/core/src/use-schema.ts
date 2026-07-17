@@ -17,12 +17,33 @@ import type {
 export type CanUpdateSequencePropStatusStatic = {
 	status: 'static';
 	codeValue: unknown;
+	numericExpression?: VideoConfigNumericExpression;
 };
 
 export type CanUpdateSequencePropStatusKeyframe = {
 	frame: number;
 	value: unknown;
+	frameExpression?: VideoConfigNumericExpression;
 };
+
+export type VideoConfigNumericExpression =
+	| {
+			type: 'literal';
+			value: number;
+	  }
+	| {
+			type: 'video-config-value';
+			identifier: string;
+			value: number;
+	  }
+	| {
+			type: 'video-config-multiplication';
+			identifier: string;
+			multiplier: number;
+			multiplicand: number;
+			factorPosition: 'left' | 'right';
+			value: number;
+	  };
 
 export type CanUpdateSequencePropStatusLinearEasing = {
 	type: 'linear';

@@ -1,5 +1,6 @@
 import type {LogLevel} from 'remotion';
 import type {InternalState} from '../../internal-state';
+import type {TransformStyleCache} from '../calculate-transforms';
 import type {ProcessNodeReturnValue} from '../process-node';
 import {processNode} from '../process-node';
 import {drawText} from './draw-text';
@@ -14,6 +15,7 @@ export const handleTextNode = async ({
 	onlyBackgroundClipText,
 	scale,
 	waitForPageResponsiveness,
+	transformStyleCache,
 }: {
 	node: Text;
 	context: OffscreenCanvasRenderingContext2D;
@@ -24,6 +26,7 @@ export const handleTextNode = async ({
 	onlyBackgroundClipText: boolean;
 	scale: number;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
+	transformStyleCache: TransformStyleCache;
 }): Promise<ProcessNodeReturnValue> => {
 	const span = document.createElement('span');
 
@@ -45,6 +48,7 @@ export const handleTextNode = async ({
 		rootElement,
 		scale,
 		waitForPageResponsiveness,
+		transformStyleCache,
 	});
 
 	// Undo the layout manipulation

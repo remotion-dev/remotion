@@ -141,6 +141,7 @@ export const convertSequencePropEditToCodemodChange = (
 			},
 		],
 		schema: edit.schema,
+		videoConfigValues: edit.nodePath.videoConfigValues,
 	};
 };
 
@@ -325,6 +326,7 @@ export const saveSequencePropsHandler: ApiHandler<
 					input: output,
 					nodePath: firstSequenceKeyframe.nodePath.nodePath,
 					schema: firstSequenceKeyframe.schema,
+					videoConfigValues: firstSequenceKeyframe.nodePath.videoConfigValues,
 					updates,
 				});
 				output = result.output;
@@ -379,6 +381,8 @@ export const saveSequencePropsHandler: ApiHandler<
 					sequenceNodePath: firstEffectKeyframe.sequenceNodePath.nodePath,
 					effectIndex: firstEffectKeyframe.effectIndex,
 					schema: firstEffectKeyframe.schema,
+					videoConfigValues:
+						firstEffectKeyframe.sequenceNodePath.videoConfigValues,
 					updates,
 				});
 				output = result.output;
@@ -500,6 +504,7 @@ export const saveSequencePropsHandler: ApiHandler<
 				nodePath: edit.nodePath.nodePath,
 				componentIdentity: null,
 				effects: [],
+				videoConfigValues: edit.nodePath.videoConfigValues,
 			});
 
 			return {

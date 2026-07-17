@@ -7,36 +7,51 @@ crumb: 'How To'
 
 You can embed transparent videos in Remotion.
 
-## With an alpha channel
+## With `@remotion/media`
 
-To embed a video which has an alpha channel, use the [`<OffthreadVideo>`](/docs/offthreadvideo) component with the [`transparent`](/docs/offthreadvideo#transparent) prop.
+Transparent videos with an alpha channel are natively supported by [`<Video>` from `@remotion/media`](/docs/media/video).
 
-```tsx twoslash
+```tsx twoslash title="MyComp.tsx"
 import React from 'react';
-import {OffthreadVideo, staticFile} from 'remotion';
+import {Video} from '@remotion/media';
+import {staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return <OffthreadVideo src={staticFile('transparent.webm')} transparent />;
+  return <Video src={staticFile('transparent.webm')} />;
 };
 ```
 
 ## Without an alpha channel
 
-To embed a video which does not have an alpha channel but just a black background, add `mixBlendMode: "screen"` to the [`style`](/docs/offthreadvideo#style) prop of the [`<OffthreadVideo>`](/docs/offthreadvideo) component.
+To embed a video which does not have an alpha channel but has a black background, add `mixBlendMode: "screen"` to the [`style`](/docs/media/video#style) prop of the [`<Video>`](/docs/media/video) component.
 
-```tsx twoslash
+```tsx twoslash title="MyComp.tsx"
 import React from 'react';
-import {OffthreadVideo, staticFile} from 'remotion';
+import {Video} from '@remotion/media';
+import {staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
-    <OffthreadVideo
+    <Video
       src={staticFile('nottransparent.mp4')}
       style={{
         mixBlendMode: 'screen',
       }}
     />
   );
+};
+```
+
+## With `<OffthreadVideo>`
+
+To embed a video with an alpha channel using [`<OffthreadVideo>`](/docs/offthreadvideo), enable the [`transparent`](/docs/offthreadvideo#transparent) prop.
+
+```tsx twoslash title="MyComp.tsx"
+import React from 'react';
+import {OffthreadVideo, staticFile} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return <OffthreadVideo src={staticFile('transparent.webm')} transparent />;
 };
 ```
 

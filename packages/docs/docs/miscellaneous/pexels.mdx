@@ -26,4 +26,6 @@ These timeouts are not a problem from Remotion's side.
 
 ## Solution
 
-Instead of using direct links from services like Pexels, download and re-host the videos on your own servers, or in a S3 bucket.
+Use [`<Video>`](/docs/media/video) from [`@remotion/media`](/docs/media). It is the recommended option and gives a more precise error message for network failures.
+
+If you cannot use `@remotion/media`, avoid direct links from services like Pexels. Download and re-host the videos on your own servers, or in a S3 bucket.

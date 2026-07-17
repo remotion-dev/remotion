@@ -74,6 +74,7 @@ import {
 	HtmlInCanvasDocsDemo2DBlur,
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
+	HtmlInCanvasNestedEffects,
 	HtmlInCanvasPixelDensity,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
@@ -207,6 +208,7 @@ import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh'
 import {Empty} from './Empty';
 import {
 	Issue8974IndependentVideosTimeline,
+	Issue8974SeriesTimeline,
 	Issue8974TransitionSeriesTimeline,
 } from './Issue8974TimelineInteractivity';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
@@ -277,6 +279,7 @@ import {
 	InteractiveHtmlElements,
 	InteractiveSvgElements,
 } from './VisualModeTests/InteractiveComponents';
+import {VideoConfigExpressions} from './VisualModeTests/VideoConfigExpressions';
 import {VoiceVisualization} from './voice-visualization';
 import {WhisperWeb} from './WhisperWeb';
 
@@ -1189,6 +1192,14 @@ export const Index: React.FC = () => {
 					<Composition
 						id="html-in-canvas-docs-demo-2d-blur"
 						component={HtmlInCanvasDocsDemo2DBlur}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={120}
+					/>
+					<Composition
+						id="html-in-canvas-nested-effects"
+						component={HtmlInCanvasNestedEffects}
 						fps={30}
 						height={1080}
 						width={1920}
@@ -2686,6 +2697,14 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={366}
 				/>
+				<Composition
+					id="video-editing-series"
+					component={Issue8974SeriesTimeline}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={366}
+				/>
 			</Folder>
 			<Folder name="VisualModeTests">
 				<Composition
@@ -2719,6 +2738,14 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={90}
+				/>
+				<Composition
+					id="video-config-expressions"
+					component={VideoConfigExpressions}
+					width={1200}
+					height={800}
+					fps={30}
+					durationInFrames={300}
 				/>
 			</Folder>
 			<ChangingTrimBeforeValue />

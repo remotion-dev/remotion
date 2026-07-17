@@ -198,6 +198,7 @@ export const moveKeyframes = async ({
 				input: output,
 				nodePath: firstSequenceKeyframe.nodePath.nodePath,
 				schema: firstSequenceKeyframe.schema,
+				videoConfigValues: firstSequenceKeyframe.nodePath.videoConfigValues,
 				updates,
 			});
 			output = result.output;
@@ -252,6 +253,8 @@ export const moveKeyframes = async ({
 				sequenceNodePath: firstEffectKeyframe.sequenceNodePath.nodePath,
 				effectIndex: firstEffectKeyframe.effectIndex,
 				schema: firstEffectKeyframe.schema,
+				videoConfigValues:
+					firstEffectKeyframe.sequenceNodePath.videoConfigValues,
 				updates,
 			});
 			output = result.output;

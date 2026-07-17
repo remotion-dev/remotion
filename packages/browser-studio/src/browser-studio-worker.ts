@@ -230,7 +230,6 @@ const compileProject = async ({
 					getDefinePluginDefinitions({
 						askAIEnabled: false,
 						bufferStateDelayInMilliseconds: null,
-						experimentalClientSideRenderingEnabled: false,
 						interactivityEnabled: true,
 						keyboardShortcutsEnabled: true,
 						maxTimelineTracks: null,

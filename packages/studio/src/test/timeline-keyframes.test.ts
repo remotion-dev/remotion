@@ -24,6 +24,7 @@ const makeNodePath = (id: string): SequencePropsSubscriptionKey => ({
 	nodePath: [id],
 	sequenceKeys: ['style.scale'],
 	effectKeys: [],
+	videoConfigValues: null,
 });
 
 const makeNodePathWithEffectKeys = (

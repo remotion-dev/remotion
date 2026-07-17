@@ -1,5 +1,4 @@
 import React, {useContext, useMemo, useRef, useState} from 'react';
-import {flushSync} from 'react-dom';
 import type {ResolvedStackLocation} from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -29,7 +28,6 @@ import {
 } from './ForceSpecificCursor';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
-import {optionsSidebarTabs} from './options-sidebar-tabs';
 import {
 	applySelectedOutlineDragAxisLock,
 	applySelectedOutlineTransformOriginAxisLock,
@@ -61,6 +59,7 @@ import type {OutlinePoint, SelectedOutline} from './selected-outline-geometry';
 import {
 	dot,
 	getAngleDegrees,
+	getOutlineDoubleClickAction,
 	getOutlineSelectionInteraction,
 	getRotationCursor,
 	getSelectedOutlineRotationCornerInfo,
@@ -96,10 +95,7 @@ import {
 } from './Timeline/call-add-keyframe';
 import {disableSequenceInteractivity} from './Timeline/disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './Timeline/duplicate-selected-timeline-item';
-import {
-	commitPendingInspectorFields,
-	requestFocusInspectorField,
-} from './Timeline/focus-inspector-field';
+import {commitPendingInspectorFields} from './Timeline/focus-inspector-field';
 import {getSequenceContextMenuItems} from './Timeline/get-sequence-context-menu-items';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {getTimelineAssetLinkInfo} from './Timeline/timeline-asset-link';
@@ -497,7 +493,10 @@ const SelectedOutlinePolygon: React.FC<{
 		item: TimelineSelection,
 		interaction: TimelineSelectionInteraction,
 	) => void;
-	readonly onTextEditStart: (target: SelectedOutlineTarget) => void;
+	readonly onDoubleClickTarget: (
+		target: SelectedOutlineTarget,
+		button: number,
+	) => boolean;
 	readonly scale: number;
 	readonly snapTargets: readonly SelectedOutlineSnapTarget[];
 	readonly target: SelectedOutlineTarget | undefined;
@@ -513,7 +512,7 @@ const SelectedOutlinePolygon: React.FC<{
 	onHoverChange,
 	onSnapPointsChange,
 	onSelect,
-	onTextEditStart,
+	onDoubleClickTarget,
 	scale,
 	snapTargets,
 	target,
@@ -790,11 +789,14 @@ const SelectedOutlinePolygon: React.FC<{
 				return;
 			}
 
+			if (!onDoubleClickTarget(target, event.button)) {
+				return;
+			}
+
 			event.preventDefault();
 			event.stopPropagation();
-			onTextEditStart(target);
 		},
-		[onTextEditStart, target],
+		[onDoubleClickTarget, target],
 	);
 
 	const onEffectDragOver = React.useCallback(
@@ -1541,38 +1543,59 @@ export const SelectedOutlineElement: React.FC<{
 	const selectAsset = useSelectAsset();
 	const {setSelectedModal} = useContext(ModalsContext);
 
-	const onTextEditStart = React.useCallback(
-		(editTarget: SelectedOutlineTarget) => {
-			const {textEdit} = editTarget;
-			if (textEdit === null) {
-				return;
+	const resolveOriginalLocation = React.useCallback(
+		async (resolveTarget: SelectedOutlineTarget) => {
+			const stack = resolveTarget.sequence.getStack();
+			if (!stack) {
+				return null;
 			}
 
-			if (
-				textEdit.propStatus.status !== 'static' ||
-				typeof textEdit.propStatus.codeValue !== 'string'
-			) {
-				showNotification(
-					'This text is computed and cannot be edited visually',
-					3000,
+			let originalLocation: ResolvedStackLocation | null = null;
+			try {
+				originalLocation = await getOriginalLocationFromStack(
+					stack,
+					'sequence',
 				);
-				return;
+			} catch (err) {
+				showNotification((err as Error).message, 2000);
 			}
 
-			flushSync(() => {
-				if (!editTarget.selected) {
-					onSelect(editTarget.selection, {shiftKey: false, toggleKey: false});
+			updateResolvedStackTrace(stack, originalLocation);
+			return originalLocation;
+		},
+		[updateResolvedStackTrace],
+	);
+
+	const onDoubleClickTarget = React.useCallback(
+		(doubleClickTarget: SelectedOutlineTarget, button: number) => {
+			const action = getOutlineDoubleClickAction({
+				button,
+				canOpenInEditor:
+					previewServerState.type === 'connected' &&
+					Boolean(window.remotion_editorName),
+			});
+
+			if (action === null) {
+				return false;
+			}
+
+			const openTargetInEditor = async () => {
+				const originalLocation =
+					await resolveOriginalLocation(doubleClickTarget);
+				if (originalLocation === null) {
+					return;
 				}
 
-				optionsSidebarTabs.current?.selectInspectorPanel();
+				await openOriginalPositionInEditor(originalLocation);
+			};
+
+			openTargetInEditor().catch((err) => {
+				showNotification((err as Error).message, 2000);
 			});
 
-			requestFocusInspectorField({
-				fieldKey: 'children',
-				nodePath: textEdit.nodePath,
-			});
+			return true;
 		},
-		[onSelect],
+		[previewServerState.type, resolveOriginalLocation],
 	);
 
 	const onContextMenuOpen = React.useCallback(async () => {
@@ -1584,22 +1607,7 @@ export const SelectedOutlineElement: React.FC<{
 			onSelect(target.selection, {shiftKey: false, toggleKey: false});
 		}
 
-		const stack = target.sequence.getStack();
-		let originalLocation: ResolvedStackLocation | null = null;
-		if (stack) {
-			try {
-				originalLocation = await getOriginalLocationFromStack(
-					stack,
-					'sequence',
-				);
-			} catch (err) {
-				showNotification((err as Error).message, 2000);
-			}
-		}
-
-		if (stack) {
-			updateResolvedStackTrace(stack, originalLocation);
-		}
+		const originalLocation = await resolveOriginalLocation(target);
 
 		const fileLocation = formatFileLocation({
 			location: originalLocation,
@@ -1746,11 +1754,11 @@ export const SelectedOutlineElement: React.FC<{
 		confirm,
 		onSelect,
 		previewServerState,
+		resolveOriginalLocation,
 		selectAsset,
 		setSelectedModal,
 		setPropStatuses,
 		target,
-		updateResolvedStackTrace,
 	]);
 
 	return (
@@ -1767,7 +1775,7 @@ export const SelectedOutlineElement: React.FC<{
 				onHoverChange={onHoverChange}
 				onSnapPointsChange={onSnapPointsChange}
 				onSelect={onSelect}
-				onTextEditStart={onTextEditStart}
+				onDoubleClickTarget={onDoubleClickTarget}
 				scale={scale}
 				snapTargets={snapTargets}
 				target={target}

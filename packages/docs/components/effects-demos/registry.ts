@@ -27,6 +27,7 @@ import {linearGradientTint} from '@remotion/effects/linear-gradient-tint';
 import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
 import {linearProgressivePixelate} from '@remotion/effects/linear-progressive-pixelate';
 import {lines} from '@remotion/effects/lines';
+import {liquidContours} from '@remotion/effects/liquid-contours';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
 import {noiseDisplacement} from '@remotion/effects/noise-displacement';
@@ -90,6 +91,7 @@ import {EffectsLinearGradientTintPreview} from '../effects/effects-linear-gradie
 import {EffectsLinearProgressiveBlurPreview} from '../effects/effects-linear-progressive-blur-preview';
 import {EffectsLinearProgressivePixelatePreview} from '../effects/effects-linear-progressive-pixelate-preview';
 import {EffectsLinesPreview} from '../effects/effects-lines-preview';
+import {EffectsLiquidContoursPreview} from '../effects/effects-liquid-contours-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
 import {
 	EffectsNoiseDisplacementPreview,
@@ -430,6 +432,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/contour-lines',
 		comp: EffectsContourLinesPreview,
 		schema: contourLines().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-liquid-contours',
+		effectName: 'liquidContours',
+		effectImportPath: '@remotion/effects/liquid-contours',
+		comp: EffectsLiquidContoursPreview,
+		schema: liquidContours().definition.schema,
 	},
 	{
 		...defaults,

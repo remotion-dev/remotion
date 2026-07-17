@@ -28,6 +28,7 @@ import {linearGradient} from '../linear-gradient.js';
 import {linearProgressiveBlur} from '../linear-progressive-blur/index.js';
 import {linearProgressivePixelate} from '../linear-progressive-pixelate/index.js';
 import {lines} from '../lines.js';
+import {liquidContours, liquidContoursSchema} from '../liquid-contours.js';
 import {mirror} from '../mirror.js';
 import {
 	noiseDisplacement,
@@ -155,6 +156,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(lines().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/lines',
 	);
+	expect(liquidContours().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/liquid-contours',
+	);
 	expect(linearGradient().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/linear-gradient',
 	);
@@ -267,6 +271,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(checkerboard().definition.label).toBe('checkerboard()');
 	expect(contrast().definition.label).toBe('contrast()');
 	expect(contourLines().definition.label).toBe('contourLines()');
+	expect(liquidContours().definition.label).toBe('liquidContours()');
 	expect(duotone().definition.label).toBe('duotone()');
 	expect(evolve().definition.label).toBe('evolve()');
 	expect(dropShadow().definition.label).toBe('dropShadow()');
@@ -3725,4 +3730,55 @@ test('uvTranslate() offsets produce distinct effect keys', () => {
 	expect(
 		new Set([centered.effectKey, shiftedU.effectKey, shiftedV.effectKey]).size,
 	).toBe(3);
+});
+
+test('liquidContours() accepts default params', () => {
+	expect(() => liquidContours()).not.toThrow();
+	expect(liquidContoursSchema.scale.default).toBe(300);
+});
+
+test('liquidContours() validates colors', () => {
+	expect(() => liquidContours({firstColor: ''})).toThrow(
+		'"firstColor" must be a non-empty string',
+	);
+	expect(() => liquidContours({secondColor: ''})).toThrow(
+		'"secondColor" must be a non-empty string',
+	);
+});
+
+test('liquidContours() validates positive dimensions', () => {
+	expect(() => liquidContours({spacing: 0})).toThrow(
+		'"spacing" must be greater than 0',
+	);
+	expect(() => liquidContours({scale: 0})).toThrow(
+		'"scale" must be greater than 0',
+	);
+});
+
+test('liquidContours() validates unit interval params', () => {
+	expect(() => liquidContours({complexity: -0.1})).toThrow(
+		'"complexity" must be >= 0',
+	);
+	expect(() => liquidContours({smoothness: 1.1})).toThrow(
+		'"smoothness" must be <= 1',
+	);
+});
+
+test('liquidContours() parameters produce distinct effect keys', () => {
+	const effects = [
+		liquidContours(),
+		liquidContours({firstColor: 'blue'}),
+		liquidContours({secondColor: 'white'}),
+		liquidContours({spacing: 64}),
+		liquidContours({scale: 400}),
+		liquidContours({complexity: 0.6}),
+		liquidContours({smoothness: 0.2}),
+		liquidContours({seed: 2}),
+		liquidContours({offsetX: 10}),
+		liquidContours({offsetY: 10}),
+		liquidContours({phase: 0.5}),
+	];
+	expect(new Set(effects.map((effect) => effect.effectKey)).size).toBe(
+		effects.length,
+	);
 });

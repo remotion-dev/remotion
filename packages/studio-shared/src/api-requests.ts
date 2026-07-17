@@ -23,6 +23,7 @@ import type {
 	JsxComponentIdentity,
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
+	VideoConfigValues,
 } from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {ComponentProp} from './component-drag-data';
@@ -278,6 +279,7 @@ export type SubscribeToSequencePropsRequest = {
 	keys: string[];
 	effects: string[][];
 	clientId: string;
+	videoConfigValues: VideoConfigValues;
 };
 
 export type SubscribeToSequencePropsResponse =

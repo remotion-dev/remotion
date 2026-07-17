@@ -26,6 +26,8 @@ const normalizeMenuDividers = (items: ComboboxValue[]): ComboboxValue[] => {
 	return normalized;
 };
 
+const interactiveSvgComponentIdentity = 'dev.remotion.remotion.Interactive.Svg';
+
 export const getSequenceContextMenuItems = ({
 	assetLinkInfo,
 	canOpenInEditor,
@@ -61,6 +63,8 @@ export const getSequenceContextMenuItems = ({
 }): ComboboxValue[] => {
 	const editorName = window.remotion_editorName;
 	const {documentationLink} = sequence;
+	const isInteractiveSvg =
+		sequence.controls?.componentIdentity === interactiveSvgComponentIdentity;
 
 	const items = [
 		editorName
@@ -141,6 +145,43 @@ export const getSequenceContextMenuItems = ({
 			? {
 					type: 'divider' as const,
 					id: 'sequence-link-divider',
+				}
+			: null,
+		isInteractiveSvg
+			? {
+					type: 'item' as const,
+					id: 'copy-svg',
+					keyHint: null,
+					label: 'Copy SVG',
+					leftItem: null,
+					disabled: !sequence.refForOutline?.current,
+					onClick: () => {
+						const svg = sequence.refForOutline?.current;
+						if (!svg) {
+							return;
+						}
+
+						navigator.clipboard
+							.writeText(svg.outerHTML)
+							.then(() => {
+								showNotification('Copied SVG to clipboard', 1000);
+							})
+							.catch((err) => {
+								showNotification(
+									`Could not copy to clipboard: ${(err as Error).message}`,
+									1000,
+								);
+							});
+					},
+					quickSwitcherLabel: null,
+					subMenu: null,
+					value: 'copy-svg',
+				}
+			: null,
+		isInteractiveSvg
+			? {
+					type: 'divider' as const,
+					id: 'copy-svg-divider',
 				}
 			: null,
 		sourceActions.length > 0

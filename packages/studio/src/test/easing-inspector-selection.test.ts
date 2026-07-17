@@ -16,6 +16,7 @@ const makeNodePathInfo = (
 		nodePath,
 		sequenceKeys: ['from', 'durationInFrames'],
 		effectKeys: [],
+		videoConfigValues: null,
 	} satisfies SequencePropsSubscriptionKey,
 	auxiliaryKeys,
 	index: 0,

@@ -1,4 +1,3 @@
-import {allowHtmlInCanvasOption} from './allow-html-in-canvas';
 import {apiKeyOption} from './api-key';
 import {askAIOption} from './ask-ai';
 import {audioBitrateOption} from './audio-bitrate';
@@ -27,7 +26,6 @@ import {encodingMaxRateOption} from './encoding-max-rate';
 import {enforceAudioOption} from './enforce-audio';
 import {envFileOption} from './env-file';
 import {everyNthFrameOption} from './every-nth-frame';
-import {experimentalClientSideRenderingOption} from './experimental-client-side-rendering';
 import {folderExpiryOption} from './folder-expiry';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
 import {forceNewStudioOption} from './force-new-studio';
@@ -93,7 +91,6 @@ import {webpackPollOption} from './webpack-poll';
 import {x264Option} from './x264-preset';
 
 export const allOptions = {
-	allowHtmlInCanvasOption,
 	audioCodecOption,
 	benchmarkConcurrenciesOption,
 	browserExecutableOption,
@@ -158,7 +155,6 @@ export const allOptions = {
 	isProductionOption,
 	askAIOption,
 	interactivityOption,
-	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 	framesOption,
 	forceNewStudioOption,

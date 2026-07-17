@@ -13,6 +13,7 @@ function getTwoslasher() {
 				target: 99 /* ESNext */,
 				module: 99 /* ESNext */,
 				jsx: 4 /* ReactJSX */,
+				skipLibCheck: true,
 			},
 		});
 	}

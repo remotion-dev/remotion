@@ -108,6 +108,15 @@ export const articles = [
 		slug: 'ai/chatbot',
 	},
 	{
+		id: 'ai/claude-code-plugin',
+		title: 'Claude Code plugin',
+		relativePath: 'docs/ai/claude-code-plugin.mdx',
+		compId: 'articles-docs-ai-claude-code-plugin',
+		crumb: 'AI',
+		noAi: false,
+		slug: 'ai/claude-code-plugin',
+	},
+	{
 		id: 'ai/codex-plugin',
 		title: 'Codex plugin',
 		relativePath: 'docs/ai/codex-plugin.mdx',
@@ -154,7 +163,7 @@ export const articles = [
 	},
 	{
 		id: 'ai/mcp',
-		title: "Remotion's Model Context Protocol",
+		title: "Remotion's Model Context Protocol (deprecated)",
 		relativePath: 'docs/ai/mcp.mdx',
 		compId: 'articles-docs-ai-mcp',
 		crumb: 'AI',
@@ -1467,6 +1476,15 @@ export const articles = [
 		slug: 'deno',
 	},
 	{
+		id: 'design-systems',
+		title: 'Motion Design Systems',
+		relativePath: 'docs/design-systems.mdx',
+		compId: 'articles-docs-design-systems',
+		crumb: 'Parameterized videos',
+		noAi: false,
+		slug: 'design-systems',
+	},
+	{
 		id: 'detect-remotion',
 		title: 'Detect if a video was made with Remotion',
 		relativePath: 'docs/detect-remotion.mdx',
@@ -2014,6 +2032,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/lines',
+	},
+	{
+		id: 'effects/liquid-contours',
+		title: 'liquidContours()',
+		relativePath: 'docs/effects/liquid-contours.mdx',
+		compId: 'articles-docs-effects-liquid-contours',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/liquid-contours',
 	},
 	{
 		id: 'effects/mirror',
