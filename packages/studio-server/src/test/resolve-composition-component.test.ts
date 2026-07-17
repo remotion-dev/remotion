@@ -85,6 +85,154 @@ test('resolves recursively through re-exported composition components', async ()
 	}
 });
 
+test('resolves local re-export of imported composition components', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {ApplicationSimpleApp, Applications} from './Applications';",
+				'export const RemotionRoot = () => {',
+				'\treturn (',
+				'\t\t<>',
+				'\t\t\t<Composition id="ApplicationSimpleApp" component={ApplicationSimpleApp} />',
+				'\t\t\t<Composition id="Applications" component={Applications} />',
+				'\t\t</>',
+				'\t);',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.mkdir(path.join(tempDir, 'Applications'), {recursive: true});
+		await fs.writeFile(
+			path.join(tempDir, 'Applications.tsx'),
+			[
+				"import {ApplicationSimpleApp} from './Applications/SimpleApp';",
+				'',
+				'export function Applications() {',
+				'\treturn <div>apps</div>;',
+				'}',
+				'',
+				'export {ApplicationSimpleApp};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'Applications', 'SimpleApp.tsx'),
+			[
+				'export function ApplicationSimpleApp() {',
+				'\treturn <div>simple</div>;',
+				'}',
+				'',
+			].join('\n'),
+		);
+
+		const simpleAppLocation = await resolveCompositionComponent({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'ApplicationSimpleApp',
+		});
+		expect(simpleAppLocation.source).toBe(
+			path.join('Applications', 'SimpleApp.tsx'),
+		);
+		expect(simpleAppLocation.line).toBe(1);
+		expect(simpleAppLocation.canAddSequence).toBe(true);
+
+		const applicationsLocation = await resolveCompositionComponent({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'Applications',
+		});
+		expect(applicationsLocation.source).toBe('Applications.tsx');
+		expect(applicationsLocation.line).toBe(3);
+		expect(applicationsLocation.canAddSequence).toBe(true);
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
+test('resolves line of export function composition component', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				'export function MyComp() {',
+				'\treturn <div>hello</div>;',
+				'}',
+				'',
+			].join('\n'),
+		);
+
+		const location = await resolveCompositionComponent({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+		});
+		expect(location.source).toBe('MyComp.tsx');
+		expect(location.line).toBe(1);
+		expect(location.column).toBe(16);
+		expect(location.canAddSequence).toBe(true);
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
+test('resolves renamed local re-export of imported composition components', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './barrel';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'barrel.tsx'),
+			["import {Inner as MyComp} from './Inner';", 'export {MyComp};', ''].join(
+				'\n',
+			),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'Inner.tsx'),
+			[
+				'export const Inner: React.FC = () => {',
+				'\treturn <div>hello</div>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const location = await resolveCompositionComponent({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+		});
+		expect(location.source).toBe('Inner.tsx');
+		expect(location.line).toBe(1);
+		expect(location.canAddSequence).toBe(true);
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
 test('resolves through fallback re-export branch after cycle', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {

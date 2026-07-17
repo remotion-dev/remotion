@@ -403,6 +403,56 @@ const findReExportTargets = ({
 	return targets;
 };
 
+const findLocalExportImportTarget = ({
+	ast,
+	exportName,
+}: {
+	ast: File;
+	exportName: string | 'default';
+}): ImportTarget | null => {
+	if (exportName === 'default') {
+		return null;
+	}
+
+	let localName: string | null = null;
+
+	recast.types.visit(ast, {
+		visitExportNamedDeclaration(astPath) {
+			if (localName) {
+				return false;
+			}
+
+			const node = astPath.node as ExportNamedDeclaration;
+			// `export {X} from './mod'` is handled by findReExportTargets.
+			if (node.source) {
+				return false;
+			}
+
+			for (const specifier of node.specifiers) {
+				if (specifier.type !== 'ExportSpecifier') {
+					continue;
+				}
+
+				const exportedName = getExportedName(specifier.exported);
+				if (exportedName !== exportName) {
+					continue;
+				}
+
+				localName = getSpecifierLocalName(specifier);
+				return false;
+			}
+
+			return false;
+		},
+	});
+
+	if (!localName) {
+		return null;
+	}
+
+	return findImportTarget({ast, componentName: localName});
+};
+
 const resolveImportPath = ({
 	importPath,
 	fromFile,
@@ -445,6 +495,16 @@ const locationFromNode = (node: NodeWithLocation): SourceLocation | null => {
 	};
 };
 
+// Recast/babel-ts often leaves `loc` null on `export function` /
+// `export class` declarations while the identifier still has a location.
+const locationFromDeclaration = (
+	node: NodeWithLocation & {
+		id?: NodeWithLocation | null;
+	},
+): SourceLocation | null => {
+	return locationFromNode(node) ?? (node.id ? locationFromNode(node.id) : null);
+};
+
 const findLocalSymbolLocation = ({
 	ast,
 	name,
@@ -462,7 +522,7 @@ const findLocalSymbolLocation = ({
 
 			const {node} = astPath;
 			if (node.id.type === 'Identifier' && node.id.name === name) {
-				location = locationFromNode(node);
+				location = locationFromDeclaration(node);
 				return false;
 			}
 
@@ -476,7 +536,7 @@ const findLocalSymbolLocation = ({
 
 			const {node} = astPath;
 			if (node.id?.name === name) {
-				location = locationFromNode(node);
+				location = locationFromDeclaration(node);
 				return false;
 			}
 
@@ -490,7 +550,7 @@ const findLocalSymbolLocation = ({
 
 			const {node} = astPath;
 			if (node.id?.name === name) {
-				location = locationFromNode(node);
+				location = locationFromDeclaration(node);
 				return false;
 			}
 
@@ -518,7 +578,8 @@ const findDefaultExportLocation = (ast: File): SourceLocation | null => {
 				return false;
 			}
 
-			location = locationFromNode(node.declaration) ?? locationFromNode(node);
+			location =
+				locationFromDeclaration(node.declaration) ?? locationFromNode(node);
 			return false;
 		},
 	});
@@ -1891,6 +1952,26 @@ const getComponentLocationRecursively = async ({
 			throw new Error(
 				`Could not resolve component export "${exportName}" in ${path.relative(remotionRoot, fileName)}`,
 			);
+		}
+
+		// `import {X} from './X'; export {X};` (no `from` on the export).
+		// Without following the import, location falls back to line 1.
+		const localExportImportTarget = findLocalExportImportTarget({
+			ast,
+			exportName,
+		});
+		if (localExportImportTarget) {
+			const resolvedImportPath = resolveImportPath({
+				importPath: localExportImportTarget.importPath,
+				fromFile: fileName,
+			});
+
+			return await getComponentLocationRecursively({
+				remotionRoot,
+				fileName: resolvedImportPath,
+				exportName: localExportImportTarget.exportName,
+				visited,
+			});
 		}
 
 		return await getComponentLocationInFile({
