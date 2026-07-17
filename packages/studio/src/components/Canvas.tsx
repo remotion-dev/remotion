@@ -840,6 +840,7 @@ export const Canvas: React.FC<{
 				canInstall: canInstallElements,
 				lastFocusedAt: lastFocusedAtRef.current,
 				readOnly: window.remotion_isReadOnlyStudio,
+				studioUrl: window.location.href,
 			}).catch(() => undefined);
 		},
 		[
