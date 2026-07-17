@@ -1644,6 +1644,8 @@ const sidebars: SidebarsConfig = {
 				'license/faq',
 				'license/terms',
 				'license/privacy',
+				'license/dpa',
+				'license/dpia',
 			],
 		},
 		'acknowledgements',

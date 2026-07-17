@@ -378,6 +378,8 @@ export const config: VercelConfig = {
 		}),
 		routes.redirect('/terms', '/docs/license/terms', {permanent: true}),
 		routes.redirect('/privacy', '/docs/license/privacy', {permanent: true}),
+		routes.redirect('/dpa', '/docs/license/dpa', {permanent: true}),
+		routes.redirect('/dpia', '/docs/license/dpia', {permanent: true}),
 		routes.redirect('/docs/ai/claude-code', '/docs/ai/coding-agents', {
 			permanent: false,
 		}),
