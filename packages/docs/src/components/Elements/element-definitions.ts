@@ -32,7 +32,7 @@ export const elementDefinitions = {
 		category: 'backgrounds',
 		component: NotebookPaper,
 		contributors: [],
-		description: 'A warm paper background with subtle blue gridlines.',
+		description: 'A white paper background with subtle blue gridlines.',
 		displayName: 'Notebook Paper',
 		durationInFrames: 120,
 		elementHeight: null,

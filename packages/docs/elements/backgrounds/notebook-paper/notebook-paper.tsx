@@ -8,7 +8,7 @@ export const NotebookPaper: React.FC = () => {
 
 	return (
 		<Solid
-			color="#f5f0e6"
+			color={'#ffffff'}
 			width={width}
 			height={height}
 			effects={[
@@ -23,10 +23,11 @@ export const NotebookPaper: React.FC = () => {
 					folds: 0.12,
 					seed: 24,
 					scale: 0.8,
+					drops: 0,
 				}),
 				gridlines({
 					gridSize: 54,
-					lineWidth: 1.25,
+					lineWidth: 3.4,
 					lineColor: 'rgba(76, 101, 128, 0.16)',
 				}),
 			]}
