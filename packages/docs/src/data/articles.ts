@@ -3825,6 +3825,15 @@ export const articles = [
 		slug: 'license/pricing',
 	},
 	{
+		id: 'license/privacy',
+		title: 'Privacy Policy of Remotion (v5.0)',
+		relativePath: 'docs/license/privacy.mdx',
+		compId: 'articles-docs-license-privacy',
+		crumb: 'License, Pricing and Compliance',
+		noAi: false,
+		slug: 'license/privacy',
+	},
+	{
 		id: 'license/terms',
 		title: 'Terms and Conditions of Remotion (v5.0)',
 		relativePath: 'docs/license/terms.mdx',

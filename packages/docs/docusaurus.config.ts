@@ -270,7 +270,7 @@ const config: Config = {
 						},
 						{
 							label: 'Privacy Policy',
-							href: 'https://remotion.pro/privacy',
+							href: 'https://www.remotion.dev/docs/license/privacy',
 						},
 						{
 							label: 'Brand',
