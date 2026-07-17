@@ -6,7 +6,7 @@ metadata:
 ---
 
 Mediabunny is a multimedia library for dealing with audio and video in the browser.
-Here is a compact overview of it's capabilities: https://mediabunny.dev/llms.txt
+Here is a compact overview of its capabilities: https://mediabunny.dev/llms.txt
 
 ## Getting audio duration
 
