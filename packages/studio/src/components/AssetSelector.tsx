@@ -3,6 +3,10 @@ import {writeStaticFile} from '../api/write-static-file';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BACKGROUND, WHITE_ALPHA_06, LIGHT_TEXT} from '../helpers/colors';
 import {buildAssetFolderStructure} from '../helpers/create-folder-tree';
+import {
+	filterStaticFilesByQuery,
+	getExpandedFoldersForFilteredAssets,
+} from '../helpers/filter-static-files';
 import {toggleBooleanMapKey} from '../helpers/persist-boolean-map';
 import {persistExpandedFolders} from '../helpers/persist-open-folders';
 import useAssetDragEvents, {
@@ -12,6 +16,7 @@ import {FolderContext} from '../state/folders';
 import {useZIndex} from '../state/z-index';
 import {AssetFolderTree} from './AssetSelectorItem';
 import {inlineCodeSnippet} from './Menu/styles';
+import {RemotionInput} from './NewComposition/RemInput';
 import {showNotification} from './Notifications/NotificationCenter';
 import {useStaticFiles} from './use-static-files';
 
@@ -39,6 +44,15 @@ const label: React.CSSProperties = {
 	fontSize: 14,
 };
 
+const searchContainer: React.CSSProperties = {
+	padding: '8px 10px',
+	flexShrink: 0,
+};
+
+const searchInput: React.CSSProperties = {
+	width: '100%',
+};
+
 const baseList: React.CSSProperties = {
 	overflowY: 'auto',
 };
@@ -50,6 +64,7 @@ export const AssetSelector: React.FC<{
 	const {assetFoldersExpanded, setAssetFoldersExpanded} =
 		useContext(FolderContext);
 	const [dropLocation, setDropLocation] = useState<string | null>(null);
+	const [filterQuery, setFilterQuery] = useState('');
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
 	const shouldAllowUpload = connectionStatus === 'connected' && !readOnlyStudio;
@@ -63,10 +78,31 @@ export const AssetSelector: React.FC<{
 
 	const staticFiles = useStaticFiles();
 	const publicFolderExists = window.remotion_publicFolderExists;
+	const trimmedFilterQuery = filterQuery.trim();
+	const filteredFiles = useMemo(() => {
+		return filterStaticFilesByQuery(staticFiles, filterQuery);
+	}, [filterQuery, staticFiles]);
+
+	const foldersExpandedForTree = useMemo(() => {
+		if (trimmedFilterQuery.length === 0) {
+			return assetFoldersExpanded;
+		}
+
+		return getExpandedFoldersForFilteredAssets(filteredFiles);
+	}, [assetFoldersExpanded, filteredFiles, trimmedFilterQuery]);
 
 	const assetTree = useMemo(() => {
-		return buildAssetFolderStructure(staticFiles, null, assetFoldersExpanded);
-	}, [assetFoldersExpanded, staticFiles]);
+		return buildAssetFolderStructure(
+			filteredFiles,
+			null,
+			foldersExpandedForTree,
+		);
+	}, [filteredFiles, foldersExpandedForTree]);
+
+	const onFilterChange: React.ChangeEventHandler<HTMLInputElement> =
+		useCallback((event) => {
+			setFilterQuery(event.target.value);
+		}, []);
 
 	const toggleFolder = useCallback(
 		(folderName: string, parentName: string | null) => {
@@ -184,27 +220,48 @@ export const AssetSelector: React.FC<{
 					</div>
 				)
 			) : (
-				<div
-					className="__remotion-vertical-scrollbar"
-					style={{
-						...list,
-						backgroundColor: isDropDiv ? WHITE_ALPHA_06 : BACKGROUND,
-					}}
-					onDragEnter={onDragEnter}
-					onDragLeave={onDragLeave}
-				>
-					<AssetFolderTree
-						item={assetTree}
-						level={0}
-						parentFolder={null}
-						name={null}
-						tabIndex={tabIndex}
-						toggleFolder={toggleFolder}
-						dropLocation={dropLocation}
-						setDropLocation={setDropLocation}
-						readOnlyStudio={readOnlyStudio}
-					/>
-				</div>
+				<>
+					<div style={searchContainer}>
+						<RemotionInput
+							type="search"
+							style={searchInput}
+							status="ok"
+							value={filterQuery}
+							onChange={onFilterChange}
+							placeholder="Filter assets..."
+							rightAlign={false}
+							small
+							aria-label="Filter assets"
+						/>
+					</div>
+					{filteredFiles.length === 0 ? (
+						<div style={emptyState}>
+							<div style={label}>No assets match this filter.</div>
+						</div>
+					) : (
+						<div
+							className="__remotion-vertical-scrollbar"
+							style={{
+								...list,
+								backgroundColor: isDropDiv ? WHITE_ALPHA_06 : BACKGROUND,
+							}}
+							onDragEnter={onDragEnter}
+							onDragLeave={onDragLeave}
+						>
+							<AssetFolderTree
+								item={assetTree}
+								level={0}
+								parentFolder={null}
+								name={null}
+								tabIndex={tabIndex}
+								toggleFolder={toggleFolder}
+								dropLocation={dropLocation}
+								setDropLocation={setDropLocation}
+								readOnlyStudio={readOnlyStudio}
+							/>
+						</div>
+					)}
+				</>
 			)}
 		</div>
 	);
