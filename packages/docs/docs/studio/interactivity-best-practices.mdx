@@ -19,7 +19,8 @@ When converting a component for Studio interactivity, apply all of these rules t
 - Keep every editable or keyframed value inline at the JSX prop that the Studio edits.
 - Write animations as inline `interpolate()` calls.
 - Keep `interpolate()` input and output ranges as hardcoded arrays, such as `[0, 30]`.
-- Use Studio-editable style props such as `translate`, `scale`, `rotate`, `transformOrigin` and `opacity` instead of hiding values in a `transform` string.
+- When a value is animated or should be Studio-editable, use style props such as `translate`, `scale`, `rotate`, `transformOrigin` and `opacity` instead of hiding it in a `transform` string.
+- Do not add identity defaults such as `opacity: 1`, `scale: 1`, `rotate: '0deg'` or `translate: '0px 0px'`. Only write those props when the element actually needs them.
 - Use `translate` for animated movement and canvas dragging. Keep `top`, `left`, `right` and `bottom` for static anchoring.
 - Keep `<Composition>` metadata and `defaultProps` inline unless the value is truly dynamic.
 
@@ -105,6 +106,24 @@ const rotation = interpolate(frame, [0, 30], [0, 20]);
 
 Use standalone [`spring()`](/docs/spring) only when the animation needs a frame-driven physical spring simulation.
 Use individual CSS transform properties such as `scale`, `rotate` and `translate` instead of composing a `transform` string.
+Only include `opacity`, `scale`, `rotate`, `translate` and `transformOrigin` when the element animates them or intentionally uses a non-default value.
+Do not seed styles with identity values just to follow these practices.
+
+```tsx title="No identity defaults"
+// 👍 Only the props that matter
+style={{fontSize: 80, color: 'white'}}
+
+// 👎 Identity defaults are not needed for interactivity
+style={{
+  fontSize: 80,
+  color: 'white',
+  opacity: 1,
+  scale: 1,
+  rotate: '0deg',
+  translate: '0px 0px',
+}}
+```
+
 Pass easing to the same `interpolate()` call instead of nesting another `interpolate()` call to create an eased progress value.
 
 ```tsx title="Animated position"

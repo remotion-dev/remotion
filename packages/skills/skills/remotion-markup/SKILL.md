@@ -44,7 +44,8 @@ export const FadeIn = () => {
 ```
 
 Keep the `interpolate()` call inline in the `style` prop.
-Prefer `scale`, `translate`, `rotate` CSS properties over `transform`.
+When animating transforms, prefer `scale`, `translate`, `rotate` CSS properties over `transform`.
+Do not add identity defaults such as `opacity: 1`, `scale: 1`, `rotate: "0deg"`, or `translate: "0px 0px"` unless the property is actually used.
 
 ```tsx
 // 👍 Inline editable keyframes and transform shorthands
@@ -59,6 +60,14 @@ const scale = interpolate(frame, [0, 100], [0, 1]);
 
 style={{
   transform: `scale(${scale})`,
+}}
+
+// 👎 Identity defaults are not needed for interactivity
+style={{
+  opacity: 1,
+  scale: 1,
+  rotate: "0deg",
+  translate: "0px 0px",
 }}
 ```
 
