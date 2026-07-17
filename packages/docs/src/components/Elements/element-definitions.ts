@@ -5,6 +5,7 @@ import {PaperTexture} from '../../../elements/backgrounds/paper-texture/paper-te
 import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburst/rotating-starburst';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
 import {LowerThird} from '../../../elements/overlays/lower-third/lower-third';
+import {SourceCreditTag} from '../../../elements/overlays/source-credit-tag/source-credit-tag';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
@@ -110,6 +111,23 @@ export const elementDefinitions = {
 		posterFrame: 60,
 		previewPadding: 300,
 		slug: 'overlays/lower-third',
+		width: 1920,
+	},
+	'overlays/source-credit-tag': {
+		category: 'overlays',
+		component: SourceCreditTag,
+		contributors: [],
+		description:
+			'A compact attribution label for crediting footage, images, and other sources.',
+		displayName: 'Source / Credit Tag',
+		durationInFrames: 90,
+		elementHeight: 40,
+		elementWidth: 180,
+		fps: 30,
+		height: 1080,
+		posterFrame: 30,
+		previewPadding: 200,
+		slug: 'overlays/source-credit-tag',
 		width: 1920,
 	},
 	'data/number-counter': {
