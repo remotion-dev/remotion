@@ -4,6 +4,7 @@ import {NotebookPaper} from '../../../elements/backgrounds/notebook-paper/notebo
 import {PaperTexture} from '../../../elements/backgrounds/paper-texture/paper-texture';
 import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburst/rotating-starburst';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
+import {CornerChannelBug} from '../../../elements/overlays/corner-channel-bug/corner-channel-bug';
 import {LowerThird} from '../../../elements/overlays/lower-third/lower-third';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
@@ -93,6 +94,23 @@ export const elementDefinitions = {
 		posterFrame: 120,
 		previewPadding: 0,
 		slug: 'backgrounds/rotating-starburst',
+		width: 1920,
+	},
+	'overlays/corner-channel-bug': {
+		category: 'overlays',
+		component: CornerChannelBug,
+		contributors: [],
+		description:
+			'A small animated corner brand mark with a live indicator for channels and shows.',
+		displayName: 'Corner Channel Bug',
+		durationInFrames: 180,
+		elementHeight: 56,
+		elementWidth: 220,
+		fps: 30,
+		height: 1080,
+		posterFrame: 45,
+		previewPadding: 220,
+		slug: 'overlays/corner-channel-bug',
 		width: 1920,
 	},
 	'overlays/lower-third': {
