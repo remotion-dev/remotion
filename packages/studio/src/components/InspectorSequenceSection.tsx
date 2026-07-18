@@ -329,13 +329,11 @@ export const InspectorSequenceSection: React.FC<{
 						<div style={controlsEffectsDivider} />
 					) : null}
 					{renderEffectsHeader()}
-					{effectRows.length === 0 ? (
-						<div style={emptyState}>None</div>
-					) : (
+					{effectRows.length > 0 ? (
 						<TimelineSelectionOrderProvider items={effectSelectableItems}>
 							{effectRows.map(renderRow)}
 						</TimelineSelectionOrderProvider>
-					)}
+					) : null}
 				</>
 			) : null}
 		</div>
