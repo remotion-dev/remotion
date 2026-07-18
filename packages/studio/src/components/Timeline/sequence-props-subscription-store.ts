@@ -1,4 +1,4 @@
-import {getAllSchemaKeys} from '@remotion/studio-shared';
+import {getAllSchemaKeys, getAssetSchemaKeys} from '@remotion/studio-shared';
 import type {
 	JsxComponentIdentity,
 	SequenceNodePath,
@@ -16,6 +16,7 @@ const makeKey = ({
 	column,
 	componentIdentity,
 	sequenceKeys,
+	assetKeys,
 	effectKeys,
 	videoConfigValues,
 }: {
@@ -24,10 +25,11 @@ const makeKey = ({
 	column: number;
 	componentIdentity: JsxComponentIdentity | null;
 	sequenceKeys: string[];
+	assetKeys: string[];
 	effectKeys: string[][];
 	videoConfigValues: VideoConfigValues;
 }): Key =>
-	`${fileName}\0${line}\0${column}\0${componentIdentity ?? ''}\0${sequenceKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}\0${JSON.stringify(videoConfigValues)}`;
+	`${fileName}\0${line}\0${column}\0${componentIdentity ?? ''}\0${sequenceKeys.join('\0')}\0${assetKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}\0${JSON.stringify(videoConfigValues)}`;
 
 type SubscribeResult = Awaited<
 	ReturnType<typeof callApi<'/api/subscribe-to-sequence-props'>>
@@ -71,6 +73,7 @@ export const acquireSequencePropsSubscription = ({
 	videoConfigValues: VideoConfigValues;
 }): {release: () => void} => {
 	const sequenceKeys = getAllSchemaKeys(schema);
+	const assetKeys = getAssetSchemaKeys(schema);
 	const effectKeys = effects.map((effect) => getAllSchemaKeys(effect));
 	const key = makeKey({
 		fileName,
@@ -78,6 +81,7 @@ export const acquireSequencePropsSubscription = ({
 		column,
 		componentIdentity,
 		sequenceKeys,
+		assetKeys,
 		effectKeys,
 		videoConfigValues,
 	});
@@ -91,6 +95,7 @@ export const acquireSequencePropsSubscription = ({
 			nodePath,
 			componentIdentity,
 			keys: getAllSchemaKeys(schema),
+			assetKeys,
 			effects: effectKeys,
 			clientId,
 			videoConfigValues,
@@ -163,6 +168,7 @@ export const acquireSequencePropsSubscription = ({
 						nodePath: result.nodePath,
 						clientId: acquired.clientId,
 						sequenceKeys,
+						assetKeys,
 						effectKeys,
 					});
 				})

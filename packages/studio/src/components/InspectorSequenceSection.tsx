@@ -13,12 +13,20 @@ import {
 } from '../helpers/timeline-layout';
 import {Plus} from '../icons/plus';
 import {ModalsContext} from '../state/modals';
+import {AssetInfo} from './CurrentAsset';
 import {InlineAction} from './InlineAction';
 import {
 	sectionHeaderRow,
 	sectionHeaderTitle,
 	sequenceHeaderDivider,
 } from './InspectorPanel/styles';
+import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
+import {
+	getTimelineAssetSrcFromSchema,
+	getTimelineAssetLinkInfo,
+	openTimelineAssetLink,
+	splitRemoteSourceForMiddleEllipsis,
+} from './Timeline/timeline-asset-link';
 import {TimelineExpandedRow} from './Timeline/TimelineExpandedRow';
 import {
 	getTimelineSelectionFromNodePathInfo,
@@ -26,6 +34,7 @@ import {
 	type TimelineSelection,
 } from './Timeline/TimelineSelection';
 import {useTimelineExpandedTree} from './Timeline/use-timeline-expanded-tree';
+import {useSelectAsset} from './use-select-asset';
 
 const container: React.CSSProperties = {
 	color: WHITE,
@@ -56,6 +65,41 @@ const effectsHeaderTitle: React.CSSProperties = {
 const plusIcon: React.CSSProperties = {
 	width: 15,
 	height: 15,
+};
+
+const remoteSourceLabel: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	display: 'flex',
+	fontFamily: 'Arial, Helvetica, sans-serif',
+	fontSize: 12,
+	lineHeight: '18px',
+	minWidth: 0,
+	overflow: 'hidden',
+	padding: `6px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+	whiteSpace: 'nowrap',
+};
+
+const remoteSourceLeading: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	fontFamily: 'Arial, Helvetica, sans-serif',
+	fontSize: 12,
+	lineHeight: '18px',
+	minWidth: 0,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+};
+
+const remoteSourceTrailing: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	flexShrink: 0,
+	fontFamily: 'Arial, Helvetica, sans-serif',
+	fontSize: 12,
+	lineHeight: '18px',
+	maxWidth: '55%',
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
 };
 
 const isEffectsRoot = (
@@ -168,12 +212,31 @@ export const InspectorSequenceSection: React.FC<{
 		sequence,
 		nodePathInfo,
 		includeTextContent: true,
+		includeSourceControls: true,
 	});
 	const [collapsedKeys, setCollapsedKeys] = useState<ReadonlySet<string>>(
 		loadInspectorCollapsedKeys,
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setSelectedModal} = useContext(ModalsContext);
+	const selectAsset = useSelectAsset();
+	const mediaSrc = getTimelineAssetSrcFromSchema(sequence.controls);
+	const assetLinkInfo = useMemo(
+		() => (mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null),
+		[mediaSrc],
+	);
+	const localAsset = assetLinkInfo?.kind === 'local' ? assetLinkInfo : null;
+	const remoteAsset = assetLinkInfo?.kind === 'remote' ? assetLinkInfo : null;
+	const remoteSourceParts = useMemo(
+		() =>
+			remoteAsset ? splitRemoteSourceForMiddleEllipsis(remoteAsset.href) : null,
+		[remoteAsset],
+	);
+	const jumpToAsset = useCallback(() => {
+		if (localAsset) {
+			openTimelineAssetLink(localAsset, selectAsset);
+		}
+	}, [localAsset, selectAsset]);
 
 	const getIsExpanded = useCallback(
 		(candidate: SequenceNodePathInfo) => {
@@ -225,7 +288,12 @@ export const InspectorSequenceSection: React.FC<{
 	}, [getIsExpanded, tree]);
 
 	const controlSelectableItems = useMemo(
-		() => getInspectorSelectableItems(controlRows),
+		() =>
+			getInspectorSelectableItems(
+				controlRows.filter(
+					({node}) => node.kind !== 'field' || node.field?.key !== 'src',
+				),
+			),
 		[controlRows],
 	);
 	const effectSelectableItems = useMemo(
@@ -317,8 +385,26 @@ export const InspectorSequenceSection: React.FC<{
 						<React.Fragment key={group.id}>
 							{i === 0 ? null : <div style={controlsEffectsDivider} />}
 							{renderSectionHeader(group.label)}
+							{group.id === 'source' && localAsset ? (
+								<AssetInfo
+									assetName={localAsset.assetPath}
+									contentSized
+									onAssetClick={jumpToAsset}
+									readOnlyStudio
+								/>
+							) : null}
+							{group.id === 'source' && remoteAsset && remoteSourceParts ? (
+								<div style={remoteSourceLabel} title={remoteAsset.href}>
+									<span style={remoteSourceLeading}>
+										{remoteSourceParts.leading}
+									</span>
+									<span style={remoteSourceTrailing}>
+										{remoteSourceParts.trailing}
+									</span>
+								</div>
+							) : null}
 							{group.id === 'transforms' ? renderTransformControls() : null}
-							{group.rows.map(renderRow)}
+							{group.id === 'source' ? null : group.rows.map(renderRow)}
 						</React.Fragment>
 					))}
 				</TimelineSelectionOrderProvider>

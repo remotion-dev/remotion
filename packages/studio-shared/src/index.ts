@@ -201,7 +201,7 @@ export {
 } from './element-drag-data';
 export {EventSourceEvent} from './event-source-event';
 export {formatBytes} from './format-bytes';
-export {getAllSchemaKeys} from './get-all-keys';
+export {getAllSchemaKeys, getAssetSchemaKeys} from './get-all-keys';
 export {getDefaultOutLocation} from './get-default-out-name';
 export {
 	ErrorLocation,

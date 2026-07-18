@@ -19,6 +19,16 @@ const comboboxStyle: React.CSSProperties = {
 	maxWidth: 180,
 };
 
+const remoteAssetStyle: React.CSSProperties = {
+	display: 'inline-block',
+	marginLeft: 8,
+	maxWidth: 180,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	verticalAlign: 'middle',
+	whiteSpace: 'nowrap',
+};
+
 const toFileToken = (name: string) => {
 	return `${NoReactInternals.FILE_TOKEN}${name
 		.split('/')
@@ -32,28 +42,30 @@ const toStaticFileUrl = (fileToken: string) => {
 	)}`;
 };
 
-export const TimelineAssetField: React.FC<{
+type TimelineAssetFieldProps = {
 	readonly field: SchemaFieldInfo;
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
 	readonly effectiveValue: unknown;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
-}> = ({
-	field,
+};
+
+export const isStaticFileAssetValue = (value: unknown): value is string => {
+	return (
+		typeof value === 'string' && value.startsWith(NoReactInternals.FILE_TOKEN)
+	);
+};
+
+const TimelineStaticFileAssetField: React.FC<TimelineAssetFieldProps> = ({
 	propStatus,
 	effectiveValue,
 	onSave,
 	onDragValueChange,
 	onDragEnd,
 }) => {
-	if (field.fieldSchema.type !== 'asset') {
-		throw new Error('TimelineAssetField rendered for non-asset field');
-	}
-
 	const staticFiles = useStaticFiles();
 	const current = String(effectiveValue ?? '');
-	const isCurrentStaticFile = current.startsWith(NoReactInternals.FILE_TOKEN);
 
 	const onSelect = useCallback(
 		(sourceValue: string, previewValue: string) => {
@@ -124,24 +136,7 @@ export const TimelineAssetField: React.FC<{
 				quickSwitcherLabel: null,
 			};
 		});
-		const currentRemoteItem: ComboboxValue[] = isCurrentStaticFile
-			? []
-			: [
-					{
-						type: 'item',
-						id: current,
-						value: current,
-						label: current,
-						onClick: () => undefined,
-						keyHint: null,
-						leftItem: <Checkmark />,
-						subMenu: null,
-						quickSwitcherLabel: null,
-					},
-				];
-
 		return [
-			...currentRemoteItem,
 			...publicFileItems,
 			{type: 'divider', id: 'upload-asset-divider'},
 			{
@@ -159,7 +154,7 @@ export const TimelineAssetField: React.FC<{
 				disabled: window.remotion_isReadOnlyStudio,
 			},
 		];
-	}, [current, isCurrentStaticFile, onSelect, staticFiles, upload]);
+	}, [current, onSelect, staticFiles, upload]);
 
 	return (
 		<Combobox
@@ -170,4 +165,23 @@ export const TimelineAssetField: React.FC<{
 			style={comboboxStyle}
 		/>
 	);
+};
+
+export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = (
+	props,
+) => {
+	if (props.field.fieldSchema.type !== 'asset') {
+		throw new Error('TimelineAssetField rendered for non-asset field');
+	}
+
+	if (!isStaticFileAssetValue(props.effectiveValue)) {
+		const remote = String(props.effectiveValue ?? '');
+		return (
+			<span style={remoteAssetStyle} title={remote}>
+				{remote}
+			</span>
+		);
+	}
+
+	return <TimelineStaticFileAssetField {...props} />;
 };

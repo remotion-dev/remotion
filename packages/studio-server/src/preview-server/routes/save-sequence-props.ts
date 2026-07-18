@@ -8,7 +8,7 @@ import type {
 	SaveSequencePropsResponse,
 	SaveSequencePropsResult,
 } from '@remotion/studio-shared';
-import {getAllSchemaKeys} from '@remotion/studio-shared';
+import {getAllSchemaKeys, getAssetSchemaKeys} from '@remotion/studio-shared';
 import {
 	updateEffectKeyframes,
 	updateSequenceKeyframes,
@@ -501,6 +501,7 @@ export const saveSequencePropsHandler: ApiHandler<
 			const newStatus = computeSequencePropsStatusFromContent({
 				fileContents: output,
 				keys: getAllSchemaKeys(edit.schema),
+				assetKeys: getAssetSchemaKeys(edit.schema),
 				nodePath: edit.nodePath.nodePath,
 				componentIdentity: null,
 				effects: [],

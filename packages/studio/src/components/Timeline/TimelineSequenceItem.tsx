@@ -100,6 +100,7 @@ const TimelineSequenceExpandArrow: React.FC<{
 		sequence,
 		nodePathInfo,
 		includeTextContent: false,
+		includeSourceControls: false,
 	});
 
 	if (filteredTree.length === 0) {
