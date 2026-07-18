@@ -49,6 +49,11 @@
 			"module": "./dist/esm/burlap.mjs",
 			"import": "./dist/esm/burlap.mjs"
 		},
+		"./flannel": {
+			"types": "./dist/flannel.d.ts",
+			"module": "./dist/esm/flannel.mjs",
+			"import": "./dist/esm/flannel.mjs"
+		},
 		"./checkerboard": {
 			"types": "./dist/checkerboard.d.ts",
 			"module": "./dist/esm/checkerboard.mjs",
@@ -341,6 +346,9 @@
 			],
 			"burlap": [
 				"dist/burlap.d.ts"
+			],
+			"flannel": [
+				"dist/flannel.d.ts"
 			],
 			"checkerboard": [
 				"dist/checkerboard.d.ts"

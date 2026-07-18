@@ -1917,6 +1917,15 @@ export const articles = [
 		slug: 'effects/fisheye',
 	},
 	{
+		id: 'effects/flannel',
+		title: 'flannel()',
+		relativePath: 'docs/effects/flannel.mdx',
+		compId: 'articles-docs-effects-flannel',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/flannel',
+	},
+	{
 		id: 'effects/glow',
 		title: 'glow()',
 		relativePath: 'docs/effects/glow.mdx',
