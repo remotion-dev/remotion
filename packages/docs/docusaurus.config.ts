@@ -167,10 +167,6 @@ const config: Config = {
 							to: '/lambda',
 						},
 						{
-							label: 'Learn',
-							to: '/learn',
-						},
-						{
 							label: 'Convert a video',
 							to: 'https://convert.remotion.dev',
 						},
@@ -183,7 +179,7 @@ const config: Config = {
 							href: 'https://github.com/remotion-dev/remotion',
 						},
 						{
-							label: 'License + Pricing',
+							label: 'License & Pricing',
 							to: '/docs/license/pricing',
 						},
 					],
@@ -257,7 +253,7 @@ const config: Config = {
 							href: 'https://remotion.dev/changelog',
 						},
 						{
-							label: 'License & Legal',
+							label: 'Legal',
 							to: '/docs/license',
 						},
 						{
