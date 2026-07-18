@@ -1,6 +1,6 @@
 import type {CanvasSink, WrappedCanvas} from 'mediabunny';
 import {expect, test} from 'vitest';
-import {canvasesAheadOfTime} from '../canvas-ahead-of-time';
+import {canvasesAheadOfTime, releaseStableFrame} from '../canvas-ahead-of-time';
 
 const makeCanvas = () => {
 	const canvas = new OffscreenCanvas(2, 2);
@@ -81,6 +81,40 @@ test('keeps already-returned canvases stable when the CanvasSink reuses its canv
 		expect(getPixel(thirdFrame!.canvas as OffscreenCanvas)).toEqual([
 			0, 0, 255, 255,
 		]);
+	} finally {
+		await iterator.closeIterator();
+	}
+});
+
+test('clears a recycled stable canvas before copying a transparent frame', async () => {
+	const canvas = new OffscreenCanvas(2, 1);
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Could not get canvas context');
+	}
+
+	const sink = {
+		async *canvases() {
+			for (let i = 0; i < 4; i++) {
+				context.clearRect(0, 0, 2, 1);
+				context.fillStyle = 'red';
+				context.fillRect(i % 2, 0, 1, 1);
+				await Promise.resolve();
+
+				yield {canvas, duration: 1, timestamp: i} satisfies WrappedCanvas;
+			}
+		},
+	} as unknown as CanvasSink;
+	const iterator = canvasesAheadOfTime(sink);
+
+	try {
+		const first = await waitForFrame(iterator.next());
+		await waitForFrame(iterator.next());
+		await waitForFrame(iterator.next());
+		releaseStableFrame(first);
+		const fourth = await waitForFrame(iterator.next());
+
+		expect(getPixel(fourth!.canvas as OffscreenCanvas)).toEqual([0, 0, 0, 0]);
 	} finally {
 		await iterator.closeIterator();
 	}
