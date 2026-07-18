@@ -179,6 +179,10 @@ const config: Config = {
 							href: 'https://github.com/remotion-dev/remotion',
 						},
 						{
+							label: 'Changelog',
+							href: 'https://remotion.dev/changelog',
+						},
+						{
 							label: 'License & Pricing',
 							to: '/docs/license/pricing',
 						},
@@ -194,6 +198,10 @@ const config: Config = {
 						{
 							label: 'Showcase',
 							to: 'showcase',
+						},
+						{
+							label: 'Success Stories',
+							to: 'success-stories',
 						},
 						{
 							label: 'Experts',
@@ -229,38 +237,60 @@ const config: Config = {
 					title: 'More',
 					items: [
 						{
-							label: 'About us',
-							to: 'about',
-						},
-						{
-							label: 'Contact us',
-							to: 'contact',
-						},
-						{
 							label: 'Blog',
 							to: 'blog',
-						},
-						{
-							label: 'Success Stories',
-							to: 'success-stories',
 						},
 						{
 							label: 'Support',
 							to: '/docs/support',
 						},
+					].filter(Boolean),
+				},
+				{
+					title: 'Company',
+					items: [
 						{
-							label: 'Changelog',
-							href: 'https://remotion.dev/changelog',
+							label: 'About Us',
+							to: 'about',
 						},
 						{
-							label: 'Legal',
-							to: '/docs/license',
+							label: 'Contact Us',
+							to: 'contact',
 						},
 						{
 							label: 'Brand',
 							href: 'https://remotion.dev/brand',
 						},
 					].filter(Boolean),
+				},
+				{
+					title: 'Legal & Trust',
+					items: [
+						{
+							label: 'Terms and Conditions',
+							to: '/docs/license/terms',
+						},
+						{
+							label: 'Privacy Policy',
+							to: '/docs/license/privacy',
+						},
+						{
+							label: 'DPA Statement',
+							to: '/docs/license/dpa',
+						},
+						{
+							label: 'DPIA Statement',
+							to: '/docs/license/dpia',
+						},
+						{
+							label: 'Accessibility',
+							to: '/docs/accessibility',
+						},
+						{
+							label: 'Acknowledgments',
+							to: '/docs/acknowledgements',
+						},
+					],
 				},
 			],
 		},
