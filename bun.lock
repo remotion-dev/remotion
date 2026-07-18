@@ -933,6 +933,15 @@
         "sharp": "catalog:",
       },
     },
+    "packages/kimi-code-plugin": {
+      "name": "@remotion/kimi-code-plugin",
+      "version": "4.0.490",
+      "devDependencies": {
+        "@remotion/eslint-config-internal": "workspace:*",
+        "@typescript/native-preview": "catalog:",
+        "eslint": "catalog:",
+      },
+    },
     "packages/lambda": {
       "name": "@remotion/lambda",
       "version": "4.0.490",
@@ -4069,6 +4078,8 @@
     "@remotion/install-whisper-cpp": ["@remotion/install-whisper-cpp@workspace:packages/install-whisper-cpp"],
 
     "@remotion/it-tests": ["@remotion/it-tests@workspace:packages/it-tests"],
+
+    "@remotion/kimi-code-plugin": ["@remotion/kimi-code-plugin@workspace:packages/kimi-code-plugin"],
 
     "@remotion/lambda": ["@remotion/lambda@workspace:packages/lambda"],
 

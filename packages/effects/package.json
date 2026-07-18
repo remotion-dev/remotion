@@ -264,6 +264,11 @@
 			"module": "./dist/esm/shrinkwrap.mjs",
 			"import": "./dist/esm/shrinkwrap.mjs"
 		},
+		"./skew": {
+			"types": "./dist/skew.d.ts",
+			"module": "./dist/esm/skew.mjs",
+			"import": "./dist/esm/skew.mjs"
+		},
 		"./speckle": {
 			"types": "./dist/speckle.d.ts",
 			"module": "./dist/esm/speckle.mjs",
@@ -465,6 +470,9 @@
 			],
 			"shrinkwrap": [
 				"dist/shrinkwrap.d.ts"
+			],
+			"skew": [
+				"dist/skew.d.ts"
 			],
 			"speckle": [
 				"dist/speckle.d.ts"
