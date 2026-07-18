@@ -376,9 +376,7 @@ export const config: VercelConfig = {
 		routes.redirect('/docs/studio/code-edits', '/docs/studio/interactivity', {
 			permanent: true,
 		}),
-		routes.redirect('/terms', 'https://remotion.pro/terms', {
-			permanent: false,
-		}),
+		routes.redirect('/terms', '/docs/license/terms', {permanent: true}),
 		routes.redirect('/privacy', 'https://remotion.pro/privacy', {
 			permanent: false,
 		}),
