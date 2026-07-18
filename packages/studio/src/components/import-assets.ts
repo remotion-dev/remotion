@@ -251,6 +251,29 @@ export const getElementPositionForDrop = ({
 	return getCenteredPosition({dimensions, dropPosition});
 };
 
+export const getCompositionPositionForDrop = ({
+	compositionDimensions,
+	destinationDimensions,
+	dropPosition,
+}: {
+	compositionDimensions: Dimensions;
+	destinationDimensions: Dimensions | null;
+	dropPosition: InsertElementDropPosition | null;
+}): InsertableCompositionElementPosition | null => {
+	if (
+		destinationDimensions !== null &&
+		compositionDimensions.width === destinationDimensions.width &&
+		compositionDimensions.height === destinationDimensions.height
+	) {
+		return null;
+	}
+
+	return getCenteredPosition({
+		dimensions: compositionDimensions,
+		dropPosition,
+	});
+};
+
 const getComponentPropNumber = (props: ComponentProp[], name: string) => {
 	const prop = props.find((p) => p.name === name);
 	return typeof prop?.value === 'number' ? prop.value : null;
@@ -855,11 +878,13 @@ export const insertComposition = async ({
 	composition,
 	compositionFile,
 	compositionId,
+	destinationDimensions,
 	dropPosition,
 }: {
 	composition: CompositionDragData;
 	compositionFile: string;
 	compositionId: string;
+	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
 }) => {
 	if (composition.compositionId === compositionId) {
@@ -897,8 +922,9 @@ export const insertComposition = async ({
 				height: calculated.height,
 				serializedResolvedPropsWithCustomSchema:
 					serializeResolvedPropsForSourceCode(calculated.props),
-				position: getCenteredPosition({
-					dimensions,
+				position: getCompositionPositionForDrop({
+					compositionDimensions: dimensions,
+					destinationDimensions,
 					dropPosition,
 				}),
 			},
