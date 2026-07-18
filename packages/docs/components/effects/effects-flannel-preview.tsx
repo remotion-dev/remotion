@@ -1,7 +1,6 @@
 import {flannel} from '@remotion/effects/flannel';
 import React from 'react';
-import {CanvasImage} from 'remotion';
-import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';
+import {Solid, useVideoConfig} from 'remotion';
 
 export const EffectsFlannelPreview: React.FC<{
 	readonly amount: number;
@@ -10,12 +9,13 @@ export const EffectsFlannelPreview: React.FC<{
 	readonly baseColor: string;
 	readonly stripeColor: string;
 }> = ({amount, size, softness, baseColor, stripeColor}) => {
+	const {width, height} = useVideoConfig();
+
 	return (
-		<CanvasImage
-			src={EFFECTS_PREVIEW_IMAGE_SRC}
-			width={1280}
-			height={720}
-			fit="cover"
+		<Solid
+			width={width}
+			height={height}
+			color={baseColor}
 			effects={[flannel({amount, size, softness, baseColor, stripeColor})]}
 		/>
 	);

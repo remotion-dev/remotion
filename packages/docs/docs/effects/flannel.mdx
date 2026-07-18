@@ -10,9 +10,9 @@ crumb: '@remotion/effects'
 
 _Part of the [`@remotion/effects`](/docs/effects/api) package._
 
-Applies a plaid woven-fabric treatment to canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+Generates a plaid woven-fabric pattern on a [`<Solid>`](/docs/solid).
 
-The source luminance shapes the fabric shading, and transparent regions stay transparent.
+The solid color supplies an opaque base for the fabric pattern.
 
 ## Preview
 
@@ -21,26 +21,25 @@ The source luminance shapes the fabric shading, and transparent regions stay tra
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {Video} from '@remotion/media';
-import {AbsoluteFill, staticFile} from 'remotion';
+import {Solid} from 'remotion';
 import {flannel} from '@remotion/effects/flannel';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
-      <Video
-        src={staticFile('video.mp4')}
-        effects={[
-          flannel({
-            amount: 0.8,
-            size: 96,
-            softness: 0.18,
-            baseColor: '#c92f3d',
-            stripeColor: '#241015',
-          }),
-        ]}
-      />
-    </AbsoluteFill>
+    <Solid
+      width={1280}
+      height={720}
+      color="#c92f3d"
+      effects={[
+        flannel({
+          amount: 0.8,
+          size: 96,
+          softness: 0.18,
+          baseColor: '#c92f3d',
+          stripeColor: '#241015',
+        }),
+      ]}
+    />
   );
 };
 ```
