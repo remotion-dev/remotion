@@ -296,7 +296,7 @@ const VideoInner: React.FC<
 		<Sequence
 			layout="none"
 			from={from ?? 0}
-			durationInFrames={basicInfo.duration}
+			durationInFrames={durationInFrames}
 			freeze={freeze}
 			_remotionInternalStack={stack}
 			_remotionInternalIsMedia={isMedia}
