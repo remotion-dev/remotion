@@ -257,7 +257,7 @@ const config: Config = {
 							href: 'https://remotion.dev/changelog',
 						},
 						{
-							label: 'License, Pricing and Compliance',
+							label: 'License & Legal',
 							to: '/docs/license',
 						},
 						{
