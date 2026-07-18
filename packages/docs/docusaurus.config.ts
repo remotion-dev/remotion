@@ -234,19 +234,6 @@ const config: Config = {
 					],
 				},
 				{
-					title: 'More',
-					items: [
-						{
-							label: 'Blog',
-							to: 'blog',
-						},
-						{
-							label: 'Support',
-							to: '/docs/support',
-						},
-					].filter(Boolean),
-				},
-				{
 					title: 'Company',
 					items: [
 						{
@@ -291,6 +278,19 @@ const config: Config = {
 							to: '/docs/acknowledgements',
 						},
 					],
+				},
+				{
+					title: 'More',
+					items: [
+						{
+							label: 'Blog',
+							to: 'blog',
+						},
+						{
+							label: 'Support',
+							to: '/docs/support',
+						},
+					].filter(Boolean),
 				},
 			],
 		},
