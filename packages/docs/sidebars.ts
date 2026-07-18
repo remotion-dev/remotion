@@ -1647,6 +1647,7 @@ const sidebars: SidebarsConfig = {
 				'license/privacy',
 				'license/dpa',
 				'license/dpia',
+				'acknowledgements',
 				{
 					type: 'category',
 					label: 'Accessibility',
@@ -1661,7 +1662,6 @@ const sidebars: SidebarsConfig = {
 				},
 			],
 		},
-		'acknowledgements',
 
 		{
 			type: 'html',
