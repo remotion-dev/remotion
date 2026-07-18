@@ -180,6 +180,8 @@ const InnerComposition = <
 
 	const {folderName, parentName} = useContext(FolderContext);
 	const stack = (compProps as {stack?: string}).stack ?? null;
+	const componentFromProps =
+		'component' in compProps ? compProps.component : null;
 
 	useEffect(() => {
 		// Ensure it's a URL safe id
@@ -202,6 +204,7 @@ const InnerComposition = <
 			) as InferProps<Schema, Props>,
 			nonce: nonce.get(),
 			parentFolderName: parentName,
+			componentFromProps,
 			schema: schema ?? null,
 			calculateMetadata: compProps.calculateMetadata ?? null,
 			stack,
@@ -221,6 +224,7 @@ const InnerComposition = <
 		width,
 		nonce,
 		parentName,
+		componentFromProps,
 		schema,
 		compProps.calculateMetadata,
 		stack,

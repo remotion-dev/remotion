@@ -14,6 +14,7 @@ import {
 import {AlignmentControls} from './AlignmentControls';
 import {InspectorMessage, InspectorSectionHeader} from './common';
 import type {SequenceSectionSelection} from './inspector-selection';
+import {SequenceCompositionsSection} from './SequenceCompositionsSection';
 import {
 	SequenceInspectorHeader,
 	useSequenceInspectorSourceLocation,
@@ -83,6 +84,7 @@ const SequenceExpandedInspector: React.FC<{
 			onPointerDown={selectSequenceOnInspectorPointerDown}
 		>
 			<SequenceInspectorHeader sourceLocation={sourceLocation} track={track} />
+			<SequenceCompositionsSection track={track} />
 			<InspectorSequenceSection
 				sequence={track.sequence}
 				validatedLocation={validatedLocation}
