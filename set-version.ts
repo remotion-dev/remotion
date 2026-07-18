@@ -81,6 +81,24 @@ for (const dir of [path.join('cloudrun', 'container'), ...dirs]) {
 	}
 }
 
+const kimiCodePluginManifestPath = path.join(
+	process.cwd(),
+	'packages',
+	'kimi-code-plugin',
+	'.kimi-plugin',
+	'plugin.json',
+);
+if (existsSync(kimiCodePluginManifestPath)) {
+	const manifest = JSON.parse(
+		readFileSync(kimiCodePluginManifestPath, 'utf-8'),
+	);
+	manifest.version = version;
+	writeFileSync(
+		kimiCodePluginManifestPath,
+		JSON.stringify(manifest, null, '\t') + '\n',
+	);
+}
+
 execSync('bun ensure-correct-version.ts', {
 	cwd: 'packages/core',
 });

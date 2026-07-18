@@ -9,7 +9,8 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/ai/coding-agents">
 					<strong>{'Coding Agents'}</strong>
 					<div>
-						Use Claude Code, Codex or OpenCode to prompt Remotion videos
+						Use Claude Code, Codex, Kimi Code or OpenCode to prompt Remotion
+						videos
 					</div>
 				</TOCItem>
 				<TOCItem link="/docs/ai/skills">
@@ -23,6 +24,10 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/ai/codex-plugin">
 					<strong>{'Codex plugin'}</strong>
 					<div>Use the Remotion plugin in the ChatGPT Codex app</div>
+				</TOCItem>
+				<TOCItem link="/docs/ai/kimi-code-plugin">
+					<strong>{'Kimi Code plugin'}</strong>
+					<div>Use the Remotion plugin in Kimi Code</div>
 				</TOCItem>
 				<TOCItem link="/docs/ai/chatbot">
 					<strong>{'Chatbot'}</strong>
