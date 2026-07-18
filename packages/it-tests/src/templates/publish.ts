@@ -234,6 +234,63 @@ const publishClaudeCodePlugin = async () => {
 	await $`git push origin ${defaultBranch.trim()}`.cwd(workingDir);
 };
 
+const publishKimiCodePlugin = async () => {
+	const kimiCodePluginDir = path.join(
+		__dirname,
+		'..',
+		'..',
+		'..',
+		'kimi-code-plugin',
+	);
+
+	// Run the build step to assemble skills
+	await $`bun build.mts`.cwd(kimiCodePluginDir);
+
+	const tmpDir = tmpdir();
+	const workingDir = path.join(tmpDir, `kimi-code-plugin-${Math.random()}`);
+
+	await $`git clone git@github.com:remotion-dev/kimi-code-plugin.git ${workingDir} --depth 1`;
+
+	const defaultBranch = await $`git branch --show-current`
+		.cwd(workingDir)
+		.text();
+	const existingFilesInRepo = await $`git ls-files`.cwd(workingDir).quiet();
+	for (const file of existingFilesInRepo.stdout
+		.toString('utf-8')
+		.trim()
+		.split('\n')) {
+		if (file === '') continue;
+		await $`rm ${file}`.cwd(workingDir).quiet();
+	}
+
+	const filesToCopy = ['.kimi-plugin', 'skills', 'README.md'];
+	for (const entry of filesToCopy) {
+		const src = path.join(kimiCodePluginDir, entry);
+		const dst = path.join(workingDir, entry);
+		cpSync(src, dst, {recursive: true});
+	}
+
+	const packageJson = JSON.parse(
+		readFileSync(path.join(kimiCodePluginDir, 'package.json'), 'utf-8'),
+	);
+	const pluginJsonPath = path.join(workingDir, '.kimi-plugin', 'plugin.json');
+	const pluginJson = JSON.parse(readFileSync(pluginJsonPath, 'utf-8'));
+	writeFileSync(
+		pluginJsonPath,
+		`${JSON.stringify({...pluginJson, version: packageJson.version}, null, '\t')}\n`,
+	);
+
+	await $`git add .`.cwd(workingDir).nothrow();
+	const hasChanges = await $`git status --porcelain`.cwd(workingDir).text();
+	if (!hasChanges) {
+		console.log('No changes in kimi-code-plugin');
+		return;
+	}
+
+	await $`git commit -m "Update Kimi Code plugin"`.cwd(workingDir);
+	await $`git push origin ${defaultBranch.trim()}`.cwd(workingDir);
+};
+
 const CONCURRENCY = 1;
 
 const results: PromiseSettledResult<void>[] = [];
@@ -250,6 +307,7 @@ results.push(
 	...(await Promise.allSettled([
 		publishCodexPlugin(),
 		publishClaudeCodePlugin(),
+		publishKimiCodePlugin(),
 	])),
 );
 

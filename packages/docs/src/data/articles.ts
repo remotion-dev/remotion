@@ -162,6 +162,15 @@ export const articles = [
 		slug: 'ai/index',
 	},
 	{
+		id: 'ai/kimi-code-plugin',
+		title: 'Kimi Code plugin',
+		relativePath: 'docs/ai/kimi-code-plugin.mdx',
+		compId: 'articles-docs-ai-kimi-code-plugin',
+		crumb: 'AI',
+		noAi: false,
+		slug: 'ai/kimi-code-plugin',
+	},
+	{
 		id: 'ai/mcp',
 		title: "Remotion's Model Context Protocol (deprecated)",
 		relativePath: 'docs/ai/mcp.mdx',
@@ -2185,6 +2194,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/shrinkwrap',
+	},
+	{
+		id: 'effects/skew',
+		title: 'skew()',
+		relativePath: 'docs/effects/skew.mdx',
+		compId: 'articles-docs-effects-skew',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/skew',
 	},
 	{
 		id: 'effects/speckle',

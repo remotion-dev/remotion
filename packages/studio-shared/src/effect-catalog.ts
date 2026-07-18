@@ -423,6 +423,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-skew',
+		category: 'Distort',
+		label: 'skew()',
+		description: 'Skew the source on two axes',
+		effect: {
+			name: 'skew',
+			importPath: '@remotion/effects/skew',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-burlap',
 		category: 'Stylize',
 		label: 'burlap()',
