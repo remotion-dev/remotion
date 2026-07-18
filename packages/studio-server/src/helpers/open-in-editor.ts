@@ -652,7 +652,7 @@ export async function launchEditor({
 			_childProcess = child_process.spawn(
 				'cmd.exe',
 				['/C', binaryToUse].concat(args),
-				{stdio: 'inherit', detached: true},
+				{stdio: 'inherit', detached: true, windowsHide: true},
 			);
 		} else {
 			_childProcess = child_process.spawn(binaryToUse, args, {
