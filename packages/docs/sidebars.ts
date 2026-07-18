@@ -1521,7 +1521,6 @@ const sidebars: SidebarsConfig = {
 			label: 'Miscellaneous',
 			items: [
 				'security',
-				'accessibility',
 				'chromium-flags',
 				'miscellaneous/changing-temp-dir',
 				'miscellaneous/chrome-headless-shell',
@@ -1648,6 +1647,18 @@ const sidebars: SidebarsConfig = {
 				'license/privacy',
 				'license/dpa',
 				'license/dpia',
+				{
+					type: 'category',
+					label: 'Accessibility',
+					link: {
+						type: 'doc',
+						id: 'accessibility',
+					},
+					items: [
+						'license/accessibility-statement-remotion-dev',
+						'license/accessibility-statement-remotion-pro',
+					],
+				},
 			],
 		},
 		'acknowledgements',

@@ -1,22 +1,29 @@
 ---
 image: /generated/articles-docs-accessibility.png
-sidebar_label: Accessibility
-title: Accessibility statement for Remotion
-crumb: 'FAQ'
+sidebar_label: Accessibility overview
+title: Accessibility of Remotion products
+crumb: 'License, Pricing and Compliance'
 ---
 
-This page documents how Remotion ensures its products meet accessibility standards.  
+This page documents how Remotion's **products** (Player, Studio, Editor Starter, and others) meet accessibility standards.  
 This is a common question we get from enterprises who need to ensure their suppliers meet accessibility standards.
+
+This page is about product accessibility, not website conformance. For a statement about the accessibility of our websites, see:
+
+- [Accessibility statement: remotion.dev](/docs/license/accessibility-statement-remotion-dev)
+- [Accessibility statement: remotion.pro](/docs/license/accessibility-statement-remotion-pro)
 
 ## Remotion Player
 
 The Remotion Player is the component that most users will embed into their page if they are working on a Remotion app.  
-We do believe that the Remotion Player meets modern accessibility standards:
+Based on our latest internal review against WCAG 2.1 AA, the Player:
 
-- Keyboard navigation is possible
-- Clear focus indicators are present
-- Buttons have appropriate labels
-- Contrast ratios are sufficient
+- Has play, pause, mute, and fullscreen buttons that are keyboard-operable, carry accessible names, and show a visible focus indicator.
+- Does not yet expose the seek bar and volume slider as keyboard-operable sliders with an accessible role, name, and value.
+- Does not yet expose the mute button's pressed state, or the time display, to assistive technology.
+- Renders composition content to real DOM elements, so text content remains readable by screen readers.
+
+We consider the Remotion Player to **partially support** modern accessibility standards, and we are working through the remaining gaps above.
 
 ## Editor Starter
 
@@ -33,7 +40,13 @@ It therefore becomes the responsibility of the customer to ensure that the Edito
 ## Remotion Studio
 
 The Remotion Studio is not considered a product for end-users, but a helper tool for developers.  
-While we think it is doing well in terms of accessibility, we are not giving any guarantees on its accessibility.
+We are not giving any guarantees on its accessibility. Our latest internal review against WCAG 2.1 AA found several open issues, including:
+
+- The composition search dialog and the "Render via CLI" dialog do not trap keyboard focus, so it can escape to the page behind them.
+- The composition search input relies on a placeholder instead of a persistent, programmatically associated label, and some elements inside the search dialog cannot be reached by keyboard alone.
+- Status messages such as "Copied command!" are not announced to screen readers, and the search placeholder text does not meet the 4.5:1 contrast requirement.
+
+We are addressing these issues over time.
 
 ## Other products
 

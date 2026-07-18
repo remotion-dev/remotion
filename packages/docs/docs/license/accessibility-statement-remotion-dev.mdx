@@ -1,0 +1,60 @@
+---
+image: /generated/articles-docs-license-accessibility-statement-remotion-dev.png
+title: 'Accessibility statement: remotion.dev'
+sidebar_label: 'Accessibility statement: remotion.dev'
+crumb: 'License, Pricing and Compliance'
+description: Accessibility conformance statement for the remotion.dev website, based on our WCAG 2.1 AA and RGAA 4.1.2 audit.
+---
+
+This statement covers the **remotion.dev website** - the marketing pages, blog, and documentation you are reading right now.
+
+It does not cover the accessibility of Remotion products such as the Player, Studio, or Editor Starter. See the [product accessibility overview](/docs/accessibility) for that. It also does not cover [remotion.pro](/docs/license/accessibility-statement-remotion-pro), which is a separate website operated by Remotion AG.
+
+## Conformance status
+
+remotion.dev aims to conform to:
+
+- [Web Content Accessibility Guidelines (WCAG) 2.1](https://www.w3.org/TR/WCAG21/) Level AA
+- [RGAA 4.1.2](https://accessibilite.numerique.gouv.fr/)
+
+remotion.dev is currently **partially conformant** with both standards. "Partially conformant" means that some parts of the content do not fully conform to the accessibility standard.
+
+Our most recent audit scored **54% against RGAA 4.1.2** (43 criteria conformant, 37 non-conformant, 26 not applicable).
+
+We have a detailed internal VPAT 2.4 Rev and RGAA 4.1.2 audit report for remotion.dev. We have decided not to publish these as downloadable documents at this time; the full report is available on request at [hi@remotion.dev](mailto:hi@remotion.dev).
+
+## Preparation of this statement
+
+- **Methodology:** Manual audit against the 106 RGAA 4.1.2 criteria, combined with DOM / accessibility-tree inspection, Axe DevTools, and a Colour Contrast Analyser.
+- **Assistive technologies tested:** NVDA with Chrome on Windows.
+- **Pages sampled:** Home, Contact, Blog, and 10 documentation pages covering navigation, forms, embedded media, and interactive tools such as Remotion Convert.
+- **Most recent audit:** 14 April 2026.
+
+## Known limitations
+
+- **Color contrast.** Our brand blue (`#0B84F3`) does not meet the 4.5:1 contrast ratio against white required by WCAG 1.4.3. Several other elements (search placeholder, "Ask AI" button, sidebar tags, chart labels) also fall short. A site-wide contrast pass is planned.
+- **Video and multimedia.** Autoplaying homepage and blog videos lack captions, audio descriptions, and a pause/stop/hide control, and one silent video has no text alternative (WCAG 1.2.1, 1.2.2, 1.2.3, 1.2.5, 2.2.2).
+- **Keyboard operability.** Some interactive elements - toggle switches, sliders, drag-and-drop demo widgets, and the "Ask AI" button - are not yet operable by keyboard alone (WCAG 2.1.1). Focus can also land on hidden elements or escape the mobile menu (WCAG 2.4.3).
+- **Focus visibility.** The keyboard focus indicator is missing on several buttons, including "Copy" buttons on code blocks and some form controls (WCAG 2.4.7).
+- **Forms and labelling.** Some inputs (for example the newsletter field) rely on placeholder text instead of a persistent, programmatically associated label (WCAG 1.3.1, 3.3.2).
+- **Status messages.** Confirmations such as "Copied" and progress indicators on the Convert tool are not announced to assistive technology (WCAG 4.1.3).
+- **Structure and headings.** Some visually-styled headings and lists are not marked up with the corresponding semantic HTML elements (WCAG 1.3.1, 2.4.6).
+- **Third-party embeds.** Content from third parties, such as embedded YouTube players, may have accessibility gaps outside our direct control, including single-character keyboard shortcuts and non-unique iframe titles.
+
+## What is already accessible
+
+- A skip-to-main-content link and consistent, descriptive page titles on every audited page.
+- `<html lang="en">` and no keyboard traps detected anywhere in the audit.
+- Consistent navigation and more than one way to find any page.
+- Data tables and layout markup that read correctly with assistive technology and linearize properly without styles.
+- Text spacing and orientation changes do not cause loss of content.
+
+## Reporting an accessibility issue
+
+If you encounter an accessibility barrier on remotion.dev, contact us at [hi@remotion.dev](mailto:hi@remotion.dev), or [file an issue](https://remotion.dev/issue).
+
+Customers eligible for [prioritized support](/docs/support) may also report issues through the channels set up for them.
+
+## Enforcement
+
+Remotion AG is based in Switzerland and is not itself subject to the European Web Accessibility Directive. We voluntarily follow WCAG 2.1 AA and RGAA 4.1.2.
