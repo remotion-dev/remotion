@@ -18,6 +18,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'Terms and Conditions'}</strong>
 					<div>Legal terms governing the use of Remotion</div>
 				</TOCItem>
+				<TOCItem link="/docs/license/privacy">
+					<strong>{'Privacy Policy'}</strong>
+					<div>How Remotion collects, uses, and protects personal data</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

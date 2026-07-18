@@ -1641,7 +1641,12 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'license',
 			},
-			items: ['license/pricing', 'license/faq', 'license/terms'],
+			items: [
+				'license/pricing',
+				'license/faq',
+				'license/terms',
+				'license/privacy',
+			],
 		},
 		'acknowledgements',
 

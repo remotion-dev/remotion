@@ -30,7 +30,7 @@
 		"category": "Design",
 		"capabilities": ["Read", "Write"],
 		"websiteURL": "https://remotion.dev",
-		"privacyPolicyURL": "https://remotion.pro/privacy",
+		"privacyPolicyURL": "https://www.remotion.dev/docs/license/privacy",
 		"termsOfServiceURL": "https://www.remotion.dev/docs/license/terms",
 		"defaultPrompt": [
 			"Create an animated chart with 5 bars",
