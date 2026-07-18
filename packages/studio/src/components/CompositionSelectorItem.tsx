@@ -22,18 +22,16 @@ import {
 	getBackgroundFromHoverState,
 } from '../helpers/colors';
 import {getFolderId} from '../helpers/get-folder-id';
-import {isCompositionStill} from '../helpers/is-composition-still';
 import {noop} from '../helpers/noop';
 import {
 	markCompositionSidebarScrollFromRowClick,
 	maybeScrollCompositionSidebarRowIntoView,
 } from '../helpers/sidebar-scroll-into-view';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
-import {StillIcon} from '../icons/still';
-import {FilmIcon} from '../icons/video';
 import {ModalsContext} from '../state/modals';
 import {getCompositionMenuItems} from './composition-menu-items';
 import {CompositionContextButton} from './CompositionContextButton';
+import {CompositionOrStillIcon} from './CompositionOrStillIcon';
 import {ContextMenu} from './ContextMenu';
 import {getFolderMenuItems} from './folder-menu-items';
 import {Row, Spacing} from './layout';
@@ -433,17 +431,11 @@ export const CompositionSelectorItem: React.FC<{
 					className="__remotion-composition"
 					data-compname={item.composition.id}
 				>
-					{isCompositionStill(item.composition) ? (
-						<StillIcon
-							color={hovered || selected ? WHITE : LIGHT_TEXT}
-							style={iconStyle}
-						/>
-					) : (
-						<FilmIcon
-							color={hovered || selected ? WHITE : LIGHT_TEXT}
-							style={iconStyle}
-						/>
-					)}
+					<CompositionOrStillIcon
+						composition={item.composition}
+						color={hovered || selected ? WHITE : LIGHT_TEXT}
+						style={iconStyle}
+					/>
 					<Spacing x={1} />
 					<div style={label}>{item.composition.id}</div>
 					<Spacing x={0.5} />

@@ -7,6 +7,7 @@ import {InspectorLocationCopy} from '../InspectorLocationCopy';
 import {InspectorSourceLocation} from '../InspectorSourceLocation';
 import {useOpenSequenceInEditor} from '../Timeline/use-open-sequence-in-editor';
 import {useRenameSequence} from '../Timeline/use-rename-sequence';
+import {SequenceCompositionsSection} from './SequenceCompositionsSection';
 import {
 	sequenceHeader,
 	sequenceHeaderDivider,
@@ -91,7 +92,6 @@ export const SequenceInspectorHeader: React.FC<{
 	}, [documentationLink]);
 
 	const componentName = track.sequence.controls?.componentName;
-
 	const onRename = useCallback(
 		(newName: string) => {
 			saveName(newName).catch(() => undefined);
@@ -142,6 +142,7 @@ export const SequenceInspectorHeaderWithDivider: React.FC<{
 	return (
 		<>
 			<SequenceInspectorHeader sourceLocation={sourceLocation} track={track} />
+			<SequenceCompositionsSection track={track} />
 			<div style={sequenceHeaderDivider} />
 		</>
 	);

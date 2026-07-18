@@ -67,6 +67,8 @@ import {
 import {
 	addSequenceStackTraces,
 	getComponentsToAddStacksTo,
+	getSequenceComponent,
+	getSingleChildComponent,
 } from './enable-sequence-stack-traces.js';
 import {findPropsToDelete} from './find-props-to-delete.js';
 import {
@@ -365,6 +367,8 @@ export const Internals = {
 	BufferingProvider,
 	BufferingContextReact,
 	getComponentsToAddStacksTo,
+	getSequenceComponent,
+	getSingleChildComponent,
 	CurrentScaleContext,
 	PixelDensityContext,
 	PreviewSizeContext,
