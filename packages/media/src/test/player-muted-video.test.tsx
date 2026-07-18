@@ -1,6 +1,7 @@
 import {Player} from '@remotion/player';
 import React from 'react';
 import {createRoot} from 'react-dom/client';
+import {Sequence} from 'remotion';
 import {expect, test} from 'vitest';
 import {Video} from '../video/video';
 
@@ -48,6 +49,50 @@ test('renders a video in an initially muted Player', async () => {
 		const canvas = container.querySelector('canvas');
 		expect(canvas?.width).toBe(1280);
 		expect(canvas?.height).toBe(720);
+	} finally {
+		root.unmount();
+		container.remove();
+	}
+});
+
+test('renders a negatively offset video inside a sequence', async () => {
+	const container = document.createElement('div');
+	document.body.appendChild(container);
+
+	const NestedVideoComposition: React.FC = () => {
+		return (
+			<Sequence from={175} durationInFrames={150}>
+				<Video
+					data-testid="negatively-offset-video"
+					from={-151}
+					src="/bigbuckbunny.mp4"
+				/>
+			</Sequence>
+		);
+	};
+
+	const root = createRoot(container);
+	root.render(
+		<Player
+			acknowledgeRemotionLicense
+			component={NestedVideoComposition}
+			compositionHeight={720}
+			compositionWidth={1280}
+			durationInFrames={325}
+			fps={30}
+			initialFrame={175}
+			initiallyMuted
+			inputProps={{}}
+		/>,
+	);
+
+	try {
+		await waitFor(() => {
+			const renderedCanvas = container.querySelector(
+				'[data-testid="negatively-offset-video"]',
+			);
+			return renderedCanvas instanceof HTMLCanvasElement;
+		});
 	} finally {
 		root.unmount();
 		container.remove();
