@@ -131,6 +131,7 @@ import {
 import {
 	resolveVideoConfig,
 	resolveVideoConfigOrCatch,
+	resolveVideoConfigWithMetadataOrCatch,
 } from './resolve-video-config.js';
 import {
 	ResolveCompositionContext,
@@ -349,6 +350,7 @@ export const Internals = {
 	NonceContext,
 	resolveVideoConfig,
 	resolveVideoConfigOrCatch,
+	resolveVideoConfigWithMetadataOrCatch,
 	ResolveCompositionContext,
 	useResolvedVideoConfig,
 	resolveCompositionsRef,

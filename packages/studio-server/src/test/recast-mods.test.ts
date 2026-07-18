@@ -108,6 +108,61 @@ test('Rename composition that is the sole return value of a wrapper component', 
 	expect(newContents).toContain('id="Renamed"');
 });
 
+test('Update composition metadata', () => {
+	const {newContents, changesMade} = parseAndApplyCodemod({
+		input: compositionInOwnFile,
+		codeMod: {
+			type: 'update-composition-metadata',
+			idToUpdate: 'NewVideo',
+			newDurationInFrames: 240,
+			newFps: 60,
+			newWidth: 1920,
+			newHeight: 1080,
+		},
+	});
+
+	expect(changesMade).toHaveLength(4);
+	expect(newContents).toContain('width={1920}');
+	expect(newContents).toContain('height={1080}');
+	expect(newContents).toContain('fps={60}');
+	expect(newContents).toContain('durationInFrames={240}');
+});
+
+test('Update a composition dimension that is not a numeric literal', () => {
+	const input = compositionInOwnFile.replace('width={1280}', 'width={WIDTH}');
+	const {newContents} = parseAndApplyCodemod({
+		input,
+		codeMod: {
+			type: 'update-composition-metadata',
+			idToUpdate: 'NewVideo',
+			newDurationInFrames: null,
+			newFps: null,
+			newWidth: 1920,
+			newHeight: null,
+		},
+	});
+
+	expect(newContents).toContain('width={1920}');
+	expect(newContents).not.toContain('width={WIDTH}');
+});
+
+test('Add a missing composition dimension', () => {
+	const input = compositionInOwnFile.replace('\n\t\t\theight={720}', '');
+	const {newContents} = parseAndApplyCodemod({
+		input,
+		codeMod: {
+			type: 'update-composition-metadata',
+			idToUpdate: 'NewVideo',
+			newDurationInFrames: null,
+			newFps: null,
+			newWidth: null,
+			newHeight: 1080,
+		},
+	});
+
+	expect(newContents).toContain('height={1080}');
+});
+
 test('Duplicate composition that is the sole return value of a wrapper component', () => {
 	const {newContents, changesMade} = parseAndApplyCodemod({
 		input: compositionInOwnFile,
