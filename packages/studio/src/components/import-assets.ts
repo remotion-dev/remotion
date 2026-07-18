@@ -260,6 +260,7 @@ export const getCompositionPositionForDrop = ({
 	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
 }): InsertableCompositionElementPosition | null => {
+	// No translation makes an equal-sized composition fill the destination.
 	if (
 		destinationDimensions !== null &&
 		compositionDimensions.width === destinationDimensions.width &&
