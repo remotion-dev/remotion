@@ -20,6 +20,7 @@ export type StudioHtmlOptions = {
 	sampleRate: number | null;
 	publicFiles: StaticFile[];
 	publicFolderExists: string | null;
+	fileSystemPlatform: string | null;
 	includeFavicon: boolean;
 	title: string;
 	renderDefaults: RenderDefaults | undefined;
@@ -50,6 +51,7 @@ export const studioHtml = ({
 	title,
 	renderDefaults,
 	publicFolderExists,
+	fileSystemPlatform,
 	gitSource,
 	projectName,
 	installedDependencies,
@@ -100,6 +102,7 @@ export const studioHtml = ({
 			renderDefaults,
 		)};</script>
 		<script>window.remotion_cwd = ${JSON.stringify(remotionRoot)};</script>
+		<script>window.remotion_fileSystemPlatform = ${JSON.stringify(fileSystemPlatform)};</script>
 		<script>window.remotion_studioServerCommand = ${
 			studioServerCommand ? JSON.stringify(studioServerCommand) : 'null'
 		};</script>
