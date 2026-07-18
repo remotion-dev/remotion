@@ -266,11 +266,11 @@ const config: Config = {
 						},
 						{
 							label: 'Terms and Conditions',
-							href: 'https://www.remotion.dev/docs/license/terms',
+							href: 'https://remotion.dev/docs/license/terms',
 						},
 						{
 							label: 'Privacy Policy',
-							href: 'https://www.remotion.dev/docs/license/privacy',
+							href: 'https://remotion.dev/docs/license/privacy',
 						},
 						{
 							label: 'Brand',
