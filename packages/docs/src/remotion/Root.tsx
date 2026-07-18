@@ -816,7 +816,7 @@ export const RemotionRoot: React.FC = () => {
 					component={EffectsSkewPreview}
 					width={1280}
 					height={720}
-					defaultProps={{x: 24, y: 0}}
+					defaultProps={{x: 24, y: 0, origin: [0.25, 0.5]}}
 				/>
 				<Still
 					id="effects-shrinkwrap-preview"

@@ -1,12 +1,14 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {assertOptionalFiniteNumber} from './color-utils.js';
+import {publicUvToShaderUv} from './uv-coordinate.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
 const DEFAULT_X = 20 as const;
 const DEFAULT_Y = 0 as const;
+const DEFAULT_ORIGIN = [0.5, 0.5] as const;
 const MAX_ABSOLUTE_ANGLE = 89 as const;
 
 const skewSchema = {
@@ -26,16 +28,32 @@ const skewSchema = {
 		default: DEFAULT_Y,
 		description: 'Y angle',
 	},
+	origin: {
+		type: 'uv-coordinate',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		default: DEFAULT_ORIGIN,
+		description: 'Origin',
+	},
 } as const satisfies InteractivitySchema;
+
+export type SkewOrigin = readonly [number, number];
 
 export type SkewParams = {
 	/** Horizontal skew angle in degrees. Defaults to `20`. */
 	readonly x?: number;
 	/** Vertical skew angle in degrees. Defaults to `0`. */
 	readonly y?: number;
+	/** Origin of the skew in UV coordinates. Defaults to `[0.5, 0.5]`. */
+	readonly origin?: SkewOrigin;
 };
 
-type SkewResolved = Required<SkewParams>;
+type SkewResolved = {
+	readonly x: number;
+	readonly y: number;
+	readonly origin: SkewOrigin;
+};
 
 type SkewState = {
 	readonly gl: WebGL2RenderingContext;
@@ -46,12 +64,36 @@ type SkewState = {
 	readonly uSource: WebGLUniformLocation | null;
 	readonly uResolution: WebGLUniformLocation | null;
 	readonly uSkew: WebGLUniformLocation | null;
+	readonly uOrigin: WebGLUniformLocation | null;
 };
 
 const resolve = (params: SkewParams): SkewResolved => ({
 	x: params.x ?? DEFAULT_X,
 	y: params.y ?? DEFAULT_Y,
+	origin: [...(params.origin ?? DEFAULT_ORIGIN)] as SkewOrigin,
 });
+
+const assertOptionalUvCoordinate = (value: unknown, name: string): void => {
+	if (value === undefined) {
+		return;
+	}
+
+	if (
+		!Array.isArray(value) ||
+		value.length !== 2 ||
+		value.some((item) => typeof item !== 'number' || !Number.isFinite(item))
+	) {
+		throw new TypeError(`"${name}" must be a [number, number] tuple`);
+	}
+};
+
+const validateUvCoordinate = (value: number, name: string): void => {
+	if (value < 0 || value > 1) {
+		throw new TypeError(
+			`"${name}" must be between 0 and 1, but got ${JSON.stringify(value)}`,
+		);
+	}
+};
 
 const validateAngle = (value: number, name: string): void => {
 	if (Math.abs(value) >= MAX_ABSOLUTE_ANGLE) {
@@ -65,9 +107,12 @@ const validateSkewParams = (params: SkewParams): void => {
 	assertEffectParamsObject(params, 'Skew');
 	assertOptionalFiniteNumber(params.x, 'x');
 	assertOptionalFiniteNumber(params.y, 'y');
+	assertOptionalUvCoordinate(params.origin, 'origin');
 	const resolved = resolve(params);
 	validateAngle(resolved.x, 'x');
 	validateAngle(resolved.y, 'y');
+	validateUvCoordinate(resolved.origin[0], 'origin[0]');
+	validateUvCoordinate(resolved.origin[1], 'origin[1]');
 };
 
 const SKEW_VS = /* glsl */ `#version 300 es
@@ -90,14 +135,15 @@ out vec4 fragColor;
 uniform sampler2D uSource;
 uniform vec2 uResolution;
 uniform vec2 uSkew;
+uniform vec2 uOrigin;
 
 void main() {
-	vec2 destination = (vUv - 0.5) * uResolution;
+	vec2 destination = (vUv - uOrigin) * uResolution;
 
 	// Invert a horizontal skew followed by a vertical skew.
 	float sourceY = destination.y - uSkew.y * destination.x;
 	float sourceX = destination.x - uSkew.x * sourceY;
-	vec2 sourceUv = vec2(sourceX, sourceY) / uResolution + 0.5;
+	vec2 sourceUv = vec2(sourceX, sourceY) / uResolution + uOrigin;
 
 	if (any(lessThan(sourceUv, vec2(0.0))) || any(greaterThan(sourceUv, vec2(1.0)))) {
 		fragColor = vec4(0.0);
@@ -200,6 +246,7 @@ const setupSkew = (target: HTMLCanvasElement): SkewState => {
 		uSource: gl.getUniformLocation(program, 'uSource'),
 		uResolution: gl.getUniformLocation(program, 'uResolution'),
 		uSkew: gl.getUniformLocation(program, 'uSkew'),
+		uOrigin: gl.getUniformLocation(program, 'uOrigin'),
 	};
 };
 
@@ -210,7 +257,7 @@ export const skew = createEffect<SkewParams, SkewState>({
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const resolved = resolve(params);
-		return `skew-${resolved.x}-${resolved.y}`;
+		return `skew-${resolved.x}-${resolved.y}-${resolved.origin[0]}-${resolved.origin[1]}`;
 	},
 	setup: setupSkew,
 	apply: ({source, width, height, params, state, flipSourceY}) => {
@@ -242,6 +289,11 @@ export const skew = createEffect<SkewParams, SkewState>({
 				Math.tan(resolved.x * radians),
 				Math.tan(resolved.y * radians),
 			);
+		}
+
+		if (state.uOrigin) {
+			const [originX, originY] = publicUvToShaderUv(resolved.origin);
+			gl.uniform2f(state.uOrigin, originX, originY);
 		}
 
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

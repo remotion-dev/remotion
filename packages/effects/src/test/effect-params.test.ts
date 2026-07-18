@@ -3472,7 +3472,16 @@ test('shine() parameters produce distinct effect keys', () => {
 
 test('skew() accepts default and valid params', () => {
 	expect(() => skew()).not.toThrow();
-	expect(() => skew({x: -30, y: 15})).not.toThrow();
+	expect(() => skew({x: -30, y: 15, origin: [0.25, 0.75]})).not.toThrow();
+});
+
+test('skew() exposes the origin as a UV coordinate', () => {
+	expect(skew().definition.schema.origin).toMatchObject({
+		type: 'uv-coordinate',
+		default: [0.5, 0.5],
+		min: 0,
+		max: 1,
+	});
 });
 
 test('skew() rejects invalid angles', () => {
@@ -3485,10 +3494,25 @@ test('skew() rejects invalid angles', () => {
 	);
 });
 
-test('skew() parameters produce distinct effect keys', () => {
-	const keys = [skew(), skew({x: 10}), skew({y: 10})].map(
-		(effect) => effect.effectKey,
+test('skew() rejects invalid origins', () => {
+	expect(() => skew({origin: [0.5] as unknown as [number, number]})).toThrow(
+		'"origin" must be a [number, number] tuple',
 	);
+	expect(() => skew({origin: [-0.1, 0.5]})).toThrow(
+		'"origin[0]" must be between 0 and 1',
+	);
+	expect(() => skew({origin: [0.5, 1.1]})).toThrow(
+		'"origin[1]" must be between 0 and 1',
+	);
+});
+
+test('skew() parameters produce distinct effect keys', () => {
+	const keys = [
+		skew(),
+		skew({x: 10}),
+		skew({y: 10}),
+		skew({origin: [0.25, 0.75]}),
+	].map((effect) => effect.effectKey);
 	expect(new Set(keys).size).toBe(keys.length);
 });
 

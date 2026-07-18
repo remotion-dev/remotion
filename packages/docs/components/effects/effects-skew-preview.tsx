@@ -6,14 +6,15 @@ import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';
 export const EffectsSkewPreview: React.FC<{
 	readonly x: number;
 	readonly y: number;
-}> = ({x, y}) => {
+	readonly origin: readonly [number, number];
+}> = ({x, y, origin}) => {
 	return (
 		<CanvasImage
 			src={EFFECTS_PREVIEW_IMAGE_SRC}
 			width={1280}
 			height={720}
 			fit="cover"
-			effects={[skew({x, y})]}
+			effects={[skew({x, y, origin})]}
 		/>
 	);
 };
