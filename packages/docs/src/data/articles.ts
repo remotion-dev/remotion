@@ -2187,6 +2187,15 @@ export const articles = [
 		slug: 'effects/shrinkwrap',
 	},
 	{
+		id: 'effects/skew',
+		title: 'skew()',
+		relativePath: 'docs/effects/skew.mdx',
+		compId: 'articles-docs-effects-skew',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/skew',
+	},
+	{
 		id: 'effects/speckle',
 		title: 'speckle()',
 		relativePath: 'docs/effects/speckle.mdx',
