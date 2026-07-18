@@ -845,6 +845,7 @@ export const getSelectableTimelineItems = ({
 			getEffectDragOverrides,
 			propStatuses,
 			includeTextContent: false,
+			includeSourceControls: false,
 		});
 		const filteredTree = filterTimelineExpandedTree({
 			nodes: tree,

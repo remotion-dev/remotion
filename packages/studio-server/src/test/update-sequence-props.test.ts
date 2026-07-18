@@ -115,6 +115,38 @@ test('updateSequenceProps should add a new attribute', async () => {
 	expect(output.split('\n')[8]).toContain('speed={2}');
 });
 
+test('updateSequenceProps should preserve staticFile() for asset fields', async () => {
+	const input = `import {Img, staticFile} from 'remotion';
+
+export const Example = () => {
+	return <Img src={staticFile('old.png')} />;
+};
+`;
+	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, 4),
+		updates: [
+			{
+				key: 'src',
+				value: 'remotion-file:folder/new%20image.png',
+				defaultValue: null,
+			},
+		],
+		schema: {
+			src: {
+				type: 'asset',
+				default: undefined,
+				keyframable: false,
+			},
+		},
+		prettierConfigOverride: null,
+	});
+
+	expect(oldValueStrings[0]).toBe("staticFile('old.png')");
+	expect(output).toContain(`src={staticFile('folder/new image.png')}`);
+});
+
 test('updateSequenceProps should remove attribute when value equals default', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
 		videoConfigValues: null,

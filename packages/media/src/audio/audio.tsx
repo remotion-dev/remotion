@@ -16,6 +16,12 @@ import type {AudioProps} from './props';
 const {validateMediaProps} = Internals;
 
 const audioSchema = {
+	src: {
+		type: 'asset',
+		default: undefined,
+		description: 'Source',
+		keyframable: false,
+	},
 	...Internals.baseSchema,
 	volume: {
 		type: 'number',

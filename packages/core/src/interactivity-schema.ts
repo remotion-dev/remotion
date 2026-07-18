@@ -112,6 +112,13 @@ export type FontFamilyFieldSchema = {
 	keyframable?: false;
 };
 
+export type AssetFieldSchema = {
+	type: 'asset';
+	default: string | undefined;
+	description?: string;
+	keyframable?: false;
+};
+
 export type EnumFieldSchema = {
 	type: 'enum';
 	default: string;
@@ -197,6 +204,7 @@ export type VisibleFieldSchema =
 	| ColorFieldSchema
 	| TextContentFieldSchema
 	| FontFamilyFieldSchema
+	| AssetFieldSchema
 	| ArrayFieldSchema
 	| EnumFieldSchema;
 

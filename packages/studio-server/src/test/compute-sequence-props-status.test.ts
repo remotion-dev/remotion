@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
+import {NoReactInternals} from 'remotion/no-react';
 import {parseAst} from '../codemods/parse-ast';
 import {JsxElementIdentityMismatchError} from '../preview-server/jsx-component-identity';
 import {
@@ -36,6 +37,29 @@ const videoConfigValues = {
 	height: 1080,
 	width: 1920,
 };
+
+test('computeSequencePropsStatus should treat staticFile() asset props as static', () => {
+	const input = `import {Img, staticFile} from 'remotion';
+
+export const Example = () => {
+	return <Img src={staticFile('1.jpg')} />;
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 4),
+		componentIdentity: null,
+		keys: ['src'],
+		assetKeys: ['src'],
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(result.props.src).toEqual({
+		status: 'static',
+		codeValue: `${NoReactInternals.FILE_TOKEN}1.jpg`,
+	});
+});
 
 test('computeSequencePropsStatus should parse video config numeric expressions', () => {
 	const input = `import React from 'react';

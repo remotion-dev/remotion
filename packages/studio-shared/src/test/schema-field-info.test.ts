@@ -162,6 +162,11 @@ test('getEffectFieldsToShow sizes array fields from the current value', () => {
 test('getFieldsToShow sorts fields by inspector group order', () => {
 	const fields = getFieldsToShow({
 		schema: {
+			src: {
+				type: 'asset',
+				default: undefined,
+				keyframable: false,
+			},
 			'style.translate': {
 				type: 'translate',
 				default: '0px 0px',
@@ -220,6 +225,7 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 	});
 
 	expect(fields?.map((field) => field.key)).toEqual([
+		'src',
 		'playbackRate',
 		'volume',
 		'style.translate',
@@ -232,6 +238,7 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'style.textAlign',
 	]);
 	expect(fields?.map((field) => field.group)).toEqual([
+		'source',
 		'controls',
 		'controls',
 		'transforms',

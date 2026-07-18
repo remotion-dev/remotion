@@ -18,6 +18,12 @@ const {validateMediaTrimProps, resolveTrimProps, validateMediaProps} =
 	Internals;
 
 const videoSchema = {
+	src: {
+		type: 'asset',
+		default: undefined,
+		description: 'Source',
+		keyframable: false,
+	},
 	...Internals.baseSchema,
 	volume: {
 		type: 'number',
