@@ -1,4 +1,4 @@
-import {execSync} from 'node:child_process';
+import {execFileSync, execSync} from 'node:child_process';
 import fs, {rmSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -8,6 +8,7 @@ import {findRemotionRoot} from './find-closest-package-json';
 import {isServeUrl} from './is-serve-url';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
+import {getCompressArchivePowerShellCommand} from './windows-powershell-path';
 
 const REPRO_DIR = '.remotionrepro';
 const LOG_FILE_NAME = 'logs.txt';
@@ -47,8 +48,19 @@ const zipFolder = ({
 	try {
 		Log.info({indent, logLevel}, '+ Creating reproduction ZIP');
 		if (platform === 'win32') {
-			execSync(
-				`powershell.exe Compress-Archive -Path "${sourceFolder}" -DestinationPath "${targetZip}"`,
+			// execFile (not a shell string) + LiteralPath / single-quoted paths so
+			// apostrophes and spaces in user profile paths do not break Compress-Archive.
+			execFileSync(
+				'powershell.exe',
+				[
+					'-NoProfile',
+					'-NonInteractive',
+					'-ExecutionPolicy',
+					'Bypass',
+					'-Command',
+					getCompressArchivePowerShellCommand({sourceFolder, targetZip}),
+				],
+				{stdio: 'pipe'},
 			);
 		} else {
 			execSync(`zip -r "${targetZip}" "${sourceFolder}"`);
