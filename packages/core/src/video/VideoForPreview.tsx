@@ -12,6 +12,7 @@ import type {IsExact} from '../audio/props.js';
 import {SharedAudioContext} from '../audio/shared-audio-tags.js';
 import {makeSharedElementSourceNode} from '../audio/shared-element-source-node.js';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
+import {CompositionRenderErrorContext} from '../composition-render-error-context.js';
 import {getCrossOriginValue} from '../get-cross-origin-value.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playbackLogging} from '../playback-logging.js';
@@ -21,6 +22,7 @@ import {useVolume} from '../use-amplification.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
 import {useMediaTag} from '../use-media-tag.js';
+import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {VERSION} from '../version.js';
 import {
@@ -241,11 +243,29 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		}),
 	);
 
+	const {setError: setCompositionRenderError} = useContext(
+		CompositionRenderErrorContext,
+	);
+	const {isStudio} = useRemotionEnvironment();
+
 	useEffect(() => {
 		const {current} = videoRef;
 		if (!current) {
 			return;
 		}
+
+		const reportOrThrow = (err: MediaPlaybackError) => {
+			// Native media `error` events are not caught by React error boundaries.
+			// In Studio, route them through CompositionRenderErrorContext so they
+			// surface in the preview panel (ErrorLoader) instead of the fullscreen
+			// runtime overlay. See https://github.com/remotion-dev/remotion/issues/7000
+			if (isStudio) {
+				setCompositionRenderError(err);
+				return;
+			}
+
+			throw err;
+		};
 
 		const errorHandler = () => {
 			if (current.error) {
@@ -262,10 +282,12 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 					return;
 				}
 
-				throw new MediaPlaybackError({
-					message: `The browser threw an error while playing the video ${src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help. Pass an onError() prop to handle the error.`,
-					src: src as string,
-				});
+				reportOrThrow(
+					new MediaPlaybackError({
+						message: `The browser threw an error while playing the video ${src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help. Pass an onError() prop to handle the error.`,
+						src: src as string,
+					}),
+				);
 			} else {
 				// If user is handling the error, we don't cause an unhandled exception
 				if (onError) {
@@ -277,10 +299,12 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 					return;
 				}
 
-				throw new MediaPlaybackError({
-					message: 'The browser threw an error while playing the video',
-					src: src as string,
-				});
+				reportOrThrow(
+					new MediaPlaybackError({
+						message: 'The browser threw an error while playing the video',
+						src: src as string,
+					}),
+				);
 			}
 		};
 
@@ -288,7 +312,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		return () => {
 			current.removeEventListener('error', errorHandler);
 		};
-	}, [onError, src]);
+	}, [isStudio, onError, setCompositionRenderError, src]);
 
 	const currentOnDurationCallback =
 		useRef<VideoForPreviewProps['onDuration']>(onDuration);
