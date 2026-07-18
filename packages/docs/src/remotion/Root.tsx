@@ -218,8 +218,8 @@ export const RemotionRoot: React.FC = () => {
 						amount: 0.82,
 						size: 96,
 						softness: 0.18,
-						baseColor: '#b51f2e',
-						stripeColor: '#16233f',
+						baseColor: '#c92f3d',
+						stripeColor: '#241015',
 					}}
 				/>
 				<Still

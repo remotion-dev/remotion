@@ -16,8 +16,8 @@ const {createEffect, createWebGL2ContextError} = Internals;
 const DEFAULT_AMOUNT = 0.7 as const;
 const DEFAULT_SIZE = 96 as const;
 const DEFAULT_SOFTNESS = 0.18 as const;
-const DEFAULT_BASE_COLOR = '#b51f2e' as const;
-const DEFAULT_STRIPE_COLOR = '#16233f' as const;
+const DEFAULT_BASE_COLOR = '#c92f3d' as const;
+const DEFAULT_STRIPE_COLOR = '#241015' as const;
 
 const flannelSchema = {
 	amount: {
@@ -66,9 +66,9 @@ export type FlannelParams = {
 	readonly size?: number;
 	/** Edge softness of the woven stripes from `0` to `1`. Defaults to `0.18`. */
 	readonly softness?: number;
-	/** Main fabric color. Defaults to `#b51f2e`. */
+	/** Main fabric color. Defaults to `#c92f3d`. */
 	readonly baseColor?: string;
-	/** Color of the crossing stripes. Defaults to `#16233f`. */
+	/** Color of the crossing stripes. Defaults to `#241015`. */
 	readonly stripeColor?: string;
 };
 

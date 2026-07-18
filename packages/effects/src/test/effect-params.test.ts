@@ -2248,6 +2248,15 @@ test('flannel() accepts default and valid params', () => {
 	).not.toThrow();
 });
 
+test('flannel() uses a red palette by default', () => {
+	expect(flannel().definition.schema.baseColor).toMatchObject({
+		default: '#c92f3d',
+	});
+	expect(flannel().definition.schema.stripeColor).toMatchObject({
+		default: '#241015',
+	});
+});
+
 test('flannel() rejects invalid params', () => {
 	expect(() => flannel({amount: Number.NaN})).toThrow(
 		'"amount" must be a finite number',
