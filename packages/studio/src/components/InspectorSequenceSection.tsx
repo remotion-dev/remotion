@@ -21,6 +21,10 @@ import {
 } from './InspectorPanel/styles';
 import {TimelineExpandedRow} from './Timeline/TimelineExpandedRow';
 import {
+	INSPECTOR_TIMELINE_ROW_LAYOUT,
+	TimelineRowLayoutContext,
+} from './Timeline/TimelineRowLayoutContext';
+import {
 	getTimelineSelectionFromNodePathInfo,
 	TimelineSelectionOrderProvider,
 	type TimelineSelection,
@@ -282,20 +286,24 @@ export const InspectorSequenceSection: React.FC<{
 
 	const renderRow = ({node, depth}: FlatTreeRow) => {
 		return (
-			<TimelineExpandedRow
+			<TimelineRowLayoutContext.Provider
 				key={JSON.stringify(node.nodePathInfo)}
-				node={node}
-				depth={depth}
-				nestedDepth={0}
-				rowDepthBase={0}
-				getIsExpanded={getIsExpanded}
-				toggleTrack={toggleTrack}
-				validatedLocation={validatedLocation}
-				nodePath={nodePathInfo.sequenceSubscriptionKey}
-				schema={schema}
-				keyframeDisplayOffset={keyframeDisplayOffset}
-				keyframeControlsMode="inspector"
-			/>
+				value={INSPECTOR_TIMELINE_ROW_LAYOUT}
+			>
+				<TimelineExpandedRow
+					node={node}
+					depth={depth}
+					nestedDepth={0}
+					rowDepthBase={0}
+					getIsExpanded={getIsExpanded}
+					toggleTrack={toggleTrack}
+					validatedLocation={validatedLocation}
+					nodePath={nodePathInfo.sequenceSubscriptionKey}
+					schema={schema}
+					keyframeDisplayOffset={keyframeDisplayOffset}
+					keyframeControlsMode="inspector"
+				/>
+			</TimelineRowLayoutContext.Provider>
 		);
 	};
 
