@@ -12,6 +12,7 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	BACKGROUND,
 	BLACK_HEX,
@@ -26,9 +27,11 @@ import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {ModalsContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import {CompositionSelectorItem} from './CompositionSelectorItem';
+import {ContextMenuForTarget} from './ContextMenu';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {showNotification} from './Notifications/NotificationCenter';
 import {applyCodemod} from './RenderQueue/actions';
+import {getRootCompositionMenuItems} from './root-composition-menu-items';
 
 export const useCompositionNavigation = () => {
 	const {compositions, canvasContent} = useContext(
@@ -159,6 +162,15 @@ export const CompositionSelector: React.FC = () => {
 	);
 	const {foldersExpanded} = useContext(ExpandedFoldersContext);
 	const {setSelectedModal} = useContext(ModalsContext);
+	const connectionStatus = useContext(StudioServerConnectionCtx)
+		.previewServerState.type;
+	const rootContextMenuItems = useMemo(() => {
+		return getRootCompositionMenuItems({
+			connectionStatus,
+			readOnlyStudio: window.remotion_isReadOnlyStudio,
+			setSelectedModal,
+		});
+	}, [connectionStatus, setSelectedModal]);
 	const [rootDragHovered, setRootDragHovered] = useState(false);
 	const listRef = useRef<HTMLDivElement>(null);
 	const autoScrollAnimation = useRef<number | null>(null);
@@ -375,6 +387,11 @@ export const CompositionSelector: React.FC = () => {
 
 	return (
 		<div style={container}>
+			<ContextMenuForTarget
+				triggerRef={listRef}
+				values={rootContextMenuItems}
+				onOpen={null}
+			/>
 			<div style={quickSwitcherArea}>
 				<button
 					type="button"
