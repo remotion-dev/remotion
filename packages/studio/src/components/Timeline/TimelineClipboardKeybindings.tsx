@@ -1,5 +1,6 @@
 import {
 	isKeyframeInterpolationFunction,
+	parseKeyframeClipboardDataResult,
 	parseEasingClipboardDataResult,
 	parseEffectClipboardDataResult,
 	parseEffectPropClipboardDataResult,
@@ -10,9 +11,10 @@ import {
 	type EffectClipboardPasteType,
 	type EffectClipboardSnapshot,
 	type EffectPropClipboardData,
+	type KeyframeClipboardData,
 } from '@remotion/studio-shared';
 import type React from 'react';
-import {useContext, useEffect} from 'react';
+import {useContext, useEffect, useRef} from 'react';
 import {
 	Internals,
 	type OverrideIdToNodePaths,
@@ -32,6 +34,10 @@ import {callApi} from '../call-api';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {
+	callAddEffectKeyframe,
+	callAddSequenceKeyframe,
+} from './call-add-keyframe';
+import {
 	deleteSelectedTimelineItems,
 	getTimelineSelectionAfterDeletingItems,
 } from './delete-selected-timeline-item';
@@ -41,6 +47,10 @@ import {
 	type EffectsClipboardEnvelope,
 } from './effects-clipboard';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
+import {
+	getKeyframeClipboardDataFromSelection,
+	getPasteKeyframeTarget,
+} from './keyframe-clipboard';
 import {saveEffectProp} from './save-effect-prop';
 import {
 	useCurrentTimelineSelectionStateAsRef,
@@ -55,7 +65,11 @@ import {
 } from './update-selected-easing';
 
 const makeClipboardText = (
-	payload: EffectClipboardData | EffectPropClipboardData | EasingClipboardData,
+	payload:
+		| EffectClipboardData
+		| EffectPropClipboardData
+		| EasingClipboardData
+		| KeyframeClipboardData,
 ) => JSON.stringify(payload);
 
 const makeTargetKey = (nodePath: SequencePropsSubscriptionKey): string => {
@@ -622,6 +636,9 @@ export const getPasteEffectPropTarget = ({
 
 export const TimelineClipboardKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const timelinePositionRef = useRef(timelinePosition);
+	timelinePositionRef.current = timelinePosition;
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {canSelect} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
@@ -650,6 +667,47 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 				const propStatuses = propStatusesRef.current;
 				const sequences = sequencesRef.current;
 				if (selectedItems.length === 0) {
+					return;
+				}
+
+				const keyframeSelections = selectedItems.filter(
+					(selection) => selection.type === 'keyframe',
+				);
+				if (keyframeSelections.length > 0) {
+					e.preventDefault();
+					if (
+						keyframeSelections.length !== 1 ||
+						keyframeSelections.length !== selectedItems.length
+					) {
+						showNotification('Select one keyframe to copy', 3000);
+						return;
+					}
+
+					const payload = getKeyframeClipboardDataFromSelection({
+						selection: keyframeSelections[0],
+						sequences,
+						overrideIdsToNodePaths: overrideIdToNodePathMappings,
+						propStatuses,
+					});
+					if (payload === null) {
+						showNotification(
+							'Cannot copy keyframe because its value cannot be read',
+							3000,
+						);
+						return;
+					}
+
+					navigator.clipboard
+						.writeText(makeClipboardText(payload))
+						.then(() => {
+							showNotification('Copied keyframe to clipboard', 1000);
+						})
+						.catch((err) => {
+							showNotification(
+								`Could not copy keyframe: ${(err as Error).message}`,
+								2000,
+							);
+						});
 					return;
 				}
 
@@ -883,6 +941,86 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 				.then(() => {
 					const propStatuses = propStatusesRef.current;
 					const sequences = sequencesRef.current;
+					const keyframeResult = parseKeyframeClipboardDataResult(text);
+					if (keyframeResult.status !== 'invalid') {
+						if (keyframeResult.status === 'unsupported-version') {
+							showNotification(
+								'Cannot paste keyframe copied from a different Remotion Studio version',
+								4000,
+							);
+							return;
+						}
+
+						const keyframeTarget = getPasteKeyframeTarget({
+							selectedItems,
+							payload: keyframeResult.data,
+							timelinePosition: timelinePositionRef.current,
+							sequences,
+							overrideIdsToNodePaths: overrideIdToNodePathMappings,
+							propStatuses,
+						});
+						if (keyframeTarget.type !== 'valid') {
+							switch (keyframeTarget.type) {
+								case 'none':
+									showNotification(
+										'Select a property or keyframe to paste onto',
+										3000,
+									);
+									return;
+								case 'multiple':
+									showNotification(
+										'Select one property or keyframe to paste onto',
+										3000,
+									);
+									return;
+								case 'uncopyable':
+									showNotification(
+										'Cannot paste onto a property that cannot be updated',
+										3000,
+									);
+									return;
+								case 'incompatible':
+									showNotification(
+										'The copied keyframe is not compatible with this property',
+										3000,
+									);
+									return;
+								default:
+									throw new Error(
+										`Unexpected paste target: ${keyframeTarget satisfies never}`,
+									);
+							}
+						}
+
+						const pastePromise =
+							keyframeTarget.effectIndex === null
+								? callAddSequenceKeyframe({
+										fileName: keyframeTarget.fileName,
+										nodePath: keyframeTarget.nodePath,
+										fieldKey: keyframeTarget.fieldKey,
+										sourceFrame: keyframeTarget.sourceFrame,
+										value: keyframeResult.data.value,
+										schema: keyframeTarget.schema,
+										setPropStatuses,
+										clientId,
+									})
+								: callAddEffectKeyframe({
+										fileName: keyframeTarget.fileName,
+										nodePath: keyframeTarget.nodePath,
+										effectIndex: keyframeTarget.effectIndex,
+										fieldKey: keyframeTarget.fieldKey,
+										sourceFrame: keyframeTarget.sourceFrame,
+										value: keyframeResult.data.value,
+										schema: keyframeTarget.schema,
+										setPropStatuses,
+										clientId,
+									});
+
+						return pastePromise.then(() => {
+							showNotification('Pasted keyframe', 2000);
+						});
+					}
+
 					const easingResult = parseEasingClipboardDataResult(text);
 					if (easingResult.status !== 'invalid') {
 						e.preventDefault();
@@ -1085,10 +1223,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 					});
 				})
 				.catch((err) => {
-					showNotification(
-						`Could not paste effects: ${(err as Error).message}`,
-						3000,
-					);
+					showNotification(`Could not paste: ${(err as Error).message}`, 3000);
 				});
 		};
 
@@ -1113,6 +1248,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 		previewServerState,
 		sequencesRef,
 		setPropStatuses,
+		timelinePositionRef,
 	]);
 
 	return null;

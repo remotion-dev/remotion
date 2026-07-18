@@ -236,6 +236,13 @@ export {
 	keyframeInterpolationFunctions,
 	type KeyframeInterpolationFunction,
 } from './keyframe-interpolation-function';
+export {
+	parseKeyframeClipboardData,
+	parseKeyframeClipboardDataResult,
+	type KeyframeClipboardData,
+	type KeyframeClipboardDataParseResult,
+	type KeyframeClipboardFieldType,
+} from './keyframe-clipboard-data';
 export {DEFAULT_TIMELINE_TRACKS} from './max-timeline-tracks';
 export {
 	Pkgs,

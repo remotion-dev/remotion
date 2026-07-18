@@ -69,6 +69,11 @@ import {
 	isDuplicatableEffectSelection,
 	isDuplicatableSequenceRowSelection,
 } from '../components/Timeline/duplicate-selected-timeline-item';
+import {
+	getKeyframeClipboardDataFromSelection,
+	getPasteKeyframeTarget,
+	type PasteKeyframeTarget,
+} from '../components/Timeline/keyframe-clipboard';
 import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected-timeline-props';
 import {shouldSubscribeToSequenceProps} from '../components/Timeline/should-subscribe-to-sequence-props';
 import {
@@ -733,6 +738,131 @@ test('copying a selected effect prop creates an effect prop payload', () => {
 			clamping: {left: 'clamp', right: 'clamp'},
 		},
 	});
+});
+
+test('copying a selected keyframe creates a value payload', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const schema = {
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies InteractivitySchema;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				opacity: {
+					status: 'keyframed',
+					interpolationFunction: 'interpolate',
+					keyframes: [{frame: 10, value: 0.4}],
+					easing: [],
+					clamping: {left: 'clamp', right: 'clamp'},
+					posterize: undefined,
+					output: undefined,
+				},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	expect(
+		getKeyframeClipboardDataFromSelection({
+			selection: {type: 'keyframe', nodePathInfo, frame: 10},
+			sequences: [makeTimelineSequence({schema, from: 20})],
+			overrideIdsToNodePaths: {override: nodePath},
+			propStatuses,
+		}),
+	).toEqual({
+		type: 'keyframe',
+		version: 1,
+		remotionClipboard: 'keyframe',
+		fieldType: 'number',
+		value: 0.4,
+	});
+});
+
+test('pasting a keyframe targets the selected property at the playhead', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const schema = {
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies InteractivitySchema;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				opacity: {status: 'static', codeValue: 1},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	expect(
+		getPasteKeyframeTarget({
+			selectedItems: [{type: 'keyframe', nodePathInfo, frame: 10}],
+			payload: {
+				type: 'keyframe',
+				version: 1,
+				remotionClipboard: 'keyframe',
+				fieldType: 'number',
+				value: 0.4,
+			},
+			timelinePosition: 50,
+			sequences: [makeTimelineSequence({schema, from: 20})],
+			overrideIdsToNodePaths: {override: nodePath},
+			propStatuses,
+		}),
+	).toEqual({
+		type: 'valid',
+		fileName: '/project/src/Comp.tsx',
+		nodePath,
+		fieldKey: 'opacity',
+		effectIndex: null,
+		sourceFrame: 50,
+		schema,
+	} satisfies PasteKeyframeTarget);
+});
+
+test('pasting a keyframe rejects an incompatible property', () => {
+	const nodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'background'],
+	);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const schema = {
+		background: {type: 'color', default: '#ffffff'},
+	} satisfies InteractivitySchema;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				background: {status: 'static', codeValue: '#ffffff'},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	expect(
+		getPasteKeyframeTarget({
+			selectedItems: [
+				{
+					type: 'sequence-prop',
+					nodePathInfo,
+					key: 'background',
+				},
+			],
+			payload: {
+				type: 'keyframe',
+				version: 1,
+				remotionClipboard: 'keyframe',
+				fieldType: 'number',
+				value: 0.4,
+			},
+			timelinePosition: 50,
+			sequences: [makeTimelineSequence({schema})],
+			overrideIdsToNodePaths: {override: nodePath},
+			propStatuses,
+		}),
+	).toEqual({type: 'incompatible'} satisfies PasteKeyframeTarget);
 });
 
 test('copying a selected sequence easing creates an easing payload', () => {
