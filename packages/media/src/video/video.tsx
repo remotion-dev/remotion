@@ -36,6 +36,7 @@ const videoSchema = {
 		hiddenFromList: false,
 		keyframable: false,
 	},
+	muted: {type: 'boolean', default: false, description: 'Muted'},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
 	...Internals.transformSchema,
 } as const satisfies InteractivitySchema;
