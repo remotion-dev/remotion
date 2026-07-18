@@ -5,6 +5,7 @@ import os from 'os';
 import path from 'path';
 import {downloadFile} from './download';
 import {compareVersions} from './utils';
+import {getExpandArchivePowerShellCommand} from './windows-powershell-path';
 
 const getIsSemVer = (str: string) => {
 	return /^[\d]{1}\.[\d]{1,2}\.+/.test(str);
@@ -82,13 +83,42 @@ const installForWindows = async ({
 		signal,
 	});
 
-	await execute({
-		shell: 'powershell',
-		printOutput,
-		signal,
-		cwd: null,
-		bin: 'Expand-Archive',
-		args: ['-Force', filePath, to],
+	// execFile-style argv (no shell:powershell) + LiteralPath quoting so
+	// apostrophes and spaces in user paths do not break Expand-Archive.
+	const stdio: StdioOptions = printOutput ? 'inherit' : 'ignore';
+	await new Promise<void>((resolve, reject) => {
+		const child = spawn(
+			'powershell.exe',
+			[
+				'-NoProfile',
+				'-NonInteractive',
+				'-ExecutionPolicy',
+				'Bypass',
+				'-Command',
+				getExpandArchivePowerShellCommand({
+					zipPath: filePath,
+					destDir: to,
+				}),
+			],
+			{
+				stdio,
+				windowsHide: true,
+				signal: signal ?? undefined,
+			},
+		);
+
+		child.on('exit', (code, exitSignal) => {
+			if (code !== 0) {
+				reject(
+					new Error(
+						`Error while expanding whisper archive. Exit code: ${code}, signal: ${exitSignal}`,
+					),
+				);
+				return;
+			}
+
+			resolve();
+		});
 	});
 
 	rmSync(filePath);
