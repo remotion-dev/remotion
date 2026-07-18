@@ -16,7 +16,7 @@ export const subscribeToSequenceProps: ApiHandler<
 		nodePath,
 		componentIdentity,
 		keys,
-		assetKeys,
+		assetKeys = [],
 		effects,
 		clientId,
 		videoConfigValues,

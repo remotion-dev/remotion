@@ -6,7 +6,14 @@ export const unsubscribeFromSequenceProps: ApiHandler<
 	UnsubscribeFromSequencePropsRequest,
 	undefined
 > = ({
-	input: {fileName, nodePath, clientId, sequenceKeys, assetKeys, effectKeys},
+	input: {
+		fileName,
+		nodePath,
+		clientId,
+		sequenceKeys,
+		assetKeys = [],
+		effectKeys,
+	},
 	remotionRoot,
 }) => {
 	unsubscribeFromSequencePropsWatchers({
