@@ -284,6 +284,7 @@ import {
 	InteractiveHtmlElements,
 	InteractiveSvgElements,
 } from './VisualModeTests/InteractiveComponents';
+import {Issue9170} from './VisualModeTests/Issue9170';
 import {VideoConfigExpressions} from './VisualModeTests/VideoConfigExpressions';
 import {VoiceVisualization} from './voice-visualization';
 import {WhisperWeb} from './WhisperWeb';
@@ -2759,6 +2760,14 @@ export const Index: React.FC = () => {
 					height={800}
 					fps={30}
 					durationInFrames={300}
+				/>
+				<Composition
+					id="issue-9170-duration-subtraction"
+					component={Issue9170}
+					width={1200}
+					height={800}
+					fps={30}
+					durationInFrames={120}
 				/>
 			</Folder>
 			<ChangingTrimBeforeValue />
