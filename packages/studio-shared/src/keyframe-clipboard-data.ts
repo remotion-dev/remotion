@@ -5,16 +5,33 @@ import {
 } from './easing-clipboard-data';
 import type {KeyframeEasing} from './keyframe-easing-presets';
 
-export type KeyframeClipboardFieldType = Exclude<
-	InteractivitySchemaField['type'],
-	| 'array'
-	| 'asset'
-	| 'boolean'
-	| 'enum'
-	| 'font-family'
-	| 'hidden'
-	| 'text-content'
->;
+// Keep this exhaustive so every new schema field requires an explicit clipboard
+// compatibility decision.
+const KEYFRAME_CLIPBOARD_FIELD_TYPE_SUPPORT = {
+	array: false,
+	boolean: false,
+	color: true,
+	enum: false,
+	'font-family': false,
+	hidden: false,
+	number: true,
+	'rotation-css': true,
+	'rotation-degrees': true,
+	scale: true,
+	'text-content': false,
+	'transform-origin': true,
+	translate: true,
+	'uv-coordinate': true,
+} as const satisfies Record<InteractivitySchemaField['type'], boolean>;
+
+type KeyframeClipboardFieldTypeSupport =
+	typeof KEYFRAME_CLIPBOARD_FIELD_TYPE_SUPPORT;
+
+export type KeyframeClipboardFieldType = {
+	[FieldType in keyof KeyframeClipboardFieldTypeSupport]: KeyframeClipboardFieldTypeSupport[FieldType] extends true
+		? FieldType
+		: never;
+}[keyof KeyframeClipboardFieldTypeSupport];
 
 export type KeyframeClipboardData = {
 	readonly type: 'keyframe';
@@ -45,21 +62,16 @@ const isRecord = (value: unknown): value is Record<string, unknown> => {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
 };
 
-const KEYFRAMABLE_FIELD_TYPES: readonly KeyframeClipboardFieldType[] = [
-	'number',
-	'rotation-css',
-	'rotation-degrees',
-	'translate',
-	'transform-origin',
-	'scale',
-	'uv-coordinate',
-	'color',
-];
-
-const isKeyframeClipboardFieldType = (
+export const isKeyframeClipboardFieldType = (
 	value: unknown,
 ): value is KeyframeClipboardFieldType => {
-	return KEYFRAMABLE_FIELD_TYPES.includes(value as KeyframeClipboardFieldType);
+	return (
+		typeof value === 'string' &&
+		Object.hasOwn(KEYFRAME_CLIPBOARD_FIELD_TYPE_SUPPORT, value) &&
+		KEYFRAME_CLIPBOARD_FIELD_TYPE_SUPPORT[
+			value as keyof KeyframeClipboardFieldTypeSupport
+		]
+	);
 };
 
 const isKeyframeClipboardEntry = (

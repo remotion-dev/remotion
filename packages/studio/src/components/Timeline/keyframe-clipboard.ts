@@ -2,7 +2,10 @@ import type {
 	KeyframeClipboardData,
 	KeyframeClipboardFieldType,
 } from '@remotion/studio-shared';
-import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared';
+import {
+	isKeyframeClipboardFieldType,
+	LINEAR_KEYFRAME_EASING,
+} from '@remotion/studio-shared';
 import {
 	Internals,
 	type CanUpdateSequencePropStatus,
@@ -46,26 +49,7 @@ const getKeyframeClipboardFieldType = ({
 		return null;
 	}
 
-	switch (field.type) {
-		case 'number':
-		case 'rotation-css':
-		case 'rotation-degrees':
-		case 'translate':
-		case 'transform-origin':
-		case 'scale':
-		case 'uv-coordinate':
-		case 'color':
-			return field.type;
-		case 'array':
-		case 'boolean':
-		case 'enum':
-		case 'font-family':
-		case 'hidden':
-		case 'text-content':
-			return null;
-		default:
-			return null;
-	}
+	return isKeyframeClipboardFieldType(field.type) ? field.type : null;
 };
 
 const getKeyframeFieldIdentity = (

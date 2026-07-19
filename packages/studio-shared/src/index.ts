@@ -237,6 +237,7 @@ export {
 	type KeyframeInterpolationFunction,
 } from './keyframe-interpolation-function';
 export {
+	isKeyframeClipboardFieldType,
 	parseKeyframeClipboardData,
 	parseKeyframeClipboardDataResult,
 	type KeyframeClipboardData,
