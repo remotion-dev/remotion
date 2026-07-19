@@ -125,7 +125,10 @@ import {
 	getKeyframesForTimelineEasingDrag,
 	getTimelineSelectionsAfterEasingKeyframeDrag,
 } from '../components/Timeline/use-timeline-keyframe-drag';
-import {getSequenceDoubleClickAction} from '../helpers/get-sequence-double-click-action';
+import {
+	getConnectedCompositionFrame,
+	getSequenceDoubleClickAction,
+} from '../helpers/get-sequence-double-click-action';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
 	loadEditorShowOutlinesOption,
@@ -2210,6 +2213,55 @@ test('Sequence double-click opens one connected composition before the editor', 
 			numberOfConnectedCompositions: 1,
 		}),
 	).toBeNull();
+});
+
+test('Connected composition double-click uses the visible sequence frame', () => {
+	const sequence = makeTimelineSequence({
+		schema: Internals.baseSchema,
+		from: 20,
+		duration: 40,
+	});
+
+	expect(
+		getConnectedCompositionFrame({
+			timelinePosition: 35,
+			sequence,
+			sequenceFrameOffset: 5,
+		}),
+	).toBe(20);
+	expect(
+		getConnectedCompositionFrame({
+			timelinePosition: 19,
+			sequence,
+			sequenceFrameOffset: 5,
+		}),
+	).toBeNull();
+	expect(
+		getConnectedCompositionFrame({
+			timelinePosition: 60,
+			sequence,
+			sequenceFrameOffset: 5,
+		}),
+	).toBeNull();
+});
+
+test('Connected composition double-click respects frozen frames', () => {
+	const sequence = {
+		...makeTimelineSequence({
+			schema: Internals.baseSchema,
+			from: 20,
+			duration: 40,
+		}),
+		frozenFrame: 12,
+	} satisfies TSequence;
+
+	expect(
+		getConnectedCompositionFrame({
+			timelinePosition: 35,
+			sequence,
+			sequenceFrameOffset: 5,
+		}),
+	).toBe(12);
 });
 
 test('Canvas outline hit targets render nested sequences above parents', () => {
