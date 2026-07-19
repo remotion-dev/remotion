@@ -1,3 +1,5 @@
+import type {SymbolicatedStackFrame} from './stack-types';
+
 export {COMPOSITION_DRAG_MIME_TYPE} from './drag-mime-types';
 
 export type CompositionDragData = {
@@ -52,6 +54,22 @@ export const makeCompositionDragData = ({
 		version: 1,
 		compositionFile,
 		compositionId,
+	};
+};
+
+export const compositionDragDataToSymbolicatedStack = (
+	dragData: CompositionDragData,
+): SymbolicatedStackFrame | null => {
+	if (dragData.compositionFile === null) {
+		return null;
+	}
+
+	return {
+		originalColumnNumber: null,
+		originalFileName: dragData.compositionFile,
+		originalFunctionName: null,
+		originalLineNumber: null,
+		originalScriptCode: null,
 	};
 };
 

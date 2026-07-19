@@ -130,6 +130,7 @@ export {
 } from './component-drag-data';
 export {
 	COMPOSITION_DRAG_MIME_TYPE,
+	compositionDragDataToSymbolicatedStack,
 	makeCompositionDragData,
 	parseCompositionDragData,
 	type CompositionDragData,
