@@ -1,4 +1,4 @@
-export const getCompositionsMatchingSingleChild = <
+export const getConnectedCompositions = <
 	Composition extends {readonly componentFromProps?: unknown},
 >({
 	compositions,

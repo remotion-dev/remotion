@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import type {RefObject} from 'react';
 import {
 	Internals,
+	type _InternalTypes,
 	type InteractivitySchema,
 	type PropStatuses,
 	type SequenceNodePath,
@@ -28,7 +29,6 @@ import {
 	applySelectedOutlineDragAxisLock,
 	applySelectedOutlineTransformOriginAxisLock,
 	compensateTranslateForTransformOrigin,
-	getOutlineDoubleClickAction,
 	getOutlineSelectionInteraction,
 	getSelectedEffectFieldsBySequenceKey,
 	getSelectedOutlineActiveSchema,
@@ -120,6 +120,7 @@ import {
 	getKeyframesForTimelineEasingDrag,
 	getTimelineSelectionsAfterEasingKeyframeDrag,
 } from '../components/Timeline/use-timeline-keyframe-drag';
+import {getSequenceDoubleClickAction} from '../helpers/get-sequence-double-click-action';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
 	loadEditorShowOutlinesOption,
@@ -195,6 +196,7 @@ const makeTimelineSequence = ({
 	startMediaFrom = 0,
 	type = 'sequence',
 	showInTimeline = true,
+	singleChildComponent,
 }: {
 	readonly schema: InteractivitySchema;
 	readonly effects?: readonly {readonly schema: InteractivitySchema}[];
@@ -207,6 +209,7 @@ const makeTimelineSequence = ({
 	readonly startMediaFrom?: number;
 	readonly type?: TSequence['type'];
 	readonly showInTimeline?: boolean;
+	readonly singleChildComponent?: unknown;
 }): TSequence =>
 	({
 		type,
@@ -219,6 +222,7 @@ const makeTimelineSequence = ({
 		parent: parentId,
 		rootId: 'root',
 		showInTimeline,
+		singleChildComponent,
 		nonce: [[0, 0]],
 		loopDisplay: undefined,
 		getStack: () => null,
@@ -1830,15 +1834,48 @@ test('Canvas outline selection uses conventional modifier keys', () => {
 	).toEqual({shiftKey: false, toggleKey: true});
 });
 
-test('Canvas outline double-click only handles opening the editor', () => {
-	expect(getOutlineDoubleClickAction({button: 0, canOpenInEditor: true})).toBe(
-		'open-in-editor',
-	);
-	expect(getOutlineDoubleClickAction({button: 0, canOpenInEditor: false})).toBe(
-		null,
-	);
+test('Sequence double-click opens one connected composition before the editor', () => {
 	expect(
-		getOutlineDoubleClickAction({button: 2, canOpenInEditor: true}),
+		getSequenceDoubleClickAction({
+			button: 0,
+			canOpenInEditor: true,
+			numberOfConnectedCompositions: 1,
+		}),
+	).toBe('open-connected-composition');
+	expect(
+		getSequenceDoubleClickAction({
+			button: 0,
+			canOpenInEditor: false,
+			numberOfConnectedCompositions: 1,
+		}),
+	).toBe('open-connected-composition');
+	expect(
+		getSequenceDoubleClickAction({
+			button: 0,
+			canOpenInEditor: true,
+			numberOfConnectedCompositions: 0,
+		}),
+	).toBe('open-in-editor');
+	expect(
+		getSequenceDoubleClickAction({
+			button: 0,
+			canOpenInEditor: true,
+			numberOfConnectedCompositions: 2,
+		}),
+	).toBe('open-in-editor');
+	expect(
+		getSequenceDoubleClickAction({
+			button: 0,
+			canOpenInEditor: false,
+			numberOfConnectedCompositions: 2,
+		}),
+	).toBeNull();
+	expect(
+		getSequenceDoubleClickAction({
+			button: 2,
+			canOpenInEditor: true,
+			numberOfConnectedCompositions: 1,
+		}),
 	).toBeNull();
 });
 
@@ -1872,6 +1909,65 @@ test('Canvas outline hit targets render nested sequences above parents', () => {
 	expect(outlines.map((outline) => outline.key)).toEqual([
 		getTimelineSequenceSelectionKey(parentNodePathInfo),
 		getTimelineSequenceSelectionKey(childNodePathInfo),
+	]);
+});
+
+test('Canvas outlines exclude descendants of connected compositions', () => {
+	const ConnectedChild = () => null;
+	const schema = {} satisfies InteractivitySchema;
+	const refForOutline = {current: null};
+	const connectedNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const childNodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
+	const grandchildNodePathInfo = makeNodePathInfo(
+		['body', 0, 'children', 0, 'children', 0],
+		[],
+	);
+	const siblingNodePathInfo = makeNodePathInfo(['body', 1], []);
+	const connectedComposition = {
+		componentFromProps: ConnectedChild,
+	} as unknown as _InternalTypes['AnyComposition'];
+	const outlines = getSequencesWithSelectableOutlines({
+		compositions: [connectedComposition],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				id: 'connected',
+				overrideId: 'connected',
+				refForOutline,
+				singleChildComponent: ConnectedChild,
+			}),
+			makeTimelineSequence({
+				schema,
+				id: 'child',
+				overrideId: 'child',
+				parentId: 'connected',
+				refForOutline,
+			}),
+			makeTimelineSequence({
+				schema,
+				id: 'grandchild',
+				overrideId: 'grandchild',
+				parentId: 'child',
+				refForOutline,
+			}),
+			makeTimelineSequence({
+				schema,
+				id: 'sibling',
+				overrideId: 'sibling',
+				refForOutline,
+			}),
+		],
+		overrideIdsToNodePaths: {
+			connected: connectedNodePathInfo.sequenceSubscriptionKey,
+			child: childNodePathInfo.sequenceSubscriptionKey,
+			grandchild: grandchildNodePathInfo.sequenceSubscriptionKey,
+			sibling: siblingNodePathInfo.sequenceSubscriptionKey,
+		},
+	});
+
+	expect(outlines.map((outline) => outline.key)).toEqual([
+		getTimelineSequenceSelectionKey(connectedNodePathInfo),
+		getTimelineSequenceSelectionKey(siblingNodePathInfo),
 	]);
 });
 

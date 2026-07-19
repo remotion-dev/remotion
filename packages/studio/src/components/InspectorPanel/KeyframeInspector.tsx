@@ -42,17 +42,18 @@ import {
 import {TimelineSequenceKeyframedValue} from '../Timeline/TimelineSequencePropItem';
 import {canEditEasingForInterpolationFunction} from '../Timeline/update-selected-easing';
 import {
-	InspectorBackHeaderWithDivider,
+	InspectorBackHeader,
 	InspectorDetailRow,
 	InspectorInlineAction,
 	InspectorMessage,
+	InspectorSectionDivider,
 } from './common';
 import {
 	clampInspectorKeyframeDisplayFrame,
 	getInspectorKeyframeSourceFrame,
 } from './keyframe-inspector-frame';
 import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
-import {SequenceInspectorHeaderWithDivider} from './SequenceInspectorHeader';
+import {SequenceInspectorSections} from './SequenceInspectorHeader';
 import {
 	detailsContainer,
 	keyframeEditorLabel,
@@ -508,14 +509,16 @@ export const KeyframeInspector: React.FC<{
 
 	return (
 		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			<SequenceInspectorHeaderWithDivider track={track} />
-			<InspectorBackHeaderWithDivider
+			<SequenceInspectorSections track={track} />
+			<InspectorSectionDivider />
+			<InspectorBackHeader
 				disabled={parentSelection === null}
 				onClick={onSelectParent}
 				title="Back to property"
 			>
 				<div style={sectionHeaderTitle}>{details.fieldLabel}</div>
-			</InspectorBackHeaderWithDivider>
+			</InspectorBackHeader>
+			<InspectorSectionDivider />
 			<KeyframeEasingNavigator
 				currentSelection={selection}
 				includeEasings={canEditEasingForInterpolationFunction(

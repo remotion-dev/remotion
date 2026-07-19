@@ -10,6 +10,8 @@ import {
 	TRANSPARENT,
 } from '../helpers/colors';
 import {formatFileLocation} from '../helpers/format-file-location';
+import {getConnectedCompositions} from '../helpers/get-connected-compositions';
+import {getSequenceDoubleClickAction} from '../helpers/get-sequence-double-click-action';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {ModalsContext} from '../state/modals';
@@ -26,6 +28,7 @@ import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from './ForceSpecificCursor';
+import {useSelectComposition} from './InitialCompositionLoader';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
@@ -59,7 +62,6 @@ import type {OutlinePoint, SelectedOutline} from './selected-outline-geometry';
 import {
 	dot,
 	getAngleDegrees,
-	getOutlineDoubleClickAction,
 	getOutlineSelectionInteraction,
 	getRotationCursor,
 	getSelectedOutlineRotationCornerInfo,
@@ -1541,6 +1543,8 @@ export const SelectedOutlineElement: React.FC<{
 	);
 	const confirm = useConfirmationDialog();
 	const selectAsset = useSelectAsset();
+	const selectComposition = useSelectComposition();
+	const {compositions} = useContext(Internals.CompositionManager);
 	const {setSelectedModal} = useContext(ModalsContext);
 
 	const resolveOriginalLocation = React.useCallback(
@@ -1568,15 +1572,25 @@ export const SelectedOutlineElement: React.FC<{
 
 	const onDoubleClickTarget = React.useCallback(
 		(doubleClickTarget: SelectedOutlineTarget, button: number) => {
-			const action = getOutlineDoubleClickAction({
+			const connectedCompositions = getConnectedCompositions({
+				compositions,
+				singleChildComponent: doubleClickTarget.sequence.singleChildComponent,
+			});
+			const action = getSequenceDoubleClickAction({
 				button,
 				canOpenInEditor:
 					previewServerState.type === 'connected' &&
 					Boolean(window.remotion_editorName),
+				numberOfConnectedCompositions: connectedCompositions.length,
 			});
 
 			if (action === null) {
 				return false;
+			}
+
+			if (action === 'open-connected-composition') {
+				selectComposition(connectedCompositions[0], true);
+				return true;
 			}
 
 			const openTargetInEditor = async () => {
@@ -1595,7 +1609,12 @@ export const SelectedOutlineElement: React.FC<{
 
 			return true;
 		},
-		[previewServerState.type, resolveOriginalLocation],
+		[
+			compositions,
+			previewServerState.type,
+			resolveOriginalLocation,
+			selectComposition,
+		],
 	);
 
 	const onContextMenuOpen = React.useCallback(async () => {

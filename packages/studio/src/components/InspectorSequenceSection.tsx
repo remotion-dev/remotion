@@ -378,7 +378,6 @@ export const InspectorSequenceSection: React.FC<{
 	if (controlRows.length === 0 && !showEffectsSection) {
 		return (
 			<div style={container}>
-				<div style={sequenceHeaderDivider} />
 				<div style={emptyState}>No schema</div>
 			</div>
 		);
@@ -386,7 +385,6 @@ export const InspectorSequenceSection: React.FC<{
 
 	return (
 		<div style={container}>
-			<div style={sequenceHeaderDivider} />
 			{controlRows.length > 0 ? (
 				<TimelineSelectionOrderProvider items={controlSelectableItems}>
 					{controlGroups.map((group, i) => (

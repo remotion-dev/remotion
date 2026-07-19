@@ -24,17 +24,17 @@ import {
 	type EasingSelection,
 } from '../Timeline/update-selected-easing';
 import {
-	InspectorBackHeaderWithDivider,
+	InspectorBackHeader,
 	InspectorInlineAction,
 	InspectorMessage,
+	InspectorSectionDivider,
 } from './common';
 import {getEasingSelectionFromCurrentKeyframes} from './easing-inspector-selection';
 import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
 import {KeyframeSettings} from './KeyframeSettings';
-import {SequenceInspectorHeaderWithDivider} from './SequenceInspectorHeader';
+import {SequenceInspectorSections} from './SequenceInspectorHeader';
 import {
 	detailsContainer,
-	inspectorSectionDivider,
 	sectionHeaderTitle,
 	selectedContainer,
 } from './styles';
@@ -281,13 +281,14 @@ export const EasingInspector: React.FC<{
 	const renderHeader = useCallback(
 		() => (
 			<>
-				<InspectorBackHeaderWithDivider
+				<InspectorBackHeader
 					disabled={parentSelection === null}
 					onClick={onSelectParent}
 					title="Back to property"
 				>
 					<div style={sectionHeaderTitle}>{fieldLabel}</div>
-				</InspectorBackHeaderWithDivider>
+				</InspectorBackHeader>
+				<InspectorSectionDivider />
 				{easingUpdate === null || track === null ? null : (
 					<KeyframeEasingNavigator
 						currentSelection={currentEasingSelection ?? selection}
@@ -323,16 +324,18 @@ export const EasingInspector: React.FC<{
 
 	return (
 		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			<SequenceInspectorHeaderWithDivider track={track} />
+			<SequenceInspectorSections track={track} />
+			<InspectorSectionDivider />
 			<EasingEditor
 				key={getTimelineSelectionKey(currentEasingSelection)}
 				state={state}
 				renderHeader={renderHeader}
 			/>
+			<InspectorSectionDivider />
 			<KeyframeSettings update={easingUpdate} />
 			{canAddKeyframeAtPlayhead ? (
 				<>
-					<div style={inspectorSectionDivider} />
+					<InspectorSectionDivider />
 					<div style={detailsContainer}>
 						<InspectorInlineAction
 							disabled={addKeyframeDisabled}

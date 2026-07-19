@@ -20,6 +20,10 @@ export const InspectorSectionHeader: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => <div style={sectionHeader}>{children}</div>;
 
+export const InspectorSectionDivider: React.FC = () => (
+	<div style={inspectorSectionDivider} />
+);
+
 const backIcon: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
@@ -45,29 +49,26 @@ const BackChevron: React.FC<{
 	);
 };
 
-export const InspectorBackHeaderWithDivider: React.FC<{
+export const InspectorBackHeader: React.FC<{
 	readonly children: React.ReactNode;
 	readonly disabled: boolean;
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
 	readonly title: string;
 }> = ({children, disabled, onClick, title}) => {
 	return (
-		<>
-			<InspectorSectionHeader>
-				<div style={sectionHeaderRow}>
-					<div style={sectionHeaderStart}>
-						<InlineAction
-							disabled={disabled}
-							onClick={onClick}
-							title={title}
-							renderAction={(color) => <BackChevron color={color} />}
-						/>
-						{children}
-					</div>
+		<InspectorSectionHeader>
+			<div style={sectionHeaderRow}>
+				<div style={sectionHeaderStart}>
+					<InlineAction
+						disabled={disabled}
+						onClick={onClick}
+						title={title}
+						renderAction={(color) => <BackChevron color={color} />}
+					/>
+					{children}
 				</div>
-			</InspectorSectionHeader>
-			<div style={inspectorSectionDivider} />
-		</>
+			</div>
+		</InspectorSectionHeader>
 	);
 };
 
