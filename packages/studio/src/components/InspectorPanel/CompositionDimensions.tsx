@@ -2,7 +2,7 @@ import type {
 	RecastCodemod,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {WHITE_ALPHA_40} from '../../helpers/colors';
 import {isCompositionStill} from '../../helpers/is-composition-still';
@@ -12,9 +12,15 @@ import {showNotification} from '../Notifications/NotificationCenter';
 import {applyCodemod} from '../RenderQueue/actions';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
 import {InspectorDetailRow} from './common';
+import {
+	acceptPendingCompositionMetadataValue,
+	type CompositionMetadataField,
+	failPendingCompositionMetadataValue,
+	type PendingCompositionMetadata,
+	type PendingCompositionMetadataValue,
+	reconcilePendingCompositionMetadata,
+} from './optimistic-composition-metadata';
 import {detailsContainer} from './styles';
-
-type CompositionMetadataField = 'durationInFrames' | 'fps' | 'height' | 'width';
 
 const fieldLabels: Record<CompositionMetadataField, string> = {
 	durationInFrames: 'Duration in frames',
@@ -37,14 +43,40 @@ const CompositionMetadataValue: React.FC<{
 	readonly computed: boolean;
 	readonly disabled: boolean;
 	readonly field: CompositionMetadataField;
+	readonly onPendingValue: (
+		field: CompositionMetadataField,
+		value: PendingCompositionMetadataValue,
+	) => void;
+	readonly onPendingValueAccepted: (
+		field: CompositionMetadataField,
+		value: PendingCompositionMetadataValue,
+	) => void;
+	readonly onPendingValueFailed: (
+		field: CompositionMetadataField,
+		value: PendingCompositionMetadataValue,
+	) => void;
+	readonly pendingValue: PendingCompositionMetadataValue | null;
+	readonly resolvedConfig: object;
 	readonly symbolicatedStack: SymbolicatedStackFrame | null;
 	readonly value: number;
-}> = ({compositionId, computed, disabled, field, symbolicatedStack, value}) => {
+}> = ({
+	compositionId,
+	computed,
+	disabled,
+	field,
+	onPendingValue,
+	onPendingValueAccepted,
+	onPendingValueFailed,
+	pendingValue,
+	resolvedConfig,
+	symbolicatedStack,
+	value,
+}) => {
 	const [dragValue, setDragValue] = useState<number | null>(null);
 
 	const save = useCallback(
 		(newValue: number) => {
-			if (newValue === value) {
+			if (newValue === (pendingValue?.value ?? value)) {
 				setDragValue(null);
 				return;
 			}
@@ -66,6 +98,13 @@ const CompositionMetadataValue: React.FC<{
 				newHeight: field === 'height' ? newValue : null,
 				newWidth: field === 'width' ? newValue : null,
 			};
+			const optimisticValue: PendingCompositionMetadataValue = {
+				baseline: resolvedConfig,
+				status: 'saving',
+				value: newValue,
+			};
+			onPendingValue(field, optimisticValue);
+			setDragValue(null);
 			applyCodemod({
 				codemod,
 				dryRun: false,
@@ -74,23 +113,35 @@ const CompositionMetadataValue: React.FC<{
 			})
 				.then((result) => {
 					if (!result.success) {
+						onPendingValueFailed(field, optimisticValue);
 						showNotification(
 							`Could not update composition ${field}: ${result.reason}`,
 							2000,
 						);
+						return;
 					}
+
+					onPendingValueAccepted(field, optimisticValue);
 				})
 				.catch((error) => {
+					onPendingValueFailed(field, optimisticValue);
 					showNotification(
 						`Could not update composition ${field}: ${(error as Error).message}`,
 						2000,
 					);
-				})
-				.finally(() => {
-					setDragValue(null);
 				});
 		},
-		[compositionId, field, symbolicatedStack, value],
+		[
+			compositionId,
+			field,
+			onPendingValue,
+			onPendingValueAccepted,
+			onPendingValueFailed,
+			pendingValue?.value,
+			resolvedConfig,
+			symbolicatedStack,
+			value,
+		],
 	);
 	const isFps = field === 'fps';
 
@@ -103,7 +154,8 @@ const CompositionMetadataValue: React.FC<{
 			) : (
 				<InputDragger
 					type="number"
-					value={dragValue ?? value}
+					value={dragValue ?? pendingValue?.value ?? value}
+					disabled={pendingValue !== null}
 					status="ok"
 					onValueChange={setDragValue}
 					onValueChangeEnd={save}
@@ -131,13 +183,75 @@ export const CompositionDimensions: React.FC<{
 }> = ({compositionId, disabled, stack}) => {
 	const video = Internals.useVideo();
 	const resolvedVideoConfig = Internals.useResolvedVideoConfig(compositionId);
+	const resolvedConfig =
+		resolvedVideoConfig?.type === 'success' ||
+		resolvedVideoConfig?.type === 'success-and-refreshing'
+			? resolvedVideoConfig.result
+			: null;
+	const resolvedConfigRef = useRef(resolvedConfig);
+	resolvedConfigRef.current = resolvedConfig;
+	const [pendingValues, setPendingValues] =
+		useState<PendingCompositionMetadata>({});
 	const resolvedLocation = useResolvedStack(stack);
 	const symbolicatedStack = useMemo(
 		() => resolvedStackToSymbolicated(resolvedLocation),
 		[resolvedLocation],
 	);
+	useEffect(() => {
+		if (resolvedConfig === null) {
+			return;
+		}
 
-	if (video === null) {
+		setPendingValues((pending) =>
+			reconcilePendingCompositionMetadata({
+				currentConfig: resolvedConfig,
+				pending,
+			}),
+		);
+	}, [resolvedConfig]);
+
+	const onPendingValue = useCallback(
+		(
+			field: CompositionMetadataField,
+			value: PendingCompositionMetadataValue,
+		) => {
+			setPendingValues((pending) => ({...pending, [field]: value}));
+		},
+		[],
+	);
+	const onPendingValueAccepted = useCallback(
+		(
+			field: CompositionMetadataField,
+			value: PendingCompositionMetadataValue,
+		) => {
+			setPendingValues((pending) => {
+				if (resolvedConfigRef.current === null) {
+					return pending;
+				}
+
+				return acceptPendingCompositionMetadataValue({
+					currentConfig: resolvedConfigRef.current,
+					field,
+					pending,
+					value,
+				});
+			});
+		},
+		[],
+	);
+	const onPendingValueFailed = useCallback(
+		(
+			field: CompositionMetadataField,
+			value: PendingCompositionMetadataValue,
+		) => {
+			setPendingValues((pending) =>
+				failPendingCompositionMetadataValue({field, pending, value}),
+			);
+		},
+		[],
+	);
+
+	if (video === null || resolvedConfig === null) {
 		return null;
 	}
 
@@ -160,6 +274,11 @@ export const CompositionDimensions: React.FC<{
 				computed={widthIsComputed}
 				disabled={disabled}
 				field="width"
+				onPendingValue={onPendingValue}
+				onPendingValueAccepted={onPendingValueAccepted}
+				onPendingValueFailed={onPendingValueFailed}
+				pendingValue={pendingValues.width ?? null}
+				resolvedConfig={resolvedConfig}
 				symbolicatedStack={symbolicatedStack}
 				value={video.width}
 			/>
@@ -168,6 +287,11 @@ export const CompositionDimensions: React.FC<{
 				computed={heightIsComputed}
 				disabled={disabled}
 				field="height"
+				onPendingValue={onPendingValue}
+				onPendingValueAccepted={onPendingValueAccepted}
+				onPendingValueFailed={onPendingValueFailed}
+				pendingValue={pendingValues.height ?? null}
+				resolvedConfig={resolvedConfig}
 				symbolicatedStack={symbolicatedStack}
 				value={video.height}
 			/>
@@ -178,6 +302,11 @@ export const CompositionDimensions: React.FC<{
 						computed={fpsIsComputed}
 						disabled={disabled}
 						field="fps"
+						onPendingValue={onPendingValue}
+						onPendingValueAccepted={onPendingValueAccepted}
+						onPendingValueFailed={onPendingValueFailed}
+						pendingValue={pendingValues.fps ?? null}
+						resolvedConfig={resolvedConfig}
 						symbolicatedStack={symbolicatedStack}
 						value={video.fps}
 					/>
@@ -186,6 +315,11 @@ export const CompositionDimensions: React.FC<{
 						computed={durationIsComputed}
 						disabled={disabled}
 						field="durationInFrames"
+						onPendingValue={onPendingValue}
+						onPendingValueAccepted={onPendingValueAccepted}
+						onPendingValueFailed={onPendingValueFailed}
+						pendingValue={pendingValues.durationInFrames ?? null}
+						resolvedConfig={resolvedConfig}
 						symbolicatedStack={symbolicatedStack}
 						value={video.durationInFrames}
 					/>
