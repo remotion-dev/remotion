@@ -3826,7 +3826,7 @@ export const articles = [
 	},
 	{
 		id: 'license/accessibility-statement-remotion-dev',
-		title: 'Accessibility statement: remotion.dev',
+		title: 'Accessibility Statement: remotion.dev',
 		relativePath: 'docs/license/accessibility-statement-remotion-dev.mdx',
 		compId: 'articles-docs-license-accessibility-statement-remotion-dev',
 		crumb: 'License, Pricing and Compliance',
@@ -3835,7 +3835,7 @@ export const articles = [
 	},
 	{
 		id: 'license/accessibility-statement-remotion-pro',
-		title: 'Accessibility statement: remotion.pro',
+		title: 'Accessibility Statement: remotion.pro',
 		relativePath: 'docs/license/accessibility-statement-remotion-pro.mdx',
 		compId: 'articles-docs-license-accessibility-statement-remotion-pro',
 		crumb: 'License, Pricing and Compliance',
