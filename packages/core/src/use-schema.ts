@@ -3,6 +3,7 @@ import {
 	getEffectiveVisualModeValue,
 	resolveDragOverrideValue,
 } from './get-effective-visual-mode-value.js';
+import {FILE_TOKEN} from './input-props-serialization.js';
 import type {
 	InteractivitySchema,
 	InteractivitySchemaField,
@@ -317,6 +318,14 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 				frame,
 				shouldResortToDefaultValueIfUndefined: false,
 			});
+		}
+
+		if (
+			field?.type === 'asset' &&
+			typeof value === 'string' &&
+			value.startsWith(FILE_TOKEN)
+		) {
+			value = `${window.remotion_staticBase}/${value.slice(FILE_TOKEN.length)}`;
 		}
 
 		if (value === undefined) {

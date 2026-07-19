@@ -80,6 +80,20 @@ test('splitJsxSequence splits finite duration and trimBefore', async () => {
 	);
 });
 
+test('splitJsxSequence splits a video with a negative from', async () => {
+	const output = await split(
+		'<Video src="video.mov" from={-2644} trimBefore={272} />',
+		100,
+	);
+
+	expect(output).toContain('from={-2644}');
+	expect(output).toContain('durationInFrames={2744}');
+	expect(output).toContain('trimBefore={272}');
+	expect(output).toContain(
+		'<Video src="video.mov" from={100} trimBefore={3016} />',
+	);
+});
+
 test('splitJsxSequence splits from-only sequence', async () => {
 	const output = await split('<Sequence from={10} />', 30);
 

@@ -1,4 +1,4 @@
-import type {OverrideIdToNodePaths, TSequence} from 'remotion';
+import type {_InternalTypes, OverrideIdToNodePaths, TSequence} from 'remotion';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {BLACK, WHITE} from '../helpers/colors';
 import {getBoxQuadsPonyfill} from '../helpers/get-box-quads-ponyfill';
@@ -343,15 +343,6 @@ export const getOutlineSelectionInteraction = ({
 	toggleKey: metaKey || ctrlKey,
 });
 
-export const getOutlineDoubleClickAction = ({
-	button,
-	canOpenInEditor,
-}: {
-	readonly button: number;
-	readonly canOpenInEditor: boolean;
-}): 'open-in-editor' | null =>
-	button === 0 && canOpenInEditor ? 'open-in-editor' : null;
-
 type SelectedEffectFields = {
 	allFields: boolean;
 	fieldKeys: Set<string>;
@@ -482,13 +473,16 @@ export const getSelectedTransformOriginInfo = (
 export const getSequencesWithSelectableOutlines = ({
 	sequences,
 	overrideIdsToNodePaths,
+	compositions = [],
 }: {
 	readonly sequences: readonly TSequence[];
 	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly compositions?: readonly _InternalTypes['AnyComposition'][];
 }): SequenceWithSelectedOutline[] => {
 	return calculateTimeline({
 		sequences: [...sequences],
 		overrideIdsToNodePaths,
+		compositions,
 	})
 		.filter((track) => {
 			if (track.nodePathInfo === null) {

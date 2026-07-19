@@ -38,6 +38,12 @@ import {serializeRequestInit} from './request-init';
 import {resolveAnimatedImageSource} from './resolve-image-source';
 
 const animatedImageSchema = {
+	src: {
+		type: 'asset',
+		default: undefined,
+		description: 'Source',
+		keyframable: false,
+	},
 	...baseSchema,
 	playbackRate: {
 		type: 'number',

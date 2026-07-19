@@ -386,6 +386,7 @@ const handleFallback = async ({
 			title: 'Remotion Studio',
 			renderDefaults: getRenderDefaults(),
 			publicFolderExists: existsSync(publicDir) ? publicDir : null,
+			fileSystemPlatform: process.platform,
 			gitSource,
 			projectName: getProjectName({
 				basename: path.basename,

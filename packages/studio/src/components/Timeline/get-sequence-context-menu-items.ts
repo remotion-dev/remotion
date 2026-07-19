@@ -70,15 +70,15 @@ export const getSequenceContextMenuItems = ({
 		editorName
 			? {
 					type: 'item' as const,
-					id: 'show-in-editor',
+					id: 'open-in-editor',
 					keyHint: null,
-					label: `Show in ${editorName}`,
+					label: `Open in ${editorName}`,
 					leftItem: null,
 					disabled: !canOpenInEditor || !originalLocation,
 					onClick: openInEditor,
 					quickSwitcherLabel: null,
 					subMenu: null,
-					value: 'show-in-editor',
+					value: 'open-in-editor',
 				}
 			: null,
 		{

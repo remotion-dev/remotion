@@ -42,19 +42,21 @@ import {
 import {TimelineSequenceKeyframedValue} from '../Timeline/TimelineSequencePropItem';
 import {canEditEasingForInterpolationFunction} from '../Timeline/update-selected-easing';
 import {
-	InspectorBackHeaderWithDivider,
+	InspectorBackHeader,
 	InspectorDetailRow,
 	InspectorInlineAction,
 	InspectorMessage,
+	InspectorSectionDivider,
 } from './common';
 import {
 	clampInspectorKeyframeDisplayFrame,
 	getInspectorKeyframeSourceFrame,
 } from './keyframe-inspector-frame';
 import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
-import {SequenceInspectorHeaderWithDivider} from './SequenceInspectorHeader';
+import {SequenceInspectorSections} from './SequenceInspectorHeader';
 import {
-	detailsContainer,
+	detailsBeforeInlineAction,
+	detailsWithInlineAction,
 	keyframeEditorLabel,
 	keyframeEditorRow,
 	keyframeEditorValue,
@@ -508,14 +510,16 @@ export const KeyframeInspector: React.FC<{
 
 	return (
 		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			<SequenceInspectorHeaderWithDivider track={track} />
-			<InspectorBackHeaderWithDivider
+			<SequenceInspectorSections track={track} />
+			<InspectorSectionDivider />
+			<InspectorBackHeader
 				disabled={parentSelection === null}
 				onClick={onSelectParent}
 				title="Back to property"
 			>
 				<div style={sectionHeaderTitle}>{details.fieldLabel}</div>
-			</InspectorBackHeaderWithDivider>
+			</InspectorBackHeader>
+			<InspectorSectionDivider />
 			<KeyframeEasingNavigator
 				currentSelection={selection}
 				includeEasings={canEditEasingForInterpolationFunction(
@@ -527,43 +531,45 @@ export const KeyframeInspector: React.FC<{
 				}))}
 				nodePathInfo={selection.nodePathInfo}
 			/>
-			<div style={detailsContainer}>
-				<InspectorDetailRow label="Frame">
-					<InputDragger
-						type="number"
-						value={draftFrame}
-						status="ok"
-						onValueChange={onFrameChange}
-						onValueChangeEnd={onFrameChangeEnd}
-						onTextChange={() => undefined}
-						min={0}
-						max={Math.max(0, videoConfig.durationInFrames - 1)}
-						step={1}
-						formatter={(value) => String(Math.round(Number(value)))}
-						rightAlign
-						small
-					/>
-				</InspectorDetailRow>
-				<div style={keyframeEditorRow}>
-					<div style={keyframeEditorLabel}>{details.fieldLabel}</div>
-					<div style={keyframeEditorValue}>
-						{details.type === 'sequence' ? (
-							<TimelineSequenceKeyframedValue
-								field={details.field}
-								fileName={details.fileName}
-								nodePath={details.nodePath}
-								schema={details.schema}
-								propStatus={details.propStatus}
-								sourceFrame={details.sourceFrame}
-							/>
-						) : (
-							<TimelineEffectPropValue
-								field={details.field}
-								nodePath={details.nodePath}
-								validatedLocation={details.validatedLocation}
-								sourceFrame={details.sourceFrame}
-							/>
-						)}
+			<div style={detailsWithInlineAction}>
+				<div style={detailsBeforeInlineAction}>
+					<InspectorDetailRow label="Frame">
+						<InputDragger
+							type="number"
+							value={draftFrame}
+							status="ok"
+							onValueChange={onFrameChange}
+							onValueChangeEnd={onFrameChangeEnd}
+							onTextChange={() => undefined}
+							min={0}
+							max={Math.max(0, videoConfig.durationInFrames - 1)}
+							step={1}
+							formatter={(value) => String(Math.round(Number(value)))}
+							rightAlign
+							small
+						/>
+					</InspectorDetailRow>
+					<div style={keyframeEditorRow}>
+						<div style={keyframeEditorLabel}>{details.fieldLabel}</div>
+						<div style={keyframeEditorValue}>
+							{details.type === 'sequence' ? (
+								<TimelineSequenceKeyframedValue
+									field={details.field}
+									fileName={details.fileName}
+									nodePath={details.nodePath}
+									schema={details.schema}
+									propStatus={details.propStatus}
+									sourceFrame={details.sourceFrame}
+								/>
+							) : (
+								<TimelineEffectPropValue
+									field={details.field}
+									nodePath={details.nodePath}
+									validatedLocation={details.validatedLocation}
+									sourceFrame={details.sourceFrame}
+								/>
+							)}
+						</div>
 					</div>
 				</div>
 				<InspectorInlineAction

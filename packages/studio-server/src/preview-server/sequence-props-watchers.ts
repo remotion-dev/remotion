@@ -28,14 +28,17 @@ type WatcherInfo = {
 
 const sequencePropsWatchers: Record<string, Record<string, WatcherInfo>> = {};
 
-const getWatcherKey = (nodePath: {
-	absolutePath: string;
-	nodePath: SequenceNodePath;
-	sequenceKeys: string[];
-	effectKeys: string[][];
-	videoConfigValues: VideoConfigValues | null;
-}) =>
-	`${stringifySequenceSubscriptionKey(nodePath)}:${JSON.stringify(nodePath.videoConfigValues)}`;
+const getWatcherKey = (
+	nodePath: {
+		absolutePath: string;
+		nodePath: SequenceNodePath;
+		sequenceKeys: string[];
+		effectKeys: string[][];
+		videoConfigValues: VideoConfigValues | null;
+	},
+	assetKeys: string[],
+) =>
+	`${stringifySequenceSubscriptionKey(nodePath)}:${assetKeys.join('\0')}:${JSON.stringify(nodePath.videoConfigValues)}`;
 
 const getSequencePropsStatus = ({
 	fileName,
@@ -44,6 +47,7 @@ const getSequencePropsStatus = ({
 	preferredNodePath,
 	componentIdentity,
 	keys,
+	assetKeys,
 	effects,
 	remotionRoot,
 	logLevel,
@@ -55,6 +59,7 @@ const getSequencePropsStatus = ({
 	preferredNodePath: SequenceNodePath | null;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
+	assetKeys: string[];
 	effects: string[][];
 	remotionRoot: string;
 	logLevel: LogLevel;
@@ -67,6 +72,7 @@ const getSequencePropsStatus = ({
 				nodePath: preferredNodePath,
 				componentIdentity,
 				keys,
+				assetKeys,
 				effects,
 				remotionRoot,
 				videoConfigValues,
@@ -105,6 +111,7 @@ const getSequencePropsStatus = ({
 					nodePath: cachedNodePath,
 					componentIdentity,
 					keys,
+					assetKeys,
 					effects,
 					remotionRoot,
 					videoConfigValues,
@@ -141,6 +148,7 @@ const getSequencePropsStatus = ({
 		line,
 		componentIdentity,
 		keys,
+		assetKeys,
 		effects,
 		remotionRoot,
 		logLevel,
@@ -157,6 +165,7 @@ export const subscribeToSequencePropsWatchers = ({
 	nodePath: preferredNodePath,
 	componentIdentity,
 	keys,
+	assetKeys,
 	effects,
 	remotionRoot,
 	clientId,
@@ -169,6 +178,7 @@ export const subscribeToSequencePropsWatchers = ({
 	nodePath: SequenceNodePath | null;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
+	assetKeys: string[];
 	effects: string[][];
 	remotionRoot: string;
 	clientId: string;
@@ -182,6 +192,7 @@ export const subscribeToSequencePropsWatchers = ({
 		preferredNodePath,
 		componentIdentity,
 		keys,
+		assetKeys,
 		effects,
 		remotionRoot,
 		logLevel,
@@ -198,7 +209,7 @@ export const subscribeToSequencePropsWatchers = ({
 	setCachedNodePath(fileName, line, column, initialResult.nodePath.nodePath);
 
 	const {nodePath} = initialResult;
-	const watcherKey = getWatcherKey(nodePath);
+	const watcherKey = getWatcherKey(nodePath, assetKeys);
 
 	// If a watcher already exists for this key, just bump the ref count
 	if (sequencePropsWatchers[clientId]?.[watcherKey]) {
@@ -224,6 +235,7 @@ export const subscribeToSequencePropsWatchers = ({
 					nodePath: nodePath.nodePath,
 					componentIdentity,
 					keys,
+					assetKeys,
 					effects,
 					videoConfigValues,
 				});
@@ -287,6 +299,7 @@ export const unsubscribeFromSequencePropsWatchers = ({
 	remotionRoot,
 	clientId,
 	sequenceKeys,
+	assetKeys,
 	effectKeys,
 	videoConfigValues,
 }: {
@@ -295,17 +308,21 @@ export const unsubscribeFromSequencePropsWatchers = ({
 	remotionRoot: string;
 	clientId: string;
 	sequenceKeys: string[];
+	assetKeys: string[];
 	effectKeys: string[][];
 	videoConfigValues: VideoConfigValues | null;
 }) => {
 	const absolutePath = path.resolve(remotionRoot, fileName);
-	const watcherKey = getWatcherKey({
-		absolutePath,
-		nodePath,
-		sequenceKeys,
-		effectKeys,
-		videoConfigValues,
-	});
+	const watcherKey = getWatcherKey(
+		{
+			absolutePath,
+			nodePath,
+			sequenceKeys,
+			effectKeys,
+			videoConfigValues,
+		},
+		assetKeys,
+	);
 
 	if (
 		!sequencePropsWatchers[clientId] ||
