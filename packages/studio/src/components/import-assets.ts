@@ -123,7 +123,7 @@ export const getAssetElementFromPath = (
 		return null;
 	}
 
-	if (['png', 'jpg', 'jpeg', 'webp', 'bmp'].includes(extension)) {
+	if (['png', 'jpg', 'jpeg', 'webp', 'bmp', 'svg'].includes(extension)) {
 		return {
 			type: 'asset',
 			assetType: 'image',
@@ -179,6 +179,25 @@ export const getAssetElementFromPath = (
 	}
 
 	return null;
+};
+
+export const getAssetElementForDroppedFile = ({
+	fileType,
+	src,
+}: {
+	fileType: FileType;
+	src: string;
+}): InsertableAssetElement | null => {
+	const detectedElement = getAssetElement({fileType, src});
+	if (detectedElement !== null) {
+		return detectedElement;
+	}
+
+	if (fileType.type !== 'unknown' || !src.toLowerCase().endsWith('.svg')) {
+		return null;
+	}
+
+	return getAssetElementFromPath(src);
 };
 
 const getAssetLabel = (element: InsertableCompositionElement) => {
@@ -342,6 +361,11 @@ const getFileDimensions = async ({
 	file: File;
 	fileType: FileType;
 }): Promise<Dimensions | null> => {
+	if (fileType.type === 'unknown' && file.name.toLowerCase().endsWith('.svg')) {
+		const objectUrl = URL.createObjectURL(file);
+		return getImageDimensions({revokeObjectUrl: true, src: objectUrl});
+	}
+
 	if (
 		fileType.type === 'wav' ||
 		fileType.type === 'mp3' ||
@@ -392,7 +416,9 @@ const getStaticAssetDimensions = (
 
 	if (
 		extension &&
-		['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif', 'apng'].includes(extension)
+		['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif', 'apng', 'svg'].includes(
+			extension,
+		)
 	) {
 		return getImageDimensions({revokeObjectUrl: false, src});
 	}
@@ -607,7 +633,7 @@ export const importAssets = async ({
 		for (const file of files) {
 			const contents = await file.arrayBuffer();
 			const fileType = detectFileType(new Uint8Array(contents));
-			const element = getAssetElement({
+			const element = getAssetElementForDroppedFile({
 				fileType,
 				src: file.name,
 			});
