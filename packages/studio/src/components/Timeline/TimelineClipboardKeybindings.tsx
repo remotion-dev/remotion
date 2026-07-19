@@ -890,6 +890,8 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 							setPropStatuses,
 							clientId,
 							confirm,
+							propStatuses,
+							timelinePosition: timelinePositionRef.current,
 						});
 						return deletePromise?.then((deleted) => {
 							if (!deleted) {
@@ -1010,6 +1012,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 								fieldKey: keyframeTarget.fieldKey,
 								sourceFrame,
 								schema: keyframeTarget.schema,
+								valueWhenLastKeyframeDeleted: null,
 							}),
 						);
 
