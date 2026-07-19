@@ -1,4 +1,9 @@
 import type {InteractivitySchemaField} from 'remotion';
+import {
+	isKeyframeEasing,
+	normalizeKeyframeEasing,
+} from './easing-clipboard-data';
+import type {KeyframeEasing} from './keyframe-easing-presets';
 
 export type KeyframeClipboardFieldType = Exclude<
 	InteractivitySchemaField['type'],
@@ -20,6 +25,7 @@ export type KeyframeClipboardData = {
 		readonly frameOffset: number;
 		readonly value: unknown;
 	}[];
+	readonly easing: readonly KeyframeEasing[];
 };
 
 export type KeyframeClipboardDataParseResult =
@@ -88,6 +94,24 @@ const areValidKeyframes = (
 	return value[0]?.frameOffset === 0;
 };
 
+const parseEasings = ({
+	value,
+	keyframeCount,
+}: {
+	value: unknown;
+	keyframeCount: number;
+}): KeyframeEasing[] | null => {
+	if (
+		Array.isArray(value) &&
+		value.length === Math.max(0, keyframeCount - 1) &&
+		value.every(isKeyframeEasing)
+	) {
+		return value.map(normalizeKeyframeEasing);
+	}
+
+	return null;
+};
+
 export const parseKeyframeClipboardDataResult = (
 	value: string,
 ): KeyframeClipboardDataParseResult => {
@@ -101,9 +125,16 @@ export const parseKeyframeClipboardDataResult = (
 			return {status: 'unsupported-version', version: parsed.version};
 		}
 
+		const easing = parseEasings({
+			value: parsed.easing,
+			keyframeCount: Array.isArray(parsed.keyframes)
+				? parsed.keyframes.length
+				: 0,
+		});
 		if (
 			parsed.type !== 'keyframe' ||
 			!areValidKeyframes(parsed.keyframes) ||
+			easing === null ||
 			(parsed.fieldType !== null &&
 				!isKeyframeClipboardFieldType(parsed.fieldType))
 		) {
@@ -118,6 +149,7 @@ export const parseKeyframeClipboardDataResult = (
 				remotionClipboard: 'keyframe',
 				fieldType: parsed.fieldType,
 				keyframes: parsed.keyframes,
+				easing,
 			},
 		};
 	} catch {

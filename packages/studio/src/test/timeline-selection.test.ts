@@ -772,6 +772,13 @@ test('copying selected keyframes preserves their frame deltas', () => {
 			selections: [
 				{type: 'keyframe', nodePathInfo, frame: 30},
 				{type: 'keyframe', nodePathInfo, frame: 10},
+				{
+					type: 'easing',
+					nodePathInfo,
+					fromFrame: 10,
+					toFrame: 30,
+					segmentIndex: 0,
+				},
 			],
 			sequences: [makeTimelineSequence({schema, from: 20})],
 			overrideIdsToNodePaths: {override: nodePath},
@@ -786,6 +793,7 @@ test('copying selected keyframes preserves their frame deltas', () => {
 			{frameOffset: 0, value: 0.4},
 			{frameOffset: 20, value: 0.8},
 		],
+		easing: [{type: 'linear'}],
 	});
 });
 
@@ -874,6 +882,7 @@ test('pasting keyframes targets one selected property at the playhead', () => {
 					{frameOffset: 0, value: 0.4},
 					{frameOffset: 20, value: 0.8},
 				],
+				easing: [{type: 'linear'}],
 			},
 			timelinePosition: 50,
 			sequences: [makeTimelineSequence({schema, from: 20})],
@@ -890,6 +899,80 @@ test('pasting keyframes targets one selected property at the playhead', () => {
 			{sourceFrame: 50, value: 0.4},
 			{sourceFrame: 70, value: 0.8},
 		],
+		keyframesToDelete: [],
+		easing: [{type: 'linear'}],
+		firstEasingSegmentIndex: 0,
+		schema,
+	} satisfies PasteKeyframeTarget);
+});
+
+test('pasting keyframes replaces the destination range and preserves easing', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const schema = {
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies InteractivitySchema;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				opacity: {
+					status: 'keyframed',
+					interpolationFunction: 'interpolate',
+					keyframes: [
+						{frame: 40, value: 0},
+						{frame: 60, value: 0.5},
+						{frame: 80, value: 1},
+					],
+					easing: [{type: 'linear'}, {type: 'linear'}],
+					clamping: {left: 'clamp', right: 'clamp'},
+					posterize: undefined,
+					output: undefined,
+				},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+	const copiedEasing = {
+		type: 'bezier',
+		x1: 0.42,
+		y1: 0,
+		x2: 0.58,
+		y2: 1,
+	} as const;
+
+	expect(
+		getPasteKeyframeTarget({
+			selectedItems: [{type: 'sequence-prop', nodePathInfo, key: 'opacity'}],
+			payload: {
+				type: 'keyframe',
+				version: 1,
+				remotionClipboard: 'keyframe',
+				fieldType: 'number',
+				keyframes: [
+					{frameOffset: 0, value: 0.25},
+					{frameOffset: 20, value: 0.75},
+				],
+				easing: [copiedEasing],
+			},
+			timelinePosition: 50,
+			sequences: [makeTimelineSequence({schema})],
+			overrideIdsToNodePaths: {override: nodePath},
+			propStatuses,
+		}),
+	).toEqual({
+		type: 'valid',
+		fileName: '/project/src/Comp.tsx',
+		nodePath,
+		fieldKey: 'opacity',
+		effectIndex: null,
+		keyframes: [
+			{sourceFrame: 50, value: 0.25},
+			{sourceFrame: 70, value: 0.75},
+		],
+		keyframesToDelete: [60],
+		easing: [copiedEasing],
+		firstEasingSegmentIndex: 1,
 		schema,
 	} satisfies PasteKeyframeTarget);
 });
@@ -928,6 +1011,7 @@ test('pasting a keyframe rejects an incompatible property', () => {
 				remotionClipboard: 'keyframe',
 				fieldType: 'number',
 				keyframes: [{frameOffset: 0, value: 0.4}],
+				easing: [],
 			},
 			timelinePosition: 50,
 			sequences: [makeTimelineSequence({schema})],

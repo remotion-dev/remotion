@@ -34,6 +34,11 @@ import {callApi} from '../call-api';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {callAddKeyframes} from './call-add-keyframe';
+import {callDeleteKeyframes} from './call-delete-keyframe';
+import {
+	callUpdateEffectKeyframeSettings,
+	callUpdateSequenceKeyframeSettings,
+} from './call-update-keyframe-settings';
 import {
 	deleteSelectedTimelineItems,
 	getTimelineSelectionAfterDeletingItems,
@@ -672,20 +677,25 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 				);
 				if (keyframeSelections.length > 0) {
 					e.preventDefault();
-					if (keyframeSelections.length !== selectedItems.length) {
-						showNotification('Select only keyframes to copy', 3000);
+					if (
+						selectedItems.some(
+							(selection) =>
+								selection.type !== 'keyframe' && selection.type !== 'easing',
+						)
+					) {
+						showNotification('Select only keyframes and easings to copy', 3000);
 						return;
 					}
 
 					const payload = getKeyframeClipboardDataFromSelections({
-						selections: keyframeSelections,
+						selections: selectedItems,
 						sequences,
 						overrideIdsToNodePaths: overrideIdToNodePathMappings,
 						propStatuses,
 					});
 					if (payload === null) {
 						showNotification(
-							'Select keyframes from one property to copy',
+							'Select a continuous keyframe range from one property to copy',
 							3000,
 						);
 						return;
@@ -993,15 +1003,71 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 						}));
 						const {effectIndex} = keyframeTarget;
 
-						return callAddKeyframes({
-							sequenceKeyframes: effectIndex === null ? changes : [],
+						const deletions = keyframeTarget.keyframesToDelete.map(
+							(sourceFrame) => ({
+								fileName: keyframeTarget.fileName,
+								nodePath: keyframeTarget.nodePath,
+								fieldKey: keyframeTarget.fieldKey,
+								sourceFrame,
+								schema: keyframeTarget.schema,
+							}),
+						);
+
+						return callDeleteKeyframes({
+							sequenceKeyframes: effectIndex === null ? deletions : [],
 							effectKeyframes:
 								effectIndex === null
 									? []
-									: changes.map((change) => ({...change, effectIndex})),
+									: deletions.map((deletion) => ({
+											...deletion,
+											effectIndex,
+										})),
 							setPropStatuses,
 							clientId,
-						});
+						})
+							.then(() =>
+								callAddKeyframes({
+									sequenceKeyframes: effectIndex === null ? changes : [],
+									effectKeyframes:
+										effectIndex === null
+											? []
+											: changes.map((change) => ({...change, effectIndex})),
+									setPropStatuses,
+									clientId,
+								}),
+							)
+							.then(async () => {
+								for (const [index, easing] of keyframeTarget.easing.entries()) {
+									const settings = {
+										type: 'easing' as const,
+										segmentIndex:
+											keyframeTarget.firstEasingSegmentIndex + index,
+										easing,
+									};
+									if (effectIndex === null) {
+										await callUpdateSequenceKeyframeSettings({
+											fileName: keyframeTarget.fileName,
+											nodePath: keyframeTarget.nodePath,
+											fieldKey: keyframeTarget.fieldKey,
+											settings,
+											schema: keyframeTarget.schema,
+											setPropStatuses,
+											clientId,
+										});
+									} else {
+										await callUpdateEffectKeyframeSettings({
+											fileName: keyframeTarget.fileName,
+											nodePath: keyframeTarget.nodePath,
+											effectIndex,
+											fieldKey: keyframeTarget.fieldKey,
+											settings,
+											schema: keyframeTarget.schema,
+											setPropStatuses,
+											clientId,
+										});
+									}
+								}
+							});
 					}
 
 					const easingResult = parseEasingClipboardDataResult(text);

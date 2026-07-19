@@ -2,6 +2,7 @@ import type {
 	KeyframeClipboardData,
 	KeyframeClipboardFieldType,
 } from '@remotion/studio-shared';
+import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared';
 import {
 	Internals,
 	type CanUpdateSequencePropStatus,
@@ -70,7 +71,7 @@ const getKeyframeClipboardFieldType = ({
 const getKeyframeFieldIdentity = (
 	selection: TimelineSelection,
 ): KeyframeFieldIdentity | null => {
-	if (selection.type === 'keyframe') {
+	if (selection.type === 'keyframe' || selection.type === 'easing') {
 		return parseKeyframeFieldFromNodePath(selection.nodePathInfo.auxiliaryKeys);
 	}
 
@@ -102,6 +103,7 @@ const resolveKeyframeField = ({
 }): ResolvedKeyframeField | null => {
 	if (
 		selection.type !== 'keyframe' &&
+		selection.type !== 'easing' &&
 		selection.type !== 'sequence-prop' &&
 		selection.type !== 'sequence-effect-prop'
 	) {
@@ -211,15 +213,27 @@ export const getKeyframeClipboardDataFromSelections = ({
 	overrideIdsToNodePaths,
 	propStatuses,
 }: {
-	readonly selections: readonly Extract<
-		TimelineSelection,
-		{type: 'keyframe'}
-	>[];
+	readonly selections: readonly TimelineSelection[];
 	readonly sequences: TSequence[];
 	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
 	readonly propStatuses: PropStatuses;
 }): KeyframeClipboardData | null => {
-	const resolvedFields = selections.map((selection) => ({
+	const keyframeSelections = selections.filter(
+		(selection): selection is Extract<TimelineSelection, {type: 'keyframe'}> =>
+			selection.type === 'keyframe',
+	);
+	const easingSelections = selections.filter(
+		(selection): selection is Extract<TimelineSelection, {type: 'easing'}> =>
+			selection.type === 'easing',
+	);
+	if (
+		keyframeSelections.length + easingSelections.length !==
+		selections.length
+	) {
+		return null;
+	}
+
+	const resolvedFields = keyframeSelections.map((selection) => ({
 		selection,
 		resolved: resolveKeyframeField({
 			selection,
@@ -267,6 +281,44 @@ export const getKeyframeClipboardDataFromSelections = ({
 		return null;
 	}
 
+	const keyframeIndexes = keyframes.map((keyframe) =>
+		keyframedPropStatus.keyframes.findIndex(
+			(item) => item.frame === keyframe.frame,
+		),
+	);
+	if (
+		keyframeIndexes.some(
+			(index, position) =>
+				index === -1 ||
+				(position > 0 && index !== keyframeIndexes[position - 1] + 1),
+		)
+	) {
+		return null;
+	}
+
+	const firstKeyframeIndex = keyframeIndexes[0];
+	const lastKeyframeIndex = keyframeIndexes.at(-1);
+	if (firstKeyframeIndex === undefined || lastKeyframeIndex === undefined) {
+		return null;
+	}
+
+	for (const easingSelection of easingSelections) {
+		const resolved = resolveKeyframeField({
+			selection: easingSelection,
+			sequences,
+			overrideIdsToNodePaths,
+			propStatuses,
+		});
+		if (
+			resolved === null ||
+			!areResolvedFieldsEqual(firstResolved, resolved) ||
+			easingSelection.segmentIndex < firstKeyframeIndex ||
+			easingSelection.segmentIndex >= lastKeyframeIndex
+		) {
+			return null;
+		}
+	}
+
 	return {
 		type: 'keyframe',
 		version: 1,
@@ -277,6 +329,9 @@ export const getKeyframeClipboardDataFromSelections = ({
 				frameOffset: keyframe.frame - firstFrame,
 				value: keyframe.value,
 			};
+		}),
+		easing: keyframeIndexes.slice(0, -1).map((index) => {
+			return keyframedPropStatus.easing[index] ?? LINEAR_KEYFRAME_EASING;
 		}),
 	};
 };
@@ -292,6 +347,9 @@ export type PasteKeyframeTarget =
 				readonly sourceFrame: number;
 				readonly value: unknown;
 			}[];
+			readonly keyframesToDelete: readonly number[];
+			readonly easing: KeyframeClipboardData['easing'];
+			readonly firstEasingSegmentIndex: number;
 			readonly schema: InteractivitySchema;
 	  }
 	| {
@@ -376,6 +434,32 @@ export const getPasteKeyframeTarget = ({
 		return {type: 'multiple'};
 	}
 
+	const keyframes = payload.keyframes.map((keyframe) => ({
+		sourceFrame:
+			timelinePosition - resolved.keyframeDisplayOffset + keyframe.frameOffset,
+		value: keyframe.value,
+	}));
+	const firstFrame = keyframes[0]?.sourceFrame;
+	const lastFrame = keyframes.at(-1)?.sourceFrame;
+	if (firstFrame === undefined || lastFrame === undefined) {
+		return {type: 'incompatible'};
+	}
+
+	const existingFrames =
+		resolved.propStatus.status === 'keyframed'
+			? resolved.propStatus.keyframes.map((keyframe) => keyframe.frame)
+			: [];
+	const keyframesToDelete = existingFrames.filter(
+		(frame) => frame >= firstFrame && frame <= lastFrame,
+	);
+	const finalFrames = [
+		...existingFrames.filter(
+			(frame) => frame < firstFrame || frame > lastFrame,
+		),
+		...keyframes.map((keyframe) => keyframe.sourceFrame),
+	].sort((first, second) => first - second);
+	const firstEasingSegmentIndex = finalFrames.indexOf(firstFrame);
+
 	if (
 		resolved.fieldType !== payload.fieldType ||
 		payload.keyframes.some(
@@ -398,13 +482,10 @@ export const getPasteKeyframeTarget = ({
 			resolved.identity.type === 'effect'
 				? resolved.identity.effectIndex
 				: null,
-		keyframes: payload.keyframes.map((keyframe) => ({
-			sourceFrame:
-				timelinePosition -
-				resolved.keyframeDisplayOffset +
-				keyframe.frameOffset,
-			value: keyframe.value,
-		})),
+		keyframes,
+		keyframesToDelete,
+		easing: payload.easing,
+		firstEasingSegmentIndex,
 		schema: resolved.schema,
 	};
 };
