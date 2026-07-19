@@ -26,6 +26,7 @@ import {
 	InspectorSectionDivider,
 	InspectorSectionHeader,
 } from './common';
+import {CompositionDimensions} from './CompositionDimensions';
 import {
 	compositionSection,
 	container,
@@ -124,6 +125,12 @@ export const DefaultInspector: React.FC<{
 		<div style={scrollableContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<div style={compositionSection}>
 				<CurrentComposition />
+				<InspectorSectionDivider />
+				<CompositionDimensions
+					compositionId={composition.id}
+					disabled={readOnlyStudio}
+					stack={composition.stack}
+				/>
 			</div>
 			{canShowDefaultPropsSection ? (
 				<>

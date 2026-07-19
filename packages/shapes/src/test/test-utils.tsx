@@ -46,6 +46,7 @@ const resolveCompositionContext = {
 	'shape-test': {
 		result: videoConfig,
 		type: 'success' as const,
+		metadataSource: null,
 	},
 };
 

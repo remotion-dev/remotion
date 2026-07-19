@@ -55,6 +55,10 @@ export const getCodemodLogMessage = (
 		return `Renamed composition "${codemod.idToRename}" to "${codemod.newId}"`;
 	}
 
+	if (codemod.type === 'update-composition-metadata') {
+		return `Updated metadata of composition "${codemod.idToUpdate}"`;
+	}
+
 	if (codemod.type === 'delete-composition') {
 		return `Deleted composition "${codemod.idToDelete}"`;
 	}
@@ -103,6 +107,15 @@ const getCodemodUndoDescription = (codemod: ApplyCodemodRequest['codemod']) => {
 		return {
 			undoMessage: `↩️  Rename of ${label}`,
 			redoMessage: `↪️  Rename of ${label}`,
+			entryType: codemod.type,
+		};
+	}
+
+	if (codemod.type === 'update-composition-metadata') {
+		const label = `metadata of composition "${codemod.idToUpdate}"`;
+		return {
+			undoMessage: `↩️  Update of ${label}`,
+			redoMessage: `↪️  Update of ${label}`,
 			entryType: codemod.type,
 		};
 	}
