@@ -16,6 +16,11 @@ import {NativeBufferStateForImage} from './BufferState/Image';
 import {NativeBufferState} from './BufferState/Simple';
 import {NativeBufferStateForVideo} from './BufferState/Video';
 import {CancelRender} from './CancelRender';
+import {
+	AnimatedCaptions,
+	CAPTIONS_DURATION_IN_FRAMES,
+	CAPTIONS_HEIGHT,
+} from './CaptionsTester/AnimatedCaptions';
 import {ClassSerialization} from './ClassSerialization';
 import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
@@ -406,6 +411,14 @@ export const Index: React.FC = () => {
 
 	return (
 		<>
+			<Composition
+				id="captions-tester"
+				component={AnimatedCaptions}
+				durationInFrames={CAPTIONS_DURATION_IN_FRAMES}
+				fps={30}
+				width={1080}
+				height={CAPTIONS_HEIGHT}
+			/>
 			<Folder name="copilot-tests">
 				<Composition
 					id="keyframed-props-test"
