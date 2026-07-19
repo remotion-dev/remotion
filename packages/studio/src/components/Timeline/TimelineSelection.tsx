@@ -1,4 +1,7 @@
-import {stringifySequenceExpandedRowKey} from '@remotion/studio-shared';
+import {
+	canEditEasingForInterpolationFunction,
+	stringifySequenceExpandedRowKey,
+} from '@remotion/studio-shared';
 import React, {
 	createContext,
 	useCallback,
@@ -495,12 +498,36 @@ export const getTimelineMarqueeSelection = ({
 	readonly lockedSelectionKind: TimelineMarqueeSelectionKind | null;
 	readonly selectedItems: readonly TimelineSelection[];
 } => {
-	const intersectingCandidates = candidates.filter((candidate) => {
+	const geometricallyIntersectingCandidates = candidates.filter((candidate) => {
 		return (
 			getTimelineMarqueeSelectionKind(candidate.item) !== null &&
 			timelineMarqueeRectsIntersect(candidate.rect, marqueeRect)
 		);
 	});
+	const intersectingKeyframes = new Set(
+		geometricallyIntersectingCandidates.flatMap((candidate) => {
+			if (candidate.item.type !== 'keyframe') {
+				return [];
+			}
+
+			return [
+				`${timelineNodePathInfoToKey(candidate.item.nodePathInfo)}.${candidate.item.frame}`,
+			];
+		}),
+	);
+	const intersectingCandidates = geometricallyIntersectingCandidates.filter(
+		(candidate) => {
+			if (candidate.item.type !== 'easing') {
+				return true;
+			}
+
+			const fieldKey = timelineNodePathInfoToKey(candidate.item.nodePathInfo);
+			return (
+				intersectingKeyframes.has(`${fieldKey}.${candidate.item.fromFrame}`) &&
+				intersectingKeyframes.has(`${fieldKey}.${candidate.item.toFrame}`)
+			);
+		},
+	);
 	const getFirstIntersectingSelectionKind = () =>
 		intersectingCandidates.length === 0
 			? null
@@ -753,12 +780,6 @@ export const getSelectableTimelineSequenceSelections = (
 		return [{type: 'sequence', nodePathInfo: track.nodePathInfo}];
 	});
 };
-
-const canEditEasingForInterpolationFunction = (
-	interpolationFunction: string,
-): boolean =>
-	interpolationFunction === 'interpolate' ||
-	interpolationFunction === 'interpolateColors';
 
 const getTimelineTreeNodeCanEditEasing = ({
 	node,

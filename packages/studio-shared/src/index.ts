@@ -130,6 +130,7 @@ export {
 } from './component-drag-data';
 export {
 	COMPOSITION_DRAG_MIME_TYPE,
+	compositionDragDataToSymbolicatedStack,
 	makeCompositionDragData,
 	parseCompositionDragData,
 	type CompositionDragData,
@@ -228,6 +229,7 @@ export {
 	type KeyframeEasingPreset,
 } from './keyframe-easing-presets';
 export {
+	canEditEasingForInterpolationFunction,
 	getKeyframeInterpolationFunction,
 	getKeyframeInterpolationFunctionForSchemaField,
 	isInteractivitySchemaFieldKeyframable,
@@ -236,6 +238,14 @@ export {
 	keyframeInterpolationFunctions,
 	type KeyframeInterpolationFunction,
 } from './keyframe-interpolation-function';
+export {
+	isKeyframeClipboardFieldType,
+	parseKeyframeClipboardData,
+	parseKeyframeClipboardDataResult,
+	type KeyframeClipboardData,
+	type KeyframeClipboardDataParseResult,
+	type KeyframeClipboardFieldType,
+} from './keyframe-clipboard-data';
 export {DEFAULT_TIMELINE_TRACKS} from './max-timeline-tracks';
 export {
 	Pkgs,
