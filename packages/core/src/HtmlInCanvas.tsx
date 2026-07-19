@@ -27,7 +27,6 @@ import type {AbsoluteFillLayout} from './Sequence.js';
 import {Sequence} from './Sequence.js';
 import {useDelayRender} from './use-delay-render.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
-import {useVideoConfig} from './use-video-config.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 // IDL: https://github.com/WICG/html-in-canvas#idl-changes
@@ -728,9 +727,6 @@ const HtmlInCanvasInner = forwardRef<
 		},
 		ref,
 	) => {
-		const {durationInFrames: videoDuration} = useVideoConfig();
-		const resolvedDuration = durationInFrames ?? videoDuration;
-
 		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 		const actualRef = useRef<HTMLCanvasElement | null>(null);
 		const setCanvasRef = useCallback(
@@ -747,7 +743,7 @@ const HtmlInCanvasInner = forwardRef<
 
 		return (
 			<Sequence
-				durationInFrames={resolvedDuration}
+				durationInFrames={durationInFrames}
 				name={name ?? '<HtmlInCanvas>'}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/remotion/html-in-canvas"
 				controls={controls}

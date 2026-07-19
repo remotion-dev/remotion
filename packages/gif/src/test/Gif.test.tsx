@@ -112,7 +112,8 @@ const logContext = {
 const SequenceRegistrationWrapper: React.FC<{
 	readonly children: React.ReactNode;
 	readonly onRegisterSequence: (sequence: RegisteredSequence) => void;
-}> = ({children, onRegisterSequence}) => {
+	readonly currentFrame?: number;
+}> = ({children, onRegisterSequence, currentFrame = 0}) => {
 	const registerSequence = useCallback(
 		(sequence: RegisteredSequence) => {
 			onRegisterSequence(sequence);
@@ -129,13 +130,19 @@ const SequenceRegistrationWrapper: React.FC<{
 			}) as React.ContextType<typeof Internals.SequenceManager>,
 		[registerSequence, unregisterSequence],
 	);
+	const currentTimelineContext = useMemo(
+		() => ({...timelineContext, frame: {comp: currentFrame}}),
+		[currentFrame],
+	);
 
 	return (
 		<Internals.LogLevelContext.Provider value={logContext}>
 			<Internals.BufferingProvider>
 				<Internals.CanUseRemotionHooksProvider>
-					<Internals.AbsoluteTimeContext.Provider value={timelineContext}>
-						<Internals.TimelineContext.Provider value={timelineContext}>
+					<Internals.AbsoluteTimeContext.Provider
+						value={currentTimelineContext}
+					>
+						<Internals.TimelineContext.Provider value={currentTimelineContext}>
 							<Internals.PlaybackRateContext.Provider
 								value={playbackRateContext}
 							>
@@ -206,6 +213,19 @@ test('<Gif> registers its canvas as the outline ref', async () => {
 	const refForOutline = registeredSequences[0]
 		.refForOutline as React.RefObject<HTMLCanvasElement | null>;
 	expect(ref.current).toBe(refForOutline.current);
+});
+
+test('<Gif> remains visible with a negative offset', () => {
+	const {container} = render(
+		<SequenceRegistrationWrapper
+			currentFrame={75}
+			onRegisterSequence={() => undefined}
+		>
+			<Gif from={-100} src="test.gif" />
+		</SequenceRegistrationWrapper>,
+	);
+
+	expect(container.querySelector('canvas')).not.toBeNull();
 });
 
 test('reuses a cached GIF without spawning a decode worker', async () => {
