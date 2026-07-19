@@ -38,6 +38,17 @@ export const getAssetElement = ({
 	fileType: FileType;
 	src: string;
 }): InsertableAssetElement | null => {
+	if (fileType.type === 'webp' && fileType.animated) {
+		return {
+			type: 'asset',
+			assetType: 'animated-image',
+			src,
+			srcType: 'static',
+			dimensions: fileType.dimensions,
+			position: null,
+		};
+	}
+
 	if (
 		fileType.type === 'png' ||
 		fileType.type === 'jpeg' ||
@@ -435,7 +446,7 @@ const getStaticAssetFileType = async (
 	assetPath: string,
 ): Promise<FileType | null> => {
 	const extension = assetPath.split('.').pop()?.toLowerCase();
-	if (extension !== 'png' && extension !== 'apng') {
+	if (extension !== 'png' && extension !== 'apng' && extension !== 'webp') {
 		return null;
 	}
 
