@@ -3,6 +3,7 @@ import {createTikTokStyleCaptions} from '@remotion/captions';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
 	AbsoluteFill,
+	Interactive,
 	interpolate,
 	Sequence,
 	spring,
@@ -10,9 +11,11 @@ import {
 	useCurrentFrame,
 	useDelayRender,
 	useVideoConfig,
+	type InteractiveBaseProps,
+	type InteractivitySchema,
+	type SequenceControls,
 } from 'remotion';
 
-export const CAPTIONS_FILE = 'voiceover-captions.json';
 export const CAPTIONS_DURATION_IN_FRAMES = 1628;
 export const CAPTIONS_HEIGHT = 360;
 
@@ -88,7 +91,25 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
 	);
 };
 
-export const AnimatedCaptions: React.FC = () => {
+export type AnimatedCaptionsProps = InteractiveBaseProps & {
+	readonly src: string;
+};
+
+const animatedCaptionsSchema = {
+	src: {
+		type: 'asset',
+		default: undefined,
+		description: 'Source',
+		keyframable: false,
+	},
+	...Interactive.baseSchema,
+} as const satisfies InteractivitySchema;
+
+const AnimatedCaptionsInner: React.FC<
+	AnimatedCaptionsProps & {
+		readonly controls: SequenceControls | undefined;
+	}
+> = ({src, controls, name, ...sequenceProps}) => {
 	const [captions, setCaptions] = useState<Caption[] | null>(null);
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
 	const [handle] = useState(() => delayRender('Loading ElevenLabs captions'));
@@ -96,7 +117,7 @@ export const AnimatedCaptions: React.FC = () => {
 
 	const loadCaptions = useCallback(async () => {
 		try {
-			const response = await fetch(staticFile(CAPTIONS_FILE));
+			const response = await fetch(src);
 			if (!response.ok) {
 				throw new Error(`Could not load captions (${response.status})`);
 			}
@@ -106,7 +127,7 @@ export const AnimatedCaptions: React.FC = () => {
 		} catch (error) {
 			cancelRender(error);
 		}
-	}, [cancelRender, continueRender, handle]);
+	}, [cancelRender, continueRender, handle, src]);
 
 	useEffect(() => {
 		loadCaptions();
@@ -123,12 +144,12 @@ export const AnimatedCaptions: React.FC = () => {
 		}).pages;
 	}, [captions]);
 
-	if (!captions) {
-		return null;
-	}
-
 	return (
-		<AbsoluteFill>
+		<Sequence
+			{...sequenceProps}
+			name={name ?? '<AnimatedCaptions>'}
+			controls={controls}
+		>
 			{pages.map((page, index) => {
 				const nextPage = pages[index + 1];
 				const startFrame = Math.round((page.startMs / 1000) * fps);
@@ -149,11 +170,24 @@ export const AnimatedCaptions: React.FC = () => {
 						from={startFrame}
 						durationInFrames={durationInFrames}
 						premountFor={fps}
+						showInTimeline={false}
 					>
 						<CaptionPage page={page} />
 					</Sequence>
 				);
 			})}
-		</AbsoluteFill>
+		</Sequence>
 	);
+};
+
+export const AnimatedCaptions = Interactive.withSchema({
+	Component: AnimatedCaptionsInner,
+	componentName: '<AnimatedCaptions>',
+	componentIdentity: null,
+	schema: animatedCaptionsSchema,
+	supportsEffects: false,
+});
+
+export const AnimatedCaptionsComposition: React.FC = () => {
+	return <AnimatedCaptions src={staticFile('voiceover-captions.json')} />;
 };
