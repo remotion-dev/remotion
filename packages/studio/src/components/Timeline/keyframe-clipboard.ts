@@ -63,7 +63,7 @@ const getKeyframeClipboardFieldType = ({
 		case 'text-content':
 			return null;
 		default:
-			throw new Error(`Unknown field type: ${field satisfies never}`);
+			return null;
 	}
 };
 

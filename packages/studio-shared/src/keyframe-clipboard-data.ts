@@ -2,7 +2,13 @@ import type {InteractivitySchemaField} from 'remotion';
 
 export type KeyframeClipboardFieldType = Exclude<
 	InteractivitySchemaField['type'],
-	'array' | 'boolean' | 'enum' | 'font-family' | 'hidden' | 'text-content'
+	| 'array'
+	| 'asset'
+	| 'boolean'
+	| 'enum'
+	| 'font-family'
+	| 'hidden'
+	| 'text-content'
 >;
 
 export type KeyframeClipboardData = {
