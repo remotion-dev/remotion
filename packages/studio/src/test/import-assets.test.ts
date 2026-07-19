@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
 import {
+	getAssetPositionForDrop,
 	getAssetElement,
 	getAssetElementForDroppedFile,
 	getAssetElementFromPath,
@@ -237,6 +238,26 @@ test('centers a composition with different destination dimensions', () => {
 	expect(
 		getCompositionPositionForDrop({
 			compositionDimensions: {width: 1280, height: 720},
+			destinationDimensions: {width: 1920, height: 1080},
+			dropPosition: {centerX: 400, centerY: 300},
+		}),
+	).toEqual({x: -240, y: -60});
+});
+
+test('aligns an asset with matching destination dimensions', () => {
+	expect(
+		getAssetPositionForDrop({
+			assetDimensions: {width: 1920, height: 1080},
+			destinationDimensions: {width: 1920, height: 1080},
+			dropPosition: {centerX: 400, centerY: 300},
+		}),
+	).toBe(null);
+});
+
+test('centers an asset with different destination dimensions', () => {
+	expect(
+		getAssetPositionForDrop({
+			assetDimensions: {width: 1280, height: 720},
 			destinationDimensions: {width: 1920, height: 1080},
 			dropPosition: {centerX: 400, centerY: 300},
 		}),

@@ -305,6 +305,27 @@ export const getCompositionPositionForDrop = ({
 	});
 };
 
+export const getAssetPositionForDrop = ({
+	assetDimensions,
+	destinationDimensions,
+	dropPosition,
+}: {
+	assetDimensions: Dimensions | null;
+	destinationDimensions: Dimensions | null;
+	dropPosition: InsertElementDropPosition | null;
+}): InsertableCompositionElementPosition | null => {
+	if (
+		assetDimensions !== null &&
+		destinationDimensions !== null &&
+		assetDimensions.width === destinationDimensions.width &&
+		assetDimensions.height === destinationDimensions.height
+	) {
+		return null;
+	}
+
+	return getCenteredPosition({dimensions: assetDimensions, dropPosition});
+};
+
 const getComponentPropNumber = (props: ComponentProp[], name: string) => {
 	const prop = props.find((p) => p.name === name);
 	return typeof prop?.value === 'number' ? prop.value : null;
@@ -596,11 +617,13 @@ const downloadRemoteAsset = (
 export const importAssets = async ({
 	compositionFile,
 	compositionId,
+	destinationDimensions,
 	dropPosition,
 	files,
 }: {
 	compositionFile: string;
 	compositionId: string;
+	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
 	files: File[];
 }) => {
@@ -669,15 +692,17 @@ export const importAssets = async ({
 			}
 
 			const dimensions = await getFileDimensionsOrNull({file, fileType});
+			const resolvedDimensions = element.dimensions ?? dimensions;
 
 			const inserted = await insertAssetElement({
 				compositionFile,
 				compositionId,
 				element: {
 					...element,
-					dimensions: element.dimensions ?? dimensions,
-					position: getCenteredPosition({
-						dimensions,
+					dimensions: resolvedDimensions,
+					position: getAssetPositionForDrop({
+						assetDimensions: resolvedDimensions,
+						destinationDimensions,
 						dropPosition,
 					}),
 				},
@@ -707,11 +732,13 @@ export const importAssets = async ({
 export const importRemoteAsset = async ({
 	compositionFile,
 	compositionId,
+	destinationDimensions,
 	dropPosition,
 	url,
 }: {
 	compositionFile: string;
 	compositionId: string;
+	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
 	url: string;
 }) => {
@@ -732,8 +759,9 @@ export const importRemoteAsset = async ({
 			compositionId,
 			element: {
 				...element,
-				position: getCenteredPosition({
-					dimensions: element.dimensions,
+				position: getAssetPositionForDrop({
+					assetDimensions: element.dimensions,
+					destinationDimensions,
 					dropPosition,
 				}),
 			},
@@ -803,11 +831,13 @@ export const insertExistingAssets = async ({
 	assetPaths,
 	compositionFile,
 	compositionId,
+	destinationDimensions,
 	dropPosition,
 }: {
 	assetPaths: string[];
 	compositionFile: string;
 	compositionId: string;
+	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
 }) => {
 	if (assetPaths.length === 0) {
@@ -834,8 +864,9 @@ export const insertExistingAssets = async ({
 				element: {
 					...element,
 					dimensions,
-					position: getCenteredPosition({
-						dimensions,
+					position: getAssetPositionForDrop({
+						assetDimensions: dimensions,
+						destinationDimensions,
 						dropPosition,
 					}),
 				},
