@@ -5,6 +5,7 @@ import type {
 	GetDragOverrides,
 	GetEffectDragOverrides,
 	InteractivitySchema,
+	InteractivitySchemaField,
 	PropStatuses,
 	SequenceControls,
 	SequencePropsSubscriptionKey,
@@ -105,24 +106,42 @@ const sortSchemaFields = <T extends SchemaFieldInfo>(fields: T[]): T[] => {
 		.map(({field}) => field);
 };
 
-const SUPPORTED_SCHEMA_TYPES = [
-	'number',
-	'boolean',
-	'rotation-css',
-	'rotation-degrees',
-	'translate',
-	'transform-origin',
-	'scale',
-	'uv-coordinate',
-	'color',
-	'text-content',
-	'font-family',
-	'array',
-	'enum',
-	'hidden',
-] as const;
+// Keep this exhaustive so every schema field requires an explicit timeline UI
+// support decision.
+const TIMELINE_SCHEMA_FIELD_TYPE_SUPPORT = {
+	array: true,
+	boolean: true,
+	color: true,
+	enum: true,
+	'font-family': true,
+	hidden: false,
+	number: true,
+	'rotation-css': true,
+	'rotation-degrees': true,
+	scale: true,
+	'text-content': true,
+	'transform-origin': true,
+	translate: true,
+	'uv-coordinate': true,
+} as const satisfies Record<InteractivitySchemaField['type'], boolean>;
 
-type SupportedSchemaType = (typeof SUPPORTED_SCHEMA_TYPES)[number];
+type TimelineSchemaFieldTypeSupport = typeof TIMELINE_SCHEMA_FIELD_TYPE_SUPPORT;
+
+type SupportedSchemaType = {
+	[FieldType in keyof TimelineSchemaFieldTypeSupport]: TimelineSchemaFieldTypeSupport[FieldType] extends true
+		? FieldType
+		: never;
+}[keyof TimelineSchemaFieldTypeSupport];
+
+type SupportedSchemaField = Extract<
+	InteractivitySchemaField,
+	{type: SupportedSchemaType}
+>;
+
+const isTimelineSchemaFieldSupported = (
+	field: InteractivitySchemaField,
+): field is SupportedSchemaField =>
+	TIMELINE_SCHEMA_FIELD_TYPE_SUPPORT[field.type];
 
 const getArrayRowCount = ({
 	fieldSchema,
@@ -216,14 +235,11 @@ export const getFieldsToShow = ({
 
 	const fields = Object.entries(activeSchema)
 		.map(([key, fieldSchema]): InteractivitySchemaFieldInfo | null => {
-			const typeName = fieldSchema.type;
-			if (SUPPORTED_SCHEMA_TYPES.indexOf(typeName) === -1) {
-				throw new Error(`Unsupported field type: ${typeName}`);
-			}
-
-			if (typeName === 'hidden') {
+			if (!isTimelineSchemaFieldSupported(fieldSchema)) {
 				return null;
 			}
+
+			const typeName = fieldSchema.type;
 
 			if (fieldSchema.type === 'number' && fieldSchema.hiddenFromList) {
 				return null;
@@ -286,10 +302,11 @@ export const getEffectFieldsToShow = ({
 
 	const fields = Object.entries(activeSchema)
 		.map(([key, fieldSchema]): EffectSchemaFieldInfo | null => {
-			const typeName = fieldSchema.type;
-			if (typeName === 'hidden') {
+			if (!isTimelineSchemaFieldSupported(fieldSchema)) {
 				return null;
 			}
+
+			const typeName = fieldSchema.type;
 
 			if (fieldSchema.type === 'number' && fieldSchema.hiddenFromList) {
 				return null;
@@ -299,10 +316,6 @@ export const getEffectFieldsToShow = ({
 			// so we don't render it as a regular field in the expanded section.
 			if (key === 'disabled') {
 				return null;
-			}
-
-			if (SUPPORTED_SCHEMA_TYPES.indexOf(typeName) === -1) {
-				throw new Error(`Unsupported field type: ${typeName}`);
 			}
 
 			return {

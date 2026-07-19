@@ -228,6 +228,7 @@ export {
 	type KeyframeEasingPreset,
 } from './keyframe-easing-presets';
 export {
+	canEditEasingForInterpolationFunction,
 	getKeyframeInterpolationFunction,
 	getKeyframeInterpolationFunctionForSchemaField,
 	isInteractivitySchemaFieldKeyframable,

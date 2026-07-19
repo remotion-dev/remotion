@@ -1,4 +1,8 @@
-import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared';
+import {
+	canEditEasingForInterpolationFunction,
+	LINEAR_KEYFRAME_EASING,
+} from '@remotion/studio-shared';
+export {canEditEasingForInterpolationFunction} from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusEasing,
@@ -46,12 +50,6 @@ export type SelectedEasingUpdate =
 			readonly currentEasing: TimelineEasingValue;
 			readonly propStatus: CanUpdateSequencePropStatusKeyframed;
 	  };
-
-export const canEditEasingForInterpolationFunction = (
-	interpolationFunction: string,
-): boolean =>
-	interpolationFunction === 'interpolate' ||
-	interpolationFunction === 'interpolateColors';
 
 const isEasingSelection = (
 	selection: TimelineSelection,

@@ -1,4 +1,7 @@
-import {stringifySequenceExpandedRowKey} from '@remotion/studio-shared';
+import {
+	canEditEasingForInterpolationFunction,
+	stringifySequenceExpandedRowKey,
+} from '@remotion/studio-shared';
 import React, {
 	createContext,
 	useCallback,
@@ -777,12 +780,6 @@ export const getSelectableTimelineSequenceSelections = (
 		return [{type: 'sequence', nodePathInfo: track.nodePathInfo}];
 	});
 };
-
-const canEditEasingForInterpolationFunction = (
-	interpolationFunction: string,
-): boolean =>
-	interpolationFunction === 'interpolate' ||
-	interpolationFunction === 'interpolateColors';
 
 const getTimelineTreeNodeCanEditEasing = ({
 	node,

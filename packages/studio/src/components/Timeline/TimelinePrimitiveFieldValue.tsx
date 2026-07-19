@@ -37,11 +37,7 @@ export type TimelinePrimitiveFieldInfo = Omit<
 export const isTimelinePrimitiveFieldInfo = (
 	field: SchemaFieldInfo,
 ): field is TimelinePrimitiveFieldInfo => {
-	return (
-		field.typeName !== 'array' &&
-		field.typeName !== 'hidden' &&
-		field.fieldSchema.type !== 'array'
-	);
+	return field.typeName !== 'array' && field.fieldSchema.type !== 'array';
 };
 
 export const TimelinePrimitiveFieldValue: React.FC<{
