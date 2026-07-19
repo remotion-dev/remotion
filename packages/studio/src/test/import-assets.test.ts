@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {
 	getAssetElement,
+	getAssetElementForDroppedFile,
 	getAssetElementFromPath,
 	getComponentDimensions,
 	getCompositionPositionForDrop,
@@ -90,6 +91,30 @@ test('maps existing static file paths to insertable assets', () => {
 		type: 'asset',
 		assetType: 'gif',
 		src: 'animation.gif',
+		srcType: 'static',
+		dimensions: null,
+		position: null,
+	});
+	expect(getAssetElementFromPath('vector.SVG')).toEqual({
+		type: 'asset',
+		assetType: 'image',
+		src: 'vector.SVG',
+		srcType: 'static',
+		dimensions: null,
+		position: null,
+	});
+});
+
+test('maps dropped SVG files to image assets', () => {
+	expect(
+		getAssetElementForDroppedFile({
+			fileType: {type: 'unknown'},
+			src: 'vector.svg',
+		}),
+	).toEqual({
+		type: 'asset',
+		assetType: 'image',
+		src: 'vector.svg',
 		srcType: 'static',
 		dimensions: null,
 		position: null,
