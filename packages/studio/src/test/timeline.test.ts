@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import type {_InternalTypes, TSequence} from 'remotion';
 import {getTimelineMediaStartFrame} from '../components/Timeline/get-timeline-media-start-frame';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 
@@ -396,4 +397,65 @@ test('Should account for a parent Sequence trimBefore in video thumbnails', () =
 			playbackRate: video.sequence.playbackRate,
 		}),
 	).toBe(24);
+});
+
+test('Should hide descendants of sequences with connected compositions', () => {
+	const LinkedChild = () => null;
+	const makeSequence = ({
+		id,
+		parent,
+		nonce,
+		singleChildComponent,
+	}: {
+		id: string;
+		parent: string | null;
+		nonce: number;
+		singleChildComponent?: unknown;
+	}): TSequence => ({
+		controls: null,
+		displayName: id,
+		documentationLink: null,
+		duration: 100,
+		effects: [],
+		from: 0,
+		frozenFrame: null,
+		getStack,
+		id,
+		isInsideSeries: false,
+		loopDisplay: undefined,
+		nonce: [[0, nonce]],
+		parent,
+		postmountDisplay: null,
+		premountDisplay: null,
+		refForOutline: null,
+		rootId: 'root',
+		showInTimeline: true,
+		singleChildComponent,
+		trimBefore: null,
+		type: 'sequence',
+	});
+	const connectedComposition = {
+		componentFromProps: LinkedChild,
+	} as unknown as _InternalTypes['AnyComposition'];
+
+	const calculated = calculateTimeline({
+		compositions: [connectedComposition],
+		overrideIdsToNodePaths: {},
+		sequences: [
+			makeSequence({
+				id: 'linked',
+				parent: null,
+				nonce: 0,
+				singleChildComponent: LinkedChild,
+			}),
+			makeSequence({id: 'child', parent: 'linked', nonce: 1}),
+			makeSequence({id: 'grandchild', parent: 'child', nonce: 2}),
+			makeSequence({id: 'sibling', parent: null, nonce: 3}),
+		],
+	});
+
+	expect(calculated.map((track) => track.sequence.id)).toEqual([
+		'linked',
+		'sibling',
+	]);
 });

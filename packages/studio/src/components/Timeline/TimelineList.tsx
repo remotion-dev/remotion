@@ -21,6 +21,7 @@ export const TimelineList: React.FC<{
 						<TimelineSequenceItem
 							key={track.sequence.id}
 							trackIndex={trackIndex}
+							connectedCompositions={track.connectedCompositions ?? []}
 							nestedDepth={track.depth}
 							sequence={track.sequence}
 							nodePathInfo={track.nodePathInfo}

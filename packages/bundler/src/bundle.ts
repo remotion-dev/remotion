@@ -403,6 +403,7 @@ export const internalBundle = async (
 		title: 'Remotion Bundle',
 		renderDefaults: actualArgs.renderDefaults ?? undefined,
 		publicFolderExists: `${publicPath + (publicPath.endsWith('/') ? '' : '/')}public`,
+		fileSystemPlatform: null,
 		gitSource: actualArgs.gitSource ?? null,
 		projectName: getProjectName({
 			gitSource: actualArgs.gitSource ?? null,

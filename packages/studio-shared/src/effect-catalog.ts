@@ -686,6 +686,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-flannel',
+		category: 'Generate',
+		label: 'flannel()',
+		description: 'Plaid woven fabric pattern',
+		effect: {
+			name: 'flannel',
+			importPath: '@remotion/effects/flannel',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-halftone-linear-gradient',
 		category: 'Generate',
 		label: 'halftoneLinearGradient()',

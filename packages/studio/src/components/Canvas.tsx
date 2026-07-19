@@ -1113,6 +1113,8 @@ export const Canvas: React.FC<{
 						composition: compositionDragData,
 						compositionFile,
 						compositionId: currentCompositionId,
+						destinationDimensions:
+							contentDimensions === 'none' ? null : contentDimensions,
 						dropPosition,
 					});
 				} else {

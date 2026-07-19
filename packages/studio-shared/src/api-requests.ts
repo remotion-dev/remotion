@@ -277,6 +277,7 @@ export type SubscribeToSequencePropsRequest = {
 	nodePath: SequenceNodePath | null;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
+	assetKeys: string[];
 	effects: string[][];
 	clientId: string;
 	videoConfigValues: VideoConfigValues;
@@ -298,6 +299,7 @@ export type UnsubscribeFromSequencePropsRequest = {
 	nodePath: SequencePropsSubscriptionKey;
 	clientId: string;
 	sequenceKeys: string[];
+	assetKeys: string[];
 	effectKeys: string[][];
 };
 

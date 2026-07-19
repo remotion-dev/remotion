@@ -21,13 +21,16 @@ import {WarningIndicatorButton} from '../RenderModal/WarningIndicatorButton';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {VisualControlsContent} from '../VisualControls/VisualControlsContent';
-import {InspectorDefaultPropsWarnings, InspectorSectionHeader} from './common';
+import {
+	InspectorDefaultPropsWarnings,
+	InspectorSectionDivider,
+	InspectorSectionHeader,
+} from './common';
 import {
 	compositionSection,
 	container,
 	defaultPropsSection,
 	defaultPropsWarningContainer,
-	inspectorSectionDivider,
 	scrollableContainer,
 	sectionHeaderEnd,
 	sectionHeaderRow,
@@ -124,7 +127,7 @@ export const DefaultInspector: React.FC<{
 			</div>
 			{canShowDefaultPropsSection ? (
 				<>
-					<div style={inspectorSectionDivider} />
+					<InspectorSectionDivider />
 					<div style={defaultPropsSection}>
 						<InspectorSectionHeader>
 							<div style={sectionHeaderRow}>
@@ -176,7 +179,7 @@ export const DefaultInspector: React.FC<{
 			) : null}
 			{hasVisualControls ? (
 				<>
-					<div style={inspectorSectionDivider} />
+					<InspectorSectionDivider />
 					<div style={visualControlsSection}>
 						<InspectorSectionHeader>Visual Controls</InspectorSectionHeader>
 						<VisualControlsContent />

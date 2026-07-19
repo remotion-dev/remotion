@@ -96,7 +96,6 @@ export {
 	snapSelectedOutlineUv,
 } from './selected-outline-drag';
 export {
-	getOutlineDoubleClickAction,
 	getOutlineSelectionInteraction,
 	getSelectedEffectFieldsBySequenceKey,
 	getSelectedOutlineRotationCornerInfo,
@@ -552,7 +551,9 @@ export const SelectedOutlineOverlay: React.FC<{
 }) => {
 	const {selectedItems, selectItem} = useTimelineSelection();
 	const {sequences} = useContext(Internals.SequenceManager);
-	const {canvasContent} = useContext(Internals.CompositionManager);
+	const {canvasContent, compositions} = useContext(
+		Internals.CompositionManager,
+	);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {overrideIdToNodePathMappings} = useContext(
@@ -625,6 +626,7 @@ export const SelectedOutlineOverlay: React.FC<{
 		return getSequencesWithSelectableOutlines({
 			sequences,
 			overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			compositions,
 		}).map(({key, keyframeDisplayOffset, nodePathInfo, sequence}) => {
 			if (sequence.refForOutline === null) {
 				throw new Error('Expected sequence to have a ref for outline');
@@ -876,6 +878,7 @@ export const SelectedOutlineOverlay: React.FC<{
 		previewServerState,
 		selectedItems,
 		sequences,
+		compositions,
 		timelinePosition,
 	]);
 

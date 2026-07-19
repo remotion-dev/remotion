@@ -14,6 +14,7 @@ import {duotone} from '@remotion/effects/duotone';
 import {emboss} from '@remotion/effects/emboss';
 import {evolve} from '@remotion/effects/evolve';
 import {fisheye} from '@remotion/effects/fisheye';
+import {flannel} from '@remotion/effects/flannel';
 import {glow} from '@remotion/effects/glow';
 import {grayscale} from '@remotion/effects/grayscale';
 import {gridlines} from '@remotion/effects/gridlines';
@@ -75,6 +76,7 @@ import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
 import {EffectsEmbossPreview} from '../effects/effects-emboss-preview';
 import {EffectsEvolvePreview} from '../effects/effects-evolve-preview';
 import {EffectsFisheyePreview} from '../effects/effects-fisheye-preview';
+import {EffectsFlannelPreview} from '../effects/effects-flannel-preview';
 import {EffectsGlowPreview} from '../effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
 import {EffectsGridlinesPreview} from '../effects/effects-gridlines-preview';
@@ -182,6 +184,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/burlap',
 		comp: EffectsBurlapPreview,
 		schema: burlap().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-flannel',
+		effectName: 'flannel',
+		effectImportPath: '@remotion/effects/flannel',
+		comp: EffectsFlannelPreview,
+		schema: flannel().definition.schema,
 	},
 	{
 		...defaults,

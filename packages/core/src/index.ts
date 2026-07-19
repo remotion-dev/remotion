@@ -13,10 +13,14 @@ import type {
 	TRenderAsset,
 } from './CompositionManager.js';
 import type {DelayRenderScope} from './delay-render.js';
-import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import {
+	addSequenceStackTraces,
+	setSequenceComponent,
+} from './enable-sequence-stack-traces.js';
 import {Folder, type TFolder} from './Folder.js';
 import type {StaticFile} from './get-static-files.js';
 import type {
+	AssetFieldSchema,
 	ArrayFieldSchema,
 	ArrayItemFieldSchema,
 	InteractivitySchemaField,
@@ -71,6 +75,7 @@ declare global {
 		remotion_logLevel: LogLevel | undefined;
 		remotion_projectName: string;
 		remotion_cwd: string;
+		remotion_fileSystemPlatform: string | null;
 		remotion_studioServerCommand: string;
 		remotion_setFrame: (
 			frame: number,
@@ -316,6 +321,7 @@ export const Config = new Proxy(proxyObj, {
 
 Sequence.displayName = 'Sequence';
 addSequenceStackTraces(Sequence);
+setSequenceComponent(Sequence);
 addSequenceStackTraces(Composition);
 addSequenceStackTraces(Folder);
 
@@ -333,6 +339,7 @@ export type _InternalTypes = {
 
 export type {
 	AnyComposition,
+	AssetFieldSchema,
 	ArrayFieldSchema,
 	ArrayItemFieldSchema,
 	DelayRenderScope,
