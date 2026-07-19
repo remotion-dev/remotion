@@ -34,7 +34,7 @@ import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
 import {KeyframeSettings} from './KeyframeSettings';
 import {SequenceInspectorSections} from './SequenceInspectorHeader';
 import {
-	detailsContainer,
+	detailsWithInlineAction,
 	sectionHeaderTitle,
 	selectedContainer,
 } from './styles';
@@ -336,7 +336,7 @@ export const EasingInspector: React.FC<{
 			{canAddKeyframeAtPlayhead ? (
 				<>
 					<InspectorSectionDivider />
-					<div style={detailsContainer}>
+					<div style={detailsWithInlineAction}>
 						<InspectorInlineAction
 							disabled={addKeyframeDisabled}
 							onClick={onAddKeyframeAtPlayhead}

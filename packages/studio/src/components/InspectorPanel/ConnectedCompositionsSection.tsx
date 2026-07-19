@@ -6,7 +6,6 @@ import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {InspectorInlineAction} from './common';
-import {detailsContainer} from './styles';
 
 const compositionIconStyle: React.CSSProperties = {
 	height: 13,
@@ -14,11 +13,9 @@ const compositionIconStyle: React.CSSProperties = {
 };
 
 const compositionListStyle: React.CSSProperties = {
-	...detailsContainer,
 	display: 'flex',
 	flexDirection: 'column',
-	paddingBottom: 6,
-	paddingTop: 6,
+	padding: '6px 0',
 };
 
 export const useConnectedCompositions = ({

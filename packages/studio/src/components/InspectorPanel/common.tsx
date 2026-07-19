@@ -1,6 +1,7 @@
 import React from 'react';
 import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../../helpers/colors';
 import {InlineAction} from '../InlineAction';
+import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import type {RenderModalWarning} from '../RenderModal/DataEditor';
 import {
@@ -99,7 +100,7 @@ const inlineLabelButton: React.CSSProperties = {
 	gap: 8,
 	lineHeight: '18px',
 	margin: 0,
-	padding: '5px 0',
+	padding: `5px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 };
 
 const inlineLabelButtonDisabled: React.CSSProperties = {
