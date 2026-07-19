@@ -4,6 +4,7 @@ import {
 	mkdirSync,
 	readdirSync,
 	readFileSync,
+	renameSync,
 	rmSync,
 	statSync,
 	writeFileSync,
@@ -14,6 +15,7 @@ const __dirname = new URL('.', import.meta.url).pathname;
 const skillsOut = resolve(__dirname, 'skills');
 
 const packagesSkillsDir = resolve(__dirname, '..', 'skills', 'skills');
+const embeddedSkillFilename = 'REFERENCE.md';
 
 if (existsSync(skillsOut)) {
 	rmSync(skillsOut, {recursive: true});
@@ -36,12 +38,24 @@ const copySkillDir = (src: string, destName: string) => {
 	console.log(`  Copied ${destName}`);
 };
 
-const rewriteEmbeddedBestPracticesLinks = () => {
+const prepareEmbeddedBestPractices = () => {
 	const embeddedRoot = join(skillsOut, 'remotion-best-practices');
 
 	if (!existsSync(embeddedRoot)) {
 		return;
 	}
+
+	const embeddedSkillNames = readdirSync(embeddedRoot, {withFileTypes: true})
+		.filter((entry) => {
+			const child = join(embeddedRoot, entry.name);
+			return (
+				entry.isDirectory() &&
+				entry.name !== 'rules' &&
+				existsSync(join(child, 'SKILL.md'))
+			);
+		})
+		.map((entry) => entry.name)
+		.sort();
 
 	const rewriteMarkdownFiles = (dir: string) => {
 		for (const entry of readdirSync(dir, {withFileTypes: true})) {
@@ -56,25 +70,24 @@ const rewriteEmbeddedBestPracticesLinks = () => {
 			}
 
 			const contents = readFileSync(file, 'utf-8');
-			const rewritten = contents.replaceAll(
-				'../remotion-best-practices/',
-				'../',
-			);
+			let rewritten = contents.replaceAll('../remotion-best-practices/', '../');
+			for (const skillName of embeddedSkillNames) {
+				rewritten = rewritten.replaceAll(
+					`${skillName}/SKILL.md`,
+					`${skillName}/${embeddedSkillFilename}`,
+				);
+			}
 			if (contents !== rewritten) {
 				writeFileSync(file, rewritten);
 			}
 		}
 	};
 
-	for (const entry of readdirSync(embeddedRoot, {withFileTypes: true})) {
-		const child = join(embeddedRoot, entry.name);
-		if (
-			entry.isDirectory() &&
-			entry.name !== 'rules' &&
-			existsSync(join(child, 'SKILL.md'))
-		) {
-			rewriteMarkdownFiles(child);
-		}
+	rewriteMarkdownFiles(embeddedRoot);
+
+	for (const skillName of embeddedSkillNames) {
+		const child = join(embeddedRoot, skillName);
+		renameSync(join(child, 'SKILL.md'), join(child, embeddedSkillFilename));
 	}
 };
 
@@ -89,7 +102,7 @@ if (existsSync(packagesSkillsDir)) {
 	for (const folder of skillFolders) {
 		copySkillDir(join(packagesSkillsDir, folder), folder);
 	}
-	rewriteEmbeddedBestPracticesLinks();
+	prepareEmbeddedBestPractices();
 } else {
 	console.warn('Warning: packages/skills/skills/ not found');
 }

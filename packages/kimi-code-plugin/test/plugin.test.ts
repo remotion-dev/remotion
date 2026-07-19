@@ -83,33 +83,61 @@ test('generated skills match the canonical skills', () => {
 	})
 		.filter((file) => !file.endsWith('.tsx'))
 		.map((file) => path.relative(canonicalSkillsRoot, file));
+	const embeddedSkillNames = getDirectories(
+		path.join(canonicalSkillsRoot, 'remotion-best-practices'),
+	).filter((skillName) =>
+		existsSync(
+			path.join(
+				canonicalSkillsRoot,
+				'remotion-best-practices',
+				skillName,
+				'SKILL.md',
+			),
+		),
+	);
+	const getGeneratedRelativeFile = (relativeFile: string) => {
+		const pathParts = relativeFile.split(path.sep);
+		if (
+			pathParts[0] === 'remotion-best-practices' &&
+			embeddedSkillNames.includes(pathParts[1]) &&
+			pathParts.at(-1) === 'SKILL.md'
+		) {
+			pathParts[pathParts.length - 1] = 'REFERENCE.md';
+		}
+
+		return pathParts.join(path.sep);
+	};
 	const generatedFiles = getFiles({
 		directory: generatedSkillsRoot,
 		expectNoSymlinks: true,
 	}).map((file) => path.relative(generatedSkillsRoot, file));
 
-	expect(generatedFiles).toEqual(canonicalFiles);
+	expect(generatedFiles).toEqual(
+		canonicalFiles.map(getGeneratedRelativeFile).sort(),
+	);
 
 	for (const relativeFile of canonicalFiles) {
 		const canonicalFile = path.join(canonicalSkillsRoot, relativeFile);
-		const generatedFile = path.join(generatedSkillsRoot, relativeFile);
+		const generatedFile = path.join(
+			generatedSkillsRoot,
+			getGeneratedRelativeFile(relativeFile),
+		);
 		if (relativeFile.endsWith('.md')) {
 			const pathParts = relativeFile.split(path.sep);
-			const shouldRewriteLinks =
-				pathParts[0] === 'remotion-best-practices' &&
-				pathParts[1] !== 'rules' &&
-				existsSync(
-					path.join(
-						canonicalSkillsRoot,
-						'remotion-best-practices',
-						pathParts[1],
-						'SKILL.md',
-					),
-				);
 			const canonicalContents = readFileSync(canonicalFile, 'utf-8');
-			const expectedContents = shouldRewriteLinks
-				? canonicalContents.replaceAll('../remotion-best-practices/', '../')
-				: canonicalContents;
+			let expectedContents = canonicalContents;
+			if (pathParts[0] === 'remotion-best-practices') {
+				expectedContents = expectedContents.replaceAll(
+					'../remotion-best-practices/',
+					'../',
+				);
+				for (const skillName of embeddedSkillNames) {
+					expectedContents = expectedContents.replaceAll(
+						`${skillName}/SKILL.md`,
+						`${skillName}/REFERENCE.md`,
+					);
+				}
+			}
 			expect(readFileSync(generatedFile, 'utf-8')).toBe(expectedContents);
 		} else {
 			expect(readFileSync(generatedFile)).toEqual(readFileSync(canonicalFile));
