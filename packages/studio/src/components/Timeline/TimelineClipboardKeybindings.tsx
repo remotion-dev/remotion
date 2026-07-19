@@ -890,6 +890,8 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 							setPropStatuses,
 							clientId,
 							confirm,
+							propStatuses,
+							timelinePosition: timelinePositionRef.current,
 						});
 						return deletePromise?.then((deleted) => {
 							if (!deleted) {

@@ -15,6 +15,7 @@ export type DeleteSequenceKeyframeChange = {
 	fieldKey: string;
 	sourceFrame: number;
 	schema: InteractivitySchema;
+	valueWhenLastKeyframeDeleted?: unknown;
 };
 
 export type DeleteEffectKeyframeChange = DeleteSequenceKeyframeChange & {
@@ -154,6 +155,7 @@ export const callDeleteKeyframes = ({
 				keyframes: keyframes.map((keyframe) => ({
 					fieldKey: keyframe.fieldKey,
 					frame: keyframe.sourceFrame,
+					valueWhenLastKeyframeDeleted: keyframe.valueWhenLastKeyframeDeleted,
 				})),
 			}),
 		);
@@ -172,6 +174,7 @@ export const callDeleteKeyframes = ({
 					effectIndex: keyframe.effectIndex,
 					fieldKey: keyframe.fieldKey,
 					frame: keyframe.sourceFrame,
+					valueWhenLastKeyframeDeleted: keyframe.valueWhenLastKeyframeDeleted,
 				})),
 			}),
 		);
@@ -184,6 +187,7 @@ export const callDeleteKeyframes = ({
 			key: keyframe.fieldKey,
 			frame: keyframe.sourceFrame,
 			schema: keyframe.schema,
+			valueWhenLastKeyframeDeleted: keyframe.valueWhenLastKeyframeDeleted,
 		})),
 		effectKeyframes: effectKeyframes.map((keyframe) => ({
 			fileName: keyframe.fileName,
@@ -192,6 +196,7 @@ export const callDeleteKeyframes = ({
 			key: keyframe.fieldKey,
 			frame: keyframe.sourceFrame,
 			schema: keyframe.schema,
+			valueWhenLastKeyframeDeleted: keyframe.valueWhenLastKeyframeDeleted,
 		})),
 		clientId,
 	}).then(() => undefined);

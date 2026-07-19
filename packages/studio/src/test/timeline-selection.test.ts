@@ -5628,6 +5628,8 @@ test('Deleting unsupported mixed timeline selection types returns null', () => {
 			setPropStatuses: () => undefined,
 			clientId: 'client',
 			confirm,
+			propStatuses: {},
+			timelinePosition: 0,
 		}),
 	).toBe(null);
 });
@@ -5837,6 +5839,8 @@ test('Deleting selected keyframes ignores selected easings', async () => {
 			setPropStatuses: () => undefined,
 			clientId: 'client',
 			confirm: () => Promise.resolve(true),
+			propStatuses: {},
+			timelinePosition: 0,
 		});
 
 		expect(result).toBe(true);
@@ -5851,6 +5855,107 @@ test('Deleting selected keyframes ignores selected easings', async () => {
 							key: 'opacity',
 							frame: 12,
 							schema,
+						},
+					],
+					effectKeyframes: [],
+					clientId: 'client',
+				},
+			},
+		]);
+	} finally {
+		globalThis.fetch = previousFetch;
+	}
+});
+
+test('Deleting all selected keyframes preserves the value at the playhead', async () => {
+	const schema = {
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies InteractivitySchema;
+	const opacityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'opacity'],
+	);
+	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				opacity: {
+					status: 'keyframed',
+					interpolationFunction: 'interpolate',
+					keyframes: [
+						{frame: 0, value: 0},
+						{frame: 10, value: 1},
+					],
+					easing: [{type: 'linear'}],
+					clamping: {left: 'extend', right: 'extend'},
+					posterize: undefined,
+					output: undefined,
+				},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+	const fetchCalls: unknown[] = [];
+	const previousFetch = globalThis.fetch;
+	globalThis.fetch = ((input, init) => {
+		fetchCalls.push({
+			input,
+			body:
+				typeof init?.body === 'string'
+					? JSON.parse(init.body)
+					: (init?.body ?? null),
+		});
+
+		return Promise.resolve({
+			json: () => Promise.resolve({success: true, data: {}}),
+		} as Response);
+	}) as typeof fetch;
+
+	try {
+		const result = await deleteSelectedTimelineItems({
+			selections: [
+				{
+					type: 'keyframe',
+					nodePathInfo: opacityNodePathInfo,
+					frame: 0,
+				},
+				{
+					type: 'keyframe',
+					nodePathInfo: opacityNodePathInfo,
+					frame: 10,
+				},
+			],
+			sequences: [makeTimelineSequence({schema})],
+			overrideIdsToNodePaths: {override: nodePath},
+			setPropStatuses: () => undefined,
+			clientId: 'client',
+			confirm: () => Promise.resolve(true),
+			propStatuses,
+			timelinePosition: 5,
+		});
+
+		expect(result).toBe(true);
+		expect(fetchCalls).toEqual([
+			{
+				input: '/api/delete-keyframes',
+				body: {
+					sequenceKeyframes: [
+						{
+							fileName: '/project/src/Comp.tsx',
+							nodePath,
+							key: 'opacity',
+							frame: 0,
+							schema,
+							valueWhenLastKeyframeDeleted: 0.5,
+						},
+						{
+							fileName: '/project/src/Comp.tsx',
+							nodePath,
+							key: 'opacity',
+							frame: 10,
+							schema,
+							valueWhenLastKeyframeDeleted: 0.5,
 						},
 					],
 					effectKeyframes: [],

@@ -196,6 +196,7 @@ export const deleteKeyframes = async ({
 					operation: {
 						type: 'remove',
 						frame: keyframe.frame,
+						valueWhenLastKeyframeDeleted: keyframe.valueWhenLastKeyframeDeleted,
 					},
 				})),
 			});
@@ -235,6 +236,7 @@ export const deleteKeyframes = async ({
 					operation: {
 						type: 'remove',
 						frame: keyframe.frame,
+						valueWhenLastKeyframeDeleted: keyframe.valueWhenLastKeyframeDeleted,
 					},
 				})),
 			});

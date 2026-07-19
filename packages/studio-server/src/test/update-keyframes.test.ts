@@ -1470,6 +1470,32 @@ test('updateSequenceKeyframes converts the last keyframe to a static value', asy
 	});
 });
 
+test('updateSequenceKeyframes preserves the playhead value when all keyframes are removed', async () => {
+	for (const frames of [
+		[0, 100],
+		[100, 0],
+	]) {
+		const {output} = await updateSequenceKeyframes({
+			videoConfigValues: null,
+			input: sequenceInput,
+			nodePath: lineColumnToNodePath(
+				sequenceInput,
+				getLine(sequenceInput, 'scale'),
+			),
+			updates: frames.map((frame) => ({
+				key: 'style.scale',
+				operation: {
+					type: 'remove' as const,
+					frame,
+					valueWhenLastKeyframeDeleted: 3,
+				},
+			})),
+		});
+
+		expect(output).toContain('style={{scale: 3}}');
+	}
+});
+
 test('updateSequenceKeyframes keeps a color interpolation when one keyframe remains', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
 		videoConfigValues: null,
