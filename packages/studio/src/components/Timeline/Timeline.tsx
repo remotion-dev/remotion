@@ -162,6 +162,7 @@ const TimelineContextMenuArea: React.FC<{
 				files,
 				compositionFile,
 				compositionId: currentCompositionId,
+				destinationDimensions: null,
 				dropPosition: null,
 			});
 		} finally {
