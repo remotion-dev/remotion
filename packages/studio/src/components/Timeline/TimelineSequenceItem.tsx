@@ -16,7 +16,10 @@ import {
 	WHITE,
 } from '../../helpers/colors';
 import {formatFileLocation} from '../../helpers/format-file-location';
-import {getSequenceDoubleClickAction} from '../../helpers/get-sequence-double-click-action';
+import {
+	getConnectedCompositionFrame,
+	getSequenceDoubleClickAction,
+} from '../../helpers/get-sequence-double-click-action';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
@@ -763,13 +766,29 @@ export const TimelineSequenceItem: React.FC<{
 
 			e.stopPropagation();
 			if (action === 'open-connected-composition') {
-				selectComposition(connectedCompositions[0], true);
+				selectComposition(
+					connectedCompositions[0],
+					true,
+					getConnectedCompositionFrame({
+						timelinePosition,
+						sequence,
+						sequenceFrameOffset,
+					}),
+				);
 				return;
 			}
 
 			openInEditor();
 		},
-		[canOpenInEditor, connectedCompositions, openInEditor, selectComposition],
+		[
+			canOpenInEditor,
+			connectedCompositions,
+			openInEditor,
+			selectComposition,
+			sequence,
+			sequenceFrameOffset,
+			timelinePosition,
+		],
 	);
 	const canHandleSequenceDoubleClick =
 		connectedCompositions.length === 1 || canOpenInEditor;
