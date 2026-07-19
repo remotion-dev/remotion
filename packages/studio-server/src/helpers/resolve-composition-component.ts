@@ -732,6 +732,25 @@ const createSequenceElement = (): namedTypes.JSXElement => {
 	);
 };
 
+const createSequenceWithChild = ({
+	child,
+	sequenceLocalName,
+}: {
+	child: namedTypes.JSXElement;
+	sequenceLocalName: string;
+}): namedTypes.JSXElement => {
+	return recast.types.builders.jsxElement(
+		recast.types.builders.jsxOpeningElement(
+			recast.types.builders.jsxIdentifier(sequenceLocalName),
+			[],
+		),
+		recast.types.builders.jsxClosingElement(
+			recast.types.builders.jsxIdentifier(sequenceLocalName),
+		),
+		[child],
+	);
+};
+
 const createNumberAttribute = (
 	name: string,
 	value: number,
@@ -1707,10 +1726,6 @@ const addElementToComponentRoot = ({
 		throw new Error('Composition component does not return JSX');
 	}
 
-	if (rootNode.type === 'JSXElement' && rootNode.openingElement.selfClosing) {
-		throw new Error('Cannot insert into a self-closing root JSX element');
-	}
-
 	const CANVAS_ROOT_ELEMENTS = [
 		'ThreeCanvas',
 		'RiveCanvas',
@@ -1726,6 +1741,38 @@ const addElementToComponentRoot = ({
 		throw new Error(
 			`Cannot insert a JSX element into a composition whose root element is <${rootNode.openingElement.name.name}>`,
 		);
+	}
+
+	if (rootNode.type === 'JSXElement' && rootNode.openingElement.selfClosing) {
+		const fragment = recast.types.builders.jsxFragment(
+			recast.types.builders.jsxOpeningFragment(),
+			recast.types.builders.jsxClosingFragment(),
+			[
+				createSequenceWithChild({
+					child: rootNode,
+					sequenceLocalName: ensureSequenceImport(ast),
+				}),
+				element,
+			],
+		);
+		let replaced = false;
+		recast.types.visit(ast, {
+			visitJSXElement(astPath) {
+				if (astPath.node === rootNode) {
+					astPath.replace(fragment);
+					replaced = true;
+					return false;
+				}
+
+				this.traverse(astPath);
+			},
+		});
+
+		if (!replaced) {
+			throw new Error('Could not replace composition component root');
+		}
+
+		return rootNode.loc?.start.line ?? 1;
 	}
 
 	if (!rootNode.children) {

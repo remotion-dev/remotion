@@ -12,7 +12,15 @@ import {
 	useTimelineSelection,
 } from '../Timeline/TimelineSelection';
 import {AlignmentControls} from './AlignmentControls';
-import {InspectorMessage, InspectorSectionHeader} from './common';
+import {
+	InspectorMessage,
+	InspectorSectionDivider,
+	InspectorSectionHeader,
+} from './common';
+import {
+	ConnectedCompositionsSection,
+	useConnectedCompositions,
+} from './ConnectedCompositionsSection';
 import type {SequenceSectionSelection} from './inspector-selection';
 import {
 	SequenceInspectorHeader,
@@ -27,6 +35,7 @@ const SequenceExpandedInspector: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {selectedItems, selectItems} = useTimelineSelection();
 	const sourceLocation = useSequenceInspectorSourceLocation(track.sequence);
+	const connectedCompositions = useConnectedCompositions({track});
 	const {validatedLocation} = sourceLocation;
 	const sequenceSelection = useMemo((): TimelineSelection | null => {
 		if (!track.nodePathInfo) {
@@ -83,6 +92,15 @@ const SequenceExpandedInspector: React.FC<{
 			onPointerDown={selectSequenceOnInspectorPointerDown}
 		>
 			<SequenceInspectorHeader sourceLocation={sourceLocation} track={track} />
+			{connectedCompositions.length > 0 ? (
+				<>
+					<InspectorSectionDivider />
+					<ConnectedCompositionsSection
+						connectedCompositions={connectedCompositions}
+					/>
+				</>
+			) : null}
+			<InspectorSectionDivider />
 			<InspectorSequenceSection
 				sequence={track.sequence}
 				validatedLocation={validatedLocation}

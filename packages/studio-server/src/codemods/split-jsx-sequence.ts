@@ -82,6 +82,14 @@ const getStaticNumber = (
 		return expression.value;
 	}
 
+	if (
+		expression.type === 'UnaryExpression' &&
+		expression.operator === '-' &&
+		expression.argument.type === 'NumericLiteral'
+	) {
+		return -expression.argument.value;
+	}
+
 	if (expression.type === 'Identifier' && expression.name === 'Infinity') {
 		return Infinity;
 	}

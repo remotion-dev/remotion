@@ -4,11 +4,16 @@ import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 
 export const INSPECTOR_INFO_HEADER_MIN_HEIGHT = 84;
 
-const container: React.CSSProperties = {
+const containerBase: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 	color: WHITE,
 	display: 'block',
 	padding: `6px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+};
+
+const container: React.CSSProperties = {
+	...containerBase,
+	minHeight: INSPECTOR_INFO_HEADER_MIN_HEIGHT,
 };
 
 const row: React.CSSProperties = {
@@ -46,10 +51,17 @@ const subtitle: React.CSSProperties = {
 
 export const InspectorInfoHeader: React.FC<{
 	readonly children?: React.ReactNode;
-	readonly minHeight: number;
-}> = ({children, minHeight}) => {
+	readonly contentSized?: boolean;
+	readonly minHeight?: number;
+}> = ({children, contentSized = false, minHeight}) => {
+	const style = contentSized
+		? containerBase
+		: minHeight === undefined
+			? container
+			: {...containerBase, minHeight};
+
 	return (
-		<div style={{...container, minHeight}}>
+		<div style={style}>
 			{children === undefined || children === null ? null : (
 				<div style={row}>
 					<div style={content}>{children}</div>

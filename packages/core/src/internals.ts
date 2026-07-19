@@ -67,6 +67,8 @@ import {
 import {
 	addSequenceStackTraces,
 	getComponentsToAddStacksTo,
+	getSequenceComponent,
+	getSingleChildComponent,
 } from './enable-sequence-stack-traces.js';
 import {findPropsToDelete} from './find-props-to-delete.js';
 import {
@@ -101,6 +103,7 @@ import {
 	sequenceVisualStyleSchema,
 	textSchema,
 	transformSchema,
+	type AssetFieldSchema,
 	type ArrayFieldSchema,
 	type ArrayItemFieldSchema,
 	type InteractivitySchemaField,
@@ -367,6 +370,8 @@ export const Internals = {
 	BufferingProvider,
 	BufferingContextReact,
 	getComponentsToAddStacksTo,
+	getSequenceComponent,
+	getSingleChildComponent,
 	CurrentScaleContext,
 	PixelDensityContext,
 	PreviewSizeContext,
@@ -426,6 +431,7 @@ export const Internals = {
 
 export type {
 	ArrayFieldSchema,
+	AssetFieldSchema,
 	ArrayItemFieldSchema,
 	CannotUpdateSequenceReason,
 	CanUpdateEffectPropsResponse,

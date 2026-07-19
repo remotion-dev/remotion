@@ -86,6 +86,10 @@ export type SequencePropsWithoutDuration = {
 	/**
 	 * @deprecated For internal use only.
 	 */
+	readonly _remotionInternalSingleChildComponent?: unknown;
+	/**
+	 * @deprecated For internal use only.
+	 */
 	readonly _remotionInternalIsPremounting?: boolean;
 	/**
 	 * @deprecated For internal use only.
@@ -134,6 +138,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalLoopDisplay: loopDisplay,
 		_remotionInternalStack: stack,
 		_remotionInternalDocumentationLink: documentationLink,
+		_remotionInternalSingleChildComponent: singleChildComponent,
 		_remotionInternalPremountDisplay: premountDisplay,
 		_remotionInternalPostmountDisplay: postmountDisplay,
 		_remotionInternalIsMedia: isMedia,
@@ -399,6 +404,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					refForOutline: refForOutline ?? null,
 					isInsideSeries,
 					frozenFrame: registeredFrozenFrame,
+					singleChildComponent: singleChildComponent ?? null,
 				});
 			} else {
 				registerSequence({
@@ -429,6 +435,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					isInsideSeries,
 					frozenFrame: registeredFrozenFrame,
 					frozenMediaFrame,
+					singleChildComponent: singleChildComponent ?? null,
 				});
 			}
 
@@ -458,6 +465,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			refForOutline: refForOutline ?? null,
 			isInsideSeries,
 			frozenFrame: registeredFrozenFrame,
+			singleChildComponent: singleChildComponent ?? null,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -491,6 +499,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		startMediaFrom,
 		mediaFrameAtSequenceZero,
 		frozenMediaFrame,
+		singleChildComponent,
 	]);
 
 	// Ceil to support floats

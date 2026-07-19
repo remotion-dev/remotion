@@ -17,7 +17,7 @@ import {
 } from '../Timeline/call-update-keyframe-settings';
 import type {SelectedEasingUpdate} from '../Timeline/update-selected-easing';
 import {InspectorDetailRow, InspectorSectionHeader} from './common';
-import {detailsContainer, inspectorSectionDivider} from './styles';
+import {detailsContainer} from './styles';
 
 const comboStyle: React.CSSProperties = {
 	minWidth: 120,
@@ -202,7 +202,6 @@ export const KeyframeSettings: React.FC<{
 
 	return (
 		<>
-			<div style={inspectorSectionDivider} />
 			<InspectorSectionHeader>Keyframe settings</InspectorSectionHeader>
 			<div style={keyframeSettingsContainer}>
 				{canEditInterpolationSettings ? (

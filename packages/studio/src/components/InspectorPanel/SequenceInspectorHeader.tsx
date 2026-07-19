@@ -7,9 +7,13 @@ import {InspectorLocationCopy} from '../InspectorLocationCopy';
 import {InspectorSourceLocation} from '../InspectorSourceLocation';
 import {useOpenSequenceInEditor} from '../Timeline/use-open-sequence-in-editor';
 import {useRenameSequence} from '../Timeline/use-rename-sequence';
+import {InspectorSectionDivider} from './common';
+import {
+	ConnectedCompositionsSection,
+	useConnectedCompositions,
+} from './ConnectedCompositionsSection';
 import {
 	sequenceHeader,
-	sequenceHeaderDivider,
 	sequenceHeaderSubtitle,
 	sequenceHeaderTitle,
 } from './styles';
@@ -91,7 +95,6 @@ export const SequenceInspectorHeader: React.FC<{
 	}, [documentationLink]);
 
 	const componentName = track.sequence.controls?.componentName;
-
 	const onRename = useCallback(
 		(newName: string) => {
 			saveName(newName).catch(() => undefined);
@@ -134,15 +137,23 @@ export const SequenceInspectorHeader: React.FC<{
 	);
 };
 
-export const SequenceInspectorHeaderWithDivider: React.FC<{
+export const SequenceInspectorSections: React.FC<{
 	readonly track: TrackWithHash;
 }> = ({track}) => {
 	const sourceLocation = useSequenceInspectorSourceLocation(track.sequence);
+	const connectedCompositions = useConnectedCompositions({track});
 
 	return (
 		<>
 			<SequenceInspectorHeader sourceLocation={sourceLocation} track={track} />
-			<div style={sequenceHeaderDivider} />
+			{connectedCompositions.length > 0 ? (
+				<>
+					<InspectorSectionDivider />
+					<ConnectedCompositionsSection
+						connectedCompositions={connectedCompositions}
+					/>
+				</>
+			) : null}
 		</>
 	);
 };

@@ -1,6 +1,7 @@
 import React from 'react';
 import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../../helpers/colors';
 import {InlineAction} from '../InlineAction';
+import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import type {RenderModalWarning} from '../RenderModal/DataEditor';
 import {
@@ -19,6 +20,10 @@ import {
 export const InspectorSectionHeader: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => <div style={sectionHeader}>{children}</div>;
+
+export const InspectorSectionDivider: React.FC = () => (
+	<div style={inspectorSectionDivider} />
+);
 
 const backIcon: React.CSSProperties = {
 	alignItems: 'center',
@@ -45,29 +50,26 @@ const BackChevron: React.FC<{
 	);
 };
 
-export const InspectorBackHeaderWithDivider: React.FC<{
+export const InspectorBackHeader: React.FC<{
 	readonly children: React.ReactNode;
 	readonly disabled: boolean;
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
 	readonly title: string;
 }> = ({children, disabled, onClick, title}) => {
 	return (
-		<>
-			<InspectorSectionHeader>
-				<div style={sectionHeaderRow}>
-					<div style={sectionHeaderStart}>
-						<InlineAction
-							disabled={disabled}
-							onClick={onClick}
-							title={title}
-							renderAction={(color) => <BackChevron color={color} />}
-						/>
-						{children}
-					</div>
+		<InspectorSectionHeader>
+			<div style={sectionHeaderRow}>
+				<div style={sectionHeaderStart}>
+					<InlineAction
+						disabled={disabled}
+						onClick={onClick}
+						title={title}
+						renderAction={(color) => <BackChevron color={color} />}
+					/>
+					{children}
 				</div>
-			</InspectorSectionHeader>
-			<div style={inspectorSectionDivider} />
-		</>
+			</div>
+		</InspectorSectionHeader>
 	);
 };
 
@@ -90,6 +92,7 @@ const inlineLabelButton: React.CSSProperties = {
 	appearance: 'none',
 	backgroundColor: TRANSPARENT,
 	border: 'none',
+	boxSizing: 'border-box',
 	color: LIGHT_TEXT,
 	cursor: 'default',
 	display: 'flex',
@@ -98,7 +101,9 @@ const inlineLabelButton: React.CSSProperties = {
 	gap: 8,
 	lineHeight: '18px',
 	margin: 0,
-	padding: '10px 0 0',
+	padding: `5px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+	textAlign: 'left',
+	width: '100%',
 };
 
 const inlineLabelButtonDisabled: React.CSSProperties = {

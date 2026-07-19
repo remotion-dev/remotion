@@ -1,5 +1,6 @@
 import {
 	COMPOSITION_DRAG_MIME_TYPE,
+	compositionDragDataToSymbolicatedStack,
 	makeCompositionDragData,
 	parseCompositionDragData,
 } from '@remotion/studio-shared';
@@ -22,18 +23,17 @@ import {
 	getBackgroundFromHoverState,
 } from '../helpers/colors';
 import {getFolderId} from '../helpers/get-folder-id';
-import {isCompositionStill} from '../helpers/is-composition-still';
 import {noop} from '../helpers/noop';
 import {
 	markCompositionSidebarScrollFromRowClick,
 	maybeScrollCompositionSidebarRowIntoView,
 } from '../helpers/sidebar-scroll-into-view';
+import {getUrlForRoute} from '../helpers/url-state';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
-import {StillIcon} from '../icons/still';
-import {FilmIcon} from '../icons/video';
 import {ModalsContext} from '../state/modals';
 import {getCompositionMenuItems} from './composition-menu-items';
 import {CompositionContextButton} from './CompositionContextButton';
+import {CompositionOrStillIcon} from './CompositionOrStillIcon';
 import {ContextMenu} from './ContextMenu';
 import {getFolderMenuItems} from './folder-menu-items';
 import {Row, Spacing} from './layout';
@@ -199,7 +199,7 @@ export const CompositionSelectorItem: React.FC<{
 
 	const contextMenu = useMemo((): ComboboxValue[] => {
 		if (item.type === 'composition') {
-			return getCompositionMenuItems({
+			const compositionMenuItems = getCompositionMenuItems({
 				closeMenu: noop,
 				composition: item.composition,
 				connectionStatus,
@@ -207,6 +207,57 @@ export const CompositionSelectorItem: React.FC<{
 				setSelectedModal,
 				readOnlyStudio: window.remotion_isReadOnlyStudio,
 			});
+
+			return [
+				{
+					id: 'open-in-new-window',
+					keyHint: null,
+					label: 'Open in new window',
+					leftItem: null,
+					onClick: () => {
+						const screen = window.screen as Screen & {
+							availLeft?: number;
+							availTop?: number;
+						};
+						const width = Math.min(1200, Math.floor(screen.availWidth * 0.8));
+						const height = Math.min(800, Math.floor(screen.availHeight * 0.8));
+						const displayLeft = screen.availLeft ?? 0;
+						const displayTop = screen.availTop ?? 0;
+						const left = Math.round(
+							Math.min(
+								Math.max(
+									window.screenX + (window.outerWidth - width) / 2,
+									displayLeft,
+								),
+								displayLeft + screen.availWidth - width,
+							),
+						);
+						const top = Math.round(
+							Math.min(
+								Math.max(
+									window.screenY + (window.outerHeight - height) / 2,
+									displayTop,
+								),
+								displayTop + screen.availHeight - height,
+							),
+						);
+						window.open(
+							getUrlForRoute(`/${item.composition.id}`),
+							'_blank',
+							`popup,width=${width},height=${height},left=${left},top=${top}`,
+						);
+					},
+					quickSwitcherLabel: null,
+					subMenu: null,
+					type: 'item',
+					value: 'open-in-new-window',
+				},
+				{
+					type: 'divider',
+					id: 'open-in-new-window-divider',
+				},
+				...compositionMenuItems,
+			];
 		}
 
 		return getFolderMenuItems({
@@ -332,7 +383,7 @@ export const CompositionSelectorItem: React.FC<{
 					},
 					dryRun: false,
 					signal: controller.signal,
-					symbolicatedStack: null,
+					symbolicatedStack: compositionDragDataToSymbolicatedStack(parsed),
 				});
 
 				notification.replaceContent(
@@ -433,17 +484,11 @@ export const CompositionSelectorItem: React.FC<{
 					className="__remotion-composition"
 					data-compname={item.composition.id}
 				>
-					{isCompositionStill(item.composition) ? (
-						<StillIcon
-							color={hovered || selected ? WHITE : LIGHT_TEXT}
-							style={iconStyle}
-						/>
-					) : (
-						<FilmIcon
-							color={hovered || selected ? WHITE : LIGHT_TEXT}
-							style={iconStyle}
-						/>
-					)}
+					<CompositionOrStillIcon
+						composition={item.composition}
+						color={hovered || selected ? WHITE : LIGHT_TEXT}
+						style={iconStyle}
+					/>
 					<Spacing x={1} />
 					<div style={label}>{item.composition.id}</div>
 					<Spacing x={0.5} />
