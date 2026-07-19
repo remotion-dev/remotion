@@ -1012,6 +1012,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 								fieldKey: keyframeTarget.fieldKey,
 								sourceFrame,
 								schema: keyframeTarget.schema,
+								valueWhenLastKeyframeDeleted: null,
 							}),
 						);
 

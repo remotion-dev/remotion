@@ -5855,6 +5855,7 @@ test('Deleting selected keyframes ignores selected easings', async () => {
 							key: 'opacity',
 							frame: 12,
 							schema,
+							valueWhenLastKeyframeDeleted: null,
 						},
 					],
 					effectKeyframes: [],

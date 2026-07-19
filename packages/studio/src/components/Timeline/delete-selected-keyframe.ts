@@ -27,9 +27,9 @@ const getValueWhenLastKeyframeDeleted = ({
 }: {
 	propStatus: CanUpdateSequencePropStatus | null | undefined;
 	playheadSourceFrame: number | null;
-}): unknown => {
+}): unknown | null => {
 	if (propStatus?.status !== 'keyframed' || playheadSourceFrame === null) {
-		return undefined;
+		return null;
 	}
 
 	return (
@@ -37,7 +37,7 @@ const getValueWhenLastKeyframeDeleted = ({
 			forceSpringAllowTail: null,
 			frame: playheadSourceFrame,
 			status: propStatus,
-		}) ?? undefined
+		}) ?? null
 	);
 };
 
@@ -53,8 +53,8 @@ const getSelectedKeyframeDeletion = ({
 	frame: number;
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
-	propStatuses?: PropStatuses;
-	timelinePosition?: number;
+	propStatuses: PropStatuses | null;
+	timelinePosition: number | null;
 }): SelectedKeyframeDeletion | null => {
 	const field = parseKeyframeFieldFromNodePath(nodePathInfo.auxiliaryKeys);
 	if (field === null) {
@@ -73,7 +73,7 @@ const getSelectedKeyframeDeletion = ({
 
 	const sourceFrame = frame - (track?.keyframeDisplayOffset ?? 0);
 	const playheadSourceFrame =
-		timelinePosition === undefined
+		timelinePosition === null
 			? null
 			: timelinePosition - (track?.keyframeDisplayOffset ?? 0);
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
@@ -85,13 +85,14 @@ const getSelectedKeyframeDeletion = ({
 			return null;
 		}
 
-		const effectStatus = propStatuses
-			? Internals.getEffectPropStatusesCtx({
-					propStatuses,
-					nodePath,
-					effectIndex: field.effectIndex,
-				})
-			: null;
+		const effectStatus =
+			propStatuses !== null
+				? Internals.getEffectPropStatusesCtx({
+						propStatuses,
+						nodePath,
+						effectIndex: field.effectIndex,
+					})
+				: null;
 		const effectPropStatus =
 			effectStatus?.type === 'can-update-effect'
 				? effectStatus.props[field.fieldKey]
@@ -113,9 +114,10 @@ const getSelectedKeyframeDeletion = ({
 		};
 	}
 
-	const sequencePropStatus = propStatuses
-		? Internals.getPropStatusesCtx(propStatuses, nodePath)?.[field.fieldKey]
-		: null;
+	const sequencePropStatus =
+		propStatuses !== null
+			? Internals.getPropStatusesCtx(propStatuses, nodePath)?.[field.fieldKey]
+			: null;
 	const sequenceValueWhenLastKeyframeDeleted = getValueWhenLastKeyframeDeleted({
 		propStatus: sequencePropStatus,
 		playheadSourceFrame,
@@ -152,6 +154,8 @@ export const deleteSelectedKeyframe = ({
 		frame,
 		sequences,
 		overrideIdsToNodePaths,
+		propStatuses: null,
+		timelinePosition: null,
 	});
 	if (deletion === null) {
 		return null;

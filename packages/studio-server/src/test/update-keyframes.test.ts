@@ -1233,7 +1233,11 @@ test('updateSequenceKeyframes keeps an interpolation when one keyframe remains',
 		updates: [
 			{
 				key: 'style.scale',
-				operation: {type: 'remove', frame: 0},
+				operation: {
+					type: 'remove',
+					frame: 0,
+					valueWhenLastKeyframeDeleted: null,
+				},
 			},
 		],
 	});
@@ -1262,7 +1266,11 @@ export const Example: React.FC = () => {
 		updates: [
 			{
 				key: 'style.scale',
-				operation: {type: 'remove', frame: 91},
+				operation: {
+					type: 'remove',
+					frame: 91,
+					valueWhenLastKeyframeDeleted: null,
+				},
 			},
 		],
 	});
@@ -1291,7 +1299,11 @@ export const Example: React.FC = () => {
 		updates: [
 			{
 				key: 'style.scale',
-				operation: {type: 'remove', frame: 38},
+				operation: {
+					type: 'remove',
+					frame: 38,
+					valueWhenLastKeyframeDeleted: null,
+				},
 			},
 		],
 	});
@@ -1448,7 +1460,11 @@ test('updateSequenceKeyframes converts the last keyframe to a static value', asy
 			updates: [
 				{
 					key: 'style.scale',
-					operation: {type: 'remove', frame: 12},
+					operation: {
+						type: 'remove',
+						frame: 12,
+						valueWhenLastKeyframeDeleted: null,
+					},
 				},
 			],
 		});
@@ -1504,7 +1520,11 @@ test('updateSequenceKeyframes keeps a color interpolation when one keyframe rema
 		updates: [
 			{
 				key: 'color',
-				operation: {type: 'remove', frame: 0},
+				operation: {
+					type: 'remove',
+					frame: 0,
+					valueWhenLastKeyframeDeleted: null,
+				},
 			},
 		],
 	});
@@ -1652,7 +1672,11 @@ test('updateSequenceKeyframes converts the last color keyframe to a static value
 			updates: [
 				{
 					key: 'color',
-					operation: {type: 'remove', frame: 15},
+					operation: {
+						type: 'remove',
+						frame: 15,
+						valueWhenLastKeyframeDeleted: null,
+					},
 				},
 			],
 		});
@@ -1686,7 +1710,11 @@ test('updateEffectKeyframes removes a keyframe from an effect prop interpolation
 		updates: [
 			{
 				key: 'amount',
-				operation: {type: 'remove', frame: 50},
+				operation: {
+					type: 'remove',
+					frame: 50,
+					valueWhenLastKeyframeDeleted: null,
+				},
 			},
 		],
 	});
@@ -1775,7 +1803,11 @@ test('updateEffectKeyframes keeps an effect prop interpolation with one keyframe
 		updates: [
 			{
 				key: 'amount',
-				operation: {type: 'remove', frame: 100},
+				operation: {
+					type: 'remove',
+					frame: 100,
+					valueWhenLastKeyframeDeleted: null,
+				},
 			},
 		],
 	});
@@ -1800,7 +1832,11 @@ test('updateEffectKeyframes converts the last effect keyframe to a static value'
 			updates: [
 				{
 					key: 'amount',
-					operation: {type: 'remove', frame: 40},
+					operation: {
+						type: 'remove',
+						frame: 40,
+						valueWhenLastKeyframeDeleted: null,
+					},
 				},
 			],
 		});

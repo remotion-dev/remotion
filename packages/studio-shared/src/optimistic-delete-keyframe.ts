@@ -28,7 +28,7 @@ const removeKeyframeFromPropStatus = ({
 }: {
 	status: CanUpdateSequencePropStatus;
 	frame: number;
-	valueWhenLastKeyframeDeleted?: unknown;
+	valueWhenLastKeyframeDeleted: unknown | null;
 }): CanUpdateSequencePropStatus => {
 	if (status.status !== 'keyframed') {
 		return status;
@@ -44,7 +44,7 @@ const removeKeyframeFromPropStatus = ({
 		return {
 			status: 'static',
 			codeValue:
-				valueWhenLastKeyframeDeleted === undefined
+				valueWhenLastKeyframeDeleted === null
 					? status.keyframes[index].value
 					: valueWhenLastKeyframeDeleted,
 		};
@@ -96,7 +96,7 @@ export const optimisticDeleteSequenceKeyframe = ({
 			[fieldKey]: removeKeyframeFromPropStatus({
 				status,
 				frame,
-				valueWhenLastKeyframeDeleted,
+				valueWhenLastKeyframeDeleted: valueWhenLastKeyframeDeleted ?? null,
 			}),
 		},
 	};
@@ -166,7 +166,7 @@ export const optimisticDeleteEffectKeyframe = ({
 			[fieldKey]: removeKeyframeFromPropStatus({
 				status,
 				frame,
-				valueWhenLastKeyframeDeleted,
+				valueWhenLastKeyframeDeleted: valueWhenLastKeyframeDeleted ?? null,
 			}),
 		},
 	};

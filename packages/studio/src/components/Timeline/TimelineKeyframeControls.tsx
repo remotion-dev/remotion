@@ -355,6 +355,7 @@ const getDeleteChange = (
 		fieldKey: target.fieldKey,
 		sourceFrame: target.sourceFrame,
 		schema: target.schema,
+		valueWhenLastKeyframeDeleted: null,
 	};
 
 	if (target.effectIndex === null) {

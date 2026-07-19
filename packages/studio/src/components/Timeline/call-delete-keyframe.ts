@@ -15,7 +15,7 @@ export type DeleteSequenceKeyframeChange = {
 	fieldKey: string;
 	sourceFrame: number;
 	schema: InteractivitySchema;
-	valueWhenLastKeyframeDeleted?: unknown;
+	valueWhenLastKeyframeDeleted: unknown | null;
 };
 
 export type DeleteEffectKeyframeChange = DeleteSequenceKeyframeChange & {

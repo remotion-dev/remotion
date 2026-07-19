@@ -158,7 +158,7 @@ export type KeyframeOperation =
 	| {
 			type: 'remove';
 			frame: number;
-			valueWhenLastKeyframeDeleted?: unknown;
+			valueWhenLastKeyframeDeleted: unknown | null;
 	  }
 	| {
 			type: 'settings';
@@ -1169,7 +1169,7 @@ const removeKeyframe = ({
 	expression: Expression;
 	frame: number;
 	videoConfigValues: VideoConfigIdentifierValues;
-	valueWhenLastKeyframeDeleted?: unknown;
+	valueWhenLastKeyframeDeleted: unknown | null;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
 	const existing = getInterpolationExpression(expression, videoConfigValues);
 	if (!existing) {
@@ -1190,7 +1190,7 @@ const removeKeyframe = ({
 	if (nextKeyframes.length === 0) {
 		return {
 			expression:
-				valueWhenLastKeyframeDeleted === undefined
+				valueWhenLastKeyframeDeleted === null
 					? existing.keyframes[keyframeIndex].output
 					: parseValueExpression(valueWhenLastKeyframeDeleted),
 			introduced: noIntroducedIdentifiers,
