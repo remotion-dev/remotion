@@ -54,6 +54,46 @@ test('maps animated PNG file types to AnimatedImage assets', () => {
 	});
 });
 
+test('maps animated WebP file types to AnimatedImage assets', () => {
+	expect(
+		getAssetElement({
+			fileType: {
+				type: 'webp',
+				animated: true,
+				dimensions: {width: 480, height: 290},
+			},
+			src: 'animated.webp',
+		}),
+	).toEqual({
+		type: 'asset',
+		assetType: 'animated-image',
+		src: 'animated.webp',
+		srcType: 'static',
+		dimensions: {width: 480, height: 290},
+		position: null,
+	});
+});
+
+test('maps static WebP file types to Img assets', () => {
+	expect(
+		getAssetElement({
+			fileType: {
+				type: 'webp',
+				animated: false,
+				dimensions: {width: 480, height: 290},
+			},
+			src: 'static.webp',
+		}),
+	).toEqual({
+		type: 'asset',
+		assetType: 'image',
+		src: 'static.webp',
+		srcType: 'static',
+		dimensions: {width: 480, height: 290},
+		position: null,
+	});
+});
+
 test('maps existing static file paths to insertable assets', () => {
 	expect(getAssetElementFromPath('nested/photo.JPG')).toEqual({
 		type: 'asset',
