@@ -9,6 +9,7 @@ import {
 	type InteractivitySchema,
 } from 'remotion';
 import {getLoopDisplay} from '../show-in-timeline';
+import {getVideoSequenceDuration} from './get-video-sequence-duration';
 import type {InnerVideoProps, VideoProps} from './props';
 import {VideoForPreview} from './video-for-preview';
 import {VideoForRendering} from './video-for-rendering';
@@ -17,6 +18,12 @@ const {validateMediaTrimProps, resolveTrimProps, validateMediaProps} =
 	Internals;
 
 const videoSchema = {
+	src: {
+		type: 'asset',
+		default: undefined,
+		description: 'Source',
+		keyframable: false,
+	},
 	...Internals.baseSchema,
 	volume: {
 		type: 'number',
@@ -36,6 +43,7 @@ const videoSchema = {
 		hiddenFromList: false,
 		keyframable: false,
 	},
+	muted: {type: 'boolean', default: false, description: 'Muted'},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
 	...Internals.transformSchema,
 } as const satisfies InteractivitySchema;
@@ -229,6 +237,13 @@ const VideoInner: React.FC<
 		durationInFrames ?? Infinity,
 		Math.max(0, videoConfig.durationInFrames - (from ?? 0)),
 	);
+	const videoSequenceDuration = getVideoSequenceDuration({
+		durationInFrames,
+		loop: loop ?? false,
+		playbackRate: playbackRate ?? 1,
+		trimAfter,
+		trimBefore,
+	});
 
 	const basicInfo = Internals.useBasicMediaInTimeline({
 		src,
@@ -296,7 +311,7 @@ const VideoInner: React.FC<
 		<Sequence
 			layout="none"
 			from={from ?? 0}
-			durationInFrames={basicInfo.duration}
+			durationInFrames={videoSequenceDuration}
 			freeze={freeze}
 			_remotionInternalStack={stack}
 			_remotionInternalIsMedia={isMedia}

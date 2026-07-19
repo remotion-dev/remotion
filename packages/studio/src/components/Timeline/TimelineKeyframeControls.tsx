@@ -221,6 +221,7 @@ const resolveKeyframeControlTarget = ({
 		getEffectDragOverrides,
 		propStatuses,
 		includeTextContent: false,
+		includeSourceControls: false,
 	});
 	const fieldNode = findFieldNode(
 		tree,

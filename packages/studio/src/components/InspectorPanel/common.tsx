@@ -98,7 +98,7 @@ const inlineLabelButton: React.CSSProperties = {
 	gap: 8,
 	lineHeight: '18px',
 	margin: 0,
-	padding: '10px 0 0',
+	padding: '5px 0',
 };
 
 const inlineLabelButtonDisabled: React.CSSProperties = {

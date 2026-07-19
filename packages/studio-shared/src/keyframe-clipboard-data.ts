@@ -9,6 +9,7 @@ import type {KeyframeEasing} from './keyframe-easing-presets';
 // compatibility decision.
 const KEYFRAME_CLIPBOARD_FIELD_TYPE_SUPPORT = {
 	array: false,
+	asset: false,
 	boolean: false,
 	color: true,
 	enum: false,

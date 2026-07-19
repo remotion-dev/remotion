@@ -41,7 +41,7 @@ export type AnySchemaFieldInfo =
 
 export const SCHEMA_FIELD_ROW_HEIGHT = 22;
 
-export type SchemaFieldGroup = 'controls' | 'transforms' | 'text';
+export type SchemaFieldGroup = 'source' | 'controls' | 'transforms' | 'text';
 
 export type SchemaFieldGroupInfo = {
 	readonly id: SchemaFieldGroup;
@@ -49,6 +49,7 @@ export type SchemaFieldGroupInfo = {
 };
 
 export const SCHEMA_FIELD_GROUPS = [
+	{id: 'source', label: 'Source'},
 	{id: 'controls', label: 'Controls'},
 	{id: 'transforms', label: 'Transform'},
 	{id: 'text', label: 'Text'},
@@ -83,6 +84,10 @@ const TEXT_FIELD_KEYS = new Set([
 ]);
 
 export const getSchemaFieldGroup = (key: string): SchemaFieldGroup => {
+	if (key === 'src') {
+		return 'source';
+	}
+
 	if (TRANSFORM_FIELD_KEYS.has(key)) {
 		return 'transforms';
 	}
@@ -110,6 +115,7 @@ const sortSchemaFields = <T extends SchemaFieldInfo>(fields: T[]): T[] => {
 // support decision.
 const TIMELINE_SCHEMA_FIELD_TYPE_SUPPORT = {
 	array: true,
+	asset: true,
 	boolean: true,
 	color: true,
 	enum: true,

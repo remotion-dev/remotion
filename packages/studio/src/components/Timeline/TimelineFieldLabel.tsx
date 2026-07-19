@@ -1,7 +1,8 @@
-import React, {useMemo} from 'react';
+import React, {useContext, useMemo} from 'react';
 import {WHITE_ALPHA_80} from '../../helpers/colors';
 import {SCHEMA_FIELD_ROW_HEIGHT} from '../../helpers/timeline-layout';
 import {getTimelineFieldLabelRowStyle} from './timeline-field-row-layout';
+import {TimelineRowLayoutContext} from './TimelineRowLayoutContext';
 import {
 	getTimelineColor,
 	getTimelineSelectedLabelStyle,
@@ -24,14 +25,15 @@ export const TimelineFieldLabel: React.FC<{
 	readonly label: string;
 	readonly stacked?: boolean;
 }> = ({rowDepth, selected, label, stacked = false}) => {
+	const {basePadding} = useContext(TimelineRowLayoutContext);
 	const labelRowStyle = useMemo(
 		(): React.CSSProperties => ({
-			...getTimelineFieldLabelRowStyle(rowDepth),
+			...getTimelineFieldLabelRowStyle(rowDepth, basePadding),
 			...getTimelineSelectedLabelStyle(selected, true),
 			...(stacked ? {flex: `0 0 ${SCHEMA_FIELD_ROW_HEIGHT}px`} : null),
 			alignSelf: 'stretch',
 		}),
-		[rowDepth, selected, stacked],
+		[basePadding, rowDepth, selected, stacked],
 	);
 
 	const fieldNameStyle = useMemo(

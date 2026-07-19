@@ -12,6 +12,7 @@ export type KeyframeInterpolationFunction =
 // keyframe and interpolation decisions.
 const KEYFRAME_FIELD_TYPE_SUPPORT = {
 	array: false,
+	asset: false,
 	boolean: false,
 	color: true,
 	enum: false,
@@ -34,6 +35,7 @@ type KeyframeInterpolationStrategy =
 
 const KEYFRAME_FIELD_TYPE_INTERPOLATION = {
 	array: 'unsupported',
+	asset: 'unsupported',
 	boolean: 'unsupported',
 	color: 'interpolateColors',
 	enum: 'unsupported',

@@ -77,6 +77,18 @@ test('isSchemaFieldKeyframable rejects font-family fields', () => {
 	);
 });
 
+test('isSchemaFieldKeyframable rejects asset fields', () => {
+	const schema = {
+		src: {
+			type: 'asset',
+			default: undefined,
+			keyframable: false,
+		},
+	} satisfies InteractivitySchema;
+
+	expect(isSchemaFieldKeyframable({schema, key: 'src'})).toBe(false);
+});
+
 test('isSchemaFieldKeyframable rejects boolean fields in enum variants', () => {
 	const schema = {
 		layout: {
