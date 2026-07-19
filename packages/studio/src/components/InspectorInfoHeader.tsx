@@ -52,9 +52,16 @@ const subtitle: React.CSSProperties = {
 export const InspectorInfoHeader: React.FC<{
 	readonly children?: React.ReactNode;
 	readonly contentSized?: boolean;
-}> = ({children, contentSized = false}) => {
+	readonly minHeight?: number;
+}> = ({children, contentSized = false, minHeight}) => {
+	const style = contentSized
+		? containerBase
+		: minHeight === undefined
+			? container
+			: {...containerBase, minHeight};
+
 	return (
-		<div style={contentSized ? containerBase : container}>
+		<div style={style}>
 			{children === undefined || children === null ? null : (
 				<div style={row}>
 					<div style={content}>{children}</div>

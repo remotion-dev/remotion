@@ -199,6 +199,17 @@ test('formats precise log messages for all codemods', () => {
 			expected: 'Renamed composition "Original" to "Renamed"',
 		},
 		{
+			codemod: {
+				type: 'update-composition-metadata',
+				idToUpdate: 'Original',
+				newDurationInFrames: null,
+				newFps: null,
+				newHeight: null,
+				newWidth: 1920,
+			},
+			expected: 'Updated metadata of composition "Original"',
+		},
+		{
 			codemod: {type: 'delete-composition', idToDelete: 'DeleteMe'},
 			expected: 'Deleted composition "DeleteMe"',
 		},

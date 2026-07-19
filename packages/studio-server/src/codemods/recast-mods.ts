@@ -651,6 +651,8 @@ const transformLoneJsxElement = (
 			compId === transformation.idToDelete) ||
 		(transformation.type === 'rename-composition' &&
 			compId === transformation.idToRename) ||
+		(transformation.type === 'update-composition-metadata' &&
+			compId === transformation.idToUpdate) ||
 		(transformation.type === 'duplicate-composition' &&
 			compId === transformation.idToDuplicate) ||
 		(transformation.type === 'delete-folder' &&
@@ -754,6 +756,24 @@ const mapJsxChild = (
 				newCompositionDurationInFrames: null,
 				newCompositionHeight: null,
 				newCompositionWidth: null,
+				changesMade,
+				newTagToUse: null,
+			}),
+		];
+	}
+
+	if (
+		transformation.type === 'update-composition-metadata' &&
+		compId === transformation.idToUpdate
+	) {
+		return [
+			changeComposition({
+				jsxElement: c,
+				newCompositionId: null,
+				newCompositionFps: transformation.newFps,
+				newCompositionDurationInFrames: transformation.newDurationInFrames,
+				newCompositionHeight: transformation.newHeight,
+				newCompositionWidth: transformation.newWidth,
 				changesMade,
 				newTagToUse: null,
 			}),
@@ -1157,7 +1177,7 @@ const changeComposition = ({
 	newTagToUse,
 }: {
 	jsxElement: JSXElement;
-	newCompositionId: string;
+	newCompositionId: string | null;
 	newCompositionFps: number | null;
 	newCompositionDurationInFrames: number | null;
 	newCompositionHeight: number | null;
@@ -1202,7 +1222,8 @@ const changeComposition = ({
 			if (
 				attribute.name.name === 'id' &&
 				attribute.value &&
-				attribute.value.type === 'StringLiteral'
+				attribute.value.type === 'StringLiteral' &&
+				newCompositionId !== null
 			) {
 				changesMade.push({
 					description: 'Replaced composition id',
@@ -1219,7 +1240,8 @@ const changeComposition = ({
 				attribute.name.name === 'id' &&
 				attribute.value &&
 				attribute.value.type === 'JSXExpressionContainer' &&
-				attribute.value.expression.type === 'StringLiteral'
+				attribute.value.expression.type === 'StringLiteral' &&
+				newCompositionId !== null
 			) {
 				changesMade.push({
 					description: 'Replaced composition id',
@@ -1237,34 +1259,19 @@ const changeComposition = ({
 				};
 			}
 
-			if (
-				attribute.name.name === 'fps' &&
-				attribute.value &&
-				attribute.value.type === 'JSXExpressionContainer' &&
-				attribute.value.expression.type === 'NumericLiteral' &&
-				newCompositionFps !== null
-			) {
+			if (attribute.name.name === 'fps' && newCompositionFps !== null) {
 				changesMade.push({
 					description: 'Replaced FPS',
 				});
 
 				return {
 					...attribute,
-					value: {
-						...attribute.value,
-						expression: {
-							...attribute.value.expression,
-							value: newCompositionFps,
-						},
-					},
+					value: b.jsxExpressionContainer(b.numericLiteral(newCompositionFps)),
 				};
 			}
 
 			if (
 				attribute.name.name === 'durationInFrames' &&
-				attribute.value &&
-				attribute.value.type === 'JSXExpressionContainer' &&
-				attribute.value.expression.type === 'NumericLiteral' &&
 				newCompositionDurationInFrames !== null
 			) {
 				changesMade.push({
@@ -1273,65 +1280,113 @@ const changeComposition = ({
 
 				return {
 					...attribute,
-					value: {
-						...attribute.value,
-						expression: {
-							...attribute.value.expression,
-							value: newCompositionDurationInFrames,
-						},
-					},
+					value: b.jsxExpressionContainer(
+						b.numericLiteral(newCompositionDurationInFrames),
+					),
 				};
 			}
 
-			if (
-				attribute.name.name === 'width' &&
-				attribute.value &&
-				attribute.value.type === 'JSXExpressionContainer' &&
-				attribute.value.expression.type === 'NumericLiteral' &&
-				newCompositionWidth !== null
-			) {
+			if (attribute.name.name === 'width' && newCompositionWidth !== null) {
 				changesMade.push({
 					description: 'Replaced width',
 				});
 
 				return {
 					...attribute,
-					value: {
-						...attribute.value,
-						expression: {
-							...attribute.value.expression,
-							value: newCompositionWidth,
-						},
-					},
+					value: b.jsxExpressionContainer(
+						b.numericLiteral(newCompositionWidth),
+					),
 				};
 			}
 
-			if (
-				attribute.name.name === 'height' &&
-				attribute.value &&
-				attribute.value.type === 'JSXExpressionContainer' &&
-				attribute.value.expression.type === 'NumericLiteral' &&
-				newCompositionHeight !== null
-			) {
+			if (attribute.name.name === 'height' && newCompositionHeight !== null) {
 				changesMade.push({
 					description: 'Replaced height',
 				});
 
 				return {
 					...attribute,
-					value: {
-						...attribute.value,
-						expression: {
-							...attribute.value.expression,
-							value: newCompositionHeight,
-						},
-					},
+					value: b.jsxExpressionContainer(
+						b.numericLiteral(newCompositionHeight),
+					),
 				};
 			}
 
 			return attribute;
 		})
-		.filter(Boolean) as JSXAttribute[];
+		.filter(Boolean) as typeof openingElement.attributes;
+
+	if (
+		newCompositionFps !== null &&
+		!attributes.some(
+			(attribute) =>
+				attribute.type === 'JSXAttribute' &&
+				attribute.name.type === 'JSXIdentifier' &&
+				attribute.name.name === 'fps',
+		)
+	) {
+		changesMade.push({description: 'Added FPS'});
+		attributes.push(
+			jsxAttributeWithExpression(
+				'fps',
+				b.numericLiteral(newCompositionFps) as Expression,
+			),
+		);
+	}
+
+	if (
+		newCompositionDurationInFrames !== null &&
+		!attributes.some(
+			(attribute) =>
+				attribute.type === 'JSXAttribute' &&
+				attribute.name.type === 'JSXIdentifier' &&
+				attribute.name.name === 'durationInFrames',
+		)
+	) {
+		changesMade.push({description: 'Added durationInFrames'});
+		attributes.push(
+			jsxAttributeWithExpression(
+				'durationInFrames',
+				b.numericLiteral(newCompositionDurationInFrames) as Expression,
+			),
+		);
+	}
+
+	if (
+		newCompositionWidth !== null &&
+		!attributes.some(
+			(attribute) =>
+				attribute.type === 'JSXAttribute' &&
+				attribute.name.type === 'JSXIdentifier' &&
+				attribute.name.name === 'width',
+		)
+	) {
+		changesMade.push({description: 'Added width'});
+		attributes.push(
+			jsxAttributeWithExpression(
+				'width',
+				b.numericLiteral(newCompositionWidth) as Expression,
+			),
+		);
+	}
+
+	if (
+		newCompositionHeight !== null &&
+		!attributes.some(
+			(attribute) =>
+				attribute.type === 'JSXAttribute' &&
+				attribute.name.type === 'JSXIdentifier' &&
+				attribute.name.name === 'height',
+		)
+	) {
+		changesMade.push({description: 'Added height'});
+		attributes.push(
+			jsxAttributeWithExpression(
+				'height',
+				b.numericLiteral(newCompositionHeight) as Expression,
+			),
+		);
+	}
 
 	const newName = newTagToUse ?? name.name;
 	if (newName !== name.name) {
