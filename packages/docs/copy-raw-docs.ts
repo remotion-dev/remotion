@@ -1,57 +1,14 @@
 import fs from 'fs';
 import path from 'path';
-import {studioTableOfContents} from './docs/studio/table-of-contents-data';
 import {expandElementSourceReferences} from './plugins/element-source-utils.js';
 import {articles} from './src/data/articles';
+import {expandRawMarkdownComponents} from './src/raw-markdown/replace-components';
 
 const DOCS_DIR = path.join(__dirname, 'docs');
 const ELEMENTS_DIR = path.join(__dirname, 'elements');
 const RAW_DIR = path.join(__dirname, 'static', '_raw');
 const DOCS_OUTPUT_DIR = path.join(RAW_DIR, 'docs');
 const ELEMENTS_OUTPUT_DIR = path.join(RAW_DIR, 'elements');
-
-const markdownTable = (
-	items: readonly {
-		link: string;
-		label: string;
-		description: string;
-	}[],
-) => {
-	return [
-		'| API | Description |',
-		'| --- | --- |',
-		...items.map(
-			(item) => `| [\`${item.label}\`](${item.link}) | ${item.description} |`,
-		),
-	].join('\n');
-};
-
-const expandRawMarkdownComponents = ({
-	raw,
-	sourcePath,
-}: {
-	raw: string;
-	sourcePath: string;
-}) => {
-	if (sourcePath !== path.join(DOCS_DIR, 'studio', 'api.mdx')) {
-		return raw;
-	}
-
-	const withoutImport = raw.replace(
-		/^import\s+\{\s*TableOfContents\s*\}\s+from\s+['"]\.\/TableOfContents['"];\s*\n/m,
-		'',
-	);
-	const withTable = withoutImport.replace(
-		'<TableOfContents />',
-		markdownTable(studioTableOfContents),
-	);
-
-	if (withoutImport === raw || withTable === withoutImport) {
-		throw new Error('Could not expand the Studio table of contents');
-	}
-
-	return withTable;
-};
 
 const writeRawMarkdown = ({
 	destPath,
