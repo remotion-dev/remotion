@@ -156,7 +156,7 @@ test('resolves a same-file composition component', async () => {
 
 	expect(location.source).toBe(path.join('src', 'NewVideo.tsx'));
 	expect(location.line).toBe(21);
-	expect(location.canAddSequence).toBe(false);
+	expect(location.canAddSequence).toBe(true);
 });
 
 test('bails out if component has no JSX return', async () => {
@@ -305,7 +305,7 @@ test('canAddSequence=true for default-exported function component', async () => 
 	}
 });
 
-test('canAddSequence=false for self-closing root JSX return', async () => {
+test('canAddSequence=true for self-closing root JSX return', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -335,7 +335,63 @@ test('canAddSequence=false for self-closing root JSX return', async () => {
 			compositionId: 'test',
 		});
 		expect(location.source).toBe('MyComp.tsx');
-		expect(location.canAddSequence).toBe(false);
+		expect(location.canAddSequence).toBe(true);
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
+test('wraps a self-closing root in a Sequence before inserting', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import {Video} from '@remotion/media';",
+				"import {staticFile} from 'remotion';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn <Video src={staticFile("background.mov")} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'asset',
+				assetType: 'audio',
+				src: 'music.mp3',
+				srcType: 'static',
+				dimensions: null,
+				position: null,
+			},
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+
+		expect(result.output).toContain(
+			"import { staticFile, Sequence } from 'remotion';",
+		);
+		expect(result.output).toContain('<Sequence>');
+		expect(result.output).toContain(
+			"<Video src={staticFile('background.mov')} />",
+		);
+		expect(result.output).toContain('</Sequence>');
+		expect(result.output).toContain("<Audio src={staticFile('music.mp3')} />");
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
@@ -361,7 +417,7 @@ test('canAddSequence=false for ThreeCanvas root element', async () => {
 				"import {ThreeCanvas} from '@remotion/three';",
 				'',
 				'export const MyComp: React.FC = () => {',
-				'\treturn <ThreeCanvas></ThreeCanvas>;',
+				'\treturn <ThreeCanvas />;',
 				'};',
 				'',
 			].join('\n'),

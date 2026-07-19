@@ -395,10 +395,11 @@ export const formatTimelineFieldValueForDisplay = ({
 		case 'boolean':
 		case 'color':
 		case 'enum':
+		case 'font-family':
 		case 'hidden':
 			return formatUnknownTimelineValueForDisplay(value);
 
 		default:
-			return formatUnknownTimelineValueForDisplay(value);
+			throw new Error(`Unsupported field type: ${fieldSchema satisfies never}`);
 	}
 };
