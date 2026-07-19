@@ -386,7 +386,6 @@ test('timeline marquee locks to sequences after capturing a sequence first', () 
 test('timeline marquee locks to keyframes and easings after capturing a keyframe first', () => {
 	const keyframe = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
 	const sequence = makeNodePathInfo(['body', 1], []);
-	const easing = makeNodePathInfo(['body', 2], ['controls', 'scale']);
 
 	const result = getTimelineMarqueeSelection({
 		lockedSelectionKind: null,
@@ -403,12 +402,16 @@ test('timeline marquee locks to keyframes and easings after capturing a keyframe
 			{
 				item: {
 					type: 'easing',
-					nodePathInfo: easing,
+					nodePathInfo: keyframe,
 					fromFrame: 20,
 					toFrame: 30,
 					segmentIndex: 0,
 				},
 				rect: {left: 40, top: 0, right: 50, bottom: 10},
+			},
+			{
+				item: {type: 'keyframe', nodePathInfo: keyframe, frame: 30},
+				rect: {left: 60, top: 0, right: 70, bottom: 10},
 			},
 		],
 	});
@@ -418,12 +421,56 @@ test('timeline marquee locks to keyframes and easings after capturing a keyframe
 		{type: 'keyframe', nodePathInfo: keyframe, frame: 20},
 		{
 			type: 'easing',
-			nodePathInfo: easing,
+			nodePathInfo: keyframe,
 			fromFrame: 20,
 			toFrame: 30,
 			segmentIndex: 0,
 		},
+		{type: 'keyframe', nodePathInfo: keyframe, frame: 30},
 	]);
+});
+
+test('timeline marquee selects easing only when both endpoint keyframes intersect', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
+	const easing = {
+		type: 'easing' as const,
+		nodePathInfo,
+		fromFrame: 20,
+		toFrame: 30,
+		segmentIndex: 0,
+	};
+	const candidates = [
+		{
+			item: {type: 'keyframe' as const, nodePathInfo, frame: 20},
+			rect: {left: 0, top: 0, right: 10, bottom: 10},
+		},
+		{
+			item: easing,
+			rect: {left: 20, top: 0, right: 80, bottom: 10},
+		},
+		{
+			item: {type: 'keyframe' as const, nodePathInfo, frame: 30},
+			rect: {left: 90, top: 0, right: 100, bottom: 10},
+		},
+	];
+
+	expect(
+		getTimelineMarqueeSelection({
+			lockedSelectionKind: null,
+			marqueeRect: {left: 20, top: 0, right: 80, bottom: 10},
+			candidates,
+		}),
+	).toEqual({lockedSelectionKind: null, selectedItems: []});
+	expect(
+		getTimelineMarqueeSelection({
+			lockedSelectionKind: null,
+			marqueeRect: {left: 0, top: 0, right: 100, bottom: 10},
+			candidates,
+		}),
+	).toEqual({
+		lockedSelectionKind: 'keyframes-and-easings',
+		selectedItems: [candidates[0].item, easing, candidates[2].item],
+	});
 });
 
 test('timeline marquee keeps its locked item kind while dragging', () => {
