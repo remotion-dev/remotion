@@ -92,6 +92,7 @@ const inlineLabelButton: React.CSSProperties = {
 	appearance: 'none',
 	backgroundColor: TRANSPARENT,
 	border: 'none',
+	boxSizing: 'border-box',
 	color: LIGHT_TEXT,
 	cursor: 'default',
 	display: 'flex',
@@ -101,6 +102,8 @@ const inlineLabelButton: React.CSSProperties = {
 	lineHeight: '18px',
 	margin: 0,
 	padding: `5px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+	textAlign: 'left',
+	width: '100%',
 };
 
 const inlineLabelButtonDisabled: React.CSSProperties = {
