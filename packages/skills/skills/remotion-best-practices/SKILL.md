@@ -9,6 +9,10 @@ metadata:
 
 If no Remotion project currently exists, load [Create a new Remotion project](remotion-create/SKILL.md)
 
+## Upgrading
+
+To upgrade Remotion, related packages, compatible Mediabunny packages, and installed Remotion Agent Skills, load [Remotion Upgrade](remotion-upgrade/SKILL.md).
+
 ## React Markup Best Practices
 
 If you are writing Remotion React Markup, load [Remotion Markup Best Practices](remotion-markup/SKILL.md)
