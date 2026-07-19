@@ -699,9 +699,6 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 
 					navigator.clipboard
 						.writeText(makeClipboardText(payload))
-						.then(() => {
-							showNotification('Copied keyframe to clipboard', 1000);
-						})
 						.catch((err) => {
 							showNotification(
 								`Could not copy keyframe: ${(err as Error).message}`,
@@ -1016,9 +1013,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 										clientId,
 									});
 
-						return pastePromise.then(() => {
-							showNotification('Pasted keyframe', 2000);
-						});
+						return pastePromise;
 					}
 
 					const easingResult = parseEasingClipboardDataResult(text);
