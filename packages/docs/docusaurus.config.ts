@@ -248,7 +248,7 @@ const config: Config = {
 							label: 'Brand',
 							href: 'https://remotion.dev/brand',
 						},
-					].filter(Boolean),
+					],
 				},
 				{
 					title: 'Legal & Trust',
@@ -290,7 +290,7 @@ const config: Config = {
 							label: 'Support',
 							to: '/docs/support',
 						},
-					].filter(Boolean),
+					],
 				},
 			],
 		},
