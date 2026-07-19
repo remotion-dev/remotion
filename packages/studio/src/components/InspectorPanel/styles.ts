@@ -190,7 +190,6 @@ export const detailRow: React.CSSProperties = {
 	display: 'flex',
 	gap: 12,
 	justifyContent: 'space-between',
-	padding: '10px 0',
 };
 
 export const detailLabel: React.CSSProperties = {

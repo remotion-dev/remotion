@@ -23,8 +23,8 @@ import {
 import {detailsContainer} from './styles';
 
 const fieldLabels: Record<CompositionMetadataField, string> = {
-	durationInFrames: 'Duration in frames',
-	fps: 'FPS',
+	durationInFrames: 'Duration',
+	fps: 'Frame rate',
 	height: 'Height',
 	width: 'Width',
 };
@@ -36,6 +36,17 @@ const computedStyle: React.CSSProperties = {
 	fontStyle: 'italic',
 	lineHeight: '16px',
 	userSelect: 'none',
+};
+
+const dimensionsControls: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+	fontFamily: 'sans-serif',
+	fontSize: 12,
+	gap: 4,
+	justifyContent: 'flex-end',
+	lineHeight: '16px',
+	minWidth: 0,
 };
 
 const CompositionMetadataValue: React.FC<{
@@ -144,35 +155,44 @@ const CompositionMetadataValue: React.FC<{
 		],
 	);
 	const isFps = field === 'fps';
+	const formatValue = useCallback(
+		(newValue: number | string) => {
+			const numberValue = Number(newValue);
+			if (field === 'fps') {
+				return `${numberValue}fps`;
+			}
 
-	return (
-		<InspectorDetailRow label={fieldLabels[field]}>
-			{computed ? (
-				<span style={computedStyle}>computed</span>
-			) : disabled ? (
-				value
-			) : (
-				<InputDragger
-					type="number"
-					value={dragValue ?? pendingValue?.value ?? value}
-					disabled={pendingValue !== null}
-					status="ok"
-					onValueChange={setDragValue}
-					onValueChangeEnd={save}
-					onTextChange={() => undefined}
-					min={isFps ? 0.01 : 1}
-					step={isFps ? 0.01 : 1}
-					dragDecimalPlaces={isFps ? 2 : 0}
-					formatter={(newValue) =>
-						isFps
-							? String(Number(newValue))
-							: String(Math.round(Number(newValue)))
-					}
-					rightAlign
-					small
-				/>
-			)}
-		</InspectorDetailRow>
+			const roundedValue = Math.round(numberValue);
+			if (field === 'durationInFrames') {
+				return `${roundedValue} ${roundedValue === 1 ? 'frame' : 'frames'}`;
+			}
+
+			return String(roundedValue);
+		},
+		[field],
+	);
+
+	return computed ? (
+		<span style={computedStyle}>{formatValue(value)}</span>
+	) : disabled ? (
+		formatValue(value)
+	) : (
+		<InputDragger
+			aria-label={fieldLabels[field]}
+			type="number"
+			value={dragValue ?? pendingValue?.value ?? value}
+			disabled={pendingValue !== null}
+			status="ok"
+			onValueChange={setDragValue}
+			onValueChangeEnd={save}
+			onTextChange={() => undefined}
+			min={isFps ? 0.01 : 1}
+			step={isFps ? 0.01 : 1}
+			dragDecimalPlaces={isFps ? 2 : 0}
+			formatter={formatValue}
+			rightAlign
+			small
+		/>
 	);
 };
 
@@ -269,60 +289,68 @@ export const CompositionDimensions: React.FC<{
 
 	return (
 		<div style={detailsContainer}>
-			<CompositionMetadataValue
-				compositionId={compositionId}
-				computed={widthIsComputed}
-				disabled={disabled}
-				field="width"
-				onPendingValue={onPendingValue}
-				onPendingValueAccepted={onPendingValueAccepted}
-				onPendingValueFailed={onPendingValueFailed}
-				pendingValue={pendingValues.width ?? null}
-				resolvedConfig={resolvedConfig}
-				symbolicatedStack={symbolicatedStack}
-				value={video.width}
-			/>
-			<CompositionMetadataValue
-				compositionId={compositionId}
-				computed={heightIsComputed}
-				disabled={disabled}
-				field="height"
-				onPendingValue={onPendingValue}
-				onPendingValueAccepted={onPendingValueAccepted}
-				onPendingValueFailed={onPendingValueFailed}
-				pendingValue={pendingValues.height ?? null}
-				resolvedConfig={resolvedConfig}
-				symbolicatedStack={symbolicatedStack}
-				value={video.height}
-			/>
+			<InspectorDetailRow label="Dimensions">
+				<div style={dimensionsControls}>
+					<CompositionMetadataValue
+						compositionId={compositionId}
+						computed={widthIsComputed}
+						disabled={disabled}
+						field="width"
+						onPendingValue={onPendingValue}
+						onPendingValueAccepted={onPendingValueAccepted}
+						onPendingValueFailed={onPendingValueFailed}
+						pendingValue={pendingValues.width ?? null}
+						resolvedConfig={resolvedConfig}
+						symbolicatedStack={symbolicatedStack}
+						value={video.width}
+					/>
+					<CompositionMetadataValue
+						compositionId={compositionId}
+						computed={heightIsComputed}
+						disabled={disabled}
+						field="height"
+						onPendingValue={onPendingValue}
+						onPendingValueAccepted={onPendingValueAccepted}
+						onPendingValueFailed={onPendingValueFailed}
+						pendingValue={pendingValues.height ?? null}
+						resolvedConfig={resolvedConfig}
+						symbolicatedStack={symbolicatedStack}
+						value={video.height}
+					/>
+				</div>
+			</InspectorDetailRow>
 			{isStill ? null : (
 				<>
-					<CompositionMetadataValue
-						compositionId={compositionId}
-						computed={fpsIsComputed}
-						disabled={disabled}
-						field="fps"
-						onPendingValue={onPendingValue}
-						onPendingValueAccepted={onPendingValueAccepted}
-						onPendingValueFailed={onPendingValueFailed}
-						pendingValue={pendingValues.fps ?? null}
-						resolvedConfig={resolvedConfig}
-						symbolicatedStack={symbolicatedStack}
-						value={video.fps}
-					/>
-					<CompositionMetadataValue
-						compositionId={compositionId}
-						computed={durationIsComputed}
-						disabled={disabled}
-						field="durationInFrames"
-						onPendingValue={onPendingValue}
-						onPendingValueAccepted={onPendingValueAccepted}
-						onPendingValueFailed={onPendingValueFailed}
-						pendingValue={pendingValues.durationInFrames ?? null}
-						resolvedConfig={resolvedConfig}
-						symbolicatedStack={symbolicatedStack}
-						value={video.durationInFrames}
-					/>
+					<InspectorDetailRow label="Frame rate">
+						<CompositionMetadataValue
+							compositionId={compositionId}
+							computed={fpsIsComputed}
+							disabled={disabled}
+							field="fps"
+							onPendingValue={onPendingValue}
+							onPendingValueAccepted={onPendingValueAccepted}
+							onPendingValueFailed={onPendingValueFailed}
+							pendingValue={pendingValues.fps ?? null}
+							resolvedConfig={resolvedConfig}
+							symbolicatedStack={symbolicatedStack}
+							value={video.fps}
+						/>
+					</InspectorDetailRow>
+					<InspectorDetailRow label="Duration">
+						<CompositionMetadataValue
+							compositionId={compositionId}
+							computed={durationIsComputed}
+							disabled={disabled}
+							field="durationInFrames"
+							onPendingValue={onPendingValue}
+							onPendingValueAccepted={onPendingValueAccepted}
+							onPendingValueFailed={onPendingValueFailed}
+							pendingValue={pendingValues.durationInFrames ?? null}
+							resolvedConfig={resolvedConfig}
+							symbolicatedStack={symbolicatedStack}
+							value={video.durationInFrames}
+						/>
+					</InspectorDetailRow>
 				</>
 			)}
 		</div>

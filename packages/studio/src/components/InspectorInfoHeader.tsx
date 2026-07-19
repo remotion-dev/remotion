@@ -8,7 +8,6 @@ const container: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 	color: WHITE,
 	display: 'block',
-	minHeight: INSPECTOR_INFO_HEADER_MIN_HEIGHT,
 	padding: `6px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 };
 
@@ -47,9 +46,10 @@ const subtitle: React.CSSProperties = {
 
 export const InspectorInfoHeader: React.FC<{
 	readonly children?: React.ReactNode;
-}> = ({children}) => {
+	readonly minHeight: number;
+}> = ({children, minHeight}) => {
 	return (
-		<div style={container}>
+		<div style={{...container, minHeight}}>
 			{children === undefined || children === null ? null : (
 				<div style={row}>
 					<div style={content}>{children}</div>

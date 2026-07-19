@@ -122,6 +122,7 @@ export const DefaultInspector: React.FC<{
 		<div style={scrollableContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<div style={compositionSection}>
 				<CurrentComposition />
+				<div style={inspectorSectionDivider} />
 				<CompositionDimensions
 					compositionId={composition.id}
 					disabled={readOnlyStudio}

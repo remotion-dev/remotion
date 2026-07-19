@@ -111,7 +111,7 @@ export const CurrentAsset: React.FC<{
 	);
 
 	if (!assetName) {
-		return <InspectorInfoHeader />;
+		return <InspectorInfoHeader minHeight={CURRENT_ASSET_HEIGHT} />;
 	}
 
 	const fileName = assetName.split('/').pop() ?? assetName;
@@ -136,7 +136,7 @@ export const CurrentAsset: React.FC<{
 		: [];
 
 	return (
-		<InspectorInfoHeader>
+		<InspectorInfoHeader minHeight={CURRENT_ASSET_HEIGHT}>
 			<InlineEditableTitle
 				value={fileName}
 				canRename={canRename}
