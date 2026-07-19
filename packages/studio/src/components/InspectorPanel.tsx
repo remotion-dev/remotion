@@ -35,7 +35,10 @@ export const InspectorPanel: React.FC<{
 		if (sameSequenceInspectorSelection) {
 			return (
 				<div style={container}>
-					<SelectedInspector selection={sameSequenceInspectorSelection} />
+					<SelectedInspector
+						selection={sameSequenceInspectorSelection}
+						readOnlyStudio={readOnlyStudio}
+					/>
 				</div>
 			);
 		}
@@ -51,7 +54,10 @@ export const InspectorPanel: React.FC<{
 
 	return (
 		<div style={container}>
-			<SelectedInspector selection={selectedItems[0]} />
+			<SelectedInspector
+				selection={selectedItems[0]}
+				readOnlyStudio={readOnlyStudio}
+			/>
 		</div>
 	);
 };

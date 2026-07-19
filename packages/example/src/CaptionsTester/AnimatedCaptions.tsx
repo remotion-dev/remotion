@@ -1,5 +1,6 @@
 import type {Caption, TikTokPage} from '@remotion/captions';
 import {createTikTokStyleCaptions} from '@remotion/captions';
+import {watchStaticFile} from '@remotion/studio';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
 	AbsoluteFill,
@@ -10,6 +11,7 @@ import {
 	staticFile,
 	useCurrentFrame,
 	useDelayRender,
+	useRemotionEnvironment,
 	useVideoConfig,
 	type InteractiveBaseProps,
 	type InteractivitySchema,
@@ -114,24 +116,40 @@ const AnimatedCaptionsInner: React.FC<
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
 	const [handle] = useState(() => delayRender('Loading ElevenLabs captions'));
 	const {fps} = useVideoConfig();
+	const {isStudio} = useRemotionEnvironment();
 
-	const loadCaptions = useCallback(async () => {
-		try {
-			const response = await fetch(src);
-			if (!response.ok) {
-				throw new Error(`Could not load captions (${response.status})`);
+	const loadCaptions = useCallback(
+		async (source: string) => {
+			try {
+				const response = await fetch(source);
+				if (!response.ok) {
+					throw new Error(`Could not load captions (${response.status})`);
+				}
+
+				setCaptions((await response.json()) as Caption[]);
+				continueRender(handle);
+			} catch (error) {
+				cancelRender(error);
 			}
-
-			setCaptions((await response.json()) as Caption[]);
-			continueRender(handle);
-		} catch (error) {
-			cancelRender(error);
-		}
-	}, [cancelRender, continueRender, handle, src]);
+		},
+		[cancelRender, continueRender, handle],
+	);
 
 	useEffect(() => {
-		loadCaptions();
-	}, [loadCaptions]);
+		loadCaptions(src);
+
+		if (!isStudio) {
+			return;
+		}
+
+		const {cancel} = watchStaticFile(src, (newFile) => {
+			if (newFile) {
+				loadCaptions(`${newFile.src}?date=${newFile.lastModified}`);
+			}
+		});
+
+		return cancel;
+	}, [isStudio, loadCaptions, src]);
 
 	const pages = useMemo(() => {
 		if (!captions) {

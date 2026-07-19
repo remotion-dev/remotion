@@ -31,7 +31,8 @@ import {useTrackForSelection} from './use-track-for-selection';
 
 const SequenceExpandedInspector: React.FC<{
 	readonly track: TrackWithHash;
-}> = ({track}) => {
+	readonly readOnlyStudio: boolean;
+}> = ({track, readOnlyStudio}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {selectedItems, selectItems} = useTimelineSelection();
 	const sourceLocation = useSequenceInspectorSourceLocation(track.sequence);
@@ -103,6 +104,7 @@ const SequenceExpandedInspector: React.FC<{
 			<InspectorSectionDivider />
 			<InspectorSequenceSection
 				sequence={track.sequence}
+				readOnlyStudio={readOnlyStudio}
 				validatedLocation={validatedLocation}
 				nodePathInfo={track.nodePathInfo}
 				keyframeDisplayOffset={track.keyframeDisplayOffset}
@@ -117,7 +119,8 @@ const SequenceExpandedInspector: React.FC<{
 
 export const SequenceSelectionInspector: React.FC<{
 	readonly selection: SequenceSectionSelection;
-}> = ({selection}) => {
+	readonly readOnlyStudio: boolean;
+}> = ({selection, readOnlyStudio}) => {
 	const track = useTrackForSelection(selection);
 
 	if (!track) {
@@ -130,6 +133,7 @@ export const SequenceSelectionInspector: React.FC<{
 		<SequenceExpandedInspector
 			key={stackKey ?? track.sequence.id}
 			track={track}
+			readOnlyStudio={readOnlyStudio}
 		/>
 	);
 };

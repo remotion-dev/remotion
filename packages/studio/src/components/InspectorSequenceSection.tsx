@@ -3,16 +3,18 @@ import type {TSequence} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT, WHITE} from '../helpers/colors';
+import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
-	SCHEMA_FIELD_GROUPS,
 	flattenVisibleTreeNodes,
+	SCHEMA_FIELD_GROUPS,
 	type FlatTreeRow,
 	type SchemaFieldGroupInfo,
 	type TimelineTreeNode,
 } from '../helpers/timeline-layout';
 import {Plus} from '../icons/plus';
 import {ModalsContext} from '../state/modals';
+import {CaptionJsonInspector} from './CaptionJsonInspector';
 import {AssetInfo} from './CurrentAsset';
 import {InlineAction} from './InlineAction';
 import {
@@ -22,8 +24,8 @@ import {
 } from './InspectorPanel/styles';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 import {
-	getTimelineAssetSrcFromSchema,
 	getTimelineAssetLinkInfo,
+	getTimelineAssetSrcFromSchema,
 	openTimelineAssetLink,
 	splitRemoteSourceForMiddleEllipsis,
 } from './Timeline/timeline-asset-link';
@@ -199,6 +201,7 @@ export const hasSequenceControls = (
 
 export const InspectorSequenceSection: React.FC<{
 	readonly sequence: SequenceWithControls;
+	readonly readOnlyStudio: boolean;
 	readonly validatedLocation: CodePosition;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
@@ -206,6 +209,7 @@ export const InspectorSequenceSection: React.FC<{
 	readonly renderTransformControls: () => React.ReactNode;
 }> = ({
 	sequence,
+	readOnlyStudio,
 	validatedLocation,
 	nodePathInfo,
 	keyframeDisplayOffset,
@@ -225,6 +229,9 @@ export const InspectorSequenceSection: React.FC<{
 	const {setSelectedModal} = useContext(ModalsContext);
 	const selectAsset = useSelectAsset();
 	const mediaSrc = getTimelineAssetSrcFromSchema(sequence.controls);
+	const isJsonSource =
+		mediaSrc !== null &&
+		getPreviewFileType(mediaSrc.split(/[?#]/, 1)[0]) === 'json';
 	const assetLinkInfo = useMemo(
 		() => (mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null),
 		[mediaSrc],
@@ -408,6 +415,14 @@ export const InspectorSequenceSection: React.FC<{
 										{remoteSourceParts.trailing}
 									</span>
 								</div>
+							) : null}
+							{group.id === 'source' && isJsonSource && mediaSrc ? (
+								<CaptionJsonInspector
+									src={mediaSrc}
+									editableFilePath={
+										readOnlyStudio ? undefined : localAsset?.assetPath
+									}
+								/>
 							) : null}
 							{group.id === 'transforms' ? renderTransformControls() : null}
 							{group.id === 'source' ? null : group.rows.map(renderRow)}
