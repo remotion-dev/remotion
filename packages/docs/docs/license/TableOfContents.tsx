@@ -38,8 +38,8 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/accessibility">
 					<strong>{'Accessibility'}</strong>
 					<div>
-						Accessibility of Remotion products and the remotion.dev and
-						remotion.pro websites
+						Accessibility of Remotion products, with links to accessibility
+						statements for the remotion.dev and remotion.pro websites
 					</div>
 				</TOCItem>
 			</Grid>
