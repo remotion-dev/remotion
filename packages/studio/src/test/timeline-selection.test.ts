@@ -70,7 +70,7 @@ import {
 	isDuplicatableSequenceRowSelection,
 } from '../components/Timeline/duplicate-selected-timeline-item';
 import {
-	getKeyframeClipboardDataFromSelection,
+	getKeyframeClipboardDataFromSelections,
 	getPasteKeyframeTarget,
 	type PasteKeyframeTarget,
 } from '../components/Timeline/keyframe-clipboard';
@@ -740,11 +740,68 @@ test('copying a selected effect prop creates an effect prop payload', () => {
 	});
 });
 
-test('copying a selected keyframe creates a value payload', () => {
+test('copying selected keyframes preserves their frame deltas', () => {
 	const nodePathInfo = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const schema = {
 		opacity: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies InteractivitySchema;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				opacity: {
+					status: 'keyframed',
+					interpolationFunction: 'interpolate',
+					keyframes: [
+						{frame: 10, value: 0.4},
+						{frame: 30, value: 0.8},
+					],
+					easing: [],
+					clamping: {left: 'clamp', right: 'clamp'},
+					posterize: undefined,
+					output: undefined,
+				},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	expect(
+		getKeyframeClipboardDataFromSelections({
+			selections: [
+				{type: 'keyframe', nodePathInfo, frame: 30},
+				{type: 'keyframe', nodePathInfo, frame: 10},
+			],
+			sequences: [makeTimelineSequence({schema, from: 20})],
+			overrideIdsToNodePaths: {override: nodePath},
+			propStatuses,
+		}),
+	).toEqual({
+		type: 'keyframe',
+		version: 1,
+		remotionClipboard: 'keyframe',
+		fieldType: 'number',
+		keyframes: [
+			{frameOffset: 0, value: 0.4},
+			{frameOffset: 20, value: 0.8},
+		],
+	});
+});
+
+test('copying selected keyframes requires one property', () => {
+	const opacityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'opacity'],
+	);
+	const otherNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'otherOpacity'],
+	);
+	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
+	const schema = {
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
+		otherOpacity: {type: 'number', default: 1, hiddenFromList: false},
 	} satisfies InteractivitySchema;
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
@@ -759,28 +816,34 @@ test('copying a selected keyframe creates a value payload', () => {
 					posterize: undefined,
 					output: undefined,
 				},
+				otherOpacity: {
+					status: 'keyframed',
+					interpolationFunction: 'interpolate',
+					keyframes: [{frame: 30, value: 2}],
+					easing: [],
+					clamping: {left: 'clamp', right: 'clamp'},
+					posterize: undefined,
+					output: undefined,
+				},
 			},
 			effects: [],
 		},
 	} satisfies PropStatuses;
 
 	expect(
-		getKeyframeClipboardDataFromSelection({
-			selection: {type: 'keyframe', nodePathInfo, frame: 10},
-			sequences: [makeTimelineSequence({schema, from: 20})],
+		getKeyframeClipboardDataFromSelections({
+			selections: [
+				{type: 'keyframe', nodePathInfo: opacityNodePathInfo, frame: 10},
+				{type: 'keyframe', nodePathInfo: otherNodePathInfo, frame: 30},
+			],
+			sequences: [makeTimelineSequence({schema})],
 			overrideIdsToNodePaths: {override: nodePath},
 			propStatuses,
 		}),
-	).toEqual({
-		type: 'keyframe',
-		version: 1,
-		remotionClipboard: 'keyframe',
-		fieldType: 'number',
-		value: 0.4,
-	});
+	).toBe(null);
 });
 
-test('pasting a keyframe targets the selected property at the playhead', () => {
+test('pasting keyframes targets one selected property at the playhead', () => {
 	const nodePathInfo = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
 	const nodePath = nodePathInfo.sequenceSubscriptionKey;
 	const schema = {
@@ -798,13 +861,19 @@ test('pasting a keyframe targets the selected property at the playhead', () => {
 
 	expect(
 		getPasteKeyframeTarget({
-			selectedItems: [{type: 'keyframe', nodePathInfo, frame: 10}],
+			selectedItems: [
+				{type: 'keyframe', nodePathInfo, frame: 10},
+				{type: 'keyframe', nodePathInfo, frame: 30},
+			],
 			payload: {
 				type: 'keyframe',
 				version: 1,
 				remotionClipboard: 'keyframe',
 				fieldType: 'number',
-				value: 0.4,
+				keyframes: [
+					{frameOffset: 0, value: 0.4},
+					{frameOffset: 20, value: 0.8},
+				],
 			},
 			timelinePosition: 50,
 			sequences: [makeTimelineSequence({schema, from: 20})],
@@ -817,7 +886,10 @@ test('pasting a keyframe targets the selected property at the playhead', () => {
 		nodePath,
 		fieldKey: 'opacity',
 		effectIndex: null,
-		sourceFrame: 50,
+		keyframes: [
+			{sourceFrame: 50, value: 0.4},
+			{sourceFrame: 70, value: 0.8},
+		],
 		schema,
 	} satisfies PasteKeyframeTarget);
 });
@@ -855,7 +927,7 @@ test('pasting a keyframe rejects an incompatible property', () => {
 				version: 1,
 				remotionClipboard: 'keyframe',
 				fieldType: 'number',
-				value: 0.4,
+				keyframes: [{frameOffset: 0, value: 0.4}],
 			},
 			timelinePosition: 50,
 			sequences: [makeTimelineSequence({schema})],

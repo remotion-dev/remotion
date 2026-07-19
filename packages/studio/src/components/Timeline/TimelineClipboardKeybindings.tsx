@@ -33,10 +33,7 @@ import {
 import {callApi} from '../call-api';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {
-	callAddEffectKeyframe,
-	callAddSequenceKeyframe,
-} from './call-add-keyframe';
+import {callAddKeyframes} from './call-add-keyframe';
 import {
 	deleteSelectedTimelineItems,
 	getTimelineSelectionAfterDeletingItems,
@@ -48,7 +45,7 @@ import {
 } from './effects-clipboard';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {
-	getKeyframeClipboardDataFromSelection,
+	getKeyframeClipboardDataFromSelections,
 	getPasteKeyframeTarget,
 } from './keyframe-clipboard';
 import {saveEffectProp} from './save-effect-prop';
@@ -675,23 +672,20 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 				);
 				if (keyframeSelections.length > 0) {
 					e.preventDefault();
-					if (
-						keyframeSelections.length !== 1 ||
-						keyframeSelections.length !== selectedItems.length
-					) {
-						showNotification('Select one keyframe to copy', 3000);
+					if (keyframeSelections.length !== selectedItems.length) {
+						showNotification('Select only keyframes to copy', 3000);
 						return;
 					}
 
-					const payload = getKeyframeClipboardDataFromSelection({
-						selection: keyframeSelections[0],
+					const payload = getKeyframeClipboardDataFromSelections({
+						selections: keyframeSelections,
 						sequences,
 						overrideIdsToNodePaths: overrideIdToNodePathMappings,
 						propStatuses,
 					});
 					if (payload === null) {
 						showNotification(
-							'Cannot copy keyframe because its value cannot be read',
+							'Select keyframes from one property to copy',
 							3000,
 						);
 						return;
@@ -989,31 +983,25 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 							}
 						}
 
-						const pastePromise =
-							keyframeTarget.effectIndex === null
-								? callAddSequenceKeyframe({
-										fileName: keyframeTarget.fileName,
-										nodePath: keyframeTarget.nodePath,
-										fieldKey: keyframeTarget.fieldKey,
-										sourceFrame: keyframeTarget.sourceFrame,
-										value: keyframeResult.data.value,
-										schema: keyframeTarget.schema,
-										setPropStatuses,
-										clientId,
-									})
-								: callAddEffectKeyframe({
-										fileName: keyframeTarget.fileName,
-										nodePath: keyframeTarget.nodePath,
-										effectIndex: keyframeTarget.effectIndex,
-										fieldKey: keyframeTarget.fieldKey,
-										sourceFrame: keyframeTarget.sourceFrame,
-										value: keyframeResult.data.value,
-										schema: keyframeTarget.schema,
-										setPropStatuses,
-										clientId,
-									});
+						const changes = keyframeTarget.keyframes.map((keyframe) => ({
+							fileName: keyframeTarget.fileName,
+							nodePath: keyframeTarget.nodePath,
+							fieldKey: keyframeTarget.fieldKey,
+							sourceFrame: keyframe.sourceFrame,
+							value: keyframe.value,
+							schema: keyframeTarget.schema,
+						}));
+						const {effectIndex} = keyframeTarget;
 
-						return pastePromise;
+						return callAddKeyframes({
+							sequenceKeyframes: effectIndex === null ? changes : [],
+							effectKeyframes:
+								effectIndex === null
+									? []
+									: changes.map((change) => ({...change, effectIndex})),
+							setPropStatuses,
+							clientId,
+						});
 					}
 
 					const easingResult = parseEasingClipboardDataResult(text);

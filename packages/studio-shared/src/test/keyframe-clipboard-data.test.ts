@@ -12,7 +12,10 @@ test('parses keyframe clipboard data', () => {
 				version: 1,
 				remotionClipboard: 'keyframe',
 				fieldType: 'number',
-				value: 0.5,
+				keyframes: [
+					{frameOffset: 0, value: 0.5},
+					{frameOffset: 20, value: 1},
+				],
 			}),
 		),
 	).toEqual({
@@ -20,7 +23,10 @@ test('parses keyframe clipboard data', () => {
 		version: 1,
 		remotionClipboard: 'keyframe',
 		fieldType: 'number',
-		value: 0.5,
+		keyframes: [
+			{frameOffset: 0, value: 0.5},
+			{frameOffset: 20, value: 1},
+		],
 	});
 });
 
@@ -32,7 +38,7 @@ test('allows keyframes without a schema field type', () => {
 				version: 1,
 				remotionClipboard: 'keyframe',
 				fieldType: null,
-				value: '#ff0000',
+				keyframes: [{frameOffset: 0, value: '#ff0000'}],
 			}),
 		),
 	).not.toBe(null);
@@ -46,7 +52,7 @@ test('rejects invalid and unsupported keyframe clipboard data', () => {
 				version: 2,
 				remotionClipboard: 'keyframe',
 				fieldType: 'number',
-				value: 1,
+				keyframes: [{frameOffset: 0, value: 1}],
 			}),
 		),
 	).toEqual({status: 'unsupported-version', version: 2});
@@ -57,7 +63,21 @@ test('rejects invalid and unsupported keyframe clipboard data', () => {
 				version: 1,
 				remotionClipboard: 'keyframe',
 				fieldType: 'array',
-				value: [],
+				keyframes: [{frameOffset: 0, value: []}],
+			}),
+		),
+	).toBe(null);
+	expect(
+		parseKeyframeClipboardData(
+			JSON.stringify({
+				type: 'keyframe',
+				version: 1,
+				remotionClipboard: 'keyframe',
+				fieldType: 'number',
+				keyframes: [
+					{frameOffset: 10, value: 1},
+					{frameOffset: 5, value: 2},
+				],
 			}),
 		),
 	).toBe(null);

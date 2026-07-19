@@ -16,7 +16,10 @@ export type KeyframeClipboardData = {
 	readonly version: 1;
 	readonly remotionClipboard: 'keyframe';
 	readonly fieldType: KeyframeClipboardFieldType | null;
-	readonly value: unknown;
+	readonly keyframes: readonly {
+		readonly frameOffset: number;
+		readonly value: unknown;
+	}[];
 };
 
 export type KeyframeClipboardDataParseResult =
@@ -53,6 +56,38 @@ const isKeyframeClipboardFieldType = (
 	return KEYFRAMABLE_FIELD_TYPES.includes(value as KeyframeClipboardFieldType);
 };
 
+const isKeyframeClipboardEntry = (
+	value: unknown,
+): value is KeyframeClipboardData['keyframes'][number] => {
+	return (
+		isRecord(value) &&
+		Number.isInteger(value.frameOffset) &&
+		Object.hasOwn(value, 'value')
+	);
+};
+
+const areValidKeyframes = (
+	value: unknown,
+): value is KeyframeClipboardData['keyframes'] => {
+	if (!Array.isArray(value) || value.length === 0) {
+		return false;
+	}
+
+	let previousOffset = -1;
+	for (const keyframe of value) {
+		if (
+			!isKeyframeClipboardEntry(keyframe) ||
+			keyframe.frameOffset <= previousOffset
+		) {
+			return false;
+		}
+
+		previousOffset = keyframe.frameOffset;
+	}
+
+	return value[0]?.frameOffset === 0;
+};
+
 export const parseKeyframeClipboardDataResult = (
 	value: string,
 ): KeyframeClipboardDataParseResult => {
@@ -68,7 +103,7 @@ export const parseKeyframeClipboardDataResult = (
 
 		if (
 			parsed.type !== 'keyframe' ||
-			!Object.hasOwn(parsed, 'value') ||
+			!areValidKeyframes(parsed.keyframes) ||
 			(parsed.fieldType !== null &&
 				!isKeyframeClipboardFieldType(parsed.fieldType))
 		) {
@@ -82,7 +117,7 @@ export const parseKeyframeClipboardDataResult = (
 				version: 1,
 				remotionClipboard: 'keyframe',
 				fieldType: parsed.fieldType,
-				value: parsed.value,
+				keyframes: parsed.keyframes,
 			},
 		};
 	} catch {

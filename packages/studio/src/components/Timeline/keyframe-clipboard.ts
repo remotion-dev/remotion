@@ -179,32 +179,91 @@ const resolveKeyframeField = ({
 	};
 };
 
-export const getKeyframeClipboardDataFromSelection = ({
-	selection,
+const areResolvedFieldsEqual = (
+	first: ResolvedKeyframeField,
+	second: ResolvedKeyframeField,
+): boolean => {
+	if (
+		Internals.makeSequencePropsSubscriptionKey(first.nodePath) !==
+		Internals.makeSequencePropsSubscriptionKey(second.nodePath)
+	) {
+		return false;
+	}
+
+	if (first.identity.type !== second.identity.type) {
+		return false;
+	}
+
+	if (first.identity.fieldKey !== second.identity.fieldKey) {
+		return false;
+	}
+
+	return (
+		first.identity.type === 'sequence' ||
+		(second.identity.type === 'effect' &&
+			first.identity.effectIndex === second.identity.effectIndex)
+	);
+};
+
+export const getKeyframeClipboardDataFromSelections = ({
+	selections,
 	sequences,
 	overrideIdsToNodePaths,
 	propStatuses,
 }: {
-	readonly selection: Extract<TimelineSelection, {type: 'keyframe'}>;
+	readonly selections: readonly Extract<
+		TimelineSelection,
+		{type: 'keyframe'}
+	>[];
 	readonly sequences: TSequence[];
 	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
 	readonly propStatuses: PropStatuses;
 }): KeyframeClipboardData | null => {
-	const resolved = resolveKeyframeField({
+	const resolvedFields = selections.map((selection) => ({
 		selection,
-		sequences,
-		overrideIdsToNodePaths,
-		propStatuses,
-	});
-	if (resolved === null || resolved.propStatus.status !== 'keyframed') {
+		resolved: resolveKeyframeField({
+			selection,
+			sequences,
+			overrideIdsToNodePaths,
+			propStatuses,
+		}),
+	}));
+	const firstResolved = resolvedFields[0]?.resolved;
+	if (
+		firstResolved === null ||
+		firstResolved === undefined ||
+		resolvedFields.some(
+			({resolved}) =>
+				resolved === null || !areResolvedFieldsEqual(firstResolved, resolved),
+		)
+	) {
 		return null;
 	}
 
-	const sourceFrame = selection.frame - resolved.keyframeDisplayOffset;
-	const keyframe = resolved.propStatus.keyframes.find(
-		(item) => item.frame === sourceFrame,
-	);
-	if (keyframe === undefined || JSON.stringify(keyframe.value) === undefined) {
+	const keyframedPropStatus = firstResolved.propStatus;
+	if (keyframedPropStatus.status !== 'keyframed') {
+		return null;
+	}
+
+	const keyframes: {readonly frame: number; readonly value: unknown}[] = [];
+	for (const {selection} of resolvedFields) {
+		const sourceFrame = selection.frame - firstResolved.keyframeDisplayOffset;
+		const keyframe = keyframedPropStatus.keyframes.find(
+			(item) => item.frame === sourceFrame,
+		);
+		if (
+			keyframe === undefined ||
+			JSON.stringify(keyframe.value) === undefined
+		) {
+			return null;
+		}
+
+		keyframes.push({frame: sourceFrame, value: keyframe.value});
+	}
+
+	keyframes.sort((first, second) => first.frame - second.frame);
+	const firstFrame = keyframes[0]?.frame;
+	if (firstFrame === undefined) {
 		return null;
 	}
 
@@ -212,8 +271,13 @@ export const getKeyframeClipboardDataFromSelection = ({
 		type: 'keyframe',
 		version: 1,
 		remotionClipboard: 'keyframe',
-		fieldType: resolved.fieldType,
-		value: keyframe.value,
+		fieldType: firstResolved.fieldType,
+		keyframes: keyframes.map((keyframe) => {
+			return {
+				frameOffset: keyframe.frame - firstFrame,
+				value: keyframe.value,
+			};
+		}),
 	};
 };
 
@@ -224,7 +288,10 @@ export type PasteKeyframeTarget =
 			readonly nodePath: SequencePropsSubscriptionKey;
 			readonly fieldKey: string;
 			readonly effectIndex: number | null;
-			readonly sourceFrame: number;
+			readonly keyframes: readonly {
+				readonly sourceFrame: number;
+				readonly value: unknown;
+			}[];
 			readonly schema: InteractivitySchema;
 	  }
 	| {
@@ -283,31 +350,41 @@ export const getPasteKeyframeTarget = ({
 		return {type: 'none'};
 	}
 
-	if (selectedItems.length !== 1) {
-		return {type: 'multiple'};
-	}
-
 	const selection = selectedItems[0];
 	if (!selection || getKeyframeFieldIdentity(selection) === null) {
 		return {type: 'none'};
 	}
 
-	const resolved = resolveKeyframeField({
-		selection,
-		sequences,
-		overrideIdsToNodePaths,
-		propStatuses,
-	});
+	const resolvedFields = selectedItems.map((item) =>
+		resolveKeyframeField({
+			selection: item,
+			sequences,
+			overrideIdsToNodePaths,
+			propStatuses,
+		}),
+	);
+	const resolved = resolvedFields[0];
 	if (resolved === null) {
 		return {type: 'uncopyable'};
 	}
 
 	if (
+		resolvedFields.some(
+			(field) => field === null || !areResolvedFieldsEqual(resolved, field),
+		)
+	) {
+		return {type: 'multiple'};
+	}
+
+	if (
 		resolved.fieldType !== payload.fieldType ||
-		!isKeyframeValueCompatible({
-			value: payload.value,
-			fieldType: payload.fieldType,
-		})
+		payload.keyframes.some(
+			(keyframe) =>
+				!isKeyframeValueCompatible({
+					value: keyframe.value,
+					fieldType: payload.fieldType,
+				}),
+		)
 	) {
 		return {type: 'incompatible'};
 	}
@@ -321,7 +398,13 @@ export const getPasteKeyframeTarget = ({
 			resolved.identity.type === 'effect'
 				? resolved.identity.effectIndex
 				: null,
-		sourceFrame: timelinePosition - resolved.keyframeDisplayOffset,
+		keyframes: payload.keyframes.map((keyframe) => ({
+			sourceFrame:
+				timelinePosition -
+				resolved.keyframeDisplayOffset +
+				keyframe.frameOffset,
+			value: keyframe.value,
+		})),
 		schema: resolved.schema,
 	};
 };
