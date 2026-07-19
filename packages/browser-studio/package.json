@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/browser-studio",
 	"private": true,
-	"version": "4.0.491",
+	"version": "4.0.492",
 	"description": "Run Remotion Studio in the browser",
 	"main": "dist/esm/index.mjs",
 	"types": "dist/index.d.ts",
