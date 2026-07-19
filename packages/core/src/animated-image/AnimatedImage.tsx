@@ -29,6 +29,7 @@ import type {AnimatedImageCanvasRef} from './canvas';
 import {Canvas} from './canvas';
 import type {RemotionImageDecoder} from './decode-image.js';
 import {decodeImage} from './decode-image.js';
+import {getCurrentTime} from './get-current-time.js';
 import type {
 	AnimatedImageCanvasProps,
 	AnimatedImageProps,
@@ -112,7 +113,7 @@ const AnimatedImageContent = forwardRef<
 
 		const frame = useCurrentFrame();
 		const {fps} = useVideoConfig();
-		const currentTime = frame / playbackRate / fps;
+		const currentTime = getCurrentTime({frame, playbackRate, fps});
 		const currentTimeRef = useRef<number>(currentTime);
 		currentTimeRef.current = currentTime;
 		const requestInitKey = serializeRequestInit(requestInit);
