@@ -66,6 +66,7 @@ import {
 	type InsertElementDropPosition,
 } from './import-assets';
 import {SPACING_UNIT} from './layout';
+import {showNotification} from './Notifications/NotificationCenter';
 import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
@@ -375,6 +376,7 @@ export const Canvas: React.FC<{
 		currentCompositionId !== null &&
 		compositionFile !== null;
 	const canDropAssets = canInstallElements && !isAddingAsset;
+	const cannotAddSequence = compositionComponentInfo?.canAddSequence === false;
 
 	const contentDimensions = useMemo(() => {
 		if (
@@ -1008,7 +1010,6 @@ export const Canvas: React.FC<{
 	const onDragOver = useCallback(
 		(event: DragEvent) => {
 			if (
-				!canDropAssets ||
 				(!isFileDragEvent(event) &&
 					!isAssetDragEvent(event) &&
 					!isCompositionDragEvent(event) &&
@@ -1021,20 +1022,21 @@ export const Canvas: React.FC<{
 				return;
 			}
 
+			if (!canDropAssets && !cannotAddSequence) {
+				return;
+			}
+
 			event.preventDefault();
 			if (event.dataTransfer) {
-				event.dataTransfer.dropEffect = 'copy';
+				event.dataTransfer.dropEffect = canDropAssets ? 'copy' : 'none';
 			}
 		},
-		[canDropAssets],
+		[canDropAssets, cannotAddSequence],
 	);
 
 	const onDrop = useCallback(
 		async (event: DragEvent) => {
 			if (
-				!canDropAssets ||
-				compositionFile === null ||
-				currentCompositionId === null ||
 				(!isFileDragEvent(event) &&
 					!isAssetDragEvent(event) &&
 					!isCompositionDragEvent(event) &&
@@ -1043,6 +1045,24 @@ export const Canvas: React.FC<{
 					!isSfxDragEvent(event) &&
 					!isRemoteAssetDragEvent(event)) ||
 				!isDragEventInsideCanvas(event)
+			) {
+				return;
+			}
+
+			if (cannotAddSequence) {
+				event.preventDefault();
+				event.stopPropagation();
+				showNotification(
+					'Cannot insert items into this composition component',
+					3000,
+				);
+				return;
+			}
+
+			if (
+				!canDropAssets ||
+				compositionFile === null ||
+				currentCompositionId === null
 			) {
 				return;
 			}
@@ -1164,6 +1184,7 @@ export const Canvas: React.FC<{
 		},
 		[
 			canDropAssets,
+			cannotAddSequence,
 			compositionFile,
 			contentDimensions,
 			currentCompositionId,
@@ -1173,10 +1194,6 @@ export const Canvas: React.FC<{
 	);
 
 	useEffect(() => {
-		if (!canDropAssets) {
-			return;
-		}
-
 		document.addEventListener('dragover', onDragOver, {capture: true});
 		document.addEventListener('drop', onDrop, {capture: true});
 
@@ -1184,7 +1201,7 @@ export const Canvas: React.FC<{
 			document.removeEventListener('dragover', onDragOver, {capture: true});
 			document.removeEventListener('drop', onDrop, {capture: true});
 		};
-	}, [canDropAssets, onDragOver, onDrop]);
+	}, [onDragOver, onDrop]);
 
 	return (
 		<>
