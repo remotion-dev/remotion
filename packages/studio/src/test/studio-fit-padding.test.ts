@@ -3,6 +3,7 @@ import type {Size} from '@remotion/player';
 import {
 	calculateStudioCanvasTransformation,
 	calculateStudioScale,
+	getStudioCurrentScaleContext,
 	STUDIO_FIT_PADDING,
 } from '../helpers/studio-fit-padding';
 
@@ -67,4 +68,13 @@ test('does not add padding to explicit zoom levels', () => {
 			previewSize: 0.5,
 		}),
 	).toBe(0.5);
+});
+
+test('keeps the layout size separate from the auto-fit size', () => {
+	const canvasSize = makeCanvasSize(1000, 600);
+	const context = getStudioCurrentScaleContext(canvasSize);
+
+	expect(context.canvasSize).toBe(canvasSize);
+	expect(context.canvasSizeForAuto.width).toBe(1000 - 32);
+	expect(context.canvasSizeForAuto.height).toBe(600 - 32);
 });

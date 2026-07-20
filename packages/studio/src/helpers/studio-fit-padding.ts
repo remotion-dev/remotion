@@ -31,6 +31,14 @@ export const getStudioPaddedCanvasSize = <T extends CanvasSize>(
 	};
 };
 
+export const getStudioCurrentScaleContext = (canvasSize: Size) => {
+	return {
+		type: 'canvas-size' as const,
+		canvasSize,
+		canvasSizeForAuto: getStudioPaddedCanvasSize(canvasSize).canvasSize,
+	};
+};
+
 export const calculateStudioScale = ({
 	canvasSize,
 	compositionHeight,
