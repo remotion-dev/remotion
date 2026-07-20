@@ -13,7 +13,7 @@ export const getPreviewFileType = (fileName: string | null): AssetFileType => {
 
 	const audioExtensions = ['mp3', 'wav', 'ogg', 'aac'];
 	const videoExtensions = ['mp4', 'avi', 'mkv', 'mov', 'webm'];
-	const imageExtensions = ['jpg', 'jpeg', 'png', 'apng', 'gif', 'bmp'];
+	const imageExtensions = ['jpg', 'jpeg', 'png', 'apng', 'gif', 'bmp', 'webp'];
 
 	const fileExtension = fileName.split('.').pop()?.toLowerCase();
 	if (fileExtension === undefined) {
