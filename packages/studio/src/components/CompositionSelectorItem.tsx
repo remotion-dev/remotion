@@ -36,19 +36,17 @@ import {CompositionContextButton} from './CompositionContextButton';
 import {CompositionOrStillIcon} from './CompositionOrStillIcon';
 import {ContextMenu} from './ContextMenu';
 import {getFolderMenuItems} from './folder-menu-items';
-import {Row, Spacing} from './layout';
+import {COMPACT_CONTROL_ROW_HEIGHT, Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {applyCodemod} from './RenderQueue/actions';
 import {SidebarRenderButton} from './SidebarRenderButton';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 
-const COMPOSITION_ITEM_HEIGHT = 32;
-
 const itemStyle: React.CSSProperties = {
 	paddingRight: 10,
-	paddingTop: 6,
-	paddingBottom: 6,
+	paddingTop: 5,
+	paddingBottom: 5,
 	fontSize: 13,
 	display: 'flex',
 	textDecoration: 'none',
@@ -63,7 +61,7 @@ const itemStyle: React.CSSProperties = {
 	width: 'calc(100% - 8px)',
 	textAlign: 'left',
 	backgroundColor: BACKGROUND,
-	height: COMPOSITION_ITEM_HEIGHT,
+	height: COMPACT_CONTROL_ROW_HEIGHT,
 	userSelect: 'none',
 };
 
@@ -420,6 +418,7 @@ export const CompositionSelectorItem: React.FC<{
 					<Row align="center">
 						<div
 							style={style}
+							className="__remotion-composition-selector-item"
 							onPointerEnter={onPointerEnter}
 							onPointerLeave={onPointerLeave}
 							tabIndex={tabIndex}
@@ -490,7 +489,7 @@ export const CompositionSelectorItem: React.FC<{
 					onDragEnd={onCompositionDragEnd}
 					type="button"
 					title={item.composition.id}
-					className="__remotion-composition"
+					className="__remotion-composition __remotion-composition-selector-item"
 					data-compname={item.composition.id}
 				>
 					<CompositionOrStillIcon

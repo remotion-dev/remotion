@@ -7,6 +7,7 @@ import {
 } from '../../helpers/colors';
 import {InlineAction} from '../InlineAction';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
+import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import type {RenderModalWarning} from '../RenderModal/DataEditor';
 import {
@@ -118,6 +119,8 @@ export const InspectorDetailRow: React.FC<{
 	</div>
 );
 
+const INLINE_LABEL_BUTTON_MARGIN = 4;
+
 const inlineLabelButton: React.CSSProperties = {
 	alignItems: 'center',
 	appearance: 'none',
@@ -131,12 +134,12 @@ const inlineLabelButton: React.CSSProperties = {
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	gap: 8,
-	height: 32,
+	height: COMPACT_CONTROL_ROW_HEIGHT,
 	lineHeight: '18px',
-	margin: '0 4px',
-	padding: `5px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+	margin: `0 ${INLINE_LABEL_BUTTON_MARGIN}px`,
+	padding: `5px ${INSPECTOR_PANEL_HORIZONTAL_PADDING - INLINE_LABEL_BUTTON_MARGIN}px`,
 	textAlign: 'left',
-	width: 'calc(100% - 8px)',
+	width: `calc(100% - ${INLINE_LABEL_BUTTON_MARGIN * 2}px)`,
 };
 
 const inlineLabelButtonDisabled: React.CSSProperties = {

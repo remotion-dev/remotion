@@ -25,6 +25,12 @@ import {
 } from './optimistic-composition-metadata';
 import {detailsContainer} from './styles';
 
+const compositionMetadataContainer: React.CSSProperties = {
+	...detailsContainer,
+	paddingBottom: 4,
+	paddingTop: 4,
+};
+
 const fieldLabels: Record<CompositionMetadataField, string> = {
 	durationInFrames: 'Duration',
 	fps: 'Frame rate',
@@ -298,7 +304,7 @@ export const CompositionMetadata: React.FC<{
 	const isStill = isCompositionStill(video);
 
 	return (
-		<div style={detailsContainer}>
+		<div style={compositionMetadataContainer}>
 			<InspectorDetailRow label="Dimensions">
 				<div style={dimensionsControls}>
 					<CompositionMetadataValue

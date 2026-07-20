@@ -2,6 +2,7 @@ import type {HTMLAttributes} from 'react';
 import React, {useMemo} from 'react';
 
 export const SPACING_UNIT = 8;
+export const COMPACT_CONTROL_ROW_HEIGHT = 28;
 
 export const Spacing: React.FC<{
 	readonly x?: number;
