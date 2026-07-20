@@ -1264,6 +1264,13 @@ export const Canvas: React.FC<{
 			}
 
 			event.preventDefault();
+			const svgImportMode = hasSvgFile(files)
+				? await chooseSvgImportMode()
+				: 'image';
+			if (svgImportMode === null) {
+				return;
+			}
+
 			setIsAddingAsset(true);
 			try {
 				await importAssets({
@@ -1273,13 +1280,19 @@ export const Canvas: React.FC<{
 					destinationDimensions:
 						contentDimensions === 'none' ? null : contentDimensions,
 					dropPosition,
-					svgImportMode: 'image',
+					svgImportMode,
 				});
 			} finally {
 				setIsAddingAsset(false);
 			}
 		},
-		[canDropAssets, compositionFile, contentDimensions, currentCompositionId],
+		[
+			canDropAssets,
+			chooseSvgImportMode,
+			compositionFile,
+			contentDimensions,
+			currentCompositionId,
+		],
 	);
 
 	useEffect(() => {
