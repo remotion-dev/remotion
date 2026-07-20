@@ -23,17 +23,17 @@ export const scrollableContainer: React.CSSProperties = {
 	overflowY: 'auto',
 };
 
-export const defaultPropsSection: React.CSSProperties = {
+export const compositionDefaultPropsSection: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
 };
 
-export const visualControlsSection: React.CSSProperties = {
+export const compositionVisualControlsSection: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
 };
 
-export const compositionSection: React.CSSProperties = {
+export const inspectorOverviewSection: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
 };

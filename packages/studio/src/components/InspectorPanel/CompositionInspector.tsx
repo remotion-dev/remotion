@@ -1,12 +1,9 @@
 import React, {useContext, useEffect, useMemo, useState} from 'react';
 import type {_InternalTypes} from 'remotion';
-import {Internals} from 'remotion';
 import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {FileIcon} from '../../icons/file';
 import {Plus} from '../../icons/plus';
 import {VisualControlsContext} from '../../visual-controls/VisualControls';
-import {CurrentAsset} from '../CurrentAsset';
-import {CurrentComposition} from '../CurrentComposition';
 import {DefaultPropsEditor} from '../DefaultPropsEditor';
 import {useZodIfPossible} from '../get-zod-if-possible';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -29,19 +26,19 @@ import {
 	InspectorSectionDivider,
 	InspectorSectionHeader,
 } from './common';
-import {CompositionDimensions} from './CompositionDimensions';
+import {CompositionInspectorHeader} from './CompositionInspectorHeader';
+import {CompositionMetadata} from './CompositionMetadata';
 import {
-	compositionSection,
-	container,
-	defaultPropsSection,
+	compositionDefaultPropsSection,
+	compositionVisualControlsSection,
 	defaultPropsWarningContainer,
 	detailsContainer,
+	inspectorOverviewSection,
 	scrollableContainer,
 	sectionHeaderEnd,
 	sectionHeaderRow,
 	sectionHeaderStart,
 	sectionHeaderTitle,
-	visualControlsSection,
 } from './styles';
 import {useCompositionActions} from './use-composition-actions';
 
@@ -107,22 +104,16 @@ const CompositionActions: React.FC = () => {
 	);
 };
 
-export const DefaultInspector: React.FC<{
-	readonly composition: _InternalTypes['AnyComposition'] | null;
+const CompositionDefaultPropsSection: React.FC<{
+	readonly composition: _InternalTypes['AnyComposition'];
 	readonly currentDefaultProps: Record<string, unknown>;
-	readonly readOnlyStudio: boolean;
 	readonly setDefaultProps: UpdaterFunction<Record<string, unknown>>;
-}> = ({composition, currentDefaultProps, readOnlyStudio, setDefaultProps}) => {
-	const {canvasContent} = useContext(Internals.CompositionManager);
-	const hasSelectedAsset = canvasContent?.type === 'asset';
+}> = ({composition, currentDefaultProps, setDefaultProps}) => {
 	const z = useZodIfPossible();
 	const canSaveDefaultProps = useContext(ObserveDefaultPropsContext);
-	const {handles: visualControlHandles} = useContext(VisualControlsContext);
 	const [defaultPropsMode, setDefaultPropsMode] =
 		useState<DataEditorMode>('schema');
-	const compositionId = composition?.id ?? null;
-	const hasVisualControls =
-		studioInteractivityEnabled && Object.keys(visualControlHandles).length > 0;
+	const compositionId = composition.id;
 
 	useEffect(() => {
 		setDefaultPropsMode('schema');
@@ -150,7 +141,7 @@ export const DefaultInspector: React.FC<{
 	}, [defaultPropsMode]);
 
 	const canShowDefaultPropsSection = useMemo(() => {
-		if (!z || !composition?.schema || !composition.defaultProps) {
+		if (!z || !composition.schema || !composition.defaultProps) {
 			return false;
 		}
 
@@ -164,7 +155,7 @@ export const DefaultInspector: React.FC<{
 		}
 
 		return getZodSchemaType(composition.schema as AnyZodSchema) !== 'any';
-	}, [composition?.defaultProps, composition?.schema, z]);
+	}, [composition.defaultProps, composition.schema, z]);
 	const {setShowWarning, showWarning} = useDataEditorWarningVisibility();
 	const {warnings: defaultPropsWarnings} = useDataEditorWarnings({
 		canSaveDefaultProps: canSaveDefaultProps?.canSaveDefaultProps ?? null,
@@ -174,92 +165,105 @@ export const DefaultInspector: React.FC<{
 		showCannotSaveDefaultPropsWarning: canShowDefaultPropsSection,
 	});
 
-	if (hasSelectedAsset) {
-		return (
-			<div style={scrollableContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-				<div style={compositionSection}>
-					<CurrentAsset readOnlyStudio={readOnlyStudio} />
-				</div>
-			</div>
-		);
-	}
-
-	if (composition === null) {
-		return <div style={container} />;
+	if (!canShowDefaultPropsSection) {
+		return null;
 	}
 
 	return (
+		<>
+			<InspectorSectionDivider />
+			<div style={compositionDefaultPropsSection}>
+				<InspectorSectionHeader>
+					<div style={sectionHeaderRow}>
+						<div style={sectionHeaderStart}>
+							<span style={sectionHeaderTitle}>Default Props</span>
+							<SegmentedControl
+								items={defaultPropsModeItems}
+								needsWrapping={false}
+								size="compact"
+							/>
+						</div>
+						<div style={sectionHeaderEnd}>
+							{defaultPropsWarnings.length > 0 ? (
+								<WarningIndicatorButton
+									setShowWarning={setShowWarning}
+									showWarning={showWarning}
+									warningCount={defaultPropsWarnings.length}
+									size="compact"
+								/>
+							) : null}
+						</div>
+					</div>
+				</InspectorSectionHeader>
+				{defaultPropsWarnings.length > 0 && showWarning ? (
+					<div style={defaultPropsWarningContainer}>
+						<InspectorDefaultPropsWarnings warnings={defaultPropsWarnings} />
+					</div>
+				) : null}
+				<DefaultPropsEditor
+					key={composition.id}
+					unresolvedComposition={composition}
+					defaultProps={currentDefaultProps}
+					setDefaultProps={setDefaultProps}
+					propsEditType="default-props"
+					schemaErrorMode="compact"
+					layout="inspector"
+					mode={defaultPropsMode}
+					onModeChange={setDefaultPropsMode}
+					hideModeControls={canShowDefaultPropsSection}
+					warnings={defaultPropsWarnings}
+					showWarning={false}
+					setShowWarning={setShowWarning}
+					hideWarningButton
+				/>
+			</div>
+		</>
+	);
+};
+
+const CompositionVisualControlsSection: React.FC = () => {
+	const {handles: visualControlHandles} = useContext(VisualControlsContext);
+	const hasVisualControls =
+		studioInteractivityEnabled && Object.keys(visualControlHandles).length > 0;
+
+	if (!hasVisualControls) {
+		return null;
+	}
+
+	return (
+		<>
+			<InspectorSectionDivider />
+			<div style={compositionVisualControlsSection}>
+				<InspectorSectionHeader>Visual Controls</InspectorSectionHeader>
+				<VisualControlsContent />
+			</div>
+		</>
+	);
+};
+
+export const CompositionInspector: React.FC<{
+	readonly composition: _InternalTypes['AnyComposition'];
+	readonly currentDefaultProps: Record<string, unknown>;
+	readonly readOnlyStudio: boolean;
+	readonly setDefaultProps: UpdaterFunction<Record<string, unknown>>;
+}> = ({composition, currentDefaultProps, readOnlyStudio, setDefaultProps}) => {
+	return (
 		<div style={scrollableContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			<div style={compositionSection}>
-				<CurrentComposition />
+			<div style={inspectorOverviewSection}>
+				<CompositionInspectorHeader />
 				<InspectorSectionDivider />
-				<CompositionDimensions
+				<CompositionMetadata
 					compositionId={composition.id}
 					disabled={readOnlyStudio}
 					stack={composition.stack}
 				/>
 			</div>
-			{canShowDefaultPropsSection ? (
-				<>
-					<InspectorSectionDivider />
-					<div style={defaultPropsSection}>
-						<InspectorSectionHeader>
-							<div style={sectionHeaderRow}>
-								<div style={sectionHeaderStart}>
-									<span style={sectionHeaderTitle}>Default Props</span>
-									<SegmentedControl
-										items={defaultPropsModeItems}
-										needsWrapping={false}
-										size="compact"
-									/>
-								</div>
-								<div style={sectionHeaderEnd}>
-									{defaultPropsWarnings.length > 0 ? (
-										<WarningIndicatorButton
-											setShowWarning={setShowWarning}
-											showWarning={showWarning}
-											warningCount={defaultPropsWarnings.length}
-											size="compact"
-										/>
-									) : null}
-								</div>
-							</div>
-						</InspectorSectionHeader>
-						{defaultPropsWarnings.length > 0 && showWarning ? (
-							<div style={defaultPropsWarningContainer}>
-								<InspectorDefaultPropsWarnings
-									warnings={defaultPropsWarnings}
-								/>
-							</div>
-						) : null}
-						<DefaultPropsEditor
-							key={composition.id}
-							unresolvedComposition={composition}
-							defaultProps={currentDefaultProps}
-							setDefaultProps={setDefaultProps}
-							propsEditType="default-props"
-							schemaErrorMode="compact"
-							layout="inspector"
-							mode={defaultPropsMode}
-							onModeChange={setDefaultPropsMode}
-							hideModeControls={canShowDefaultPropsSection}
-							warnings={defaultPropsWarnings}
-							showWarning={false}
-							setShowWarning={setShowWarning}
-							hideWarningButton
-						/>
-					</div>
-				</>
-			) : null}
-			{hasVisualControls ? (
-				<>
-					<InspectorSectionDivider />
-					<div style={visualControlsSection}>
-						<InspectorSectionHeader>Visual Controls</InspectorSectionHeader>
-						<VisualControlsContent />
-					</div>
-				</>
-			) : null}
+			<CompositionDefaultPropsSection
+				composition={composition}
+				currentDefaultProps={currentDefaultProps}
+				setDefaultProps={setDefaultProps}
+			/>
+			<CompositionVisualControlsSection />
 			<CompositionActions />
 		</div>
 	);

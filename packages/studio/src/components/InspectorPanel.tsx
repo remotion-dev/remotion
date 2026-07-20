@@ -1,7 +1,9 @@
-import React, {useMemo} from 'react';
+import React, {useContext, useMemo} from 'react';
 import type {_InternalTypes} from 'remotion';
+import {Internals} from 'remotion';
+import {AssetInspector} from './InspectorPanel/AssetInspector';
 import {InspectorMessage} from './InspectorPanel/common';
-import {DefaultInspector} from './InspectorPanel/DefaultInspector';
+import {CompositionInspector} from './InspectorPanel/CompositionInspector';
 import {getSameSequenceInspectorSelection} from './InspectorPanel/inspector-selection';
 import {SelectedInspector} from './InspectorPanel/SelectedInspector';
 import {container} from './InspectorPanel/styles';
@@ -14,6 +16,7 @@ export const InspectorPanel: React.FC<{
 	readonly readOnlyStudio: boolean;
 	readonly setDefaultProps: UpdaterFunction<Record<string, unknown>>;
 }> = ({composition, currentDefaultProps, readOnlyStudio, setDefaultProps}) => {
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {selectedItems} = useTimelineSelection();
 	const sameSequenceInspectorSelection = useMemo(
 		() => getSameSequenceInspectorSelection(selectedItems),
@@ -21,8 +24,16 @@ export const InspectorPanel: React.FC<{
 	);
 
 	if (selectedItems.length === 0) {
+		if (canvasContent?.type === 'asset') {
+			return <AssetInspector readOnlyStudio={readOnlyStudio} />;
+		}
+
+		if (composition === null) {
+			return <div style={container} />;
+		}
+
 		return (
-			<DefaultInspector
+			<CompositionInspector
 				composition={composition}
 				currentDefaultProps={currentDefaultProps}
 				readOnlyStudio={readOnlyStudio}
