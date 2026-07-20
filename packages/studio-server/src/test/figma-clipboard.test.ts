@@ -11,6 +11,12 @@ const fixture = readFileSync(
 	'utf8',
 );
 
+const solidPaint = (r: number, g: number, b: number) => ({
+	color: {a: 1, b, g, r},
+	type: 'SOLID',
+	visible: true,
+});
+
 test('converts the Figma clipboard fixture to one sanitized SVG', () => {
 	const result = convertFigmaClipboardToSvg(fixture);
 	expect(result.width).toBe(2000);
@@ -46,6 +52,89 @@ test('converts the generated Figma SVG through the inline SVG pipeline', async (
 	expect(jsx).toContain('clipPath="url(#figma-clip-2)"');
 	expect(jsx).toContain('fillRule="evenodd"');
 	expect(jsx).toContain('strokeWidth={44.8018}');
+});
+
+test('renders a full Figma ellipse as an SVG ellipse', async () => {
+	const result = renderFigmaMessageToSvg({
+		message: {
+			blobs: [],
+			nodeChanges: [
+				{
+					fillPaints: [solidPaint(1, 0, 0)],
+					guid: {localID: 1, sessionID: 1},
+					name: 'Ellipse',
+					size: {x: 120, y: 80},
+					type: 'ELLIPSE',
+				},
+			],
+			type: 'NODE_CHANGES',
+		},
+		selectedNodeId: '1:1',
+	});
+	expect(result.svg).toContain(
+		'<ellipse cx="60" cy="40" rx="60" ry="40" fill="#ff0000" />',
+	);
+	const jsx = recast.print(await svgMarkupToJsx(result.svg)).code;
+	expect(jsx).toContain(
+		'<ellipse cx={60} cy={40} rx={60} ry={40} fill="#ff0000" />',
+	);
+});
+
+test('renders partial Figma ellipse arcs and full donuts', () => {
+	const renderArc = (endingAngle: number) =>
+		renderFigmaMessageToSvg({
+			message: {
+				blobs: [],
+				nodeChanges: [
+					{
+						arcData: {endingAngle, innerRadius: 0.5, startingAngle: 0},
+						fillPaints: [solidPaint(0, 1, 0)],
+						guid: {localID: 1, sessionID: 1},
+						name: 'Arc',
+						size: {x: 200, y: 100},
+						type: 'ELLIPSE',
+					},
+				],
+				type: 'NODE_CHANGES',
+			},
+			selectedNodeId: '1:1',
+		}).svg;
+
+	expect(renderArc(Math.PI)).toContain(
+		'<path d="M 200 50 A 100 50 0 0 1 0 50 L 50 50 A 50 25 0 0 0 150 50 Z" fill="#00ff00" fill-rule="evenodd" />',
+	);
+	expect(renderArc(Math.PI * 2)).toContain(
+		'<path d="M 200 50 A 100 50 0 0 1 0 50 A 100 50 0 0 1 200 50 Z M 150 50 A 50 25 0 0 0 50 50 A 50 25 0 0 0 150 50 Z" fill="#00ff00" fill-rule="evenodd" />',
+	);
+});
+
+test('clips inside-aligned Figma ellipse strokes', () => {
+	const result = renderFigmaMessageToSvg({
+		message: {
+			blobs: [],
+			nodeChanges: [
+				{
+					dashPattern: [2, 3],
+					guid: {localID: 1, sessionID: 1},
+					name: 'Stroked ellipse',
+					size: {x: 100, y: 60},
+					strokeAlign: 'INSIDE',
+					strokeCap: 'ROUND',
+					strokePaints: [solidPaint(0, 0, 1)],
+					strokeWeight: 10,
+					type: 'ELLIPSE',
+				},
+			],
+			type: 'NODE_CHANGES',
+		},
+		selectedNodeId: '1:1',
+	});
+	expect(result.svg).toContain(
+		'<clipPath id="figma-ellipse-stroke-0" clipPathUnits="userSpaceOnUse"><ellipse cx="50" cy="30" rx="50" ry="30" /></clipPath>',
+	);
+	expect(result.svg).toContain(
+		'<ellipse cx="50" cy="30" rx="50" ry="30" fill="none" stroke="#0000ff" stroke-width="20" stroke-linecap="round" stroke-linejoin="miter" stroke-dasharray="2 3" />',
+	);
 });
 
 test('rejects unsupported Figma features instead of approximating them', () => {

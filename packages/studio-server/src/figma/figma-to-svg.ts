@@ -32,6 +32,12 @@ type FigmaTransform = {
 	m12?: number;
 };
 
+type FigmaArcData = {
+	startingAngle?: number;
+	endingAngle?: number;
+	innerRadius?: number;
+};
+
 export type FigmaNode = {
 	guid?: FigmaGuid;
 	phase?: string;
@@ -72,6 +78,7 @@ export type FigmaNode = {
 		vectorNetworkBlob?: number;
 		normalizedSize?: FigmaVector;
 	};
+	arcData?: FigmaArcData;
 };
 
 export type FigmaMessage = {
@@ -117,6 +124,8 @@ type RenderContext = {
 const maxVectorItems = 100_000;
 const maxRenderingDepth = 256;
 const supportedContainers = new Set(['FRAME', 'GROUP']);
+const fullCircle = Math.PI * 2;
+const fullCircleTolerance = 0.000_01;
 
 const fail = (message: string): never => {
 	throw new Error(`Cannot import Figma selection: ${message}`);
@@ -836,6 +845,362 @@ const renderFrameShape = ({
 	return `<rect ${attributes.join(' ')} />`;
 };
 
+type EllipseGeometry = {
+	attributes: string[];
+	fillRule: 'evenodd' | null;
+	tagName: 'ellipse' | 'path';
+};
+
+const pointOnEllipse = ({
+	angle,
+	centerX,
+	centerY,
+	radiusX,
+	radiusY,
+	scale,
+}: {
+	angle: number;
+	centerX: number;
+	centerY: number;
+	radiusX: number;
+	radiusY: number;
+	scale: number;
+}) => {
+	return {
+		x: centerX + radiusX * scale * Math.cos(angle),
+		y: centerY + radiusY * scale * Math.sin(angle),
+	};
+};
+
+const formatPoint = (point: FigmaVector) => {
+	return `${formatNumber(point.x)} ${formatNumber(point.y)}`;
+};
+
+const getEllipseGeometry = (node: FigmaNode): EllipseGeometry | null => {
+	const {height, width} = getNodeSize(node);
+	if (width === 0 || height === 0) {
+		return null;
+	}
+
+	const centerX = width / 2;
+	const centerY = height / 2;
+	const radiusX = width / 2;
+	const radiusY = height / 2;
+	const startingAngle = finiteNumber({
+		fallback: 0,
+		label: `${nodeLabel(node)} starting angle`,
+		value: node.arcData?.startingAngle,
+	});
+	const endingAngle = finiteNumber({
+		fallback: fullCircle,
+		label: `${nodeLabel(node)} ending angle`,
+		value: node.arcData?.endingAngle,
+	});
+	const innerRadius = unitInterval({
+		fallback: 0,
+		label: `${nodeLabel(node)} inner radius`,
+		value: node.arcData?.innerRadius,
+	});
+	const rawSweep = finiteNumber({
+		fallback: 0,
+		label: `${nodeLabel(node)} arc sweep`,
+		value: endingAngle - startingAngle,
+	});
+	const isFullCircle = Math.abs(rawSweep) >= fullCircle - fullCircleTolerance;
+	if (isFullCircle && innerRadius === 0) {
+		return {
+			attributes: [
+				`cx="${formatNumber(centerX)}"`,
+				`cy="${formatNumber(centerY)}"`,
+				`rx="${formatNumber(radiusX)}"`,
+				`ry="${formatNumber(radiusY)}"`,
+			],
+			fillRule: null,
+			tagName: 'ellipse',
+		};
+	}
+
+	let sweep = rawSweep % fullCircle;
+	if (sweep < 0) {
+		sweep += fullCircle;
+	}
+
+	if (!isFullCircle && sweep < fullCircleTolerance) {
+		return null;
+	}
+
+	const outerStart = pointOnEllipse({
+		angle: startingAngle,
+		centerX,
+		centerY,
+		radiusX,
+		radiusY,
+		scale: 1,
+	});
+	if (isFullCircle) {
+		const outerOpposite = pointOnEllipse({
+			angle: startingAngle + Math.PI,
+			centerX,
+			centerY,
+			radiusX,
+			radiusY,
+			scale: 1,
+		});
+		const fullInnerStart = pointOnEllipse({
+			angle: startingAngle,
+			centerX,
+			centerY,
+			radiusX,
+			radiusY,
+			scale: innerRadius,
+		});
+		const innerOpposite = pointOnEllipse({
+			angle: startingAngle + Math.PI,
+			centerX,
+			centerY,
+			radiusX,
+			radiusY,
+			scale: innerRadius,
+		});
+		return {
+			attributes: [
+				`d="M ${formatPoint(outerStart)} A ${formatNumber(radiusX)} ${formatNumber(radiusY)} 0 0 1 ${formatPoint(outerOpposite)} A ${formatNumber(radiusX)} ${formatNumber(radiusY)} 0 0 1 ${formatPoint(outerStart)} Z M ${formatPoint(fullInnerStart)} A ${formatNumber(radiusX * innerRadius)} ${formatNumber(radiusY * innerRadius)} 0 0 0 ${formatPoint(innerOpposite)} A ${formatNumber(radiusX * innerRadius)} ${formatNumber(radiusY * innerRadius)} 0 0 0 ${formatPoint(fullInnerStart)} Z"`,
+			],
+			fillRule: 'evenodd',
+			tagName: 'path',
+		};
+	}
+
+	const endingAngleAfterWrap = startingAngle + sweep;
+	const outerEnd = pointOnEllipse({
+		angle: endingAngleAfterWrap,
+		centerX,
+		centerY,
+		radiusX,
+		radiusY,
+		scale: 1,
+	});
+	const largeArc = sweep > Math.PI ? 1 : 0;
+	if (innerRadius === 0) {
+		return {
+			attributes: [
+				`d="M ${formatNumber(centerX)} ${formatNumber(centerY)} L ${formatPoint(outerStart)} A ${formatNumber(radiusX)} ${formatNumber(radiusY)} 0 ${largeArc} 1 ${formatPoint(outerEnd)} Z"`,
+			],
+			fillRule: null,
+			tagName: 'path',
+		};
+	}
+
+	const innerEnd = pointOnEllipse({
+		angle: endingAngleAfterWrap,
+		centerX,
+		centerY,
+		radiusX,
+		radiusY,
+		scale: innerRadius,
+	});
+	const innerStart = pointOnEllipse({
+		angle: startingAngle,
+		centerX,
+		centerY,
+		radiusX,
+		radiusY,
+		scale: innerRadius,
+	});
+	return {
+		attributes: [
+			`d="M ${formatPoint(outerStart)} A ${formatNumber(radiusX)} ${formatNumber(radiusY)} 0 ${largeArc} 1 ${formatPoint(outerEnd)} L ${formatPoint(innerEnd)} A ${formatNumber(radiusX * innerRadius)} ${formatNumber(radiusY * innerRadius)} 0 ${largeArc} 0 ${formatPoint(innerStart)} Z"`,
+		],
+		fillRule: 'evenodd',
+		tagName: 'path',
+	};
+};
+
+const renderEllipseGeometry = ({
+	attributes,
+	geometry,
+	useClipRule,
+}: {
+	attributes: string[];
+	geometry: EllipseGeometry;
+	useClipRule: boolean;
+}) => {
+	const fillRule = geometry.fillRule
+		? [`${useClipRule ? 'clip-rule' : 'fill-rule'}="${geometry.fillRule}"`]
+		: [];
+	return `<${geometry.tagName} ${[...geometry.attributes, ...attributes, ...fillRule].join(' ')} />`;
+};
+
+const getEllipseStrokeAttributes = ({
+	context,
+	node,
+	paint,
+	strokeWidth,
+}: {
+	context: RenderContext;
+	node: FigmaNode;
+	paint: FigmaPaint;
+	strokeWidth: number;
+}) => {
+	const cap =
+		node.strokeCap === undefined || node.strokeCap === 'NONE'
+			? 'butt'
+			: node.strokeCap === 'ROUND'
+				? 'round'
+				: node.strokeCap === 'SQUARE'
+					? 'square'
+					: null;
+	if (cap === null) {
+		fail(`${nodeLabel(node)} uses an unsupported stroke cap`);
+	}
+
+	const join =
+		node.strokeJoin === undefined || node.strokeJoin === 'MITER'
+			? 'miter'
+			: node.strokeJoin === 'ROUND'
+				? 'round'
+				: node.strokeJoin === 'BEVEL'
+					? 'bevel'
+					: null;
+	if (join === null) {
+		fail(`${nodeLabel(node)} uses an unsupported stroke join`);
+	}
+
+	const miterLimit = finiteNumber({
+		fallback: 4,
+		label: `${nodeLabel(node)} miter limit`,
+		value: node.miterLimit,
+	});
+	if (miterLimit <= 0) {
+		fail(`${nodeLabel(node)} has an invalid miter limit`);
+	}
+
+	const attributes = [
+		'fill="none"',
+		...getPaintAttributes({
+			forceWhite: context.renderingAlphaMask > 0,
+			kind: 'stroke',
+			paint,
+		}),
+		`stroke-width="${formatNumber(strokeWidth)}"`,
+		`stroke-linecap="${cap}"`,
+		`stroke-linejoin="${join}"`,
+	];
+	if (miterLimit !== 4) {
+		attributes.push(`stroke-miterlimit="${formatNumber(miterLimit)}"`);
+	}
+
+	if (node.dashPattern && node.dashPattern.length > 0) {
+		const dashes = node.dashPattern.map((dash) =>
+			finiteNumber({
+				fallback: 0,
+				label: `${nodeLabel(node)} stroke dash`,
+				value: dash,
+			}),
+		);
+		if (dashes.some((dash) => dash < 0)) {
+			fail(`${nodeLabel(node)} has a negative stroke dash`);
+		}
+
+		attributes.push(`stroke-dasharray="${dashes.map(formatNumber).join(' ')}"`);
+	}
+
+	return attributes;
+};
+
+const renderEllipse = ({
+	context,
+	node,
+}: {
+	context: RenderContext;
+	node: FigmaNode;
+}) => {
+	const fill = getVisiblePaint({kind: 'fill', node, paints: node.fillPaints});
+	const stroke = getVisiblePaint({
+		kind: 'stroke',
+		node,
+		paints: node.strokePaints,
+	});
+	if (fill === null && stroke === null) {
+		return '';
+	}
+
+	const geometry = getEllipseGeometry(node);
+	if (geometry === null) {
+		return '';
+	}
+
+	const fillAttributes = fill
+		? getPaintAttributes({
+				forceWhite: context.renderingAlphaMask > 0,
+				kind: 'fill',
+				paint: fill,
+			})
+		: ['fill="none"'];
+	if (stroke === null) {
+		return renderEllipseGeometry({
+			attributes: fillAttributes,
+			geometry,
+			useClipRule: false,
+		});
+	}
+
+	const strokeWidth = finiteNumber({
+		fallback: 1,
+		label: `${nodeLabel(node)} stroke width`,
+		value: node.strokeWeight,
+	});
+	if (strokeWidth < 0) {
+		fail(`${nodeLabel(node)} has a negative stroke width`);
+	}
+
+	const strokeAlign = node.strokeAlign ?? 'CENTER';
+	if (strokeAlign !== 'CENTER' && strokeAlign !== 'INSIDE') {
+		fail(`${nodeLabel(node)} uses an unsupported ellipse stroke alignment`);
+	}
+
+	if (strokeAlign === 'CENTER') {
+		return renderEllipseGeometry({
+			attributes: [
+				...fillAttributes,
+				...getEllipseStrokeAttributes({
+					context,
+					node,
+					paint: stroke,
+					strokeWidth,
+				}).filter((attribute) => attribute !== 'fill="none"'),
+			],
+			geometry,
+			useClipRule: false,
+		});
+	}
+
+	const id = `figma-ellipse-stroke-${context.nextId++}`;
+	context.defs.push(
+		`<clipPath id="${id}" clipPathUnits="userSpaceOnUse">${renderEllipseGeometry({attributes: [], geometry, useClipRule: true})}</clipPath>`,
+	);
+	const fillMarkup = fill
+		? renderEllipseGeometry({
+				attributes: fillAttributes,
+				geometry,
+				useClipRule: false,
+			})
+		: '';
+	const strokeMarkup = renderEllipseGeometry({
+		attributes: getEllipseStrokeAttributes({
+			context,
+			node,
+			paint: stroke,
+			strokeWidth: strokeWidth * 2,
+		}),
+		geometry,
+		useClipRule: false,
+	});
+	return [fillMarkup, `<g clip-path="url(#${id})">${strokeMarkup}</g>`]
+		.filter(Boolean)
+		.join('\n');
+};
+
 const getVectorNetwork = ({
 	context,
 	node,
@@ -1180,12 +1545,15 @@ const renderNode = ({
 			content = [renderFrameShape({context, node}), childrenMarkup]
 				.filter(Boolean)
 				.join('\n');
-		} else if (node.type === 'VECTOR') {
+		} else if (node.type === 'VECTOR' || node.type === 'ELLIPSE') {
 			if ((context.scene.children.get(node) ?? []).length > 0) {
 				fail(`${nodeLabel(node)} has unsupported nested content`);
 			}
 
-			content = renderVector({context, node});
+			content =
+				node.type === 'VECTOR'
+					? renderVector({context, node})
+					: renderEllipse({context, node});
 		} else {
 			fail(`${nodeLabel(node)} has unsupported type ${node.type ?? 'UNKNOWN'}`);
 		}
