@@ -1,8 +1,8 @@
 import React, {useContext, useEffect, useMemo, useState} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
-import {FileIcon} from '../../icons/file';
-import {Plus} from '../../icons/plus';
+import {PicIcon} from '../../icons/frame';
+import {SolidIcon} from '../../icons/solid';
 import {VisualControlsContext} from '../../visual-controls/VisualControls';
 import {DefaultPropsEditor} from '../DefaultPropsEditor';
 import {useZodIfPossible} from '../get-zod-if-possible';
@@ -43,8 +43,8 @@ import {
 import {useCompositionActions} from './use-composition-actions';
 
 const actionIconStyle: React.CSSProperties = {
-	height: 13,
-	width: 13,
+	height: 18,
+	width: 18,
 };
 
 const CompositionActions: React.FC = () => {
@@ -67,7 +67,9 @@ const CompositionActions: React.FC = () => {
 				<InspectorInlineAction
 					disabled={!canInsertSolid}
 					onClick={insertSolid}
-					renderIcon={(color) => <Plus color={color} style={actionIconStyle} />}
+					renderIcon={(color) => (
+						<SolidIcon color={color} style={actionIconStyle} />
+					)}
 				>
 					Add Solid
 				</InspectorInlineAction>
@@ -77,10 +79,10 @@ const CompositionActions: React.FC = () => {
 					disabled={!canInsertAsset}
 					onClick={insertAsset}
 					renderIcon={(color) => (
-						<FileIcon color={color} style={actionIconStyle} />
+						<PicIcon color={color} style={actionIconStyle} />
 					)}
 				>
-					Add asset
+					Add asset...
 				</InspectorInlineAction>
 			) : null}
 		</InspectorActionSection>

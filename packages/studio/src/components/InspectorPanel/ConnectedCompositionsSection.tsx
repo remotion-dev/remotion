@@ -8,8 +8,8 @@ import {useSelectComposition} from '../InitialCompositionLoader';
 import {InspectorInlineAction} from './common';
 
 const compositionIconStyle: React.CSSProperties = {
-	height: 13,
-	width: 13,
+	height: 18,
+	width: 18,
 };
 
 const compositionListStyle: React.CSSProperties = {

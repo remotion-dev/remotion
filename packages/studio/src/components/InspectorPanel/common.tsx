@@ -1,7 +1,13 @@
 import React from 'react';
-import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../../helpers/colors';
+import {
+	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
+	getBackgroundFromHoverState,
+} from '../../helpers/colors';
 import {InlineAction} from '../InlineAction';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
+import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import type {RenderModalWarning} from '../RenderModal/DataEditor';
 import {
@@ -113,11 +119,14 @@ export const InspectorDetailRow: React.FC<{
 	</div>
 );
 
+const INLINE_LABEL_BUTTON_MARGIN = 4;
+
 const inlineLabelButton: React.CSSProperties = {
 	alignItems: 'center',
 	appearance: 'none',
 	backgroundColor: TRANSPARENT,
 	border: 'none',
+	borderRadius: 4,
 	boxSizing: 'border-box',
 	color: LIGHT_TEXT,
 	cursor: 'default',
@@ -125,11 +134,12 @@ const inlineLabelButton: React.CSSProperties = {
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	gap: 8,
+	height: COMPACT_CONTROL_ROW_HEIGHT,
 	lineHeight: '18px',
-	margin: 0,
-	padding: `5px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+	margin: `0 ${INLINE_LABEL_BUTTON_MARGIN}px`,
+	padding: `5px ${INSPECTOR_PANEL_HORIZONTAL_PADDING - INLINE_LABEL_BUTTON_MARGIN}px`,
 	textAlign: 'left',
-	width: '100%',
+	width: `calc(100% - ${INLINE_LABEL_BUTTON_MARGIN * 2}px)`,
 };
 
 const inlineLabelButtonDisabled: React.CSSProperties = {
@@ -139,18 +149,23 @@ const inlineLabelButtonDisabled: React.CSSProperties = {
 
 const inlineLabelText: React.CSSProperties = {
 	color: LIGHT_TEXT,
+	flex: 1,
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	lineHeight: '18px',
+	minWidth: 0,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
 };
 
 const inlineLabelIcon: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
 	flexShrink: 0,
-	height: 13,
+	height: 18,
 	justifyContent: 'center',
-	width: 13,
+	width: 18,
 };
 
 export const InspectorInlineAction: React.FC<{
@@ -165,10 +180,14 @@ export const InspectorInlineAction: React.FC<{
 	const buttonStyle = React.useMemo(
 		(): React.CSSProperties => ({
 			...(disabled ? inlineLabelButtonDisabled : inlineLabelButton),
+			backgroundColor: getBackgroundFromHoverState({
+				hovered: hovered && !disabled,
+				selected: false,
+			}),
 			color,
 			...style,
 		}),
-		[color, disabled, style],
+		[color, disabled, hovered, style],
 	);
 	const textStyle = React.useMemo(
 		(): React.CSSProperties => ({

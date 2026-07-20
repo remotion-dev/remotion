@@ -45,8 +45,8 @@ type EasingInspectorDetails = {
 
 const addKeyframeIcon: React.CSSProperties = {
 	display: 'block',
-	height: 13,
-	width: 12,
+	height: 18,
+	width: 18,
 };
 
 export const EasingInspector: React.FC<{

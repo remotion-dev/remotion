@@ -125,8 +125,8 @@ const makeMovedKeyframedDragOverride = ({
 const removeKeyframeIcon: React.CSSProperties = {
 	display: 'block',
 	flexShrink: 0,
-	height: 13,
-	width: 12,
+	height: 18,
+	width: 18,
 };
 
 const TrashIcon: React.FC<{readonly color: string}> = ({color}) => {
