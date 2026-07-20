@@ -16,11 +16,6 @@ import type {AudioProps} from './props';
 
 const {validateMediaProps} = Internals;
 
-const audioPremountSchema = {
-	premountFor: Internals.premountSchema.premountFor,
-	postmountFor: Internals.premountSchema.postmountFor,
-} as const;
-
 const audioSchema = {
 	src: {
 		type: 'asset',
@@ -29,7 +24,7 @@ const audioSchema = {
 		keyframable: false,
 	},
 	...Internals.baseSchema,
-	...audioPremountSchema,
+	...Internals.premountSchema,
 	volume: {
 		type: 'number',
 		min: 0,
