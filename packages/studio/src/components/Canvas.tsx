@@ -25,6 +25,7 @@ import type {CanvasContent} from 'remotion';
 import {Internals, watchStaticFile, type PreviewSize} from 'remotion';
 import {getStaticFiles} from '../api/get-static-files';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {getClipboardFigmaHtml} from '../helpers/clipboard-figma';
 import {getClipboardImageFiles} from '../helpers/clipboard-images';
 import {getClipboardSvgMarkup} from '../helpers/clipboard-svg';
 import {BACKGROUND} from '../helpers/colors';
@@ -65,6 +66,7 @@ import {getElementDragData} from './element-drag-and-drop';
 import {
 	hasSvgFile,
 	importAssets,
+	importFigmaClipboard,
 	importRemoteAsset,
 	insertComponent,
 	insertComposition,
@@ -1284,6 +1286,26 @@ export const Canvas: React.FC<{
 							centerX: contentDimensions.width / 2,
 							centerY: contentDimensions.height / 2,
 						};
+			const figmaHtml = getClipboardFigmaHtml(event.clipboardData);
+			if (figmaHtml !== null) {
+				event.preventDefault();
+				setIsAddingAsset(true);
+				try {
+					await importFigmaClipboard({
+						compositionFile,
+						compositionId: currentCompositionId,
+						destinationDimensions:
+							contentDimensions === 'none' ? null : contentDimensions,
+						dropPosition,
+						html: figmaHtml,
+					});
+				} finally {
+					setIsAddingAsset(false);
+				}
+
+				return;
+			}
+
 			const svgMarkup = getClipboardSvgMarkup(event.clipboardData);
 			if (svgMarkup !== null) {
 				event.preventDefault();

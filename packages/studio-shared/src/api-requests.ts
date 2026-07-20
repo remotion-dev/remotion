@@ -754,6 +754,20 @@ export type InsertJsxElementResponse =
 			stack: string;
 	  };
 
+export type ConvertFigmaClipboardToSvgRequest = {
+	html: string;
+};
+
+export type ConvertFigmaClipboardToSvgResponse =
+	| {
+			success: true;
+			svg: string;
+	  }
+	| {
+			success: false;
+			reason: string;
+	  };
+
 export type InsertElementRequest = {
 	compositionFile: string;
 	compositionId: string;
@@ -956,6 +970,10 @@ export type ApiRoutes = {
 	'/api/insert-jsx-element': ReqAndRes<
 		InsertJsxElementRequest,
 		InsertJsxElementResponse
+	>;
+	'/api/convert-figma-clipboard-to-svg': ReqAndRes<
+		ConvertFigmaClipboardToSvgRequest,
+		ConvertFigmaClipboardToSvgResponse
 	>;
 	'/api/insert-element': ReqAndRes<InsertElementRequest, InsertElementResponse>;
 	'/api/update-element-install-target': ReqAndRes<

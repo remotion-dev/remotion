@@ -27,6 +27,7 @@
 		"@babel/parser": "7.24.1",
 		"@svgr/core": "8.1.0",
 		"@svgr/plugin-jsx": "8.1.0",
+		"kiwi-schema": "0.5.0",
 		"semver": "7.5.3",
 		"prettier": "catalog:",
 		"remotion": "workspace:*",

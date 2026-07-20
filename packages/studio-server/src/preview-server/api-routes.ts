@@ -9,6 +9,7 @@ import {applyCodemodHandler} from './routes/apply-codemod';
 import {applyVisualControlHandler} from './routes/apply-visual-control-change';
 import {handleCancelRender} from './routes/cancel-render';
 import {compositionComponentInfoHandler} from './routes/composition-component-info';
+import {convertFigmaClipboardToSvgHandler} from './routes/convert-figma-clipboard-to-svg';
 import {deleteEffectHandler} from './routes/delete-effect';
 import {deleteJsxNodeHandler} from './routes/delete-jsx-node';
 import {deleteKeyframesHandler} from './routes/delete-keyframes';
@@ -56,6 +57,7 @@ export const allApiRoutes: {
 	>;
 } = {
 	'/api/composition-component-info': compositionComponentInfoHandler,
+	'/api/convert-figma-clipboard-to-svg': convertFigmaClipboardToSvgHandler,
 	'/api/cancel': handleCancelRender,
 	'/api/render': handleAddRender,
 	'/api/unsubscribe-from-file-existence': unsubscribeFromFileExistence,

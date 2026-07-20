@@ -25,6 +25,7 @@ import {
 	type TSequence,
 } from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {hasClipboardFigmaPayload} from '../../helpers/clipboard-figma';
 import {hasClipboardImage} from '../../helpers/clipboard-images';
 import {hasClipboardSvgMarkup} from '../../helpers/clipboard-svg';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
@@ -937,6 +938,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 			if (
 				selectedItems.length === 0 ||
 				e.clipboardData === null ||
+				hasClipboardFigmaPayload(e.clipboardData) ||
 				hasClipboardImage(e.clipboardData) ||
 				hasClipboardSvgMarkup(e.clipboardData)
 			) {
