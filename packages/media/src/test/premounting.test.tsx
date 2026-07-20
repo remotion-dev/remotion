@@ -120,18 +120,12 @@ test('styleWhilePremounted overrides the default Video premount style', async ()
 	}
 });
 
-test('premounts Audio and applies its premount style', async () => {
+test('premounts Audio and hides its fallback element', async () => {
 	const container = document.createElement('div');
 	document.body.appendChild(container);
 
 	const Composition: React.FC = () => (
-		<Audio
-			durationInFrames={20}
-			from={10}
-			premountFor={10}
-			src="/audio.mp3"
-			styleWhilePremounted={{display: 'block', opacity: 0.25}}
-		/>
+		<Audio durationInFrames={20} from={10} premountFor={10} src="/audio.mp3" />
 	);
 
 	const root = createRoot(container);
@@ -154,8 +148,7 @@ test('premounts Audio and applies its premount style', async () => {
 				container.querySelector('[data-testid="premounted-audio"]') !== null,
 		);
 		const audio = container.querySelector('[data-testid="premounted-audio"]');
-		expect(audio?.getAttribute('style')).toContain('opacity: 0.25');
-		expect(audio?.getAttribute('style')).toContain('display: block');
+		expect(audio?.getAttribute('style')).toContain('display: none');
 		expect(audio?.getAttribute('style')).toContain('pointer-events: none');
 	} finally {
 		root.unmount();

@@ -16,6 +16,11 @@ import type {AudioProps} from './props';
 
 const {validateMediaProps} = Internals;
 
+const audioPremountSchema = {
+	premountFor: Internals.premountSchema.premountFor,
+	postmountFor: Internals.premountSchema.postmountFor,
+} as const;
+
 const audioSchema = {
 	src: {
 		type: 'asset',
@@ -24,7 +29,7 @@ const audioSchema = {
 		keyframable: false,
 	},
 	...Internals.baseSchema,
-	...Internals.premountSchema,
+	...audioPremountSchema,
 	volume: {
 		type: 'number',
 		min: 0,
@@ -65,8 +70,6 @@ const AudioInner: React.FC<
 		style,
 		premountFor,
 		postmountFor,
-		styleWhilePremounted,
-		styleWhilePostmounted,
 		...otherProps
 	} = props;
 	const environment = useRemotionEnvironment();
@@ -141,8 +144,8 @@ const AudioInner: React.FC<
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: style ?? null,
-		styleWhilePremounted: styleWhilePremounted ?? null,
-		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		styleWhilePremounted: null,
+		styleWhilePostmounted: null,
 		hideWhilePremounted: 'display-none',
 	});
 

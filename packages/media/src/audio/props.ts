@@ -47,4 +47,4 @@ export type AudioProps = {
 	credentials?: RequestCredentials;
 	requestInit?: MediaRequestInit;
 } & InteractiveBaseProps &
-	InteractivePremountProps;
+	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'>;
