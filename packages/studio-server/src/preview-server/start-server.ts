@@ -57,13 +57,13 @@ export const startServer = async (options: {
 	logLevel: LogLevel;
 	getRenderQueue: () => RenderJob[];
 	getRenderDefaults: () => RenderDefaults;
-	numberOfAudioTags: number;
+	getNumberOfAudioTags: () => number;
 	queueMethods: QueueMethods;
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
 	forceIPv4: boolean;
-	audioLatencyHint: AudioContextLatencyCategory | null;
-	previewSampleRate: number | null;
+	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
 	askAIEnabled: boolean;
 	interactivityEnabled: boolean;
@@ -169,12 +169,12 @@ export const startServer = async (options: {
 					logLevel: options.logLevel,
 					getRenderQueue: options.getRenderQueue,
 					getRenderDefaults: options.getRenderDefaults,
-					numberOfAudioTags: options.numberOfAudioTags,
+					getNumberOfAudioTags: options.getNumberOfAudioTags,
 					queueMethods: options.queueMethods,
 					gitSource: options.gitSource,
 					binariesDirectory: options.binariesDirectory,
-					audioLatencyHint: options.audioLatencyHint,
-					previewSampleRate: options.previewSampleRate,
+					getAudioLatencyHint: options.getAudioLatencyHint,
+					getPreviewSampleRate: options.getPreviewSampleRate,
 					enableCrossSiteIsolation: options.enableCrossSiteIsolation,
 					getStudioRuntimeConfig: options.getStudioRuntimeConfig,
 				});

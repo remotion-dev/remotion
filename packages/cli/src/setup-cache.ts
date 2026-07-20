@@ -280,7 +280,7 @@ export const bundleOnCli = async ({
 		maxTimelineTracks,
 		bufferStateDelayInMilliseconds,
 		audioLatencyHint,
-		renderDefaults: getRenderDefaults(),
+		renderDefaults: getRenderDefaults(logLevel),
 	});
 
 	bundlingState = {
