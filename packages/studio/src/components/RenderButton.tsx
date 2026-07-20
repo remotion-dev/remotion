@@ -521,10 +521,11 @@ export const RenderButton: React.FC<{
 		return {
 			...splitButtonContainer,
 			borderColor: BLACK_ALPHA_60,
+			borderRadius: controlSize === 'compact' ? 0 : 4,
 			opacity: 1,
 			cursor: 'pointer',
 		};
-	}, []);
+	}, [controlSize]);
 
 	const renderLabel =
 		renderType === 'server-render'

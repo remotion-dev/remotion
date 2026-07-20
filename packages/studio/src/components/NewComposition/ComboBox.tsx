@@ -39,6 +39,7 @@ const container: React.CSSProperties = {
 const compactContainer: React.CSSProperties = {
 	...container,
 	boxSizing: 'border-box',
+	borderRadius: 0,
 	height: COMPACT_CONTROL_ROW_HEIGHT + 2,
 	padding: '5px 6px',
 };
