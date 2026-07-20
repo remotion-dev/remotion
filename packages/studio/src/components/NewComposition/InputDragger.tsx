@@ -82,6 +82,24 @@ export const deriveInputDraggerDragStartValue = ({
 	return 0;
 };
 
+export const isInputDraggerValueInRange = ({
+	max,
+	min,
+	value,
+}: {
+	readonly max: React.InputHTMLAttributes<HTMLInputElement>['max'];
+	readonly min: React.InputHTMLAttributes<HTMLInputElement>['min'];
+	readonly value: number;
+}) => {
+	const numericMin = Number(min);
+	const numericMax = Number(max);
+
+	return (
+		(!Number.isFinite(numericMin) || value >= numericMin) &&
+		(!Number.isFinite(numericMax) || value <= numericMax)
+	);
+};
+
 const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	HTMLButtonElement,
 	Props
@@ -170,11 +188,19 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	const onInputChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			const parsed = Number(e.target.value);
-			if (e.target.value !== '' && !Number.isNaN(parsed)) {
+			if (
+				e.target.value !== '' &&
+				!Number.isNaN(parsed) &&
+				isInputDraggerValueInRange({
+					max: _max,
+					min: _min,
+					value: parsed,
+				})
+			) {
 				onValueChange(parsed);
 			}
 		},
-		[onValueChange],
+		[_max, _min, onValueChange],
 	);
 
 	const onBlur = useCallback(() => {
