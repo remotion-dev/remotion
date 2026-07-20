@@ -211,6 +211,10 @@ export const getAssetElementForDroppedFile = ({
 	return getAssetElementFromPath(src);
 };
 
+const isSvgFile = (file: File) => file.name.toLowerCase().endsWith('.svg');
+
+export const hasSvgFile = (files: File[]) => files.some(isSvgFile);
+
 const getAssetLabel = (element: InsertableCompositionElement) => {
 	if (element.type !== 'asset') {
 		throw new Error('Expected asset element');
@@ -582,7 +586,7 @@ const notifyUnsupportedFiles = (unsupportedFiles: string[]) => {
 	}
 };
 
-const insertAssetElement = async ({
+const insertCompositionElement = async ({
 	compositionFile,
 	compositionId,
 	element,
@@ -620,12 +624,14 @@ export const importAssets = async ({
 	destinationDimensions,
 	dropPosition,
 	files,
+	svgImportMode,
 }: {
 	compositionFile: string;
 	compositionId: string;
 	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
 	files: File[];
+	svgImportMode: 'image' | 'inline';
 }) => {
 	if (files.length === 0) {
 		return;
@@ -633,6 +639,10 @@ export const importAssets = async ({
 
 	const staticFiles = getStaticFiles();
 	const differentExistingFile = files.find((file) => {
+		if (isSvgFile(file) && svgImportMode === 'inline') {
+			return false;
+		}
+
 		return staticFiles.some(
 			(existingStaticFile) =>
 				existingStaticFile.name === file.name &&
@@ -667,6 +677,32 @@ export const importAssets = async ({
 		for (const file of files) {
 			const contents = await file.arrayBuffer();
 			const fileType = detectFileType(new Uint8Array(contents));
+			const dimensions = await getFileDimensionsOrNull({file, fileType});
+
+			if (isSvgFile(file) && svgImportMode === 'inline') {
+				const svgInserted = await insertCompositionElement({
+					compositionFile,
+					compositionId,
+					element: {
+						type: 'svg',
+						markup: new TextDecoder().decode(contents),
+						position: getAssetPositionForDrop({
+							assetDimensions: dimensions,
+							destinationDimensions,
+							dropPosition,
+						}),
+					},
+				});
+
+				if (!svgInserted) {
+					notifyAddedStaticFiles();
+					return;
+				}
+
+				insertedLabels.push('<Interactive.Svg>');
+				continue;
+			}
+
 			const element = getAssetElementForDroppedFile({
 				fileType,
 				src: file.name,
@@ -691,10 +727,9 @@ export const importAssets = async ({
 				addedStaticFiles.push(file.name);
 			}
 
-			const dimensions = await getFileDimensionsOrNull({file, fileType});
 			const resolvedDimensions = element.dimensions ?? dimensions;
 
-			const inserted = await insertAssetElement({
+			const inserted = await insertCompositionElement({
 				compositionFile,
 				compositionId,
 				element: {
@@ -729,6 +764,60 @@ export const importAssets = async ({
 	}
 };
 
+export const insertSvgMarkup = async ({
+	compositionFile,
+	compositionId,
+	destinationDimensions,
+	dropPosition,
+	markup,
+}: {
+	compositionFile: string;
+	compositionId: string;
+	destinationDimensions: Dimensions | null;
+	dropPosition: InsertElementDropPosition | null;
+	markup: string;
+}) => {
+	try {
+		const objectUrl = URL.createObjectURL(
+			new Blob([markup], {type: 'image/svg+xml'}),
+		);
+		let dimensions: Dimensions | null = null;
+		try {
+			dimensions = await getImageDimensions({
+				revokeObjectUrl: true,
+				src: objectUrl,
+			});
+		} catch {
+			dimensions = null;
+		}
+
+		const inserted = await insertCompositionElement({
+			compositionFile,
+			compositionId,
+			element: {
+				type: 'svg',
+				markup,
+				position: getAssetPositionForDrop({
+					assetDimensions: dimensions,
+					destinationDimensions,
+					dropPosition,
+				}),
+			},
+		});
+
+		if (inserted) {
+			notifyInsertedAssets(['<Interactive.Svg>']);
+		}
+	} catch (error) {
+		showNotification(
+			`Could not add SVG: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
+			4000,
+		);
+	}
+};
+
 export const importRemoteAsset = async ({
 	compositionFile,
 	compositionId,
@@ -754,7 +843,7 @@ export const importRemoteAsset = async ({
 			return;
 		}
 
-		const inserted = await insertAssetElement({
+		const inserted = await insertCompositionElement({
 			compositionFile,
 			compositionId,
 			element: {
@@ -806,7 +895,7 @@ export const insertRemoteAudio = async ({
 	};
 
 	try {
-		const inserted = await insertAssetElement({
+		const inserted = await insertCompositionElement({
 			compositionFile,
 			compositionId,
 			element,
@@ -858,7 +947,7 @@ export const insertExistingAssets = async ({
 			const dimensions =
 				element.dimensions ?? (await getStaticAssetDimensionsOrNull(assetPath));
 
-			const inserted = await insertAssetElement({
+			const inserted = await insertCompositionElement({
 				compositionFile,
 				compositionId,
 				element: {
@@ -903,7 +992,7 @@ export const insertComponent = async ({
 	dropPosition: InsertElementDropPosition | null;
 }) => {
 	try {
-		const inserted = await insertAssetElement({
+		const inserted = await insertCompositionElement({
 			compositionFile,
 			compositionId,
 			element: {
@@ -983,7 +1072,7 @@ export const insertComposition = async ({
 			width: calculated.width,
 			height: calculated.height,
 		};
-		const inserted = await insertAssetElement({
+		const inserted = await insertCompositionElement({
 			compositionFile,
 			compositionId,
 			element: {
