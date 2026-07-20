@@ -1,9 +1,9 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useMemo, useState} from 'react';
-import type {CurrentScaleContextType} from 'remotion';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
+import {getStudioCurrentScaleContext} from '../helpers/studio-fit-padding';
 import {getStudioBufferStateDelayInMilliseconds} from '../helpers/studio-runtime-config';
 import {drawRef} from '../state/canvas-ref';
 import {ScaleLockProvider} from '../state/scale-lock';
@@ -54,15 +54,12 @@ export const Editor: React.FC<{
 		setDrawElement(node);
 	}, []);
 
-	const value: CurrentScaleContextType | null = useMemo(() => {
+	const value = useMemo(() => {
 		if (!size) {
 			return null;
 		}
 
-		return {
-			type: 'canvas-size',
-			canvasSize: size,
-		};
+		return getStudioCurrentScaleContext(size);
 	}, [size]);
 
 	const MemoRoot = useMemo(() => {
