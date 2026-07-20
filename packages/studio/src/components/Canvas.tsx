@@ -23,7 +23,9 @@ import React, {
 } from 'react';
 import type {CanvasContent} from 'remotion';
 import {Internals, watchStaticFile, type PreviewSize} from 'remotion';
+import {getStaticFiles} from '../api/get-static-files';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {getClipboardImageFiles} from '../helpers/clipboard-images';
 import {BACKGROUND} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {getAssetMetadata} from '../helpers/get-asset-metadata';
@@ -44,7 +46,10 @@ import {
 	smoothenZoom,
 	unsmoothenZoom,
 } from '../helpers/smooth-zoom';
-import {useKeybinding} from '../helpers/use-keybinding';
+import {
+	areKeyboardShortcutsDisabled,
+	useKeybinding,
+} from '../helpers/use-keybinding';
 import {canvasRef} from '../state/canvas-ref';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
@@ -66,6 +71,7 @@ import {
 	type InsertElementDropPosition,
 } from './import-assets';
 import {SPACING_UNIT} from './layout';
+import {showNotification} from './Notifications/NotificationCenter';
 import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
@@ -375,6 +381,7 @@ export const Canvas: React.FC<{
 		currentCompositionId !== null &&
 		compositionFile !== null;
 	const canDropAssets = canInstallElements && !isAddingAsset;
+	const cannotAddSequence = compositionComponentInfo?.canAddSequence === false;
 
 	const contentDimensions = useMemo(() => {
 		if (
@@ -1008,7 +1015,6 @@ export const Canvas: React.FC<{
 	const onDragOver = useCallback(
 		(event: DragEvent) => {
 			if (
-				!canDropAssets ||
 				(!isFileDragEvent(event) &&
 					!isAssetDragEvent(event) &&
 					!isCompositionDragEvent(event) &&
@@ -1021,20 +1027,21 @@ export const Canvas: React.FC<{
 				return;
 			}
 
+			if (!canDropAssets && !cannotAddSequence) {
+				return;
+			}
+
 			event.preventDefault();
 			if (event.dataTransfer) {
-				event.dataTransfer.dropEffect = 'copy';
+				event.dataTransfer.dropEffect = canDropAssets ? 'copy' : 'none';
 			}
 		},
-		[canDropAssets],
+		[canDropAssets, cannotAddSequence],
 	);
 
 	const onDrop = useCallback(
 		async (event: DragEvent) => {
 			if (
-				!canDropAssets ||
-				compositionFile === null ||
-				currentCompositionId === null ||
 				(!isFileDragEvent(event) &&
 					!isAssetDragEvent(event) &&
 					!isCompositionDragEvent(event) &&
@@ -1043,6 +1050,24 @@ export const Canvas: React.FC<{
 					!isSfxDragEvent(event) &&
 					!isRemoteAssetDragEvent(event)) ||
 				!isDragEventInsideCanvas(event)
+			) {
+				return;
+			}
+
+			if (cannotAddSequence) {
+				event.preventDefault();
+				event.stopPropagation();
+				showNotification(
+					'Cannot insert items into this composition component',
+					3000,
+				);
+				return;
+			}
+
+			if (
+				!canDropAssets ||
+				compositionFile === null ||
+				currentCompositionId === null
 			) {
 				return;
 			}
@@ -1164,6 +1189,7 @@ export const Canvas: React.FC<{
 		},
 		[
 			canDropAssets,
+			cannotAddSequence,
 			compositionFile,
 			contentDimensions,
 			currentCompositionId,
@@ -1172,11 +1198,55 @@ export const Canvas: React.FC<{
 		],
 	);
 
-	useEffect(() => {
-		if (!canDropAssets) {
-			return;
-		}
+	const onPaste = useCallback(
+		async (event: ClipboardEvent) => {
+			const {activeElement} = document;
+			if (
+				!canDropAssets ||
+				compositionFile === null ||
+				currentCompositionId === null ||
+				event.clipboardData === null ||
+				activeElement instanceof HTMLInputElement ||
+				activeElement instanceof HTMLTextAreaElement ||
+				(activeElement instanceof HTMLElement &&
+					activeElement.isContentEditable)
+			) {
+				return;
+			}
 
+			const files = getClipboardImageFiles({
+				clipboardData: event.clipboardData,
+				existingFileNames: getStaticFiles().map((file) => file.name),
+			});
+			if (files.length === 0) {
+				return;
+			}
+
+			event.preventDefault();
+			setIsAddingAsset(true);
+			try {
+				await importAssets({
+					files,
+					compositionFile,
+					compositionId: currentCompositionId,
+					destinationDimensions:
+						contentDimensions === 'none' ? null : contentDimensions,
+					dropPosition:
+						contentDimensions === null || contentDimensions === 'none'
+							? null
+							: {
+									centerX: contentDimensions.width / 2,
+									centerY: contentDimensions.height / 2,
+								},
+				});
+			} finally {
+				setIsAddingAsset(false);
+			}
+		},
+		[canDropAssets, compositionFile, contentDimensions, currentCompositionId],
+	);
+
+	useEffect(() => {
 		document.addEventListener('dragover', onDragOver, {capture: true});
 		document.addEventListener('drop', onDrop, {capture: true});
 
@@ -1184,7 +1254,20 @@ export const Canvas: React.FC<{
 			document.removeEventListener('dragover', onDragOver, {capture: true});
 			document.removeEventListener('drop', onDrop, {capture: true});
 		};
-	}, [canDropAssets, onDragOver, onDrop]);
+	}, [onDragOver, onDrop]);
+
+	useEffect(() => {
+		if (
+			!canDropAssets ||
+			!keybindings.isHighestContext ||
+			areKeyboardShortcutsDisabled()
+		) {
+			return;
+		}
+
+		document.addEventListener('paste', onPaste);
+		return () => document.removeEventListener('paste', onPaste);
+	}, [canDropAssets, keybindings.isHighestContext, onPaste]);
 
 	return (
 		<>

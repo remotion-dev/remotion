@@ -299,3 +299,59 @@ code {
 		display: none !important;
 	}
 }
+
+.remotion-footer__links {
+	display: grid;
+	grid-template-columns: minmax(12rem, 1.35fr) minmax(0, 5fr);
+	gap: 2.5rem;
+	align-items: start;
+}
+
+.remotion-footer__brand {
+	min-width: 0;
+}
+
+.remotion-footer__logo {
+	display: block;
+	height: 32px;
+	margin-bottom: 20px;
+}
+
+.remotion-footer__copyright {
+	margin: 0;
+	color: var(--ifm-footer-link-color);
+	font-size: 0.8em;
+}
+
+.remotion-footer__categories {
+	display: grid;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+	gap: 2rem clamp(1rem, 2.5vw, 3rem);
+	min-width: 0;
+}
+
+.remotion-footer__column {
+	min-width: 0;
+	margin-bottom: 0;
+}
+
+@media screen and (max-width: 1199px) {
+	.remotion-footer__links {
+		grid-template-columns: 1fr;
+	}
+
+	.remotion-footer__categories {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+@media screen and (max-width: 767px) {
+	.remotion-footer__links {
+		gap: 2rem;
+	}
+
+	.remotion-footer__categories {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 2rem 1.25rem;
+	}
+}

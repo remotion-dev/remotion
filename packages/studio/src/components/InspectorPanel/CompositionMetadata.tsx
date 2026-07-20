@@ -7,7 +7,10 @@ import {Internals} from 'remotion';
 import {WHITE_ALPHA_40} from '../../helpers/colors';
 import {isCompositionStill} from '../../helpers/is-composition-still';
 import {resolvedStackToSymbolicated} from '../../helpers/resolved-stack-to-symbolicated';
-import {InputDragger} from '../NewComposition/InputDragger';
+import {
+	InputDragger,
+	inputDraggerContainerStyle,
+} from '../NewComposition/InputDragger';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {applyCodemod} from '../RenderQueue/actions';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
@@ -29,13 +32,18 @@ const fieldLabels: Record<CompositionMetadataField, string> = {
 	width: 'Width',
 };
 
-const computedStyle: React.CSSProperties = {
+const computedContainerStyle: React.CSSProperties = {
+	...inputDraggerContainerStyle,
+	textAlign: 'right',
+	userSelect: 'none',
+};
+
+const computedValueStyle: React.CSSProperties = {
 	color: WHITE_ALPHA_40,
 	fontFamily: 'sans-serif',
 	fontSize: 12,
 	fontStyle: 'italic',
-	lineHeight: '16px',
-	userSelect: 'none',
+	lineHeight: 1.5,
 };
 
 const dimensionsControls: React.CSSProperties = {
@@ -173,7 +181,9 @@ const CompositionMetadataValue: React.FC<{
 	);
 
 	return computed ? (
-		<span style={computedStyle}>{formatValue(value)}</span>
+		<span style={computedContainerStyle}>
+			<span style={computedValueStyle}>{formatValue(value)}</span>
+		</span>
 	) : disabled ? (
 		formatValue(value)
 	) : (
@@ -196,7 +206,7 @@ const CompositionMetadataValue: React.FC<{
 	);
 };
 
-export const CompositionDimensions: React.FC<{
+export const CompositionMetadata: React.FC<{
 	readonly compositionId: string;
 	readonly disabled: boolean;
 	readonly stack: string | null;

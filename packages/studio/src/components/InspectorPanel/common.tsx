@@ -10,6 +10,7 @@ import {
 	detailLabel,
 	detailRow,
 	detailValue,
+	inspectorSectionBody,
 	inspectorSectionDivider,
 	resolveLinkStyle,
 	sectionHeader,
@@ -24,6 +25,21 @@ export const InspectorSectionHeader: React.FC<{
 export const InspectorSectionDivider: React.FC = () => (
 	<div style={inspectorSectionDivider} />
 );
+
+export const InspectorSection: React.FC<{
+	readonly children: React.ReactNode;
+	readonly header: React.ReactNode;
+}> = ({children, header}) => {
+	return (
+		<>
+			<InspectorSectionDivider />
+			<InspectorSectionHeader>{header}</InspectorSectionHeader>
+			{children === null ? null : (
+				<div style={inspectorSectionBody}>{children}</div>
+			)}
+		</>
+	);
+};
 
 const backIcon: React.CSSProperties = {
 	alignItems: 'center',
@@ -132,15 +148,17 @@ export const InspectorInlineAction: React.FC<{
 	readonly disabled: boolean;
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
 	readonly renderIcon: (color: string) => React.ReactNode;
-}> = ({children, disabled, onClick, renderIcon}) => {
+	readonly style?: React.CSSProperties;
+}> = ({children, disabled, onClick, renderIcon, style}) => {
 	const [hovered, setHovered] = React.useState(false);
 	const color = hovered && !disabled ? WHITE : LIGHT_TEXT;
 	const buttonStyle = React.useMemo(
 		(): React.CSSProperties => ({
 			...(disabled ? inlineLabelButtonDisabled : inlineLabelButton),
 			color,
+			...style,
 		}),
-		[color, disabled],
+		[color, disabled, style],
 	);
 	const textStyle = React.useMemo(
 		(): React.CSSProperties => ({
