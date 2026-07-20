@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/canvas-capture"
 	},
 	"name": "@remotion/canvas-capture",
-	"version": "4.0.494",
+	"version": "4.0.495",
 	"description": "Capture HTML-in-canvas content as a video",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
