@@ -25,6 +25,7 @@ import {
 	type TSequence,
 } from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {hasClipboardImage} from '../../helpers/clipboard-images';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	areKeyboardShortcutsDisabled,
@@ -932,7 +933,11 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 			}
 
 			const {selectedItems} = currentSelection.current;
-			if (selectedItems.length === 0 || e.clipboardData === null) {
+			if (
+				selectedItems.length === 0 ||
+				e.clipboardData === null ||
+				hasClipboardImage(e.clipboardData)
+			) {
 				return;
 			}
 
