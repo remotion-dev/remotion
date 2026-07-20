@@ -350,6 +350,7 @@ export const premountSchema = {
 		min: 0,
 		step: 1,
 		hiddenFromList: false,
+		keyframable: false,
 	},
 	postmountFor: {
 		type: 'number',
@@ -357,6 +358,7 @@ export const premountSchema = {
 		min: 0,
 		step: 1,
 		hiddenFromList: true,
+		keyframable: false,
 	},
 	styleWhilePremounted: {
 		type: 'hidden',

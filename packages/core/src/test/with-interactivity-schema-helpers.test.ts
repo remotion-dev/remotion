@@ -26,10 +26,15 @@ import {
 	selectActiveKeys,
 } from '../with-interactivity-schema.js';
 
-test('sequenceStyleSchema is the union of transform and premount fields', () => {
+test('sequenceStyleSchema contains transform and premount fields', () => {
 	expect(Object.keys(sequenceStyleSchema).sort()).toEqual(
 		[...Object.keys(transformSchema), ...Object.keys(premountSchema)].sort(),
 	);
+});
+
+test('premount fields are not keyframable', () => {
+	expect(premountSchema.premountFor.keyframable).toBe(false);
+	expect(premountSchema.postmountFor.keyframable).toBe(false);
 });
 
 test('baseSchema exposes common timeline fields', () => {

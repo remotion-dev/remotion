@@ -69,6 +69,22 @@ export const MyComposition = () => {
 };
 ```
 
+### `premountFor?`<AvailableFrom v="4.0.495" />
+
+Mounts the audio for the specified number of frames before its `from` frame, allowing it to buffer before playback starts. See [Premounting](/docs/player/premounting).
+
+### `postmountFor?`<AvailableFrom v="4.0.495" />
+
+Keeps the audio mounted for the specified number of frames after its duration has ended.
+
+### `styleWhilePremounted?`<AvailableFrom v="4.0.495" />
+
+CSS styles applied to the fallback audio element while it is premounted.
+
+### `styleWhilePostmounted?`<AvailableFrom v="4.0.495" />
+
+CSS styles applied to the fallback audio element while it is postmounted.
+
 ### `trimBefore?`
 
 Will remove a portion of the audio at the beginning (left side).
