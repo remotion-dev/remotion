@@ -10,6 +10,7 @@ import {
 	detailLabel,
 	detailRow,
 	detailValue,
+	inspectorActionSection,
 	inspectorSectionBody,
 	inspectorSectionDivider,
 	resolveLinkStyle,
@@ -24,6 +25,15 @@ export const InspectorSectionHeader: React.FC<{
 
 export const InspectorSectionDivider: React.FC = () => (
 	<div style={inspectorSectionDivider} />
+);
+
+export const InspectorActionSection: React.FC<{
+	readonly children: React.ReactNode;
+}> = ({children}) => (
+	<>
+		<InspectorSectionDivider />
+		<div style={inspectorActionSection}>{children}</div>
+	</>
 );
 
 export const InspectorSection: React.FC<{

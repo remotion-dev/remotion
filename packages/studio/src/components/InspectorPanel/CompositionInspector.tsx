@@ -21,6 +21,7 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {VisualControlsContent} from '../VisualControls/VisualControlsContent';
 import {
+	InspectorActionSection,
 	InspectorDefaultPropsWarnings,
 	InspectorInlineAction,
 	InspectorSectionDivider,
@@ -32,7 +33,6 @@ import {
 	compositionDefaultPropsSection,
 	compositionVisualControlsSection,
 	defaultPropsWarningContainer,
-	detailsContainer,
 	inspectorOverviewSection,
 	scrollableContainer,
 	sectionHeaderEnd,
@@ -45,16 +45,6 @@ import {useCompositionActions} from './use-composition-actions';
 const actionIconStyle: React.CSSProperties = {
 	height: 13,
 	width: 13,
-};
-
-const actionsContainer: React.CSSProperties = {
-	...detailsContainer,
-	paddingBottom: 6,
-	paddingTop: 6,
-};
-
-const actionButton: React.CSSProperties = {
-	width: '100%',
 };
 
 const CompositionActions: React.FC = () => {
@@ -72,35 +62,28 @@ const CompositionActions: React.FC = () => {
 	}
 
 	return (
-		<>
-			<InspectorSectionDivider />
-			<div style={actionsContainer}>
-				{canShowInsertSolid ? (
-					<InspectorInlineAction
-						disabled={!canInsertSolid}
-						onClick={insertSolid}
-						style={actionButton}
-						renderIcon={(color) => (
-							<Plus color={color} style={actionIconStyle} />
-						)}
-					>
-						Add Solid
-					</InspectorInlineAction>
-				) : null}
-				{canShowInsertAsset ? (
-					<InspectorInlineAction
-						disabled={!canInsertAsset}
-						onClick={insertAsset}
-						style={actionButton}
-						renderIcon={(color) => (
-							<FileIcon color={color} style={actionIconStyle} />
-						)}
-					>
-						Add asset
-					</InspectorInlineAction>
-				) : null}
-			</div>
-		</>
+		<InspectorActionSection>
+			{canShowInsertSolid ? (
+				<InspectorInlineAction
+					disabled={!canInsertSolid}
+					onClick={insertSolid}
+					renderIcon={(color) => <Plus color={color} style={actionIconStyle} />}
+				>
+					Add Solid
+				</InspectorInlineAction>
+			) : null}
+			{canShowInsertAsset ? (
+				<InspectorInlineAction
+					disabled={!canInsertAsset}
+					onClick={insertAsset}
+					renderIcon={(color) => (
+						<FileIcon color={color} style={actionIconStyle} />
+					)}
+				>
+					Add asset
+				</InspectorInlineAction>
+			) : null}
+		</InspectorActionSection>
 	);
 };
 

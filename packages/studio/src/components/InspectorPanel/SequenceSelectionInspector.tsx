@@ -19,6 +19,7 @@ import {
 } from '../Timeline/TimelineSelection';
 import {AlignmentControls} from './AlignmentControls';
 import {
+	InspectorActionSection,
 	InspectorInlineAction,
 	InspectorMessage,
 	InspectorSectionDivider,
@@ -32,22 +33,12 @@ import {
 	SequenceInspectorHeader,
 	useSequenceInspectorSourceLocation,
 } from './SequenceInspectorHeader';
-import {detailsContainer, selectedContainer} from './styles';
+import {selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
 
 const splitIconStyle: React.CSSProperties = {
 	height: 13,
 	width: 13,
-};
-
-const splitActionContainer: React.CSSProperties = {
-	...detailsContainer,
-	paddingBottom: 6,
-	paddingTop: 6,
-};
-
-const splitActionButton: React.CSSProperties = {
-	width: '100%',
 };
 
 const SplitSequenceAction: React.FC<{
@@ -90,21 +81,17 @@ const SplitSequenceAction: React.FC<{
 	}
 
 	return (
-		<>
-			<InspectorSectionDivider />
-			<div style={splitActionContainer}>
-				<InspectorInlineAction
-					disabled={false}
-					onClick={onSplit}
-					style={splitActionButton}
-					renderIcon={(color) => (
-						<ScissorsIcon style={splitIconStyle} color={color} />
-					)}
-				>
-					Split clip
-				</InspectorInlineAction>
-			</div>
-		</>
+		<InspectorActionSection>
+			<InspectorInlineAction
+				disabled={false}
+				onClick={onSplit}
+				renderIcon={(color) => (
+					<ScissorsIcon style={splitIconStyle} color={color} />
+				)}
+			>
+				Split clip
+			</InspectorInlineAction>
+		</InspectorActionSection>
 	);
 };
 
