@@ -627,6 +627,7 @@ export const SelectedOutlineOverlay: React.FC<{
 			sequences,
 			overrideIdsToNodePaths: overrideIdToNodePathMappings,
 			compositions,
+			timelinePosition,
 		}).map(({key, keyframeDisplayOffset, nodePathInfo, sequence}) => {
 			if (sequence.refForOutline === null) {
 				throw new Error('Expected sequence to have a ref for outline');
