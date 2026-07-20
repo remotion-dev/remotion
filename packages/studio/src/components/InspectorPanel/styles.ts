@@ -57,6 +57,13 @@ export const sectionHeader: React.CSSProperties = {
 	userSelect: 'none',
 };
 
+export const inspectorSectionBody: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'column',
+	minWidth: 0,
+	paddingBottom: 8,
+};
+
 export const sequenceHeader: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 	display: 'flex',
@@ -181,6 +188,14 @@ export const detailsContainer: React.CSSProperties = {
 	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 };
 
+export const detailsWithInlineAction: React.CSSProperties = {
+	paddingBottom: INSPECTOR_PANEL_HORIZONTAL_PADDING,
+};
+
+export const detailsBeforeInlineAction: React.CSSProperties = {
+	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+};
+
 export const guideDetailsContainer: React.CSSProperties = {
 	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 };
@@ -190,7 +205,6 @@ export const detailRow: React.CSSProperties = {
 	display: 'flex',
 	gap: 12,
 	justifyContent: 'space-between',
-	padding: '10px 0',
 };
 
 export const detailLabel: React.CSSProperties = {

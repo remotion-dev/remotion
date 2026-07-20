@@ -38,6 +38,17 @@ export const getAssetElement = ({
 	fileType: FileType;
 	src: string;
 }): InsertableAssetElement | null => {
+	if (fileType.type === 'webp' && fileType.animated) {
+		return {
+			type: 'asset',
+			assetType: 'animated-image',
+			src,
+			srcType: 'static',
+			dimensions: fileType.dimensions,
+			position: null,
+		};
+	}
+
 	if (
 		fileType.type === 'png' ||
 		fileType.type === 'jpeg' ||
@@ -123,7 +134,7 @@ export const getAssetElementFromPath = (
 		return null;
 	}
 
-	if (['png', 'jpg', 'jpeg', 'webp', 'bmp'].includes(extension)) {
+	if (['png', 'jpg', 'jpeg', 'webp', 'bmp', 'svg'].includes(extension)) {
 		return {
 			type: 'asset',
 			assetType: 'image',
@@ -181,6 +192,25 @@ export const getAssetElementFromPath = (
 	return null;
 };
 
+export const getAssetElementForDroppedFile = ({
+	fileType,
+	src,
+}: {
+	fileType: FileType;
+	src: string;
+}): InsertableAssetElement | null => {
+	const detectedElement = getAssetElement({fileType, src});
+	if (detectedElement !== null) {
+		return detectedElement;
+	}
+
+	if (fileType.type !== 'unknown' || !src.toLowerCase().endsWith('.svg')) {
+		return null;
+	}
+
+	return getAssetElementFromPath(src);
+};
+
 const getAssetLabel = (element: InsertableCompositionElement) => {
 	if (element.type !== 'asset') {
 		throw new Error('Expected asset element');
@@ -235,6 +265,65 @@ const getCenteredPosition = ({
 		x: dropPosition.centerX - dimensions.width / 2,
 		y: dropPosition.centerY - dimensions.height / 2,
 	};
+};
+
+export const getElementPositionForDrop = ({
+	dimensions,
+	dropPosition,
+}: {
+	dimensions: Dimensions | null;
+	dropPosition: InsertElementDropPosition | null;
+}): InsertableCompositionElementPosition | null => {
+	if (dimensions === null) {
+		return null;
+	}
+
+	return getCenteredPosition({dimensions, dropPosition});
+};
+
+export const getCompositionPositionForDrop = ({
+	compositionDimensions,
+	destinationDimensions,
+	dropPosition,
+}: {
+	compositionDimensions: Dimensions;
+	destinationDimensions: Dimensions | null;
+	dropPosition: InsertElementDropPosition | null;
+}): InsertableCompositionElementPosition | null => {
+	// No translation makes an equal-sized composition fill the destination.
+	if (
+		destinationDimensions !== null &&
+		compositionDimensions.width === destinationDimensions.width &&
+		compositionDimensions.height === destinationDimensions.height
+	) {
+		return null;
+	}
+
+	return getCenteredPosition({
+		dimensions: compositionDimensions,
+		dropPosition,
+	});
+};
+
+export const getAssetPositionForDrop = ({
+	assetDimensions,
+	destinationDimensions,
+	dropPosition,
+}: {
+	assetDimensions: Dimensions | null;
+	destinationDimensions: Dimensions | null;
+	dropPosition: InsertElementDropPosition | null;
+}): InsertableCompositionElementPosition | null => {
+	if (
+		assetDimensions !== null &&
+		destinationDimensions !== null &&
+		assetDimensions.width === destinationDimensions.width &&
+		assetDimensions.height === destinationDimensions.height
+	) {
+		return null;
+	}
+
+	return getCenteredPosition({dimensions: assetDimensions, dropPosition});
 };
 
 const getComponentPropNumber = (props: ComponentProp[], name: string) => {
@@ -304,6 +393,11 @@ const getFileDimensions = async ({
 	file: File;
 	fileType: FileType;
 }): Promise<Dimensions | null> => {
+	if (fileType.type === 'unknown' && file.name.toLowerCase().endsWith('.svg')) {
+		const objectUrl = URL.createObjectURL(file);
+		return getImageDimensions({revokeObjectUrl: true, src: objectUrl});
+	}
+
 	if (
 		fileType.type === 'wav' ||
 		fileType.type === 'mp3' ||
@@ -354,7 +448,9 @@ const getStaticAssetDimensions = (
 
 	if (
 		extension &&
-		['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif', 'apng'].includes(extension)
+		['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif', 'apng', 'svg'].includes(
+			extension,
+		)
 	) {
 		return getImageDimensions({revokeObjectUrl: false, src});
 	}
@@ -397,7 +493,7 @@ const getStaticAssetFileType = async (
 	assetPath: string,
 ): Promise<FileType | null> => {
 	const extension = assetPath.split('.').pop()?.toLowerCase();
-	if (extension !== 'png' && extension !== 'apng') {
+	if (extension !== 'png' && extension !== 'apng' && extension !== 'webp') {
 		return null;
 	}
 
@@ -427,11 +523,15 @@ const getAssetElementFromStaticAsset = async (
 	return getAssetElementFromPath(assetPath);
 };
 
-export const pickFilesToImport = (): Promise<File[]> => {
+export const pickFilesToImport = ({
+	multiple = true,
+}: {
+	readonly multiple?: boolean;
+} = {}): Promise<File[]> => {
 	return new Promise((resolve) => {
 		const input = document.createElement('input');
 		input.type = 'file';
-		input.multiple = true;
+		input.multiple = multiple;
 		input.style.display = 'none';
 
 		let didResolve = false;
@@ -517,11 +617,13 @@ const downloadRemoteAsset = (
 export const importAssets = async ({
 	compositionFile,
 	compositionId,
+	destinationDimensions,
 	dropPosition,
 	files,
 }: {
 	compositionFile: string;
 	compositionId: string;
+	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
 	files: File[];
 }) => {
@@ -565,7 +667,7 @@ export const importAssets = async ({
 		for (const file of files) {
 			const contents = await file.arrayBuffer();
 			const fileType = detectFileType(new Uint8Array(contents));
-			const element = getAssetElement({
+			const element = getAssetElementForDroppedFile({
 				fileType,
 				src: file.name,
 			});
@@ -590,15 +692,17 @@ export const importAssets = async ({
 			}
 
 			const dimensions = await getFileDimensionsOrNull({file, fileType});
+			const resolvedDimensions = element.dimensions ?? dimensions;
 
 			const inserted = await insertAssetElement({
 				compositionFile,
 				compositionId,
 				element: {
 					...element,
-					dimensions: element.dimensions ?? dimensions,
-					position: getCenteredPosition({
-						dimensions,
+					dimensions: resolvedDimensions,
+					position: getAssetPositionForDrop({
+						assetDimensions: resolvedDimensions,
+						destinationDimensions,
 						dropPosition,
 					}),
 				},
@@ -628,11 +732,13 @@ export const importAssets = async ({
 export const importRemoteAsset = async ({
 	compositionFile,
 	compositionId,
+	destinationDimensions,
 	dropPosition,
 	url,
 }: {
 	compositionFile: string;
 	compositionId: string;
+	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
 	url: string;
 }) => {
@@ -653,8 +759,9 @@ export const importRemoteAsset = async ({
 			compositionId,
 			element: {
 				...element,
-				position: getCenteredPosition({
-					dimensions: element.dimensions,
+				position: getAssetPositionForDrop({
+					assetDimensions: element.dimensions,
+					destinationDimensions,
 					dropPosition,
 				}),
 			},
@@ -724,11 +831,13 @@ export const insertExistingAssets = async ({
 	assetPaths,
 	compositionFile,
 	compositionId,
+	destinationDimensions,
 	dropPosition,
 }: {
 	assetPaths: string[];
 	compositionFile: string;
 	compositionId: string;
+	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
 }) => {
 	if (assetPaths.length === 0) {
@@ -755,8 +864,9 @@ export const insertExistingAssets = async ({
 				element: {
 					...element,
 					dimensions,
-					position: getCenteredPosition({
-						dimensions,
+					position: getAssetPositionForDrop({
+						assetDimensions: dimensions,
+						destinationDimensions,
 						dropPosition,
 					}),
 				},
@@ -841,11 +951,13 @@ export const insertComposition = async ({
 	composition,
 	compositionFile,
 	compositionId,
+	destinationDimensions,
 	dropPosition,
 }: {
 	composition: CompositionDragData;
 	compositionFile: string;
 	compositionId: string;
+	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
 }) => {
 	if (composition.compositionId === compositionId) {
@@ -883,8 +995,9 @@ export const insertComposition = async ({
 				height: calculated.height,
 				serializedResolvedPropsWithCustomSchema:
 					serializeResolvedPropsForSourceCode(calculated.props),
-				position: getCenteredPosition({
-					dimensions,
+				position: getCompositionPositionForDrop({
+					compositionDimensions: dimensions,
+					destinationDimensions,
 					dropPosition,
 				}),
 			},
@@ -920,11 +1033,13 @@ export const insertElement = async ({
 	element: ElementDragData['element'];
 }) => {
 	try {
+		await installRequiredPackages(element.dependencies);
+
 		const response = await callApi('/api/insert-element', {
 			compositionFile,
 			compositionId,
 			element,
-			position: getCenteredPosition({
+			position: getElementPositionForDrop({
 				dimensions: element.dimensions,
 				dropPosition,
 			}),

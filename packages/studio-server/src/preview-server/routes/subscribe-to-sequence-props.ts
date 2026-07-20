@@ -16,8 +16,10 @@ export const subscribeToSequenceProps: ApiHandler<
 		nodePath,
 		componentIdentity,
 		keys,
+		assetKeys = [],
 		effects,
 		clientId,
+		videoConfigValues,
 	},
 	remotionRoot,
 	logLevel,
@@ -29,9 +31,11 @@ export const subscribeToSequenceProps: ApiHandler<
 		nodePath,
 		componentIdentity,
 		keys,
+		assetKeys,
 		effects,
 		remotionRoot,
 		clientId,
+		videoConfigValues,
 		logLevel,
 	});
 

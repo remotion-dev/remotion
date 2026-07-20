@@ -79,7 +79,7 @@ export const EditorContent: React.FC<{
 			<StudioClearSelectionArea>
 				<InitialCompositionLoader />
 				<MenuToolbar readOnlyStudio={readOnlyStudio} />
-				<GlobalKeybindings readOnlyStudio={readOnlyStudio} />
+				<GlobalKeybindings />
 				<TimelineKeyframeDragStateProvider>
 					{content}
 				</TimelineKeyframeDragStateProvider>

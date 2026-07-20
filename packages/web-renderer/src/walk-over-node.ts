@@ -1,4 +1,5 @@
 import type {LogLevel} from 'remotion';
+import type {TransformStyleCache} from './drawing/calculate-transforms';
 import {drawDomElement} from './drawing/draw-dom-element';
 import type {ProcessNodeReturnValue} from './drawing/process-node';
 import {processNode} from './drawing/process-node';
@@ -15,6 +16,7 @@ export const walkOverNode = ({
 	onlyBackgroundClipText,
 	scale,
 	waitForPageResponsiveness,
+	transformStyleCache,
 }: {
 	node: Node;
 	context: OffscreenCanvasRenderingContext2D;
@@ -25,6 +27,7 @@ export const walkOverNode = ({
 	onlyBackgroundClipText: boolean;
 	scale: number;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
+	transformStyleCache: TransformStyleCache;
 }): Promise<ProcessNodeReturnValue> => {
 	if (node instanceof HTMLElement || node instanceof SVGElement) {
 		return processNode({
@@ -37,6 +40,7 @@ export const walkOverNode = ({
 			rootElement,
 			scale,
 			waitForPageResponsiveness,
+			transformStyleCache,
 		});
 	}
 
@@ -51,6 +55,7 @@ export const walkOverNode = ({
 			onlyBackgroundClipText,
 			scale,
 			waitForPageResponsiveness,
+			transformStyleCache,
 		});
 	}
 

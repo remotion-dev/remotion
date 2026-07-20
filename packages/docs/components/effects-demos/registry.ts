@@ -14,6 +14,7 @@ import {duotone} from '@remotion/effects/duotone';
 import {emboss} from '@remotion/effects/emboss';
 import {evolve} from '@remotion/effects/evolve';
 import {fisheye} from '@remotion/effects/fisheye';
+import {flannel} from '@remotion/effects/flannel';
 import {glow} from '@remotion/effects/glow';
 import {grayscale} from '@remotion/effects/grayscale';
 import {gridlines} from '@remotion/effects/gridlines';
@@ -25,7 +26,9 @@ import {lightTrail} from '@remotion/effects/light-trail';
 import {linearGradient} from '@remotion/effects/linear-gradient';
 import {linearGradientTint} from '@remotion/effects/linear-gradient-tint';
 import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
+import {linearProgressivePixelate} from '@remotion/effects/linear-progressive-pixelate';
 import {lines} from '@remotion/effects/lines';
+import {liquidContours} from '@remotion/effects/liquid-contours';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
 import {noiseDisplacement} from '@remotion/effects/noise-displacement';
@@ -34,6 +37,7 @@ import {pattern} from '@remotion/effects/pattern';
 import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
 import {pixelate} from '@remotion/effects/pixelate';
 import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
+import {radialProgressivePixelate} from '@remotion/effects/radial-progressive-pixelate';
 import {rings} from '@remotion/effects/rings';
 import {roughenEdges} from '@remotion/effects/roughen-edges';
 import {saturation} from '@remotion/effects/saturation';
@@ -41,6 +45,7 @@ import {scale} from '@remotion/effects/scale';
 import {scanlines} from '@remotion/effects/scanlines';
 import {shine} from '@remotion/effects/shine';
 import {shrinkwrap} from '@remotion/effects/shrinkwrap';
+import {skew} from '@remotion/effects/skew';
 import {speckle} from '@remotion/effects/speckle';
 import {thermalVision} from '@remotion/effects/thermal-vision';
 import {tint} from '@remotion/effects/tint';
@@ -71,6 +76,7 @@ import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
 import {EffectsEmbossPreview} from '../effects/effects-emboss-preview';
 import {EffectsEvolvePreview} from '../effects/effects-evolve-preview';
 import {EffectsFisheyePreview} from '../effects/effects-fisheye-preview';
+import {EffectsFlannelPreview} from '../effects/effects-flannel-preview';
 import {EffectsGlowPreview} from '../effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
 import {EffectsGridlinesPreview} from '../effects/effects-gridlines-preview';
@@ -86,7 +92,9 @@ import {
 import {EffectsLinearGradientPreview} from '../effects/effects-linear-gradient-preview';
 import {EffectsLinearGradientTintPreview} from '../effects/effects-linear-gradient-tint-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../effects/effects-linear-progressive-blur-preview';
+import {EffectsLinearProgressivePixelatePreview} from '../effects/effects-linear-progressive-pixelate-preview';
 import {EffectsLinesPreview} from '../effects/effects-lines-preview';
+import {EffectsLiquidContoursPreview} from '../effects/effects-liquid-contours-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
 import {
 	EffectsNoiseDisplacementPreview,
@@ -108,6 +116,7 @@ import {
 	EffectsRadialProgressiveBlurPreview,
 	RADIAL_PROGRESSIVE_BLUR_PREVIEW_PARAMS,
 } from '../effects/effects-radial-progressive-blur-preview';
+import {EffectsRadialProgressivePixelatePreview} from '../effects/effects-radial-progressive-pixelate-preview';
 import {EffectsRingsPreview} from '../effects/effects-rings-preview';
 import {EffectsRoughenEdgesPreview} from '../effects/effects-roughen-edges-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
@@ -118,6 +127,7 @@ import {
 	EffectsShrinkwrapPreview,
 	SHRINKWRAP_PREVIEW_PARAMS,
 } from '../effects/effects-shrinkwrap-preview';
+import {EffectsSkewPreview} from '../effects/effects-skew-preview';
 import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
 import {
 	EffectsStarburstPreview,
@@ -174,6 +184,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/burlap',
 		comp: EffectsBurlapPreview,
 		schema: burlap().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-flannel',
+		effectName: 'flannel',
+		effectImportPath: '@remotion/effects/flannel',
+		comp: EffectsFlannelPreview,
+		schema: flannel().definition.schema,
 	},
 	{
 		...defaults,
@@ -321,6 +339,14 @@ export const effectsDemos: EffectsDemoType[] = [
 	},
 	{
 		...defaults,
+		id: 'effects-skew',
+		effectName: 'skew',
+		effectImportPath: '@remotion/effects/skew',
+		comp: EffectsSkewPreview,
+		schema: skew().definition.schema,
+	},
+	{
+		...defaults,
 		id: 'effects-shrinkwrap',
 		effectName: 'shrinkwrap',
 		effectImportPath: '@remotion/effects/shrinkwrap',
@@ -426,6 +452,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/contour-lines',
 		comp: EffectsContourLinesPreview,
 		schema: contourLines().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-liquid-contours',
+		effectName: 'liquidContours',
+		effectImportPath: '@remotion/effects/liquid-contours',
+		comp: EffectsLiquidContoursPreview,
+		schema: liquidContours().definition.schema,
 	},
 	{
 		...defaults,
@@ -583,6 +617,22 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/pixelate',
 		comp: EffectsPixelatePreview,
 		schema: pixelate().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-linear-progressive-pixelate',
+		effectName: 'linearProgressivePixelate',
+		effectImportPath: '@remotion/effects/linear-progressive-pixelate',
+		comp: EffectsLinearProgressivePixelatePreview,
+		schema: linearProgressivePixelate().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-radial-progressive-pixelate',
+		effectName: 'radialProgressivePixelate',
+		effectImportPath: '@remotion/effects/radial-progressive-pixelate',
+		comp: EffectsRadialProgressivePixelatePreview,
+		schema: radialProgressivePixelate().definition.schema,
 	},
 	{
 		...defaults,

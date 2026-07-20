@@ -3,12 +3,17 @@ import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-sou
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {InlineEditableTitle} from '../InlineEditableTitle';
+import {InspectorLocationCopy} from '../InspectorLocationCopy';
 import {InspectorSourceLocation} from '../InspectorSourceLocation';
 import {useOpenSequenceInEditor} from '../Timeline/use-open-sequence-in-editor';
 import {useRenameSequence} from '../Timeline/use-rename-sequence';
+import {InspectorSectionDivider} from './common';
+import {
+	ConnectedCompositionsSection,
+	useConnectedCompositions,
+} from './ConnectedCompositionsSection';
 import {
 	sequenceHeader,
-	sequenceHeaderDivider,
 	sequenceHeaderSubtitle,
 	sequenceHeaderTitle,
 } from './styles';
@@ -90,7 +95,6 @@ export const SequenceInspectorHeader: React.FC<{
 	}, [documentationLink]);
 
 	const componentName = track.sequence.controls?.componentName;
-
 	const onRename = useCallback(
 		(newName: string) => {
 			saveName(newName).catch(() => undefined);
@@ -100,43 +104,56 @@ export const SequenceInspectorHeader: React.FC<{
 
 	return (
 		<div style={sequenceHeader}>
-			<div style={sequenceHeaderTitle}>
-				<InlineEditableTitle
-					value={sequenceDisplayName}
-					canRename={canRename}
-					onCommit={onRename}
-				/>
-			</div>
-			{documentationLink ? (
-				<button
-					type="button"
-					style={subtitleStyle}
-					title="Open component docs"
-					onClick={openDocumentationLink}
-				>
-					{componentName}
-				</button>
-			) : (
-				<div style={subtitleStyle}>{componentName}</div>
-			)}
-			<InspectorSourceLocation
+			<InspectorLocationCopy
 				location={sourceLocation.validatedLocation}
-				canOpen={sourceLocation.canOpenInEditor}
-				onOpen={sourceLocation.openFileLocation}
-			/>
+				name={componentName ?? null}
+			>
+				<div style={sequenceHeaderTitle}>
+					<InlineEditableTitle
+						value={sequenceDisplayName}
+						canRename={canRename}
+						onCommit={onRename}
+					/>
+				</div>
+				{documentationLink ? (
+					<button
+						type="button"
+						style={subtitleStyle}
+						title="Open component docs"
+						onClick={openDocumentationLink}
+					>
+						{componentName}
+					</button>
+				) : (
+					<div style={subtitleStyle}>{componentName}</div>
+				)}
+				<InspectorSourceLocation
+					location={sourceLocation.validatedLocation}
+					canOpen={sourceLocation.canOpenInEditor}
+					onOpen={sourceLocation.openFileLocation}
+				/>
+			</InspectorLocationCopy>
 		</div>
 	);
 };
 
-export const SequenceInspectorHeaderWithDivider: React.FC<{
+export const SequenceInspectorSections: React.FC<{
 	readonly track: TrackWithHash;
 }> = ({track}) => {
 	const sourceLocation = useSequenceInspectorSourceLocation(track.sequence);
+	const connectedCompositions = useConnectedCompositions({track});
 
 	return (
 		<>
 			<SequenceInspectorHeader sourceLocation={sourceLocation} track={track} />
-			<div style={sequenceHeaderDivider} />
+			{connectedCompositions.length > 0 ? (
+				<>
+					<InspectorSectionDivider />
+					<ConnectedCompositionsSection
+						connectedCompositions={connectedCompositions}
+					/>
+				</>
+			) : null}
 		</>
 	);
 };

@@ -50,6 +50,7 @@ export const updateSequenceKeyframeSettingsHandler: ApiHandler<
 			input: fileContents,
 			nodePath: nodePath.nodePath,
 			schema,
+			videoConfigValues: nodePath.videoConfigValues,
 			updates: [
 				{
 					key,
@@ -59,6 +60,7 @@ export const updateSequenceKeyframeSettingsHandler: ApiHandler<
 									type: 'settings',
 									clamping: settings.clamping,
 									posterize: settings.posterize,
+									output: settings.output,
 								}
 							: {
 									type: 'easing',
@@ -111,6 +113,7 @@ export const updateSequenceKeyframeSettingsHandler: ApiHandler<
 			nodePath: updatedNodePath,
 			componentIdentity: null,
 			effects: [],
+			videoConfigValues: nodePath.videoConfigValues,
 		});
 		const updatedSubscriptionKey = {...nodePath, nodePath: updatedNodePath};
 

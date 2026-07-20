@@ -58,6 +58,7 @@ export type TimelineSequenceDurationDragTarget = {
 	readonly fileName: string;
 	readonly initialDuration: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly schema: InteractivitySchema;
 };
 
 export type TimelineSequenceLeftEdgeDragTarget = {
@@ -199,11 +200,18 @@ const canUpdateTrimBefore = ({
 	return status === 'static';
 };
 
-const isDurationDraggableSequence = (sequence: TSequence) => {
+export const isTimelineSequenceDurationDraggable = (sequence: TSequence) => {
+	const isInteractiveSeriesSequence =
+		sequence.controls?.componentIdentity ===
+		'dev.remotion.remotion.Series.Sequence';
+
 	return (
-		(sequence.type === 'sequence' || sequence.type === 'image') &&
+		(sequence.type === 'sequence' ||
+			sequence.type === 'image' ||
+			sequence.type === 'audio' ||
+			sequence.type === 'video') &&
 		!sequence.loopDisplay &&
-		!sequence.isInsideSeries &&
+		(!sequence.isInsideSeries || isInteractiveSeriesSequence) &&
 		Boolean(sequence.controls)
 	);
 };
@@ -351,7 +359,7 @@ export const getTimelineSequenceDurationDragChanges = ({
 				fieldKey: 'durationInFrames',
 				value: nextValue,
 				defaultValue: null,
-				schema: NoReactInternals.sequenceSchema,
+				schema: target.schema,
 			},
 		];
 	});
@@ -510,7 +518,7 @@ export const getTimelineSequenceDurationDragTargets = ({
 			!track ||
 			!track.nodePathInfo ||
 			!originalSequence ||
-			!isDurationDraggableSequence(originalSequence)
+			!isTimelineSequenceDurationDraggable(originalSequence)
 		) {
 			return null;
 		}
@@ -520,12 +528,18 @@ export const getTimelineSequenceDurationDragTargets = ({
 			return null;
 		}
 
+		const {controls} = originalSequence;
+		if (!controls) {
+			return null;
+		}
+
 		const key = stringifySequenceSubscriptionKey(nodePath);
 		if (!targets.has(key)) {
 			targets.set(key, {
 				fileName: nodePath.absolutePath,
 				initialDuration: originalSequence.duration,
 				nodePath,
+				schema: controls.schema,
 			});
 		}
 	}

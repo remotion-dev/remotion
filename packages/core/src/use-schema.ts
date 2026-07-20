@@ -3,12 +3,13 @@ import {
 	getEffectiveVisualModeValue,
 	resolveDragOverrideValue,
 } from './get-effective-visual-mode-value.js';
+import {FILE_TOKEN} from './input-props-serialization.js';
 import type {
-	InteractivitySchemaField,
 	InteractivitySchema,
+	InteractivitySchemaField,
 } from './interactivity-schema.js';
 import {interpolateKeyframedStatus} from './interpolate-keyframed-status.js';
-import type {ExtrapolateType} from './interpolate.js';
+import type {ExtrapolateType, InterpolateOutputOption} from './interpolate.js';
 import type {
 	CanUpdateSequencePropsResponse,
 	SequencePropsSubscriptionKey,
@@ -17,12 +18,40 @@ import type {
 export type CanUpdateSequencePropStatusStatic = {
 	status: 'static';
 	codeValue: unknown;
+	numericExpression?: VideoConfigNumericExpression;
 };
 
 export type CanUpdateSequencePropStatusKeyframe = {
 	frame: number;
 	value: unknown;
+	frameExpression?: VideoConfigNumericExpression;
 };
+
+export type VideoConfigNumericExpression =
+	| {
+			type: 'literal';
+			value: number;
+	  }
+	| {
+			type: 'video-config-value';
+			identifier: string;
+			value: number;
+	  }
+	| {
+			type: 'video-config-multiplication';
+			identifier: string;
+			multiplier: number;
+			multiplicand: number;
+			factorPosition: 'left' | 'right';
+			value: number;
+	  }
+	| {
+			type: 'video-config-subtraction';
+			identifier: string;
+			minuend: number;
+			subtrahend: number;
+			value: number;
+	  };
 
 export type CanUpdateSequencePropStatusLinearEasing = {
 	type: 'linear';
@@ -94,6 +123,7 @@ export type CanUpdateSequencePropStatusKeyframed = {
 	easing: CanUpdateSequencePropStatusEasing[];
 	clamping: CanUpdateSequencePropStatusClamping;
 	posterize: number | undefined;
+	output: InterpolateOutputOption | undefined;
 };
 
 export type CanUpdateSequencePropStatusFalse =
@@ -295,6 +325,14 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 				frame,
 				shouldResortToDefaultValueIfUndefined: false,
 			});
+		}
+
+		if (
+			field?.type === 'asset' &&
+			typeof value === 'string' &&
+			value.startsWith(FILE_TOKEN)
+		) {
+			value = `${window.remotion_staticBase}/${value.slice(FILE_TOKEN.length)}`;
 		}
 
 		if (value === undefined) {

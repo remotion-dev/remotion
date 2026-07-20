@@ -1,5 +1,8 @@
 import {expect, test} from 'bun:test';
-import {formatFileLocation} from '../helpers/format-file-location';
+import {
+	formatFileLocation,
+	formatLocationForAgents,
+} from '../helpers/format-file-location';
 
 test('Should format file locations relative to the project root', () => {
 	expect(
@@ -68,4 +71,30 @@ test('Should not format missing file locations', () => {
 			root: '/Users/example/video',
 		}),
 	).toBe(null);
+});
+
+test('Should format composition locations for agents', () => {
+	expect(
+		formatLocationForAgents({
+			location: {
+				source: '/Users/example/video/src/Root.tsx',
+				line: 399,
+			},
+			name: 'keyframed-props-test',
+			root: '/Users/example/video',
+		}),
+	).toBe('keyframed-props-test in src/Root.tsx:399');
+});
+
+test('Should format component locations for agents', () => {
+	expect(
+		formatLocationForAgents({
+			location: {
+				source: '/Users/example/video/src/KeyframesPropsTest.tsx',
+				line: 67,
+			},
+			name: '<AnimatedImage>',
+			root: '/Users/example/video',
+		}),
+	).toBe('<AnimatedImage> in src/KeyframesPropsTest.tsx:67');
 });

@@ -1,11 +1,12 @@
 {
 	"name": "@remotion/docusaurus-plugin",
-	"version": "4.0.488",
+	"version": "4.0.494",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"lint": "eslint src",
-		"make": "tsgo -d"
+		"make": "tsgo -d",
+		"test": "bun test src"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "UNLICENSED",

@@ -423,6 +423,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-skew',
+		category: 'Distort',
+		label: 'skew()',
+		description: 'Skew the source on two axes',
+		effect: {
+			name: 'skew',
+			importPath: '@remotion/effects/skew',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-burlap',
 		category: 'Stylize',
 		label: 'burlap()',
@@ -557,6 +568,28 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-linear-progressive-pixelate',
+		category: 'Stylize',
+		label: 'linearProgressivePixelate()',
+		description: 'Gradient-controlled pixelation',
+		effect: {
+			name: 'linearProgressivePixelate',
+			importPath: '@remotion/effects/linear-progressive-pixelate',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-radial-progressive-pixelate',
+		category: 'Stylize',
+		label: 'radialProgressivePixelate()',
+		description: 'Ellipse-controlled pixelation',
+		effect: {
+			name: 'radialProgressivePixelate',
+			importPath: '@remotion/effects/radial-progressive-pixelate',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-scanlines',
 		category: 'Stylize',
 		label: 'scanlines()',
@@ -631,6 +664,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-liquid-contours',
+		category: 'Generate',
+		label: 'liquidContours()',
+		description: 'Two-color liquid contour background',
+		effect: {
+			name: 'liquidContours',
+			importPath: '@remotion/effects/liquid-contours',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-checkerboard',
 		category: 'Generate',
 		label: 'checkerboard()',
@@ -638,6 +682,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {
 			name: 'checkerboard',
 			importPath: '@remotion/effects/checkerboard',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-flannel',
+		category: 'Generate',
+		label: 'flannel()',
+		description: 'Plaid woven fabric pattern',
+		effect: {
+			name: 'flannel',
+			importPath: '@remotion/effects/flannel',
 			config: {},
 		},
 	},

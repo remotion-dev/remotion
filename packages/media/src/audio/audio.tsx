@@ -16,6 +16,12 @@ import type {AudioProps} from './props';
 const {validateMediaProps} = Internals;
 
 const audioSchema = {
+	src: {
+		type: 'asset',
+		default: undefined,
+		description: 'Source',
+		keyframable: false,
+	},
 	...Internals.baseSchema,
 	volume: {
 		type: 'number',
@@ -172,5 +178,3 @@ export const Audio = Interactive.withSchema({
 	schema: audioSchema,
 	supportsEffects: false,
 });
-
-Internals.addSequenceStackTraces(Audio);

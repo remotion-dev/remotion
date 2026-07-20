@@ -31,7 +31,6 @@ type Options = {
 	keyboardShortcutsEnabled?: boolean;
 	askAIEnabled?: boolean;
 	interactivityEnabled?: boolean;
-	experimentalClientSideRenderingEnabled?: boolean;
 	rspack?: boolean;
 };
 
@@ -107,8 +106,6 @@ export const internalDeploySiteRaw = async ({
 			onSymlinkDetected: () => undefined,
 			outDir: null,
 			audioLatencyHint: null,
-			experimentalClientSideRenderingEnabled:
-				options?.experimentalClientSideRenderingEnabled ?? false,
 			renderDefaults: null,
 			askAIEnabled: options?.askAIEnabled ?? true,
 			interactivityEnabled: options?.interactivityEnabled ?? true,

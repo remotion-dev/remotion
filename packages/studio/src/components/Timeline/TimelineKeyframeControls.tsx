@@ -221,6 +221,7 @@ const resolveKeyframeControlTarget = ({
 		getEffectDragOverrides,
 		propStatuses,
 		includeTextContent: false,
+		includeSourceControls: false,
 	});
 	const fieldNode = findFieldNode(
 		tree,
@@ -354,6 +355,7 @@ const getDeleteChange = (
 		fieldKey: target.fieldKey,
 		sourceFrame: target.sourceFrame,
 		schema: target.schema,
+		valueWhenLastKeyframeDeleted: null,
 	};
 
 	if (target.effectIndex === null) {

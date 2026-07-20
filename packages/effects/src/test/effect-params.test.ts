@@ -15,6 +15,7 @@ import {duotone} from '../duotone.js';
 import {emboss} from '../emboss.js';
 import {evolve} from '../evolve.js';
 import {fisheye} from '../fisheye/index.js';
+import {flannel} from '../flannel.js';
 import {glow} from '../glow/index.js';
 import {grayscale} from '../grayscale.js';
 import {gridlines} from '../gridlines.js';
@@ -26,7 +27,9 @@ import {lightTrail} from '../light-trail/index.js';
 import {linearGradientTint} from '../linear-gradient-tint.js';
 import {linearGradient} from '../linear-gradient.js';
 import {linearProgressiveBlur} from '../linear-progressive-blur/index.js';
+import {linearProgressivePixelate} from '../linear-progressive-pixelate/index.js';
 import {lines} from '../lines.js';
+import {liquidContours, liquidContoursSchema} from '../liquid-contours.js';
 import {mirror} from '../mirror.js';
 import {
 	noiseDisplacement,
@@ -38,6 +41,7 @@ import {pattern} from '../pattern.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
 import {pixelate} from '../pixelate.js';
 import {radialProgressiveBlur} from '../radial-progressive-blur/index.js';
+import {radialProgressivePixelate} from '../radial-progressive-pixelate/index.js';
 import {rings} from '../rings.js';
 import {roughenEdges} from '../roughen-edges.js';
 import {saturation} from '../saturation.js';
@@ -45,6 +49,7 @@ import {scale} from '../scale.js';
 import {scanlines} from '../scanlines.js';
 import {shine} from '../shine.js';
 import {shrinkwrap} from '../shrinkwrap.js';
+import {skew} from '../skew.js';
 import {speckle} from '../speckle.js';
 import {thermalVision} from '../thermal-vision.js';
 import {tint} from '../tint.js';
@@ -123,6 +128,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(fisheye().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/fisheye',
 	);
+	expect(flannel().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/flannel',
+	);
 	expect(cornerPin().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/corner-pin',
 	);
@@ -153,6 +161,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(lines().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/lines',
 	);
+	expect(liquidContours().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/liquid-contours',
+	);
 	expect(linearGradient().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/linear-gradient',
 	);
@@ -161,6 +172,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(linearProgressiveBlur().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/linear-progressive-blur',
+	);
+	expect(linearProgressivePixelate().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/linear-progressive-pixelate',
 	);
 	expect(lightTrail().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/light-trail',
@@ -190,6 +204,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(radialProgressiveBlur().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/radial-progressive-blur',
 	);
+	expect(radialProgressivePixelate().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/radial-progressive-pixelate',
+	);
 	expect(rings().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/rings',
 	);
@@ -204,6 +221,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(shine().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/shine',
+	);
+	expect(skew().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/skew',
 	);
 	expect(shrinkwrap().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/shrinkwrap',
@@ -259,11 +279,13 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(checkerboard().definition.label).toBe('checkerboard()');
 	expect(contrast().definition.label).toBe('contrast()');
 	expect(contourLines().definition.label).toBe('contourLines()');
+	expect(liquidContours().definition.label).toBe('liquidContours()');
 	expect(duotone().definition.label).toBe('duotone()');
 	expect(evolve().definition.label).toBe('evolve()');
 	expect(dropShadow().definition.label).toBe('dropShadow()');
 	expect(emboss().definition.label).toBe('emboss()');
 	expect(fisheye().definition.label).toBe('fisheye()');
+	expect(flannel().definition.label).toBe('flannel()');
 	expect(cornerPin().definition.label).toBe('cornerPin()');
 	expect(glow().definition.label).toBe('glow()');
 	expect(grayscale().definition.label).toBe('grayscale()');
@@ -281,6 +303,9 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(linearProgressiveBlur().definition.label).toBe(
 		'linearProgressiveBlur()',
 	);
+	expect(linearProgressivePixelate().definition.label).toBe(
+		'linearProgressivePixelate()',
+	);
 	expect(lightTrail().definition.label).toBe('lightTrail()');
 	expect(dotGrid().definition.label).toBe('dotGrid()');
 	expect(mirror().definition.label).toBe('mirror()');
@@ -294,11 +319,15 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(radialProgressiveBlur().definition.label).toBe(
 		'radialProgressiveBlur()',
 	);
+	expect(radialProgressivePixelate().definition.label).toBe(
+		'radialProgressivePixelate()',
+	);
 	expect(rings().definition.label).toBe('rings()');
 	expect(saturation().definition.label).toBe('saturation()');
 	expect(scanlines().definition.label).toBe('scanlines()');
 	expect(scale({scale: 1}).definition.label).toBe('scale()');
 	expect(shine().definition.label).toBe('shine()');
+	expect(skew().definition.label).toBe('skew()');
 	expect(shrinkwrap().definition.label).toBe('shrinkwrap()');
 	expect(speckle().definition.label).toBe('speckle()');
 	expect(thermalVision().definition.label).toBe('thermalVision()');
@@ -2216,6 +2245,53 @@ test('burlap() parameters produce distinct effect keys', () => {
 	).toBe(6);
 });
 
+test('flannel() accepts default and valid params', () => {
+	expect(() => flannel()).not.toThrow();
+	expect(() =>
+		flannel({
+			amount: 0.8,
+			size: 72,
+			softness: 0.25,
+			baseColor: '#b51f2e',
+			stripeColor: '#16233f',
+		}),
+	).not.toThrow();
+});
+
+test('flannel() uses a red palette by default', () => {
+	expect(flannel().definition.schema.baseColor).toMatchObject({
+		default: '#c92f3d',
+	});
+	expect(flannel().definition.schema.stripeColor).toMatchObject({
+		default: '#241015',
+	});
+});
+
+test('flannel() rejects invalid params', () => {
+	expect(() => flannel({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+	expect(() => flannel({amount: 1.1})).toThrow('"amount" must be <= 1');
+	expect(() => flannel({size: 0})).toThrow('"size" must be greater than 0');
+	expect(() => flannel({softness: -0.1})).toThrow('"softness" must be >= 0');
+	expect(() => flannel({baseColor: ''})).toThrow(
+		'"baseColor" must be a non-empty string',
+	);
+});
+
+test('flannel() parameters produce distinct effect keys', () => {
+	const keys = [
+		flannel(),
+		flannel({amount: 0.8}),
+		flannel({size: 72}),
+		flannel({softness: 0.3}),
+		flannel({baseColor: '#224422'}),
+		flannel({stripeColor: '#eee8d5'}),
+	].map((effect) => effect.effectKey);
+
+	expect(new Set(keys).size).toBe(keys.length);
+});
+
 test('emboss() accepts default params', () => {
 	expect(() => emboss()).not.toThrow();
 });
@@ -3087,6 +3163,102 @@ test('radialProgressiveBlur() parameters produce distinct effect keys', () => {
 	).toBe(8);
 });
 
+test('linearProgressivePixelate() accepts default params', () => {
+	expect(() => linearProgressivePixelate()).not.toThrow();
+});
+
+test('linearProgressivePixelate() connects its start and end controls', () => {
+	expect(linearProgressivePixelate().definition.schema.start).toMatchObject({
+		type: 'uv-coordinate',
+		visual: {
+			type: 'line',
+			to: 'end',
+		},
+	});
+});
+
+test('linearProgressivePixelate() validates its parameters', () => {
+	expect(() =>
+		linearProgressivePixelate({
+			start: [0.5] as unknown as [number, number],
+		}),
+	).toThrow('"start" must be a [number, number] tuple');
+	expect(() => linearProgressivePixelate({end: [0.5, Number.NaN]})).toThrow(
+		'"end" must be a [number, number] tuple',
+	);
+	expect(() => linearProgressivePixelate({startBlockSize: Number.NaN})).toThrow(
+		'"startBlockSize" must be a finite number',
+	);
+	expect(() => linearProgressivePixelate({endBlockSize: 0})).toThrow(
+		'"endBlockSize" must be >= 1',
+	);
+});
+
+test('linearProgressivePixelate() parameters produce distinct effect keys', () => {
+	const effects = [
+		linearProgressivePixelate(),
+		linearProgressivePixelate({start: [0.2, 0.5]}),
+		linearProgressivePixelate({end: [0.8, 0.5]}),
+		linearProgressivePixelate({startBlockSize: 4}),
+		linearProgressivePixelate({endBlockSize: 80}),
+	];
+	expect(new Set(effects.map((effect) => effect.effectKey)).size).toBe(5);
+});
+
+test('radialProgressivePixelate() accepts default params', () => {
+	expect(() => radialProgressivePixelate()).not.toThrow();
+});
+
+test('radialProgressivePixelate() connects its ellipse controls', () => {
+	const {schema} = radialProgressivePixelate().definition;
+	expect(schema.center).toMatchObject({
+		type: 'uv-coordinate',
+		visual: {
+			type: 'ellipse',
+			width: 'width',
+			height: 'height',
+			rotation: 'rotation',
+			innerScale: 'start',
+		},
+	});
+	expect(schema.width).not.toHaveProperty('max');
+	expect(schema.height).not.toHaveProperty('max');
+});
+
+test('radialProgressivePixelate() validates its parameters', () => {
+	expect(() =>
+		radialProgressivePixelate({
+			center: [0.5] as unknown as [number, number],
+		}),
+	).toThrow('"center" must be a [number, number] tuple');
+	expect(() => radialProgressivePixelate({width: -0.1})).toThrow(
+		'"width" must be >= 0',
+	);
+	expect(() => radialProgressivePixelate({start: 1.1})).toThrow(
+		'"start" must be <= 1',
+	);
+	expect(() => radialProgressivePixelate({endBlockSize: Number.NaN})).toThrow(
+		'"endBlockSize" must be a finite number',
+	);
+	expect(() => radialProgressivePixelate({startBlockSize: 0})).toThrow(
+		'"startBlockSize" must be >= 1',
+	);
+});
+
+test('radialProgressivePixelate() parameters produce distinct effect keys', () => {
+	const effects = [
+		radialProgressivePixelate(),
+		radialProgressivePixelate({center: [0.4, 0.5]}),
+		radialProgressivePixelate({width: 1.2}),
+		radialProgressivePixelate({height: 1.2}),
+		radialProgressivePixelate({rotation: 15}),
+		radialProgressivePixelate({start: 0.2}),
+		radialProgressivePixelate({startBlockSize: 4}),
+		radialProgressivePixelate({endBlockSize: 80}),
+	];
+	expect(new Set(effects.map((effect) => effect.effectKey)).size).toBe(8);
+});
+
 test('zoomBlur() accepts default params', () => {
 	expect(() => zoomBlur()).not.toThrow();
 });
@@ -3355,6 +3527,52 @@ test('shine() parameters produce distinct effect keys', () => {
 	).toBe(6);
 });
 
+test('skew() accepts default and valid params', () => {
+	expect(() => skew()).not.toThrow();
+	expect(() => skew({x: -30, y: 15, origin: [0.25, 0.75]})).not.toThrow();
+});
+
+test('skew() exposes the origin as a UV coordinate', () => {
+	expect(skew().definition.schema.origin).toMatchObject({
+		type: 'uv-coordinate',
+		default: [0.5, 0.5],
+		min: 0,
+		max: 1,
+	});
+});
+
+test('skew() rejects invalid angles', () => {
+	expect(() => skew({x: Number.NaN})).toThrow('"x" must be a finite number');
+	expect(() => skew({x: 89})).toThrow(
+		'"x" must be greater than -89 and less than 89',
+	);
+	expect(() => skew({y: -89})).toThrow(
+		'"y" must be greater than -89 and less than 89',
+	);
+});
+
+test('skew() rejects invalid origins', () => {
+	expect(() => skew({origin: [0.5] as unknown as [number, number]})).toThrow(
+		'"origin" must be a [number, number] tuple',
+	);
+	expect(() => skew({origin: [-0.1, 0.5]})).toThrow(
+		'"origin[0]" must be between 0 and 1',
+	);
+	expect(() => skew({origin: [0.5, 1.1]})).toThrow(
+		'"origin[1]" must be between 0 and 1',
+	);
+});
+
+test('skew() parameters produce distinct effect keys', () => {
+	const keys = [
+		skew(),
+		skew({x: 10}),
+		skew({y: 10}),
+		skew({origin: [0.25, 0.75]}),
+	].map((effect) => effect.effectKey);
+	expect(new Set(keys).size).toBe(keys.length);
+});
+
 test('shrinkwrap() accepts default params', () => {
 	expect(() => shrinkwrap()).not.toThrow();
 });
@@ -3615,4 +3833,55 @@ test('uvTranslate() offsets produce distinct effect keys', () => {
 	expect(
 		new Set([centered.effectKey, shiftedU.effectKey, shiftedV.effectKey]).size,
 	).toBe(3);
+});
+
+test('liquidContours() accepts default params', () => {
+	expect(() => liquidContours()).not.toThrow();
+	expect(liquidContoursSchema.scale.default).toBe(300);
+});
+
+test('liquidContours() validates colors', () => {
+	expect(() => liquidContours({firstColor: ''})).toThrow(
+		'"firstColor" must be a non-empty string',
+	);
+	expect(() => liquidContours({secondColor: ''})).toThrow(
+		'"secondColor" must be a non-empty string',
+	);
+});
+
+test('liquidContours() validates positive dimensions', () => {
+	expect(() => liquidContours({spacing: 0})).toThrow(
+		'"spacing" must be greater than 0',
+	);
+	expect(() => liquidContours({scale: 0})).toThrow(
+		'"scale" must be greater than 0',
+	);
+});
+
+test('liquidContours() validates unit interval params', () => {
+	expect(() => liquidContours({complexity: -0.1})).toThrow(
+		'"complexity" must be >= 0',
+	);
+	expect(() => liquidContours({smoothness: 1.1})).toThrow(
+		'"smoothness" must be <= 1',
+	);
+});
+
+test('liquidContours() parameters produce distinct effect keys', () => {
+	const effects = [
+		liquidContours(),
+		liquidContours({firstColor: 'blue'}),
+		liquidContours({secondColor: 'white'}),
+		liquidContours({spacing: 64}),
+		liquidContours({scale: 400}),
+		liquidContours({complexity: 0.6}),
+		liquidContours({smoothness: 0.2}),
+		liquidContours({seed: 2}),
+		liquidContours({offsetX: 10}),
+		liquidContours({offsetY: 10}),
+		liquidContours({phase: 0.5}),
+	];
+	expect(new Set(effects.map((effect) => effect.effectKey)).size).toBe(
+		effects.length,
+	);
 });

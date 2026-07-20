@@ -12,6 +12,12 @@ describe('scale', () => {
 		).not.toThrow();
 	});
 
+	it('should default keyframes to perceptual scale output', () => {
+		expect(scale({scale: 1}).definition.schema.scale).toMatchObject({
+			defaultKeyframeOutput: 'perceptual-scale',
+		});
+	});
+
 	it('should accept valid params with non-uniform scaling', () => {
 		expect(() =>
 			scale({scale: 0.5, horizontal: false, vertical: true}),

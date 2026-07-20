@@ -28,7 +28,7 @@ const isFiniteNumber = (value: unknown): value is number => {
 	return typeof value === 'number' && Number.isFinite(value);
 };
 
-const isEasing = (value: unknown): value is KeyframeEasing => {
+export const isKeyframeEasing = (value: unknown): value is KeyframeEasing => {
 	return (
 		isRecord(value) &&
 		(value.type === 'linear' ||
@@ -51,7 +51,9 @@ const isEasing = (value: unknown): value is KeyframeEasing => {
 	);
 };
 
-const normalizeEasing = (easing: KeyframeEasing): KeyframeEasing => {
+export const normalizeKeyframeEasing = (
+	easing: KeyframeEasing,
+): KeyframeEasing => {
 	if (easing.type !== 'spring') {
 		return easing;
 	}
@@ -83,7 +85,7 @@ export const parseEasingClipboardDataResult = (
 			};
 		}
 
-		if (parsed.type !== 'easing' || !isEasing(parsed.easing)) {
+		if (parsed.type !== 'easing' || !isKeyframeEasing(parsed.easing)) {
 			return {status: 'invalid'};
 		}
 
@@ -93,7 +95,7 @@ export const parseEasingClipboardDataResult = (
 				type: 'easing',
 				version: 1,
 				remotionClipboard: 'easing',
-				easing: normalizeEasing(parsed.easing),
+				easing: normalizeKeyframeEasing(parsed.easing),
 			},
 		};
 	} catch {

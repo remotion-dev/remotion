@@ -24,15 +24,17 @@ import {
 	type EasingSelection,
 } from '../Timeline/update-selected-easing';
 import {
-	InspectorBackHeaderWithDivider,
+	InspectorBackHeader,
 	InspectorInlineAction,
 	InspectorMessage,
+	InspectorSectionDivider,
 } from './common';
 import {getEasingSelectionFromCurrentKeyframes} from './easing-inspector-selection';
 import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
-import {SequenceInspectorHeaderWithDivider} from './SequenceInspectorHeader';
+import {KeyframeSettings} from './KeyframeSettings';
+import {SequenceInspectorSections} from './SequenceInspectorHeader';
 import {
-	detailsContainer,
+	detailsWithInlineAction,
 	sectionHeaderTitle,
 	selectedContainer,
 } from './styles';
@@ -279,13 +281,14 @@ export const EasingInspector: React.FC<{
 	const renderHeader = useCallback(
 		() => (
 			<>
-				<InspectorBackHeaderWithDivider
+				<InspectorBackHeader
 					disabled={parentSelection === null}
 					onClick={onSelectParent}
 					title="Back to property"
 				>
 					<div style={sectionHeaderTitle}>{fieldLabel}</div>
-				</InspectorBackHeaderWithDivider>
+				</InspectorBackHeader>
+				<InspectorSectionDivider />
 				{easingUpdate === null || track === null ? null : (
 					<KeyframeEasingNavigator
 						currentSelection={currentEasingSelection ?? selection}
@@ -310,30 +313,41 @@ export const EasingInspector: React.FC<{
 		],
 	);
 
-	if (state === null || track === null || currentEasingSelection === null) {
+	if (
+		state === null ||
+		track === null ||
+		currentEasingSelection === null ||
+		easingUpdate === null
+	) {
 		return <InspectorMessage>Easing unavailable</InspectorMessage>;
 	}
 
 	return (
 		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			<SequenceInspectorHeaderWithDivider track={track} />
+			<SequenceInspectorSections track={track} />
+			<InspectorSectionDivider />
 			<EasingEditor
 				key={getTimelineSelectionKey(currentEasingSelection)}
 				state={state}
 				renderHeader={renderHeader}
 			/>
+			<InspectorSectionDivider />
+			<KeyframeSettings update={easingUpdate} />
 			{canAddKeyframeAtPlayhead ? (
-				<div style={detailsContainer}>
-					<InspectorInlineAction
-						disabled={addKeyframeDisabled}
-						onClick={onAddKeyframeAtPlayhead}
-						renderIcon={(color) => (
-							<Plus color={color} style={addKeyframeIcon} />
-						)}
-					>
-						{`Add keyframe at ${addKeyframeTime}`}
-					</InspectorInlineAction>
-				</div>
+				<>
+					<InspectorSectionDivider />
+					<div style={detailsWithInlineAction}>
+						<InspectorInlineAction
+							disabled={addKeyframeDisabled}
+							onClick={onAddKeyframeAtPlayhead}
+							renderIcon={(color) => (
+								<Plus color={color} style={addKeyframeIcon} />
+							)}
+						>
+							{`Add keyframe at ${addKeyframeTime}`}
+						</InspectorInlineAction>
+					</div>
+				</>
 			) : null}
 		</div>
 	);

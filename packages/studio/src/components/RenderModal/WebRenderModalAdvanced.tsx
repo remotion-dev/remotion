@@ -29,8 +29,6 @@ type WebRenderModalAdvancedProps = {
 	readonly setHardwareAcceleration: (
 		value: 'no-preference' | 'prefer-hardware' | 'prefer-software',
 	) => void;
-	readonly allowHtmlInCanvas: boolean;
-	readonly setAllowHtmlInCanvas: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly pageResponsiveness: WebRendererPageResponsiveness;
 	readonly setPageResponsiveness: React.Dispatch<
 		React.SetStateAction<WebRendererPageResponsiveness>
@@ -78,8 +76,6 @@ export const WebRenderModalAdvanced: React.FC<WebRenderModalAdvancedProps> = ({
 	setMediaCacheSizeInBytes,
 	hardwareAcceleration,
 	setHardwareAcceleration,
-	allowHtmlInCanvas,
-	setAllowHtmlInCanvas,
 	pageResponsiveness,
 	setPageResponsiveness,
 }) => {
@@ -92,10 +88,6 @@ export const WebRenderModalAdvanced: React.FC<WebRenderModalAdvancedProps> = ({
 			return null;
 		});
 	}, [setMediaCacheSizeInBytes]);
-
-	const toggleAllowHtmlInCanvas = useCallback(() => {
-		setAllowHtmlInCanvas((prev) => !prev);
-	}, [setAllowHtmlInCanvas]);
 
 	const changeMediaCacheSizeInBytes: React.Dispatch<
 		React.SetStateAction<number>
@@ -291,23 +283,6 @@ export const WebRenderModalAdvanced: React.FC<WebRenderModalAdvancedProps> = ({
 					</div>
 				</div>
 			) : null}
-
-			<div style={optionRow}>
-				<div style={label}>
-					Allow HTML-in-canvas <Spacing x={0.5} />
-					<WebRendererOptionExplainerBubble
-						apiName="allowHtmlInCanvas"
-						id="allowHtmlInCanvasOption"
-					/>
-				</div>
-				<div style={rightRow}>
-					<Checkbox
-						checked={allowHtmlInCanvas}
-						onChange={toggleAllowHtmlInCanvas}
-						name="allow-html-in-canvas"
-					/>
-				</div>
-			</div>
 
 			{renderMode === 'still' ? null : (
 				<>

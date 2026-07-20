@@ -16,18 +16,17 @@ import {
 import {ReactIcon} from '../icons/react';
 import {StillIcon} from '../icons/still';
 import {FilmIcon} from '../icons/video';
-import {renderFrame} from '../state/render-frame';
 import {InlineCompositionName} from './InlineCompositionName';
 import {
-	INSPECTOR_INFO_HEADER_MIN_HEIGHT,
 	InspectorInfoHeader,
 	InspectorInfoSubtitle,
 } from './InspectorInfoHeader';
+import {InspectorLocationCopy} from './InspectorLocationCopy';
 import {InspectorSourceLocation} from './InspectorSourceLocation';
 import {showNotification} from './Notifications/NotificationCenter';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 
-export const CURRENT_COMPOSITION_HEIGHT = INSPECTOR_INFO_HEADER_MIN_HEIGHT;
+export const CURRENT_COMPOSITION_HEIGHT = 66;
 
 const sourceLocationIconStyle: CSSProperties = {
 	flexShrink: 0,
@@ -123,38 +122,32 @@ export const CurrentComposition = () => {
 	);
 
 	return (
-		<InspectorInfoHeader>
+		<InspectorInfoHeader minHeight={CURRENT_COMPOSITION_HEIGHT}>
 			{video ? (
 				<>
-					<InlineCompositionName
-						key={video.id}
-						compositionId={video.id}
-						stack={currentComposition?.stack ?? null}
-						compositions={compositions}
-					/>
-					<InspectorSourceLocation
-						location={validatedLocation}
-						canOpen={validatedLocation !== null}
-						onOpen={openFileLocation}
-						renderIcon={renderCompositionIcon}
-					/>
-					<InspectorSourceLocation
-						location={componentLocation}
-						canOpen={componentLocation !== null}
-						onOpen={openComponentLocation}
-						renderIcon={renderReactIcon}
-					/>
-					<InspectorInfoSubtitle>
-						{video.width}x{video.height}
-						{isCompositionStill(video) ? null : `, ${video.fps} FPS`}
-					</InspectorInfoSubtitle>
+					<InspectorLocationCopy location={validatedLocation} name={video.id}>
+						<InlineCompositionName
+							key={video.id}
+							compositionId={video.id}
+							stack={currentComposition?.stack ?? null}
+							compositions={compositions}
+						/>
+						<InspectorSourceLocation
+							location={validatedLocation}
+							canOpen={validatedLocation !== null}
+							onOpen={openFileLocation}
+							renderIcon={renderCompositionIcon}
+						/>
+						<InspectorSourceLocation
+							location={componentLocation}
+							canOpen={componentLocation !== null}
+							onOpen={openComponentLocation}
+							renderIcon={renderReactIcon}
+						/>
+					</InspectorLocationCopy>
 					{isCompositionStill(video) ? (
 						<InspectorInfoSubtitle>Still</InspectorInfoSubtitle>
-					) : (
-						<InspectorInfoSubtitle>
-							Duration {renderFrame(video.durationInFrames, video.fps)}
-						</InspectorInfoSubtitle>
-					)}
+					) : null}
 				</>
 			) : null}
 		</InspectorInfoHeader>

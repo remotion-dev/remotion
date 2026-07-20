@@ -252,6 +252,9 @@ export const config: VercelConfig = {
 			permanent: false,
 		}),
 		routes.redirect('/effects', '/docs/effects', {permanent: false}),
+		routes.redirect('/design-systems', '/docs/design-systems', {
+			permanent: false,
+		}),
 		routes.redirect('/skills', '/docs/ai/skills', {permanent: false}),
 		routes.redirect(
 			'/repro',
@@ -373,12 +376,10 @@ export const config: VercelConfig = {
 		routes.redirect('/docs/studio/code-edits', '/docs/studio/interactivity', {
 			permanent: true,
 		}),
-		routes.redirect('/terms', 'https://remotion.pro/terms', {
-			permanent: false,
-		}),
-		routes.redirect('/privacy', 'https://remotion.pro/privacy', {
-			permanent: false,
-		}),
+		routes.redirect('/terms', '/docs/license/terms', {permanent: true}),
+		routes.redirect('/privacy', '/docs/license/privacy', {permanent: true}),
+		routes.redirect('/dpa', '/docs/license/dpa', {permanent: true}),
+		routes.redirect('/dpia', '/docs/license/dpia', {permanent: true}),
 		routes.redirect('/docs/ai/claude-code', '/docs/ai/coding-agents', {
 			permanent: false,
 		}),

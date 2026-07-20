@@ -2,8 +2,9 @@ import {expect, test} from 'bun:test';
 import type {RefObject} from 'react';
 import {
 	Internals,
-	type PropStatuses,
+	type _InternalTypes,
 	type InteractivitySchema,
+	type PropStatuses,
 	type SequenceNodePath,
 	type SequencePropsSubscriptionKey,
 	type TSequence,
@@ -16,8 +17,8 @@ import type {SelectedOutlineTarget} from '../components/selected-outline-types';
 import {
 	constrainUv,
 	getSelectedUvHandles,
-	getUvEllipseInteractiveControls,
 	getUvCoordinateForPoint,
+	getUvEllipseInteractiveControls,
 	getUvHandleConnectionEllipses,
 	getUvHandleConnectionLines,
 	getUvHandlePosition,
@@ -49,12 +50,12 @@ import {
 	getTransformedSvgViewportPoints,
 	isSelectedOutlineDragPastThreshold,
 	orderOutlinesForRendering,
-	snapSelectedOutlineRotationDeltaDegrees,
-	snapSelectedOutlineUv,
-	snapSelectedOutlineTransformOriginUv,
 	selectedOutlineDragThresholdPx,
-	selectedOutlineUvSnapThresholdPx,
 	selectedOutlineTransformOriginSnapThresholdPx,
+	selectedOutlineUvSnapThresholdPx,
+	snapSelectedOutlineRotationDeltaDegrees,
+	snapSelectedOutlineTransformOriginUv,
+	snapSelectedOutlineUv,
 	type SelectedOutlineDragState,
 	type SelectedOutlineRotationDragState,
 	type SelectedOutlineScaleDragState,
@@ -68,10 +69,16 @@ import {
 	isDuplicatableEffectSelection,
 	isDuplicatableSequenceRowSelection,
 } from '../components/Timeline/duplicate-selected-timeline-item';
+import {
+	getKeyframeClipboardDataFromSelections,
+	getPasteKeyframeTarget,
+	type PasteKeyframeTarget,
+} from '../components/Timeline/keyframe-clipboard';
 import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected-timeline-props';
 import {shouldSubscribeToSequenceProps} from '../components/Timeline/should-subscribe-to-sequence-props';
 import {
 	getEasingClipboardDataFromSelection,
+	getEffectsClipboardEnvelopeFromSelections,
 	getEffectPropClipboardDataFromSelection,
 	getPasteEffectPropTarget,
 	getPasteEffectsTarget,
@@ -81,8 +88,8 @@ import {
 } from '../components/Timeline/TimelineClipboardKeybindings';
 import {getSelectedKeyframeControlNodePathInfos} from '../components/Timeline/TimelineKeyframeControls';
 import {
-	getClampedTimelineMarqueePoint,
 	getAvailableTimelineSelectionState,
+	getClampedTimelineMarqueePoint,
 	getSelectableTimelineItems,
 	getSelectableTimelineSequenceSelections,
 	getTimelineMarqueeSelection,
@@ -107,6 +114,7 @@ import {
 	getTimelineSequenceLeftEdgeDragChanges,
 	getTimelineSequenceLeftEdgeDragTargets,
 	getTimelineSequenceLeftEdgeDragValues,
+	isTimelineSequenceDurationDraggable,
 } from '../components/Timeline/TimelineSequenceRightEdgeDragHandle';
 import {
 	parsedTransformOriginToUv,
@@ -117,6 +125,10 @@ import {
 	getKeyframesForTimelineEasingDrag,
 	getTimelineSelectionsAfterEasingKeyframeDrag,
 } from '../components/Timeline/use-timeline-keyframe-drag';
+import {
+	getConnectedCompositionFrame,
+	getSequenceDoubleClickAction,
+} from '../helpers/get-sequence-double-click-action';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
 	loadEditorShowOutlinesOption,
@@ -131,6 +143,7 @@ const makeKey = (
 	nodePath,
 	sequenceKeys: ['from', 'durationInFrames'],
 	effectKeys,
+	videoConfigValues: null,
 });
 
 const withMockLocalStorage = (callback: () => void) => {
@@ -191,6 +204,7 @@ const makeTimelineSequence = ({
 	startMediaFrom = 0,
 	type = 'sequence',
 	showInTimeline = true,
+	singleChildComponent,
 }: {
 	readonly schema: InteractivitySchema;
 	readonly effects?: readonly {readonly schema: InteractivitySchema}[];
@@ -203,6 +217,7 @@ const makeTimelineSequence = ({
 	readonly startMediaFrom?: number;
 	readonly type?: TSequence['type'];
 	readonly showInTimeline?: boolean;
+	readonly singleChildComponent?: unknown;
 }): TSequence =>
 	({
 		type,
@@ -215,6 +230,7 @@ const makeTimelineSequence = ({
 		parent: parentId,
 		rootId: 'root',
 		showInTimeline,
+		singleChildComponent,
 		nonce: [[0, 0]],
 		loopDisplay: undefined,
 		getStack: () => null,
@@ -377,7 +393,6 @@ test('timeline marquee locks to sequences after capturing a sequence first', () 
 test('timeline marquee locks to keyframes and easings after capturing a keyframe first', () => {
 	const keyframe = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
 	const sequence = makeNodePathInfo(['body', 1], []);
-	const easing = makeNodePathInfo(['body', 2], ['controls', 'scale']);
 
 	const result = getTimelineMarqueeSelection({
 		lockedSelectionKind: null,
@@ -394,12 +409,16 @@ test('timeline marquee locks to keyframes and easings after capturing a keyframe
 			{
 				item: {
 					type: 'easing',
-					nodePathInfo: easing,
+					nodePathInfo: keyframe,
 					fromFrame: 20,
 					toFrame: 30,
 					segmentIndex: 0,
 				},
 				rect: {left: 40, top: 0, right: 50, bottom: 10},
+			},
+			{
+				item: {type: 'keyframe', nodePathInfo: keyframe, frame: 30},
+				rect: {left: 60, top: 0, right: 70, bottom: 10},
 			},
 		],
 	});
@@ -409,12 +428,56 @@ test('timeline marquee locks to keyframes and easings after capturing a keyframe
 		{type: 'keyframe', nodePathInfo: keyframe, frame: 20},
 		{
 			type: 'easing',
-			nodePathInfo: easing,
+			nodePathInfo: keyframe,
 			fromFrame: 20,
 			toFrame: 30,
 			segmentIndex: 0,
 		},
+		{type: 'keyframe', nodePathInfo: keyframe, frame: 30},
 	]);
+});
+
+test('timeline marquee selects easing only when both endpoint keyframes intersect', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
+	const easing = {
+		type: 'easing' as const,
+		nodePathInfo,
+		fromFrame: 20,
+		toFrame: 30,
+		segmentIndex: 0,
+	};
+	const candidates = [
+		{
+			item: {type: 'keyframe' as const, nodePathInfo, frame: 20},
+			rect: {left: 0, top: 0, right: 10, bottom: 10},
+		},
+		{
+			item: easing,
+			rect: {left: 20, top: 0, right: 80, bottom: 10},
+		},
+		{
+			item: {type: 'keyframe' as const, nodePathInfo, frame: 30},
+			rect: {left: 90, top: 0, right: 100, bottom: 10},
+		},
+	];
+
+	expect(
+		getTimelineMarqueeSelection({
+			lockedSelectionKind: null,
+			marqueeRect: {left: 20, top: 0, right: 80, bottom: 10},
+			candidates,
+		}),
+	).toEqual({lockedSelectionKind: null, selectedItems: []});
+	expect(
+		getTimelineMarqueeSelection({
+			lockedSelectionKind: null,
+			marqueeRect: {left: 0, top: 0, right: 100, bottom: 10},
+			candidates,
+		}),
+	).toEqual({
+		lockedSelectionKind: 'keyframes-and-easings',
+		selectedItems: [candidates[0].item, easing, candidates[2].item],
+	});
 });
 
 test('timeline marquee keeps its locked item kind while dragging', () => {
@@ -593,6 +656,7 @@ test('copying a keyframed effect creates a structured snapshot', () => {
 							easing: [{type: 'linear'}],
 							clamping: {left: 'clamp', right: 'clamp'},
 							posterize: undefined,
+							output: undefined,
 						},
 					},
 				},
@@ -629,6 +693,38 @@ test('copying a keyframed effect creates a structured snapshot', () => {
 	]);
 });
 
+test('cut effect clipboard metadata preserves source order', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], ['effects', '0'], true, [
+		['0'],
+	]);
+	const blur = {
+		callee: 'blur',
+		importPath: '@remotion/effects/blur',
+		params: {},
+	};
+	const brightness = {
+		callee: 'brightness',
+		importPath: '@remotion/effects/brightness',
+		params: {},
+	};
+	const envelope = getEffectsClipboardEnvelopeFromSelections({
+		selectedItems: [
+			{type: 'sequence-effect', nodePathInfo, i: 1},
+			{type: 'sequence-effect', nodePathInfo, i: 0},
+		],
+		payload: {
+			type: 'effects-additive',
+			version: 3,
+			remotionClipboard: 'effects',
+			effects: [blur, brightness],
+		},
+	});
+
+	expect(envelope.sourceIdentity).not.toBe(null);
+	expect(envelope.originalEffectIndices).toEqual([0, 1]);
+	expect(envelope.payload.effects).toEqual([brightness, blur]);
+});
+
 test('copying a selected effect prop creates an effect prop payload', () => {
 	const effectPropNodePathInfo = makeNodePathInfo(
 		['body', 0],
@@ -658,6 +754,7 @@ test('copying a selected effect prop creates an effect prop payload', () => {
 							easing: [{type: 'linear'}],
 							clamping: {left: 'clamp', right: 'clamp'},
 							posterize: undefined,
+							output: undefined,
 						},
 					},
 				},
@@ -697,6 +794,287 @@ test('copying a selected effect prop creates an effect prop payload', () => {
 	});
 });
 
+test('copying selected keyframes preserves their frame deltas', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const schema = {
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies InteractivitySchema;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				opacity: {
+					status: 'keyframed',
+					interpolationFunction: 'interpolate',
+					keyframes: [
+						{frame: 10, value: 0.4},
+						{frame: 30, value: 0.8},
+					],
+					easing: [],
+					clamping: {left: 'clamp', right: 'clamp'},
+					posterize: undefined,
+					output: undefined,
+				},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	expect(
+		getKeyframeClipboardDataFromSelections({
+			selections: [
+				{type: 'keyframe', nodePathInfo, frame: 30},
+				{type: 'keyframe', nodePathInfo, frame: 10},
+				{
+					type: 'easing',
+					nodePathInfo,
+					fromFrame: 10,
+					toFrame: 30,
+					segmentIndex: 0,
+				},
+			],
+			sequences: [makeTimelineSequence({schema, from: 20})],
+			overrideIdsToNodePaths: {override: nodePath},
+			propStatuses,
+		}),
+	).toEqual({
+		type: 'keyframe',
+		version: 1,
+		remotionClipboard: 'keyframe',
+		fieldType: 'number',
+		keyframes: [
+			{frameOffset: 0, value: 0.4},
+			{frameOffset: 20, value: 0.8},
+		],
+		easing: [{type: 'linear'}],
+	});
+});
+
+test('copying selected keyframes requires one property', () => {
+	const opacityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'opacity'],
+	);
+	const otherNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'otherOpacity'],
+	);
+	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
+	const schema = {
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
+		otherOpacity: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies InteractivitySchema;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				opacity: {
+					status: 'keyframed',
+					interpolationFunction: 'interpolate',
+					keyframes: [{frame: 10, value: 0.4}],
+					easing: [],
+					clamping: {left: 'clamp', right: 'clamp'},
+					posterize: undefined,
+					output: undefined,
+				},
+				otherOpacity: {
+					status: 'keyframed',
+					interpolationFunction: 'interpolate',
+					keyframes: [{frame: 30, value: 2}],
+					easing: [],
+					clamping: {left: 'clamp', right: 'clamp'},
+					posterize: undefined,
+					output: undefined,
+				},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	expect(
+		getKeyframeClipboardDataFromSelections({
+			selections: [
+				{type: 'keyframe', nodePathInfo: opacityNodePathInfo, frame: 10},
+				{type: 'keyframe', nodePathInfo: otherNodePathInfo, frame: 30},
+			],
+			sequences: [makeTimelineSequence({schema})],
+			overrideIdsToNodePaths: {override: nodePath},
+			propStatuses,
+		}),
+	).toBe(null);
+});
+
+test('pasting keyframes targets one selected property at the playhead', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const schema = {
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies InteractivitySchema;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				opacity: {status: 'static', codeValue: 1},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	expect(
+		getPasteKeyframeTarget({
+			selectedItems: [
+				{type: 'keyframe', nodePathInfo, frame: 10},
+				{type: 'keyframe', nodePathInfo, frame: 30},
+			],
+			payload: {
+				type: 'keyframe',
+				version: 1,
+				remotionClipboard: 'keyframe',
+				fieldType: 'number',
+				keyframes: [
+					{frameOffset: 0, value: 0.4},
+					{frameOffset: 20, value: 0.8},
+				],
+				easing: [{type: 'linear'}],
+			},
+			timelinePosition: 50,
+			sequences: [makeTimelineSequence({schema, from: 20})],
+			overrideIdsToNodePaths: {override: nodePath},
+			propStatuses,
+		}),
+	).toEqual({
+		type: 'valid',
+		fileName: '/project/src/Comp.tsx',
+		nodePath,
+		fieldKey: 'opacity',
+		effectIndex: null,
+		keyframes: [
+			{sourceFrame: 50, value: 0.4},
+			{sourceFrame: 70, value: 0.8},
+		],
+		keyframesToDelete: [],
+		easing: [{type: 'linear'}],
+		firstEasingSegmentIndex: 0,
+		schema,
+	} satisfies PasteKeyframeTarget);
+});
+
+test('pasting keyframes replaces the destination range and preserves easing', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], ['controls', 'opacity']);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const schema = {
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies InteractivitySchema;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				opacity: {
+					status: 'keyframed',
+					interpolationFunction: 'interpolate',
+					keyframes: [
+						{frame: 40, value: 0},
+						{frame: 60, value: 0.5},
+						{frame: 80, value: 1},
+					],
+					easing: [{type: 'linear'}, {type: 'linear'}],
+					clamping: {left: 'clamp', right: 'clamp'},
+					posterize: undefined,
+					output: undefined,
+				},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+	const copiedEasing = {
+		type: 'bezier',
+		x1: 0.42,
+		y1: 0,
+		x2: 0.58,
+		y2: 1,
+	} as const;
+
+	expect(
+		getPasteKeyframeTarget({
+			selectedItems: [{type: 'sequence-prop', nodePathInfo, key: 'opacity'}],
+			payload: {
+				type: 'keyframe',
+				version: 1,
+				remotionClipboard: 'keyframe',
+				fieldType: 'number',
+				keyframes: [
+					{frameOffset: 0, value: 0.25},
+					{frameOffset: 20, value: 0.75},
+				],
+				easing: [copiedEasing],
+			},
+			timelinePosition: 50,
+			sequences: [makeTimelineSequence({schema})],
+			overrideIdsToNodePaths: {override: nodePath},
+			propStatuses,
+		}),
+	).toEqual({
+		type: 'valid',
+		fileName: '/project/src/Comp.tsx',
+		nodePath,
+		fieldKey: 'opacity',
+		effectIndex: null,
+		keyframes: [
+			{sourceFrame: 50, value: 0.25},
+			{sourceFrame: 70, value: 0.75},
+		],
+		keyframesToDelete: [60],
+		easing: [copiedEasing],
+		firstEasingSegmentIndex: 1,
+		schema,
+	} satisfies PasteKeyframeTarget);
+});
+
+test('pasting a keyframe rejects an incompatible property', () => {
+	const nodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'background'],
+	);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const schema = {
+		background: {type: 'color', default: '#ffffff'},
+	} satisfies InteractivitySchema;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				background: {status: 'static', codeValue: '#ffffff'},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	expect(
+		getPasteKeyframeTarget({
+			selectedItems: [
+				{
+					type: 'sequence-prop',
+					nodePathInfo,
+					key: 'background',
+				},
+			],
+			payload: {
+				type: 'keyframe',
+				version: 1,
+				remotionClipboard: 'keyframe',
+				fieldType: 'number',
+				keyframes: [{frameOffset: 0, value: 0.4}],
+				easing: [],
+			},
+			timelinePosition: 50,
+			sequences: [makeTimelineSequence({schema})],
+			overrideIdsToNodePaths: {override: nodePath},
+			propStatuses,
+		}),
+	).toEqual({type: 'incompatible'} satisfies PasteKeyframeTarget);
+});
+
 test('copying a selected sequence easing creates an easing payload', () => {
 	const opacityNodePathInfo = makeNodePathInfo(
 		['body', 0],
@@ -727,6 +1105,7 @@ test('copying a selected sequence easing creates an easing payload', () => {
 					easing: [easing],
 					clamping: {left: 'clamp', right: 'clamp'},
 					posterize: undefined,
+					output: undefined,
 				},
 			},
 			effects: [],
@@ -787,6 +1166,7 @@ test('copying a selected effect easing creates an easing payload', () => {
 							easing: [{type: 'linear'}],
 							clamping: {left: 'clamp', right: 'clamp'},
 							posterize: undefined,
+							output: undefined,
 						},
 					},
 				},
@@ -1011,6 +1391,12 @@ test('Timeline duration drag applies the same delta to selected sequences', () =
 			deltaFrames: -10,
 		}).map((change) => change.value),
 	).toEqual([30, 5]);
+	expect(
+		getTimelineSequenceDurationDragChanges({
+			targets: targets ?? [],
+			deltaFrames: -10,
+		}).map((change) => change.schema),
+	).toEqual([schema, schema]);
 });
 
 test('Timeline duration drag uses the declared duration for negative from values', () => {
@@ -1041,6 +1427,54 @@ test('Timeline duration drag uses the declared duration for negative from values
 			deltaFrames: 0,
 		}),
 	).toEqual([]);
+});
+
+test('Timeline duration drag supports interactive video clips', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const video = makeTimelineSequence({
+		schema: Internals.baseSchema,
+		type: 'video',
+		duration: 78,
+	});
+
+	expect(isTimelineSequenceDurationDraggable(video)).toBe(true);
+	expect(
+		getTimelineSequenceDurationDragTargets({
+			draggedNodePathInfo: nodePathInfo,
+			selectedItems: [{type: 'sequence', nodePathInfo}],
+			sequences: [video],
+			overrideIdsToNodePaths: {
+				override: nodePathInfo.sequenceSubscriptionKey,
+			},
+			propStatuses: makeDurationPropStatuses([
+				nodePathInfo.sequenceSubscriptionKey,
+			]),
+		}),
+	).toEqual([
+		{
+			fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
+			initialDuration: 78,
+			nodePath: nodePathInfo.sequenceSubscriptionKey,
+			schema: Internals.baseSchema,
+		},
+	]);
+});
+
+test('Timeline duration drag supports interactive Series.Sequence rows', () => {
+	const baseSequence = makeTimelineSequence({
+		schema: Internals.baseSchema,
+		duration: 78,
+	});
+	const seriesSequence = {
+		...baseSequence,
+		isInsideSeries: true,
+		controls: {
+			...baseSequence.controls!,
+			componentIdentity: 'dev.remotion.remotion.Series.Sequence',
+		},
+	} satisfies TSequence;
+
+	expect(isTimelineSequenceDurationDraggable(seriesSequence)).toBe(true);
 });
 
 test('Timeline duration drag clamps each selected sequence to one frame', () => {
@@ -1130,6 +1564,7 @@ test('Timeline duration drag is blocked if one selected sequence duration is key
 				easing: [{type: 'linear'}],
 				clamping: {left: 'clamp', right: 'clamp'},
 				posterize: undefined,
+				output: undefined,
 			},
 		},
 		effects: [],
@@ -1456,6 +1891,7 @@ test('Timeline from drag moves all owned sequence keyframes by the same delta', 
 				easing: [{type: 'linear'}],
 				clamping: {left: 'extend', right: 'extend'},
 				posterize: undefined,
+				output: undefined,
 			},
 			opacity: {
 				status: 'keyframed',
@@ -1467,6 +1903,7 @@ test('Timeline from drag moves all owned sequence keyframes by the same delta', 
 				easing: [{type: 'linear'}],
 				clamping: {left: 'clamp', right: 'clamp'},
 				posterize: undefined,
+				output: undefined,
 			},
 		},
 		effects: [],
@@ -1534,6 +1971,7 @@ test('Timeline from drag moves owned effect keyframes by the same delta', () => 
 						easing: [{type: 'linear'}],
 						clamping: {left: 'clamp', right: 'clamp'},
 						posterize: undefined,
+						output: undefined,
 					},
 				},
 			},
@@ -1732,6 +2170,100 @@ test('Canvas outline selection uses conventional modifier keys', () => {
 	).toEqual({shiftKey: false, toggleKey: true});
 });
 
+test('Sequence double-click opens one connected composition before the editor', () => {
+	expect(
+		getSequenceDoubleClickAction({
+			button: 0,
+			canOpenInEditor: true,
+			numberOfConnectedCompositions: 1,
+		}),
+	).toBe('open-connected-composition');
+	expect(
+		getSequenceDoubleClickAction({
+			button: 0,
+			canOpenInEditor: false,
+			numberOfConnectedCompositions: 1,
+		}),
+	).toBe('open-connected-composition');
+	expect(
+		getSequenceDoubleClickAction({
+			button: 0,
+			canOpenInEditor: true,
+			numberOfConnectedCompositions: 0,
+		}),
+	).toBe('open-in-editor');
+	expect(
+		getSequenceDoubleClickAction({
+			button: 0,
+			canOpenInEditor: true,
+			numberOfConnectedCompositions: 2,
+		}),
+	).toBe('open-in-editor');
+	expect(
+		getSequenceDoubleClickAction({
+			button: 0,
+			canOpenInEditor: false,
+			numberOfConnectedCompositions: 2,
+		}),
+	).toBeNull();
+	expect(
+		getSequenceDoubleClickAction({
+			button: 2,
+			canOpenInEditor: true,
+			numberOfConnectedCompositions: 1,
+		}),
+	).toBeNull();
+});
+
+test('Connected composition double-click uses the visible sequence frame', () => {
+	const sequence = makeTimelineSequence({
+		schema: Internals.baseSchema,
+		from: 20,
+		duration: 40,
+	});
+
+	expect(
+		getConnectedCompositionFrame({
+			timelinePosition: 35,
+			sequence,
+			sequenceFrameOffset: 5,
+		}),
+	).toBe(20);
+	expect(
+		getConnectedCompositionFrame({
+			timelinePosition: 19,
+			sequence,
+			sequenceFrameOffset: 5,
+		}),
+	).toBeNull();
+	expect(
+		getConnectedCompositionFrame({
+			timelinePosition: 60,
+			sequence,
+			sequenceFrameOffset: 5,
+		}),
+	).toBeNull();
+});
+
+test('Connected composition double-click respects frozen frames', () => {
+	const sequence = {
+		...makeTimelineSequence({
+			schema: Internals.baseSchema,
+			from: 20,
+			duration: 40,
+		}),
+		frozenFrame: 12,
+	} satisfies TSequence;
+
+	expect(
+		getConnectedCompositionFrame({
+			timelinePosition: 35,
+			sequence,
+			sequenceFrameOffset: 5,
+		}),
+	).toBe(12);
+});
+
 test('Canvas outline hit targets render nested sequences above parents', () => {
 	const schema = {} satisfies InteractivitySchema;
 	const refForOutline = {current: null};
@@ -1765,7 +2297,66 @@ test('Canvas outline hit targets render nested sequences above parents', () => {
 	]);
 });
 
-test('Canvas outline rendering puts selected outlines last', () => {
+test('Canvas outlines exclude descendants of connected compositions', () => {
+	const ConnectedChild = () => null;
+	const schema = {} satisfies InteractivitySchema;
+	const refForOutline = {current: null};
+	const connectedNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const childNodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
+	const grandchildNodePathInfo = makeNodePathInfo(
+		['body', 0, 'children', 0, 'children', 0],
+		[],
+	);
+	const siblingNodePathInfo = makeNodePathInfo(['body', 1], []);
+	const connectedComposition = {
+		componentFromProps: ConnectedChild,
+	} as unknown as _InternalTypes['AnyComposition'];
+	const outlines = getSequencesWithSelectableOutlines({
+		compositions: [connectedComposition],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				id: 'connected',
+				overrideId: 'connected',
+				refForOutline,
+				singleChildComponent: ConnectedChild,
+			}),
+			makeTimelineSequence({
+				schema,
+				id: 'child',
+				overrideId: 'child',
+				parentId: 'connected',
+				refForOutline,
+			}),
+			makeTimelineSequence({
+				schema,
+				id: 'grandchild',
+				overrideId: 'grandchild',
+				parentId: 'child',
+				refForOutline,
+			}),
+			makeTimelineSequence({
+				schema,
+				id: 'sibling',
+				overrideId: 'sibling',
+				refForOutline,
+			}),
+		],
+		overrideIdsToNodePaths: {
+			connected: connectedNodePathInfo.sequenceSubscriptionKey,
+			child: childNodePathInfo.sequenceSubscriptionKey,
+			grandchild: grandchildNodePathInfo.sequenceSubscriptionKey,
+			sibling: siblingNodePathInfo.sequenceSubscriptionKey,
+		},
+	});
+
+	expect(outlines.map((outline) => outline.key)).toEqual([
+		getTimelineSequenceSelectionKey(connectedNodePathInfo),
+		getTimelineSequenceSelectionKey(siblingNodePathInfo),
+	]);
+});
+
+test('Canvas outline rendering preserves unconstrained outline order', () => {
 	const makeOutline = (key: string): SelectedOutline => ({
 		key,
 		dimensions: null,
@@ -1785,6 +2376,7 @@ test('Canvas outline rendering puts selected outlines last', () => {
 			makeOutline('child'),
 			makeOutline('sibling'),
 		],
+		sequences: [],
 		targetsByKey: new Map([
 			['parent', makeTarget(true)],
 			['child', makeTarget(false)],
@@ -1793,9 +2385,448 @@ test('Canvas outline rendering puts selected outlines last', () => {
 	});
 
 	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'parent',
 		'child',
 		'sibling',
+	]);
+});
+
+const makeTestOutline = ({
+	key,
+	left,
+	top,
+	width,
+	height,
+}: {
+	readonly key: string;
+	readonly left: number;
+	readonly top: number;
+	readonly width: number;
+	readonly height: number;
+}): SelectedOutline => ({
+	key,
+	dimensions: {width, height},
+	points: [
+		{x: left, y: top},
+		{x: left + width, y: top},
+		{x: left + width, y: top + height},
+		{x: left, y: top + height},
+	],
+});
+
+const makeOutlineTarget = ({
+	id,
+	parent,
+	selected = false,
+}: {
+	readonly id: string;
+	readonly parent: string | null;
+	readonly selected?: boolean;
+}): SelectedOutlineTarget =>
+	({
+		selected,
+		sequence: {id, parent},
+	}) as SelectedOutlineTarget;
+
+const makeOutlineSequence = ({
+	id,
+	parent,
+}: {
+	readonly id: string;
+	readonly parent: string | null;
+}) => ({id, parent});
+
+test('Canvas outline rendering keeps smaller nested hit targets above parents', () => {
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [
+			makeTestOutline({
+				key: 'parent',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'child',
+				left: 25,
+				top: 25,
+				width: 50,
+				height: 50,
+			}),
+		],
+		sequences: [
+			makeOutlineSequence({id: 'parent', parent: null}),
+			makeOutlineSequence({id: 'child', parent: 'parent'}),
+		],
+		targetsByKey: new Map([
+			['parent', makeOutlineTarget({id: 'parent', parent: null})],
+			['child', makeOutlineTarget({id: 'child', parent: 'parent'})],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
 		'parent',
+		'child',
+	]);
+});
+
+test('Canvas outline rendering puts equal-area child hit targets below parents', () => {
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [
+			makeTestOutline({
+				key: 'parent',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'container',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'label',
+				left: 25,
+				top: 25,
+				width: 50,
+				height: 50,
+			}),
+		],
+		sequences: [
+			makeOutlineSequence({id: 'parent', parent: null}),
+			makeOutlineSequence({id: 'container', parent: 'parent'}),
+			makeOutlineSequence({id: 'label', parent: 'container'}),
+		],
+		targetsByKey: new Map([
+			['parent', makeOutlineTarget({id: 'parent', parent: null})],
+			['container', makeOutlineTarget({id: 'container', parent: 'parent'})],
+			['label', makeOutlineTarget({id: 'label', parent: 'container'})],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'container',
+		'parent',
+		'label',
+	]);
+});
+
+test('Canvas outline rendering keeps equal-area children containing selection above parents', () => {
+	const outlines = [
+		makeTestOutline({
+			key: 'parent',
+			left: 0,
+			top: 0,
+			width: 100,
+			height: 100,
+		}),
+		makeTestOutline({
+			key: 'child',
+			left: 0,
+			top: 0,
+			width: 100,
+			height: 100,
+		}),
+	];
+	const sequences = [
+		makeOutlineSequence({id: 'parent', parent: null}),
+		makeOutlineSequence({id: 'child', parent: 'parent'}),
+	];
+
+	for (const selectionState of [{selected: true}, {containsSelection: true}]) {
+		const orderedOutlines = orderOutlinesForRendering({
+			outlines,
+			sequences,
+			targetsByKey: new Map([
+				['parent', makeOutlineTarget({id: 'parent', parent: null})],
+				[
+					'child',
+					{
+						...makeOutlineTarget({id: 'child', parent: 'parent'}),
+						...selectionState,
+					},
+				],
+			]),
+		});
+
+		expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+			'parent',
+			'child',
+		]);
+	}
+});
+
+test('Canvas outline rendering handles transitive subpixel equivalence', () => {
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [
+			makeTestOutline({
+				key: 'parent',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'child',
+				left: 0.4,
+				top: 0.4,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'grandchild',
+				left: 0.8,
+				top: 0.8,
+				width: 100,
+				height: 100,
+			}),
+		],
+		sequences: [
+			makeOutlineSequence({id: 'parent', parent: null}),
+			makeOutlineSequence({id: 'child', parent: 'parent'}),
+			makeOutlineSequence({id: 'grandchild', parent: 'child'}),
+		],
+		targetsByKey: new Map([
+			['parent', makeOutlineTarget({id: 'parent', parent: null})],
+			['child', makeOutlineTarget({id: 'child', parent: 'parent'})],
+			['grandchild', makeOutlineTarget({id: 'grandchild', parent: 'child'})],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'grandchild',
+		'child',
+		'parent',
+	]);
+});
+
+test('Canvas outline equivalence ignores polygon start vertex and winding', () => {
+	const parent = makeTestOutline({
+		key: 'parent',
+		left: 0,
+		top: 0,
+		width: 100,
+		height: 100,
+	});
+	const child: SelectedOutline = {
+		...makeTestOutline({
+			key: 'child',
+			left: 0,
+			top: 0,
+			width: 100,
+			height: 100,
+		}),
+		points: [
+			{x: 100, y: 100},
+			{x: 100, y: 0},
+			{x: 0, y: 0},
+			{x: 0, y: 100},
+		],
+	};
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [parent, child],
+		sequences: [
+			makeOutlineSequence({id: 'parent', parent: null}),
+			makeOutlineSequence({id: 'child', parent: 'parent'}),
+		],
+		targetsByKey: new Map([
+			['parent', makeOutlineTarget({id: 'parent', parent: null})],
+			['child', makeOutlineTarget({id: 'child', parent: 'parent'})],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'child',
+		'parent',
+	]);
+});
+
+test('Canvas outline rendering keeps lower-third wrappers reachable below larger overlapping sequences', () => {
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [
+			makeTestOutline({
+				key: 'lower-third-wrapper',
+				left: 200,
+				top: 854,
+				width: 680,
+				height: 138,
+			}),
+			makeTestOutline({
+				key: 'overlapping-keyframed-sequence',
+				left: 100,
+				top: 700,
+				width: 1000,
+				height: 400,
+			}),
+			makeTestOutline({
+				key: 'lower-third-container',
+				left: 200,
+				top: 854,
+				width: 680,
+				height: 138,
+			}),
+		],
+		sequences: [
+			makeOutlineSequence({id: 'lower-third-wrapper', parent: null}),
+			makeOutlineSequence({
+				id: 'overlapping-keyframed-sequence',
+				parent: null,
+			}),
+			makeOutlineSequence({
+				id: 'lower-third-container',
+				parent: 'lower-third-wrapper',
+			}),
+		],
+		targetsByKey: new Map([
+			[
+				'lower-third-wrapper',
+				makeOutlineTarget({id: 'lower-third-wrapper', parent: null}),
+			],
+			[
+				'overlapping-keyframed-sequence',
+				makeOutlineTarget({
+					id: 'overlapping-keyframed-sequence',
+					parent: null,
+					selected: true,
+				}),
+			],
+			[
+				'lower-third-container',
+				makeOutlineTarget({
+					id: 'lower-third-container',
+					parent: 'lower-third-wrapper',
+					selected: true,
+				}),
+			],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'overlapping-keyframed-sequence',
+		'lower-third-wrapper',
+		'lower-third-container',
+	]);
+});
+
+test('Canvas outline rendering orders equal-area children deterministically with unrelated outlines', () => {
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [
+			makeTestOutline({
+				key: 'lower-third-wrapper',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'unrelated-keyframed-sequence',
+				left: 200,
+				top: 200,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'lower-third-container',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'lower-third-title',
+				left: 25,
+				top: 25,
+				width: 50,
+				height: 50,
+			}),
+		],
+		sequences: [
+			makeOutlineSequence({id: 'lower-third-wrapper', parent: null}),
+			makeOutlineSequence({id: 'unrelated-keyframed-sequence', parent: null}),
+			makeOutlineSequence({
+				id: 'lower-third-container',
+				parent: 'lower-third-wrapper',
+			}),
+			makeOutlineSequence({
+				id: 'lower-third-title',
+				parent: 'lower-third-container',
+			}),
+		],
+		targetsByKey: new Map([
+			[
+				'lower-third-wrapper',
+				makeOutlineTarget({id: 'lower-third-wrapper', parent: null}),
+			],
+			[
+				'unrelated-keyframed-sequence',
+				makeOutlineTarget({id: 'unrelated-keyframed-sequence', parent: null}),
+			],
+			[
+				'lower-third-container',
+				makeOutlineTarget({
+					id: 'lower-third-container',
+					parent: 'lower-third-wrapper',
+				}),
+			],
+			[
+				'lower-third-title',
+				makeOutlineTarget({
+					id: 'lower-third-title',
+					parent: 'lower-third-container',
+				}),
+			],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'lower-third-container',
+		'lower-third-wrapper',
+		'unrelated-keyframed-sequence',
+		'lower-third-title',
+	]);
+});
+
+test('Canvas outline rendering follows hidden intermediate ancestors', () => {
+	const orderedOutlines = orderOutlinesForRendering({
+		outlines: [
+			makeTestOutline({
+				key: 'visible-parent',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+			makeTestOutline({
+				key: 'visible-child',
+				left: 0,
+				top: 0,
+				width: 100,
+				height: 100,
+			}),
+		],
+		sequences: [
+			makeOutlineSequence({id: 'visible-parent', parent: null}),
+			makeOutlineSequence({id: 'hidden-wrapper', parent: 'visible-parent'}),
+			makeOutlineSequence({id: 'visible-child', parent: 'hidden-wrapper'}),
+		],
+		targetsByKey: new Map([
+			[
+				'visible-parent',
+				makeOutlineTarget({id: 'visible-parent', parent: null}),
+			],
+			[
+				'visible-child',
+				makeOutlineTarget({id: 'visible-child', parent: 'hidden-wrapper'}),
+			],
+		]),
+	});
+
+	expect(orderedOutlines.map((outline) => outline.key)).toEqual([
+		'visible-child',
+		'visible-parent',
 	]);
 });
 
@@ -2836,6 +3867,7 @@ test('UV handles are requested for keyframed selected effect props', () => {
 							easing: [{type: 'linear'}],
 							clamping: {left: 'extend', right: 'extend'},
 							posterize: undefined,
+							output: undefined,
 						},
 					},
 				},
@@ -2958,6 +3990,7 @@ test('Derived selectable timeline items follow expanded timeline order', () => {
 					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
+					output: undefined,
 				},
 			},
 			effects: [],
@@ -3134,6 +4167,7 @@ test('Backspace reset targets selected keyframed sequence props', () => {
 					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
+					output: undefined,
 				},
 			},
 			effects: [],
@@ -3223,6 +4257,7 @@ test('Backspace reset targets flattened built-in keyframed sequence style props'
 					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
+					output: undefined,
 				},
 			},
 			effects: [],
@@ -3280,6 +4315,7 @@ test('Backspace reset skips keyframed sequence props without defaults', () => {
 					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
+					output: undefined,
 				},
 			},
 			effects: [],
@@ -3591,6 +4627,7 @@ test('Selected outline dragging keyframed translate adds a keyframe at the sourc
 					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
+					output: undefined,
 				},
 				fieldDefault: '0px 0px',
 				keyframeDisplayOffset: 30,
@@ -3983,6 +5020,7 @@ test('Selected outline corner dragging keyframed rotation adds a keyframe at the
 					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
+					output: undefined,
 				},
 				fieldDefault: '0deg',
 				fieldSchema: schema['style.rotate'],
@@ -4415,6 +5453,7 @@ test('Backspace reset targets selected keyframed effect props', () => {
 							easing: [{type: 'linear'}],
 							clamping: {left: 'extend', right: 'extend'},
 							posterize: undefined,
+							output: undefined,
 						},
 					},
 				},
@@ -4486,6 +5525,7 @@ test('Backspace reset skips keyframed effect props without defaults', () => {
 							easing: [{type: 'linear'}],
 							clamping: {left: 'extend', right: 'extend'},
 							posterize: undefined,
+							output: undefined,
 						},
 					},
 				},
@@ -4640,6 +5680,8 @@ test('Deleting unsupported mixed timeline selection types returns null', () => {
 			setPropStatuses: () => undefined,
 			clientId: 'client',
 			confirm,
+			propStatuses: {},
+			timelinePosition: 0,
 		}),
 	).toBe(null);
 });
@@ -4723,6 +5765,7 @@ test('Deleting selected keyframe selects remaining easing under playhead', () =>
 					easing: [{type: 'linear'}, {type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
+					output: undefined,
 				},
 			},
 			effects: [],
@@ -4778,6 +5821,7 @@ test('Deleting selected keyframe clears selection when playhead is not between r
 					easing: [{type: 'linear'}, {type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
 					posterize: undefined,
+					output: undefined,
 				},
 			},
 			effects: [],
@@ -4847,6 +5891,8 @@ test('Deleting selected keyframes ignores selected easings', async () => {
 			setPropStatuses: () => undefined,
 			clientId: 'client',
 			confirm: () => Promise.resolve(true),
+			propStatuses: {},
+			timelinePosition: 0,
 		});
 
 		expect(result).toBe(true);
@@ -4861,6 +5907,108 @@ test('Deleting selected keyframes ignores selected easings', async () => {
 							key: 'opacity',
 							frame: 12,
 							schema,
+							valueWhenLastKeyframeDeleted: null,
+						},
+					],
+					effectKeyframes: [],
+					clientId: 'client',
+				},
+			},
+		]);
+	} finally {
+		globalThis.fetch = previousFetch;
+	}
+});
+
+test('Deleting all selected keyframes preserves the value at the playhead', async () => {
+	const schema = {
+		opacity: {type: 'number', default: 1, hiddenFromList: false},
+	} satisfies InteractivitySchema;
+	const opacityNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'opacity'],
+	);
+	const nodePath = opacityNodePathInfo.sequenceSubscriptionKey;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				opacity: {
+					status: 'keyframed',
+					interpolationFunction: 'interpolate',
+					keyframes: [
+						{frame: 0, value: 0},
+						{frame: 10, value: 1},
+					],
+					easing: [{type: 'linear'}],
+					clamping: {left: 'extend', right: 'extend'},
+					posterize: undefined,
+					output: undefined,
+				},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+	const fetchCalls: unknown[] = [];
+	const previousFetch = globalThis.fetch;
+	globalThis.fetch = ((input, init) => {
+		fetchCalls.push({
+			input,
+			body:
+				typeof init?.body === 'string'
+					? JSON.parse(init.body)
+					: (init?.body ?? null),
+		});
+
+		return Promise.resolve({
+			json: () => Promise.resolve({success: true, data: {}}),
+		} as Response);
+	}) as typeof fetch;
+
+	try {
+		const result = await deleteSelectedTimelineItems({
+			selections: [
+				{
+					type: 'keyframe',
+					nodePathInfo: opacityNodePathInfo,
+					frame: 0,
+				},
+				{
+					type: 'keyframe',
+					nodePathInfo: opacityNodePathInfo,
+					frame: 10,
+				},
+			],
+			sequences: [makeTimelineSequence({schema})],
+			overrideIdsToNodePaths: {override: nodePath},
+			setPropStatuses: () => undefined,
+			clientId: 'client',
+			confirm: () => Promise.resolve(true),
+			propStatuses,
+			timelinePosition: 5,
+		});
+
+		expect(result).toBe(true);
+		expect(fetchCalls).toEqual([
+			{
+				input: '/api/delete-keyframes',
+				body: {
+					sequenceKeyframes: [
+						{
+							fileName: '/project/src/Comp.tsx',
+							nodePath,
+							key: 'opacity',
+							frame: 0,
+							schema,
+							valueWhenLastKeyframeDeleted: 0.5,
+						},
+						{
+							fileName: '/project/src/Comp.tsx',
+							nodePath,
+							key: 'opacity',
+							frame: 10,
+							schema,
+							valueWhenLastKeyframeDeleted: 0.5,
 						},
 					],
 					effectKeyframes: [],

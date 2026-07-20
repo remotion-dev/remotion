@@ -16,6 +16,7 @@ const makeNodePathInfo = (
 		nodePath,
 		sequenceKeys: ['from', 'durationInFrames'],
 		effectKeys: [],
+		videoConfigValues: null,
 	} satisfies SequencePropsSubscriptionKey,
 	auxiliaryKeys,
 	index: 0,
@@ -34,6 +35,7 @@ const keyframedStatus = {
 	easing: [{type: 'linear'}, {type: 'linear'}],
 	clamping: {left: 'extend', right: 'extend'},
 	posterize: undefined,
+	output: undefined,
 } satisfies CanUpdateSequencePropStatusKeyframed;
 
 test('gets easing selection after deleting an in-between keyframe', () => {

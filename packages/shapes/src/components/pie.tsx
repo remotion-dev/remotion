@@ -1,5 +1,5 @@
 import React from 'react';
-import {Internals, Interactive} from 'remotion';
+import {Interactive} from 'remotion';
 import type {MakePieProps} from '../utils/make-pie';
 import {makePie} from '../utils/make-pie';
 import type {AllShapesProps} from './render-svg';
@@ -71,5 +71,3 @@ export const Pie = Interactive.withSchema({
 	schema: pieSchema,
 	supportsEffects: true,
 }) as React.FC<PieProps>;
-
-Internals.addSequenceStackTraces(Pie);

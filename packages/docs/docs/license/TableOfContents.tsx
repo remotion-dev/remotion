@@ -14,6 +14,34 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'License FAQ'}</strong>
 					<div>Frequently asked questions about licensing and pricing</div>
 				</TOCItem>
+				<TOCItem link="/docs/license/terms">
+					<strong>{'Terms and Conditions'}</strong>
+					<div>Legal terms governing the use of Remotion</div>
+				</TOCItem>
+				<TOCItem link="/docs/license/privacy">
+					<strong>{'Privacy Policy'}</strong>
+					<div>How Remotion collects, uses, and protects personal data</div>
+				</TOCItem>
+				<TOCItem link="/docs/license/dpa">
+					<strong>{'DPA Statement'}</strong>
+					<div>
+						How Remotion handles personal data for its licensing platform
+					</div>
+				</TOCItem>
+				<TOCItem link="/docs/license/dpia">
+					<strong>{'DPIA Statement'}</strong>
+					<div>
+						Why Remotion&apos;s licensing platform does not require a formal
+						DPIA
+					</div>
+				</TOCItem>
+				<TOCItem link="/docs/accessibility">
+					<strong>{'Accessibility'}</strong>
+					<div>
+						Accessibility of Remotion products, with links to accessibility
+						statements for the remotion.dev and remotion.pro websites
+					</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/brand"
 	},
 	"name": "@remotion/brand",
-	"version": "4.0.488",
+	"version": "4.0.494",
 	"private": true,
 	"sideEffects": [
 		"*.css"
@@ -25,7 +25,9 @@
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/noise": "workspace:*",
 		"@remotion/paths": "workspace:*",
+		"@remotion/rough-notation": "workspace:*",
 		"@remotion/shapes": "workspace:*",
+		"@remotion/sfx": "workspace:*",
 		"@remotion/starburst": "workspace:*",
 		"@remotion/svg-3d-engine": "workspace:*",
 		"@remotion/captions": "workspace:*",

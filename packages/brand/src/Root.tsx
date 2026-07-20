@@ -45,6 +45,10 @@ import {
 	patternEffectShowcaseDurationInFrames,
 } from './effects/PatternEffectShowcase';
 import {
+	RoughNotationShowcase,
+	roughNotationShowcaseDurationInFrames,
+} from './effects/RoughNotationShowcase';
+import {
 	StarburstEffectShowcase,
 	starburstEffectShowcaseDurationInFrames,
 } from './effects/StarburstEffectShowcase';
@@ -80,6 +84,7 @@ import {
 	rulesEnumerationSchema,
 } from './RulesEnumeration/RulesEnumeration';
 import {ProductHuntLogo} from './ScalingLogo';
+import {SfxShowcase, sfxShowcaseDurationInFrames} from './Sfx/SfxShowcase';
 import {ShipCard, shipCardDurationInFrames} from './ShipCard';
 import {
 	HTML_IN_CANVAS_ALL_EFFECTS_DURATION,
@@ -88,6 +93,7 @@ import {
 	htmlInCanvasAllEffectsDefaultProps,
 	htmlInCanvasAllEffectsSchema,
 } from './Showcase/HtmlInCanvasAllEffects';
+import {SvgLogoCompositions} from './SvgLogos';
 import {
 	FlyingCardsLeft,
 	flyingCardsLeftSchema,
@@ -157,6 +163,7 @@ export const RemotionRoot: React.FC = () => {
 					}}
 				/>
 			</Folder>
+			<SvgLogoCompositions />
 			<Folder name="homepage-assets">
 				<Composition
 					id="NpmInitVideo"
@@ -249,6 +256,14 @@ export const RemotionRoot: React.FC = () => {
 			/>
 			<Folder name="showcase">
 				<Composition
+					id="sfx-showcase"
+					component={SfxShowcase}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={sfxShowcaseDurationInFrames}
+				/>
+				<Composition
 					id="html-in-canvas-all-effects"
 					component={HtmlInCanvasAllEffects}
 					fps={30}
@@ -286,6 +301,14 @@ export const RemotionRoot: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="effects">
+				<Composition
+					id="rough-notation-showcase"
+					component={RoughNotationShowcase}
+					durationInFrames={roughNotationShowcaseDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
 				<Composition
 					id="corner-pin-effect-showcase"
 					component={CornerPinEffectShowcase}

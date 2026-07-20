@@ -19,9 +19,11 @@ import type {
 	CanUpdateSequencePropStatus,
 	ExtrapolateType,
 	InteractivitySchema,
+	InterpolateOutputOption,
 	JsxComponentIdentity,
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
+	VideoConfigValues,
 } from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
 import type {ComponentProp} from './component-drag-data';
@@ -275,8 +277,10 @@ export type SubscribeToSequencePropsRequest = {
 	nodePath: SequenceNodePath | null;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
+	assetKeys: string[];
 	effects: string[][];
 	clientId: string;
+	videoConfigValues: VideoConfigValues;
 };
 
 export type SubscribeToSequencePropsResponse =
@@ -295,6 +299,7 @@ export type UnsubscribeFromSequencePropsRequest = {
 	nodePath: SequencePropsSubscriptionKey;
 	clientId: string;
 	sequenceKeys: string[];
+	assetKeys: string[];
 	effectKeys: string[][];
 };
 
@@ -459,6 +464,7 @@ export type DeleteSequenceKeyframe = {
 	key: string;
 	frame: number;
 	schema: InteractivitySchema;
+	valueWhenLastKeyframeDeleted?: unknown;
 };
 
 export type MoveSequenceKeyframe = {
@@ -491,6 +497,7 @@ export type DeleteEffectKeyframe = {
 	key: string;
 	frame: number;
 	schema: InteractivitySchema;
+	valueWhenLastKeyframeDeleted?: unknown;
 };
 
 export type MoveEffectKeyframe = {
@@ -558,6 +565,7 @@ export type KeyframeSettings =
 				  }
 				| undefined;
 			posterize: number | undefined;
+			output: InterpolateOutputOption | undefined;
 	  }
 	| {
 			type: 'easing';
@@ -620,6 +628,7 @@ export type PasteEffectsRequest = {
 	type: EffectClipboardPasteType;
 	effects: EffectClipboardSnapshot[];
 	clientId: string;
+	insertAtIndices: number[] | null;
 };
 
 export type PasteEffectsResponse =
@@ -768,12 +777,14 @@ export type ElementInstallRequest = {
 };
 
 export type UpdateElementInstallTargetRequest = {
+	requestId: string | null;
 	clientId: string;
 	compositionFile: string | null;
 	compositionId: string | null;
 	canInstall: boolean;
 	lastFocusedAt: number | null;
 	readOnly: boolean;
+	studioUrl: string;
 };
 
 export type UpdateElementInstallTargetResponse = {};

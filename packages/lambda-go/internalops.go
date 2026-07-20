@@ -5,17 +5,19 @@ import (
 )
 
 func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions, error) {
-
-	inputProps, serializeError := serializeInputProps(options.InputProps, "video-or-audio")
-
-	if serializeError != nil {
-		return nil, serializeError
-	}
 	validate := validator.New()
 	validationErrors := validate.Struct(options)
 	if validationErrors != nil {
 
 		return nil, validationErrors
+	}
+
+	// Serialize (and, if too large, upload) inputProps only after validation so
+	// that an invalid request does not trigger S3 side effects.
+	inputProps, serializeError := serializeInputProps(options.InputProps, options.Region, "video-or-audio", options.ForceBucketName, options.ForcePathStyle)
+
+	if serializeError != nil {
+		return nil, serializeError
 	}
 
 	jpegQuality := 80

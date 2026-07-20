@@ -377,6 +377,12 @@ const CanvasImageWithPrivateProps = CanvasImage as React.ComponentType<
 >;
 
 export const imgSchema = {
+	src: {
+		type: 'asset',
+		default: undefined,
+		description: 'Source',
+		keyframable: false,
+	},
 	...baseSchema,
 	...transformSchema,
 } as const satisfies InteractivitySchema;

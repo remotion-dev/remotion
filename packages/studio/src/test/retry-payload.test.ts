@@ -16,7 +16,6 @@ const getClientVideoJob = (
 	logLevel: 'info',
 	licenseKey: null,
 	scale: 1,
-	allowHtmlInCanvas: false,
 	container: 'mp4',
 	videoCodec: 'h264',
 	audioCodec: 'aac',

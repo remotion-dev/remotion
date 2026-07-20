@@ -4,12 +4,12 @@
 	},
 	"name": "docs",
 	"private": true,
-	"version": "4.0.488",
+	"version": "4.0.494",
 	"scripts": {
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"docusaurus": "docusaurus",
-		"start": "bun copy-raw-docs.ts && bun fetch-prompt-submissions.ts && bun update-prompt.ts && cd .. && bun run build && cd docs && docusaurus start --host 0.0.0.0",
+		"start": "bun copy-raw-docs.ts && bun fetch-prompt-submissions.ts && bun update-prompt.ts && cd .. && bun run build && cd docs && bun prewarm-twoslash.ts && docusaurus start --host 0.0.0.0",
 		"build-docs": "bun build-docs.ts",
 		"swizzle": "docusaurus swizzle",
 		"deploy": "docusaurus deploy",
@@ -18,10 +18,12 @@
 		"lint": "eslint src components",
 		"test": "bun test src",
 		"remotion": "remotion studio src/remotion/entry.ts",
-		"render-cards": "bun run render-cards.ts"
+		"render-cards": "bun run render-cards.ts",
+		"render-element-previews": "bun run render-element-previews.ts"
 	},
 	"dependencies": {
 		"@aws-sdk/s3-request-presigner": "catalog:",
+		"@babel/parser": "7.24.1",
 		"@babel/plugin-transform-modules-commonjs": "7.27.1",
 		"@docusaurus/core": "3.10.1",
 		"@docusaurus/faster": "3.10.1",
@@ -60,6 +62,7 @@
 		"@remotion/layout-utils": "workspace:*",
 		"@remotion/licensing": "workspace:*",
 		"@remotion/light-leaks": "workspace:*",
+		"@remotion/rough-notation": "workspace:*",
 		"@remotion/lottie": "workspace:*",
 		"@remotion/media": "workspace:*",
 		"@remotion/media-parser": "workspace:*",

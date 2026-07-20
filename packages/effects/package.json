@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.488",
+	"version": "4.0.494",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -48,6 +48,11 @@
 			"types": "./dist/burlap.d.ts",
 			"module": "./dist/esm/burlap.mjs",
 			"import": "./dist/esm/burlap.mjs"
+		},
+		"./flannel": {
+			"types": "./dist/flannel.d.ts",
+			"module": "./dist/esm/flannel.mjs",
+			"import": "./dist/esm/flannel.mjs"
 		},
 		"./checkerboard": {
 			"types": "./dist/checkerboard.d.ts",
@@ -169,10 +174,20 @@
 			"module": "./dist/esm/linear-gradient-tint.mjs",
 			"import": "./dist/esm/linear-gradient-tint.mjs"
 		},
+		"./liquid-contours": {
+			"types": "./dist/liquid-contours.d.ts",
+			"module": "./dist/esm/liquid-contours.mjs",
+			"import": "./dist/esm/liquid-contours.mjs"
+		},
 		"./linear-progressive-blur": {
 			"types": "./dist/linear-progressive-blur.d.ts",
 			"module": "./dist/esm/linear-progressive-blur.mjs",
 			"import": "./dist/esm/linear-progressive-blur.mjs"
+		},
+		"./linear-progressive-pixelate": {
+			"types": "./dist/linear-progressive-pixelate.d.ts",
+			"module": "./dist/esm/linear-progressive-pixelate.mjs",
+			"import": "./dist/esm/linear-progressive-pixelate.mjs"
 		},
 		"./light-trail": {
 			"types": "./dist/light-trail.d.ts",
@@ -219,6 +234,11 @@
 			"module": "./dist/esm/radial-progressive-blur.mjs",
 			"import": "./dist/esm/radial-progressive-blur.mjs"
 		},
+		"./radial-progressive-pixelate": {
+			"types": "./dist/radial-progressive-pixelate.d.ts",
+			"module": "./dist/esm/radial-progressive-pixelate.mjs",
+			"import": "./dist/esm/radial-progressive-pixelate.mjs"
+		},
 		"./rings": {
 			"types": "./dist/rings.d.ts",
 			"module": "./dist/esm/rings.mjs",
@@ -248,6 +268,11 @@
 			"types": "./dist/shrinkwrap.d.ts",
 			"module": "./dist/esm/shrinkwrap.mjs",
 			"import": "./dist/esm/shrinkwrap.mjs"
+		},
+		"./skew": {
+			"types": "./dist/skew.d.ts",
+			"module": "./dist/esm/skew.mjs",
+			"import": "./dist/esm/skew.mjs"
 		},
 		"./speckle": {
 			"types": "./dist/speckle.d.ts",
@@ -322,6 +347,9 @@
 			"burlap": [
 				"dist/burlap.d.ts"
 			],
+			"flannel": [
+				"dist/flannel.d.ts"
+			],
 			"checkerboard": [
 				"dist/checkerboard.d.ts"
 			],
@@ -394,8 +422,14 @@
 			"linear-gradient-tint": [
 				"dist/linear-gradient-tint.d.ts"
 			],
+			"liquid-contours": [
+				"dist/liquid-contours.d.ts"
+			],
 			"linear-progressive-blur": [
 				"dist/linear-progressive-blur.d.ts"
+			],
+			"linear-progressive-pixelate": [
+				"dist/linear-progressive-pixelate.d.ts"
 			],
 			"light-trail": [
 				"dist/light-trail.d.ts"
@@ -424,6 +458,9 @@
 			"radial-progressive-blur": [
 				"dist/radial-progressive-blur.d.ts"
 			],
+			"radial-progressive-pixelate": [
+				"dist/radial-progressive-pixelate.d.ts"
+			],
 			"rings": [
 				"dist/rings.d.ts"
 			],
@@ -441,6 +478,9 @@
 			],
 			"shrinkwrap": [
 				"dist/shrinkwrap.d.ts"
+			],
+			"skew": [
+				"dist/skew.d.ts"
 			],
 			"speckle": [
 				"dist/speckle.d.ts"

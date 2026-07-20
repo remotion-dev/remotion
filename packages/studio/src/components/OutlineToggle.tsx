@@ -3,7 +3,9 @@ import {BLUE, WHITE} from '../helpers/colors';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
 import {ControlButton} from './ControlButton';
 
-export const OutlineToggle: React.FC = () => {
+export const OutlineToggle: React.FC<{
+	readonly disabled: boolean;
+}> = ({disabled}) => {
 	const {editorShowOutlines, setEditorShowOutlines} = useContext(
 		EditorShowOutlinesContext,
 	);
@@ -21,6 +23,7 @@ export const OutlineToggle: React.FC = () => {
 		<ControlButton
 			title={accessibilityLabel}
 			aria-label={accessibilityLabel}
+			disabled={disabled}
 			onClick={onClick}
 		>
 			<svg

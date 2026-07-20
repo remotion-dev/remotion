@@ -9,6 +9,7 @@ import {
 	rmdirSync,
 	rmSync,
 	statSync,
+	symlinkSync,
 	unlinkSync,
 } from 'node:fs';
 import os from 'node:os';
@@ -30,6 +31,7 @@ function isMusl() {
 }
 
 const targets = [
+	'x86_64-pc-windows-gnu',
 	'x86_64-unknown-linux-musl',
 	'aarch64-unknown-linux-gnu',
 	'x86_64-unknown-linux-gnu',
@@ -239,6 +241,41 @@ for (const arch of archs) {
 		);
 	}
 
+	let windowsLinkerDirectory: string | null = null;
+	if (arch === 'x86_64-pc-windows-gnu') {
+		// GNU ld looks for unversioned lib*.dll names, while the FFmpeg
+		// archive contains versioned DLLs such as avcodec-61.dll.
+		windowsLinkerDirectory = path.join(
+			process.cwd(),
+			'target',
+			'windows-ffmpeg-linker',
+		);
+		rmSync(windowsLinkerDirectory, {force: true, recursive: true});
+		mkdirSync(windowsLinkerDirectory, {recursive: true});
+
+		for (const library of [
+			'avcodec',
+			'avdevice',
+			'avfilter',
+			'avformat',
+			'avutil',
+			'swresample',
+			'swscale',
+		]) {
+			const dll = filesInFfmpegFolder2.find(
+				(file) => file.startsWith(`${library}-`) && file.endsWith('.dll'),
+			);
+			if (!dll) {
+				throw new Error(`Could not find ${library} DLL for ${arch}`);
+			}
+
+			symlinkSync(
+				path.resolve(copyDestinations[arch].dir, dll),
+				path.join(windowsLinkerDirectory, `lib${library}.dll`),
+			);
+		}
+	}
+
 	const command = `cargo build ${debug ? '' : '--release'} --target=${arch}`;
 	console.log(command);
 
@@ -253,8 +290,15 @@ for (const arch of archs) {
 		? `-C link-args=-Wl,-headerpad_max_install_names`
 		: '';
 
+	// mingw-w64 14 split the CRT: plain vsnprintf_s (and other secure CRT
+	// functions) now live in libmsvcrt-os.a rather than libmsvcrt.a. Rust's
+	// windows-gnu link passes -nodefaultlibs with -lmsvcrt but not
+	// -lmsvcrt-os, so link -lmsvcrt-os explicitly to resolve them.
+	const windowsCrtFix =
+		arch === 'x86_64-pc-windows-gnu' ? `-C link-arg=-lmsvcrt-os` : '';
+
 	const optimizations = all
-		? `-C opt-level=3 -C lto=fat -C strip=debuginfo -C embed-bitcode=yes ${rPathOrigin} ${macOSHeaderPad}`
+		? `-C opt-level=3 -C lto=fat -C strip=debuginfo -C embed-bitcode=yes ${rPathOrigin} ${macOSHeaderPad} ${windowsCrtFix} ${windowsLinkerDirectory ? `-Lnative=${windowsLinkerDirectory}` : ''}`
 		: macOSHeaderPad;
 
 	execSync(command, {
@@ -286,6 +330,9 @@ for (const arch of archs) {
 	const copyInstructions = copyDestinations[arch];
 
 	copyFileSync(copyInstructions.from, copyInstructions.to);
+	if (windowsLinkerDirectory) {
+		rmSync(windowsLinkerDirectory, {recursive: true});
+	}
 
 	const output = execSync('npm pack --json', {
 		cwd: copyDestinations[arch].dir,

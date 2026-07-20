@@ -73,23 +73,9 @@ AI Agents like Claude Code can help you do most of this work. This is an example
 Remember to review AI-generated code and finetune it.  
 Sloppy, unfiltered AI PRs will not be processed by us.
 
-## Enabling the Studio Render Button
+## Studio Render Button
 
-Enable the experimental client-side rendering flag in your `remotion.config.ts`:
-
-```ts
-import {Config} from '@remotion/cli/config';
-
-Config.setExperimentalClientSideRenderingEnabled(true);
-```
-
-Or pass the `--enable-experimental-client-side-rendering` flag when starting the Studio:
-
-```sh
-npx remotion studio --enable-experimental-client-side-rendering
-```
-
-Now, in [`packages/example`](/docs/contributing/#testing-your-changes), and in any template, you will see a "Render on web" button.
+In [`packages/example`](/docs/contributing/#testing-your-changes), and in any template, you will see a "Render on web" button.
 
 ## See also
 

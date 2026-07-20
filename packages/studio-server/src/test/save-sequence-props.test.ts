@@ -75,6 +75,7 @@ test('saveSequenceProps forwards element schemas to the codemod', () => {
 			nodePath: ['program', 'body', 0],
 			sequenceKeys: [],
 			effectKeys: [],
+			videoConfigValues: null,
 		},
 		key: 'points',
 		value: 7,
@@ -94,6 +95,7 @@ test('saveSequenceProps forwards element schemas to the codemod', () => {
 			},
 		],
 		schema: starSchema,
+		videoConfigValues: null,
 	});
 });
 
@@ -129,6 +131,7 @@ export const Comp = () => {
 		nodePath: lineColumnToNodePath(input, 6),
 		sequenceKeys: ['from', 'style.opacity'],
 		effectKeys: [],
+		videoConfigValues: null,
 	};
 
 	try {

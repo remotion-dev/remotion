@@ -137,6 +137,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				projectName: 'template-blank',
 				publicFiles: makeStaticFiles(project.publicFiles),
 				publicFolderExists: null,
+				fileSystemPlatform: null,
 				publicPath: '',
 				readOnlyStudio: readOnly,
 				remotionRoot: project.rootDir,
@@ -147,7 +148,6 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				studioRuntimeConfig: {
 					askAIEnabled: false,
 					bufferStateDelayInMilliseconds: null,
-					experimentalClientSideRenderingEnabled: false,
 					interactivityEnabled: true,
 					keyboardShortcutsEnabled: true,
 					maxTimelineTracks: null,

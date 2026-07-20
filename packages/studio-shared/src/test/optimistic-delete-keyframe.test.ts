@@ -22,6 +22,7 @@ test('optimisticDeleteSequenceKeyframe removes the matching keyframe and an easi
 				easing: [{type: 'linear'}, {type: 'linear'}],
 				clamping: {left: 'extend', right: 'extend'},
 				posterize: undefined,
+				output: undefined,
 			},
 		},
 		effects: [],
@@ -69,6 +70,7 @@ test('optimisticDeleteSequenceKeyframe preserves the left segment easing when re
 				],
 				clamping: {left: 'extend', right: 'extend'},
 				posterize: undefined,
+				output: undefined,
 			},
 		},
 		effects: [],
@@ -106,6 +108,7 @@ test('optimisticDeleteSequenceKeyframe converts the last keyframe to a static va
 				easing: [],
 				clamping: {left: 'extend', right: 'extend'},
 				posterize: undefined,
+				output: undefined,
 			},
 		},
 		effects: [],
@@ -138,6 +141,7 @@ test('optimisticDeleteSequenceKeyframe is a no-op when no keyframe matches', () 
 				easing: [],
 				clamping: {left: 'extend', right: 'extend'},
 				posterize: undefined,
+				output: undefined,
 			},
 		},
 		effects: [],
@@ -184,6 +188,7 @@ test('optimisticDeleteSequenceKeyframes deletes multiple keyframes in one pass',
 				easing: [{type: 'linear'}, {type: 'linear'}],
 				clamping: {left: 'extend', right: 'extend'},
 				posterize: undefined,
+				output: undefined,
 			},
 		},
 		effects: [],
@@ -210,6 +215,48 @@ test('optimisticDeleteSequenceKeyframes deletes multiple keyframes in one pass',
 	expect(status.easing).toEqual([]);
 });
 
+test('optimisticDeleteSequenceKeyframes uses the playhead value when deleting all keyframes', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {
+			width: {
+				status: 'keyframed',
+				interpolationFunction: 'interpolate',
+				keyframes: [
+					{frame: 0, value: 100},
+					{frame: 30, value: 200},
+				],
+				easing: [{type: 'linear'}],
+				clamping: {left: 'extend', right: 'extend'},
+				posterize: undefined,
+				output: undefined,
+			},
+		},
+		effects: [],
+	};
+
+	const updated = optimisticDeleteSequenceKeyframes({
+		previous,
+		keyframes: [
+			{
+				fieldKey: 'width',
+				frame: 0,
+				valueWhenLastKeyframeDeleted: 150,
+			},
+			{
+				fieldKey: 'width',
+				frame: 30,
+				valueWhenLastKeyframeDeleted: 150,
+			},
+		],
+	});
+
+	expect(updated.canUpdate && updated.props.width).toEqual({
+		status: 'static',
+		codeValue: 150,
+	});
+});
+
 test('optimisticDeleteEffectKeyframe removes the matching keyframe on the target effect', () => {
 	const previous: CanUpdateSequencePropsResponse = {
 		canUpdate: true,
@@ -231,6 +278,7 @@ test('optimisticDeleteEffectKeyframe removes the matching keyframe on the target
 						easing: [{type: 'linear'}],
 						clamping: {left: 'extend', right: 'extend'},
 						posterize: undefined,
+						output: undefined,
 					},
 				},
 			},
@@ -280,6 +328,7 @@ test('optimisticDeleteEffectKeyframe converts the last keyframe on the target ef
 						easing: [],
 						clamping: {left: 'extend', right: 'extend'},
 						posterize: undefined,
+						output: undefined,
 					},
 				},
 			},
@@ -347,6 +396,7 @@ test('optimisticDeleteEffectKeyframes deletes multiple keyframes in one pass', (
 						easing: [{type: 'linear'}, {type: 'linear'}],
 						clamping: {left: 'extend', right: 'extend'},
 						posterize: undefined,
+						output: undefined,
 					},
 				},
 			},
@@ -377,4 +427,57 @@ test('optimisticDeleteEffectKeyframes deletes multiple keyframes in one pass', (
 
 	expect(status.keyframes).toEqual([{frame: 30, value: 0.5}]);
 	expect(status.easing).toEqual([]);
+});
+
+test('optimisticDeleteEffectKeyframes uses the playhead value when deleting all keyframes', () => {
+	const previous: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {},
+		effects: [
+			{
+				canUpdate: true,
+				effectIndex: 0,
+				callee: 'tint',
+				importPath: null,
+				props: {
+					amount: {
+						status: 'keyframed',
+						interpolationFunction: 'interpolate',
+						keyframes: [
+							{frame: 0, value: 0},
+							{frame: 30, value: 1},
+						],
+						easing: [{type: 'linear'}],
+						clamping: {left: 'extend', right: 'extend'},
+						posterize: undefined,
+						output: undefined,
+					},
+				},
+			},
+		],
+	};
+
+	const updated = optimisticDeleteEffectKeyframes({
+		previous,
+		keyframes: [
+			{
+				effectIndex: 0,
+				fieldKey: 'amount',
+				frame: 0,
+				valueWhenLastKeyframeDeleted: 0.5,
+			},
+			{
+				effectIndex: 0,
+				fieldKey: 'amount',
+				frame: 30,
+				valueWhenLastKeyframeDeleted: 0.5,
+			},
+		],
+	});
+
+	const effect = updated.canUpdate ? updated.effects[0] : null;
+	expect(effect?.canUpdate && effect.props.amount).toEqual({
+		status: 'static',
+		codeValue: 0.5,
+	});
 });

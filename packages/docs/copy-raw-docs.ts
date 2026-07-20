@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import {expandElementSourceReferences} from './plugins/element-source-utils.js';
 import {articles} from './src/data/articles';
+import {expandRawMarkdownComponents} from './src/raw-markdown/replace-components';
 
 const DOCS_DIR = path.join(__dirname, 'docs');
 const ELEMENTS_DIR = path.join(__dirname, 'elements');
@@ -21,7 +22,10 @@ const writeRawMarkdown = ({
 		fs.mkdirSync(destDir, {recursive: true});
 	}
 
-	const raw = fs.readFileSync(sourcePath, 'utf8');
+	const raw = expandRawMarkdownComponents({
+		raw: fs.readFileSync(sourcePath, 'utf8'),
+		sourcePath,
+	});
 	fs.writeFileSync(
 		destPath,
 		expandElementSourceReferences({

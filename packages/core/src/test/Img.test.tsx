@@ -33,17 +33,16 @@ const stub2dContext = () => ({
 	putImageData: () => undefined,
 });
 
-(
-	HTMLCanvasElement.prototype as unknown as {
-		getContext: (kind: string) => unknown;
-	}
-).getContext = function (kind: string) {
-	if (kind === '2d') {
-		return stub2dContext();
-	}
+Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
+	configurable: true,
+	value: (kind: string) => {
+		if (kind === '2d') {
+			return stub2dContext();
+		}
 
-	return null;
-};
+		return null;
+	},
+});
 
 class MockImage {
 	public onload: (() => void) | null = null;
@@ -328,7 +327,13 @@ test('Img with effects renders through the canvas image path', async () => {
 	expect(applyCalls[0].height).toBe(50);
 });
 
-test('<Img> schema does not expose fit', () => {
+test('<Img> schema exposes src but not fit', () => {
+	expect(imgSchema.src).toEqual({
+		type: 'asset',
+		default: undefined,
+		description: 'Source',
+		keyframable: false,
+	});
 	expect(Object.keys(imgSchema)).not.toContain('fit');
 });
 

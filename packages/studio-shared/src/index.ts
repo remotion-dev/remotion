@@ -130,6 +130,7 @@ export {
 } from './component-drag-data';
 export {
 	COMPOSITION_DRAG_MIME_TYPE,
+	compositionDragDataToSymbolicatedStack,
 	makeCompositionDragData,
 	parseCompositionDragData,
 	type CompositionDragData,
@@ -201,7 +202,7 @@ export {
 } from './element-drag-data';
 export {EventSourceEvent} from './event-source-event';
 export {formatBytes} from './format-bytes';
-export {getAllSchemaKeys} from './get-all-keys';
+export {getAllSchemaKeys, getAssetSchemaKeys} from './get-all-keys';
 export {getDefaultOutLocation} from './get-default-out-name';
 export {
 	ErrorLocation,
@@ -228,6 +229,7 @@ export {
 	type KeyframeEasingPreset,
 } from './keyframe-easing-presets';
 export {
+	canEditEasingForInterpolationFunction,
 	getKeyframeInterpolationFunction,
 	getKeyframeInterpolationFunctionForSchemaField,
 	isInteractivitySchemaFieldKeyframable,
@@ -236,6 +238,14 @@ export {
 	keyframeInterpolationFunctions,
 	type KeyframeInterpolationFunction,
 } from './keyframe-interpolation-function';
+export {
+	isKeyframeClipboardFieldType,
+	parseKeyframeClipboardData,
+	parseKeyframeClipboardDataResult,
+	type KeyframeClipboardData,
+	type KeyframeClipboardDataParseResult,
+	type KeyframeClipboardFieldType,
+} from './keyframe-clipboard-data';
 export {DEFAULT_TIMELINE_TRACKS} from './max-timeline-tracks';
 export {
 	Pkgs,
@@ -274,6 +284,7 @@ export type {CompletedClientRender} from './render-job';
 export {
 	getRequiredPackageForEffectImportPath,
 	getRequiredPackageForInsertableElement,
+	isValidPackageName,
 } from './required-package';
 export {
 	SCHEMA_FIELD_GROUPS,

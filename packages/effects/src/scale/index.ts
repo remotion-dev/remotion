@@ -16,6 +16,7 @@ const scaleSchema = {
 		default: 1,
 		description: 'Factor',
 		hiddenFromList: false,
+		defaultKeyframeOutput: 'perceptual-scale',
 	},
 	horizontal: {
 		type: 'boolean',

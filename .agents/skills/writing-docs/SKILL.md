@@ -36,6 +36,8 @@ crumb: '@remotion/my-package'
 
 **Compatibility tables**: API pages should ideally include a `## Compatibility` section with `<CompatibilityTable>` before `## See also`.
 
+**Sidebar order**: When adding or moving docs in `packages/docs/sidebars.ts`, inspect the surrounding entries and match the ordering logic already used there. If a section is alphabetical, place the new entry alphabetically; if it is grouped by workflow or importance, place it consistently with that grouping. Do not leave new additions as one-off outliers.
+
 ## Language guidelines
 
 - **Keep it brief**: Developers don't like to read. Extra words cause information loss.

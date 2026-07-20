@@ -11,6 +11,7 @@ import {ModalHeader} from '../ModalHeader';
 import {label, optionRow, rightRow} from '../RenderModal/layout';
 import {CodemodFooter} from './CodemodFooter';
 import {DismissableModal} from './DismissableModal';
+import {getNewCompositionDefaults} from './get-new-composition-defaults';
 import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {InputDragger} from './InputDragger';
 import {NewCompDuration} from './NewCompDuration';
@@ -35,15 +36,24 @@ const NewCompositionLoaded: React.FC<{
 	readonly stack: string | null;
 }> = ({folderName, parentName, stack}) => {
 	const {compositions} = useContext(Internals.CompositionManager);
+	const resolvedComposition = Internals.useResolvedVideoConfig(null);
+	const initialComposition =
+		resolvedComposition?.type === 'success' ||
+		resolvedComposition?.type === 'success-and-refreshing'
+			? resolvedComposition.result
+			: null;
+	const initialDimensions = getNewCompositionDefaults(initialComposition);
 	const [newId, setName] = useState(() =>
 		getUniqueCompositionName(compositions),
 	);
-	const [selectedFrameRate, setFrameRate] = useState(30);
+	const [selectedFrameRate, setFrameRate] = useState(initialDimensions.fps);
 	const [size, setSize] = useState(() => ({
-		width: 1920,
-		height: 1080,
+		width: initialDimensions.width,
+		height: initialDimensions.height,
 	}));
-	const [durationInFrames, setDurationInFrames] = useState(150);
+	const [durationInFrames, setDurationInFrames] = useState(
+		initialDimensions.durationInFrames,
+	);
 
 	const onWidthChanged = useCallback((newValue: string) => {
 		setSize((s) => {

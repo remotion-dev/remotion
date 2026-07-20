@@ -310,5 +310,3 @@ export const LightLeak = Interactive.withSchema({
 });
 
 LightLeak.displayName = 'LightLeak';
-
-Internals.addSequenceStackTraces(LightLeak);

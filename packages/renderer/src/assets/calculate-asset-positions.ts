@@ -5,28 +5,16 @@ import {convertAssetToFlattenedVolume} from './flatten-volume-array';
 import type {Assets, MediaAsset, UnsafeAsset} from './types';
 import {uncompressMediaAsset} from './types';
 
-const areEqual = (a: TRenderAsset | UnsafeAsset, b: TRenderAsset) => {
-	return a.id === b.id;
-};
-
-const findFrom = (target: TRenderAsset[], renderAsset: TRenderAsset) => {
-	const index = target.findIndex((a) => areEqual(a, renderAsset));
-	if (index === -1) {
-		return false;
-	}
-
-	target.splice(index, 1);
-	return true;
-};
-
-const copyAndDeduplicateAssets = (
+const deduplicateAssets = (
 	renderAssets: TRenderAsset[],
 ): AudioOrVideoAsset[] => {
 	const onlyAudioAndVideo = onlyAudioAndVideoAssets(renderAssets);
+	const seenIds = new Set<string>();
 	const deduplicated: AudioOrVideoAsset[] = [];
 
 	for (const renderAsset of onlyAudioAndVideo) {
-		if (!deduplicated.find((d) => d.id === renderAsset.id)) {
+		if (!seenIds.has(renderAsset.id)) {
+			seenIds.add(renderAsset.id);
 			deduplicated.push(renderAsset);
 		}
 	}
@@ -34,21 +22,72 @@ const copyAndDeduplicateAssets = (
 	return deduplicated;
 };
 
+const indexUncompressedAssets = (renderAssets: AudioOrVideoAsset[]) => {
+	const referencedAssets = new Set<string>();
+	for (const renderAsset of renderAssets) {
+		if (renderAsset.src.startsWith('same-as')) {
+			referencedAssets.add(renderAsset.src);
+		}
+	}
+
+	const assetsByReference = new Map<string, AudioOrVideoAsset>();
+
+	for (const renderAsset of renderAssets) {
+		if (referencedAssets.size === 0) {
+			break;
+		}
+
+		if (renderAsset.src.startsWith('same-as')) {
+			continue;
+		}
+
+		const reference = `same-as-${renderAsset.id}-${renderAsset.frame}`;
+		if (referencedAssets.has(reference)) {
+			assetsByReference.set(reference, renderAsset);
+			referencedAssets.delete(reference);
+		}
+	}
+
+	return assetsByReference;
+};
+
 export const calculateAssetPositions = (
 	frames: AudioOrVideoAsset[][],
 ): Assets => {
 	const assets: UnsafeAsset[] = [];
+	// Assets that have started but not yet ended, keyed by asset id.
+	// Since assets are deduplicated by id within a frame, at most one
+	// asset per id is open at a time.
+	const openAssets = new Map<string, UnsafeAsset>();
 
 	const flattened = frames.flat(1);
+	const uncompressedAssets = indexUncompressedAssets(flattened);
 	for (let frame = 0; frame < frames.length; frame++) {
-		const prev = copyAndDeduplicateAssets(frames[frame - 1] ?? []);
-		const current = copyAndDeduplicateAssets(frames[frame]);
-		const next = copyAndDeduplicateAssets(frames[frame + 1] ?? []);
+		const current = deduplicateAssets(frames[frame]);
+		const currentIds = new Set(current.map((a) => a.id));
+
+		for (const [id, openAsset] of openAssets) {
+			if (!currentIds.has(id)) {
+				// The asset was last present on the previous frame.
+				// Duration calculation:
+				// start 0, present for frames 0-59, gone at frame 60:
+				// 60 - 0 ==> 60 frames duration
+				openAsset.duration = frame - openAsset.startInVideo;
+				openAssets.delete(id);
+			}
+		}
 
 		for (const asset of current) {
-			if (!findFrom(prev, asset)) {
-				assets.push({
-					src: resolveAssetSrc(uncompressMediaAsset(flattened, asset).src),
+			let openAsset = openAssets.get(asset.id);
+			if (openAsset === undefined) {
+				const uncompressedAsset = uncompressedAssets.get(asset.src);
+				openAsset = {
+					src: resolveAssetSrc(
+						uncompressMediaAsset(
+							uncompressedAsset ? [uncompressedAsset] : flattened,
+							asset,
+						).src,
+					),
 					type: asset.type,
 					duration: null,
 					id: asset.id,
@@ -59,22 +98,18 @@ export const calculateAssetPositions = (
 					toneFrequency: asset.toneFrequency,
 					audioStartFrame: asset.audioStartFrame,
 					audioStreamIndex: asset.audioStreamIndex,
-				});
+				};
+				assets.push(openAsset);
+				openAssets.set(asset.id, openAsset);
 			}
 
-			const found = assets.find(
-				(a) => a.duration === null && areEqual(a, asset),
-			);
-			if (!found) throw new Error('something wrong');
-			if (!findFrom(next, asset)) {
-				// Duration calculation:
-				// start 0, range 0-59:
-				// 59 - 0 + 1 ==> 60 frames duration
-				found.duration = frame - found.startInVideo + 1;
-			}
-
-			found.volume.push(asset.volume);
+			openAsset.volume.push(asset.volume);
 		}
+	}
+
+	// Assets that lasted until the end of the video.
+	for (const openAsset of openAssets.values()) {
+		openAsset.duration = frames.length - openAsset.startInVideo;
 	}
 
 	for (const asset of assets) {

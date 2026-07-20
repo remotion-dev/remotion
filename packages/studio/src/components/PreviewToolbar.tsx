@@ -261,10 +261,10 @@ export const PreviewToolbar: React.FC<{
 						<CheckboardToggle />
 					</PreviewToolbarControl>
 					<PreviewToolbarControl>
-						<OutlineToggle />
+						<OutlineToggle disabled={readOnlyStudio} />
 					</PreviewToolbarControl>
 					<PreviewToolbarControl>
-						<SnappingToggle />
+						<SnappingToggle disabled={readOnlyStudio} />
 					</PreviewToolbarControl>
 				</>
 			) : null}

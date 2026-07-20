@@ -7,11 +7,8 @@ Give the user a notice.
 
 ## Nesting
 
-Do not nest `<HtmlInCanvas>` inside another `<HtmlInCanvas>`. Remotion throws:
-
-```
-<HtmlInCanvas> effects cannot be nested together. Chrome will only display the outer effect. Consider merging the effects into one if you can.
-```
+`<HtmlInCanvas>` components may be nested in Chrome 152.0.7944.0 and later.
+Older Chrome versions support a single `<HtmlInCanvas>`, but do not correctly paint nested HTML-in-canvas subtrees.
 
 ## Enabling WebGL during renders
 

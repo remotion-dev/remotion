@@ -22,6 +22,7 @@ import {
 } from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
 import type {AssetFolder, AssetStructure} from '../helpers/create-folder-tree';
+import {getFileManagerName} from '../helpers/get-file-manager-name';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {
 	markAssetSidebarScrollFromRowClick,
@@ -279,6 +280,9 @@ const AssetSelectorItem: React.FC<{
 	readonly parentFolder: string;
 	readonly readOnlyStudio: boolean;
 }> = ({item, tabIndex, level, parentFolder, readOnlyStudio}) => {
+	const fileManagerName = getFileManagerName(
+		window.remotion_fileSystemPlatform,
+	);
 	const isMobileLayout = useMobileLayout();
 	const [hovered, setHovered] = useState(false);
 	const [isDragging, setIsDragging] = useState(false);
@@ -497,10 +501,10 @@ const AssetSelectorItem: React.FC<{
 			{
 				id: 'open-asset-in-explorer',
 				keyHint: null,
-				label: 'Open in Explorer',
+				label: `Show in ${fileManagerName}`,
 				leftItem: null,
 				onClick: openAssetInExplorer,
-				quickSwitcherLabel: 'Open asset in Explorer',
+				quickSwitcherLabel: `Show asset in ${fileManagerName}`,
 				subMenu: null,
 				type: 'item',
 				value: 'open-asset-in-explorer',
@@ -540,8 +544,9 @@ const AssetSelectorItem: React.FC<{
 	}, [
 		copyFileName,
 		copyStaticFilePath,
-		openAssetInExplorer,
 		deleteAsset,
+		fileManagerName,
+		openAssetInExplorer,
 		relativePath,
 		serverActionDisabled,
 		setSelectedModal,
@@ -595,7 +600,7 @@ const AssetSelectorItem: React.FC<{
 								<>
 									<Spacing x={0.5} />
 									<InlineAction
-										title="Open in Explorer"
+										title={`Show in ${fileManagerName}`}
 										renderAction={renderFileExplorerAction}
 										onClick={revealInExplorer}
 									/>

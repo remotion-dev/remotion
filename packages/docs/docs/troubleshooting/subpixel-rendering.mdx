@@ -12,7 +12,6 @@ This leads to an oscillation effect can make your animations less smooth and mor
 
 To counter this effect, you can render your text with:
 
-- A `transform` property
 - An additional `perspective()` transform
 - A `willChange: "transform"` CSS property
 
@@ -35,7 +34,7 @@ Notice the difference in this 200x100 video:
 ```tsx title="Left side of the video"
 <div
   style={{
-    transform: 'translateY(' + interpolate(frame, [0, 200], [0, 50]) + 'px)',
+    translate: interpolate(frame, [0, 200], ['0px 0px', '0px 50px']),
   }}
 >
   hi there
@@ -45,7 +44,8 @@ Notice the difference in this 200x100 video:
 ```tsx title="Right side of the video"
 <div
   style={{
-    transform: 'perspective(100px) translateY(' + interpolate(frame, [0, 200], [0, 50]) + 'px)',
+    translate: interpolate(frame, [0, 200], ['0px 0px', '0px 50px']),
+    transform: 'perspective(100px)',
     willChange: 'transform',
   }}
 >

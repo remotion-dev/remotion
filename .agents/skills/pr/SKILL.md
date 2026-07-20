@@ -10,11 +10,15 @@ If a PR already exists for the current branch, stop: do not format, commit, push
 Ensure we are not on the main branch, make a branch if necessary.  
 Check whether a PR already exists for the current branch with `gh pr status` or `gh pr view`. If it exists, report it and stop.
 
-For all packages affected, run Oxfmt to format the code:
+Run Oxfmt on the files or package directories affected by the current change. Pass their actual paths; do not assume that the repository root has a `src` directory. Include relevant root-level files, and do not format unrelated packages or the whole repository.
+
+For example:
 
 ```
-bunx oxfmt src --write
+bunx oxfmt <changed-file-or-package-directory>... --write
 ```
+
+If none of the changed files are supported by Oxfmt, skip this step. Inspect any formatter changes before committing.
 
 Then run
 

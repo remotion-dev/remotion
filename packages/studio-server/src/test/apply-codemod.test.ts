@@ -1,4 +1,4 @@
-import {expect, test} from 'bun:test';
+import {expect, spyOn, test} from 'bun:test';
 import {
 	existsSync,
 	mkdtempSync,
@@ -15,7 +15,10 @@ import {
 	setFileWatcherRegistry,
 } from '../file-watcher';
 import {setLiveEventsListener} from '../preview-server/live-events';
-import {applyCodemodHandler} from '../preview-server/routes/apply-codemod';
+import {
+	applyCodemodHandler,
+	getCodemodLogMessage,
+} from '../preview-server/routes/apply-codemod';
 import {redoHandler} from '../preview-server/routes/redo';
 import {undoHandler} from '../preview-server/routes/undo';
 import {getRedoStack, getUndoStack} from '../preview-server/undo-stack';
@@ -157,21 +160,160 @@ const clearUndoRedoStacks = () => {
 	(getRedoStack() as unknown as unknown[]).length = 0;
 };
 
+test('formats precise log messages for all codemods', () => {
+	const testCases: {codemod: RecastCodemod; expected: string}[] = [
+		{
+			codemod: {
+				type: 'new-composition',
+				newId: 'FreshVideo',
+				componentName: 'FreshVideo',
+				componentImportPath: './FreshVideo',
+				folderName: 'Shared',
+				parentName: 'Parent',
+				newDurationInFrames: 150,
+				newFps: 30,
+				newHeight: 1080,
+				newWidth: 1920,
+			},
+			expected: 'Created composition "FreshVideo" in folder "Parent/Shared"',
+		},
+		{
+			codemod: {
+				type: 'duplicate-composition',
+				idToDuplicate: 'Original',
+				newId: 'Copy',
+				newDurationInFrames: null,
+				newFps: null,
+				newHeight: null,
+				newWidth: null,
+				tag: 'Composition',
+			},
+			expected: 'Duplicated composition "Original" to "Copy"',
+		},
+		{
+			codemod: {
+				type: 'rename-composition',
+				idToRename: 'Original',
+				newId: 'Renamed',
+			},
+			expected: 'Renamed composition "Original" to "Renamed"',
+		},
+		{
+			codemod: {
+				type: 'update-composition-metadata',
+				idToUpdate: 'Original',
+				newDurationInFrames: null,
+				newFps: null,
+				newHeight: null,
+				newWidth: 1920,
+			},
+			expected: 'Updated metadata of composition "Original"',
+		},
+		{
+			codemod: {type: 'delete-composition', idToDelete: 'DeleteMe'},
+			expected: 'Deleted composition "DeleteMe"',
+		},
+		{
+			codemod: {
+				type: 'move-composition-to-folder',
+				idToMove: 'MoveMe',
+				folderName: 'Shared',
+				parentName: 'Parent',
+			},
+			expected: 'Moved composition "MoveMe" into folder "Parent/Shared"',
+		},
+		{
+			codemod: {
+				type: 'move-composition-to-folder',
+				idToMove: 'MoveMe',
+				folderName: null,
+				parentName: null,
+			},
+			expected: 'Moved composition "MoveMe" to root',
+		},
+		{
+			codemod: {
+				type: 'rename-folder',
+				folderName: 'Old',
+				parentName: 'Parent',
+				newName: 'New',
+			},
+			expected: 'Renamed folder "Parent/Old" to "Parent/New"',
+		},
+		{
+			codemod: {
+				type: 'new-folder',
+				folderName: 'New',
+				parentName: 'Parent',
+			},
+			expected: 'Created folder "Parent/New"',
+		},
+		{
+			codemod: {
+				type: 'delete-folder',
+				folderName: 'DeleteMe',
+				parentName: 'Parent',
+			},
+			expected: 'Deleted folder "Parent/DeleteMe"',
+		},
+		{
+			codemod: {
+				type: 'apply-visual-control',
+				changes: [
+					{
+						id: 'opacity',
+						newValueSerialized: '0.5',
+						newValueIsUndefined: false,
+						enumPaths: [],
+					},
+				],
+			},
+			expected: 'Updated visual control "opacity"',
+		},
+		{
+			codemod: {
+				type: 'apply-visual-control',
+				changes: [
+					{
+						id: 'opacity',
+						newValueSerialized: '0.5',
+						newValueIsUndefined: false,
+						enumPaths: [],
+					},
+					{
+						id: 'scale',
+						newValueSerialized: '2',
+						newValueIsUndefined: false,
+						enumPaths: [],
+					},
+				],
+			},
+			expected: 'Updated visual controls "opacity", "scale"',
+		},
+	];
+
+	for (const {codemod, expected} of testCases) {
+		expect(getCodemodLogMessage(codemod)).toBe(expected);
+	}
+});
+
 const getHandlerOptions = <T>({
 	input,
 	entryPoint,
 	remotionRoot,
+	logLevel = 'error',
 }: {
 	input: T;
 	entryPoint: string;
 	remotionRoot: string;
+	logLevel?: 'error' | 'info';
 }) => ({
 	input,
 	entryPoint,
 	remotionRoot,
 	request: {} as never,
 	response: {} as never,
-	logLevel: 'error' as const,
+	logLevel,
 	methods: {
 		removeJob: () => undefined,
 		cancelJob: () => undefined,
@@ -185,10 +327,12 @@ const runCompositionCodemodUndoRedoTest = async ({
 	codemod,
 	assertApplied,
 	expectedUndoMessage,
+	expectedLogMessage,
 }: {
 	codemod: RecastCodemod;
 	assertApplied: (contents: string) => void;
 	expectedUndoMessage: string;
+	expectedLogMessage?: string;
 }) => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
 	const cleanupFileWatcher = setFileWatcherRegistry(
@@ -201,6 +345,9 @@ const runCompositionCodemodUndoRedoTest = async ({
 		closeConnections: () => Promise.resolve(),
 		addNewClientListener: () => () => undefined,
 	});
+	const consoleSpy = expectedLogMessage
+		? spyOn(console, 'log').mockImplementation(() => undefined)
+		: null;
 
 	try {
 		clearUndoRedoStacks();
@@ -222,6 +369,7 @@ const runCompositionCodemodUndoRedoTest = async ({
 				},
 				entryPoint,
 				remotionRoot,
+				logLevel: expectedLogMessage ? 'info' : 'error',
 			}),
 		);
 
@@ -230,6 +378,11 @@ const runCompositionCodemodUndoRedoTest = async ({
 		expect(getUndoStack().length).toBe(1);
 		expect(getUndoStack()[0].description.undoMessage).toBe(expectedUndoMessage);
 		expect(getRedoStack().length).toBe(0);
+		if (expectedLogMessage) {
+			const logOutput = consoleSpy?.mock.calls.flat().join(' ');
+			expect(logOutput).toContain('Root.tsx:9');
+			expect(logOutput).toContain(expectedLogMessage);
+		}
 
 		const undoResponse = await undoHandler(
 			getHandlerOptions({input: {}, entryPoint, remotionRoot}),
@@ -250,6 +403,7 @@ const runCompositionCodemodUndoRedoTest = async ({
 		clearUndoRedoStacks();
 		cleanupLiveEvents();
 		cleanupFileWatcher();
+		consoleSpy?.mockRestore();
 		rmSync(remotionRoot, {recursive: true, force: true});
 	}
 };
@@ -265,7 +419,7 @@ test('applyCodemodHandler pushes composition deletions to undo and redo stacks',
 	});
 });
 
-test('applyCodemodHandler pushes composition renames to undo and redo stacks', async () => {
+test('applyCodemodHandler logs composition renames and pushes them to the undo and redo stacks', async () => {
 	await runCompositionCodemodUndoRedoTest({
 		codemod: {
 			type: 'rename-composition',
@@ -278,6 +432,7 @@ test('applyCodemodHandler pushes composition renames to undo and redo stacks', a
 			expect(contents).toContain('id="KeepMe"');
 		},
 		expectedUndoMessage: '↩️  Rename of composition "DeleteMe" to "Renamed"',
+		expectedLogMessage: 'Renamed composition "DeleteMe" to "Renamed"',
 	});
 });
 

@@ -16,6 +16,7 @@ const makeNodePathInfo = (
 		nodePath,
 		sequenceKeys: ['from', 'durationInFrames'],
 		effectKeys: [],
+		videoConfigValues: null,
 	} satisfies SequencePropsSubscriptionKey,
 	auxiliaryKeys,
 	index: 0,
@@ -32,6 +33,7 @@ const makeKeyframedStatus = (
 	easing: [{type: 'linear'}, {type: 'linear'}],
 	clamping: {left: 'extend', right: 'extend'},
 	posterize: undefined,
+	output: undefined,
 });
 
 test('derives easing selection endpoints from current keyframes', () => {

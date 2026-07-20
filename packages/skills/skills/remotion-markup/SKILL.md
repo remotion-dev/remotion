@@ -140,6 +140,10 @@ export const Subtitle = () => {
 
 See [map.md](map.md) for choosing between simple static maps, Mapbox maps, and MapLibre maps.
 
+## Text highlights and annotations
+
+See [text-highlights.md](text-highlights.md) for text highlights (highlight markers), circles, underlines, strike-throughs, crossed-off text, boxes, and brackets.
+
 ## Voiceover
 
 See [voiceover.md](voiceover.md) for adding AI-generated voiceover to Remotion compositions using ElevenLabs TTS.
@@ -151,6 +155,10 @@ See [trimming.md](trimming.md) for trimming patterns - cutting the beginning or 
 ## Embedding Videos
 
 See [embedding-videos.md](embedding-videos.md) for advanced knowledge about embedding videos - trimming, volume, speed, looping, pitch.
+
+## Video editing
+
+See [video-editing.md](video-editing.md) for structuring editable video timelines in Remotion Studio.
 
 ## Embedding Audio
 

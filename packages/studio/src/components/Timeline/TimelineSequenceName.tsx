@@ -44,7 +44,11 @@ export const TimelineSequenceName: React.FC<{
 			alignSelf: 'stretch',
 			...getTimelineSelectedLabelStyle(selected, false),
 			display: 'inline-flex',
+			fontFamily: 'inherit',
 			fontSize: 12,
+			lineHeight: 'normal',
+			minWidth: 0,
+			overflow: 'hidden',
 			whiteSpace: 'nowrap',
 			textOverflow: 'ellipsis',
 			color: getTimelineColor(selected, false),
@@ -92,10 +96,7 @@ export const TimelineSequenceName: React.FC<{
 		}
 
 		input.focus();
-		const basenameIndex = editableDisplayName.lastIndexOf('.');
-		const selectionEnd =
-			basenameIndex > 0 ? basenameIndex : editableDisplayName.length;
-		input.setSelectionRange(0, selectionEnd);
+		input.select();
 	}, [editableDisplayName, editing]);
 
 	const save = useCallback(() => {

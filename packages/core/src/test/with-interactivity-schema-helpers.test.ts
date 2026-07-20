@@ -1,6 +1,11 @@
 import {expect, test} from 'bun:test';
+import type {SequenceControls} from '../CompositionManager.js';
 import {solidSchema} from '../effects/Solid.js';
-import {getFlatSchemaWithAllKeys} from '../flatten-schema.js';
+import {getComponentsToAddStacksTo} from '../enable-sequence-stack-traces.js';
+import {
+	flattenActiveSchema,
+	getFlatSchemaWithAllKeys,
+} from '../flatten-schema.js';
 import {htmlInCanvasSchema} from '../HtmlInCanvas.js';
 import {Interactive} from '../Interactive.js';
 import {
@@ -58,6 +63,44 @@ test('pixelDensity is exposed only by canvas-backed component schemas', () => {
 	expect('pixelDensity' in Interactive.baseSchema).toBe(false);
 });
 
+test('_internalMakeRemotionComponentIdentity normalizes first-party package names', () => {
+	expect(
+		Interactive._internalMakeRemotionComponentIdentity({
+			packageName: 'remotion',
+			componentName: 'Sequence',
+		}),
+	).toBe('dev.remotion.remotion.Sequence');
+	expect(
+		Interactive._internalMakeRemotionComponentIdentity({
+			packageName: '@remotion/light-leaks',
+			componentName: 'LightLeak',
+		}),
+	).toBe('dev.remotion.lightLeaks.LightLeak');
+	expect(
+		Interactive._internalMakeRemotionComponentIdentity({
+			packageName: '@remotion/rough-notation',
+			componentName: 'Highlight',
+		}),
+	).toBe('dev.remotion.roughNotation.Highlight');
+});
+
+test('Interactive.withSchema() adds Sequence stack traces automatically', () => {
+	const Component = (_props: {
+		readonly controls: SequenceControls | undefined;
+	}) => null;
+	const Wrapped = Interactive.withSchema({
+		Component,
+		componentName: '<Component>',
+		componentIdentity: 'com.example.Component',
+		schema: {},
+		supportsEffects: false,
+	});
+
+	expect(
+		getComponentsToAddStacksTo().filter((component) => component === Wrapped),
+	).toHaveLength(1);
+});
+
 test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 	const flat = getFlatSchemaWithAllKeys(sequenceSchema);
 	expect(Object.keys(flat).sort()).toEqual(
@@ -81,6 +124,72 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'trimBefore',
 		].sort(),
 	);
+});
+
+test('getFlatSchema allows enum variants to share prop keys', () => {
+	const schema = {
+		type: {
+			type: 'enum',
+			default: 'underline',
+			description: 'Type',
+			variants: {
+				underline: {
+					color: {
+						type: 'color',
+						default: '#111111',
+						description: 'Underline color',
+					},
+				},
+				highlight: {
+					color: {
+						type: 'color',
+						default: '#eeee00',
+						description: 'Highlight color',
+					},
+				},
+				bracket: {},
+			},
+		},
+	} as const;
+
+	const flat = getFlatSchemaWithAllKeys(schema);
+	expect(Object.keys(flat).sort()).toEqual(['color', 'type']);
+	expect(flat.color.type).toBe('color');
+});
+
+test('flattenActiveSchema resolves shared keys from the selected enum variant', () => {
+	const schema = {
+		type: {
+			type: 'enum',
+			default: 'underline',
+			description: 'Type',
+			variants: {
+				underline: {
+					color: {
+						type: 'color',
+						default: '#111111',
+						description: 'Underline color',
+					},
+				},
+				highlight: {
+					color: {
+						type: 'color',
+						default: '#eeee00',
+						description: 'Highlight color',
+					},
+				},
+			},
+		},
+	} as const;
+
+	const active = flattenActiveSchema(schema, (key) =>
+		key === 'type' ? 'highlight' : undefined,
+	);
+	expect(active.color).toEqual({
+		type: 'color',
+		default: '#eeee00',
+		description: 'Highlight color',
+	});
 });
 
 test('extendSchemaWithSequenceName adds hidden name to wrapped schemas', () => {
