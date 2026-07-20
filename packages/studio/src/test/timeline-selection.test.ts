@@ -201,6 +201,8 @@ const makeTimelineSequence = ({
 	refForOutline = null,
 	duration = 100,
 	from = 0,
+	premountDisplay = null,
+	postmountDisplay = null,
 	startMediaFrom = 0,
 	type = 'sequence',
 	showInTimeline = true,
@@ -214,6 +216,8 @@ const makeTimelineSequence = ({
 	readonly refForOutline?: RefObject<HTMLElement | null> | null;
 	readonly duration?: number;
 	readonly from?: number;
+	readonly premountDisplay?: number | null;
+	readonly postmountDisplay?: number | null;
 	readonly startMediaFrom?: number;
 	readonly type?: TSequence['type'];
 	readonly showInTimeline?: boolean;
@@ -234,8 +238,8 @@ const makeTimelineSequence = ({
 		nonce: [[0, 0]],
 		loopDisplay: undefined,
 		getStack: () => null,
-		premountDisplay: null,
-		postmountDisplay: null,
+		premountDisplay,
+		postmountDisplay,
 		controls: {
 			schema,
 			currentRuntimeValueDotNotation: {},
@@ -2270,6 +2274,7 @@ test('Canvas outline hit targets render nested sequences above parents', () => {
 	const parentNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const childNodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
 	const outlines = getSequencesWithSelectableOutlines({
+		timelinePosition: 0,
 		sequences: [
 			makeTimelineSequence({
 				schema,
@@ -2312,6 +2317,7 @@ test('Canvas outlines exclude descendants of connected compositions', () => {
 		componentFromProps: ConnectedChild,
 	} as unknown as _InternalTypes['AnyComposition'];
 	const outlines = getSequencesWithSelectableOutlines({
+		timelinePosition: 0,
 		compositions: [connectedComposition],
 		sequences: [
 			makeTimelineSequence({
@@ -2837,6 +2843,7 @@ test('Canvas outline hit targets exclude sequences hidden from the timeline', ()
 	const visibleNodePathInfo = makeNodePathInfo(['body', 1], []);
 	const childNodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
 	const outlines = getSequencesWithSelectableOutlines({
+		timelinePosition: 0,
 		sequences: [
 			makeTimelineSequence({
 				schema,
@@ -2872,6 +2879,54 @@ test('Canvas outline hit targets exclude sequences hidden from the timeline', ()
 			getTimelineSequenceSelectionKey(childNodePathInfo),
 		].sort(),
 	);
+});
+
+test('Canvas outline hit targets exclude premounted and postmounted sequences', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const refForOutline = {current: null};
+	const premountedNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const activeNodePathInfo = makeNodePathInfo(['body', 1], []);
+	const postmountedNodePathInfo = makeNodePathInfo(['body', 2], []);
+	const outlines = getSequencesWithSelectableOutlines({
+		timelinePosition: 10,
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				id: 'premounted',
+				overrideId: 'premounted',
+				from: 20,
+				duration: 10,
+				premountDisplay: 10,
+				refForOutline,
+			}),
+			makeTimelineSequence({
+				schema,
+				id: 'active',
+				overrideId: 'active',
+				from: 10,
+				duration: 10,
+				refForOutline,
+			}),
+			makeTimelineSequence({
+				schema,
+				id: 'postmounted',
+				overrideId: 'postmounted',
+				from: 0,
+				duration: 10,
+				postmountDisplay: 10,
+				refForOutline,
+			}),
+		],
+		overrideIdsToNodePaths: {
+			premounted: premountedNodePathInfo.sequenceSubscriptionKey,
+			active: activeNodePathInfo.sequenceSubscriptionKey,
+			postmounted: postmountedNodePathInfo.sequenceSubscriptionKey,
+		},
+	});
+
+	expect(outlines.map((outline) => outline.key)).toEqual([
+		getTimelineSequenceSelectionKey(activeNodePathInfo),
+	]);
 });
 
 test('UV handles project semantic outline corners', () => {
