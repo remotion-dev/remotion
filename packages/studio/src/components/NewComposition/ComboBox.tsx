@@ -12,7 +12,7 @@ import {useMobileLayout} from '../../helpers/mobile-layout';
 import {noop} from '../../helpers/noop';
 import {CaretDown} from '../../icons/caret';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
-import {Spacing} from '../layout';
+import {COMPACT_CONTROL_ROW_HEIGHT, Spacing} from '../layout';
 import {MENU_INITIATOR_CLASSNAME, isMenuItem} from '../Menu/is-menu-item';
 import {getPortal} from '../Menu/portals';
 import {
@@ -31,7 +31,16 @@ const container: React.CSSProperties = {
 	backgroundColor: INPUT_BACKGROUND,
 	borderWidth: 1,
 	borderStyle: 'solid',
+	borderRadius: 4,
+	fontFamily: 'inherit',
 	maxWidth: '100%',
+};
+
+const compactContainer: React.CSSProperties = {
+	...container,
+	boxSizing: 'border-box',
+	height: COMPACT_CONTROL_ROW_HEIGHT + 2,
+	padding: '5px 6px',
 };
 
 const smallContainer: React.CSSProperties = {
@@ -43,16 +52,28 @@ const label: React.CSSProperties = {
 	flex: 1,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
+	color: 'inherit',
+	fontFamily: 'inherit',
 	fontSize: 14,
+	lineHeight: '21px',
+	minWidth: 0,
 	textAlign: 'left',
 	whiteSpace: 'nowrap',
+};
+
+const compactLabel: React.CSSProperties = {
+	...label,
+	fontSize: 12,
+	lineHeight: '16px',
 };
 
 const smallLabel: React.CSSProperties = {
 	...label,
 	fontSize: 11,
-	lineHeight: 1,
+	lineHeight: '12px',
 };
+
+export type ComboboxSize = 'default' | 'compact' | 'small';
 
 type DividerItem = {
 	type: 'divider';
@@ -85,8 +106,14 @@ export const Combobox: React.FC<{
 	readonly selectedId: string | number;
 	readonly style?: React.CSSProperties;
 	readonly title: string;
-	readonly small?: boolean;
-}> = ({values, selectedId, style: customStyle, title, small = false}) => {
+	readonly size?: ComboboxSize;
+}> = ({
+	values,
+	selectedId,
+	style: customStyle,
+	title,
+	size: controlSize = 'default',
+}) => {
 	const [hovered, setIsHovered] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const ref = useRef<HTMLButtonElement>(null);
@@ -240,7 +267,11 @@ export const Combobox: React.FC<{
 
 	const style = useMemo((): React.CSSProperties => {
 		return {
-			...(small ? smallContainer : container),
+			...(controlSize === 'small'
+				? smallContainer
+				: controlSize === 'compact'
+					? compactContainer
+					: container),
 			...(customStyle ?? {}),
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
@@ -254,7 +285,14 @@ export const Combobox: React.FC<{
 					? WHITE_ALPHA_05
 					: BLACK_ALPHA_60,
 		};
-	}, [customStyle, hovered, opened, small]);
+	}, [controlSize, customStyle, hovered, opened]);
+
+	const selectedLabelStyle =
+		controlSize === 'small'
+			? smallLabel
+			: controlSize === 'compact'
+				? compactLabel
+				: label;
 
 	return (
 		<>
@@ -271,12 +309,13 @@ export const Combobox: React.FC<{
 						title={
 							typeof selected.label === 'string' ? selected.label : undefined
 						}
-						style={small ? smallLabel : label}
+						style={selectedLabelStyle}
 					>
 						{selected?.label}
 					</div>
 				) : null}
-				<Spacing x={small ? 0.5 : 1} /> <CaretDown small={small} />
+				<Spacing x={controlSize === 'default' ? 1 : 0.5} />{' '}
+				<CaretDown small={controlSize === 'small'} />
 			</button>
 			{portalStyle
 				? ReactDOM.createPortal(

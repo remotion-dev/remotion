@@ -28,7 +28,7 @@ import {ThinRenderIcon} from '../icons/render';
 import {useTimelineInOutFramePosition} from '../state/in-out';
 import {ModalsContext} from '../state/modals';
 import {HigherZIndex, useZIndex} from '../state/z-index';
-import {Row, Spacing} from './layout';
+import {COMPACT_CONTROL_ROW_HEIGHT, Row, Spacing} from './layout';
 import {MENU_INITIATOR_CLASSNAME, isMenuItem} from './Menu/is-menu-item';
 import {getPortal} from './Menu/portals';
 import {
@@ -87,10 +87,53 @@ const dropdownTriggerStyle: React.CSSProperties = {
 const mainButtonContent: React.CSSProperties = {
 	paddingLeft: 4,
 	paddingRight: 6,
+	minWidth: 0,
 };
 
 const label: React.CSSProperties = {
+	color: 'inherit',
+	fontFamily: 'inherit',
 	fontSize: 14,
+	lineHeight: '21px',
+	minWidth: 0,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+};
+
+const compactSplitButtonSegmentHeight = COMPACT_CONTROL_ROW_HEIGHT;
+
+const compactMainButtonStyle: React.CSSProperties = {
+	...mainButtonStyle,
+	boxSizing: 'border-box',
+	height: compactSplitButtonSegmentHeight,
+	paddingLeft: 6,
+	paddingRight: 6,
+	paddingTop: 6,
+	paddingBottom: 6,
+	fontSize: 12,
+};
+
+const compactDropdownTriggerStyle: React.CSSProperties = {
+	...dropdownTriggerStyle,
+	boxSizing: 'border-box',
+	height: compactSplitButtonSegmentHeight,
+	paddingLeft: 5,
+	paddingRight: 5,
+	paddingTop: 6,
+	paddingBottom: 6,
+};
+
+const compactMainButtonContent: React.CSSProperties = {
+	...mainButtonContent,
+	paddingLeft: 2,
+	paddingRight: 4,
+};
+
+const compactLabel: React.CSSProperties = {
+	...label,
+	fontSize: 12,
+	lineHeight: '16px',
 };
 
 export type RenderType = 'server-render' | 'client-render' | 'render-command';
@@ -114,9 +157,10 @@ const getInitialRenderType = (readOnlyStudio: boolean): RenderType => {
 	return 'server-render';
 };
 
-export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
-	readOnlyStudio,
-}) => {
+export const RenderButton: React.FC<{
+	readonly readOnlyStudio: boolean;
+	readonly size?: 'default' | 'compact';
+}> = ({readOnlyStudio, size: controlSize = 'default'}) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const {setSelectedModal} = useContext(ModalsContext);
 	const [preferredRenderType, setPreferredRenderType] = useState<RenderType>(
@@ -215,11 +259,12 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 	const iconStyle: SVGProps<SVGSVGElement> = useMemo(() => {
 		return {
 			style: {
-				height: 16,
+				height: controlSize === 'compact' ? 14 : 16,
 				color: CURRENT_COLOR,
+				flexShrink: 0,
 			},
 		};
-	}, []);
+	}, [controlSize]);
 
 	const video = Internals.useVideo();
 	const {getCurrentFrame} = PlayerInternals.usePlayer();
@@ -510,24 +555,39 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 			<div ref={containerRef} style={containerStyle} title={tooltip}>
 				<button
 					type="button"
-					style={mainButtonStyle}
+					style={
+						controlSize === 'compact' ? compactMainButtonStyle : mainButtonStyle
+					}
 					onClick={onClick}
 					id="render-modal-button"
 				>
-					<Row align="center" style={mainButtonContent}>
+					<Row
+						align="center"
+						style={
+							controlSize === 'compact'
+								? compactMainButtonContent
+								: mainButtonContent
+						}
+					>
 						<ThinRenderIcon
 							fill={CURRENT_COLOR_LOWERCASE}
 							svgProps={iconStyle}
 						/>
-						<Spacing x={1} />
-						<span style={label}>{renderLabel}</span>
+						<Spacing x={controlSize === 'compact' ? 0.75 : 1} />
+						<span style={controlSize === 'compact' ? compactLabel : label}>
+							{renderLabel}
+						</span>
 					</Row>
 				</button>
 				<div style={dividerStyle} />
 				<button
 					ref={dropdownRef}
 					type="button"
-					style={dropdownTriggerStyle}
+					style={
+						controlSize === 'compact'
+							? compactDropdownTriggerStyle
+							: dropdownTriggerStyle
+					}
 					className={MENU_INITIATOR_CLASSNAME}
 					onPointerDown={onPointerDown}
 					onClick={onClickDropdown}
