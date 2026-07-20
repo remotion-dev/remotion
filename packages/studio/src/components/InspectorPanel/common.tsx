@@ -5,9 +5,8 @@ import {
 	WHITE,
 	getBackgroundFromHoverState,
 } from '../../helpers/colors';
-import {InlineAction} from '../InlineAction';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
-import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
+import {COMPACT_CONTROL_ROW_HEIGHT, COMPACT_INLINE_ROW_HEIGHT} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import type {RenderModalWarning} from '../RenderModal/DataEditor';
 import {
@@ -21,8 +20,6 @@ import {
 	inspectorSectionDivider,
 	resolveLinkStyle,
 	sectionHeader,
-	sectionHeaderRow,
-	sectionHeaderStart,
 } from './styles';
 
 export const InspectorSectionHeader: React.FC<{
@@ -57,51 +54,42 @@ export const InspectorSection: React.FC<{
 	);
 };
 
-const backIcon: React.CSSProperties = {
-	alignItems: 'center',
-	display: 'flex',
-	height: 12,
-	justifyContent: 'center',
-	width: 12,
+const backArrowIcon: React.CSSProperties = {
+	display: 'block',
+	height: 15,
+	width: 15,
 };
 
-const BackChevron: React.FC<{
+const BackArrow: React.FC<{
 	readonly color: string;
 }> = ({color}) => {
 	return (
-		<svg viewBox="0 0 8 12" style={backIcon}>
+		<svg viewBox="0 0 512 512" style={backArrowIcon}>
 			<path
-				d="M6 1L2 6L6 11"
-				fill="none"
-				stroke={color}
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth="1.5"
+				d="M7 239c-9.4 9.4-9.4 24.6 0 33.9L175 441c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9L81.9 280 488 280c13.3 0 24-10.7 24-24s-10.7-24-24-24L81.9 232 209 105c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0L7 239z"
+				fill={color}
 			/>
 		</svg>
 	);
 };
 
-export const InspectorBackHeader: React.FC<{
+export const InspectorBackAction: React.FC<{
 	readonly children: React.ReactNode;
 	readonly disabled: boolean;
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
 	readonly title: string;
 }> = ({children, disabled, onClick, title}) => {
 	return (
-		<InspectorSectionHeader>
-			<div style={sectionHeaderRow}>
-				<div style={sectionHeaderStart}>
-					<InlineAction
-						disabled={disabled}
-						onClick={onClick}
-						title={title}
-						renderAction={(color) => <BackChevron color={color} />}
-					/>
-					{children}
-				</div>
-			</div>
-		</InspectorSectionHeader>
+		<div style={inspectorActionSection}>
+			<InspectorInlineAction
+				disabled={disabled}
+				onClick={onClick}
+				renderIcon={(color) => <BackArrow color={color} />}
+				title={title}
+			>
+				{children}
+			</InspectorInlineAction>
+		</div>
 	);
 };
 
@@ -137,7 +125,7 @@ const inlineLabelButton: React.CSSProperties = {
 	height: COMPACT_CONTROL_ROW_HEIGHT,
 	lineHeight: '18px',
 	margin: `0 ${INLINE_LABEL_BUTTON_MARGIN}px`,
-	padding: `5px ${INSPECTOR_PANEL_HORIZONTAL_PADDING - INLINE_LABEL_BUTTON_MARGIN}px`,
+	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING - INLINE_LABEL_BUTTON_MARGIN}px`,
 	textAlign: 'left',
 	width: `calc(100% - ${INLINE_LABEL_BUTTON_MARGIN * 2}px)`,
 };
@@ -145,6 +133,10 @@ const inlineLabelButton: React.CSSProperties = {
 const inlineLabelButtonDisabled: React.CSSProperties = {
 	...inlineLabelButton,
 	opacity: 0.35,
+};
+
+const compactInlineLabelButton: React.CSSProperties = {
+	height: COMPACT_INLINE_ROW_HEIGHT,
 };
 
 const inlineLabelText: React.CSSProperties = {
@@ -172,9 +164,19 @@ export const InspectorInlineAction: React.FC<{
 	readonly children: React.ReactNode;
 	readonly disabled: boolean;
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
-	readonly renderIcon: (color: string) => React.ReactNode;
+	readonly renderIcon?: (color: string) => React.ReactNode;
+	readonly size?: 'default' | 'compact';
 	readonly style?: React.CSSProperties;
-}> = ({children, disabled, onClick, renderIcon, style}) => {
+	readonly title?: string;
+}> = ({
+	children,
+	disabled,
+	onClick,
+	renderIcon,
+	size = 'default',
+	style,
+	title,
+}) => {
 	const [hovered, setHovered] = React.useState(false);
 	const color = hovered && !disabled ? WHITE : LIGHT_TEXT;
 	const buttonStyle = React.useMemo(
@@ -185,9 +187,10 @@ export const InspectorInlineAction: React.FC<{
 				selected: false,
 			}),
 			color,
+			...(size === 'compact' ? compactInlineLabelButton : null),
 			...style,
 		}),
-		[color, disabled, hovered, style],
+		[color, disabled, hovered, size, style],
 	);
 	const textStyle = React.useMemo(
 		(): React.CSSProperties => ({
@@ -206,14 +209,18 @@ export const InspectorInlineAction: React.FC<{
 
 	return (
 		<button
+			className="__remotion-inspector-inline-action"
 			type="button"
 			disabled={disabled}
 			style={buttonStyle}
+			title={title}
 			onClick={onClick}
 			onPointerEnter={disabled ? undefined : onPointerEnter}
 			onPointerLeave={onPointerLeave}
 		>
-			<span style={inlineLabelIcon}>{renderIcon(color)}</span>
+			{renderIcon ? (
+				<span style={inlineLabelIcon}>{renderIcon(color)}</span>
+			) : null}
 			<span style={textStyle}>{children}</span>
 		</button>
 	);

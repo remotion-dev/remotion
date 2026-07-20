@@ -18,9 +18,10 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	BACKGROUND,
 	LIGHT_TEXT,
+	TRANSPARENT,
 	WHITE,
+	WHITE_ALPHA_06,
 	WHITE_ALPHA_12,
-	getBackgroundFromHoverState,
 } from '../helpers/colors';
 import {getFolderId} from '../helpers/get-folder-id';
 import {noop} from '../helpers/noop';
@@ -158,7 +159,9 @@ export const CompositionSelectorItem: React.FC<{
 			...itemStyle,
 			backgroundColor: dragHovered
 				? WHITE_ALPHA_12
-				: getBackgroundFromHoverState({hovered, selected}),
+				: hovered || selected
+					? WHITE_ALPHA_06
+					: TRANSPARENT,
 			paddingLeft: 12 + level * 8,
 		};
 	}, [dragHovered, hovered, level, selected]);
