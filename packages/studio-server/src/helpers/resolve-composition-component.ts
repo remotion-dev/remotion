@@ -1398,12 +1398,12 @@ const ensureStaticFileImport = (ast: File) => {
 	});
 };
 
-const ensureImgImport = (ast: File) => {
+const ensureCanvasImageImport = (ast: File) => {
 	return ensureOfficialNamedImport({
 		ast,
-		importedName: 'Img',
+		importedName: 'CanvasImage',
 		sourcePath: 'remotion',
-		label: '<Img>',
+		label: '<CanvasImage>',
 	});
 };
 
@@ -2202,7 +2202,7 @@ const createInsertableJsxElement = ({
 			element.srcType === 'remote' ? null : ensureStaticFileImport(ast);
 		let localName: string;
 		if (element.assetType === 'image') {
-			localName = ensureImgImport(ast);
+			localName = ensureCanvasImageImport(ast);
 		} else if (element.assetType === 'video') {
 			localName = ensureVideoImport(ast);
 		} else if (element.assetType === 'gif') {
