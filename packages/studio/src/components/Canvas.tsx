@@ -47,6 +47,7 @@ import {
 	smoothenZoom,
 	unsmoothenZoom,
 } from '../helpers/smooth-zoom';
+import {calculateStudioScale} from '../helpers/studio-fit-padding';
 import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
@@ -146,6 +147,31 @@ type WebKitGestureEvent = UIEvent & {
 	scale: number;
 	clientX: number;
 	clientY: number;
+};
+
+const calculateCanvasScale = ({
+	addFitPadding,
+	canvasSize,
+	compositionHeight,
+	compositionWidth,
+	previewSize,
+}: {
+	readonly addFitPadding: boolean;
+	readonly canvasSize: Size;
+	readonly compositionHeight: number;
+	readonly compositionWidth: number;
+	readonly previewSize: PreviewSize['size'];
+}) => {
+	const options = {
+		canvasSize,
+		compositionHeight,
+		compositionWidth,
+		previewSize,
+	};
+
+	return addFitPadding
+		? calculateStudioScale(options)
+		: Internals.calculateScale(options);
 };
 
 const isFileDragEvent = (event: DragEvent): boolean => {
@@ -256,12 +282,14 @@ const getSfxDragUrl = (event: DragEvent): string | null => {
 };
 
 const getDropPosition = ({
+	addFitPadding,
 	clientX,
 	clientY,
 	contentDimensions,
 	previewSize,
 	size,
 }: {
+	addFitPadding: boolean;
 	clientX: number;
 	clientY: number;
 	contentDimensions: {width: number; height: number} | 'none' | null;
@@ -272,7 +300,8 @@ const getDropPosition = ({
 		return null;
 	}
 
-	const scale = Internals.calculateScale({
+	const scale = calculateCanvasScale({
+		addFitPadding,
 		canvasSize: size,
 		compositionHeight: contentDimensions.height,
 		compositionWidth: contentDimensions.width,
@@ -407,6 +436,7 @@ export const Canvas: React.FC<{
 	}, [assetResolution, config, canvasContent]);
 
 	const isFit = previewSize.size === 'auto';
+	const addFitPadding = canvasContent.type === 'composition';
 
 	previewSnapshotRef.current = {
 		previewSize,
@@ -443,7 +473,8 @@ export const Canvas: React.FC<{
 			ev.preventDefault();
 
 			setSize((prevSize) => {
-				const scale = Internals.calculateScale({
+				const scale = calculateCanvasScale({
+					addFitPadding,
 					canvasSize: size,
 					compositionHeight: contentDimensions.height,
 					compositionWidth: contentDimensions.width,
@@ -457,6 +488,7 @@ export const Canvas: React.FC<{
 					const unsmoothened = unsmoothenZoom(added);
 
 					return applyZoomAroundFocalPoint({
+						addFitPadding,
 						canvasSize: size,
 						contentDimensions,
 						previewSizeBefore: prevSize,
@@ -490,7 +522,14 @@ export const Canvas: React.FC<{
 				};
 			});
 		},
-		[editorZoomGestures, contentDimensions, isFit, setSize, size],
+		[
+			addFitPadding,
+			editorZoomGestures,
+			contentDimensions,
+			isFit,
+			setSize,
+			size,
+		],
 	);
 
 	useEffect(() => {
@@ -532,7 +571,8 @@ export const Canvas: React.FC<{
 			e.preventDefault();
 			suppressWheelFromWebKitPinchRef.current = true;
 
-			const fitted = Internals.calculateScale({
+			const fitted = calculateCanvasScale({
+				addFitPadding,
 				canvasSize: canvasSz,
 				compositionHeight: cdim.height,
 				compositionWidth: cdim.width,
@@ -557,7 +597,8 @@ export const Canvas: React.FC<{
 			e.preventDefault();
 
 			setSize((prevSize) => {
-				const scale = Internals.calculateScale({
+				const scale = calculateCanvasScale({
+					addFitPadding,
 					canvasSize: canvasSz,
 					compositionHeight: dimensions.height,
 					compositionWidth: dimensions.width,
@@ -566,6 +607,7 @@ export const Canvas: React.FC<{
 				const oldNumeric = prevSize.size === 'auto' ? scale : prevSize.size;
 
 				return applyZoomAroundFocalPoint({
+					addFitPadding,
 					canvasSize: canvasSz,
 					contentDimensions: dimensions,
 					previewSizeBefore: prevSize,
@@ -596,7 +638,7 @@ export const Canvas: React.FC<{
 			current.removeEventListener('gestureend', onGestureEnd);
 			current.removeEventListener('gesturecancel', onGestureEnd);
 		};
-	}, [editorZoomGestures, setSize, supportsWebKitPinch]);
+	}, [addFitPadding, editorZoomGestures, setSize, supportsWebKitPinch]);
 
 	useEffect(() => {
 		const {current} = canvasRef;
@@ -628,7 +670,8 @@ export const Canvas: React.FC<{
 				return;
 			}
 
-			const fitted = Internals.calculateScale({
+			const fitted = calculateCanvasScale({
+				addFitPadding,
 				canvasSize: snap.canvasSize,
 				compositionHeight: snap.contentDimensions.height,
 				compositionWidth: snap.contentDimensions.width,
@@ -667,7 +710,8 @@ export const Canvas: React.FC<{
 					width: number;
 					height: number;
 				};
-				const scale = Internals.calculateScale({
+				const scale = calculateCanvasScale({
+					addFitPadding,
 					canvasSize: canvasSz,
 					compositionHeight: cdim.height,
 					compositionWidth: cdim.width,
@@ -676,6 +720,7 @@ export const Canvas: React.FC<{
 				const oldNumeric = prevSize.size === 'auto' ? scale : prevSize.size;
 
 				return applyZoomAroundFocalPoint({
+					addFitPadding,
 					canvasSize: canvasSz,
 					contentDimensions: cdim,
 					previewSizeBefore: prevSize,
@@ -704,7 +749,7 @@ export const Canvas: React.FC<{
 			current.removeEventListener('touchend', onTouchEnd);
 			current.removeEventListener('touchcancel', onTouchEnd);
 		};
-	}, [editorZoomGestures, setSize]);
+	}, [addFitPadding, editorZoomGestures, setSize]);
 
 	const onReset = useCallback(() => {
 		setSize(() => {
@@ -728,7 +773,8 @@ export const Canvas: React.FC<{
 		}
 
 		setSize((prevSize) => {
-			const scale = Internals.calculateScale({
+			const scale = calculateCanvasScale({
+				addFitPadding,
 				canvasSize: size,
 				compositionHeight: contentDimensions.height,
 				compositionWidth: contentDimensions.width,
@@ -742,7 +788,7 @@ export const Canvas: React.FC<{
 				size: Math.min(MAX_ZOOM, scale * 2),
 			};
 		});
-	}, [contentDimensions, setSize, size]);
+	}, [addFitPadding, contentDimensions, setSize, size]);
 
 	const onZoomOut = useCallback(() => {
 		if (!contentDimensions || contentDimensions === 'none') {
@@ -754,7 +800,8 @@ export const Canvas: React.FC<{
 		}
 
 		setSize((prevSize) => {
-			const scale = Internals.calculateScale({
+			const scale = calculateCanvasScale({
+				addFitPadding,
 				canvasSize: size,
 				compositionHeight: contentDimensions.height,
 				compositionWidth: contentDimensions.width,
@@ -768,7 +815,7 @@ export const Canvas: React.FC<{
 				size: Math.max(MIN_ZOOM, scale / 2),
 			};
 		});
-	}, [contentDimensions, setSize, size]);
+	}, [addFitPadding, contentDimensions, setSize, size]);
 
 	useEffect(() => {
 		const resetBinding = keybindings.registerKeybinding({
@@ -1091,6 +1138,7 @@ export const Canvas: React.FC<{
 			setIsAddingAsset(true);
 			try {
 				const dropPosition = getDropPosition({
+					addFitPadding,
 					clientX: event.clientX,
 					clientY: event.clientY,
 					contentDimensions,
@@ -1201,6 +1249,7 @@ export const Canvas: React.FC<{
 			}
 		},
 		[
+			addFitPadding,
 			canDropAssets,
 			cannotAddSequence,
 			chooseSvgImportMode,

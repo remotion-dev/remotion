@@ -4,6 +4,7 @@ import type {CurrentScaleContextType} from 'remotion';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
+import {getStudioPaddedCanvasSize} from '../helpers/studio-fit-padding';
 import {getStudioBufferStateDelayInMilliseconds} from '../helpers/studio-runtime-config';
 import {drawRef} from '../state/canvas-ref';
 import {ScaleLockProvider} from '../state/scale-lock';
@@ -61,7 +62,7 @@ export const Editor: React.FC<{
 
 		return {
 			type: 'canvas-size',
-			canvasSize: size,
+			canvasSize: getStudioPaddedCanvasSize(size).canvasSize,
 		};
 	}, [size]);
 
