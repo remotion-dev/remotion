@@ -115,6 +115,7 @@ export const useCompositionActions = () => {
 				compositionId: currentCompositionId,
 				destinationDimensions: null,
 				dropPosition: null,
+				svgImportMode: 'image',
 			});
 		} finally {
 			setIsAddingAsset(false);
