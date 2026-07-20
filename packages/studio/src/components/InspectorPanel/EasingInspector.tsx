@@ -24,6 +24,7 @@ import {
 	type EasingSelection,
 } from '../Timeline/update-selected-easing';
 import {
+	InspectorActionSection,
 	InspectorBackHeader,
 	InspectorInlineAction,
 	InspectorMessage,
@@ -33,11 +34,7 @@ import {getEasingSelectionFromCurrentKeyframes} from './easing-inspector-selecti
 import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
 import {KeyframeSettings} from './KeyframeSettings';
 import {SequenceInspectorSections} from './SequenceInspectorHeader';
-import {
-	detailsWithInlineAction,
-	sectionHeaderTitle,
-	selectedContainer,
-} from './styles';
+import {sectionHeaderTitle, selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
 
 type EasingInspectorDetails = {
@@ -334,20 +331,17 @@ export const EasingInspector: React.FC<{
 			<InspectorSectionDivider />
 			<KeyframeSettings update={easingUpdate} />
 			{canAddKeyframeAtPlayhead ? (
-				<>
-					<InspectorSectionDivider />
-					<div style={detailsWithInlineAction}>
-						<InspectorInlineAction
-							disabled={addKeyframeDisabled}
-							onClick={onAddKeyframeAtPlayhead}
-							renderIcon={(color) => (
-								<Plus color={color} style={addKeyframeIcon} />
-							)}
-						>
-							{`Add keyframe at ${addKeyframeTime}`}
-						</InspectorInlineAction>
-					</div>
-				</>
+				<InspectorActionSection>
+					<InspectorInlineAction
+						disabled={addKeyframeDisabled}
+						onClick={onAddKeyframeAtPlayhead}
+						renderIcon={(color) => (
+							<Plus color={color} style={addKeyframeIcon} />
+						)}
+					>
+						{`Add keyframe at ${addKeyframeTime}`}
+					</InspectorInlineAction>
+				</InspectorActionSection>
 			) : null}
 		</div>
 	);
