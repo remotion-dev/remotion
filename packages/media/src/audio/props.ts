@@ -1,5 +1,6 @@
 import type {
 	InteractiveBaseProps,
+	InteractivePremountProps,
 	LogLevel,
 	LoopVolumeCurveBehavior,
 	VolumeProp,
@@ -45,4 +46,5 @@ export type AudioProps = {
 	 */
 	credentials?: RequestCredentials;
 	requestInit?: MediaRequestInit;
-} & InteractiveBaseProps;
+} & InteractiveBaseProps &
+	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'>;

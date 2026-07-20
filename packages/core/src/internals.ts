@@ -97,6 +97,7 @@ import {
 	fromField,
 	hiddenField,
 	premountSchema,
+	premountStyleSchema,
 	sequencePremountSchema,
 	sequenceSchema,
 	sequenceStyleSchema,
@@ -204,6 +205,7 @@ import {
 	useMediaInTimeline,
 } from './use-media-in-timeline.js';
 import {PixelDensityContext} from './use-pixel-density.js';
+import {usePremounting} from './use-premounting.js';
 import type {
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusEasing,
@@ -307,6 +309,7 @@ export const Internals = {
 	textSchema,
 	transformSchema,
 	premountSchema,
+	premountStyleSchema,
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
 	RemotionRootContexts,
@@ -320,6 +323,7 @@ export const Internals = {
 	truthy,
 	SequenceContext,
 	PremountContext,
+	usePremounting,
 	useRemotionContexts,
 	RemotionContextProvider,
 	CSSUtils,
