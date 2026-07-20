@@ -68,14 +68,16 @@ test('serves file source from an origin-less GET request', async () => {
 		const response = makeResponse();
 
 		await handleRoutes({
-			audioLatencyHint: null,
 			binariesDirectory: null,
 			enableCrossSiteIsolation: false,
 			entryPoint: '',
+			getAudioLatencyHint: () => null,
 			getCurrentInputProps: () => ({}),
 			getEnvVariables: () => ({}),
 			getRenderDefaults: () => ({}) as RenderDefaults,
 			getRenderQueue: () => [],
+			getNumberOfAudioTags: () => 0,
+			getPreviewSampleRate: () => null,
 			getStudioRuntimeConfig: () => ({
 				askAIEnabled: false,
 				bufferStateDelayInMilliseconds: null,
@@ -86,10 +88,8 @@ test('serves file source from an origin-less GET request', async () => {
 			gitSource: null,
 			liveEventsServer: noopLiveEventsServer,
 			logLevel: 'info',
-			numberOfAudioTags: 0,
 			outputHash: '/outputs',
 			outputHashPrefix: '/outputs',
-			previewSampleRate: null,
 			publicDir: remotionRoot,
 			queueMethods: {
 				addJob: () => undefined,

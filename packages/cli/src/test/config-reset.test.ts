@@ -3,6 +3,14 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {DEFAULT_TIMELINE_TRACKS} from '@remotion/studio-shared';
 import {Config, ConfigInternals} from '../config';
+import {getRenderDefaults} from '../get-render-defaults';
+
+test('Studio render defaults keep the startup log level', () => {
+	ConfigInternals.resetConfigOptions();
+	Config.setLogLevel('verbose');
+
+	expect(getRenderDefaults('warn').logLevel).toBe('warn');
+});
 
 test('reset config options restores defaults before reloading config', async () => {
 	ConfigInternals.resetConfigOptions();

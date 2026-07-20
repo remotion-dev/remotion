@@ -45,15 +45,15 @@ export const startStudio = async ({
 	poll,
 	getRenderDefaults,
 	getRenderQueue,
-	numberOfAudioTags,
+	getNumberOfAudioTags,
 	queueMethods,
 	previewEntry,
 	gitSource,
 	bufferStateDelayInMilliseconds,
 	binariesDirectory,
 	forceIPv4,
-	audioLatencyHint,
-	previewSampleRate,
+	getAudioLatencyHint,
+	getPreviewSampleRate,
 	enableCrossSiteIsolation,
 	askAIEnabled,
 	interactivityEnabled,
@@ -78,9 +78,9 @@ export const startStudio = async ({
 	poll: number | null;
 	getRenderDefaults: () => RenderDefaults;
 	getRenderQueue: () => RenderJob[];
-	numberOfAudioTags: number;
-	audioLatencyHint: AudioContextLatencyCategory | null;
-	previewSampleRate: number | null;
+	getNumberOfAudioTags: () => number;
+	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
 	queueMethods: QueueMethods;
 	previewEntry: string;
@@ -159,14 +159,14 @@ export const startStudio = async ({
 		logLevel,
 		getRenderDefaults,
 		getRenderQueue,
-		numberOfAudioTags,
+		getNumberOfAudioTags,
 		queueMethods,
 		gitSource,
 		bufferStateDelayInMilliseconds,
 		binariesDirectory,
 		forceIPv4,
-		audioLatencyHint,
-		previewSampleRate,
+		getAudioLatencyHint,
+		getPreviewSampleRate,
 		enableCrossSiteIsolation,
 		askAIEnabled,
 		interactivityEnabled,
