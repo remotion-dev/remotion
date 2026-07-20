@@ -32,22 +32,16 @@ import {
 	SequenceInspectorHeader,
 	useSequenceInspectorSourceLocation,
 } from './SequenceInspectorHeader';
-import {detailsContainer, selectedContainer} from './styles';
+import {selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
 
 const splitIconStyle: React.CSSProperties = {
-	height: 13,
-	width: 13,
+	height: 18,
+	width: 18,
 };
 
 const splitActionContainer: React.CSSProperties = {
-	...detailsContainer,
-	paddingBottom: 6,
-	paddingTop: 6,
-};
-
-const splitActionButton: React.CSSProperties = {
-	width: '100%',
+	padding: '6px 0',
 };
 
 const SplitSequenceAction: React.FC<{
@@ -96,7 +90,6 @@ const SplitSequenceAction: React.FC<{
 				<InspectorInlineAction
 					disabled={false}
 					onClick={onSplit}
-					style={splitActionButton}
 					renderIcon={(color) => (
 						<ScissorsIcon style={splitIconStyle} color={color} />
 					)}

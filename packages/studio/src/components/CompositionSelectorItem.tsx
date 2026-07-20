@@ -55,9 +55,12 @@ const itemStyle: React.CSSProperties = {
 	cursor: 'default',
 	alignItems: 'center',
 	marginBottom: 1,
+	marginLeft: 4,
+	marginRight: 4,
 	appearance: 'none',
 	border: 'none',
-	width: '100%',
+	borderRadius: 4,
+	width: 'calc(100% - 8px)',
 	textAlign: 'left',
 	backgroundColor: BACKGROUND,
 	height: COMPOSITION_ITEM_HEIGHT,
@@ -134,6 +137,7 @@ export const CompositionSelectorItem: React.FC<{
 	const onPointerLeave = useCallback(() => {
 		setHovered(false);
 	}, []);
+	const [isDragging, setIsDragging] = useState(false);
 	const [dragHovered, setDragHovered] = useState(false);
 
 	const compositionRowRef = useRef<HTMLAnchorElement>(null);
@@ -277,6 +281,7 @@ export const CompositionSelectorItem: React.FC<{
 				return;
 			}
 
+			setIsDragging(true);
 			event.dataTransfer.effectAllowed = 'copyMove';
 			event.dataTransfer.setData(
 				COMPOSITION_DRAG_MIME_TYPE,
@@ -290,6 +295,9 @@ export const CompositionSelectorItem: React.FC<{
 		},
 		[item, resolvedLocation?.source],
 	);
+	const onCompositionDragEnd = useCallback(() => {
+		setIsDragging(false);
+	}, []);
 
 	const onFolderDragOver = useCallback(
 		(event: DragEvent<HTMLElement>) => {
@@ -479,6 +487,7 @@ export const CompositionSelectorItem: React.FC<{
 					onKeyDown={onKeyDown}
 					draggable={!window.remotion_isReadOnlyStudio}
 					onDragStart={onCompositionDragStart}
+					onDragEnd={onCompositionDragEnd}
 					type="button"
 					title={item.composition.id}
 					className="__remotion-composition"
@@ -492,9 +501,12 @@ export const CompositionSelectorItem: React.FC<{
 					<Spacing x={1} />
 					<div style={label}>{item.composition.id}</div>
 					<Spacing x={0.5} />
-					<CompositionContextButton values={contextMenu} visible={hovered} />
+					<CompositionContextButton
+						values={contextMenu}
+						visible={hovered && !isDragging}
+					/>
 					<SidebarRenderButton
-						visible={hovered}
+						visible={hovered && !isDragging}
 						composition={item.composition}
 					/>
 				</a>
