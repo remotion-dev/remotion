@@ -28,6 +28,16 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 	readonly dragDecimalPlaces?: number;
 };
 
+export const inputDraggerContainerStyle: React.CSSProperties = {
+	...inputBaseStyle,
+	backgroundColor: TRANSPARENT,
+	borderColor: TRANSPARENT,
+	display: 'inline-block',
+	lineHeight: 1.5,
+	outline: 'none',
+	padding: '4px 6px',
+};
+
 const isInt = (num: number) => {
 	return num % 1 === 0;
 };
@@ -108,15 +118,6 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	const [dragging, setDragging] = useState(false);
 	const fallbackRef = useRef<HTMLInputElement>(null);
 	const pointerDownRef = useRef(false);
-	const style = useMemo(() => {
-		return {
-			...inputBaseStyle,
-			backgroundColor: TRANSPARENT,
-			borderColor: TRANSPARENT,
-			padding: '4px 6px',
-			...{outline: 'none'},
-		};
-	}, []);
 
 	const span: React.CSSProperties = useMemo(
 		() => ({
@@ -333,7 +334,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			ref={ref}
 			type="button"
 			className={'__remotion_input_dragger'}
-			style={style}
+			style={inputDraggerContainerStyle}
 			onClick={onClick}
 			onFocus={onFocus}
 			onKeyDown={onKeyDown}
