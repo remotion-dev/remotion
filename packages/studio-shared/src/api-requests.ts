@@ -464,6 +464,7 @@ export type DeleteSequenceKeyframe = {
 	key: string;
 	frame: number;
 	schema: InteractivitySchema;
+	valueWhenLastKeyframeDeleted?: unknown;
 };
 
 export type MoveSequenceKeyframe = {
@@ -496,6 +497,7 @@ export type DeleteEffectKeyframe = {
 	key: string;
 	frame: number;
 	schema: InteractivitySchema;
+	valueWhenLastKeyframeDeleted?: unknown;
 };
 
 export type MoveEffectKeyframe = {

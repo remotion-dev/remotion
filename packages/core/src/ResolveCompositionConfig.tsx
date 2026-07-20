@@ -3,6 +3,7 @@ import type {AnyComposition} from './CompositionManager.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import {getInputProps} from './config/input-props.js';
 import {EditorPropsContext} from './EditorProps.js';
+import type {VideoConfigMetadataSource} from './resolve-video-config.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
@@ -30,10 +31,12 @@ type VideoConfigState =
 	| {
 			type: 'success';
 			result: VideoConfig;
+			metadataSource: VideoConfigMetadataSource | null;
 	  }
 	| {
 			type: 'success-and-refreshing';
 			result: VideoConfig;
+			metadataSource: VideoConfigMetadataSource | null;
 	  }
 	| {
 			type: 'error';
@@ -72,6 +75,7 @@ export const useResolvedVideoConfig = (
 		if (currentCompositionMetadata) {
 			return {
 				type: 'success',
+				metadataSource: null,
 				result: {
 					...currentCompositionMetadata,
 					id: composition.id,
@@ -103,6 +107,7 @@ export const useResolvedVideoConfig = (
 
 			return {
 				type: 'success',
+				metadataSource: null,
 				result: {
 					width: composition.width as number,
 					height: composition.height as number,

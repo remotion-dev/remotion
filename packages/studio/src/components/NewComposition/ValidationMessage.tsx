@@ -50,7 +50,7 @@ const compactLabel: React.CSSProperties = {
 type ValidationMessageSize = 'default' | 'compact';
 
 export const ValidationMessage: React.FC<{
-	readonly message: string;
+	readonly message: React.ReactNode;
 	readonly align: 'flex-start' | 'flex-end';
 	readonly type: 'warning' | 'error';
 	readonly action?: React.ReactNode;

@@ -18,18 +18,21 @@ import {
 	useTimelineSelection,
 } from '../Timeline/TimelineSelection';
 import {AlignmentControls} from './AlignmentControls';
-import {InspectorInlineAction, InspectorMessage} from './common';
+import {
+	InspectorInlineAction,
+	InspectorMessage,
+	InspectorSectionDivider,
+} from './common';
+import {
+	ConnectedCompositionsSection,
+	useConnectedCompositions,
+} from './ConnectedCompositionsSection';
 import type {SequenceSectionSelection} from './inspector-selection';
-import {SequenceCompositionsSection} from './SequenceCompositionsSection';
 import {
 	SequenceInspectorHeader,
 	useSequenceInspectorSourceLocation,
 } from './SequenceInspectorHeader';
-import {
-	detailsContainer,
-	inspectorSectionDivider,
-	selectedContainer,
-} from './styles';
+import {detailsContainer, selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
 
 const splitIconStyle: React.CSSProperties = {
@@ -88,7 +91,7 @@ const SplitSequenceAction: React.FC<{
 
 	return (
 		<>
-			<div style={inspectorSectionDivider} />
+			<InspectorSectionDivider />
 			<div style={splitActionContainer}>
 				<InspectorInlineAction
 					disabled={false}
@@ -111,6 +114,7 @@ const SequenceExpandedInspector: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {selectedItems, selectItems} = useTimelineSelection();
 	const sourceLocation = useSequenceInspectorSourceLocation(track.sequence);
+	const connectedCompositions = useConnectedCompositions({track});
 	const {validatedLocation} = sourceLocation;
 	const sequenceSelection = useMemo((): Extract<
 		TimelineSelection,
@@ -171,7 +175,14 @@ const SequenceExpandedInspector: React.FC<{
 			onPointerDown={selectSequenceOnInspectorPointerDown}
 		>
 			<SequenceInspectorHeader sourceLocation={sourceLocation} track={track} />
-			<SequenceCompositionsSection track={track} />
+			{connectedCompositions.length > 0 ? (
+				<>
+					<InspectorSectionDivider />
+					<ConnectedCompositionsSection
+						connectedCompositions={connectedCompositions}
+					/>
+				</>
+			) : null}
 			<InspectorSequenceSection
 				sequence={track.sequence}
 				validatedLocation={validatedLocation}

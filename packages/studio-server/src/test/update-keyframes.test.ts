@@ -139,6 +139,60 @@ export const Example: React.FC = () => {
 	});
 });
 
+test('updateSequenceKeyframes updates a durationInFrames subtraction when moving a keyframe', async () => {
+	const input = `import React from 'react';
+import {Sequence, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	const {durationInFrames} = useVideoConfig();
+	return (
+		<Sequence style={{opacity: interpolate(frame, [0, durationInFrames - 1], [0.35, 1])}} />
+	);
+};
+`;
+	const {output, updatedNodePath} = await updateSequenceKeyframes({
+		input,
+		nodePath: lineColumnToNodePath(input, 8),
+		updates: [
+			{
+				key: 'style.opacity',
+				operation: {
+					type: 'move',
+					moves: [{fromFrame: 119, toFrame: 118}],
+				},
+			},
+		],
+		videoConfigValues,
+	});
+
+	expect(output).toContain('[0, durationInFrames - 2]');
+	const status = computeSequencePropsStatusFromContent({
+		fileContents: output,
+		nodePath: updatedNodePath,
+		componentIdentity: null,
+		keys: ['style.opacity'],
+		effects: [],
+		videoConfigValues,
+	});
+	expect(status.props['style.opacity']).toMatchObject({
+		status: 'keyframed',
+		keyframes: [
+			{frame: 0, value: 0.35},
+			{
+				frame: 118,
+				value: 1,
+				frameExpression: {
+					type: 'video-config-subtraction',
+					identifier: 'durationInFrames',
+					minuend: 120,
+					subtrahend: 2,
+				},
+			},
+		],
+	});
+});
+
 const colorInput = `import React from 'react';
 import {Solid, interpolateColors, useCurrentFrame} from 'remotion';
 
@@ -1233,7 +1287,11 @@ test('updateSequenceKeyframes keeps an interpolation when one keyframe remains',
 		updates: [
 			{
 				key: 'style.scale',
-				operation: {type: 'remove', frame: 0},
+				operation: {
+					type: 'remove',
+					frame: 0,
+					valueWhenLastKeyframeDeleted: null,
+				},
 			},
 		],
 	});
@@ -1262,7 +1320,11 @@ export const Example: React.FC = () => {
 		updates: [
 			{
 				key: 'style.scale',
-				operation: {type: 'remove', frame: 91},
+				operation: {
+					type: 'remove',
+					frame: 91,
+					valueWhenLastKeyframeDeleted: null,
+				},
 			},
 		],
 	});
@@ -1291,7 +1353,11 @@ export const Example: React.FC = () => {
 		updates: [
 			{
 				key: 'style.scale',
-				operation: {type: 'remove', frame: 38},
+				operation: {
+					type: 'remove',
+					frame: 38,
+					valueWhenLastKeyframeDeleted: null,
+				},
 			},
 		],
 	});
@@ -1448,7 +1514,11 @@ test('updateSequenceKeyframes converts the last keyframe to a static value', asy
 			updates: [
 				{
 					key: 'style.scale',
-					operation: {type: 'remove', frame: 12},
+					operation: {
+						type: 'remove',
+						frame: 12,
+						valueWhenLastKeyframeDeleted: null,
+					},
 				},
 			],
 		});
@@ -1470,6 +1540,32 @@ test('updateSequenceKeyframes converts the last keyframe to a static value', asy
 	});
 });
 
+test('updateSequenceKeyframes preserves the playhead value when all keyframes are removed', async () => {
+	for (const frames of [
+		[0, 100],
+		[100, 0],
+	]) {
+		const {output} = await updateSequenceKeyframes({
+			videoConfigValues: null,
+			input: sequenceInput,
+			nodePath: lineColumnToNodePath(
+				sequenceInput,
+				getLine(sequenceInput, 'scale'),
+			),
+			updates: frames.map((frame) => ({
+				key: 'style.scale',
+				operation: {
+					type: 'remove' as const,
+					frame,
+					valueWhenLastKeyframeDeleted: 3,
+				},
+			})),
+		});
+
+		expect(output).toContain('style={{scale: 3}}');
+	}
+});
+
 test('updateSequenceKeyframes keeps a color interpolation when one keyframe remains', async () => {
 	const {output, oldValueStrings} = await updateSequenceKeyframes({
 		videoConfigValues: null,
@@ -1478,7 +1574,11 @@ test('updateSequenceKeyframes keeps a color interpolation when one keyframe rema
 		updates: [
 			{
 				key: 'color',
-				operation: {type: 'remove', frame: 0},
+				operation: {
+					type: 'remove',
+					frame: 0,
+					valueWhenLastKeyframeDeleted: null,
+				},
 			},
 		],
 	});
@@ -1626,7 +1726,11 @@ test('updateSequenceKeyframes converts the last color keyframe to a static value
 			updates: [
 				{
 					key: 'color',
-					operation: {type: 'remove', frame: 15},
+					operation: {
+						type: 'remove',
+						frame: 15,
+						valueWhenLastKeyframeDeleted: null,
+					},
 				},
 			],
 		});
@@ -1660,7 +1764,11 @@ test('updateEffectKeyframes removes a keyframe from an effect prop interpolation
 		updates: [
 			{
 				key: 'amount',
-				operation: {type: 'remove', frame: 50},
+				operation: {
+					type: 'remove',
+					frame: 50,
+					valueWhenLastKeyframeDeleted: null,
+				},
 			},
 		],
 	});
@@ -1749,7 +1857,11 @@ test('updateEffectKeyframes keeps an effect prop interpolation with one keyframe
 		updates: [
 			{
 				key: 'amount',
-				operation: {type: 'remove', frame: 100},
+				operation: {
+					type: 'remove',
+					frame: 100,
+					valueWhenLastKeyframeDeleted: null,
+				},
 			},
 		],
 	});
@@ -1774,7 +1886,11 @@ test('updateEffectKeyframes converts the last effect keyframe to a static value'
 			updates: [
 				{
 					key: 'amount',
-					operation: {type: 'remove', frame: 40},
+					operation: {
+						type: 'remove',
+						frame: 40,
+						valueWhenLastKeyframeDeleted: null,
+					},
 				},
 			],
 		});

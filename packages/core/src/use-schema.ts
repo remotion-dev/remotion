@@ -44,6 +44,13 @@ export type VideoConfigNumericExpression =
 			multiplicand: number;
 			factorPosition: 'left' | 'right';
 			value: number;
+	  }
+	| {
+			type: 'video-config-subtraction';
+			identifier: string;
+			minuend: number;
+			subtrahend: number;
+			value: number;
 	  };
 
 export type CanUpdateSequencePropStatusLinearEasing = {

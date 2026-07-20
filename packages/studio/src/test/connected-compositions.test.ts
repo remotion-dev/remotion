@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {getCompositionsMatchingSingleChild} from '../components/InspectorPanel/get-compositions-matching-single-child';
+import {getConnectedCompositions} from '../helpers/get-connected-compositions';
 
 const Child = () => null;
 const OtherChild = () => null;
@@ -9,18 +9,18 @@ const compositions = [
 	{id: 'third', componentFromProps: Child},
 ];
 
-test('returns all compositions with the same component identity', () => {
+test('returns all connected compositions', () => {
 	expect(
-		getCompositionsMatchingSingleChild({
+		getConnectedCompositions({
 			compositions,
 			singleChildComponent: Child,
 		}).map((composition) => composition.id),
 	).toEqual(['first', 'third']);
 });
 
-test('does not match when no single child component was detected', () => {
+test('does not connect compositions without a single child component', () => {
 	expect(
-		getCompositionsMatchingSingleChild({
+		getConnectedCompositions({
 			compositions,
 			singleChildComponent: null,
 		}),

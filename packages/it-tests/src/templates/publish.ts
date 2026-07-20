@@ -3,6 +3,7 @@ import {
 	existsSync,
 	readdirSync,
 	readFileSync,
+	renameSync,
 	statSync,
 	writeFileSync,
 } from 'node:fs';
@@ -33,12 +34,28 @@ const skillsTemplate: MinimalTemplate = {
 
 const templates = [skillsTemplate, ...folders];
 
-const rewriteEmbeddedBestPracticesLinks = (root: string) => {
+const embeddedSkillFilename = 'REFERENCE.md';
+
+const prepareEmbeddedBestPractices = (root: string) => {
 	const embeddedRoot = path.join(root, 'skills', 'remotion-best-practices');
 
 	if (!existsSync(embeddedRoot)) {
 		return;
 	}
+
+	const embeddedSkillNames = readdirSync(embeddedRoot, {withFileTypes: true})
+		.filter((entry) => {
+			const child = path.join(embeddedRoot, entry.name);
+			return (
+				entry.isDirectory() &&
+				entry.name !== 'rules' &&
+				statSync(path.join(child, 'SKILL.md'), {
+					throwIfNoEntry: false,
+				})?.isFile()
+			);
+		})
+		.map((entry) => entry.name)
+		.sort();
 
 	const rewriteMarkdownFiles = (dir: string) => {
 		for (const entry of readdirSync(dir, {withFileTypes: true})) {
@@ -53,25 +70,27 @@ const rewriteEmbeddedBestPracticesLinks = (root: string) => {
 			}
 
 			const contents = readFileSync(file, 'utf-8');
-			const rewritten = contents.replaceAll(
-				'../remotion-best-practices/',
-				'../',
-			);
+			let rewritten = contents.replaceAll('../remotion-best-practices/', '../');
+			for (const skillName of embeddedSkillNames) {
+				rewritten = rewritten.replaceAll(
+					`${skillName}/SKILL.md`,
+					`${skillName}/${embeddedSkillFilename}`,
+				);
+			}
 			if (contents !== rewritten) {
 				writeFileSync(file, rewritten);
 			}
 		}
 	};
 
-	for (const entry of readdirSync(embeddedRoot, {withFileTypes: true})) {
-		const child = path.join(embeddedRoot, entry.name);
-		if (
-			entry.isDirectory() &&
-			entry.name !== 'rules' &&
-			statSync(path.join(child, 'SKILL.md'), {throwIfNoEntry: false})?.isFile()
-		) {
-			rewriteMarkdownFiles(child);
-		}
+	rewriteMarkdownFiles(embeddedRoot);
+
+	for (const skillName of embeddedSkillNames) {
+		const child = path.join(embeddedRoot, skillName);
+		renameSync(
+			path.join(child, 'SKILL.md'),
+			path.join(child, embeddedSkillFilename),
+		);
 	}
 };
 
@@ -122,7 +141,7 @@ const publish = async (template: MinimalTemplate) => {
 	}
 
 	if (template.templateInMonorepo === 'skills') {
-		rewriteEmbeddedBestPracticesLinks(workingDir);
+		prepareEmbeddedBestPractices(workingDir);
 	}
 
 	await $`git add .`.cwd(workingDir).nothrow();

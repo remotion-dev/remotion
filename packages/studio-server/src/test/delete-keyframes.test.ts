@@ -64,6 +64,15 @@ test('deleteKeyframes batches sequence and effect deletes into one undo entry', 
 					key: 'style.opacity',
 					frame: 0,
 					schema: NoReactInternals.sequenceSchema,
+					valueWhenLastKeyframeDeleted: 0.4,
+				},
+				{
+					fileName,
+					nodePath,
+					key: 'style.opacity',
+					frame: 10,
+					schema: NoReactInternals.sequenceSchema,
+					valueWhenLastKeyframeDeleted: 0.4,
 				},
 			],
 			effectKeyframes: [
@@ -72,8 +81,18 @@ test('deleteKeyframes batches sequence and effect deletes into one undo entry', 
 					sequenceNodePath: nodePath,
 					effectIndex: 0,
 					key: 'amount',
+					frame: 0,
+					schema: NoReactInternals.sequenceSchema,
+					valueWhenLastKeyframeDeleted: 0.6,
+				},
+				{
+					fileName,
+					sequenceNodePath: nodePath,
+					effectIndex: 0,
+					key: 'amount',
 					frame: 20,
 					schema: NoReactInternals.sequenceSchema,
+					valueWhenLastKeyframeDeleted: 0.6,
 				},
 			],
 			clientId: 'test-client',
@@ -82,10 +101,8 @@ test('deleteKeyframes batches sequence and effect deletes into one undo entry', 
 		});
 
 		const output = readFileSync(filePath, 'utf-8');
-		expect(output).toContain(
-			'style={{opacity: interpolate(frame, [10], [1])}}',
-		);
-		expect(output).toContain('amount: interpolate(frame, [0], [0.2])');
+		expect(output).toContain('style={{opacity: 0.4}}');
+		expect(output).toContain('amount: 0.6');
 		expect(getUndoStack()).toHaveLength(1);
 
 		expect(popUndo()).toEqual({success: true});

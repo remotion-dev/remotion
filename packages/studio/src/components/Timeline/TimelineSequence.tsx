@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useMemo, useRef} from 'react';
-import type {TSequence} from 'remotion';
+import type {_InternalTypes, TSequence} from 'remotion';
 import {Internals, useCurrentFrame} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
@@ -13,6 +13,10 @@ import {
 	WHITE_ALPHA_50,
 } from '../../helpers/colors';
 import {formatFileLocation} from '../../helpers/format-file-location';
+import {
+	getConnectedCompositionFrame,
+	getSequenceDoubleClickAction,
+} from '../../helpers/get-sequence-double-click-action';
 import {
 	getTimelineSequenceLayout,
 	SEQUENCE_BORDER_WIDTH,
@@ -29,6 +33,7 @@ import {AudioWaveform} from '../AudioWaveform';
 import {callApi} from '../call-api';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {ContextMenu} from '../ContextMenu';
+import {useSelectComposition} from '../InitialCompositionLoader';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useSelectAsset} from '../use-select-asset';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
@@ -38,6 +43,7 @@ import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {
+	isTimelineSelectionModifierEvent,
 	shouldSelectTimelineRowOnPointerDown,
 	TIMELINE_MARQUEE_ITEM_ATTR,
 	useTimelineMarqueeSelectableItem,
@@ -57,9 +63,10 @@ import {useSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-i
 
 const TimelineSequenceFn: React.FC<{
 	readonly s: TSequence;
+	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly sequenceFrameOffset: number;
-}> = ({s, nodePathInfo, sequenceFrameOffset}) => {
+}> = ({s, connectedCompositions, nodePathInfo, sequenceFrameOffset}) => {
 	const windowWidth = useContext(TimelineWidthContext);
 
 	if (windowWidth === null) {
@@ -70,6 +77,7 @@ const TimelineSequenceFn: React.FC<{
 		<TimelineSequenceInner
 			windowWidth={windowWidth}
 			s={s}
+			connectedCompositions={connectedCompositions}
 			nodePathInfo={nodePathInfo}
 			sequenceFrameOffset={sequenceFrameOffset}
 		/>
@@ -90,6 +98,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	readonly onMoveDragPointerDown: (
 		e: React.PointerEvent<HTMLDivElement>,
 	) => void;
+	readonly onDoubleClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }> = ({
 	s,
 	displayDurationInFrames,
@@ -102,6 +111,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 	fromCanUpdate,
 	frozenFrame,
 	onMoveDragPointerDown,
+	onDoubleClick,
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
 	const {onSelect, selectable, selected, selectionItem} =
@@ -166,6 +176,7 @@ const TimelineSequenceCurrentFrame: React.FC<{
 			style={actualStyle}
 			title={s.displayName}
 			onPointerDown={selectable ? onPointerDown : undefined}
+			onDoubleClick={onDoubleClick}
 		>
 			{premountWidth ? (
 				<div
@@ -231,10 +242,17 @@ const TimelineSequenceCurrentFrame: React.FC<{
 
 const TimelineSequenceInner: React.FC<{
 	readonly s: TSequence;
+	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 	readonly windowWidth: number;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly sequenceFrameOffset: number;
-}> = ({s, windowWidth, nodePathInfo, sequenceFrameOffset}) => {
+}> = ({
+	s,
+	connectedCompositions,
+	windowWidth,
+	nodePathInfo,
+	sequenceFrameOffset,
+}) => {
 	// If a duration is 1, it is essentially a still and it should have width 0
 	// Some compositions may not be longer than their media duration,
 	// if that is the case, it needs to be asynchronously determined
@@ -286,6 +304,7 @@ const TimelineSequenceInner: React.FC<{
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const selectAsset = useSelectAsset();
+	const selectComposition = useSelectComposition();
 	const confirm = useConfirmationDialog();
 	const {onSelect, selectable} = useTimelineRowSelection(nodePathInfo);
 	const fileLocation = useMemo(
@@ -308,6 +327,50 @@ const TimelineSequenceInner: React.FC<{
 			showNotification((err as Error).message, 2000);
 		});
 	}, [canOpenInEditor, originalLocation]);
+	const onSequenceDoubleClick = useCallback(
+		(e: React.MouseEvent<HTMLDivElement>) => {
+			if (isTimelineSelectionModifierEvent(e)) {
+				e.stopPropagation();
+				return;
+			}
+
+			const action = getSequenceDoubleClickAction({
+				button: e.button,
+				canOpenInEditor,
+				numberOfConnectedCompositions: connectedCompositions.length,
+			});
+			if (action === null) {
+				return;
+			}
+
+			e.stopPropagation();
+			if (action === 'open-connected-composition') {
+				selectComposition(
+					connectedCompositions[0],
+					true,
+					getConnectedCompositionFrame({
+						timelinePosition,
+						sequence: s,
+						sequenceFrameOffset,
+					}),
+				);
+				return;
+			}
+
+			openInEditor();
+		},
+		[
+			canOpenInEditor,
+			connectedCompositions,
+			openInEditor,
+			s,
+			selectComposition,
+			sequenceFrameOffset,
+			timelinePosition,
+		],
+	);
+	const canHandleSequenceDoubleClick =
+		connectedCompositions.length === 1 || canOpenInEditor;
 	const canDeleteFromSource = Boolean(nodePath && validatedLocation?.source);
 	const deleteDisabled =
 		!previewInteractive || !s.controls || !canDeleteFromSource;
@@ -552,6 +615,9 @@ const TimelineSequenceInner: React.FC<{
 			fromCanUpdate={fromCanUpdate}
 			frozenFrame={frozenFrame}
 			onMoveDragPointerDown={onMoveDragPointerDown}
+			onDoubleClick={
+				canHandleSequenceDoubleClick ? onSequenceDoubleClick : undefined
+			}
 		>
 			{s.type === 'audio' ? (
 				<AudioWaveform

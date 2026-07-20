@@ -419,6 +419,8 @@ export const deleteSelectedTimelineItems = ({
 	setPropStatuses,
 	clientId,
 	confirm,
+	propStatuses,
+	timelinePosition,
 }: {
 	selections: readonly TimelineSelection[];
 	sequences: TSequence[];
@@ -426,6 +428,8 @@ export const deleteSelectedTimelineItems = ({
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 	confirm: ConfirmationDialogFunction;
+	propStatuses: PropStatuses;
+	timelinePosition: number;
 }): Promise<boolean> | null => {
 	const firstSelection = selections[0];
 	if (!firstSelection) {
@@ -447,6 +451,8 @@ export const deleteSelectedTimelineItems = ({
 			overrideIdsToNodePaths,
 			setPropStatuses,
 			clientId,
+			propStatuses,
+			timelinePosition,
 		});
 		return promise?.then(() => true) ?? null;
 	}

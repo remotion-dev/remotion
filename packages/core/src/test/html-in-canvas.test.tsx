@@ -161,11 +161,15 @@ const SequenceTestWrapper: React.FC<{
 	readonly onRegisterSequence: (sequence: TSequence) => void;
 	readonly isRendering?: boolean;
 	readonly isClientSideRendering?: boolean;
+	readonly compositionDurationInFrames?: number;
+	readonly currentFrame?: number;
 }> = ({
 	children,
 	onRegisterSequence,
 	isRendering = false,
 	isClientSideRendering = false,
+	compositionDurationInFrames,
+	currentFrame,
 }) => {
 	const registerSequence = useCallback(
 		(sequence: TSequence) => {
@@ -215,7 +219,10 @@ const SequenceTestWrapper: React.FC<{
 	);
 
 	return (
-		<WrapSequenceContext>
+		<WrapSequenceContext
+			compositionDurationInFrames={compositionDurationInFrames}
+			currentFrame={currentFrame}
+		>
 			<Internals.RemotionEnvironmentContext
 				value={{
 					isClientSideRendering,
@@ -240,6 +247,22 @@ const SequenceTestWrapper: React.FC<{
 		</WrapSequenceContext>
 	);
 };
+
+test('<HtmlInCanvas> remains visible with a negative offset', () => {
+	const {queryByText} = render(
+		<SequenceTestWrapper
+			compositionDurationInFrames={100}
+			currentFrame={75}
+			onRegisterSequence={() => undefined}
+		>
+			<HtmlInCanvas from={-100} width={120} height={80}>
+				<div>Still visible</div>
+			</HtmlInCanvas>
+		</SequenceTestWrapper>,
+	);
+
+	expect(queryByText('Still visible')).not.toBeNull();
+});
 
 test('<HtmlInCanvas> registers its canvas for outline selection', async () => {
 	const registeredSequences: TSequence[] = [];

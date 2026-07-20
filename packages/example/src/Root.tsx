@@ -16,6 +16,11 @@ import {NativeBufferStateForImage} from './BufferState/Image';
 import {NativeBufferState} from './BufferState/Simple';
 import {NativeBufferStateForVideo} from './BufferState/Video';
 import {CancelRender} from './CancelRender';
+import {
+	AnimatedCaptions,
+	CAPTIONS_DURATION_IN_FRAMES,
+	CAPTIONS_HEIGHT,
+} from './CaptionsTester/AnimatedCaptions';
 import {ClassSerialization} from './ClassSerialization';
 import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
@@ -279,6 +284,7 @@ import {
 	InteractiveHtmlElements,
 	InteractiveSvgElements,
 } from './VisualModeTests/InteractiveComponents';
+import {Issue9170} from './VisualModeTests/Issue9170';
 import {VideoConfigExpressions} from './VisualModeTests/VideoConfigExpressions';
 import {VoiceVisualization} from './voice-visualization';
 import {WhisperWeb} from './WhisperWeb';
@@ -406,6 +412,14 @@ export const Index: React.FC = () => {
 
 	return (
 		<>
+			<Composition
+				id="captions-tester"
+				component={AnimatedCaptions}
+				durationInFrames={CAPTIONS_DURATION_IN_FRAMES}
+				fps={30}
+				width={1080}
+				height={CAPTIONS_HEIGHT}
+			/>
 			<Folder name="copilot-tests">
 				<Composition
 					id="keyframed-props-test"
@@ -2746,6 +2760,14 @@ export const Index: React.FC = () => {
 					height={800}
 					fps={30}
 					durationInFrames={300}
+				/>
+				<Composition
+					id="issue-9170-duration-subtraction"
+					component={Issue9170}
+					width={1200}
+					height={800}
+					fps={30}
+					durationInFrames={120}
 				/>
 			</Folder>
 			<ChangingTrimBeforeValue />

@@ -22,12 +22,10 @@ const makeDefaultGlobalCSS = () => {
 	    --remotion-cli-internals-blue: ${BLUE};
 	    --remotion-cli-internals-blue-hovered: ${BLUE_HOVERED};
 	    overscroll-behavior-y: none;
-	    overscroll-behavior-x: none;
 	  }
 
   body {
     overscroll-behavior-y: none;
-    overscroll-behavior-x: none;
     /* Override Chakra UI position: relative on body */
     position: static !important;
   }

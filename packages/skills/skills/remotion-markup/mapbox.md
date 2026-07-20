@@ -205,7 +205,7 @@ const getCameraOptions = (progress: number) => {
 		zoom: interpolate(progress, [0, 0.5, 1], [7, 2.4, 8], {
 			extrapolateLeft: 'clamp',
 			extrapolateRight: 'clamp',
-			easing: Easing.inOut(Easing.cubic),
+			easing: Easing.bezier(0.645, 0.045, 0.355, 1),
 		}),
 		bearing: interpolate(progress, [0, 1], [-20, 35], {
 			extrapolateLeft: 'clamp',
@@ -214,7 +214,7 @@ const getCameraOptions = (progress: number) => {
 		pitch: interpolate(progress, [0, 0.25, 0.75, 1], [25, 55, 55, 30], {
 			extrapolateLeft: 'clamp',
 			extrapolateRight: 'clamp',
-			easing: Easing.inOut(Easing.cubic),
+			easing: Easing.bezier(0.645, 0.045, 0.355, 1),
 		}),
 	};
 };
@@ -322,7 +322,7 @@ export const MyComposition = () => {
 		const travelProgress = interpolate(timelineProgress, [0.2, 0.82], [0, 1], {
 			extrapolateLeft: 'clamp',
 			extrapolateRight: 'clamp',
-			easing: Easing.inOut(Easing.cubic),
+			easing: Easing.bezier(0.645, 0.045, 0.355, 1),
 		});
 		const trace = map.getSource('trace') as GeoJSONSource | undefined;
 

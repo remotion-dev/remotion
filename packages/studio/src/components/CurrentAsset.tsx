@@ -8,6 +8,7 @@ import {
 	renderHumanReadableAudioCodec,
 	renderHumanReadableVideoCodec,
 } from '../helpers/render-codec-label';
+import {useImageMetadata} from '../helpers/use-image-metadata';
 import type {MediaMetadata} from '../helpers/use-media-metadata';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
 import {InlineEditableTitle} from './InlineEditableTitle';
@@ -31,6 +32,18 @@ export const getCurrentAssetMetadataSource = (assetName: string | null) => {
 
 	const fileType = getPreviewFileType(assetName);
 	return fileType === 'audio' || fileType === 'video'
+		? staticFile(assetName)
+		: null;
+};
+
+export const getCurrentAssetImageMetadataSource = (
+	assetName: string | null,
+) => {
+	if (!assetName) {
+		return null;
+	}
+
+	return getPreviewFileType(assetName) === 'image'
 		? staticFile(assetName)
 		: null;
 };
@@ -101,6 +114,8 @@ export const AssetInfo: React.FC<{
 
 	const src = getCurrentAssetMetadataSource(assetName);
 	const mediaMetadata = useMediaMetadata(src);
+	const imageSrc = getCurrentAssetImageMetadataSource(assetName);
+	const imageMetadata = useImageMetadata(imageSrc);
 	const canRename =
 		onAssetClick === undefined &&
 		connectionStatus === 'connected' &&
@@ -131,6 +146,9 @@ export const AssetInfo: React.FC<{
 		if (mediaMetadata.width !== null && mediaMetadata.height !== null) {
 			subtitleParts.push(`${mediaMetadata.width}x${mediaMetadata.height}`);
 		}
+	} else if (imageMetadata) {
+		subtitleParts.push(imageMetadata.format);
+		subtitleParts.push(`${imageMetadata.width}x${imageMetadata.height}`);
 	}
 
 	const mediaDetailLines = mediaMetadata

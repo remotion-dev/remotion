@@ -612,7 +612,8 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 	const style = useMemo(() => {
 		return {
 			...passedStyle,
-			opacity: premountingActive || postmountingActive ? 0 : 1,
+			opacity:
+				premountingActive || postmountingActive ? 0 : passedStyle?.opacity,
 			pointerEvents:
 				premountingActive || postmountingActive
 					? 'none'
