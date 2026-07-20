@@ -2,6 +2,8 @@ import React, {useContext, useEffect, useMemo, useState} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {FileIcon} from '../../icons/file';
+import {Plus} from '../../icons/plus';
 import {VisualControlsContext} from '../../visual-controls/VisualControls';
 import {CurrentAsset} from '../CurrentAsset';
 import {CurrentComposition} from '../CurrentComposition';
@@ -23,6 +25,7 @@ import {SegmentedControl} from '../SegmentedControl';
 import {VisualControlsContent} from '../VisualControls/VisualControlsContent';
 import {
 	InspectorDefaultPropsWarnings,
+	InspectorInlineAction,
 	InspectorSectionDivider,
 	InspectorSectionHeader,
 } from './common';
@@ -32,6 +35,7 @@ import {
 	container,
 	defaultPropsSection,
 	defaultPropsWarningContainer,
+	detailsContainer,
 	scrollableContainer,
 	sectionHeaderEnd,
 	sectionHeaderRow,
@@ -39,6 +43,69 @@ import {
 	sectionHeaderTitle,
 	visualControlsSection,
 } from './styles';
+import {useCompositionActions} from './use-composition-actions';
+
+const actionIconStyle: React.CSSProperties = {
+	height: 13,
+	width: 13,
+};
+
+const actionsContainer: React.CSSProperties = {
+	...detailsContainer,
+	paddingBottom: 6,
+	paddingTop: 6,
+};
+
+const actionButton: React.CSSProperties = {
+	width: '100%',
+};
+
+const CompositionActions: React.FC = () => {
+	const {
+		canInsertAsset,
+		canInsertSolid,
+		canShowInsertAsset,
+		canShowInsertSolid,
+		insertAsset,
+		insertSolid,
+	} = useCompositionActions();
+
+	if (!canShowInsertAsset && !canShowInsertSolid) {
+		return null;
+	}
+
+	return (
+		<>
+			<InspectorSectionDivider />
+			<div style={actionsContainer}>
+				{canShowInsertSolid ? (
+					<InspectorInlineAction
+						disabled={!canInsertSolid}
+						onClick={insertSolid}
+						style={actionButton}
+						renderIcon={(color) => (
+							<Plus color={color} style={actionIconStyle} />
+						)}
+					>
+						Add Solid
+					</InspectorInlineAction>
+				) : null}
+				{canShowInsertAsset ? (
+					<InspectorInlineAction
+						disabled={!canInsertAsset}
+						onClick={insertAsset}
+						style={actionButton}
+						renderIcon={(color) => (
+							<FileIcon color={color} style={actionIconStyle} />
+						)}
+					>
+						Add asset
+					</InspectorInlineAction>
+				) : null}
+			</div>
+		</>
+	);
+};
 
 export const DefaultInspector: React.FC<{
 	readonly composition: _InternalTypes['AnyComposition'] | null;
@@ -193,6 +260,7 @@ export const DefaultInspector: React.FC<{
 					</div>
 				</>
 			) : null}
+			<CompositionActions />
 		</div>
 	);
 };
