@@ -23,7 +23,9 @@ import React, {
 } from 'react';
 import type {CanvasContent} from 'remotion';
 import {Internals, watchStaticFile, type PreviewSize} from 'remotion';
+import {getStaticFiles} from '../api/get-static-files';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {getClipboardImageFiles} from '../helpers/clipboard-images';
 import {BACKGROUND} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {getAssetMetadata} from '../helpers/get-asset-metadata';
@@ -44,7 +46,10 @@ import {
 	smoothenZoom,
 	unsmoothenZoom,
 } from '../helpers/smooth-zoom';
-import {useKeybinding} from '../helpers/use-keybinding';
+import {
+	areKeyboardShortcutsDisabled,
+	useKeybinding,
+} from '../helpers/use-keybinding';
 import {canvasRef} from '../state/canvas-ref';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
@@ -1172,6 +1177,54 @@ export const Canvas: React.FC<{
 		],
 	);
 
+	const onPaste = useCallback(
+		async (event: ClipboardEvent) => {
+			const {activeElement} = document;
+			if (
+				!canDropAssets ||
+				compositionFile === null ||
+				currentCompositionId === null ||
+				event.clipboardData === null ||
+				activeElement instanceof HTMLInputElement ||
+				activeElement instanceof HTMLTextAreaElement ||
+				(activeElement instanceof HTMLElement &&
+					activeElement.isContentEditable)
+			) {
+				return;
+			}
+
+			const files = getClipboardImageFiles({
+				clipboardData: event.clipboardData,
+				existingFileNames: getStaticFiles().map((file) => file.name),
+			});
+			if (files.length === 0) {
+				return;
+			}
+
+			event.preventDefault();
+			setIsAddingAsset(true);
+			try {
+				await importAssets({
+					files,
+					compositionFile,
+					compositionId: currentCompositionId,
+					destinationDimensions:
+						contentDimensions === 'none' ? null : contentDimensions,
+					dropPosition:
+						contentDimensions === null || contentDimensions === 'none'
+							? null
+							: {
+									centerX: contentDimensions.width / 2,
+									centerY: contentDimensions.height / 2,
+								},
+				});
+			} finally {
+				setIsAddingAsset(false);
+			}
+		},
+		[canDropAssets, compositionFile, contentDimensions, currentCompositionId],
+	);
+
 	useEffect(() => {
 		if (!canDropAssets) {
 			return;
@@ -1185,6 +1238,19 @@ export const Canvas: React.FC<{
 			document.removeEventListener('drop', onDrop, {capture: true});
 		};
 	}, [canDropAssets, onDragOver, onDrop]);
+
+	useEffect(() => {
+		if (
+			!canDropAssets ||
+			!keybindings.isHighestContext ||
+			areKeyboardShortcutsDisabled()
+		) {
+			return;
+		}
+
+		document.addEventListener('paste', onPaste);
+		return () => document.removeEventListener('paste', onPaste);
+	}, [canDropAssets, keybindings.isHighestContext, onPaste]);
 
 	return (
 		<>
