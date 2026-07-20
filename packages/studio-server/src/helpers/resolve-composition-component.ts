@@ -33,6 +33,7 @@ import {
 	getImportedName,
 	insertImportDeclaration,
 } from './imports';
+import {svgMarkupToJsx} from './svg-to-jsx';
 
 type SourceLocation = {
 	line: number;
@@ -1026,6 +1027,54 @@ const createAssetElement = ({
 	);
 };
 
+const createSvgElement = async ({
+	interactiveLocalName,
+	markup,
+	position,
+}: {
+	interactiveLocalName: string;
+	markup: string;
+	position: InsertableCompositionElementPosition | null;
+}): Promise<namedTypes.JSXElement> => {
+	const svgElement = await svgMarkupToJsx(markup);
+	const attributes = svgElement.openingElement.attributes ?? [];
+	svgElement.openingElement.attributes = attributes;
+	const styleAttribute = attributes.find(
+		(attribute) =>
+			attribute.type === 'JSXAttribute' &&
+			attribute.name.type === 'JSXIdentifier' &&
+			attribute.name.name === 'style',
+	);
+	const positionProperties = getPositionStyleProperties(position);
+
+	if (styleAttribute === undefined) {
+		attributes.push(createStyleAttribute(positionProperties));
+	} else if (
+		styleAttribute.type === 'JSXAttribute' &&
+		styleAttribute.value?.type === 'JSXExpressionContainer' &&
+		styleAttribute.value.expression.type === 'ObjectExpression'
+	) {
+		styleAttribute.value.expression.properties.push(...positionProperties);
+	} else {
+		throw new Error('Could not convert the root SVG style to JSX');
+	}
+
+	const interactiveSvgName = () =>
+		recast.types.builders.jsxMemberExpression(
+			recast.types.builders.jsxIdentifier(interactiveLocalName),
+			recast.types.builders.jsxIdentifier('Svg'),
+		);
+	svgElement.openingElement.name = interactiveSvgName();
+	if (
+		svgElement.closingElement !== null &&
+		svgElement.closingElement !== undefined
+	) {
+		svgElement.closingElement.name = interactiveSvgName();
+	}
+
+	return svgElement;
+};
+
 const createFragmentWithElement = (element: namedTypes.JSXElement) => {
 	return recast.types.builders.jsxFragment(
 		recast.types.builders.jsxOpeningFragment(),
@@ -1200,6 +1249,44 @@ const ensureSequenceImport = (ast: File) => {
 		importedName: 'Sequence',
 		sourcePath: 'remotion',
 		localName: getAvailableSequenceLocalName(ast),
+	});
+};
+
+const ensureInteractiveImport = (ast: File) => {
+	for (const statement of ast.program.body) {
+		if (
+			statement.type !== 'ImportDeclaration' ||
+			statement.source.type !== 'StringLiteral' ||
+			statement.source.value !== 'remotion'
+		) {
+			continue;
+		}
+
+		for (const specifier of statement.specifiers ?? []) {
+			if (
+				specifier.type === 'ImportSpecifier' &&
+				getImportedName(specifier) === 'Interactive'
+			) {
+				return specifier.local?.name ?? 'Interactive';
+			}
+		}
+	}
+
+	const candidates = ['Interactive', 'RemotionInteractive'];
+	const localName = candidates.find((candidate) => {
+		return !hasTopLevelBinding({ast, name: candidate});
+	});
+	if (localName === undefined) {
+		throw new Error(
+			'Cannot add <Interactive.Svg> because Interactive is already defined',
+		);
+	}
+
+	return ensureNamedImport({
+		ast,
+		importedName: 'Interactive',
+		sourcePath: 'remotion',
+		localName,
 	});
 };
 
@@ -2073,6 +2160,14 @@ const createInsertableJsxElement = ({
 			addPositionStyle: addPositionStyleToComponent,
 			localName: componentLocalName,
 			props: element.props,
+			position: element.position,
+		});
+	}
+
+	if (element.type === 'svg') {
+		return createSvgElement({
+			interactiveLocalName: ensureInteractiveImport(ast),
+			markup: element.markup,
 			position: element.position,
 		});
 	}

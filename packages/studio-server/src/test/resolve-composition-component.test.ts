@@ -819,6 +819,63 @@ test('inserts a Solid into an empty component returning null', async () => {
 	}
 });
 
+test('converts and inserts SVG markup as an Interactive.Svg', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import {AbsoluteFill} from 'remotion';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn <AbsoluteFill>hello</AbsoluteFill>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'svg',
+				markup:
+					'<svg width="100" height="50" viewBox="0 0 100 50" style="opacity: 0.8"><path fill-rule="evenodd" stroke-width="2" d="M0 0h10v10z" /></svg>',
+				position: {x: 120.25, y: 80},
+			},
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+
+		expect(result.output).toContain(
+			"import { AbsoluteFill, Interactive } from 'remotion';",
+		);
+		expect(result.output).toContain('<Interactive.Svg');
+		expect(result.output).toContain('</Interactive.Svg>');
+		expect(result.output).toContain('width={100}');
+		expect(result.output).toContain('height={50}');
+		expect(result.output).toContain('viewBox="0 0 100 50"');
+		expect(result.output).toContain('fillRule="evenodd"');
+		expect(result.output).toContain('strokeWidth={2}');
+		expect(result.output).toContain('opacity: 0.8');
+		expect(result.output).toContain("position: 'absolute'");
+		expect(result.output).toContain("translate: '120.3px 80px'");
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
 test('inserts an Img asset into the resolved composition component', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {

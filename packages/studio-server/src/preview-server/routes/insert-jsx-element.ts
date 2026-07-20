@@ -90,6 +90,14 @@ const validateElement = (
 		return;
 	}
 
+	if (element.type === 'svg') {
+		if (typeof element.markup !== 'string' || element.markup.trim() === '') {
+			throw new Error('SVG markup must be a non-empty string');
+		}
+
+		return;
+	}
+
 	if (element.type === 'asset') {
 		if (element.srcType === 'remote') {
 			if (!isUrl(element.src)) {
@@ -165,6 +173,10 @@ const validateElement = (
 const getElementLabel = (element: InsertableCompositionElement) => {
 	if (element.type === 'solid') {
 		return '<Solid>';
+	}
+
+	if (element.type === 'svg') {
+		return '<Interactive.Svg>';
 	}
 
 	if (element.type === 'asset') {

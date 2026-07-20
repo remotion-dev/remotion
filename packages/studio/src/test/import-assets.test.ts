@@ -146,20 +146,13 @@ test('maps existing static file paths to insertable assets', () => {
 	});
 });
 
-test('maps dropped SVG files to image assets', () => {
+test('does not map dropped SVG files to image assets', () => {
 	expect(
 		getAssetElementForDroppedFile({
 			fileType: {type: 'unknown'},
 			src: 'vector.svg',
 		}),
-	).toEqual({
-		type: 'asset',
-		assetType: 'image',
-		src: 'vector.svg',
-		srcType: 'static',
-		dimensions: null,
-		position: null,
-	});
+	).toBe(null);
 });
 
 test('does not map unsupported existing static file paths', () => {

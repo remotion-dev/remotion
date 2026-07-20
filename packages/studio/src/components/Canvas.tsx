@@ -26,6 +26,7 @@ import {Internals, watchStaticFile, type PreviewSize} from 'remotion';
 import {getStaticFiles} from '../api/get-static-files';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getClipboardImageFiles} from '../helpers/clipboard-images';
+import {getClipboardSvgMarkup} from '../helpers/clipboard-svg';
 import {BACKGROUND} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {getAssetMetadata} from '../helpers/get-asset-metadata';
@@ -68,6 +69,7 @@ import {
 	insertElement,
 	insertExistingAssets,
 	insertRemoteAudio,
+	insertSvgMarkup,
 	type InsertElementDropPosition,
 } from './import-assets';
 import {SPACING_UNIT} from './layout';
@@ -1214,6 +1216,33 @@ export const Canvas: React.FC<{
 				return;
 			}
 
+			const dropPosition =
+				contentDimensions === null || contentDimensions === 'none'
+					? null
+					: {
+							centerX: contentDimensions.width / 2,
+							centerY: contentDimensions.height / 2,
+						};
+			const svgMarkup = getClipboardSvgMarkup(event.clipboardData);
+			if (svgMarkup !== null) {
+				event.preventDefault();
+				setIsAddingAsset(true);
+				try {
+					await insertSvgMarkup({
+						compositionFile,
+						compositionId: currentCompositionId,
+						destinationDimensions:
+							contentDimensions === 'none' ? null : contentDimensions,
+						dropPosition,
+						markup: svgMarkup,
+					});
+				} finally {
+					setIsAddingAsset(false);
+				}
+
+				return;
+			}
+
 			const files = getClipboardImageFiles({
 				clipboardData: event.clipboardData,
 				existingFileNames: getStaticFiles().map((file) => file.name),
@@ -1231,13 +1260,7 @@ export const Canvas: React.FC<{
 					compositionId: currentCompositionId,
 					destinationDimensions:
 						contentDimensions === 'none' ? null : contentDimensions,
-					dropPosition:
-						contentDimensions === null || contentDimensions === 'none'
-							? null
-							: {
-									centerX: contentDimensions.width / 2,
-									centerY: contentDimensions.height / 2,
-								},
+					dropPosition,
 				});
 			} finally {
 				setIsAddingAsset(false);
