@@ -29,9 +29,7 @@ const writeConfig = (contents: string) => {
 test('an invalid config reload keeps the previous configuration', async () => {
 	process.env.PATCH_BUN_DEVELOPMENT = '1';
 	Object.assign(globalThis, {
-		require: createRequire(
-			path.join(process.cwd(), 'packages/cli/src/load-config.ts'),
-		),
+		require: createRequire(path.join(__dirname, '..', 'load-config.ts')),
 	});
 	temporaryDirectory = mkdtempSync(path.join(tmpdir(), 'remotion-config-'));
 	writeConfig(
