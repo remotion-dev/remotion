@@ -199,10 +199,21 @@ export const getAssetElementForDroppedFile = ({
 	fileType: FileType;
 	src: string;
 }): InsertableAssetElement | null => {
-	return getAssetElement({fileType, src});
+	const detectedElement = getAssetElement({fileType, src});
+	if (detectedElement !== null) {
+		return detectedElement;
+	}
+
+	if (fileType.type !== 'unknown' || !src.toLowerCase().endsWith('.svg')) {
+		return null;
+	}
+
+	return getAssetElementFromPath(src);
 };
 
 const isSvgFile = (file: File) => file.name.toLowerCase().endsWith('.svg');
+
+export const hasSvgFile = (files: File[]) => files.some(isSvgFile);
 
 const getAssetLabel = (element: InsertableCompositionElement) => {
 	if (element.type !== 'asset') {
@@ -613,12 +624,14 @@ export const importAssets = async ({
 	destinationDimensions,
 	dropPosition,
 	files,
+	svgImportMode,
 }: {
 	compositionFile: string;
 	compositionId: string;
 	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
 	files: File[];
+	svgImportMode: 'image' | 'inline';
 }) => {
 	if (files.length === 0) {
 		return;
@@ -626,7 +639,7 @@ export const importAssets = async ({
 
 	const staticFiles = getStaticFiles();
 	const differentExistingFile = files.find((file) => {
-		if (isSvgFile(file)) {
+		if (isSvgFile(file) && svgImportMode === 'inline') {
 			return false;
 		}
 
@@ -666,7 +679,7 @@ export const importAssets = async ({
 			const fileType = detectFileType(new Uint8Array(contents));
 			const dimensions = await getFileDimensionsOrNull({file, fileType});
 
-			if (isSvgFile(file)) {
+			if (isSvgFile(file) && svgImportMode === 'inline') {
 				const svgInserted = await insertCompositionElement({
 					compositionFile,
 					compositionId,

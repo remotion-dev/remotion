@@ -62,6 +62,7 @@ import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {getEffectDragData} from './effect-drag-and-drop';
 import {getElementDragData} from './element-drag-and-drop';
 import {
+	hasSvgFile,
 	importAssets,
 	importRemoteAsset,
 	insertComponent,
@@ -76,6 +77,7 @@ import {SPACING_UNIT} from './layout';
 import {showNotification} from './Notifications/NotificationCenter';
 import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
+import {useSvgImportDialog} from './SvgImportDialog';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 
 const elementInstallCompositionIdStyle: React.CSSProperties = {
@@ -328,6 +330,7 @@ export const Canvas: React.FC<{
 	} | null>(null);
 	const keybindings = useKeybinding();
 	const confirm = useConfirmationDialog();
+	const chooseSvgImportMode = useSvgImportDialog();
 	const config = Internals.useUnsafeVideoConfig();
 	const areRulersVisible = useIsRulerVisible();
 	const {editorShowGuides} = useContext(EditorShowGuidesContext);
@@ -1101,6 +1104,13 @@ export const Canvas: React.FC<{
 						return;
 					}
 
+					const svgImportMode = hasSvgFile(files)
+						? await chooseSvgImportMode()
+						: 'image';
+					if (svgImportMode === null) {
+						return;
+					}
+
 					await importAssets({
 						files,
 						compositionFile,
@@ -1108,6 +1118,7 @@ export const Canvas: React.FC<{
 						destinationDimensions:
 							contentDimensions === 'none' ? null : contentDimensions,
 						dropPosition,
+						svgImportMode,
 					});
 				} else if (isAssetDragEvent(event)) {
 					const assetPath = getAssetDragPath(event);
@@ -1192,6 +1203,7 @@ export const Canvas: React.FC<{
 		[
 			canDropAssets,
 			cannotAddSequence,
+			chooseSvgImportMode,
 			compositionFile,
 			contentDimensions,
 			currentCompositionId,
@@ -1261,6 +1273,7 @@ export const Canvas: React.FC<{
 					destinationDimensions:
 						contentDimensions === 'none' ? null : contentDimensions,
 					dropPosition,
+					svgImportMode: 'image',
 				});
 			} finally {
 				setIsAddingAsset(false);
