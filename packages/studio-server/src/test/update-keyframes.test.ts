@@ -1540,6 +1540,35 @@ test('updateSequenceKeyframes converts the last keyframe to a static value', asy
 	});
 });
 
+test('updateSequenceKeyframes removes a default-valued prop with its last keyframe', async () => {
+	const input = sequenceInput.replace(
+		'interpolate(frame, [0, 100], [2, 4])',
+		'interpolate(frame, [12], [1])',
+	);
+	const {output, oldValueStrings, newValueStrings} =
+		await updateSequenceKeyframes({
+			videoConfigValues: null,
+			input,
+			nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+			schema: NoReactInternals.sequenceSchema,
+			updates: [
+				{
+					key: 'style.scale',
+					operation: {
+						type: 'remove',
+						frame: 12,
+						valueWhenLastKeyframeDeleted: 1,
+					},
+				},
+			],
+		});
+
+	expect(oldValueStrings).toEqual(['interpolate(frame, [12], [1])']);
+	expect(newValueStrings).toEqual(['1']);
+	expect(output).not.toContain('style={{scale: 1}}');
+	expect(output).toContain('<div />');
+});
+
 test('updateSequenceKeyframes preserves the playhead value when all keyframes are removed', async () => {
 	for (const frames of [
 		[0, 100],

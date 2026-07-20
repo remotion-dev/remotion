@@ -24,7 +24,10 @@ export const Comp = () => {
 \tconst frame = useCurrentFrame();
 \treturn (
 \t\t<AbsoluteFill
-\t\t\tstyle={{opacity: interpolate(frame, [0, 10], [0, 1])}}
+\t\t\tstyle={{
+\t\t\t\topacity: interpolate(frame, [0, 10], [0, 1]),
+\t\t\t\tscale: interpolate(frame, [30], [1]),
+\t\t\t}}
 \t\t\teffects={[tint({amount: interpolate(frame, [0, 20], [0.2, 0.8])})]}
 \t\t/>
 \t);
@@ -48,7 +51,7 @@ test('deleteKeyframes batches sequence and effect deletes into one undo entry', 
 	const nodePath = {
 		absolutePath: fileName,
 		nodePath: lineColumnToNodePath(input, 7),
-		sequenceKeys: ['style.opacity'],
+		sequenceKeys: ['style.opacity', 'style.scale'],
 		effectKeys: [['amount']],
 		videoConfigValues: null,
 	};
@@ -73,6 +76,14 @@ test('deleteKeyframes batches sequence and effect deletes into one undo entry', 
 					frame: 10,
 					schema: NoReactInternals.sequenceSchema,
 					valueWhenLastKeyframeDeleted: 0.4,
+				},
+				{
+					fileName,
+					nodePath,
+					key: 'style.scale',
+					frame: 30,
+					schema: NoReactInternals.sequenceSchema,
+					valueWhenLastKeyframeDeleted: 1,
 				},
 			],
 			effectKeyframes: [
@@ -101,7 +112,8 @@ test('deleteKeyframes batches sequence and effect deletes into one undo entry', 
 		});
 
 		const output = readFileSync(filePath, 'utf-8');
-		expect(output).toContain('style={{opacity: 0.4}}');
+		expect(output).toContain('opacity: 0.4');
+		expect(output).not.toContain('scale: 1');
 		expect(output).toContain('amount: 0.6');
 		expect(getUndoStack()).toHaveLength(1);
 
