@@ -730,7 +730,15 @@ test('Interactive elements register their rendered element for Studio outlines',
 			<Interactive.Div ref={divRef}>Hello</Interactive.Div>
 			<Interactive.Span>World</Interactive.Span>
 			<Interactive.Svg viewBox="0 0 100 100">
+				<Interactive.Circle />
+				<Interactive.Ellipse />
+				<Interactive.G />
+				<Interactive.Line />
+				<Interactive.Path />
 				<Interactive.Rect width={100} height={100} />
+				<Interactive.Text x={50} y={50}>
+					Label
+				</Interactive.Text>
 			</Interactive.Svg>
 		</SequenceTestWrapper>,
 	);
@@ -738,10 +746,16 @@ test('Interactive elements register their rendered element for Studio outlines',
 	expect(
 		registeredSequences.map((sequence) => sequence.displayName).sort(),
 	).toEqual([
+		'<Interactive.Circle>',
 		'<Interactive.Div>',
+		'<Interactive.Ellipse>',
+		'<Interactive.G>',
+		'<Interactive.Line>',
+		'<Interactive.Path>',
 		'<Interactive.Rect>',
 		'<Interactive.Span>',
 		'<Interactive.Svg>',
+		'<Interactive.Text>',
 	]);
 
 	const getByName = (displayName: string) =>
@@ -761,6 +775,9 @@ test('Interactive elements register their rendered element for Studio outlines',
 	expect(getByName('<Interactive.Rect>')?.refForOutline?.current?.tagName).toBe(
 		'rect',
 	);
+	expect(getByName('<Interactive.Text>')?.refForOutline?.current?.tagName).toBe(
+		'text',
+	);
 	expect(getByName('<Interactive.Div>')?.documentationLink).toBe(
 		documentationLink,
 	);
@@ -771,6 +788,34 @@ test('Interactive elements register their rendered element for Studio outlines',
 		divRef.current,
 	);
 	expect(getByName('<Interactive.Div>')?.controls).not.toBe(null);
+
+	for (const displayName of [
+		'<Interactive.Div>',
+		'<Interactive.Span>',
+		'<Interactive.Text>',
+	]) {
+		expect(getByName(displayName)?.controls?.schema).toHaveProperty([
+			'style.fontSize',
+		]);
+		expect(getByName(displayName)?.controls?.schema).toHaveProperty('children');
+	}
+
+	for (const displayName of [
+		'<Interactive.Circle>',
+		'<Interactive.Ellipse>',
+		'<Interactive.G>',
+		'<Interactive.Line>',
+		'<Interactive.Path>',
+		'<Interactive.Rect>',
+		'<Interactive.Svg>',
+	]) {
+		expect(getByName(displayName)?.controls?.schema).not.toHaveProperty([
+			'style.fontSize',
+		]);
+		expect(getByName(displayName)?.controls?.schema).not.toHaveProperty(
+			'children',
+		);
+	}
 });
 
 test('Interactive elements inherit trimBefore from Sequence', () => {
