@@ -1,5 +1,11 @@
 import type {ChangeEventHandler} from 'react';
-import React, {useCallback, useContext, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
 import {
 	getUniqueCompositionName,
@@ -46,6 +52,14 @@ const NewCompositionLoaded: React.FC<{
 	const [newId, setName] = useState(() =>
 		getUniqueCompositionName(compositions),
 	);
+	const inputRef = useRef<HTMLInputElement>(null);
+
+	useEffect(() => {
+		const input = inputRef.current;
+		if (!input) return;
+		input.select();
+	}, []);
+
 	const [selectedFrameRate, setFrameRate] = useState(initialDimensions.fps);
 	const [size, setSize] = useState(() => ({
 		width: initialDimensions.width,
@@ -147,6 +161,7 @@ const NewCompositionLoaded: React.FC<{
 						<div style={rightRow}>
 							<InputAndValidationContainer>
 								<RemotionInput
+									ref={inputRef}
 									value={newId}
 									onChange={onNameChange}
 									type="text"
