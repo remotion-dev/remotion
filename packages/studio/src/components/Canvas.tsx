@@ -26,6 +26,7 @@ import {Internals, watchStaticFile, type PreviewSize} from 'remotion';
 import {getStaticFiles} from '../api/get-static-files';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getClipboardImageFiles} from '../helpers/clipboard-images';
+import {getClipboardSvgMarkup} from '../helpers/clipboard-svg';
 import {BACKGROUND} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {getAssetMetadata} from '../helpers/get-asset-metadata';
@@ -61,6 +62,7 @@ import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {getEffectDragData} from './effect-drag-and-drop';
 import {getElementDragData} from './element-drag-and-drop';
 import {
+	hasSvgFile,
 	importAssets,
 	importRemoteAsset,
 	insertComponent,
@@ -68,12 +70,14 @@ import {
 	insertElement,
 	insertExistingAssets,
 	insertRemoteAudio,
+	insertSvgMarkup,
 	type InsertElementDropPosition,
 } from './import-assets';
 import {SPACING_UNIT} from './layout';
 import {showNotification} from './Notifications/NotificationCenter';
 import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
+import {useSvgImportDialog} from './SvgImportDialog';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 
 const elementInstallCompositionIdStyle: React.CSSProperties = {
@@ -326,6 +330,7 @@ export const Canvas: React.FC<{
 	} | null>(null);
 	const keybindings = useKeybinding();
 	const confirm = useConfirmationDialog();
+	const chooseSvgImportMode = useSvgImportDialog();
 	const config = Internals.useUnsafeVideoConfig();
 	const areRulersVisible = useIsRulerVisible();
 	const {editorShowGuides} = useContext(EditorShowGuidesContext);
@@ -1099,6 +1104,13 @@ export const Canvas: React.FC<{
 						return;
 					}
 
+					const svgImportMode = hasSvgFile(files)
+						? await chooseSvgImportMode()
+						: 'image';
+					if (svgImportMode === null) {
+						return;
+					}
+
 					await importAssets({
 						files,
 						compositionFile,
@@ -1106,6 +1118,7 @@ export const Canvas: React.FC<{
 						destinationDimensions:
 							contentDimensions === 'none' ? null : contentDimensions,
 						dropPosition,
+						svgImportMode,
 					});
 				} else if (isAssetDragEvent(event)) {
 					const assetPath = getAssetDragPath(event);
@@ -1190,6 +1203,7 @@ export const Canvas: React.FC<{
 		[
 			canDropAssets,
 			cannotAddSequence,
+			chooseSvgImportMode,
 			compositionFile,
 			contentDimensions,
 			currentCompositionId,
@@ -1214,6 +1228,33 @@ export const Canvas: React.FC<{
 				return;
 			}
 
+			const dropPosition =
+				contentDimensions === null || contentDimensions === 'none'
+					? null
+					: {
+							centerX: contentDimensions.width / 2,
+							centerY: contentDimensions.height / 2,
+						};
+			const svgMarkup = getClipboardSvgMarkup(event.clipboardData);
+			if (svgMarkup !== null) {
+				event.preventDefault();
+				setIsAddingAsset(true);
+				try {
+					await insertSvgMarkup({
+						compositionFile,
+						compositionId: currentCompositionId,
+						destinationDimensions:
+							contentDimensions === 'none' ? null : contentDimensions,
+						dropPosition,
+						markup: svgMarkup,
+					});
+				} finally {
+					setIsAddingAsset(false);
+				}
+
+				return;
+			}
+
 			const files = getClipboardImageFiles({
 				clipboardData: event.clipboardData,
 				existingFileNames: getStaticFiles().map((file) => file.name),
@@ -1223,6 +1264,13 @@ export const Canvas: React.FC<{
 			}
 
 			event.preventDefault();
+			const svgImportMode = hasSvgFile(files)
+				? await chooseSvgImportMode()
+				: 'image';
+			if (svgImportMode === null) {
+				return;
+			}
+
 			setIsAddingAsset(true);
 			try {
 				await importAssets({
@@ -1231,19 +1279,20 @@ export const Canvas: React.FC<{
 					compositionId: currentCompositionId,
 					destinationDimensions:
 						contentDimensions === 'none' ? null : contentDimensions,
-					dropPosition:
-						contentDimensions === null || contentDimensions === 'none'
-							? null
-							: {
-									centerX: contentDimensions.width / 2,
-									centerY: contentDimensions.height / 2,
-								},
+					dropPosition,
+					svgImportMode,
 				});
 			} finally {
 				setIsAddingAsset(false);
 			}
 		},
-		[canDropAssets, compositionFile, contentDimensions, currentCompositionId],
+		[
+			canDropAssets,
+			chooseSvgImportMode,
+			compositionFile,
+			contentDimensions,
+			currentCompositionId,
+		],
 	);
 
 	useEffect(() => {

@@ -49,6 +49,7 @@ import {
 import {getInstallCommand} from './helpers/install-command';
 import {
 	getMaxTimelineTracks,
+	resetMaxTimelineTracks,
 	setMaxTimelineTracks,
 } from './max-timeline-tracks';
 import {
@@ -67,6 +68,7 @@ export const StudioServerInternals = {
 	getPackageManager,
 	getMaxTimelineTracks,
 	setMaxTimelineTracks,
+	resetMaxTimelineTracks,
 	getLatestRemotionVersion,
 	installFileWatcher,
 	writeFileAndNotifyFileWatchers,

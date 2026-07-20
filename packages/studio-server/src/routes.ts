@@ -297,9 +297,9 @@ const handleFallback = async ({
 	publicDir,
 	getRenderQueue,
 	getRenderDefaults,
-	numberOfAudioTags,
-	audioLatencyHint,
-	previewSampleRate,
+	getNumberOfAudioTags,
+	getAudioLatencyHint,
+	getPreviewSampleRate,
 	gitSource,
 	logLevel,
 	enableCrossSiteIsolation,
@@ -314,9 +314,9 @@ const handleFallback = async ({
 	getEnvVariables: () => Record<string, string>;
 	getRenderQueue: () => RenderJob[];
 	getRenderDefaults: () => RenderDefaults;
-	numberOfAudioTags: number;
-	audioLatencyHint: AudioContextLatencyCategory | null;
-	previewSampleRate: number | null;
+	getNumberOfAudioTags: () => number;
+	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getPreviewSampleRate: () => number | null;
 	gitSource: GitSource | null;
 	logLevel: LogLevel;
 	enableCrossSiteIsolation: boolean;
@@ -380,7 +380,7 @@ const handleFallback = async ({
 				packageManager === 'unknown' ? null : packageManager.startCommand,
 			renderQueue: getRenderQueue(),
 			completedClientRenders: getCompletedClientRenders(),
-			numberOfAudioTags,
+			numberOfAudioTags: getNumberOfAudioTags(),
 			publicFiles: getFiles(),
 			includeFavicon: true,
 			title: 'Remotion Studio',
@@ -398,8 +398,8 @@ const handleFallback = async ({
 				packageManager === 'unknown' ? 'unknown' : packageManager.manager,
 			logLevel,
 			mode: 'dev',
-			audioLatencyHint: audioLatencyHint ?? 'playback',
-			sampleRate: previewSampleRate,
+			audioLatencyHint: getAudioLatencyHint() ?? 'playback',
+			sampleRate: getPreviewSampleRate(),
 			studioRuntimeConfig: getStudioRuntimeConfig(),
 		}),
 	);
@@ -587,12 +587,12 @@ export const handleRoutes = ({
 	logLevel,
 	getRenderQueue,
 	getRenderDefaults,
-	numberOfAudioTags,
+	getNumberOfAudioTags,
 	queueMethods: methods,
 	gitSource,
 	binariesDirectory,
-	audioLatencyHint,
-	previewSampleRate,
+	getAudioLatencyHint,
+	getPreviewSampleRate,
 	enableCrossSiteIsolation,
 	getStudioRuntimeConfig,
 }: {
@@ -611,12 +611,12 @@ export const handleRoutes = ({
 	logLevel: LogLevel;
 	getRenderQueue: () => RenderJob[];
 	getRenderDefaults: () => RenderDefaults;
-	numberOfAudioTags: number;
+	getNumberOfAudioTags: () => number;
 	queueMethods: QueueMethods;
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
-	audioLatencyHint: AudioContextLatencyCategory | null;
-	previewSampleRate: number | null;
+	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
 }): Promise<void> => {
@@ -760,11 +760,11 @@ export const handleRoutes = ({
 		publicDir,
 		getRenderQueue,
 		getRenderDefaults,
-		numberOfAudioTags,
+		getNumberOfAudioTags,
 		gitSource,
 		logLevel,
-		audioLatencyHint,
-		previewSampleRate,
+		getAudioLatencyHint,
+		getPreviewSampleRate,
 		enableCrossSiteIsolation,
 		getStudioRuntimeConfig,
 	});

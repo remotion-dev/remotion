@@ -2,27 +2,25 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {isMainThread} from 'node:worker_threads';
 import {BundlerInternals} from '@remotion/bundler';
-import {Log} from './log';
 
-export const loadConfigFile = async (
+export type PreparedConfigFile = {
+	code: string;
+	remotionRoot: string;
+	resolved: string;
+};
+
+export const prepareConfigFile = async (
 	remotionRoot: string,
 	configFileName: string,
 	isJavascript: boolean,
-): Promise<string | null> => {
+): Promise<PreparedConfigFile> => {
 	const resolved = path.resolve(remotionRoot, configFileName);
 
 	const tsconfigJson = path.join(remotionRoot, 'tsconfig.json');
 	if (!isJavascript && !fs.existsSync(tsconfigJson)) {
-		Log.error(
-			{indent: false, logLevel: 'error'},
-			'Could not find a tsconfig.json file in your project. Did you delete it? Create a tsconfig.json in the root of your project. Copy the default file from https://github.com/remotion-dev/template-helloworld/blob/main/tsconfig.json.',
+		throw new Error(
+			`Could not find a tsconfig.json file in your project. Did you delete it? Create a tsconfig.json in the root of your project. Copy the default file from https://github.com/remotion-dev/template-helloworld/blob/main/tsconfig.json. The root directory is: ${remotionRoot}`,
 		);
-		Log.error(
-			{indent: false, logLevel: 'error'},
-			'The root directory is:',
-			remotionRoot,
-		);
-		process.exit(1);
 	}
 
 	const virtualOutfile = 'bundle.js';
@@ -38,28 +36,25 @@ export const loadConfigFile = async (
 		packages: 'external',
 	});
 	if (result.errors.length > 0) {
-		Log.error(
-			{indent: false, logLevel: 'error'},
-			'Error in remotion.config.ts file',
+		throw new Error(
+			`Error in remotion.config.ts file: ${result.errors
+				.map((error) => error.text)
+				.join('\n')}`,
 		);
-		for (const err in result.errors) {
-			Log.error({indent: false, logLevel: 'error'}, err);
-		}
-
-		process.exit(1);
 	}
 
 	const firstOutfile = result.outputFiles[0];
 
 	if (!firstOutfile) {
-		Log.error(
-			{indent: false, logLevel: 'error'},
-			'No output files found in the config file.',
-		);
-		process.exit(1);
+		throw new Error('No output files found in the config file.');
 	}
 
-	let str = new TextDecoder().decode(firstOutfile.contents);
+	const code = new TextDecoder().decode(firstOutfile.contents);
+	return {code, remotionRoot, resolved};
+};
+
+export const executeConfigFile = ({code, remotionRoot}: PreparedConfigFile) => {
+	let str = code;
 
 	const currentCwd = process.cwd();
 
@@ -72,13 +67,27 @@ export const loadConfigFile = async (
 		str = str.replace('@remotion/cli/config', './config');
 	}
 
-	// Exectute the contents of the config file
-	// eslint-disable-next-line no-eval
-	eval(str);
-
-	if (isMainThread) {
-		process.chdir(currentCwd);
+	try {
+		// Execute the contents of the config file
+		// eslint-disable-next-line no-eval
+		eval(str);
+	} finally {
+		if (isMainThread) {
+			process.chdir(currentCwd);
+		}
 	}
+};
 
-	return resolved;
+export const loadConfigFile = async (
+	remotionRoot: string,
+	configFileName: string,
+	isJavascript: boolean,
+): Promise<PreparedConfigFile> => {
+	const prepared = await prepareConfigFile(
+		remotionRoot,
+		configFileName,
+		isJavascript,
+	);
+	executeConfigFile(prepared);
+	return prepared;
 };

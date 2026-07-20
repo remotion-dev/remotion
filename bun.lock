@@ -1680,6 +1680,8 @@
         "@remotion/bundler": "workspace:*",
         "@remotion/renderer": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
+        "@svgr/core": "8.1.0",
+        "@svgr/plugin-jsx": "8.1.0",
         "memfs": "3.4.3",
         "open": "8.4.2",
         "prettier": "catalog:",

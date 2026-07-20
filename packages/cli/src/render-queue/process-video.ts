@@ -1,17 +1,15 @@
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {JobProgressCallback, RenderJob} from '@remotion/studio-server';
-import {getRendererPortFromConfigFile} from '../config/preview-server';
 import {convertEntryPointToServeUrl} from '../convert-entry-point-to-serve-url';
 import {getCliOptions} from '../get-cli-options';
 import {parsedCli} from '../parsed-cli';
 import {renderVideoFlow} from '../render-flows/render';
+import type {StudioRenderJobFixedConfig} from './studio-render-job-fixed-config';
 
 const {
-	publicDirOption,
 	askAIOption,
 	keyboardShortcutsOption,
-	rspackOption,
 	browserExecutableOption,
 	bundleCacheOption,
 	sampleRateOption,
@@ -24,6 +22,7 @@ export const processVideoJob = async ({
 	onProgress,
 	addCleanupCallback,
 	logLevel,
+	fixedConfig,
 }: {
 	job: RenderJob;
 	remotionRoot: string;
@@ -31,14 +30,12 @@ export const processVideoJob = async ({
 	onProgress: JobProgressCallback;
 	addCleanupCallback: (label: string, cb: () => void) => void;
 	logLevel: LogLevel;
+	fixedConfig: StudioRenderJobFixedConfig;
 }) => {
 	if (job.type !== 'video' && job.type !== 'sequence') {
 		throw new Error('Expected video job');
 	}
 
-	const publicDir = publicDirOption.getValue({
-		commandLine: parsedCli,
-	}).value;
 	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
 	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
 		commandLine: parsedCli,
@@ -55,7 +52,6 @@ export const processVideoJob = async ({
 	const browserExecutable = browserExecutableOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const rspack = rspackOption.getValue({commandLine: parsedCli}).value;
 	const sampleRate =
 		job.type === 'video'
 			? job.sampleRate
@@ -78,8 +74,8 @@ export const processVideoJob = async ({
 		serializedInputPropsWithCustomSchema:
 			job.serializedInputPropsWithCustomSchema,
 		overwrite: true,
-		port: getRendererPortFromConfigFile(),
-		publicDir,
+		port: fixedConfig.rendererPort,
+		publicDir: fixedConfig.publicDir,
 		puppeteerTimeout: job.delayRenderTimeout,
 		jpegQuality: job.jpegQuality ?? undefined,
 		remainingArgs: [],
@@ -133,7 +129,7 @@ export const processVideoJob = async ({
 		imageSequencePattern: null,
 		askAIEnabled,
 		keyboardShortcutsEnabled,
-		rspack,
+		rspack: fixedConfig.rspack,
 		shouldCache,
 	});
 };

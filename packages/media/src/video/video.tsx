@@ -1,5 +1,6 @@
 import React, {useMemo, useState} from 'react';
 import {
+	Freeze,
 	Internals,
 	Interactive,
 	Sequence,
@@ -25,6 +26,8 @@ const videoSchema = {
 		keyframable: false,
 	},
 	...Internals.baseSchema,
+	...Internals.premountSchema,
+	...Internals.premountStyleSchema,
 	volume: {
 		type: 'number',
 		min: 0,
@@ -227,6 +230,10 @@ const VideoInner: React.FC<
 	from,
 	freeze,
 	hidden,
+	premountFor,
+	postmountFor,
+	styleWhilePremounted,
+	styleWhilePostmounted,
 	...props
 }) => {
 	const fallbackLogLevel = Internals.useLogLevel();
@@ -302,73 +309,97 @@ const VideoInner: React.FC<
 		effects ?? [],
 	);
 	const refForOutline = React.useRef<HTMLElement | null>(null);
+	const {
+		effectivePostmountFor,
+		effectivePremountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		postmountingActive,
+		premountingActive,
+		premountingStyle,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: videoSequenceDuration ?? Infinity,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: style ?? null,
+		styleWhilePremounted: styleWhilePremounted ?? null,
+		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		hideWhilePremounted: 'display-none',
+	});
 
 	if (sequenceDurationInFrames === 0) {
 		return null;
 	}
 
 	return (
-		<Sequence
-			layout="none"
-			from={from ?? 0}
-			durationInFrames={videoSequenceDuration}
-			freeze={freeze}
-			_remotionInternalStack={stack}
-			_remotionInternalIsMedia={isMedia}
-			name={name ?? '<Video>'}
-			_remotionInternalDocumentationLink={
-				name === undefined
-					? 'https://www.remotion.dev/docs/media/video'
-					: undefined
-			}
-			controls={controls}
-			_remotionInternalLoopDisplay={loopDisplay}
-			_remotionInternalEffects={memoizedEffectDefinitions}
-			outlineRef={refForOutline}
-			showInTimeline={showInTimeline ?? true}
-			hidden={hidden}
-		>
-			<InnerVideo
-				{...props}
-				audioStreamIndex={audioStreamIndex ?? 0}
-				className={className}
-				delayRenderRetries={delayRenderRetries ?? null}
-				delayRenderTimeoutInMilliseconds={
-					delayRenderTimeoutInMilliseconds ?? null
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				durationInFrames={videoSequenceDuration}
+				freeze={freeze}
+				_remotionInternalStack={stack}
+				_remotionInternalIsMedia={isMedia}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+				name={name ?? '<Video>'}
+				_remotionInternalDocumentationLink={
+					name === undefined
+						? 'https://www.remotion.dev/docs/media/video'
+						: undefined
 				}
-				disallowFallbackToOffthreadVideo={
-					disallowFallbackToOffthreadVideo ?? false
-				}
-				fallbackOffthreadVideoProps={fallbackOffthreadVideoProps ?? {}}
-				logLevel={logLevel ?? fallbackLogLevel}
-				loop={loop ?? false}
-				loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
-				muted={muted ?? false}
-				onVideoFrame={onVideoFrame}
-				playbackRate={playbackRate ?? 1}
-				showInTimeline={showInTimeline ?? true}
-				src={src}
-				style={style ?? {}}
-				trimAfter={trimAfter}
-				trimBefore={trimBefore}
-				volume={volume ?? 1}
-				toneFrequency={toneFrequency ?? 1}
-				stack={stack}
-				debugOverlay={debugOverlay ?? false}
-				headless={headless ?? false}
-				onError={onError}
-				credentials={credentials}
-				requestInit={requestInit}
 				controls={controls}
-				objectFit={objectFit ?? 'contain'}
-				_experimentalInitiallyDrawCachedFrame={
-					_experimentalInitiallyDrawCachedFrame ?? false
-				}
-				effects={memoizedEffects}
-				setMediaDurationInSeconds={setMediaDurationInSeconds}
-				refForOutline={refForOutline}
-			/>
-		</Sequence>
+				_remotionInternalLoopDisplay={loopDisplay}
+				_remotionInternalEffects={memoizedEffectDefinitions}
+				outlineRef={refForOutline}
+				showInTimeline={showInTimeline ?? true}
+				hidden={hidden}
+			>
+				<InnerVideo
+					{...props}
+					audioStreamIndex={audioStreamIndex ?? 0}
+					className={className}
+					delayRenderRetries={delayRenderRetries ?? null}
+					delayRenderTimeoutInMilliseconds={
+						delayRenderTimeoutInMilliseconds ?? null
+					}
+					disallowFallbackToOffthreadVideo={
+						disallowFallbackToOffthreadVideo ?? false
+					}
+					fallbackOffthreadVideoProps={fallbackOffthreadVideoProps ?? {}}
+					logLevel={logLevel ?? fallbackLogLevel}
+					loop={loop ?? false}
+					loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
+					muted={muted ?? false}
+					onVideoFrame={onVideoFrame}
+					playbackRate={playbackRate ?? 1}
+					showInTimeline={showInTimeline ?? true}
+					src={src}
+					style={premountingStyle ?? {}}
+					trimAfter={trimAfter}
+					trimBefore={trimBefore}
+					volume={volume ?? 1}
+					toneFrequency={toneFrequency ?? 1}
+					stack={stack}
+					debugOverlay={debugOverlay ?? false}
+					headless={headless ?? false}
+					onError={onError}
+					credentials={credentials}
+					requestInit={requestInit}
+					controls={controls}
+					objectFit={objectFit ?? 'contain'}
+					_experimentalInitiallyDrawCachedFrame={
+						_experimentalInitiallyDrawCachedFrame ?? false
+					}
+					effects={memoizedEffects}
+					setMediaDurationInSeconds={setMediaDurationInSeconds}
+					refForOutline={refForOutline}
+				/>
+			</Sequence>
+		</Freeze>
 	);
 };
 

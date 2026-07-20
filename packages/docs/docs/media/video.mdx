@@ -92,6 +92,24 @@ export const MyComposition = () => {
 };
 ```
 
+### `premountFor?`<AvailableFrom v="4.0.495" />
+
+Mounts the video for the specified number of frames before its `from` frame. The video carries `display: none` and is frozen at its first frame while premounted, so it does not affect layout.
+
+Use this prop to let the video buffer before it becomes visible. See [Premounting](/docs/player/premounting).
+
+### `postmountFor?`<AvailableFrom v="4.0.495" />
+
+Keeps the video mounted for the specified number of frames after its duration has ended. The video is invisible and frozen at its final frame while postmounted.
+
+### `styleWhilePremounted?`<AvailableFrom v="4.0.495" />
+
+CSS styles applied to the video while it is premounted. These styles override the default `display: none` and `pointer-events: none` styles.
+
+### `styleWhilePostmounted?`<AvailableFrom v="4.0.495" />
+
+CSS styles applied to the video while it is postmounted. These styles override the default `display: none` and `pointer-events: none` styles.
+
 ### `trimBefore?`
 
 Will remove a portion of the video at the beginning (left side).
