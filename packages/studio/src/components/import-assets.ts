@@ -16,6 +16,7 @@ import {Internals, staticFile} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {getStaticFiles} from '../api/get-static-files';
 import {writeStaticFile} from '../api/write-static-file';
+import {formatFigmaClipboardError} from '../helpers/clipboard-figma';
 import {installRequiredPackages} from '../helpers/install-required-package';
 import type {Dimensions} from '../helpers/is-current-selected-still';
 import {callApi} from './call-api';
@@ -760,6 +761,49 @@ export const importAssets = async ({
 				error instanceof Error ? error.message : String(error)
 			}`,
 			4000,
+		);
+	}
+};
+
+export const importFigmaClipboard = async ({
+	compositionFile,
+	compositionId,
+	destinationDimensions,
+	dropPosition,
+	html,
+}: {
+	compositionFile: string;
+	compositionId: string;
+	destinationDimensions: Dimensions | null;
+	dropPosition: InsertElementDropPosition | null;
+	html: string;
+}) => {
+	const copyAsSvgSuggestion = 'Try “Copy as SVG” in Figma and paste again.';
+	try {
+		const converted = await callApi('/api/convert-figma-clipboard-to-svg', {
+			html,
+		});
+		if (!converted.success) {
+			showNotification(
+				`${formatFigmaClipboardError(converted.reason)} ${copyAsSvgSuggestion}`,
+				8000,
+			);
+			return;
+		}
+
+		await insertSvgMarkup({
+			compositionFile,
+			compositionId,
+			destinationDimensions,
+			dropPosition,
+			markup: converted.svg,
+		});
+	} catch (error) {
+		showNotification(
+			`${formatFigmaClipboardError(
+				error instanceof Error ? error.message : String(error),
+			)} ${copyAsSvgSuggestion}`,
+			8000,
 		);
 	}
 };

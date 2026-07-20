@@ -20,6 +20,8 @@ export {
 	CancelRenderResponse,
 	CompositionComponentInfoRequest,
 	CompositionComponentInfoResponse,
+	ConvertFigmaClipboardToSvgRequest,
+	ConvertFigmaClipboardToSvgResponse,
 	CopyStillToClipboardRequest,
 	DeleteEffectKeyframe,
 	DeleteEffectRequest,
