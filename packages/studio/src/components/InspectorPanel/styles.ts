@@ -57,6 +57,13 @@ export const sectionHeader: React.CSSProperties = {
 	userSelect: 'none',
 };
 
+export const inspectorSectionBody: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'column',
+	minWidth: 0,
+	paddingBottom: 8,
+};
+
 export const sequenceHeader: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 	display: 'flex',
