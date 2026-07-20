@@ -25,6 +25,8 @@
 	"dependencies": {
 		"@babel/types": "7.24.0",
 		"@babel/parser": "7.24.1",
+		"@svgr/core": "8.1.0",
+		"@svgr/plugin-jsx": "8.1.0",
 		"semver": "7.5.3",
 		"prettier": "catalog:",
 		"remotion": "workspace:*",

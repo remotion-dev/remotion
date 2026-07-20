@@ -1,3 +1,4 @@
+import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {RenderDefaults} from '@remotion/studio-shared';
@@ -24,7 +25,6 @@ const {
 	encodingMaxRateOption,
 	encodingBufferSizeOption,
 	reproOption,
-	logLevelOption,
 	delayRenderTimeoutInMillisecondsOption,
 	headlessOption,
 	forSeamlessAacConcatenationOption,
@@ -45,11 +45,10 @@ const {
 	sampleRateOption,
 } = BrowserSafeApis.options;
 
-export const getRenderDefaults = (): RenderDefaults => {
+export const getRenderDefaults = (logLevel: LogLevel): RenderDefaults => {
 	const defaultJpegQuality = jpegQualityOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const logLevel = logLevelOption.getValue({commandLine: parsedCli}).value;
 	const defaultCodec = ConfigInternals.getOutputCodecOrUndefined();
 	const concurrency = RenderInternals.resolveConcurrency(
 		concurrencyOption.getValue({commandLine: parsedCli}).value,

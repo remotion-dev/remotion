@@ -17,3 +17,7 @@ export const setOutputLocation = (newOutputLocation: string) => {
 };
 
 export const getOutputLocation = () => currentOutputLocation;
+
+export const resetOutputLocation = () => {
+	currentOutputLocation = null;
+};

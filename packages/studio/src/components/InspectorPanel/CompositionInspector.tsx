@@ -1,6 +1,8 @@
 import React, {useContext, useEffect, useMemo, useState} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {FileIcon} from '../../icons/file';
+import {Plus} from '../../icons/plus';
 import {VisualControlsContext} from '../../visual-controls/VisualControls';
 import {DefaultPropsEditor} from '../DefaultPropsEditor';
 import {useZodIfPossible} from '../get-zod-if-possible';
@@ -19,7 +21,9 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {VisualControlsContent} from '../VisualControls/VisualControlsContent';
 import {
+	InspectorActionSection,
 	InspectorDefaultPropsWarnings,
+	InspectorInlineAction,
 	InspectorSectionDivider,
 	InspectorSectionHeader,
 } from './common';
@@ -36,6 +40,52 @@ import {
 	sectionHeaderStart,
 	sectionHeaderTitle,
 } from './styles';
+import {useCompositionActions} from './use-composition-actions';
+
+const actionIconStyle: React.CSSProperties = {
+	height: 13,
+	width: 13,
+};
+
+const CompositionActions: React.FC = () => {
+	const {
+		canInsertAsset,
+		canInsertSolid,
+		canShowInsertAsset,
+		canShowInsertSolid,
+		insertAsset,
+		insertSolid,
+	} = useCompositionActions();
+
+	if (!canShowInsertAsset && !canShowInsertSolid) {
+		return null;
+	}
+
+	return (
+		<InspectorActionSection>
+			{canShowInsertSolid ? (
+				<InspectorInlineAction
+					disabled={!canInsertSolid}
+					onClick={insertSolid}
+					renderIcon={(color) => <Plus color={color} style={actionIconStyle} />}
+				>
+					Add Solid
+				</InspectorInlineAction>
+			) : null}
+			{canShowInsertAsset ? (
+				<InspectorInlineAction
+					disabled={!canInsertAsset}
+					onClick={insertAsset}
+					renderIcon={(color) => (
+						<FileIcon color={color} style={actionIconStyle} />
+					)}
+				>
+					Add asset
+				</InspectorInlineAction>
+			) : null}
+		</InspectorActionSection>
+	);
+};
 
 const CompositionDefaultPropsSection: React.FC<{
 	readonly composition: _InternalTypes['AnyComposition'];
@@ -197,6 +247,7 @@ export const CompositionInspector: React.FC<{
 				setDefaultProps={setDefaultProps}
 			/>
 			<CompositionVisualControlsSection />
+			<CompositionActions />
 		</div>
 	);
 };

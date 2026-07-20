@@ -16,6 +16,13 @@ test('gets required package for insertable elements', () => {
 	).toBe(null);
 	expect(
 		getRequiredPackageForInsertableElement({
+			type: 'svg',
+			markup: '<svg />',
+			position: null,
+		}),
+	).toBe(null);
+	expect(
+		getRequiredPackageForInsertableElement({
 			type: 'asset',
 			assetType: 'image',
 			src: 'image.png',

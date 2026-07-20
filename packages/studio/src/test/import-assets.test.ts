@@ -7,6 +7,7 @@ import {
 	getComponentDimensions,
 	getCompositionPositionForDrop,
 	getElementPositionForDrop,
+	hasSvgFile,
 } from '../components/import-assets';
 
 test('maps audio file types to Audio assets', () => {
@@ -160,6 +161,16 @@ test('maps dropped SVG files to image assets', () => {
 		dimensions: null,
 		position: null,
 	});
+});
+
+test('detects whether dropped files include an SVG', () => {
+	expect(
+		hasSvgFile([
+			new File(['svg'], 'icon.SVG'),
+			new File(['image'], 'image.png'),
+		]),
+	).toBe(true);
+	expect(hasSvgFile([new File(['image'], 'image.png')])).toBe(false);
 });
 
 test('does not map unsupported existing static file paths', () => {

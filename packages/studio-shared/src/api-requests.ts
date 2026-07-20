@@ -718,6 +718,11 @@ export type InsertableCompositionElement =
 			position: InsertableCompositionElementPosition | null;
 	  }
 	| {
+			type: 'svg';
+			markup: string;
+			position: InsertableCompositionElementPosition | null;
+	  }
+	| {
 			type: 'composition';
 			compositionId: string;
 			compositionFile: string;

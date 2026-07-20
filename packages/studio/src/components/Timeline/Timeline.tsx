@@ -164,6 +164,7 @@ const TimelineContextMenuArea: React.FC<{
 				compositionId: currentCompositionId,
 				destinationDimensions: null,
 				dropPosition: null,
+				svgImportMode: 'image',
 			});
 		} finally {
 			setIsAddingAsset(false);

@@ -67,3 +67,12 @@ test('uses an extension matching the clipboard MIME type', () => {
 		getClipboardImageFiles({clipboardData, existingFileNames: []})[0]?.name,
 	).toBe('pasted-image.jpg');
 });
+
+test('keeps copied SVG files available for the SVG import dialog', () => {
+	const svg = new File(['<svg />'], 'icon.svg', {type: 'image/svg+xml'});
+	const clipboardData = makeClipboardData([svg]);
+
+	expect(
+		getClipboardImageFiles({clipboardData, existingFileNames: []}),
+	).toEqual([svg]);
+});
