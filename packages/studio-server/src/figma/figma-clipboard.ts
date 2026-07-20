@@ -1,6 +1,5 @@
 import {Buffer} from 'node:buffer';
-import {Inflate} from 'fflate';
-import {Decompress} from 'fzstd';
+import * as zlib from 'node:zlib';
 import {compileSchema, decodeBinarySchema} from 'kiwi-schema';
 import {renderFigmaMessageToSvg, type FigmaMessage} from './figma-to-svg';
 
@@ -21,6 +20,17 @@ const maxSchemaDefinitions = 2_000;
 const maxSchemaFields = 50_000;
 const maxNodeChanges = 20_000;
 const maxBlobs = 20_000;
+const nodeVersionRequirement =
+	'Figma paste is only available with Node.js 22.15 or newer';
+
+type ZstdDecompressSync = (
+	buffer: Uint8Array,
+	options: {maxOutputLength: number},
+) => Uint8Array;
+
+const nativeZstdDecompressSync = (
+	zlib as typeof zlib & {zstdDecompressSync?: ZstdDecompressSync}
+).zstdDecompressSync;
 
 const fail = (message: string): never => {
 	throw new Error(`Cannot import Figma selection: ${message}`);
@@ -39,6 +49,14 @@ const withFriendlyFailure = <T>(operation: () => T, fallback: string): T => {
 
 		return fail(fallback);
 	}
+};
+
+export const getFigmaClipboardPasteSupportError = (
+	zstdDecompressSync: unknown,
+) => {
+	return typeof zstdDecompressSync === 'function'
+		? null
+		: nodeVersionRequirement;
 };
 
 const extractMarker = ({
@@ -186,30 +204,15 @@ const parseArchive = (base64: string) => {
 	return {message: chunks[1], schema: chunks[0]};
 };
 
-const concatenate = (chunks: Uint8Array[], totalBytes: number) => {
-	const output = new Uint8Array(totalBytes);
-	let offset = 0;
-	for (const chunk of chunks) {
-		output.set(chunk, offset);
-		offset += chunk.length;
-	}
-
-	return output;
-};
-
 const inflateSchema = (compressed: Uint8Array) => {
-	const chunks: Uint8Array[] = [];
-	let totalBytes = 0;
-	const inflater = new Inflate((chunk) => {
-		totalBytes += chunk.length;
-		if (totalBytes > maxSchemaBytes) {
-			fail('clipboard schema expands beyond the size limit');
-		}
-
-		chunks.push(chunk);
+	const inflated = zlib.inflateRawSync(compressed, {
+		maxOutputLength: maxSchemaBytes,
 	});
-	inflater.push(compressed, true);
-	return concatenate(chunks, totalBytes);
+	return new Uint8Array(
+		inflated.buffer,
+		inflated.byteOffset,
+		inflated.byteLength,
+	);
 };
 
 const readLimitedLittleEndian = ({
@@ -285,24 +288,26 @@ const getZstandardContentSize = (compressed: Uint8Array) => {
 	return contentSize;
 };
 
-const decompressMessage = (compressed: Uint8Array) => {
+const decompressMessage = ({
+	compressed,
+	zstdDecompressSync,
+}: {
+	compressed: Uint8Array;
+	zstdDecompressSync: ZstdDecompressSync;
+}) => {
 	const expectedBytes = getZstandardContentSize(compressed);
-	const chunks: Uint8Array[] = [];
-	let totalBytes = 0;
-	const decompressor = new Decompress((chunk) => {
-		totalBytes += chunk.length;
-		if (totalBytes > expectedBytes) {
-			fail('clipboard scene exceeded its declared size');
-		}
-
-		chunks.push(chunk);
+	const decompressed = zstdDecompressSync(compressed, {
+		maxOutputLength: expectedBytes,
 	});
-	decompressor.push(compressed, true);
-	if (totalBytes !== expectedBytes) {
+	if (decompressed.byteLength !== expectedBytes) {
 		fail('clipboard scene did not match its declared size');
 	}
 
-	return concatenate(chunks, totalBytes);
+	return new Uint8Array(
+		decompressed.buffer,
+		decompressed.byteOffset,
+		decompressed.byteLength,
+	);
 };
 
 const decodeMessage = ({
@@ -365,6 +370,15 @@ export const convertFigmaClipboardToSvg = (html: string) => {
 		fail('clipboard HTML is too large');
 	}
 
+	const supportError = getFigmaClipboardPasteSupportError(
+		nativeZstdDecompressSync,
+	);
+	if (supportError !== null) {
+		fail(supportError);
+	}
+
+	const zstdDecompressSync = nativeZstdDecompressSync as ZstdDecompressSync;
+
 	const metaBase64 = extractMarker({
 		end: figmaMetaEnd,
 		html,
@@ -384,7 +398,11 @@ export const convertFigmaClipboardToSvg = (html: string) => {
 		'clipboard schema could not be decompressed',
 	);
 	const messageBytes = withFriendlyFailure(
-		() => decompressMessage(archive.message),
+		() =>
+			decompressMessage({
+				compressed: archive.message,
+				zstdDecompressSync,
+			}),
 		'clipboard scene could not be decompressed',
 	);
 	const message: FigmaMessage = withFriendlyFailure(

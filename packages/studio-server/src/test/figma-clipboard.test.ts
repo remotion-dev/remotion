@@ -2,7 +2,10 @@ import {expect, test} from 'bun:test';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import * as recast from 'recast';
-import {convertFigmaClipboardToSvg} from '../figma/figma-clipboard';
+import {
+	convertFigmaClipboardToSvg,
+	getFigmaClipboardPasteSupportError,
+} from '../figma/figma-clipboard';
 import {renderFigmaMessageToSvg} from '../figma/figma-to-svg';
 import {svgMarkupToJsx} from '../helpers/svg-to-jsx';
 
@@ -15,6 +18,13 @@ const solidPaint = (r: number, g: number, b: number) => ({
 	color: {a: 1, b, g, r},
 	type: 'SOLID',
 	visible: true,
+});
+
+test('requires Node.js 22.15 or newer for native Zstandard support', () => {
+	expect(getFigmaClipboardPasteSupportError(undefined)).toBe(
+		'Figma paste is only available with Node.js 22.15 or newer',
+	);
+	expect(getFigmaClipboardPasteSupportError(() => undefined)).toBeNull();
 });
 
 test('converts the Figma clipboard fixture to one sanitized SVG', () => {

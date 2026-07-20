@@ -43,4 +43,9 @@ test('formats Figma clipboard errors for the notification', () => {
 	expect(formatFigmaClipboardError('Already punctuated.')).toBe(
 		'Already punctuated.',
 	);
+	expect(
+		formatFigmaClipboardError(
+			'Cannot import Figma selection: Figma paste is only available with Node.js 22.15 or newer',
+		),
+	).toBe('Figma paste is only available with Node.js 22.15 or newer.');
 });
