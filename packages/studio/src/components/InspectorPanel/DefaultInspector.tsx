@@ -21,13 +21,17 @@ import {WarningIndicatorButton} from '../RenderModal/WarningIndicatorButton';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {VisualControlsContent} from '../VisualControls/VisualControlsContent';
-import {InspectorDefaultPropsWarnings, InspectorSectionHeader} from './common';
+import {
+	InspectorDefaultPropsWarnings,
+	InspectorSectionDivider,
+	InspectorSectionHeader,
+} from './common';
+import {CompositionDimensions} from './CompositionDimensions';
 import {
 	compositionSection,
 	container,
 	defaultPropsSection,
 	defaultPropsWarningContainer,
-	inspectorSectionDivider,
 	scrollableContainer,
 	sectionHeaderEnd,
 	sectionHeaderRow,
@@ -121,10 +125,16 @@ export const DefaultInspector: React.FC<{
 		<div style={scrollableContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<div style={compositionSection}>
 				<CurrentComposition />
+				<InspectorSectionDivider />
+				<CompositionDimensions
+					compositionId={composition.id}
+					disabled={readOnlyStudio}
+					stack={composition.stack}
+				/>
 			</div>
 			{canShowDefaultPropsSection ? (
 				<>
-					<div style={inspectorSectionDivider} />
+					<InspectorSectionDivider />
 					<div style={defaultPropsSection}>
 						<InspectorSectionHeader>
 							<div style={sectionHeaderRow}>
@@ -176,7 +186,7 @@ export const DefaultInspector: React.FC<{
 			) : null}
 			{hasVisualControls ? (
 				<>
-					<div style={inspectorSectionDivider} />
+					<InspectorSectionDivider />
 					<div style={visualControlsSection}>
 						<InspectorSectionHeader>Visual Controls</InspectorSectionHeader>
 						<VisualControlsContent />

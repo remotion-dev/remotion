@@ -15,6 +15,7 @@ import type {
 	StudioRuntimeConfig,
 } from '@remotion/studio-shared';
 import {getProjectName, parseElementDragData} from '@remotion/studio-shared';
+import {focusBrowserTab} from './better-opn';
 import {getCompletedClientRenders} from './client-render-queue';
 import {getFileSource} from './helpers/get-file-source';
 import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
@@ -274,6 +275,8 @@ const handleRequestElementInstall = async ({
 			return;
 		}
 
+		focusBrowserTab({url: target.studioUrl}).catch(() => undefined);
+
 		response.writeHead(200);
 		response.end(JSON.stringify({success: true, status: 'sent'}));
 	} catch (err) {
@@ -383,6 +386,7 @@ const handleFallback = async ({
 			title: 'Remotion Studio',
 			renderDefaults: getRenderDefaults(),
 			publicFolderExists: existsSync(publicDir) ? publicDir : null,
+			fileSystemPlatform: process.platform,
 			gitSource,
 			projectName: getProjectName({
 				basename: path.basename,

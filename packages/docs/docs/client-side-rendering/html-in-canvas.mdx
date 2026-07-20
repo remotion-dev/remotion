@@ -5,32 +5,25 @@ crumb: 'Client-side rendering'
 sidebar_label: HTML-in-canvas
 ---
 
-:::warning
-Experimental feature - expect bugs and breaking changes at any time.  
-[Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
-:::
-
-# HTML-in-canvas<AvailableFrom v="4.0.447" />
+# HTML-in-canvas<AvailableFrom v="4.0.491" />
 
 :::note
-This is not the same as the [`<HtmlInCanvas>`](/docs/html-in-canvas) component for designing visuals. This page describes a [`@remotion/web-renderer`](/docs/web-renderer) option that uses HTML-in-canvas to capture full frames during client-side rendering.
+This is not the same as the [`<HtmlInCanvas>`](/docs/html-in-canvas) component for designing visuals. This page describes how [`@remotion/web-renderer`](/docs/web-renderer) uses HTML-in-canvas to capture full frames during client-side rendering.
 :::
 
-On supported Chromium-based browsers, [`@remotion/web-renderer`](/docs/web-renderer) can optionally capture full frames using the experimental [HTML-in-canvas](/docs/html-in-canvas) APIs.
+On supported Chromium-based browsers, [`@remotion/web-renderer`](/docs/web-renderer) automatically captures full frames using the experimental [HTML-in-canvas](/docs/html-in-canvas) APIs.
 
 :::info
-Use a recent version of Google Chrome or another Chromium-based browser with `chrome://flags/#canvas-draw-element` enabled. Current Chrome stable releases ship `canvas.requestPaint()` together with [`drawElementImage`](https://github.com/WICG/html-in-canvas#2-drawelementimage-and-webglwebgpu-equivalents), which is required for correct frame capture. See [Compatibility](#compatibility) for details.
+Use Chrome or Chromium `152.0.7944.0` or later with `chrome://flags/#canvas-draw-element` enabled. The renderer requires nested HTML-in-canvas support before using the native capture path. See [Compatibility](#compatibility) for details.
 :::
 
-Enabling the option does not guarantee that this path runs. If the browser does not have HTML-in-canvas enabled, it falls back to the [default frame capturing mechanism](/docs/client-side-rendering/how-it-works).
+If the browser does not pass the nesting support check, the renderer uses the [built-in DOM composer](/docs/client-side-rendering/how-it-works).
 
-## Enabling
+## Automatic selection
 
-### In code
+No option is required. [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web) and [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web) probe nested HTML-in-canvas support and select the capture backend automatically.
 
-Pass `allowHtmlInCanvas: true` to [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web) or [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web). The default is `false` when you omit the field.
-
-```tsx twoslash title="Example"
+```tsx twoslash title="Render a still"
 import {renderStillOnWeb} from '@remotion/web-renderer';
 
 declare const composition: Parameters<typeof renderStillOnWeb>[0]['composition'];
@@ -40,51 +33,24 @@ await renderStillOnWeb({
   composition,
   frame: 0,
   inputProps: {},
-  allowHtmlInCanvas: true,
 });
 ```
-
-### In the Studio
-
-With [client-side rendering enabled](/docs/client-side-rendering), open the render modal, go to the `Other` tab, and turn on `Allow HTML-in-canvas`. The initial value comes from your config and CLI defaults (below).
-
-### As the Studio default
-
-In `remotion.config.ts`:
-
-```ts twoslash title="remotion.config.ts"
-import {Config} from '@remotion/cli/config';
-// ---cut---
-Config.setAllowHtmlInCanvasEnabled(true);
-```
-
-Or start Studio with the CLI flag (it overrides the config file for this value):
-
-```bash
-npx remotion studio --allow-html-in-canvas
-```
-
-See [`setAllowHtmlInCanvasEnabled()`](/docs/config#setallowhtmlincanvasenabled) and [`npx remotion studio`](/docs/cli/studio#--allow-html-in-canvas) for details. The flag description is also available as:
-
-<Options id="allow-html-in-canvas" />
 
 ## Check if HTML-in-canvas was used
 
 If HTML-in-canvas was used, you will see a warning in the browser console:
 
 ```
-Using Chromium experimental HTML-in-canvas (drawElementImage) for this frame. Pixels may differ from the built-in DOM composer. Set allowHtmlInCanvas: false to force software rasterization. See https://github.com/WICG/html-in-canvas
+Using Chromium experimental HTML-in-canvas (drawElementImage) for this frame. See https://remotion.dev/docs/client-side-rendering/html-in-canvas
 ```
 
-If HTML-in-canvas is available, and allowed, but not used, a warning will be printed:
+If native capture starts but fails while capturing a frame, a warning is printed and the renderer falls back to the built-in DOM composer:
 
 ```
-Not using HTML-in-canvas: drawElementImage is available but canvas.requestPaint() is missing. Use a Chromium version that ships requestPaint.
+Not using HTML-in-canvas: drawElementImage failed (...); falling back to the built-in DOM composer.
 ```
 
-This can happen for example when using an older Chromium build that does not ship `canvas.requestPaint()`.
-
-If HTML-in-canvas is not available, or not allowed, no warning will be printed.
+If the nesting support probe fails, the built-in DOM composer is selected without a warning.
 
 ## Compatibility
 
@@ -104,7 +70,7 @@ If HTML-in-canvas is not available, or not allowed, no warning will be printed.
 
 HTML-in-canvas depends on Chromium flag `chrome://flags/#canvas-draw-element`, which must be enabled explicitly.
 
-Use a recent Chrome or Chromium version with the flag enabled for full support. Very old Chromium builds may expose [`drawElementImage`](https://github.com/WICG/html-in-canvas#2-drawelementimage-and-webglwebgpu-equivalents) but omit `canvas.requestPaint()`. Without `requestPaint()`, the renderer cannot synchronize paint operations, which can lead to repeated or incorrect frames.
+Use Chrome or Chromium `152.0.7944.0` or later with the flag enabled. This version adds the nested capture behavior required by both the renderer capture canvas and compositions containing [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas). Older versions use the built-in DOM composer.
 
 ## See also
 

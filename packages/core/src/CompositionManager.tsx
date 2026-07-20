@@ -20,6 +20,7 @@ export type TComposition<
 	folderName: string | null;
 	parentFolderName: string | null;
 	component: LazyExoticComponent<ComponentType<Props>> | ComponentType<Props>;
+	componentFromProps?: unknown;
 	nonce: NonceHistory;
 	schema: Schema | null;
 	calculateMetadata: CalculateMetadataFunction<
@@ -130,6 +131,7 @@ export type TSequence = {
 	effects: readonly EffectDefinition<unknown>[];
 	isInsideSeries: boolean;
 	frozenFrame: number | null;
+	singleChildComponent?: unknown;
 } & EnhancedTSequenceData;
 
 export type AudioOrVideoAsset = {

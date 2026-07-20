@@ -7,6 +7,7 @@ const makeKey = (absolutePath: string): SequencePropsSubscriptionKey => ({
 	nodePath: ['program', 'body', 0, 'openingElement'],
 	sequenceKeys: ['name', 'from'],
 	effectKeys: [],
+	videoConfigValues: null,
 });
 
 test('sequence prop subscription keys include the absolute file path', () => {

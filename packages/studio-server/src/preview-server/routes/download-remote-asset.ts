@@ -339,7 +339,8 @@ export const downloadRemoteAssetHandler: ApiHandler<
 		assetType:
 			fileType.type === 'gif'
 				? 'gif'
-				: fileType.type === 'apng'
+				: fileType.type === 'apng' ||
+					  (fileType.type === 'webp' && fileType.animated)
 					? 'animated-image'
 					: 'image',
 		src: assetPath,

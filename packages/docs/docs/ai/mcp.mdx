@@ -1,71 +1,35 @@
 ---
 image: /generated/articles-docs-ai-mcp.png
 crumb: 'AI'
-title: Remotion's Model Context Protocol
-sidebar_label: MCP
+title: Remotion's Model Context Protocol (deprecated)
+sidebar_label: MCP (deprecated)
 ---
 
-You can use Remotion's Model Context Protocol (MCP) Client to make your editor's AI Chat better at understanding Remotion.
+:::warning Deprecated
+The Remotion MCP is deprecated. Install [Remotion Agent Skills](/docs/ai/skills) and use `/remotion-docs` instead.
 
-Our MCP server uses [CrawlChat](https://crawlchat.app)'s technology to index Remotion's documentation into a vector database.
-
-:::warning
-**Test Phase**: Right now, this tool is open without authentication. If running this tool gets too expensive, we might restrict the usage.
+The hosted MCP will shut down no earlier than August 31, 2026. New installations are not recommended.
 :::
 
-## Cursor
+Follow [GitHub issue #9055](https://github.com/remotion-dev/remotion/issues/9055) for shutdown updates.
 
-### One-Click Install
+## Why is the MCP being shut down?
 
-[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en-US/install-mcp?name=remotion-documentation&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJAcmVtb3Rpb24vbWNwQGxhdGVzdCJdfQ%3D%3D)
+- Its data can be less current than the Remotion documentation.
+- Remotion pays the token costs for MCP requests.
+- Installing MCP servers is difficult, and agents do not invoke them reliably.
+- It duplicates the `/remotion-docs` skill.
 
-### Manual Installation
+## Migrate to `/remotion-docs`
 
-<Step>1</Step> Go to your Cursor Settings: <kbd>Cmd+Ctrl</kbd> + <kbd>P</kbd>, then type `> Cursor Settings` and confirm with Enter.
+<Step>1</Step> Remove `remotion-documentation` from the MCP configuration in your editor.
 
-<Step>2</Step> Add an MCP:
+<Step>2</Step> Install the Remotion Agent Skills from your Remotion project:
 
-```json
-{
-  "mcpServers": {
-    "remotion-documentation": {
-      "command": "npx",
-      "args": ["@remotion/mcp@latest"]
-    }
-  }
-}
+```bash title="Terminal"
+npx remotion skills add
 ```
 
-If this worked, a green dot should show up and the tool `remotion-documentation` should show up.
+<Step>3</Step> Ask your coding agent to use `/remotion-docs` when it needs current Remotion documentation.
 
-If you now ask Cursor in the composer to use the Remotion Documentation, the MCP should get invoked.
-
-<br />
-
-<img style={{width: 600}} src="https://pub-646d808d9cb240cea53bedc76dd3cd0c.r2.dev/mcp-cursor.png" />
-
-## VS Code
-
-### One-Click Install
-
-[**Install MCP Server →**](vscode:mcp/install?%7B%22name%22%3A%22remotion-documentation%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22%40remotion%2Fmcp%40latest%22%5D%7D)
-
-### Manual Installation
-
-<Step>1</Step> Open the Command Palette: <kbd>Cmd+Shift+P</kbd> (macOS) or <kbd>Ctrl+Shift+P</kbd> (Windows/Linux).
-
-<Step>2</Step> Type `> MCP: Add Server` and confirm with Enter.
-
-<Step>3</Step> Choose **Add from JSON** and paste the following configuration:
-
-```json
-{
-  "name": "remotion-documentation",
-  "command": "npx",
-  "args": ["@remotion/mcp@latest"]
-}
-```
-
-<Step>4</Step> The server should now appear in the MCP servers list. You can verify it's running by opening the Extensions view (<kbd>Cmd+Shift+X</kbd> / <kbd>Ctrl+Shift+X</kbd>) and checking the MCP Servers section.
-
-If you now ask GitHub Copilot Chat to use the Remotion Documentation, the MCP should get invoked.
+Restart the coding agent if it does not detect the newly installed skills.

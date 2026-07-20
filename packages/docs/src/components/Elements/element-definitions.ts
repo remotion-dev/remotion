@@ -1,8 +1,11 @@
 import type {ComponentType} from 'react';
+import {LiquidContours} from '../../../elements/backgrounds/liquid-contours/liquid-contours';
+import {NotebookPaper} from '../../../elements/backgrounds/notebook-paper/notebook-paper';
 import {PaperTexture} from '../../../elements/backgrounds/paper-texture/paper-texture';
 import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburst/rotating-starburst';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
-import {LowerThird} from '../../../elements/overlays/lower-third/lower-third';
+import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
+import {NameLowerThird} from '../../../elements/overlays/lower-third/lower-third';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
@@ -27,6 +30,39 @@ export type ElementDefinition = {
 };
 
 export const elementDefinitions = {
+	'backgrounds/liquid-contours': {
+		category: 'backgrounds',
+		component: LiquidContours,
+		contributors: [],
+		description:
+			'A flowing two-color background made from animated liquid contour bands.',
+		displayName: 'Liquid Contours',
+		durationInFrames: 240,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 120,
+		previewPadding: 0,
+		slug: 'backgrounds/liquid-contours',
+		width: 1920,
+	},
+	'backgrounds/notebook-paper': {
+		category: 'backgrounds',
+		component: NotebookPaper,
+		contributors: [],
+		description: 'A white paper background with subtle blue gridlines.',
+		displayName: 'Notebook Paper',
+		durationInFrames: 120,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 0,
+		previewPadding: 0,
+		slug: 'backgrounds/notebook-paper',
+		width: 1920,
+	},
 	'backgrounds/paper-texture': {
 		category: 'backgrounds',
 		component: PaperTexture,
@@ -60,13 +96,29 @@ export const elementDefinitions = {
 		slug: 'backgrounds/rotating-starburst',
 		width: 1920,
 	},
+	'overlays/location-lower-third': {
+		category: 'overlays',
+		component: LocationLowerThird,
+		contributors: [],
+		description: 'An animated lower third for an event location and venue.',
+		displayName: 'Location Lower Third',
+		durationInFrames: 120,
+		elementHeight: 138,
+		elementWidth: 680,
+		fps: 30,
+		height: 1080,
+		posterFrame: 60,
+		previewPadding: 300,
+		slug: 'overlays/location-lower-third',
+		width: 1920,
+	},
 	'overlays/lower-third': {
 		category: 'overlays',
-		component: LowerThird,
+		component: NameLowerThird,
 		contributors: [],
 		description:
-			'A clean animated lower third for introducing a speaker, guest, or section.',
-		displayName: 'Lower Third',
+			'A clean animated lower third for introducing a speaker, guest, or host.',
+		displayName: 'Name Lower Third',
 		durationInFrames: 120,
 		elementHeight: 138,
 		elementWidth: 680,

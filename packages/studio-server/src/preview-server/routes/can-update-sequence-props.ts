@@ -27,6 +27,8 @@ import type {
 	JsxComponentIdentity,
 	LogLevel,
 	SequenceNodePath,
+	VideoConfigNumericExpression,
+	VideoConfigValues,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {parseAst} from '../../codemods/parse-ast';
@@ -34,6 +36,11 @@ import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {toImportAgnosticNodePath} from '../../helpers/import-agnostic-node-path';
 import {parseKeyframeEasingExpression} from '../../helpers/parse-keyframe-easing-expression';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
+import {parseVideoConfigNumericExpression} from '../../helpers/video-config-numeric-expression';
+import {
+	getVideoConfigIdentifierValues,
+	type VideoConfigIdentifierValues,
+} from '../../helpers/video-config-values';
 import {
 	getJsxComponentIdentity,
 	jsxComponentIdentitiesMatch,
@@ -51,9 +58,15 @@ type PropPosterize = KeyframedPropStatus['posterize'];
 type PropOutput = KeyframedPropStatus['output'];
 type PropInterpolationFunction = KeyframedPropStatus['interpolationFunction'];
 
-const staticStatus = (codeValue: unknown): CanUpdatePropStatus => ({
+const staticStatus = (
+	codeValue: unknown,
+	numericExpression: VideoConfigNumericExpression | null,
+): CanUpdatePropStatus => ({
 	status: 'static',
 	codeValue,
+	...(numericExpression === null || numericExpression.type === 'literal'
+		? {}
+		: {numericExpression}),
 });
 
 const computedStatus = (): CanUpdatePropStatus => ({
@@ -470,6 +483,7 @@ const getInterpolationMetadata = (
 const getInterpolationKeyframes = (
 	node: Expression,
 	ast: File,
+	videoConfigValues: VideoConfigIdentifierValues,
 ):
 	| {
 			keyframes: PropKeyframes;
@@ -481,7 +495,11 @@ const getInterpolationKeyframes = (
 	  }
 	| undefined => {
 	if (node.type === 'TSAsExpression') {
-		return getInterpolationKeyframes(node.expression as Expression, ast);
+		return getInterpolationKeyframes(
+			node.expression as Expression,
+			ast,
+			videoConfigValues,
+		);
 	}
 
 	if (
@@ -496,6 +514,7 @@ const getInterpolationKeyframes = (
 		const interpolation = getInterpolationKeyframes(
 			node.arguments[0] as Expression,
 			ast,
+			videoConfigValues,
 		);
 		if (!interpolation) {
 			return undefined;
@@ -556,14 +575,18 @@ const getInterpolationKeyframes = (
 			return undefined;
 		}
 
-		const frame = getNumericValue(inputElement);
-		if (frame === null || !isStaticValue(outputElement)) {
+		const frameExpression = parseVideoConfigNumericExpression({
+			node: inputElement,
+			videoConfigValues,
+		});
+		if (frameExpression === null || !isStaticValue(outputElement)) {
 			return undefined;
 		}
 
 		keyframes.push({
-			frame,
+			frame: frameExpression.value,
 			value: extractStaticValue(outputElement),
+			...(frameExpression.type === 'literal' ? {} : {frameExpression}),
 		});
 	}
 
@@ -634,8 +657,9 @@ const isCurrentFrameIdentifier = (node: Expression, ast: File): boolean => {
 export const getComputedStatus = (
 	node: Expression,
 	ast: File,
+	videoConfigValues: VideoConfigIdentifierValues,
 ): CanUpdatePropStatus => {
-	const interpolation = getInterpolationKeyframes(node, ast);
+	const interpolation = getInterpolationKeyframes(node, ast, videoConfigValues);
 	if (!interpolation) {
 		return computedStatus();
 	}
@@ -654,6 +678,8 @@ export const getComputedStatus = (
 const getPropsStatus = (
 	jsxElement: JSXOpeningElement,
 	ast: File,
+	videoConfigValues: VideoConfigIdentifierValues,
+	assetKeys: string[],
 ): Record<string, CanUpdatePropStatus> => {
 	const props: Record<string, CanUpdatePropStatus> = {};
 
@@ -674,28 +700,40 @@ const getPropsStatus = (
 		const {value} = attr as JSXAttribute;
 
 		if (!value) {
-			props[name] = staticStatus(true);
+			props[name] = staticStatus(true, null);
 			continue;
 		}
 
 		if (value.type === 'StringLiteral') {
-			props[name] = staticStatus((value as {value: string}).value);
+			props[name] = staticStatus((value as {value: string}).value, null);
 			continue;
 		}
 
 		if (value.type === 'JSXExpressionContainer') {
 			const {expression} = value;
+			const staticValueOptions = {
+				allowSpecialValues: assetKeys.includes(name),
+			};
 			if (expression.type === 'JSXEmptyExpression') {
 				props[name] = computedStatus();
 				continue;
 			}
 
-			if (!isStaticValue(expression)) {
-				props[name] = getComputedStatus(expression, ast);
+			if (!isStaticValue(expression, staticValueOptions)) {
+				const numericExpression = parseVideoConfigNumericExpression({
+					node: expression,
+					videoConfigValues,
+				});
+				props[name] = numericExpression
+					? staticStatus(numericExpression.value, numericExpression)
+					: getComputedStatus(expression, ast, videoConfigValues);
 				continue;
 			}
 
-			props[name] = staticStatus(extractStaticValue(expression));
+			props[name] = staticStatus(
+				extractStaticValue(expression, staticValueOptions),
+				null,
+			);
 			continue;
 		}
 
@@ -908,12 +946,21 @@ const validateStyleValue = (childKey: string, value: unknown): boolean => {
 	return true;
 };
 
-const getNestedPropStatus = (
-	jsxElement: JSXOpeningElement,
-	ast: File,
-	parentKey: string,
-	childKey: string,
-): CanUpdatePropStatus => {
+const getNestedPropStatus = ({
+	jsxElement,
+	ast,
+	parentKey,
+	childKey,
+	videoConfigValues,
+	allowSpecialValues,
+}: {
+	jsxElement: JSXOpeningElement;
+	ast: File;
+	parentKey: string;
+	childKey: string;
+	videoConfigValues: VideoConfigIdentifierValues;
+	allowSpecialValues: boolean;
+}): CanUpdatePropStatus => {
 	const attr = jsxElement.attributes.find(
 		(a) =>
 			a.type !== 'JSXSpreadAttribute' &&
@@ -923,7 +970,7 @@ const getNestedPropStatus = (
 
 	if (!attr || !attr.value) {
 		// Parent attribute doesn't exist, nested prop can be added
-		return staticStatus(undefined);
+		return staticStatus(undefined, null);
 	}
 
 	if (attr.value.type !== 'JSXExpressionContainer') {
@@ -949,30 +996,39 @@ const getNestedPropStatus = (
 
 	if (!prop) {
 		// Property not set in the object, can be added
-		return staticStatus(undefined);
+		return staticStatus(undefined, null);
 	}
 
 	const propValue = prop.value as Expression;
-	if (!isStaticValue(propValue)) {
-		return getComputedStatus(propValue, ast);
+	const staticValueOptions = {allowSpecialValues};
+	if (!isStaticValue(propValue, staticValueOptions)) {
+		const numericExpression = parseVideoConfigNumericExpression({
+			node: propValue,
+			videoConfigValues,
+		});
+		return numericExpression
+			? staticStatus(numericExpression.value, numericExpression)
+			: getComputedStatus(propValue, ast, videoConfigValues);
 	}
 
-	const propStatus = extractStaticValue(propValue);
+	const propStatus = extractStaticValue(propValue, staticValueOptions);
 	if (!validateStyleValue(childKey, propStatus)) {
 		return computedStatus();
 	}
 
-	return staticStatus(propStatus);
+	return staticStatus(propStatus, null);
 };
 
 const computeEffectsForJsx = ({
 	ast,
 	jsxElement,
 	effects,
+	videoConfigValues,
 }: {
 	ast: File;
 	jsxElement: JSXOpeningElement;
 	effects: string[][];
+	videoConfigValues: VideoConfigIdentifierValues;
 }) => {
 	return effects.map((effect, effectIndex) =>
 		computeEffectPropStatus({
@@ -980,6 +1036,7 @@ const computeEffectsForJsx = ({
 			jsx: jsxElement,
 			effectIndex,
 			keys: effect,
+			videoConfigValues,
 		}),
 	);
 };
@@ -989,19 +1046,28 @@ const computeSequenceOnlyPropsRecord = ({
 	jsxElementNode,
 	ast,
 	keys,
+	assetKeys,
+	videoConfigValues,
 }: {
 	jsxElement: JSXOpeningElement;
 	jsxElementNode: JSXElement;
 	ast: File;
 	keys: string[];
+	assetKeys: string[];
+	videoConfigValues: VideoConfigIdentifierValues;
 }): Record<string, CanUpdatePropStatus> => {
-	const allProps = getPropsStatus(jsxElement, ast);
+	const allProps = getPropsStatus(
+		jsxElement,
+		ast,
+		videoConfigValues,
+		assetKeys,
+	);
 	const filteredProps: Record<string, CanUpdatePropStatus> = {};
 	for (const key of keys) {
 		if (key === 'children') {
 			const staticChildrenAttribute = getStaticJsxChildrenAttribute(jsxElement);
 			if (staticChildrenAttribute) {
-				filteredProps[key] = staticStatus(staticChildrenAttribute.value);
+				filteredProps[key] = staticStatus(staticChildrenAttribute.value, null);
 				continue;
 			}
 
@@ -1012,23 +1078,25 @@ const computeSequenceOnlyPropsRecord = ({
 
 			const staticTextContent = getStaticJsxTextContent(jsxElementNode);
 			filteredProps[key] = staticTextContent
-				? staticStatus(staticTextContent.value)
+				? staticStatus(staticTextContent.value, null)
 				: computedStatus();
 			continue;
 		}
 
 		const dotIndex = key.indexOf('.');
 		if (dotIndex !== -1) {
-			filteredProps[key] = getNestedPropStatus(
+			filteredProps[key] = getNestedPropStatus({
 				jsxElement,
 				ast,
-				key.slice(0, dotIndex),
-				key.slice(dotIndex + 1),
-			);
+				parentKey: key.slice(0, dotIndex),
+				childKey: key.slice(dotIndex + 1),
+				videoConfigValues,
+				allowSpecialValues: assetKeys.includes(key),
+			});
 		} else if (key in allProps) {
 			filteredProps[key] = allProps[key];
 		} else {
-			filteredProps[key] = staticStatus(undefined);
+			filteredProps[key] = staticStatus(undefined, null);
 		}
 	}
 
@@ -1040,15 +1108,23 @@ export const computeSequencePropsStatusFromContent = ({
 	nodePath,
 	componentIdentity,
 	keys,
+	assetKeys = [],
 	effects,
+	videoConfigValues,
 }: {
 	fileContents: string;
 	nodePath: SequenceNodePath;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
+	assetKeys?: string[];
 	effects: string[][];
+	videoConfigValues: VideoConfigValues | null;
 }): CanUpdateSequencePropsResponseTrue => {
 	const ast = parseAst(fileContents);
+	const videoConfigIdentifierValues = getVideoConfigIdentifierValues({
+		ast,
+		videoConfigValues,
+	});
 
 	const jsxElementNode = findJsxElementNodeAtNodePath(ast, nodePath);
 	const jsxElement = jsxElementNode?.openingElement ?? null;
@@ -1071,8 +1147,15 @@ export const computeSequencePropsStatusFromContent = ({
 		jsxElementNode,
 		ast,
 		keys,
+		assetKeys,
+		videoConfigValues: videoConfigIdentifierValues,
 	});
-	const effectsStatuses = computeEffectsForJsx({ast, jsxElement, effects});
+	const effectsStatuses = computeEffectsForJsx({
+		ast,
+		jsxElement,
+		effects,
+		videoConfigValues: videoConfigIdentifierValues,
+	});
 
 	return {
 		canUpdate: true as const,
@@ -1086,15 +1169,19 @@ export const computeSequencePropsStatus = ({
 	nodePath,
 	componentIdentity,
 	keys,
+	assetKeys = [],
 	effects,
 	remotionRoot,
+	videoConfigValues,
 }: {
 	fileName: string;
 	nodePath: SequenceNodePath;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
+	assetKeys?: string[];
 	effects: string[][];
 	remotionRoot: string;
+	videoConfigValues: VideoConfigValues | null;
 }): CanUpdateSequencePropsResponseTrue => {
 	const {absolutePath} = resolveFileInsideProject({
 		remotionRoot,
@@ -1108,7 +1195,9 @@ export const computeSequencePropsStatus = ({
 		nodePath,
 		componentIdentity,
 		keys,
+		assetKeys,
 		effects,
+		videoConfigValues,
 	});
 };
 
@@ -1117,17 +1206,21 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 	line,
 	componentIdentity,
 	keys,
+	assetKeys = [],
 	effects,
 	remotionRoot,
 	logLevel,
+	videoConfigValues,
 }: {
 	fileName: string;
 	line: number;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
+	assetKeys?: string[];
 	effects: string[][];
 	remotionRoot: string;
 	logLevel: LogLevel;
+	videoConfigValues: VideoConfigValues;
 }): SubscribeToSequencePropsResponse => {
 	try {
 		const {absolutePath} = resolveFileInsideProject({
@@ -1156,14 +1249,17 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 				nodePath: resolvedNodePath,
 				componentIdentity,
 				keys,
+				assetKeys,
 				effects,
 				remotionRoot,
+				videoConfigValues,
 			}),
 			nodePath: {
 				absolutePath,
 				nodePath: resolvedNodePath,
 				sequenceKeys: keys,
 				effectKeys: effects,
+				videoConfigValues,
 			},
 			success: true,
 		};

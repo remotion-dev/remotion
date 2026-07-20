@@ -67,6 +67,8 @@ import {
 import {
 	addSequenceStackTraces,
 	getComponentsToAddStacksTo,
+	getSequenceComponent,
+	getSingleChildComponent,
 } from './enable-sequence-stack-traces.js';
 import {findPropsToDelete} from './find-props-to-delete.js';
 import {
@@ -101,6 +103,7 @@ import {
 	sequenceVisualStyleSchema,
 	textSchema,
 	transformSchema,
+	type AssetFieldSchema,
 	type ArrayFieldSchema,
 	type ArrayItemFieldSchema,
 	type InteractivitySchemaField,
@@ -131,6 +134,7 @@ import {
 import {
 	resolveVideoConfig,
 	resolveVideoConfigOrCatch,
+	resolveVideoConfigWithMetadataOrCatch,
 } from './resolve-video-config.js';
 import {
 	ResolveCompositionContext,
@@ -167,6 +171,7 @@ import {
 	type CanUpdateSequencePropsResponseTrue,
 	type SequenceNodePath,
 	type SequencePropsSubscriptionKey,
+	type VideoConfigValues,
 } from './SequenceManager.js';
 import {setupEnvVariables} from './setup-env-variables.js';
 import * as TimelinePosition from './timeline-position-state.js';
@@ -209,6 +214,7 @@ import type {
 	GetEffectDragOverrides,
 	GetEffectPropStatuses,
 	GetPropStatuses,
+	VideoConfigNumericExpression,
 } from './use-schema.js';
 import {
 	computeEffectiveSchemaValuesDotNotation,
@@ -347,6 +353,7 @@ export const Internals = {
 	NonceContext,
 	resolveVideoConfig,
 	resolveVideoConfigOrCatch,
+	resolveVideoConfigWithMetadataOrCatch,
 	ResolveCompositionContext,
 	useResolvedVideoConfig,
 	resolveCompositionsRef,
@@ -363,6 +370,8 @@ export const Internals = {
 	BufferingProvider,
 	BufferingContextReact,
 	getComponentsToAddStacksTo,
+	getSequenceComponent,
+	getSingleChildComponent,
 	CurrentScaleContext,
 	PixelDensityContext,
 	PreviewSizeContext,
@@ -422,6 +431,7 @@ export const Internals = {
 
 export type {
 	ArrayFieldSchema,
+	AssetFieldSchema,
 	ArrayItemFieldSchema,
 	CannotUpdateSequenceReason,
 	CanUpdateEffectPropsResponse,
@@ -435,6 +445,7 @@ export type {
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
+	VideoConfigNumericExpression,
 	CompositionManagerContext,
 	CompProps,
 	DragOverrides,
@@ -463,6 +474,7 @@ export type {
 	InteractivitySchemaField,
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
+	VideoConfigValues,
 	InteractivitySchema,
 	SerializedJSONWithCustomFields,
 	SetMediaVolumeContextValue,

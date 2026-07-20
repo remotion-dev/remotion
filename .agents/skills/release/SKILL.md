@@ -4,6 +4,7 @@ description: Release a new Remotion version
 ---
 
 - Kill any `turbo` processes that might be running with SIGKILL
+- Before beginning the release, verify that gcloud is logged in by running `gcloud auth print-access-token >/dev/null`. If it fails, run `gcloud auth login`, then repeat the check. Do not continue with the release until the check succeeds.
 - Codex-specific: Before running release commands, make sure rbenv wins over the macOS system Ruby. Codex may start non-interactive shells with `/usr/bin` before `~/.rbenv/shims`, causing Ruby 2.6 to be used even though the user's terminal uses Ruby 3.3.x. Run release commands that may invoke Ruby/Bundler with:
   `PATH="$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH" <command>`
   Verify with `PATH="$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH" ruby --version`; it should use the user's rbenv Ruby, not `/usr/bin/ruby`. This matters because the lambda Ruby package currently resolves gems such as `json` that require Ruby >= 2.7.
@@ -17,6 +18,7 @@ description: Release a new Remotion version
 - Run `bun set-version.ts <version>`, where <version> is the current version plus 1. If the exit code is not 0, abort the entire release process immediately.
 - Run `cd packages/example && sh runlambda.sh && cd ../..`. If this fails, abort the release.
 - Run `NPM_CONFIG_TOKEN=<token> bun run release` where <token> is the NPM token we just created
+- Run `bun run publishtemplates` from the repository root to republish every template with the newly released packages. If any template fails to publish, stop the release workflow and report the failure.
 - Generate a changelog in markdown and save it to `/tmp/release-<version>.md`:
   - Run `git log v<previous_version>..v<new_version> --oneline` to get all commits
   - Extract PR numbers from merge commits

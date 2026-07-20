@@ -10,6 +10,7 @@ import type {
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
+import {TimelineAssetField} from './TimelineAssetField';
 import {TimelineBooleanField} from './TimelineBooleanField';
 import {TimelineColorField} from './TimelineColorField';
 import {TimelineEnumField} from './TimelineEnumField';
@@ -37,11 +38,7 @@ export type TimelinePrimitiveFieldInfo = Omit<
 export const isTimelinePrimitiveFieldInfo = (
 	field: SchemaFieldInfo,
 ): field is TimelinePrimitiveFieldInfo => {
-	return (
-		field.typeName !== 'array' &&
-		field.typeName !== 'hidden' &&
-		field.fieldSchema.type !== 'array'
-	);
+	return field.typeName !== 'array' && field.fieldSchema.type !== 'array';
 };
 
 export const TimelinePrimitiveFieldValue: React.FC<{
@@ -220,6 +217,21 @@ export const TimelinePrimitiveFieldValue: React.FC<{
 		return (
 			<span style={inlineWrapper}>
 				<TimelineFontFamilyField
+					effectiveValue={effectiveValue}
+					field={field}
+					onDragEnd={onDragEnd}
+					onDragValueChange={onDragValueChange}
+					onSave={onSave}
+					propStatus={propStatus}
+				/>
+			</span>
+		);
+	}
+
+	if (field.typeName === 'asset') {
+		return (
+			<span style={inlineWrapper}>
+				<TimelineAssetField
 					effectiveValue={effectiveValue}
 					field={field}
 					onDragEnd={onDragEnd}

@@ -37,6 +37,7 @@ type UndoEntryType =
 	| 'insert-jsx-element'
 	| 'delete-composition'
 	| 'rename-composition'
+	| 'update-composition-metadata'
 	| 'new-composition'
 	| 'duplicate-composition'
 	| 'move-composition-to-folder'
@@ -79,6 +80,7 @@ type UndoEntry = {
 	| {entryType: 'insert-jsx-element'}
 	| {entryType: 'delete-composition'}
 	| {entryType: 'rename-composition'}
+	| {entryType: 'update-composition-metadata'}
 	| {entryType: 'new-composition'}
 	| {entryType: 'duplicate-composition'}
 	| {entryType: 'move-composition-to-folder'}

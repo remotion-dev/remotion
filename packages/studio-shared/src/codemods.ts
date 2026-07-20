@@ -41,6 +41,14 @@ export type RecastCodemod =
 			newId: string;
 	  }
 	| {
+			type: 'update-composition-metadata';
+			idToUpdate: string;
+			newDurationInFrames: number | null;
+			newFps: number | null;
+			newHeight: number | null;
+			newWidth: number | null;
+	  }
+	| {
 			type: 'delete-composition';
 			idToDelete: string;
 	  }

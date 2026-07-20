@@ -840,6 +840,7 @@ export const Canvas: React.FC<{
 				canInstall: canInstallElements,
 				lastFocusedAt: lastFocusedAtRef.current,
 				readOnly: window.remotion_isReadOnlyStudio,
+				studioUrl: window.location.href,
 			}).catch(() => undefined);
 		},
 		[
@@ -1077,6 +1078,8 @@ export const Canvas: React.FC<{
 						files,
 						compositionFile,
 						compositionId: currentCompositionId,
+						destinationDimensions:
+							contentDimensions === 'none' ? null : contentDimensions,
 						dropPosition,
 					});
 				} else if (isAssetDragEvent(event)) {
@@ -1089,6 +1092,8 @@ export const Canvas: React.FC<{
 						assetPaths: [assetPath],
 						compositionFile,
 						compositionId: currentCompositionId,
+						destinationDimensions:
+							contentDimensions === 'none' ? null : contentDimensions,
 						dropPosition,
 					});
 				} else if (isSfxDragEvent(event)) {
@@ -1112,6 +1117,8 @@ export const Canvas: React.FC<{
 						composition: compositionDragData,
 						compositionFile,
 						compositionId: currentCompositionId,
+						destinationDimensions:
+							contentDimensions === 'none' ? null : contentDimensions,
 						dropPosition,
 					});
 				} else {
@@ -1146,6 +1153,8 @@ export const Canvas: React.FC<{
 						url,
 						compositionFile,
 						compositionId: currentCompositionId,
+						destinationDimensions:
+							contentDimensions === 'none' ? null : contentDimensions,
 						dropPosition,
 					});
 				}

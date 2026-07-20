@@ -18,6 +18,7 @@ import {EffectsDuotonePreview} from '../../components/effects/effects-duotone-pr
 import {EffectsEmbossPreview} from '../../components/effects/effects-emboss-preview';
 import {EffectsEvolvePreview} from '../../components/effects/effects-evolve-preview';
 import {EffectsFisheyePreview} from '../../components/effects/effects-fisheye-preview';
+import {EffectsFlannelPreview} from '../../components/effects/effects-flannel-preview';
 import {EffectsGlowPreview} from '../../components/effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../../components/effects/effects-grayscale-preview';
 import {EffectsGridlinesPreview} from '../../components/effects/effects-gridlines-preview';
@@ -39,6 +40,7 @@ import {
 	LINEAR_PROGRESSIVE_PIXELATE_PREVIEW_PARAMS,
 } from '../../components/effects/effects-linear-progressive-pixelate-preview';
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
+import {EffectsLiquidContoursPreview} from '../../components/effects/effects-liquid-contours-preview';
 import {EffectsMirrorPreview} from '../../components/effects/effects-mirror-preview';
 import {
 	EffectsNoiseDisplacementPreview,
@@ -75,6 +77,7 @@ import {
 	EffectsShrinkwrapPreview,
 	SHRINKWRAP_PREVIEW_PARAMS,
 } from '../../components/effects/effects-shrinkwrap-preview';
+import {EffectsSkewPreview} from '../../components/effects/effects-skew-preview';
 import {EffectsSpecklePreview} from '../../components/effects/effects-speckle-preview';
 import {
 	EffectsStarburstPreview,
@@ -206,6 +209,19 @@ export const RemotionRoot: React.FC = () => {
 						roughness: 0.85,
 						seed: 1,
 						color: '#3b2818',
+					}}
+				/>
+				<Still
+					id="effects-flannel-preview"
+					component={EffectsFlannelPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						amount: 0.82,
+						size: 96,
+						softness: 0.18,
+						baseColor: '#c92f3d',
+						stripeColor: '#241015',
 					}}
 				/>
 				<Still
@@ -751,6 +767,24 @@ export const RemotionRoot: React.FC = () => {
 					}}
 				/>
 				<Still
+					id="effects-liquid-contours-preview"
+					component={EffectsLiquidContoursPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						firstColor: '#ff1a0a',
+						secondColor: '#050505',
+						spacing: 62,
+						scale: 300,
+						complexity: 0,
+						smoothness: 1,
+						seed: 4,
+						offsetX: 13.4,
+						offsetY: 0,
+						phase: 3.23,
+					}}
+				/>
+				<Still
 					id="effects-rings-preview"
 					component={EffectsRingsPreview}
 					width={1280}
@@ -809,6 +843,13 @@ export const RemotionRoot: React.FC = () => {
 						haloIntensity: 0.3,
 						coreIntensity: 0.4,
 					}}
+				/>
+				<Still
+					id="effects-skew-preview"
+					component={EffectsSkewPreview}
+					width={1280}
+					height={720}
+					defaultProps={{x: 24, y: 0, origin: [0.25, 0.5]}}
 				/>
 				<Still
 					id="effects-shrinkwrap-preview"

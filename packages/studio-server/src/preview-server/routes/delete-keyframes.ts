@@ -17,6 +17,7 @@ import {
 } from '../../codemods/update-keyframes/update-keyframes';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
+import {getVideoConfigIdentifierValues} from '../../helpers/video-config-values';
 import type {ApiHandler} from '../api-types';
 import {
 	printUndoHint,
@@ -189,11 +190,14 @@ export const deleteKeyframes = async ({
 			const result = await updateSequenceKeyframes({
 				input: output,
 				nodePath: firstSequenceKeyframe.nodePath.nodePath,
+				videoConfigValues: firstSequenceKeyframe.nodePath.videoConfigValues,
 				updates: keyframeGroup.map((keyframe) => ({
 					key: keyframe.key,
 					operation: {
 						type: 'remove',
 						frame: keyframe.frame,
+						valueWhenLastKeyframeDeleted:
+							keyframe.valueWhenLastKeyframeDeleted ?? null,
 					},
 				})),
 			});
@@ -226,11 +230,15 @@ export const deleteKeyframes = async ({
 				input: output,
 				sequenceNodePath: firstEffectKeyframe.sequenceNodePath.nodePath,
 				effectIndex: firstEffectKeyframe.effectIndex,
+				videoConfigValues:
+					firstEffectKeyframe.sequenceNodePath.videoConfigValues,
 				updates: keyframeGroup.map((keyframe) => ({
 					key: keyframe.key,
 					operation: {
 						type: 'remove',
 						frame: keyframe.frame,
+						valueWhenLastKeyframeDeleted:
+							keyframe.valueWhenLastKeyframeDeleted ?? null,
 					},
 				})),
 			});
@@ -334,6 +342,7 @@ export const deleteKeyframes = async ({
 			nodePath: keyframe.nodePath.nodePath,
 			componentIdentity: null,
 			effects: [],
+			videoConfigValues: keyframe.nodePath.videoConfigValues,
 		});
 
 		return {
@@ -369,6 +378,10 @@ export const deleteKeyframes = async ({
 			jsx,
 			effectIndex: keyframe.effectIndex,
 			keys: getAllSchemaKeys(keyframe.schema),
+			videoConfigValues: getVideoConfigIdentifierValues({
+				ast,
+				videoConfigValues: keyframe.sequenceNodePath.videoConfigValues,
+			}),
 		});
 	});
 

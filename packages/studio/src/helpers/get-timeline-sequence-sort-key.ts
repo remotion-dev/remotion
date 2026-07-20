@@ -1,4 +1,8 @@
-import type {SequencePropsSubscriptionKey, TSequence} from 'remotion';
+import type {
+	_InternalTypes,
+	SequencePropsSubscriptionKey,
+	TSequence,
+} from 'remotion';
 
 export type SequenceNodePathInfo = {
 	sequenceSubscriptionKey: SequencePropsSubscriptionKey;
@@ -10,6 +14,7 @@ export type SequenceNodePathInfo = {
 
 type Track = {
 	sequence: TSequence;
+	connectedCompositions?: readonly _InternalTypes['AnyComposition'][];
 	depth: number;
 	nodePathInfo: SequenceNodePathInfo | null;
 	keyframeDisplayOffset: number;

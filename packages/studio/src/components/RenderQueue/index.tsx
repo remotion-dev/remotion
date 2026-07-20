@@ -1,8 +1,6 @@
 import React, {useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND, BLACK_HEX, LIGHT_TEXT} from '../../helpers/colors';
-import {SHOW_BROWSER_RENDERING} from '../../helpers/show-browser-rendering';
 import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {RenderQueueContext} from './context';
@@ -37,8 +35,6 @@ const renderQueue: React.CSSProperties = {
 };
 
 export const RenderQueue: React.FC = () => {
-	const connectionStatus = useContext(StudioServerConnectionCtx)
-		.previewServerState.type;
 	const {jobs} = useContext(RenderQueueContext);
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const previousJobCount = React.useRef(jobs.length);
@@ -78,16 +74,6 @@ export const RenderQueue: React.FC = () => {
 
 		return -1;
 	}, [canvasContent, jobs]);
-
-	if (connectionStatus === 'disconnected' && !SHOW_BROWSER_RENDERING) {
-		return (
-			<div style={explainer}>
-				<Spacing y={5} />
-				<div style={errorExplanation}>The studio server has disconnected.</div>
-				<Spacing y={2} block />
-			</div>
-		);
-	}
 
 	if (jobCount === 0) {
 		return (

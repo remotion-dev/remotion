@@ -14,6 +14,7 @@ export const Component = () => {
 
 test('Should add style.scale to a Video component and format with prettier', async () => {
 	const {output, oldValueStrings, formatted} = await updateSequenceProps({
+		videoConfigValues: null,
 		input: componentInput,
 		nodePath: lineColumnToNodePath(componentInput, 6),
 		updates: [{key: 'style.scale', value: 2, defaultValue: null}],
@@ -47,6 +48,7 @@ export const Component = () => {
 
 test('Should resolve prettier config if override is null', async () => {
 	const {output, formatted} = await updateSequenceProps({
+		videoConfigValues: null,
 		input: componentInput,
 		nodePath: lineColumnToNodePath(componentInput, 6),
 		updates: [{key: 'style.scale', value: 2, defaultValue: null}],

@@ -551,7 +551,9 @@ export const SelectedOutlineOverlay: React.FC<{
 }) => {
 	const {selectedItems, selectItem} = useTimelineSelection();
 	const {sequences} = useContext(Internals.SequenceManager);
-	const {canvasContent} = useContext(Internals.CompositionManager);
+	const {canvasContent, compositions} = useContext(
+		Internals.CompositionManager,
+	);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {overrideIdToNodePathMappings} = useContext(
@@ -624,6 +626,7 @@ export const SelectedOutlineOverlay: React.FC<{
 		return getSequencesWithSelectableOutlines({
 			sequences,
 			overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			compositions,
 		}).map(({key, keyframeDisplayOffset, nodePathInfo, sequence}) => {
 			if (sequence.refForOutline === null) {
 				throw new Error('Expected sequence to have a ref for outline');
@@ -659,8 +662,6 @@ export const SelectedOutlineOverlay: React.FC<{
 				activeSchema?.[transformOriginFieldKey];
 			const transformOriginPropStatus =
 				nodePropStatuses?.[transformOriginFieldKey];
-			const textContentFieldSchema = activeSchema?.children;
-			const textContentPropStatus = nodePropStatuses?.children;
 			const transformOriginValueForRotation =
 				transformOriginFieldSchema?.type === 'transform-origin' &&
 				(transformOriginPropStatus?.status === 'static' ||
@@ -728,12 +729,6 @@ export const SelectedOutlineOverlay: React.FC<{
 			const canDropEffect =
 				previewServerState.type === 'connected' &&
 				controls?.supportsEffects === true;
-			const canTextEdit =
-				previewServerState.type === 'connected' &&
-				controls !== null &&
-				textContentFieldSchema?.type === 'text-content' &&
-				textContentPropStatus !== undefined;
-
 			return {
 				key,
 				containsSelection,
@@ -860,12 +855,6 @@ export const SelectedOutlineOverlay: React.FC<{
 							),
 						}
 					: null,
-				textEdit: canTextEdit
-					? {
-							nodePath,
-							propStatus: textContentPropStatus,
-						}
-					: null,
 				uvHandles: containsSelection
 					? getSelectedUvHandles({
 							propStatuses,
@@ -889,6 +878,7 @@ export const SelectedOutlineOverlay: React.FC<{
 		previewServerState,
 		selectedItems,
 		sequences,
+		compositions,
 		timelinePosition,
 	]);
 

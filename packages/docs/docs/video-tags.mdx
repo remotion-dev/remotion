@@ -4,13 +4,17 @@ title: Comparison of video tags
 crumb: '<Video>, <OffthreadVideo>, <Html5Video>'
 ---
 
-We offer three components for embedding videos into your Remotion composition:
+For new code, use [`<Video />`](/docs/media/video) from [`@remotion/media`](/docs/media). It is the recommended component for embedding videos into a Remotion composition.
 
-- [`<Video />`](/docs/media/video) from [`@remotion/media`](/docs/media) - **recommended for new code**, based on Mediabunny and WebCodecs
+The available video components are:
+
+- [`<Video />`](/docs/media/video) from [`@remotion/media`](/docs/media) - based on Mediabunny and WebCodecs
 - [`<OffthreadVideo />`](/docs/offthreadvideo) from [`remotion`](/docs/remotion) - based on a Rust-based frame extractor
 - [`<Html5Video />`](/docs/html5-video) from [`remotion`](/docs/remotion) (previously named `<Video>`) - based on the HTML5 `<video>` element
 
-This page offers a comparison to help you decide which tag to use.
+For audio, use [`<Audio />`](/docs/media/audio) from `@remotion/media` for new code. During server-side rendering, `<Video>` may fall back to `<OffthreadVideo>`, and `<Audio>` may fall back to [`<Html5Audio />`](/docs/html5-audio) for unsupported media. See [Fallback behavior](/docs/media/fallback).
+
+The comparison below shows when a fallback or alternative may be relevant.
 
 |                                                          | [`<Video />`](/docs/media/video) <br/> [`<Audio />`](/docs/media/audio) (`@remotion/media`)                                                            | [`<OffthreadVideo />`](/docs/offthreadvideo)                                                     | [`<Html5Video />`](/docs/html5-video) <br/> [`<Html5Audio />`](/docs/html5-audio) <br/> (`remotion`) |
 | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |

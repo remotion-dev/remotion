@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.490",
+	"version": "4.0.494",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -48,6 +48,11 @@
 			"types": "./dist/burlap.d.ts",
 			"module": "./dist/esm/burlap.mjs",
 			"import": "./dist/esm/burlap.mjs"
+		},
+		"./flannel": {
+			"types": "./dist/flannel.d.ts",
+			"module": "./dist/esm/flannel.mjs",
+			"import": "./dist/esm/flannel.mjs"
 		},
 		"./checkerboard": {
 			"types": "./dist/checkerboard.d.ts",
@@ -169,6 +174,11 @@
 			"module": "./dist/esm/linear-gradient-tint.mjs",
 			"import": "./dist/esm/linear-gradient-tint.mjs"
 		},
+		"./liquid-contours": {
+			"types": "./dist/liquid-contours.d.ts",
+			"module": "./dist/esm/liquid-contours.mjs",
+			"import": "./dist/esm/liquid-contours.mjs"
+		},
 		"./linear-progressive-blur": {
 			"types": "./dist/linear-progressive-blur.d.ts",
 			"module": "./dist/esm/linear-progressive-blur.mjs",
@@ -259,6 +269,11 @@
 			"module": "./dist/esm/shrinkwrap.mjs",
 			"import": "./dist/esm/shrinkwrap.mjs"
 		},
+		"./skew": {
+			"types": "./dist/skew.d.ts",
+			"module": "./dist/esm/skew.mjs",
+			"import": "./dist/esm/skew.mjs"
+		},
 		"./speckle": {
 			"types": "./dist/speckle.d.ts",
 			"module": "./dist/esm/speckle.mjs",
@@ -332,6 +347,9 @@
 			"burlap": [
 				"dist/burlap.d.ts"
 			],
+			"flannel": [
+				"dist/flannel.d.ts"
+			],
 			"checkerboard": [
 				"dist/checkerboard.d.ts"
 			],
@@ -404,6 +422,9 @@
 			"linear-gradient-tint": [
 				"dist/linear-gradient-tint.d.ts"
 			],
+			"liquid-contours": [
+				"dist/liquid-contours.d.ts"
+			],
 			"linear-progressive-blur": [
 				"dist/linear-progressive-blur.d.ts"
 			],
@@ -457,6 +478,9 @@
 			],
 			"shrinkwrap": [
 				"dist/shrinkwrap.d.ts"
+			],
+			"skew": [
+				"dist/skew.d.ts"
 			],
 			"speckle": [
 				"dist/speckle.d.ts"

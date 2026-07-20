@@ -287,13 +287,41 @@ const getWebPDimensions = (bytes: Uint8Array): FileDimensions | null => {
 	return null;
 };
 
-const isWebp = (data: Uint8Array): WebpType | null => {
-	const webpPattern = new Uint8Array([0x52, 0x49, 0x46, 0x46]);
+const isAnimatedWebp = (data: Uint8Array): boolean => {
+	const animationChunk = new Uint8Array([0x41, 0x4e, 0x49, 0x4d]);
+	const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+	let offset = 12;
 
-	if (matchesPattern(webpPattern)(data.subarray(0, 4))) {
+	while (offset + 8 <= data.length) {
+		const chunkType = data.subarray(offset, offset + 4);
+		if (matchesPattern(animationChunk)(chunkType)) {
+			return true;
+		}
+
+		const chunkLength = view.getUint32(offset + 4, true);
+		const nextOffset = offset + 8 + chunkLength + (chunkLength % 2);
+		if (nextOffset <= offset) {
+			return false;
+		}
+
+		offset = nextOffset;
+	}
+
+	return false;
+};
+
+const isWebp = (data: Uint8Array): WebpType | null => {
+	const riffPattern = new Uint8Array([0x52, 0x49, 0x46, 0x46]);
+	const webpPattern = new Uint8Array([0x57, 0x45, 0x42, 0x50]);
+
+	if (
+		matchesPattern(riffPattern)(data.subarray(0, 4)) &&
+		matchesPattern(webpPattern)(data.subarray(8, 12))
+	) {
 		return {
 			type: 'webp',
 			dimensions: getWebPDimensions(data),
+			animated: isAnimatedWebp(data),
 		};
 	}
 
@@ -393,6 +421,7 @@ export type JpegType = {
 export type WebpType = {
 	type: 'webp';
 	dimensions: FileDimensions | null;
+	animated: boolean;
 };
 
 export type BmpType = {

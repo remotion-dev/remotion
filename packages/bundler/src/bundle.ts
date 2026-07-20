@@ -92,13 +92,11 @@ export const getConfig = ({
 	options,
 	bufferStateDelayInMilliseconds,
 	maxTimelineTracks,
-	experimentalClientSideRenderingEnabled,
 }: {
 	outDir: string;
 	entryPoint: string;
 	resolvedRemotionRoot: string;
 	bufferStateDelayInMilliseconds: number | null;
-	experimentalClientSideRenderingEnabled: boolean;
 	maxTimelineTracks: number | null;
 	onProgress: (progress: number) => void;
 	options: MandatoryLegacyBundleOptions;
@@ -123,7 +121,6 @@ export const getConfig = ({
 		keyboardShortcutsEnabled: options?.keyboardShortcutsEnabled ?? true,
 		bufferStateDelayInMilliseconds,
 		poll: null,
-		experimentalClientSideRenderingEnabled,
 		askAIEnabled: options?.askAIEnabled ?? true,
 		interactivityEnabled: options?.interactivityEnabled ?? true,
 		extraPlugins: [],
@@ -145,7 +142,6 @@ type NewBundleOptions = {
 	maxTimelineTracks: number | null;
 	bufferStateDelayInMilliseconds: number | null;
 	audioLatencyHint: AudioContextLatencyCategory | null;
-	experimentalClientSideRenderingEnabled: boolean;
 	renderDefaults: RenderDefaults | null;
 };
 
@@ -261,8 +257,6 @@ export const internalBundle = async (
 		bufferStateDelayInMilliseconds:
 			actualArgs.bufferStateDelayInMilliseconds ?? null,
 		maxTimelineTracks: actualArgs.maxTimelineTracks,
-		experimentalClientSideRenderingEnabled:
-			actualArgs.experimentalClientSideRenderingEnabled,
 	});
 
 	if (actualArgs.rspack) {
@@ -409,6 +403,7 @@ export const internalBundle = async (
 		title: 'Remotion Bundle',
 		renderDefaults: actualArgs.renderDefaults ?? undefined,
 		publicFolderExists: `${publicPath + (publicPath.endsWith('/') ? '' : '/')}public`,
+		fileSystemPlatform: null,
 		gitSource: actualArgs.gitSource ?? null,
 		projectName: getProjectName({
 			gitSource: actualArgs.gitSource ?? null,
@@ -425,8 +420,6 @@ export const internalBundle = async (
 		studioRuntimeConfig: {
 			askAIEnabled: actualArgs.askAIEnabled,
 			bufferStateDelayInMilliseconds: actualArgs.bufferStateDelayInMilliseconds,
-			experimentalClientSideRenderingEnabled:
-				actualArgs.experimentalClientSideRenderingEnabled,
 			interactivityEnabled: actualArgs.interactivityEnabled,
 			keyboardShortcutsEnabled: actualArgs.keyboardShortcutsEnabled,
 			maxTimelineTracks: actualArgs.maxTimelineTracks,
@@ -465,8 +458,6 @@ export async function bundle(...args: Arguments): Promise<string> {
 		rootDir: actualArgs.rootDir ?? null,
 		webpackOverride: actualArgs.webpackOverride ?? ((f) => f),
 		audioLatencyHint: actualArgs.audioLatencyHint ?? null,
-		experimentalClientSideRenderingEnabled:
-			actualArgs.experimentalClientSideRenderingEnabled ?? false,
 		renderDefaults: actualArgs.renderDefaults ?? null,
 		askAIEnabled: actualArgs.askAIEnabled ?? true,
 		interactivityEnabled: actualArgs.interactivityEnabled ?? true,

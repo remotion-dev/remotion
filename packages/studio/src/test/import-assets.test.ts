@@ -1,8 +1,11 @@
 import {expect, test} from 'bun:test';
 import {
+	getAssetPositionForDrop,
 	getAssetElement,
+	getAssetElementForDroppedFile,
 	getAssetElementFromPath,
 	getComponentDimensions,
+	getCompositionPositionForDrop,
 	getElementPositionForDrop,
 } from '../components/import-assets';
 
@@ -52,6 +55,46 @@ test('maps animated PNG file types to AnimatedImage assets', () => {
 	});
 });
 
+test('maps animated WebP file types to AnimatedImage assets', () => {
+	expect(
+		getAssetElement({
+			fileType: {
+				type: 'webp',
+				animated: true,
+				dimensions: {width: 480, height: 290},
+			},
+			src: 'animated.webp',
+		}),
+	).toEqual({
+		type: 'asset',
+		assetType: 'animated-image',
+		src: 'animated.webp',
+		srcType: 'static',
+		dimensions: {width: 480, height: 290},
+		position: null,
+	});
+});
+
+test('maps static WebP file types to Img assets', () => {
+	expect(
+		getAssetElement({
+			fileType: {
+				type: 'webp',
+				animated: false,
+				dimensions: {width: 480, height: 290},
+			},
+			src: 'static.webp',
+		}),
+	).toEqual({
+		type: 'asset',
+		assetType: 'image',
+		src: 'static.webp',
+		srcType: 'static',
+		dimensions: {width: 480, height: 290},
+		position: null,
+	});
+});
+
 test('maps existing static file paths to insertable assets', () => {
 	expect(getAssetElementFromPath('nested/photo.JPG')).toEqual({
 		type: 'asset',
@@ -89,6 +132,30 @@ test('maps existing static file paths to insertable assets', () => {
 		type: 'asset',
 		assetType: 'gif',
 		src: 'animation.gif',
+		srcType: 'static',
+		dimensions: null,
+		position: null,
+	});
+	expect(getAssetElementFromPath('vector.SVG')).toEqual({
+		type: 'asset',
+		assetType: 'image',
+		src: 'vector.SVG',
+		srcType: 'static',
+		dimensions: null,
+		position: null,
+	});
+});
+
+test('maps dropped SVG files to image assets', () => {
+	expect(
+		getAssetElementForDroppedFile({
+			fileType: {type: 'unknown'},
+			src: 'vector.svg',
+		}),
+	).toEqual({
+		type: 'asset',
+		assetType: 'image',
+		src: 'vector.svg',
 		srcType: 'static',
 		dimensions: null,
 		position: null,
@@ -155,4 +222,44 @@ test('does not position Elements without a drop position', () => {
 			dropPosition: null,
 		}),
 	).toBe(null);
+});
+
+test('aligns a composition with matching destination dimensions', () => {
+	expect(
+		getCompositionPositionForDrop({
+			compositionDimensions: {width: 1920, height: 1080},
+			destinationDimensions: {width: 1920, height: 1080},
+			dropPosition: {centerX: 400, centerY: 300},
+		}),
+	).toBe(null);
+});
+
+test('centers a composition with different destination dimensions', () => {
+	expect(
+		getCompositionPositionForDrop({
+			compositionDimensions: {width: 1280, height: 720},
+			destinationDimensions: {width: 1920, height: 1080},
+			dropPosition: {centerX: 400, centerY: 300},
+		}),
+	).toEqual({x: -240, y: -60});
+});
+
+test('aligns an asset with matching destination dimensions', () => {
+	expect(
+		getAssetPositionForDrop({
+			assetDimensions: {width: 1920, height: 1080},
+			destinationDimensions: {width: 1920, height: 1080},
+			dropPosition: {centerX: 400, centerY: 300},
+		}),
+	).toBe(null);
+});
+
+test('centers an asset with different destination dimensions', () => {
+	expect(
+		getAssetPositionForDrop({
+			assetDimensions: {width: 1280, height: 720},
+			destinationDimensions: {width: 1920, height: 1080},
+			dropPosition: {centerX: 400, centerY: 300},
+		}),
+	).toEqual({x: -240, y: -60});
 });

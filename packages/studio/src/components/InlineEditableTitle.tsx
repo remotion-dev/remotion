@@ -69,9 +69,10 @@ export const InlineEditableTitle: React.FC<{
 	readonly value: string;
 	readonly canRename: boolean;
 	readonly getInitialSelection?: (value: string) => [number, number];
+	readonly onClick?: () => void;
 	readonly onCommit: (newValue: string) => void;
 	readonly title?: string;
-}> = ({value, canRename, getInitialSelection, onCommit, title}) => {
+}> = ({value, canRename, getInitialSelection, onClick, onCommit, title}) => {
 	const [isEditing, setIsEditing] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const [draftValue, setDraftValue] = useState(value);
@@ -116,7 +117,12 @@ export const InlineEditableTitle: React.FC<{
 		[onCommit],
 	);
 
-	const startEditing = useCallback(() => {
+	const handleClick = useCallback(() => {
+		if (onClick) {
+			onClick();
+			return;
+		}
+
 		if (!canRename) {
 			return;
 		}
@@ -124,7 +130,7 @@ export const InlineEditableTitle: React.FC<{
 		cancelledRef.current = false;
 		setDraftValue(value);
 		setIsEditing(true);
-	}, [canRename, value]);
+	}, [canRename, onClick, value]);
 
 	const onChange: ChangeEventHandler<HTMLInputElement> = useCallback((e) => {
 		setDraftValue(e.target.value);
@@ -154,9 +160,10 @@ export const InlineEditableTitle: React.FC<{
 		[value],
 	);
 
+	const isInteractive = canRename || onClick !== undefined;
 	const backgroundColor = isEditing
 		? INPUT_BACKGROUND
-		: isHovered && canRename
+		: isHovered && isInteractive
 			? WHITE_ALPHA_06
 			: TRANSPARENT;
 
@@ -164,11 +171,11 @@ export const InlineEditableTitle: React.FC<{
 		return {
 			...titleInner,
 			backgroundColor,
-			cursor: isEditing ? 'text' : canRename ? 'pointer' : 'default',
+			cursor: isEditing ? 'text' : isInteractive ? 'pointer' : 'default',
 			userSelect: isEditing ? 'text' : 'none',
 			width: isEditing ? '100%' : undefined,
 		};
-	}, [backgroundColor, canRename, isEditing]);
+	}, [backgroundColor, isEditing, isInteractive]);
 
 	return (
 		<div style={titleWrapper} title={title ?? value}>
@@ -176,7 +183,7 @@ export const InlineEditableTitle: React.FC<{
 				style={innerStyle}
 				onMouseEnter={() => setIsHovered(true)}
 				onMouseLeave={() => setIsHovered(false)}
-				onClick={isEditing || !canRename ? undefined : startEditing}
+				onClick={isEditing || !isInteractive ? undefined : handleClick}
 			>
 				<span
 					aria-hidden={isEditing}

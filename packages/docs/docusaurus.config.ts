@@ -266,11 +266,19 @@ const config: Config = {
 						},
 						{
 							label: 'Terms and Conditions',
-							href: 'https://remotion.pro/terms',
+							href: 'https://remotion.dev/docs/license/terms',
 						},
 						{
 							label: 'Privacy Policy',
-							href: 'https://remotion.pro/privacy',
+							href: 'https://remotion.dev/docs/license/privacy',
+						},
+						{
+							label: 'DPA Statement',
+							href: 'https://www.remotion.dev/docs/license/dpa',
+						},
+						{
+							label: 'DPIA Statement',
+							href: 'https://www.remotion.dev/docs/license/dpia',
 						},
 						{
 							label: 'Brand',

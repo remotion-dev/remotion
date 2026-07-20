@@ -42,13 +42,14 @@ In v4, add the [`premountFor`](/docs/sequence#premountfor) prop to the [`<Sequen
 The number you pass is the number in frames you premount the component for.
 
 ```tsx twoslash title="Premounted.tsx"
-import {Sequence, staticFile, OffthreadVideo} from 'remotion';
+import {Video} from '@remotion/media';
+import {Sequence, staticFile} from 'remotion';
 
 // ---cut---
 const MyComp: React.FC = () => {
   return (
     <Sequence premountFor={100}>
-      <OffthreadVideo src={staticFile('bigbuckbunny.mp4')}></OffthreadVideo>
+      <Video src={staticFile('bigbuckbunny.mp4')} />
     </Sequence>
   );
 };
@@ -120,13 +121,13 @@ export const PremountedSequence = forwardRef(PremountedSequenceRefForwardingFunc
 
 :::note
 One caveat of this custom component: In a premounted sequence, the native buffer state can still be triggered.  
-It is your task to disable triggering the native buffer state (e.g set [`pauseWhenBuffering`](/docs/offthreadvideo#pausewhenbuffering) to false) when in a premounted sequence.  
+It is your task to disable triggering the native buffer state (e.g. set [`pauseWhenBuffering`](/docs/media/video#pausewhenbuffering) to `false`) when in a premounted sequence.
 You can achieve this for example by using a React context.
 :::
 
 ## Usage together with the buffer state
 
-If you also use the [buffer state](/docs/player/buffer-state), the [`<Html5Audio>`](/docs/html5-audio#pausewhenbuffering), [`<Html5Video>`](/docs/html5-video#pausewhenbuffering), [`<OffthreadVideo>`](/docs/offthreadvideo#pausewhenbuffering) and [`<Img>`](/docs/img#pausewhenloading) tags are aware of premounting and don't trigger the buffer state while in a premounted [`<Sequence>`](/docs/sequence).
+If you also use the [buffer state](/docs/player/buffer-state), [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media), as well as [`<Html5Audio>`](/docs/html5-audio#pausewhenbuffering), [`<Html5Video>`](/docs/html5-video#pausewhenbuffering), [`<OffthreadVideo>`](/docs/offthreadvideo#pausewhenbuffering), and [`<Img>`](/docs/img#pausewhenloading), are aware of premounting and don't trigger the buffer state while in a premounted [`<Sequence>`](/docs/sequence).
 
 Otherwise it would lead to pausing playback while a scene is not even visible yet.
 

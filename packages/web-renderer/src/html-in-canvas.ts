@@ -1,6 +1,6 @@
 type Canvas2DWithDrawElement = CanvasRenderingContext2D & {
 	drawElementImage: (
-		element: Element,
+		element: Element | ElementImage,
 		dx: number,
 		dy: number,
 		dwidth: number,
@@ -9,8 +9,18 @@ type Canvas2DWithDrawElement = CanvasRenderingContext2D & {
 };
 
 type HTMLCanvasWithLayoutSubtree = HTMLCanvasElement & {
+	captureElementImage?: (element: Element) => ElementImage;
 	layoutSubtree?: boolean;
 	requestPaint?: () => void;
+};
+
+let nestedHtmlInCanvasSupport: Promise<boolean> | null = null;
+let forceDisableHtmlInCanvasForTesting = false;
+
+export const setForceDisableHtmlInCanvasForTesting = (
+	forceDisable: boolean,
+) => {
+	forceDisableHtmlInCanvasForTesting = forceDisable;
 };
 
 export const supportsNativeHtmlInCanvas = (): boolean => {
@@ -22,6 +32,151 @@ export const supportsNativeHtmlInCanvas = (): boolean => {
 		.createElement('canvas')
 		.getContext('2d') as Canvas2DWithDrawElement | null;
 	return typeof ctx?.drawElementImage === 'function';
+};
+
+const runNestedHtmlInCanvasProbe = (): Promise<boolean> => {
+	if (!supportsNativeHtmlInCanvas() || !document.body) {
+		return Promise.resolve(false);
+	}
+
+	const outer = document.createElement('canvas') as HTMLCanvasWithLayoutSubtree;
+	const inner = document.createElement('canvas') as HTMLCanvasWithLayoutSubtree;
+	const outerTarget = document.createElement('div');
+	const innerTarget = document.createElement('div');
+	const outerCtx = outer.getContext('2d') as Canvas2DWithDrawElement | null;
+	const innerCtx = inner.getContext('2d') as Canvas2DWithDrawElement | null;
+
+	if (
+		!outerCtx ||
+		!innerCtx ||
+		typeof outer.requestPaint !== 'function' ||
+		typeof inner.requestPaint !== 'function'
+	) {
+		return Promise.resolve(false);
+	}
+
+	outer.layoutSubtree = true;
+	inner.layoutSubtree = true;
+	outer.width = 4;
+	outer.height = 4;
+	inner.width = 4;
+	inner.height = 4;
+
+	Object.assign(outer.style, {
+		display: 'block',
+		height: '4px',
+		left: '0',
+		pointerEvents: 'none',
+		position: 'fixed',
+		top: '0',
+		visibility: 'visible',
+		width: '4px',
+		zIndex: '2147483647',
+	});
+	Object.assign(inner.style, {
+		display: 'block',
+		height: '4px',
+		width: '4px',
+	});
+	Object.assign(outerTarget.style, {
+		display: 'block',
+		height: '4px',
+		width: '4px',
+	});
+	Object.assign(innerTarget.style, {
+		backgroundColor: 'rgb(255, 0, 0)',
+		display: 'block',
+		height: '4px',
+		width: '4px',
+	});
+
+	inner.appendChild(innerTarget);
+	outerTarget.appendChild(inner);
+	outer.appendChild(outerTarget);
+	document.body.appendChild(outer);
+
+	return new Promise<boolean>((resolve) => {
+		let innerPainted = false;
+		let settled = false;
+		let timeout: number | null = null;
+
+		const settle = (supported: boolean) => {
+			if (settled) {
+				return;
+			}
+
+			settled = true;
+			if (timeout !== null) {
+				window.clearTimeout(timeout);
+			}
+
+			outer.remove();
+			resolve(supported);
+		};
+
+		timeout = window.setTimeout(() => settle(false), 1000);
+
+		inner.addEventListener('paint', () => {
+			try {
+				innerCtx.reset();
+				const transform = innerCtx.drawElementImage(innerTarget, 0, 0, 4, 4);
+				innerTarget.style.transform = transform.toString();
+				innerPainted = true;
+				requestAnimationFrame(() => outer.requestPaint!());
+			} catch {
+				settle(false);
+			}
+		});
+
+		outer.addEventListener('paint', () => {
+			if (!innerPainted) {
+				return;
+			}
+
+			try {
+				outerCtx.reset();
+				if (typeof outer.captureElementImage !== 'function') {
+					settle(false);
+					return;
+				}
+
+				const elementImage = outer.captureElementImage(outerTarget);
+				const transform = outerCtx.drawElementImage(elementImage, 0, 0, 4, 4);
+				elementImage.close();
+				outerTarget.style.transform = transform.toString();
+				const pixel = outerCtx.getImageData(2, 2, 1, 1).data;
+				settle(
+					pixel[0] > 200 && pixel[1] < 20 && pixel[2] < 20 && pixel[3] > 200,
+				);
+			} catch {
+				settle(false);
+			}
+		});
+
+		inner.requestPaint!();
+	});
+};
+
+export const supportsNestedHtmlInCanvas = (): Promise<boolean> => {
+	if (forceDisableHtmlInCanvasForTesting) {
+		return Promise.resolve(false);
+	}
+
+	if (!nestedHtmlInCanvasSupport) {
+		nestedHtmlInCanvasSupport = runNestedHtmlInCanvasProbe();
+	}
+
+	return nestedHtmlInCanvasSupport;
+};
+
+const countLayoutSubtreeCanvases = (element: HTMLElement): number => {
+	return Array.from(element.querySelectorAll('canvas')).filter(
+		(canvas) => (canvas as HTMLCanvasWithLayoutSubtree).layoutSubtree === true,
+	).length;
+};
+
+export const containsLayoutSubtreeCanvas = (element: HTMLElement): boolean => {
+	return countLayoutSubtreeCanvases(element) > 0;
 };
 
 export type HtmlInCanvasContext = {
@@ -107,21 +262,56 @@ export const drawWithHtmlInCanvas = async ({
 	element,
 	scaledWidth,
 	scaledHeight,
+	waitForRenderReady,
+	useElementImage,
 }: {
 	htmlInCanvasContext: HtmlInCanvasContext;
 	element: HTMLElement;
 	scaledWidth: number;
 	scaledHeight: number;
+	waitForRenderReady: () => Promise<void>;
+	useElementImage: boolean;
 }): Promise<OffscreenCanvasRenderingContext2D> => {
 	const {ctx, layoutCanvas} = htmlInCanvasContext;
 
-	await waitForPaint(layoutCanvas);
+	if (
+		layoutCanvas.width !== scaledWidth ||
+		layoutCanvas.height !== scaledHeight
+	) {
+		layoutCanvas.width = scaledWidth;
+		layoutCanvas.height = scaledHeight;
+	}
 
-	layoutCanvas.width = scaledWidth;
-	layoutCanvas.height = scaledHeight;
+	await waitForPaint(layoutCanvas);
+	// Each nested layout canvas needs one paint to run its async effect and a
+	// second paint to propagate the completed bitmap to its parent. One final
+	// cycle records the fully composed tree on the web renderer's root canvas.
+	const nestedPaintCycles = useElementImage
+		? countLayoutSubtreeCanvases(element) * 2 + 1
+		: 0;
+	for (let i = 0; i < nestedPaintCycles; i++) {
+		await new Promise<void>((resolve) =>
+			requestAnimationFrame(() => resolve()),
+		);
+		await waitForRenderReady();
+		await waitForPaint(layoutCanvas);
+	}
 
 	ctx.reset();
-	ctx.drawElementImage(element, 0, 0, scaledWidth, scaledHeight);
+	if (useElementImage) {
+		if (typeof layoutCanvas.captureElementImage !== 'function') {
+			throw new Error('canvas.captureElementImage() is unavailable');
+		}
+
+		const elementImage = layoutCanvas.captureElementImage(element);
+		try {
+			ctx.drawElementImage(elementImage, 0, 0, scaledWidth, scaledHeight);
+		} finally {
+			elementImage.close();
+		}
+	} else {
+		ctx.drawElementImage(element, 0, 0, scaledWidth, scaledHeight);
+	}
 
 	const offscreen = new OffscreenCanvas(scaledWidth, scaledHeight);
 	const offCtx = offscreen.getContext('2d');

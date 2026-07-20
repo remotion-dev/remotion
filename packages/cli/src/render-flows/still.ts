@@ -86,7 +86,6 @@ export const renderStillFlow = async ({
 	mediaCacheSizeInBytes,
 	rspack,
 	askAIEnabled,
-	experimentalClientSideRenderingEnabled,
 	keyboardShortcutsEnabled,
 	shouldCache,
 }: {
@@ -127,7 +126,6 @@ export const renderStillFlow = async ({
 	mediaCacheSizeInBytes: number | null;
 	rspack: boolean;
 	askAIEnabled: boolean;
-	experimentalClientSideRenderingEnabled: boolean;
 	keyboardShortcutsEnabled: boolean;
 	shouldCache: boolean;
 }) => {
@@ -231,7 +229,6 @@ export const renderStillFlow = async ({
 			maxTimelineTracks: null,
 			publicPath,
 			audioLatencyHint,
-			experimentalClientSideRenderingEnabled,
 			askAIEnabled,
 			keyboardShortcutsEnabled,
 			rspack,

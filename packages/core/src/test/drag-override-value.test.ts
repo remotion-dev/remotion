@@ -161,6 +161,29 @@ test('computeEffectiveSchemaValuesDotNotation resolves keyframed drag overrides 
 	expect(merged.opacity).toBe(3);
 });
 
+test('computeEffectiveSchemaValuesDotNotation resolves static file tokens for asset fields', () => {
+	const {merged} = computeEffectiveSchemaValuesDotNotation({
+		schema: {
+			src: {
+				type: 'asset',
+				default: undefined,
+				keyframable: false,
+			},
+		},
+		currentValue: {src: '/static-abcdef/old.png'},
+		overrideValues: {},
+		propStatus: {
+			src: {
+				status: 'static',
+				codeValue: 'remotion-file:folder/new%20image.png',
+			},
+		},
+		frame: 0,
+	});
+
+	expect(merged.src).toBe('/static-abcdef/folder/new%20image.png');
+});
+
 test('getEffectiveVisualModeValue resolves static string drag overrides', () => {
 	expect(
 		getEffectiveVisualModeValue({
