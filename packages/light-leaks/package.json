@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/light-leaks",
-	"version": "4.0.491",
+	"version": "4.0.494",
 	"description": "Light leak effects for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",

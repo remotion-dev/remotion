@@ -94,38 +94,25 @@ const pop = interpolate(frame, [0, 30], [0, 1], {
 });
 ```
 
-## Preset easings (`Easing.in` / `Easing.out` / named curves)
+## Studio-editable easing curves
 
-Easing can be added to the `interpolate` function without a custom cubic:
+Use an explicit `Easing.bezier()` curve instead of composed presets such as `Easing.inOut(Easing.cubic)`. Explicit Bézier control points remain editable in Remotion Studio.
 
 ```ts
 import { interpolate, Easing } from "remotion";
 
 const value1 = interpolate(frame, [0, 100], [0, 1], {
-  easing: Easing.inOut(Easing.cubic),
+  easing: Easing.bezier(0.645, 0.045, 0.355, 1),
   extrapolateLeft: "clamp",
   extrapolateRight: "clamp",
 });
 ```
 
-The default easing is `Easing.linear`.  
-Convexities:
-
-- `Easing.in` — starting slow and accelerating
-- `Easing.out` — starting fast and slowing down
-- `Easing.inOut`
-
-Named curves (from most linear to most curved):
-
-- `Easing.quad`
-- `Easing.cubic` (good default when you do not need a custom cubic)
-- `Easing.sin`
-- `Easing.exp`
-- `Easing.circle`
+The default easing is `Easing.linear`.
 
 ### Easing direction for enter/exit animations
 
-Use `Easing.out` for enter animations (starts fast, decelerates into place) and `Easing.in` for exit animations (starts slow, accelerates away). This feels natural because elements arrive with momentum and leave with gravity. When you need a specific curve from design, prefer a single `Easing.bezier(...)` instead of stacking presets.
+Use an ease-out Bézier curve for enter animations (starts fast, decelerates into place) and an ease-in Bézier curve for exit animations (starts slow, accelerates away). This feels natural because elements arrive with momentum and leave with gravity.
 
 ## Composing interpolations
 
@@ -146,7 +133,11 @@ const slideOut = interpolate(
   frame,
   [slideOutStart, slideOutStart + slideOutDuration],
   [0, 1],
-  { easing: Easing.in(Easing.cubic), extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  {
+    easing: Easing.bezier(0.333, 0, 0.667, 0),
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  },
 );
 const progress = slideIn - slideOut;
 

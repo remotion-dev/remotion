@@ -1,5 +1,6 @@
 import {
 	COMPOSITION_DRAG_MIME_TYPE,
+	compositionDragDataToSymbolicatedStack,
 	parseCompositionDragData,
 } from '@remotion/studio-shared';
 import React, {
@@ -366,7 +367,7 @@ export const CompositionSelector: React.FC = () => {
 					},
 					dryRun: false,
 					signal: controller.signal,
-					symbolicatedStack: null,
+					symbolicatedStack: compositionDragDataToSymbolicatedStack(parsed),
 				});
 
 				notification.replaceContent(

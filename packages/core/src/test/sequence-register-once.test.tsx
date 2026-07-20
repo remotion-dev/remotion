@@ -34,6 +34,8 @@ type SequenceTestWrapperProps = {
 	readonly children: React.ReactNode;
 	readonly onRegisterSequence: (sequence: TSequence) => void;
 	readonly rerenderOnRegister?: boolean;
+	readonly compositionDurationInFrames?: number;
+	readonly currentFrame?: number;
 };
 
 type VisualModeOverrides = {
@@ -51,6 +53,8 @@ const SequenceTestWrapperWithVisualModeOverrides: React.FC<
 	onRegisterSequence,
 	rerenderOnRegister = false,
 	visualModeOverrides,
+	compositionDurationInFrames,
+	currentFrame,
 }) => {
 	const [, setTick] = useState(0);
 
@@ -109,7 +113,10 @@ const SequenceTestWrapperWithVisualModeOverrides: React.FC<
 	);
 
 	return (
-		<WrapSequenceContext>
+		<WrapSequenceContext
+			compositionDurationInFrames={compositionDurationInFrames}
+			currentFrame={currentFrame}
+		>
 			<Internals.RemotionEnvironmentContext
 				value={{
 					isRendering: false,
@@ -143,12 +150,16 @@ const SequenceTestWrapper: React.FC<SequenceTestWrapperProps> = ({
 	children,
 	onRegisterSequence,
 	rerenderOnRegister = false,
+	compositionDurationInFrames,
+	currentFrame,
 }) => {
 	return (
 		<SequenceTestWrapperWithVisualModeOverrides
 			onRegisterSequence={onRegisterSequence}
 			rerenderOnRegister={rerenderOnRegister}
 			visualModeOverrides={null}
+			compositionDurationInFrames={compositionDurationInFrames}
+			currentFrame={currentFrame}
 		>
 			{children}
 		</SequenceTestWrapperWithVisualModeOverrides>
@@ -482,6 +493,20 @@ test('AnimatedImage registers its canvas ref for the Studio outline', () => {
 
 	expect(refForOutline.current).toBeInstanceOf(HTMLCanvasElement);
 	expect(ref.current).toBe(refForOutline.current);
+});
+
+test('AnimatedImage remains visible with a negative offset', () => {
+	const {container} = render(
+		<SequenceTestWrapper
+			compositionDurationInFrames={100}
+			currentFrame={75}
+			onRegisterSequence={() => undefined}
+		>
+			<AnimatedImage from={-100} onError={() => undefined} src="test.gif" />
+		</SequenceTestWrapper>,
+	);
+
+	expect(container.querySelector('canvas')).not.toBeNull();
 });
 
 test('AnimatedImage forwards data and aria attributes to its canvas', () => {

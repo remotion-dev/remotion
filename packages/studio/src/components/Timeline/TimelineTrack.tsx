@@ -52,6 +52,7 @@ const TimelineTrackUnmemoized: React.FC<{
 				) : null}
 				<TimelineSequence
 					s={track.sequence}
+					connectedCompositions={track.connectedCompositions ?? []}
 					nodePathInfo={track.nodePathInfo}
 					sequenceFrameOffset={track.sequenceFrameOffset}
 				/>

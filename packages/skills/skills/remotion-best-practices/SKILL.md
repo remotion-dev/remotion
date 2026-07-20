@@ -36,3 +36,7 @@ Use the [Remotion SaaS skill](remotion-saas/SKILL.md) for knowledge about Remoti
 ## Looking up Remotion APIs and documentation
 
 To find and read current Remotion documentation, load [Remotion Docs](remotion-docs/SKILL.md).
+
+## Upgrading
+
+To upgrade Remotion, related packages, compatible Mediabunny packages, and installed Remotion Agent Skills, load [Remotion Upgrade](remotion-upgrade/SKILL.md).

@@ -158,6 +158,7 @@ export type KeyframeOperation =
 	| {
 			type: 'remove';
 			frame: number;
+			valueWhenLastKeyframeDeleted: unknown | null;
 	  }
 	| {
 			type: 'settings';
@@ -1164,10 +1165,12 @@ const removeKeyframe = ({
 	expression,
 	frame,
 	videoConfigValues,
+	valueWhenLastKeyframeDeleted,
 }: {
 	expression: Expression;
 	frame: number;
 	videoConfigValues: VideoConfigIdentifierValues;
+	valueWhenLastKeyframeDeleted: unknown | null;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
 	const existing = getInterpolationExpression(expression, videoConfigValues);
 	if (!existing) {
@@ -1187,7 +1190,10 @@ const removeKeyframe = ({
 
 	if (nextKeyframes.length === 0) {
 		return {
-			expression: existing.keyframes[keyframeIndex].output,
+			expression:
+				valueWhenLastKeyframeDeleted === null
+					? existing.keyframes[keyframeIndex].output
+					: parseValueExpression(valueWhenLastKeyframeDeleted),
 			introduced: noIntroducedIdentifiers,
 		};
 	}
@@ -1368,6 +1374,7 @@ const applyKeyframeOperation = ({
 		expression,
 		frame: operation.frame,
 		videoConfigValues,
+		valueWhenLastKeyframeDeleted: operation.valueWhenLastKeyframeDeleted,
 	});
 };
 
@@ -1526,10 +1533,12 @@ const shouldRemovePropAfterKeyframeOperation = ({
 		return false;
 	}
 
-	return (
-		JSON.stringify(existing.keyframes[0].value) ===
-		JSON.stringify(field.default)
-	);
+	const valueAfterRemoval =
+		operation.valueWhenLastKeyframeDeleted === null
+			? existing.keyframes[0].value
+			: operation.valueWhenLastKeyframeDeleted;
+
+	return JSON.stringify(valueAfterRemoval) === JSON.stringify(field.default);
 };
 
 const getObjectExpression = (attr: JSXAttribute): ObjectExpression | null => {

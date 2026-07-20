@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/claude-code-plugin",
-	"version": "4.0.491",
+	"version": "4.0.494",
 	"private": true,
 	"type": "module",
 	"repository": {
@@ -10,7 +10,8 @@
 		"formatting": "oxfmt . --check",
 		"format": "oxfmt .",
 		"lint": "eslint .",
-		"build": "bun build.mts"
+		"build": "bun build.mts",
+		"test": "bun build.mts && SKILLS_ROOT=skills bun ../skills/scripts/validate-links.ts && bun test test"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "Remotion License",

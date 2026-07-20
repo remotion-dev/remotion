@@ -13,6 +13,22 @@ import {EXTRA_PACKAGES} from './extra-packages';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
 
+export const resolveExtraPackageVersions = (
+	dependencies: Record<string, string>,
+): Record<string, string> => {
+	const extraVersions = {...EXTRA_PACKAGES};
+
+	for (const pkg of Object.keys(EXTRA_PACKAGES)) {
+		if (dependencies[pkg]) {
+			extraVersions[pkg] = dependencies[pkg];
+		} else if (pkg.startsWith('@mediabunny/') && dependencies.mediabunny) {
+			extraVersions[pkg] = dependencies.mediabunny;
+		}
+	}
+
+	return extraVersions;
+};
+
 const getExtraPackageVersionsForRemotionVersion = (
 	remotionVersion: string,
 ): Record<string, string> => {
@@ -23,14 +39,7 @@ const getExtraPackageVersionsForRemotionVersion = (
 		);
 		const dependencies = JSON.parse(output) as Record<string, string>;
 
-		const extraVersions: Record<string, string> = {};
-		for (const pkg of Object.keys(EXTRA_PACKAGES)) {
-			if (dependencies[pkg]) {
-				extraVersions[pkg] = dependencies[pkg];
-			}
-		}
-
-		return extraVersions;
+		return resolveExtraPackageVersions(dependencies);
 	} catch {
 		// If we can't fetch the versions, return the default versions from EXTRA_PACKAGES
 		return EXTRA_PACKAGES;
@@ -81,7 +90,8 @@ export const getPackagesToUpgrade = ({
 
 	for (const pkg of allPackagesToUpgrade) {
 		const versionSpec = findVersionSpecifier(depsWithVersions, pkg);
-		const targetVersionForPkg = extraPackageVersions[pkg] ?? targetVersion;
+		const targetVersionForPkg =
+			extraPackageVersions[pkg] ?? EXTRA_PACKAGES[pkg] ?? targetVersion;
 
 		if (
 			(versionSpec && isCatalogProtocol(versionSpec)) ||
