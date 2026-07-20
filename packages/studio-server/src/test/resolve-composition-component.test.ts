@@ -876,7 +876,7 @@ test('converts and inserts SVG markup as an Interactive.Svg', async () => {
 	}
 });
 
-test('inserts an Img asset into the resolved composition component', async () => {
+test('inserts a CanvasImage asset into the resolved composition component', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -921,9 +921,9 @@ test('inserts an Img asset into the resolved composition component', async () =>
 		});
 
 		expect(result.output).toContain(
-			"import { AbsoluteFill, staticFile, Img } from 'remotion';",
+			"import { AbsoluteFill, staticFile, CanvasImage } from 'remotion';",
 		);
-		expect(result.output).toContain('<Img');
+		expect(result.output).toContain('<CanvasImage');
 		expect(result.output).toContain("src={staticFile('image.png')}");
 		expect(result.output).toContain("position: 'absolute'");
 		expect(result.output).toContain('width: 800');
@@ -935,7 +935,7 @@ test('inserts an Img asset into the resolved composition component', async () =>
 	}
 });
 
-test('inserts an Img asset with a translate style', async () => {
+test('inserts a CanvasImage asset with a translate style', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -982,6 +982,10 @@ test('inserts an Img asset with a translate style', async () => {
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
+		expect(result.output).toContain(
+			"import { AbsoluteFill, staticFile, CanvasImage } from 'remotion';",
+		);
+		expect(result.output).toContain('<CanvasImage');
 		expect(result.output).toContain("src={staticFile('image.png')}");
 		expect(result.output).toContain("translate: '100px 150px'");
 	} finally {

@@ -119,7 +119,7 @@ export const SvgImportDialog: React.FC<{
 					<Flex />
 					<Button onClick={onImage}>
 						Add to <code style={inlineCode}>public</code> and import as{' '}
-						<code style={inlineCode}>{'<Img>'}</code>
+						<code style={inlineCode}>{'<CanvasImage>'}</code>
 					</Button>
 					<Spacing x={1} />
 					<ModalButton onClick={onInline} autoFocus>

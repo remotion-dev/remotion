@@ -181,7 +181,7 @@ const getElementLabel = (element: InsertableCompositionElement) => {
 
 	if (element.type === 'asset') {
 		if (element.assetType === 'image') {
-			return '<Img>';
+			return '<CanvasImage>';
 		}
 
 		if (element.assetType === 'video') {
