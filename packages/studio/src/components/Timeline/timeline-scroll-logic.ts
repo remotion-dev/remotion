@@ -306,45 +306,71 @@ export const viewportClientXToScrollContentX = ({
 	return clampedClientX + scrollEl.scrollLeft - rect.left;
 };
 
-export const zoomAndPreserveCursor = ({
-	oldZoom,
-	newZoom,
+export const getScrollLeftToKeepCursorInPlace = ({
+	anchorContentX,
+	oldScrollLeft,
+	oldTimelineWidth,
+	newTimelineWidth,
+}: {
+	anchorContentX: number;
+	oldScrollLeft: number;
+	oldTimelineWidth: number;
+	newTimelineWidth: number;
+}) => {
+	const oldUsableWidth = getUsableTimelineWidth(oldTimelineWidth);
+	const newUsableWidth = getUsableTimelineWidth(newTimelineWidth);
+	const clampedAnchorContentX = Math.min(
+		Math.max(anchorContentX, TIMELINE_PADDING),
+		TIMELINE_PADDING + oldUsableWidth,
+	);
+	const cursorX = clampedAnchorContentX - oldScrollLeft;
+	const anchorInUsableWidth = clampedAnchorContentX - TIMELINE_PADDING;
+	const newAnchorContentX =
+		TIMELINE_PADDING + (anchorInUsableWidth / oldUsableWidth) * newUsableWidth;
+
+	return newAnchorContentX - cursorX;
+};
+
+export const prepareToPreserveTimelineCursor = ({
 	currentFrame,
 	currentDurationInFrames,
 	anchorFrame,
 	anchorContentX,
 }: {
-	oldZoom: number;
-	newZoom: number;
 	currentFrame: number;
 	currentDurationInFrames: number;
 	anchorFrame: number | null;
 	/** Prefer this over `anchorFrame` when not null (subpixel-accurate anchor). */
 	anchorContentX: number | null;
 }) => {
-	const ratio = newZoom / oldZoom;
-	if (ratio === 1) {
-		return;
-	}
-
 	const {current} = scrollableRef;
 
 	if (!current) {
-		return;
+		return () => undefined;
 	}
 
-	const frameIncrement = getFrameIncrement(currentDurationInFrames);
+	const oldTimelineWidth = current.scrollWidth;
+	const oldScrollLeft = current.scrollLeft;
+	const frameIncrement = getFrameIncrementFromWidth(
+		currentDurationInFrames,
+		oldTimelineWidth,
+	);
 	const frameForScroll = anchorFrame ?? currentFrame;
 	const prevCursorPosition =
 		anchorContentX !== null
-			? Math.min(Math.max(anchorContentX, 0), current.scrollWidth)
+			? anchorContentX
 			: frameIncrement * frameForScroll + TIMELINE_PADDING;
 
-	const newCursorPosition =
-		ratio * (prevCursorPosition - TIMELINE_PADDING) + TIMELINE_PADDING;
+	return () => {
+		if (scrollableRef.current !== current) {
+			return;
+		}
 
-	current.scrollLeft += newCursorPosition - prevCursorPosition;
-	// Playhead position is synced in `TimelineSlider` `useLayoutEffect` using
-	// measured `sliderAreaRef.clientWidth` so it matches layout after zoom
-	// (avoids fighting React `style` with stale `timelineWidth` during pinch).
+		current.scrollLeft = getScrollLeftToKeepCursorInPlace({
+			anchorContentX: prevCursorPosition,
+			oldScrollLeft,
+			oldTimelineWidth,
+			newTimelineWidth: current.scrollWidth,
+		});
+	};
 };
