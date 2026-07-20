@@ -6,27 +6,27 @@ import {
 	useMemo,
 } from 'react';
 import {Internals} from 'remotion';
-import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
-import {isCompositionStill} from '../helpers/is-composition-still';
+import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import {isCompositionStill} from '../../helpers/is-composition-still';
 import {
 	openOriginalPositionInEditor,
 	preloadCompositionComponentInfo,
 	useCachedCompositionComponentInfo,
-} from '../helpers/open-in-editor';
-import {ReactIcon} from '../icons/react';
-import {StillIcon} from '../icons/still';
-import {FilmIcon} from '../icons/video';
-import {InlineCompositionName} from './InlineCompositionName';
+} from '../../helpers/open-in-editor';
+import {ReactIcon} from '../../icons/react';
+import {StillIcon} from '../../icons/still';
+import {FilmIcon} from '../../icons/video';
+import {InlineCompositionName} from '../InlineCompositionName';
 import {
 	InspectorInfoHeader,
 	InspectorInfoSubtitle,
-} from './InspectorInfoHeader';
-import {InspectorLocationCopy} from './InspectorLocationCopy';
-import {InspectorSourceLocation} from './InspectorSourceLocation';
-import {showNotification} from './Notifications/NotificationCenter';
-import {useResolvedStack} from './Timeline/use-resolved-stack';
+} from '../InspectorInfoHeader';
+import {InspectorLocationCopy} from '../InspectorLocationCopy';
+import {InspectorSourceLocation} from '../InspectorSourceLocation';
+import {showNotification} from '../Notifications/NotificationCenter';
+import {useResolvedStack} from '../Timeline/use-resolved-stack';
 
-export const CURRENT_COMPOSITION_HEIGHT = 66;
+const COMPOSITION_INSPECTOR_HEADER_HEIGHT = 66;
 
 const sourceLocationIconStyle: CSSProperties = {
 	flexShrink: 0,
@@ -38,7 +38,7 @@ const renderReactIcon = (color: string) => {
 	return <ReactIcon color={color} style={sourceLocationIconStyle} />;
 };
 
-export const CurrentComposition = () => {
+export const CompositionInspectorHeader = () => {
 	const video = Internals.useVideo();
 	const {compositions} = useContext(Internals.CompositionManager);
 
@@ -122,7 +122,7 @@ export const CurrentComposition = () => {
 	);
 
 	return (
-		<InspectorInfoHeader minHeight={CURRENT_COMPOSITION_HEIGHT}>
+		<InspectorInfoHeader minHeight={COMPOSITION_INSPECTOR_HEADER_HEIGHT}>
 			{video ? (
 				<>
 					<InspectorLocationCopy location={validatedLocation} name={video.id}>
