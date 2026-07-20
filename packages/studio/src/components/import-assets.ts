@@ -16,7 +16,7 @@ import {Internals, staticFile} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {getStaticFiles} from '../api/get-static-files';
 import {writeStaticFile} from '../api/write-static-file';
-import {formatFigmaClipboardError} from '../helpers/clipboard-figma';
+import {formatFigmaClipboardErrorNotification} from '../helpers/clipboard-figma';
 import {installRequiredPackages} from '../helpers/install-required-package';
 import type {Dimensions} from '../helpers/is-current-selected-still';
 import {callApi} from './call-api';
@@ -778,14 +778,13 @@ export const importFigmaClipboard = async ({
 	dropPosition: InsertElementDropPosition | null;
 	html: string;
 }) => {
-	const copyAsSvgSuggestion = 'Try “Copy as SVG” in Figma and paste again.';
 	try {
 		const converted = await callApi('/api/convert-figma-clipboard-to-svg', {
 			html,
 		});
 		if (!converted.success) {
 			showNotification(
-				`${formatFigmaClipboardError(converted.reason)} ${copyAsSvgSuggestion}`,
+				formatFigmaClipboardErrorNotification(converted.reason),
 				8000,
 			);
 			return;
@@ -800,9 +799,9 @@ export const importFigmaClipboard = async ({
 		});
 	} catch (error) {
 		showNotification(
-			`${formatFigmaClipboardError(
+			formatFigmaClipboardErrorNotification(
 				error instanceof Error ? error.message : String(error),
-			)} ${copyAsSvgSuggestion}`,
+			),
 			8000,
 		);
 	}

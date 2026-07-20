@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {
 	formatFigmaClipboardError,
+	formatFigmaClipboardErrorNotification,
 	getClipboardFigmaHtml,
 	hasClipboardFigmaPayload,
 } from '../helpers/clipboard-figma';
@@ -48,4 +49,16 @@ test('formats Figma clipboard errors for the notification', () => {
 			'Cannot import Figma selection: Figma paste is only available with Node.js 22.15 or newer',
 		),
 	).toBe('Figma paste is only available with Node.js 22.15 or newer.');
+	expect(
+		formatFigmaClipboardError(
+			'Cannot import Figma selection: Pasting Figma selections with masks is not supported',
+		),
+	).toBe('Pasting Figma selections with masks is not supported.');
+	expect(
+		formatFigmaClipboardErrorNotification(
+			'Cannot import Figma selection: Pasting Figma selections with masks is not supported',
+		),
+	).toBe(
+		'Pasting Figma selections with masks is not supported. Try “Copy as SVG” in Figma and paste again.',
+	);
 });

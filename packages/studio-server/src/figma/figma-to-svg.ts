@@ -121,7 +121,6 @@ type Scene = {
 type RenderContext = {
 	defs: string[];
 	nextId: number;
-	renderingAlphaMask: number;
 	renderingDepth: number;
 	scene: Scene;
 };
@@ -605,11 +604,9 @@ const getVisiblePaint = ({
 };
 
 const getPaintAttributes = ({
-	forceWhite,
 	kind,
 	paint,
 }: {
-	forceWhite: boolean;
 	kind: 'fill' | 'stroke';
 	paint: FigmaPaint;
 }) => {
@@ -630,11 +627,9 @@ const getPaintAttributes = ({
 			label: `${kind} opacity`,
 			value: paint.opacity,
 		});
-	const hex = forceWhite
-		? '#ffffff'
-		: `#${r.toString(16).padStart(2, '0')}${g
-				.toString(16)
-				.padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+	const hex = `#${r.toString(16).padStart(2, '0')}${g
+		.toString(16)
+		.padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 	const attributes = [`${kind}="${hex}"`];
 	if (alpha < 1) {
 		attributes.push(`${kind}-opacity="${formatNumber(alpha)}"`);
@@ -753,13 +748,7 @@ const getCornerRadius = (node: FigmaNode) => {
 	return radius;
 };
 
-const renderFrameShape = ({
-	context,
-	node,
-}: {
-	context: RenderContext;
-	node: FigmaNode;
-}) => {
+const renderFrameShape = ({node}: {node: FigmaNode}) => {
 	const fill = getVisiblePaint({kind: 'fill', node, paints: node.fillPaints});
 	const stroke = getVisiblePaint({
 		kind: 'stroke',
@@ -785,7 +774,6 @@ const renderFrameShape = ({
 	if (fill) {
 		attributes.push(
 			...getPaintAttributes({
-				forceWhite: context.renderingAlphaMask > 0,
 				kind: 'fill',
 				paint: fill,
 			}),
@@ -810,7 +798,6 @@ const renderFrameShape = ({
 
 		attributes.push(
 			...getPaintAttributes({
-				forceWhite: context.renderingAlphaMask > 0,
 				kind: 'stroke',
 				paint: stroke,
 			}),
@@ -1113,12 +1100,10 @@ const renderShapeGeometry = ({
 };
 
 const getShapeStrokeAttributes = ({
-	context,
 	node,
 	paint,
 	strokeWidth,
 }: {
-	context: RenderContext;
 	node: FigmaNode;
 	paint: FigmaPaint;
 	strokeWidth: number;
@@ -1159,7 +1144,6 @@ const getShapeStrokeAttributes = ({
 	const attributes = [
 		'fill="none"',
 		...getPaintAttributes({
-			forceWhite: context.renderingAlphaMask > 0,
 			kind: 'stroke',
 			paint,
 		}),
@@ -1256,7 +1240,6 @@ const renderPaintedShape = ({
 
 	const fillAttributes = fill
 		? getPaintAttributes({
-				forceWhite: context.renderingAlphaMask > 0,
 				kind: 'fill',
 				paint: fill,
 			})
@@ -1282,7 +1265,6 @@ const renderPaintedShape = ({
 			attributes: [
 				...fillAttributes,
 				...getShapeStrokeAttributes({
-					context,
 					node,
 					paint: stroke,
 					strokeWidth,
@@ -1306,7 +1288,6 @@ const renderPaintedShape = ({
 		: '';
 	const strokeMarkup = renderShapeGeometry({
 		attributes: getShapeStrokeAttributes({
-			context,
 			node,
 			paint: stroke,
 			strokeWidth: strokeWidth * 2,
@@ -1453,7 +1434,7 @@ const renderVector = ({
 	if (fill) {
 		for (const fillPath of getFillPaths(network)) {
 			paths.push(
-				`<path d="${escapeAttribute(fillPath.d)}" ${getPaintAttributes({forceWhite: context.renderingAlphaMask > 0, kind: 'fill', paint: fill}).join(' ')} fill-rule="${fillPath.windingRule}" />`,
+				`<path d="${escapeAttribute(fillPath.d)}" ${getPaintAttributes({kind: 'fill', paint: fill}).join(' ')} fill-rule="${fillPath.windingRule}" />`,
 			);
 		}
 	}
@@ -1511,7 +1492,6 @@ const renderVector = ({
 				`d="${escapeAttribute(d)}"`,
 				'fill="none"',
 				...getPaintAttributes({
-					forceWhite: context.renderingAlphaMask > 0,
 					kind: 'stroke',
 					paint: stroke,
 				}),
@@ -1549,7 +1529,6 @@ const renderVector = ({
 
 const validateNodeFeatures = (node: FigmaNode) => {
 	if (
-		node.maskIsOutline === true ||
 		node.backgroundPaints?.some((paint) => paint.visible !== false) ||
 		node.effects?.some((effect) => effect.visible !== false) ||
 		(node.blendMode !== undefined &&
@@ -1574,63 +1553,16 @@ const renderChildren = ({
 	node: FigmaNode;
 }) => {
 	const children = context.scene.children.get(node) ?? [];
-	const output: string[] = [];
-	let activeMask: {id: string; parts: string[]} | null = null;
-	const flushMask = () => {
-		if (activeMask === null) {
-			return;
-		}
-
-		output.push(
-			`<g mask="url(#${activeMask.id})">${activeMask.parts.join('\n')}</g>`,
-		);
-		activeMask = null;
-	};
-
-	for (const child of children) {
-		if (child.mask === true) {
-			flushMask();
-			if (child.maskType !== undefined && child.maskType !== 'ALPHA') {
-				fail(`${nodeLabel(child)} uses an unsupported mask type`);
-			}
-
-			const id = `figma-mask-${context.nextId++}`;
-			const {height, width} = getNodeSize(node);
-			// SVG masks default to luminance in some renderers. Painting an alpha
-			// mask white preserves Figma's alpha semantics everywhere.
-			context.renderingAlphaMask++;
-			let maskMarkup: string;
-			try {
-				maskMarkup = renderNode({
-					context,
-					includeTransform: true,
-					node: child,
-				});
-			} finally {
-				context.renderingAlphaMask--;
-			}
-
-			context.defs.push(
-				`<mask id="${id}" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="0" y="0" width="${formatNumber(width)}" height="${formatNumber(height)}">${maskMarkup}</mask>`,
-			);
-			activeMask = {id, parts: []};
-			continue;
-		}
-
-		const markup = renderNode({
-			context,
-			includeTransform: true,
-			node: child,
-		});
-		if (activeMask) {
-			activeMask.parts.push(markup);
-		} else {
-			output.push(markup);
-		}
-	}
-
-	flushMask();
-	return output.join('\n');
+	return children
+		.map((child) =>
+			renderNode({
+				context,
+				includeTransform: true,
+				node: child,
+			}),
+		)
+		.filter(Boolean)
+		.join('\n');
 };
 
 const renderContainerChildren = ({
@@ -1692,7 +1624,7 @@ const renderNode = ({
 				context,
 				node,
 			});
-			content = [renderFrameShape({context, node}), childrenMarkup]
+			content = [renderFrameShape({node}), childrenMarkup]
 				.filter(Boolean)
 				.join('\n');
 		} else if (
@@ -1820,6 +1752,24 @@ const buildScene = ({
 	return {blobs, children, root};
 };
 
+const assertNoMasks = (scene: Scene) => {
+	const pending = [scene.root];
+	const visited = new Set<FigmaNode>();
+	while (pending.length > 0) {
+		const node = pending.pop() as FigmaNode;
+		if (visited.has(node)) {
+			continue;
+		}
+
+		visited.add(node);
+		if (node.mask === true || node.maskIsOutline === true) {
+			fail('Pasting Figma selections with masks is not supported');
+		}
+
+		pending.push(...(scene.children.get(node) ?? []));
+	}
+};
+
 export const renderFigmaMessageToSvg = ({
 	message,
 	selectedNodeId,
@@ -1828,6 +1778,7 @@ export const renderFigmaMessageToSvg = ({
 	selectedNodeId: string;
 }) => {
 	const scene = buildScene({message, selectedNodeId});
+	assertNoMasks(scene);
 	const {height, width} = getNodeSize(scene.root);
 	if (width <= 0 || height <= 0) {
 		fail('the selected node has empty bounds');
@@ -1836,7 +1787,6 @@ export const renderFigmaMessageToSvg = ({
 	const context: RenderContext = {
 		defs: [],
 		nextId: 0,
-		renderingAlphaMask: 0,
 		renderingDepth: 0,
 		scene,
 	};

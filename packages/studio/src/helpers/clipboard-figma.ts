@@ -51,3 +51,7 @@ export const formatFigmaClipboardError = (reason: string) => {
 
 	return `${message}.`;
 };
+
+export const formatFigmaClipboardErrorNotification = (reason: string) => {
+	return `${formatFigmaClipboardError(reason)} Try “Copy as SVG” in Figma and paste again.`;
+};

@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {Buffer} from 'node:buffer';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import * as recast from 'recast';
@@ -13,6 +14,24 @@ const fixture = readFileSync(
 	path.join(__dirname, 'fixtures', 'figma-payload.html'),
 	'utf8',
 );
+const selectNodeFromFixture = (selectedNodeId: string) => {
+	return fixture.replace(
+		/<!--\(figmeta\)([\s\S]*?)\(\/figmeta\)-->/,
+		(_match, value: string) => {
+			const metadata = JSON.parse(
+				Buffer.from(value.replace(/[\t\n\r ]/g, ''), 'base64').toString('utf8'),
+			) as Record<string, unknown>;
+			return `<!--(figmeta)${Buffer.from(
+				JSON.stringify({
+					...metadata,
+					selectedNodeData: `${selectedNodeId}|4|0`,
+				}),
+			).toString('base64')}(/figmeta)-->`;
+		},
+	);
+};
+
+const maskFreeFixture = selectNodeFromFixture('1941:116');
 
 const solidPaint = (r: number, g: number, b: number) => ({
 	color: {a: 1, b, g, r},
@@ -27,41 +46,54 @@ test('requires Node.js 22.15 or newer for native Zstandard support', () => {
 	expect(getFigmaClipboardPasteSupportError(() => undefined)).toBeNull();
 });
 
-test('converts the Figma clipboard fixture to one sanitized SVG', () => {
-	const result = convertFigmaClipboardToSvg(fixture);
-	expect(result.width).toBe(2000);
-	expect(result.height).toBe(800);
+test('rejects a Figma clipboard selection containing masks', () => {
+	expect(() => convertFigmaClipboardToSvg(fixture)).toThrow(
+		'Cannot import Figma selection: Pasting Figma selections with masks is not supported',
+	);
+});
+
+test('converts a mask-free node from the Figma clipboard fixture', () => {
+	const result = convertFigmaClipboardToSvg(maskFreeFixture);
+	expect(result.width).toBe(119.7900390625);
+	expect(result.height).toBe(123.6920166015625);
 	expect(result.svg).toStartWith(
-		'<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="800" viewBox="0 0 2000 800">',
+		'<svg xmlns="http://www.w3.org/2000/svg" width="119.790039" height="123.692017" viewBox="0 0 119.790039 123.692017">',
 	);
-	expect(result.svg).toContain(
-		'<rect x="0" y="0" width="2000" height="800" fill="#2e2e2e" />',
-	);
-	expect(result.svg.match(/<path /g)).toHaveLength(18);
-	expect(result.svg.match(/<mask /g)).toHaveLength(2);
-	expect(result.svg.match(/<clipPath /g)).toHaveLength(1);
+	expect(result.svg.match(/<path /g)).toHaveLength(1);
 	expect(result.svg).toContain('stroke="#ffffff"');
-	expect(result.svg).toContain('fill-opacity="0.3"');
-	expect(result.svg).not.toContain('#000000');
-	expect(result.svg).toContain('M 0 0 L 0 165.572021');
-	expect(result.svg).toContain('M 0 0 L 0 123.692017');
-	expect(result.svg).toContain('M 0 0 L 39.930054 0');
-	expect(result.svg).toContain(
-		'transform="matrix(1 0 0 1 749.694092 356.650085)"',
-	);
-	expect(result.svg).not.toContain('matrix(1 0 0 1 1238 817)');
-	expect(result.svg).not.toMatch(/<script|<foreignObject|\shref=/);
+	expect(result.svg).not.toMatch(/<defs|<mask|<script|<foreignObject|\shref=/);
 });
 
 test('converts the generated Figma SVG through the inline SVG pipeline', async () => {
-	const {svg} = convertFigmaClipboardToSvg(fixture);
+	const {svg} = convertFigmaClipboardToSvg(maskFreeFixture);
 	const jsx = recast.print(await svgMarkupToJsx(svg)).code;
 	expect(jsx).toStartWith('<svg');
-	expect(jsx).toContain('<defs>');
-	expect(jsx).toContain('<mask');
-	expect(jsx).toContain('clipPath="url(#figma-clip-2)"');
-	expect(jsx).toContain('fillRule="evenodd"');
+	expect(jsx).not.toContain('<mask');
 	expect(jsx).toContain('strokeWidth={44.8018}');
+});
+
+test('rejects a selected Figma mask node', () => {
+	expect(() =>
+		renderFigmaMessageToSvg({
+			message: {
+				blobs: [],
+				nodeChanges: [
+					{
+						fillPaints: [solidPaint(1, 0, 0)],
+						guid: {localID: 1, sessionID: 1},
+						mask: true,
+						name: 'Mask',
+						size: {x: 100, y: 100},
+						type: 'ROUNDED_RECTANGLE',
+					},
+				],
+				type: 'NODE_CHANGES',
+			},
+			selectedNodeId: '1:1',
+		}),
+	).toThrow(
+		'Cannot import Figma selection: Pasting Figma selections with masks is not supported',
+	);
 });
 
 test('renders a full Figma ellipse as an SVG ellipse', async () => {
