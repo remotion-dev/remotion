@@ -59,6 +59,11 @@ export type FigmaNode = {
 	backgroundPaints?: FigmaPaint[];
 	strokePaints?: FigmaPaint[];
 	strokeWeight?: number;
+	borderTopWeight?: number;
+	borderBottomWeight?: number;
+	borderLeftWeight?: number;
+	borderRightWeight?: number;
+	borderStrokeWeightsIndependent?: boolean;
 	strokeAlign?: string;
 	strokeCap?: string;
 	strokeJoin?: string;
@@ -845,10 +850,10 @@ const renderFrameShape = ({
 	return `<rect ${attributes.join(' ')} />`;
 };
 
-type EllipseGeometry = {
+type ShapeGeometry = {
 	attributes: string[];
 	fillRule: 'evenodd' | null;
-	tagName: 'ellipse' | 'path';
+	tagName: 'ellipse' | 'path' | 'rect';
 };
 
 const pointOnEllipse = ({
@@ -876,7 +881,7 @@ const formatPoint = (point: FigmaVector) => {
 	return `${formatNumber(point.x)} ${formatNumber(point.y)}`;
 };
 
-const getEllipseGeometry = (node: FigmaNode): EllipseGeometry | null => {
+const getEllipseGeometry = (node: FigmaNode): ShapeGeometry | null => {
 	const {height, width} = getNodeSize(node);
 	if (width === 0 || height === 0) {
 		return null;
@@ -1016,13 +1021,89 @@ const getEllipseGeometry = (node: FigmaNode): EllipseGeometry | null => {
 	};
 };
 
-const renderEllipseGeometry = ({
+const getRoundedRectangleGeometry = (node: FigmaNode): ShapeGeometry | null => {
+	const {height, width} = getNodeSize(node);
+	if (width === 0 || height === 0) {
+		return null;
+	}
+
+	const cornerSmoothing = finiteNumber({
+		fallback: 0,
+		label: `${nodeLabel(node)} corner smoothing`,
+		value: node.cornerSmoothing,
+	});
+	if (cornerSmoothing !== 0) {
+		fail(`${nodeLabel(node)} uses unsupported corner smoothing`);
+	}
+
+	const uniformRadius = finiteNumber({
+		fallback: 0,
+		label: `${nodeLabel(node)} corner radius`,
+		value: node.cornerRadius,
+	});
+	const rawRadii =
+		node.rectangleCornerRadiiIndependent === true
+			? [
+					node.rectangleTopLeftCornerRadius,
+					node.rectangleTopRightCornerRadius,
+					node.rectangleBottomRightCornerRadius,
+					node.rectangleBottomLeftCornerRadius,
+				].map((value) =>
+					finiteNumber({
+						fallback: uniformRadius,
+						label: `${nodeLabel(node)} corner radius`,
+						value,
+					}),
+				)
+			: [uniformRadius, uniformRadius, uniformRadius, uniformRadius];
+	if (rawRadii.some((radius) => radius < 0)) {
+		fail(`${nodeLabel(node)} has a negative corner radius`);
+	}
+
+	const maxRadius = Math.min(width / 2, height / 2);
+	const [topLeft, topRight, bottomRight, bottomLeft] = rawRadii.map((radius) =>
+		Math.min(radius, maxRadius),
+	);
+	const baseAttributes = [
+		'x="0"',
+		'y="0"',
+		`width="${formatNumber(width)}"`,
+		`height="${formatNumber(height)}"`,
+	];
+	if (
+		topLeft === topRight &&
+		topLeft === bottomRight &&
+		topLeft === bottomLeft
+	) {
+		if (topLeft > 0) {
+			baseAttributes.push(`rx="${formatNumber(topLeft)}"`);
+		}
+
+		return {attributes: baseAttributes, fillRule: null, tagName: 'rect'};
+	}
+
+	const corner = ({radius, x, y}: {radius: number; x: number; y: number}) => {
+		return radius === 0
+			? `L ${formatNumber(x)} ${formatNumber(y)}`
+			: `A ${formatNumber(radius)} ${formatNumber(radius)} 0 0 1 ${formatNumber(x)} ${formatNumber(y)}`;
+	};
+
+	return {
+		attributes: [
+			`d="M ${formatNumber(topLeft)} 0 H ${formatNumber(width - topRight)} ${corner({radius: topRight, x: width, y: topRight})} V ${formatNumber(height - bottomRight)} ${corner({radius: bottomRight, x: width - bottomRight, y: height})} H ${formatNumber(bottomLeft)} ${corner({radius: bottomLeft, x: 0, y: height - bottomLeft})} V ${formatNumber(topLeft)} ${corner({radius: topLeft, x: topLeft, y: 0})} Z"`,
+		],
+		fillRule: null,
+		tagName: 'path',
+	};
+};
+
+const renderShapeGeometry = ({
 	attributes,
 	geometry,
 	useClipRule,
 }: {
 	attributes: string[];
-	geometry: EllipseGeometry;
+	geometry: ShapeGeometry;
 	useClipRule: boolean;
 }) => {
 	const fillRule = geometry.fillRule
@@ -1031,7 +1112,7 @@ const renderEllipseGeometry = ({
 	return `<${geometry.tagName} ${[...geometry.attributes, ...attributes, ...fillRule].join(' ')} />`;
 };
 
-const getEllipseStrokeAttributes = ({
+const getShapeStrokeAttributes = ({
 	context,
 	node,
 	paint,
@@ -1108,12 +1189,55 @@ const getEllipseStrokeAttributes = ({
 	return attributes;
 };
 
-const renderEllipse = ({
+const getShapeStrokeWidth = (node: FigmaNode) => {
+	const strokeWidth = finiteNumber({
+		fallback: 1,
+		label: `${nodeLabel(node)} stroke width`,
+		value: node.strokeWeight,
+	});
+	if (strokeWidth < 0) {
+		fail(`${nodeLabel(node)} has a negative stroke width`);
+	}
+
+	if (node.borderStrokeWeightsIndependent !== true) {
+		return strokeWidth;
+	}
+
+	const borderWidths = [
+		node.borderTopWeight,
+		node.borderRightWeight,
+		node.borderBottomWeight,
+		node.borderLeftWeight,
+	].map((value) =>
+		finiteNumber({
+			fallback: strokeWidth,
+			label: `${nodeLabel(node)} border width`,
+			value,
+		}),
+	);
+	if (borderWidths.some((width) => width < 0)) {
+		fail(`${nodeLabel(node)} has a negative border width`);
+	}
+
+	if (borderWidths.some((width) => width !== borderWidths[0])) {
+		fail(`${nodeLabel(node)} uses unsupported independent stroke weights`);
+	}
+
+	return borderWidths[0];
+};
+
+const renderPaintedShape = ({
 	context,
+	getGeometry,
+	idPrefix,
 	node,
+	shapeLabel,
 }: {
 	context: RenderContext;
+	getGeometry: () => ShapeGeometry | null;
+	idPrefix: string;
 	node: FigmaNode;
+	shapeLabel: string;
 }) => {
 	const fill = getVisiblePaint({kind: 'fill', node, paints: node.fillPaints});
 	const stroke = getVisiblePaint({
@@ -1125,7 +1249,7 @@ const renderEllipse = ({
 		return '';
 	}
 
-	const geometry = getEllipseGeometry(node);
+	const geometry = getGeometry();
 	if (geometry === null) {
 		return '';
 	}
@@ -1138,32 +1262,26 @@ const renderEllipse = ({
 			})
 		: ['fill="none"'];
 	if (stroke === null) {
-		return renderEllipseGeometry({
+		return renderShapeGeometry({
 			attributes: fillAttributes,
 			geometry,
 			useClipRule: false,
 		});
 	}
 
-	const strokeWidth = finiteNumber({
-		fallback: 1,
-		label: `${nodeLabel(node)} stroke width`,
-		value: node.strokeWeight,
-	});
-	if (strokeWidth < 0) {
-		fail(`${nodeLabel(node)} has a negative stroke width`);
-	}
-
+	const strokeWidth = getShapeStrokeWidth(node);
 	const strokeAlign = node.strokeAlign ?? 'CENTER';
 	if (strokeAlign !== 'CENTER' && strokeAlign !== 'INSIDE') {
-		fail(`${nodeLabel(node)} uses an unsupported ellipse stroke alignment`);
+		fail(
+			`${nodeLabel(node)} uses an unsupported ${shapeLabel} stroke alignment`,
+		);
 	}
 
 	if (strokeAlign === 'CENTER') {
-		return renderEllipseGeometry({
+		return renderShapeGeometry({
 			attributes: [
 				...fillAttributes,
-				...getEllipseStrokeAttributes({
+				...getShapeStrokeAttributes({
 					context,
 					node,
 					paint: stroke,
@@ -1175,19 +1293,19 @@ const renderEllipse = ({
 		});
 	}
 
-	const id = `figma-ellipse-stroke-${context.nextId++}`;
+	const id = `figma-${idPrefix}-stroke-${context.nextId++}`;
 	context.defs.push(
-		`<clipPath id="${id}" clipPathUnits="userSpaceOnUse">${renderEllipseGeometry({attributes: [], geometry, useClipRule: true})}</clipPath>`,
+		`<clipPath id="${id}" clipPathUnits="userSpaceOnUse">${renderShapeGeometry({attributes: [], geometry, useClipRule: true})}</clipPath>`,
 	);
 	const fillMarkup = fill
-		? renderEllipseGeometry({
+		? renderShapeGeometry({
 				attributes: fillAttributes,
 				geometry,
 				useClipRule: false,
 			})
 		: '';
-	const strokeMarkup = renderEllipseGeometry({
-		attributes: getEllipseStrokeAttributes({
+	const strokeMarkup = renderShapeGeometry({
+		attributes: getShapeStrokeAttributes({
 			context,
 			node,
 			paint: stroke,
@@ -1199,6 +1317,38 @@ const renderEllipse = ({
 	return [fillMarkup, `<g clip-path="url(#${id})">${strokeMarkup}</g>`]
 		.filter(Boolean)
 		.join('\n');
+};
+
+const renderEllipse = ({
+	context,
+	node,
+}: {
+	context: RenderContext;
+	node: FigmaNode;
+}) => {
+	return renderPaintedShape({
+		context,
+		getGeometry: () => getEllipseGeometry(node),
+		idPrefix: 'ellipse',
+		node,
+		shapeLabel: 'ellipse',
+	});
+};
+
+const renderRoundedRectangle = ({
+	context,
+	node,
+}: {
+	context: RenderContext;
+	node: FigmaNode;
+}) => {
+	return renderPaintedShape({
+		context,
+		getGeometry: () => getRoundedRectangleGeometry(node),
+		idPrefix: 'rounded-rectangle',
+		node,
+		shapeLabel: 'rounded rectangle',
+	});
 };
 
 const getVectorNetwork = ({
@@ -1545,7 +1695,11 @@ const renderNode = ({
 			content = [renderFrameShape({context, node}), childrenMarkup]
 				.filter(Boolean)
 				.join('\n');
-		} else if (node.type === 'VECTOR' || node.type === 'ELLIPSE') {
+		} else if (
+			node.type === 'VECTOR' ||
+			node.type === 'ELLIPSE' ||
+			node.type === 'ROUNDED_RECTANGLE'
+		) {
 			if ((context.scene.children.get(node) ?? []).length > 0) {
 				fail(`${nodeLabel(node)} has unsupported nested content`);
 			}
@@ -1553,7 +1707,9 @@ const renderNode = ({
 			content =
 				node.type === 'VECTOR'
 					? renderVector({context, node})
-					: renderEllipse({context, node});
+					: node.type === 'ELLIPSE'
+						? renderEllipse({context, node})
+						: renderRoundedRectangle({context, node});
 		} else {
 			fail(`${nodeLabel(node)} has unsupported type ${node.type ?? 'UNKNOWN'}`);
 		}

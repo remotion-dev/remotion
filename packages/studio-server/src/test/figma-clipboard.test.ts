@@ -137,6 +137,140 @@ test('clips inside-aligned Figma ellipse strokes', () => {
 	);
 });
 
+test('renders a Figma rounded rectangle as an SVG rectangle', async () => {
+	const result = renderFigmaMessageToSvg({
+		message: {
+			blobs: [],
+			nodeChanges: [
+				{
+					cornerRadius: 20,
+					fillPaints: [solidPaint(1, 0.5, 0)],
+					guid: {localID: 1, sessionID: 1},
+					name: 'Rounded rectangle',
+					size: {x: 120, y: 80},
+					type: 'ROUNDED_RECTANGLE',
+				},
+			],
+			type: 'NODE_CHANGES',
+		},
+		selectedNodeId: '1:1',
+	});
+	expect(result.svg).toContain(
+		'<rect x="0" y="0" width="120" height="80" rx="20" fill="#ff8000" />',
+	);
+	const jsx = recast.print(await svgMarkupToJsx(result.svg)).code;
+	expect(jsx).toContain(
+		'<rect x={0} y={0} width={120} height={80} rx={20} fill="#ff8000" />',
+	);
+});
+
+test('preserves independent rounded rectangle corner radii', () => {
+	const result = renderFigmaMessageToSvg({
+		message: {
+			blobs: [],
+			nodeChanges: [
+				{
+					fillPaints: [solidPaint(0, 1, 1)],
+					guid: {localID: 1, sessionID: 1},
+					name: 'Independent corners',
+					rectangleBottomLeftCornerRadius: 0,
+					rectangleBottomRightCornerRadius: 40,
+					rectangleCornerRadiiIndependent: true,
+					rectangleTopLeftCornerRadius: 10,
+					rectangleTopRightCornerRadius: 20,
+					size: {x: 100, y: 60},
+					type: 'ROUNDED_RECTANGLE',
+				},
+			],
+			type: 'NODE_CHANGES',
+		},
+		selectedNodeId: '1:1',
+	});
+	expect(result.svg).toContain(
+		'<path d="M 10 0 H 80 A 20 20 0 0 1 100 20 V 30 A 30 30 0 0 1 70 60 H 0 L 0 60 V 10 A 10 10 0 0 1 10 0 Z" fill="#00ffff" />',
+	);
+});
+
+test('clips inside-aligned rounded rectangle strokes', () => {
+	const result = renderFigmaMessageToSvg({
+		message: {
+			blobs: [],
+			nodeChanges: [
+				{
+					cornerRadius: 12,
+					guid: {localID: 1, sessionID: 1},
+					name: 'Stroked rounded rectangle',
+					size: {x: 100, y: 60},
+					strokeAlign: 'INSIDE',
+					strokePaints: [solidPaint(1, 0, 1)],
+					strokeWeight: 5,
+					type: 'ROUNDED_RECTANGLE',
+				},
+			],
+			type: 'NODE_CHANGES',
+		},
+		selectedNodeId: '1:1',
+	});
+	expect(result.svg).toContain(
+		'<clipPath id="figma-rounded-rectangle-stroke-0" clipPathUnits="userSpaceOnUse"><rect x="0" y="0" width="100" height="60" rx="12" /></clipPath>',
+	);
+	expect(result.svg).toContain(
+		'<rect x="0" y="0" width="100" height="60" rx="12" fill="none" stroke="#ff00ff" stroke-width="10" stroke-linecap="butt" stroke-linejoin="miter" />',
+	);
+});
+
+test('rejects rounded rectangle features that cannot be preserved', () => {
+	expect(() =>
+		renderFigmaMessageToSvg({
+			message: {
+				blobs: [],
+				nodeChanges: [
+					{
+						cornerRadius: 12,
+						cornerSmoothing: 0.5,
+						fillPaints: [solidPaint(1, 0, 0)],
+						guid: {localID: 1, sessionID: 1},
+						name: 'Smooth corners',
+						size: {x: 100, y: 60},
+						type: 'ROUNDED_RECTANGLE',
+					},
+				],
+				type: 'NODE_CHANGES',
+			},
+			selectedNodeId: '1:1',
+		}),
+	).toThrow(
+		'Cannot import Figma selection: “Smooth corners” uses unsupported corner smoothing',
+	);
+
+	expect(() =>
+		renderFigmaMessageToSvg({
+			message: {
+				blobs: [],
+				nodeChanges: [
+					{
+						borderBottomWeight: 2,
+						borderLeftWeight: 1,
+						borderRightWeight: 2,
+						borderStrokeWeightsIndependent: true,
+						borderTopWeight: 1,
+						cornerRadius: 12,
+						guid: {localID: 1, sessionID: 1},
+						name: 'Independent borders',
+						size: {x: 100, y: 60},
+						strokePaints: [solidPaint(0, 0, 0)],
+						type: 'ROUNDED_RECTANGLE',
+					},
+				],
+				type: 'NODE_CHANGES',
+			},
+			selectedNodeId: '1:1',
+		}),
+	).toThrow(
+		'Cannot import Figma selection: “Independent borders” uses unsupported independent stroke weights',
+	);
+});
+
 test('rejects unsupported Figma features instead of approximating them', () => {
 	expect(() =>
 		renderFigmaMessageToSvg({
