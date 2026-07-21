@@ -47,6 +47,7 @@ import {COMPACT_CONTROL_ROW_HEIGHT, Row, Spacing} from './layout';
 import {inlineCodeSnippet} from './Menu/styles';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
+import {getOpenInNewWindowMenuItem} from './open-in-new-window';
 import {openInFileExplorer} from './RenderQueue/actions';
 
 const iconStyle: React.CSSProperties = {
@@ -477,6 +478,11 @@ const AssetSelectorItem: React.FC<{
 
 	const contextMenu = useMemo((): ComboboxValue[] => {
 		return [
+			getOpenInNewWindowMenuItem(`/assets/${relativePath}`),
+			{
+				type: 'divider',
+				id: 'open-in-new-window-divider',
+			},
 			{
 				id: 'copy-asset-file-name',
 				keyHint: null,
