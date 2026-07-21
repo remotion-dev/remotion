@@ -21,6 +21,7 @@ import type {RecastCodemod} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import {applyVisualControl} from './apply-visual-control';
 import {deleteJsxElementAtPath} from './delete-jsx-node';
+import {stripParenthesizedExtra} from './strip-parenthesized-extra';
 
 export type Change = {
 	description: string;
@@ -209,27 +210,6 @@ const mapReturnStatement = (
 };
 
 const nullLiteral = (): NullLiteral => ({type: 'NullLiteral'});
-
-// When a node was originally parenthesized (e.g. the `<JSX/>` inside
-// `return (<JSX/>)`), Babel records `extra.parenthesized` on it. If we move
-// such a node into a JSXFragment without clearing that hint, recast prints
-// stray `(` / `)` characters around it as JSX text. Clear the hint so the
-// node prints cleanly in its new context.
-const stripParenthesizedExtra = <T extends {extra?: unknown}>(node: T): T => {
-	if (!node.extra) {
-		return node;
-	}
-
-	const {
-		parenthesized: _p,
-		parenStart: _ps,
-		...rest
-	} = node.extra as {
-		parenthesized?: boolean;
-		parenStart?: number;
-	};
-	return {...node, extra: rest};
-};
 
 const wrapInJsxFragment = (children: JSXFragment['children']): JSXFragment => ({
 	type: 'JSXFragment',
