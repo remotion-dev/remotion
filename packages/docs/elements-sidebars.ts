@@ -51,6 +51,7 @@ const sidebars: SidebarsConfig = {
 				'text/crossed-off/index',
 				'text/strike-through/index',
 				'text/text-marker/index',
+				'text/timed-captions/index',
 			],
 		},
 	],
