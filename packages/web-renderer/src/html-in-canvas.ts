@@ -1,3 +1,5 @@
+import type {InternalState} from './internal-state';
+
 type Canvas2DWithDrawElement = CanvasRenderingContext2D & {
 	drawElementImage: (
 		element: Element | ElementImage,
@@ -24,7 +26,7 @@ export const setForceDisableHtmlInCanvasForTesting = (
 };
 
 export const supportsNativeHtmlInCanvas = (): boolean => {
-	if (typeof document === 'undefined') {
+	if (forceDisableHtmlInCanvasForTesting || typeof document === 'undefined') {
 		return false;
 	}
 
@@ -182,6 +184,7 @@ export const containsLayoutSubtreeCanvas = (element: HTMLElement): boolean => {
 export type HtmlInCanvasContext = {
 	layoutCanvas: HTMLCanvasWithLayoutSubtree;
 	ctx: Canvas2DWithDrawElement;
+	supportsNesting: () => Promise<boolean>;
 };
 
 /**
@@ -238,7 +241,11 @@ export const setupHtmlInCanvas = ({
 	layoutCanvas.appendChild(div);
 	wrapper.appendChild(layoutCanvas);
 
-	return {layoutCanvas, ctx: maybeCtx};
+	return {
+		layoutCanvas,
+		ctx: maybeCtx,
+		supportsNesting: supportsNestedHtmlInCanvas,
+	};
 };
 
 const waitForPaint = (
@@ -257,13 +264,14 @@ const waitForPaint = (
  * The caller is responsible for ensuring the frame content is ready (via
  * waitForReady) before calling this function.
  */
-export const drawWithHtmlInCanvas = async ({
+export const drawHtmlInCanvas = async ({
 	htmlInCanvasContext,
 	element,
 	scaledWidth,
 	scaledHeight,
 	waitForRenderReady,
 	useElementImage,
+	internalState,
 }: {
 	htmlInCanvasContext: HtmlInCanvasContext;
 	element: HTMLElement;
@@ -271,7 +279,8 @@ export const drawWithHtmlInCanvas = async ({
 	scaledHeight: number;
 	waitForRenderReady: () => Promise<void>;
 	useElementImage: boolean;
-}): Promise<OffscreenCanvasRenderingContext2D> => {
+	internalState: InternalState;
+}): Promise<CanvasRenderingContext2D> => {
 	const {ctx, layoutCanvas} = htmlInCanvasContext;
 
 	if (
@@ -282,6 +291,7 @@ export const drawWithHtmlInCanvas = async ({
 		layoutCanvas.height = scaledHeight;
 	}
 
+	const paintStartedAt = performance.now();
 	await waitForPaint(layoutCanvas);
 	// Each nested layout canvas needs one paint to run its async effect and a
 	// second paint to propagate the completed bitmap to its parent. One final
@@ -297,6 +307,9 @@ export const drawWithHtmlInCanvas = async ({
 		await waitForPaint(layoutCanvas);
 	}
 
+	const paintTime = performance.now() - paintStartedAt;
+
+	const drawStartedAt = performance.now();
 	ctx.reset();
 	if (useElementImage) {
 		if (typeof layoutCanvas.captureElementImage !== 'function') {
@@ -313,13 +326,56 @@ export const drawWithHtmlInCanvas = async ({
 		ctx.drawElementImage(element, 0, 0, scaledWidth, scaledHeight);
 	}
 
+	const drawTime = performance.now() - drawStartedAt;
+
+	internalState.addHtmlInCanvasTiming({
+		paintTime,
+		drawTime,
+		copyTime: 0,
+	});
+	return ctx;
+};
+
+export const drawWithHtmlInCanvas = async ({
+	htmlInCanvasContext,
+	element,
+	scaledWidth,
+	scaledHeight,
+	waitForRenderReady,
+	useElementImage,
+	internalState,
+}: {
+	htmlInCanvasContext: HtmlInCanvasContext;
+	element: HTMLElement;
+	scaledWidth: number;
+	scaledHeight: number;
+	waitForRenderReady: () => Promise<void>;
+	useElementImage: boolean;
+	internalState: InternalState;
+}): Promise<OffscreenCanvasRenderingContext2D> => {
+	await drawHtmlInCanvas({
+		htmlInCanvasContext,
+		element,
+		scaledWidth,
+		scaledHeight,
+		waitForRenderReady,
+		useElementImage,
+		internalState,
+	});
+
+	const copyStartedAt = performance.now();
 	const offscreen = new OffscreenCanvas(scaledWidth, scaledHeight);
 	const offCtx = offscreen.getContext('2d');
 	if (!offCtx) {
 		throw new Error('Could not get offscreen context');
 	}
 
-	offCtx.drawImage(layoutCanvas, 0, 0);
+	offCtx.drawImage(htmlInCanvasContext.layoutCanvas, 0, 0);
+	internalState.addHtmlInCanvasTiming({
+		paintTime: 0,
+		drawTime: 0,
+		copyTime: performance.now() - copyStartedAt,
+	});
 	return offCtx;
 };
 

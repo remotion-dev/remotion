@@ -25,6 +25,9 @@ export const makeInternalState = () => {
 	let addSampleTime = 0;
 	let createFrameTime = 0;
 	let audioMixingTime = 0;
+	let htmlInCanvasPaintTime = 0;
+	let htmlInCanvasDrawTime = 0;
+	let htmlInCanvasCopyTime = 0;
 
 	const helperCanvasState: HelperCanvasState = {
 		current: null,
@@ -64,6 +67,22 @@ export const makeInternalState = () => {
 		getAudioMixingTime: () => audioMixingTime,
 		addAudioMixingTime: (time: number) => {
 			audioMixingTime += time;
+		},
+		getHtmlInCanvasPaintTime: () => htmlInCanvasPaintTime,
+		getHtmlInCanvasDrawTime: () => htmlInCanvasDrawTime,
+		getHtmlInCanvasCopyTime: () => htmlInCanvasCopyTime,
+		addHtmlInCanvasTiming: ({
+			paintTime,
+			drawTime,
+			copyTime,
+		}: {
+			paintTime: number;
+			drawTime: number;
+			copyTime: number;
+		}) => {
+			htmlInCanvasPaintTime += paintTime;
+			htmlInCanvasDrawTime += drawTime;
+			htmlInCanvasCopyTime += copyTime;
 		},
 	};
 };

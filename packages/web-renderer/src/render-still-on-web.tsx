@@ -7,7 +7,7 @@ import type {$ZodObject} from 'zod/v4/core';
 import type {WebRendererOnArtifact} from './artifact';
 import {handleArtifacts} from './artifact';
 import {checkForError, createScaffold} from './create-scaffold';
-import {supportsNestedHtmlInCanvas} from './html-in-canvas';
+import {supportsNativeHtmlInCanvas} from './html-in-canvas';
 import {makeInternalState} from './internal-state';
 import type {CompositionCalculateMetadataOrExplicit} from './props-if-has-props';
 import type {InputPropsIfHasProps} from './render-media-on-web';
@@ -114,7 +114,7 @@ async function internalRenderStillOnWeb<
 		return Promise.reject(new Error('renderStillOnWeb() was cancelled'));
 	}
 
-	const useHtmlInCanvas = await supportsNestedHtmlInCanvas();
+	const useHtmlInCanvas = supportsNativeHtmlInCanvas();
 
 	using internalState = makeInternalState();
 
