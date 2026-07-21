@@ -4,6 +4,7 @@ import {NotebookPaper} from '../../../elements/backgrounds/notebook-paper/notebo
 import {PaperTexture} from '../../../elements/backgrounds/paper-texture/paper-texture';
 import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburst/rotating-starburst';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
+import {ProductOffer} from '../../../elements/data/product-offer/product-offer';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/lower-third/lower-third';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
@@ -151,6 +152,23 @@ export const elementDefinitions = {
 		previewPadding: 120,
 		slug: 'data/number-counter',
 		width: 1920,
+	},
+	'data/product-offer': {
+		category: 'data',
+		component: ProductOffer,
+		contributors: [],
+		description:
+			'A feed-ready animated product card for showcasing an image, price, discount, availability, and call to action.',
+		displayName: 'Product Offer',
+		durationInFrames: 150,
+		elementHeight: 900,
+		elementWidth: 900,
+		fps: 30,
+		height: 1080,
+		posterFrame: 75,
+		previewPadding: 90,
+		slug: 'data/product-offer',
+		width: 1080,
 	},
 	'text/circle-marker': {
 		category: 'text',
