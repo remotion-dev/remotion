@@ -8,6 +8,7 @@ import {LocationLowerThird} from '../../../elements/overlays/location-lower-thir
 import {NameLowerThird} from '../../../elements/overlays/lower-third/lower-third';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
+import {NewsArticleHeadlineHighlight} from '../../../elements/text/news-article-headline-highlight/news-article-headline-highlight';
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
 import {TextMarker} from '../../../elements/text/text-marker/text-marker';
 import type {Contributor} from '../Credits';
@@ -183,6 +184,23 @@ export const elementDefinitions = {
 		posterFrame: 60,
 		previewPadding: 120,
 		slug: 'text/crossed-off',
+		width: 1920,
+	},
+	'text/news-article-headline-highlight': {
+		category: 'text',
+		component: NewsArticleHeadlineHighlight,
+		contributors: [],
+		description:
+			'A framed news article with camera movement, blur, and animated passage highlights.',
+		displayName: 'News Article Headline Highlight',
+		durationInFrames: 150,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 100,
+		previewPadding: 0,
+		slug: 'text/news-article-headline-highlight',
 		width: 1920,
 	},
 	'text/strike-through': {
