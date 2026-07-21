@@ -1,6 +1,6 @@
 ---
 name: pr
-description: Open a pull request for the current feature
+description: Open a pull request for the current feature and add Vercel preview links for directly changed website pages
 ---
 
 This skill is only for opening the initial pull request from finished local work.
@@ -49,3 +49,15 @@ Example:
 ```bash
 gh pr create --title '`@remotion/package`: Add feature' --body-file /tmp/remotion-pr-body.md
 ```
+
+## Link directly changed website pages
+
+After creating the PR, check whether it directly adds or modifies a primary page in `packages/docs`. Determine each page's public path from the page source and the Docusaurus configuration. Do not infer paths for deleted pages or changes that only affect shared components, styles, data, or configuration.
+
+As soon as Vercel exposes the `[Deploying]` link, get the public preview URL for the `remotion` project and append each page path to it. Ignore the `bugs` project. If the deploying link only points to the Vercel dashboard, use `vercel inspect <deployment-url>` to find the public preview URL.
+
+Do not wait for the deployment to finish, create a Vercel heartbeat, or probe the preview page.
+
+Append the deep links to a `## Preview` section in the PR body. Fetch the current body into a temporary Markdown file and update it with `gh pr edit <pr> --body-file <path-to-temp-md-file>`; never pass the replacement body inline.
+
+If either the page path or the preview URL cannot be determined confidently, leave the created PR unchanged and report that preview links were not added.
