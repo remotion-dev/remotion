@@ -273,7 +273,7 @@ const NewCompositionLoaded: React.FC<{
 				</div>
 				<ModalFooterContainer>
 					<CodemodFooter
-						loadingNotification="Creating composition..."
+						loadingNotification={null}
 						errorNotification="Could not create composition"
 						successNotification={`Created ${newId}`}
 						genericSubmitLabel="Add to root file"
