@@ -8,58 +8,6 @@ import {
 	useCurrentFrame,
 } from 'remotion';
 
-const HEADLINE = {
-	baseText:
-		'Markets brace for a government shutdown as Congress confronts fresh funding lapses',
-	textToHighlight: ['government shutdown', 'funding lapses'],
-} as const;
-
-const escapeForRegExp = (text: string) => {
-	return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-};
-
-const splitHeadline = ({
-	baseText,
-	textToHighlight,
-}: {
-	readonly baseText: string;
-	readonly textToHighlight: readonly string[];
-}) => {
-	const phrases = textToHighlight
-		.map((text, highlightIndex) => ({
-			highlightIndex,
-			text: text.trim(),
-		}))
-		.filter(({text}) => text.length > 0);
-
-	if (phrases.length === 0) {
-		return [{highlightIndex: null, text: baseText}];
-	}
-
-	const matcher = new RegExp(
-		`(${phrases
-			.slice()
-			.sort((a, b) => b.text.length - a.text.length)
-			.map(({text}) => escapeForRegExp(text))
-			.join('|')})`,
-		'gi',
-	);
-
-	return baseText
-		.split(matcher)
-		.filter((text) => text.length > 0)
-		.map((text) => {
-			const phrase = phrases.find(
-				(candidate) => candidate.text.toLowerCase() === text.toLowerCase(),
-			);
-
-			return {
-				highlightIndex: phrase?.highlightIndex ?? null,
-				text,
-			};
-		});
-};
-
 const getHighlightProgress = (frame: number, highlightIndex: number) => {
 	const start = 31 + highlightIndex * 29;
 
@@ -79,9 +27,22 @@ const getHighlightProgress = (frame: number, highlightIndex: number) => {
 	});
 };
 
+const getWordProgress = (phraseProgress: number, wordIndex: number) => {
+	return interpolate(
+		phraseProgress,
+		[wordIndex / 2, (wordIndex + 1) / 2],
+		[0, 1],
+		{
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		},
+	);
+};
+
 export const NewsArticleHeadlineHighlight: React.FC = () => {
 	const frame = useCurrentFrame();
-	const headlineSegments = splitHeadline(HEADLINE);
+	const firstHighlightProgress = getHighlightProgress(frame, 0);
+	const secondHighlightProgress = getHighlightProgress(frame, 1);
 
 	return (
 		<AbsoluteFill
@@ -172,7 +133,8 @@ export const NewsArticleHeadlineHighlight: React.FC = () => {
 									paddingBottom: 18,
 								}}
 							>
-								<div
+								<Interactive.Div
+									name="Publication name"
 									style={{
 										fontSize: 18,
 										fontWeight: 700,
@@ -180,8 +142,9 @@ export const NewsArticleHeadlineHighlight: React.FC = () => {
 									}}
 								>
 									THE MORNING REPORT
-								</div>
-								<div
+								</Interactive.Div>
+								<Interactive.Div
+									name="Issue details"
 									style={{
 										color: '#696965',
 										fontSize: 14,
@@ -191,10 +154,11 @@ export const NewsArticleHeadlineHighlight: React.FC = () => {
 									}}
 								>
 									Tuesday · National affairs
-								</div>
+								</Interactive.Div>
 							</header>
 
-							<div
+							<Interactive.Div
+								name="Article category"
 								style={{
 									color: '#a0432d',
 									fontFamily: 'Arial, Helvetica, sans-serif',
@@ -206,7 +170,7 @@ export const NewsArticleHeadlineHighlight: React.FC = () => {
 								}}
 							>
 								Politics
-							</div>
+							</Interactive.Div>
 
 							<h1
 								style={{
@@ -220,59 +184,60 @@ export const NewsArticleHeadlineHighlight: React.FC = () => {
 									textWrap: 'balance',
 								}}
 							>
-								{headlineSegments.map((segment, segmentIndex) => {
-									if (segment.highlightIndex === null) {
-										return (
-											<React.Fragment key={segmentIndex}>
-												{segment.text}
-											</React.Fragment>
-										);
-									}
-
-									const words = segment.text.split(/\s+/);
-									const phraseProgress = getHighlightProgress(
-										frame,
-										segment.highlightIndex,
-									);
-
-									return (
-										<React.Fragment key={segmentIndex}>
-											{words.map((word, wordIndex) => {
-												const progress = interpolate(
-													phraseProgress,
-													[
-														wordIndex / words.length,
-														(wordIndex + 1) / words.length,
-													],
-													[0, 1],
-													{
-														extrapolateLeft: 'clamp',
-														extrapolateRight: 'clamp',
-													},
-												);
-
-												return (
-													<React.Fragment key={wordIndex}>
-														{wordIndex > 0 ? ' ' : null}
-														<Highlight
-															name={`Highlight ${segment.highlightIndex + 1}, word ${wordIndex + 1}`}
-															showInTimeline={false}
-															progress={progress}
-															bowing={0}
-															color="rgba(255, 224, 76, 0.62)"
-															maxRandomnessOffset={7}
-															padding={{left: 4, right: 4}}
-															roughness={2.1}
-															seed={segment.highlightIndex * 10 + wordIndex + 1}
-														>
-															{word}
-														</Highlight>
-													</React.Fragment>
-												);
-											})}
-										</React.Fragment>
-									);
-								})}
+								<Interactive.Span name="Headline opening">
+									Markets brace for a
+								</Interactive.Span>{' '}
+								<Highlight
+									name="Highlight 1 · word 1"
+									progress={getWordProgress(firstHighlightProgress, 0)}
+									bowing={0}
+									color="rgba(255, 224, 76, 0.62)"
+									maxRandomnessOffset={7}
+									padding={{left: 4, right: 4}}
+									roughness={2.1}
+									seed={1}
+								>
+									government
+								</Highlight>{' '}
+								<Highlight
+									name="Highlight 1 · word 2"
+									progress={getWordProgress(firstHighlightProgress, 1)}
+									bowing={0}
+									color="rgba(255, 224, 76, 0.62)"
+									maxRandomnessOffset={7}
+									padding={{left: 4, right: 4}}
+									roughness={2.1}
+									seed={2}
+								>
+									shutdown
+								</Highlight>{' '}
+								<Interactive.Span name="Headline middle">
+									as Congress confronts fresh
+								</Interactive.Span>{' '}
+								<Highlight
+									name="Highlight 2 · word 1"
+									progress={getWordProgress(secondHighlightProgress, 0)}
+									bowing={0}
+									color="rgba(255, 224, 76, 0.62)"
+									maxRandomnessOffset={7}
+									padding={{left: 4, right: 4}}
+									roughness={2.1}
+									seed={11}
+								>
+									funding
+								</Highlight>{' '}
+								<Highlight
+									name="Highlight 2 · word 2"
+									progress={getWordProgress(secondHighlightProgress, 1)}
+									bowing={0}
+									color="rgba(255, 224, 76, 0.62)"
+									maxRandomnessOffset={7}
+									padding={{left: 4, right: 4}}
+									roughness={2.1}
+									seed={12}
+								>
+									lapses
+								</Highlight>
 							</h1>
 
 							<Interactive.P
@@ -286,9 +251,9 @@ export const NewsArticleHeadlineHighlight: React.FC = () => {
 									maxWidth: 1080,
 								}}
 							>
-								Negotiators returned to the Capitol with the deadline
-								approaching, but leaders remained divided over a short-term
-								spending agreement.
+								{
+									'Negotiators returned to the Capitol with the deadline\napproaching, but leaders remained divided over a short-term spending agreement.'
+								}
 							</Interactive.P>
 
 							<div
