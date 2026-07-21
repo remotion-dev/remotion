@@ -241,14 +241,9 @@ export const elementDefinitions = {
 	'text/timed-captions': {
 		category: 'text',
 		component: TimedCaptions,
-		contributors: [
-			{
-				username: 'JonnyBurger',
-				contribution: 'Original Animated Captions author',
-			},
-		],
+		contributors: [{username: 'JonnyBurger', contribution: null}],
 		description:
-			'Word-timed captions with highlighting, scaling, or a moving background.',
+			'Previously a paid template on remotion.pro, Timed Captions is now free for everyone.',
 		displayName: 'Timed Captions',
 		durationInFrames: 210,
 		elementHeight: 180,
