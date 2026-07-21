@@ -38,7 +38,7 @@ const downloadFile = async (url: string, location: string) => {
 	const {$} = await import('bun');
 	console.log('Downloading', url);
 	console.time(`Download ${url}`);
-	await $`curl -f -o ${location} ${url}`;
+	await $`curl -f --retry 3 --retry-all-errors -o ${location} ${url}`;
 	console.timeEnd(`Download ${url}`);
 };
 
