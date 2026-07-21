@@ -7,6 +7,7 @@ export type AnimatedImageCacheItem = {
 };
 
 export type RemotionImageDecoder = {
+	close: () => void;
 	getFrame: (
 		i: number,
 		loopBehavior: RemotionAnimatedImageLoopBehavior,
@@ -62,8 +63,9 @@ export const decodeImage = async ({
 		data: body,
 		type: res.headers.get('Content-Type') || 'image/gif',
 	});
-	await decoder.completed;
-	const {selectedTrack} = decoder.tracks;
+	const {tracks} = decoder;
+	await Promise.all([decoder.completed, tracks.ready]);
+	const {selectedTrack} = tracks;
 	if (!selectedTrack) {
 		throw new Error('No selected track');
 	}
@@ -216,6 +218,14 @@ export const decodeImage = async ({
 	};
 
 	return {
+		close: () => {
+			for (const item of cache) {
+				item.frame?.close();
+				item.frame = null;
+			}
+
+			decoder.close();
+		},
 		getFrame,
 		frameCount: selectedTrack.frameCount,
 	};
