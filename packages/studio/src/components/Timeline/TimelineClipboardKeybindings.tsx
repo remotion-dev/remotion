@@ -1120,21 +1120,12 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 							return;
 						}
 
-						return updatePromise
-							.then(() => {
-								showNotification(
-									easingSelections.length === 1
-										? 'Pasted easing'
-										: 'Pasted easing to selected segments',
-									2000,
-								);
-							})
-							.catch((err) => {
-								showNotification(
-									`Could not paste easing: ${(err as Error).message}`,
-									3000,
-								);
-							});
+						return updatePromise.catch((err) => {
+							showNotification(
+								`Could not paste easing: ${(err as Error).message}`,
+								3000,
+							);
+						});
 					}
 
 					const effectPropResult = parseEffectPropClipboardDataResult(text);

@@ -25,7 +25,7 @@ import {
 } from '../Timeline/update-selected-easing';
 import {
 	InspectorActionSection,
-	InspectorBackHeader,
+	InspectorBackAction,
 	InspectorInlineAction,
 	InspectorMessage,
 	InspectorSectionDivider,
@@ -34,7 +34,7 @@ import {getEasingSelectionFromCurrentKeyframes} from './easing-inspector-selecti
 import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
 import {KeyframeSettings} from './KeyframeSettings';
 import {SequenceInspectorSections} from './SequenceInspectorHeader';
-import {sectionHeaderTitle, selectedContainer} from './styles';
+import {selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
 
 type EasingInspectorDetails = {
@@ -278,13 +278,13 @@ export const EasingInspector: React.FC<{
 	const renderHeader = useCallback(
 		() => (
 			<>
-				<InspectorBackHeader
+				<InspectorBackAction
 					disabled={parentSelection === null}
 					onClick={onSelectParent}
 					title="Back to property"
 				>
-					<div style={sectionHeaderTitle}>{fieldLabel}</div>
-				</InspectorBackHeader>
+					{fieldLabel}
+				</InspectorBackAction>
 				<InspectorSectionDivider />
 				{easingUpdate === null || track === null ? null : (
 					<KeyframeEasingNavigator

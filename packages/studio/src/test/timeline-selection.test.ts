@@ -203,6 +203,8 @@ const makeTimelineSequence = ({
 	from = 0,
 	premountDisplay = null,
 	postmountDisplay = null,
+	componentIdentity = null,
+	currentRuntimeValueDotNotation = {},
 	startMediaFrom = 0,
 	type = 'sequence',
 	showInTimeline = true,
@@ -218,6 +220,8 @@ const makeTimelineSequence = ({
 	readonly from?: number;
 	readonly premountDisplay?: number | null;
 	readonly postmountDisplay?: number | null;
+	readonly componentIdentity?: string | null;
+	readonly currentRuntimeValueDotNotation?: Record<string, unknown>;
 	readonly startMediaFrom?: number;
 	readonly type?: TSequence['type'];
 	readonly showInTimeline?: boolean;
@@ -242,10 +246,10 @@ const makeTimelineSequence = ({
 		postmountDisplay,
 		controls: {
 			schema,
-			currentRuntimeValueDotNotation: {},
+			currentRuntimeValueDotNotation,
 			overrideId,
 			supportsEffects: true,
-			componentIdentity: null,
+			componentIdentity,
 			componentName: '<Sequence>',
 		},
 		refForOutline,
@@ -1717,6 +1721,7 @@ test('Timeline left edge drag clamps trimBefore to the visible range', () => {
 			initialFrom: 20,
 			initialTrimBefore: 2,
 			deltaFrames: 10,
+			playbackRate: 1,
 		}),
 	).toEqual({
 		durationInFrames: 1,
@@ -1729,10 +1734,71 @@ test('Timeline left edge drag clamps trimBefore to the visible range', () => {
 			initialFrom: 20,
 			initialTrimBefore: 2,
 			deltaFrames: -10,
+			playbackRate: 1,
 		}),
 	).toEqual({
 		durationInFrames: 6,
 		from: 18,
+		trimBefore: 0,
+	});
+});
+
+test('Timeline left edge drag scales media trimBefore by the runtime playbackRate', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const cases = [
+		{componentIdentity: 'dev.remotion.media.Video', type: 'video'},
+		{componentIdentity: 'dev.remotion.media.Audio', type: 'audio'},
+		{componentIdentity: 'dev.remotion.gif.Gif', type: 'sequence'},
+		{
+			componentIdentity: 'dev.remotion.remotion.AnimatedImage',
+			type: 'sequence',
+		},
+	] as const;
+
+	for (const [index, testCase] of cases.entries()) {
+		const nodePathInfo = makeNodePathInfo(['body', index], []);
+		const targets = getTimelineSequenceLeftEdgeDragTargets({
+			draggedNodePathInfo: nodePathInfo,
+			selectedItems: [{type: 'sequence', nodePathInfo}],
+			sequences: [
+				makeTimelineSequence({
+					schema,
+					componentIdentity: testCase.componentIdentity,
+					currentRuntimeValueDotNotation: {playbackRate: 2},
+					type: testCase.type,
+				}),
+			],
+			overrideIdsToNodePaths: {
+				override: nodePathInfo.sequenceSubscriptionKey,
+			},
+			propStatuses: makeLeftEdgePropStatuses(
+				[nodePathInfo.sequenceSubscriptionKey],
+				true,
+			),
+		});
+
+		expect(targets?.[0].playbackRate).toBe(2);
+		expect(
+			getTimelineSequenceLeftEdgeDragChanges({
+				targets: targets ?? [],
+				deltaFrames: 6,
+			}).find((change) => change.fieldKey === 'trimBefore')?.value,
+		).toBe(12);
+	}
+});
+
+test('Timeline left edge drag clamps scaled trimBefore at zero', () => {
+	expect(
+		getTimelineSequenceLeftEdgeDragValues({
+			initialDuration: 10,
+			initialFrom: 20,
+			initialTrimBefore: 8,
+			deltaFrames: -10,
+			playbackRate: 2,
+		}),
+	).toEqual({
+		durationInFrames: 14,
+		from: 16,
 		trimBefore: 0,
 	});
 });
