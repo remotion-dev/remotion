@@ -5,7 +5,11 @@ import type {Codec, DelayRenderScope, LogLevel, TRenderAsset} from 'remotion';
 import {Internals} from 'remotion';
 import type {$ZodObject} from 'zod/v4/core';
 import type {HtmlInCanvasContext} from './html-in-canvas';
-import {setupHtmlInCanvas, teardownHtmlInCanvas} from './html-in-canvas';
+import {
+	containsLayoutSubtreeCanvas,
+	setupHtmlInCanvas,
+	teardownHtmlInCanvas,
+} from './html-in-canvas';
 import type {TimeUpdaterRef} from './update-time';
 import {UpdateTime} from './update-time';
 
@@ -176,6 +180,9 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	wrapper.style.inset = '0';
 	wrapper.style.overflow = 'hidden';
 	wrapper.style.visibility = 'hidden';
+	// A filter keeps visible layout subtrees transparent on screen without
+	// suppressing the paint records that CSS opacity:0 would remove.
+	wrapper.style.filter = 'opacity(0)';
 	wrapper.style.pointerEvents = 'none';
 	wrapper.style.zIndex = '-9999';
 
@@ -189,10 +196,6 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	div.style.backgroundColor = 'transparent';
 	div.style.width = `${width}px`;
 	div.style.height = `${height}px`;
-	// The wrapper's visibility would prevent Chromium from creating paint records
-	// for nested <HtmlInCanvas> elements. Override it on the composition root;
-	// the wrapper's negative z-index still keeps the scaffold behind the host app.
-	div.style.visibility = 'visible';
 
 	const scaffoldClassName = `remotion-scaffold-${Math.random().toString(36).substring(2, 15)}`;
 	div.className = scaffoldClassName;
@@ -207,6 +210,23 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	const htmlInCanvasContext = useHtmlInCanvas
 		? setupHtmlInCanvas({wrapper, div, width, height})
 		: null;
+	const updateFallbackScaffoldVisibility = () => {
+		if (htmlInCanvasContext) {
+			return;
+		}
+
+		// Chromium does not create paint records for a visibility:hidden subtree.
+		// Only expose the composition root when the DOM-composer fallback contains
+		// an <HtmlInCanvas>; keeping other scaffolds hidden avoids affecting canvas
+		// paint scheduling in compositions such as <ThreeCanvas>.
+		div.style.visibility = containsLayoutSubtreeCanvas(div) ? 'visible' : '';
+	};
+
+	const fallbackScaffoldObserver = htmlInCanvasContext
+		? null
+		: new MutationObserver(updateFallbackScaffoldVisibility);
+
+	fallbackScaffoldObserver?.observe(div, {childList: true, subtree: true});
 
 	const errorHolder: ErrorHolder = {error: null};
 
@@ -313,6 +333,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 			</Internals.MaxMediaCacheSizeContext.Provider>,
 		);
 	});
+	updateFallbackScaffoldVisibility();
 
 	return {
 		delayRenderScope,
@@ -320,6 +341,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 		errorHolder,
 		htmlInCanvasContext,
 		[Symbol.dispose]: () => {
+			fallbackScaffoldObserver?.disconnect();
 			root.unmount();
 			if (htmlInCanvasContext) {
 				teardownHtmlInCanvas({htmlInCanvasContext, wrapper, div});

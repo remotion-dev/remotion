@@ -117,7 +117,7 @@ test('retries a transient missing nested paint record during a client-side rende
 	expect(simulatedMissingRecord).toBe(true);
 });
 
-test('keeps the DOM composer scaffold paintable', () => {
+test('keeps a scaffold without HTML-in-canvas hidden', () => {
 	const scaffold = createScaffold({
 		Component: () => null,
 		audioEnabled: false,
@@ -142,6 +142,54 @@ test('keeps the DOM composer scaffold paintable', () => {
 	try {
 		expect(getComputedStyle(scaffold.div.parentElement!).visibility).toBe(
 			'hidden',
+		);
+		expect(getComputedStyle(scaffold.div.parentElement!).filter).toBe(
+			'opacity(0)',
+		);
+		expect(getComputedStyle(scaffold.div).visibility).toBe('hidden');
+	} finally {
+		scaffold[Symbol.dispose]();
+	}
+});
+
+test('keeps the DOM composer scaffold paintable', () => {
+	const scaffold = createScaffold({
+		Component: () => (
+			<canvas
+				ref={(node) => {
+					if (node) {
+						(
+							node as HTMLCanvasElement & {layoutSubtree?: boolean}
+						).layoutSubtree = true;
+					}
+				}}
+			/>
+		),
+		audioEnabled: false,
+		defaultCodec: null,
+		defaultOutName: null,
+		delayRenderTimeoutInMilliseconds: 30_000,
+		durationInFrames: 1,
+		fps: 30,
+		height: 100,
+		id: 'html-in-canvas-scaffold-visibility',
+		initialFrame: 0,
+		logLevel: 'error',
+		mediaCacheSizeInBytes: null,
+		pixelDensity: 1,
+		resolvedProps: {},
+		schema: null,
+		useHtmlInCanvas: false,
+		videoEnabled: false,
+		width: 100,
+	});
+
+	try {
+		expect(getComputedStyle(scaffold.div.parentElement!).visibility).toBe(
+			'hidden',
+		);
+		expect(getComputedStyle(scaffold.div.parentElement!).filter).toBe(
+			'opacity(0)',
 		);
 		expect(getComputedStyle(scaffold.div).visibility).toBe('visible');
 	} finally {
