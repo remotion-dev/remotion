@@ -1,5 +1,6 @@
 import {Internals} from 'remotion';
 import {expect, test, vi} from 'vitest';
+import {createScaffold} from '../create-scaffold';
 import {
 	setForceDisableHtmlInCanvasForTesting,
 	supportsNativeHtmlInCanvas,
@@ -116,17 +117,50 @@ test('retries a transient missing nested paint record during a client-side rende
 	expect(simulatedMissingRecord).toBe(true);
 });
 
+test('keeps the DOM composer scaffold paintable', () => {
+	const scaffold = createScaffold({
+		Component: () => null,
+		audioEnabled: false,
+		defaultCodec: null,
+		defaultOutName: null,
+		delayRenderTimeoutInMilliseconds: 30_000,
+		durationInFrames: 1,
+		fps: 30,
+		height: 100,
+		id: 'html-in-canvas-scaffold-visibility',
+		initialFrame: 0,
+		logLevel: 'error',
+		mediaCacheSizeInBytes: null,
+		pixelDensity: 1,
+		resolvedProps: {},
+		schema: null,
+		useHtmlInCanvas: false,
+		videoEnabled: false,
+		width: 100,
+	});
+
+	try {
+		expect(getComputedStyle(scaffold.div.parentElement!).visibility).toBe(
+			'hidden',
+		);
+		expect(getComputedStyle(scaffold.div).visibility).toBe('visible');
+	} finally {
+		scaffold[Symbol.dispose]();
+	}
+});
+
 test('uses the DOM composer when native HTML-in-canvas does not support nesting', async () => {
-	if (!supportsNativeHtmlInCanvas() || (await supportsNestedHtmlInCanvas())) {
+	if (!supportsNativeHtmlInCanvas()) {
 		return;
 	}
 
+	setForceDisableHtmlInCanvasForTesting(true);
 	const warn = vi
 		.spyOn(Internals.Log, 'warn')
 		.mockImplementation(() => undefined);
 
 	try {
-		await renderStillOnWeb({
+		const result = await renderStillOnWeb({
 			composition: nestedHtmlInCanvas,
 			frame: 0,
 			inputProps: {},
@@ -142,7 +176,11 @@ test('uses the DOM composer when native HTML-in-canvas does not support nesting'
 				),
 			),
 		).toBe(false);
+
+		const blob = await result.blob({format: 'png'});
+		await testImage({blob, testId: 'nested-html-in-canvas'});
 	} finally {
+		setForceDisableHtmlInCanvasForTesting(false);
 		warn.mockRestore();
 	}
 });

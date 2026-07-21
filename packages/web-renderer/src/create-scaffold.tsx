@@ -189,6 +189,10 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	div.style.backgroundColor = 'transparent';
 	div.style.width = `${width}px`;
 	div.style.height = `${height}px`;
+	// The wrapper's visibility would prevent Chromium from creating paint records
+	// for nested <HtmlInCanvas> elements. Override it on the composition root;
+	// the wrapper's negative z-index still keeps the scaffold behind the host app.
+	div.style.visibility = 'visible';
 
 	const scaffoldClassName = `remotion-scaffold-${Math.random().toString(36).substring(2, 15)}`;
 	div.className = scaffoldClassName;
