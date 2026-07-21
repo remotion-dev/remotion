@@ -397,6 +397,57 @@ test('wraps a self-closing root in a Sequence before inserting', async () => {
 	}
 });
 
+test('removes parentheses when wrapping a self-closing root in a Sequence', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import {Video} from '@remotion/media';",
+				"import {staticFile} from 'remotion';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn (',
+				'\t\t<Video src={staticFile("background.mov")} />',
+				'\t);',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'asset',
+				assetType: 'image',
+				src: 'foreground.png',
+				srcType: 'static',
+				dimensions: {width: 1920, height: 1080},
+				position: null,
+			},
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+
+		expect(result.output).toContain('<Sequence>\n\t\t\t\t<Video');
+		expect(result.output).not.toContain('<Sequence>\n\t\t\t(');
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
 test('canAddSequence=false for ThreeCanvas root element', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {

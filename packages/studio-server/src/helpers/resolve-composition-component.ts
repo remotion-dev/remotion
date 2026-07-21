@@ -27,6 +27,7 @@ import * as recast from 'recast';
 import {NoReactInternals} from 'remotion/no-react';
 import {formatFileContent} from '../codemods/format-file-content';
 import {parseAst, serializeAst} from '../codemods/parse-ast';
+import {stripParenthesizedExtra} from '../codemods/strip-parenthesized-extra';
 import {parseValueExpression} from '../codemods/update-nested-prop';
 import {
 	ensureNamedImport,
@@ -1836,7 +1837,7 @@ const addElementToComponentRoot = ({
 			recast.types.builders.jsxClosingFragment(),
 			[
 				createSequenceWithChild({
-					child: rootNode,
+					child: stripParenthesizedExtra(rootNode),
 					sequenceLocalName: ensureSequenceImport(ast),
 				}),
 				element,
