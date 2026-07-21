@@ -65,6 +65,17 @@ export const studioHtml = ({
 	studioRuntimeConfig,
 }: StudioHtmlOptions) => {
 	const scriptUrl = bundleScriptUrl ?? `${publicPath}bundle.js`;
+	const isRelativeBundle = mode === 'bundle' && publicPath === './';
+	const staticBaseValue = isRelativeBundle
+		? `new URL(${JSON.stringify(staticHash)}, window.location.href).pathname`
+		: JSON.stringify(staticHash);
+	const staticFilesValue = isRelativeBundle
+		? `${JSON.stringify(publicFiles)}.map((file) => ({...file, src: new URL(file.src, window.location.href).pathname}))`
+		: JSON.stringify(publicFiles);
+	const publicFolderExistsValue =
+		isRelativeBundle && publicFolderExists
+			? `new URL(${JSON.stringify(publicFolderExists)}, window.location.href).pathname`
+			: JSON.stringify(publicFolderExists);
 
 	return `
 <!DOCTYPE html>
@@ -72,6 +83,7 @@ export const studioHtml = ({
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		${isRelativeBundle ? '<meta name="remotion-bundle-public-path" content="relative" />' : ''}
 		${
 			includeFavicon
 				? `<link id="__remotion_favicon" rel="icon" type="image/png" href="${publicPath}favicon.ico" />`
@@ -85,7 +97,7 @@ export const studioHtml = ({
 		<script>window.remotion_sampleRate = ${sampleRate};</script>
 		<script>window.remotion_previewSampleRate = ${sampleRate};</script>
 		${mode === 'dev' ? `<script>window.remotion_logLevel = "${logLevel}";</script>` : ''}
-		<script>window.remotion_staticBase = "${staticHash}";</script>
+		<script>window.remotion_staticBase = ${staticBaseValue};</script>
 		${
 			editorName
 				? `<script>window.remotion_editorName = "${editorName}";</script>`
@@ -148,10 +160,10 @@ export const studioHtml = ({
 		<script>window.remotion_isReadOnlyStudio = ${readOnlyStudio ? 'true' : 'false'};</script>`.trimStart()
 				: ''
 		}
-		<script>window.remotion_staticFiles = ${JSON.stringify(publicFiles)}</script>
+		<script>window.remotion_staticFiles = ${staticFilesValue}</script>
 		<script>window.remotion_installedPackages = ${JSON.stringify(installedDependencies)}</script>
 		<script>window.remotion_packageManager = ${JSON.stringify(packageManager)}</script>
-		<script>window.remotion_publicFolderExists = ${JSON.stringify(publicFolderExists)};</script>
+		<script>window.remotion_publicFolderExists = ${publicFolderExistsValue};</script>
 		<script>
 				window.siteVersion = '11';
 				window.remotion_version = '${VERSION}';
