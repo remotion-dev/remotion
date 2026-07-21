@@ -52,9 +52,9 @@ gh pr create --title '`@remotion/package`: Add feature' --body-file /tmp/remotio
 
 ## Link directly changed website pages
 
-After creating the PR, check whether it directly adds or modifies a primary page in `packages/docs`. Determine each page's public path from the page source and the Docusaurus configuration. Do not infer paths for deleted pages or changes that only affect shared components, styles, data, or configuration.
+After creating the PR, check whether it directly adds or modifies a primary page in `packages/docs`. Determine each page's public path from the page source, using `packages/docs/docusaurus.config.ts` as the route source. Do not infer paths for deleted pages or changes that only affect shared components, styles, data, or configuration.
 
-As soon as Vercel exposes the `[Deploying]` link, get the public preview URL for the `remotion` project and append each page path to it. Ignore the `bugs` project. If the deploying link only points to the Vercel dashboard, use `vercel inspect <deployment-url>` to find the public preview URL.
+After creating the PR, use the Vercel comment posted on it. Take the `Preview` link from the `remotion` project row and append each page path to it; ignore the `bugs` project row. If that preview link is unavailable and the deployment link only points to the Vercel dashboard, use `vercel inspect <deployment-url>` only when the Vercel CLI is installed and authenticated. Otherwise, do not modify the PR body and report that the preview URL could not be resolved.
 
 Do not wait for the deployment to finish, create a Vercel heartbeat, or probe the preview page.
 
