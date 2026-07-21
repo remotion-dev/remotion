@@ -67,6 +67,7 @@ export type TimelineSequenceLeftEdgeDragTarget = {
 	readonly initialFrom: number;
 	readonly initialTrimBefore: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly playbackRate: number;
 	readonly schema: InteractivitySchema;
 };
 
@@ -227,6 +228,28 @@ const isLeftEdgeDraggableSequence = (sequence: TSequence) => {
 	);
 };
 
+const playbackRateComponentIdentities = new Set([
+	'dev.remotion.gif.Gif',
+	'dev.remotion.media.Audio',
+	'dev.remotion.media.Video',
+	'dev.remotion.remotion.AnimatedImage',
+]);
+
+const getTrimBeforePlaybackRate = (sequence: TSequence) => {
+	const componentIdentity = sequence.controls?.componentIdentity;
+	if (
+		componentIdentity === null ||
+		componentIdentity === undefined ||
+		!playbackRateComponentIdentities.has(componentIdentity)
+	) {
+		return 1;
+	}
+
+	const runtimePlaybackRate =
+		sequence.controls?.currentRuntimeValueDotNotation.playbackRate;
+	return typeof runtimePlaybackRate === 'number' ? runtimePlaybackRate : 1;
+};
+
 const isFromDraggableSequence = (sequence: TSequence) => {
 	return (
 		!sequence.loopDisplay &&
@@ -247,12 +270,14 @@ export const getTimelineSequenceLeftEdgeDragDelta = ({
 	initialDuration,
 	initialTrimBefore,
 	deltaFrames,
+	playbackRate,
 }: {
 	readonly initialDuration: number;
 	readonly initialTrimBefore: number;
 	readonly deltaFrames: number;
+	readonly playbackRate: number;
 }) => {
-	const minDeltaFrames = 0 - initialTrimBefore;
+	const minDeltaFrames = 0 - initialTrimBefore / playbackRate;
 	const maxDeltaFrames = initialDuration - 1;
 
 	return Math.max(minDeltaFrames, Math.min(deltaFrames, maxDeltaFrames));
@@ -263,22 +288,25 @@ export const getTimelineSequenceLeftEdgeDragValues = ({
 	initialFrom,
 	initialTrimBefore,
 	deltaFrames,
+	playbackRate,
 }: {
 	readonly initialDuration: number;
 	readonly initialFrom: number;
 	readonly initialTrimBefore: number;
 	readonly deltaFrames: number;
+	readonly playbackRate: number;
 }) => {
 	const clampedDeltaFrames = getTimelineSequenceLeftEdgeDragDelta({
 		initialDuration,
 		initialTrimBefore,
 		deltaFrames,
+		playbackRate,
 	});
 
 	return {
 		durationInFrames: initialDuration - clampedDeltaFrames,
 		from: initialFrom + clampedDeltaFrames,
-		trimBefore: initialTrimBefore + clampedDeltaFrames,
+		trimBefore: initialTrimBefore + clampedDeltaFrames * playbackRate,
 	};
 };
 
@@ -295,6 +323,7 @@ export const getTimelineSequenceLeftEdgeDragChanges = ({
 			initialFrom: target.initialFrom,
 			initialTrimBefore: target.initialTrimBefore,
 			deltaFrames,
+			playbackRate: target.playbackRate,
 		});
 		const changes: SaveSequencePropChange[] = [];
 
@@ -627,6 +656,7 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 						Math.max(0, originalSequence.startMediaFrom))
 					: (originalSequence.trimBefore ?? 0),
 				nodePath,
+				playbackRate: getTrimBeforePlaybackRate(originalSequence),
 				schema: controls.schema,
 			});
 		}
@@ -943,6 +973,7 @@ export const TimelineSequenceLeftEdgeDragHandle: React.FC<{
 					initialFrom: target.initialFrom,
 					initialTrimBefore: target.initialTrimBefore,
 					deltaFrames,
+					playbackRate: target.playbackRate,
 				});
 				latestRef.current.setDragOverrides(
 					target.nodePath,
