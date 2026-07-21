@@ -3,6 +3,7 @@ import type {TSequence} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT, WHITE} from '../helpers/colors';
+import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
 	flattenVisibleTreeNodes,
@@ -13,9 +14,9 @@ import {
 } from '../helpers/timeline-layout';
 import {Plus} from '../icons/plus';
 import {ModalsContext} from '../state/modals';
-import {AssetInfo} from './CurrentAsset';
+import {AssetFileIcon} from './AssetFileIcon';
 import {InlineAction} from './InlineAction';
-import {InspectorSection} from './InspectorPanel/common';
+import {InspectorInlineAction, InspectorSection} from './InspectorPanel/common';
 import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 import {
@@ -61,6 +62,12 @@ const effectsHeaderTitle: React.CSSProperties = {
 const plusIcon: React.CSSProperties = {
 	width: 15,
 	height: 15,
+};
+
+const assetSelectorIcon: React.CSSProperties = {
+	flexShrink: 0,
+	height: 18,
+	width: 18,
 };
 
 const remoteSourceLabel: React.CSSProperties = {
@@ -231,6 +238,9 @@ export const InspectorSequenceSection: React.FC<{
 			openTimelineAssetLink(localAsset, selectAsset);
 		}
 	}, [localAsset, selectAsset]);
+	const localAssetFileName = localAsset
+		? (localAsset.assetPath.split('/').pop() ?? localAsset.assetPath)
+		: null;
 
 	const getIsExpanded = useCallback(
 		(candidate: SequenceNodePathInfo) => {
@@ -378,12 +388,21 @@ export const InspectorSequenceSection: React.FC<{
 					{controlGroups.map((group) => (
 						<InspectorSection key={group.id} header={group.label}>
 							{group.id === 'source' && localAsset ? (
-								<AssetInfo
-									assetName={localAsset.assetPath}
-									contentSized
-									onAssetClick={jumpToAsset}
-									readOnlyStudio
-								/>
+								<InspectorInlineAction
+									disabled={false}
+									onClick={jumpToAsset}
+									renderIcon={(color) => (
+										<AssetFileIcon
+											color={color}
+											fileType={getPreviewFileType(localAsset.assetPath)}
+											style={assetSelectorIcon}
+										/>
+									)}
+									size="compact"
+									title={localAsset.assetPath}
+								>
+									{localAssetFileName}
+								</InspectorInlineAction>
 							) : null}
 							{group.id === 'source' && remoteAsset && remoteSourceParts ? (
 								<div style={remoteSourceLabel} title={remoteAsset.href}>

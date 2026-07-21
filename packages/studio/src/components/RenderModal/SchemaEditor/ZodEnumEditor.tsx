@@ -74,7 +74,7 @@ export const ZodEnumEditor: React.FC<{
 					values={comboBoxValues}
 					selectedId={value}
 					title={value}
-					small
+					size="small"
 				/>
 			</div>
 			<ZodFieldValidation path={jsonPath} zodValidation={zodValidation} />

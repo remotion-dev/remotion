@@ -25,8 +25,8 @@ const content: React.CSSProperties = {
 const action: React.CSSProperties = {
 	flexShrink: 0,
 	height: 24,
-	marginLeft: 4,
-	marginRight: -4,
+	marginLeft: 0,
+	marginRight: 4,
 };
 
 const icon: React.CSSProperties = {

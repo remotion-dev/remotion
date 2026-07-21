@@ -16,7 +16,6 @@ import {
 	WHITE_ALPHA_06,
 	CURRENT_COLOR,
 	LIGHT_TEXT,
-	SELECTED_BACKGROUND,
 	TRANSPARENT,
 	WHITE,
 } from '../helpers/colors';
@@ -372,13 +371,7 @@ const AssetSelectorItem: React.FC<{
 		return {
 			...itemStyle,
 			color: hovered || selected ? WHITE : LIGHT_TEXT,
-			backgroundColor: hovered
-				? selected
-					? SELECTED_BACKGROUND
-					: WHITE_ALPHA_06
-				: selected
-					? SELECTED_BACKGROUND
-					: TRANSPARENT,
+			backgroundColor: hovered || selected ? WHITE_ALPHA_06 : TRANSPARENT,
 			paddingLeft: 12 + level * 8,
 		};
 	}, [hovered, level, selected]);
