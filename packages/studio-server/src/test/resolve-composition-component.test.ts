@@ -929,7 +929,7 @@ test('converts and inserts SVG markup as an Interactive.Svg', async () => {
 	}
 });
 
-test('inserts a CanvasImage asset into the resolved composition component', async () => {
+test('inserts a CanvasImage asset at a timeline frame', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -971,19 +971,22 @@ test('inserts a CanvasImage asset into the resolved composition component', asyn
 				durationInFrames: null,
 				position: null,
 			},
+			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
 		expect(result.output).toContain(
-			"import { AbsoluteFill, staticFile, CanvasImage } from 'remotion';",
+			"import { AbsoluteFill, staticFile, CanvasImage, Sequence } from 'remotion';",
 		);
+		expect(result.output).toContain('<Sequence');
+		expect(result.output).toContain('from={42}');
+		expect(result.output).toContain('width={800}');
+		expect(result.output).toContain('height={600}');
 		expect(result.output).toContain('<CanvasImage');
 		expect(result.output).toContain("src={staticFile('image.png')}");
 		expect(result.output).toContain("position: 'absolute'");
-		expect(result.output).toContain('width: 800');
-		expect(result.output).toContain('height: 600');
-		expect(result.output).not.toContain('width={800}');
-		expect(result.output).not.toContain('height={600}');
+		expect(result.output).not.toContain('width: 800');
+		expect(result.output).not.toContain('height: 600');
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
@@ -1538,6 +1541,7 @@ test('wraps a component in a dimensionless Sequence', async () => {
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 			wrapInSequence: {
 				dimensions: null,
+				from: 42,
 				name: 'Lower Third',
 				position: {x: 120, y: 80.5},
 			},
@@ -1550,6 +1554,7 @@ test('wraps a component in a dimensionless Sequence', async () => {
 			"import { LowerThird } from './lower-third.element';",
 		);
 		expect(result.output).toContain('<Sequence');
+		expect(result.output).toContain('from={42}');
 		expect(result.output).toContain('name="Lower Third"');
 		expect(result.output).toContain("translate: '120px 80.5px'");
 		expect(result.output).toContain('<LowerThird />');

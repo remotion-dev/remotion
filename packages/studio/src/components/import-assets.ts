@@ -693,10 +693,12 @@ const insertCompositionElement = async ({
 	compositionFile,
 	compositionId,
 	element,
+	from = null,
 }: {
 	compositionFile: string;
 	compositionId: string;
 	element: InsertableCompositionElement;
+	from?: number | null;
 }) => {
 	const requiredPackage = getRequiredPackageForInsertableElement(element);
 	await installRequiredPackages(requiredPackage ? [requiredPackage] : []);
@@ -705,6 +707,7 @@ const insertCompositionElement = async ({
 		compositionFile,
 		compositionId,
 		element,
+		from,
 	});
 
 	if (!result.success) {
@@ -1098,6 +1101,7 @@ export const insertExistingAssets = async ({
 	destinationDimensions,
 	dropPosition,
 	fps,
+	from = null,
 }: {
 	assetPaths: string[];
 	compositionFile: string;
@@ -1105,6 +1109,7 @@ export const insertExistingAssets = async ({
 	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
 	fps: number;
+	from?: number | null;
 }) => {
 	if (assetPaths.length === 0) {
 		return;
@@ -1130,6 +1135,7 @@ export const insertExistingAssets = async ({
 			const inserted = await insertCompositionElement({
 				compositionFile,
 				compositionId,
+				from,
 				element: {
 					...element,
 					dimensions,

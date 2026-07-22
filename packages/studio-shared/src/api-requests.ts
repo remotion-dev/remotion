@@ -743,6 +743,7 @@ export type InsertJsxElementRequest = {
 	compositionFile: string;
 	compositionId: string;
 	element: InsertableCompositionElement;
+	from?: number | null;
 };
 
 export type InsertJsxElementResponse =

@@ -220,13 +220,20 @@ export const insertJsxElementHandler: ApiHandler<
 	InsertJsxElementRequest,
 	InsertJsxElementResponse
 > = ({
-	input: {compositionFile, compositionId, element},
+	input: {compositionFile, compositionId, element, from = null},
 	remotionRoot,
 	logLevel,
 }) =>
 	withSourceFileWriteQueue(async () => {
 		try {
 			validateElement(element, remotionRoot);
+			if (
+				from !== null &&
+				(!Number.isInteger(from) || !Number.isFinite(from) || from < 0)
+			) {
+				throw new Error('from must be a non-negative integer');
+			}
+
 			const elementLabel = getElementLabel(element);
 
 			RenderInternals.Log.trace(
@@ -240,6 +247,7 @@ export const insertJsxElementHandler: ApiHandler<
 					compositionFile,
 					compositionId,
 					element,
+					from,
 					prettierConfigOverride: null,
 				});
 
