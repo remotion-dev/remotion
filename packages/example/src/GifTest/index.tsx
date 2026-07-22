@@ -1,6 +1,6 @@
 import {Gif} from '@remotion/gif';
 import {useRef} from 'react';
-import {Sequence, staticFile, useVideoConfig} from 'remotion';
+import {staticFile, useVideoConfig} from 'remotion';
 
 const GifTest: React.FC = () => {
 	const {width, height} = useVideoConfig();
@@ -12,67 +12,62 @@ const GifTest: React.FC = () => {
 
 	return (
 		<div style={{flex: 1, backgroundColor: 'black'}}>
-			<Sequence durationInFrames={50}>
-				<Gif
-					ref={ref1}
-					playbackRate={4}
-					src={giphy}
-					width={width}
-					height={height}
-					fit="fill"
-					delayRenderTimeoutInMilliseconds={60000}
-				/>
-			</Sequence>
-
-			<Sequence from={50} durationInFrames={50}>
-				<Gif
-					ref={ref2}
-					src="https://media.giphy.com/media/xT0GqH01ZyKwd3aT3G/giphy.gif"
-					width={width}
-					height={height}
-					fit="cover"
-				/>
-			</Sequence>
-
-			<Sequence from={100} durationInFrames={50}>
-				<Gif
-					ref={ref3}
-					src="https://media.giphy.com/media/3o72F7YT6s0EMFI0Za/giphy.gif"
-					width={width}
-					height={height}
-					fit="contain"
-				/>
-			</Sequence>
-			<Sequence
+			<Gif
+				ref={ref1}
+				playbackRate={4}
+				src={giphy}
+				width={width}
+				height={height}
+				fit="fill"
+				delayRenderTimeoutInMilliseconds={60000}
+				durationInFrames={50}
+				trimBefore={28}
+				premountFor={30}
+				freeze={null}
+			/>
+			<Gif
+				ref={ref2}
+				src="https://media.giphy.com/media/xT0GqH01ZyKwd3aT3G/giphy.gif"
+				width={width}
+				height={height}
+				fit="cover"
+				from={50}
+				durationInFrames={50}
+			/>
+			<Gif
+				ref={ref3}
+				src="https://media.giphy.com/media/3o72F7YT6s0EMFI0Za/giphy.gif"
+				width={width}
+				height={height}
+				fit="contain"
+				from={100}
+				durationInFrames={50}
+			/>
+			<Gif
+				ref={ref4}
+				src={staticFile('disposal-type-3.gif')}
+				width={width}
+				height={height}
+				fit="fill"
 				from={150}
 				durationInFrames={50}
 				style={{
 					backgroundColor: 'white',
 				}}
-			>
-				<Gif
-					ref={ref4}
-					src={staticFile('disposal-type-3.gif')}
-					width={width}
-					height={height}
-					fit="fill"
-				/>
-			</Sequence>
-			<Sequence
+			/>
+			<Gif
+				ref={ref4}
+				src={staticFile('non-animated-interlaced.gif')}
+				width={width}
+				height={height}
+				fit="fill"
 				from={200}
 				durationInFrames={50}
 				style={{
 					backgroundColor: 'white',
 				}}
-			>
-				<Gif
-					ref={ref4}
-					src={staticFile('non-animated-interlaced.gif')}
-					width={width}
-					height={height}
-					fit="fill"
-				/>
-			</Sequence>
+				premountFor={15}
+			/>
 		</div>
 	);
 };
