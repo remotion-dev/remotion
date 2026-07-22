@@ -377,16 +377,20 @@ test('Should not delete site with same prefix', async () => {
 		requestHandler: null,
 	});
 	expect(
-		files.map((f) => {
-			return f.Key;
-		}),
-	).toEqual([
-		// Should not delete my-site-staging (same bucket name but with suffix)
-		...getDirFiles('/path/to/bundle-2').map((f) => {
-			return 'sites/my-site-staging/' + f.name;
-		}),
-		...getDirFiles('/path/to/bundle-1').map((f) => {
-			return 'sites/my-site/' + f.name;
-		}),
-	]);
+		files
+			.map((f) => {
+				return f.Key;
+			})
+			.sort(),
+	).toEqual(
+		[
+			// Should not delete my-site-staging (same bucket name but with suffix)
+			...getDirFiles('/path/to/bundle-2').map((f) => {
+				return 'sites/my-site-staging/' + f.name;
+			}),
+			...getDirFiles('/path/to/bundle-1').map((f) => {
+				return 'sites/my-site/' + f.name;
+			}),
+		].sort(),
+	);
 });

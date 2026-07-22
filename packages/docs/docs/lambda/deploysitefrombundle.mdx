@@ -1,0 +1,178 @@
+---
+image: /generated/articles-docs-lambda-deploysitefrombundle.png
+id: deploysitefrombundle
+title: deploySiteFromBundle()
+slug: /lambda/deploysitefrombundle
+crumb: 'Lambda API'
+---
+
+# deploySiteFromBundle()<AvailableFrom v="4.0.497" />
+
+Uploads a local [Remotion Bundle](/docs/terminology/bundle) to an S3 bucket.
+
+Use this API to build an artifact once and deploy it in a later Docker or CI stage. Before calling it, retrieve a bucket using [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket).
+
+## Example
+
+Create the bundle in the default `build` directory:
+
+```bash title="Build step"
+npx remotion bundle
+```
+
+Deploy that directory later:
+
+```ts twoslash title="deploy.ts"
+import {deploySiteFromBundle} from '@remotion/lambda';
+
+const {serveUrl, siteName} = await deploySiteFromBundle({
+  bucketName: 'remotionlambda-c7fsl3d',
+  region: 'us-east-1',
+  bundleDir: './build',
+});
+
+console.log(serveUrl, siteName);
+```
+
+The bundle directory is read but not modified or deleted.
+
+:::caution
+Deploy only trusted artifacts. Symbolic links to files are followed and the target contents are uploaded. Symbolic links to directories are rejected.
+:::
+
+The bundle must be relocatable. Bundles created using `npx remotion bundle` from v4.0.497 are relocatable by default.
+
+## Arguments
+
+An object with the following properties:
+
+### `bucketName`
+
+The bucket to which the site is deployed. It must have been created by Remotion Lambda.
+
+### `region`
+
+The AWS region containing the bucket.
+
+### `bundleDir`
+
+The local directory containing the bundle. It must contain `index.html` and `bundle.js` files at its root.
+
+The default output directory of `npx remotion bundle` is `./build`. Pass a different path when the bundle is stored elsewhere:
+
+```ts twoslash title="deploy.ts"
+import {deploySiteFromBundle} from '@remotion/lambda';
+
+const {serveUrl} = await deploySiteFromBundle({
+  bucketName: 'remotionlambda-c7fsl3d',
+  region: 'us-east-1',
+  bundleDir: '/custom/artifact',
+});
+```
+
+If you created the bundle using the [`bundle()`](/docs/bundle) Node.js API without specifying `outDir`, pass its return value as `bundleDir`.
+
+### `siteName?`
+
+The S3 subfolder to deploy to. If omitted, a random name is generated and returned.
+
+If the site already exists, changed files are uploaded and stale files are deleted. Pass [`throwIfSiteExists`](#throwifsiteexists) to reject instead.
+
+Allowed characters: `0-9`, `a-z`, `A-Z`, `-`, `!`, `_`, `.`, `*`, `'`, `(`, `)`.
+
+### `options?`
+
+Deployment callbacks and bucket validation options.
+
+#### `onUploadProgress?`
+
+Called while files are uploaded. The callback receives an object with the following fields.
+
+##### `totalFiles`
+
+The number of files being uploaded.
+
+##### `filesUploaded`
+
+The number of fully uploaded files.
+
+##### `totalSize`
+
+The total number of bytes being uploaded.
+
+##### `sizeUploaded`
+
+The number of bytes uploaded so far.
+
+#### `onDiffingProgress?`
+
+Called while local file hashes are compared with S3. It receives the number of processed bytes and a boolean indicating whether comparison is complete.
+
+#### `bypassBucketNameValidation?`
+
+Allows deploying to a bucket whose name does not start with `remotionlambda-`. Default: `false`.
+
+### `privacy?`
+
+Either `public` or `no-acl`. Default: `public`.
+
+The site must have a public URL because the Lambda browser opens it while rendering.
+
+### `throwIfSiteExists?`
+
+<Options id="throw-if-site-exists" />
+
+### `forcePathStyle?`
+
+Passes `forcePathStyle` to the AWS S3 client. Default: `false`.
+
+### `requestHandler?`
+
+A custom AWS SDK request handler, for example when using a [proxy](/docs/lambda/proxy). Default: `null`.
+
+### `logLevel?`
+
+<Options id="log" />
+
+## Return value
+
+A promise resolving to an object with the following fields:
+
+### `serveUrl`
+
+The Serve URL of the deployed site, for example `https://remotionlambda-12345.s3.eu-central-1.amazonaws.com/sites/abcdef/index.html`.
+
+Use it with [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda), or the Lambda render CLI commands.
+
+### `siteName`
+
+The supplied site name, or the generated random name when `siteName` was omitted.
+
+### `stats`
+
+Statistics about the incremental deployment.
+
+#### `uploadedFiles`
+
+The number of uploaded files.
+
+#### `deletedFiles`
+
+The number of stale S3 files that were deleted.
+
+#### `untouchedFiles`
+
+The number of files that were already identical on S3.
+
+## Compatibility
+
+<CompatibilityTable chrome={false} firefox={false} safari={false} nodejs={true} bun={true} serverlessFunctions={false} clientSideRendering={false} serverSideRendering={false} player={false} studio={false} />
+
+## See also
+
+- [`deploySite()`](/docs/lambda/deploysite)
+- [`bundle()`](/docs/bundle)
+- [`npx remotion bundle`](/docs/cli/bundle)
+- [`getSites()`](/docs/lambda/getsites)
+- [`deleteSite()`](/docs/lambda/deletesite)
+- [Source code](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/deploy-site-from-bundle.ts)

@@ -82,6 +82,8 @@ Whether to use [Rspack](https://rspack.dev) instead of Webpack as the bundler. D
 
 <Options id="public-path" />
 
+From <AvailableFrom v="4.0.497" inline />, the default `./` makes the bundle relocatable. Earlier versions defaulted to `/`. Pass `/` to retain an origin-root URL.
+
 ### `rootDir?`<AvailableFrom v="3.1.6" />
 
 The directory in which the Remotion project is rooted in. This should be set to the directory that contains the `package.json` which installs Remotion. By default, it is the current working directory.
@@ -139,6 +141,8 @@ It is still supported in Remotion v3, but we encourage to migrate to the new fun
 
 A promise which will resolve into a `string` specifying the output directory.
 
+Pass this directory to [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle) to upload it to Remotion Lambda without bundling again.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/bundle.ts)
@@ -147,3 +151,4 @@ A promise which will resolve into a `string` specifying the output directory.
 - [renderMedia()](/docs/renderer/render-media)
 - [stitchFramesToVideo()](/docs/renderer/stitch-frames-to-video)
 - [Calling bundle() in bundled code](/docs/troubleshooting/bundling-bundle)
+- [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle)
