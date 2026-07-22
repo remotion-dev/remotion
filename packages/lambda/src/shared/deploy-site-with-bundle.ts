@@ -43,6 +43,8 @@ export type DeploySiteWithBundleInput = {
 	getBundle: () => Promise<string>;
 };
 
+const deleteConcurrency = 10;
+
 export const deploySiteWithBundle: (
 	input: DeploySiteWithBundleInput,
 ) => DeploySiteOutput = async ({
@@ -125,20 +127,34 @@ export const deploySiteWithBundle: (
 
 	options.onDiffingProgress?.(totalBytes, true);
 
-	await Promise.all([
-		fullClientSpecifics.uploadDir({
+	const indexHtml = 'index.html';
+	const assetsToUpload = toUpload.filter((file) => file !== indexHtml);
+	const indexHtmlToUpload = toUpload.filter((file) => file === indexHtml);
+	const upload = (filesToUpload: string[]) => {
+		if (filesToUpload.length === 0) {
+			return Promise.resolve();
+		}
+
+		return fullClientSpecifics.uploadDir({
 			bucket: bucketName,
 			region,
 			localDir: bundleDir,
 			onProgress: options.onUploadProgress ?? (() => undefined),
 			keyPrefix: subFolder,
 			privacy,
-			toUpload,
+			toUpload: filesToUpload,
 			forcePathStyle,
 			requestHandler,
-		}),
-		Promise.all(
-			toDelete.map((d) => {
+		});
+	};
+
+	await upload(assetsToUpload);
+	await upload(indexHtmlToUpload);
+
+	const limit = LambdaClientInternals.pLimit(deleteConcurrency);
+	await Promise.all(
+		toDelete.map((d) => {
+			return limit(() => {
 				return providerSpecifics.deleteFile({
 					bucketName,
 					customCredentials: null,
@@ -147,9 +163,9 @@ export const deploySiteWithBundle: (
 					forcePathStyle,
 					requestHandler,
 				});
-			}),
-		),
-	]);
+			});
+		}),
+	);
 
 	return {
 		serveUrl: LambdaClientInternals.makeS3ServeUrl({

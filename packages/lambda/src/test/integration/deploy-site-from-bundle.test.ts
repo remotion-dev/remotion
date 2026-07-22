@@ -59,6 +59,14 @@ const makeBucket = async () => {
 	return bucketName;
 };
 
+const withStaleEtags: typeof mockImplementation = {
+	...mockImplementation,
+	listObjects: async (input) => {
+		const objects = await mockImplementation.listObjects(input);
+		return objects.map((object) => ({...object, ETag: 'stale-etag'}));
+	},
+};
+
 const deployBundle = ({
 	bucketName,
 	bundleDir,
@@ -198,23 +206,140 @@ test('incrementally uploads and deletes files without deleting either bundle', a
 	]);
 });
 
-test('keeps the caller bundle when deployment fails', async () => {
-	const bundleDir = makeBundle({'bundle.js': 'bundle'});
+test('publishes assets and index.html before deleting stale files', async () => {
+	const firstBundle = makeBundle({
+		'bundle.js': 'first',
+		'stale.js': 'stale',
+	});
+	const secondBundle = makeBundle({
+		'bundle.js': 'second',
+		'new.js': 'new',
+	});
 	const bucketName = await makeBucket();
+	await deployBundle({
+		bucketName,
+		bundleDir: firstBundle,
+		siteName: 'from-bundle-ordering',
+	});
+
+	const operations: string[] = [];
+	const providerSpecifics: typeof mockImplementation = {
+		...withStaleEtags,
+		deleteFile: async (input) => {
+			operations.push('delete');
+			await mockImplementation.deleteFile(input);
+		},
+	};
+	const fullClientSpecifics: typeof mockFullClientSpecifics = {
+		...mockFullClientSpecifics,
+		uploadDir: async (input) => {
+			operations.push(
+				input.toUpload.includes('index.html')
+					? 'upload-index'
+					: 'upload-assets',
+			);
+			await mockFullClientSpecifics.uploadDir(input);
+		},
+	};
+
+	await deployBundle({
+		bucketName,
+		bundleDir: secondBundle,
+		siteName: 'from-bundle-ordering',
+		providerSpecifics,
+		fullClientSpecifics,
+	});
+
+	expect(operations).toEqual(['upload-assets', 'upload-index', 'delete']);
+});
+
+test('does not publish index.html or delete stale files if an asset upload fails', async () => {
+	const firstBundle = makeBundle({
+		'bundle.js': 'first',
+		'stale.js': 'stale',
+	});
+	const secondBundle = makeBundle({
+		'bundle.js': 'second',
+		'new.js': 'new',
+	});
+	const bucketName = await makeBucket();
+	await deployBundle({
+		bucketName,
+		bundleDir: firstBundle,
+		siteName: 'from-bundle-failure',
+	});
+
+	const operations: string[] = [];
+	const providerSpecifics: typeof mockImplementation = {
+		...withStaleEtags,
+		deleteFile: async () => {
+			operations.push('delete');
+		},
+	};
 	const fullClientSpecifics = {
 		...mockFullClientSpecifics,
-		uploadDir: () => Promise.reject(new Error('Upload failed')),
+		uploadDir: (
+			input: Parameters<typeof mockFullClientSpecifics.uploadDir>[0],
+		) => {
+			operations.push(
+				input.toUpload.includes('index.html')
+					? 'upload-index'
+					: 'upload-assets',
+			);
+			return Promise.reject(new Error('Upload failed'));
+		},
 	};
 
 	await expect(
 		deployBundle({
 			bucketName,
-			bundleDir,
+			bundleDir: secondBundle,
 			siteName: 'from-bundle-failure',
+			providerSpecifics,
 			fullClientSpecifics,
 		}),
 	).rejects.toThrow('Upload failed');
-	expect(existsSync(bundleDir)).toBe(true);
+	expect(operations).toEqual(['upload-assets']);
+	expect(existsSync(secondBundle)).toBe(true);
+});
+
+test('deletes at most 10 stale files concurrently', async () => {
+	const bundleDir = makeBundle({'bundle.js': 'bundle'});
+	const bucketName = await makeBucket();
+	let activeDeletes = 0;
+	let maxActiveDeletes = 0;
+	const providerSpecifics: typeof mockImplementation = {
+		...mockImplementation,
+		listObjects: () => {
+			return Promise.resolve(
+				Array.from({length: 25}, (_, index) => ({
+					Key: `sites/from-bundle-concurrency/stale-${index}.js`,
+					ETag: 'etag',
+					LastModified: new Date(0),
+					Size: 0,
+				})),
+			);
+		},
+		deleteFile: async () => {
+			activeDeletes++;
+			maxActiveDeletes = Math.max(maxActiveDeletes, activeDeletes);
+			await new Promise((resolve) => setTimeout(resolve, 1));
+			activeDeletes--;
+		},
+	};
+
+	await deployBundle({
+		bucketName,
+		bundleDir,
+		siteName: 'from-bundle-concurrency',
+		providerSpecifics,
+		fullClientSpecifics: {
+			...mockFullClientSpecifics,
+			uploadDir: () => Promise.resolve(),
+		},
+	});
+
+	expect(maxActiveDeletes).toBe(10);
 });
 
 test('supports throwIfSiteExists without deleting the caller bundle', async () => {

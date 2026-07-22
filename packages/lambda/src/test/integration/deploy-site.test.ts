@@ -208,13 +208,17 @@ test('Should delete the previous site if deploying the new one', async () => {
 		requestHandler: null,
 	});
 	expect(
-		files.map((f) => {
-			return f.Key;
-		}),
+		files
+			.map((f) => {
+				return f.Key;
+			})
+			.sort(),
 	).toEqual(
-		getDirFiles('/path/to/bundle-2').map((f) => {
-			return 'sites/testing/' + f.name;
-		}),
+		getDirFiles('/path/to/bundle-2')
+			.map((f) => {
+				return 'sites/testing/' + f.name;
+			})
+			.sort(),
 	);
 });
 
@@ -274,17 +278,21 @@ test('Should keep the previous site if deploying the new one with different ID',
 	});
 
 	expect(
-		files.map((f) => {
-			return f.Key;
-		}),
-	).toEqual([
-		...getDirFiles('/path/to/bundle-1').map((f) => {
-			return 'sites/testing/' + f.name;
-		}),
-		...getDirFiles('/path/to/bundle-2').map((f) => {
-			return 'sites/testing-2/' + f.name;
-		}),
-	]);
+		files
+			.map((f) => {
+				return f.Key;
+			})
+			.sort(),
+	).toEqual(
+		[
+			...getDirFiles('/path/to/bundle-1').map((f) => {
+				return 'sites/testing/' + f.name;
+			}),
+			...getDirFiles('/path/to/bundle-2').map((f) => {
+				return 'sites/testing-2/' + f.name;
+			}),
+		].sort(),
+	);
 
 	await internalDeleteSite({
 		bucketName,
