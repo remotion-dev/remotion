@@ -501,8 +501,6 @@ test('AnimatedImage registers its canvas ref for the Studio outline', () => {
 test('AnimatedImage exposes non-keyframable premounting schema fields', () => {
 	expect(animatedImageSchema.premountFor.keyframable).toBe(false);
 	expect(animatedImageSchema.postmountFor.keyframable).toBe(false);
-	expect(animatedImageSchema.styleWhilePremounted.type).toBe('hidden');
-	expect(animatedImageSchema.styleWhilePostmounted.type).toBe('hidden');
 });
 
 test('AnimatedImage hides the canvas while premounted and postmounted', () => {

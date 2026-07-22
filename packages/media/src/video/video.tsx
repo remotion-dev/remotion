@@ -27,7 +27,6 @@ const videoSchema = {
 	},
 	...Internals.baseSchema,
 	...Internals.premountSchema,
-	...Internals.premountStyleSchema,
 	volume: {
 		type: 'number',
 		min: 0,

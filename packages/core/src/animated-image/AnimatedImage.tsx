@@ -19,7 +19,6 @@ import {Freeze} from '../freeze.js';
 import {
 	baseSchema,
 	premountSchema,
-	premountStyleSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
@@ -51,7 +50,6 @@ export const animatedImageSchema = {
 	},
 	...baseSchema,
 	...premountSchema,
-	...premountStyleSchema,
 	playbackRate: {
 		type: 'number',
 		min: 0,

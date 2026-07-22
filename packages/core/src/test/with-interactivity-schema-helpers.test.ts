@@ -128,8 +128,6 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'style.opacity',
 			'premountFor',
 			'postmountFor',
-			'styleWhilePremounted',
-			'styleWhilePostmounted',
 			'durationInFrames',
 			'from',
 			'freeze',

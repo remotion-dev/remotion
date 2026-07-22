@@ -279,8 +279,6 @@ test('<CanvasImage> registers its canvas as the outline ref', async () => {
 test('<CanvasImage> exposes non-keyframable premounting schema fields', () => {
 	expect(canvasImageSchema.premountFor.keyframable).toBe(false);
 	expect(canvasImageSchema.postmountFor.keyframable).toBe(false);
-	expect(canvasImageSchema.styleWhilePremounted.type).toBe('hidden');
-	expect(canvasImageSchema.styleWhilePostmounted.type).toBe('hidden');
 });
 
 test('<CanvasImage> hides the canvas while premounted and postmounted', async () => {

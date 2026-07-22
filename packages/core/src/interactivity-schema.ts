@@ -362,18 +362,8 @@ export const premountSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-export const premountStyleSchema = {
-	styleWhilePremounted: {
-		type: 'hidden',
-	},
-	styleWhilePostmounted: {
-		type: 'hidden',
-	},
-} as const satisfies InteractivitySchema;
-
 export const sequencePremountSchema = {
 	...premountSchema,
-	...premountStyleSchema,
 } as const satisfies InteractivitySchema;
 
 export const sequenceStyleSchema = {
