@@ -103,3 +103,67 @@ test('a block added and removed within the same commit emits no events', () => {
 	expect(events).toEqual([]);
 	expect(manager!.buffering.current).toBe(false);
 });
+
+test('a listener registered while buffering ends still receives "resume"', () => {
+	// usePlayback() parks its loop during buffering and registers its resume
+	// listener from outside the React render cycle (a rAF callback). The
+	// registration must be visible to the resume dispatch of the very next
+	// commit - if it only lands one commit later, the resume is missed and the
+	// playback loop stays parked forever.
+	let registerOnNextCommit = false;
+	let resumed = false;
+
+	const LateRegistrar: React.FC<{readonly generation: number}> = ({
+		generation,
+	}) => {
+		const context = useContext(BufferingContextReact);
+
+		useLayoutEffect(() => {
+			if (registerOnNextCommit) {
+				registerOnNextCommit = false;
+				context!.listenForResume(() => {
+					resumed = true;
+				});
+			}
+		}, [context, generation]);
+
+		return null;
+	};
+
+	const renderWithGeneration = (generation: number) =>
+		render(
+			<RemotionEnvironmentContext.Provider value={previewEnvironment}>
+				<BufferingProvider>
+					<Harness />
+					<LateRegistrar generation={generation} />
+				</BufferingProvider>
+			</RemotionEnvironmentContext.Provider>,
+		);
+
+	const {rerender} = renderWithGeneration(1);
+
+	let block: {unblock: () => void} | null = null;
+	act(() => {
+		block = manager!.addBlock({id: 'scrub'});
+	});
+	expect(manager!.buffering.current).toBe(true);
+
+	// Register inside the same commit that empties the block list - the child's
+	// layout effect runs before the provider's dispatch effect, like the
+	// playback loop registering mid-transition.
+	registerOnNextCommit = true;
+	act(() => {
+		rerender(
+			<RemotionEnvironmentContext.Provider value={previewEnvironment}>
+				<BufferingProvider>
+					<Harness />
+					<LateRegistrar generation={2} />
+				</BufferingProvider>
+			</RemotionEnvironmentContext.Provider>,
+		);
+		block!.unblock();
+	});
+
+	expect(manager!.buffering.current).toBe(false);
+	expect(resumed).toBe(true);
+});
