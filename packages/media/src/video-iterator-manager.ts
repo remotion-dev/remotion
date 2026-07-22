@@ -233,17 +233,19 @@ export const videoIteratorManager = async ({
 			}
 		}
 
-		const allowWaitingForNextFrame =
+		const pendingFrameBehavior =
 			previousTime !== null &&
 			isSequentialMediaTimeAdvance({
 				previousTime,
 				newTime,
 				fps,
 				playbackRate,
-			});
+			})
+				? 'wait'
+				: 'restart-iterator';
 		const videoSatisfyResult = await videoFrameIterator.tryToSatisfySeek(
 			newTime,
-			allowWaitingForNextFrame,
+			{pendingFrameBehavior},
 		);
 
 		// Doing this before the staleness check, because

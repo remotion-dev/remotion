@@ -43,7 +43,9 @@ test('preview iterator uses next frame timestamp instead of reported duration', 
 	});
 
 	try {
-		const result = await iterator.tryToSatisfySeek(1.5, true);
+		const result = await iterator.tryToSatisfySeek(1.5, {
+			pendingFrameBehavior: 'wait',
+		});
 
 		if (result.type !== 'satisfied') {
 			throw new Error(`Expected seek to be satisfied, got ${result.reason}`);
@@ -91,7 +93,9 @@ test('preview iterator does not trust reported duration without a next timestamp
 	});
 
 	try {
-		const result = await iterator.tryToSatisfySeek(1.5, false);
+		const result = await iterator.tryToSatisfySeek(1.5, {
+			pendingFrameBehavior: 'restart-iterator',
+		});
 
 		expect(result.type).toBe('not-satisfied');
 		expect(pendingWaits).toBe(0);
@@ -136,7 +140,9 @@ test('preview iterator waits through high-FPS frames for a sequential timeline s
 	});
 
 	try {
-		const result = await iterator.tryToSatisfySeek(1 / timelineFps, true);
+		const result = await iterator.tryToSatisfySeek(1 / timelineFps, {
+			pendingFrameBehavior: 'wait',
+		});
 
 		if (result.type !== 'satisfied') {
 			throw new Error(`Expected seek to be satisfied, got ${result.reason}`);
@@ -182,7 +188,9 @@ test('preview iterator supports frames longer than one timeline step', async () 
 	});
 
 	try {
-		const result = await iterator.tryToSatisfySeek(0.075, true);
+		const result = await iterator.tryToSatisfySeek(0.075, {
+			pendingFrameBehavior: 'wait',
+		});
 
 		if (result.type !== 'satisfied') {
 			throw new Error(`Expected seek to be satisfied, got ${result.reason}`);

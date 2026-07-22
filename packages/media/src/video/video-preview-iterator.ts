@@ -62,9 +62,9 @@ export const createVideoIterator = async (
 	};
 
 	const getFrameEndTimestamp = async ({
-		allowWaitingForNextFrame,
+		pendingFrameBehavior,
 	}: {
-		allowWaitingForNextFrame: boolean;
+		pendingFrameBehavior: 'wait' | 'restart-iterator';
 	}) => {
 		const peeked = peekIfReady();
 		if (peeked.type === 'ready') {
@@ -74,7 +74,7 @@ export const createVideoIterator = async (
 			};
 		}
 
-		if (!allowWaitingForNextFrame) {
+		if (pendingFrameBehavior === 'restart-iterator') {
 			return {type: 'pending' as const};
 		}
 
@@ -141,7 +141,9 @@ export const createVideoIterator = async (
 
 	const tryToSatisfySeek = async (
 		time: number,
-		allowWaitingForNextFrame: boolean,
+		options: {
+			pendingFrameBehavior: 'wait' | 'restart-iterator';
+		},
 	): Promise<
 		| {
 				type: 'not-satisfied';
@@ -176,7 +178,7 @@ export const createVideoIterator = async (
 			}
 
 			const frameEndTimestamp = await getFrameEndTimestamp({
-				allowWaitingForNextFrame,
+				pendingFrameBehavior: options.pendingFrameBehavior,
 			});
 			if (frameEndTimestamp.type === 'pending') {
 				return {
@@ -238,7 +240,7 @@ export const createVideoIterator = async (
 
 				const frameTimestamp = roundTo4Digits(frame.frame.timestamp);
 				const frameEndTimestamp = await getFrameEndTimestamp({
-					allowWaitingForNextFrame,
+					pendingFrameBehavior: options.pendingFrameBehavior,
 				});
 				if (frameEndTimestamp.type === 'pending') {
 					return {
