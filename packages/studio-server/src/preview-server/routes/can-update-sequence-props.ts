@@ -32,9 +32,9 @@ import type {
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {parseAst} from '../../codemods/parse-ast';
+import {getCssShorthandForLonghand} from '../../helpers/css-shorthand-properties';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {toImportAgnosticNodePath} from '../../helpers/import-agnostic-node-path';
-import {parseBorderShorthand} from '../../helpers/parse-border-shorthand';
 import {parseKeyframeEasingExpression} from '../../helpers/parse-keyframe-easing-expression';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import {parseVideoConfigNumericExpression} from '../../helpers/video-config-numeric-expression';
@@ -947,19 +947,16 @@ const validateStyleValue = (childKey: string, value: unknown): boolean => {
 	return true;
 };
 
-const BORDER_SIDE_PROPERTY_REGEX =
-	/^border(?:Top|Right|Bottom|Left)(?:Width|Style|Color)?$/;
-
-const isBorderSideProperty = (property: ObjectProperty): boolean => {
+const getObjectPropertyName = (property: ObjectProperty): string | null => {
 	if (property.key.type === 'Identifier') {
-		return BORDER_SIDE_PROPERTY_REGEX.test(property.key.name);
+		return property.key.name;
 	}
 
 	if (property.key.type === 'StringLiteral') {
-		return BORDER_SIDE_PROPERTY_REGEX.test(property.key.value);
+		return property.key.value;
 	}
 
-	return false;
+	return null;
 };
 
 const getNestedPropStatus = ({
@@ -1003,17 +1000,23 @@ const getNestedPropStatus = ({
 	}
 
 	const objExpr = expression as ObjectExpression;
-	const isBorderLonghand =
-		parentKey === 'style' &&
-		(childKey === 'borderWidth' ||
-			childKey === 'borderStyle' ||
-			childKey === 'borderColor');
+	const cssShorthand = getCssShorthandForLonghand({
+		parentKey,
+		longhand: childKey,
+	});
 	if (
-		isBorderLonghand &&
-		objExpr.properties.some(
-			(property) =>
-				property.type === 'ObjectProperty' && isBorderSideProperty(property),
-		)
+		cssShorthand &&
+		objExpr.properties.some((property) => {
+			if (property.type !== 'ObjectProperty') {
+				return false;
+			}
+
+			const propertyName = getObjectPropertyName(property);
+			return (
+				propertyName !== null &&
+				cssShorthand.isUnsupportedProperty(propertyName)
+			);
+		})
 	) {
 		return computedStatus();
 	}
@@ -1021,34 +1024,29 @@ const getNestedPropStatus = ({
 	const relevantProperties = objExpr.properties.filter(
 		(p) =>
 			p.type === 'ObjectProperty' &&
-			((p.key.type === 'Identifier' &&
-				(p.key.name === childKey ||
-					(isBorderLonghand && p.key.name === 'border'))) ||
-				(p.key.type === 'StringLiteral' &&
-					(p.key.value === childKey ||
-						(isBorderLonghand && p.key.value === 'border')))),
+			(getObjectPropertyName(p) === childKey ||
+				getObjectPropertyName(p) === cssShorthand?.shorthand),
 	) as ObjectProperty[];
 	const prop = relevantProperties.at(-1);
 
 	if (
 		prop &&
-		isBorderLonghand &&
-		((prop.key.type === 'Identifier' && prop.key.name === 'border') ||
-			(prop.key.type === 'StringLiteral' && prop.key.value === 'border'))
+		cssShorthand &&
+		getObjectPropertyName(prop) === cssShorthand.shorthand
 	) {
-		const borderValue = prop.value as Expression;
-		if (!isStaticValue(borderValue, {allowSpecialValues: false})) {
+		const shorthandValue = prop.value as Expression;
+		if (!isStaticValue(shorthandValue, {allowSpecialValues: false})) {
 			return computedStatus();
 		}
 
-		const staticBorderValue = extractStaticValue(borderValue, {
+		const staticShorthandValue = extractStaticValue(shorthandValue, {
 			allowSpecialValues: false,
 		});
-		if (typeof staticBorderValue !== 'string') {
+		if (typeof staticShorthandValue !== 'string') {
 			return computedStatus();
 		}
 
-		const parsed = parseBorderShorthand(staticBorderValue);
+		const parsed = cssShorthand.parse(staticShorthandValue);
 		return parsed ? staticStatus(parsed[childKey], null) : computedStatus();
 	}
 

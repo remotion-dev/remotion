@@ -19,7 +19,10 @@ import type {
 	VideoConfigValues,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {parseBorderShorthand} from '../../helpers/parse-border-shorthand';
+import {
+	getCssShorthandsForUpdates,
+	type CssShorthandProperty,
+} from '../../helpers/css-shorthand-properties';
 import {
 	parseVideoConfigNumericExpression,
 	updateVideoConfigNumericExpression,
@@ -750,7 +753,13 @@ const applyGoogleFontSourceEdits = ({
 	}
 };
 
-const migrateBorderShorthand = (node: JSXOpeningElementLike) => {
+const migrateCssShorthand = ({
+	node,
+	cssShorthand,
+}: {
+	node: JSXOpeningElementLike;
+	cssShorthand: CssShorthandProperty;
+}) => {
 	const styleAttribute = node.attributes?.find(
 		(attribute) =>
 			attribute.type === 'JSXAttribute' &&
@@ -772,26 +781,26 @@ const migrateBorderShorthand = (node: JSXOpeningElementLike) => {
 			property.type !== 'ObjectProperty' ||
 			!(
 				(property.key.type === 'Identifier' &&
-					property.key.name === 'border') ||
+					property.key.name === cssShorthand.shorthand) ||
 				(property.key.type === 'StringLiteral' &&
-					property.key.value === 'border')
+					property.key.value === cssShorthand.shorthand)
 			)
 		) {
 			continue;
 		}
 
-		const borderValue =
+		const shorthandValue =
 			property.value.type === 'StringLiteral'
 				? property.value.value
 				: property.value.type === 'TemplateLiteral' &&
 					  property.value.expressions.length === 0
 					? (property.value.quasis[0]?.value.cooked ?? null)
 					: null;
-		if (borderValue === null) {
+		if (shorthandValue === null) {
 			continue;
 		}
 
-		const parsed = parseBorderShorthand(borderValue);
+		const parsed = cssShorthand.parse(shorthandValue);
 		if (!parsed) {
 			continue;
 		}
@@ -799,20 +808,17 @@ const migrateBorderShorthand = (node: JSXOpeningElementLike) => {
 		properties.splice(
 			index,
 			1,
-			b.objectProperty(
-				b.identifier('borderWidth'),
-				b.numericLiteral(parsed.borderWidth),
-			) as ObjectProperty,
-			b.objectProperty(
-				b.identifier('borderStyle'),
-				b.stringLiteral(parsed.borderStyle),
-			) as ObjectProperty,
-			b.objectProperty(
-				b.identifier('borderColor'),
-				b.stringLiteral(parsed.borderColor),
-			) as ObjectProperty,
+			...cssShorthand.longhands.map((longhand) => {
+				const value = parsed[longhand];
+				return b.objectProperty(
+					b.identifier(longhand),
+					typeof value === 'number'
+						? b.numericLiteral(value)
+						: b.stringLiteral(value),
+				) as ObjectProperty;
+			}),
 		);
-		index += 2;
+		index += cssShorthand.longhands.length - 1;
 	}
 };
 
@@ -833,15 +839,10 @@ const updateSequencePropsNode = ({
 } => {
 	const node = jsxElement.openingElement;
 	const logLine = node.loc?.start.line ?? 1;
-	if (
-		updates.some(
-			(update) =>
-				update.key === 'style.borderWidth' ||
-				update.key === 'style.borderStyle' ||
-				update.key === 'style.borderColor',
-		)
-	) {
-		migrateBorderShorthand(node);
+	for (const cssShorthand of getCssShorthandsForUpdates(
+		updates.map((update) => update.key),
+	)) {
+		migrateCssShorthand({node, cssShorthand});
 	}
 
 	const oldValueStrings: string[] = [];
