@@ -67,8 +67,7 @@ export const ProductOffer = () => {
 				willChange: 'transform',
 			}}
 		>
-			<Interactive.Div
-				name="Image panel"
+			<div
 				style={{
 					alignItems: 'center',
 					backgroundColor: '#f7c900',
@@ -140,9 +139,8 @@ export const ProductOffer = () => {
 				>
 					30% off
 				</Interactive.Div>
-			</Interactive.Div>
-			<Interactive.Div
-				name="Offer details"
+			</div>
+			<div
 				style={{
 					alignItems: 'flex-end',
 					backgroundColor: '#f3eee4',
@@ -238,7 +236,7 @@ export const ProductOffer = () => {
 						$249
 					</Interactive.Div>
 				</div>
-			</Interactive.Div>
+			</div>
 		</Interactive.Div>
 	);
 };
