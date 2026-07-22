@@ -205,7 +205,9 @@ const makeTimelineSequence = ({
 	postmountDisplay = null,
 	componentIdentity = null,
 	currentRuntimeValueDotNotation = {},
+	isInsideSeries = false,
 	startMediaFrom = 0,
+	trimBefore = null,
 	type = 'sequence',
 	showInTimeline = true,
 	singleChildComponent,
@@ -222,7 +224,9 @@ const makeTimelineSequence = ({
 	readonly postmountDisplay?: number | null;
 	readonly componentIdentity?: string | null;
 	readonly currentRuntimeValueDotNotation?: Record<string, unknown>;
+	readonly isInsideSeries?: boolean;
 	readonly startMediaFrom?: number;
+	readonly trimBefore?: number | null;
 	readonly type?: TSequence['type'];
 	readonly showInTimeline?: boolean;
 	readonly singleChildComponent?: unknown;
@@ -230,7 +234,7 @@ const makeTimelineSequence = ({
 	({
 		type,
 		from,
-		trimBefore: null,
+		trimBefore,
 		duration,
 		id,
 		displayName: id,
@@ -253,7 +257,7 @@ const makeTimelineSequence = ({
 			componentName: '<Sequence>',
 		},
 		refForOutline,
-		isInsideSeries: false,
+		isInsideSeries,
 		effects,
 		frozenFrame: null,
 		startMediaFrom,
@@ -1523,7 +1527,7 @@ test('Timeline duration drag supports interactive video clips', () => {
 	]);
 });
 
-test('Timeline duration drag supports interactive Series.Sequence rows', () => {
+test('Timeline duration drag supports interactive cascading sequence rows', () => {
 	const baseSequence = makeTimelineSequence({
 		schema: Internals.baseSchema,
 		duration: 78,
@@ -1538,6 +1542,19 @@ test('Timeline duration drag supports interactive Series.Sequence rows', () => {
 	} satisfies TSequence;
 
 	expect(isTimelineSequenceDurationDraggable(seriesSequence)).toBe(true);
+
+	const transitionSeriesSequence = {
+		...baseSequence,
+		isInsideSeries: true,
+		controls: {
+			...baseSequence.controls!,
+			componentIdentity: 'dev.remotion.transitions.TransitionSeries.Sequence',
+		},
+	} satisfies TSequence;
+
+	expect(isTimelineSequenceDurationDraggable(transitionSeriesSequence)).toBe(
+		true,
+	);
 });
 
 test('Timeline duration drag clamps each selected sequence to one frame', () => {
@@ -1766,6 +1783,58 @@ test('Timeline left edge drag adjusts from, duration and trimBefore for selected
 		['from', 16],
 		['durationInFrames', 9],
 		['trimBefore', 6],
+	]);
+});
+
+test('TransitionSeries.Sequence left edge drag uses offset and preserves its right edge', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const subscriptionKey = nodePathInfo.sequenceSubscriptionKey;
+	const targets = getTimelineSequenceLeftEdgeDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		selectedItems: [{type: 'sequence', nodePathInfo}],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				componentIdentity: 'dev.remotion.transitions.TransitionSeries.Sequence',
+				currentRuntimeValueDotNotation: {offset: 2},
+				duration: 40,
+				from: 12,
+				isInsideSeries: true,
+				trimBefore: 3,
+			}),
+		],
+		overrideIdsToNodePaths: {
+			override: subscriptionKey,
+		},
+		propStatuses: {
+			[Internals.makeSequencePropsSubscriptionKey(subscriptionKey)]: {
+				canUpdate: true,
+				props: {
+					durationInFrames: {status: 'static', codeValue: 40},
+					offset: {status: 'static', codeValue: 2},
+					trimBefore: {status: 'static', codeValue: 3},
+				},
+				effects: [],
+			},
+		},
+	});
+
+	expect(targets?.[0]).toMatchObject({
+		initialDuration: 40,
+		initialFrom: 2,
+		initialTrimBefore: 3,
+		positionField: 'offset',
+	});
+	expect(
+		getTimelineSequenceLeftEdgeDragChanges({
+			targets: targets ?? [],
+			deltaFrames: 6,
+		}).map((change) => [change.fieldKey, change.value]),
+	).toEqual([
+		['offset', 8],
+		['durationInFrames', 34],
+		['trimBefore', 9],
 	]);
 });
 

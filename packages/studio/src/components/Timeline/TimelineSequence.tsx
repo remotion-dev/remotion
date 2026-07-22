@@ -56,6 +56,8 @@ import {
 	TimelineSequenceLeftEdgeDragHandle,
 	TimelineSequenceRightEdgeDragHandle,
 	isTimelineSequenceDurationDraggable,
+	isTimelineSequenceLeftEdgeDraggable,
+	isTransitionSeriesSequence,
 	useTimelineSequenceFromDrag,
 } from './TimelineSequenceRightEdgeDragHandle';
 import {TimelineVideoInfo} from './TimelineVideoInfo';
@@ -296,6 +298,10 @@ const TimelineSequenceInner: React.FC<{
 	const fromCanUpdate = Boolean(
 		studioInteractivityEnabled &&
 		propStatusesForOverride?.from?.status === 'static',
+	);
+	const offsetCanUpdate = Boolean(
+		studioInteractivityEnabled &&
+		propStatusesForOverride?.offset?.status === 'static',
 	);
 	const trimBeforeCanUpdate = Boolean(
 		studioInteractivityEnabled &&
@@ -604,15 +610,10 @@ const TimelineSequenceInner: React.FC<{
 		validatedLocation !== null &&
 		durationCanUpdate;
 	const showLeftEdgeDragHandle =
-		(s.type === 'sequence' ||
-			s.type === 'image' ||
-			s.type === 'audio' ||
-			s.type === 'video') &&
-		!s.isInsideSeries &&
+		isTimelineSequenceLeftEdgeDraggable(s) &&
 		nodePath !== null &&
 		validatedLocation !== null &&
-		Boolean(s.controls) &&
-		fromCanUpdate &&
+		(isTransitionSeriesSequence(s) ? offsetCanUpdate : fromCanUpdate) &&
 		durationCanUpdate &&
 		trimBeforeCanUpdate;
 

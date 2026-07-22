@@ -148,6 +148,7 @@ type InternalSeriesSequenceProps = ResolvedSeriesSequenceProps & {
 
 const transitionSeriesSequenceSchema = {
 	durationInFrames: Internals.durationInFramesField,
+	offset: Internals.fromField,
 	name: Internals.sequenceSchema.name,
 	hidden: Internals.sequenceSchema.hidden,
 	showInTimeline: Internals.sequenceSchema.showInTimeline,

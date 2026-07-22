@@ -68,6 +68,7 @@ export type TimelineSequenceLeftEdgeDragTarget = {
 	readonly initialTrimBefore: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly playbackRate: number;
+	readonly positionField: 'from' | 'offset';
 	readonly schema: InteractivitySchema;
 };
 
@@ -188,6 +189,19 @@ const canUpdateFrom = ({
 	return status === 'static';
 };
 
+const canUpdateOffset = ({
+	propStatuses,
+	nodePath,
+}: {
+	readonly propStatuses: PropStatuses;
+	readonly nodePath: SequencePropsSubscriptionKey;
+}) => {
+	const status = Internals.getPropStatusesCtx(propStatuses, nodePath)?.offset
+		?.status;
+
+	return status === 'static';
+};
+
 const canUpdateTrimBefore = ({
 	propStatuses,
 	nodePath,
@@ -201,10 +215,15 @@ const canUpdateTrimBefore = ({
 	return status === 'static';
 };
 
+export const isTransitionSeriesSequence = (sequence: TSequence) =>
+	sequence.controls?.componentIdentity ===
+	'dev.remotion.transitions.TransitionSeries.Sequence';
+
 export const isTimelineSequenceDurationDraggable = (sequence: TSequence) => {
-	const isInteractiveSeriesSequence =
+	const isInteractiveCascadingSequence =
 		sequence.controls?.componentIdentity ===
-		'dev.remotion.remotion.Series.Sequence';
+			'dev.remotion.remotion.Series.Sequence' ||
+		isTransitionSeriesSequence(sequence);
 
 	return (
 		(sequence.type === 'sequence' ||
@@ -212,14 +231,14 @@ export const isTimelineSequenceDurationDraggable = (sequence: TSequence) => {
 			sequence.type === 'audio' ||
 			sequence.type === 'video') &&
 		!sequence.loopDisplay &&
-		(!sequence.isInsideSeries || isInteractiveSeriesSequence) &&
+		(!sequence.isInsideSeries || isInteractiveCascadingSequence) &&
 		Boolean(sequence.controls)
 	);
 };
 
-const isLeftEdgeDraggableSequence = (sequence: TSequence) => {
+export const isTimelineSequenceLeftEdgeDraggable = (sequence: TSequence) => {
 	return (
-		!sequence.isInsideSeries &&
+		(!sequence.isInsideSeries || isTransitionSeriesSequence(sequence)) &&
 		Boolean(sequence.controls) &&
 		(sequence.type === 'sequence' ||
 			sequence.type === 'image' ||
@@ -331,7 +350,7 @@ export const getTimelineSequenceLeftEdgeDragChanges = ({
 			changes.push({
 				fileName: target.fileName,
 				nodePath: target.nodePath,
-				fieldKey: 'from',
+				fieldKey: target.positionField,
 				value: nextValues.from,
 				defaultValue: '0',
 				schema: target.schema,
@@ -624,7 +643,7 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 			!track ||
 			!track.nodePathInfo ||
 			!originalSequence ||
-			!isLeftEdgeDraggableSequence(originalSequence)
+			!isTimelineSequenceLeftEdgeDraggable(originalSequence)
 		) {
 			return null;
 		}
@@ -632,8 +651,13 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 		const nodePath = track.nodePathInfo.sequenceSubscriptionKey;
 		const trimsMedia =
 			originalSequence.type === 'audio' || originalSequence.type === 'video';
+		const positionField = isTransitionSeriesSequence(originalSequence)
+			? 'offset'
+			: 'from';
 		if (
-			!canUpdateFrom({propStatuses, nodePath}) ||
+			(positionField === 'from'
+				? !canUpdateFrom({propStatuses, nodePath})
+				: !canUpdateOffset({propStatuses, nodePath})) ||
 			!canUpdateDurationInFrames({propStatuses, nodePath}) ||
 			!canUpdateTrimBefore({propStatuses, nodePath})
 		) {
@@ -650,13 +674,19 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 			targets.set(key, {
 				fileName: nodePath.absolutePath,
 				initialDuration: originalSequence.duration,
-				initialFrom: originalSequence.from,
+				initialFrom:
+					positionField === 'from'
+						? originalSequence.from
+						: typeof controls.currentRuntimeValueDotNotation.offset === 'number'
+							? controls.currentRuntimeValueDotNotation.offset
+							: 0,
 				initialTrimBefore: trimsMedia
 					? (originalSequence.trimBefore ??
 						Math.max(0, originalSequence.startMediaFrom))
 					: (originalSequence.trimBefore ?? 0),
 				nodePath,
 				playbackRate: getTrimBeforePlaybackRate(originalSequence),
+				positionField,
 				schema: controls.schema,
 			});
 		}
@@ -977,7 +1007,7 @@ export const TimelineSequenceLeftEdgeDragHandle: React.FC<{
 				});
 				latestRef.current.setDragOverrides(
 					target.nodePath,
-					'from',
+					target.positionField,
 					Internals.makeStaticDragOverride(nextValues.from),
 				);
 				latestRef.current.setDragOverrides(
