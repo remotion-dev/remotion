@@ -1195,6 +1195,7 @@ export const Canvas: React.FC<{
 
 					await insertRemoteAudio({
 						url,
+						fps: config.fps,
 						compositionFile,
 						compositionId: currentCompositionId,
 					});

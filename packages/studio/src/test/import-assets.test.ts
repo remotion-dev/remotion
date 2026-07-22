@@ -15,6 +15,11 @@ test('converts media duration to composition frames with two decimals', () => {
 	expect(getDurationInFrames({durationInSeconds: 1.2345, fps: 30})).toBe(37.03);
 	expect(getDurationInFrames({durationInSeconds: 2, fps: 29.97})).toBe(59.94);
 	expect(getDurationInFrames({durationInSeconds: null, fps: 30})).toBe(null);
+	expect(getDurationInFrames({durationInSeconds: 0, fps: 30})).toBe(null);
+	expect(getDurationInFrames({durationInSeconds: -1, fps: 30})).toBe(null);
+	expect(getDurationInFrames({durationInSeconds: Number.NaN, fps: 30})).toBe(
+		null,
+	);
 });
 
 test('maps audio file types to Audio assets', () => {

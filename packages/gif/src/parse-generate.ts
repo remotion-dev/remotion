@@ -71,7 +71,7 @@ const putPixels = (
 	}
 };
 
-export const parse = (
+const fetchAndParseGif = (
 	src: string,
 	{
 		signal,
@@ -93,7 +93,16 @@ export const parse = (
 		.then((gif: ParsedGif) => {
 			validateAndFix(gif);
 			return gif;
-		})
+		});
+
+export const parse = (
+	src: string,
+	requestOptions: {
+		signal: AbortController['signal'];
+		requestInit?: RequestInit;
+	},
+) =>
+	fetchAndParseGif(src, requestOptions)
 		.then((gif) =>
 			Promise.all([
 				decompressFrames(gif),
@@ -148,6 +157,21 @@ export const parse = (
 				frames: readyFrames,
 			};
 		});
+
+export const parseGifDurationInSeconds = (
+	src: string,
+	requestOptions: {
+		signal: AbortController['signal'];
+		requestInit?: RequestInit;
+	},
+) =>
+	fetchAndParseGif(src, requestOptions).then((gif) => {
+		return gif.frames
+			.filter((frame): frame is Frame => 'image' in frame)
+			.reduce((duration, frame) => {
+				return duration + (frame.gce?.delay || 10) / 100;
+			}, 0);
+	});
 
 type ParserCallbackArgs = {
 	width: number;

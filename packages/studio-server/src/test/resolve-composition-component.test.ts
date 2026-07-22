@@ -1087,7 +1087,7 @@ test('inserts an AnimatedImage asset into the resolved composition component', a
 					width: 320,
 					height: 180,
 				},
-				durationInFrames: null,
+				durationInFrames: 37.52,
 				position: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
@@ -1098,6 +1098,7 @@ test('inserts an AnimatedImage asset into the resolved composition component', a
 		);
 		expect(result.output).toContain('<AnimatedImage');
 		expect(result.output).toContain("src={staticFile('animated-png.png')}");
+		expect(result.output).toContain('durationInFrames={37.52}');
 		expect(result.output).toContain('width: 320');
 		expect(result.output).toContain('height: 180');
 		expect(result.output).not.toContain('width={320}');
@@ -1257,7 +1258,7 @@ test('inserts a Gif asset into the resolved composition component', async () => 
 					width: 320,
 					height: 180,
 				},
-				durationInFrames: null,
+				durationInFrames: 37.52,
 				position: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
@@ -1269,6 +1270,7 @@ test('inserts a Gif asset into the resolved composition component', async () => 
 		);
 		expect(result.output).toContain('<Gif');
 		expect(result.output).toContain("src={staticFile('animation.gif')}");
+		expect(result.output).toContain('durationInFrames={37.52}');
 		expect(result.output).toContain('width: 320');
 		expect(result.output).toContain('height: 180');
 		expect(result.output).not.toContain('width={320}');
@@ -1314,7 +1316,7 @@ test('inserts an Audio asset into the resolved composition component', async () 
 				src: 'audio.mp3',
 				srcType: 'static',
 				dimensions: null,
-				durationInFrames: null,
+				durationInFrames: 37.52,
 				position: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
@@ -1326,6 +1328,7 @@ test('inserts an Audio asset into the resolved composition component', async () 
 		);
 		expect(result.output).toContain('<Audio');
 		expect(result.output).toContain("src={staticFile('audio.mp3')}");
+		expect(result.output).toContain('durationInFrames={37.52}');
 		expect(result.output).not.toContain("position: 'absolute'");
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});

@@ -1,4 +1,4 @@
-import {getVideoMetadata} from '@remotion/media-utils';
+import {getGifDurationInSeconds} from '@remotion/gif';
 import {
 	detectFileType,
 	getRequiredPackageForInsertableElement,
@@ -19,6 +19,7 @@ import {writeStaticFile} from '../api/write-static-file';
 import {formatFigmaClipboardErrorNotification} from '../helpers/clipboard-figma';
 import {installRequiredPackages} from '../helpers/install-required-package';
 import type {Dimensions} from '../helpers/is-current-selected-still';
+import {getMediaMetadata} from '../helpers/use-media-metadata';
 import {callApi} from './call-api';
 import {showNotification} from './Notifications/NotificationCenter';
 
@@ -402,15 +403,36 @@ type AssetMetadataForInsertion = {
 	durationInSeconds: number | null;
 };
 
-const getVideoAssetMetadata = async (
+const getMediaAssetMetadata = async (
 	src: string,
 ): Promise<AssetMetadataForInsertion> => {
-	const metadata = await getVideoMetadata(src);
+	const metadata = await getMediaMetadata(src);
 	return {
-		dimensions: {width: metadata.width, height: metadata.height},
-		durationInSeconds: metadata.durationInSeconds,
+		dimensions:
+			metadata?.width === null || metadata?.height === null || !metadata
+				? null
+				: {width: metadata.width, height: metadata.height},
+		durationInSeconds: metadata?.duration ?? null,
 	};
 };
+
+const getAnimatedImageAssetDuration = (
+	src: string,
+	contentType: string | null,
+) => {
+	if (contentType === 'image/gif') {
+		return getGifDurationInSeconds(src);
+	}
+
+	return Internals.getAnimatedImageDurationInSeconds({
+		resolvedSrc: src,
+		signal: new AbortController().signal,
+		contentType,
+	});
+};
+
+const assetTypeHasDuration = (assetType: InsertableAssetElement['assetType']) =>
+	assetType !== 'image';
 
 const getFileMetadata = async ({
 	file,
@@ -436,7 +458,12 @@ const getFileMetadata = async ({
 		fileType.type === 'aac' ||
 		fileType.type === 'flac'
 	) {
-		return {dimensions: null, durationInSeconds: null};
+		const objectUrl = URL.createObjectURL(file);
+		try {
+			return await getMediaAssetMetadata(objectUrl);
+		} finally {
+			URL.revokeObjectURL(objectUrl);
+		}
 	}
 
 	if (
@@ -447,18 +474,32 @@ const getFileMetadata = async ({
 		fileType.type === 'apng' ||
 		fileType.type === 'gif'
 	) {
-		if (fileType.dimensions) {
-			return {dimensions: fileType.dimensions, durationInSeconds: null};
-		}
-
 		const objectUrl = URL.createObjectURL(file);
-		return {
-			dimensions: await getImageDimensions({
-				revokeObjectUrl: true,
-				src: objectUrl,
-			}),
-			durationInSeconds: null,
-		};
+		try {
+			const dimensions =
+				fileType.dimensions ??
+				(await getImageDimensions({revokeObjectUrl: false, src: objectUrl}));
+			const isAnimated =
+				fileType.type === 'gif' ||
+				fileType.type === 'apng' ||
+				(fileType.type === 'webp' && fileType.animated);
+
+			return {
+				dimensions,
+				durationInSeconds: isAnimated
+					? await getAnimatedImageAssetDuration(
+							objectUrl,
+							fileType.type === 'gif'
+								? 'image/gif'
+								: fileType.type === 'webp'
+									? 'image/webp'
+									: 'image/png',
+						)
+					: null,
+			};
+		} finally {
+			URL.revokeObjectURL(objectUrl);
+		}
 	}
 
 	if (
@@ -469,7 +510,7 @@ const getFileMetadata = async ({
 	) {
 		const objectUrl = URL.createObjectURL(file);
 		try {
-			return await getVideoAssetMetadata(objectUrl);
+			return await getMediaAssetMetadata(objectUrl);
 		} finally {
 			URL.revokeObjectURL(objectUrl);
 		}
@@ -480,6 +521,7 @@ const getFileMetadata = async ({
 
 const getStaticAssetMetadata = (
 	assetPath: string,
+	assetType: InsertableAssetElement['assetType'],
 ): AssetMetadataForInsertion | Promise<AssetMetadataForInsertion> => {
 	const extension = assetPath.split('.').pop()?.toLowerCase();
 	const src = staticFile(assetPath);
@@ -490,16 +532,26 @@ const getStaticAssetMetadata = (
 			extension,
 		)
 	) {
-		return getImageDimensions({revokeObjectUrl: false, src}).then(
-			(dimensions) => ({dimensions, durationInSeconds: null}),
-		);
+		return Promise.all([
+			getImageDimensions({revokeObjectUrl: false, src}),
+			assetType === 'gif' || assetType === 'animated-image'
+				? getAnimatedImageAssetDuration(
+						src,
+						extension === 'gif'
+							? 'image/gif'
+							: extension === 'webp'
+								? 'image/webp'
+								: 'image/png',
+					)
+				: null,
+		]).then(([dimensions, durationInSeconds]) => ({
+			dimensions,
+			durationInSeconds,
+		}));
 	}
 
-	if (
-		extension &&
-		['mp4', 'm4v', 'mov', 'avi', 'webm', 'ts', 'm2ts'].includes(extension)
-	) {
-		return getVideoAssetMetadata(src);
+	if (assetType === 'video' || assetType === 'audio') {
+		return getMediaAssetMetadata(src);
 	}
 
 	return {dimensions: null, durationInSeconds: null};
@@ -521,9 +573,10 @@ const getFileMetadataOrNull = async ({
 
 const getStaticAssetMetadataOrNull = async (
 	assetPath: string,
+	assetType: InsertableAssetElement['assetType'],
 ): Promise<AssetMetadataForInsertion> => {
 	try {
-		return await getStaticAssetMetadata(assetPath);
+		return await getStaticAssetMetadata(assetPath, assetType);
 	} catch {
 		return {dimensions: null, durationInSeconds: null};
 	}
@@ -536,11 +589,16 @@ export const getDurationInFrames = ({
 	durationInSeconds: number | null;
 	fps: number;
 }): number | null => {
-	if (durationInSeconds === null) {
+	if (
+		durationInSeconds === null ||
+		!Number.isFinite(durationInSeconds) ||
+		durationInSeconds <= 0
+	) {
 		return null;
 	}
 
-	return Math.round(durationInSeconds * fps * 100) / 100;
+	const durationInFrames = Math.round(durationInSeconds * fps * 100) / 100;
+	return durationInFrames > 0 ? durationInFrames : null;
 };
 
 const getStaticAssetFileType = async (
@@ -787,13 +845,12 @@ export const importAssets = async ({
 				element: {
 					...element,
 					dimensions: resolvedDimensions,
-					durationInFrames:
-						element.assetType === 'video'
-							? getDurationInFrames({
-									durationInSeconds: metadata.durationInSeconds,
-									fps,
-								})
-							: null,
+					durationInFrames: assetTypeHasDuration(element.assetType)
+						? getDurationInFrames({
+								durationInSeconds: metadata.durationInSeconds,
+								fps,
+							})
+						: null,
 					position: getAssetPositionForDrop({
 						assetDimensions: resolvedDimensions,
 						destinationDimensions,
@@ -946,22 +1003,26 @@ export const importRemoteAsset = async ({
 			return;
 		}
 
-		const metadata = await getStaticAssetMetadataOrNull(assetPath);
+		const metadata = await getStaticAssetMetadataOrNull(
+			assetPath,
+			element.assetType,
+		);
+		const dimensions = element.dimensions ?? metadata.dimensions;
 
 		const inserted = await insertCompositionElement({
 			compositionFile,
 			compositionId,
 			element: {
 				...element,
-				durationInFrames:
-					element.assetType === 'video'
-						? getDurationInFrames({
-								durationInSeconds: metadata.durationInSeconds,
-								fps,
-							})
-						: null,
+				dimensions,
+				durationInFrames: assetTypeHasDuration(element.assetType)
+					? getDurationInFrames({
+							durationInSeconds: metadata.durationInSeconds,
+							fps,
+						})
+					: null,
 				position: getAssetPositionForDrop({
-					assetDimensions: element.dimensions,
+					assetDimensions: dimensions,
 					destinationDimensions,
 					dropPosition,
 				}),
@@ -986,10 +1047,12 @@ export const importRemoteAsset = async ({
 export const insertRemoteAudio = async ({
 	compositionFile,
 	compositionId,
+	fps,
 	url,
 }: {
 	compositionFile: string;
 	compositionId: string;
+	fps: number;
 	url: string;
 }) => {
 	if (!isUrl(url)) {
@@ -997,17 +1060,21 @@ export const insertRemoteAudio = async ({
 		return;
 	}
 
-	const element: InsertableCompositionElement = {
-		type: 'asset',
-		assetType: 'audio',
-		src: url,
-		srcType: 'remote',
-		dimensions: null,
-		durationInFrames: null,
-		position: null,
-	};
-
 	try {
+		const metadata = await getMediaAssetMetadata(url);
+		const element: InsertableCompositionElement = {
+			type: 'asset',
+			assetType: 'audio',
+			src: url,
+			srcType: 'remote',
+			dimensions: null,
+			durationInFrames: getDurationInFrames({
+				durationInSeconds: metadata.durationInSeconds,
+				fps,
+			}),
+			position: null,
+		};
+
 		const inserted = await insertCompositionElement({
 			compositionFile,
 			compositionId,
@@ -1059,7 +1126,10 @@ export const insertExistingAssets = async ({
 				continue;
 			}
 
-			const metadata = await getStaticAssetMetadataOrNull(assetPath);
+			const metadata = await getStaticAssetMetadataOrNull(
+				assetPath,
+				element.assetType,
+			);
 			const dimensions = element.dimensions ?? metadata.dimensions;
 
 			const inserted = await insertCompositionElement({
@@ -1068,13 +1138,12 @@ export const insertExistingAssets = async ({
 				element: {
 					...element,
 					dimensions,
-					durationInFrames:
-						element.assetType === 'video'
-							? getDurationInFrames({
-									durationInSeconds: metadata.durationInSeconds,
-									fps,
-								})
-							: null,
+					durationInFrames: assetTypeHasDuration(element.assetType)
+						? getDurationInFrames({
+								durationInSeconds: metadata.durationInSeconds,
+								fps,
+							})
+						: null,
 					position: getAssetPositionForDrop({
 						assetDimensions: dimensions,
 						destinationDimensions,

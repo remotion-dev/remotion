@@ -2225,7 +2225,7 @@ const createInsertableJsxElement = ({
 			addPositionStyle:
 				addPositionStyleToComponent && element.assetType !== 'audio',
 			durationInFrames:
-				element.assetType === 'video' ? element.durationInFrames : null,
+				element.assetType === 'image' ? null : element.durationInFrames,
 			localName,
 			staticFileLocalName,
 			src: element.src,
