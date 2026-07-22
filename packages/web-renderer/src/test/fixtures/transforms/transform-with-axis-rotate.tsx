@@ -1,4 +1,4 @@
-const TransformWithMultiComponentScale: React.FC = () => {
+const TransformWithAxisRotate: React.FC = () => {
 	return (
 		<div
 			style={{
@@ -10,24 +10,24 @@ const TransformWithMultiComponentScale: React.FC = () => {
 				justifyContent: 'center',
 				alignItems: 'center',
 				overflow: 'hidden',
-				backgroundColor: 'rgb(255, 200, 100)',
+				backgroundColor: 'rgb(100, 200, 255)',
 			}}
 		>
 			<div
 				style={{
 					width: 400,
 					height: 400,
-					backgroundColor: 'rgb(255, 100, 100)',
-					scale: '0.5 1.5',
+					backgroundColor: 'rgb(100, 100, 255)',
+					rotate: 'x 45deg',
 				}}
 			/>
 		</div>
 	);
 };
 
-export const transformWithMultiComponentScale = {
-	component: TransformWithMultiComponentScale,
-	id: 'transform-with-multi-component-scale',
+export const transformWithAxisRotate = {
+	component: TransformWithAxisRotate,
+	id: 'transform-with-axis-rotate',
 	width: 1080,
 	height: 1080,
 	fps: 30,

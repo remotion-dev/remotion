@@ -26,6 +26,28 @@ test('Should make a matrix from percentage scales', () => {
 	expect(matrix.m22).toBe(0.75);
 });
 
+test.each([
+	['x', 'rotateX(45deg)'],
+	['y', 'rotateY(45deg)'],
+	['z', 'rotate(45deg)'],
+])('Should make a matrix from a %s-axis rotation', (axis, transform) => {
+	const matrix = makeDOMMatrix(`rotate(${axis} 45deg)`);
+	const expected = new DOMMatrix(transform);
+
+	expect(Array.from(matrix.toFloat64Array())).toEqual(
+		Array.from(expected.toFloat64Array()),
+	);
+});
+
+test('Should make a matrix from a vector-axis rotation', () => {
+	const matrix = makeDOMMatrix('rotate(1 2 3 45deg)');
+	const expected = new DOMMatrix('rotate3d(1, 2, 3, 45deg)');
+
+	expect(Array.from(matrix.toFloat64Array())).toEqual(
+		Array.from(expected.toFloat64Array()),
+	);
+});
+
 test('Should pass other transforms to DOMMatrix', () => {
 	const matrix = makeDOMMatrix('matrix(2, 0, 0, 3, 4, 5)');
 

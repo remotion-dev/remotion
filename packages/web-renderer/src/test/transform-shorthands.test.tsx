@@ -3,6 +3,7 @@ import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {transformWithAllShorthands} from './fixtures/transforms/transform-with-all-shorthands';
+import {transformWithAxisRotate} from './fixtures/transforms/transform-with-axis-rotate';
 import {transformWithMultiComponentScale} from './fixtures/transforms/transform-with-multi-component-scale';
 import {transformWithRotate} from './fixtures/transforms/transform-with-rotate';
 import {transformWithScale} from './fixtures/transforms/transform-with-scale';
@@ -52,6 +53,21 @@ test('Should combine transform property with rotate shorthand', async () => {
 	).blob({format: 'png'});
 
 	await testImage({blob, testId: 'transform-with-rotate'});
+});
+
+test('Should support a rotate shorthand with an axis', async () => {
+	await page.viewport(1080, 1080);
+
+	const blob = await (
+		await renderStillOnWeb({
+			licenseKey: 'free-license',
+			composition: transformWithAxisRotate,
+			frame: 0,
+			inputProps: {},
+		})
+	).blob({format: 'png'});
+
+	await testImage({blob, testId: 'transform-with-axis-rotate'});
 });
 
 test('Should combine transform property with translate shorthand', async () => {
