@@ -91,6 +91,7 @@ import {threeDTransformOutOfBounds} from './fixtures/three-d-transform-out-of-bo
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
 import {orthographic} from './fixtures/transforms/orthographic';
 import {transformWithAllShorthands} from './fixtures/transforms/transform-with-all-shorthands';
+import {transformWithMultiComponentScale} from './fixtures/transforms/transform-with-multi-component-scale';
 import {transformWithRotate} from './fixtures/transforms/transform-with-rotate';
 import {transformWithScale} from './fixtures/transforms/transform-with-scale';
 import {transformWithTranslate} from './fixtures/transforms/transform-with-translate';
@@ -193,6 +194,7 @@ export const Root: React.FC = () => {
 				<Composition {...withMargin} />
 				<Composition {...withNegativeMargin} />
 				<Composition {...transformWithScale} />
+				<Composition {...transformWithMultiComponentScale} />
 				<Composition {...transformWithRotate} />
 				<Composition {...transformWithTranslate} />
 				<Composition {...transformWithAllShorthands} />
