@@ -226,8 +226,6 @@ test('<Gif> registers its canvas as the outline ref', async () => {
 test('<Gif> exposes non-keyframable premounting schema fields', () => {
 	expect(gifSchema.premountFor).toMatchObject({keyframable: false});
 	expect(gifSchema.postmountFor).toMatchObject({keyframable: false});
-	expect(gifSchema.styleWhilePremounted.type).toBe('hidden');
-	expect(gifSchema.styleWhilePostmounted.type).toBe('hidden');
 });
 
 test('<Gif> hides the canvas while premounted and postmounted', () => {

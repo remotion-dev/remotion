@@ -1,3 +1,9 @@
 export const ControlsShowcase: React.FC = () => {
-	return <Sequence layout={'none'}></Sequence>;
+	return (
+		<Sequence
+			styleWhilePostmounted={{opacity: 0}}
+			styleWhilePremounted={{opacity: 0}}
+			layout={'none'}
+		></Sequence>
+	);
 };

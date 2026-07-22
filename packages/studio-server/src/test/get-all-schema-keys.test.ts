@@ -24,8 +24,6 @@ test('getAllSchemaKeys returns every key across all enum variants', () => {
 			'style.borderColor',
 			'premountFor',
 			'postmountFor',
-			'styleWhilePremounted',
-			'styleWhilePostmounted',
 			'durationInFrames',
 			'from',
 			'trimBefore',
