@@ -153,6 +153,11 @@ export const studioHtml = ({
 		<script>window.remotion_packageManager = ${JSON.stringify(packageManager)}</script>
 		<script>window.remotion_publicFolderExists = ${JSON.stringify(publicFolderExists)};</script>
 		<script>
+				// Increment this value when the generated bundle format or behavior changes
+				// in a backwards-incompatible way. It is not the Remotion package version
+				// and should not be bumped for every generated HTML change.
+				// Keep it synchronized with requiredVersion in
+				// packages/renderer/src/set-props-and-env.ts by incrementing both values.
 				window.siteVersion = '11';
 				window.remotion_version = '${VERSION}';
 		</script>
