@@ -1,7 +1,6 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
-
-const chunk = 1024 * 1024 * 5; // 5MB
+import {multipartUploadPartSize} from './multipart-upload-part-size';
 
 const md5 = (data: Buffer) =>
 	crypto
@@ -16,17 +15,17 @@ export const getEtagOfFile = (
 	const calc = async () => {
 		const size = await fs.promises.stat(filePath).then((s) => s.size);
 
-		if (size <= chunk) {
+		if (size <= multipartUploadPartSize) {
 			const buffer = await fs.promises.readFile(filePath);
 			return `"${md5(buffer)}"`;
 		}
 
 		const stream = fs.createReadStream(filePath, {
-			highWaterMark: chunk,
+			highWaterMark: multipartUploadPartSize,
 		});
 
 		const md5Chunks: string[] = [];
-		const chunksNumber = Math.ceil(size / chunk);
+		const chunksNumber = Math.ceil(size / multipartUploadPartSize);
 
 		return new Promise<string>((resolve, reject) => {
 			stream.on('data', (c) => {
