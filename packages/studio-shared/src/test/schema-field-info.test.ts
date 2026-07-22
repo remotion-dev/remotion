@@ -199,6 +199,23 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 				default: 1,
 				hiddenFromList: false,
 			},
+			'style.borderWidth': {
+				type: 'number',
+				default: undefined,
+				hiddenFromList: false,
+			},
+			'style.borderStyle': {
+				type: 'enum',
+				default: 'none',
+				variants: {
+					none: {},
+					solid: {},
+				},
+			},
+			'style.borderColor': {
+				type: 'color',
+				default: undefined,
+			},
 			volume: {
 				type: 'number',
 				default: 1,
@@ -231,6 +248,9 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'style.translate',
 		'style.rotate',
 		'style.opacity',
+		'style.borderWidth',
+		'style.borderStyle',
+		'style.borderColor',
 		'style.fontSize',
 		'style.color',
 		'style.fontFamily',
@@ -244,6 +264,9 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'transforms',
 		'transforms',
 		'transforms',
+		'border',
+		'border',
+		'border',
 		'text',
 		'text',
 		'text',
