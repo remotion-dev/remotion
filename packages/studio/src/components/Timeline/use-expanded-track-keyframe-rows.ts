@@ -1,3 +1,4 @@
+import {canEditEasingForInterpolationFunction} from '@remotion/studio-shared';
 import {useContext, useMemo} from 'react';
 import {Internals, type TSequence} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
@@ -16,12 +17,6 @@ import {
 	isTimelineExpandedNodeSelected,
 } from './timeline-expanded-filter';
 import {useTimelineSelection} from './TimelineSelection';
-
-const canEditEasingForInterpolationFunction = (
-	interpolationFunction: string,
-): boolean =>
-	interpolationFunction === 'interpolate' ||
-	interpolationFunction === 'interpolateColors';
 
 export type ExpandedTrackKeyframeRow = {
 	readonly height: number;
@@ -103,6 +98,7 @@ export const useExpandedTrackKeyframeRows = ({
 				getEffectDragOverrides,
 				propStatuses,
 				includeTextContent: false,
+				includeSourceControls: false,
 			}),
 		[
 			propStatuses,

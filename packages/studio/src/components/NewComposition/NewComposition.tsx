@@ -1,5 +1,11 @@
 import type {ChangeEventHandler} from 'react';
-import React, {useCallback, useContext, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
 import {
 	getUniqueCompositionName,
@@ -11,6 +17,7 @@ import {ModalHeader} from '../ModalHeader';
 import {label, optionRow, rightRow} from '../RenderModal/layout';
 import {CodemodFooter} from './CodemodFooter';
 import {DismissableModal} from './DismissableModal';
+import {getNewCompositionDefaults} from './get-new-composition-defaults';
 import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {InputDragger} from './InputDragger';
 import {NewCompDuration} from './NewCompDuration';
@@ -35,15 +42,32 @@ const NewCompositionLoaded: React.FC<{
 	readonly stack: string | null;
 }> = ({folderName, parentName, stack}) => {
 	const {compositions} = useContext(Internals.CompositionManager);
+	const resolvedComposition = Internals.useResolvedVideoConfig(null);
+	const initialComposition =
+		resolvedComposition?.type === 'success' ||
+		resolvedComposition?.type === 'success-and-refreshing'
+			? resolvedComposition.result
+			: null;
+	const initialDimensions = getNewCompositionDefaults(initialComposition);
 	const [newId, setName] = useState(() =>
 		getUniqueCompositionName(compositions),
 	);
-	const [selectedFrameRate, setFrameRate] = useState(30);
+	const inputRef = useRef<HTMLInputElement>(null);
+
+	useEffect(() => {
+		const input = inputRef.current;
+		if (!input) return;
+		input.select();
+	}, []);
+
+	const [selectedFrameRate, setFrameRate] = useState(initialDimensions.fps);
 	const [size, setSize] = useState(() => ({
-		width: 1920,
-		height: 1080,
+		width: initialDimensions.width,
+		height: initialDimensions.height,
 	}));
-	const [durationInFrames, setDurationInFrames] = useState(150);
+	const [durationInFrames, setDurationInFrames] = useState(
+		initialDimensions.durationInFrames,
+	);
 
 	const onWidthChanged = useCallback((newValue: string) => {
 		setSize((s) => {
@@ -137,6 +161,7 @@ const NewCompositionLoaded: React.FC<{
 						<div style={rightRow}>
 							<InputAndValidationContainer>
 								<RemotionInput
+									ref={inputRef}
 									value={newId}
 									onChange={onNameChange}
 									type="text"
@@ -248,7 +273,7 @@ const NewCompositionLoaded: React.FC<{
 				</div>
 				<ModalFooterContainer>
 					<CodemodFooter
-						loadingNotification="Creating composition..."
+						loadingNotification={null}
 						errorNotification="Could not create composition"
 						successNotification={`Created ${newId}`}
 						genericSubmitLabel="Add to root file"

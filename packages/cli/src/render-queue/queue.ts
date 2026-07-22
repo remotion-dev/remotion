@@ -13,6 +13,7 @@ import {printError} from '../print-error';
 import {initialAggregateRenderProgress} from '../progress-types';
 import {processStill} from './process-still';
 import {processVideoJob} from './process-video';
+import type {StudioRenderJobFixedConfig} from './studio-render-job-fixed-config';
 
 let jobQueue: RenderJobWithCleanup[] = [];
 
@@ -53,6 +54,7 @@ const processJob = async ({
 	onProgress,
 	addCleanupCallback,
 	logLevel,
+	fixedConfig,
 }: {
 	job: RenderJob;
 	remotionRoot: string;
@@ -60,6 +62,7 @@ const processJob = async ({
 	onProgress: JobProgressCallback;
 	addCleanupCallback: (label: string, cb: () => void) => void;
 	logLevel: LogLevel;
+	fixedConfig: StudioRenderJobFixedConfig;
 }) => {
 	if (job.type === 'still') {
 		await processStill({
@@ -68,6 +71,7 @@ const processJob = async ({
 			entryPoint,
 			onProgress,
 			addCleanupCallback,
+			fixedConfig,
 		});
 		return;
 	}
@@ -80,6 +84,7 @@ const processJob = async ({
 			onProgress,
 			addCleanupCallback,
 			logLevel,
+			fixedConfig,
 		});
 		return;
 	}
@@ -92,14 +97,16 @@ export const addJob = ({
 	entryPoint,
 	remotionRoot,
 	logLevel,
+	fixedConfig,
 }: {
 	job: RenderJobWithCleanup;
 	entryPoint: string;
 	remotionRoot: string;
 	logLevel: LogLevel;
+	fixedConfig: StudioRenderJobFixedConfig;
 }) => {
 	jobQueue.push(job);
-	processJobIfPossible({entryPoint, remotionRoot, logLevel});
+	processJobIfPossible({entryPoint, remotionRoot, logLevel, fixedConfig});
 
 	notifyClientsOfJobUpdate();
 };
@@ -135,10 +142,12 @@ const processJobIfPossible = async ({
 	remotionRoot,
 	entryPoint,
 	logLevel,
+	fixedConfig,
 }: {
 	remotionRoot: string;
 	entryPoint: string;
 	logLevel: LogLevel;
+	fixedConfig: StudioRenderJobFixedConfig;
 }) => {
 	const runningJob = jobQueue.find((q) => {
 		return q.status === 'running';
@@ -215,6 +224,7 @@ const processJobIfPossible = async ({
 				jobCleanups.push({label, job: cleanup});
 			},
 			logLevel,
+			fixedConfig,
 		});
 		Log.info(
 			{indent: false, logLevel},
@@ -288,5 +298,5 @@ const processJobIfPossible = async ({
 		);
 	}
 
-	processJobIfPossible({remotionRoot, entryPoint, logLevel});
+	processJobIfPossible({remotionRoot, entryPoint, logLevel, fixedConfig});
 };

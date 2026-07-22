@@ -20,6 +20,7 @@ import {LIGHT_TEXT} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import type {Dimensions} from '../helpers/is-current-selected-still';
+import {calculateStudioCanvasTransformation} from '../helpers/studio-fit-padding';
 import {CheckerboardContext} from '../state/checkerboard';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import {RenderPreview} from './RenderPreview';
@@ -157,13 +158,20 @@ const CompWhenItHasDimensions: React.FC<{
 			};
 		}
 
-		return PlayerInternals.calculateCanvasTransformation({
-			canvasSize,
-			compositionHeight: contentDimensions.height,
-			compositionWidth: contentDimensions.width,
-			previewSize: previewSize.size,
-		});
-	}, [canvasSize, contentDimensions, previewSize.size]);
+		return canvasContent.type === 'composition'
+			? calculateStudioCanvasTransformation({
+					canvasSize,
+					compositionHeight: contentDimensions.height,
+					compositionWidth: contentDimensions.width,
+					previewSize: previewSize.size,
+				})
+			: PlayerInternals.calculateCanvasTransformation({
+					canvasSize,
+					compositionHeight: contentDimensions.height,
+					compositionWidth: contentDimensions.width,
+					previewSize: previewSize.size,
+				});
+	}, [canvasContent.type, canvasSize, contentDimensions, previewSize.size]);
 
 	const outer: React.CSSProperties = useMemo(() => {
 		return {

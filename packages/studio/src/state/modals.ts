@@ -120,6 +120,14 @@ export type ConfirmationDialogState = {
 	onCancel: () => void;
 };
 
+export type SvgImportDialogState = {
+	type: 'svg-import-dialog';
+	id: string;
+	onImage: () => void;
+	onInline: () => void;
+	onDismiss: () => void;
+};
+
 export type AddEffectModalState = {
 	type: 'add-effect';
 	fileName: string;
@@ -192,7 +200,8 @@ export type ModalState =
 			invocationTimestamp: number;
 	  }
 	| AddEffectModalState
-	| ConfirmationDialogState;
+	| ConfirmationDialogState
+	| SvgImportDialogState;
 
 export type ModalContextType = {
 	selectedModal: ModalState | null;

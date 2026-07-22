@@ -14,6 +14,7 @@ export const listOfRemotionPackages = [
 	'@remotion/cli',
 	'@remotion/cloudrun',
 	'@remotion/codex-plugin',
+	'@remotion/kimi-code-plugin',
 	'@remotion/compositor-darwin-arm64',
 	'@remotion/compositor-darwin-x64',
 	'@remotion/compositor-linux-arm64-gnu',

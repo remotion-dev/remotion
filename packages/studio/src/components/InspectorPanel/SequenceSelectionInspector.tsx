@@ -1,18 +1,33 @@
 import React, {useCallback, useContext, useMemo} from 'react';
+import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import {ScissorsIcon} from '../../icons/scissors';
 import {
 	hasSequenceControls,
 	InspectorSequenceSection,
 } from '../InspectorSequenceSection';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {
+	getTimelineSequenceSplitEligibility,
+	splitTimelineSequenceFromSource,
+} from '../Timeline/split-selected-timeline-item';
+import {
 	getTimelineSelectionKey,
 	type TimelineSelection,
 	useTimelineSelection,
 } from '../Timeline/TimelineSelection';
 import {AlignmentControls} from './AlignmentControls';
-import {InspectorMessage, InspectorSectionHeader} from './common';
+import {
+	InspectorActionSection,
+	InspectorInlineAction,
+	InspectorMessage,
+	InspectorSectionDivider,
+} from './common';
+import {
+	ConnectedCompositionsSection,
+	useConnectedCompositions,
+} from './ConnectedCompositionsSection';
 import type {SequenceSectionSelection} from './inspector-selection';
 import {
 	SequenceInspectorHeader,
@@ -21,14 +36,77 @@ import {
 import {selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
 
+const splitIconStyle: React.CSSProperties = {
+	height: 16,
+	width: 16,
+};
+
+const SplitSequenceAction: React.FC<{
+	readonly selection: Extract<TimelineSelection, {type: 'sequence'}>;
+	readonly track: TrackWithHash;
+}> = ({selection, track}) => {
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
+	const sequencePropStatuses = useMemo(
+		() =>
+			Internals.getPropStatusesCtx(
+				propStatuses,
+				selection.nodePathInfo.sequenceSubscriptionKey,
+			),
+		[propStatuses, selection],
+	);
+	const eligibility = useMemo(
+		() =>
+			getTimelineSequenceSplitEligibility({
+				selection,
+				sequence: track.sequence,
+				splitFrame: timelinePosition,
+				propStatuses: sequencePropStatuses,
+			}),
+		[selection, sequencePropStatuses, timelinePosition, track.sequence],
+	);
+	const onSplit = useCallback(() => {
+		if (!eligibility.canSplit) {
+			return;
+		}
+
+		splitTimelineSequenceFromSource({
+			nodePathInfo: eligibility.nodePathInfo,
+			splitFrame: timelinePosition,
+		}).catch(() => undefined);
+	}, [eligibility, timelinePosition]);
+
+	if (!eligibility.canSplit) {
+		return null;
+	}
+
+	return (
+		<InspectorActionSection>
+			<InspectorInlineAction
+				disabled={false}
+				onClick={onSplit}
+				renderIcon={(color) => (
+					<ScissorsIcon style={splitIconStyle} color={color} />
+				)}
+			>
+				Split clip
+			</InspectorInlineAction>
+		</InspectorActionSection>
+	);
+};
+
 const SequenceExpandedInspector: React.FC<{
 	readonly track: TrackWithHash;
 }> = ({track}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {selectedItems, selectItems} = useTimelineSelection();
 	const sourceLocation = useSequenceInspectorSourceLocation(track.sequence);
+	const connectedCompositions = useConnectedCompositions({track});
 	const {validatedLocation} = sourceLocation;
-	const sequenceSelection = useMemo((): TimelineSelection | null => {
+	const sequenceSelection = useMemo((): Extract<
+		TimelineSelection,
+		{type: 'sequence'}
+	> | null => {
 		if (!track.nodePathInfo) {
 			return null;
 		}
@@ -70,6 +148,7 @@ const SequenceExpandedInspector: React.FC<{
 
 	if (
 		!track.nodePathInfo ||
+		sequenceSelection === null ||
 		!hasSequenceControls(track.sequence) ||
 		!validatedLocation
 	) {
@@ -83,16 +162,22 @@ const SequenceExpandedInspector: React.FC<{
 			onPointerDown={selectSequenceOnInspectorPointerDown}
 		>
 			<SequenceInspectorHeader sourceLocation={sourceLocation} track={track} />
+			{connectedCompositions.length > 0 ? (
+				<>
+					<InspectorSectionDivider />
+					<ConnectedCompositionsSection
+						connectedCompositions={connectedCompositions}
+					/>
+				</>
+			) : null}
 			<InspectorSequenceSection
 				sequence={track.sequence}
 				validatedLocation={validatedLocation}
 				nodePathInfo={track.nodePathInfo}
 				keyframeDisplayOffset={track.keyframeDisplayOffset}
-				renderSectionHeader={(children) => (
-					<InspectorSectionHeader>{children}</InspectorSectionHeader>
-				)}
 				renderTransformControls={() => <AlignmentControls track={track} />}
 			/>
+			<SplitSequenceAction selection={sequenceSelection} track={track} />
 		</div>
 	);
 };

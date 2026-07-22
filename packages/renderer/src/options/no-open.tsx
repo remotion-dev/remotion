@@ -33,5 +33,8 @@ export const noOpenOption = {
 	setConfig: (shouldOpen: boolean) => {
 		shouldOpenBrowser = shouldOpen;
 	},
+	reset: () => {
+		shouldOpenBrowser = true;
+	},
 	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

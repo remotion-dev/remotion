@@ -289,6 +289,7 @@ const sidebars: SidebarsConfig = {
 				'effects/emboss',
 				'effects/evolve',
 				'effects/fisheye',
+				'effects/flannel',
 				'effects/glow',
 				'effects/grayscale',
 				'effects/gridlines',
@@ -319,6 +320,7 @@ const sidebars: SidebarsConfig = {
 				'effects/scanlines',
 				'effects/shine',
 				'effects/shrinkwrap',
+				'effects/skew',
 				'effects/speckle',
 				'effects/thermal-vision',
 				'effects/tint',
@@ -1426,6 +1428,7 @@ const sidebars: SidebarsConfig = {
 				'ai/skills',
 				'ai/claude-code-plugin',
 				'ai/codex-plugin',
+				'ai/kimi-code-plugin',
 				'ai/bolt',
 				'ai/chatbot',
 				'ai/generate',
@@ -1519,7 +1522,6 @@ const sidebars: SidebarsConfig = {
 			label: 'Miscellaneous',
 			items: [
 				'security',
-				'accessibility',
 				'chromium-flags',
 				'miscellaneous/changing-temp-dir',
 				'miscellaneous/chrome-headless-shell',
@@ -1639,9 +1641,28 @@ const sidebars: SidebarsConfig = {
 				type: 'doc',
 				id: 'license',
 			},
-			items: ['license/pricing', 'license/faq'],
+			items: [
+				'license/pricing',
+				'license/faq',
+				'license/terms',
+				'license/privacy',
+				'license/dpa',
+				'license/dpia',
+				'acknowledgements',
+				{
+					type: 'category',
+					label: 'Accessibility',
+					link: {
+						type: 'doc',
+						id: 'accessibility',
+					},
+					items: [
+						'license/accessibility-statement-remotion-dev',
+						'license/accessibility-statement-remotion-pro',
+					],
+				},
+			],
 		},
-		'acknowledgements',
 
 		{
 			type: 'html',

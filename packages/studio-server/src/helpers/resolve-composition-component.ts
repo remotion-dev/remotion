@@ -27,12 +27,14 @@ import * as recast from 'recast';
 import {NoReactInternals} from 'remotion/no-react';
 import {formatFileContent} from '../codemods/format-file-content';
 import {parseAst, serializeAst} from '../codemods/parse-ast';
+import {stripParenthesizedExtra} from '../codemods/strip-parenthesized-extra';
 import {parseValueExpression} from '../codemods/update-nested-prop';
 import {
 	ensureNamedImport,
 	getImportedName,
 	insertImportDeclaration,
 } from './imports';
+import {svgMarkupToJsx} from './svg-to-jsx';
 
 type SourceLocation = {
 	line: number;
@@ -732,6 +734,25 @@ const createSequenceElement = (): namedTypes.JSXElement => {
 	);
 };
 
+const createSequenceWithChild = ({
+	child,
+	sequenceLocalName,
+}: {
+	child: namedTypes.JSXElement;
+	sequenceLocalName: string;
+}): namedTypes.JSXElement => {
+	return recast.types.builders.jsxElement(
+		recast.types.builders.jsxOpeningElement(
+			recast.types.builders.jsxIdentifier(sequenceLocalName),
+			[],
+		),
+		recast.types.builders.jsxClosingElement(
+			recast.types.builders.jsxIdentifier(sequenceLocalName),
+		),
+		[child],
+	);
+};
+
 const createNumberAttribute = (
 	name: string,
 	value: number,
@@ -1007,6 +1028,54 @@ const createAssetElement = ({
 	);
 };
 
+const createSvgElement = async ({
+	interactiveLocalName,
+	markup,
+	position,
+}: {
+	interactiveLocalName: string;
+	markup: string;
+	position: InsertableCompositionElementPosition | null;
+}): Promise<namedTypes.JSXElement> => {
+	const svgElement = await svgMarkupToJsx(markup);
+	const attributes = svgElement.openingElement.attributes ?? [];
+	svgElement.openingElement.attributes = attributes;
+	const styleAttribute = attributes.find(
+		(attribute) =>
+			attribute.type === 'JSXAttribute' &&
+			attribute.name.type === 'JSXIdentifier' &&
+			attribute.name.name === 'style',
+	);
+	const positionProperties = getPositionStyleProperties(position);
+
+	if (styleAttribute === undefined) {
+		attributes.push(createStyleAttribute(positionProperties));
+	} else if (
+		styleAttribute.type === 'JSXAttribute' &&
+		styleAttribute.value?.type === 'JSXExpressionContainer' &&
+		styleAttribute.value.expression.type === 'ObjectExpression'
+	) {
+		styleAttribute.value.expression.properties.push(...positionProperties);
+	} else {
+		throw new Error('Could not convert the root SVG style to JSX');
+	}
+
+	const interactiveSvgName = () =>
+		recast.types.builders.jsxMemberExpression(
+			recast.types.builders.jsxIdentifier(interactiveLocalName),
+			recast.types.builders.jsxIdentifier('Svg'),
+		);
+	svgElement.openingElement.name = interactiveSvgName();
+	if (
+		svgElement.closingElement !== null &&
+		svgElement.closingElement !== undefined
+	) {
+		svgElement.closingElement.name = interactiveSvgName();
+	}
+
+	return svgElement;
+};
+
 const createFragmentWithElement = (element: namedTypes.JSXElement) => {
 	return recast.types.builders.jsxFragment(
 		recast.types.builders.jsxOpeningFragment(),
@@ -1184,6 +1253,44 @@ const ensureSequenceImport = (ast: File) => {
 	});
 };
 
+const ensureInteractiveImport = (ast: File) => {
+	for (const statement of ast.program.body) {
+		if (
+			statement.type !== 'ImportDeclaration' ||
+			statement.source.type !== 'StringLiteral' ||
+			statement.source.value !== 'remotion'
+		) {
+			continue;
+		}
+
+		for (const specifier of statement.specifiers ?? []) {
+			if (
+				specifier.type === 'ImportSpecifier' &&
+				getImportedName(specifier) === 'Interactive'
+			) {
+				return specifier.local?.name ?? 'Interactive';
+			}
+		}
+	}
+
+	const candidates = ['Interactive', 'RemotionInteractive'];
+	const localName = candidates.find((candidate) => {
+		return !hasTopLevelBinding({ast, name: candidate});
+	});
+	if (localName === undefined) {
+		throw new Error(
+			'Cannot add <Interactive.Svg> because Interactive is already defined',
+		);
+	}
+
+	return ensureNamedImport({
+		ast,
+		importedName: 'Interactive',
+		sourcePath: 'remotion',
+		localName,
+	});
+};
+
 const getImportDeclarations = ({
 	ast,
 	sourcePath,
@@ -1292,12 +1399,12 @@ const ensureStaticFileImport = (ast: File) => {
 	});
 };
 
-const ensureImgImport = (ast: File) => {
+const ensureCanvasImageImport = (ast: File) => {
 	return ensureOfficialNamedImport({
 		ast,
-		importedName: 'Img',
+		importedName: 'CanvasImage',
 		sourcePath: 'remotion',
-		label: '<Img>',
+		label: '<CanvasImage>',
 	});
 };
 
@@ -1707,10 +1814,6 @@ const addElementToComponentRoot = ({
 		throw new Error('Composition component does not return JSX');
 	}
 
-	if (rootNode.type === 'JSXElement' && rootNode.openingElement.selfClosing) {
-		throw new Error('Cannot insert into a self-closing root JSX element');
-	}
-
 	const CANVAS_ROOT_ELEMENTS = [
 		'ThreeCanvas',
 		'RiveCanvas',
@@ -1726,6 +1829,38 @@ const addElementToComponentRoot = ({
 		throw new Error(
 			`Cannot insert a JSX element into a composition whose root element is <${rootNode.openingElement.name.name}>`,
 		);
+	}
+
+	if (rootNode.type === 'JSXElement' && rootNode.openingElement.selfClosing) {
+		const fragment = recast.types.builders.jsxFragment(
+			recast.types.builders.jsxOpeningFragment(),
+			recast.types.builders.jsxClosingFragment(),
+			[
+				createSequenceWithChild({
+					child: stripParenthesizedExtra(rootNode),
+					sequenceLocalName: ensureSequenceImport(ast),
+				}),
+				element,
+			],
+		);
+		let replaced = false;
+		recast.types.visit(ast, {
+			visitJSXElement(astPath) {
+				if (astPath.node === rootNode) {
+					astPath.replace(fragment);
+					replaced = true;
+					return false;
+				}
+
+				this.traverse(astPath);
+			},
+		});
+
+		if (!replaced) {
+			throw new Error('Could not replace composition component root');
+		}
+
+		return rootNode.loc?.start.line ?? 1;
 	}
 
 	if (!rootNode.children) {
@@ -2030,6 +2165,14 @@ const createInsertableJsxElement = ({
 		});
 	}
 
+	if (element.type === 'svg') {
+		return createSvgElement({
+			interactiveLocalName: ensureInteractiveImport(ast),
+			markup: element.markup,
+			position: element.position,
+		});
+	}
+
 	if (element.type === 'composition') {
 		return Promise.resolve(
 			ensureCompositionComponentImport({
@@ -2060,7 +2203,7 @@ const createInsertableJsxElement = ({
 			element.srcType === 'remote' ? null : ensureStaticFileImport(ast);
 		let localName: string;
 		if (element.assetType === 'image') {
-			localName = ensureImgImport(ast);
+			localName = ensureCanvasImageImport(ast);
 		} else if (element.assetType === 'video') {
 			localName = ensureVideoImport(ast);
 		} else if (element.assetType === 'gif') {

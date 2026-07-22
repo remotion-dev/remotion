@@ -296,7 +296,7 @@ export const MyComposition = () => {
 		const travelProgress = interpolate(timelineProgress, [0.2, 0.82], [0, 1], {
 			extrapolateLeft: 'clamp',
 			extrapolateRight: 'clamp',
-			easing: Easing.inOut(Easing.cubic),
+			easing: Easing.bezier(0.645, 0.045, 0.355, 1),
 		});
 		const cameraAltitudeMeters = interpolate(
 			timelineProgress,
@@ -305,7 +305,7 @@ export const MyComposition = () => {
 			{
 				extrapolateLeft: 'clamp',
 				extrapolateRight: 'clamp',
-				easing: Easing.inOut(Easing.cubic),
+				easing: Easing.bezier(0.645, 0.045, 0.355, 1),
 			},
 		);
 		const cameraLatitudeOffset = interpolate(
@@ -315,7 +315,7 @@ export const MyComposition = () => {
 			{
 				extrapolateLeft: 'clamp',
 				extrapolateRight: 'clamp',
-				easing: Easing.inOut(Easing.cubic),
+				easing: Easing.bezier(0.645, 0.045, 0.355, 1),
 			},
 		);
 		const trace = map.getSource('trace') as GeoJSONSource | undefined;

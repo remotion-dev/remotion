@@ -1,16 +1,23 @@
 import type {ChildProcessWithoutNullStreams} from 'child_process';
 import {spawn} from 'child_process';
-import {createHash} from 'crypto';
 import {existsSync, mkdirSync, readdirSync, readFileSync, unlinkSync} from 'fs';
 import {createRequire} from 'module';
 import {availableParallelism, cpus, totalmem} from 'os';
-import {dirname, join, resolve} from 'path';
+import {basename, dirname, join, resolve} from 'path';
 import {createInterface} from 'readline';
 import {Glob} from 'bun';
+import {
+	createTwoslashCacheContext,
+	garbageCollectSharedTwoslashCache,
+	getTwoslashCacheKey,
+	getTwoslashLocalCachePath,
+	getTwoslashVersions,
+	publishLocalTwoslashCacheEntry,
+	readTwoslashCacheEntry,
+} from '../docusaurus-plugin/src/twoslash-cache';
 import {expandElementSourceReferences} from './plugins/element-source-utils';
 
 const DOCS_ROOT = resolve(import.meta.dirname);
-const CACHE_ROOT = join(DOCS_ROOT, 'node_modules', '.cache', 'twoslash');
 const WORKER_SOURCE_PATH = join(DOCS_ROOT, 'twoslash-worker.mjs');
 const WORKER_PATH = join(
 	DOCS_ROOT,
@@ -71,10 +78,11 @@ const RECYCLE_EXIT_CODE = 42;
 
 const pluginDir = join(DOCS_ROOT, '..', 'docusaurus-plugin');
 const pluginRequire = createRequire(join(pluginDir, 'package.json'));
-const twoslashVersion = pluginRequire('twoslash/package.json')
-	.version as string;
-const shikiVersion = pluginRequire('shiki/package.json').version as string;
-const tsVersion = pluginRequire('typescript/package.json').version as string;
+const cacheContext = createTwoslashCacheContext({
+	docsRoot: DOCS_ROOT,
+	versions: getTwoslashVersions(pluginRequire.resolve),
+});
+const CACHE_ROOT = cacheContext.localRoot;
 
 interface TwoslashBlock {
 	code: string;
@@ -87,14 +95,23 @@ interface WorkUnit {
 	items: TwoslashBlock[];
 }
 
-function computeCachePath(code: string): string {
-	const shasum = createHash('sha1');
-	const codeSha = shasum
-		.update(
-			`${code}-${twoslashVersion}-${shikiVersion}-${tsVersion}-github-dark`,
-		)
-		.digest('hex');
-	return join(CACHE_ROOT, `${codeSha}.json`);
+function computeCacheLocation(
+	code: string,
+	lang: string,
+): {key: string; path: string} {
+	const key = getTwoslashCacheKey({code, lang, context: cacheContext});
+	return {key, path: getTwoslashLocalCachePath(cacheContext, key)};
+}
+
+function publishLocalCacheEntries(validCachePaths: Set<string>): void {
+	for (const cachePath of validCachePaths) {
+		publishLocalTwoslashCacheEntry({
+			context: cacheContext,
+			key: basename(cachePath, '.json'),
+		});
+	}
+
+	garbageCollectSharedTwoslashCache(cacheContext);
 }
 
 function addIncludes(
@@ -199,7 +216,8 @@ function extractTwoslashBlocks(
 		}
 
 		const importedCode = replaceIncludes(includes, code);
-		const cachePath = computeCachePath(importedCode);
+		const cacheLocation = computeCacheLocation(importedCode, lang);
+		const cachePath = cacheLocation.path;
 		validCachePaths.add(cachePath);
 
 		// Track which files reference this cache path
@@ -209,7 +227,12 @@ function extractTwoslashBlocks(
 		}
 		cachePathToFiles.get(cachePath)!.push(relPath);
 
-		if (existsSync(cachePath)) {
+		if (
+			readTwoslashCacheEntry({
+				context: cacheContext,
+				key: cacheLocation.key,
+			}) !== null
+		) {
 			continue;
 		}
 
@@ -385,6 +408,7 @@ async function main() {
 	const uncachedBlocks = [...uniqueBlocks.values()];
 
 	if (uncachedBlocks.length === 0) {
+		publishLocalCacheEntries(validCachePaths);
 		const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
 		console.log(`All twoslash blocks are cached (${elapsed}s to scan)`);
 		return;
@@ -566,10 +590,11 @@ async function main() {
 		if (unfinished.length > 0) {
 			const requeue: TwoslashBlock[] = [];
 			for (const item of unfinished) {
-				// A worker can be killed while writing. Only its batched completion
-				// message proves the final cache file is complete.
+				// Workers publish cache files using an atomic rename, so an existing
+				// final path is complete even when the completion message was lost.
 				if (existsSync(item.cachePath)) {
-					unlinkSync(item.cachePath);
+					recordResult({cachePath: item.cachePath, ms: 0});
+					continue;
 				}
 
 				const attempt = (attempts.get(item.cachePath) ?? 0) + 1;
@@ -754,6 +779,7 @@ async function main() {
 		process.exit(1);
 	}
 
+	publishLocalCacheEntries(validCachePaths);
 	process.exit(0);
 }
 

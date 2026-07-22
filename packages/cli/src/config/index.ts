@@ -18,33 +18,42 @@ import {Log} from '../log';
 import {getBrowser} from './browser';
 import {
 	getBufferStateDelayInMilliseconds,
+	resetBufferStateDelayInMilliseconds,
 	setBufferStateDelayInMilliseconds,
 } from './buffer-state-delay-in-milliseconds';
-import {getConcurrency} from './concurrency';
 import type {Concurrency} from './concurrency';
-import {getEntryPoint, setEntryPoint} from './entry-point';
+import {getConcurrency} from './concurrency';
+import {getEntryPoint, resetEntryPoint, setEntryPoint} from './entry-point';
 import {getDotEnvLocation} from './env-file';
 import {
 	getFfmpegOverrideFunction,
+	resetFfmpegOverrideFunction,
 	setFfmpegOverrideFunction,
 } from './ffmpeg-override';
 import {getShouldOutputImageSequence} from './image-sequence';
-import {getMetadata, setMetadata} from './metadata';
-import {getOutputLocation} from './output-location';
-import {setOutputLocation} from './output-location';
+import {getMetadata, resetMetadata, setMetadata} from './metadata';
+import {
+	getOutputLocation,
+	resetOutputLocation,
+	setOutputLocation,
+} from './output-location';
+import type {WebpackOverrideFn} from './override-webpack';
 import {
 	defaultOverrideFunction,
 	getWebpackOverrideFn,
+	overrideWebpackConfig,
+	resetWebpackOverride,
 } from './override-webpack';
-import type {WebpackOverrideFn} from './override-webpack';
-import {overrideWebpackConfig} from './override-webpack';
 import {
 	getRendererPortFromConfigFile,
 	getRendererPortFromConfigFileAndCliFlag,
 	getStudioPort,
+	resetPreviewServerPorts,
+	setPort,
+	setRendererPort,
+	setStudioPort,
 } from './preview-server';
-import {setPort, setRendererPort, setStudioPort} from './preview-server';
-import {getStillFrame, setStillFrame} from './still-frame';
+import {getStillFrame, resetStillFrame, setStillFrame} from './still-frame';
 import {getWebpackCaching} from './webpack-caching';
 import {getWebpackPolling} from './webpack-poll';
 
@@ -804,6 +813,69 @@ export const Config: FlatConfig = {
 	setPreviewSampleRate: previewSampleRateOption.setConfig,
 };
 
+type BrowserSafeConfigOption = {
+	cliFlag: string;
+	getValue: (values: {commandLine: Record<string, unknown>}) => {
+		value: unknown;
+		source: string;
+	};
+	setConfig: (value: never) => void;
+	reset?: () => void;
+};
+
+const getDefaultConfigValue = (option: BrowserSafeConfigOption) => {
+	for (const cliValue of [undefined, null]) {
+		const result = option.getValue({
+			commandLine: {[option.cliFlag]: cliValue},
+		});
+		if (result.source !== 'cli') {
+			return result.value;
+		}
+	}
+
+	throw new Error(`Could not determine the default for --${option.cliFlag}`);
+};
+
+const configSetters = new Set(
+	Object.values(Object.getOwnPropertyDescriptors(Config))
+		.map((descriptor) => descriptor.value)
+		.filter(
+			(value): value is (...args: never[]) => unknown =>
+				typeof value === 'function',
+		),
+);
+
+const browserSafeConfigOptionResets = Object.values(BrowserSafeApis.options)
+	.filter((option) => configSetters.has(option.setConfig))
+	.map((untypedOption): (() => void) => {
+		const option = untypedOption as unknown as BrowserSafeConfigOption;
+		if (option.reset) {
+			return option.reset;
+		}
+
+		const defaultValue = getDefaultConfigValue(option);
+		return () => option.setConfig(defaultValue as never);
+	});
+
+const resetBrowserSafeConfigOptions = () => {
+	for (const reset of browserSafeConfigOptionResets) {
+		reset();
+	}
+};
+
+const resetConfigOptions = () => {
+	resetBrowserSafeConfigOptions();
+	StudioServerInternals.resetMaxTimelineTracks();
+	resetBufferStateDelayInMilliseconds();
+	resetEntryPoint();
+	resetFfmpegOverrideFunction();
+	resetMetadata();
+	resetOutputLocation();
+	resetWebpackOverride();
+	resetPreviewServerPorts();
+	resetStillFrame();
+};
+
 export const ConfigInternals = {
 	getBrowser,
 	getStudioPort,
@@ -825,4 +897,5 @@ export const ConfigInternals = {
 	getWebpackPolling,
 	getBufferStateDelayInMilliseconds,
 	getOutputCodecOrUndefined: BrowserSafeApis.getOutputCodecOrUndefined,
+	resetConfigOptions,
 };

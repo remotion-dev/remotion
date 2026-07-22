@@ -31,6 +31,7 @@ import {SidebarContext} from '../state/sidebar';
 import {checkFullscreenSupport} from './check-fullscreen-support';
 import {StudioServerConnectionCtx} from './client-id';
 import {WHITE_HEX} from './colors';
+import {getFileManagerName} from './get-file-manager-name';
 import {getGitMenuItem} from './get-git-menu-item';
 import {useMobileLayout} from './mobile-layout';
 import {openInEditor, preloadCompositionComponentInfo} from './open-in-editor';
@@ -60,6 +61,9 @@ const getFileMenu = ({
 	previewServerState: 'connected' | 'init' | 'disconnected';
 	setSelectedModal: (value: React.SetStateAction<ModalState | null>) => void;
 }) => {
+	const fileManagerName = getFileManagerName(
+		window.remotion_fileSystemPlatform,
+	);
 	const items: ComboboxValue[] = [
 		readOnlyStudio
 			? null
@@ -198,7 +202,7 @@ const getFileMenu = ({
 			? {
 					id: 'open-project-in-explorer',
 					value: 'open-project-in-explorer',
-					label: 'Open in Explorer',
+					label: `Open in ${fileManagerName}`,
 					onClick: () => {
 						closeMenu();
 						openInFileExplorer({directory: window.remotion_cwd}).catch(
@@ -214,7 +218,7 @@ const getFileMenu = ({
 					keyHint: null,
 					leftItem: null,
 					subMenu: null,
-					quickSwitcherLabel: 'Open project in Explorer',
+					quickSwitcherLabel: `Open project in ${fileManagerName}`,
 					disabled: previewServerState !== 'connected',
 				}
 			: null,

@@ -6,11 +6,12 @@ import type {
 } from 'react';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
-	WHITE_ALPHA_06,
 	INPUT_BACKGROUND,
 	TRANSPARENT,
 	WHITE,
+	getBackgroundFromHoverState,
 } from '../helpers/colors';
+import {COMPACT_INLINE_ROW_HEIGHT} from './layout';
 
 const titleWrapper: React.CSSProperties = {
 	boxSizing: 'border-box',
@@ -65,13 +66,59 @@ const titleInput: React.CSSProperties = {
 	width: '100%',
 };
 
+const inspectorTitleWrapper: React.CSSProperties = {
+	...titleWrapper,
+	fontFamily: 'sans-serif',
+	fontSize: 13,
+	height: COMPACT_INLINE_ROW_HEIGHT,
+	margin: '0 4px',
+	width: 'calc(100% - 8px)',
+};
+
+const inspectorTitleInner: React.CSSProperties = {
+	...titleInner,
+	alignItems: 'center',
+	fontFamily: 'sans-serif',
+	fontSize: 13,
+	height: COMPACT_INLINE_ROW_HEIGHT,
+	paddingBottom: 0,
+	paddingLeft: 8,
+	paddingRight: 8,
+	paddingTop: 0,
+	width: '100%',
+};
+
+const inspectorTitleGridItem: React.CSSProperties = {
+	...titleGridItem,
+	color: 'inherit',
+	fontFamily: 'sans-serif',
+	fontSize: 13,
+	lineHeight: '18px',
+};
+
+const inspectorTitleInput: React.CSSProperties = {
+	...titleInput,
+	fontFamily: 'sans-serif',
+	fontSize: 13,
+};
+
 export const InlineEditableTitle: React.FC<{
 	readonly value: string;
 	readonly canRename: boolean;
 	readonly getInitialSelection?: (value: string) => [number, number];
+	readonly onClick?: () => void;
 	readonly onCommit: (newValue: string) => void;
+	readonly size?: 'default' | 'inspector';
 	readonly title?: string;
-}> = ({value, canRename, getInitialSelection, onCommit, title}) => {
+}> = ({
+	value,
+	canRename,
+	getInitialSelection,
+	onClick,
+	onCommit,
+	size = 'default',
+	title,
+}) => {
 	const [isEditing, setIsEditing] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const [draftValue, setDraftValue] = useState(value);
@@ -116,7 +163,12 @@ export const InlineEditableTitle: React.FC<{
 		[onCommit],
 	);
 
-	const startEditing = useCallback(() => {
+	const handleClick = useCallback(() => {
+		if (onClick) {
+			onClick();
+			return;
+		}
+
 		if (!canRename) {
 			return;
 		}
@@ -124,7 +176,7 @@ export const InlineEditableTitle: React.FC<{
 		cancelledRef.current = false;
 		setDraftValue(value);
 		setIsEditing(true);
-	}, [canRename, value]);
+	}, [canRename, onClick, value]);
 
 	const onChange: ChangeEventHandler<HTMLInputElement> = useCallback((e) => {
 		setDraftValue(e.target.value);
@@ -154,34 +206,50 @@ export const InlineEditableTitle: React.FC<{
 		[value],
 	);
 
+	const isInteractive = canRename || onClick !== undefined;
 	const backgroundColor = isEditing
 		? INPUT_BACKGROUND
-		: isHovered && canRename
-			? WHITE_ALPHA_06
-			: TRANSPARENT;
+		: getBackgroundFromHoverState({
+				hovered: isHovered && isInteractive,
+				selected: false,
+			});
+	const isInspectorSize = size === 'inspector';
 
 	const innerStyle = useMemo((): React.CSSProperties => {
 		return {
-			...titleInner,
+			...(isInspectorSize ? inspectorTitleInner : titleInner),
 			backgroundColor,
-			cursor: isEditing ? 'text' : canRename ? 'pointer' : 'default',
+			cursor: isEditing
+				? 'text'
+				: isInspectorSize
+					? 'text'
+					: isInteractive
+						? 'pointer'
+						: 'default',
 			userSelect: isEditing ? 'text' : 'none',
-			width: isEditing ? '100%' : undefined,
+			width: isEditing || isInspectorSize ? '100%' : undefined,
 		};
-	}, [backgroundColor, canRename, isEditing]);
+	}, [backgroundColor, isEditing, isInspectorSize, isInteractive]);
+	const gridItemStyle = isInspectorSize
+		? inspectorTitleGridItem
+		: titleGridItem;
+	const inputStyle = isInspectorSize ? inspectorTitleInput : titleInput;
 
 	return (
-		<div style={titleWrapper} title={title ?? value}>
+		<div
+			style={isInspectorSize ? inspectorTitleWrapper : titleWrapper}
+			title={title ?? value}
+		>
 			<span
 				style={innerStyle}
 				onMouseEnter={() => setIsHovered(true)}
 				onMouseLeave={() => setIsHovered(false)}
-				onClick={isEditing || !canRename ? undefined : startEditing}
+				onClick={isEditing || !isInteractive ? undefined : handleClick}
 			>
 				<span
 					aria-hidden={isEditing}
 					style={{
-						...titleGridItem,
+						...gridItemStyle,
 						visibility: isEditing ? 'hidden' : 'visible',
 					}}
 				>
@@ -190,7 +258,7 @@ export const InlineEditableTitle: React.FC<{
 				{isEditing ? (
 					<input
 						ref={focusInput}
-						style={{...titleGridItem, ...titleInput}}
+						style={{...gridItemStyle, ...inputStyle}}
 						value={draftValue}
 						onChange={onChange}
 						onBlur={onBlur}

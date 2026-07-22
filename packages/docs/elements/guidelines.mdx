@@ -1,0 +1,59 @@
+---
+title: Element Guidelines
+sidebar_label: Guidelines
+description: Guidelines for creating useful, portable Remotion Elements.
+---
+
+# Element Guidelines
+
+A Remotion Element should be a focused, reusable video building block that can be copied into a project and remixed.
+
+Use these guidelines when designing and reviewing an Element.
+
+## Keep it focused
+
+An Element should demonstrate one visual idea, technique, or workflow. It should be useful in more than one Remotion project without becoming a complete, highly specific composition.
+
+If two variants are worth showing, prefer two separate Elements over a variant prop.
+
+The Elements gallery provides the preview dimensions, frame rate, and duration. The Element itself should remain a building block.
+
+## Make it portable
+
+An Element should work when it is dragged or copied into another project.
+
+- Keep the implementation self-contained.
+- Prefer HTML, CSS, and React.
+- Avoid unexpected global styles and layout side effects.
+- Avoid fullscreen assumptions unless the Element is a background.
+- Use stable remote URLs for assets and Google Fonts for non-websafe fonts.
+- Avoid project-specific branding or footage, and make colors easy to change.
+- Avoid dependencies where possible. [Remotion Effects](/docs/effects) are an acceptable exception.
+
+## Design it for composition
+
+An Element should be safe to combine with other content using normal Studio layering.
+
+Size it to the smallest useful bounding box. Let the surrounding [`<Sequence>`](/docs/sequence) control its placement and how long it appears in the video.
+
+Do not add internal padding solely to improve the gallery preview. Preview spacing should not change the bounds of the Element when it is dragged into a project.
+
+## Make animations complete
+
+If an Element has an entrance animation, it must also have an exit animation.
+
+Animate values within the Element, such as translation, scale, and opacity. Placement in the video belongs to the surrounding `<Sequence>`.
+
+## Expose useful Studio controls
+
+Only expose controls that make the Element meaningfully editable. Give each interactive object a descriptive name and avoid redundant nested controls for the same visual object.
+
+The main editable object should usually have a generic name such as `Container`. Add named child controls only when the child represents a separately useful editing target.
+
+Follow the [interactivity best practices](/docs/studio/interactivity-best-practices) when making an Element editable in Studio.
+
+## Choose a representative preview
+
+Choose a poster frame that shows the Element in a visible, representative state. The video preview should cover the complete configured duration, including entrance and exit animations.
+
+When the Element satisfies these guidelines, see [Submit an Element](/elements/submit-an-element).

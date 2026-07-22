@@ -6,7 +6,14 @@ export const unsubscribeFromSequenceProps: ApiHandler<
 	UnsubscribeFromSequencePropsRequest,
 	undefined
 > = ({
-	input: {fileName, nodePath, clientId, sequenceKeys, effectKeys},
+	input: {
+		fileName,
+		nodePath,
+		clientId,
+		sequenceKeys,
+		assetKeys = [],
+		effectKeys,
+	},
 	remotionRoot,
 }) => {
 	unsubscribeFromSequencePropsWatchers({
@@ -15,6 +22,7 @@ export const unsubscribeFromSequenceProps: ApiHandler<
 		remotionRoot,
 		clientId,
 		sequenceKeys,
+		assetKeys,
 		effectKeys,
 		videoConfigValues: nodePath.videoConfigValues,
 	});

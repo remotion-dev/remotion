@@ -67,6 +67,8 @@ import {
 import {
 	addSequenceStackTraces,
 	getComponentsToAddStacksTo,
+	getSequenceComponent,
+	getSingleChildComponent,
 } from './enable-sequence-stack-traces.js';
 import {findPropsToDelete} from './find-props-to-delete.js';
 import {
@@ -95,12 +97,14 @@ import {
 	fromField,
 	hiddenField,
 	premountSchema,
+	premountStyleSchema,
 	sequencePremountSchema,
 	sequenceSchema,
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
 	textSchema,
 	transformSchema,
+	type AssetFieldSchema,
 	type ArrayFieldSchema,
 	type ArrayItemFieldSchema,
 	type InteractivitySchemaField,
@@ -131,6 +135,7 @@ import {
 import {
 	resolveVideoConfig,
 	resolveVideoConfigOrCatch,
+	resolveVideoConfigWithMetadataOrCatch,
 } from './resolve-video-config.js';
 import {
 	ResolveCompositionContext,
@@ -200,6 +205,7 @@ import {
 	useMediaInTimeline,
 } from './use-media-in-timeline.js';
 import {PixelDensityContext} from './use-pixel-density.js';
+import {usePremounting} from './use-premounting.js';
 import type {
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusEasing,
@@ -303,6 +309,7 @@ export const Internals = {
 	textSchema,
 	transformSchema,
 	premountSchema,
+	premountStyleSchema,
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
 	RemotionRootContexts,
@@ -316,6 +323,7 @@ export const Internals = {
 	truthy,
 	SequenceContext,
 	PremountContext,
+	usePremounting,
 	useRemotionContexts,
 	RemotionContextProvider,
 	CSSUtils,
@@ -349,6 +357,7 @@ export const Internals = {
 	NonceContext,
 	resolveVideoConfig,
 	resolveVideoConfigOrCatch,
+	resolveVideoConfigWithMetadataOrCatch,
 	ResolveCompositionContext,
 	useResolvedVideoConfig,
 	resolveCompositionsRef,
@@ -365,6 +374,8 @@ export const Internals = {
 	BufferingProvider,
 	BufferingContextReact,
 	getComponentsToAddStacksTo,
+	getSequenceComponent,
+	getSingleChildComponent,
 	CurrentScaleContext,
 	PixelDensityContext,
 	PreviewSizeContext,
@@ -424,6 +435,7 @@ export const Internals = {
 
 export type {
 	ArrayFieldSchema,
+	AssetFieldSchema,
 	ArrayItemFieldSchema,
 	CannotUpdateSequenceReason,
 	CanUpdateEffectPropsResponse,

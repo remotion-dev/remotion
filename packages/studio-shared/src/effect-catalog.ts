@@ -423,6 +423,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-skew',
+		category: 'Distort',
+		label: 'skew()',
+		description: 'Skew the source on two axes',
+		effect: {
+			name: 'skew',
+			importPath: '@remotion/effects/skew',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-burlap',
 		category: 'Stylize',
 		label: 'burlap()',
@@ -671,6 +682,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {
 			name: 'checkerboard',
 			importPath: '@remotion/effects/checkerboard',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-flannel',
+		category: 'Generate',
+		label: 'flannel()',
+		description: 'Plaid woven fabric pattern',
+		effect: {
+			name: 'flannel',
+			importPath: '@remotion/effects/flannel',
 			config: {},
 		},
 	},

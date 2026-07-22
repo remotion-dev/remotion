@@ -7,3 +7,7 @@ export const setEntryPoint = (ep: string) => {
 export const getEntryPoint = () => {
 	return entryPoint;
 };
+
+export const resetEntryPoint = () => {
+	entryPoint = null;
+};

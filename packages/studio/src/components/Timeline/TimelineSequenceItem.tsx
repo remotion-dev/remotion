@@ -1,6 +1,10 @@
 import {type ReorderSequencePosition} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
-import type {SequencePropsSubscriptionKey, TSequence} from 'remotion';
+import type {
+	_InternalTypes,
+	SequencePropsSubscriptionKey,
+	TSequence,
+} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
@@ -12,6 +16,10 @@ import {
 	WHITE,
 } from '../../helpers/colors';
 import {formatFileLocation} from '../../helpers/format-file-location';
+import {
+	getConnectedCompositionFrame,
+	getSequenceDoubleClickAction,
+} from '../../helpers/get-sequence-double-click-action';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
@@ -23,6 +31,7 @@ import {
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {ModalsContext} from '../../state/modals';
 import {callApi} from '../call-api';
+import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {ContextMenu} from '../ContextMenu';
 import {
@@ -35,6 +44,7 @@ import {
 	ExpandedTracksGetterContext,
 	ExpandedTracksSetterContext,
 } from '../ExpandedTracksProvider';
+import {useSelectComposition} from '../InitialCompositionLoader';
 import {Spacing} from '../layout';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useSelectAsset} from '../use-select-asset';
@@ -52,6 +62,7 @@ import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineMediaInfo} from './TimelineMediaInfo';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
+	getTimelineColor,
 	isTimelineSelectionModifierEvent,
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
@@ -71,6 +82,12 @@ const labelContainerStyle: React.CSSProperties = {
 	minWidth: 0,
 };
 
+const connectedCompositionIconStyle: React.CSSProperties = {
+	flexShrink: 0,
+	height: 12,
+	width: 12,
+};
+
 const effectDropHighlight: React.CSSProperties = {
 	backgroundColor: TIMELINE_DROP_BLUE_ALPHA_16,
 	outline: BORDER_TIMELINE_DROP_BLUE,
@@ -82,7 +99,7 @@ const SEQUENCE_REORDER_MIME_TYPE = 'application/remotion-sequence-reorder';
 type SequenceReorderDragData = {
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly nodePathKey: string;
-	readonly trackIndex: number;
+	readonly siblingIndex: number;
 	readonly parentId: string | null;
 	readonly fileName: string;
 };
@@ -100,6 +117,7 @@ const TimelineSequenceExpandArrow: React.FC<{
 		sequence,
 		nodePathInfo,
 		includeTextContent: false,
+		includeSourceControls: false,
 	});
 
 	if (filteredTree.length === 0) {
@@ -128,6 +146,16 @@ const sequenceReorderLineBase: React.CSSProperties = {
 	position: 'absolute',
 	right: 0,
 	zIndex: 1,
+};
+
+const sequenceReorderAfterLineWrapper: React.CSSProperties = {
+	height: 0,
+	position: 'relative',
+};
+
+const sequenceReorderAfterLine: React.CSSProperties = {
+	...sequenceReorderLineBase,
+	top: -1,
 };
 
 const sequenceReorderRejectionStyle: React.CSSProperties = {
@@ -172,7 +200,7 @@ const getSequenceReorderDragData = (
 		const parsed = JSON.parse(value) as SequenceReorderDragData;
 		if (
 			typeof parsed.nodePathKey === 'string' &&
-			typeof parsed.trackIndex === 'number' &&
+			typeof parsed.siblingIndex === 'number' &&
 			(typeof parsed.parentId === 'string' || parsed.parentId === null) &&
 			typeof parsed.fileName === 'string' &&
 			parsed.nodePath &&
@@ -209,19 +237,23 @@ type SequenceDropTarget =
 	  };
 
 export const TimelineSequenceItem: React.FC<{
+	readonly children: React.ReactNode;
 	readonly sequence: TSequence;
+	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 	readonly nestedDepth: number;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly keyframeDisplayOffset: number;
 	readonly sequenceFrameOffset: number;
-	readonly trackIndex: number;
+	readonly siblingIndex: number;
 }> = ({
+	children,
+	connectedCompositions,
 	nestedDepth,
 	sequence,
 	nodePathInfo,
 	keyframeDisplayOffset,
 	sequenceFrameOffset,
-	trackIndex,
+	siblingIndex,
 }) => {
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -233,6 +265,7 @@ export const TimelineSequenceItem: React.FC<{
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {isHighestContext} = useKeybinding();
 	const selectAsset = useSelectAsset();
+	const selectComposition = useSelectComposition();
 	const {onSelect, selectable, selected, selectionItem} =
 		useTimelineRowSelection(nodePathInfo);
 	const {selectedItems} = useTimelineSelection();
@@ -245,7 +278,6 @@ export const TimelineSequenceItem: React.FC<{
 		string | null
 	>(null);
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-
 	const {canOpenInEditor, openInEditor, originalLocation} =
 		useOpenSequenceInEditor(sequence);
 	const fileLocation = useMemo(
@@ -288,6 +320,10 @@ export const TimelineSequenceItem: React.FC<{
 		sequence,
 		validatedLocation,
 	});
+	const timelineDisplayName =
+		sequence.displayName === '' && connectedCompositions.length === 1
+			? connectedCompositions[0].id
+			: displayName;
 
 	const canDeleteFromSource = Boolean(nodePath && validatedLocation?.source);
 	const nodePathKey = useMemo(
@@ -433,13 +469,13 @@ export const TimelineSequenceItem: React.FC<{
 
 			const rect = e.currentTarget.getBoundingClientRect();
 			const before = e.clientY < rect.top + rect.height / 2;
-			const insertionIndex = before ? trackIndex : trackIndex + 1;
+			const insertionIndex = before ? siblingIndex : siblingIndex + 1;
 			const toIndex = getDestinationIndex({
-				fromIndex: dragData.trackIndex,
+				fromIndex: dragData.siblingIndex,
 				insertionIndex,
 			});
 
-			if (toIndex === dragData.trackIndex) {
+			if (toIndex === dragData.siblingIndex) {
 				return {
 					type: 'invalid',
 					reason: 'This sequence is already in that position.',
@@ -457,7 +493,7 @@ export const TimelineSequenceItem: React.FC<{
 			nodePathInfo?.numberOfSequencesWithThisNodePath,
 			nodePathKey,
 			parentId,
-			trackIndex,
+			siblingIndex,
 			validatedLocation?.source,
 		],
 	);
@@ -477,7 +513,7 @@ export const TimelineSequenceItem: React.FC<{
 			const dragData = {
 				nodePath,
 				nodePathKey,
-				trackIndex,
+				siblingIndex,
 				parentId,
 				fileName: validatedLocation.source,
 			};
@@ -494,7 +530,7 @@ export const TimelineSequenceItem: React.FC<{
 			nodePath,
 			nodePathKey,
 			parentId,
-			trackIndex,
+			siblingIndex,
 			validatedLocation?.source,
 		],
 	);
@@ -724,22 +760,50 @@ export const TimelineSequenceItem: React.FC<{
 		codeHiddenStatus !== null &&
 		codeHiddenStatus.status === 'static';
 
-	const onShowInEditorDoubleClick = useCallback(
+	const onSequenceDoubleClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
-			if (!canOpenInEditor) {
-				return;
-			}
-
 			if (isTimelineSelectionModifierEvent(e)) {
 				e.stopPropagation();
 				return;
 			}
 
+			const action = getSequenceDoubleClickAction({
+				button: e.button,
+				canOpenInEditor,
+				numberOfConnectedCompositions: connectedCompositions.length,
+			});
+			if (action === null) {
+				return;
+			}
+
 			e.stopPropagation();
+			if (action === 'open-connected-composition') {
+				selectComposition(
+					connectedCompositions[0],
+					true,
+					getConnectedCompositionFrame({
+						timelinePosition,
+						sequence,
+						sequenceFrameOffset,
+					}),
+				);
+				return;
+			}
+
 			openInEditor();
 		},
-		[canOpenInEditor, openInEditor],
+		[
+			canOpenInEditor,
+			connectedCompositions,
+			openInEditor,
+			selectComposition,
+			sequence,
+			sequenceFrameOffset,
+			timelinePosition,
+		],
 	);
+	const canHandleSequenceDoubleClick =
+		connectedCompositions.length === 1 || canOpenInEditor;
 
 	const canRenameSelectedSequence =
 		canRenameThisSequence &&
@@ -937,13 +1001,13 @@ export const TimelineSequenceItem: React.FC<{
 		sequence.controls?.supportsEffects === true;
 
 	const sequenceReorderLineStyle = useMemo((): React.CSSProperties | null => {
-		if (!sequenceDropIndicator) {
+		if (sequenceDropIndicator !== 'before') {
 			return null;
 		}
 
 		return {
 			...sequenceReorderLineBase,
-			...(sequenceDropIndicator === 'before' ? {top: -1} : {bottom: -1}),
+			top: -1,
 		};
 	}, [sequenceDropIndicator]);
 
@@ -1052,11 +1116,23 @@ export const TimelineSequenceItem: React.FC<{
 			onDragLeave={canDropEffect ? onEffectDragLeave : undefined}
 			onDragOver={canDropEffect ? onEffectDragOver : undefined}
 			onDrop={canDropEffect ? onEffectDrop : undefined}
-			onDoubleClick={canOpenInEditor ? onShowInEditorDoubleClick : undefined}
+			onDoubleClick={
+				canHandleSequenceDoubleClick ? onSequenceDoubleClick : undefined
+			}
 		>
 			<div style={labelContainerStyle}>
+				{connectedCompositions.length > 0 ? (
+					<>
+						<CompositionOrStillIcon
+							color={getTimelineColor(false, false)}
+							composition={connectedCompositions[0]}
+							style={connectedCompositionIconStyle}
+						/>
+						<Spacing x={0.5} />
+					</>
+				) : null}
 				<TimelineSequenceName
-					displayName={displayName}
+					displayName={timelineDisplayName}
 					fallbackDisplayName={fallbackDisplayName}
 					selected={selected}
 					containsSelection={containsSelection}
@@ -1120,6 +1196,12 @@ export const TimelineSequenceItem: React.FC<{
 					nestedDepth={nestedDepth}
 					keyframeDisplayOffset={keyframeDisplayOffset}
 				/>
+			) : null}
+			{children}
+			{sequenceDropIndicator === 'after' ? (
+				<div style={sequenceReorderAfterLineWrapper}>
+					<div style={sequenceReorderAfterLine} />
+				</div>
 			) : null}
 		</>
 	);

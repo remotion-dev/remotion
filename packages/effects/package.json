@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.490",
+	"version": "4.0.496",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -48,6 +48,11 @@
 			"types": "./dist/burlap.d.ts",
 			"module": "./dist/esm/burlap.mjs",
 			"import": "./dist/esm/burlap.mjs"
+		},
+		"./flannel": {
+			"types": "./dist/flannel.d.ts",
+			"module": "./dist/esm/flannel.mjs",
+			"import": "./dist/esm/flannel.mjs"
 		},
 		"./checkerboard": {
 			"types": "./dist/checkerboard.d.ts",
@@ -264,6 +269,11 @@
 			"module": "./dist/esm/shrinkwrap.mjs",
 			"import": "./dist/esm/shrinkwrap.mjs"
 		},
+		"./skew": {
+			"types": "./dist/skew.d.ts",
+			"module": "./dist/esm/skew.mjs",
+			"import": "./dist/esm/skew.mjs"
+		},
 		"./speckle": {
 			"types": "./dist/speckle.d.ts",
 			"module": "./dist/esm/speckle.mjs",
@@ -336,6 +346,9 @@
 			],
 			"burlap": [
 				"dist/burlap.d.ts"
+			],
+			"flannel": [
+				"dist/flannel.d.ts"
 			],
 			"checkerboard": [
 				"dist/checkerboard.d.ts"
@@ -465,6 +478,9 @@
 			],
 			"shrinkwrap": [
 				"dist/shrinkwrap.d.ts"
+			],
+			"skew": [
+				"dist/skew.d.ts"
 			],
 			"speckle": [
 				"dist/speckle.d.ts"

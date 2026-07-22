@@ -8,7 +8,6 @@ import React, {
 	useRef,
 } from 'react';
 import type {SequenceControls} from './CompositionManager.js';
-import {delayRender} from './delay-render.js';
 import type {EffectsProp} from './effects/effect-types.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
@@ -27,7 +26,6 @@ import type {AbsoluteFillLayout} from './Sequence.js';
 import {Sequence} from './Sequence.js';
 import {useDelayRender} from './use-delay-render.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
-import {useVideoConfig} from './use-video-config.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 // IDL: https://github.com/WICG/html-in-canvas#idl-changes
@@ -373,7 +371,7 @@ const HtmlInCanvasContent = forwardRef<
 		const resolvedPixelDensity = resolveHtmlInCanvasPixelDensity(pixelDensity);
 		const canvasWidth = Math.ceil(width * resolvedPixelDensity);
 		const canvasHeight = Math.ceil(height * resolvedPixelDensity);
-		const {continueRender, cancelRender} = useDelayRender();
+		const {delayRender, continueRender, cancelRender} = useDelayRender();
 		const {isClientSideRendering, isRendering} = useRemotionEnvironment();
 		const canRetryMissingPaintRecord = !isRendering || isClientSideRendering;
 		const usesDirectLayoutCanvas =
@@ -580,6 +578,7 @@ const HtmlInCanvasContent = forwardRef<
 			chainState,
 			continueRender,
 			cancelRender,
+			delayRender,
 			resolvedPixelDensity,
 			canRetryMissingPaintRecord,
 		]);
@@ -660,7 +659,7 @@ const HtmlInCanvasContent = forwardRef<
 			return () => {
 				continueRender(handle);
 			};
-		}, [width, height, continueRender, canvasSizeKey]);
+		}, [width, height, continueRender, delayRender, canvasSizeKey]);
 
 		const innerStyle = useMemo(() => {
 			return {
@@ -728,9 +727,6 @@ const HtmlInCanvasInner = forwardRef<
 		},
 		ref,
 	) => {
-		const {durationInFrames: videoDuration} = useVideoConfig();
-		const resolvedDuration = durationInFrames ?? videoDuration;
-
 		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 		const actualRef = useRef<HTMLCanvasElement | null>(null);
 		const setCanvasRef = useCallback(
@@ -747,7 +743,7 @@ const HtmlInCanvasInner = forwardRef<
 
 		return (
 			<Sequence
-				durationInFrames={resolvedDuration}
+				durationInFrames={durationInFrames}
 				name={name ?? '<HtmlInCanvas>'}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/remotion/html-in-canvas"
 				controls={controls}

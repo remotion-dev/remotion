@@ -17,7 +17,7 @@ import {
 } from '../Timeline/call-update-keyframe-settings';
 import type {SelectedEasingUpdate} from '../Timeline/update-selected-easing';
 import {InspectorDetailRow, InspectorSectionHeader} from './common';
-import {detailsContainer, inspectorSectionDivider} from './styles';
+import {detailsContainer} from './styles';
 
 const comboStyle: React.CSSProperties = {
 	minWidth: 120,
@@ -202,7 +202,6 @@ export const KeyframeSettings: React.FC<{
 
 	return (
 		<>
-			<div style={inspectorSectionDivider} />
 			<InspectorSectionHeader>Keyframe settings</InspectorSectionHeader>
 			<div style={keyframeSettingsContainer}>
 				{canEditInterpolationSettings ? (
@@ -213,7 +212,7 @@ export const KeyframeSettings: React.FC<{
 								selectedId={propStatus.clamping.left}
 								title="Extrapolate left"
 								style={comboStyle}
-								small
+								size="small"
 							/>
 						</InspectorDetailRow>
 						<InspectorDetailRow label="Extrapolate right">
@@ -222,7 +221,7 @@ export const KeyframeSettings: React.FC<{
 								selectedId={propStatus.clamping.right}
 								title="Extrapolate right"
 								style={comboStyle}
-								small
+								size="small"
 							/>
 						</InspectorDetailRow>
 						<InspectorDetailRow label="Output">
@@ -231,7 +230,7 @@ export const KeyframeSettings: React.FC<{
 								selectedId={propStatus.output ?? 'linear'}
 								title="Output"
 								style={comboStyle}
-								small
+								size="small"
 							/>
 						</InspectorDetailRow>
 					</>

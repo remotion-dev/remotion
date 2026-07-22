@@ -8,6 +8,7 @@ import {
 	renderHumanReadableAudioCodec,
 	renderHumanReadableVideoCodec,
 } from '../helpers/render-codec-label';
+import {useImageMetadata} from '../helpers/use-image-metadata';
 import type {MediaMetadata} from '../helpers/use-media-metadata';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
 import {InlineEditableTitle} from './InlineEditableTitle';
@@ -16,6 +17,7 @@ import {
 	InspectorInfoHeader,
 	InspectorInfoSubtitle,
 } from './InspectorInfoHeader';
+import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 import {
 	getStaticFileRenameSelection,
 	useRenameStaticFile,
@@ -31,6 +33,18 @@ export const getCurrentAssetMetadataSource = (assetName: string | null) => {
 
 	const fileType = getPreviewFileType(assetName);
 	return fileType === 'audio' || fileType === 'video'
+		? staticFile(assetName)
+		: null;
+};
+
+export const getCurrentAssetImageMetadataSource = (
+	assetName: string | null,
+) => {
+	if (!assetName) {
+		return null;
+	}
+
+	return getPreviewFileType(assetName) === 'image'
 		? staticFile(assetName)
 		: null;
 };
@@ -75,15 +89,14 @@ export const getCurrentAssetMediaDetailLines = (
 	return detailLines;
 };
 
-export const CurrentAsset: React.FC<{
+export const AssetInfo: React.FC<{
+	readonly assetName: string | null;
+	readonly contentSized?: boolean;
+	readonly onAssetClick?: () => void;
 	readonly readOnlyStudio: boolean;
-}> = ({readOnlyStudio}) => {
-	const {canvasContent} = useContext(Internals.CompositionManager);
+}> = ({assetName, contentSized = false, onAssetClick, readOnlyStudio}) => {
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
-
-	const assetName =
-		canvasContent?.type === 'asset' ? canvasContent.asset : null;
 
 	const staticFiles = useStaticFiles();
 	const renameFile = useRenameStaticFile({
@@ -102,7 +115,12 @@ export const CurrentAsset: React.FC<{
 
 	const src = getCurrentAssetMetadataSource(assetName);
 	const mediaMetadata = useMediaMetadata(src);
-	const canRename = connectionStatus === 'connected' && !readOnlyStudio;
+	const imageSrc = getCurrentAssetImageMetadataSource(assetName);
+	const imageMetadata = useImageMetadata(imageSrc);
+	const canRename =
+		onAssetClick === undefined &&
+		connectionStatus === 'connected' &&
+		!readOnlyStudio;
 	const onRename = useCallback(
 		(newName: string) => {
 			renameFile(newName).catch(() => undefined);
@@ -111,7 +129,7 @@ export const CurrentAsset: React.FC<{
 	);
 
 	if (!assetName) {
-		return <InspectorInfoHeader />;
+		return <InspectorInfoHeader contentSized={contentSized} />;
 	}
 
 	const fileName = assetName.split('/').pop() ?? assetName;
@@ -129,6 +147,9 @@ export const CurrentAsset: React.FC<{
 		if (mediaMetadata.width !== null && mediaMetadata.height !== null) {
 			subtitleParts.push(`${mediaMetadata.width}x${mediaMetadata.height}`);
 		}
+	} else if (imageMetadata) {
+		subtitleParts.push(imageMetadata.format);
+		subtitleParts.push(`${imageMetadata.width}x${imageMetadata.height}`);
 	}
 
 	const mediaDetailLines = mediaMetadata
@@ -136,27 +157,51 @@ export const CurrentAsset: React.FC<{
 		: [];
 
 	return (
-		<InspectorInfoHeader>
+		<InspectorInfoHeader
+			contentSized={contentSized}
+			padding={
+				contentSized ? `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 6px` : '4px 0'
+			}
+		>
 			<InlineEditableTitle
 				value={fileName}
 				canRename={canRename}
 				getInitialSelection={getStaticFileRenameSelection}
+				onClick={onAssetClick}
 				onCommit={onRename}
+				size={contentSized ? 'default' : 'inspector'}
 				title={assetName}
 			/>
 			{subtitleParts.length > 0 ? (
-				<InspectorInfoSubtitle>
+				<InspectorInfoSubtitle size={contentSized ? 'default' : 'inspector'}>
 					{subtitleParts.join(' · ')}
 				</InspectorInfoSubtitle>
 			) : null}
 			{mediaMetadata ? (
-				<InspectorInfoSubtitle>
+				<InspectorInfoSubtitle size={contentSized ? 'default' : 'inspector'}>
 					{formatMediaDuration(mediaMetadata.duration)}
 				</InspectorInfoSubtitle>
 			) : null}
 			{mediaDetailLines.map((line) => {
-				return <InspectorInfoSubtitle key={line}>{line}</InspectorInfoSubtitle>;
+				return (
+					<InspectorInfoSubtitle
+						key={line}
+						size={contentSized ? 'default' : 'inspector'}
+					>
+						{line}
+					</InspectorInfoSubtitle>
+				);
 			})}
 		</InspectorInfoHeader>
 	);
+};
+
+export const CurrentAsset: React.FC<{
+	readonly readOnlyStudio: boolean;
+}> = ({readOnlyStudio}) => {
+	const {canvasContent} = useContext(Internals.CompositionManager);
+	const assetName =
+		canvasContent?.type === 'asset' ? canvasContent.asset : null;
+
+	return <AssetInfo assetName={assetName} readOnlyStudio={readOnlyStudio} />;
 };

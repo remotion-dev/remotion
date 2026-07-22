@@ -1,0 +1,84 @@
+---
+image: /generated/articles-docs-effects-flannel.png
+slug: /effects/flannel
+title: flannel()
+sidebar_label: flannel()
+crumb: '@remotion/effects'
+---
+
+# flannel()<AvailableFrom v="4.0.491" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Generates a plaid woven-fabric pattern on a [`<Solid>`](/docs/solid).
+
+The solid color supplies an opaque base for the fabric pattern.
+
+## Preview
+
+<EffectsDemo type="effects-flannel" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {Solid} from 'remotion';
+import {flannel} from '@remotion/effects/flannel';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Solid
+      width={1280}
+      height={720}
+      color="#c92f3d"
+      effects={[
+        flannel({
+          amount: 0.8,
+          size: 96,
+          softness: 0.18,
+          baseColor: '#c92f3d',
+          stripeColor: '#241015',
+        }),
+      ]}
+    />
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `flannel()` without arguments.
+
+### `amount?`
+
+Strength from `0` to `1`. Defaults to `0.7`. Use `0` to leave the layer unchanged.
+
+### `size?`
+
+Width of one plaid repeat in pixels. Defaults to `96`. Must be greater than `0`.
+
+### `softness?`
+
+Softness of the woven stripe edges from `0` to `1`. Defaults to `0.18`.
+
+### `baseColor?`
+
+Main fabric color. Defaults to `#c92f3d`.
+
+### `stripeColor?`
+
+Color of the crossing stripes. Defaults to `#241015`. Alpha controls how strongly the stripes cover the base color.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`flannel()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`burlap()`](/docs/effects/burlap)
+- [`pattern()`](/docs/effects/pattern)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/flannel.ts)

@@ -64,7 +64,7 @@ export const CodemodFooter: React.FC<{
 	readonly valid: boolean;
 	readonly codemod: RecastCodemod;
 	readonly stack: string | null;
-	readonly loadingNotification: React.ReactNode;
+	readonly loadingNotification: React.ReactNode | null;
 	readonly successNotification: React.ReactNode;
 	readonly errorNotification: string;
 	readonly genericSubmitLabel: string;
@@ -102,7 +102,10 @@ export const CodemodFooter: React.FC<{
 	const trigger = useCallback(() => {
 		setSubmitting(true);
 		setSelectedModal(null);
-		const notification = showNotification(loadingNotification, null);
+		const notification =
+			loadingNotification === null
+				? null
+				: showNotification(loadingNotification, null);
 
 		applyCodemod({
 			symbolicatedStack,
@@ -110,21 +113,31 @@ export const CodemodFooter: React.FC<{
 		})
 			.then((result) => {
 				if (!result.success) {
-					notification.replaceContent(
-						`${errorNotification}: ${result.reason}`,
-						2000,
-					);
+					const message = `${errorNotification}: ${result.reason}`;
+					if (notification) {
+						notification.replaceContent(message, 2000);
+					} else {
+						showNotification(message, 2000);
+					}
+
 					return;
 				}
 
-				notification.replaceContent(successNotification, 2000);
+				if (notification) {
+					notification.replaceContent(successNotification, 2000);
+				} else {
+					showNotification(successNotification, 2000);
+				}
+
 				onSuccess?.();
 			})
 			.catch((err) => {
-				notification.replaceContent(
-					`${errorNotification}: ${(err as Error).message}`,
-					2000,
-				);
+				const message = `${errorNotification}: ${(err as Error).message}`;
+				if (notification) {
+					notification.replaceContent(message, 2000);
+				} else {
+					showNotification(message, 2000);
+				}
 			});
 	}, [
 		applyCodemod,

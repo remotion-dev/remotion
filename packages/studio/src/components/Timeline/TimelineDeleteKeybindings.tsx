@@ -83,6 +83,8 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 				setPropStatuses,
 				clientId,
 				confirm,
+				propStatuses,
+				timelinePosition: timelinePositionRef.current,
 			});
 
 			if (deletePromise !== null) {

@@ -1,11 +1,15 @@
 import type {ComponentType} from 'react';
 import {LiquidContours} from '../../../elements/backgrounds/liquid-contours/liquid-contours';
+import {NotebookPaper} from '../../../elements/backgrounds/notebook-paper/notebook-paper';
 import {PaperTexture} from '../../../elements/backgrounds/paper-texture/paper-texture';
 import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburst/rotating-starburst';
+import {DataSeriesChart} from '../../../elements/data/data-series-chart/data-series-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
-import {LowerThird} from '../../../elements/overlays/lower-third/lower-third';
+import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
+import {NameLowerThird} from '../../../elements/overlays/lower-third/lower-third';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
+import {NewsArticleHeadlineHighlight} from '../../../elements/text/news-article-headline-highlight/news-article-headline-highlight';
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
 import {TextMarker} from '../../../elements/text/text-marker/text-marker';
 import type {Contributor} from '../Credits';
@@ -45,6 +49,22 @@ export const elementDefinitions = {
 		slug: 'backgrounds/liquid-contours',
 		width: 1920,
 	},
+	'backgrounds/notebook-paper': {
+		category: 'backgrounds',
+		component: NotebookPaper,
+		contributors: [],
+		description: 'A white paper background with subtle blue gridlines.',
+		displayName: 'Notebook Paper',
+		durationInFrames: 120,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 0,
+		previewPadding: 0,
+		slug: 'backgrounds/notebook-paper',
+		width: 1920,
+	},
 	'backgrounds/paper-texture': {
 		category: 'backgrounds',
 		component: PaperTexture,
@@ -78,13 +98,29 @@ export const elementDefinitions = {
 		slug: 'backgrounds/rotating-starburst',
 		width: 1920,
 	},
+	'overlays/location-lower-third': {
+		category: 'overlays',
+		component: LocationLowerThird,
+		contributors: [],
+		description: 'An animated lower third for an event location and venue.',
+		displayName: 'Location Lower Third',
+		durationInFrames: 120,
+		elementHeight: 138,
+		elementWidth: 680,
+		fps: 30,
+		height: 1080,
+		posterFrame: 60,
+		previewPadding: 300,
+		slug: 'overlays/location-lower-third',
+		width: 1920,
+	},
 	'overlays/lower-third': {
 		category: 'overlays',
-		component: LowerThird,
+		component: NameLowerThird,
 		contributors: [],
 		description:
-			'A clean animated lower third for introducing a speaker, guest, or section.',
-		displayName: 'Lower Third',
+			'A clean animated lower third for introducing a speaker, guest, or host.',
+		displayName: 'Name Lower Third',
 		durationInFrames: 120,
 		elementHeight: 138,
 		elementWidth: 680,
@@ -93,6 +129,23 @@ export const elementDefinitions = {
 		posterFrame: 60,
 		previewPadding: 300,
 		slug: 'overlays/lower-third',
+		width: 1920,
+	},
+	'data/data-series-chart': {
+		category: 'data',
+		component: DataSeriesChart,
+		contributors: [],
+		description:
+			'An animated combination chart with sequential revenue bars and a glowing conversion line.',
+		displayName: 'Data Series Chart',
+		durationInFrames: 120,
+		elementHeight: 864,
+		elementWidth: 1560,
+		fps: 30,
+		height: 1080,
+		posterFrame: 88,
+		previewPadding: 56,
+		slug: 'data/data-series-chart',
 		width: 1920,
 	},
 	'data/number-counter': {
@@ -149,6 +202,23 @@ export const elementDefinitions = {
 		posterFrame: 60,
 		previewPadding: 120,
 		slug: 'text/crossed-off',
+		width: 1920,
+	},
+	'text/news-article-headline-highlight': {
+		category: 'text',
+		component: NewsArticleHeadlineHighlight,
+		contributors: [],
+		description:
+			'A framed news article with camera movement, blur, and animated passage highlights.',
+		displayName: 'News Article Headline Highlight',
+		durationInFrames: 150,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 100,
+		previewPadding: 0,
+		slug: 'text/news-article-headline-highlight',
 		width: 1920,
 	},
 	'text/strike-through': {

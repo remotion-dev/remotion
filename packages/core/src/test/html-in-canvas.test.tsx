@@ -2,6 +2,7 @@ import {afterEach, expect, test} from 'bun:test';
 import {cleanup, render, waitFor} from '@testing-library/react';
 import React, {useCallback, useMemo} from 'react';
 import type {TSequence} from '../CompositionManager.js';
+import type {DelayRenderScope} from '../delay-render.js';
 import type {HtmlInCanvasOnPaintParams} from '../HtmlInCanvas.js';
 import {HtmlInCanvas} from '../HtmlInCanvas.js';
 import {Internals} from '../internals.js';
@@ -161,11 +162,15 @@ const SequenceTestWrapper: React.FC<{
 	readonly onRegisterSequence: (sequence: TSequence) => void;
 	readonly isRendering?: boolean;
 	readonly isClientSideRendering?: boolean;
+	readonly compositionDurationInFrames?: number;
+	readonly currentFrame?: number;
 }> = ({
 	children,
 	onRegisterSequence,
 	isRendering = false,
 	isClientSideRendering = false,
+	compositionDurationInFrames,
+	currentFrame,
 }) => {
 	const registerSequence = useCallback(
 		(sequence: TSequence) => {
@@ -215,7 +220,10 @@ const SequenceTestWrapper: React.FC<{
 	);
 
 	return (
-		<WrapSequenceContext>
+		<WrapSequenceContext
+			compositionDurationInFrames={compositionDurationInFrames}
+			currentFrame={currentFrame}
+		>
 			<Internals.RemotionEnvironmentContext
 				value={{
 					isClientSideRendering,
@@ -240,6 +248,22 @@ const SequenceTestWrapper: React.FC<{
 		</WrapSequenceContext>
 	);
 };
+
+test('<HtmlInCanvas> remains visible with a negative offset', () => {
+	const {queryByText} = render(
+		<SequenceTestWrapper
+			compositionDurationInFrames={100}
+			currentFrame={75}
+			onRegisterSequence={() => undefined}
+		>
+			<HtmlInCanvas from={-100} width={120} height={80}>
+				<div>Still visible</div>
+			</HtmlInCanvas>
+		</SequenceTestWrapper>,
+	);
+
+	expect(queryByText('Still visible')).not.toBeNull();
+});
 
 test('<HtmlInCanvas> registers its canvas for outline selection', async () => {
 	const registeredSequences: TSequence[] = [];
@@ -527,6 +551,54 @@ test('<HtmlInCanvas> lets onInit choose a WebGL2 context', async () => {
 	await waitFor(() => {
 		expect(gotWebGl2Context).toBe(true);
 		expect(paintCalled).toBe(true);
+	});
+});
+
+test('<HtmlInCanvas> uses the scoped delayRender handles', async () => {
+	const delayRenderScope: DelayRenderScope = {
+		remotion_attempt: 0,
+		remotion_delayRenderHandles: [],
+		remotion_delayRenderTimeouts: {},
+		remotion_puppeteerTimeout: 30_000,
+		remotion_renderReady: true,
+	};
+	let resolvePaint!: () => void;
+	const paintPromise = new Promise<void>((resolve) => {
+		resolvePaint = resolve;
+	});
+
+	const {container} = render(
+		<Internals.DelayRenderContextType.Provider value={delayRenderScope}>
+			<SequenceTestWrapper
+				isClientSideRendering
+				isRendering
+				onRegisterSequence={() => undefined}
+			>
+				<HtmlInCanvas width={50} height={50} onPaint={() => paintPromise}>
+					<div>Test</div>
+				</HtmlInCanvas>
+			</SequenceTestWrapper>
+		</Internals.DelayRenderContextType.Provider>,
+	);
+
+	await waitFor(() => {
+		expect(delayRenderScope.remotion_delayRenderHandles).toHaveLength(1);
+	});
+	expect(window.remotion_delayRenderHandles).toHaveLength(0);
+
+	const canvas = container.querySelector('canvas')!;
+	canvas.dispatchEvent(new Event('paint'));
+
+	await waitFor(() => {
+		expect(delayRenderScope.remotion_delayRenderHandles).toHaveLength(1);
+		expect(delayRenderScope.remotion_renderReady).toBe(false);
+	});
+	expect(window.remotion_delayRenderHandles).toHaveLength(0);
+
+	resolvePaint();
+	await waitFor(() => {
+		expect(delayRenderScope.remotion_delayRenderHandles).toHaveLength(0);
+		expect(delayRenderScope.remotion_renderReady).toBe(true);
 	});
 });
 

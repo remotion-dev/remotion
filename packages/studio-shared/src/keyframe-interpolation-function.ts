@@ -8,6 +8,57 @@ export const keyframeInterpolationFunctions = [
 export type KeyframeInterpolationFunction =
 	(typeof keyframeInterpolationFunctions)[number];
 
+// Keep these tables exhaustive so every schema field requires explicit
+// keyframe and interpolation decisions.
+const KEYFRAME_FIELD_TYPE_SUPPORT = {
+	array: false,
+	asset: false,
+	boolean: false,
+	color: true,
+	enum: false,
+	'font-family': false,
+	hidden: true,
+	number: true,
+	'rotation-css': true,
+	'rotation-degrees': true,
+	scale: true,
+	'text-content': false,
+	'transform-origin': true,
+	translate: true,
+	'uv-coordinate': true,
+} as const satisfies Record<InteractivitySchemaField['type'], boolean>;
+
+type KeyframeInterpolationStrategy =
+	| KeyframeInterpolationFunction
+	| 'infer'
+	| 'unsupported';
+
+const KEYFRAME_FIELD_TYPE_INTERPOLATION = {
+	array: 'unsupported',
+	asset: 'unsupported',
+	boolean: 'unsupported',
+	color: 'interpolateColors',
+	enum: 'unsupported',
+	'font-family': 'unsupported',
+	hidden: 'infer',
+	number: 'infer',
+	'rotation-css': 'interpolate',
+	'rotation-degrees': 'infer',
+	scale: 'interpolate',
+	'text-content': 'unsupported',
+	'transform-origin': 'interpolate',
+	translate: 'interpolate',
+	'uv-coordinate': 'infer',
+} as const satisfies Record<
+	InteractivitySchemaField['type'],
+	KeyframeInterpolationStrategy
+>;
+
+const KEYFRAME_INTERPOLATION_EASING_SUPPORT = {
+	interpolate: true,
+	interpolateColors: true,
+} as const satisfies Record<KeyframeInterpolationFunction, boolean>;
+
 export const isKeyframeInterpolationFunction = (
 	name: string,
 ): name is KeyframeInterpolationFunction => {
@@ -16,6 +67,12 @@ export const isKeyframeInterpolationFunction = (
 	);
 };
 
+export const canEditEasingForInterpolationFunction = (
+	interpolationFunction: string,
+): boolean =>
+	isKeyframeInterpolationFunction(interpolationFunction) &&
+	KEYFRAME_INTERPOLATION_EASING_SUPPORT[interpolationFunction];
+
 export const isInteractivitySchemaFieldKeyframable = (
 	field: InteractivitySchemaField | undefined,
 ): boolean => {
@@ -23,16 +80,7 @@ export const isInteractivitySchemaFieldKeyframable = (
 		return true;
 	}
 
-	if (
-		field.type === 'array' ||
-		field.type === 'boolean' ||
-		field.type === 'enum' ||
-		field.type === 'font-family'
-	) {
-		return false;
-	}
-
-	return field.keyframable !== false;
+	return KEYFRAME_FIELD_TYPE_SUPPORT[field.type] && field.keyframable !== false;
 };
 
 const findFieldInSchema = (
@@ -79,20 +127,12 @@ export const getKeyframeInterpolationFunctionForSchemaField = ({
 }): KeyframeInterpolationFunction | null => {
 	const field = schema ? findFieldInSchema(schema, key) : undefined;
 
-	if (field?.type === 'color') {
-		return 'interpolateColors';
+	if (!field) {
+		return null;
 	}
 
-	if (
-		field?.type === 'scale' ||
-		field?.type === 'translate' ||
-		field?.type === 'transform-origin' ||
-		field?.type === 'rotation-css'
-	) {
-		return 'interpolate';
-	}
-
-	return null;
+	const strategy = KEYFRAME_FIELD_TYPE_INTERPOLATION[field.type];
+	return strategy === 'infer' || strategy === 'unsupported' ? null : strategy;
 };
 
 export const getKeyframeInterpolationFunction = ({

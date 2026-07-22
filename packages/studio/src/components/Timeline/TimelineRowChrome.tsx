@@ -1,11 +1,11 @@
-import React, {useCallback, useMemo, useRef} from 'react';
+import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import {Padder} from './Padder';
 import {
-	TIMELINE_ROW_BASE_PADDING,
 	getTimelineRowIndentWidth,
 	getTimelineRowLeftChromeWidth,
 } from './timeline-row-layout';
+import {TimelineRowLayoutContext} from './TimelineRowLayoutContext';
 import type {TimelineSelectionInteraction} from './TimelineSelection';
 import {
 	getTimelineRowHighlightBackground,
@@ -27,11 +27,9 @@ const leftChromeStyle: React.CSSProperties = {
 
 const keyframeControlsColumnBaseStyle: React.CSSProperties = {
 	alignItems: 'center',
-	boxSizing: 'border-box',
 	display: 'flex',
 	flexShrink: 0,
 	justifyContent: 'flex-start',
-	paddingLeft: TIMELINE_ROW_BASE_PADDING,
 };
 
 export const TimelineRowChrome: React.FC<{
@@ -75,15 +73,23 @@ export const TimelineRowChrome: React.FC<{
 	onDoubleClick,
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
+	const {
+		basePadding,
+		keyframeControlsPadding,
+		rowBorderRadius,
+		rowHorizontalMargin,
+	} = useContext(TimelineRowLayoutContext);
 	const indentWidth = getTimelineRowIndentWidth(depth);
 	useTimelineFocusableItem(selectionItem, ref);
 
 	const keyframeControlsColumnStyle = useMemo(
 		(): React.CSSProperties => ({
 			...keyframeControlsColumnBaseStyle,
-			width: getTimelineRowLeftChromeWidth(depth),
+			boxSizing: keyframeControlsPadding === 0 ? undefined : 'border-box',
+			paddingLeft: keyframeControlsPadding,
+			width: getTimelineRowLeftChromeWidth(depth, basePadding),
 		}),
-		[depth],
+		[basePadding, depth, keyframeControlsPadding],
 	);
 
 	const chromeColumnStyle = useMemo(
@@ -92,9 +98,9 @@ export const TimelineRowChrome: React.FC<{
 			alignSelf: 'stretch',
 			display: 'flex',
 			flexShrink: 0,
-			paddingLeft: TIMELINE_ROW_BASE_PADDING,
+			paddingLeft: basePadding,
 		}),
-		[],
+		[basePadding],
 	);
 
 	const onPointerDown = useCallback(
@@ -129,8 +135,16 @@ export const TimelineRowChrome: React.FC<{
 			...rowBase,
 			...style,
 			backgroundColor: outerHeight === null ? highlightBackground : undefined,
+			borderRadius: rowBorderRadius,
+			margin: `0 ${rowHorizontalMargin}px`,
 		}),
-		[style, outerHeight, highlightBackground],
+		[
+			style,
+			outerHeight,
+			highlightBackground,
+			rowBorderRadius,
+			rowHorizontalMargin,
+		],
 	);
 
 	const outerStyle = useMemo((): React.CSSProperties | undefined => {

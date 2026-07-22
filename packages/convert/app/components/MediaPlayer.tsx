@@ -131,6 +131,7 @@ export function VideoPlayer({
 }) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const playerRef = useRef<PlayerRef>(null);
+	const trimFrameToSeekRef = useRef<number | null>(null);
 	const videoSourceUrl = useVideoSourceUrl(source);
 
 	const playerFps = getPlayerFps(fps);
@@ -183,6 +184,16 @@ export function VideoPlayer({
 			current.removeEventListener('seeked', onFrameChange);
 		};
 	}, [onPlaybackTimeChange, playerFps, videoSourceUrl]);
+
+	useEffect(() => {
+		const frameToSeek = trimFrameToSeekRef.current;
+		if (frameToSeek === null) {
+			return;
+		}
+
+		trimFrameToSeekRef.current = null;
+		playerRef.current?.seekTo(frameToSeek);
+	}, [trimInFrame, trimOutFrame]);
 
 	return (
 		<div
@@ -253,7 +264,8 @@ export function VideoPlayer({
 					durationInFrames={durationInFrames}
 					inFrame={trimInFrame}
 					outFrame={trimOutFrame}
-					onTrim={(nextTrim) => {
+					onTrim={(nextTrim, seekToFrame) => {
+						trimFrameToSeekRef.current = seekToFrame;
 						setTrimInFrame(nextTrim.inFrame);
 						setTrimOutFrame(nextTrim.outFrame);
 					}}

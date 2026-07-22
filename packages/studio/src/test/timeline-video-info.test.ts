@@ -1,11 +1,17 @@
 import {afterEach, expect, test} from 'bun:test';
+import type {InteractivitySchema, SequenceControls, TSequence} from 'remotion';
 import {getTimelineMediaStartFrame} from '../components/Timeline/get-timeline-media-start-frame';
+import {getTimelineMediaVisualizationLayout} from '../components/Timeline/get-timeline-media-visualization-layout';
 import {getTimelineVideoInfoWidths} from '../components/Timeline/get-timeline-video-info-widths';
 import {
+	getTimelineAssetSrcFromSchema,
 	getTimelineAssetLinkInfo,
 	openTimelineAssetLink,
+	splitRemoteSourceForMiddleEllipsis,
 } from '../components/Timeline/timeline-asset-link';
 import {getTimelineVideoFilmstripTimes} from '../components/Timeline/timeline-video-filmstrip-times';
+import {isStaticFileAssetValue} from '../components/Timeline/TimelineAssetField';
+import {isVideoWithLastFrameHold} from '../helpers/is-video-with-last-frame-hold';
 
 type TestWindow = Pick<
 	Window,
@@ -55,6 +61,21 @@ const installTestWindow = ({
 	});
 };
 
+const makeSequenceControls = ({
+	schema,
+	currentRuntimeValueDotNotation,
+}: {
+	schema: InteractivitySchema;
+	currentRuntimeValueDotNotation: Record<string, unknown>;
+}): SequenceControls => ({
+	componentIdentity: null,
+	componentName: 'Test',
+	currentRuntimeValueDotNotation,
+	overrideId: 'test',
+	schema,
+	supportsEffects: false,
+});
+
 test('video timeline thumbnails ignore premount and postmount width', () => {
 	const withoutPremount = getTimelineVideoInfoWidths({
 		visualizationWidth: 400,
@@ -72,6 +93,32 @@ test('video timeline thumbnails ignore premount and postmount width', () => {
 	expect(withPremount).toEqual(withoutPremount);
 });
 
+test('timeline media visualizations exclude premount and postmount width', () => {
+	expect(
+		getTimelineMediaVisualizationLayout({
+			visualizationWidth: 510,
+			premountWidth: 110,
+			postmountWidth: 20,
+		}),
+	).toEqual({
+		marginLeft: 110,
+		width: 380,
+	});
+});
+
+test('timeline media visualization widths never go negative', () => {
+	expect(
+		getTimelineMediaVisualizationLayout({
+			visualizationWidth: 100,
+			premountWidth: 70,
+			postmountWidth: 70,
+		}),
+	).toEqual({
+		marginLeft: 70,
+		width: 0,
+	});
+});
+
 test('video timeline thumbnail widths never go negative', () => {
 	expect(
 		getTimelineVideoInfoWidths({
@@ -84,6 +131,24 @@ test('video timeline thumbnail widths never go negative', () => {
 		mediaVisualizationWidth: 0,
 		mediaNaturalWidth: 0,
 	});
+});
+
+test('@remotion/media Video holds its last frame', () => {
+	expect(
+		isVideoWithLastFrameHold({
+			type: 'video',
+			controls: {
+				componentIdentity: 'dev.remotion.media.Video',
+			},
+		} as TSequence),
+	).toBe(true);
+
+	expect(
+		isVideoWithLastFrameHold({
+			type: 'video',
+			controls: null,
+		} as TSequence),
+	).toBe(false);
 });
 
 test('video timeline filmstrip range starts at the registered media frame', () => {
@@ -152,6 +217,45 @@ test('video timeline filmstrip uses one timestamp for frozen video', () => {
 	});
 });
 
+test('inspector asset source is derived from the src asset schema', () => {
+	const controls = makeSequenceControls({
+		schema: {
+			src: {
+				type: 'asset',
+				default: undefined,
+				description: 'Source',
+				keyframable: false,
+			},
+		},
+		currentRuntimeValueDotNotation: {
+			src: '/static-abcdef/video.mp4',
+		},
+	});
+
+	expect(getTimelineAssetSrcFromSchema(controls)).toBe(
+		'/static-abcdef/video.mp4',
+	);
+});
+
+test('inspector ignores runtime src values without a src asset schema', () => {
+	const controls = makeSequenceControls({
+		schema: {},
+		currentRuntimeValueDotNotation: {
+			src: '/static-abcdef/video.mp4',
+		},
+	});
+
+	expect(getTimelineAssetSrcFromSchema(controls)).toBeNull();
+	expect(getTimelineAssetSrcFromSchema(null)).toBeNull();
+});
+
+test('only staticFile asset values use the asset picker', () => {
+	expect(isStaticFileAssetValue('remotion-file:video.mp4')).toBe(true);
+	expect(isStaticFileAssetValue('https://example.com/video.mp4')).toBe(false);
+	expect(isStaticFileAssetValue('/video.mp4')).toBe(false);
+	expect(isStaticFileAssetValue(undefined)).toBe(false);
+});
+
 test('timeline local asset links select the asset and push the asset route', () => {
 	const pushedUrls: (string | URL | null | undefined)[] = [];
 	installTestWindow({
@@ -217,4 +321,15 @@ test('timeline remote asset links still open in a new tab', () => {
 		['https://example.com/image.png', '_blank', 'noopener,noreferrer'],
 	]);
 	expect(pushedUrls).toEqual([]);
+});
+
+test('remote asset URLs split before the filename for middle ellipsis', () => {
+	const src = 'https://example.com/a/very/long/path/video.mp4?download=1';
+	const parts = splitRemoteSourceForMiddleEllipsis(src);
+
+	expect(parts).toEqual({
+		leading: 'https://example.com/a/very/long/path/',
+		trailing: 'video.mp4?download=1',
+	});
+	expect(parts.leading + parts.trailing).toBe(src);
 });

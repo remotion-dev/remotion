@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useMemo} from 'react';
 import {BufferingProvider} from '../buffering.js';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import type {CompositionManagerContext} from '../CompositionManagerContext.js';
@@ -18,11 +18,13 @@ import {
 
 const Comp: React.FC = () => null;
 
-const mockCompositionContext: CompositionManagerContext = {
+const makeMockCompositionContext = (
+	durationInFrames: number,
+): CompositionManagerContext => ({
 	compositions: [
 		{
 			id: 'my-comp',
-			durationInFrames: 1000000,
+			durationInFrames,
 			component: Comp,
 			defaultProps: {},
 			folderName: null,
@@ -45,25 +47,17 @@ const mockCompositionContext: CompositionManagerContext = {
 		defaultProResProfile: null,
 		defaultSampleRate: null,
 		defaultVideoImageFormat: null,
-		durationInFrames: 1000000,
+		durationInFrames,
 		fps: 30,
 		height: 1080,
 		width: 1080,
 		props: {},
 	},
-};
+});
 
 const logContext: LoggingContextValue = {
 	logLevel: 'info',
 	mountTime: 0,
-};
-
-const mockTimelineContext: TimelineContextValue = {
-	frame: {},
-	playing: false,
-	rootId: 'test-root',
-	imperativePlaying: {current: false},
-	audioAndVideoTags: {current: []},
 };
 
 const mockPlaybackRateContext: PlaybackRateContextValue = {
@@ -75,7 +69,8 @@ const mockPlaybackRateContext: PlaybackRateContextValue = {
 
 const MaybeTimelineProvider: React.FC<{
 	readonly children: React.ReactNode;
-}> = ({children}) => {
+	readonly timelineContext: TimelineContextValue;
+}> = ({children, timelineContext}) => {
 	const existing = useContext(TimelineContext);
 	if (existing !== null) {
 		// eslint-disable-next-line react/jsx-no-useless-fragment
@@ -83,8 +78,8 @@ const MaybeTimelineProvider: React.FC<{
 	}
 
 	return (
-		<AbsoluteTimeContext.Provider value={mockTimelineContext}>
-			<TimelineContext.Provider value={mockTimelineContext}>
+		<AbsoluteTimeContext.Provider value={timelineContext}>
+			<TimelineContext.Provider value={timelineContext}>
 				{children}
 			</TimelineContext.Provider>
 		</AbsoluteTimeContext.Provider>
@@ -109,15 +104,32 @@ const MaybePlaybackRateProvider: React.FC<{
 
 export const WrapSequenceContext: React.FC<{
 	readonly children: React.ReactNode;
-}> = ({children}) => {
+	readonly compositionDurationInFrames?: number;
+	readonly currentFrame?: number;
+}> = ({children, compositionDurationInFrames = 1000000, currentFrame = 0}) => {
+	const compositionContext = useMemo(
+		() => makeMockCompositionContext(compositionDurationInFrames),
+		[compositionDurationInFrames],
+	);
+	const timelineContext = useMemo<TimelineContextValue>(
+		() => ({
+			frame: {'my-comp': currentFrame},
+			playing: false,
+			rootId: 'test-root',
+			imperativePlaying: {current: false},
+			audioAndVideoTags: {current: []},
+		}),
+		[currentFrame],
+	);
+
 	return (
 		<LogLevelContext.Provider value={logContext}>
 			<BufferingProvider>
 				<CanUseRemotionHooksProvider>
-					<MaybeTimelineProvider>
+					<MaybeTimelineProvider timelineContext={timelineContext}>
 						<MaybePlaybackRateProvider>
 							<SequenceManagerProvider>
-								<CompositionManager.Provider value={mockCompositionContext}>
+								<CompositionManager.Provider value={compositionContext}>
 									{children}
 								</CompositionManager.Provider>
 							</SequenceManagerProvider>

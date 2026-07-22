@@ -13,6 +13,7 @@ import {
 	borderSchema,
 	extendSchemaWithSequenceName,
 	premountSchema,
+	sequencePremountSchema,
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
 	sequenceStyleSchema,
@@ -27,10 +28,21 @@ import {
 	selectActiveKeys,
 } from '../with-interactivity-schema.js';
 
-test('sequenceStyleSchema is the union of transform and premount fields', () => {
+test('sequenceStyleSchema contains transform and premount fields', () => {
 	expect(Object.keys(sequenceStyleSchema).sort()).toEqual(
-		[...Object.keys(transformSchema), ...Object.keys(premountSchema)].sort(),
+		[
+			...Object.keys(transformSchema),
+			...Object.keys(sequencePremountSchema),
+		].sort(),
 	);
+});
+
+test('premount fields are not keyframable', () => {
+	expect(Object.keys(premountSchema).sort()).toEqual(
+		['postmountFor', 'premountFor'].sort(),
+	);
+	expect(premountSchema.premountFor.keyframable).toBe(false);
+	expect(premountSchema.postmountFor.keyframable).toBe(false);
 });
 
 test('baseSchema exposes common timeline fields', () => {

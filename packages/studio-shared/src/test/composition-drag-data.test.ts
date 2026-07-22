@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
 import {
+	compositionDragDataToSymbolicatedStack,
 	makeCompositionDragData,
 	parseCompositionDragData,
 } from '../composition-drag-data';
@@ -38,6 +39,32 @@ test('allows a missing composition file', () => {
 		compositionFile: null,
 		compositionId: 'MyVideo',
 	});
+});
+
+test('converts composition drag data to a symbolicated stack', () => {
+	expect(
+		compositionDragDataToSymbolicatedStack(
+			makeCompositionDragData({
+				compositionFile: 'src/Root.tsx',
+				compositionId: 'MyVideo',
+			}),
+		),
+	).toEqual({
+		originalColumnNumber: null,
+		originalFileName: 'src/Root.tsx',
+		originalFunctionName: null,
+		originalLineNumber: null,
+		originalScriptCode: null,
+	});
+
+	expect(
+		compositionDragDataToSymbolicatedStack(
+			makeCompositionDragData({
+				compositionFile: null,
+				compositionId: 'MyVideo',
+			}),
+		),
+	).toBe(null);
 });
 
 test('rejects invalid composition drag data', () => {

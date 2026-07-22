@@ -1,21 +1,21 @@
 ---
-name: new-element
+name: scaffold-element
 description: Scaffold a new Remotion Element with a correctly configured preview composition for development in the docs Remotion Studio.
 ---
 
-# Start a new Remotion Element
+# Scaffold a Remotion Element
 
-The source of truth is the [Element contributor guide](../../../packages/docs/elements/submit-an-element.mdx). Read it completely before making changes and follow it for all design and implementation decisions. If this skill and the guide diverge, follow the guide.
+The source of truth for design and quality criteria is the [Element Guidelines](../../../packages/docs/elements/guidelines.mdx). Read them completely before making changes. If this skill and the guidelines diverge on acceptance criteria, follow the guidelines.
 
-This skill prepares a development scaffold. Use the [`publish-element` skill](../publish-element/SKILL.md) when the Element is ready for the gallery.
+This skill owns the technical scaffolding workflow. Use the [`publish-element` skill](../publish-element/SKILL.md) when the Element is ready for the gallery.
 
 ## 1. Plan the preview
 
 Choose an existing category and a kebab-case slug. Before creating files, determine the initial preview metadata needed for development:
 
 - Composition width, height, fps, and duration
-- Fixed Element width and height, or `null` for both
-- Preview padding
+- Fixed Element width and height, or `null` for both so it inherits the composition dimensions
+- Preview padding, which affects only the docs preview and not the Element bounds
 - A provisional poster frame
 
 Inspect `packages/docs/elements-template/` and at least one existing Element in the same category. Do not create a new category unless the task explicitly requires one.
@@ -33,7 +33,9 @@ mv packages/docs/elements/<category>/<slug>/element.tsx \
 
 Adapt the copied `index.mdx` to the production pattern: import `elementDefinitions`, use its `'<category>/<slug>'` entry, and set `sourceFile="./<slug>.tsx"`.
 
-Implement only enough of the component to provide a visible starting point in the intended bounds. Follow the contributor guide for the component itself. When using Studio-editable controls, also follow the [interactivity best practices skill](../interactivity-best-practices/SKILL.md).
+Implement only enough of the component to provide a visible starting point in the intended bounds. Keep the reusable implementation in one self-contained TSX source file. Make the component fill its bounds without adding a wrapper `<Sequence>` or source padding for the preview. Do not use `left`, `right`, `top`, or `bottom` to place the Element itself; the surrounding project owns placement.
+
+Follow the Element Guidelines for the component itself. When using Studio-editable controls, also follow the [interactivity best practices skill](../interactivity-best-practices/SKILL.md). Keep entrance and exit keyframes inline with hardcoded frame ranges on the useful named `Interactive.*` element so they can be adjusted in Studio. Do not repeat the Element display name in inner control names.
 
 ## 3. Register the development composition
 

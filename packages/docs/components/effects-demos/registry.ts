@@ -14,6 +14,7 @@ import {duotone} from '@remotion/effects/duotone';
 import {emboss} from '@remotion/effects/emboss';
 import {evolve} from '@remotion/effects/evolve';
 import {fisheye} from '@remotion/effects/fisheye';
+import {flannel} from '@remotion/effects/flannel';
 import {glow} from '@remotion/effects/glow';
 import {grayscale} from '@remotion/effects/grayscale';
 import {gridlines} from '@remotion/effects/gridlines';
@@ -44,6 +45,7 @@ import {scale} from '@remotion/effects/scale';
 import {scanlines} from '@remotion/effects/scanlines';
 import {shine} from '@remotion/effects/shine';
 import {shrinkwrap} from '@remotion/effects/shrinkwrap';
+import {skew} from '@remotion/effects/skew';
 import {speckle} from '@remotion/effects/speckle';
 import {thermalVision} from '@remotion/effects/thermal-vision';
 import {tint} from '@remotion/effects/tint';
@@ -74,6 +76,7 @@ import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
 import {EffectsEmbossPreview} from '../effects/effects-emboss-preview';
 import {EffectsEvolvePreview} from '../effects/effects-evolve-preview';
 import {EffectsFisheyePreview} from '../effects/effects-fisheye-preview';
+import {EffectsFlannelPreview} from '../effects/effects-flannel-preview';
 import {EffectsGlowPreview} from '../effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
 import {EffectsGridlinesPreview} from '../effects/effects-gridlines-preview';
@@ -124,6 +127,7 @@ import {
 	EffectsShrinkwrapPreview,
 	SHRINKWRAP_PREVIEW_PARAMS,
 } from '../effects/effects-shrinkwrap-preview';
+import {EffectsSkewPreview} from '../effects/effects-skew-preview';
 import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
 import {
 	EffectsStarburstPreview,
@@ -180,6 +184,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/burlap',
 		comp: EffectsBurlapPreview,
 		schema: burlap().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-flannel',
+		effectName: 'flannel',
+		effectImportPath: '@remotion/effects/flannel',
+		comp: EffectsFlannelPreview,
+		schema: flannel().definition.schema,
 	},
 	{
 		...defaults,
@@ -324,6 +336,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/shine',
 		comp: EffectsShinePreview,
 		schema: shine().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-skew',
+		effectName: 'skew',
+		effectImportPath: '@remotion/effects/skew',
+		comp: EffectsSkewPreview,
+		schema: skew().definition.schema,
 	},
 	{
 		...defaults,

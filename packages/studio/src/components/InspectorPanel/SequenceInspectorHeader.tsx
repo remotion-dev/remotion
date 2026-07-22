@@ -2,17 +2,46 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import {ReactIcon} from '../../icons/react';
 import {InlineEditableTitle} from '../InlineEditableTitle';
+import {InspectorInfoHeader} from '../InspectorInfoHeader';
 import {InspectorLocationCopy} from '../InspectorLocationCopy';
 import {InspectorSourceLocation} from '../InspectorSourceLocation';
+import {COMPACT_INLINE_ROW_HEIGHT} from '../layout';
 import {useOpenSequenceInEditor} from '../Timeline/use-open-sequence-in-editor';
 import {useRenameSequence} from '../Timeline/use-rename-sequence';
+import {InspectorInlineAction, InspectorSectionDivider} from './common';
 import {
-	sequenceHeader,
-	sequenceHeaderDivider,
-	sequenceHeaderSubtitle,
-	sequenceHeaderTitle,
-} from './styles';
+	ConnectedCompositionsSection,
+	useConnectedCompositions,
+} from './ConnectedCompositionsSection';
+import {sequenceHeaderSubtitle} from './styles';
+
+const sourceLocationIconStyle: React.CSSProperties = {
+	flexShrink: 0,
+	height: 18,
+	width: 18,
+};
+
+const renderReactIcon = (color: string) => {
+	return <ReactIcon color={color} style={sourceLocationIconStyle} />;
+};
+
+const sequenceInspectorSubtitle: React.CSSProperties = {
+	...sequenceHeaderSubtitle,
+	alignItems: 'center',
+	boxSizing: 'border-box',
+	fontSize: 13,
+	height: COMPACT_INLINE_ROW_HEIGHT,
+	lineHeight: '18px',
+	margin: '0 4px',
+	padding: '0 8px',
+	width: 'calc(100% - 8px)',
+};
+
+const defaultCursor: React.CSSProperties = {
+	cursor: 'default',
+};
 
 type SequenceInspectorSourceLocation = {
 	readonly canOpenInEditor: boolean;
@@ -85,13 +114,12 @@ export const SequenceInspectorHeader: React.FC<{
 
 	const subtitleStyle = useMemo((): React.CSSProperties => {
 		return {
-			...sequenceHeaderSubtitle,
+			...sequenceInspectorSubtitle,
 			cursor: documentationLink ? 'pointer' : 'default',
 		};
 	}, [documentationLink]);
 
 	const componentName = track.sequence.controls?.componentName;
-
 	const onRename = useCallback(
 		(newName: string) => {
 			saveName(newName).catch(() => undefined);
@@ -100,27 +128,27 @@ export const SequenceInspectorHeader: React.FC<{
 	);
 
 	return (
-		<div style={sequenceHeader}>
+		<InspectorInfoHeader contentSized padding="4px 0">
 			<InspectorLocationCopy
 				location={sourceLocation.validatedLocation}
 				name={componentName ?? null}
 			>
-				<div style={sequenceHeaderTitle}>
-					<InlineEditableTitle
-						value={sequenceDisplayName}
-						canRename={canRename}
-						onCommit={onRename}
-					/>
-				</div>
+				<InlineEditableTitle
+					value={sequenceDisplayName}
+					canRename={canRename}
+					onCommit={onRename}
+					size="inspector"
+				/>
 				{documentationLink ? (
-					<button
-						type="button"
-						style={subtitleStyle}
+					<InspectorInlineAction
+						disabled={false}
+						style={defaultCursor}
+						size="compact"
 						title="Open component docs"
 						onClick={openDocumentationLink}
 					>
 						{componentName}
-					</button>
+					</InspectorInlineAction>
 				) : (
 					<div style={subtitleStyle}>{componentName}</div>
 				)}
@@ -128,21 +156,31 @@ export const SequenceInspectorHeader: React.FC<{
 					location={sourceLocation.validatedLocation}
 					canOpen={sourceLocation.canOpenInEditor}
 					onOpen={sourceLocation.openFileLocation}
+					renderIcon={renderReactIcon}
+					size="inline-action"
 				/>
 			</InspectorLocationCopy>
-		</div>
+		</InspectorInfoHeader>
 	);
 };
 
-export const SequenceInspectorHeaderWithDivider: React.FC<{
+export const SequenceInspectorSections: React.FC<{
 	readonly track: TrackWithHash;
 }> = ({track}) => {
 	const sourceLocation = useSequenceInspectorSourceLocation(track.sequence);
+	const connectedCompositions = useConnectedCompositions({track});
 
 	return (
 		<>
 			<SequenceInspectorHeader sourceLocation={sourceLocation} track={track} />
-			<div style={sequenceHeaderDivider} />
+			{connectedCompositions.length > 0 ? (
+				<>
+					<InspectorSectionDivider />
+					<ConnectedCompositionsSection
+						connectedCompositions={connectedCompositions}
+					/>
+				</>
+			) : null}
 		</>
 	);
 };

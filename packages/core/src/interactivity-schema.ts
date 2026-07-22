@@ -112,6 +112,13 @@ export type FontFamilyFieldSchema = {
 	keyframable?: false;
 };
 
+export type AssetFieldSchema = {
+	type: 'asset';
+	default: string | undefined;
+	description?: string;
+	keyframable?: false;
+};
+
 export type EnumFieldSchema = {
 	type: 'enum';
 	default: string;
@@ -197,6 +204,7 @@ export type VisibleFieldSchema =
 	| ColorFieldSchema
 	| TextContentFieldSchema
 	| FontFamilyFieldSchema
+	| AssetFieldSchema
 	| ArrayFieldSchema
 	| EnumFieldSchema;
 
@@ -376,6 +384,7 @@ export const premountSchema = {
 		min: 0,
 		step: 1,
 		hiddenFromList: false,
+		keyframable: false,
 	},
 	postmountFor: {
 		type: 'number',
@@ -383,7 +392,11 @@ export const premountSchema = {
 		min: 0,
 		step: 1,
 		hiddenFromList: true,
+		keyframable: false,
 	},
+} as const satisfies InteractivitySchema;
+
+export const premountStyleSchema = {
 	styleWhilePremounted: {
 		type: 'hidden',
 	},
@@ -392,11 +405,14 @@ export const premountSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-export const sequencePremountSchema = premountSchema;
+export const sequencePremountSchema = {
+	...premountSchema,
+	...premountStyleSchema,
+} as const satisfies InteractivitySchema;
 
 export const sequenceStyleSchema = {
 	...transformSchema,
-	...premountSchema,
+	...sequencePremountSchema,
 } as const satisfies InteractivitySchema;
 
 export const hiddenField: InteractivitySchemaField = {
