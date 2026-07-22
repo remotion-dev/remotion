@@ -4,6 +4,11 @@ export const isPathInside = function (
 	thePath: string,
 	potentialParent: string,
 ) {
+	// Resolve . and .. segments before checking containment so that a path
+	// containing traversal components cannot be mistaken for a child path.
+	thePath = path.normalize(thePath);
+	potentialParent = path.normalize(potentialParent);
+
 	// For inside-directory checking, we want to allow trailing slashes, so normalize.
 	thePath = stripTrailingSep(thePath);
 	potentialParent = stripTrailingSep(potentialParent);
