@@ -39,6 +39,7 @@ import {useSelectAsset} from '../use-select-asset';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
 import {getSequenceContextMenuItems} from './get-sequence-context-menu-items';
+import {getTimelineMediaVisualizationLayout} from './get-timeline-media-visualization-layout';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {TimelineImageInfo} from './TimelineImageInfo';
@@ -559,6 +560,20 @@ const TimelineSequenceInner: React.FC<{
 			video,
 			windowWidth,
 		]);
+	const mediaVisualizationLayout = useMemo(() => {
+		return getTimelineMediaVisualizationLayout({
+			visualizationWidth: width,
+			premountWidth: premountWidth ?? 0,
+			postmountWidth: postmountWidth ?? 0,
+		});
+	}, [postmountWidth, premountWidth, width]);
+	const mediaVisualizationStyle = useMemo((): React.CSSProperties => {
+		return {
+			width: mediaVisualizationLayout.width,
+			marginLeft: mediaVisualizationLayout.marginLeft,
+			height: '100%',
+		};
+	}, [mediaVisualizationLayout]);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
@@ -620,17 +635,19 @@ const TimelineSequenceInner: React.FC<{
 			}
 		>
 			{s.type === 'audio' ? (
-				<AudioWaveform
-					src={s.src}
-					height={TIMELINE_LAYER_HEIGHT_AUDIO}
-					doesVolumeChange={s.doesVolumeChange}
-					visualizationWidth={width}
-					startFrom={s.startMediaFrom}
-					durationInFrames={s.duration}
-					volume={s.volume}
-					playbackRate={s.playbackRate}
-					loopDisplay={s.loopDisplay}
-				/>
+				<div style={mediaVisualizationStyle}>
+					<AudioWaveform
+						src={s.src}
+						height={TIMELINE_LAYER_HEIGHT_AUDIO}
+						doesVolumeChange={s.doesVolumeChange}
+						visualizationWidth={mediaVisualizationLayout.width}
+						startFrom={s.startMediaFrom}
+						durationInFrames={s.duration}
+						volume={s.volume}
+						playbackRate={s.playbackRate}
+						loopDisplay={s.loopDisplay}
+					/>
+				</div>
 			) : null}
 			{s.type === 'video' ? (
 				<TimelineVideoInfo
@@ -651,7 +668,12 @@ const TimelineSequenceInner: React.FC<{
 				/>
 			) : null}
 			{s.type === 'image' ? (
-				<TimelineImageInfo src={s.src} visualizationWidth={width} />
+				<div style={mediaVisualizationStyle}>
+					<TimelineImageInfo
+						src={s.src}
+						visualizationWidth={mediaVisualizationLayout.width}
+					/>
+				</div>
 			) : null}
 			{s.loopDisplay === undefined ? null : (
 				<LoopedTimelineIndicator loops={s.loopDisplay.numberOfTimes} />
