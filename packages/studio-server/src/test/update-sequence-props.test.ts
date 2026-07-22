@@ -83,6 +83,34 @@ test('updateSequenceProps should update a number value', async () => {
 	expect(output.split('\n')[8]).toContain('hueShift={30}');
 });
 
+test('updateSequenceProps should migrate border shorthand to longhands', async () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return (
+		<AbsoluteFill
+			style={{border: '2px solid rgba(10, 20, 30, 0.5)', opacity: 0.5}}
+		/>
+	);
+};
+`;
+	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, 5),
+		updates: [{key: 'style.borderWidth', value: 8, defaultValue: undefined}],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+	});
+
+	expect(output).not.toContain("border: '2px solid");
+	expect(output).toContain('borderWidth: 8');
+	expect(output).toContain("borderStyle: 'solid'");
+	expect(output).toContain("borderColor: 'rgba(10, 20, 30, 0.5)'");
+	expect(output).toContain('opacity: 0.5');
+	expect(oldValueStrings).toEqual(['2']);
+});
+
 test('updateSequenceProps should update durationInFrames', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
 		videoConfigValues: null,

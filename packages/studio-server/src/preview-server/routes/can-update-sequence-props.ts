@@ -34,6 +34,7 @@ import {NoReactInternals} from 'remotion/no-react';
 import {parseAst} from '../../codemods/parse-ast';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {toImportAgnosticNodePath} from '../../helpers/import-agnostic-node-path';
+import {parseBorderShorthand} from '../../helpers/parse-border-shorthand';
 import {parseKeyframeEasingExpression} from '../../helpers/parse-keyframe-easing-expression';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import {parseVideoConfigNumericExpression} from '../../helpers/video-config-numeric-expression';
@@ -987,12 +988,44 @@ const getNestedPropStatus = ({
 	}
 
 	const objExpr = expression as ObjectExpression;
-	const prop = objExpr.properties.find(
+	const isBorderLonghand =
+		parentKey === 'style' &&
+		(childKey === 'borderWidth' ||
+			childKey === 'borderStyle' ||
+			childKey === 'borderColor');
+	const relevantProperties = objExpr.properties.filter(
 		(p) =>
 			p.type === 'ObjectProperty' &&
-			((p.key.type === 'Identifier' && p.key.name === childKey) ||
-				(p.key.type === 'StringLiteral' && p.key.value === childKey)),
-	) as ObjectProperty | undefined;
+			((p.key.type === 'Identifier' &&
+				(p.key.name === childKey ||
+					(isBorderLonghand && p.key.name === 'border'))) ||
+				(p.key.type === 'StringLiteral' &&
+					(p.key.value === childKey ||
+						(isBorderLonghand && p.key.value === 'border')))),
+	) as ObjectProperty[];
+	const prop = relevantProperties.at(-1);
+
+	if (
+		prop &&
+		isBorderLonghand &&
+		((prop.key.type === 'Identifier' && prop.key.name === 'border') ||
+			(prop.key.type === 'StringLiteral' && prop.key.value === 'border'))
+	) {
+		const borderValue = prop.value as Expression;
+		if (!isStaticValue(borderValue, {allowSpecialValues: false})) {
+			return computedStatus();
+		}
+
+		const staticBorderValue = extractStaticValue(borderValue, {
+			allowSpecialValues: false,
+		});
+		if (typeof staticBorderValue !== 'string') {
+			return computedStatus();
+		}
+
+		const parsed = parseBorderShorthand(staticBorderValue);
+		return parsed ? staticStatus(parsed[childKey], null) : computedStatus();
+	}
 
 	if (!prop) {
 		// Property not set in the object, can be added

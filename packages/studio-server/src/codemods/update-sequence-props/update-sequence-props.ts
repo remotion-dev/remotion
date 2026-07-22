@@ -4,6 +4,7 @@ import type {
 	JSXExpressionContainer,
 	JSXFragment,
 	JSXSpreadAttribute,
+	ObjectProperty,
 	StringLiteral,
 	Expression,
 	File,
@@ -18,6 +19,7 @@ import type {
 	VideoConfigValues,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {parseBorderShorthand} from '../../helpers/parse-border-shorthand';
 import {
 	parseVideoConfigNumericExpression,
 	updateVideoConfigNumericExpression,
@@ -748,6 +750,72 @@ const applyGoogleFontSourceEdits = ({
 	}
 };
 
+const migrateBorderShorthand = (node: JSXOpeningElementLike) => {
+	const styleAttribute = node.attributes?.find(
+		(attribute) =>
+			attribute.type === 'JSXAttribute' &&
+			attribute.name.type === 'JSXIdentifier' &&
+			attribute.name.name === 'style',
+	);
+	if (
+		styleAttribute?.type !== 'JSXAttribute' ||
+		styleAttribute.value?.type !== 'JSXExpressionContainer' ||
+		styleAttribute.value.expression.type !== 'ObjectExpression'
+	) {
+		return;
+	}
+
+	const {properties} = styleAttribute.value.expression;
+	for (let index = 0; index < properties.length; index++) {
+		const property = properties[index];
+		if (
+			property.type !== 'ObjectProperty' ||
+			!(
+				(property.key.type === 'Identifier' &&
+					property.key.name === 'border') ||
+				(property.key.type === 'StringLiteral' &&
+					property.key.value === 'border')
+			)
+		) {
+			continue;
+		}
+
+		const borderValue =
+			property.value.type === 'StringLiteral'
+				? property.value.value
+				: property.value.type === 'TemplateLiteral' &&
+					  property.value.expressions.length === 0
+					? (property.value.quasis[0]?.value.cooked ?? null)
+					: null;
+		if (borderValue === null) {
+			continue;
+		}
+
+		const parsed = parseBorderShorthand(borderValue);
+		if (!parsed) {
+			continue;
+		}
+
+		properties.splice(
+			index,
+			1,
+			b.objectProperty(
+				b.identifier('borderWidth'),
+				b.numericLiteral(parsed.borderWidth),
+			) as ObjectProperty,
+			b.objectProperty(
+				b.identifier('borderStyle'),
+				b.stringLiteral(parsed.borderStyle),
+			) as ObjectProperty,
+			b.objectProperty(
+				b.identifier('borderColor'),
+				b.stringLiteral(parsed.borderColor),
+			) as ObjectProperty,
+		);
+		index += 2;
+	}
+};
+
 const updateSequencePropsNode = ({
 	jsxElement,
 	updates,
@@ -765,6 +833,16 @@ const updateSequencePropsNode = ({
 } => {
 	const node = jsxElement.openingElement;
 	const logLine = node.loc?.start.line ?? 1;
+	if (
+		updates.some(
+			(update) =>
+				update.key === 'style.borderWidth' ||
+				update.key === 'style.borderStyle' ||
+				update.key === 'style.borderColor',
+		)
+	) {
+		migrateBorderShorthand(node);
+	}
 
 	const oldValueStrings: string[] = [];
 	const initialAttrs = snapshotTopLevelAttrs(node);
