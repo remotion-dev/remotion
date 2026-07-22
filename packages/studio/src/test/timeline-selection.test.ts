@@ -851,11 +851,63 @@ test('copying selected keyframes preserves their frame deltas', () => {
 		version: 1,
 		remotionClipboard: 'keyframe',
 		fieldType: 'number',
+		field: {type: 'sequence', fieldKey: 'opacity'},
 		keyframes: [
 			{frameOffset: 0, value: 0.4},
 			{frameOffset: 20, value: 0.8},
 		],
 		easing: [{type: 'linear'}],
+	});
+});
+
+test('pasting keyframes onto a sequence targets the copied property', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const schema = {
+		'style.translate': {
+			type: 'translate',
+			default: 'none',
+		},
+	} satisfies InteractivitySchema;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				'style.translate': {status: 'static', codeValue: 'none'},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	expect(
+		getPasteKeyframeTarget({
+			selectedItems: [{type: 'sequence', nodePathInfo}],
+			payload: {
+				type: 'keyframe',
+				version: 1,
+				remotionClipboard: 'keyframe',
+				fieldType: 'translate',
+				field: {type: 'sequence', fieldKey: 'style.translate'},
+				keyframes: [
+					{frameOffset: 0, value: '0px 0px'},
+					{frameOffset: 20, value: '100px 0px'},
+				],
+				easing: [{type: 'linear'}],
+			},
+			timelinePosition: 50,
+			sequences: [makeTimelineSequence({schema})],
+			overrideIdsToNodePaths: {override: nodePath},
+			propStatuses,
+		}),
+	).toMatchObject({
+		type: 'valid',
+		nodePath,
+		fieldKey: 'style.translate',
+		effectIndex: null,
+		keyframes: [
+			{sourceFrame: 50, value: '0px 0px'},
+			{sourceFrame: 70, value: '100px 0px'},
+		],
 	});
 });
 
@@ -940,6 +992,7 @@ test('pasting keyframes targets one selected property at the playhead', () => {
 				version: 1,
 				remotionClipboard: 'keyframe',
 				fieldType: 'number',
+				field: null,
 				keyframes: [
 					{frameOffset: 0, value: 0.4},
 					{frameOffset: 20, value: 0.8},
@@ -1011,6 +1064,7 @@ test('pasting keyframes replaces the destination range and preserves easing', ()
 				version: 1,
 				remotionClipboard: 'keyframe',
 				fieldType: 'number',
+				field: null,
 				keyframes: [
 					{frameOffset: 0, value: 0.25},
 					{frameOffset: 20, value: 0.75},
@@ -1072,6 +1126,7 @@ test('pasting a keyframe rejects an incompatible property', () => {
 				version: 1,
 				remotionClipboard: 'keyframe',
 				fieldType: 'number',
+				field: null,
 				keyframes: [{frameOffset: 0, value: 0.4}],
 				easing: [],
 			},
