@@ -97,7 +97,8 @@ export const useCompositionActions = () => {
 		if (
 			!canInsertAsset ||
 			currentCompositionId === null ||
-			compositionFile === null
+			compositionFile === null ||
+			videoConfig === null
 		) {
 			return;
 		}
@@ -111,6 +112,7 @@ export const useCompositionActions = () => {
 		try {
 			await importAssets({
 				files,
+				fps: videoConfig.fps,
 				compositionFile,
 				compositionId: currentCompositionId,
 				destinationDimensions: null,
@@ -120,7 +122,7 @@ export const useCompositionActions = () => {
 		} finally {
 			setIsAddingAsset(false);
 		}
-	}, [canInsertAsset, compositionFile, currentCompositionId]);
+	}, [canInsertAsset, compositionFile, currentCompositionId, videoConfig]);
 
 	return {
 		canInsertAsset,

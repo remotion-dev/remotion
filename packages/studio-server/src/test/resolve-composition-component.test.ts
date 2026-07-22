@@ -1102,7 +1102,7 @@ test('inserts an AnimatedImage asset into the resolved composition component', a
 	}
 });
 
-test('inserts a Video asset with CSS dimensions', async () => {
+test('inserts a Video asset with its duration and CSS dimensions', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -1141,6 +1141,7 @@ test('inserts a Video asset with CSS dimensions', async () => {
 					width: 1920,
 					height: 1080,
 				},
+				durationInFrames: 37.52,
 				position: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
@@ -1150,13 +1151,13 @@ test('inserts a Video asset with CSS dimensions', async () => {
 		expect(result.output).toContain(
 			"import { AbsoluteFill, staticFile } from 'remotion';",
 		);
+		expect(result.output).toContain('durationInFrames={37.52}');
 		expect(result.output).toContain('<Video');
 		expect(result.output).toContain("src={staticFile('clip.mp4')}");
 		expect(result.output).toContain("position: 'absolute'");
 		expect(result.output).toContain('width: 1920');
 		expect(result.output).toContain('height: 1080');
-		expect(result.output).not.toContain('width={1920}');
-		expect(result.output).not.toContain('height={1080}');
+		expect(result.output).not.toContain('<Sequence');
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}

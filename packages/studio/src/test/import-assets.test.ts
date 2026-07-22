@@ -6,9 +6,16 @@ import {
 	getAssetElementFromPath,
 	getComponentDimensions,
 	getCompositionPositionForDrop,
+	getDurationInFrames,
 	getElementPositionForDrop,
 	hasSvgFile,
 } from '../components/import-assets';
+
+test('converts media duration to composition frames with two decimals', () => {
+	expect(getDurationInFrames({durationInSeconds: 1.2345, fps: 30})).toBe(37.03);
+	expect(getDurationInFrames({durationInSeconds: 2, fps: 29.97})).toBe(59.94);
+	expect(getDurationInFrames({durationInSeconds: null, fps: 30})).toBe(null);
+});
 
 test('maps audio file types to Audio assets', () => {
 	for (const type of ['wav', 'mp3', 'aac', 'flac'] as const) {

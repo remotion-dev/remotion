@@ -997,6 +997,7 @@ const createSequenceWrappedElement = ({
 
 const createAssetElement = ({
 	addPositionStyle,
+	durationInFrames,
 	localName,
 	staticFileLocalName,
 	src,
@@ -1004,6 +1005,7 @@ const createAssetElement = ({
 	position,
 }: {
 	addPositionStyle: boolean;
+	durationInFrames: number | null;
 	localName: string;
 	staticFileLocalName: string | null;
 	src: string;
@@ -1017,6 +1019,9 @@ const createAssetElement = ({
 				staticFileLocalName === null
 					? createStringSrcAttribute(src)
 					: createStaticFileSrcAttribute({staticFileLocalName, src}),
+				...(durationInFrames === null
+					? []
+					: [createNumberAttribute('durationInFrames', durationInFrames)]),
 				...(addPositionStyle
 					? [createAssetStyleAttribute({dimensions, position})]
 					: []),
@@ -2217,7 +2222,12 @@ const createInsertableJsxElement = ({
 		}
 
 		return createAssetElement({
-			addPositionStyle: element.assetType !== 'audio',
+			addPositionStyle:
+				addPositionStyleToComponent && element.assetType !== 'audio',
+			durationInFrames:
+				element.assetType === 'video'
+					? (element.durationInFrames ?? null)
+					: null,
 			localName,
 			staticFileLocalName,
 			src: element.src,

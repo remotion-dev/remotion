@@ -386,21 +386,37 @@ const getImageDimensions = ({
 	});
 };
 
-const getVideoDimensions = async (src: string): Promise<Dimensions> => {
-	const metadata = await getVideoMetadata(src);
-	return {width: metadata.width, height: metadata.height};
+type AssetMetadataForInsertion = {
+	dimensions: Dimensions | null;
+	durationInSeconds: number | null;
 };
 
-const getFileDimensions = async ({
+const getVideoAssetMetadata = async (
+	src: string,
+): Promise<AssetMetadataForInsertion> => {
+	const metadata = await getVideoMetadata(src);
+	return {
+		dimensions: {width: metadata.width, height: metadata.height},
+		durationInSeconds: metadata.durationInSeconds,
+	};
+};
+
+const getFileMetadata = async ({
 	file,
 	fileType,
 }: {
 	file: File;
 	fileType: FileType;
-}): Promise<Dimensions | null> => {
+}): Promise<AssetMetadataForInsertion> => {
 	if (fileType.type === 'unknown' && file.name.toLowerCase().endsWith('.svg')) {
 		const objectUrl = URL.createObjectURL(file);
-		return getImageDimensions({revokeObjectUrl: true, src: objectUrl});
+		return {
+			dimensions: await getImageDimensions({
+				revokeObjectUrl: true,
+				src: objectUrl,
+			}),
+			durationInSeconds: null,
+		};
 	}
 
 	if (
@@ -409,7 +425,7 @@ const getFileDimensions = async ({
 		fileType.type === 'aac' ||
 		fileType.type === 'flac'
 	) {
-		return null;
+		return {dimensions: null, durationInSeconds: null};
 	}
 
 	if (
@@ -421,11 +437,17 @@ const getFileDimensions = async ({
 		fileType.type === 'gif'
 	) {
 		if (fileType.dimensions) {
-			return fileType.dimensions;
+			return {dimensions: fileType.dimensions, durationInSeconds: null};
 		}
 
 		const objectUrl = URL.createObjectURL(file);
-		return getImageDimensions({revokeObjectUrl: true, src: objectUrl});
+		return {
+			dimensions: await getImageDimensions({
+				revokeObjectUrl: true,
+				src: objectUrl,
+			}),
+			durationInSeconds: null,
+		};
 	}
 
 	if (
@@ -436,18 +458,18 @@ const getFileDimensions = async ({
 	) {
 		const objectUrl = URL.createObjectURL(file);
 		try {
-			return await getVideoDimensions(objectUrl);
+			return await getVideoAssetMetadata(objectUrl);
 		} finally {
 			URL.revokeObjectURL(objectUrl);
 		}
 	}
 
-	return null;
+	return {dimensions: null, durationInSeconds: null};
 };
 
-const getStaticAssetDimensions = (
+const getStaticAssetMetadata = (
 	assetPath: string,
-): Dimensions | Promise<Dimensions> | null => {
+): AssetMetadataForInsertion | Promise<AssetMetadataForInsertion> => {
 	const extension = assetPath.split('.').pop()?.toLowerCase();
 	const src = staticFile(assetPath);
 
@@ -457,41 +479,57 @@ const getStaticAssetDimensions = (
 			extension,
 		)
 	) {
-		return getImageDimensions({revokeObjectUrl: false, src});
+		return getImageDimensions({revokeObjectUrl: false, src}).then(
+			(dimensions) => ({dimensions, durationInSeconds: null}),
+		);
 	}
 
 	if (
 		extension &&
 		['mp4', 'm4v', 'mov', 'avi', 'webm', 'ts', 'm2ts'].includes(extension)
 	) {
-		return getVideoDimensions(src);
+		return getVideoAssetMetadata(src);
 	}
 
-	return null;
+	return {dimensions: null, durationInSeconds: null};
 };
 
-const getFileDimensionsOrNull = async ({
+const getFileMetadataOrNull = async ({
 	file,
 	fileType,
 }: {
 	file: File;
 	fileType: FileType;
-}): Promise<Dimensions | null> => {
+}): Promise<AssetMetadataForInsertion> => {
 	try {
-		return await getFileDimensions({file, fileType});
+		return await getFileMetadata({file, fileType});
 	} catch {
-		return null;
+		return {dimensions: null, durationInSeconds: null};
 	}
 };
 
-const getStaticAssetDimensionsOrNull = async (
+const getStaticAssetMetadataOrNull = async (
 	assetPath: string,
-): Promise<Dimensions | null> => {
+): Promise<AssetMetadataForInsertion> => {
 	try {
-		return await getStaticAssetDimensions(assetPath);
+		return await getStaticAssetMetadata(assetPath);
 	} catch {
+		return {dimensions: null, durationInSeconds: null};
+	}
+};
+
+export const getDurationInFrames = ({
+	durationInSeconds,
+	fps,
+}: {
+	durationInSeconds: number | null;
+	fps: number;
+}): number | null => {
+	if (durationInSeconds === null) {
 		return null;
 	}
+
+	return Math.round(durationInSeconds * fps * 100) / 100;
 };
 
 const getStaticAssetFileType = async (
@@ -625,6 +663,7 @@ export const importAssets = async ({
 	destinationDimensions,
 	dropPosition,
 	files,
+	fps,
 	svgImportMode,
 }: {
 	compositionFile: string;
@@ -632,6 +671,7 @@ export const importAssets = async ({
 	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
 	files: File[];
+	fps: number;
 	svgImportMode: 'image' | 'inline';
 }) => {
 	if (files.length === 0) {
@@ -678,7 +718,7 @@ export const importAssets = async ({
 		for (const file of files) {
 			const contents = await file.arrayBuffer();
 			const fileType = detectFileType(new Uint8Array(contents));
-			const dimensions = await getFileDimensionsOrNull({file, fileType});
+			const metadata = await getFileMetadataOrNull({file, fileType});
 
 			if (isSvgFile(file) && svgImportMode === 'inline') {
 				const svgInserted = await insertCompositionElement({
@@ -688,7 +728,7 @@ export const importAssets = async ({
 						type: 'svg',
 						markup: new TextDecoder().decode(contents),
 						position: getAssetPositionForDrop({
-							assetDimensions: dimensions,
+							assetDimensions: metadata.dimensions,
 							destinationDimensions,
 							dropPosition,
 						}),
@@ -728,7 +768,7 @@ export const importAssets = async ({
 				addedStaticFiles.push(file.name);
 			}
 
-			const resolvedDimensions = element.dimensions ?? dimensions;
+			const resolvedDimensions = element.dimensions ?? metadata.dimensions;
 
 			const inserted = await insertCompositionElement({
 				compositionFile,
@@ -736,6 +776,13 @@ export const importAssets = async ({
 				element: {
 					...element,
 					dimensions: resolvedDimensions,
+					durationInFrames:
+						element.assetType === 'video'
+							? getDurationInFrames({
+									durationInSeconds: metadata.durationInSeconds,
+									fps,
+								})
+							: null,
 					position: getAssetPositionForDrop({
 						assetDimensions: resolvedDimensions,
 						destinationDimensions,
@@ -866,12 +913,14 @@ export const importRemoteAsset = async ({
 	compositionId,
 	destinationDimensions,
 	dropPosition,
+	fps,
 	url,
 }: {
 	compositionFile: string;
 	compositionId: string;
 	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
+	fps: number;
 	url: string;
 }) => {
 	try {
@@ -886,11 +935,20 @@ export const importRemoteAsset = async ({
 			return;
 		}
 
+		const metadata = await getStaticAssetMetadataOrNull(assetPath);
+
 		const inserted = await insertCompositionElement({
 			compositionFile,
 			compositionId,
 			element: {
 				...element,
+				durationInFrames:
+					element.assetType === 'video'
+						? getDurationInFrames({
+								durationInSeconds: metadata.durationInSeconds,
+								fps,
+							})
+						: null,
 				position: getAssetPositionForDrop({
 					assetDimensions: element.dimensions,
 					destinationDimensions,
@@ -965,12 +1023,14 @@ export const insertExistingAssets = async ({
 	compositionId,
 	destinationDimensions,
 	dropPosition,
+	fps,
 }: {
 	assetPaths: string[];
 	compositionFile: string;
 	compositionId: string;
 	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
+	fps: number;
 }) => {
 	if (assetPaths.length === 0) {
 		return;
@@ -987,8 +1047,8 @@ export const insertExistingAssets = async ({
 				continue;
 			}
 
-			const dimensions =
-				element.dimensions ?? (await getStaticAssetDimensionsOrNull(assetPath));
+			const metadata = await getStaticAssetMetadataOrNull(assetPath);
+			const dimensions = element.dimensions ?? metadata.dimensions;
 
 			const inserted = await insertCompositionElement({
 				compositionFile,
@@ -996,6 +1056,13 @@ export const insertExistingAssets = async ({
 				element: {
 					...element,
 					dimensions,
+					durationInFrames:
+						element.assetType === 'video'
+							? getDurationInFrames({
+									durationInSeconds: metadata.durationInSeconds,
+									fps,
+								})
+							: null,
 					position: getAssetPositionForDrop({
 						assetDimensions: dimensions,
 						destinationDimensions,
