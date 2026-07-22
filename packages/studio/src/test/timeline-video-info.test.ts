@@ -1,5 +1,5 @@
 import {afterEach, expect, test} from 'bun:test';
-import type {InteractivitySchema, SequenceControls} from 'remotion';
+import type {InteractivitySchema, SequenceControls, TSequence} from 'remotion';
 import {getTimelineMediaStartFrame} from '../components/Timeline/get-timeline-media-start-frame';
 import {getTimelineVideoInfoWidths} from '../components/Timeline/get-timeline-video-info-widths';
 import {
@@ -10,6 +10,7 @@ import {
 } from '../components/Timeline/timeline-asset-link';
 import {getTimelineVideoFilmstripTimes} from '../components/Timeline/timeline-video-filmstrip-times';
 import {isStaticFileAssetValue} from '../components/Timeline/TimelineAssetField';
+import {isVideoWithLastFrameHold} from '../helpers/is-video-with-last-frame-hold';
 
 type TestWindow = Pick<
 	Window,
@@ -103,6 +104,24 @@ test('video timeline thumbnail widths never go negative', () => {
 		mediaVisualizationWidth: 0,
 		mediaNaturalWidth: 0,
 	});
+});
+
+test('@remotion/media Video holds its last frame', () => {
+	expect(
+		isVideoWithLastFrameHold({
+			type: 'video',
+			controls: {
+				componentIdentity: 'dev.remotion.media.Video',
+			},
+		} as TSequence),
+	).toBe(true);
+
+	expect(
+		isVideoWithLastFrameHold({
+			type: 'video',
+			controls: null,
+		} as TSequence),
+	).toBe(false);
 });
 
 test('video timeline filmstrip range starts at the registered media frame', () => {

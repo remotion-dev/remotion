@@ -1,5 +1,6 @@
 import {useEffect, useState} from 'react';
 import {type TSequence} from 'remotion';
+import {isVideoWithLastFrameHold} from './is-video-with-last-frame-hold';
 import {getMediaMetadata} from './use-media-metadata';
 
 const cache = new Map<string, number>();
@@ -19,7 +20,8 @@ const getSrc = (s: TSequence) => {
 };
 
 export const useMaxMediaDuration = (s: TSequence, fps: number) => {
-	const src = getSrc(s);
+	const holdsLastFrame = isVideoWithLastFrameHold(s);
+	const src = holdsLastFrame ? null : getSrc(s);
 	const cacheKey = src ? getCacheKey(src, fps) : null;
 
 	const [maxMediaDuration, setMaxMediaDuration] = useState(
@@ -63,8 +65,8 @@ export const useMaxMediaDuration = (s: TSequence, fps: number) => {
 		};
 	}, [cacheKey, fps, src]);
 
-	if (maxMediaDuration !== null && (s.type === 'audio' || s.type === 'video')) {
-		return maxMediaDuration;
+	if (holdsLastFrame) {
+		return Infinity;
 	}
 
 	return maxMediaDuration;
