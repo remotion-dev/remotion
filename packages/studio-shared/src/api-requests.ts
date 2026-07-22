@@ -715,6 +715,7 @@ export type InsertableCompositionElement =
 				width: number;
 				height: number;
 			} | null;
+			durationInFrames: number | null;
 			position: InsertableCompositionElementPosition | null;
 	  }
 	| {

@@ -48,6 +48,11 @@ import {deployFunction} from './api/deploy-function';
 import type {DeploySiteInput, DeploySiteOutput} from './api/deploy-site';
 import {deploySite} from './api/deploy-site';
 import type {
+	DeploySiteFromBundleInput,
+	DeploySiteFromBundleOutput,
+} from './api/deploy-site-from-bundle';
+import {deploySiteFromBundle} from './api/deploy-site-from-bundle';
+import type {
 	DownloadMediaInput,
 	DownloadMediaOutput,
 } from './api/download-media';
@@ -133,6 +138,7 @@ export {
 	deleteSite,
 	deployFunction,
 	deploySite,
+	deploySiteFromBundle,
 	downloadMedia,
 	estimatePrice,
 	getAwsClient,
@@ -162,6 +168,8 @@ export type {
 	DeleteSiteOutput,
 	DeployFunctionInput,
 	DeployFunctionOutput,
+	DeploySiteFromBundleInput,
+	DeploySiteFromBundleOutput,
 	DeploySiteInput,
 	DeploySiteOutput,
 	DownloadMediaInput,

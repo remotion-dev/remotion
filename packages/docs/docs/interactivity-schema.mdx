@@ -49,6 +49,12 @@ Text-related style props: `style.color`, `style.fontFamily`, `style.fontSize`, `
 
 `style.fontFamily` is available from <AvailableFrom v="4.0.486" inline />.
 
+### `Interactive.borderSchema`<AvailableFrom v="4.0.497" />
+
+Border-related style props: `style.borderWidth`, `style.borderStyle` and `style.borderColor`.
+
+The longhand properties are used rather than the `border` shorthand, because React does not expand shorthands. This lets each control read its own value, and allows `style.borderWidth` and `style.borderColor` to be animated.
+
 ### `Interactive.premountSchema`
 
 Mounting props: `premountFor` and `postmountFor`.

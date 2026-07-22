@@ -19,6 +19,7 @@ import {getCrossOriginValue} from './get-cross-origin-value.js';
 import type {InteractiveBaseProps} from './Interactive.js';
 import {
 	baseSchema,
+	borderSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
@@ -387,6 +388,7 @@ export const imgSchema = {
 	},
 	...baseSchema,
 	...transformSchema,
+	...borderSchema,
 } as const satisfies InteractivitySchema;
 
 const imgCanvasFallbackIncompatibleProps = new Set([

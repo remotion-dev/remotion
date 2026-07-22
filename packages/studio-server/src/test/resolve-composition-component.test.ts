@@ -378,6 +378,7 @@ test('wraps a self-closing root in a Sequence before inserting', async () => {
 				src: 'music.mp3',
 				srcType: 'static',
 				dimensions: null,
+				durationInFrames: null,
 				position: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
@@ -436,6 +437,7 @@ test('removes parentheses when wrapping a self-closing root in a Sequence', asyn
 				src: 'foreground.png',
 				srcType: 'static',
 				dimensions: {width: 1920, height: 1080},
+				durationInFrames: null,
 				position: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
@@ -966,6 +968,7 @@ test('inserts a CanvasImage asset into the resolved composition component', asyn
 					width: 800,
 					height: 600,
 				},
+				durationInFrames: null,
 				position: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
@@ -1025,6 +1028,7 @@ test('inserts a CanvasImage asset with a translate style', async () => {
 					width: 800,
 					height: 600,
 				},
+				durationInFrames: null,
 				position: {
 					x: 100,
 					y: 150,
@@ -1083,6 +1087,7 @@ test('inserts an AnimatedImage asset into the resolved composition component', a
 					width: 320,
 					height: 180,
 				},
+				durationInFrames: 37.52,
 				position: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
@@ -1093,6 +1098,7 @@ test('inserts an AnimatedImage asset into the resolved composition component', a
 		);
 		expect(result.output).toContain('<AnimatedImage');
 		expect(result.output).toContain("src={staticFile('animated-png.png')}");
+		expect(result.output).toContain('durationInFrames={37.52}');
 		expect(result.output).toContain('width: 320');
 		expect(result.output).toContain('height: 180');
 		expect(result.output).not.toContain('width={320}');
@@ -1102,7 +1108,7 @@ test('inserts an AnimatedImage asset into the resolved composition component', a
 	}
 });
 
-test('inserts a Video asset with CSS dimensions', async () => {
+test('inserts a Video asset with its duration and CSS dimensions', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -1141,6 +1147,7 @@ test('inserts a Video asset with CSS dimensions', async () => {
 					width: 1920,
 					height: 1080,
 				},
+				durationInFrames: 37.52,
 				position: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
@@ -1150,13 +1157,13 @@ test('inserts a Video asset with CSS dimensions', async () => {
 		expect(result.output).toContain(
 			"import { AbsoluteFill, staticFile } from 'remotion';",
 		);
+		expect(result.output).toContain('durationInFrames={37.52}');
 		expect(result.output).toContain('<Video');
 		expect(result.output).toContain("src={staticFile('clip.mp4')}");
 		expect(result.output).toContain("position: 'absolute'");
 		expect(result.output).toContain('width: 1920');
 		expect(result.output).toContain('height: 1080');
-		expect(result.output).not.toContain('width={1920}');
-		expect(result.output).not.toContain('height={1080}');
+		expect(result.output).not.toContain('<Sequence');
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
@@ -1201,6 +1208,7 @@ test('rejects inserting a Video asset if Video is already defined', async () => 
 					src: 'clip.mp4',
 					srcType: 'static',
 					dimensions: null,
+					durationInFrames: null,
 					position: null,
 				},
 				prettierConfigOverride: {singleQuote: true, useTabs: true},
@@ -1250,6 +1258,7 @@ test('inserts a Gif asset into the resolved composition component', async () => 
 					width: 320,
 					height: 180,
 				},
+				durationInFrames: 37.52,
 				position: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
@@ -1261,6 +1270,7 @@ test('inserts a Gif asset into the resolved composition component', async () => 
 		);
 		expect(result.output).toContain('<Gif');
 		expect(result.output).toContain("src={staticFile('animation.gif')}");
+		expect(result.output).toContain('durationInFrames={37.52}');
 		expect(result.output).toContain('width: 320');
 		expect(result.output).toContain('height: 180');
 		expect(result.output).not.toContain('width={320}');
@@ -1306,6 +1316,7 @@ test('inserts an Audio asset into the resolved composition component', async () 
 				src: 'audio.mp3',
 				srcType: 'static',
 				dimensions: null,
+				durationInFrames: 37.52,
 				position: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
@@ -1317,6 +1328,7 @@ test('inserts an Audio asset into the resolved composition component', async () 
 		);
 		expect(result.output).toContain('<Audio');
 		expect(result.output).toContain("src={staticFile('audio.mp3')}");
+		expect(result.output).toContain('durationInFrames={37.52}');
 		expect(result.output).not.toContain("position: 'absolute'");
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
@@ -1359,6 +1371,7 @@ test('inserts a remote audio asset with a literal URL', async () => {
 				src: 'https://example.com/whip.wav',
 				srcType: 'remote',
 				dimensions: null,
+				durationInFrames: null,
 				position: null,
 			},
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
@@ -1415,6 +1428,7 @@ test('rejects inserting an Audio asset if Audio is already defined', async () =>
 					src: 'audio.mp3',
 					srcType: 'static',
 					dimensions: null,
+					durationInFrames: null,
 					position: null,
 				},
 				prettierConfigOverride: {singleQuote: true, useTabs: true},

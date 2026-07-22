@@ -199,6 +199,23 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 				default: 1,
 				hiddenFromList: false,
 			},
+			'style.borderWidth': {
+				type: 'number',
+				default: undefined,
+				hiddenFromList: false,
+			},
+			'style.borderStyle': {
+				type: 'enum',
+				default: 'none',
+				variants: {
+					none: {},
+					solid: {},
+				},
+			},
+			'style.borderColor': {
+				type: 'color',
+				default: undefined,
+			},
 			volume: {
 				type: 'number',
 				default: 1,
@@ -236,6 +253,9 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'style.fontFamily',
 		'style.letterSpacing',
 		'style.textAlign',
+		'style.borderWidth',
+		'style.borderStyle',
+		'style.borderColor',
 	]);
 	expect(fields?.map((field) => field.group)).toEqual([
 		'source',
@@ -249,6 +269,9 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'text',
 		'text',
 		'text',
+		'border',
+		'border',
+		'border',
 	]);
 });
 

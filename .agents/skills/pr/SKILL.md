@@ -3,12 +3,8 @@ name: pr
 description: Open a pull request for the current feature
 ---
 
-This skill is only for opening the initial pull request from finished local work.
-
-If a PR already exists for the current branch, stop: do not format, commit, push, amend, or rebase unless the user explicitly asks for that Git action. Leave follow-up changes uncommitted by default.
-
 Ensure we are not on the main branch, make a branch if necessary.  
-Check whether a PR already exists for the current branch with `gh pr status` or `gh pr view`. If it exists, report it and stop.
+Check whether a PR already exists for the current branch with `gh pr status` or `gh pr view`. If one exists, update it with local changes.
 
 Run Oxfmt on the files or package directories affected by the current change. Pass their actual paths; do not assume that the repository root has a `src` directory. Include relevant root-level files, and do not format unrelated packages or the whole repository.
 
@@ -25,7 +21,6 @@ Then run
 ```
 bun run build
 bun run stylecheck
-
 ```
 
 to ensure we compile and CI linting/formatting passes.
@@ -34,7 +29,7 @@ Commit the changes once. The title of the PR must be according to the [`pr-name`
 
 Push the changes to the remote branch once, using `git push -u origin HEAD`.
 
-Never force push. Do not use `git push --force`, `git push -f`, or `git push --force-with-lease`. If a normal push is rejected, stop and report the rejection to the user instead of rewriting remote history.
+Never force push, unless users asks for it.
 
 Use the `gh` CLI to create a pull request and use the same format as above for the title.
 

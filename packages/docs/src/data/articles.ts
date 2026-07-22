@@ -3204,6 +3204,15 @@ export const articles = [
 		slug: 'lambda/deploysite',
 	},
 	{
+		id: 'deploysitefrombundle',
+		title: 'deploySiteFromBundle()',
+		relativePath: 'docs/lambda/deploysitefrombundle.mdx',
+		compId: 'articles-docs-lambda-deploysitefrombundle',
+		crumb: 'Lambda API',
+		noAi: false,
+		slug: 'lambda/deploysitefrombundle',
+	},
+	{
 		id: 'disk-size',
 		title: 'Disk size',
 		relativePath: 'docs/lambda/disk-size.mdx',

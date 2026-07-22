@@ -18,7 +18,7 @@ import {VideoForRendering} from './video-for-rendering';
 const {validateMediaTrimProps, resolveTrimProps, validateMediaProps} =
 	Internals;
 
-const videoSchema = {
+export const videoSchema: InteractivitySchema = {
 	src: {
 		type: 'asset',
 		default: undefined,
@@ -48,6 +48,7 @@ const videoSchema = {
 	muted: {type: 'boolean', default: false, description: 'Muted'},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
 	...Internals.transformSchema,
+	...Interactive.borderSchema,
 } as const satisfies InteractivitySchema;
 
 const InnerVideo: React.FC<

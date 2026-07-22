@@ -35,6 +35,12 @@ type ScheduleAudioNode = (
 	sourceDurationInSeconds: number,
 ) => ScheduleAudioNodeResult;
 
+export const MINIMUM_AUDIO_BUFFERING_TIME_SECONDS = 0.1;
+
+export const hasEnoughAudioToStartPlayback = (bufferedDuration: number) => {
+	return bufferedDuration >= MINIMUM_AUDIO_BUFFERING_TIME_SECONDS;
+};
+
 export type AudioIteratorAnchor = {
 	// The unlooped time in seconds at which the current iterator was started
 	unloopedStartInSeconds: number;
@@ -292,7 +298,7 @@ export const audioIteratorManager = ({
 		) => number | null;
 		playbackRate: number;
 		scheduleAudioNode: ScheduleAudioNode;
-		onScheduled: (mediaTimestamp: number) => void;
+		onScheduled: (sourceDurationInSeconds: number) => void;
 		onDone: () => void;
 		onDestroyed: () => void;
 		logLevel: LogLevel;
@@ -340,7 +346,7 @@ export const audioIteratorManager = ({
 					return;
 				}
 
-				onScheduled(result.value.timelineTimestamp);
+				onScheduled(result.value.sourceDurationInSeconds);
 				notifyNodeScheduled();
 
 				onAudioChunk({
@@ -452,7 +458,16 @@ export const audioIteratorManager = ({
 		audioIteratorsCreated++;
 		audioBufferIterator = iterator;
 
-		let chunksScheduled = 0;
+		let bufferedDuration = 0;
+		let hasUnblockedPlayback = false;
+		const unblockPlayback = () => {
+			if (hasUnblockedPlayback) {
+				return;
+			}
+
+			hasUnblockedPlayback = true;
+			delayHandle.unblock();
+		};
 
 		proceedScheduling({
 			iterator,
@@ -460,19 +475,22 @@ export const audioIteratorManager = ({
 			getTargetTime,
 			playbackRate,
 			scheduleAudioNode,
-			onScheduled: () => {
-				chunksScheduled++;
+			onScheduled: (sourceDurationInSeconds) => {
+				bufferedDuration += sourceDurationInSeconds;
 				// Need to schedule a bit into the future to unblock the buffer state,
-				// otherwise we might be scheduling too late.
-				if (chunksScheduled === 6) {
-					delayHandle.unblock();
+				// otherwise we might be scheduling too late. This must be based on
+				// duration, not chunk count, because large PCM chunks can exceed the
+				// scheduling horizon before enough chunks are queued:
+				// https://github.com/remotion-dev/remotion/issues/9394
+				if (hasEnoughAudioToStartPlayback(bufferedDuration)) {
+					unblockPlayback();
 				}
 			},
 			onDestroyed: () => {
-				delayHandle.unblock();
+				unblockPlayback();
 			},
 			onDone: () => {
-				delayHandle.unblock();
+				unblockPlayback();
 			},
 			logLevel,
 			currentTime: sharedAudioContext.audioContext.currentTime,
