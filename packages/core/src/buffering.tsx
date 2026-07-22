@@ -43,12 +43,14 @@ const useBufferManager = (
 	mountTime: number | null,
 ): BufferManager => {
 	const [blocks, setBlocks] = useState<Block[]>([]);
-	const [onBufferingCallbacks, setOnBufferingCallbacks] = useState<
-		OnBufferingCallback[]
-	>([]);
-	const [onResumeCallbacks, setOnResumeCallbacks] = useState<
-		OnBufferingCallback[]
-	>([]);
+	// Listener registries are refs, not state: `usePlayback` parks its loop
+	// during buffering and registers its resume listener from a rAF callback.
+	// With state, that registration only lands after the next React commit -
+	// if the last block unblocks before then, the resume dispatch reads the
+	// previous array, the listener is never called, and the playback loop
+	// stays parked forever (frame clock frozen while isPlaying() is true).
+	const onBufferingCallbacks = useRef<OnBufferingCallback[]>([]);
+	const onResumeCallbacks = useRef<OnBufferingCallback[]>([]);
 
 	const env = useRemotionEnvironment();
 	const rendering = env.isRendering;
@@ -89,11 +91,16 @@ const useBufferManager = (
 
 	const listenForBuffering: ListenForBuffering = useCallback(
 		(callback: OnBufferingCallback) => {
-			setOnBufferingCallbacks((c) => [...c, callback]);
+			onBufferingCallbacks.current = [
+				...onBufferingCallbacks.current,
+				callback,
+			];
 
 			return {
 				remove: () => {
-					setOnBufferingCallbacks((c) => c.filter((cb) => cb !== callback));
+					onBufferingCallbacks.current = onBufferingCallbacks.current.filter(
+						(cb) => cb !== callback,
+					);
 				},
 			};
 		},
@@ -102,11 +109,13 @@ const useBufferManager = (
 
 	const listenForResume: ListenForResume = useCallback(
 		(callback: OnResumeCallback) => {
-			setOnResumeCallbacks((c) => [...c, callback]);
+			onResumeCallbacks.current = [...onResumeCallbacks.current, callback];
 
 			return {
 				remove: () => {
-					setOnResumeCallbacks((c) => c.filter((cb) => cb !== callback));
+					onResumeCallbacks.current = onResumeCallbacks.current.filter(
+						(cb) => cb !== callback,
+					);
 				},
 			};
 		},
@@ -123,7 +132,7 @@ const useBufferManager = (
 		// not re-dispatch `waiting` to listeners.
 		if (blocks.length > 0 && !buffering.current) {
 			buffering.current = true;
-			onBufferingCallbacks.forEach((c) => c());
+			[...onBufferingCallbacks.current].forEach((c) => c());
 			playbackLogging({
 				logLevel,
 				message: 'Player is entering buffer state',
@@ -151,7 +160,7 @@ const useBufferManager = (
 			// dispatch `resume` to listeners.
 			if (blocks.length === 0 && buffering.current) {
 				buffering.current = false;
-				onResumeCallbacks.forEach((c) => c());
+				[...onResumeCallbacks.current].forEach((c) => c());
 				playbackLogging({
 					logLevel,
 					message: 'Player is exiting buffer state',
