@@ -2,6 +2,7 @@ import {test} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
+import {issue9410TwoAxisScale} from './fixtures/issue-9410-two-axis-scale';
 import {transformWithAllShorthands} from './fixtures/transforms/transform-with-all-shorthands';
 import {transformWithRotate} from './fixtures/transforms/transform-with-rotate';
 import {transformWithScale} from './fixtures/transforms/transform-with-scale';
@@ -21,6 +22,21 @@ test('Should combine transform property with scale shorthand', async () => {
 	).blob({format: 'png'});
 
 	await testImage({blob, testId: 'transform-with-scale'});
+});
+
+test('Should render a scale shorthand with two axis values', async () => {
+	await page.viewport(1080, 1080);
+
+	const blob = await (
+		await renderStillOnWeb({
+			licenseKey: 'free-license',
+			composition: issue9410TwoAxisScale,
+			frame: 0,
+			inputProps: {},
+		})
+	).blob({format: 'png'});
+
+	await testImage({blob, testId: 'issue-9410-two-axis-scale'});
 });
 
 test('Should combine transform property with rotate shorthand', async () => {

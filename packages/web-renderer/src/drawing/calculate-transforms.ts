@@ -48,6 +48,28 @@ const snapshotTransformStyle = (
 	};
 };
 
+const makeScaleMatrix = (scale: string): DOMMatrix => {
+	const values = scale.split(/\s+/).map(Number);
+
+	if (values.some((value) => !Number.isFinite(value))) {
+		throw new Error(`Could not parse CSS scale value: ${scale}`);
+	}
+
+	if (values.length === 1) {
+		return new DOMMatrix().scaleSelf(values[0], values[0]);
+	}
+
+	if (values.length === 2) {
+		return new DOMMatrix().scaleSelf(values[0], values[1]);
+	}
+
+	if (values.length === 3) {
+		return new DOMMatrix().scaleSelf(values[0], values[1], values[2]);
+	}
+
+	throw new Error(`Could not parse CSS scale value: ${scale}`);
+};
+
 const isReplacedElement = (element: Element) => {
 	return (
 		element instanceof HTMLImageElement ||
@@ -211,7 +233,7 @@ export const calculateTransforms = ({
 			const matrix = new DOMMatrix(toParse);
 
 			const resetTransforms = makeTransformResetter(parent);
-			const {scale, rotate} = parent.style;
+			const {rotate} = parent.style;
 			const additionalMatrices: DOMMatrix[] = [];
 
 			// The order of transformations is:
@@ -227,8 +249,12 @@ export const calculateTransforms = ({
 				additionalMatrices.push(new DOMMatrix(`rotate(${rotate})`));
 			}
 
-			if (hasApplicableTransformCssValue && scale !== '' && scale !== 'none') {
-				additionalMatrices.push(new DOMMatrix(`scale(${scale})`));
+			if (
+				hasApplicableTransformCssValue &&
+				transformStyle.scale !== '' &&
+				transformStyle.scale !== 'none'
+			) {
+				additionalMatrices.push(makeScaleMatrix(transformStyle.scale));
 			}
 
 			additionalMatrices.push(matrix);
