@@ -209,6 +209,13 @@ export const isTransitionSeriesSequence = (sequence: TSequence) =>
 	sequence.controls?.componentIdentity ===
 	'dev.remotion.transitions.TransitionSeries.Sequence';
 
+const isSeriesSequence = (sequence: TSequence) =>
+	sequence.controls?.componentIdentity ===
+	'dev.remotion.remotion.Series.Sequence';
+
+const isCascadingSequence = (sequence: TSequence) =>
+	isSeriesSequence(sequence) || isTransitionSeriesSequence(sequence);
+
 const isTransitionSeriesTransition = (sequence: TSequence | undefined) =>
 	sequence?.controls?.componentIdentity ===
 	'dev.remotion.transitions.TransitionSeries.Transition';
@@ -251,10 +258,7 @@ const getMinimumSequenceDuration = ({
 };
 
 export const isTimelineSequenceDurationDraggable = (sequence: TSequence) => {
-	const isInteractiveCascadingSequence =
-		sequence.controls?.componentIdentity ===
-			'dev.remotion.remotion.Series.Sequence' ||
-		isTransitionSeriesSequence(sequence);
+	const isInteractiveCascadingSequence = isCascadingSequence(sequence);
 
 	return (
 		(sequence.type === 'sequence' ||
@@ -269,7 +273,7 @@ export const isTimelineSequenceDurationDraggable = (sequence: TSequence) => {
 
 export const isTimelineSequenceLeftEdgeDraggable = (sequence: TSequence) => {
 	return (
-		(!sequence.isInsideSeries || isTransitionSeriesSequence(sequence)) &&
+		(!sequence.isInsideSeries || isCascadingSequence(sequence)) &&
 		Boolean(sequence.controls) &&
 		(sequence.type === 'sequence' ||
 			sequence.type === 'image' ||
@@ -698,9 +702,7 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 		const nodePath = track.nodePathInfo.sequenceSubscriptionKey;
 		const trimsMedia =
 			originalSequence.type === 'audio' || originalSequence.type === 'video';
-		const positionField = isTransitionSeriesSequence(originalSequence)
-			? null
-			: 'from';
+		const positionField = isCascadingSequence(originalSequence) ? null : 'from';
 		if (
 			(positionField === 'from' && !canUpdateFrom({propStatuses, nodePath})) ||
 			!canUpdateDurationInFrames({propStatuses, nodePath}) ||

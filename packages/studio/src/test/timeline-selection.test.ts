@@ -1911,6 +1911,56 @@ test('TransitionSeries.Sequence left edge drag leaves its calculated position un
 	]);
 });
 
+test('Series.Sequence left edge drag leaves its calculated position unchanged', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const subscriptionKey = nodePathInfo.sequenceSubscriptionKey;
+	const targets = getTimelineSequenceLeftEdgeDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		selectedItems: [{type: 'sequence', nodePathInfo}],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				componentIdentity: 'dev.remotion.remotion.Series.Sequence',
+				duration: 40,
+				from: 12,
+				isInsideSeries: true,
+				trimBefore: 3,
+			}),
+		],
+		overrideIdsToNodePaths: {
+			override: subscriptionKey,
+		},
+		propStatuses: {
+			[Internals.makeSequencePropsSubscriptionKey(subscriptionKey)]: {
+				canUpdate: true,
+				props: {
+					durationInFrames: {status: 'static', codeValue: 40},
+					trimBefore: {status: 'static', codeValue: 3},
+				},
+				effects: [],
+			},
+		},
+	});
+
+	expect(targets?.[0]).toMatchObject({
+		initialDuration: 40,
+		initialFrom: 0,
+		initialTrimBefore: 3,
+		minimumDuration: 1,
+		positionField: null,
+	});
+	expect(
+		getTimelineSequenceLeftEdgeDragChanges({
+			targets: targets ?? [],
+			deltaFrames: 6,
+		}).map((change) => [change.fieldKey, change.value]),
+	).toEqual([
+		['durationInFrames', 34],
+		['trimBefore', 9],
+	]);
+});
+
 test('Timeline left edge drag clamps trimBefore to the visible range', () => {
 	expect(
 		getTimelineSequenceLeftEdgeDragValues({
