@@ -49,7 +49,7 @@ export type KeyframeClipboardData = {
 	readonly version: 1;
 	readonly remotionClipboard: 'keyframe';
 	readonly fieldType: KeyframeClipboardFieldType | null;
-	readonly field?: KeyframeClipboardField;
+	readonly field: KeyframeClipboardField | null;
 	readonly keyframes: readonly {
 		readonly frameOffset: number;
 		readonly value: unknown;
@@ -169,17 +169,12 @@ export const parseKeyframeClipboardDataResult = (
 			parsed.type !== 'keyframe' ||
 			!areValidKeyframes(parsed.keyframes) ||
 			easing === null ||
-			(Object.hasOwn(parsed, 'field') &&
-				!isKeyframeClipboardField(parsed.field)) ||
+			(parsed.field !== null && !isKeyframeClipboardField(parsed.field)) ||
 			(parsed.fieldType !== null &&
 				!isKeyframeClipboardFieldType(parsed.fieldType))
 		) {
 			return {status: 'invalid'};
 		}
-
-		const field = Object.hasOwn(parsed, 'field')
-			? {field: parsed.field as KeyframeClipboardField}
-			: {};
 
 		return {
 			status: 'valid',
@@ -188,7 +183,7 @@ export const parseKeyframeClipboardDataResult = (
 				version: 1,
 				remotionClipboard: 'keyframe',
 				fieldType: parsed.fieldType,
-				...field,
+				field: parsed.field,
 				keyframes: parsed.keyframes,
 				easing,
 			},

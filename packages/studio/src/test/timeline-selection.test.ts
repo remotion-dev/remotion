@@ -988,6 +988,7 @@ test('pasting keyframes targets one selected property at the playhead', () => {
 				version: 1,
 				remotionClipboard: 'keyframe',
 				fieldType: 'number',
+				field: null,
 				keyframes: [
 					{frameOffset: 0, value: 0.4},
 					{frameOffset: 20, value: 0.8},
@@ -1059,6 +1060,7 @@ test('pasting keyframes replaces the destination range and preserves easing', ()
 				version: 1,
 				remotionClipboard: 'keyframe',
 				fieldType: 'number',
+				field: null,
 				keyframes: [
 					{frameOffset: 0, value: 0.25},
 					{frameOffset: 20, value: 0.75},
@@ -1120,6 +1122,7 @@ test('pasting a keyframe rejects an incompatible property', () => {
 				version: 1,
 				remotionClipboard: 'keyframe',
 				fieldType: 'number',
+				field: null,
 				keyframes: [{frameOffset: 0, value: 0.4}],
 				easing: [],
 			},

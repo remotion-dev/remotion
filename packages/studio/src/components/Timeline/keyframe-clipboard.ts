@@ -399,7 +399,8 @@ export const getPasteKeyframeTarget = ({
 	const resolvedSelectedItems: readonly TimelineSelection[] =
 		selectedItems.length === 1 &&
 		selectedItems[0]?.type === 'sequence' &&
-		payload.field?.type === 'sequence'
+		payload.field !== null &&
+		payload.field.type === 'sequence'
 			? [
 					{
 						type: 'sequence-prop',
