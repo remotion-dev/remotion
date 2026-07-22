@@ -9,7 +9,6 @@ import {
 	TIMELINE_BACKGROUND,
 	useTimelineMarqueeSelection,
 } from './TimelineSelection';
-import {useTimelineAssetDrop} from './use-timeline-asset-drop';
 
 const outer: React.CSSProperties = {
 	width: '100%',
@@ -33,7 +32,6 @@ export const TimelineScrollable: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const {marqueeRect, onPointerDownCapture} = useTimelineMarqueeSelection();
-	const {onAssetDragOver, onAssetDrop} = useTimelineAssetDrop();
 	const containerStyle: React.CSSProperties = useMemo(() => {
 		return {
 			width: '100%',
@@ -47,8 +45,6 @@ export const TimelineScrollable: React.FC<{
 			style={outer}
 			className={HORIZONTAL_SCROLLBAR_CLASSNAME}
 			onPointerDownCapture={onPointerDownCapture}
-			onDragOver={onAssetDragOver}
-			onDrop={onAssetDrop}
 		>
 			<div style={containerStyle}>{children}</div>
 			{marqueeRect === null ? null : (

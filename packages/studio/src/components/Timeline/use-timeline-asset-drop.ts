@@ -2,13 +2,14 @@ import {
 	ASSET_DRAG_MIME_TYPE,
 	parseAssetDragData,
 } from '@remotion/studio-shared';
-import {useCallback, useContext, useMemo, useState} from 'react';
+import {useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
 import {insertExistingAssets} from '../import-assets';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
 import {getFrameFromTimelineDrop} from './timeline-scroll-logic';
 import {useResolvedStack} from './use-resolved-stack';
 
@@ -16,11 +17,26 @@ const isAssetDrag = (dataTransfer: DataTransfer) => {
 	return Array.from(dataTransfer.types).includes(ASSET_DRAG_MIME_TYPE);
 };
 
+const isEventInsideElement = (event: DragEvent, element: HTMLElement) => {
+	if (event.target instanceof Node && element.contains(event.target)) {
+		return true;
+	}
+
+	const rect = element.getBoundingClientRect();
+	return (
+		event.clientX >= rect.left &&
+		event.clientX <= rect.right &&
+		event.clientY >= rect.top &&
+		event.clientY <= rect.bottom
+	);
+};
+
 export const useTimelineAssetDrop = () => {
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
 	);
 	const videoConfig = Internals.useUnsafeVideoConfig();
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
 
@@ -53,22 +69,36 @@ export const useTimelineAssetDrop = () => {
 		videoConfig !== null &&
 		!isAddingAsset;
 
-	const onAssetDragOver: React.DragEventHandler<HTMLDivElement> = useCallback(
-		(event) => {
-			if (!isAssetDrag(event.dataTransfer)) {
+	const onAssetDragOver = useCallback(
+		(event: DragEvent) => {
+			const timeline = timelineVerticalScroll.current;
+			const {dataTransfer} = event;
+			if (
+				timeline === null ||
+				dataTransfer === null ||
+				!isAssetDrag(dataTransfer) ||
+				!isEventInsideElement(event, timeline)
+			) {
 				return;
 			}
 
 			event.preventDefault();
 			event.stopPropagation();
-			event.dataTransfer.dropEffect = canInsertAsset ? 'copy' : 'none';
+			dataTransfer.dropEffect = canInsertAsset ? 'copy' : 'none';
 		},
 		[canInsertAsset],
 	);
 
-	const onAssetDrop: React.DragEventHandler<HTMLDivElement> = useCallback(
-		async (event) => {
-			if (!isAssetDrag(event.dataTransfer)) {
+	const onAssetDrop = useCallback(
+		async (event: DragEvent) => {
+			const timeline = timelineVerticalScroll.current;
+			const {dataTransfer} = event;
+			if (
+				timeline === null ||
+				dataTransfer === null ||
+				!isAssetDrag(dataTransfer) ||
+				!isEventInsideElement(event, timeline)
+			) {
 				return;
 			}
 
@@ -91,20 +121,23 @@ export const useTimelineAssetDrop = () => {
 			}
 
 			const dragData = parseAssetDragData(
-				event.dataTransfer.getData(ASSET_DRAG_MIME_TYPE),
+				dataTransfer.getData(ASSET_DRAG_MIME_TYPE),
 			);
 			if (dragData === null) {
 				return;
 			}
 
-			const timeline = event.currentTarget;
-			const frame = getFrameFromTimelineDrop({
-				clientX: event.clientX,
-				durationInFrames: videoConfig.durationInFrames,
-				scrollLeft: timeline.scrollLeft,
-				timelineLeft: timeline.getBoundingClientRect().left,
-				timelineWidth: timeline.scrollWidth,
-			});
+			const scrollable = scrollableRef.current;
+			const frame =
+				scrollable !== null && isEventInsideElement(event, scrollable)
+					? getFrameFromTimelineDrop({
+							clientX: event.clientX,
+							durationInFrames: videoConfig.durationInFrames,
+							scrollLeft: scrollable.scrollLeft,
+							timelineLeft: scrollable.getBoundingClientRect().left,
+							timelineWidth: scrollable.scrollWidth,
+						})
+					: timelinePosition;
 
 			setIsAddingAsset(true);
 			try {
@@ -126,9 +159,20 @@ export const useTimelineAssetDrop = () => {
 			compositionComponentInfo?.canAddSequence,
 			compositionFile,
 			currentCompositionId,
+			timelinePosition,
 			videoConfig,
 		],
 	);
 
-	return {onAssetDragOver, onAssetDrop};
+	useEffect(() => {
+		document.addEventListener('dragover', onAssetDragOver, {capture: true});
+		document.addEventListener('drop', onAssetDrop, {capture: true});
+
+		return () => {
+			document.removeEventListener('dragover', onAssetDragOver, {
+				capture: true,
+			});
+			document.removeEventListener('drop', onAssetDrop, {capture: true});
+		};
+	}, [onAssetDragOver, onAssetDrop]);
 };

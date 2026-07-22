@@ -43,6 +43,7 @@ import {
 import {TimelineTracks} from './TimelineTracks';
 import {TimelineWidthProvider} from './TimelineWidthProvider';
 import {useResolvedStack} from './use-resolved-stack';
+import {useTimelineAssetDrop} from './use-timeline-asset-drop';
 
 const container: React.CSSProperties = {
 	minHeight: '100%',
@@ -58,6 +59,7 @@ const noop = () => undefined;
 const TimelineContextMenuArea: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
+	useTimelineAssetDrop();
 	const {compositions, canvasContent} = useContext(
 		Internals.CompositionManager,
 	);
