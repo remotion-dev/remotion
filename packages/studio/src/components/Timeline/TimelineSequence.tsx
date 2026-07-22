@@ -23,6 +23,7 @@ import {
 } from '../../helpers/get-timeline-sequence-layout';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {isVideoWithLastFrameHold} from '../../helpers/is-video-with-last-frame-hold';
 import {openOriginalPositionInEditor} from '../../helpers/open-in-editor';
 import {
 	getTimelineLayerHeight,
@@ -262,6 +263,7 @@ const TimelineSequenceInner: React.FC<{
 
 	const maxMediaDuration = useMaxMediaDuration(s, video?.fps ?? 30);
 	const effectiveMaxMediaDuration = s.loopDisplay ? null : maxMediaDuration;
+	const extendVideoLastFrame = isVideoWithLastFrameHold(s);
 
 	const originalLocation = useResolveStackAndReactToChange(s.getStack);
 	const validatedLocation = useMemo(() => {
@@ -665,6 +667,7 @@ const TimelineSequenceInner: React.FC<{
 					postmountWidth={postmountWidth ?? 0}
 					loopDisplay={s.loopDisplay}
 					frozenMediaFrame={s.frozenMediaFrame}
+					extendLastFrame={extendVideoLastFrame}
 				/>
 			) : null}
 			{s.type === 'image' ? (

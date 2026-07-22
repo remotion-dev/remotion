@@ -6,6 +6,7 @@ import {
 	UrlSource,
 	VideoSampleSink,
 } from 'mediabunny';
+import {clampTimestampsToDuration} from './clamp-timestamps-to-duration';
 import {getDurationOrCompute} from './get-duration-or-compute';
 
 type Options = {
@@ -23,6 +24,7 @@ export type ExtractFramesProps = {
 	timestampsInSeconds: number[] | ExtractFramesTimestampsInSecondsFn;
 	onVideoSample: (sample: VideoSample) => void;
 	signal?: AbortSignal;
+	repeatLastFrame?: boolean;
 };
 
 export async function extractFrames({
@@ -30,6 +32,7 @@ export async function extractFrames({
 	timestampsInSeconds,
 	onVideoSample,
 	signal,
+	repeatLastFrame = false,
 }: ExtractFramesProps): Promise<void> {
 	const input = new Input({
 		formats: ALL_FORMATS,
@@ -68,7 +71,7 @@ export async function extractFrames({
 			);
 		}
 
-		const timestamps =
+		const requestedTimestamps =
 			typeof timestampsInSeconds === 'function'
 				? await timestampsInSeconds({
 						track: {
@@ -79,6 +82,12 @@ export async function extractFrames({
 						durationInSeconds,
 					})
 				: timestampsInSeconds;
+		const timestamps = repeatLastFrame
+			? clampTimestampsToDuration({
+					timestamps: requestedTimestamps,
+					durationInSeconds,
+				})
+			: requestedTimestamps;
 
 		if (timestamps.length === 0) {
 			return;
