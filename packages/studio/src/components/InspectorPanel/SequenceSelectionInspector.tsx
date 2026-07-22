@@ -37,8 +37,8 @@ import {selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
 
 const splitIconStyle: React.CSSProperties = {
-	height: 18,
-	width: 18,
+	height: 16,
+	width: 16,
 };
 
 const SplitSequenceAction: React.FC<{

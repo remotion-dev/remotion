@@ -16,7 +16,6 @@ import {
 	WHITE_ALPHA_06,
 	CURRENT_COLOR,
 	LIGHT_TEXT,
-	SELECTED_BACKGROUND,
 	TRANSPARENT,
 	WHITE,
 } from '../helpers/colors';
@@ -47,6 +46,7 @@ import {COMPACT_CONTROL_ROW_HEIGHT, Row, Spacing} from './layout';
 import {inlineCodeSnippet} from './Menu/styles';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
+import {getOpenInNewWindowMenuItem} from './open-in-new-window';
 import {openInFileExplorer} from './RenderQueue/actions';
 
 const iconStyle: React.CSSProperties = {
@@ -371,13 +371,7 @@ const AssetSelectorItem: React.FC<{
 		return {
 			...itemStyle,
 			color: hovered || selected ? WHITE : LIGHT_TEXT,
-			backgroundColor: hovered
-				? selected
-					? SELECTED_BACKGROUND
-					: WHITE_ALPHA_06
-				: selected
-					? SELECTED_BACKGROUND
-					: TRANSPARENT,
+			backgroundColor: hovered || selected ? WHITE_ALPHA_06 : TRANSPARENT,
 			paddingLeft: 12 + level * 8,
 		};
 	}, [hovered, level, selected]);
@@ -477,6 +471,11 @@ const AssetSelectorItem: React.FC<{
 
 	const contextMenu = useMemo((): ComboboxValue[] => {
 		return [
+			getOpenInNewWindowMenuItem(`/assets/${relativePath}`),
+			{
+				type: 'divider',
+				id: 'open-in-new-window-divider',
+			},
 			{
 				id: 'copy-asset-file-name',
 				keyHint: null,

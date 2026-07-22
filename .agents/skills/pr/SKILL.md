@@ -49,3 +49,15 @@ Example:
 ```bash
 gh pr create --title '`@remotion/package`: Add feature' --body-file /tmp/remotion-pr-body.md
 ```
+
+## Link directly changed website pages
+
+After creating the PR, check whether it directly adds or modifies a primary page in `packages/docs`. Determine each page's public path from the page source, using `packages/docs/docusaurus.config.ts` as the route source. Do not infer paths for deleted pages or changes that only affect shared components, styles, data, or configuration.
+
+After creating the PR, poll its comments for up to 60 seconds for the Vercel comment, sleeping 5 seconds between checks. Take the `Preview` link from the `remotion` project row and append each page path to it; ignore the `bugs` project row. If that preview link is unavailable and the deployment link only points to the Vercel dashboard, use `vercel inspect <deployment-url>` only when the Vercel CLI is installed and authenticated. Otherwise, do not modify the PR body and report that the preview URL could not be resolved.
+
+Only wait for the Vercel comment. Do not wait for the deployment to finish, create a Vercel heartbeat, or probe the preview page.
+
+Append the deep links to a `## Preview` section in the PR body. Fetch the current body into a temporary Markdown file and update it with `gh pr edit <pr> --body-file <path-to-temp-md-file>`; never pass the replacement body inline.
+
+If either the page path or the preview URL cannot be determined confidently, leave the created PR unchanged and report that preview links were not added.

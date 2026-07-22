@@ -27,6 +27,7 @@ import * as recast from 'recast';
 import {NoReactInternals} from 'remotion/no-react';
 import {formatFileContent} from '../codemods/format-file-content';
 import {parseAst, serializeAst} from '../codemods/parse-ast';
+import {stripParenthesizedExtra} from '../codemods/strip-parenthesized-extra';
 import {parseValueExpression} from '../codemods/update-nested-prop';
 import {
 	ensureNamedImport,
@@ -1398,12 +1399,12 @@ const ensureStaticFileImport = (ast: File) => {
 	});
 };
 
-const ensureImgImport = (ast: File) => {
+const ensureCanvasImageImport = (ast: File) => {
 	return ensureOfficialNamedImport({
 		ast,
-		importedName: 'Img',
+		importedName: 'CanvasImage',
 		sourcePath: 'remotion',
-		label: '<Img>',
+		label: '<CanvasImage>',
 	});
 };
 
@@ -1836,7 +1837,7 @@ const addElementToComponentRoot = ({
 			recast.types.builders.jsxClosingFragment(),
 			[
 				createSequenceWithChild({
-					child: rootNode,
+					child: stripParenthesizedExtra(rootNode),
 					sequenceLocalName: ensureSequenceImport(ast),
 				}),
 				element,
@@ -2202,7 +2203,7 @@ const createInsertableJsxElement = ({
 			element.srcType === 'remote' ? null : ensureStaticFileImport(ast);
 		let localName: string;
 		if (element.assetType === 'image') {
-			localName = ensureImgImport(ast);
+			localName = ensureCanvasImageImport(ast);
 		} else if (element.assetType === 'video') {
 			localName = ensureVideoImport(ast);
 		} else if (element.assetType === 'gif') {

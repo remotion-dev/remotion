@@ -313,7 +313,9 @@ const ImgContent: React.FC<ImgContentProps> = ({
 		isClientSideRendering,
 	});
 
-	// src gets set once we've loaded and decoded the image.
+	// `src` is assigned imperatively to this element in the layout effect above.
+	// The element may paint while `decode()` is pending; `delayRender()` only
+	// blocks frame rendering.
 	return (
 		<img
 			{...props}

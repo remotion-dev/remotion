@@ -397,6 +397,57 @@ test('wraps a self-closing root in a Sequence before inserting', async () => {
 	}
 });
 
+test('removes parentheses when wrapping a self-closing root in a Sequence', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import {Video} from '@remotion/media';",
+				"import {staticFile} from 'remotion';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn (',
+				'\t\t<Video src={staticFile("background.mov")} />',
+				'\t);',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'asset',
+				assetType: 'image',
+				src: 'foreground.png',
+				srcType: 'static',
+				dimensions: {width: 1920, height: 1080},
+				position: null,
+			},
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+
+		expect(result.output).toContain('<Sequence>\n\t\t\t\t<Video');
+		expect(result.output).not.toContain('<Sequence>\n\t\t\t(');
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
 test('canAddSequence=false for ThreeCanvas root element', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
@@ -876,7 +927,7 @@ test('converts and inserts SVG markup as an Interactive.Svg', async () => {
 	}
 });
 
-test('inserts an Img asset into the resolved composition component', async () => {
+test('inserts a CanvasImage asset into the resolved composition component', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -921,9 +972,9 @@ test('inserts an Img asset into the resolved composition component', async () =>
 		});
 
 		expect(result.output).toContain(
-			"import { AbsoluteFill, staticFile, Img } from 'remotion';",
+			"import { AbsoluteFill, staticFile, CanvasImage } from 'remotion';",
 		);
-		expect(result.output).toContain('<Img');
+		expect(result.output).toContain('<CanvasImage');
 		expect(result.output).toContain("src={staticFile('image.png')}");
 		expect(result.output).toContain("position: 'absolute'");
 		expect(result.output).toContain('width: 800');
@@ -935,7 +986,7 @@ test('inserts an Img asset into the resolved composition component', async () =>
 	}
 });
 
-test('inserts an Img asset with a translate style', async () => {
+test('inserts a CanvasImage asset with a translate style', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -982,6 +1033,10 @@ test('inserts an Img asset with a translate style', async () => {
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
+		expect(result.output).toContain(
+			"import { AbsoluteFill, staticFile, CanvasImage } from 'remotion';",
+		);
+		expect(result.output).toContain('<CanvasImage');
 		expect(result.output).toContain("src={staticFile('image.png')}");
 		expect(result.output).toContain("translate: '100px 150px'");
 	} finally {

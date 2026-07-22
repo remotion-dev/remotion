@@ -76,7 +76,7 @@ test('maps animated WebP file types to AnimatedImage assets', () => {
 	});
 });
 
-test('maps static WebP file types to Img assets', () => {
+test('maps static WebP file types to static image assets', () => {
 	expect(
 		getAssetElement({
 			fileType: {

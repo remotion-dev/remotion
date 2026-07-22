@@ -140,6 +140,18 @@ const AnimatedImageContent = forwardRef<
 
 		useEffect(() => {
 			const controller = new AbortController();
+			let cancelled = false;
+			let continued = false;
+
+			const continueRenderOnce = () => {
+				if (continued) {
+					return;
+				}
+
+				continued = true;
+				continueRender(decodeHandle);
+			};
+
 			decodeImage({
 				resolvedSrc,
 				signal: controller.signal,
@@ -148,26 +160,37 @@ const AnimatedImageContent = forwardRef<
 				initialLoopBehavior,
 			})
 				.then((d) => {
+					if (cancelled) {
+						d.close();
+						return;
+					}
+
 					setImageDecoder(d);
-					continueRender(decodeHandle);
+					continueRenderOnce();
 				})
 				.catch((err) => {
+					if (cancelled) {
+						return;
+					}
+
 					if ((err as Error).name === 'AbortError') {
-						continueRender(decodeHandle);
+						continueRenderOnce();
 
 						return;
 					}
 
 					if (onError) {
 						onError?.(err as Error);
-						continueRender(decodeHandle);
+						continueRenderOnce();
 					} else {
 						cancelRender(err);
 					}
 				});
 
 			return () => {
+				cancelled = true;
 				controller.abort();
+				continueRenderOnce();
 			};
 		}, [
 			resolvedSrc,
@@ -177,6 +200,12 @@ const AnimatedImageContent = forwardRef<
 			initialLoopBehavior,
 			continueRender,
 		]);
+
+		useEffect(() => {
+			return () => {
+				imageDecoder?.close();
+			};
+		}, [imageDecoder]);
 
 		useLayoutEffect(() => {
 			if (!imageDecoder) {
