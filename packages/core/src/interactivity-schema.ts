@@ -412,6 +412,7 @@ export const sequencePremountSchema = {
 
 export const sequenceStyleSchema = {
 	...transformSchema,
+	...borderSchema,
 	...sequencePremountSchema,
 } as const satisfies InteractivitySchema;
 

@@ -2,7 +2,7 @@ import {afterEach, beforeEach, expect, test} from 'bun:test';
 import {cleanup, render, waitFor} from '@testing-library/react';
 import React, {useCallback, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {Gif} from '../Gif';
+import {Gif, gifSchema} from '../Gif';
 import {manuallyManagedGifCache} from '../gif-cache';
 import type {GifState} from '../props';
 import {getGifCacheKey} from '../request-init';
@@ -11,6 +11,12 @@ import {resolveGifSource} from '../resolve-gif-source';
 type RegisteredSequence = {
 	readonly refForOutline: React.RefObject<HTMLElement | null> | null;
 };
+
+test('Gif exposes border controls', () => {
+	expect('style.borderWidth' in gifSchema).toBe(true);
+	expect('style.borderStyle' in gifSchema).toBe(true);
+	expect('style.borderColor' in gifSchema).toBe(true);
+});
 
 class MockWorker {
 	public static instances = 0;

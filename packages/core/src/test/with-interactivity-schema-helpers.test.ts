@@ -1,4 +1,6 @@
 import {expect, test} from 'bun:test';
+import {animatedImageSchema} from '../animated-image/AnimatedImage.js';
+import {canvasImageSchema} from '../canvas-image/CanvasImage.js';
 import type {SequenceControls} from '../CompositionManager.js';
 import {solidSchema} from '../effects/Solid.js';
 import {getComponentsToAddStacksTo} from '../enable-sequence-stack-traces.js';
@@ -7,6 +9,7 @@ import {
 	getFlatSchemaWithAllKeys,
 } from '../flatten-schema.js';
 import {htmlInCanvasSchema} from '../HtmlInCanvas.js';
+import {imgSchema} from '../Img.js';
 import {Interactive} from '../Interactive.js';
 import {
 	baseSchema,
@@ -32,9 +35,25 @@ test('sequenceStyleSchema contains transform and premount fields', () => {
 	expect(Object.keys(sequenceStyleSchema).sort()).toEqual(
 		[
 			...Object.keys(transformSchema),
+			...Object.keys(borderSchema),
 			...Object.keys(sequencePremountSchema),
 		].sort(),
 	);
+});
+
+test('CSS box component schemas expose border controls', () => {
+	for (const schema of [
+		sequenceStyleSchema,
+		imgSchema,
+		animatedImageSchema,
+		canvasImageSchema,
+		htmlInCanvasSchema,
+		solidSchema,
+	]) {
+		expect('style.borderWidth' in schema).toBe(true);
+		expect('style.borderStyle' in schema).toBe(true);
+		expect('style.borderColor' in schema).toBe(true);
+	}
 });
 
 test('premount fields are not keyframable', () => {
@@ -127,6 +146,9 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'style.rotate',
 			'style.transformOrigin',
 			'style.opacity',
+			'style.borderWidth',
+			'style.borderStyle',
+			'style.borderColor',
 			'premountFor',
 			'postmountFor',
 			'styleWhilePremounted',
@@ -398,6 +420,9 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 			'style.rotate',
 			'style.transformOrigin',
 			'style.opacity',
+			'style.borderWidth',
+			'style.borderStyle',
+			'style.borderColor',
 			'premountFor',
 			'postmountFor',
 		].sort(),

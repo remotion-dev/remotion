@@ -26,7 +26,7 @@ export type GifProps = InteractiveBaseProps &
  * @description Displays a GIF that synchronizes with Remotions useCurrentFrame().
  * @see [Documentation](https://remotion.dev/docs/gif)
  */
-const gifSchema = {
+export const gifSchema: InteractivitySchema = {
 	...Internals.baseSchema,
 	playbackRate: {
 		type: 'number',
@@ -39,6 +39,7 @@ const gifSchema = {
 		keyframable: false,
 	},
 	...Internals.transformSchema,
+	...Interactive.borderSchema,
 } as const satisfies InteractivitySchema;
 
 const GifInner = ({

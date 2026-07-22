@@ -140,10 +140,20 @@ const makeRemotionComponentIdentity = ({
 const interactiveElementSchema = {
 	...baseSchema,
 	...transformSchema,
+} as const satisfies InteractivitySchema;
+
+const interactiveBorderElementSchema = {
+	...interactiveElementSchema,
 	...borderSchema,
 } as const satisfies InteractivitySchema;
 
 const interactiveTextElementSchema = {
+	...interactiveBorderElementSchema,
+	...textSchema,
+	...textContentSchema,
+} as const satisfies InteractivitySchema;
+
+const interactiveSvgTextElementSchema = {
 	...interactiveElementSchema,
 	...textSchema,
 	...textContentSchema,
@@ -305,8 +315,16 @@ export const Interactive = {
 	Small: makeInteractiveTextElement('small', '<Interactive.Small>'),
 	Span: makeInteractiveTextElement('span', '<Interactive.Span>'),
 	Strong: makeInteractiveTextElement('strong', '<Interactive.Strong>'),
-	Svg: makeInteractiveNonTextElement('svg', '<Interactive.Svg>'),
-	Text: makeInteractiveTextElement('text', '<Interactive.Text>'),
+	Svg: makeInteractiveElement(
+		'svg',
+		'<Interactive.Svg>',
+		interactiveBorderElementSchema,
+	),
+	Text: makeInteractiveElement(
+		'text',
+		'<Interactive.Text>',
+		interactiveSvgTextElementSchema,
+	),
 	Ul: makeInteractiveTextElement('ul', '<Interactive.Ul>'),
 };
 
