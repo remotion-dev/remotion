@@ -146,7 +146,8 @@ const TimelineContextMenuArea: React.FC<{
 		if (
 			!canInsertAsset ||
 			currentCompositionId === null ||
-			compositionFile === null
+			compositionFile === null ||
+			videoConfig === null
 		) {
 			return;
 		}
@@ -160,6 +161,7 @@ const TimelineContextMenuArea: React.FC<{
 		try {
 			await importAssets({
 				files,
+				fps: videoConfig.fps,
 				compositionFile,
 				compositionId: currentCompositionId,
 				destinationDimensions: null,
@@ -169,7 +171,7 @@ const TimelineContextMenuArea: React.FC<{
 		} finally {
 			setIsAddingAsset(false);
 		}
-	}, [canInsertAsset, compositionFile, currentCompositionId]);
+	}, [canInsertAsset, compositionFile, currentCompositionId, videoConfig]);
 
 	const contextMenuItems = useMemo((): ComboboxValue[] => {
 		return [
