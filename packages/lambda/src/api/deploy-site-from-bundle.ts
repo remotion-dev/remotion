@@ -1,7 +1,6 @@
-import path from 'node:path';
 import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
 import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
-import {RenderInternals, type ToOptions} from '@remotion/renderer';
+import type {ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import type {
@@ -21,10 +20,10 @@ export type DeploySiteFromBundleOutput = DeploySiteOutput;
 type MandatoryParameters = {
 	bucketName: string;
 	region: AwsRegion;
+	bundleDir: string;
 };
 
 type OptionalParameters = {
-	bundleDir: string;
 	siteName: string;
 	options: DeploySiteWithBundleOptions;
 	privacy: 'public' | 'no-acl';
@@ -36,16 +35,11 @@ export type DeploySiteFromBundleInput = MandatoryParameters &
 	Partial<OptionalParameters>;
 
 export type InternalDeploySiteFromBundleInput = MandatoryParameters &
-	Omit<OptionalParameters, 'bundleDir'> & {
-		bundleDir: string | null;
+	OptionalParameters & {
 		indent: boolean;
 		providerSpecifics: ProviderSpecifics<AwsProvider>;
 		fullClientSpecifics: FullClientSpecifics<AwsProvider>;
 	};
-
-export const getDefaultBundleDir = () => {
-	return path.join(RenderInternals.findRemotionRoot(), 'build');
-};
 
 const mandatoryDeploySiteFromBundle = ({
 	bucketName,
@@ -60,9 +54,7 @@ const mandatoryDeploySiteFromBundle = ({
 	fullClientSpecifics,
 	requestHandler,
 }: InternalDeploySiteFromBundleInput): DeploySiteFromBundleOutput => {
-	const resolvedBundleDir = validateBundleDir(
-		bundleDir ?? getDefaultBundleDir(),
-	);
+	const resolvedBundleDir = validateBundleDir(bundleDir);
 
 	return deploySiteWithBundle({
 		bucketName,
@@ -92,7 +84,7 @@ export const internalDeploySiteFromBundle: (
 export const deploySiteFromBundle = (args: DeploySiteFromBundleInput) => {
 	return internalDeploySiteFromBundle({
 		bucketName: args.bucketName,
-		bundleDir: args.bundleDir ?? null,
+		bundleDir: args.bundleDir,
 		region: args.region,
 		options: args.options ?? {},
 		privacy: args.privacy ?? 'public',

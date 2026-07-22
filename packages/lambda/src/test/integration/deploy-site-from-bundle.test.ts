@@ -4,18 +4,15 @@ import {
 	mkdirSync,
 	mkdtempSync,
 	readFileSync,
-	realpathSync,
 	rmSync,
+	symlinkSync,
 	writeFileSync,
 } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {internalGetOrCreateBucket} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
-import {
-	getDefaultBundleDir,
-	internalDeploySiteFromBundle,
-} from '../../api/deploy-site-from-bundle';
+import {internalDeploySiteFromBundle} from '../../api/deploy-site-from-bundle';
 import {mockFullClientSpecifics} from '../mock-implementation';
 import {mockImplementation} from '../mocks/mock-implementation';
 import {resetMockStore} from '../mocks/mock-store';
@@ -71,7 +68,7 @@ const deployBundle = ({
 	fullClientSpecifics = mockFullClientSpecifics,
 }: {
 	bucketName: string;
-	bundleDir: string | null;
+	bundleDir: string;
 	siteName: string;
 	throwIfSiteExists?: boolean;
 	providerSpecifics?: typeof mockImplementation;
@@ -329,33 +326,69 @@ test('validates the local bundle before making an AWS request', async () => {
 			providerSpecifics,
 		}),
 	).rejects.toThrow('is not relocatable');
+
+	const malformedPublicPath = makeBundle({'bundle.js': 'bundle'});
+	writeFileSync(
+		path.join(malformedPublicPath, 'index.html'),
+		'<meta name="remotion-bundle-public-path" content="relative" /><script>window.remotion_publicPath = "\\x";</script>',
+	);
+	await expect(
+		deployBundle({
+			bucketName: 'remotionlambda-testing',
+			bundleDir: malformedPublicPath,
+			siteName: 'from-bundle-validation',
+			providerSpecifics,
+		}),
+	).rejects.toMatchObject({
+		message: expect.stringContaining(
+			'Could not parse `window.remotion_publicPath`',
+		),
+		cause: expect.any(SyntaxError),
+	});
 	expect(awsCalls).toBe(0);
 });
 
-test('deploys from the Remotion root build directory by default', async () => {
-	const projectRoot = mkdtempSync(
-		path.join(os.tmpdir(), 'remotion-default-bundle-test-'),
-	);
-	temporaryDirectories.push(projectRoot);
-	writeFileSync(path.join(projectRoot, 'package.json'), '{}');
-	const buildDir = path.join(projectRoot, 'build');
-	mkdirSync(buildDir);
-	writeFileSync(path.join(buildDir, 'index.html'), relocatableIndexHtml);
-	writeFileSync(path.join(buildDir, 'bundle.js'), 'bundle');
-	const bucketName = await makeBucket();
-	const previousCwd = process.cwd();
+if (process.platform !== 'win32') {
+	test('uploads file symlinks and rejects directory symlinks before AWS requests', async () => {
+		const externalDirectory = mkdtempSync(
+			path.join(os.tmpdir(), 'remotion-symlink-target-test-'),
+		);
+		temporaryDirectories.push(externalDirectory);
+		const externalFile = path.join(externalDirectory, 'target.txt');
+		writeFileSync(externalFile, 'linked contents');
 
-	try {
-		process.chdir(projectRoot);
-		expect(realpathSync(getDefaultBundleDir())).toBe(realpathSync(buildDir));
+		const fileLinkBundle = makeBundle({'bundle.js': 'bundle'});
+		symlinkSync(externalFile, path.join(fileLinkBundle, 'linked.txt'));
+		const bucketName = await makeBucket();
 		const result = await deployBundle({
 			bucketName,
-			bundleDir: null,
-			siteName: 'from-bundle-default-dir',
+			bundleDir: fileLinkBundle,
+			siteName: 'from-bundle-file-link',
 		});
-		expect(result.siteName).toBe('from-bundle-default-dir');
-		expect(result.stats.uploadedFiles).toBe(2);
-	} finally {
-		process.chdir(previousCwd);
-	}
-});
+		expect(result.stats.uploadedFiles).toBe(3);
+
+		const directoryLinkBundle = makeBundle({'bundle.js': 'bundle'});
+		symlinkSync(
+			externalDirectory,
+			path.join(directoryLinkBundle, 'linked-directory'),
+			'dir',
+		);
+		let awsCalls = 0;
+		const providerSpecifics: typeof mockImplementation = {
+			...mockImplementation,
+			getAccountId: () => {
+				awsCalls++;
+				return Promise.resolve('123456789');
+			},
+		};
+		await expect(
+			deployBundle({
+				bucketName,
+				bundleDir: directoryLinkBundle,
+				siteName: 'from-bundle-directory-link',
+				providerSpecifics,
+			}),
+		).rejects.toThrow('symbolic link to a directory');
+		expect(awsCalls).toBe(0);
+	});
+}

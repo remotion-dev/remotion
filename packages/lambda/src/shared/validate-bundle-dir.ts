@@ -12,8 +12,33 @@ const getPublicPath = (indexHtml: string): unknown => {
 
 	try {
 		return JSON.parse(match[1]);
-	} catch {
-		return null;
+	} catch (error) {
+		throw new Error(
+			'Could not parse `window.remotion_publicPath` in the bundle index.html.',
+			{cause: error},
+		);
+	}
+};
+
+const validateNoDirectorySymlinks = (
+	directory: string,
+	bundleDir: string,
+): void => {
+	for (const entry of fs.readdirSync(directory, {withFileTypes: true})) {
+		const entryPath = path.join(directory, entry.name);
+		if (entry.isSymbolicLink()) {
+			if (fs.statSync(entryPath).isDirectory()) {
+				throw new Error(
+					`The bundle directory ${bundleDir} contains a symbolic link to a directory at ${path.relative(bundleDir, entryPath)}. Directory symbolic links are not supported by \`deploySiteFromBundle()\`.`,
+				);
+			}
+
+			continue;
+		}
+
+		if (entry.isDirectory()) {
+			validateNoDirectorySymlinks(entryPath, bundleDir);
+		}
 	}
 };
 
@@ -65,6 +90,8 @@ export const validateBundleDir = (bundleDir: unknown): string => {
 			`The bundle at ${resolvedBundleDir} is not relocatable. Rebuild it using Remotion v4.0.497 or newer.`,
 		);
 	}
+
+	validateNoDirectorySymlinks(resolvedBundleDir, resolvedBundleDir);
 
 	return resolvedBundleDir;
 };

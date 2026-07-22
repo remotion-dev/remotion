@@ -28,6 +28,7 @@ import {deploySiteFromBundle} from '@remotion/lambda';
 const {serveUrl, siteName} = await deploySiteFromBundle({
   bucketName: 'remotionlambda-c7fsl3d',
   region: 'us-east-1',
+  bundleDir: './build',
 });
 
 console.log(serveUrl, siteName);
@@ -36,7 +37,7 @@ console.log(serveUrl, siteName);
 The bundle directory is read but not modified or deleted.
 
 :::caution
-Deploy only trusted artifacts. Files referenced by symbolic links inside the bundle are included in the upload.
+Deploy only trusted artifacts. Symbolic links to files are followed and the target contents are uploaded. Symbolic links to directories are rejected.
 :::
 
 The bundle must be relocatable. Bundles created using `npx remotion bundle` from v4.0.497 are relocatable by default. Bundles created with earlier versions are rejected and must be rebuilt after upgrading.
@@ -53,13 +54,11 @@ The bucket to which the site is deployed. It must have been created by Remotion 
 
 The AWS region containing the bucket.
 
-### `bundleDir?`
+### `bundleDir`
 
 The local directory containing the bundle. It must contain `index.html` and `bundle.js` files at its root.
 
-Default: the `build` directory in the Remotion project root, matching the output of `npx remotion bundle`.
-
-Pass this property when the bundle is stored elsewhere:
+The default output directory of `npx remotion bundle` is `./build`. Pass a different path when the bundle is stored elsewhere:
 
 ```ts twoslash title="deploy.ts"
 import {deploySiteFromBundle} from '@remotion/lambda';
