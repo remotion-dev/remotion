@@ -987,12 +987,24 @@ const getNestedPropStatus = ({
 	}
 
 	const objExpr = expression as ObjectExpression;
-	const prop = objExpr.properties.find(
-		(p) =>
-			p.type === 'ObjectProperty' &&
-			((p.key.type === 'Identifier' && p.key.name === childKey) ||
-				(p.key.type === 'StringLiteral' && p.key.value === childKey)),
-	) as ObjectProperty | undefined;
+	let prop: ObjectProperty | undefined;
+	for (let index = objExpr.properties.length - 1; index >= 0; index--) {
+		const candidate = objExpr.properties[index];
+		if (candidate.type === 'SpreadElement') {
+			return computedStatus();
+		}
+
+		if (
+			candidate.type === 'ObjectProperty' &&
+			((candidate.key.type === 'Identifier' &&
+				candidate.key.name === childKey) ||
+				(candidate.key.type === 'StringLiteral' &&
+					candidate.key.value === childKey))
+		) {
+			prop = candidate;
+			break;
+		}
+	}
 
 	if (!prop) {
 		// Property not set in the object, can be added

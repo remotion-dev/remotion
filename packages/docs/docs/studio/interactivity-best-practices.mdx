@@ -9,6 +9,8 @@ crumb: "Remotion Studio"
 Write editable Remotion components so the [Studio interactivity](/docs/studio/interactivity) can understand the values that should be changed visually.
 
 When a value is shown as computed in the Studio, it often means that the value is hidden behind a variable, helper function, conditional expression or transform string.
+The Studio leaves computed values untouched, so their runtime result is preserved.
+Inline a computed value only when it should become editable or keyframable in the Studio.
 
 ## Quick checklist {#quick-checklist}
 
@@ -71,6 +73,9 @@ Do not animate with frame math such as `frame * 2`, modulo expressions, helper f
 Keep the input range and output range directly in the `interpolate()` call.
 The input range must use hardcoded numbers, not variables or expressions such as `[sendStartFrame, sendStartFrame + duration]`.
 
+Values inherited from an object spread remain computed and render with their runtime value.
+Put a property after the spread to make that property editable without inlining the other shared styles.
+
 ```tsx title="Inline values"
 // 👍 Inline values can be standardized and keyframed
 <Interactive.Div
@@ -98,6 +103,7 @@ const rotation = interpolate(frame, [0, 30], [0, 20]);
   name="Product card"
   style={{
     ...container,
+    color: 'white', // Editable because it is declared after the spread
     transform: `translateY(${translateY}px) rotate(${rotation}deg)`,
   }}
 />
