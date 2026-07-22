@@ -23,6 +23,7 @@ import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TRANSPARENT} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import {sortItemsByNonceHistory} from '../../helpers/sort-by-nonce-history';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {
 	forceSpecificCursor,
@@ -57,6 +58,7 @@ const baseStyle: React.CSSProperties = {
 export type TimelineSequenceDurationDragTarget = {
 	readonly fileName: string;
 	readonly initialDuration: number;
+	readonly minimumDuration: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
 };
@@ -66,6 +68,7 @@ export type TimelineSequenceLeftEdgeDragTarget = {
 	readonly initialDuration: number;
 	readonly initialFrom: number;
 	readonly initialTrimBefore: number;
+	readonly minimumDuration: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly playbackRate: number;
 	readonly positionField: 'from' | null;
@@ -206,6 +209,47 @@ export const isTransitionSeriesSequence = (sequence: TSequence) =>
 	sequence.controls?.componentIdentity ===
 	'dev.remotion.transitions.TransitionSeries.Sequence';
 
+const isTransitionSeriesTransition = (sequence: TSequence | undefined) =>
+	sequence?.controls?.componentIdentity ===
+	'dev.remotion.transitions.TransitionSeries.Transition';
+
+const getMinimumSequenceDuration = ({
+	sequence,
+	sequences,
+}: {
+	readonly sequence: TSequence;
+	readonly sequences: TSequence[];
+}) => {
+	if (!isTransitionSeriesSequence(sequence)) {
+		return 1;
+	}
+
+	const siblings = sortItemsByNonceHistory(
+		sequences.filter(
+			(candidate) =>
+				candidate.parent === sequence.parent &&
+				candidate.rootId === sequence.rootId &&
+				(isTransitionSeriesSequence(candidate) ||
+					isTransitionSeriesTransition(candidate)),
+		),
+	);
+	const sequenceIndex = siblings.findIndex(
+		(candidate) => candidate.id === sequence.id,
+	);
+	if (sequenceIndex === -1) {
+		return 1;
+	}
+
+	const previous = siblings[sequenceIndex - 1];
+	const next = siblings[sequenceIndex + 1];
+
+	return Math.max(
+		1,
+		isTransitionSeriesTransition(previous) ? previous.duration : 1,
+		isTransitionSeriesTransition(next) ? next.duration : 1,
+	);
+};
+
 export const isTimelineSequenceDurationDraggable = (sequence: TSequence) => {
 	const isInteractiveCascadingSequence =
 		sequence.controls?.componentIdentity ===
@@ -267,24 +311,28 @@ const isFromDraggableSequence = (sequence: TSequence) => {
 export const getTimelineSequenceDurationDragValue = ({
 	initialDuration,
 	deltaFrames,
+	minimumDuration = 1,
 }: {
 	readonly initialDuration: number;
 	readonly deltaFrames: number;
-}) => Math.max(1, initialDuration + deltaFrames);
+	readonly minimumDuration?: number;
+}) => Math.max(minimumDuration, initialDuration + deltaFrames);
 
 export const getTimelineSequenceLeftEdgeDragDelta = ({
 	initialDuration,
 	initialTrimBefore,
 	deltaFrames,
 	playbackRate,
+	minimumDuration = 1,
 }: {
 	readonly initialDuration: number;
 	readonly initialTrimBefore: number;
 	readonly deltaFrames: number;
 	readonly playbackRate: number;
+	readonly minimumDuration?: number;
 }) => {
 	const minDeltaFrames = 0 - initialTrimBefore / playbackRate;
-	const maxDeltaFrames = initialDuration - 1;
+	const maxDeltaFrames = initialDuration - minimumDuration;
 
 	return Math.max(minDeltaFrames, Math.min(deltaFrames, maxDeltaFrames));
 };
@@ -295,18 +343,21 @@ export const getTimelineSequenceLeftEdgeDragValues = ({
 	initialTrimBefore,
 	deltaFrames,
 	playbackRate,
+	minimumDuration = 1,
 }: {
 	readonly initialDuration: number;
 	readonly initialFrom: number;
 	readonly initialTrimBefore: number;
 	readonly deltaFrames: number;
 	readonly playbackRate: number;
+	readonly minimumDuration?: number;
 }) => {
 	const clampedDeltaFrames = getTimelineSequenceLeftEdgeDragDelta({
 		initialDuration,
 		initialTrimBefore,
 		deltaFrames,
 		playbackRate,
+		minimumDuration,
 	});
 
 	return {
@@ -330,6 +381,7 @@ export const getTimelineSequenceLeftEdgeDragChanges = ({
 			initialTrimBefore: target.initialTrimBefore,
 			deltaFrames,
 			playbackRate: target.playbackRate,
+			minimumDuration: target.minimumDuration,
 		});
 		const changes: SaveSequencePropChange[] = [];
 
@@ -384,6 +436,7 @@ export const getTimelineSequenceDurationDragChanges = ({
 		const nextValue = getTimelineSequenceDurationDragValue({
 			initialDuration: target.initialDuration,
 			deltaFrames,
+			minimumDuration: target.minimumDuration,
 		});
 
 		if (nextValue === target.initialDuration) {
@@ -576,6 +629,10 @@ export const getTimelineSequenceDurationDragTargets = ({
 			targets.set(key, {
 				fileName: nodePath.absolutePath,
 				initialDuration: originalSequence.duration,
+				minimumDuration: getMinimumSequenceDuration({
+					sequence: originalSequence,
+					sequences,
+				}),
 				nodePath,
 				schema: controls.schema,
 			});
@@ -667,6 +724,10 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 					? (originalSequence.trimBefore ??
 						Math.max(0, originalSequence.startMediaFrom))
 					: (originalSequence.trimBefore ?? 0),
+				minimumDuration: getMinimumSequenceDuration({
+					sequence: originalSequence,
+					sequences,
+				}),
 				nodePath,
 				playbackRate: getTrimBeforePlaybackRate(originalSequence),
 				positionField,
@@ -987,6 +1048,7 @@ export const TimelineSequenceLeftEdgeDragHandle: React.FC<{
 					initialTrimBefore: target.initialTrimBefore,
 					deltaFrames,
 					playbackRate: target.playbackRate,
+					minimumDuration: target.minimumDuration,
 				});
 				if (target.positionField !== null) {
 					latestRef.current.setDragOverrides(
@@ -1531,6 +1593,7 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 						getTimelineSequenceDurationDragValue({
 							initialDuration: target.initialDuration,
 							deltaFrames,
+							minimumDuration: target.minimumDuration,
 						}),
 					),
 				);

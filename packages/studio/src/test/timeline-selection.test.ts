@@ -1521,6 +1521,7 @@ test('Timeline duration drag supports interactive video clips', () => {
 		{
 			fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
 			initialDuration: 78,
+			minimumDuration: 1,
 			nodePath: nodePathInfo.sequenceSubscriptionKey,
 			schema: Internals.baseSchema,
 		},
@@ -1570,6 +1571,81 @@ test('Timeline duration drag clamps each selected sequence to one frame', () => 
 			deltaFrames: -10,
 		}),
 	).toBe(10);
+});
+
+test('TransitionSeries.Sequence resize clamps to adjacent transition durations', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const nodePathInfo = makeNodePathInfo(['body', 2], []);
+	const transitionSeriesSequence = (
+		id: string,
+		duration: number,
+		overrideId: string,
+	) =>
+		makeTimelineSequence({
+			schema,
+			id,
+			overrideId,
+			duration,
+			componentIdentity: 'dev.remotion.transitions.TransitionSeries.Sequence',
+			isInsideSeries: true,
+		});
+	const transition = (id: string, duration: number) =>
+		makeTimelineSequence({
+			schema: {},
+			id,
+			duration,
+			componentIdentity: 'dev.remotion.transitions.TransitionSeries.Transition',
+			isInsideSeries: true,
+		});
+	const sequences = [
+		transitionSeriesSequence('first', 30, 'first'),
+		transition('previous-transition', 8),
+		transitionSeriesSequence('target', 40, 'target'),
+		transition('next-transition', 12),
+		transitionSeriesSequence('last', 30, 'last'),
+	];
+	const propStatuses = makeLeftEdgePropStatuses(
+		[nodePathInfo.sequenceSubscriptionKey],
+		true,
+	);
+	const overrideIdsToNodePaths = {
+		target: nodePathInfo.sequenceSubscriptionKey,
+	};
+	const selectedItems = [{type: 'sequence' as const, nodePathInfo}];
+	const durationTargets = getTimelineSequenceDurationDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		selectedItems,
+		sequences,
+		overrideIdsToNodePaths,
+		propStatuses,
+	});
+
+	expect(durationTargets?.[0].minimumDuration).toBe(12);
+	expect(
+		getTimelineSequenceDurationDragChanges({
+			targets: durationTargets ?? [],
+			deltaFrames: -100,
+		})[0].value,
+	).toBe(12);
+
+	const leftEdgeTargets = getTimelineSequenceLeftEdgeDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		selectedItems,
+		sequences,
+		overrideIdsToNodePaths,
+		propStatuses,
+	});
+
+	expect(leftEdgeTargets?.[0].minimumDuration).toBe(12);
+	expect(
+		getTimelineSequenceLeftEdgeDragChanges({
+			targets: leftEdgeTargets ?? [],
+			deltaFrames: 100,
+		}).map((change) => [change.fieldKey, change.value]),
+	).toEqual([
+		['durationInFrames', 12],
+		['trimBefore', 28],
+	]);
 });
 
 test('Timeline duration drag is blocked if one selected sequence cannot update duration', () => {
