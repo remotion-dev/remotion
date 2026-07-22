@@ -2,8 +2,24 @@ import {expect, test} from 'bun:test';
 import {
 	deriveInputDraggerDragStartValue,
 	deriveInputDraggerStep,
+	deriveInputDraggerValueDiff,
 	isInputDraggerValueInRange,
 } from '../components/NewComposition/InputDragger';
+
+test('drag sensitivity scales the value change', () => {
+	const defaultDiff = deriveInputDraggerValueDiff({
+		dragSensitivity: 1,
+		step: 1,
+		xDistance: 10,
+	});
+	const sensitiveDiff = deriveInputDraggerValueDiff({
+		dragSensitivity: 3,
+		step: 1,
+		xDistance: 10,
+	});
+
+	expect(sensitiveDiff).toBe(defaultDiff * 3);
+});
 
 test('deriveInputDraggerStep disables HTML step validation if snapping is disabled', () => {
 	expect(
