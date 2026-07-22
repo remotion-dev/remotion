@@ -189,6 +189,36 @@ export const Example = ({border}: {border: string}) => {
 	expect(result.props['style.borderColor']).toEqual({status: 'computed'});
 });
 
+test('computeSequencePropsStatus should treat side-specific borders as computed', () => {
+	const sideProperties = [
+		"borderLeft: '1px solid red'",
+		'borderRightWidth: 2',
+		"borderTopStyle: 'dashed'",
+		"'borderBottomColor': 'blue'",
+	];
+
+	for (const sideProperty of sideProperties) {
+		const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return <AbsoluteFill style={{${sideProperty}}} />;
+};
+`;
+		const result = computeSequencePropsStatusFromContent({
+			fileContents: input,
+			nodePath: getNodePathFromContent(input, 4),
+			componentIdentity: null,
+			keys: ['style.borderWidth', 'style.borderStyle', 'style.borderColor'],
+			effects: [],
+			videoConfigValues: null,
+		});
+
+		expect(result.props['style.borderWidth']).toEqual({status: 'computed'});
+		expect(result.props['style.borderStyle']).toEqual({status: 'computed'});
+		expect(result.props['style.borderColor']).toEqual({status: 'computed'});
+	}
+});
+
 test('computeSequencePropsStatus should respect border property order', () => {
 	const input = `import {AbsoluteFill} from 'remotion';
 

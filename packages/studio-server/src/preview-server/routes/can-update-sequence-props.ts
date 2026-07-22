@@ -947,6 +947,21 @@ const validateStyleValue = (childKey: string, value: unknown): boolean => {
 	return true;
 };
 
+const BORDER_SIDE_PROPERTY_REGEX =
+	/^border(?:Top|Right|Bottom|Left)(?:Width|Style|Color)?$/;
+
+const isBorderSideProperty = (property: ObjectProperty): boolean => {
+	if (property.key.type === 'Identifier') {
+		return BORDER_SIDE_PROPERTY_REGEX.test(property.key.name);
+	}
+
+	if (property.key.type === 'StringLiteral') {
+		return BORDER_SIDE_PROPERTY_REGEX.test(property.key.value);
+	}
+
+	return false;
+};
+
 const getNestedPropStatus = ({
 	jsxElement,
 	ast,
@@ -993,6 +1008,16 @@ const getNestedPropStatus = ({
 		(childKey === 'borderWidth' ||
 			childKey === 'borderStyle' ||
 			childKey === 'borderColor');
+	if (
+		isBorderLonghand &&
+		objExpr.properties.some(
+			(property) =>
+				property.type === 'ObjectProperty' && isBorderSideProperty(property),
+		)
+	) {
+		return computedStatus();
+	}
+
 	const relevantProperties = objExpr.properties.filter(
 		(p) =>
 			p.type === 'ObjectProperty' &&
