@@ -4,6 +4,7 @@ import {expect, test} from 'vitest';
 import {
 	anchorToContinuousTime,
 	audioIteratorManager,
+	hasEnoughAudioToStartPlayback,
 } from '../audio-iterator-manager';
 import {makeNonceManager} from '../nonce-manager';
 
@@ -163,6 +164,12 @@ test('anchor maps unlooped time using the local playback rate', () => {
 			playbackRate: 2,
 		}),
 	).toBe(8);
+});
+
+test('audio startup buffering is based on duration instead of chunk count', () => {
+	expect(hasEnoughAudioToStartPlayback(0.099)).toBe(false);
+	expect(hasEnoughAudioToStartPlayback(0.1)).toBe(true);
+	expect(hasEnoughAudioToStartPlayback(0.5)).toBe(true);
 });
 
 test('media player should work', async () => {
