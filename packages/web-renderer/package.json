@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/web-renderer"
 	},
 	"name": "@remotion/web-renderer",
-	"version": "4.0.489",
+	"version": "4.0.496",
 	"main": "dist/index.js",
 	"type": "module",
 	"scripts": {
@@ -27,6 +27,7 @@
 		"mediabunny": "catalog:"
 	},
 	"devDependencies": {
+		"@remotion/effects": "workspace:*",
 		"@react-three/fiber": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@remotion/paths": "workspace:*",
@@ -68,6 +69,6 @@
 		"renderer",
 		"web"
 	],
-	"description": "Render videos in the browser (not yet released)",
+	"description": "Render videos in the browser",
 	"homepage": "https://www.remotion.dev/docs/web-renderer/"
 }

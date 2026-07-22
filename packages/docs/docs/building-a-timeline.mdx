@@ -100,8 +100,9 @@ export type Track = {
 // @filename: Main.tsx
 // ---cut---
 import type {Track, Item} from './types';
+import {Video} from '@remotion/media';
 import React from 'react';
-import {AbsoluteFill, Sequence, OffthreadVideo} from 'remotion';
+import {AbsoluteFill, Sequence} from 'remotion';
 
 const ItemComp: React.FC<{
   item: Item;
@@ -115,7 +116,7 @@ const ItemComp: React.FC<{
   }
 
   if (item.type === 'video') {
-    return <OffthreadVideo src={item.src} />;
+    return <Video src={item.src} />;
   }
 
   throw new Error(`Unknown item type: ${JSON.stringify(item)}`);

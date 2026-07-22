@@ -27,6 +27,10 @@ test('Should be able to extract a frame', async () => {
 		throw new Error('Cannot decode');
 	}
 
+	if (result.type === 'cannot-decode-prores') {
+		throw new Error('Cannot decode ProRes');
+	}
+
 	if (result.type === 'network-error') {
 		throw new Error('Network error');
 	}
@@ -77,6 +81,10 @@ test('Should be able to extract the last frame', async () => {
 
 	if (result.type === 'cannot-decode') {
 		throw new Error('Cannot decode');
+	}
+
+	if (result.type === 'cannot-decode-prores') {
+		throw new Error('Cannot decode ProRes');
 	}
 
 	if (result.type === 'network-error') {
@@ -160,6 +168,10 @@ test('Should be apply volume correctly', async () => {
 		throw new Error('Cannot decode');
 	}
 
+	if (result.type === 'cannot-decode-prores') {
+		throw new Error('Cannot decode ProRes');
+	}
+
 	if (result.type === 'network-error') {
 		throw new Error('Network error');
 	}
@@ -213,6 +225,10 @@ test('Should be able to loop', async () => {
 
 	if (result.type === 'cannot-decode') {
 		throw new Error('Cannot decode');
+	}
+
+	if (result.type === 'cannot-decode-prores') {
+		throw new Error('Cannot decode ProRes');
 	}
 
 	if (result.type === 'network-error') {

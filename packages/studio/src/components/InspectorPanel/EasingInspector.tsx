@@ -24,18 +24,17 @@ import {
 	type EasingSelection,
 } from '../Timeline/update-selected-easing';
 import {
-	InspectorBackHeaderWithDivider,
+	InspectorActionSection,
+	InspectorBackAction,
 	InspectorInlineAction,
 	InspectorMessage,
+	InspectorSectionDivider,
 } from './common';
 import {getEasingSelectionFromCurrentKeyframes} from './easing-inspector-selection';
 import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
-import {SequenceInspectorHeaderWithDivider} from './SequenceInspectorHeader';
-import {
-	detailsContainer,
-	sectionHeaderTitle,
-	selectedContainer,
-} from './styles';
+import {KeyframeSettings} from './KeyframeSettings';
+import {SequenceInspectorSections} from './SequenceInspectorHeader';
+import {selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
 
 type EasingInspectorDetails = {
@@ -46,8 +45,8 @@ type EasingInspectorDetails = {
 
 const addKeyframeIcon: React.CSSProperties = {
 	display: 'block',
-	height: 13,
-	width: 12,
+	height: 18,
+	width: 18,
 };
 
 export const EasingInspector: React.FC<{
@@ -279,13 +278,14 @@ export const EasingInspector: React.FC<{
 	const renderHeader = useCallback(
 		() => (
 			<>
-				<InspectorBackHeaderWithDivider
+				<InspectorBackAction
 					disabled={parentSelection === null}
 					onClick={onSelectParent}
 					title="Back to property"
 				>
-					<div style={sectionHeaderTitle}>{fieldLabel}</div>
-				</InspectorBackHeaderWithDivider>
+					{fieldLabel}
+				</InspectorBackAction>
+				<InspectorSectionDivider />
 				{easingUpdate === null || track === null ? null : (
 					<KeyframeEasingNavigator
 						currentSelection={currentEasingSelection ?? selection}
@@ -310,20 +310,28 @@ export const EasingInspector: React.FC<{
 		],
 	);
 
-	if (state === null || track === null || currentEasingSelection === null) {
+	if (
+		state === null ||
+		track === null ||
+		currentEasingSelection === null ||
+		easingUpdate === null
+	) {
 		return <InspectorMessage>Easing unavailable</InspectorMessage>;
 	}
 
 	return (
 		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-			<SequenceInspectorHeaderWithDivider track={track} />
+			<SequenceInspectorSections track={track} />
+			<InspectorSectionDivider />
 			<EasingEditor
 				key={getTimelineSelectionKey(currentEasingSelection)}
 				state={state}
 				renderHeader={renderHeader}
 			/>
+			<InspectorSectionDivider />
+			<KeyframeSettings update={easingUpdate} />
 			{canAddKeyframeAtPlayhead ? (
-				<div style={detailsContainer}>
+				<InspectorActionSection>
 					<InspectorInlineAction
 						disabled={addKeyframeDisabled}
 						onClick={onAddKeyframeAtPlayhead}
@@ -333,7 +341,7 @@ export const EasingInspector: React.FC<{
 					>
 						{`Add keyframe at ${addKeyframeTime}`}
 					</InspectorInlineAction>
-				</div>
+				</InspectorActionSection>
 			) : null}
 		</div>
 	);

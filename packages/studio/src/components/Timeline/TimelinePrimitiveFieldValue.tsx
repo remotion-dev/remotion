@@ -10,6 +10,7 @@ import type {
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
+import {TimelineAssetField} from './TimelineAssetField';
 import {TimelineBooleanField} from './TimelineBooleanField';
 import {TimelineColorField} from './TimelineColorField';
 import {TimelineEnumField} from './TimelineEnumField';
@@ -37,11 +38,7 @@ export type TimelinePrimitiveFieldInfo = Omit<
 export const isTimelinePrimitiveFieldInfo = (
 	field: SchemaFieldInfo,
 ): field is TimelinePrimitiveFieldInfo => {
-	return (
-		field.typeName !== 'array' &&
-		field.typeName !== 'hidden' &&
-		field.fieldSchema.type !== 'array'
-	);
+	return field.typeName !== 'array' && field.fieldSchema.type !== 'array';
 };
 
 export const TimelinePrimitiveFieldValue: React.FC<{
@@ -204,11 +201,24 @@ export const TimelinePrimitiveFieldValue: React.FC<{
 
 	if (field.typeName === 'text-content') {
 		return (
+			<TimelineTextContentField
+				effectiveValue={effectiveValue}
+				field={field}
+				nodePath={scaleLockNodePath}
+				onDragEnd={onDragEnd}
+				onDragValueChange={onDragValueChange}
+				onSave={onSave}
+				propStatus={propStatus}
+			/>
+		);
+	}
+
+	if (field.typeName === 'font-family') {
+		return (
 			<span style={inlineWrapper}>
-				<TimelineTextContentField
+				<TimelineFontFamilyField
 					effectiveValue={effectiveValue}
 					field={field}
-					nodePath={scaleLockNodePath}
 					onDragEnd={onDragEnd}
 					onDragValueChange={onDragValueChange}
 					onSave={onSave}
@@ -218,10 +228,10 @@ export const TimelinePrimitiveFieldValue: React.FC<{
 		);
 	}
 
-	if (field.typeName === 'font-family') {
+	if (field.typeName === 'asset') {
 		return (
 			<span style={inlineWrapper}>
-				<TimelineFontFamilyField
+				<TimelineAssetField
 					effectiveValue={effectiveValue}
 					field={field}
 					onDragEnd={onDragEnd}

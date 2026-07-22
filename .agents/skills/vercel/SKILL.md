@@ -7,7 +7,16 @@ description: Set up a Codex monitor for Vercel deployments and preview URLs. Use
 
 ## Overview
 
-Set up a short-lived Codex heartbeat that watches a Vercel deployment and reports back in the current thread when it is ready or failed. Always include both the Vercel deployment/dashboard URL and the public preview URL in the final notification.
+Set up a short-lived Codex heartbeat that watches the `remotion` Vercel deployment and reports back in the current thread when it is ready or failed. Always include both the Vercel deployment/dashboard URL and the public preview URL in the final notification.
+
+## Project Selection
+
+This repository has two Vercel deployments: `bugs` and `remotion`. The Vercel monitor skill always means the `remotion` deployment unless the user explicitly asks for another project.
+
+- Select checks, deployment URLs, preview URLs, and CLI results for the `remotion` project.
+- Ignore the `bugs` deployment, even if it appears first or is newer.
+- When output contains links for both projects, use surrounding check names, project names, or deployment metadata to associate the links with `remotion`. If necessary, inspect the candidates before creating a monitor.
+- Do not ask the user which project they mean merely because both deployments exist; default to `remotion`.
 
 ## Workflow
 
@@ -22,8 +31,8 @@ Prefer sources in this order:
 
 1. A Vercel deployment URL or preview URL explicitly provided by the user.
 2. URLs in the current terminal output or pasted logs.
-3. Vercel URLs from the active GitHub PR checks or deployment status.
-4. Vercel CLI output, if the repository is linked and the user asked for the latest deployment.
+3. Vercel URLs from the active GitHub PR's `remotion` check or deployment status. Ignore the `bugs` check.
+4. Vercel CLI output for the `remotion` project, if the repository is linked and the user asked for the latest deployment.
 
 Use `scripts/extract-vercel-links.py` to normalize raw terminal, Vercel CLI, or GitHub output:
 
@@ -31,7 +40,7 @@ Use `scripts/extract-vercel-links.py` to normalize raw terminal, Vercel CLI, or 
 python3 .agents/skills/vercel/scripts/extract-vercel-links.py < deployment-output.txt
 ```
 
-If only one link is available, use `vercel inspect <url>` when authenticated to discover the missing deployment or preview URL. If neither a deployment URL nor a preview URL can be found, ask the user for one concise piece of context: the Vercel URL, PR URL/number, or branch name.
+If only one link is available, use `vercel inspect <url>` when authenticated to confirm that it belongs to the `remotion` project and discover the missing deployment or preview URL. If neither a deployment URL nor a preview URL can be found, ask the user for one concise piece of context: the Vercel URL, PR URL/number, or branch name.
 
 ## Check Status
 

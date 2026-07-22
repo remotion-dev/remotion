@@ -19,7 +19,7 @@ import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
 import {RenderStatusModal} from './RenderModal/RenderStatusModal';
 import {RenderModalWithLoader} from './RenderModal/ServerRenderModal';
 import {WebRenderModalWithLoader} from './RenderModal/WebRenderModal';
-import {KeyframeSettingsModal} from './Timeline/KeyframeSettingsModal';
+import {SvgImportDialog} from './SvgImportDialog';
 import {UpdateModal} from './UpdateModal/UpdateModal';
 
 export const Modals: React.FC<{
@@ -77,10 +77,6 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'input-props-override' && (
 				<OverrideInputPropsModal />
 			)}
-			{modalContextType && modalContextType.type === 'keyframe-settings' && (
-				<KeyframeSettingsModal state={modalContextType} />
-			)}
-
 			{modalContextType && modalContextType.type === 'web-render' && (
 				<WebRenderModalWithLoader {...modalContextType} />
 			)}
@@ -185,6 +181,9 @@ export const Modals: React.FC<{
 			)}
 			{modalContextType && modalContextType.type === 'confirmation-dialog' && (
 				<ConfirmationDialog state={modalContextType} />
+			)}
+			{modalContextType && modalContextType.type === 'svg-import-dialog' && (
+				<SvgImportDialog state={modalContextType} />
 			)}
 			{getStudioAskAIEnabled() && <AskAiModal />}
 		</>

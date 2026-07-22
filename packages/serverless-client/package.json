@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/serverless-client"
 	},
 	"name": "@remotion/serverless-client",
-	"version": "4.0.489",
+	"version": "4.0.496",
 	"main": "dist",
 	"scripts": {
 		"lint": "eslint src",

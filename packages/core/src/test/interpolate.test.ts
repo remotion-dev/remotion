@@ -184,6 +184,106 @@ test('Easing array with two keyframes rejects more than one entry', () => {
 	}, /When easing is an array, it must have one entry per segment between keyframes \(length inputRange.length - 1 = 1\), but got length 2/);
 });
 
+test('Output defaults to linear interpolation', () => {
+	expect(interpolate(30, [0, 60], [1, 2])).toBe(1.5);
+	expect(interpolate(30, [0, 60], [1, 2], {output: 'linear'})).toBe(1.5);
+});
+
+test('Perceptual scale output interpolates signed visual area linearly', () => {
+	expect(
+		interpolate(30, [0, 60], [0, 1], {output: 'perceptual-scale'}),
+	).toBeCloseTo(Math.SQRT1_2);
+	expect(
+		interpolate(30, [0, 60], [0, -1], {output: 'perceptual-scale'}),
+	).toBeCloseTo(-Math.SQRT1_2);
+	expect(
+		interpolate(30, [0, 60], [1, 2], {output: 'perceptual-scale'}),
+	).toBeCloseTo(Math.sqrt(2.5));
+	expect(
+		interpolate(30, [0, 60], [2, 1], {output: 'perceptual-scale'}),
+	).toBeCloseTo(Math.sqrt(2.5));
+	expect(interpolate(30, [0, 60], [1, -1], {output: 'perceptual-scale'})).toBe(
+		0,
+	);
+});
+
+test('Perceptual scale output supports multi-keyframe ranges', () => {
+	expect(
+		interpolate(45, [0, 30, 60], [0, 1, 2], {
+			output: 'perceptual-scale',
+		}),
+	).toBeCloseTo(Math.sqrt(2.5));
+});
+
+test('Perceptual scale output applies easing before mapping to the output range', () => {
+	expect(
+		interpolate(30, [0, 60], [0, 1], {
+			easing: Easing.quad,
+			output: 'perceptual-scale',
+		}),
+	).toBeCloseTo(0.5);
+});
+
+test('Perceptual scale output supports extrapolation', () => {
+	expect(
+		interpolate(90, [0, 60], [0, 1], {output: 'perceptual-scale'}),
+	).toBeCloseTo(Math.sqrt(1.5));
+	expect(
+		interpolate(90, [0, 60], [0, 1], {
+			extrapolateRight: 'clamp',
+			output: 'perceptual-scale',
+		}),
+	).toBe(1);
+	expect(
+		interpolate(-30, [0, 60], [0, 1], {
+			extrapolateLeft: 'identity',
+			output: 'perceptual-scale',
+		}),
+	).toBe(-30);
+});
+
+test('Perceptual scale output supports tuples and scale strings', () => {
+	const tuple = interpolate(
+		30,
+		[0, 60],
+		[
+			[0, 0],
+			[1, -1],
+		],
+		{output: 'perceptual-scale'},
+	);
+	expect(tuple[0]).toBeCloseTo(Math.SQRT1_2);
+	expect(tuple[1]).toBeCloseTo(-Math.SQRT1_2);
+
+	const [x, y] = interpolate(15, [0, 30], ['0 -1', '1 -4'], {
+		output: 'perceptual-scale',
+	})
+		.split(' ')
+		.map(Number);
+	expect(x).toBeCloseTo(Math.SQRT1_2);
+	expect(y).toBeCloseTo(-Math.sqrt(8.5));
+});
+
+test('Perceptual scale output supports zero and negative single-value ranges', () => {
+	expect(interpolate(30, [0], [0], {output: 'perceptual-scale'})).toBe(0);
+	expect(interpolate(30, [0], [-1], {output: 'perceptual-scale'})).toBe(-1);
+	expect(
+		interpolate(30, [0, 60], [-1, -2], {output: 'perceptual-scale'}),
+	).toBeCloseTo(-Math.sqrt(2.5));
+	expect(interpolate(30, [0, 60], [-1, 1], {output: 'perceptual-scale'})).toBe(
+		0,
+	);
+});
+
+test('Output option validates the output mapping name', () => {
+	expectToThrow(() => {
+		interpolate(30, [0, 60], [1, 4], {
+			// @ts-expect-error
+			output: 'logarithmic',
+		});
+	}, /output must be "linear" or "perceptual-scale"/);
+});
+
 test('Posterize quantizes the input before interpolating', () => {
 	expect(interpolate(17, [0, 60], [0, 1], {posterize: 3})).toBe(0.25);
 	expect(interpolate(19, [0, 30, 60], [0, 100, 200], {posterize: 10})).toBe(

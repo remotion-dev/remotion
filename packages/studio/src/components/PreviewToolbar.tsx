@@ -36,7 +36,7 @@ import {SnappingToggle} from './SnappingToggle';
 import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
 
-const TOOLBAR_HEIGHT = 50;
+const TOOLBAR_HEIGHT = 40;
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -78,7 +78,7 @@ const scrollIndicatorRight: React.CSSProperties = {
 
 const sideContainer: React.CSSProperties = {
 	width: 300,
-	height: 36,
+	height: 30,
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
@@ -261,10 +261,10 @@ export const PreviewToolbar: React.FC<{
 						<CheckboardToggle />
 					</PreviewToolbarControl>
 					<PreviewToolbarControl>
-						<OutlineToggle />
+						<OutlineToggle disabled={readOnlyStudio} />
 					</PreviewToolbarControl>
 					<PreviewToolbarControl>
-						<SnappingToggle />
+						<SnappingToggle disabled={readOnlyStudio} />
 					</PreviewToolbarControl>
 				</>
 			) : null}
@@ -296,7 +296,7 @@ export const PreviewToolbar: React.FC<{
 				{!isMobileLayout && <FpsCounter playbackSpeed={playbackRate} />}
 				<Spacing x={2} />
 				<PreviewToolbarControl>
-					<RenderButton readOnlyStudio={readOnlyStudio} />
+					<RenderButton readOnlyStudio={readOnlyStudio} size="compact" />
 				</PreviewToolbarControl>
 				<Spacing x={1.5} />
 			</div>

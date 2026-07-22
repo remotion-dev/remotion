@@ -28,6 +28,16 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 	readonly dragDecimalPlaces?: number;
 };
 
+export const inputDraggerContainerStyle: React.CSSProperties = {
+	...inputBaseStyle,
+	backgroundColor: TRANSPARENT,
+	borderColor: TRANSPARENT,
+	display: 'inline-block',
+	lineHeight: 1.5,
+	outline: 'none',
+	padding: '4px 6px',
+};
+
 const isInt = (num: number) => {
 	return num % 1 === 0;
 };
@@ -82,6 +92,24 @@ export const deriveInputDraggerDragStartValue = ({
 	return 0;
 };
 
+export const isInputDraggerValueInRange = ({
+	max,
+	min,
+	value,
+}: {
+	readonly max: React.InputHTMLAttributes<HTMLInputElement>['max'];
+	readonly min: React.InputHTMLAttributes<HTMLInputElement>['min'];
+	readonly value: number;
+}) => {
+	const numericMin = Number(min);
+	const numericMax = Number(max);
+
+	return (
+		(!Number.isFinite(numericMin) || value >= numericMin) &&
+		(!Number.isFinite(numericMax) || value <= numericMax)
+	);
+};
+
 const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	HTMLButtonElement,
 	Props
@@ -108,15 +136,6 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	const [dragging, setDragging] = useState(false);
 	const fallbackRef = useRef<HTMLInputElement>(null);
 	const pointerDownRef = useRef(false);
-	const style = useMemo(() => {
-		return {
-			...inputBaseStyle,
-			backgroundColor: TRANSPARENT,
-			borderColor: TRANSPARENT,
-			padding: '4px 6px',
-			...{outline: 'none'},
-		};
-	}, []);
 
 	const span: React.CSSProperties = useMemo(
 		() => ({
@@ -170,11 +189,19 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	const onInputChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			const parsed = Number(e.target.value);
-			if (e.target.value !== '' && !Number.isNaN(parsed)) {
+			if (
+				e.target.value !== '' &&
+				!Number.isNaN(parsed) &&
+				isInputDraggerValueInRange({
+					max: _max,
+					min: _min,
+					value: parsed,
+				})
+			) {
 				onValueChange(parsed);
 			}
 		},
-		[onValueChange],
+		[_max, _min, onValueChange],
 	);
 
 	const onBlur = useCallback(() => {
@@ -333,7 +360,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			ref={ref}
 			type="button"
 			className={'__remotion_input_dragger'}
-			style={style}
+			style={inputDraggerContainerStyle}
 			onClick={onClick}
 			onFocus={onFocus}
 			onKeyDown={onKeyDown}

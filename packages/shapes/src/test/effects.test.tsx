@@ -32,12 +32,8 @@ type SequenceCall = {
 
 const htmlInCanvasCalls: HtmlInCanvasCall[] = [];
 const sequenceCalls: SequenceCall[] = [];
-const stackTraceComponents: unknown[] = [];
 const effectDefinitions = [{type: 'effect-definition'}];
 let hasVideoConfig = true;
-const addSequenceStackTraces = mock((component: unknown) => {
-	stackTraceComponents.push(component);
-});
 
 mock.module('remotion', () => {
 	return {
@@ -77,7 +73,6 @@ mock.module('remotion', () => {
 			);
 		},
 		Internals: {
-			addSequenceStackTraces,
 			CanUseRemotionHooks: React.createContext(true),
 			CompositionManagerProvider: ({
 				children,

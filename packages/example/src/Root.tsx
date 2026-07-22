@@ -16,6 +16,11 @@ import {NativeBufferStateForImage} from './BufferState/Image';
 import {NativeBufferState} from './BufferState/Simple';
 import {NativeBufferStateForVideo} from './BufferState/Video';
 import {CancelRender} from './CancelRender';
+import {
+	AnimatedCaptions,
+	CAPTIONS_DURATION_IN_FRAMES,
+	CAPTIONS_HEIGHT,
+} from './CaptionsTester/AnimatedCaptions';
 import {ClassSerialization} from './ClassSerialization';
 import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
@@ -74,6 +79,7 @@ import {
 	HtmlInCanvasDocsDemo2DBlur,
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
+	HtmlInCanvasNestedEffects,
 	HtmlInCanvasPixelDensity,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
@@ -207,6 +213,7 @@ import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh'
 import {Empty} from './Empty';
 import {
 	Issue8974IndependentVideosTimeline,
+	Issue8974SeriesTimeline,
 	Issue8974TransitionSeriesTimeline,
 } from './Issue8974TimelineInteractivity';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
@@ -236,6 +243,15 @@ import {
 	ProResMediaVideo,
 	calculateProResMediaVideoMetadata,
 } from './ProResMediaVideo';
+import {
+	RoughNotationBox,
+	RoughNotationBracket,
+	RoughNotationCircle,
+	RoughNotationCrossedOff,
+	RoughNotationHighlight,
+	RoughNotationStrikeThrough,
+	RoughNotationUnderline,
+} from './RoughNotation';
 import {SfxExample} from './Sfx';
 import {CanvasImg} from './SimpleImg/CanvasImg';
 import {ImgEffects} from './SimpleImg/ImgEffects';
@@ -268,6 +284,8 @@ import {
 	InteractiveHtmlElements,
 	InteractiveSvgElements,
 } from './VisualModeTests/InteractiveComponents';
+import {Issue9170} from './VisualModeTests/Issue9170';
+import {VideoConfigExpressions} from './VisualModeTests/VideoConfigExpressions';
 import {VoiceVisualization} from './voice-visualization';
 import {WhisperWeb} from './WhisperWeb';
 
@@ -394,6 +412,14 @@ export const Index: React.FC = () => {
 
 	return (
 		<>
+			<Composition
+				id="captions-tester"
+				component={AnimatedCaptions}
+				durationInFrames={CAPTIONS_DURATION_IN_FRAMES}
+				fps={30}
+				width={1080}
+				height={CAPTIONS_HEIGHT}
+			/>
 			<Folder name="copilot-tests">
 				<Composition
 					id="keyframed-props-test"
@@ -406,6 +432,16 @@ export const Index: React.FC = () => {
 				<Composition
 					id="cubic-easing-interpolation-test"
 					lazyComponent={() => import('./CubicEasingInterpolationTest')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="interpolate-output-effect-scale-comparison"
+					lazyComponent={() =>
+						import('./InterpolateOutputEffectScaleComparison')
+					}
 					width={1080}
 					height={1080}
 					fps={30}
@@ -1176,6 +1212,14 @@ export const Index: React.FC = () => {
 						durationInFrames={120}
 					/>
 					<Composition
+						id="html-in-canvas-nested-effects"
+						component={HtmlInCanvasNestedEffects}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={120}
+					/>
+					<Composition
 						id="book-flip-transition-doc"
 						component={BookFlipTransitionDoc}
 						fps={30}
@@ -1460,7 +1504,6 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={2 * 60 * 60 * 30}
 				/>
-
 				<Composition
 					id="video-speed"
 					component={VideoSpeed}
@@ -2191,7 +2234,6 @@ export const Index: React.FC = () => {
 					durationInFrames={150}
 					schema={schemaTestSchema}
 				/>
-
 				<Composition
 					id="zod-v4-schema-test"
 					component={ZodV4SchemaTest}
@@ -2209,7 +2251,6 @@ export const Index: React.FC = () => {
 						nested: {a: 'asdfadsf', b: 99},
 					}}
 				/>
-
 				<Composition
 					id="discriminated-union-root"
 					component={DiscriminatedUnionSchemaTest}
@@ -2527,6 +2568,64 @@ export const Index: React.FC = () => {
 					durationInFrames={120}
 				/>
 			</Folder>
+			<Folder name="rough-notation">
+				<Composition
+					id="rough-notation-highlight"
+					component={RoughNotationHighlight}
+					width={1080}
+					height={500}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-box"
+					component={RoughNotationBox}
+					width={1080}
+					height={500}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-circle"
+					component={RoughNotationCircle}
+					width={1080}
+					height={500}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-bracket"
+					component={RoughNotationBracket}
+					width={1080}
+					height={500}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-crossed-off"
+					component={RoughNotationCrossedOff}
+					width={1080}
+					height={500}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-strike-through"
+					component={RoughNotationStrikeThrough}
+					width={1080}
+					height={500}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-underline"
+					component={RoughNotationUnderline}
+					width={1080}
+					height={500}
+					fps={30}
+					durationInFrames={90}
+				/>
+			</Folder>
 			<Folder name="starburst">
 				<Composition
 					id="starburst"
@@ -2595,9 +2694,9 @@ export const Index: React.FC = () => {
 					durationInFrames={165}
 				/>
 			</Folder>
-			<Folder name="Issue8974">
+			<Folder name="video-editing">
 				<Composition
-					id="issue-8974-transition-series-timeline"
+					id="video-editing-cascading"
 					component={Issue8974TransitionSeriesTimeline}
 					width={1920}
 					height={1080}
@@ -2605,8 +2704,16 @@ export const Index: React.FC = () => {
 					durationInFrames={210}
 				/>
 				<Composition
-					id="issue-8974-independent-videos-timeline"
+					id="video-editing-independent"
 					component={Issue8974IndependentVideosTimeline}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={366}
+				/>
+				<Composition
+					id="video-editing-series"
+					component={Issue8974SeriesTimeline}
 					width={1920}
 					height={1080}
 					fps={30}
@@ -2645,6 +2752,22 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={90}
+				/>
+				<Composition
+					id="video-config-expressions"
+					component={VideoConfigExpressions}
+					width={1200}
+					height={800}
+					fps={30}
+					durationInFrames={300}
+				/>
+				<Composition
+					id="issue-9170-duration-subtraction"
+					component={Issue9170}
+					width={1200}
+					height={800}
+					fps={30}
+					durationInFrames={120}
 				/>
 			</Folder>
 			<ChangingTrimBeforeValue />

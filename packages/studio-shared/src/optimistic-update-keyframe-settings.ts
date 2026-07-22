@@ -50,6 +50,7 @@ const applySettingsToStatus = (
 			? {clamping: settings.clamping}
 			: {}),
 		...(settings.type === 'settings' ? {posterize: settings.posterize} : {}),
+		...(settings.type === 'settings' ? {output: settings.output} : {}),
 		...(settings.type === 'easing'
 			? {
 					easing: updateEasing({

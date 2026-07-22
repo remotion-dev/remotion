@@ -162,7 +162,9 @@ const TimelineContextMenuArea: React.FC<{
 				files,
 				compositionFile,
 				compositionId: currentCompositionId,
+				destinationDimensions: null,
 				dropPosition: null,
+				svgImportMode: 'image',
 			});
 		} finally {
 			setIsAddingAsset(false);
@@ -213,6 +215,7 @@ const TimelineContextMenuArea: React.FC<{
 
 const TimelineInner: React.FC = () => {
 	const {sequences} = useContext(Internals.SequenceManager);
+	const {compositions} = useContext(Internals.CompositionManager);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const isStill = useIsStill();
 	const {overrideIdToNodePathMappings} = useContext(
@@ -234,8 +237,14 @@ const TimelineInner: React.FC = () => {
 		return calculateTimeline({
 			sequences,
 			overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			compositions,
 		});
-	}, [sequences, videoConfigIsNull, overrideIdToNodePathMappings]);
+	}, [
+		sequences,
+		videoConfigIsNull,
+		overrideIdToNodePathMappings,
+		compositions,
+	]);
 
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 

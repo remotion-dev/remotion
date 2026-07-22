@@ -27,6 +27,7 @@ export const Component = () => {
 const getTranslateStatus = (translateValue: string) => {
 	const input = makeComponent(translateValue);
 	const result = computeSequencePropsStatusFromContent({
+		videoConfigValues: null,
 		fileContents: input,
 		nodePath: lineColumnToNodePath(input, 7),
 		componentIdentity: null,

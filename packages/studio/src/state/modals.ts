@@ -27,7 +27,6 @@ import type {SequencePropsSubscriptionKey, _InternalTypes} from 'remotion';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
-import type {KeyframeSettingsModalState} from '../components/Timeline/KeyframeSettingsModal';
 import type {Bug, UpdateInfo} from '../components/UpdateCheck';
 
 export type WebRenderModalState = {
@@ -53,7 +52,6 @@ export type WebRenderModalState = {
 	initialMuted: boolean | null;
 	initialLicenseKey: string | null;
 	initialMediaCacheSizeInBytes: number | null;
-	initialAllowHtmlInCanvas: boolean;
 	initialPageResponsiveness: WebRendererPageResponsiveness;
 };
 
@@ -122,6 +120,14 @@ export type ConfirmationDialogState = {
 	onCancel: () => void;
 };
 
+export type SvgImportDialogState = {
+	type: 'svg-import-dialog';
+	id: string;
+	onImage: () => void;
+	onInline: () => void;
+	onDismiss: () => void;
+};
+
 export type AddEffectModalState = {
 	type: 'add-effect';
 	fileName: string;
@@ -173,7 +179,6 @@ export type ModalState =
 	| {
 			type: 'input-props-override';
 	  }
-	| KeyframeSettingsModalState
 	| RenderModalState
 	| WebRenderModalState
 	| {
@@ -195,7 +200,8 @@ export type ModalState =
 			invocationTimestamp: number;
 	  }
 	| AddEffectModalState
-	| ConfirmationDialogState;
+	| ConfirmationDialogState
+	| SvgImportDialogState;
 
 export type ModalContextType = {
 	selectedModal: ModalState | null;

@@ -1,10 +1,15 @@
 import {afterEach, expect, test} from 'bun:test';
+import type {InteractivitySchema, SequenceControls} from 'remotion';
+import {getTimelineMediaStartFrame} from '../components/Timeline/get-timeline-media-start-frame';
 import {getTimelineVideoInfoWidths} from '../components/Timeline/get-timeline-video-info-widths';
 import {
+	getTimelineAssetSrcFromSchema,
 	getTimelineAssetLinkInfo,
 	openTimelineAssetLink,
+	splitRemoteSourceForMiddleEllipsis,
 } from '../components/Timeline/timeline-asset-link';
 import {getTimelineVideoFilmstripTimes} from '../components/Timeline/timeline-video-filmstrip-times';
+import {isStaticFileAssetValue} from '../components/Timeline/TimelineAssetField';
 
 type TestWindow = Pick<
 	Window,
@@ -54,6 +59,21 @@ const installTestWindow = ({
 	});
 };
 
+const makeSequenceControls = ({
+	schema,
+	currentRuntimeValueDotNotation,
+}: {
+	schema: InteractivitySchema;
+	currentRuntimeValueDotNotation: Record<string, unknown>;
+}): SequenceControls => ({
+	componentIdentity: null,
+	componentName: 'Test',
+	currentRuntimeValueDotNotation,
+	overrideId: 'test',
+	schema,
+	supportsEffects: false,
+});
+
 test('video timeline thumbnails ignore premount and postmount width', () => {
 	const withoutPremount = getTimelineVideoInfoWidths({
 		visualizationWidth: 400,
@@ -102,6 +122,39 @@ test('video timeline filmstrip range starts at the registered media frame', () =
 	});
 });
 
+test('video timeline media start applies playback rate after sequence zero', () => {
+	expect(
+		getTimelineMediaStartFrame({
+			startMediaFrom: 5,
+			mediaFrameAtSequenceZero: 5,
+			sequenceFrameOffset: 10,
+			playbackRate: 2,
+		}),
+	).toBe(25);
+});
+
+test('video timeline media start includes trimBefore with no sequence offset', () => {
+	expect(
+		getTimelineMediaStartFrame({
+			startMediaFrom: 31,
+			mediaFrameAtSequenceZero: 31,
+			sequenceFrameOffset: 0,
+			playbackRate: 1,
+		}),
+	).toBe(31);
+});
+
+test('legacy video timeline media start keeps its playback rate behavior', () => {
+	expect(
+		getTimelineMediaStartFrame({
+			startMediaFrom: 10,
+			mediaFrameAtSequenceZero: null,
+			sequenceFrameOffset: 10,
+			playbackRate: 2,
+		}),
+	).toBe(10);
+});
+
 test('video timeline filmstrip uses one timestamp for frozen video', () => {
 	expect(
 		getTimelineVideoFilmstripTimes({
@@ -116,6 +169,45 @@ test('video timeline filmstrip uses one timestamp for frozen video', () => {
 		type: 'frozen',
 		timestampInSeconds: 29 / 30,
 	});
+});
+
+test('inspector asset source is derived from the src asset schema', () => {
+	const controls = makeSequenceControls({
+		schema: {
+			src: {
+				type: 'asset',
+				default: undefined,
+				description: 'Source',
+				keyframable: false,
+			},
+		},
+		currentRuntimeValueDotNotation: {
+			src: '/static-abcdef/video.mp4',
+		},
+	});
+
+	expect(getTimelineAssetSrcFromSchema(controls)).toBe(
+		'/static-abcdef/video.mp4',
+	);
+});
+
+test('inspector ignores runtime src values without a src asset schema', () => {
+	const controls = makeSequenceControls({
+		schema: {},
+		currentRuntimeValueDotNotation: {
+			src: '/static-abcdef/video.mp4',
+		},
+	});
+
+	expect(getTimelineAssetSrcFromSchema(controls)).toBeNull();
+	expect(getTimelineAssetSrcFromSchema(null)).toBeNull();
+});
+
+test('only staticFile asset values use the asset picker', () => {
+	expect(isStaticFileAssetValue('remotion-file:video.mp4')).toBe(true);
+	expect(isStaticFileAssetValue('https://example.com/video.mp4')).toBe(false);
+	expect(isStaticFileAssetValue('/video.mp4')).toBe(false);
+	expect(isStaticFileAssetValue(undefined)).toBe(false);
 });
 
 test('timeline local asset links select the asset and push the asset route', () => {
@@ -183,4 +275,15 @@ test('timeline remote asset links still open in a new tab', () => {
 		['https://example.com/image.png', '_blank', 'noopener,noreferrer'],
 	]);
 	expect(pushedUrls).toEqual([]);
+});
+
+test('remote asset URLs split before the filename for middle ellipsis', () => {
+	const src = 'https://example.com/a/very/long/path/video.mp4?download=1';
+	const parts = splitRemoteSourceForMiddleEllipsis(src);
+
+	expect(parts).toEqual({
+		leading: 'https://example.com/a/very/long/path/',
+		trailing: 'video.mp4?download=1',
+	});
+	expect(parts.leading + parts.trailing).toBe(src);
 });

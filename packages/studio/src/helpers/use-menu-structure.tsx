@@ -31,11 +31,11 @@ import {SidebarContext} from '../state/sidebar';
 import {checkFullscreenSupport} from './check-fullscreen-support';
 import {StudioServerConnectionCtx} from './client-id';
 import {WHITE_HEX} from './colors';
+import {getFileManagerName} from './get-file-manager-name';
 import {getGitMenuItem} from './get-git-menu-item';
 import {useMobileLayout} from './mobile-layout';
 import {openInEditor, preloadCompositionComponentInfo} from './open-in-editor';
 import {pickColor} from './pick-color';
-import {SHOW_BROWSER_RENDERING} from './show-browser-rendering';
 import {getStudioAskAIEnabled} from './studio-runtime-config';
 import {areKeyboardShortcutsDisabled} from './use-keybinding';
 
@@ -61,6 +61,9 @@ const getFileMenu = ({
 	previewServerState: 'connected' | 'init' | 'disconnected';
 	setSelectedModal: (value: React.SetStateAction<ModalState | null>) => void;
 }) => {
+	const fileManagerName = getFileManagerName(
+		window.remotion_fileSystemPlatform,
+	);
 	const items: ComboboxValue[] = [
 		readOnlyStudio
 			? null
@@ -132,27 +135,25 @@ const getFileMenu = ({
 					subMenu: null,
 					quickSwitcherLabel: 'Render...',
 				},
-		SHOW_BROWSER_RENDERING && !readOnlyStudio
-			? {
-					id: 'render-on-web',
-					value: 'render-on-web',
-					label: 'Render on web...',
-					onClick: () => {
-						closeMenu();
+		{
+			id: 'render-on-web',
+			value: 'render-on-web',
+			label: 'Render on web...',
+			onClick: () => {
+				closeMenu();
 
-						const renderButton = document.getElementById(
-							'render-modal-button-client',
-						) as HTMLButtonElement;
+				const renderButton = document.getElementById(
+					'render-modal-button-client',
+				) as HTMLButtonElement;
 
-						renderButton.click();
-					},
-					type: 'item' as const,
-					keyHint: null,
-					leftItem: null,
-					subMenu: null,
-					quickSwitcherLabel: 'Render on web...',
-				}
-			: null,
+				renderButton.click();
+			},
+			type: 'item' as const,
+			keyHint: null,
+			leftItem: null,
+			subMenu: null,
+			quickSwitcherLabel: 'Render on web...',
+		},
 		!readOnlyStudio
 			? {
 					type: 'divider' as const,
@@ -201,7 +202,7 @@ const getFileMenu = ({
 			? {
 					id: 'open-project-in-explorer',
 					value: 'open-project-in-explorer',
-					label: 'Open in Explorer',
+					label: `Open in ${fileManagerName}`,
 					onClick: () => {
 						closeMenu();
 						openInFileExplorer({directory: window.remotion_cwd}).catch(
@@ -217,7 +218,7 @@ const getFileMenu = ({
 					keyHint: null,
 					leftItem: null,
 					subMenu: null,
-					quickSwitcherLabel: 'Open project in Explorer',
+					quickSwitcherLabel: `Open project in ${fileManagerName}`,
 					disabled: previewServerState !== 'connected',
 				}
 			: null,

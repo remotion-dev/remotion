@@ -2,6 +2,7 @@ import {
 	isComponentIdentifier,
 	type ComponentDimensions,
 } from './component-drag-data';
+import {isValidPackageName} from './package-name';
 
 export {ELEMENT_DRAG_MIME_TYPE} from './drag-mime-types';
 
@@ -9,6 +10,7 @@ export type ElementDragData = {
 	type: 'remotion-element';
 	version: 1;
 	element: {
+		dependencies: string[];
 		slug: string;
 		displayName: string;
 		sourceCode: string;
@@ -72,6 +74,17 @@ const isSourceCode = (value: unknown): value is string => {
 	);
 };
 
+const isDependencies = (value: unknown): value is string[] => {
+	return (
+		Array.isArray(value) &&
+		value.length <= 100 &&
+		value.every(
+			(dependency) =>
+				typeof dependency === 'string' && isValidPackageName(dependency),
+		)
+	);
+};
+
 const isDimensions = (value: unknown): value is ComponentDimensions => {
 	if (!isRecord(value)) {
 		return false;
@@ -105,6 +118,7 @@ export const getElementComponentNameFromSourceCode = (sourceCode: string) => {
 };
 
 export const makeElementDragData = ({
+	dependencies,
 	dimensions,
 	displayName,
 	slug,
@@ -114,6 +128,7 @@ export const makeElementDragData = ({
 		type: 'remotion-element',
 		version: 1,
 		element: {
+			dependencies: Array.from(new Set(dependencies)),
 			slug,
 			displayName,
 			sourceCode,
@@ -137,7 +152,8 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			return null;
 		}
 
-		const {dimensions, displayName, slug, sourceCode} = parsed.element;
+		const {dependencies, dimensions, displayName, slug, sourceCode} =
+			parsed.element;
 
 		if (
 			!isSlug(slug) ||
@@ -145,6 +161,7 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			!isSourceCode(sourceCode) ||
 			getElementComponentNameFromSourceCode(sourceCode) === null ||
 			makeElementFileNameFromSlug(slug) === null ||
+			(dependencies !== undefined && !isDependencies(dependencies)) ||
 			(dimensions !== undefined &&
 				dimensions !== null &&
 				!isDimensions(dimensions))
@@ -153,6 +170,7 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 		}
 
 		return makeElementDragData({
+			dependencies: dependencies ?? [],
 			slug,
 			displayName,
 			sourceCode,

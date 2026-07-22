@@ -1,5 +1,7 @@
 import {expect, test} from 'bun:test';
+import type {SequenceControls} from '../CompositionManager.js';
 import {solidSchema} from '../effects/Solid.js';
+import {getComponentsToAddStacksTo} from '../enable-sequence-stack-traces.js';
 import {
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
@@ -10,6 +12,7 @@ import {
 	baseSchema,
 	extendSchemaWithSequenceName,
 	premountSchema,
+	sequencePremountSchema,
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
 	sequenceStyleSchema,
@@ -24,10 +27,21 @@ import {
 	selectActiveKeys,
 } from '../with-interactivity-schema.js';
 
-test('sequenceStyleSchema is the union of transform and premount fields', () => {
+test('sequenceStyleSchema contains transform and premount fields', () => {
 	expect(Object.keys(sequenceStyleSchema).sort()).toEqual(
-		[...Object.keys(transformSchema), ...Object.keys(premountSchema)].sort(),
+		[
+			...Object.keys(transformSchema),
+			...Object.keys(sequencePremountSchema),
+		].sort(),
 	);
+});
+
+test('premount fields are not keyframable', () => {
+	expect(Object.keys(premountSchema).sort()).toEqual(
+		['postmountFor', 'premountFor'].sort(),
+	);
+	expect(premountSchema.premountFor.keyframable).toBe(false);
+	expect(premountSchema.postmountFor.keyframable).toBe(false);
 });
 
 test('baseSchema exposes common timeline fields', () => {
@@ -59,6 +73,44 @@ test('pixelDensity is exposed only by canvas-backed component schemas', () => {
 	expect(solidSchema.pixelDensity).toEqual(pixelDensitySchema);
 	expect('pixelDensity' in baseSchema).toBe(false);
 	expect('pixelDensity' in Interactive.baseSchema).toBe(false);
+});
+
+test('_internalMakeRemotionComponentIdentity normalizes first-party package names', () => {
+	expect(
+		Interactive._internalMakeRemotionComponentIdentity({
+			packageName: 'remotion',
+			componentName: 'Sequence',
+		}),
+	).toBe('dev.remotion.remotion.Sequence');
+	expect(
+		Interactive._internalMakeRemotionComponentIdentity({
+			packageName: '@remotion/light-leaks',
+			componentName: 'LightLeak',
+		}),
+	).toBe('dev.remotion.lightLeaks.LightLeak');
+	expect(
+		Interactive._internalMakeRemotionComponentIdentity({
+			packageName: '@remotion/rough-notation',
+			componentName: 'Highlight',
+		}),
+	).toBe('dev.remotion.roughNotation.Highlight');
+});
+
+test('Interactive.withSchema() adds Sequence stack traces automatically', () => {
+	const Component = (_props: {
+		readonly controls: SequenceControls | undefined;
+	}) => null;
+	const Wrapped = Interactive.withSchema({
+		Component,
+		componentName: '<Component>',
+		componentIdentity: 'com.example.Component',
+		schema: {},
+		supportsEffects: false,
+	});
+
+	expect(
+		getComponentsToAddStacksTo().filter((component) => component === Wrapped),
+	).toHaveLength(1);
 });
 
 test('getFlatSchema(sequenceSchema) exposes every variant key', () => {

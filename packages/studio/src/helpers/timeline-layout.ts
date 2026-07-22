@@ -90,6 +90,7 @@ export const buildTimelineTree = ({
 	getEffectDragOverrides,
 	propStatuses,
 	includeTextContent,
+	includeSourceControls,
 }: {
 	sequence: TSequence;
 	nodePathInfo: SequenceNodePathInfo;
@@ -97,6 +98,7 @@ export const buildTimelineTree = ({
 	getEffectDragOverrides: GetEffectDragOverrides;
 	propStatuses: PropStatuses;
 	includeTextContent: boolean;
+	includeSourceControls: boolean;
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
 	const {sequenceSubscriptionKey, index, auxiliaryKeys, supportsEffects} =
@@ -114,6 +116,10 @@ export const buildTimelineTree = ({
 
 	if (controlFields && controlFields.length > 0) {
 		for (const f of controlFields) {
+			if (!includeSourceControls && f.key === 'src') {
+				continue;
+			}
+
 			roots.push({
 				kind: 'field',
 				nodePathInfo: {
@@ -249,6 +255,7 @@ export const getExpandedTrackHeight = ({
 		getEffectDragOverrides: () => ({}),
 		propStatuses,
 		includeTextContent: false,
+		includeSourceControls: false,
 	});
 	const flat = flattenVisibleTreeNodes({nodes: tree, getIsExpanded});
 

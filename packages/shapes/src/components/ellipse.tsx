@@ -1,5 +1,5 @@
 import React from 'react';
-import {Internals, Interactive} from 'remotion';
+import {Interactive} from 'remotion';
 import type {MakeEllipseOptions} from '../utils/make-ellipse';
 import {makeEllipse} from '../utils/make-ellipse';
 import type {AllShapesProps} from './render-svg';
@@ -46,5 +46,3 @@ export const Ellipse = Interactive.withSchema({
 	schema: ellipseSchema,
 	supportsEffects: true,
 }) as React.FC<EllipseProps>;
-
-Internals.addSequenceStackTraces(Ellipse);

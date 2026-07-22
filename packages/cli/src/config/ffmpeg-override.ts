@@ -1,6 +1,8 @@
 import type {FfmpegOverrideFn} from '@remotion/renderer';
 
-let ffmpegOverrideFn: FfmpegOverrideFn = ({args}) => args;
+const defaultFfmpegOverrideFn: FfmpegOverrideFn = ({args}) => args;
+
+let ffmpegOverrideFn: FfmpegOverrideFn = defaultFfmpegOverrideFn;
 
 export const setFfmpegOverrideFunction = (fn: FfmpegOverrideFn) => {
 	ffmpegOverrideFn = fn;
@@ -8,4 +10,8 @@ export const setFfmpegOverrideFunction = (fn: FfmpegOverrideFn) => {
 
 export const getFfmpegOverrideFunction = () => {
 	return ffmpegOverrideFn;
+};
+
+export const resetFfmpegOverrideFunction = () => {
+	ffmpegOverrideFn = defaultFfmpegOverrideFn;
 };

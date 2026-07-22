@@ -47,6 +47,7 @@
 		{"path": "../sfx"},
 		{"path": "../layout-utils"},
 		{"path": "../media"},
-		{"path": "../rounded-text-box"}
+		{"path": "../rounded-text-box"},
+		{"path": "../rough-notation"}
 	]
 }

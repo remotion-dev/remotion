@@ -7,7 +7,9 @@ sidebar_label: Video formats
 
 Remotion supports a variety of video codecs.
 
-**Output formats**: Videos can be rendered to `H.264` (MP4), `H.265` (HEVC), `VP8` and `VP9` (WebM), `AV1`, `ProRes` as well as GIFs. `AV1` is not available on Remotion Lambda or Linux ARM64 GNU because those runtimes ship only the essential codecs to stay lean. See the [Encoding guide](/docs/encoding) for more detail.
+**Server-side output formats**: Videos can be rendered to `H.264` (MP4), `H.265` (HEVC), `VP8` and `VP9` (WebM), `AV1`, `ProRes` as well as GIFs. `AV1` is not available on Remotion Lambda or Linux ARM64 GNU because those runtimes ship only the essential codecs to stay lean. See the [Encoding guide](/docs/encoding) for more detail.
+
+**Client-side output formats**: [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web) can render video to MP4, WebM, MKV and MOV, as well as audio-only output to WAV, MP3, AAC, OGG and FLAC. The available video codecs are `H.264`, `H.265`, `VP8`, `VP9` and `AV1`. Encoding support depends on the browser. Use [`canRenderMediaOnWeb()`](/docs/web-renderer/can-render-media-on-web) to check whether a specific container and codec combination is supported.
 
 **Codecs supported for [`<Video>`](/docs/media/video):** Remotion uses WebCodecs and [Mediabunny](/docs/mediabunny) for playback. See the [Supported formats and codecs for `@remotion/media`](/docs/media/support) page for more details.
 

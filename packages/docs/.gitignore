@@ -7,6 +7,7 @@
 # Generated files
 .docusaurus
 .cache-loader
+.element-previews
 static/_raw
 
 # Twoslash prewarm temp files

@@ -525,7 +525,10 @@ export const SharedAudioTagsContextProvider: React.FC<{
 			}
 
 			if (data === undefined) {
-				current.src = EMPTY_AUDIO;
+				if (current.src !== EMPTY_AUDIO) {
+					current.src = EMPTY_AUDIO;
+				}
+
 				return;
 			}
 
@@ -639,7 +642,9 @@ export const SharedAudioTagsContextProvider: React.FC<{
 						prevA.premounting === premounting &&
 						prevA.postmounting === postmounting;
 					if (isTheSame) {
-						return prevA;
+						return prevA.audioMounted === audioMounted
+							? prevA
+							: {...prevA, audioMounted};
 					}
 
 					changed = true;
@@ -654,7 +659,9 @@ export const SharedAudioTagsContextProvider: React.FC<{
 					};
 				}
 
-				return prevA;
+				return prevA.audioMounted === audioMounted
+					? prevA
+					: {...prevA, audioMounted};
 			});
 
 			if (changed) {
@@ -699,17 +706,20 @@ export const SharedAudioTagsContextProvider: React.FC<{
 		unregisterAudio,
 		updateAudio,
 	]);
+	const sharedAudioTagElements = useMemo(() => {
+		return refs.map(({id, ref}) => {
+			return (
+				// Without preload="metadata", iOS will seek the time internally
+				// but not actually with sound. Adding `preload="metadata"` helps here.
+				// https://discord.com/channels/809501355504959528/817306414069710848/1130519583367888906
+				<audio key={id} ref={ref} preload="metadata" src={EMPTY_AUDIO} />
+			);
+		});
+	}, [refs]);
 
 	return (
 		<SharedAudioTagsContext.Provider value={audioTagsValue}>
-			{refs.map(({id, ref}) => {
-				return (
-					// Without preload="metadata", iOS will seek the time internally
-					// but not actually with sound. Adding `preload="metadata"` helps here.
-					// https://discord.com/channels/809501355504959528/817306414069710848/1130519583367888906
-					<audio key={id} ref={ref} preload="metadata" src={EMPTY_AUDIO} />
-				);
-			})}
+			{sharedAudioTagElements}
 			{children}
 		</SharedAudioTagsContext.Provider>
 	);

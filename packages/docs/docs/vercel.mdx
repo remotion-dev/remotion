@@ -30,15 +30,7 @@ You can deploy any Remotion project on Vercel by connecting the repository and s
 
 ## Client-side rendering
 
-Enable [experimental client-side rendering](/docs/client-side-rendering) in your `remotion.config.ts` file:
-
-```ts twoslash title="remotion.config.ts"
-import {Config} from '@remotion/cli/config';
-// ---cut---
-Config.setExperimentalClientSideRenderingEnabled(true);
-```
-
-This will make it possible to render videos client-side on your Vercel deployment.
+[Client-side rendering](/docs/client-side-rendering) is enabled on Studio deployments, allowing you to render videos in the browser.
 
 Note that this will use your computer's browser and compute resources, making your computer slower while the render is running. If you are waiting on long renders, you may want to [render in the cloud](#rendering-using-vercel-sandbox) to free up your computer's resources.
 

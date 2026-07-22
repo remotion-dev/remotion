@@ -40,21 +40,20 @@ export const startStudio = async ({
 	maxTimelineTracks,
 	remotionRoot,
 	keyboardShortcutsEnabled,
-	experimentalClientSideRenderingEnabled,
 	relativePublicDir,
 	webpackOverride,
 	poll,
 	getRenderDefaults,
 	getRenderQueue,
-	numberOfAudioTags,
+	getNumberOfAudioTags,
 	queueMethods,
 	previewEntry,
 	gitSource,
 	bufferStateDelayInMilliseconds,
 	binariesDirectory,
 	forceIPv4,
-	audioLatencyHint,
-	previewSampleRate,
+	getAudioLatencyHint,
+	getPreviewSampleRate,
 	enableCrossSiteIsolation,
 	askAIEnabled,
 	interactivityEnabled,
@@ -74,15 +73,14 @@ export const startStudio = async ({
 	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	keyboardShortcutsEnabled: boolean;
-	experimentalClientSideRenderingEnabled: boolean;
 	relativePublicDir: string | null;
 	webpackOverride: WebpackOverrideFn;
 	poll: number | null;
 	getRenderDefaults: () => RenderDefaults;
 	getRenderQueue: () => RenderJob[];
-	numberOfAudioTags: number;
-	audioLatencyHint: AudioContextLatencyCategory | null;
-	previewSampleRate: number | null;
+	getNumberOfAudioTags: () => number;
+	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
 	queueMethods: QueueMethods;
 	previewEntry: string;
@@ -151,7 +149,6 @@ export const startStudio = async ({
 		maxTimelineTracks,
 		remotionRoot,
 		keyboardShortcutsEnabled,
-		experimentalClientSideRenderingEnabled,
 		publicDir,
 		webpackOverride,
 		poll,
@@ -162,14 +159,14 @@ export const startStudio = async ({
 		logLevel,
 		getRenderDefaults,
 		getRenderQueue,
-		numberOfAudioTags,
+		getNumberOfAudioTags,
 		queueMethods,
 		gitSource,
 		bufferStateDelayInMilliseconds,
 		binariesDirectory,
 		forceIPv4,
-		audioLatencyHint,
-		previewSampleRate,
+		getAudioLatencyHint,
+		getPreviewSampleRate,
 		enableCrossSiteIsolation,
 		askAIEnabled,
 		interactivityEnabled,

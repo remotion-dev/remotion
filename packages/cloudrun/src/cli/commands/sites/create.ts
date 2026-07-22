@@ -24,12 +24,8 @@ import {
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 
-const {
-	disableGitSourceOption,
-	askAIOption,
-	experimentalClientSideRenderingOption,
-	keyboardShortcutsOption,
-} = BrowserSafeApis.options;
+const {disableGitSourceOption, askAIOption, keyboardShortcutsOption} =
+	BrowserSafeApis.options;
 
 export const SITES_CREATE_SUBCOMMAND = 'create';
 
@@ -159,10 +155,6 @@ export const sitesCreateSubcommand = async (
 	const askAIEnabled = askAIOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
-	const experimentalClientSideRenderingEnabled =
-		experimentalClientSideRenderingOption.getValue({
-			commandLine: CliInternals.parsedCli,
-		}).value;
 	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -200,7 +192,6 @@ export const sitesCreateSubcommand = async (
 			publicDir: null,
 			rootDir: remotionRoot,
 			askAIEnabled,
-			experimentalClientSideRenderingEnabled,
 			keyboardShortcutsEnabled,
 		},
 		indent: false,

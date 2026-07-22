@@ -8,7 +8,7 @@ import type {
 	SaveSequencePropsResponse,
 	SaveSequencePropsResult,
 } from '@remotion/studio-shared';
-import {getAllSchemaKeys} from '@remotion/studio-shared';
+import {getAllSchemaKeys, getAssetSchemaKeys} from '@remotion/studio-shared';
 import {
 	updateEffectKeyframes,
 	updateSequenceKeyframes,
@@ -141,6 +141,7 @@ export const convertSequencePropEditToCodemodChange = (
 			},
 		],
 		schema: edit.schema,
+		videoConfigValues: edit.nodePath.videoConfigValues,
 	};
 };
 
@@ -325,6 +326,7 @@ export const saveSequencePropsHandler: ApiHandler<
 					input: output,
 					nodePath: firstSequenceKeyframe.nodePath.nodePath,
 					schema: firstSequenceKeyframe.schema,
+					videoConfigValues: firstSequenceKeyframe.nodePath.videoConfigValues,
 					updates,
 				});
 				output = result.output;
@@ -379,6 +381,8 @@ export const saveSequencePropsHandler: ApiHandler<
 					sequenceNodePath: firstEffectKeyframe.sequenceNodePath.nodePath,
 					effectIndex: firstEffectKeyframe.effectIndex,
 					schema: firstEffectKeyframe.schema,
+					videoConfigValues:
+						firstEffectKeyframe.sequenceNodePath.videoConfigValues,
 					updates,
 				});
 				output = result.output;
@@ -497,9 +501,11 @@ export const saveSequencePropsHandler: ApiHandler<
 			const newStatus = computeSequencePropsStatusFromContent({
 				fileContents: output,
 				keys: getAllSchemaKeys(edit.schema),
+				assetKeys: getAssetSchemaKeys(edit.schema),
 				nodePath: edit.nodePath.nodePath,
 				componentIdentity: null,
 				effects: [],
+				videoConfigValues: edit.nodePath.videoConfigValues,
 			});
 
 			return {

@@ -4,7 +4,6 @@ import {
 	Interactive,
 	Sequence,
 	useRemotionEnvironment,
-	useVideoConfig,
 	type EffectsProp,
 	type InteractiveBaseProps,
 	type InteractiveTransformProps,
@@ -15,11 +14,7 @@ import {GifForDevelopment} from './GifForDevelopment';
 import {GifForRendering} from './GifForRendering';
 import type {RemotionGifProps} from './props';
 
-const {
-	addSequenceStackTraces,
-	useMemoizedEffectDefinitions,
-	useMemoizedEffects,
-} = Internals;
+const {useMemoizedEffectDefinitions, useMemoizedEffects} = Internals;
 
 export type GifProps = InteractiveBaseProps &
 	InteractiveTransformProps &
@@ -69,8 +64,6 @@ const GifInner = ({
 	readonly ref?: React.Ref<HTMLCanvasElement>;
 }) => {
 	const env = useRemotionEnvironment();
-	const {durationInFrames: videoDuration} = useVideoConfig();
-	const resolvedDuration = durationInFrames ?? videoDuration;
 	const refForOutline = React.useRef<HTMLElement | null>(null);
 
 	const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
@@ -106,7 +99,7 @@ const GifInner = ({
 	return (
 		<Sequence
 			layout="none"
-			durationInFrames={resolvedDuration}
+			durationInFrames={durationInFrames}
 			name="<Gif>"
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/gif/gif"
 			controls={controls}
@@ -128,5 +121,3 @@ export const Gif = Interactive.withSchema({
 });
 
 Gif.displayName = 'Gif';
-
-addSequenceStackTraces(Gif);

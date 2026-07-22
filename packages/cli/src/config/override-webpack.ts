@@ -15,3 +15,7 @@ export const overrideWebpackConfig = (fn: WebpackOverrideFn) => {
 	const prevOverride = overrideFn;
 	overrideFn = async (c) => fn(await prevOverride(c));
 };
+
+export const resetWebpackOverride = () => {
+	overrideFn = defaultOverrideFunction;
+};

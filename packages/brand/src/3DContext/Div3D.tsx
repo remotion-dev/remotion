@@ -13,7 +13,6 @@ import {
 import React from 'react';
 import {
 	Interactive,
-	Internals,
 	Sequence,
 	type InteractiveBaseProps,
 	type InteractiveTransformProps,
@@ -560,8 +559,6 @@ export const ExtrudeDiv = Interactive.withSchema({
 });
 
 ExtrudeDiv.displayName = 'ExtrudeDiv';
-
-Internals.addSequenceStackTraces(ExtrudeDiv);
 
 export const ThreeDiv: React.FC<React.HtmlHTMLAttributes<HTMLDivElement>> = ({
 	style,

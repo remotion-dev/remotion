@@ -52,6 +52,7 @@ export const addSequenceKeyframeHandler: ApiHandler<
 			input: fileContents,
 			nodePath: nodePath.nodePath,
 			schema,
+			videoConfigValues: nodePath.videoConfigValues,
 			updates: [
 				{
 					key,
@@ -109,6 +110,7 @@ export const addSequenceKeyframeHandler: ApiHandler<
 			nodePath: updatedNodePath,
 			componentIdentity: null,
 			effects: [],
+			videoConfigValues: nodePath.videoConfigValues,
 		});
 		const updatedSubscriptionKey = {...nodePath, nodePath: updatedNodePath};
 

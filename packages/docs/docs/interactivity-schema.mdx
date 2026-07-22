@@ -205,6 +205,14 @@ Default: `true` for `number`, `boolean`, `rotation-css`, `rotation-degrees`, `tr
 
 Set `keyframable: false` on a keyframable field to show a static control.
 
+### `defaultKeyframeOutput?`<AvailableFrom v="4.0.490" />
+
+Applies to `number` and `scale` fields.
+
+Controls the [`output`](/docs/interpolate#output) option used when Remotion Studio turns a static value into an [`interpolate()`](/docs/interpolate) call. Default: `'linear'`.
+
+Set it to `'perceptual-scale'` for values representing scale. Existing interpolations keep their current output setting.
+
 ### `min?`
 
 The minimum value for numeric controls.

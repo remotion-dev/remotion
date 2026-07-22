@@ -58,6 +58,7 @@ export type TimelineSequenceDurationDragTarget = {
 	readonly fileName: string;
 	readonly initialDuration: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly schema: InteractivitySchema;
 };
 
 export type TimelineSequenceLeftEdgeDragTarget = {
@@ -66,6 +67,7 @@ export type TimelineSequenceLeftEdgeDragTarget = {
 	readonly initialFrom: number;
 	readonly initialTrimBefore: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly playbackRate: number;
 	readonly schema: InteractivitySchema;
 };
 
@@ -199,11 +201,18 @@ const canUpdateTrimBefore = ({
 	return status === 'static';
 };
 
-const isDurationDraggableSequence = (sequence: TSequence) => {
+export const isTimelineSequenceDurationDraggable = (sequence: TSequence) => {
+	const isInteractiveSeriesSequence =
+		sequence.controls?.componentIdentity ===
+		'dev.remotion.remotion.Series.Sequence';
+
 	return (
-		(sequence.type === 'sequence' || sequence.type === 'image') &&
+		(sequence.type === 'sequence' ||
+			sequence.type === 'image' ||
+			sequence.type === 'audio' ||
+			sequence.type === 'video') &&
 		!sequence.loopDisplay &&
-		!sequence.isInsideSeries &&
+		(!sequence.isInsideSeries || isInteractiveSeriesSequence) &&
 		Boolean(sequence.controls)
 	);
 };
@@ -217,6 +226,28 @@ const isLeftEdgeDraggableSequence = (sequence: TSequence) => {
 			sequence.type === 'audio' ||
 			sequence.type === 'video')
 	);
+};
+
+const playbackRateComponentIdentities = new Set([
+	'dev.remotion.gif.Gif',
+	'dev.remotion.media.Audio',
+	'dev.remotion.media.Video',
+	'dev.remotion.remotion.AnimatedImage',
+]);
+
+const getTrimBeforePlaybackRate = (sequence: TSequence) => {
+	const componentIdentity = sequence.controls?.componentIdentity;
+	if (
+		componentIdentity === null ||
+		componentIdentity === undefined ||
+		!playbackRateComponentIdentities.has(componentIdentity)
+	) {
+		return 1;
+	}
+
+	const runtimePlaybackRate =
+		sequence.controls?.currentRuntimeValueDotNotation.playbackRate;
+	return typeof runtimePlaybackRate === 'number' ? runtimePlaybackRate : 1;
 };
 
 const isFromDraggableSequence = (sequence: TSequence) => {
@@ -239,12 +270,14 @@ export const getTimelineSequenceLeftEdgeDragDelta = ({
 	initialDuration,
 	initialTrimBefore,
 	deltaFrames,
+	playbackRate,
 }: {
 	readonly initialDuration: number;
 	readonly initialTrimBefore: number;
 	readonly deltaFrames: number;
+	readonly playbackRate: number;
 }) => {
-	const minDeltaFrames = 0 - initialTrimBefore;
+	const minDeltaFrames = 0 - initialTrimBefore / playbackRate;
 	const maxDeltaFrames = initialDuration - 1;
 
 	return Math.max(minDeltaFrames, Math.min(deltaFrames, maxDeltaFrames));
@@ -255,22 +288,25 @@ export const getTimelineSequenceLeftEdgeDragValues = ({
 	initialFrom,
 	initialTrimBefore,
 	deltaFrames,
+	playbackRate,
 }: {
 	readonly initialDuration: number;
 	readonly initialFrom: number;
 	readonly initialTrimBefore: number;
 	readonly deltaFrames: number;
+	readonly playbackRate: number;
 }) => {
 	const clampedDeltaFrames = getTimelineSequenceLeftEdgeDragDelta({
 		initialDuration,
 		initialTrimBefore,
 		deltaFrames,
+		playbackRate,
 	});
 
 	return {
 		durationInFrames: initialDuration - clampedDeltaFrames,
 		from: initialFrom + clampedDeltaFrames,
-		trimBefore: initialTrimBefore + clampedDeltaFrames,
+		trimBefore: initialTrimBefore + clampedDeltaFrames * playbackRate,
 	};
 };
 
@@ -287,6 +323,7 @@ export const getTimelineSequenceLeftEdgeDragChanges = ({
 			initialFrom: target.initialFrom,
 			initialTrimBefore: target.initialTrimBefore,
 			deltaFrames,
+			playbackRate: target.playbackRate,
 		});
 		const changes: SaveSequencePropChange[] = [];
 
@@ -351,7 +388,7 @@ export const getTimelineSequenceDurationDragChanges = ({
 				fieldKey: 'durationInFrames',
 				value: nextValue,
 				defaultValue: null,
-				schema: NoReactInternals.sequenceSchema,
+				schema: target.schema,
 			},
 		];
 	});
@@ -510,7 +547,7 @@ export const getTimelineSequenceDurationDragTargets = ({
 			!track ||
 			!track.nodePathInfo ||
 			!originalSequence ||
-			!isDurationDraggableSequence(originalSequence)
+			!isTimelineSequenceDurationDraggable(originalSequence)
 		) {
 			return null;
 		}
@@ -520,12 +557,18 @@ export const getTimelineSequenceDurationDragTargets = ({
 			return null;
 		}
 
+		const {controls} = originalSequence;
+		if (!controls) {
+			return null;
+		}
+
 		const key = stringifySequenceSubscriptionKey(nodePath);
 		if (!targets.has(key)) {
 			targets.set(key, {
 				fileName: nodePath.absolutePath,
 				initialDuration: originalSequence.duration,
 				nodePath,
+				schema: controls.schema,
 			});
 		}
 	}
@@ -613,6 +656,7 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 						Math.max(0, originalSequence.startMediaFrom))
 					: (originalSequence.trimBefore ?? 0),
 				nodePath,
+				playbackRate: getTrimBeforePlaybackRate(originalSequence),
 				schema: controls.schema,
 			});
 		}
@@ -929,6 +973,7 @@ export const TimelineSequenceLeftEdgeDragHandle: React.FC<{
 					initialFrom: target.initialFrom,
 					initialTrimBefore: target.initialTrimBefore,
 					deltaFrames,
+					playbackRate: target.playbackRate,
 				});
 				latestRef.current.setDragOverrides(
 					target.nodePath,

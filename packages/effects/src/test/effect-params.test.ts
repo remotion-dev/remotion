@@ -15,6 +15,7 @@ import {duotone} from '../duotone.js';
 import {emboss} from '../emboss.js';
 import {evolve} from '../evolve.js';
 import {fisheye} from '../fisheye/index.js';
+import {flannel} from '../flannel.js';
 import {glow} from '../glow/index.js';
 import {grayscale} from '../grayscale.js';
 import {gridlines} from '../gridlines.js';
@@ -28,6 +29,7 @@ import {linearGradient} from '../linear-gradient.js';
 import {linearProgressiveBlur} from '../linear-progressive-blur/index.js';
 import {linearProgressivePixelate} from '../linear-progressive-pixelate/index.js';
 import {lines} from '../lines.js';
+import {liquidContours, liquidContoursSchema} from '../liquid-contours.js';
 import {mirror} from '../mirror.js';
 import {
 	noiseDisplacement,
@@ -47,6 +49,7 @@ import {scale} from '../scale.js';
 import {scanlines} from '../scanlines.js';
 import {shine} from '../shine.js';
 import {shrinkwrap} from '../shrinkwrap.js';
+import {skew} from '../skew.js';
 import {speckle} from '../speckle.js';
 import {thermalVision} from '../thermal-vision.js';
 import {tint} from '../tint.js';
@@ -125,6 +128,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(fisheye().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/fisheye',
 	);
+	expect(flannel().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/flannel',
+	);
 	expect(cornerPin().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/corner-pin',
 	);
@@ -154,6 +160,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(lines().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/lines',
+	);
+	expect(liquidContours().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/liquid-contours',
 	);
 	expect(linearGradient().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/linear-gradient',
@@ -213,6 +222,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(shine().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/shine',
 	);
+	expect(skew().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/skew',
+	);
 	expect(shrinkwrap().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/shrinkwrap',
 	);
@@ -267,11 +279,13 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(checkerboard().definition.label).toBe('checkerboard()');
 	expect(contrast().definition.label).toBe('contrast()');
 	expect(contourLines().definition.label).toBe('contourLines()');
+	expect(liquidContours().definition.label).toBe('liquidContours()');
 	expect(duotone().definition.label).toBe('duotone()');
 	expect(evolve().definition.label).toBe('evolve()');
 	expect(dropShadow().definition.label).toBe('dropShadow()');
 	expect(emboss().definition.label).toBe('emboss()');
 	expect(fisheye().definition.label).toBe('fisheye()');
+	expect(flannel().definition.label).toBe('flannel()');
 	expect(cornerPin().definition.label).toBe('cornerPin()');
 	expect(glow().definition.label).toBe('glow()');
 	expect(grayscale().definition.label).toBe('grayscale()');
@@ -313,6 +327,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(scanlines().definition.label).toBe('scanlines()');
 	expect(scale({scale: 1}).definition.label).toBe('scale()');
 	expect(shine().definition.label).toBe('shine()');
+	expect(skew().definition.label).toBe('skew()');
 	expect(shrinkwrap().definition.label).toBe('shrinkwrap()');
 	expect(speckle().definition.label).toBe('speckle()');
 	expect(thermalVision().definition.label).toBe('thermalVision()');
@@ -2230,6 +2245,53 @@ test('burlap() parameters produce distinct effect keys', () => {
 	).toBe(6);
 });
 
+test('flannel() accepts default and valid params', () => {
+	expect(() => flannel()).not.toThrow();
+	expect(() =>
+		flannel({
+			amount: 0.8,
+			size: 72,
+			softness: 0.25,
+			baseColor: '#b51f2e',
+			stripeColor: '#16233f',
+		}),
+	).not.toThrow();
+});
+
+test('flannel() uses a red palette by default', () => {
+	expect(flannel().definition.schema.baseColor).toMatchObject({
+		default: '#c92f3d',
+	});
+	expect(flannel().definition.schema.stripeColor).toMatchObject({
+		default: '#241015',
+	});
+});
+
+test('flannel() rejects invalid params', () => {
+	expect(() => flannel({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+	expect(() => flannel({amount: 1.1})).toThrow('"amount" must be <= 1');
+	expect(() => flannel({size: 0})).toThrow('"size" must be greater than 0');
+	expect(() => flannel({softness: -0.1})).toThrow('"softness" must be >= 0');
+	expect(() => flannel({baseColor: ''})).toThrow(
+		'"baseColor" must be a non-empty string',
+	);
+});
+
+test('flannel() parameters produce distinct effect keys', () => {
+	const keys = [
+		flannel(),
+		flannel({amount: 0.8}),
+		flannel({size: 72}),
+		flannel({softness: 0.3}),
+		flannel({baseColor: '#224422'}),
+		flannel({stripeColor: '#eee8d5'}),
+	].map((effect) => effect.effectKey);
+
+	expect(new Set(keys).size).toBe(keys.length);
+});
+
 test('emboss() accepts default params', () => {
 	expect(() => emboss()).not.toThrow();
 });
@@ -3465,6 +3527,52 @@ test('shine() parameters produce distinct effect keys', () => {
 	).toBe(6);
 });
 
+test('skew() accepts default and valid params', () => {
+	expect(() => skew()).not.toThrow();
+	expect(() => skew({x: -30, y: 15, origin: [0.25, 0.75]})).not.toThrow();
+});
+
+test('skew() exposes the origin as a UV coordinate', () => {
+	expect(skew().definition.schema.origin).toMatchObject({
+		type: 'uv-coordinate',
+		default: [0.5, 0.5],
+		min: 0,
+		max: 1,
+	});
+});
+
+test('skew() rejects invalid angles', () => {
+	expect(() => skew({x: Number.NaN})).toThrow('"x" must be a finite number');
+	expect(() => skew({x: 89})).toThrow(
+		'"x" must be greater than -89 and less than 89',
+	);
+	expect(() => skew({y: -89})).toThrow(
+		'"y" must be greater than -89 and less than 89',
+	);
+});
+
+test('skew() rejects invalid origins', () => {
+	expect(() => skew({origin: [0.5] as unknown as [number, number]})).toThrow(
+		'"origin" must be a [number, number] tuple',
+	);
+	expect(() => skew({origin: [-0.1, 0.5]})).toThrow(
+		'"origin[0]" must be between 0 and 1',
+	);
+	expect(() => skew({origin: [0.5, 1.1]})).toThrow(
+		'"origin[1]" must be between 0 and 1',
+	);
+});
+
+test('skew() parameters produce distinct effect keys', () => {
+	const keys = [
+		skew(),
+		skew({x: 10}),
+		skew({y: 10}),
+		skew({origin: [0.25, 0.75]}),
+	].map((effect) => effect.effectKey);
+	expect(new Set(keys).size).toBe(keys.length);
+});
+
 test('shrinkwrap() accepts default params', () => {
 	expect(() => shrinkwrap()).not.toThrow();
 });
@@ -3725,4 +3833,55 @@ test('uvTranslate() offsets produce distinct effect keys', () => {
 	expect(
 		new Set([centered.effectKey, shiftedU.effectKey, shiftedV.effectKey]).size,
 	).toBe(3);
+});
+
+test('liquidContours() accepts default params', () => {
+	expect(() => liquidContours()).not.toThrow();
+	expect(liquidContoursSchema.scale.default).toBe(300);
+});
+
+test('liquidContours() validates colors', () => {
+	expect(() => liquidContours({firstColor: ''})).toThrow(
+		'"firstColor" must be a non-empty string',
+	);
+	expect(() => liquidContours({secondColor: ''})).toThrow(
+		'"secondColor" must be a non-empty string',
+	);
+});
+
+test('liquidContours() validates positive dimensions', () => {
+	expect(() => liquidContours({spacing: 0})).toThrow(
+		'"spacing" must be greater than 0',
+	);
+	expect(() => liquidContours({scale: 0})).toThrow(
+		'"scale" must be greater than 0',
+	);
+});
+
+test('liquidContours() validates unit interval params', () => {
+	expect(() => liquidContours({complexity: -0.1})).toThrow(
+		'"complexity" must be >= 0',
+	);
+	expect(() => liquidContours({smoothness: 1.1})).toThrow(
+		'"smoothness" must be <= 1',
+	);
+});
+
+test('liquidContours() parameters produce distinct effect keys', () => {
+	const effects = [
+		liquidContours(),
+		liquidContours({firstColor: 'blue'}),
+		liquidContours({secondColor: 'white'}),
+		liquidContours({spacing: 64}),
+		liquidContours({scale: 400}),
+		liquidContours({complexity: 0.6}),
+		liquidContours({smoothness: 0.2}),
+		liquidContours({seed: 2}),
+		liquidContours({offsetX: 10}),
+		liquidContours({offsetY: 10}),
+		liquidContours({phase: 0.5}),
+	];
+	expect(new Set(effects.map((effect) => effect.effectKey)).size).toBe(
+		effects.length,
+	);
 });

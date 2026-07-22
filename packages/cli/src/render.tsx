@@ -47,7 +47,6 @@ const {
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
 	askAIOption,
-	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 	rspackOption,
 	browserExecutableOption,
@@ -251,11 +250,6 @@ export const render = async (
 	const shouldCache = bundleCacheOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const experimentalClientSideRenderingEnabled =
-		experimentalClientSideRenderingOption.getValue({
-			commandLine: parsedCli,
-		}).value;
-
 	await renderVideoFlow({
 		fullEntryPoint,
 		remotionRoot,
@@ -327,7 +321,6 @@ export const render = async (
 		audioLatencyHint,
 		imageSequencePattern,
 		askAIEnabled,
-		experimentalClientSideRenderingEnabled,
 		keyboardShortcutsEnabled,
 		rspack,
 		sampleRate,

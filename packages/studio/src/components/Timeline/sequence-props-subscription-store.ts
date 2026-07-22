@@ -1,8 +1,9 @@
-import {getAllSchemaKeys} from '@remotion/studio-shared';
+import {getAllSchemaKeys, getAssetSchemaKeys} from '@remotion/studio-shared';
 import type {
 	JsxComponentIdentity,
 	SequenceNodePath,
 	InteractivitySchema,
+	VideoConfigValues,
 } from 'remotion';
 import {Internals} from 'remotion';
 import {callApi} from '../call-api';
@@ -15,16 +16,20 @@ const makeKey = ({
 	column,
 	componentIdentity,
 	sequenceKeys,
+	assetKeys,
 	effectKeys,
+	videoConfigValues,
 }: {
 	fileName: string;
 	line: number;
 	column: number;
 	componentIdentity: JsxComponentIdentity | null;
 	sequenceKeys: string[];
+	assetKeys: string[];
 	effectKeys: string[][];
+	videoConfigValues: VideoConfigValues;
 }): Key =>
-	`${fileName}\0${line}\0${column}\0${componentIdentity ?? ''}\0${sequenceKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}`;
+	`${fileName}\0${line}\0${column}\0${componentIdentity ?? ''}\0${sequenceKeys.join('\0')}\0${assetKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}\0${JSON.stringify(videoConfigValues)}`;
 
 type SubscribeResult = Awaited<
 	ReturnType<typeof callApi<'/api/subscribe-to-sequence-props'>>
@@ -53,6 +58,7 @@ export const acquireSequencePropsSubscription = ({
 	clientId,
 	applyOnce,
 	applyEach,
+	videoConfigValues,
 }: {
 	fileName: string;
 	line: number;
@@ -64,8 +70,10 @@ export const acquireSequencePropsSubscription = ({
 	clientId: string;
 	applyOnce: ApplyResult;
 	applyEach: ApplyResult;
+	videoConfigValues: VideoConfigValues;
 }): {release: () => void} => {
 	const sequenceKeys = getAllSchemaKeys(schema);
+	const assetKeys = getAssetSchemaKeys(schema);
 	const effectKeys = effects.map((effect) => getAllSchemaKeys(effect));
 	const key = makeKey({
 		fileName,
@@ -73,7 +81,9 @@ export const acquireSequencePropsSubscription = ({
 		column,
 		componentIdentity,
 		sequenceKeys,
+		assetKeys,
 		effectKeys,
+		videoConfigValues,
 	});
 	let entry = entries.get(key);
 
@@ -85,8 +95,10 @@ export const acquireSequencePropsSubscription = ({
 			nodePath,
 			componentIdentity,
 			keys: getAllSchemaKeys(schema),
+			assetKeys,
 			effects: effectKeys,
 			clientId,
+			videoConfigValues,
 		});
 		const created: Entry = {
 			refCount: 0,
@@ -156,6 +168,7 @@ export const acquireSequencePropsSubscription = ({
 						nodePath: result.nodePath,
 						clientId: acquired.clientId,
 						sequenceKeys,
+						assetKeys,
 						effectKeys,
 					});
 				})

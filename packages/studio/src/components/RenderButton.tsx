@@ -22,14 +22,13 @@ import {
 	TRANSPARENT,
 	WHITE,
 } from '../helpers/colors';
-import {SHOW_BROWSER_RENDERING} from '../helpers/show-browser-rendering';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {CaretDown} from '../icons/caret';
 import {ThinRenderIcon} from '../icons/render';
 import {useTimelineInOutFramePosition} from '../state/in-out';
 import {ModalsContext} from '../state/modals';
 import {HigherZIndex, useZIndex} from '../state/z-index';
-import {Row, Spacing} from './layout';
+import {COMPACT_CONTROL_ROW_HEIGHT, Row, Spacing} from './layout';
 import {MENU_INITIATOR_CLASSNAME, isMenuItem} from './Menu/is-menu-item';
 import {getPortal} from './Menu/portals';
 import {
@@ -88,10 +87,53 @@ const dropdownTriggerStyle: React.CSSProperties = {
 const mainButtonContent: React.CSSProperties = {
 	paddingLeft: 4,
 	paddingRight: 6,
+	minWidth: 0,
 };
 
 const label: React.CSSProperties = {
+	color: 'inherit',
+	fontFamily: 'inherit',
 	fontSize: 14,
+	lineHeight: '21px',
+	minWidth: 0,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+};
+
+const compactSplitButtonSegmentHeight = COMPACT_CONTROL_ROW_HEIGHT;
+
+const compactMainButtonStyle: React.CSSProperties = {
+	...mainButtonStyle,
+	boxSizing: 'border-box',
+	height: compactSplitButtonSegmentHeight,
+	paddingLeft: 6,
+	paddingRight: 6,
+	paddingTop: 6,
+	paddingBottom: 6,
+	fontSize: 12,
+};
+
+const compactDropdownTriggerStyle: React.CSSProperties = {
+	...dropdownTriggerStyle,
+	boxSizing: 'border-box',
+	height: compactSplitButtonSegmentHeight,
+	paddingLeft: 5,
+	paddingRight: 5,
+	paddingTop: 6,
+	paddingBottom: 6,
+};
+
+const compactMainButtonContent: React.CSSProperties = {
+	...mainButtonContent,
+	paddingLeft: 2,
+	paddingRight: 4,
+};
+
+const compactLabel: React.CSSProperties = {
+	...label,
+	fontSize: 12,
+	lineHeight: '16px',
 };
 
 export type RenderType = 'server-render' | 'client-render' | 'render-command';
@@ -99,10 +141,6 @@ export type RenderType = 'server-render' | 'client-render' | 'render-command';
 const RENDER_TYPE_STORAGE_KEY = 'remotion.renderType';
 
 const getInitialRenderType = (readOnlyStudio: boolean): RenderType => {
-	if (!SHOW_BROWSER_RENDERING) {
-		return readOnlyStudio ? 'render-command' : 'server-render';
-	}
-
 	if (readOnlyStudio) {
 		return 'client-render';
 	}
@@ -119,9 +157,10 @@ const getInitialRenderType = (readOnlyStudio: boolean): RenderType => {
 	return 'server-render';
 };
 
-export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
-	readOnlyStudio,
-}) => {
+export const RenderButton: React.FC<{
+	readonly readOnlyStudio: boolean;
+	readonly size?: 'default' | 'compact';
+}> = ({readOnlyStudio, size: controlSize = 'default'}) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const {setSelectedModal} = useContext(ModalsContext);
 	const [preferredRenderType, setPreferredRenderType] = useState<RenderType>(
@@ -197,25 +236,15 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 		.previewServerState.type;
 	const canServerRender = connectionStatus === 'connected';
 
-	const canRender = canServerRender || SHOW_BROWSER_RENDERING || readOnlyStudio;
-
 	const renderType: RenderType = useMemo(() => {
 		if (readOnlyStudio) {
-			if (!SHOW_BROWSER_RENDERING) {
-				return 'render-command';
-			}
-
 			return preferredRenderType === 'render-command'
 				? 'render-command'
 				: 'client-render';
 		}
 
-		if (connectionStatus === 'disconnected' && SHOW_BROWSER_RENDERING) {
+		if (connectionStatus === 'disconnected') {
 			return 'client-render';
-		}
-
-		if (!SHOW_BROWSER_RENDERING) {
-			return 'server-render';
 		}
 
 		return preferredRenderType;
@@ -225,18 +254,17 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 	const tooltip =
 		renderType === 'render-command'
 			? 'Copy a CLI command to render this composition ' + shortcut
-			: canRender
-				? 'Export the current composition ' + shortcut
-				: 'Connect to the Studio server to render';
+			: 'Export the current composition ' + shortcut;
 
 	const iconStyle: SVGProps<SVGSVGElement> = useMemo(() => {
 		return {
 			style: {
-				height: 16,
+				height: controlSize === 'compact' ? 14 : 16,
 				color: CURRENT_COLOR,
+				flexShrink: 0,
 			},
 		};
-	}, []);
+	}, [controlSize]);
 
 	const video = Internals.useVideo();
 	const {getCurrentFrame} = PlayerInternals.usePlayer();
@@ -351,7 +379,6 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 			initialTransparent: null,
 			initialMuted: null,
 			initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
-			initialAllowHtmlInCanvas: defaults.allowHtmlInCanvas,
 			initialPageResponsiveness: 'medium',
 		});
 	}, [video, setSelectedModal, getCurrentFrame, props, inFrame, outFrame]);
@@ -362,7 +389,7 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 			return;
 		}
 
-		if (!SHOW_BROWSER_RENDERING || renderType === 'server-render') {
+		if (renderType === 'server-render') {
 			openServerRenderModal(false);
 		} else {
 			openClientRenderModal();
@@ -494,10 +521,11 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 		return {
 			...splitButtonContainer,
 			borderColor: BLACK_ALPHA_60,
-			opacity: canRender ? 1 : 0.7,
-			cursor: canRender ? 'pointer' : 'inherit',
+			borderRadius: controlSize === 'compact' ? 0 : 4,
+			opacity: 1,
+			cursor: 'pointer',
 		};
-	}, [canRender]);
+	}, [controlSize]);
 
 	const renderLabel =
 		renderType === 'server-render'
@@ -505,18 +533,6 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 			: renderType === 'render-command'
 				? 'Render via CLI'
 				: 'Render on web';
-
-	const shouldShowDropdown = useMemo(() => {
-		if (readOnlyStudio) {
-			return SHOW_BROWSER_RENDERING;
-		}
-
-		if (!SHOW_BROWSER_RENDERING) {
-			return false;
-		}
-
-		return true;
-	}, [readOnlyStudio]);
 
 	if (!video) {
 		return null;
@@ -540,36 +556,45 @@ export const RenderButton: React.FC<{readonly readOnlyStudio: boolean}> = ({
 			<div ref={containerRef} style={containerStyle} title={tooltip}>
 				<button
 					type="button"
-					style={mainButtonStyle}
+					style={
+						controlSize === 'compact' ? compactMainButtonStyle : mainButtonStyle
+					}
 					onClick={onClick}
 					id="render-modal-button"
-					disabled={!canRender}
 				>
-					<Row align="center" style={mainButtonContent}>
+					<Row
+						align="center"
+						style={
+							controlSize === 'compact'
+								? compactMainButtonContent
+								: mainButtonContent
+						}
+					>
 						<ThinRenderIcon
 							fill={CURRENT_COLOR_LOWERCASE}
 							svgProps={iconStyle}
 						/>
-						<Spacing x={1} />
-						<span style={label}>{renderLabel}</span>
+						<Spacing x={controlSize === 'compact' ? 0.75 : 1} />
+						<span style={controlSize === 'compact' ? compactLabel : label}>
+							{renderLabel}
+						</span>
 					</Row>
 				</button>
-				{shouldShowDropdown ? (
-					<>
-						<div style={dividerStyle} />
-						<button
-							ref={dropdownRef}
-							type="button"
-							style={dropdownTriggerStyle}
-							disabled={!readOnlyStudio && connectionStatus !== 'connected'}
-							className={MENU_INITIATOR_CLASSNAME}
-							onPointerDown={onPointerDown}
-							onClick={onClickDropdown}
-						>
-							<CaretDown />
-						</button>
-					</>
-				) : null}
+				<div style={dividerStyle} />
+				<button
+					ref={dropdownRef}
+					type="button"
+					style={
+						controlSize === 'compact'
+							? compactDropdownTriggerStyle
+							: dropdownTriggerStyle
+					}
+					className={MENU_INITIATOR_CLASSNAME}
+					onPointerDown={onPointerDown}
+					onClick={onClickDropdown}
+				>
+					<CaretDown />
+				</button>
 			</div>
 			{portalStyle
 				? ReactDOM.createPortal(

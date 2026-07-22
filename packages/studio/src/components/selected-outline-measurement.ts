@@ -1,4 +1,4 @@
-import type {OverrideIdToNodePaths, TSequence} from 'remotion';
+import type {_InternalTypes, OverrideIdToNodePaths, TSequence} from 'remotion';
 import {calculateTimeline} from '../helpers/calculate-timeline';
 import {BLACK, WHITE} from '../helpers/colors';
 import {getBoxQuadsPonyfill} from '../helpers/get-box-quads-ponyfill';
@@ -473,13 +473,18 @@ export const getSelectedTransformOriginInfo = (
 export const getSequencesWithSelectableOutlines = ({
 	sequences,
 	overrideIdsToNodePaths,
+	compositions = [],
+	timelinePosition,
 }: {
 	readonly sequences: readonly TSequence[];
 	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly compositions?: readonly _InternalTypes['AnyComposition'][];
+	readonly timelinePosition: number;
 }): SequenceWithSelectedOutline[] => {
 	return calculateTimeline({
 		sequences: [...sequences],
 		overrideIdsToNodePaths,
+		compositions,
 	})
 		.filter((track) => {
 			if (track.nodePathInfo === null) {
@@ -488,6 +493,8 @@ export const getSequencesWithSelectableOutlines = ({
 
 			return (
 				track.sequence.showInTimeline &&
+				timelinePosition >= track.sequence.from &&
+				timelinePosition < track.sequence.from + track.sequence.duration &&
 				track.nodePathInfo.auxiliaryKeys.length === 0
 			);
 		})

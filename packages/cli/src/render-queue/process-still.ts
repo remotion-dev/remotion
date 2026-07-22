@@ -1,16 +1,13 @@
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {JobProgressCallback, RenderJob} from '@remotion/studio-server';
-import {getRendererPortFromConfigFile} from '../config/preview-server';
 import {convertEntryPointToServeUrl} from '../convert-entry-point-to-serve-url';
 import {parsedCli} from '../parsed-cli';
 import {renderStillFlow} from '../render-flows/still';
+import type {StudioRenderJobFixedConfig} from './studio-render-job-fixed-config';
 
 const {
-	publicDirOption,
 	askAIOption,
-	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
-	rspackOption,
 	browserExecutableOption,
 	bundleCacheOption,
 } = BrowserSafeApis.options;
@@ -21,12 +18,14 @@ export const processStill = async ({
 	entryPoint,
 	onProgress,
 	addCleanupCallback,
+	fixedConfig,
 }: {
 	job: RenderJob;
 	remotionRoot: string;
 	entryPoint: string;
 	onProgress: JobProgressCallback;
 	addCleanupCallback: (label: string, cb: () => void) => void;
+	fixedConfig: StudioRenderJobFixedConfig;
 }) => {
 	if (job.type !== 'still') {
 		throw new Error('Expected still job');
@@ -36,21 +35,13 @@ export const processStill = async ({
 		commandLine: parsedCli,
 	}).value;
 
-	const publicDir = publicDirOption.getValue({
-		commandLine: parsedCli,
-	}).value;
 	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
-	const experimentalClientSideRenderingEnabled =
-		experimentalClientSideRenderingOption.getValue({
-			commandLine: parsedCli,
-		}).value;
 	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 	const shouldCache = bundleCacheOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const rspack = rspackOption.getValue({commandLine: parsedCli}).value;
 
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
 
@@ -69,8 +60,8 @@ export const processStill = async ({
 		serializedInputPropsWithCustomSchema:
 			job.serializedInputPropsWithCustomSchema,
 		overwrite: true,
-		port: getRendererPortFromConfigFile(),
-		publicDir,
+		port: fixedConfig.rendererPort,
+		publicDir: fixedConfig.publicDir,
 		puppeteerTimeout: job.delayRenderTimeout,
 		jpegQuality: job.jpegQuality,
 		remainingArgs: [],
@@ -92,9 +83,8 @@ export const processStill = async ({
 		audioLatencyHint: null,
 		mediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
 		askAIEnabled,
-		experimentalClientSideRenderingEnabled,
 		keyboardShortcutsEnabled,
-		rspack,
+		rspack: fixedConfig.rspack,
 		shouldCache,
 	});
 };

@@ -28,6 +28,7 @@ const {
 } = Internals;
 
 type NewAudioForPreviewProps = {
+	readonly style: React.CSSProperties | null;
 	readonly src: string;
 	readonly playbackRate: number;
 	readonly logLevel: LogLevel;
@@ -71,6 +72,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	credentials,
 	requestInit,
 	setMediaDurationInSeconds,
+	style,
 }) => {
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
@@ -277,6 +279,14 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 						return;
 					}
 
+					if (result.type === 'cannot-decode-prores') {
+						// ProRes is video-only, so the MediaPlayer never returns this for
+						// an audio track. Guard it to keep the union exhaustive.
+						throw new Error(
+							`Encountered ProRes media for ${preloadedSrc}. But this should never happen, since you used the <Audio> tag. Please report this as a bug.`,
+						);
+					}
+
 					if (result.type === 'success') {
 						setMediaPlayerReady(true);
 						setMediaDurationInSeconds(result.durationInSeconds);
@@ -367,6 +377,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				name={name}
 				loop={loop}
 				showInTimeline={showInTimeline}
+				style={style ?? undefined}
 				stack={stack ?? undefined}
 				toneFrequency={toneFrequency}
 				audioStreamIndex={audioStreamIndex}
@@ -381,6 +392,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 };
 
 type InnerAudioProps = {
+	readonly style: React.CSSProperties | null;
 	readonly loop?: boolean;
 	readonly src: string;
 	readonly logLevel?: LogLevel;
@@ -431,6 +443,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	credentials,
 	requestInit,
 	setMediaDurationInSeconds,
+	style,
 }) => {
 	const preloadedSrc = usePreload(src);
 
@@ -493,6 +506,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 			requestInit={requestInit}
 			fallbackHtml5AudioProps={fallbackHtml5AudioProps}
 			setMediaDurationInSeconds={setMediaDurationInSeconds}
+			style={style}
 		/>
 	);
 };

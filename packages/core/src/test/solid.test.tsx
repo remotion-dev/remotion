@@ -20,19 +20,18 @@ const stub2dContext = () => ({
 	putImageData: () => undefined,
 });
 
-(
-	HTMLCanvasElement.prototype as unknown as {
-		getContext: (kind: string) => unknown;
-	}
-).getContext = function (kind: string) {
-	if (kind === '2d') {
-		const ctx = stub2dContext();
-		ctx.canvas = this as HTMLCanvasElement;
-		return ctx;
-	}
+Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
+	configurable: true,
+	value(this: HTMLCanvasElement, kind: string) {
+		if (kind === '2d') {
+			const ctx = stub2dContext();
+			ctx.canvas = this;
+			return ctx;
+		}
 
-	return null;
-};
+		return null;
+	},
+});
 
 afterEach(() => {
 	cleanup();
