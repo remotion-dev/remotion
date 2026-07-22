@@ -752,6 +752,37 @@ test('computeSequencePropsStatus should flag computed nested props', () => {
 	});
 });
 
+test('computeSequencePropsStatus should preserve nested props from object spreads', () => {
+	const input = `import {Interactive} from 'remotion';
+
+const sharedStyle = {color: 'white'};
+
+export const Example = () => {
+	return (
+		<>
+			<Interactive.Div style={{...sharedStyle, fontSize: 40}} />
+			<Interactive.Div style={{color: 'red', ...sharedStyle}} />
+			<Interactive.Div style={{...sharedStyle, color: 'red'}} />
+		</>
+	);
+};
+`;
+	const getColorStatus = (line: number) => {
+		return computeSequencePropsStatusFromContent({
+			fileContents: input,
+			nodePath: getNodePathFromContent(input, line),
+			componentIdentity: null,
+			keys: ['style.color'],
+			effects: [],
+			videoConfigValues: null,
+		}).props['style.color'];
+	};
+
+	expect(getColorStatus(8)).toEqual({status: 'computed'});
+	expect(getColorStatus(9)).toEqual({status: 'computed'});
+	expect(getColorStatus(10)).toEqual({status: 'static', codeValue: 'red'});
+});
+
 test('computeSequencePropsStatus should flag computed when parent is not an object', () => {
 	const filePath = path.join(__dirname, 'snapshots', 'nested-props.tsx');
 	const result = computeSequencePropsStatus({

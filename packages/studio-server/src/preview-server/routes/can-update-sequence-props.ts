@@ -1021,13 +1021,22 @@ const getNestedPropStatus = ({
 		return computedStatus();
 	}
 
-	const relevantProperties = objExpr.properties.filter(
-		(p) =>
-			p.type === 'ObjectProperty' &&
-			(getObjectPropertyName(p) === childKey ||
-				getObjectPropertyName(p) === cssShorthand?.shorthand),
-	) as ObjectProperty[];
-	const prop = relevantProperties.at(-1);
+	let prop: ObjectProperty | undefined;
+	for (let index = objExpr.properties.length - 1; index >= 0; index--) {
+		const candidate = objExpr.properties[index];
+		if (candidate.type === 'SpreadElement') {
+			return computedStatus();
+		}
+
+		if (
+			candidate.type === 'ObjectProperty' &&
+			(getObjectPropertyName(candidate) === childKey ||
+				getObjectPropertyName(candidate) === cssShorthand?.shorthand)
+		) {
+			prop = candidate;
+			break;
+		}
+	}
 
 	if (
 		prop &&
