@@ -1,4 +1,5 @@
 import {hasAnyTransformCssValue, hasTransformCssValue} from './has-transform';
+import {makeDOMMatrix} from './make-dom-matrix';
 import {getMaskImageValue, parseMaskImage} from './mask-image';
 import type {LinearGradientInfo} from './parse-linear-gradient';
 import {parseTransformOrigin} from './parse-transform-origin';
@@ -208,7 +209,7 @@ export const calculateTransforms = ({
 				hasApplicableTransformCssValue && hasTransformCssValue(transformStyle)
 					? transformStyle.transform
 					: undefined;
-			const matrix = new DOMMatrix(toParse);
+			const matrix = makeDOMMatrix(toParse);
 
 			const resetTransforms = makeTransformResetter(parent);
 			const {scale, rotate} = parent.style;
@@ -224,11 +225,11 @@ export const calculateTransforms = ({
 				rotate !== '' &&
 				rotate !== 'none'
 			) {
-				additionalMatrices.push(new DOMMatrix(`rotate(${rotate})`));
+				additionalMatrices.push(makeDOMMatrix(`rotate(${rotate})`));
 			}
 
 			if (hasApplicableTransformCssValue && scale !== '' && scale !== 'none') {
-				additionalMatrices.push(new DOMMatrix(`scale(${scale})`));
+				additionalMatrices.push(makeDOMMatrix(`scale(${scale})`));
 			}
 
 			additionalMatrices.push(matrix);
