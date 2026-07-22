@@ -333,7 +333,7 @@ test('Series.Sequence registers with its own visual controls', () => {
 	]);
 });
 
-test('Series.Sequence duration overrides cascade to later sequences', async () => {
+test('Series.Sequence timing overrides cascade to later sequences', async () => {
 	const registeredSequences: TSequence[] = [];
 	const onRegisterSequence = (sequence: TSequence) => {
 		registeredSequences.push(sequence);
@@ -357,7 +357,7 @@ test('Series.Sequence duration overrides cascade to later sequences', async () =
 			}}
 		>
 			<Series>
-				<Series.Sequence name="First" durationInFrames={10}>
+				<Series.Sequence name="First" durationInFrames={10} trimBefore={2}>
 					First
 				</Series.Sequence>
 				<Series.Sequence name="Second" durationInFrames={20}>
@@ -391,7 +391,13 @@ test('Series.Sequence duration overrides cascade to later sequences', async () =
 		videoConfigValues: null,
 	};
 	const subscriptionKey = Internals.makeSequencePropsSubscriptionKey(nodePath);
-	const makeDurationOverride = (durationInFrames: number) => ({
+	const makeTimingOverride = ({
+		durationInFrames,
+		trimBefore,
+	}: {
+		durationInFrames: number;
+		trimBefore: number;
+	}) => ({
 		overrideIdToNodePathMappings: {
 			[firstSequenceControls.overrideId]: nodePath,
 		},
@@ -400,6 +406,7 @@ test('Series.Sequence duration overrides cascade to later sequences', async () =
 				canUpdate: true as const,
 				props: {
 					durationInFrames: {status: 'static' as const, codeValue: 10},
+					trimBefore: {status: 'static' as const, codeValue: 2},
 				},
 				effects: [],
 			},
@@ -407,30 +414,37 @@ test('Series.Sequence duration overrides cascade to later sequences', async () =
 		dragOverrides: {
 			[subscriptionKey]: {
 				durationInFrames: Internals.makeStaticDragOverride(durationInFrames),
+				trimBefore: Internals.makeStaticDragOverride(trimBefore),
 			},
 		},
 	});
 
 	registeredSequences.length = 0;
-	rendered.rerender(renderSeries(makeDurationOverride(15)));
+	rendered.rerender(
+		renderSeries(makeTimingOverride({durationInFrames: 7, trimBefore: 5})),
+	);
 	await waitFor(() => {
-		expect(
-			registeredSequences.find((sequence) => sequence.displayName === 'First')
-				?.duration,
-		).toBe(15);
+		const first = registeredSequences.find(
+			(sequence) => sequence.displayName === 'First',
+		);
+		expect(first?.duration).toBe(7);
+		expect(first?.trimBefore).toBe(5);
 		expect(
 			registeredSequences.find((sequence) => sequence.displayName === 'Second')
 				?.from,
-		).toBe(15);
+		).toBe(7);
 	});
 
 	registeredSequences.length = 0;
-	rendered.rerender(renderSeries(makeDurationOverride(18)));
+	rendered.rerender(
+		renderSeries(makeTimingOverride({durationInFrames: 18, trimBefore: 7})),
+	);
 	await waitFor(() => {
-		expect(
-			registeredSequences.find((sequence) => sequence.displayName === 'First')
-				?.duration,
-		).toBe(18);
+		const first = registeredSequences.find(
+			(sequence) => sequence.displayName === 'First',
+		);
+		expect(first?.duration).toBe(18);
+		expect(first?.trimBefore).toBe(7);
 		expect(
 			registeredSequences.find((sequence) => sequence.displayName === 'Second')
 				?.from,
