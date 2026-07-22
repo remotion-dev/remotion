@@ -308,6 +308,10 @@ export const getKeyframeClipboardDataFromSelections = ({
 		version: 1,
 		remotionClipboard: 'keyframe',
 		fieldType: firstResolved.fieldType,
+		field: {
+			type: firstResolved.identity.type,
+			fieldKey: firstResolved.identity.fieldKey,
+		},
 		keyframes: keyframes.map((keyframe) => {
 			return {
 				frameOffset: keyframe.frame - firstFrame,
@@ -392,12 +396,25 @@ export const getPasteKeyframeTarget = ({
 		return {type: 'none'};
 	}
 
-	const selection = selectedItems[0];
+	const resolvedSelectedItems: readonly TimelineSelection[] =
+		selectedItems.length === 1 &&
+		selectedItems[0]?.type === 'sequence' &&
+		payload.field?.type === 'sequence'
+			? [
+					{
+						type: 'sequence-prop',
+						nodePathInfo: selectedItems[0].nodePathInfo,
+						key: payload.field.fieldKey,
+					},
+				]
+			: selectedItems;
+
+	const selection = resolvedSelectedItems[0];
 	if (!selection || getKeyframeFieldIdentity(selection) === null) {
 		return {type: 'none'};
 	}
 
-	const resolvedFields = selectedItems.map((item) =>
+	const resolvedFields = resolvedSelectedItems.map((item) =>
 		resolveKeyframeField({
 			selection: item,
 			sequences,

@@ -12,6 +12,7 @@ test('parses keyframe clipboard data', () => {
 				version: 1,
 				remotionClipboard: 'keyframe',
 				fieldType: 'number',
+				field: {type: 'sequence', fieldKey: 'style.opacity'},
 				keyframes: [
 					{frameOffset: 0, value: 0.5},
 					{frameOffset: 20, value: 1},
@@ -24,12 +25,29 @@ test('parses keyframe clipboard data', () => {
 		version: 1,
 		remotionClipboard: 'keyframe',
 		fieldType: 'number',
+		field: {type: 'sequence', fieldKey: 'style.opacity'},
 		keyframes: [
 			{frameOffset: 0, value: 0.5},
 			{frameOffset: 20, value: 1},
 		],
 		easing: [{type: 'linear'}],
 	});
+});
+
+test('rejects invalid keyframe clipboard field identities', () => {
+	expect(
+		parseKeyframeClipboardData(
+			JSON.stringify({
+				type: 'keyframe',
+				version: 1,
+				remotionClipboard: 'keyframe',
+				fieldType: 'number',
+				field: {type: 'sequence'},
+				keyframes: [{frameOffset: 0, value: 1}],
+				easing: [],
+			}),
+		),
+	).toBe(null);
 });
 
 test('allows keyframes without a schema field type', () => {

@@ -34,11 +34,22 @@ export type KeyframeClipboardFieldType = {
 		: never;
 }[keyof KeyframeClipboardFieldTypeSupport];
 
+export type KeyframeClipboardField =
+	| {
+			readonly type: 'sequence';
+			readonly fieldKey: string;
+	  }
+	| {
+			readonly type: 'effect';
+			readonly fieldKey: string;
+	  };
+
 export type KeyframeClipboardData = {
 	readonly type: 'keyframe';
 	readonly version: 1;
 	readonly remotionClipboard: 'keyframe';
 	readonly fieldType: KeyframeClipboardFieldType | null;
+	readonly field?: KeyframeClipboardField;
 	readonly keyframes: readonly {
 		readonly frameOffset: number;
 		readonly value: unknown;
@@ -107,6 +118,16 @@ const areValidKeyframes = (
 	return value[0]?.frameOffset === 0;
 };
 
+const isKeyframeClipboardField = (
+	value: unknown,
+): value is KeyframeClipboardField => {
+	return (
+		isRecord(value) &&
+		(value.type === 'sequence' || value.type === 'effect') &&
+		typeof value.fieldKey === 'string'
+	);
+};
+
 const parseEasings = ({
 	value,
 	keyframeCount,
@@ -148,11 +169,17 @@ export const parseKeyframeClipboardDataResult = (
 			parsed.type !== 'keyframe' ||
 			!areValidKeyframes(parsed.keyframes) ||
 			easing === null ||
+			(Object.hasOwn(parsed, 'field') &&
+				!isKeyframeClipboardField(parsed.field)) ||
 			(parsed.fieldType !== null &&
 				!isKeyframeClipboardFieldType(parsed.fieldType))
 		) {
 			return {status: 'invalid'};
 		}
+
+		const field = Object.hasOwn(parsed, 'field')
+			? {field: parsed.field as KeyframeClipboardField}
+			: {};
 
 		return {
 			status: 'valid',
@@ -161,6 +188,7 @@ export const parseKeyframeClipboardDataResult = (
 				version: 1,
 				remotionClipboard: 'keyframe',
 				fieldType: parsed.fieldType,
+				...field,
 				keyframes: parsed.keyframes,
 				easing,
 			},
