@@ -50,14 +50,20 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 	await manager.seek({
 		newTime: 0.03,
 		nonce: nonceManager.createAsyncOperation(),
+		fps: 30,
+		playbackRate: 1,
 	});
 	await manager.seek({
 		newTime: 1,
 		nonce: nonceManager.createAsyncOperation(),
+		fps: 30,
+		playbackRate: 1,
 	});
 	await manager.seek({
 		newTime: 2,
 		nonce: nonceManager.createAsyncOperation(),
+		fps: 30,
+		playbackRate: 1,
 	});
 
 	const iteratorsCreated = manager.getVideoIteratorsCreated();
@@ -66,6 +72,8 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 	await manager.seek({
 		newTime: 4.5,
 		nonce: nonceManager.createAsyncOperation(),
+		fps: 30,
+		playbackRate: 1,
 	});
 
 	const iteratorsCreated2 = manager.getVideoIteratorsCreated();

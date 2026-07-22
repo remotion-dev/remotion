@@ -1,7 +1,50 @@
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import {expect, test} from 'vitest';
 import {makeNonceManager} from '../nonce-manager';
-import {videoIteratorManager} from '../video-iterator-manager';
+import {
+	isSequentialMediaTimeAdvance,
+	videoIteratorManager,
+} from '../video-iterator-manager';
+
+test('detects one timeline frame as a sequential media time advance', () => {
+	expect(
+		isSequentialMediaTimeAdvance({
+			previousTime: 0,
+			newTime: 1 / 30,
+			fps: 30,
+			playbackRate: 1,
+		}),
+	).toBe(true);
+
+	expect(
+		isSequentialMediaTimeAdvance({
+			previousTime: 0,
+			newTime: 2 / 30,
+			fps: 30,
+			playbackRate: 1,
+		}),
+	).toBe(false);
+});
+
+test('accounts for playback rate when detecting sequential advances', () => {
+	expect(
+		isSequentialMediaTimeAdvance({
+			previousTime: 1,
+			newTime: 1 + 2 / 30,
+			fps: 30,
+			playbackRate: 2,
+		}),
+	).toBe(true);
+
+	expect(
+		isSequentialMediaTimeAdvance({
+			previousTime: 1,
+			newTime: 0.9,
+			fps: 30,
+			playbackRate: 2,
+		}),
+	).toBe(false);
+});
 
 const prepare = async () => {
 	const input = new Input({
@@ -59,9 +102,24 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 
 	// Perform seeks that will trigger 'not-satisfied' (jumping around)
 	// These should NOT cause overlapping blocks
-	await manager.seek({newTime: 5, nonce: nonceManager.createAsyncOperation()});
-	await manager.seek({newTime: 0, nonce: nonceManager.createAsyncOperation()});
-	await manager.seek({newTime: 8, nonce: nonceManager.createAsyncOperation()});
+	await manager.seek({
+		newTime: 5,
+		nonce: nonceManager.createAsyncOperation(),
+		fps: 30,
+		playbackRate: 1,
+	});
+	await manager.seek({
+		newTime: 0,
+		nonce: nonceManager.createAsyncOperation(),
+		fps: 30,
+		playbackRate: 1,
+	});
+	await manager.seek({
+		newTime: 8,
+		nonce: nonceManager.createAsyncOperation(),
+		fps: 30,
+		playbackRate: 1,
+	});
 
 	// With the fix, max concurrent blocks should be 1
 	// Before the fix (fire-and-forget), it could be > 1
@@ -117,6 +175,8 @@ test('rapid sequential seeks should not cause overlapping blocks', async () => {
 		await manager.seek({
 			newTime: time,
 			nonce: nonceManager.createAsyncOperation(),
+			fps: 30,
+			playbackRate: 1,
 		});
 	}
 
