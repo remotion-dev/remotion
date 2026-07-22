@@ -1,5 +1,6 @@
 import {
 	Internals,
+	Interactive,
 	type InteractivitySchemaField,
 	type InteractivitySchema,
 } from 'remotion';
@@ -88,5 +89,6 @@ export const makeShapeSchema = (
 			description: 'Fill',
 		}),
 		...Internals.transformSchema,
+		...Interactive.borderSchema,
 	};
 };

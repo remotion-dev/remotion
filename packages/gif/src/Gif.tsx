@@ -44,6 +44,7 @@ export const gifSchema: InteractivitySchema = {
 		keyframable: false,
 	},
 	...Internals.transformSchema,
+	...Interactive.borderSchema,
 } as const satisfies InteractivitySchema;
 
 const GifInner = ({

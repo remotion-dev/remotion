@@ -14,6 +14,12 @@ type RegisteredSequence = {
 	readonly postmountDisplay: number | null;
 };
 
+test('Gif exposes border controls', () => {
+	expect('style.borderWidth' in gifSchema).toBe(true);
+	expect('style.borderStyle' in gifSchema).toBe(true);
+	expect('style.borderColor' in gifSchema).toBe(true);
+});
+
 class MockWorker {
 	public static instances = 0;
 	public constructor() {
