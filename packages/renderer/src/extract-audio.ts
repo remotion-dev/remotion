@@ -18,10 +18,13 @@ export const extractAudio = async (options: {
 		binariesDirectory: options.binariesDirectory ?? null,
 		extraThreads: 0,
 	});
-	await compositor.executeCommand('ExtractAudio', {
-		input_path: options.videoSource,
-		output_path: options.audioOutput,
-	});
-	await compositor.finishCommands();
-	await compositor.waitForDone();
+
+	try {
+		await compositor.executeCommand('ExtractAudio', {
+			input_path: options.videoSource,
+			output_path: options.audioOutput,
+		});
+	} finally {
+		await compositor.shutDownOrKill();
+	}
 };
