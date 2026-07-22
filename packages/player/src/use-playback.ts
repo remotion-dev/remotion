@@ -10,6 +10,8 @@ import {useIsBackgrounded} from './is-backgrounded.js';
 import {setGlobalTimeAnchor} from './set-global-time-anchor.js';
 import {usePlayer} from './use-player.js';
 
+const AUDIO_CONTEXT_RESUME_DEADLINE_MS = 500;
+
 const shouldForceAnchorChange = (newState: RemotionAudioContextState) => {
 	if (newState === 'suspended' || newState === 'running-to-suspended') {
 		return true;
@@ -239,15 +241,44 @@ export const usePlayback = ({
 			queueNextFrame();
 		};
 
+		// AudioContext.resume() promises can stay pending forever in Chromium
+		// when a suspend() lands while the resume is still in flight - which
+		// happens routinely when the user scrubs while playing, because each
+		// effect teardown calls suspend(). Waiting on such a promise without a
+		// deadline parks the playback loop permanently: isPlaying() stays true,
+		// the frame clock never advances, and only a seek or pause/play revives
+		// it. Bound the wait; past the deadline, keep ticking without audio and
+		// let audio rejoin once the context actually resumes.
+		let audioResumeBypass = false;
+
 		const queueNextFrame = () => {
+			if (hasBeenStopped) {
+				return;
+			}
+
 			const getIsResumingAudioContext =
 				sharedAudioContext?.getIsResumingAudioContext?.() ?? null;
-			if (getIsResumingAudioContext !== null && !muted) {
-				getIsResumingAudioContext.then(() => {
+			if (getIsResumingAudioContext !== null && !muted && !audioResumeBypass) {
+				let continued = false;
+				const continuePlayback = () => {
+					if (continued || hasBeenStopped) {
+						return;
+					}
+
+					continued = true;
 					startedTime = performance.now();
 					framesAdvanced = 0;
 					queueNextFrame();
+				};
+
+				getIsResumingAudioContext.then(() => {
+					audioResumeBypass = false;
+					continuePlayback();
 				});
+				setTimeout(() => {
+					audioResumeBypass = true;
+					continuePlayback();
+				}, AUDIO_CONTEXT_RESUME_DEADLINE_MS);
 
 				return;
 			}
