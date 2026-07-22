@@ -213,7 +213,7 @@ const isSeriesSequence = (sequence: TSequence) =>
 	sequence.controls?.componentIdentity ===
 	'dev.remotion.remotion.Series.Sequence';
 
-const isCascadingSequence = (sequence: TSequence) =>
+export const isCascadingSequence = (sequence: TSequence) =>
 	isSeriesSequence(sequence) || isTransitionSeriesSequence(sequence);
 
 const isTransitionSeriesTransition = (sequence: TSequence | undefined) =>

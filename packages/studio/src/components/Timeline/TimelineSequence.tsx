@@ -55,9 +55,9 @@ import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 import {
 	TimelineSequenceLeftEdgeDragHandle,
 	TimelineSequenceRightEdgeDragHandle,
+	isCascadingSequence,
 	isTimelineSequenceDurationDraggable,
 	isTimelineSequenceLeftEdgeDraggable,
-	isTransitionSeriesSequence,
 	useTimelineSequenceFromDrag,
 } from './TimelineSequenceRightEdgeDragHandle';
 import {TimelineVideoInfo} from './TimelineVideoInfo';
@@ -609,7 +609,7 @@ const TimelineSequenceInner: React.FC<{
 		isTimelineSequenceLeftEdgeDraggable(s) &&
 		nodePath !== null &&
 		validatedLocation !== null &&
-		(isTransitionSeriesSequence(s) || fromCanUpdate) &&
+		(isCascadingSequence(s) || fromCanUpdate) &&
 		durationCanUpdate &&
 		trimBeforeCanUpdate;
 
