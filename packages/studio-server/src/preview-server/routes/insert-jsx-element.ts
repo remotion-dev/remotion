@@ -112,10 +112,7 @@ const validateElement = (
 			validateDimension('height', element.dimensions.height);
 		}
 
-		if (
-			element.durationInFrames !== null &&
-			element.durationInFrames !== undefined
-		) {
+		if (element.durationInFrames !== null) {
 			validateDimension('durationInFrames', element.durationInFrames);
 		}
 

@@ -46,6 +46,7 @@ export const getAssetElement = ({
 			src,
 			srcType: 'static',
 			dimensions: fileType.dimensions,
+			durationInFrames: null,
 			position: null,
 		};
 	}
@@ -62,6 +63,7 @@ export const getAssetElement = ({
 			src,
 			srcType: 'static',
 			dimensions: fileType.dimensions,
+			durationInFrames: null,
 			position: null,
 		};
 	}
@@ -73,6 +75,7 @@ export const getAssetElement = ({
 			src,
 			srcType: 'static',
 			dimensions: fileType.dimensions,
+			durationInFrames: null,
 			position: null,
 		};
 	}
@@ -84,6 +87,7 @@ export const getAssetElement = ({
 			src,
 			srcType: 'static',
 			dimensions: fileType.dimensions,
+			durationInFrames: null,
 			position: null,
 		};
 	}
@@ -100,6 +104,7 @@ export const getAssetElement = ({
 			src,
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		};
 	}
@@ -116,6 +121,7 @@ export const getAssetElement = ({
 			src,
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		};
 	}
@@ -142,6 +148,7 @@ export const getAssetElementFromPath = (
 			src: assetPath,
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		};
 	}
@@ -153,6 +160,7 @@ export const getAssetElementFromPath = (
 			src: assetPath,
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		};
 	}
@@ -164,6 +172,7 @@ export const getAssetElementFromPath = (
 			src: assetPath,
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		};
 	}
@@ -175,6 +184,7 @@ export const getAssetElementFromPath = (
 			src: assetPath,
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		};
 	}
@@ -186,6 +196,7 @@ export const getAssetElementFromPath = (
 			src: assetPath,
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		};
 	}
@@ -992,6 +1003,7 @@ export const insertRemoteAudio = async ({
 		src: url,
 		srcType: 'remote',
 		dimensions: null,
+		durationInFrames: null,
 		position: null,
 	};
 

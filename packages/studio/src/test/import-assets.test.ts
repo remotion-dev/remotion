@@ -30,6 +30,7 @@ test('maps audio file types to Audio assets', () => {
 			src: `sound.${type}`,
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		});
 	}
@@ -59,6 +60,7 @@ test('maps animated PNG file types to AnimatedImage assets', () => {
 		src: 'animated-png.png',
 		srcType: 'static',
 		dimensions: {width: 320, height: 180},
+		durationInFrames: null,
 		position: null,
 	});
 });
@@ -79,6 +81,7 @@ test('maps animated WebP file types to AnimatedImage assets', () => {
 		src: 'animated.webp',
 		srcType: 'static',
 		dimensions: {width: 480, height: 290},
+		durationInFrames: null,
 		position: null,
 	});
 });
@@ -99,6 +102,7 @@ test('maps static WebP file types to static image assets', () => {
 		src: 'static.webp',
 		srcType: 'static',
 		dimensions: {width: 480, height: 290},
+		durationInFrames: null,
 		position: null,
 	});
 });
@@ -110,6 +114,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'nested/photo.JPG',
 		srcType: 'static',
 		dimensions: null,
+		durationInFrames: null,
 		position: null,
 	});
 	expect(getAssetElementFromPath('movie.webm')).toEqual({
@@ -118,6 +123,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'movie.webm',
 		srcType: 'static',
 		dimensions: null,
+		durationInFrames: null,
 		position: null,
 	});
 	expect(getAssetElementFromPath('audio.flac')).toEqual({
@@ -126,6 +132,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'audio.flac',
 		srcType: 'static',
 		dimensions: null,
+		durationInFrames: null,
 		position: null,
 	});
 	expect(getAssetElementFromPath('animation.apng')).toEqual({
@@ -134,6 +141,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'animation.apng',
 		srcType: 'static',
 		dimensions: null,
+		durationInFrames: null,
 		position: null,
 	});
 	expect(getAssetElementFromPath('animation.gif')).toEqual({
@@ -142,6 +150,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'animation.gif',
 		srcType: 'static',
 		dimensions: null,
+		durationInFrames: null,
 		position: null,
 	});
 	expect(getAssetElementFromPath('vector.SVG')).toEqual({
@@ -150,6 +159,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'vector.SVG',
 		srcType: 'static',
 		dimensions: null,
+		durationInFrames: null,
 		position: null,
 	});
 });
@@ -166,6 +176,7 @@ test('maps dropped SVG files to image assets', () => {
 		src: 'vector.svg',
 		srcType: 'static',
 		dimensions: null,
+		durationInFrames: null,
 		position: null,
 	});
 });
