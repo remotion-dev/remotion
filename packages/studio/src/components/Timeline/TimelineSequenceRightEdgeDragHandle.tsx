@@ -68,7 +68,7 @@ export type TimelineSequenceLeftEdgeDragTarget = {
 	readonly initialTrimBefore: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly playbackRate: number;
-	readonly positionField: 'from' | 'offset';
+	readonly positionField: 'from' | null;
 	readonly schema: InteractivitySchema;
 };
 
@@ -184,19 +184,6 @@ const canUpdateFrom = ({
 	readonly nodePath: SequencePropsSubscriptionKey;
 }) => {
 	const status = Internals.getPropStatusesCtx(propStatuses, nodePath)?.from
-		?.status;
-
-	return status === 'static';
-};
-
-const canUpdateOffset = ({
-	propStatuses,
-	nodePath,
-}: {
-	readonly propStatuses: PropStatuses;
-	readonly nodePath: SequencePropsSubscriptionKey;
-}) => {
-	const status = Internals.getPropStatusesCtx(propStatuses, nodePath)?.offset
 		?.status;
 
 	return status === 'static';
@@ -346,7 +333,10 @@ export const getTimelineSequenceLeftEdgeDragChanges = ({
 		});
 		const changes: SaveSequencePropChange[] = [];
 
-		if (nextValues.from !== target.initialFrom) {
+		if (
+			target.positionField !== null &&
+			nextValues.from !== target.initialFrom
+		) {
 			changes.push({
 				fileName: target.fileName,
 				nodePath: target.nodePath,
@@ -652,12 +642,10 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 		const trimsMedia =
 			originalSequence.type === 'audio' || originalSequence.type === 'video';
 		const positionField = isTransitionSeriesSequence(originalSequence)
-			? 'offset'
+			? null
 			: 'from';
 		if (
-			(positionField === 'from'
-				? !canUpdateFrom({propStatuses, nodePath})
-				: !canUpdateOffset({propStatuses, nodePath})) ||
+			(positionField === 'from' && !canUpdateFrom({propStatuses, nodePath})) ||
 			!canUpdateDurationInFrames({propStatuses, nodePath}) ||
 			!canUpdateTrimBefore({propStatuses, nodePath})
 		) {
@@ -674,12 +662,7 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 			targets.set(key, {
 				fileName: nodePath.absolutePath,
 				initialDuration: originalSequence.duration,
-				initialFrom:
-					positionField === 'from'
-						? originalSequence.from
-						: typeof controls.currentRuntimeValueDotNotation.offset === 'number'
-							? controls.currentRuntimeValueDotNotation.offset
-							: 0,
+				initialFrom: positionField === 'from' ? originalSequence.from : 0,
 				initialTrimBefore: trimsMedia
 					? (originalSequence.trimBefore ??
 						Math.max(0, originalSequence.startMediaFrom))
@@ -1005,11 +988,14 @@ export const TimelineSequenceLeftEdgeDragHandle: React.FC<{
 					deltaFrames,
 					playbackRate: target.playbackRate,
 				});
-				latestRef.current.setDragOverrides(
-					target.nodePath,
-					target.positionField,
-					Internals.makeStaticDragOverride(nextValues.from),
-				);
+				if (target.positionField !== null) {
+					latestRef.current.setDragOverrides(
+						target.nodePath,
+						target.positionField,
+						Internals.makeStaticDragOverride(nextValues.from),
+					);
+				}
+
 				latestRef.current.setDragOverrides(
 					target.nodePath,
 					'durationInFrames',

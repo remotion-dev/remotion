@@ -1786,7 +1786,7 @@ test('Timeline left edge drag adjusts from, duration and trimBefore for selected
 	]);
 });
 
-test('TransitionSeries.Sequence left edge drag uses offset and preserves its right edge', () => {
+test('TransitionSeries.Sequence left edge drag leaves its calculated position unchanged', () => {
 	const schema = {} satisfies InteractivitySchema;
 	const nodePathInfo = makeNodePathInfo(['body', 0], []);
 	const subscriptionKey = nodePathInfo.sequenceSubscriptionKey;
@@ -1797,7 +1797,6 @@ test('TransitionSeries.Sequence left edge drag uses offset and preserves its rig
 			makeTimelineSequence({
 				schema,
 				componentIdentity: 'dev.remotion.transitions.TransitionSeries.Sequence',
-				currentRuntimeValueDotNotation: {offset: 2},
 				duration: 40,
 				from: 12,
 				isInsideSeries: true,
@@ -1812,7 +1811,6 @@ test('TransitionSeries.Sequence left edge drag uses offset and preserves its rig
 				canUpdate: true,
 				props: {
 					durationInFrames: {status: 'static', codeValue: 40},
-					offset: {status: 'static', codeValue: 2},
 					trimBefore: {status: 'static', codeValue: 3},
 				},
 				effects: [],
@@ -1822,9 +1820,9 @@ test('TransitionSeries.Sequence left edge drag uses offset and preserves its rig
 
 	expect(targets?.[0]).toMatchObject({
 		initialDuration: 40,
-		initialFrom: 2,
+		initialFrom: 0,
 		initialTrimBefore: 3,
-		positionField: 'offset',
+		positionField: null,
 	});
 	expect(
 		getTimelineSequenceLeftEdgeDragChanges({
@@ -1832,7 +1830,6 @@ test('TransitionSeries.Sequence left edge drag uses offset and preserves its rig
 			deltaFrames: 6,
 		}).map((change) => [change.fieldKey, change.value]),
 	).toEqual([
-		['offset', 8],
 		['durationInFrames', 34],
 		['trimBefore', 9],
 	]);

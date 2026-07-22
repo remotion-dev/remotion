@@ -347,11 +347,9 @@ test('TransitionSeries.Sequence timing overrides cascade to later sequences', as
 	const subscriptionKey = Internals.makeSequencePropsSubscriptionKey(nodePath);
 	const makeTimingOverride = ({
 		durationInFrames,
-		offset,
 		trimBefore,
 	}: {
 		durationInFrames: number;
-		offset: number;
 		trimBefore: number;
 	}) => ({
 		overrideIdToNodePathMappings: {
@@ -362,7 +360,6 @@ test('TransitionSeries.Sequence timing overrides cascade to later sequences', as
 				canUpdate: true as const,
 				props: {
 					durationInFrames: {status: 'static' as const, codeValue: 10},
-					offset: {status: 'static' as const, codeValue: 0},
 					trimBefore: {status: 'static' as const, codeValue: 2},
 				},
 				effects: [],
@@ -371,14 +368,13 @@ test('TransitionSeries.Sequence timing overrides cascade to later sequences', as
 		dragOverrides: {
 			[subscriptionKey]: {
 				durationInFrames: Internals.makeStaticDragOverride(durationInFrames),
-				offset: Internals.makeStaticDragOverride(offset),
 				trimBefore: Internals.makeStaticDragOverride(trimBefore),
 			},
 		},
 	});
 
 	renderTransitionSeries(
-		makeTimingOverride({durationInFrames: 7, offset: 3, trimBefore: 5}),
+		makeTimingOverride({durationInFrames: 7, trimBefore: 5}),
 	);
 	await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -394,15 +390,15 @@ test('TransitionSeries.Sequence timing overrides cascade to later sequences', as
 
 	expect(updatedFirstSequence?.duration).toBe(7);
 	expect(updatedFirstSequence?.trimBefore).toBe(5);
-	expect(updatedFirstSequence?.from).toBe(3);
-	expect(updatedTransition?.from).toBe(5);
+	expect(updatedFirstSequence?.from).toBe(0);
+	expect(updatedTransition?.from).toBe(2);
 	expect(updatedTransition?.duration).toBe(5);
 	expect(updatedSecondSequence?.duration).toBe(20);
-	expect(updatedSecondSequence?.from).toBe(5);
+	expect(updatedSecondSequence?.from).toBe(2);
 
 	registeredSequences.length = 0;
 	renderTransitionSeries(
-		makeTimingOverride({durationInFrames: 18, offset: 0, trimBefore: 7}),
+		makeTimingOverride({durationInFrames: 18, trimBefore: 7}),
 	);
 	await new Promise((resolve) => setTimeout(resolve, 10));
 

@@ -299,10 +299,6 @@ const TimelineSequenceInner: React.FC<{
 		studioInteractivityEnabled &&
 		propStatusesForOverride?.from?.status === 'static',
 	);
-	const offsetCanUpdate = Boolean(
-		studioInteractivityEnabled &&
-		propStatusesForOverride?.offset?.status === 'static',
-	);
 	const trimBeforeCanUpdate = Boolean(
 		studioInteractivityEnabled &&
 		propStatusesForOverride?.trimBefore?.status === 'static',
@@ -613,7 +609,7 @@ const TimelineSequenceInner: React.FC<{
 		isTimelineSequenceLeftEdgeDraggable(s) &&
 		nodePath !== null &&
 		validatedLocation !== null &&
-		(isTransitionSeriesSequence(s) ? offsetCanUpdate : fromCanUpdate) &&
+		(isTransitionSeriesSequence(s) || fromCanUpdate) &&
 		durationCanUpdate &&
 		trimBeforeCanUpdate;
 
