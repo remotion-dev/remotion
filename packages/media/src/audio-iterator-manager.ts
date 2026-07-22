@@ -478,7 +478,10 @@ export const audioIteratorManager = ({
 			onScheduled: (sourceDurationInSeconds) => {
 				bufferedDuration += sourceDurationInSeconds;
 				// Need to schedule a bit into the future to unblock the buffer state,
-				// otherwise we might be scheduling too late.
+				// otherwise we might be scheduling too late. This must be based on
+				// duration, not chunk count, because large PCM chunks can exceed the
+				// scheduling horizon before enough chunks are queued:
+				// https://github.com/remotion-dev/remotion/issues/9394
 				if (hasEnoughAudioToStartPlayback(bufferedDuration)) {
 					unblockPlayback();
 				}
