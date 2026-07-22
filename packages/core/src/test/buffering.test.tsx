@@ -113,7 +113,9 @@ test('a listener registered while buffering ends still receives "resume"', () =>
 	let registerOnNextCommit = false;
 	let resumed = false;
 
-	const LateRegistrar: React.FC<{generation: number}> = ({generation}) => {
+	const LateRegistrar: React.FC<{readonly generation: number}> = ({
+		generation,
+	}) => {
 		const context = useContext(BufferingContextReact);
 
 		useLayoutEffect(() => {
