@@ -216,18 +216,18 @@ type TypeChild<PresentationProps extends Record<string, unknown>> =
 	| string;
 
 export type DrawFunction = (
-	prevImage: ElementImage | null,
-	nextImage: ElementImage | null,
+	prevImage: OffscreenCanvas | null,
+	nextImage: OffscreenCanvas | null,
 	progress: number,
 ) => void;
 
-type ElementImageAndProgress = {
-	elementImage: ElementImage | null;
+type TransitionImageAndProgress = {
+	elementImage: OffscreenCanvas | null;
 	progress: number | null;
 	draw: DrawFunction | null;
 };
 
-type ImageMap = Record<number, ElementImageAndProgress>;
+type ImageMap = Record<number, TransitionImageAndProgress>;
 
 const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 	children,
@@ -273,7 +273,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 	const onNextElementImage = useCallback(
 		(
-			elementImage: ElementImage | null,
+			elementImage: OffscreenCanvas | null,
 			progress: number | null,
 			draw: DrawFunction | null,
 			index: number,
@@ -287,7 +287,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 	const onPrevElementImage = useCallback(
 		(
-			elementImage: ElementImage | null,
+			elementImage: OffscreenCanvas | null,
 			progress: number | null,
 			draw: DrawFunction | null,
 			index: number,
