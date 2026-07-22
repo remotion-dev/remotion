@@ -57,8 +57,8 @@ export const SCHEMA_FIELD_GROUPS = [
 	{id: 'source', label: 'Source'},
 	{id: 'controls', label: 'Controls'},
 	{id: 'transforms', label: 'Transform'},
-	{id: 'border', label: 'Border'},
 	{id: 'text', label: 'Text'},
+	{id: 'border', label: 'Border'},
 ] as const satisfies readonly SchemaFieldGroupInfo[];
 
 const schemaFieldGroupOrder = SCHEMA_FIELD_GROUPS.reduce(
