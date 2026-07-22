@@ -2,7 +2,7 @@ import {afterEach, beforeEach, expect, test} from 'bun:test';
 import {cleanup, render, waitFor} from '@testing-library/react';
 import React, {useCallback, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {Gif} from '../Gif';
+import {Gif, gifSchema} from '../Gif';
 import {manuallyManagedGifCache} from '../gif-cache';
 import type {GifState} from '../props';
 import {getGifCacheKey} from '../request-init';
@@ -10,6 +10,8 @@ import {resolveGifSource} from '../resolve-gif-source';
 
 type RegisteredSequence = {
 	readonly refForOutline: React.RefObject<HTMLElement | null> | null;
+	readonly premountDisplay: number | null;
+	readonly postmountDisplay: number | null;
 };
 
 class MockWorker {
@@ -213,6 +215,120 @@ test('<Gif> registers its canvas as the outline ref', async () => {
 	const refForOutline = registeredSequences[0]
 		.refForOutline as React.RefObject<HTMLCanvasElement | null>;
 	expect(ref.current).toBe(refForOutline.current);
+});
+
+test('<Gif> exposes non-keyframable premounting schema fields', () => {
+	expect(gifSchema.premountFor).toMatchObject({keyframable: false});
+	expect(gifSchema.postmountFor).toMatchObject({keyframable: false});
+	expect(gifSchema.styleWhilePremounted.type).toBe('hidden');
+	expect(gifSchema.styleWhilePostmounted.type).toBe('hidden');
+});
+
+test('<Gif> hides the canvas while premounted and postmounted', () => {
+	const premounted = render(
+		<SequenceRegistrationWrapper
+			currentFrame={0}
+			onRegisterSequence={() => undefined}
+		>
+			<Gif
+				src="test.gif"
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				style={{opacity: 0.5}}
+			/>
+		</SequenceRegistrationWrapper>,
+	);
+	const premountedStyle = premounted.container
+		.querySelector('canvas')
+		?.getAttribute('style');
+	expect(premountedStyle).toContain('display: none');
+	expect(premountedStyle).toContain('pointer-events: none');
+	expect(premountedStyle).toContain('opacity: 0.5');
+	premounted.unmount();
+
+	const postmounted = render(
+		<SequenceRegistrationWrapper
+			currentFrame={35}
+			onRegisterSequence={() => undefined}
+		>
+			<Gif src="test.gif" from={10} durationInFrames={20} postmountFor={10} />
+		</SequenceRegistrationWrapper>,
+	);
+	const postmountedStyle = postmounted.container
+		.querySelector('canvas')
+		?.getAttribute('style');
+	expect(postmountedStyle).toContain('display: none');
+	expect(postmountedStyle).toContain('pointer-events: none');
+});
+
+test('<Gif> allows overriding the premount and postmount styles', () => {
+	const premounted = render(
+		<SequenceRegistrationWrapper
+			currentFrame={0}
+			onRegisterSequence={() => undefined}
+		>
+			<Gif
+				src="test.gif"
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				styleWhilePremounted={{display: 'block', opacity: 0.25}}
+			/>
+		</SequenceRegistrationWrapper>,
+	);
+	const premountedStyle = premounted.container
+		.querySelector('canvas')
+		?.getAttribute('style');
+	expect(premountedStyle).toContain('display: block');
+	expect(premountedStyle).toContain('opacity: 0.25');
+	premounted.unmount();
+
+	const postmounted = render(
+		<SequenceRegistrationWrapper
+			currentFrame={35}
+			onRegisterSequence={() => undefined}
+		>
+			<Gif
+				src="test.gif"
+				from={10}
+				durationInFrames={20}
+				postmountFor={10}
+				styleWhilePostmounted={{display: 'block', opacity: 0.75}}
+			/>
+		</SequenceRegistrationWrapper>,
+	);
+	const postmountedStyle = postmounted.container
+		.querySelector('canvas')
+		?.getAttribute('style');
+	expect(postmountedStyle).toContain('display: block');
+	expect(postmountedStyle).toContain('opacity: 0.75');
+});
+
+test('<Gif> registers premount and postmount ranges once', async () => {
+	const registeredSequences: RegisteredSequence[] = [];
+
+	render(
+		<SequenceRegistrationWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Gif
+				src="test.gif"
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				postmountFor={5}
+			/>
+		</SequenceRegistrationWrapper>,
+	);
+
+	await waitFor(() => {
+		expect(registeredSequences).toHaveLength(1);
+	});
+	expect(registeredSequences[0].premountDisplay).toBe(10);
+	expect(registeredSequences[0].postmountDisplay).toBe(5);
 });
 
 test('<Gif> remains visible with a negative offset', () => {
