@@ -1,7 +1,10 @@
 import {afterEach, expect, test} from 'bun:test';
 import {cleanup, render, waitFor} from '@testing-library/react';
 import React, {useCallback, useMemo, useState} from 'react';
-import {AnimatedImage} from '../animated-image/index.js';
+import {
+	AnimatedImage,
+	animatedImageSchema,
+} from '../animated-image/AnimatedImage.js';
 import type {TSequence} from '../CompositionManager.js';
 import {Img} from '../Img.js';
 import {Interactive} from '../Interactive.js';
@@ -493,6 +496,118 @@ test('AnimatedImage registers its canvas ref for the Studio outline', () => {
 
 	expect(refForOutline.current).toBeInstanceOf(HTMLCanvasElement);
 	expect(ref.current).toBe(refForOutline.current);
+});
+
+test('AnimatedImage exposes non-keyframable premounting schema fields', () => {
+	expect(animatedImageSchema.premountFor.keyframable).toBe(false);
+	expect(animatedImageSchema.postmountFor.keyframable).toBe(false);
+	expect(animatedImageSchema.styleWhilePremounted.type).toBe('hidden');
+	expect(animatedImageSchema.styleWhilePostmounted.type).toBe('hidden');
+});
+
+test('AnimatedImage hides the canvas while premounted and postmounted', () => {
+	const premounted = render(
+		<SequenceTestWrapper currentFrame={0} onRegisterSequence={() => undefined}>
+			<AnimatedImage
+				src="test.gif"
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				style={{opacity: 0.5}}
+				onError={() => undefined}
+			/>
+		</SequenceTestWrapper>,
+	);
+	const premountedStyle = premounted.container
+		.querySelector('canvas')
+		?.getAttribute('style');
+	expect(premountedStyle).toContain('display: none');
+	expect(premountedStyle).toContain('pointer-events: none');
+	expect(premountedStyle).toContain('opacity: 0.5');
+	premounted.unmount();
+
+	const postmounted = render(
+		<SequenceTestWrapper currentFrame={35} onRegisterSequence={() => undefined}>
+			<AnimatedImage
+				src="test.gif"
+				from={10}
+				durationInFrames={20}
+				postmountFor={10}
+				onError={() => undefined}
+			/>
+		</SequenceTestWrapper>,
+	);
+	const postmountedStyle = postmounted.container
+		.querySelector('canvas')
+		?.getAttribute('style');
+	expect(postmountedStyle).toContain('display: none');
+	expect(postmountedStyle).toContain('pointer-events: none');
+});
+
+test('AnimatedImage allows overriding the premount and postmount styles', () => {
+	const premounted = render(
+		<SequenceTestWrapper currentFrame={0} onRegisterSequence={() => undefined}>
+			<AnimatedImage
+				src="test.gif"
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				styleWhilePremounted={{display: 'block', opacity: 0.25}}
+				onError={() => undefined}
+			/>
+		</SequenceTestWrapper>,
+	);
+	const premountedStyle = premounted.container
+		.querySelector('canvas')
+		?.getAttribute('style');
+	expect(premountedStyle).toContain('display: block');
+	expect(premountedStyle).toContain('opacity: 0.25');
+	premounted.unmount();
+
+	const postmounted = render(
+		<SequenceTestWrapper currentFrame={35} onRegisterSequence={() => undefined}>
+			<AnimatedImage
+				src="test.gif"
+				from={10}
+				durationInFrames={20}
+				postmountFor={10}
+				styleWhilePostmounted={{display: 'block', opacity: 0.75}}
+				onError={() => undefined}
+			/>
+		</SequenceTestWrapper>,
+	);
+	const postmountedStyle = postmounted.container
+		.querySelector('canvas')
+		?.getAttribute('style');
+	expect(postmountedStyle).toContain('display: block');
+	expect(postmountedStyle).toContain('opacity: 0.75');
+});
+
+test('AnimatedImage registers premount and postmount ranges once', async () => {
+	const registeredSequences: TSequence[] = [];
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<AnimatedImage
+				src="test.gif"
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				postmountFor={5}
+				onError={() => undefined}
+			/>
+		</SequenceTestWrapper>,
+	);
+
+	await waitFor(() => {
+		expect(registeredSequences).toHaveLength(1);
+	});
+	expect(registeredSequences[0].premountDisplay).toBe(10);
+	expect(registeredSequences[0].postmountDisplay).toBe(5);
 });
 
 test('AnimatedImage remains visible with a negative offset', () => {
