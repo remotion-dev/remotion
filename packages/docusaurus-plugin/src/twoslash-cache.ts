@@ -15,7 +15,7 @@ import {
 } from 'fs';
 import {dirname, join, relative, resolve} from 'path';
 
-export const TWOSLASH_CACHE_SCHEMA_VERSION = 2;
+export const TWOSLASH_CACHE_SCHEMA_VERSION = 3;
 export const TWOSLASH_THEME = 'github-dark';
 export const TWOSLASH_EXPLICIT_TRIGGER = false;
 export const TWOSLASH_RENDERER = 'classic';

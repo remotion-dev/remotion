@@ -18,6 +18,15 @@ import {
 let cachedTwoslasher: ReturnType<typeof createTwoslasher> | null = null;
 let cacheContext: ReturnType<typeof createTwoslashCacheContext> | null = null;
 
+const TWOSLASH_LANGUAGES = [
+	'ts',
+	'tsx',
+	'typescript',
+	'js',
+	'jsx',
+	'javascript',
+];
+
 function getTwoslasher() {
 	if (!cachedTwoslasher) {
 		cachedTwoslasher = createTwoslasher({
@@ -70,6 +79,7 @@ export const cachedTwoslashCall = (
 				twoslasher,
 				renderer: rendererClassic(),
 				explicitTrigger: TWOSLASH_EXPLICIT_TRIGGER,
+				langs: TWOSLASH_LANGUAGES,
 			}),
 		],
 	});
