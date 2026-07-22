@@ -86,6 +86,34 @@ type TimelineTick = {
 	showTime: boolean;
 };
 
+const NICE_SECOND_INTERVALS = [
+	1,
+	2,
+	5,
+	10,
+	15,
+	30,
+	60,
+	2 * 60,
+	3 * 60,
+	5 * 60,
+	10 * 60,
+	15 * 60,
+	20 * 60,
+	30 * 60,
+	60 * 60,
+];
+
+export const getNiceSecondInterval = (rawNthSecond: number): number => {
+	for (const n of NICE_SECOND_INTERVALS) {
+		if (n >= rawNthSecond) {
+			return n;
+		}
+	}
+
+	return Math.ceil(rawNthSecond / 3600) * 3600;
+};
+
 export const TimelineTimeIndicators: React.FC = () => {
 	const sliderTrack = useContext(TimelineWidthContext);
 	const video = Internals.useVideo();
@@ -159,55 +187,55 @@ const TimelineTimeIndicatorsInner: React.FC<{
 			TICK_LABEL_MARGIN_LEFT + maxTickLabelWidth + TICK_LABEL_MIN_GAP;
 
 		const seconds = Math.floor(durationInFrames / fps);
-		const secondMarkerEveryNth = Math.ceil(
-			minSpacingBetweenTickLabelsPx / (frameInterval * fps),
-		);
+		const rawSecondMarkerEveryNth =
+			minSpacingBetweenTickLabelsPx / (frameInterval * fps);
+		const secondMarkerEveryNth = getNiceSecondInterval(rawSecondMarkerEveryNth);
 		const frameMarkerEveryNth = Math.ceil(
 			MIN_SPACING_BETWEEN_TICKS_PX / frameInterval,
 		);
 
-		// Big ticks showing for every second
-		const secondTicks: TimelineTick[] = new Array(seconds)
-			.fill(true)
-			.map((_, index) => {
-				return {
-					frame: index * fps,
-					style: {
-						...secondTick,
-						left: frameInterval * index * fps + TIMELINE_PADDING,
-					},
-					showTime: index > 0,
-				};
-			})
-			.filter((_, idx) => idx % secondMarkerEveryNth === 0);
+		// Big ticks showing for every second, stepping directly by the interval
+		const secondTicks: TimelineTick[] = [];
+		for (let index = 0; index < seconds; index += secondMarkerEveryNth) {
+			secondTicks.push({
+				frame: index * fps,
+				style: {
+					...secondTick,
+					left: frameInterval * index * fps + TIMELINE_PADDING,
+				},
+				showTime: index > 0,
+			});
+		}
 
-		const frameTicks: TimelineTick[] = new Array(durationInFrames)
-			.fill(true)
-			.map((_, index) => {
-				return {
-					frame: index,
-					style: {
-						...tick,
-						left: frameInterval * index + TIMELINE_PADDING,
-						height:
-							index % fps === 0
-								? 10
-								: (index / frameMarkerEveryNth) % 2 === 0
-									? 5
-									: 2,
-					},
-					showTime: false,
-				};
-			})
-			.filter((_, idx) => idx % frameMarkerEveryNth === 0);
+		// Frame-level ticks, stepping directly by the interval
+		const hasSecondTick = new Set(secondTicks.map((t) => t.frame));
+		const frameTicks: TimelineTick[] = [];
+		for (
+			let index = 0;
+			index < durationInFrames;
+			index += frameMarkerEveryNth
+		) {
+			if (hasSecondTick.has(index)) {
+				continue;
+			}
 
-		// Merge and deduplicate ticks
-		const hasTicks: number[] = [];
-		return [...secondTicks, ...frameTicks].filter((t) => {
-			const alreadyUsed = hasTicks.find((ht) => ht === t.frame) !== undefined;
-			hasTicks.push(t.frame);
-			return !alreadyUsed;
-		});
+			frameTicks.push({
+				frame: index,
+				style: {
+					...tick,
+					left: frameInterval * index + TIMELINE_PADDING,
+					height:
+						index % fps === 0
+							? 10
+							: (index / frameMarkerEveryNth) % 2 === 0
+								? 5
+								: 2,
+				},
+				showTime: false,
+			});
+		}
+
+		return [...secondTicks, ...frameTicks];
 	}, [durationInFrames, fps, windowWidth]);
 
 	return (
