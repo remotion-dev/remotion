@@ -10,7 +10,7 @@ export const Issue8974TransitionSeriesTimeline: React.FC = () => {
 		<TransitionSeries name="Linked timeline TransitionSeries">
 			<TransitionSeries.Sequence
 				name="Linked clip 01"
-				durationInFrames={44}
+				durationInFrames={39}
 				trimBefore={0}
 			>
 				<Video
@@ -23,13 +23,17 @@ export const Issue8974TransitionSeriesTimeline: React.FC = () => {
 				presentation={fade()}
 				timing={linearTiming({durationInFrames: 15})}
 			/>
-			<TransitionSeries.Sequence name="Linked clip 02" durationInFrames={69}>
+			<TransitionSeries.Sequence
+				name="Linked clip 02"
+				durationInFrames={84}
+				trimBefore={8}
+			>
 				<Video name="Linked video 02" src="https://remotion.media/video.webm" />
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Sequence
 				name="Linked clip 03"
 				durationInFrames={43}
-				trimBefore={46}
+				trimBefore={60}
 			>
 				<Video name="Linked video 03" src="https://remotion.media/video.mp4" />
 			</TransitionSeries.Sequence>
@@ -96,7 +100,7 @@ export const Issue8974SeriesTimeline: React.FC = () => {
 		<Series name="Linked timeline Series">
 			<Series.Sequence
 				name="Linked clip 01"
-				durationInFrames={81}
+				durationInFrames={78}
 				trimBefore={0}
 			>
 				<Video
