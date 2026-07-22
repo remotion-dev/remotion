@@ -28,6 +28,7 @@ export type ElementDefinition = {
 	readonly posterFrame: number;
 	readonly previewPadding: number;
 	readonly slug: string;
+	readonly transparentPreview: boolean;
 	readonly width: number;
 };
 
@@ -47,6 +48,7 @@ export const elementDefinitions = {
 		posterFrame: 120,
 		previewPadding: 0,
 		slug: 'backgrounds/liquid-contours',
+		transparentPreview: false,
 		width: 1920,
 	},
 	'backgrounds/notebook-paper': {
@@ -63,6 +65,7 @@ export const elementDefinitions = {
 		posterFrame: 0,
 		previewPadding: 0,
 		slug: 'backgrounds/notebook-paper',
+		transparentPreview: false,
 		width: 1920,
 	},
 	'backgrounds/paper-texture': {
@@ -80,6 +83,7 @@ export const elementDefinitions = {
 		posterFrame: 60,
 		previewPadding: 0,
 		slug: 'backgrounds/paper-texture',
+		transparentPreview: false,
 		width: 1920,
 	},
 	'backgrounds/rotating-starburst': {
@@ -96,6 +100,7 @@ export const elementDefinitions = {
 		posterFrame: 120,
 		previewPadding: 0,
 		slug: 'backgrounds/rotating-starburst',
+		transparentPreview: false,
 		width: 1920,
 	},
 	'overlays/location-lower-third': {
@@ -112,6 +117,7 @@ export const elementDefinitions = {
 		posterFrame: 60,
 		previewPadding: 300,
 		slug: 'overlays/location-lower-third',
+		transparentPreview: false,
 		width: 1920,
 	},
 	'overlays/lower-third': {
@@ -129,6 +135,7 @@ export const elementDefinitions = {
 		posterFrame: 60,
 		previewPadding: 300,
 		slug: 'overlays/lower-third',
+		transparentPreview: false,
 		width: 1920,
 	},
 	'data/number-counter': {
@@ -151,6 +158,7 @@ export const elementDefinitions = {
 		posterFrame: 60,
 		previewPadding: 120,
 		slug: 'data/number-counter',
+		transparentPreview: false,
 		width: 1920,
 	},
 	'data/product-offer': {
@@ -158,7 +166,7 @@ export const elementDefinitions = {
 		component: ProductOffer,
 		contributors: [],
 		description:
-			'A feed-ready animated product card for showcasing an image, price, discount, availability, and call to action.',
+			'An animated product card with a bold title, catalog image, pricing, and discount.',
 		displayName: 'Product Offer',
 		durationInFrames: 150,
 		elementHeight: 900,
@@ -168,6 +176,7 @@ export const elementDefinitions = {
 		posterFrame: 75,
 		previewPadding: 90,
 		slug: 'data/product-offer',
+		transparentPreview: true,
 		width: 1080,
 	},
 	'text/circle-marker': {
@@ -185,6 +194,7 @@ export const elementDefinitions = {
 		posterFrame: 60,
 		previewPadding: 120,
 		slug: 'text/circle-marker',
+		transparentPreview: false,
 		width: 1920,
 	},
 	'text/crossed-off': {
@@ -202,6 +212,7 @@ export const elementDefinitions = {
 		posterFrame: 60,
 		previewPadding: 120,
 		slug: 'text/crossed-off',
+		transparentPreview: false,
 		width: 1920,
 	},
 	'text/news-article-headline-highlight': {
@@ -219,6 +230,7 @@ export const elementDefinitions = {
 		posterFrame: 100,
 		previewPadding: 0,
 		slug: 'text/news-article-headline-highlight',
+		transparentPreview: false,
 		width: 1920,
 	},
 	'text/strike-through': {
@@ -236,6 +248,7 @@ export const elementDefinitions = {
 		posterFrame: 60,
 		previewPadding: 120,
 		slug: 'text/strike-through',
+		transparentPreview: false,
 		width: 1920,
 	},
 	'text/text-marker': {
@@ -253,6 +266,7 @@ export const elementDefinitions = {
 		posterFrame: 60,
 		previewPadding: 120,
 		slug: 'text/text-marker',
+		transparentPreview: false,
 		width: 1920,
 	},
 } satisfies Record<string, ElementDefinition>;

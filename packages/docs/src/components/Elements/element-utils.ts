@@ -15,12 +15,12 @@ export const getElementCompositionId = (slug: string) => {
 	return `element-${slug.replaceAll('/', '-')}`;
 };
 
-export const getElementPreviewUrls = (slug: string) => {
-	const base = `https://remotion.media/elements/${slug}`;
+export const getElementPreviewUrls = (definition: ElementDefinition) => {
+	const base = `https://remotion.media/elements/${definition.slug}`;
 
 	return {
-		mp4: `${base}/preview.mp4`,
 		png: `${base}/preview.png`,
+		video: `${base}/preview.${definition.transparentPreview ? 'webm' : 'mp4'}`,
 	};
 };
 
