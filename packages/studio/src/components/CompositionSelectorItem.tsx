@@ -31,7 +31,7 @@ import {
 } from '../helpers/sidebar-scroll-into-view';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {ModalsContext} from '../state/modals';
-import {getCompositionMenuItems} from './composition-menu-items';
+import {getCompositionContextMenuItems} from './composition-menu-items';
 import {CompositionContextButton} from './CompositionContextButton';
 import {CompositionOrStillIcon} from './CompositionOrStillIcon';
 import {ContextMenu} from './ContextMenu';
@@ -39,7 +39,6 @@ import {getFolderMenuItems} from './folder-menu-items';
 import {COMPACT_CONTROL_ROW_HEIGHT, Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
-import {getOpenInNewWindowMenuItem} from './open-in-new-window';
 import {applyCodemod} from './RenderQueue/actions';
 import {SidebarRenderButton} from './SidebarRenderButton';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
@@ -204,23 +203,15 @@ export const CompositionSelectorItem: React.FC<{
 
 	const contextMenu = useMemo((): ComboboxValue[] => {
 		if (item.type === 'composition') {
-			const compositionMenuItems = getCompositionMenuItems({
+			return getCompositionContextMenuItems({
 				closeMenu: noop,
 				composition: item.composition,
 				connectionStatus,
+				includeCompositionManagementItems: true,
 				resolvedLocation,
 				setSelectedModal,
 				readOnlyStudio: window.remotion_isReadOnlyStudio,
 			});
-
-			return [
-				getOpenInNewWindowMenuItem(`/${item.composition.id}`),
-				{
-					type: 'divider',
-					id: 'open-in-new-window-divider',
-				},
-				...compositionMenuItems,
-			];
 		}
 
 		return getFolderMenuItems({

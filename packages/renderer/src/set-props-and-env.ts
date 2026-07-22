@@ -282,6 +282,11 @@ const innerSetPropsAndEnv = async ({
 		timeoutInMilliseconds: actualTimeout,
 	});
 
+	// Increment this value when the generated bundle format or behavior changes
+	// in a backwards-incompatible way. It is not the Remotion package version and
+	// should not be bumped for every generated HTML change. Keep it synchronized
+	// with window.siteVersion in packages/studio-shared/src/studio-html.ts by
+	// incrementing both values.
 	const requiredVersion: typeof window.siteVersion = '11';
 
 	if (siteVersion !== requiredVersion) {

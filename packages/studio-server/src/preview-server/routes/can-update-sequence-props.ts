@@ -32,6 +32,7 @@ import type {
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {parseAst} from '../../codemods/parse-ast';
+import {getCssShorthandForLonghand} from '../../helpers/css-shorthand-properties';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {toImportAgnosticNodePath} from '../../helpers/import-agnostic-node-path';
 import {parseKeyframeEasingExpression} from '../../helpers/parse-keyframe-easing-expression';
@@ -946,6 +947,18 @@ const validateStyleValue = (childKey: string, value: unknown): boolean => {
 	return true;
 };
 
+const getObjectPropertyName = (property: ObjectProperty): string | null => {
+	if (property.key.type === 'Identifier') {
+		return property.key.name;
+	}
+
+	if (property.key.type === 'StringLiteral') {
+		return property.key.value;
+	}
+
+	return null;
+};
+
 const getNestedPropStatus = ({
 	jsxElement,
 	ast,
@@ -987,6 +1000,27 @@ const getNestedPropStatus = ({
 	}
 
 	const objExpr = expression as ObjectExpression;
+	const cssShorthand = getCssShorthandForLonghand({
+		parentKey,
+		longhand: childKey,
+	});
+	if (
+		cssShorthand &&
+		objExpr.properties.some((property) => {
+			if (property.type !== 'ObjectProperty') {
+				return false;
+			}
+
+			const propertyName = getObjectPropertyName(property);
+			return (
+				propertyName !== null &&
+				cssShorthand.isUnsupportedProperty(propertyName)
+			);
+		})
+	) {
+		return computedStatus();
+	}
+
 	let prop: ObjectProperty | undefined;
 	for (let index = objExpr.properties.length - 1; index >= 0; index--) {
 		const candidate = objExpr.properties[index];
@@ -996,14 +1030,33 @@ const getNestedPropStatus = ({
 
 		if (
 			candidate.type === 'ObjectProperty' &&
-			((candidate.key.type === 'Identifier' &&
-				candidate.key.name === childKey) ||
-				(candidate.key.type === 'StringLiteral' &&
-					candidate.key.value === childKey))
+			(getObjectPropertyName(candidate) === childKey ||
+				getObjectPropertyName(candidate) === cssShorthand?.shorthand)
 		) {
 			prop = candidate;
 			break;
 		}
+	}
+
+	if (
+		prop &&
+		cssShorthand &&
+		getObjectPropertyName(prop) === cssShorthand.shorthand
+	) {
+		const shorthandValue = prop.value as Expression;
+		if (!isStaticValue(shorthandValue, {allowSpecialValues: false})) {
+			return computedStatus();
+		}
+
+		const staticShorthandValue = extractStaticValue(shorthandValue, {
+			allowSpecialValues: false,
+		});
+		if (typeof staticShorthandValue !== 'string') {
+			return computedStatus();
+		}
+
+		const parsed = cssShorthand.parse(staticShorthandValue);
+		return parsed ? staticStatus(parsed[childKey], null) : computedStatus();
 	}
 
 	if (!prop) {

@@ -142,9 +142,6 @@ Instead of validating the signature yourself, you can use the [`validateWebhookS
 You can use any web framework and language to set up your webhook endpoint. The following example is written in JavaScript using the Express framework, we are using [`expressWebhook()`](/docs/lambda/expresswebhook) to simplify the process.
 
 ```javascript twoslash title="server.js"
-const ENABLE_TESTING = false;
-
-// ---cut---
 import express from 'express';
 import bodyParser from 'body-parser';
 import {expressWebhook} from '@remotion/lambda/client';
@@ -154,7 +151,7 @@ const jsonParser = bodyParser.json();
 
 const handler = expressWebhook({
   secret: 'mysecret',
-  testing: ENABLE_TESTING,
+  testing: false,
   onSuccess: ({renderId}) => console.log('Finished render', renderId),
   onTimeout: ({renderId}) => console.log('Time out', renderId),
   onError: ({renderId}) => console.log('Error', renderId),
@@ -232,15 +229,12 @@ router.listen(3000, () => {
 Similarly, here is an example endpoint in Next.JS for the App Router using [`appRouterWebhook()`](/docs/lambda/approuterwebhook). Available from v4.0.246.
 
 ```tsx twoslash title="app/api/webhook.ts"
-const ENABLE_TESTING = false;
-
-// ---cut---
 import {appRouterWebhook} from '@remotion/lambda/client';
 
 export const POST = appRouterWebhook({
   secret: 'mysecret',
   // Enable testing through the tool below
-  testing: ENABLE_TESTING,
+  testing: false,
   onSuccess: ({renderId}) => console.log('Finished render', renderId),
   onTimeout: ({renderId}) => console.log('Time out', renderId),
   onError: ({renderId}) => console.log('Error', renderId),
@@ -254,16 +248,12 @@ export const OPTIONS = POST;
 The same endpoint as above, but using the Pages Router with the help of [`pagesRouterWebhook()`](/docs/lambda/pagesrouterwebhook). Available from v4.0.246.
 
 ```tsx twoslash title="pages/api/webhook.ts"
-const ENABLE_TESTING = false;
-
-// ---cut---
-
 import {pagesRouterWebhook} from '@remotion/lambda/client';
 
 const handler = pagesRouterWebhook({
   secret: 'mysecret',
   // Enable testing through the tool below
-  testing: ENABLE_TESTING,
+  testing: false,
   onSuccess: ({renderId}) => console.log('Finished render', renderId),
   onTimeout: ({renderId}) => console.log('Time out', renderId),
   onError: ({renderId}) => console.log('Error', renderId),

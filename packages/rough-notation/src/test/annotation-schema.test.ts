@@ -57,7 +57,7 @@ test('component-specific controls are isolated to their schemas', () => {
 	expect(keys(boxSchema)).not.toContain('bracketRight');
 });
 
-test('all named annotations expose text, font, and seed controls', () => {
+test('all named annotations expose text, font, border, and seed controls', () => {
 	for (const schema of annotationSchemas) {
 		expect(keys(schema)).toContain('children');
 		expect(keys(schema)).toContain('style.fontFamily');
@@ -65,6 +65,9 @@ test('all named annotations expose text, font, and seed controls', () => {
 		expect(keys(schema)).toContain('style.fontWeight');
 		expect(keys(schema)).toContain('style.fontStyle');
 		expect(keys(schema)).toContain('style.letterSpacing');
+		expect(keys(schema)).toContain('style.borderWidth');
+		expect(keys(schema)).toContain('style.borderStyle');
+		expect(keys(schema)).toContain('style.borderColor');
 		expect(schema.seed).not.toHaveProperty('keyframable', false);
 	}
 });

@@ -17,6 +17,7 @@ import {
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {
 	baseSchema,
+	borderSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
@@ -38,7 +39,7 @@ import type {
 import {serializeRequestInit} from './request-init';
 import {resolveAnimatedImageSource} from './resolve-image-source';
 
-const animatedImageSchema = {
+export const animatedImageSchema = {
 	src: {
 		type: 'asset',
 		default: undefined,
@@ -57,6 +58,7 @@ const animatedImageSchema = {
 		keyframable: false,
 	},
 	...transformSchema,
+	...borderSchema,
 } as const satisfies InteractivitySchema;
 
 const getCanvasPropsFromSequenceProps = (

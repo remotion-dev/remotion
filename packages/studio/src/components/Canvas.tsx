@@ -1121,7 +1121,8 @@ export const Canvas: React.FC<{
 			if (
 				!canDropAssets ||
 				compositionFile === null ||
-				currentCompositionId === null
+				currentCompositionId === null ||
+				config === null
 			) {
 				return;
 			}
@@ -1163,6 +1164,7 @@ export const Canvas: React.FC<{
 
 					await importAssets({
 						files,
+						fps: config.fps,
 						compositionFile,
 						compositionId: currentCompositionId,
 						destinationDimensions:
@@ -1178,6 +1180,7 @@ export const Canvas: React.FC<{
 
 					await insertExistingAssets({
 						assetPaths: [assetPath],
+						fps: config.fps,
 						compositionFile,
 						compositionId: currentCompositionId,
 						destinationDimensions:
@@ -1192,6 +1195,7 @@ export const Canvas: React.FC<{
 
 					await insertRemoteAudio({
 						url,
+						fps: config.fps,
 						compositionFile,
 						compositionId: currentCompositionId,
 					});
@@ -1239,6 +1243,7 @@ export const Canvas: React.FC<{
 
 					await importRemoteAsset({
 						url,
+						fps: config.fps,
 						compositionFile,
 						compositionId: currentCompositionId,
 						destinationDimensions:
@@ -1256,6 +1261,7 @@ export const Canvas: React.FC<{
 			cannotAddSequence,
 			chooseSvgImportMode,
 			compositionFile,
+			config,
 			contentDimensions,
 			currentCompositionId,
 			previewSize,
@@ -1270,6 +1276,7 @@ export const Canvas: React.FC<{
 				!canDropAssets ||
 				compositionFile === null ||
 				currentCompositionId === null ||
+				config === null ||
 				event.clipboardData === null ||
 				activeElement instanceof HTMLInputElement ||
 				activeElement instanceof HTMLTextAreaElement ||
@@ -1346,6 +1353,7 @@ export const Canvas: React.FC<{
 			try {
 				await importAssets({
 					files,
+					fps: config.fps,
 					compositionFile,
 					compositionId: currentCompositionId,
 					destinationDimensions:
@@ -1361,6 +1369,7 @@ export const Canvas: React.FC<{
 			canDropAssets,
 			chooseSvgImportMode,
 			compositionFile,
+			config,
 			contentDimensions,
 			currentCompositionId,
 		],

@@ -1,11 +1,26 @@
 import {expect, test} from 'bun:test';
 import type {InteractivitySchema} from 'remotion';
+import {Interactive} from 'remotion';
 import {
 	canEditEasingForInterpolationFunction,
 	getKeyframeInterpolationFunctionForSchemaField,
 	isInteractivitySchemaFieldKeyframable,
 	isSchemaFieldKeyframable,
 } from '../keyframe-interpolation-function';
+
+test('border longhand fields keyframe width and color, but not style', () => {
+	const schema = Interactive.borderSchema;
+
+	expect(isSchemaFieldKeyframable({schema, key: 'style.borderWidth'})).toBe(
+		true,
+	);
+	expect(isSchemaFieldKeyframable({schema, key: 'style.borderColor'})).toBe(
+		true,
+	);
+	expect(isSchemaFieldKeyframable({schema, key: 'style.borderStyle'})).toBe(
+		false,
+	);
+});
 
 test('known interpolation functions explicitly support easing', () => {
 	expect(canEditEasingForInterpolationFunction('interpolate')).toBe(true);

@@ -4,6 +4,7 @@ import type {
 	JSXExpressionContainer,
 	JSXFragment,
 	JSXSpreadAttribute,
+	ObjectProperty,
 	StringLiteral,
 	Expression,
 	File,
@@ -18,6 +19,10 @@ import type {
 	VideoConfigValues,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {
+	getCssShorthandsForUpdates,
+	type CssShorthandProperty,
+} from '../../helpers/css-shorthand-properties';
 import {
 	parseVideoConfigNumericExpression,
 	updateVideoConfigNumericExpression,
@@ -748,6 +753,75 @@ const applyGoogleFontSourceEdits = ({
 	}
 };
 
+const migrateCssShorthand = ({
+	node,
+	cssShorthand,
+}: {
+	node: JSXOpeningElementLike;
+	cssShorthand: CssShorthandProperty;
+}) => {
+	const styleAttribute = node.attributes?.find(
+		(attribute) =>
+			attribute.type === 'JSXAttribute' &&
+			attribute.name.type === 'JSXIdentifier' &&
+			attribute.name.name === 'style',
+	);
+	if (
+		styleAttribute?.type !== 'JSXAttribute' ||
+		styleAttribute.value?.type !== 'JSXExpressionContainer' ||
+		styleAttribute.value.expression.type !== 'ObjectExpression'
+	) {
+		return;
+	}
+
+	const {properties} = styleAttribute.value.expression;
+	for (let index = 0; index < properties.length; index++) {
+		const property = properties[index];
+		if (
+			property.type !== 'ObjectProperty' ||
+			!(
+				(property.key.type === 'Identifier' &&
+					property.key.name === cssShorthand.shorthand) ||
+				(property.key.type === 'StringLiteral' &&
+					property.key.value === cssShorthand.shorthand)
+			)
+		) {
+			continue;
+		}
+
+		const shorthandValue =
+			property.value.type === 'StringLiteral'
+				? property.value.value
+				: property.value.type === 'TemplateLiteral' &&
+					  property.value.expressions.length === 0
+					? (property.value.quasis[0]?.value.cooked ?? null)
+					: null;
+		if (shorthandValue === null) {
+			continue;
+		}
+
+		const parsed = cssShorthand.parse(shorthandValue);
+		if (!parsed) {
+			continue;
+		}
+
+		properties.splice(
+			index,
+			1,
+			...cssShorthand.longhands.map((longhand) => {
+				const value = parsed[longhand];
+				return b.objectProperty(
+					b.identifier(longhand),
+					typeof value === 'number'
+						? b.numericLiteral(value)
+						: b.stringLiteral(value),
+				) as ObjectProperty;
+			}),
+		);
+		index += cssShorthand.longhands.length - 1;
+	}
+};
+
 const updateSequencePropsNode = ({
 	jsxElement,
 	updates,
@@ -765,6 +839,11 @@ const updateSequencePropsNode = ({
 } => {
 	const node = jsxElement.openingElement;
 	const logLine = node.loc?.start.line ?? 1;
+	for (const cssShorthand of getCssShorthandsForUpdates(
+		updates.map((update) => update.key),
+	)) {
+		migrateCssShorthand({node, cssShorthand});
+	}
 
 	const oldValueStrings: string[] = [];
 	const initialAttrs = snapshotTopLevelAttrs(node);

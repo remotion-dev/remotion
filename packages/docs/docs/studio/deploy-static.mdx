@@ -74,7 +74,7 @@ jobs:
       - name: install packages
         run: npm i
       - name: Bundle Studio
-        run: npx remotion bundle --public-path="./"
+        run: npx remotion bundle
       - name: Deploy Studio
         uses: JamesIves/github-pages-deploy-action@v4
         with:
@@ -84,7 +84,7 @@ jobs:
 The above code will deploy the bundled Remotion Studio to a branch `gh-pages`.
 
 :::note
-The --public-path flag for `npx remotion bundle` is available only from remotion version `4.0.127`
+Before Remotion v4.0.497, pass `--public-path="./"`. Upgrade to v4.0.497 or newer if the bundle uses files from the `public/` directory at a nested URL.
 :::
 
 <Step>3</Step> Go to the settings of your repository (github.com/[username]/[repo]/settings/pages) <br />
