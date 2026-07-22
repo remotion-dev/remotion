@@ -776,6 +776,8 @@ export const useMenuStructure = (
 					closeMenu,
 					composition: currentComposition,
 					connectionStatus: type,
+					includeCompositionManagementItems: true,
+					includeNewCompositionItem: true,
 					resolvedLocation: resolvedCompositionLocation,
 					setSelectedModal,
 					readOnlyStudio,
