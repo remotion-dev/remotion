@@ -83,7 +83,6 @@ export const studioHtml = ({
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		${isRelativeBundle ? '<meta name="remotion-bundle-public-path" content="relative" />' : ''}
 		${
 			includeFavicon
 				? `<link id="__remotion_favicon" rel="icon" type="image/png" href="${publicPath}favicon.ico" />`

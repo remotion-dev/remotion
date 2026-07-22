@@ -82,10 +82,7 @@ export const validateBundleDir = (bundleDir: unknown): string => {
 
 	const indexHtml = fs.readFileSync(indexHtmlPath, 'utf8');
 	const publicPath = getPublicPath(indexHtml);
-	const hasRelocatableBundleMarker = indexHtml.includes(
-		'<meta name="remotion-bundle-public-path" content="relative" />',
-	);
-	if (publicPath !== './' || !hasRelocatableBundleMarker) {
+	if (publicPath !== './') {
 		throw new Error(
 			`The bundle at ${resolvedBundleDir} is not relocatable. Rebuild it using Remotion v4.0.497 or newer.`,
 		);

@@ -53,9 +53,6 @@ test('makes relative bundles resolve public assets from the document URL', () =>
 	expect(html).toContain('href="./favicon.ico"');
 	expect(html).toContain('src="./bundle.js"');
 	expect(html).toContain(
-		'<meta name="remotion-bundle-public-path" content="relative" />',
-	);
-	expect(html).toContain(
 		'window.remotion_staticBase = new URL("./public", window.location.href).pathname;',
 	);
 	expect(html).toContain(
@@ -85,5 +82,4 @@ test('preserves explicitly absolute bundle paths', () => {
 		'window.remotion_publicFolderExists = "/sites/alpha/public";',
 	);
 	expect(html).not.toContain('.map((file)');
-	expect(html).not.toContain('remotion-bundle-public-path');
 });

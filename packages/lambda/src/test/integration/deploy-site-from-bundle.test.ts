@@ -21,7 +21,7 @@ const temporaryDirectories: string[] = [];
 
 const relocatableIndexHtml = `<!DOCTYPE html>
 <html>
-<head><meta name="remotion-bundle-public-path" content="relative" /></head>
+<head></head>
 <body>
 <script>window.remotion_publicPath = "./";</script>
 <script>window.siteVersion = '11'; window.remotion_version = '${VERSION}';</script>
@@ -313,24 +313,10 @@ test('validates the local bundle before making an AWS request', async () => {
 		}),
 	).rejects.toThrow('is not relocatable');
 
-	const oldRelativeBundle = makeBundle({'bundle.js': 'bundle'});
-	writeFileSync(
-		path.join(oldRelativeBundle, 'index.html'),
-		'<script>window.remotion_publicPath = "./";</script>',
-	);
-	await expect(
-		deployBundle({
-			bucketName: 'remotionlambda-testing',
-			bundleDir: oldRelativeBundle,
-			siteName: 'from-bundle-validation',
-			providerSpecifics,
-		}),
-	).rejects.toThrow('is not relocatable');
-
 	const malformedPublicPath = makeBundle({'bundle.js': 'bundle'});
 	writeFileSync(
 		path.join(malformedPublicPath, 'index.html'),
-		'<meta name="remotion-bundle-public-path" content="relative" /><script>window.remotion_publicPath = "\\x";</script>',
+		'<script>window.remotion_publicPath = "\\x";</script>',
 	);
 	await expect(
 		deployBundle({
