@@ -13,12 +13,10 @@ Use the canonical interactivity best-practices page instead:
 To make an element or custom component interactive, use:
 [Make a component interactive](https://www.remotion.dev/docs/studio/make-component-interactive.md)
 
-## Computed values
+## Avoid object spreads
 
-The Studio leaves computed values untouched and preserves their runtime result.
-Properties inherited from an object spread are computed unless the property is
-declared explicitly after the spread. Inline a property after the spread only
-when it should be editable or keyframable in the Studio.
+Do not use object spreads for interactive props. Write the values inline so the
+Studio can detect and edit them.
 
 ## Video editing
 
