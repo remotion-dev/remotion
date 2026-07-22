@@ -2,7 +2,6 @@ import {afterEach, beforeEach, expect, test} from 'bun:test';
 import {cleanup, render, waitFor} from '@testing-library/react';
 import React, {useCallback, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {getGifDurationInSeconds} from '../get-gif-duration-in-seconds';
 import {Gif} from '../Gif';
 import {manuallyManagedGifCache} from '../gif-cache';
 import type {GifState} from '../props';
@@ -252,10 +251,4 @@ test('reuses a cached GIF without spawning a decode worker', async () => {
 	});
 
 	expect(MockWorker.instances).toBe(0);
-});
-
-test('gets the duration without decoding GIF pixels', async () => {
-	const zeroDelayGif =
-		'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-	expect(await getGifDurationInSeconds(zeroDelayGif)).toBe(0.1);
 });

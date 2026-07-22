@@ -1,4 +1,3 @@
-import {getGifDurationInSeconds} from '@remotion/gif';
 import {
 	detectFileType,
 	getRequiredPackageForInsertableElement,
@@ -420,10 +419,6 @@ const getAnimatedImageAssetDuration = (
 	src: string,
 	contentType: string | null,
 ) => {
-	if (contentType === 'image/gif') {
-		return getGifDurationInSeconds(src);
-	}
-
 	return Internals.getAnimatedImageDurationInSeconds({
 		resolvedSrc: src,
 		signal: new AbortController().signal,

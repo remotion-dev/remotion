@@ -1,6 +1,7 @@
+import {getRemotionEnvironment} from 'remotion';
 import {manuallyManagedGifCache, volatileGifCache} from './gif-cache';
-import {parseGifDurationInSeconds} from './parse-generate';
 import type {GifState} from './props';
+import {parseGif, parseWithWorker} from './react-tools';
 import {getGifCacheKey} from './request-init';
 import {resolveGifSource} from './resolve-gif-source';
 
@@ -14,7 +15,7 @@ const calcDuration = (parsed: GifState) => {
  * @description Gets the duration in seconds of a GIF.
  * @see [Documentation](https://remotion.dev/docs/gif/get-gif-duration-in-seconds)
  */
-export const getGifDurationInSeconds = (
+export const getGifDurationInSeconds = async (
 	src: string,
 	options?: {
 		requestInit?: RequestInit;
@@ -28,11 +29,26 @@ export const getGifDurationInSeconds = (
 	const inCache =
 		volatileGifCache.get(cacheKey) ?? manuallyManagedGifCache.get(cacheKey);
 	if (inCache) {
-		return Promise.resolve(calcDuration(inCache));
+		return calcDuration(inCache);
 	}
 
-	return parseGifDurationInSeconds(resolvedSrc, {
-		signal: new AbortController().signal,
+	if (getRemotionEnvironment().isRendering) {
+		const renderingParsed = parseWithWorker({
+			src: resolvedSrc,
+			cacheKey,
+			requestInit: options?.requestInit,
+		});
+		const resolved = await renderingParsed.prom;
+		volatileGifCache.set(cacheKey, resolved);
+		return calcDuration(resolved);
+	}
+
+	const parsed = await parseGif({
+		src: resolvedSrc,
+		controller: new AbortController(),
 		requestInit: options?.requestInit,
 	});
+	volatileGifCache.set(cacheKey, parsed);
+
+	return calcDuration(parsed);
 };
