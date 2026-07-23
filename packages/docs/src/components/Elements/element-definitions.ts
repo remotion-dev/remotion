@@ -3,7 +3,7 @@ import {LiquidContours} from '../../../elements/backgrounds/liquid-contours/liqu
 import {NotebookPaper} from '../../../elements/backgrounds/notebook-paper/notebook-paper';
 import {PaperTexture} from '../../../elements/backgrounds/paper-texture/paper-texture';
 import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburst/rotating-starburst';
-import {DataSeriesChart} from '../../../elements/data/data-series-chart/data-series-chart';
+import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
 import {ProductOffer} from '../../../elements/data/product-offer/product-offer';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
@@ -139,22 +139,22 @@ export const elementDefinitions = {
 		transparentPreview: false,
 		width: 1920,
 	},
-	'data/data-series-chart': {
+	'data/horizontal-bar-chart': {
 		category: 'data',
-		component: DataSeriesChart,
+		component: HorizontalBarChart,
 		contributors: [],
 		description:
-			'An animated combination chart with sequential revenue bars and a glowing conversion line.',
-		displayName: 'Data Series Chart',
+			'A bold bar chart card with three directly labeled data points.',
+		displayName: 'Horizontal Bar Chart',
 		durationInFrames: 120,
 		elementHeight: 864,
 		elementWidth: 1560,
 		fps: 30,
 		height: 1080,
-		posterFrame: 88,
+		posterFrame: 48,
 		previewPadding: 56,
-		slug: 'data/data-series-chart',
-		transparentPreview: false,
+		slug: 'data/horizontal-bar-chart',
+		transparentPreview: true,
 		width: 1920,
 	},
 	'data/number-counter': {
