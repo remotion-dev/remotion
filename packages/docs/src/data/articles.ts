@@ -4902,7 +4902,7 @@ export const articles = [
 		compId: 'articles-docs-overwriting-webpack-config',
 		crumb: 'How To',
 		noAi: false,
-		slug: 'webpack',
+		slug: 'bundlers',
 	},
 	{
 		id: 'parameterized-rendering',
