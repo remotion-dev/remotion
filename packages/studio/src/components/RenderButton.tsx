@@ -363,7 +363,6 @@ export const RenderButton: React.FC<{
 			inFrameMark: inFrame,
 			outFrameMark: outFrame,
 			initialLogLevel: defaults.logLevel as LogLevel,
-			initialLicenseKey: defaults.publicLicenseKey,
 			initialStillImageFormat:
 				defaults.stillImageFormat as RenderStillOnWebImageFormat,
 			initialScale: defaults.scale,

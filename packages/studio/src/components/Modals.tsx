@@ -3,6 +3,7 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {ModalsContext} from '../state/modals';
 import {AskAiModal} from './AskAiModal';
+import {ConfigureLicenseModal} from './ConfigureLicenseModal';
 import {ConfirmationDialog} from './ConfirmationDialog';
 import {EffectPickerModal} from './EffectPickerModal';
 import {InstallPackageModal} from './InstallPackage';
@@ -76,6 +77,11 @@ export const Modals: React.FC<{
 			)}
 			{modalContextType && modalContextType.type === 'input-props-override' && (
 				<OverrideInputPropsModal />
+			)}
+			{modalContextType && modalContextType.type === 'configure-license' && (
+				<ConfigureLicenseModal
+					initialPublicLicenseKey={modalContextType.initialPublicLicenseKey}
+				/>
 			)}
 			{modalContextType && modalContextType.type === 'web-render' && (
 				<WebRenderModalWithLoader {...modalContextType} />

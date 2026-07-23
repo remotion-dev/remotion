@@ -247,6 +247,7 @@ export const studioCommand = async (
 		forceNew: forceNewStudioOption.getValue({commandLine: parsedCli}).value,
 		rspack: useRspack,
 		getStudioRuntimeConfig,
+		configFile,
 	});
 
 	if (result.type === 'already-running') {

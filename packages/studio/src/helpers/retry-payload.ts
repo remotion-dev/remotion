@@ -208,7 +208,6 @@ export const makeClientRetryPayload = (
 		compositionId: job.compositionId,
 		initialFrame: job.type === 'client-still' ? job.frame : 0,
 		initialLogLevel: job.logLevel,
-		initialLicenseKey: job.licenseKey,
 		defaultProps: job.inputProps,
 		inFrameMark: job.type === 'client-video' ? job.startFrame : null,
 		outFrameMark: job.type === 'client-video' ? job.endFrame : null,

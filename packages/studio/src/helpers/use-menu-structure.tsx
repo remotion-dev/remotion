@@ -359,18 +359,21 @@ export const useMenuStructure = (
 					{
 						id: 'license',
 						value: 'license',
-						label: 'License',
+						label: 'Configure License...',
 						onClick: () => {
 							closeMenu();
-							openExternal(
-								'https://github.com/remotion-dev/remotion/blob/main/LICENSE.md',
-							);
+							setSelectedModal({
+								type: 'configure-license',
+								initialPublicLicenseKey:
+									window.remotion_renderDefaults?.publicLicenseKey ?? null,
+							});
 						},
 						type: 'item' as const,
 						keyHint: null,
 						leftItem: null,
 						subMenu: null,
-						quickSwitcherLabel: 'Help: License',
+						quickSwitcherLabel: 'Configure License...',
+						disabled: readOnlyStudio || type !== 'connected',
 					},
 					{
 						id: 'acknowledgements',
