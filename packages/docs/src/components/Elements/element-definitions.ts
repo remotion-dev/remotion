@@ -13,6 +13,7 @@ import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
 import {NewsArticleHeadlineHighlight} from '../../../elements/text/news-article-headline-highlight/news-article-headline-highlight';
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
 import {TextMarker} from '../../../elements/text/text-marker/text-marker';
+import {TimedCaptions} from '../../../elements/text/timed-captions/timed-captions';
 import type {Contributor} from '../Credits';
 
 export type ElementDefinition = {
@@ -286,6 +287,23 @@ export const elementDefinitions = {
 		previewPadding: 120,
 		slug: 'text/text-marker',
 		transparentPreview: false,
+		width: 1920,
+	},
+	'text/timed-captions': {
+		category: 'text',
+		component: TimedCaptions,
+		contributors: [{username: 'JonnyBurger', contribution: null}],
+		description:
+			'Previously a paid template on remotion.pro, Timed Captions is now free for everyone.',
+		displayName: 'Timed Captions',
+		durationInFrames: 210,
+		elementHeight: 180,
+		elementWidth: 900,
+		fps: 30,
+		height: 1080,
+		posterFrame: 75,
+		previewPadding: 120,
+		slug: 'text/timed-captions',
 		width: 1920,
 	},
 } satisfies Record<string, ElementDefinition>;

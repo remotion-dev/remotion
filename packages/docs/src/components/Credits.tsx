@@ -23,7 +23,7 @@ const linkStyle: React.CSSProperties = {
 
 export interface Contributor {
 	username: string;
-	contribution: string;
+	contribution: string | null;
 }
 
 interface CreditsProps {
@@ -45,10 +45,6 @@ const ContributorComp: React.FC<{
 
 	if (!contributor.username) {
 		throw new Error('Contributor username is required');
-	}
-
-	if (!contributor.contribution) {
-		throw new Error('Contributor contribution is required');
 	}
 
 	return (
@@ -73,14 +69,16 @@ const ContributorComp: React.FC<{
 					}}
 				>
 					<strong>{contributor.username}</strong>
-					<div
-						style={{
-							color: 'var(--text-color)',
-							lineHeight: 1.4,
-						}}
-					>
-						{contributor.contribution}
-					</div>
+					{contributor.contribution ? (
+						<div
+							style={{
+								color: 'var(--text-color)',
+								lineHeight: 1.4,
+							}}
+						>
+							{contributor.contribution}
+						</div>
+					) : null}
 				</div>
 			</div>
 		</a>
