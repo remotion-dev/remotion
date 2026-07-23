@@ -597,6 +597,26 @@ export type UpdateEffectKeyframeSettingsRequest = {
 
 export type UpdateEffectKeyframeSettingsResponse = SaveEffectPropsResponse;
 
+export type BatchUpdateSequenceKeyframeSettings = Omit<
+	UpdateSequenceKeyframeSettingsRequest,
+	'clientId'
+>;
+
+export type BatchUpdateEffectKeyframeSettings = Omit<
+	UpdateEffectKeyframeSettingsRequest,
+	'clientId'
+>;
+
+export type BatchUpdateKeyframeSettingsRequest = {
+	sequenceKeyframes: BatchUpdateSequenceKeyframeSettings[];
+	effectKeyframes: BatchUpdateEffectKeyframeSettings[];
+	clientId: string;
+};
+
+export type BatchUpdateKeyframeSettingsResponse = {
+	success: true;
+};
+
 type BaseDeleteEffectRequestItem = {
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
@@ -968,6 +988,10 @@ export type ApiRoutes = {
 	'/api/update-effect-keyframe-settings': ReqAndRes<
 		UpdateEffectKeyframeSettingsRequest,
 		UpdateEffectKeyframeSettingsResponse
+	>;
+	'/api/batch-update-keyframe-settings': ReqAndRes<
+		BatchUpdateKeyframeSettingsRequest,
+		BatchUpdateKeyframeSettingsResponse
 	>;
 	'/api/delete-effect': ReqAndRes<DeleteEffectRequest, DeleteEffectResponse>;
 	'/api/paste-effects': ReqAndRes<PasteEffectsRequest, PasteEffectsResponse>;
