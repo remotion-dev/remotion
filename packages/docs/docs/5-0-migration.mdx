@@ -87,6 +87,13 @@ This will add a miniscule cost to your renders technically, but will lead to mor
 `renderMediaOnLambda()`, `getRenderProgress()`, `renderStillOnLambda()`, `presignUrl()`, `getSites()` have been removed from `@remotion/lambda`.  
 They are now available in `@remotion/lambda/client`.
 
+## Cloud Run services use a lower maximum instance count
+
+The default [`maxInstances`](/docs/cloudrun/deployservice#maxinstances) for new Cloud Run services has been reduced from `100` to `5`.
+On some GCP accounts, the previous default exceeded the available Cloud Run quota and caused deployments to fail with an `Invalid value specified for cpu` error.
+
+**Required action**: If you want to keep the old scaling limit, set `maxInstances: 100` when using [`deployService()`](/docs/cloudrun/deployservice), or pass `--maxInstances=100` to the [Cloud Run CLI](/docs/cloudrun/cli/services/deploy).
+
 ## `bt709` is now the default color space
 
 The default [`colorSpace`](/docs/renderer/render-media#colorspace) is now `"bt709"` instead of `"default"` (which was equivalent to `"bt601"`).
