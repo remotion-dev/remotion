@@ -18,6 +18,7 @@ import {bundle} from '@remotion/bundler';
 import {getCompositions} from '@remotion/renderer';
 
 const bundled = await bundle({entryPoint: require.resolve('./src/index.ts')});
+
 const compositions = await getCompositions({
   serveUrl: bundled,
   inputProps: {},
