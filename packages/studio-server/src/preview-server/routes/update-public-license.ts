@@ -36,7 +36,9 @@ export const updatePublicLicenseInConfig = ({
 		},
 	});
 
-	const configWithoutExistingCalls = recast.print(ast).code;
+	const configWithoutExistingCalls = recast.print(ast, {
+		lineTerminator: '\n',
+	}).code;
 	const separator = configWithoutExistingCalls.endsWith('\n') ? '' : '\n';
 	const escapedPublicLicenseKey = publicLicenseKey
 		.replaceAll('\\', '\\\\')
