@@ -38,7 +38,7 @@ type InternalGetCompositionsOptions = {
 	onLog: OnLog;
 } & ToOptions<typeof optionsMap.getCompositions>;
 
-export type GetCompositionsOptions = RequiredInputPropsInV5 & {
+export type LegacyGetCompositionsOptions = RequiredInputPropsInV5 & {
 	envVariables?: Record<string, string>;
 	puppeteerInstance?: HeadlessBrowser;
 	onBrowserLog?: (log: BrowserLog) => void;
@@ -46,6 +46,34 @@ export type GetCompositionsOptions = RequiredInputPropsInV5 & {
 	chromiumOptions?: ChromiumOptions;
 	port?: number | null;
 } & Partial<ToOptions<typeof optionsMap.getCompositions>>;
+
+export type GetCompositionsOptions = LegacyGetCompositionsOptions & {
+	serveUrl: string;
+};
+
+type GetCompositionsArguments =
+	| [options: GetCompositionsOptions]
+	| [serveUrlOrWebpackUrl: string, config?: LegacyGetCompositionsOptions];
+
+const convertGetCompositionsArgumentsToOptions = (
+	args: GetCompositionsArguments,
+): GetCompositionsOptions => {
+	if ((args.length as number) === 0) {
+		throw new Error(
+			'No serve URL or webpack bundle directory was passed to getCompositions().',
+		);
+	}
+
+	const firstArg = args[0];
+	if (typeof firstArg === 'string') {
+		return {
+			...(args[1] ?? {}),
+			serveUrl: firstArg,
+		};
+	}
+
+	return firstArg;
+};
 
 type InnerGetCompositionsParams = {
 	serializedInputPropsWithCustomSchema: string;
@@ -281,10 +309,10 @@ export const internalGetCompositions = wrapWithErrorHandling(
  * @see [Documentation](https://www.remotion.dev/docs/renderer/get-compositions)
  */
 export const getCompositions = (
-	serveUrlOrWebpackUrl: string,
-	config?: GetCompositionsOptions,
+	...args: GetCompositionsArguments
 ): Promise<VideoConfig[]> => {
-	if (!serveUrlOrWebpackUrl) {
+	const options = convertGetCompositionsArgumentsToOptions(args);
+	if (typeof options?.serveUrl !== 'string' || !options.serveUrl) {
 		throw new Error(
 			'No serve URL or webpack bundle directory was passed to getCompositions().',
 		);
@@ -306,7 +334,8 @@ export const getCompositions = (
 		chromeMode,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
-	} = config ?? {};
+		serveUrl,
+	} = options;
 
 	const indent = false;
 	const logLevel = passedLogLevel ?? 'info';
@@ -325,7 +354,7 @@ export const getCompositions = (
 		onBrowserLog: onBrowserLog ?? null,
 		port: port ?? null,
 		puppeteerInstance: puppeteerInstance ?? undefined,
-		serveUrlOrWebpackUrl,
+		serveUrlOrWebpackUrl: serveUrl,
 		server: undefined,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		logLevel,

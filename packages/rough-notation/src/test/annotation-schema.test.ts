@@ -65,6 +65,7 @@ test('all named annotations expose text, font, border, and seed controls', () =>
 		expect(keys(schema)).toContain('style.fontWeight');
 		expect(keys(schema)).toContain('style.fontStyle');
 		expect(keys(schema)).toContain('style.letterSpacing');
+		expect(keys(schema)).toContain('style.backgroundColor');
 		expect(keys(schema)).toContain('style.borderWidth');
 		expect(keys(schema)).toContain('style.borderStyle');
 		expect(keys(schema)).toContain('style.borderColor');

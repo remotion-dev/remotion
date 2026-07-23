@@ -48,6 +48,7 @@ export const videoSchema: InteractivitySchema = {
 	muted: {type: 'boolean', default: false, description: 'Muted'},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
 	...Internals.transformSchema,
+	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
 } as const satisfies InteractivitySchema;
 

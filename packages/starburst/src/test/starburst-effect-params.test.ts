@@ -97,7 +97,8 @@ test('<Starburst> exposes colors as an array control', () => {
 	});
 });
 
-test('<Starburst> exposes border controls', () => {
+test('<Starburst> exposes background and border controls', () => {
+	expect('style.backgroundColor' in starburstSchema).toBe(true);
 	expect('style.borderWidth' in starburstSchema).toBe(true);
 	expect('style.borderStyle' in starburstSchema).toBe(true);
 	expect('style.borderColor' in starburstSchema).toBe(true);

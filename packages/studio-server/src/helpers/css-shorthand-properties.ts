@@ -1,3 +1,4 @@
+import {parseBackgroundShorthand} from './parse-background-shorthand';
 import {parseBorderShorthand} from './parse-border-shorthand';
 
 type ParsedCssShorthand = Readonly<Record<string, string | number>>;
@@ -22,7 +23,25 @@ const borderShorthand = {
 		borderSidePropertyRegex.test(propertyName),
 } as const satisfies CssShorthandProperty;
 
+const backgroundShorthand = {
+	parentKey: 'style',
+	shorthand: 'background',
+	longhands: [
+		'backgroundColor',
+		'backgroundImage',
+		'backgroundPosition',
+		'backgroundSize',
+		'backgroundRepeat',
+		'backgroundOrigin',
+		'backgroundClip',
+		'backgroundAttachment',
+	],
+	parse: parseBackgroundShorthand,
+	isUnsupportedProperty: () => false,
+} as const satisfies CssShorthandProperty;
+
 export const cssShorthandProperties = [
+	backgroundShorthand,
 	borderShorthand,
 ] as const satisfies readonly CssShorthandProperty[];
 
@@ -37,9 +56,7 @@ export const getCssShorthandForLonghand = ({
 		cssShorthandProperties.find(
 			(property) =>
 				property.parentKey === parentKey &&
-				property.longhands.includes(
-					longhand as (typeof property.longhands)[number],
-				),
+				(property.longhands as readonly string[]).includes(longhand),
 		) ?? null
 	);
 };

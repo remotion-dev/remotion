@@ -7,6 +7,7 @@ import {handleAddRender} from './routes/add-render';
 import {addSequenceKeyframeHandler} from './routes/add-sequence-keyframe';
 import {applyCodemodHandler} from './routes/apply-codemod';
 import {applyVisualControlHandler} from './routes/apply-visual-control-change';
+import {batchUpdateKeyframeSettingsHandler} from './routes/batch-update-keyframe-settings';
 import {handleCancelRender} from './routes/cancel-render';
 import {compositionComponentInfoHandler} from './routes/composition-component-info';
 import {convertFigmaClipboardToSvgHandler} from './routes/convert-figma-clipboard-to-svg';
@@ -48,6 +49,7 @@ import {handleUpdate} from './routes/update-available';
 import {updateDefaultPropsHandler} from './routes/update-default-props';
 import {updateEffectKeyframeSettingsHandler} from './routes/update-effect-keyframe-settings';
 import {updateElementInstallTargetHandler} from './routes/update-element-install-target';
+import {updatePublicLicenseHandler} from './routes/update-public-license';
 import {updateSequenceKeyframeSettingsHandler} from './routes/update-sequence-keyframe-settings';
 
 export const allApiRoutes: {
@@ -88,6 +90,7 @@ export const allApiRoutes: {
 	'/api/update-sequence-keyframe-settings':
 		updateSequenceKeyframeSettingsHandler,
 	'/api/update-effect-keyframe-settings': updateEffectKeyframeSettingsHandler,
+	'/api/batch-update-keyframe-settings': batchUpdateKeyframeSettingsHandler,
 	'/api/delete-effect': deleteEffectHandler,
 	'/api/paste-effects': pasteEffectsHandler,
 	'/api/delete-jsx-node': deleteJsxNodeHandler,
@@ -98,6 +101,7 @@ export const allApiRoutes: {
 	'/api/delete-static-file': deleteStaticFileHandler,
 	'/api/rename-static-file': renameStaticFileHandler,
 	'/api/restart-studio': handleRestartStudio,
+	'/api/update-public-license': updatePublicLicenseHandler,
 	'/api/install-package': handleInstallPackage,
 	'/api/insert-jsx-element': insertJsxElementHandler,
 	'/api/insert-element': insertElementHandler,

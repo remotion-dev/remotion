@@ -12,6 +12,7 @@ import {htmlInCanvasSchema} from '../HtmlInCanvas.js';
 import {imgSchema} from '../Img.js';
 import {Interactive} from '../Interactive.js';
 import {
+	backgroundSchema,
 	baseSchema,
 	borderSchema,
 	extendSchemaWithSequenceName,
@@ -31,17 +32,18 @@ import {
 	selectActiveKeys,
 } from '../with-interactivity-schema.js';
 
-test('sequenceStyleSchema contains transform and premount fields', () => {
+test('sequenceStyleSchema contains visual style and premount fields', () => {
 	expect(Object.keys(sequenceStyleSchema).sort()).toEqual(
 		[
 			...Object.keys(transformSchema),
+			...Object.keys(backgroundSchema),
 			...Object.keys(borderSchema),
 			...Object.keys(sequencePremountSchema),
 		].sort(),
 	);
 });
 
-test('CSS box component schemas expose border controls', () => {
+test('CSS box component schemas expose background and border controls', () => {
 	for (const schema of [
 		sequenceStyleSchema,
 		imgSchema,
@@ -50,6 +52,7 @@ test('CSS box component schemas expose border controls', () => {
 		htmlInCanvasSchema,
 		solidSchema,
 	]) {
+		expect('style.backgroundColor' in schema).toBe(true);
 		expect('style.borderWidth' in schema).toBe(true);
 		expect('style.borderStyle' in schema).toBe(true);
 		expect('style.borderColor' in schema).toBe(true);
@@ -146,6 +149,7 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'style.rotate',
 			'style.transformOrigin',
 			'style.opacity',
+			'style.backgroundColor',
 			'style.borderWidth',
 			'style.borderStyle',
 			'style.borderColor',
@@ -354,6 +358,14 @@ test('borderSchema exposes the longhand border style fields', () => {
 	});
 });
 
+test('backgroundSchema exposes the background color style field', () => {
+	expect(Object.keys(backgroundSchema)).toEqual(['style.backgroundColor']);
+	expect(backgroundSchema['style.backgroundColor']).toMatchObject({
+		type: 'color',
+		default: 'transparent',
+	});
+});
+
 test('readValuesFromProps reads dot-notation keys via getNestedValue', () => {
 	const props = {
 		layout: 'absolute-fill',
@@ -418,6 +430,7 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 			'style.rotate',
 			'style.transformOrigin',
 			'style.opacity',
+			'style.backgroundColor',
 			'style.borderWidth',
 			'style.borderStyle',
 			'style.borderColor',

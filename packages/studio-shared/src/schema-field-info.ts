@@ -45,6 +45,7 @@ export type SchemaFieldGroup =
 	| 'source'
 	| 'controls'
 	| 'transforms'
+	| 'background'
 	| 'border'
 	| 'text';
 
@@ -58,6 +59,7 @@ export const SCHEMA_FIELD_GROUPS = [
 	{id: 'controls', label: 'Controls'},
 	{id: 'transforms', label: 'Transform'},
 	{id: 'text', label: 'Text'},
+	{id: 'background', label: 'Background'},
 	{id: 'border', label: 'Border'},
 ] as const satisfies readonly SchemaFieldGroupInfo[];
 
@@ -83,6 +85,8 @@ const BORDER_FIELD_KEYS = new Set([
 	'style.borderColor',
 ]);
 
+const BACKGROUND_FIELD_KEYS = new Set(['style.backgroundColor']);
+
 const TEXT_FIELD_KEYS = new Set([
 	'children',
 	'style.color',
@@ -106,6 +110,10 @@ export const getSchemaFieldGroup = (key: string): SchemaFieldGroup => {
 
 	if (BORDER_FIELD_KEYS.has(key)) {
 		return 'border';
+	}
+
+	if (BACKGROUND_FIELD_KEYS.has(key)) {
+		return 'background';
 	}
 
 	if (TEXT_FIELD_KEYS.has(key)) {

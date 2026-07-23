@@ -199,6 +199,10 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 				default: 1,
 				hiddenFromList: false,
 			},
+			'style.backgroundColor': {
+				type: 'color',
+				default: 'transparent',
+			},
 			'style.borderWidth': {
 				type: 'number',
 				default: undefined,
@@ -253,6 +257,7 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'style.fontFamily',
 		'style.letterSpacing',
 		'style.textAlign',
+		'style.backgroundColor',
 		'style.borderWidth',
 		'style.borderStyle',
 		'style.borderColor',
@@ -269,6 +274,7 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'text',
 		'text',
 		'text',
+		'background',
 		'border',
 		'border',
 		'border',

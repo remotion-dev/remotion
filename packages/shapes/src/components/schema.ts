@@ -89,6 +89,7 @@ export const makeShapeSchema = (
 			description: 'Fill',
 		}),
 		...Internals.transformSchema,
+		...Interactive.backgroundSchema,
 		...Interactive.borderSchema,
 	};
 };

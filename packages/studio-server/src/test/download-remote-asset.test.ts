@@ -67,6 +67,7 @@ test('follows validated redirects for remote assets', async () => {
 	try {
 		const response = await downloadRemoteAssetHandler({
 			binariesDirectory: null,
+			configFile: null,
 			entryPoint: '',
 			input: {url: 'https://93.184.216.34/raw-link'},
 			logLevel: 'info',
@@ -135,6 +136,7 @@ test('blocks redirects to private IP addresses', async () => {
 		await expect(
 			downloadRemoteAssetHandler({
 				binariesDirectory: null,
+				configFile: null,
 				entryPoint: '',
 				input: {url: 'https://93.184.216.34/raw-link'},
 				logLevel: 'info',

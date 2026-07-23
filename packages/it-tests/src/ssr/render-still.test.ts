@@ -17,7 +17,8 @@ beforeAll(async () => {
 
 test('Render video with browser instance open', async () => {
 	const puppeteerInstance = await openBrowser('chrome');
-	const compositions = await getCompositions(exampleBuild, {
+	const compositions = await getCompositions({
+		serveUrl: exampleBuild,
 		puppeteerInstance,
 		inputProps: {},
 	});

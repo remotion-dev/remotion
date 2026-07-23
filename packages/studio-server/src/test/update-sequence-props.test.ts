@@ -111,6 +111,50 @@ export const Example = () => {
 	expect(oldValueStrings).toEqual(['2']);
 });
 
+test('updateSequenceProps should migrate a color-only background shorthand', async () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return (
+		<AbsoluteFill
+			style={{
+				backgroundImage: 'url(image.png)',
+				background: 'rgba(10, 20, 30, 0.5)',
+				opacity: 0.5,
+			}}
+		/>
+	);
+};
+`;
+	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, 5),
+		updates: [
+			{
+				key: 'style.backgroundColor',
+				value: '#00ff00',
+				defaultValue: 'transparent',
+			},
+		],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+	});
+
+	expect(output).not.toContain("background: 'rgba");
+	expect(output).toContain("backgroundColor: '#00ff00'");
+	expect(output).toContain("backgroundImage: 'url(image.png)'");
+	expect(output).toContain("backgroundImage: 'none'");
+	expect(output).toContain("backgroundPosition: '0% 0%'");
+	expect(output).toContain("backgroundSize: 'auto auto'");
+	expect(output).toContain("backgroundRepeat: 'repeat'");
+	expect(output).toContain("backgroundOrigin: 'padding-box'");
+	expect(output).toContain("backgroundClip: 'border-box'");
+	expect(output).toContain("backgroundAttachment: 'scroll'");
+	expect(output).toContain('opacity: 0.5');
+	expect(oldValueStrings).toEqual(['"rgba(10, 20, 30, 0.5)"']);
+});
+
 test('updateSequenceProps should update durationInFrames', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
 		videoConfigValues: null,

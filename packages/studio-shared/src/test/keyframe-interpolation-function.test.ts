@@ -22,6 +22,15 @@ test('border longhand fields keyframe width and color, but not style', () => {
 	);
 });
 
+test('background color is keyframable', () => {
+	expect(
+		isSchemaFieldKeyframable({
+			schema: Interactive.backgroundSchema,
+			key: 'style.backgroundColor',
+		}),
+	).toBe(true);
+});
+
 test('known interpolation functions explicitly support easing', () => {
 	expect(canEditEasingForInterpolationFunction('interpolate')).toBe(true);
 	expect(canEditEasingForInterpolationFunction('interpolateColors')).toBe(true);

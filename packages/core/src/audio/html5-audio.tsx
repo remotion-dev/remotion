@@ -9,6 +9,7 @@ import {usePreload} from '../prefetch.js';
 import {Sequence} from '../Sequence.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {useVideoConfig} from '../use-video-config.js';
+import {resolveV5Default} from '../v5-flag.js';
 import {validateMediaProps} from '../validate-media-props.js';
 import {
 	resolveTrimProps,
@@ -48,6 +49,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	const {loop, freeze: _freeze, ...propsOtherThanLoop} = propsWithFreeze;
 	const {fps} = useVideoConfig();
 	const environment = useRemotionEnvironment();
+	const shouldPauseWhenBuffering = resolveV5Default(pauseWhenBuffering);
 
 	if (environment.isClientSideRendering) {
 		throw new Error(
@@ -163,7 +165,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			>
 				<Html5Audio
 					_remotionInternalNeedsDurationCalculation={Boolean(loop)}
-					pauseWhenBuffering={pauseWhenBuffering ?? false}
+					pauseWhenBuffering={shouldPauseWhenBuffering}
 					{...otherProps}
 					ref={ref}
 				/>
@@ -205,8 +207,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			ref={ref}
 			onNativeError={onError}
 			onDuration={onDuration}
-			// Proposal: Make this default to true in v5
-			pauseWhenBuffering={pauseWhenBuffering ?? false}
+			pauseWhenBuffering={shouldPauseWhenBuffering}
 			_remotionInternalNeedsDurationCalculation={Boolean(loop)}
 			showInTimeline={showInTimeline ?? true}
 		/>

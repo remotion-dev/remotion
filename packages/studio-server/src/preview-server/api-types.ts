@@ -28,4 +28,5 @@ export type ApiHandler<ReqData, ResData> = (params: {
 	methods: QueueMethods;
 	publicDir: string;
 	binariesDirectory: string | null;
+	configFile: string | null;
 }) => Promise<ResData>;

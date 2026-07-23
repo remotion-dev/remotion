@@ -11,6 +11,7 @@ import type {SequenceControls} from '../CompositionManager.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import type {InteractiveBaseProps} from '../Interactive.js';
 import {
+	backgroundSchema,
 	baseSchema,
 	borderSchema,
 	transformSchema,
@@ -97,6 +98,7 @@ export const solidSchema = {
 		hiddenFromList: false,
 	},
 	...transformSchema,
+	...backgroundSchema,
 	...borderSchema,
 } as const satisfies InteractivitySchema;
 

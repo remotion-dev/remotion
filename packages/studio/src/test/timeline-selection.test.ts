@@ -92,6 +92,7 @@ import {
 } from '../components/Timeline/TimelineClipboardKeybindings';
 import {getSelectedKeyframeControlNodePathInfos} from '../components/Timeline/TimelineKeyframeControls';
 import {
+	extendTimelineMarqueeSelection,
 	getAvailableTimelineSelectionState,
 	getClampedTimelineMarqueePoint,
 	getSelectableTimelineItems,
@@ -564,6 +565,68 @@ test('timeline marquee clears its item kind when no target is selected', () => {
 
 	expect(result.lockedSelectionKind).toBe(null);
 	expect(result.selectedItems).toEqual([]);
+});
+
+test('timeline marquee can extend a keyframe selection', () => {
+	const nodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'style.opacity'],
+	);
+	const selectedKeyframe = {
+		type: 'keyframe' as const,
+		nodePathInfo,
+		frame: 10,
+	};
+	const newlySelectedKeyframe = {
+		type: 'keyframe' as const,
+		nodePathInfo,
+		frame: 20,
+	};
+
+	expect(
+		extendTimelineMarqueeSelection({
+			currentSelection: [selectedKeyframe],
+			marqueeSelection: [newlySelectedKeyframe],
+		}),
+	).toEqual([selectedKeyframe, newlySelectedKeyframe]);
+});
+
+test('extending a timeline marquee preserves the selection until it intersects an item', () => {
+	const nodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'style.opacity'],
+	);
+	const selectedKeyframe = {
+		type: 'keyframe' as const,
+		nodePathInfo,
+		frame: 10,
+	};
+
+	expect(
+		extendTimelineMarqueeSelection({
+			currentSelection: [selectedKeyframe],
+			marqueeSelection: [],
+		}),
+	).toEqual([selectedKeyframe]);
+});
+
+test('extending a timeline marquee removes duplicate selections', () => {
+	const nodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'style.opacity'],
+	);
+	const selectedKeyframe = {
+		type: 'keyframe' as const,
+		nodePathInfo,
+		frame: 10,
+	};
+
+	expect(
+		extendTimelineMarqueeSelection({
+			currentSelection: [selectedKeyframe],
+			marqueeSelection: [selectedKeyframe],
+		}),
+	).toEqual([selectedKeyframe]);
 });
 
 test('keyframe diamond target resolution uses all selected prop rows when clicked row is selected', () => {

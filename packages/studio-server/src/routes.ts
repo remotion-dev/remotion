@@ -595,6 +595,7 @@ export const handleRoutes = ({
 	getPreviewSampleRate,
 	enableCrossSiteIsolation,
 	getStudioRuntimeConfig,
+	configFile,
 }: {
 	staticHash: string;
 	staticHashPrefix: string;
@@ -619,6 +620,7 @@ export const handleRoutes = ({
 	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	configFile: string | null;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -690,6 +692,7 @@ export const handleRoutes = ({
 				methods,
 				binariesDirectory,
 				publicDir,
+				configFile,
 			});
 		}
 	}

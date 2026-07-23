@@ -305,7 +305,7 @@ describe('Element preview definitions', () => {
 			elementDefinitionList
 				.filter((definition) => definition.transparentPreview)
 				.map((definition) => definition.slug),
-		).toEqual(['data/product-offer']);
+		).toEqual(['data/horizontal-bar-chart', 'data/product-offer']);
 	});
 
 	test('registers Element compositions in a Folder', () => {
