@@ -237,9 +237,9 @@ export const CompositionSelectorItem: React.FC<{
 				type: 'composition',
 				compositionFile: resolvedLocation?.source ?? null,
 				compositionId: item.composition.id,
-				width: item.composition.width,
-				height: item.composition.height,
-				durationInFrames: item.composition.durationInFrames,
+				width: item.composition.width ?? null,
+				height: item.composition.height ?? null,
+				durationInFrames: item.composition.durationInFrames ?? null,
 			});
 			event.dataTransfer.setData(dragData.mimeType, dragData.payload);
 		},

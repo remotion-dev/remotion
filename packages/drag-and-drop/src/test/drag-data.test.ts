@@ -3,6 +3,7 @@ import {
 	getDragPreviewMetadata,
 	makeDragData,
 	parseDragData,
+	type MakeCompositionDragDataInput,
 	type MakeDragDataInput,
 	type MakeElementDragDataInput,
 } from '../index';
@@ -103,6 +104,39 @@ test('puts preview metadata in the same MIME type as the payload', () => {
 	});
 });
 
+test('accepts explicit null composition metadata', () => {
+	const constructed = makeDragData({
+		type: 'composition',
+		compositionFile: null,
+		compositionId: 'UnresolvedVideo',
+		width: null,
+		height: null,
+		durationInFrames: null,
+	});
+
+	expect(constructed.mimeType).toBe(
+		'application/vnd.remotion.drag+json;v=1;type=composition',
+	);
+	expect(parseDragData(constructed)?.preview).toEqual({type: 'composition'});
+	expect(() =>
+		makeDragData({
+			type: 'composition',
+			compositionFile: null,
+			compositionId: 'MissingMetadata',
+		} as MakeCompositionDragDataInput),
+	).toThrow('must be set to a value or null');
+	expect(() =>
+		makeDragData({
+			type: 'composition',
+			compositionFile: null,
+			compositionId: 'PartiallyResolvedDimensions',
+			width: 1920,
+			height: null,
+			durationInFrames: null,
+		}),
+	).toThrow('must either both be numbers or both be null');
+});
+
 test('requires a duration for element drags', () => {
 	const constructed = makeDragData({
 		type: 'element',
@@ -129,7 +163,7 @@ test('requires a duration for element drags', () => {
 			displayName: 'Lower Third',
 			sourceCode: 'export const LowerThird = () => null;',
 			dimensions: null,
-		} as MakeElementDragDataInput),
+		} as unknown as MakeElementDragDataInput),
 	).toThrow('durationInFrames must be an integer');
 });
 

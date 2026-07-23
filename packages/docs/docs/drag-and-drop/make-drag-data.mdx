@@ -51,13 +51,15 @@ The kind of item being dragged.
 
 ### `width` and `height`
 
-Optional preview dimensions for assets and compositions.
+Optional preview dimensions for assets.
 Components and elements use the dimensions from their `dimensions` field.
 Both dimensions must be provided together and must be positive finite numbers.
+For compositions, both fields are required and accept `null` while the dimensions are unresolved.
 
 ### `durationInFrames`
 
-Required preview duration for elements and optional preview duration for compositions.
+Required preview duration for elements.
+For compositions, this field is required and accepts `null` while the duration is unresolved.
 
 ### `durationInSeconds`
 

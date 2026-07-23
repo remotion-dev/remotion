@@ -6,6 +6,9 @@ const compositionMimeType = makeDragData({
 	type: 'composition',
 	compositionFile: null,
 	compositionId: 'Test',
+	width: null,
+	height: null,
+	durationInFrames: null,
 }).mimeType;
 const makeCompositionDragData = ({
 	compositionFile,
@@ -18,6 +21,9 @@ const makeCompositionDragData = ({
 		type: 'composition',
 		compositionFile,
 		compositionId,
+		width: null,
+		height: null,
+		durationInFrames: null,
 	}).data;
 const parseCompositionDragData = (payload: string) => {
 	const parsed = parseDragData({mimeType: compositionMimeType, payload});

@@ -41,6 +41,9 @@ const nonEffectInputs: MakeDragDataInput[] = [
 		type: 'composition',
 		compositionFile: null,
 		compositionId: 'Comp',
+		width: null,
+		height: null,
+		durationInFrames: null,
 	},
 	{
 		type: 'element',

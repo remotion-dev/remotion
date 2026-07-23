@@ -64,9 +64,9 @@ export type MakeCompositionDragDataInput = {
 	readonly type: 'composition';
 	readonly compositionFile: string | null;
 	readonly compositionId: string;
-	readonly width?: number;
-	readonly height?: number;
-	readonly durationInFrames?: number;
+	readonly width: number | null;
+	readonly height: number | null;
+	readonly durationInFrames: number | null;
 };
 
 export type MakeEffectDragDataInput = EffectDragData['effect'] & {
@@ -159,6 +159,33 @@ const construct = <TData extends RemotionDragData>(
 	};
 };
 
+const makeCompositionPreview = (
+	input: MakeCompositionDragDataInput,
+): CompositionDragPreviewMetadata => {
+	if (
+		input.width === undefined ||
+		input.height === undefined ||
+		input.durationInFrames === undefined
+	) {
+		throw new TypeError(
+			'width, height, and durationInFrames must be set to a value or null',
+		);
+	}
+
+	if ((input.width === null) !== (input.height === null)) {
+		throw new TypeError(
+			'width and height must either both be numbers or both be null',
+		);
+	}
+
+	return {
+		type: input.type,
+		width: input.width ?? undefined,
+		height: input.height ?? undefined,
+		durationInFrames: input.durationInFrames ?? undefined,
+	};
+};
+
 type MakeDragData = {
 	(input: MakeAssetDragDataInput): ConstructedDragData<AssetDragData>;
 	(input: MakeComponentDragDataInput): ConstructedDragData<ComponentDragData>;
@@ -202,12 +229,7 @@ export const makeDragData = ((
 					compositionFile: input.compositionFile,
 					compositionId: input.compositionId,
 				}),
-				{
-					type: input.type,
-					width: input.width,
-					height: input.height,
-					durationInFrames: input.durationInFrames,
-				},
+				makeCompositionPreview(input),
 			);
 		case 'effect':
 			return construct(

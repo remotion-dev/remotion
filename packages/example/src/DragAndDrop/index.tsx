@@ -15,6 +15,9 @@ const payloads = [
 		type: 'composition',
 		compositionId: 'MyVideo',
 		compositionFile: 'src/Root.tsx',
+		width: null,
+		height: null,
+		durationInFrames: null,
 	}),
 	makeDragData({
 		type: 'effect',
