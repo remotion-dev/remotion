@@ -107,14 +107,10 @@ export const getConfig = ({
 	resolvedRemotionRoot,
 	onProgress,
 	options,
-	bufferStateDelayInMilliseconds,
-	maxTimelineTracks,
 }: {
 	outDir: string;
 	entryPoint: string;
 	resolvedRemotionRoot: string;
-	bufferStateDelayInMilliseconds: number | null;
-	maxTimelineTracks: number | null;
 	onProgress: (progress: number) => void;
 	options: MandatoryLegacyBundleOptions;
 }) => {
@@ -133,13 +129,8 @@ export const getConfig = ({
 			onProgress?.(p);
 		},
 		enableCaching: options?.enableCaching ?? true,
-		maxTimelineTracks,
 		remotionRoot: resolvedRemotionRoot,
-		keyboardShortcutsEnabled: options?.keyboardShortcutsEnabled ?? true,
-		bufferStateDelayInMilliseconds,
 		poll: null,
-		askAIEnabled: options?.askAIEnabled ?? true,
-		interactivityEnabled: options?.interactivityEnabled ?? true,
 		extraPlugins: [],
 	};
 
@@ -270,10 +261,6 @@ export const internalBundle = async (
 		resolvedRemotionRoot,
 		onProgress,
 		options,
-		// Should be null to keep cache hash working
-		bufferStateDelayInMilliseconds:
-			actualArgs.bufferStateDelayInMilliseconds ?? null,
-		maxTimelineTracks: actualArgs.maxTimelineTracks,
 	});
 
 	if (actualArgs.rspack) {

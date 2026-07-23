@@ -1,5 +1,5 @@
-import {build} from 'bun';
 import path from 'path';
+import {build} from 'bun';
 import {getBrowserStudioDependencyVersionsForBuild} from './src/dev/get-dependency-versions-for-build';
 import {getBrowserStudioSetupEnvironmentForBuild} from './src/dev/get-setup-environment-for-build';
 
@@ -18,7 +18,6 @@ const output = await build({
 		__BROWSER_STUDIO_SETUP_ENVIRONMENT__: JSON.stringify(setupEnvironment),
 	},
 	external: [
-		'@remotion/studio-shared/define-plugin-definitions',
 		'@remotion/studio-shared/studio-entry-points',
 		'@remotion/studio-shared/studio-html',
 		'@rspack/browser',

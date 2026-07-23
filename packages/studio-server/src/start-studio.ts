@@ -37,9 +37,7 @@ export const startStudio = async ({
 	getCurrentInputProps,
 	getEnvVariables,
 	desiredPort,
-	maxTimelineTracks,
 	remotionRoot,
-	keyboardShortcutsEnabled,
 	relativePublicDir,
 	webpackOverride,
 	poll,
@@ -49,14 +47,11 @@ export const startStudio = async ({
 	queueMethods,
 	previewEntry,
 	gitSource,
-	bufferStateDelayInMilliseconds,
 	binariesDirectory,
 	forceIPv4,
 	getAudioLatencyHint,
 	getPreviewSampleRate,
 	enableCrossSiteIsolation,
-	askAIEnabled,
-	interactivityEnabled,
 	forceNew,
 	rspack,
 	getStudioRuntimeConfig,
@@ -70,10 +65,7 @@ export const startStudio = async ({
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
 	desiredPort: number | null;
-	maxTimelineTracks: number | null;
-	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
-	keyboardShortcutsEnabled: boolean;
 	relativePublicDir: string | null;
 	webpackOverride: WebpackOverrideFn;
 	poll: number | null;
@@ -88,8 +80,6 @@ export const startStudio = async ({
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
 	forceIPv4: boolean;
-	askAIEnabled: boolean;
-	interactivityEnabled: boolean;
 	forceNew: boolean;
 	rspack: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
@@ -148,9 +138,7 @@ export const startStudio = async ({
 		getCurrentInputProps,
 		getEnvVariables,
 		port: desiredPort,
-		maxTimelineTracks,
 		remotionRoot,
-		keyboardShortcutsEnabled,
 		publicDir,
 		webpackOverride,
 		poll,
@@ -164,14 +152,11 @@ export const startStudio = async ({
 		getNumberOfAudioTags,
 		queueMethods,
 		gitSource,
-		bufferStateDelayInMilliseconds,
 		binariesDirectory,
 		forceIPv4,
 		getAudioLatencyHint,
 		getPreviewSampleRate,
 		enableCrossSiteIsolation,
-		askAIEnabled,
-		interactivityEnabled,
 		forceNew,
 		rspack,
 		getStudioRuntimeConfig,

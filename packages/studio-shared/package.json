@@ -33,10 +33,6 @@
 	},
 	"exports": {
 		".": "./dist/index.js",
-		"./define-plugin-definitions": {
-			"types": "./dist/define-plugin-definitions.d.ts",
-			"default": "./dist/define-plugin-definitions.js"
-		},
 		"./studio-entry-points": {
 			"types": "./dist/studio-entry-points.d.ts",
 			"default": "./dist/studio-entry-points.js"
