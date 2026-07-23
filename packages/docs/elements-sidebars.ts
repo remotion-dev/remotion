@@ -30,7 +30,7 @@ const sidebars: SidebarsConfig = {
 			link: {type: 'doc', id: 'data/index'},
 			collapsed: false,
 			items: [
-				'data/data-series-chart/index',
+				'data/horizontal-bar-chart/index',
 				'data/number-counter/index',
 				'data/product-offer/index',
 			],
