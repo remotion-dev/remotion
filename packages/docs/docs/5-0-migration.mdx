@@ -123,6 +123,14 @@ This prevents black frames that were commonly seen when a `<Sequence>` containin
 
 **Required action**: If you don't want this behavior for a specific Sequence, opt out by passing [`premountFor={0}`](/docs/sequence#premountfor).
 
+## Media and images pause playback while loading
+
+[`<Html5Video>`](/docs/html5-video), [`<OffthreadVideo>`](/docs/offthreadvideo), and [`<Html5Audio>`](/docs/html5-audio) now set [`pauseWhenBuffering`](/docs/player/buffer-state) to `true` by default.
+[`<Img>`](/docs/img) now sets [`pauseWhenLoading`](/docs/img#pausewhenloading) to `true` by default.
+This prevents the Player from continuing while media or images are still loading.
+
+**Required action**: If you want to keep the old behavior, set `pauseWhenBuffering={false}` on video and audio components and `pauseWhenLoading={false}` on `<Img>` explicitly.
+
 ## License changes
 
 Remotion 5.0 has an updated license. View the [license](https://github.com/remotion-dev/remotion/blob/5-0-license/LICENSE.md) here or compare the [changes](https://github.com/remotion-dev/remotion/pull/3750).
