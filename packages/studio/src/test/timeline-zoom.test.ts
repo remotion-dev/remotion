@@ -1,6 +1,38 @@
 import {expect, test} from 'bun:test';
 import {getFrameIncrementFromWidth} from '../components/Timeline/timeline-scroll-logic';
-import {getMaxTimelineZoom, TIMELINE_MIN_ZOOM} from '../state/timeline-zoom';
+import {
+	getMaxTimelineZoom,
+	getTimelineZoomFromSliderValue,
+	getTimelineZoomSliderValue,
+	TIMELINE_MIN_ZOOM,
+} from '../state/timeline-zoom';
+
+test('maps the timeline zoom slider logarithmically', () => {
+	expect(
+		getTimelineZoomFromSliderValue({
+			maxZoom: 100,
+			sliderValue: 0,
+		}),
+	).toBe(1);
+	expect(
+		getTimelineZoomFromSliderValue({
+			maxZoom: 100,
+			sliderValue: 0.5,
+		}),
+	).toBe(10);
+	expect(
+		getTimelineZoomFromSliderValue({
+			maxZoom: 100,
+			sliderValue: 1,
+		}),
+	).toBe(100);
+	expect(
+		getTimelineZoomSliderValue({
+			maxZoom: 100,
+			zoom: 10,
+		}),
+	).toBeCloseTo(0.5);
+});
 
 test('makes each frame at least 20 pixels wide at maximum zoom', () => {
 	const durationInFrames = 100;

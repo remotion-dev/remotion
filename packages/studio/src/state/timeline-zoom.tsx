@@ -17,6 +17,41 @@ import {TIMELINE_PADDING} from '../helpers/timeline-layout';
 export const TIMELINE_MIN_ZOOM = 1;
 const MINIMUM_FRAME_WIDTH = 20;
 
+export const getTimelineZoomSliderValue = ({
+	maxZoom,
+	zoom,
+}: {
+	maxZoom: number;
+	zoom: number;
+}) => {
+	if (maxZoom <= TIMELINE_MIN_ZOOM) {
+		return 0;
+	}
+
+	const clampedZoom = Math.min(maxZoom, Math.max(TIMELINE_MIN_ZOOM, zoom));
+	return (
+		Math.log(clampedZoom / TIMELINE_MIN_ZOOM) /
+		Math.log(maxZoom / TIMELINE_MIN_ZOOM)
+	);
+};
+
+export const getTimelineZoomFromSliderValue = ({
+	maxZoom,
+	sliderValue,
+}: {
+	maxZoom: number;
+	sliderValue: number;
+}) => {
+	if (maxZoom <= TIMELINE_MIN_ZOOM) {
+		return TIMELINE_MIN_ZOOM;
+	}
+
+	const clampedSliderValue = Math.min(1, Math.max(0, sliderValue));
+	return (
+		TIMELINE_MIN_ZOOM * (maxZoom / TIMELINE_MIN_ZOOM) ** clampedSliderValue
+	);
+};
+
 export const getMaxTimelineZoom = ({
 	durationInFrames,
 	timelineViewportWidth,

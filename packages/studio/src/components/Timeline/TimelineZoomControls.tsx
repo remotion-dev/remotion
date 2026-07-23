@@ -4,7 +4,12 @@ import {BLACK, CURRENT_COLOR_LOWERCASE, WHITE} from '../../helpers/colors';
 import {useIsStill} from '../../helpers/is-current-selected-still';
 import {Minus} from '../../icons/minus';
 import {Plus} from '../../icons/plus';
-import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
+import {
+	getTimelineZoomFromSliderValue,
+	getTimelineZoomSliderValue,
+	TIMELINE_MIN_ZOOM,
+	TimelineZoomCtx,
+} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
 import {ControlButton} from '../ControlButton';
 import {Spacing} from '../layout';
@@ -25,6 +30,8 @@ const iconStyle: React.CSSProperties = {
 	width: 14,
 };
 
+const ZOOM_BUTTON_FACTOR = 1.2;
+
 export const TimelineZoomControls: React.FC = () => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {
@@ -33,17 +40,22 @@ export const TimelineZoomControls: React.FC = () => {
 		zoom: zoomMap,
 	} = useContext(TimelineZoomCtx);
 	const {tabIndex} = useZIndex();
+	const compositionId =
+		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
+	const maxZoom =
+		compositionId === null
+			? TIMELINE_MIN_ZOOM
+			: (maxZoomMap[compositionId] ?? TIMELINE_MIN_ZOOM);
 
 	const onMinusClicked = useCallback(() => {
 		if (canvasContent === null || canvasContent.type !== 'composition') {
 			return;
 		}
 
-		setZoom(
-			canvasContent.compositionId,
-			(z) => Math.max(TIMELINE_MIN_ZOOM, z - 0.2),
-			{anchorFrame: null, anchorContentX: null},
-		);
+		setZoom(canvasContent.compositionId, (z) => z / ZOOM_BUTTON_FACTOR, {
+			anchorFrame: null,
+			anchorContentX: null,
+		});
 	}, [canvasContent, setZoom]);
 
 	const onPlusClicked = useCallback(() => {
@@ -51,7 +63,7 @@ export const TimelineZoomControls: React.FC = () => {
 			return;
 		}
 
-		setZoom(canvasContent.compositionId, (z) => z + 0.2, {
+		setZoom(canvasContent.compositionId, (z) => z * ZOOM_BUTTON_FACTOR, {
 			anchorFrame: null,
 			anchorContentX: null,
 		});
@@ -63,12 +75,20 @@ export const TimelineZoomControls: React.FC = () => {
 				return;
 			}
 
-			setZoom(canvasContent.compositionId, () => Number(e.target.value), {
-				anchorFrame: null,
-				anchorContentX: null,
-			});
+			setZoom(
+				canvasContent.compositionId,
+				() =>
+					getTimelineZoomFromSliderValue({
+						maxZoom,
+						sliderValue: Number(e.target.value),
+					}),
+				{
+					anchorFrame: null,
+					anchorContentX: null,
+				},
+			);
 		},
-		[canvasContent, setZoom],
+		[canvasContent, maxZoom, setZoom],
 	);
 
 	const isStill = useIsStill();
@@ -82,7 +102,7 @@ export const TimelineZoomControls: React.FC = () => {
 	}
 
 	const zoom = zoomMap[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM;
-	const maxZoom = maxZoomMap[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM;
+	const sliderValue = getTimelineZoomSliderValue({maxZoom, zoom});
 
 	return (
 		<div style={container}>
@@ -101,13 +121,14 @@ export const TimelineZoomControls: React.FC = () => {
 				title={`Timeline zoom (${zoom}x)`}
 				alt={`Timeline zoom (${zoom}x)`}
 				type={'range'}
-				min={TIMELINE_MIN_ZOOM}
-				step={0.1}
-				value={zoom}
-				max={maxZoom}
+				min={0}
+				step={0.001}
+				value={sliderValue}
+				max={1}
 				onChange={onChange}
 				className="__remotion-timeline-slider"
 				tabIndex={tabIndex}
+				disabled={maxZoom === TIMELINE_MIN_ZOOM}
 			/>
 			<Spacing x={0.5} />
 			<ControlButton
