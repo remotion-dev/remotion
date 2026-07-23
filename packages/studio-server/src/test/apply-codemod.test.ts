@@ -321,6 +321,7 @@ const getHandlerOptions = <T>({
 	},
 	publicDir: remotionRoot,
 	binariesDirectory: null,
+	configFile: null,
 });
 
 const runCompositionCodemodUndoRedoTest = async ({

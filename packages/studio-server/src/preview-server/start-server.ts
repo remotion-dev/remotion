@@ -70,6 +70,7 @@ export const startServer = async (options: {
 	forceNew: boolean;
 	rspack: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	configFile: string | null;
 }): Promise<StartServerResult> => {
 	const desiredPort =
 		options?.port ??
@@ -177,6 +178,7 @@ export const startServer = async (options: {
 					getPreviewSampleRate: options.getPreviewSampleRate,
 					enableCrossSiteIsolation: options.enableCrossSiteIsolation,
 					getStudioRuntimeConfig: options.getStudioRuntimeConfig,
+					configFile: options.configFile,
 				});
 			})
 			.catch((err) => {

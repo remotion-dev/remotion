@@ -840,6 +840,18 @@ export type ProjectInfoResponse = {
 export type RestartStudioRequest = {};
 export type RestartStudioResponse = {};
 
+export type UpdatePublicLicenseRequest = {
+	publicLicenseKey: string;
+};
+export type UpdatePublicLicenseResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+	  };
+
 export type InstallPackageRequest = {
 	packageNames: string[];
 };
@@ -1003,6 +1015,10 @@ export type ApiRoutes = {
 		RenameStaticFileResponse
 	>;
 	'/api/restart-studio': ReqAndRes<RestartStudioRequest, RestartStudioResponse>;
+	'/api/update-public-license': ReqAndRes<
+		UpdatePublicLicenseRequest,
+		UpdatePublicLicenseResponse
+	>;
 	'/api/install-package': ReqAndRes<
 		InstallPackageRequest,
 		InstallPackageResponse

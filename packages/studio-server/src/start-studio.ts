@@ -60,6 +60,7 @@ export const startStudio = async ({
 	forceNew,
 	rspack,
 	getStudioRuntimeConfig,
+	configFile,
 }: {
 	browserArgs: string;
 	browserFlag: string;
@@ -92,6 +93,7 @@ export const startStudio = async ({
 	forceNew: boolean;
 	rspack: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	configFile: string | null;
 }): Promise<StartStudioResult> => {
 	try {
 		if (typeof Bun === 'undefined') {
@@ -173,6 +175,7 @@ export const startStudio = async ({
 		forceNew,
 		rspack,
 		getStudioRuntimeConfig,
+		configFile,
 	});
 
 	if (result.type === 'already-running') {

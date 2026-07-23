@@ -106,6 +106,8 @@ export {
 	UpdateEffectKeyframeSettingsResponse,
 	UpdateElementInstallTargetRequest,
 	UpdateElementInstallTargetResponse,
+	UpdatePublicLicenseRequest,
+	UpdatePublicLicenseResponse,
 	UpdateSequenceKeyframeSettingsRequest,
 	UpdateSequenceKeyframeSettingsResponse,
 	type AddEffectKeyframe,

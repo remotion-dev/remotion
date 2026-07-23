@@ -1855,6 +1855,7 @@ test('rejects composition insertion requests that traverse out of the project ro
 			},
 			publicDir: tempDir,
 			binariesDirectory: null,
+			configFile: null,
 		});
 
 		expect(response.success).toBe(false);
