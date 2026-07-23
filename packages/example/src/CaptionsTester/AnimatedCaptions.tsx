@@ -13,9 +13,6 @@ import {
 	useDelayRender,
 	useRemotionEnvironment,
 	useVideoConfig,
-	type InteractiveBaseProps,
-	type InteractivitySchema,
-	type SequenceControls,
 } from 'remotion';
 
 export const CAPTIONS_DURATION_IN_FRAMES = 1628;
@@ -93,25 +90,7 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
 	);
 };
 
-export type AnimatedCaptionsProps = InteractiveBaseProps & {
-	readonly src: string;
-};
-
-const animatedCaptionsSchema = {
-	src: {
-		type: 'asset',
-		default: undefined,
-		description: 'Source',
-		keyframable: false,
-	},
-	...Interactive.baseSchema,
-} as const satisfies InteractivitySchema;
-
-const AnimatedCaptionsInner: React.FC<
-	AnimatedCaptionsProps & {
-		readonly controls: SequenceControls | undefined;
-	}
-> = ({src, controls, name, ...sequenceProps}) => {
+const AnimatedCaptionsInner: React.FC<{readonly src: string}> = ({src}) => {
 	const [captions, setCaptions] = useState<Caption[] | null>(null);
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
 	const [handle] = useState(() => delayRender('Loading ElevenLabs captions'));
@@ -163,11 +142,7 @@ const AnimatedCaptionsInner: React.FC<
 	}, [captions]);
 
 	return (
-		<Sequence
-			{...sequenceProps}
-			name={name ?? '<AnimatedCaptions>'}
-			controls={controls}
-		>
+		<>
 			{pages.map((page, index) => {
 				const nextPage = pages[index + 1];
 				const startFrame = Math.round((page.startMs / 1000) * fps);
@@ -194,16 +169,13 @@ const AnimatedCaptionsInner: React.FC<
 					</Sequence>
 				);
 			})}
-		</Sequence>
+		</>
 	);
 };
 
-export const AnimatedCaptions = Interactive.withSchema({
+export const AnimatedCaptions = Interactive.withCaptions({
 	Component: AnimatedCaptionsInner,
-	componentName: '<AnimatedCaptions>',
-	componentIdentity: null,
-	schema: animatedCaptionsSchema,
-	supportsEffects: false,
+	componentName: 'AnimatedCaptions',
 });
 
 export const AnimatedCaptionsComposition: React.FC = () => {

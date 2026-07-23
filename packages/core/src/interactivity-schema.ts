@@ -215,6 +215,15 @@ export type InteractivitySchema = {[key: string]: InteractivitySchemaField};
 export type InteractivitySchemaKeysRecord<S extends InteractivitySchema> =
 	Record<keyof S, unknown>;
 
+export const captionSourceSchema = {
+	src: {
+		type: 'asset',
+		default: undefined,
+		description: 'Source',
+		keyframable: false,
+	},
+} as const satisfies InteractivitySchema;
+
 export const transformSchema = {
 	'style.transformOrigin': {
 		type: 'transform-origin',

@@ -2808,6 +2808,15 @@ export const articles = [
 		slug: 'install-whisper-cpp/transcribe',
 	},
 	{
+		id: 'interactive-with-captions',
+		title: 'Interactive.withCaptions()',
+		relativePath: 'docs/interactive-with-captions.mdx',
+		compId: 'articles-docs-interactive-with-captions',
+		crumb: 'API',
+		noAi: false,
+		slug: 'interactive-with-captions',
+	},
+	{
 		id: 'interactive-with-schema',
 		title: 'Interactive.withSchema()',
 		relativePath: 'docs/interactive-with-schema.mdx',

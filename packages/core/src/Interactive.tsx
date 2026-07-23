@@ -7,6 +7,7 @@ import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {
 	baseSchema,
 	borderSchema,
+	captionSourceSchema,
 	premountSchema,
 	sequenceSchema,
 	textContentSchema,
@@ -179,6 +180,82 @@ const withSchema = <S extends InteractivitySchema, Props extends object>(
 	return Wrapped;
 };
 
+type CaptionSourceProps = {
+	readonly src: string;
+	readonly controls?: never;
+	readonly stack?: never;
+};
+
+type WithCaptionsOptions<Props extends CaptionSourceProps> = {
+	readonly Component: React.ComponentType<Props>;
+	readonly componentName?: string;
+};
+
+type WithCaptionsPublicProps<Props extends CaptionSourceProps> = Props &
+	Pick<InteractiveBaseProps, 'name'>;
+
+const formatInteractiveComponentName = (name: string) => {
+	return name.startsWith('<') && name.endsWith('>') ? name : `<${name}>`;
+};
+
+const getInteractiveComponentName = (
+	Component: React.ComponentType<object>,
+) => {
+	return formatInteractiveComponentName(
+		Component.displayName || Component.name || 'Captions',
+	);
+};
+
+const withCaptions = <Props extends CaptionSourceProps>({
+	Component,
+	componentName: componentNameOption,
+}: WithCaptionsOptions<Props>): React.ComponentType<
+	WithCaptionsPublicProps<Props>
+> => {
+	const componentName = componentNameOption
+		? formatInteractiveComponentName(componentNameOption)
+		: getInteractiveComponentName(Component as React.ComponentType<object>);
+	type PublicProps = WithCaptionsPublicProps<Props>;
+	type InnerProps = Omit<PublicProps, 'controls' | 'name' | 'stack'> & {
+		readonly controls: SequenceControls | undefined;
+		readonly name: string | undefined;
+		readonly stack: string | undefined;
+	};
+	const Inner = forwardRef<unknown, InnerProps>((propsWithControls, _ref) => {
+		const {controls, name, stack, ...componentProps} =
+			propsWithControls as InnerProps;
+
+		return (
+			<Sequence
+				durationInFrames={Infinity}
+				name={name ?? componentName}
+				showInTimeline
+				controls={controls}
+				_remotionInternalStack={stack}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/interactive-with-captions"
+			>
+				{React.createElement(Component, {
+					...componentProps,
+					name,
+				} as unknown as Props)}
+			</Sequence>
+		);
+	});
+
+	Inner.displayName = componentName;
+
+	const Wrapped = withSchema({
+		Component: Inner,
+		componentName,
+		componentIdentity: null,
+		schema: captionSourceSchema,
+		supportsEffects: false,
+	});
+	Wrapped.displayName = componentName;
+
+	return Wrapped as unknown as React.ComponentType<PublicProps>;
+};
+
 const makeInteractiveElement = <Tag extends InteractiveTag>(
 	tag: Tag,
 	displayName: string,
@@ -282,6 +359,7 @@ export const Interactive = {
 	premountSchema,
 	sequenceSchema,
 	withSchema,
+	withCaptions,
 	_internalMakeRemotionComponentIdentity: makeRemotionComponentIdentity,
 	A: makeInteractiveTextElement('a', '<Interactive.A>'),
 	Article: makeInteractiveTextElement('article', '<Interactive.Article>'),

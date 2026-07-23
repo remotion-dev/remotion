@@ -1,0 +1,88 @@
+---
+image: /generated/articles-docs-interactive-with-captions.png
+id: interactive-with-captions
+title: Interactive.withCaptions()
+crumb: 'API'
+---
+
+# Interactive.withCaptions()<AvailableFrom v="4.0.497" />
+
+Wraps a caption component so its caption source can be edited in Remotion Studio.
+
+The wrapped component appears in the timeline and receives a `src` prop pointing to caption JSON. When the source is a local file, Studio shows the caption text and timing editors.
+
+## Example
+
+```tsx twoslash title="AnimatedCaptions.tsx"
+import React from 'react';
+import {Interactive, staticFile} from 'remotion';
+
+const AnimatedCaptionsContent: React.FC<{readonly src: string}> = ({src}) => {
+  // Load the caption JSON from `src` and render it.
+  return null;
+};
+
+export const AnimatedCaptions = Interactive.withCaptions({
+  Component: AnimatedCaptionsContent,
+  componentName: 'AnimatedCaptions',
+});
+
+export const MyComp: React.FC = () => {
+  return (
+    <AnimatedCaptions src={staticFile('captions.json')} />
+  );
+};
+```
+
+`Interactive.withCaptions()` creates the [`<Sequence>`](/docs/sequence), caption source schema and Studio controls. The inner component only needs to load and render the caption file.
+
+## API
+
+```ts twoslash
+import {Interactive} from 'remotion';
+```
+
+Call `Interactive.withCaptions()` with an options object.
+
+### `Component`
+
+A React component that accepts a required `src: string` prop.
+
+The component is responsible for loading and rendering the caption JSON. The JSON must use the [`Caption`](/docs/captions/caption) format.
+
+### `componentName?`
+
+The name shown in the Studio timeline. By default, the name of `Component` is used.
+
+### Return value
+
+Returns an interactive component with the original component props and an optional `name` prop for the Studio timeline. It is registered using an internal [`<Sequence>`](/docs/sequence).
+
+## Caption sources
+
+Use [`staticFile()`](/docs/staticfile) to make caption JSON editable:
+
+```tsx twoslash title="MyComp.tsx"
+import {Interactive, staticFile} from 'remotion';
+
+const CaptionContent: React.FC<{readonly src: string}> = () => null;
+const Captions = Interactive.withCaptions({Component: CaptionContent});
+
+export const MyComp = () => {
+  return <Captions src={staticFile('captions.json')} />;
+};
+```
+
+A remote `.json` URL can be inspected if it allows browser requests through CORS, but it cannot be saved. In-memory `Caption[]` values do not identify a file and cannot use the caption timing editor.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [Studio interactivity](/docs/studio/interactivity)
+- [`Interactive.withSchema()`](/docs/interactive-with-schema)
+- [`Interactive`](/docs/interactive)
+- [Make a component interactive](/docs/studio/make-component-interactive)
+- [Source code for this API](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Interactive.tsx)
