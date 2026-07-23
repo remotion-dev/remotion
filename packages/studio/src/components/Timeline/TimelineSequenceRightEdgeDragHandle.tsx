@@ -871,6 +871,8 @@ export const TimelineSequenceLeftEdgeDragHandle: React.FC<{
 		}
 
 		const savePromise = saveSequenceProps({
+			addedKeyframes: null,
+			movedKeyframes: null,
 			changes,
 			setPropStatuses: latestSetPropStatuses,
 			clientId: latestServerState.clientId,
@@ -1144,6 +1146,7 @@ export const useTimelineSequenceFromDrag = ({
 		}
 
 		const savePromise = saveSequenceProps({
+			addedKeyframes: null,
 			changes,
 			movedKeyframes: {
 				sequenceKeyframes: keyframeMoves.sequenceKeyframes,
@@ -1410,6 +1413,8 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 		}
 
 		const savePromise = saveSequenceProps({
+			addedKeyframes: null,
+			movedKeyframes: null,
 			changes,
 			setPropStatuses: latestSetPropStatuses,
 			clientId: latestServerState.clientId,

@@ -139,6 +139,7 @@ export const Comp = () => {
 
 		await saveSequencePropsHandler({
 			input: {
+				addedKeyframes: null,
 				edits: [
 					{
 						fileName,
@@ -282,6 +283,7 @@ export const Comp = () => {
 						schema: NoReactInternals.sequenceSchema,
 					},
 				],
+				movedKeyframes: null,
 				clientId: 'test-client',
 				undoLabel: 'Move transform origin',
 				redoLabel: 'Move transform origin back',

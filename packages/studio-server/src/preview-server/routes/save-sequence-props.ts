@@ -166,8 +166,8 @@ export const saveSequencePropsHandler: ApiHandler<
 > = ({
 	input: {
 		edits,
-		addedKeyframes = [],
-		movedKeyframes = {sequenceKeyframes: [], effectKeyframes: []},
+		addedKeyframes,
+		movedKeyframes,
 		clientId,
 		undoLabel,
 		redoLabel,
@@ -176,12 +176,17 @@ export const saveSequencePropsHandler: ApiHandler<
 	logLevel,
 }) =>
 	withSourceFileWriteQueue(async () => {
+		const keyframesToAdd = addedKeyframes === null ? [] : addedKeyframes;
+		const keyframesToMove =
+			movedKeyframes === null
+				? {sequenceKeyframes: [], effectKeyframes: []}
+				: movedKeyframes;
 		const totalKeyframeMoves =
-			movedKeyframes.sequenceKeyframes.length +
-			movedKeyframes.effectKeyframes.length;
+			keyframesToMove.sequenceKeyframes.length +
+			keyframesToMove.effectKeyframes.length;
 		if (
 			edits.length === 0 &&
-			addedKeyframes.length === 0 &&
+			keyframesToAdd.length === 0 &&
 			totalKeyframeMoves === 0
 		) {
 			throw new Error('No sequence prop edits to save');
@@ -189,7 +194,7 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		RenderInternals.Log.trace(
 			{indent: false, logLevel},
-			`[save-sequence-props] Received request with ${edits.length} edit(s), ${addedKeyframes.length} added keyframe(s), and ${totalKeyframeMoves} moved keyframe(s)`,
+			`[save-sequence-props] Received request with ${edits.length} edit(s), ${keyframesToAdd.length} added keyframe(s), and ${totalKeyframeMoves} moved keyframe(s)`,
 		);
 
 		const editGroups = new Map<string, SequencePropEditGroup>();
@@ -229,7 +234,7 @@ export const saveSequencePropsHandler: ApiHandler<
 			editGroups.set(absolutePath, group);
 		}
 
-		for (const keyframe of addedKeyframes) {
+		for (const keyframe of keyframesToAdd) {
 			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 				remotionRoot,
 				fileName: keyframe.fileName,
@@ -249,7 +254,7 @@ export const saveSequencePropsHandler: ApiHandler<
 		for (const [
 			index,
 			keyframe,
-		] of movedKeyframes.sequenceKeyframes.entries()) {
+		] of keyframesToMove.sequenceKeyframes.entries()) {
 			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 				remotionRoot,
 				fileName: keyframe.fileName,
@@ -266,7 +271,7 @@ export const saveSequencePropsHandler: ApiHandler<
 			editGroups.set(absolutePath, group);
 		}
 
-		for (const [index, keyframe] of movedKeyframes.effectKeyframes.entries()) {
+		for (const [index, keyframe] of keyframesToMove.effectKeyframes.entries()) {
 			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 				remotionRoot,
 				fileName: keyframe.fileName,
@@ -555,7 +560,7 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		const statusTargets = [
 			...new Map(
-				[...edits, ...addedKeyframes].map((target) => [
+				[...edits, ...keyframesToAdd].map((target) => [
 					JSON.stringify(target.nodePath),
 					target,
 				]),

@@ -335,11 +335,11 @@ export type SaveSequencePropEdit = {
 
 export type SaveSequencePropsRequest = {
 	edits: SaveSequencePropEdit[];
-	addedKeyframes?: AddSequenceKeyframe[];
-	movedKeyframes?: {
+	addedKeyframes: AddSequenceKeyframe[] | null;
+	movedKeyframes: {
 		sequenceKeyframes: MoveSequenceKeyframe[];
 		effectKeyframes: MoveEffectKeyframe[];
-	};
+	} | null;
 	clientId: string;
 	undoLabel: string;
 	redoLabel: string;

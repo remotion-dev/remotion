@@ -365,6 +365,7 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 						: saveSequenceProps({
 								changes: staticChanges,
 								addedKeyframes: keyframedChanges,
+								movedKeyframes: null,
 								setPropStatuses,
 								clientId: transformOriginDrag.clientId,
 								undoLabel: 'Move transform origin',
@@ -697,6 +698,8 @@ const SelectedOutlinePolygon: React.FC<{
 					staticChanges.length > 0
 						? saveSequenceProps({
 								changes: staticChanges,
+								addedKeyframes: null,
+								movedKeyframes: null,
 								setPropStatuses,
 								clientId: drag.clientId,
 								undoLabel:
@@ -1041,6 +1044,8 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 					staticChanges.length > 0
 						? saveSequenceProps({
 								changes: staticChanges,
+								addedKeyframes: null,
+								movedKeyframes: null,
 								setPropStatuses,
 								clientId: scaleDrag.clientId,
 								undoLabel:
@@ -1374,6 +1379,8 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 					staticChanges.length > 0
 						? saveSequenceProps({
 								changes: staticChanges,
+								addedKeyframes: null,
+								movedKeyframes: null,
 								setPropStatuses,
 								clientId: rotationDrag.clientId,
 								undoLabel:

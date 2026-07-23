@@ -695,6 +695,8 @@ export const TimelineSequenceItem: React.FC<{
 					: null;
 
 			saveSequenceProps({
+				addedKeyframes: null,
+				movedKeyframes: null,
 				changes: [
 					{
 						fileName: validatedLocation.source,
