@@ -203,3 +203,114 @@ export const Comp = () => {
 		rmSync(dir, {force: true, recursive: true});
 	}
 });
+
+test('saveSequenceProps batches a static edit and added keyframes into one undo entry', async () => {
+	clearUndoStackForTests();
+	const cleanupFileWatcher = setFileWatcherRegistry(
+		createFileWatcherRegistry(),
+	);
+	const cleanupLiveEvents = setLiveEventsListener({
+		addNewClientListener: () => () => undefined,
+		closeConnections: () => Promise.resolve(),
+		router: () => Promise.resolve(),
+		sendEventToClient: () => undefined,
+		sendEventToClientId: () => true,
+	});
+	const dir = mkdtempSync(join(tmpdir(), 'remotion-save-sequence-props-'));
+	const fileName = 'Comp.tsx';
+	const filePath = join(dir, fileName);
+	const input = `import {Sequence, interpolate, useCurrentFrame} from 'remotion';
+
+export const Comp = () => {
+\tconst frame = useCurrentFrame();
+\treturn (
+\t\t<Sequence
+\t\t\tstyle={{
+\t\t\t\ttransformOrigin: '50% 50%',
+\t\t\t\ttranslate: interpolate(
+\t\t\t\t\tframe,
+\t\t\t\t\t[0, 20],
+\t\t\t\t\t['0px 0px', '20px 40px'],
+\t\t\t\t),
+\t\t\t}}
+\t\t/>
+\t);
+};
+`;
+	const nodePath = {
+		absolutePath: fileName,
+		nodePath: lineColumnToNodePath(input, 6),
+		sequenceKeys: ['style.transformOrigin', 'style.translate'],
+		effectKeys: [],
+		videoConfigValues: null,
+	};
+
+	try {
+		writeFileSync(filePath, input);
+
+		await saveSequencePropsHandler({
+			input: {
+				edits: [
+					{
+						fileName,
+						nodePath,
+						key: 'style.transformOrigin',
+						value: {
+							type: 'json',
+							serialized: JSON.stringify('25% 75%'),
+						},
+						defaultValue: JSON.stringify('50% 50%'),
+						schema: NoReactInternals.sequenceSchema,
+						sourceEdit: null,
+					},
+				],
+				addedKeyframes: [
+					{
+						fileName,
+						nodePath,
+						key: 'style.translate',
+						frame: 0,
+						value: JSON.stringify('3px 4px'),
+						schema: NoReactInternals.sequenceSchema,
+					},
+					{
+						fileName,
+						nodePath,
+						key: 'style.translate',
+						frame: 20,
+						value: JSON.stringify('23px 44px'),
+						schema: NoReactInternals.sequenceSchema,
+					},
+				],
+				clientId: 'test-client',
+				undoLabel: 'Move transform origin',
+				redoLabel: 'Move transform origin back',
+			},
+			entryPoint: '',
+			remotionRoot: dir,
+			request: {} as never,
+			response: {} as never,
+			logLevel: 'error',
+			methods: {
+				addJob: () => undefined,
+				cancelJob: () => undefined,
+				removeJob: () => undefined,
+			},
+			publicDir: '',
+			binariesDirectory: null,
+		});
+
+		const output = readFileSync(filePath, 'utf-8');
+		expect(output).toContain("transformOrigin: '25% 75%'");
+		expect(output).toContain("['3px 4px', '23px 44px']");
+		expect(getUndoStack()).toHaveLength(1);
+
+		expect(popUndo()).toEqual({success: true});
+		expect(readFileSync(filePath, 'utf-8')).toBe(input);
+	} finally {
+		clearUndoStackForTests();
+		cleanupLiveEvents();
+		cleanupFileWatcher();
+		rmSync(dir, {force: true, recursive: true});
+	}
+});

@@ -1,4 +1,5 @@
 import {
+	optimisticAddSequenceKeyframe,
 	optimisticUpdateForPropStatuses,
 	type SaveSequencePropSourceEdit,
 } from '@remotion/studio-shared';
@@ -8,6 +9,7 @@ import type {
 	InteractivitySchema,
 } from 'remotion';
 import {callApi} from '../call-api';
+import type {AddSequenceKeyframeChange} from './call-add-keyframe';
 import {
 	applyOptimisticKeyframeMoves,
 	type MoveEffectKeyframeChange,
@@ -34,6 +36,7 @@ export type SaveSequencePropChange = {
 
 type SaveSequencePropsOptions = {
 	changes: SaveSequencePropChange[];
+	addedKeyframes?: AddSequenceKeyframeChange[];
 	movedKeyframes?: {
 		sequenceKeyframes: MoveSequenceKeyframeChange[];
 		effectKeyframes: MoveEffectKeyframeChange[];
@@ -54,6 +57,7 @@ const serializeSequencePropValue = (value: unknown) => {
 
 export const saveSequenceProps = ({
 	changes,
+	addedKeyframes = [],
 	movedKeyframes,
 	setPropStatuses,
 	clientId,
@@ -64,6 +68,7 @@ export const saveSequenceProps = ({
 	const effectKeyframes = movedKeyframes?.effectKeyframes ?? [];
 	if (
 		changes.length === 0 &&
+		addedKeyframes.length === 0 &&
 		sequenceKeyframes.length === 0 &&
 		effectKeyframes.length === 0
 	) {
@@ -72,6 +77,7 @@ export const saveSequenceProps = ({
 
 	if (
 		changes.length === 1 &&
+		addedKeyframes.length === 0 &&
 		sequenceKeyframes.length === 0 &&
 		effectKeyframes.length === 0
 	) {
@@ -118,6 +124,18 @@ export const saveSequenceProps = ({
 		setPropStatuses,
 	});
 
+	for (const keyframe of addedKeyframes) {
+		setPropStatuses(keyframe.nodePath, (prev) =>
+			optimisticAddSequenceKeyframe({
+				previous: prev,
+				fieldKey: keyframe.fieldKey,
+				frame: keyframe.sourceFrame,
+				value: keyframe.value,
+				schema: keyframe.schema,
+			}),
+		);
+	}
+
 	for (const change of changes) {
 		setPropStatuses(change.nodePath, (prev) =>
 			optimisticUpdateForPropStatuses({
@@ -142,6 +160,14 @@ export const saveSequenceProps = ({
 				sourceEdit: change.sourceEdit ?? null,
 			};
 		}),
+		addedKeyframes: addedKeyframes.map((keyframe) => ({
+			fileName: keyframe.fileName,
+			nodePath: keyframe.nodePath,
+			key: keyframe.fieldKey,
+			frame: keyframe.sourceFrame,
+			value: JSON.stringify(keyframe.value),
+			schema: keyframe.schema,
+		})),
 		movedKeyframes: {
 			sequenceKeyframes: sequenceKeyframes.map((keyframe) => ({
 				fileName: keyframe.fileName,

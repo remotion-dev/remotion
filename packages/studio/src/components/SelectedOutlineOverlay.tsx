@@ -87,6 +87,7 @@ export {
 	getSelectedOutlineScaleDragStates,
 	getSelectedOutlineScaleDragValues,
 	getSelectedOutlineScaleEdgeInfo,
+	getSelectedOutlineTransformOriginDragChanges,
 	getSelectedOutlineTransformOriginLockedAxis,
 	isSelectedOutlineDragPastThreshold,
 	selectedOutlineTransformOriginSnapThresholdPx,

@@ -335,6 +335,7 @@ export type SaveSequencePropEdit = {
 
 export type SaveSequencePropsRequest = {
 	edits: SaveSequencePropEdit[];
+	addedKeyframes?: AddSequenceKeyframe[];
 	movedKeyframes?: {
 		sequenceKeyframes: MoveSequenceKeyframe[];
 		effectKeyframes: MoveEffectKeyframe[];
