@@ -6,6 +6,7 @@ import {noop} from '../helpers/noop';
 import {getStudioCurrentScaleContext} from '../helpers/studio-fit-padding';
 import {getStudioBufferStateDelayInMilliseconds} from '../helpers/studio-runtime-config';
 import {drawRef} from '../state/canvas-ref';
+import {CaptionTimingEditProvider} from '../state/caption-timing-edit';
 import {ScaleLockProvider} from '../state/scale-lock';
 import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
@@ -88,29 +89,33 @@ export const Editor: React.FC<{
 				<SequencePropsSubscriptionProvider>
 					<Internals.CurrentScaleContext.Provider value={value}>
 						<ForceSpecificCursor />
-						<ScaleLockProvider>
-							<div style={background}>
-								<Internals.CompositionRenderErrorContext.Provider
-									value={compositionRenderErrorContextValue}
-								>
-									{canvasMounted ? <MemoRoot /> : null}
-								</Internals.CompositionRenderErrorContext.Provider>
-								<Internals.CanUseRemotionHooksProvider>
-									<RenderErrorContext.Provider value={renderErrorContextValue}>
-										<EditorContent readOnlyStudio={readOnlyStudio}>
-											<TopPanel
-												drawRef={setDrawRef}
-												bufferStateDelayInMilliseconds={
-													BUFFER_STATE_DELAY_IN_MILLISECONDS
-												}
-												onMounted={onMounted}
-												readOnlyStudio={readOnlyStudio}
-											/>
-										</EditorContent>
-									</RenderErrorContext.Provider>
-								</Internals.CanUseRemotionHooksProvider>
-							</div>
-						</ScaleLockProvider>
+						<CaptionTimingEditProvider>
+							<ScaleLockProvider>
+								<div style={background}>
+									<Internals.CompositionRenderErrorContext.Provider
+										value={compositionRenderErrorContextValue}
+									>
+										{canvasMounted ? <MemoRoot /> : null}
+									</Internals.CompositionRenderErrorContext.Provider>
+									<Internals.CanUseRemotionHooksProvider>
+										<RenderErrorContext.Provider
+											value={renderErrorContextValue}
+										>
+											<EditorContent readOnlyStudio={readOnlyStudio}>
+												<TopPanel
+													drawRef={setDrawRef}
+													bufferStateDelayInMilliseconds={
+														BUFFER_STATE_DELAY_IN_MILLISECONDS
+													}
+													onMounted={onMounted}
+													readOnlyStudio={readOnlyStudio}
+												/>
+											</EditorContent>
+										</RenderErrorContext.Provider>
+									</Internals.CanUseRemotionHooksProvider>
+								</div>
+							</ScaleLockProvider>
+						</CaptionTimingEditProvider>
 					</Internals.CurrentScaleContext.Provider>
 					<Modals readOnlyStudio={readOnlyStudio} />
 					<NotificationCenter />
