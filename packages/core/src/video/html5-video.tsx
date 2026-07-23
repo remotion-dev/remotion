@@ -8,6 +8,7 @@ import {usePreload} from '../prefetch.js';
 import {Sequence} from '../Sequence.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {useVideoConfig} from '../use-video-config.js';
+import {resolveV5Default} from '../v5-flag.js';
 import {validateMediaProps} from '../validate-media-props.js';
 import {
 	resolveTrimProps,
@@ -45,6 +46,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	const {loop, ...propsOtherThanLoop} = props;
 	const {fps} = useVideoConfig();
 	const environment = useRemotionEnvironment();
+	const shouldPauseWhenBuffering = resolveV5Default(pauseWhenBuffering);
 
 	if (environment.isClientSideRendering) {
 		throw new Error(
@@ -140,7 +142,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				name={name}
 			>
 				<Html5Video
-					pauseWhenBuffering={pauseWhenBuffering ?? false}
+					pauseWhenBuffering={shouldPauseWhenBuffering}
 					onVideoFrame={onVideoFrame}
 					{...otherProps}
 					ref={ref}
@@ -176,8 +178,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			{...otherProps}
 			ref={ref}
 			onVideoFrame={onVideoFrame ?? null}
-			// Proposal: Make this default to true in v5
-			pauseWhenBuffering={pauseWhenBuffering ?? false}
+			pauseWhenBuffering={shouldPauseWhenBuffering}
 			onDuration={onDuration}
 			_remotionInternalStack={stack ?? null}
 			_remotionInternalNativeLoopPassed={
