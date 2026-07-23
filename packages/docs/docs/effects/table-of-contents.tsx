@@ -1,4 +1,4 @@
-import {makeEffectDragData} from '@remotion/drag-and-drop';
+import {makeDragData} from '@remotion/drag-and-drop';
 import {
 	EFFECT_CATALOG,
 	getEffectCatalogCategories,
@@ -34,7 +34,7 @@ const previewImage: React.CSSProperties = {
 const EffectCard: React.FC<{
 	readonly effect: EffectCatalogItem;
 }> = ({effect}) => {
-	const dragData = makeEffectDragData(effect.effect);
+	const dragData = makeDragData({type: 'effect', ...effect.effect});
 
 	return (
 		<TOCItem

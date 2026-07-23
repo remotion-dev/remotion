@@ -1,11 +1,11 @@
 import {
-	ELEMENT_DRAG_MIME_TYPE,
-	parseElementDragData,
+	getDragPreviewMetadata,
+	parseDragData,
 	type ElementDragData,
 } from '@remotion/drag-and-drop';
 
 export const hasElementDragType = (dataTransfer: DataTransfer | null) => {
-	return Array.from(dataTransfer?.types ?? []).includes(ELEMENT_DRAG_MIME_TYPE);
+	return getDragPreviewMetadata(dataTransfer?.types ?? [])?.type === 'element';
 };
 
 export const getElementDragData = (
@@ -15,21 +15,6 @@ export const getElementDragData = (
 		return null;
 	}
 
-	for (const type of [
-		ELEMENT_DRAG_MIME_TYPE,
-		'application/json',
-		'text/plain',
-	]) {
-		const raw = dataTransfer.getData(type);
-		if (!raw) {
-			continue;
-		}
-
-		const parsed = parseElementDragData(raw);
-		if (parsed) {
-			return parsed;
-		}
-	}
-
-	return null;
+	const parsed = parseDragData(dataTransfer);
+	return parsed?.type === 'element' ? parsed.data : null;
 };

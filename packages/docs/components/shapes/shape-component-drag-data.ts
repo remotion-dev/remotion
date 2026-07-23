@@ -1,8 +1,8 @@
 import {
-	COMPONENT_DRAG_MIME_TYPE,
-	makeComponentDragData,
+	makeDragData,
 	type ComponentDragData,
 	type ComponentProp,
+	type ConstructedDragData,
 } from '@remotion/drag-and-drop';
 import {getShapeDragInfo} from './shape-drag-info';
 import type {ShapeName} from './shapes-info';
@@ -155,7 +155,7 @@ const makeShapeComponentDragData = ({
 }: {
 	readonly shape: ShapeName;
 	readonly props: ComponentProp[];
-}): ComponentDragData => {
+}): ConstructedDragData<ComponentDragData> => {
 	const component = {
 		componentName: shape,
 		importName: shape,
@@ -164,7 +164,8 @@ const makeShapeComponentDragData = ({
 	} satisfies ComponentDragData['component'];
 	const shapeInfo = getShapeDragInfo(component);
 
-	return makeComponentDragData({
+	return makeDragData({
+		type: 'component',
 		...component,
 		dimensions: shapeInfo
 			? {width: shapeInfo.width, height: shapeInfo.height}
@@ -174,7 +175,7 @@ const makeShapeComponentDragData = ({
 
 export const makeDefaultShapeComponentDragData = (
 	shape: ShapeName,
-): ComponentDragData => {
+): ConstructedDragData<ComponentDragData> => {
 	return makeShapeComponentDragData({
 		shape,
 		props: [...shapeDefaultProps[shape]],
@@ -193,7 +194,7 @@ export const makeShapeComponentDragDataFromDemoState = ({
 }: {
 	readonly demoId: string;
 	readonly state: Record<string, unknown>;
-}): ComponentDragData | null => {
+}): ConstructedDragData<ComponentDragData> | null => {
 	const shape = shapeNameByDemoId[demoId];
 	if (!shape) {
 		return null;
@@ -234,14 +235,11 @@ export const setComponentDragData = ({
 	dragImage,
 }: {
 	readonly dataTransfer: DataTransfer;
-	readonly dragData: ComponentDragData;
+	readonly dragData: ConstructedDragData<ComponentDragData>;
 	readonly dragImage?: Element | null;
 }) => {
-	const serialized = JSON.stringify(dragData);
 	dataTransfer.effectAllowed = 'copy';
-	dataTransfer.setData(COMPONENT_DRAG_MIME_TYPE, serialized);
-	dataTransfer.setData('application/json', serialized);
-	dataTransfer.setData('text/plain', serialized);
+	dataTransfer.setData(dragData.mimeType, dragData.payload);
 
 	if (dragImage) {
 		const rect = dragImage.getBoundingClientRect();

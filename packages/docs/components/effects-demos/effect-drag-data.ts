@@ -1,6 +1,6 @@
-import {
-	EFFECT_DRAG_MIME_TYPE,
-	type EffectDragData,
+import type {
+	ConstructedDragData,
+	EffectDragData,
 } from '@remotion/drag-and-drop';
 
 const FX_ICON_PATH =
@@ -40,13 +40,10 @@ export const setEffectDragData = ({
 	dragData,
 }: {
 	readonly dataTransfer: DataTransfer;
-	readonly dragData: EffectDragData;
+	readonly dragData: ConstructedDragData<EffectDragData>;
 }) => {
-	const serialized = JSON.stringify(dragData);
 	dataTransfer.effectAllowed = 'copy';
-	dataTransfer.setData(EFFECT_DRAG_MIME_TYPE, serialized);
-	dataTransfer.setData('application/json', serialized);
-	dataTransfer.setData('text/plain', serialized);
+	dataTransfer.setData(dragData.mimeType, dragData.payload);
 };
 
 export const setEffectDragImage = (dataTransfer: DataTransfer) => {

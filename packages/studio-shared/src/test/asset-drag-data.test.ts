@@ -1,5 +1,16 @@
 import {expect, test} from 'bun:test';
-import {makeAssetDragData, parseAssetDragData} from '@remotion/drag-and-drop';
+import {makeDragData, parseDragData} from '@remotion/drag-and-drop';
+
+const assetMimeType = makeDragData({
+	type: 'asset',
+	assetPath: 'asset',
+}).mimeType;
+const makeAssetDragData = (assetPath: string) =>
+	makeDragData({type: 'asset', assetPath}).data;
+const parseAssetDragData = (payload: string) => {
+	const parsed = parseDragData({mimeType: assetMimeType, payload});
+	return parsed?.type === 'asset' ? parsed.data : null;
+};
 
 test('parses asset drag data', () => {
 	expect(
@@ -8,7 +19,6 @@ test('parses asset drag data', () => {
 		type: 'remotion-asset',
 		version: 1,
 		assetPath: 'nested/image.png',
-		preview: {kind: 'asset'},
 	});
 });
 

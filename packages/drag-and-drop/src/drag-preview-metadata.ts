@@ -1,5 +1,5 @@
-const DRAG_PREVIEW_MIME_TYPE = 'application/vnd.remotion.preview';
-const DRAG_PREVIEW_VERSION = 1;
+export const REMOTION_DRAG_MIME_TYPE = 'application/vnd.remotion.drag+json';
+const DRAG_MIME_VERSION = 1;
 const MAX_MIME_TYPE_LENGTH = 512;
 const MAX_DIMENSION = 100_000;
 const MAX_DURATION_IN_FRAMES = 100_000_000;
@@ -11,36 +11,58 @@ type Dimensions = {
 };
 
 export type AssetDragPreviewMetadata = Dimensions & {
-	readonly kind: 'asset';
+	readonly type: 'asset';
 	readonly durationInSeconds?: number;
 };
 
+export type ComponentDragPreviewMetadata = Dimensions & {
+	readonly type: 'component';
+};
+
 export type CompositionDragPreviewMetadata = Dimensions & {
-	readonly kind: 'composition';
+	readonly type: 'composition';
 	readonly durationInFrames?: number;
 };
 
+export type EffectDragPreviewMetadata = {
+	readonly type: 'effect';
+};
+
 export type ElementDragPreviewMetadata = Dimensions & {
-	readonly kind: 'element';
+	readonly type: 'element';
 	readonly durationInFrames?: number;
+};
+
+export type SfxDragPreviewMetadata = {
+	readonly type: 'sfx';
 };
 
 export type DragPreviewMetadata =
 	| AssetDragPreviewMetadata
+	| ComponentDragPreviewMetadata
 	| CompositionDragPreviewMetadata
-	| ElementDragPreviewMetadata;
+	| EffectDragPreviewMetadata
+	| ElementDragPreviewMetadata
+	| SfxDragPreviewMetadata;
 
-type DataTransferWithSetData = {
-	readonly setData: (format: string, data: string) => void;
+export type DragPreviewMetadataWithMimeType = DragPreviewMetadata & {
+	readonly mimeType: string;
 };
 
 const isBoundedInteger = (value: number, max: number) => {
 	return Number.isInteger(value) && value > 0 && value <= max;
 };
 
-const assertDimensions = (metadata: DragPreviewMetadata) => {
-	const {height, width} = metadata;
+const isBoundedNumber = (value: number, max: number) => {
+	return Number.isFinite(value) && value > 0 && value <= max;
+};
 
+const assertDimensions = (metadata: DragPreviewMetadata) => {
+	if (!('width' in metadata) && !('height' in metadata)) {
+		return;
+	}
+
+	const {height, width} = metadata as Dimensions;
 	if (width === undefined && height === undefined) {
 		return;
 	}
@@ -52,32 +74,30 @@ const assertDimensions = (metadata: DragPreviewMetadata) => {
 	}
 
 	if (
-		!isBoundedInteger(width, MAX_DIMENSION) ||
-		!isBoundedInteger(height, MAX_DIMENSION)
+		!isBoundedNumber(width, MAX_DIMENSION) ||
+		!isBoundedNumber(height, MAX_DIMENSION)
 	) {
 		throw new TypeError(
-			`width and height must be integers between 1 and ${MAX_DIMENSION}`,
+			`width and height must be numbers between 0 and ${MAX_DIMENSION}`,
 		);
 	}
 };
 
 const assertDuration = (metadata: DragPreviewMetadata) => {
-	if (metadata.kind === 'asset') {
-		if (
-			metadata.durationInSeconds !== undefined &&
-			(!Number.isFinite(metadata.durationInSeconds) ||
-				metadata.durationInSeconds <= 0 ||
-				metadata.durationInSeconds > MAX_DURATION_IN_SECONDS)
-		) {
-			throw new TypeError(
-				`durationInSeconds must be between 0 and ${MAX_DURATION_IN_SECONDS}`,
-			);
-		}
-
-		return;
+	if (
+		metadata.type === 'asset' &&
+		metadata.durationInSeconds !== undefined &&
+		(!Number.isFinite(metadata.durationInSeconds) ||
+			metadata.durationInSeconds <= 0 ||
+			metadata.durationInSeconds > MAX_DURATION_IN_SECONDS)
+	) {
+		throw new TypeError(
+			`durationInSeconds must be between 0 and ${MAX_DURATION_IN_SECONDS}`,
+		);
 	}
 
 	if (
+		(metadata.type === 'composition' || metadata.type === 'element') &&
 		metadata.durationInFrames !== undefined &&
 		!isBoundedInteger(metadata.durationInFrames, MAX_DURATION_IN_FRAMES)
 	) {
@@ -87,27 +107,29 @@ const assertDuration = (metadata: DragPreviewMetadata) => {
 	}
 };
 
-const getDuration = (metadata: DragPreviewMetadata): number | undefined => {
-	if (metadata.kind === 'asset') {
+const getDuration = (metadata: DragPreviewMetadata) => {
+	if (metadata.type === 'asset') {
 		return metadata.durationInSeconds;
 	}
 
-	return metadata.durationInFrames;
+	if (metadata.type === 'composition' || metadata.type === 'element') {
+		return metadata.durationInFrames;
+	}
+
+	return undefined;
 };
 
-export const makeDragPreviewMimeType = (
-	metadata: DragPreviewMetadata,
-): string => {
+export const makeDragMimeType = (metadata: DragPreviewMetadata): string => {
 	assertDimensions(metadata);
 	assertDuration(metadata);
 
 	const segments = [
-		DRAG_PREVIEW_MIME_TYPE,
-		`v=${DRAG_PREVIEW_VERSION}`,
-		`kind=${metadata.kind}`,
+		REMOTION_DRAG_MIME_TYPE,
+		`v=${DRAG_MIME_VERSION}`,
+		`type=${metadata.type}`,
 	];
 
-	if (metadata.width !== undefined) {
+	if ('width' in metadata && metadata.width !== undefined) {
 		segments.push(`width=${metadata.width}`, `height=${metadata.height}`);
 	}
 
@@ -137,18 +159,18 @@ const parsePositiveNumber = (value: string, max: number): number | null => {
 	return Number.isFinite(parsed) && parsed > 0 && parsed <= max ? parsed : null;
 };
 
-export const parseDragPreviewMimeType = (
+export const parseDragMimeType = (
 	mimeType: string,
 ): DragPreviewMetadata | null => {
 	if (
 		mimeType.length > MAX_MIME_TYPE_LENGTH ||
-		!mimeType.startsWith(`${DRAG_PREVIEW_MIME_TYPE};`)
+		!mimeType.startsWith(`${REMOTION_DRAG_MIME_TYPE};`)
 	) {
 		return null;
 	}
 
 	const segments = mimeType.split(';');
-	if (segments.shift() !== DRAG_PREVIEW_MIME_TYPE) {
+	if (segments.shift() !== REMOTION_DRAG_MIME_TYPE) {
 		return null;
 	}
 
@@ -162,7 +184,7 @@ export const parseDragPreviewMimeType = (
 		const key = segment.slice(0, separator);
 		const value = segment.slice(separator + 1);
 		if (
-			!['v', 'kind', 'width', 'height', 'duration'].includes(key) ||
+			!['v', 'type', 'width', 'height', 'duration'].includes(key) ||
 			value === '' ||
 			values.has(key)
 		) {
@@ -172,12 +194,19 @@ export const parseDragPreviewMimeType = (
 		values.set(key, value);
 	}
 
-	if (values.get('v') !== String(DRAG_PREVIEW_VERSION)) {
+	if (values.get('v') !== String(DRAG_MIME_VERSION)) {
 		return null;
 	}
 
-	const kind = values.get('kind');
-	if (kind !== 'asset' && kind !== 'composition' && kind !== 'element') {
+	const type = values.get('type');
+	if (
+		type !== 'asset' &&
+		type !== 'component' &&
+		type !== 'composition' &&
+		type !== 'effect' &&
+		type !== 'element' &&
+		type !== 'sfx'
+	) {
 		return null;
 	}
 
@@ -187,23 +216,39 @@ export const parseDragPreviewMimeType = (
 		return null;
 	}
 
+	if (
+		(type === 'effect' || type === 'sfx') &&
+		(widthValue !== undefined || values.has('duration'))
+	) {
+		return null;
+	}
+
 	const width =
 		widthValue === undefined
 			? undefined
-			: parsePositiveInteger(widthValue, MAX_DIMENSION);
+			: parsePositiveNumber(widthValue, MAX_DIMENSION);
 	const height =
 		heightValue === undefined
 			? undefined
-			: parsePositiveInteger(heightValue, MAX_DIMENSION);
+			: parsePositiveNumber(heightValue, MAX_DIMENSION);
 	if (width === null || height === null) {
 		return null;
 	}
 
 	const durationValue = values.get('duration');
+	if (
+		durationValue !== undefined &&
+		type !== 'asset' &&
+		type !== 'composition' &&
+		type !== 'element'
+	) {
+		return null;
+	}
+
 	const duration =
 		durationValue === undefined
 			? undefined
-			: kind === 'asset'
+			: type === 'asset'
 				? parsePositiveNumber(durationValue, MAX_DURATION_IN_SECONDS)
 				: parsePositiveInteger(durationValue, MAX_DURATION_IN_FRAMES);
 	if (duration === null) {
@@ -212,95 +257,33 @@ export const parseDragPreviewMimeType = (
 
 	const dimensions =
 		width === undefined ? {} : {width, height: height as number};
-
-	if (kind === 'asset') {
+	if (type === 'asset') {
 		return {
-			kind,
+			type,
 			...dimensions,
 			...(duration === undefined ? {} : {durationInSeconds: duration}),
 		};
 	}
 
-	return {
-		kind,
-		...dimensions,
-		...(duration === undefined ? {} : {durationInFrames: duration}),
-	};
-};
-
-export const parseDragPreviewMetadataValue = (
-	value: unknown,
-): DragPreviewMetadata | null => {
-	if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-		return null;
+	if (type === 'composition' || type === 'element') {
+		return {
+			type,
+			...dimensions,
+			...(duration === undefined ? {} : {durationInFrames: duration}),
+		};
 	}
 
-	const record = value as Record<string, unknown>;
-	const {height, kind, width} = record;
-	if (kind !== 'asset' && kind !== 'composition' && kind !== 'element') {
-		return null;
-	}
-
-	const allowedKeys =
-		kind === 'asset'
-			? ['kind', 'width', 'height', 'durationInSeconds']
-			: ['kind', 'width', 'height', 'durationInFrames'];
-	if (Object.keys(record).some((key) => !allowedKeys.includes(key))) {
-		return null;
-	}
-
-	if (
-		(width !== undefined && typeof width !== 'number') ||
-		(height !== undefined && typeof height !== 'number')
-	) {
-		return null;
-	}
-
-	const duration =
-		kind === 'asset' ? record.durationInSeconds : record.durationInFrames;
-	if (duration !== undefined && typeof duration !== 'number') {
-		return null;
-	}
-
-	try {
-		if (kind === 'asset') {
-			return parseDragPreviewMimeType(
-				makeDragPreviewMimeType({
-					kind,
-					...(width === undefined ? {} : {width, height: height as number}),
-					...(duration === undefined ? {} : {durationInSeconds: duration}),
-				}),
-			);
-		}
-
-		return parseDragPreviewMimeType(
-			makeDragPreviewMimeType({
-				kind,
-				...(width === undefined ? {} : {width, height: height as number}),
-				...(duration === undefined ? {} : {durationInFrames: duration}),
-			}),
-		);
-	} catch {
-		return null;
-	}
-};
-
-export const setDragPreviewMetadata = (
-	dataTransfer: DataTransferWithSetData,
-	metadata: DragPreviewMetadata,
-) => {
-	const mimeType = makeDragPreviewMimeType(metadata);
-	dataTransfer.setData(mimeType, '');
-	return mimeType;
+	return {type, ...dimensions};
 };
 
 export const getDragPreviewMetadata = (
 	mimeTypes: ArrayLike<string>,
-): DragPreviewMetadata | null => {
+): DragPreviewMetadataWithMimeType | null => {
 	for (let index = 0; index < mimeTypes.length; index++) {
-		const parsed = parseDragPreviewMimeType(mimeTypes[index]);
+		const mimeType = mimeTypes[index];
+		const parsed = parseDragMimeType(mimeType);
 		if (parsed !== null) {
-			return parsed;
+			return {...parsed, mimeType};
 		}
 	}
 

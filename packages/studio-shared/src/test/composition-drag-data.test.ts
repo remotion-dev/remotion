@@ -1,9 +1,28 @@
 import {expect, test} from 'bun:test';
-import {
-	makeCompositionDragData,
-	parseCompositionDragData,
-} from '@remotion/drag-and-drop';
+import {makeDragData, parseDragData} from '@remotion/drag-and-drop';
 import {compositionDragDataToSymbolicatedStack} from '../composition-drag-data';
+
+const compositionMimeType = makeDragData({
+	type: 'composition',
+	compositionFile: null,
+	compositionId: 'Test',
+}).mimeType;
+const makeCompositionDragData = ({
+	compositionFile,
+	compositionId,
+}: {
+	compositionFile: string | null;
+	compositionId: string;
+}) =>
+	makeDragData({
+		type: 'composition',
+		compositionFile,
+		compositionId,
+	}).data;
+const parseCompositionDragData = (payload: string) => {
+	const parsed = parseDragData({mimeType: compositionMimeType, payload});
+	return parsed?.type === 'composition' ? parsed.data : null;
+};
 
 test('parses composition drag data', () => {
 	expect(
@@ -20,7 +39,6 @@ test('parses composition drag data', () => {
 		version: 1,
 		compositionFile: 'src/Root.tsx',
 		compositionId: 'MyVideo',
-		preview: {kind: 'composition'},
 	});
 });
 
@@ -39,7 +57,6 @@ test('allows a missing composition file', () => {
 		version: 1,
 		compositionFile: null,
 		compositionId: 'MyVideo',
-		preview: {kind: 'composition'},
 	});
 });
 

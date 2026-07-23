@@ -18,7 +18,7 @@ export const DropArea = () => {
         event.preventDefault();
         const metadata = getDragPreviewMetadata(event.dataTransfer.types);
 
-        if (metadata?.kind === 'composition') {
+        if (metadata?.type === 'composition') {
           console.log(metadata.width, metadata.height);
         }
       }}
@@ -27,13 +27,35 @@ export const DropArea = () => {
 };
 ```
 
-Returns `DragPreviewMetadata` for the first valid preview MIME type, otherwise `null`.
+Returns `DragPreviewMetadataWithMimeType` for the first valid Remotion drag MIME type, otherwise `null`.
 This function only reads `DataTransfer.types`; it does not call `DataTransfer.getData()`, which is unavailable while the browser's drag data store is protected.
 
 Treat this metadata as display-only.
-Parse the canonical payload when the item is dropped.
+Call [`parseDragData()`](/docs/drag-and-drop/parse-drag-data) when the item is dropped to validate the MIME metadata and canonical payload together.
+
+## Return value
+
+### `type`
+
+The drag kind: `asset`, `component`, `composition`, `effect`, `element`, or `sfx`.
+
+### `mimeType`
+
+The exact MIME type containing the preview metadata.
+
+### `width` and `height`
+
+Preview dimensions when they are available for the drag kind.
+
+### `durationInFrames`
+
+The preview duration for a composition or element, when provided.
+
+### `durationInSeconds`
+
+The preview duration for an asset, when provided.
 
 ## See also
 
-- [`parseDragPreviewMimeType()`](/docs/drag-and-drop/parse-drag-preview-mime-type)
-- [`setDragPreviewMetadata()`](/docs/drag-and-drop/set-drag-preview-metadata)
+- [`makeDragData()`](/docs/drag-and-drop/make-drag-data)
+- [`parseDragData()`](/docs/drag-and-drop/parse-drag-data)

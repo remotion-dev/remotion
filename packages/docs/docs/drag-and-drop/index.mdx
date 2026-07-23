@@ -5,7 +5,7 @@ title: '@remotion/drag-and-drop'
 
 # @remotion/drag-and-drop<AvailableFrom v="4.0.498" />
 
-Construct and parse versioned payloads for dragging assets, components, compositions, effects, elements, and sound effects into Remotion.
+Construct and parse versioned drag data for assets, components, compositions, effects, elements, and sound effects.
 
 import {TableOfContents} from './table-of-contents';
 
@@ -15,26 +15,40 @@ import {TableOfContents} from './table-of-contents';
 
 <TableOfContents />
 
-## MIME types
+## One drag item
 
-Each payload family has an exported MIME type:
+[`makeDragData()`](/docs/drag-and-drop/make-drag-data) returns a MIME type and its serialized payload together:
 
-- `ASSET_DRAG_MIME_TYPE`
-- `COMPONENT_DRAG_MIME_TYPE`
-- `COMPOSITION_DRAG_MIME_TYPE`
-- `EFFECT_DRAG_MIME_TYPE`
-- `ELEMENT_DRAG_MIME_TYPE`
-- `SFX_DRAG_MIME_TYPE`
+```tsx twoslash
+import {makeDragData} from '@remotion/drag-and-drop';
 
-Use the matching MIME type as the first argument to `DataTransfer.setData()`.
+const dragData = makeDragData({
+  type: 'composition',
+  compositionId: 'MyVideo',
+  compositionFile: 'src/Root.tsx',
+  width: 1920,
+  height: 1080,
+  durationInFrames: 150,
+});
 
-## Drag previews
+export const DraggableComposition = () => {
+  return (
+    <div
+      draggable
+      onDragStart={(event) => {
+        event.dataTransfer.setData(dragData.mimeType, dragData.payload);
+      }}
+    />
+  );
+};
+```
 
-[`setDragPreviewMetadata()`](/docs/drag-and-drop/set-drag-preview-metadata) stores small, non-sensitive metadata in a versioned MIME type.
-Unlike the payload, this metadata can be read from `DataTransfer.types` while handling `dragover`.
+This creates one `DataTransfer` item.
+Its MIME type identifies the drag type and contains small preview metadata such as dimensions and duration.
+Its value contains the canonical JSON payload.
 
-Use [`getDragPreviewMetadata()`](/docs/drag-and-drop/get-drag-preview-metadata) to parse it and render placement feedback before the item is dropped.
-The regular JSON payload remains the canonical source of data after the drop.
+Use [`getDragPreviewMetadata()`](/docs/drag-and-drop/get-drag-preview-metadata) during `dragover`, when the browser exposes MIME types but protects payload values.
+Use [`parseDragData()`](/docs/drag-and-drop/parse-drag-data) after the item is dropped to validate and parse both parts together.
 
 ## License
 

@@ -2,10 +2,6 @@ import {
 	isComponentIdentifier,
 	type ComponentDimensions,
 } from './component-drag-data';
-import {
-	parseDragPreviewMetadataValue,
-	type ElementDragPreviewMetadata,
-} from './drag-preview-metadata';
 import {isRecord, isValidPackageName} from './validation';
 
 export type ElementDragData = {
@@ -18,7 +14,6 @@ export type ElementDragData = {
 		sourceCode: string;
 		dimensions: ComponentDimensions | null;
 	};
-	preview: ElementDragPreviewMetadata;
 };
 
 export const isLowercaseElementFileName = (value: unknown): value is string => {
@@ -82,21 +77,9 @@ export const makeElementDragData = ({
 	dependencies,
 	dimensions,
 	displayName,
-	durationInFrames,
 	slug,
 	sourceCode,
-}: ElementDragData['element'] & {
-	readonly durationInFrames?: number;
-}): ElementDragData => {
-	const preview = parseDragPreviewMetadataValue({
-		kind: 'element',
-		...(dimensions ?? {}),
-		...(durationInFrames === undefined ? {} : {durationInFrames}),
-	});
-	if (preview === null || preview.kind !== 'element') {
-		throw new TypeError('Invalid element drag preview metadata');
-	}
-
+}: ElementDragData['element']): ElementDragData => {
 	return {
 		type: 'remotion-element',
 		version: 1,
@@ -107,7 +90,6 @@ export const makeElementDragData = ({
 			sourceCode,
 			dimensions,
 		},
-		preview,
 	};
 };
 
@@ -132,14 +114,6 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			parsed.version !== 1 ||
 			!isRecord(parsed.element)
 		) {
-			return null;
-		}
-
-		const preview =
-			parsed.preview === undefined
-				? {kind: 'element' as const}
-				: parseDragPreviewMetadataValue(parsed.preview);
-		if (preview === null || preview.kind !== 'element') {
 			return null;
 		}
 
@@ -175,7 +149,6 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			displayName,
 			sourceCode,
 			dimensions: dimensions ?? null,
-			durationInFrames: preview.durationInFrames,
 		});
 	} catch {
 		return null;

@@ -1,92 +1,70 @@
 import {expect, test} from 'bun:test';
-import {
-	ASSET_DRAG_MIME_TYPE,
-	COMPOSITION_DRAG_MIME_TYPE,
-	COMPONENT_DRAG_MIME_TYPE,
-	EFFECT_DRAG_MIME_TYPE,
-	ELEMENT_DRAG_MIME_TYPE,
-	SFX_DRAG_MIME_TYPE,
-	type EffectDragData,
-	type RemotionDragMimeType,
-} from '@remotion/drag-and-drop';
+import {makeDragData, type MakeDragDataInput} from '@remotion/drag-and-drop';
 import {
 	getEffectDragData,
 	hasEffectDragType,
 } from '../components/effect-drag-and-drop';
 
-const effectDragData: EffectDragData = {
-	type: 'remotion-effect',
-	version: 1,
-	effect: {
-		name: 'Opacity',
-		importPath: '@remotion/effects',
-		config: {},
-	},
-};
-
-const makeDataTransfer = ({
-	types,
-	data,
-}: {
-	readonly types: string[];
-	readonly data?: Record<string, string>;
-}): DataTransfer => {
+const makeDataTransfer = (
+	constructed: ReturnType<typeof makeDragData>,
+): DataTransfer => {
 	return {
-		types,
-		getData: (type: string) => data?.[type] ?? '',
+		types: [constructed.mimeType],
+		getData: (type: string) =>
+			type === constructed.mimeType ? constructed.payload : '',
 	} as unknown as DataTransfer;
 };
 
-test('detects explicit effect drags', () => {
-	expect(
-		hasEffectDragType(
-			makeDataTransfer({
-				types: [EFFECT_DRAG_MIME_TYPE, 'application/json', 'text/plain'],
-			}),
-		),
-	).toBe(true);
-});
-
-test('keeps generic effect drag fallback', () => {
-	const serialized = JSON.stringify(effectDragData);
-	const dataTransfer = makeDataTransfer({
-		types: ['application/json', 'text/plain'],
-		data: {
-			'application/json': serialized,
-			'text/plain': serialized,
-		},
+test('detects and parses effect drags', () => {
+	const effect = makeDragData({
+		type: 'effect',
+		name: 'Opacity',
+		importPath: '@remotion/effects',
+		config: {},
 	});
+	const dataTransfer = makeDataTransfer(effect);
 
 	expect(hasEffectDragType(dataTransfer)).toBe(true);
-	expect(getEffectDragData(dataTransfer)).toEqual(effectDragData);
+	expect(getEffectDragData(dataTransfer)).toEqual(effect.data);
 });
 
-const nonEffectRemotionDragMimeTypes = [
-	['asset', ASSET_DRAG_MIME_TYPE],
-	['component', COMPONENT_DRAG_MIME_TYPE],
-	['composition', COMPOSITION_DRAG_MIME_TYPE],
-	['element', ELEMENT_DRAG_MIME_TYPE],
-	['sfx', SFX_DRAG_MIME_TYPE],
-] satisfies readonly (readonly [string, RemotionDragMimeType])[];
+const nonEffectInputs: MakeDragDataInput[] = [
+	{type: 'asset', assetPath: 'image.png'},
+	{
+		type: 'component',
+		componentName: 'Circle',
+		importName: 'Circle',
+		importPath: '@remotion/shapes',
+		props: [],
+	},
+	{
+		type: 'composition',
+		compositionFile: null,
+		compositionId: 'Comp',
+	},
+	{
+		type: 'element',
+		dependencies: [],
+		dimensions: null,
+		displayName: 'Element',
+		slug: 'element',
+		sourceCode: 'export const Element = () => null;',
+	},
+	{type: 'sfx', name: 'SFX', url: 'https://remotion.media/sfx.wav'},
+];
 
-for (const [label, mimeType] of nonEffectRemotionDragMimeTypes) {
-	test(`does not treat ${label} imports as effect drags`, () => {
-		expect(
-			hasEffectDragType(
-				makeDataTransfer({
-					types: [mimeType, 'application/json', 'text/plain'],
-				}),
-			),
-		).toBe(false);
+for (const input of nonEffectInputs) {
+	test(`does not treat ${input.type} drags as effect drags`, () => {
+		expect(hasEffectDragType(makeDataTransfer(makeDragData(input)))).toBe(
+			false,
+		);
 	});
 }
 
 test('does not treat remote asset imports as effect drags', () => {
 	expect(
-		hasEffectDragType(
-			makeDataTransfer({
-				types: ['text/uri-list', 'text/plain'],
-			}),
-		),
+		hasEffectDragType({
+			types: ['text/uri-list', 'text/plain'],
+		} as unknown as DataTransfer),
 	).toBe(false);
 });

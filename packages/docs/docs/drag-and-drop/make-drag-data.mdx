@@ -1,0 +1,87 @@
+---
+image: /generated/articles-docs-drag-and-drop-make-drag-data.png
+title: 'makeDragData()'
+crumb: '@remotion/drag-and-drop'
+---
+
+# makeDragData()<AvailableFrom v="4.0.498" />
+
+Constructs the MIME type and serialized payload for a Remotion drag item.
+
+```tsx twoslash title="DraggableComposition.tsx"
+import {makeDragData} from '@remotion/drag-and-drop';
+
+const dragData = makeDragData({
+  type: 'composition',
+  compositionId: 'MyVideo',
+  compositionFile: 'src/Root.tsx',
+  width: 1920,
+  height: 1080,
+  durationInFrames: 150,
+});
+
+export const DraggableComposition = () => {
+  return (
+    <div
+      draggable
+      onDragStart={(event) => {
+        event.dataTransfer.setData(dragData.mimeType, dragData.payload);
+      }}
+    >
+      Drag composition
+    </div>
+  );
+};
+```
+
+The result belongs together as one `DataTransfer` item.
+Do not store `mimeType` and `payload` as separate MIME entries.
+
+## Input
+
+Pass an object with a `type` discriminator.
+Supported values are `asset`, `component`, `composition`, `effect`, `element`, and `sfx`.
+
+Fields that are useful for showing a drag preview, such as `width`, `height`, and duration, are encoded into the returned MIME type.
+The remaining fields are serialized into the canonical payload.
+
+### `type`
+
+The kind of item being dragged.
+
+### `width` and `height`
+
+Optional preview dimensions for assets and compositions.
+Components and elements use the dimensions from their `dimensions` field.
+Both dimensions must be provided together and must be positive finite numbers.
+
+### `durationInFrames`
+
+Optional preview duration for compositions and elements.
+
+### `durationInSeconds`
+
+Optional preview duration for assets.
+
+## Return value
+
+Returns a `ConstructedDragData` object.
+
+### `mimeType`
+
+The MIME type to pass as the first argument to `DataTransfer.setData()`.
+It includes the drag kind and preview metadata.
+
+### `payload`
+
+The serialized JSON string to pass as the second argument to `DataTransfer.setData()`.
+
+### `data`
+
+The typed, unserialized canonical payload.
+This is useful when the same constructed data is also consumed without a browser `DataTransfer`.
+
+## See also
+
+- [`parseDragData()`](/docs/drag-and-drop/parse-drag-data)
+- [`getDragPreviewMetadata()`](/docs/drag-and-drop/get-drag-preview-metadata)

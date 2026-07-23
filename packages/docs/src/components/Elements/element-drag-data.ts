@@ -1,8 +1,4 @@
-import {
-	ELEMENT_DRAG_MIME_TYPE,
-	setDragPreviewMetadata,
-	type ElementDragData,
-} from '@remotion/drag-and-drop';
+import type {ConstructedDragData} from '@remotion/drag-and-drop';
 
 const ELEMENT_ICON_PATH =
 	'M3 3.5C3 2.67157 3.67157 2 4.5 2H11.5C12.3284 2 13 2.67157 13 3.5V12.5C13 13.3284 12.3284 14 11.5 14H4.5C3.67157 14 3 13.3284 3 12.5V3.5ZM4.5 3.5V6H11.5V3.5H4.5ZM11.5 7.5H4.5V12.5H11.5V7.5Z';
@@ -41,14 +37,10 @@ export const setElementDragData = ({
 	dragData,
 }: {
 	readonly dataTransfer: DataTransfer;
-	readonly dragData: ElementDragData;
+	readonly dragData: ConstructedDragData;
 }) => {
-	const serialized = JSON.stringify(dragData);
 	dataTransfer.effectAllowed = 'copy';
-	dataTransfer.setData(ELEMENT_DRAG_MIME_TYPE, serialized);
-	dataTransfer.setData('application/json', serialized);
-	dataTransfer.setData('text/plain', serialized);
-	setDragPreviewMetadata(dataTransfer, dragData.preview);
+	dataTransfer.setData(dragData.mimeType, dragData.payload);
 };
 
 export const setElementDragImage = (dataTransfer: DataTransfer) => {

@@ -1,7 +1,4 @@
-import {
-	makeElementDragData,
-	type ComponentDimensions,
-} from '@remotion/drag-and-drop';
+import {makeDragData, type ComponentDimensions} from '@remotion/drag-and-drop';
 import React, {
 	useCallback,
 	useId,
@@ -134,7 +131,8 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 					}
 				: null;
 
-		return makeElementDragData({
+		return makeDragData({
+			type: 'element',
 			dependencies,
 			dimensions,
 			displayName,
@@ -174,7 +172,10 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				{
 					method: 'POST',
 					headers: {'Content-Type': 'application/json'},
-					body: JSON.stringify({element: dragData.element}),
+					body: JSON.stringify({
+						mimeType: dragData.mimeType,
+						payload: dragData.payload,
+					}),
 				},
 			);
 			const result = (await response.json()) as

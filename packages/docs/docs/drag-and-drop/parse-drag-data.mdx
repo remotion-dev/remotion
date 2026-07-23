@@ -1,0 +1,76 @@
+---
+image: /generated/articles-docs-drag-and-drop-parse-drag-data.png
+title: 'parseDragData()'
+crumb: '@remotion/drag-and-drop'
+---
+
+# parseDragData()<AvailableFrom v="4.0.498" />
+
+Validates and parses a Remotion drag item after it is dropped.
+
+```tsx twoslash title="DropArea.tsx"
+import {parseDragData} from '@remotion/drag-and-drop';
+
+export const DropArea = () => {
+  return (
+    <div
+      onDragOver={(event) => event.preventDefault()}
+      onDrop={(event) => {
+        const parsed = parseDragData(event.dataTransfer);
+
+        if (parsed?.type === 'composition') {
+          console.log(parsed.data.compositionId);
+          console.log(parsed.preview.width, parsed.preview.height);
+        }
+      }}
+    />
+  );
+};
+```
+
+The MIME metadata and canonical JSON payload are parsed together.
+Invalid, unsupported, or inconsistent drag data returns `null`.
+
+## Input
+
+Pass a `DataTransfer`-like object with `types` and `getData()`.
+
+You can also pass the result's serialized parts directly:
+
+```tsx twoslash
+import {makeDragData, parseDragData} from '@remotion/drag-and-drop';
+
+const constructed = makeDragData({
+  type: 'asset',
+  assetPath: '/video.mp4',
+  width: 1920,
+  height: 1080,
+});
+
+const parsed = parseDragData({
+  mimeType: constructed.mimeType,
+  payload: constructed.payload,
+});
+```
+
+## Return value
+
+Returns a discriminated `ParsedDragData` object, or `null`.
+
+### `type`
+
+The parsed drag kind: `asset`, `component`, `composition`, `effect`, `element`, or `sfx`.
+
+### `data`
+
+The validated canonical payload.
+Narrowing `type` also narrows this value to the corresponding payload type.
+
+### `preview`
+
+The validated metadata encoded in the MIME type.
+
+## See also
+
+- [`makeDragData()`](/docs/drag-and-drop/make-drag-data)
+- [`getDragPreviewMetadata()`](/docs/drag-and-drop/get-drag-preview-metadata)

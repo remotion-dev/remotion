@@ -1,5 +1,5 @@
 import {Button} from '@remotion/design';
-import {makeSfxDragData} from '@remotion/drag-and-drop';
+import {makeDragData} from '@remotion/drag-and-drop';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
 	getSfxNameFromUrl,
@@ -159,7 +159,8 @@ const setDragDataForSfx = ({
 }) => {
 	setSfxDragData({
 		dataTransfer,
-		dragData: makeSfxDragData({
+		dragData: makeDragData({
+			type: 'sfx',
 			name,
 			url: src,
 		}),

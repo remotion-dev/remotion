@@ -1,15 +1,9 @@
 import {
-	ASSET_DRAG_MIME_TYPE,
-	COMPONENT_DRAG_MIME_TYPE,
-	COMPOSITION_DRAG_MIME_TYPE,
-	ELEMENT_DRAG_MIME_TYPE,
-	parseAssetDragData,
-	parseComponentDragData,
-	parseCompositionDragData,
-	parseSfxDragData,
-	SFX_DRAG_MIME_TYPE,
+	getDragPreviewMetadata,
+	parseDragData,
 	type ComponentDragData,
 	type CompositionDragData,
+	type DragPreviewMetadata,
 } from '@remotion/drag-and-drop';
 import {hasRemoteAssetDragData} from '../helpers/remote-asset-drag';
 
@@ -17,34 +11,31 @@ export const isFileDragEvent = (event: DragEvent): boolean => {
 	return Array.from(event.dataTransfer?.types ?? []).includes('Files');
 };
 
-export const isAssetDragEvent = (event: DragEvent): boolean => {
-	return Array.from(event.dataTransfer?.types ?? []).includes(
-		ASSET_DRAG_MIME_TYPE,
-	);
+const isRemotionDragEvent = (
+	event: DragEvent,
+	type: DragPreviewMetadata['type'],
+) => {
+	return getDragPreviewMetadata(event.dataTransfer?.types ?? [])?.type === type;
 };
 
-export const isComponentDragEvent = (event: DragEvent): boolean => {
-	return Array.from(event.dataTransfer?.types ?? []).includes(
-		COMPONENT_DRAG_MIME_TYPE,
-	);
+export const isAssetDragEvent = (event: DragEvent) => {
+	return isRemotionDragEvent(event, 'asset');
 };
 
-export const isCompositionDragEvent = (event: DragEvent): boolean => {
-	return Array.from(event.dataTransfer?.types ?? []).includes(
-		COMPOSITION_DRAG_MIME_TYPE,
-	);
+export const isComponentDragEvent = (event: DragEvent) => {
+	return isRemotionDragEvent(event, 'component');
 };
 
-export const isElementDragEvent = (event: DragEvent): boolean => {
-	return Array.from(event.dataTransfer?.types ?? []).includes(
-		ELEMENT_DRAG_MIME_TYPE,
-	);
+export const isCompositionDragEvent = (event: DragEvent) => {
+	return isRemotionDragEvent(event, 'composition');
 };
 
-export const isSfxDragEvent = (event: DragEvent): boolean => {
-	return Array.from(event.dataTransfer?.types ?? []).includes(
-		SFX_DRAG_MIME_TYPE,
-	);
+export const isElementDragEvent = (event: DragEvent) => {
+	return isRemotionDragEvent(event, 'element');
+};
+
+export const isSfxDragEvent = (event: DragEvent) => {
+	return isRemotionDragEvent(event, 'sfx');
 };
 
 export const isRemoteAssetDragEvent = (event: DragEvent): boolean => {
@@ -72,64 +63,25 @@ export const isSupportedDropEvent = (event: DragEvent): boolean => {
 };
 
 export const getAssetDragPath = (event: DragEvent): string | null => {
-	const value = event.dataTransfer?.getData(ASSET_DRAG_MIME_TYPE);
-	if (!value) {
-		return null;
-	}
-
-	return parseAssetDragData(value)?.assetPath ?? null;
+	const parsed = event.dataTransfer ? parseDragData(event.dataTransfer) : null;
+	return parsed?.type === 'asset' ? parsed.data.assetPath : null;
 };
 
 export const getCompositionDragData = (
 	event: DragEvent,
 ): CompositionDragData | null => {
-	const value = event.dataTransfer?.getData(COMPOSITION_DRAG_MIME_TYPE);
-	if (!value) {
-		return null;
-	}
-
-	return parseCompositionDragData(value);
+	const parsed = event.dataTransfer ? parseDragData(event.dataTransfer) : null;
+	return parsed?.type === 'composition' ? parsed.data : null;
 };
 
 export const getComponentDragData = (
 	event: DragEvent,
 ): ComponentDragData | null => {
-	for (const type of [
-		COMPONENT_DRAG_MIME_TYPE,
-		'application/json',
-		'text/plain',
-	]) {
-		const value = event.dataTransfer?.getData(type);
-		if (!value) {
-			continue;
-		}
-
-		const parsed = parseComponentDragData(value);
-		if (parsed) {
-			return parsed;
-		}
-	}
-
-	return null;
+	const parsed = event.dataTransfer ? parseDragData(event.dataTransfer) : null;
+	return parsed?.type === 'component' ? parsed.data : null;
 };
 
 export const getSfxDragUrl = (event: DragEvent): string | null => {
-	const {dataTransfer} = event;
-	if (!dataTransfer) {
-		return null;
-	}
-
-	for (const type of [SFX_DRAG_MIME_TYPE, 'application/json', 'text/plain']) {
-		const value = dataTransfer.getData(type);
-		if (!value) {
-			continue;
-		}
-
-		const parsed = parseSfxDragData(value);
-		if (parsed) {
-			return parsed.sfx.url;
-		}
-	}
-
-	return null;
+	const parsed = event.dataTransfer ? parseDragData(event.dataTransfer) : null;
+	return parsed?.type === 'sfx' ? parsed.data.sfx.url : null;
 };

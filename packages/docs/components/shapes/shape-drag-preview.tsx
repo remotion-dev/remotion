@@ -1,15 +1,18 @@
-import type {ComponentDragData} from '@remotion/drag-and-drop';
+import type {
+	ComponentDragData,
+	ConstructedDragData,
+} from '@remotion/drag-and-drop';
 import React from 'react';
 import {getShapeDragInfo} from './shape-drag-info';
 
 export const ShapeDragPreview = React.forwardRef<
 	SVGSVGElement,
 	{
-		readonly dragData: ComponentDragData;
+		readonly dragData: ConstructedDragData<ComponentDragData>;
 		readonly size: number;
 	}
 >(({dragData, size}, ref) => {
-	const shapeInfo = getShapeDragInfo(dragData.component);
+	const shapeInfo = getShapeDragInfo(dragData.data.component);
 	if (shapeInfo === null) {
 		return null;
 	}

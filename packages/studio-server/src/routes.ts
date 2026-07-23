@@ -4,7 +4,7 @@ import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
 import {BundlerInternals} from '@remotion/bundler';
-import {parseElementDragData} from '@remotion/drag-and-drop';
+import {parseDragData} from '@remotion/drag-and-drop';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
@@ -207,15 +207,16 @@ const handleRequestElementInstall = async ({
 
 	try {
 		const body = await parseRequestBody(request);
-		const parsed = parseElementDragData(
-			JSON.stringify({
-				type: 'remotion-element',
-				version: 1,
-				element: (body as {element?: unknown}).element,
-			}),
-		);
+		const {mimeType, payload} = body as {
+			mimeType?: unknown;
+			payload?: unknown;
+		};
+		const parsed =
+			typeof mimeType === 'string' && typeof payload === 'string'
+				? parseDragData({mimeType, payload})
+				: null;
 
-		if (parsed === null) {
+		if (parsed?.type !== 'element') {
 			response.writeHead(400);
 			response.end(
 				JSON.stringify({success: false, reason: 'Invalid Element payload'}),
@@ -256,7 +257,7 @@ const handleRequestElementInstall = async ({
 			createdAt: Date.now(),
 			compositionFile: target.compositionFile,
 			compositionId: target.compositionId,
-			element: parsed.element,
+			element: parsed.data.element,
 			position: null,
 		};
 

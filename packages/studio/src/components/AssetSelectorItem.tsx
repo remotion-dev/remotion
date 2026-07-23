@@ -1,8 +1,4 @@
-import {
-	ASSET_DRAG_MIME_TYPE,
-	makeAssetDragData,
-	setDragPreviewMetadata,
-} from '@remotion/drag-and-drop';
+import {makeDragData} from '@remotion/drag-and-drop';
 import React, {
 	useCallback,
 	useContext,
@@ -384,12 +380,13 @@ const AssetSelectorItem: React.FC<{
 					? mediaMetadata.duration
 					: undefined;
 
-			const dragData = makeAssetDragData(relativePath, {
+			const dragData = makeDragData({
+				type: 'asset',
+				assetPath: relativePath,
 				...(hasDimensions ? {width, height} : {}),
 				durationInSeconds,
 			});
-			e.dataTransfer.setData(ASSET_DRAG_MIME_TYPE, JSON.stringify(dragData));
-			setDragPreviewMetadata(e.dataTransfer, dragData.preview);
+			e.dataTransfer.setData(dragData.mimeType, dragData.payload);
 		},
 		[canDragAsset, previewFileType, relativePath],
 	);

@@ -1,39 +1,37 @@
-import {
-	makeAssetDragData,
-	makeComponentDragData,
-	makeCompositionDragData,
-	makeEffectDragData,
-	makeElementDragData,
-	makeSfxDragData,
-} from '@remotion/drag-and-drop';
+import {makeDragData} from '@remotion/drag-and-drop';
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 
 const payloads = [
-	makeAssetDragData('images/logo.png'),
-	makeComponentDragData({
+	makeDragData({type: 'asset', assetPath: 'images/logo.png'}),
+	makeDragData({
+		type: 'component',
 		componentName: 'Circle',
 		importName: 'Circle',
 		importPath: '@remotion/shapes',
 		props: [{name: 'radius', value: 100}],
 	}),
-	makeCompositionDragData({
+	makeDragData({
+		type: 'composition',
 		compositionId: 'MyVideo',
 		compositionFile: 'src/Root.tsx',
 	}),
-	makeEffectDragData({
+	makeDragData({
+		type: 'effect',
 		name: 'brightness',
 		importPath: '@remotion/effects/brightness',
 		config: {brightness: 1.2},
 	}),
-	makeElementDragData({
+	makeDragData({
+		type: 'element',
 		dependencies: [],
 		slug: 'titles/lower-third',
 		displayName: 'Lower Third',
 		sourceCode: 'export const LowerThird = () => null;',
 		dimensions: {width: 900, height: 260},
 	}),
-	makeSfxDragData({
+	makeDragData({
+		type: 'sfx',
 		name: 'Whip',
 		url: 'https://remotion.media/whip.wav',
 	}),
