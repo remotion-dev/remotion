@@ -1,9 +1,5 @@
 import path from 'node:path';
-import {
-	areComponentProps,
-	isComponentIdentifier,
-	isComponentImportPath,
-} from '@remotion/drag-and-drop';
+import {DragAndDropInternals} from '@remotion/drag-and-drop';
 import {RenderInternals} from '@remotion/renderer';
 import {
 	isUrl,
@@ -122,19 +118,19 @@ const validateElement = (
 	}
 
 	if (element.type === 'component') {
-		if (!isComponentIdentifier(element.componentName)) {
+		if (!DragAndDropInternals.isComponentIdentifier(element.componentName)) {
 			throw new Error('Unsupported component name');
 		}
 
-		if (!isComponentIdentifier(element.importName)) {
+		if (!DragAndDropInternals.isComponentIdentifier(element.importName)) {
 			throw new Error('Unsupported component import name');
 		}
 
-		if (!isComponentImportPath(element.importPath)) {
+		if (!DragAndDropInternals.isComponentImportPath(element.importPath)) {
 			throw new Error('Unsupported component import path');
 		}
 
-		if (!areComponentProps(element.props)) {
+		if (!DragAndDropInternals.areComponentProps(element.props)) {
 			throw new Error('Unsupported component props');
 		}
 

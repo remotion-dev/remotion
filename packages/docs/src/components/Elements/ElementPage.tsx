@@ -1,4 +1,7 @@
-import {makeDragData, type ComponentDimensions} from '@remotion/drag-and-drop';
+import {
+	DragAndDropInternals,
+	type ComponentDimensions,
+} from '@remotion/drag-and-drop';
 import React, {
 	useCallback,
 	useId,
@@ -131,7 +134,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 					}
 				: null;
 
-		return makeDragData({
+		return DragAndDropInternals.makeDragData({
 			type: 'element',
 			dependencies,
 			dimensions,

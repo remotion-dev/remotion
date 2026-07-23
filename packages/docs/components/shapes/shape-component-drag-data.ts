@@ -1,5 +1,5 @@
 import {
-	makeDragData,
+	DragAndDropInternals,
 	type ComponentDragData,
 	type ComponentProp,
 	type ConstructedDragData,
@@ -164,7 +164,7 @@ const makeShapeComponentDragData = ({
 	} satisfies ComponentDragData['component'];
 	const shapeInfo = getShapeDragInfo(component);
 
-	return makeDragData({
+	return DragAndDropInternals.makeDragData({
 		type: 'component',
 		...component,
 		dimensions: shapeInfo

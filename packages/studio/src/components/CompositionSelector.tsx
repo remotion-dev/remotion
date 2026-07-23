@@ -1,4 +1,4 @@
-import {getDragPreviewMetadata, parseDragData} from '@remotion/drag-and-drop';
+import {DragAndDropInternals} from '@remotion/drag-and-drop';
 import {compositionDragDataToSymbolicatedStack} from '@remotion/studio-shared';
 import React, {
 	useCallback,
@@ -270,7 +270,8 @@ export const CompositionSelector: React.FC = () => {
 		(event: React.DragEvent<HTMLElement>) => {
 			if (
 				window.remotion_isReadOnlyStudio ||
-				getDragPreviewMetadata(event.dataTransfer.types)?.type !== 'composition'
+				DragAndDropInternals.getDragPreviewMetadata(event.dataTransfer.types)
+					?.type !== 'composition'
 			) {
 				stopCompositionListAutoScroll();
 				return;
@@ -296,7 +297,8 @@ export const CompositionSelector: React.FC = () => {
 	const onRootDragOver = useCallback((event: React.DragEvent<HTMLElement>) => {
 		if (
 			window.remotion_isReadOnlyStudio ||
-			getDragPreviewMetadata(event.dataTransfer.types)?.type !== 'composition'
+			DragAndDropInternals.getDragPreviewMetadata(event.dataTransfer.types)
+				?.type !== 'composition'
 		) {
 			return;
 		}
@@ -328,7 +330,7 @@ export const CompositionSelector: React.FC = () => {
 				return;
 			}
 
-			const parsed = parseDragData(event.dataTransfer);
+			const parsed = DragAndDropInternals.parseDragData(event.dataTransfer);
 			if (parsed?.type !== 'composition') {
 				return;
 			}

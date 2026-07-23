@@ -1,7 +1,7 @@
 import {expect, test} from 'bun:test';
-import {makeDragData, parseDragData} from '@remotion/drag-and-drop';
+import {DragAndDropInternals} from '@remotion/drag-and-drop';
 
-const assetMimeType = makeDragData({
+const assetMimeType = DragAndDropInternals.makeDragData({
 	type: 'asset',
 	assetPath: 'asset',
 	width: null,
@@ -9,7 +9,7 @@ const assetMimeType = makeDragData({
 	durationInSeconds: null,
 }).mimeType;
 const makeAssetDragData = (assetPath: string) =>
-	makeDragData({
+	DragAndDropInternals.makeDragData({
 		type: 'asset',
 		assetPath,
 		width: null,
@@ -17,7 +17,10 @@ const makeAssetDragData = (assetPath: string) =>
 		durationInSeconds: null,
 	}).data;
 const parseAssetDragData = (payload: string) => {
-	const parsed = parseDragData({mimeType: assetMimeType, payload});
+	const parsed = DragAndDropInternals.parseDragData({
+		mimeType: assetMimeType,
+		payload,
+	});
 	return parsed?.type === 'asset' ? parsed.data : null;
 };
 

@@ -1,23 +1,23 @@
-import {makeDragData} from '@remotion/drag-and-drop';
+import {DragAndDropInternals} from '@remotion/drag-and-drop';
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 
 const payloads = [
-	makeDragData({
+	DragAndDropInternals.makeDragData({
 		type: 'asset',
 		assetPath: 'images/logo.png',
 		width: null,
 		height: null,
 		durationInSeconds: null,
 	}),
-	makeDragData({
+	DragAndDropInternals.makeDragData({
 		type: 'component',
 		componentName: 'Circle',
 		importName: 'Circle',
 		importPath: '@remotion/shapes',
 		props: [{name: 'radius', value: 100}],
 	}),
-	makeDragData({
+	DragAndDropInternals.makeDragData({
 		type: 'composition',
 		compositionId: 'MyVideo',
 		compositionFile: 'src/Root.tsx',
@@ -25,13 +25,13 @@ const payloads = [
 		height: null,
 		durationInFrames: null,
 	}),
-	makeDragData({
+	DragAndDropInternals.makeDragData({
 		type: 'effect',
 		name: 'brightness',
 		importPath: '@remotion/effects/brightness',
 		config: {brightness: 1.2},
 	}),
-	makeDragData({
+	DragAndDropInternals.makeDragData({
 		type: 'element',
 		dependencies: [],
 		slug: 'titles/lower-third',
@@ -40,7 +40,7 @@ const payloads = [
 		dimensions: {width: 900, height: 260},
 		durationInFrames: 90,
 	}),
-	makeDragData({
+	DragAndDropInternals.makeDragData({
 		type: 'sfx',
 		name: 'Whip',
 		url: 'https://remotion.media/whip.wav',

@@ -1,6 +1,5 @@
 import {
-	getDragPreviewMetadata,
-	parseDragData,
+	DragAndDropInternals,
 	type ComponentDragData,
 	type CompositionDragData,
 	type DragPreviewMetadata,
@@ -15,7 +14,10 @@ const isRemotionDragEvent = (
 	event: DragEvent,
 	type: DragPreviewMetadata['type'],
 ) => {
-	return getDragPreviewMetadata(event.dataTransfer?.types ?? [])?.type === type;
+	return (
+		DragAndDropInternals.getDragPreviewMetadata(event.dataTransfer?.types ?? [])
+			?.type === type
+	);
 };
 
 export const isAssetDragEvent = (event: DragEvent) => {
@@ -63,25 +65,33 @@ export const isSupportedDropEvent = (event: DragEvent): boolean => {
 };
 
 export const getAssetDragPath = (event: DragEvent): string | null => {
-	const parsed = event.dataTransfer ? parseDragData(event.dataTransfer) : null;
+	const parsed = event.dataTransfer
+		? DragAndDropInternals.parseDragData(event.dataTransfer)
+		: null;
 	return parsed?.type === 'asset' ? parsed.data.assetPath : null;
 };
 
 export const getCompositionDragData = (
 	event: DragEvent,
 ): CompositionDragData | null => {
-	const parsed = event.dataTransfer ? parseDragData(event.dataTransfer) : null;
+	const parsed = event.dataTransfer
+		? DragAndDropInternals.parseDragData(event.dataTransfer)
+		: null;
 	return parsed?.type === 'composition' ? parsed.data : null;
 };
 
 export const getComponentDragData = (
 	event: DragEvent,
 ): ComponentDragData | null => {
-	const parsed = event.dataTransfer ? parseDragData(event.dataTransfer) : null;
+	const parsed = event.dataTransfer
+		? DragAndDropInternals.parseDragData(event.dataTransfer)
+		: null;
 	return parsed?.type === 'component' ? parsed.data : null;
 };
 
 export const getSfxDragUrl = (event: DragEvent): string | null => {
-	const parsed = event.dataTransfer ? parseDragData(event.dataTransfer) : null;
+	const parsed = event.dataTransfer
+		? DragAndDropInternals.parseDragData(event.dataTransfer)
+		: null;
 	return parsed?.type === 'sfx' ? parsed.data.sfx.url : null;
 };

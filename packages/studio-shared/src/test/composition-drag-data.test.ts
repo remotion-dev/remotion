@@ -1,8 +1,8 @@
 import {expect, test} from 'bun:test';
-import {makeDragData, parseDragData} from '@remotion/drag-and-drop';
+import {DragAndDropInternals} from '@remotion/drag-and-drop';
 import {compositionDragDataToSymbolicatedStack} from '../composition-drag-data';
 
-const compositionMimeType = makeDragData({
+const compositionMimeType = DragAndDropInternals.makeDragData({
 	type: 'composition',
 	compositionFile: null,
 	compositionId: 'Test',
@@ -17,7 +17,7 @@ const makeCompositionDragData = ({
 	compositionFile: string | null;
 	compositionId: string;
 }) =>
-	makeDragData({
+	DragAndDropInternals.makeDragData({
 		type: 'composition',
 		compositionFile,
 		compositionId,
@@ -26,7 +26,10 @@ const makeCompositionDragData = ({
 		durationInFrames: null,
 	}).data;
 const parseCompositionDragData = (payload: string) => {
-	const parsed = parseDragData({mimeType: compositionMimeType, payload});
+	const parsed = DragAndDropInternals.parseDragData({
+		mimeType: compositionMimeType,
+		payload,
+	});
 	return parsed?.type === 'composition' ? parsed.data : null;
 };
 

@@ -4,7 +4,6 @@ import {TableOfContents as AnimationUtilsTableOfContents} from '../../docs/anima
 import {TableOfContents as BundlerTableOfContents} from '../../docs/bundler/table-of-contents';
 import {TableOfContents as CaptionsTableOfContents} from '../../docs/captions/TableOfContents';
 import {TableOfContents as CloudrunTableOfContents} from '../../docs/cloudrun/table-of-contents';
-import {TableOfContents as DragAndDropTableOfContents} from '../../docs/drag-and-drop/table-of-contents';
 import {TableOfContents as ElevenLabsTableOfContents} from '../../docs/elevenlabs/TableOfContents';
 import {TableOfContents as EnableScssTableOfContents} from '../../docs/enable-scss/TableOfContents';
 import {TableOfContents as FontsTableOfContents} from '../../docs/fonts-api/TableOfContents';
@@ -82,9 +81,6 @@ export const TableOfContents: React.FC = () => {
 			<h2>@remotion/cloudrun</h2>
 			<p>Render videos and stills on GCP Cloud Run</p>
 			<CloudrunTableOfContents />
-			<h2>@remotion/drag-and-drop</h2>
-			<p>Construct and parse Remotion drag-and-drop payloads.</p>
-			<DragAndDropTableOfContents />
 			<h2>@remotion/elevenlabs</h2>
 			<p>Work with transcriptions from ElevenLabs</p>
 			<ElevenLabsTableOfContents />

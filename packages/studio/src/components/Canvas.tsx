@@ -1,4 +1,4 @@
-import {getDragPreviewMetadata} from '@remotion/drag-and-drop';
+import {DragAndDropInternals} from '@remotion/drag-and-drop';
 import type {Size} from '@remotion/player';
 import type {ElementInstallRequest} from '@remotion/studio-shared';
 import React, {
@@ -985,7 +985,9 @@ export const Canvas: React.FC<{
 				return;
 			}
 
-			const metadata = getDragPreviewMetadata(event.dataTransfer?.types ?? []);
+			const metadata = DragAndDropInternals.getDragPreviewMetadata(
+				event.dataTransfer?.types ?? [],
+			);
 			if (
 				metadata?.type !== 'composition' ||
 				metadata.width === undefined ||
@@ -1120,7 +1122,7 @@ export const Canvas: React.FC<{
 
 			setIsAddingAsset(true);
 			try {
-				const metadata = getDragPreviewMetadata(
+				const metadata = DragAndDropInternals.getDragPreviewMetadata(
 					event.dataTransfer?.types ?? [],
 				);
 				const isComposition = metadata?.type === 'composition';

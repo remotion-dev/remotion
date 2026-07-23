@@ -1,4 +1,4 @@
-import {makeDragData} from '@remotion/drag-and-drop';
+import {DragAndDropInternals} from '@remotion/drag-and-drop';
 import React, {
 	useCallback,
 	useContext,
@@ -380,7 +380,7 @@ const AssetSelectorItem: React.FC<{
 					? mediaMetadata.duration
 					: null;
 
-			const dragData = makeDragData({
+			const dragData = DragAndDropInternals.makeDragData({
 				type: 'asset',
 				assetPath: relativePath,
 				width: hasDimensions ? width : null,

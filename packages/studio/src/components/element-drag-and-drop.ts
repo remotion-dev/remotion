@@ -1,11 +1,13 @@
 import {
-	getDragPreviewMetadata,
-	parseDragData,
+	DragAndDropInternals,
 	type ElementDragData,
 } from '@remotion/drag-and-drop';
 
 export const hasElementDragType = (dataTransfer: DataTransfer | null) => {
-	return getDragPreviewMetadata(dataTransfer?.types ?? [])?.type === 'element';
+	return (
+		DragAndDropInternals.getDragPreviewMetadata(dataTransfer?.types ?? [])
+			?.type === 'element'
+	);
 };
 
 export const getElementDragData = (
@@ -15,6 +17,6 @@ export const getElementDragData = (
 		return null;
 	}
 
-	const parsed = parseDragData(dataTransfer);
+	const parsed = DragAndDropInternals.parseDragData(dataTransfer);
 	return parsed?.type === 'element' ? parsed.data : null;
 };

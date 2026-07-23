@@ -1,12 +1,15 @@
 import {expect, test} from 'bun:test';
-import {makeDragData, type MakeDragDataInput} from '@remotion/drag-and-drop';
+import {
+	DragAndDropInternals,
+	type MakeDragDataInput,
+} from '@remotion/drag-and-drop';
 import {
 	getEffectDragData,
 	hasEffectDragType,
 } from '../components/effect-drag-and-drop';
 
 const makeDataTransfer = (
-	constructed: ReturnType<typeof makeDragData>,
+	constructed: ReturnType<typeof DragAndDropInternals.makeDragData>,
 ): DataTransfer => {
 	return {
 		types: [constructed.mimeType],
@@ -16,7 +19,7 @@ const makeDataTransfer = (
 };
 
 test('detects and parses effect drags', () => {
-	const effect = makeDragData({
+	const effect = DragAndDropInternals.makeDragData({
 		type: 'effect',
 		name: 'Opacity',
 		importPath: '@remotion/effects',
@@ -65,9 +68,11 @@ const nonEffectInputs: MakeDragDataInput[] = [
 
 for (const input of nonEffectInputs) {
 	test(`does not treat ${input.type} drags as effect drags`, () => {
-		expect(hasEffectDragType(makeDataTransfer(makeDragData(input)))).toBe(
-			false,
-		);
+		expect(
+			hasEffectDragType(
+				makeDataTransfer(DragAndDropInternals.makeDragData(input)),
+			),
+		).toBe(false);
 	});
 }
 

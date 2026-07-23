@@ -267,19 +267,6 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/drag-and-drop',
-			link: {
-				type: 'doc',
-				id: 'drag-and-drop/index',
-			},
-			items: [
-				'drag-and-drop/make-drag-data',
-				'drag-and-drop/parse-drag-data',
-				'drag-and-drop/get-drag-preview-metadata',
-			],
-		},
-		{
-			type: 'category',
 			label: '@remotion/effects',
 			link: {
 				type: 'doc',
