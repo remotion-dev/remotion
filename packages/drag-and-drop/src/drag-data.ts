@@ -46,9 +46,9 @@ import {
 export type MakeAssetDragDataInput = {
 	readonly type: 'asset';
 	readonly assetPath: string;
-	readonly width?: number;
-	readonly height?: number;
-	readonly durationInSeconds?: number;
+	readonly width: number | null;
+	readonly height: number | null;
+	readonly durationInSeconds: number | null;
 };
 
 export type MakeComponentDragDataInput = {
@@ -186,6 +186,33 @@ const makeCompositionPreview = (
 	};
 };
 
+const makeAssetPreview = (
+	input: MakeAssetDragDataInput,
+): AssetDragPreviewMetadata => {
+	if (
+		input.width === undefined ||
+		input.height === undefined ||
+		input.durationInSeconds === undefined
+	) {
+		throw new TypeError(
+			'width, height, and durationInSeconds must be set to a value or null',
+		);
+	}
+
+	if ((input.width === null) !== (input.height === null)) {
+		throw new TypeError(
+			'width and height must either both be numbers or both be null',
+		);
+	}
+
+	return {
+		type: input.type,
+		width: input.width ?? undefined,
+		height: input.height ?? undefined,
+		durationInSeconds: input.durationInSeconds ?? undefined,
+	};
+};
+
 type MakeDragData = {
 	(input: MakeAssetDragDataInput): ConstructedDragData<AssetDragData>;
 	(input: MakeComponentDragDataInput): ConstructedDragData<ComponentDragData>;
@@ -203,12 +230,10 @@ export const makeDragData = ((
 ): ConstructedDragData => {
 	switch (input.type) {
 		case 'asset':
-			return construct(makeAssetDragData(input.assetPath), {
-				type: input.type,
-				width: input.width,
-				height: input.height,
-				durationInSeconds: input.durationInSeconds,
-			});
+			return construct(
+				makeAssetDragData(input.assetPath),
+				makeAssetPreview(input),
+			);
 		case 'component':
 			return construct(
 				makeComponentDragData({

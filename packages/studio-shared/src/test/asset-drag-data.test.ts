@@ -4,9 +4,18 @@ import {makeDragData, parseDragData} from '@remotion/drag-and-drop';
 const assetMimeType = makeDragData({
 	type: 'asset',
 	assetPath: 'asset',
+	width: null,
+	height: null,
+	durationInSeconds: null,
 }).mimeType;
 const makeAssetDragData = (assetPath: string) =>
-	makeDragData({type: 'asset', assetPath}).data;
+	makeDragData({
+		type: 'asset',
+		assetPath,
+		width: null,
+		height: null,
+		durationInSeconds: null,
+	}).data;
 const parseAssetDragData = (payload: string) => {
 	const parsed = parseDragData({mimeType: assetMimeType, payload});
 	return parsed?.type === 'asset' ? parsed.data : null;

@@ -6,6 +6,7 @@ import {
 	type MakeCompositionDragDataInput,
 	type MakeDragDataInput,
 	type MakeElementDragDataInput,
+	type MakeAssetDragDataInput,
 } from '../index';
 
 const inputs: MakeDragDataInput[] = [
@@ -133,6 +134,36 @@ test('accepts explicit null composition metadata', () => {
 			width: 1920,
 			height: null,
 			durationInFrames: null,
+		}),
+	).toThrow('must either both be numbers or both be null');
+});
+
+test('requires asset metadata and accepts explicit null values', () => {
+	const constructed = makeDragData({
+		type: 'asset',
+		assetPath: 'unresolved.png',
+		width: null,
+		height: null,
+		durationInSeconds: null,
+	});
+
+	expect(constructed.mimeType).toBe(
+		'application/vnd.remotion.drag+json;v=1;type=asset',
+	);
+	expect(parseDragData(constructed)?.preview).toEqual({type: 'asset'});
+	expect(() =>
+		makeDragData({
+			type: 'asset',
+			assetPath: 'missing-metadata.png',
+		} as MakeAssetDragDataInput),
+	).toThrow('must be set to a value or null');
+	expect(() =>
+		makeDragData({
+			type: 'asset',
+			assetPath: 'partially-resolved.png',
+			width: 1920,
+			height: null,
+			durationInSeconds: null,
 		}),
 	).toThrow('must either both be numbers or both be null');
 });

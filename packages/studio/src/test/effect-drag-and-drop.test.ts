@@ -29,7 +29,13 @@ test('detects and parses effect drags', () => {
 });
 
 const nonEffectInputs: MakeDragDataInput[] = [
-	{type: 'asset', assetPath: 'image.png'},
+	{
+		type: 'asset',
+		assetPath: 'image.png',
+		width: null,
+		height: null,
+		durationInSeconds: null,
+	},
 	{
 		type: 'component',
 		componentName: 'Circle',

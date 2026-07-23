@@ -378,12 +378,13 @@ const AssetSelectorItem: React.FC<{
 				Number.isFinite(mediaMetadata.duration) &&
 				mediaMetadata.duration > 0
 					? mediaMetadata.duration
-					: undefined;
+					: null;
 
 			const dragData = makeDragData({
 				type: 'asset',
 				assetPath: relativePath,
-				...(hasDimensions ? {width, height} : {}),
+				width: hasDimensions ? width : null,
+				height: hasDimensions ? height : null,
 				durationInSeconds,
 			});
 			e.dataTransfer.setData(dragData.mimeType, dragData.payload);

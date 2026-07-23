@@ -3,7 +3,13 @@ import React from 'react';
 import {AbsoluteFill} from 'remotion';
 
 const payloads = [
-	makeDragData({type: 'asset', assetPath: 'images/logo.png'}),
+	makeDragData({
+		type: 'asset',
+		assetPath: 'images/logo.png',
+		width: null,
+		height: null,
+		durationInSeconds: null,
+	}),
 	makeDragData({
 		type: 'component',
 		componentName: 'Circle',
