@@ -94,14 +94,14 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
 };
 
 export type AnimatedCaptionsProps = InteractiveBaseProps & {
-	readonly src: string;
+	readonly captions: Caption[];
 };
 
 const animatedCaptionsSchema = {
-	src: {
-		type: 'asset',
+	captions: {
+		type: 'captions',
 		default: undefined,
-		description: 'Source',
+		description: 'Captions',
 		keyframable: false,
 	},
 	...Interactive.baseSchema,
@@ -111,51 +111,9 @@ const AnimatedCaptionsInner: React.FC<
 	AnimatedCaptionsProps & {
 		readonly controls: SequenceControls | undefined;
 	}
-> = ({src, controls, name, ...sequenceProps}) => {
-	const [captions, setCaptions] = useState<Caption[] | null>(null);
-	const {delayRender, continueRender, cancelRender} = useDelayRender();
-	const [handle] = useState(() => delayRender('Loading ElevenLabs captions'));
+> = ({captions, controls, name, ...sequenceProps}) => {
 	const {fps} = useVideoConfig();
-	const {isStudio} = useRemotionEnvironment();
-
-	const loadCaptions = useCallback(
-		async (source: string) => {
-			try {
-				const response = await fetch(source);
-				if (!response.ok) {
-					throw new Error(`Could not load captions (${response.status})`);
-				}
-
-				setCaptions((await response.json()) as Caption[]);
-				continueRender(handle);
-			} catch (error) {
-				cancelRender(error);
-			}
-		},
-		[cancelRender, continueRender, handle],
-	);
-
-	useEffect(() => {
-		loadCaptions(src);
-
-		if (!isStudio) {
-			return;
-		}
-
-		const {cancel} = watchStaticFile(src, (newFile) => {
-			if (newFile) {
-				loadCaptions(`${newFile.src}?date=${newFile.lastModified}`);
-			}
-		});
-
-		return cancel;
-	}, [isStudio, loadCaptions, src]);
-
 	const pages = useMemo(() => {
-		if (!captions) {
-			return [];
-		}
-
 		return createTikTokStyleCaptions({
 			captions,
 			combineTokensWithinMilliseconds: SWITCH_CAPTIONS_EVERY_MS,
@@ -207,5 +165,44 @@ export const AnimatedCaptions = Interactive.withSchema({
 });
 
 export const AnimatedCaptionsComposition: React.FC = () => {
-	return <AnimatedCaptions src={staticFile('voiceover-captions.json')} />;
+	const src = staticFile('voiceover-captions.json');
+	const [captions, setCaptions] = useState<Caption[] | null>(null);
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
+	const [handle] = useState(() => delayRender('Loading ElevenLabs captions'));
+	const {isStudio} = useRemotionEnvironment();
+
+	const loadCaptions = useCallback(
+		async (source: string) => {
+			try {
+				const response = await fetch(source);
+				if (!response.ok) {
+					throw new Error(`Could not load captions (${response.status})`);
+				}
+
+				setCaptions((await response.json()) as Caption[]);
+				continueRender(handle);
+			} catch (error) {
+				cancelRender(error);
+			}
+		},
+		[cancelRender, continueRender, handle],
+	);
+
+	useEffect(() => {
+		loadCaptions(src);
+
+		if (!isStudio) {
+			return;
+		}
+
+		const {cancel} = watchStaticFile(src, (newFile) => {
+			if (newFile) {
+				loadCaptions(`${newFile.src}?date=${newFile.lastModified}`);
+			}
+		});
+
+		return cancel;
+	}, [isStudio, loadCaptions, src]);
+
+	return captions ? <AnimatedCaptions captions={captions} /> : null;
 };
