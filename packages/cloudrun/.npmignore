@@ -10,3 +10,4 @@ tsconfig.tsbuildinfo
 .turbo
 build.ts
 dist/api/test
+dist/test
