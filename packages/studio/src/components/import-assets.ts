@@ -2,9 +2,9 @@ import {
 	detectFileType,
 	getRequiredPackageForInsertableElement,
 	isUrl,
-	type CompositionDragData,
 	type ComponentDragData,
 	type ComponentProp,
+	type CompositionDragData,
 	type DownloadRemoteAssetResponse,
 	type ElementDragData,
 	type FileType,
@@ -693,10 +693,12 @@ const insertCompositionElement = async ({
 	compositionFile,
 	compositionId,
 	element,
+	from,
 }: {
 	compositionFile: string;
 	compositionId: string;
 	element: InsertableCompositionElement;
+	from: number | null;
 }) => {
 	const requiredPackage = getRequiredPackageForInsertableElement(element);
 	await installRequiredPackages(requiredPackage ? [requiredPackage] : []);
@@ -705,6 +707,7 @@ const insertCompositionElement = async ({
 		compositionFile,
 		compositionId,
 		element,
+		from,
 	});
 
 	if (!result.success) {
@@ -728,6 +731,7 @@ export const importAssets = async ({
 	dropPosition,
 	files,
 	fps,
+	from,
 	svgImportMode,
 }: {
 	compositionFile: string;
@@ -736,6 +740,7 @@ export const importAssets = async ({
 	dropPosition: InsertElementDropPosition | null;
 	files: File[];
 	fps: number;
+	from: number | null;
 	svgImportMode: 'image' | 'inline';
 }) => {
 	if (files.length === 0) {
@@ -788,6 +793,7 @@ export const importAssets = async ({
 				const svgInserted = await insertCompositionElement({
 					compositionFile,
 					compositionId,
+					from,
 					element: {
 						type: 'svg',
 						markup: new TextDecoder().decode(contents),
@@ -837,6 +843,7 @@ export const importAssets = async ({
 			const inserted = await insertCompositionElement({
 				compositionFile,
 				compositionId,
+				from,
 				element: {
 					...element,
 					dimensions: resolvedDimensions,
@@ -947,6 +954,7 @@ export const insertSvgMarkup = async ({
 		const inserted = await insertCompositionElement({
 			compositionFile,
 			compositionId,
+			from: null,
 			element: {
 				type: 'svg',
 				markup,
@@ -977,6 +985,7 @@ export const importRemoteAsset = async ({
 	destinationDimensions,
 	dropPosition,
 	fps,
+	from,
 	url,
 }: {
 	compositionFile: string;
@@ -984,6 +993,7 @@ export const importRemoteAsset = async ({
 	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
 	fps: number;
+	from: number | null;
 	url: string;
 }) => {
 	try {
@@ -1007,6 +1017,7 @@ export const importRemoteAsset = async ({
 		const inserted = await insertCompositionElement({
 			compositionFile,
 			compositionId,
+			from,
 			element: {
 				...element,
 				dimensions,
@@ -1043,11 +1054,13 @@ export const insertRemoteAudio = async ({
 	compositionFile,
 	compositionId,
 	fps,
+	from,
 	url,
 }: {
 	compositionFile: string;
 	compositionId: string;
 	fps: number;
+	from: number | null;
 	url: string;
 }) => {
 	if (!isUrl(url)) {
@@ -1074,6 +1087,7 @@ export const insertRemoteAudio = async ({
 			compositionFile,
 			compositionId,
 			element,
+			from,
 		});
 
 		if (!inserted) {
@@ -1098,6 +1112,7 @@ export const insertExistingAssets = async ({
 	destinationDimensions,
 	dropPosition,
 	fps,
+	from,
 }: {
 	assetPaths: string[];
 	compositionFile: string;
@@ -1105,6 +1120,7 @@ export const insertExistingAssets = async ({
 	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
 	fps: number;
+	from: number | null;
 }) => {
 	if (assetPaths.length === 0) {
 		return;
@@ -1130,6 +1146,7 @@ export const insertExistingAssets = async ({
 			const inserted = await insertCompositionElement({
 				compositionFile,
 				compositionId,
+				from,
 				element: {
 					...element,
 					dimensions,
@@ -1171,16 +1188,19 @@ export const insertComponent = async ({
 	compositionFile,
 	compositionId,
 	dropPosition,
+	from,
 }: {
 	component: ComponentDragData['component'];
 	compositionFile: string;
 	compositionId: string;
 	dropPosition: InsertElementDropPosition | null;
+	from: number | null;
 }) => {
 	try {
 		const inserted = await insertCompositionElement({
 			compositionFile,
 			compositionId,
+			from,
 			element: {
 				type: 'component',
 				componentName: component.componentName,
@@ -1228,12 +1248,14 @@ export const insertComposition = async ({
 	compositionId,
 	destinationDimensions,
 	dropPosition,
+	from,
 }: {
 	composition: CompositionDragData;
 	compositionFile: string;
 	compositionId: string;
 	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
+	from: number | null;
 }) => {
 	if (composition.compositionId === compositionId) {
 		showNotification('Cannot add a composition to itself', 3000);
@@ -1261,6 +1283,7 @@ export const insertComposition = async ({
 		const inserted = await insertCompositionElement({
 			compositionFile,
 			compositionId,
+			from,
 			element: {
 				type: 'composition',
 				compositionId: composition.compositionId,
@@ -1301,11 +1324,13 @@ export const insertElement = async ({
 	compositionId,
 	dropPosition,
 	element,
+	from,
 }: {
 	compositionFile: string;
 	compositionId: string;
 	dropPosition: InsertElementDropPosition | null;
 	element: ElementDragData['element'];
+	from: number | null;
 }) => {
 	try {
 		await installRequiredPackages(element.dependencies);
@@ -1314,6 +1339,7 @@ export const insertElement = async ({
 			compositionFile,
 			compositionId,
 			element,
+			from,
 			position: getElementPositionForDrop({
 				dimensions: element.dimensions,
 				dropPosition,

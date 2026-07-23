@@ -15,12 +15,17 @@ import type {
 import type {SequenceControls} from './CompositionManager.js';
 import type {EffectsProp} from './effects/effect-types.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import {Freeze} from './freeze.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
-import type {InteractiveBaseProps} from './Interactive.js';
+import type {
+	InteractiveBaseProps,
+	InteractivePremountProps,
+} from './Interactive.js';
 import {
 	backgroundSchema,
 	baseSchema,
 	borderSchema,
+	premountSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
@@ -30,6 +35,7 @@ import {SequenceContext} from './SequenceContext.js';
 import {truncateSrcForLabel} from './truncate-src-for-label.js';
 import {useBufferState} from './use-buffer-state.js';
 import {useDelayRender} from './use-delay-render.js';
+import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
@@ -59,7 +65,8 @@ export type ImgProps = NativeImgProps & {
 	 * @deprecated For internal use only
 	 */
 	readonly stack?: string;
-} & InteractiveBaseProps;
+} & InteractiveBaseProps &
+	InteractivePremountProps;
 
 type Expected = Omit<
 	NativeImgProps,
@@ -77,6 +84,10 @@ type ImgContentProps = Omit<
 	| 'durationInFrames'
 	| 'freeze'
 	| 'effects'
+	| 'premountFor'
+	| 'postmountFor'
+	| 'styleWhilePremounted'
+	| 'styleWhilePostmounted'
 > & {
 	readonly refForOutline: React.RefObject<HTMLElement | null>;
 };
@@ -344,6 +355,11 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 	trimBefore,
 	durationInFrames,
 	freeze,
+	premountFor,
+	postmountFor,
+	style,
+	styleWhilePremounted,
+	styleWhilePostmounted,
 	controls,
 	outlineRef: refForOutline,
 	...props
@@ -352,24 +368,54 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 		throw new Error('No "src" prop was passed to <Img>.');
 	}
 
+	const {
+		effectivePostmountFor,
+		effectivePremountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		postmountingActive,
+		premountingActive,
+		premountingStyle,
+	} = usePremounting({
+		from: from ?? 0,
+		durationInFrames: durationInFrames ?? Infinity,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: style ?? null,
+		styleWhilePremounted: styleWhilePremounted ?? null,
+		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		hideWhilePremounted: 'display-none',
+	});
+
 	return (
-		<Sequence
-			layout="none"
-			from={from ?? 0}
-			trimBefore={trimBefore}
-			durationInFrames={durationInFrames ?? Infinity}
-			freeze={freeze}
-			_remotionInternalStack={stack}
-			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
-			_remotionInternalIsMedia={{type: 'image', src}}
-			name={name ?? '<Img>'}
-			controls={controls}
-			showInTimeline={showInTimeline ?? true}
-			hidden={hidden}
-			outlineRef={refForOutline}
-		>
-			<ImgContent src={src} refForOutline={refForOutline} {...props} />
-		</Sequence>
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				trimBefore={trimBefore}
+				durationInFrames={durationInFrames ?? Infinity}
+				freeze={freeze}
+				_remotionInternalStack={stack}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
+				_remotionInternalIsMedia={{type: 'image', src}}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+				name={name ?? '<Img>'}
+				controls={controls}
+				showInTimeline={showInTimeline ?? true}
+				hidden={hidden}
+				outlineRef={refForOutline}
+			>
+				<ImgContent
+					src={src}
+					refForOutline={refForOutline}
+					style={premountingStyle ?? undefined}
+					{...props}
+				/>
+			</Sequence>
+		</Freeze>
 	);
 };
 
@@ -388,6 +434,7 @@ export const imgSchema = {
 		keyframable: false,
 	},
 	...baseSchema,
+	...premountSchema,
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,
@@ -484,6 +531,10 @@ const ImgInner: React.FC<
 	trimBefore,
 	durationInFrames,
 	freeze,
+	premountFor,
+	postmountFor,
+	styleWhilePremounted,
+	styleWhilePostmounted,
 	controls,
 	width,
 	height,
@@ -512,6 +563,10 @@ const ImgInner: React.FC<
 				trimBefore={trimBefore}
 				durationInFrames={durationInFrames}
 				freeze={freeze}
+				premountFor={premountFor}
+				postmountFor={postmountFor}
+				styleWhilePremounted={styleWhilePremounted}
+				styleWhilePostmounted={styleWhilePostmounted}
 				controls={controls}
 				width={width}
 				height={height}
@@ -561,6 +616,10 @@ const ImgInner: React.FC<
 			trimBefore={trimBefore}
 			durationInFrames={durationInFrames}
 			freeze={freeze}
+			premountFor={premountFor}
+			postmountFor={postmountFor}
+			styleWhilePremounted={styleWhilePremounted}
+			styleWhilePostmounted={styleWhilePostmounted}
 			hidden={hidden}
 			name={name ?? '<Img>'}
 			showInTimeline={showInTimeline}

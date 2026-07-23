@@ -72,6 +72,7 @@ export const useCompositionActions = () => {
 			const result = await callApi('/api/insert-jsx-element', {
 				compositionFile,
 				compositionId: currentCompositionId,
+				from: null,
 				element: {
 					type: 'solid',
 					width: videoConfig.width,
@@ -117,6 +118,7 @@ export const useCompositionActions = () => {
 				compositionId: currentCompositionId,
 				destinationDimensions: null,
 				dropPosition: null,
+				from: null,
 				svgImportMode: 'image',
 			});
 		} finally {
