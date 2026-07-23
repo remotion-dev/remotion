@@ -48,6 +48,7 @@ import {
 	getSelectedOutlineScaleDragStates,
 	getSelectedOutlineScaleDragValues,
 	getSelectedOutlineScaleEdgeInfo,
+	getSelectedOutlineTransformOriginDragChanges,
 	getSelectedOutlineTransformOriginLockedAxis,
 	isSelectedOutlineDragPastThreshold,
 	parseCssRotationToRadians,
@@ -90,10 +91,7 @@ import {
 	getUvCoordinateForPoint,
 	getUvHandlePosition,
 } from './selected-outline-uv';
-import {
-	callAddKeyframes,
-	type AddSequenceKeyframeChange,
-} from './Timeline/call-add-keyframe';
+import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {disableSequenceInteractivity} from './Timeline/disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './Timeline/duplicate-selected-timeline-item';
 import {commitPendingInspectorFields} from './Timeline/focus-inspector-field';
@@ -189,14 +187,6 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 			);
 			const startTranslate = parseTranslate(transformOriginDrag.translateValue);
 			const svgRect = svg.getBoundingClientRect();
-			const defaultOrigin =
-				transformOriginDrag.originDefault !== undefined
-					? JSON.stringify(transformOriginDrag.originDefault)
-					: null;
-			const defaultTranslate =
-				transformOriginDrag.translateDefault !== undefined
-					? JSON.stringify(transformOriginDrag.translateDefault)
-					: null;
 
 			let last: {
 				readonly uv: readonly [number, number];
@@ -276,11 +266,37 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 					transformOriginDrag.nodePath,
 					translateFieldKey,
 					transformOriginDrag.translatePropStatus.status === 'keyframed'
-						? Internals.makeKeyframedDragOverride({
-								status: transformOriginDrag.translatePropStatus,
-								frame: transformOriginDrag.sourceFrame,
-								value: translate,
-							})
+						? transformOriginDrag.originPropStatus.status === 'keyframed'
+							? Internals.makeKeyframedDragOverride({
+									status: transformOriginDrag.translatePropStatus,
+									frame: transformOriginDrag.sourceFrame,
+									value: translate,
+								})
+							: {
+									type: 'keyframed',
+									status: {
+										...transformOriginDrag.translatePropStatus,
+										keyframes:
+											transformOriginDrag.translatePropStatus.keyframes.map(
+												(keyframe) => {
+													const keyframeTranslate = parseTranslate(
+														String(keyframe.value),
+													);
+													return {
+														...keyframe,
+														value: serializeTranslate(
+															keyframeTranslate[0] +
+																nextTranslateX -
+																startTranslate[0],
+															keyframeTranslate[1] +
+																nextTranslateY -
+																startTranslate[1],
+														),
+													};
+												},
+											),
+									},
+								}
 						: Internals.makeStaticDragOverride(translate),
 				);
 			};
@@ -323,76 +339,35 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 					return;
 				}
 
-				const originChanged = last.origin !== transformOriginDrag.originValue;
-				const translateChanged =
-					last.translate !== transformOriginDrag.translateValue;
-				if (!originChanged && !translateChanged) {
+				const {staticChanges, keyframedChanges} =
+					getSelectedOutlineTransformOriginDragChanges({
+						target: transformOriginDrag,
+						startTranslate,
+						origin: last.origin,
+						translate: last.translate,
+					});
+				if (staticChanges.length === 0 && keyframedChanges.length === 0) {
 					clearDragOverrides(transformOriginDrag.nodePath);
 					return;
 				}
 
-				const shouldSaveAsKeyframes =
-					transformOriginDrag.originPropStatus.status === 'keyframed' ||
-					transformOriginDrag.translatePropStatus.status === 'keyframed';
-
-				const promise = shouldSaveAsKeyframes
-					? callAddKeyframes({
-							sequenceKeyframes: [
-								originChanged
-									? {
-											fileName: transformOriginDrag.nodePath.absolutePath,
-											nodePath: transformOriginDrag.nodePath,
-											fieldKey: transformOriginFieldKey,
-											sourceFrame: transformOriginDrag.sourceFrame,
-											value: last.origin,
-											schema: transformOriginDrag.schema,
-										}
-									: null,
-								translateChanged
-									? {
-											fileName: transformOriginDrag.nodePath.absolutePath,
-											nodePath: transformOriginDrag.nodePath,
-											fieldKey: translateFieldKey,
-											sourceFrame: transformOriginDrag.sourceFrame,
-											value: last.translate,
-											schema: transformOriginDrag.schema,
-										}
-									: null,
-							].filter(
-								NoReactInternals.truthy,
-							) satisfies AddSequenceKeyframeChange[],
-							effectKeyframes: [],
-							setPropStatuses,
-							clientId: transformOriginDrag.clientId,
-						})
-					: saveSequenceProps({
-							changes: [
-								originChanged
-									? {
-											fileName: transformOriginDrag.nodePath.absolutePath,
-											nodePath: transformOriginDrag.nodePath,
-											fieldKey: transformOriginFieldKey,
-											value: last.origin,
-											defaultValue: defaultOrigin,
-											schema: transformOriginDrag.schema,
-										}
-									: null,
-								translateChanged
-									? {
-											fileName: transformOriginDrag.nodePath.absolutePath,
-											nodePath: transformOriginDrag.nodePath,
-											fieldKey: translateFieldKey,
-											value: last.translate,
-											defaultValue: defaultTranslate,
-											schema: transformOriginDrag.schema,
-										}
-									: null,
-							].filter(NoReactInternals.truthy),
-							setPropStatuses,
-							clientId: transformOriginDrag.clientId,
-							undoLabel: 'Move transform origin',
-							redoLabel: 'Move transform origin back',
-						});
+				const promise =
+					staticChanges.length === 0
+						? callAddKeyframes({
+								sequenceKeyframes: keyframedChanges,
+								effectKeyframes: [],
+								setPropStatuses,
+								clientId: transformOriginDrag.clientId,
+							})
+						: saveSequenceProps({
+								changes: staticChanges,
+								addedKeyframes: keyframedChanges,
+								movedKeyframes: null,
+								setPropStatuses,
+								clientId: transformOriginDrag.clientId,
+								undoLabel: 'Move transform origin',
+								redoLabel: 'Move transform origin back',
+							});
 
 				promise
 					.catch((err) => {
@@ -720,6 +695,8 @@ const SelectedOutlinePolygon: React.FC<{
 					staticChanges.length > 0
 						? saveSequenceProps({
 								changes: staticChanges,
+								addedKeyframes: null,
+								movedKeyframes: null,
 								setPropStatuses,
 								clientId: drag.clientId,
 								undoLabel:
@@ -1058,6 +1035,8 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 					staticChanges.length > 0
 						? saveSequenceProps({
 								changes: staticChanges,
+								addedKeyframes: null,
+								movedKeyframes: null,
 								setPropStatuses,
 								clientId: scaleDrag.clientId,
 								undoLabel:
@@ -1385,6 +1364,8 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 					staticChanges.length > 0
 						? saveSequenceProps({
 								changes: staticChanges,
+								addedKeyframes: null,
+								movedKeyframes: null,
 								setPropStatuses,
 								clientId: rotationDrag.clientId,
 								undoLabel:

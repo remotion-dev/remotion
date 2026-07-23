@@ -24,14 +24,17 @@ import type {
 	SelectedOutlineScaleDragState,
 	SelectedOutlineScaleDragTarget,
 	SelectedOutlineDragTarget,
+	SelectedOutlineTransformOriginDragTarget,
 } from './selected-outline-types';
 import {
 	rotateFieldKey,
 	scaleFieldKey,
 	selectedOutlineDragThresholdPx,
+	transformOriginFieldKey,
 	translateFieldKey,
 } from './selected-outline-types';
 import {getUvHandlePosition, type UvCoordinate} from './selected-outline-uv';
+import type {AddSequenceKeyframeChange} from './Timeline/call-add-keyframe';
 import type {SaveSequencePropChange} from './Timeline/save-sequence-prop';
 import {
 	getTimelineDisplayDecimalPlaces,
@@ -748,6 +751,102 @@ export const compensateTranslateForTransformOrigin = ({
 	const compensationY = deltaOrigin[1] - transformedDeltaY;
 
 	return [startTranslate[0] - compensationX, startTranslate[1] - compensationY];
+};
+
+export const getSelectedOutlineTransformOriginDragChanges = ({
+	target,
+	startTranslate,
+	origin,
+	translate,
+}: {
+	readonly target: SelectedOutlineTransformOriginDragTarget;
+	readonly startTranslate: readonly [number, number];
+	readonly origin: string;
+	readonly translate: string;
+}): {
+	readonly staticChanges: SaveSequencePropChange[];
+	readonly keyframedChanges: AddSequenceKeyframeChange[];
+} => {
+	const staticChanges: SaveSequencePropChange[] = [];
+	const keyframedChanges: AddSequenceKeyframeChange[] = [];
+	const originChanged = origin !== target.originValue;
+	const translateChanged = translate !== target.translateValue;
+
+	if (originChanged) {
+		if (target.originPropStatus.status === 'keyframed') {
+			keyframedChanges.push({
+				fileName: target.nodePath.absolutePath,
+				nodePath: target.nodePath,
+				fieldKey: transformOriginFieldKey,
+				sourceFrame: target.sourceFrame,
+				value: origin,
+				schema: target.schema,
+			});
+		} else {
+			staticChanges.push({
+				fileName: target.nodePath.absolutePath,
+				nodePath: target.nodePath,
+				fieldKey: transformOriginFieldKey,
+				value: origin,
+				defaultValue:
+					target.originDefault === undefined
+						? null
+						: JSON.stringify(target.originDefault),
+				schema: target.schema,
+			});
+		}
+	}
+
+	if (!translateChanged) {
+		return {staticChanges, keyframedChanges};
+	}
+
+	if (target.translatePropStatus.status === 'static') {
+		staticChanges.push({
+			fileName: target.nodePath.absolutePath,
+			nodePath: target.nodePath,
+			fieldKey: translateFieldKey,
+			value: translate,
+			defaultValue:
+				target.translateDefault === undefined
+					? null
+					: JSON.stringify(target.translateDefault),
+			schema: target.schema,
+		});
+		return {staticChanges, keyframedChanges};
+	}
+
+	if (target.originPropStatus.status === 'keyframed') {
+		keyframedChanges.push({
+			fileName: target.nodePath.absolutePath,
+			nodePath: target.nodePath,
+			fieldKey: translateFieldKey,
+			sourceFrame: target.sourceFrame,
+			value: translate,
+			schema: target.schema,
+		});
+		return {staticChanges, keyframedChanges};
+	}
+
+	const nextTranslate = parseTranslate(translate);
+	const deltaTranslateX = nextTranslate[0] - startTranslate[0];
+	const deltaTranslateY = nextTranslate[1] - startTranslate[1];
+	for (const keyframe of target.translatePropStatus.keyframes) {
+		const keyframeTranslate = parseTranslate(String(keyframe.value));
+		keyframedChanges.push({
+			fileName: target.nodePath.absolutePath,
+			nodePath: target.nodePath,
+			fieldKey: translateFieldKey,
+			sourceFrame: keyframe.frame,
+			value: serializeTranslate(
+				keyframeTranslate[0] + deltaTranslateX,
+				keyframeTranslate[1] + deltaTranslateY,
+			),
+			schema: target.schema,
+		});
+	}
+
+	return {staticChanges, keyframedChanges};
 };
 
 export const uvsEqual = (

@@ -87,6 +87,7 @@ export {
 	getSelectedOutlineScaleDragStates,
 	getSelectedOutlineScaleDragValues,
 	getSelectedOutlineScaleEdgeInfo,
+	getSelectedOutlineTransformOriginDragChanges,
 	getSelectedOutlineTransformOriginLockedAxis,
 	isSelectedOutlineDragPastThreshold,
 	selectedOutlineTransformOriginSnapThresholdPx,
@@ -983,6 +984,8 @@ export const SelectedOutlineOverlay: React.FC<{
 			staticChanges.length > 0
 				? saveSequenceProps({
 						changes: staticChanges,
+						addedKeyframes: null,
+						movedKeyframes: null,
 						setPropStatuses,
 						clientId: session.clientId,
 						undoLabel:

@@ -13,7 +13,10 @@ import {NoReactInternals} from 'remotion/no-react';
 import {getInspectorSelectableItems} from '../components/InspectorSequenceSection';
 import type {SelectedOutline} from '../components/selected-outline-geometry';
 import {getSelectedTransformOriginInfo} from '../components/selected-outline-measurement';
-import type {SelectedOutlineTarget} from '../components/selected-outline-types';
+import type {
+	SelectedOutlineTarget,
+	SelectedOutlineTransformOriginDragTarget,
+} from '../components/selected-outline-types';
 import {
 	constrainUv,
 	getSelectedUvHandles,
@@ -44,6 +47,7 @@ import {
 	getSelectedOutlineScaleDragChanges,
 	getSelectedOutlineScaleDragValues,
 	getSelectedOutlineScaleEdgeInfo,
+	getSelectedOutlineTransformOriginDragChanges,
 	getSelectedOutlineTransformOriginLockedAxis,
 	getSelectedSequenceKeys,
 	getSequencesWithSelectableOutlines,
@@ -3394,6 +3398,143 @@ test('Transform origin compensation keeps rotated and scaled elements in place',
 
 	expect(next[0]).toBeCloseTo(-5, 5);
 	expect(next[1]).toBeCloseTo(45, 5);
+});
+
+const makeTransformOriginDragTarget = ({
+	originKeyframed,
+	translateKeyframed,
+}: {
+	readonly originKeyframed: boolean;
+	readonly translateKeyframed: boolean;
+}): SelectedOutlineTransformOriginDragTarget => ({
+	clientId: 'client-id',
+	keyframeDisplayOffset: 0,
+	nodePath: makeKey(['program', 'body', 0]),
+	originDefault: '50% 50%',
+	originPropStatus: originKeyframed
+		? {
+				status: 'keyframed',
+				interpolationFunction: 'interpolate',
+				keyframes: [
+					{frame: 0, value: '50% 50%'},
+					{frame: 20, value: '50% 50%'},
+				],
+				easing: [{type: 'linear'}],
+				clamping: {left: 'extend', right: 'extend'},
+				posterize: undefined,
+				output: undefined,
+			}
+		: {status: 'static', codeValue: '50% 50%'},
+	originValue: '50% 50%',
+	rotateValue: '0deg',
+	scaleValue: 1,
+	schema: NoReactInternals.sequenceSchema,
+	sourceFrame: 10,
+	translateDefault: '0px 0px',
+	translatePropStatus: translateKeyframed
+		? {
+				status: 'keyframed',
+				interpolationFunction: 'interpolate',
+				keyframes: [
+					{frame: 0, value: '0px 0px'},
+					{frame: 20, value: '20px 40px'},
+				],
+				easing: [{type: 'linear'}],
+				clamping: {left: 'extend', right: 'extend'},
+				posterize: undefined,
+				output: undefined,
+			}
+		: {status: 'static', codeValue: '10px 20px'},
+	translateValue: '10px 20px',
+});
+
+test('Transform origin drag keeps static properties static', () => {
+	const changes = getSelectedOutlineTransformOriginDragChanges({
+		target: makeTransformOriginDragTarget({
+			originKeyframed: false,
+			translateKeyframed: false,
+		}),
+		startTranslate: [10, 20],
+		origin: '25% 75%',
+		translate: '13px 24px',
+	});
+
+	expect(changes.staticChanges.map((change) => change.fieldKey)).toEqual([
+		'style.transformOrigin',
+		'style.translate',
+	]);
+	expect(changes.keyframedChanges).toEqual([]);
+});
+
+test('Transform origin drag offsets all animated translate keyframes', () => {
+	const changes = getSelectedOutlineTransformOriginDragChanges({
+		target: makeTransformOriginDragTarget({
+			originKeyframed: false,
+			translateKeyframed: true,
+		}),
+		startTranslate: [10, 20],
+		origin: '25% 75%',
+		translate: '13px 24px',
+	});
+
+	expect(changes.staticChanges.map((change) => change.fieldKey)).toEqual([
+		'style.transformOrigin',
+	]);
+	expect(
+		changes.keyframedChanges.map(({fieldKey, sourceFrame, value}) => ({
+			fieldKey,
+			sourceFrame,
+			value,
+		})),
+	).toEqual([
+		{fieldKey: 'style.translate', sourceFrame: 0, value: '3px 4px'},
+		{fieldKey: 'style.translate', sourceFrame: 20, value: '23px 44px'},
+	]);
+});
+
+test('Transform origin drag does not keyframe a static translate', () => {
+	const changes = getSelectedOutlineTransformOriginDragChanges({
+		target: makeTransformOriginDragTarget({
+			originKeyframed: true,
+			translateKeyframed: false,
+		}),
+		startTranslate: [10, 20],
+		origin: '25% 75%',
+		translate: '13px 24px',
+	});
+
+	expect(changes.staticChanges.map((change) => change.fieldKey)).toEqual([
+		'style.translate',
+	]);
+	expect(
+		changes.keyframedChanges.map(({fieldKey, sourceFrame}) => ({
+			fieldKey,
+			sourceFrame,
+		})),
+	).toEqual([{fieldKey: 'style.transformOrigin', sourceFrame: 10}]);
+});
+
+test('Transform origin drag updates both animated properties locally', () => {
+	const changes = getSelectedOutlineTransformOriginDragChanges({
+		target: makeTransformOriginDragTarget({
+			originKeyframed: true,
+			translateKeyframed: true,
+		}),
+		startTranslate: [10, 20],
+		origin: '25% 75%',
+		translate: '13px 24px',
+	});
+
+	expect(changes.staticChanges).toEqual([]);
+	expect(
+		changes.keyframedChanges.map(({fieldKey, sourceFrame}) => ({
+			fieldKey,
+			sourceFrame,
+		})),
+	).toEqual([
+		{fieldKey: 'style.transformOrigin', sourceFrame: 10},
+		{fieldKey: 'style.translate', sourceFrame: 10},
+	]);
 });
 
 test('Transform origin drag snaps to center, edge midpoints and corners', () => {
