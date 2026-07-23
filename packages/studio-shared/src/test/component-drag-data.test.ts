@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import {
 	makeComponentDragData,
 	parseComponentDragData,
-} from '../component-drag-data';
+} from '@remotion/drag-and-drop';
 
 test('parses component drag data', () => {
 	expect(

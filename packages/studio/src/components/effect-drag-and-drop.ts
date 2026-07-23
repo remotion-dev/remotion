@@ -4,13 +4,13 @@ import {
 	COMPONENT_DRAG_MIME_TYPE,
 	EFFECT_DRAG_MIME_TYPE,
 	ELEMENT_DRAG_MIME_TYPE,
-	getRequiredPackageForEffectImportPath,
 	isRemotionDragMimeType,
 	parseEffectDragData,
 	SFX_DRAG_MIME_TYPE,
 	type EffectDragData,
 	type RemotionDragMimeType,
-} from '@remotion/studio-shared';
+} from '@remotion/drag-and-drop';
+import {getRequiredPackageForEffectImportPath} from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey} from 'remotion';
 import {installRequiredPackages} from '../helpers/install-required-package';
 import {callApi} from './call-api';

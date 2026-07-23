@@ -1,0 +1,17 @@
+---
+image: /generated/articles-docs-drag-and-drop-make-asset-drag-data.png
+title: 'makeAssetDragData()'
+crumb: '@remotion/drag-and-drop'
+---
+
+# makeAssetDragData()<AvailableFrom v="4.0.498" />
+
+Constructs a versioned payload for an asset that already exists in the Remotion public directory.
+
+```ts twoslash title="drag.ts"
+import {makeAssetDragData} from '@remotion/drag-and-drop';
+
+const payload = makeAssetDragData('images/logo.png');
+```
+
+Pass the public-directory-relative asset path. The return value is an `AssetDragData` object.

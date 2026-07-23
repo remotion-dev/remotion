@@ -10,7 +10,7 @@ import {
 	SFX_DRAG_MIME_TYPE,
 	type ComponentDragData,
 	type CompositionDragData,
-} from '@remotion/studio-shared';
+} from '@remotion/drag-and-drop';
 import {hasRemoteAssetDragData} from '../helpers/remote-asset-drag';
 
 export const isFileDragEvent = (event: DragEvent): boolean => {

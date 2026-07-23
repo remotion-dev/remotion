@@ -1,0 +1,18 @@
+---
+image: /generated/articles-docs-drag-and-drop-parse-asset-drag-data.png
+title: 'parseAssetDragData()'
+crumb: '@remotion/drag-and-drop'
+---
+
+# parseAssetDragData()<AvailableFrom v="4.0.498" />
+
+Parses and validates a serialized asset payload.
+
+```ts twoslash title="drop.ts"
+import {ASSET_DRAG_MIME_TYPE, parseAssetDragData} from '@remotion/drag-and-drop';
+
+declare const dataTransfer: DataTransfer;
+const payload = parseAssetDragData(dataTransfer.getData(ASSET_DRAG_MIME_TYPE));
+```
+
+Returns `AssetDragData` when valid and `null` otherwise.

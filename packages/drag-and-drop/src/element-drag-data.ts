@@ -2,9 +2,7 @@ import {
 	isComponentIdentifier,
 	type ComponentDimensions,
 } from './component-drag-data';
-import {isValidPackageName} from './package-name';
-
-export {ELEMENT_DRAG_MIME_TYPE} from './drag-mime-types';
+import {isRecord, isValidPackageName} from './validation';
 
 export type ElementDragData = {
 	type: 'remotion-element';
@@ -16,10 +14,6 @@ export type ElementDragData = {
 		sourceCode: string;
 		dimensions: ComponentDimensions | null;
 	};
-};
-
-const isRecord = (value: unknown): value is Record<string, unknown> => {
-	return typeof value === 'object' && value !== null && !Array.isArray(value);
 };
 
 export const isLowercaseElementFileName = (value: unknown): value is string => {
@@ -62,59 +56,21 @@ export const makeElementFileNameFromSlug = (slug: string) => {
 	return isLowercaseElementFileName(fileName) ? fileName : null;
 };
 
-const isDisplayName = (value: unknown): value is string => {
-	return typeof value === 'string' && value.length > 0 && value.length < 120;
-};
-
-const isSourceCode = (value: unknown): value is string => {
-	return (
-		typeof value === 'string' &&
-		value.trim().length > 0 &&
-		value.length < 200000
-	);
-};
-
-const isDependencies = (value: unknown): value is string[] => {
-	return (
-		Array.isArray(value) &&
-		value.length <= 100 &&
-		value.every(
-			(dependency) =>
-				typeof dependency === 'string' && isValidPackageName(dependency),
-		)
-	);
-};
-
-const isDimensions = (value: unknown): value is ComponentDimensions => {
-	if (!isRecord(value)) {
-		return false;
-	}
-
-	return (
-		typeof value.width === 'number' &&
-		Number.isFinite(value.width) &&
-		value.width > 0 &&
-		typeof value.height === 'number' &&
-		Number.isFinite(value.height) &&
-		value.height > 0
-	);
-};
-
 export const getElementComponentNameFromSourceCode = (sourceCode: string) => {
 	const componentNames = Array.from(
 		sourceCode.matchAll(
 			/export\s+(?:const|function)\s+([A-Z_$][A-Za-z0-9_$]*)\b/g,
 		),
 	).map((match) => match[1]);
-
 	const uniqueComponentNames = Array.from(new Set(componentNames));
 
 	if (uniqueComponentNames.length !== 1) {
 		return null;
 	}
 
-	const [componentName] = uniqueComponentNames;
-	return isComponentIdentifier(componentName) ? componentName : null;
+	return isComponentIdentifier(uniqueComponentNames[0])
+		? uniqueComponentNames[0]
+		: null;
 };
 
 export const makeElementDragData = ({
@@ -137,31 +93,49 @@ export const makeElementDragData = ({
 	};
 };
 
+const isDimensions = (value: unknown): value is ComponentDimensions => {
+	return (
+		isRecord(value) &&
+		typeof value.width === 'number' &&
+		Number.isFinite(value.width) &&
+		value.width > 0 &&
+		typeof value.height === 'number' &&
+		Number.isFinite(value.height) &&
+		value.height > 0
+	);
+};
+
 export const parseElementDragData = (value: string): ElementDragData | null => {
 	try {
 		const parsed: unknown = JSON.parse(value);
-		if (!isRecord(parsed)) {
-			return null;
-		}
-
-		if (parsed.type !== 'remotion-element' || parsed.version !== 1) {
-			return null;
-		}
-
-		if (!isRecord(parsed.element)) {
+		if (
+			!isRecord(parsed) ||
+			parsed.type !== 'remotion-element' ||
+			parsed.version !== 1 ||
+			!isRecord(parsed.element)
+		) {
 			return null;
 		}
 
 		const {dependencies, dimensions, displayName, slug, sourceCode} =
 			parsed.element;
-
 		if (
 			!isSlug(slug) ||
-			!isDisplayName(displayName) ||
-			!isSourceCode(sourceCode) ||
+			typeof displayName !== 'string' ||
+			displayName.length === 0 ||
+			displayName.length >= 120 ||
+			typeof sourceCode !== 'string' ||
+			sourceCode.trim().length === 0 ||
+			sourceCode.length >= 200000 ||
 			getElementComponentNameFromSourceCode(sourceCode) === null ||
 			makeElementFileNameFromSlug(slug) === null ||
-			(dependencies !== undefined && !isDependencies(dependencies)) ||
+			(dependencies !== undefined &&
+				(!Array.isArray(dependencies) ||
+					dependencies.length > 100 ||
+					!dependencies.every(
+						(dependency) =>
+							typeof dependency === 'string' && isValidPackageName(dependency),
+					))) ||
 			(dimensions !== undefined &&
 				dimensions !== null &&
 				!isDimensions(dimensions))

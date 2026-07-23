@@ -1,0 +1,20 @@
+---
+image: /generated/articles-docs-drag-and-drop-make-composition-drag-data.png
+title: 'makeCompositionDragData()'
+crumb: '@remotion/drag-and-drop'
+---
+
+# makeCompositionDragData()<AvailableFrom v="4.0.498" />
+
+Constructs a versioned payload for a registered Remotion composition.
+
+```ts twoslash title="drag.ts"
+import {makeCompositionDragData} from '@remotion/drag-and-drop';
+
+const payload = makeCompositionDragData({
+  compositionId: 'MyVideo',
+  compositionFile: 'src/Root.tsx',
+});
+```
+
+`compositionFile` may be `null` when its source file is unknown.

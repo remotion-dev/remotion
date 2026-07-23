@@ -1,4 +1,4 @@
-import type {ComponentDragData} from '@remotion/studio-shared';
+import type {ComponentDragData} from '@remotion/drag-and-drop';
 import React from 'react';
 import {getShapeDragInfo} from './shape-drag-info';
 

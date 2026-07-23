@@ -1,21 +1,4 @@
-import {SFX_DRAG_MIME_TYPE, type SfxDragData} from '@remotion/studio-shared';
-
-export const makeSfxDragData = ({
-	name,
-	url,
-}: {
-	readonly name: string;
-	readonly url: string;
-}): SfxDragData => {
-	return {
-		type: 'remotion-sfx',
-		version: 1,
-		sfx: {
-			name,
-			url,
-		},
-	};
-};
+import {SFX_DRAG_MIME_TYPE, type SfxDragData} from '@remotion/drag-and-drop';
 
 export const getSfxNameFromUrl = (src: string): string => {
 	try {

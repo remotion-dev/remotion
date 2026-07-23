@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {parseSfxDragData, type SfxDragData} from '../sfx-drag-data';
+import {parseSfxDragData, type SfxDragData} from '@remotion/drag-and-drop';
 import {isUrl} from '../url';
 
 const validSfxDragData: SfxDragData = {

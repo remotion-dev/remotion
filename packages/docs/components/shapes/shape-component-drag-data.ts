@@ -3,7 +3,7 @@ import {
 	makeComponentDragData,
 	type ComponentDragData,
 	type ComponentProp,
-} from '@remotion/studio-shared';
+} from '@remotion/drag-and-drop';
 import {getShapeDragInfo} from './shape-drag-info';
 import type {ShapeName} from './shapes-info';
 

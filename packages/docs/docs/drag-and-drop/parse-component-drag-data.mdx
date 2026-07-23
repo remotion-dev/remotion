@@ -1,0 +1,20 @@
+---
+image: /generated/articles-docs-drag-and-drop-parse-component-drag-data.png
+title: 'parseComponentDragData()'
+crumb: '@remotion/drag-and-drop'
+---
+
+# parseComponentDragData()<AvailableFrom v="4.0.498" />
+
+Parses and validates a serialized component payload.
+
+```ts twoslash title="drop.ts"
+import {COMPONENT_DRAG_MIME_TYPE, parseComponentDragData} from '@remotion/drag-and-drop';
+
+declare const dataTransfer: DataTransfer;
+const payload = parseComponentDragData(
+  dataTransfer.getData(COMPONENT_DRAG_MIME_TYPE),
+);
+```
+
+Returns `ComponentDragData` when valid and `null` otherwise.

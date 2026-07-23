@@ -1,0 +1,18 @@
+---
+image: /generated/articles-docs-drag-and-drop-make-sfx-drag-data.png
+title: 'makeSfxDragData()'
+crumb: '@remotion/drag-and-drop'
+---
+
+# makeSfxDragData()<AvailableFrom v="4.0.498" />
+
+Constructs a versioned payload for a sound effect URL.
+
+```ts twoslash title="drag.ts"
+import {makeSfxDragData} from '@remotion/drag-and-drop';
+
+const payload = makeSfxDragData({
+  name: 'Whip',
+  url: 'https://remotion.media/whip.wav',
+});
+```

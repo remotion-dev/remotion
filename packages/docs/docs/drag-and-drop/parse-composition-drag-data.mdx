@@ -1,0 +1,20 @@
+---
+image: /generated/articles-docs-drag-and-drop-parse-composition-drag-data.png
+title: 'parseCompositionDragData()'
+crumb: '@remotion/drag-and-drop'
+---
+
+# parseCompositionDragData()<AvailableFrom v="4.0.498" />
+
+Parses and validates a serialized composition payload.
+
+```ts twoslash title="drop.ts"
+import {COMPOSITION_DRAG_MIME_TYPE, parseCompositionDragData} from '@remotion/drag-and-drop';
+
+declare const dataTransfer: DataTransfer;
+const payload = parseCompositionDragData(
+  dataTransfer.getData(COMPOSITION_DRAG_MIME_TYPE),
+);
+```
+
+Returns `CompositionDragData` when valid and `null` otherwise.

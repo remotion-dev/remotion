@@ -1,8 +1,8 @@
 import {Button} from '@remotion/design';
+import {makeSfxDragData} from '@remotion/drag-and-drop';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
 	getSfxNameFromUrl,
-	makeSfxDragData,
 	setSfxDragData,
 } from '../../components/sfx-demos/sfx-drag-data';
 import {sfxWaveforms} from '../../components/sfx-demos/sfx-waveforms';

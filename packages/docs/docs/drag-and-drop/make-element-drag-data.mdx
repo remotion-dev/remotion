@@ -1,0 +1,21 @@
+---
+image: /generated/articles-docs-drag-and-drop-make-element-drag-data.png
+title: 'makeElementDragData()'
+crumb: '@remotion/drag-and-drop'
+---
+
+# makeElementDragData()<AvailableFrom v="4.0.498" />
+
+Constructs a versioned payload containing an installable Remotion Element.
+
+```ts twoslash title="drag.ts"
+import {makeElementDragData} from '@remotion/drag-and-drop';
+
+const payload = makeElementDragData({
+  slug: 'titles/lower-third',
+  displayName: 'Lower Third',
+  sourceCode: 'export const LowerThird = () => null;',
+  dependencies: [],
+  dimensions: {width: 900, height: 260},
+});
+```

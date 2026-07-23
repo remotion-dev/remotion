@@ -19,6 +19,9 @@
 			"path": "../media-utils"
 		},
 		{
+			"path": "../drag-and-drop"
+		},
+		{
 			"path": "../studio-shared"
 		},
 		{

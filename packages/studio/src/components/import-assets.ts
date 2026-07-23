@@ -1,12 +1,14 @@
 import {
+	type ComponentDragData,
+	type CompositionDragData,
+	type ComponentProp,
+	type ElementDragData,
+} from '@remotion/drag-and-drop';
+import {
 	detectFileType,
 	getRequiredPackageForInsertableElement,
 	isUrl,
-	type ComponentDragData,
-	type ComponentProp,
-	type CompositionDragData,
 	type DownloadRemoteAssetResponse,
-	type ElementDragData,
 	type FileType,
 	type InsertableCompositionElement,
 	type InsertableCompositionElementPosition,

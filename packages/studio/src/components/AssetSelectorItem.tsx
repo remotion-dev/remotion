@@ -1,4 +1,4 @@
-import {ASSET_DRAG_MIME_TYPE, makeAssetDragData} from '@remotion/studio-shared';
+import {ASSET_DRAG_MIME_TYPE, makeAssetDragData} from '@remotion/drag-and-drop';
 import React, {
 	useCallback,
 	useContext,

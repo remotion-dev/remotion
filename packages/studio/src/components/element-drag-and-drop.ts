@@ -2,7 +2,7 @@ import {
 	ELEMENT_DRAG_MIME_TYPE,
 	parseElementDragData,
 	type ElementDragData,
-} from '@remotion/studio-shared';
+} from '@remotion/drag-and-drop';
 
 export const hasElementDragType = (dataTransfer: DataTransfer | null) => {
 	return Array.from(dataTransfer?.types ?? []).includes(ELEMENT_DRAG_MIME_TYPE);

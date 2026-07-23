@@ -1,7 +1,7 @@
 import {
 	makeElementDragData,
 	type ComponentDimensions,
-} from '@remotion/studio-shared';
+} from '@remotion/drag-and-drop';
 import React, {
 	useCallback,
 	useId,

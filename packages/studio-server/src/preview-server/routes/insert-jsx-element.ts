@@ -1,9 +1,11 @@
 import path from 'node:path';
-import {RenderInternals} from '@remotion/renderer';
 import {
 	areComponentProps,
 	isComponentIdentifier,
 	isComponentImportPath,
+} from '@remotion/drag-and-drop';
+import {RenderInternals} from '@remotion/renderer';
+import {
 	isUrl,
 	type InsertJsxElementRequest,
 	type InsertJsxElementResponse,

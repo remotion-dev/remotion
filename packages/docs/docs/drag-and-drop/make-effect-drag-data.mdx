@@ -1,0 +1,19 @@
+---
+image: /generated/articles-docs-drag-and-drop-make-effect-drag-data.png
+title: 'makeEffectDragData()'
+crumb: '@remotion/drag-and-drop'
+---
+
+# makeEffectDragData()<AvailableFrom v="4.0.498" />
+
+Constructs a versioned payload for a Remotion effect.
+
+```ts twoslash title="drag.ts"
+import {makeEffectDragData} from '@remotion/drag-and-drop';
+
+const payload = makeEffectDragData({
+  name: 'brightness',
+  importPath: '@remotion/effects/brightness',
+  config: {brightness: 1.2},
+});
+```

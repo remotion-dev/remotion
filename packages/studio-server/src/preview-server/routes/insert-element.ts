@@ -1,9 +1,11 @@
 import {existsSync, readFileSync} from 'node:fs';
 import path from 'node:path';
-import {RenderInternals} from '@remotion/renderer';
 import {
 	getElementComponentNameFromSourceCode,
 	makeElementFileNameFromSlug,
+} from '@remotion/drag-and-drop';
+import {RenderInternals} from '@remotion/renderer';
+import {
 	type InsertElementRequest,
 	type InsertElementResponse,
 	type InsertableCompositionElementPosition,

@@ -267,6 +267,28 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/drag-and-drop',
+			link: {
+				type: 'doc',
+				id: 'drag-and-drop/index',
+			},
+			items: [
+				'drag-and-drop/make-asset-drag-data',
+				'drag-and-drop/parse-asset-drag-data',
+				'drag-and-drop/make-component-drag-data',
+				'drag-and-drop/parse-component-drag-data',
+				'drag-and-drop/make-composition-drag-data',
+				'drag-and-drop/parse-composition-drag-data',
+				'drag-and-drop/make-effect-drag-data',
+				'drag-and-drop/parse-effect-drag-data',
+				'drag-and-drop/make-element-drag-data',
+				'drag-and-drop/parse-element-drag-data',
+				'drag-and-drop/make-sfx-drag-data',
+				'drag-and-drop/parse-sfx-drag-data',
+			],
+		},
+		{
+			type: 'category',
 			label: '@remotion/effects',
 			link: {
 				type: 'doc',

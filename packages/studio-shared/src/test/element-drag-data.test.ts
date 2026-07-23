@@ -3,7 +3,7 @@ import {
 	makeElementDragData,
 	makeElementFileNameFromSlug,
 	parseElementDragData,
-} from '../element-drag-data';
+} from '@remotion/drag-and-drop';
 
 const validElement = {
 	dependencies: ['@remotion/google-fonts'],

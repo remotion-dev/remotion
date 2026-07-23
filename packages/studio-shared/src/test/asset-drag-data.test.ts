@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {makeAssetDragData, parseAssetDragData} from '../asset-drag-data';
+import {makeAssetDragData, parseAssetDragData} from '@remotion/drag-and-drop';
 
 test('parses asset drag data', () => {
 	expect(

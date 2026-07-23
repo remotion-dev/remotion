@@ -262,6 +262,9 @@
 			"path": "./packages/canvas-capture"
 		},
 		{
+			"path": "./packages/drag-and-drop"
+		},
+		{
 			"path": "./packages/light-leaks"
 		},
 		{

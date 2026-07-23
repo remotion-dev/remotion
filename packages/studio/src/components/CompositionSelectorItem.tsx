@@ -1,9 +1,9 @@
 import {
 	COMPOSITION_DRAG_MIME_TYPE,
-	compositionDragDataToSymbolicatedStack,
 	makeCompositionDragData,
 	parseCompositionDragData,
-} from '@remotion/studio-shared';
+} from '@remotion/drag-and-drop';
+import {compositionDragDataToSymbolicatedStack} from '@remotion/studio-shared';
 import type {DragEvent, KeyboardEvent, MouseEvent} from 'react';
 import React, {
 	useCallback,

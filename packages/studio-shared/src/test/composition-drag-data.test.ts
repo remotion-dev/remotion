@@ -1,9 +1,9 @@
 import {expect, test} from 'bun:test';
 import {
-	compositionDragDataToSymbolicatedStack,
 	makeCompositionDragData,
 	parseCompositionDragData,
-} from '../composition-drag-data';
+} from '@remotion/drag-and-drop';
+import {compositionDragDataToSymbolicatedStack} from '../composition-drag-data';
 
 test('parses composition drag data', () => {
 	expect(

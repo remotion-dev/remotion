@@ -4,6 +4,7 @@ import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
 import {BundlerInternals} from '@remotion/bundler';
+import {parseElementDragData} from '@remotion/drag-and-drop';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
@@ -14,7 +15,7 @@ import type {
 	RenderJob,
 	StudioRuntimeConfig,
 } from '@remotion/studio-shared';
-import {getProjectName, parseElementDragData} from '@remotion/studio-shared';
+import {getProjectName} from '@remotion/studio-shared';
 import {focusBrowserTab} from './better-opn';
 import {getCompletedClientRenders} from './client-render-queue';
 import {getFileSource} from './helpers/get-file-source';

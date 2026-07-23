@@ -1,0 +1,23 @@
+---
+image: /generated/articles-docs-drag-and-drop-make-component-drag-data.png
+title: 'makeComponentDragData()'
+crumb: '@remotion/drag-and-drop'
+---
+
+# makeComponentDragData()<AvailableFrom v="4.0.498" />
+
+Constructs a versioned payload for importing a React component.
+
+```ts twoslash title="drag.ts"
+import {makeComponentDragData} from '@remotion/drag-and-drop';
+
+const payload = makeComponentDragData({
+  componentName: 'Circle',
+  importName: 'Circle',
+  importPath: '@remotion/shapes',
+  dimensions: {width: 200, height: 200},
+  props: [{name: 'radius', value: 100}],
+});
+```
+
+Props may contain string, number, and boolean values.

@@ -1,0 +1,18 @@
+---
+image: /generated/articles-docs-drag-and-drop-parse-effect-drag-data.png
+title: 'parseEffectDragData()'
+crumb: '@remotion/drag-and-drop'
+---
+
+# parseEffectDragData()<AvailableFrom v="4.0.498" />
+
+Parses and validates a serialized effect payload.
+
+```ts twoslash title="drop.ts"
+import {EFFECT_DRAG_MIME_TYPE, parseEffectDragData} from '@remotion/drag-and-drop';
+
+declare const dataTransfer: DataTransfer;
+const payload = parseEffectDragData(dataTransfer.getData(EFFECT_DRAG_MIME_TYPE));
+```
+
+Returns `EffectDragData` when valid and `null` otherwise.

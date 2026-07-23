@@ -1,8 +1,8 @@
 import {
 	COMPOSITION_DRAG_MIME_TYPE,
-	compositionDragDataToSymbolicatedStack,
 	parseCompositionDragData,
-} from '@remotion/studio-shared';
+} from '@remotion/drag-and-drop';
+import {compositionDragDataToSymbolicatedStack} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
