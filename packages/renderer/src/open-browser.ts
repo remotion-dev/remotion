@@ -20,17 +20,6 @@ import type {optionsMap} from './options/options-map';
 
 type OpenGlRenderer = (typeof validOpenGlRenderers)[number];
 
-type OnlyV4Options =
-	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
-		? {}
-		: {
-				/**
-				 * @deprecated - Will be removed in v5.
-				 * Chrome Headless shell does not allow disabling headless mode anymore.
-				 */
-				headless?: boolean;
-			};
-
 // ⚠️ When adding new options, also add them to the hash in lambda/get-browser-instance.ts!
 export type ChromiumOptions = {
 	ignoreCertificateErrors?: boolean;
@@ -39,7 +28,12 @@ export type ChromiumOptions = {
 	userAgent?: string | null;
 	enableMultiProcessOnLinux?: boolean;
 	darkMode?: boolean;
-} & OnlyV4Options;
+	/**
+	 * Opens a browser window if Chrome for Testing or a custom Chrome/Chromium
+	 * executable is used. Chrome Headless Shell always runs headlessly.
+	 */
+	headless?: boolean;
+};
 
 const featuresToEnable = (option?: OpenGlRenderer | null) => {
 	const renderer = option ?? DEFAULT_OPENGL_RENDERER;
