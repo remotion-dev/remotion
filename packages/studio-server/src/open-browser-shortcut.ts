@@ -70,7 +70,7 @@ export const registerOpenBrowserShortcut = ({
 			if (didFocus) {
 				RenderInternals.Log.info(
 					{indent: false, logLevel},
-					`Focused ${url} in browser`,
+					RenderInternals.chalk.blue(`Opened ${url} in browser`),
 				);
 				return;
 			}
@@ -85,7 +85,7 @@ export const registerOpenBrowserShortcut = ({
 			if (result.didOpenBrowser) {
 				RenderInternals.Log.info(
 					{indent: false, logLevel},
-					`Opened ${url} in browser`,
+					RenderInternals.chalk.blue(`Opened ${url} in browser`),
 				);
 			}
 		} catch (err) {
