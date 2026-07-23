@@ -19,12 +19,26 @@ export const extractAudio = async (options: {
 		extraThreads: 0,
 	});
 
+	let executeError: Error | undefined;
+
 	try {
 		await compositor.executeCommand('ExtractAudio', {
 			input_path: options.videoSource,
 			output_path: options.audioOutput,
 		});
-	} finally {
+	} catch (error) {
+		executeError = error as Error;
+	}
+
+	try {
 		await compositor.shutDownOrKill();
+	} catch (shutdownError) {
+		if (!executeError) {
+			throw shutdownError;
+		}
+	}
+
+	if (executeError) {
+		throw executeError;
 	}
 };
