@@ -27,6 +27,7 @@ import {
 	applyZoomAroundFocalPoint,
 	getCenterPointWhileScrolling,
 	getEffectiveTranslation,
+	getUnboundedCenterPointWhileScrolling,
 } from '../helpers/get-effective-translation';
 import {getMissingPackages} from '../helpers/install-required-package';
 import {useCachedCompositionComponentInfo} from '../helpers/open-in-editor';
@@ -43,10 +44,12 @@ import {
 } from '../helpers/use-keybinding';
 import {canvasRef} from '../state/canvas-ref';
 import {EditorShowGuidesContext} from '../state/editor-guides';
+import {EditorSnappingContext} from '../state/editor-snapping';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import {callApi} from './call-api';
 import {
 	getCompositionDropPreviewBox,
+	snapCompositionDropPosition,
 	type CompositionDropPreview,
 } from './composition-drop-preview';
 import {useConfirmationDialog} from './ConfirmationDialog';
@@ -169,6 +172,7 @@ const getDropPosition = ({
 	clientX,
 	clientY,
 	contentDimensions,
+	unbounded,
 	previewSize,
 	size,
 }: {
@@ -176,6 +180,7 @@ const getDropPosition = ({
 	clientX: number;
 	clientY: number;
 	contentDimensions: {width: number; height: number} | 'none' | null;
+	unbounded: boolean;
 	previewSize: PreviewSize;
 	size: Size;
 }): InsertElementDropPosition | null => {
@@ -190,7 +195,10 @@ const getDropPosition = ({
 		compositionWidth: contentDimensions.width,
 		previewSize: previewSize.size,
 	});
-	const {centerX, centerY} = getCenterPointWhileScrolling({
+	const getCenterPoint = unbounded
+		? getUnboundedCenterPointWhileScrolling
+		: getCenterPointWhileScrolling;
+	const {centerX, centerY} = getCenterPoint({
 		size,
 		clientX,
 		clientY,
@@ -246,6 +254,7 @@ export const Canvas: React.FC<{
 	const config = Internals.useUnsafeVideoConfig();
 	const areRulersVisible = useIsRulerVisible();
 	const {editorShowGuides} = useContext(EditorShowGuidesContext);
+	const {editorSnapping} = useContext(EditorSnappingContext);
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {previewServerState, subscribeToEvent} = useContext(
 		StudioServerConnectionCtx,
@@ -986,11 +995,12 @@ export const Canvas: React.FC<{
 				return;
 			}
 
-			const dropPosition = getDropPosition({
+			let dropPosition = getDropPosition({
 				addFitPadding,
 				clientX: event.clientX,
 				clientY: event.clientY,
 				contentDimensions,
+				unbounded: true,
 				previewSize,
 				size,
 			});
@@ -1003,6 +1013,21 @@ export const Canvas: React.FC<{
 				width: metadata.width,
 				height: metadata.height,
 			};
+			if (editorSnapping && !event.metaKey && !event.ctrlKey) {
+				dropPosition = snapCompositionDropPosition({
+					compositionDimensions,
+					destinationDimensions: contentDimensions,
+					dropPosition,
+					scale: calculateCanvasScale({
+						addFitPadding,
+						canvasSize: size,
+						compositionHeight: contentDimensions.height,
+						compositionWidth: contentDimensions.width,
+						previewSize: previewSize.size,
+					}),
+				});
+			}
+
 			setCompositionDropPreview((currentPreview) => {
 				if (
 					currentPreview?.compositionDimensions.width ===
@@ -1026,6 +1051,7 @@ export const Canvas: React.FC<{
 			canDropAssets,
 			cannotAddSequence,
 			contentDimensions,
+			editorSnapping,
 			previewSize,
 			size,
 		],
@@ -1094,14 +1120,46 @@ export const Canvas: React.FC<{
 
 			setIsAddingAsset(true);
 			try {
-				const dropPosition = getDropPosition({
+				const metadata = getDragPreviewMetadata(
+					event.dataTransfer?.types ?? [],
+				);
+				const isComposition = metadata?.type === 'composition';
+				let dropPosition = getDropPosition({
 					addFitPadding,
 					clientX: event.clientX,
 					clientY: event.clientY,
 					contentDimensions,
+					unbounded: isComposition,
 					previewSize,
 					size,
 				});
+				if (
+					dropPosition !== null &&
+					isComposition &&
+					metadata.width !== undefined &&
+					metadata.height !== undefined &&
+					contentDimensions !== null &&
+					contentDimensions !== 'none' &&
+					editorSnapping &&
+					!event.metaKey &&
+					!event.ctrlKey
+				) {
+					dropPosition = snapCompositionDropPosition({
+						compositionDimensions: {
+							width: metadata.width,
+							height: metadata.height,
+						},
+						destinationDimensions: contentDimensions,
+						dropPosition,
+						scale: calculateCanvasScale({
+							addFitPadding,
+							canvasSize: size,
+							compositionHeight: contentDimensions.height,
+							compositionWidth: contentDimensions.width,
+							previewSize: previewSize.size,
+						}),
+					});
+				}
 
 				await handleDrop({
 					chooseSvgImportMode,
@@ -1127,6 +1185,7 @@ export const Canvas: React.FC<{
 			config,
 			contentDimensions,
 			currentCompositionId,
+			editorSnapping,
 			previewSize,
 			size,
 		],

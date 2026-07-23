@@ -4,6 +4,11 @@ import {
 	getCompositionPositionForDrop,
 	type InsertElementDropPosition,
 } from './import-assets';
+import type {SelectedOutline} from './selected-outline-geometry';
+import {
+	findSelectedOutlineSnap,
+	getSelectedOutlineSnapTargets,
+} from './selected-outline-snap';
 
 type Dimensions = {
 	readonly width: number;
@@ -27,6 +32,51 @@ export type CompositionDropPreviewBox = {
 	readonly height: number;
 };
 
+export const snapCompositionDropPosition = ({
+	compositionDimensions,
+	destinationDimensions,
+	dropPosition,
+	scale,
+}: {
+	readonly compositionDimensions: Dimensions;
+	readonly destinationDimensions: Dimensions;
+	readonly dropPosition: InsertElementDropPosition;
+	readonly scale: number;
+}): InsertElementDropPosition => {
+	const left = dropPosition.centerX - compositionDimensions.width / 2;
+	const top = dropPosition.centerY - compositionDimensions.height / 2;
+	const right = left + compositionDimensions.width;
+	const bottom = top + compositionDimensions.height;
+	const outline: SelectedOutline = {
+		key: 'composition-drop-preview',
+		dimensions: compositionDimensions,
+		points: [
+			{x: left * scale, y: top * scale},
+			{x: right * scale, y: top * scale},
+			{x: right * scale, y: bottom * scale},
+			{x: left * scale, y: bottom * scale},
+		],
+	};
+	const snap = findSelectedOutlineSnap({
+		allowX: true,
+		allowY: true,
+		deltaX: 0,
+		deltaY: 0,
+		outlines: [outline],
+		scale,
+		targets: getSelectedOutlineSnapTargets({
+			compositionHeight: destinationDimensions.height,
+			compositionWidth: destinationDimensions.width,
+			guides: [],
+		}),
+	});
+
+	return {
+		centerX: dropPosition.centerX + (snap.snapOffsetX ?? 0),
+		centerY: dropPosition.centerY + (snap.snapOffsetY ?? 0),
+	};
+};
+
 export const getCompositionDropPreviewBox = ({
 	canvasSize,
 	destinationDimensions,
@@ -46,7 +96,6 @@ export const getCompositionDropPreviewBox = ({
 	});
 	const position = getCompositionPositionForDrop({
 		compositionDimensions: preview.compositionDimensions,
-		destinationDimensions,
 		dropPosition: preview.dropPosition,
 	});
 	const contentLeft =

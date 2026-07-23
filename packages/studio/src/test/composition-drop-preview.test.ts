@@ -1,5 +1,9 @@
 import {expect, test} from 'bun:test';
-import {getCompositionDropPreviewBox} from '../components/composition-drop-preview';
+import {
+	getCompositionDropPreviewBox,
+	snapCompositionDropPosition,
+} from '../components/composition-drop-preview';
+import {getUnboundedCenterPointWhileScrolling} from '../helpers/get-effective-translation';
 
 const canvasSize = {
 	width: 992,
@@ -32,7 +36,7 @@ test('centers a composition drop preview under the pointer', () => {
 	});
 });
 
-test('previews an equal-sized composition at the destination origin', () => {
+test('previews an equal-sized composition at the drop position', () => {
 	expect(
 		getCompositionDropPreviewBox({
 			canvasSize,
@@ -47,9 +51,52 @@ test('previews an equal-sized composition at the destination origin', () => {
 			},
 		}),
 	).toEqual({
-		left: -4,
-		top: 26,
+		left: -384,
+		top: -94,
 		width: 960,
 		height: 540,
 	});
+});
+
+test('does not clamp drop coordinates to the destination', () => {
+	expect(
+		getUnboundedCenterPointWhileScrolling({
+			size: {
+				width: 1000,
+				height: 600,
+				left: 100,
+				top: 50,
+				windowSize: {width: 1000, height: 600},
+				refresh: () => undefined,
+			},
+			clientX: 100,
+			clientY: 50,
+			compositionWidth: 1920,
+			compositionHeight: 1080,
+			scale: 0.5,
+			translation: {x: 0, y: 0},
+		}),
+	).toEqual({centerX: -40, centerY: -60});
+});
+
+test('snaps the dragged right edge to the destination left edge', () => {
+	expect(
+		snapCompositionDropPosition({
+			compositionDimensions: {width: 640, height: 360},
+			destinationDimensions,
+			dropPosition: {centerX: -315, centerY: 540},
+			scale: 1,
+		}),
+	).toEqual({centerX: -320, centerY: 540});
+});
+
+test('snaps the dragged left edge to the destination right edge', () => {
+	expect(
+		snapCompositionDropPosition({
+			compositionDimensions: {width: 640, height: 360},
+			destinationDimensions,
+			dropPosition: {centerX: 2235, centerY: 540},
+			scale: 1,
+		}),
+	).toEqual({centerX: 2240, centerY: 540});
 });
