@@ -7,11 +7,6 @@ slug: /web-renderer/types
 crumb: '@remotion/web-renderer'
 ---
 
-:::warning
-Experimental feature - expect bugs and breaking changes at any time.
-[Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
-:::
-
 The following types are part of the API of `@remotion/web-renderer`:
 
 ## `WebRendererContainer`
@@ -57,6 +52,17 @@ import type {WebRendererOutputTarget} from '@remotion/web-renderer';
 
 - `'arraybuffer'`: Returns the output as a `Blob` in memory
 - `'web-fs'`: Uses the [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API) to write to a file
+
+## `WebRendererPageResponsiveness`<AvailableFrom v="4.0.487" />
+
+```tsx twoslash
+import type {WebRendererPageResponsiveness} from '@remotion/web-renderer';
+//                ^?
+```
+
+Controls intentional pauses while using [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#pageresponsiveness).
+See [Page responsiveness](/docs/client-side-rendering/page-responsiveness) for guidance.
+The default is `"medium"`.
 
 ## `FrameRange`
 

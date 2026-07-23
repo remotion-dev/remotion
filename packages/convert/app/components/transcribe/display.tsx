@@ -1,9 +1,7 @@
 /* eslint-disable react/no-array-index-key */
-import type MediaFox from '@mediafox/core';
 import type {Caption} from '@remotion/captions';
 import {Switch} from '@remotion/design';
 import {useEffect, useMemo, useRef, useState} from 'react';
-import {useAudioPlayback} from '~/lib/use-audio-playback';
 import {Card} from '../ui/card';
 
 const SingleToken: React.FC<{
@@ -38,12 +36,11 @@ const SingleToken: React.FC<{
 
 export default function Display({
 	result: unfilteredResult,
-	mediaFox,
+	time,
 }: {
 	readonly result: Caption[];
-	readonly mediaFox: MediaFox;
+	readonly time: number;
 }) {
-	const {time} = useAudioPlayback(mediaFox);
 	const [tokens, setTokens] = useState<boolean>(false);
 
 	const result = useMemo(() => {

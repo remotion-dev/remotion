@@ -46,7 +46,7 @@ export type CustomCredentials<Provider extends CloudProvider> =
 	CustomCredentialsWithoutSensitiveData & {
 		accessKeyId: string | null;
 		secretAccessKey: string | null;
-		region?: Provider['region'];
+		region?: Provider['region'] | (string & {});
 		forcePathStyle?: boolean;
 	};
 

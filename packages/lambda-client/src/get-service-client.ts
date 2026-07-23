@@ -10,7 +10,6 @@ import type {AwsProvider} from './aws-provider';
 import {checkCredentials} from './check-credentials';
 import {getCredentials} from './get-credentials';
 import {getEnvVariable} from './get-env-variable';
-import type {AwsRegion} from './regions';
 import type {RequestHandler} from './types';
 
 export type ServiceMapping = {
@@ -29,7 +28,7 @@ const getCredentialsHash = ({
 	forcePathStyle,
 	requestHandler,
 }: {
-	region: AwsRegion;
+	region: string;
 	customCredentials: CustomCredentials<AwsProvider> | null;
 	service: keyof ServiceMapping;
 	forcePathStyle: boolean;
@@ -95,7 +94,7 @@ export function getServiceClient<T extends keyof ServiceMapping>({
 	forcePathStyle,
 	requestHandler,
 }: {
-	region: AwsRegion;
+	region: string;
 	service: T;
 	customCredentials: CustomCredentials<AwsProvider> | null;
 	forcePathStyle: boolean;

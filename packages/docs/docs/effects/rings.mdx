@@ -1,0 +1,100 @@
+---
+image: /generated/articles-docs-effects-rings.png
+slug: /effects/rings
+title: rings()
+sidebar_label: rings()
+crumb: '@remotion/effects'
+---
+
+# rings()<AvailableFrom v="4.0.471" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Adds concentric circular bands to canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+It uses the same band controls as [`lines()`](/docs/effects/lines), but radiates the bands from a normalized center point.
+
+## Preview
+
+<EffectsDemo type="effects-rings" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {rings} from '@remotion/effects/rings';
+import {AbsoluteFill, Solid, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill>
+      <Solid
+        width={1280}
+        height={720}
+        effects={[
+          rings({
+            colors: ['#9fd6ff', 'transparent'],
+            center: [0.5, 0.5],
+            thickness: 40,
+            gap: 0,
+            offset: frame * 2,
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `rings()` without arguments.
+
+### `colors?`
+
+An array of color strings for the rings. Colors are assigned cyclically. Must contain at least 2 colors.
+
+Defaults to `['#dff4ff', '#7cc6ff']`.
+
+### `center?`
+
+Center of the rings, normalized from `0` to `1` in x/y. Defaults to `[0.5, 0.5]`.
+
+### `thickness?`
+
+Thickness of each colored ring in pixels. Defaults to `40`.
+
+### `gap?`
+
+Transparent gap in pixels between each ring. Defaults to `0`.
+
+With `gap: 0` (the default), rings are packed solid with no gap between them.  
+With `gap > 0`, a transparent ring appears between each colored ring, allowing the source content to show through.
+
+### `offset?`
+
+Radial offset in pixels. Defaults to `0`.
+
+Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) to expand or contract the rings.
+
+### `maskToSourceAlpha?`<AvailableFrom v="4.0.474" />
+
+Masks the generated ring pattern to the source alpha channel. Defaults to `false`.
+
+Set this to `true` to prevent the ring pattern from appearing in fully transparent source pixels.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`rings()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`lines()`](/docs/effects/lines)
+- [`waves()`](/docs/effects/waves)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/rings.ts)

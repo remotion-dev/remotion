@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -23,11 +23,10 @@ const shineSchema = {
 		step: 0.01,
 		default: DEFAULT_PROGRESS,
 		description: 'Progress',
+		hiddenFromList: false,
 	},
 	angle: {
-		type: 'number',
-		min: -180,
-		max: 180,
+		type: 'rotation-degrees',
 		step: 1,
 		default: DEFAULT_ANGLE,
 		description: 'Angle',
@@ -39,6 +38,7 @@ const shineSchema = {
 		step: 1,
 		default: DEFAULT_HALO_SIGMA,
 		description: 'Halo sigma',
+		hiddenFromList: false,
 	},
 	coreSigma: {
 		type: 'number',
@@ -47,6 +47,7 @@ const shineSchema = {
 		step: 1,
 		default: DEFAULT_CORE_SIGMA,
 		description: 'Core sigma',
+		hiddenFromList: false,
 	},
 	haloIntensity: {
 		type: 'number',
@@ -55,6 +56,7 @@ const shineSchema = {
 		step: 0.01,
 		default: DEFAULT_HALO_INTENSITY,
 		description: 'Halo intensity',
+		hiddenFromList: false,
 	},
 	coreIntensity: {
 		type: 'number',
@@ -63,8 +65,9 @@ const shineSchema = {
 		step: 0.01,
 		default: DEFAULT_CORE_INTENSITY,
 		description: 'Core intensity',
+		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type ShineParams = {
 	/** Position of the shine sweep from `0` to `1`. Defaults to `0.5`. */
@@ -225,7 +228,7 @@ const linkProgram = (
 };
 
 export const shine = createEffect<ShineParams, ShineState>({
-	type: 'remotion/shine',
+	type: 'dev.remotion.effects.shine',
 	label: 'shine()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/shine',
 	backend: 'webgl2',

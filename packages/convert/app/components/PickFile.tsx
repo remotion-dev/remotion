@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {SAMPLE_FILE_CONVERT, SAMPLE_FILE_TRANSCRIBE} from '~/lib/config';
 import type {Source} from '~/lib/convert-state';
 import type {RouteAction} from '~/seo';
@@ -22,29 +22,30 @@ export const PickFile: React.FC<{
 		});
 	}, [setSrc, action]);
 
-	const onDrop = useCallback(
-		(event: React.DragEvent<HTMLDivElement>) => {
-			event.preventDefault();
-			event.stopPropagation();
-			const file = event.dataTransfer.files[0];
+	useEffect(() => {
+		const onDragOver = (e: DragEvent) => {
+			e.preventDefault();
+		};
+
+		const onDrop = (e: DragEvent) => {
+			e.preventDefault();
+			const file = e.dataTransfer?.files[0];
 			if (file) {
 				setSrc({type: 'file', file});
 			}
-		},
-		[setSrc],
-	);
+		};
 
-	const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
-		event.preventDefault();
-		event.stopPropagation();
-	}, []);
+		document.body.addEventListener('dragover', onDragOver);
+		document.body.addEventListener('drop', onDrop);
+
+		return () => {
+			document.body.removeEventListener('dragover', onDragOver);
+			document.body.removeEventListener('drop', onDrop);
+		};
+	}, [setSrc]);
 
 	return (
-		<div
-			className="text-center items-center justify-center flex flex-col h-full w-full"
-			onDragOver={onDragOver}
-			onDrop={onDrop}
-		>
+		<div className="text-center items-center justify-center flex flex-col h-full w-full">
 			<div className="bg-[#F9FAFC] w-full">
 				<div className="h-10" />
 				<TextMarkLogo text="Remotion Convert" />
@@ -54,6 +55,11 @@ export const PickFile: React.FC<{
 						{title}
 					</h1>
 				</div>
+				<p className="m-auto max-w-[720px] px-4 font-brand text-base text-slate-600 text-balance">
+					Load MP4, WebM, MOV/ProRes, MKV, MP3, WAV, AAC, FLAC, or HLS streams,
+					then convert, trim, crop, resize, rotate, mirror, probe, or transcribe
+					locally in your browser.
+				</p>
 				<div className="h-4" />
 				<div className="p-4 w-full text-center">
 					<DropFileBox setSrc={setSrc} />
@@ -64,7 +70,7 @@ export const PickFile: React.FC<{
 				<div className="h-10" />
 			</div>
 			<div className="w-full bg-slate-50">
-				<WhyRemotionConvert />
+				<WhyRemotionConvert routeAction={action} />
 			</div>
 		</div>
 	);

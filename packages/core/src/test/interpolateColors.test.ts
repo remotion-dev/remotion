@@ -1,4 +1,5 @@
 import {describe, expect, test} from 'bun:test';
+import {Easing} from '../easing.js';
 import {interpolateColors} from '../interpolate-colors.js';
 import {expectToThrow} from './expect-to-throw.js';
 
@@ -39,6 +40,47 @@ test('Basic interpolate Colors', () => {
 	expect(interpolateColors(1, [0, 1], ['#ffaadd', '#fabfdf'])).toBe(
 		'rgba(250, 191, 223, 1)',
 	);
+});
+
+test('Posterize quantizes the input before interpolating colors', () => {
+	expect(interpolateColors(17, [0, 60], ['black', 'white'])).toBe(
+		'rgba(72, 72, 72, 1)',
+	);
+	expect(
+		interpolateColors(17, [0, 60], ['black', 'white'], {
+			posterize: 3,
+		}),
+	).toBe('rgba(64, 64, 64, 1)');
+});
+
+test('Posterize option must be a positive finite number for colors', () => {
+	expectToThrow(() => {
+		interpolateColors(17, [0, 60], ['black', 'white'], {posterize: 0});
+	}, /posterize must be a positive finite number, but got 0/);
+});
+
+test('Easing remaps color interpolation', () => {
+	expect(
+		interpolateColors(0.5, [0, 1], ['black', 'white'], {
+			easing: (input) => input * input,
+		}),
+	).toBe('rgba(64, 64, 64, 1)');
+});
+
+test('Easing array remaps color interpolation per segment', () => {
+	expect(
+		interpolateColors(15, [0, 10, 20], ['black', 'red', 'white'], {
+			easing: [Easing.linear, (input) => input * input],
+		}),
+	).toBe('rgba(255, 64, 64, 1)');
+});
+
+test('Easing array must have one entry per color segment', () => {
+	expectToThrow(() => {
+		interpolateColors(5, [0, 10, 20], ['black', 'red', 'white'], {
+			easing: [Easing.linear],
+		});
+	}, /When easing is an array, it must have one entry per segment between keyframes/);
 });
 
 test('Can interpolate a single color keyframe', () => {

@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
+import {WHITE} from '../helpers/colors';
 
 const label: React.CSSProperties = {
 	fontSize: 13,
-	color: 'white',
+	color: WHITE,
 	fontFamily: 'Arial, Helvetica, sans-serif',
 };
 
@@ -16,7 +17,7 @@ const container: React.CSSProperties = {
 };
 
 const link: React.CSSProperties = {
-	color: 'white',
+	color: WHITE,
 	textDecoration: 'none',
 	borderBottom: '1px solid',
 };

@@ -1,10 +1,40 @@
 import React from 'react';
+import {Interactive} from 'remotion';
 import type {MakePieProps} from '../utils/make-pie';
 import {makePie} from '../utils/make-pie';
 import type {AllShapesProps} from './render-svg';
 import {RenderSvg} from './render-svg';
+import {booleanField, makeShapeSchema, numberField} from './schema';
 
 export type PieProps = MakePieProps & AllShapesProps;
+
+const pieSchema = makeShapeSchema({
+	radius: numberField({
+		defaultValue: 100,
+		description: 'Radius',
+		min: 0,
+	}),
+	progress: numberField({
+		defaultValue: 0.5,
+		description: 'Progress',
+		max: 1,
+		min: 0,
+		step: 0.01,
+	}),
+	closePath: booleanField({
+		defaultValue: true,
+		description: 'Close Path',
+	}),
+	counterClockwise: booleanField({
+		defaultValue: false,
+		description: 'Counter Clockwise',
+	}),
+	rotation: numberField({
+		defaultValue: 0,
+		description: 'Rotation',
+		step: 0.01,
+	}),
+});
 
 /**
  * @description Renders an SVG element drawing a pie piece.
@@ -16,7 +46,7 @@ export type PieProps = MakePieProps & AllShapesProps;
  * @see [Documentation](https://www.remotion.dev/docs/shapes/pie)
  */
 
-export const Pie: React.FC<PieProps> = ({
+const PieInner: React.FC<PieProps> = ({
 	radius,
 	progress,
 	closePath,
@@ -26,8 +56,18 @@ export const Pie: React.FC<PieProps> = ({
 }) => {
 	return (
 		<RenderSvg
+			defaultName="<Pie>"
+			documentationLink="https://www.remotion.dev/docs/shapes/pie"
 			{...makePie({radius, progress, closePath, counterClockwise, rotation})}
 			{...props}
 		/>
 	);
 };
+
+export const Pie = Interactive.withSchema({
+	Component: PieInner,
+	componentName: '<Pie>',
+	componentIdentity: 'dev.remotion.shapes.Pie',
+	schema: pieSchema,
+	supportsEffects: true,
+}) as React.FC<PieProps>;

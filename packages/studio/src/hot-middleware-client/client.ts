@@ -9,6 +9,11 @@
  */
 import type {HotMiddlewareMessage} from '@remotion/studio-shared';
 import {hotMiddlewareOptions, stripAnsi} from '@remotion/studio-shared';
+import {markErrorMessageAsLoggedByServer} from '../error-overlay/error-origin';
+import {
+	HOT_MIDDLEWARE_ERROR_STYLE,
+	HOT_MIDDLEWARE_WARNING_STYLE,
+} from '../helpers/colors';
 import {subscribeToPreviewServerEvents} from '../helpers/preview-server-events';
 import {processUpdate} from './process-update';
 
@@ -23,8 +28,8 @@ type Reporter = ReturnType<typeof createReporter>;
 
 function createReporter() {
 	const styles = {
-		errors: 'color: #ff0000;',
-		warnings: 'color: #999933;',
+		errors: HOT_MIDDLEWARE_ERROR_STYLE,
+		warnings: HOT_MIDDLEWARE_WARNING_STYLE,
 	};
 	let previousProblems: string | null = null;
 
@@ -89,6 +94,12 @@ function processMessage(obj: HotMiddlewareMessage) {
 		case 'built': {
 			let applyUpdate = true;
 			if (obj.errors.length > 0) {
+				obj.errors.forEach((error) => {
+					if (typeof error === 'string') {
+						markErrorMessageAsLoggedByServer(stripAnsi(error));
+					}
+				});
+
 				if (reporter) reporter.problems('errors', obj);
 				applyUpdate = false;
 			} else if (obj.warnings.length > 0) {

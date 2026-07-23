@@ -7,6 +7,8 @@ description: Add an interactive demo to the Remotion documentation. Use when cre
 
 Interactive demos render a Remotion composition inline in documentation pages using `@remotion/player`. They live in `packages/docs/components/demos/`.
 
+Effect demos are separate: use `<EffectsDemo type="effects-..." />` and register them in `packages/docs/components/effects-demos/registry.ts` with the real effect `schema`, not the generic `<Demo>` options array.
+
 ## Steps
 
 1. **Create a component** in `packages/docs/components/demos/` (e.g. `MyDemo.tsx`). It should be a standard React component using Remotion hooks like `useCurrentFrame()` and `useVideoConfig()`.

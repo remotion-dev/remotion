@@ -97,7 +97,7 @@ See the explorer below to see how skewing affects an element.
 
 Translating an element means moving it. A translation can be done on the X, Y or even Z axis. The transformation can be specified in `px`.
 
-You can set the translation of an element using the `transform` property.
+You can set the translation of an element using the `translate` property.
 
 ```tsx twoslash {6} title="MyComponent.tsx"
 <div
@@ -105,7 +105,7 @@ You can set the translation of an element using the `transform` property.
     height: 100,
     width: 100,
     backgroundColor: 'red',
-    transform: `translateX(100px)`,
+    translate: '100px 0px',
   }}
 />
 ```
@@ -118,7 +118,7 @@ As opposed to changing the position of an element using `margin-top` and `margin
 
 By rotating an element, you can make it appear as if it has been turned around its center. The rotation can be specified in `rad` (radians) or `deg` (degrees) and you can rotate an element around the Z axis (the default) but also around the X and Y axis.
 
-You can set the translation of an element using the `transform` property.
+You can set the rotation of an element using the `rotate` property.
 
 ```tsx twoslash {6} title="MyComponent.tsx"
 <div
@@ -126,7 +126,7 @@ You can set the translation of an element using the `transform` property.
     height: 100,
     width: 100,
     backgroundColor: 'red',
-    transform: `rotate(45deg)`, // the same as rotateZ(45deg)
+    rotate: '45deg',
   }}
 />
 ```
@@ -141,9 +141,9 @@ Note that when rotating SVG elements, the transform origin is the top left corne
 
 ## Multiple transformations
 
-Oftentimes, you want to combine multiple transformations. If they use different CSS properties like `transform` and `opacity`, simply specify both properties in the `style` object.
+Oftentimes, you want to combine multiple transformations. If they use different CSS properties like `translate`, `scale` and `opacity`, specify them separately in the `style` object.
 
-If both transformations use the `transform` property, specify multiple transformations separated by a space.
+This also makes animations easier to edit in Remotion Studio.
 
 ```tsx twoslash {6} title="MyComponent.tsx"
 <div
@@ -151,16 +151,17 @@ If both transformations use the `transform` property, specify multiple transform
     height: 100,
     width: 100,
     backgroundColor: 'red',
-    transform: `translateX(100px) scale(2)`,
+    translate: '100px 0px',
+    scale: 2,
   }}
 />
 ```
 
-Note that the order matters. The transformations are applied in the order they are specified.
+Use `transform` strings when individual CSS transform properties do not cover the effect, such as `skew()`, `perspective()` or order-sensitive transform chains.
 
 ## Using the `makeTransform()` helper
 
-Install [`@remotion/animation-utils`](/docs/animation-utils/) to [get a type-safe helper function](/docs/animation-utils/make-transform) to generate `transform` strings.
+When you need a `transform` string, install [`@remotion/animation-utils`](/docs/animation-utils/) to [get a type-safe helper function](/docs/animation-utils/make-transform) to generate it.
 
 ```tsx twoslash
 import {makeTransform, rotate, translate} from '@remotion/animation-utils';

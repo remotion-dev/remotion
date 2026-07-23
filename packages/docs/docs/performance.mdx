@@ -10,6 +10,14 @@ Video rendering is one of the most heavy workloads a computer can take on. Remot
 
 Your experience is also dependent on your code and the hardware you run it on. Review the following performance insights to find opportunities for speeding up your render.
 
+## Videos
+
+Use [`<Video>`](/docs/media/video) from `@remotion/media` for the best video rendering performance.
+
+Both [`<Html5Video>`](/docs/html5-video) (formerly just called `<Video>`, from the `remotion` package) and [`<OffthreadVideo>`](/docs/offthreadvideo) are not optimized. Consider migrating if you are still using one of the old video tags.
+
+See: [Comparison of video tags](/docs/video-tags)
+
 ## Concurrency
 
 The `--concurrency` flag you set can influence the rendering speed both positively and negatively. A concurrency too high and a concurrency too low can both be coutnerproductive. Use the [`npx remotion benchmark`](/docs/cli/benchmark) command to find the optimal concurrency.
@@ -27,14 +35,6 @@ Compute instances in the cloud do not have a GPU and may take a long time to ren
 Consider replacing those effects with a precomputed image for the best performance.
 
 Read the [considerations about using the GPU](/docs/gpu).
-
-## Videos
-
-Both [`<Html5Video>`](/docs/html5-video) (formerly just called `<Video>`, from the `remotion` package) and [`<OffthreadVideo>`](/docs/offthreadvideo) are not optimized.
-
-We made a new [`<Video>`](/docs/media/video) tag that has the optimal performance. Consider using it if you are still using one of the old video tags.
-
-See: [Comparison of video tags](/docs/video-tags)
 
 ## Slow JavaScript code
 

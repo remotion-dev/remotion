@@ -1,8 +1,55 @@
-import {expect, test} from 'bun:test';
+import {afterEach, expect, test} from 'bun:test';
 import type {ComponentType} from 'react';
 import {Composition} from 'remotion';
 import {Player} from '../index.js';
-import {HelloWorld, render} from './test-utils.js';
+import {cleanup, HelloWorld, render} from './test-utils.js';
+
+const originalAudioContext = globalThis.AudioContext;
+
+const mockAudioContext = () => {
+	let createdAudioContexts = 0;
+
+	class MockAudioContext {
+		state = 'suspended';
+		destination = {};
+
+		constructor() {
+			createdAudioContexts++;
+		}
+
+		createGain() {
+			return {
+				connect: () => undefined,
+			};
+		}
+
+		resume() {
+			return Promise.resolve();
+		}
+
+		suspend() {
+			return Promise.resolve();
+		}
+
+		addEventListener() {
+			return undefined;
+		}
+
+		removeEventListener() {
+			return undefined;
+		}
+	}
+
+	globalThis.AudioContext =
+		MockAudioContext as unknown as typeof globalThis.AudioContext;
+
+	return () => createdAudioContexts;
+};
+
+afterEach(() => {
+	cleanup();
+	globalThis.AudioContext = originalAudioContext;
+});
 
 test('no compositionWidth should give errors', () => {
 	try {
@@ -224,6 +271,63 @@ test('initialVolume should be okay', () => {
 	expect(true).toBe(true);
 });
 
+test('muted Player should not create an AudioContext', () => {
+	const getCreatedAudioContexts = mockAudioContext();
+
+	render(
+		<Player
+			compositionWidth={500}
+			compositionHeight={400}
+			fps={30}
+			durationInFrames={500}
+			component={HelloWorld}
+			controls
+			showVolumeControls
+			initiallyMuted
+		/>,
+	);
+
+	expect(getCreatedAudioContexts()).toBe(0);
+});
+
+test('Player with initialVolume 0 should not create an AudioContext', () => {
+	const getCreatedAudioContexts = mockAudioContext();
+
+	render(
+		<Player
+			compositionWidth={500}
+			compositionHeight={400}
+			fps={30}
+			durationInFrames={500}
+			component={HelloWorld}
+			controls
+			showVolumeControls
+			initialVolume={0}
+		/>,
+	);
+
+	expect(getCreatedAudioContexts()).toBe(0);
+});
+
+test('Player with audible audio should create an AudioContext', () => {
+	const getCreatedAudioContexts = mockAudioContext();
+
+	render(
+		<Player
+			compositionWidth={500}
+			compositionHeight={400}
+			fps={30}
+			durationInFrames={500}
+			component={HelloWorld}
+			controls
+			showVolumeControls
+			initialVolume={1}
+		/>,
+	);
+
+	expect(getCreatedAudioContexts()).toBe(1);
+});
+
 test('invalid initialVolume type should give errors', () => {
 	expect(() => {
 		render(
@@ -259,6 +363,72 @@ test('initialVolume out of range should give errors', () => {
 			/>,
 		);
 	}).toThrow(/'initialVolume' must be between 0 and 1 but got '2' instead/);
+});
+
+test('sampleRate should be okay', () => {
+	render(
+		<Player
+			compositionWidth={500}
+			compositionHeight={400}
+			fps={30}
+			durationInFrames={500}
+			component={HelloWorld}
+			controls
+			showVolumeControls
+			sampleRate={44100}
+		/>,
+	);
+	expect(true).toBe(true);
+});
+
+test('sampleRate cannot be changed dynamically', () => {
+	const initial = (
+		<Player
+			compositionWidth={500}
+			compositionHeight={400}
+			fps={30}
+			durationInFrames={500}
+			component={HelloWorld}
+			controls
+			showVolumeControls
+			sampleRate={44100}
+		/>
+	);
+	const changed = (
+		<Player
+			compositionWidth={500}
+			compositionHeight={400}
+			fps={30}
+			durationInFrames={500}
+			component={HelloWorld}
+			controls
+			showVolumeControls
+			sampleRate={48000}
+		/>
+	);
+
+	const {rerender} = render(initial);
+
+	expect(() => rerender(changed)).toThrow(
+		/Changing the AudioContext sample rate dynamically is not supported/,
+	);
+});
+
+test('invalid sampleRate should give errors', () => {
+	expect(() => {
+		render(
+			<Player
+				compositionWidth={500}
+				compositionHeight={400}
+				fps={30}
+				durationInFrames={500}
+				component={HelloWorld}
+				controls
+				showVolumeControls
+				sampleRate={0}
+			/>,
+		);
+	}).toThrow(/'sampleRate' must be a positive integer but got '0' instead/);
 });
 
 test('passing in <Composition /> instance should not be possible', () => {

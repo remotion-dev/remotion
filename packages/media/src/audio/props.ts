@@ -1,7 +1,8 @@
 import type {
+	InteractiveBaseProps,
+	InteractivePremountProps,
 	LogLevel,
 	LoopVolumeCurveBehavior,
-	SequenceProps,
 	VolumeProp,
 } from 'remotion';
 import type {MediaOnError} from '../on-error';
@@ -45,7 +46,5 @@ export type AudioProps = {
 	 */
 	credentials?: RequestCredentials;
 	requestInit?: MediaRequestInit;
-} & Pick<
-	SequenceProps,
-	'from' | 'durationInFrames' | 'name' | 'showInTimeline' | 'hidden'
->;
+} & InteractiveBaseProps &
+	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'>;

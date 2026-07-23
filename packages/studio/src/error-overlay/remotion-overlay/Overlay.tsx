@@ -5,6 +5,8 @@ import React, {
 	useState,
 } from 'react';
 import {AbsoluteFill} from 'remotion';
+import {MENU_TOOLBAR_HEIGHT} from '../../components/MenuToolbar';
+import {BACKGROUND_HEX, WHITE} from '../../helpers/colors';
 import {KeybindingContextProvider} from '../../state/keybindings';
 import {ErrorLoader} from './ErrorLoader';
 
@@ -28,7 +30,7 @@ const errorsAreTheSame = (first: Error, second: Error) => {
 	return first.stack === second.stack && first.message === second.message;
 };
 
-const BACKGROUND_COLOR = '#1f2428';
+const BACKGROUND_COLOR = BACKGROUND_HEX;
 export const Overlay: React.FC = () => {
 	const [errors, setErrors] = useState<State>({type: 'clear'});
 
@@ -70,7 +72,9 @@ export const Overlay: React.FC = () => {
 				style={{
 					backgroundColor: BACKGROUND_COLOR,
 					overflow: 'auto',
-					color: 'white',
+					color: WHITE,
+					top: MENU_TOOLBAR_HEIGHT,
+					height: `calc(100% - ${MENU_TOOLBAR_HEIGHT}px)`,
 				}}
 			>
 				{errors.errors.map((err, i) => {

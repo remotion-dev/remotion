@@ -3,29 +3,29 @@ import {parse} from '../parse-generate';
 const abortMap = new Map();
 
 self.addEventListener('message', (e) => {
-	const {type, src} = e.data || e;
+	const {type, src, cacheKey, requestInit} = e.data || e;
 
 	switch (type) {
 		case 'parse': {
-			if (!abortMap.has(src)) {
+			if (!abortMap.has(cacheKey)) {
 				const controller = new AbortController();
-				const signal = {signal: controller.signal};
+				const signal = {signal: controller.signal, requestInit};
 
-				abortMap.set(src, controller);
+				abortMap.set(cacheKey, controller);
 
 				parse(src, signal)
 					.then((result) => {
 						self.postMessage(
-							Object.assign(result, {src}),
+							Object.assign(result, {src, cacheKey}),
 							// @ts-expect-error
 							result.frames.map((frame) => frame.buffer),
 						);
 					})
 					.catch((error) => {
-						self.postMessage({src, error, loaded: true});
+						self.postMessage({src, cacheKey, error, loaded: true});
 					})
 					.finally(() => {
-						abortMap.delete(src);
+						abortMap.delete(cacheKey);
 					});
 			}
 
@@ -33,10 +33,10 @@ self.addEventListener('message', (e) => {
 		}
 
 		case 'cancel': {
-			if (abortMap.has(src)) {
-				const controller = abortMap.get(src);
+			if (abortMap.has(cacheKey)) {
+				const controller = abortMap.get(cacheKey);
 				controller.abort();
-				abortMap.delete(src);
+				abortMap.delete(cacheKey);
 			}
 
 			break;

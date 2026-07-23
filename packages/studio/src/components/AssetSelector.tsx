@@ -1,16 +1,16 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react';
-import {Internals} from 'remotion';
 import {writeStaticFile} from '../api/write-static-file';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {BACKGROUND, CLEAR_HOVER, LIGHT_TEXT} from '../helpers/colors';
+import {BACKGROUND, WHITE_ALPHA_06, LIGHT_TEXT} from '../helpers/colors';
 import {buildAssetFolderStructure} from '../helpers/create-folder-tree';
 import {toggleBooleanMapKey} from '../helpers/persist-boolean-map';
 import {persistExpandedFolders} from '../helpers/persist-open-folders';
-import useAssetDragEvents from '../helpers/use-asset-drag-events';
+import useAssetDragEvents, {
+	isFileDragEvent,
+} from '../helpers/use-asset-drag-events';
 import {FolderContext} from '../state/folders';
 import {useZIndex} from '../state/z-index';
 import {AssetFolderTree} from './AssetSelectorItem';
-import {CURRENT_ASSET_HEIGHT, CurrentAsset} from './CurrentAsset';
 import {inlineCodeSnippet} from './Menu/styles';
 import {showNotification} from './Notifications/NotificationCenter';
 import {useStaticFiles} from './use-static-files';
@@ -47,7 +47,6 @@ export const AssetSelector: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
 	const {tabIndex} = useZIndex();
-	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {assetFoldersExpanded, setAssetFoldersExpanded} =
 		useContext(FolderContext);
 	const [dropLocation, setDropLocation] = useState<string | null>(null);
@@ -55,16 +54,12 @@ export const AssetSelector: React.FC<{
 		.previewServerState.type;
 	const shouldAllowUpload = connectionStatus === 'connected' && !readOnlyStudio;
 
-	const showCurrentAsset = canvasContent?.type === 'asset';
-
 	const list: React.CSSProperties = useMemo(() => {
 		return {
 			...baseList,
-			height: showCurrentAsset
-				? `calc(100% - ${CURRENT_ASSET_HEIGHT}px)`
-				: '100%',
+			height: '100%',
 		};
-	}, [showCurrentAsset]);
+	}, []);
 
 	const staticFiles = useStaticFiles();
 	const publicFolderExists = window.remotion_publicFolderExists;
@@ -93,6 +88,10 @@ export const AssetSelector: React.FC<{
 	});
 	const onDragOver: React.DragEventHandler<HTMLDivElement> = useCallback(
 		(e) => {
+			if (!isFileDragEvent(e)) {
+				return;
+			}
+
 			e.preventDefault();
 		},
 		[],
@@ -101,14 +100,42 @@ export const AssetSelector: React.FC<{
 	const onDrop: React.DragEventHandler<HTMLDivElement> = useCallback(
 		async (e) => {
 			try {
+				if (!isFileDragEvent(e)) {
+					setDropLocation(null);
+					return;
+				}
+
 				e.preventDefault();
 				e.stopPropagation();
 				const {files} = e.dataTransfer;
+				if (files.length === 0) {
+					setDropLocation(null);
+					return;
+				}
+
 				const assetPath = dropLocation ?? null;
 
 				const makePath = (file: File) => {
 					return [assetPath, file.name].filter(Boolean).join('/');
 				};
+
+				const differentExistingFile = Array.from(files).find((file) => {
+					const filePath = makePath(file);
+					return staticFiles.some(
+						(staticFile) =>
+							staticFile.name === filePath &&
+							staticFile.sizeInBytes !== file.size,
+					);
+				});
+				if (differentExistingFile) {
+					showNotification(
+						`File with name ${makePath(
+							differentExistingFile,
+						)} already exists and is different`,
+						4000,
+					);
+					return;
+				}
 
 				for (const file of files) {
 					const body = await file.arrayBuffer();
@@ -129,7 +156,7 @@ export const AssetSelector: React.FC<{
 				setDropLocation(null);
 			}
 		},
-		[dropLocation],
+		[dropLocation, staticFiles],
 	);
 
 	return (
@@ -138,7 +165,6 @@ export const AssetSelector: React.FC<{
 			onDragOver={shouldAllowUpload ? onDragOver : undefined}
 			onDrop={shouldAllowUpload ? onDrop : undefined}
 		>
-			{showCurrentAsset ? <CurrentAsset /> : null}
 			{staticFiles.length === 0 ? (
 				publicFolderExists ? (
 					<div style={emptyState}>
@@ -162,7 +188,7 @@ export const AssetSelector: React.FC<{
 					className="__remotion-vertical-scrollbar"
 					style={{
 						...list,
-						backgroundColor: isDropDiv ? CLEAR_HOVER : BACKGROUND,
+						backgroundColor: isDropDiv ? WHITE_ALPHA_06 : BACKGROUND,
 					}}
 					onDragEnter={onDragEnter}
 					onDragLeave={onDragLeave}

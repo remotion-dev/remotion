@@ -5,7 +5,7 @@ import type {
 import {Internals} from 'remotion';
 import {showNotification} from '../Notifications/NotificationCenter';
 
-type SetCodeValues = (
+type SetPropStatuses = (
 	nodePath: SequencePropsSubscriptionKey,
 	values: (
 		prev: CanUpdateSequencePropsResponse,
@@ -42,9 +42,13 @@ const dropQueue = (
 
 export type EnqueueSaveOptions<TResponse> = {
 	nodePath: SequencePropsSubscriptionKey;
-	setCodeValues: SetCodeValues;
+	setPropStatuses: SetPropStatuses;
 	applyOptimistic: (
 		prev: CanUpdateSequencePropsResponse,
+	) => CanUpdateSequencePropsResponse;
+	applyServerResponse?: (
+		prev: CanUpdateSequencePropsResponse,
+		response: TResponse,
 	) => CanUpdateSequencePropsResponse;
 	apiCall: () => Promise<TResponse>;
 	errorLabel: string;
@@ -52,8 +56,9 @@ export type EnqueueSaveOptions<TResponse> = {
 
 export const enqueueSavePropChange = <TResponse>({
 	nodePath,
-	setCodeValues,
+	setPropStatuses,
 	applyOptimistic,
+	applyServerResponse,
 	apiCall,
 	errorLabel,
 }: EnqueueSaveOptions<TResponse>): Promise<void> => {
@@ -63,7 +68,7 @@ export const enqueueSavePropChange = <TResponse>({
 		return Promise.resolve();
 	}
 
-	setCodeValues(nodePath, (prev) => {
+	setPropStatuses(nodePath, (prev) => {
 		return applyOptimistic(prev);
 	});
 
@@ -74,13 +79,19 @@ export const enqueueSavePropChange = <TResponse>({
 		}
 
 		try {
-			await apiCall();
+			const response = await apiCall();
 			if (myQueue.cancelled) {
 				return;
 			}
 
 			// If nothing more is queued, reset baseline so the next round starts fresh.
 			if (myQueue.chain === next) {
+				if (applyServerResponse) {
+					setPropStatuses(nodePath, (prev) =>
+						applyServerResponse(prev, response),
+					);
+				}
+
 				dropQueue(nodePath, myQueue);
 			}
 		} catch (err) {

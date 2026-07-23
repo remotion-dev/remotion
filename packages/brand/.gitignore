@@ -3,3 +3,4 @@ build
 dist
 .DS_Store
 out
+public/documentation-pages/

@@ -12,11 +12,11 @@ _Part of the [`@remotion/light-leaks`](/docs/light-leaks/api) package._
 
 Applies a WebGL2-based light leak effect to canvas-based components such as [`<Video>`](/docs/media/video), [`<CanvasImage>`](/docs/canvasimage) and [`<Solid>`](/docs/solid).
 
-Use it when you want to add the light leak effect through an `effects` array instead of rendering the [`<LightLeak>`](/docs/light-leaks/light-leak) component.
+Use it when you want to add the light leak effect through an [`effects`](/docs/effects) array instead of rendering the [`<LightLeak>`](/docs/light-leaks/light-leak) component.
 
 ## Preview
 
-<Demo type="effects-light-leak" />
+<EffectsDemo type="effects-light-leak" />
 
 ## Example
 
@@ -77,7 +77,7 @@ When `true`, the effect is skipped. Defaults to `false`.
 
 ## Requirements
 
-`lightLeak()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer()`](/docs/config#setchromiumopenglrenderer) (for example `'angle'`). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+`lightLeak()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
 
 ## See also
 

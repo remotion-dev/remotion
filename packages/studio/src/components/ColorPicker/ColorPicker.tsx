@@ -1,12 +1,9 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
-import {
-	FAIL_COLOR,
-	INPUT_BORDER_COLOR_HOVERED,
-	INPUT_BORDER_COLOR_UNHOVERED,
-	WARNING_COLOR,
-} from '../../helpers/colors';
+import {formatRgba} from '../../helpers/color-conversion';
+import {CURRENT_COLOR, LIGHT_TEXT, TRANSPARENT} from '../../helpers/colors';
+import {EyedropperIcon} from '../../icons/eyedropper';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {MENU_INITIATOR_CLASSNAME} from '../Menu/is-menu-item';
 import {getPortal} from '../Menu/portals';
@@ -23,33 +20,16 @@ import {
 	CHECKER_BACKGROUND_POSITION,
 	CHECKER_BACKGROUND_SIZE,
 } from './checker';
-import {ColorPickerPopup, POPUP_WIDTH} from './ColorPickerPopup';
+import {
+	ColorPickerPopup,
+	POPUP_WIDTH,
+	hasEyeDropper,
+	parseEyeDropperColor,
+} from './ColorPickerPopup';
 
 // Class name used to opt the swatch button out of the global
 // `button:focus` inset box-shadow defined in inject-css.ts.
 const SWATCH_CLASSNAME = '__remotion_color_swatch';
-
-const getSwatchBorderColor = ({
-	status,
-	isFocused,
-	isHovered,
-}: {
-	status: RemInputStatus;
-	isFocused: boolean;
-	isHovered: boolean;
-}) => {
-	if (status === 'warning') {
-		return WARNING_COLOR;
-	}
-
-	if (status === 'error') {
-		return FAIL_COLOR;
-	}
-
-	return isFocused || isHovered
-		? INPUT_BORDER_COLOR_HOVERED
-		: INPUT_BORDER_COLOR_UNHOVERED;
-};
 
 const swatchBaseStyle: React.CSSProperties = {
 	position: 'relative',
@@ -57,6 +37,7 @@ const swatchBaseStyle: React.CSSProperties = {
 	overflow: 'hidden',
 	padding: 0,
 	margin: 0,
+	border: 'none',
 	cursor: 'pointer',
 	backgroundColor: CHECKER_BACKGROUND_COLOR,
 	backgroundImage: CHECKER_BACKGROUND_IMAGE,
@@ -69,6 +50,25 @@ const fillStyle: React.CSSProperties = {
 	position: 'absolute',
 	inset: 0,
 	display: 'block',
+};
+
+const controlStyle: React.CSSProperties = {
+	display: 'inline-flex',
+	alignItems: 'center',
+	gap: 3,
+	flex: '0 0 auto',
+};
+
+const eyedropperButtonBaseStyle: React.CSSProperties = {
+	background: TRANSPARENT,
+	border: 'none',
+	padding: 0,
+	margin: 0,
+	color: LIGHT_TEXT,
+	display: 'inline-flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	flex: '0 0 auto',
 };
 
 type Props = {
@@ -90,7 +90,6 @@ export const ColorPicker: React.FC<Props> = ({
 	value,
 	onChange,
 	onChangeComplete,
-	status,
 	disabled,
 	width = 45,
 	height = 25,
@@ -101,8 +100,6 @@ export const ColorPicker: React.FC<Props> = ({
 	style: customStyle,
 }) => {
 	const [opened, setOpened] = useState(false);
-	const [isHovered, setIsHovered] = useState(false);
-	const [isFocused, setIsFocused] = useState(false);
 	const triggerRef = useRef<HTMLButtonElement>(null);
 	const {tabIndex, currentZIndex} = useZIndex();
 
@@ -129,26 +126,35 @@ export const ColorPicker: React.FC<Props> = ({
 			width,
 			height,
 			borderRadius,
-			borderColor: getSwatchBorderColor({status, isFocused, isHovered}),
 			cursor: disabled ? 'not-allowed' : 'pointer',
 			opacity: disabled ? 0.5 : 1,
 			...(customStyle ?? {}),
 		};
-	}, [
-		borderRadius,
-		customStyle,
-		disabled,
-		height,
-		isFocused,
-		isHovered,
-		status,
-		width,
-	]);
+	}, [borderRadius, customStyle, disabled, height, width]);
 
-	const onMouseEnter = useCallback(() => setIsHovered(true), []);
-	const onMouseLeave = useCallback(() => setIsHovered(false), []);
-	const onFocus = useCallback(() => setIsFocused(true), []);
-	const onBlur = useCallback(() => setIsFocused(false), []);
+	const eyedropperButtonSize = Math.max(15, Math.min(28, height));
+	const eyedropperIconSize = Math.max(
+		12,
+		Math.min(18, eyedropperButtonSize - 2),
+	);
+
+	const eyedropperButtonStyle: React.CSSProperties = useMemo(() => {
+		return {
+			...eyedropperButtonBaseStyle,
+			width: eyedropperButtonSize,
+			height: eyedropperButtonSize,
+			cursor: disabled ? 'not-allowed' : 'pointer',
+			opacity: disabled ? 0.5 : 1,
+		};
+	}, [disabled, eyedropperButtonSize]);
+
+	const eyedropperIconStyle: React.CSSProperties = useMemo(() => {
+		return {
+			width: eyedropperIconSize,
+			height: eyedropperIconSize,
+			pointerEvents: 'none',
+		};
+	}, [eyedropperIconSize]);
 
 	// Toggle on pointerdown (matches Combobox) so the state flips before the
 	// HigherZIndex outside-click detection runs on pointerup. If we toggled in
@@ -193,6 +199,39 @@ export const ColorPicker: React.FC<Props> = ({
 		[disabled, refresh],
 	);
 
+	const onPickWithEyeDropper = useCallback(() => {
+		if (disabled) {
+			return;
+		}
+
+		const Ctor = (
+			window as unknown as {
+				EyeDropper?: new () => {open: () => Promise<{sRGBHex: string}>};
+			}
+		).EyeDropper;
+		if (!Ctor) {
+			return;
+		}
+
+		setOpened(false);
+		const dropper = new Ctor();
+		dropper
+			.open()
+			.then((result) => {
+				onChangeComplete(formatRgba(parseEyeDropperColor(result.sRGBHex)));
+			})
+			.catch(() => {
+				// Aborted; ignore.
+			});
+	}, [disabled, onChangeComplete]);
+
+	const onEyeDropperPointerDown = useCallback(
+		(e: React.PointerEvent<HTMLButtonElement>) => {
+			e.stopPropagation();
+		},
+		[],
+	);
+
 	const portalStyle = useMemo((): React.CSSProperties | null => {
 		if (!opened || !size) {
 			return null;
@@ -220,7 +259,7 @@ export const ColorPicker: React.FC<Props> = ({
 				...menuContainerTowardsBottom,
 				top: size.top + size.height + margin,
 				left,
-				background: 'transparent',
+				background: TRANSPARENT,
 				boxShadow: 'none',
 			};
 		}
@@ -229,7 +268,7 @@ export const ColorPicker: React.FC<Props> = ({
 			...menuContainerTowardsTop,
 			bottom: size.windowSize.height - size.top + margin,
 			left,
-			background: 'transparent',
+			background: TRANSPARENT,
 			boxShadow: 'none',
 		};
 	}, [opened, size]);
@@ -244,28 +283,42 @@ export const ColorPicker: React.FC<Props> = ({
 		return () => window.removeEventListener('blur', onWindowBlur);
 	}, [opened]);
 
+	const showEyeDropper = hasEyeDropper();
+
 	return (
 		<>
-			<button
-				ref={triggerRef}
-				type="button"
-				className={[MENU_INITIATOR_CLASSNAME, SWATCH_CLASSNAME, className]
-					.filter(Boolean)
-					.join(' ')}
-				disabled={disabled}
-				name={name}
-				title={title ?? value}
-				tabIndex={tabIndex}
-				style={swatchStyle}
-				onPointerDown={onTriggerPointerDown}
-				onClick={onTriggerClick}
-				onMouseEnter={onMouseEnter}
-				onMouseLeave={onMouseLeave}
-				onFocus={onFocus}
-				onBlur={onBlur}
-			>
-				<span style={swatchFill} />
-			</button>
+			<span style={controlStyle}>
+				<button
+					ref={triggerRef}
+					type="button"
+					className={[MENU_INITIATOR_CLASSNAME, SWATCH_CLASSNAME, className]
+						.filter(Boolean)
+						.join(' ')}
+					disabled={disabled}
+					name={name}
+					title={title ?? value}
+					tabIndex={tabIndex}
+					style={swatchStyle}
+					onPointerDown={onTriggerPointerDown}
+					onClick={onTriggerClick}
+				>
+					<span style={swatchFill} />
+				</button>
+				{showEyeDropper ? (
+					<button
+						type="button"
+						disabled={disabled}
+						style={eyedropperButtonStyle}
+						onPointerDown={onEyeDropperPointerDown}
+						onClick={onPickWithEyeDropper}
+						tabIndex={tabIndex}
+						title="Pick color from screen"
+						aria-label="Pick color from screen"
+					>
+						<EyedropperIcon style={eyedropperIconStyle} color={CURRENT_COLOR} />
+					</button>
+				) : null}
+			</span>
 			{portalStyle
 				? ReactDOM.createPortal(
 						<div style={fullScreenOverlay}>

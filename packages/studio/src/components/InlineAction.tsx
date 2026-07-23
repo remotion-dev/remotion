@@ -1,5 +1,10 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {LIGHT_TEXT, getBackgroundFromHoverState} from '../helpers/colors';
+import {
+	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
+	getBackgroundFromHoverState,
+} from '../helpers/colors';
 import {useZIndex} from '../state/z-index';
 
 export type RenderInlineAction = (color: string) => React.ReactNode;
@@ -33,10 +38,11 @@ export const InlineAction = ({
 		return {
 			border: 'none',
 			background: disabled
-				? 'transparent'
+				? TRANSPARENT
 				: getBackgroundFromHoverState({hovered, selected: false}),
 			height: 24,
 			width: 24,
+			padding: 0,
 			display: 'inline-flex',
 			justifyContent: 'center',
 			alignItems: 'center',
@@ -55,7 +61,7 @@ export const InlineAction = ({
 			tabIndex={tabIndex}
 			title={title}
 		>
-			{renderAction(hovered ? 'white' : LIGHT_TEXT)}
+			{renderAction(hovered ? WHITE : LIGHT_TEXT)}
 		</button>
 	);
 };

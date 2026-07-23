@@ -1,56 +1,119 @@
 import React from 'react';
 import type {
 	CanUpdateSequencePropStatusFalse,
-	CanUpdateSequencePropStatusTrue,
+	CanUpdateSequencePropStatusStatic,
+	SequencePropsSubscriptionKey,
 } from 'remotion';
+import {LIGHT_TEXT, WHITE_ALPHA_40} from '../../helpers/colors';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {getComputedStatusLabel} from './get-timeline-keyframes';
-import {TimelineBooleanField} from './TimelineBooleanField';
-import {TimelineColorField} from './TimelineColorField';
-import {TimelineEnumField} from './TimelineEnumField';
-import {TimelineNumberField} from './TimelineNumberField';
-import {TimelineRotationField} from './TimelineRotationField';
-import {TimelineTranslateField} from './TimelineTranslateField';
-import {TimelineUvCoordinateField} from './TimelineUvCoordinateField';
+import {TimelineArrayField} from './TimelineArrayField';
+import {
+	isTimelinePrimitiveFieldInfo,
+	TimelinePrimitiveFieldValue,
+} from './TimelinePrimitiveFieldValue';
 
-const unsupportedLabel: React.CSSProperties = {
-	color: 'rgba(255, 255, 255, 0.4)',
-	fontSize: 12,
-	fontStyle: 'italic',
+const INTERACTIVITY_BEST_PRACTICES_DOCS =
+	'https://www.remotion.dev/docs/studio/interactivity-best-practices';
+
+const TIMELINE_COMPUTED_VALUE_FIX_LINK = `${INTERACTIVITY_BEST_PRACTICES_DOCS}#keep-editable-values-visible`;
+
+export const TIMELINE_COMPUTED_EFFECT_FIX_LINK = `${INTERACTIVITY_BEST_PRACTICES_DOCS}#keep-effects-editable`;
+
+const unsupportedStatusWrapper: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'inline-flex',
+	gap: 4,
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
 };
 
-const notEditableBackground: React.CSSProperties = {
-	backgroundColor: 'rgba(255, 0, 0, 0.2)',
-	borderRadius: 3,
-	padding: '0 4px',
+const unsupportedLabel: React.CSSProperties = {
+	color: WHITE_ALPHA_40,
+	fontSize: 12,
+	fontStyle: 'italic',
 };
 
-const inlineWrapper: React.CSSProperties = {
-	fontSize: 12,
+const fixLinkBase: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	display: 'inline-block',
+	fontSize: 10,
+	fontStyle: 'normal',
+	fontWeight: 600,
+	lineHeight: 1,
+	textDecoration: 'none',
+	width: 17,
 };
 
 export const UnsupportedStatus: React.FC<{
 	readonly label: string;
-}> = ({label}) => {
-	return <span style={unsupportedLabel}>{label}</span>;
+	readonly fixHref?: string;
+}> = ({label, fixHref}) => {
+	const [hovered, setHovered] = React.useState(false);
+	const [focused, setFocused] = React.useState(false);
+	const visible = hovered || focused;
+
+	const fixLink: React.CSSProperties = React.useMemo(() => {
+		return {
+			...fixLinkBase,
+			opacity: visible ? 1 : 0,
+			pointerEvents: visible ? 'auto' : 'none',
+		};
+	}, [visible]);
+
+	const stopMousePropagation: React.MouseEventHandler<HTMLAnchorElement> = (
+		event,
+	) => {
+		event.stopPropagation();
+	};
+
+	const stopPointerPropagation: React.PointerEventHandler<HTMLAnchorElement> = (
+		event,
+	) => {
+		event.stopPropagation();
+	};
+
+	return (
+		<span
+			style={unsupportedStatusWrapper}
+			onPointerEnter={() => setHovered(true)}
+			onPointerLeave={() => setHovered(false)}
+		>
+			<span style={unsupportedLabel}>{label}</span>
+			{fixHref ? (
+				<a
+					href={fixHref}
+					target="_blank"
+					rel="noreferrer"
+					style={fixLink}
+					title="Open docs to fix computed Studio values"
+					onClick={stopMousePropagation}
+					onDoubleClick={stopMousePropagation}
+					onPointerDown={stopPointerPropagation}
+					onFocus={() => setFocused(true)}
+					onBlur={() => setFocused(false)}
+					tabIndex={visible ? 0 : -1}
+				>
+					Fix
+				</a>
+			) : null}
+		</span>
+	);
 };
 
 export const TimelineNonEditableStatus: React.FC<{
 	readonly propStatus: CanUpdateSequencePropStatusFalse;
 }> = ({propStatus}) => {
-	if (propStatus.canUpdate) {
-		return null;
-	}
-
-	if (propStatus.reason === 'computed' || propStatus.reason === 'keyframed') {
+	if (propStatus.status === 'computed') {
 		return (
-			<span style={unsupportedLabel}>{getComputedStatusLabel(propStatus)}</span>
+			<UnsupportedStatus
+				label={getComputedStatusLabel(propStatus)}
+				fixHref={TIMELINE_COMPUTED_VALUE_FIX_LINK}
+			/>
 		);
 	}
 };
@@ -60,8 +123,9 @@ export const TimelineFieldValue: React.FC<{
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
-	readonly propStatus: CanUpdateSequencePropStatusTrue;
+	readonly propStatus: CanUpdateSequencePropStatusStatic;
 	readonly effectiveValue: unknown;
+	readonly scaleLockNodePath: SequencePropsSubscriptionKey | null;
 }> = ({
 	field,
 	onSave,
@@ -69,109 +133,31 @@ export const TimelineFieldValue: React.FC<{
 	onDragEnd,
 	propStatus,
 	effectiveValue,
+	scaleLockNodePath,
 }) => {
-	const wrapperStyle: React.CSSProperties | undefined = !propStatus.canUpdate
-		? notEditableBackground
-		: undefined;
-
-	if (field.typeName === 'number') {
+	if (isTimelinePrimitiveFieldInfo(field)) {
 		return (
-			<span style={wrapperStyle}>
-				<TimelineNumberField
-					field={field}
-					effectiveValue={effectiveValue}
-					onSave={onSave}
-					propStatus={propStatus}
-					onDragValueChange={onDragValueChange}
-					onDragEnd={onDragEnd}
-				/>
-			</span>
+			<TimelinePrimitiveFieldValue
+				effectiveValue={effectiveValue}
+				field={field}
+				onDragEnd={onDragEnd}
+				onDragValueChange={onDragValueChange}
+				onSave={onSave}
+				propStatus={propStatus}
+				scaleLockNodePath={scaleLockNodePath}
+			/>
 		);
 	}
 
-	if (field.typeName === 'rotation') {
+	if (field.typeName === 'array') {
 		return (
-			<span style={wrapperStyle}>
-				<TimelineRotationField
-					field={field}
+			<span>
+				<TimelineArrayField
 					effectiveValue={effectiveValue}
-					propStatus={propStatus}
-					onSave={onSave}
-					onDragValueChange={onDragValueChange}
+					field={field}
 					onDragEnd={onDragEnd}
-				/>
-			</span>
-		);
-	}
-
-	if (field.typeName === 'translate') {
-		return (
-			<span style={wrapperStyle}>
-				<TimelineTranslateField
-					field={field}
-					effectiveValue={effectiveValue}
-					propStatus={propStatus}
-					onSave={onSave}
 					onDragValueChange={onDragValueChange}
-					onDragEnd={onDragEnd}
-				/>
-			</span>
-		);
-	}
-
-	if (field.typeName === 'uv-coordinate') {
-		return (
-			<span style={wrapperStyle}>
-				<TimelineUvCoordinateField
-					field={field}
-					effectiveValue={effectiveValue}
-					propStatus={propStatus}
 					onSave={onSave}
-					onDragValueChange={onDragValueChange}
-					onDragEnd={onDragEnd}
-				/>
-			</span>
-		);
-	}
-
-	if (field.typeName === 'boolean') {
-		return (
-			<span style={wrapperStyle}>
-				<TimelineBooleanField
-					field={field}
-					propStatus={propStatus}
-					onSave={onSave}
-					effectiveValue={effectiveValue}
-				/>
-			</span>
-		);
-	}
-
-	if (field.typeName === 'color') {
-		return (
-			<span style={wrapperStyle}>
-				<TimelineColorField
-					field={field}
-					propStatus={propStatus}
-					onSave={onSave}
-					onDragValueChange={onDragValueChange}
-					onDragEnd={onDragEnd}
-					effectiveValue={effectiveValue}
-				/>
-			</span>
-		);
-	}
-
-	if (field.typeName === 'enum') {
-		return (
-			<span style={inlineWrapper}>
-				<TimelineEnumField
-					field={field}
-					propStatus={propStatus}
-					onSave={onSave}
-					effectiveValue={effectiveValue}
-					onDragValueChange={onDragValueChange}
-					onDragEnd={onDragEnd}
 				/>
 			</span>
 		);

@@ -10,7 +10,7 @@ crumb: 'API - remotion'
 Wraps the native [`<video>`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement) element to include video in your component that is synchronized with Remotion's time.
 
 :::note
-Prefer [one of the other video tags](/docs/video-tags) which perform better.
+For new video usage, prefer [`<Video>`](/docs/media/video) from [`@remotion/media`](/docs/media). Use `<Html5Video>` when you specifically need native HTML5 `<video>` behavior.
 :::
 
 :::warning Not supported in client-side rendering
@@ -144,8 +144,7 @@ export const MyComposition = () => {
 };
 ```
 
-By default, volumes between 0 and 1 are supported, where in iOS Safari, the volume is always 1.  
-See [Volume Limitations](/docs/audio/volume#limitations) for more information.
+By default, volumes between `0` and `1` are supported, and iOS Safari always sets the volume to `1`. Set [`useWebAudioApi`](#usewebaudioapi) to `true` to remove these limitations. This requires `crossOrigin="anonymous"`, and the video source must support CORS. On Safari, `useWebAudioApi` cannot be combined with [`playbackRate`](#playbackrate); otherwise, volume changes are ignored.
 
 ### `loopVolumeCurveBehavior?`<AvailableFrom v="4.0.142" />
 
@@ -293,6 +292,15 @@ If you don't pass a callback, the video will be muted and be retried once.
 This prop is useful if you want to handle the error yourself, e.g. for pausing the Player.  
 Read more here about [autoplay restrictions](/docs/player/autoplay).
 
+### `onVideoFrame?`<AvailableFrom v="4.0.472" />
+
+A callback function that gets called when a frame is extracted from the video.  
+Useful for [video manipulation](/docs/videos/video-manipulation).
+The first argument is a [`CanvasImageSource`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource), more specifically a `HTMLVideoElement`.
+
+When the browser reports a presented frame using [`HTMLVideoElement.requestVideoFrameCallback()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLVideoElement/requestVideoFrameCallback), the callback also receives the `DOMHighResTimeStamp` and [`VideoFrameCallbackMetadata`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrameCallbackMetadata) as the second and third argument.  
+These arguments are `undefined` for the first synchronous callback and in browsers that don't support `requestVideoFrameCallback()`.
+
 ### `crossOrigin?`<AvailableFrom v="4.0.190" />
 
 Corresponds to the [`crossOrigin`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#attr-crossorigin) attribute of the `<video>` element.  
@@ -301,7 +309,7 @@ Default: `"anonymous"` if `onVideoFrame` is specified, `undefined`, otherwise.
 
 ### `useWebAudioApi?`<AvailableFrom v="4.0.306" />
 
-Enable the [Web Audio API](/docs/audio/volume#limitations) for the video tag.
+Enables the Web Audio API for the video tag, allowing volume values above `1` and volume control on iOS Safari. Set `crossOrigin="anonymous"` and ensure the video source supports CORS. On Safari, this cannot be combined with [`playbackRate`](#playbackrate); otherwise, volume changes are ignored.
 
 ### ~`allowAmplificationDuringRender?`<AvailableFrom v="3.3.17" />~
 
@@ -318,10 +326,11 @@ Remotion will download the whole video during render in order to mix its audio. 
 
 See: [Which video formats does Remotion support?](/docs/miscellaneous/video-formats)
 
-## Alternatives: `<OffthreadVideo>` and `@remotion/media`
+## Alternatives: `@remotion/media` and `<OffthreadVideo>`
 
-[`<OffthreadVideo>`](/docs/offthreadvideo) is a Rust-based alternative to `<Html5Video>`.  
-[`@remotion/media`](/docs/media/video) is an experimental component that will replace `<Html5Video>` at some point.
+[`<Video>` from `@remotion/media`](/docs/media/video) is the recommended video component for new code.
+
+[`<OffthreadVideo>`](/docs/offthreadvideo) is an alternative for direct server-side frame extraction and can also be used as a fallback target by `@remotion/media`.
 
 To decide which tag to use, see: [Comparison of video tags](/docs/video-tags)
 
@@ -332,8 +341,8 @@ To decide which tag to use, see: [Comparison of video tags](/docs/video-tags)
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/video/html5-video.tsx)
+- [`<Video />` (from `@remotion/media`)](/docs/media/video)
 - [`<Html5Audio />`](/docs/html5-audio)
 - [`<OffthreadVideo />`](/docs/offthreadvideo)
-- [`<Video />` (from `@remotion/media`)](/docs/media/video)
 - [Comparison of video tags](/docs/video-tags)
-- [`Change the speed of a video over time`](/docs/miscellaneous/snippets/accelerated-video)
+- [`Change the speed of a video over time`](/docs/videos/accelerated-video)

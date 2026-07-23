@@ -53,6 +53,103 @@ describe('Composition-validation render should throw with invalid props', () => 
 			);
 		});
 	});
+	describe('Throw with invalid trimBefore props', () => {
+		test('It should throw if "trimBefore" props is not a number', () => {
+			expectToThrow(
+				() =>
+					render(
+						<WrapSequenceContext>
+							{/* @ts-expect-error */}
+							<Sequence trimBefore={'0'} durationInFrames={30} />
+						</WrapSequenceContext>,
+					),
+				/You passed to the "trimBefore" prop of your <Sequence> an argument of type string, but it must be a number./,
+			);
+		});
+
+		test('It should throw if "trimBefore" prop is negative', () => {
+			expectToThrow(
+				() =>
+					render(
+						<WrapSequenceContext>
+							<Sequence trimBefore={-1} durationInFrames={30} />
+						</WrapSequenceContext>,
+					),
+				/The "trimBefore" prop of <Sequence \/> must be greater than or equal to 0, but got -1./,
+			);
+		});
+
+		test('It should throw if "trimBefore" prop is NaN', () => {
+			expectToThrow(
+				() =>
+					render(
+						<WrapSequenceContext>
+							<Sequence trimBefore={NaN} durationInFrames={30} />
+						</WrapSequenceContext>,
+					),
+				/The "trimBefore" prop of <Sequence \/> must be a real number, but it is NaN./,
+			);
+		});
+
+		test('It should throw if "trimBefore" prop is Infinity', () => {
+			expectToThrow(
+				() =>
+					render(
+						<WrapSequenceContext>
+							<Sequence trimBefore={Infinity} durationInFrames={30} />
+						</WrapSequenceContext>,
+					),
+				/The "trimBefore" prop of <Sequence \/> must be finite, but it is Infinity./,
+			);
+		});
+	});
+	describe('Throw with invalid freeze props', () => {
+		test('It should throw if "freeze" prop is not a number', () => {
+			expectToThrow(
+				() =>
+					render(
+						<WrapSequenceContext>
+							{/* @ts-expect-error */}
+							<Sequence freeze={'0'} durationInFrames={30} />
+						</WrapSequenceContext>,
+					),
+				/The "freeze" prop of <Sequence \/> must be a number, but is of type string./,
+			);
+		});
+
+		test('It should throw if "freeze" prop is NaN', () => {
+			expectToThrow(
+				() =>
+					render(
+						<WrapSequenceContext>
+							<Sequence freeze={NaN} durationInFrames={30} />
+						</WrapSequenceContext>,
+					),
+				/The "freeze" prop of <Sequence \/> must be a real number, but it is NaN./,
+			);
+		});
+
+		test('It should throw if "freeze" prop is Infinity', () => {
+			expectToThrow(
+				() =>
+					render(
+						<WrapSequenceContext>
+							<Sequence freeze={Infinity} durationInFrames={30} />
+						</WrapSequenceContext>,
+					),
+				/The "freeze" prop of <Sequence \/> must be finite, but it is Infinity./,
+			);
+		});
+	});
+	describe('Allow valid freeze props', () => {
+		test('It should allow "freeze" prop to be null', () => {
+			render(
+				<WrapSequenceContext>
+					<Sequence freeze={null} durationInFrames={30} />
+				</WrapSequenceContext>,
+			);
+		});
+	});
 	test('It should throw for invalid layout value', () => {
 		expectToThrow(
 			() =>

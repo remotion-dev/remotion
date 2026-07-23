@@ -51,7 +51,14 @@ export const HigherZIndex: React.FC<{
 	readonly onOutsideClick: (target: Node) => void;
 	readonly children: React.ReactNode;
 	readonly disabled?: boolean;
-}> = ({children, onEscape, onOutsideClick, disabled}) => {
+	readonly outsideClickButton?: 'any' | 'primary';
+}> = ({
+	children,
+	onEscape,
+	onOutsideClick,
+	disabled,
+	outsideClickButton = 'any',
+}) => {
 	const context = useContext(ZIndexContext);
 	const highestContext = useContext(HighestZIndexContext);
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -77,6 +84,10 @@ export const HigherZIndex: React.FC<{
 		let onUp: ((upEvent: MouseEvent) => void) | null = null;
 
 		const listener = (downEvent: MouseEvent) => {
+			if (outsideClickButton === 'primary' && downEvent.button !== 0) {
+				return;
+			}
+
 			const outsideClick = !containerRef.current?.contains(
 				downEvent.target as Node,
 			);
@@ -102,7 +113,10 @@ export const HigherZIndex: React.FC<{
 		// If a menu is opened, then this component will also still receive the pointerdown event.
 		// However we may not interpret it as a outside click, so we need to wait for the next tick
 		requestAnimationFrame(() => {
-			window.addEventListener('pointerdown', listener);
+			// The third argument `true` registers a capture-phase listener. Some Studio
+			// elements stop pointerdown propagation while still being outside the menu,
+			// so bubbling listeners would miss those clicks and keep the menu open.
+			window.addEventListener('pointerdown', listener, true);
 		});
 		return () => {
 			if (onUp) {
@@ -112,9 +126,15 @@ export const HigherZIndex: React.FC<{
 
 			onUp = null;
 
-			return window.removeEventListener('pointerdown', listener);
+			return window.removeEventListener('pointerdown', listener, true);
 		};
-	}, [currentIndex, disabled, highestContext.highestIndex, onOutsideClick]);
+	}, [
+		currentIndex,
+		disabled,
+		highestContext.highestIndex,
+		onOutsideClick,
+		outsideClickButton,
+	]);
 
 	const value = useMemo((): ZIndex => {
 		return {

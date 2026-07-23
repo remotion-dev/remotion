@@ -13,6 +13,11 @@ import {getExecutablePath} from './compositor/get-executable-path';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
+import {
+	formatStackFrameCodeFrame,
+	formatStackFrameLocationLine,
+	makeStackFrameFileName,
+} from './error-handling/format-stack-frame';
 import {symbolicateError} from './error-handling/symbolicate-error';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
 import {defaultFileExtensionMap} from './file-extensions';
@@ -180,6 +185,9 @@ export const RenderInternals = {
 	downloadFile,
 	parseStack,
 	symbolicateError,
+	makeStackFrameFileName,
+	formatStackFrameCodeFrame,
+	formatStackFrameLocationLine,
 	SymbolicateableError,
 	getFramesToRender,
 	getExtensionOfFilename,

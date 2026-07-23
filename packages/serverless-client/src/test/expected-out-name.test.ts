@@ -92,6 +92,45 @@ test('Should save to a different outname', () => {
 	});
 });
 
+test('Should preserve custom provider regions outside the built-in AWS list', () => {
+	const newRenderMetadata: RenderMetadata<MockProvider> = {
+		...testRenderMetadata,
+		outName: {
+			bucketName: 'my-bucket',
+			key: 'my-key',
+			s3OutputProvider: {
+				endpoint: 'https://fly.storage.tigris.dev',
+			},
+		},
+		privacy: 'private',
+	};
+
+	expect(
+		getExpectedOutName({
+			renderMetadata: newRenderMetadata,
+			bucketName,
+			customCredentials: {
+				endpoint: 'https://fly.storage.tigris.dev',
+				accessKeyId: 'access-key',
+				secretAccessKey: 'secret-key',
+				region: 'auto',
+				forcePathStyle: false,
+			},
+			bucketNamePrefix: 'remotionlambda-',
+		}),
+	).toEqual({
+		customCredentials: {
+			endpoint: 'https://fly.storage.tigris.dev',
+			accessKeyId: 'access-key',
+			secretAccessKey: 'secret-key',
+			region: 'auto',
+			forcePathStyle: false,
+		},
+		renderBucketName: 'my-bucket',
+		key: 'my-key',
+	});
+});
+
 test('For stills', () => {
 	const newRenderMetadata: RenderMetadata<MockProvider> = {
 		...testRenderMetadata,

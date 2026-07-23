@@ -8,11 +8,11 @@ import {
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {TimelineExpandedTrackKeyframes} from './TimelineExpandedTrackKeyframes';
 import {
-	TIMELINE_SELECTED_TRACK_HIGHLIGHT_STYLE,
-	useTimelineRowContainsSelection,
-	useTimelineRowSelection,
+	getTimelineSelectedTrackHighlightStyle,
+	useTimelineRowHighlightBackground,
 } from './TimelineSelection';
 import {TimelineSequence} from './TimelineSequence';
+import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const TimelineTrackUnmemoized: React.FC<{
 	readonly track: TrackWithHash;
@@ -20,8 +20,10 @@ const TimelineTrackUnmemoized: React.FC<{
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewServerConnected = previewServerState.type === 'connected';
-	const {selected: rowSelected} = useTimelineRowSelection(track.nodePathInfo);
-	const containsSelection = useTimelineRowContainsSelection(track.nodePathInfo);
+	const timelineWidth = useContext(TimelineWidthContext);
+	const rowHighlightBackground = useTimelineRowHighlightBackground(
+		track.nodePathInfo,
+	);
 
 	const layerStyle = useMemo(
 		(): React.CSSProperties => ({
@@ -37,16 +39,23 @@ const TimelineTrackUnmemoized: React.FC<{
 		previewServerConnected &&
 		getIsExpanded(track.nodePathInfo);
 
-	const showRowHighlight =
-		track.nodePathInfo !== null && (rowSelected || containsSelection);
-
 	return (
 		<div>
 			<div style={layerStyle}>
-				{showRowHighlight ? (
-					<div style={TIMELINE_SELECTED_TRACK_HIGHLIGHT_STYLE} />
+				{rowHighlightBackground && timelineWidth !== null ? (
+					<div
+						style={getTimelineSelectedTrackHighlightStyle(
+							timelineWidth,
+							rowHighlightBackground,
+						)}
+					/>
 				) : null}
-				<TimelineSequence s={track.sequence} />
+				<TimelineSequence
+					s={track.sequence}
+					connectedCompositions={track.connectedCompositions ?? []}
+					nodePathInfo={track.nodePathInfo}
+					sequenceFrameOffset={track.sequenceFrameOffset}
+				/>
 			</div>
 			{showExpandedKeyframes && track.nodePathInfo ? (
 				<TimelineExpandedTrackKeyframes

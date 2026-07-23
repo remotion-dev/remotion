@@ -1,6 +1,7 @@
 // Import the original mapper
 import MDXComponents from '@theme-original/MDXComponents';
 import {Demo} from '../../components/demos';
+import {EffectsDemo} from '../../components/effects-demos';
 import {ExperimentalBadge} from '../../components/Experimental';
 import {InlineStep, Step, TitleStep} from '../../components/InlineStep';
 import {Installation} from '../../components/Installation';
@@ -14,7 +15,7 @@ import {
 import {CompatibilityTable} from '../components/CompatibilityTable';
 import {Credits} from '../components/Credits';
 import {Options} from '../components/Options';
-import {SuggestedPrompts} from '../components/SuggestedPrompts';
+import {SuggestedPrompt} from '../components/SuggestedPrompt';
 import {TsType} from '../components/TsType';
 import RawMarkdownCarrier from './RawMarkdownCarrier/index';
 
@@ -24,6 +25,7 @@ export default {
 	ExperimentalBadge,
 	Step,
 	Demo,
+	EffectsDemo,
 	AvailableFrom,
 	TsType,
 	MinNodeVersion,
@@ -36,5 +38,5 @@ export default {
 	JumpToVideoLink,
 	RawMarkdownCarrier,
 	CompatibilityTable,
-	SuggestedPrompts,
+	SuggestedPrompt,
 };

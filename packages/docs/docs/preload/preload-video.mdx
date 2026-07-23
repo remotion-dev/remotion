@@ -9,7 +9,9 @@ crumb: '@remotion/player'
 
 _This function is part of the [`@remotion/preload`](/docs/preload) package._
 
-This function preloads a video in the DOM so that when a video tag is mounted, it can play immediately.
+This function preloads a video in the DOM so that when an HTML5 `<video>` element is mounted, it can play immediately.
+
+It only affects HTML5 video elements such as [`<Html5Video>`](/docs/html5-video), not [`<Video>` from `@remotion/media`](/docs/media/video).
 
 While preload is not necessary for rendering, it can help with seamless playback in the [`<Player />`](/docs/player) and in the Studio.
 

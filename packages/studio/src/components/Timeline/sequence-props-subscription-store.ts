@@ -1,18 +1,35 @@
-import {getAllSchemaKeys} from '@remotion/studio-shared';
-import type {SequenceSchema} from 'remotion';
+import {getAllSchemaKeys, getAssetSchemaKeys} from '@remotion/studio-shared';
+import type {
+	JsxComponentIdentity,
+	SequenceNodePath,
+	InteractivitySchema,
+	VideoConfigValues,
+} from 'remotion';
 import {Internals} from 'remotion';
 import {callApi} from '../call-api';
 
 type Key = string;
 
-const makeKey = (
-	fileName: string,
-	line: number,
-	column: number,
-	sequenceKeys: string[],
-	effectKeys: string[][],
-): Key =>
-	`${fileName}\0${line}\0${column}\0${sequenceKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}`;
+const makeKey = ({
+	fileName,
+	line,
+	column,
+	componentIdentity,
+	sequenceKeys,
+	assetKeys,
+	effectKeys,
+	videoConfigValues,
+}: {
+	fileName: string;
+	line: number;
+	column: number;
+	componentIdentity: JsxComponentIdentity | null;
+	sequenceKeys: string[];
+	assetKeys: string[];
+	effectKeys: string[][];
+	videoConfigValues: VideoConfigValues;
+}): Key =>
+	`${fileName}\0${line}\0${column}\0${componentIdentity ?? ''}\0${sequenceKeys.join('\0')}\0${assetKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}\0${JSON.stringify(videoConfigValues)}`;
 
 type SubscribeResult = Awaited<
 	ReturnType<typeof callApi<'/api/subscribe-to-sequence-props'>>
@@ -35,23 +52,39 @@ export const acquireSequencePropsSubscription = ({
 	line,
 	column,
 	schema,
+	componentIdentity,
 	effects,
+	nodePath,
 	clientId,
 	applyOnce,
 	applyEach,
+	videoConfigValues,
 }: {
 	fileName: string;
 	line: number;
 	column: number;
-	schema: SequenceSchema;
-	effects: SequenceSchema[];
+	schema: InteractivitySchema;
+	componentIdentity: JsxComponentIdentity | null;
+	effects: InteractivitySchema[];
+	nodePath: SequenceNodePath | null;
 	clientId: string;
 	applyOnce: ApplyResult;
 	applyEach: ApplyResult;
+	videoConfigValues: VideoConfigValues;
 }): {release: () => void} => {
 	const sequenceKeys = getAllSchemaKeys(schema);
+	const assetKeys = getAssetSchemaKeys(schema);
 	const effectKeys = effects.map((effect) => getAllSchemaKeys(effect));
-	const key = makeKey(fileName, line, column, sequenceKeys, effectKeys);
+	const key = makeKey({
+		fileName,
+		line,
+		column,
+		componentIdentity,
+		sequenceKeys,
+		assetKeys,
+		effectKeys,
+		videoConfigValues,
+	});
 	let entry = entries.get(key);
 
 	if (!entry) {
@@ -59,9 +92,13 @@ export const acquireSequencePropsSubscription = ({
 			fileName,
 			line,
 			column,
+			nodePath,
+			componentIdentity,
 			keys: getAllSchemaKeys(schema),
+			assetKeys,
 			effects: effectKeys,
 			clientId,
+			videoConfigValues,
 		});
 		const created: Entry = {
 			refCount: 0,
@@ -131,6 +168,7 @@ export const acquireSequencePropsSubscription = ({
 						nodePath: result.nodePath,
 						clientId: acquired.clientId,
 						sequenceKeys,
+						assetKeys,
 						effectKeys,
 					});
 				})

@@ -35,7 +35,7 @@ export type TransitionPresentationComponentProps<
 	presentationDirection: PresentationDirection;
 	passedProps: PresentationProps;
 	presentationDurationInFrames: number;
-	onElementImage: (elementImage: ElementImage, draw: DrawFunction) => void;
+	onElementImage: (elementImage: OffscreenCanvas, draw: DrawFunction) => void;
 	onUnmount: () => void;
 	bothEnteringAndExiting: boolean;
 };
@@ -44,8 +44,4 @@ export type TransitionSeriesOverlayProps = {
 	readonly durationInFrames: number;
 	readonly offset?: number;
 	readonly children: React.ReactNode;
-	/**
-	 * @deprecated For internal use only
-	 */
-	readonly stack?: string;
 };

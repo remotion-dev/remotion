@@ -5,6 +5,7 @@ import {
 	EXPANDED_SIDEBAR_STATE,
 	LOGS_FILE,
 	ORIGINAL_CONTENT_FILE,
+	ORIGINAL_EFFECT_KEYFRAME_E2E_FILE,
 	ORIGINAL_ERROR_OVERLAY_E2E_FILE,
 	ORIGINAL_HOOK_ORDER_CHANGE_E2E_FILE,
 	ORIGINAL_LOST_NODE_PATH_E2E_FILE,
@@ -12,6 +13,7 @@ import {
 	STUDIO_PORT,
 	STUDIO_URL,
 	e2eEntryPoint,
+	effectKeyframeE2eFile,
 	errorOverlayE2eFile,
 	exampleDir,
 	hookOrderChangeE2eFile,
@@ -57,6 +59,13 @@ export async function startStudio(): Promise<void> {
 		);
 	}
 
+	if (!fs.existsSync(ORIGINAL_EFFECT_KEYFRAME_E2E_FILE)) {
+		fs.writeFileSync(
+			ORIGINAL_EFFECT_KEYFRAME_E2E_FILE,
+			fs.readFileSync(effectKeyframeE2eFile, 'utf-8'),
+		);
+	}
+
 	if (!fs.existsSync(ORIGINAL_LOST_NODE_PATH_E2E_FILE)) {
 		fs.writeFileSync(
 			ORIGINAL_LOST_NODE_PATH_E2E_FILE,
@@ -83,6 +92,10 @@ export async function startStudio(): Promise<void> {
 	fs.writeFileSync(
 		visualControlsFile,
 		fs.readFileSync(ORIGINAL_VISUAL_CONTROLS_FILE, 'utf-8'),
+	);
+	fs.writeFileSync(
+		effectKeyframeE2eFile,
+		fs.readFileSync(ORIGINAL_EFFECT_KEYFRAME_E2E_FILE, 'utf-8'),
 	);
 	fs.writeFileSync(
 		lostNodePathE2eFile,
@@ -218,6 +231,13 @@ export async function stopStudio(): Promise<void> {
 		fs.writeFileSync(
 			visualControlsFile,
 			fs.readFileSync(ORIGINAL_VISUAL_CONTROLS_FILE, 'utf-8'),
+		);
+	}
+
+	if (fs.existsSync(ORIGINAL_EFFECT_KEYFRAME_E2E_FILE)) {
+		fs.writeFileSync(
+			effectKeyframeE2eFile,
+			fs.readFileSync(ORIGINAL_EFFECT_KEYFRAME_E2E_FILE, 'utf-8'),
 		);
 	}
 

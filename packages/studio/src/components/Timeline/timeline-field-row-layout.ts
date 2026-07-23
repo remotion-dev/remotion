@@ -4,9 +4,10 @@ import {getTimelineFieldLabelFlexBasis} from './timeline-row-layout';
 
 export const getTimelineFieldLabelRowStyle = (
 	depth: number,
+	basePadding?: number,
 ): React.CSSProperties => {
 	return {
-		flex: `0 0 ${getTimelineFieldLabelFlexBasis(depth)}`,
+		flex: `0 0 ${getTimelineFieldLabelFlexBasis(depth, basePadding)}`,
 		minWidth: 0,
 		display: 'flex',
 		flexDirection: 'row',
@@ -22,4 +23,12 @@ export const timelineFieldValueColumnStyle: React.CSSProperties = {
 	flex: 1,
 	minWidth: 0,
 	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
+};
+
+export const timelineStackedFieldContentStyle: React.CSSProperties = {
+	alignSelf: 'stretch',
+	display: 'flex',
+	flex: 1,
+	flexDirection: 'column',
+	minWidth: 0,
 };

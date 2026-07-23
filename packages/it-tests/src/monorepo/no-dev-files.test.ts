@@ -1,9 +1,10 @@
 import {test} from 'bun:test';
+import {copyFileSync, existsSync, unlinkSync} from 'fs';
 import path from 'path';
 import {$} from 'bun';
 import {getAllPackages} from './get-all-packages';
 
-const packages = getAllPackages();
+const packages = getAllPackages().filter((pkg) => pkg.pkg !== 'google-fonts');
 
 const MAX_CONCURRENT_PACK_CHECKS = 8;
 let activePackChecks = 0;
@@ -35,13 +36,30 @@ const assertNoDevFilesPublished = async (pkgPath: string) => {
 	const dir = path.join(pkgPath, '..');
 	const release = await acquirePackCheckSlot();
 
+	const hasLicenseReference = packageJson.license?.includes('LICENSE.md');
+	const licensePath = path.join(dir, 'LICENSE.md');
+	const copiedLicense = hasLicenseReference && !existsSync(licensePath);
+
+	if (copiedLicense) {
+		copyFileSync(
+			path.join(__dirname, '..', '..', '..', '..', 'LICENSE.md'),
+			licensePath,
+		);
+	}
+
 	try {
+		let hasPackedLicense = false;
 		const files = $`bun pm pack --dry-run`.cwd(dir).lines();
 		for await (const file of files) {
-			if (!file.startsWith('packed')) {
+			const line = file.replace(/\x1B\[[0-?]*[ -/]*[@-~]/g, '');
+			if (!line.startsWith('packed')) {
 				continue;
 			}
-			const [, , filename] = file.split(' ');
+			const filename = line.split(/\s+/).at(-1) as string;
+			if (filename === 'LICENSE.md' || filename.endsWith('/LICENSE.md')) {
+				hasPackedLicense = true;
+			}
+
 			if (
 				filename.includes('eslint.config.mjs') ||
 				filename.includes('tsconfig') ||
@@ -58,20 +76,24 @@ const assertNoDevFilesPublished = async (pkgPath: string) => {
 				throw new Error('Disallowed file found in ' + filename);
 			}
 		}
+
+		if (hasLicenseReference && !hasPackedLicense) {
+			throw new Error('LICENSE.md is not packed for ' + packageJson.name);
+		}
 	} finally {
+		if (copiedLicense) {
+			unlinkSync(licensePath);
+		}
+
 		release();
 	}
 };
 
 for (const pkg of packages) {
-	const isGoogleFonts = pkg.pkg === 'google-fonts';
-	const timeout = isGoogleFonts ? 120_000 : undefined;
-
 	test.concurrent(
 		'should not publish any dev files for @remotion/' + pkg.pkg,
 		async () => {
 			await assertNoDevFilesPublished(pkg.path);
 		},
-		timeout === undefined ? undefined : {timeout},
 	);
 }

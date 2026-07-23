@@ -1,8 +1,9 @@
-import {createRef, useCallback, useImperativeHandle, useState} from 'react';
+import {useCallback, useImperativeHandle, useState} from 'react';
 import {BACKGROUND} from '../helpers/colors';
 import {AssetSelector} from './AssetSelector';
 import {CompositionSelector} from './CompositionSelector';
 import {CompSelectorRef} from './CompSelectorRef';
+import {explorerSidebarTabs} from './ExplorerPanelRef';
 import {Tab, Tabs} from './Tabs';
 
 const container: React.CSSProperties = {
@@ -35,11 +36,6 @@ const persistSelectedOptionsSidebarPanel = (panel: OptionsSidebarPanel) => {
 	localStorage.setItem(localStorageKey, panel);
 };
 
-export const explorerSidebarTabs = createRef<{
-	selectAssetsPanel: () => void;
-	selectCompositionPanel: () => void;
-}>();
-
 export const ExplorerPanel: React.FC<{
 	readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
@@ -69,9 +65,18 @@ export const ExplorerPanel: React.FC<{
 		};
 	}, []);
 
+	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+		// Prevent deselection of currently selected items
+		e.stopPropagation();
+	}, []);
+
 	return (
 		<CompSelectorRef>
-			<div style={container} className="css-reset">
+			<div
+				style={container}
+				className="css-reset"
+				onPointerDown={onPointerDown}
+			>
 				<div style={tabsContainer}>
 					<Tabs>
 						<Tab

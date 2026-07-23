@@ -1,12 +1,18 @@
 use std::{io::ErrorKind, time::SystemTime};
 
-use ffmpeg_next::{ ffi::AVSEEK_FLAG_ANY,  Rational};
+use ffmpeg_next::{ffi::AVSEEK_FLAG_ANY, Rational};
 use remotionffmpeg::{codec::Id, frame::Video, media::Type, Dictionary, StreamMut};
 extern crate ffmpeg_next as remotionffmpeg;
 use std::time::UNIX_EPOCH;
 
 use crate::{
-    errors::ErrorWithBacktrace, frame_cache::{get_frame_cache_id, FrameCacheItem}, frame_cache_manager::FrameCacheManager, global_printer::_print_verbose,  rotation, scalable_frame::{NotRgbFrame, Rotate, ScalableFrame}, tone_map::FilterGraph
+    errors::ErrorWithBacktrace,
+    frame_cache::{get_frame_cache_id, FrameCacheItem},
+    frame_cache_manager::FrameCacheManager,
+    global_printer::_print_verbose,
+    rotation,
+    scalable_frame::{NotRgbFrame, Rotate, ScalableFrame},
+    tone_map::FilterGraph,
 };
 
 pub struct OpenedStream {
@@ -27,7 +33,7 @@ pub struct OpenedStream {
     pub rotation: Rotate,
     pub filter_graph: FilterGraph,
     pub time_base: Rational,
-    pub fps: Rational
+    pub fps: Rational,
 }
 
 #[derive(Clone, Copy)]
@@ -77,7 +83,7 @@ impl OpenedStream {
         previous_pts: Option<i64>,
         tone_mapped: bool,
         frame_cache_manager: &mut FrameCacheManager,
-        thread_index: usize
+        thread_index: usize,
     ) -> Result<Option<LastFrameInfo>, ErrorWithBacktrace> {
         self.video.send_eof()?;
 
@@ -126,20 +132,18 @@ impl OpenedStream {
                     };
 
                     looped_pts = video.pts();
-                    frame_cache_manager
-                        .add_to_cache(
-                            &self.src,
-                            &self.original_src,
-                            self.transparent,
-                            tone_mapped,
-                            item,
-                            thread_index
-                        );
+                    frame_cache_manager.add_to_cache(
+                        &self.src,
+                        &self.original_src,
+                        self.transparent,
+                        tone_mapped,
+                        item,
+                        thread_index,
+                    );
                     latest_frame = Some(LastFrameInfo {
                         index: frame_cache_id,
                         pts: video.pts().expect("pts"),
                     });
-
                 }
                 Ok(None) => {
                     if self.reached_eof {
@@ -165,7 +169,7 @@ impl OpenedStream {
         tone_mapped: bool,
         frame_cache_manager: &mut FrameCacheManager,
         thread_index: usize,
-        max_cache_size_in_bytes: u64
+        max_cache_size_in_bytes: u64,
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let position_to_seek_to = match self.duration_or_zero {
@@ -173,14 +177,13 @@ impl OpenedStream {
             _ => self.duration_or_zero.min(target_position),
         };
 
-
         let should_seek =
         // Beyond the position in the video
          target_position < self.last_position.unwrap_or(0)
-            || 
+            ||
             // Less than 3 seconds before the position we want to be
             self.last_position.unwrap_or(0) < calc_position(time - 1.0, time_base)
-            
+
             ;
 
         if should_seek {
@@ -202,16 +205,18 @@ impl OpenedStream {
                         _print_verbose(&format!(
                             "Could not perform seek. Got 'Operation not permitted' error."
                         ))?;
-                        _print_verbose(&format!("Attempting to seek to the beginning of the file."))?;
+                        _print_verbose(&format!(
+                            "Attempting to seek to the beginning of the file."
+                        ))?;
                         match self.input.seek(
                             self.stream_index as i32,
                             0,
                             target_position,
                             0,
-                            AVSEEK_FLAG_ANY ,
+                            AVSEEK_FLAG_ANY,
                         ) {
                             Ok(_) => Ok(()),
-                            Err(err) => Err(err)
+                            Err(err) => Err(err),
                         }
                     } else {
                         Err(err)
@@ -225,6 +230,7 @@ impl OpenedStream {
 
         let mut last_frame_received: Option<LastFrameInfo> = None;
         let mut stop_after_n_diverging_pts: Option<u8> = None;
+        let mut retried_from_start_after_empty_seek = false;
 
         let mut items_in_loop = 0;
 
@@ -252,26 +258,52 @@ impl OpenedStream {
                         },
                         tone_mapped,
                         frame_cache_manager,
-                        thread_index
+                        thread_index,
                     )?;
-                    if data.is_some() {
-                        last_frame_received = data;
-                     frame_cache_manager
-                            .set_last_frame(
-                                &self.src,
-                                &self.original_src,
-                                self.transparent,
-                                tone_mapped,
-                                last_frame_received.unwrap().index
-                            );
+                    if let Some(last_frame) = data {
+                        last_frame_received = Some(last_frame);
+                        frame_cache_manager.set_last_frame(
+                            &self.src,
+                            &self.original_src,
+                            self.transparent,
+                            tone_mapped,
+                            last_frame.index,
+                        );
                     } else {
-                        frame_cache_manager
-                            .set_biggest_frame_as_last_frame(
-                                &self.src,
-                                &self.original_src,
-                                self.transparent,
-                                tone_mapped,
-                            );
+                        frame_cache_manager.set_biggest_frame_as_last_frame(
+                            &self.src,
+                            &self.original_src,
+                            self.transparent,
+                            tone_mapped,
+                        );
+                    }
+
+                    let cache_is_empty = frame_cache_manager.is_empty(
+                        &self.src,
+                        &self.original_src,
+                        self.transparent,
+                        tone_mapped,
+                    )?;
+
+                    if should_seek
+                        && !retried_from_start_after_empty_seek
+                        && last_frame_received.is_none()
+                        && cache_is_empty
+                        && position_to_seek_to > 0
+                    {
+                        _print_verbose(&format!(
+                            "No frame decoded after seeking to {}; retrying from the beginning",
+                            target_position
+                        ))?;
+                        self.video.flush();
+                        self.reached_eof = false;
+                        self.input
+                            .seek(self.stream_index as i32, 0, 0, 0, AVSEEK_FLAG_ANY)?;
+                        freshly_seeked = true;
+                        self.last_position = None;
+                        stop_after_n_diverging_pts = None;
+                        retried_from_start_after_empty_seek = true;
+                        continue;
                     }
 
                     break;
@@ -304,7 +336,7 @@ impl OpenedStream {
                             let new_position_to_seek_to = pts - 1;
                             stop_after_n_diverging_pts = None;
 
-                           let res =  self.input.seek(
+                            let res = self.input.seek(
                                 self.stream_index as i32,
                                 0,
                                 pts,
@@ -318,16 +350,17 @@ impl OpenedStream {
                                         _print_verbose(&format!(
                                             "Could not perform seek. Got 'Operation not permitted' error."
                                         ))?;
-                                        _print_verbose(&format!("Attempting to seek to the beginning of the file."))?;
+                                        _print_verbose(&format!(
+                                            "Attempting to seek to the beginning of the file."
+                                        ))?;
                                         self.input.seek(
                                             self.stream_index as i32,
                                             0,
                                             pts,
                                             new_position_to_seek_to,
-                                            AVSEEK_FLAG_ANY ,
+                                            AVSEEK_FLAG_ANY,
                                         )?;
-                                    } 
-                                    else {
+                                    } else {
                                         panic!("{}", err.to_string());
                                     }
                                 }
@@ -345,9 +378,13 @@ impl OpenedStream {
             // but it'll still work!
             let res = self.video.send_packet(&packet);
             if res.is_err() {
-                if res.err().unwrap().to_string().contains("Resource temporarily unavailable") {
+                if res
+                    .err()
+                    .unwrap()
+                    .to_string()
+                    .contains("Resource temporarily unavailable")
+                {
                     _print_verbose(&format!("Need to send another packet"))?;
-
                 }
                 _print_verbose(&format!("Error sending packet: {}", res.err().unwrap()))?;
             }
@@ -357,7 +394,10 @@ impl OpenedStream {
 
                 match result {
                     Ok(Some(unfiltered)) => {
-                        _print_verbose(&format!("Thread {}, stream {} - received frame, tone_mapped = {}", thread_index, stream_index, tone_mapped))?;
+                        _print_verbose(&format!(
+                            "Thread {}, stream {} - received frame, tone_mapped = {}",
+                            thread_index, stream_index, tone_mapped
+                        ))?;
 
                         let frame_cache_id = get_frame_cache_id();
 
@@ -398,21 +438,19 @@ impl OpenedStream {
 
                         self.last_position = Some(unfiltered.pts().expect("expected pts"));
                         freshly_seeked = false;
-                        frame_cache_manager
-                            .add_to_cache(
-                                &self.src,
-                                &self.original_src,
-                                self.transparent,
-                                tone_mapped,
-                                item,
-                                thread_index
-                            );
-
+                        frame_cache_manager.add_to_cache(
+                            &self.src,
+                            &self.original_src,
+                            self.transparent,
+                            tone_mapped,
+                            item,
+                            thread_index,
+                        );
 
                         items_in_loop += 1;
-                        
+
                         if items_in_loop % 5 == 0 {
-                            frame_cache_manager.prune_on_thread(max_cache_size_in_bytes)?;                            
+                            frame_cache_manager.prune_on_thread(max_cache_size_in_bytes)?;
                         }
 
                         match stop_after_n_diverging_pts {
@@ -452,8 +490,15 @@ impl OpenedStream {
 
         // Allow a lot of threshold here, because otherwise we would crash.
         // Better to have a frame with a lot of deviation than to crash.
-        let final_frame = frame_cache_manager
-            .get_cache_item_id(&self.src, &self.original_src, self.transparent, tone_mapped, target_position, 1000000000, true)?;
+        let final_frame = frame_cache_manager.get_cache_item_id(
+            &self.src,
+            &self.original_src,
+            self.transparent,
+            tone_mapped,
+            target_position,
+            1000000000,
+            true,
+        )?;
 
         if final_frame.is_none() {
             return Err(std::io::Error::new(
@@ -519,11 +564,11 @@ pub fn open_stream(
     let stream_index = mut_stream.index();
 
     let duration_or_zero = mut_stream.duration().max(0);
-    
+
     let time_base = mut_stream.time_base();
     let duration_in_seconds = match duration_or_zero {
         0 => None,
-        _ => Some(duration_or_zero as f64 * time_base.1 as f64 / time_base.0 as f64)
+        _ => Some(duration_or_zero as f64 * time_base.1 as f64 / time_base.0 as f64),
     };
     let parameters = mut_stream.parameters();
     let side_data = mut_stream.side_data();
@@ -592,7 +637,10 @@ pub fn open_stream(
 
     _print_verbose(&format!("Display aspect ratio: {:?}", display_aspect_ratio))?;
     _print_verbose(&format!("Sample aspect ratio: {} {}", sar_x, sar_y))?;
-    _print_verbose(&format!("Original width: {}, original height: {}", original_width, original_height))?;
+    _print_verbose(&format!(
+        "Original width: {}, original height: {}",
+        original_width, original_height
+    ))?;
 
     let (scaled_width, scaled_height) = calculate_display_video_size(
         display_aspect_ratio.0,
@@ -602,8 +650,10 @@ pub fn open_stream(
         original_width,
         original_height,
     );
-    _print_verbose(&format!("new width: {}, new height: {}", scaled_width, scaled_height))?;
-
+    _print_verbose(&format!(
+        "new width: {}, new height: {}",
+        scaled_width, scaled_height
+    ))?;
 
     let filter_graph = FilterGraph {
         original_width,
@@ -635,7 +685,7 @@ pub fn open_stream(
         original_src: original_src.to_string(),
         filter_graph,
         fps,
-        time_base
+        time_base,
     };
 
     Ok(opened_stream)

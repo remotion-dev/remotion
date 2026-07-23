@@ -15,35 +15,73 @@ import {
 	useMemoizedEffects,
 } from '../effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
+import {Freeze} from '../freeze.js';
 import {
-	hiddenField,
-	sequenceVisualStyleSchema,
-	type SequenceSchema,
-} from '../sequence-field-schema.js';
+	baseSchema,
+	borderSchema,
+	premountSchema,
+	transformSchema,
+	type InteractivitySchema,
+} from '../interactivity-schema.js';
 import {Sequence} from '../Sequence.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
+import {usePremounting} from '../use-premounting.js';
 import {useVideoConfig} from '../use-video-config.js';
-import {wrapInSchema} from '../wrap-in-schema.js';
+import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {AnimatedImageCanvasRef} from './canvas';
 import {Canvas} from './canvas';
 import type {RemotionImageDecoder} from './decode-image.js';
 import {decodeImage} from './decode-image.js';
-import type {AnimatedImageProps, RemotionAnimatedImageProps} from './props';
+import {getCurrentTime} from './get-current-time.js';
+import type {
+	AnimatedImageCanvasProps,
+	AnimatedImageProps,
+	RemotionAnimatedImageProps,
+} from './props';
+import {serializeRequestInit} from './request-init';
 import {resolveAnimatedImageSource} from './resolve-image-source';
 
-const animatedImageSchema = {
+export const animatedImageSchema = {
+	src: {
+		type: 'asset',
+		default: undefined,
+		description: 'Source',
+		keyframable: false,
+	},
+	...baseSchema,
+	...premountSchema,
 	playbackRate: {
 		type: 'number',
 		min: 0,
 		max: 10,
 		step: 0.1,
 		default: 1,
-		description: 'Playback Rate',
+		description: 'Playback rate',
+		hiddenFromList: false,
+		keyframable: false,
 	},
-	...sequenceVisualStyleSchema,
-	hidden: hiddenField,
-} as const satisfies SequenceSchema;
+	...transformSchema,
+	...borderSchema,
+} as const satisfies InteractivitySchema;
+
+const getCanvasPropsFromSequenceProps = (
+	props: Record<string, unknown>,
+): AnimatedImageCanvasProps => {
+	const canvasProps: AnimatedImageCanvasProps = {};
+	const mutableCanvasProps = canvasProps as Record<string, unknown>;
+
+	for (const key in props) {
+		if (
+			Object.prototype.hasOwnProperty.call(props, key) &&
+			(key.startsWith('data-') || key.startsWith('aria-'))
+		) {
+			mutableCanvasProps[key] = props[key];
+		}
+	}
+
+	return canvasProps;
+};
 
 type AnimatedImageContentProps = RemotionAnimatedImageProps & {
 	readonly effects: EffectsProp;
@@ -63,6 +101,7 @@ const AnimatedImageContent = forwardRef<
 			loopBehavior = 'loop',
 			playbackRate = 1,
 			fit = 'fill',
+			requestInit,
 			effects,
 			controls,
 			...props
@@ -80,9 +119,12 @@ const AnimatedImageContent = forwardRef<
 
 		const frame = useCurrentFrame();
 		const {fps} = useVideoConfig();
-		const currentTime = frame / playbackRate / fps;
+		const currentTime = getCurrentTime({frame, playbackRate, fps});
 		const currentTimeRef = useRef<number>(currentTime);
 		currentTimeRef.current = currentTime;
+		const requestInitKey = serializeRequestInit(requestInit);
+		const requestInitRef = useRef(requestInit);
+		requestInitRef.current = requestInit;
 
 		const ref = useRef<AnimatedImageCanvasRef>(null);
 
@@ -104,41 +146,72 @@ const AnimatedImageContent = forwardRef<
 
 		useEffect(() => {
 			const controller = new AbortController();
+			let cancelled = false;
+			let continued = false;
+
+			const continueRenderOnce = () => {
+				if (continued) {
+					return;
+				}
+
+				continued = true;
+				continueRender(decodeHandle);
+			};
+
 			decodeImage({
 				resolvedSrc,
 				signal: controller.signal,
+				requestInit: requestInitRef.current,
 				currentTime: currentTimeRef.current,
 				initialLoopBehavior,
 			})
 				.then((d) => {
+					if (cancelled) {
+						d.close();
+						return;
+					}
+
 					setImageDecoder(d);
-					continueRender(decodeHandle);
+					continueRenderOnce();
 				})
 				.catch((err) => {
+					if (cancelled) {
+						return;
+					}
+
 					if ((err as Error).name === 'AbortError') {
-						continueRender(decodeHandle);
+						continueRenderOnce();
 
 						return;
 					}
 
 					if (onError) {
 						onError?.(err as Error);
-						continueRender(decodeHandle);
+						continueRenderOnce();
 					} else {
 						cancelRender(err);
 					}
 				});
 
 			return () => {
+				cancelled = true;
 				controller.abort();
+				continueRenderOnce();
 			};
 		}, [
 			resolvedSrc,
 			decodeHandle,
 			onError,
+			requestInitKey,
 			initialLoopBehavior,
 			continueRender,
 		]);
+
+		useEffect(() => {
+			return () => {
+				imageDecoder?.close();
+			};
+		}, [imageDecoder]);
 
 		useLayoutEffect(() => {
 			if (!imageDecoder) {
@@ -227,18 +300,47 @@ const AnimatedImageInner = ({
 	className,
 	style,
 	durationInFrames,
+	from,
+	premountFor,
+	postmountFor,
+	styleWhilePremounted,
+	styleWhilePostmounted,
+	requestInit,
 	effects = [],
-	_experimentalControls: controls,
+	controls,
 	ref,
 	...sequenceProps
 }: AnimatedImageProps & {
-	readonly _experimentalControls?: SequenceControls | undefined;
+	readonly controls?: SequenceControls | undefined;
 	readonly ref?: React.Ref<HTMLCanvasElement>;
 }) => {
-	const {durationInFrames: videoDuration} = useVideoConfig();
-	const resolvedDuration = durationInFrames ?? videoDuration;
+	const actualRef = useRef<HTMLCanvasElement | null>(null);
 
 	const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
+
+	useImperativeHandle(ref, () => {
+		return actualRef.current as HTMLCanvasElement;
+	}, []);
+	const {
+		effectivePostmountFor,
+		effectivePremountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		postmountingActive,
+		premountingActive,
+		premountingStyle,
+	} = usePremounting({
+		from: from ?? 0,
+		durationInFrames: durationInFrames ?? Infinity,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: style ?? null,
+		styleWhilePremounted: styleWhilePremounted ?? null,
+		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		hideWhilePremounted: 'display-none',
+	});
+
+	const canvasProps = getCanvasPropsFromSequenceProps(sequenceProps);
 
 	const animatedImageProps: RemotionAnimatedImageProps = {
 		src,
@@ -250,33 +352,46 @@ const AnimatedImageInner = ({
 		loopBehavior,
 		id,
 		className,
-		style,
+		style: premountingStyle ?? undefined,
+		requestInit,
+		...canvasProps,
 	};
 
 	return (
-		<Sequence
-			layout="none"
-			durationInFrames={resolvedDuration}
-			name="<AnimatedImage>"
-			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/animatedimage"
-			_experimentalControls={controls}
-			_remotionInternalEffects={memoizedEffectDefinitions}
-			{...sequenceProps}
-		>
-			<AnimatedImageContent
-				{...animatedImageProps}
-				ref={ref}
-				effects={effects}
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				durationInFrames={durationInFrames ?? Infinity}
+				name="<AnimatedImage>"
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/animatedimage"
 				controls={controls}
-			/>
-		</Sequence>
+				_remotionInternalEffects={memoizedEffectDefinitions}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+				{...sequenceProps}
+				outlineRef={actualRef}
+			>
+				<AnimatedImageContent
+					{...animatedImageProps}
+					ref={actualRef}
+					effects={effects}
+					controls={controls}
+				/>
+			</Sequence>
+		</Freeze>
 	);
 };
 
-export const AnimatedImage = wrapInSchema(
-	AnimatedImageInner,
-	animatedImageSchema,
-);
+export const AnimatedImage = withInteractivitySchema({
+	Component: AnimatedImageInner,
+	componentName: '<AnimatedImage>',
+	componentIdentity: 'dev.remotion.remotion.AnimatedImage',
+	schema: animatedImageSchema,
+	supportsEffects: true,
+});
 
 AnimatedImage.displayName = 'AnimatedImage';
 

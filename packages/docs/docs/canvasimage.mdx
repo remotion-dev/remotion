@@ -33,6 +33,10 @@ The URL of the image. Can be a remote URL or a local file path from [`staticFile
 
 Remote images need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) because the image is drawn onto a canvas.
 
+### `effects?`
+
+An array of Remotion [effects](/docs/effects/api) to apply to the image after it has been drawn to the source canvas.
+
 ### `width?`
 
 The canvas width in pixels.  
@@ -51,10 +55,6 @@ Must be one of these values:
 - `'contain'`: The image is scaled to fit the canvas, while aspect ratio is maintained.
 - `'cover'`: The image completely fills the canvas and maintains its aspect ratio. It will be cropped if necessary.
 
-### `effects?`
-
-An array of Remotion [effects](/docs/effects/api) to apply to the image after it has been drawn to the source canvas.
-
 ### `className?`
 
 A class name to apply to the `<canvas>` element.
@@ -66,6 +66,24 @@ The HTML `id` attribute to apply to the `<canvas>` element.
 ### `style?`
 
 Inline styles to apply to the `<canvas>` element.
+
+### `premountFor?`<AvailableFrom v="4.0.495" />
+
+Mounts the canvas for the specified number of frames before its `from` frame. The canvas carries `display: none` and is frozen at its first frame while premounted.
+
+Use this prop to let the image load, decode, and prepare its effects before it becomes visible. See [Premounting](/docs/player/premounting).
+
+### `postmountFor?`<AvailableFrom v="4.0.495" />
+
+Keeps the canvas mounted for the specified number of frames after its duration has ended. The canvas is invisible and frozen at its final frame while postmounted.
+
+### `styleWhilePremounted?`<AvailableFrom v="4.0.495" />
+
+CSS styles applied to the canvas while it is premounted. These styles override the default `display: none` and `pointer-events: none` styles.
+
+### `styleWhilePostmounted?`<AvailableFrom v="4.0.495" />
+
+CSS styles applied to the canvas while it is postmounted. These styles override the default `display: none` and `pointer-events: none` styles.
 
 ### `onError?`
 
@@ -94,7 +112,7 @@ Passed directly to the `timeoutInMilliseconds` option of `delayRender()`.
 
 ### Inherited props
 
-`<CanvasImage>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`hidden`](/docs/sequence#hidden) from [`<Sequence>`](/docs/sequence).
+`<CanvasImage>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore)<AvailableFrom v="4.0.482" inline />, [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`hidden`](/docs/sequence#hidden) from [`<Sequence>`](/docs/sequence).
 
 ## Adding a ref
 

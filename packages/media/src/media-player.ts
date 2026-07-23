@@ -1,4 +1,4 @@
-import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
+import type {Input} from 'mediabunny';
 import type {
 	EffectChainState,
 	EffectDefinitionAndStack,
@@ -8,6 +8,7 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import {
+	anchorToContinuousTime,
 	audioIteratorManager,
 	type AudioIteratorManager,
 } from './audio-iterator-manager';
@@ -18,6 +19,7 @@ import {
 } from './audio/get-scheduled-time';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
 import {getDurationOrCompute} from './get-duration-or-compute';
+import {acquireSharedInput, releaseSharedInput} from './get-shared-input';
 import {calculateEndTime, getTimeInSeconds} from './get-time-in-seconds';
 import {resolveAudioTrack} from './helpers/resolve-audio-track';
 import {isNetworkError} from './is-type-of-error';
@@ -25,7 +27,6 @@ import type {Nonce, NonceManager} from './nonce-manager';
 import {makeNonceManager} from './nonce-manager';
 import {PremountAwareDelayPlayback} from './premount-aware-delay-playback';
 import type {MediaRequestInit} from './request-init';
-import {resolveRequestInit} from './request-init';
 import type {SharedAudioContextForMediaPlayer} from './shared-audio-context-for-media-player';
 import type {VideoIteratorManager} from './video-iterator-manager';
 import {videoIteratorManager} from './video-iterator-manager';
@@ -34,6 +35,7 @@ export type MediaPlayerInitResult =
 	| {type: 'success'; durationInSeconds: number}
 	| {type: 'unknown-container-format'}
 	| {type: 'cannot-decode'}
+	| {type: 'cannot-decode-prores'}
 	| {type: 'network-error'}
 	| {type: 'no-tracks'}
 	| {type: 'disposed'};
@@ -162,18 +164,16 @@ export class MediaPlayer {
 		this.onVideoFrameCallback = onVideoFrameCallback;
 		this.playing = playing;
 		this.sequenceOffset = sequenceOffset;
-		const resolvedRequestInit = resolveRequestInit({credentials, requestInit});
-		this.input = new Input({
-			source: new UrlSource(
-				this.src,
-				resolvedRequestInit
-					? {
-							requestInit: resolvedRequestInit,
-						}
-					: undefined,
-			),
-			formats: ALL_FORMATS,
+		// Reuse a shared, reference-counted Input per (src, credentials,
+		// requestInit) so mounting a new range does not re-parse the container or
+		// cold-seek — the byte cache and demuxer state stay warm across ranges.
+		const {input, cacheKey} = acquireSharedInput({
+			src: this.src,
+			credentials,
+			requestInit,
 		});
+		this.input = input;
+		this.inputCacheKey = cacheKey;
 		this.tagType = tagType;
 		this.getEffects = getEffects;
 		this.getEffectChainState = getEffectChainState;
@@ -195,9 +195,16 @@ export class MediaPlayer {
 	}
 
 	private input: Input;
+	// Key into the shared-input cache; released (ref count decremented) on dispose.
+	private inputCacheKey: string;
+	// Per-player disposal flag. The Input is now shared and reference counted, so
+	// `this.input.disposed` no longer tells us whether THIS player was disposed
+	// (the Input stays alive while other players hold it). This flag tracks our
+	// own lifecycle instead.
+	private disposed = false;
 
 	private isDisposalError(): boolean {
-		return this.input.disposed === true;
+		return this.disposed || this.input.disposed === true;
 	}
 
 	public initialize(
@@ -250,7 +257,7 @@ export class MediaPlayer {
 	): Promise<MediaPlayerInitResult> {
 		using _ = this.delayPlaybackHandleIfNotPremounting();
 		try {
-			if (this.input.disposed) {
+			if (this.isDisposalError()) {
 				return {type: 'disposed'};
 			}
 
@@ -281,7 +288,7 @@ export class MediaPlayer {
 				this.input.getPrimaryVideoTrack(),
 				this.input.getAudioTracks(),
 			]);
-			if (this.input.disposed) {
+			if (this.isDisposalError()) {
 				return {type: 'disposed'};
 			}
 
@@ -315,10 +322,14 @@ export class MediaPlayer {
 				const canDecode = await videoTrack.canDecode();
 
 				if (!canDecode) {
+					if (videoTrack.codec === 'prores') {
+						return {type: 'cannot-decode-prores'};
+					}
+
 					return {type: 'cannot-decode'};
 				}
 
-				if (this.input.disposed) {
+				if (this.isDisposalError()) {
 					return {type: 'disposed'};
 				}
 
@@ -366,7 +377,7 @@ export class MediaPlayer {
 					return {type: 'cannot-decode'};
 				}
 
-				if (this.input.disposed) {
+				if (this.isDisposalError()) {
 					return {type: 'disposed'};
 				}
 
@@ -401,6 +412,7 @@ export class MediaPlayer {
 								nonce,
 								playbackRate: this.playbackRate * this.globalPlaybackRate,
 								startFromSecond: startTime,
+								unloopedStartFromSecond: startTimeUnresolved,
 								scheduleAudioNode: this.scheduleAudioNode,
 								getTargetTime: this.getTargetTime,
 								logLevel: this.logLevel,
@@ -449,11 +461,18 @@ export class MediaPlayer {
 		}
 	}
 
-	private seekToWithQueue = async (newTime: number) => {
+	private seekToWithQueue = async (
+		newTime: number,
+		unloopedNewTime: number,
+	) => {
 		const nonce = this.nonceManager.createAsyncOperation();
 		await this.seekPromiseChain;
 
-		this.seekPromiseChain = this.seekToDoNotCallDirectly(newTime, nonce);
+		this.seekPromiseChain = this.seekToDoNotCallDirectly(
+			newTime,
+			unloopedNewTime,
+			nonce,
+		);
 		await this.seekPromiseChain;
 	};
 
@@ -464,11 +483,12 @@ export class MediaPlayer {
 			throw new Error(`should have asserted that the time is not null`);
 		}
 
-		await this.seekToWithQueue(newTime);
+		await this.seekToWithQueue(newTime, time);
 	}
 
 	private async seekToDoNotCallDirectly(
 		newTime: number,
+		unloopedNewTime: number,
 		nonce: Nonce,
 	): Promise<void> {
 		if (nonce.isStale()) {
@@ -483,8 +503,10 @@ export class MediaPlayer {
 				}),
 				this.audioIteratorManager?.seek({
 					newTime,
+					unloopedNewTime,
 					nonce,
 					playbackRate: this.playbackRate * this.globalPlaybackRate,
+					localPlaybackRate: this.playbackRate,
 					getTargetTime: this.getTargetTime,
 					logLevel: this.logLevel,
 					loop: this.loop,
@@ -663,6 +685,15 @@ export class MediaPlayer {
 	}
 
 	public async dispose(): Promise<void> {
+		// Guard against double-dispose: releasing the shared Input twice would
+		// over-decrement its ref count and tear it down while other players still
+		// use it.
+		if (this.disposed) {
+			return;
+		}
+
+		this.disposed = true;
+
 		if (this.initializationPromise) {
 			try {
 				// wait for the init to finished
@@ -678,7 +709,9 @@ export class MediaPlayer {
 		this.nonceManager.createAsyncOperation();
 		this.videoIteratorManager?.destroy();
 		this.audioIteratorManager?.destroyIterator();
-		this.input.dispose();
+		// Release our reference to the shared Input; it is only disposed once the
+		// last MediaPlayer using this src releases it.
+		releaseSharedInput(this.inputCacheKey);
 	}
 
 	private getTargetTime = (
@@ -695,7 +728,23 @@ export class MediaPlayer {
 
 		const timeInSeconds = globalTime - this.sequenceOffset;
 
-		const localTime = this.getTrimmedTime(timeInSeconds);
+		// When looping, the audio iterator emits timestamps that continue
+		// monotonically across loop iterations, while the looped media time
+		// wraps at every iteration. Comparing against the wrapped time would
+		// schedule each chunk one loop duration later per iteration. Use the
+		// anchor established when the iterator was started to convert the
+		// current time into the same continuous frame instead.
+		const anchor = this.loop
+			? (this.audioIteratorManager?.getCurrentAnchor() ?? null)
+			: null;
+
+		const localTime = anchor
+			? anchorToContinuousTime({
+					anchor,
+					unloopedTimeInSeconds: timeInSeconds,
+					playbackRate: this.playbackRate,
+				})
+			: this.getTrimmedTime(timeInSeconds);
 
 		if (localTime === null) {
 			return null;
@@ -712,6 +761,8 @@ export class MediaPlayer {
 		node: AudioBufferSourceNode,
 		mediaTimestamp: number,
 		originalUnloopedMediaTimestamp: number,
+		sourceOffsetInSeconds: number,
+		sourceDurationInSeconds: number,
 	): ScheduleAudioNodeResult => {
 		if (!this.sharedAudioContext) {
 			throw new Error('Shared audio context not found');
@@ -734,20 +785,19 @@ export class MediaPlayer {
 		}
 
 		const sequenceStartTime = this.getStartTime();
-		const loopSegmentMediaEndTimestamp = this.getLoopSegmentMediaEndTimestamp();
 
 		const offset = getTrimStartForAudioNode({
 			mediaTimestamp,
 			targetTime,
 			sequenceStartTime,
 			combinedPlaybackRate,
+			sourceStartOffsetInSeconds: sourceOffsetInSeconds,
 		});
 
 		const duration = getDurationOfNode({
-			bufferDuration: node.buffer?.duration ?? 0,
-			loopSegmentMediaEndTimestamp,
+			sourceDurationInSeconds,
+			sourceOffsetInSeconds,
 			offset,
-			originalUnloopedMediaTimestamp,
 		});
 
 		const scheduledTime = getScheduledTime({
@@ -760,6 +810,7 @@ export class MediaPlayer {
 		return this.sharedAudioContext.scheduleAudioNode({
 			node,
 			mediaTimestamp,
+			sourceOffset: sourceOffsetInSeconds,
 			scheduledTime,
 			duration,
 			offset,

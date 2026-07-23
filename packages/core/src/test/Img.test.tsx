@@ -1,6 +1,7 @@
 import {afterEach, beforeEach, expect, test} from 'bun:test';
-import {cleanup, fireEvent, render, waitFor} from '@testing-library/react';
+import {act, cleanup, fireEvent, render, waitFor} from '@testing-library/react';
 import React from 'react';
+import {BufferingContextReact} from '../buffering.js';
 import type {
 	EffectApplyParams,
 	EffectDefinition,
@@ -9,6 +10,8 @@ import type {
 import {Img, imgSchema} from '../Img.js';
 import type {RemotionEnvironment} from '../remotion-environment-context.js';
 import {RemotionEnvironmentContext} from '../remotion-environment-context.js';
+import type {SequenceContextType} from '../SequenceContext.js';
+import {SequenceContext} from '../SequenceContext.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 const drawImageCalls: unknown[][] = [];
@@ -30,17 +33,16 @@ const stub2dContext = () => ({
 	putImageData: () => undefined,
 });
 
-(
-	HTMLCanvasElement.prototype as unknown as {
-		getContext: (kind: string) => unknown;
-	}
-).getContext = function (kind: string) {
-	if (kind === '2d') {
-		return stub2dContext();
-	}
+Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
+	configurable: true,
+	value: (kind: string) => {
+		if (kind === '2d') {
+			return stub2dContext();
+		}
 
-	return null;
-};
+		return null;
+	},
+});
 
 class MockImage {
 	public onload: (() => void) | null = null;
@@ -112,16 +114,90 @@ const previewEnvironment: RemotionEnvironment = {
 	isStudio: false,
 };
 
+const wrapImg = (
+	element: React.ReactElement,
+	environment: RemotionEnvironment = previewEnvironment,
+	currentFrame: number = 0,
+) => {
+	return (
+		<RemotionEnvironmentContext.Provider value={environment}>
+			<WrapSequenceContext currentFrame={currentFrame}>
+				{element}
+			</WrapSequenceContext>
+		</RemotionEnvironmentContext.Provider>
+	);
+};
+
 const renderImg = (
 	element: React.ReactElement,
 	environment: RemotionEnvironment = previewEnvironment,
 ) => {
-	return render(
-		<RemotionEnvironmentContext.Provider value={environment}>
-			<WrapSequenceContext>{element}</WrapSequenceContext>
-		</RemotionEnvironmentContext.Provider>,
-	);
+	return render(wrapImg(element, environment));
 };
+
+const makeSequenceContext = (premounting: boolean): SequenceContextType => ({
+	absoluteFrom: 0,
+	cumulatedFrom: 0,
+	cumulatedNegativeFrom: 0,
+	durationInFrames: 100,
+	height: 1080,
+	id: 'parent',
+	parentFrom: 0,
+	postmountDisplay: null,
+	postmounting: false,
+	premountDisplay: null,
+	premounting,
+	relativeFrom: 0,
+	width: 1080,
+});
+
+const BufferingEvents: React.FC<{
+	readonly events: string[];
+}> = ({events}) => {
+	const manager = React.useContext(BufferingContextReact);
+
+	React.useLayoutEffect(() => {
+		if (!manager) {
+			throw new Error('Expected BufferingContextReact');
+		}
+
+		const buffering = manager.listenForBuffering(() => {
+			events.push('waiting');
+		});
+		const resume = manager.listenForResume(() => {
+			events.push('resume');
+		});
+
+		return () => {
+			buffering.remove();
+			resume.remove();
+		};
+	}, [events, manager]);
+
+	return null;
+};
+
+const forceNodeEnv = (nodeEnv: string) => {
+	const originalNodeEnv = window.process.env.NODE_ENV;
+	window.process.env.NODE_ENV = nodeEnv;
+
+	return () => {
+		window.process.env.NODE_ENV = originalNodeEnv;
+	};
+};
+
+const imgInSequence = ({
+	events,
+	premounting,
+}: {
+	readonly events?: string[];
+	readonly premounting: boolean;
+}) => (
+	<SequenceContext.Provider value={makeSequenceContext(premounting)}>
+		{events ? <BufferingEvents events={events} /> : null}
+		<Img src="blob:http://localhost/test-image" pauseWhenLoading />
+	</SequenceContext.Provider>
+);
 
 test('Img component renders img tag', () => {
 	const ref = React.createRef<HTMLImageElement>();
@@ -168,6 +244,157 @@ test('Img with an empty effects array still renders an img tag', () => {
 	expect(ref.current?.tagName).toBe('IMG');
 });
 
+test('<Img> does not decode again when premounting ends after loading', async () => {
+	const originalDecode = HTMLImageElement.prototype.decode;
+	const restoreNodeEnv = forceNodeEnv('development');
+	let decodeCalls = 0;
+	HTMLImageElement.prototype.decode = () => {
+		decodeCalls++;
+		return Promise.resolve();
+	};
+
+	try {
+		const {rerender} = render(wrapImg(imgInSequence({premounting: true})));
+
+		await waitFor(() => {
+			expect(decodeCalls).toBe(1);
+		});
+
+		rerender(wrapImg(imgInSequence({premounting: false})));
+
+		expect(decodeCalls).toBe(1);
+	} finally {
+		HTMLImageElement.prototype.decode = originalDecode;
+		restoreNodeEnv();
+	}
+});
+
+test('<Img> buffers playback when premounting ends before loading finishes', async () => {
+	const originalDecode = HTMLImageElement.prototype.decode;
+	const restoreNodeEnv = forceNodeEnv('development');
+	const events: string[] = [];
+	let decodeResolver: (() => void) | null = null;
+	HTMLImageElement.prototype.decode = () =>
+		new Promise<void>((resolve) => {
+			decodeResolver = resolve;
+		});
+
+	try {
+		const {rerender} = render(
+			wrapImg(imgInSequence({events, premounting: true})),
+		);
+
+		await waitFor(() => {
+			expect(decodeResolver).not.toBeNull();
+		});
+		expect(events).toEqual([]);
+
+		rerender(wrapImg(imgInSequence({events, premounting: false})));
+
+		await waitFor(() => {
+			expect(events).toEqual(['waiting']);
+		});
+
+		act(() => {
+			decodeResolver?.();
+		});
+
+		await waitFor(() => {
+			expect(events).toEqual(['waiting', 'resume']);
+		});
+	} finally {
+		HTMLImageElement.prototype.decode = originalDecode;
+		restoreNodeEnv();
+	}
+});
+
+test('<Img> does not pause playback while directly premounted', async () => {
+	const originalDecode = HTMLImageElement.prototype.decode;
+	const restoreNodeEnv = forceNodeEnv('development');
+	const events: string[] = [];
+	let decodeResolver: (() => void) | null = null;
+	HTMLImageElement.prototype.decode = () =>
+		new Promise<void>((resolve) => {
+			decodeResolver = resolve;
+		});
+	const img = (
+		<>
+			<BufferingEvents events={events} />
+			<Img
+				src="blob:http://localhost/test-image"
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				pauseWhenLoading
+			/>
+		</>
+	);
+
+	try {
+		const {rerender} = render(wrapImg(img, previewEnvironment, 0));
+
+		await waitFor(() => {
+			expect(decodeResolver).not.toBeNull();
+		});
+		expect(events).toEqual([]);
+
+		rerender(wrapImg(img, previewEnvironment, 10));
+
+		await waitFor(() => {
+			expect(events).toEqual(['waiting']);
+		});
+
+		act(() => {
+			decodeResolver?.();
+		});
+
+		await waitFor(() => {
+			expect(events).toEqual(['waiting', 'resume']);
+		});
+	} finally {
+		HTMLImageElement.prototype.decode = originalDecode;
+		restoreNodeEnv();
+	}
+});
+
+test('<Img> does not pause playback while directly postmounted', async () => {
+	const originalDecode = HTMLImageElement.prototype.decode;
+	const restoreNodeEnv = forceNodeEnv('development');
+	const events: string[] = [];
+	let decodeStarted = false;
+	HTMLImageElement.prototype.decode = () => {
+		decodeStarted = true;
+		return new Promise<void>(() => undefined);
+	};
+
+	try {
+		render(
+			wrapImg(
+				<>
+					<BufferingEvents events={events} />
+					<Img
+						src="blob:http://localhost/test-image"
+						from={10}
+						durationInFrames={20}
+						postmountFor={10}
+						pauseWhenLoading
+					/>
+				</>,
+				previewEnvironment,
+				35,
+			),
+		);
+
+		await waitFor(() => {
+			expect(decodeStarted).toBe(true);
+		});
+		expect(events).toEqual([]);
+	} finally {
+		HTMLImageElement.prototype.decode = originalDecode;
+		restoreNodeEnv();
+	}
+});
+
 test('Img with effects renders through the canvas image path', async () => {
 	const applyCalls: EffectApplyParams<unknown, unknown>[] = [];
 	const {container} = renderImg(
@@ -190,7 +417,13 @@ test('Img with effects renders through the canvas image path', async () => {
 	expect(applyCalls[0].height).toBe(50);
 });
 
-test('<Img> schema does not expose fit', () => {
+test('<Img> schema exposes src but not fit', () => {
+	expect(imgSchema.src).toEqual({
+		type: 'asset',
+		default: undefined,
+		description: 'Source',
+		keyframable: false,
+	});
 	expect(Object.keys(imgSchema)).not.toContain('fit');
 });
 

@@ -157,7 +157,7 @@ export const useMediaInTimeline = ({
 	postmountDisplay: number | null;
 	loopDisplay: LoopDisplay | undefined;
 	documentationLink: string | null;
-	refForOutline: React.RefObject<HTMLElement | null> | null;
+	refForOutline: React.RefObject<Element | null> | null;
 }) => {
 	const parentSequence = useContext(SequenceContext);
 	const startsAt = useMediaStartsAt();
@@ -201,6 +201,7 @@ export const useMediaInTimeline = ({
 			id,
 			duration,
 			from: 0,
+			trimBefore: null,
 			parent: parentSequence?.id ?? null,
 			displayName: finalDisplayName,
 			documentationLink,
@@ -209,6 +210,7 @@ export const useMediaInTimeline = ({
 			showInTimeline: true,
 			nonce: nonce.get(),
 			startMediaFrom: 0 - startsAt,
+			mediaFrameAtSequenceZero: null,
 			doesVolumeChange,
 			loopDisplay,
 			playbackRate,
@@ -218,6 +220,9 @@ export const useMediaInTimeline = ({
 			controls: null,
 			effects: [],
 			refForOutline,
+			isInsideSeries: false,
+			frozenFrame: null,
+			frozenMediaFrame: null,
 		});
 
 		return () => {

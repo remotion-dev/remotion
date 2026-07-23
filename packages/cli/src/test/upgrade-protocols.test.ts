@@ -7,7 +7,7 @@ import {
 	isCatalogProtocol,
 	updateCatalogEntry,
 } from '../catalog-utils';
-import {getPackagesToUpgrade} from '../upgrade';
+import {getPackagesToUpgrade, resolveExtraPackageVersions} from '../upgrade';
 
 let tmpDir: string;
 
@@ -132,7 +132,7 @@ test('includes Remotion and extra packages that only exist in pnpm catalog entri
 		},
 		targetVersion: '4.0.462',
 		extraPackageVersions: {
-			mediabunny: '1.45.0',
+			mediabunny: '1.50.7',
 			zod: '4.3.6',
 		},
 	});
@@ -141,8 +141,25 @@ test('includes Remotion and extra packages that only exist in pnpm catalog entri
 	expect(result.catalogPackages).toEqual([
 		{pkg: 'remotion', version: '4.0.462'},
 		{pkg: '@remotion/player', version: '4.0.462'},
-		{pkg: 'mediabunny', version: '1.45.0'},
+		{pkg: 'mediabunny', version: '1.50.7'},
 	]);
+});
+
+test('uses the Mediabunny version for extension packages', () => {
+	expect(
+		resolveExtraPackageVersions({
+			mediabunny: '1.50.8',
+			zod: '4.3.6',
+		}),
+	).toMatchObject({
+		mediabunny: '1.50.8',
+		'@mediabunny/ac3': '1.50.8',
+		'@mediabunny/mp3-encoder': '1.50.8',
+		'@mediabunny/aac-encoder': '1.50.8',
+		'@mediabunny/flac-encoder': '1.50.8',
+		'@mediabunny/prores': '1.50.8',
+		zod: '4.3.6',
+	});
 });
 
 test('end-to-end: updates catalog in bun-style package.json and preserves catalog: references in sub-packages', () => {

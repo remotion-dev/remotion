@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import React, {
 	forwardRef,
+	useCallback,
 	useContext,
 	useEffect,
 	useMemo,
@@ -11,22 +12,27 @@ import {AbsoluteFill} from './AbsoluteFill.js';
 import type {LoopDisplay, SequenceControls} from './CompositionManager.js';
 import type {EffectDefinition} from './effects/effect-types.js';
 import {Freeze} from './freeze.js';
+import {
+	sequenceSchema,
+	sequenceSchemaWithoutFrom,
+} from './interactivity-schema.js';
 import {useNonce} from './nonce.js';
-import {PremountContext} from './PremountContext.js';
-import {sequenceSchema} from './sequence-field-schema.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';
+import {IsInsideSeriesContext} from './series/is-inside-series.js';
 import {
 	useTimelineContext,
 	useTimelinePosition,
 } from './timeline-position-state.js';
-import {useCurrentFrame} from './use-current-frame';
 import type {BasicMediaInTimelineReturnType} from './use-media-in-timeline.js';
+import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideoConfig} from './use-video-config.js';
 import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag.js';
-import {wrapInSchema} from './wrap-in-schema.js';
+import {withInteractivitySchema} from './with-interactivity-schema.js';
+
+const EMPTY_EFFECTS: readonly EffectDefinition<unknown>[] = [];
 
 export type AbsoluteFillLayout = {
 	layout?: 'absolute-fill';
@@ -49,10 +55,12 @@ export type SequencePropsWithoutDuration = {
 	readonly width?: number;
 	readonly height?: number;
 	readonly from?: number;
+	readonly trimBefore?: number;
+	readonly freeze?: number | null;
 	readonly name?: string;
 	readonly showInTimeline?: boolean;
 	readonly hidden?: boolean;
-	readonly _experimentalControls?: SequenceControls;
+	readonly controls?: SequenceControls;
 	readonly _remotionInternalEffects?: readonly EffectDefinition<unknown>[];
 	/**
 	 * @deprecated For internal use only.
@@ -77,6 +85,10 @@ export type SequencePropsWithoutDuration = {
 	/**
 	 * @deprecated For internal use only.
 	 */
+	readonly _remotionInternalSingleChildComponent?: unknown;
+	/**
+	 * @deprecated For internal use only.
+	 */
 	readonly _remotionInternalIsPremounting?: boolean;
 	/**
 	 * @deprecated For internal use only.
@@ -95,9 +107,10 @@ export type SequencePropsWithoutDuration = {
 				src: string;
 		  };
 	/**
-	 * @deprecated For internal use only.
+	 * A React ref pointing to the element that Remotion Studio should use for
+	 * drawing the selection outline in the preview.
 	 */
-	readonly _remotionInternalRefForOutline?: React.RefObject<HTMLElement | null> | null;
+	readonly outlineRef?: React.RefObject<Element | null> | null;
 } & LayoutAndStyle;
 
 export type SequenceProps = {
@@ -110,6 +123,8 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 > = (
 	{
 		from = 0,
+		trimBefore = 0,
+		freeze,
 		durationInFrames = Infinity,
 		children,
 		name,
@@ -117,15 +132,16 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		width,
 		showInTimeline = true,
 		hidden = false,
-		_experimentalControls: controls,
+		controls,
 		_remotionInternalEffects,
 		_remotionInternalLoopDisplay: loopDisplay,
 		_remotionInternalStack: stack,
 		_remotionInternalDocumentationLink: documentationLink,
+		_remotionInternalSingleChildComponent: singleChildComponent,
 		_remotionInternalPremountDisplay: premountDisplay,
 		_remotionInternalPostmountDisplay: postmountDisplay,
 		_remotionInternalIsMedia: isMedia,
-		_remotionInternalRefForOutline: refForOutline,
+		outlineRef: passedRefForOutline,
 		...other
 	},
 	ref,
@@ -179,17 +195,72 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
+	if (typeof trimBefore !== 'number') {
+		throw new TypeError(
+			`You passed to the "trimBefore" prop of your <Sequence> an argument of type ${typeof trimBefore}, but it must be a number.`,
+		);
+	}
+
+	if (trimBefore < 0) {
+		throw new TypeError(
+			`The "trimBefore" prop of <Sequence /> must be greater than or equal to 0, but got ${trimBefore}.`,
+		);
+	}
+
+	if (Number.isNaN(trimBefore)) {
+		throw new TypeError(
+			'The "trimBefore" prop of <Sequence /> must be a real number, but it is NaN.',
+		);
+	}
+
+	if (!Number.isFinite(trimBefore)) {
+		throw new TypeError(
+			`The "trimBefore" prop of <Sequence /> must be finite, but it is ${trimBefore}.`,
+		);
+	}
+
+	if (typeof freeze !== 'undefined' && freeze !== null) {
+		if (typeof freeze !== 'number') {
+			throw new TypeError(
+				`The "freeze" prop of <Sequence /> must be a number, but is of type ${typeof freeze}.`,
+			);
+		}
+
+		if (Number.isNaN(freeze)) {
+			throw new TypeError(
+				`The "freeze" prop of <Sequence /> must be a real number, but it is NaN.`,
+			);
+		}
+
+		if (!Number.isFinite(freeze)) {
+			throw new TypeError(
+				`The "freeze" prop of <Sequence /> must be finite, but it is ${freeze}.`,
+			);
+		}
+	}
+
 	const absoluteFrame = useTimelinePosition();
 	const videoConfig = useVideoConfig();
+	const effectiveRelativeFrom = from - trimBefore;
+	const absoluteFrom =
+		(parentSequence?.absoluteFrom ?? 0) + effectiveRelativeFrom;
 
 	const parentSequenceDuration = parentSequence
-		? Math.min(parentSequence.durationInFrames - from, durationInFrames)
+		? Math.min(
+				parentSequence.durationInFrames - effectiveRelativeFrom,
+				durationInFrames,
+			)
 		: durationInFrames;
 	const actualDurationInFrames = Math.max(
 		0,
 		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration),
 	);
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
+	const wrapperRefForOutline = useRef<HTMLDivElement | null>(null);
+	const refForOutline =
+		other.layout === 'none'
+			? (passedRefForOutline ?? null)
+			: (passedRefForOutline ?? wrapperRefForOutline);
 
 	const premounting = useMemo(() => {
 		// || is intentional, ?? would not trigger on `false`
@@ -220,7 +291,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	// 10-frame pre-roll, because the positive child offset cancels part of the
 	// negative parent offset. But <Sequence from={10}><Sequence from={-5}>
 	// should still trim 5 frames from the media once the parent starts.
-	const currentSequenceStart = cumulatedFrom + from;
+	const currentSequenceStart = cumulatedFrom + effectiveRelativeFrom;
 	const parentSequenceStart = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
@@ -232,8 +303,9 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const contextValue = useMemo((): SequenceContextType => {
 		return {
+			absoluteFrom,
 			cumulatedFrom,
-			relativeFrom: from,
+			relativeFrom: effectiveRelativeFrom,
 			cumulatedNegativeFrom,
 			durationInFrames: actualDurationInFrames,
 			parentFrom: parentSequence?.relativeFrom ?? 0,
@@ -247,7 +319,8 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		};
 	}, [
 		cumulatedFrom,
-		from,
+		absoluteFrom,
+		effectiveRelativeFrom,
 		actualDurationInFrames,
 		parentSequence,
 		id,
@@ -265,16 +338,41 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, [name]);
 
 	const resolvedDocumentationLink =
-		documentationLink ??
-		(name === undefined ? 'https://www.remotion.dev/docs/sequence' : null);
+		documentationLink ?? 'https://www.remotion.dev/docs/sequence';
 
 	const env = useRemotionEnvironment();
 
-	const inheritedStack = (other as any)?.stack ?? null;
+	const isInsideSeries = useContext(IsInsideSeriesContext);
+
+	const inheritedStack = (other as {readonly stack?: string})?.stack ?? null;
 	// Our assumption: Stack doesnt' change. After we symbolicate we assign it a nodePath
 	// and if it changes, it would lead to-remounting of the sequence.
 	const stackRef = useRef<string | null>(null);
 	stackRef.current = stack ?? inheritedStack;
+	const registeredFrozenFrame = typeof freeze === 'number' ? freeze : null;
+	const registeredTrimBefore = trimBefore === 0 ? null : trimBefore;
+	const parentCumulatedNegativeFrom =
+		parentSequence?.cumulatedNegativeFrom ?? 0;
+	const startMediaFrom =
+		isMedia && isMedia.type !== 'image'
+			? isMedia.data.startMediaFrom +
+				parentCumulatedNegativeFrom -
+				cumulatedNegativeFrom
+			: null;
+	const mediaFrameAtSequenceZero =
+		isMedia && isMedia.type !== 'image'
+			? isMedia.data.startMediaFrom + parentCumulatedNegativeFrom
+			: null;
+	const frozenMediaFrame =
+		isMedia && isMedia.type !== 'image' && mediaFrameAtSequenceZero !== null
+			? registeredFrozenFrame === null
+				? null
+				: mediaFrameAtSequenceZero +
+					(loopDisplay
+						? registeredFrozenFrame % loopDisplay.durationInFrames
+						: registeredFrozenFrame) *
+						isMedia.data.playbackRate
+			: null;
 
 	useEffect(() => {
 		if (!env.isStudio) {
@@ -286,11 +384,12 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				registerSequence({
 					type: 'image',
 					controls: controls ?? null,
-					effects: _remotionInternalEffects ?? [],
+					effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
 					displayName: timelineClipName,
 					documentationLink: resolvedDocumentationLink,
 					duration: actualDurationInFrames,
 					from,
+					trimBefore: registeredTrimBefore,
 					id,
 					loopDisplay,
 					nonce: nonce.get(),
@@ -302,17 +401,21 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					src: isMedia.src,
 					getStack: () => stackRef.current,
 					refForOutline: refForOutline ?? null,
+					isInsideSeries,
+					frozenFrame: registeredFrozenFrame,
+					singleChildComponent: singleChildComponent ?? null,
 				});
 			} else {
 				registerSequence({
 					type: isMedia.type,
 					controls: controls ?? null,
-					effects: _remotionInternalEffects ?? [],
+					effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
 					displayName: timelineClipName,
 					documentationLink: resolvedDocumentationLink,
 					doesVolumeChange: isMedia.data.doesVolumeChange,
 					duration: actualDurationInFrames,
 					from,
+					trimBefore: registeredTrimBefore,
 					id,
 					loopDisplay,
 					nonce: nonce.get(),
@@ -324,9 +427,14 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					showInTimeline,
 					src: isMedia.data.src,
 					getStack: () => stackRef.current,
-					startMediaFrom: isMedia.data.startMediaFrom,
+					startMediaFrom: startMediaFrom ?? isMedia.data.startMediaFrom,
+					mediaFrameAtSequenceZero,
 					volume: isMedia.data.volumes,
 					refForOutline: refForOutline ?? null,
+					isInsideSeries,
+					frozenFrame: registeredFrozenFrame,
+					frozenMediaFrame,
+					singleChildComponent: singleChildComponent ?? null,
 				});
 			}
 
@@ -337,6 +445,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 		registerSequence({
 			from,
+			trimBefore: registeredTrimBefore,
 			duration: actualDurationInFrames,
 			id,
 			displayName: timelineClipName,
@@ -351,8 +460,11 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			premountDisplay: premountDisplay ?? null,
 			postmountDisplay: postmountDisplay ?? null,
 			controls: controls ?? null,
-			effects: _remotionInternalEffects ?? [],
+			effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
 			refForOutline: refForOutline ?? null,
+			isInsideSeries,
+			frozenFrame: registeredFrozenFrame,
+			singleChildComponent: singleChildComponent ?? null,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -368,6 +480,8 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		actualDurationInFrames,
 		rootId,
 		from,
+		trimBefore,
+		registeredTrimBefore,
 		showInTimeline,
 		nonce,
 		loopDisplay,
@@ -379,6 +493,12 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		isMedia,
 		resolvedDocumentationLink,
 		refForOutline,
+		isInsideSeries,
+		registeredFrozenFrame,
+		startMediaFrom,
+		mediaFrameAtSequenceZero,
+		frozenMediaFrame,
+		singleChildComponent,
 	]);
 
 	// Ceil to support floats
@@ -390,8 +510,27 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			: absoluteFrame > endThreshold
 				? null
 				: children;
+	const frozenContent =
+		content === null || typeof freeze === 'undefined' || freeze === null ? (
+			content
+		) : (
+			<Freeze frame={freeze}>{content}</Freeze>
+		);
 
 	const styleIfThere = other.layout === 'none' ? undefined : other.style;
+
+	const sequenceRef = useCallback(
+		(node: HTMLDivElement | null) => {
+			wrapperRefForOutline.current = node;
+
+			if (typeof ref === 'function') {
+				ref(node);
+			} else if (ref) {
+				ref.current = node;
+			}
+		},
+		[ref],
+	);
 
 	const defaultStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -414,15 +553,15 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	return (
 		<SequenceContext.Provider value={contextValue}>
-			{content === null ? null : other.layout === 'none' ? (
-				content
+			{frozenContent === null ? null : other.layout === 'none' ? (
+				frozenContent
 			) : (
 				<AbsoluteFill
-					ref={ref}
+					ref={sequenceRef}
 					style={defaultStyle}
 					className={other.className}
 				>
-					{content}
+					{frozenContent}
 				</AbsoluteFill>
 			)}
 		</SequenceContext.Provider>
@@ -435,10 +574,6 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 	HTMLDivElement,
 	SequenceProps
 > = (props, ref) => {
-	const parentPremountContext = useContext(PremountContext);
-	const frame =
-		useCurrentFrame() - parentPremountContext.premountFramesRemaining;
-
 	if (props.layout === 'none') {
 		throw new Error(
 			'`<Sequence>` with `premountFor` and `postmountFor` props does not support layout="none"',
@@ -456,45 +591,30 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 		...otherProps
 	} = props;
 
-	const endThreshold = Math.ceil(from + durationInFrames - 1);
-	const premountingActive = frame < from && frame >= from - premountFor;
-	const postmountingActive =
-		frame > endThreshold && frame <= endThreshold + postmountFor;
-
-	// Determine which freeze frame to use
-	const freezeFrame = premountingActive
-		? from
-		: postmountingActive
-			? from + durationInFrames - 1
-			: 0;
-	const isFreezingActive = premountingActive || postmountingActive;
-
-	const style = useMemo(() => {
-		return {
-			...passedStyle,
-			opacity: premountingActive || postmountingActive ? 0 : 1,
-			pointerEvents:
-				premountingActive || postmountingActive
-					? 'none'
-					: (passedStyle?.pointerEvents ?? undefined),
-			...(premountingActive ? styleWhilePremounted : {}),
-			...(postmountingActive ? styleWhilePostmounted : {}),
-		};
-	}, [
-		passedStyle,
-		premountingActive,
+	const {
+		freezeFrame,
+		isPremountingOrPostmounting,
 		postmountingActive,
-		styleWhilePremounted,
-		styleWhilePostmounted,
-	]);
+		premountingActive,
+		premountingStyle,
+	} = usePremounting({
+		from,
+		durationInFrames,
+		premountFor,
+		postmountFor,
+		style: passedStyle ?? null,
+		styleWhilePremounted: styleWhilePremounted ?? null,
+		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		hideWhilePremounted: 'opacity',
+	});
 
 	return (
-		<Freeze frame={freezeFrame} active={isFreezingActive}>
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
 			<SequenceInner
 				ref={ref}
 				from={from}
 				durationInFrames={durationInFrames}
-				style={style}
+				style={premountingStyle ?? undefined}
 				_remotionInternalPremountDisplay={premountFor}
 				_remotionInternalPostmountDisplay={postmountFor}
 				_remotionInternalIsPremounting={premountingActive}
@@ -534,9 +654,24 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 };
 
 const SequenceInner = forwardRef(SequenceRefForwardingFunction);
+export const SequenceWithoutSchema = SequenceInner;
 
 /*
  * @description A component that time-shifts its children and wraps them in an absolutely positioned <div>.
  * @see [Documentation](https://www.remotion.dev/docs/sequence)
  */
-export const Sequence = wrapInSchema(SequenceInner, sequenceSchema);
+export const Sequence = withInteractivitySchema({
+	Component: SequenceInner,
+	componentName: '<Sequence>',
+	componentIdentity: 'dev.remotion.remotion.Sequence',
+	schema: sequenceSchema,
+	supportsEffects: false,
+});
+
+export const SequenceWithoutFrom = withInteractivitySchema({
+	Component: SequenceInner,
+	componentName: '<Sequence>',
+	componentIdentity: null,
+	schema: sequenceSchemaWithoutFrom,
+	supportsEffects: false,
+});

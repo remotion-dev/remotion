@@ -16,7 +16,7 @@ It respects the source alpha mask. Transparent regions stay transparent.
 
 ## Preview
 
-<Demo type="effects-vignette" />
+<EffectsDemo type="effects-vignette" />
 
 ## Example
 
@@ -35,6 +35,7 @@ export const MyComp: React.FC = () => {
             amount: 0.75,
             radius: 0.55,
             feather: 0.35,
+            center: [0.35, 0.5],
             color: '#000000',
           }),
         ]}
@@ -61,6 +62,12 @@ Size of the unaffected center from `0` to `1`. Defaults to `0.65`.
 
 Higher values move the vignette closer to the outer edge.
 
+### `center?`
+
+Center of the vignette in UV coordinates. Defaults to `[0.5, 0.5]`.
+
+Values below `0` or above `1` are allowed.
+
 ### `feather?`
 
 Softness of the transition from `0` to `1`. Defaults to `0.35`.
@@ -84,7 +91,7 @@ Accepts any CSS color string (for example `'#000000'`, `'black'`, or `'rgba(0, 0
 
 How the vignette is applied. Defaults to `'color'`.
 
-- `'color'` blends `color` into the edges while preserving the layer alpha.
+- `'color'` composites `color` into the edges, including transparent areas.
 - `'alpha'` fades the edges transparent instead of adding color.
 
 ### `disabled?`
@@ -93,7 +100,7 @@ When `true`, the effect is skipped. Defaults to `false`.
 
 ## Requirements
 
-`vignette()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer()`](/docs/config#setchromiumopenglrenderer) (for example `'angle'`). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+`vignette()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
 
 ## See also
 

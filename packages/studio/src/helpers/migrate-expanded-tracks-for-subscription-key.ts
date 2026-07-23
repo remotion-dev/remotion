@@ -18,13 +18,13 @@ export const migrateExpandedTracksForSubscriptionKey = (
 	const next: BooleanMap = {...prev};
 
 	for (const [key, value] of Object.entries(prev)) {
-		if (!value || !key.startsWith(oldPrefix + '.')) {
+		if (value !== false || !key.startsWith(oldPrefix + '.')) {
 			continue;
 		}
 
 		const migratedKey = newPrefix + key.slice(oldPrefix.length);
-		if (!next[migratedKey]) {
-			next[migratedKey] = true;
+		if (next[migratedKey] === undefined) {
+			next[migratedKey] = false;
 		}
 
 		delete next[key];

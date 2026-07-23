@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -21,6 +21,7 @@ const speckleSchema = {
 		step: 0.01,
 		default: DEFAULT_DENSITY,
 		description: 'Density',
+		hiddenFromList: false,
 	},
 	size: {
 		type: 'number',
@@ -29,6 +30,7 @@ const speckleSchema = {
 		step: 0.1,
 		default: DEFAULT_SIZE,
 		description: 'Size',
+		hiddenFromList: false,
 	},
 	randomness: {
 		type: 'number',
@@ -37,8 +39,9 @@ const speckleSchema = {
 		step: 0.01,
 		default: DEFAULT_RANDOMNESS,
 		description: 'Randomness',
+		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type SpeckleParams = {
 	/** Chance that a grid cell receives an alpha hole. Defaults to `0.08`. */
@@ -197,7 +200,7 @@ const linkProgram = (
 };
 
 export const speckle = createEffect<SpeckleParams, SpeckleState>({
-	type: 'remotion/speckle',
+	type: 'dev.remotion.effects.speckle',
 	label: 'speckle()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/speckle',
 	backend: 'webgl2',

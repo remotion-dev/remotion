@@ -1,12 +1,12 @@
-import type {SequenceSchema} from './sequence-field-schema';
+import type {InteractivitySchema} from './interactivity-schema';
 
 export type ResolveValue = (key: string) => unknown;
 
 export const flattenActiveSchema = (
-	schema: SequenceSchema,
+	schema: InteractivitySchema,
 	resolve: ResolveValue,
-): SequenceSchema => {
-	const out: SequenceSchema = {};
+): InteractivitySchema => {
+	const out: InteractivitySchema = {};
 	for (const key of Object.keys(schema)) {
 		const field = schema[key];
 		if (field.type === 'hidden') {
@@ -27,15 +27,13 @@ export const flattenActiveSchema = (
 };
 
 export const getFlatSchemaWithAllKeys = (
-	schema: SequenceSchema,
-): SequenceSchema => {
-	const out: SequenceSchema = {};
+	schema: InteractivitySchema,
+): InteractivitySchema => {
+	const out: InteractivitySchema = {};
 
-	const addKey = (key: string, field: SequenceSchema[string]) => {
+	const addKey = (key: string, field: InteractivitySchema[string]) => {
 		if (key in out) {
-			throw new Error(
-				`Duplicate key "${key}" in schema: discriminated union variants must not share keys`,
-			);
+			return;
 		}
 
 		out[key] = field;

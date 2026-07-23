@@ -20,8 +20,9 @@ test('Should correctly separate discriminated union for layout', () => {
 			nodePath: [],
 			sequenceKeys: [],
 			effectKeys: [],
+			videoConfigValues: null,
 		},
-		codeValues: {},
+		propStatuses: {},
 		getDragOverrides: () => ({}),
 	});
 	expect(schemaFields?.map((s) => s.key)).toEqual(['layout']);
@@ -38,17 +39,22 @@ test('Should expose absolute-fill variant fields when active', () => {
 			nodePath: [],
 			sequenceKeys: [],
 			effectKeys: [],
+			videoConfigValues: null,
 		},
-		codeValues: {},
+		propStatuses: {},
 		getDragOverrides: () => ({}),
 	});
 	expect(schemaFields?.map((s) => s.key)).toEqual([
 		'layout',
+		'premountFor',
+		'style.transformOrigin',
 		'style.translate',
 		'style.scale',
 		'style.rotate',
 		'style.opacity',
-		'premountFor',
+		'style.borderWidth',
+		'style.borderStyle',
+		'style.borderColor',
 	]);
 });
 
@@ -64,6 +70,7 @@ test('Should be able to update a discriminated union', async () => {
 	assert(nodePath, 'No node path found');
 
 	const update = updateSequencePropsAst({
+		videoConfigValues: null,
 		input: file,
 		nodePath,
 		updates: [
@@ -96,6 +103,7 @@ test('Should remove variant-specific props when switching enum value', async () 
 	assert(nodePath, 'No node path found');
 
 	const update = updateSequencePropsAst({
+		videoConfigValues: null,
 		input: file,
 		nodePath,
 		updates: [
@@ -120,7 +128,7 @@ test('Should remove variant-specific props when switching enum value', async () 
 	expect(await prettify(update.serialized)).toBe(await prettify(expected));
 });
 
-test('Should remove premountFor and styleWhile* when switching to layout="none"', async () => {
+test('Should remove premountFor and preserve styleWhile* when switching to layout="none"', async () => {
 	const file = readFileSync(
 		path.join(__dirname, 'snapshots', 'discriminated-union-with-premount.tsx'),
 		'utf-8',
@@ -132,6 +140,7 @@ test('Should remove premountFor and styleWhile* when switching to layout="none"'
 	assert(nodePath, 'No node path found');
 
 	const update = updateSequencePropsAst({
+		videoConfigValues: null,
 		input: file,
 		nodePath,
 		updates: [

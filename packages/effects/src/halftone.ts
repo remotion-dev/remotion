@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -6,6 +6,7 @@ import {
 	type ParsedColorRgba,
 } from './color-utils.js';
 import {
+	assertOptionalBoolean,
 	assertEffectParamsObject,
 	assertOptionalColor,
 } from './validate-effect-param.js';
@@ -23,6 +24,7 @@ export const halftoneSchema = {
 		step: 1,
 		default: 20,
 		description: 'Dot size',
+		hiddenFromList: false,
 	},
 	dotSpacing: {
 		type: 'number',
@@ -31,11 +33,10 @@ export const halftoneSchema = {
 		step: 1,
 		default: 20,
 		description: 'Dot spacing',
+		hiddenFromList: false,
 	},
 	rotation: {
-		type: 'number',
-		min: -180,
-		max: 180,
+		type: 'rotation-degrees',
 		step: 1,
 		default: 0,
 		description: 'Rotation',
@@ -45,12 +46,14 @@ export const halftoneSchema = {
 		step: 1,
 		default: 0,
 		description: 'Offset X',
+		hiddenFromList: false,
 	},
 	offsetY: {
 		type: 'number',
 		step: 1,
 		default: 0,
 		description: 'Offset Y',
+		hiddenFromList: false,
 	},
 	shape: {
 		type: 'enum',
@@ -82,7 +85,7 @@ export const halftoneSchema = {
 			source: {},
 		},
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type HalftoneShape = (typeof HALFTONE_SHAPES)[number];
 export type HalftoneSampling = (typeof HALFTONE_SAMPLING)[number];
@@ -155,18 +158,6 @@ const assertOptionalEnum = <T extends string>(
 
 	if (typeof value !== 'string' || !variants.includes(value as T)) {
 		throw new TypeError(`"${name}" must be ${formatEnum(variants)}`);
-	}
-};
-
-const assertOptionalBoolean = (value: unknown, name: string): void => {
-	if (value === undefined) {
-		return;
-	}
-
-	if (typeof value !== 'boolean') {
-		throw new TypeError(
-			`"${name}" must be a boolean, but got ${JSON.stringify(value)}`,
-		);
 	}
 };
 
@@ -301,7 +292,26 @@ void main() {
 		coverage = (1.0 - smoothstep(s - 0.5, s + 0.5, abs(diff.x)))
 				 * (1.0 - smoothstep(s - 0.5, s + 0.5, abs(diff.y)));
 	} else {
+		vec4 localTexColor = texture(uSource, vUv);
+		float localAlpha = localTexColor.a;
+		vec3 localRgb = localAlpha > 0.001 ? localTexColor.rgb / localAlpha : vec3(0.0);
+		float localLum = dot(localRgb, vec3(0.299, 0.587, 0.114));
+		float localLumDefault = localLum * localAlpha + (1.0 - localAlpha);
+		float localDotScale = uShadeOutside
+			? localLumDefault
+			: 1.0 - localLumDefault;
+
+		if (localDotScale <= 0.12) {
+			fragColor = vec4(0.0);
+			return;
+		}
+
 		float lineHalf = uDotSize * dotScale * 0.5;
+		if (lineHalf <= 1.0) {
+			fragColor = vec4(0.0);
+			return;
+		}
+
 		coverage = (1.0 - smoothstep(halfSize - 0.5, halfSize + 0.5, abs(diff.x)))
 				 * (1.0 - smoothstep(lineHalf - 0.5, lineHalf + 0.5, abs(diff.y)));
 	}
@@ -389,7 +399,7 @@ const linkProgram = (
 // `colorMode` controls whether dots use a solid `dotColor` or the sampled source
 // color at each grid cell.
 export const halftone = createEffect<HalftoneParams, HalftoneState>({
-	type: 'remotion/halftone',
+	type: 'dev.remotion.effects.halftone',
 	label: 'halftone()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/halftone',
 	backend: 'webgl2',

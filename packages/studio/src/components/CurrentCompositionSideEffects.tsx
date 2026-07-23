@@ -1,14 +1,10 @@
 import type React from 'react';
-import {useCallback, useContext, useEffect} from 'react';
+import {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
-import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	setCurrentCanvasContentId,
 	setRenderJobs,
 } from '../helpers/document-title';
-import {SHOW_BROWSER_RENDERING} from '../helpers/show-browser-rendering';
-import {useKeybinding} from '../helpers/use-keybinding';
-import {showNotification} from './Notifications/NotificationCenter';
 import {RenderQueueContext} from './RenderQueue/context';
 
 export const TitleUpdater: React.FC = () => {
@@ -43,49 +39,6 @@ export const TitleUpdater: React.FC = () => {
 	useEffect(() => {
 		setRenderJobs(jobs);
 	}, [jobs]);
-
-	return null;
-};
-
-export const CurrentCompositionKeybindings: React.FC<{
-	readonly readOnlyStudio: boolean;
-}> = ({readOnlyStudio}) => {
-	const keybindings = useKeybinding();
-	const video = Internals.useVideo();
-	const {type} = useContext(StudioServerConnectionCtx).previewServerState;
-
-	const openRenderModal = useCallback(() => {
-		if (!video) {
-			return;
-		}
-
-		if (type !== 'connected' && !SHOW_BROWSER_RENDERING && !readOnlyStudio) {
-			showNotification('Studio server is offline', 2000);
-			return;
-		}
-
-		const renderButton = document.getElementById(
-			'render-modal-button',
-		) as HTMLDivElement;
-
-		renderButton.click();
-	}, [readOnlyStudio, type, video]);
-
-	useEffect(() => {
-		const binding = keybindings.registerKeybinding({
-			event: 'keydown',
-			key: 'r',
-			commandCtrlKey: false,
-			callback: openRenderModal,
-			preventDefault: true,
-			triggerIfInputFieldFocused: false,
-			keepRegisteredWhenNotHighestContext: false,
-		});
-
-		return () => {
-			binding.unregister();
-		};
-	}, [keybindings, openRenderModal]);
 
 	return null;
 };

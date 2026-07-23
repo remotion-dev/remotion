@@ -1,23 +1,31 @@
-import React, {useCallback, useContext, useMemo} from 'react';
+import React, {useContext, useMemo, useRef} from 'react';
 import {useVideoConfig} from 'remotion';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {TimelineKeyframeDiamondIcon} from './TimelineKeyframeDiamondIcon';
+import {useTimelineKeyframeDragState} from './TimelineKeyframeDragState';
 import {
-	TIMELINE_SELECTED_LABEL_BACKGROUND,
+	TIMELINE_MARQUEE_ITEM_ATTR,
 	useTimelineKeyframeSelection,
+	useTimelineMarqueeSelectableItem,
 } from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
+import {useTimelineKeyframeDrag} from './use-timeline-keyframe-drag';
+
+const diamondSize = 12;
 
 const diamondBase: React.CSSProperties = {
+	alignItems: 'center',
+	background: 'none',
+	border: 'none',
+	display: 'flex',
+	height: diamondSize,
+	justifyContent: 'center',
+	padding: 0,
 	position: 'absolute',
-	width: 8,
-	height: 8,
-	backgroundColor: LIGHT_TEXT,
-	borderRadius: 1,
-	boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.4)',
-	pointerEvents: 'none',
+	width: diamondSize,
 };
 
 const TimelineKeyframeDiamondUnmemoized: React.FC<{
@@ -27,10 +35,13 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 }> = ({frame, rowHeight, nodePathInfo}) => {
 	const videoConfig = useVideoConfig();
 	const timelineWidth = useContext(TimelineWidthContext);
-	const {selected, onSelect, selectable} = useTimelineKeyframeSelection(
-		nodePathInfo,
-		frame,
-	);
+	const ref = useRef<HTMLButtonElement>(null);
+	const {selected, onSelect, selectable, selectionItem} =
+		useTimelineKeyframeSelection(nodePathInfo, frame);
+	useTimelineMarqueeSelectableItem(selectionItem, ref);
+	const {isKeyframeDragging} = useTimelineKeyframeDragState();
+	const visuallySelected =
+		selected || isKeyframeDragging({nodePathInfo, frame});
 
 	const style = useMemo((): React.CSSProperties | null => {
 		if (timelineWidth === null) {
@@ -39,33 +50,25 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 
 		return {
 			...diamondBase,
-			backgroundColor: selected
-				? TIMELINE_SELECTED_LABEL_BACKGROUND
-				: LIGHT_TEXT,
-			border: 'none',
-			cursor: 'default',
 			left:
 				getXPositionOfItemInTimelineImperatively(
 					frame,
 					videoConfig.durationInFrames,
 					timelineWidth,
 				) - TIMELINE_PADDING,
-			padding: 0,
 			pointerEvents: 'auto',
 			top: rowHeight / 2,
-			transform: 'translate(-50%, -50%) rotate(45deg)',
+			transform: 'translate(-50%, -50%)',
 		};
-	}, [frame, rowHeight, selected, timelineWidth, videoConfig.durationInFrames]);
+	}, [frame, rowHeight, timelineWidth, videoConfig.durationInFrames]);
 
-	const onPointerDown = useCallback(
-		(e: React.PointerEvent<HTMLButtonElement>) => {
-			if (e.button === 0) {
-				e.stopPropagation();
-				onSelect();
-			}
-		},
-		[onSelect],
-	);
+	const onPointerDown = useTimelineKeyframeDrag({
+		frame,
+		nodePathInfo,
+		onSelect,
+		selectable,
+		selected,
+	});
 
 	if (style === null) {
 		return null;
@@ -73,12 +76,20 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 
 	return (
 		<button
+			ref={ref}
+			{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
 			type="button"
 			style={style}
 			title={`Keyframe at frame ${frame}`}
 			aria-label={`Select keyframe at frame ${frame}`}
 			onPointerDown={selectable ? onPointerDown : undefined}
-		/>
+		>
+			<TimelineKeyframeDiamondIcon
+				color={LIGHT_TEXT}
+				selected={visuallySelected}
+				size={diamondSize}
+			/>
+		</button>
 	);
 };
 

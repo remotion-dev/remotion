@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {assertOptionalFiniteNumber} from '../color-utils.js';
 import {assertEffectParamsObject} from '../validate-effect-param.js';
@@ -11,14 +11,16 @@ const xyTranslateSchema = {
 		step: 1,
 		default: 0,
 		description: 'X',
+		hiddenFromList: false,
 	},
 	y: {
 		type: 'number',
 		step: 1,
 		default: 0,
 		description: 'Y',
+		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 const uvTranslateSchema = {
 	u: {
@@ -26,14 +28,16 @@ const uvTranslateSchema = {
 		step: 0.01,
 		default: 0,
 		description: 'U',
+		hiddenFromList: false,
 	},
 	v: {
 		type: 'number',
 		step: 0.01,
 		default: 0,
 		description: 'V',
+		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type XyTranslateParams = {
 	/** Horizontal offset in pixels. Defaults to `0`. */
@@ -112,7 +116,7 @@ const applyTranslate = ({
 };
 
 export const xyTranslate = createEffect<XyTranslateParams, null>({
-	type: 'remotion/xy-translate',
+	type: 'dev.remotion.effects.xyTranslate',
 	label: 'xyTranslate()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/xy-translate',
 	backend: '2d',
@@ -138,7 +142,7 @@ export const xyTranslate = createEffect<XyTranslateParams, null>({
 });
 
 export const uvTranslate = createEffect<UvTranslateParams, null>({
-	type: 'remotion/uv-translate',
+	type: 'dev.remotion.effects.uvTranslate',
 	label: 'uvTranslate()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/uv-translate',
 	backend: '2d',

@@ -1,0 +1,85 @@
+---
+image: /generated/articles-docs-effects-thermal-vision.png
+slug: /effects/thermal-vision
+title: thermalVision()
+sidebar_label: thermalVision()
+crumb: '@remotion/effects'
+---
+
+# thermalVision()<AvailableFrom v="4.0.479" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Maps source luminance to a thermal heat-map color ramp. It can be applied to canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+The source alpha channel is preserved, so transparent and semi-transparent regions keep their original transparency.
+
+## Preview
+
+<EffectsDemo type="effects-thermal-vision" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {thermalVision} from '@remotion/effects/thermal-vision';
+import {AbsoluteFill, CanvasImage, staticFile} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <CanvasImage
+        src={staticFile('image.png')}
+        width={1280}
+        height={720}
+        fit="cover"
+        effects={[
+          thermalVision({
+            amount: 1,
+            palette: [
+              '#020617',
+              '#1238ff',
+              '#00a6ff',
+              '#00c853',
+              '#d6f542',
+              '#ffb000',
+              '#ff2f00',
+              '#ffffff',
+            ],
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `thermalVision()` without arguments.
+
+### `amount?`
+
+Blend amount from `0` to `1`. Defaults to `1`.
+
+Use `0` to leave the layer unchanged. Use `1` to fully remap luminance to the thermal color ramp.
+
+### `palette?`
+
+Color ramp used from dark to bright pixels. Accepts an array of at least two CSS color strings.
+
+Defaults to a dark blue, blue, cyan, green, yellow, orange, red and white ramp.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`thermalVision()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`duotone()`](/docs/effects/duotone)
+- [`grayscale()`](/docs/effects/grayscale)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/thermal-vision.ts)

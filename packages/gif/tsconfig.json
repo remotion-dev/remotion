@@ -7,5 +7,6 @@
 		"jsx": "react-jsx"
 	},
 	"references": [{"path": "../core"}],
-	"include": ["./src"]
+	"include": ["./src"],
+	"exclude": ["./src/test"]
 }

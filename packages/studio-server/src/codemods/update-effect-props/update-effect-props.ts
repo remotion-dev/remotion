@@ -2,32 +2,51 @@ import type {
 	ArrayExpression,
 	CallExpression,
 	Expression,
+	File,
 	JSXAttribute,
 	ObjectExpression,
 	ObjectProperty,
 	StringLiteral,
 } from '@babel/types';
-import {stringifyDefaultProps} from '@remotion/studio-shared';
+import type {EffectClipboardParam} from '@remotion/studio-shared';
 import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
-import type {SequenceNodePath, SequenceSchema} from 'remotion';
+import type {SequenceNodePath, InteractivitySchema} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {findJsxElementAtNodePath} from '../../preview-server/routes/can-update-sequence-props';
+import {
+	ensureRemotionImportLocalNames,
+	getRequiredRemotionImportsForEffectParams,
+	makeParamExpression,
+} from '../effect-param-expression';
 import {formatFileContent} from '../format-file-content';
 import {parseAst, serializeAst} from '../parse-ast';
+import {
+	ensureUseCurrentFrameHook,
+	findEnclosingFunctionPath,
+} from '../update-keyframes/ensure-imports-and-frame-hook';
+import {parseValueExpression} from '../update-nested-prop';
 
 const b = recast.types.builders;
 
-export type EffectPropUpdate = {
-	key: string;
-	value: unknown;
-	defaultValue: unknown | null;
-};
+export type EffectPropUpdate =
+	| {
+			key: string;
+			value: unknown;
+			defaultValue: unknown | null;
+	  }
+	| {
+			key: string;
+			effectParam: EffectClipboardParam;
+			defaultValue: unknown | null;
+	  };
 
 export type UpdateEffectPropsResult = {
 	output: string;
 	formatted: boolean;
 	oldValueString: string;
+	newValueString: string;
 	logLine: number;
 	effectCallee: string;
 	removedProps: PropDelta[];
@@ -36,20 +55,6 @@ export type UpdateEffectPropsResult = {
 export type PropDelta = {
 	key: string;
 	valueString: string;
-};
-
-const parseValueExpression = (value: unknown): ExpressionKind => {
-	const code = `a = ${stringifyDefaultProps({props: value, enumPaths: []})}`;
-	const ast = parseAst(code);
-	const stmt = ast.program.body[0];
-	if (
-		stmt.type !== 'ExpressionStatement' ||
-		stmt.expression.type !== 'AssignmentExpression'
-	) {
-		throw new Error('Failed to parse effect prop value expression');
-	}
-
-	return stmt.expression.right as ExpressionKind;
 };
 
 export const findEffectsAttr = (
@@ -186,6 +191,77 @@ const printObjectPropertyValue = (prop: ObjectProperty) =>
 		.replace(/,(\s*[}\]])/g, '$1')
 		.trim();
 
+const updateHasEffectParam = (
+	update: EffectPropUpdate,
+): update is Extract<EffectPropUpdate, {effectParam: EffectClipboardParam}> =>
+	'effectParam' in update;
+
+const getStaticUpdateValue = (update: EffectPropUpdate): unknown | null => {
+	if (updateHasEffectParam(update)) {
+		return update.effectParam.type === 'static'
+			? update.effectParam.value
+			: null;
+	}
+
+	return update.value;
+};
+
+const ensureClipboardParamImports = ({
+	ast,
+	sequenceNodePath,
+	param,
+}: {
+	ast: File;
+	sequenceNodePath: SequenceNodePath;
+	param: EffectClipboardParam;
+}) => {
+	const requiredImports = getRequiredRemotionImportsForEffectParams([param]);
+	const remotionLocalNames = ensureRemotionImportLocalNames({
+		ast,
+		requiredImports,
+	});
+
+	if (requiredImports.has('useCurrentFrame')) {
+		const targetJsxPath = getAstNodePath(ast, sequenceNodePath);
+		if (targetJsxPath) {
+			const fnPath = findEnclosingFunctionPath(targetJsxPath);
+			if (fnPath) {
+				ensureUseCurrentFrameHook(
+					fnPath,
+					remotionLocalNames.useCurrentFrame ?? 'useCurrentFrame',
+				);
+			}
+		}
+	}
+
+	return remotionLocalNames;
+};
+
+const makeUpdateValueExpression = ({
+	ast,
+	sequenceNodePath,
+	update,
+}: {
+	ast: File;
+	sequenceNodePath: SequenceNodePath;
+	update: EffectPropUpdate;
+}): ExpressionKind => {
+	if (!updateHasEffectParam(update)) {
+		return parseValueExpression(update.value);
+	}
+
+	const remotionLocalNames = ensureClipboardParamImports({
+		ast,
+		sequenceNodePath,
+		param: update.effectParam,
+	});
+
+	return makeParamExpression({
+		param: update.effectParam,
+		remotionLocalNames,
+	});
+};
+
 const removeObjectProperty = ({
 	objExpr,
 	propertyName,
@@ -218,10 +294,11 @@ export const updateEffectPropsAst = ({
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
 	update: EffectPropUpdate;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 }): {
 	serialized: string;
 	oldValueString: string;
+	newValueString: string;
 	logLine: number;
 	effectCallee: string;
 	removedProps: PropDelta[];
@@ -251,6 +328,7 @@ export const updateEffectPropsAst = ({
 	const {call, callee: effectCallee} = found;
 
 	const isDefault =
+		!updateHasEffectParam(update) &&
 		update.defaultValue !== null &&
 		JSON.stringify(update.value) === JSON.stringify(update.defaultValue);
 
@@ -261,6 +339,7 @@ export const updateEffectPropsAst = ({
 			return {
 				serialized: serializeAst(ast),
 				oldValueString: '',
+				newValueString: JSON.stringify(update.defaultValue),
 				logLine: call.loc?.start.line ?? jsx.loc?.start.line ?? 1,
 				effectCallee,
 				removedProps: [],
@@ -285,7 +364,9 @@ export const updateEffectPropsAst = ({
 		oldValueString = JSON.stringify(update.defaultValue);
 	}
 
+	let newValueString = '';
 	if (isDefault) {
+		newValueString = JSON.stringify(update.defaultValue);
 		if (prop) {
 			const idx = objExpr.properties.indexOf(prop);
 			if (idx !== -1) {
@@ -293,7 +374,12 @@ export const updateEffectPropsAst = ({
 			}
 		}
 	} else {
-		const newValueExpr = parseValueExpression(update.value);
+		const newValueExpr = makeUpdateValueExpression({
+			ast,
+			sequenceNodePath,
+			update,
+		});
+		newValueString = recast.print(newValueExpr).code;
 		if (prop) {
 			prop.value = newValueExpr as ObjectProperty['value'];
 		} else {
@@ -307,11 +393,16 @@ export const updateEffectPropsAst = ({
 	}
 
 	const fieldSchema = schema[update.key];
-	if (fieldSchema && fieldSchema.type === 'enum') {
+	const staticUpdateValue = getStaticUpdateValue(update);
+	if (
+		fieldSchema &&
+		fieldSchema.type === 'enum' &&
+		staticUpdateValue !== null
+	) {
 		const propsToDelete = NoReactInternals.findPropsToDelete({
 			schema,
 			key: update.key,
-			value: update.value,
+			value: staticUpdateValue,
 		});
 		for (const propToDelete of propsToDelete) {
 			const removed = removeObjectProperty({
@@ -329,6 +420,7 @@ export const updateEffectPropsAst = ({
 	return {
 		serialized: serializeAst(ast),
 		oldValueString,
+		newValueString,
 		logLine,
 		effectCallee,
 		removedProps,
@@ -347,17 +439,23 @@ export const updateEffectProps = async ({
 	sequenceNodePath: SequenceNodePath;
 	effectIndex: number;
 	update: EffectPropUpdate;
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	prettierConfigOverride?: Record<string, unknown> | null;
 }): Promise<UpdateEffectPropsResult> => {
-	const {serialized, oldValueString, logLine, effectCallee, removedProps} =
-		updateEffectPropsAst({
-			input,
-			sequenceNodePath,
-			effectIndex,
-			update,
-			schema,
-		});
+	const {
+		serialized,
+		oldValueString,
+		newValueString,
+		logLine,
+		effectCallee,
+		removedProps,
+	} = updateEffectPropsAst({
+		input,
+		sequenceNodePath,
+		effectIndex,
+		update,
+		schema,
+	});
 
 	const {output, formatted} = await formatFileContent({
 		input: serialized,
@@ -367,6 +465,7 @@ export const updateEffectProps = async ({
 	return {
 		output,
 		oldValueString,
+		newValueString,
 		formatted,
 		logLine,
 		effectCallee,

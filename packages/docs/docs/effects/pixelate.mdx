@@ -1,0 +1,65 @@
+---
+image: /generated/articles-docs-effects-pixelate.png
+slug: /effects/pixelate
+title: pixelate()
+sidebar_label: pixelate()
+crumb: '@remotion/effects'
+---
+
+# pixelate()<AvailableFrom v="4.0.479" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+A pixelate effect that divides the image into rectangular blocks, making each block a single solid color sampled from the source. Works on canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+Use it when you want a mosaic or censored look while still controlling effect order through the `effects` array.
+
+## Preview
+
+<EffectsDemo type="effects-pixelate" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+import {pixelate} from '@remotion/effects/pixelate';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[
+          pixelate({
+            blockSize:20,
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `pixelate()` without arguments.
+
+### `blockSize?`
+
+Size of each pixel block in pixels. Defaults to `20`. Must be at least `1`.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`pixelate()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`grayscale()`](/docs/effects/grayscale)
+- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/pixelate.ts)

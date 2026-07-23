@@ -50,7 +50,27 @@ Elements that can be upscaled and that will enhance increased resolution are:
 - SVG elements
 - Images (if their resolution is sufficient to display in a higher resolution)
 
+Canvas and WebGL elements cannot be upscaled automatically, since their backing bitmap resolution is fixed by design.  
+You can however opt into a higher backing resolution for the following components by passing a `pixelDensity` prop:
+
+- [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) – [`pixelDensity`](/docs/remotion/html-in-canvas#pixeldensity)
+- [`<Solid>`](/docs/solid) – [`pixelDensity`](/docs/solid#pixeldensity)
+
+To support the `scale` option during a render, pass [`usePixelDensity()`](/docs/use-pixel-density), which resolves to the render `scale`:
+
+```tsx twoslash title="Supporting scale in the render"
+import {AbsoluteFill, Solid, usePixelDensity} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const pixelDensity = usePixelDensity();
+  return (
+    <AbsoluteFill>
+      <Solid color="#3344ff" width={1920} height={1080} pixelDensity={pixelDensity} />
+    </AbsoluteFill>
+  );
+};
+```
+
 Elements that **cannot** be upscaled for increased resolution are:
 
 - Videos
-- Canvas and WebGL elements

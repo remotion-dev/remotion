@@ -2,6 +2,7 @@ import type {IncomingMessage, ServerResponse} from 'node:http';
 import type {LogLevel} from '@remotion/renderer';
 import type {ApiHandler, QueueMethods} from './api-types';
 import {parseRequestBody} from './parse-body';
+import {validateSameOrigin} from './validate-same-origin';
 
 export const handleRequest = async <Req, Res>({
 	remotionRoot,
@@ -29,6 +30,8 @@ export const handleRequest = async <Req, Res>({
 		response.end();
 		return;
 	}
+
+	validateSameOrigin(request);
 
 	response.setHeader('content-type', 'application/json');
 	response.writeHead(200);

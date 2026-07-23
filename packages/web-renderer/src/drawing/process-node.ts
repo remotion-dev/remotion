@@ -1,7 +1,10 @@
 import {Internals, type LogLevel} from 'remotion';
 import type {InternalState} from '../internal-state';
 import {createLayer} from '../take-screenshot';
-import {calculateTransforms} from './calculate-transforms';
+import {
+	calculateTransforms,
+	type TransformStyleCache,
+} from './calculate-transforms';
 import {getWiderRectAndExpand} from './clamp-rect-to-parent-bounds';
 import {doRectsIntersect} from './do-rects-intersect';
 import {drawElement} from './draw-element';
@@ -32,6 +35,8 @@ export const processNode = async ({
 	internalState,
 	rootElement,
 	scale,
+	waitForPageResponsiveness,
+	transformStyleCache,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
@@ -41,10 +46,13 @@ export const processNode = async ({
 	internalState: InternalState;
 	rootElement: HTMLElement | SVGElement;
 	scale: number;
+	waitForPageResponsiveness: (() => Promise<void>) | null;
+	transformStyleCache: TransformStyleCache;
 }): Promise<ProcessNodeReturnValue> => {
 	using transforms = calculateTransforms({
 		element,
 		rootElement,
+		transformStyleCache,
 	});
 
 	const {opacity, computedStyle, totalMatrix, dimensions, precompositing} =
@@ -130,7 +138,12 @@ export const processNode = async ({
 			internalState,
 			scale,
 			onlyBackgroundClipText: false,
+			waitForPageResponsiveness,
+			waitForRenderReady: () => Promise.resolve(),
 		});
+		if (waitForPageResponsiveness !== null) {
+			await waitForPageResponsiveness();
+		}
 
 		let drawable: OffscreenCanvas | null = tempContext.canvas;
 
@@ -147,11 +160,14 @@ export const processNode = async ({
 		if (precompositing.needsMaskImage) {
 			handleMask({
 				gradientInfo: precompositing.needsMaskImage,
-				rect,
+				maskRect: dimensions,
 				precomposeRect,
 				tempContext,
 				scale,
 			});
+			if (waitForPageResponsiveness !== null) {
+				await waitForPageResponsiveness();
+			}
 		}
 
 		if (precompositing.needs3DTransformViaWebGL) {
@@ -165,6 +181,10 @@ export const processNode = async ({
 			});
 			if (t) {
 				drawable = t;
+			}
+
+			if (waitForPageResponsiveness !== null) {
+				await waitForPageResponsiveness();
 			}
 		}
 
@@ -203,6 +223,9 @@ export const processNode = async ({
 		}
 
 		context.setTransform(previousTransform);
+		if (waitForPageResponsiveness !== null) {
+			await waitForPageResponsiveness();
+		}
 
 		Internals.Log.trace(
 			{

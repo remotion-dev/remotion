@@ -65,18 +65,39 @@ export const makeKeyframeBank = async ({
 	let lastUsed = Date.now();
 	let allocationSize = 0;
 
-	const getDurationOfFrame = (timestamp: number) => {
+	const getMeasuredDurationOfFrame = (timestamp: number) => {
 		const index = frameTimestamps.indexOf(timestamp);
 		if (index === -1) {
 			throw new Error(`Frame ${timestamp} not found`);
 		}
 
 		const nextTimestamp = frameTimestamps[index + 1];
-		if (!nextTimestamp) {
+		if (nextTimestamp === undefined) {
 			return null;
 		}
 
 		return nextTimestamp - timestamp;
+	};
+
+	const getKnownDurationOfFrame = (timestamp: number) => {
+		const measuredDuration = getMeasuredDurationOfFrame(timestamp);
+		if (measuredDuration !== null) {
+			return measuredDuration;
+		}
+
+		if (!hasReachedEndOfVideo) {
+			return null;
+		}
+
+		return (frames[timestamp] as VideoSample).duration ?? 0;
+	};
+
+	const getEstimatedDurationOfFrame = (timestamp: number) => {
+		return (
+			getMeasuredDurationOfFrame(timestamp) ??
+			(frames[timestamp] as VideoSample).duration ??
+			0
+		);
 	};
 
 	const deleteFrameAtTimestamp = (timestamp: number) => {
@@ -108,9 +129,10 @@ export const makeKeyframeBank = async ({
 				continue;
 			}
 
-			const duration =
-				getDurationOfFrame(frameTimestamp) ??
-				(frames[frameTimestamp] as VideoSample).duration;
+			const duration = getKnownDurationOfFrame(frameTimestamp);
+			if (duration === null) {
+				continue;
+			}
 
 			if (frameTimestamp + duration < timestampInSeconds) {
 				deleteFrameAtTimestamp(frameTimestamp);
@@ -128,7 +150,7 @@ export const makeKeyframeBank = async ({
 
 	const hasDecodedEnoughForTimestamp = (timestamp: number) => {
 		const lastFrameTimestamp = frameTimestamps[frameTimestamps.length - 1];
-		if (!lastFrameTimestamp) {
+		if (lastFrameTimestamp === undefined) {
 			return false;
 		}
 
@@ -139,9 +161,14 @@ export const makeKeyframeBank = async ({
 			return true;
 		}
 
-		const duration =
-			getDurationOfFrame(lastFrameTimestamp) ??
-			(lastFrame as VideoSample).duration;
+		if (roundTo4Digits(lastFrameTimestamp) >= roundTo4Digits(timestamp)) {
+			return true;
+		}
+
+		const duration = getKnownDurationOfFrame(lastFrameTimestamp);
+		if (duration === null) {
+			return false;
+		}
 
 		return (
 			roundTo4Digits(lastFrameTimestamp + duration) > roundTo4Digits(timestamp)
@@ -278,14 +305,7 @@ export const makeKeyframeBank = async ({
 
 		const firstTimestamp = frameTimestamps[0];
 		const lastTimestamp = frameTimestamps[frameTimestamps.length - 1]!;
-		const lastFrame = frames[lastTimestamp];
-
-		// If we have measured it by already having the next frame, use that. Otherwise,
-		// resort to what Mediabunny gave us.
-		const lastFrameDuration =
-			getDurationOfFrame(lastTimestamp) ??
-			(lastFrame as VideoSample).duration ??
-			0;
+		const lastFrameDuration = getEstimatedDurationOfFrame(lastTimestamp);
 
 		return {
 			firstTimestamp,
@@ -328,9 +348,15 @@ export const makeKeyframeBank = async ({
 
 		const roundedTimestamp = roundTo4Digits(timestamp);
 		const firstFrameTimestamp = roundTo4Digits(frameTimestamps[0]);
+		const range = getRangeOfTimestamps();
+		if (!range) {
+			return false;
+		}
+
 		const lastFrameTimestamp = roundTo4Digits(
 			frameTimestamps[frameTimestamps.length - 1],
 		);
+		const lastFrameEndTimestamp = roundTo4Digits(range.lastTimestamp);
 
 		if (hasReachedEndOfVideo && roundedTimestamp > lastFrameTimestamp) {
 			return true;
@@ -348,7 +374,7 @@ export const makeKeyframeBank = async ({
 
 		if (
 			roundedTimestamp - BIGGEST_ALLOWED_JUMP_FORWARD_SECONDS >
-			lastFrameTimestamp
+			lastFrameEndTimestamp
 		) {
 			return false;
 		}

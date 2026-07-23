@@ -1,15 +1,17 @@
 import React, {createRef, useContext} from 'react';
 import {Internals} from 'remotion';
+import {BLACK_ALPHA_50} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import {useTimelineInOutFramePosition} from '../../state/in-out';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const areaHighlight: React.CSSProperties = {
 	position: 'absolute',
-	backgroundColor: 'rgba(0, 0, 0, 0.5)',
+	backgroundColor: BLACK_ALPHA_50,
 	height: '100%',
 	bottom: 0,
 	top: 0,
+	pointerEvents: 'none',
 };
 
 export const inMarkerAreaRef = createRef<HTMLDivElement>();
@@ -55,7 +57,7 @@ export const TimelineInOutPointer: React.FC = () => {
 							timelineWidth -
 							getXPositionOfItemInTimelineImperatively(
 								outFrame,
-								videoConfig.durationInFrames,
+								videoConfig.durationInFrames + 1, // last frame also has width of 1 frame
 								timelineWidth,
 							),
 					}}

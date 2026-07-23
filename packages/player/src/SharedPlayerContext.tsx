@@ -1,7 +1,7 @@
 // Contexts shared between <Player> and <Thumbnail>
 
 import type {ComponentType, LazyExoticComponent} from 'react';
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import type {
 	CompositionManagerContext,
 	LoggingContextValue,
@@ -30,6 +30,7 @@ export const SharedPlayerContexts: React.FC<{
 	readonly initiallyMuted: boolean;
 	readonly logLevel: LogLevel;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
+	readonly sampleRate: number;
 	readonly volumePersistenceKey?: string;
 	readonly initialVolume?: number;
 	readonly inputProps: Record<string, unknown>;
@@ -47,6 +48,7 @@ export const SharedPlayerContexts: React.FC<{
 	initiallyMuted,
 	logLevel,
 	audioLatencyHint,
+	sampleRate,
 	volumePersistenceKey,
 	initialVolume,
 	inputProps,
@@ -99,7 +101,7 @@ export const SharedPlayerContexts: React.FC<{
 		inputProps,
 	]);
 
-	const [mediaMuted, setMediaMuted] = useState<boolean>(() => initiallyMuted);
+	const [playerMuted, setPlayerMuted] = useState<boolean>(() => initiallyMuted);
 	const [mediaVolume, setMediaVolume] = useState<number>(() =>
 		persistVolumeToStorage
 			? getPreferredVolume(volumePersistenceKey ?? null)
@@ -108,10 +110,16 @@ export const SharedPlayerContexts: React.FC<{
 
 	const mediaVolumeContextValue = useMemo((): MediaVolumeContextValue => {
 		return {
-			mediaMuted,
+			playerMuted,
 			mediaVolume,
 		};
-	}, [mediaMuted, mediaVolume]);
+	}, [playerMuted, mediaVolume]);
+
+	const audioContextWasCreated = useRef(false);
+	const shouldCreateAudioContext =
+		audioContextWasCreated.current ||
+		(audioEnabled && !playerMuted && mediaVolume > 0);
+	audioContextWasCreated.current = shouldCreateAudioContext;
 
 	const setMediaVolumeAndPersist = useCallback(
 		(vol: number) => {
@@ -125,7 +133,7 @@ export const SharedPlayerContexts: React.FC<{
 
 	const setMediaVolumeContextValue = useMemo((): SetMediaVolumeContextValue => {
 		return {
-			setMediaMuted,
+			setPlayerMuted,
 			setMediaVolume: setMediaVolumeAndPersist,
 		};
 	}, [setMediaVolumeAndPersist]);
@@ -168,7 +176,8 @@ export const SharedPlayerContexts: React.FC<{
 													<Internals.BufferingProvider>
 														<Internals.SharedAudioContextProvider
 															audioLatencyHint={audioLatencyHint}
-															audioEnabled={audioEnabled}
+															audioEnabled={shouldCreateAudioContext}
+															previewSampleRate={sampleRate}
 														>
 															<Internals.SharedAudioTagsContextProvider
 																numberOfAudioTags={numberOfSharedAudioTags}

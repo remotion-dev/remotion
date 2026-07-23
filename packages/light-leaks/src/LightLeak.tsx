@@ -1,25 +1,28 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {type SequenceControls, type SequenceSchema} from 'remotion';
 import {
 	AbsoluteFill,
 	Internals,
+	Interactive,
 	Sequence,
 	useCurrentFrame,
 	useDelayRender,
 	useVideoConfig,
 	type AbsoluteFillLayout,
-	type LayoutAndStyle,
+	type InteractiveBaseProps,
+	type InteractivePremountProps,
+	type InteractiveTransformProps,
+	type SequenceControls,
 	type SequenceProps,
+	type InteractivitySchema,
 } from 'remotion';
 
 const {createWebGLContextError} = Internals;
 
-export type LightLeakProps = Omit<
-	SequenceProps,
-	'children' | 'durationInFrames' | keyof LayoutAndStyle
-> &
-	Omit<AbsoluteFillLayout, 'layout'> & {
-		readonly durationInFrames?: number;
+export type LightLeakProps = InteractiveBaseProps &
+	InteractiveTransformProps &
+	InteractivePremountProps &
+	Pick<SequenceProps, 'width' | 'height'> &
+	Pick<AbsoluteFillLayout, 'className'> & {
 		readonly seed?: number;
 		readonly hueShift?: number;
 	};
@@ -232,29 +235,37 @@ const LightLeakCanvas: React.FC<{
  * @description Renders a WebGL-based light leak effect as a Sequence.
  * @see [Documentation](https://www.remotion.dev/docs/light-leaks/light-leak)
  */
-const lightLeakSchema = {
-	seed: {type: 'number', default: 0, description: 'Seed'},
+export const lightLeakSchema: InteractivitySchema = {
+	...Internals.baseSchema,
+	seed: {
+		type: 'number',
+		default: 0,
+		description: 'Seed',
+		hiddenFromList: false,
+	},
 	hueShift: {
 		type: 'number',
 		min: 0,
 		max: 360,
 		default: 0,
 		description: 'Hue Shift',
+		hiddenFromList: false,
 	},
-	...Internals.sequenceStyleSchema,
-	hidden: Internals.hiddenField,
-} as const satisfies SequenceSchema;
+	...Internals.transformSchema,
+	...Interactive.borderSchema,
+	...Internals.premountSchema,
+} as const satisfies InteractivitySchema;
 
 const LightLeakInner: React.FC<
 	LightLeakProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
+		readonly controls: SequenceControls | undefined;
 	}
 > = ({
 	seed = 0,
 	hueShift = 0,
 	durationInFrames,
 	style,
-	_experimentalControls: controls,
+	controls,
 	...sequenceProps
 }) => {
 	const {durationInFrames: videoDuration} = useVideoConfig();
@@ -282,7 +293,7 @@ const LightLeakInner: React.FC<
 			durationInFrames={resolvedDuration}
 			name="<LightLeak>"
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/light-leaks/light-leak"
-			_experimentalControls={controls}
+			controls={controls}
 			{...sequenceProps}
 			style={style}
 		>
@@ -291,11 +302,12 @@ const LightLeakInner: React.FC<
 	);
 };
 
-export const LightLeak = Internals.wrapInSchema(
-	LightLeakInner,
-	lightLeakSchema,
-);
+export const LightLeak = Interactive.withSchema({
+	Component: LightLeakInner,
+	componentName: '<LightLeak>',
+	componentIdentity: 'dev.remotion.lightLeaks.LightLeak',
+	schema: lightLeakSchema,
+	supportsEffects: false,
+});
 
 LightLeak.displayName = 'LightLeak';
-
-Internals.addSequenceStackTraces(LightLeak);

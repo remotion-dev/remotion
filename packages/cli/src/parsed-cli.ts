@@ -8,7 +8,6 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import minimist from 'minimist';
 
 const {
-	allowHtmlInCanvasOption,
 	benchmarkConcurrenciesOption,
 	beepOnFinishOption,
 	colorSpaceOption,
@@ -49,7 +48,7 @@ const {
 	packageManagerOption,
 	webpackPollOption,
 	keyboardShortcutsOption,
-	experimentalClientSideRenderingOption,
+	interactivityOption,
 	imageSequencePatternOption,
 	scaleOption,
 	overwriteOption,
@@ -78,6 +77,7 @@ const {
 	configOption,
 	browserOption,
 	sampleRateOption,
+	previewSampleRateOption,
 } = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
@@ -149,12 +149,9 @@ export type CommandLineOptions = {
 	[keyboardShortcutsOption.cliFlag]: TypeOfOption<
 		typeof keyboardShortcutsOption
 	> | null;
-	[allowHtmlInCanvasOption.cliFlag]: TypeOfOption<
-		typeof allowHtmlInCanvasOption
-	>;
-	[experimentalClientSideRenderingOption.cliFlag]: TypeOfOption<
-		typeof experimentalClientSideRenderingOption
-	>;
+	[interactivityOption.cliFlag]: TypeOfOption<
+		typeof interactivityOption
+	> | null;
 	[mutedOption.cliFlag]: TypeOfOption<typeof mutedOption>;
 	[overrideHeightOption.cliFlag]: TypeOfOption<typeof overrideHeightOption>;
 	[overrideWidthOption.cliFlag]: TypeOfOption<typeof overrideWidthOption>;
@@ -190,6 +187,9 @@ export type CommandLineOptions = {
 		typeof forceNewStudioOption
 	> | null;
 	[sampleRateOption.cliFlag]: TypeOfOption<typeof sampleRateOption>;
+	[previewSampleRateOption.cliFlag]: TypeOfOption<
+		typeof previewSampleRateOption
+	>;
 	[isProductionOption.cliFlag]: TypeOfOption<typeof isProductionOption> | null;
 };
 
@@ -206,8 +206,7 @@ export const BooleanFlags = [
 	ignoreCertificateErrorsOption.cliFlag,
 	headlessOption.cliFlag,
 	keyboardShortcutsOption.cliFlag,
-	allowHtmlInCanvasOption.cliFlag,
-	experimentalClientSideRenderingOption.cliFlag,
+	interactivityOption.cliFlag,
 	ipv4Option.cliFlag,
 	beepOnFinishOption.cliFlag,
 	disableGitSourceOption.cliFlag,
@@ -224,14 +223,13 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	default: {
 		[overwriteOption.cliFlag]: null,
 		[bundleCacheOption.cliFlag]: null,
-		[allowHtmlInCanvasOption.cliFlag]: null,
-		[experimentalClientSideRenderingOption.cliFlag]: null,
 		[darkModeOption.cliFlag]: null,
 		[imageSequenceOption.cliFlag]: null,
 		[disableWebSecurityOption.cliFlag]: null,
 		[ignoreCertificateErrorsOption.cliFlag]: null,
 		[headlessOption.cliFlag]: null,
 		[keyboardShortcutsOption.cliFlag]: null,
+		[interactivityOption.cliFlag]: null,
 		[ipv4Option.cliFlag]: null,
 		[beepOnFinishOption.cliFlag]: null,
 		[disallowParallelEncodingOption.cliFlag]: null,

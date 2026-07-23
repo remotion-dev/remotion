@@ -27,13 +27,13 @@ Learn more about the supported media formats: [Video formats](/docs/miscellaneou
 Caveat: In `@remotion/media`, videos with a H.265 codec are supported in the regular browser, but during rendering, they fall back to [`<OffthreadVideo>`](/docs/offthreadvideo).
 :::
 
-## Validation example in React
+## Validation example in TypeScript
 
 :::note
 This is a simplified example showing the validation flow. In a real application, the implementation will vary depending on your upload strategy (direct upload, presigned URLs, multipart uploads, etc.) and where you store videos (S3, GCS, your own server, etc.).
 :::
 
-```tsx twoslash title="ValidatedUploader.tsx"
+```ts twoslash title="ValidatedUploader.ts"
 const canDecode = async (src: string | Blob) => {
   return true;
 };

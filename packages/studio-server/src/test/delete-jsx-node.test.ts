@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {deleteJsxNode} from '../codemods/delete-jsx-node';
+import {deleteJsxNode, deleteJsxNodes} from '../codemods/delete-jsx-node';
 import {lineColumnToNodePath} from './test-utils';
 
 const sample = `import React from 'react';
@@ -96,4 +96,34 @@ test('deleteJsxNode replaces JSX inside map callback', async () => {
 
 	expect(output).not.toContain('<div');
 	expect(output).toMatch(/=>\s*\(?\s*null/);
+});
+
+const multipleSiblings = `import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const X: React.FC = () => {
+	return (
+		<AbsoluteFill>
+			<div />
+			<span />
+			<p />
+		</AbsoluteFill>
+	);
+};
+`;
+
+test('deleteJsxNodes removes multiple JSX children in one transform', async () => {
+	const {output, nodeLabels, logLines} = await deleteJsxNodes({
+		input: multipleSiblings,
+		nodePaths: [
+			lineColumnToNodePath(multipleSiblings, 7),
+			lineColumnToNodePath(multipleSiblings, 8),
+		],
+	});
+
+	expect(output).not.toContain('<div');
+	expect(output).not.toContain('<span');
+	expect(output).toContain('<p');
+	expect(nodeLabels).toEqual(['<div>', '<span>']);
+	expect(logLines).toEqual([7, 8]);
 });

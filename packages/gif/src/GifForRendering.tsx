@@ -6,6 +6,7 @@ import {volatileGifCache} from './gif-cache';
 import {isCorsError} from './is-cors-error';
 import type {GifState, RemotionGifProps} from './props';
 import {parseGif} from './react-tools';
+import {getGifCacheKey} from './request-init';
 import {resolveGifSource} from './resolve-gif-source';
 import {useCurrentGifIndex} from './useCurrentGifIndex';
 
@@ -26,15 +27,19 @@ export const GifForRendering = forwardRef<
 			playbackRate = 1,
 			fit = 'fill',
 			delayRenderTimeoutInMilliseconds,
+			requestInit,
 			effects,
 			...props
 		},
 		ref,
 	) => {
 		const resolvedSrc = resolveGifSource(src);
+		const requestInitRef = useRef(requestInit);
+		requestInitRef.current = requestInit;
+		const cacheKey = getGifCacheKey({resolvedSrc, requestInit});
 		const {delayRender, continueRender} = useDelayRender();
 		const [state, update] = useState<GifState>(() => {
-			const parsedGif = volatileGifCache.get(resolvedSrc);
+			const parsedGif = volatileGifCache.get(cacheKey);
 
 			if (parsedGif === undefined) {
 				return {
@@ -87,7 +92,11 @@ export const GifForRendering = forwardRef<
 				resolvedSrc,
 			);
 			const time = Date.now();
-			parseGif({controller, src: resolvedSrc})
+			parseGif({
+				controller,
+				src: resolvedSrc,
+				requestInit: requestInitRef.current,
+			})
 				.then((parsed) => {
 					Internals.Log.verbose(
 						{logLevel, tag: null},
@@ -97,7 +106,7 @@ export const GifForRendering = forwardRef<
 					);
 					currentOnLoad.current?.(parsed);
 					update(parsed);
-					volatileGifCache.set(resolvedSrc, parsed);
+					volatileGifCache.set(cacheKey, parsed);
 					done = true;
 					continueRender(newHandle);
 					continueRender(renderHandle);
@@ -129,6 +138,7 @@ export const GifForRendering = forwardRef<
 		}, [
 			renderHandle,
 			logLevel,
+			cacheKey,
 			resolvedSrc,
 			delayRender,
 			continueRender,

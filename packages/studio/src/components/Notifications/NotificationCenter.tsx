@@ -4,6 +4,7 @@ import React, {
 	useImperativeHandle,
 	useState,
 } from 'react';
+import {TRANSPARENT} from '../../helpers/colors';
 import {Notification} from './Notification';
 
 const container: React.CSSProperties = {
@@ -13,9 +14,9 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	width: '100%',
 	flexDirection: 'column',
-	paddingTop: 20,
+	paddingTop: 40,
 	pointerEvents: 'none',
-	backgroundColor: 'transparent',
+	backgroundColor: TRANSPARENT,
 };
 
 type TNotification = {

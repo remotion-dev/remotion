@@ -5,6 +5,7 @@ import type {
 	WebRendererAudioCodec,
 	WebRendererContainer,
 	WebRendererHardwareAcceleration,
+	WebRendererPageResponsiveness,
 	WebRendererQuality,
 	WebRendererVideoCodec,
 } from '@remotion/web-renderer';
@@ -29,10 +30,8 @@ import {Button} from '../Button';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalHeader} from '../ModalHeader';
 import {DismissableModal} from '../NewComposition/DismissableModal';
-import {
-	optionsSidebarTabs,
-	persistSelectedOptionsSidebarPanel,
-} from '../OptionsPanel';
+import {optionsSidebarTabs} from '../options-sidebar-tabs';
+import {persistSelectedOptionsSidebarPanel} from '../OptionsPanel';
 import {RenderQueueContext} from '../RenderQueue/context';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
@@ -58,7 +57,6 @@ import {
 import type {UpdaterFunction} from './SchemaEditor/ZodSwitch';
 import {useEncodableAudioCodecs} from './use-encodable-audio-codecs';
 import {useEncodableVideoCodecs} from './use-encodable-video-codecs';
-import {WebRendererExperimentalBadge} from './WebRendererExperimentalBadge';
 import {WebRenderModalAdvanced} from './WebRenderModalAdvanced';
 import {WebRenderModalAudio} from './WebRenderModalAudio';
 import {WebRenderModalBasic} from './WebRenderModalBasic';
@@ -87,7 +85,7 @@ type WebRenderModalProps = {
 	readonly initialTransparent: boolean | null;
 	readonly initialMuted: boolean | null;
 	readonly initialMediaCacheSizeInBytes: number | null;
-	readonly initialAllowHtmlInCanvas: boolean;
+	readonly initialPageResponsiveness: WebRendererPageResponsiveness;
 };
 
 export type RenderType = 'still' | 'video' | 'audio';
@@ -191,7 +189,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	initialKeyframeIntervalInSeconds,
 	initialTransparent,
 	initialMuted,
-	initialAllowHtmlInCanvas,
+	initialPageResponsiveness,
 }) => {
 	const context = useContext(ResolvedCompositionContext);
 	const {setSelectedModal} = useContext(ModalsContext);
@@ -277,9 +275,10 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 
 	const [licenseKey, setLicenseKey] = useState(initialLicenseKey);
 
-	const [allowHtmlInCanvas, setAllowHtmlInCanvas] = useState(
-		initialAllowHtmlInCanvas ?? false,
-	);
+	const [pageResponsiveness, setPageResponsiveness] =
+		useState<WebRendererPageResponsiveness>(
+			initialPageResponsiveness ?? 'medium',
+		);
 
 	const encodableAudioCodecs = useEncodableAudioCodecs(container);
 	const encodableVideoCodecs = useEncodableVideoCodecs(container);
@@ -550,7 +549,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					logLevel,
 					licenseKey,
 					scale,
-					allowHtmlInCanvas,
 				},
 				compositionRef,
 			);
@@ -579,7 +577,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					logLevel,
 					licenseKey,
 					scale,
-					allowHtmlInCanvas,
+					pageResponsiveness,
 				},
 				compositionRef,
 			);
@@ -623,7 +621,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		addClientStillJob,
 		addClientVideoJob,
 		scale,
-		allowHtmlInCanvas,
+		pageResponsiveness,
 	]);
 
 	return (
@@ -641,9 +639,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					Render {renderMode}
 					<ShortcutHint keyToPress="↵" cmdOrCtrl />
 				</Button>
-			</div>
-			<div style={containerStyle}>
-				<WebRendererExperimentalBadge />
 			</div>
 			<div style={horizontalLayout}>
 				<div style={leftSidebar}>
@@ -787,8 +782,8 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							setMediaCacheSizeInBytes={setMediaCacheSizeInBytes}
 							hardwareAcceleration={hardwareAcceleration}
 							setHardwareAcceleration={setHardwareAcceleration}
-							allowHtmlInCanvas={allowHtmlInCanvas}
-							setAllowHtmlInCanvas={setAllowHtmlInCanvas}
+							pageResponsiveness={pageResponsiveness}
+							setPageResponsiveness={setPageResponsiveness}
 						/>
 					) : (
 						<WebRenderModalLicense

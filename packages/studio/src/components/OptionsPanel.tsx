@@ -1,5 +1,4 @@
 import React, {
-	createRef,
 	useCallback,
 	useContext,
 	useImperativeHandle,
@@ -10,11 +9,10 @@ import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
-import {SHOW_BROWSER_RENDERING} from '../helpers/show-browser-rendering';
-import {VisualControlsTabActivatedContext} from '../visual-controls/VisualControls';
-import {DefaultPropsEditor} from './DefaultPropsEditor';
 import {useZodIfPossible, useZodTypesIfPossible} from './get-zod-if-possible';
+import {InspectorPanel} from './InspectorPanel';
 import {showNotification} from './Notifications/NotificationCenter';
+import {optionsSidebarTabs} from './options-sidebar-tabs';
 import {deepEqual} from './RenderModal/SchemaEditor/deep-equal';
 import {extractEnumJsonPaths} from './RenderModal/SchemaEditor/extract-enum-json-paths';
 import {SchemaResetButton} from './RenderModal/SchemaEditor/SchemaResetButton';
@@ -24,27 +22,18 @@ import {RenderQueue} from './RenderQueue';
 import {callUpdateDefaultPropsApi} from './RenderQueue/actions';
 import {RendersTab} from './RendersTab';
 import {Tab, Tabs} from './Tabs';
-import {VisualControlsContent} from './VisualControls/VisualControlsContent';
 
-type OptionsSidebarPanel = 'input-props' | 'renders' | 'visual-controls';
+type OptionsSidebarPanel = 'inspector' | 'renders';
 
 const localStorageKey = 'remotion.sidebarPanel';
 
-const getSelectedPanel = (renderingAvailable: boolean): OptionsSidebarPanel => {
-	if (!renderingAvailable) {
-		return 'input-props';
-	}
-
+const getSelectedPanel = (): OptionsSidebarPanel => {
 	const panel = localStorage.getItem(localStorageKey);
 	if (panel === 'renders') {
 		return 'renders';
 	}
 
-	if (panel === 'visual-controls') {
-		return 'visual-controls';
-	}
-
-	return 'input-props';
+	return 'inspector';
 };
 
 const tabsContainer: React.CSSProperties = {
@@ -57,22 +46,12 @@ export const persistSelectedOptionsSidebarPanel = (
 	localStorage.setItem(localStorageKey, panel);
 };
 
-export const optionsSidebarTabs = createRef<{
-	selectRendersPanel: () => void;
-}>();
-
 export const OptionsPanel: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
 	const {props, updateProps} = useContext(Internals.EditorPropsContext);
 
-	const renderingAvailable = !readOnlyStudio || SHOW_BROWSER_RENDERING;
-
 	const isMobileLayout = useMobileLayout();
-
-	const visualControlsTabActivated = useContext(
-		VisualControlsTabActivatedContext,
-	);
 
 	const container: React.CSSProperties = useMemo(
 		() => ({
@@ -86,12 +65,10 @@ export const OptionsPanel: React.FC<{
 		[isMobileLayout],
 	);
 
-	const [panel, setPanel] = useState<OptionsSidebarPanel>(() =>
-		getSelectedPanel(renderingAvailable),
-	);
-	const onPropsSelected = useCallback(() => {
-		setPanel('input-props');
-		persistSelectedOptionsSidebarPanel('input-props');
+	const [panel, setPanel] = useState<OptionsSidebarPanel>(getSelectedPanel);
+	const onInspectorSelected = useCallback(() => {
+		setPanel('inspector');
+		persistSelectedOptionsSidebarPanel('inspector');
 	}, []);
 
 	const onRendersSelected = useCallback(() => {
@@ -99,13 +76,12 @@ export const OptionsPanel: React.FC<{
 		persistSelectedOptionsSidebarPanel('renders');
 	}, []);
 
-	const onVisualControlsSelected = useCallback(() => {
-		setPanel('visual-controls');
-		persistSelectedOptionsSidebarPanel('visual-controls');
-	}, []);
-
 	useImperativeHandle(optionsSidebarTabs, () => {
 		return {
+			selectInspectorPanel: () => {
+				setPanel('inspector');
+				persistSelectedOptionsSidebarPanel('inspector');
+			},
 			selectRendersPanel: () => {
 				setPanel('renders');
 				persistSelectedOptionsSidebarPanel('renders');
@@ -265,49 +241,39 @@ export const OptionsPanel: React.FC<{
 		[compositionId, compositionDefaultProps, saveToFile, updateProps],
 	);
 
+	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+		// Prevent deselection of currently selected items
+		e.stopPropagation();
+	}, []);
+
 	return (
-		<div style={container} className="css-reset">
+		<div style={container} className="css-reset" onPointerDown={onPointerDown}>
 			<div style={tabsContainer}>
 				<Tabs>
-					{visualControlsTabActivated ? (
-						<Tab
-							selected={panel === 'visual-controls'}
-							onClick={onVisualControlsSelected}
-						>
-							Controls
-						</Tab>
-					) : null}
 					<Tab
-						selected={panel === 'input-props'}
-						onClick={onPropsSelected}
+						selected={panel === 'inspector'}
+						onClick={onInspectorSelected}
 						style={{justifyContent: 'space-between'}}
 					>
-						Props
+						Inspector
 						{hasLocalModifications ? (
 							<SchemaResetButton onClick={resetToOriginal} />
 						) : null}
 					</Tab>
-					{renderingAvailable ? (
-						<RendersTab
-							onClick={onRendersSelected}
-							selected={panel === 'renders'}
-						/>
-					) : null}
+					<RendersTab
+						onClick={onRendersSelected}
+						selected={panel === 'renders'}
+					/>
 				</Tabs>
 			</div>
-			{panel === 'input-props' ? (
-				composition ? (
-					<DefaultPropsEditor
-						key={composition.id}
-						unresolvedComposition={composition}
-						defaultProps={currentDefaultProps}
-						setDefaultProps={setDefaultProps}
-						propsEditType="default-props"
-					/>
-				) : null
-			) : panel === 'visual-controls' && visualControlsTabActivated ? (
-				<VisualControlsContent />
-			) : !renderingAvailable ? null : (
+			{panel === 'inspector' ? (
+				<InspectorPanel
+					composition={composition}
+					currentDefaultProps={currentDefaultProps}
+					readOnlyStudio={readOnlyStudio}
+					setDefaultProps={setDefaultProps}
+				/>
+			) : (
 				<RenderQueue />
 			)}
 		</div>

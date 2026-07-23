@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -32,13 +32,14 @@ const mirrorSchema = {
 		step: 0.01,
 		default: 0.5,
 		description: 'Position',
+		hiddenFromList: false,
 	},
 	invert: {
 		type: 'boolean',
 		default: false,
 		description: 'Invert',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type {MirrorDirection};
 
@@ -88,7 +89,7 @@ const validateMirrorParams = (params: MirrorParams): void => {
 };
 
 export const mirror = createEffect<MirrorParams, MirrorState>({
-	type: 'remotion/mirror',
+	type: 'dev.remotion.effects.mirror',
 	label: 'mirror()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/mirror',
 	backend: 'webgl2',

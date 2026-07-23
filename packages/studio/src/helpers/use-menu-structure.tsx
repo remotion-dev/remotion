@@ -12,6 +12,7 @@ import type {
 } from '../components/NewComposition/ComboBox';
 import {showNotification} from '../components/Notifications/NotificationCenter';
 import type {TQuickSwitcherResult} from '../components/QuickSwitcher/QuickSwitcherResult';
+import {openInFileExplorer} from '../components/RenderQueue/actions';
 import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
 import {useResolvedStack} from '../components/Timeline/use-resolved-stack';
 import {inOutHandles} from '../components/TimelineInOutToggle';
@@ -21,6 +22,7 @@ import {drawRef} from '../state/canvas-ref';
 import {CheckerboardContext} from '../state/checkerboard';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowRulersContext} from '../state/editor-rulers';
+import {EditorSnappingContext} from '../state/editor-snapping';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import type {ModalState} from '../state/modals';
 import {ModalsContext} from '../state/modals';
@@ -28,11 +30,13 @@ import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
 import {checkFullscreenSupport} from './check-fullscreen-support';
 import {StudioServerConnectionCtx} from './client-id';
+import {WHITE_HEX} from './colors';
+import {getFileManagerName} from './get-file-manager-name';
 import {getGitMenuItem} from './get-git-menu-item';
 import {useMobileLayout} from './mobile-layout';
 import {openInEditor, preloadCompositionComponentInfo} from './open-in-editor';
 import {pickColor} from './pick-color';
-import {SHOW_BROWSER_RENDERING} from './show-browser-rendering';
+import {getStudioAskAIEnabled} from './studio-runtime-config';
 import {areKeyboardShortcutsDisabled} from './use-keybinding';
 
 type Structure = Menu[];
@@ -57,7 +61,37 @@ const getFileMenu = ({
 	previewServerState: 'connected' | 'init' | 'disconnected';
 	setSelectedModal: (value: React.SetStateAction<ModalState | null>) => void;
 }) => {
+	const fileManagerName = getFileManagerName(
+		window.remotion_fileSystemPlatform,
+	);
 	const items: ComboboxValue[] = [
+		readOnlyStudio
+			? null
+			: {
+					id: 'new-folder',
+					value: 'new-folder',
+					label: 'New Folder...',
+					onClick: () => {
+						closeMenu();
+						setSelectedModal({
+							type: 'new-folder',
+							parentName: null,
+							stack: null,
+						});
+					},
+					type: 'item' as const,
+					keyHint: null,
+					leftItem: null,
+					subMenu: null,
+					quickSwitcherLabel: 'New folder...',
+					disabled: previewServerState !== 'connected',
+				},
+		readOnlyStudio
+			? null
+			: {
+					type: 'divider' as const,
+					id: 'new-folder-divider',
+				},
 		window.remotion_isReadOnlyStudio
 			? {
 					id: 'input-props-override',
@@ -101,31 +135,29 @@ const getFileMenu = ({
 					subMenu: null,
 					quickSwitcherLabel: 'Render...',
 				},
-		SHOW_BROWSER_RENDERING && !readOnlyStudio
-			? {
-					id: 'render-on-web',
-					value: 'render-on-web',
-					label: 'Render on web...',
-					onClick: () => {
-						closeMenu();
+		{
+			id: 'render-on-web',
+			value: 'render-on-web',
+			label: 'Render on web...',
+			onClick: () => {
+				closeMenu();
 
-						const renderButton = document.getElementById(
-							'render-modal-button-client',
-						) as HTMLButtonElement;
+				const renderButton = document.getElementById(
+					'render-modal-button-client',
+				) as HTMLButtonElement;
 
-						renderButton.click();
-					},
-					type: 'item' as const,
-					keyHint: null,
-					leftItem: null,
-					subMenu: null,
-					quickSwitcherLabel: 'Render on web...',
-				}
-			: null,
-		window.remotion_editorName && !readOnlyStudio
+				renderButton.click();
+			},
+			type: 'item' as const,
+			keyHint: null,
+			leftItem: null,
+			subMenu: null,
+			quickSwitcherLabel: 'Render on web...',
+		},
+		!readOnlyStudio
 			? {
 					type: 'divider' as const,
-					id: 'open-in-editor-divider',
+					id: 'open-project-divider',
 				}
 			: null,
 		window.remotion_editorName && !readOnlyStudio
@@ -141,7 +173,6 @@ const getFileMenu = ({
 							originalFunctionName: null,
 							originalScriptCode: null,
 						})
-							.then((res) => res.json())
 							.then(({success}) => {
 								if (!success) {
 									showNotification(
@@ -164,6 +195,31 @@ const getFileMenu = ({
 					leftItem: null,
 					subMenu: null,
 					quickSwitcherLabel: 'Open in editor...',
+					disabled: previewServerState !== 'connected',
+				}
+			: null,
+		!readOnlyStudio
+			? {
+					id: 'open-project-in-explorer',
+					value: 'open-project-in-explorer',
+					label: `Open in ${fileManagerName}`,
+					onClick: () => {
+						closeMenu();
+						openInFileExplorer({directory: window.remotion_cwd}).catch(
+							(err) => {
+								showNotification(
+									`Could not open project: ${err.message}`,
+									2000,
+								);
+							},
+						);
+					},
+					type: 'item' as const,
+					keyHint: null,
+					leftItem: null,
+					subMenu: null,
+					quickSwitcherLabel: `Open project in ${fileManagerName}`,
+					disabled: previewServerState !== 'connected',
 				}
 			: null,
 
@@ -197,6 +253,7 @@ export const useMenuStructure = (
 	const {editorShowGuides, setEditorShowGuides} = useContext(
 		EditorShowGuidesContext,
 	);
+	const {editorSnapping, setEditorSnapping} = useContext(EditorSnappingContext);
 	const {size, setSize} = useContext(Internals.PreviewSizeContext);
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
@@ -235,7 +292,6 @@ export const useMenuStructure = (
 	useEffect(() => {
 		if (
 			type !== 'connected' ||
-			!window.remotion_editorName ||
 			!currentComposition ||
 			!resolvedCompositionLocation?.source
 		) {
@@ -261,8 +317,8 @@ export const useMenuStructure = (
 							style={rotate}
 						>
 							<path
-								fill="#fff"
-								stroke="#fff"
+								fill={WHITE_HEX}
+								stroke={WHITE_HEX}
 								strokeWidth="100"
 								strokeLinejoin="round"
 								d="M 2 172 a 196 100 0 0 0 195 5 A 196 240 0 0 0 100 2.259 A 196 240 0 0 0 2 172 z"
@@ -441,6 +497,22 @@ export const useMenuStructure = (
 						quickSwitcherLabel: editorShowGuides
 							? 'Hide Guides'
 							: 'Show Guides',
+					},
+					{
+						id: 'enable-snapping',
+						keyHint: areKeyboardShortcutsDisabled() ? null : 'Shift+M',
+						label: 'Enable Snapping',
+						onClick: () => {
+							closeMenu();
+							setEditorSnapping((c) => !c);
+						},
+						type: 'item' as const,
+						value: 'enable-snapping',
+						leftItem: editorSnapping ? <Checkmark /> : null,
+						subMenu: null,
+						quickSwitcherLabel: editorSnapping
+							? 'Disable Snapping'
+							: 'Enable Snapping',
 					},
 					{
 						id: 'timeline-divider-1',
@@ -704,6 +776,8 @@ export const useMenuStructure = (
 					closeMenu,
 					composition: currentComposition,
 					connectionStatus: type,
+					includeCompositionManagementItems: true,
+					includeNewCompositionItem: true,
 					resolvedLocation: resolvedCompositionLocation,
 					setSelectedModal,
 					readOnlyStudio,
@@ -715,7 +789,7 @@ export const useMenuStructure = (
 				label: 'Tools',
 				leaveLeftPadding: false,
 				items: [
-					process.env.ASK_AI_ENABLED
+					getStudioAskAIEnabled()
 						? {
 								id: 'ask-ai',
 								value: 'ask-ai',
@@ -747,34 +821,12 @@ export const useMenuStructure = (
 								quickSwitcherLabel: 'Show Color Picker',
 							}
 						: null,
-					{
-						id: 'spring-editor',
-						value: 'spring-editor',
-						label: 'Timing Editor',
-						onClick: () => {
-							closeMenu();
-							window.open('https://www.remotion.dev/timing-editor', '_blank');
-						},
-						leftItem: null,
-						keyHint: null,
-						subMenu: null,
-						type: 'item' as const,
-						quickSwitcherLabel: 'Open spring() Editor',
-					},
-				].filter(Internals.truthy),
-				quickSwitcherLabel: null,
-			},
-			readOnlyStudio || remotion_packageManager === 'unknown'
-				? null
-				: {
-						id: 'install' as const,
-						label: 'Packages',
-						leaveLeftPadding: false,
-						items: [
-							{
+					readOnlyStudio || remotion_packageManager === 'unknown'
+						? null
+						: {
 								id: 'install-packages',
 								value: 'install-packages',
-								label: 'Install...',
+								label: 'Install package...',
 								onClick: () => {
 									closeMenu();
 									setSelectedModal({
@@ -786,10 +838,11 @@ export const useMenuStructure = (
 								keyHint: null,
 								leftItem: null,
 								subMenu: null,
-								quickSwitcherLabel: `Install packages`,
+								quickSwitcherLabel: `Install package...`,
 							},
-						],
-					},
+				].filter(Internals.truthy),
+				quickSwitcherLabel: null,
+			},
 			{
 				id: 'help' as const,
 				label: 'Help',
@@ -978,6 +1031,7 @@ export const useMenuStructure = (
 		editorZoomGestures,
 		editorShowRulers,
 		editorShowGuides,
+		editorSnapping,
 		sidebarCollapsedStateLeft,
 		sidebarCollapsedStateRight,
 		checkerboard,
@@ -989,6 +1043,7 @@ export const useMenuStructure = (
 		setEditorZoomGestures,
 		setEditorShowRulers,
 		setEditorShowGuides,
+		setEditorSnapping,
 		setSidebarCollapsedState,
 		setCheckerboard,
 		setSelectedModal,

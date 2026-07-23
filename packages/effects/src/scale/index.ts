@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertEffectParamsObject,
@@ -15,6 +15,8 @@ const scaleSchema = {
 		step: 0.1,
 		default: 1,
 		description: 'Factor',
+		hiddenFromList: false,
+		defaultKeyframeOutput: 'perceptual-scale',
 	},
 	horizontal: {
 		type: 'boolean',
@@ -26,7 +28,7 @@ const scaleSchema = {
 		default: true,
 		description: 'Vertical',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type ScaleParams = {
 	/** Scale factor. Defaults to `1`. Must be greater than 0. */
@@ -80,7 +82,7 @@ const validateScaleParams = (params: ScaleParams): void => {
 };
 
 export const scale = createEffect<ScaleParams, null>({
-	type: 'remotion/scale',
+	type: 'dev.remotion.effects.scale',
 	label: 'scale()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/scale',
 	backend: '2d',

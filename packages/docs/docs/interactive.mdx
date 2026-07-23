@@ -1,0 +1,197 @@
+---
+image: /generated/articles-docs-interactive.png
+id: interactive
+title: Interactive
+crumb: 'API'
+---
+
+# `Interactive`<AvailableFrom v="4.0.475" />
+
+`Interactive` exposes HTML and SVG elements that can be visually edited in the Remotion Studio.
+
+Use it when a regular element should be selectable and draggable in the preview:
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill, Interactive} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Interactive.Div style={{backgroundColor: 'white', padding: 24}}>
+        Hello World
+      </Interactive.Div>
+    </AbsoluteFill>
+  );
+};
+```
+
+For code that stays editable in the Studio, follow [Interactivity best practices](/docs/studio/interactivity-best-practices):
+Keep editable values inline, use hardcoded `interpolate()` keyframe arrays, use `translate`, `scale`, `rotate` and `opacity` directly, and avoid animated `top`/`left` values or `transform` strings.
+
+## Components
+
+The component name is the PascalCase version of the underlying element:
+
+```tsx twoslash title="MyComp.tsx"
+import {Interactive} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Interactive.Svg viewBox="0 0 100 100" width={100} height={100}>
+      <Interactive.Rect width={100} height={100} fill="blue" />
+      <Interactive.Text x={50} y={50} textAnchor="middle" fill="white">
+        Hi
+      </Interactive.Text>
+    </Interactive.Svg>
+  );
+};
+```
+
+Available HTML elements:
+
+`A`, `Article`, `Aside`, `Button`, `Code`, `Div`, `Em`, `Footer`, `H1`, `H2`, `H3`, `H4`, `H5`, `H6`, `Header`, `Label`, `Li`, `Main`, `Nav`, `Ol`, `P`, `Pre`, `Section`, `Small`, `Span`, `Strong`, `Ul`.
+
+Available SVG elements:
+
+`Circle`, `Ellipse`, `G`, `Line`, `Path`, `Rect`, `Svg`, `Text`.
+
+## Schema helpers
+
+`Interactive` also exposes schema fragments for custom timeline components.
+
+Use them with [`Interactive.withSchema()`](/docs/interactive-with-schema).
+
+### `Interactive.baseSchema`<AvailableFrom v="4.0.479" />
+
+Controls inherited from [`<Sequence>`](/docs/sequence):
+
+`durationInFrames`, `from`, `trimBefore`, `freeze`, `hidden`, `name` and `showInTimeline`.
+
+Use it for components that render a `<Sequence>` internally.
+
+```tsx twoslash title="schema.ts"
+import {Interactive, type InteractivitySchema} from 'remotion';
+
+export const shapeSchema = {
+  ...Interactive.baseSchema,
+  radius: {
+    type: 'number',
+    default: 80,
+    description: 'Radius',
+    hiddenFromList: false,
+  },
+} as const satisfies InteractivitySchema;
+```
+
+### `Interactive.transformSchema`<AvailableFrom v="4.0.479" />
+
+Controls for transform-related style props:
+
+`style.transformOrigin`, `style.translate`, `style.scale`, `style.rotate` and `style.opacity`.
+
+Use it for components that accept a `style` prop and apply it to the rendered element.
+Keep these values inline in JSX if the Studio should edit or keyframe them.
+
+### `Interactive.textSchema`<AvailableFrom v="4.0.481" />
+
+Controls for text-related style props:
+
+`style.color`, `style.fontFamily`, `style.fontSize`, `style.lineHeight`, `style.fontWeight`, `style.fontStyle`, `style.textAlign` and `style.letterSpacing`.
+
+`style.fontFamily` is available from <AvailableFrom v="4.0.486" inline />.
+
+Use it for components that accept a `style` prop and render text.
+
+### `Interactive.borderSchema`<AvailableFrom v="4.0.497" />
+
+Controls for border-related style props:
+
+`style.borderWidth`, `style.borderStyle` and `style.borderColor`.
+
+The longhand properties are used rather than the `border` shorthand, because React does not expand shorthands. This lets each control read its own value, and allows `style.borderWidth` and `style.borderColor` to be animated.
+
+Use it for components that accept a `style` prop and render a border.
+
+### `Interactive.premountSchema`<AvailableFrom v="4.0.479" />
+
+Controls for mounting behavior:
+
+`premountFor` and `postmountFor`.
+
+Use it for components that forward these props to a `<Sequence>`.
+
+### `Interactive.sequenceSchema`<AvailableFrom v="4.0.479" />
+
+The schema used by [`<Sequence>`](/docs/sequence).
+
+It includes `Interactive.baseSchema` and a `layout` field. When `layout` is `"absolute-fill"`, the active fields include `Interactive.transformSchema` and `Interactive.premountSchema`.
+
+### `Interactive.withSchema()`<AvailableFrom v="4.0.479" />
+
+Wraps a custom component so Remotion Studio can expose its props as timeline controls.
+
+See [`Interactive.withSchema()`](/docs/interactive-with-schema).
+
+## Types
+
+### `InteractiveBaseProps`<AvailableFrom v="4.0.479" />
+
+The prop type matching `Interactive.baseSchema`.
+
+### `InteractiveTransformProps`<AvailableFrom v="4.0.479" />
+
+The prop type matching `Interactive.transformSchema`.
+
+### `InteractivePremountProps`<AvailableFrom v="4.0.479" />
+
+The prop type matching `Interactive.premountSchema`.
+
+## Props
+
+### Inherited props
+
+Every `Interactive` component inherits [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline) from [`<Sequence>`](/docs/sequence).
+
+```tsx twoslash title="Timed element"
+import {Interactive} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Interactive.Div from={30} durationInFrames={90}>
+      Visible from frame 30 to 119
+    </Interactive.Div>
+  );
+};
+```
+
+### `ref?`
+
+You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to the rendered element.
+
+```tsx twoslash title="Using a ref"
+import {useRef} from 'react';
+import {Interactive} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  return <Interactive.Div ref={ref}>Hello World</Interactive.Div>;
+};
+```
+
+### Other props
+
+All props of the corresponding HTML or SVG element are forwarded.
+
+For example, `<Interactive.Div>` accepts `<div>` props, and `<Interactive.Svg>` accepts `<svg>` props.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [Source code for this API](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Interactive.tsx)
+- [Interactivity best practices](/docs/studio/interactivity-best-practices)
+- [Studio interactivity](/docs/studio/interactivity)
+- [`<Sequence>`](/docs/sequence)

@@ -1,4 +1,3 @@
-import {allowHtmlInCanvasOption} from './allow-html-in-canvas';
 import {apiKeyOption} from './api-key';
 import {askAIOption} from './ask-ai';
 import {audioBitrateOption} from './audio-bitrate';
@@ -27,7 +26,6 @@ import {encodingMaxRateOption} from './encoding-max-rate';
 import {enforceAudioOption} from './enforce-audio';
 import {envFileOption} from './env-file';
 import {everyNthFrameOption} from './every-nth-frame';
-import {experimentalClientSideRenderingOption} from './experimental-client-side-rendering';
 import {folderExpiryOption} from './folder-expiry';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
 import {forceNewStudioOption} from './force-new-studio';
@@ -39,6 +37,7 @@ import {headlessOption} from './headless';
 import {ignoreCertificateErrorsOption} from './ignore-certificate-errors';
 import {imageSequenceOption} from './image-sequence';
 import {imageSequencePatternOption} from './image-sequence-pattern';
+import {interactivityOption} from './interactivity';
 import {ipv4Option} from './ipv4';
 import {isProductionOption} from './is-production';
 import {jpegQualityOption} from './jpeg-quality';
@@ -65,6 +64,7 @@ import {packageManagerOption} from './package-manager';
 import {pixelFormatOption} from './pixel-format';
 import {portOption} from './port';
 import {preferLosslessAudioOption} from './prefer-lossless';
+import {previewSampleRateOption} from './preview-sample-rate';
 import {propsOption} from './props';
 import {proResProfileOption} from './prores-profile';
 import {publicDirOption} from './public-dir';
@@ -91,7 +91,6 @@ import {webpackPollOption} from './webpack-poll';
 import {x264Option} from './x264-preset';
 
 export const allOptions = {
-	allowHtmlInCanvasOption,
 	audioCodecOption,
 	benchmarkConcurrenciesOption,
 	browserExecutableOption,
@@ -126,6 +125,7 @@ export const allOptions = {
 	noOpenOption,
 	pixelFormatOption,
 	preferLosslessOption: preferLosslessAudioOption,
+	previewSampleRateOption,
 	proResProfileOption,
 	x264Option,
 	logLevelOption,
@@ -154,7 +154,7 @@ export const allOptions = {
 	publicLicenseKeyOption,
 	isProductionOption,
 	askAIOption,
-	experimentalClientSideRenderingOption,
+	interactivityOption,
 	keyboardShortcutsOption,
 	framesOption,
 	forceNewStudioOption,

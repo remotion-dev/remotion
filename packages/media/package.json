@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/media",
-	"version": "4.0.469",
+	"version": "4.0.496",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -32,6 +32,7 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
+		"@remotion/player": "workspace:*",
 		"@vitest/browser-webdriverio": "4.0.9",
 		"eslint": "catalog:",
 		"react": "catalog:",

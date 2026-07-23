@@ -29,7 +29,7 @@ export const getTimelineDuration = ({
 
 	if (parentSequenceDurationInFrames !== null) {
 		const cappedDuration = Math.min(
-			parentSequenceDurationInFrames * playbackRate,
+			parentSequenceDurationInFrames,
 			mediaDuration,
 		);
 		return Number(cappedDuration.toFixed(10));

@@ -1,6 +1,9 @@
 import type {WrappedCanvas} from 'mediabunny';
+import {releaseStableFrame} from '../canvas-ahead-of-time';
 import {roundTo4Digits} from '../helpers/round-to-4-digits';
 import type {PrewarmedVideoIteratorCache} from '../prewarm-iterator-for-looping';
+
+const MAXIMUM_AWAITED_PEEK_DISTANCE_SECONDS = 0.05;
 
 export const createVideoIterator = async (
 	timeToSeek: number,
@@ -17,7 +20,100 @@ export const createVideoIterator = async (
 			: await firstAwait.wait();
 	let lastReturnedFrame = initialFrame;
 
+	let peekedFrame: WrappedCanvas | null = null;
+
+	const setLastReturnedFrame = (frame: WrappedCanvas) => {
+		if (lastReturnedFrame !== frame) {
+			releaseStableFrame(lastReturnedFrame);
+		}
+
+		lastReturnedFrame = frame;
+	};
+
+	const setPeekedFrame = (frame: WrappedCanvas | null) => {
+		peekedFrame = frame;
+		if (peekedFrame === null) {
+			iteratorEnded = true;
+		}
+
+		return peekedFrame;
+	};
+
+	const peekIfReady = () => {
+		if (peekedFrame) {
+			return {type: 'ready' as const, frame: peekedFrame};
+		}
+
+		if (iteratorEnded) {
+			return {type: 'ready' as const, frame: null};
+		}
+
+		const next = iterator.next();
+		if (next.type === 'ready') {
+			return {type: 'ready' as const, frame: setPeekedFrame(next.frame)};
+		}
+
+		return {
+			type: 'pending' as const,
+			wait: next.wait,
+		};
+	};
+
+	const peek = async () => {
+		const peeked = peekIfReady();
+		if (peeked.type === 'ready') {
+			return peeked.frame;
+		}
+
+		return setPeekedFrame(await peeked.wait());
+	};
+
+	const getFrameEndTimestampFromPeek = (frame: WrappedCanvas | null) => {
+		return frame ? roundTo4Digits(frame.timestamp) : Infinity;
+	};
+
+	const getFrameEndTimestamp = async () => {
+		return getFrameEndTimestampFromPeek(await peek());
+	};
+
+	const getFrameEndTimestampIfCloseEnough = async ({
+		timestamp,
+		frameTimestamp,
+	}: {
+		timestamp: number;
+		frameTimestamp: number;
+	}) => {
+		const peeked = peekIfReady();
+		if (peeked.type === 'ready') {
+			return {
+				type: 'ready' as const,
+				timestamp: getFrameEndTimestampFromPeek(peeked.frame),
+			};
+		}
+
+		if (timestamp - frameTimestamp > MAXIMUM_AWAITED_PEEK_DISTANCE_SECONDS) {
+			return {type: 'pending' as const};
+		}
+
+		const awaitedPeeked = setPeekedFrame(await peeked.wait());
+		return {
+			type: 'ready' as const,
+			timestamp: getFrameEndTimestampFromPeek(awaitedPeeked),
+		};
+	};
+
 	const getNextOrNullIfNotAvailable = () => {
+		if (peekedFrame) {
+			const frame = peekedFrame;
+			setLastReturnedFrame(frame);
+			const retValue = {
+				type: 'got-frame-or-end' as const,
+				frame,
+			};
+			peekedFrame = null;
+			return retValue;
+		}
+
 		const next = iterator.next();
 
 		if (next.type === 'pending') {
@@ -26,7 +122,7 @@ export const createVideoIterator = async (
 				waitPromise: async () => {
 					const res = await next.wait();
 					if (res) {
-						lastReturnedFrame = res;
+						setLastReturnedFrame(res);
 					} else {
 						iteratorEnded = true;
 					}
@@ -37,7 +133,7 @@ export const createVideoIterator = async (
 		}
 
 		if (next.frame) {
-			lastReturnedFrame = next.frame;
+			setLastReturnedFrame(next.frame);
 		} else {
 			iteratorEnded = true;
 		}
@@ -50,13 +146,19 @@ export const createVideoIterator = async (
 
 	const destroy = () => {
 		destroyed = true;
+		releaseStableFrame(lastReturnedFrame);
+		if (peekedFrame !== lastReturnedFrame) {
+			releaseStableFrame(peekedFrame);
+		}
+
 		lastReturnedFrame = null;
+		peekedFrame = null;
 		iterator.closeIterator().catch(() => undefined);
 	};
 
-	const tryToSatisfySeek = (
+	const tryToSatisfySeek = async (
 		time: number,
-	):
+	): Promise<
 		| {
 				type: 'not-satisfied';
 				reason: string;
@@ -64,11 +166,13 @@ export const createVideoIterator = async (
 		| {
 				type: 'satisfied';
 				frame: WrappedCanvas;
-		  } => {
+		  }
+	> => {
+		const timestamp = roundTo4Digits(time);
 		if (lastReturnedFrame) {
 			const frameTimestamp = roundTo4Digits(lastReturnedFrame.timestamp);
 
-			if (roundTo4Digits(time) < frameTimestamp) {
+			if (timestamp < frameTimestamp) {
 				const lastFrameWasInitialFrame = lastReturnedFrame === initialFrame;
 				const firstFrameDoesSatisfy =
 					lastFrameWasInitialFrame &&
@@ -87,10 +191,8 @@ export const createVideoIterator = async (
 				};
 			}
 
-			const frameEndTimestamp = roundTo4Digits(
-				lastReturnedFrame.timestamp + lastReturnedFrame.duration,
-			);
-			const timestamp = roundTo4Digits(time);
+			const frameEndTimestamp = await getFrameEndTimestamp();
+
 			if (frameTimestamp <= timestamp && frameEndTimestamp > timestamp) {
 				return {
 					type: 'satisfied' as const,
@@ -115,6 +217,7 @@ export const createVideoIterator = async (
 
 		while (true) {
 			const frame = getNextOrNullIfNotAvailable();
+
 			if (frame.type === 'need-to-wait-for-it') {
 				return {
 					type: 'not-satisfied' as const,
@@ -139,11 +242,21 @@ export const createVideoIterator = async (
 				}
 
 				const frameTimestamp = roundTo4Digits(frame.frame.timestamp);
-				const frameEndTimestamp = roundTo4Digits(
-					frame.frame.timestamp + frame.frame.duration,
-				);
-				const timestamp = roundTo4Digits(time);
-				if (frameTimestamp <= timestamp && frameEndTimestamp > timestamp) {
+				const frameEndTimestamp = await getFrameEndTimestampIfCloseEnough({
+					frameTimestamp,
+					timestamp,
+				});
+				if (frameEndTimestamp.type === 'pending') {
+					return {
+						type: 'not-satisfied' as const,
+						reason: 'iterator did not have next frame ready',
+					};
+				}
+
+				if (
+					frameTimestamp <= timestamp &&
+					frameEndTimestamp.timestamp > timestamp
+				) {
 					return {
 						type: 'satisfied' as const,
 						frame: frame.frame,

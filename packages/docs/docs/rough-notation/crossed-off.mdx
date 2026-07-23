@@ -1,0 +1,56 @@
+---
+image: /generated/articles-docs-rough-notation-crossed-off.png
+title: '<CrossedOff>'
+crumb: '@remotion/rough-notation'
+---
+
+# &lt;CrossedOff&gt;<AvailableFrom v="4.0.490" />
+
+Draws two animated crossing strokes over the text or element it wraps.
+
+## Example
+
+<Demo type="rough-notation-crossed-off" />
+
+```tsx twoslash title="MyComp.tsx"
+import {CrossedOff} from '@remotion/rough-notation';
+
+export const MyComp: React.FC = () => {
+  return (
+    <CrossedOff
+      progress={1}
+      color="#eb2525"
+      strokeWidth={6}
+      iterations={10}
+      roughness={2}
+    >
+      remove
+    </CrossedOff>
+  );
+};
+```
+
+## API
+
+### `strokeWidth?`
+
+The stroke width in pixels. Default: `20`.
+
+### `iterations?`
+
+The number of rough strokes to draw for each diagonal. Default: `1`.
+
+### `rtl?`
+
+Draws the strokes right-to-left. Default: `false`.
+
+Also accepts the [common annotation props](/docs/rough-notation/api#common-props).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [Text highlights](/docs/text-highlights)
+- [`<StrikeThrough>`](/docs/rough-notation/strike-through)

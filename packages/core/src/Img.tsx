@@ -1,9 +1,9 @@
 import React, {
 	useCallback,
 	useContext,
-	useImperativeHandle,
 	useLayoutEffect,
 	useRef,
+	useState,
 } from 'react';
 import type {IsExact} from './audio/props.js';
 import type {ImageFit} from './calculate-image-fit.js';
@@ -15,21 +15,28 @@ import type {
 import type {SequenceControls} from './CompositionManager.js';
 import type {EffectsProp} from './effects/effect-types.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import {Freeze} from './freeze.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
-import {usePreload} from './prefetch.js';
+import type {
+	InteractiveBaseProps,
+	InteractivePremountProps,
+} from './Interactive.js';
 import {
-	hiddenField,
-	sequenceVisualStyleSchema,
-	type SequenceSchema,
-} from './sequence-field-schema.js';
-import type {SequenceProps} from './Sequence.js';
+	baseSchema,
+	borderSchema,
+	premountSchema,
+	transformSchema,
+	type InteractivitySchema,
+} from './interactivity-schema.js';
+import {usePreload} from './prefetch.js';
 import {Sequence} from './Sequence.js';
 import {SequenceContext} from './SequenceContext.js';
 import {truncateSrcForLabel} from './truncate-src-for-label.js';
 import {useBufferState} from './use-buffer-state.js';
 import {useDelayRender} from './use-delay-render.js';
+import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
-import {wrapInSchema} from './wrap-in-schema.js';
+import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 function exponentialBackoff(errorCount: number): number {
 	return 1000 * 2 ** (errorCount - 1);
@@ -57,7 +64,8 @@ export type ImgProps = NativeImgProps & {
 	 * @deprecated For internal use only
 	 */
 	readonly stack?: string;
-} & Pick<SequenceProps, 'durationInFrames' | 'from' | 'hidden'>;
+} & InteractiveBaseProps &
+	InteractivePremountProps;
 
 type Expected = Omit<
 	NativeImgProps,
@@ -71,9 +79,17 @@ type ImgContentProps = Omit<
 	| 'stack'
 	| 'showInTimeline'
 	| 'from'
+	| 'trimBefore'
 	| 'durationInFrames'
+	| 'freeze'
 	| 'effects'
->;
+	| 'premountFor'
+	| 'postmountFor'
+	| 'styleWhilePremounted'
+	| 'styleWhilePostmounted'
+> & {
+	readonly refForOutline: React.RefObject<HTMLElement | null>;
+};
 
 const ImgContent: React.FC<ImgContentProps> = ({
 	onError,
@@ -86,12 +102,14 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	crossOrigin,
 	decoding,
 	ref,
+	refForOutline,
 	...props
 }) => {
 	const imageRef = useRef<HTMLImageElement>(null);
 	const errors = useRef<Record<string, number>>({});
 	const {delayPlayback} = useBufferState();
 	const sequenceContext = useContext(SequenceContext);
+	const [isLoading, setIsLoading] = useState(false);
 
 	const _propsValid: IsExact<typeof props, Omit<Expected, 'decoding'>> = true;
 
@@ -99,9 +117,19 @@ const ImgContent: React.FC<ImgContentProps> = ({
 		throw new Error('typecheck error');
 	}
 
-	useImperativeHandle(ref, () => {
-		return imageRef.current as HTMLImageElement;
-	}, []);
+	const imageCallbackRef = useCallback(
+		(img: HTMLImageElement | null) => {
+			imageRef.current = img;
+			refForOutline.current = img;
+
+			if (typeof ref === 'function') {
+				ref(img);
+			} else if (ref) {
+				ref.current = img;
+			}
+		},
+		[ref, refForOutline],
+	);
 
 	const actualSrc = usePreload(src as string);
 
@@ -130,6 +158,8 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	}, []);
 
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
+	const isPremounting = Boolean(sequenceContext?.premounting);
+	const isPostmounting = Boolean(sequenceContext?.postmounting);
 
 	const didGetError = useCallback(
 		(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
@@ -178,8 +208,21 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	);
 
 	if (typeof window !== 'undefined') {
-		const isPremounting = Boolean(sequenceContext?.premounting);
-		const isPostmounting = Boolean(sequenceContext?.postmounting);
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			if (!pauseWhenLoading || !isLoading || isPremounting || isPostmounting) {
+				return;
+			}
+
+			return delayPlayback().unblock;
+		}, [
+			delayPlayback,
+			isLoading,
+			isPostmounting,
+			isPremounting,
+			pauseWhenLoading,
+		]);
+
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
 			if (window.process?.env?.NODE_ENV === 'test') {
@@ -195,6 +238,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 				return;
 			}
 
+			setIsLoading(true);
 			const newHandle = delayRender(
 				'Loading <Img> with src=' + truncateSrcForLabel(actualSrc),
 				{
@@ -202,10 +246,6 @@ const ImgContent: React.FC<ImgContentProps> = ({
 					timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
 				},
 			);
-			const unblock =
-				pauseWhenLoading && !isPremounting && !isPostmounting
-					? delayPlayback().unblock
-					: () => undefined;
 
 			let unmounted = false;
 
@@ -230,7 +270,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 					onImageFrame?.(current);
 				}
 
-				unblock();
+				setIsLoading(false);
 				continueRender(newHandle);
 			};
 
@@ -265,17 +305,12 @@ const ImgContent: React.FC<ImgContentProps> = ({
 			return () => {
 				unmounted = true;
 				current.removeEventListener('load', onComplete);
-				unblock();
 				continueRender(newHandle);
 			};
 		}, [
 			actualSrc,
-			delayPlayback,
 			delayRenderRetries,
 			delayRenderTimeoutInMilliseconds,
-			pauseWhenLoading,
-			isPremounting,
-			isPostmounting,
 			onImageFrame,
 			continueRender,
 			delayRender,
@@ -290,11 +325,13 @@ const ImgContent: React.FC<ImgContentProps> = ({
 		isClientSideRendering,
 	});
 
-	// src gets set once we've loaded and decoded the image.
+	// `src` is assigned imperatively to this element in the layout effect above.
+	// The element may paint while `decode()` is pending; `delayRender()` only
+	// blocks frame rendering.
 	return (
 		<img
 			{...props}
-			ref={imageRef}
+			ref={imageCallbackRef}
 			crossOrigin={crossOriginValue}
 			onError={didGetError}
 			decoding={isRendering ? 'sync' : decoding}
@@ -303,7 +340,8 @@ const ImgContent: React.FC<ImgContentProps> = ({
 };
 
 type NativeImgInnerProps = Omit<ImgProps, 'effects'> & {
-	readonly _experimentalControls: SequenceControls | undefined;
+	readonly controls: SequenceControls | undefined;
+	readonly outlineRef: React.RefObject<HTMLElement | null>;
 };
 
 const NativeImgInner: React.FC<NativeImgInnerProps> = ({
@@ -313,44 +351,92 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 	showInTimeline,
 	src,
 	from,
+	trimBefore,
 	durationInFrames,
-	_experimentalControls: controls,
+	freeze,
+	premountFor,
+	postmountFor,
+	style,
+	styleWhilePremounted,
+	styleWhilePostmounted,
+	controls,
+	outlineRef: refForOutline,
 	...props
 }) => {
 	if (!src) {
 		throw new Error('No "src" prop was passed to <Img>.');
 	}
 
+	const {
+		effectivePostmountFor,
+		effectivePremountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		postmountingActive,
+		premountingActive,
+		premountingStyle,
+	} = usePremounting({
+		from: from ?? 0,
+		durationInFrames: durationInFrames ?? Infinity,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: style ?? null,
+		styleWhilePremounted: styleWhilePremounted ?? null,
+		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		hideWhilePremounted: 'display-none',
+	});
+
 	return (
-		<Sequence
-			layout="none"
-			from={from ?? 0}
-			durationInFrames={durationInFrames ?? Infinity}
-			_remotionInternalStack={stack}
-			_remotionInternalDocumentationLink={
-				name === undefined ? 'https://www.remotion.dev/docs/img' : undefined
-			}
-			_remotionInternalIsMedia={{type: 'image', src}}
-			name={name ?? '<Img>'}
-			_experimentalControls={controls}
-			showInTimeline={showInTimeline ?? true}
-			hidden={hidden}
-		>
-			<ImgContent src={src} {...props} />
-		</Sequence>
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				trimBefore={trimBefore}
+				durationInFrames={durationInFrames ?? Infinity}
+				freeze={freeze}
+				_remotionInternalStack={stack}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
+				_remotionInternalIsMedia={{type: 'image', src}}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+				name={name ?? '<Img>'}
+				controls={controls}
+				showInTimeline={showInTimeline ?? true}
+				hidden={hidden}
+				outlineRef={refForOutline}
+			>
+				<ImgContent
+					src={src}
+					refForOutline={refForOutline}
+					style={premountingStyle ?? undefined}
+					{...props}
+				/>
+			</Sequence>
+		</Freeze>
 	);
 };
 
 const CanvasImageWithPrivateProps = CanvasImage as React.ComponentType<
 	CanvasImageProps & {
-		readonly _experimentalControls?: SequenceControls | undefined;
+		readonly controls?: SequenceControls | undefined;
+		readonly outlineRef?: React.RefObject<HTMLElement | null> | null;
 	}
 >;
 
 export const imgSchema = {
-	...sequenceVisualStyleSchema,
-	hidden: hiddenField,
-} as const satisfies SequenceSchema;
+	src: {
+		type: 'asset',
+		default: undefined,
+		description: 'Source',
+		keyframable: false,
+	},
+	...baseSchema,
+	...premountSchema,
+	...transformSchema,
+	...borderSchema,
+} as const satisfies InteractivitySchema;
 
 const imgCanvasFallbackIncompatibleProps = new Set([
 	'alt',
@@ -429,7 +515,7 @@ const getFitFromObjectFit = (
 
 const ImgInner: React.FC<
 	ImgProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
+		readonly controls: SequenceControls | undefined;
 	}
 > = ({
 	effects = [],
@@ -440,8 +526,14 @@ const ImgInner: React.FC<
 	showInTimeline,
 	src,
 	from,
+	trimBefore,
 	durationInFrames,
-	_experimentalControls: controls,
+	freeze,
+	premountFor,
+	postmountFor,
+	styleWhilePremounted,
+	styleWhilePostmounted,
+	controls,
 	width,
 	height,
 	className,
@@ -453,6 +545,8 @@ const ImgInner: React.FC<
 	delayRenderTimeoutInMilliseconds,
 	...props
 }) => {
+	const refForOutline = useRef<HTMLElement | null>(null);
+
 	if (effects.length === 0) {
 		return (
 			<NativeImgInner
@@ -464,8 +558,14 @@ const ImgInner: React.FC<
 				showInTimeline={showInTimeline}
 				src={src}
 				from={from}
+				trimBefore={trimBefore}
 				durationInFrames={durationInFrames}
-				_experimentalControls={controls}
+				freeze={freeze}
+				premountFor={premountFor}
+				postmountFor={postmountFor}
+				styleWhilePremounted={styleWhilePremounted}
+				styleWhilePostmounted={styleWhilePostmounted}
+				controls={controls}
 				width={width}
 				height={height}
 				className={className}
@@ -475,6 +575,7 @@ const ImgInner: React.FC<
 				maxRetries={maxRetries}
 				delayRenderRetries={delayRenderRetries}
 				delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
+				outlineRef={refForOutline}
 			/>
 		);
 	}
@@ -510,15 +611,20 @@ const ImgInner: React.FC<
 			delayRenderRetries={delayRenderRetries}
 			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
 			from={from}
+			trimBefore={trimBefore}
 			durationInFrames={durationInFrames}
+			freeze={freeze}
+			premountFor={premountFor}
+			postmountFor={postmountFor}
+			styleWhilePremounted={styleWhilePremounted}
+			styleWhilePostmounted={styleWhilePostmounted}
 			hidden={hidden}
 			name={name ?? '<Img>'}
 			showInTimeline={showInTimeline}
 			stack={stack}
-			_remotionInternalDocumentationLink={
-				name === undefined ? 'https://www.remotion.dev/docs/img' : undefined
-			}
-			_experimentalControls={controls}
+			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
+			controls={controls}
+			outlineRef={refForOutline}
 			{...canvasProps}
 		/>
 	);
@@ -528,5 +634,11 @@ const ImgInner: React.FC<
  * @description Works just like a regular HTML img tag. When you use the <Img> tag, Remotion will ensure that the image is loaded before rendering the frame.
  * @see [Documentation](https://remotion.dev/docs/img)
  */
-export const Img = wrapInSchema(ImgInner, imgSchema);
+export const Img = withInteractivitySchema({
+	Component: ImgInner,
+	componentName: '<Img>',
+	componentIdentity: 'dev.remotion.remotion.Img',
+	schema: imgSchema,
+	supportsEffects: true,
+});
 addSequenceStackTraces(Img);

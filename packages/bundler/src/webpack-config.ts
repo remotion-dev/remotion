@@ -1,3 +1,4 @@
+import {getStudioEntryPoints} from '@remotion/studio-shared/studio-entry-points';
 import type {Configuration} from 'webpack';
 import webpack, {ProgressPlugin} from 'webpack';
 import {CaseSensitivePathsPlugin} from './case-sensitive-paths';
@@ -40,8 +41,8 @@ export const webpackConfig = async ({
 	keyboardShortcutsEnabled,
 	bufferStateDelayInMilliseconds,
 	poll,
-	experimentalClientSideRenderingEnabled,
 	askAIEnabled,
+	interactivityEnabled,
 	extraPlugins,
 }: {
 	entry: string;
@@ -57,7 +58,7 @@ export const webpackConfig = async ({
 	remotionRoot: string;
 	poll: number | null;
 	askAIEnabled: boolean;
-	experimentalClientSideRenderingEnabled: boolean;
+	interactivityEnabled: boolean;
 	extraPlugins: webpack.WebpackPluginInstance[];
 }): Promise<[string, WebpackConfiguration]> => {
 	const esbuildLoaderOptions: LoaderOptions = {
@@ -73,29 +74,28 @@ export const webpackConfig = async ({
 		getDefinePluginDefinitions({
 			maxTimelineTracks,
 			askAIEnabled,
+			interactivityEnabled,
 			keyboardShortcutsEnabled,
 			bufferStateDelayInMilliseconds,
-			experimentalClientSideRenderingEnabled,
 		}),
 	);
 
 	const conf: WebpackConfiguration = await webpackOverride({
 		...getBaseConfig(environment, poll),
-		entry: [
-			// Fast Refresh must come first,
-			// because setup-environment imports ReactDOM.
-			// If React DOM is imported before Fast Refresh, Fast Refresh does not work
-			environment === 'development'
-				? require.resolve('./fast-refresh/runtime.js')
-				: null,
-			require.resolve('./setup-environment'),
-			environment === 'development'
-				? require.resolve('./setup-sequence-stack-traces')
-				: null,
+		entry: getStudioEntryPoints({
+			fastRefreshRuntime:
+				environment === 'development'
+					? require.resolve('./fast-refresh/runtime.js')
+					: null,
+			environmentSetup: require.resolve('./setup-environment'),
+			sequenceStackTraces:
+				environment === 'development'
+					? require.resolve('./setup-sequence-stack-traces')
+					: null,
 			userDefinedComponent,
-			require.resolve('../react-shim.js'),
-			entry,
-		].filter(Boolean) as [string, ...string[]],
+			reactShim: require.resolve('../react-shim.js'),
+			studioRenderEntry: entry,
+		}),
 		mode: environment,
 		plugins:
 			environment === 'development'

@@ -1,6 +1,6 @@
 import type {SVGProps} from 'react';
 import React, {useMemo} from 'react';
-import {FAIL_COLOR, WARNING_COLOR} from '../../helpers/colors';
+import {FAIL_COLOR, WARNING_COLOR, WHITE} from '../../helpers/colors';
 import {Row, Spacing} from '../layout';
 
 export const WarningTriangle: React.FC<SVGProps<SVGSVGElement>> = (props) => {
@@ -17,38 +17,63 @@ const style: React.CSSProperties = {
 	flexShrink: 0,
 };
 
+const compactStyle: React.CSSProperties = {
+	...style,
+	width: 10,
+	height: 10,
+};
+
 const container: React.CSSProperties = {
+	width: '100%',
 	maxWidth: 500,
+	minWidth: 0,
+};
+
+const row: React.CSSProperties = {
+	minWidth: 0,
 };
 
 const label: React.CSSProperties = {
 	fontSize: 13,
-	color: 'white',
+	color: WHITE,
 	fontFamily: 'sans-serif',
+	minWidth: 0,
+	whiteSpace: 'normal',
+	overflowWrap: 'anywhere',
 };
 
+const compactLabel: React.CSSProperties = {
+	...label,
+	fontSize: 12,
+};
+
+type ValidationMessageSize = 'default' | 'compact';
+
 export const ValidationMessage: React.FC<{
-	readonly message: string;
+	readonly message: React.ReactNode;
 	readonly align: 'flex-start' | 'flex-end';
 	readonly type: 'warning' | 'error';
 	readonly action?: React.ReactNode;
-}> = ({message, align, type, action}) => {
+	readonly size?: ValidationMessageSize;
+}> = ({message, align, type, action, size = 'default'}) => {
+	const iconStyle = size === 'compact' ? compactStyle : style;
+	const labelStyle = size === 'compact' ? compactLabel : label;
 	const finalStyle = useMemo(() => {
 		return {
-			...style,
+			...iconStyle,
 			fill: type === 'warning' ? WARNING_COLOR : FAIL_COLOR,
 		};
-	}, [type]);
+	}, [iconStyle, type]);
 
 	return (
 		<div style={container}>
-			<Row align="center" justify={align}>
+			<Row align="center" justify={align} style={row}>
 				<WarningTriangle style={finalStyle} />
-				<Spacing x={1} />
-				<div style={label}>{message}</div>
+				<Spacing x={size === 'compact' ? 0.75 : 1} />
+				<div style={labelStyle}>{message}</div>
 				{action ? (
 					<>
-						<Spacing x={1} />
+						<Spacing x={size === 'compact' ? 0.75 : 1} />
 						{action}
 					</>
 				) : null}

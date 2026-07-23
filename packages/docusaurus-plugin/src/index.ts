@@ -117,7 +117,7 @@ export function shiki(context: DocusaurusContext, pluginOptions: any) {
 			return plugin;
 		}
 
-		return addTwoslash(structure(plugin));
+		return addTwoslashArray(structure(plugin));
 	});
 
 	if (!flag) {

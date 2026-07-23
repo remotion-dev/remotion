@@ -1,11 +1,11 @@
 import React, {useMemo} from 'react';
-import {BLUE, BLUE_DISABLED} from '../helpers/colors';
+import {BLUE, BLUE_DISABLED, WHITE} from '../helpers/colors';
 import type {ButtonProps} from './Button';
 import {Button} from './Button';
 
 const buttonStyle: React.CSSProperties = {
 	backgroundColor: BLUE,
-	color: 'white',
+	color: WHITE,
 };
 
 export const ModalButton: React.FC<Omit<ButtonProps, 'style'>> = (props) => {

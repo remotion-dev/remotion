@@ -60,6 +60,23 @@ const trimTrailingSlash = (p: string): string => {
 	return p;
 };
 
+export const getBundlePublicPath = (publicPath: string | null): string => {
+	return publicPath ?? './';
+};
+
+export const getBundleStaticHash = (publicPath: string): string => {
+	if (publicPath === './') {
+		return './public';
+	}
+
+	return (
+		'/' +
+		[trimTrailingSlash(trimLeadingSlash(publicPath)), 'public']
+			.filter(Boolean)
+			.join('/')
+	);
+};
+
 export type MandatoryLegacyBundleOptions = {
 	webpackOverride: WebpackOverrideFn;
 	outDir: string | null;
@@ -71,6 +88,7 @@ export type MandatoryLegacyBundleOptions = {
 	onSymlinkDetected: (path: string) => void;
 	keyboardShortcutsEnabled: boolean;
 	askAIEnabled: boolean;
+	interactivityEnabled: boolean;
 	rspack: boolean;
 	/**
 	 * If true, the public directory is symlinked into the bundle output instead of copied.
@@ -91,13 +109,11 @@ export const getConfig = ({
 	options,
 	bufferStateDelayInMilliseconds,
 	maxTimelineTracks,
-	experimentalClientSideRenderingEnabled,
 }: {
 	outDir: string;
 	entryPoint: string;
 	resolvedRemotionRoot: string;
 	bufferStateDelayInMilliseconds: number | null;
-	experimentalClientSideRenderingEnabled: boolean;
 	maxTimelineTracks: number | null;
 	onProgress: (progress: number) => void;
 	options: MandatoryLegacyBundleOptions;
@@ -122,8 +138,8 @@ export const getConfig = ({
 		keyboardShortcutsEnabled: options?.keyboardShortcutsEnabled ?? true,
 		bufferStateDelayInMilliseconds,
 		poll: null,
-		experimentalClientSideRenderingEnabled,
 		askAIEnabled: options?.askAIEnabled ?? true,
+		interactivityEnabled: options?.interactivityEnabled ?? true,
 		extraPlugins: [],
 	};
 
@@ -143,7 +159,6 @@ type NewBundleOptions = {
 	maxTimelineTracks: number | null;
 	bufferStateDelayInMilliseconds: number | null;
 	audioLatencyHint: AudioContextLatencyCategory | null;
-	experimentalClientSideRenderingEnabled: boolean;
 	renderDefaults: RenderDefaults | null;
 };
 
@@ -259,8 +274,6 @@ export const internalBundle = async (
 		bufferStateDelayInMilliseconds:
 			actualArgs.bufferStateDelayInMilliseconds ?? null,
 		maxTimelineTracks: actualArgs.maxTimelineTracks,
-		experimentalClientSideRenderingEnabled:
-			actualArgs.experimentalClientSideRenderingEnabled,
 	});
 
 	if (actualArgs.rspack) {
@@ -335,12 +348,8 @@ export const internalBundle = async (
 		}
 	}
 
-	const publicPath = actualArgs?.publicPath ?? '/';
-	const staticHash =
-		'/' +
-		[trimTrailingSlash(trimLeadingSlash(publicPath)), 'public']
-			.filter(Boolean)
-			.join('/');
+	const publicPath = getBundlePublicPath(actualArgs.publicPath);
+	const staticHash = getBundleStaticHash(publicPath);
 
 	const from = options?.publicDir
 		? path.resolve(resolvedRemotionRoot, options.publicDir)
@@ -407,6 +416,7 @@ export const internalBundle = async (
 		title: 'Remotion Bundle',
 		renderDefaults: actualArgs.renderDefaults ?? undefined,
 		publicFolderExists: `${publicPath + (publicPath.endsWith('/') ? '' : '/')}public`,
+		fileSystemPlatform: null,
 		gitSource: actualArgs.gitSource ?? null,
 		projectName: getProjectName({
 			gitSource: actualArgs.gitSource ?? null,
@@ -419,6 +429,14 @@ export const internalBundle = async (
 		logLevel: 'info',
 		mode: 'bundle',
 		audioLatencyHint: actualArgs.audioLatencyHint ?? 'playback',
+		sampleRate: actualArgs.renderDefaults?.sampleRate ?? 48000,
+		studioRuntimeConfig: {
+			askAIEnabled: actualArgs.askAIEnabled,
+			bufferStateDelayInMilliseconds: actualArgs.bufferStateDelayInMilliseconds,
+			interactivityEnabled: actualArgs.interactivityEnabled,
+			keyboardShortcutsEnabled: actualArgs.keyboardShortcutsEnabled,
+			maxTimelineTracks: actualArgs.maxTimelineTracks,
+		},
 	});
 
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
@@ -453,10 +471,9 @@ export async function bundle(...args: Arguments): Promise<string> {
 		rootDir: actualArgs.rootDir ?? null,
 		webpackOverride: actualArgs.webpackOverride ?? ((f) => f),
 		audioLatencyHint: actualArgs.audioLatencyHint ?? null,
-		experimentalClientSideRenderingEnabled:
-			actualArgs.experimentalClientSideRenderingEnabled ?? false,
 		renderDefaults: actualArgs.renderDefaults ?? null,
 		askAIEnabled: actualArgs.askAIEnabled ?? true,
+		interactivityEnabled: actualArgs.interactivityEnabled ?? true,
 		keyboardShortcutsEnabled: actualArgs.keyboardShortcutsEnabled ?? true,
 		rspack: actualArgs.rspack ?? false,
 		symlinkPublicDir: actualArgs.symlinkPublicDir ?? false,

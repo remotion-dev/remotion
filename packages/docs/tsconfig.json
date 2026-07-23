@@ -26,6 +26,7 @@
 		{"path": "../player"},
 		{"path": "../core"},
 		{"path": "../media-utils"},
+		{"path": "../browser-studio"},
 		{"path": "../docusaurus-plugin"},
 		{"path": "../effects"},
 		{"path": "../babel-loader"},
@@ -53,5 +54,9 @@
 		{"path": "../elevenlabs"},
 		{"path": "../cli"}
 	],
-	"exclude": ["copy-convert.ts", "render-cards.ts"]
+	"exclude": [
+		"copy-convert.ts",
+		"render-cards.ts",
+		"render-element-previews.ts"
+	]
 }

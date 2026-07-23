@@ -1,6 +1,6 @@
 ---
 name: add-effect
-description: Add a new effect to @remotion/effects, including implementation, package exports, docs, demos, preview images, tests, formatting, and builds.
+description: Add a new effect to @remotion/effects, including implementation, package exports, docs, demos, preview images, Remotion skill updates, tests, formatting, and builds.
 ---
 
 # Add a new `@remotion/effects` effect
@@ -223,7 +223,7 @@ Follow existing effect pages:
 - H1: `# effectName()<AvailableFrom v="..." />`.
 - Include `_Part of the [@remotion/effects](/docs/effects/api) package._`.
 - Add a short description.
-- Add `<Demo type="effects-<effect-name>" />`.
+- Add `<EffectsDemo type="effects-<effect-name>" />`.
 - Add a twoslash example with `title="MyComp.tsx"`.
 - Document each option as its own `###` heading, using `?` for optional parameters.
 - Add a `disabled?` section.
@@ -231,7 +231,7 @@ Follow existing effect pages:
 
 Update:
 
-- `packages/docs/sidebars.ts` — add `'effects/<effect-name>'`.
+- `packages/docs/sidebars.ts` — add `'effects/<effect-name>'` in alphabetical order.
 - `packages/docs/docs/effects/table-of-contents.tsx` — add a card in the right category.
 - `packages/docs/src/data/articles.ts` by running the card generator, not by hand.
 
@@ -267,15 +267,11 @@ export const EffectsMyEffectPreview: React.FC<{
 Use `fit="cover"` for docs effect previews so the shared preview image fills
 the 16:9 canvas and does not leave transparent bars.
 
-Register the demo:
+Register the demo in `packages/docs/components/effects-demos/registry.ts`:
 
-- `packages/docs/components/demos/types.ts`
-  - Import the preview component.
-  - Export `effectsMyEffectDemo`.
-  - Use `id: 'effects-<effect-name>'`.
-  - Add controls matching the effect schema.
-- `packages/docs/components/demos/index.tsx`
-  - Import and add the demo to the `demos` array.
+- Import the preview component and the real effect schema (or read it from `effect().definition.schema`).
+- Add an entry with `id: 'effects-<effect-name>'`.
+- Add `initialValues` only for required fields whose schema default is `undefined`.
 
 Use the `docs-demo` skill for demo details.
 
@@ -327,7 +323,13 @@ Commit the generated `packages/docs/static/generated/articles-docs-effects-<effe
 
 If `render-cards.ts` opportunistically generates unrelated missing cards, remove those unrelated files unless they belong to the current change.
 
-## 9. Format, build, and verify
+## 9. Update the Remotion skill
+
+Keep the agent-facing Remotion skill in sync with the new effect.
+
+Update `packages/skills/skills/remotion-markup/effects.md` only if the new effect changes general usage mechanics, import conventions, installation guidance, or custom-effect recommendations. Do not duplicate the full effect list there; use the docs table of contents as the canonical list.
+
+## 10. Format, build, and verify
 
 Run:
 

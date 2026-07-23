@@ -1,4 +1,5 @@
 import {getVideoMetadata} from '@remotion/media-utils';
+import type {InputAudioTrack, InputVideoTrack} from 'mediabunny';
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import {useEffect, useState} from 'react';
 import {getDurationOrCompute} from './get-duration-or-compute';
@@ -8,8 +9,13 @@ export type MediaMetadata = {
 	format: string | null;
 	width: number | null;
 	height: number | null;
-	videoCodec: string | null;
-	audioCodec: string | null;
+	videoCodec: InputVideoTrack['codec'] | null;
+	audioCodec: InputAudioTrack['codec'] | null;
+	fps: number | null;
+	isHdr: boolean | null;
+	sampleRate: number | null;
+	hasVideoTrack: boolean | null;
+	hasAudioTrack: boolean | null;
 };
 
 const cache = new Map<string, MediaMetadata>();
@@ -49,11 +55,22 @@ const getMediabunnyMetadata = async (
 			return null;
 		}
 
-		const [width, height, videoCodec, audioCodec] = await Promise.all([
+		const [
+			width,
+			height,
+			videoCodec,
+			packetStats,
+			isHdr,
+			audioCodec,
+			sampleRate,
+		] = await Promise.all([
 			videoTrack ? safeCall(() => videoTrack.getDisplayWidth()) : null,
 			videoTrack ? safeCall(() => videoTrack.getDisplayHeight()) : null,
 			videoTrack ? safeCall(() => videoTrack.getCodec()) : null,
+			videoTrack ? safeCall(() => videoTrack.computePacketStats(50)) : null,
+			videoTrack ? safeCall(() => videoTrack.hasHighDynamicRange()) : null,
 			audioTrack ? safeCall(() => audioTrack.getCodec()) : null,
+			audioTrack ? safeCall(() => audioTrack.getSampleRate()) : null,
 		]);
 
 		return {
@@ -63,6 +80,11 @@ const getMediabunnyMetadata = async (
 			height,
 			videoCodec,
 			audioCodec,
+			fps: packetStats?.averagePacketRate ?? null,
+			isHdr,
+			sampleRate,
+			hasVideoTrack: Boolean(videoTrack),
+			hasAudioTrack: Boolean(audioTrack),
 		};
 	} finally {
 		try {
@@ -86,6 +108,11 @@ const getFallbackVideoMetadata = async (
 			height: metadata.height,
 			videoCodec: null,
 			audioCodec: null,
+			fps: null,
+			isHdr: null,
+			sampleRate: null,
+			hasVideoTrack: null,
+			hasAudioTrack: null,
 		};
 	} catch {
 		return null;

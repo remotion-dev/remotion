@@ -15,7 +15,12 @@ import {
 const Shifted = () => {
 	const frame = useCurrentFrame();
 	return (
-		<Sequence style={{scale: interpolate(frame, [0, 60], [2, 4])}}>
+		<Sequence
+			style={{
+				scale: interpolate(frame, [0, 60], [2, 4]),
+				translate: '13.2px 41.1px',
+			}}
+		>
 			<div
 				style={{
 					width: 180,
@@ -67,6 +72,20 @@ const ShiftedEffect = () => {
 				height: 200,
 				borderRadius: 24,
 				overflow: 'hidden',
+				translate: '424.4px 423.5px',
+				scale: interpolate(frame, [16], [2.044585], {
+					extrapolateLeft: 'clamp',
+					extrapolateRight: 'clamp',
+				}),
+				rotate: interpolate(
+					frame,
+					[16, 39],
+					['76.455165deg', '144.692528deg'],
+					{
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					},
+				),
 			}}
 			effects={[
 				blur({
@@ -99,7 +118,13 @@ const KeyframedPropsTest: React.FC = () => {
 			<Sequence
 				name="keyframes should be shown at 0 and 100"
 				durationInFrames={120}
-				style={{scale: interpolate(frame, [0, 100], [2, 4])}}
+				style={{
+					scale: interpolate(frame, [0, 100], [2, 4], {
+						extrapolateLeft: 'extend',
+						extrapolateRight: 'extend',
+						output: 'perceptual-scale',
+					}),
+				}}
 			>
 				<div
 					style={{
@@ -165,13 +190,14 @@ const KeyframedPropsTest: React.FC = () => {
 						height: 200,
 						borderRadius: 24,
 						overflow: 'hidden',
+						translate: '184.8px 412.4px',
 					}}
 					effects={[
 						blur({
 							radius: interpolate(frame, [0, 60, 119], [0, 24, 4]),
 						}),
 						scale({
-							scale: 2.2,
+							scale: 1 + 1,
 						}),
 					]}
 				/>

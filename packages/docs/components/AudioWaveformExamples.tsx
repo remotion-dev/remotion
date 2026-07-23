@@ -1,3 +1,4 @@
+import {Audio} from '@remotion/media';
 import {
 	createSmoothSvgPath,
 	useAudioData,
@@ -7,7 +8,6 @@ import {Player} from '@remotion/player';
 import React from 'react';
 import {
 	AbsoluteFill,
-	Html5Audio,
 	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
@@ -46,7 +46,7 @@ const BaseExample: React.FC = () => {
 
 	return (
 		<div style={{flex: 1}}>
-			<Html5Audio src={src} />
+			<Audio src={src} />
 			<AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
 				<svg
 					style={{backgroundColor: '#0B84F3'}}
@@ -92,7 +92,7 @@ const MovingExample: React.FC = () => {
 
 	return (
 		<div style={{flex: 1}}>
-			<Html5Audio src={src} />
+			<Audio src={src} />
 			<AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
 				<svg
 					style={{backgroundColor: '#0B84F3'}}
@@ -138,7 +138,7 @@ const PosterizedExample: React.FC = () => {
 
 	return (
 		<div style={{flex: 1}}>
-			<Html5Audio src={src} />
+			<Audio src={src} />
 			<AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
 				<svg
 					style={{backgroundColor: ' #0B84F3'}}

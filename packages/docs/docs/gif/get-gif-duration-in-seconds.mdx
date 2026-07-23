@@ -33,6 +33,14 @@ Remote GIFs need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/
 
 A string pointing to a GIF asset
 
+### `options?`<AvailableFrom v="4.0.471" />
+
+#### `requestInit?`<AvailableFrom v="4.0.471" />
+
+Options that are passed to the internal [`fetch()`](https://developer.mozilla.org/en-US/docs/Web/API/fetch) call when loading the GIF. This can be used to pass credentials or headers for authenticated GIFs.
+
+Remotion manages the internal `signal` option itself, so passing a `signal` in `requestInit` has no effect.
+
 ## Return value
 
 `Promise<number>` - the duration of the GIF in seconds, not factoring in that whether it is looped.

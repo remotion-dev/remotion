@@ -1,12 +1,12 @@
 import React, {
 	forwardRef,
+	useCallback,
 	useContext,
 	useEffect,
 	useImperativeHandle,
 	useMemo,
 	useRef,
 	useState,
-	useCallback,
 } from 'react';
 import type {IsExact} from '../audio/props.js';
 import {SharedAudioContext} from '../audio/shared-audio-tags.js';
@@ -24,7 +24,7 @@ import {useMediaTag} from '../use-media-tag.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {VERSION} from '../version.js';
 import {
-	useMediaMutedState,
+	usePlayerMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state.js';
 import {evaluateVolume} from '../volume-prop.js';
@@ -34,7 +34,7 @@ import {MediaPlaybackError} from './MediaPlaybackError.js';
 import type {NativeVideoProps, OnVideoFrame, RemotionVideoProps} from './props';
 import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
 
-type VideoForPreviewProps = RemotionVideoProps & {
+type VideoForPreviewProps = Omit<RemotionVideoProps, 'onVideoFrame'> & {
 	readonly onlyWarnForMediaSeekingError: boolean;
 	readonly onDuration: (src: string, durationInSeconds: number) => void;
 	readonly pauseWhenBuffering: boolean;
@@ -146,7 +146,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	}
 
 	const [mediaVolume] = useMediaVolumeState();
-	const [mediaMuted] = useMediaMutedState();
+	const [playerMuted] = usePlayerMutedState();
 
 	const userPreferredVolume = evaluateVolume({
 		frame: volumePropFrame,
@@ -173,12 +173,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		premountDisplay: parentSequence?.premountDisplay ?? null,
 		postmountDisplay: parentSequence?.postmountDisplay ?? null,
 		loopDisplay: undefined,
-		documentationLink:
-			name === undefined
-				? onlyWarnForMediaSeekingError
-					? 'https://www.remotion.dev/docs/offthreadvideo'
-					: 'https://www.remotion.dev/docs/html5-video'
-				: null,
+		documentationLink: onlyWarnForMediaSeekingError
+			? 'https://www.remotion.dev/docs/offthreadvideo'
+			: 'https://www.remotion.dev/docs/html5-video',
 		refForOutline: videoRef,
 	});
 
@@ -355,15 +352,16 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	return (
 		<video
+			{...nativeProps}
 			ref={videoRef}
-			muted={muted || mediaMuted || userPreferredVolume <= 0}
+			muted={muted || playerMuted || userPreferredVolume <= 0}
 			playsInline
 			src={actualSrc}
 			loop={_remotionInternalNativeLoopPassed}
 			style={actualStyle}
 			disableRemotePlayback
 			crossOrigin={crossOriginValue}
-			{...nativeProps}
+			controls={false}
 		/>
 	);
 };

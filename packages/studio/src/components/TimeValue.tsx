@@ -6,7 +6,7 @@ import React, {
 	useRef,
 } from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
-import {LIGHT_TEXT} from '../helpers/colors';
+import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {renderFrame} from '../state/render-frame';
@@ -14,7 +14,7 @@ import {Flex, Spacing} from './layout';
 import {InputDragger} from './NewComposition/InputDragger';
 
 const text: React.CSSProperties = {
-	color: 'white',
+	color: WHITE,
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
@@ -59,7 +59,6 @@ export const TimeValue: React.FC = () => {
 		},
 		[seek],
 	);
-
 	useImperativeHandle(
 		Internals.timeValueRef,
 		() => ({

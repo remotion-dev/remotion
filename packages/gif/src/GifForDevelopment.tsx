@@ -1,11 +1,12 @@
 /* eslint-disable no-console */
-import {forwardRef, useEffect, useRef, useState} from 'react';
+import {forwardRef, useEffect, useRef, useState, type RefObject} from 'react';
 import type {EffectDefinitionAndStack} from 'remotion';
 import {Canvas} from './canvas';
 import {manuallyManagedGifCache, volatileGifCache} from './gif-cache';
 import {isCorsError} from './is-cors-error';
 import type {GifState, RemotionGifProps} from './props';
 import {parseWithWorker} from './react-tools';
+import {getGifCacheKey} from './request-init';
 import {resolveGifSource} from './resolve-gif-source';
 import {useCurrentGifIndex} from './useCurrentGifIndex';
 
@@ -13,6 +14,7 @@ export const GifForDevelopment = forwardRef<
 	HTMLCanvasElement,
 	RemotionGifProps & {
 		readonly effects: EffectDefinitionAndStack<unknown>[];
+		readonly refForOutline: RefObject<HTMLElement | null>;
 	}
 >(
 	(
@@ -25,16 +27,20 @@ export const GifForDevelopment = forwardRef<
 			playbackRate = 1,
 			onLoad,
 			fit = 'fill',
+			requestInit,
 			effects,
+			refForOutline,
 			...props
 		},
 		ref,
 	) => {
 		const resolvedSrc = resolveGifSource(src);
+		const requestInitRef = useRef(requestInit);
+		requestInitRef.current = requestInit;
+		const cacheKey = getGifCacheKey({resolvedSrc, requestInit});
 		const [state, update] = useState<GifState>(() => {
 			const parsedGif =
-				volatileGifCache.get(resolvedSrc) ??
-				manuallyManagedGifCache.get(resolvedSrc);
+				volatileGifCache.get(cacheKey) ?? manuallyManagedGifCache.get(cacheKey);
 
 			if (parsedGif === undefined) {
 				return {
@@ -55,15 +61,27 @@ export const GifForDevelopment = forwardRef<
 		currentOnError.current = onError;
 
 		useEffect(() => {
+			const parsedGif =
+				volatileGifCache.get(cacheKey) ?? manuallyManagedGifCache.get(cacheKey);
+			if (parsedGif !== undefined) {
+				update(parsedGif as GifState);
+				currentOnLoad.current?.(parsedGif as GifState);
+				return;
+			}
+
 			let done = false;
 			let aborted = false;
-			const {prom, cancel} = parseWithWorker(resolvedSrc);
+			const {prom, cancel} = parseWithWorker({
+				src: resolvedSrc,
+				cacheKey,
+				requestInit: requestInitRef.current,
+			});
 
 			prom
 				.then((parsed) => {
 					currentOnLoad.current?.(parsed);
 					update(parsed);
-					volatileGifCache.set(resolvedSrc, parsed);
+					volatileGifCache.set(cacheKey, parsed);
 					done = true;
 				})
 				.catch((err) => {
@@ -84,7 +102,7 @@ export const GifForDevelopment = forwardRef<
 					cancel();
 				}
 			};
-		}, [resolvedSrc]);
+		}, [cacheKey, resolvedSrc]);
 
 		if (error) {
 			console.error(error.stack);
@@ -117,6 +135,7 @@ export const GifForDevelopment = forwardRef<
 				width={width}
 				height={height}
 				effects={effects}
+				refForOutline={refForOutline}
 				{...props}
 				ref={ref}
 			/>

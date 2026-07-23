@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -24,8 +24,9 @@ const barrelDistortionSchema = {
 		step: 0.01,
 		default: DEFAULT_BARREL_DISTORTION_AMOUNT,
 		description: 'Amount',
+		hiddenFromList: false,
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type BarrelDistortionParams = {
 	/** Distortion strength from `0` to `1`. Defaults to `0.25`. */
@@ -54,7 +55,7 @@ export const barrelDistortion = createEffect<
 	BarrelDistortionParams,
 	BarrelDistortionState
 >({
-	type: 'remotion/barrel-distortion',
+	type: 'dev.remotion.effects.barrelDistortion',
 	label: 'barrelDistortion()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/barrel-distortion',
 	backend: 'webgl2',

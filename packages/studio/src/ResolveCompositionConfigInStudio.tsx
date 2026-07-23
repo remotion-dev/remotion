@@ -7,7 +7,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import {getInputProps, Internals} from 'remotion';
+import {getInputProps, Internals, type VideoConfig} from 'remotion';
 import {FastRefreshContext} from './fast-refresh-context';
 
 type VideoConfigState =
@@ -16,11 +16,23 @@ type VideoConfigState =
 	  }
 	| {
 			type: 'success';
-			result: Record<string, unknown>;
+			result: VideoConfig;
+			metadataSource: {
+				readonly durationInFrames: 'calculate-metadata' | 'composition';
+				readonly fps: 'calculate-metadata' | 'composition';
+				readonly height: 'calculate-metadata' | 'composition';
+				readonly width: 'calculate-metadata' | 'composition';
+			};
 	  }
 	| {
 			type: 'success-and-refreshing';
-			result: Record<string, unknown>;
+			result: VideoConfig;
+			metadataSource: {
+				readonly durationInFrames: 'calculate-metadata' | 'composition';
+				readonly fps: 'calculate-metadata' | 'composition';
+				readonly height: 'calculate-metadata' | 'composition';
+				readonly width: 'calculate-metadata' | 'composition';
+			};
 	  }
 	| {
 			type: 'error';
@@ -110,10 +122,10 @@ export const ResolveCompositionConfigInStudio: React.FC<
 
 			const {signal} = controller;
 
-			const result = Internals.resolveVideoConfigOrCatch({
+			const result = Internals.resolveVideoConfigWithMetadataOrCatch({
 				compositionId,
 				calculateMetadata: calculateMetadata as Parameters<
-					typeof Internals.resolveVideoConfigOrCatch
+					typeof Internals.resolveVideoConfigWithMetadataOrCatch
 				>[0]['calculateMetadata'],
 				inputProps: combinedProps,
 				signal,
@@ -149,6 +161,7 @@ export const ResolveCompositionConfigInStudio: React.FC<
 							[compositionId]: {
 								type: 'success-and-refreshing',
 								result: prev.result,
+								metadataSource: prev.metadataSource,
 							},
 						};
 					}
@@ -170,7 +183,8 @@ export const ResolveCompositionConfigInStudio: React.FC<
 							...r,
 							[compositionId]: {
 								type: 'success',
-								result: c,
+								result: c.videoConfig,
+								metadataSource: c.metadataSource,
 							},
 						}));
 					})
@@ -192,7 +206,8 @@ export const ResolveCompositionConfigInStudio: React.FC<
 					...r,
 					[compositionId]: {
 						type: 'success',
-						result: promOrNot,
+						result: promOrNot.videoConfig,
+						metadataSource: promOrNot.metadataSource,
 					},
 				}));
 			}
@@ -204,6 +219,53 @@ export const ResolveCompositionConfigInStudio: React.FC<
 
 	const currentComposition =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
+	const resolveComposition = useCallback(
+		async (compositionId: string): Promise<VideoConfig> => {
+			const composition = compositions.find((c) => c.id === compositionId);
+			if (!composition) {
+				throw new Error(`Could not find composition with id ${compositionId}`);
+			}
+
+			const editorProps = allEditorProps[composition.id] ?? {};
+			const defaultProps = {
+				...(composition.defaultProps ?? {}),
+				...(editorProps ?? {}),
+			};
+			const combinedProps = {
+				...defaultProps,
+				...(inputProps ?? {}),
+			};
+			const controller = new AbortController();
+			const result = Internals.resolveVideoConfigWithMetadataOrCatch({
+				compositionId: composition.id,
+				calculateMetadata: composition.calculateMetadata,
+				inputProps: combinedProps,
+				signal: controller.signal,
+				defaultProps,
+				compositionDurationInFrames: composition.durationInFrames ?? null,
+				compositionFps: composition.fps ?? null,
+				compositionHeight: composition.height ?? null,
+				compositionWidth: composition.width ?? null,
+			});
+
+			if (result.type === 'error') {
+				throw result.error;
+			}
+
+			const resolved = await Promise.resolve(result.result);
+			setResolvedConfigs((configs) => ({
+				...configs,
+				[composition.id]: {
+					type: 'success',
+					result: resolved.videoConfig,
+					metadataSource: resolved.metadataSource,
+				},
+			}));
+
+			return resolved.videoConfig;
+		},
+		[allEditorProps, compositions, inputProps],
+	);
 
 	useImperativeHandle(
 		Internals.resolveCompositionsRef,
@@ -212,6 +274,7 @@ export const ResolveCompositionConfigInStudio: React.FC<
 				setCurrentRenderModalComposition: (id: string | null) => {
 					setCurrentRenderModalComposition(id);
 				},
+				resolveComposition,
 				reloadCurrentlySelectedComposition: () => {
 					if (!currentComposition) {
 						return;
@@ -258,6 +321,7 @@ export const ResolveCompositionConfigInStudio: React.FC<
 			currentComposition,
 			doResolution,
 			inputProps,
+			resolveComposition,
 		],
 	);
 
@@ -366,6 +430,12 @@ export const ResolveCompositionConfigInStudio: React.FC<
 					[curr.id]: {
 						type: 'success',
 						result: {...curr, defaultProps: curr.defaultProps ?? {}},
+						metadataSource: {
+							durationInFrames: 'composition',
+							fps: 'composition',
+							height: 'composition',
+							width: 'composition',
+						},
 					},
 				};
 			}, {}),

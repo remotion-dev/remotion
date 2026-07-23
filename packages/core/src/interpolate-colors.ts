@@ -3,7 +3,12 @@
  * https://github.com/software-mansion/react-native-reanimated/blob/master/src/reanimated2/Colors.ts
  */
 
-import {interpolate} from './interpolate.js';
+import {interpolate, type InterpolateOptions} from './interpolate.js';
+
+export type InterpolateColorsOptions = Pick<
+	InterpolateOptions,
+	'easing' | 'posterize'
+>;
 
 type MatcherType = RegExp | undefined;
 
@@ -659,6 +664,7 @@ const interpolateColorsRGB = (
 	value: number,
 	inputRange: readonly number[],
 	colors: readonly number[],
+	options: InterpolateColorsOptions | undefined,
 ) => {
 	const [r, g, b, a] = [red, green, blue, opacity].map((f) => {
 		const unrounded = interpolate(
@@ -666,8 +672,10 @@ const interpolateColorsRGB = (
 			inputRange,
 			colors.map((c) => f(c)),
 			{
+				easing: options?.easing,
 				extrapolateLeft: 'clamp',
 				extrapolateRight: 'clamp',
+				posterize: options?.posterize,
 			},
 		);
 		if (f === opacity) {
@@ -687,6 +695,7 @@ export const interpolateColors = (
 	input: number,
 	inputRange: readonly number[],
 	outputRange: readonly string[],
+	options?: InterpolateColorsOptions,
 ): string => {
 	if (typeof input === 'undefined') {
 		throw new TypeError('input can not be undefined');
@@ -712,5 +721,5 @@ export const interpolateColors = (
 
 	const processedOutputRange = outputRange.map((c) => processColor(c));
 
-	return interpolateColorsRGB(input, inputRange, processedOutputRange);
+	return interpolateColorsRGB(input, inputRange, processedOutputRange, options);
 };

@@ -1,6 +1,7 @@
 import React from 'react';
-import type {SequencePropsSubscriptionKey, SequenceSchema} from 'remotion';
+import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import {WHITE_ALPHA_80} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {TimelineTreeNode} from '../../helpers/timeline-layout';
 import {
@@ -10,13 +11,13 @@ import {
 } from '../../helpers/timeline-layout';
 import type {GetIsExpanded} from '../ExpandedTracksProvider';
 import {getExpandedRowDepth} from './timeline-row-layout';
-import {TimelineEffectFieldRow} from './TimelineEffectFieldRow';
-import {TimelineEffectGroupRow} from './TimelineEffectGroupRow';
+import {TimelineEffectItem} from './TimelineEffectItem';
+import {TimelineEffectPropItem} from './TimelineEffectPropItem';
 import {
 	TimelineExpandArrowButton,
 	TimelineExpandArrowSpacer,
 } from './TimelineExpandArrowButton';
-import {TimelineFieldRow} from './TimelineFieldRow';
+import type {TimelineKeyframeControlsMode} from './TimelineKeyframeControls';
 import {TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
@@ -24,10 +25,11 @@ import {
 	getTimelineSelectedLabelStyle,
 	useTimelineRowSelection,
 } from './TimelineSelection';
+import {TimelineSequencePropItem} from './TimelineSequencePropItem';
 
 const rowLabel: React.CSSProperties = {
 	fontSize: 12,
-	color: 'rgba(255, 255, 255, 0.8)',
+	color: WHITE_ALPHA_80,
 	userSelect: 'none',
 };
 
@@ -35,22 +37,29 @@ export const TimelineExpandedRow: React.FC<{
 	readonly node: TimelineTreeNode;
 	readonly depth: number;
 	readonly nestedDepth: number;
+	readonly rowDepthBase?: number;
 	readonly getIsExpanded: GetIsExpanded;
 	readonly toggleTrack: (nodePathInfo: SequenceNodePathInfo) => void;
 	readonly validatedLocation: CodePosition;
 	readonly nodePath: SequencePropsSubscriptionKey;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
+	readonly keyframeDisplayOffset: number;
+	readonly keyframeControlsMode?: TimelineKeyframeControlsMode;
 }> = ({
 	node,
 	depth,
 	nestedDepth,
+	rowDepthBase,
 	getIsExpanded,
 	toggleTrack,
 	validatedLocation,
 	nodePath,
 	schema,
+	keyframeDisplayOffset,
+	keyframeControlsMode,
 }) => {
-	const rowDepth = getExpandedRowDepth({nestedDepth, treeDepth: depth});
+	const rowDepth =
+		(rowDepthBase ?? getExpandedRowDepth({nestedDepth, treeDepth: 0})) + depth;
 	const selection = useTimelineRowSelection(node.nodePathInfo);
 	const labelStyle = React.useMemo(
 		(): React.CSSProperties => ({
@@ -70,7 +79,8 @@ export const TimelineExpandedRow: React.FC<{
 	if (node.kind === 'group') {
 		if (node.effectInfo) {
 			return (
-				<TimelineEffectGroupRow
+				// A single effect
+				<TimelineEffectItem
 					label={node.label}
 					nodePathInfo={node.nodePathInfo}
 					effectIndex={node.effectInfo.effectIndex}
@@ -104,6 +114,7 @@ export const TimelineExpandedRow: React.FC<{
 				}}
 				selected={selection.selected}
 				selectable={selection.selectable}
+				selectionItem={selection.selectionItem}
 				onSelect={selection.onSelect}
 				showSelectedBackground
 				containsSelection={false}
@@ -117,25 +128,29 @@ export const TimelineExpandedRow: React.FC<{
 	if (node.field) {
 		if (node.field.kind === 'effect-field') {
 			return (
-				<TimelineEffectFieldRow
+				<TimelineEffectPropItem
 					field={node.field}
 					validatedLocation={validatedLocation}
 					rowDepth={rowDepth}
 					nodePath={nodePath}
 					nodePathInfo={node.nodePathInfo}
+					keyframeDisplayOffset={keyframeDisplayOffset}
+					keyframeControlsMode={keyframeControlsMode}
 				/>
 			);
 		}
 
 		if (node.field.kind === 'sequence-field') {
 			return (
-				<TimelineFieldRow
+				<TimelineSequencePropItem
 					field={node.field}
 					validatedLocation={validatedLocation}
 					rowDepth={rowDepth}
 					nodePath={nodePath}
 					nodePathInfo={node.nodePathInfo}
 					schema={schema}
+					keyframeDisplayOffset={keyframeDisplayOffset}
+					keyframeControlsMode={keyframeControlsMode}
 				/>
 			);
 		}
@@ -155,6 +170,7 @@ export const TimelineExpandedRow: React.FC<{
 			}}
 			selected={selection.selected}
 			selectable={selection.selectable}
+			selectionItem={selection.selectionItem}
 			onSelect={selection.onSelect}
 			showSelectedBackground
 			containsSelection={false}

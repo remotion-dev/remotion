@@ -66,39 +66,51 @@ See [`Config.setChromiumOpenGlRenderer()`](/docs/config#setchromiumopenglrendere
 
 ### `width`
 
-Width of the canvas and the inner layout area, in pixels. Must be a positive integer.
+Logical width of the canvas and the inner layout area, in pixels. Must be a positive integer.
 
 ### `height`
 
-Height of the canvas and the inner layout area, in pixels. Must be a positive integer.
+Logical height of the canvas and the inner layout area, in pixels. Must be a positive integer.
+
+### `pixelDensity?`<AvailableFrom v="4.0.472" />
+
+_number_
+
+Controls the backing bitmap density. Default: `1`.
+
+Set a higher value to paint to a higher-resolution backing canvas while keeping the logical canvas size unchanged.  
+This is useful to counteract quality loss when the canvas is scaled up – for example via the [`scale`](/docs/scaling) render option, or on a high-DPI display in the preview. Pass [`usePixelDensity()`](/docs/use-pixel-density) to use the render `scale` while rendering and `window.devicePixelRatio` while previewing.
 
 ### `children`
 
 Children to draw to the canvas.  
 Children will be wrapped in a `<div>` with the given `width` and `height`.
 
-Do not nest `<HtmlInCanvas>` inside another `<HtmlInCanvas>`. Nesting is not supported and throws:
+Nesting `<HtmlInCanvas>` components is supported from <AvailableFrom v="4.0.491" inline />.
+Native browser support for nesting requires Chrome 152.0.7944.0 or later.
+Older Chrome versions support a single `<HtmlInCanvas>`, but do not correctly paint nested HTML-in-canvas subtrees.
 
-```
-<HtmlInCanvas> effects cannot be nested together. Chrome will only display the outer effect. Consider merging the effects into one if you can.
-```
+### `effects?`<AvailableFrom v="4.0.464" />
+
+Apply [effects](/docs/effects/api) after the children have been painted to the canvas.  
+If you also pass [`onPaint`](#onpaint), effects are applied after `onPaint` has finished drawing.
 
 ### `onPaint?`
 
 Called when the children are updated and can be painted onto the canvas.  
-If this callback is omitted, the children are painted using a `2d` context with no transform.
+If this callback is omitted, the children are painted using a `2d` context.
 
 ```tsx twoslash title="Simple example"
 import {HtmlInCanvasOnPaint} from 'remotion';
 
-const onPaint: HtmlInCanvasOnPaint = ({canvas, element, elementImage}) => {
+const onPaint: HtmlInCanvasOnPaint = ({canvas, element, elementImage, pixelDensity}) => {
   const ctx = canvas.getContext('2d');
   if (!ctx) {
     throw new Error('Failed to acquire 2D context');
   }
 
   ctx.reset();
-  ctx.filter = 'blur(10px)';
+  ctx.filter = `blur(${10 * pixelDensity}px)`;
   const transform = ctx.drawElementImage(elementImage, 0, 0);
   element.style.transform = transform.toString();
 };
@@ -110,7 +122,7 @@ The callback receives:
 
 #### `canvas`
 
-An [`OffscreenCanvas`](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas) with dimensions `width` × `height`.  
+An [`OffscreenCanvas`](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas) with backing dimensions `width * pixelDensity` × `height * pixelDensity`, rounded up.  
 You should paint to this canvas.
 
 #### `element`
@@ -122,6 +134,10 @@ You should apply the return value of [`drawElementImage`](https://github.com/WIC
 
 An [`ElementImage`](https://github.com/WICG/html-in-canvas#idl-changes) handle for the current capture.  
 You should paint this image to the canvas.
+
+#### `pixelDensity`
+
+The resolved pixel density. It is `1` by default, or the number passed to `pixelDensity`.
 
 ### `onInit?`
 
@@ -136,6 +152,10 @@ Inherited from [`<Sequence>`](/docs/sequence#durationinframes).
 ### `from?`
 
 Inherited from [`<Sequence>`](/docs/sequence#from).
+
+### `trimBefore?`<AvailableFrom v="4.0.482" />
+
+Inherited from [`<Sequence>`](/docs/sequence#trimbefore).
 
 ### `ref?`
 
@@ -189,7 +209,7 @@ export const HtmlInCanvas2DBlur: React.FC = () => {
   const {width, height, fps} = useVideoConfig();
 
   const onPaint: HtmlInCanvasOnPaint = useCallback(
-    ({canvas, element, elementImage}) => {
+    ({canvas, element, elementImage, pixelDensity}) => {
       const ctx = canvas.getContext('2d');
       if (!ctx) {
         throw new Error('Failed to acquire 2D context');
@@ -201,7 +221,7 @@ export const HtmlInCanvas2DBlur: React.FC = () => {
         (BLUR_MAX_PX - BLUR_MIN_PX) * (0.5 + 0.5 * Math.sin(t));
 
       ctx.reset();
-      ctx.filter = `blur(${blurPx}px)`;
+      ctx.filter = `blur(${blurPx * pixelDensity}px)`;
       const transform = ctx.drawElementImage(elementImage, 0, 0);
       element.style.transform = transform.toString();
     },
@@ -236,9 +256,6 @@ Use [`texElementImage2D`](https://github.com/WICG/html-in-canvas#2-drawelementim
 
 <Demo type="html-in-canvas-webgl" />
 
-<details>
-<summary>This example is long. Expand to see it:</summary>
-
 ```tsx twoslash title="WebGL2: minimal full component"
 /**
  * Minimal WebGL2 + HtmlInCanvas sample (same code as /docs/remotion/html-in-canvas).
@@ -247,6 +264,7 @@ Use [`texElementImage2D`](https://github.com/WICG/html-in-canvas#2-drawelementim
 import React, {useCallback, useRef} from 'react';
 import {
   AbsoluteFill,
+  getRemotionEnvironment,
   HtmlInCanvas,
   HtmlInCanvasOnInit,
   HtmlInCanvasOnPaint,
@@ -309,6 +327,14 @@ const QUAD = new Float32Array([
   -1, -1, 0, 0, 1, -1, 1, 0, -1, 1, 0, 1, 1, -1, 1, 0, -1, 1, 0, 1, 1, 1, 1, 1,
 ]);
 
+const webGl2UnavailableMessage = () => {
+  if (getRemotionEnvironment().isRendering) {
+    return 'WebGL2 unavailable. Try rendering with the --gl=angle option. See https://remotion.dev/docs/gl-options.';
+  }
+
+  return 'WebGL2 unavailable in this browser. Check that hardware acceleration is enabled.';
+};
+
 export const HtmlInCanvasDocsMinimalWebGL: React.FC = () => {
   const frame = useCurrentFrame();
   const {width, height, fps} = useVideoConfig();
@@ -321,9 +347,7 @@ export const HtmlInCanvasDocsMinimalWebGL: React.FC = () => {
       antialias: false,
     });
     if (!gl) {
-      throw new Error(
-        'WebGL2 unavailable. Try rendering with the --gl=angle option. See https://remotion.dev/docs/gl-options.',
-      );
+      throw new Error(webGl2UnavailableMessage());
     }
 
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -419,10 +443,7 @@ export const HtmlInCanvasDocsMinimalWebGL: React.FC = () => {
     </HtmlInCanvas>
   );
 };
-
 ```
-
-</details>
 
 ### WebGPU
 

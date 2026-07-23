@@ -22,6 +22,7 @@ const TimelineExpandedTrackKeyframesInner: React.FC<{
 					key={row.rowKey}
 					height={row.height}
 					keyframes={row.keyframes}
+					canEditEasing={row.canEditEasing}
 					nodePathInfo={row.nodePathInfo}
 					showSeparator={index > 0}
 				/>

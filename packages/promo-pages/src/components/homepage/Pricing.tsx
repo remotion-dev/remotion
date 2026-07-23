@@ -1,7 +1,29 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {CompanyPricing, EnterpriseLicense, FreePricing} from './FreePricing';
 
-export const Pricing: React.FC = () => {
+export const Pricing: React.FC<{
+	readonly faqHref?: string;
+	readonly faqLabel?: string;
+	readonly licenseHref?: string;
+	readonly termsHref?: string;
+}> = ({
+	faqHref = '/docs/license/faq',
+	faqLabel = 'License FAQ',
+	licenseHref = 'https://github.com/remotion-dev/remotion/blob/main/LICENSE.md',
+	termsHref = '/docs/license/terms',
+}) => {
+	const faqLinkTarget = useMemo(() => {
+		return faqHref.startsWith('http') ? '_blank' : undefined;
+	}, [faqHref]);
+
+	const licenseLinkTarget = useMemo(() => {
+		return licenseHref.startsWith('http') ? '_blank' : undefined;
+	}, [licenseHref]);
+
+	const termsLinkTarget = useMemo(() => {
+		return termsHref.startsWith('http') ? '_blank' : undefined;
+	}, [termsHref]);
+
 	return (
 		<div
 			style={{
@@ -27,18 +49,18 @@ export const Pricing: React.FC = () => {
 				>
 					See our{' '}
 					<a
-						target="_blank"
+						target={licenseLinkTarget}
 						className="bluelink"
-						href="https://remotion.pro/faq"
+						href={licenseHref}
 					>
-						FAQ
-					</a>{' '}
-					and{' '}
-					<a
-						target="_blank"
-						className="bluelink"
-						href="https://www.remotion.pro/terms"
-					>
+						LICENSE.md
+					</a>
+					{', '}
+					<a target={faqLinkTarget} className="bluelink" href={faqHref}>
+						{faqLabel}
+					</a>
+					{', and '}
+					<a target={termsLinkTarget} className="bluelink" href={termsHref}>
 						Terms and Conditions
 					</a>{' '}
 					for more details.

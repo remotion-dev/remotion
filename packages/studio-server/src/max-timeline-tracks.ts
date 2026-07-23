@@ -33,3 +33,7 @@ export const setMaxTimelineTracks = (maxTracks: number) => {
 export const getMaxTimelineTracks = () => {
 	return maxTimelineTracks;
 };
+
+export const resetMaxTimelineTracks = () => {
+	maxTimelineTracks = DEFAULT_TIMELINE_TRACKS;
+};

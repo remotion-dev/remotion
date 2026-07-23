@@ -1,11 +1,11 @@
-import type {SequenceSchema} from './internals';
+import type {InteractivitySchema} from './internals';
 
 export const findPropsToDelete = ({
 	schema,
 	key,
 	value,
 }: {
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	key: string;
 	value: unknown;
 }) => {

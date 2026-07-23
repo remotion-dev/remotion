@@ -5,7 +5,7 @@ export const getXPositionOfItemInTimelineImperatively = (
 	duration: number,
 	width: number,
 ) => {
-	const proportion = frame / (duration - 1);
+	const proportion = frame / duration;
 
 	return proportion * (width - TIMELINE_PADDING * 2) + TIMELINE_PADDING;
 };

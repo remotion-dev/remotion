@@ -85,8 +85,7 @@ export const OpenInEditor: React.FC<{
 	const openInBrowser = useCallback(() => {
 		dispatch({type: 'start'});
 		openInEditor(stack)
-			.then((res) => res.json())
-			.then((data: {success: boolean}) => {
+			.then((data) => {
 				if (data.success) {
 					dispatchIfMounted({type: 'succeed'});
 				} else {

@@ -5,6 +5,7 @@
 import React, {useCallback, useRef} from 'react';
 import {
 	AbsoluteFill,
+	getRemotionEnvironment,
 	HtmlInCanvas,
 	HtmlInCanvasOnInit,
 	HtmlInCanvasOnPaint,
@@ -67,6 +68,14 @@ const QUAD = new Float32Array([
 	-1, -1, 0, 0, 1, -1, 1, 0, -1, 1, 0, 1, 1, -1, 1, 0, -1, 1, 0, 1, 1, 1, 1, 1,
 ]);
 
+const webGl2UnavailableMessage = () => {
+	if (getRemotionEnvironment().isRendering) {
+		return 'WebGL2 unavailable. Try rendering with the --gl=angle option. See https://remotion.dev/docs/gl-options.';
+	}
+
+	return 'WebGL2 unavailable in this browser. Check that hardware acceleration is enabled.';
+};
+
 export const HtmlInCanvasDocsMinimalWebGL: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {width, height, fps} = useVideoConfig();
@@ -79,9 +88,7 @@ export const HtmlInCanvasDocsMinimalWebGL: React.FC = () => {
 			antialias: false,
 		});
 		if (!gl) {
-			throw new Error(
-				'WebGL2 unavailable. Try rendering with the --gl=angle option. See https://remotion.dev/docs/gl-options.',
-			);
+			throw new Error(webGl2UnavailableMessage());
 		}
 
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);

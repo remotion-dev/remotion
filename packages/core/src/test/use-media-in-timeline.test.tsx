@@ -15,12 +15,14 @@ import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import * as useVideoConfigModule from '../use-video-config.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
+const useVideoConfigSpy = spyOn(useVideoConfigModule, 'useVideoConfig');
+
 afterEach(() => {
 	cleanup();
 });
 
 beforeAll(() => {
-	spyOn(useVideoConfigModule, 'useVideoConfig').mockImplementation(() => ({
+	useVideoConfigSpy.mockImplementation(() => ({
 		width: 10,
 		height: 10,
 		fps: 30,
@@ -37,7 +39,7 @@ beforeAll(() => {
 	}));
 });
 afterAll(() => {
-	spyOn(useVideoConfigModule, 'useVideoConfig').mockClear();
+	mock.restore();
 });
 
 test('useMediaInTimeline registers and unregisters new sequence', () => {
@@ -87,6 +89,62 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 		},
 	);
 	expect(registerSequence).toHaveBeenCalled();
+	expect(registerSequence.mock.calls[0]?.[0]).toMatchObject({
+		mediaFrameAtSequenceZero: null,
+	});
 	unmount();
 	expect(unregisterSequence).toHaveBeenCalled();
+});
+
+test('useMediaInTimeline keeps documentation links for custom display names', () => {
+	const registerSequence = mock();
+	const unregisterSequence = mock();
+	const wrapper: React.FC<{
+		children: React.ReactNode;
+	}> = ({children}) => {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const sequenceManagerContext: SequenceManagerContext = useMemo(() => {
+			return {
+				registerSequence,
+				unregisterSequence,
+				sequences: [],
+			};
+		}, []);
+
+		return (
+			<WrapSequenceContext>
+				<SequenceManager.Provider value={sequenceManagerContext}>
+					{children}
+				</SequenceManager.Provider>
+			</WrapSequenceContext>
+		);
+	};
+
+	renderHook(
+		() =>
+			useMediaInTimeline({
+				volume: 1,
+				src: 'test.mp4',
+				mediaVolume: 1,
+				mediaType: 'video',
+				playbackRate: 1,
+				displayName: 'Intro',
+				id: 'test',
+				getStack: () => null,
+				showInTimeline: true,
+				premountDisplay: null,
+				postmountDisplay: null,
+				loopDisplay: undefined,
+				documentationLink: 'https://www.remotion.dev/docs/html5-video',
+				refForOutline: null,
+			}),
+		{
+			wrapper,
+		},
+	);
+
+	expect(registerSequence.mock.calls[0]?.[0]).toMatchObject({
+		displayName: 'Intro',
+		documentationLink: 'https://www.remotion.dev/docs/html5-video',
+	});
 });

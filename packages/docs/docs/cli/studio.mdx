@@ -15,6 +15,10 @@ npx remotion studio <entry-point>?
 
 You may pass an [entry point](/docs/terminology/entry-point) as an argument, otherwise it will be [determined](/docs/terminology/entry-point#which-entry-point-is-being-used).
 
+## Reopen the Studio<AvailableFrom v="4.0.487" />
+
+While `npx remotion studio` is running, press <kbd>s</kbd> in the terminal to reopen the Studio in your browser.
+
 ## Flags
 
 ### `--props`
@@ -49,13 +53,9 @@ Inline JSON string isn't supported on Windows shells because it removes the `"` 
 
 <Options id="disable-keyboard-shortcuts" />
 
-### `--enable-experimental-client-side-rendering`<AvailableFrom v="4.0.387" />
+### `--disable-interactivity`<AvailableFrom v="4.0.487" />
 
-<Options id="enable-experimental-client-side-rendering" />
-
-### `--allow-html-in-canvas`<AvailableFrom v="4.0.447" />
-
-<Options id="allow-html-in-canvas" />
+<Options id="disable-interactivity" />
 
 ### `--experimental-rspack`<AvailableFrom v="4.0.426" />
 
@@ -109,6 +109,14 @@ npx remotion studio --ipv4
 
 ```sh
 npx remotion studio --number-of-shared-audio-tags=5
+```
+
+### `--preview-sample-rate`
+
+<Options id="preview-sample-rate" />
+
+```sh
+npx remotion studio --preview-sample-rate=44100
 ```
 
 ### `--cross-site-isolation`<AvailableFrom v="4.0.364" />

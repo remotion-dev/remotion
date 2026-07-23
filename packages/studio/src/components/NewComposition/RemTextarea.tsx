@@ -6,7 +6,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {INPUT_BACKGROUND} from '../../helpers/colors';
+import {INPUT_BACKGROUND, WHITE} from '../../helpers/colors';
 import {useZIndex} from '../../state/z-index';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {
@@ -19,11 +19,12 @@ type Props = React.DetailedHTMLProps<
 	HTMLTextAreaElement
 > & {
 	readonly status: 'error' | 'warning' | 'ok';
+	readonly small?: boolean;
 };
 
 const inputBaseStyle: React.CSSProperties = {
 	padding: `${INPUT_HORIZONTAL_PADDING}px 10px`,
-	color: 'white',
+	color: WHITE,
 	borderStyle: 'solid',
 	borderWidth: 1,
 	fontSize: 14,
@@ -31,10 +32,16 @@ const inputBaseStyle: React.CSSProperties = {
 	overflowX: 'hidden',
 };
 
+const compactInputStyle: React.CSSProperties = {
+	fontSize: 12,
+	lineHeight: '16px',
+	padding: '4px 6px',
+};
+
 const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 	HTMLTextAreaElement,
 	Props
-> = ({status, ...props}, ref) => {
+> = ({status, small = false, ...props}, ref) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -48,11 +55,12 @@ const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 		return {
 			backgroundColor: INPUT_BACKGROUND,
 			...inputBaseStyle,
+			...(small ? compactInputStyle : null),
 			width: '100%',
 			borderColor: getInputBorderColor({isFocused, isHovered, status}),
 			...(props.style ?? {}),
 		};
-	}, [isFocused, isHovered, props.style, status]);
+	}, [isFocused, isHovered, props.style, small, status]);
 
 	useEffect(() => {
 		if (!inputRef.current) {

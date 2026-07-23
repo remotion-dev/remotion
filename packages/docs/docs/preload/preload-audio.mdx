@@ -8,7 +8,9 @@ crumb: '@remotion/preload'
 
 _This function is part of the [`@remotion/preload`](/docs/preload) package._
 
-This function preloads audio in the DOM so that when a audio tag is mounted, it can play immediately.
+This function preloads audio in the DOM so that when an HTML5 `<audio>` element is mounted, it can play immediately.
+
+It only affects HTML5 audio elements such as [`<Html5Audio>`](/docs/html5-audio), not [`<Audio>` from `@remotion/media`](/docs/media/audio).
 
 While preload is not necessary for rendering, it can help with seamless playback in the [`<Player />`](/docs/player) and in the Studio.
 

@@ -1,10 +1,12 @@
+import type React from 'react';
 import type {
 	EffectDefinitionAndStack,
 	EffectsProp,
+	InteractiveBaseProps,
+	InteractivePremountProps,
 	LogLevel,
 	LoopVolumeCurveBehavior,
 	OnVideoFrame,
-	SequenceProps,
 	VolumeProp,
 } from 'remotion';
 import type {MediaOnError} from '../on-error';
@@ -79,13 +81,25 @@ type OptionalVideoProps = {
 	effects: EffectsProp;
 };
 
+export type NativeVideoProps = Omit<
+	React.HTMLAttributes<HTMLElement>,
+	| keyof MandatoryVideoProps
+	| keyof OuterVideoProps
+	| keyof OptionalVideoProps
+	| 'onError'
+> &
+	Record<`data-${string}`, string | undefined>;
+
 export type InnerVideoProps = MandatoryVideoProps &
 	OuterVideoProps &
-	Omit<OptionalVideoProps, 'effects'> & {
+	Omit<OptionalVideoProps, 'effects'> &
+	NativeVideoProps & {
 		effects: EffectDefinitionAndStack<unknown>[];
 	};
 
 export type VideoProps = MandatoryVideoProps &
 	Partial<OuterVideoProps> &
 	Partial<OptionalVideoProps> &
-	Pick<SequenceProps, 'durationInFrames' | 'from' | 'name' | 'hidden'>;
+	NativeVideoProps &
+	InteractiveBaseProps &
+	InteractivePremountProps;

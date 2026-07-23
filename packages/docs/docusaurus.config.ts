@@ -1,5 +1,28 @@
 import type {Config} from '@docusaurus/types';
+import remarkElementSource from './plugins/remark-element-source.js';
 import remarkExportRaw from './plugins/remark-export-raw.js';
+
+const lowMemoryBuild =
+	process.env.VERCEL === '1' ||
+	process.env.VERCEL === 'true' ||
+	process.env.REMOTION_DOCS_LOW_MEMORY_BUILD === '1';
+
+const fasterConfig = lowMemoryBuild
+	? {
+			swcJsLoader: true,
+			swcJsMinimizer: true,
+			swcHtmlMinimizer: true,
+			lightningCssMinimizer: true,
+			mdxCrossCompilerCache: false,
+			rspackBundler: false,
+			rspackPersistentCache: false,
+			ssgWorkerThreads: false,
+			gitEagerVcs: false,
+		}
+	: true;
+
+const showGitLastUpdate =
+	process.env.REMOTION_DOCS_DISABLE_GIT_LAST_UPDATE !== '1';
 
 const config: Config = {
 	title: 'Remotion | Make videos programmatically',
@@ -17,7 +40,7 @@ const config: Config = {
 	organizationName: 'remotion-dev', // Usually your GitHub org/user name.
 	projectName: 'remotion', // Usually your repo name.
 	future: {
-		experimental_faster: true,
+		faster: fasterConfig,
 		v4: {
 			removeLegacyPostBuildHeadAttribute: true,
 		},
@@ -61,6 +84,7 @@ const config: Config = {
 						{to: '/docs/editor-starter', label: 'Editor Starter'},
 						{to: '/docs/timeline', label: 'Timeline'},
 						{to: '/docs/recorder', label: 'Recorder'},
+						{to: 'https://remotion.dev/convert', label: 'Convert'},
 					],
 				},
 				{
@@ -68,18 +92,17 @@ const config: Config = {
 					label: 'Resources',
 					position: 'left',
 					items: [
+						{to: '/templates', label: 'Templates'},
 						{to: 'https://remotion.dev/prompts', label: 'Prompts'},
 						{to: 'learn', label: 'Learn'},
 						{
 							to: '/docs/resources',
 							label: 'Resources',
 						},
+						{to: 'https://remotion.media', label: 'Test media'},
 						{to: 'blog', label: 'Blog'},
 						{to: 'showcase', label: 'Showcase'},
-						{to: 'https://remotion.dev/convert', label: 'Convert a video'},
-						{to: 'https://remotion.dev/timing-editor', label: 'Timing Editor'},
 						{to: '/docs/support', label: 'Support'},
-						{to: '/templates', label: 'Templates'},
 					],
 				},
 				{
@@ -87,7 +110,7 @@ const config: Config = {
 					label: 'Commercial',
 					position: 'left',
 					items: [
-						{to: 'https://remotion.pro/license', label: 'License + Pricing'},
+						{to: '/docs/license/pricing', label: 'License + Pricing'},
 						{to: 'https://remotion.pro/store', label: 'Store'},
 						{to: 'success-stories', label: 'Success Stories'},
 						{to: 'experts', label: 'Experts'},
@@ -144,10 +167,6 @@ const config: Config = {
 							to: '/lambda',
 						},
 						{
-							label: 'Learn',
-							to: '/learn',
-						},
-						{
 							label: 'Convert a video',
 							to: 'https://convert.remotion.dev',
 						},
@@ -160,8 +179,12 @@ const config: Config = {
 							href: 'https://github.com/remotion-dev/remotion',
 						},
 						{
-							label: 'Company License',
-							href: 'https://remotion.pro/license',
+							label: 'Changelog',
+							href: 'https://remotion.dev/changelog',
+						},
+						{
+							label: 'License & Pricing',
+							to: '/docs/license/pricing',
 						},
 					],
 				},
@@ -175,6 +198,10 @@ const config: Config = {
 						{
 							label: 'Showcase',
 							to: 'showcase',
+						},
+						{
+							label: 'Success Stories',
+							to: 'success-stories',
 						},
 						{
 							label: 'Experts',
@@ -207,53 +234,63 @@ const config: Config = {
 					],
 				},
 				{
-					title: 'More',
+					title: 'Company',
 					items: [
 						{
-							label: 'About us',
+							label: 'About Us',
 							to: 'about',
 						},
 						{
-							label: 'Contact us',
+							label: 'Contact Us',
 							to: 'contact',
-						},
-						{
-							label: 'Blog',
-							to: 'blog',
-						},
-						{
-							label: 'Success Stories',
-							to: 'success-stories',
-						},
-						{
-							label: 'Support',
-							to: '/docs/support',
-						},
-						{
-							label: 'Changelog',
-							href: 'https://remotion.dev/changelog',
-						},
-						{
-							label: 'Acknowledgements',
-							href: 'https://remotion.dev/acknowledgements',
-						},
-						{
-							label: 'License',
-							href: 'https://remotion.dev/license',
-						},
-						{
-							label: 'Terms and Conditions',
-							href: 'https://remotion.pro/terms',
-						},
-						{
-							label: 'Privacy Policy',
-							href: 'https://remotion.pro/privacy',
 						},
 						{
 							label: 'Brand',
 							href: 'https://remotion.dev/brand',
 						},
-					].filter(Boolean),
+					],
+				},
+				{
+					title: 'Legal & Trust',
+					items: [
+						{
+							label: 'Terms and Conditions',
+							to: '/docs/license/terms',
+						},
+						{
+							label: 'Privacy Policy',
+							to: '/docs/license/privacy',
+						},
+						{
+							label: 'DPA Statement',
+							to: '/docs/license/dpa',
+						},
+						{
+							label: 'DPIA Statement',
+							to: '/docs/license/dpia',
+						},
+						{
+							label: 'Accessibility',
+							to: '/docs/accessibility',
+						},
+						{
+							label: 'Acknowledgments',
+							to: '/docs/acknowledgements',
+						},
+					],
+				},
+				{
+					title: 'More',
+					items: [
+						{
+							label: 'Blog',
+							to: 'blog',
+						},
+						{
+							label: 'Support',
+							to: '/docs/support',
+						},
+					],
 				},
 			],
 		},
@@ -270,7 +307,7 @@ const config: Config = {
 					sidebarPath: './sidebars.ts',
 					editUrl:
 						'https://github.com/remotion-dev/remotion/edit/main/packages/docs/',
-					showLastUpdateTime: true,
+					showLastUpdateTime: showGitLastUpdate,
 					remarkPlugins: [remarkExportRaw],
 				},
 				blog: {
@@ -282,7 +319,10 @@ const config: Config = {
 						'https://github.com/remotion-dev/remotion/edit/main/packages/docs/blog/',
 				},
 				theme: {
-					customCss: [require.resolve('./src/css/custom.css')],
+					customCss: [
+						require.resolve('./src/css/custom.css'),
+						require.resolve('./docusaurus-theme-shiki-twoslash/theme/CodeBlock/styles.css'),
+					],
 				},
 			},
 		],
@@ -298,6 +338,20 @@ const config: Config = {
 		],
 	],
 	plugins: [
+		[
+			'@docusaurus/plugin-content-docs',
+			{
+				id: 'elements',
+				path: './elements',
+				routeBasePath: 'elements',
+				sidebarPath: './elements-sidebars.ts',
+				editUrl:
+					'https://github.com/remotion-dev/remotion/edit/main/packages/docs/',
+				showLastUpdateTime: showGitLastUpdate,
+				beforeDefaultRemarkPlugins: [remarkElementSource],
+				remarkPlugins: [remarkExportRaw],
+			},
+		],
 		[
 			'@docusaurus/plugin-content-blog',
 			{

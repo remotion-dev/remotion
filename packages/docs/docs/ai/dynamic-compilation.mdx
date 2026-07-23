@@ -188,17 +188,10 @@ export function useCompilation(code: string): CompilationResult {
 <TabItem value="generated" label="Input code">
 
 ```ts title="Example AI Output"
-const generatedCode = `import {useCurrentFrame, AbsoluteFill, spring, useVideoConfig} from 'remotion';
+const generatedCode = `import {useCurrentFrame, AbsoluteFill, interpolate, Easing} from 'remotion';
 
 export const MyComposition = () => {
   const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-
-  const scale = spring({
-    frame,
-    fps,
-    config: {damping: 10, stiffness: 100},
-  });
 
   return (
     <AbsoluteFill
@@ -212,7 +205,11 @@ export const MyComposition = () => {
         style={{
           fontSize: 120,
           color: 'white',
-          transform: \`scale(\${scale})\`,
+          scale: interpolate(frame, [0, 20], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+            easing: Easing.bezier(0.34, 1.56, 0.64, 1),
+          }),
         }}
       >
         Hello World

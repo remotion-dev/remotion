@@ -2,8 +2,9 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {
 	BLUE,
 	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_UNHOVERED,
+	BLACK_ALPHA_60,
 	LIGHT_TEXT,
+	WHITE,
 } from '../../helpers/colors';
 import {Checkbox} from '../Checkbox';
 import {Spacing} from '../layout';
@@ -48,7 +49,7 @@ const paddedDescriptionStyle: React.CSSProperties = {
 	fontSize: 14,
 	fontFamily: 'sans-serif',
 	padding: 9,
-	border: '1px solid ' + INPUT_BORDER_COLOR_UNHOVERED,
+	border: '1px solid ' + BLACK_ALPHA_60,
 	borderRadius: 8,
 	lineHeight: 1.5,
 	marginLeft: 16,
@@ -56,7 +57,7 @@ const paddedDescriptionStyle: React.CSSProperties = {
 };
 
 const descriptionLink: React.CSSProperties = {
-	color: 'white',
+	color: WHITE,
 	fontSize: 14,
 };
 

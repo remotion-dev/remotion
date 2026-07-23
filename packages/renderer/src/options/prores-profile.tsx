@@ -37,17 +37,37 @@ export const proResProfileOption = {
 	ssrName: 'proResProfile' as const,
 	docLink: 'https://www.remotion.dev/docs/config#setproresprofile',
 	type: undefined as ProResProfile | undefined,
-	getValue: ({commandLine}) => {
+	getValue: (
+		{commandLine},
+		options?: {
+			uiProResProfile: ProResProfile | undefined;
+			compositionDefaultProResProfile: ProResProfile | null;
+		},
+	) => {
+		if (options?.uiProResProfile) {
+			return {
+				source: 'via UI',
+				value: options.uiProResProfile,
+			};
+		}
+
 		if (commandLine[cliFlag] !== undefined) {
 			return {
-				source: 'cli',
+				source: 'from --prores-profile flag',
 				value: String(commandLine[cliFlag]) as ProResProfile,
+			};
+		}
+
+		if (options && options.compositionDefaultProResProfile !== null) {
+			return {
+				source: 'via calculateMetadata',
+				value: options.compositionDefaultProResProfile,
 			};
 		}
 
 		if (proResProfile !== undefined) {
 			return {
-				source: 'config',
+				source: 'Config file',
 				value: proResProfile,
 			};
 		}

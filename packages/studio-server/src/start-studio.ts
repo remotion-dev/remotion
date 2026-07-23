@@ -8,10 +8,12 @@ import type {
 	GitSource,
 	RenderDefaults,
 	RenderJob,
+	StudioRuntimeConfig,
 } from '@remotion/studio-shared';
 import {getFileWatcherRegistry} from './file-watcher';
 import {getNetworkAddress} from './get-network-address';
 import {maybeOpenBrowser} from './maybe-open-browser';
+import {registerOpenBrowserShortcut} from './open-browser-shortcut';
 import type {QueueMethods} from './preview-server/api-types';
 import {noOpUntilRestart} from './preview-server/close-and-restart';
 import {getAbsolutePublicDir} from './preview-server/get-absolute-public-dir';
@@ -38,24 +40,26 @@ export const startStudio = async ({
 	maxTimelineTracks,
 	remotionRoot,
 	keyboardShortcutsEnabled,
-	experimentalClientSideRenderingEnabled,
 	relativePublicDir,
 	webpackOverride,
 	poll,
 	getRenderDefaults,
 	getRenderQueue,
-	numberOfAudioTags,
+	getNumberOfAudioTags,
 	queueMethods,
 	previewEntry,
 	gitSource,
 	bufferStateDelayInMilliseconds,
 	binariesDirectory,
 	forceIPv4,
-	audioLatencyHint,
+	getAudioLatencyHint,
+	getPreviewSampleRate,
 	enableCrossSiteIsolation,
 	askAIEnabled,
+	interactivityEnabled,
 	forceNew,
 	rspack,
+	getStudioRuntimeConfig,
 }: {
 	browserArgs: string;
 	browserFlag: string;
@@ -69,14 +73,14 @@ export const startStudio = async ({
 	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	keyboardShortcutsEnabled: boolean;
-	experimentalClientSideRenderingEnabled: boolean;
 	relativePublicDir: string | null;
 	webpackOverride: WebpackOverrideFn;
 	poll: number | null;
 	getRenderDefaults: () => RenderDefaults;
 	getRenderQueue: () => RenderJob[];
-	numberOfAudioTags: number;
-	audioLatencyHint: AudioContextLatencyCategory | null;
+	getNumberOfAudioTags: () => number;
+	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
 	queueMethods: QueueMethods;
 	previewEntry: string;
@@ -84,8 +88,10 @@ export const startStudio = async ({
 	binariesDirectory: string | null;
 	forceIPv4: boolean;
 	askAIEnabled: boolean;
+	interactivityEnabled: boolean;
 	forceNew: boolean;
 	rspack: boolean;
+	getStudioRuntimeConfig: () => StudioRuntimeConfig;
 }): Promise<StartStudioResult> => {
 	try {
 		if (typeof Bun === 'undefined') {
@@ -143,7 +149,6 @@ export const startStudio = async ({
 		maxTimelineTracks,
 		remotionRoot,
 		keyboardShortcutsEnabled,
-		experimentalClientSideRenderingEnabled,
 		publicDir,
 		webpackOverride,
 		poll,
@@ -154,17 +159,20 @@ export const startStudio = async ({
 		logLevel,
 		getRenderDefaults,
 		getRenderQueue,
-		numberOfAudioTags,
+		getNumberOfAudioTags,
 		queueMethods,
 		gitSource,
 		bufferStateDelayInMilliseconds,
 		binariesDirectory,
 		forceIPv4,
-		audioLatencyHint,
+		getAudioLatencyHint,
+		getPreviewSampleRate,
 		enableCrossSiteIsolation,
 		askAIEnabled,
+		interactivityEnabled,
 		forceNew,
 		rspack,
+		getStudioRuntimeConfig,
 	});
 
 	if (result.type === 'already-running') {
@@ -207,16 +215,28 @@ export const startStudio = async ({
 
 	printServerReadyComment('Server ready', logLevel);
 	RenderInternals.Log.info({indent: false, logLevel}, 'Building...');
-
-	await maybeOpenBrowser({
+	const studioUrl = `http://localhost:${port}`;
+	const openBrowserShortcut = registerOpenBrowserShortcut({
 		browserArgs,
 		browserFlag,
-		shouldOpenBrowser,
-		url: `http://localhost:${port}`,
+		url: studioUrl,
 		logLevel,
 	});
 
-	await noOpUntilRestart();
+	try {
+		await maybeOpenBrowser({
+			browserArgs,
+			browserFlag,
+			shouldOpenBrowser,
+			url: studioUrl,
+			logLevel,
+		});
+
+		await noOpUntilRestart();
+	} finally {
+		openBrowserShortcut.cleanup();
+	}
+
 	RenderInternals.Log.info(
 		{indent: false, logLevel},
 		'Closing server to restart...',

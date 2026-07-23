@@ -13,7 +13,7 @@ export default () => {
 			<Head>
 				{Seo.renderTitle('Share your video | Remotion')}
 				{Seo.renderDescription(
-					'Share a video you made with Remotion to be featured in the Prompt Showcase.',
+					'Submissions are currently disabled while we work on something better!',
 				)}
 				{Seo.renderImage(
 					'/generated/articles-prompts-submit.png',

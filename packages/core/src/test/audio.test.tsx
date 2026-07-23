@@ -133,3 +133,20 @@ test('It should reject invalid preservePitch values on Audio', () => {
 		/'preservePitch' must be a boolean or undefined but got 'string' instead/,
 	);
 });
+
+test('It should reject freeze on Audio', () => {
+	expect(() =>
+		render(
+			<WrapSequenceContext>
+				<Html5Audio
+					// @ts-expect-error
+					freeze={10}
+					src="test"
+					volume={1}
+				/>
+			</WrapSequenceContext>,
+		),
+	).toThrow(
+		'The "freeze" prop is not supported on <Html5Audio />. Use <Sequence freeze={...}> to freeze media playback.',
+	);
+});

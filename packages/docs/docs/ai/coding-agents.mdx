@@ -10,11 +10,11 @@ sidebar_label: Coding Agents
 You can create videos just from prompting.  
 This is an easy way to get started with Remotion!
 
-Remotion works well with coding agents such as [Claude Code](https://claude.com/product/claude-code), [Codex](https://developers.openai.com/codex) and [OpenCode](https://opencode.ai).
+Remotion works well with coding agents such as [Claude Code](https://claude.com/product/claude-code), [Codex](https://developers.openai.com/codex), [Kimi Code](https://www.kimi.com/code) and [OpenCode](https://opencode.ai).
 
 ## Prerequisites
 
-You first need to install a coding agent like [Claude Code](https://claude.com/product/claude-code), [Codex](https://developers.openai.com/codex) or [OpenCode](https://opencode.ai), as well as [Node.js](https://nodejs.org/en).  
+You first need to install a coding agent like [Claude Code](https://claude.com/product/claude-code), [Codex](https://developers.openai.com/codex), [Kimi Code](https://www.kimi.com/code) or [OpenCode](https://opencode.ai), as well as [Node.js](https://nodejs.org/en).<br />
 Most coding agents require a paid subscription.
 
 ## Start a new project
@@ -22,14 +22,10 @@ Most coding agents require a paid subscription.
 Create a new project using the following command:
 
 ```bash
-npx create-video@latest
+npx create-video --yes --blank my-video
 ```
 
-This will create a new project - we recommend the following settings:
-
-- Select the [Blank](https://remotion.dev/templates/blank) template
-- Say yes to use [TailwindCSS](/docs/tailwind)
-- Say yes to install [Skills](/docs/ai/skills)
+This creates a [Blank](https://remotion.dev/templates/blank) project in the `my-video` directory.
 
 ## Start the preview
 
@@ -46,6 +42,12 @@ Install dependencies
 npm install
 ```
 
+Install the [Remotion Agent Skills](/docs/ai/skills):
+
+```bash title="Terminal"
+npx remotion skills add
+```
+
 Start the project using the following command:
 
 ```bash
@@ -58,7 +60,7 @@ Open a separate terminal window and start your coding agent of choice:
 
 ```bash
 cd my-video
-claude # or: codex / opencode
+claude # or: codex / kimi / opencode
 ```
 
 You can now prompt a video! See our video above for a few ideas on how to start.

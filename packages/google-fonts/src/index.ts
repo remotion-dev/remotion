@@ -247,6 +247,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Alice') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Alien Block',
+		importName: 'AlienBlock',
+		load: () => import('./AlienBlock') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Alike',
 		importName: 'Alike',
 		load: () => import('./Alike') as Promise<GoogleFont>,
@@ -2832,6 +2837,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./GeistMono') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Geist Pixel',
+		importName: 'GeistPixel',
+		load: () => import('./GeistPixel') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Gelasio',
 		importName: 'Gelasio',
 		load: () => import('./Gelasio') as Promise<GoogleFont>,
@@ -2870,6 +2880,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Geom',
 		importName: 'Geom',
 		load: () => import('./Geom') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Geomini',
+		importName: 'Geomini',
+		load: () => import('./Geomini') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Georama',
@@ -3220,6 +3235,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Hi Melody',
 		importName: 'HiMelody',
 		load: () => import('./HiMelody') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Hibur Mono',
+		importName: 'HiburMono',
+		load: () => import('./HiburMono') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Hina Mincho',
@@ -4940,6 +4960,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'MonteCarlo',
 		importName: 'MonteCarlo',
 		load: () => import('./MonteCarlo') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Montenegrin Gothic One',
+		importName: 'MontenegrinGothicOne',
+		load: () => import('./MontenegrinGothicOne') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Montez',
@@ -6781,6 +6806,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Playpen Sans Thai',
 		importName: 'PlaypenSansThai',
 		load: () => import('./PlaypenSansThai') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Pliant',
+		importName: 'Pliant',
+		load: () => import('./Pliant') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Plus Jakarta Sans',
@@ -9041,6 +9071,16 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Yusei Magic',
 		importName: 'YuseiMagic',
 		load: () => import('./YuseiMagic') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Yuyu',
+		importName: 'Yuyu',
+		load: () => import('./Yuyu') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Yuyu Short',
+		importName: 'YuyuShort',
+		load: () => import('./YuyuShort') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'ZCOOL KuaiLe',

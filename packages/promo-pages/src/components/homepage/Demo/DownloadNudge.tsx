@@ -33,8 +33,8 @@ export const DownloadNudge: React.FC = () => {
 				display: 'flex',
 				justifyContent: 'flex-end',
 				textAlign: 'right',
-				paddingRight: 22,
-				paddingTop: 20,
+				paddingRight: 24,
+				paddingTop: 18,
 			}}
 		>
 			<div>

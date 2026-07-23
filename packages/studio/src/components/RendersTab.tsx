@@ -1,6 +1,6 @@
 import type {MouseEventHandler} from 'react';
 import React, {useContext, useMemo} from 'react';
-import {FAIL_COLOR, LIGHT_TEXT} from '../helpers/colors';
+import {FAIL_COLOR, LIGHT_TEXT, TRANSPARENT, WHITE} from '../helpers/colors';
 import {Flex} from './layout';
 import {RenderQueueContext} from './RenderQueue/context';
 import {Tab} from './Tabs';
@@ -8,7 +8,7 @@ import {Tab} from './Tabs';
 const row: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
-	fontSize: 14,
+	fontSize: 'inherit',
 	color: 'inherit',
 	alignItems: 'center',
 	flex: 1,
@@ -35,8 +35,8 @@ export const RendersTab: React.FC<{
 	const badgeStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...badge,
-			backgroundColor: failedJobs > 0 ? FAIL_COLOR : 'transparent',
-			color: failedJobs > 0 ? 'white' : LIGHT_TEXT,
+			backgroundColor: failedJobs > 0 ? FAIL_COLOR : TRANSPARENT,
+			color: failedJobs > 0 ? WHITE : LIGHT_TEXT,
 			borderWidth: failedJobs > 0 ? 0 : 1,
 			borderStyle: 'solid',
 			borderColor: LIGHT_TEXT,

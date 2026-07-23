@@ -2,10 +2,12 @@ import type {SVGProps} from 'react';
 import React, {useCallback, useMemo} from 'react';
 import {
 	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_HOVERED,
-	INPUT_BORDER_COLOR_UNHOVERED,
+	WHITE_ALPHA_05,
+	BLACK_ALPHA_60,
 	LIGHT_TEXT,
+	TRANSPARENT,
 	WARNING_COLOR,
+	WHITE,
 } from '../../helpers/colors';
 import {AngleDown} from '../../icons/caret';
 import {Spacing} from '../layout';
@@ -15,7 +17,7 @@ const style: React.CSSProperties = {
 	display: 'inline-flex',
 	justifyContent: 'center',
 	alignItems: 'center',
-	backgroundColor: 'transparent',
+	backgroundColor: TRANSPARENT,
 	color: LIGHT_TEXT,
 	borderStyle: 'solid',
 	borderWidth: 1,
@@ -26,12 +28,28 @@ const style: React.CSSProperties = {
 	paddingBottom: 4,
 };
 
+const compactStyle: React.CSSProperties = {
+	...style,
+	fontSize: 11,
+	paddingBottom: 2,
+	paddingLeft: 6,
+	paddingRight: 6,
+	paddingTop: 2,
+};
+
 const triangleStyle: React.CSSProperties = {
 	width: 12,
 	height: 12,
 	flexShrink: 0,
 	fill: WARNING_COLOR,
 };
+
+const compactTriangleStyle: React.CSSProperties = {
+	...triangleStyle,
+	height: 10,
+	width: 10,
+};
+
 const WarningTriangle: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 	return (
 		<svg viewBox="0 0 576 512" {...props}>
@@ -44,25 +62,26 @@ export const WarningIndicatorButton: React.FC<{
 	readonly setShowWarning: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly showWarning: boolean;
 	readonly warningCount: number;
-}> = ({setShowWarning, showWarning, warningCount}) => {
+	readonly size?: 'default' | 'compact';
+}> = ({setShowWarning, showWarning, warningCount, size = 'default'}) => {
 	const onClick = useCallback(() => {
 		setShowWarning((s) => !s);
 	}, [setShowWarning]);
 
 	const buttonStyle: React.CSSProperties = useMemo(() => {
 		return {
-			...style,
-			backgroundColor: showWarning ? INPUT_BACKGROUND : 'transparent',
-			borderColor: showWarning
-				? INPUT_BORDER_COLOR_HOVERED
-				: INPUT_BORDER_COLOR_UNHOVERED,
-			color: showWarning ? 'white' : LIGHT_TEXT,
+			...(size === 'compact' ? compactStyle : style),
+			backgroundColor: showWarning ? INPUT_BACKGROUND : TRANSPARENT,
+			borderColor: showWarning ? WHITE_ALPHA_05 : BLACK_ALPHA_60,
+			color: showWarning ? WHITE : LIGHT_TEXT,
 		};
-	}, [showWarning]);
+	}, [showWarning, size]);
 
 	return (
 		<button type="button" style={buttonStyle} onClick={onClick}>
-			<WarningTriangle style={triangleStyle} />
+			<WarningTriangle
+				style={size === 'compact' ? compactTriangleStyle : triangleStyle}
+			/>
 			<Spacing x={0.5} />
 			{warningCount}
 			<Spacing x={1} />

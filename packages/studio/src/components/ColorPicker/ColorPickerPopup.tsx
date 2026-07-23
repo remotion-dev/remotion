@@ -6,7 +6,16 @@ import {
 	rgbaToHsva,
 	type Hsva,
 } from '../../helpers/color-conversion';
-import {INPUT_BACKGROUND, LIGHT_TEXT} from '../../helpers/colors';
+import {
+	BACKGROUND_HEX,
+	BORDER_BLACK_ALPHA_60,
+	COLOR_PICKER_POPUP_SHADOW,
+	CURRENT_COLOR,
+	INPUT_BACKGROUND,
+	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
+} from '../../helpers/colors';
 import {EyedropperIcon} from '../../icons/eyedropper';
 import {useZIndex} from '../../state/z-index';
 import {AlphaSlider} from './AlphaSlider';
@@ -25,14 +34,14 @@ const POPUP_PADDING = 12;
 const popupShellStyle: React.CSSProperties = {
 	width: POPUP_WIDTH,
 	padding: POPUP_PADDING,
-	background: '#1f2428',
-	border: '1px solid rgba(0, 0, 0, 0.6)',
+	background: BACKGROUND_HEX,
+	border: BORDER_BLACK_ALPHA_60,
 	borderRadius: 4,
-	boxShadow: '0 4px 16px rgba(0, 0, 0, 0.5)',
+	boxShadow: COLOR_PICKER_POPUP_SHADOW,
 	display: 'flex',
 	flexDirection: 'column',
 	gap: 10,
-	color: 'white',
+	color: WHITE,
 	fontSize: 12,
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
@@ -51,7 +60,7 @@ const previewSwatchStyle: React.CSSProperties = {
 	flex: '0 0 auto',
 	borderRadius: 14,
 	overflow: 'hidden',
-	border: '1px solid rgba(0, 0, 0, 0.6)',
+	border: BORDER_BLACK_ALPHA_60,
 	backgroundColor: CHECKER_BACKGROUND_COLOR,
 	backgroundImage: CHECKER_BACKGROUND_IMAGE,
 	backgroundSize: CHECKER_BACKGROUND_SIZE,
@@ -94,9 +103,9 @@ const labelStyle: React.CSSProperties = {
 const baseInputStyle: React.CSSProperties = {
 	width: '100%',
 	background: INPUT_BACKGROUND,
-	border: '1px solid rgba(0, 0, 0, 0.6)',
+	border: BORDER_BLACK_ALPHA_60,
 	borderRadius: 3,
-	color: 'white',
+	color: WHITE,
 	padding: '4px 6px',
 	fontSize: 12,
 	textAlign: 'center',
@@ -104,8 +113,8 @@ const baseInputStyle: React.CSSProperties = {
 };
 
 const eyedropperButtonStyle: React.CSSProperties = {
-	background: 'transparent',
-	border: '1px solid rgba(0, 0, 0, 0.6)',
+	background: TRANSPARENT,
+	border: BORDER_BLACK_ALPHA_60,
 	borderRadius: 3,
 	padding: 0,
 	cursor: 'pointer',
@@ -118,8 +127,16 @@ const eyedropperButtonStyle: React.CSSProperties = {
 	flex: '0 0 auto',
 };
 
-const hasEyeDropper = (): boolean =>
+export const hasEyeDropper = (): boolean =>
 	typeof window !== 'undefined' && 'EyeDropper' in window;
+
+export const parseEyeDropperColor = (pickedColor: string) => {
+	const parsed = parseAnyColor(pickedColor);
+	return {
+		...parsed,
+		a: 255,
+	};
+};
 
 export type ChannelKey = 'r' | 'g' | 'b' | 'a-percent';
 
@@ -376,10 +393,7 @@ export const ColorPickerPopup: React.FC<{
 		dropper
 			.open()
 			.then((result) => {
-				const parsed = parseAnyColor(result.sRGBHex);
-				// `EyeDropper` always returns full opacity; preserve the user's
-				// previously chosen alpha so opening it doesn't drop transparency.
-				parsed.a = rgba.a;
+				const parsed = parseEyeDropperColor(result.sRGBHex);
 				const newHsva = rgbaToHsva(parsed);
 				if (newHsva.s === 0) {
 					newHsva.h = hsva.h;
@@ -390,7 +404,7 @@ export const ColorPickerPopup: React.FC<{
 			.catch(() => {
 				// Aborted; ignore.
 			});
-	}, [emit, hsva.h, rgba.a]);
+	}, [emit, hsva.h]);
 
 	const previewFill: React.CSSProperties = useMemo(() => {
 		return {
@@ -422,7 +436,7 @@ export const ColorPickerPopup: React.FC<{
 					>
 						<EyedropperIcon
 							style={{width: 14, height: 14}}
-							color="currentColor"
+							color={CURRENT_COLOR}
 						/>
 					</button>
 				) : null}

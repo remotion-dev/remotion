@@ -1,6 +1,7 @@
 import type {WebRendererQuality} from '@remotion/web-renderer';
 import type React from 'react';
 import {useCallback, useMemo} from 'react';
+import {TRANSPARENT} from '../../helpers/colors';
 import {Checkbox} from '../Checkbox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {label, optionRow, rightRow} from './layout';
@@ -89,7 +90,7 @@ export const WebRenderModalPicture: React.FC<WebRenderModalPictureProps> = ({
 							<Checkbox
 								checked={transparent}
 								onChange={onTransparentChanged}
-								name="transparent"
+								name={TRANSPARENT}
 							/>
 						</div>
 					</div>

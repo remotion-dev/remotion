@@ -7,7 +7,7 @@ sidebar_label: Skills
 
 Remotion maintains a list of [Agent Skills](https://agentskills.io/home) that define best practices for working in Remotion projects.
 
-These skills are useful for AI agents like Claude Code, Codex or Cursor.
+These skills are useful for AI agents like Claude Code, Codex, Kimi Code or Cursor.
 
 You can install them by running:
 
@@ -22,3 +22,64 @@ bun create video
 ```
 
 The skills are also available on GitHub [here](https://github.com/remotion-dev/remotion/tree/main/packages/skills).
+
+## Available skills
+
+### `/remotion-best-practices`
+
+This skill encompasses all other skills.  
+Use it if you are not sure which specific skill to use.
+
+### `/remotion-create`
+
+Create a new Remotion project or composition.
+
+<SuggestedPrompt prompt="/remotion-create Make an animated bar chart with 5 bars" />
+
+### `/remotion-markup`
+
+Best practices for writing Remotion React markup.
+
+Use this for knowledge about compositions, animations, layout, typography, media elements, effects, maps, audio, fonts, timing.
+
+<SuggestedPrompt prompt="/remotion-markup Add a map animation, animating from LA to NY. Use Inter font for the labels." />
+
+### `/remotion-render`
+
+Invoke a render into a video or a still.
+
+### `/remotion-captions`
+
+Guidance for captions and subtitles.
+
+### `/remotion-saas`
+
+Architecture guidance for Remotion-powered apps and product integrations.
+
+<SuggestedPrompt prompt="/remotion-saas Turn my video into a SaaS." />
+
+### `/remotion-interactivity`
+
+Guidance for making Remotion code [editable](https://www.remotion.dev/docs/studio/interactivity) in Studio.
+
+Use this when elements are not selectable or editable as you would like them to be.
+
+### `/remotion-docs`
+
+Search the Remotion documentation and fetch any page as Markdown.
+
+Use this to look up current API references, component props, and package guides before implementing.
+
+<SuggestedPrompt prompt="/remotion-docs How to set up Remotion Lambda?" />
+
+### `/remotion-upgrade`
+
+Upgrade Remotion, related packages, compatible Mediabunny packages, and installed Remotion Agent Skills.
+
+<SuggestedPrompt prompt="/remotion-upgrade" />
+
+### `/mediabunny`
+
+Guidance for browser-based multimedia handling with Mediabunny.
+
+Use this for advice on how to get video and audio metadata.

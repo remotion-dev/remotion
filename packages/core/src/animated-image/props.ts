@@ -1,11 +1,17 @@
 import type {ImageFit} from '../calculate-image-fit.js';
 import type {EffectsProp} from '../effects/effect-types.js';
-import type {SequenceProps} from '../Sequence.js';
+import type {
+	InteractiveBaseProps,
+	InteractivePremountProps,
+} from '../Interactive.js';
 
 export type RemotionAnimatedImageLoopBehavior =
 	| 'loop'
 	| 'pause-after-finish'
 	| 'clear-after-finish';
+
+export type AnimatedImageCanvasProps = React.AriaAttributes &
+	Record<`data-${string}`, string | undefined>;
 
 export type RemotionAnimatedImageProps = {
 	src: string;
@@ -18,14 +24,12 @@ export type RemotionAnimatedImageProps = {
 	loopBehavior?: RemotionAnimatedImageLoopBehavior;
 	id?: string;
 	className?: string;
-};
+	requestInit?: RequestInit;
+} & AnimatedImageCanvasProps;
 
-export type AnimatedImageProps = Omit<
-	SequenceProps,
-	'children' | 'durationInFrames' | 'layout' | '_remotionInternalEffects'
-> &
+export type AnimatedImageProps = InteractiveBaseProps &
+	InteractivePremountProps &
 	RemotionAnimatedImageProps & {
-		readonly durationInFrames?: number;
 		readonly effects?: EffectsProp;
 	};
 

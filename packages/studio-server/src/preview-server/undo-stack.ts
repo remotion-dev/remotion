@@ -1,4 +1,4 @@
-import {readFileSync} from 'node:fs';
+import {existsSync, rmSync, readFileSync} from 'node:fs';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {parseAst} from '../codemods/parse-ast';
@@ -21,18 +21,43 @@ type UndoEntryType =
 	| 'default-props'
 	| 'sequence-props'
 	| 'effect-props'
+	// Dead code for now: the Studio selection model cannot mix sequence props and
+	// effect props yet, but this will be used once mixed prop selection is enabled.
+	| 'keyframe-add'
+	| 'keyframe-delete'
+	| 'add-effect'
 	| 'delete-effect'
+	| 'duplicate-effect'
+	| 'paste-effects'
+	| 'reorder-effect'
+	| 'reorder-sequence'
 	| 'delete-jsx-node'
 	| 'duplicate-jsx-node'
+	| 'split-jsx-sequence'
+	| 'insert-jsx-element'
 	| 'delete-composition'
 	| 'rename-composition'
-	| 'duplicate-composition';
+	| 'update-composition-metadata'
+	| 'new-composition'
+	| 'duplicate-composition'
+	| 'move-composition-to-folder'
+	| 'new-folder'
+	| 'delete-folder'
+	| 'rename-folder';
+
+type UndoEntrySnapshot = {
+	filePath: string;
+	oldContents: string | null;
+	newContents: string | null;
+	/** 1-based source line for terminal/IDE file links (e.g. path:line). */
+	logLine: number;
+};
 
 type UndoEntry = {
 	filePath: string;
-	oldContents: string;
 	/** 1-based source line for terminal/IDE file links (e.g. path:line). */
 	logLine: number;
+	snapshots: UndoEntrySnapshot[];
 	description: UndoEntryDescription;
 	/** When true, undo/redo file restores call `suppressBundlerUpdateForFile` (skip HMR refresh). */
 	suppressHmrOnFileRestore: boolean;
@@ -41,12 +66,27 @@ type UndoEntry = {
 	| {entryType: 'default-props'}
 	| {entryType: 'sequence-props'}
 	| {entryType: 'effect-props'}
+	| {entryType: 'keyframe-add'}
+	| {entryType: 'keyframe-delete'}
+	| {entryType: 'add-effect'}
 	| {entryType: 'delete-effect'}
+	| {entryType: 'duplicate-effect'}
+	| {entryType: 'paste-effects'}
+	| {entryType: 'reorder-effect'}
+	| {entryType: 'reorder-sequence'}
 	| {entryType: 'delete-jsx-node'}
 	| {entryType: 'duplicate-jsx-node'}
+	| {entryType: 'split-jsx-sequence'}
+	| {entryType: 'insert-jsx-element'}
 	| {entryType: 'delete-composition'}
 	| {entryType: 'rename-composition'}
+	| {entryType: 'update-composition-metadata'}
+	| {entryType: 'new-composition'}
 	| {entryType: 'duplicate-composition'}
+	| {entryType: 'move-composition-to-folder'}
+	| {entryType: 'new-folder'}
+	| {entryType: 'delete-folder'}
+	| {entryType: 'rename-folder'}
 );
 
 const MAX_ENTRIES = 100;
@@ -73,9 +113,43 @@ function broadcastState() {
 	});
 }
 
+const entryTouchesFile = (entry: UndoEntry, filePath: string) => {
+	return entry.snapshots.some((snapshot) => snapshot.filePath === filePath);
+};
+
+const getEntryFilePaths = (entry: UndoEntry) => {
+	return entry.snapshots.map((snapshot) => snapshot.filePath);
+};
+
+const makeUndoEntry = ({
+	snapshots,
+	description,
+	entryType,
+	suppressHmrOnFileRestore,
+}: {
+	snapshots: UndoEntrySnapshot[];
+	description: UndoEntryDescription;
+	entryType: UndoEntryType;
+	suppressHmrOnFileRestore: boolean;
+}): UndoEntry => {
+	if (snapshots.length === 0) {
+		throw new Error('Cannot create an undo entry without snapshots');
+	}
+
+	return {
+		filePath: snapshots[0].filePath,
+		logLine: snapshots[0].logLine,
+		snapshots,
+		description,
+		entryType,
+		suppressHmrOnFileRestore,
+	};
+};
+
 export function pushToUndoStack({
 	filePath,
 	oldContents,
+	newContents,
 	logLevel,
 	remotionRoot,
 	logLine,
@@ -85,6 +159,7 @@ export function pushToUndoStack({
 }: {
 	filePath: string;
 	oldContents: string;
+	newContents: string | null;
 	logLevel: LogLevel;
 	remotionRoot: string;
 	logLine: number;
@@ -92,16 +167,53 @@ export function pushToUndoStack({
 	entryType: UndoEntryType;
 	suppressHmrOnFileRestore: boolean;
 }) {
-	storedLogLevel = logLevel;
-	storedRemotionRoot = remotionRoot;
-	undoStack.push({
-		filePath,
-		oldContents,
-		logLine,
+	pushTransactionToUndoStack({
+		snapshots: [
+			{
+				filePath,
+				oldContents,
+				newContents,
+				logLine,
+			},
+		],
+		logLevel,
+		remotionRoot,
 		description,
 		entryType,
 		suppressHmrOnFileRestore,
 	});
+}
+
+export function pushTransactionToUndoStack({
+	snapshots,
+	logLevel,
+	remotionRoot,
+	description,
+	entryType,
+	suppressHmrOnFileRestore,
+}: {
+	snapshots: Array<{
+		filePath: string;
+		oldContents: string | null;
+		newContents: string | null;
+		logLine: number;
+	}>;
+	logLevel: LogLevel;
+	remotionRoot: string;
+	description: UndoEntryDescription;
+	entryType: UndoEntryType;
+	suppressHmrOnFileRestore: boolean;
+}) {
+	storedLogLevel = logLevel;
+	storedRemotionRoot = remotionRoot;
+
+	const entry = makeUndoEntry({
+		snapshots,
+		description,
+		entryType,
+		suppressHmrOnFileRestore,
+	});
+	undoStack.push(entry);
 	if (undoStack.length > MAX_ENTRIES) {
 		undoStack.shift();
 	}
@@ -111,11 +223,14 @@ export function pushToUndoStack({
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel},
 		RenderInternals.chalk.gray(
-			`Undo stack: added entry for ${filePath} (${undoStack.length} items)`,
+			`Undo stack: added entry for ${entry.filePath} (${undoStack.length} items)`,
 		),
 	);
 
-	ensureWatching(filePath);
+	for (const filePath of getEntryFilePaths(entry)) {
+		ensureWatching(filePath);
+	}
+
 	broadcastState();
 }
 
@@ -133,6 +248,7 @@ export function printUndoHint(logLevel: LogLevel) {
 export function pushToRedoStack({
 	filePath,
 	oldContents,
+	newContents,
 	logLine,
 	description,
 	entryType,
@@ -140,19 +256,26 @@ export function pushToRedoStack({
 }: {
 	filePath: string;
 	oldContents: string;
+	newContents: string | null;
 	logLine: number;
 	description: UndoEntryDescription;
 	entryType: UndoEntryType;
 	suppressHmrOnFileRestore: boolean;
 }) {
-	redoStack.push({
-		filePath,
-		oldContents,
-		logLine,
+	const entry = makeUndoEntry({
+		snapshots: [
+			{
+				filePath,
+				oldContents,
+				newContents,
+				logLine,
+			},
+		],
 		description,
 		entryType,
 		suppressHmrOnFileRestore,
 	});
+	redoStack.push(entry);
 	if (redoStack.length > MAX_ENTRIES) {
 		redoStack.shift();
 	}
@@ -160,11 +283,14 @@ export function pushToRedoStack({
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: storedLogLevel},
 		RenderInternals.chalk.gray(
-			`Redo stack: added entry for ${filePath} (${redoStack.length} items)`,
+			`Redo stack: added entry for ${entry.filePath} (${redoStack.length} items)`,
 		),
 	);
 
-	ensureWatching(filePath);
+	for (const watchedFilePath of getEntryFilePaths(entry)) {
+		ensureWatching(watchedFilePath);
+	}
+
 	broadcastState();
 }
 
@@ -204,7 +330,7 @@ function invalidateForFile(filePath: string) {
 
 	let lastUndoIndex = -1;
 	for (let i = undoStack.length - 1; i >= 0; i--) {
-		if (undoStack[i].filePath === filePath) {
+		if (entryTouchesFile(undoStack[i], filePath)) {
 			lastUndoIndex = i;
 			break;
 		}
@@ -224,7 +350,7 @@ function invalidateForFile(filePath: string) {
 
 	let lastRedoIndex = -1;
 	for (let i = redoStack.length - 1; i >= 0; i--) {
-		if (redoStack[i].filePath === filePath) {
+		if (entryTouchesFile(redoStack[i], filePath)) {
 			lastRedoIndex = i;
 			break;
 		}
@@ -251,8 +377,8 @@ function invalidateForFile(filePath: string) {
 
 function cleanupWatchers() {
 	const filesInStacks = new Set([
-		...undoStack.map((e) => e.filePath),
-		...redoStack.map((e) => e.filePath),
+		...undoStack.flatMap(getEntryFilePaths),
+		...redoStack.flatMap(getEntryFilePaths),
 	]);
 	for (const [filePath, watcher] of watchers) {
 		if (!filesInStacks.has(filePath)) {
@@ -300,22 +426,44 @@ export function popUndo(): {success: true} | {success: false; reason: string} {
 		return {success: false, reason: 'Nothing to undo'};
 	}
 
-	const currentContents = readFileSync(entry.filePath, 'utf-8');
-	redoStack.push({
-		filePath: entry.filePath,
-		oldContents: currentContents,
-		logLine: entry.logLine,
-		description: entry.description,
-		entryType: entry.entryType,
-		suppressHmrOnFileRestore: entry.suppressHmrOnFileRestore,
+	const redoSnapshots = entry.snapshots.map((snapshot) => {
+		return {
+			...snapshot,
+			newContents:
+				snapshot.newContents ??
+				(existsSync(snapshot.filePath)
+					? readFileSync(snapshot.filePath, 'utf-8')
+					: null),
+		};
 	});
-
-	suppressUndoStackInvalidation(entry.filePath);
-	if (entry.suppressHmrOnFileRestore) {
-		suppressBundlerUpdateForFile(entry.filePath);
+	redoStack.push(
+		makeUndoEntry({
+			snapshots: redoSnapshots,
+			description: entry.description,
+			entryType: entry.entryType,
+			suppressHmrOnFileRestore: entry.suppressHmrOnFileRestore,
+		}),
+	);
+	if (redoStack.length > MAX_ENTRIES) {
+		redoStack.shift();
 	}
 
-	writeFileAndNotifyFileWatchers(entry.filePath, entry.oldContents, undefined);
+	for (const snapshot of entry.snapshots) {
+		suppressUndoStackInvalidation(snapshot.filePath);
+		if (entry.suppressHmrOnFileRestore) {
+			suppressBundlerUpdateForFile(snapshot.filePath);
+		}
+
+		if (snapshot.oldContents === null) {
+			rmSync(snapshot.filePath, {force: true});
+		} else {
+			writeFileAndNotifyFileWatchers(
+				snapshot.filePath,
+				snapshot.oldContents,
+				undefined,
+			);
+		}
+	}
 
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: storedLogLevel},
@@ -326,10 +474,17 @@ export function popUndo(): {success: true} | {success: false; reason: string} {
 	logFileAction(entry.description.undoMessage, entry.filePath, entry.logLine);
 
 	if (entry.entryType === 'visual-control') {
-		emitVisualControlChanges(entry.oldContents);
+		for (const snapshot of entry.snapshots) {
+			if (snapshot.oldContents !== null) {
+				emitVisualControlChanges(snapshot.oldContents);
+			}
+		}
 	}
 
-	ensureWatching(entry.filePath);
+	for (const filePath of getEntryFilePaths(entry)) {
+		ensureWatching(filePath);
+	}
+
 	broadcastState();
 	return {success: true};
 }
@@ -340,22 +495,44 @@ export function popRedo(): {success: true} | {success: false; reason: string} {
 		return {success: false, reason: 'Nothing to redo'};
 	}
 
-	const currentContents = readFileSync(entry.filePath, 'utf-8');
-	undoStack.push({
-		filePath: entry.filePath,
-		oldContents: currentContents,
-		logLine: entry.logLine,
-		description: entry.description,
-		entryType: entry.entryType,
-		suppressHmrOnFileRestore: entry.suppressHmrOnFileRestore,
-	});
+	const snapshotsWithNewContents: Array<
+		UndoEntrySnapshot & {newContents: string}
+	> = [];
+	for (const snapshot of entry.snapshots) {
+		if (snapshot.newContents === null) {
+			return {success: false, reason: 'Redo entry is incomplete'};
+		}
 
-	suppressUndoStackInvalidation(entry.filePath);
-	if (entry.suppressHmrOnFileRestore) {
-		suppressBundlerUpdateForFile(entry.filePath);
+		snapshotsWithNewContents.push({
+			...snapshot,
+			newContents: snapshot.newContents,
+		});
 	}
 
-	writeFileAndNotifyFileWatchers(entry.filePath, entry.oldContents, undefined);
+	undoStack.push(
+		makeUndoEntry({
+			snapshots: snapshotsWithNewContents,
+			description: entry.description,
+			entryType: entry.entryType,
+			suppressHmrOnFileRestore: entry.suppressHmrOnFileRestore,
+		}),
+	);
+	if (undoStack.length > MAX_ENTRIES) {
+		undoStack.shift();
+	}
+
+	for (const snapshot of snapshotsWithNewContents) {
+		suppressUndoStackInvalidation(snapshot.filePath);
+		if (entry.suppressHmrOnFileRestore) {
+			suppressBundlerUpdateForFile(snapshot.filePath);
+		}
+
+		writeFileAndNotifyFileWatchers(
+			snapshot.filePath,
+			snapshot.newContents,
+			undefined,
+		);
+	}
 
 	RenderInternals.Log.verbose(
 		{indent: false, logLevel: storedLogLevel},
@@ -366,18 +543,36 @@ export function popRedo(): {success: true} | {success: false; reason: string} {
 	logFileAction(entry.description.redoMessage, entry.filePath, entry.logLine);
 
 	if (entry.entryType === 'visual-control') {
-		emitVisualControlChanges(entry.oldContents);
+		for (const snapshot of entry.snapshots) {
+			if (snapshot.newContents !== null) {
+				emitVisualControlChanges(snapshot.newContents);
+			}
+		}
 	}
 
-	ensureWatching(entry.filePath);
+	for (const filePath of getEntryFilePaths(entry)) {
+		ensureWatching(filePath);
+	}
+
 	broadcastState();
 	return {success: true};
 }
 
+/*
+ * Keep stack accessors typed as readonly arrays so callers can only inspect
+ * whether undo/redo is available and which file represents the top entry.
+ */
 export function getUndoStack(): readonly UndoEntry[] {
 	return undoStack;
 }
 
 export function getRedoStack(): readonly UndoEntry[] {
 	return redoStack;
+}
+
+export function clearUndoStackForTests() {
+	undoStack.length = 0;
+	redoStack.length = 0;
+	suppressedWrites.clear();
+	cleanupWatchers();
 }

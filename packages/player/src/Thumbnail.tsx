@@ -2,7 +2,7 @@ import type {
 	ComponentType,
 	CSSProperties,
 	LazyExoticComponent,
-	MutableRefObject,
+	RefObject,
 } from 'react';
 import {
 	forwardRef,
@@ -72,7 +72,7 @@ const ThumbnailFn = <
 		noSuspense,
 		...componentProps
 	}: ThumbnailProps<Schema, Props>,
-	ref: MutableRefObject<ThumbnailMethods>,
+	ref: RefObject<ThumbnailMethods>,
 ) => {
 	if (typeof window !== 'undefined') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
@@ -137,6 +137,7 @@ const ThumbnailFn = <
 				initiallyMuted
 				logLevel={logLevel}
 				audioLatencyHint="playback"
+				sampleRate={48000}
 				inputProps={passedInputProps}
 				audioEnabled={false}
 			>
@@ -159,10 +160,7 @@ const ThumbnailFn = <
 };
 
 const forward = forwardRef as <T, P = {}>(
-	render: (
-		props: P,
-		ref: React.MutableRefObject<T>,
-	) => React.ReactElement | null,
+	render: (props: P, ref: React.RefObject<T>) => React.ReactElement | null,
 ) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
 /*

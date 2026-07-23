@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo} from 'react';
-import type {CanUpdateSequencePropStatus} from 'remotion';
+import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -14,7 +14,7 @@ const comboboxStyle: React.CSSProperties = {
 
 export const TimelineEnumField: React.FC<{
 	readonly field: SchemaFieldInfo;
-	readonly propStatus: CanUpdateSequencePropStatus;
+	readonly propStatus: CanUpdateSequencePropStatusStatic;
 	readonly effectiveValue: unknown;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
@@ -37,7 +37,7 @@ export const TimelineEnumField: React.FC<{
 
 	const onSelect = useCallback(
 		(newValue: string) => {
-			if (!propStatus.canUpdate || newValue === propStatus.codeValue) {
+			if (newValue === propStatus.codeValue) {
 				return;
 			}
 
@@ -60,13 +60,13 @@ export const TimelineEnumField: React.FC<{
 			leftItem: null,
 			subMenu: null,
 			quickSwitcherLabel: null,
-			disabled: !propStatus.canUpdate,
+			disabled: false,
 		}));
-	}, [variantKeys, onSelect, propStatus]);
+	}, [variantKeys, onSelect]);
 
 	return (
 		<Combobox
-			small
+			size="small"
 			title={field.key}
 			selectedId={current}
 			values={items}

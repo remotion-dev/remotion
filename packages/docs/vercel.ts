@@ -1,13 +1,25 @@
 import {routes, type VercelConfig} from '@vercel/config/v1';
 
+const browserStudioIsolationHeaders = [
+	{key: 'Cross-Origin-Embedder-Policy', value: 'credentialless'},
+	{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
+];
+
+const browserStudioAssetHeaders = [
+	{key: 'Cache-Control', value: 'public, max-age=31536000, immutable'},
+	...browserStudioIsolationHeaders,
+];
+
 export const config: VercelConfig = {
+	buildCommand:
+		'cd .. && timeout 20m bunx turbo run build-docs --no-update-notifier --concurrency=2',
 	headers: [
-		routes.cacheControl('/assets/(.*)', {
-			public: true,
-			maxAge: '365days',
-			immutable: true,
-		}),
+		routes.header('/assets/(.*)', browserStudioAssetHeaders),
 		routes.header('/_raw/docs/(.*).md', [
+			{key: 'Content-Type', value: 'text/plain; charset=utf-8'},
+			{key: 'Vary', value: 'Accept'},
+		]),
+		routes.header('/_raw/elements/(.*).md', [
 			{key: 'Content-Type', value: 'text/plain; charset=utf-8'},
 			{key: 'Vary', value: 'Accept'},
 		]),
@@ -28,6 +40,7 @@ export const config: VercelConfig = {
 			{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
 			{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
 		]),
+		routes.header('/experimental_new(.*)', browserStudioIsolationHeaders),
 		routes.header('/convert/assets/(.*)', [
 			{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
 			{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
@@ -114,6 +127,48 @@ export const config: VercelConfig = {
 		routes.redirect('/docs/miscellaneous/snippets/hls', '/docs/hls', {
 			permanent: true,
 		}),
+		routes.redirect(
+			'/docs/miscellaneous/snippets/align-duration',
+			'/docs/videos/align-duration',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/miscellaneous/snippets/accelerated-video',
+			'/docs/videos/accelerated-video',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/miscellaneous/snippets/jumpcuts',
+			'/docs/videos/jumpcuts',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/miscellaneous/snippets/different-segments-at-different-speeds',
+			'/docs/videos/different-segments-at-different-speeds',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/videos/freeze-portions',
+			'/docs/miscellaneous/snippets/freeze-portions',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/video-manipulation',
+			'/docs/videos/video-manipulation',
+			{permanent: true},
+		),
+		routes.redirect('/docs/videos/greenscreen', '/docs/greenscreen', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/videos/video-tags', '/docs/video-tags', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/videos/hls', '/docs/hls', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/media-fragments', '/docs/videos/media-fragments', {
+			permanent: true,
+		}),
 		routes.redirect('/docs/player/api', '/docs/player/player', {
 			permanent: true,
 		}),
@@ -196,6 +251,11 @@ export const config: VercelConfig = {
 		routes.redirect('/transitions', '/docs/transitioning', {
 			permanent: false,
 		}),
+		routes.redirect('/effects', '/docs/effects', {permanent: false}),
+		routes.redirect('/design-systems', '/docs/design-systems', {
+			permanent: false,
+		}),
+		routes.redirect('/skills', '/docs/ai/skills', {permanent: false}),
 		routes.redirect(
 			'/repro',
 			'https://stackblitz.com/fork/github/remotion-dev/template-helloworld',
@@ -313,12 +373,13 @@ export const config: VercelConfig = {
 		),
 		routes.redirect('/docs/video', '/docs/html5-video', {permanent: false}),
 		routes.redirect('/docs/audio', '/docs/html5-audio', {permanent: false}),
-		routes.redirect('/terms', 'https://remotion.pro/terms', {
-			permanent: false,
+		routes.redirect('/docs/studio/code-edits', '/docs/studio/interactivity', {
+			permanent: true,
 		}),
-		routes.redirect('/privacy', 'https://remotion.pro/privacy', {
-			permanent: false,
-		}),
+		routes.redirect('/terms', '/docs/license/terms', {permanent: true}),
+		routes.redirect('/privacy', '/docs/license/privacy', {permanent: true}),
+		routes.redirect('/dpa', '/docs/license/dpa', {permanent: true}),
+		routes.redirect('/dpia', '/docs/license/dpia', {permanent: true}),
 		routes.redirect('/docs/ai/claude-code', '/docs/ai/coding-agents', {
 			permanent: false,
 		}),

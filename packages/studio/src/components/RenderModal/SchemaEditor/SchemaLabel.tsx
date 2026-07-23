@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {FAIL_COLOR, LIGHT_TEXT} from '../../../helpers/colors';
+import {FAIL_COLOR, LIGHT_TEXT, WHITE} from '../../../helpers/colors';
 import {Flex} from '../../layout';
 import {InlineRemoveButton} from '../InlineRemoveButton';
 import {getSchemaLabel} from './get-schema-label';
@@ -7,7 +7,7 @@ import {DEFAULT_PROPS_PATH_CLASSNAME} from './scroll-to-default-props-path';
 import type {JSONPath} from './zod-types';
 
 const compactStyles: React.CSSProperties = {
-	fontSize: 15,
+	fontSize: 12,
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	display: 'flex',
@@ -28,13 +28,9 @@ export const SchemaLabel: React.FC<{
 	const labelStyle: React.CSSProperties = useMemo(() => {
 		return {
 			fontFamily: 'monospace',
-			fontSize: 14,
-			color: valid
-				? clickableButtonHovered
-					? 'white'
-					: LIGHT_TEXT
-				: FAIL_COLOR,
-			lineHeight: '24px',
+			fontSize: 12,
+			color: valid ? (clickableButtonHovered ? WHITE : LIGHT_TEXT) : FAIL_COLOR,
+			lineHeight: '20px',
 		};
 	}, [clickableButtonHovered, valid]);
 

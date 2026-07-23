@@ -92,6 +92,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 							title="Select type"
 							values={comboBoxValues}
 							selectedId={value[discriminator] as string}
+							size="small"
 						/>
 					</Fieldset>
 				),

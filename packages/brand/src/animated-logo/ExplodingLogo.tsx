@@ -138,7 +138,7 @@ export const ExplodingLogo: React.FC<{
 							transform: `translateX(${interpolate(
 								align,
 								[0, 1],
-								[-600, 0]
+								[-600, 0],
 							)}px)`,
 						}}
 					>

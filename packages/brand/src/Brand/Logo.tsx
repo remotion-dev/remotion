@@ -1,13 +1,13 @@
+import React from 'react';
 import {useCurrentFrame} from 'remotion';
 import {useVideoConfig} from 'remotion';
 import {Easing} from 'remotion';
 import {interpolate} from 'remotion';
 import {spring} from 'remotion';
 import {Sequence} from 'remotion';
-import React from 'react';
-import {TriangleToSquare} from './TriangleToSquare';
-import type { Theme} from './colors';
+import type {Theme} from './colors';
 import {getOpacity} from './colors';
+import {TriangleToSquare} from './TriangleToSquare';
 
 export const Logo: React.FC<{
 	readonly theme: Theme;
@@ -69,7 +69,7 @@ export const Logo: React.FC<{
 		[0, -Math.PI * 2.5],
 		{
 			easing: Easing.out(Easing.ease),
-		}
+		},
 	);
 
 	const translation = interpolate(progressWithEaseOut, [0, 1], [0, 540], {

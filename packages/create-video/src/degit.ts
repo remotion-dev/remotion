@@ -2,7 +2,7 @@ import https from 'https';
 import fs from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import tar from 'tar';
+import * as tar from 'tar';
 import {mkdirp} from './mkdirp';
 
 export function fetch(url: string, dest: string) {

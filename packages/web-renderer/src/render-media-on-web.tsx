@@ -12,7 +12,7 @@ import {canUseWebFsWriter} from './can-use-webfs-target';
 import {createAudioSampleSource} from './create-audio-sample-source';
 import {checkForError, createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
-import {supportsNativeHtmlInCanvas} from './html-in-canvas';
+import {supportsNestedHtmlInCanvas} from './html-in-canvas';
 import type {InternalState} from './internal-state';
 import {makeInternalState} from './internal-state';
 import {
@@ -35,6 +35,11 @@ import {
 	type WebRendererVideoCodec,
 } from './mediabunny-mappings';
 import type {WebRendererOutputTarget} from './output-target';
+import {
+	createPageResponsivenessController,
+	resolvePageResponsivenessInterval,
+	type WebRendererPageResponsiveness,
+} from './page-responsiveness';
 import type {CompositionCalculateMetadataOrExplicit} from './props-if-has-props';
 import {onlyOneRenderAtATimeQueue} from './render-operations-queue';
 import {resolveAudioCodec} from './resolve-audio-codec';
@@ -126,12 +131,12 @@ type OptionalRenderMediaOnWebOptions<Schema extends $ZodObject> = {
 	transparent: boolean;
 	onArtifact: WebRendererOnArtifact | null;
 	onFrame: OnFrameCallback | null;
+	pageResponsiveness: WebRendererPageResponsiveness;
 	outputTarget: WebRendererOutputTarget | null;
 	licenseKey: string | null;
 	isProduction: boolean;
 	muted: boolean;
 	scale: number;
-	allowHtmlInCanvas: boolean;
 	sampleRate: number;
 };
 
@@ -175,18 +180,20 @@ const internalRenderMediaOnWeb = async <
 	transparent,
 	onArtifact,
 	onFrame,
+	pageResponsiveness,
 	outputTarget: userDesiredOutputTarget,
 	licenseKey,
 	muted,
 	scale,
 	isProduction,
-	allowHtmlInCanvas,
 	sampleRate,
 }: InternalRenderMediaOnWebOptions<
 	Schema,
 	Props
 >): Promise<RenderMediaOnWebResult> => {
 	validateScale(scale);
+	const pageResponsivenessIntervalInMilliseconds =
+		resolvePageResponsivenessInterval(pageResponsiveness);
 
 	let htmlInCanvasLayerOutcomeReported = false;
 	const onHtmlInCanvasLayerOutcome = (outcome: HtmlInCanvasLayerOutcome) => {
@@ -198,7 +205,7 @@ const internalRenderMediaOnWeb = async <
 		if (outcome.native) {
 			Internals.Log.warn(
 				{logLevel, tag: '@remotion/web-renderer'},
-				'Using Chromium experimental HTML-in-canvas (drawElementImage) for video frames. See https://github.com/WICG/html-in-canvas',
+				'Using Chromium experimental HTML-in-canvas (drawElementImage) for video frames. See https://remotion.dev/docs/client-side-rendering/html-in-canvas',
 			);
 		} else if (outcome.shouldWarn) {
 			Internals.Log.warn(
@@ -304,6 +311,8 @@ const internalRenderMediaOnWeb = async <
 		return Promise.reject(new Error('renderMediaOnWeb() was cancelled'));
 	}
 
+	const useHtmlInCanvas = await supportsNestedHtmlInCanvas();
+
 	using scaffold = createScaffold({
 		width: resolved.width,
 		height: resolved.height,
@@ -321,7 +330,8 @@ const internalRenderMediaOnWeb = async <
 		initialFrame: 0,
 		defaultCodec: resolved.defaultCodec,
 		defaultOutName: resolved.defaultOutName,
-		allowHtmlInCanvas,
+		useHtmlInCanvas,
+		pixelDensity: scale,
 	});
 
 	const {
@@ -333,36 +343,38 @@ const internalRenderMediaOnWeb = async <
 		htmlInCanvasContext,
 	} = scaffold;
 
-	if (allowHtmlInCanvas && !htmlInCanvasContext) {
-		if (!supportsNativeHtmlInCanvas()) {
-			onHtmlInCanvasLayerOutcome({
-				native: false,
-				reason:
-					'This browser does not expose CanvasRenderingContext2D.prototype.drawElementImage. In Chromium, enable chrome://flags/#canvas-draw-element and use a version that ships the API.',
-				shouldWarn: false,
-			});
-		} else {
-			onHtmlInCanvasLayerOutcome({
-				native: false,
-				reason:
-					'drawElementImage is available but canvas.requestPaint() is missing. Use a Chromium version that ships requestPaint.',
-				shouldWarn: true,
-			});
-		}
-	} else if (!allowHtmlInCanvas) {
-		onHtmlInCanvasLayerOutcome({
-			native: false,
-			reason: 'allowHtmlInCanvas is false; using the built-in DOM composer.',
-			shouldWarn: false,
-		});
-	}
-
 	using internalState = makeInternalState();
+	const pageResponsivenessController = createPageResponsivenessController({
+		intervalInMilliseconds: pageResponsivenessIntervalInMilliseconds,
+		now: () => performance.now(),
+		wait: () =>
+			new Promise<void>((resolve) => {
+				setTimeout(resolve, 0);
+			}),
+	});
+
+	const waitForPageResponsiveness = async () => {
+		await pageResponsivenessController.waitIfNeeded();
+		if (signal?.aborted) {
+			throw new Error('renderMediaOnWeb() was cancelled');
+		}
+	};
 
 	using keepalive = createBackgroundKeepalive({
 		fps: resolved.fps,
 		logLevel,
 	});
+	const waitForRenderReady = async () => {
+		await waitForReady({
+			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
+			scope: delayRenderScope,
+			signal,
+			apiName: 'renderMediaOnWeb',
+			internalState,
+			keepalive,
+		});
+		checkForError(errorHolder);
+	};
 
 	const artifactsHandler = handleArtifacts();
 
@@ -390,15 +402,7 @@ const internalRenderMediaOnWeb = async <
 			throw new Error('renderMediaOnWeb() was cancelled');
 		}
 
-		await waitForReady({
-			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
-			scope: delayRenderScope,
-			signal,
-			apiName: 'renderMediaOnWeb',
-			internalState,
-			keepalive,
-		});
-		checkForError(errorHolder);
+		await waitForRenderReady();
 
 		if (signal?.aborted) {
 			throw new Error('renderMediaOnWeb() was cancelled');
@@ -491,15 +495,7 @@ const internalRenderMediaOnWeb = async <
 
 			timeUpdater.current?.update(frame);
 
-			await waitForReady({
-				timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
-				scope: delayRenderScope,
-				signal,
-				apiName: 'renderMediaOnWeb',
-				keepalive,
-				internalState,
-			});
-			checkForError(errorHolder);
+			await waitForRenderReady();
 
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
@@ -525,6 +521,8 @@ const internalRenderMediaOnWeb = async <
 					onHtmlInCanvasLayerOutcome: htmlInCanvasContext
 						? onHtmlInCanvasLayerOutcome
 						: undefined,
+					waitForPageResponsiveness,
+					waitForRenderReady,
 				});
 				internalState.addCreateFrameTime(performance.now() - createFrameStart);
 				layerCanvas = layer.canvas;
@@ -532,6 +530,8 @@ const internalRenderMediaOnWeb = async <
 				if (signal?.aborted) {
 					throw new Error('renderMediaOnWeb() was cancelled');
 				}
+
+				await waitForPageResponsiveness();
 
 				const videoFrame = new VideoFrame(layer.canvas, {
 					timestamp,
@@ -551,6 +551,7 @@ const internalRenderMediaOnWeb = async <
 						expectedHeight: Math.round(resolved.height * scale),
 						expectedTimestamp: timestamp,
 					});
+					await waitForPageResponsiveness();
 				}
 			}
 
@@ -585,14 +586,14 @@ const internalRenderMediaOnWeb = async <
 				});
 			}
 
-			if (signal?.aborted) {
-				throw new Error('renderMediaOnWeb() was cancelled');
-			}
+			await waitForPageResponsiveness();
 
 			const audio = muted
 				? null
 				: onlyInlineAudio({assets, fps: resolved.fps, timestamp, sampleRate});
 			internalState.addAudioMixingTime(performance.now() - audioCombineStart);
+
+			await waitForPageResponsiveness();
 
 			const addSampleStart = performance.now();
 			const encodingPromises: Promise<void>[] = [];
@@ -624,10 +625,14 @@ const internalRenderMediaOnWeb = async <
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
 			}
+
+			await waitForPageResponsiveness();
 		}
 
 		// Call progress one final time to ensure final state is reported
 		onProgress?.(getProgressPayload());
+
+		await waitForPageResponsiveness();
 
 		videoSampleSource?.videoSampleSource.close();
 		audioSampleSource?.audioSampleSource.close();
@@ -735,12 +740,12 @@ export const renderMediaOnWeb = <
 				transparent: options.transparent ?? false,
 				onArtifact: options.onArtifact ?? null,
 				onFrame: options.onFrame ?? null,
+				pageResponsiveness: options.pageResponsiveness ?? 'medium',
 				outputTarget: options.outputTarget ?? null,
 				licenseKey: options.licenseKey ?? null,
 				muted: options.muted ?? false,
 				scale: options.scale ?? 1,
 				isProduction: options.isProduction ?? true,
-				allowHtmlInCanvas: options.allowHtmlInCanvas ?? false,
 				sampleRate: options.sampleRate ?? 48000,
 			}),
 		);

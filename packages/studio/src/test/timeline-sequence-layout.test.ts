@@ -44,11 +44,11 @@ test('Should test timeline sequence layout without max media duration', () => {
 			windowWidth: 1414.203125,
 		}),
 	).toEqual({
-		marginLeft: 1154.4991419797689,
+		marginLeft: 1154.0226668902187,
 		premountWidth: null,
 		postmountWidth: null,
-		width: 227.2746696944674,
-		naturalWidth: 227.2746696944674,
+		width: 227.18045810978126,
+		naturalWidth: 227.18045810978126,
 	});
 });
 test('Should test timeline sequence layout with max media duration', () => {
@@ -78,11 +78,11 @@ test('Should test timeline sequence layout with max media duration', () => {
 			windowWidth: 1414.203125,
 		}),
 	).toEqual({
-		marginLeft: 1154.4991419797689,
+		marginLeft: 1154.0226668902187,
 		premountWidth: null,
 		postmountWidth: null,
-		width: 221.5678029521057,
-		naturalWidth: 221.5678029521057,
+		width: 221.47594665703676,
+		naturalWidth: 221.47594665703676,
 	});
 });
 
@@ -132,8 +132,8 @@ test('one-frame segments have a one-frame width', () => {
 		windowWidth: 1000,
 	});
 
-	expect(result.width).toBe(2.237458193979933);
-	expect(result.naturalWidth).toBe(2.237458193979933);
+	expect(result.width).toBe(2.226666666666667);
+	expect(result.naturalWidth).toBe(2.226666666666667);
 });
 
 test('adjacent sequences have no visual gap', () => {

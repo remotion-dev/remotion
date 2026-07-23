@@ -78,6 +78,14 @@ const shouldPrioritizeVideoCopyOverReencode = (routeAction: RouteAction) => {
 		return false;
 	}
 
+	if (routeAction.type === 'generic-trim') {
+		return true;
+	}
+
+	if (routeAction.type === 'trim-format') {
+		return true;
+	}
+
 	if (routeAction.type === 'timing-editor') {
 		return true;
 	}
@@ -92,6 +100,7 @@ export const getSupportedConfigs = async ({
 	userRotation,
 	resizeOperation,
 	sampleRate,
+	disableVideoCopy,
 }: {
 	tracks: InputTrack[];
 	container: OutputFormat;
@@ -99,6 +108,7 @@ export const getSupportedConfigs = async ({
 	userRotation: number;
 	resizeOperation: MediabunnyResize | null;
 	sampleRate: number | null;
+	disableVideoCopy: boolean;
 }): Promise<SupportedConfigs> => {
 	const audioTrackOptions: AudioTrackOption[] = [];
 	const videoTrackOptions: VideoTrackOption[] = [];
@@ -109,12 +119,14 @@ export const getSupportedConfigs = async ({
 	for (const track of tracks) {
 		if (track.isVideoTrack()) {
 			const options: VideoOperation[] = [];
-			const canCopy = canCopyVideoTrack({
-				inputTrack: track,
-				outputContainer: container,
-				rotationToApply: userRotation,
-				resizeOperation,
-			});
+			const canCopy =
+				!disableVideoCopy &&
+				(await canCopyVideoTrack({
+					inputTrack: track,
+					outputContainer: container,
+					rotationToApply: userRotation,
+					resizeOperation,
+				}));
 			if (canCopy && prioritizeCopyOverReencode) {
 				options.push({
 					type: 'copy',
@@ -146,6 +158,7 @@ export const getSupportedConfigs = async ({
 
 		if (track.isAudioTrack()) {
 			const audioTrackOperations: AudioOperation[] = [];
+			const audioCodec = await track.getCodec();
 
 			const canCopy = await canCopyAudioTrack({
 				outputContainer: container,
@@ -170,7 +183,7 @@ export const getSupportedConfigs = async ({
 			audioTrackOptions.push({
 				trackId: track.id,
 				operations: audioTrackOperations,
-				audioCodec: track.codec,
+				audioCodec,
 			});
 		}
 	}

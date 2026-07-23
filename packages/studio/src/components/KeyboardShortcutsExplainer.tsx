@@ -2,8 +2,12 @@ import React from 'react';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {
 	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_UNHOVERED,
+	BLACK_ALPHA_60,
+	KEYBOARD_SHORTCUT_KEY_COLOR,
+	WHITE,
+	WHITE_ALPHA_10,
 } from '../helpers/colors';
+import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {ArrowLeft, ArrowRight, ShiftIcon} from '../icons/keys';
 import {Column, Row, Spacing} from './layout';
@@ -17,9 +21,9 @@ const left: React.CSSProperties = {
 const key: React.CSSProperties = {
 	background: INPUT_BACKGROUND,
 	padding: '3px 6px',
-	color: 'white',
+	color: WHITE,
 	borderRadius: 3,
-	border: '1px solid ' + INPUT_BORDER_COLOR_UNHOVERED,
+	border: '1px solid ' + BLACK_ALPHA_60,
 	borderBottomWidth: 3,
 	fontSize: 14,
 	fontFamily: 'monospace',
@@ -27,7 +31,7 @@ const key: React.CSSProperties = {
 
 const right: React.CSSProperties = {
 	fontSize: 14,
-	color: '#eee',
+	color: KEYBOARD_SHORTCUT_KEY_COLOR,
 };
 
 const container: React.CSSProperties = {
@@ -39,7 +43,7 @@ const container: React.CSSProperties = {
 
 const title: React.CSSProperties = {
 	fontWeight: 'bold',
-	color: 'white',
+	color: WHITE,
 	fontSize: 14,
 	marginBottom: 10,
 };
@@ -48,7 +52,7 @@ const keyboardShortcutsDisabled: React.CSSProperties = {
 	padding: 12,
 	width: '100%',
 	fontSize: 14,
-	backgroundColor: 'rgba(255, 255, 255, 0.1)',
+	backgroundColor: WHITE_ALPHA_10,
 };
 
 const ul: React.CSSProperties = {
@@ -206,6 +210,16 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 						</div>
 						<div style={right}>Exit fullscreen</div>
 					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>
+								<ShiftIcon />
+							</kbd>
+							<Spacing x={0.3} />
+							<kbd style={key}>M</kbd>
+						</div>
+						<div style={right}>Enable snapping</div>
+					</Row>
 				</Column>
 				<Spacing x={8} />
 				<Column>
@@ -226,13 +240,17 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 						<div style={left}>
 							<kbd style={key}>R</kbd>
 						</div>
-						<div style={right}>Render composition</div>
+						<div style={right}>
+							Render, unless a sequence or prop is selected
+						</div>
 					</Row>
 					<Row align="center">
 						<div style={left}>
 							<kbd style={key}>T</kbd>
 						</div>
-						<div style={right}>Toggle checkerboard background</div>
+						<div style={right}>
+							Checkerboard, unless a sequence or prop is selected
+						</div>
 					</Row>
 					<Row align="center">
 						<div style={left}>
@@ -306,7 +324,93 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 						</div>
 						<div style={right}>Redo</div>
 					</Row>
-					{process.env.ASK_AI_ENABLED && (
+					<br />
+					<div style={title}>Interactivity</div>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>Shift</kbd>
+						</div>
+						<div style={right}>Select range / axis lock drag</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
+						</div>
+						<div style={right}>Toggle selection</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
+							<Spacing x={0.3} />
+							<kbd style={key}>A</kbd>
+						</div>
+						<div style={right}>Select sequence rows</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>P</kbd>
+						</div>
+						<div style={right}>Select translate prop</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>T</kbd>
+						</div>
+						<div style={right}>Select opacity prop</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>R</kbd>
+						</div>
+						<div style={right}>Select rotate prop</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>S</kbd>
+						</div>
+						<div style={right}>Select scale prop</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
+							<Spacing x={0.3} />
+							<kbd style={key}>D</kbd>
+						</div>
+						<div style={right}>Duplicate sequences</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
+							<Spacing x={0.3} />
+							<kbd style={key}>C</kbd>
+						</div>
+						<div style={right}>Copy effects / values</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
+							<Spacing x={0.3} />
+							<kbd style={key}>X</kbd>
+						</div>
+						<div style={right}>Cut effects</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
+							<Spacing x={0.3} />
+							<kbd style={key}>V</kbd>
+						</div>
+						<div style={right}>Paste effects / values</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>Del</kbd>
+							<Spacing x={0.3} />
+							<kbd style={key}>⌫</kbd>
+						</div>
+						<div style={right}>Delete / reset selection</div>
+					</Row>
+					{getStudioAskAIEnabled() && (
 						<>
 							<br />
 							<div style={title}>AI</div>

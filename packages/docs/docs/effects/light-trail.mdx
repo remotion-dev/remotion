@@ -1,0 +1,107 @@
+---
+image: /generated/articles-docs-effects-light-trail.png
+slug: /effects/light-trail
+title: lightTrail()
+sidebar_label: lightTrail()
+crumb: '@remotion/effects'
+---
+
+# lightTrail()<AvailableFrom v="4.0.476" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Creates a directional light trail from bright or opaque parts of canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+Use it for speed streaks, luminous text trails and fast-moving logo smears.
+
+## Preview
+
+<EffectsDemo type="effects-light-trail" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {lightTrail} from '@remotion/effects/light-trail';
+import {AbsoluteFill, CanvasImage, staticFile} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <CanvasImage
+        src={staticFile('logo.png')}
+        width={1280}
+        height={720}
+        fit="contain"
+        effects={[
+          lightTrail({
+            direction: 180,
+            distance: 120,
+            intensity: 1.6,
+            decay: 0.9,
+            threshold: 0.2,
+            color: '#ffb000',
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `lightTrail()` without arguments.
+
+### `direction?`
+
+Direction in which the trail extends, in degrees. Defaults to `180`.
+
+### `distance?`
+
+Length of the trail in pixels. Defaults to `80`. Must be at least `0`.
+
+### `intensity?`
+
+Brightness multiplier for the trail. Defaults to `1`. Must be at least `0`.
+
+### `decay?`
+
+Falloff from one trail sample to the next. Defaults to `0.9`.
+
+Use values closer to `1` for a longer visible trail. Use smaller values for a shorter falloff.
+
+### `threshold?`
+
+Luminance or alpha threshold from `0` to `1`. Defaults to `0`.
+
+Pixels brighter or more opaque than this value contribute to the trail. Increase it to affect only the strongest parts of the source.
+
+### `samples?`
+
+Number of samples used for the trail. Defaults to `32`. Must be an integer from `1` to `64`.
+
+Higher values make the trail smoother and cost more GPU work.
+
+### `color?`
+
+Color of the trail. Defaults to white.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Combining effects
+
+`lightTrail()` only creates the directional trail. For a glowing speed-logo look, combine it with [`glow()`](/docs/effects/glow) and [`chromaticAberration()`](/docs/effects/chromatic-aberration).
+
+## Requirements
+
+`lightTrail()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`glow()`](/docs/effects/glow)
+- [`chromaticAberration()`](/docs/effects/chromatic-aberration)
+- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/light-trail/index.ts)

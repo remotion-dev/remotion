@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Only run after branch checkouts, which is what `git worktree add` triggers.
+if [ "${3:-}" != "1" ]; then
+	exit 0
+fi
+
+git_common_dir=$(git rev-parse --git-common-dir)
+main_repo=$(cd "$git_common_dir/.." && pwd)
+current_dir=$(pwd)
+
+if [ "$current_dir" = "$main_repo" ]; then
+	exit 0
+fi
+
+echo "Worktree detected: $current_dir"
+
+prune_args=(-name ".git" -prune)
+ignored_parent=""
+
+# Asking Git about all directories at once is much faster than starting one
+# `git check-ignore` process for every directory.
+while IFS= read -r -d '' dir; do
+	relative_dir="${dir#./}"
+
+	# `find` emits parents before their children. Once an ignored directory is
+	# pruned, separate rules for its descendants would only slow down the scan.
+	if [ -n "$ignored_parent" ]; then
+		case "$relative_dir/" in
+		"$ignored_parent/"*) continue ;;
+		esac
+	fi
+
+	ignored_parent="$relative_dir"
+	prune_args+=(-o -path "$main_repo/$relative_dir" -prune)
+done < <(
+	cd "$main_repo"
+	find . -mindepth 1 -maxdepth 3 -type d -not -path "*/.git/*" -not -name ".git" -print0 | git check-ignore --stdin -z || true
+)
+
+copied=0
+skipped=0
+
+while IFS= read -r -d '' envfile; do
+	relative_path="${envfile#"$main_repo"/}"
+	target="$current_dir/$relative_path"
+
+	if [ -f "$target" ]; then
+		echo "  skipped $relative_path (already exists)"
+		skipped=$((skipped + 1))
+		continue
+	fi
+
+	mkdir -p "$(dirname "$target")"
+	cp "$envfile" "$target"
+	echo "  copied $relative_path"
+	copied=$((copied + 1))
+done < <(find "$main_repo" \( "${prune_args[@]}" \) -o -name ".env*" -type f -print0)
+
+echo "Environment files synced: $copied copied, $skipped skipped."

@@ -1,8 +1,13 @@
-import type {RecastCodemod} from '@remotion/studio-shared';
 import type {ChangeEventHandler} from 'react';
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
-import {validateCompositionName} from '../../helpers/validate-new-comp-data';
+import {useRenameComposition} from '../../helpers/use-rename-composition';
 import {Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
 import {ModalHeader} from '../ModalHeader';
@@ -13,6 +18,7 @@ import {
 } from '../RenderModal/ResolveCompositionBeforeModal';
 import {CodemodFooter} from './CodemodFooter';
 import {DismissableModal} from './DismissableModal';
+import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {RemotionInput} from './RemInput';
 import {ValidationMessage} from './ValidationMessage';
 
@@ -37,6 +43,13 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 	const [newId, setName] = useState(() => {
 		return resolved.result.id;
 	});
+	const inputRef = useRef<HTMLInputElement>(null);
+
+	useEffect(() => {
+		const input = inputRef.current;
+		if (!input) return;
+		input.select();
+	}, []);
 
 	const onNameChange: ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
@@ -45,20 +58,16 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 		[],
 	);
 
-	const compNameErrMessage =
-		newId === resolved.result.id
-			? null
-			: validateCompositionName(newId, compositions);
-
-	const valid = compNameErrMessage === null && resolved.result.id !== newId;
-
-	const codemod: RecastCodemod = useMemo(() => {
-		return {
-			type: 'rename-composition',
-			idToRename: resolved.result.id,
-			newId,
-		};
-	}, [newId, resolved.result.id]);
+	const {
+		codemod,
+		renameComposition,
+		valid,
+		validationMessage: compNameErrMessage,
+	} = useRenameComposition({
+		compositions,
+		currentId: resolved.result.id,
+		newId,
+	});
 
 	const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
 		e.preventDefault();
@@ -72,8 +81,9 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 					<div style={optionRow}>
 						<div style={label}>ID</div>
 						<div style={rightRow}>
-							<div>
+							<InputAndValidationContainer>
 								<RemotionInput
+									ref={inputRef}
 									value={newId}
 									onChange={onNameChange}
 									type="text"
@@ -92,7 +102,7 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 										/>
 									</>
 								) : null}
-							</div>
+							</InputAndValidationContainer>
 						</div>
 					</div>
 				</div>
@@ -107,6 +117,13 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 						stack={compositionStack}
 						valid={valid}
 						onSuccess={null}
+						applyCodemod={({signal, symbolicatedStack}) =>
+							renameComposition({
+								newCompositionId: newId,
+								signal,
+								symbolicatedStack,
+							})
+						}
 					/>
 				</ModalFooterContainer>
 			</form>

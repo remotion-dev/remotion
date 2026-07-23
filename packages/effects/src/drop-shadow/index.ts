@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -33,18 +33,21 @@ const dropShadowSchema = {
 		step: 1,
 		default: DEFAULT_RADIUS,
 		description: 'Radius',
+		hiddenFromList: false,
 	},
 	offsetX: {
 		type: 'number',
 		step: 1,
 		default: DEFAULT_OFFSET_X,
 		description: 'Offset X',
+		hiddenFromList: false,
 	},
 	offsetY: {
 		type: 'number',
 		step: 1,
 		default: DEFAULT_OFFSET_Y,
 		description: 'Offset Y',
+		hiddenFromList: false,
 	},
 	opacity: {
 		type: 'number',
@@ -53,13 +56,14 @@ const dropShadowSchema = {
 		step: 0.01,
 		default: DEFAULT_OPACITY,
 		description: 'Opacity',
+		hiddenFromList: false,
 	},
 	color: {
 		type: 'color',
 		default: DEFAULT_COLOR,
 		description: 'Color',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type DropShadowParams = {
 	/** Blur radius of the shadow in pixels. Defaults to `12`. */
@@ -104,7 +108,7 @@ const validateDropShadowParams = (params: DropShadowParams): void => {
 };
 
 export const dropShadow = createEffect<DropShadowParams, DropShadowState>({
-	type: 'remotion/drop-shadow',
+	type: 'dev.remotion.effects.dropShadow',
 	label: 'dropShadow()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/drop-shadow',
 	backend: 'webgl2',

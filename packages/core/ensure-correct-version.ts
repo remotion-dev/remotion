@@ -19,7 +19,7 @@ export const VERSION = '${version}';
 fs.writeFileSync(path.resolve(process.cwd(), 'src/version.ts'), src);
 
 cp.execSync('bun run make');
-cp.execSync('bun x tsc -d');
+cp.execSync('bun x tsgo -d');
 
 const distFile = fs.readFileSync('dist/esm/version.mjs', 'utf-8');
 

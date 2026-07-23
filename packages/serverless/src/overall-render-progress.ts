@@ -11,6 +11,14 @@ import type {
 } from '@remotion/serverless-client';
 import {overallProgressKey} from '@remotion/serverless-client';
 
+const progressUploadAttempts = 3;
+
+const wait = (duration: number) => {
+	return new Promise<void>((resolve) => {
+		setTimeout(resolve, duration);
+	});
+};
+
 export type OverallProgressHelper<Provider extends CloudProvider> = {
 	upload: (reason: string) => Promise<void>;
 	setFrames: ({
@@ -110,21 +118,12 @@ export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 		dirtyReasons.push(reason);
 	};
 
-	const runUploadLoop = async () => {
-		while (dirty) {
-			dirty = false;
-			const reasons = dirtyReasons.join(', ');
-			dirtyReasons = [];
-			const toWrite = JSON.stringify(renderProgress);
-
-			RenderInternals.Log.verbose(
-				{indent: false, logLevel},
-				`Uploading progress - ${reasons} (${toWrite.length} bytes)`,
-			);
+	const uploadWithRetries = async (body: string, reasons: string) => {
+		for (let attempt = 1; attempt <= progressUploadAttempts; attempt++) {
 			const start = Date.now();
 			try {
 				await providerSpecifics.writeFile({
-					body: toWrite,
+					body,
 					bucketName,
 					customCredentials: null,
 					downloadBehavior: null,
@@ -140,19 +139,38 @@ export const makeOverallRenderProgress = <Provider extends CloudProvider>({
 					{indent: false, logLevel},
 					`Uploaded progress in ${Date.now() - start}ms`,
 				);
-				// Space out the requests a bit
-				await new Promise<void>((resolve) => {
-					setTimeout(resolve, Math.max(0, 250 - (Date.now() - start)));
-				});
+				return;
 			} catch (err) {
-				// If an error occurs in uploading the state that contains the errors,
-				// that is unfortunate. We just log it.
+				const willRetry = attempt < progressUploadAttempts;
 				RenderInternals.Log.error(
 					{indent: false, logLevel},
-					'Error uploading progress',
+					willRetry
+						? `Error uploading progress (${reasons}), retrying (${attempt}/${progressUploadAttempts})`
+						: `Error uploading progress (${reasons})`,
 					err,
 				);
+				if (willRetry) {
+					await wait(100 * 2 ** (attempt - 1));
+				}
 			}
+		}
+	};
+
+	const runUploadLoop = async () => {
+		while (dirty) {
+			dirty = false;
+			const reasons = dirtyReasons.join(', ');
+			dirtyReasons = [];
+			const toWrite = JSON.stringify(renderProgress);
+
+			RenderInternals.Log.verbose(
+				{indent: false, logLevel},
+				`Uploading progress - ${reasons} (${toWrite.length} bytes)`,
+			);
+			const start = Date.now();
+			await uploadWithRetries(toWrite, reasons);
+			// Space out the requests a bit
+			await wait(Math.max(0, 250 - (Date.now() - start)));
 		}
 
 		uploadLoopPromise = null;

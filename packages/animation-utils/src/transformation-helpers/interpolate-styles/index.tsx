@@ -1,5 +1,6 @@
 import {
 	assertValidInterpolateEasingOption,
+	assertValidInterpolatePosterizeOption,
 	interpolate,
 	interpolateColors,
 	type EasingFunction,
@@ -302,7 +303,13 @@ export const interpolateStyles = (
 	checkInputRange(inputRange);
 	checkStylesRange(outputStylesRange);
 
-	let startIndex = inputRange.findIndex((step) => input < step) - 1;
+	assertValidInterpolatePosterizeOption(options?.posterize);
+	const posterizedInput =
+		options?.posterize === undefined
+			? input
+			: Math.floor(input / options.posterize) * options.posterize;
+
+	let startIndex = inputRange.findIndex((step) => posterizedInput < step) - 1;
 	if (startIndex === -1) {
 		startIndex = 0;
 	}
@@ -332,7 +339,7 @@ export const interpolateStyles = (
 		options?.extrapolateRight ?? 'extend';
 
 	return interpolateStylesFunction({
-		inputValue: input,
+		inputValue: posterizedInput,
 		inputRange: [startingValue, endingValue],
 		initialStyle,
 		finalStyle,

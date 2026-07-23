@@ -16,6 +16,7 @@ export type RemotionOption<SsrName extends string, Type> = {
 		source: string;
 	};
 	setConfig: (value: Type) => void;
+	reset?: () => void;
 	id: string;
 };
 

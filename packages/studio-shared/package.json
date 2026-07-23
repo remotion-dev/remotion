@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio-shared"
 	},
 	"name": "@remotion/studio-shared",
-	"version": "4.0.469",
+	"version": "4.0.496",
 	"description": "Internal package for shared objects between the Studio backend and frontend",
 	"main": "dist",
 	"scripts": {
@@ -33,6 +33,18 @@
 	},
 	"exports": {
 		".": "./dist/index.js",
+		"./define-plugin-definitions": {
+			"types": "./dist/define-plugin-definitions.d.ts",
+			"default": "./dist/define-plugin-definitions.js"
+		},
+		"./studio-entry-points": {
+			"types": "./dist/studio-entry-points.d.ts",
+			"default": "./dist/studio-entry-points.js"
+		},
+		"./studio-html": {
+			"types": "./dist/studio-html.d.ts",
+			"default": "./dist/studio-html.js"
+		},
 		"./package.json": "./package.json"
 	}
 }

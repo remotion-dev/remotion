@@ -17,7 +17,7 @@ const getPlaybackRateLabel = (playbackRate: number) => {
 
 const accessibilityLabel = 'Change the playback rate';
 
-const comboStyle: React.CSSProperties = {width: 80};
+const comboStyle: React.CSSProperties = {width: 64};
 
 export const PlaybackRateSelector: React.FC<{
 	readonly playbackRate: number;
@@ -27,7 +27,7 @@ export const PlaybackRateSelector: React.FC<{
 	const isStill = useIsStill();
 	const style = useMemo(() => {
 		return {
-			padding: CONTROL_BUTTON_PADDING,
+			padding: CONTROL_BUTTON_PADDING - 2,
 		};
 	}, []);
 
@@ -68,6 +68,7 @@ export const PlaybackRateSelector: React.FC<{
 	return (
 		<div style={style} aria-label={accessibilityLabel}>
 			<Combobox
+				size="compact"
 				title={accessibilityLabel}
 				style={comboStyle}
 				selectedId={String(playbackRate)}

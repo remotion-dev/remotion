@@ -7,7 +7,9 @@ crumb: 'API - remotion'
 
 [_previously called `<Audio>`_](/docs/mediabunny/new-video)
 
-Using this component, you can add audio to your video. All audio formats which are supported by Chrome are supported by the component.
+This is the HTML5 audio component from the [`remotion`](/docs/remotion) package. For new audio usage, prefer [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media).
+
+Use this component when you specifically need direct HTML5 audio behavior or fallback props for [`<Audio>`](/docs/media/audio). All audio formats supported by Chrome are supported by the component.
 
 :::warning Not supported in client-side rendering
 `<Html5Audio>` is not supported in [`@remotion/web-renderer`](/docs/client-side-rendering). Use [`<Audio>`](/docs/media/audio) from `@remotion/media` instead.
@@ -59,8 +61,7 @@ export const MyVideo = () => {
 };
 ```
 
-By default, volumes between 0 and 1 are supported, where in iOS Safari, the volume is always 1.  
-See [Volume Limitations](/docs/audio/volume#limitations) for more information.
+By default, volumes between `0` and `1` are supported, and iOS Safari always sets the volume to `1`. Set [`useWebAudioApi`](#usewebaudioapi) to `true` to remove these limitations. This requires `crossOrigin="anonymous"`, and the audio source must support CORS. On Safari, `useWebAudioApi` cannot be combined with [`playbackRate`](#playbackrate); otherwise, volume changes are ignored.
 
 ### `loopVolumeCurveBehavior?`<AvailableFrom v="4.0.142" />
 
@@ -225,7 +226,7 @@ Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRen
 
 ### `useWebAudioApi?`<AvailableFrom v="4.0.306" />
 
-Enable the [Web Audio API](/docs/audio/volume#limitations) for the audio tag.
+Enables the Web Audio API for the audio tag, allowing volume values above `1` and volume control on iOS Safari. Set `crossOrigin="anonymous"` and ensure the audio source supports CORS. On Safari, this cannot be combined with [`playbackRate`](#playbackrate); otherwise, volume changes are ignored.
 
 ### `onError?`<AvailableFrom v="4.0.326" />
 
@@ -252,8 +253,8 @@ To prevent synthetic amplification, set a volume not higher than 1.
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/audio/html5-audio.tsx)
 - [Using audio](/docs/using-audio)
 - [Audio visualization](/docs/audio/visualization)
-- [`<Html5Video />`](/docs/html5-video)
 - [`<Audio />` (from `@remotion/media`)](/docs/media/audio)
+- [`<Html5Video />`](/docs/html5-video)
 
 <Credits
   contributors={[

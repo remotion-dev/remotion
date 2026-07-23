@@ -47,13 +47,10 @@ const {
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
 	askAIOption,
-	experimentalClientSideRenderingOption,
 	keyboardShortcutsOption,
 	rspackOption,
-	pixelFormatOption,
 	browserExecutableOption,
 	everyNthFrameOption,
-	proResProfileOption,
 	userAgentOption,
 	disableWebSecurityOption,
 	ignoreCertificateErrorsOption,
@@ -64,6 +61,7 @@ const {
 	overrideDurationOption,
 	bundleCacheOption,
 	sampleRateOption,
+	stillFrameOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -95,7 +93,7 @@ export const render = async (
 
 	const fullEntryPoint = convertEntryPointToServeUrl(file);
 
-	if (parsedCli.frame) {
+	if (stillFrameOption.getValue({commandLine: parsedCli}).source === 'cli') {
 		Log.error(
 			{indent: false, logLevel},
 			'--frame flag was passed to the `render` command. This flag only works with the `still` command. Did you mean `--frames`? See reference: https://www.remotion.dev/docs/cli/',
@@ -129,16 +127,10 @@ export const render = async (
 		commandLine: parsedCli,
 	}).value;
 
-	const pixelFormat = pixelFormatOption.getValue({
-		commandLine: parsedCli,
-	}).value;
 	const browserExecutable = browserExecutableOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 	const everyNthFrame = everyNthFrameOption.getValue({
-		commandLine: parsedCli,
-	}).value;
-	const proResProfile = proResProfileOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 	const userAgent = userAgentOption.getValue({commandLine: parsedCli}).value;
@@ -258,11 +250,6 @@ export const render = async (
 	const shouldCache = bundleCacheOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const experimentalClientSideRenderingEnabled =
-		experimentalClientSideRenderingOption.getValue({
-			commandLine: parsedCli,
-		}).value;
-
 	await renderVideoFlow({
 		fullEntryPoint,
 		remotionRoot,
@@ -310,9 +297,9 @@ export const render = async (
 		audioBitrate,
 		muted,
 		enforceAudioTrack,
-		proResProfile,
+		proResProfile: undefined,
 		x264Preset,
-		pixelFormat,
+		pixelFormat: null,
 		videoBitrate,
 		encodingMaxRate,
 		encodingBufferSize,
@@ -334,7 +321,6 @@ export const render = async (
 		audioLatencyHint,
 		imageSequencePattern,
 		askAIEnabled,
-		experimentalClientSideRenderingEnabled,
 		keyboardShortcutsEnabled,
 		rspack,
 		sampleRate,

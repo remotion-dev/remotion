@@ -1,6 +1,13 @@
-import {existsSync, lstatSync, readdirSync, readFileSync} from 'node:fs';
-import path from 'node:path';
 import {$} from 'bun';
+import {
+	copyFileSync,
+	existsSync,
+	lstatSync,
+	readdirSync,
+	readFileSync,
+	unlinkSync,
+} from 'node:fs';
+import path from 'node:path';
 import limit from 'p-limit';
 import {FEATURED_TEMPLATES} from './packages/create-video/src/templates';
 
@@ -32,8 +39,22 @@ for (const dir of dirs) {
 	}
 
 	promises.push(
-		p(() => {
-			return $`bun publish --tolerate-republish`.cwd(packagePath);
+		p(async () => {
+			const licensePath = path.join(packagePath, 'LICENSE.md');
+			const copiedLicense =
+				packageJson.license?.includes('LICENSE.md') && !existsSync(licensePath);
+
+			if (copiedLicense) {
+				copyFileSync(path.join(process.cwd(), 'LICENSE.md'), licensePath);
+			}
+
+			try {
+				await $`bun publish --tolerate-republish`.cwd(packagePath);
+			} finally {
+				if (copiedLicense) {
+					unlinkSync(licensePath);
+				}
+			}
 		}),
 	);
 }

@@ -9,6 +9,8 @@ import {
 	VideoSampleSink,
 	WEBM,
 } from 'mediabunny';
+import type {LogLevel} from 'remotion';
+import {Internals} from 'remotion';
 import {canBrowserUseWebGl2} from '../browser-can-use-webgl2';
 import {getDurationOrCompute} from '../get-duration-or-compute';
 import {resolveAudioTrack} from '../helpers/resolve-audio-track';
@@ -35,6 +37,7 @@ export type VideoSinkResult =
 	| VideoSinks
 	| 'no-video-track'
 	| 'cannot-decode'
+	| 'cannot-decode-prores'
 	| 'cannot-decode-alpha'
 	| 'unknown-container-format'
 	| 'network-error';
@@ -59,6 +62,7 @@ const getFormatOrNullOrNetworkError = async (
 
 export const getSinks = async (
 	src: string,
+	logLevel: LogLevel,
 	credentials: RequestCredentials | undefined,
 	requestInit?: MediaRequestInit,
 ) => {
@@ -105,6 +109,10 @@ export const getSinks = async (
 		const canDecode = await videoTrack.canDecode();
 
 		if (!canDecode) {
+			if (videoTrack.codec === 'prores') {
+				return 'cannot-decode-prores';
+			}
+
 			return 'cannot-decode';
 		}
 
@@ -120,7 +128,10 @@ export const getSinks = async (
 
 		const hasAlpha = startPacket?.sideData.alpha;
 		if (hasAlpha && !canBrowserUseWebGl2()) {
-			return 'cannot-decode-alpha';
+			Internals.Log.warn(
+				{logLevel, tag: '@remotion/media'},
+				`WebGL2 is not available, using the non-fast CPU path to decode alpha for ${src}.`,
+			);
 		}
 
 		return {

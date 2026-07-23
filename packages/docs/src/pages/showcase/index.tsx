@@ -8,54 +8,29 @@ import {
 	showcaseVideos,
 	shuffledShowcaseVideos,
 } from '../../data/showcase-videos';
-import {useMobileLayout} from '../../helpers/mobile-layout';
-import headerStyles from './header.module.css';
 import styles from './styles.module.css';
 
 const PageHeader: React.FC = () => {
 	return (
-		<div
-			style={{
-				maxWidth: 'var(--ifm-container-width)',
-				paddingLeft: 20,
-				paddingRight: 20,
-				margin: 'auto',
-				marginTop: 50,
-			}}
-		>
-			<div style={{flex: 1}}>
-				<h1 className={headerStyles.title}>Showcase</h1>
-
-				<p>
-					This page showcases products and campaigns crafted with Remotion. From
-					dynamic video content to engaging animations, each project highlights
-					the versatility and creativity enabled by Remotion.{' '}
+		<header className={styles.hero}>
+			<div className={styles.container}>
+				<h1 className={styles.title}>Showcase</h1>
+				<p className={styles.lede}>
+					Products, campaigns, launch videos, tutorials and creative tools made
+					with Remotion. Scan the gallery by use case, then open any card to
+					watch the motion in detail.
 				</p>
-				<p>
-					We have moved to curating the showcase ourselves and are not taking
-					any new submissions at this time.
-				</p>
-				<p>
-					See more projects, applications, examples and libraries on the{' '}
-					<a href="/docs/resources">Resources</a> page.
+				<p className={styles.note}>
+					Curated by Remotion. We are not taking new showcase submissions right
+					now. For more projects, applications, examples and libraries, browse
+					the <a href="/docs/resources">Resources</a> page.
 				</p>
 			</div>
-		</div>
+		</header>
 	);
 };
 
-const container: React.CSSProperties = {
-	maxWidth: 'var(--ifm-container-width)',
-	width: '100%',
-	margin: 'auto',
-	marginTop: 50,
-	paddingLeft: 20,
-	paddingRight: 20,
-};
-
 const Showcase = () => {
-	const mobileLayout = useMobileLayout();
-
 	const [userHasInteractedWithPage, setUserHasInteractedWithPage] =
 		useState(false);
 	const [video, setVideo] = useState<ShowcaseVideo | null>(() => {
@@ -119,20 +94,6 @@ const Showcase = () => {
 		setVideo(null);
 	}, []);
 
-	const layoutStyle: React.CSSProperties = useMemo(() => {
-		if (mobileLayout) {
-			return {
-				width: '100%',
-				marginBottom: 20,
-			};
-		}
-
-		return {
-			display: 'inline-block',
-			width: '100%',
-		};
-	}, [mobileLayout]);
-
 	return (
 		<Layout>
 			<Head>
@@ -144,35 +105,37 @@ const Showcase = () => {
 			</Head>
 			<div>
 				<PageHeader />
+				<VideoPlayer
+					hasNext={hasNext}
+					hasPrevious={hasPrevious}
+					toNext={goToNextVideo}
+					toPrevious={goToPreviousVideo}
+					dismiss={dismiss}
+					video={video}
+					userHasInteractedWithPage={userHasInteractedWithPage}
+				/>
+				<main>
+					<section className={styles.gallerySection}>
+						<div className={styles.container}>
+							<div className={styles.videosMasonry}>
+								{shuffledShowcaseVideos.map((vid) => {
+									return (
+										<div key={vid.muxId} className={styles.videosMasonryItem}>
+											<VideoPreview
+												onClick={() => {
+													setVideo(vid);
+													setUserHasInteractedWithPage(true);
+												}}
+												{...vid}
+											/>
+										</div>
+									);
+								})}
+							</div>
+						</div>
+					</section>
+				</main>
 			</div>
-			<VideoPlayer
-				hasNext={hasNext}
-				hasPrevious={hasPrevious}
-				toNext={goToNextVideo}
-				toPrevious={goToPreviousVideo}
-				dismiss={dismiss}
-				video={video}
-				userHasInteractedWithPage={userHasInteractedWithPage}
-			/>
-			<main>
-				<section className={styles.videos}>
-					<div className={styles.container} style={container}>
-						{shuffledShowcaseVideos.map((vid) => {
-							return (
-								<div key={vid.muxId} style={layoutStyle}>
-									<VideoPreview
-										onClick={() => {
-											setVideo(vid);
-											setUserHasInteractedWithPage(true);
-										}}
-										{...vid}
-									/>
-								</div>
-							);
-						})}
-					</div>
-				</section>
-			</main>
 		</Layout>
 	);
 };

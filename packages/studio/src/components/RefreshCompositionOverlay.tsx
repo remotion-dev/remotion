@@ -1,5 +1,6 @@
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
+import {SHADOW_BLACK} from '../helpers/colors';
 import {RunningCalculateMetadata} from './RunningCalculateMetadata';
 
 export const container: React.CSSProperties = {
@@ -10,7 +11,7 @@ export const container: React.CSSProperties = {
 };
 
 const shadow: React.CSSProperties = {
-	boxShadow: '0 0 4px black',
+	boxShadow: SHADOW_BLACK,
 };
 
 export const RefreshCompositionOverlay: React.FC = () => {

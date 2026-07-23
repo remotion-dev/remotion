@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -13,7 +13,7 @@ const {createEffect} = Internals;
 
 const brightnessSchema = {
 	amount: brightnessAmountSchema,
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type BrightnessParams = {
 	/** Brightness adjustment amount between -1 and 1. Defaults to `0`. */
@@ -37,7 +37,7 @@ const validateBrightnessParams = (params: BrightnessParams): void => {
 };
 
 export const brightness = createEffect<BrightnessParams, null>({
-	type: 'remotion/brightness',
+	type: 'dev.remotion.effects.brightness',
 	label: 'brightness()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/brightness',
 	backend: '2d',

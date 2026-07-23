@@ -1,4 +1,5 @@
 import {hasAnyTransformCssValue, hasTransformCssValue} from './has-transform';
+import {makeDOMMatrix} from './make-dom-matrix';
 import {getMaskImageValue, parseMaskImage} from './mask-image';
 import type {LinearGradientInfo} from './parse-linear-gradient';
 import {parseTransformOrigin} from './parse-transform-origin';
@@ -29,6 +30,77 @@ type Transform = {
 	boundingClientRect: DOMRect | null;
 };
 
+type TransformStyle = Pick<
+	CSSStyleDeclaration,
+	'display' | 'rotate' | 'scale' | 'transform' | 'transformOrigin'
+>;
+
+export type TransformStyleCache = WeakMap<Element, TransformStyle>;
+
+const snapshotTransformStyle = (
+	computedStyle: CSSStyleDeclaration,
+): TransformStyle => {
+	return {
+		display: computedStyle.display,
+		rotate: computedStyle.rotate,
+		scale: computedStyle.scale,
+		transform: computedStyle.transform,
+		transformOrigin: computedStyle.transformOrigin,
+	};
+};
+
+const isReplacedElement = (element: Element) => {
+	return (
+		element instanceof HTMLImageElement ||
+		element instanceof HTMLVideoElement ||
+		element instanceof HTMLCanvasElement ||
+		element instanceof HTMLIFrameElement ||
+		element instanceof HTMLInputElement ||
+		element instanceof HTMLTextAreaElement ||
+		element instanceof HTMLSelectElement ||
+		element instanceof HTMLObjectElement ||
+		element instanceof HTMLEmbedElement
+	);
+};
+
+const canApplyCssTransforms = ({
+	element,
+	computedStyle,
+}: {
+	element: HTMLElement | SVGElement;
+	computedStyle: Pick<CSSStyleDeclaration, 'display'>;
+}) => {
+	if (element instanceof SVGElement) {
+		return true;
+	}
+
+	if (computedStyle.display !== 'inline') {
+		return true;
+	}
+
+	return isReplacedElement(element);
+};
+
+const makeTransformResetter = (element: HTMLElement | SVGElement) => {
+	const {transform, scale, rotate} = element.style;
+
+	return (hasApplicableTransformCssValue: boolean) => {
+		if (hasApplicableTransformCssValue) {
+			element.style.transform = 'none';
+			element.style.scale = 'none';
+			element.style.rotate = 'none';
+		}
+
+		return () => {
+			if (hasApplicableTransformCssValue) {
+				element.style.transform = transform;
+				element.style.scale = scale;
+				element.style.rotate = rotate;
+			}
+		};
+	};
+};
+
 const getInternalTransformOrigin = (transform: Transform) => {
 	const centerX = transform.boundingClientRect!.width / 2;
 	const centerY = transform.boundingClientRect!.height / 2;
@@ -53,9 +125,11 @@ const getGlobalTransformOrigin = ({transform}: {transform: Transform}) => {
 export const calculateTransforms = ({
 	element,
 	rootElement,
+	transformStyleCache,
 }: {
 	element: HTMLElement | SVGElement;
 	rootElement: HTMLElement | SVGElement;
+	transformStyleCache: TransformStyleCache;
 }) => {
 	// Compute the cumulative transform by traversing parent nodes
 	let parent: HTMLElement | SVGElement | null = element;
@@ -67,15 +141,35 @@ export const calculateTransforms = ({
 	let maskImageInfo: LinearGradientInfo | null = null;
 	let filterForPrecompositing: string | null = null;
 	while (parent) {
+		// Each node walks its ancestors, so reuse their immutable transform fields
+		// for the remainder of this composition.
+		const cachedTransformStyle = transformStyleCache.get(parent);
+		const shouldReadComputedStyle =
+			parent === element || cachedTransformStyle === undefined;
+
 		// Neutralize transition before reading computed style to prevent
 		// CSS transitions from returning intermediate (t=0) transform values
 		// when we set transform to 'none' for measurement
 		const originalTransition = parent.style.transition;
 		parent.style.transition = 'none';
 
-		const computedStyle = getComputedStyle(parent);
+		const computedStyle = shouldReadComputedStyle
+			? getComputedStyle(parent)
+			: null;
+		const transformStyle =
+			computedStyle === null
+				? cachedTransformStyle!
+				: snapshotTransformStyle(computedStyle);
+
+		if (computedStyle !== null) {
+			transformStyleCache.set(parent, transformStyle);
+		}
 
 		if (parent === element) {
+			if (computedStyle === null) {
+				throw new Error('Element computed style not found');
+			}
+
 			elementComputedStyle = computedStyle;
 			opacity = parseFloat(computedStyle.opacity);
 			const maskImageValue = getMaskImageValue(computedStyle);
@@ -106,13 +200,19 @@ export const calculateTransforms = ({
 			});
 		}
 
-		if (hasAnyTransformCssValue(computedStyle) || parent === element) {
-			const toParse = hasTransformCssValue(computedStyle)
-				? computedStyle.transform
-				: undefined;
-			const matrix = new DOMMatrix(toParse);
+		const hasApplicableTransformCssValue =
+			canApplyCssTransforms({computedStyle: transformStyle, element: parent}) &&
+			hasAnyTransformCssValue(transformStyle);
 
-			const {transform, scale, rotate} = parent.style;
+		if (hasApplicableTransformCssValue || parent === element) {
+			const toParse =
+				hasApplicableTransformCssValue && hasTransformCssValue(transformStyle)
+					? transformStyle.transform
+					: undefined;
+			const matrix = makeDOMMatrix(toParse);
+
+			const resetTransforms = makeTransformResetter(parent);
+			const {scale, rotate} = parent.style;
 			const additionalMatrices: DOMMatrix[] = [];
 
 			// The order of transformations is:
@@ -120,31 +220,31 @@ export const calculateTransforms = ({
 			// 2. Rotate
 			// 3. Scale
 			// 4. CSS "transform"
-			if (rotate !== '' && rotate !== 'none') {
-				additionalMatrices.push(new DOMMatrix(`rotate(${rotate})`));
+			if (
+				hasApplicableTransformCssValue &&
+				rotate !== '' &&
+				rotate !== 'none'
+			) {
+				additionalMatrices.push(makeDOMMatrix(`rotate(${rotate})`));
 			}
 
-			if (scale !== '' && scale !== 'none') {
-				additionalMatrices.push(new DOMMatrix(`scale(${scale})`));
+			if (hasApplicableTransformCssValue && scale !== '' && scale !== 'none') {
+				additionalMatrices.push(makeDOMMatrix(`scale(${scale})`));
 			}
 
 			additionalMatrices.push(matrix);
 
-			parent.style.transform = 'none';
-			parent.style.scale = 'none';
-			parent.style.rotate = 'none';
+			const cleanup = resetTransforms(hasApplicableTransformCssValue);
 
 			transforms.push({
 				element: parent,
-				transformOrigin: computedStyle.transformOrigin,
+				transformOrigin: transformStyle.transformOrigin,
 				boundingClientRect: null,
 				matrices: additionalMatrices,
 			});
 			const parentRef = parent;
 			toReset.push(() => {
-				parentRef!.style.transform = transform;
-				parentRef!.style.scale = scale;
-				parentRef!.style.rotate = rotate;
+				cleanup();
 				parentRef!.style.transition = originalTransition;
 			});
 		} else {

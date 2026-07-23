@@ -4,8 +4,8 @@ import {TableOfContents as AnimationUtilsTableOfContents} from '../../docs/anima
 import {TableOfContents as BundlerTableOfContents} from '../../docs/bundler/table-of-contents';
 import {TableOfContents as CaptionsTableOfContents} from '../../docs/captions/TableOfContents';
 import {TableOfContents as CloudrunTableOfContents} from '../../docs/cloudrun/table-of-contents';
-import {TableOfContents as EnableScssTableOfContents} from '../../docs/enable-scss/TableOfContents';
 import {TableOfContents as ElevenLabsTableOfContents} from '../../docs/elevenlabs/TableOfContents';
+import {TableOfContents as EnableScssTableOfContents} from '../../docs/enable-scss/TableOfContents';
 import {TableOfContents as FontsTableOfContents} from '../../docs/fonts-api/TableOfContents';
 import {TableOfContents as GifTableOfContents} from '../../docs/gif/table-of-contents';
 import {TableOfContents as GoogleFontsTableOfContents} from '../../docs/google-fonts/TableOfContents';
@@ -15,9 +15,9 @@ import {TableOfContents as LayoutUtilsTableOfContents} from '../../docs/layout-u
 import {TableOfContents as LicensingTableOfContents} from '../../docs/licensing/TableOfContents';
 import {TableOfContents as LightLeaksTableOfContents} from '../../docs/light-leaks/table-of-contents';
 import {TableOfContents as LottieTableOfContents} from '../../docs/lottie/table-of-contents';
-import {TableOfContents as NewVideoTableOfContents} from '../../docs/media/table-of-contents';
 import {TableOfContents as MediaParserTableOfContents} from '../../docs/media-parser/TableOfContents';
 import {TableOfContents as MediaUtilsTableOfContents} from '../../docs/media-utils/table-of-contents';
+import {TableOfContents as NewVideoTableOfContents} from '../../docs/media/table-of-contents';
 import {TableOfContents as MotionBlurTableOfContents} from '../../docs/motion-blur/table-of-contents';
 import {TableOfContents as NoiseTableOfContents} from '../../docs/noise/table-of-contents';
 import {TableOfContents as OpenAiWhisperTableOfContents} from '../../docs/openai-whisper/TableOfContents';
@@ -27,6 +27,7 @@ import {TableOfContents as PreloadTableOfContents} from '../../docs/preload/tabl
 import {TableOfContents as RemotionTableOfContents} from '../../docs/remotion/table-of-contents';
 import {TableOfContents as RendererTableOfContents} from '../../docs/renderer/TableOfContents';
 import {TableOfContents as RiveTableOfContents} from '../../docs/rive/table-of-contents';
+import {TableOfContents as RoughNotationTableOfContents} from '../../docs/rough-notation/table-of-contents';
 import {TableOfContents as SfxTableOfContents} from '../../docs/sfx/table-of-contents';
 import {TableOfContents as ShapesTableOfContents} from '../../docs/shapes/table-of-contents';
 import {TableOfContents as SkiaTableOfContents} from '../../docs/skia/TableOfContents';
@@ -110,6 +111,9 @@ export const TableOfContents: React.FC = () => {
 			<h2>@remotion/light-leaks</h2>
 			<p>Light Leak effects</p>
 			<LightLeaksTableOfContents />
+			<h2>@remotion/rough-notation</h2>
+			<p>Rough annotation primitives</p>
+			<RoughNotationTableOfContents />
 			<h2>@remotion/lottie</h2>
 			<p>Include a Lottie animation in your video</p>
 			<LottieTableOfContents apisOnly />

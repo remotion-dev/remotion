@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -23,6 +23,7 @@ const scanlinesSchema = {
 		step: 0.01,
 		default: DEFAULT_AMOUNT,
 		description: 'Amount',
+		hiddenFromList: false,
 	},
 	spacing: {
 		type: 'number',
@@ -31,6 +32,7 @@ const scanlinesSchema = {
 		step: 0.1,
 		default: DEFAULT_SPACING,
 		description: 'Spacing',
+		hiddenFromList: false,
 	},
 	thickness: {
 		type: 'number',
@@ -39,19 +41,21 @@ const scanlinesSchema = {
 		step: 0.1,
 		default: DEFAULT_THICKNESS,
 		description: 'Thickness',
+		hiddenFromList: false,
 	},
 	offset: {
 		type: 'number',
 		step: 0.1,
 		default: DEFAULT_OFFSET,
 		description: 'Offset',
+		hiddenFromList: false,
 	},
 	premultiply: {
 		type: 'boolean',
 		default: DEFAULT_PREMULTIPLY,
 		description: 'Premultiply',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type ScanlinesParams = {
 	/** Strength of the scanline modulation from `0` to `1`. Defaults to `0.15`. */
@@ -301,7 +305,7 @@ const setupScanlines = (target: HTMLCanvasElement): ScanlinesState => {
 };
 
 export const scanlines = createEffect<ScanlinesParams, ScanlinesState>({
-	type: 'remotion/scanlines',
+	type: 'dev.remotion.effects.scanlines',
 	label: 'scanlines()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/scanlines',
 	backend: 'webgl2',

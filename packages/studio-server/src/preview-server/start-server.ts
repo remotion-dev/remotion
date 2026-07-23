@@ -12,6 +12,7 @@ import type {
 	GitSource,
 	RenderDefaults,
 	RenderJob,
+	StudioRuntimeConfig,
 } from '@remotion/studio-shared';
 import {detectRemotionServer} from '../detect-remotion-server';
 import {handleRoutes} from '../routes';
@@ -47,7 +48,6 @@ export const startServer = async (options: {
 	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	keyboardShortcutsEnabled: boolean;
-	experimentalClientSideRenderingEnabled: boolean;
 	publicDir: string;
 	poll: number | null;
 	staticHash: string;
@@ -57,16 +57,19 @@ export const startServer = async (options: {
 	logLevel: LogLevel;
 	getRenderQueue: () => RenderJob[];
 	getRenderDefaults: () => RenderDefaults;
-	numberOfAudioTags: number;
+	getNumberOfAudioTags: () => number;
 	queueMethods: QueueMethods;
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
 	forceIPv4: boolean;
-	audioLatencyHint: AudioContextLatencyCategory | null;
+	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
 	askAIEnabled: boolean;
+	interactivityEnabled: boolean;
 	forceNew: boolean;
 	rspack: boolean;
+	getStudioRuntimeConfig: () => StudioRuntimeConfig;
 }): Promise<StartServerResult> => {
 	const desiredPort =
 		options?.port ??
@@ -102,11 +105,10 @@ export const startServer = async (options: {
 		maxTimelineTracks: options?.maxTimelineTracks ?? null,
 		remotionRoot: options.remotionRoot,
 		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
-		experimentalClientSideRenderingEnabled:
-			options.experimentalClientSideRenderingEnabled,
 		poll: options.poll,
 		bufferStateDelayInMilliseconds: options.bufferStateDelayInMilliseconds,
 		askAIEnabled: options.askAIEnabled,
+		interactivityEnabled: options.interactivityEnabled,
 		extraPlugins: [watchIgnorePlugin],
 	};
 
@@ -142,7 +144,7 @@ export const startServer = async (options: {
 	const server = http.createServer((request, response) => {
 		if (options.enableCrossSiteIsolation) {
 			response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-			response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+			response.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
 		}
 
 		new Promise<void>((resolve) => {
@@ -167,12 +169,14 @@ export const startServer = async (options: {
 					logLevel: options.logLevel,
 					getRenderQueue: options.getRenderQueue,
 					getRenderDefaults: options.getRenderDefaults,
-					numberOfAudioTags: options.numberOfAudioTags,
+					getNumberOfAudioTags: options.getNumberOfAudioTags,
 					queueMethods: options.queueMethods,
 					gitSource: options.gitSource,
 					binariesDirectory: options.binariesDirectory,
-					audioLatencyHint: options.audioLatencyHint,
+					getAudioLatencyHint: options.getAudioLatencyHint,
+					getPreviewSampleRate: options.getPreviewSampleRate,
 					enableCrossSiteIsolation: options.enableCrossSiteIsolation,
+					getStudioRuntimeConfig: options.getStudioRuntimeConfig,
 				});
 			})
 			.catch((err) => {

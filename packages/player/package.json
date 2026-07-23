@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/player"
 	},
 	"name": "@remotion/player",
-	"version": "4.0.469",
+	"version": "4.0.496",
 	"description": "React component for embedding a Remotion preview into your app",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -14,7 +14,7 @@
 		"lint": "eslint src",
 		"make": "tsgo -d && bun ensure-correct-version.ts && bun --env-file=../.env.bundle bundle.ts",
 		"test": "bun test src",
-		"prerelease": "cp ../../README.md ."
+		"prerelease": "cp ../../README.md . && cp ../../LICENSE.md ."
 	},
 	"exports": {
 		"./package.json": "./package.json",

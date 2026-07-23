@@ -9,16 +9,17 @@ crumb: 'Frame-perfection'
 Consider the following markup:
 
 ```tsx twoslash title="MyComponent.tsx"
-import {AbsoluteFill, Sequence, OffthreadVideo} from 'remotion';
+import {Video} from '@remotion/media';
+import {AbsoluteFill, Sequence} from 'remotion';
 
 const MyComponent: React.FC = () => {
   return (
     <AbsoluteFill>
       <Sequence from={0} durationInFrames={120}>
-        <OffthreadVideo src="https://example.com/video1.mp4" />
+        <Video src="https://example.com/video1.mp4" />
       </Sequence>
       <Sequence from={120} durationInFrames={120}>
-        <OffthreadVideo src="https://example.com/video2.mp4" />
+        <Video src="https://example.com/video2.mp4" />
       </Sequence>
     </AbsoluteFill>
   );
@@ -37,15 +38,11 @@ This effect is only happening in the Remotion Studio and the Remotion Player, an
 
 ### Option 2: Pause the `<Player />` when media is buffering
 
-<strong style={{color: 'var(--ifm-color-primary)'}}>Recommended</strong>: This will become the default behavior in Remotion 5.0
+<strong style={{color: 'var(--ifm-color-primary)'}}>Recommended</strong>: This behavior is enabled by default for [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media).
 
 You may want to pause the `<Player>` temporarily to allow loading of the assets and resume once the assets are ready for playback.
 
-You can do so by adding a `pauseWhenBuffering` prop to your [`<Html5Video>`](/docs/html5-video/#pausewhenbuffering), [`<OffthreadVideo>`](/docs/offthreadvideo/#pausewhenbuffering), [`<Html5Audio>`](/docs/html5-audio/#pausewhenbuffering) and [`<Img>`](/docs/img#pausewhenloading) tags. [Learn more about the buffer state.](/docs/player/buffer-state)
-
-:::note
-The `pauseWhenBuffering` prop is enabled by default for [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media).
-:::
+If you use older media tags, add a `pauseWhenBuffering` prop to your [`<Html5Video>`](/docs/html5-video/#pausewhenbuffering), [`<OffthreadVideo>`](/docs/offthreadvideo/#pausewhenbuffering), or [`<Html5Audio>`](/docs/html5-audio/#pausewhenbuffering) tags. For images, add [`pauseWhenLoading`](/docs/img#pausewhenloading) to [`<Img>`](/docs/img). [Learn more about the buffer state.](/docs/player/buffer-state)
 
 ### Option 3: Premounting the video<AvailableFrom v="4.0.140"/>
 

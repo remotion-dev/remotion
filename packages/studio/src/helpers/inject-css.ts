@@ -1,5 +1,14 @@
 import {Internals} from 'remotion';
 import {DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME} from '../components/RenderModal/SchemaEditor/scroll-to-default-props-path';
+import {
+	BLACK,
+	BLUE,
+	BLUE_HOVERED,
+	BORDER_BLACK,
+	FOCUS_BOX_SHADOW,
+	TRANSPARENT,
+	WHITE,
+} from './colors';
 
 const makeDefaultGlobalCSS = () => {
 	const unhoveredDragAreaFactor = 2;
@@ -9,16 +18,14 @@ const makeDefaultGlobalCSS = () => {
 	const fromMiddleHovered = 50 / hoveredDragAreaFactor;
 
 	return `
-  html {
-    --remotion-cli-internals-blue: #0b84f3;
-    --remotion-cli-internals-blue-hovered: #4da3f7;
-    overscroll-behavior-y: none;
-    overscroll-behavior-x: none;
-  }
-  
+	  html {
+	    --remotion-cli-internals-blue: ${BLUE};
+	    --remotion-cli-internals-blue-hovered: ${BLUE_HOVERED};
+	    overscroll-behavior-y: none;
+	  }
+
   body {
     overscroll-behavior-y: none;
-    overscroll-behavior-x: none;
     /* Override Chakra UI position: relative on body */
     position: static !important;
   }
@@ -27,83 +34,95 @@ const makeDefaultGlobalCSS = () => {
     user-select: none;
     -webkit-user-select: none;
   }
-  
+
   .remotion-splitter-horizontal {
-    transform: scaleY(${unhoveredDragAreaFactor});
-    background: linear-gradient(
-      to bottom,
-      transparent ${50 - fromMiddle}%,
-      black ${50 - fromMiddle}%,
-      black ${50 + fromMiddle}%,
-      transparent ${50 + fromMiddle}%
-    );
-  }
-  
+	    transform: scaleY(${unhoveredDragAreaFactor});
+	    background: linear-gradient(
+	      to bottom,
+	      ${TRANSPARENT} ${50 - fromMiddle}%,
+	      ${BLACK} ${50 - fromMiddle}%,
+	      ${BLACK} ${50 + fromMiddle}%,
+	      ${TRANSPARENT} ${50 + fromMiddle}%
+	    );
+	  }
+
   .remotion-splitter-horizontal.remotion-splitter-active, .remotion-splitter-horizontal.remotion-splitter-hover {
-    background: linear-gradient(
-      to bottom,
-      transparent ${50 - fromMiddleHovered}%,
-      var(--remotion-cli-internals-blue) ${50 - fromMiddleHovered}%,
-      var(--remotion-cli-internals-blue) ${50 + fromMiddleHovered}%,
-      transparent ${50 + fromMiddleHovered}%
-    );
+	    background: linear-gradient(
+	      to bottom,
+	      ${TRANSPARENT} ${50 - fromMiddleHovered}%,
+	      var(--remotion-cli-internals-blue) ${50 - fromMiddleHovered}%,
+	      var(--remotion-cli-internals-blue) ${50 + fromMiddleHovered}%,
+	      ${TRANSPARENT} ${50 + fromMiddleHovered}%
+	    );
     cursor: row-resize;
     transform: scaleY(${hoveredDragAreaFactor});
     z-index: 1000;
   }
-  
+
   .remotion-splitter-vertical {
-    transform: scaleX(${unhoveredDragAreaFactor});
-    background: linear-gradient(
-      to right,
-      transparent ${50 - fromMiddle}%,
-      black ${50 - fromMiddle}%,
-      black ${50 + fromMiddle}%,
-      transparent ${50 + fromMiddle}%
-    );
-  }
-  
+	    transform: scaleX(${unhoveredDragAreaFactor});
+	    background: linear-gradient(
+	      to right,
+	      ${TRANSPARENT} ${50 - fromMiddle}%,
+	      ${BLACK} ${50 - fromMiddle}%,
+	      ${BLACK} ${50 + fromMiddle}%,
+	      ${TRANSPARENT} ${50 + fromMiddle}%
+	    );
+	  }
+
   .remotion-splitter-vertical.remotion-splitter-active, .remotion-splitter-vertical.remotion-splitter-hover {
-    background: linear-gradient(
-      to right,
-      transparent ${50 - fromMiddleHovered}%,
-      var(--remotion-cli-internals-blue) ${50 - fromMiddleHovered}%,
-      var(--remotion-cli-internals-blue) ${50 + fromMiddleHovered}%,
-      transparent ${50 + fromMiddleHovered}%
-    );
+	    background: linear-gradient(
+	      to right,
+	      ${TRANSPARENT} ${50 - fromMiddleHovered}%,
+	      var(--remotion-cli-internals-blue) ${50 - fromMiddleHovered}%,
+	      var(--remotion-cli-internals-blue) ${50 + fromMiddleHovered}%,
+	      ${TRANSPARENT} ${50 + fromMiddleHovered}%
+	    );
     transform: scaleX(${hoveredDragAreaFactor});
     cursor: col-resize;
     z-index: 1000;
   }
-  
+
   input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
-  
+
   input:focus,
   textarea:focus,
   button:focus:not(.__remotion_input_dragger):not(.__remotion_color_swatch),
   a:focus {
+	    outline: none;
+	    box-shadow: ${FOCUS_BOX_SHADOW};
+	  }
+
+  .__remotion-composition-selector-item:focus,
+  .__remotion-inspector-inline-action:focus {
     outline: none;
-    box-shadow:
-      inset 1px 1px #555,
-      inset -1px -1px #555,
-      inset 1px -1px #555,
-      inset -1px 1px #555;
+    box-shadow: none;
+  }
+
+  .__remotion-composition-selector-item:focus-visible,
+  .__remotion-inspector-inline-action:focus-visible {
+    box-shadow: ${FOCUS_BOX_SHADOW};
   }
 
   .__remotion_color_swatch:focus {
     outline: none;
   }
-  
+
+	  .__remotion_input_dragger:focus-visible {
+	    outline: none;
+	    box-shadow: ${FOCUS_BOX_SHADOW};
+	  }
+
   .__remotion_thumb,
   .__remotion_thumb::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  
+	    -webkit-appearance: none;
+	    -webkit-tap-highlight-color: ${TRANSPARENT};
+	  }
+
   .__remotion_thumb {
     pointer-events: none;
     position: absolute;
@@ -114,32 +133,32 @@ const makeDefaultGlobalCSS = () => {
     margin-left: -2px;
     z-index: 2;
   }
-  
-  /* For Firefox browsers */
-  .__remotion_thumb::-moz-range-thumb {
-    border: 1px solid black;
-    border-radius: 2px;
-    cursor: pointer;
-    height: 37px;
-    width: 10px;
-    pointer-events: all;
-    border-color: black;
-    background-color: white;
-    position: relative;
-  }
-  
-  /* For Chrome browsers */
-  .__remotion_thumb::-webkit-slider-thumb {
-    border: 1px solid black;
-    border-radius: 2px;
-    cursor: pointer;
-    height: 39px;
-    width: 10px;
-    pointer-events: all;
-    border-color: black;
-    background-color: white;
-    position: relative;
-  }  
+
+	  /* For Firefox browsers */
+	  .__remotion_thumb::-moz-range-thumb {
+	    border: ${BORDER_BLACK};
+	    border-radius: 2px;
+	    cursor: pointer;
+	    height: 37px;
+	    width: 10px;
+	    pointer-events: all;
+	    border-color: ${BLACK};
+	    background-color: ${WHITE};
+	    position: relative;
+	  }
+
+	  /* For Chrome browsers */
+	  .__remotion_thumb::-webkit-slider-thumb {
+	    border: ${BORDER_BLACK};
+	    border-radius: 2px;
+	    cursor: pointer;
+	    height: 39px;
+	    width: 10px;
+	    pointer-events: all;
+	    border-color: ${BLACK};
+	    background-color: ${WHITE};
+	    position: relative;
+	  }
 
   .__remotion_input_dragger:hover span {
     color: var(--remotion-cli-internals-blue-hovered) !important;

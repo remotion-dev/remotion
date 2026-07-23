@@ -26,8 +26,7 @@ const HtmlInCanvasDocsDemo2DBlurInner: React.FC = () => {
 
 			const t = (frame / fps) * Math.PI * 2 * BLUR_CYCLES_PER_SECOND;
 			const blurPx =
-				BLUR_MIN_PX +
-				(BLUR_MAX_PX - BLUR_MIN_PX) * (0.5 + 0.5 * Math.sin(t));
+				BLUR_MIN_PX + (BLUR_MAX_PX - BLUR_MIN_PX) * (0.5 + 0.5 * Math.sin(t));
 
 			ctx.reset();
 			ctx.filter = `blur(${blurPx}px)`;
@@ -63,7 +62,9 @@ export const HtmlInCanvasDocsDemo2DBlur: React.FC = () => {
 	}
 
 	if (branch === 'fallback') {
-		return <HtmlInCanvasDocsVideoFallback relativeSrc="img/html-in-canvas-2d-blur.mp4" />;
+		return (
+			<HtmlInCanvasDocsVideoFallback relativeSrc="img/html-in-canvas-2d-blur.mp4" />
+		);
 	}
 
 	return <HtmlInCanvasDocsDemo2DBlurInner />;

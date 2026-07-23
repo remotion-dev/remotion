@@ -19,19 +19,26 @@ export const useEmitVideoFrame = ({
 		}
 
 		let handle = 0;
-		const callback = () => {
+		const callback: VideoFrameRequestCallback = (_now, metadata) => {
 			if (!ref.current) {
 				return;
 			}
 
-			onVideoFrame(ref.current);
+			onVideoFrame(ref.current, _now, metadata);
 			handle = ref.current.requestVideoFrameCallback(callback);
 		};
 
-		callback();
+		onVideoFrame(current);
+		if (!current.requestVideoFrameCallback) {
+			return;
+		}
+
+		handle = current.requestVideoFrameCallback(callback);
 
 		return () => {
-			current.cancelVideoFrameCallback(handle);
+			if (handle) {
+				current.cancelVideoFrameCallback(handle);
+			}
 		};
 	}, [onVideoFrame, ref]);
 };

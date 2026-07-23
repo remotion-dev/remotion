@@ -5,8 +5,11 @@ import {
 	extractFrames,
 	fillFrameWhereItFits,
 	fillWithCachedFrames,
+	frameDatabase,
 	getAspectRatioFromCache,
+	getFrameDatabaseKeyPrefix,
 	getLoopDisplayWidth,
+	getTimestampFromFrameDatabaseKey,
 	makeFrameDatabaseKey,
 	resizeVideoFrame,
 	shouldTileLoopDisplay,
@@ -15,12 +18,15 @@ import {
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
 import {useVideoConfig} from 'remotion';
+import {BLACK_ALPHA_30} from '../../helpers/colors';
 import {
 	TIMELINE_LAYER_FILMSTRIP_HEIGHT,
 	TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT,
 } from '../../helpers/timeline-layout';
 import {AudioWaveform} from '../AudioWaveform';
+import {getTimelineMediaStartFrame} from './get-timeline-media-start-frame';
 import {getTimelineVideoInfoWidths} from './get-timeline-video-info-widths';
+import {getTimelineVideoFilmstripTimes} from './timeline-video-filmstrip-times';
 
 const outerStyle: React.CSSProperties = {
 	width: '100%',
@@ -31,18 +37,22 @@ const outerStyle: React.CSSProperties = {
 
 const filmstripContainerStyle: React.CSSProperties = {
 	height: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
-	backgroundColor: 'rgba(0, 0, 0, 0.3)',
+	backgroundColor: BLACK_ALPHA_30,
 	display: 'flex',
 	borderTopLeftRadius: 2,
 	fontSize: 10,
 	fontFamily: 'Arial, Helvetica',
 };
 
+const MAX_FROZEN_FRAME_CACHE_DEVIATION = WEBCODECS_TIMESCALE * 0.05;
+
 export const TimelineVideoInfo: React.FC<{
 	readonly src: string;
 	readonly visualizationWidth: number;
 	readonly naturalWidth: number;
-	readonly trimBefore: number;
+	readonly startMediaFrom: number;
+	readonly mediaFrameAtSequenceZero: number | null;
+	readonly sequenceFrameOffset: number;
 	readonly durationInFrames: number;
 	readonly playbackRate: number;
 	readonly volume: string | number;
@@ -50,11 +60,15 @@ export const TimelineVideoInfo: React.FC<{
 	readonly premountWidth: number;
 	readonly postmountWidth: number;
 	readonly loopDisplay: LoopDisplay | undefined;
+	readonly frozenMediaFrame: number | null;
+	readonly extendLastFrame: boolean;
 }> = ({
 	src,
 	visualizationWidth,
 	naturalWidth,
-	trimBefore,
+	startMediaFrom,
+	mediaFrameAtSequenceZero,
+	sequenceFrameOffset,
 	durationInFrames,
 	playbackRate,
 	volume,
@@ -62,11 +76,19 @@ export const TimelineVideoInfo: React.FC<{
 	premountWidth,
 	postmountWidth,
 	loopDisplay,
+	frozenMediaFrame,
+	extendLastFrame,
 }) => {
 	const {fps} = useVideoConfig();
 	const ref = useRef<HTMLDivElement>(null);
 	const [error, setError] = useState<Error | null>(null);
 	const aspectRatio = useRef<number | null>(getAspectRatioFromCache(src));
+	const mediaStartFrame = getTimelineMediaStartFrame({
+		startMediaFrom,
+		mediaFrameAtSequenceZero,
+		sequenceFrameOffset,
+		playbackRate,
+	});
 	const {mediaVisualizationWidth, mediaNaturalWidth} = useMemo(() => {
 		return getTimelineVideoInfoWidths({
 			visualizationWidth,
@@ -98,6 +120,133 @@ export const TimelineVideoInfo: React.FC<{
 		}
 
 		current.appendChild(canvas);
+
+		const drawRepeatedFrame = (frame: VideoFrame) => {
+			const thumbnailWidth = Math.max(
+				1,
+				frame.displayWidth / window.devicePixelRatio,
+			);
+
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			for (let x = 0; x < canvas.width; x += thumbnailWidth) {
+				ctx.drawImage(
+					frame,
+					x,
+					0,
+					thumbnailWidth,
+					TIMELINE_LAYER_FILMSTRIP_HEIGHT,
+				);
+			}
+		};
+
+		const getCachedFrozenFrame = (timestamp: number) => {
+			const prefix = getFrameDatabaseKeyPrefix(src);
+			const keys = Array.from(frameDatabase.keys()).filter((k) =>
+				k.startsWith(prefix),
+			);
+			let bestDistance = Infinity;
+			let bestFrame: VideoFrame | null = null;
+
+			for (const key of keys) {
+				const frame = frameDatabase.get(key);
+				if (!frame) {
+					continue;
+				}
+
+				const distance = Math.abs(
+					getTimestampFromFrameDatabaseKey(key) - timestamp,
+				);
+				if (distance < bestDistance) {
+					bestDistance = distance;
+					bestFrame = frame.frame;
+				}
+			}
+
+			return bestDistance <= MAX_FROZEN_FRAME_CACHE_DEVIATION
+				? bestFrame
+				: null;
+		};
+
+		const times = getTimelineVideoFilmstripTimes({
+			trimBefore: mediaStartFrame,
+			durationInFrames,
+			playbackRate,
+			fps,
+			loopDisplay,
+			frozenMediaFrame,
+		});
+
+		if (times.type === 'frozen') {
+			const timestamp = times.timestampInSeconds * WEBCODECS_TIMESCALE;
+			const cachedFrame = getCachedFrozenFrame(timestamp);
+
+			if (cachedFrame) {
+				drawRepeatedFrame(cachedFrame);
+
+				return () => {
+					current.removeChild(canvas);
+				};
+			}
+
+			extractFrames({
+				repeatLastFrame: extendLastFrame,
+				timestampsInSeconds: ({
+					track,
+				}: {
+					track: {height: number; width: number};
+				}) => {
+					aspectRatio.current = track.width / track.height;
+					aspectRatioCache.set(src, aspectRatio.current);
+
+					return [times.timestampInSeconds];
+				},
+				src,
+				onVideoSample: (sample) => {
+					let frame: VideoFrame | undefined;
+					try {
+						frame = sample.toVideoFrame();
+						const scale =
+							(TIMELINE_LAYER_FILMSTRIP_HEIGHT / frame.displayHeight) *
+							window.devicePixelRatio;
+
+						const transformed = resizeVideoFrame({
+							frame,
+							scale,
+						});
+
+						if (transformed !== frame) {
+							frame.close();
+						}
+
+						frame = undefined;
+
+						const databaseKey = makeFrameDatabaseKey(
+							src,
+							transformed.timestamp,
+						);
+
+						addFrameToCache(databaseKey, transformed);
+						drawRepeatedFrame(transformed);
+					} catch (e) {
+						if (frame) {
+							frame.close();
+						}
+
+						throw e;
+					} finally {
+						sample.close();
+					}
+				},
+				signal: controller.signal,
+			}).catch((e: unknown) => {
+				setError(e as Error);
+			});
+
+			return () => {
+				controller.abort();
+				current.removeChild(canvas);
+			};
+		}
 
 		const loopWidth = getLoopDisplayWidth({
 			visualizationWidth: mediaNaturalWidth,
@@ -138,15 +287,7 @@ export const TimelineVideoInfo: React.FC<{
 		// desired-timestamp -> filled-timestamp
 		const filledSlots = new Map<number, number | undefined>();
 
-		const fromSeconds = trimBefore / fps;
-		const visibleDurationInFrames =
-			shouldRepeatVideo && loopDisplay
-				? loopDisplay.durationInFrames
-				: durationInFrames;
-		// Trim is applied first, then playbackRate. Each composition frame
-		// advances the source video by `playbackRate` source frames.
-		const toSeconds =
-			fromSeconds + (visibleDurationInFrames * playbackRate) / fps;
+		const {fromSeconds, toSeconds} = times;
 		const targetWidth = shouldRepeatVideo
 			? targetCanvas.width
 			: mediaNaturalWidth;
@@ -186,6 +327,7 @@ export const TimelineVideoInfo: React.FC<{
 		}
 
 		extractFrames({
+			repeatLastFrame: extendLastFrame,
 			timestampsInSeconds: ({
 				track,
 			}: {
@@ -293,13 +435,15 @@ export const TimelineVideoInfo: React.FC<{
 	}, [
 		durationInFrames,
 		error,
+		extendLastFrame,
 		fps,
+		frozenMediaFrame,
 		loopDisplay,
 		mediaNaturalWidth,
 		mediaVisualizationWidth,
+		mediaStartFrame,
 		playbackRate,
 		src,
-		trimBefore,
 	]);
 
 	const audioWidth = mediaVisualizationWidth;
@@ -328,7 +472,7 @@ export const TimelineVideoInfo: React.FC<{
 					src={src}
 					height={TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT}
 					visualizationWidth={audioWidth}
-					startFrom={trimBefore}
+					startFrom={mediaStartFrame}
 					durationInFrames={durationInFrames}
 					volume={volume}
 					doesVolumeChange={doesVolumeChange}

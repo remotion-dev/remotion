@@ -46,7 +46,7 @@ export const getSink = (
 			},
 			`Sink for ${src} was not found, creating new sink`,
 		);
-		promise = getSinks(src, credentials, normalizedRequestInit);
+		promise = getSinks(src, logLevel, credentials, normalizedRequestInit);
 		sinkPromises[cacheKey] = promise;
 	}
 

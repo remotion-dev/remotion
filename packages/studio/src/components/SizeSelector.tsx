@@ -1,12 +1,12 @@
 import React, {useContext, useMemo} from 'react';
 import type {PreviewSize} from 'remotion';
 import {Internals} from 'remotion';
+import type {AssetFileType} from '../helpers/get-preview-file-type';
+import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {Checkmark} from '../icons/Checkmark';
 import {CONTROL_BUTTON_PADDING} from './ControlButton';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
-import type {AssetFileType} from './Preview';
-import {getPreviewFileType} from './Preview';
 
 const commonPreviewSizes: PreviewSize[] = [
 	{
@@ -49,7 +49,7 @@ export const getPreviewSizeLabel = (previewSize: PreviewSize) => {
 
 const accessibilityLabel = 'Preview Size';
 
-const comboStyle: React.CSSProperties = {width: 80};
+const comboStyle: React.CSSProperties = {width: 64};
 
 export const getUniqueSizes = (size: PreviewSize) => {
 	const customPreviewSizes = [size, ...commonPreviewSizes];
@@ -81,7 +81,7 @@ export const SizeSelector: React.FC = () => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const style = useMemo(() => {
 		return {
-			padding: CONTROL_BUTTON_PADDING,
+			padding: CONTROL_BUTTON_PADDING - 2,
 		};
 	}, []);
 
@@ -139,6 +139,7 @@ export const SizeSelector: React.FC = () => {
 	return (
 		<div style={style} aria-label={accessibilityLabel}>
 			<Combobox
+				size="compact"
 				title={accessibilityLabel}
 				style={comboStyle}
 				selectedId={String(size.size)}

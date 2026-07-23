@@ -28,7 +28,15 @@ crumb: '@remotion/my-package'
 
 **Public API only**: Documentation is for public APIs only. Do not mention, reference, or compare against internal/private APIs or implementation details.
 
+**API names in prose**: Put API names in backticks, and link them if a docs page exists. Function and hook names should include `()`, for example [`useVideoConfig()`](/docs/use-video-config), not `useVideoConfig` or useVideoConfig. Components should include angle brackets, for example [`<Player>`](/docs/player/player) or [`<Audio>`](/docs/media/audio).
+
 **Use headings for all fields**: When documenting API options or return values, each property should be its own heading. Use `###` for top-level properties and `####` for nested properties within an options object. Do not use bullet points for individual fields.
+
+**Version indicators**: If an API, feature, parameter, or behavior was added in a specific version, add `<AvailableFrom>` at the page, section, or field where the reader first needs to know it. For example: `# prefetch()<AvailableFrom v="4.0.0" />`.
+
+**Compatibility tables**: API pages should ideally include a `## Compatibility` section with `<CompatibilityTable>` before `## See also`.
+
+**Sidebar order**: When adding or moving docs in `packages/docs/sidebars.ts`, inspect the surrounding entries and match the ordering logic already used there. If a section is alphabetical, place the new entry alphabetically; if it is grouped by workflow or importance, place it consistently with that grouping. Do not leave new additions as one-off outliers.
 
 ## Language guidelines
 
@@ -86,6 +94,8 @@ console.log('Hello');
 ## Special components
 
 ### Steps
+
+Formatting around `<Step>` is delicate. Keep one step per line, add a space after `</Step>`, and preserve an explicit line break (`<br/>` or `<br />`) when the steps are written as a compact inline list. Do not write `<Step>1</Step>Add...` without a space.
 
 ```md
 - <Step>1</Step> First step
@@ -196,13 +206,12 @@ After adding or editing a page, generate social media preview cards:
 cd packages/docs && bun render-cards.ts
 ```
 
-## Verifying docs compile
+## Streamlining existing docs
 
-To check that documentation builds without errors:
+When asked to audit or streamline docs, scan for:
 
-```bash
-# from the monorepo root
-bun run build-docs
-```
-
-This validates MDX syntax, twoslash snippets, and broken links.
+- Missing `<AvailableFrom>` indicators for APIs, features, options, parameters, or behaviors introduced in a specific version
+- API names that are not formatted as code spans or linked to their docs page
+- Function and hook references missing `()`
+- API pages that should have a `## Compatibility` section with `<CompatibilityTable>`
+- Fragile or broken `<Step>` formatting

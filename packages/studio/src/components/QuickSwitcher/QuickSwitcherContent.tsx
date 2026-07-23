@@ -7,7 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {LIGHT_TEXT} from '../../helpers/colors';
+import {LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {isCompositionStill} from '../../helpers/is-composition-still';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {
@@ -27,6 +27,7 @@ import type {QuickSwitcherMode} from './NoResults';
 import {QuickSwitcherNoResults} from './NoResults';
 import type {TQuickSwitcherResult} from './QuickSwitcherResult';
 import {QuickSwitcherResult} from './QuickSwitcherResult';
+import {loopIndex} from './shared';
 
 const input: React.CSSProperties = {
 	width: '100%',
@@ -57,7 +58,7 @@ const modeInactive: React.CSSProperties = {
 
 const modeActive: React.CSSProperties = {
 	...modeItem,
-	color: 'white',
+	color: WHITE,
 	fontWeight: 'bold',
 };
 
@@ -69,14 +70,6 @@ const content: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
-};
-
-const loopIndex = (index: number, length: number) => {
-	if (index < 0) {
-		index += length;
-	}
-
-	return index % length;
 };
 
 const stripQuery = (query: string) => {

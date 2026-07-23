@@ -1,7 +1,26 @@
-import React, {useCallback, useContext, useMemo} from 'react';
+import {
+	COMPOSITION_DRAG_MIME_TYPE,
+	compositionDragDataToSymbolicatedStack,
+	parseCompositionDragData,
+} from '@remotion/studio-shared';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
-import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../helpers/colors';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {
+	BACKGROUND,
+	BLACK_HEX,
+	LIGHT_TEXT,
+	WHITE_ALPHA_12,
+	WHITE_ALPHA_06,
+} from '../helpers/colors';
 import {createFolderTree} from '../helpers/create-folder-tree';
 import {ExpandedFoldersContext} from '../helpers/persist-open-folders';
 import {sortItemsByNonceHistory} from '../helpers/sort-by-nonce-history';
@@ -9,11 +28,11 @@ import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {ModalsContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import {CompositionSelectorItem} from './CompositionSelectorItem';
-import {
-	CURRENT_COMPOSITION_HEIGHT,
-	CurrentComposition,
-} from './CurrentComposition';
+import {ContextMenuForTarget} from './ContextMenu';
 import {useSelectComposition} from './InitialCompositionLoader';
+import {showNotification} from './Notifications/NotificationCenter';
+import {applyCodemod} from './RenderQueue/actions';
+import {getRootCompositionMenuItems} from './root-composition-menu-items';
 
 export const useCompositionNavigation = () => {
 	const {compositions, canvasContent} = useContext(
@@ -81,15 +100,13 @@ const container: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 };
 
-const QUICK_SWITCHER_TRIGGER_HEIGHT = 38;
-
 const quickSwitcherArea: React.CSSProperties = {
 	padding: '4px 12px',
-	borderBottom: `1px solid ${BORDER_COLOR}`,
+	borderBottom: `1px solid ${BLACK_HEX}`,
 };
 
 const quickSwitcherTrigger: React.CSSProperties = {
-	backgroundColor: 'rgba(255, 255, 255, 0.06)',
+	backgroundColor: WHITE_ALPHA_06,
 	borderRadius: 5,
 	padding: '4px 10px',
 	color: LIGHT_TEXT,
@@ -108,12 +125,57 @@ const shortcutLabel: React.CSSProperties = {
 	opacity: 0.6,
 };
 
+const autoScrollThreshold = 70;
+const maxAutoScrollSpeed = 18;
+
+const getAutoScrollSpeed = ({
+	clientY,
+	element,
+}: {
+	clientY: number;
+	element: HTMLElement;
+}) => {
+	const {top, bottom} = element.getBoundingClientRect();
+	const threshold = Math.min(autoScrollThreshold, element.clientHeight / 2);
+	if (threshold <= 0) {
+		return 0;
+	}
+
+	const distanceToTop = clientY - top;
+	const distanceToBottom = bottom - clientY;
+
+	if (distanceToTop < threshold) {
+		const progress = Math.min(1, (threshold - distanceToTop) / threshold);
+		return -Math.ceil(progress * maxAutoScrollSpeed);
+	}
+
+	if (distanceToBottom < threshold) {
+		const progress = Math.min(1, (threshold - distanceToBottom) / threshold);
+		return Math.ceil(progress * maxAutoScrollSpeed);
+	}
+
+	return 0;
+};
+
 export const CompositionSelector: React.FC = () => {
 	const {compositions, canvasContent, folders} = useContext(
 		Internals.CompositionManager,
 	);
 	const {foldersExpanded} = useContext(ExpandedFoldersContext);
 	const {setSelectedModal} = useContext(ModalsContext);
+	const connectionStatus = useContext(StudioServerConnectionCtx)
+		.previewServerState.type;
+	const rootContextMenuItems = useMemo(() => {
+		return getRootCompositionMenuItems({
+			connectionStatus,
+			readOnlyStudio: window.remotion_isReadOnlyStudio,
+			setSelectedModal,
+		});
+	}, [connectionStatus, setSelectedModal]);
+	const [rootDragHovered, setRootDragHovered] = useState(false);
+	const listRef = useRef<HTMLDivElement>(null);
+	const autoScrollAnimation = useRef<number | null>(null);
+	const autoScrollSpeed = useRef(0);
 
 	const {tabIndex} = useZIndex();
 	const selectComposition = useSelectComposition();
@@ -132,10 +194,11 @@ export const CompositionSelector: React.FC = () => {
 
 	const list: React.CSSProperties = useMemo(() => {
 		return {
-			height: `calc(100% - ${CURRENT_COMPOSITION_HEIGHT}px - ${QUICK_SWITCHER_TRIGGER_HEIGHT}px)`,
+			flex: 1,
 			overflowY: 'auto',
+			backgroundColor: rootDragHovered ? WHITE_ALPHA_12 : BACKGROUND,
 		};
-	}, []);
+	}, [rootDragHovered]);
 
 	const toggleFolder = useCallback(
 		(folderName: string, parentName: string | null) => {
@@ -155,9 +218,181 @@ export const CompositionSelector: React.FC = () => {
 		});
 	}, [setSelectedModal]);
 
+	const clearRootDragHover = useCallback(() => {
+		setRootDragHovered(false);
+	}, []);
+
+	const stopCompositionListAutoScroll = useCallback(() => {
+		autoScrollSpeed.current = 0;
+		if (autoScrollAnimation.current !== null) {
+			cancelAnimationFrame(autoScrollAnimation.current);
+			autoScrollAnimation.current = null;
+		}
+	}, []);
+
+	const runCompositionListAutoScroll = useCallback(() => {
+		const listElement = listRef.current;
+		const speed = autoScrollSpeed.current;
+
+		if (listElement === null || speed === 0) {
+			autoScrollAnimation.current = null;
+			return;
+		}
+
+		const scrollTopBefore = listElement.scrollTop;
+		listElement.scrollTop += speed;
+
+		if (listElement.scrollTop === scrollTopBefore) {
+			autoScrollAnimation.current = null;
+			return;
+		}
+
+		autoScrollAnimation.current = requestAnimationFrame(
+			runCompositionListAutoScroll,
+		);
+	}, []);
+
+	const setCompositionListAutoScrollSpeed = useCallback(
+		(speed: number) => {
+			if (speed === 0) {
+				stopCompositionListAutoScroll();
+				return;
+			}
+
+			autoScrollSpeed.current = speed;
+			if (autoScrollAnimation.current === null) {
+				autoScrollAnimation.current = requestAnimationFrame(
+					runCompositionListAutoScroll,
+				);
+			}
+		},
+		[runCompositionListAutoScroll, stopCompositionListAutoScroll],
+	);
+
+	const onCompositionListDragOverCapture = useCallback(
+		(event: React.DragEvent<HTMLElement>) => {
+			if (
+				window.remotion_isReadOnlyStudio ||
+				!Array.from(event.dataTransfer.types).includes(
+					COMPOSITION_DRAG_MIME_TYPE,
+				)
+			) {
+				stopCompositionListAutoScroll();
+				return;
+			}
+
+			const listElement = listRef.current;
+			if (listElement === null) {
+				stopCompositionListAutoScroll();
+				return;
+			}
+
+			setCompositionListAutoScrollSpeed(
+				getAutoScrollSpeed({clientY: event.clientY, element: listElement}),
+			);
+		},
+		[setCompositionListAutoScrollSpeed, stopCompositionListAutoScroll],
+	);
+
+	useEffect(() => {
+		return stopCompositionListAutoScroll;
+	}, [stopCompositionListAutoScroll]);
+
+	const onRootDragOver = useCallback((event: React.DragEvent<HTMLElement>) => {
+		if (
+			window.remotion_isReadOnlyStudio ||
+			!Array.from(event.dataTransfer.types).includes(COMPOSITION_DRAG_MIME_TYPE)
+		) {
+			return;
+		}
+
+		event.preventDefault();
+		event.dataTransfer.dropEffect = 'move';
+		setRootDragHovered(true);
+	}, []);
+
+	const onRootDragLeave = useCallback(
+		(event: React.DragEvent<HTMLElement>) => {
+			const {relatedTarget} = event;
+			if (
+				relatedTarget instanceof Node &&
+				event.currentTarget.contains(relatedTarget)
+			) {
+				return;
+			}
+
+			stopCompositionListAutoScroll();
+			setRootDragHovered(false);
+		},
+		[stopCompositionListAutoScroll],
+	);
+
+	const onRootDrop = useCallback(
+		async (event: React.DragEvent<HTMLElement>) => {
+			if (window.remotion_isReadOnlyStudio) {
+				return;
+			}
+
+			const raw = event.dataTransfer.getData(COMPOSITION_DRAG_MIME_TYPE);
+			const parsed = raw ? parseCompositionDragData(raw) : null;
+			if (parsed === null) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			stopCompositionListAutoScroll();
+			setRootDragHovered(false);
+
+			const composition = compositions.find(
+				(c) => c.id === parsed.compositionId,
+			);
+			if (!composition || composition.folderName === null) {
+				return;
+			}
+
+			const notification = showNotification(
+				`Moving ${parsed.compositionId}...`,
+				null,
+			);
+			const controller = new AbortController();
+
+			try {
+				const result = await applyCodemod({
+					codemod: {
+						type: 'move-composition-to-folder',
+						idToMove: parsed.compositionId,
+						folderName: null,
+						parentName: null,
+					},
+					dryRun: false,
+					signal: controller.signal,
+					symbolicatedStack: compositionDragDataToSymbolicatedStack(parsed),
+				});
+
+				notification.replaceContent(
+					result.success
+						? `Moved ${parsed.compositionId} outside of folder`
+						: result.reason,
+					result.success ? 2000 : 4000,
+				);
+			} catch (err) {
+				notification.replaceContent(
+					err instanceof Error ? err.message : String(err),
+					4000,
+				);
+			}
+		},
+		[compositions, stopCompositionListAutoScroll],
+	);
+
 	return (
 		<div style={container}>
-			<CurrentComposition />
+			<ContextMenuForTarget
+				triggerRef={listRef}
+				values={rootContextMenuItems}
+				onOpen={null}
+			/>
 			<div style={quickSwitcherArea}>
 				<button
 					type="button"
@@ -171,7 +406,17 @@ export const CompositionSelector: React.FC = () => {
 					)}
 				</button>
 			</div>
-			<div className="__remotion-vertical-scrollbar" style={list}>
+			<div
+				ref={listRef}
+				className="__remotion-vertical-scrollbar"
+				style={list}
+				onDragOverCapture={onCompositionListDragOverCapture}
+				onDragEndCapture={stopCompositionListAutoScroll}
+				onDragOver={onRootDragOver}
+				onDragLeave={onRootDragLeave}
+				onDropCapture={stopCompositionListAutoScroll}
+				onDrop={onRootDrop}
+			>
 				{items.map((c) => {
 					return (
 						<CompositionSelectorItem
@@ -184,6 +429,7 @@ export const CompositionSelector: React.FC = () => {
 							}
 							selectComposition={selectComposition}
 							toggleFolder={toggleFolder}
+							clearRootDragHover={clearRootDragHover}
 							tabIndex={tabIndex}
 							item={c}
 						/>

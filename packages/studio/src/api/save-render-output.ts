@@ -1,4 +1,5 @@
 import type {CompletedClientRender} from '@remotion/studio-shared';
+import {callApi} from '../components/call-api';
 
 const throwIfNotOk = async (response: Response): Promise<void> => {
 	if (!response.ok) {
@@ -36,21 +37,9 @@ export const saveOutputFile = async ({
 export const registerClientRender = async (
 	render: CompletedClientRender,
 ): Promise<void> => {
-	const response = await fetch('/api/register-client-render', {
-		method: 'POST',
-		headers: {'Content-Type': 'application/json'},
-		body: JSON.stringify(render),
-	});
-
-	await throwIfNotOk(response);
+	await callApi('/api/register-client-render', render);
 };
 
 export const unregisterClientRender = async (id: string): Promise<void> => {
-	const response = await fetch('/api/unregister-client-render', {
-		method: 'POST',
-		headers: {'Content-Type': 'application/json'},
-		body: JSON.stringify({id}),
-	});
-
-	await throwIfNotOk(response);
+	await callApi('/api/unregister-client-render', {id});
 };

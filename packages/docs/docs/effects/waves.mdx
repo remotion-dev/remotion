@@ -1,0 +1,119 @@
+---
+image: /generated/articles-docs-effects-waves.png
+slug: /effects/waves
+title: waves()
+sidebar_label: waves()
+crumb: '@remotion/effects'
+---
+
+# waves()<AvailableFrom v="4.0.471" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Adds repeating wavy bands to canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+Colors are composited over the source.
+
+## Preview
+
+<EffectsDemo type="effects-waves" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {waves} from '@remotion/effects/waves';
+import {AbsoluteFill, Solid, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill>
+      <Solid
+        width={1280}
+        height={720}
+        effects={[
+          waves({
+            colors: ['#dff4ff', '#7cc6ff'],
+            direction: 'horizontal',
+            thickness: 40,
+            gap: 0,
+            angle: 0,
+            offset: frame * 2,
+            amplitude: 24,
+            wavelength: 160,
+            phase: frame * 2,
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `waves()` without arguments.
+
+### `colors?`
+
+An array of color strings for the bands. Colors are assigned cyclically. Must contain at least 2 colors.
+
+Defaults to `['#dff4ff', '#7cc6ff']`.
+
+### `direction?`
+
+Base band direction before wave displacement. Either `'horizontal'` or `'vertical'`. Defaults to `'horizontal'`.
+
+### `thickness?`
+
+Thickness of each band in pixels. Defaults to `40`.
+
+### `gap?`
+
+Transparent gap in pixels between each band. Defaults to `0`.
+
+### `angle?`
+
+Rotates the pattern in degrees. Defaults to `0`.
+
+### `offset?`
+
+Offset in pixels. Defaults to `0`.
+
+Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) to scroll through the bands.
+
+### `amplitude?`
+
+Wave displacement in pixels. Defaults to `24`.
+
+### `wavelength?`
+
+Distance in pixels before the wave repeats. Defaults to `160`. Must be greater than `0`.
+
+### `phase?`
+
+Wave phase in degrees. Defaults to `0`.
+
+Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) to move the wave shape without scrolling through the bands.
+
+### `maskToSourceAlpha?`<AvailableFrom v="4.0.474" />
+
+Masks the generated wave pattern to the source alpha channel. Defaults to `false`.
+
+Set this to `true` to prevent the wave pattern from appearing in fully transparent source pixels.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`waves()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`lines()`](/docs/effects/lines)
+- [`wave()`](/docs/effects/wave)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/waves.ts)

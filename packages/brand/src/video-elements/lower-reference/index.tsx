@@ -41,7 +41,7 @@ export const LowerReference: React.FC = () => {
 					transform: `translateY(${interpolate(
 						entry,
 						[0, 1],
-						[400, 0]
+						[400, 0],
 					)}px) rotateZ(${interpolate(entry, [0, 1], [Math.PI * 0.05, 0])}rad)`,
 				}}
 			>

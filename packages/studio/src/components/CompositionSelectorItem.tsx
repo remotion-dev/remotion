@@ -1,4 +1,10 @@
-import type {KeyboardEvent, MouseEvent} from 'react';
+import {
+	COMPOSITION_DRAG_MIME_TYPE,
+	compositionDragDataToSymbolicatedStack,
+	makeCompositionDragData,
+	parseCompositionDragData,
+} from '@remotion/studio-shared';
+import type {DragEvent, KeyboardEvent, MouseEvent} from 'react';
 import React, {
 	useCallback,
 	useContext,
@@ -12,44 +18,50 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	BACKGROUND,
 	LIGHT_TEXT,
-	getBackgroundFromHoverState,
+	TRANSPARENT,
+	WHITE,
+	WHITE_ALPHA_06,
+	WHITE_ALPHA_12,
 } from '../helpers/colors';
-import {isCompositionStill} from '../helpers/is-composition-still';
+import {getFolderId} from '../helpers/get-folder-id';
 import {noop} from '../helpers/noop';
 import {
 	markCompositionSidebarScrollFromRowClick,
 	maybeScrollCompositionSidebarRowIntoView,
 } from '../helpers/sidebar-scroll-into-view';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
-import {StillIcon} from '../icons/still';
-import {FilmIcon} from '../icons/video';
 import {ModalsContext} from '../state/modals';
-import {getCompositionMenuItems} from './composition-menu-items';
+import {getCompositionContextMenuItems} from './composition-menu-items';
 import {CompositionContextButton} from './CompositionContextButton';
+import {CompositionOrStillIcon} from './CompositionOrStillIcon';
 import {ContextMenu} from './ContextMenu';
-import {Row, Spacing} from './layout';
+import {getFolderMenuItems} from './folder-menu-items';
+import {COMPACT_CONTROL_ROW_HEIGHT, Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
+import {showNotification} from './Notifications/NotificationCenter';
+import {applyCodemod} from './RenderQueue/actions';
 import {SidebarRenderButton} from './SidebarRenderButton';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 
-const COMPOSITION_ITEM_HEIGHT = 32;
-
 const itemStyle: React.CSSProperties = {
 	paddingRight: 10,
-	paddingTop: 6,
-	paddingBottom: 6,
+	paddingTop: 5,
+	paddingBottom: 5,
 	fontSize: 13,
 	display: 'flex',
 	textDecoration: 'none',
 	cursor: 'default',
 	alignItems: 'center',
 	marginBottom: 1,
+	marginLeft: 4,
+	marginRight: 4,
 	appearance: 'none',
 	border: 'none',
-	width: '100%',
+	borderRadius: 4,
+	width: 'calc(100% - 8px)',
 	textAlign: 'left',
 	backgroundColor: BACKGROUND,
-	height: COMPOSITION_ITEM_HEIGHT,
+	height: COMPACT_CONTROL_ROW_HEIGHT,
 	userSelect: 'none',
 };
 
@@ -78,6 +90,7 @@ export type CompositionSelectorItemType =
 	| {
 			key: string;
 			type: 'folder';
+			folder: _InternalTypes['TFolder'];
 			folderName: string;
 			parentName: string | null;
 			items: CompositionSelectorItemType[];
@@ -96,6 +109,7 @@ export const CompositionSelectorItem: React.FC<{
 		folderName: string,
 		parentName: string | null,
 	) => void;
+	readonly clearRootDragHover: () => void;
 	readonly level: number;
 }> = ({
 	item,
@@ -104,6 +118,7 @@ export const CompositionSelectorItem: React.FC<{
 	tabIndex,
 	selectComposition,
 	toggleFolder,
+	clearRootDragHover,
 }) => {
 	const selected = useMemo(() => {
 		if (item.type === 'composition') {
@@ -120,6 +135,8 @@ export const CompositionSelectorItem: React.FC<{
 	const onPointerLeave = useCallback(() => {
 		setHovered(false);
 	}, []);
+	const [isDragging, setIsDragging] = useState(false);
+	const [dragHovered, setDragHovered] = useState(false);
 
 	const compositionRowRef = useRef<HTMLAnchorElement>(null);
 	const compositionId =
@@ -139,20 +156,24 @@ export const CompositionSelectorItem: React.FC<{
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...itemStyle,
-			backgroundColor: getBackgroundFromHoverState({hovered, selected}),
+			backgroundColor: dragHovered
+				? WHITE_ALPHA_12
+				: hovered || selected
+					? WHITE_ALPHA_06
+					: TRANSPARENT,
 			paddingLeft: 12 + level * 8,
 		};
-	}, [hovered, level, selected]);
+	}, [dragHovered, hovered, level, selected]);
 
 	const label = useMemo(() => {
 		return {
 			...labelStyle,
-			color: selected || hovered ? 'white' : LIGHT_TEXT,
+			color: selected || hovered ? WHITE : LIGHT_TEXT,
 		};
 	}, [hovered, selected]);
 
 	const onClick = useCallback(
-		(evt: MouseEvent | KeyboardEvent<HTMLAnchorElement>) => {
+		(evt: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>) => {
 			evt.preventDefault();
 			if (item.type === 'composition') {
 				markCompositionSidebarScrollFromRowClick(item.composition.id);
@@ -164,9 +185,9 @@ export const CompositionSelectorItem: React.FC<{
 		[item, selectComposition, toggleFolder],
 	);
 
-	const onKeyPress = useCallback(
-		(evt: React.KeyboardEvent<HTMLAnchorElement>) => {
-			if (evt.key === 'Enter') {
+	const onKeyDown = useCallback(
+		(evt: React.KeyboardEvent<HTMLElement>) => {
+			if (evt.key === 'Enter' || evt.key === ' ') {
 				onClick(evt);
 			}
 		},
@@ -177,52 +198,214 @@ export const CompositionSelectorItem: React.FC<{
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
 	const resolvedLocation = useResolvedStack(
-		item.type === 'composition' ? item.composition.stack : null,
+		item.type === 'composition' ? item.composition.stack : item.folder.stack,
 	);
 
 	const contextMenu = useMemo((): ComboboxValue[] => {
 		if (item.type === 'composition') {
-			return getCompositionMenuItems({
+			return getCompositionContextMenuItems({
 				closeMenu: noop,
 				composition: item.composition,
 				connectionStatus,
+				includeCompositionManagementItems: true,
 				resolvedLocation,
 				setSelectedModal,
 				readOnlyStudio: window.remotion_isReadOnlyStudio,
 			});
 		}
 
-		return [];
+		return getFolderMenuItems({
+			closeMenu: noop,
+			connectionStatus,
+			folder: item.folder,
+			resolvedLocation,
+			setSelectedModal,
+			readOnlyStudio: window.remotion_isReadOnlyStudio,
+		});
 	}, [connectionStatus, item, resolvedLocation, setSelectedModal]);
+
+	const onCompositionDragStart = useCallback(
+		(event: DragEvent<HTMLElement>) => {
+			if (item.type !== 'composition' || window.remotion_isReadOnlyStudio) {
+				event.preventDefault();
+				return;
+			}
+
+			setIsDragging(true);
+			event.dataTransfer.effectAllowed = 'copyMove';
+			event.dataTransfer.setData(
+				COMPOSITION_DRAG_MIME_TYPE,
+				JSON.stringify(
+					makeCompositionDragData({
+						compositionFile: resolvedLocation?.source ?? null,
+						compositionId: item.composition.id,
+					}),
+				),
+			);
+		},
+		[item, resolvedLocation?.source],
+	);
+	const onCompositionDragEnd = useCallback(() => {
+		setIsDragging(false);
+	}, []);
+
+	const onFolderDragOver = useCallback(
+		(event: DragEvent<HTMLElement>) => {
+			if (
+				item.type !== 'folder' ||
+				window.remotion_isReadOnlyStudio ||
+				!Array.from(event.dataTransfer.types).includes(
+					COMPOSITION_DRAG_MIME_TYPE,
+				)
+			) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			event.dataTransfer.dropEffect = 'move';
+			clearRootDragHover();
+			setDragHovered(true);
+		},
+		[clearRootDragHover, item],
+	);
+
+	const onFolderDragLeave = useCallback(() => {
+		setDragHovered(false);
+	}, []);
+
+	const onFolderChildListDragOver = useCallback(
+		(event: DragEvent<HTMLElement>) => {
+			if (
+				item.type !== 'folder' ||
+				window.remotion_isReadOnlyStudio ||
+				!Array.from(event.dataTransfer.types).includes(
+					COMPOSITION_DRAG_MIME_TYPE,
+				)
+			) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			event.dataTransfer.dropEffect = 'move';
+			clearRootDragHover();
+		},
+		[clearRootDragHover, item],
+	);
+
+	const onFolderDrop = useCallback(
+		async (event: DragEvent<HTMLElement>) => {
+			if (item.type !== 'folder' || window.remotion_isReadOnlyStudio) {
+				return;
+			}
+
+			const raw = event.dataTransfer.getData(COMPOSITION_DRAG_MIME_TYPE);
+			const parsed = raw ? parseCompositionDragData(raw) : null;
+			if (parsed === null) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			clearRootDragHover();
+			setDragHovered(false);
+
+			const isAlreadyDirectChild = item.items.some((child) => {
+				return (
+					child.type === 'composition' &&
+					child.composition.id === parsed.compositionId
+				);
+			});
+			if (isAlreadyDirectChild) {
+				return;
+			}
+
+			const folderId = getFolderId({
+				folderName: item.folderName,
+				parentName: item.parentName,
+			});
+			const notification = showNotification(
+				`Moving ${parsed.compositionId}...`,
+				null,
+			);
+			const controller = new AbortController();
+
+			try {
+				const result = await applyCodemod({
+					codemod: {
+						type: 'move-composition-to-folder',
+						idToMove: parsed.compositionId,
+						folderName: item.folderName,
+						parentName: item.parentName,
+					},
+					dryRun: false,
+					signal: controller.signal,
+					symbolicatedStack: compositionDragDataToSymbolicatedStack(parsed),
+				});
+
+				notification.replaceContent(
+					result.success
+						? `Moved ${parsed.compositionId} to ${folderId}`
+						: result.reason,
+					result.success ? 2000 : 4000,
+				);
+				if (result.success && !item.expanded) {
+					toggleFolder(item.folderName, item.parentName);
+				}
+			} catch (err) {
+				notification.replaceContent(
+					err instanceof Error ? err.message : String(err),
+					4000,
+				);
+			}
+		},
+		[clearRootDragHover, item, toggleFolder],
+	);
 
 	if (item.type === 'folder') {
 		return (
 			<>
-				<button
-					style={style}
-					onPointerEnter={onPointerEnter}
-					onPointerLeave={onPointerLeave}
-					tabIndex={tabIndex}
-					onClick={onClick}
-					type="button"
-					title={item.folderName}
-				>
-					{item.expanded ? (
-						<ExpandedFolderIcon
-							style={iconStyle}
-							color={hovered || selected ? 'white' : LIGHT_TEXT}
-						/>
-					) : (
-						<CollapsedFolderIcon
-							color={hovered || selected ? 'white' : LIGHT_TEXT}
-							style={iconStyle}
-						/>
-					)}
-					<Spacing x={1} />
-					<div style={label}>{item.folderName}</div>
-				</button>
-				{item.expanded
-					? item.items.map((childItem) => {
+				<ContextMenu values={contextMenu} onOpen={null}>
+					<Row align="center">
+						<div
+							style={style}
+							className="__remotion-composition-selector-item"
+							onPointerEnter={onPointerEnter}
+							onPointerLeave={onPointerLeave}
+							tabIndex={tabIndex}
+							onClick={onClick}
+							onKeyDown={onKeyDown}
+							onDragOver={onFolderDragOver}
+							onDragLeave={onFolderDragLeave}
+							onDrop={onFolderDrop}
+							title={item.folderName}
+							role="button"
+						>
+							{item.expanded ? (
+								<ExpandedFolderIcon
+									style={iconStyle}
+									color={hovered || selected ? WHITE : LIGHT_TEXT}
+								/>
+							) : (
+								<CollapsedFolderIcon
+									color={hovered || selected ? WHITE : LIGHT_TEXT}
+									style={iconStyle}
+								/>
+							)}
+							<Spacing x={1} />
+							<div style={label}>{item.folderName}</div>
+							<Spacing x={0.5} />
+							<CompositionContextButton
+								values={contextMenu}
+								visible={hovered}
+							/>
+						</div>
+					</Row>
+				</ContextMenu>
+				{item.expanded ? (
+					<div onDragOver={onFolderChildListDragOver} onDrop={onFolderDrop}>
+						{item.items.map((childItem) => {
 							return (
 								<CompositionSelectorItem
 									key={childItem.key + childItem.type}
@@ -232,10 +415,12 @@ export const CompositionSelectorItem: React.FC<{
 									tabIndex={tabIndex}
 									level={level + 1}
 									toggleFolder={toggleFolder}
+									clearRootDragHover={clearRootDragHover}
 								/>
 							);
-						})
-					: null}
+						})}
+					</div>
+				) : null}
 			</>
 		);
 	}
@@ -250,29 +435,29 @@ export const CompositionSelectorItem: React.FC<{
 					onPointerLeave={onPointerLeave}
 					tabIndex={tabIndex}
 					onClick={onClick}
-					onKeyPress={onKeyPress}
+					onKeyDown={onKeyDown}
+					draggable={!window.remotion_isReadOnlyStudio}
+					onDragStart={onCompositionDragStart}
+					onDragEnd={onCompositionDragEnd}
 					type="button"
 					title={item.composition.id}
-					className="__remotion-composition"
+					className="__remotion-composition __remotion-composition-selector-item"
 					data-compname={item.composition.id}
 				>
-					{isCompositionStill(item.composition) ? (
-						<StillIcon
-							color={hovered || selected ? 'white' : LIGHT_TEXT}
-							style={iconStyle}
-						/>
-					) : (
-						<FilmIcon
-							color={hovered || selected ? 'white' : LIGHT_TEXT}
-							style={iconStyle}
-						/>
-					)}
+					<CompositionOrStillIcon
+						composition={item.composition}
+						color={hovered || selected ? WHITE : LIGHT_TEXT}
+						style={iconStyle}
+					/>
 					<Spacing x={1} />
 					<div style={label}>{item.composition.id}</div>
 					<Spacing x={0.5} />
-					<CompositionContextButton values={contextMenu} visible={hovered} />
+					<CompositionContextButton
+						values={contextMenu}
+						visible={hovered && !isDragging}
+					/>
 					<SidebarRenderButton
-						visible={hovered}
+						visible={hovered && !isDragging}
 						composition={item.composition}
 					/>
 				</a>

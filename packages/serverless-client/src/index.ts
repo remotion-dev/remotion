@@ -55,6 +55,7 @@ export type {_InternalTypes} from 'remotion';
 export type {DownloadBehavior, VideoConfig} from 'remotion/no-react';
 export {VERSION} from 'remotion/version';
 export {Await} from './await';
+export {calculateBillingDuration} from './calculate-billing-duration';
 export {calculateChunkTimes} from './calculate-chunk-times';
 export {
 	compressInputProps,
@@ -74,6 +75,10 @@ export {
 	getCredentialsFromOutName,
 	getExpectedOutName,
 } from './expected-out-name';
+export {
+	findOutputFileInBucket,
+	type OutputFileMetadata,
+} from './find-output-file-in-bucket';
 export {formatCostsInfo} from './format-costs-info';
 export {FileNameAndSize, GetFolderFiles} from './get-files-in-folder';
 export {

@@ -1,31 +1,27 @@
 import React from 'react';
 import {
+	Freeze,
 	Internals,
+	Interactive,
 	Sequence,
 	useRemotionEnvironment,
-	useVideoConfig,
 	type EffectsProp,
+	type InteractiveBaseProps,
+	type InteractivePremountProps,
+	type InteractiveTransformProps,
 	type SequenceControls,
-	type SequenceProps,
-	type SequenceSchema,
+	type InteractivitySchema,
 } from 'remotion';
 import {GifForDevelopment} from './GifForDevelopment';
 import {GifForRendering} from './GifForRendering';
 import type {RemotionGifProps} from './props';
 
-const {
-	addSequenceStackTraces,
-	useMemoizedEffectDefinitions,
-	useMemoizedEffects,
-	wrapInSchema,
-} = Internals;
+const {useMemoizedEffectDefinitions, useMemoizedEffects} = Internals;
 
-export type GifProps = Omit<
-	SequenceProps,
-	'children' | 'durationInFrames' | 'layout' | '_remotionInternalEffects'
-> &
+export type GifProps = InteractiveBaseProps &
+	InteractivePremountProps &
+	InteractiveTransformProps &
 	RemotionGifProps & {
-		readonly durationInFrames?: number;
 		readonly effects?: EffectsProp;
 	};
 
@@ -33,18 +29,22 @@ export type GifProps = Omit<
  * @description Displays a GIF that synchronizes with Remotions useCurrentFrame().
  * @see [Documentation](https://remotion.dev/docs/gif)
  */
-const gifSchema = {
+export const gifSchema: InteractivitySchema = {
+	...Internals.baseSchema,
+	...Internals.premountSchema,
 	playbackRate: {
 		type: 'number',
 		min: 0,
 		max: 10,
 		step: 0.1,
 		default: 1,
-		description: 'Playback Rate',
+		description: 'Playback rate',
+		hiddenFromList: false,
+		keyframable: false,
 	},
-	...Internals.sequenceVisualStyleSchema,
-	hidden: Internals.hiddenField,
-} as const satisfies SequenceSchema;
+	...Internals.transformSchema,
+	...Interactive.borderSchema,
+} as const satisfies InteractivitySchema;
 
 const GifInner = ({
 	src,
@@ -57,19 +57,42 @@ const GifInner = ({
 	loopBehavior,
 	id,
 	delayRenderTimeoutInMilliseconds,
+	requestInit,
 	durationInFrames,
+	from,
+	premountFor,
+	postmountFor,
+	styleWhilePremounted,
+	styleWhilePostmounted,
 	style,
-	_experimentalControls: controls,
+	controls,
 	effects = [],
 	ref,
 	...sequenceProps
 }: GifProps & {
-	readonly _experimentalControls?: SequenceControls | undefined;
+	readonly controls?: SequenceControls | undefined;
 	readonly ref?: React.Ref<HTMLCanvasElement>;
 }) => {
 	const env = useRemotionEnvironment();
-	const {durationInFrames: videoDuration} = useVideoConfig();
-	const resolvedDuration = durationInFrames ?? videoDuration;
+	const refForOutline = React.useRef<HTMLElement | null>(null);
+	const {
+		effectivePostmountFor,
+		effectivePremountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		postmountingActive,
+		premountingActive,
+		premountingStyle,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: durationInFrames ?? Infinity,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: style ?? null,
+		styleWhilePremounted: styleWhilePremounted ?? null,
+		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		hideWhilePremounted: 'display-none',
+	});
 
 	const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 	const memoizedEffects = useMemoizedEffects({
@@ -90,33 +113,46 @@ const GifInner = ({
 		loopBehavior,
 		id,
 		delayRenderTimeoutInMilliseconds,
-		style,
+		requestInit,
+		style: premountingStyle ?? undefined,
 		effects: memoizedEffects,
 	};
 
 	const inner = env.isRendering ? (
 		<GifForRendering {...gifProps} ref={ref} />
 	) : (
-		<GifForDevelopment {...gifProps} ref={ref} />
+		<GifForDevelopment {...gifProps} ref={ref} refForOutline={refForOutline} />
 	);
 
 	return (
-		<Sequence
-			layout="none"
-			durationInFrames={resolvedDuration}
-			name="<Gif>"
-			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/gif/gif"
-			_experimentalControls={controls}
-			_remotionInternalEffects={memoizedEffectDefinitions}
-			{...sequenceProps}
-		>
-			{inner}
-		</Sequence>
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				durationInFrames={durationInFrames ?? Infinity}
+				name="<Gif>"
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/gif/gif"
+				controls={controls}
+				_remotionInternalEffects={memoizedEffectDefinitions}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+				{...sequenceProps}
+				outlineRef={refForOutline}
+			>
+				{inner}
+			</Sequence>
+		</Freeze>
 	);
 };
 
-export const Gif = wrapInSchema(GifInner, gifSchema);
+export const Gif = Interactive.withSchema({
+	Component: GifInner,
+	componentName: '<Gif>',
+	componentIdentity: 'dev.remotion.gif.Gif',
+	schema: gifSchema,
+	supportsEffects: true,
+});
 
 Gif.displayName = 'Gif';
-
-addSequenceStackTraces(Gif);

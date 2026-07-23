@@ -20,19 +20,18 @@ const stub2dContext = () => ({
 	putImageData: () => undefined,
 });
 
-(
-	HTMLCanvasElement.prototype as unknown as {
-		getContext: (kind: string) => unknown;
-	}
-).getContext = function (kind: string) {
-	if (kind === '2d') {
-		const ctx = stub2dContext();
-		ctx.canvas = this as HTMLCanvasElement;
-		return ctx;
-	}
+Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
+	configurable: true,
+	value(this: HTMLCanvasElement, kind: string) {
+		if (kind === '2d') {
+			const ctx = stub2dContext();
+			ctx.canvas = this;
+			return ctx;
+		}
 
-	return null;
-};
+		return null;
+	},
+});
 
 afterEach(() => {
 	cleanup();
@@ -87,4 +86,40 @@ test('<Solid> accepts an empty effects array', () => {
 	);
 
 	expect(container.querySelector('canvas')).not.toBeNull();
+});
+
+test('<Solid> scales the backing canvas by pixelDensity while keeping logical CSS size', () => {
+	const {container} = render(
+		<WrapSequenceContext>
+			<Solid color="red" width={120} height={80} pixelDensity={2} />
+		</WrapSequenceContext>,
+	);
+
+	const canvas = container.querySelector('canvas');
+	expect(canvas?.getAttribute('width')).toBe('240');
+	expect(canvas?.getAttribute('height')).toBe('160');
+	expect(canvas?.style.width).toBe('120px');
+	expect(canvas?.style.height).toBe('80px');
+});
+
+test('<Solid> rounds up the backing canvas for fractional pixelDensity', () => {
+	const {container} = render(
+		<WrapSequenceContext>
+			<Solid color="red" width={101} height={50} pixelDensity={1.5} />
+		</WrapSequenceContext>,
+	);
+
+	const canvas = container.querySelector('canvas');
+	expect(canvas?.getAttribute('width')).toBe('152');
+	expect(canvas?.getAttribute('height')).toBe('75');
+});
+
+test('<Solid> throws for an invalid pixelDensity', () => {
+	expect(() =>
+		render(
+			<WrapSequenceContext>
+				<Solid color="red" width={120} height={80} pixelDensity={0} />
+			</WrapSequenceContext>,
+		),
+	).toThrow(/`pixelDensity` must be a positive finite number/);
 });

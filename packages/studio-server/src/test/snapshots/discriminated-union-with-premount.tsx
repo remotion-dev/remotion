@@ -1,4 +1,4 @@
-export const ExperimentalControlsShowcase: React.FC = () => {
+export const ControlsShowcase: React.FC = () => {
 	return (
 		<Sequence
 			style={{opacity: 0.5}}

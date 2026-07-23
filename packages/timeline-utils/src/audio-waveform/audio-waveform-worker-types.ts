@@ -1,4 +1,5 @@
 import type {TimelineLoopDisplay} from '../loop-display';
+import type {WaveformVolume} from './draw-peaks';
 
 export type AudioWaveformWorkerInitMessage = {
 	readonly type: 'init';
@@ -11,7 +12,7 @@ export type AudioWaveformWorkerRenderMessage = {
 	readonly src: string;
 	readonly width: number;
 	readonly height: number;
-	readonly volume: number;
+	readonly volume: WaveformVolume;
 	readonly startFrom: number;
 	readonly durationInFrames: number;
 	readonly fps: number;

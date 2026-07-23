@@ -32,7 +32,6 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	maxTimelineTracks,
 	publicPath,
 	audioLatencyHint,
-	experimentalClientSideRenderingEnabled,
 	askAIEnabled,
 	keyboardShortcutsEnabled,
 	rspack,
@@ -56,7 +55,6 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	maxTimelineTracks: number | null;
 	publicPath: string | null;
 	audioLatencyHint: AudioContextLatencyCategory | null;
-	experimentalClientSideRenderingEnabled: boolean;
 	askAIEnabled: boolean;
 	keyboardShortcutsEnabled: boolean;
 	rspack: boolean;
@@ -101,7 +99,6 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		maxTimelineTracks,
 		publicPath,
 		audioLatencyHint,
-		experimentalClientSideRenderingEnabled,
 		askAIEnabled,
 		keyboardShortcutsEnabled,
 		rspack,
@@ -130,7 +127,6 @@ export const bundleOnCli = async ({
 	bufferStateDelayInMilliseconds,
 	publicPath,
 	audioLatencyHint,
-	experimentalClientSideRenderingEnabled,
 	askAIEnabled,
 	keyboardShortcutsEnabled,
 	rspack,
@@ -154,7 +150,6 @@ export const bundleOnCli = async ({
 	bufferStateDelayInMilliseconds: number | null;
 	publicPath: string | null;
 	audioLatencyHint: AudioContextLatencyCategory | null;
-	experimentalClientSideRenderingEnabled: boolean;
 	keyboardShortcutsEnabled: boolean;
 	askAIEnabled: boolean;
 	rspack: boolean;
@@ -221,6 +216,7 @@ export const bundleOnCli = async ({
 		outDir: outDir ?? null,
 		publicPath,
 		askAIEnabled,
+		interactivityEnabled: true,
 		keyboardShortcutsEnabled,
 		rspack,
 		// Ephemeral CLI bundles (render/still/compositions/benchmark) use a temp dir; symlink avoids copying huge public folders. `npx remotion bundle` passes a fixed outDir and keeps deep copy for deployable output.
@@ -235,7 +231,6 @@ export const bundleOnCli = async ({
 		resolvedRemotionRoot: remotionRoot,
 		bufferStateDelayInMilliseconds,
 		maxTimelineTracks,
-		experimentalClientSideRenderingEnabled,
 	});
 	const cacheExistedBefore = BundlerInternals.cacheExists(
 		remotionRoot,
@@ -285,8 +280,7 @@ export const bundleOnCli = async ({
 		maxTimelineTracks,
 		bufferStateDelayInMilliseconds,
 		audioLatencyHint,
-		experimentalClientSideRenderingEnabled,
-		renderDefaults: getRenderDefaults(),
+		renderDefaults: getRenderDefaults(logLevel),
 	});
 
 	bundlingState = {

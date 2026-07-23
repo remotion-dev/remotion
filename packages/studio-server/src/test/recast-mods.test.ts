@@ -108,6 +108,61 @@ test('Rename composition that is the sole return value of a wrapper component', 
 	expect(newContents).toContain('id="Renamed"');
 });
 
+test('Update composition metadata', () => {
+	const {newContents, changesMade} = parseAndApplyCodemod({
+		input: compositionInOwnFile,
+		codeMod: {
+			type: 'update-composition-metadata',
+			idToUpdate: 'NewVideo',
+			newDurationInFrames: 240,
+			newFps: 60,
+			newWidth: 1920,
+			newHeight: 1080,
+		},
+	});
+
+	expect(changesMade).toHaveLength(4);
+	expect(newContents).toContain('width={1920}');
+	expect(newContents).toContain('height={1080}');
+	expect(newContents).toContain('fps={60}');
+	expect(newContents).toContain('durationInFrames={240}');
+});
+
+test('Update a composition dimension that is not a numeric literal', () => {
+	const input = compositionInOwnFile.replace('width={1280}', 'width={WIDTH}');
+	const {newContents} = parseAndApplyCodemod({
+		input,
+		codeMod: {
+			type: 'update-composition-metadata',
+			idToUpdate: 'NewVideo',
+			newDurationInFrames: null,
+			newFps: null,
+			newWidth: 1920,
+			newHeight: null,
+		},
+	});
+
+	expect(newContents).toContain('width={1920}');
+	expect(newContents).not.toContain('width={WIDTH}');
+});
+
+test('Add a missing composition dimension', () => {
+	const input = compositionInOwnFile.replace('\n\t\t\theight={720}', '');
+	const {newContents} = parseAndApplyCodemod({
+		input,
+		codeMod: {
+			type: 'update-composition-metadata',
+			idToUpdate: 'NewVideo',
+			newDurationInFrames: null,
+			newFps: null,
+			newWidth: null,
+			newHeight: 1080,
+		},
+	});
+
+	expect(newContents).toContain('height={1080}');
+});
+
 test('Duplicate composition that is the sole return value of a wrapper component', () => {
 	const {newContents, changesMade} = parseAndApplyCodemod({
 		input: compositionInOwnFile,
@@ -159,4 +214,105 @@ test('Rename concise-arrow composition keeps the arrow expression body', () => {
 
 	expect(newContents).toContain('id="Renamed"');
 	expect(newContents).not.toContain('id="NewVideo"');
+});
+
+test('Duplicate composition as Still adds Still import', () => {
+	const {newContents, changesMade} = parseAndApplyCodemod({
+		input: compositionInOwnFile,
+		codeMod: {
+			type: 'duplicate-composition',
+			idToDuplicate: 'NewVideo',
+			newId: 'Duplicated',
+			newDurationInFrames: null,
+			newFps: null,
+			newHeight: null,
+			newWidth: null,
+			tag: 'Still',
+		},
+	});
+
+	expect(changesMade.length).toBeGreaterThan(0);
+	expect(newContents).toContain('id="NewVideo"');
+	expect(newContents).toContain('id="Duplicated"');
+	expect(newContents).toContain('<Still');
+	expect(newContents).toContain('Still');
+	expect(newContents).toMatch(
+		/import\s*\{[^}]*Still[^}]*\}\s*from\s*['"]remotion['"]/,
+	);
+});
+
+test('Duplicate composition as Still does not duplicate import if Still already imported', () => {
+	const inputWithStill = `import {Composition, Still} from 'remotion';
+
+const Component = () => null;
+
+export const NewVideoComp = () => {
+	return (
+		<Composition
+			component={Component}
+			id="NewVideo"
+			durationInFrames={120}
+			fps={30}
+			width={1280}
+			height={720}
+		/>
+	);
+};
+`;
+
+	const {newContents} = parseAndApplyCodemod({
+		input: inputWithStill,
+		codeMod: {
+			type: 'duplicate-composition',
+			idToDuplicate: 'NewVideo',
+			newId: 'Duplicated',
+			newDurationInFrames: null,
+			newFps: null,
+			newHeight: null,
+			newWidth: null,
+			tag: 'Still',
+		},
+	});
+
+	// Should only have one import of Still, not two
+	// Still appears in: import + JSX tag opening
+	expect(newContents).toContain('<Still');
+	expect(newContents).toMatch(
+		/import\s*\{[^}]*Still[^}]*\}\s*from\s*['"]remotion['"]/,
+	);
+	// Ensure no duplicate import declarations
+	const importLines = newContents
+		.split('\n')
+		.filter((l: string) => l.includes('import') && l.includes('remotion'));
+	expect(importLines.length).toBe(1);
+});
+
+test('New composition appends to root and adds imports', () => {
+	const {newContents, changesMade} = parseAndApplyCodemod({
+		input: compositionInRoot,
+		codeMod: {
+			type: 'new-composition',
+			newId: 'FreshVideo',
+			componentName: 'FreshVideo',
+			componentImportPath: './FreshVideo',
+			folderName: null,
+			parentName: null,
+			newDurationInFrames: 150,
+			newFps: 30,
+			newHeight: 1080,
+			newWidth: 1920,
+		},
+	});
+
+	expect(changesMade.length).toBeGreaterThan(0);
+	expect(newContents).toMatch(
+		/import\s*\{[^}]*FreshVideo[^}]*\}\s*from\s*['"].\/FreshVideo['"]/,
+	);
+	expect(newContents).toMatch(
+		/import\s*\{[^}]*Composition[^}]*\}\s*from\s*['"]remotion['"]/,
+	);
+	expect(newContents).toContain('id="FreshVideo"');
+	expect(newContents).toContain('component={FreshVideo}');
+	expect(newContents).toContain('durationInFrames={150}');
+	expect(newContents).toContain('width={1920}');
 });

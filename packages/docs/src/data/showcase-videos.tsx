@@ -228,31 +228,6 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		},
 	},
 	{
-		title: 'HeyGen - Video Agent',
-		type: 'mux_video',
-		time: '75.5',
-		muxId: 'pKHRj00yo6eV1nHaXWSsjzvP1rBjQkey68qAp8gFy8Wk',
-		description:
-			"Fully made with HeyGen's Video Agent, powered by Remotion. Avatar, script, motion graphics, and final edits were all created just by prompting.",
-		height: 1080,
-		width: 1920,
-		submittedOn: new Date('01-29-2026'),
-		links: [
-			{
-				type: 'website',
-				url: 'https://www.heygen.com/',
-			},
-			{
-				type: 'video',
-				url: 'https://x.com/joshua_xu_/status/2016714990242439600',
-			},
-		],
-		author: {
-			url: 'https://x.com/joshua_xu_',
-			name: 'Joshua Xu',
-		},
-	},
-	{
 		title: 'Hello Météo - Weather app',
 		type: 'mux_video',
 		time: '5',

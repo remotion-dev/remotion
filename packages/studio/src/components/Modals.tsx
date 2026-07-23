@@ -1,16 +1,25 @@
 import React, {useContext} from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {ModalsContext} from '../state/modals';
 import {AskAiModal} from './AskAiModal';
+import {ConfirmationDialog} from './ConfirmationDialog';
+import {EffectPickerModal} from './EffectPickerModal';
 import {InstallPackageModal} from './InstallPackage';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
+import {DeleteFolder} from './NewComposition/DeleteFolder';
 import {DuplicateComposition} from './NewComposition/DuplicateComposition';
+import {NewComposition} from './NewComposition/NewComposition';
+import {NewFolder} from './NewComposition/NewFolder';
 import {RenameComposition} from './NewComposition/RenameComposition';
+import {RenameFolder} from './NewComposition/RenameFolder';
+import {RenameStaticFileModal} from './NewComposition/RenameStaticFile';
 import {OverrideInputPropsModal} from './OverrideInputProps';
 import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
 import {RenderStatusModal} from './RenderModal/RenderStatusModal';
 import {RenderModalWithLoader} from './RenderModal/ServerRenderModal';
 import {WebRenderModalWithLoader} from './RenderModal/WebRenderModal';
+import {SvgImportDialog} from './SvgImportDialog';
 import {UpdateModal} from './UpdateModal/UpdateModal';
 
 export const Modals: React.FC<{
@@ -23,6 +32,19 @@ export const Modals: React.FC<{
 
 	return (
 		<>
+			{modalContextType && modalContextType.type === 'new-comp' && (
+				<NewComposition
+					folderName={modalContextType.folderName}
+					parentName={modalContextType.parentName}
+					stack={modalContextType.stack}
+				/>
+			)}
+			{modalContextType && modalContextType.type === 'new-folder' && (
+				<NewFolder
+					parentName={modalContextType.parentName}
+					stack={modalContextType.stack}
+				/>
+			)}
 			{modalContextType && modalContextType.type === 'duplicate-comp' && (
 				<DuplicateComposition
 					compositionType={modalContextType.compositionType}
@@ -35,10 +57,26 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'rename-comp' && (
 				<RenameComposition compositionId={modalContextType.compositionId} />
 			)}
+			{modalContextType && modalContextType.type === 'delete-folder' && (
+				<DeleteFolder
+					folderName={modalContextType.folderName}
+					parentName={modalContextType.parentName}
+					stack={modalContextType.stack}
+				/>
+			)}
+			{modalContextType && modalContextType.type === 'rename-folder' && (
+				<RenameFolder
+					folderName={modalContextType.folderName}
+					parentName={modalContextType.parentName}
+					stack={modalContextType.stack}
+				/>
+			)}
+			{modalContextType && modalContextType.type === 'rename-static-file' && (
+				<RenameStaticFileModal relativePath={modalContextType.relativePath} />
+			)}
 			{modalContextType && modalContextType.type === 'input-props-override' && (
 				<OverrideInputPropsModal />
 			)}
-
 			{modalContextType && modalContextType.type === 'web-render' && (
 				<WebRenderModalWithLoader {...modalContextType} />
 			)}
@@ -138,7 +176,16 @@ export const Modals: React.FC<{
 					initialMode={modalContextType.mode}
 				/>
 			)}
-			{process.env.ASK_AI_ENABLED && <AskAiModal />}
+			{modalContextType && modalContextType.type === 'add-effect' && (
+				<EffectPickerModal state={modalContextType} />
+			)}
+			{modalContextType && modalContextType.type === 'confirmation-dialog' && (
+				<ConfirmationDialog state={modalContextType} />
+			)}
+			{modalContextType && modalContextType.type === 'svg-import-dialog' && (
+				<SvgImportDialog state={modalContextType} />
+			)}
+			{getStudioAskAIEnabled() && <AskAiModal />}
 		</>
 	);
 };

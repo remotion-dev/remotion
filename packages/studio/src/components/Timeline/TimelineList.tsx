@@ -1,8 +1,11 @@
-import React, {useCallback} from 'react';
+import React, {useMemo} from 'react';
 import {BACKGROUND} from '../../helpers/colors';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
-import {TimelineListItem} from './TimelineListItem';
-import {useTimelineSelection} from './TimelineSelection';
+import {
+	nestTimelineTracks,
+	type NestedTimelineTrack,
+} from './nest-timeline-tracks';
+import {TimelineSequenceItem} from './TimelineSequenceItem';
 import {TimelineTimePadding} from './TimelineTimeIndicators';
 
 const container: React.CSSProperties = {
@@ -10,40 +13,50 @@ const container: React.CSSProperties = {
 	background: BACKGROUND,
 };
 
+const TimelineListTrack: React.FC<{
+	readonly nestedTrack: NestedTimelineTrack<TrackWithHash>;
+}> = ({nestedTrack}) => {
+	const {track, children, siblingIndex} = nestedTrack;
+
+	return (
+		<div>
+			<TimelineSequenceItem
+				siblingIndex={siblingIndex}
+				connectedCompositions={track.connectedCompositions ?? []}
+				nestedDepth={track.depth}
+				sequence={track.sequence}
+				nodePathInfo={track.nodePathInfo}
+				keyframeDisplayOffset={track.keyframeDisplayOffset}
+				sequenceFrameOffset={track.sequenceFrameOffset}
+			>
+				{children.map((child) => (
+					<TimelineListTrack
+						key={child.track.sequence.id}
+						nestedTrack={child}
+					/>
+				))}
+			</TimelineSequenceItem>
+		</div>
+	);
+};
+
 export const TimelineList: React.FC<{
 	readonly timeline: TrackWithHash[];
 }> = ({timeline}) => {
-	const {clearSelection} = useTimelineSelection();
-
-	// Selection-triggering click handlers in children call e.stopPropagation(),
-	// so any pointerdown that bubbles up here is by definition on empty space
-	// and should clear the current selection.
-	const onPointerDown = useCallback(
-		(e: React.PointerEvent<HTMLDivElement>) => {
-			if (e.button !== 0) {
-				return;
-			}
-
-			clearSelection();
-		},
-		[clearSelection],
+	const nestedTimeline = useMemo(
+		() => nestTimelineTracks(timeline),
+		[timeline],
 	);
 
 	return (
-		<div style={container} onPointerDown={onPointerDown}>
+		<div style={container}>
 			<TimelineTimePadding />
-			{timeline.map((track) => {
-				return (
-					<div key={track.sequence.id}>
-						<TimelineListItem
-							key={track.sequence.id}
-							nestedDepth={track.depth}
-							sequence={track.sequence}
-							nodePathInfo={track.nodePathInfo}
-						/>
-					</div>
-				);
-			})}
+			{nestedTimeline.map((nestedTrack) => (
+				<TimelineListTrack
+					key={nestedTrack.track.sequence.id}
+					nestedTrack={nestedTrack}
+				/>
+			))}
 		</div>
 	);
 };

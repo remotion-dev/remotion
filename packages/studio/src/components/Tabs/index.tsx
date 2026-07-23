@@ -2,9 +2,11 @@ import React, {useCallback, useMemo, useState} from 'react';
 import {
 	BACKGROUND,
 	BLUE,
-	CLEAR_HOVER,
+	BORDER_TRANSPARENT_2PX,
+	WHITE_ALPHA_06,
 	INPUT_BACKGROUND,
 	LIGHT_TEXT,
+	WHITE,
 } from '../../helpers/colors';
 import {useZIndex} from '../../state/z-index';
 
@@ -30,12 +32,12 @@ export const Tabs: React.FC<{
 const selectorButton: React.CSSProperties = {
 	border: 'none',
 	flex: 1,
-	padding: 4,
-	height: 40,
-	paddingLeft: 16,
+	padding: 3,
+	height: 34,
+	paddingLeft: 12,
 	display: 'flex',
 	flexDirection: 'row',
-	fontSize: 14,
+	fontSize: 13,
 	color: 'inherit',
 	alignItems: 'center',
 	cursor: 'default',
@@ -66,10 +68,10 @@ export const Tab: React.FC<{
 			backgroundColor: selected
 				? BACKGROUND
 				: hovered
-					? CLEAR_HOVER
+					? WHITE_ALPHA_06
 					: INPUT_BACKGROUND,
-			color: selected ? 'white' : LIGHT_TEXT,
-			borderTop: selected ? '2px solid ' + BLUE : '2px solid transparent',
+			color: selected ? WHITE : LIGHT_TEXT,
+			borderTop: selected ? '2px solid ' + BLUE : BORDER_TRANSPARENT_2PX,
 			boxShadow: selected ? 'none' : undefined,
 			...style,
 		}),

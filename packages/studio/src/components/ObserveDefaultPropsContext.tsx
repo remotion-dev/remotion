@@ -6,6 +6,7 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {callApi} from './call-api';
 import type {TypeCanSaveState} from './RenderModal/get-render-modal-warnings';
@@ -59,10 +60,15 @@ export const ObserveDefaultProps: React.FC<{
 					...prevState,
 					[compId]: {canUpdate: true},
 				}));
+				// Resolve `remotion-file:` and `remotion-date:` tokens that the
+				// server emits for staticFile() and new Date() values
+				const deserialized = NoReactInternals.deserializeJSONWithSpecialTypes<
+					Record<string, unknown>
+				>(JSON.stringify(result.currentDefaultProps));
 				updateProps({
 					id: compId,
-					defaultProps: result.currentDefaultProps,
-					newProps: result.currentDefaultProps,
+					defaultProps: deserialized,
+					newProps: deserialized,
 				});
 			} else {
 				setCanSaveDefaultProps((prevState) => ({

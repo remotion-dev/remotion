@@ -38,64 +38,66 @@ export const Footer: React.FC<{
 	readonly routeAction: RouteAction;
 }> = ({routeAction}) => {
 	return (
-		<div className="lg:flex flex-row items-center">
-			<a
-				className="hidden group lg:flex flex-row items-center ml-[-8px]"
-				target="_blank"
-				href="https://remotion.dev/?utm_source=convert"
-			>
-				<Logo />
-				<div className="w-1" />
-				<div className="opacity-0 transition-opacity duration-200 font-brand text-sm text-muted-foreground group-hover:opacity-100">
-					Remotion
-				</div>
-			</a>
-			<a
-				className="lg:hidden font-medium"
-				target="_blank"
-				href="https://remotion.dev/?utm_source=convert"
-			>
-				<div className="text-sm text-muted-foreground hover:text-foreground">
-					A Remotion Product
-				</div>
-			</a>
-			<div className="flex-1" />
-			{routeAction.type === 'transcribe' ? (
+		<footer className="w-full">
+			<div className="flex flex-col gap-5 lg:flex-row lg:items-center">
 				<a
+					className="hidden group lg:flex flex-row items-center ml-[-8px] shrink-0"
 					target="_blank"
-					href="https://remotion.dev/docs/whisper-web"
-					className="text-sm text-muted-foreground font-medium hover:text-foreground"
+					href="https://remotion.dev/?utm_source=convert"
 				>
-					Powered by @remotion/whisper-web
+					<Logo />
+					<div className="w-1" />
+					<div className="opacity-0 transition-opacity duration-200 font-brand text-sm text-muted-foreground group-hover:opacity-100">
+						Remotion
+					</div>
 				</a>
-			) : (
-				<div className="row flex items-center">
+				<a
+					className="lg:hidden font-medium"
+					target="_blank"
+					href="https://remotion.dev/?utm_source=convert"
+				>
+					<div className="text-sm text-muted-foreground hover:text-foreground">
+						A Remotion Product
+					</div>
+				</a>
+				<div className="hidden lg:block lg:flex-1" />
+				<div className="flex flex-wrap items-center gap-x-5 gap-y-2 lg:justify-end">
+					{routeAction.type === 'transcribe' ? (
+						<a
+							target="_blank"
+							href="https://remotion.dev/docs/whisper-web"
+							className="text-sm text-muted-foreground font-medium hover:text-foreground"
+						>
+							Powered by @remotion/whisper-web
+						</a>
+					) : (
+						<div className="row flex items-center">
+							<a
+								target="_blank"
+								href="https://mediabunny.dev"
+								className="text-sm text-pink-500 font-medium"
+							>
+								Powered by Mediabunny
+							</a>
+							<MediabunnyLogo />
+						</div>
+					)}
 					<a
 						target="_blank"
-						href="https://mediabunny.dev"
-						className="text-sm text-pink-500 font-medium"
+						href="https://remotion.dev/report"
+						className="text-sm text-muted-foreground font-medium hover:text-foreground"
 					>
-						Powered by Mediabunny
+						Report bug
 					</a>
-					<MediabunnyLogo />
+					<a
+						target="_blank"
+						href="https://github.com/remotion-dev/remotion/tree/main/packages/convert"
+						className="text-sm text-muted-foreground font-medium hover:text-foreground"
+					>
+						Source Code
+					</a>
 				</div>
-			)}
-			<div className="w-6" />
-			<a
-				target="_blank"
-				href="https://remotion.dev/report"
-				className="text-sm text-muted-foreground font-medium hover:text-foreground"
-			>
-				Report bug
-			</a>
-			<div className="w-6" />
-			<a
-				target="_blank"
-				href="https://github.com/remotion-dev/remotion/tree/main/packages/convert"
-				className="text-sm text-muted-foreground font-medium hover:text-foreground"
-			>
-				Source Code
-			</a>
-		</div>
+			</div>
+		</footer>
 	);
 };

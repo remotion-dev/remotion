@@ -3,6 +3,7 @@ import {calculateChunkTimes} from './calculate-chunk-times';
 import type {CustomCredentials} from './constants';
 import {estimatePriceFromMetadata} from './estimate-price-from-bucket';
 import {getExpectedOutName} from './expected-out-name';
+import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {formatCostsInfo} from './format-costs-info';
 import {getOverallProgress} from './get-overall-progress';
 import {getOverallProgressFromStorage} from './get-overall-progress-from-storage';
@@ -204,7 +205,7 @@ export const getProgress = async <Provider extends CloudProvider>({
 		memorySizeInMb:
 			providerSpecifics.parseFunctionName(renderMetadata.rendererFunctionName)
 				?.memorySizeInMb ?? memorySizeInMb,
-		functionsInvoked: renderMetadata.estimatedRenderLambdaInvokations ?? 0,
+		functionsInvoked: overallProgress.lambdasInvoked ?? 0,
 		diskSizeInMb: providerSpecifics.getEphemeralStorageForPriceCalculation(),
 		timings: overallProgress.timings ?? [],
 		region,
@@ -249,6 +250,87 @@ export const getProgress = async <Provider extends CloudProvider>({
 	// 2. If we have no missing chunks, but the encoding is not done, even after the additional `merge` function has been spawned, we consider it timed out
 	const isBeyondTimeoutAndHasStitchTimeout =
 		Date.now() > renderMetadata.startedDate + timeoutInMilliseconds * 2 + 20000;
+
+	const shouldCheckForCompletedOutput =
+		allChunks &&
+		(isBeyondTimeoutAndHasStitchTimeout ||
+			(overallProgress.combinedFrames >= frameCount &&
+				overallProgress.timeToCombine !== null));
+
+	if (shouldCheckForCompletedOutput) {
+		const outputFile = await findOutputFileInBucket({
+			bucketName,
+			customCredentials,
+			renderMetadata,
+			region,
+			currentRegion: region,
+			providerSpecifics,
+			forcePathStyle,
+			requestHandler,
+		});
+
+		if (outputFile) {
+			const outData = getExpectedOutName({
+				renderMetadata,
+				bucketName,
+				customCredentials,
+				bucketNamePrefix: providerSpecifics.getBucketPrefix(),
+			});
+			const now = Date.now();
+			const timeToFinishChunks = calculateChunkTimes({
+				type: 'absolute-time',
+				timings: overallProgress.timings,
+			});
+
+			return {
+				framesRendered: frameCount,
+				bucket: bucketName,
+				renderSize: outputFile.sizeInBytes ?? 0,
+				chunks: renderMetadata.totalChunks,
+				cleanup: {
+					doneIn: null,
+					filesDeleted: 0,
+					minFilesToDelete: 0,
+				},
+				costs: priceFromBucket
+					? formatCostsInfo(priceFromBucket.accruedSoFar)
+					: formatCostsInfo(0),
+				currentTime: now,
+				done: true,
+				encodingStatus: {
+					framesEncoded: frameCount,
+					combinedFrames: frameCount,
+					timeToCombine: overallProgress.timeToCombine,
+				},
+				errors: errorExplanations,
+				fatalErrorEncountered: false,
+				lambdasInvoked: renderMetadata.totalChunks,
+				outputFile: outputFile.url,
+				renderId,
+				timeToFinish: now - renderMetadata.startedDate,
+				timeToFinishChunks,
+				timeToRenderFrames: overallProgress.timeToRenderFrames,
+				overallProgress: 1,
+				retriesInfo: overallProgress.retries ?? [],
+				outKey: outData.key,
+				outBucket: outData.renderBucketName,
+				mostExpensiveFrameRanges: null,
+				timeToEncode: overallProgress.timeToEncode,
+				outputSizeInBytes: outputFile.sizeInBytes ?? 0,
+				type: 'success',
+				estimatedBillingDurationInMilliseconds:
+					priceFromBucket?.estimatedBillingDurationInMilliseconds ?? null,
+				timeToCombine: overallProgress.timeToCombine,
+				combinedFrames: frameCount,
+				renderMetadata,
+				timeoutTimestamp: overallProgress.timeoutTimestamp,
+				compositionValidated: overallProgress.compositionValidated,
+				functionLaunched: overallProgress.functionLaunched,
+				serveUrlOpened: overallProgress.serveUrlOpened,
+				artifacts: overallProgress.receivedArtifact,
+			};
+		}
+	}
 
 	const allErrors: EnhancedErrorInfo[] = [
 		isBeyondTimeoutAndMissingChunks || isBeyondTimeoutAndHasStitchTimeout

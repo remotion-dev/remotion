@@ -177,6 +177,7 @@ const createFolderIfDoesNotExist = (
 
 	itemList.push({
 		type: 'folder',
+		folder: folderItem,
 		folderName: folderItem.name,
 		items: [],
 		key: folderItem.name,

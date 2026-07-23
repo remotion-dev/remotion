@@ -1,17 +1,24 @@
-import type {SequencePropsSubscriptionKey, TSequence} from 'remotion';
+import type {
+	_InternalTypes,
+	SequencePropsSubscriptionKey,
+	TSequence,
+} from 'remotion';
 
 export type SequenceNodePathInfo = {
 	sequenceSubscriptionKey: SequencePropsSubscriptionKey;
 	auxiliaryKeys: string[];
 	index: number;
 	numberOfSequencesWithThisNodePath: number;
+	supportsEffects: boolean;
 };
 
 type Track = {
 	sequence: TSequence;
+	connectedCompositions?: readonly _InternalTypes['AnyComposition'][];
 	depth: number;
 	nodePathInfo: SequenceNodePathInfo | null;
 	keyframeDisplayOffset: number;
+	sequenceFrameOffset: number;
 };
 
 export type TrackWithHash = Track & {

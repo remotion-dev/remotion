@@ -1,10 +1,30 @@
 import React from 'react';
+import {Interactive} from 'remotion';
 import type {MakeTriangleProps} from '../utils/make-triangle';
 import {makeTriangle} from '../utils/make-triangle';
 import type {AllShapesProps} from './render-svg';
 import {RenderSvg} from './render-svg';
+import {enumField, makeShapeSchema, numberField} from './schema';
 
 export type TriangleProps = MakeTriangleProps & AllShapesProps;
+
+const triangleSchema = makeShapeSchema({
+	length: numberField({
+		defaultValue: 100,
+		description: 'Length',
+		min: 0,
+	}),
+	direction: enumField({
+		defaultValue: 'right',
+		description: 'Direction',
+		variants: ['right', 'left', 'up', 'down'],
+	}),
+	cornerRadius: numberField({
+		defaultValue: 0,
+		description: 'Corner Radius',
+		min: 0,
+	}),
+});
 
 /**
  * @description Renders an SVG element containing a triangle with same length on all sides.
@@ -14,7 +34,7 @@ export type TriangleProps = MakeTriangleProps & AllShapesProps;
  * @param {Number} cornerRadius Rounds the corner using an arc. Similar to CSS's border-radius. Cannot be used together with edgeRoundness.
  * @see [Documentation](https://www.remotion.dev/docs/shapes/triangle)
  */
-export const Triangle: React.FC<TriangleProps> = ({
+const TriangleInner: React.FC<TriangleProps> = ({
 	length,
 	direction,
 	edgeRoundness,
@@ -23,8 +43,18 @@ export const Triangle: React.FC<TriangleProps> = ({
 }) => {
 	return (
 		<RenderSvg
+			defaultName="<Triangle>"
+			documentationLink="https://www.remotion.dev/docs/shapes/triangle"
 			{...makeTriangle({length, direction, edgeRoundness, cornerRadius})}
 			{...props}
 		/>
 	);
 };
+
+export const Triangle = Interactive.withSchema({
+	Component: TriangleInner,
+	componentName: '<Triangle>',
+	componentIdentity: 'dev.remotion.shapes.Triangle',
+	schema: triangleSchema,
+	supportsEffects: true,
+}) as React.FC<TriangleProps>;

@@ -1,9 +1,11 @@
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
+import {chalk} from './chalk';
 import {ConfigInternals} from './config';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
+import {getLoadedConfigFile, reloadConfig} from './get-config-file-name';
 import {getEnvironmentVariables} from './get-env';
 import {getGitSource} from './get-github-repository';
 import {getInputProps} from './get-input-props';
@@ -23,7 +25,7 @@ const {
 	disableGitSourceOption,
 	enableCrossSiteIsolationOption,
 	askAIOption,
-	experimentalClientSideRenderingOption,
+	interactivityOption,
 	keyboardShortcutsOption,
 	forceNewStudioOption,
 	numberOfSharedAudioTagsOption,
@@ -34,6 +36,7 @@ const {
 	noOpenOption,
 	portOption,
 	browserOption,
+	previewSampleRateOption,
 } = BrowserSafeApis.options;
 
 export const studioCommand = async (
@@ -80,6 +83,42 @@ export const studioCommand = async (
 		StudioServerInternals.createFileWatcherRegistry(),
 	);
 
+	const configFile = getLoadedConfigFile();
+	if (configFile) {
+		let isReloadingConfig = false;
+		StudioServerInternals.installFileWatcher({
+			file: configFile,
+			existenceOnly: false,
+			onChange: async () => {
+				if (isReloadingConfig) {
+					return;
+				}
+
+				isReloadingConfig = true;
+				try {
+					const configWasReloaded = await reloadConfig({
+						resetConfigOptions: ConfigInternals.resetConfigOptions,
+					});
+					if (!configWasReloaded) {
+						return;
+					}
+
+					Log.info(
+						{indent: false, logLevel},
+						chalk.blue('Config file changed. Reloading Studio'),
+					);
+					StudioServerInternals.waitForLiveEventsListener().then((listener) => {
+						listener.sendEventToClient({
+							type: 'config-file-changed',
+						});
+					});
+				} finally {
+					isReloadingConfig = false;
+				}
+			},
+		});
+	}
+
 	let inputProps = getInputProps((newProps) => {
 		StudioServerInternals.waitForLiveEventsListener().then((listener) => {
 			inputProps = newProps;
@@ -107,18 +146,6 @@ export const studioCommand = async (
 		commandLine: parsedCli,
 	}).value;
 
-	const experimentalClientSideRenderingEnabled =
-		experimentalClientSideRenderingOption.getValue({
-			commandLine: parsedCli,
-		}).value;
-
-	if (experimentalClientSideRenderingEnabled) {
-		Log.warn(
-			{indent: false, logLevel},
-			'Enabling WIP client-side rendering. Please see caveats on https://www.remotion.dev/docs/client-side-rendering/.',
-		);
-	}
-
 	const binariesDirectory = binariesDirectoryOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -130,12 +157,16 @@ export const studioCommand = async (
 	const relativePublicDir = publicDirOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const rendererPort = ConfigInternals.getRendererPortFromConfigFile();
 
 	const enableCrossSiteIsolation = enableCrossSiteIsolationOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 
 	const askAIEnabled = askAIOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const interactivityEnabled = interactivityOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 
@@ -150,6 +181,27 @@ export const studioCommand = async (
 		);
 	}
 
+	const getStudioRuntimeConfig = () => ({
+		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
+		askAIEnabled: askAIOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		interactivityEnabled: interactivityOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		keyboardShortcutsEnabled: keyboardShortcutsOption.getValue({
+			commandLine: parsedCli,
+		}).value,
+		bufferStateDelayInMilliseconds:
+			ConfigInternals.getBufferStateDelayInMilliseconds(),
+	});
+	const getNumberOfAudioTags = () =>
+		numberOfSharedAudioTagsOption.getValue({commandLine: parsedCli}).value;
+	const getAudioLatencyHint = () =>
+		audioLatencyHintOption.getValue({commandLine: parsedCli}).value;
+	const getPreviewSampleRate = () =>
+		previewSampleRateOption.getValue({commandLine: parsedCli}).value;
+
 	const result = await StudioServerInternals.startStudio({
 		previewEntry: require.resolve('@remotion/studio/previewEntry'),
 		browserArgs: parsedCli['browser-args'],
@@ -161,19 +213,24 @@ export const studioCommand = async (
 		getEnvVariables: () => envVariables,
 		desiredPort,
 		keyboardShortcutsEnabled,
-		experimentalClientSideRenderingEnabled,
 		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 		remotionRoot,
 		relativePublicDir,
 		webpackOverride: ConfigInternals.getWebpackOverrideFn(),
 		poll: webpackPollOption.getValue({commandLine: parsedCli}).value,
-		getRenderDefaults,
+		getRenderDefaults: () => getRenderDefaults(logLevel),
 		getRenderQueue,
-		numberOfAudioTags: numberOfSharedAudioTagsOption.getValue({
-			commandLine: parsedCli,
-		}).value,
+		getNumberOfAudioTags,
 		queueMethods: {
-			addJob,
+			addJob: (options) =>
+				addJob({
+					...options,
+					fixedConfig: {
+						publicDir: relativePublicDir,
+						rendererPort,
+						rspack: useRspack,
+					},
+				}),
 			cancelJob,
 			removeJob,
 		},
@@ -182,13 +239,14 @@ export const studioCommand = async (
 			ConfigInternals.getBufferStateDelayInMilliseconds(),
 		binariesDirectory,
 		forceIPv4: ipv4Option.getValue({commandLine: parsedCli}).value,
-		audioLatencyHint: audioLatencyHintOption.getValue({
-			commandLine: parsedCli,
-		}).value,
+		getAudioLatencyHint,
+		getPreviewSampleRate,
 		enableCrossSiteIsolation,
 		askAIEnabled,
+		interactivityEnabled,
 		forceNew: forceNewStudioOption.getValue({commandLine: parsedCli}).value,
 		rspack: useRspack,
+		getStudioRuntimeConfig,
 	});
 
 	if (result.type === 'already-running') {

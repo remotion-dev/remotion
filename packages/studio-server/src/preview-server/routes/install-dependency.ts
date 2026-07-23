@@ -2,23 +2,32 @@ import {spawn} from 'node:child_process';
 import {RenderInternals} from '@remotion/renderer';
 import {
 	extraPackages,
+	isValidPackageName,
 	type InstallPackageRequest,
 	type InstallPackageResponse,
 } from '@remotion/studio-shared';
 import {VERSION} from 'remotion/version';
 import {getInstallCommand} from '../../helpers/install-command';
+import {getPackageManagerSpawnOptions} from '../../helpers/package-manager-spawn-options';
 import type {ApiHandler} from '../api-types';
 import {getPackageManager, lockFilePaths} from '../get-package-manager';
-
-const extraPackageNames = extraPackages.map((pkg) => pkg.name);
-
-const isExtraPackage = (packageName: string): boolean => {
-	return extraPackageNames.includes(packageName);
-};
 
 const getExtraPackageVersion = (packageName: string): string | null => {
 	const pkg = extraPackages.find((p) => p.name === packageName);
 	return pkg ? pkg.version : null;
+};
+
+export const getPackageInstallSpec = (packageName: string): string => {
+	const extraVersion = getExtraPackageVersion(packageName);
+	if (extraVersion) {
+		return `${packageName}@${extraVersion}`;
+	}
+
+	if (packageName === 'remotion' || packageName.startsWith('@remotion/')) {
+		return `${packageName}@${VERSION}`;
+	}
+
+	return packageName;
 };
 
 export const handleInstallPackage: ApiHandler<
@@ -26,9 +35,9 @@ export const handleInstallPackage: ApiHandler<
 	InstallPackageResponse
 > = async ({logLevel, remotionRoot, input: {packageNames}}) => {
 	for (const packageName of packageNames) {
-		if (!packageName.startsWith('@remotion/') && !isExtraPackage(packageName)) {
+		if (!isValidPackageName(packageName)) {
 			return Promise.reject(
-				new Error(`Package ${packageName} is not allowed to be installed.`),
+				new Error(`Package name ${JSON.stringify(packageName)} is invalid.`),
 			);
 		}
 	}
@@ -47,15 +56,9 @@ export const handleInstallPackage: ApiHandler<
 		);
 	}
 
-	// Build packages with appropriate versions
-	const packagesWithVersions = packageNames.map((pkg) => {
-		const extraVersion = getExtraPackageVersion(pkg);
-		if (extraVersion) {
-			return `${pkg}@${extraVersion}`;
-		}
-
-		return `${pkg}@${VERSION}`;
-	});
+	// Remotion packages must match the Studio version and catalogued extra
+	// packages use their supported version. Other packages resolve normally.
+	const packagesWithVersions = packageNames.map(getPackageInstallSpec);
 
 	const command = getInstallCommand({
 		manager: manager.manager,
@@ -72,7 +75,14 @@ export const handleInstallPackage: ApiHandler<
 	const time = Date.now();
 	try {
 		await new Promise<void>((resolve, reject) => {
-			const cmd = spawn(manager.manager, command, {});
+			const cmd = spawn(
+				manager.manager,
+				command,
+				getPackageManagerSpawnOptions(),
+			);
+			cmd.on('error', (err) => {
+				reject(err);
+			});
 			cmd.stdout.on('data', (d: Buffer) => {
 				const splitted = d.toString().trim().split('\n');
 				splitted.forEach((line) => {

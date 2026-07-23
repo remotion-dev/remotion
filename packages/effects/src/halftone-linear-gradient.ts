@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -7,6 +7,7 @@ import {
 } from './color-utils.js';
 import {
 	assertEffectParamsObject,
+	assertOptionalBoolean,
 	assertOptionalColor,
 } from './validate-effect-param.js';
 
@@ -20,6 +21,7 @@ const DEFAULT_FIRST_STOP_POSITION = [0, 0.5] as const;
 const DEFAULT_SECOND_STOP_POSITION = [1, 0.5] as const;
 const DEFAULT_GRID_SIZE = 24;
 const DEFAULT_DOT_COLOR = 'black';
+const DEFAULT_MASK_TO_SOURCE_ALPHA = false as const;
 
 export const halftoneLinearGradientSchema = {
 	firstStopDotSize: {
@@ -29,6 +31,7 @@ export const halftoneLinearGradientSchema = {
 		step: 1,
 		default: DEFAULT_FIRST_STOP_DOT_SIZE,
 		description: 'First stop dot size',
+		hiddenFromList: false,
 	},
 	secondStopDotSize: {
 		type: 'number',
@@ -37,6 +40,7 @@ export const halftoneLinearGradientSchema = {
 		step: 1,
 		default: DEFAULT_SECOND_STOP_DOT_SIZE,
 		description: 'Second stop dot size',
+		hiddenFromList: false,
 	},
 	firstStopPosition: {
 		type: 'uv-coordinate',
@@ -45,6 +49,10 @@ export const halftoneLinearGradientSchema = {
 		step: 0.01,
 		default: DEFAULT_FIRST_STOP_POSITION,
 		description: 'First stop position',
+		visual: {
+			type: 'line',
+			to: 'secondStopPosition',
+		},
 	},
 	secondStopPosition: {
 		type: 'uv-coordinate',
@@ -61,6 +69,7 @@ export const halftoneLinearGradientSchema = {
 		step: 1,
 		default: DEFAULT_GRID_SIZE,
 		description: 'Grid size',
+		hiddenFromList: false,
 	},
 	colorMode: {
 		type: 'enum',
@@ -77,7 +86,12 @@ export const halftoneLinearGradientSchema = {
 			source: {},
 		},
 	},
-} as const satisfies SequenceSchema;
+	maskToSourceAlpha: {
+		type: 'boolean',
+		default: DEFAULT_MASK_TO_SOURCE_ALPHA,
+		description: 'Mask to source alpha',
+	},
+} as const satisfies InteractivitySchema;
 
 export type HalftoneLinearGradientColorMode =
 	(typeof HALFTONE_LINEAR_GRADIENT_COLOR_MODES)[number];
@@ -105,6 +119,10 @@ type HalftoneLinearGradientCommonParams = {
 	 * Distance between adjacent dot centers.
 	 */
 	readonly gridSize?: number;
+	/**
+	 * Masks solid-color dots to the source alpha channel. Defaults to `false`.
+	 */
+	readonly maskToSourceAlpha?: boolean;
 };
 
 export type HalftoneLinearGradientParams = HalftoneLinearGradientCommonParams &
@@ -127,6 +145,7 @@ type HalftoneLinearGradientResolved = {
 	gridSize: number;
 	colorMode: HalftoneLinearGradientColorMode;
 	dotColor: string;
+	maskToSourceAlpha: boolean;
 };
 
 const formatEnum = (variants: readonly string[]): string => {
@@ -169,6 +188,7 @@ const resolve = (
 	colorMode: p.colorMode ?? 'solid',
 	dotColor:
 		'dotColor' in p ? (p.dotColor ?? DEFAULT_DOT_COLOR) : DEFAULT_DOT_COLOR,
+	maskToSourceAlpha: p.maskToSourceAlpha ?? DEFAULT_MASK_TO_SOURCE_ALPHA,
 });
 
 const validateNonNegative = (value: number, name: string): void => {
@@ -210,6 +230,7 @@ const validateHalftoneLinearGradientParams = (
 	assertOptionalUvCoordinate(params.firstStopPosition, 'firstStopPosition');
 	assertOptionalUvCoordinate(params.secondStopPosition, 'secondStopPosition');
 	assertOptionalFiniteNumber(params.gridSize, 'gridSize');
+	assertOptionalBoolean(params.maskToSourceAlpha, 'maskToSourceAlpha');
 	assertOptionalEnum(
 		params.colorMode,
 		'colorMode',
@@ -265,6 +286,7 @@ uniform vec2 uSecondStopPosition;
 uniform float uGridSize;
 uniform vec4 uColor;
 uniform bool uUseSourceColor;
+uniform bool uMaskToSourceAlpha;
 
 float gradientProgress(vec2 uv) {
 	vec2 stopVector = uSecondStopPosition - uFirstStopPosition;
@@ -278,6 +300,13 @@ float gradientProgress(vec2 uv) {
 
 vec4 sourceOver(vec4 backdrop, vec4 overlay) {
 	return overlay + backdrop * (1.0 - overlay.a);
+}
+
+vec4 sourceAtop(vec4 backdrop, vec4 overlay) {
+	return vec4(
+		overlay.rgb * backdrop.a + backdrop.rgb * (1.0 - overlay.a),
+		backdrop.a
+	);
 }
 
 void main() {
@@ -308,7 +337,11 @@ void main() {
 	vec2 sampleUv = clamp(centerUv, vec2(0.0), vec2(1.0));
 	vec4 texColor = texture(uSource, sampleUv);
 	vec4 dotColor = (uUseSourceColor ? texColor : uColor) * coverage;
-	fragColor = uUseSourceColor ? dotColor : sourceOver(texColor, dotColor);
+	fragColor = uUseSourceColor
+		? dotColor
+		: uMaskToSourceAlpha
+			? sourceAtop(texColor, dotColor)
+			: sourceOver(texColor, dotColor);
 }
 `;
 
@@ -327,6 +360,7 @@ type HalftoneLinearGradientState = {
 	uGridSize: WebGLUniformLocation | null;
 	uColor: WebGLUniformLocation | null;
 	uUseSourceColor: WebGLUniformLocation | null;
+	uMaskToSourceAlpha: WebGLUniformLocation | null;
 	colorCtx: CanvasRenderingContext2D;
 	cachedColorStr: string;
 	cachedColorRgba: ParsedColorRgba;
@@ -383,14 +417,15 @@ export const halftoneLinearGradient = createEffect<
 	HalftoneLinearGradientParams,
 	HalftoneLinearGradientState
 >({
-	type: 'remotion/halftone-linear-gradient',
+	type: 'dev.remotion.effects.halftoneLinearGradient',
 	label: 'halftoneLinearGradient()',
 	documentationLink:
 		'https://www.remotion.dev/docs/effects/halftone-linear-gradient',
 	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
-		return `halftone-linear-gradient-${r.firstStopDotSize}-${r.secondStopDotSize}-${r.firstStopPosition.join(':')}-${r.secondStopPosition.join(':')}-${r.gridSize}-${r.colorMode}-${r.dotColor}`;
+		const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';
+		return `halftone-linear-gradient-${r.firstStopDotSize}-${r.secondStopDotSize}-${r.firstStopPosition.join(':')}-${r.secondStopPosition.join(':')}-${r.gridSize}-${r.colorMode}-${r.dotColor}${maskSuffix}`;
 	},
 	setup: (target) => {
 		const gl = target.getContext('webgl2', {
@@ -480,6 +515,7 @@ export const halftoneLinearGradient = createEffect<
 			uGridSize: gl.getUniformLocation(program, 'uGridSize'),
 			uColor: gl.getUniformLocation(program, 'uColor'),
 			uUseSourceColor: gl.getUniformLocation(program, 'uUseSourceColor'),
+			uMaskToSourceAlpha: gl.getUniformLocation(program, 'uMaskToSourceAlpha'),
 			colorCtx,
 			cachedColorStr: '',
 			cachedColorRgba: [0, 0, 0, 255],
@@ -545,6 +581,8 @@ export const halftoneLinearGradient = createEffect<
 			);
 		if (state.uUseSourceColor)
 			gl.uniform1i(state.uUseSourceColor, r.colorMode === 'source' ? 1 : 0);
+		if (state.uMaskToSourceAlpha)
+			gl.uniform1i(state.uMaskToSourceAlpha, r.maskToSourceAlpha ? 1 : 0);
 
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 

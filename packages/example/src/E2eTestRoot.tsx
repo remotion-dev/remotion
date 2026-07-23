@@ -1,7 +1,9 @@
 import React from 'react';
 import {Composition, Folder} from 'remotion';
+import {EffectKeyframeE2e} from './EffectKeyframeE2e';
 import {ErrorOverlayRepro} from './ErrorOverlayE2e/ErrorOverlayRepro';
 import {HookOrderChangeE2e} from './HookOrderChangeE2e/HookOrderChangeRepro';
+import {Issue8216} from './Issue8216/Issue8216';
 import {LostNodePathRepro} from './LostNodePathE2e/LostNodePathRepro';
 import {NewVideoComp} from './NewVideo';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
@@ -46,6 +48,14 @@ export const E2eTestRoot: React.FC = () => {
 					fps={30}
 					durationInFrames={900}
 				/>
+				<Composition
+					id="effect-keyframe-e2e"
+					component={EffectKeyframeE2e}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
 			</Folder>
 			<Folder name="lost-node-path">
 				<Composition
@@ -70,6 +80,14 @@ export const E2eTestRoot: React.FC = () => {
 			<Folder name="hook-order-change">
 				<HookOrderChangeE2e />
 			</Folder>
+			<Composition
+				id="issue-8216"
+				component={Issue8216}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={90}
+			/>
 			<NewVideoComp />
 		</>
 	);

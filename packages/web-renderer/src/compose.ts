@@ -1,4 +1,5 @@
 import type {LogLevel} from 'remotion';
+import type {TransformStyleCache} from './drawing/calculate-transforms';
 import type {InternalState} from './internal-state';
 import {createTreeWalkerCleanupAfterChildren} from './tree-walker-cleanup-after-children';
 import {walkOverNode} from './walk-over-node';
@@ -33,6 +34,7 @@ export const compose = async ({
 	internalState,
 	onlyBackgroundClipText,
 	scale,
+	waitForPageResponsiveness,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
@@ -41,6 +43,7 @@ export const compose = async ({
 	internalState: InternalState;
 	onlyBackgroundClipText: boolean;
 	scale: number;
+	waitForPageResponsiveness: (() => Promise<void>) | null;
 }) => {
 	const treeWalker = document.createTreeWalker(
 		element,
@@ -49,6 +52,7 @@ export const compose = async ({
 			: NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
 		getFilterFunction,
 	);
+	const transformStyleCache: TransformStyleCache = new WeakMap();
 
 	// Skip to the first text node
 	if (onlyBackgroundClipText) {
@@ -73,6 +77,8 @@ export const compose = async ({
 			rootElement: element,
 			onlyBackgroundClipText,
 			scale,
+			waitForPageResponsiveness,
+			transformStyleCache,
 		});
 		if (val.type === 'skip-children') {
 			if (!skipToNextNonDescendant(treeWalker)) {
@@ -86,6 +92,10 @@ export const compose = async ({
 			if (!treeWalker.nextNode()) {
 				break;
 			}
+		}
+
+		if (waitForPageResponsiveness !== null) {
+			await waitForPageResponsiveness();
 		}
 	}
 };

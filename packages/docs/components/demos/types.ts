@@ -1,34 +1,4 @@
 import type {LogLevel} from 'remotion';
-import {EffectsBarrelDistortionPreview} from '../effects/effects-barrel-distortion-preview';
-import {EffectsBlurPreview} from '../effects/effects-blur-preview';
-import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
-import {EffectsChromaticAberrationPreview} from '../effects/effects-chromatic-aberration-preview';
-import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
-import {EffectsDotGridPreview} from '../effects/effects-dot-grid-preview';
-import {EffectsDropShadowPreview} from '../effects/effects-drop-shadow-preview';
-import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
-import {EffectsGlowPreview} from '../effects/effects-glow-preview';
-import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
-import {EffectsHalftoneLinearGradientPreview} from '../effects/effects-halftone-linear-gradient-preview';
-import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
-import {EffectsHuePreview} from '../effects/effects-hue-preview';
-import {EffectsInvertPreview} from '../effects/effects-invert-preview';
-import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
-import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
-import {EffectsNoisePreview} from '../effects/effects-noise-preview';
-import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
-import {EffectsScalePreview} from '../effects/effects-scale-preview';
-import {EffectsScanlinesPreview} from '../effects/effects-scanlines-preview';
-import {EffectsShinePreview} from '../effects/effects-shine-preview';
-import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
-import {EffectsStarburstPreview} from '../effects/effects-starburst-preview';
-import {EffectsTintPreview} from '../effects/effects-tint-preview';
-import {
-	EffectsUvTranslatePreview,
-	EffectsXyTranslatePreview,
-} from '../effects/effects-translate-preview';
-import {EffectsVignettePreview} from '../effects/effects-vignette-preview';
-import {EffectsWavePreview} from '../effects/effects-wave-preview';
 import {
 	ClockWipeDemo,
 	CubeDemo,
@@ -44,6 +14,7 @@ import {
 } from '../transitions/previews';
 import {ArrowDemo} from './Arrow';
 import {BookFlipDocsDemo} from './BookFlipDemo';
+import {CalloutDemo} from './Callout';
 import {CircleDemo} from './Circle';
 import {CrosswarpDocsDemo} from './CrosswarpDemo';
 import {CrossZoomDocsDemo} from './CrossZoomDemo';
@@ -62,8 +33,19 @@ import {PieDemo} from './Pie';
 import {PolygonDemo} from './Polygon';
 import {RectDemo} from './Rect';
 import {RippleDocsDemo} from './RippleDemo';
+import {RoughNotationAnimatedSeedDemo} from './RoughNotationAnimatedSeedDemo';
+import {RoughNotationBoxDemo} from './RoughNotationBoxDemo';
+import {RoughNotationBracketDemo} from './RoughNotationBracketDemo';
+import {RoughNotationCircleDemo} from './RoughNotationCircleDemo';
+import {RoughNotationCrossedOffDemo} from './RoughNotationCrossedOffDemo';
+import {RoughNotationHighlightDemo} from './RoughNotationHighlightDemo';
+import {RoughNotationPosterizedProgressDemo} from './RoughNotationPosterizedProgressDemo';
+import {RoughNotationPosterizedSeedDemo} from './RoughNotationPosterizedSeedDemo';
+import {RoughNotationStrikeThroughDemo} from './RoughNotationStrikeThroughDemo';
+import {RoughNotationUnderlineDemo} from './RoughNotationUnderlineDemo';
 import {RoundedTextBox} from './RoundedTextBox';
 import {ShaderDemoComp} from './ShaderDemo';
+import {SparkDemo} from './Spark';
 import {SpringDemo} from './Spring';
 import {StarDemo} from './Star';
 import {StarburstDemoComp} from './StarburstDemo';
@@ -236,6 +218,96 @@ export const rectDemo: DemoType = {
 		{
 			name: 'cornerRadius',
 			default: 0,
+			max: 100,
+			min: 0,
+			step: 1,
+			type: 'numeric',
+			optional: 'no',
+		},
+		{
+			name: 'edgeRoundness',
+			default: 1,
+			max: 2,
+			min: -2,
+			step: 0.01,
+			type: 'numeric',
+			optional: 'default-disabled',
+		},
+		{
+			name: 'debug',
+			type: 'boolean',
+			optional: 'no',
+			default: false,
+		},
+	],
+};
+
+export const calloutDemo: DemoType = {
+	comp: CalloutDemo,
+	compWidth: 1280,
+	compHeight: 400,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'callout',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			default: 500,
+			max: 1000,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'width',
+			optional: 'no',
+		},
+		{
+			default: 200,
+			max: 1000,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'height',
+			optional: 'no',
+		},
+		{
+			default: 40,
+			max: 400,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'pointerLength',
+			optional: 'no',
+		},
+		{
+			default: 60,
+			max: 400,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'pointerBaseWidth',
+			optional: 'no',
+		},
+		{
+			default: 0.5,
+			max: 1,
+			step: 0.01,
+			min: 0,
+			type: 'numeric',
+			name: 'pointerPosition',
+			optional: 'no',
+		},
+		{
+			name: 'pointerDirection',
+			type: 'enum',
+			default: 'down',
+			values: ['up', 'down', 'left', 'right'],
+			optional: 'no',
+		},
+		{
+			name: 'cornerRadius',
+			default: 20,
 			max: 100,
 			min: 0,
 			step: 1,
@@ -659,6 +731,56 @@ export const polygonDemo: DemoType = {
 			step: 0.01,
 			type: 'numeric',
 			optional: 'default-disabled',
+		},
+	],
+};
+
+export const sparkDemo: DemoType = {
+	comp: SparkDemo,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'spark',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			default: 100,
+			max: 600,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'width',
+			optional: 'no',
+		},
+		{
+			default: 140,
+			max: 600,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'height',
+			optional: 'no',
+		},
+		{
+			name: 'edgeRoundness',
+			default: 1,
+			max: 2,
+			min: 0,
+			step: 0.01,
+			type: 'numeric',
+			optional: 'no',
+		},
+		{
+			name: 'cornerRadius',
+			default: 0,
+			max: 120,
+			min: 0,
+			step: 1,
+			type: 'numeric',
+			optional: 'no',
 		},
 	],
 };
@@ -1286,6 +1408,136 @@ export const lightLeakDemo: DemoType = {
 	],
 };
 
+export const roughNotationHighlightDemo: DemoType = {
+	comp: RoughNotationHighlightDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-highlight',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationUnderlineDemo: DemoType = {
+	comp: RoughNotationUnderlineDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-underline',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationStrikeThroughDemo: DemoType = {
+	comp: RoughNotationStrikeThroughDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-strike-through',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationCrossedOffDemo: DemoType = {
+	comp: RoughNotationCrossedOffDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-crossed-off',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationBoxDemo: DemoType = {
+	comp: RoughNotationBoxDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-box',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationBracketDemo: DemoType = {
+	comp: RoughNotationBracketDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-bracket',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationCircleDemo: DemoType = {
+	comp: RoughNotationCircleDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-circle',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationAnimatedSeedDemo: DemoType = {
+	comp: RoughNotationAnimatedSeedDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-animated-seed',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationPosterizedSeedDemo: DemoType = {
+	comp: RoughNotationPosterizedSeedDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-posterized-seed',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationPosterizedProgressDemo: DemoType = {
+	comp: RoughNotationPosterizedProgressDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-posterized-progress',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
 export const starburstDemo: DemoType = {
 	comp: StarburstDemoComp,
 	compHeight: 720,
@@ -1447,1130 +1699,6 @@ export const htmlInCanvasDemo2DBlur: DemoType = {
 	controls: true,
 	logLevel: 'info',
 	options: [],
-};
-
-export const effectsBrightnessDemo: DemoType = {
-	comp: EffectsBrightnessPreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-brightness',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'amount',
-			type: 'numeric',
-			min: -1,
-			max: 1,
-			step: 0.01,
-			default: 0.25,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsContrastDemo: DemoType = {
-	comp: EffectsContrastPreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-contrast',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'amount',
-			type: 'numeric',
-			min: 0,
-			max: 5,
-			step: 0.1,
-			default: 1.5,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsGrayscaleDemo: DemoType = {
-	comp: EffectsGrayscalePreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-grayscale',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'amount',
-			type: 'numeric',
-			min: 0,
-			max: 1,
-			step: 0.01,
-			default: 1,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsDuotoneDemo: DemoType = {
-	comp: EffectsDuotonePreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-duotone',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'darkColor',
-			type: 'color',
-			default: 'black',
-			optional: 'no',
-		},
-		{
-			name: 'lightColor',
-			type: 'color',
-			default: 'white',
-			optional: 'no',
-		},
-		{
-			name: 'threshold',
-			type: 'numeric',
-			min: 0,
-			max: 1,
-			step: 0.01,
-			default: 0.18,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsDropShadowDemo: DemoType = {
-	comp: EffectsDropShadowPreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-drop-shadow',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'radius',
-			type: 'numeric',
-			min: 0,
-			max: 100,
-			step: 1,
-			default: 24,
-			optional: 'no',
-		},
-		{
-			name: 'offsetX',
-			type: 'numeric',
-			min: -100,
-			max: 100,
-			step: 1,
-			default: 28,
-			optional: 'no',
-		},
-		{
-			name: 'offsetY',
-			type: 'numeric',
-			min: -100,
-			max: 100,
-			step: 1,
-			default: 28,
-			optional: 'no',
-		},
-		{
-			name: 'opacity',
-			type: 'numeric',
-			min: 0,
-			max: 1,
-			step: 0.01,
-			default: 0.65,
-			optional: 'no',
-		},
-		{
-			name: 'color',
-			type: 'color',
-			default: '#000000',
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsGlowDemo: DemoType = {
-	comp: EffectsGlowPreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-glow',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'radius',
-			type: 'numeric',
-			min: 0,
-			max: 100,
-			step: 1,
-			default: 28,
-			optional: 'no',
-		},
-		{
-			name: 'intensity',
-			type: 'numeric',
-			min: 0,
-			max: 5,
-			step: 0.1,
-			default: 1.8,
-			optional: 'no',
-		},
-		{
-			name: 'threshold',
-			type: 'numeric',
-			min: 0,
-			max: 1,
-			step: 0.01,
-			default: 0.25,
-			optional: 'no',
-		},
-		{
-			name: 'color',
-			type: 'color',
-			default: '#00d8ff',
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsHueDemo: DemoType = {
-	comp: EffectsHuePreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-hue',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'degrees',
-			type: 'numeric',
-			min: 0,
-			max: 360,
-			step: 1,
-			default: 120,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsInvertDemo: DemoType = {
-	comp: EffectsInvertPreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-invert',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'amount',
-			type: 'numeric',
-			min: 0,
-			max: 1,
-			step: 0.01,
-			default: 1,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsSaturationDemo: DemoType = {
-	comp: EffectsSaturationPreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-saturation',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'amount',
-			type: 'numeric',
-			min: 0,
-			max: 5,
-			step: 0.1,
-			default: 1.8,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsTintDemo: DemoType = {
-	comp: EffectsTintPreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-tint',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'color',
-			type: 'color',
-			default: '#1ec8ff',
-			optional: 'no',
-		},
-		{
-			name: 'amount',
-			type: 'numeric',
-			min: 0,
-			max: 1,
-			step: 0.01,
-			default: 0.7,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsShineDemo: DemoType = {
-	comp: EffectsShinePreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-shine',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'progress',
-			type: 'numeric',
-			min: 0,
-			max: 1,
-			step: 0.01,
-			default: 0.5,
-			optional: 'no',
-		},
-		{
-			name: 'angle',
-			type: 'numeric',
-			min: -180,
-			max: 180,
-			step: 1,
-			default: 30,
-			optional: 'no',
-		},
-		{
-			name: 'haloSigma',
-			type: 'numeric',
-			min: 1,
-			max: 500,
-			step: 1,
-			default: 200,
-			optional: 'no',
-		},
-		{
-			name: 'coreSigma',
-			type: 'numeric',
-			min: 1,
-			max: 500,
-			step: 1,
-			default: 65,
-			optional: 'no',
-		},
-		{
-			name: 'haloIntensity',
-			type: 'numeric',
-			min: 0,
-			max: 1,
-			step: 0.01,
-			default: 0.3,
-			optional: 'no',
-		},
-		{
-			name: 'coreIntensity',
-			type: 'numeric',
-			min: 0,
-			max: 1,
-			step: 0.01,
-			default: 0.4,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsSpeckleDemo: DemoType = {
-	comp: EffectsSpecklePreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-speckle',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'density',
-			type: 'numeric',
-			min: 0,
-			max: 1,
-			step: 0.01,
-			default: 0.14,
-			optional: 'no',
-		},
-		{
-			name: 'size',
-			type: 'numeric',
-			min: 0,
-			max: 50,
-			step: 0.1,
-			default: 4,
-			optional: 'no',
-		},
-		{
-			name: 'randomness',
-			type: 'numeric',
-			min: 0,
-			max: 1,
-			step: 0.01,
-			default: 1,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsMirrorDemo: DemoType = {
-	comp: EffectsMirrorPreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-mirror',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'direction',
-			type: 'enum',
-			values: ['horizontal', 'vertical'],
-			default: 'horizontal',
-			optional: 'no',
-		},
-		{
-			name: 'position',
-			type: 'numeric',
-			min: 0,
-			max: 1,
-			step: 0.01,
-			default: 0.5,
-			optional: 'no',
-		},
-		{
-			name: 'invert',
-			type: 'boolean',
-			default: false,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsScaleDemo: DemoType = {
-	comp: EffectsScalePreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-scale',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'scale',
-			type: 'numeric',
-			min: 0.1,
-			max: 3,
-			step: 0.05,
-			default: 0.8,
-			optional: 'no',
-		},
-		{
-			name: 'horizontal',
-			type: 'boolean',
-			default: true,
-			optional: 'no',
-		},
-		{
-			name: 'vertical',
-			type: 'boolean',
-			default: true,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsXyTranslateDemo: DemoType = {
-	comp: EffectsXyTranslatePreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-xy-translate',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'x',
-			type: 'numeric',
-			min: -640,
-			max: 640,
-			step: 1,
-			default: 180,
-			optional: 'no',
-		},
-		{
-			name: 'y',
-			type: 'numeric',
-			min: -360,
-			max: 360,
-			step: 1,
-			default: 90,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsUvTranslateDemo: DemoType = {
-	comp: EffectsUvTranslatePreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-uv-translate',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'u',
-			type: 'numeric',
-			min: -1,
-			max: 1,
-			step: 0.01,
-			default: 0.15,
-			optional: 'no',
-		},
-		{
-			name: 'v',
-			type: 'numeric',
-			min: -1,
-			max: 1,
-			step: 0.01,
-			default: 0.125,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsBarrelDistortionDemo: DemoType = {
-	comp: EffectsBarrelDistortionPreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-barrel-distortion',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'amount',
-			type: 'numeric',
-			min: 0,
-			max: 1,
-			step: 0.01,
-			default: 0.28,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsNoiseDemo: DemoType = {
-	comp: EffectsNoisePreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-noise',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'amount',
-			type: 'numeric',
-			min: 0,
-			max: 1,
-			step: 0.01,
-			default: 0.25,
-			optional: 'no',
-		},
-		{
-			name: 'seed',
-			type: 'numeric',
-			min: 0,
-			max: 100,
-			step: 1,
-			default: 0,
-			optional: 'no',
-		},
-		{
-			name: 'premultiply',
-			type: 'boolean',
-			default: false,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsScanlinesDemo: DemoType = {
-	comp: EffectsScanlinesPreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-scanlines',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'amount',
-			type: 'numeric',
-			min: 0,
-			max: 1,
-			step: 0.01,
-			default: 0.6,
-			optional: 'no',
-		},
-		{
-			name: 'spacing',
-			type: 'numeric',
-			min: 0.1,
-			max: 40,
-			step: 0.1,
-			default: 8,
-			optional: 'no',
-		},
-		{
-			name: 'thickness',
-			type: 'numeric',
-			min: 0,
-			max: 20,
-			step: 0.1,
-			default: 2,
-			optional: 'no',
-		},
-		{
-			name: 'offset',
-			type: 'numeric',
-			min: -40,
-			max: 40,
-			step: 0.1,
-			default: 0,
-			optional: 'no',
-		},
-		{
-			name: 'premultiply',
-			type: 'boolean',
-			default: false,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsVignetteDemo: DemoType = {
-	comp: EffectsVignettePreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-vignette',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'amount',
-			type: 'numeric',
-			min: 0,
-			max: 1,
-			step: 0.01,
-			default: 0.75,
-			optional: 'no',
-		},
-		{
-			name: 'radius',
-			type: 'numeric',
-			min: 0,
-			max: 1,
-			step: 0.01,
-			default: 0.68,
-			optional: 'no',
-		},
-		{
-			name: 'feather',
-			type: 'numeric',
-			min: 0,
-			max: 1,
-			step: 0.01,
-			default: 0.35,
-			optional: 'no',
-		},
-		{
-			name: 'roundness',
-			type: 'numeric',
-			min: 0,
-			max: 1,
-			step: 0.01,
-			default: 1,
-			optional: 'no',
-		},
-		{
-			name: 'mode',
-			type: 'enum',
-			values: ['color', 'alpha'],
-			default: 'color',
-			optional: 'no',
-		},
-		{
-			name: 'color',
-			type: 'color',
-			default: '#000000',
-			optional: 'no',
-			showIf: {
-				option: 'mode',
-				value: 'color',
-			},
-		},
-	],
-};
-
-export const effectsBlurDemo: DemoType = {
-	comp: EffectsBlurPreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-blur',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'radius',
-			type: 'numeric',
-			min: 0,
-			max: 100,
-			step: 1,
-			default: 40,
-			optional: 'no',
-		},
-		{
-			name: 'horizontal',
-			type: 'boolean',
-			default: true,
-			optional: 'no',
-		},
-		{
-			name: 'vertical',
-			type: 'boolean',
-			default: true,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsChromaticAberrationDemo: DemoType = {
-	comp: EffectsChromaticAberrationPreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-chromatic-aberration',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'amount',
-			type: 'numeric',
-			min: 0,
-			max: 100,
-			step: 1,
-			default: 12,
-			optional: 'no',
-		},
-		{
-			name: 'angle',
-			type: 'numeric',
-			min: 0,
-			max: 360,
-			step: 1,
-			default: 0,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsWaveDemo: DemoType = {
-	comp: EffectsWavePreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-wave',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'phase',
-			type: 'numeric',
-			min: 0,
-			max: 6.28,
-			step: 0.01,
-			default: 1.2,
-			optional: 'no',
-		},
-		{
-			name: 'amplitude',
-			type: 'numeric',
-			min: 0,
-			max: 200,
-			step: 1,
-			default: 50,
-			optional: 'no',
-		},
-		{
-			name: 'wavelength',
-			type: 'numeric',
-			min: 1,
-			max: 1000,
-			step: 1,
-			default: 200,
-			optional: 'no',
-		},
-		{
-			name: 'direction',
-			type: 'enum',
-			values: ['horizontal', 'vertical'],
-			default: 'horizontal',
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsHalftoneDemo: DemoType = {
-	comp: EffectsHalftonePreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-halftone',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'shape',
-			type: 'enum',
-			values: ['circle', 'square', 'line'],
-			default: 'circle',
-			optional: 'no',
-		},
-		{
-			name: 'dotSize',
-			type: 'numeric',
-			min: 1,
-			max: 50,
-			step: 1,
-			default: 8,
-			optional: 'no',
-		},
-		{
-			name: 'dotSpacing',
-			type: 'numeric',
-			min: 1,
-			max: 50,
-			step: 1,
-			default: 7,
-			optional: 'no',
-		},
-		{
-			name: 'rotation',
-			type: 'numeric',
-			min: -180,
-			max: 180,
-			step: 1,
-			default: 12,
-			optional: 'no',
-		},
-		{
-			name: 'colorMode',
-			type: 'enum',
-			values: ['solid', 'source'],
-			default: 'solid',
-			optional: 'no',
-		},
-		{
-			name: 'dotColor',
-			type: 'color',
-			default: '#0B84F3',
-			optional: 'no',
-			showIf: {
-				option: 'colorMode',
-				value: 'solid',
-			},
-		},
-		{
-			name: 'invert',
-			type: 'boolean',
-			default: false,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsHalftoneLinearGradientDemo: DemoType = {
-	comp: EffectsHalftoneLinearGradientPreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-halftone-linear-gradient',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'firstStopDotSize',
-			type: 'numeric',
-			min: 0,
-			max: 80,
-			step: 1,
-			default: 0,
-			optional: 'no',
-		},
-		{
-			name: 'secondStopDotSize',
-			type: 'numeric',
-			min: 0,
-			max: 80,
-			step: 1,
-			default: 40,
-			optional: 'no',
-		},
-		{
-			name: 'firstStopPosition',
-			type: 'uv-coordinate',
-			min: -1,
-			max: 2,
-			step: 0.01,
-			default: [0, 0.5],
-			optional: 'no',
-		},
-		{
-			name: 'secondStopPosition',
-			type: 'uv-coordinate',
-			min: -1,
-			max: 2,
-			step: 0.01,
-			default: [1, 0.5],
-			optional: 'no',
-		},
-		{
-			name: 'gridSize',
-			type: 'numeric',
-			min: 1,
-			max: 80,
-			step: 1,
-			default: 24,
-			optional: 'no',
-		},
-		{
-			name: 'colorMode',
-			type: 'enum',
-			values: ['solid', 'source'],
-			default: 'solid',
-			optional: 'no',
-		},
-		{
-			name: 'dotColor',
-			type: 'color',
-			default: '#0b84f3',
-			optional: 'no',
-			showIf: {
-				option: 'colorMode',
-				value: 'solid',
-			},
-		},
-	],
-};
-
-export const effectsDotGridDemo: DemoType = {
-	comp: EffectsDotGridPreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-dot-grid',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'dotSize',
-			type: 'numeric',
-			min: 0,
-			max: 80,
-			step: 1,
-			default: 16,
-			optional: 'no',
-		},
-		{
-			name: 'gridSize',
-			type: 'numeric',
-			min: 1,
-			max: 80,
-			step: 1,
-			default: 20,
-			optional: 'no',
-		},
-		{
-			name: 'invert',
-			type: 'boolean',
-			default: false,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsStarburstDemo: DemoType = {
-	comp: EffectsStarburstPreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-starburst',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'rays',
-			type: 'numeric',
-			default: 16,
-			min: 2,
-			max: 100,
-			step: 1,
-			optional: 'no',
-		},
-		{
-			name: 'rotation',
-			type: 'numeric',
-			default: 0,
-			min: 0,
-			max: 360,
-			step: 1,
-			optional: 'no',
-		},
-		{
-			name: 'smoothness',
-			type: 'numeric',
-			default: 0,
-			min: 0,
-			max: 1,
-			step: 0.01,
-			optional: 'no',
-		},
-		{
-			name: 'origin',
-			type: 'uv-coordinate',
-			default: [0.5, 0.5],
-			min: 0,
-			max: 1,
-			step: 0.01,
-			optional: 'no',
-		},
-	],
-};
-
-export const effectsLightLeakDemo: DemoType = {
-	comp: EffectsLightLeakPreview,
-	compHeight: 720,
-	compWidth: 1280,
-	durationInFrames: 1,
-	fps: 30,
-	id: 'effects-light-leak',
-	autoPlay: false,
-	controls: false,
-	logLevel: 'info',
-	options: [
-		{
-			name: 'seed',
-			type: 'numeric',
-			default: 0,
-			min: 0,
-			max: 100,
-			step: 1,
-			optional: 'no',
-		},
-		{
-			name: 'hueShift',
-			type: 'numeric',
-			default: 0,
-			min: 0,
-			max: 360,
-			step: 1,
-			optional: 'no',
-		},
-		{
-			name: 'progress',
-			type: 'numeric',
-			default: 0.5,
-			min: 0,
-			max: 1,
-			step: 0.01,
-			optional: 'no',
-		},
-	],
 };
 
 export const htmlInCanvasDemoWebGL: DemoType = {

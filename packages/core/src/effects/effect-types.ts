@@ -9,7 +9,7 @@
 // sRGB-encoded. Effects that perform color math in linear space are responsible
 // for converting to/from sRGB themselves.
 
-import type {SequenceSchema} from '../sequence-field-schema.js';
+import type {InteractivitySchema} from '../interactivity-schema.js';
 
 export type Backend = '2d' | 'webgl2' | 'webgpu';
 
@@ -28,8 +28,8 @@ export type EffectApplyParams<P, S> = {
 	readonly gpuDevice: AnyGpuDevice | null;
 	/**
 	 * When `true`, WebGL `texImage2D` uploads use `UNPACK_FLIP_Y_WEBGL` so DOM-style
-	 * 2D frame canvases match clip-space UVs. Set by `runEffectChain` — `false` for
-	 * prior WebGL outputs and `ImageBitmap` bridges from WebGL.
+	 * canvas sources match clip-space UVs. Set by `runEffectChain` — `false` for
+	 * `ImageBitmap` bridges from WebGL, which are already oriented for upload.
 	 */
 	readonly flipSourceY: boolean;
 };
@@ -49,7 +49,7 @@ export type EffectDefinition<P, S = unknown> = {
 	readonly setup: (target: HTMLCanvasElement) => S;
 	readonly apply: (params: EffectApplyParams<P, S>) => void;
 	readonly cleanup: (state: S) => void;
-	readonly schema: SequenceSchema;
+	readonly schema: InteractivitySchema;
 	/** Throws when mandatory params are missing or invalid. Called by `createEffect` before returning a descriptor. */
 	readonly validateParams: (params: P) => void;
 };

@@ -1,4 +1,4 @@
-import type {SequenceFieldSchema} from '../sequence-field-schema.js';
+import type {InteractivitySchemaField} from '../interactivity-schema.js';
 import type {
 	EffectDefinition,
 	EffectDescriptor,
@@ -9,7 +9,7 @@ import type {
 // sequences: rendered as the eye toggle on the timeline effect row and saved
 // to source via `/api/save-effect-props`. `getEffectFieldsToShow` filters it
 // out of the regular field list so the toggle is the only control.
-export const disabledEffectField: SequenceFieldSchema = {
+export const disabledEffectField: InteractivitySchemaField = {
 	type: 'boolean',
 	default: false,
 	description: 'Disabled',

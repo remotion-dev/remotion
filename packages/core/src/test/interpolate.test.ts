@@ -184,6 +184,366 @@ test('Easing array with two keyframes rejects more than one entry', () => {
 	}, /When easing is an array, it must have one entry per segment between keyframes \(length inputRange.length - 1 = 1\), but got length 2/);
 });
 
+test('Output defaults to linear interpolation', () => {
+	expect(interpolate(30, [0, 60], [1, 2])).toBe(1.5);
+	expect(interpolate(30, [0, 60], [1, 2], {output: 'linear'})).toBe(1.5);
+});
+
+test('Perceptual scale output interpolates signed visual area linearly', () => {
+	expect(
+		interpolate(30, [0, 60], [0, 1], {output: 'perceptual-scale'}),
+	).toBeCloseTo(Math.SQRT1_2);
+	expect(
+		interpolate(30, [0, 60], [0, -1], {output: 'perceptual-scale'}),
+	).toBeCloseTo(-Math.SQRT1_2);
+	expect(
+		interpolate(30, [0, 60], [1, 2], {output: 'perceptual-scale'}),
+	).toBeCloseTo(Math.sqrt(2.5));
+	expect(
+		interpolate(30, [0, 60], [2, 1], {output: 'perceptual-scale'}),
+	).toBeCloseTo(Math.sqrt(2.5));
+	expect(interpolate(30, [0, 60], [1, -1], {output: 'perceptual-scale'})).toBe(
+		0,
+	);
+});
+
+test('Perceptual scale output supports multi-keyframe ranges', () => {
+	expect(
+		interpolate(45, [0, 30, 60], [0, 1, 2], {
+			output: 'perceptual-scale',
+		}),
+	).toBeCloseTo(Math.sqrt(2.5));
+});
+
+test('Perceptual scale output applies easing before mapping to the output range', () => {
+	expect(
+		interpolate(30, [0, 60], [0, 1], {
+			easing: Easing.quad,
+			output: 'perceptual-scale',
+		}),
+	).toBeCloseTo(0.5);
+});
+
+test('Perceptual scale output supports extrapolation', () => {
+	expect(
+		interpolate(90, [0, 60], [0, 1], {output: 'perceptual-scale'}),
+	).toBeCloseTo(Math.sqrt(1.5));
+	expect(
+		interpolate(90, [0, 60], [0, 1], {
+			extrapolateRight: 'clamp',
+			output: 'perceptual-scale',
+		}),
+	).toBe(1);
+	expect(
+		interpolate(-30, [0, 60], [0, 1], {
+			extrapolateLeft: 'identity',
+			output: 'perceptual-scale',
+		}),
+	).toBe(-30);
+});
+
+test('Perceptual scale output supports tuples and scale strings', () => {
+	const tuple = interpolate(
+		30,
+		[0, 60],
+		[
+			[0, 0],
+			[1, -1],
+		],
+		{output: 'perceptual-scale'},
+	);
+	expect(tuple[0]).toBeCloseTo(Math.SQRT1_2);
+	expect(tuple[1]).toBeCloseTo(-Math.SQRT1_2);
+
+	const [x, y] = interpolate(15, [0, 30], ['0 -1', '1 -4'], {
+		output: 'perceptual-scale',
+	})
+		.split(' ')
+		.map(Number);
+	expect(x).toBeCloseTo(Math.SQRT1_2);
+	expect(y).toBeCloseTo(-Math.sqrt(8.5));
+});
+
+test('Perceptual scale output supports zero and negative single-value ranges', () => {
+	expect(interpolate(30, [0], [0], {output: 'perceptual-scale'})).toBe(0);
+	expect(interpolate(30, [0], [-1], {output: 'perceptual-scale'})).toBe(-1);
+	expect(
+		interpolate(30, [0, 60], [-1, -2], {output: 'perceptual-scale'}),
+	).toBeCloseTo(-Math.sqrt(2.5));
+	expect(interpolate(30, [0, 60], [-1, 1], {output: 'perceptual-scale'})).toBe(
+		0,
+	);
+});
+
+test('Output option validates the output mapping name', () => {
+	expectToThrow(() => {
+		interpolate(30, [0, 60], [1, 4], {
+			// @ts-expect-error
+			output: 'logarithmic',
+		});
+	}, /output must be "linear" or "perceptual-scale"/);
+});
+
+test('Posterize quantizes the input before interpolating', () => {
+	expect(interpolate(17, [0, 60], [0, 1], {posterize: 3})).toBe(0.25);
+	expect(interpolate(19, [0, 30, 60], [0, 100, 200], {posterize: 10})).toBe(
+		33.33333333333333,
+	);
+});
+
+test('Posterize option must be a positive finite number', () => {
+	expectToThrow(() => {
+		interpolate(10, [0, 20], [0, 1], {posterize: 0});
+	}, /posterize must be a positive finite number, but got 0/);
+	expectToThrow(() => {
+		interpolate(10, [0, 20], [0, 1], {posterize: -1});
+	}, /posterize must be a positive finite number, but got -1/);
+	expectToThrow(() => {
+		interpolate(10, [0, 20], [0, 1], {posterize: Infinity});
+	}, /posterize must be a positive finite number, but got Infinity/);
+	expectToThrow(() => {
+		interpolate(10, [0, 20], [0, 1], {posterize: NaN});
+	}, /posterize must be a positive finite number, but got NaN/);
+});
+
+test('Interpolates numeric tuples component-wise', () => {
+	const start: readonly [number, number] = interpolate(
+		30,
+		[0, 60],
+		[
+			[0, 0.5],
+			[1, 0.5],
+		],
+	);
+	expect(start).toEqual([0.5, 0.5]);
+
+	expect(
+		interpolate(
+			15,
+			[0, 30],
+			[
+				[1, 2, 3],
+				[2, 4, 6],
+			],
+		),
+	).toEqual([1.5, 3, 4.5]);
+
+	expect(
+		interpolate(
+			75,
+			[0, 50, 100],
+			[
+				[0, 0],
+				[1, 1],
+				[0, 0.5],
+			],
+		),
+	).toEqual([0.5, 0.75]);
+});
+
+test('Interpolates numeric tuples with one keyframe', () => {
+	expect(interpolate(999, [0], [[0.2, 0.8]])).toEqual([0.2, 0.8]);
+});
+
+test('Numeric tuple interpolation supports easing, extrapolation and posterization', () => {
+	expect(
+		interpolate(
+			15,
+			[0, 30],
+			[
+				[0, 0],
+				[100, 50],
+			],
+			{easing: Easing.quad},
+		),
+	).toEqual([25, 12.5]);
+	expect(
+		interpolate(
+			45,
+			[0, 30],
+			[
+				[0, 0],
+				[100, 50],
+			],
+			{extrapolateRight: 'clamp'},
+		),
+	).toEqual([100, 50]);
+	expect(
+		interpolate(
+			19,
+			[0, 30],
+			[
+				[0, 0],
+				[90, 30],
+			],
+			{posterize: 10},
+		),
+	).toEqual([30, 10]);
+});
+
+test('Numeric tuple interpolation throws on type and length mismatches', () => {
+	expectToThrow(() => interpolate(0, [0, 1], [[0, 0.5], 1]), /numeric tuples/);
+	expectToThrow(
+		() => interpolate(0, [0, 1], [[0, 0.5], '1px']),
+		/supported scale, translate, and rotate strings/,
+	);
+	expectToThrow(
+		() =>
+			interpolate(
+				0,
+				[0, 1],
+				[
+					[0, 0.5],
+					[1, 0.5, 0],
+				],
+			),
+		/outputRange tuples must all have the same length/,
+	);
+	expectToThrow(
+		() =>
+			interpolate(
+				0,
+				[0, 1],
+				[
+					[NaN, 0.5],
+					[1, 0.5],
+				],
+			),
+		/outputRange tuples must contain only finite numbers/,
+	);
+	expectToThrow(
+		() =>
+			interpolate(
+				0,
+				[0, 1],
+				[
+					[Infinity, 0.5],
+					[1, 0.5],
+				],
+			),
+		/outputRange tuples must contain only finite numbers/,
+	);
+	expectToThrow(
+		() => interpolate(0, [0, 1], [[], [1, 0.5]]),
+		/outputRange tuples must contain at least 1 number/,
+	);
+});
+
+test('Interpolates scale strings', () => {
+	expect(interpolate(15, [0, 30], ['1', '2'])).toBe('1.5');
+	expect(interpolate(15, [0, 30], ['1 2', '2 4'])).toBe('1.5 3');
+	expect(interpolate(15, [0, 30], ['1', '2 4 3'])).toBe('1.5 2.5 2');
+	expect(interpolate(15, [0, 30], [1, '2 4 3'])).toBe('1.5 2.5 2');
+});
+
+test('Interpolates translate strings', () => {
+	expect(interpolate(15, [0, 30], ['0px', '100px'])).toBe('50px');
+	expect(interpolate(15, [0, 30], ['0px 59px', '100px 0px'])).toBe(
+		'50px 29.5px',
+	);
+	expect(interpolate(15, [0, 30], ['0px', '100px 50%'])).toBe('50px 25%');
+	expect(interpolate(15, [0, 30], ['0px 59px 10rem', '100px 0px 20rem'])).toBe(
+		'50px 29.5px 15rem',
+	);
+});
+
+test('Interpolates transform-origin keyword strings', () => {
+	expect(interpolate(15, [0, 30], ['center', 'right bottom'])).toBe('75% 75%');
+	expect(interpolate(15, [0, 30], ['left top', 'right bottom'])).toBe(
+		'50% 50%',
+	);
+	expect(interpolate(15, [0, 30], ['top left', 'bottom right'])).toBe(
+		'50% 50%',
+	);
+	expect(interpolate(15, [0, 30], ['top', 'bottom'])).toBe('50% 50%');
+	expect(interpolate(15, [0, 30], ['left', 'right'])).toBe('50% 50%');
+	expect(interpolate(15, [0, 30], ['left 25%', 'right 75%'])).toBe('50% 50%');
+	expect(interpolate(15, [0, 30], ['top 25%', '75% bottom'])).toBe('50% 50%');
+});
+
+test('Interpolates transform-origin z components', () => {
+	expect(interpolate(15, [0, 30], ['left top 10px', 'right bottom 30px'])).toBe(
+		'50% 50% 20px',
+	);
+	expect(interpolate(15, [0, 30], ['left top', 'right bottom 10px'])).toBe(
+		'50% 50% 5px',
+	);
+});
+
+test('Interpolates rotate strings', () => {
+	expect(interpolate(15, [0, 30], ['0deg', '100deg'])).toBe('50deg');
+	expect(interpolate(15, [0, 30], ['-10.5deg', '20.5deg'])).toBe('5deg');
+	expect(interpolate(15, [0, 30], ['0deg', '100deg 50deg'])).toBe(
+		'50deg 25deg',
+	);
+	expect(interpolate(15, [0, 30], ['0turn', '0.5turn'])).toBe('0.25turn');
+});
+
+test('String interpolation supports easing, extrapolation and posterization', () => {
+	expect(
+		interpolate(15, [0, 30], ['0px', '100px'], {
+			easing: Easing.quad,
+		}),
+	).toBe('25px');
+	expect(
+		interpolate(45, [0, 30], ['0deg', '100deg'], {
+			extrapolateRight: 'clamp',
+		}),
+	).toBe('100deg');
+	expect(
+		interpolate(19, [0, 30], ['0px 0px', '90px 30px'], {
+			posterize: 10,
+		}),
+	).toBe('30px 10px');
+});
+
+test('String interpolation throws on type and unit mismatches', () => {
+	expectToThrow(
+		() => interpolate(15, [0, 30], ['1', '100px']),
+		/Cannot interpolate scale values with translate values/,
+	);
+	expectToThrow(
+		() => interpolate(15, [0, 30], ['0deg', '100px']),
+		/Cannot interpolate rotate values with translate values/,
+	);
+	expectToThrow(
+		() => interpolate(15, [0, 30], ['0px', '100%']),
+		/different units on axis 1/,
+	);
+	expectToThrow(
+		() => interpolate(15, [0, 30], ['0deg', '0.5turn']),
+		/different units on axis 1/,
+	);
+	expectToThrow(
+		() => interpolate(15, [0, 30], ['0px', '1px 2px 3px 4px']),
+		/1 to 3 components/,
+	);
+	expectToThrow(
+		() => interpolate(15, [0, 30], ['left', '100px 100px']),
+		/different units on axis 1/,
+	);
+	expectToThrow(
+		() => interpolate(15, [0, 30], ['left right', 'right bottom']),
+		/valid transform-origin keyword pair/,
+	);
+	expectToThrow(
+		() => interpolate(15, [0, 30], ['top bottom', 'right bottom']),
+		/valid transform-origin keyword pair/,
+	);
+	expectToThrow(
+		() => interpolate(15, [0, 30], ['10% left', 'right bottom']),
+		/horizontal transform-origin keywords/,
+	);
+	expectToThrow(
+		() => interpolate(15, [0, 30], ['left top 50%', 'right bottom 10px']),
+		/supported transform-origin z length/,
+	);
+	expectToThrow(
+		() => interpolate(15, [0, 30], ['left top center', 'right bottom 10px']),
+		/supported transform-origin z length/,
+	);
+});
+
 test('Easing.circle with default extrapolate extend clamps normalized input', () => {
 	expect(
 		interpolate(150, [0, 100], [0, 100], {
@@ -243,6 +603,101 @@ test('Clamp right test', () => {
 			extrapolateRight: 'clamp',
 		}),
 	).toEqual(-1000);
+});
+
+test('Allow tail spring extends right extrapolation', () => {
+	const tailValue = interpolate(60, [0, 30], [1000, 0], {
+		extrapolateRight: 'clamp',
+		easing: Easing.spring({
+			allowTail: true,
+			damping: 200,
+			durationRestThreshold: 0.1,
+			mass: 1,
+			stiffness: 100,
+		}),
+	});
+
+	expect(tailValue).toBeGreaterThan(0);
+	expect(tailValue).toBeLessThan(10);
+
+	expect(
+		interpolate(60, [0, 30], [1000, 0], {
+			extrapolateRight: 'clamp',
+			easing: Easing.spring({
+				damping: 200,
+				durationRestThreshold: 0.1,
+				mass: 1,
+				stiffness: 100,
+			}),
+		}),
+	).toBe(0);
+});
+
+test('Allow tail spring keeps previous string segment settling while the next segment starts', () => {
+	const parseTranslate = (value: string): [number, number] => {
+		const [x, y] = value.split(' ');
+		return [Number(x.replace('px', '')), Number(y.replace('px', ''))];
+	};
+
+	const withoutTail = interpolate(
+		45,
+		[0, 30, 60],
+		['0px 1000px', '0px 0px', '1000px 0px'],
+		{
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'extend',
+			easing: [
+				Easing.spring({
+					damping: 200,
+					durationRestThreshold: 0.03,
+					mass: 1,
+					stiffness: 100,
+				}),
+				Easing.spring({
+					damping: 200,
+					durationRestThreshold: 0.03,
+					mass: 1,
+					stiffness: 100,
+				}),
+			],
+		},
+	);
+	const withTail = interpolate(
+		45,
+		[0, 30, 60],
+		['0px 1000px', '0px 0px', '1000px 0px'],
+		{
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'extend',
+			easing: [
+				Easing.spring({
+					allowTail: true,
+					damping: 200,
+					durationRestThreshold: 0.03,
+					mass: 1,
+					stiffness: 100,
+					overshootClamping: false,
+				}),
+				Easing.spring({
+					allowTail: true,
+					damping: 200,
+					durationRestThreshold: 0.03,
+					mass: 1,
+					stiffness: 100,
+					overshootClamping: false,
+				}),
+			],
+		},
+	);
+
+	const [xWithoutTail, yWithoutTail] = parseTranslate(withoutTail);
+	const [xWithTail, yWithTail] = parseTranslate(withTail);
+
+	expect(xWithoutTail).toBeGreaterThan(0);
+	expect(xWithTail).toBeGreaterThan(0);
+	expect(yWithoutTail).toBe(0);
+	expect(yWithTail).toBeGreaterThan(0);
+	expect(yWithTail).toBeLessThan(10);
 });
 
 test('Clamp left test', () => {

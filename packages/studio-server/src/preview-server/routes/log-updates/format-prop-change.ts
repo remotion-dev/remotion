@@ -2,7 +2,7 @@ import {formatSideProps} from './format-side-props';
 import {
 	formatAddition,
 	formatDeletion,
-	formatPropDelta,
+	formatPropChangeDelta,
 	type PropDelta,
 } from './formatting';
 
@@ -25,7 +25,7 @@ const formatInnerPropChange = ({
 		return formatAddition({valueString: newValueString, key});
 	}
 
-	return `${formatPropDelta({valueString: oldValueString, key})} \u2192 ${formatPropDelta({valueString: newValueString, key})}`;
+	return formatPropChangeDelta({key, oldValueString, newValueString});
 };
 
 export const formatPropChange = ({

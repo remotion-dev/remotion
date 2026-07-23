@@ -23,7 +23,7 @@ test.describe('suppress webpack rebuild', () => {
 
 		const res = await fetch(`${STUDIO_URL}/api/update-default-props`, {
 			method: 'POST',
-			headers: {'content-type': 'application/json'},
+			headers: {'content-type': 'application/json', origin: STUDIO_URL},
 			body: JSON.stringify({
 				compositionId: 'schema-test',
 				defaultProps: JSON.stringify({

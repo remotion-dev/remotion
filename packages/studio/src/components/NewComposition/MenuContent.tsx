@@ -1,7 +1,8 @@
 import type {PointerEvent, SetStateAction} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {INPUT_BORDER_COLOR_UNHOVERED} from '../../helpers/colors';
+import {BLACK_ALPHA_60} from '../../helpers/colors';
 import {useMobileLayout} from '../../helpers/mobile-layout';
+import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {MenuDivider} from '../Menu/MenuDivider';
@@ -21,7 +22,7 @@ const BORDER_SIZE = 1;
 const container: React.CSSProperties = {
 	paddingTop: MENU_VERTICAL_PADDING,
 	paddingBottom: MENU_VERTICAL_PADDING,
-	border: `${BORDER_SIZE}px solid ${INPUT_BORDER_COLOR_UNHOVERED}`,
+	border: `${BORDER_SIZE}px solid ${BLACK_ALPHA_60}`,
 	marginLeft: 0 - BORDER_SIZE,
 	overflowY: 'auto',
 	overflowX: 'hidden',
@@ -240,10 +241,7 @@ export const MenuContent: React.FC<{
 	}, [fixedHeight, isMobileLayout]);
 
 	useEffect(() => {
-		if (
-			!keybindings.isHighestContext ||
-			!process.env.KEYBOARD_SHORTCUTS_ENABLED
-		) {
+		if (!keybindings.isHighestContext || !getStudioKeyboardShortcutsEnabled()) {
 			return;
 		}
 

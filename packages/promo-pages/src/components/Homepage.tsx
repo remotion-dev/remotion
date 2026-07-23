@@ -1,22 +1,24 @@
 'use client';
 
 import React from 'react';
+import AutomationsSection from './homepage/AutomationsSection';
 import {BackgroundAnimation} from './homepage/BackgroundAnimation';
 import CommunityStats from './homepage/CommunityStats';
 import {Demo} from './homepage/Demo';
-import EditorStarterSection from './homepage/EditorStarterSection';
 import EvaluateRemotionSection from './homepage/EvaluateRemotion';
-import {IfYouKnowReact} from './homepage/IfYouKnowReact';
 import type {ColorMode} from './homepage/layout/use-color-mode';
 import {ColorModeProvider} from './homepage/layout/use-color-mode';
+import {MakeVideosAgentically} from './homepage/MakeVideosAgentically';
+import {MakeVideosInteractively} from './homepage/MakeVideosInteractively';
+import {MakeVideosProgrammatically} from './homepage/MakeVideosProgrammatically';
 import {NewsletterButton} from './homepage/NewsletterButton';
-import {ParameterizeAndEdit} from './homepage/ParameterizeAndEdit';
 import {Pricing} from './homepage/Pricing';
-import {RealMP4Videos} from './homepage/RealMp4Videos';
 import TrustedByBanner from './homepage/TrustedByBanner';
-import VideoAppsShowcase from './homepage/VideoAppsShowcase';
+import {BuiltWithRemotionShowcase} from './homepage/VideoAppsShowcase';
 import {SectionTitle} from './homepage/VideoAppsTitle';
 import {WriteInReact} from './homepage/WriteInReact';
+
+const makeVideosRowClassName = 'mt-4 md:mt-6 flex flex-col lg:flex-row gap-10';
 
 export const NewLanding: React.FC<{
 	readonly colorMode: ColorMode;
@@ -36,16 +38,32 @@ export const NewLanding: React.FC<{
 					<div className="max-w-[500px] lg:max-w-[1000px] m-auto pl-5 pr-5 overflow-x-clip md:overflow-x-visible relative">
 						<WriteInReact />
 						<br />
-						<IfYouKnowReact />
-						<ParameterizeAndEdit />
-						<RealMP4Videos />
+						<div className={makeVideosRowClassName}>
+							<MakeVideosAgentically
+								videoSrc="/img/homepage-assets-master.webm"
+								fallbackVideoSrc="/img/homepage-assets-master.mp4"
+							/>
+							<MakeVideosInteractively />
+							<MakeVideosProgrammatically
+								links={[
+									{label: 'API Docs', href: '/docs/api'},
+									{label: 'Resources', href: '/docs/resources'},
+								]}
+							/>
+						</div>
 						<br />
 						<br />
 						<br />
-						<VideoAppsShowcase />
+						<div className="pt-6 md:pt-8">
+							<AutomationsSection />
+						</div>
 						<br />
 						<br />
 						<Demo />
+						<br />
+						<br />
+						<br />
+						<BuiltWithRemotionShowcase />
 						<br />
 						<br />
 						<br />
@@ -58,10 +76,6 @@ export const NewLanding: React.FC<{
 						<br />
 						<br />
 						<CommunityStats />
-						<br />
-						<br />
-						<br />
-						<EditorStarterSection />
 						<br />
 						<br />
 						<br />

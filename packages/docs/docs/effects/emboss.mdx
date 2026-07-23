@@ -1,0 +1,110 @@
+---
+image: /generated/articles-docs-effects-emboss.png
+slug: /effects/emboss
+title: emboss()
+sidebar_label: emboss()
+crumb: '@remotion/effects'
+---
+
+# emboss()<AvailableFrom v="4.0.479" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Adds a procedural raised-line relief to canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+The effect preserves the source colors and alpha mask. Transparent regions stay transparent.
+
+## Preview
+
+<EffectsDemo type="effects-emboss" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {emboss} from '@remotion/effects/emboss';
+import {Video} from '@remotion/media';
+import {AbsoluteFill, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[
+          emboss({
+            amount: 0.85,
+            size: 24,
+            lineWidth: 6,
+            depth: 0.85,
+            angle: 0,
+            lightAngle: 135,
+            offset: frame * 0.6,
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `emboss()` without arguments.
+
+### `amount?`
+
+Strength from `0` to `1`. Defaults to `0.7`.
+
+Use `0` to leave the layer unchanged.
+
+### `size?`
+
+Size of the repeated relief cells in pixels. Defaults to `26`.
+
+Must be greater than `0`. Smaller values create a tighter relief pattern.
+
+### `lineWidth?`
+
+Width of each raised dash in pixels. Defaults to `7`.
+
+Must be greater than `0`. Values larger than the cell size are clamped by the shader.
+
+### `depth?`
+
+Height of the virtual relief from `0` to `1`. Defaults to `0.75`.
+
+Use lower values for flatter shading.
+
+### `angle?`
+
+Rotates the repeated relief pattern in degrees. Defaults to `0`.
+
+### `lightAngle?`
+
+Direction of the virtual light in degrees. Defaults to `135`.
+
+Change this value to move the highlight and shadow edges of the raised pattern.
+
+### `offset?`
+
+Offset in pixels. Defaults to `0`.
+
+Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) to scroll the relief pattern.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`emboss()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`burlap()`](/docs/effects/burlap)
+- [`lines()`](/docs/effects/lines)
+- [`scanlines()`](/docs/effects/scanlines)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/emboss.ts)

@@ -1,0 +1,151 @@
+---
+image: /generated/articles-docs-effects-pattern.png
+slug: /effects/pattern
+title: pattern()
+sidebar_label: pattern()
+crumb: '@remotion/effects'
+---
+
+# pattern()<AvailableFrom v="4.0.477" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Repeats a scaled copy of a canvas source horizontally and vertically.
+
+Use it to create wallpaper, contact sheets, tiled backgrounds, or staggered brick-like layouts from [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas), [`<Img>`](/docs/img), and other canvas-based components.
+
+## Preview
+
+<EffectsDemo type="effects-pattern" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill, Img, staticFile} from 'remotion';
+import {pattern} from '@remotion/effects/pattern';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Img
+        src={staticFile('logo.png')}
+        effects={[
+          pattern({
+            scale: 0.12,
+            gapX: 24,
+            gapY: 24,
+            offsetU: 0.1,
+            rowOffset: 80,
+            rowOffsetEvery: 0,
+            origin: [0.5, 0],
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `pattern()` without arguments.
+
+### `scale?`
+
+Scale of each repeated tile. Defaults to `0.1`. Must be greater than `0`.
+
+### `cropLeft?`
+
+Pixels cropped from the left side of the source before tiling. Defaults to `0`.
+
+Negative values extend the virtual tile beyond the source. Areas outside the source become transparent.
+
+### `cropTop?`
+
+Pixels cropped from the top side of the source before tiling. Defaults to `0`.
+
+Negative values extend the virtual tile beyond the source. Areas outside the source become transparent.
+
+### `cropRight?`
+
+Pixels cropped from the right side of the source before tiling. Defaults to `0`.
+
+Negative values extend the virtual tile beyond the source. Areas outside the source become transparent.
+
+### `cropBottom?`
+
+Pixels cropped from the bottom side of the source before tiling. Defaults to `0`.
+
+Negative values extend the virtual tile beyond the source. Areas outside the source become transparent.
+
+### `gapX?`
+
+Horizontal space between repeated tiles in pixels. Defaults to `0`.
+
+Must be at least `0`.
+
+### `gapY?`
+
+Vertical space between repeated tiles in pixels. Defaults to `0`.
+
+Must be at least `0`.
+
+### `offsetU?`
+
+Horizontal pattern offset in UV coordinates. Defaults to `0`.
+
+`1` equals the full canvas width. Positive values move the pattern to the right. Animate this value to scroll the pattern horizontally.
+
+### `offsetV?`
+
+Vertical pattern offset in UV coordinates. Defaults to `0`.
+
+`1` equals the full canvas height. Positive values move the pattern down. Animate this value to scroll the pattern vertically.
+
+### `rowOffset?`
+
+Horizontal offset added per row in pixels. Defaults to `0`.
+
+### `rowOffsetEvery?`
+
+Number of rows after which `rowOffset` repeats. Defaults to `0`, meaning it never repeats. Must be an integer of at least `0`.
+
+For example, `rowOffset: 80` and `rowOffsetEvery: 2` offsets every second row and then repeats the pattern.
+
+### `columnOffset?`
+
+Vertical offset added per column in pixels. Defaults to `0`.
+
+### `columnOffsetEvery?`
+
+Number of columns after which `columnOffset` repeats. Defaults to `0`, meaning it never repeats. Must be an integer of at least `0`.
+
+### `origin?`
+
+Origin of the tile grid in UV coordinates. Defaults to `[0, 0]`.
+
+`[0, 0]` starts the grid at the top-left corner. `[0.5, 0.5]` anchors it in the center.
+
+### `wrap?`
+
+Whether tiles before the `origin` are rendered. Defaults to `true`.
+
+Set to `false` if the area before the origin should be transparent.
+
+Pixels between tiles, before the origin, and outside the cropped source become transparent.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`pattern()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`scale()`](/docs/effects/scale)
+- [`uvTranslate()`](/docs/effects/uv-translate)
+- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/pattern.ts)

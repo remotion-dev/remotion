@@ -7,23 +7,31 @@ import type {
 	AnyCompMetadata,
 	AnyComposition,
 	AudioOrVideoAsset,
+	JsxComponentIdentity,
 	LoopDisplay,
 	SequenceControls,
 	TRenderAsset,
 } from './CompositionManager.js';
 import type {DelayRenderScope} from './delay-render.js';
-import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import {
+	addSequenceStackTraces,
+	setSequenceComponent,
+} from './enable-sequence-stack-traces.js';
+import {Folder, type TFolder} from './Folder.js';
 import type {StaticFile} from './get-static-files.js';
+import type {
+	AssetFieldSchema,
+	ArrayFieldSchema,
+	ArrayItemFieldSchema,
+	InteractivitySchemaField,
+	InteractivitySchema,
+} from './interactivity-schema.js';
 import {useIsPlayer} from './is-player.js';
 import type {LogLevel} from './log.js';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
 import {Null} from './Null.js';
 import type {ProResProfile} from './prores-profile.js';
 import type {PixelFormat, VideoImageFormat} from './render-types.js';
-import type {
-	SequenceFieldSchema,
-	SequenceSchema,
-} from './sequence-field-schema.js';
 import {Sequence} from './Sequence.js';
 import type {UseBufferState} from './use-buffer-state';
 import type {VideoConfig} from './video-config.js';
@@ -67,6 +75,7 @@ declare global {
 		remotion_logLevel: LogLevel | undefined;
 		remotion_projectName: string;
 		remotion_cwd: string;
+		remotion_fileSystemPlatform: string | null;
 		remotion_studioServerCommand: string;
 		remotion_setFrame: (
 			frame: number,
@@ -84,7 +93,8 @@ declare global {
 		remotion_envVariables: string;
 		remotion_isMainTab: boolean;
 		remotion_mediaCacheSizeInBytes: number | null;
-		remotion_sampleRate: number;
+		remotion_sampleRate: number | null;
+		remotion_previewSampleRate: number | null;
 		remotion_initialMemoryAvailable: number | null;
 		remotion_collectAssets: () => TRenderAsset[];
 		remotion_isPlayer: boolean;
@@ -130,36 +140,40 @@ export type BundleState =
 checkMultipleRemotionVersions();
 export * from './AbsoluteFill.js';
 export * from './animated-image/index.js';
-export type {
-	EffectDefinitionAndStack,
-	EffectDescriptor,
-	EffectsProp,
-	EffectDefinition,
-	EffectFactory,
+export {
+	createEffect,
+	type Backend,
+	type EffectApplyParams,
+	type EffectDefinition,
+	type EffectDefinitionAndStack,
+	type EffectDescriptor,
+	type EffectFactory,
+	type EffectsProp,
 } from './effects/index.js';
 /**
  * @description Renders a solid-color rectangle on a `<canvas>`.
  * @see [Documentation](https://www.remotion.dev/docs/solid)
  */
-export {Solid} from './effects/Solid.js';
-export type {SolidProps} from './effects/Solid.js';
-export {
-	HtmlInCanvas,
-	HTML_IN_CANVAS_UNSUPPORTED_MESSAGE,
-	isHtmlInCanvasSupported,
-	type HtmlInCanvasOnInit,
-	type HtmlInCanvasOnInitCleanup,
-	type HtmlInCanvasOnPaint,
-} from './HtmlInCanvas.js';
-export type {
-	HtmlInCanvasOnPaintParams,
-	HtmlInCanvasProps,
-} from './HtmlInCanvas.js';
 export type {AnyZodObject} from './any-zod-type.js';
 export {Artifact} from './Artifact.js';
 export {Audio, Html5Audio, RemotionAudioProps} from './audio/index.js';
 export type {LoopVolumeCurveBehavior} from './audio/use-audio-frame.js';
 export {cancelRender} from './cancel-render.js';
+export {Solid} from './effects/Solid.js';
+export type {SolidProps} from './effects/Solid.js';
+export {
+	HTML_IN_CANVAS_UNSUPPORTED_MESSAGE,
+	HtmlInCanvas,
+	isHtmlInCanvasSupported,
+	type HtmlInCanvasOnInit,
+	type HtmlInCanvasOnInitCleanup,
+	type HtmlInCanvasOnPaint,
+	type HtmlInCanvasPixelDensity,
+} from './HtmlInCanvas.js';
+export type {
+	HtmlInCanvasOnPaintParams,
+	HtmlInCanvasProps,
+} from './HtmlInCanvas.js';
 /**
  * @description Renders a static image to a `<canvas>` and applies Remotion effects.
  * @see [Documentation](https://www.remotion.dev/docs/canvasimage)
@@ -181,24 +195,36 @@ export {DownloadBehavior} from './download-behavior.js';
 export * from './easing.js';
 export * from './Folder.js';
 export * from './freeze.js';
-export type {NonceHistory} from './nonce.js';
 export {getRemotionEnvironment} from './get-remotion-environment.js';
 export {getStaticFiles, StaticFile} from './get-static-files.js';
 export * from './IFrame.js';
 export {Img, ImgProps} from './Img.js';
+export {
+	Interactive,
+	type InteractiveBaseProps,
+	type InteractivePremountProps,
+	type InteractiveProps,
+	type InteractiveTransformProps,
+} from './Interactive.js';
 export * from './internals.js';
-export {interpolateColors} from './interpolate-colors.js';
+export {
+	interpolateColors,
+	type InterpolateColorsOptions,
+} from './interpolate-colors.js';
 export {LogLevel} from './log.js';
 export {Loop} from './loop/index.js';
 export {
 	assertValidInterpolateEasingOption,
+	assertValidInterpolatePosterizeOption,
 	EasingFunction,
 	ExtrapolateType,
 	interpolate,
+	InterpolateOutputOption,
 	InterpolateOptions,
 	random,
 	RandomSeed,
 } from './no-react';
+export type {NonceHistory} from './nonce.js';
 export {prefetch, PrefetchOnProgress} from './prefetch.js';
 export {registerRoot} from './register-root.js';
 export type {PixelFormat, VideoImageFormat} from './render-types.js';
@@ -224,6 +250,7 @@ export {
 	useCurrentScale,
 } from './use-current-scale';
 export {useDelayRender} from './use-delay-render';
+export {usePixelDensity} from './use-pixel-density';
 export {useRemotionEnvironment} from './use-remotion-environment.js';
 export * from './use-video-config.js';
 export * from './version.js';
@@ -294,10 +321,13 @@ export const Config = new Proxy(proxyObj, {
 
 Sequence.displayName = 'Sequence';
 addSequenceStackTraces(Sequence);
+setSequenceComponent(Sequence);
 addSequenceStackTraces(Composition);
+addSequenceStackTraces(Folder);
 
 export type _InternalTypes = {
 	AnyComposition: AnyComposition;
+	TFolder: TFolder;
 	BundleCompositionState: BundleCompositionState;
 	BundleState: BundleState;
 	VideoConfigWithSerializedProps: VideoConfigWithSerializedProps;
@@ -309,10 +339,14 @@ export type _InternalTypes = {
 
 export type {
 	AnyComposition,
+	AssetFieldSchema,
+	ArrayFieldSchema,
+	ArrayItemFieldSchema,
 	DelayRenderScope,
+	JsxComponentIdentity,
 	LoopDisplay,
 	SequenceControls,
-	SequenceFieldSchema,
-	SequenceSchema,
+	InteractivitySchemaField,
+	InteractivitySchema,
 	UseBufferState,
 };

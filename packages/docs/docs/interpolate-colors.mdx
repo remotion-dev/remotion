@@ -11,15 +11,47 @@ Allows you to map a range of values to colors using a concise syntax.
 
 ## API
 
-Takes three arguments:
+Takes three to four arguments:
 
 1. The input value.
 2. The range of values that you expect the input to assume.
 3. The range of output colors that you want the input to map to.
+4. Options object. Optional.
 
 `inputRange` and `outputRange` must have the same length and at least one color.
 With one color, `interpolateColors()` always returns the only output color as an `rgba` string.
 Single-color ranges are supported from <AvailableFrom v="4.0.469" inline />.
+
+### easing<AvailableFrom v="4.0.475" />
+
+_Default_: `Easing.linear`
+
+Allows you to adjust the rate of the color interpolation.
+
+```ts twoslash title="MyComposition.tsx"
+import {Easing, interpolateColors, useCurrentFrame} from 'remotion';
+
+const frame = useCurrentFrame();
+const color = interpolateColors(frame, [0, 60], ['black', 'white'], {
+  easing: Easing.in(Easing.quad),
+});
+```
+
+When `inputRange` contains more than two values, you may pass one easing function per segment:
+
+```ts twoslash title="MyComposition.tsx"
+import {Easing, interpolateColors, useCurrentFrame} from 'remotion';
+
+const frame = useCurrentFrame();
+const color = interpolateColors(
+  frame,
+  [0, 30, 60],
+  ['black', 'red', 'white'],
+  {
+    easing: [Easing.in(Easing.quad), Easing.out(Easing.quad)],
+  },
+);
+```
 
 ## Returns
 
@@ -40,6 +72,24 @@ const color = interpolateColors(frame, [0, 20], ['red', 'yellow']); // rgba(255,
 
 const color2 = interpolateColors(frame, [0, 20], ['#ff0000', '#ffff00']); // rgba(255, 128, 0, 1)
 ```
+
+### posterize<AvailableFrom v="4.0.470" />
+
+_Default_: no posterization
+
+Quantizes the input value before interpolation. Use it to sample color changes every `n` frames instead of updating on every frame.
+
+```ts twoslash title="MyComposition.tsx"
+import {interpolateColors, useCurrentFrame} from 'remotion';
+
+const frame = useCurrentFrame();
+const color = interpolateColors(frame, [0, 60], ['black', 'white'], {
+  posterize: 3,
+});
+```
+
+With `posterize: 3`, frames `0`, `1`, and `2` use the color for frame `0`; frames `3`, `4`, and `5` use the color for frame `3`, and so on.
+`posterize` must be a positive finite number.
 
 ## Interpolating `rgb` or `rgba` colors
 

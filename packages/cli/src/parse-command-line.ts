@@ -1,5 +1,8 @@
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {Config} from './config';
 import {parsedCli} from './parsed-cli';
+
+const {licenseKeyOption} = BrowserSafeApis.options;
 
 export const parseCommandLine = () => {
 	if (parsedCli.png) {
@@ -8,10 +11,10 @@ export const parseCommandLine = () => {
 		);
 	}
 
-	if (
-		parsedCli['license-key'] &&
-		parsedCli['license-key'].startsWith('rm_pub_')
-	) {
-		Config.setPublicLicenseKey(parsedCli['license-key']);
+	const {value: licenseKey, source} = licenseKeyOption.getValue({
+		commandLine: parsedCli,
+	});
+	if (source === 'cli' && licenseKey?.startsWith('rm_pub_')) {
+		Config.setPublicLicenseKey(licenseKey);
 	}
 };

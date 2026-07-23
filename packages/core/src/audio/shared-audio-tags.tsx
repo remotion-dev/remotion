@@ -1,12 +1,13 @@
-import {type AudioHTMLAttributes} from 'react';
 import React, {
 	createContext,
 	createRef,
 	useCallback,
 	useContext,
+	useEffect,
 	useMemo,
 	useRef,
 	useState,
+	type AudioHTMLAttributes,
 } from 'react';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {Log} from '../log.js';
@@ -58,6 +59,7 @@ export type ScheduleAudioNodeResult =
 export type ScheduleAudioNodeOptions = {
 	readonly node: AudioBufferSourceNode;
 	readonly mediaTimestamp: number;
+	readonly sourceOffset: number;
 	readonly scheduledTime: number;
 	readonly originalUnloopedMediaTimestamp: number;
 	readonly duration: number;
@@ -193,12 +195,24 @@ export const SharedAudioContextProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
 	readonly audioEnabled: boolean;
-}> = ({children, audioLatencyHint, audioEnabled}) => {
+	readonly previewSampleRate: number | null;
+}> = ({children, audioLatencyHint, audioEnabled, previewSampleRate}) => {
 	const logLevel = useLogLevel();
+	const sampleRate = previewSampleRate ?? 48000;
+
+	useEffect(() => {
+		if (typeof window === 'undefined') {
+			return;
+		}
+
+		window.remotion_sampleRate = sampleRate;
+	}, [sampleRate]);
+
 	const ctxAndGain = useSingletonAudioContext({
 		logLevel,
 		latencyHint: audioLatencyHint,
 		audioEnabled,
+		sampleRate,
 	});
 	const audioContextIsPlayingEventually = useRef(false);
 	const isResuming = useRef<Promise<void> | null>(null);
@@ -240,6 +254,7 @@ export const SharedAudioContextProvider: React.FC<{
 		return ({
 			node,
 			mediaTimestamp,
+			sourceOffset,
 			scheduledTime,
 			duration,
 			offset,
@@ -275,7 +290,7 @@ export const SharedAudioContextProvider: React.FC<{
 			const scheduledEndTime =
 				scheduledTime + duration / node.playbackRate.value;
 
-			const mediaTime = mediaTimestamp + offset;
+			const mediaTime = mediaTimestamp + offset - sourceOffset;
 
 			const mediaEndTime = mediaTime + duration;
 
@@ -456,21 +471,23 @@ export const SharedAudioTagsContextProvider: React.FC<{
 	const audioContext = audioCtx?.audioContext ?? null;
 	const resume = audioCtx?.resume;
 
-	const refs = useMemo(() => {
+	const [refs] = useState(() => {
 		return new Array(numberOfAudioTags).fill(true).map((): Ref => {
 			const ref = createRef<HTMLAudioElement>();
 			return {
 				id: Math.random(),
 				ref,
-				mediaElementSourceNode: audioContext
-					? makeSharedElementSourceNode({
-							audioContext,
-							ref,
-						})
-					: null,
+				mediaElementSourceNode: makeSharedElementSourceNode({
+					audioContext,
+					ref,
+				}),
 			};
 		});
-	}, [audioContext, numberOfAudioTags]);
+	});
+
+	for (const {mediaElementSourceNode} of refs) {
+		mediaElementSourceNode?.setAudioContext(audioContext);
+	}
 
 	/**
 	 * Effects in React 18 fire twice, and we are looking for a way to only fire it once.
@@ -510,7 +527,10 @@ export const SharedAudioTagsContextProvider: React.FC<{
 			}
 
 			if (data === undefined) {
-				current.src = EMPTY_AUDIO;
+				if (current.src !== EMPTY_AUDIO) {
+					current.src = EMPTY_AUDIO;
+				}
+
 				return;
 			}
 
@@ -580,7 +600,9 @@ export const SharedAudioTagsContextProvider: React.FC<{
 			const cloned = [...takenAudios.current];
 			const index = refs.findIndex((r) => r.id === id);
 			if (index === -1) {
-				throw new TypeError('Error occured in ');
+				throw new TypeError(
+					`Unknown audio ref ${id}; refs: ${refs.map((r) => r.id).join(', ')}`,
+				);
 			}
 
 			cloned[index] = false;
@@ -624,7 +646,9 @@ export const SharedAudioTagsContextProvider: React.FC<{
 						prevA.premounting === premounting &&
 						prevA.postmounting === postmounting;
 					if (isTheSame) {
-						return prevA;
+						return prevA.audioMounted === audioMounted
+							? prevA
+							: {...prevA, audioMounted};
 					}
 
 					changed = true;
@@ -639,7 +663,9 @@ export const SharedAudioTagsContextProvider: React.FC<{
 					};
 				}
 
-				return prevA;
+				return prevA.audioMounted === audioMounted
+					? prevA
+					: {...prevA, audioMounted};
 			});
 
 			if (changed) {
@@ -684,17 +710,20 @@ export const SharedAudioTagsContextProvider: React.FC<{
 		unregisterAudio,
 		updateAudio,
 	]);
+	const sharedAudioTagElements = useMemo(() => {
+		return refs.map(({id, ref}) => {
+			return (
+				// Without preload="metadata", iOS will seek the time internally
+				// but not actually with sound. Adding `preload="metadata"` helps here.
+				// https://discord.com/channels/809501355504959528/817306414069710848/1130519583367888906
+				<audio key={id} ref={ref} preload="metadata" src={EMPTY_AUDIO} />
+			);
+		});
+	}, [refs]);
 
 	return (
 		<SharedAudioTagsContext.Provider value={audioTagsValue}>
-			{refs.map(({id, ref}) => {
-				return (
-					// Without preload="metadata", iOS will seek the time internally
-					// but not actually with sound. Adding `preload="metadata"` helps here.
-					// https://discord.com/channels/809501355504959528/817306414069710848/1130519583367888906
-					<audio key={id} ref={ref} preload="metadata" src={EMPTY_AUDIO} />
-				);
-			})}
+			{sharedAudioTagElements}
 			{children}
 		</SharedAudioTagsContext.Provider>
 	);
@@ -724,12 +753,10 @@ export const useSharedAudio = ({
 
 		// numberOfSharedAudioTags is 0
 		const el = React.createRef<HTMLAudioElement>();
-		const mediaElementSourceNode = audioCtx?.audioContext
-			? makeSharedElementSourceNode({
-					audioContext: audioCtx.audioContext,
-					ref: el,
-				})
-			: null;
+		const mediaElementSourceNode = makeSharedElementSourceNode({
+			audioContext: audioCtx?.audioContext ?? null,
+			ref: el,
+		});
 
 		return {
 			el,
@@ -745,6 +772,7 @@ export const useSharedAudio = ({
 			},
 		};
 	});
+	elem.mediaElementSourceNode?.setAudioContext(audioCtx?.audioContext ?? null);
 
 	/**
 	 * Effects in React 18 fire twice, and we are looking for a way to only fire it once.

@@ -14,43 +14,52 @@ import type {
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
+import {Log} from '../log';
 import {getBrowser} from './browser';
 import {
 	getBufferStateDelayInMilliseconds,
+	resetBufferStateDelayInMilliseconds,
 	setBufferStateDelayInMilliseconds,
 } from './buffer-state-delay-in-milliseconds';
-import {getConcurrency} from './concurrency';
 import type {Concurrency} from './concurrency';
-import {getEntryPoint, setEntryPoint} from './entry-point';
+import {getConcurrency} from './concurrency';
+import {getEntryPoint, resetEntryPoint, setEntryPoint} from './entry-point';
 import {getDotEnvLocation} from './env-file';
 import {
 	getFfmpegOverrideFunction,
+	resetFfmpegOverrideFunction,
 	setFfmpegOverrideFunction,
 } from './ffmpeg-override';
 import {getShouldOutputImageSequence} from './image-sequence';
-import {getMetadata, setMetadata} from './metadata';
-import {getOutputLocation} from './output-location';
-import {setOutputLocation} from './output-location';
+import {getMetadata, resetMetadata, setMetadata} from './metadata';
+import {
+	getOutputLocation,
+	resetOutputLocation,
+	setOutputLocation,
+} from './output-location';
+import type {WebpackOverrideFn} from './override-webpack';
 import {
 	defaultOverrideFunction,
 	getWebpackOverrideFn,
+	overrideWebpackConfig,
+	resetWebpackOverride,
 } from './override-webpack';
-import type {WebpackOverrideFn} from './override-webpack';
-import {overrideWebpackConfig} from './override-webpack';
 import {
 	getRendererPortFromConfigFile,
 	getRendererPortFromConfigFileAndCliFlag,
 	getStudioPort,
+	resetPreviewServerPorts,
+	setPort,
+	setRendererPort,
+	setStudioPort,
 } from './preview-server';
-import {setPort, setRendererPort, setStudioPort} from './preview-server';
-import {getStillFrame, setStillFrame} from './still-frame';
+import {getStillFrame, resetStillFrame, setStillFrame} from './still-frame';
 import {getWebpackCaching} from './webpack-caching';
 import {getWebpackPolling} from './webpack-poll';
 
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
 
 const {
-	allowHtmlInCanvasOption,
 	benchmarkConcurrenciesOption,
 	concurrencyOption,
 	offthreadVideoCacheSizeInBytesOption,
@@ -95,7 +104,7 @@ const {
 	darkModeOption,
 	askAIOption,
 	publicLicenseKeyOption,
-	experimentalClientSideRenderingOption,
+	interactivityOption,
 	keyboardShortcutsOption,
 	forceNewStudioOption,
 	numberOfSharedAudioTagsOption,
@@ -122,6 +131,7 @@ const {
 	runsOption,
 	noOpenOption,
 	sampleRateOption,
+	previewSampleRateOption,
 } = BrowserSafeApis.options;
 
 declare global {
@@ -179,17 +189,13 @@ declare global {
 		 */
 		readonly setKeyboardShortcutsEnabled: (enableShortcuts: boolean) => void;
 		/**
-		 * Enable WIP client-side rendering in the Remotion Studio.
-		 * See https://www.remotion.dev/docs/client-side-rendering/ for notes.
-		 * @param enabled Boolean whether to enable client-side rendering
-		 * @default false
+		 * Enable interactive editing in the Remotion Studio.
+		 * @param enabled Boolean whether to enable interactive editing
+		 * @default true
 		 */
-		readonly setExperimentalClientSideRenderingEnabled: (
-			enabled: boolean,
-		) => void;
+		readonly setInteractivityEnabled: (enabled: boolean) => void;
 		/**
-		 * Allow the experimental HTML-in-canvas capture path in Studio client-side renders.
-		 * @default false
+		 * @deprecated HTML-in-canvas is now enabled by default when supported. This method is a no-op and can be removed.
 		 */
 		readonly setAllowHtmlInCanvasEnabled: (enabled: boolean) => void;
 		/**
@@ -640,6 +646,11 @@ type FlatConfig = RemotionConfigObject &
 		 */
 		setSampleRate: (sampleRate: number) => void;
 		/**
+		 * Set the audio sample rate for preview playback.
+		 * Default: null, which uses 48000 Hz.
+		 */
+		setPreviewSampleRate: (sampleRate: number | null) => void;
+		/**
 		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
 		 */
 		Bundling: void;
@@ -664,6 +675,13 @@ type FlatConfig = RemotionConfigObject &
 		 */
 		Output: void;
 	};
+
+const setAllowHtmlInCanvasEnabled = (_enabled: boolean) => {
+	Log.warn(
+		{indent: false, logLevel: 'info'},
+		'Config.setAllowHtmlInCanvasEnabled() is now a no-op because HTML-in-canvas is enabled by default when supported. You can remove this option from your config file.',
+	);
+};
 
 export const Config: FlatConfig = {
 	get Bundling() {
@@ -698,9 +716,8 @@ export const Config: FlatConfig = {
 	},
 	setMaxTimelineTracks: StudioServerInternals.setMaxTimelineTracks,
 	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
-	setExperimentalClientSideRenderingEnabled:
-		experimentalClientSideRenderingOption.setConfig,
-	setAllowHtmlInCanvasEnabled: allowHtmlInCanvasOption.setConfig,
+	setInteractivityEnabled: interactivityOption.setConfig,
+	setAllowHtmlInCanvasEnabled,
 	setExperimentalRspackEnabled: rspackOption.setConfig,
 	setNumberOfSharedAudioTags: numberOfSharedAudioTagsOption.setConfig,
 	setWebpackPollingInMilliseconds: webpackPollOption.setConfig,
@@ -793,6 +810,70 @@ export const Config: FlatConfig = {
 	setBenchmarkRuns: runsOption.setConfig,
 	setBenchmarkConcurrencies: benchmarkConcurrenciesOption.setConfig,
 	setSampleRate: sampleRateOption.setConfig,
+	setPreviewSampleRate: previewSampleRateOption.setConfig,
+};
+
+type BrowserSafeConfigOption = {
+	cliFlag: string;
+	getValue: (values: {commandLine: Record<string, unknown>}) => {
+		value: unknown;
+		source: string;
+	};
+	setConfig: (value: never) => void;
+	reset?: () => void;
+};
+
+const getDefaultConfigValue = (option: BrowserSafeConfigOption) => {
+	for (const cliValue of [undefined, null]) {
+		const result = option.getValue({
+			commandLine: {[option.cliFlag]: cliValue},
+		});
+		if (result.source !== 'cli') {
+			return result.value;
+		}
+	}
+
+	throw new Error(`Could not determine the default for --${option.cliFlag}`);
+};
+
+const configSetters = new Set(
+	Object.values(Object.getOwnPropertyDescriptors(Config))
+		.map((descriptor) => descriptor.value)
+		.filter(
+			(value): value is (...args: never[]) => unknown =>
+				typeof value === 'function',
+		),
+);
+
+const browserSafeConfigOptionResets = Object.values(BrowserSafeApis.options)
+	.filter((option) => configSetters.has(option.setConfig))
+	.map((untypedOption): (() => void) => {
+		const option = untypedOption as unknown as BrowserSafeConfigOption;
+		if (option.reset) {
+			return option.reset;
+		}
+
+		const defaultValue = getDefaultConfigValue(option);
+		return () => option.setConfig(defaultValue as never);
+	});
+
+const resetBrowserSafeConfigOptions = () => {
+	for (const reset of browserSafeConfigOptionResets) {
+		reset();
+	}
+};
+
+const resetConfigOptions = () => {
+	resetBrowserSafeConfigOptions();
+	StudioServerInternals.resetMaxTimelineTracks();
+	resetBufferStateDelayInMilliseconds();
+	resetEntryPoint();
+	resetFfmpegOverrideFunction();
+	resetMetadata();
+	resetOutputLocation();
+	resetWebpackOverride();
+	resetPreviewServerPorts();
+	resetStillFrame();
 };
 
 export const ConfigInternals = {
@@ -816,4 +897,5 @@ export const ConfigInternals = {
 	getWebpackPolling,
 	getBufferStateDelayInMilliseconds,
 	getOutputCodecOrUndefined: BrowserSafeApis.getOutputCodecOrUndefined,
+	resetConfigOptions,
 };

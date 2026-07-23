@@ -17,12 +17,13 @@ import type {
 	WebRendererAudioCodec,
 	WebRendererContainer,
 	WebRendererHardwareAcceleration,
+	WebRendererPageResponsiveness,
 	WebRendererQuality,
 	WebRendererVideoCodec,
 } from '@remotion/web-renderer';
 import type React from 'react';
 import {createContext} from 'react';
-import type {_InternalTypes} from 'remotion';
+import type {SequencePropsSubscriptionKey, _InternalTypes} from 'remotion';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
@@ -51,7 +52,7 @@ export type WebRenderModalState = {
 	initialMuted: boolean | null;
 	initialLicenseKey: string | null;
 	initialMediaCacheSizeInBytes: number | null;
-	initialAllowHtmlInCanvas: boolean;
+	initialPageResponsiveness: WebRendererPageResponsiveness;
 };
 
 export type RenderModalState = {
@@ -108,7 +109,44 @@ export type RenderModalState = {
 	renderDefaults: RenderDefaults;
 };
 
+export type ConfirmationDialogState = {
+	type: 'confirmation-dialog';
+	id: string;
+	title: string;
+	message: React.ReactNode;
+	confirmLabel: string;
+	cancelLabel: string;
+	onConfirm: () => void;
+	onCancel: () => void;
+};
+
+export type SvgImportDialogState = {
+	type: 'svg-import-dialog';
+	id: string;
+	onImage: () => void;
+	onInline: () => void;
+	onDismiss: () => void;
+};
+
+export type AddEffectModalState = {
+	type: 'add-effect';
+	fileName: string;
+	nodePath: SequencePropsSubscriptionKey;
+	clientId: string;
+};
+
 export type ModalState =
+	| {
+			type: 'new-comp';
+			folderName: string | null;
+			parentName: string | null;
+			stack: string | null;
+	  }
+	| {
+			type: 'new-folder';
+			parentName: string | null;
+			stack: string | null;
+	  }
 	| {
 			type: 'duplicate-comp';
 			compositionId: string;
@@ -121,6 +159,22 @@ export type ModalState =
 	| {
 			type: 'rename-comp';
 			compositionId: string;
+	  }
+	| {
+			type: 'delete-folder';
+			folderName: string;
+			parentName: string | null;
+			stack: string | null;
+	  }
+	| {
+			type: 'rename-folder';
+			folderName: string;
+			parentName: string | null;
+			stack: string | null;
+	  }
+	| {
+			type: 'rename-static-file';
+			relativePath: string;
 	  }
 	| {
 			type: 'input-props-override';
@@ -144,7 +198,10 @@ export type ModalState =
 			type: 'quick-switcher';
 			mode: QuickSwitcherMode;
 			invocationTimestamp: number;
-	  };
+	  }
+	| AddEffectModalState
+	| ConfirmationDialogState
+	| SvgImportDialogState;
 
 export type ModalContextType = {
 	selectedModal: ModalState | null;

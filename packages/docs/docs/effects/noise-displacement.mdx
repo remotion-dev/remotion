@@ -1,0 +1,125 @@
+---
+image: /generated/articles-docs-effects-noise-displacement.png
+slug: /effects/noise-displacement
+title: noiseDisplacement()
+sidebar_label: noiseDisplacement()
+crumb: '@remotion/effects'
+---
+
+# noiseDisplacement()<AvailableFrom v="4.0.474" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Distorts a circular part of the source with deterministic procedural noise.
+
+The effect is anchored to a UV coordinate and radius. Pixels outside the radius stay unchanged.
+
+## Preview
+
+<EffectsDemo type="effects-noise-displacement" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {noiseDisplacement} from '@remotion/effects/noise-displacement';
+import {AbsoluteFill, CanvasImage, staticFile} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <CanvasImage
+        src={staticFile('image.png')}
+        width={1280}
+        height={720}
+        fit="cover"
+        effects={[
+          noiseDisplacement({
+            center: [0.55, 0.42],
+            radius: 0.18,
+            strength: 36,
+            seed: 12,
+            grainSize: 8,
+            passes: 6,
+            feather: 0.25,
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties.
+
+### `center`
+
+UV coordinate of the affected area as a `[u, v]` tuple. `[0, 0]` is the top-left of the source and `[1, 1]` is the bottom-right.
+
+### `radius`
+
+Radius of the affected area, relative to the shorter canvas side. Must be greater than `0` and at most `1`.
+
+### `strength?`
+
+Maximum displacement in pixels at the center. Defaults to `36`.
+
+Use `0` to leave the layer unchanged.
+
+### `seed?`
+
+Seed for the deterministic noise field. Defaults to `0`.
+
+Change it to get a different static displacement pattern. To animate the distortion, pass a value derived from [`useCurrentFrame()`](/docs/use-current-frame).
+
+### `grainSize?`
+
+Size of each noise cell in pixels. Defaults to `8`.
+
+Larger values create chunkier distortion. Smaller values create finer distortion.
+
+### `passes?`
+
+Number of samples along the displacement path. Defaults to `6`.
+
+Higher values create a smeared, multi-pass look. Must be an integer from `1` to `12`.
+
+### `blur?`
+
+Additional local blur in pixels. Defaults to `0`.
+
+The blur is strongest at the center and fades with the effect mask.
+
+### `feather?`
+
+Softness of the edge as a fraction of `radius`. Defaults to `0.25`.
+
+Use `0` for a hard circular boundary.
+
+### `biasDirection?`
+
+Direction of the optional bias pull in degrees. Defaults to `0`.
+
+Only has a visible effect if [`biasAmount`](#biasamount) is greater than `0`.
+
+### `biasAmount?`
+
+Directional pull relative to [`strength`](#strength). Defaults to `0`.
+
+For example, `biasAmount: 1` adds a directional pull as strong as the maximum noise displacement.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`noiseDisplacement()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`noise()`](/docs/effects/noise)
+- [`wave()`](/docs/effects/wave)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/noise-displacement.ts)

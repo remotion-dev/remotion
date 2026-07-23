@@ -18,7 +18,7 @@ import {SegmentedControl} from '../SegmentedControl';
 import {FrameRangeSetting} from './FrameRangeSetting';
 import {humanReadableLogLevel} from './human-readable-loglevel';
 import {input, label, optionRow, rightRow} from './layout';
-import {OptionExplainerBubble} from './OptionExplainerBubble';
+import {WebRendererOptionExplainerBubble} from './OptionExplainerBubble';
 import {RenderModalOutputName} from './RenderModalOutputName';
 import type {RenderType} from './WebRenderModal';
 
@@ -225,7 +225,10 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 							<div style={label}>
 								Codec
 								<Spacing x={0.5} />
-								<OptionExplainerBubble id="videoCodecOption" />
+								<WebRendererOptionExplainerBubble
+									apiName="codec"
+									id="videoCodecOption"
+								/>
 							</div>
 							<div style={rightRow}>
 								<Combobox
@@ -258,7 +261,10 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 			<div style={optionRow}>
 				<div style={label}>
 					Log Level <Spacing x={0.5} />
-					<OptionExplainerBubble id="logLevelOption" />
+					<WebRendererOptionExplainerBubble
+						apiName="logLevel"
+						id="logLevelOption"
+					/>
 				</div>
 				<div style={rightRow}>
 					<Combobox

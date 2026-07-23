@@ -9,15 +9,16 @@ import React, {
 } from 'react';
 import type {SequenceControls} from '../CompositionManager.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
+import type {InteractiveBaseProps} from '../Interactive.js';
 import {
-	hiddenField,
-	sequenceVisualStyleSchema,
-	type SequenceSchema,
-} from '../sequence-field-schema.js';
-import type {SequenceProps} from '../Sequence.js';
+	baseSchema,
+	borderSchema,
+	transformSchema,
+	type InteractivitySchema,
+} from '../interactivity-schema.js';
 import {Sequence} from '../Sequence.js';
 import {useDelayRender} from '../use-delay-render.js';
-import {wrapInSchema} from '../wrap-in-schema.js';
+import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {EffectsProp} from './effect-types.js';
 import {runEffectChain} from './run-effect-chain.js';
 import {useEffectChainState} from './use-effect-chain-state.js';
@@ -36,6 +37,25 @@ type OptionalProps = {
 	readonly effects: EffectsProp;
 	readonly className: string | undefined;
 	readonly style: React.CSSProperties | undefined;
+	readonly pixelDensity: number | undefined;
+};
+
+const resolveSolidPixelDensity = (pixelDensity: number | undefined): number => {
+	if (pixelDensity === undefined) {
+		return 1;
+	}
+
+	if (
+		typeof pixelDensity !== 'number' ||
+		!Number.isFinite(pixelDensity) ||
+		pixelDensity <= 0
+	) {
+		throw new Error(
+			`<Solid>: \`pixelDensity\` must be a positive finite number. Received: ${String(pixelDensity)}.`,
+		);
+	}
+
+	return pixelDensity;
 };
 
 type InnerSolidProps = MandatoryProps &
@@ -44,7 +64,8 @@ type InnerSolidProps = MandatoryProps &
 	};
 export type SolidProps = MandatoryProps & Partial<OptionalProps>;
 
-const solidSchema = {
+export const solidSchema = {
+	...baseSchema,
 	color: {
 		type: 'color',
 		default: 'transparent',
@@ -56,6 +77,7 @@ const solidSchema = {
 		step: 1,
 		default: 1920,
 		description: 'Width',
+		hiddenFromList: false,
 	},
 	height: {
 		type: 'number',
@@ -63,10 +85,20 @@ const solidSchema = {
 		step: 1,
 		default: 1080,
 		description: 'Height',
+		hiddenFromList: false,
 	},
-	...sequenceVisualStyleSchema,
-	hidden: hiddenField,
-} as const satisfies SequenceSchema;
+	pixelDensity: {
+		type: 'number',
+		min: 1,
+		max: 3,
+		step: 0.1,
+		default: 1,
+		description: 'Pixel density',
+		hiddenFromList: false,
+	},
+	...transformSchema,
+	...borderSchema,
+} as const satisfies InteractivitySchema;
 
 const SolidInner: React.FC<
 	InnerSolidProps & {
@@ -80,10 +112,15 @@ const SolidInner: React.FC<
 	effects = [],
 	className,
 	style,
+	pixelDensity,
 	overrideId,
 	reference,
 }) => {
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
+
+	const resolvedPixelDensity = resolveSolidPixelDensity(pixelDensity);
+	const canvasWidth = Math.ceil(width * resolvedPixelDensity);
+	const canvasHeight = Math.ceil(height * resolvedPixelDensity);
 
 	const [outputCanvas, setOutputCanvas] = useState<HTMLCanvasElement | null>(
 		null,
@@ -150,12 +187,12 @@ const SolidInner: React.FC<
 		}
 
 		runEffectChain({
-			state: chainState.get(width, height)!,
+			state: chainState.get(canvasWidth, canvasHeight)!,
 			source: sourceCanvas,
 			effects: memoizedEffects,
 			output: outputCanvas,
-			width,
-			height,
+			width: canvasWidth,
+			height: canvasHeight,
 		})
 			.then((completed) => {
 				if (completed) {
@@ -174,21 +211,29 @@ const SolidInner: React.FC<
 		outputCanvas,
 		sourceCanvas,
 		chainState,
-		width,
-		height,
+		canvasWidth,
+		canvasHeight,
 		delayRender,
 		continueRender,
 		cancelRender,
 		memoizedEffects,
 	]);
 
+	const canvasStyle = useMemo(() => {
+		return {
+			width,
+			height,
+			...(style ?? {}),
+		};
+	}, [height, style, width]);
+
 	return (
 		<canvas
 			ref={canvasRef}
-			width={width}
-			height={height}
+			width={canvasWidth}
+			height={canvasHeight}
 			className={className}
-			style={style}
+			style={canvasStyle}
 		/>
 	);
 };
@@ -196,16 +241,13 @@ const SolidInner: React.FC<
 const SolidOuter = forwardRef<
 	HTMLCanvasElement,
 	SolidProps & {
-		readonly _experimentalControls: SequenceControls | undefined;
-	} & Pick<
-			SequenceProps,
-			'durationInFrames' | 'name' | 'from' | 'showInTimeline' | 'hidden'
-		>
+		readonly controls: SequenceControls | undefined;
+	} & InteractiveBaseProps
 >(
 	(
 		{
 			effects = [],
-			_experimentalControls: controls,
+			controls,
 			color,
 			height,
 			width,
@@ -214,8 +256,11 @@ const SolidOuter = forwardRef<
 			style,
 			name,
 			from,
+			trimBefore,
+			freeze,
 			hidden,
 			showInTimeline,
+			pixelDensity,
 			...props
 		},
 		ref,
@@ -233,16 +278,16 @@ const SolidOuter = forwardRef<
 			<Sequence
 				layout="none"
 				from={from}
+				trimBefore={trimBefore}
+				freeze={freeze}
 				hidden={hidden}
 				showInTimeline={showInTimeline}
-				_experimentalControls={controls}
+				controls={controls}
 				_remotionInternalEffects={memoizedEffectDefinitions}
 				durationInFrames={durationInFrames}
 				name={name ?? '<Solid>'}
-				_remotionInternalRefForOutline={actualRef}
-				_remotionInternalDocumentationLink={
-					name === undefined ? 'https://www.remotion.dev/docs/solid' : undefined
-				}
+				outlineRef={actualRef}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/solid"
 				// 'stack' is in props
 				{...props}
 			>
@@ -255,13 +300,20 @@ const SolidOuter = forwardRef<
 					className={className}
 					style={style}
 					effects={effects}
+					pixelDensity={pixelDensity}
 				/>
 			</Sequence>
 		);
 	},
 );
 
-export const Solid = wrapInSchema(SolidOuter, solidSchema);
+export const Solid = withInteractivitySchema({
+	Component: SolidOuter,
+	componentName: '<Solid>',
+	componentIdentity: 'dev.remotion.remotion.Solid',
+	schema: solidSchema,
+	supportsEffects: true,
+});
 
 Solid.displayName = 'Solid';
 

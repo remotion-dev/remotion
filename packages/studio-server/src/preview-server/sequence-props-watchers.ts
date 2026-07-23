@@ -1,19 +1,24 @@
 import path from 'node:path';
-import {RenderInternals} from '@remotion/renderer';
 import type {LogLevel} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {
 	stringifySequenceSubscriptionKey,
 	type SubscribeToSequencePropsResponse,
 } from '@remotion/studio-shared';
-import type {SequenceNodePath} from 'remotion';
+import type {
+	JsxComponentIdentity,
+	SequenceNodePath,
+	VideoConfigValues,
+} from 'remotion';
 import {installFileWatcher} from '../file-watcher';
+import {JsxElementIdentityMismatchError} from './jsx-component-identity';
 import {JsxElementNotFoundAtLocationError} from './jsx-element-not-found-at-location-error';
 import {waitForLiveEventsListener} from './live-events';
 import {getCachedNodePath, setCachedNodePath} from './node-path-cache';
 import {
+	computeSequencePropsStatus,
 	computeSequencePropsStatusFromContent,
 	computeSequencePropsStatusFromFilenameByLine,
-	computeSequencePropsStatus,
 } from './routes/can-update-sequence-props';
 
 type WatcherInfo = {
@@ -23,36 +28,107 @@ type WatcherInfo = {
 
 const sequencePropsWatchers: Record<string, Record<string, WatcherInfo>> = {};
 
+const getWatcherKey = (
+	nodePath: {
+		absolutePath: string;
+		nodePath: SequenceNodePath;
+		sequenceKeys: string[];
+		effectKeys: string[][];
+		videoConfigValues: VideoConfigValues | null;
+	},
+	assetKeys: string[],
+) =>
+	`${stringifySequenceSubscriptionKey(nodePath)}:${assetKeys.join('\0')}:${JSON.stringify(nodePath.videoConfigValues)}`;
+
 const getSequencePropsStatus = ({
 	fileName,
 	line,
 	column,
+	preferredNodePath,
+	componentIdentity,
 	keys,
+	assetKeys,
 	effects,
 	remotionRoot,
 	logLevel,
+	videoConfigValues,
 }: {
 	fileName: string;
 	line: number;
 	column: number;
+	preferredNodePath: SequenceNodePath | null;
+	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
+	assetKeys: string[];
 	effects: string[][];
 	remotionRoot: string;
 	logLevel: LogLevel;
+	videoConfigValues: VideoConfigValues;
 }): SubscribeToSequencePropsResponse => {
+	if (preferredNodePath) {
+		try {
+			const fromNodePath = computeSequencePropsStatus({
+				fileName,
+				nodePath: preferredNodePath,
+				componentIdentity,
+				keys,
+				assetKeys,
+				effects,
+				remotionRoot,
+				videoConfigValues,
+			});
+			return {
+				status: fromNodePath,
+				nodePath: {
+					absolutePath: path.resolve(remotionRoot, fileName),
+					nodePath: preferredNodePath,
+					sequenceKeys: keys,
+					effectKeys: effects,
+					videoConfigValues,
+				},
+				success: true,
+			};
+		} catch (error) {
+			if (
+				!(
+					error instanceof JsxElementIdentityMismatchError ||
+					error instanceof JsxElementNotFoundAtLocationError
+				)
+			) {
+				throw error;
+			}
+		}
+	}
+
 	// Try cached nodePath first (handles stale source maps after suppressed rebuilds)
 	const cachedNodePath = getCachedNodePath(fileName, line, column);
 
 	if (cachedNodePath) {
-		const cachedResult = computeSequencePropsStatus({
-			fileName,
-			nodePath: cachedNodePath,
-			keys,
-			effects,
-			remotionRoot,
-		});
+		const cachedResult = (() => {
+			try {
+				return computeSequencePropsStatus({
+					fileName,
+					nodePath: cachedNodePath,
+					componentIdentity,
+					keys,
+					assetKeys,
+					effects,
+					remotionRoot,
+					videoConfigValues,
+				});
+			} catch (error) {
+				if (
+					error instanceof JsxElementIdentityMismatchError ||
+					error instanceof JsxElementNotFoundAtLocationError
+				) {
+					return null;
+				}
 
-		if (cachedResult.canUpdate) {
+				throw error;
+			}
+		})();
+
+		if (cachedResult?.canUpdate) {
 			return {
 				status: cachedResult,
 				nodePath: {
@@ -60,6 +136,7 @@ const getSequencePropsStatus = ({
 					nodePath: cachedNodePath,
 					sequenceKeys: keys,
 					effectKeys: effects,
+					videoConfigValues,
 				},
 				success: true,
 			};
@@ -69,10 +146,13 @@ const getSequencePropsStatus = ({
 	const status = computeSequencePropsStatusFromFilenameByLine({
 		fileName,
 		line,
+		componentIdentity,
 		keys,
+		assetKeys,
 		effects,
 		remotionRoot,
 		logLevel,
+		videoConfigValues,
 	});
 
 	return status;
@@ -82,29 +162,41 @@ export const subscribeToSequencePropsWatchers = ({
 	fileName,
 	line,
 	column,
+	nodePath: preferredNodePath,
+	componentIdentity,
 	keys,
+	assetKeys,
 	effects,
 	remotionRoot,
 	clientId,
 	logLevel,
+	videoConfigValues,
 }: {
 	fileName: string;
 	line: number;
 	column: number;
+	nodePath: SequenceNodePath | null;
+	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
+	assetKeys: string[];
 	effects: string[][];
 	remotionRoot: string;
 	clientId: string;
 	logLevel: LogLevel;
+	videoConfigValues: VideoConfigValues;
 }): SubscribeToSequencePropsResponse => {
 	const initialResult = getSequencePropsStatus({
 		fileName,
 		line,
 		column,
+		preferredNodePath,
+		componentIdentity,
 		keys,
+		assetKeys,
 		effects,
 		remotionRoot,
 		logLevel,
+		videoConfigValues,
 	});
 
 	if (!initialResult.success) {
@@ -117,7 +209,7 @@ export const subscribeToSequencePropsWatchers = ({
 	setCachedNodePath(fileName, line, column, initialResult.nodePath.nodePath);
 
 	const {nodePath} = initialResult;
-	const watcherKey = stringifySequenceSubscriptionKey(nodePath);
+	const watcherKey = getWatcherKey(nodePath, assetKeys);
 
 	// If a watcher already exists for this key, just bump the ref count
 	if (sequencePropsWatchers[clientId]?.[watcherKey]) {
@@ -141,8 +233,11 @@ export const subscribeToSequencePropsWatchers = ({
 				const result = computeSequencePropsStatusFromContent({
 					fileContents: event.content,
 					nodePath: nodePath.nodePath,
+					componentIdentity,
 					keys,
+					assetKeys,
 					effects,
+					videoConfigValues,
 				});
 				const previousEffectChain = result.effects.map(
 					(effect) => effect.canUpdate && effect.callee,
@@ -169,7 +264,10 @@ export const subscribeToSequencePropsWatchers = ({
 					});
 				});
 			} catch (error) {
-				if (error instanceof JsxElementNotFoundAtLocationError) {
+				if (
+					error instanceof JsxElementNotFoundAtLocationError ||
+					error instanceof JsxElementIdentityMismatchError
+				) {
 					waitForLiveEventsListener().then((listener) => {
 						listener.sendEventToClientId(clientId, {
 							type: 'lost-node-path',
@@ -201,22 +299,30 @@ export const unsubscribeFromSequencePropsWatchers = ({
 	remotionRoot,
 	clientId,
 	sequenceKeys,
+	assetKeys,
 	effectKeys,
+	videoConfigValues,
 }: {
 	fileName: string;
 	nodePath: SequenceNodePath;
 	remotionRoot: string;
 	clientId: string;
 	sequenceKeys: string[];
+	assetKeys: string[];
 	effectKeys: string[][];
+	videoConfigValues: VideoConfigValues | null;
 }) => {
 	const absolutePath = path.resolve(remotionRoot, fileName);
-	const watcherKey = stringifySequenceSubscriptionKey({
-		absolutePath,
-		nodePath,
-		sequenceKeys,
-		effectKeys,
-	});
+	const watcherKey = getWatcherKey(
+		{
+			absolutePath,
+			nodePath,
+			sequenceKeys,
+			effectKeys,
+			videoConfigValues,
+		},
+		assetKeys,
+	);
 
 	if (
 		!sequencePropsWatchers[clientId] ||

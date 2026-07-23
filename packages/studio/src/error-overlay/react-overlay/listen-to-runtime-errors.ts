@@ -6,6 +6,7 @@
  */
 import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
 import {reloadUrl} from '../../helpers/url-state';
+import {markErrorAsLoggedByServer} from '../error-origin';
 import {setErrorsRef} from '../remotion-overlay/Overlay';
 import {massageWarning} from './effects/format-warning';
 import {
@@ -98,15 +99,18 @@ export function listenToRuntimeErrors(crash: () => void) {
 		if (d.type === 'webpack-error') {
 			const {message, frames} = d;
 			const data = massageWarning(message, frames);
-
-			crashWithFramesRunTime({
+			const error = {
 				message: data.message,
 				stack: data.stack,
 				name: '',
-			});
+			};
+
+			markErrorAsLoggedByServer(error);
+			crashWithFramesRunTime(error);
 		}
 
 		if (d.type === 'build-error') {
+			markErrorAsLoggedByServer(d.error);
 			crashWithFramesRunTime(d.error);
 		}
 	});

@@ -101,6 +101,24 @@ An exponential backoff is being used, with 1000ms delay between the first and se
 
 If set to `true`, pause the Player when the image is loading. See: [Buffer state](/docs/player/buffer-state).
 
+### `premountFor?`<AvailableFrom v="4.0.497" />
+
+Mounts the image for the specified number of frames before its `from` frame. The image carries `display: none` and is frozen at its first frame while premounted.
+
+Use this prop to let the image load and decode before it becomes visible. See [Premounting](/docs/player/premounting).
+
+### `postmountFor?`<AvailableFrom v="4.0.497" />
+
+Keeps the image mounted for the specified number of frames after its duration has ended. The image is invisible and frozen at its final frame while postmounted.
+
+### `styleWhilePremounted?`<AvailableFrom v="4.0.497" />
+
+CSS styles applied to the image while it is premounted. These styles override the default `display: none` and `pointer-events: none` styles.
+
+### `styleWhilePostmounted?`<AvailableFrom v="4.0.497" />
+
+CSS styles applied to the image while it is postmounted. These styles override the default `display: none` and `pointer-events: none` styles.
+
 ### `delayRenderTimeoutInMilliseconds?`<AvailableFrom v="4.0.140" />
 
 Customize the [timeout](/docs/delay-render#modifying-the-timeout) of the [`delayRender()`](/docs/delay-render) call that this component makes.
@@ -112,7 +130,7 @@ Prefer the [`maxRetries`](#maxretries) prop over this.
 
 ### Inherited props<AvailableFrom v="4.0.465" />
 
-`<Img>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`hidden`](/docs/sequence#hidden) from [`<Sequence>`](/docs/sequence).
+`<Img>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore)<AvailableFrom v="4.0.482" inline />, [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`hidden`](/docs/sequence#hidden) from [`<Sequence>`](/docs/sequence).
 
 :::note
 You can still wrap `<Img>` in an outer [`<Sequence>`](/docs/sequence). Timing [cascades](/docs/sequence#cascading) like nested sequences.

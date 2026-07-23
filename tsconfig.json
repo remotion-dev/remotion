@@ -25,6 +25,9 @@
 			"path": "./packages/bundler"
 		},
 		{
+			"path": "./packages/browser-studio"
+		},
+		{
 			"path": "./packages/cloudrun"
 		},
 		{
@@ -256,7 +259,13 @@
 			"path": "./packages/rounded-text-box"
 		},
 		{
+			"path": "./packages/canvas-capture"
+		},
+		{
 			"path": "./packages/light-leaks"
+		},
+		{
+			"path": "./packages/rough-notation"
 		},
 		{
 			"path": "./packages/starburst"

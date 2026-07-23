@@ -26,6 +26,7 @@ import {
 	useDelayRender,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {BACKGROUND_HEX, TRANSPARENT, WHITE} from './helpers/colors';
 
 let currentBundleMode: BundleState = {
 	type: 'index',
@@ -40,7 +41,7 @@ const getBundleMode = () => {
 };
 
 Internals.CSSUtils.injectCSS(
-	Internals.CSSUtils.makeDefaultPreviewCSS(null, '#1f2428'),
+	Internals.CSSUtils.makeDefaultPreviewCSS(null, BACKGROUND_HEX),
 );
 
 const getCanSerializeDefaultProps = (object: unknown) => {
@@ -84,7 +85,7 @@ const DelayedSpinner: React.FC = () => {
 				alignItems: 'center',
 				fontSize: 13,
 				opacity: 0.6,
-				color: 'white',
+				color: WHITE,
 				fontFamily: 'Helvetica, Arial, sans-serif',
 			}}
 		>
@@ -167,7 +168,7 @@ const GetVideoComposition: React.FC<{
 				width: currentCompositionMetadata.width,
 				height: currentCompositionMetadata.height,
 				display: 'flex',
-				backgroundColor: 'transparent',
+				backgroundColor: TRANSPARENT,
 			}}
 		/>
 	);
@@ -251,6 +252,7 @@ const renderContent = (Root: React.FC) => {
 					logLevel={window.remotion_logLevel ?? 'info'}
 					numberOfAudioTags={0}
 					audioLatencyHint={window.remotion_audioLatencyHint ?? 'playback'}
+					previewSampleRate={window.remotion_previewSampleRate}
 				>
 					<Internals.RenderAssetManagerProvider collectAssets={null}>
 						<Root />
@@ -278,6 +280,7 @@ const renderContent = (Root: React.FC) => {
 					logLevel={window.remotion_logLevel ?? 'info'}
 					numberOfAudioTags={0}
 					audioLatencyHint={window.remotion_audioLatencyHint ?? 'playback'}
+					previewSampleRate={window.remotion_previewSampleRate}
 				>
 					<Internals.RenderAssetManagerProvider collectAssets={null}>
 						<Root />

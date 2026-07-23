@@ -8,6 +8,8 @@ crumb: 'Lambda API'
 
 Takes a Remotion project, bundles it and uploads it to an S3 bucket. Once uploaded, a Lambda function can render any composition in the Remotion project by specifying the URL.
 
+If the project was already bundled in an earlier build step, use [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle) to upload it without bundling again.
+
 - If you make changes locally, you need to redeploy the site. You can use [`siteName`](#sitename) to overwrite the previous site.
 - Note that the Remotion project will be deployed to a subdirectory, not the root of the domain. Therefore you must ensure that if you have specified paths in your Remotion project, they are able to handle this scenario.
 - Before calling this function, you should create a bucket, see [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket).
@@ -114,10 +116,6 @@ Ignore an error that gets thrown if you pass an entry point file which does not 
 
 <Options id="disable-ask-ai" />
 
-#### `experimentalClientSideRenderingEnabled?`<AvailableFrom v="4.0.407"/>
-
-<Options id="enable-experimental-client-side-rendering" />
-
 #### `rspack?`<AvailableFrom v="4.0.426"/>
 
 <Options id="experimental-rspack" />
@@ -161,6 +159,7 @@ From `v3.3.7`, this function is incremental: It only compares the contents of th
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/deploy-site.ts)
+- [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle)
 - [CLI equivalent: `npx remotion lambda sites create`](/docs/lambda/cli/sites/create)
 - [getSites()](/docs/lambda/getsites)
 - [deleteSite()](/docs/lambda/deletesite)

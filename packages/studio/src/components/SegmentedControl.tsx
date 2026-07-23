@@ -2,8 +2,10 @@ import type {PropsWithChildren} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import {
 	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_UNHOVERED,
+	BLACK_ALPHA_60,
 	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
 } from '../helpers/colors';
 import {useZIndex} from '../state/z-index';
 
@@ -11,7 +13,7 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	overflow: 'hidden',
-	border: '1px solid ' + INPUT_BORDER_COLOR_UNHOVERED,
+	border: '1px solid ' + BLACK_ALPHA_60,
 	flexWrap: 'wrap',
 	maxWidth: 350,
 	justifyContent: 'flex-end',
@@ -29,6 +31,13 @@ const item: React.CSSProperties = {
 	whiteSpace: 'nowrap',
 };
 
+const compactItem: React.CSSProperties = {
+	...item,
+	fontSize: 11,
+	fontWeight: 400,
+	padding: '2px 7px',
+};
+
 export type SegmentedControlItem = {
 	label: React.ReactNode;
 	onClick: () => void;
@@ -36,10 +45,13 @@ export type SegmentedControlItem = {
 	selected: boolean;
 };
 
+type SegmentedControlSize = 'default' | 'compact';
+
 export const SegmentedControl: React.FC<{
 	readonly items: SegmentedControlItem[];
 	readonly needsWrapping: boolean;
-}> = ({items, needsWrapping}) => {
+	readonly size?: SegmentedControlSize;
+}> = ({items, needsWrapping, size = 'default'}) => {
 	const controlStyle: React.CSSProperties = useMemo(() => {
 		if (needsWrapping) {
 			return {
@@ -60,7 +72,12 @@ export const SegmentedControl: React.FC<{
 		<div style={controlStyle}>
 			{items.map((i) => {
 				return (
-					<Item key={i.key} onClick={i.onClick} selected={i.selected}>
+					<Item
+						key={i.key}
+						onClick={i.onClick}
+						selected={i.selected}
+						size={size}
+					>
 						{i.label}
 					</Item>
 				);
@@ -73,8 +90,9 @@ const Item: React.FC<
 	PropsWithChildren<{
 		readonly selected: boolean;
 		readonly onClick: () => void;
+		readonly size: SegmentedControlSize;
 	}>
-> = ({selected, onClick, children}) => {
+> = ({selected, onClick, children, size}) => {
 	const [hovered, setHovered] = useState(false);
 
 	const {tabIndex} = useZIndex();
@@ -89,11 +107,11 @@ const Item: React.FC<
 
 	const itemStyle: React.CSSProperties = useMemo(() => {
 		return {
-			...item,
-			backgroundColor: selected ? INPUT_BACKGROUND : 'transparent',
-			color: selected ? 'white' : hovered ? 'white' : LIGHT_TEXT,
+			...(size === 'compact' ? compactItem : item),
+			backgroundColor: selected ? INPUT_BACKGROUND : TRANSPARENT,
+			color: selected ? WHITE : hovered ? WHITE : LIGHT_TEXT,
 		};
-	}, [hovered, selected]);
+	}, [hovered, selected, size]);
 
 	return (
 		<button

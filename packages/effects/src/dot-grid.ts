@@ -1,4 +1,4 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	assertOptionalFiniteNumber,
@@ -20,6 +20,7 @@ export const dotGridSchema = {
 		step: 1,
 		default: DEFAULT_DOT_SIZE,
 		description: 'Dot size',
+		hiddenFromList: false,
 	},
 	gridSize: {
 		type: 'number',
@@ -28,13 +29,14 @@ export const dotGridSchema = {
 		step: 1,
 		default: DEFAULT_GRID_SIZE,
 		description: 'Grid size',
+		hiddenFromList: false,
 	},
 	invert: {
 		type: 'boolean',
 		default: DEFAULT_INVERT,
 		description: 'Invert',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type DotGridParams = {
 	readonly dotSize?: number;
@@ -190,7 +192,7 @@ const linkProgram = (
 };
 
 export const dotGrid = createEffect<DotGridParams, DotGridState>({
-	type: 'remotion/dot-grid',
+	type: 'dev.remotion.effects.dotGrid',
 	label: 'dotGrid()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/dot-grid',
 	backend: 'webgl2',

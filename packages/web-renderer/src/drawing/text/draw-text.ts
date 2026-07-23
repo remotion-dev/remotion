@@ -6,6 +6,7 @@ import {applyTextTransform} from './apply-text-transform';
 import {findWords} from './find-line-breaks.text';
 import {parsePaintOrder} from './parse-paint-order';
 import {parseTextShadow} from './parse-text-shadow';
+import {drawTextDecoration, getTextDecorations} from './text-decoration';
 
 export const drawText = ({
 	span,
@@ -77,6 +78,12 @@ export const drawText = ({
 		contextToDraw.letterSpacing = letterSpacing;
 		contextToDraw.wordSpacing = wordSpacing;
 
+		const textDecorations = getTextDecorations({
+			computedStyle,
+			onlyBackgroundClipText,
+			span,
+		});
+
 		const strokeWidth = parseFloat(webkitTextStrokeWidth);
 		const hasStroke = strokeWidth > 0;
 		if (hasStroke) {
@@ -96,13 +103,16 @@ export const drawText = ({
 
 		const textShadows = parseTextShadow(textShadowValue);
 
+		// Shadow offset/blur ignore the CTM (unlike fillText), so apply it manually.
+		const ctm = contextToDraw.getTransform();
+		const blurScale = Math.hypot(ctm.a, ctm.b);
+
 		const {strokeFirst} = parsePaintOrder(paintOrder);
+		const measurements = contextToDraw.measureText(originalText);
+		const {fontBoundingBoxDescent, fontBoundingBoxAscent} = measurements;
+		const fontHeight = fontBoundingBoxAscent + fontBoundingBoxDescent;
 
 		for (const token of tokens) {
-			const measurements = contextToDraw.measureText(originalText);
-			const {fontBoundingBoxDescent, fontBoundingBoxAscent} = measurements;
-
-			const fontHeight = fontBoundingBoxAscent + fontBoundingBoxDescent;
 			// Calculate leading
 			const leading = token.rect.height - fontHeight;
 			const halfLeading = leading / 2;
@@ -115,9 +125,11 @@ export const drawText = ({
 			for (let i = textShadows.length - 1; i >= 0; i--) {
 				const shadow = textShadows[i];
 				contextToDraw.shadowColor = shadow.color;
-				contextToDraw.shadowBlur = shadow.blurRadius;
-				contextToDraw.shadowOffsetX = shadow.offsetX;
-				contextToDraw.shadowOffsetY = shadow.offsetY;
+				contextToDraw.shadowBlur = shadow.blurRadius * blurScale;
+				contextToDraw.shadowOffsetX =
+					shadow.offsetX * ctm.a + shadow.offsetY * ctm.c;
+				contextToDraw.shadowOffsetY =
+					shadow.offsetX * ctm.b + shadow.offsetY * ctm.d;
 				contextToDraw.fillText(token.text, x, y);
 			}
 
@@ -141,6 +153,16 @@ export const drawText = ({
 				drawFill();
 				drawStroke();
 			}
+
+			drawTextDecoration({
+				contextToDraw,
+				fontSizePx,
+				measurements,
+				parentRect,
+				textDecorations,
+				token,
+				y,
+			});
 		}
 
 		span.textContent = originalText;

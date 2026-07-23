@@ -7,7 +7,7 @@ import type {$ZodObject} from 'zod/v4/core';
 import type {WebRendererOnArtifact} from './artifact';
 import {handleArtifacts} from './artifact';
 import {checkForError, createScaffold} from './create-scaffold';
-import {supportsNativeHtmlInCanvas} from './html-in-canvas';
+import {supportsNestedHtmlInCanvas} from './html-in-canvas';
 import {makeInternalState} from './internal-state';
 import type {CompositionCalculateMetadataOrExplicit} from './props-if-has-props';
 import type {InputPropsIfHasProps} from './render-media-on-web';
@@ -46,7 +46,6 @@ type OptionalRenderStillOnWebOptions<Schema extends $ZodObject> = {
 	licenseKey: string | null;
 	scale: number;
 	isProduction: boolean;
-	allowHtmlInCanvas: boolean;
 };
 
 type InternalRenderStillOnWebOptions<
@@ -79,7 +78,6 @@ async function internalRenderStillOnWeb<
 	licenseKey,
 	scale,
 	isProduction,
-	allowHtmlInCanvas,
 }: InternalRenderStillOnWebOptions<Schema, Props>) {
 	validateScale(scale);
 
@@ -87,7 +85,7 @@ async function internalRenderStillOnWeb<
 		if (outcome.native) {
 			Internals.Log.warn(
 				{logLevel, tag: '@remotion/web-renderer'},
-				'Using Chromium experimental HTML-in-canvas (drawElementImage) for this frame. Pixels may differ from the built-in DOM composer. Set allowHtmlInCanvas: false to force software rasterization. See https://github.com/WICG/html-in-canvas',
+				'Using Chromium experimental HTML-in-canvas (drawElementImage) for this frame. See https://remotion.dev/docs/client-side-rendering/html-in-canvas',
 			);
 		} else if (outcome.shouldWarn) {
 			Internals.Log.warn(
@@ -116,6 +114,8 @@ async function internalRenderStillOnWeb<
 		return Promise.reject(new Error('renderStillOnWeb() was cancelled'));
 	}
 
+	const useHtmlInCanvas = await supportsNestedHtmlInCanvas();
+
 	using internalState = makeInternalState();
 
 	using scaffold = createScaffold({
@@ -135,7 +135,8 @@ async function internalRenderStillOnWeb<
 		initialFrame: frame,
 		defaultCodec: resolved.defaultCodec,
 		defaultOutName: resolved.defaultOutName,
-		allowHtmlInCanvas,
+		useHtmlInCanvas,
+		pixelDensity: scale,
 	});
 
 	const {
@@ -146,37 +147,8 @@ async function internalRenderStillOnWeb<
 		htmlInCanvasContext,
 	} = scaffold;
 
-	if (allowHtmlInCanvas && !htmlInCanvasContext) {
-		if (!supportsNativeHtmlInCanvas()) {
-			onHtmlInCanvasLayerOutcome({
-				native: false,
-				reason:
-					'This browser does not expose CanvasRenderingContext2D.prototype.drawElementImage. In Chromium, enable chrome://flags/#canvas-draw-element and use a version that ships the API.',
-				shouldWarn: false,
-			});
-		} else {
-			onHtmlInCanvasLayerOutcome({
-				native: false,
-				reason:
-					'drawElementImage is available but canvas.requestPaint() is missing. Use a Chromium version that ships requestPaint.',
-				shouldWarn: true,
-			});
-		}
-	} else if (!allowHtmlInCanvas) {
-		onHtmlInCanvasLayerOutcome({
-			native: false,
-			reason: 'allowHtmlInCanvas is false; using the built-in DOM composer.',
-			shouldWarn: false,
-		});
-	}
-
 	const artifactsHandler = handleArtifacts();
-
-	try {
-		if (signal?.aborted) {
-			throw new Error('renderStillOnWeb() was cancelled');
-		}
-
+	const waitForRenderReady = async () => {
 		await waitForReady({
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
 			scope: delayRenderScope,
@@ -186,6 +158,14 @@ async function internalRenderStillOnWeb<
 			keepalive: null,
 		});
 		checkForError(errorHolder);
+	};
+
+	try {
+		if (signal?.aborted) {
+			throw new Error('renderStillOnWeb() was cancelled');
+		}
+
+		await waitForRenderReady();
 
 		if (signal?.aborted) {
 			throw new Error('renderStillOnWeb() was cancelled');
@@ -202,6 +182,8 @@ async function internalRenderStillOnWeb<
 			onHtmlInCanvasLayerOutcome: htmlInCanvasContext
 				? onHtmlInCanvasLayerOutcome
 				: undefined,
+			waitForPageResponsiveness: null,
+			waitForRenderReady,
 		});
 
 		const {canvas} = capturedFrame;
@@ -268,7 +250,6 @@ export const renderStillOnWeb = <
 				licenseKey: options.licenseKey ?? null,
 				scale: options.scale ?? 1,
 				isProduction: options.isProduction ?? true,
-				allowHtmlInCanvas: options.allowHtmlInCanvas ?? false,
 			}),
 		);
 

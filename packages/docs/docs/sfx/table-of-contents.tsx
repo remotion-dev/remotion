@@ -10,17 +10,17 @@ const SfxItem: React.FC<{
 	readonly description: string;
 }> = ({link, src, name, description}) => {
 	return (
-		<TOCItem link={link}>
+		<TOCItem link={link} draggable={false}>
 			<div
 				style={{
-					display: 'flex',
-					flexDirection: 'row',
+					display: 'grid',
+					gridTemplateColumns: 'auto minmax(0, 1fr)',
 					alignItems: 'center',
 					gap: 12,
 				}}
 			>
-				<PlayButton src={src} size={32} depth={0.5} />
-				<div>
+				<PlayButton src={src} size={32} depth={0.5} showDragTarget={false} />
+				<div style={{minWidth: 0}}>
 					<strong>{name}</strong>
 					<div>{description}</div>
 				</div>

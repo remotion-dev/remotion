@@ -1,0 +1,139 @@
+---
+image: /generated/articles-docs-videos-align-duration.png
+title: How do I make the composition the same duration as my video?
+sidebar_label: Make timeline duration the same
+crumb: 'FAQ'
+---
+
+If you have a component rendering a video:
+
+```tsx twoslash title="MyComp.tsx"
+import {Video} from '@remotion/media';
+import React from 'react';
+import {staticFile} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return <Video src={staticFile('video.mp4')} />;
+};
+```
+
+and you want to make the composition the same duration as the video, first make the video source a React prop:
+
+```tsx twoslash title="MyComp.tsx"
+import {Video} from '@remotion/media';
+import React from 'react';
+
+type MyCompProps = {
+  src: string;
+};
+
+export const MyComp: React.FC<MyCompProps> = ({src}) => {
+  return <Video src={src} />;
+};
+```
+
+Then, define a [`calculateMetadata()`](/docs/calculate-metadata) function that calculates the duration of the composition based on the video.  
+[Install Mediabunny](/docs/mediabunny) if necessary.
+
+```tsx twoslash title="MyComp.tsx"
+type MyCompProps = {
+  src: string;
+};
+
+// ---cut---
+
+import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
+import type {CalculateMetadataFunction} from 'remotion';
+
+export const calculateMetadata: CalculateMetadataFunction<MyCompProps> = async ({props}) => {
+  const input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(props.src, {
+      getRetryDelay: () => null,
+    }),
+  });
+
+  const [durationInSeconds, videoTrack] = await Promise.all([
+    input.computeDuration(),
+    input.getPrimaryVideoTrack(),
+  ]);
+
+  if (videoTrack === null) {
+    // For example when passing an MP3 file:
+    throw new Error('Not a video file');
+  }
+
+  const [width, height] = await Promise.all([
+    videoTrack.getDisplayWidth(),
+    videoTrack.getDisplayHeight(),
+  ]);
+  const fps = 30;
+
+  return {
+    durationInFrames: Math.ceil(durationInSeconds * fps),
+    fps,
+    width,
+    height,
+  };
+};
+```
+
+Mediabunny loads the asset using `fetch()`. Remote URLs must be [CORS-enabled](/docs/cors-issues); files referenced with [`staticFile()`](/docs/staticfile) are served from the same origin.
+
+Finally, pass the `calculateMetadata()` function to the [`<Composition>`](/docs/composition) component and define the previously hardcoded `src` as a default prop:
+
+```tsx twoslash title="Root.tsx"
+// @filename: MyComp.tsx
+import React from 'react';
+
+export const MyComp: React.FC<MyCompProps> = () => {
+  return null;
+};
+export type MyCompProps = {
+  src: string;
+};
+
+// @filename: calculate-metadata.ts
+import type {CalculateMetadataFunction} from 'remotion';
+import type {MyCompProps} from './MyComp';
+
+export const calculateMetadata: CalculateMetadataFunction<MyCompProps> = async ({props}) => {
+  return {
+    durationInFrames: 300,
+    props,
+  };
+};
+
+// @filename: Root.tsx
+// ---cut---
+
+import React from 'react';
+import {Composition} from 'remotion';
+import {calculateMetadata} from './calculate-metadata';
+import {MyComp} from './MyComp';
+
+export const Root: React.FC = () => {
+  return (
+    <Composition
+      id="MyComp"
+      component={MyComp}
+      durationInFrames={300}
+      fps={30}
+      width={1920}
+      height={1080}
+      defaultProps={{
+        src: 'https://remotion.media/BigBuckBunny.mp4',
+      }}
+      calculateMetadata={calculateMetadata}
+    />
+  );
+};
+```
+
+## How do I make the composition the same duration as my audio?
+
+Follow the same steps. Mediabunny's [`computeDuration()`](https://mediabunny.dev/api/Input#computeduration) also returns the duration of an audio file. Omit the video track check and the `width` and `height` fields from the returned metadata.
+
+## See Also
+
+- [Variable duration](/docs/dynamic-metadata)

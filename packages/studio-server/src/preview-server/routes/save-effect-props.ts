@@ -9,6 +9,7 @@ import {parseAst} from '../../codemods/parse-ast';
 import {updateEffectProps} from '../../codemods/update-effect-props/update-effect-props';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
+import {getVideoConfigIdentifierValues} from '../../helpers/video-config-values';
 import type {ApiHandler} from '../api-types';
 import {
 	printUndoHint,
@@ -21,26 +22,22 @@ import {findJsxElementAtNodePath} from './can-update-sequence-props';
 import {formatEffectPropChange} from './log-updates/format-effect-prop-change';
 import {logEffectUpdate} from './log-updates/log-effect-update';
 import {normalizeQuotes} from './log-updates/log-update';
-import {withSavePropsLock} from './save-props-mutex';
+import {withSourceFileWriteQueue} from './source-file-write-queue';
 
 export const saveEffectPropsHandler: ApiHandler<
 	SaveEffectPropsRequest,
 	SaveEffectPropsResponse
-> = ({
-	input: {
-		fileName,
-		sequenceNodePath,
-		effectIndex,
-		key,
-		value,
-		defaultValue,
-		schema,
-		clientId,
-	},
-	remotionRoot,
-	logLevel,
-}) =>
-	withSavePropsLock(async () => {
+> = ({input, remotionRoot, logLevel}) =>
+	withSourceFileWriteQueue(async () => {
+		const {
+			fileName,
+			sequenceNodePath,
+			effectIndex,
+			key,
+			defaultValue,
+			schema,
+			clientId,
+		} = input;
 		RenderInternals.Log.trace(
 			{indent: false, logLevel},
 			`[save-effect-props] Received request for fileName="${fileName}" effectIndex=${effectIndex} key="${key}"`,
@@ -56,9 +53,33 @@ export const saveEffectPropsHandler: ApiHandler<
 		const parsedDefault =
 			defaultValue !== null ? JSON.parse(defaultValue) : null;
 
+		const update = (() => {
+			switch (input.type) {
+				case 'value':
+					return {
+						key,
+						value: JSON.parse(input.value),
+						defaultValue: parsedDefault,
+					};
+				case 'effect-param':
+					return {
+						key,
+						effectParam: input.effectParam,
+						defaultValue: parsedDefault,
+					};
+				default:
+					throw new Error(
+						`Unsupported save effect props request type: ${
+							(input as {type?: unknown}).type
+						}`,
+					);
+			}
+		})();
+
 		const {
 			output,
 			oldValueString,
+			newValueString,
 			formatted,
 			logLine,
 			effectCallee,
@@ -67,11 +88,7 @@ export const saveEffectPropsHandler: ApiHandler<
 			input: fileContents,
 			sequenceNodePath: sequenceNodePath.nodePath,
 			effectIndex,
-			update: {
-				key,
-				value: JSON.parse(value),
-				defaultValue: parsedDefault,
-			},
+			update,
 			schema,
 		});
 
@@ -79,7 +96,7 @@ export const saveEffectPropsHandler: ApiHandler<
 			parsedDefault !== null ? JSON.stringify(parsedDefault) : null;
 
 		const normalizedOld = normalizeQuotes(oldValueString);
-		const normalizedNew = normalizeQuotes(value);
+		const normalizedNew = normalizeQuotes(newValueString);
 		const normalizedDefault =
 			defaultValueString !== null ? normalizeQuotes(defaultValueString) : null;
 		const normalizedRemovedProps = removedProps.map((prop) => ({
@@ -109,6 +126,7 @@ export const saveEffectPropsHandler: ApiHandler<
 		pushToUndoStack({
 			filePath: absolutePath,
 			oldContents: fileContents,
+			newContents: null,
 			logLevel,
 			remotionRoot,
 			logLine,
@@ -129,7 +147,7 @@ export const saveEffectPropsHandler: ApiHandler<
 			effectName: effectCallee,
 			propKey: key,
 			oldValueString,
-			newValueString: value,
+			newValueString,
 			defaultValueString,
 			formatted,
 			logLevel,
@@ -150,8 +168,13 @@ export const saveEffectPropsHandler: ApiHandler<
 		}
 
 		return computeEffectPropStatus({
+			ast,
 			jsx,
 			effectIndex,
 			keys: getAllSchemaKeys(schema),
+			videoConfigValues: getVideoConfigIdentifierValues({
+				ast,
+				videoConfigValues: sequenceNodePath.videoConfigValues,
+			}),
 		});
 	});

@@ -7,7 +7,7 @@ type RequiredParams = {
 
 const makeEffectWithValidation = () =>
 	createEffect<RequiredParams, null>({
-		type: 'test/required',
+		type: 'dev.remotion.test.required',
 		label: 'Required',
 		documentationLink: null,
 		backend: '2d',
@@ -16,7 +16,12 @@ const makeEffectWithValidation = () =>
 		apply: () => undefined,
 		cleanup: () => undefined,
 		schema: {
-			value: {type: 'number', default: undefined, description: 'Value'},
+			value: {
+				type: 'number',
+				default: undefined,
+				description: 'Value',
+				hiddenFromList: false,
+			},
 		},
 		validateParams: (params) => {
 			if (typeof params.value !== 'number' || !Number.isFinite(params.value)) {

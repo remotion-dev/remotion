@@ -2,8 +2,9 @@ import {useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import type {KeyEventType, RegisteredKeybinding} from '../state/keybindings';
 import {KeybindingContext} from '../state/keybindings';
 import {useZIndex} from '../state/z-index';
+import {getStudioKeyboardShortcutsEnabled} from './studio-runtime-config';
 
-if (!process.env.KEYBOARD_SHORTCUTS_ENABLED) {
+if (!getStudioKeyboardShortcutsEnabled()) {
 	// eslint-disable-next-line no-console
 	console.warn(
 		'Keyboard shortcuts disabled either due to: a) --disable-keyboard-shortcuts being passed b) Config.setKeyboardShortcutsEnabled(false) being set or c) a Remotion version mismatch.',
@@ -11,7 +12,7 @@ if (!process.env.KEYBOARD_SHORTCUTS_ENABLED) {
 }
 
 export const areKeyboardShortcutsDisabled = () => {
-	return !process.env.KEYBOARD_SHORTCUTS_ENABLED;
+	return !getStudioKeyboardShortcutsEnabled();
 };
 
 export const useKeybinding = () => {
@@ -29,7 +30,7 @@ export const useKeybinding = () => {
 			triggerIfInputFieldFocused: boolean;
 			keepRegisteredWhenNotHighestContext: boolean;
 		}) => {
-			if (!process.env.KEYBOARD_SHORTCUTS_ENABLED) {
+			if (!getStudioKeyboardShortcutsEnabled()) {
 				return {
 					unregister: () => undefined,
 				};

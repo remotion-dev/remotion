@@ -7,11 +7,6 @@ crumb: '@remotion/web-renderer'
 
 # renderMediaOnWeb()<AvailableFrom v="4.0.397" />
 
-:::warning
-Experimental feature - expect bugs and breaking changes at any time.  
-[Track progress on GitHub](https://github.com/remotion-dev/remotion/issues/5913) and discuss in the [`#web-renderer`](https://remotion.dev/discord) channel on Discord.
-:::
-
 _Part of the `@remotion/web-renderer` package._
 
 Renders a video or audio in the browser.  
@@ -119,6 +114,24 @@ const onProgress: RenderMediaOnWebProgressCallback = ({
   }
 };
 ```
+
+### `pageResponsiveness?`<AvailableFrom v="4.0.487" />
+
+_string | number_ <TsType type="WebRendererPageResponsiveness" source="@remotion/web-renderer" href="/docs/web-renderer/types#webrendererpageresponsiveness" />
+
+Controls whether rendering tries to free the event loop between expensive render phases so the page stays responsive.
+See [Page responsiveness](/docs/client-side-rendering/page-responsiveness) for guidance.
+
+Default is `"medium"`.
+
+- `"disabled"`: Do not pause rendering for page responsiveness. This prioritizes render speed but can make the page less responsive.
+- `"low"`: Every `100ms` of rendering work, try to free the event loop.
+- `"medium"`: Every `33ms` of rendering work, try to free the event loop.
+- `"high"`: Every `16ms` of rendering work, try to free the event loop.
+
+Pass a positive number to customize the interval in milliseconds.
+
+This option is best effort. Long synchronous browser or graphics operations may still block the page until they complete.
 
 ### `videoBitrate?`
 
@@ -301,12 +314,6 @@ See [Telemetry in client-side rendering](/docs/client-side-rendering/telemetry) 
 _default `true`_
 
 <Options id="is-production" />
-
-### `allowHtmlInCanvas?`<AvailableFrom v="4.0.447" />
-
-_boolean_
-
-<Options id="allow-html-in-canvas" />
 
 ## Return value
 

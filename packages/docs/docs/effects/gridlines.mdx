@@ -1,0 +1,179 @@
+---
+image: /generated/articles-docs-effects-gridlines.png
+slug: /effects/gridlines
+title: gridlines()
+sidebar_label: gridlines()
+crumb: '@remotion/effects'
+---
+
+# gridlines()<AvailableFrom v="4.0.476" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Draws a configurable rectangular grid over a canvas-based component.
+
+Use it for overlays, guide patterns, and generated backgrounds on canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+## Preview
+
+<EffectsDemo type="effects-gridlines" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill, Solid} from 'remotion';
+import {gridlines} from '@remotion/effects/gridlines';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Solid
+        width={1280}
+        height={720}
+        color="#101828"
+        effects={[
+          gridlines({
+            gridSize: 72,
+            lineWidth: 3,
+            lineColor: '#7cc6ff',
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+To generate a complete grid tile, set `backgroundColor`:
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill, Solid} from 'remotion';
+import {gridlines} from '@remotion/effects/gridlines';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Solid
+        width={1280}
+        height={720}
+        effects={[
+          gridlines({
+            gridSize: 64,
+            lineWidth: 2,
+            lineColor: '#ffffff',
+            backgroundColor: '#0f172a',
+            rotation: 15,
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+To create a retro perspective floor, combine `rotationX` and `perspective`:
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill, Solid} from 'remotion';
+import {gridlines} from '@remotion/effects/gridlines';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Solid
+        width={1280}
+        height={720}
+        color="#101828"
+        effects={[
+          gridlines({
+            gridSize: 72,
+            lineWidth: 3,
+            lineColor: '#ff4fd8',
+            rotationX: -68,
+            perspective: 900,
+            offsetY: 180,
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `gridlines()` without arguments.
+
+### `gridSize?`
+
+Distance between adjacent grid lines in pixels. Defaults to `64`. Must be greater than `0`.
+
+### `lineWidth?`
+
+Width of each grid line in screen pixels. Defaults to `2`. Must be at least `0`.
+
+Set this to `0` to render no grid lines.
+
+### `lineColor?`
+
+Color of the grid lines. Defaults to `'#ffffff'`.
+
+### `backgroundColor?`
+
+Color behind the grid lines. Defaults to `'transparent'`.
+
+Keep this transparent to draw the grid over the previous effect in the chain.
+
+### `rotation?`
+
+Rotates the grid in degrees. Defaults to `0`.
+
+### `rotationX?`
+
+Rotates the grid plane around the X axis in degrees. Defaults to `0`.
+
+Use this with `perspective` to tilt the grid into the screen.
+
+### `rotationY?`
+
+Rotates the grid plane around the Y axis in degrees. Defaults to `0`.
+
+### `perspective?`
+
+Perspective distance in pixels. Defaults to `0`, which renders an orthographic grid.
+
+Set this to a positive value to project the grid as a 3D plane. Larger values make the perspective milder.
+
+### `offsetX?`
+
+Horizontal grid offset in pixels. Defaults to `0`.
+
+Animate this value to move the grid horizontally.
+
+### `offsetY?`
+
+Vertical grid offset in pixels. Defaults to `0`.
+
+Animate this value to move the grid vertically.
+
+### `maskToSourceAlpha?`
+
+Masks the generated grid to the source alpha channel. Defaults to `false`.
+
+Set this to `true` to prevent grid lines and background color from appearing in fully transparent source pixels.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`gridlines()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`lines()`](/docs/effects/lines)
+- [`halftoneLinearGradient()`](/docs/effects/halftone-linear-gradient)
+- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/gridlines.ts)

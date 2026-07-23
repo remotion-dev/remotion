@@ -12,6 +12,8 @@ A website can either be cross-origin-isolated or not.
 
 Enabling cross-origin isolation is required for some web features. For example, the [SharedArrayBuffer](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer) API, which is required for the [`@remotion/whisper-web`](/docs/whisper-web) package to work, is only available in cross-origin isolated pages.
 
+It can also improve performance for packages that can use shared-memory multithreading. For example, [`@mediabunny/prores`](/docs/mediabunny/formats#prores) uses a faster ProRes decoding path when cross-origin isolation is enabled, and falls back to a slower algorithm otherwise.
+
 Cross-origin isolation will put some restrictions on the page as well.  
 For example, HTML5 tags like `<video>` and `<audio>` that load media from a different origin will not work unless they have the `crossorigin="anonymous"` attribute.  
 If those assets then do not support CORS, they will not load at all.
@@ -27,6 +29,15 @@ Cross-origin isolation is disabled by default.
 To enable cross-origin isolation on your page, the server must send the following HTTP headers:
 
 ```
+Cross-Origin-Embedder-Policy: credentialless
+Cross-Origin-Opener-Policy: same-origin
+```
+
+`credentialless` is preferred over `require-corp` because it still enables `SharedArrayBuffer` while allowing cross-origin resources (images, videos, audio) to load without requiring them to send `Cross-Origin-Resource-Policy` headers. The tradeoff is that cross-origin requests are made without credentials (cookies, HTTP authentication). `credentialless` is not supported in Safari, so use `require-corp` if you need cross-origin isolation there.
+
+If you need credentials for cross-origin resources, use `require-corp` instead:
+
+```
 Cross-Origin-Embedder-Policy: require-corp
 Cross-Origin-Opener-Policy: same-origin
 ```
@@ -34,6 +45,7 @@ Cross-Origin-Opener-Policy: same-origin
 See also:
 
 - [Enabling Cross-origin isolation in Next.js](https://vercel.com/guides/fix-shared-array-buffer-not-defined-nextjs-react#enable-cross-origin-isolation)
+- [COEP: credentialless on MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Embedder-Policy#credentialless)
 
 ### In the Remotion Studio
 

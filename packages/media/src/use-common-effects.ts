@@ -163,7 +163,7 @@ export const useCommonEffects = ({
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
+		if (!mediaPlayer) {
 			return;
 		}
 
@@ -172,7 +172,7 @@ export const useCommonEffects = ({
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
+		if (!mediaPlayer) {
 			return;
 		}
 

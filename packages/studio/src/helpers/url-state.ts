@@ -8,16 +8,20 @@ const getUrlHandlingType = (): UrlHandling => {
 	return 'spa';
 };
 
-export const pushUrl = (url: string) => {
+export const getUrlForRoute = (route: string) => {
 	if (getUrlHandlingType() === 'query-string') {
-		window.history.pushState(
-			{},
-			'Studio',
-			`${window.location.pathname}?${url}`,
-		);
-	} else {
-		window.history.pushState({}, 'Studio', url);
+		return `${window.location.pathname}?${route}`;
 	}
+
+	return route;
+};
+
+export const pushUrl = (url: string) => {
+	window.history.pushState({}, 'Studio', getUrlForRoute(url));
+};
+
+export const replaceUrl = (url: string) => {
+	window.history.replaceState({}, 'Studio', getUrlForRoute(url));
 };
 
 export const clearUrl = () => {

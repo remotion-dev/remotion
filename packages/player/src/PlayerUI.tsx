@@ -170,13 +170,13 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const player = usePlayer();
 	const playerToggle = player.toggle;
 
-	const {mediaMuted, mediaVolume} = useContext(Internals.MediaVolumeContext);
+	const {playerMuted, mediaVolume} = useContext(Internals.MediaVolumeContext);
 
 	useEffect(() => {
 		player.emitter.dispatchVolumeChange(mediaVolume);
 	}, [player.emitter, mediaVolume]);
 
-	const isMuted = mediaMuted || mediaVolume === 0;
+	const isMuted = playerMuted || mediaVolume === 0;
 	useEffect(() => {
 		player.emitter.dispatchMuteChange({
 			isMuted,
@@ -327,7 +327,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		player.emitter.dispatchScaleChange(scale);
 	}, [player.emitter, scale]);
 
-	const {setMediaVolume, setMediaMuted} = useContext(
+	const {setMediaVolume, setPlayerMuted} = useContext(
 		Internals.SetMediaVolumeContext,
 	);
 	const [showBufferIndicator, setShowBufferState] = useState<boolean>(false);
@@ -422,7 +422,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			requestFullscreen,
 			exitFullscreen,
 			getVolume: () => {
-				if (mediaMuted) {
+				if (playerMuted) {
 					return 0;
 				}
 
@@ -451,10 +451,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			},
 			isMuted: () => isMuted,
 			mute: () => {
-				setMediaMuted(true);
+				setPlayerMuted(true);
 			},
 			unmute: () => {
-				setMediaMuted(false);
+				setPlayerMuted(false);
 			},
 			getScale: () => scale,
 			pauseAndReturnToPlayStart: () => {
@@ -466,12 +466,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		durationInFrames,
 		exitFullscreen,
 		loop,
-		mediaMuted,
+		playerMuted,
 		isMuted,
 		mediaVolume,
 		player,
 		requestFullscreen,
-		setMediaMuted,
+		setPlayerMuted,
 		setMediaVolume,
 		toggle,
 		scale,

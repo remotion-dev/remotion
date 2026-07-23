@@ -1,0 +1,70 @@
+---
+image: /generated/articles-docs-effects-color-key.png
+slug: /effects/color-key
+title: colorKey()
+sidebar_label: colorKey()
+crumb: '@remotion/effects'
+---
+
+# colorKey()<AvailableFrom v="4.0.472" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+A classic color key (chroma key) effect that turns pixels close to a chosen color transparent. Use it for greenscreen compositing on canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+## Preview
+
+<EffectsDemo type="effects-color-key" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+import {colorKey} from '@remotion/effects/color-key';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill style={{background: '#222'}}>
+      <Video
+        src="https://remotion.media/greenscreen.mp4"
+        effects={[colorKey({keyColor: '#00ff00'})]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+All parameters are optional. You can call `colorKey()` without arguments to use the defaults for a classic green screen.
+
+### keyColor?
+
+The color to key out. Accepts any CSS color string. Defaults to `'#00ff00'`.
+
+### similarity?
+
+How close a pixel has to be to the key color to be turned transparent, from `0` to `1`. Higher values key a wider range of colors. Defaults to `0.18`.
+
+### smoothness?
+
+Softness of the keyed edges, from `0` to `1`. `0` gives a hard cutoff; higher values produce smoother transparency transitions. Defaults to `0.08`.
+
+### spillSuppression?
+
+Strength of key-color spill suppression on the remaining pixels, from `0` to `1`. Reduces the dominant key color channel where it bleeds into the foreground (for example greenish edges around hair on a green screen). Defaults to `0.25`.
+
+### disabled?
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`colorKey()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [Greenscreen](/docs/greenscreen)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/color-key.ts)

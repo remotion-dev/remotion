@@ -1,6 +1,6 @@
 import {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {RULER_WIDTH} from '../state/editor-rulers';
+import {applyRulerInsetsToCanvasSize} from '../helpers/ruler-canvas-size';
 import {CanvasOrLoading} from './CanvasOrLoading';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 
@@ -20,11 +20,7 @@ export const CanvasIfSizeIsAvailable: React.FC = () => {
 			return null;
 		}
 
-		return {
-			...size,
-			width: size.width - RULER_WIDTH,
-			height: size.height - RULER_WIDTH,
-		};
+		return applyRulerInsetsToCanvasSize({rulersAreVisible, size});
 	}, [context, rulersAreVisible]);
 
 	if (!sizeWithRulersApplied) {

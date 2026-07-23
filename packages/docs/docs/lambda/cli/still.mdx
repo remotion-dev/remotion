@@ -87,6 +87,39 @@ How many times a single chunk is being retried if it fails to render. Default `1
 
 The file name of the media output as stored in the S3 bucket. By default, it is `out` plus the appropriate file extension, for example: `out.png`. Must match `/([0-9a-zA-Z-!_.*'()/]+)/g`.
 
+### `--s3-output-provider-endpoint`
+
+The endpoint for an [`s3OutputProvider`](/docs/lambda/custom-destination#saving-to-another-cloud). Use it to save the rendered still to an S3-compatible provider such as Cloudflare R2.
+
+When using this option, also pass `--force-bucket-name` and `--out-name`. If your provider requires credentials, set `REMOTION_S3_OUTPUT_PROVIDER_ACCESS_KEY_ID` and `REMOTION_S3_OUTPUT_PROVIDER_SECRET_ACCESS_KEY`.
+
+```bash
+REMOTION_S3_OUTPUT_PROVIDER_ACCESS_KEY_ID=<access-key-id> \
+REMOTION_S3_OUTPUT_PROVIDER_SECRET_ACCESS_KEY=<secret-access-key> \
+npx remotion lambda still testbed my-comp \
+  --force-bucket-name=my-r2-bucket \
+  --out-name=renders/still.png \
+  --privacy=no-acl \
+  --s3-output-provider-endpoint=https://<account-id>.r2.cloudflarestorage.com \
+  --s3-output-provider-region=auto
+```
+
+### `REMOTION_S3_OUTPUT_PROVIDER_ACCESS_KEY_ID`
+
+The access key ID to use with `--s3-output-provider-endpoint`.
+
+### `REMOTION_S3_OUTPUT_PROVIDER_SECRET_ACCESS_KEY`
+
+The secret access key to use with `--s3-output-provider-endpoint`.
+
+### `--s3-output-provider-region`
+
+The region to use with `--s3-output-provider-endpoint`.
+
+### `--s3-output-provider-force-path-style`
+
+Passes `forcePathStyle` to the S3 client created for `--s3-output-provider-endpoint`.
+
 ### `--image-format`
 
 <Options id="still-image-format" />

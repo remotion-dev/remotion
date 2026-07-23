@@ -75,11 +75,13 @@ export const parse = (
 	src: string,
 	{
 		signal,
+		requestInit,
 	}: {
 		signal: AbortController['signal'];
+		requestInit?: RequestInit;
 	},
 ) =>
-	fetch(src, {signal})
+	fetch(src, {...requestInit, signal})
 		.then((resp) => {
 			if (!resp.headers.get('Content-Type')?.includes('image/gif'))
 				throw Error(

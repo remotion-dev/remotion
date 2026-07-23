@@ -60,15 +60,22 @@ export const usePlayer = (): UsePlayerMethods => {
 
 	const seek = useCallback(
 		(newFrame: number) => {
+			const frameToSeekTo = config
+				? Internals.TimelinePosition.clampFrameToCompositionRange(
+						newFrame,
+						config.durationInFrames,
+					)
+				: Math.max(0, newFrame);
+
 			if (video?.id) {
-				setTimelinePosition((c) => ({...c, [video.id]: newFrame}));
+				setTimelinePosition((c) => ({...c, [video.id]: frameToSeekTo}));
 			}
 
-			frameRef.current = newFrame;
+			frameRef.current = frameToSeekTo;
 
-			emitter.dispatchSeek(newFrame);
+			emitter.dispatchSeek(frameToSeekTo);
 		},
-		[emitter, setTimelinePosition, video?.id],
+		[config, emitter, setTimelinePosition, video?.id],
 	);
 
 	const play = useCallback(

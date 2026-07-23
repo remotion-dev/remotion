@@ -66,7 +66,7 @@ export const InstallsPerMonth: React.FC = () => {
 				}}
 			>
 				<StatItemContent
-					content="3M"
+					content="5M+"
 					width="100px"
 					fontSize="2.5rem"
 					fontWeight="bold"
@@ -90,7 +90,7 @@ export const InstallsPerMonth: React.FC = () => {
 				/>
 			</div>
 			<StatItemContent
-				content="installs"
+				content="installs per month"
 				width="75%"
 				fontSize="1.0rem"
 				fontWeight="bold"
@@ -102,7 +102,7 @@ export const InstallsPerMonth: React.FC = () => {
 export const PagesOfDocs: React.FC = () => {
 	return (
 		<Pill className="flex-col">
-			<div style={{display: 'flex', alignItems: 'center'}}>
+			<div style={{display: 'flex', alignItems: 'center', gap: 8}}>
 				<StatItemContent
 					content={
 						<svg
@@ -118,12 +118,11 @@ export const PagesOfDocs: React.FC = () => {
 							/>
 						</svg>
 					}
-					width="40px"
+					width="32px"
 				/>
 				<StatItemContent
-					content="800"
-					width="85px"
-					maxWidth="100px"
+					content="1000"
+					width="112px"
 					fontSize="2.5rem"
 					fontWeight="bold"
 				/>
@@ -177,7 +176,7 @@ export const GitHubStars: React.FC = () => {
 					width="45px"
 				/>
 				<StatItemContent
-					content="48k"
+					content="53K"
 					width="80px"
 					fontSize="2.5rem"
 					fontWeight="bold"
@@ -213,7 +212,7 @@ export const DiscordMembers: React.FC = () => {
 					}}
 				>
 					<StatItemContent
-						content="8000+"
+						content="10K+"
 						width="142px"
 						fontSize="2.5rem"
 						fontWeight="bold"

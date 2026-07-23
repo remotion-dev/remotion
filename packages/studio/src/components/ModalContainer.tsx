@@ -1,5 +1,10 @@
-import React from 'react';
-import {BACKGROUND} from '../helpers/colors';
+import React, {useCallback} from 'react';
+import {
+	BACKGROUND,
+	SHADOW_BLACK,
+	WHITE,
+	WHITE_ALPHA_20,
+} from '../helpers/colors';
 import {HigherZIndex} from '../state/z-index';
 
 const padding = 20;
@@ -17,7 +22,7 @@ export const getMaxModalHeight = (height: number) => {
 };
 
 const backgroundOverlay: React.CSSProperties = {
-	backgroundColor: 'rgba(255, 255, 255, 0.2)',
+	backgroundColor: WHITE_ALPHA_20,
 	backdropFilter: `blur(1px)`,
 	position: 'fixed',
 	height: '100%',
@@ -28,8 +33,8 @@ const backgroundOverlay: React.CSSProperties = {
 
 const panel: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
-	boxShadow: '0 0 4px black',
-	color: 'white',
+	boxShadow: SHADOW_BLACK,
+	color: WHITE,
 	margin: 'auto',
 };
 
@@ -39,12 +44,18 @@ export const ModalContainer: React.FC<{
 	readonly children: React.ReactNode;
 	readonly noZIndex?: boolean;
 }> = ({children, onEscape, onOutsideClick, noZIndex}) => {
+	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+		// Prevent deselection of currently selected items
+		e.stopPropagation();
+	}, []);
+
 	return (
 		<div
 			className="css-reset"
 			style={backgroundOverlay}
 			role="dialog"
 			aria-modal="true"
+			onPointerDown={onPointerDown}
 		>
 			<HigherZIndex
 				disabled={noZIndex}

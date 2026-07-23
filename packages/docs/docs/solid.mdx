@@ -25,16 +25,42 @@ export const MyComp: React.FC = () => {
 
 ### `width`
 
-Width of the canvas in pixels. Must be a positive integer.
+Logical width of the canvas in pixels. Must be a positive integer.
 
 ### `height`
 
-Height of the canvas in pixels. Must be a positive integer.
+Logical height of the canvas in pixels. Must be a positive integer.
+
+### `effects?`<AvailableFrom v="4.0.464" />
+
+Apply [effects](/docs/effects/api) after the rectangle has been painted to the canvas.
 
 ### `color?`
 
 Fill color of the rectangle.  
 If omitted, it is `transparent`.
+
+### `pixelDensity?`<AvailableFrom v="4.0.472" />
+
+_number_
+
+Controls the backing bitmap density. Default: `1`.
+
+Set a higher value to paint to a higher-resolution backing canvas while keeping the logical canvas size unchanged.  
+This is useful to counteract quality loss when the `<Solid>` is scaled up – for example via the [`scale`](/docs/scaling) render option, or on a high-DPI display in the preview. Pass [`usePixelDensity()`](/docs/use-pixel-density) to use the render `scale` while rendering and `window.devicePixelRatio` while previewing:
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill, Solid, usePixelDensity} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const pixelDensity = usePixelDensity();
+  return (
+    <AbsoluteFill>
+      <Solid color="#3344ff" width={1920} height={1080} pixelDensity={pixelDensity} />
+    </AbsoluteFill>
+  );
+};
+```
 
 ### `className?`
 
@@ -46,7 +72,7 @@ Inline styles to apply to the `<canvas>` element.
 
 ### Inherited props
 
-`<Solid>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`hidden`](/docs/sequence#hidden) from [`<Sequence>`](/docs/sequence).
+`<Solid>` inherits [`from`](/docs/sequence#from), [`durationInFrames`](/docs/sequence#durationinframes), [`trimBefore`](/docs/sequence#trimbefore)<AvailableFrom v="4.0.482" inline />, [`name`](/docs/sequence#name), [`showInTimeline`](/docs/sequence#showintimeline) and [`hidden`](/docs/sequence#hidden) from [`<Sequence>`](/docs/sequence).
 
 ## Adding a ref
 
@@ -65,8 +91,7 @@ const MyComp = () => {
 
 ## What is this component for?
 
-This is mainly a component for adding effects to.  
-Effects are an upcoming feature of Remotion - if you are here, you are early!
+This is mainly a component for adding [effects](/docs/effects/api) to a solid color.
 
 ## Compatibility
 
@@ -76,3 +101,5 @@ Effects are an upcoming feature of Remotion - if you are here, you are early!
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/effects/Solid.tsx)
 - [`<AbsoluteFill>`](/docs/absolute-fill)
+- [Output scaling](/docs/scaling)
+- [`usePixelDensity()`](/docs/use-pixel-density)

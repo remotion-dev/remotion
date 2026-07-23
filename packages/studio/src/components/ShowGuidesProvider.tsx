@@ -11,7 +11,7 @@ export const ShowGuidesProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const [guidesList, setGuidesList] = useState<Guide[]>(() => loadGuidesList());
-	const [selectedGuideId, setSelectedGuideId] = useState<string | null>(null);
+	const [draggingGuideId, setDraggingGuideId] = useState<string | null>(null);
 	const [hoveredGuideId, setHoveredGuideId] = useState<string | null>(null);
 	const [editorShowGuides, setEditorShowGuidesState] = useState(() =>
 		loadEditorShowGuidesOption(),
@@ -36,8 +36,8 @@ export const ShowGuidesProvider: React.FC<{
 			setEditorShowGuides,
 			guidesList,
 			setGuidesList,
-			selectedGuideId,
-			setSelectedGuideId,
+			draggingGuideId,
+			setDraggingGuideId,
 			shouldCreateGuideRef,
 			shouldDeleteGuideRef,
 			hoveredGuideId,
@@ -47,7 +47,7 @@ export const ShowGuidesProvider: React.FC<{
 		editorShowGuides,
 		setEditorShowGuides,
 		guidesList,
-		selectedGuideId,
+		draggingGuideId,
 		hoveredGuideId,
 	]);
 

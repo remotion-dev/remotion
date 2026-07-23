@@ -16,27 +16,39 @@ import {NativeBufferStateForImage} from './BufferState/Image';
 import {NativeBufferState} from './BufferState/Simple';
 import {NativeBufferStateForVideo} from './BufferState/Video';
 import {CancelRender} from './CancelRender';
+import {
+	AnimatedCaptions,
+	CAPTIONS_DURATION_IN_FRAMES,
+	CAPTIONS_HEIGHT,
+} from './CaptionsTester/AnimatedCaptions';
 import {ClassSerialization} from './ClassSerialization';
 import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
 import {MyCtx, WrappedInContext} from './Context';
+import {ControlsShowcase} from './ControlsShowcase';
 import CorruptVideo from './CorruptVideo';
 import {CssLoaderTest} from './CssLoaderTest';
 import {DarkModeTest} from './DarkModeTest';
 import {DecoderDemo} from './DecoderDemo';
+import {
+	DIFFERENT_SEGMENTS_AT_DIFFERENT_SPEEDS_DURATION,
+	DifferentSegmentsAtDifferentSpeeds,
+} from './DifferentSegmentsAtDifferentSpeeds';
 import {
 	DiscriminatedUnionSchemaTest,
 	discriminatedUnionRootSchema,
 } from './DiscriminatedUnionSchemaTest';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 import {EasingVisualizer} from './EasingVisualizer/EasingVisualizer';
+import {EffectCopySource, EffectCopyTarget} from './EffectCopyTestbed';
 import {EmojiTestbed} from './Emoji';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
-import {ExperimentalControlsShowcase} from './ExperimentalControls';
 import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
+import {FractionalSequenceVideo} from './FractionalSequenceVideo';
 import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
+import {SequenceFreezeExample} from './Freeze/SequenceFreezeExample';
 import {FreezePortion} from './FreezePortion/FreezePortion';
 import {GifEffectsTestbed} from './Gif/GifEffects';
 import {GoogleFontsCjk} from './GoogleFontsCjk/GoogleFontsCjk';
@@ -67,6 +79,8 @@ import {
 	HtmlInCanvasDocsDemo2DBlur,
 	HtmlInCanvasDocsMinimalWebGL,
 	HtmlInCanvasDocsMinimalWebGPU,
+	HtmlInCanvasNestedEffects,
+	HtmlInCanvasPixelDensity,
 	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
 	LinearBlurTransitionDoc,
@@ -93,6 +107,7 @@ import {OffthreadVideoToCanvas} from './OffthreadVideoToCanvas';
 import {OrbScene} from './Orb';
 import {ShapesMorph} from './Paths/ShapesMorph';
 import {SlicePath} from './Paths/SlicePath';
+import {PosterizationComparison} from './Posterization';
 import {
 	PostmountExample,
 	PostmountWithStyles,
@@ -112,11 +127,16 @@ import {WidthHeightSequences} from './Sequence/WidthHeightSequences';
 import CircleTest from './Shapes/CircleTest';
 import EllipseTest from './Shapes/EllipseTest';
 import RectTest from './Shapes/RectTest';
+import ShapeEffectsTest from './Shapes/ShapeEffectsTest';
 import StarTest from './Shapes/StarTest';
 import TriangleTest from './Shapes/TriangleTest';
 import {SimpleImg} from './SimpleImg';
 import {SkipZeroFrame} from './SkipZeroFrame';
-import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
+import {
+	BaseSpring,
+	RestThresholdSpringSquare,
+	SpringWithDuration,
+} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
 import {StillHelloWorld} from './StillHelloWorld';
@@ -177,17 +197,32 @@ import {AudioSmoothnessTrimButtonComp} from './AudioSmoothness/TrimButton';
 import Amplify from './AudioTesting/Amplify';
 import {Issue7568} from './AudioTesting/Issue7568';
 import {BrowserTest} from './BrowserTest';
+import {
+	CanvasCapturePreview,
+	calculateCanvasCapturePreviewMetadata,
+	canvasCapturePreviewDefaultProps,
+} from './CanvasCapturePreview';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
+import {CustomEffectsSample} from './EffectsTestbed/CustomEffectsSample';
 import {EffectsTestbed} from './EffectsTestbed/EffectsTestbed';
 import {HalftoneGradient} from './EffectsTestbed/HalftoneGradient';
+import {NoiseDisplacementText} from './EffectsTestbed/NoiseDisplacementText';
+import {PaletteMapEffect} from './EffectsTestbed/PaletteMapEffect';
+import {RadialProgressiveBlurTest} from './EffectsTestbed/RadialProgressiveBlur';
 import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
 import {Empty} from './Empty';
+import {
+	Issue8974IndependentVideosTimeline,
+	Issue8974SeriesTimeline,
+	Issue8974TransitionSeriesTimeline,
+} from './Issue8974TimelineInteractivity';
 import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
 import {LightLeakExample} from './LightLeak';
 import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
 import {LoopDisplayTestComp} from './LoopDisplayTest';
+import {MediaTimelineTestbed} from './MediaTimelineTestbed';
 import {NewAudioExample} from './NewAudio/NewAudio';
-import {NewVideoComp} from './NewVideo';
+import {NewVideoComp, PremountSequenceVideoComp} from './NewVideo';
 import {ObjectFitTestComp} from './ObjectFitTest';
 import {ChangingTrimBeforeValue} from './OffthreadRemoteVideo/ChangingTrimBefore';
 import {Issue7562OffthreadVideoCuts} from './OffthreadRemoteVideo/Issue7562OffthreadVideoCuts';
@@ -205,6 +240,19 @@ import {
 } from './PlayRangesMediaVideo';
 import {PremountOnTransitionSeries} from './PremountOnTransitionSeries';
 import {PrintProps} from './PrintProps';
+import {
+	ProResMediaVideo,
+	calculateProResMediaVideoMetadata,
+} from './ProResMediaVideo';
+import {
+	RoughNotationBox,
+	RoughNotationBracket,
+	RoughNotationCircle,
+	RoughNotationCrossedOff,
+	RoughNotationHighlight,
+	RoughNotationStrikeThrough,
+	RoughNotationUnderline,
+} from './RoughNotation';
 import {SfxExample} from './Sfx';
 import {CanvasImg} from './SimpleImg/CanvasImg';
 import {ImgEffects} from './SimpleImg/ImgEffects';
@@ -214,6 +262,7 @@ import {StarburstExample} from './Starburst';
 import {Seek} from './StudioApis/Seek';
 import {SubframeAudio} from './SubframeAudio';
 import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
+import {TimelineNegativeFromResize} from './TimelineNegativeFromResize';
 import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
 import {Issue7359FitTextOnNLines} from './Title/Issue7359FitTextOnNLines';
 import {TransitionRounding} from './TransitionRounding';
@@ -232,6 +281,12 @@ import {RemotionMediaVideoTexture} from './VideoTexture';
 import {VisualControls} from './VisualControls';
 import {FastUpdates} from './VisualModeTests/FastUpdates';
 import {FastUpdatesNested} from './VisualModeTests/FastUpdatesNested';
+import {
+	InteractiveHtmlElements,
+	InteractiveSvgElements,
+} from './VisualModeTests/InteractiveComponents';
+import {Issue9170} from './VisualModeTests/Issue9170';
+import {VideoConfigExpressions} from './VisualModeTests/VideoConfigExpressions';
 import {VoiceVisualization} from './voice-visualization';
 import {WhisperWeb} from './WhisperWeb';
 
@@ -358,6 +413,14 @@ export const Index: React.FC = () => {
 
 	return (
 		<>
+			<Composition
+				id="captions-tester"
+				component={AnimatedCaptions}
+				durationInFrames={CAPTIONS_DURATION_IN_FRAMES}
+				fps={30}
+				width={1080}
+				height={CAPTIONS_HEIGHT}
+			/>
 			<Folder name="copilot-tests">
 				<Composition
 					id="keyframed-props-test"
@@ -366,6 +429,74 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={120}
+				/>
+				<Composition
+					id="cubic-easing-interpolation-test"
+					lazyComponent={() => import('./CubicEasingInterpolationTest')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="interpolate-output-effect-scale-comparison"
+					lazyComponent={() =>
+						import('./InterpolateOutputEffectScaleComparison')
+					}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="trim-before-support-test"
+					lazyComponent={() => import('./TrimBeforeSupportTest')}
+					width={1280}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="centered-solid"
+					lazyComponent={() => import('./CenteredSolid')}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={60}
+				/>
+				<Composition
+					id="effect-copy-source"
+					component={EffectCopySource}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="effect-copy-target"
+					component={EffectCopyTarget}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="noise-displacement-text"
+					component={NoiseDisplacementText}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="canvas-capture-preview"
+					component={CanvasCapturePreview}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+					defaultProps={canvasCapturePreviewDefaultProps}
+					calculateMetadata={calculateCanvasCapturePreviewMetadata}
 				/>
 			</Folder>
 			<Folder name="dynamic-parameters">
@@ -496,6 +627,14 @@ export const Index: React.FC = () => {
 					durationInFrames={300}
 				/>
 				<Composition
+					id="sequence-freeze-example"
+					component={SequenceFreezeExample}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
 					id="freeze-portion"
 					component={FreezePortion}
 					width={1280}
@@ -520,6 +659,32 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={100}
+				/>
+				<Composition
+					id="rest-threshold-spring-square"
+					component={RestThresholdSpringSquare}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="tail-spring-square"
+					component={RestThresholdSpringSquare}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+			</Folder>
+			<Folder name="documentation">
+				<Composition
+					id="posterization-comparison"
+					component={PosterizationComparison}
+					width={1800}
+					height={600}
+					fps={30}
+					durationInFrames={120}
 				/>
 			</Folder>
 			<Folder name="easing">
@@ -928,6 +1093,11 @@ export const Index: React.FC = () => {
 					fps={30}
 				/>
 				<Composition
+					id="prores-media-video"
+					component={ProResMediaVideo}
+					calculateMetadata={calculateProResMediaVideoMetadata}
+				/>
+				<Composition
 					id="video-testing-mp4"
 					component={VideoTesting}
 					width={1080}
@@ -952,6 +1122,7 @@ export const Index: React.FC = () => {
 				/>
 				<OffthreadRemoteVideo />
 				<NewVideoComp />
+				<PremountSequenceVideoComp />
 				<ObjectFitTestComp />
 				<NewVideoBufferStateComp />
 				<LoopDisplayTestComp />
@@ -976,6 +1147,14 @@ export const Index: React.FC = () => {
 						height={1080}
 						width={1920}
 						durationInFrames={120}
+					/>
+					<Composition
+						id="html-in-canvas-pixel-density"
+						component={HtmlInCanvasPixelDensity}
+						fps={30}
+						height={80}
+						width={250}
+						durationInFrames={60}
 					/>
 					<Composition
 						id="html-in-canvas-compose-async-bitmap"
@@ -1028,6 +1207,14 @@ export const Index: React.FC = () => {
 					<Composition
 						id="html-in-canvas-docs-demo-2d-blur"
 						component={HtmlInCanvasDocsDemo2DBlur}
+						fps={30}
+						height={1080}
+						width={1920}
+						durationInFrames={120}
+					/>
+					<Composition
+						id="html-in-canvas-nested-effects"
+						component={HtmlInCanvasNestedEffects}
 						fps={30}
 						height={1080}
 						width={1920}
@@ -1287,6 +1474,22 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				<Composition
+					id="different-segments-at-different-speeds"
+					component={DifferentSegmentsAtDifferentSpeeds}
+					width={640}
+					height={360}
+					fps={30}
+					durationInFrames={DIFFERENT_SEGMENTS_AT_DIFFERENT_SPEEDS_DURATION}
+				/>
+				<Composition
+					id="fractional-sequence-video"
+					component={FractionalSequenceVideo}
+					width={640}
+					height={360}
+					fps={24}
+					durationInFrames={600}
+				/>
+				<Composition
 					id="corrupt-video"
 					component={CorruptVideo}
 					width={1280}
@@ -1302,7 +1505,6 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={2 * 60 * 60 * 30}
 				/>
-
 				<Composition
 					id="video-speed"
 					component={VideoSpeed}
@@ -1810,6 +2012,14 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={150}
 				/>
+				<Composition
+					id="shape-effects-test"
+					component={ShapeEffectsTest}
+					width={1200}
+					height={630}
+					fps={30}
+					durationInFrames={150}
+				/>
 			</Folder>
 			<Folder name="Rive">
 				<Composition
@@ -1876,6 +2086,30 @@ export const Index: React.FC = () => {
 					height={1920}
 					fps={30}
 					durationInFrames={300}
+				/>
+				<Composition
+					id="palette-map-effect"
+					component={PaletteMapEffect}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="radial-progressive-blur-test"
+					component={RadialProgressiveBlurTest}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="custom-effects-sample"
+					component={CustomEffectsSample}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
 				/>
 				<Composition
 					id="video-effects-fast-refresh"
@@ -2001,7 +2235,6 @@ export const Index: React.FC = () => {
 					durationInFrames={150}
 					schema={schemaTestSchema}
 				/>
-
 				<Composition
 					id="zod-v4-schema-test"
 					component={ZodV4SchemaTest}
@@ -2019,7 +2252,6 @@ export const Index: React.FC = () => {
 						nested: {a: 'asdfadsf', b: 99},
 					}}
 				/>
-
 				<Composition
 					id="discriminated-union-root"
 					component={DiscriminatedUnionSchemaTest}
@@ -2071,8 +2303,8 @@ export const Index: React.FC = () => {
 				durationInFrames={120}
 			/>
 			{/**
-     * 
-     * 
+     *
+     *
      * disabled for react   19
     <Folder name="Skia">
         <Composition
@@ -2337,6 +2569,64 @@ export const Index: React.FC = () => {
 					durationInFrames={120}
 				/>
 			</Folder>
+			<Folder name="rough-notation">
+				<Composition
+					id="rough-notation-highlight"
+					component={RoughNotationHighlight}
+					width={1080}
+					height={500}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-box"
+					component={RoughNotationBox}
+					width={1080}
+					height={500}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-circle"
+					component={RoughNotationCircle}
+					width={1080}
+					height={500}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-bracket"
+					component={RoughNotationBracket}
+					width={1080}
+					height={500}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-crossed-off"
+					component={RoughNotationCrossedOff}
+					width={1080}
+					height={500}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-strike-through"
+					component={RoughNotationStrikeThrough}
+					width={1080}
+					height={500}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="rough-notation-underline"
+					component={RoughNotationUnderline}
+					width={1080}
+					height={500}
+					fps={30}
+					durationInFrames={90}
+				/>
+			</Folder>
 			<Folder name="starburst">
 				<Composition
 					id="starburst"
@@ -2346,10 +2636,18 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={90}
 				/>
+				<Composition
+					id="starburst-negative-from-resize"
+					component={TimelineNegativeFromResize}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
 			</Folder>
 			<Composition
-				id="experimental-controls-showcase"
-				component={ExperimentalControlsShowcase}
+				id="controls-showcase"
+				component={ControlsShowcase}
 				width={2300}
 				height={1080}
 				fps={30}
@@ -2397,6 +2695,40 @@ export const Index: React.FC = () => {
 					durationInFrames={165}
 				/>
 			</Folder>
+			<Folder name="video-editing">
+				<Composition
+					id="video-editing-cascading"
+					component={Issue8974TransitionSeriesTimeline}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={210}
+				/>
+				<Composition
+					id="video-editing-independent"
+					component={Issue8974IndependentVideosTimeline}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={366}
+				/>
+				<Composition
+					id="video-editing-series"
+					component={Issue8974SeriesTimeline}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={366}
+				/>
+			</Folder>
+			<Composition
+				id="media-timeline-testbed"
+				component={MediaTimelineTestbed}
+				width={1920}
+				height={720}
+				fps={60}
+				durationInFrames={180}
+			/>
 			<Folder name="VisualModeTests">
 				<Composition
 					id="fast-updates"
@@ -2413,6 +2745,38 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={60}
+				/>
+				<Composition
+					id="interactive-html-elements"
+					component={InteractiveHtmlElements}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="interactive-svg-elements"
+					component={InteractiveSvgElements}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="video-config-expressions"
+					component={VideoConfigExpressions}
+					width={1200}
+					height={800}
+					fps={30}
+					durationInFrames={300}
+				/>
+				<Composition
+					id="issue-9170-duration-subtraction"
+					component={Issue9170}
+					width={1200}
+					height={800}
+					fps={30}
+					durationInFrames={120}
 				/>
 			</Folder>
 			<ChangingTrimBeforeValue />

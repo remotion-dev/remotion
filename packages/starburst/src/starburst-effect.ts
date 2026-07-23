@@ -1,6 +1,6 @@
-import type {SequenceSchema} from 'remotion';
+import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
-import {hexToRgb} from './hex-to-rgb';
+import {colorToRgb} from './color-to-rgb';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -14,6 +14,18 @@ export const starburstEffectSchema = {
 		step: 1,
 		default: undefined,
 		description: 'Number of Rays',
+		hiddenFromList: false,
+	},
+	colors: {
+		type: 'array',
+		item: {
+			type: 'color',
+		},
+		default: undefined,
+		minLength: 2,
+		newItemDefault: '#ff0000',
+		description: 'Colors',
+		keyframable: false,
 	},
 	rotation: {
 		type: 'number',
@@ -22,6 +34,7 @@ export const starburstEffectSchema = {
 		step: 1,
 		default: 0,
 		description: 'Rotation',
+		hiddenFromList: false,
 	},
 	smoothness: {
 		type: 'number',
@@ -30,6 +43,7 @@ export const starburstEffectSchema = {
 		step: 0.01,
 		default: 0,
 		description: 'Edge Smoothness',
+		hiddenFromList: false,
 	},
 	origin: {
 		type: 'uv-coordinate',
@@ -39,7 +53,7 @@ export const starburstEffectSchema = {
 		default: DEFAULT_ORIGIN,
 		description: 'Origin',
 	},
-} as const satisfies SequenceSchema;
+} as const satisfies InteractivitySchema;
 
 export type StarburstOrigin = readonly [number, number];
 
@@ -129,7 +143,7 @@ const validateStarburstEffectParams = (params: StarburstEffectParams): void => {
 	}
 
 	for (const c of r.colors) {
-		hexToRgb(c);
+		colorToRgb(c);
 	}
 };
 
@@ -252,7 +266,7 @@ const linkProgram = (
 };
 
 export const starburst = createEffect<StarburstEffectParams, StarburstGlState>({
-	type: 'remotion/starburst',
+	type: 'dev.remotion.starburst.starburst',
 	label: 'starburst()',
 	documentationLink: 'https://www.remotion.dev/docs/starburst/starburst-effect',
 	backend: 'webgl2',
@@ -364,10 +378,10 @@ export const starburst = createEffect<StarburstEffectParams, StarburstGlState>({
 
 			const {palettePixelData} = state;
 			for (let i = 0; i < r.colors.length; i++) {
-				const rgb = hexToRgb(r.colors[i]);
-				palettePixelData[i * 4] = Math.round(rgb[0] * 255);
-				palettePixelData[i * 4 + 1] = Math.round(rgb[1] * 255);
-				palettePixelData[i * 4 + 2] = Math.round(rgb[2] * 255);
+				const rgb = colorToRgb(r.colors[i]);
+				palettePixelData[i * 4] = rgb[0];
+				palettePixelData[i * 4 + 1] = rgb[1];
+				palettePixelData[i * 4 + 2] = rgb[2];
 				palettePixelData[i * 4 + 3] = 255;
 			}
 		}

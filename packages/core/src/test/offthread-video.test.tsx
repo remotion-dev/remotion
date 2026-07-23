@@ -1,5 +1,5 @@
 import {afterEach, describe, expect, test} from 'bun:test';
-import {cleanup, render} from '@testing-library/react';
+import {cleanup, fireEvent, render} from '@testing-library/react';
 import type React from 'react';
 import {SharedAudioContextProvider} from '../audio/shared-audio-tags.js';
 import {RemotionEnvironmentContext} from '../remotion-environment-context.js';
@@ -27,6 +27,7 @@ const WrapPreviewContext: React.FC<{
 				<SharedAudioContextProvider
 					audioEnabled={false}
 					audioLatencyHint="playback"
+					previewSampleRate={null}
 				>
 					{children}
 				</SharedAudioContextProvider>
@@ -101,6 +102,19 @@ describe('OffthreadVideo render correctly with props', () => {
 			render(
 				<WrapSequenceContext>
 					<OffthreadVideo src="test" trimBefore={10} trimAfter={20} />
+				</WrapSequenceContext>,
+			),
+		).not.toThrow();
+	});
+
+	test('It should render OffthreadVideo with onVideoFrame metadata arguments', () => {
+		expect(() =>
+			render(
+				<WrapSequenceContext>
+					<OffthreadVideo
+						src="test"
+						onVideoFrame={(_frame, _now, _metadata) => undefined}
+					/>
 				</WrapSequenceContext>,
 			),
 		).not.toThrow();
@@ -182,6 +196,37 @@ describe('OffthreadVideo render correctly with props', () => {
 		);
 
 		expect(container.querySelector('video')?.preservesPitch).toBe(false);
+	});
+
+	test('It should forward native props on OffthreadVideo', () => {
+		let clicks = 0;
+
+		const {container} = render(
+			<WrapPreviewContext>
+				<OffthreadVideo
+					aria-label="Video preview"
+					data-testid="offthread-video"
+					onClick={() => {
+						clicks++;
+					}}
+					role="img"
+					src="https://example.com/test.mp4"
+					tabIndex={0}
+					title="Preview video"
+				/>
+			</WrapPreviewContext>,
+		);
+
+		const video = container.querySelector('video');
+
+		expect(video?.getAttribute('aria-label')).toBe('Video preview');
+		expect(video?.getAttribute('data-testid')).toBe('offthread-video');
+		expect(video?.getAttribute('role')).toBe('img');
+		expect(video?.getAttribute('tabindex')).toBe('0');
+		expect(video?.getAttribute('title')).toBe('Preview video');
+
+		fireEvent.click(video as HTMLVideoElement);
+		expect(clicks).toBe(1);
 	});
 
 	test('It should reject invalid preservePitch values on OffthreadVideo', () => {

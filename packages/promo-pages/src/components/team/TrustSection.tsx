@@ -188,7 +188,7 @@ export const TrustSection: React.FC = () => {
 					<div className="font-brand">
 						Remotion is profitable. Aside from our{' '}
 						<a
-							href="/investors"
+							href="/docs/investors"
 							className="text-brand hover:underline underline-offset-4"
 						>
 							early investors
@@ -203,7 +203,7 @@ export const TrustSection: React.FC = () => {
 						Founder-owned
 					</div>
 					<div className="font-brand">
-						Us founders own the company. And we just want one thing: Make
+						We, the founders, own the company. And we just want one thing: Make
 						programmatic video glorious.
 					</div>
 				</Card>
@@ -243,10 +243,10 @@ export const TrustSection: React.FC = () => {
 					<UsersIcon />
 					<div className="h-4" />
 					<div className="font-brand font-bold text-2xl mb-2">
-						200+ customers
+						300+ customers
 					</div>
 					<div className="font-brand">
-						More than 200 companies trust Remotion, from small businesses to
+						More than 300 companies trust Remotion, from small businesses to
 						FAANG.
 					</div>
 				</Card>
@@ -268,7 +268,7 @@ export const TrustSection: React.FC = () => {
 					<VideoIcon />
 					<div className="h-4" />
 					<div className="font-brand font-bold text-2xl mb-2">
-						1M+ videos/month
+						2M+ videos/month
 					</div>
 					<div className="font-brand">
 						More than one million videos are rendered with Remotion every month.
@@ -279,7 +279,7 @@ export const TrustSection: React.FC = () => {
 					<StarIcon />
 					<div className="h-4" />
 					<div className="font-brand font-bold text-2xl mb-2">
-						40,000+ GitHub stars
+						50,000+ GitHub stars
 					</div>
 					<div className="font-brand">
 						One of the most popular media projects on GitHub. Trusted by the

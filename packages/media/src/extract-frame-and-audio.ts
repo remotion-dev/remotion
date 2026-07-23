@@ -82,6 +82,13 @@ export const extractFrameAndAudio = async ({
 			};
 		}
 
+		if (video?.type === 'cannot-decode-prores') {
+			return {
+				type: 'cannot-decode-prores',
+				durationInSeconds: video.durationInSeconds,
+			};
+		}
+
 		if (video?.type === 'unknown-container-format') {
 			return {type: 'unknown-container-format'};
 		}

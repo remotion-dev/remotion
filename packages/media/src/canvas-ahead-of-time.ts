@@ -6,6 +6,66 @@ export type CanvasAheadOfTimeNext =
 
 const BUFFER_SIZE = 3;
 
+const releaseCanvas = Symbol('releaseCanvas');
+
+type StableWrappedCanvas = WrappedCanvas & {
+	[releaseCanvas]: () => void;
+};
+
+export const releaseStableFrame = (frame: WrappedCanvas | null) => {
+	(frame as Partial<StableWrappedCanvas> | null)?.[releaseCanvas]?.();
+};
+
+const makeStableFramePool = () => {
+	const availableCanvases: OffscreenCanvas[] = [];
+
+	const makeStableFrame = (frame: WrappedCanvas): WrappedCanvas => {
+		const {canvas} = frame;
+		const stableCanvas =
+			availableCanvases.pop() ??
+			new OffscreenCanvas(canvas.width, canvas.height);
+		if (stableCanvas.width !== canvas.width) {
+			stableCanvas.width = canvas.width;
+		}
+
+		if (stableCanvas.height !== canvas.height) {
+			stableCanvas.height = canvas.height;
+		}
+
+		const context = stableCanvas.getContext('2d');
+		if (!context) {
+			throw new Error('Could not create canvas context');
+		}
+
+		context.clearRect(0, 0, stableCanvas.width, stableCanvas.height);
+
+		// CanvasSink may reuse canvases in a ring buffer when poolSize is set.
+		// Since callers retain WrappedCanvas objects as the current/peeked frame,
+		// copy the pixels before another decoded frame can overwrite the source.
+		context.drawImage(canvas, 0, 0);
+
+		let released = false;
+
+		const stableFrame: StableWrappedCanvas = {
+			canvas: stableCanvas,
+			duration: frame.duration,
+			timestamp: frame.timestamp,
+			[releaseCanvas]: () => {
+				if (released) {
+					return;
+				}
+
+				released = true;
+				availableCanvases.push(stableCanvas);
+			},
+		};
+
+		return stableFrame;
+	};
+
+	return {makeStableFrame};
+};
+
 type Slot = {
 	promise: Promise<IteratorResult<WrappedCanvas, void>>;
 	resolved: IteratorResult<WrappedCanvas, void> | null;
@@ -22,9 +82,10 @@ export const canvasesAheadOfTime = (
 	let reachedEnd = false;
 	let closed = false;
 	let inFlight: Promise<void> | null = null;
+	const stableFramePool = makeStableFramePool();
 
-	const closeFrame = (frame: WrappedCanvas) => {
-		(frame as unknown as {close?: () => void}).close?.();
+	const takeFrame = (frame: WrappedCanvas): WrappedCanvas => {
+		return stableFramePool.makeStableFrame(frame);
 	};
 
 	const fillNext = () => {
@@ -36,19 +97,20 @@ export const canvasesAheadOfTime = (
 		buffer.push(slot);
 		inFlight = slot.promise.then(
 			(result) => {
-				slot.resolved = result;
 				chaining = false;
 				inFlight = null;
 				if (result.done) {
+					slot.resolved = result;
 					reachedEnd = true;
 					return;
 				}
 
 				if (closed) {
-					closeFrame(result.value);
+					slot.resolved = {done: true, value: undefined};
 					return;
 				}
 
+				slot.resolved = {...result, value: takeFrame(result.value)};
 				fillNext();
 			},
 			() => {
@@ -82,7 +144,7 @@ export const canvasesAheadOfTime = (
 					}
 
 					const result = await next2.promise;
-					return result.done ? null : result.value;
+					return result.done ? null : takeFrame(result.value);
 				},
 			};
 		}
@@ -99,7 +161,11 @@ export const canvasesAheadOfTime = (
 			type: 'pending',
 			wait: async () => {
 				const result = await slot.promise;
-				return result.done ? null : result.value;
+				if (slot.resolved) {
+					return slot.resolved.done ? null : slot.resolved.value;
+				}
+
+				return result.done ? null : takeFrame(result.value);
 			},
 		};
 	};
@@ -108,10 +174,8 @@ export const canvasesAheadOfTime = (
 		closed = true;
 		for (const slot of buffer) {
 			if (slot.resolved && !slot.resolved.done) {
-				closeFrame(slot.resolved.value);
+				releaseStableFrame(slot.resolved.value);
 			}
-			// Unresolved slots: the chain handler in fillNext will close
-			// the frame when it resolves (it observes `closed === true`).
 		}
 
 		buffer.length = 0;

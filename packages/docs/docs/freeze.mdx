@@ -7,18 +7,39 @@ crumb: 'API'
 
 import {FreezeExample} from '../components/FreezeExample/FreezeExample';
 
+# &lt;Freeze&gt;<AvailableFrom v="2.2.0" />
+
 ```twoslash include example
 const BlueSquare: React.FC = () => <div></div>
 // - BlueSquare
 ```
 
-<AvailableFrom v="2.2.0" />
+## Recommendation: &lt;Sequence freeze&gt;
+
+For new code, prefer [`<Sequence freeze>`](/docs/sequence#freeze) if you want to freeze a timeline item.
+The `freeze` prop is supported by Studio [interactivity](/docs/interactive), so it can be edited visually.
+
+```tsx twoslash title="MyComp.tsx"
+// @include: example-BlueSquare
+// ---cut---
+import {Sequence} from 'remotion';
+
+const MyVideo = () => {
+  return (
+    <Sequence freeze={30}>
+      <BlueSquare />
+    </Sequence>
+  );
+};
+```
+
+---
 
 When using the `<Freeze/>` component, all of its children will freeze to the frame that you specify as a prop.
 
 If a component is a child of `<Freeze/>`, calling the [`useCurrentFrame()`](/docs/use-current-frame) hook will always return the frame number you specify, irrespective of any [`<Sequence>`](/docs/sequence).
 
-[`<Html5Video />`](/docs/html5-video), [`<Video>`](/docs/media/video) and [`<OffthreadVideo />`](/docs/offthreadvideo) elements will be paused and [`<Html5Audio />`](/docs/html5-audio) and [`<Audio>`](/docs/media/audio) elements will render muted.
+[`<Video>`](/docs/media/video), [`<OffthreadVideo />`](/docs/offthreadvideo) and [`<Html5Video />`](/docs/html5-video) elements will be paused and [`<Audio>`](/docs/media/audio) and [`<Html5Audio />`](/docs/html5-audio) elements will render muted.
 
 ## Example
 

@@ -25,12 +25,13 @@ import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
 import {warnAboutTooHighVolume} from '../volume-safeguard.js';
+import {useEmitVideoFrame} from './emit-video-frame.js';
 import {getMediaTime} from './get-current-time.js';
 import {MediaPlaybackError} from './MediaPlaybackError.js';
 import type {OnVideoFrame, RemotionVideoProps} from './props';
 import {seekToTimeMultipleUntilRight} from './seek-until-right.js';
 
-type VideoForRenderingProps = RemotionVideoProps & {
+type VideoForRenderingProps = Omit<RemotionVideoProps, 'onVideoFrame'> & {
 	readonly onDuration: (src: string, durationInSeconds: number) => void;
 	readonly onVideoFrame: null | OnVideoFrame;
 };
@@ -155,6 +156,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	useImperativeHandle(ref, () => {
 		return videoRef.current as HTMLVideoElement;
 	}, []);
+
+	useEmitVideoFrame({ref: videoRef, onVideoFrame});
 
 	useEffect(() => {
 		if (!window.remotion_videoEnabled) {

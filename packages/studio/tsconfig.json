@@ -4,12 +4,16 @@
 		"composite": true,
 		"rootDir": "./src",
 		"outDir": "dist",
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"allowJs": true
 	},
 	"include": ["src"],
 	"references": [
 		{
 			"path": "../core"
+		},
+		{
+			"path": "../canvas-capture"
 		},
 		{
 			"path": "../media-utils"

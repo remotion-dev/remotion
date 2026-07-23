@@ -1,0 +1,97 @@
+---
+image: /generated/articles-docs-effects-burlap.png
+slug: /effects/burlap
+title: burlap()
+sidebar_label: burlap()
+crumb: '@remotion/effects'
+---
+
+# burlap()<AvailableFrom v="4.0.478" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Adds a procedural woven burlap texture to canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+The effect preserves the source colors and alpha mask. Transparent regions stay transparent.
+
+## Preview
+
+<EffectsDemo type="effects-burlap" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill, Solid} from 'remotion';
+import {burlap} from '@remotion/effects/burlap';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Solid
+        width={1280}
+        height={720}
+        color="#c7a060"
+        effects={[
+          burlap({
+            amount: 0.75,
+            size: 4,
+            roughness: 0.85,
+            seed: 1,
+            color: '#3b2818',
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `burlap()` without arguments.
+
+### `amount?`
+
+Strength from `0` to `1`. Defaults to `0.55`.
+
+Use `0` to leave the layer unchanged.
+
+### `size?`
+
+Distance between weave strands in pixels. Defaults to `5`.
+
+Must be greater than `0`. Smaller values create a tighter weave.
+
+### `roughness?`
+
+Irregularity of the fibers from `0` to `1`. Defaults to `0.7`.
+
+Use `0` for a cleaner grid. Higher values add more mottling and broken fibers.
+
+### `seed?`
+
+Seed for the procedural fiber pattern. Defaults to `0`.
+
+Change it to get a different static weave.
+
+### `color?`
+
+Color of the darker weave fibers. Defaults to `#000000`.
+
+Use a brown color for a natural burlap look, or another color to tint the fiber marks.
+Alpha in the color controls how strongly the fiber color is mixed in.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`burlap()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`noise()`](/docs/effects/noise)
+- [`speckle()`](/docs/effects/speckle)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/burlap.ts)

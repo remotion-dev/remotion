@@ -1,0 +1,115 @@
+---
+image: /generated/articles-docs-effects-zigzag.png
+slug: /effects/zigzag
+title: zigzag()
+sidebar_label: zigzag()
+crumb: '@remotion/effects'
+---
+
+# zigzag()<AvailableFrom v="4.0.471" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Adds repeating zig-zag bands to canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+It uses the same band controls as [`lines()`](/docs/effects/lines), and the same displacement controls as [`waves()`](/docs/effects/waves), but uses sharp triangular turns.
+
+## Preview
+
+<EffectsDemo type="effects-zigzag" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {zigzag} from '@remotion/effects/zigzag';
+import {AbsoluteFill, Solid, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill>
+      <Solid
+        width={1280}
+        height={720}
+        effects={[
+          zigzag({
+            colors: ['#d7b8ff', 'transparent'],
+            direction: 'horizontal',
+            thickness: 40,
+            gap: 0,
+            angle: 0,
+            offset: frame * 2,
+            amplitude: 40,
+            wavelength: 160,
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `zigzag()` without arguments.
+
+### `colors?`
+
+An array of color strings for the bands. Colors are assigned cyclically. Must contain at least 2 colors.
+
+Defaults to `['#dff4ff', '#7cc6ff']`.
+
+### `direction?`
+
+Base band direction before zig-zag displacement. Either `'horizontal'` or `'vertical'`. Defaults to `'horizontal'`.
+
+### `thickness?`
+
+Thickness of each band in pixels. Defaults to `40`.
+
+### `gap?`
+
+Transparent gap in pixels between each band. Defaults to `0`.
+
+With `gap: 0` (the default), bands are packed solid with no gap between them — colors are directly adjacent to each other.  
+With `gap > 0`, a transparent band appears between each stripe, allowing the source content to show through.
+
+### `angle?`
+
+Rotates the pattern in degrees. Defaults to `0`.
+
+### `offset?`
+
+Offset in pixels. Defaults to `0`.
+
+Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) to scroll the bands.
+
+### `amplitude?`
+
+Zig-zag displacement in pixels. Defaults to `40`.
+
+### `wavelength?`
+
+Distance in pixels before the zig-zag repeats. Defaults to `160`. Must be greater than `0`.
+
+### `maskToSourceAlpha?`<AvailableFrom v="4.0.474" />
+
+Masks the generated zig-zag pattern to the source alpha channel. Defaults to `false`.
+
+Set this to `true` to prevent the zig-zag pattern from appearing in fully transparent source pixels.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`zigzag()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`lines()`](/docs/effects/lines)
+- [`waves()`](/docs/effects/waves)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/zigzag.ts)

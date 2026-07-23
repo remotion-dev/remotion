@@ -2,7 +2,6 @@ import type {ReadStream} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import path from 'node:path';
 import querystring from 'node:querystring';
-import {parse} from 'node:url';
 import {RenderInternals} from '@remotion/renderer';
 import {send, setHeaderForResponse} from './compatible-api';
 import {getPaths} from './get-paths';
@@ -35,7 +34,7 @@ const mem = (fn: Function, {cache = new Map()} = {}) => {
 	return memoized;
 };
 
-const memoizedParse = mem(parse);
+const memoizedParse = mem((url: string) => new URL(url, 'http://localhost'));
 
 function getFilenameFromUrl(
 	context: DevMiddlewareContext,
@@ -45,10 +44,13 @@ function getFilenameFromUrl(
 
 	let foundFilename;
 	let urlObject;
+	if (!url) {
+		return;
+	}
 
 	try {
 		// The `url` property of the `request` is contains only  `pathname`, `search` and `hash`
-		urlObject = memoizedParse(url, false, true);
+		urlObject = memoizedParse(url);
 	} catch {
 		return;
 	}
@@ -60,8 +62,6 @@ function getFilenameFromUrl(
 		try {
 			publicPathObject = memoizedParse(
 				publicPath !== 'auto' && publicPath ? publicPath : '/',
-				false,
-				true,
 			);
 		} catch {
 			continue;

@@ -12,8 +12,10 @@ import {formatPropChange} from '../preview-server/routes/log-updates/format-prop
 import {
 	attrName,
 	equals,
+	inlineAddition,
 	numberValue,
 	punctuation,
+	strikeThrough,
 } from '../preview-server/routes/log-updates/formatting';
 import {
 	logUpdate,
@@ -51,10 +53,12 @@ export const LightLeakExample: React.FC = () => {
 test('logUpdate emits Monokai-colored output after an AST update', async () => {
 	const {output, oldValueStrings, formatted, logLine} =
 		await updateSequenceProps({
+			videoConfigValues: null,
 			input,
 			nodePath: lineColumnToNodePath(input, 8),
 			updates: [{key: 'hueShift', value: 90, defaultValue: null}],
 			schema: NoReactInternals.sequenceSchema,
+			prettierConfigOverride: null,
 		});
 
 	expect(oldValueStrings[0]).toBe('30');
@@ -80,15 +84,109 @@ test('logUpdate emits Monokai-colored output after an AST update', async () => {
 		const logged = consoleSpy.mock.calls[0].join(' ');
 
 		const simpleProp = (key: string, value: string) =>
-			`${attrName(key)}${equals('=')}${punctuation('{')}${numberValue(value)}${punctuation('}')}`;
+			`${attrName(key)}${equals('=')}${punctuation('{')}${value}${punctuation('}')}`;
 
-		const expectedPropChange = `${simpleProp('hueShift', '30')} → ${simpleProp('hueShift', '90')}`;
+		const expectedPropChange = simpleProp(
+			'hueShift',
+			`${numberValue('30')} → ${numberValue('90')}`,
+		);
 		const expectedLine = `${chalk.blueBright('src/Example.tsx:8')} ${expectedPropChange}`;
 
 		expect(logged).toBe(expectedLine);
 	} finally {
 		consoleSpy.mockRestore();
 	}
+});
+
+test('formatPropChange condenses unchanged interpolate options', () => {
+	const formatted = formatPropChange({
+		key: 'width',
+		oldValueString: `interpolate(frame, [78], [244], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+})`,
+		newValueString: `interpolate(frame, [29, 78], [88, 244], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+})`,
+		defaultValueString: null,
+		removedProps: [],
+		addedProps: [],
+	});
+
+	expect(formatted).toBe(
+		`${attrName('width')}${equals('=')}${punctuation('{')}interpolate(frame, [78], [244]) → interpolate(frame, [29, 78], [88, 244])${punctuation('}')}`,
+	);
+	expect(formatted).not.toContain('extrapolateLeft');
+	expect(formatted).not.toContain('extrapolateRight');
+});
+
+test('formatPropChange omits unchanged interpolate clamping when easing changes', () => {
+	const formatted = formatPropChange({
+		key: 'scale',
+		oldValueString: `interpolate(frame, [68, 78, 88], [0, 1, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    easing: [
+        Easing.bezier(0.5526, 3.9109, 0.6487, 4.8024),
+        Easing.bezier(0.5526, 3.9109, 0.995, 5),
+    ],
+})`,
+		newValueString: `interpolate(frame, [68, 78, 88], [0, 1, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    easing: [
+        Easing.bezier(0.5526, 3.9109, 0.6487, 4.8024),
+        Easing.bezier(0.5526, 3.9109, 0.6487, 4.8024),
+    ],
+})`,
+		defaultValueString: null,
+		removedProps: [],
+		addedProps: [],
+	});
+
+	expect(formatted).not.toContain('extrapolateLeft');
+	expect(formatted).not.toContain('extrapolateRight');
+	expect(formatted).toContain('Easing.bezier(0.5526, 3.9109, 0.995, 5)');
+	expect(formatted).toContain('Easing.bezier(0.5526, 3.9109, 0.6487, 4.8024)');
+});
+
+test('formatPropChange condenses added interpolateColors options', () => {
+	const addedOptions = `, {
+    easing: [Easing.bezier(0.4507, 2.3556, 0.6118, 0.0554)]
+}`;
+	const formatted = formatPropChange({
+		key: 'color',
+		oldValueString: `interpolateColors(frame, [0, 100], ['#0b84f3', '#f43b00'])`,
+		newValueString: `interpolateColors(frame, [0, 100], ['#0b84f3', '#f43b00']${addedOptions})`,
+		defaultValueString: null,
+		removedProps: [],
+		addedProps: [],
+	});
+
+	expect(formatted).toBe(
+		`${attrName('color')}${equals('=')}${punctuation('{')}interpolateColors(frame, [0, 100], ['#0b84f3', '#f43b00']${inlineAddition(addedOptions)})${punctuation('}')}`,
+	);
+	expect(formatted).not.toContain(' → ');
+});
+
+test('formatPropChange condenses removed interpolateColors options', () => {
+	const removedOptions = `, {
+    easing: [Easing.bezier(0.4507, 2.3556, 0.6118, 0.0554)]
+}`;
+	const formatted = formatPropChange({
+		key: 'color',
+		oldValueString: `interpolateColors(frame, [0, 100], ['#0b84f3', '#f43b00']${removedOptions})`,
+		newValueString: `interpolateColors(frame, [0, 100], ['#0b84f3', '#f43b00'])`,
+		defaultValueString: null,
+		removedProps: [],
+		addedProps: [],
+	});
+
+	expect(formatted).toBe(
+		`${attrName('color')}${equals('=')}${punctuation('{')}interpolateColors(frame, [0, 100], ['#0b84f3', '#f43b00']${strikeThrough(removedOptions)})${punctuation('}')}`,
+	);
+	expect(formatted).not.toContain(' → ');
 });
 
 test('logUpdate emits change-from-default output for discriminated union enum change', async () => {
@@ -99,6 +197,7 @@ test('logUpdate emits change-from-default output for discriminated union enum ch
 
 	const {oldValueStrings, formatted, logLine, removedProps} =
 		await updateSequenceProps({
+			videoConfigValues: null,
 			input: fixture,
 			nodePath: lineColumnToNodePath(fixture, 3),
 			updates: [
@@ -109,6 +208,7 @@ test('logUpdate emits change-from-default output for discriminated union enum ch
 				},
 			],
 			schema: NoReactInternals.sequenceSchema,
+			prettierConfigOverride: null,
 		});
 
 	expect(oldValueStrings[0]).toBe('"absolute-fill"');
@@ -166,6 +266,7 @@ test('Undo prop change should not nest key={key={value}} for re-added props', as
 	);
 
 	const {removedProps} = await updateSequenceProps({
+		videoConfigValues: null,
 		input: fixture,
 		nodePath: lineColumnToNodePath(fixture, 3),
 		updates: [
@@ -176,6 +277,7 @@ test('Undo prop change should not nest key={key={value}} for re-added props', as
 			},
 		],
 		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
 	});
 
 	const premount = removedProps.find((p) => p.key === 'premountFor');

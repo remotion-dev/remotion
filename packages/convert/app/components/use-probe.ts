@@ -59,7 +59,7 @@ export const useProbe = ({src}: {src: Source}) => {
 			input.getMetadataTags().then((tags) => setMetadata(tags));
 
 			const trx = await input.getTracks();
-			trx.forEach(async (track) => {
+			for (const track of trx) {
 				if (await track.isLive()) {
 					throw new Error(
 						'Live streams are not currently supported by Remotion. Sorry!',
@@ -71,30 +71,39 @@ export const useProbe = ({src}: {src: Source}) => {
 						'Streams with UNIX timestamps are not currently supported by Remotion. Sorry!',
 					);
 				}
-			});
-			setTracks(trx);
+			}
+
 			let hasAudioTrack = false;
 			let hasVideoTrack = false;
 			for (const track of trx) {
 				if (track.isVideoTrack()) {
 					hasVideoTrack = true;
-					const {codec} = track;
+					const codec = await track.getCodec();
 					setVideoCodec(codec);
 					track
 						.computePacketStats(50)
 						.then((stats) => setFps(stats.averagePacketRate));
+					const [displayWidth, displayHeight, trackRotation] =
+						await Promise.all([
+							track.getDisplayWidth(),
+							track.getDisplayHeight(),
+							track.getRotation(),
+						]);
 					setDimensions({
-						width: track.displayWidth,
-						height: track.displayHeight,
+						width: displayWidth,
+						height: displayHeight,
 					});
-					setRotation(track.rotation);
+					setRotation(trackRotation);
 					track.hasHighDynamicRange().then((hdr) => setHdr(hdr));
 				} else if (track.isAudioTrack()) {
 					hasAudioTrack = true;
-					setAudioCodec(track.codec);
+					const codec = await track.getCodec();
+					setAudioCodec(codec);
 					track.getSampleRate().then((sr) => setSampleRate(sr));
 				}
 			}
+
+			setTracks(trx);
 
 			if (!hasAudioTrack) {
 				setAudioCodec(null);

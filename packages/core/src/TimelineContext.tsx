@@ -1,4 +1,4 @@
-import type {MutableRefObject} from 'react';
+import type {RefObject} from 'react';
 import React, {
 	createContext,
 	useLayoutEffect,
@@ -17,8 +17,8 @@ export type TimelineContextValue = {
 	frame: Record<string, number>;
 	playing: boolean;
 	rootId: string;
-	imperativePlaying: MutableRefObject<boolean>;
-	audioAndVideoTags: MutableRefObject<PlayableMediaTag[]>;
+	imperativePlaying: RefObject<boolean>;
+	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
 };
 
 export type PlaybackRateContextValue = {

@@ -1,5 +1,6 @@
 import {drawRepeatingImageThumbnail} from '@remotion/timeline-utils';
 import React, {useEffect, useRef} from 'react';
+import {BLACK_ALPHA_30} from '../../helpers/colors';
 import {getTimelineLayerHeight} from '../../helpers/timeline-layout';
 
 const HEIGHT = getTimelineLayerHeight('image') - 2;
@@ -7,7 +8,7 @@ const HEIGHT = getTimelineLayerHeight('image') - 2;
 const containerStyle: React.CSSProperties = {
 	height: HEIGHT,
 	width: '100%',
-	backgroundColor: 'rgba(0, 0, 0, 0.3)',
+	backgroundColor: BLACK_ALPHA_30,
 	display: 'flex',
 	borderTopLeftRadius: 2,
 	borderBottomLeftRadius: 2,

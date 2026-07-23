@@ -8,7 +8,7 @@ import svg = require('svg-path-properties');
 import _reverse = require('svg-path-reverse');
 
 const p1 = reversePath(
-	translatePath('M1511 335 L1511 508', motionFixedPath, 0)
+	translatePath('M1511 335 L1511 508', motionFixedPath, 0),
 );
 
 export const I: React.FC<{
@@ -48,7 +48,7 @@ export const I: React.FC<{
 						transform: `translateY(${interpolate(
 							iPointProgress,
 							[0, 1],
-							[100, 0]
+							[100, 0],
 						)}px)`,
 					}}
 				/>

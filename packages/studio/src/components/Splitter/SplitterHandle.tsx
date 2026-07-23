@@ -1,5 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef} from 'react';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
@@ -25,122 +25,117 @@ export const SplitterHandle: React.FC<{
 		throw new Error('Cannot find splitter context');
 	}
 
-	const [lastPointerUp, setLastPointerUp] = useState(() => Date.now());
 	const ref = useRef<HTMLDivElement>(null);
 
-	useEffect(() => {
-		if (context.isDragging.current) {
-			return;
-		}
+	// Keep the latest props/context readable inside the long-lived pointerdown
+	// listener without re-subscribing it on every render.
+	const latest = useRef({context, allowToCollapse, onCollapse});
+	latest.current = {context, allowToCollapse, onCollapse};
 
+	useEffect(() => {
 		const {current} = ref;
 		if (!current) {
 			return;
 		}
 
-		const getNewValue = (e: PointerEvent, clamp: boolean) => {
-			if (!context.isDragging.current) {
-				throw new Error('cannot get value if not dragging');
-			}
-
-			if (!context.ref.current) {
-				throw new Error('domRect is not mounted');
-			}
-
-			const {width, height} = context.ref.current.getBoundingClientRect();
-			const change = (() => {
-				if (context.orientation === 'vertical') {
-					return (
-						(e.clientX - context.isDragging.current.x) /
-						(width - SPLITTER_HANDLE_SIZE)
-					);
-				}
-
-				return (
-					(e.clientY - context.isDragging.current.y) /
-					(height - SPLITTER_HANDLE_SIZE)
-				);
-			})();
-
-			const newFlex = context.flexValue + change;
-			if (clamp) {
-				return Math.min(context.maxFlex, Math.max(context.minFlex, newFlex));
-			}
-
-			return newFlex;
-		};
+		// Cleanup for the listeners that only exist for the duration of a drag.
+		let endDrag: (() => void) | null = null;
 
 		const onPointerDown = (e: PointerEvent) => {
 			if (e.button !== 0) {
 				return;
 			}
 
-			context.isDragging.current = {
-				x: e.clientX,
-				y: e.clientY,
-			};
+			// Prevent deselection of currently selected items
+			e.stopPropagation();
+
+			// Capture the context and starting flex once, at drag start. The flex
+			// value updates on every pointermove, so it must not be re-read live.
+			const dragContext = latest.current.context;
+			const start = {x: e.clientX, y: e.clientY};
+			const startFlex = dragContext.flexValue;
+
+			dragContext.isDragging.current = start;
 			forceSpecificCursor(
-				context.orientation === 'horizontal' ? 'row-resize' : 'col-resize',
+				dragContext.orientation === 'horizontal' ? 'row-resize' : 'col-resize',
 			);
-			ref.current?.classList.add('remotion-splitter-active');
-			window.addEventListener(
-				'pointerup',
-				(ev: PointerEvent) => {
-					if (!context.isDragging.current) {
-						return;
-					}
+			current.classList.add('remotion-splitter-active');
 
-					context.persistFlex(getNewValue(ev, true));
-					cleanup();
-					setLastPointerUp(Date.now());
-				},
-				{once: true},
-			);
+			const getNewValue = (ev: PointerEvent, clamp: boolean) => {
+				if (!dragContext.ref.current) {
+					throw new Error('domRect is not mounted');
+				}
+
+				const {width, height} = dragContext.ref.current.getBoundingClientRect();
+				const change =
+					dragContext.orientation === 'vertical'
+						? (ev.clientX - start.x) / (width - SPLITTER_HANDLE_SIZE)
+						: (ev.clientY - start.y) / (height - SPLITTER_HANDLE_SIZE);
+
+				const newFlex = startFlex + change;
+				if (clamp) {
+					return Math.min(
+						dragContext.maxFlex,
+						Math.max(dragContext.minFlex, newFlex),
+					);
+				}
+
+				return newFlex;
+			};
+
+			endDrag = () => {
+				dragContext.isDragging.current = false;
+				stopForcingSpecificCursor();
+				current.classList.remove('remotion-splitter-active');
+				window.removeEventListener('pointermove', onPointerMove);
+				window.removeEventListener('pointerup', onPointerUp);
+				endDrag = null;
+				PlayerInternals.updateAllElementsSizes();
+			};
+
+			const onPointerMove = (ev: PointerEvent) => {
+				if (!dragContext.isDragging.current) {
+					return;
+				}
+
+				dragContext.setFlexValue(getNewValue(ev, true));
+
+				const collapse = latest.current.allowToCollapse;
+				if (collapse === 'left') {
+					const unclamped = getNewValue(ev, false);
+					if (unclamped < dragContext.minFlex / 2) {
+						endDrag?.();
+						latest.current.onCollapse();
+					}
+				} else if (collapse === 'right') {
+					const unclamped = 1 - getNewValue(ev, false);
+					if (unclamped < (1 - dragContext.maxFlex) / 2) {
+						endDrag?.();
+						latest.current.onCollapse();
+					}
+				}
+			};
+
+			const onPointerUp = (ev: PointerEvent) => {
+				if (!dragContext.isDragging.current) {
+					return;
+				}
+
+				dragContext.persistFlex(getNewValue(ev, true));
+				endDrag?.();
+			};
+
 			window.addEventListener('pointermove', onPointerMove);
-		};
-
-		const onPointerMove = (e: PointerEvent) => {
-			if (context.isDragging.current) {
-				const val = getNewValue(e, true);
-				context.setFlexValue(val);
-				if (allowToCollapse === 'left') {
-					const unclamped = getNewValue(e, false);
-					if (unclamped < context.minFlex / 2) {
-						cleanup();
-						onCollapse();
-						setLastPointerUp(Date.now());
-					}
-				}
-
-				if (allowToCollapse === 'right') {
-					const unclamped = 1 - getNewValue(e, false);
-					if (unclamped < (1 - context.maxFlex) / 2) {
-						cleanup();
-						onCollapse();
-						setLastPointerUp(Date.now());
-					}
-				}
-			}
-		};
-
-		const cleanup = () => {
-			context.isDragging.current = false;
-			stopForcingSpecificCursor();
-			ref.current?.classList.remove('remotion-splitter-active');
-
-			current.removeEventListener('pointerdown', onPointerDown);
-			window.removeEventListener('pointermove', onPointerMove);
-			PlayerInternals.updateAllElementsSizes();
+			window.addEventListener('pointerup', onPointerUp);
 		};
 
 		current.addEventListener('pointerdown', onPointerDown);
 
 		return () => {
-			if (!context.isDragging.current) {
-				cleanup();
-			}
+			current.removeEventListener('pointerdown', onPointerDown);
+			endDrag?.();
 		};
-	}, [allowToCollapse, context, context.flexValue, lastPointerUp, onCollapse]);
+	}, []);
 
 	useEffect(() => {
 		const {current} = ref;

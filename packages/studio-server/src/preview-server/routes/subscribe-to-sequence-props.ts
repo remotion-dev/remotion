@@ -9,7 +9,18 @@ export const subscribeToSequenceProps: ApiHandler<
 	SubscribeToSequencePropsRequest,
 	SubscribeToSequencePropsResponse
 > = ({
-	input: {fileName, line, column, keys, effects, clientId},
+	input: {
+		fileName,
+		line,
+		column,
+		nodePath,
+		componentIdentity,
+		keys,
+		assetKeys = [],
+		effects,
+		clientId,
+		videoConfigValues,
+	},
 	remotionRoot,
 	logLevel,
 }) => {
@@ -17,10 +28,14 @@ export const subscribeToSequenceProps: ApiHandler<
 		fileName,
 		line,
 		column,
+		nodePath,
+		componentIdentity,
 		keys,
+		assetKeys,
 		effects,
 		remotionRoot,
 		clientId,
+		videoConfigValues,
 		logLevel,
 	});
 

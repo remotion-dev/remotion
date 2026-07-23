@@ -7,11 +7,12 @@ import {
 	sliceWaveformPeaks,
 	type AudioWaveformWorkerOutgoingMessage,
 	type AudioWaveformWorkerRenderMessage,
+	type WaveformVolume,
 } from '@remotion/timeline-utils';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
 import {Internals} from 'remotion';
-import {LIGHT_TRANSPARENT} from '../helpers/colors';
+import {WHITE_ALPHA_70, WHITE_ALPHA_60} from '../helpers/colors';
 import {TIMELINE_BORDER} from '../helpers/timeline-layout';
 
 const EMPTY_PEAKS = new Float32Array(0);
@@ -45,15 +46,10 @@ const getContainerStyle = (height: number): React.CSSProperties => {
 	};
 };
 
-const errorMessage: React.CSSProperties = {
-	fontSize: 13,
-	paddingTop: 6,
-	paddingBottom: 6,
-	paddingLeft: 12,
-	paddingRight: 12,
-	alignSelf: 'flex-start',
-	maxWidth: 450,
-	opacity: 0.75,
+const getWaveformErrorMessage = () => {
+	return new Error(
+		'No waveform available. The audio could not be decoded or may not support CORS.',
+	);
 };
 
 const waveformCanvasStyle: React.CSSProperties = {
@@ -66,6 +62,14 @@ const volumeCanvasStyle: React.CSSProperties = {
 	position: 'absolute',
 };
 
+const parseVolume = (volume: string | number): WaveformVolume => {
+	if (typeof volume === 'number') {
+		return volume;
+	}
+
+	return volume.split(',').map((v) => Number(v));
+};
+
 const drawLoopedWaveform = ({
 	canvas,
 	peaks,
@@ -75,7 +79,7 @@ const drawLoopedWaveform = ({
 }: {
 	canvas: HTMLCanvasElement;
 	peaks: Float32Array;
-	volume: number;
+	volume: WaveformVolume;
 	visualizationWidth: number;
 	loopWidth: number;
 }) => {
@@ -88,7 +92,7 @@ const drawLoopedWaveform = ({
 	drawBars({
 		canvas: targetCanvas,
 		peaks,
-		color: 'rgba(255, 255, 255, 0.6)',
+		color: WHITE_ALPHA_60,
 		volume,
 		width: targetCanvas.width,
 	});
@@ -151,6 +155,7 @@ export const AudioWaveform: React.FC<{
 	const latestRequestId = useRef(0);
 	const shouldRenderVolumeOverlay =
 		doesVolumeChange && typeof volume === 'string';
+	const parsedVolume = useMemo(() => parseVolume(volume), [volume]);
 
 	useEffect(() => {
 		if (canUseWorkerPath) {
@@ -187,6 +192,7 @@ export const AudioWaveform: React.FC<{
 		}
 
 		const worker = makeAudioWaveformWorker();
+		let workerFailed = false;
 		waveformWorker.current = worker;
 		worker.addEventListener(
 			'message',
@@ -200,6 +206,19 @@ export const AudioWaveform: React.FC<{
 				}
 			},
 		);
+		worker.addEventListener('error', (event) => {
+			event.preventDefault();
+			workerFailed = true;
+
+			if (worker !== waveformWorker.current) {
+				return;
+			}
+
+			worker.terminate();
+			waveformWorker.current = null;
+			hasTransferredCanvas.current = false;
+			setError(getWaveformErrorMessage());
+		});
 
 		let offscreen: OffscreenCanvas;
 		try {
@@ -219,7 +238,10 @@ export const AudioWaveform: React.FC<{
 		worker.postMessage({type: 'init', canvas: offscreen}, [offscreen]);
 
 		return () => {
-			worker.postMessage({type: 'dispose'});
+			if (!workerFailed) {
+				worker.postMessage({type: 'dispose'});
+			}
+
 			worker.terminate();
 			waveformWorker.current = null;
 			hasTransferredCanvas.current = false;
@@ -259,7 +281,6 @@ export const AudioWaveform: React.FC<{
 		const h = height;
 		const w = Math.ceil(visualizationWidth);
 
-		const vol = typeof volume === 'number' ? volume : 1;
 		if (canUseWorkerPath) {
 			const worker = waveformWorker.current;
 			if (!worker || !hasTransferredCanvas.current) {
@@ -274,7 +295,7 @@ export const AudioWaveform: React.FC<{
 				src,
 				width: w,
 				height: h,
-				volume: vol,
+				volume: parsedVolume,
 				startFrom,
 				durationInFrames,
 				fps: vidConf.fps,
@@ -292,7 +313,7 @@ export const AudioWaveform: React.FC<{
 			drawLoopedWaveform({
 				canvas: canvasElement,
 				peaks: portionPeaks ?? EMPTY_PEAKS,
-				volume: vol,
+				volume: parsedVolume,
 				visualizationWidth,
 				loopWidth: getLoopDisplayWidth({
 					visualizationWidth,
@@ -303,8 +324,8 @@ export const AudioWaveform: React.FC<{
 			drawBars({
 				canvas: canvasElement,
 				peaks: portionPeaks ?? EMPTY_PEAKS,
-				color: 'rgba(255, 255, 255, 0.6)',
-				volume: vol,
+				color: WHITE_ALPHA_60,
+				volume: parsedVolume,
 				width: w,
 			});
 		}
@@ -314,12 +335,12 @@ export const AudioWaveform: React.FC<{
 		height,
 		loopDisplay,
 		playbackRate,
+		parsedVolume,
 		portionPeaks,
 		src,
 		startFrom,
 		vidConf.fps,
 		visualizationWidth,
-		volume,
 		waveformCanvasKey,
 	]);
 
@@ -343,11 +364,17 @@ export const AudioWaveform: React.FC<{
 		volumeCanvasElement.height = h;
 
 		context.clearRect(0, 0, visualizationWidth, h);
-		const volumes = volume.split(',').map((v) => Number(v));
+		if (!Array.isArray(parsedVolume)) {
+			return;
+		}
+
 		context.beginPath();
 		context.moveTo(0, h);
-		volumes.forEach((v, index) => {
-			const x = (index / (volumes.length - 1)) * visualizationWidth;
+		parsedVolume.forEach((v, index) => {
+			const x =
+				parsedVolume.length <= 1
+					? 0
+					: (index / (parsedVolume.length - 1)) * visualizationWidth;
 			const y = (1 - v) * (h - TIMELINE_BORDER * 2) + 1;
 			if (index === 0) {
 				context.moveTo(x, y);
@@ -355,20 +382,12 @@ export const AudioWaveform: React.FC<{
 				context.lineTo(x, y);
 			}
 		});
-		context.strokeStyle = LIGHT_TRANSPARENT;
+		context.strokeStyle = WHITE_ALPHA_70;
 		context.stroke();
-	}, [height, shouldRenderVolumeOverlay, visualizationWidth, volume]);
+	}, [height, parsedVolume, shouldRenderVolumeOverlay, visualizationWidth]);
 
 	if (error) {
-		// eslint-disable-next-line no-console
-		console.error(error);
-		return (
-			<div style={getContainerStyle(height)}>
-				<div style={errorMessage}>
-					No waveform available. Audio might not support CORS.
-				</div>
-			</div>
-		);
+		return null;
 	}
 
 	if (!canUseWorkerPath && !peaks) {

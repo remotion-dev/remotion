@@ -1,9 +1,12 @@
-import type {StaticFile} from 'remotion';
 import type {
 	CanUpdateSequencePropsResponse,
 	SequencePropsSubscriptionKey,
+	StaticFile,
 } from 'remotion';
-import type {CanUpdateDefaultPropsResponse} from './api-requests';
+import type {
+	CanUpdateDefaultPropsResponse,
+	ElementInstallRequest,
+} from './api-requests';
 import type {HotMiddlewareMessage} from './hot-middleware';
 import type {CompletedClientRender, RenderJob} from './render-job';
 
@@ -21,6 +24,9 @@ export type EventSourceEvent =
 	| {
 			type: 'new-env-variables';
 			newEnvVariables: Record<string, string>;
+	  }
+	| {
+			type: 'config-file-changed';
 	  }
 	| {
 			type: 'root-file-changed';
@@ -72,6 +78,14 @@ export type EventSourceEvent =
 			type: 'undo-redo-stack-changed';
 			undoFile: string | null;
 			redoFile: string | null;
+	  }
+	| {
+			type: 'request-element-install-target';
+			requestId: string;
+	  }
+	| {
+			type: 'element-install-request';
+			request: ElementInstallRequest;
 	  }
 	| {
 			type: 'visual-control-values-changed';

@@ -1,4 +1,8 @@
-import {vignette, type VignetteMode} from '@remotion/effects/vignette';
+import {
+	vignette,
+	type VignetteCenter,
+	type VignetteMode,
+} from '@remotion/effects/vignette';
 import React from 'react';
 import {AbsoluteFill, CanvasImage} from 'remotion';
 import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';
@@ -23,7 +27,8 @@ export const EffectsVignettePreview: React.FC<{
 	readonly roundness: number;
 	readonly color: string;
 	readonly mode: VignetteMode;
-}> = ({amount, radius, feather, roundness, color, mode}) => {
+	readonly center: VignetteCenter;
+}> = ({amount, radius, feather, roundness, color, mode, center}) => {
 	return (
 		<AbsoluteFill style={checkerboard}>
 			<CanvasImage
@@ -40,6 +45,7 @@ export const EffectsVignettePreview: React.FC<{
 						roundness,
 						color,
 						mode,
+						center,
 					}),
 				]}
 			/>

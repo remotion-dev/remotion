@@ -19,7 +19,7 @@ import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
 import {useMediaTag} from '../use-media-tag.js';
 import {
-	useMediaMutedState,
+	usePlayerMutedState,
 	useMediaVolumeState,
 } from '../volume-position-state.js';
 import {evaluateVolume} from '../volume-prop.js';
@@ -94,7 +94,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	}
 
 	const [mediaVolume] = useMediaVolumeState();
-	const [mediaMuted] = useMediaMutedState();
+	const [playerMuted] = usePlayerMutedState();
 
 	const volumePropFrame = useFrameForVolumeProp(
 		loopVolumeCurveBehavior ?? 'repeat',
@@ -126,7 +126,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 
 	const propsToPass = useMemo((): AudioHTMLAttributes<HTMLAudioElement> => {
 		return {
-			muted: muted || mediaMuted || userPreferredVolume <= 0,
+			muted: muted || playerMuted || userPreferredVolume <= 0,
 			src: preloadedSrc,
 			loop: _remotionInternalNativeLoopPassed,
 			crossOrigin: crossOriginValue,
@@ -134,7 +134,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		};
 	}, [
 		_remotionInternalNativeLoopPassed,
-		mediaMuted,
+		playerMuted,
 		muted,
 		nativeProps,
 		preloadedSrc,
@@ -188,8 +188,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		premountDisplay: sequenceContext?.premountDisplay ?? null,
 		postmountDisplay: sequenceContext?.postmountDisplay ?? null,
 		loopDisplay: undefined,
-		documentationLink:
-			name === undefined ? 'https://www.remotion.dev/docs/html5-audio' : null,
+		documentationLink: 'https://www.remotion.dev/docs/html5-audio',
 		refForOutline: null,
 	});
 

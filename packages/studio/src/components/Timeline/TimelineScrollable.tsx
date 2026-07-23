@@ -1,7 +1,15 @@
 import React, {useMemo} from 'react';
-import {TIMELINE_BACKGROUND} from '../../helpers/colors';
+import {
+	BORDER_TIMELINE_MARQUEE_BLUE,
+	TIMELINE_MARQUEE_BLUE_ALPHA_16,
+} from '../../helpers/colors';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {scrollableRef} from './timeline-refs';
+import {TimelineAssetDropIndicator} from './TimelineAssetDropIndicator';
+import {
+	TIMELINE_BACKGROUND,
+	useTimelineMarqueeSelection,
+} from './TimelineSelection';
 
 const outer: React.CSSProperties = {
 	width: '100%',
@@ -12,9 +20,19 @@ const outer: React.CSSProperties = {
 	backgroundColor: TIMELINE_BACKGROUND,
 };
 
+const marqueeStyle: React.CSSProperties = {
+	backgroundColor: TIMELINE_MARQUEE_BLUE_ALPHA_16,
+	border: BORDER_TIMELINE_MARQUEE_BLUE,
+	boxSizing: 'border-box',
+	pointerEvents: 'none',
+	position: 'fixed',
+	zIndex: 10,
+};
+
 export const TimelineScrollable: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
+	const {marqueeRect, onPointerDownCapture} = useTimelineMarqueeSelection();
 	const containerStyle: React.CSSProperties = useMemo(() => {
 		return {
 			width: '100%',
@@ -25,10 +43,24 @@ export const TimelineScrollable: React.FC<{
 	return (
 		<div
 			ref={scrollableRef}
+			data-timeline-scrollable="true"
 			style={outer}
 			className={HORIZONTAL_SCROLLBAR_CLASSNAME}
+			onPointerDownCapture={onPointerDownCapture}
 		>
 			<div style={containerStyle}>{children}</div>
+			<TimelineAssetDropIndicator />
+			{marqueeRect === null ? null : (
+				<div
+					style={{
+						...marqueeStyle,
+						height: marqueeRect.bottom - marqueeRect.top,
+						left: marqueeRect.left,
+						top: marqueeRect.top,
+						width: marqueeRect.right - marqueeRect.left,
+					}}
+				/>
+			)}
 		</div>
 	);
 };

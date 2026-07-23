@@ -4,12 +4,9 @@ title: '<Video>'
 crumb: 'API - @remotion/media'
 ---
 
-:::note
-This is documentation for the new `<Video>` tag.  
-Not to be confused with the older [`<Html5Video>` / `<Video>`](/docs/html5-video) tag from `remotion`.
-:::
+[`<Video>` from `@remotion/media`](/docs/media/video) is the recommended component for embedding videos in Remotion.
 
-This component imports and displays a video, similar to [`<OffthreadVideo/>`](/docs/offthreadvideo) but during rendering, extracts the exact frame from the video using [Mediabunny](/docs/mediabunny) and displays it in a `<canvas>` tag.
+During rendering, it extracts the exact frame from the video using [Mediabunny](/docs/mediabunny) and displays it in a `<canvas>` tag. This keeps the video in sync with Remotion's timeline.
 
 This component has [native buffering support](/docs/player/buffer-state) enabled by default. When used in the Player, it automatically pauses playback when buffering and resumes when ready.
 
@@ -66,6 +63,10 @@ For more information on HLS support, see the [HLS documentation](/docs/hls).
 
 The URL of the video to be rendered. Can be a remote URL or a local file referenced with [`staticFile()`](/docs/staticfile).
 
+### `effects?`<AvailableFrom v="4.0.464" />
+
+Apply [effects](/docs/effects/api) to the video frame after it has been drawn to the canvas.
+
 ### `from?`<AvailableFrom v="4.0.445" />
 
 At which frame this clip should start relative to the parent timeline. Default is `0`. Same meaning as [`from`](/docs/sequence#from) on [`<Sequence>`](/docs/sequence).
@@ -90,6 +91,24 @@ export const MyComposition = () => {
   );
 };
 ```
+
+### `premountFor?`<AvailableFrom v="4.0.495" />
+
+Mounts the video for the specified number of frames before its `from` frame. The video carries `display: none` and is frozen at its first frame while premounted, so it does not affect layout.
+
+Use this prop to let the video buffer before it becomes visible. See [Premounting](/docs/player/premounting).
+
+### `postmountFor?`<AvailableFrom v="4.0.495" />
+
+Keeps the video mounted for the specified number of frames after its duration has ended. The video is invisible and frozen at its final frame while postmounted.
+
+### `styleWhilePremounted?`<AvailableFrom v="4.0.495" />
+
+CSS styles applied to the video while it is premounted. These styles override the default `display: none` and `pointer-events: none` styles.
+
+### `styleWhilePostmounted?`<AvailableFrom v="4.0.495" />
+
+CSS styles applied to the video while it is postmounted. These styles override the default `display: none` and `pointer-events: none` styles.
 
 ### `trimBefore?`
 
@@ -266,11 +285,7 @@ import {Video} from '@remotion/media';
 export const MyComposition = () => {
   return (
     <AbsoluteFill>
-      <Video
-        src={staticFile('video.webm')}
-        style={{width: '100%', height: '100%'}}
-        objectFit="cover"
-      />
+      <Video src={staticFile('video.webm')} style={{width: '100%', height: '100%'}} objectFit="cover" />
     </AbsoluteFill>
   );
 };
@@ -324,7 +339,7 @@ Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRen
 ### `onVideoFrame?`
 
 A callback function that gets called when a frame is extracted from the video.  
-Useful for [video manipulation](/docs/video-manipulation).  
+Useful for [video manipulation](/docs/videos/video-manipulation).
 The callback is called with a [`CanvasImageSource`](https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource) object, more specifically, either an `ImageBitmap` or a `VideoFrame`.
 
 ### `audioStreamIndex?`

@@ -1,4 +1,5 @@
 import React, {
+	useCallback,
 	useContext,
 	useEffect,
 	useLayoutEffect,
@@ -23,9 +24,14 @@ import {
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {MediaPlayer} from '../media-player';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
+import {ProResDecoderNotEnabledError} from '../prores-error';
 import type {MediaRequestInit} from '../request-init';
 import {useCommonEffects} from '../use-common-effects';
-import type {FallbackOffthreadVideoProps, VideoObjectFit} from './props';
+import type {
+	FallbackOffthreadVideoProps,
+	NativeVideoProps,
+	VideoObjectFit,
+} from './props';
 import {cacheVideoFrame, getCachedVideoFrame} from './video-frame-cache';
 import {warnAboutObjectFitInStyleOrClassName} from './warn-object-fit-css';
 
@@ -33,7 +39,7 @@ const {
 	useUnsafeVideoConfig,
 	Timeline,
 	SharedAudioContext,
-	useMediaMutedState,
+	usePlayerMutedState,
 	useMediaVolumeState,
 	useFrameForVolumeProp,
 	evaluateVolume,
@@ -43,7 +49,7 @@ const {
 	useEffectChainState,
 } = Internals;
 
-type VideoForPreviewProps = {
+type VideoForPreviewProps = NativeVideoProps & {
 	readonly src: string;
 	readonly style: React.CSSProperties | undefined;
 	readonly playbackRate: number;
@@ -70,6 +76,7 @@ type VideoForPreviewProps = {
 	readonly setMediaDurationInSeconds: (durationInSeconds: number) => void;
 	readonly _experimentalInitiallyDrawCachedFrame: boolean;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
+	readonly refForOutline: React.RefObject<HTMLElement | null>;
 };
 
 type VideoForPreviewAssertedShowingProps = VideoForPreviewProps;
@@ -103,10 +110,12 @@ const VideoForPreviewAssertedShowing: React.FC<
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
 	setMediaDurationInSeconds,
+	refForOutline,
+	...props
 }) => {
 	const src = usePreload(unpreloadedSrc);
 
-	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
 	const mediaPlayerRef = useRef<MediaPlayer | null>(null);
@@ -124,7 +133,22 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();
 
-	const [mediaMuted] = useMediaMutedState();
+	const canvasRefCallback = useCallback(
+		(canvas: HTMLCanvasElement | null) => {
+			canvasRef.current = canvas;
+			refForOutline.current = canvas;
+		},
+		[refForOutline],
+	);
+
+	const fallbackVideoRef = useCallback(
+		(video: HTMLVideoElement | null) => {
+			refForOutline.current = video;
+		},
+		[refForOutline],
+	);
+
+	const [playerMuted] = usePlayerMutedState();
 	const [mediaVolume] = useMediaVolumeState();
 
 	const volumePropFrame = useFrameForVolumeProp(loopVolumeCurveBehavior);
@@ -146,16 +170,16 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const effectsRef = useRef(effects);
 	effectsRef.current = effects;
 
+	const onErrorRef = useRef(onError);
+	onErrorRef.current = onError;
+
 	const effectChainStateRef = useRef(effectChainState);
 	effectChainStateRef.current = effectChainState;
 
 	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
 	const isPostmounting = Boolean(parentSequence?.postmounting);
-	const sequenceOffset =
-		((parentSequence?.cumulatedFrom ?? 0) +
-			(parentSequence?.relativeFrom ?? 0)) /
-		videoConfig.fps;
+	const sequenceOffset = (parentSequence?.absoluteFrom ?? 0) / videoConfig.fps;
 
 	const currentTime = frame / videoConfig.fps;
 
@@ -172,7 +196,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	}
 
 	// TODO: Consider Sequence hidden
-	const effectiveMuted = muted || mediaMuted || userPreferredVolume <= 0;
+	const effectiveMuted = muted || playerMuted || userPreferredVolume <= 0;
 
 	const isPlayerBuffering = Internals.useIsPlayerBuffering(buffering);
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
@@ -220,9 +244,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 			return;
 		}
 
-		const canvas = canvasRef.current;
-
 		return () => {
+			const canvas = canvasRef.current;
+
 			if (
 				!canvas ||
 				!hasDrawnRealFrameRef.current ||
@@ -236,33 +260,23 @@ const VideoForPreviewAssertedShowing: React.FC<
 	}, [_experimentalInitiallyDrawCachedFrame, src]);
 
 	useEffect(() => {
-		if (!sharedAudioContext) return;
-		if (!sharedAudioContext.audioContext) return;
-
-		const {
-			audioContext,
-			gainNode,
-			audioSyncAnchor,
-			scheduleAudioNode,
-			unscheduleAudioNode,
-		} = sharedAudioContext;
-
-		if (!gainNode) {
-			return;
-		}
+		const sharedAudioContextForMediaPlayer =
+			sharedAudioContext?.audioContext && sharedAudioContext.gainNode
+				? {
+						audioContext: sharedAudioContext.audioContext,
+						gainNode: sharedAudioContext.gainNode,
+						audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
+						scheduleAudioNode: sharedAudioContext.scheduleAudioNode,
+						unscheduleAudioNode: sharedAudioContext.unscheduleAudioNode,
+					}
+				: null;
 
 		try {
 			const player = new MediaPlayer({
 				canvas: canvasRef.current,
 				src: preloadedSrc,
 				logLevel,
-				sharedAudioContext: {
-					audioContext,
-					gainNode,
-					audioSyncAnchor,
-					scheduleAudioNode,
-					unscheduleAudioNode,
-				},
+				sharedAudioContext: sharedAudioContextForMediaPlayer,
 				loop,
 				trimAfter: initialTrimAfterRef.current,
 				trimBefore: initialTrimBeforeRef.current,
@@ -296,7 +310,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 					const handleError = (error: Error, fallbackMessage: string) => {
 						const [action, errorToUse] = callOnErrorAndResolve({
-							onError,
+							onError: onErrorRef.current,
 							error,
 							disallowFallback: disallowFallbackToOffthreadVideo,
 							isClientSideRendering: false,
@@ -338,6 +352,13 @@ const VideoForPreviewAssertedShowing: React.FC<
 						return;
 					}
 
+					if (result.type === 'cannot-decode-prores') {
+						// Unrecoverable: a native <video> can't decode ProRes either, so
+						// we must not fall back. The .catch below notifies onError and
+						// rethrows without falling back.
+						throw new ProResDecoderNotEnabledError(preloadedSrc);
+					}
+
 					if (result.type === 'no-tracks') {
 						handleError(
 							new Error(`No video or audio tracks found for ${preloadedSrc}.`),
@@ -354,8 +375,16 @@ const VideoForPreviewAssertedShowing: React.FC<
 					}
 				})
 				.catch((error) => {
+					// ProRes without a registered decoder is unrecoverable and must not
+					// fall back to a native <video> (which cannot decode it either).
+					// Notify onError once for observability, then rethrow.
+					if (error instanceof ProResDecoderNotEnabledError) {
+						onErrorRef.current?.(error);
+						throw error;
+					}
+
 					const [action, errorToUse] = callOnErrorAndResolve({
-						onError,
+						onError: onErrorRef.current,
 						error,
 						disallowFallback: disallowFallbackToOffthreadVideo,
 						isClientSideRendering: false,
@@ -375,7 +404,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		} catch (error) {
 			const [action, errorToUse] = callOnErrorAndResolve({
 				error: error as Error,
-				onError,
+				onError: onErrorRef.current,
 				disallowFallback: disallowFallbackToOffthreadVideo,
 				isClientSideRendering: false,
 				clientSideError: error as Error,
@@ -416,7 +445,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 		preloadedSrc,
 		sharedAudioContext,
 		videoConfig.fps,
-		onError,
 		credentials,
 		initialRequestInit,
 		setMediaDurationInSeconds,
@@ -496,6 +524,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 		// not using <OffthreadVideo> because it does not support looping
 		return (
 			<Html5Video
+				{...props}
+				ref={fallbackVideoRef}
 				src={src}
 				style={actualStyle}
 				className={className}
@@ -520,7 +550,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	return (
 		<canvas
-			ref={canvasRef}
+			{...props}
+			ref={canvasRefCallback}
 			// Don't set width and height here.
 			// Width is set in the video iterator manager, if props are being updated, they are being applied again by React.
 			// This will lead to inefficient resizes.

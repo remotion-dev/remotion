@@ -1,6 +1,7 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useState} from 'react';
 import {Internals} from 'remotion';
+import {WHITE} from '../helpers/colors';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {JumpToStart} from '../icons/jump-to-start';
@@ -10,23 +11,23 @@ import {StepBack} from '../icons/step-back';
 import {StepForward} from '../icons/step-forward';
 import {useTimelineInOutFramePosition} from '../state/in-out';
 import {ControlButton} from './ControlButton';
-import {getCurrentDuration, getCurrentFps} from './Timeline/imperative-state';
+import {getCurrentDuration} from './Timeline/imperative-state';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
 
 const backStyle = {
 	height: 18,
-	color: 'white',
+	color: WHITE,
 };
 
 const forwardBackStyle = {
 	height: 16,
-	color: 'white',
+	color: WHITE,
 };
 
 const iconButton: React.CSSProperties = {
 	height: 14,
 	width: 14,
-	color: 'white',
+	color: WHITE,
 };
 
 export const PlayPause: React.FC<{
@@ -98,76 +99,23 @@ export const PlayPause: React.FC<{
 		[pauseAndReturnToPlayStart, playing],
 	);
 
-	const onArrowLeft = useCallback(
-		(e: KeyboardEvent) => {
-			e.preventDefault();
-
-			if (e.altKey) {
-				seek(0);
-				ensureFrameIsInViewport({
-					direction: 'fit-left',
-					durationInFrames: getCurrentDuration(),
-					frame: 0,
-				});
-			} else if (e.shiftKey) {
-				frameBack(getCurrentFps());
-				ensureFrameIsInViewport({
-					direction: 'fit-left',
-					durationInFrames: getCurrentDuration(),
-					frame: Math.max(0, getCurrentFrame() - getCurrentFps()),
-				});
-			} else {
-				frameBack(1);
-				ensureFrameIsInViewport({
-					direction: 'fit-left',
-					durationInFrames: getCurrentDuration(),
-					frame: Math.max(0, getCurrentFrame() - 1),
-				});
-			}
-		},
-		[frameBack, seek, getCurrentFrame],
-	);
-
-	const onArrowRight = useCallback(
-		(e: KeyboardEvent) => {
-			if (e.altKey) {
-				seek(getCurrentDuration() - 1);
-				ensureFrameIsInViewport({
-					direction: 'fit-right',
-					durationInFrames: getCurrentDuration() - 1,
-					frame: getCurrentDuration() - 1,
-				});
-			} else if (e.shiftKey) {
-				frameForward(getCurrentFps());
-				ensureFrameIsInViewport({
-					direction: 'fit-right',
-					durationInFrames: getCurrentDuration(),
-					frame: Math.min(
-						getCurrentDuration() - 1,
-						getCurrentFrame() + getCurrentFps(),
-					),
-				});
-			} else {
-				frameForward(1);
-				ensureFrameIsInViewport({
-					direction: 'fit-right',
-					durationInFrames: getCurrentDuration(),
-					frame: Math.min(getCurrentDuration() - 1, getCurrentFrame() + 1),
-				});
-			}
-
-			e.preventDefault();
-		},
-		[frameForward, seek, getCurrentFrame],
-	);
-
 	const oneFrameBack = useCallback(() => {
 		frameBack(1);
-	}, [frameBack]);
+		ensureFrameIsInViewport({
+			direction: 'fit-left',
+			durationInFrames: getCurrentDuration(),
+			frame: Math.max(0, getCurrentFrame() - 1),
+		});
+	}, [frameBack, getCurrentFrame]);
 
 	const oneFrameForward = useCallback(() => {
 		frameForward(1);
-	}, [frameForward]);
+		ensureFrameIsInViewport({
+			direction: 'fit-right',
+			durationInFrames: getCurrentDuration(),
+			frame: Math.min(getCurrentDuration() - 1, getCurrentFrame() + 1),
+		});
+	}, [frameForward, getCurrentFrame]);
 
 	const jumpToStart = useCallback(() => {
 		seek(inFrame ?? 0);
@@ -180,20 +128,20 @@ export const PlayPause: React.FC<{
 	const keybindings = useKeybinding();
 
 	useEffect(() => {
-		const arrowLeft = keybindings.registerKeybinding({
+		const commandArrowLeft = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'ArrowLeft',
-			callback: onArrowLeft,
-			commandCtrlKey: false,
+			callback: oneFrameBack,
+			commandCtrlKey: true,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
-		const arrowRight = keybindings.registerKeybinding({
+		const commandArrowRight = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'ArrowRight',
-			callback: onArrowRight,
-			commandCtrlKey: false,
+			callback: oneFrameForward,
+			commandCtrlKey: true,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
@@ -236,8 +184,8 @@ export const PlayPause: React.FC<{
 		});
 
 		return () => {
-			arrowLeft.unregister();
-			arrowRight.unregister();
+			commandArrowLeft.unregister();
+			commandArrowRight.unregister();
 			space.unregister();
 			enter.unregister();
 			a.unregister();
@@ -247,10 +195,10 @@ export const PlayPause: React.FC<{
 		jumpToEnd,
 		jumpToStart,
 		keybindings,
-		onArrowLeft,
-		onArrowRight,
 		onEnter,
 		onSpace,
+		oneFrameBack,
+		oneFrameForward,
 	]);
 
 	useEffect(() => {

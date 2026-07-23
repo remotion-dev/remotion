@@ -1,3 +1,4 @@
+import {getStudioEntryPoints} from '@remotion/studio-shared/studio-entry-points';
 import type {Configuration} from '@rspack/core';
 import {DefinePlugin, ProgressPlugin, rspack} from '@rspack/core';
 import ReactRefreshPlugin from '@rspack/plugin-react-refresh';
@@ -26,8 +27,8 @@ export const rspackConfig = async ({
 	keyboardShortcutsEnabled,
 	bufferStateDelayInMilliseconds,
 	poll,
-	experimentalClientSideRenderingEnabled,
 	askAIEnabled,
+	interactivityEnabled,
 	extraPlugins,
 }: {
 	entry: string;
@@ -43,7 +44,7 @@ export const rspackConfig = async ({
 	remotionRoot: string;
 	poll: number | null;
 	askAIEnabled: boolean;
-	experimentalClientSideRenderingEnabled: boolean;
+	interactivityEnabled: boolean;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	extraPlugins: any[];
 }): Promise<[string, RspackConfiguration]> => {
@@ -53,9 +54,9 @@ export const rspackConfig = async ({
 		getDefinePluginDefinitions({
 			maxTimelineTracks,
 			askAIEnabled,
+			interactivityEnabled,
 			keyboardShortcutsEnabled,
 			bufferStateDelayInMilliseconds,
-			experimentalClientSideRenderingEnabled,
 		}),
 	);
 
@@ -102,15 +103,17 @@ export const rspackConfig = async ({
 			__dirname: 'mock',
 			__filename: 'mock',
 		},
-		entry: [
-			require.resolve('./setup-environment'),
-			environment === 'development'
-				? require.resolve('./setup-sequence-stack-traces')
-				: null,
+		entry: getStudioEntryPoints({
+			fastRefreshRuntime: null,
+			environmentSetup: require.resolve('./setup-environment'),
+			sequenceStackTraces:
+				environment === 'development'
+					? require.resolve('./setup-sequence-stack-traces')
+					: null,
 			userDefinedComponent,
-			require.resolve('../react-shim.js'),
-			entry,
-		].filter(Boolean) as [string, ...string[]],
+			reactShim: require.resolve('../react-shim.js'),
+			studioRenderEntry: entry,
+		}),
 		mode: environment,
 		plugins:
 			environment === 'development'

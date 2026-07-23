@@ -1,13 +1,19 @@
 import {useColorMode} from '@docusaurus/theme-common';
 import {Player} from '@remotion/player';
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
+import {
+	makeShapeComponentDragDataFromDemoState,
+	setComponentDragData,
+} from '../shapes/shape-component-drag-data';
+import {ShapeDragPreview} from '../shapes/shape-drag-preview';
 import {Control} from './control';
 import type {DemoType, Option} from './types';
 import {
 	animationMathDemo,
 	arrowDemo,
 	bookFlipPresentationDemo,
+	calloutDemo,
 	circleDemo,
 	clockWipePresentationDemo,
 	crosswarpPresentationDemo,
@@ -17,34 +23,6 @@ import {
 	customTimingDemo,
 	dissolvePresentationDemo,
 	dreamyZoomPresentationDemo,
-	effectsBarrelDistortionDemo,
-	effectsBlurDemo,
-	effectsBrightnessDemo,
-	effectsChromaticAberrationDemo,
-	effectsContrastDemo,
-	effectsDropShadowDemo,
-	effectsDuotoneDemo,
-	effectsGlowDemo,
-	effectsGrayscaleDemo,
-	effectsHalftoneDemo,
-	effectsHalftoneLinearGradientDemo,
-	effectsHueDemo,
-	effectsDotGridDemo,
-	effectsInvertDemo,
-	effectsLightLeakDemo,
-	effectsMirrorDemo,
-	effectsNoiseDemo,
-	effectsSaturationDemo,
-	effectsScanlinesDemo,
-	effectsScaleDemo,
-	effectsShineDemo,
-	effectsSpeckleDemo,
-	effectsStarburstDemo,
-	effectsTintDemo,
-	effectsUvTranslateDemo,
-	effectsVignetteDemo,
-	effectsWaveDemo,
-	effectsXyTranslateDemo,
 	ellipseDemo,
 	fadePresentationDemo,
 	filmBurnPresentationDemo,
@@ -64,12 +42,23 @@ import {
 	rectDemo,
 	ripplePresentationDemo,
 	rotateDemo,
+	roughNotationAnimatedSeedDemo,
+	roughNotationBoxDemo,
+	roughNotationBracketDemo,
+	roughNotationCircleDemo,
+	roughNotationCrossedOffDemo,
 	roundedTextBoxDemo,
+	roughNotationHighlightDemo,
+	roughNotationPosterizedProgressDemo,
+	roughNotationPosterizedSeedDemo,
+	roughNotationStrikeThroughDemo,
+	roughNotationUnderlineDemo,
 	scaleDemo,
 	shaderDemo,
 	skewDemo,
 	slidePresentationDemo,
 	slidePresentationDemoLongThreshold,
+	sparkDemo,
 	springDampingDemo,
 	springDemo,
 	starburstDemo,
@@ -94,45 +83,48 @@ const container: React.CSSProperties = {
 	marginBottom: 40,
 };
 
+const dragHandle: React.CSSProperties = {
+	alignItems: 'center',
+	borderBottom: '1px solid var(--ifm-color-emphasis-300)',
+	cursor: 'grab',
+	display: 'flex',
+	fontSize: 13,
+	fontWeight: 600,
+	gap: 6,
+	padding: '8px 10px',
+	userSelect: 'none',
+};
+
+const draggablePreview: React.CSSProperties = {
+	cursor: 'grab',
+};
+
+const previewSeparator: React.CSSProperties = {
+	borderBottom: '1px solid var(--ifm-color-emphasis-300)',
+};
+
+const dragPreviewSource: React.CSSProperties = {
+	height: 128,
+	left: -10000,
+	pointerEvents: 'none',
+	position: 'fixed',
+	top: -10000,
+	width: 128,
+};
+
 const demos: DemoType[] = [
 	htmlInCanvasDemo2DBlur,
 	htmlInCanvasDemoWebGL,
 	htmlInCanvasDemoWebGPU,
 	noiseDemo,
-	effectsBrightnessDemo,
-	effectsContrastDemo,
-	effectsDuotoneDemo,
-	effectsDropShadowDemo,
-	effectsGlowDemo,
-	effectsGrayscaleDemo,
-	effectsHueDemo,
-	effectsInvertDemo,
-	effectsSaturationDemo,
-	effectsTintDemo,
-	effectsShineDemo,
-	effectsSpeckleDemo,
-	effectsMirrorDemo,
-	effectsNoiseDemo,
-	effectsScanlinesDemo,
-	effectsScaleDemo,
-	effectsXyTranslateDemo,
-	effectsUvTranslateDemo,
-	effectsBarrelDistortionDemo,
-	effectsVignetteDemo,
-	effectsBlurDemo,
-	effectsChromaticAberrationDemo,
-	effectsWaveDemo,
-	effectsHalftoneDemo,
-	effectsHalftoneLinearGradientDemo,
-	effectsDotGridDemo,
-	effectsStarburstDemo,
-	effectsLightLeakDemo,
 	arrowDemo,
 	triangleDemo,
 	rectDemo,
+	calloutDemo,
 	circleDemo,
 	ellipseDemo,
 	heartDemo,
+	sparkDemo,
 	starDemo,
 	polygonDemo,
 	pieDemo,
@@ -158,6 +150,16 @@ const demos: DemoType[] = [
 	springDampingDemo,
 	shaderDemo,
 	lightLeakDemo,
+	roughNotationHighlightDemo,
+	roughNotationUnderlineDemo,
+	roughNotationStrikeThroughDemo,
+	roughNotationCrossedOffDemo,
+	roughNotationBoxDemo,
+	roughNotationBracketDemo,
+	roughNotationCircleDemo,
+	roughNotationAnimatedSeedDemo,
+	roughNotationPosterizedSeedDemo,
+	roughNotationPosterizedProgressDemo,
 	starburstDemo,
 	transitionSeriesTransitionDemo,
 	transitionSeriesOverlayDemo,
@@ -197,6 +199,7 @@ export const Demo: React.FC<{
 	const {colorMode} = useColorMode();
 
 	const [key, setKey] = useState(() => 0);
+	const previewRef = useRef<SVGSVGElement>(null);
 
 	const initialState = useMemo(() => {
 		return demo.options
@@ -215,6 +218,26 @@ export const Demo: React.FC<{
 
 	const [state, setState] = useState(() => initialState);
 
+	const shapeDragData = useMemo(() => {
+		return makeShapeComponentDragDataFromDemoState({
+			demoId: demo.id,
+			state,
+		});
+	}, [demo.id, state]);
+
+	const onDragStart = useCallback(
+		(e: React.DragEvent<HTMLDivElement>) => {
+			if (shapeDragData !== null) {
+				setComponentDragData({
+					dataTransfer: e.dataTransfer,
+					dragData: shapeDragData,
+					dragImage: previewRef.current,
+				});
+			}
+		},
+		[shapeDragData],
+	);
+
 	const restart = useCallback(() => {
 		setState(initialState);
 		setKey((k) => k + 1);
@@ -226,54 +249,88 @@ export const Demo: React.FC<{
 
 	return (
 		<div style={container}>
-			<Player
-				key={key}
-				acknowledgeRemotionLicense
-				component={demo.comp}
-				compositionWidth={demo.compWidth}
-				compositionHeight={demo.compHeight}
-				durationInFrames={demo.durationInFrames}
-				fps={demo.fps}
+			<div
+				draggable={shapeDragData !== null}
+				onDragStart={shapeDragData === null ? undefined : onDragStart}
 				style={{
-					width: '100%',
-					aspectRatio: demo.compWidth / demo.compHeight,
-					borderBottom:
-						demo.options.length > 0
-							? '1px solid var(--ifm-color-emphasis-300)'
-							: 0,
+					...(shapeDragData === null ? {} : draggablePreview),
+					...(demo.options.length > 0 || shapeDragData !== null
+						? previewSeparator
+						: {}),
 				}}
-				logLevel={demo.logLevel}
-				errorFallback={({error}) => {
-					return (
-						<AbsoluteFill
-							style={{
-								justifyContent: 'center',
-								alignItems: 'center',
-								fontSize: 30,
-								textAlign: 'center',
-								lineHeight: 1.5,
-							}}
-						>
-							{error.message}
-							<br />
-							<button
-								style={{
-									fontSize: 30,
-								}}
-								onClick={restart}
-								type="button"
-							>
-								Restart
-							</button>
-						</AbsoluteFill>
-					);
-				}}
-				inputProps={{...state, darkMode: colorMode === 'dark'}}
-				autoPlay={demo.autoPlay}
-				controls={demo.controls}
-				initiallyMuted
-				loop
-			/>
+				title={
+					shapeDragData === null
+						? undefined
+						: 'Drag this shape into Remotion Studio'
+				}
+			>
+				<div>
+					<Player
+						key={key}
+						acknowledgeRemotionLicense
+						component={demo.comp}
+						compositionWidth={demo.compWidth}
+						compositionHeight={demo.compHeight}
+						durationInFrames={demo.durationInFrames}
+						fps={demo.fps}
+						style={{
+							width: '100%',
+							aspectRatio: demo.compWidth / demo.compHeight,
+						}}
+						logLevel={demo.logLevel}
+						errorFallback={({error}) => {
+							return (
+								<AbsoluteFill
+									style={{
+										justifyContent: 'center',
+										alignItems: 'center',
+										fontSize: 30,
+										textAlign: 'center',
+										lineHeight: 1.5,
+									}}
+								>
+									{error.message}
+									<br />
+									<button
+										style={{
+											fontSize: 30,
+										}}
+										onClick={restart}
+										type="button"
+									>
+										Restart
+									</button>
+								</AbsoluteFill>
+							);
+						}}
+						inputProps={{...state, darkMode: colorMode === 'dark'}}
+						autoPlay={demo.autoPlay}
+						controls={demo.controls}
+						initiallyMuted
+						loop
+					/>
+				</div>
+			</div>
+			{shapeDragData === null ? null : (
+				<div style={dragPreviewSource}>
+					<ShapeDragPreview
+						ref={previewRef}
+						dragData={shapeDragData}
+						size={128}
+					/>
+				</div>
+			)}
+			{shapeDragData === null ? null : (
+				<div
+					draggable
+					onDragStart={onDragStart}
+					style={dragHandle}
+					title="Drag this shape into Remotion Studio"
+				>
+					<span aria-hidden="true">::</span>
+					<span>Drag current shape into a layer in the Studio</span>
+				</div>
+			)}
 			<div className={styles.containerrow}>
 				{demo.options
 					.filter((option) => shouldShowOption(option, state))

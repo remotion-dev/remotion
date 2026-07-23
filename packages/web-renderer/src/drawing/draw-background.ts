@@ -80,6 +80,8 @@ export const drawBackground = async ({
 			internalState,
 			scale,
 			onlyBackgroundClipText: true,
+			waitForPageResponsiveness: null,
+			waitForRenderReady: () => Promise.resolve(),
 		});
 		onlyBackgroundClipText.setTransform(new DOMMatrix().scale(scale, scale));
 		element.style.backgroundClip = originalBackgroundClip;

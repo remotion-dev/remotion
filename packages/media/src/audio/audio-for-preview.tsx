@@ -18,7 +18,7 @@ const {
 	useUnsafeVideoConfig,
 	Timeline,
 	SharedAudioContext,
-	useMediaMutedState,
+	usePlayerMutedState,
 	useMediaVolumeState,
 	useFrameForVolumeProp,
 	evaluateVolume,
@@ -28,6 +28,7 @@ const {
 } = Internals;
 
 type NewAudioForPreviewProps = {
+	readonly style: React.CSSProperties | null;
 	readonly src: string;
 	readonly playbackRate: number;
 	readonly logLevel: LogLevel;
@@ -71,6 +72,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	credentials,
 	requestInit,
 	setMediaDurationInSeconds,
+	style,
 }) => {
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
@@ -88,7 +90,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();
 
-	const [mediaMuted] = useMediaMutedState();
+	const [playerMuted] = usePlayerMutedState();
 	const [mediaVolume] = useMediaVolumeState();
 
 	const volumePropFrame = useFrameForVolumeProp(
@@ -121,10 +123,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	const parentSequence = useContext(SequenceContext);
 	const isPremounting = Boolean(parentSequence?.premounting);
 	const isPostmounting = Boolean(parentSequence?.postmounting);
-	const sequenceOffset =
-		((parentSequence?.cumulatedFrom ?? 0) +
-			(parentSequence?.relativeFrom ?? 0)) /
-		videoConfig.fps;
+	const sequenceOffset = (parentSequence?.absoluteFrom ?? 0) / videoConfig.fps;
 
 	const bufferingContext = useContext(Internals.BufferingContextReact);
 
@@ -134,7 +133,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 		);
 	}
 
-	const effectiveMuted = muted || mediaMuted || userPreferredVolume <= 0;
+	const effectiveMuted = muted || playerMuted || userPreferredVolume <= 0;
 
 	const isPlayerBuffering = Internals.useIsPlayerBuffering(bufferingContext);
 	const initialPlaying = useRef(playing && !isPlayerBuffering);
@@ -280,6 +279,14 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 						return;
 					}
 
+					if (result.type === 'cannot-decode-prores') {
+						// ProRes is video-only, so the MediaPlayer never returns this for
+						// an audio track. Guard it to keep the union exhaustive.
+						throw new Error(
+							`Encountered ProRes media for ${preloadedSrc}. But this should never happen, since you used the <Audio> tag. Please report this as a bug.`,
+						);
+					}
+
 					if (result.type === 'success') {
 						setMediaPlayerReady(true);
 						setMediaDurationInSeconds(result.durationInSeconds);
@@ -370,6 +377,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				name={name}
 				loop={loop}
 				showInTimeline={showInTimeline}
+				style={style ?? undefined}
 				stack={stack ?? undefined}
 				toneFrequency={toneFrequency}
 				audioStreamIndex={audioStreamIndex}
@@ -384,6 +392,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 };
 
 type InnerAudioProps = {
+	readonly style: React.CSSProperties | null;
 	readonly loop?: boolean;
 	readonly src: string;
 	readonly logLevel?: LogLevel;
@@ -434,6 +443,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	credentials,
 	requestInit,
 	setMediaDurationInSeconds,
+	style,
 }) => {
 	const preloadedSrc = usePreload(src);
 
@@ -496,6 +506,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 			requestInit={requestInit}
 			fallbackHtml5AudioProps={fallbackHtml5AudioProps}
 			setMediaDurationInSeconds={setMediaDurationInSeconds}
+			style={style}
 		/>
 	);
 };

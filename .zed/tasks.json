@@ -1,0 +1,36 @@
+[
+	{
+		"label": "setup new worktree",
+		"command": "bun install && bun run build",
+		"hooks": [
+			"create_worktree"
+		],
+		"cwd": "$ZED_WORKTREE_ROOT",
+		"reveal": "no_focus",
+		"hide": "on_success"
+	},
+	{
+		"label": "build monorepo",
+		"command": "bun run build",
+		"cwd": "$ZED_WORKTREE_ROOT",
+		"reveal": "always",
+		"hide": "never",
+		"save": "all"
+	},
+	{
+		"label": "watch monorepo",
+		"command": "bun run watch",
+		"cwd": "$ZED_WORKTREE_ROOT",
+		"reveal": "always",
+		"hide": "never",
+		"save": "all"
+	},
+	{
+		"label": "start example app",
+		"command": "bun run dev",
+		"cwd": "$ZED_WORKTREE_ROOT/packages/example",
+		"reveal": "always",
+		"hide": "never",
+		"save": "all"
+	}
+]

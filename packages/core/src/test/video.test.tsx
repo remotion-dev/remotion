@@ -72,6 +72,19 @@ test('It should render Video with trimBefore and trimAfter props', () => {
 	).not.toThrow();
 });
 
+test('It should render Video with onVideoFrame metadata arguments', () => {
+	expect(() =>
+		render(
+			<WrapSequenceContext>
+				<Html5Video
+					src="test"
+					onVideoFrame={(_frame, _now, _metadata) => undefined}
+				/>
+			</WrapSequenceContext>,
+		),
+	).not.toThrow();
+});
+
 test('It should throw when both startFrom and trimBefore are provided', () => {
 	expect(() =>
 		render(

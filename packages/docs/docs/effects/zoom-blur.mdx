@@ -1,0 +1,84 @@
+---
+image: /generated/articles-docs-effects-zoom-blur.png
+slug: /effects/zoom-blur
+title: zoomBlur()
+sidebar_label: zoomBlur()
+crumb: '@remotion/effects'
+---
+
+# zoomBlur()<AvailableFrom v="4.0.480" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+A radial zoom blur that smears pixels away from a configurable center point. It can be applied to canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+## Preview
+
+<EffectsDemo type="effects-zoom-blur" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {Video} from '@remotion/media';
+import {zoomBlur} from '@remotion/effects/zoom-blur';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const amount = interpolate(frame, [0, 20], [80, 0], {
+    extrapolateRight: 'clamp',
+  });
+
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[
+          zoomBlur({
+            amount,
+            center: [0.25, 0.5],
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties.
+
+### `amount?`
+
+The blur strength in pixels. Defaults to `40`.
+
+Set to `0` to leave the source unchanged.
+
+### `center?`
+
+The origin of the blur in UV coordinates. Defaults to `[0.5, 0.5]`.
+
+Use `[0, 0.5]` for a center on the left edge, `[1, 0.5]` for a center on the right edge, and `[0.5, 0.5]` for a centered zoom blur.
+
+### `samples?`
+
+The number of samples used to average the blur. Defaults to `24`.
+
+Higher values are smoother and more expensive to render. Must be an integer between `1` and `64`.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`zoomBlur()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`blur()`](/docs/effects/blur)
+- [`linearProgressiveBlur()`](/docs/effects/linear-progressive-blur)
+- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/zoom-blur/index.ts)

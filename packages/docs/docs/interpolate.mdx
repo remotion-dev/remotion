@@ -109,6 +109,86 @@ const scale = interpolate(frame, [0, 20], [0, 1], {
 });
 ```
 
+## Example: Scaling feels nonlinear? Use perceptual scale output<AvailableFrom v="4.0.490" />
+
+For `scale` values, additive interpolation changes the CSS number linearly, but the visible area changes with `scale ** 2`.
+Use `output: 'perceptual-scale'` to make the signed visual area change linearly after easing.
+
+```tsx twoslash title="MyComposition.tsx"
+import {interpolate, useCurrentFrame} from 'remotion';
+
+const frame = useCurrentFrame();
+const scale = interpolate(frame, [0, 60], [0, 1], {
+  extrapolateLeft: 'clamp',
+  extrapolateRight: 'clamp',
+  output: 'perceptual-scale',
+});
+```
+
+At halfway, this returns `Math.sqrt(0.5)`.
+For negative scales, the sign is preserved, so `[0, -1]` behaves like `[0, 1]` but mirrored.
+
+## Example: CSS transform values<AvailableFrom v="4.0.472" />
+
+`outputRange` may contain scale, translate, rotate, or transform origin strings.
+Each value may contain up to three components.
+
+```tsx twoslash title="MyComposition.tsx"
+import {interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComposition: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <div
+      style={{
+        scale: interpolate(frame, [0, 30], ['1', '2 3']),
+        translate: interpolate(frame, [0, 30], ['0px 0px', '100px 50px']),
+        rotate: interpolate(frame, [0, 30], ['0deg', '90deg']),
+        transformOrigin: interpolate(frame, [0, 30], [
+          'left top',
+          'right bottom',
+        ]),
+      }}
+    />
+  );
+};
+```
+
+Scale values use unitless numbers.
+Translate values use length or percentage units.
+Rotate values use `deg`, `rad`, `grad`, or `turn`.
+Transform origin values may use the `left`, `center`, `right`, `top`, and `bottom` keywords from <AvailableFrom v="4.0.475" inline />.
+They are normalized to percentages before interpolation.
+The optional third transform origin component must be a length, for example `10px`.
+
+All values in one interpolation must have the same type.
+For each component, units must match.
+For missing dimensions, CSS defaults are used: scale defaults to `1`, translate and rotate default to `0`, and transform origin defaults to `50% 50% 0`.
+
+## Example: Numeric tuples<AvailableFrom v="4.0.473" />
+
+`outputRange` may contain numeric tuples.
+Each tuple must contain the same number of numbers.
+
+```tsx twoslash title="MyComposition.tsx"
+import {interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComposition: React.FC = () => {
+  const frame = useCurrentFrame();
+  const start: readonly [number, number] = interpolate(
+    frame,
+    [0, 60],
+    [
+      [0, 0.5],
+      [1, 0.5],
+    ],
+  );
+
+  return <div>{start.join(', ')}</div>;
+};
+```
+
 ## API
 
 Takes four arguments:
@@ -192,6 +272,41 @@ interpolate(frame, [0, 100, 200], [0, 1, 2], {
 });
 ```
 
+### output?<AvailableFrom v="4.0.490" />
+
+_Default_: `linear`
+
+Controls how the eased progress maps to the `outputRange`.
+Use `output: 'linear'` for additive interpolation.
+For `[1, 2]` at progress `0.5`, the result is `1.5`.
+
+Use `output: 'perceptual-scale'` for scale interpolation where visible area should change linearly.
+Each output value is mapped to `Math.sign(value) * value ** 2`, interpolated linearly, then the interpolated signed area is mapped back with `Math.sign(area) * Math.sqrt(Math.abs(area))`.
+For `[0, 1]` at progress `0.5`, the result is `Math.sqrt(0.5)`.
+For `[1, 2]` at progress `0.5`, the result is `Math.sqrt(2.5)`.
+For `[0, -1]` at progress `0.5`, the result is `-Math.sqrt(0.5)`.
+
+`easing` still controls time and progress.
+`output` controls the value distribution after easing.
+
+### posterize<AvailableFrom v="4.0.470" />
+
+_Default_: no posterization
+
+Quantizes the input value before interpolation. Use it to sample an animation every `n` frames instead of updating on every frame.
+
+```ts twoslash title="MyComposition.tsx"
+import {interpolate, useCurrentFrame} from 'remotion';
+
+const frame = useCurrentFrame();
+const opacity = interpolate(frame, [0, 60], [0, 1], {
+  posterize: 3,
+});
+```
+
+With `posterize: 3`, frames `0`, `1`, and `2` use the value for frame `0`; frames `3`, `4`, and `5` use the value for frame `3`, and so on.
+`posterize` must be a positive finite number.
+
 ## Types
 
 Since `v3.3.77`, types for the options are exported from Remotion.
@@ -200,7 +315,11 @@ Since `v3.3.77`, types for the options are exported from Remotion.
 import {ExtrapolateType, InterpolateOptions} from 'remotion';
 
 const extrapolate: ExtrapolateType = 'clamp';
-const option: InterpolateOptions = {extrapolateLeft: extrapolate};
+const option: InterpolateOptions = {
+  extrapolateLeft: extrapolate,
+  output: 'perceptual-scale',
+  posterize: 3,
+};
 ```
 
 ## Compatibility

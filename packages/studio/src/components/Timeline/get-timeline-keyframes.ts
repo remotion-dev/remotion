@@ -3,25 +3,27 @@ import type {
 	CanUpdateSequencePropStatusFalse,
 } from 'remotion';
 
-export const getComputedStatusLabel = (
+export const getComputedStatusLabel: (
 	propStatus: CanUpdateSequencePropStatusFalse,
-): string => {
-	if (propStatus.reason === 'computed') {
+) => string = (propStatus) => {
+	if (propStatus.status === 'computed') {
 		return 'computed';
 	}
 
-	return 'keyframed';
+	throw new Error(
+		`Unsupported prop status: ${propStatus.status satisfies never}`,
+	);
 };
 
 export const getTimelineKeyframes = (
 	propStatus: CanUpdateSequencePropStatus | null | undefined,
 	keyframeDisplayOffset = 0,
 ): {frame: number; value: unknown}[] => {
-	if (!propStatus || propStatus.canUpdate) {
+	if (!propStatus) {
 		return [];
 	}
 
-	if (propStatus.reason === 'computed') {
+	if (propStatus.status !== 'keyframed') {
 		return [];
 	}
 

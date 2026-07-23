@@ -16,7 +16,9 @@ import {ClientRenderQueueProcessor} from './RenderQueue/ClientRenderQueueProcess
 import {RenderQueueContextProvider} from './RenderQueue/context';
 import {SetTimelineInOutProvider} from './SetTimelineInOutProvider';
 import {ShowGuidesProvider} from './ShowGuidesProvider';
+import {ShowOutlinesProvider} from './ShowOutlinesProvider';
 import {ShowRulersProvider} from './ShowRulersProvider';
+import {SnappingProvider} from './SnappingProvider';
 import {VisualControlsUndoSync} from './VisualControls/VisualControlsUndoSync';
 import {ZoomGesturesProvider} from './ZoomGesturesProvider';
 
@@ -36,27 +38,31 @@ export const EditorContexts: React.FC<{
 								<ZoomGesturesProvider>
 									<ShowRulersProvider>
 										<ShowGuidesProvider>
-											<PreviewSizeProvider>
-												<ModalsProvider>
-													<MediaVolumeProvider>
-														<PlayerInternals.PlayerEmitterProvider
-															currentPlaybackRate={null}
-														>
-															<SidebarContextProvider>
-																<FolderContextProvider>
-																	<HighestZIndexProvider>
-																		<SetTimelineInOutProvider>
-																			<ExpandedTracksProvider>
-																				{children}
-																			</ExpandedTracksProvider>
-																		</SetTimelineInOutProvider>
-																	</HighestZIndexProvider>
-																</FolderContextProvider>
-															</SidebarContextProvider>
-														</PlayerInternals.PlayerEmitterProvider>
-													</MediaVolumeProvider>
-												</ModalsProvider>
-											</PreviewSizeProvider>
+											<ShowOutlinesProvider>
+												<SnappingProvider>
+													<PreviewSizeProvider>
+														<ModalsProvider>
+															<MediaVolumeProvider>
+																<PlayerInternals.PlayerEmitterProvider
+																	currentPlaybackRate={null}
+																>
+																	<SidebarContextProvider>
+																		<FolderContextProvider>
+																			<HighestZIndexProvider>
+																				<SetTimelineInOutProvider>
+																					<ExpandedTracksProvider>
+																						{children}
+																					</ExpandedTracksProvider>
+																				</SetTimelineInOutProvider>
+																			</HighestZIndexProvider>
+																		</FolderContextProvider>
+																	</SidebarContextProvider>
+																</PlayerInternals.PlayerEmitterProvider>
+															</MediaVolumeProvider>
+														</ModalsProvider>
+													</PreviewSizeProvider>
+												</SnappingProvider>
+											</ShowOutlinesProvider>
 										</ShowGuidesProvider>
 									</ShowRulersProvider>
 								</ZoomGesturesProvider>

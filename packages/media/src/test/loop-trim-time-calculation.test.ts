@@ -49,6 +49,22 @@ test('should inhibit the same loop behavior as <Html5Video> - loop + no trim aft
 	expect(timestamp).toBe(8.04);
 });
 
+test('should map trimAfter loop boundaries in the frame domain', () => {
+	const timestamp = getTimeInSeconds({
+		fps: 30,
+		loop: true,
+		mediaDurationInSeconds: 60.066667,
+		playbackRate: 1,
+		src: 'https://remotion.media/video-1m.mp4',
+		trimAfter: 1800,
+		trimBefore: 90,
+		unloopedTimeInSeconds: 1711 / 30,
+		ifNoMediaDuration: 'fail',
+	});
+
+	expect(timestamp).toBe(91 / 30);
+});
+
 test('should inhibit the same loop behavior as <Html5Video> - edge case', () => {
 	const timestamp = getTimeInSeconds({
 		fps: 25,

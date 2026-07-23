@@ -35,6 +35,26 @@ test('Handle units', () => {
 	).toEqual({padding: '30px 60px'});
 });
 
+test('Posterizes input before interpolating styles', () => {
+	expect(
+		interpolateStyles(
+			17,
+			[0, 60],
+			[
+				{
+					opacity: 0,
+				},
+				{
+					opacity: 1,
+				},
+			],
+			{
+				posterize: 3,
+			},
+		),
+	).toEqual({opacity: 0.25});
+});
+
 test('Handle units', () => {
 	expect(
 		interpolateStyles(

@@ -79,7 +79,12 @@ export const CompositionManagerProvider = ({
 	}, []);
 
 	const registerFolder = useCallback(
-		(name: string, parent: string | null, nonce: NonceHistory) => {
+		(
+			name: string,
+			parent: string | null,
+			nonce: NonceHistory,
+			stack: string | null,
+		) => {
 			setFolders((prevFolders) => {
 				return [
 					...prevFolders,
@@ -87,6 +92,7 @@ export const CompositionManagerProvider = ({
 						name,
 						parent,
 						nonce,
+						stack,
 					},
 				];
 			});

@@ -17,7 +17,7 @@ type Client = {
 
 export type LiveEventsServer = {
 	sendEventToClient: (event: EventSourceEvent) => void;
-	sendEventToClientId: (clientId: string, event: EventSourceEvent) => void;
+	sendEventToClientId: (clientId: string, event: EventSourceEvent) => boolean;
 	router: (request: IncomingMessage, response: ServerResponse) => Promise<void>;
 	closeConnections: () => Promise<void>;
 	addNewClientListener: (cb: () => void) => () => void;
@@ -28,6 +28,13 @@ const serializeMessage = (message: EventSourceEvent) => {
 };
 
 let printPortMessageTimeout: Timer | null = null;
+
+export const clearPrintPortMessageTimeout = () => {
+	if (printPortMessageTimeout) {
+		clearTimeout(printPortMessageTimeout);
+		printPortMessageTimeout = null;
+	}
+};
 
 export type InitialUndoRedoState = {
 	undoFile: string | null;
@@ -70,9 +77,7 @@ export const makeLiveEventsRouter = (
 		};
 		clients.push(newClient);
 		newClientListeners.forEach((cb) => cb());
-		if (printPortMessageTimeout) {
-			clearTimeout(printPortMessageTimeout);
-		}
+		clearPrintPortMessageTimeout();
 
 		request.on('close', () => {
 			unsubscribeClientDefaultPropsWatchers(clientId);
@@ -82,9 +87,7 @@ export const makeLiveEventsRouter = (
 
 			// If all clients disconnected, print a comment so user can easily restart it.
 			if (clients.length === 0) {
-				if (printPortMessageTimeout) {
-					clearTimeout(printPortMessageTimeout);
-				}
+				clearPrintPortMessageTimeout();
 
 				printPortMessageTimeout = setTimeout(() => {
 					printServerReadyComment('To restart', logLevel);
@@ -103,9 +106,12 @@ export const makeLiveEventsRouter = (
 
 	const sendEventToClientId = (clientId: string, event: EventSourceEvent) => {
 		const client = clients.find((c) => c.id === clientId);
-		if (client) {
-			client.response.write(serializeMessage(event));
+		if (!client) {
+			return false;
 		}
+
+		client.response.write(serializeMessage(event));
+		return true;
 	};
 
 	const addNewClientListener = (cb: () => void) => {

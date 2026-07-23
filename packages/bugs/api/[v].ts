@@ -8,6 +8,13 @@ type Bug = {
 
 export const bugs: Bug[] = [
 	{
+		title: 'TransitionSeries.Sequence timing is broken',
+		description:
+			'TransitionSeries.Sequence could render all children from frame 0 and overlap. Upgrade to 4.0.473.',
+		link: 'https://remotion.dev/changelog',
+		versions: ['4.0.472'],
+	},
+	{
 		title: '@remotion/media Audio is broken',
 		description: 'Audio would play heavily offset',
 		link: 'https://remotion.dev/changelog',

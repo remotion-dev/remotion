@@ -40,6 +40,26 @@ This means that during rendering of Remotion videos server-side, HEVC videos can
 - `'vp8'` - VP8
 - `'vp9'` - VP9
 - `'av1'` - AOMedia Video 1 (AV1)
+- `'prores'` - Apple ProRes<AvailableFrom v="4.0.487" />
+
+### ProRes<AvailableFrom v="4.0.487" />
+
+ProRes is not natively supported by WebCodecs and is not enabled by default in [`@remotion/media`](/docs/media).
+For Remotion-specific instructions, see [Embedding ProRes](/docs/videos/prores).
+
+If you need ProRes support, [you can enable it yourself](https://mediabunny.dev/guide/extensions/prores) by installing and registering the decoder:
+
+```bash
+npx remotion add @mediabunny/prores
+```
+
+```tsx twoslash title="src/Root.tsx"
+import {registerProresDecoder} from '@mediabunny/prores';
+
+registerProresDecoder();
+```
+
+For maximum performance, `@mediabunny/prores` uses shared-memory multithreading when the page is [cross-origin isolated](/docs/miscellaneous/cross-origin-isolation). If cross-origin isolation is not enabled, ProRes decoding still works, but falls back to a slower algorithm.
 
 ## Audio codecs
 
@@ -91,6 +111,7 @@ Not all codecs can be used with all containers. The following table specifies th
 |    `'vp8'`    |  ✓   |  ✓   |  ✓   |   ✓   |      |      |      |      |       |     |
 |    `'vp9'`    |  ✓   |  ✓   |  ✓   |   ✓   |      |      |      |      |       |     |
 |    `'av1'`    |  ✓   |  ✓   |  ✓   |   ✓   |      |      |      |      |       |     |
+|  `'prores'`   |  ✓   |  ✓   |  ✓   |       |      |      |      |      |       |     |
 |    `'aac'`    |  ✓   |  ✓   |  ✓   |       |      |      |      |  ✓   |       |  ✓  |
 |   `'opus'`    |  ✓   |  ✓   |  ✓   |   ✓   |  ✓   |      |      |      |       |     |
 |    `'mp3'`    |  ✓   |  ✓   |  ✓   |       |      |  ✓   |      |      |       |  ✓  |
@@ -114,6 +135,8 @@ Not all codecs can be used with all containers. The following table specifies th
 |   `'eac3'`    |  ✓   |  ✓   |  ✓   |       |      |      |      |      |       |  ✓  |
 
 :::note
+ProRes entries in the table above require [manual registration](#prores) of the `@mediabunny/prores` decoder.
+
 AC-3 and E-AC-3 entries in the table above require [manual registration](#ac-3-and-e-ac-3) of the `@mediabunny/ac3` decoder.
 :::
 

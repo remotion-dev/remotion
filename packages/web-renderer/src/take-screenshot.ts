@@ -2,7 +2,10 @@ import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
 import {compose} from './compose';
 import type {HtmlInCanvasContext} from './html-in-canvas';
-import {drawWithHtmlInCanvas} from './html-in-canvas';
+import {
+	containsLayoutSubtreeCanvas,
+	drawWithHtmlInCanvas,
+} from './html-in-canvas';
 import type {InternalState} from './internal-state';
 
 export type HtmlInCanvasLayerOutcome =
@@ -18,6 +21,8 @@ export const createLayer = async ({
 	cutout,
 	htmlInCanvasContext,
 	onHtmlInCanvasLayerOutcome,
+	waitForPageResponsiveness,
+	waitForRenderReady,
 }: {
 	element: HTMLElement | SVGElement;
 	scale: number;
@@ -27,6 +32,8 @@ export const createLayer = async ({
 	cutout: DOMRect;
 	htmlInCanvasContext?: HtmlInCanvasContext | null;
 	onHtmlInCanvasLayerOutcome?: (outcome: HtmlInCanvasLayerOutcome) => void;
+	waitForPageResponsiveness: (() => Promise<void>) | null;
+	waitForRenderReady: () => Promise<void>;
 }) => {
 	const scaledWidth = Math.ceil(cutout.width * scale);
 	const scaledHeight = Math.ceil(cutout.height * scale);
@@ -37,12 +44,16 @@ export const createLayer = async ({
 		htmlInCanvasContext &&
 		onHtmlInCanvasLayerOutcome
 	) {
+		const hasNestedHtmlInCanvas = containsLayoutSubtreeCanvas(element);
+
 		try {
 			const offCtx = await drawWithHtmlInCanvas({
 				htmlInCanvasContext,
 				element,
 				scaledWidth,
 				scaledHeight,
+				waitForRenderReady,
+				useElementImage: hasNestedHtmlInCanvas,
 			});
 			onHtmlInCanvasLayerOutcome({native: true});
 			return offCtx;
@@ -76,6 +87,7 @@ export const createLayer = async ({
 		internalState,
 		onlyBackgroundClipText,
 		scale,
+		waitForPageResponsiveness,
 	});
 
 	return context;

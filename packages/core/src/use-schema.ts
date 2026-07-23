@@ -1,64 +1,161 @@
 import {findPropsToDelete} from './find-props-to-delete.js';
-import {getEffectiveVisualModeValue} from './get-effective-visual-mode-value.js';
-import type {ExtrapolateType} from './interpolate.js';
+import {
+	getEffectiveVisualModeValue,
+	resolveDragOverrideValue,
+} from './get-effective-visual-mode-value.js';
+import {FILE_TOKEN} from './input-props-serialization.js';
 import type {
-	SequenceFieldSchema,
-	SequenceSchema,
-} from './sequence-field-schema.js';
+	InteractivitySchema,
+	InteractivitySchemaField,
+} from './interactivity-schema.js';
+import {interpolateKeyframedStatus} from './interpolate-keyframed-status.js';
+import type {ExtrapolateType, InterpolateOutputOption} from './interpolate.js';
 import type {
 	CanUpdateSequencePropsResponse,
 	SequencePropsSubscriptionKey,
 } from './SequenceManager.js';
 
-export type CanUpdateSequencePropStatusTrue = {
-	canUpdate: true;
+export type CanUpdateSequencePropStatusStatic = {
+	status: 'static';
 	codeValue: unknown;
+	numericExpression?: VideoConfigNumericExpression;
 };
 
 export type CanUpdateSequencePropStatusKeyframe = {
 	frame: number;
 	value: unknown;
+	frameExpression?: VideoConfigNumericExpression;
+};
+
+export type VideoConfigNumericExpression =
+	| {
+			type: 'literal';
+			value: number;
+	  }
+	| {
+			type: 'video-config-value';
+			identifier: string;
+			value: number;
+	  }
+	| {
+			type: 'video-config-multiplication';
+			identifier: string;
+			multiplier: number;
+			multiplicand: number;
+			factorPosition: 'left' | 'right';
+			value: number;
+	  }
+	| {
+			type: 'video-config-subtraction';
+			identifier: string;
+			minuend: number;
+			subtrahend: number;
+			value: number;
+	  };
+
+export type CanUpdateSequencePropStatusLinearEasing = {
+	type: 'linear';
+};
+
+export type CanUpdateSequencePropStatusBezierEasing = {
+	type: 'bezier';
+	x1: number;
+	y1: number;
+	x2: number;
+	y2: number;
+};
+
+export type CanUpdateSequencePropStatusSpringEasing = {
+	type: 'spring';
+	allowTail: boolean | null;
+	damping: number;
+	mass: number;
+	stiffness: number;
+	overshootClamping: boolean;
+	durationRestThreshold: number | null;
 };
 
 export type CanUpdateSequencePropStatusEasing =
-	| 'linear'
-	| [number, number, number, number];
+	| CanUpdateSequencePropStatusLinearEasing
+	| CanUpdateSequencePropStatusBezierEasing
+	| CanUpdateSequencePropStatusSpringEasing;
+
+export const DEFAULT_LINEAR_EASING: CanUpdateSequencePropStatusLinearEasing = {
+	type: 'linear',
+};
+
+const getEasingIndexToDuplicate = ({
+	insertedKeyframeIndex,
+	easingLength,
+	keyframeCount,
+}: {
+	insertedKeyframeIndex: number;
+	easingLength: number;
+	keyframeCount: number;
+}): number | null => {
+	const isSplittingExistingSegment =
+		insertedKeyframeIndex > 0 && insertedKeyframeIndex < keyframeCount - 1;
+
+	if (!isSplittingExistingSegment || easingLength === 0) {
+		return null;
+	}
+
+	return Math.min(insertedKeyframeIndex - 1, easingLength - 1);
+};
 
 export type CanUpdateSequencePropStatusClamping = {
 	left: ExtrapolateType;
 	right: ExtrapolateType;
 };
 
+export type CanUpdateSequencePropStatusInterpolationFunction =
+	| 'interpolate'
+	| 'interpolateColors';
+
 export type CanUpdateSequencePropStatusComputed = {
-	canUpdate: false;
-	reason: 'computed';
+	status: 'computed';
 };
 
 export type CanUpdateSequencePropStatusKeyframed = {
-	canUpdate: false;
-	reason: 'keyframed';
+	status: 'keyframed';
+	interpolationFunction: CanUpdateSequencePropStatusInterpolationFunction;
 	keyframes: CanUpdateSequencePropStatusKeyframe[];
 	easing: CanUpdateSequencePropStatusEasing[];
 	clamping: CanUpdateSequencePropStatusClamping;
+	posterize: number | undefined;
+	output: InterpolateOutputOption | undefined;
 };
 
 export type CanUpdateSequencePropStatusFalse =
-	| CanUpdateSequencePropStatusComputed
-	| CanUpdateSequencePropStatusKeyframed;
+	CanUpdateSequencePropStatusComputed;
 
 export type CanUpdateSequencePropStatus =
-	| CanUpdateSequencePropStatusTrue
+	| CanUpdateSequencePropStatusStatic
+	| CanUpdateSequencePropStatusKeyframed
 	| CanUpdateSequencePropStatusFalse;
 
-export type DragOverrides = Record<string, Record<string, unknown>>;
-export type EffectDragOverrides = Record<string, Record<string, unknown>>;
-export type CodeValues = Record<string, CanUpdateSequencePropsResponse>;
+export type DragOverrideValue =
+	| {
+			readonly type: 'static';
+			readonly value: unknown;
+	  }
+	| {
+			readonly type: 'keyframed';
+			readonly status: CanUpdateSequencePropStatusKeyframed;
+	  };
 
-export type GetCodeValues = (
+export type DragOverrides = Record<string, Record<string, DragOverrideValue>>;
+export type EffectDragOverrides = Record<
+	string,
+	Record<string, DragOverrideValue>
+>;
+export type PropStatuses = Record<string, CanUpdateSequencePropsResponse>;
+
+export type GetPropStatuses = (
 	nodePath: SequencePropsSubscriptionKey,
 ) => Record<string, CanUpdateSequencePropStatus> | undefined;
 
-export type GetEffectCodeValues = (
+export type GetEffectPropStatuses = (
 	nodePath: SequencePropsSubscriptionKey,
 	effectIndex: number,
 ) => Record<string, CanUpdateSequencePropStatus> | undefined;
@@ -70,12 +167,87 @@ export type GetDragOverrides = (
 export type GetEffectDragOverrides = (
 	nodePath: SequencePropsSubscriptionKey,
 	effectIndex: number,
-) => Record<string, unknown>;
+) => Record<string, DragOverrideValue>;
+
+export const makeStaticDragOverride = (value: unknown): DragOverrideValue => {
+	return {type: 'static', value};
+};
+
+export const makeKeyframedDragOverride = ({
+	status,
+	frame,
+	value,
+}: {
+	status: CanUpdateSequencePropStatusKeyframed;
+	frame: number;
+	value: unknown;
+}): DragOverrideValue => {
+	const existingIndex = status.keyframes.findIndex(
+		(keyframe) => keyframe.frame === frame,
+	);
+	const keyframes =
+		existingIndex === -1
+			? [...status.keyframes, {frame, value}].sort(
+					(first, second) => first.frame - second.frame,
+				)
+			: status.keyframes.map((keyframe, index) =>
+					index === existingIndex ? {frame, value} : keyframe,
+				);
+	const easing = [...status.easing];
+	if (existingIndex === -1) {
+		const insertedKeyframeIndex = keyframes.findIndex(
+			(keyframe) => keyframe.frame === frame,
+		);
+		const easingIndexToDuplicate = getEasingIndexToDuplicate({
+			insertedKeyframeIndex,
+			easingLength: easing.length,
+			keyframeCount: keyframes.length,
+		});
+		const easingToDuplicate =
+			easingIndexToDuplicate === null
+				? DEFAULT_LINEAR_EASING
+				: easing[easingIndexToDuplicate];
+		easing.splice(insertedKeyframeIndex, 0, easingToDuplicate);
+	}
+
+	while (easing.length < keyframes.length - 1) {
+		easing.push(DEFAULT_LINEAR_EASING);
+	}
+
+	if (easing.length > keyframes.length - 1) {
+		easing.length = keyframes.length - 1;
+	}
+
+	return {
+		type: 'keyframed',
+		status: {
+			...status,
+			keyframes,
+			easing,
+		},
+	};
+};
+
+export const getStaticDragOverrideValue = (
+	dragOverrideValue: DragOverrideValue | undefined,
+): unknown => {
+	if (dragOverrideValue?.type !== 'static') {
+		return undefined;
+	}
+
+	return dragOverrideValue.value;
+};
+
+export const isKeyframedStatus = (
+	status: CanUpdateSequencePropStatus | null,
+): status is CanUpdateSequencePropStatusKeyframed => {
+	return status !== null && status.status === 'keyframed';
+};
 
 const findFieldInSchema = (
-	schema: SequenceSchema,
+	schema: InteractivitySchema,
 	key: string,
-): SequenceFieldSchema | undefined => {
+): InteractivitySchemaField | undefined => {
 	if (key in schema) {
 		return schema[key];
 	}
@@ -101,31 +273,68 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 	currentValue,
 	overrideValues,
 	propStatus,
+	frame,
 }: {
-	schema: SequenceSchema;
+	schema: InteractivitySchema;
 	currentValue: Record<string, unknown>;
-	overrideValues: Record<string, unknown>;
+	overrideValues: Record<string, DragOverrideValue>;
 	propStatus: Record<string, CanUpdateSequencePropStatus> | undefined;
+	frame: number | null;
 }): {merged: Record<string, unknown>; propsToDelete: Set<string>} => {
 	const merged: Record<string, unknown> = {};
 	const propsToDelete = new Set<string>();
 	for (const key of Object.keys(currentValue)) {
-		const codeValueStatus = propStatus?.[key] ?? null;
+		const status = propStatus?.[key] ?? null;
 		const field = findFieldInSchema(schema, key);
 
 		if (field?.type === 'hidden') {
 			continue;
 		}
 
-		const value =
-			codeValueStatus === null || codeValueStatus.canUpdate === false
-				? currentValue[key]
-				: getEffectiveVisualModeValue({
-						codeValue: codeValueStatus,
-						dragOverrideValue: overrideValues[key],
-						defaultValue: field?.default,
-						shouldResortToDefaultValueIfUndefined: false,
+		let value: unknown;
+		if (status === null) {
+			value = currentValue[key];
+		} else if (isKeyframedStatus(status)) {
+			if (field?.type === 'array' || field?.keyframable === false) {
+				value = currentValue[key];
+			} else {
+				const dragOverride = resolveDragOverrideValue({
+					dragOverrideValue: overrideValues[key],
+					frame,
+				});
+				if (dragOverride.type === 'resolved') {
+					value = dragOverride.value;
+				} else if (frame !== null) {
+					const interpolated = interpolateKeyframedStatus({
+						forceSpringAllowTail: null,
+						frame,
+						status,
 					});
+					value = interpolated ?? currentValue[key];
+				} else {
+					value = currentValue[key];
+				}
+			}
+		} else if (status.status === 'computed') {
+			value = currentValue[key];
+		} else {
+			value = getEffectiveVisualModeValue({
+				propStatus: status,
+				dragOverrideValue: overrideValues[key],
+				defaultValue: field?.default,
+				frame,
+				shouldResortToDefaultValueIfUndefined: false,
+			});
+		}
+
+		if (
+			field?.type === 'asset' &&
+			typeof value === 'string' &&
+			value.startsWith(FILE_TOKEN)
+		) {
+			value = `${window.remotion_staticBase}/${value.slice(FILE_TOKEN.length)}`;
+		}
+
 		if (value === undefined) {
 			propsToDelete.add(key);
 		}

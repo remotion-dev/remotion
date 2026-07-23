@@ -145,16 +145,16 @@ export const prefetch = (
 		resolve = res;
 		reject = rej;
 	});
+	waitUntilDone.catch(() => undefined);
 
 	const controller = new AbortController();
-	let canBeAborted = true;
+	let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
 
 	fetch(srcWithoutHash, {
 		signal: controller.signal,
 		credentials: options?.credentials ?? undefined,
 	})
 		.then((res) => {
-			canBeAborted = false;
 			if (canceled) {
 				return null;
 			}
@@ -183,10 +183,11 @@ export const prefetch = (
 				throw new Error(`HTTP response of ${srcWithoutHash} has no body`);
 			}
 
-			const reader = res.body.getReader();
+			const responseReader = res.body.getReader();
+			reader = responseReader;
 
 			return getBlobFromReader({
-				reader,
+				reader: responseReader,
 				contentType: options?.contentType ?? headerContentType ?? null,
 				contentLength: res.headers.get('Content-Length')
 					? parseInt(res.headers.get('Content-Length')!, 10)
@@ -195,7 +196,7 @@ export const prefetch = (
 			});
 		})
 		.then((buf) => {
-			if (!buf) {
+			if (!buf || canceled) {
 				return;
 			}
 
@@ -256,12 +257,18 @@ export const prefetch = (
 					return copy;
 				});
 			} else {
-				canceled = true;
-				if (canBeAborted) {
-					try {
-						controller.abort(new Error('free() called'));
-					} catch {}
+				if (canceled) {
+					return;
 				}
+
+				canceled = true;
+				const cancellationError = new Error('free() called');
+				reject(cancellationError);
+				try {
+					controller.abort(cancellationError);
+				} catch {}
+
+				reader?.cancel(cancellationError).catch(() => undefined);
 			}
 		},
 		waitUntilDone: () => {

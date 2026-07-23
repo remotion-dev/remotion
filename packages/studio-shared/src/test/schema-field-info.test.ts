@@ -4,10 +4,14 @@ import {
 	type EffectDefinition,
 	type SequencePropsSubscriptionKey,
 } from 'remotion';
-import {getEffectFieldsToShow} from '../schema-field-info';
+import {
+	SCHEMA_FIELD_ROW_HEIGHT,
+	getEffectFieldsToShow,
+	getFieldsToShow,
+} from '../schema-field-info';
 
 const effect = {
-	type: 'test/effect',
+	type: 'dev.remotion.test.effect',
 	label: 'Test effect',
 	documentationLink: null,
 	backend: '2d',
@@ -35,6 +39,17 @@ const effect = {
 			default: [0, 0.5] as const,
 			description: 'Position',
 		},
+		colors: {
+			type: 'array',
+			item: {
+				type: 'color',
+			},
+			default: undefined,
+			minLength: 2,
+			newItemDefault: '#ff0000',
+			description: 'Colors',
+			keyframable: false,
+		},
 	},
 } satisfies EffectDefinition<unknown>;
 
@@ -43,6 +58,7 @@ const nodePath: SequencePropsSubscriptionKey = {
 	nodePath: [],
 	sequenceKeys: [],
 	effectKeys: [],
+	videoConfigValues: null,
 };
 
 test('getEffectFieldsToShow uses the active enum variant', () => {
@@ -50,7 +66,7 @@ test('getEffectFieldsToShow uses the active enum variant', () => {
 		effect,
 		effectIndex: 0,
 		nodePath,
-		codeValues: {
+		propStatuses: {
 			[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
 				canUpdate: true,
 				props: {},
@@ -58,9 +74,13 @@ test('getEffectFieldsToShow uses the active enum variant', () => {
 					{
 						canUpdate: true,
 						callee: 'halftone',
+						importPath: null,
 						effectIndex: 0,
 						props: {
-							colorMode: {canUpdate: true, codeValue: 'source'},
+							colorMode: {
+								status: 'static',
+								codeValue: 'source',
+							},
 						},
 					},
 				],
@@ -69,7 +89,11 @@ test('getEffectFieldsToShow uses the active enum variant', () => {
 		getEffectDragOverrides: () => ({}),
 	});
 
-	expect(fields.map((field) => field.key)).toEqual(['colorMode', 'position']);
+	expect(fields.map((field) => field.key)).toEqual([
+		'colorMode',
+		'position',
+		'colors',
+	]);
 });
 
 test('getEffectFieldsToShow uses default enum variant if no code value exists', () => {
@@ -77,7 +101,7 @@ test('getEffectFieldsToShow uses default enum variant if no code value exists', 
 		effect,
 		effectIndex: 0,
 		nodePath: null,
-		codeValues: {},
+		propStatuses: {},
 		getEffectDragOverrides: () => ({}),
 	});
 
@@ -85,5 +109,228 @@ test('getEffectFieldsToShow uses default enum variant if no code value exists', 
 		'colorMode',
 		'dotColor',
 		'position',
+		'colors',
+	]);
+});
+
+test('getEffectFieldsToShow returns array fields', () => {
+	const fields = getEffectFieldsToShow({
+		effect,
+		effectIndex: 0,
+		nodePath: null,
+		propStatuses: {},
+		getEffectDragOverrides: () => ({}),
+	});
+
+	const colors = fields.find((field) => field.key === 'colors');
+	expect(colors?.typeName).toBe('array');
+	expect(colors?.rowHeight).toBe(SCHEMA_FIELD_ROW_HEIGHT * 3);
+});
+
+test('getEffectFieldsToShow sizes array fields from the current value', () => {
+	const fields = getEffectFieldsToShow({
+		effect,
+		effectIndex: 0,
+		nodePath,
+		propStatuses: {
+			[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+				canUpdate: true,
+				props: {},
+				effects: [
+					{
+						canUpdate: true,
+						callee: 'starburst',
+						importPath: null,
+						effectIndex: 0,
+						props: {
+							colors: {
+								status: 'static',
+								codeValue: ['red', 'green', 'blue'],
+							},
+						},
+					},
+				],
+			},
+		},
+		getEffectDragOverrides: () => ({}),
+	});
+
+	const colors = fields.find((field) => field.key === 'colors');
+	expect(colors?.rowHeight).toBe(SCHEMA_FIELD_ROW_HEIGHT * 4);
+});
+
+test('getFieldsToShow sorts fields by inspector group order', () => {
+	const fields = getFieldsToShow({
+		schema: {
+			src: {
+				type: 'asset',
+				default: undefined,
+				keyframable: false,
+			},
+			'style.translate': {
+				type: 'translate',
+				default: '0px 0px',
+			},
+			playbackRate: {
+				type: 'number',
+				default: 1,
+				hiddenFromList: false,
+			},
+			'style.fontSize': {
+				type: 'number',
+				default: undefined,
+				hiddenFromList: false,
+			},
+			'style.color': {
+				type: 'color',
+				default: undefined,
+			},
+			'style.fontFamily': {
+				type: 'font-family',
+				default: undefined,
+				keyframable: false,
+			},
+			'style.rotate': {
+				type: 'rotation-css',
+				default: '0deg',
+			},
+			'style.opacity': {
+				type: 'number',
+				default: 1,
+				hiddenFromList: false,
+			},
+			'style.borderWidth': {
+				type: 'number',
+				default: undefined,
+				hiddenFromList: false,
+			},
+			'style.borderStyle': {
+				type: 'enum',
+				default: 'none',
+				variants: {
+					none: {},
+					solid: {},
+				},
+			},
+			'style.borderColor': {
+				type: 'color',
+				default: undefined,
+			},
+			volume: {
+				type: 'number',
+				default: 1,
+				hiddenFromList: false,
+			},
+			'style.letterSpacing': {
+				type: 'number',
+				default: undefined,
+				hiddenFromList: false,
+			},
+			'style.textAlign': {
+				type: 'enum',
+				default: 'left',
+				variants: {
+					left: {},
+					center: {},
+				},
+			},
+		},
+		currentRuntimeValueDotNotation: {},
+		getDragOverrides: () => ({}),
+		propStatuses: {},
+		nodePath,
+	});
+
+	expect(fields?.map((field) => field.key)).toEqual([
+		'src',
+		'playbackRate',
+		'volume',
+		'style.translate',
+		'style.rotate',
+		'style.opacity',
+		'style.fontSize',
+		'style.color',
+		'style.fontFamily',
+		'style.letterSpacing',
+		'style.textAlign',
+		'style.borderWidth',
+		'style.borderStyle',
+		'style.borderColor',
+	]);
+	expect(fields?.map((field) => field.group)).toEqual([
+		'source',
+		'controls',
+		'controls',
+		'transforms',
+		'transforms',
+		'transforms',
+		'text',
+		'text',
+		'text',
+		'text',
+		'text',
+		'border',
+		'border',
+		'border',
+	]);
+});
+
+test('getFieldsToShow does not reserve extra height for text content fields', () => {
+	const fields = getFieldsToShow({
+		schema: {
+			children: {
+				type: 'text-content',
+				default: '',
+			},
+		},
+		currentRuntimeValueDotNotation: {},
+		getDragOverrides: () => ({}),
+		propStatuses: {},
+		nodePath,
+		includeTextContent: true,
+	});
+
+	expect(fields?.[0].rowHeight).toBe(SCHEMA_FIELD_ROW_HEIGHT);
+});
+
+test('getEffectFieldsToShow sorts fields by inspector group order', () => {
+	const fields = getEffectFieldsToShow({
+		effect: {
+			...effect,
+			schema: {
+				'style.scale': {
+					type: 'scale',
+					default: 1,
+				},
+				intensity: {
+					type: 'number',
+					default: 1,
+					hiddenFromList: false,
+				},
+				'style.fontWeight': {
+					type: 'enum',
+					default: '400',
+					variants: {
+						'400': {},
+						'700': {},
+					},
+				},
+				'style.translate': {
+					type: 'translate',
+					default: '0px 0px',
+				},
+			},
+		},
+		effectIndex: 0,
+		nodePath: null,
+		propStatuses: {},
+		getEffectDragOverrides: () => ({}),
+	});
+
+	expect(fields.map((field) => field.key)).toEqual([
+		'intensity',
+		'style.scale',
+		'style.translate',
+		'style.fontWeight',
 	]);
 });

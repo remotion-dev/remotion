@@ -1,5 +1,6 @@
 import React, {useCallback, useMemo} from 'react';
-import type {CanUpdateSequencePropStatus} from 'remotion';
+import type {CanUpdateSequencePropStatusStatic} from 'remotion';
+import {BLACK_HEX} from '../../helpers/colors';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -19,7 +20,7 @@ const SWATCH_HEIGHT = 15;
 export const TimelineColorField: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly effectiveValue: unknown;
-	readonly propStatus: CanUpdateSequencePropStatus;
+	readonly propStatus: CanUpdateSequencePropStatusStatic;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onDragEnd: () => void;
@@ -35,26 +36,18 @@ export const TimelineColorField: React.FC<{
 		typeof effectiveValue === 'string'
 			? effectiveValue
 			: field.fieldSchema.type === 'color'
-				? (field.fieldSchema.default ?? '#000')
+				? (field.fieldSchema.default ?? BLACK_HEX)
 				: '';
 
 	const onChange = useCallback(
 		(next: string) => {
-			if (!propStatus.canUpdate) {
-				return;
-			}
-
 			onDragValueChange(next);
 		},
-		[onDragValueChange, propStatus.canUpdate],
+		[onDragValueChange],
 	);
 
 	const onChangeComplete = useCallback(
 		(next: string) => {
-			if (!propStatus.canUpdate) {
-				return;
-			}
-
 			if (next !== propStatus.codeValue) {
 				onSave(next);
 			}
@@ -79,7 +72,7 @@ export const TimelineColorField: React.FC<{
 				onChangeComplete={onChangeComplete}
 				width={SWATCH_WIDTH}
 				height={SWATCH_HEIGHT}
-				disabled={!propStatus.canUpdate}
+				disabled={false}
 				name={field.key}
 				title={currentValue}
 				style={swatchStyle}

@@ -1,6 +1,4 @@
-import type {AudioBufferSink} from 'mediabunny';
-import type {LogLevel} from 'remotion';
-import {makeIteratorWithPriming} from '../make-iterator-with-priming';
+import type {AudioBufferSlice} from '../make-iterator-with-priming';
 
 export const HEALTHY_BUFFER_THRESHOLD_SECONDS = 1;
 export const ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT = 0.1;
@@ -9,6 +7,7 @@ export type QueuedNode = {
 	node: AudioBufferSourceNode;
 	timestamp: number;
 	buffer: AudioBuffer;
+	sourceDurationInSeconds: number;
 	scheduledTime: number;
 	playbackRate: number;
 	scheduledAtAnchor: number;
@@ -19,43 +18,29 @@ export type QueuedPeriod = {
 	until: number;
 };
 
+export type MakeAudioIteratorOptions = {
+	startFromSecond: number;
+	iterator: AsyncGenerator<AudioBufferSlice, void, unknown>;
+	unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
+};
+
 export const makeAudioIterator = ({
 	startFromSecond,
-	maximumTimestamp,
-	audioSink,
-	loop,
-	playbackRate,
-	sequenceDurationInSeconds,
+	iterator,
 	unscheduleAudioNode,
-}: {
-	startFromSecond: number;
-	maximumTimestamp: number;
-	logLevel: LogLevel;
-	audioSink: AudioBufferSink;
-	loop: boolean;
-	playbackRate: number;
-	sequenceDurationInSeconds: number;
-	unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
-}) => {
+}: MakeAudioIteratorOptions) => {
 	let destroyed = false;
-	const iterator = makeIteratorWithPriming({
-		audioSink,
-		timeToSeek: startFromSecond,
-		maximumTimestamp,
-		loop,
-		playbackRate,
-		sequenceDurationInSeconds,
-	});
 	const queuedAudioNodes: QueuedNode[] = [];
 	let mostRecentTimestamp = -Infinity;
 
 	const cleanupAudioQueue = () => {
-		for (const node of queuedAudioNodes) {
-			unscheduleAudioNode(node.node);
+		for (const {node} of queuedAudioNodes) {
+			unscheduleAudioNode(node);
 			try {
-				node.node.stop();
+				node.stop();
 			} catch {
-				// Node may not have been started
+				// AudioBufferSourceNode.stop() throws if the node was never started.
+				// Cleanup is a safe boundary: it must continue stopping other nodes.
 			}
 		}
 
@@ -68,7 +53,7 @@ export const makeAudioIterator = ({
 		if (next.value) {
 			mostRecentTimestamp = Math.max(
 				mostRecentTimestamp,
-				next.value.timestamp + next.value.buffer.duration,
+				next.value.timelineTimestamp + next.value.sourceDurationInSeconds,
 			);
 		}
 
@@ -79,6 +64,9 @@ export const makeAudioIterator = ({
 		destroy: () => {
 			cleanupAudioQueue();
 			destroyed = true;
+			// Returning an async generator can reject if its underlying media input
+			// was disposed. Destruction is fire-and-forget and has no caller to
+			// propagate to, so intentionally consume that teardown-only rejection.
 			iterator.return().catch(() => undefined);
 		},
 		getNextFn,
@@ -86,27 +74,8 @@ export const makeAudioIterator = ({
 			return destroyed;
 		},
 
-		addQueuedAudioNode: ({
-			node,
-			timestamp,
-			buffer,
-			scheduledTime,
-			scheduledAtAnchor,
-		}: {
-			node: AudioBufferSourceNode;
-			timestamp: number;
-			buffer: AudioBuffer;
-			scheduledTime: number;
-			scheduledAtAnchor: number;
-		}) => {
-			queuedAudioNodes.push({
-				node,
-				timestamp,
-				buffer,
-				scheduledTime,
-				playbackRate,
-				scheduledAtAnchor,
-			});
+		addQueuedAudioNode: (queuedNode: QueuedNode) => {
+			queuedAudioNodes.push(queuedNode);
 		},
 		guessNextTimestamp: () => {
 			return !Number.isFinite(mostRecentTimestamp)
@@ -118,7 +87,7 @@ export const makeAudioIterator = ({
 			let from = Infinity;
 
 			for (const node of queuedAudioNodes) {
-				until = Math.max(until, node.timestamp + node.buffer.duration);
+				until = Math.max(until, node.timestamp + node.sourceDurationInSeconds);
 				from = Math.min(from, node.timestamp);
 			}
 

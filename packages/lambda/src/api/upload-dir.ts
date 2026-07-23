@@ -7,6 +7,7 @@ import {LambdaClientInternals} from '@remotion/lambda-client';
 import type {Privacy, UploadDirProgress} from '@remotion/serverless';
 import mimeTypes from 'mime-types';
 import {makeS3Key} from '../shared/make-s3-key';
+import {multipartUploadPartSize} from '../shared/multipart-upload-part-size';
 
 type FileInfo = {
 	name: string;
@@ -109,7 +110,7 @@ export const uploadDir = async ({
 		const parallelUploadsS3 = new Upload({
 			client,
 			queueSize: 2,
-			partSize: 40 * 1024 * 1024,
+			partSize: multipartUploadPartSize,
 			params: {
 				Key,
 				Bucket: bucket,

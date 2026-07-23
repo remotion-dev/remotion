@@ -1,0 +1,112 @@
+---
+image: /generated/articles-docs-effects-lines.png
+slug: /effects/lines
+title: lines()
+sidebar_label: lines()
+crumb: '@remotion/effects'
+---
+
+# lines()<AvailableFrom v="4.0.470" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Adds an alternating line pattern to canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+Each line color is composited over the source.
+
+## Preview
+
+<EffectsDemo type="effects-lines" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {lines} from '@remotion/effects/lines';
+import {AbsoluteFill, Solid, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill>
+      <Solid
+        width={1280}
+        height={720}
+        effects={[
+          lines({
+            colors: ['#dff4ff', '#7cc6ff'],
+            direction: 'horizontal',
+            thickness: 40,
+            gap: 24,
+            angle: 20,
+            offset: frame * 2,
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `lines()` without arguments.
+
+### `colors?`
+
+An array of color strings for the line stripes. Colors are assigned cyclically. Must contain at least 2 colors.
+
+Defaults to `['#dff4ff', '#7cc6ff']`.
+
+### `direction?`
+
+Direction of the unrotated lines. Either `'horizontal'` or `'vertical'`. Defaults to `'horizontal'`.
+
+### `thickness?`
+
+Thickness of each stripe in pixels. Defaults to `40`.
+
+### `gap?`
+
+Transparent gap in pixels between each stripe. Defaults to `0`.
+
+With `gap: 0` (the default), stripes are packed solid with no gap between them — colors are directly adjacent to each other.  
+With `gap > 0`, a transparent band appears between each stripe, allowing the source content to show through.
+
+For example, with `colors: ['red', 'blue']` and `gap: 10`:
+- 40px red stripe
+- 10px transparent (source image visible)
+- 40px blue stripe
+- 10px transparent (source image visible)
+- …and so on
+
+### `angle?`
+
+Rotates the line pattern in degrees. Defaults to `0`.
+
+### `offset?`
+
+Offset in pixels. Defaults to `0`.
+
+Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) to scroll the lines.
+
+### `maskToSourceAlpha?`<AvailableFrom v="4.0.474" />
+
+Masks the generated line pattern to the source alpha channel. Defaults to `false`.
+
+Set this to `true` to prevent the line pattern from appearing in fully transparent source pixels.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`lines()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`scanlines()`](/docs/effects/scanlines)
+- [`dotGrid()`](/docs/effects/dot-grid)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/lines.ts)

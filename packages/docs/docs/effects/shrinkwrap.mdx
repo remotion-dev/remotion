@@ -1,0 +1,134 @@
+---
+image: /generated/articles-docs-effects-shrinkwrap.png
+slug: /effects/shrinkwrap
+title: shrinkwrap()
+sidebar_label: shrinkwrap()
+crumb: '@remotion/effects'
+---
+
+# shrinkwrap()<AvailableFrom v="4.0.479" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Adds a procedural plastic wrap layer to canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<CanvasImage>`](/docs/canvasimage).
+
+The effect generates wrinkles, glossy highlights and small displacements from the same deterministic pattern.
+
+## Preview
+
+<EffectsDemo type="effects-shrinkwrap" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {shrinkwrap} from '@remotion/effects/shrinkwrap';
+import React from 'react';
+import {AbsoluteFill, HtmlInCanvas, useCurrentFrame} from 'remotion';
+
+const label: React.CSSProperties = {
+  alignItems: 'center',
+  backgroundColor: '#d7ff20',
+  borderRadius: 72,
+  color: '#111',
+  display: 'flex',
+  fontFamily: 'Arial Black, sans-serif',
+  fontSize: 120,
+  fontWeight: 900,
+  height: 560,
+  justifyContent: 'center',
+  lineHeight: 1,
+  textAlign: 'center',
+  textTransform: 'uppercase',
+  width: 900,
+};
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
+      <HtmlInCanvas
+        width={1280}
+        height={720}
+        effects={[
+          shrinkwrap({
+            amount: 1,
+            displacement: 5,
+            highlightIntensity: 0.85,
+            wrinkleDensity: 0.48,
+            edgeTension: 0.58,
+            phase: frame * 0.05,
+            seed: 8,
+          }),
+        ]}
+      >
+        <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
+          <div style={label}>Shrinkwrap</div>
+        </AbsoluteFill>
+      </HtmlInCanvas>
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `shrinkwrap()` without arguments.
+
+### `amount?`
+
+Strength of the shrinkwrap layer from `0` to `1`. Defaults to `1`.
+
+Use `0` to leave the source unchanged.
+
+### `displacement?`
+
+Pixel displacement caused by the plastic wrinkles. Defaults to `5`.
+
+Higher values bend the source more strongly. Must be greater than or equal to `0`.
+
+### `highlightIntensity?`
+
+Brightness of the glossy plastic highlights. Defaults to `0.75`.
+
+Use values above `1` for stronger white glints. Must be greater than or equal to `0`.
+
+### `wrinkleDensity?`
+
+Amount of small procedural wrinkles from `0` to `1`. Defaults to `0.42`.
+
+Lower values create broader folds. Higher values create tighter plastic texture.
+
+### `edgeTension?`
+
+Strength of stretched edge highlights from `0` to `1`. Defaults to `0.45`.
+
+This is most visible on full-frame labels, stickers and rounded rectangles.
+
+### `phase?`
+
+Offset into the continuous wrinkle field. Defaults to `0`.
+
+Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) to make the plastic drift smoothly without changing the underlying wrinkle pattern.
+
+### `seed?`
+
+Seed for the deterministic wrinkle pattern. Defaults to `0`.
+
+Change it to get a different static plastic pattern.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`shrinkwrap()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`shine()`](/docs/effects/shine)
+- [`noiseDisplacement()`](/docs/effects/noise-displacement)
+- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/shrinkwrap.ts)

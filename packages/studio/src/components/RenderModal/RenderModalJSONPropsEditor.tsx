@@ -19,11 +19,29 @@ const style: React.CSSProperties = {
 	flex: 1,
 };
 
+const inspectorStyle: React.CSSProperties = {
+	fontFamily: 'monospace',
+	boxSizing: 'border-box',
+	flex: 'none',
+	fontSize: 11,
+	lineHeight: '15px',
+	minHeight: 220,
+	overflowY: 'hidden',
+	...({
+		fieldSizing: 'content',
+	} satisfies React.CSSProperties & {fieldSizing: 'content'}),
+};
+
 const scrollable: React.CSSProperties = {
 	padding: '8px 12px',
 	display: 'flex',
 	flexDirection: 'column',
 	flex: 1,
+};
+
+const inspectorScrollable: React.CSSProperties = {
+	...scrollable,
+	flex: 'none',
 };
 
 const parseJS = (
@@ -67,6 +85,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	readonly defaultProps: Record<string, unknown>;
 	readonly schema: AnyZodSchema;
 	readonly compositionId: string;
+	readonly layout?: 'default' | 'inspector';
 }> = ({
 	setValue,
 	value,
@@ -75,6 +94,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	serializedJSON,
 	schema,
 	compositionId,
+	layout = 'default',
 }) => {
 	if (serializedJSON === null) {
 		throw new Error('expecting serializedJSON to be defined');
@@ -98,7 +118,10 @@ export const RenderModalJSONPropsEditor: React.FC<{
 
 			const {result} = e;
 			if (result.canUpdate) {
-				const nextState = parseJS(result.currentDefaultProps, schema);
+				const deserialized = NoReactInternals.deserializeJSONWithSpecialTypes<
+					Record<string, unknown>
+				>(JSON.stringify(result.currentDefaultProps));
+				const nextState = parseJS(deserialized, schema);
 				setLocalValue(nextState);
 			}
 		});
@@ -163,24 +186,27 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	}, [defaultProps, schema, setValue]);
 
 	const textAreaStyle: React.CSSProperties = useMemo(() => {
+		const baseStyle = layout === 'inspector' ? inspectorStyle : style;
 		if (!hasError) {
-			return style;
+			return baseStyle;
 		}
 
 		return {
-			...style,
+			...baseStyle,
 			borderColor: FAIL_COLOR,
 		};
-	}, [hasError]);
+	}, [hasError, layout]);
+	const buttonSize = layout === 'inspector' ? 'condensed' : 'default';
 
 	return (
-		<div style={scrollable}>
+		<div style={layout === 'inspector' ? inspectorScrollable : scrollable}>
 			<RemTextarea
 				onChange={onChange}
 				onBlur={onQuickSave}
 				value={localValue.str}
 				status={localValue.validJSON ? 'ok' : 'error'}
 				style={textAreaStyle}
+				small={layout === 'inspector'}
 			/>
 			<Spacing y={1} />
 			<div data-testid="json-props-error">
@@ -189,11 +215,13 @@ export const RenderModalJSONPropsEditor: React.FC<{
 						align="flex-start"
 						message={localValue.error}
 						type="error"
+						size={layout === 'inspector' ? 'compact' : 'default'}
 					/>
 				) : localValue.zodValidation.success === false ? (
 					<ZodErrorMessages
 						zodValidationResult={localValue.zodValidation}
 						viewTab="json"
+						size={layout === 'inspector' ? 'compact' : 'default'}
 					/>
 				) : null}
 			</div>
@@ -202,11 +230,16 @@ export const RenderModalJSONPropsEditor: React.FC<{
 				<Button
 					disabled={!(hasChanged || !localValue.validJSON)}
 					onClick={reset}
+					size={buttonSize}
 				>
 					Reset
 				</Button>
 				<Flex />
-				<Button disabled={!localValue.validJSON} onClick={onPretty}>
+				<Button
+					disabled={!localValue.validJSON}
+					onClick={onPretty}
+					size={buttonSize}
+				>
 					Format
 				</Button>
 				<Spacing x={1} />

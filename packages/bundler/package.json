@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/bundler"
 	},
 	"name": "@remotion/bundler",
-	"version": "4.0.469",
+	"version": "4.0.496",
 	"description": "Bundle Remotion compositions using Webpack",
 	"main": "dist/index.js",
 	"bugs": {
@@ -19,10 +19,10 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"@rspack/core": "1.7.6",
+		"@rspack/core": "1.7.11",
 		"@rspack/plugin-react-refresh": "1.6.1",
 		"css-loader": "7.1.4",
-		"esbuild": "0.28.0",
+		"esbuild": "0.28.1",
 		"react-refresh": "0.18.0",
 		"remotion": "workspace:*",
 		"@remotion/studio": "workspace:*",

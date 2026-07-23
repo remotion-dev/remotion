@@ -3,14 +3,13 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import type DocBreadcrumbsType from '@theme-original/DocBreadcrumbs';
 import DocBreadcrumbs from '@theme-original/DocBreadcrumbs';
 import React, {type ReactNode, useCallback, useState} from 'react';
+import {decodeRawMarkdownFromCarrier} from '../RawMarkdownCarrier';
 import {
 	AnthropicIcon,
-	CursorIcon,
 	ExternalLinkIcon,
 	MarkdownIcon,
 	OpenAIIcon,
 	RemotionIcon,
-	VSCodeIcon,
 } from './icons';
 
 type Props = WrapperProps<typeof DocBreadcrumbsType>;
@@ -122,7 +121,10 @@ export default function DocBreadcrumbsWrapper(props: Props): ReactNode {
 		try {
 			const el = document.getElementById('__doc_raw');
 			let raw = '';
-			if (el?.textContent) {
+			const encodedRaw = el?.getAttribute('data-raw-markdown');
+			if (encodedRaw) {
+				raw = decodeRawMarkdownFromCarrier(encodedRaw);
+			} else if (el?.textContent) {
 				raw = JSON.parse(el.textContent);
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			} else if ((window as any).__DOC_RAW) {
@@ -166,26 +168,6 @@ export default function DocBreadcrumbsWrapper(props: Props): ReactNode {
 		const currentPath = window.location.pathname.replace(/\/$/, '');
 		const markdownUrl = `${currentPath}.md`;
 		window.open(markdownUrl, '_blank');
-	}, []);
-
-	const handleConnectToCursor = useCallback(() => {
-		const config = {
-			command: 'npx',
-			args: ['@remotion/mcp@latest'],
-		};
-		const base64Config = btoa(JSON.stringify(config));
-		const cursorUrl = `cursor://anysphere.cursor-deeplink/mcp/install?name=remotion-documentation&config=${base64Config}`;
-		window.location.href = cursorUrl;
-	}, []);
-
-	const handleConnectToVSCode = useCallback(() => {
-		const config = {
-			name: 'remotion-documentation',
-			command: 'npx',
-			args: ['@remotion/mcp@latest'],
-		};
-		const vscodeUrl = `vscode:mcp/install?${encodeURIComponent(JSON.stringify(config))}`;
-		window.location.href = vscodeUrl;
 	}, []);
 
 	const handleAskAI = useCallback(() => {
@@ -305,22 +287,6 @@ export default function DocBreadcrumbsWrapper(props: Props): ReactNode {
 								title="Open in Claude"
 								description="Ask questions about this page"
 								onClick={handleOpenInClaude}
-								showExternalIcon
-							/>
-
-							<AiDropdownItemComponent
-								icon={<CursorIcon />}
-								title="Connect to Cursor"
-								description="Install MCP Server on Cursor"
-								onClick={handleConnectToCursor}
-								showExternalIcon
-							/>
-
-							<AiDropdownItemComponent
-								icon={<VSCodeIcon />}
-								title="Connect to VS Code"
-								description="Install MCP Server on VS Code"
-								onClick={handleConnectToVSCode}
 								showExternalIcon
 							/>
 						</DropdownMenu.Content>

@@ -71,3 +71,22 @@ test('Should allow empty TransitionSeries.Sequence', () => {
 
 	expect(outerHTML).toBe(`${ABS_FILL}${ABS_FILL}</div></div>`);
 });
+
+test('TransitionSeries.Sequence ignores a from prop passed from JavaScript', () => {
+	const outerHTML = renderForFrame(
+		70,
+		<TransitionSeries>
+			<TransitionSeries.Sequence durationInFrames={60}>
+				<Letter color="green">C</Letter>
+			</TransitionSeries.Sequence>
+			<TransitionSeries.Sequence
+				durationInFrames={60}
+				{...({from: 0} as {from: number})}
+			>
+				<Letter color="blue">D</Letter>
+			</TransitionSeries.Sequence>
+		</TransitionSeries>,
+	);
+
+	expect(outerHTML).toContain('D');
+});
