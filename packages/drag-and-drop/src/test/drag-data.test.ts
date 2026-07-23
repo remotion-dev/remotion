@@ -20,7 +20,14 @@ import {
 
 test('constructs and parses all payload families', () => {
 	const payloads = [
-		[makeAssetDragData('nested/image.png'), parseAssetDragData],
+		[
+			makeAssetDragData('nested/image.png', {
+				width: 1920,
+				height: 1080,
+				durationInSeconds: 5,
+			}),
+			parseAssetDragData,
+		],
 		[
 			makeComponentDragData({
 				componentName: 'Circle',
@@ -35,6 +42,9 @@ test('constructs and parses all payload families', () => {
 			makeCompositionDragData({
 				compositionFile: 'src/Root.tsx',
 				compositionId: 'MyVideo',
+				width: 1920,
+				height: 1080,
+				durationInFrames: 150,
 			}),
 			parseCompositionDragData,
 		],
@@ -53,6 +63,7 @@ test('constructs and parses all payload families', () => {
 				displayName: 'Lower Third',
 				sourceCode: 'export const LowerThird = () => null;',
 				dimensions: {width: 900, height: 260},
+				durationInFrames: 90,
 			}),
 			parseElementDragData,
 		],

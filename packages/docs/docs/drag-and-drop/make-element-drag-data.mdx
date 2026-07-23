@@ -11,11 +11,19 @@ Constructs a versioned payload containing an installable Remotion Element.
 ```ts twoslash title="drag.ts"
 import {makeElementDragData} from '@remotion/drag-and-drop';
 
-const payload = makeElementDragData({
+const dragData = makeElementDragData({
   slug: 'titles/lower-third',
   displayName: 'Lower Third',
   sourceCode: 'export const LowerThird = () => null;',
   dependencies: [],
   dimensions: {width: 900, height: 260},
+  durationInFrames: 90,
 });
+
+dragData.preview;
+// {kind: 'element', width: 900, height: 260, durationInFrames: 90}
 ```
+
+`durationInFrames` is optional.
+The return value contains the canonical Element payload and the validated metadata under `preview`.
+Pass `dragData.preview` to [`setDragPreviewMetadata()`](/docs/drag-and-drop/set-drag-preview-metadata).

@@ -20,6 +20,11 @@ test('parses element drag data', () => {
 		type: 'remotion-element',
 		version: 1,
 		element: validElement,
+		preview: {
+			kind: 'element',
+			width: 900,
+			height: 260,
+		},
 	});
 });
 
@@ -38,6 +43,11 @@ test('accepts older element drag data without dependencies', () => {
 		type: 'remotion-element',
 		version: 1,
 		element: {...elementWithoutDependencies, dependencies: []},
+		preview: {
+			kind: 'element',
+			width: 900,
+			height: 260,
+		},
 	});
 });
 
@@ -51,6 +61,7 @@ test('accepts element drag data with null dimensions', () => {
 		type: 'remotion-element',
 		version: 1,
 		element: elementWithoutDimensions,
+		preview: {kind: 'element'},
 	});
 });
 

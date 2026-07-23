@@ -11,10 +11,20 @@ Constructs a versioned payload for a registered Remotion composition.
 ```ts twoslash title="drag.ts"
 import {makeCompositionDragData} from '@remotion/drag-and-drop';
 
-const payload = makeCompositionDragData({
+const dragData = makeCompositionDragData({
   compositionId: 'MyVideo',
   compositionFile: 'src/Root.tsx',
+  width: 1920,
+  height: 1080,
+  durationInFrames: 150,
 });
+
+dragData.preview;
+// {kind: 'composition', width: 1920, height: 1080, durationInFrames: 150}
 ```
 
 `compositionFile` may be `null` when its source file is unknown.
+`width`, `height`, and `durationInFrames` are optional.
+
+The return value contains the canonical composition payload and the validated metadata under `preview`.
+Pass `dragData.preview` to [`setDragPreviewMetadata()`](/docs/drag-and-drop/set-drag-preview-metadata).

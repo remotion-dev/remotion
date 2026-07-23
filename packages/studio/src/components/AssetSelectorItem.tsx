@@ -361,10 +361,6 @@ const AssetSelectorItem: React.FC<{
 
 			setIsDragging(true);
 			e.dataTransfer.effectAllowed = 'copy';
-			e.dataTransfer.setData(
-				ASSET_DRAG_MIME_TYPE,
-				JSON.stringify(makeAssetDragData(relativePath)),
-			);
 			const src = staticFile(relativePath);
 			const imageMetadata =
 				previewFileType === 'image' ? getCachedImageMetadata(src) : null;
@@ -388,11 +384,12 @@ const AssetSelectorItem: React.FC<{
 					? mediaMetadata.duration
 					: undefined;
 
-			setDragPreviewMetadata(e.dataTransfer, {
-				kind: 'asset',
+			const dragData = makeAssetDragData(relativePath, {
 				...(hasDimensions ? {width, height} : {}),
 				durationInSeconds,
 			});
+			e.dataTransfer.setData(ASSET_DRAG_MIME_TYPE, JSON.stringify(dragData));
+			setDragPreviewMetadata(e.dataTransfer, dragData.preview);
 		},
 		[canDragAsset, previewFileType, relativePath],
 	);

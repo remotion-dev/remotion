@@ -228,6 +228,63 @@ export const parseDragPreviewMimeType = (
 	};
 };
 
+export const parseDragPreviewMetadataValue = (
+	value: unknown,
+): DragPreviewMetadata | null => {
+	if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+		return null;
+	}
+
+	const record = value as Record<string, unknown>;
+	const {height, kind, width} = record;
+	if (kind !== 'asset' && kind !== 'composition' && kind !== 'element') {
+		return null;
+	}
+
+	const allowedKeys =
+		kind === 'asset'
+			? ['kind', 'width', 'height', 'durationInSeconds']
+			: ['kind', 'width', 'height', 'durationInFrames'];
+	if (Object.keys(record).some((key) => !allowedKeys.includes(key))) {
+		return null;
+	}
+
+	if (
+		(width !== undefined && typeof width !== 'number') ||
+		(height !== undefined && typeof height !== 'number')
+	) {
+		return null;
+	}
+
+	const duration =
+		kind === 'asset' ? record.durationInSeconds : record.durationInFrames;
+	if (duration !== undefined && typeof duration !== 'number') {
+		return null;
+	}
+
+	try {
+		if (kind === 'asset') {
+			return parseDragPreviewMimeType(
+				makeDragPreviewMimeType({
+					kind,
+					...(width === undefined ? {} : {width, height: height as number}),
+					...(duration === undefined ? {} : {durationInSeconds: duration}),
+				}),
+			);
+		}
+
+		return parseDragPreviewMimeType(
+			makeDragPreviewMimeType({
+				kind,
+				...(width === undefined ? {} : {width, height: height as number}),
+				...(duration === undefined ? {} : {durationInFrames: duration}),
+			}),
+		);
+	} catch {
+		return null;
+	}
+};
+
 export const setDragPreviewMetadata = (
 	dataTransfer: DataTransferWithSetData,
 	metadata: DragPreviewMetadata,

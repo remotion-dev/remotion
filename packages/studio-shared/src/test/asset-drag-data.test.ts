@@ -8,6 +8,7 @@ test('parses asset drag data', () => {
 		type: 'remotion-asset',
 		version: 1,
 		assetPath: 'nested/image.png',
+		preview: {kind: 'asset'},
 	});
 });
 

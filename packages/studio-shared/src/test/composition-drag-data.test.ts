@@ -20,6 +20,7 @@ test('parses composition drag data', () => {
 		version: 1,
 		compositionFile: 'src/Root.tsx',
 		compositionId: 'MyVideo',
+		preview: {kind: 'composition'},
 	});
 });
 
@@ -38,6 +39,7 @@ test('allows a missing composition file', () => {
 		version: 1,
 		compositionFile: null,
 		compositionId: 'MyVideo',
+		preview: {kind: 'composition'},
 	});
 });
 

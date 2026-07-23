@@ -138,12 +138,14 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			dependencies,
 			dimensions,
 			displayName,
+			durationInFrames,
 			slug,
 			sourceCode,
 		});
 	}, [
 		dependencies,
 		displayName,
+		durationInFrames,
 		elementHeight,
 		elementWidth,
 		slug,
@@ -279,7 +281,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 										setElementDragData({
 											dataTransfer: event.dataTransfer,
 											dragData,
-											durationInFrames,
 										});
 										setElementDragImage(event.dataTransfer);
 									}}

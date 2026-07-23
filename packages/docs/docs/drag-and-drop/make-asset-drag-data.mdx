@@ -11,7 +11,18 @@ Constructs a versioned payload for an asset that already exists in the Remotion 
 ```ts twoslash title="drag.ts"
 import {makeAssetDragData} from '@remotion/drag-and-drop';
 
-const payload = makeAssetDragData('images/logo.png');
+const dragData = makeAssetDragData('images/logo.png', {
+  width: 1920,
+  height: 1080,
+  durationInSeconds: 5,
+});
+
+dragData.preview;
+// {kind: 'asset', width: 1920, height: 1080, durationInSeconds: 5}
 ```
 
-Pass the public-directory-relative asset path. The return value is an `AssetDragData` object.
+Pass the public-directory-relative asset path.
+The second argument contains optional preview metadata and defaults to an empty object.
+
+The return value contains the canonical asset payload and the validated metadata under `preview`.
+Pass `dragData.preview` to [`setDragPreviewMetadata()`](/docs/drag-and-drop/set-drag-preview-metadata).

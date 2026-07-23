@@ -234,26 +234,18 @@ export const CompositionSelectorItem: React.FC<{
 
 			setIsDragging(true);
 			event.dataTransfer.effectAllowed = 'copyMove';
-			event.dataTransfer.setData(
-				COMPOSITION_DRAG_MIME_TYPE,
-				JSON.stringify(
-					makeCompositionDragData({
-						compositionFile: resolvedLocation?.source ?? null,
-						compositionId: item.composition.id,
-					}),
-				),
-			);
-			setDragPreviewMetadata(event.dataTransfer, {
-				kind: 'composition',
-				...(item.composition.width === undefined ||
-				item.composition.height === undefined
-					? {}
-					: {
-							width: item.composition.width,
-							height: item.composition.height,
-						}),
+			const dragData = makeCompositionDragData({
+				compositionFile: resolvedLocation?.source ?? null,
+				compositionId: item.composition.id,
+				width: item.composition.width,
+				height: item.composition.height,
 				durationInFrames: item.composition.durationInFrames,
 			});
+			event.dataTransfer.setData(
+				COMPOSITION_DRAG_MIME_TYPE,
+				JSON.stringify(dragData),
+			);
+			setDragPreviewMetadata(event.dataTransfer, dragData.preview);
 		},
 		[item, resolvedLocation?.source],
 	);
