@@ -15,6 +15,7 @@ import {
 import {Plus} from '../icons/plus';
 import {ModalsContext} from '../state/modals';
 import {AssetFileIcon} from './AssetFileIcon';
+import {CaptionJsonInspector} from './CaptionJsonInspector';
 import {InlineAction} from './InlineAction';
 import {InspectorInlineAction, InspectorSection} from './InspectorPanel/common';
 import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
@@ -198,12 +199,14 @@ export const hasSequenceControls = (
 
 export const InspectorSequenceSection: React.FC<{
 	readonly sequence: SequenceWithControls;
+	readonly readOnlyStudio: boolean;
 	readonly validatedLocation: CodePosition;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
 	readonly renderTransformControls: () => React.ReactNode;
 }> = ({
 	sequence,
+	readOnlyStudio,
 	validatedLocation,
 	nodePathInfo,
 	keyframeDisplayOffset,
@@ -222,6 +225,9 @@ export const InspectorSequenceSection: React.FC<{
 	const {setSelectedModal} = useContext(ModalsContext);
 	const selectAsset = useSelectAsset();
 	const mediaSrc = getTimelineAssetSrcFromSchema(sequence.controls);
+	const isJsonSource =
+		mediaSrc !== null &&
+		getPreviewFileType(mediaSrc.split(/[?#]/, 1)[0]) === 'json';
 	const assetLinkInfo = useMemo(
 		() => (mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null),
 		[mediaSrc],
@@ -413,6 +419,14 @@ export const InspectorSequenceSection: React.FC<{
 										{remoteSourceParts.trailing}
 									</span>
 								</div>
+							) : null}
+							{group.id === 'source' && isJsonSource && mediaSrc ? (
+								<CaptionJsonInspector
+									src={mediaSrc}
+									editableFilePath={
+										readOnlyStudio ? undefined : localAsset?.assetPath
+									}
+								/>
 							) : null}
 							{group.id === 'transforms' ? renderTransformControls() : null}
 							{group.id === 'source' ? null : group.rows.map(renderRow)}
