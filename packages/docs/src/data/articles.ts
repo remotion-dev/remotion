@@ -4897,7 +4897,7 @@ export const articles = [
 	},
 	{
 		id: 'webpack',
-		title: 'Custom bundler config',
+		title: 'Webpack and Rspack',
 		relativePath: 'docs/overwriting-webpack-config.mdx',
 		compId: 'articles-docs-overwriting-webpack-config',
 		crumb: 'How To',
