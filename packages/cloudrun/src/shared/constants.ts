@@ -1,3 +1,4 @@
+import {NoReactInternals} from 'remotion/no-react';
 import type {GcpRegion} from '../pricing/gcp-regions';
 
 export const DEFAULT_REGION: GcpRegion = 'us-east1';
@@ -19,5 +20,6 @@ export const DEFAULT_OUTPUT_PRIVACY: Privacy = 'public';
 
 export const DEFAULT_TIMEOUT = 300;
 export const DEFAULT_MIN_INSTANCES = 0;
-// TODO: In V5, Enable set this to 5
-export const DEFAULT_MAX_INSTANCES = 100;
+export const DEFAULT_MAX_INSTANCES = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+	? 5
+	: 100;
