@@ -12,7 +12,7 @@ import {useRemotionEnvironment} from 'remotion';
 import {getZodSchemaFromPrimitive} from '../api/get-zod-schema-from-primitive';
 import {useZodIfPossible} from '../components/get-zod-if-possible';
 import type {AnyZodSchema} from '../components/RenderModal/SchemaEditor/zod-schema-type';
-import {studioInteractivityEnabled} from '../helpers/interactivity-enabled';
+import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {getVisualControlEditedValue} from './get-current-edited-value';
 import {visualControlStore} from './visual-control-store';
 
@@ -131,7 +131,7 @@ export const VisualControlsProvider: React.FC<{
 				return value;
 			}
 
-			if (!studioInteractivityEnabled) {
+			if (!isStudioInteractivityEnabled()) {
 				return value;
 			}
 

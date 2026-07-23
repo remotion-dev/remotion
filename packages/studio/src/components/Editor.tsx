@@ -28,9 +28,6 @@ const background: React.CSSProperties = {
 	position: 'absolute',
 };
 
-export const BUFFER_STATE_DELAY_IN_MILLISECONDS =
-	getStudioBufferStateDelayInMilliseconds();
-
 export const Editor: React.FC<{
 	readonly Root: React.FC;
 	readonly readOnlyStudio: boolean;
@@ -100,9 +97,7 @@ export const Editor: React.FC<{
 										<EditorContent readOnlyStudio={readOnlyStudio}>
 											<TopPanel
 												drawRef={setDrawRef}
-												bufferStateDelayInMilliseconds={
-													BUFFER_STATE_DELAY_IN_MILLISECONDS
-												}
+												bufferStateDelayInMilliseconds={getStudioBufferStateDelayInMilliseconds()}
 												onMounted={onMounted}
 												readOnlyStudio={readOnlyStudio}
 											/>

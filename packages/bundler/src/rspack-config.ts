@@ -1,8 +1,7 @@
 import {getStudioEntryPoints} from '@remotion/studio-shared/studio-entry-points';
 import type {Configuration} from '@rspack/core';
-import {DefinePlugin, ProgressPlugin, rspack} from '@rspack/core';
+import {ProgressPlugin, rspack} from '@rspack/core';
 import ReactRefreshPlugin from '@rspack/plugin-react-refresh';
-import {getDefinePluginDefinitions} from './define-plugin-definitions';
 import {
 	computeHashAndFinalConfig,
 	getBaseConfig,
@@ -22,13 +21,8 @@ export const rspackConfig = async ({
 	webpackOverride = (f) => f,
 	onProgress,
 	enableCaching = true,
-	maxTimelineTracks,
 	remotionRoot,
-	keyboardShortcutsEnabled,
-	bufferStateDelayInMilliseconds,
 	poll,
-	askAIEnabled,
-	interactivityEnabled,
 	extraPlugins,
 }: {
 	entry: string;
@@ -38,27 +32,12 @@ export const rspackConfig = async ({
 	webpackOverride: WebpackOverrideFn;
 	onProgress?: (f: number) => void;
 	enableCaching?: boolean;
-	maxTimelineTracks: number | null;
-	keyboardShortcutsEnabled: boolean;
-	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	poll: number | null;
-	askAIEnabled: boolean;
-	interactivityEnabled: boolean;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	extraPlugins: any[];
 }): Promise<[string, RspackConfiguration]> => {
 	let lastProgress = 0;
-
-	const define = new DefinePlugin(
-		getDefinePluginDefinitions({
-			maxTimelineTracks,
-			askAIEnabled,
-			interactivityEnabled,
-			keyboardShortcutsEnabled,
-			bufferStateDelayInMilliseconds,
-		}),
-	);
 
 	const swcLoaderRule = {
 		loader: 'builtin:swc-loader',
@@ -120,7 +99,6 @@ export const rspackConfig = async ({
 				? [
 						new ReactRefreshPlugin({overlay: false}),
 						new rspack.HotModuleReplacementPlugin(),
-						define,
 						...extraPlugins,
 					]
 				: [
@@ -132,7 +110,6 @@ export const rspackConfig = async ({
 								}
 							}
 						}),
-						define,
 					],
 		output: getOutputConfig(environment),
 		resolve: getResolveConfig(),
