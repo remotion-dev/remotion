@@ -325,5 +325,8 @@ export const render = async (
 		rspack,
 		sampleRate,
 		shouldCache,
+		bundlerOverride: null,
+		rspackOverride: null,
+		webpackOverride: null,
 	});
 };

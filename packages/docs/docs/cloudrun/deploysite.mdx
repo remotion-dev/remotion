@@ -79,7 +79,15 @@ Callback function that gets called when uploading of the assets has progressed. 
 
 #### `webpackOverride?`
 
-Allows to pass a custom webpack override. See [`bundle()` -> webpackOverride](/docs/bundle#webpackoverride) for more information.
+Passes a custom Webpack override. It is ignored if `rspack` is `true`. See [`bundle()` → `webpackOverride`](/docs/bundle#webpackoverride).
+
+#### `bundlerOverride?`<AvailableFrom v="4.0.498" />
+
+Passes an override shared by Webpack and Rspack. See [`bundle()` → `bundlerOverride`](/docs/bundle#bundleroverride).
+
+#### `rspackOverride?`<AvailableFrom v="4.0.498" />
+
+Passes a custom Rspack override. See [`bundle()` → `rspackOverride`](/docs/bundle#rspackoverride).
 
 #### `enableCaching?`
 

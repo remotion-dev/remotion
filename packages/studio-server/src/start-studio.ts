@@ -1,7 +1,11 @@
 import crypto from 'node:crypto';
 import {existsSync} from 'node:fs';
 import path from 'node:path';
-import type {WebpackOverrideFn} from '@remotion/bundler';
+import type {
+	BundlerOverrideFn,
+	RspackOverrideFn,
+	WebpackOverrideFn,
+} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
@@ -41,6 +45,8 @@ export const startStudio = async ({
 	remotionRoot,
 	keyboardShortcutsEnabled,
 	relativePublicDir,
+	bundlerOverride,
+	rspackOverride,
 	webpackOverride,
 	poll,
 	getRenderDefaults,
@@ -74,6 +80,8 @@ export const startStudio = async ({
 	remotionRoot: string;
 	keyboardShortcutsEnabled: boolean;
 	relativePublicDir: string | null;
+	bundlerOverride: BundlerOverrideFn;
+	rspackOverride: RspackOverrideFn;
 	webpackOverride: WebpackOverrideFn;
 	poll: number | null;
 	getRenderDefaults: () => RenderDefaults;
@@ -150,6 +158,8 @@ export const startStudio = async ({
 		remotionRoot,
 		keyboardShortcutsEnabled,
 		publicDir,
+		bundlerOverride,
+		rspackOverride,
 		webpackOverride,
 		poll,
 		staticHash,

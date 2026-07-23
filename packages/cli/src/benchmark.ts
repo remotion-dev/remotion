@@ -346,6 +346,9 @@ export const benchmarkCommand = async (
 			keyboardShortcutsEnabled,
 			rspack,
 			shouldCache,
+			bundlerOverride: null,
+			rspackOverride: null,
+			webpackOverride: null,
 		});
 
 	registerCleanupJob(`Deleting bundle`, () => cleanupBundle());

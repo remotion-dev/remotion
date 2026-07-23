@@ -163,6 +163,9 @@ export const listCompositionsCommand = async (
 			keyboardShortcutsEnabled,
 			rspack,
 			shouldCache,
+			bundlerOverride: null,
+			rspackOverride: null,
+			webpackOverride: null,
 		});
 
 	registerCleanupJob(`Cleanup bundle`, () => cleanupBundle());

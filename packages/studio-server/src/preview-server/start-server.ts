@@ -1,6 +1,10 @@
 import type {IncomingMessage} from 'node:http';
 import http from 'node:http';
-import type {WebpackOverrideFn} from '@remotion/bundler';
+import type {
+	BundlerOverrideFn,
+	RspackOverrideFn,
+	WebpackOverrideFn,
+} from '@remotion/bundler';
 import {
 	BundlerInternals,
 	WatchIgnoreNextChangePlugin,
@@ -40,6 +44,8 @@ export type StartServerResult =
 export const startServer = async (options: {
 	entry: string;
 	userDefinedComponent: string;
+	bundlerOverride: BundlerOverrideFn;
+	rspackOverride: RspackOverrideFn;
 	webpackOverride: WebpackOverrideFn;
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
@@ -101,6 +107,8 @@ export const startServer = async (options: {
 		userDefinedComponent: options.userDefinedComponent,
 		outDir: null,
 		environment: 'development' as const,
+		bundlerOverride: options.bundlerOverride,
+		rspackOverride: options.rspackOverride,
 		webpackOverride: options?.webpackOverride,
 		maxTimelineTracks: options?.maxTimelineTracks ?? null,
 		remotionRoot: options.remotionRoot,

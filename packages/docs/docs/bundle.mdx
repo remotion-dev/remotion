@@ -7,7 +7,7 @@ crumb: '@remotion/bundler'
 
 _Part of the `@remotion/bundler` package._
 
-Bundles a Remotion project using Webpack and prepares it for rendering using [`renderMedia()`](/docs/renderer/render-media). [See a full server-side rendering example.](/docs/ssr-node)
+Bundles a Remotion project using Webpack, or Rspack if enabled, and prepares it for rendering using [`renderMedia()`](/docs/renderer/render-media). [See a full server-side rendering example.](/docs/ssr-node)
 
 You only need to call this function when the source code changes. You can render multiple videos from the same bundle and parametrize them using [input props](/docs/passing-props).
 
@@ -22,7 +22,7 @@ import {bundle} from '@remotion/bundler';
 
 const serveUrl = await bundle({
   entryPoint: path.join(process.cwd(), './src/index.ts'),
-  // If you have a webpack override in remotion.config.ts, pass it here as well.
+  // If you have a bundler override in remotion.config.ts, pass it here as well.
   webpackOverride: (config) => config,
 });
 ```
@@ -35,17 +35,17 @@ A `string` containing an absolute path of the entry point of a Remotion project.
 
 ### `onProgress?`
 
-A callback function that notifies about the progress of the Webpack bundling. Passes a number between `0` and `100`. Example function:
+A callback function that notifies about the bundling progress. Passes a number between `0` and `100`. Example function:
 
 ```ts twoslash
 const onProgress = (progress: number) => {
-  console.log(`Webpack bundling progress: ${progress}%`);
+  console.log(`Bundling progress: ${progress}%`);
 };
 ```
 
 ### `webpackOverride?`
 
-A function to override the webpack config reducer-style. Takes a function which gives you the current webpack config which you can transform and return a modified version of it. For example:
+A function to override the Webpack config reducer-style. It is not called if `rspack` is `true`. For example:
 
 ```ts twoslash
 import {WebpackOverrideFn} from '@remotion/bundler';
@@ -58,9 +58,41 @@ const webpackOverride: WebpackOverrideFn = (webpackConfig) => {
 };
 ```
 
+### `bundlerOverride?`<AvailableFrom v="4.0.498" />
+
+A function that overrides configuration shared by Webpack and Rspack. The second argument identifies the selected bundler.
+
+Use it only for changes compatible with both bundlers. It runs before `webpackOverride` or `rspackOverride`.
+
+```ts twoslash
+import {BundlerOverrideFn} from '@remotion/bundler';
+// ---cut---
+const bundlerOverride: BundlerOverrideFn = (config, {bundler}) => {
+  return {
+    ...config,
+    name: `remotion-${bundler}`,
+  };
+};
+```
+
+### `rspackOverride?`<AvailableFrom v="4.0.498" />
+
+A function to override the Rspack config reducer-style. It is only called if `rspack` is `true`.
+
+```ts twoslash
+import {RspackOverrideFn} from '@remotion/bundler';
+// ---cut---
+const rspackOverride: RspackOverrideFn = (rspackConfig) => {
+  return {
+    ...rspackConfig,
+    // Rspack-specific configuration
+  };
+};
+```
+
 ### `outDir?`
 
-Specify a desired output directory. If no passed, the webpack bundle will be created in a temp dir.
+Specify a desired output directory. If not passed, the bundle will be created in a temporary directory.
 
 ### `askAIEnabled?`
 
@@ -117,6 +149,8 @@ const bundle: (
   entryPoint: string,
   onProgress?: (progress: number) => void,
   options?: {
+    bundlerOverride?: BundlerOverrideFn;
+    rspackOverride?: RspackOverrideFn;
     webpackOverride?: WebpackOverrideFn;
     outDir?: string;
     enableCaching?: boolean;

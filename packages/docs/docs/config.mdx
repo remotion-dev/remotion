@@ -23,9 +23,30 @@ Config.setPixelFormat('yuv444p');
 Config.setCodec('h265');
 ```
 
+## `overrideBundlerConfig()`<AvailableFrom v="4.0.498" />
+
+Overrides configuration shared by Webpack and Rspack.
+
+The callback receives the current configuration and a context object containing `bundler`, which is either `'webpack'` or `'rspack'`.
+
+Use this option only for changes that are compatible with both bundlers. Bundler-specific plugins and options should use `overrideWebpackConfig()` or `overrideRspackConfig()` instead.
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.overrideBundlerConfig((currentConfiguration, {bundler}) => {
+  return {
+    ...currentConfiguration,
+    name: `remotion-${bundler}`,
+  };
+});
+```
+
+The shared override runs before the selected bundler's specific override.
+
 ## `overrideWebpackConfig()`<AvailableFrom v="1.1.0" />
 
-Allows you to insert your custom Webpack config. [See the page about custom Webpack configs](/docs/webpack) for more information.
+Overrides the Webpack configuration. It is not called when Rspack is enabled. [See the page about custom bundler configurations](/docs/webpack) for more information.
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -38,6 +59,23 @@ Config.overrideWebpackConfig((currentConfiguration) => {
   };
 });
 ```
+
+## `overrideRspackConfig()`<AvailableFrom v="4.0.498" />
+
+Overrides the Rspack configuration. It is only called when [Rspack](/docs/config#setexperimentalrspackenabled) is enabled.
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.overrideRspackConfig((currentConfiguration) => {
+  return {
+    ...currentConfiguration,
+    // Rspack-specific configuration
+  };
+});
+```
+
+If `overrideBundlerConfig()` is also set, the shared override runs first.
 
 ## `setCachingEnabled()`<AvailableFrom v="2.0.0" />
 

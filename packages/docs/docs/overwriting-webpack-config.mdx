@@ -1,18 +1,24 @@
 ---
 image: /generated/articles-docs-overwriting-webpack-config.png
 id: webpack
-title: Custom Webpack config
+title: Custom bundler config
 crumb: 'How To'
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-Remotion ships with [its own Webpack configuration](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/webpack-config.ts).
+Remotion ships with its own [Webpack configuration](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/webpack-config.ts) and [Rspack configuration](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/rspack-config.ts).
 
-You can override it reducer-style by creating a function that takes the previous Webpack configuration and returns the next one.
+You can override them reducer-style by creating a function that takes the previous configuration and returns the next one.
 
-## When rendering using the command line
+Use [`Config.overrideWebpackConfig()`](/docs/config#overridewebpackconfig) for Webpack-specific changes and [`Config.overrideRspackConfig()`](/docs/config#overriderspackconfig) for Rspack-specific changes.
+
+[`Config.overrideBundlerConfig()`](/docs/config#overridebundlerconfig) applies compatible changes to both bundlers. The shared override runs first, followed by the selected bundler's specific override.
+
+Webpack and Rspack plugins are not interchangeable. Do not add bundler-specific plugins in `Config.overrideBundlerConfig()`.
+
+## Webpack overrides using the command line
 
 In your [`remotion.config.ts`](/docs/config) file, you can call [`Config.overrideWebpackConfig()`](/docs/config#overridewebpackconfig) from `@remotion/cli/config`.
 
@@ -55,9 +61,26 @@ Config.overrideWebpackConfig((config) => {
 Using the reducer pattern will help with type safety, give you auto-complete, ensure forwards-compatibility and keep it completely flexible - you can override just one property or pass in a completely new Webpack configuration.
 :::
 
+## Rspack overrides using the command line<AvailableFrom v="4.0.498" />
+
+Use `Config.overrideRspackConfig()` when [Rspack is enabled](/docs/config#setexperimentalrspackenabled):
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+Config.overrideRspackConfig((currentConfiguration) => {
+  return {
+    ...currentConfiguration,
+    // Rspack-specific configuration
+  };
+});
+```
+
 ## When using `bundle()` and `deploySite()`
 
 When using the Node.JS APIs - [`bundle()`](/docs/bundle) for SSR or [`deploySite()`](/docs/lambda/deploysite) for Lambda, you also need to provide the Webpack override, since the Node.JS APIs do not read from the config file. We recommend you put the webpack override in a separate file so you can read it from both the command line and your Node.JS script.
+
+For Rspack, pass `rspackOverride`. Pass portable changes as `bundlerOverride`.
 
 ```ts twoslash title="src/webpack-override.ts"
 import {WebpackOverrideFn} from '@remotion/bundler';

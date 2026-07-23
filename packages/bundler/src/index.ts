@@ -29,6 +29,13 @@ export {
 	LegacyBundleOptions,
 	MandatoryLegacyBundleOptions,
 } from './bundle';
-export {WebpackConfiguration, WebpackOverrideFn} from './webpack-config';
+export type {
+	BundlerName,
+	BundlerOverrideFn,
+	RspackConfiguration,
+	RspackOverrideFn,
+	WebpackConfiguration,
+	WebpackOverrideFn,
+} from './override-types';
 export {WatchIgnoreNextChangePlugin};
 export {webpack};
