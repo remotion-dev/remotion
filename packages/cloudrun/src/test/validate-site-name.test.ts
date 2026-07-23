@@ -14,8 +14,12 @@ test('rejects invalid characters', () => {
 });
 
 test('rejects dot segments and empty strings', () => {
-	expect(() => validateSiteName('.')).toThrow(/Check for invalid characters/);
-	expect(() => validateSiteName('..')).toThrow(/Check for invalid characters/);
+	expect(() => validateSiteName('.')).toThrow(
+		'The `siteName` must not be `.` or `..`.',
+	);
+	expect(() => validateSiteName('..')).toThrow(
+		'The `siteName` must not be `.` or `..`.',
+	);
 	expect(() => validateSiteName('')).toThrow(/Check for invalid characters/);
 });
 

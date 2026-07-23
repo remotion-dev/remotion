@@ -1,3 +1,5 @@
+const VALID_SITE_NAME_RE = /^[-0-9a-zA-Z!_.*'()]+$/;
+
 export const validateSiteName = (siteName: unknown) => {
 	if (typeof siteName === 'undefined') {
 		return;
@@ -13,15 +15,15 @@ export const validateSiteName = (siteName: unknown) => {
 
 	if (siteName === '.' || siteName === '..') {
 		throw new Error(
-			"The `siteName` must match the RegExp `/^[0-9a-zA-Z-!_.*'()]+$/`. You passed: " +
-				siteName +
-				'. Check for invalid characters.',
+			'The `siteName` must not be `.` or `..`. You passed: ' + siteName + '.',
 		);
 	}
 
-	if (!/^[0-9a-zA-Z-!_.*'()]+$/.test(siteName)) {
+	if (!VALID_SITE_NAME_RE.test(siteName)) {
 		throw new Error(
-			"The `siteName` must match the RegExp `/^[0-9a-zA-Z-!_.*'()]+$/`. You passed: " +
+			'The `siteName` must match the RegExp `/' +
+				VALID_SITE_NAME_RE.source +
+				'/`. You passed: ' +
 				siteName +
 				'. Check for invalid characters.',
 		);
