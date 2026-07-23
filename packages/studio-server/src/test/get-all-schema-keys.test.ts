@@ -19,6 +19,7 @@ test('getAllSchemaKeys returns every key across all enum variants', () => {
 			'style.rotate',
 			'style.transformOrigin',
 			'style.opacity',
+			'style.backgroundColor',
 			'style.borderWidth',
 			'style.borderStyle',
 			'style.borderColor',

@@ -288,6 +288,128 @@ export const Example = () => {
 	});
 });
 
+test('computeSequencePropsStatus should expand a color-only background shorthand', () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return <AbsoluteFill style={{background: 'rgba(1, 2, 3, 0.5)'}} />;
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 4),
+		componentIdentity: null,
+		keys: ['style.backgroundColor'],
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(result.props['style.backgroundColor']).toEqual({
+		status: 'static',
+		codeValue: 'rgba(1, 2, 3, 0.5)',
+	});
+});
+
+test('computeSequencePropsStatus should treat complex and dynamic background shorthands as computed', () => {
+	const inputs = [
+		`import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return <AbsoluteFill style={{background: 'linear-gradient(red, blue)'}} />;
+};
+`,
+		`import {AbsoluteFill} from 'remotion';
+
+export const Example = ({background}: {background: string}) => {
+	return <AbsoluteFill style={{background}} />;
+};
+`,
+	];
+
+	for (const input of inputs) {
+		const result = computeSequencePropsStatusFromContent({
+			fileContents: input,
+			nodePath: getNodePathFromContent(input, 4),
+			componentIdentity: null,
+			keys: ['style.backgroundColor'],
+			effects: [],
+			videoConfigValues: null,
+		});
+
+		expect(result.props['style.backgroundColor']).toEqual({
+			status: 'computed',
+		});
+	}
+});
+
+test('computeSequencePropsStatus should respect background property order', () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return (
+		<>
+			<AbsoluteFill style={{backgroundColor: 'blue', background: 'red'}} />
+			<AbsoluteFill style={{background: 'red', backgroundColor: 'blue'}} />
+		</>
+	);
+};
+`;
+	const beforeShorthand = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 6),
+		componentIdentity: null,
+		keys: ['style.backgroundColor'],
+		effects: [],
+		videoConfigValues: null,
+	});
+	const afterShorthand = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
+		keys: ['style.backgroundColor'],
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(beforeShorthand.props['style.backgroundColor']).toEqual({
+		status: 'static',
+		codeValue: 'red',
+	});
+	expect(afterShorthand.props['style.backgroundColor']).toEqual({
+		status: 'static',
+		codeValue: 'blue',
+	});
+});
+
+test('computeSequencePropsStatus should allow an independent background image', () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return (
+		<AbsoluteFill
+			style={{
+				backgroundImage: 'linear-gradient(red, blue)',
+				backgroundColor: 'black',
+			}}
+		/>
+	);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 5),
+		componentIdentity: null,
+		keys: ['style.backgroundColor'],
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(result.props['style.backgroundColor']).toEqual({
+		status: 'static',
+		codeValue: 'black',
+	});
+});
+
 test('canUpdateSequenceProps should flag computed props', () => {
 	const filePath = path.join(__dirname, 'snapshots', 'light-leak-computed.tsx');
 	const result = computeSequencePropsStatus({

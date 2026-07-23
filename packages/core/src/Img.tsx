@@ -18,6 +18,7 @@ import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
 import type {InteractiveBaseProps} from './Interactive.js';
 import {
+	backgroundSchema,
 	baseSchema,
 	borderSchema,
 	transformSchema,
@@ -388,6 +389,7 @@ export const imgSchema = {
 	},
 	...baseSchema,
 	...transformSchema,
+	...backgroundSchema,
 	...borderSchema,
 } as const satisfies InteractivitySchema;
 

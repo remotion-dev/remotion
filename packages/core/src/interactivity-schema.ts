@@ -367,6 +367,15 @@ export const borderSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
+export const backgroundSchema = {
+	'style.backgroundColor': {
+		type: 'color',
+		// `transparent` is the CSS initial value of background-color.
+		default: 'transparent',
+		description: 'Color',
+	},
+} as const satisfies InteractivitySchema;
+
 export const textContentSchema = {
 	children: {
 		type: 'text-content',
@@ -402,6 +411,7 @@ export const sequencePremountSchema = {
 
 export const sequenceStyleSchema = {
 	...transformSchema,
+	...backgroundSchema,
 	...borderSchema,
 	...sequencePremountSchema,
 } as const satisfies InteractivitySchema;

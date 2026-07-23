@@ -18,6 +18,7 @@ import {
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import type {InteractiveBaseProps} from './Interactive.js';
 import {
+	backgroundSchema,
 	baseSchema,
 	borderSchema,
 	transformSchema,
@@ -785,6 +786,7 @@ export const htmlInCanvasSchema = {
 		hiddenFromList: false,
 	},
 	...transformSchema,
+	...backgroundSchema,
 	...borderSchema,
 } as const satisfies InteractivitySchema;
 

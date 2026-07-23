@@ -252,6 +252,7 @@ export const lightLeakSchema: InteractivitySchema = {
 		hiddenFromList: false,
 	},
 	...Internals.transformSchema,
+	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
 	...Internals.premountSchema,
 } as const satisfies InteractivitySchema;

@@ -43,6 +43,7 @@ const labelSchema = {
 	...Interactive.baseSchema,
 	...Interactive.transformSchema,
 	...Interactive.textSchema,
+	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
 	children: {
 		type: 'text-content',
