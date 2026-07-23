@@ -63,7 +63,7 @@ Remotion provides three config file APIs:
 
 You can call each override API more than once. Overrides of the same type run in registration order.
 
-Only use `overrideBundlerConfig()` for changes that are compatible with both bundlers. Webpack and Rspack plugins are not interchangeable.
+Only use [`Config.overrideBundlerConfig()`](/docs/config#overridebundlerconfig) for changes that are compatible with both bundlers. Webpack and Rspack plugins are not interchangeable.
 
 Remotion ships with its own [Webpack configuration](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/webpack-config.ts) and [Rspack configuration](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/rspack-config.ts). Each override receives the previous configuration and returns the next one.
 
