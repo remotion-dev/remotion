@@ -125,6 +125,8 @@ This prevents black frames that were commonly seen when a `<Sequence>` containin
 
 ## Media and images pause playback while loading
 
+[`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media) have paused playback while loading by default since they were introduced.
+
 [`<Html5Video>`](/docs/html5-video), [`<OffthreadVideo>`](/docs/offthreadvideo), and [`<Html5Audio>`](/docs/html5-audio) now set [`pauseWhenBuffering`](/docs/player/buffer-state) to `true` by default.
 [`<Img>`](/docs/img) now sets [`pauseWhenLoading`](/docs/img#pausewhenloading) to `true` by default.
 This prevents the Player from continuing while media or images are still loading.
