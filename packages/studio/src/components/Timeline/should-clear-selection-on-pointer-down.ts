@@ -19,11 +19,11 @@ const isSelectionClearBlocked = (target: EventTarget | null | undefined) => {
 
 export const shouldClearSelectionOnPointerDown = (event: {
 	readonly button: number;
-	readonly ctrlKey?: boolean;
-	readonly metaKey?: boolean;
+	readonly ctrlKey: boolean | null;
+	readonly metaKey: boolean | null;
 	readonly target?: EventTarget | null;
 }) => {
-	if (event.button !== 0 || event.metaKey || event.ctrlKey) {
+	if (event.button !== 0 || event.metaKey === true || event.ctrlKey === true) {
 		return false;
 	}
 
