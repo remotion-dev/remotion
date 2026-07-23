@@ -25,6 +25,7 @@ import {TRANSPARENT} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {sortItemsByNonceHistory} from '../../helpers/sort-by-nonce-history';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {EditorSnappingContext} from '../../state/editor-snapping';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
@@ -44,6 +45,7 @@ import {
 } from './TimelineSelection';
 
 const HANDLE_WIDTH = 6;
+export const timelineSequenceFromDragSnapThresholdPx = 10;
 
 const baseStyle: React.CSSProperties = {
 	position: 'absolute',
@@ -76,6 +78,7 @@ export type TimelineSequenceLeftEdgeDragTarget = {
 };
 
 export type TimelineSequenceFromDragTarget = {
+	readonly canSnapToTimelineStart: boolean;
 	readonly effectKeyframes: TimelineSequenceEffectKeyframeDragTarget[];
 	readonly fileName: string;
 	readonly initialFrom: number;
@@ -468,6 +471,53 @@ export const getTimelineSequenceFromDragValue = ({
 	readonly deltaFrames: number;
 }) => initialFrom + deltaFrames;
 
+export const getTimelineSequenceFromDragDelta = ({
+	deltaFrames,
+	pxPerFrame,
+	snappingEnabled,
+	targets,
+}: {
+	readonly deltaFrames: number;
+	readonly pxPerFrame: number;
+	readonly snappingEnabled: boolean;
+	readonly targets: readonly TimelineSequenceFromDragTarget[];
+}) => {
+	if (!snappingEnabled) {
+		return deltaFrames;
+	}
+
+	let closestSnap:
+		| {
+				readonly deltaFrames: number;
+				readonly distancePx: number;
+		  }
+		| undefined;
+	for (const target of targets) {
+		if (!target.canSnapToTimelineStart) {
+			continue;
+		}
+
+		const nextFrom = getTimelineSequenceFromDragValue({
+			initialFrom: target.initialFrom,
+			deltaFrames,
+		});
+		const distancePx = Math.abs(nextFrom * pxPerFrame);
+		if (
+			distancePx > timelineSequenceFromDragSnapThresholdPx ||
+			(closestSnap && closestSnap.distancePx <= distancePx)
+		) {
+			continue;
+		}
+
+		closestSnap = {
+			deltaFrames: -target.initialFrom,
+			distancePx,
+		};
+	}
+
+	return closestSnap?.deltaFrames ?? deltaFrames;
+};
+
 export const getTimelineSequenceFromDragChanges = ({
 	targets,
 	deltaFrames,
@@ -808,6 +858,7 @@ export const getTimelineSequenceFromDragTargets = ({
 					propStatuses,
 				});
 			targets.set(key, {
+				canSnapToTimelineStart: originalSequence.parent === null,
 				effectKeyframes,
 				fileName: nodePath.absolutePath,
 				initialFrom: originalSequence.from,
@@ -1152,6 +1203,7 @@ export const useTimelineSequenceFromDrag = ({
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	const {editorSnapping} = useContext(EditorSnappingContext);
 
 	const [dragging, setDragging] = useState(false);
 	const dragStateRef = useRef<{
@@ -1171,6 +1223,7 @@ export const useTimelineSequenceFromDrag = ({
 		clearEffectDragOverrides,
 		previewServerState,
 		overrideIdToNodePathMappings,
+		editorSnapping,
 	});
 	latestRef.current = {
 		nodePathInfo,
@@ -1181,6 +1234,7 @@ export const useTimelineSequenceFromDrag = ({
 		clearEffectDragOverrides,
 		previewServerState,
 		overrideIdToNodePathMappings,
+		editorSnapping,
 	};
 
 	const finishDrag = useCallback((commit: boolean) => {
@@ -1328,7 +1382,12 @@ export const useTimelineSequenceFromDrag = ({
 			}
 
 			const dx = e.clientX - dragState.initialClientX;
-			const deltaFrames = Math.round(dx / dragState.pxPerFrame);
+			const deltaFrames = getTimelineSequenceFromDragDelta({
+				deltaFrames: Math.round(dx / dragState.pxPerFrame),
+				pxPerFrame: dragState.pxPerFrame,
+				snappingEnabled: latestRef.current.editorSnapping,
+				targets: dragState.targets,
+			});
 			dragState.latestDeltaFrames = deltaFrames;
 			for (const target of dragState.targets) {
 				const nextFrom = getTimelineSequenceFromDragValue({

@@ -113,6 +113,7 @@ import {
 	getTimelineSequenceDurationDragTargets,
 	getTimelineSequenceDurationDragValue,
 	getTimelineSequenceFromDragChanges,
+	getTimelineSequenceFromDragDelta,
 	getTimelineSequenceFromDragKeyframeMoves,
 	getTimelineSequenceFromDragTargets,
 	getTimelineSequenceFromDragValue,
@@ -122,6 +123,7 @@ import {
 	isCascadingSequence,
 	isTimelineSequenceDurationDraggable,
 	isTimelineSequenceLeftEdgeDraggable,
+	timelineSequenceFromDragSnapThresholdPx,
 } from '../components/Timeline/TimelineSequenceRightEdgeDragHandle';
 import {
 	parsedTransformOriginToUv,
@@ -2407,6 +2409,66 @@ test('Timeline from drag supports negative offsets', () => {
 	).toBe(-6);
 });
 
+test('Timeline from drag snaps a root sequence to frame 0', () => {
+	const nodePath = makeNodePathInfo(['body', 0], []).sequenceSubscriptionKey;
+	const target = {
+		canSnapToTimelineStart: true,
+		effectKeyframes: [],
+		fileName: nodePath.absolutePath,
+		initialFrom: 8,
+		nodePath,
+		sequenceKeyframes: [],
+	};
+	const pxPerFrame = timelineSequenceFromDragSnapThresholdPx / 2;
+
+	expect(
+		getTimelineSequenceFromDragDelta({
+			deltaFrames: -6,
+			pxPerFrame,
+			snappingEnabled: true,
+			targets: [target],
+		}),
+	).toBe(-8);
+	expect(
+		getTimelineSequenceFromDragDelta({
+			deltaFrames: -6,
+			pxPerFrame,
+			snappingEnabled: false,
+			targets: [target],
+		}),
+	).toBe(-6);
+	expect(
+		getTimelineSequenceFromDragDelta({
+			deltaFrames: -5,
+			pxPerFrame,
+			snappingEnabled: true,
+			targets: [target],
+		}),
+	).toBe(-5);
+});
+
+test('Timeline from drag does not snap nested sequences to the timeline start', () => {
+	const nodePath = makeNodePathInfo(['body', 0], []).sequenceSubscriptionKey;
+
+	expect(
+		getTimelineSequenceFromDragDelta({
+			deltaFrames: -6,
+			pxPerFrame: timelineSequenceFromDragSnapThresholdPx / 2,
+			snappingEnabled: true,
+			targets: [
+				{
+					canSnapToTimelineStart: false,
+					effectKeyframes: [],
+					fileName: nodePath.absolutePath,
+					initialFrom: 8,
+					nodePath,
+					sequenceKeyframes: [],
+				},
+			],
+		}),
+	).toBe(-6);
+});
+
 test('Timeline from drag saves relative from for nested sequences', () => {
 	const schema = {} satisfies InteractivitySchema;
 	const childNodePathInfo = makeNodePathInfo(['body', 1], []);
@@ -2501,6 +2563,7 @@ test('Timeline from drag removes the prop at the default value', () => {
 	const [change] = getTimelineSequenceFromDragChanges({
 		targets: [
 			{
+				canSnapToTimelineStart: true,
 				effectKeyframes: [],
 				fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
 				initialFrom: 5,
