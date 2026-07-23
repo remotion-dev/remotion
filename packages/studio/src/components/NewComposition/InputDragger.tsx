@@ -304,25 +304,38 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			};
 
 			window.addEventListener('mousemove', moveListener);
-			window.addEventListener(
-				'pointerup',
-				() => {
-					window.removeEventListener('mousemove', moveListener);
-					pointerDownRef.current = false;
-					setDragging(false);
-					stopForcingSpecificCursor();
-					if (lastDragValue !== null && onValueChangeEnd) {
-						onValueChangeEnd(lastDragValue);
-					}
+			const endDrag = (commit: boolean) => {
+				window.removeEventListener('mousemove', moveListener);
+				window.removeEventListener('pointerup', onPointerUp);
+				window.removeEventListener('pointercancel', onPointerCancel);
+				window.removeEventListener('blur', onWindowBlur);
+				pointerDownRef.current = false;
+				setDragging(false);
+				stopForcingSpecificCursor();
+				if (commit && lastDragValue !== null && onValueChangeEnd) {
+					onValueChangeEnd(lastDragValue);
+				}
 
-					setTimeout(() => {
-						setClickLock(false);
-					}, 2);
-				},
-				{
-					once: true,
-				},
-			);
+				setTimeout(() => {
+					setClickLock(false);
+				}, 2);
+			};
+
+			const onPointerUp = () => {
+				endDrag(true);
+			};
+
+			const onPointerCancel = () => {
+				endDrag(false);
+			};
+
+			const onWindowBlur = () => {
+				endDrag(false);
+			};
+
+			window.addEventListener('pointerup', onPointerUp);
+			window.addEventListener('pointercancel', onPointerCancel);
+			window.addEventListener('blur', onWindowBlur);
 		},
 		[
 			_step,
