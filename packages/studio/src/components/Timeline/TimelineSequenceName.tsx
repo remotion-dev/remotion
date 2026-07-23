@@ -44,6 +44,7 @@ export const TimelineSequenceName: React.FC<{
 			alignSelf: 'stretch',
 			...getTimelineSelectedLabelStyle(selected, false),
 			display: 'inline-flex',
+			flexShrink: 0,
 			fontFamily: 'inherit',
 			fontSize: 12,
 			lineHeight: 'normal',
