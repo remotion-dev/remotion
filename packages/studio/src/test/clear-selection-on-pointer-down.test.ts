@@ -13,6 +13,21 @@ test('non-left pointer down does not clear Studio selection', () => {
 	expect(shouldClearSelectionOnPointerDown({button: 2})).toBe(false);
 });
 
+test('Cmd/Ctrl+pointer down does not clear Studio selection', () => {
+	expect(
+		shouldClearSelectionOnPointerDown({
+			button: 0,
+			metaKey: true,
+		}),
+	).toBe(false);
+	expect(
+		shouldClearSelectionOnPointerDown({
+			button: 0,
+			ctrlKey: true,
+		}),
+	).toBe(false);
+});
+
 test('pointer down from a selection-clear blocker does not clear Studio selection', () => {
 	const target = {
 		closest: (selector: string) => {
