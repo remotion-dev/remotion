@@ -7,6 +7,7 @@ import {handleAddRender} from './routes/add-render';
 import {addSequenceKeyframeHandler} from './routes/add-sequence-keyframe';
 import {applyCodemodHandler} from './routes/apply-codemod';
 import {applyVisualControlHandler} from './routes/apply-visual-control-change';
+import {batchUpdateKeyframeSettingsHandler} from './routes/batch-update-keyframe-settings';
 import {handleCancelRender} from './routes/cancel-render';
 import {compositionComponentInfoHandler} from './routes/composition-component-info';
 import {convertFigmaClipboardToSvgHandler} from './routes/convert-figma-clipboard-to-svg';
@@ -88,6 +89,7 @@ export const allApiRoutes: {
 	'/api/update-sequence-keyframe-settings':
 		updateSequenceKeyframeSettingsHandler,
 	'/api/update-effect-keyframe-settings': updateEffectKeyframeSettingsHandler,
+	'/api/batch-update-keyframe-settings': batchUpdateKeyframeSettingsHandler,
 	'/api/delete-effect': deleteEffectHandler,
 	'/api/paste-effects': pasteEffectsHandler,
 	'/api/delete-jsx-node': deleteJsxNodeHandler,
