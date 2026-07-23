@@ -2347,7 +2347,7 @@ export const insertJsxElementIntoComposition = async ({
 				child: elementToInsert,
 				dimensions: sequenceWrapper.dimensions,
 				durationInFrames: sequenceWrapper.durationInFrames ?? null,
-				from: sequenceWrapper.from ?? null,
+				from: sequenceWrapper.from,
 				name: sequenceWrapper.name,
 				position: sequenceWrapper.position,
 				sequenceLocalName: ensureSequenceImport(ast),
