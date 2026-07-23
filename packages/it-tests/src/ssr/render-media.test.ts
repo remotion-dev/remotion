@@ -28,6 +28,7 @@ test(
 		await renderMedia({
 			outputLocation: outPath,
 			codec: 'h264',
+			licenseKey: null,
 			serveUrl: exampleBuild,
 			composition: reactSvg,
 			frameRange: [0, 2],
@@ -42,7 +43,7 @@ test(
 );
 
 test('Render video with browser instance not open', async () => {
-	const compositions = await getCompositions(exampleBuild);
+	const compositions = await getCompositions(exampleBuild, {inputProps: {}});
 
 	const reactSvg = compositions.find((c) => c.id === 'react-svg');
 
@@ -57,6 +58,7 @@ test('Render video with browser instance not open', async () => {
 	await renderMedia({
 		outputLocation: outPath,
 		codec: 'h264',
+		licenseKey: null,
 		serveUrl: exampleBuild,
 		composition: reactSvg,
 		frameRange: [0, 2],
@@ -76,6 +78,7 @@ test('should fail on invalid CRF', async () => {
 		await renderMedia({
 			outputLocation: outPath,
 			codec: 'h264',
+			licenseKey: null,
 			logLevel: 'error',
 			serveUrl: exampleBuild,
 			// @ts-expect-error
@@ -109,7 +112,7 @@ test('should fail on invalid CRF', async () => {
 });
 
 test('Render video to a buffer', async () => {
-	const compositions = await getCompositions(exampleBuild);
+	const compositions = await getCompositions(exampleBuild, {inputProps: {}});
 
 	const reactSvg = compositions.find((c) => c.id === 'react-svg');
 
@@ -119,6 +122,7 @@ test('Render video to a buffer', async () => {
 
 	const {buffer, contentType} = await renderMedia({
 		codec: 'h264',
+		licenseKey: null,
 		serveUrl: exampleBuild,
 		composition: reactSvg,
 		frameRange: [0, 2],
@@ -133,6 +137,7 @@ test('Should fail invalid serve URL', async () => {
 	try {
 		await renderMedia({
 			codec: 'h264',
+			licenseKey: null,
 			logLevel: 'error',
 			serveUrl:
 				'https://remotionlambda-gc1w0xbfzl.s3.eu-central-1.amazonaws.com/sites/Ignition-SessionResultStoryVideo/index.html',

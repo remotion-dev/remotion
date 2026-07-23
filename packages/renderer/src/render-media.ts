@@ -1032,9 +1032,15 @@ export const renderMedia = ({
 	}
 
 	const licenseKey =
-		'licenseKey' in apiKeyOrLicenseKey ? apiKeyOrLicenseKey.licenseKey : null;
+		'licenseKey' in apiKeyOrLicenseKey &&
+		typeof apiKeyOrLicenseKey.licenseKey === 'string'
+			? apiKeyOrLicenseKey.licenseKey
+			: null;
 	const apiKey =
-		'apiKey' in apiKeyOrLicenseKey ? apiKeyOrLicenseKey.apiKey : null;
+		'apiKey' in apiKeyOrLicenseKey &&
+		typeof apiKeyOrLicenseKey.apiKey === 'string'
+			? apiKeyOrLicenseKey.apiKey
+			: null;
 
 	return internalRenderMedia({
 		proResProfile: proResProfile ?? undefined,

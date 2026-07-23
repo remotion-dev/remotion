@@ -54,7 +54,7 @@
 		"prepare": "git config core.hooksPath .githooks"
 	},
 	"engines": {
-		"node": ">=16"
+		"node": ">=22"
 	},
 	"devDependencies": {
 		"@types/babel__standalone": "7.1.9",

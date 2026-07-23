@@ -271,8 +271,9 @@ export const openBrowser = (
 		options ?? {};
 
 	const indent = false;
-	const logLevel =
-		options?.logLevel ?? (options?.shouldDumpIo ? 'verbose' : 'info');
+	const shouldDumpIo =
+		options && 'shouldDumpIo' in options && options.shouldDumpIo === true;
+	const logLevel = options?.logLevel ?? (shouldDumpIo ? 'verbose' : 'info');
 
 	return internalOpenBrowser({
 		browser,

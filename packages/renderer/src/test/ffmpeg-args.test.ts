@@ -1,6 +1,7 @@
 import {afterEach, expect, test} from 'bun:test';
 import type {Codec} from '../codec';
 import {generateFfmpegArgs} from '../ffmpeg-args';
+import {DEFAULT_COLOR_SPACE} from '../options/color-space';
 import type {HardwareAccelerationOption} from '../options/hardware-acceleration';
 
 const originalPlatform = process.platform;
@@ -35,7 +36,7 @@ const makeArgs = ({
 		videoBitrate: null,
 		encodingMaxRate: null,
 		encodingBufferSize: null,
-		colorSpace: 'default',
+		colorSpace: DEFAULT_COLOR_SPACE,
 		hardwareAcceleration,
 		indent: false,
 		logLevel: 'info',

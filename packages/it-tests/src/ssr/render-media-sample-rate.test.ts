@@ -42,7 +42,7 @@ const getSampleRateFromFile = async (filePath: string): Promise<number> => {
 test(
 	'Render video with sampleRate 44100 should produce 44100 Hz audio',
 	async () => {
-		const compositions = await getCompositions(exampleBuild);
+		const compositions = await getCompositions(exampleBuild, {inputProps: {}});
 		const comp = compositions.find((c) => c.id === 'audio-testing');
 
 		if (!comp) {
@@ -55,6 +55,7 @@ test(
 		await renderMedia({
 			outputLocation: outPath,
 			codec: 'h264',
+			licenseKey: null,
 			serveUrl: exampleBuild,
 			composition: comp,
 			frameRange: [0, 2],
@@ -71,7 +72,7 @@ test(
 test(
 	'Render video with default sampleRate should produce 48000 Hz audio',
 	async () => {
-		const compositions = await getCompositions(exampleBuild);
+		const compositions = await getCompositions(exampleBuild, {inputProps: {}});
 		const comp = compositions.find((c) => c.id === 'audio-testing');
 
 		if (!comp) {
@@ -84,6 +85,7 @@ test(
 		await renderMedia({
 			outputLocation: outPath,
 			codec: 'h264',
+			licenseKey: null,
 			serveUrl: exampleBuild,
 			composition: comp,
 			frameRange: [0, 2],
