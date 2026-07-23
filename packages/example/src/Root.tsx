@@ -38,6 +38,7 @@ import {
 	DiscriminatedUnionSchemaTest,
 	discriminatedUnionRootSchema,
 } from './DiscriminatedUnionSchemaTest';
+import {DragAndDropExample} from './DragAndDrop';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 import {EasingVisualizer} from './EasingVisualizer/EasingVisualizer';
 import {EffectCopySource, EffectCopyTarget} from './EffectCopyTestbed';
@@ -2780,6 +2781,14 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<ChangingTrimBeforeValue />
+			<Composition
+				id="drag-and-drop-payloads"
+				component={DragAndDropExample}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={30}
+			/>
 			<Composition
 				id="browser-test"
 				component={BrowserTest}

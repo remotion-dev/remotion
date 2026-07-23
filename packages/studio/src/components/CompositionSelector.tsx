@@ -1,8 +1,5 @@
-import {
-	COMPOSITION_DRAG_MIME_TYPE,
-	compositionDragDataToSymbolicatedStack,
-	parseCompositionDragData,
-} from '@remotion/studio-shared';
+import {DragAndDropInternals} from '@remotion/drag-and-drop';
+import {compositionDragDataToSymbolicatedStack} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -273,9 +270,8 @@ export const CompositionSelector: React.FC = () => {
 		(event: React.DragEvent<HTMLElement>) => {
 			if (
 				window.remotion_isReadOnlyStudio ||
-				!Array.from(event.dataTransfer.types).includes(
-					COMPOSITION_DRAG_MIME_TYPE,
-				)
+				DragAndDropInternals.getDragPreviewMetadata(event.dataTransfer.types)
+					?.type !== 'composition'
 			) {
 				stopCompositionListAutoScroll();
 				return;
@@ -301,7 +297,8 @@ export const CompositionSelector: React.FC = () => {
 	const onRootDragOver = useCallback((event: React.DragEvent<HTMLElement>) => {
 		if (
 			window.remotion_isReadOnlyStudio ||
-			!Array.from(event.dataTransfer.types).includes(COMPOSITION_DRAG_MIME_TYPE)
+			DragAndDropInternals.getDragPreviewMetadata(event.dataTransfer.types)
+				?.type !== 'composition'
 		) {
 			return;
 		}
@@ -333,11 +330,12 @@ export const CompositionSelector: React.FC = () => {
 				return;
 			}
 
-			const raw = event.dataTransfer.getData(COMPOSITION_DRAG_MIME_TYPE);
-			const parsed = raw ? parseCompositionDragData(raw) : null;
-			if (parsed === null) {
+			const parsed = DragAndDropInternals.parseDragData(event.dataTransfer);
+			if (parsed?.type !== 'composition') {
 				return;
 			}
+
+			const compositionDragData = parsed.data;
 
 			event.preventDefault();
 			event.stopPropagation();
@@ -345,14 +343,14 @@ export const CompositionSelector: React.FC = () => {
 			setRootDragHovered(false);
 
 			const composition = compositions.find(
-				(c) => c.id === parsed.compositionId,
+				(c) => c.id === compositionDragData.compositionId,
 			);
 			if (!composition || composition.folderName === null) {
 				return;
 			}
 
 			const notification = showNotification(
-				`Moving ${parsed.compositionId}...`,
+				`Moving ${compositionDragData.compositionId}...`,
 				null,
 			);
 			const controller = new AbortController();
@@ -361,18 +359,19 @@ export const CompositionSelector: React.FC = () => {
 				const result = await applyCodemod({
 					codemod: {
 						type: 'move-composition-to-folder',
-						idToMove: parsed.compositionId,
+						idToMove: compositionDragData.compositionId,
 						folderName: null,
 						parentName: null,
 					},
 					dryRun: false,
 					signal: controller.signal,
-					symbolicatedStack: compositionDragDataToSymbolicatedStack(parsed),
+					symbolicatedStack:
+						compositionDragDataToSymbolicatedStack(compositionDragData),
 				});
 
 				notification.replaceContent(
 					result.success
-						? `Moved ${parsed.compositionId} outside of folder`
+						? `Moved ${compositionDragData.compositionId} outside of folder`
 						: result.reason,
 					result.success ? 2000 : 4000,
 				);

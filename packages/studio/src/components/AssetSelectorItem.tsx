@@ -1,4 +1,4 @@
-import {ASSET_DRAG_MIME_TYPE, makeAssetDragData} from '@remotion/studio-shared';
+import {DragAndDropInternals} from '@remotion/drag-and-drop';
 import React, {
 	useCallback,
 	useContext,
@@ -7,7 +7,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {Internals, type StaticFile} from 'remotion';
+import {Internals, staticFile, type StaticFile} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {deleteStaticFile} from '../api/delete-static-file';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
@@ -32,6 +32,8 @@ import {pushUrl} from '../helpers/url-state';
 import useAssetDragEvents, {
 	isFileDragEvent,
 } from '../helpers/use-asset-drag-events';
+import {getCachedImageMetadata} from '../helpers/use-image-metadata';
+import {getCachedMediaMetadata} from '../helpers/use-media-metadata';
 import {ClipboardIcon} from '../icons/clipboard';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {ModalsContext} from '../state/modals';
@@ -355,12 +357,39 @@ const AssetSelectorItem: React.FC<{
 
 			setIsDragging(true);
 			e.dataTransfer.effectAllowed = 'copy';
-			e.dataTransfer.setData(
-				ASSET_DRAG_MIME_TYPE,
-				JSON.stringify(makeAssetDragData(relativePath)),
-			);
+			const src = staticFile(relativePath);
+			const imageMetadata =
+				previewFileType === 'image' ? getCachedImageMetadata(src) : null;
+			const mediaMetadata =
+				previewFileType === 'audio' || previewFileType === 'video'
+					? getCachedMediaMetadata(src)
+					: null;
+			const width = imageMetadata?.width ?? mediaMetadata?.width ?? null;
+			const height = imageMetadata?.height ?? mediaMetadata?.height ?? null;
+			const hasDimensions =
+				width !== null &&
+				height !== null &&
+				Number.isInteger(width) &&
+				Number.isInteger(height) &&
+				width > 0 &&
+				height > 0;
+			const durationInSeconds =
+				mediaMetadata?.duration !== undefined &&
+				Number.isFinite(mediaMetadata.duration) &&
+				mediaMetadata.duration > 0
+					? mediaMetadata.duration
+					: null;
+
+			const dragData = DragAndDropInternals.makeDragData({
+				type: 'asset',
+				assetPath: relativePath,
+				width: hasDimensions ? width : null,
+				height: hasDimensions ? height : null,
+				durationInSeconds,
+			});
+			e.dataTransfer.setData(dragData.mimeType, dragData.payload);
 		},
-		[canDragAsset, relativePath],
+		[canDragAsset, previewFileType, relativePath],
 	);
 
 	const onDragEnd: React.DragEventHandler<HTMLDivElement> = useCallback(() => {

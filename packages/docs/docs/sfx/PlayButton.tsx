@@ -1,8 +1,8 @@
 import {Button} from '@remotion/design';
+import {DragAndDropInternals} from '@remotion/drag-and-drop';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
 	getSfxNameFromUrl,
-	makeSfxDragData,
 	setSfxDragData,
 } from '../../components/sfx-demos/sfx-drag-data';
 import {sfxWaveforms} from '../../components/sfx-demos/sfx-waveforms';
@@ -159,7 +159,8 @@ const setDragDataForSfx = ({
 }) => {
 	setSfxDragData({
 		dataTransfer,
-		dragData: makeSfxDragData({
+		dragData: DragAndDropInternals.makeDragData({
+			type: 'sfx',
 			name,
 			url: src,
 		}),

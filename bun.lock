@@ -491,6 +491,7 @@
         "@remotion/convert": "workspace:*",
         "@remotion/design": "workspace:*",
         "@remotion/docusaurus-plugin": "workspace:*",
+        "@remotion/drag-and-drop": "workspace:*",
         "@remotion/effects": "workspace:*",
         "@remotion/elevenlabs": "workspace:*",
         "@remotion/enable-scss": "workspace:*",
@@ -601,6 +602,15 @@
         "unified": "11.0.5",
         "unist-util-visit": "5.1.0",
       },
+      "devDependencies": {
+        "@remotion/eslint-config-internal": "workspace:*",
+        "@typescript/native-preview": "catalog:",
+        "eslint": "catalog:",
+      },
+    },
+    "packages/drag-and-drop": {
+      "name": "@remotion/drag-and-drop",
+      "version": "4.0.497",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "@typescript/native-preview": "catalog:",
@@ -739,6 +749,7 @@
         "@remotion/captions": "workspace:*",
         "@remotion/cli": "workspace:*",
         "@remotion/cloudrun": "workspace:*",
+        "@remotion/drag-and-drop": "workspace:*",
         "@remotion/effects": "workspace:*",
         "@remotion/enable-scss": "workspace:*",
         "@remotion/eslint-config-flat": "workspace:*",
@@ -1644,6 +1655,7 @@
       "dependencies": {
         "@jridgewell/trace-mapping": "0.3.31",
         "@remotion/canvas-capture": "workspace:*",
+        "@remotion/drag-and-drop": "workspace:*",
         "@remotion/media-utils": "workspace:*",
         "@remotion/player": "workspace:*",
         "@remotion/renderer": "workspace:*",
@@ -1678,6 +1690,7 @@
         "@babel/parser": "7.24.1",
         "@babel/types": "7.24.0",
         "@remotion/bundler": "workspace:*",
+        "@remotion/drag-and-drop": "workspace:*",
         "@remotion/renderer": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
         "@svgr/core": "8.1.0",
@@ -1704,6 +1717,7 @@
       "name": "@remotion/studio-shared",
       "version": "4.0.498",
       "dependencies": {
+        "@remotion/drag-and-drop": "workspace:*",
         "remotion": "workspace:*",
       },
       "devDependencies": {
@@ -4052,6 +4066,8 @@
     "@remotion/discord-poster": ["@remotion/discord-poster@workspace:packages/discord-poster"],
 
     "@remotion/docusaurus-plugin": ["@remotion/docusaurus-plugin@workspace:packages/docusaurus-plugin"],
+
+    "@remotion/drag-and-drop": ["@remotion/drag-and-drop@workspace:packages/drag-and-drop"],
 
     "@remotion/effects": ["@remotion/effects@workspace:packages/effects"],
 

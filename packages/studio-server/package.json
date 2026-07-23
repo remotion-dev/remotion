@@ -23,6 +23,7 @@
 		"access": "public"
 	},
 	"dependencies": {
+		"@remotion/drag-and-drop": "workspace:*",
 		"@babel/types": "7.24.0",
 		"@babel/parser": "7.24.1",
 		"@svgr/core": "8.1.0",

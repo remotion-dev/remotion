@@ -1,4 +1,4 @@
-export {COMPONENT_DRAG_MIME_TYPE} from './drag-mime-types';
+import {isRecord} from './validation';
 
 export type ComponentProp = {
 	name: string;
@@ -20,10 +20,6 @@ export type ComponentDragData = {
 		importPath: string;
 		props: ComponentProp[];
 	};
-};
-
-const isRecord = (value: unknown): value is Record<string, unknown> => {
-	return typeof value === 'object' && value !== null && !Array.isArray(value);
 };
 
 export const isComponentIdentifier = (value: unknown): value is string => {
@@ -51,11 +47,7 @@ export const isComponentPropName = (value: unknown): value is string => {
 };
 
 export const isComponentProp = (value: unknown): value is ComponentProp => {
-	if (!isRecord(value)) {
-		return false;
-	}
-
-	if (!isComponentPropName(value.name)) {
+	if (!isRecord(value) || !isComponentPropName(value.name)) {
 		return false;
 	}
 
@@ -131,15 +123,12 @@ export const parseComponentDragData = (
 ): ComponentDragData | null => {
 	try {
 		const parsed: unknown = JSON.parse(value);
-		if (!isRecord(parsed)) {
-			return null;
-		}
-
-		if (parsed.type !== 'remotion-component' || parsed.version !== 1) {
-			return null;
-		}
-
-		if (!isRecord(parsed.component)) {
+		if (
+			!isRecord(parsed) ||
+			parsed.type !== 'remotion-component' ||
+			parsed.version !== 1 ||
+			!isRecord(parsed.component)
+		) {
 			return null;
 		}
 
@@ -155,17 +144,13 @@ export const parseComponentDragData = (
 			return null;
 		}
 
-		return {
-			type: 'remotion-component',
-			version: 1,
-			component: {
-				componentName,
-				...(dimensions ? {dimensions} : {}),
-				importName,
-				importPath,
-				props,
-			},
-		};
+		return makeComponentDragData({
+			componentName,
+			dimensions: dimensions ?? null,
+			importName,
+			importPath,
+			props,
+		});
 	} catch {
 		return null;
 	}

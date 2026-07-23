@@ -4,6 +4,7 @@ import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
 import {BundlerInternals} from '@remotion/bundler';
+import {DragAndDropInternals} from '@remotion/drag-and-drop';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
@@ -14,7 +15,7 @@ import type {
 	RenderJob,
 	StudioRuntimeConfig,
 } from '@remotion/studio-shared';
-import {getProjectName, parseElementDragData} from '@remotion/studio-shared';
+import {getProjectName} from '@remotion/studio-shared';
 import {focusBrowserTab} from './better-opn';
 import {getCompletedClientRenders} from './client-render-queue';
 import {getFileSource} from './helpers/get-file-source';
@@ -206,15 +207,16 @@ const handleRequestElementInstall = async ({
 
 	try {
 		const body = await parseRequestBody(request);
-		const parsed = parseElementDragData(
-			JSON.stringify({
-				type: 'remotion-element',
-				version: 1,
-				element: (body as {element?: unknown}).element,
-			}),
-		);
+		const {mimeType, payload} = body as {
+			mimeType?: unknown;
+			payload?: unknown;
+		};
+		const parsed =
+			typeof mimeType === 'string' && typeof payload === 'string'
+				? DragAndDropInternals.parseDragData({mimeType, payload})
+				: null;
 
-		if (parsed === null) {
+		if (parsed?.type !== 'element') {
 			response.writeHead(400);
 			response.end(
 				JSON.stringify({success: false, reason: 'Invalid Element payload'}),
@@ -255,7 +257,7 @@ const handleRequestElementInstall = async ({
 			createdAt: Date.now(),
 			compositionFile: target.compositionFile,
 			compositionId: target.compositionId,
-			element: parsed.element,
+			element: parsed.data.element,
 			position: null,
 		};
 

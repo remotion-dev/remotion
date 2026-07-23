@@ -24,6 +24,7 @@
 		"react-dom": ">=16.8.0"
 	},
 	"dependencies": {
+		"@remotion/drag-and-drop": "workspace:*",
 		"semver": "7.5.3",
 		"remotion": "workspace:*",
 		"@remotion/canvas-capture": "workspace:*",

@@ -14,6 +14,10 @@ export type ImageMetadata = {
 const cache = new Map<string, ImageMetadata>();
 const pendingRequests = new Map<string, Promise<ImageMetadata | null>>();
 
+export const getCachedImageMetadata = (src: string) => {
+	return cache.get(src) ?? null;
+};
+
 const formatImageType = (fileType: ImageFileType['type']) => {
 	if (fileType === 'webp') {
 		return 'WebP';
@@ -84,11 +88,11 @@ export const getImageMetadata = (
 
 export const useImageMetadata = (src: string | null): ImageMetadata | null => {
 	const [imageMetadata, setImageMetadata] = useState<ImageMetadata | null>(
-		src ? (cache.get(src) ?? null) : null,
+		src ? getCachedImageMetadata(src) : null,
 	);
 
 	useEffect(() => {
-		const cached = src ? (cache.get(src) ?? null) : null;
+		const cached = src ? getCachedImageMetadata(src) : null;
 		setImageMetadata(cached);
 
 		if (!src || cached) {

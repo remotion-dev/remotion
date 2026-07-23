@@ -1,7 +1,7 @@
 import {
-	makeElementDragData,
+	DragAndDropInternals,
 	type ComponentDimensions,
-} from '@remotion/studio-shared';
+} from '@remotion/drag-and-drop';
 import React, {
 	useCallback,
 	useId,
@@ -134,16 +134,19 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 					}
 				: null;
 
-		return makeElementDragData({
+		return DragAndDropInternals.makeDragData({
+			type: 'element',
 			dependencies,
 			dimensions,
 			displayName,
+			durationInFrames,
 			slug,
 			sourceCode,
 		});
 	}, [
 		dependencies,
 		displayName,
+		durationInFrames,
 		elementHeight,
 		elementWidth,
 		slug,
@@ -172,7 +175,10 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				{
 					method: 'POST',
 					headers: {'Content-Type': 'application/json'},
-					body: JSON.stringify({element: dragData.element}),
+					body: JSON.stringify({
+						mimeType: dragData.mimeType,
+						payload: dragData.payload,
+					}),
 				},
 			);
 			const result = (await response.json()) as

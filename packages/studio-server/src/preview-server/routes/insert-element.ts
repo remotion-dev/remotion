@@ -1,9 +1,8 @@
 import {existsSync, readFileSync} from 'node:fs';
 import path from 'node:path';
+import {DragAndDropInternals} from '@remotion/drag-and-drop';
 import {RenderInternals} from '@remotion/renderer';
 import {
-	getElementComponentNameFromSourceCode,
-	makeElementFileNameFromSlug,
 	type InsertElementRequest,
 	type InsertElementResponse,
 	type InsertableCompositionElementPosition,
@@ -89,7 +88,7 @@ const validateDimensions = (
 };
 
 const validateElement = (element: InsertElementRequest['element']) => {
-	if (makeElementFileNameFromSlug(element.slug) === null) {
+	if (DragAndDropInternals.makeElementFileNameFromSlug(element.slug) === null) {
 		throw new Error(
 			'Element slug must produce a safe lowercase .tsx file name',
 		);
@@ -103,7 +102,11 @@ const validateElement = (element: InsertElementRequest['element']) => {
 		throw new Error('Unsupported Element source code');
 	}
 
-	if (getElementComponentNameFromSourceCode(element.sourceCode) === null) {
+	if (
+		DragAndDropInternals.getElementComponentNameFromSourceCode(
+			element.sourceCode,
+		) === null
+	) {
 		throw new Error('Element source must export exactly one named component');
 	}
 
@@ -129,9 +132,10 @@ export const insertElementHandler: ApiHandler<
 				throw new Error('from must be a non-negative integer');
 			}
 
-			const componentName = getElementComponentNameFromSourceCode(
-				element.sourceCode,
-			);
+			const componentName =
+				DragAndDropInternals.getElementComponentNameFromSourceCode(
+					element.sourceCode,
+				);
 			if (componentName === null) {
 				throw new Error(
 					'Element source must export exactly one named component',
@@ -154,7 +158,8 @@ export const insertElementHandler: ApiHandler<
 				);
 			}
 
-			const derivedElementFileName = makeElementFileNameFromSlug(element.slug);
+			const derivedElementFileName =
+				DragAndDropInternals.makeElementFileNameFromSlug(element.slug);
 			if (derivedElementFileName === null) {
 				throw new Error(
 					'Element slug must produce a safe lowercase .tsx file name',

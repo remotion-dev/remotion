@@ -1,12 +1,14 @@
 import {
+	type ComponentDragData,
+	type CompositionDragData,
+	type ComponentProp,
+	type ElementDragData,
+} from '@remotion/drag-and-drop';
+import {
 	detectFileType,
 	getRequiredPackageForInsertableElement,
 	isUrl,
-	type ComponentDragData,
-	type ComponentProp,
-	type CompositionDragData,
 	type DownloadRemoteAssetResponse,
-	type ElementDragData,
 	type FileType,
 	type InsertableCompositionElement,
 	type InsertableCompositionElementPosition,
@@ -299,22 +301,11 @@ export const getElementPositionForDrop = ({
 
 export const getCompositionPositionForDrop = ({
 	compositionDimensions,
-	destinationDimensions,
 	dropPosition,
 }: {
 	compositionDimensions: Dimensions;
-	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
 }): InsertableCompositionElementPosition | null => {
-	// No translation makes an equal-sized composition fill the destination.
-	if (
-		destinationDimensions !== null &&
-		compositionDimensions.width === destinationDimensions.width &&
-		compositionDimensions.height === destinationDimensions.height
-	) {
-		return null;
-	}
-
 	return getCenteredPosition({
 		dimensions: compositionDimensions,
 		dropPosition,
@@ -1246,14 +1237,12 @@ export const insertComposition = async ({
 	composition,
 	compositionFile,
 	compositionId,
-	destinationDimensions,
 	dropPosition,
 	from,
 }: {
 	composition: CompositionDragData;
 	compositionFile: string;
 	compositionId: string;
-	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
 	from: number | null;
 }) => {
@@ -1295,7 +1284,6 @@ export const insertComposition = async ({
 					serializeResolvedPropsForSourceCode(calculated.props),
 				position: getCompositionPositionForDrop({
 					compositionDimensions: dimensions,
-					destinationDimensions,
 					dropPosition,
 				}),
 			},
