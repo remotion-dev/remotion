@@ -8,6 +8,11 @@ test('Should be able to get parts of a path', () => {
 	expect(parts).toEqual({x: 50, y: 0});
 });
 
+test('Should return null if the length is longer than the path', () => {
+	expect(getPointAtLength('M 0 0 L 100 0', 100)).toEqual({x: 100, y: 0});
+	expect(getPointAtLength('M 0 0 L 100 0', 101)).toBeNull();
+});
+
 test('Another more complex point', () => {
 	const path = `M2 129
 		

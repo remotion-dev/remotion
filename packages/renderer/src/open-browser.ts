@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import type {NoReactInternals} from 'remotion/no-react';
+import {NoReactInternals} from 'remotion/no-react';
 import type {Browser} from './browser';
 import type {HeadlessBrowser} from './browser/Browser';
 import {defaultBrowserDownloadProgress} from './browser/browser-download-progress-bar';
@@ -14,7 +14,7 @@ import {type LogLevel} from './log-level';
 import {Log} from './logger';
 import type {ChromeMode} from './options/chrome-mode';
 import type {validOpenGlRenderers} from './options/gl';
-import {DEFAULT_OPENGL_RENDERER, validateOpenGlRenderer} from './options/gl';
+import {getDefaultOpenGlRenderer, validateOpenGlRenderer} from './options/gl';
 import type {ToOptions} from './options/option';
 import type {optionsMap} from './options/options-map';
 
@@ -36,7 +36,10 @@ export type ChromiumOptions = {
 };
 
 const featuresToEnable = (option?: OpenGlRenderer | null) => {
-	const renderer = option ?? DEFAULT_OPENGL_RENDERER;
+	const renderer =
+		option === undefined
+			? getDefaultOpenGlRenderer(NoReactInternals.ENABLE_V5_BREAKING_CHANGES)
+			: option;
 
 	const enableAlways = [
 		'NetworkService',
@@ -55,8 +58,14 @@ const featuresToEnable = (option?: OpenGlRenderer | null) => {
 	return enableAlways;
 };
 
-const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
-	const renderer = option ?? DEFAULT_OPENGL_RENDERER;
+export const getOpenGlRenderer = (
+	option: OpenGlRenderer | null | undefined,
+	enableV5BreakingChanges: boolean = NoReactInternals.ENABLE_V5_BREAKING_CHANGES,
+): string[] => {
+	const renderer =
+		option === undefined
+			? getDefaultOpenGlRenderer(enableV5BreakingChanges)
+			: option;
 	validateOpenGlRenderer(renderer);
 	if (renderer === 'swangle') {
 		return ['--use-gl=angle', '--use-angle=swiftshader'];
@@ -79,6 +88,15 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 
 	if (renderer === null) {
 		return [];
+	}
+
+	if (renderer === 'angle' && enableV5BreakingChanges) {
+		return [
+			'--use-gl=angle',
+			// Opt into Chromium's software WebGL fallback for GPU-less machines:
+			// https://chromium.googlesource.com/chromium/src/+/main/docs/gpu/swiftshader.md
+			'--enable-unsafe-swiftshader',
+		];
 	}
 
 	return [`--use-gl=${renderer}`];
@@ -142,7 +160,7 @@ export const internalOpenBrowser = async ({
 		chromeMode,
 	});
 
-	const customGlRenderer = getOpenGlRenderer(chromiumOptions.gl ?? null);
+	const customGlRenderer = getOpenGlRenderer(chromiumOptions.gl);
 	const enableMultiProcessOnLinux =
 		chromiumOptions.enableMultiProcessOnLinux ?? true;
 

@@ -129,7 +129,7 @@
 			"@mediabunny/flac-encoder": "1.50.8",
 			"@mediabunny/prores": "1.50.8",
 			"@mediabunny/ac3": "1.50.8",
-			"next": "16.2.6",
+			"next": "16.2.11",
 			"three": "0.178.0",
 			"sharp": "0.34.5",
 			"@react-three/fiber": "9.2.0",

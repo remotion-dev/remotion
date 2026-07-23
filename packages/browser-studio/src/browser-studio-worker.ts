@@ -1,4 +1,3 @@
-import {getDefinePluginDefinitions} from '@remotion/studio-shared/define-plugin-definitions';
 import {getStudioEntryPoints} from '@remotion/studio-shared/studio-entry-points';
 import type * as RspackBrowser from '@rspack/browser';
 import {browserStudioDependencyVersions} from './dependency-versions';
@@ -226,15 +225,6 @@ const compileProject = async ({
 				publicPath: '',
 			},
 			plugins: [
-				new rspack.DefinePlugin(
-					getDefinePluginDefinitions({
-						askAIEnabled: false,
-						bufferStateDelayInMilliseconds: null,
-						interactivityEnabled: true,
-						keyboardShortcutsEnabled: true,
-						maxTimelineTracks: null,
-					}),
-				),
 				new BrowserHttpImportEsmPlugin({
 					dependencyUrl: resolvedUrls,
 					dependencyVersions: resolvedVersions,

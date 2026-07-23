@@ -4,9 +4,10 @@ import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
-import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useIsStill} from '../../helpers/is-current-selected-still';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
+import {getStudioMaxTimelineTracks} from '../../helpers/studio-runtime-config';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import {importAssets, pickFilesToImport} from '../import-assets';
@@ -16,7 +17,6 @@ import {showNotification} from '../Notifications/NotificationCenter';
 import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
-import {MAX_TIMELINE_TRACKS} from './MaxTimelineTracks';
 import {SequencePropsObserver} from './SequencePropsObserver';
 import {shouldShowTrackInTimeline} from './should-show-track-in-timeline';
 import {shouldSubscribeToSequenceProps} from './should-subscribe-to-sequence-props';
@@ -69,7 +69,7 @@ const TimelineContextMenuArea: React.FC<{
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
-	const previewInteractive = previewConnected && studioInteractivityEnabled;
+	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 
 	const currentCompositionId =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
@@ -234,7 +234,7 @@ const TimelineInner: React.FC = () => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 
 	const previewConnected = previewServerState.type === 'connected';
-	const previewInteractive = previewConnected && studioInteractivityEnabled;
+	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 
 	const videoConfigIsNull = videoConfig === null;
 
@@ -263,11 +263,12 @@ const TimelineInner: React.FC = () => {
 		);
 	}, [durationInFrames, timeline]);
 
+	const maxTimelineTracks = getStudioMaxTimelineTracks();
 	const shown = useMemo(() => {
-		return filtered.length > MAX_TIMELINE_TRACKS
-			? filtered.slice(0, MAX_TIMELINE_TRACKS)
+		return filtered.length > maxTimelineTracks
+			? filtered.slice(0, maxTimelineTracks)
 			: filtered;
-	}, [filtered]);
+	}, [filtered, maxTimelineTracks]);
 
 	const hasBeenCut = filtered.length > shown.length;
 
@@ -289,10 +290,10 @@ const TimelineInner: React.FC = () => {
 					/>
 				);
 			})}
-			{studioInteractivityEnabled ? <SequencePropsObserver /> : null}
+			{isStudioInteractivityEnabled() ? <SequencePropsObserver /> : null}
 			<TimelineKeyframeTracksProvider tracks={filtered}>
 				<TimelineSelectableItemsProvider timeline={shown}>
-					{studioInteractivityEnabled ? (
+					{isStudioInteractivityEnabled() ? (
 						<TimelineSelectAllKeybindings timeline={shown} />
 					) : null}
 					<TimelineHeightContainer shown={shown} hasBeenCut={hasBeenCut}>
@@ -325,7 +326,7 @@ const TimelineInner: React.FC = () => {
 											<TimelineInOutPointer />
 											<TimelineTimeIndicators />
 											<TimelineDragHandler />
-											{studioInteractivityEnabled ? (
+											{isStudioInteractivityEnabled() ? (
 												<TimelineInOutDragHandler />
 											) : null}
 											<TimelineSlider />

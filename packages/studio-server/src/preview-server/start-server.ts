@@ -50,10 +50,7 @@ export const startServer = async (options: {
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
 	port: number | null;
-	maxTimelineTracks: number | null;
-	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
-	keyboardShortcutsEnabled: boolean;
 	publicDir: string;
 	poll: number | null;
 	staticHash: string;
@@ -71,11 +68,10 @@ export const startServer = async (options: {
 	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
 	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
-	askAIEnabled: boolean;
-	interactivityEnabled: boolean;
 	forceNew: boolean;
 	rspack: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	configFile: string | null;
 }): Promise<StartServerResult> => {
 	const desiredPort =
 		options?.port ??
@@ -110,13 +106,8 @@ export const startServer = async (options: {
 		bundlerOverride: options.bundlerOverride,
 		rspackOverride: options.rspackOverride,
 		webpackOverride: options?.webpackOverride,
-		maxTimelineTracks: options?.maxTimelineTracks ?? null,
 		remotionRoot: options.remotionRoot,
-		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
 		poll: options.poll,
-		bufferStateDelayInMilliseconds: options.bufferStateDelayInMilliseconds,
-		askAIEnabled: options.askAIEnabled,
-		interactivityEnabled: options.interactivityEnabled,
 		extraPlugins: [watchIgnorePlugin],
 	};
 
@@ -185,6 +176,7 @@ export const startServer = async (options: {
 					getPreviewSampleRate: options.getPreviewSampleRate,
 					enableCrossSiteIsolation: options.enableCrossSiteIsolation,
 					getStudioRuntimeConfig: options.getStudioRuntimeConfig,
+					configFile: options.configFile,
 				});
 			})
 			.catch((err) => {

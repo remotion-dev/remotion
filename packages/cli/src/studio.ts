@@ -142,10 +142,6 @@ export const studioCommand = async (
 		false,
 	);
 
-	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
-		commandLine: parsedCli,
-	}).value;
-
 	const binariesDirectory = binariesDirectoryOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -160,13 +156,6 @@ export const studioCommand = async (
 	const rendererPort = ConfigInternals.getRendererPortFromConfigFile();
 
 	const enableCrossSiteIsolation = enableCrossSiteIsolationOption.getValue({
-		commandLine: parsedCli,
-	}).value;
-
-	const askAIEnabled = askAIOption.getValue({
-		commandLine: parsedCli,
-	}).value;
-	const interactivityEnabled = interactivityOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 
@@ -215,8 +204,6 @@ export const studioCommand = async (
 		getCurrentInputProps: () => inputProps,
 		getEnvVariables: () => envVariables,
 		desiredPort,
-		keyboardShortcutsEnabled,
-		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 		remotionRoot,
 		relativePublicDir,
 		bundlerOverride,
@@ -243,18 +230,15 @@ export const studioCommand = async (
 			removeJob,
 		},
 		gitSource,
-		bufferStateDelayInMilliseconds:
-			ConfigInternals.getBufferStateDelayInMilliseconds(),
 		binariesDirectory,
 		forceIPv4: ipv4Option.getValue({commandLine: parsedCli}).value,
 		getAudioLatencyHint,
 		getPreviewSampleRate,
 		enableCrossSiteIsolation,
-		askAIEnabled,
-		interactivityEnabled,
 		forceNew: forceNewStudioOption.getValue({commandLine: parsedCli}).value,
 		rspack: useRspack,
 		getStudioRuntimeConfig,
+		configFile,
 	});
 
 	if (result.type === 'already-running') {

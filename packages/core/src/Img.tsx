@@ -37,6 +37,7 @@ import {useBufferState} from './use-buffer-state.js';
 import {useDelayRender} from './use-delay-render.js';
 import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
+import {resolveV5Default} from './v5-flag.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 function exponentialBackoff(errorCount: number): number {
@@ -548,6 +549,7 @@ const ImgInner: React.FC<
 	...props
 }) => {
 	const refForOutline = useRef<HTMLElement | null>(null);
+	const shouldPauseWhenLoading = resolveV5Default(pauseWhenLoading);
 
 	if (effects.length === 0) {
 		return (
@@ -573,7 +575,7 @@ const ImgInner: React.FC<
 				className={className}
 				style={style}
 				id={id}
-				pauseWhenLoading={pauseWhenLoading}
+				pauseWhenLoading={shouldPauseWhenLoading}
 				maxRetries={maxRetries}
 				delayRenderRetries={delayRenderRetries}
 				delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
@@ -608,7 +610,7 @@ const ImgInner: React.FC<
 			className={className}
 			style={style}
 			id={id}
-			pauseWhenLoading={pauseWhenLoading}
+			pauseWhenLoading={shouldPauseWhenLoading}
 			maxRetries={maxRetries}
 			delayRenderRetries={delayRenderRetries}
 			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}

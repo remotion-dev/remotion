@@ -50,7 +50,6 @@ export type WebRenderModalState = {
 	initialKeyframeIntervalInSeconds: number | null;
 	initialTransparent: boolean | null;
 	initialMuted: boolean | null;
-	initialLicenseKey: string | null;
 	initialMediaCacheSizeInBytes: number | null;
 	initialPageResponsiveness: WebRendererPageResponsiveness;
 };
@@ -178,6 +177,10 @@ export type ModalState =
 	  }
 	| {
 			type: 'input-props-override';
+	  }
+	| {
+			type: 'configure-license';
+			initialPublicLicenseKey: string | null;
 	  }
 	| RenderModalState
 	| WebRenderModalState

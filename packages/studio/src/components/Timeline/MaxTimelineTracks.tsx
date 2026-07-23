@@ -3,8 +3,6 @@ import {WHITE_ALPHA_10, WHITE_ALPHA_60} from '../../helpers/colors';
 import {getStudioMaxTimelineTracks} from '../../helpers/studio-runtime-config';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 
-export const MAX_TIMELINE_TRACKS = getStudioMaxTimelineTracks();
-
 export const MAX_TIMELINE_TRACKS_NOTICE_HEIGHT = 24;
 
 const container: React.CSSProperties = {
@@ -19,9 +17,11 @@ const container: React.CSSProperties = {
 };
 
 export const MaxTimelineTracksReached: React.FC = () => {
+	const maxTimelineTracks = getStudioMaxTimelineTracks();
+
 	return (
 		<div style={container}>
-			Limited display to {MAX_TIMELINE_TRACKS} tracks to sustain performance.
+			Limited display to {maxTimelineTracks} tracks to sustain performance.
 			{''}
 			You can change this by setting Config.setMaxTimelineTracks() in your
 			remotion.config.ts file.

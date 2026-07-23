@@ -252,8 +252,6 @@ export const bundleOnCli = async ({
 		onProgress,
 		options,
 		resolvedRemotionRoot: remotionRoot,
-		bufferStateDelayInMilliseconds,
-		maxTimelineTracks,
 	});
 	const cacheExistedBefore = BundlerInternals.cacheExists(
 		remotionRoot,

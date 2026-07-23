@@ -33,7 +33,9 @@ Run `npm i `, `yarn`, `pnpm i` or `bun i` respectively afterwards.
 
 ## Runtime requirements
 
-The minimum Node version is now 18.0.0. The minimum Bun version is 1.1.3.
+The minimum Node version is now <MinNodeVersion />. The minimum Bun version is <MinBunVersion />.
+
+If you use `@remotion/eslint-config`, the minimum ESLint version is now <MinEslintVersion />.
 
 ## `selectComposition()` and `getCompositions()` now require `inputProps`
 
@@ -61,6 +63,13 @@ The values passed in there did not influence the calculation at all. Therefore w
 
 **Required action**: Remove the `from` and `to` options from your code.
 
+## Path sampling returns `null` beyond the end of a path
+
+[`getPointAtLength()`](/docs/paths/get-point-at-length) and [`getTangentAtLength()`](/docs/paths/get-tangent-at-length) now return `null` if the requested length is greater than the return value of [`getLength()`](/docs/paths/get-length).
+Previously, they returned the point or tangent at the end of the path.
+
+**Required action**: Handle the `null` return value or ensure that the requested length does not exceed the path length.
+
 ## `overwrite` is now `true` by default in `renderMediaOnLambda()`
 
 The default value of `overwrite` has been changed to `true` in `renderMediaOnLambda()`. This skips a check that the file already exists in the S3 bucket, which makes the render start faster.
@@ -71,6 +80,12 @@ The default value of `overwrite` has been changed to `true` in `renderMediaOnLam
 
 The `shouldDumpIo` option has been be removed in 5.0.  
 Use `logLevel: "verbose"` instead.
+
+## `getVideoMetadata()` has been removed from `@remotion/renderer`
+
+Use [Mediabunny to get video metadata](/docs/mediabunny/metadata) instead.
+
+**Required action**: Replace calls to `getVideoMetadata()` from `@remotion/renderer` with [getting metadata using Mediabunny](/docs/mediabunny/metadata).
 
 ## `diskSizeInMb` is now 10240 by default
 
@@ -122,6 +137,16 @@ loadFont('normal', {
 This prevents black frames that were commonly seen when a `<Sequence>` containing heavy content (e.g. videos, images) appeared.
 
 **Required action**: If you don't want this behavior for a specific Sequence, opt out by passing [`premountFor={0}`](/docs/sequence#premountfor).
+
+## Media and images pause playback while loading
+
+[`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media) have paused playback while loading by default since they were introduced.
+
+[`<Html5Video>`](/docs/html5-video), [`<OffthreadVideo>`](/docs/offthreadvideo), and [`<Html5Audio>`](/docs/html5-audio) now set [`pauseWhenBuffering`](/docs/player/buffer-state) to `true` by default.
+[`<Img>`](/docs/img) now sets [`pauseWhenLoading`](/docs/img#pausewhenloading) to `true` by default.
+This prevents the Player from continuing while media or images are still loading.
+
+**Required action**: If you want to keep the old behavior, set `pauseWhenBuffering={false}` on video and audio components and `pauseWhenLoading={false}` on `<Img>` explicitly.
 
 ## License changes
 

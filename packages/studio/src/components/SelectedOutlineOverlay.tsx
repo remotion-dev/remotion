@@ -11,7 +11,7 @@ import React, {
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {studioInteractivityEnabled} from '../helpers/interactivity-enabled';
+import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
@@ -608,7 +608,7 @@ export const SelectedOutlineOverlay: React.FC<{
 	);
 
 	const outlineTargets = useMemo((): SelectedOutlineTarget[] => {
-		if (!studioInteractivityEnabled || !editorShowOutlines) {
+		if (!isStudioInteractivityEnabled() || !editorShowOutlines) {
 			return [];
 		}
 

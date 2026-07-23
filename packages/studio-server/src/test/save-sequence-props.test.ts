@@ -188,6 +188,7 @@ export const Comp = () => {
 			},
 			publicDir: '',
 			binariesDirectory: null,
+			configFile: null,
 		});
 
 		const output = readFileSync(filePath, 'utf-8');
@@ -300,6 +301,7 @@ export const Comp = () => {
 			},
 			publicDir: '',
 			binariesDirectory: null,
+			configFile: null,
 		});
 
 		const output = readFileSync(filePath, 'utf-8');

@@ -2,6 +2,7 @@ import React, {useCallback} from 'react';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Sequence} from '../Sequence.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
+import {resolveV5Default} from '../v5-flag.js';
 import {validateMediaProps} from '../validate-media-props.js';
 import {
 	resolveTrimProps,
@@ -31,6 +32,7 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 		...otherProps
 	} = props;
 	const environment = useRemotionEnvironment();
+	const shouldPauseWhenBuffering = resolveV5Default(pauseWhenBuffering);
 
 	if (environment.isClientSideRendering) {
 		throw new Error(
@@ -70,7 +72,7 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 				name={name}
 			>
 				<InnerOffthreadVideo
-					pauseWhenBuffering={pauseWhenBuffering ?? false}
+					pauseWhenBuffering={shouldPauseWhenBuffering}
 					{...otherProps}
 					trimAfter={undefined}
 					name={undefined}
@@ -89,7 +91,7 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 	if (environment.isRendering) {
 		return (
 			<OffthreadVideoForRendering
-				pauseWhenBuffering={pauseWhenBuffering ?? false}
+				pauseWhenBuffering={shouldPauseWhenBuffering}
 				{...otherProps}
 				trimAfter={undefined}
 				name={undefined}
@@ -118,7 +120,7 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 			_remotionInternalStack={stack ?? null}
 			onDuration={onDuration}
 			onlyWarnForMediaSeekingError
-			pauseWhenBuffering={pauseWhenBuffering ?? false}
+			pauseWhenBuffering={shouldPauseWhenBuffering}
 			showInTimeline={showInTimeline ?? true}
 			onAutoPlayError={onAutoPlayError ?? undefined}
 			onVideoFrame={onVideoFrame ?? null}
@@ -187,7 +189,7 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = ({
 			onAutoPlayError={onAutoPlayError ?? null}
 			onError={onError}
 			onVideoFrame={onVideoFrame}
-			pauseWhenBuffering={pauseWhenBuffering ?? true}
+			pauseWhenBuffering={resolveV5Default(pauseWhenBuffering)}
 			playbackRate={playbackRate ?? 1}
 			preservePitch={preservePitch}
 			toneFrequency={toneFrequency ?? 1}
