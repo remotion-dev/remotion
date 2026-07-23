@@ -1,0 +1,40 @@
+---
+image: /generated/articles-docs-lambda-faster-progress-polling.png
+title: Faster progress polling
+slug: /lambda/faster-progress-polling
+crumb: 'Lambda'
+---
+
+By default, each [`getRenderProgress()`](/docs/lambda/getrenderprogress) call invokes the render function, which reads the render progress from S3.
+
+Set `skipLambdaInvocation` to `true` to read the progress directly from S3 instead. This reduces the latency and avoids a Lambda invocation for each progress poll. It does not make the render itself faster.
+
+```ts twoslash title="poll-progress.ts"
+import {getRenderProgress, speculateFunctionName} from '@remotion/lambda/client';
+
+const functionName = speculateFunctionName({
+  memorySizeInMb: 2048,
+  diskSizeInMb: 2048,
+  timeoutInSeconds: 120,
+});
+
+const progress = await getRenderProgress({
+  renderId: 'd7nlc2y',
+  bucketName: 'remotionlambda-useast1-abcdefgh',
+  functionName,
+  region: 'us-east-1',
+  skipLambdaInvocation: true,
+});
+```
+
+## Requirements
+
+- The function name must follow the [Remotion function naming convention](/docs/lambda/naming-convention). Functions deployed using [`deployFunction()`](/docs/lambda/deployfunction) follow this convention.
+- The AWS credentials calling `getRenderProgress()` must have `s3:GetObject` permission for the Remotion bucket. The policy returned by [`getUserPolicy()`](/docs/lambda/getuserpolicy) includes this permission.
+
+If either requirement is not fulfilled, leave `skipLambdaInvocation` unset.
+
+## See also
+
+- [`getRenderProgress()`](/docs/lambda/getrenderprogress)
+- [Optimizing Lambda for speed](/docs/lambda/optimizing-speed)

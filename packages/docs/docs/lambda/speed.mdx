@@ -3,7 +3,7 @@ image: /generated/articles-docs-lambda-speed.png
 id: optimizing-speed
 title: Optimizing for speed
 slug: /lambda/optimizing-speed
-crumb: "Lambda"
+crumb: 'Lambda'
 ---
 
 On this page, a few strategies are presented for making a render on Lambda as fast as possible.
@@ -24,6 +24,10 @@ The [`concurrencyPerLambda`](/docs/lambda/rendermediaonlambda#concurrencyperlamb
 ## Use `speculateFunctionName()`
 
 Instead of calling [`getFunctions()`](/docs/lambda/getfunctions), you can call [`speculateFunctionName()`](/docs/lambda/speculatefunctionname) to calculate the name of the function you are about to call to save an API call and save up to 1 second.
+
+## Faster progress polling
+
+[`getRenderProgress()`](/docs/lambda/getrenderprogress) can read progress directly from S3 instead of invoking a Lambda function for every poll. See [Faster progress polling](/docs/lambda/faster-progress-polling) for the benefits and requirements.
 
 ## Bucket naming
 

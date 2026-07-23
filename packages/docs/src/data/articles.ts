@@ -3267,6 +3267,15 @@ export const articles = [
 		slug: 'lambda/faq',
 	},
 	{
+		id: 'lambda/faster-progress-polling',
+		title: 'Faster progress polling',
+		relativePath: 'docs/lambda/faster-progress-polling.mdx',
+		compId: 'articles-docs-lambda-faster-progress-polling',
+		crumb: 'Lambda',
+		noAi: false,
+		slug: 'lambda/faster-progress-polling',
+	},
+	{
 		id: 'feb-2022-outage',
 		title: 'February 2022 Outage',
 		relativePath: 'docs/lambda/feb-2022-outage.mdx',
