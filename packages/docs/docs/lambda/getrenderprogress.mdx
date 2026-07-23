@@ -7,7 +7,7 @@ crumb: 'Lambda API'
 ---
 
 Gets the current status of a render initiated via [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).  
-Calling this function results in a Lambda invocation.
+By default, calling this function results in a Lambda invocation. See [Faster progress polling](/docs/lambda/faster-progress-polling) to read the progress directly from S3 instead.
 
 For renders initiated via [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda), do not use this function. Instead, the result is returned immediately.
 
@@ -63,7 +63,7 @@ Passes `forcePathStyle` to the AWS S3 client. If you don't know what this is, yo
 ### `skipLambdaInvocation?`<AvailableFrom v="4.0.218" />
 
 Instead of calling a Lambda function which will get the progress from S3, make the S3 call directly.  
-This is cheaper and faster, but the function name must follow [the function name convention](/docs/lambda/naming-convention#see-also).
+This is cheaper and faster, but requires additional permissions. Default: `false`. See [Faster progress polling](/docs/lambda/faster-progress-polling) for the requirements.
 
 ## Response
 

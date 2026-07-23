@@ -1293,6 +1293,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/bucket-naming',
 				'lambda/optimizing-cost',
 				'lambda/optimizing-speed',
+				'lambda/faster-progress-polling',
 				'lambda/proxy',
 				'lambda/limits',
 				'lambda/changelog',
