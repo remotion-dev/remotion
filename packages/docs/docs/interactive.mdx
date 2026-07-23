@@ -17,9 +17,7 @@ import {AbsoluteFill, Interactive} from 'remotion';
 export const MyComp: React.FC = () => {
   return (
     <AbsoluteFill>
-      <Interactive.Div style={{backgroundColor: 'white', padding: 24}}>
-        Hello World
-      </Interactive.Div>
+      <Interactive.Div style={{backgroundColor: 'white', padding: 24}}>Hello World</Interactive.Div>
     </AbsoluteFill>
   );
 };
@@ -102,6 +100,14 @@ Controls for text-related style props:
 
 Use it for components that accept a `style` prop and render text.
 
+### `Interactive.backgroundSchema`<AvailableFrom v="4.0.497" />
+
+A color control for `style.backgroundColor`.
+
+The `backgroundColor` longhand is used rather than the `background` shorthand so complex backgrounds such as gradients and images can remain untouched.
+
+Use it for components that accept a `style` prop and render a CSS background.
+
 ### `Interactive.borderSchema`<AvailableFrom v="4.0.497" />
 
 Controls for border-related style props:
@@ -124,7 +130,7 @@ Use it for components that forward these props to a `<Sequence>`.
 
 The schema used by [`<Sequence>`](/docs/sequence).
 
-It includes `Interactive.baseSchema` and a `layout` field. When `layout` is `"absolute-fill"`, the active fields include `Interactive.transformSchema` and `Interactive.premountSchema`.
+It includes `Interactive.baseSchema` and a `layout` field. When `layout` is `"absolute-fill"`, the active fields include `Interactive.transformSchema`, `Interactive.backgroundSchema`, `Interactive.borderSchema` and `Interactive.premountSchema`.
 
 ### `Interactive.withSchema()`<AvailableFrom v="4.0.479" />
 

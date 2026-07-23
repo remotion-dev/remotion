@@ -109,6 +109,7 @@ const riveCanvasSchema = {
 		variants: riveAlignmentVariants,
 	},
 	...Internals.transformSchema,
+	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
 } as const satisfies InteractivitySchema;
 

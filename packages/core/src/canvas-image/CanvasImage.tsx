@@ -21,6 +21,7 @@ import {
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Freeze} from '../freeze.js';
 import {
+	backgroundSchema,
 	baseSchema,
 	borderSchema,
 	premountSchema,
@@ -51,6 +52,7 @@ export const canvasImageSchema = {
 		},
 	},
 	...transformSchema,
+	...backgroundSchema,
 	...borderSchema,
 } as const satisfies InteractivitySchema;
 

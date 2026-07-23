@@ -22,6 +22,7 @@ import type {
 	InteractivePremountProps,
 } from './Interactive.js';
 import {
+	backgroundSchema,
 	baseSchema,
 	borderSchema,
 	premountSchema,
@@ -435,6 +436,7 @@ export const imgSchema = {
 	...baseSchema,
 	...premountSchema,
 	...transformSchema,
+	...backgroundSchema,
 	...borderSchema,
 } as const satisfies InteractivitySchema;
 

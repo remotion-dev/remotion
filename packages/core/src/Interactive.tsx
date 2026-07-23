@@ -5,6 +5,7 @@ import type {
 } from './CompositionManager.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {
+	backgroundSchema,
 	baseSchema,
 	borderSchema,
 	premountSchema,
@@ -142,8 +143,13 @@ const interactiveElementSchema = {
 	...transformSchema,
 } as const satisfies InteractivitySchema;
 
-const interactiveBorderElementSchema = {
+const interactiveBackgroundElementSchema = {
 	...interactiveElementSchema,
+	...backgroundSchema,
+} as const satisfies InteractivitySchema;
+
+const interactiveBorderElementSchema = {
+	...interactiveBackgroundElementSchema,
 	...borderSchema,
 } as const satisfies InteractivitySchema;
 
@@ -278,6 +284,7 @@ export const Interactive = {
 	baseSchema,
 	transformSchema,
 	textSchema,
+	backgroundSchema,
 	borderSchema,
 	premountSchema,
 	sequenceSchema,
