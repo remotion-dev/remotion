@@ -72,6 +72,12 @@ The default value of `overwrite` has been changed to `true` in `renderMediaOnLam
 The `shouldDumpIo` option has been be removed in 5.0.  
 Use `logLevel: "verbose"` instead.
 
+## `getVideoMetadata()` has been removed from `@remotion/renderer`
+
+Use [Mediabunny to get video metadata](/docs/mediabunny/metadata) instead.
+
+**Required action**: Replace calls to `getVideoMetadata()` from `@remotion/renderer` with [getting metadata using Mediabunny](/docs/mediabunny/metadata).
+
 ## `diskSizeInMb` is now 10240 by default
 
 For Remotion Lambda, the default disk size is now 10240 MB.  
