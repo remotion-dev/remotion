@@ -22,7 +22,7 @@ import {
 	SEQUENCE_BORDER_WIDTH,
 } from '../../helpers/get-timeline-sequence-layout';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {isVideoWithLastFrameHold} from '../../helpers/is-video-with-last-frame-hold';
 import {openOriginalPositionInEditor} from '../../helpers/open-in-editor';
 import {
@@ -292,20 +292,20 @@ const TimelineSequenceInner: React.FC<{
 			: undefined;
 	}, [propStatuses, nodePath]);
 	const durationCanUpdate = Boolean(
-		studioInteractivityEnabled &&
+		isStudioInteractivityEnabled() &&
 		propStatusesForOverride?.durationInFrames?.status === 'static',
 	);
 	const fromCanUpdate = Boolean(
-		studioInteractivityEnabled &&
+		isStudioInteractivityEnabled() &&
 		propStatusesForOverride?.from?.status === 'static',
 	);
 	const trimBeforeCanUpdate = Boolean(
-		studioInteractivityEnabled &&
+		isStudioInteractivityEnabled() &&
 		propStatusesForOverride?.trimBefore?.status === 'static',
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
-	const previewInteractive = previewConnected && studioInteractivityEnabled;
+	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const selectAsset = useSelectAsset();
@@ -493,7 +493,7 @@ const TimelineSequenceInner: React.FC<{
 			disableInteractivityDisabled,
 			duplicateDisabled,
 			fileLocation,
-			includeSourceEditItems: studioInteractivityEnabled,
+			includeSourceEditItems: isStudioInteractivityEnabled(),
 			onDeleteSequenceFromSource,
 			onDisableSequenceInteractivity,
 			onDuplicateSequenceFromSource,
@@ -502,7 +502,7 @@ const TimelineSequenceInner: React.FC<{
 			selectAsset,
 			sequence: s,
 			sourceActions:
-				studioInteractivityEnabled && freezeFrameMenuItem
+				isStudioInteractivityEnabled() && freezeFrameMenuItem
 					? [freezeFrameMenuItem]
 					: [],
 		});

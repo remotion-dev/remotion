@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useMemo, useState} from 'react';
 import type {_InternalTypes} from 'remotion';
-import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {PicIcon} from '../../icons/frame';
 import {SolidIcon} from '../../icons/solid';
 import {VisualControlsContext} from '../../visual-controls/VisualControls';
@@ -209,7 +209,8 @@ const CompositionDefaultPropsSection: React.FC<{
 const CompositionVisualControlsSection: React.FC = () => {
 	const {handles: visualControlHandles} = useContext(VisualControlsContext);
 	const hasVisualControls =
-		studioInteractivityEnabled && Object.keys(visualControlHandles).length > 0;
+		isStudioInteractivityEnabled() &&
+		Object.keys(visualControlHandles).length > 0;
 
 	if (!hasVisualControls) {
 		return null;

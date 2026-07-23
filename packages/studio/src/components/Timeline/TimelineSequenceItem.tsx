@@ -21,7 +21,7 @@ import {
 	getSequenceDoubleClickAction,
 } from '../../helpers/get-sequence-double-click-action';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {
 	getTimelineLayerHeight,
@@ -258,7 +258,7 @@ export const TimelineSequenceItem: React.FC<{
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
-	const previewInteractive = previewConnected && studioInteractivityEnabled;
+	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
@@ -750,7 +750,7 @@ export const TimelineSequenceItem: React.FC<{
 	}, [effectDropHovered, inner]);
 
 	const hasExpandableContent =
-		studioInteractivityEnabled &&
+		isStudioInteractivityEnabled() &&
 		(Boolean(sequence.controls) || sequence.effects.length > 0);
 
 	const canToggleVisibility =
@@ -926,7 +926,7 @@ export const TimelineSequenceItem: React.FC<{
 			disableInteractivityDisabled,
 			duplicateDisabled,
 			fileLocation,
-			includeSourceEditItems: studioInteractivityEnabled,
+			includeSourceEditItems: isStudioInteractivityEnabled(),
 			onDeleteSequenceFromSource,
 			onDisableSequenceInteractivity,
 			onDuplicateSequenceFromSource,
@@ -934,7 +934,7 @@ export const TimelineSequenceItem: React.FC<{
 			originalLocation,
 			selectAsset,
 			sequence,
-			sourceActions: studioInteractivityEnabled
+			sourceActions: isStudioInteractivityEnabled()
 				? [
 						...(nodePathInfo?.supportsEffects
 							? [
@@ -1186,7 +1186,7 @@ export const TimelineSequenceItem: React.FC<{
 				draggableTrackRow
 			)}
 			{previewConnected &&
-			studioInteractivityEnabled &&
+			isStudioInteractivityEnabled() &&
 			isExpanded &&
 			hasExpandableContent &&
 			nodePathInfo &&

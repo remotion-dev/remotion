@@ -2,7 +2,7 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
-import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {DuplicateIcon} from '../../icons/duplicate';
 import {ScissorsIcon} from '../../icons/scissors';
 import {SnowflakeIcon} from '../../icons/snowflake';
@@ -81,7 +81,7 @@ const SplitSequenceAction: React.FC<{
 		[selection, sequencePropStatuses, timelinePosition, track.sequence],
 	);
 	const canSplit =
-		studioInteractivityEnabled &&
+		isStudioInteractivityEnabled() &&
 		sequencePropStatuses !== undefined &&
 		eligibility.canSplit;
 	const onSplit = useCallback(() => {
@@ -94,7 +94,7 @@ const SplitSequenceAction: React.FC<{
 			splitFrame: timelinePosition,
 		}).catch(() => undefined);
 	}, [canSplit, eligibility, timelinePosition]);
-	const disabledReason = !studioInteractivityEnabled
+	const disabledReason = !isStudioInteractivityEnabled()
 		? 'Studio is read-only'
 		: sequencePropStatuses === undefined
 			? 'Waiting for sequence prop status'
@@ -136,7 +136,7 @@ const SequenceSourceActions: React.FC<{
 	);
 	const freezeFrameMenuItem = useSequenceFreezeFrameMenuItem({
 		clientId:
-			previewServerState.type === 'connected' && studioInteractivityEnabled
+			previewServerState.type === 'connected' && isStudioInteractivityEnabled()
 				? previewServerState.clientId
 				: null,
 		nodePath: selection.nodePathInfo.sequenceSubscriptionKey,
@@ -148,7 +148,7 @@ const SequenceSourceActions: React.FC<{
 		validatedSource,
 	});
 	const sourceActionsDisabled =
-		previewServerState.type !== 'connected' || !studioInteractivityEnabled;
+		previewServerState.type !== 'connected' || !isStudioInteractivityEnabled();
 	const onDuplicate = useCallback(() => {
 		if (sourceActionsDisabled) {
 			return;

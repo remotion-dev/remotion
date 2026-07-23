@@ -1,3 +1,3 @@
 import {getStudioInteractivityEnabled} from './studio-runtime-config';
 
-export const studioInteractivityEnabled = getStudioInteractivityEnabled();
+export const isStudioInteractivityEnabled = getStudioInteractivityEnabled;
