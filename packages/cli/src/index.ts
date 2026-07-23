@@ -48,6 +48,7 @@ import {
 	validateVersionsBeforeCommand,
 	versionsCommand,
 } from './versions';
+import {warnAboutUnrecognizedCliFlags} from './warn-about-unrecognized-cli-flags';
 
 const {packageManagerOption, versionFlagOption} = BrowserSafeApis.options;
 
@@ -85,6 +86,20 @@ export const cli = async () => {
 	}
 
 	const isStudio = command === 'studio' || command === 'preview';
+
+	if (isStudio) {
+		warnAboutUnrecognizedCliFlags({
+			args: process.argv.slice(2),
+			command: 'studio',
+			logLevel,
+		});
+	} else if (command === 'render') {
+		warnAboutUnrecognizedCliFlags({
+			args: process.argv.slice(2),
+			command,
+			logLevel,
+		});
+	}
 
 	const errorSymbolicationLock = isStudio
 		? 0
