@@ -15,6 +15,7 @@ type SetPropStatuses = (
 type QueueState = {
 	chain: Promise<unknown>;
 	cancelled: boolean;
+	error: unknown | null;
 };
 
 const queues = new Map<string, QueueState>();
@@ -23,7 +24,7 @@ const getQueue = (nodePath: SequencePropsSubscriptionKey): QueueState => {
 	const key = Internals.makeSequencePropsSubscriptionKey(nodePath);
 	let q = queues.get(key);
 	if (!q) {
-		q = {chain: Promise.resolve(), cancelled: false};
+		q = {chain: Promise.resolve(), cancelled: false, error: null};
 		queues.set(key, q);
 	}
 
@@ -54,14 +55,19 @@ export type EnqueueSaveOptions<TResponse> = {
 	errorLabel: string;
 };
 
-export const enqueueSavePropChange = <TResponse>({
+type EnqueueSaveOptionsWithError<TResponse> = EnqueueSaveOptions<TResponse> & {
+	readonly onError: ((error: unknown) => void) | null;
+};
+
+const enqueueSavePropChangeInternal = <TResponse>({
 	nodePath,
 	setPropStatuses,
 	applyOptimistic,
 	applyServerResponse,
 	apiCall,
 	errorLabel,
-}: EnqueueSaveOptions<TResponse>): Promise<void> => {
+	onError,
+}: EnqueueSaveOptionsWithError<TResponse>): Promise<void> => {
 	const q = getQueue(nodePath);
 
 	if (q.cancelled) {
@@ -75,6 +81,10 @@ export const enqueueSavePropChange = <TResponse>({
 	const myQueue = q;
 	const next = myQueue.chain.then(async () => {
 		if (myQueue.cancelled) {
+			onError?.(
+				myQueue.error ??
+					new Error('The sequence prop save queue was cancelled'),
+			);
 			return;
 		}
 
@@ -96,6 +106,8 @@ export const enqueueSavePropChange = <TResponse>({
 			}
 		} catch (err) {
 			myQueue.cancelled = true;
+			myQueue.error = err;
+			onError?.(err);
 
 			dropQueue(nodePath, myQueue);
 			showNotification(
@@ -107,4 +119,19 @@ export const enqueueSavePropChange = <TResponse>({
 
 	myQueue.chain = next;
 	return next;
+};
+
+export const enqueueSavePropChange = <TResponse>(
+	options: EnqueueSaveOptions<TResponse>,
+): Promise<void> => {
+	return enqueueSavePropChangeInternal({...options, onError: null});
+};
+
+export const enqueueSavePropChangeWithError = <TResponse>({
+	onError,
+	...options
+}: EnqueueSaveOptions<TResponse> & {
+	readonly onError: (error: unknown) => void;
+}): Promise<void> => {
+	return enqueueSavePropChangeInternal({...options, onError});
 };

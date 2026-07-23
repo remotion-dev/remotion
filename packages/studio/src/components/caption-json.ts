@@ -29,6 +29,10 @@ const isCaption = (value: unknown): value is CaptionJson => {
 	);
 };
 
+export const isCaptionJsonArray = (value: unknown): value is CaptionJson[] => {
+	return Array.isArray(value) && value.every(isCaption);
+};
+
 export const isCaptionJson = (value: unknown): value is CaptionJson[] => {
-	return Array.isArray(value) && value.length > 0 && value.every(isCaption);
+	return isCaptionJsonArray(value) && value.length > 0;
 };

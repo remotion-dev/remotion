@@ -3,7 +3,6 @@ import type {CaptionJson} from '../components/caption-json';
 
 type CaptionTimingEditSession = {
 	readonly ownerId: string;
-	readonly src: string;
 	readonly captions: CaptionJson[];
 	readonly onChange: (captions: CaptionJson[]) => void;
 };

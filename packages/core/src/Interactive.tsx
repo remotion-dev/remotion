@@ -1,4 +1,5 @@
 import React, {forwardRef, useCallback, useRef} from 'react';
+import {AbsoluteFill} from './AbsoluteFill.js';
 import type {
 	JsxComponentIdentity,
 	SequenceControls,
@@ -7,6 +8,7 @@ import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {
 	baseSchema,
 	borderSchema,
+	captionsSchema,
 	premountSchema,
 	sequenceSchema,
 	textContentSchema,
@@ -179,6 +181,117 @@ const withSchema = <S extends InteractivitySchema, Props extends object>(
 	return Wrapped;
 };
 
+const interactiveCaptionsSchema = {
+	...captionsSchema,
+	'style.width': {
+		type: 'number',
+		min: 0,
+		step: 1,
+		default: undefined,
+		description: 'Width',
+		hiddenFromList: false,
+	},
+	'style.height': {
+		type: 'number',
+		min: 0,
+		step: 1,
+		default: undefined,
+		description: 'Height',
+		hiddenFromList: false,
+	},
+	...transformSchema,
+} as const satisfies InteractivitySchema;
+
+type CaptionComponentProps = {
+	readonly captions?: readonly unknown[];
+	readonly controls?: never;
+	readonly stack?: never;
+	readonly style?: never;
+};
+
+type WithCaptionsOptions<Props extends CaptionComponentProps> = {
+	readonly Component: React.ComponentType<Props>;
+	readonly componentName?: string;
+};
+
+type WithCaptionsPublicProps<Props extends CaptionComponentProps> = Omit<
+	Props,
+	'style'
+> &
+	Pick<InteractiveBaseProps, 'name'> &
+	InteractiveTransformProps;
+
+const formatInteractiveComponentName = (name: string) => {
+	return name.startsWith('<') && name.endsWith('>') ? name : `<${name}>`;
+};
+
+const getInteractiveComponentName = (
+	Component: React.ComponentType<object>,
+) => {
+	return formatInteractiveComponentName(
+		Component.displayName || Component.name || 'Captions',
+	);
+};
+
+const withCaptions = <Props extends CaptionComponentProps>({
+	Component,
+	componentName: componentNameOption,
+}: WithCaptionsOptions<Props>): React.ComponentType<
+	WithCaptionsPublicProps<Props>
+> => {
+	const componentName = componentNameOption
+		? formatInteractiveComponentName(componentNameOption)
+		: getInteractiveComponentName(Component as React.ComponentType<object>);
+	type PublicProps = WithCaptionsPublicProps<Props>;
+	type InnerProps = Omit<
+		PublicProps,
+		'controls' | 'name' | 'stack' | 'style'
+	> & {
+		readonly controls: SequenceControls | undefined;
+		readonly name: string | undefined;
+		readonly stack: string | undefined;
+		readonly style: React.CSSProperties | undefined;
+	};
+	const Inner = forwardRef<unknown, InnerProps>((propsWithControls, _ref) => {
+		const {controls, name, stack, style, ...componentProps} =
+			propsWithControls as InnerProps;
+		const outlineRef = useRef<HTMLDivElement>(null);
+
+		return (
+			<Sequence
+				durationInFrames={Infinity}
+				layout="none"
+				name={name ?? componentName}
+				showInTimeline
+				outlineRef={outlineRef}
+				controls={controls}
+				_remotionInternalStack={stack}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/interactive-with-captions"
+			>
+				<AbsoluteFill ref={outlineRef} style={style}>
+					{React.createElement(Component, {
+						...componentProps,
+						name,
+					} as unknown as Props)}
+				</AbsoluteFill>
+			</Sequence>
+		);
+	});
+
+	Inner.displayName = componentName;
+
+	const Wrapped = withSchema({
+		Component: Inner,
+		componentName,
+		componentIdentity: null,
+		schema: interactiveCaptionsSchema,
+		supportsEffects: false,
+	});
+	Wrapped.displayName = componentName;
+
+	return Wrapped as unknown as React.ComponentType<PublicProps>;
+};
+
 const makeInteractiveElement = <Tag extends InteractiveTag>(
 	tag: Tag,
 	displayName: string,
@@ -282,6 +395,7 @@ export const Interactive = {
 	premountSchema,
 	sequenceSchema,
 	withSchema,
+	withCaptions,
 	_internalMakeRemotionComponentIdentity: makeRemotionComponentIdentity,
 	A: makeInteractiveTextElement('a', '<Interactive.A>'),
 	Article: makeInteractiveTextElement('article', '<Interactive.Article>'),

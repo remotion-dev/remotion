@@ -70,6 +70,8 @@ const schemaFieldGroupOrder = SCHEMA_FIELD_GROUPS.reduce(
 );
 
 const TRANSFORM_FIELD_KEYS = new Set([
+	'style.width',
+	'style.height',
 	'style.transformOrigin',
 	'style.translate',
 	'style.scale',
@@ -133,6 +135,7 @@ const TIMELINE_SCHEMA_FIELD_TYPE_SUPPORT = {
 	array: true,
 	asset: true,
 	boolean: true,
+	captions: false,
 	color: true,
 	enum: true,
 	'font-family': true,
