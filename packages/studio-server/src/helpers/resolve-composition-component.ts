@@ -7,8 +7,8 @@ import type {
 	ExportSpecifier,
 	File,
 	FunctionDeclaration,
-	ImportDefaultSpecifier,
 	ImportDeclaration,
+	ImportDefaultSpecifier,
 	ImportSpecifier,
 	JSXAttribute,
 	JSXElement,
@@ -930,11 +930,13 @@ const createSolidElement = ({
 
 const createComponentElement = ({
 	addPositionStyle,
+	from,
 	localName,
 	props,
 	position,
 }: {
 	addPositionStyle: boolean;
+	from: number | null;
 	localName: string;
 	props: ComponentProp[];
 	position: InsertableCompositionElementPosition | null;
@@ -944,6 +946,7 @@ const createComponentElement = ({
 			recast.types.builders.jsxIdentifier(localName),
 			[
 				...props.map(createComponentProp),
+				...(from === null ? [] : [createNumberAttribute('from', from)]),
 				...(addPositionStyle
 					? [createPositionAbsoluteStyleAttribute(position)]
 					: []),
@@ -1001,6 +1004,7 @@ const createSequenceWrappedElement = ({
 const createAssetElement = ({
 	addPositionStyle,
 	durationInFrames,
+	from,
 	localName,
 	staticFileLocalName,
 	src,
@@ -1009,6 +1013,7 @@ const createAssetElement = ({
 }: {
 	addPositionStyle: boolean;
 	durationInFrames: number | null;
+	from: number | null;
 	localName: string;
 	staticFileLocalName: string | null;
 	src: string;
@@ -1025,6 +1030,7 @@ const createAssetElement = ({
 				...(durationInFrames === null
 					? []
 					: [createNumberAttribute('durationInFrames', durationInFrames)]),
+				...(from === null ? [] : [createNumberAttribute('from', from)]),
 				...(addPositionStyle
 					? [createAssetStyleAttribute({dimensions, position})]
 					: []),
@@ -1037,10 +1043,12 @@ const createAssetElement = ({
 };
 
 const createSvgElement = async ({
+	from,
 	interactiveLocalName,
 	markup,
 	position,
 }: {
+	from: number | null;
 	interactiveLocalName: string;
 	markup: string;
 	position: InsertableCompositionElementPosition | null;
@@ -1048,6 +1056,10 @@ const createSvgElement = async ({
 	const svgElement = await svgMarkupToJsx(markup);
 	const attributes = svgElement.openingElement.attributes ?? [];
 	svgElement.openingElement.attributes = attributes;
+	if (from !== null) {
+		attributes.push(createNumberAttribute('from', from));
+	}
+
 	const styleAttribute = attributes.find(
 		(attribute) =>
 			attribute.type === 'JSXAttribute' &&
@@ -2138,12 +2150,14 @@ const createInsertableJsxElement = ({
 	ast,
 	destinationFileName,
 	element,
+	from,
 	remotionRoot,
 }: {
 	addPositionStyleToComponent: boolean;
 	ast: File;
 	destinationFileName: string;
 	element: InsertableCompositionElement;
+	from: number | null;
 	remotionRoot: string;
 }): Promise<namedTypes.JSXElement> | namedTypes.JSXElement => {
 	if (element.type === 'solid') {
@@ -2167,6 +2181,7 @@ const createInsertableJsxElement = ({
 
 		return createComponentElement({
 			addPositionStyle: addPositionStyleToComponent,
+			from,
 			localName: componentLocalName,
 			props: element.props,
 			position: element.position,
@@ -2175,6 +2190,7 @@ const createInsertableJsxElement = ({
 
 	if (element.type === 'svg') {
 		return createSvgElement({
+			from,
 			interactiveLocalName: ensureInteractiveImport(ast),
 			markup: element.markup,
 			position: element.position,
@@ -2229,10 +2245,14 @@ const createInsertableJsxElement = ({
 				addPositionStyleToComponent && element.assetType !== 'audio',
 			durationInFrames:
 				element.assetType === 'image' ? null : element.durationInFrames,
+			from,
 			localName,
 			staticFileLocalName,
 			src: element.src,
-			dimensions: element.dimensions,
+			dimensions:
+				element.assetType === 'image' && from !== null
+					? null
+					: element.dimensions,
 			position: element.position,
 		});
 	}
@@ -2302,14 +2322,14 @@ export const insertJsxElementIntoComposition = async ({
 					position: element.position,
 					from,
 				}
-			: from === null
+			: from === null ||
+				  element.type === 'asset' ||
+				  element.type === 'svg' ||
+				  element.type === 'component'
 				? wrapInSequence
 				: {
-						dimensions: element.type === 'asset' ? element.dimensions : null,
-						durationInFrames:
-							element.type === 'asset' && element.assetType !== 'image'
-								? element.durationInFrames
-								: null,
+						dimensions: null,
+						durationInFrames: null,
 						name: null,
 						position: element.position,
 						from,
@@ -2319,6 +2339,7 @@ export const insertJsxElementIntoComposition = async ({
 		ast,
 		destinationFileName: location.fileName,
 		element,
+		from,
 		remotionRoot,
 	});
 	const finalElementToInsert = sequenceWrapper

@@ -114,7 +114,7 @@ export const insertElementHandler: ApiHandler<
 	InsertElementRequest,
 	InsertElementResponse
 > = ({
-	input: {compositionFile, compositionId, element, position},
+	input: {compositionFile, compositionId, element, from = null, position},
 	remotionRoot,
 	logLevel,
 }) =>
@@ -122,6 +122,13 @@ export const insertElementHandler: ApiHandler<
 		try {
 			validateElement(element);
 			validatePosition(position);
+			if (
+				from !== null &&
+				(!Number.isInteger(from) || !Number.isFinite(from) || from < 0)
+			) {
+				throw new Error('from must be a non-negative integer');
+			}
+
 			const componentName = getElementComponentNameFromSourceCode(
 				element.sourceCode,
 			);
@@ -195,6 +202,7 @@ export const insertElementHandler: ApiHandler<
 				prettierConfigOverride: null,
 				wrapInSequence: {
 					dimensions: element.dimensions,
+					from,
 					name: element.displayName,
 					position,
 				},

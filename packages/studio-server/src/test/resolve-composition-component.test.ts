@@ -908,6 +908,7 @@ test('converts and inserts SVG markup as an Interactive.Svg', async () => {
 					'<svg width="100" height="50" viewBox="0 0 100 50" style="opacity: 0.8"><path fill-rule="evenodd" stroke-width="2" d="M0 0h10v10z" /></svg>',
 				position: {x: 120.25, y: 80},
 			},
+			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -915,6 +916,8 @@ test('converts and inserts SVG markup as an Interactive.Svg', async () => {
 			"import { AbsoluteFill, Interactive } from 'remotion';",
 		);
 		expect(result.output).toContain('<Interactive.Svg');
+		expect(result.output).toContain('from={42}');
+		expect(result.output).not.toContain('<Sequence');
 		expect(result.output).toContain('</Interactive.Svg>');
 		expect(result.output).toContain('width={100}');
 		expect(result.output).toContain('height={50}');
@@ -976,15 +979,15 @@ test('inserts a CanvasImage asset at a timeline frame', async () => {
 		});
 
 		expect(result.output).toContain(
-			"import { AbsoluteFill, staticFile, CanvasImage, Sequence } from 'remotion';",
+			"import { AbsoluteFill, staticFile, CanvasImage } from 'remotion';",
 		);
-		expect(result.output).toContain('<Sequence');
+		expect(result.output).not.toContain('<Sequence');
 		expect(result.output).toContain('from={42}');
-		expect(result.output).toContain('width={800}');
-		expect(result.output).toContain('height={600}');
 		expect(result.output).toContain('<CanvasImage');
 		expect(result.output).toContain("src={staticFile('image.png')}");
 		expect(result.output).toContain("position: 'absolute'");
+		expect(result.output).not.toContain('width={800}');
+		expect(result.output).not.toContain('height={600}');
 		expect(result.output).not.toContain('width: 800');
 		expect(result.output).not.toContain('height: 600');
 	} finally {
@@ -1093,6 +1096,7 @@ test('inserts an AnimatedImage asset into the resolved composition component', a
 				durationInFrames: 37.52,
 				position: null,
 			},
+			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -1102,6 +1106,8 @@ test('inserts an AnimatedImage asset into the resolved composition component', a
 		expect(result.output).toContain('<AnimatedImage');
 		expect(result.output).toContain("src={staticFile('animated-png.png')}");
 		expect(result.output).toContain('durationInFrames={37.52}');
+		expect(result.output).toContain('from={42}');
+		expect(result.output).not.toContain('<Sequence');
 		expect(result.output).toContain('width: 320');
 		expect(result.output).toContain('height: 180');
 		expect(result.output).not.toContain('width={320}');
@@ -1153,6 +1159,7 @@ test('inserts a Video asset with its duration and CSS dimensions', async () => {
 				durationInFrames: 37.52,
 				position: null,
 			},
+			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -1161,6 +1168,7 @@ test('inserts a Video asset with its duration and CSS dimensions', async () => {
 			"import { AbsoluteFill, staticFile } from 'remotion';",
 		);
 		expect(result.output).toContain('durationInFrames={37.52}');
+		expect(result.output).toContain('from={42}');
 		expect(result.output).toContain('<Video');
 		expect(result.output).toContain("src={staticFile('clip.mp4')}");
 		expect(result.output).toContain("position: 'absolute'");
@@ -1264,6 +1272,7 @@ test('inserts a Gif asset into the resolved composition component', async () => 
 				durationInFrames: 37.52,
 				position: null,
 			},
+			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -1274,6 +1283,8 @@ test('inserts a Gif asset into the resolved composition component', async () => 
 		expect(result.output).toContain('<Gif');
 		expect(result.output).toContain("src={staticFile('animation.gif')}");
 		expect(result.output).toContain('durationInFrames={37.52}');
+		expect(result.output).toContain('from={42}');
+		expect(result.output).not.toContain('<Sequence');
 		expect(result.output).toContain('width: 320');
 		expect(result.output).toContain('height: 180');
 		expect(result.output).not.toContain('width={320}');
@@ -1322,6 +1333,7 @@ test('inserts an Audio asset into the resolved composition component', async () 
 				durationInFrames: 37.52,
 				position: null,
 			},
+			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -1332,6 +1344,8 @@ test('inserts an Audio asset into the resolved composition component', async () 
 		expect(result.output).toContain('<Audio');
 		expect(result.output).toContain("src={staticFile('audio.mp3')}");
 		expect(result.output).toContain('durationInFrames={37.52}');
+		expect(result.output).toContain('from={42}');
+		expect(result.output).not.toContain('<Sequence');
 		expect(result.output).not.toContain("position: 'absolute'");
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
@@ -1484,6 +1498,7 @@ test('inserts a component into the resolved composition component', async () => 
 				],
 				position: null,
 			},
+			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -1494,7 +1509,9 @@ test('inserts a component into the resolved composition component', async () => 
 		expect(result.output).toContain('fill="#0b84ff"');
 		expect(result.output).toContain('dataShapeIndex={1}');
 		expect(result.output).toContain('debug={false}');
+		expect(result.output).toContain('from={42}');
 		expect(result.output).toContain("position: 'absolute'");
+		expect(result.output).not.toContain('<Sequence');
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}

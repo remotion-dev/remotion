@@ -21,6 +21,7 @@ import {SequencePropsObserver} from './SequencePropsObserver';
 import {shouldShowTrackInTimeline} from './should-show-track-in-timeline';
 import {shouldSubscribeToSequenceProps} from './should-subscribe-to-sequence-props';
 import {SubscribeToNodePaths} from './SubscribeToNodePaths';
+import {TimelineAssetDropFrameContext} from './timeline-asset-drop-context';
 import {timelineVerticalScroll} from './timeline-refs';
 import {TimelineDragHandler} from './TimelineDragHandler';
 import {TimelineHeightContainer} from './TimelineHeightContainer';
@@ -59,7 +60,7 @@ const noop = () => undefined;
 const TimelineContextMenuArea: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	useTimelineAssetDrop();
+	const assetDropFrame = useTimelineAssetDrop();
 	const {compositions, canvasContent} = useContext(
 		Internals.CompositionManager,
 	);
@@ -212,7 +213,9 @@ const TimelineContextMenuArea: React.FC<{
 			style={container}
 			className={'css-reset ' + VERTICAL_SCROLLBAR_CLASSNAME}
 		>
-			{children}
+			<TimelineAssetDropFrameContext.Provider value={assetDropFrame}>
+				{children}
+			</TimelineAssetDropFrameContext.Provider>
 		</ContextMenu>
 	);
 };

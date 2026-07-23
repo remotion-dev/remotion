@@ -774,6 +774,7 @@ export type InsertElementRequest = {
 	compositionFile: string;
 	compositionId: string;
 	element: ElementDragData['element'];
+	from?: number | null;
 	position: InsertableCompositionElementPosition | null;
 };
 
