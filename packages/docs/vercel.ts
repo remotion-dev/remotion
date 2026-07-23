@@ -104,6 +104,7 @@ export const config: VercelConfig = {
 			'/docs/renderer/get-compositions',
 			{permanent: true},
 		),
+		routes.redirect('/docs/webpack', '/docs/bundlers', {permanent: true}),
 		routes.redirect(
 			'/docs/stitch-frames-to-video',
 			'/docs/renderer/stitch-frames-to-video',

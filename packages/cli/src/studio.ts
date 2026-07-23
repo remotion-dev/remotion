@@ -162,6 +162,9 @@ export const studioCommand = async (
 	const gitSource = getGitSource({remotionRoot, disableGitSource, logLevel});
 
 	const useRspack = rspackOption.getValue({commandLine: parsedCli}).value;
+	const bundlerOverride = ConfigInternals.getBundlerOverrideFn();
+	const rspackOverride = ConfigInternals.getRspackOverrideFn();
+	const webpackOverride = ConfigInternals.getWebpackOverrideFn();
 
 	if (useRspack) {
 		Log.warn(
@@ -203,7 +206,9 @@ export const studioCommand = async (
 		desiredPort,
 		remotionRoot,
 		relativePublicDir,
-		webpackOverride: ConfigInternals.getWebpackOverrideFn(),
+		bundlerOverride,
+		rspackOverride,
+		webpackOverride,
 		poll: webpackPollOption.getValue({commandLine: parsedCli}).value,
 		getRenderDefaults: () => getRenderDefaults(logLevel),
 		getRenderQueue,
@@ -213,9 +218,12 @@ export const studioCommand = async (
 				addJob({
 					...options,
 					fixedConfig: {
+						bundlerOverride,
 						publicDir: relativePublicDir,
 						rendererPort,
+						rspackOverride,
 						rspack: useRspack,
+						webpackOverride,
 					},
 				}),
 			cancelJob,

@@ -1,5 +1,10 @@
 import fs from 'node:fs';
-import {type GitSource, type WebpackOverrideFn} from '@remotion/bundler';
+import {
+	type BundlerOverrideFn,
+	type GitSource,
+	type RspackOverrideFn,
+	type WebpackOverrideFn,
+} from '@remotion/bundler';
 import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
 import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
 import {getSitesKey} from '@remotion/lambda-client/constants';
@@ -31,6 +36,8 @@ type OptionalParameters = {
 		onBundleProgress?: (progress: number) => void;
 		onUploadProgress?: (upload: UploadDirProgress) => void;
 		onDiffingProgress?: (bytes: number, done: boolean) => void;
+		bundlerOverride?: BundlerOverrideFn;
+		rspackOverride?: RspackOverrideFn;
 		webpackOverride?: WebpackOverrideFn;
 		ignoreRegisterRootWarning?: boolean;
 		enableCaching?: boolean;
@@ -85,6 +92,8 @@ const mandatoryDeploySite = async ({
 		getBundle: async () => {
 			generatedBundleDir = await fullClientSpecifics.bundleSite({
 				publicPath: `/${getSitesKey(siteName)}/`,
+				bundlerOverride: options.bundlerOverride ?? ((f) => f),
+				rspackOverride: options.rspackOverride ?? ((f) => f),
 				webpackOverride: options.webpackOverride ?? ((f) => f),
 				enableCaching: options.enableCaching ?? true,
 				publicDir: options.publicDir ?? null,

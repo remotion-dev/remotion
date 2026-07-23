@@ -1,6 +1,11 @@
 import {existsSync} from 'fs';
 import path from 'path';
-import type {MandatoryLegacyBundleOptions} from '@remotion/bundler';
+import type {
+	BundlerOverrideFn,
+	MandatoryLegacyBundleOptions,
+	RspackOverrideFn,
+	WebpackOverrideFn,
+} from '@remotion/bundler';
 import {BundlerInternals} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
@@ -36,6 +41,9 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	keyboardShortcutsEnabled,
 	rspack,
 	shouldCache,
+	bundlerOverride,
+	rspackOverride,
+	webpackOverride,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -59,6 +67,9 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	keyboardShortcutsEnabled: boolean;
 	rspack: boolean;
 	shouldCache: boolean;
+	bundlerOverride: BundlerOverrideFn | null;
+	rspackOverride: RspackOverrideFn | null;
+	webpackOverride: WebpackOverrideFn | null;
 }): Promise<{
 	urlOrBundle: string;
 	cleanup: () => void;
@@ -103,6 +114,9 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		keyboardShortcutsEnabled,
 		rspack,
 		shouldCache,
+		bundlerOverride,
+		rspackOverride,
+		webpackOverride,
 	});
 
 	return {
@@ -131,6 +145,9 @@ export const bundleOnCli = async ({
 	keyboardShortcutsEnabled,
 	rspack,
 	shouldCache,
+	bundlerOverride,
+	rspackOverride,
+	webpackOverride,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -154,6 +171,9 @@ export const bundleOnCli = async ({
 	askAIEnabled: boolean;
 	rspack: boolean;
 	shouldCache: boolean;
+	bundlerOverride: BundlerOverrideFn | null;
+	rspackOverride: RspackOverrideFn | null;
+	webpackOverride: WebpackOverrideFn | null;
 }) => {
 	const symlinkState: SymbolicLinksState = {
 		symlinks: [],
@@ -208,7 +228,10 @@ export const bundleOnCli = async ({
 
 	const options: MandatoryLegacyBundleOptions = {
 		enableCaching: shouldCache,
-		webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
+		bundlerOverride: bundlerOverride ?? ConfigInternals.getBundlerOverrideFn(),
+		rspackOverride: rspackOverride ?? ConfigInternals.getRspackOverrideFn(),
+		webpackOverride:
+			webpackOverride ?? ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
 		rootDir: remotionRoot,
 		publicDir,
 		onPublicDirCopyProgress,

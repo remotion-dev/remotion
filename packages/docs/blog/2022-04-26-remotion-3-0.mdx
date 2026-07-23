@@ -56,7 +56,7 @@ We are taking an initiative to make error easier to understand. While much of er
 
 ## Config file can now import other files.
 
-In the `remotion.config.ts` file, you can now import other files. Under the hood, we use ESBuild instead of Typescript to read the file. This was a paint point before: Node.JS APIs don't read from the config file and require you to specify the options explicitly. Configuration such as a [Webpack config override](/docs/webpack) could not be shared in a good way between CLI and Node.JS renders so far, which we address with this change.
+In the `remotion.config.ts` file, you can now import other files. Under the hood, we use ESBuild instead of Typescript to read the file. This was a paint point before: Node.JS APIs don't read from the config file and require you to specify the options explicitly. Configuration such as a [Webpack config override](/docs/bundlers) could not be shared in a good way between CLI and Node.JS renders so far, which we address with this change.
 
 ## React 18 supported
 

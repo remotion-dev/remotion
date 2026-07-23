@@ -157,6 +157,9 @@ export const bundleCommand = async (
 		keyboardShortcutsEnabled,
 		rspack,
 		shouldCache,
+		bundlerOverride: null,
+		rspackOverride: null,
+		webpackOverride: null,
 	});
 
 	Log.info(

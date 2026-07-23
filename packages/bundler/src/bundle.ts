@@ -8,10 +8,14 @@ import {getProjectName} from '@remotion/studio-shared';
 import webpack from 'webpack';
 import {copyDir} from './copy-dir';
 import {indexHtml} from './index-html';
+import type {
+	BundlerOverrideFn,
+	RspackOverrideFn,
+	WebpackOverrideFn,
+} from './override-types';
 import {readRecursively} from './read-recursively';
 import {rspackConfig} from './rspack-config';
 import {clearCache} from './webpack-cache';
-import type {WebpackOverrideFn} from './webpack-config';
 import {webpackConfig} from './webpack-config';
 
 const promisified = promisify(webpack);
@@ -78,6 +82,8 @@ export const getBundleStaticHash = (publicPath: string): string => {
 };
 
 export type MandatoryLegacyBundleOptions = {
+	bundlerOverride?: BundlerOverrideFn;
+	rspackOverride?: RspackOverrideFn;
 	webpackOverride: WebpackOverrideFn;
 	outDir: string | null;
 	enableCaching: boolean;
@@ -124,7 +130,9 @@ export const getConfig = ({
 		userDefinedComponent: entryPoint,
 		outDir,
 		environment: 'production' as const,
+		bundlerOverride: options?.bundlerOverride ?? ((f) => f),
 		webpackOverride: options?.webpackOverride ?? ((f) => f),
+		rspackOverride: options?.rspackOverride ?? ((f) => f),
 		onProgress: (p: number) => {
 			onProgress?.(p);
 		},
@@ -435,7 +443,7 @@ export const internalBundle = async (
 };
 
 /*
- * @description Bundles a Remotion project using Webpack and prepares it for rendering.
+ * @description Bundles a Remotion project and prepares it for rendering.
  * @see [Documentation](https://remotion.dev/docs/bundle)
  */
 export async function bundle(...args: Arguments): Promise<string> {
@@ -456,6 +464,8 @@ export async function bundle(...args: Arguments): Promise<string> {
 		publicDir: actualArgs.publicDir ?? null,
 		publicPath: actualArgs.publicPath ?? null,
 		rootDir: actualArgs.rootDir ?? null,
+		bundlerOverride: actualArgs.bundlerOverride ?? ((f) => f),
+		rspackOverride: actualArgs.rspackOverride ?? ((f) => f),
 		webpackOverride: actualArgs.webpackOverride ?? ((f) => f),
 		audioLatencyHint: actualArgs.audioLatencyHint ?? null,
 		renderDefaults: actualArgs.renderDefaults ?? null,

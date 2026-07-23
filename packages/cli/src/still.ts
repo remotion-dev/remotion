@@ -218,5 +218,8 @@ export const still = async (
 		keyboardShortcutsEnabled,
 		rspack,
 		shouldCache,
+		bundlerOverride: null,
+		rspackOverride: null,
+		webpackOverride: null,
 	});
 };

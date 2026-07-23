@@ -4897,12 +4897,12 @@ export const articles = [
 	},
 	{
 		id: 'webpack',
-		title: 'Custom Webpack config',
+		title: 'Webpack and Rspack',
 		relativePath: 'docs/overwriting-webpack-config.mdx',
 		compId: 'articles-docs-overwriting-webpack-config',
 		crumb: 'How To',
 		noAi: false,
-		slug: 'webpack',
+		slug: 'bundlers',
 	},
 	{
 		id: 'parameterized-rendering',
