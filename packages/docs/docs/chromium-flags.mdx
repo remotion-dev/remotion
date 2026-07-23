@@ -67,47 +67,27 @@ Config.setChromiumIgnoreCertificateErrors(true);
 Prior to `v3.3.39`, the option was called `Config.Puppeteer.setChromiumIgnoreCertificateErrors()`.
 :::
 
-## `--disable-headless`
+## ~`--disable-headless`~
 
 <Options id="disable-headless" />
 
-Whether a window opens depends on the browser executable:
-
-| Browser executable                                                                               | Opens a window                                |
-| ------------------------------------------------------------------------------------------------ | --------------------------------------------- |
-| Default Chrome Headless Shell                                                                    | No. Chrome Headless Shell has no headed mode. |
-| [Chrome for Testing](/docs/miscellaneous/chrome-headless-shell#using-chrome-for-testing-instead) | Yes.                                          |
-| Custom desktop Chrome or Chromium                                                                | Yes.                                          |
-| Custom Chrome Headless Shell                                                                     | No.                                           |
-
-On Linux, headed mode requires a running display server. It is not available on Remotion Lambda, Cloud Run or Vercel.
-
 ### Via Node.JS APIs
 
-In [`getCompositions()`](/docs/renderer/get-compositions), [`renderStill()`](/docs/renderer/render-still#headless), [`renderMedia()`](/docs/renderer/render-media#headless) and [`renderFrames()`](/docs/renderer/render-frames#headless), pass [`chromiumOptions.headless: false`](/docs/renderer/render-still#headless).
-
-Also pass `chromeMode: 'chrome-for-testing'`, or provide a compatible desktop browser using `browserExecutable`.
+In [`getCompositions()`](/docs/renderer/get-compositions), [`renderStill()`](/docs/renderer/render-still#headless), [`renderMedia()`](/docs/renderer/render-media#headless) and [`renderFrames()`](/docs/renderer/render-frames#headless), you can pass [`chromiumOptions.headless`](/docs/renderer/render-still#headless). You cannot set this option in Lambda.
 
 ### Via CLI flag
 
-Pass [`--disable-headless`](/docs/cli/render#--disable-headless) together with `--chrome-mode=chrome-for-testing`:
-
-```bash title="Render with a visible Chrome window"
-npx remotion render ... --chrome-mode=chrome-for-testing --disable-headless
-```
-
-The flag is supported by [`remotion compositions`](/docs/cli/compositions), [`remotion render`](/docs/cli/render) and [`remotion still`](/docs/cli/still). Alternatively, combine it with [`--browser-executable`](/docs/cli/render#--browser-executable) to use a custom desktop browser.
+Pass [`--disable-headless`](/docs/cli/render#--disable-headless) in one of the following commands: [`remotion compositions`](/docs/cli/compositions), [`remotion render`](/docs/cli/render), [`remotion still`](/docs/cli/still).
 
 ### Via config file
 
-Use [setChromiumHeadlessMode()](/docs/config#setchromiumheadlessmode) and select Chrome for Testing:
+Use [setChromiumHeadlessMode()](/docs/config#setchromiumheadlessmode).
 
-```tsx twoslash title="remotion.config.ts"
+```tsx twoslash
 import {Config} from '@remotion/cli/config';
 
 // ---cut---
 
-Config.setChromeMode('chrome-for-testing');
 Config.setChromiumHeadlessMode(false);
 ```
 
