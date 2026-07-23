@@ -42,6 +42,10 @@ const secondTick: React.CSSProperties = {
 const TICK_LABEL_FONT_SIZE = 12;
 const TICK_LABEL_MARGIN_LEFT = 8;
 const TICK_LABEL_MIN_GAP = 16;
+const MIN_SPACING_BETWEEN_FRAME_TICKS_PX = 5;
+const MIN_SPACING_BETWEEN_TIME_TICKS_PX = 16;
+const MIN_SPACING_BETWEEN_MEDIUM_FRAME_TICKS_PX = 24;
+const MIN_SPACING_BETWEEN_MEDIUM_TIME_TICKS_PX = 48;
 
 const tickLabel: React.CSSProperties = {
 	fontSize: TICK_LABEL_FONT_SIZE,
@@ -114,6 +118,128 @@ export const getNiceSecondInterval = (rawNthSecond: number): number => {
 	return Math.ceil(rawNthSecond / 3600) * 3600;
 };
 
+type TickInterval = {
+	readonly interval: number;
+	readonly unit: 'frames' | 'seconds';
+};
+
+export type TimelineTickScale = {
+	readonly labelEverySeconds: number;
+	readonly mediumTickEvery: TickInterval | null;
+	readonly minorTickEvery: TickInterval | null;
+};
+
+const getIntegerDivisors = (value: number): number[] => {
+	const lowerDivisors: number[] = [];
+	const upperDivisors: number[] = [];
+
+	for (let candidate = 1; candidate <= Math.sqrt(value); candidate++) {
+		if (value % candidate !== 0) {
+			continue;
+		}
+
+		lowerDivisors.push(candidate);
+		if (candidate !== value / candidate) {
+			upperDivisors.unshift(value / candidate);
+		}
+	}
+
+	return [...lowerDivisors, ...upperDivisors];
+};
+
+const getFrameIntervals = (fps: number): number[] => {
+	if (Number.isInteger(fps)) {
+		return getIntegerDivisors(fps);
+	}
+
+	return [1, 2, 5, 10, 15, 20, 30, 60].filter((interval) => interval < fps);
+};
+
+const getSecondIntervals = (labelEverySeconds: number): number[] => {
+	const hourlyIntervals = getIntegerDivisors(labelEverySeconds / 3600).map(
+		(hours) => hours * 3600,
+	);
+
+	return [...new Set([...NICE_SECOND_INTERVALS, ...hourlyIntervals])].sort(
+		(a, b) => a - b,
+	);
+};
+
+export const getTimelineTickScale = ({
+	fps,
+	frameInterval,
+	rawSecondMarkerEveryNth,
+}: {
+	readonly fps: number;
+	readonly frameInterval: number;
+	readonly rawSecondMarkerEveryNth: number;
+}): TimelineTickScale => {
+	const labelEverySeconds = getNiceSecondInterval(rawSecondMarkerEveryNth);
+	const frameIntervals = getFrameIntervals(fps);
+	const rawFrameInterval = MIN_SPACING_BETWEEN_FRAME_TICKS_PX / frameInterval;
+	const minorFrameInterval = frameIntervals.find(
+		(interval) => interval >= rawFrameInterval && interval < fps,
+	);
+
+	if (minorFrameInterval !== undefined) {
+		const rawMediumFrameInterval =
+			MIN_SPACING_BETWEEN_MEDIUM_FRAME_TICKS_PX / frameInterval;
+		const mediumFrameInterval = frameIntervals.find(
+			(interval) =>
+				interval >= rawMediumFrameInterval &&
+				interval < fps &&
+				interval % minorFrameInterval === 0,
+		);
+
+		return {
+			labelEverySeconds,
+			mediumTickEvery:
+				mediumFrameInterval === undefined
+					? null
+					: {interval: mediumFrameInterval, unit: 'frames'},
+			minorTickEvery: {interval: minorFrameInterval, unit: 'frames'},
+		};
+	}
+
+	const pixelsPerSecond = frameInterval * fps;
+	const secondIntervals = getSecondIntervals(labelEverySeconds);
+	const rawMinorSecondInterval =
+		MIN_SPACING_BETWEEN_TIME_TICKS_PX / pixelsPerSecond;
+	const minorSecondInterval = secondIntervals.find(
+		(interval) =>
+			interval >= rawMinorSecondInterval &&
+			interval < labelEverySeconds &&
+			labelEverySeconds % interval === 0,
+	);
+
+	if (minorSecondInterval === undefined) {
+		return {
+			labelEverySeconds,
+			mediumTickEvery: null,
+			minorTickEvery: null,
+		};
+	}
+
+	const rawMediumSecondInterval =
+		MIN_SPACING_BETWEEN_MEDIUM_TIME_TICKS_PX / pixelsPerSecond;
+	const mediumSecondInterval = secondIntervals.find(
+		(interval) =>
+			interval >= rawMediumSecondInterval &&
+			interval < labelEverySeconds &&
+			interval % minorSecondInterval === 0 &&
+			labelEverySeconds % interval === 0,
+	);
+
+	return {
+		labelEverySeconds,
+		mediumTickEvery:
+			mediumSecondInterval === undefined
+				? null
+				: {interval: mediumSecondInterval, unit: 'seconds'},
+		minorTickEvery: {interval: minorSecondInterval, unit: 'seconds'},
+	};
+};
+
 export const TimelineTimeIndicators: React.FC = () => {
 	const sliderTrack = useContext(TimelineWidthContext);
 	const video = Internals.useVideo();
@@ -178,7 +304,6 @@ const TimelineTimeIndicatorsInner: React.FC<{
 			windowWidth,
 		);
 
-		const MIN_SPACING_BETWEEN_TICKS_PX = 5;
 		const maxTickLabelWidth =
 			renderFrame(durationInFrames - 1, fps).length *
 			TICK_LABEL_FONT_SIZE *
@@ -189,14 +314,15 @@ const TimelineTimeIndicatorsInner: React.FC<{
 		const seconds = Math.floor(durationInFrames / fps);
 		const rawSecondMarkerEveryNth =
 			minSpacingBetweenTickLabelsPx / (frameInterval * fps);
-		const secondMarkerEveryNth = getNiceSecondInterval(rawSecondMarkerEveryNth);
-		const frameMarkerEveryNth = Math.ceil(
-			MIN_SPACING_BETWEEN_TICKS_PX / frameInterval,
-		);
+		const tickScale = getTimelineTickScale({
+			fps,
+			frameInterval,
+			rawSecondMarkerEveryNth,
+		});
 
-		// Big ticks showing for every second, stepping directly by the interval
+		// Labeled ticks use human-friendly time intervals.
 		const secondTicks: TimelineTick[] = [];
-		for (let index = 0; index < seconds; index += secondMarkerEveryNth) {
+		for (let index = 0; index < seconds; index += tickScale.labelEverySeconds) {
 			secondTicks.push({
 				frame: index * fps,
 				style: {
@@ -207,35 +333,65 @@ const TimelineTimeIndicatorsInner: React.FC<{
 			});
 		}
 
-		// Frame-level ticks, stepping directly by the interval
 		const hasSecondTick = new Set(secondTicks.map((t) => t.frame));
-		const frameTicks: TimelineTick[] = [];
-		for (
-			let index = 0;
-			index < durationInFrames;
-			index += frameMarkerEveryNth
-		) {
-			if (hasSecondTick.has(index)) {
-				continue;
-			}
+		const subdivisionTicks: TimelineTick[] = [];
+		const {minorTickEvery, mediumTickEvery} = tickScale;
 
-			frameTicks.push({
-				frame: index,
-				style: {
-					...tick,
-					left: frameInterval * index + TIMELINE_PADDING,
-					height:
-						index % fps === 0
-							? 10
-							: (index / frameMarkerEveryNth) % 2 === 0
+		if (minorTickEvery?.unit === 'frames') {
+			for (
+				let frame = 0;
+				frame < durationInFrames;
+				frame += minorTickEvery.interval
+			) {
+				if (hasSecondTick.has(frame)) {
+					continue;
+				}
+
+				subdivisionTicks.push({
+					frame,
+					style: {
+						...tick,
+						left: frameInterval * frame + TIMELINE_PADDING,
+						height:
+							(Number.isInteger(fps) && frame % fps === 0) ||
+							(mediumTickEvery?.unit === 'frames' &&
+								frame % mediumTickEvery.interval === 0)
 								? 5
 								: 2,
-				},
-				showTime: false,
-			});
+					},
+					showTime: false,
+				});
+			}
 		}
 
-		return [...secondTicks, ...frameTicks];
+		if (minorTickEvery?.unit === 'seconds') {
+			for (
+				let second = 0;
+				second < seconds;
+				second += minorTickEvery.interval
+			) {
+				const frame = second * fps;
+				if (hasSecondTick.has(frame)) {
+					continue;
+				}
+
+				subdivisionTicks.push({
+					frame,
+					style: {
+						...tick,
+						left: frameInterval * frame + TIMELINE_PADDING,
+						height:
+							mediumTickEvery?.unit === 'seconds' &&
+							second % mediumTickEvery.interval === 0
+								? 5
+								: 2,
+					},
+					showTime: false,
+				});
+			}
+		}
+
+		return [...secondTicks, ...subdivisionTicks];
 	}, [durationInFrames, fps, windowWidth]);
 
 	return (

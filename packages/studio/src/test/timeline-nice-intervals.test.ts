@@ -1,5 +1,8 @@
 import {expect, test} from 'bun:test';
-import {getNiceSecondInterval} from '../components/Timeline/TimelineTimeIndicators';
+import {
+	getNiceSecondInterval,
+	getTimelineTickScale,
+} from '../components/Timeline/TimelineTimeIndicators';
 
 test('getNiceSecondInterval snaps to exact nice values', () => {
 	expect(getNiceSecondInterval(1)).toBe(1);
@@ -44,4 +47,60 @@ test('getNiceSecondInterval handles values beyond 1 hour', () => {
 	expect(getNiceSecondInterval(4000)).toBe(7200);
 	expect(getNiceSecondInterval(7200)).toBe(7200);
 	expect(getNiceSecondInterval(10000)).toBe(10800);
+});
+
+test('uses individual frames when they have enough visual space', () => {
+	expect(
+		getTimelineTickScale({
+			fps: 30,
+			frameInterval: 15,
+			rawSecondMarkerEveryNth: 0.5,
+		}),
+	).toEqual({
+		labelEverySeconds: 1,
+		mediumTickEvery: {interval: 2, unit: 'frames'},
+		minorTickEvery: {interval: 1, unit: 'frames'},
+	});
+});
+
+test('uses frame intervals which divide a second while zoomed in', () => {
+	expect(
+		getTimelineTickScale({
+			fps: 30,
+			frameInterval: 3,
+			rawSecondMarkerEveryNth: 0.5,
+		}),
+	).toEqual({
+		labelEverySeconds: 1,
+		mediumTickEvery: {interval: 10, unit: 'frames'},
+		minorTickEvery: {interval: 2, unit: 'frames'},
+	});
+});
+
+test('uses clean time subdivisions for long compositions', () => {
+	expect(
+		getTimelineTickScale({
+			fps: 30,
+			frameInterval: 0.004541666666666667,
+			rawSecondMarkerEveryNth: 757,
+		}),
+	).toEqual({
+		labelEverySeconds: 900,
+		mediumTickEvery: null,
+		minorTickEvery: {interval: 180, unit: 'seconds'},
+	});
+});
+
+test('keeps a ten-hour composition sparse and aligned', () => {
+	expect(
+		getTimelineTickScale({
+			fps: 30,
+			frameInterval: 1 / 1080,
+			rawSecondMarkerEveryNth: 3708,
+		}),
+	).toEqual({
+		labelEverySeconds: 7200,
+		mediumTickEvery: {interval: 1800, unit: 'seconds'},
+		minorTickEvery: {interval: 600, unit: 'seconds'},
+	});
 });
