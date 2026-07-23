@@ -964,15 +964,15 @@ export const TimelineSequenceLeftEdgeDragHandle: React.FC<{
 
 	const finishDrag = useCallback((commit: boolean) => {
 		const dragState = dragStateRef.current;
+		if (!dragState) {
+			return;
+		}
+
 		dragStateRef.current = null;
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
 		stopForcingSpecificCursor();
 		setDragging(false);
-
-		if (!dragState) {
-			return;
-		}
 
 		const {
 			setPropStatuses: latestSetPropStatuses,
@@ -1158,6 +1158,7 @@ export const TimelineSequenceLeftEdgeDragHandle: React.FC<{
 			window.removeEventListener('pointerup', onUp);
 			window.removeEventListener('pointercancel', onCancel);
 			window.removeEventListener('blur', onWindowBlur);
+			finishDrag(false);
 		};
 	}, [dragging, finishDrag]);
 
@@ -1239,14 +1240,14 @@ export const useTimelineSequenceFromDrag = ({
 
 	const finishDrag = useCallback((commit: boolean) => {
 		const dragState = dragStateRef.current;
+		if (!dragState) {
+			return;
+		}
+
 		dragStateRef.current = null;
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
 		setDragging(false);
-
-		if (!dragState) {
-			return;
-		}
 
 		const {
 			setPropStatuses: latestSetPropStatuses,
@@ -1462,6 +1463,7 @@ export const useTimelineSequenceFromDrag = ({
 			window.removeEventListener('pointerup', onUp);
 			window.removeEventListener('pointercancel', onCancel);
 			window.removeEventListener('blur', onWindowBlur);
+			finishDrag(false);
 		};
 	}, [dragging, finishDrag]);
 
@@ -1518,15 +1520,15 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 
 	const finishDrag = useCallback((commit: boolean) => {
 		const dragState = dragStateRef.current;
+		if (!dragState) {
+			return;
+		}
+
 		dragStateRef.current = null;
 		document.body.style.userSelect = '';
 		document.body.style.webkitUserSelect = '';
 		stopForcingSpecificCursor();
 		setDragging(false);
-
-		if (!dragState) {
-			return;
-		}
 
 		const {
 			setPropStatuses: latestSetPropStatuses,
@@ -1699,6 +1701,7 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 			window.removeEventListener('pointerup', onUp);
 			window.removeEventListener('pointercancel', onCancel);
 			window.removeEventListener('blur', onWindowBlur);
+			finishDrag(false);
 		};
 	}, [dragging, finishDrag]);
 
