@@ -47,6 +47,7 @@ const nonEffectInputs: MakeDragDataInput[] = [
 		dependencies: [],
 		dimensions: null,
 		displayName: 'Element',
+		durationInFrames: 30,
 		slug: 'element',
 		sourceCode: 'export const Element = () => null;',
 	},

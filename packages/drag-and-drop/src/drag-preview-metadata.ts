@@ -30,7 +30,7 @@ export type EffectDragPreviewMetadata = {
 
 export type ElementDragPreviewMetadata = Dimensions & {
 	readonly type: 'element';
-	readonly durationInFrames?: number;
+	readonly durationInFrames: number;
 };
 
 export type SfxDragPreviewMetadata = {
@@ -97,8 +97,17 @@ const assertDuration = (metadata: DragPreviewMetadata) => {
 	}
 
 	if (
-		(metadata.type === 'composition' || metadata.type === 'element') &&
+		metadata.type === 'composition' &&
 		metadata.durationInFrames !== undefined &&
+		!isBoundedInteger(metadata.durationInFrames, MAX_DURATION_IN_FRAMES)
+	) {
+		throw new TypeError(
+			`durationInFrames must be an integer between 1 and ${MAX_DURATION_IN_FRAMES}`,
+		);
+	}
+
+	if (
+		metadata.type === 'element' &&
 		!isBoundedInteger(metadata.durationInFrames, MAX_DURATION_IN_FRAMES)
 	) {
 		throw new TypeError(
@@ -265,7 +274,19 @@ export const parseDragMimeType = (
 		};
 	}
 
-	if (type === 'composition' || type === 'element') {
+	if (type === 'element') {
+		if (duration === undefined) {
+			return null;
+		}
+
+		return {
+			type,
+			...dimensions,
+			durationInFrames: duration,
+		};
+	}
+
+	if (type === 'composition') {
 		return {
 			type,
 			...dimensions,

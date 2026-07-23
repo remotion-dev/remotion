@@ -29,6 +29,7 @@ const payloads = [
 		displayName: 'Lower Third',
 		sourceCode: 'export const LowerThird = () => null;',
 		dimensions: {width: 900, height: 260},
+		durationInFrames: 90,
 	}),
 	makeDragData({
 		type: 'sfx',

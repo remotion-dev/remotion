@@ -4,6 +4,7 @@ import {
 	makeDragData,
 	parseDragData,
 	type MakeDragDataInput,
+	type MakeElementDragDataInput,
 } from '../index';
 
 const inputs: MakeDragDataInput[] = [
@@ -100,6 +101,36 @@ test('puts preview metadata in the same MIME type as the payload', () => {
 			durationInFrames: 150,
 		},
 	});
+});
+
+test('requires a duration for element drags', () => {
+	const constructed = makeDragData({
+		type: 'element',
+		dependencies: [],
+		slug: 'titles/lower-third',
+		displayName: 'Lower Third',
+		sourceCode: 'export const LowerThird = () => null;',
+		dimensions: null,
+		durationInFrames: 90,
+	});
+
+	expect(constructed.mimeType).toContain(';duration=90');
+	expect(
+		parseDragData({
+			mimeType: 'application/vnd.remotion.drag+json;v=1;type=element',
+			payload: constructed.payload,
+		}),
+	).toBe(null);
+	expect(() =>
+		makeDragData({
+			type: 'element',
+			dependencies: [],
+			slug: 'titles/lower-third',
+			displayName: 'Lower Third',
+			sourceCode: 'export const LowerThird = () => null;',
+			dimensions: null,
+		} as MakeElementDragDataInput),
+	).toThrow('durationInFrames must be an integer');
 });
 
 test('rejects malformed and mismatched drag data', () => {

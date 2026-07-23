@@ -75,7 +75,7 @@ export type MakeEffectDragDataInput = EffectDragData['effect'] & {
 
 export type MakeElementDragDataInput = ElementDragData['element'] & {
 	readonly type: 'element';
-	readonly durationInFrames?: number;
+	readonly durationInFrames: number;
 };
 
 export type MakeSfxDragDataInput = SfxDragData['sfx'] & {

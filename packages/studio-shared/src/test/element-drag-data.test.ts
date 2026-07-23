@@ -22,7 +22,7 @@ const makeElementDragData = (
 				sourceCode: string;
 				dimensions: null;
 		  },
-) => makeDragData({type: 'element', ...element}).data;
+) => makeDragData({type: 'element', ...element, durationInFrames: 120}).data;
 const parseElementDragData = (payload: string) => {
 	let dimensions: (typeof validElement)['dimensions'] | null = null;
 	try {
@@ -43,6 +43,7 @@ const parseElementDragData = (payload: string) => {
 		type: 'element',
 		...validElement,
 		dimensions,
+		durationInFrames: 120,
 	});
 	const parsed = parseDragData({mimeType, payload});
 	return parsed?.type === 'element' ? parsed.data : null;
