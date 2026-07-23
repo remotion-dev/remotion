@@ -560,6 +560,41 @@ export const getTimelineMarqueeSelection = ({
 	};
 };
 
+export const extendTimelineMarqueeSelection = ({
+	currentSelection,
+	marqueeSelection,
+}: {
+	readonly currentSelection: readonly TimelineSelection[];
+	readonly marqueeSelection: readonly TimelineSelection[];
+}): readonly TimelineSelection[] => {
+	if (marqueeSelection.length === 0) {
+		return currentSelection;
+	}
+
+	const marqueeKind = getTimelineMarqueeSelectionKind(marqueeSelection[0]);
+	if (marqueeKind === null) {
+		return marqueeSelection;
+	}
+
+	const selectedKeys = new Set(
+		currentSelection.map((item) => getTimelineSelectionKey(item)),
+	);
+	return [
+		...currentSelection.filter((item) =>
+			isTimelineSelectionCompatibleWithMarqueeKind(item, marqueeKind),
+		),
+		...marqueeSelection.filter((item) => {
+			const key = getTimelineSelectionKey(item);
+			if (selectedKeys.has(key)) {
+				return false;
+			}
+
+			selectedKeys.add(key);
+			return true;
+		}),
+	];
+};
+
 type TimelineSelectionContextValue = {
 	readonly canSelect: boolean;
 	readonly selectedItems: readonly TimelineSelection[];
@@ -1491,7 +1526,8 @@ export const useCurrentTimelineSelectionStateAsRef = () => {
 };
 
 export const useTimelineMarqueeSelection = () => {
-	const {canSelect, getMarqueeSelection, selectItems} = useTimelineSelection();
+	const {canSelect, getMarqueeSelection, selectedItems, selectItems} =
+		useTimelineSelection();
 	const {isHighestContext} = useZIndex();
 	const [marqueeRect, setMarqueeRect] = useState<TimelineMarqueeRect | null>(
 		null,
@@ -1507,7 +1543,7 @@ export const useTimelineMarqueeSelection = () => {
 				return;
 			}
 
-			if (event.shiftKey || event.metaKey || event.ctrlKey) {
+			if (event.shiftKey) {
 				return;
 			}
 
@@ -1548,6 +1584,8 @@ export const useTimelineMarqueeSelection = () => {
 
 			let hasDragged = false;
 			let lockedSelectionKind: TimelineMarqueeSelectionKind | null = null;
+			const extendSelection = event.metaKey || event.ctrlKey;
+			const selectionBeforeMarquee = selectedItems;
 
 			const cleanup = () => {
 				window.removeEventListener('pointermove', onPointerMove);
@@ -1586,7 +1624,14 @@ export const useTimelineMarqueeSelection = () => {
 				const nextSelection = getMarqueeSelection(rect, lockedSelectionKind);
 				lockedSelectionKind = nextSelection.lockedSelectionKind;
 				setMarqueeRect(rect);
-				selectItems(nextSelection.selectedItems);
+				selectItems(
+					extendSelection
+						? extendTimelineMarqueeSelection({
+								currentSelection: selectionBeforeMarquee,
+								marqueeSelection: nextSelection.selectedItems,
+							})
+						: nextSelection.selectedItems,
+				);
 			};
 
 			const onPointerMove = (moveEvent: PointerEvent) => {
@@ -1606,7 +1651,13 @@ export const useTimelineMarqueeSelection = () => {
 			window.addEventListener('pointerup', onPointerUp);
 			window.addEventListener('pointercancel', onPointerCancel);
 		},
-		[canSelect, getMarqueeSelection, isHighestContext, selectItems],
+		[
+			canSelect,
+			getMarqueeSelection,
+			isHighestContext,
+			selectedItems,
+			selectItems,
+		],
 	);
 
 	return {marqueeRect, onPointerDownCapture};
