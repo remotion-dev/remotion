@@ -1,3 +1,4 @@
+import {getDragPreviewMetadata} from '@remotion/drag-and-drop';
 import type {Size} from '@remotion/player';
 import type {ElementInstallRequest} from '@remotion/studio-shared';
 import React, {
@@ -15,7 +16,11 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getClipboardFigmaHtml} from '../helpers/clipboard-figma';
 import {getClipboardImageFiles} from '../helpers/clipboard-images';
 import {getClipboardSvgMarkup} from '../helpers/clipboard-svg';
-import {BACKGROUND} from '../helpers/colors';
+import {
+	BACKGROUND,
+	BORDER_TIMELINE_DROP_BLUE,
+	TIMELINE_DROP_BLUE_ALPHA_16,
+} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {getAssetMetadata} from '../helpers/get-asset-metadata';
 import {
@@ -40,6 +45,10 @@ import {canvasRef} from '../state/canvas-ref';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import {callApi} from './call-api';
+import {
+	getCompositionDropPreviewBox,
+	type CompositionDropPreview,
+} from './composition-drop-preview';
 import {useConfirmationDialog} from './ConfirmationDialog';
 import {isSupportedDropEvent} from './drop-handler-data';
 import EditorGuides from './EditorGuides';
@@ -246,6 +255,8 @@ export const Canvas: React.FC<{
 			? previewServerState.clientId
 			: null;
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
+	const [compositionDropPreview, setCompositionDropPreview] =
+		useState<CompositionDropPreview | null>(null);
 	const [installingElementName, setInstallingElementName] = useState<
 		string | null
 	>(null);
@@ -942,10 +953,12 @@ export const Canvas: React.FC<{
 	const onDragOver = useCallback(
 		(event: DragEvent) => {
 			if (!isSupportedDropEvent(event) || !isDragEventInsideCanvas(event)) {
+				setCompositionDropPreview(null);
 				return;
 			}
 
 			if (!canDropAssets && !cannotAddSequence) {
+				setCompositionDropPreview(null);
 				return;
 			}
 
@@ -953,12 +966,98 @@ export const Canvas: React.FC<{
 			if (event.dataTransfer) {
 				event.dataTransfer.dropEffect = canDropAssets ? 'copy' : 'none';
 			}
+
+			if (
+				!canDropAssets ||
+				contentDimensions === null ||
+				contentDimensions === 'none'
+			) {
+				setCompositionDropPreview(null);
+				return;
+			}
+
+			const metadata = getDragPreviewMetadata(event.dataTransfer?.types ?? []);
+			if (
+				metadata?.type !== 'composition' ||
+				metadata.width === undefined ||
+				metadata.height === undefined
+			) {
+				setCompositionDropPreview(null);
+				return;
+			}
+
+			const dropPosition = getDropPosition({
+				addFitPadding,
+				clientX: event.clientX,
+				clientY: event.clientY,
+				contentDimensions,
+				previewSize,
+				size,
+			});
+			if (dropPosition === null) {
+				setCompositionDropPreview(null);
+				return;
+			}
+
+			const compositionDimensions = {
+				width: metadata.width,
+				height: metadata.height,
+			};
+			setCompositionDropPreview((currentPreview) => {
+				if (
+					currentPreview?.compositionDimensions.width ===
+						compositionDimensions.width &&
+					currentPreview.compositionDimensions.height ===
+						compositionDimensions.height &&
+					currentPreview.dropPosition.centerX === dropPosition.centerX &&
+					currentPreview.dropPosition.centerY === dropPosition.centerY
+				) {
+					return currentPreview;
+				}
+
+				return {
+					compositionDimensions,
+					dropPosition,
+				};
+			});
 		},
-		[canDropAssets, cannotAddSequence],
+		[
+			addFitPadding,
+			canDropAssets,
+			cannotAddSequence,
+			contentDimensions,
+			previewSize,
+			size,
+		],
 	);
+
+	const onDragLeave = useCallback((event: DragEvent) => {
+		const canvas = canvasRef.current;
+		if (canvas !== null) {
+			const rect = canvas.getBoundingClientRect();
+			if (
+				(event.clientX >= rect.left &&
+					event.clientX <= rect.right &&
+					event.clientY >= rect.top &&
+					event.clientY <= rect.bottom) ||
+				(event.relatedTarget instanceof Node &&
+					canvas.contains(event.relatedTarget))
+			) {
+				return;
+			}
+		}
+
+		setCompositionDropPreview(null);
+	}, []);
+
+	const onDragEnd = useCallback(() => {
+		setCompositionDropPreview(null);
+	}, []);
 
 	const onDrop = useCallback(
 		async (event: DragEvent) => {
+			setCompositionDropPreview(null);
+
 			if (!isSupportedDropEvent(event) || !isDragEventInsideCanvas(event)) {
 				return;
 			}
@@ -1142,13 +1241,17 @@ export const Canvas: React.FC<{
 
 	useEffect(() => {
 		document.addEventListener('dragover', onDragOver, {capture: true});
+		document.addEventListener('dragleave', onDragLeave, {capture: true});
+		document.addEventListener('dragend', onDragEnd, {capture: true});
 		document.addEventListener('drop', onDrop, {capture: true});
 
 		return () => {
 			document.removeEventListener('dragover', onDragOver, {capture: true});
+			document.removeEventListener('dragleave', onDragLeave, {capture: true});
+			document.removeEventListener('dragend', onDragEnd, {capture: true});
 			document.removeEventListener('drop', onDrop, {capture: true});
 		};
-	}, [onDragOver, onDrop]);
+	}, [onDragEnd, onDragLeave, onDragOver, onDrop]);
 
 	useEffect(() => {
 		if (
@@ -1163,6 +1266,34 @@ export const Canvas: React.FC<{
 		return () => document.removeEventListener('paste', onPaste);
 	}, [canDropAssets, keybindings.isHighestContext, onPaste]);
 
+	const compositionDropPreviewStyle =
+		useMemo((): React.CSSProperties | null => {
+			if (
+				compositionDropPreview === null ||
+				contentDimensions === null ||
+				contentDimensions === 'none'
+			) {
+				return null;
+			}
+
+			const box = getCompositionDropPreviewBox({
+				canvasSize: size,
+				destinationDimensions: contentDimensions,
+				preview: compositionDropPreview,
+				previewSize,
+			});
+
+			return {
+				...box,
+				position: 'absolute',
+				boxSizing: 'border-box',
+				border: BORDER_TIMELINE_DROP_BLUE,
+				backgroundColor: TIMELINE_DROP_BLUE_ALPHA_16,
+				pointerEvents: 'none',
+				zIndex: 1,
+			};
+		}, [compositionDropPreview, contentDimensions, previewSize, size]);
+
 	return (
 		<>
 			<div ref={canvasRef} style={getContainerStyle(editorZoomGestures)}>
@@ -1175,6 +1306,13 @@ export const Canvas: React.FC<{
 						onRetryAssetMetadata={fetchMetadata}
 					/>
 				) : null}
+				{compositionDropPreviewStyle === null ? null : (
+					<div
+						className="css-reset"
+						data-testid="composition-drop-preview"
+						style={compositionDropPreviewStyle}
+					/>
+				)}
 				{isFit ? null : (
 					<div style={resetZoom} className="css-reset">
 						<ResetZoomButton onClick={onReset} />
