@@ -3,6 +3,7 @@ import type {Configuration as WebpackConfigurationType} from 'webpack';
 
 export type WebpackConfiguration = WebpackConfigurationType;
 export type RspackConfiguration = RspackConfigurationType;
+export type BundlerConfiguration = WebpackConfiguration | RspackConfiguration;
 
 export type WebpackOverrideFn = (
 	currentConfiguration: WebpackConfiguration,
@@ -14,10 +15,7 @@ export type RspackOverrideFn = (
 
 export type BundlerName = 'webpack' | 'rspack';
 
-export type BundlerOverrideFn = (
-	currentConfiguration: WebpackConfiguration | RspackConfiguration,
+export type BundlerOverrideFn = <Configuration extends BundlerConfiguration>(
+	currentConfiguration: Configuration,
 	context: {bundler: BundlerName},
-) =>
-	| WebpackConfiguration
-	| RspackConfiguration
-	| Promise<WebpackConfiguration | RspackConfiguration>;
+) => Configuration | Promise<Configuration>;

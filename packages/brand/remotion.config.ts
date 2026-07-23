@@ -5,13 +5,10 @@
  * All configuration options: https://remotion.dev/docs/config
  */
 
-import type {WebpackConfiguration} from '@remotion/bundler';
 import {Config} from '@remotion/cli/config';
 import {enableTailwind} from '@remotion/tailwind-v4';
 
 Config.setVideoImageFormat('jpeg');
 Config.setOverwriteOutput(true);
 Config.setChromiumOpenGlRenderer('angle');
-Config.overrideBundlerConfig((config) =>
-	enableTailwind(config as WebpackConfiguration),
-);
+Config.overrideBundlerConfig(enableTailwind);

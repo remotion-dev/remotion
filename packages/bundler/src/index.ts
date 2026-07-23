@@ -30,6 +30,7 @@ export {
 	MandatoryLegacyBundleOptions,
 } from './bundle';
 export type {
+	BundlerConfiguration,
 	BundlerName,
 	BundlerOverrideFn,
 	RspackConfiguration,
