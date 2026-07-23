@@ -288,6 +288,27 @@ export const getFrameFromX = ({
 	return frame;
 };
 
+export const getFrameFromTimelineDrop = ({
+	clientX,
+	durationInFrames,
+	scrollLeft,
+	timelineLeft,
+	timelineWidth,
+}: {
+	clientX: number;
+	durationInFrames: number;
+	scrollLeft: number;
+	timelineLeft: number;
+	timelineWidth: number;
+}) => {
+	return getFrameFromX({
+		clientX: clientX - timelineLeft + scrollLeft,
+		durationInFrames,
+		width: timelineWidth,
+		extrapolate: 'clamp',
+	});
+};
+
 /**
  * Horizontal position inside the scrollable timeline content (0 … scrollWidth)
  * for a viewport `clientX`, so pinch-anchoring matches the pointer (not a
