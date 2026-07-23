@@ -28,6 +28,14 @@ Each payload family has an exported MIME type:
 
 Use the matching MIME type as the first argument to `DataTransfer.setData()`.
 
+## Drag previews
+
+[`setDragPreviewMetadata()`](/docs/drag-and-drop/set-drag-preview-metadata) stores small, non-sensitive metadata in a versioned MIME type.
+Unlike the payload, this metadata can be read from `DataTransfer.types` while handling `dragover`.
+
+Use [`getDragPreviewMetadata()`](/docs/drag-and-drop/get-drag-preview-metadata) to parse it and render placement feedback before the item is dropped.
+The regular JSON payload remains the canonical source of data after the drop.
+
 ## License
 
 [Remotion License](/docs/license)

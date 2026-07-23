@@ -279,6 +279,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 										setElementDragData({
 											dataTransfer: event.dataTransfer,
 											dragData,
+											durationInFrames,
 										});
 										setElementDragImage(event.dataTransfer);
 									}}

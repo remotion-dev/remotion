@@ -1,0 +1,39 @@
+---
+image: /generated/articles-docs-drag-and-drop-get-drag-preview-metadata.png
+title: 'getDragPreviewMetadata()'
+crumb: '@remotion/drag-and-drop'
+---
+
+# getDragPreviewMetadata()<AvailableFrom v="4.0.498" />
+
+Finds and parses Remotion preview metadata in an array-like list of MIME types.
+
+```tsx twoslash title="DropArea.tsx"
+import {getDragPreviewMetadata} from '@remotion/drag-and-drop';
+
+export const DropArea = () => {
+  return (
+    <div
+      onDragOver={(event) => {
+        event.preventDefault();
+        const metadata = getDragPreviewMetadata(event.dataTransfer.types);
+
+        if (metadata?.kind === 'composition') {
+          console.log(metadata.width, metadata.height);
+        }
+      }}
+    />
+  );
+};
+```
+
+Returns `DragPreviewMetadata` for the first valid preview MIME type, otherwise `null`.
+This function only reads `DataTransfer.types`; it does not call `DataTransfer.getData()`, which is unavailable while the browser's drag data store is protected.
+
+Treat this metadata as display-only.
+Parse the canonical payload when the item is dropped.
+
+## See also
+
+- [`parseDragPreviewMimeType()`](/docs/drag-and-drop/parse-drag-preview-mime-type)
+- [`setDragPreviewMetadata()`](/docs/drag-and-drop/set-drag-preview-metadata)

@@ -1,5 +1,6 @@
 import {
 	ELEMENT_DRAG_MIME_TYPE,
+	setDragPreviewMetadata,
 	type ElementDragData,
 } from '@remotion/drag-and-drop';
 
@@ -41,12 +42,18 @@ export const setElementDragData = ({
 }: {
 	readonly dataTransfer: DataTransfer;
 	readonly dragData: ElementDragData;
+	readonly durationInFrames: number;
 }) => {
 	const serialized = JSON.stringify(dragData);
 	dataTransfer.effectAllowed = 'copy';
 	dataTransfer.setData(ELEMENT_DRAG_MIME_TYPE, serialized);
 	dataTransfer.setData('application/json', serialized);
 	dataTransfer.setData('text/plain', serialized);
+	setDragPreviewMetadata(dataTransfer, {
+		kind: 'element',
+		...(dragData.element.dimensions ?? {}),
+		durationInFrames,
+	});
 };
 
 export const setElementDragImage = (dataTransfer: DataTransfer) => {

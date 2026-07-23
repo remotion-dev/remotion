@@ -3,6 +3,11 @@ import {Grid} from '../../components/TableOfContents/Grid';
 import {TOCItem} from '../../components/TableOfContents/TOCItem';
 
 const apis = [
+	[
+		'getDragPreviewMetadata()',
+		'get-drag-preview-metadata',
+		'Read preview metadata during dragover',
+	],
 	['makeAssetDragData()', 'make-asset-drag-data', 'Construct an asset payload'],
 	['parseAssetDragData()', 'parse-asset-drag-data', 'Parse an asset payload'],
 	[
@@ -26,9 +31,19 @@ const apis = [
 		'Parse a composition payload',
 	],
 	[
+		'makeDragPreviewMimeType()',
+		'make-drag-preview-mime-type',
+		'Construct a preview MIME type',
+	],
+	[
 		'makeEffectDragData()',
 		'make-effect-drag-data',
 		'Construct an effect payload',
+	],
+	[
+		'parseDragPreviewMimeType()',
+		'parse-drag-preview-mime-type',
+		'Parse a preview MIME type',
 	],
 	[
 		'parseEffectDragData()',
@@ -47,6 +62,11 @@ const apis = [
 	],
 	['makeSfxDragData()', 'make-sfx-drag-data', 'Construct an SFX payload'],
 	['parseSfxDragData()', 'parse-sfx-drag-data', 'Parse an SFX payload'],
+	[
+		'setDragPreviewMetadata()',
+		'set-drag-preview-metadata',
+		'Add preview metadata to a drag',
+	],
 ] as const;
 
 export const TableOfContents: React.FC = () => {

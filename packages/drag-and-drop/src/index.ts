@@ -30,6 +30,16 @@ export {
 	type RemotionDragMimeType,
 } from './drag-mime-types';
 export {
+	getDragPreviewMetadata,
+	makeDragPreviewMimeType,
+	parseDragPreviewMimeType,
+	setDragPreviewMetadata,
+	type AssetDragPreviewMetadata,
+	type CompositionDragPreviewMetadata,
+	type DragPreviewMetadata,
+	type ElementDragPreviewMetadata,
+} from './drag-preview-metadata';
+export {
 	makeEffectDragData,
 	parseEffectDragData,
 	type EffectDragData,

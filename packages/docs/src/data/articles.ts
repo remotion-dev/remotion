@@ -1521,6 +1521,15 @@ export const articles = [
 		slug: 'docker',
 	},
 	{
+		id: 'drag-and-drop/get-drag-preview-metadata',
+		title: 'getDragPreviewMetadata()',
+		relativePath: 'docs/drag-and-drop/get-drag-preview-metadata.mdx',
+		compId: 'articles-docs-drag-and-drop-get-drag-preview-metadata',
+		crumb: '@remotion/drag-and-drop',
+		noAi: false,
+		slug: 'drag-and-drop/get-drag-preview-metadata',
+	},
+	{
 		id: 'drag-and-drop/index',
 		title: '@remotion/drag-and-drop',
 		relativePath: 'docs/drag-and-drop/index.mdx',
@@ -1555,6 +1564,15 @@ export const articles = [
 		crumb: '@remotion/drag-and-drop',
 		noAi: false,
 		slug: 'drag-and-drop/make-composition-drag-data',
+	},
+	{
+		id: 'drag-and-drop/make-drag-preview-mime-type',
+		title: 'makeDragPreviewMimeType()',
+		relativePath: 'docs/drag-and-drop/make-drag-preview-mime-type.mdx',
+		compId: 'articles-docs-drag-and-drop-make-drag-preview-mime-type',
+		crumb: '@remotion/drag-and-drop',
+		noAi: false,
+		slug: 'drag-and-drop/make-drag-preview-mime-type',
 	},
 	{
 		id: 'drag-and-drop/make-effect-drag-data',
@@ -1611,6 +1629,15 @@ export const articles = [
 		slug: 'drag-and-drop/parse-composition-drag-data',
 	},
 	{
+		id: 'drag-and-drop/parse-drag-preview-mime-type',
+		title: 'parseDragPreviewMimeType()',
+		relativePath: 'docs/drag-and-drop/parse-drag-preview-mime-type.mdx',
+		compId: 'articles-docs-drag-and-drop-parse-drag-preview-mime-type',
+		crumb: '@remotion/drag-and-drop',
+		noAi: false,
+		slug: 'drag-and-drop/parse-drag-preview-mime-type',
+	},
+	{
 		id: 'drag-and-drop/parse-effect-drag-data',
 		title: 'parseEffectDragData()',
 		relativePath: 'docs/drag-and-drop/parse-effect-drag-data.mdx',
@@ -1636,6 +1663,15 @@ export const articles = [
 		crumb: '@remotion/drag-and-drop',
 		noAi: false,
 		slug: 'drag-and-drop/parse-sfx-drag-data',
+	},
+	{
+		id: 'drag-and-drop/set-drag-preview-metadata',
+		title: 'setDragPreviewMetadata()',
+		relativePath: 'docs/drag-and-drop/set-drag-preview-metadata.mdx',
+		compId: 'articles-docs-drag-and-drop-set-drag-preview-metadata',
+		crumb: '@remotion/drag-and-drop',
+		noAi: false,
+		slug: 'drag-and-drop/set-drag-preview-metadata',
 	},
 	{
 		id: 'webpack-dynamic-imports',

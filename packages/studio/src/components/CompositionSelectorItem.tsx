@@ -2,6 +2,7 @@ import {
 	COMPOSITION_DRAG_MIME_TYPE,
 	makeCompositionDragData,
 	parseCompositionDragData,
+	setDragPreviewMetadata,
 } from '@remotion/drag-and-drop';
 import {compositionDragDataToSymbolicatedStack} from '@remotion/studio-shared';
 import type {DragEvent, KeyboardEvent, MouseEvent} from 'react';
@@ -242,6 +243,17 @@ export const CompositionSelectorItem: React.FC<{
 					}),
 				),
 			);
+			setDragPreviewMetadata(event.dataTransfer, {
+				kind: 'composition',
+				...(item.composition.width === undefined ||
+				item.composition.height === undefined
+					? {}
+					: {
+							width: item.composition.width,
+							height: item.composition.height,
+						}),
+				durationInFrames: item.composition.durationInFrames,
+			});
 		},
 		[item, resolvedLocation?.source],
 	);

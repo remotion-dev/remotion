@@ -1,0 +1,39 @@
+---
+image: /generated/articles-docs-drag-and-drop-set-drag-preview-metadata.png
+title: 'setDragPreviewMetadata()'
+crumb: '@remotion/drag-and-drop'
+---
+
+# setDragPreviewMetadata()<AvailableFrom v="4.0.498" />
+
+Adds small, non-sensitive preview metadata to a drag as a versioned MIME type.
+
+```tsx twoslash title="CompositionItem.tsx"
+import {setDragPreviewMetadata} from '@remotion/drag-and-drop';
+
+export const CompositionItem = () => {
+  return (
+    <div
+      draggable
+      onDragStart={(event) => {
+        setDragPreviewMetadata(event.dataTransfer, {
+          kind: 'composition',
+          width: 1920,
+          height: 1080,
+          durationInFrames: 150,
+        });
+      }}
+    />
+  );
+};
+```
+
+The metadata is encoded in the MIME type itself, so it remains visible in `DataTransfer.types` during `dragover`.
+Do not include source code, file paths, or other sensitive data.
+
+The regular drag payload should remain the canonical source of data after the drop.
+
+## See also
+
+- [`getDragPreviewMetadata()`](/docs/drag-and-drop/get-drag-preview-metadata)
+- [`makeDragPreviewMimeType()`](/docs/drag-and-drop/make-drag-preview-mime-type)
