@@ -7,7 +7,7 @@ crumb: 'Lambda'
 
 By default, each [`getRenderProgress()`](/docs/lambda/getrenderprogress) call invokes the render function, which reads the render progress from S3.
 
-Set `skipLambdaInvocation` to `true` to read the progress directly from S3 instead. This reduces the latency and avoids a Lambda invocation for each progress poll. It does not make the render itself faster.
+Set [`skipLambdaInvocation`](/docs/lambda/getrenderprogress#skiplambdainvocation) to `true` to read the progress directly from S3 instead. This reduces the latency and avoids a Lambda invocation for each progress poll. It does not make the render itself faster.
 
 ```ts twoslash title="poll-progress.ts"
 import {getRenderProgress, speculateFunctionName} from '@remotion/lambda/client';
