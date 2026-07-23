@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import type {Codec} from '../codec';
 import {generateFfmpegArgs} from '../ffmpeg-args';
+import {DEFAULT_COLOR_SPACE} from '../options/color-space';
 import {validateGopSize} from '../options/gop-size';
 
 test('validates GOP size', () => {
@@ -22,7 +23,7 @@ test('passes GOP size to FFmpeg', () => {
 		videoBitrate: null,
 		encodingMaxRate: null,
 		encodingBufferSize: null,
-		colorSpace: 'default',
+		colorSpace: DEFAULT_COLOR_SPACE,
 		hardwareAcceleration: 'disable',
 		indent: false,
 		logLevel: 'info',
@@ -56,7 +57,7 @@ test('passes GOP size to all non-GIF video codecs', () => {
 			videoBitrate: null,
 			encodingMaxRate: null,
 			encodingBufferSize: null,
-			colorSpace: 'default',
+			colorSpace: DEFAULT_COLOR_SPACE,
 			hardwareAcceleration: 'disable',
 			indent: false,
 			logLevel: 'info',

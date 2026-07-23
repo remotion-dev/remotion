@@ -56,12 +56,6 @@ type V4Options = FontLoadOptions & {
 	subsets?: string[];
 };
 
-// weights and subsets are required in v5
-type V5Options = FontLoadOptions & {
-	weights: string[];
-	subsets: string[];
-};
-
 /**
  * @description Load a Google Font for use in Remotion.
  * @param meta
@@ -73,9 +67,7 @@ type V5Options = FontLoadOptions & {
 export const loadFonts = (
 	meta: FontInfo,
 	style?: string,
-	options?: typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
-		? V5Options
-		: V4Options,
+	options?: V4Options,
 ): {
 	fontFamily: FontInfo['fontFamily'];
 	fonts: FontInfo['fonts'];

@@ -8,12 +8,13 @@ const start = async () => {
 		webpackOverride,
 	});
 
-	const compositions = await getCompositions(bundled);
+	const compositions = await getCompositions(bundled, {inputProps: {}});
 
 	for (const composition of compositions) {
 		console.log(`Rendering ${composition.id}...`);
 		await renderMedia({
 			codec: 'h264',
+			licenseKey: null,
 			composition,
 			serveUrl: bundled,
 			outputLocation: `out/${composition.id}.mp4`,

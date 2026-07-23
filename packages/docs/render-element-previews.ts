@@ -89,7 +89,7 @@ const serveUrl = await bundle({
 	entryPoint: path.join(process.cwd(), 'src', 'remotion', 'entry.ts'),
 	publicDir: path.join(process.cwd(), 'static'),
 });
-const compositions = await getCompositions(serveUrl);
+const compositions = await getCompositions(serveUrl, {inputProps: {}});
 const elementCompositions = compositions.filter((composition) =>
 	composition.id.startsWith('element-'),
 );
@@ -149,6 +149,7 @@ for (const definition of Object.values(elementDefinitions)) {
 	await renderMedia({
 		chromiumOptions: {gl: 'angle'},
 		codec: definition.transparentPreview ? 'vp8' : 'h264',
+		licenseKey: null,
 		composition,
 		crf: 23,
 		imageFormat: 'png',

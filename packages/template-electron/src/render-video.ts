@@ -198,6 +198,7 @@ export const renderVideo = async ({
       composition,
       serveUrl,
       codec: "h264",
+      licenseKey: null,
       outputLocation: outputPath,
       inputProps,
       binariesDirectory,

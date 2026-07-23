@@ -51,9 +51,14 @@ export type GetCompositionsOptions = LegacyGetCompositionsOptions & {
 	serveUrl: string;
 };
 
+type LegacyGetCompositionsArguments =
+	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
+		? [serveUrlOrWebpackUrl: string, config: LegacyGetCompositionsOptions]
+		: [serveUrlOrWebpackUrl: string, config?: LegacyGetCompositionsOptions];
+
 type GetCompositionsArguments =
 	| [options: GetCompositionsOptions]
-	| [serveUrlOrWebpackUrl: string, config?: LegacyGetCompositionsOptions];
+	| LegacyGetCompositionsArguments;
 
 const convertGetCompositionsArgumentsToOptions = (
 	args: GetCompositionsArguments,
@@ -69,7 +74,7 @@ const convertGetCompositionsArgumentsToOptions = (
 		return {
 			...(args[1] ?? {}),
 			serveUrl: firstArg,
-		};
+		} as GetCompositionsOptions;
 	}
 
 	return firstArg;
