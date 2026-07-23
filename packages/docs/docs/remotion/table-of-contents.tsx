@@ -152,10 +152,6 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'VERSION'}</strong>
 					<div>Get the current version of Remotion</div>
 				</TOCItem>
-				<TOCItem link="/docs/interactive-with-captions">
-					<strong>Interactive.withCaptions()</strong>
-					<div>Expose a caption source to the Studio timing editor</div>
-				</TOCItem>
 				<TOCItem link="/docs/interactive-with-schema">
 					<strong>Interactive.withSchema()</strong>
 					<div>Expose component props as Studio timeline controls</div>

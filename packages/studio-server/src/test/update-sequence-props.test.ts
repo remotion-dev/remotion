@@ -175,6 +175,60 @@ export const Example = () => {
 	expect(output).toContain(`src={staticFile('folder/new image.png')}`);
 });
 
+test('updateSequenceProps should update inline captions', async () => {
+	const input = `import {TimedCaptions} from './TimedCaptions';
+
+export const Example = () => {
+	return (
+		<TimedCaptions
+			captions={[
+				{
+					text: 'Hi',
+					startMs: 0,
+					endMs: 1000,
+					timestampMs: 500,
+					confidence: null,
+				},
+			]}
+		/>
+	);
+};
+`;
+	const {output} = await updateSequenceProps({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, 5),
+		updates: [
+			{
+				key: 'captions',
+				value: [
+					{
+						text: 'Hello!',
+						startMs: 100,
+						endMs: 1200,
+						timestampMs: 600,
+						confidence: null,
+					},
+				],
+				defaultValue: null,
+			},
+		],
+		schema: {
+			captions: {
+				type: 'captions',
+				default: undefined,
+				keyframable: false,
+			},
+		},
+		prettierConfigOverride: null,
+	});
+
+	expect(output).toContain("text: 'Hello!'");
+	expect(output).toContain('startMs: 100');
+	expect(output).toContain('endMs: 1200');
+	expect(output).not.toContain("text: 'Hi'");
+});
+
 test('updateSequenceProps should remove attribute when value equals default', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
 		videoConfigValues: null,

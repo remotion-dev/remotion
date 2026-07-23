@@ -13,6 +13,9 @@ import {
 	useDelayRender,
 	useRemotionEnvironment,
 	useVideoConfig,
+	type InteractiveBaseProps,
+	type InteractivitySchema,
+	type SequenceControls,
 } from 'remotion';
 
 export const CAPTIONS_DURATION_IN_FRAMES = 1628;
@@ -90,11 +93,82 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
 	);
 };
 
-const AnimatedCaptionsInner: React.FC<{readonly src: string}> = ({src}) => {
+export type AnimatedCaptionsProps = InteractiveBaseProps & {
+	readonly captions: Caption[];
+};
+
+const animatedCaptionsSchema = {
+	captions: {
+		type: 'captions',
+		default: undefined,
+		description: 'Captions',
+		keyframable: false,
+	},
+	...Interactive.baseSchema,
+} as const satisfies InteractivitySchema;
+
+const AnimatedCaptionsInner: React.FC<
+	AnimatedCaptionsProps & {
+		readonly controls: SequenceControls | undefined;
+	}
+> = ({captions, controls, name, ...sequenceProps}) => {
+	const {fps} = useVideoConfig();
+	const pages = useMemo(() => {
+		return createTikTokStyleCaptions({
+			captions,
+			combineTokensWithinMilliseconds: SWITCH_CAPTIONS_EVERY_MS,
+		}).pages;
+	}, [captions]);
+
+	return (
+		<Sequence
+			{...sequenceProps}
+			name={name ?? '<AnimatedCaptions>'}
+			controls={controls}
+		>
+			{pages.map((page, index) => {
+				const nextPage = pages[index + 1];
+				const startFrame = Math.round((page.startMs / 1000) * fps);
+				const naturalEndFrame = Math.ceil(
+					((page.startMs + page.durationMs) / 1000) * fps,
+				);
+				const endFrame = nextPage
+					? Math.min(
+							Math.round((nextPage.startMs / 1000) * fps),
+							naturalEndFrame,
+						)
+					: naturalEndFrame;
+				const durationInFrames = Math.max(1, endFrame - startFrame);
+
+				return (
+					<Sequence
+						key={`${page.startMs}-${index}`}
+						from={startFrame}
+						durationInFrames={durationInFrames}
+						premountFor={fps}
+						showInTimeline={false}
+					>
+						<CaptionPage page={page} />
+					</Sequence>
+				);
+			})}
+		</Sequence>
+	);
+};
+
+export const AnimatedCaptions = Interactive.withSchema({
+	Component: AnimatedCaptionsInner,
+	componentName: '<AnimatedCaptions>',
+	componentIdentity: null,
+	schema: animatedCaptionsSchema,
+	supportsEffects: false,
+});
+
+export const AnimatedCaptionsComposition: React.FC = () => {
+	const src = staticFile('voiceover-captions.json');
 	const [captions, setCaptions] = useState<Caption[] | null>(null);
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
 	const [handle] = useState(() => delayRender('Loading ElevenLabs captions'));
-	const {fps} = useVideoConfig();
 	const {isStudio} = useRemotionEnvironment();
 
 	const loadCaptions = useCallback(
@@ -130,54 +204,5 @@ const AnimatedCaptionsInner: React.FC<{readonly src: string}> = ({src}) => {
 		return cancel;
 	}, [isStudio, loadCaptions, src]);
 
-	const pages = useMemo(() => {
-		if (!captions) {
-			return [];
-		}
-
-		return createTikTokStyleCaptions({
-			captions,
-			combineTokensWithinMilliseconds: SWITCH_CAPTIONS_EVERY_MS,
-		}).pages;
-	}, [captions]);
-
-	return (
-		<>
-			{pages.map((page, index) => {
-				const nextPage = pages[index + 1];
-				const startFrame = Math.round((page.startMs / 1000) * fps);
-				const naturalEndFrame = Math.ceil(
-					((page.startMs + page.durationMs) / 1000) * fps,
-				);
-				const endFrame = nextPage
-					? Math.min(
-							Math.round((nextPage.startMs / 1000) * fps),
-							naturalEndFrame,
-						)
-					: naturalEndFrame;
-				const durationInFrames = Math.max(1, endFrame - startFrame);
-
-				return (
-					<Sequence
-						key={`${page.startMs}-${index}`}
-						from={startFrame}
-						durationInFrames={durationInFrames}
-						premountFor={fps}
-						showInTimeline={false}
-					>
-						<CaptionPage page={page} />
-					</Sequence>
-				);
-			})}
-		</>
-	);
-};
-
-export const AnimatedCaptions = Interactive.withCaptions({
-	Component: AnimatedCaptionsInner,
-	componentName: 'AnimatedCaptions',
-});
-
-export const AnimatedCaptionsComposition: React.FC = () => {
-	return <AnimatedCaptions src={staticFile('voiceover-captions.json')} />;
+	return captions ? <AnimatedCaptions captions={captions} /> : null;
 };

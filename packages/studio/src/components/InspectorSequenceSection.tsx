@@ -15,8 +15,10 @@ import {
 import {Plus} from '../icons/plus';
 import {ModalsContext} from '../state/modals';
 import {AssetFileIcon} from './AssetFileIcon';
+import {isCaptionJson} from './caption-json';
 import {CaptionJsonInspector} from './CaptionJsonInspector';
 import {InlineAction} from './InlineAction';
+import {InlineCaptionInspector} from './InlineCaptionInspector';
 import {InspectorInlineAction, InspectorSection} from './InspectorPanel/common';
 import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
@@ -224,6 +226,14 @@ export const InspectorSequenceSection: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setSelectedModal} = useContext(ModalsContext);
 	const selectAsset = useSelectAsset();
+	const {schema} = sequence.controls;
+	const inlineCaptionValue =
+		schema.captions?.type === 'captions'
+			? sequence.controls.currentRuntimeValueDotNotation.captions
+			: null;
+	const inlineCaptions = isCaptionJson(inlineCaptionValue)
+		? inlineCaptionValue
+		: null;
 	const mediaSrc = getTimelineAssetSrcFromSchema(sequence.controls);
 	const isJsonSource =
 		mediaSrc !== null &&
@@ -315,7 +325,6 @@ export const InspectorSequenceSection: React.FC<{
 		[controlRows],
 	);
 
-	const {schema} = sequence.controls;
 	const showEffectsSection =
 		nodePathInfo.supportsEffects || effectRows.length > 0;
 	const canAddEffect =
@@ -377,7 +386,11 @@ export const InspectorSequenceSection: React.FC<{
 		);
 	};
 
-	if (controlRows.length === 0 && !showEffectsSection) {
+	if (
+		controlRows.length === 0 &&
+		!showEffectsSection &&
+		inlineCaptions === null
+	) {
 		return (
 			<div style={container}>
 				<InspectorSection header="Controls">
@@ -433,6 +446,15 @@ export const InspectorSequenceSection: React.FC<{
 						</InspectorSection>
 					))}
 				</TimelineSelectionOrderProvider>
+			) : null}
+			{inlineCaptions ? (
+				<InlineCaptionInspector
+					captions={inlineCaptions}
+					controls={sequence.controls}
+					nodePath={nodePathInfo.sequenceSubscriptionKey}
+					readOnlyStudio={readOnlyStudio}
+					validatedLocation={validatedLocation}
+				/>
 			) : null}
 			{showEffectsSection ? (
 				<InspectorSection header={effectsHeader}>

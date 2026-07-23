@@ -393,6 +393,7 @@ export const formatTimelineFieldValueForDisplay = ({
 		case 'asset':
 		case 'array':
 		case 'boolean':
+		case 'captions':
 		case 'color':
 		case 'enum':
 		case 'font-family':

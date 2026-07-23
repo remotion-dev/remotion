@@ -11,6 +11,7 @@ const KEYFRAME_CLIPBOARD_FIELD_TYPE_SUPPORT = {
 	array: false,
 	asset: false,
 	boolean: false,
+	captions: false,
 	color: true,
 	enum: false,
 	'font-family': false,

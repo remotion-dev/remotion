@@ -14,7 +14,6 @@ import {Interactive} from '../Interactive.js';
 import {
 	baseSchema,
 	borderSchema,
-	captionSourceSchema,
 	extendSchemaWithSequenceName,
 	premountSchema,
 	sequencePremountSchema,
@@ -132,31 +131,6 @@ test('Interactive.withSchema() adds Sequence stack traces automatically', () => 
 	expect(
 		getComponentsToAddStacksTo().filter((component) => component === Wrapped),
 	).toHaveLength(1);
-});
-
-test('Interactive.withCaptions() registers a caption source', () => {
-	const Component = (_props: {readonly src: string}) => null;
-	const Wrapped = Interactive.withCaptions({Component});
-
-	expect(captionSourceSchema).toEqual({
-		src: {
-			type: 'asset',
-			default: undefined,
-			description: 'Source',
-			keyframable: false,
-		},
-	});
-	expect(Wrapped.displayName).toBe('<Component>');
-	expect(
-		getComponentsToAddStacksTo().filter((component) => component === Wrapped),
-	).toHaveLength(1);
-
-	const ComponentWithReservedProp = (_props: {
-		readonly controls: string;
-		readonly src: string;
-	}) => null;
-	// @ts-expect-error `controls` is reserved for the generated Sequence.
-	Interactive.withCaptions({Component: ComponentWithReservedProp});
 });
 
 test('getFlatSchema(sequenceSchema) exposes every variant key', () => {

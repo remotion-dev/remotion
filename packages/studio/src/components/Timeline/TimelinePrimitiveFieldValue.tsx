@@ -2,6 +2,7 @@ import React from 'react';
 import type {
 	ArrayFieldSchema,
 	CanUpdateSequencePropStatusStatic,
+	CaptionsFieldSchema,
 	SequencePropsSubscriptionKey,
 	VisibleFieldSchema,
 } from 'remotion';
@@ -27,12 +28,17 @@ const inlineWrapper: React.CSSProperties = {
 	fontSize: 12,
 };
 
+type PrimitiveFieldSchema = Exclude<
+	VisibleFieldSchema,
+	ArrayFieldSchema | CaptionsFieldSchema
+>;
+
 export type TimelinePrimitiveFieldInfo = Omit<
 	SchemaFieldInfo,
 	'fieldSchema' | 'typeName'
 > & {
-	readonly fieldSchema: Exclude<VisibleFieldSchema, ArrayFieldSchema>;
-	readonly typeName: Exclude<VisibleFieldSchema['type'], 'array'>;
+	readonly fieldSchema: PrimitiveFieldSchema;
+	readonly typeName: PrimitiveFieldSchema['type'];
 };
 
 export const isTimelinePrimitiveFieldInfo = (

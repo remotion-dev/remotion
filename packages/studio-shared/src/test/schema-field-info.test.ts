@@ -159,6 +159,24 @@ test('getEffectFieldsToShow sizes array fields from the current value', () => {
 	expect(colors?.rowHeight).toBe(SCHEMA_FIELD_ROW_HEIGHT * 4);
 });
 
+test('getFieldsToShow leaves captions to the caption inspector', () => {
+	const fields = getFieldsToShow({
+		schema: {
+			captions: {
+				type: 'captions',
+				default: undefined,
+				keyframable: false,
+			},
+		},
+		currentRuntimeValueDotNotation: {captions: []},
+		getDragOverrides: () => ({}),
+		propStatuses: {},
+		nodePath,
+	});
+
+	expect(fields).toEqual([]);
+});
+
 test('getFieldsToShow sorts fields by inspector group order', () => {
 	const fields = getFieldsToShow({
 		schema: {
