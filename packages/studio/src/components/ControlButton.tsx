@@ -20,6 +20,7 @@ export const ControlButton = (
 			justifyContent: 'center',
 			width: CONTROL_BUTTON_SIZE,
 			height: CONTROL_BUTTON_SIZE,
+			flexShrink: 0,
 			background: 'none',
 			border: 'none',
 			padding: 0,
