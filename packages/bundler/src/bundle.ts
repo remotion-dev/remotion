@@ -77,7 +77,7 @@ export const getBundleStaticHash = (publicPath: string): string => {
 	);
 };
 
-export type MandatoryLegacyBundleOptions = {
+export type MandatoryBundleInternalsOptions = {
 	webpackOverride: WebpackOverrideFn;
 	outDir: string | null;
 	enableCaching: boolean;
@@ -99,8 +99,6 @@ export type MandatoryLegacyBundleOptions = {
 	symlinkPublicDir: boolean;
 };
 
-export type LegacyBundleOptions = Partial<MandatoryLegacyBundleOptions>;
-
 export const getConfig = ({
 	entryPoint,
 	outDir,
@@ -116,7 +114,7 @@ export const getConfig = ({
 	bufferStateDelayInMilliseconds: number | null;
 	maxTimelineTracks: number | null;
 	onProgress: (progress: number) => void;
-	options: MandatoryLegacyBundleOptions;
+	options: MandatoryBundleInternalsOptions;
 }) => {
 	const configArgs = {
 		entry: path.join(
@@ -151,7 +149,6 @@ export const getConfig = ({
 };
 
 type NewBundleOptions = {
-	entryPoint: string;
 	onProgress: (progress: number) => void;
 	ignoreRegisterRootWarning: boolean;
 	onDirectoryCreated: (dir: string) => void;
@@ -165,40 +162,29 @@ type NewBundleOptions = {
 type MandatoryBundleOptions = {
 	entryPoint: string;
 } & NewBundleOptions &
-	MandatoryLegacyBundleOptions;
+	MandatoryBundleInternalsOptions;
 
 export type BundleOptions = {
 	entryPoint: string;
 } & Partial<NewBundleOptions> &
-	LegacyBundleOptions;
+	Partial<MandatoryBundleInternalsOptions>;
 
-type Arguments =
-	| [options: BundleOptions]
-	| [
-			entryPoint: string,
-			onProgress?: (progress: number) => void,
-			options?: LegacyBundleOptions,
-	  ];
+const validateBundleOptions = (options: BundleOptions): BundleOptions => {
+	if (typeof options === 'string') {
+		throw new TypeError(
+			'bundle() no longer supports the legacy positional arguments. Pass an options object instead: bundle({entryPoint, onProgress, ...options}).',
+		);
+	}
 
-const convertArgumentsIntoOptions = (args: Arguments): BundleOptions => {
-	if ((args.length as number) === 0) {
+	if (!options) {
 		throw new TypeError('bundle() was called without arguments');
 	}
 
-	const firstArg = args[0];
-	if (typeof firstArg === 'string') {
-		return {
-			entryPoint: firstArg,
-			onProgress: args[1],
-			...(args[2] ?? {}),
-		};
-	}
-
-	if (typeof firstArg.entryPoint !== 'string') {
+	if (typeof options.entryPoint !== 'string') {
 		throw new TypeError('bundle() was called without the `entryPoint` option');
 	}
 
-	return firstArg;
+	return options;
 };
 
 const recursionLimit = 5;
@@ -451,8 +437,8 @@ export const internalBundle = async (
  * @description Bundles a Remotion project using Webpack and prepares it for rendering.
  * @see [Documentation](https://remotion.dev/docs/bundle)
  */
-export async function bundle(...args: Arguments): Promise<string> {
-	const actualArgs = convertArgumentsIntoOptions(args);
+export async function bundle(options: BundleOptions): Promise<string> {
+	const actualArgs = validateBundleOptions(options);
 	const result = await internalBundle({
 		bufferStateDelayInMilliseconds:
 			actualArgs.bufferStateDelayInMilliseconds ?? null,

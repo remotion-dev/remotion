@@ -10,7 +10,8 @@ test(
 	'Render video with browser instance open',
 	async () => {
 		const puppeteerInstance = await openBrowser('chrome');
-		const compositions = await getCompositions(exampleBuild, {
+		const compositions = await getCompositions({
+			serveUrl: exampleBuild,
 			puppeteerInstance,
 			inputProps: {},
 		});
@@ -42,7 +43,10 @@ test(
 );
 
 test('Render video with browser instance not open', async () => {
-	const compositions = await getCompositions(exampleBuild);
+	const compositions = await getCompositions({
+		serveUrl: exampleBuild,
+		inputProps: {},
+	});
 
 	const reactSvg = compositions.find((c) => c.id === 'react-svg');
 
@@ -109,7 +113,10 @@ test('should fail on invalid CRF', async () => {
 });
 
 test('Render video to a buffer', async () => {
-	const compositions = await getCompositions(exampleBuild);
+	const compositions = await getCompositions({
+		serveUrl: exampleBuild,
+		inputProps: {},
+	});
 
 	const reactSvg = compositions.find((c) => c.id === 'react-svg');
 

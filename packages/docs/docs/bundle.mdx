@@ -108,35 +108,6 @@ Gets called when a symbolic link is detected in the `public/` directory. Since R
 
 Ignore an error that gets thrown if you pass an entry point file which does not contain `registerRoot`.
 
-## Legacy function signature
-
-Remotion versions earlier than v3.2.17 had the following function signature instead:
-
-```ts
-const bundle: (
-  entryPoint: string,
-  onProgress?: (progress: number) => void,
-  options?: {
-    webpackOverride?: WebpackOverrideFn;
-    outDir?: string;
-    enableCaching?: boolean;
-    publicPath?: string;
-    rootDir?: string;
-    publicDir?: string | null;
-  },
-) => Promise<string>;
-```
-
-Example:
-
-```ts
-await bundle('src/index.ts', () => console.log(progress * 100 + '% done'), {
-  webpackOverride,
-});
-```
-
-It is still supported in Remotion v3, but we encourage to migrate to the new function signature.
-
 ## Return value
 
 A promise which will resolve into a `string` specifying the output directory.

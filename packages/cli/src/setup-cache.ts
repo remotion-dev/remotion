@@ -1,6 +1,6 @@
 import {existsSync} from 'fs';
 import path from 'path';
-import type {MandatoryLegacyBundleOptions} from '@remotion/bundler';
+import type {MandatoryBundleInternalsOptions} from '@remotion/bundler';
 import {BundlerInternals} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
@@ -206,7 +206,7 @@ export const bundleOnCli = async ({
 		updateProgress(false);
 	};
 
-	const options: MandatoryLegacyBundleOptions = {
+	const options: MandatoryBundleInternalsOptions = {
 		enableCaching: shouldCache,
 		webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
 		rootDir: remotionRoot,

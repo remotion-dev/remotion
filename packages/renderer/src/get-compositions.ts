@@ -38,42 +38,15 @@ type InternalGetCompositionsOptions = {
 	onLog: OnLog;
 } & ToOptions<typeof optionsMap.getCompositions>;
 
-export type LegacyGetCompositionsOptions = RequiredInputPropsInV5 & {
+export type GetCompositionsOptions = RequiredInputPropsInV5 & {
 	envVariables?: Record<string, string>;
 	puppeteerInstance?: HeadlessBrowser;
 	onBrowserLog?: (log: BrowserLog) => void;
 	browserExecutable?: BrowserExecutable;
 	chromiumOptions?: ChromiumOptions;
 	port?: number | null;
-} & Partial<ToOptions<typeof optionsMap.getCompositions>>;
-
-export type GetCompositionsOptions = LegacyGetCompositionsOptions & {
 	serveUrl: string;
-};
-
-type GetCompositionsArguments =
-	| [options: GetCompositionsOptions]
-	| [serveUrlOrWebpackUrl: string, config?: LegacyGetCompositionsOptions];
-
-const convertGetCompositionsArgumentsToOptions = (
-	args: GetCompositionsArguments,
-): GetCompositionsOptions => {
-	if ((args.length as number) === 0) {
-		throw new Error(
-			'No serve URL or webpack bundle directory was passed to getCompositions().',
-		);
-	}
-
-	const firstArg = args[0];
-	if (typeof firstArg === 'string') {
-		return {
-			...(args[1] ?? {}),
-			serveUrl: firstArg,
-		};
-	}
-
-	return firstArg;
-};
+} & Partial<ToOptions<typeof optionsMap.getCompositions>>;
 
 type InnerGetCompositionsParams = {
 	serializedInputPropsWithCustomSchema: string;
@@ -309,9 +282,14 @@ export const internalGetCompositions = wrapWithErrorHandling(
  * @see [Documentation](https://www.remotion.dev/docs/renderer/get-compositions)
  */
 export const getCompositions = (
-	...args: GetCompositionsArguments
+	options: GetCompositionsOptions,
 ): Promise<VideoConfig[]> => {
-	const options = convertGetCompositionsArgumentsToOptions(args);
+	if (typeof options === 'string') {
+		throw new TypeError(
+			'getCompositions() no longer supports the legacy positional arguments. Pass an options object instead: getCompositions({serveUrl, ...options}).',
+		);
+	}
+
 	if (typeof options?.serveUrl !== 'string' || !options.serveUrl) {
 		throw new Error(
 			'No serve URL or webpack bundle directory was passed to getCompositions().',

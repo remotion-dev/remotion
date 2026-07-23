@@ -23,12 +23,7 @@ export const BundlerInternals = {
 };
 
 export type {GitSource} from '@remotion/studio-shared';
-export {
-	bundle,
-	BundleOptions,
-	LegacyBundleOptions,
-	MandatoryLegacyBundleOptions,
-} from './bundle';
+export {bundle, BundleOptions, MandatoryBundleInternalsOptions} from './bundle';
 export {WebpackConfiguration, WebpackOverrideFn} from './webpack-config';
 export {WatchIgnoreNextChangePlugin};
 export {webpack};

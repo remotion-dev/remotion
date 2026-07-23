@@ -90,11 +90,7 @@ export {extractAudio} from './extract-audio';
 export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
-export {
-	GetCompositionsOptions,
-	getCompositions,
-	LegacyGetCompositionsOptions,
-} from './get-compositions';
+export {GetCompositionsOptions, getCompositions} from './get-compositions';
 export {SilentPart, getSilentParts} from './get-silent-parts';
 export {VideoMetadata, getVideoMetadata} from './get-video-metadata';
 export {

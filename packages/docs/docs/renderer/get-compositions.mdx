@@ -11,8 +11,6 @@ Gets a list of compositions defined in a Remotion project based on a [Remotion B
 
 For every compositions their [`calculateMetadata()`](/docs/composition#calculatemetadata) function is evaluated. If you just want to evaluate one composition that you want to render, use [`selectComposition()`](/docs/renderer/select-composition).
 
-The new signature, from [v4.0.497](https://github.com/remotion-dev/remotion/releases/v4.0.497) is:
-
 ```ts twoslash title="Example"
 import {bundle} from '@remotion/bundler';
 import {getCompositions} from '@remotion/renderer';
@@ -24,8 +22,6 @@ const compositions = await getCompositions({
   inputProps: {},
 });
 ```
-
-Use [the old signature](#legacy-function-signature) for versions below 4.0.496. It remains supported.
 
 ## Arguments
 
@@ -157,18 +153,6 @@ An absolute path overriding the `ffmpeg` executable to use.
 _removed in v4.0_
 
 An absolute path overriding the `ffprobe` executable to use.
-
-## Legacy function signature
-
-The positional function signature is also supported for backwards compatibility:
-
-```ts twoslash title="Legacy signature"
-import {getCompositions} from '@remotion/renderer';
-
-const compositions = await getCompositions('https://example.com', {
-  inputProps: {},
-});
-```
 
 ## Return value
 
