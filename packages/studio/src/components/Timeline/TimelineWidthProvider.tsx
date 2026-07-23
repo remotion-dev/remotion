@@ -1,7 +1,11 @@
 import {PlayerInternals} from '@remotion/player';
-import {createContext, useContext, useMemo} from 'react';
+import {createContext, useContext, useLayoutEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
+import {
+	getMaxTimelineZoom,
+	TIMELINE_MIN_ZOOM,
+	TimelineZoomCtx,
+} from '../../state/timeline-zoom';
 import {scrollableRef, sliderAreaRef} from './timeline-refs';
 
 type TimelineWidthContextType = number | null;
@@ -16,22 +20,41 @@ export const TimelineWidthProvider: React.FC<{
 		triggerOnWindowResize: false,
 		shouldApplyCssTransforms: true,
 	});
-	const {zoom: zoomMap} = useContext(TimelineZoomCtx);
+	const videoConfig = Internals.useUnsafeVideoConfig();
+	const {setMaxZoom, zoom: zoomMap} = useContext(TimelineZoomCtx);
 	const {canvasContent} = useContext(Internals.CompositionManager);
+	const timelineViewportWidth =
+		size?.width ?? scrollableRef.current?.clientWidth ?? null;
+	const compositionId =
+		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
+	const maxZoom =
+		videoConfig && timelineViewportWidth
+			? getMaxTimelineZoom({
+					durationInFrames: videoConfig.durationInFrames,
+					timelineViewportWidth,
+				})
+			: null;
+
+	useLayoutEffect(() => {
+		if (compositionId === null || maxZoom === null) {
+			return;
+		}
+
+		setMaxZoom(compositionId, maxZoom);
+	}, [compositionId, maxZoom, setMaxZoom]);
 
 	const width = useMemo(() => {
 		const zoom =
-			canvasContent?.type === 'composition'
-				? (zoomMap[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM)
+			compositionId !== null
+				? (zoomMap[compositionId] ?? TIMELINE_MIN_ZOOM)
 				: TIMELINE_MIN_ZOOM;
 
-		const scrollableWidth = size?.width ?? scrollableRef.current?.clientWidth;
-		if (scrollableWidth === undefined) {
+		if (timelineViewportWidth === null) {
 			return sliderAreaRef.current?.clientWidth ?? null;
 		}
 
-		return scrollableWidth * zoom;
-	}, [canvasContent, size?.width, zoomMap]);
+		return timelineViewportWidth * zoom;
+	}, [compositionId, timelineViewportWidth, zoomMap]);
 
 	return (
 		<TimelineWidthContext.Provider value={width}>

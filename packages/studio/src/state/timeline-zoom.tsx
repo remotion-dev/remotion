@@ -1,4 +1,10 @@
-import React, {createContext, useCallback, useMemo, useState} from 'react';
+import React, {
+	createContext,
+	useCallback,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {flushSync} from 'react-dom';
 import {
 	getCurrentDuration,
@@ -6,9 +12,28 @@ import {
 } from '../components/Timeline/imperative-state';
 import {prepareToPreserveTimelineCursor} from '../components/Timeline/timeline-scroll-logic';
 import {getZoomFromLocalStorage} from '../components/ZoomPersistor';
+import {TIMELINE_PADDING} from '../helpers/timeline-layout';
 
 export const TIMELINE_MIN_ZOOM = 1;
-export const TIMELINE_MAX_ZOOM = 5;
+const MINIMUM_FRAME_WIDTH = 20;
+
+export const getMaxTimelineZoom = ({
+	durationInFrames,
+	timelineViewportWidth,
+}: {
+	durationInFrames: number;
+	timelineViewportWidth: number;
+}) => {
+	if (durationInFrames <= 0 || timelineViewportWidth <= 0) {
+		return TIMELINE_MIN_ZOOM;
+	}
+
+	const zoom =
+		(durationInFrames * MINIMUM_FRAME_WIDTH + TIMELINE_PADDING * 2) /
+		timelineViewportWidth;
+
+	return Math.max(TIMELINE_MIN_ZOOM, Math.ceil(zoom * 10) / 10);
+};
 
 export type TimelineSetZoomOptions = {
 	anchorFrame: number | null;
@@ -17,6 +42,8 @@ export type TimelineSetZoomOptions = {
 
 export const TimelineZoomCtx = createContext<{
 	zoom: Record<string, number>;
+	maxZoom: Record<string, number>;
+	setMaxZoom: (compositionId: string, maxZoom: number) => void;
 	setZoom: (
 		compositionId: string,
 		prev: (prevZoom: number) => number,
@@ -24,6 +51,10 @@ export const TimelineZoomCtx = createContext<{
 	) => void;
 }>({
 	zoom: {},
+	maxZoom: {},
+	setMaxZoom: () => {
+		throw new Error('has no context');
+	},
 	setZoom: () => {
 		throw new Error('has no context');
 	},
@@ -34,6 +65,33 @@ export const TimelineZoomContext: React.FC<{
 }> = ({children}) => {
 	const [zoom, setZoomState] = useState<Record<string, number>>(() =>
 		getZoomFromLocalStorage(),
+	);
+	const [maxZoom, setMaxZoomState] = useState<Record<string, number>>({});
+	const maxZoomRef = useRef(maxZoom);
+	maxZoomRef.current = maxZoom;
+
+	const setMaxZoom = useCallback(
+		(compositionId: string, newMaxZoom: number) => {
+			setZoomState((previousZoom) => {
+				const zoomForComposition = previousZoom[compositionId];
+				if (
+					zoomForComposition === undefined ||
+					zoomForComposition <= newMaxZoom
+				) {
+					return previousZoom;
+				}
+
+				return {...previousZoom, [compositionId]: newMaxZoom};
+			});
+			setMaxZoomState((previousMaxZoom) => {
+				if (previousMaxZoom[compositionId] === newMaxZoom) {
+					return previousMaxZoom;
+				}
+
+				return {...previousMaxZoom, [compositionId]: newMaxZoom};
+			});
+		},
+		[],
 	);
 
 	const setZoom = useCallback(
@@ -52,12 +110,14 @@ export const TimelineZoomContext: React.FC<{
 
 			flushSync(() => {
 				setZoomState((prevZoomMap) => {
+					const maximumZoom = maxZoomRef.current[compositionId] ?? Infinity;
+					const previousZoom = Math.min(
+						maximumZoom,
+						prevZoomMap[compositionId] ?? TIMELINE_MIN_ZOOM,
+					);
 					const newZoomWithFloatingPointErrors = Math.min(
-						TIMELINE_MAX_ZOOM,
-						Math.max(
-							TIMELINE_MIN_ZOOM,
-							callback(prevZoomMap[compositionId] ?? TIMELINE_MIN_ZOOM),
-						),
+						maximumZoom,
+						Math.max(TIMELINE_MIN_ZOOM, callback(previousZoom)),
 					);
 					const newZoom = Math.round(newZoomWithFloatingPointErrors * 10) / 10;
 
@@ -73,11 +133,20 @@ export const TimelineZoomContext: React.FC<{
 	);
 
 	const value = useMemo(() => {
+		const constrainedZoom = Object.fromEntries(
+			Object.entries(zoom).map(([compositionId, zoomLevel]) => [
+				compositionId,
+				Math.min(zoomLevel, maxZoom[compositionId] ?? Infinity),
+			]),
+		);
+
 		return {
-			zoom,
+			zoom: constrainedZoom,
+			maxZoom,
+			setMaxZoom,
 			setZoom,
 		};
-	}, [zoom, setZoom]);
+	}, [maxZoom, setMaxZoom, setZoom, zoom]);
 
 	return (
 		<TimelineZoomCtx.Provider value={value}>

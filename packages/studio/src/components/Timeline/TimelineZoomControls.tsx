@@ -4,11 +4,7 @@ import {BLACK, CURRENT_COLOR_LOWERCASE, WHITE} from '../../helpers/colors';
 import {useIsStill} from '../../helpers/is-current-selected-still';
 import {Minus} from '../../icons/minus';
 import {Plus} from '../../icons/plus';
-import {
-	TIMELINE_MAX_ZOOM,
-	TIMELINE_MIN_ZOOM,
-	TimelineZoomCtx,
-} from '../../state/timeline-zoom';
+import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
 import {ControlButton} from '../ControlButton';
 import {Spacing} from '../layout';
@@ -31,7 +27,11 @@ const iconStyle: React.CSSProperties = {
 
 export const TimelineZoomControls: React.FC = () => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
-	const {setZoom, zoom: zoomMap} = useContext(TimelineZoomCtx);
+	const {
+		maxZoom: maxZoomMap,
+		setZoom,
+		zoom: zoomMap,
+	} = useContext(TimelineZoomCtx);
 	const {tabIndex} = useZIndex();
 
 	const onMinusClicked = useCallback(() => {
@@ -51,11 +51,10 @@ export const TimelineZoomControls: React.FC = () => {
 			return;
 		}
 
-		setZoom(
-			canvasContent.compositionId,
-			(z) => Math.min(TIMELINE_MAX_ZOOM, z + 0.2),
-			{anchorFrame: null, anchorContentX: null},
-		);
+		setZoom(canvasContent.compositionId, (z) => z + 0.2, {
+			anchorFrame: null,
+			anchorContentX: null,
+		});
 	}, [canvasContent, setZoom]);
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
@@ -83,6 +82,7 @@ export const TimelineZoomControls: React.FC = () => {
 	}
 
 	const zoom = zoomMap[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM;
+	const maxZoom = maxZoomMap[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM;
 
 	return (
 		<div style={container}>
@@ -104,7 +104,7 @@ export const TimelineZoomControls: React.FC = () => {
 				min={TIMELINE_MIN_ZOOM}
 				step={0.1}
 				value={zoom}
-				max={TIMELINE_MAX_ZOOM}
+				max={maxZoom}
 				onChange={onChange}
 				className="__remotion-timeline-slider"
 				tabIndex={tabIndex}
@@ -116,7 +116,7 @@ export const TimelineZoomControls: React.FC = () => {
 				title="Zoom in timeline"
 				role={'button'}
 				type="button"
-				disabled={TIMELINE_MAX_ZOOM === zoom}
+				disabled={maxZoom === zoom}
 			>
 				<Plus color={CURRENT_COLOR_LOWERCASE} style={iconStyle} />
 			</ControlButton>
