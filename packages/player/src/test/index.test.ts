@@ -16,12 +16,18 @@ test('It should throw an error if not being used inside a RemotionRoot', () => {
 	}).toThrow();
 });
 
+let createdAudioContexts = 0;
+
 class MockAudioContext {
 	public state = 'suspended' as AudioContextState;
 	public baseLatency = 0;
 	public outputLatency = 0;
 	public currentTime = 0;
 	public destination = {};
+
+	constructor() {
+		createdAudioContexts++;
+	}
 
 	addEventListener() {
 		return undefined;
@@ -76,8 +82,10 @@ const AudioComposition = () => {
 
 const PlayerWithMuteButton = ({
 	onError,
+	initiallyMuted = false,
 }: {
 	readonly onError: (error: Error) => void;
+	readonly initiallyMuted?: boolean;
 }) => {
 	const playerRef = useRef<PlayerRef>(null);
 
@@ -91,6 +99,7 @@ const PlayerWithMuteButton = ({
 			compositionWidth: 1920,
 			compositionHeight: 1080,
 			fps: 30,
+			initiallyMuted,
 			errorFallback: ({error}) => {
 				onError(error);
 				return null;
@@ -98,8 +107,14 @@ const PlayerWithMuteButton = ({
 		}),
 		React.createElement(
 			'button',
-			{type: 'button', onClick: () => playerRef.current?.mute()},
-			'Mute',
+			{
+				type: 'button',
+				onClick: () =>
+					initiallyMuted
+						? playerRef.current?.unmute()
+						: playerRef.current?.mute(),
+			},
+			initiallyMuted ? 'Unmute' : 'Mute',
 		),
 	);
 };
@@ -120,6 +135,33 @@ test('It does not crash when muting a Player with a mounted Html5Audio tag', () 
 			getByText('Mute').click();
 		});
 
+		expect(errors).toEqual([]);
+	} finally {
+		globalThis.AudioContext = originalAudioContext;
+	}
+});
+
+test('It does not crash when unmuting a Player with a mounted Html5Audio tag', () => {
+	const originalAudioContext = globalThis.AudioContext;
+	globalThis.AudioContext = MockAudioContext as unknown as typeof AudioContext;
+	const errors: Error[] = [];
+	createdAudioContexts = 0;
+
+	try {
+		const {getByText} = render(
+			React.createElement(PlayerWithMuteButton, {
+				initiallyMuted: true,
+				onError: (error) => errors.push(error),
+			}),
+		);
+
+		expect(createdAudioContexts).toBe(0);
+
+		act(() => {
+			getByText('Unmute').click();
+		});
+
+		expect(createdAudioContexts).toBe(1);
 		expect(errors).toEqual([]);
 	} finally {
 		globalThis.AudioContext = originalAudioContext;
