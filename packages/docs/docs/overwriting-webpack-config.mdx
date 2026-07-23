@@ -18,7 +18,7 @@ Use [`Config.overrideWebpackConfig()`](/docs/config#overridewebpackconfig) for W
 
 Webpack and Rspack plugins are not interchangeable. Do not add bundler-specific plugins in `Config.overrideBundlerConfig()`.
 
-## Webpack overrides using the command line
+## Webpack overrides in `remotion.config.ts`
 
 In your [`remotion.config.ts`](/docs/config) file, you can call [`Config.overrideWebpackConfig()`](/docs/config#overridewebpackconfig) from `@remotion/cli/config`.
 
@@ -61,7 +61,7 @@ Config.overrideWebpackConfig((config) => {
 Using the reducer pattern will help with type safety, give you auto-complete, ensure forwards-compatibility and keep it completely flexible - you can override just one property or pass in a completely new Webpack configuration.
 :::
 
-## Rspack overrides using the command line<AvailableFrom v="4.0.498" />
+## Rspack overrides in `remotion.config.ts`<AvailableFrom v="4.0.498" />
 
 Use `Config.overrideRspackConfig()` when [Rspack is enabled](/docs/config#setexperimentalrspackenabled):
 
