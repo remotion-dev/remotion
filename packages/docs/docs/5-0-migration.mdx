@@ -90,7 +90,7 @@ They are now available in `@remotion/lambda/client`.
 ## Cloud Run services use a lower maximum instance count
 
 The default [`maxInstances`](/docs/cloudrun/deployservice#maxinstances) for new Cloud Run services has been reduced from `100` to `5`.
-Some GCP accounts have lower Cloud Run quotas and rejected deployments using the previous default with an `Invalid value specified for cpu` error.
+On some GCP accounts, the previous default exceeded the available Cloud Run quota and caused deployments to fail with an `Invalid value specified for cpu` error.
 
 **Required action**: If you want to keep the old scaling limit, set `maxInstances: 100` when using [`deployService()`](/docs/cloudrun/deployservice), or pass `--maxInstances=100` to the [Cloud Run CLI](/docs/cloudrun/cli/services/deploy).
 
