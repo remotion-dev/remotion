@@ -92,7 +92,6 @@ import {
 } from './selected-outline-uv';
 import {
 	callAddKeyframes,
-	callAddSequenceKeyframe,
 	type AddSequenceKeyframeChange,
 } from './Timeline/call-add-keyframe';
 import {disableSequenceInteractivity} from './Timeline/disable-sequence-interactivity';
@@ -733,18 +732,12 @@ const SelectedOutlinePolygon: React.FC<{
 										: 'Move sequence back',
 							})
 						: Promise.resolve(),
-					...keyframedChanges.map((change) =>
-						callAddSequenceKeyframe({
-							fileName: change.fileName,
-							nodePath: change.nodePath,
-							fieldKey: change.fieldKey,
-							sourceFrame: change.sourceFrame,
-							value: change.value,
-							schema: change.schema,
-							setPropStatuses,
-							clientId: change.clientId,
-						}),
-					),
+					callAddKeyframes({
+						sequenceKeyframes: keyframedChanges,
+						effectKeyframes: [],
+						setPropStatuses,
+						clientId: drag.clientId,
+					}),
 				])
 					.catch((err) => {
 						showNotification(
@@ -1077,18 +1070,12 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 										: 'Scale sequence back',
 							})
 						: Promise.resolve(),
-					...keyframedChanges.map((change) =>
-						callAddSequenceKeyframe({
-							fileName: change.fileName,
-							nodePath: change.nodePath,
-							fieldKey: change.fieldKey,
-							sourceFrame: change.sourceFrame,
-							value: change.value,
-							schema: change.schema,
-							setPropStatuses,
-							clientId: change.clientId,
-						}),
-					),
+					callAddKeyframes({
+						sequenceKeyframes: keyframedChanges,
+						effectKeyframes: [],
+						setPropStatuses,
+						clientId: scaleDrag.clientId,
+					}),
 				])
 					.catch((err) => {
 						showNotification(
@@ -1410,18 +1397,12 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 										: 'Rotate sequence back',
 							})
 						: Promise.resolve(),
-					...keyframedChanges.map((change) =>
-						callAddSequenceKeyframe({
-							fileName: change.fileName,
-							nodePath: change.nodePath,
-							fieldKey: change.fieldKey,
-							sourceFrame: change.sourceFrame,
-							value: change.value,
-							schema: change.schema,
-							setPropStatuses,
-							clientId: change.clientId,
-						}),
-					),
+					callAddKeyframes({
+						sequenceKeyframes: keyframedChanges,
+						effectKeyframes: [],
+						setPropStatuses,
+						clientId: rotationDrag.clientId,
+					}),
 				])
 					.catch((err) => {
 						showNotification(
