@@ -67,6 +67,8 @@ export const useSequenceFreezeFrameMenuItem = ({
 		const remove = isFrozen;
 
 		saveSequenceProps({
+			addedKeyframes: null,
+			movedKeyframes: null,
 			changes: [
 				{
 					fileName: validatedSource,
