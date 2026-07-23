@@ -21,6 +21,7 @@ import {SequencePropsObserver} from './SequencePropsObserver';
 import {shouldShowTrackInTimeline} from './should-show-track-in-timeline';
 import {shouldSubscribeToSequenceProps} from './should-subscribe-to-sequence-props';
 import {SubscribeToNodePaths} from './SubscribeToNodePaths';
+import {TimelineAssetDropFrameContext} from './timeline-asset-drop-context';
 import {timelineVerticalScroll} from './timeline-refs';
 import {TimelineDragHandler} from './TimelineDragHandler';
 import {TimelineHeightContainer} from './TimelineHeightContainer';
@@ -43,6 +44,7 @@ import {
 import {TimelineTracks} from './TimelineTracks';
 import {TimelineWidthProvider} from './TimelineWidthProvider';
 import {useResolvedStack} from './use-resolved-stack';
+import {useTimelineAssetDrop} from './use-timeline-asset-drop';
 
 const container: React.CSSProperties = {
 	minHeight: '100%',
@@ -58,6 +60,7 @@ const noop = () => undefined;
 const TimelineContextMenuArea: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
+	const assetDropFrame = useTimelineAssetDrop();
 	const {compositions, canvasContent} = useContext(
 		Internals.CompositionManager,
 	);
@@ -121,6 +124,7 @@ const TimelineContextMenuArea: React.FC<{
 			const result = await callApi('/api/insert-jsx-element', {
 				compositionFile,
 				compositionId: currentCompositionId,
+				from: null,
 				element: {
 					type: 'solid',
 					width: videoConfig.width,
@@ -146,7 +150,8 @@ const TimelineContextMenuArea: React.FC<{
 		if (
 			!canInsertAsset ||
 			currentCompositionId === null ||
-			compositionFile === null
+			compositionFile === null ||
+			videoConfig === null
 		) {
 			return;
 		}
@@ -160,16 +165,18 @@ const TimelineContextMenuArea: React.FC<{
 		try {
 			await importAssets({
 				files,
+				fps: videoConfig.fps,
 				compositionFile,
 				compositionId: currentCompositionId,
 				destinationDimensions: null,
 				dropPosition: null,
+				from: null,
 				svgImportMode: 'image',
 			});
 		} finally {
 			setIsAddingAsset(false);
 		}
-	}, [canInsertAsset, compositionFile, currentCompositionId]);
+	}, [canInsertAsset, compositionFile, currentCompositionId, videoConfig]);
 
 	const contextMenuItems = useMemo((): ComboboxValue[] => {
 		return [
@@ -208,7 +215,9 @@ const TimelineContextMenuArea: React.FC<{
 			style={container}
 			className={'css-reset ' + VERTICAL_SCROLLBAR_CLASSNAME}
 		>
-			{children}
+			<TimelineAssetDropFrameContext.Provider value={assetDropFrame}>
+				{children}
+			</TimelineAssetDropFrameContext.Provider>
 		</ContextMenu>
 	);
 };

@@ -19,8 +19,11 @@ import {
 	useMemoizedEffects,
 } from '../effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
+import {Freeze} from '../freeze.js';
 import {
 	baseSchema,
+	borderSchema,
+	premountSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
@@ -30,11 +33,13 @@ import {SequenceContext} from '../SequenceContext.js';
 import {truncateSrcForLabel} from '../truncate-src-for-label.js';
 import {useBufferState} from '../use-buffer-state.js';
 import {useDelayRender} from '../use-delay-render.js';
+import {usePremounting} from '../use-premounting.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {CanvasImageCanvasProps, CanvasImageProps} from './props.js';
 
 export const canvasImageSchema = {
 	...baseSchema,
+	...premountSchema,
 	fit: {
 		type: 'enum',
 		default: 'fill',
@@ -46,6 +51,7 @@ export const canvasImageSchema = {
 		},
 	},
 	...transformSchema,
+	...borderSchema,
 } as const satisfies InteractivitySchema;
 
 type LoadedImage = {
@@ -518,6 +524,10 @@ const CanvasImageInner = forwardRef<
 			from,
 			trimBefore,
 			freeze,
+			premountFor,
+			postmountFor,
+			styleWhilePremounted,
+			styleWhilePostmounted,
 			hidden,
 			name,
 			showInTimeline,
@@ -538,47 +548,71 @@ const CanvasImageInner = forwardRef<
 		useImperativeHandle(ref, () => {
 			return actualRef.current as HTMLCanvasElement;
 		}, []);
+		const {
+			effectivePostmountFor,
+			effectivePremountFor,
+			freezeFrame,
+			isPremountingOrPostmounting,
+			postmountingActive,
+			premountingActive,
+			premountingStyle,
+		} = usePremounting({
+			from: from ?? 0,
+			durationInFrames: durationInFrames ?? Infinity,
+			premountFor: premountFor ?? null,
+			postmountFor: postmountFor ?? null,
+			style: style ?? null,
+			styleWhilePremounted: styleWhilePremounted ?? null,
+			styleWhilePostmounted: styleWhilePostmounted ?? null,
+			hideWhilePremounted: 'display-none',
+		});
 
 		return (
-			<Sequence
-				layout="none"
-				from={from ?? 0}
-				trimBefore={trimBefore}
-				durationInFrames={durationInFrames ?? Infinity}
-				freeze={freeze}
-				hidden={hidden}
-				showInTimeline={showInTimeline ?? true}
-				name={name ?? '<CanvasImage>'}
-				_remotionInternalDocumentationLink={
-					_remotionInternalDocumentationLink ??
-					'https://www.remotion.dev/docs/canvasimage'
-				}
-				controls={controls}
-				_remotionInternalEffects={memoizedEffectDefinitions}
-				_remotionInternalIsMedia={{type: 'image', src}}
-				_remotionInternalStack={stack}
-				outlineRef={outlineRef ?? actualRef}
-			>
-				<CanvasImageContent
-					ref={actualRef}
-					src={src}
-					width={width}
-					height={height}
-					fit={fit}
-					effects={effects}
+			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+				<Sequence
+					layout="none"
+					from={from ?? 0}
+					trimBefore={trimBefore}
+					durationInFrames={durationInFrames ?? Infinity}
+					freeze={freeze}
+					hidden={hidden}
+					showInTimeline={showInTimeline ?? true}
+					name={name ?? '<CanvasImage>'}
+					_remotionInternalDocumentationLink={
+						_remotionInternalDocumentationLink ??
+						'https://www.remotion.dev/docs/canvasimage'
+					}
 					controls={controls}
-					className={className}
-					style={style}
-					id={id}
-					onError={onError}
-					pauseWhenLoading={pauseWhenLoading}
-					maxRetries={maxRetries}
-					delayRenderRetries={delayRenderRetries}
-					delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
-					refForOutline={outlineRef ?? null}
-					{...canvasProps}
-				/>
-			</Sequence>
+					_remotionInternalEffects={memoizedEffectDefinitions}
+					_remotionInternalIsMedia={{type: 'image', src}}
+					_remotionInternalStack={stack}
+					_remotionInternalPremountDisplay={effectivePremountFor || null}
+					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+					_remotionInternalIsPremounting={premountingActive}
+					_remotionInternalIsPostmounting={postmountingActive}
+					outlineRef={outlineRef ?? actualRef}
+				>
+					<CanvasImageContent
+						ref={actualRef}
+						src={src}
+						width={width}
+						height={height}
+						fit={fit}
+						effects={effects}
+						controls={controls}
+						className={className}
+						style={premountingStyle ?? undefined}
+						id={id}
+						onError={onError}
+						pauseWhenLoading={pauseWhenLoading}
+						maxRetries={maxRetries}
+						delayRenderRetries={delayRenderRetries}
+						delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
+						refForOutline={outlineRef ?? null}
+						{...canvasProps}
+					/>
+				</Sequence>
+			</Freeze>
 		);
 	},
 );

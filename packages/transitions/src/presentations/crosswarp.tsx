@@ -1,5 +1,6 @@
 import type {HtmlInCanvasShader} from '../html-in-canvas-presentation';
 import {makeHtmlInCanvasPresentation} from '../html-in-canvas-presentation';
+import {uploadElementImage} from './upload-element-image';
 
 export type CrosswarpProps = Record<string, never>;
 
@@ -182,14 +183,7 @@ export const crosswarpShader = (
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, prevTex);
 		if (prevImage) {
-			gl.texElementImage2D(
-				gl.TEXTURE_2D,
-				0,
-				gl.RGBA,
-				gl.RGBA,
-				gl.UNSIGNED_BYTE,
-				prevImage,
-			);
+			uploadElementImage(gl, prevImage);
 		}
 
 		gl.uniform1i(uPrev, 0);
@@ -197,14 +191,7 @@ export const crosswarpShader = (
 		gl.activeTexture(gl.TEXTURE1);
 		gl.bindTexture(gl.TEXTURE_2D, nextTex);
 		if (nextImage) {
-			gl.texElementImage2D(
-				gl.TEXTURE_2D,
-				0,
-				gl.RGBA,
-				gl.RGBA,
-				gl.UNSIGNED_BYTE,
-				nextImage,
-			);
+			uploadElementImage(gl, nextImage);
 		}
 
 		gl.uniform1i(uNext, 1);

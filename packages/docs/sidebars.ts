@@ -421,6 +421,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/getfunctions',
 				'lambda/deletesite',
 				'lambda/deploysite',
+				'lambda/deploysitefrombundle',
 				'lambda/getawsclient',
 				'lambda/getregions',
 				'lambda/getsites',

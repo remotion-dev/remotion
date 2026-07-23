@@ -286,6 +286,8 @@ export const resetSelectedTimelineProps = ({
 	if (sequencePropTargets.length > 0) {
 		resetPromises.push(
 			saveSequenceProps({
+				addedKeyframes: null,
+				movedKeyframes: null,
 				changes: sequencePropTargets.map((target) => ({
 					fileName: target.fileName,
 					nodePath: target.nodePath,

@@ -1,4 +1,6 @@
 import {expect, test} from 'bun:test';
+import {animatedImageSchema} from '../animated-image/AnimatedImage.js';
+import {canvasImageSchema} from '../canvas-image/CanvasImage.js';
 import type {SequenceControls} from '../CompositionManager.js';
 import {solidSchema} from '../effects/Solid.js';
 import {getComponentsToAddStacksTo} from '../enable-sequence-stack-traces.js';
@@ -7,9 +9,11 @@ import {
 	getFlatSchemaWithAllKeys,
 } from '../flatten-schema.js';
 import {htmlInCanvasSchema} from '../HtmlInCanvas.js';
+import {imgSchema} from '../Img.js';
 import {Interactive} from '../Interactive.js';
 import {
 	baseSchema,
+	borderSchema,
 	extendSchemaWithSequenceName,
 	premountSchema,
 	sequencePremountSchema,
@@ -31,9 +35,25 @@ test('sequenceStyleSchema contains transform and premount fields', () => {
 	expect(Object.keys(sequenceStyleSchema).sort()).toEqual(
 		[
 			...Object.keys(transformSchema),
+			...Object.keys(borderSchema),
 			...Object.keys(sequencePremountSchema),
 		].sort(),
 	);
+});
+
+test('CSS box component schemas expose border controls', () => {
+	for (const schema of [
+		sequenceStyleSchema,
+		imgSchema,
+		animatedImageSchema,
+		canvasImageSchema,
+		htmlInCanvasSchema,
+		solidSchema,
+	]) {
+		expect('style.borderWidth' in schema).toBe(true);
+		expect('style.borderStyle' in schema).toBe(true);
+		expect('style.borderColor' in schema).toBe(true);
+	}
 });
 
 test('premount fields are not keyframable', () => {
@@ -126,10 +146,11 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'style.rotate',
 			'style.transformOrigin',
 			'style.opacity',
+			'style.borderWidth',
+			'style.borderStyle',
+			'style.borderColor',
 			'premountFor',
 			'postmountFor',
-			'styleWhilePremounted',
-			'styleWhilePostmounted',
 			'durationInFrames',
 			'from',
 			'freeze',
@@ -300,6 +321,39 @@ test('textSchema exposes common text style fields', () => {
 	});
 });
 
+test('borderSchema exposes the longhand border style fields', () => {
+	expect(Object.keys(borderSchema).sort()).toEqual(
+		['style.borderColor', 'style.borderStyle', 'style.borderWidth'].sort(),
+	);
+	expect(borderSchema['style.borderWidth']).toMatchObject({
+		type: 'number',
+		default: undefined,
+		min: 0,
+		step: 1,
+		hiddenFromList: false,
+	});
+	expect(borderSchema['style.borderStyle']).toMatchObject({
+		type: 'enum',
+		default: 'none',
+	});
+	expect(Object.keys(borderSchema['style.borderStyle'].variants)).toEqual([
+		'none',
+		'hidden',
+		'solid',
+		'dashed',
+		'dotted',
+		'double',
+		'groove',
+		'ridge',
+		'inset',
+		'outset',
+	]);
+	expect(borderSchema['style.borderColor']).toMatchObject({
+		type: 'color',
+		default: undefined,
+	});
+});
+
 test('readValuesFromProps reads dot-notation keys via getNestedValue', () => {
 	const props = {
 		layout: 'absolute-fill',
@@ -364,6 +418,9 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 			'style.rotate',
 			'style.transformOrigin',
 			'style.opacity',
+			'style.borderWidth',
+			'style.borderStyle',
+			'style.borderColor',
 			'premountFor',
 			'postmountFor',
 		].sort(),

@@ -220,6 +220,7 @@ import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
 import {LightLeakExample} from './LightLeak';
 import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
 import {LoopDisplayTestComp} from './LoopDisplayTest';
+import {MediaTimelineTestbed} from './MediaTimelineTestbed';
 import {NewAudioExample} from './NewAudio/NewAudio';
 import {NewVideoComp, PremountSequenceVideoComp} from './NewVideo';
 import {ObjectFitTestComp} from './ObjectFitTest';
@@ -2720,6 +2721,14 @@ export const Index: React.FC = () => {
 					durationInFrames={366}
 				/>
 			</Folder>
+			<Composition
+				id="media-timeline-testbed"
+				component={MediaTimelineTestbed}
+				width={1920}
+				height={720}
+				fps={60}
+				durationInFrames={180}
+			/>
 			<Folder name="VisualModeTests">
 				<Composition
 					id="fast-updates"

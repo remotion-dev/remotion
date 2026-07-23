@@ -378,8 +378,10 @@ test('wraps a self-closing root in a Sequence before inserting', async () => {
 				src: 'music.mp3',
 				srcType: 'static',
 				dimensions: null,
+				durationInFrames: null,
 				position: null,
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -436,8 +438,10 @@ test('removes parentheses when wrapping a self-closing root in a Sequence', asyn
 				src: 'foreground.png',
 				srcType: 'static',
 				dimensions: {width: 1920, height: 1080},
+				durationInFrames: null,
 				position: null,
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -634,6 +638,7 @@ test('inserts a Solid into the resolved composition component', async () => {
 				height: 720,
 				position: null,
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -690,6 +695,7 @@ test('inserts a Solid with a translate style', async () => {
 					y: 80.5,
 				},
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -739,6 +745,7 @@ test('rounds the translate style to one decimal place', async () => {
 					y: 50.1836012801557,
 				},
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -787,6 +794,7 @@ test('inserts an aliased Solid import if Solid is already defined', async () => 
 				height: 1080,
 				position: null,
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -831,6 +839,7 @@ test('inserts a Solid into an empty component returning null', async () => {
 				height: 360,
 				position: null,
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -862,6 +871,7 @@ test('inserts a Solid into an empty component returning null', async () => {
 				height: 180,
 				position: null,
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 		expect(secondInsert.output.match(/<Solid/g)?.length).toBe(2);
@@ -906,6 +916,7 @@ test('converts and inserts SVG markup as an Interactive.Svg', async () => {
 					'<svg width="100" height="50" viewBox="0 0 100 50" style="opacity: 0.8"><path fill-rule="evenodd" stroke-width="2" d="M0 0h10v10z" /></svg>',
 				position: {x: 120.25, y: 80},
 			},
+			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -913,6 +924,8 @@ test('converts and inserts SVG markup as an Interactive.Svg', async () => {
 			"import { AbsoluteFill, Interactive } from 'remotion';",
 		);
 		expect(result.output).toContain('<Interactive.Svg');
+		expect(result.output).toContain('from={42}');
+		expect(result.output).not.toContain('<Sequence');
 		expect(result.output).toContain('</Interactive.Svg>');
 		expect(result.output).toContain('width={100}');
 		expect(result.output).toContain('height={50}');
@@ -927,7 +940,7 @@ test('converts and inserts SVG markup as an Interactive.Svg', async () => {
 	}
 });
 
-test('inserts a CanvasImage asset into the resolved composition component', async () => {
+test('inserts a CanvasImage asset at a timeline frame', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -966,21 +979,25 @@ test('inserts a CanvasImage asset into the resolved composition component', asyn
 					width: 800,
 					height: 600,
 				},
+				durationInFrames: null,
 				position: null,
 			},
+			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
 		expect(result.output).toContain(
 			"import { AbsoluteFill, staticFile, CanvasImage } from 'remotion';",
 		);
+		expect(result.output).not.toContain('<Sequence');
+		expect(result.output).toContain('from={42}');
 		expect(result.output).toContain('<CanvasImage');
 		expect(result.output).toContain("src={staticFile('image.png')}");
 		expect(result.output).toContain("position: 'absolute'");
-		expect(result.output).toContain('width: 800');
-		expect(result.output).toContain('height: 600');
 		expect(result.output).not.toContain('width={800}');
 		expect(result.output).not.toContain('height={600}');
+		expect(result.output).not.toContain('width: 800');
+		expect(result.output).not.toContain('height: 600');
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
@@ -1025,11 +1042,13 @@ test('inserts a CanvasImage asset with a translate style', async () => {
 					width: 800,
 					height: 600,
 				},
+				durationInFrames: null,
 				position: {
 					x: 100,
 					y: 150,
 				},
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -1083,8 +1102,10 @@ test('inserts an AnimatedImage asset into the resolved composition component', a
 					width: 320,
 					height: 180,
 				},
+				durationInFrames: 37.52,
 				position: null,
 			},
+			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -1093,6 +1114,9 @@ test('inserts an AnimatedImage asset into the resolved composition component', a
 		);
 		expect(result.output).toContain('<AnimatedImage');
 		expect(result.output).toContain("src={staticFile('animated-png.png')}");
+		expect(result.output).toContain('durationInFrames={37.52}');
+		expect(result.output).toContain('from={42}');
+		expect(result.output).not.toContain('<Sequence');
 		expect(result.output).toContain('width: 320');
 		expect(result.output).toContain('height: 180');
 		expect(result.output).not.toContain('width={320}');
@@ -1102,7 +1126,7 @@ test('inserts an AnimatedImage asset into the resolved composition component', a
 	}
 });
 
-test('inserts a Video asset with CSS dimensions', async () => {
+test('inserts a Video asset with its duration and CSS dimensions', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
 		await fs.writeFile(
@@ -1141,8 +1165,10 @@ test('inserts a Video asset with CSS dimensions', async () => {
 					width: 1920,
 					height: 1080,
 				},
+				durationInFrames: 37.52,
 				position: null,
 			},
+			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -1150,13 +1176,14 @@ test('inserts a Video asset with CSS dimensions', async () => {
 		expect(result.output).toContain(
 			"import { AbsoluteFill, staticFile } from 'remotion';",
 		);
+		expect(result.output).toContain('durationInFrames={37.52}');
+		expect(result.output).toContain('from={42}');
 		expect(result.output).toContain('<Video');
 		expect(result.output).toContain("src={staticFile('clip.mp4')}");
 		expect(result.output).toContain("position: 'absolute'");
 		expect(result.output).toContain('width: 1920');
 		expect(result.output).toContain('height: 1080');
-		expect(result.output).not.toContain('width={1920}');
-		expect(result.output).not.toContain('height={1080}');
+		expect(result.output).not.toContain('<Sequence');
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
@@ -1201,8 +1228,10 @@ test('rejects inserting a Video asset if Video is already defined', async () => 
 					src: 'clip.mp4',
 					srcType: 'static',
 					dimensions: null,
+					durationInFrames: null,
 					position: null,
 				},
+				from: null,
 				prettierConfigOverride: {singleQuote: true, useTabs: true},
 			}),
 		).rejects.toThrow('Cannot add <Video> because Video is already defined');
@@ -1250,8 +1279,10 @@ test('inserts a Gif asset into the resolved composition component', async () => 
 					width: 320,
 					height: 180,
 				},
+				durationInFrames: 37.52,
 				position: null,
 			},
+			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -1261,6 +1292,9 @@ test('inserts a Gif asset into the resolved composition component', async () => 
 		);
 		expect(result.output).toContain('<Gif');
 		expect(result.output).toContain("src={staticFile('animation.gif')}");
+		expect(result.output).toContain('durationInFrames={37.52}');
+		expect(result.output).toContain('from={42}');
+		expect(result.output).not.toContain('<Sequence');
 		expect(result.output).toContain('width: 320');
 		expect(result.output).toContain('height: 180');
 		expect(result.output).not.toContain('width={320}');
@@ -1306,8 +1340,10 @@ test('inserts an Audio asset into the resolved composition component', async () 
 				src: 'audio.mp3',
 				srcType: 'static',
 				dimensions: null,
+				durationInFrames: 37.52,
 				position: null,
 			},
+			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -1317,6 +1353,9 @@ test('inserts an Audio asset into the resolved composition component', async () 
 		);
 		expect(result.output).toContain('<Audio');
 		expect(result.output).toContain("src={staticFile('audio.mp3')}");
+		expect(result.output).toContain('durationInFrames={37.52}');
+		expect(result.output).toContain('from={42}');
+		expect(result.output).not.toContain('<Sequence');
 		expect(result.output).not.toContain("position: 'absolute'");
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
@@ -1359,8 +1398,10 @@ test('inserts a remote audio asset with a literal URL', async () => {
 				src: 'https://example.com/whip.wav',
 				srcType: 'remote',
 				dimensions: null,
+				durationInFrames: null,
 				position: null,
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -1415,8 +1456,10 @@ test('rejects inserting an Audio asset if Audio is already defined', async () =>
 					src: 'audio.mp3',
 					srcType: 'static',
 					dimensions: null,
+					durationInFrames: null,
 					position: null,
 				},
+				from: null,
 				prettierConfigOverride: {singleQuote: true, useTabs: true},
 			}),
 		).rejects.toThrow('Cannot add <Audio> because Audio is already defined');
@@ -1467,6 +1510,7 @@ test('inserts a component into the resolved composition component', async () => 
 				],
 				position: null,
 			},
+			from: 42,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -1477,7 +1521,9 @@ test('inserts a component into the resolved composition component', async () => 
 		expect(result.output).toContain('fill="#0b84ff"');
 		expect(result.output).toContain('dataShapeIndex={1}');
 		expect(result.output).toContain('debug={false}');
+		expect(result.output).toContain('from={42}');
 		expect(result.output).toContain("position: 'absolute'");
+		expect(result.output).not.toContain('<Sequence');
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}
@@ -1521,9 +1567,11 @@ test('wraps a component in a dimensionless Sequence', async () => {
 				props: [],
 				position: null,
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 			wrapInSequence: {
 				dimensions: null,
+				from: 42,
 				name: 'Lower Third',
 				position: {x: 120, y: 80.5},
 			},
@@ -1536,6 +1584,7 @@ test('wraps a component in a dimensionless Sequence', async () => {
 			"import { LowerThird } from './lower-third.element';",
 		);
 		expect(result.output).toContain('<Sequence');
+		expect(result.output).toContain('from={42}');
 		expect(result.output).toContain('name="Lower Third"');
 		expect(result.output).toContain("translate: '120px 80.5px'");
 		expect(result.output).toContain('<LowerThird />');
@@ -1607,6 +1656,7 @@ test('inserts a composition as a duration-aware Sequence', async () => {
 				}),
 				position: null,
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -1689,6 +1739,7 @@ test('inserts a default-exported composition next to an existing namespace impor
 				serializedResolvedPropsWithCustomSchema: JSON.stringify({}),
 				position: null,
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -1764,6 +1815,7 @@ test('rejects array payloads for resolved composition props', async () => {
 					]),
 					position: null,
 				},
+				from: null,
 				prettierConfigOverride: {singleQuote: true, useTabs: true},
 			}),
 		).rejects.toThrow('Resolved composition props must be an object');
@@ -1789,6 +1841,7 @@ test('rejects composition insertion requests that traverse out of the project ro
 					serializedResolvedPropsWithCustomSchema: JSON.stringify({}),
 					position: null,
 				},
+				from: null,
 			},
 			entryPoint: path.join(tempDir, 'Root.tsx'),
 			remotionRoot: tempDir,

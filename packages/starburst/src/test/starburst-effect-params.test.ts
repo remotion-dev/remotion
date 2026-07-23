@@ -97,6 +97,12 @@ test('<Starburst> exposes colors as an array control', () => {
 	});
 });
 
+test('<Starburst> exposes border controls', () => {
+	expect('style.borderWidth' in starburstSchema).toBe(true);
+	expect('style.borderStyle' in starburstSchema).toBe(true);
+	expect('style.borderColor' in starburstSchema).toBe(true);
+});
+
 test('starburst() parameters produce distinct effect keys', () => {
 	const defaultStarburst = starburst({
 		rays: 12,

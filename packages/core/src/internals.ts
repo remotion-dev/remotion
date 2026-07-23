@@ -1,5 +1,6 @@
 import {createRef} from 'react';
 import {getAbsoluteSrc} from './absolute-src.js';
+import {getAnimatedImageDurationInSeconds} from './animated-image/get-duration-in-seconds.js';
 import {AudioForPreview} from './audio/AudioForPreview.js';
 import type {ScheduleAudioNodeResult} from './audio/shared-audio-tags.js';
 import {
@@ -97,7 +98,6 @@ import {
 	fromField,
 	hiddenField,
 	premountSchema,
-	premountStyleSchema,
 	sequencePremountSchema,
 	sequenceSchema,
 	sequenceStyleSchema,
@@ -285,6 +285,7 @@ export const Internals = {
 	useAbsoluteTimelinePosition: TimelinePosition.useAbsoluteTimelinePosition,
 	evaluateVolume,
 	getAbsoluteSrc,
+	getAnimatedImageDurationInSeconds,
 	getAssetDisplayName,
 	Timeline: TimelinePosition,
 	validateMediaTrimProps,
@@ -309,7 +310,6 @@ export const Internals = {
 	textSchema,
 	transformSchema,
 	premountSchema,
-	premountStyleSchema,
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
 	RemotionRootContexts,

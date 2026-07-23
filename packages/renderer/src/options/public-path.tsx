@@ -11,10 +11,9 @@ export const publicPathOption = {
 		return (
 			<>
 				The path of the URL where the bundle is going to be hosted. By default
-				it is <code>/</code>, meaning that the bundle is going to be hosted at
-				the root of the domain (e.g. <code>https://localhost:3000/</code>). If
-				you are deploying to a subdirectory (e.g. <code>/sites/my-site/</code>),
-				you should set this to the subdirectory.
+				it is <code>./</code>, making the bundle relocatable. Set an absolute
+				path such as <code>/sites/my-site/</code> to host the bundle at a fixed
+				location.
 			</>
 		);
 	},

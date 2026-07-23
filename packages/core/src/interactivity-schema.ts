@@ -333,6 +333,40 @@ export const textSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
+export const borderSchema = {
+	'style.borderWidth': {
+		type: 'number',
+		default: undefined,
+		min: 0,
+		step: 1,
+		description: 'Border width',
+		hiddenFromList: false,
+	},
+	'style.borderStyle': {
+		type: 'enum',
+		// `none` is the CSS initial value of border-style.
+		default: 'none',
+		description: 'Border style',
+		variants: {
+			none: {},
+			hidden: {},
+			solid: {},
+			dashed: {},
+			dotted: {},
+			double: {},
+			groove: {},
+			ridge: {},
+			inset: {},
+			outset: {},
+		},
+	},
+	'style.borderColor': {
+		type: 'color',
+		default: undefined,
+		description: 'Border color',
+	},
+} as const satisfies InteractivitySchema;
+
 export const textContentSchema = {
 	children: {
 		type: 'text-content',
@@ -362,22 +396,13 @@ export const premountSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-export const premountStyleSchema = {
-	styleWhilePremounted: {
-		type: 'hidden',
-	},
-	styleWhilePostmounted: {
-		type: 'hidden',
-	},
-} as const satisfies InteractivitySchema;
-
 export const sequencePremountSchema = {
 	...premountSchema,
-	...premountStyleSchema,
 } as const satisfies InteractivitySchema;
 
 export const sequenceStyleSchema = {
 	...transformSchema,
+	...borderSchema,
 	...sequencePremountSchema,
 } as const satisfies InteractivitySchema;
 

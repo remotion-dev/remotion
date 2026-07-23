@@ -1,6 +1,9 @@
 import type {ImageFit} from '../calculate-image-fit.js';
 import type {EffectsProp} from '../effects/effect-types.js';
-import type {InteractiveBaseProps} from '../Interactive.js';
+import type {
+	InteractiveBaseProps,
+	InteractivePremountProps,
+} from '../Interactive.js';
 
 export type RemotionAnimatedImageLoopBehavior =
 	| 'loop'
@@ -25,6 +28,7 @@ export type RemotionAnimatedImageProps = {
 } & AnimatedImageCanvasProps;
 
 export type AnimatedImageProps = InteractiveBaseProps &
+	InteractivePremountProps &
 	RemotionAnimatedImageProps & {
 		readonly effects?: EffectsProp;
 	};

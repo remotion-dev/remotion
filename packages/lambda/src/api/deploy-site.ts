@@ -2,10 +2,7 @@ import fs from 'node:fs';
 import {type GitSource, type WebpackOverrideFn} from '@remotion/bundler';
 import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
 import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
-import {
-	getSitesKey,
-	REMOTION_BUCKET_PREFIX,
-} from '@remotion/lambda-client/constants';
+import {getSitesKey} from '@remotion/lambda-client/constants';
 import type {ToOptions} from '@remotion/renderer';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
@@ -14,10 +11,13 @@ import type {
 	ProviderSpecifics,
 	UploadDirProgress,
 } from '@remotion/serverless';
-import {validateBucketName, validatePrivacy} from '@remotion/serverless';
 import {awsFullClientSpecifics} from '../functions/full-client-implementation';
-import {getS3DiffOperations} from '../shared/get-s3-operations';
-import {validateSiteName} from '../shared/validate-site-name';
+import {
+	deploySiteWithBundle,
+	type DeploySiteOutput,
+} from '../shared/deploy-site-with-bundle';
+
+export type {DeploySiteOutput};
 
 type MandatoryParameters = {
 	entryPoint: string;
@@ -51,16 +51,6 @@ type OptionalParameters = {
 
 export type DeploySiteInput = MandatoryParameters & Partial<OptionalParameters>;
 
-export type DeploySiteOutput = Promise<{
-	serveUrl: string;
-	siteName: string;
-	stats: {
-		uploadedFiles: number;
-		deletedFiles: number;
-		untouchedFiles: number;
-	};
-}>;
-
 const mandatoryDeploySite = async ({
 	bucketName,
 	entryPoint,
@@ -79,141 +69,56 @@ const mandatoryDeploySite = async ({
 		providerSpecifics: ProviderSpecifics<AwsProvider>;
 		fullClientSpecifics: FullClientSpecifics<AwsProvider>;
 	}): DeploySiteOutput => {
-	LambdaClientInternals.validateAwsRegion(region);
-	validateBucketName({
-		bucketName,
-		bucketNamePrefix: REMOTION_BUCKET_PREFIX,
-		options: {
-			mustStartWithRemotion: !options?.bypassBucketNameValidation,
-		},
-	});
+	let generatedBundleDir: string | null = null;
 
-	validateSiteName(siteName);
-	validatePrivacy(privacy, false);
-
-	const accountId = await providerSpecifics.getAccountId({region});
-
-	const bucketExists = await providerSpecifics.bucketExists({
+	const result = await deploySiteWithBundle({
 		bucketName,
 		region,
-		expectedBucketOwner: accountId,
+		siteName,
+		options,
+		privacy,
+		throwIfSiteExists,
+		providerSpecifics,
 		forcePathStyle,
-		requestHandler,
-	});
-	if (!bucketExists) {
-		throw new Error(`No bucket with the name ${bucketName} exists`);
-	}
-
-	const subFolder = getSitesKey(siteName);
-
-	const [files, bundled] = await Promise.all([
-		providerSpecifics.listObjects({
-			bucketName,
-			expectedBucketOwner: accountId,
-			region,
-			// The `/` is important to not accidentially delete sites with the same name but containing a suffix.
-			prefix: `${subFolder}/`,
-			forcePathStyle,
-			requestHandler,
-		}),
-		fullClientSpecifics.bundleSite({
-			publicPath: `/${subFolder}/`,
-			webpackOverride: options?.webpackOverride ?? ((f) => f),
-			enableCaching: options?.enableCaching ?? true,
-			publicDir: options?.publicDir ?? null,
-			rootDir: options?.rootDir ?? null,
-			ignoreRegisterRootWarning: options?.ignoreRegisterRootWarning ?? false,
-			onProgress: options?.onBundleProgress ?? (() => undefined),
-			entryPoint,
-			gitSource,
-			bufferStateDelayInMilliseconds: null,
-			maxTimelineTracks: null,
-			onDirectoryCreated: () => undefined,
-			onPublicDirCopyProgress: () => undefined,
-			onSymlinkDetected: () => undefined,
-			outDir: null,
-			askAIEnabled: options?.askAIEnabled ?? true,
-			interactivityEnabled: options?.interactivityEnabled ?? true,
-			audioLatencyHint: null,
-			keyboardShortcutsEnabled: options?.keyboardShortcutsEnabled ?? true,
-			renderDefaults: null,
-			rspack: options?.rspack ?? false,
-			symlinkPublicDir: false,
-		}),
-	]);
-
-	if (throwIfSiteExists && files.length > 0) {
-		throw new Error(
-			'`throwIfSiteExists` was passed as true, but there are already files in this folder: ' +
-				files
-					.slice(0, 5)
-					.map((f) => f.Key)
-					.join(', '),
-		);
-	}
-
-	options.onDiffingProgress?.(0, false);
-
-	let totalBytes = 0;
-
-	const {toDelete, toUpload, existingCount} = await getS3DiffOperations({
-		objects: files,
-		bundle: bundled,
-		prefix: subFolder,
-		onProgress: (bytes) => {
-			totalBytes = bytes;
-			options.onDiffingProgress?.(bytes, false);
-		},
 		fullClientSpecifics,
+		requestHandler,
+		getBundle: async () => {
+			generatedBundleDir = await fullClientSpecifics.bundleSite({
+				publicPath: `/${getSitesKey(siteName)}/`,
+				webpackOverride: options.webpackOverride ?? ((f) => f),
+				enableCaching: options.enableCaching ?? true,
+				publicDir: options.publicDir ?? null,
+				rootDir: options.rootDir ?? null,
+				ignoreRegisterRootWarning: options.ignoreRegisterRootWarning ?? false,
+				onProgress: options.onBundleProgress ?? (() => undefined),
+				entryPoint,
+				gitSource,
+				bufferStateDelayInMilliseconds: null,
+				maxTimelineTracks: null,
+				onDirectoryCreated: () => undefined,
+				onPublicDirCopyProgress: () => undefined,
+				onSymlinkDetected: () => undefined,
+				outDir: null,
+				askAIEnabled: options.askAIEnabled ?? true,
+				interactivityEnabled: options.interactivityEnabled ?? true,
+				audioLatencyHint: null,
+				keyboardShortcutsEnabled: options.keyboardShortcutsEnabled ?? true,
+				renderDefaults: null,
+				rspack: options.rspack ?? false,
+				symlinkPublicDir: false,
+			});
+
+			return generatedBundleDir;
+		},
 	});
 
-	options.onDiffingProgress?.(totalBytes, true);
-
-	await Promise.all([
-		fullClientSpecifics.uploadDir({
-			bucket: bucketName,
-			region,
-			localDir: bundled,
-			onProgress: options?.onUploadProgress ?? (() => undefined),
-			keyPrefix: subFolder,
-			privacy: privacy ?? 'public',
-			toUpload,
-			forcePathStyle,
-			requestHandler,
-		}),
-		Promise.all(
-			toDelete.map((d) => {
-				return providerSpecifics.deleteFile({
-					bucketName,
-					customCredentials: null,
-					key: d.Key as string,
-					region,
-					forcePathStyle,
-					requestHandler,
-				});
-			}),
-		),
-	]);
-
-	if (fs.existsSync(bundled)) {
-		fs.rmSync(bundled, {
+	if (generatedBundleDir && fs.existsSync(generatedBundleDir)) {
+		fs.rmSync(generatedBundleDir, {
 			recursive: true,
 		});
 	}
 
-	return {
-		serveUrl: LambdaClientInternals.makeS3ServeUrl({
-			bucketName,
-			subFolder,
-			region,
-		}),
-		siteName,
-		stats: {
-			uploadedFiles: toUpload.length,
-			deletedFiles: toDelete.length,
-			untouchedFiles: existingCount,
-		},
-	};
+	return result;
 };
 
 export type InternalDeploySiteInput = MandatoryParameters &
@@ -227,8 +132,8 @@ export const internalDeploySite: (
 ) => DeploySiteOutput = wrapWithErrorHandling(mandatoryDeploySite);
 
 /*
- * @description Deploys a Remotion project to a GCP storage bucket to prepare it for rendering on Cloud Run.
- * @see [Documentation](https://remotion.dev/docs/cloudrun/deploysite)
+ * @description Bundles a Remotion project and deploys it to an S3 bucket for rendering on AWS Lambda.
+ * @see [Documentation](https://remotion.dev/docs/lambda/deploysite)
  */
 export const deploySite = (args: DeploySiteInput) => {
 	return internalDeploySite({

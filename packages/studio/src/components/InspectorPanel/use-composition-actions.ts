@@ -72,6 +72,7 @@ export const useCompositionActions = () => {
 			const result = await callApi('/api/insert-jsx-element', {
 				compositionFile,
 				compositionId: currentCompositionId,
+				from: null,
 				element: {
 					type: 'solid',
 					width: videoConfig.width,
@@ -97,7 +98,8 @@ export const useCompositionActions = () => {
 		if (
 			!canInsertAsset ||
 			currentCompositionId === null ||
-			compositionFile === null
+			compositionFile === null ||
+			videoConfig === null
 		) {
 			return;
 		}
@@ -111,16 +113,18 @@ export const useCompositionActions = () => {
 		try {
 			await importAssets({
 				files,
+				fps: videoConfig.fps,
 				compositionFile,
 				compositionId: currentCompositionId,
 				destinationDimensions: null,
 				dropPosition: null,
+				from: null,
 				svgImportMode: 'image',
 			});
 		} finally {
 			setIsAddingAsset(false);
 		}
-	}, [canInsertAsset, compositionFile, currentCompositionId]);
+	}, [canInsertAsset, compositionFile, currentCompositionId, videoConfig]);
 
 	return {
 		canInsertAsset,

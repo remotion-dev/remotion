@@ -16,7 +16,7 @@ import type {AudioProps} from './props';
 
 const {validateMediaProps} = Internals;
 
-const audioSchema = {
+export const audioSchema: InteractivitySchema = {
 	src: {
 		type: 'asset',
 		default: undefined,
