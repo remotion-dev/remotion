@@ -9,6 +9,7 @@ import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parsed-cli';
 import {renderVideoFlow} from './render-flows/render';
+import {warnAboutUnrecognizedCliFlags} from './warn-about-unrecognized-cli-flags';
 
 const {
 	x264Option,
@@ -69,6 +70,12 @@ export const render = async (
 	args: (string | number)[],
 	logLevel: LogLevel,
 ) => {
+	warnAboutUnrecognizedCliFlags({
+		args: process.argv.slice(2),
+		command: 'render',
+		logLevel,
+	});
+
 	const {
 		file,
 		remainingArgs,

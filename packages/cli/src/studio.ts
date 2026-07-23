@@ -18,6 +18,7 @@ import {
 	getRenderQueue,
 	removeJob,
 } from './render-queue/queue';
+import {warnAboutUnrecognizedCliFlags} from './warn-about-unrecognized-cli-flags';
 
 const {
 	binariesDirectoryOption,
@@ -44,6 +45,12 @@ export const studioCommand = async (
 	args: string[],
 	logLevel: LogLevel,
 ) => {
+	warnAboutUnrecognizedCliFlags({
+		args: process.argv.slice(2),
+		command: 'studio',
+		logLevel,
+	});
+
 	const {file, reason} = findEntryPoint({
 		args,
 		remotionRoot,
