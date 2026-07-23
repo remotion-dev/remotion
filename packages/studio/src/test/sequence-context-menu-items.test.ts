@@ -2,6 +2,7 @@ import {afterEach, expect, test} from 'bun:test';
 import type {TSequence} from 'remotion';
 import type {ComboboxValue} from '../components/NewComposition/ComboBox';
 import {getSequenceContextMenuItems} from '../components/Timeline/get-sequence-context-menu-items';
+import {getTimelineMediaStartFrame} from '../components/Timeline/get-timeline-media-start-frame';
 import {
 	calculateSequenceFreezeFrame,
 	shouldShowFreezeFrameMenuItem,
@@ -202,4 +203,33 @@ test('sequence freeze frame accounts for trimBefore', () => {
 			timelinePosition: 119,
 		}),
 	).toBe(139);
+});
+
+test('video freeze preserves the media frame under the playhead at different playback rates', () => {
+	const mediaFrameAtSequenceZero = 5;
+	const playbackRate = 2;
+	const sequence = {
+		duration: 120,
+		from: 0,
+		mediaFrameAtSequenceZero,
+		playbackRate,
+		type: 'video',
+	} as Extract<TSequence, {type: 'video'}>;
+	const timelinePosition = 40;
+	const freezeFrame = calculateSequenceFreezeFrame({
+		sequence,
+		sequenceFrameOffset: 0,
+		timelinePosition,
+	});
+	const mediaFrameUnderPlayhead = getTimelineMediaStartFrame({
+		startMediaFrom: mediaFrameAtSequenceZero,
+		mediaFrameAtSequenceZero,
+		sequenceFrameOffset: timelinePosition,
+		playbackRate,
+	});
+	const mediaFrameAfterFreeze =
+		mediaFrameAtSequenceZero + freezeFrame * playbackRate;
+
+	expect(freezeFrame).toBe(timelinePosition);
+	expect(mediaFrameAfterFreeze).toBe(mediaFrameUnderPlayhead);
 });
