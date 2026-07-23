@@ -16,8 +16,12 @@ export const headlessOption = {
 			</a>
 			, this option is not functional anymore.
 			<br />
-			<br /> If disabled, the render will open an actual Chrome window where you
-			can see the render happen. The default is headless mode.
+			<br /> If disabled, the render was intended to open an actual Chrome
+			window where you can see the render happen. The default is headless mode.
+			<br />
+			<br />
+			This option is known to not work on Windows and may cause the render
+			process to hang.
 		</>
 	),
 	ssrName: 'headless',
