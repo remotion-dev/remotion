@@ -124,6 +124,7 @@ const TimelineContextMenuArea: React.FC<{
 			const result = await callApi('/api/insert-jsx-element', {
 				compositionFile,
 				compositionId: currentCompositionId,
+				from: null,
 				element: {
 					type: 'solid',
 					width: videoConfig.width,
@@ -169,6 +170,7 @@ const TimelineContextMenuArea: React.FC<{
 				compositionId: currentCompositionId,
 				destinationDimensions: null,
 				dropPosition: null,
+				from: null,
 				svgImportMode: 'image',
 			});
 		} finally {

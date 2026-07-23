@@ -2265,7 +2265,7 @@ export const insertJsxElementIntoComposition = async ({
 	compositionFile,
 	compositionId,
 	element,
-	from = null,
+	from,
 	prettierConfigOverride,
 	wrapInSequence = null,
 }: {
@@ -2273,12 +2273,12 @@ export const insertJsxElementIntoComposition = async ({
 	compositionFile: string;
 	compositionId: string;
 	element: InsertableCompositionElement;
-	from?: number | null;
+	from: number | null;
 	prettierConfigOverride: Record<string, unknown> | null;
 	wrapInSequence?: {
 		dimensions: {width: number; height: number} | null;
 		durationInFrames?: number | null;
-		from?: number | null;
+		from: number | null;
 		name: string | null;
 		position: InsertableCompositionElementPosition | null;
 	} | null;

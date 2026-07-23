@@ -381,6 +381,7 @@ test('wraps a self-closing root in a Sequence before inserting', async () => {
 				durationInFrames: null,
 				position: null,
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -440,6 +441,7 @@ test('removes parentheses when wrapping a self-closing root in a Sequence', asyn
 				durationInFrames: null,
 				position: null,
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -636,6 +638,7 @@ test('inserts a Solid into the resolved composition component', async () => {
 				height: 720,
 				position: null,
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -692,6 +695,7 @@ test('inserts a Solid with a translate style', async () => {
 					y: 80.5,
 				},
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -741,6 +745,7 @@ test('rounds the translate style to one decimal place', async () => {
 					y: 50.1836012801557,
 				},
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -789,6 +794,7 @@ test('inserts an aliased Solid import if Solid is already defined', async () => 
 				height: 1080,
 				position: null,
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -833,6 +839,7 @@ test('inserts a Solid into an empty component returning null', async () => {
 				height: 360,
 				position: null,
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -864,6 +871,7 @@ test('inserts a Solid into an empty component returning null', async () => {
 				height: 180,
 				position: null,
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 		expect(secondInsert.output.match(/<Solid/g)?.length).toBe(2);
@@ -1040,6 +1048,7 @@ test('inserts a CanvasImage asset with a translate style', async () => {
 					y: 150,
 				},
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -1222,6 +1231,7 @@ test('rejects inserting a Video asset if Video is already defined', async () => 
 					durationInFrames: null,
 					position: null,
 				},
+				from: null,
 				prettierConfigOverride: {singleQuote: true, useTabs: true},
 			}),
 		).rejects.toThrow('Cannot add <Video> because Video is already defined');
@@ -1391,6 +1401,7 @@ test('inserts a remote audio asset with a literal URL', async () => {
 				durationInFrames: null,
 				position: null,
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -1448,6 +1459,7 @@ test('rejects inserting an Audio asset if Audio is already defined', async () =>
 					durationInFrames: null,
 					position: null,
 				},
+				from: null,
 				prettierConfigOverride: {singleQuote: true, useTabs: true},
 			}),
 		).rejects.toThrow('Cannot add <Audio> because Audio is already defined');
@@ -1555,6 +1567,7 @@ test('wraps a component in a dimensionless Sequence', async () => {
 				props: [],
 				position: null,
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 			wrapInSequence: {
 				dimensions: null,
@@ -1643,6 +1656,7 @@ test('inserts a composition as a duration-aware Sequence', async () => {
 				}),
 				position: null,
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -1725,6 +1739,7 @@ test('inserts a default-exported composition next to an existing namespace impor
 				serializedResolvedPropsWithCustomSchema: JSON.stringify({}),
 				position: null,
 			},
+			from: null,
 			prettierConfigOverride: {singleQuote: true, useTabs: true},
 		});
 
@@ -1800,6 +1815,7 @@ test('rejects array payloads for resolved composition props', async () => {
 					]),
 					position: null,
 				},
+				from: null,
 				prettierConfigOverride: {singleQuote: true, useTabs: true},
 			}),
 		).rejects.toThrow('Resolved composition props must be an object');
@@ -1825,6 +1841,7 @@ test('rejects composition insertion requests that traverse out of the project ro
 					serializedResolvedPropsWithCustomSchema: JSON.stringify({}),
 					position: null,
 				},
+				from: null,
 			},
 			entryPoint: path.join(tempDir, 'Root.tsx'),
 			remotionRoot: tempDir,

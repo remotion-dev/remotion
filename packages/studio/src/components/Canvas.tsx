@@ -914,6 +914,7 @@ export const Canvas: React.FC<{
 					compositionFile: activeElementInstallRequest.compositionFile,
 					compositionId: activeElementInstallRequest.compositionId,
 					dropPosition: null,
+					from: null,
 				});
 			}
 		};
@@ -1012,6 +1013,7 @@ export const Canvas: React.FC<{
 					dropPosition,
 					event,
 					fps: config.fps,
+					from: null,
 				});
 			} finally {
 				setIsAddingAsset(false);
@@ -1121,6 +1123,7 @@ export const Canvas: React.FC<{
 					destinationDimensions:
 						contentDimensions === 'none' ? null : contentDimensions,
 					dropPosition,
+					from: null,
 					svgImportMode,
 				});
 			} finally {

@@ -32,7 +32,7 @@ export const handleDrop = async ({
 	dropPosition,
 	event,
 	fps,
-	from = null,
+	from,
 }: {
 	chooseSvgImportMode: () => Promise<SvgImportMode | null>;
 	compositionFile: string;
@@ -41,7 +41,7 @@ export const handleDrop = async ({
 	dropPosition: InsertElementDropPosition | null;
 	event: DragEvent;
 	fps: number;
-	from?: number | null;
+	from: number | null;
 }) => {
 	if (isFileDragEvent(event)) {
 		const files = Array.from(event.dataTransfer?.files ?? []);

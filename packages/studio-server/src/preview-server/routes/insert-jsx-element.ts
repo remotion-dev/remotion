@@ -220,7 +220,7 @@ export const insertJsxElementHandler: ApiHandler<
 	InsertJsxElementRequest,
 	InsertJsxElementResponse
 > = ({
-	input: {compositionFile, compositionId, element, from = null},
+	input: {compositionFile, compositionId, element, from},
 	remotionRoot,
 	logLevel,
 }) =>
