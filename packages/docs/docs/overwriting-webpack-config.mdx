@@ -61,35 +61,6 @@ Remotion provides three config file APIs:
 | [`Config.overrideWebpackConfig()`](/docs/config#overridewebpackconfig) | Only when Webpack is selected. Runs after the shared override. |
 | [`Config.overrideRspackConfig()`](/docs/config#overriderspackconfig)   | Only when Rspack is selected. Runs after the shared override.  |
 
-For example:
-
-```ts twoslash title="remotion.config.ts"
-import {Config} from '@remotion/cli/config';
-
-Config.overrideBundlerConfig((config, {bundler}) => {
-  return {
-    ...config,
-    name: `shared-${bundler}`,
-  };
-});
-
-Config.overrideWebpackConfig((config) => {
-  return {
-    ...config,
-    name: `${config.name}-webpack`,
-  };
-});
-
-Config.overrideRspackConfig((config) => {
-  return {
-    ...config,
-    name: `${config.name}-rspack`,
-  };
-});
-```
-
-With Webpack, the result is `shared-webpack-webpack`. With Rspack, it is `shared-rspack-rspack`.
-
 You can call each override API more than once. Overrides of the same type run in registration order.
 
 Only use `overrideBundlerConfig()` for changes that are compatible with both bundlers. Webpack and Rspack plugins are not interchangeable.
