@@ -39,10 +39,11 @@ test('find right values to delete when upgrading a discriminated union', () => {
 		'style.scale',
 		'style.rotate',
 		'style.opacity',
+		'style.borderWidth',
+		'style.borderStyle',
+		'style.borderColor',
 		'premountFor',
 		'postmountFor',
-		'styleWhilePremounted',
-		'styleWhilePostmounted',
 	]);
 
 	expect(

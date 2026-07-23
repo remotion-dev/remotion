@@ -17,7 +17,6 @@ import {
 	sequenceSchemaWithoutFrom,
 } from './interactivity-schema.js';
 import {useNonce} from './nonce.js';
-import {PremountContext} from './PremountContext.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';
@@ -26,8 +25,8 @@ import {
 	useTimelineContext,
 	useTimelinePosition,
 } from './timeline-position-state.js';
-import {useCurrentFrame} from './use-current-frame';
 import type {BasicMediaInTimelineReturnType} from './use-media-in-timeline.js';
+import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideoConfig} from './use-video-config.js';
 import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag.js';
@@ -575,10 +574,6 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 	HTMLDivElement,
 	SequenceProps
 > = (props, ref) => {
-	const parentPremountContext = useContext(PremountContext);
-	const frame =
-		useCurrentFrame() - parentPremountContext.premountFramesRemaining;
-
 	if (props.layout === 'none') {
 		throw new Error(
 			'`<Sequence>` with `premountFor` and `postmountFor` props does not support layout="none"',
@@ -596,45 +591,30 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 		...otherProps
 	} = props;
 
-	const endThreshold = Math.ceil(from + durationInFrames - 1);
-	const premountingActive = frame < from && frame >= from - premountFor;
-	const postmountingActive =
-		frame > endThreshold && frame <= endThreshold + postmountFor;
-
-	// Determine which freeze frame to use
-	const freezeFrame = premountingActive
-		? from
-		: postmountingActive
-			? from + durationInFrames - 1
-			: 0;
-	const isFreezingActive = premountingActive || postmountingActive;
-
-	const style = useMemo(() => {
-		return {
-			...passedStyle,
-			opacity: premountingActive || postmountingActive ? 0 : 1,
-			pointerEvents:
-				premountingActive || postmountingActive
-					? 'none'
-					: (passedStyle?.pointerEvents ?? undefined),
-			...(premountingActive ? styleWhilePremounted : {}),
-			...(postmountingActive ? styleWhilePostmounted : {}),
-		};
-	}, [
-		passedStyle,
-		premountingActive,
+	const {
+		freezeFrame,
+		isPremountingOrPostmounting,
 		postmountingActive,
-		styleWhilePremounted,
-		styleWhilePostmounted,
-	]);
+		premountingActive,
+		premountingStyle,
+	} = usePremounting({
+		from,
+		durationInFrames,
+		premountFor,
+		postmountFor,
+		style: passedStyle ?? null,
+		styleWhilePremounted: styleWhilePremounted ?? null,
+		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		hideWhilePremounted: 'opacity',
+	});
 
 	return (
-		<Freeze frame={freezeFrame} active={isFreezingActive}>
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
 			<SequenceInner
 				ref={ref}
 				from={from}
 				durationInFrames={durationInFrames}
-				style={style}
+				style={premountingStyle ?? undefined}
 				_remotionInternalPremountDisplay={premountFor}
 				_remotionInternalPostmountDisplay={postmountFor}
 				_remotionInternalIsPremounting={premountingActive}

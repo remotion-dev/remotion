@@ -335,10 +335,11 @@ export type SaveSequencePropEdit = {
 
 export type SaveSequencePropsRequest = {
 	edits: SaveSequencePropEdit[];
-	movedKeyframes?: {
+	addedKeyframes: AddSequenceKeyframe[] | null;
+	movedKeyframes: {
 		sequenceKeyframes: MoveSequenceKeyframe[];
 		effectKeyframes: MoveEffectKeyframe[];
-	};
+	} | null;
 	clientId: string;
 	undoLabel: string;
 	redoLabel: string;
@@ -464,6 +465,7 @@ export type DeleteSequenceKeyframe = {
 	key: string;
 	frame: number;
 	schema: InteractivitySchema;
+	valueWhenLastKeyframeDeleted?: unknown;
 };
 
 export type MoveSequenceKeyframe = {
@@ -496,6 +498,7 @@ export type DeleteEffectKeyframe = {
 	key: string;
 	frame: number;
 	schema: InteractivitySchema;
+	valueWhenLastKeyframeDeleted?: unknown;
 };
 
 export type MoveEffectKeyframe = {
@@ -713,6 +716,12 @@ export type InsertableCompositionElement =
 				width: number;
 				height: number;
 			} | null;
+			durationInFrames: number | null;
+			position: InsertableCompositionElementPosition | null;
+	  }
+	| {
+			type: 'svg';
+			markup: string;
 			position: InsertableCompositionElementPosition | null;
 	  }
 	| {
@@ -735,6 +744,7 @@ export type InsertJsxElementRequest = {
 	compositionFile: string;
 	compositionId: string;
 	element: InsertableCompositionElement;
+	from: number | null;
 };
 
 export type InsertJsxElementResponse =
@@ -747,10 +757,25 @@ export type InsertJsxElementResponse =
 			stack: string;
 	  };
 
+export type ConvertFigmaClipboardToSvgRequest = {
+	html: string;
+};
+
+export type ConvertFigmaClipboardToSvgResponse =
+	| {
+			success: true;
+			svg: string;
+	  }
+	| {
+			success: false;
+			reason: string;
+	  };
+
 export type InsertElementRequest = {
 	compositionFile: string;
 	compositionId: string;
 	element: ElementDragData['element'];
+	from: number | null;
 	position: InsertableCompositionElementPosition | null;
 };
 
@@ -949,6 +974,10 @@ export type ApiRoutes = {
 	'/api/insert-jsx-element': ReqAndRes<
 		InsertJsxElementRequest,
 		InsertJsxElementResponse
+	>;
+	'/api/convert-figma-clipboard-to-svg': ReqAndRes<
+		ConvertFigmaClipboardToSvgRequest,
+		ConvertFigmaClipboardToSvgResponse
 	>;
 	'/api/insert-element': ReqAndRes<InsertElementRequest, InsertElementResponse>;
 	'/api/update-element-install-target': ReqAndRes<

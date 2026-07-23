@@ -29,7 +29,11 @@ const sidebars: SidebarsConfig = {
 			label: 'Data',
 			link: {type: 'doc', id: 'data/index'},
 			collapsed: false,
-			items: ['data/number-counter/index'],
+			items: [
+				'data/data-series-chart/index',
+				'data/number-counter/index',
+				'data/product-offer/index',
+			],
 		},
 		{
 			type: 'category',

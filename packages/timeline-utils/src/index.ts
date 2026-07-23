@@ -14,6 +14,7 @@ export {
 } from './audio-waveform/waveform-peak-processor';
 export {drawRepeatingImageThumbnail} from './image-thumbnail/draw-repeating-image-thumbnail';
 export {getScaledImageThumbnailDimensions} from './image-thumbnail/get-scaled-image-thumbnail-dimensions';
+export {clampTimestampsToDuration} from './clamp-timestamps-to-duration';
 export {extractFrames} from './extract-frames';
 export type {
 	ExtractFramesProps,

@@ -26,6 +26,17 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 	readonly small?: boolean;
 	readonly snapToStep?: boolean;
 	readonly dragDecimalPlaces?: number;
+	readonly dragSensitivity?: number;
+};
+
+export const inputDraggerContainerStyle: React.CSSProperties = {
+	...inputBaseStyle,
+	backgroundColor: TRANSPARENT,
+	borderColor: TRANSPARENT,
+	display: 'inline-block',
+	lineHeight: 1.5,
+	outline: 'none',
+	padding: '4px 6px',
 };
 
 const isInt = (num: number) => {
@@ -82,6 +93,40 @@ export const deriveInputDraggerDragStartValue = ({
 	return 0;
 };
 
+export const isInputDraggerValueInRange = ({
+	max,
+	min,
+	value,
+}: {
+	readonly max: React.InputHTMLAttributes<HTMLInputElement>['max'];
+	readonly min: React.InputHTMLAttributes<HTMLInputElement>['min'];
+	readonly value: number;
+}) => {
+	const numericMin = Number(min);
+	const numericMax = Number(max);
+
+	return (
+		(!Number.isFinite(numericMin) || value >= numericMin) &&
+		(!Number.isFinite(numericMax) || value <= numericMax)
+	);
+};
+
+export const deriveInputDraggerValueDiff = ({
+	dragSensitivity,
+	step,
+	xDistance,
+}: {
+	readonly dragSensitivity: number;
+	readonly step: number;
+	readonly xDistance: number;
+}) => {
+	return interpolate(
+		xDistance,
+		[-5, -4, 0, 4, 5],
+		[-step * dragSensitivity, 0, 0, 0, step * dragSensitivity],
+	);
+};
+
 const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	HTMLButtonElement,
 	Props
@@ -100,6 +145,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		small,
 		snapToStep = true,
 		dragDecimalPlaces,
+		dragSensitivity = 1,
 		...props
 	},
 	ref,
@@ -108,15 +154,6 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	const [dragging, setDragging] = useState(false);
 	const fallbackRef = useRef<HTMLInputElement>(null);
 	const pointerDownRef = useRef(false);
-	const style = useMemo(() => {
-		return {
-			...inputBaseStyle,
-			backgroundColor: TRANSPARENT,
-			borderColor: TRANSPARENT,
-			padding: '4px 6px',
-			...{outline: 'none'},
-		};
-	}, []);
 
 	const span: React.CSSProperties = useMemo(
 		() => ({
@@ -170,11 +207,19 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	const onInputChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			const parsed = Number(e.target.value);
-			if (e.target.value !== '' && !Number.isNaN(parsed)) {
+			if (
+				e.target.value !== '' &&
+				!Number.isNaN(parsed) &&
+				isInputDraggerValueInRange({
+					max: _max,
+					min: _min,
+					value: parsed,
+				})
+			) {
 				onValueChange(parsed);
 			}
 		},
-		[onValueChange],
+		[_max, _min, onValueChange],
 	);
 
 	const onBlur = useCallback(() => {
@@ -243,11 +288,11 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 					target.blur();
 				}
 
-				const diff = interpolate(
+				const diff = deriveInputDraggerValueDiff({
+					dragSensitivity,
+					step,
 					xDistance,
-					[-5, -4, 0, 4, 5],
-					[-step, 0, 0, 0, step],
-				);
+				});
 				const newValue = Math.min(max, Math.max(min, dragStartValue + diff));
 				const nextValue = snapToStep
 					? roundToStep(newValue, step)
@@ -288,6 +333,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			onValueChangeEnd,
 			snapToStep,
 			dragDecimalPlaces,
+			dragSensitivity,
 		],
 	);
 
@@ -333,7 +379,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			ref={ref}
 			type="button"
 			className={'__remotion_input_dragger'}
-			style={style}
+			style={inputDraggerContainerStyle}
 			onClick={onClick}
 			onFocus={onFocus}
 			onKeyDown={onKeyDown}

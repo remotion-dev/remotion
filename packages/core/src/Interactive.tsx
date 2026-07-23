@@ -6,6 +6,7 @@ import type {
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {
 	baseSchema,
+	borderSchema,
 	premountSchema,
 	sequenceSchema,
 	textContentSchema,
@@ -139,6 +140,21 @@ const makeRemotionComponentIdentity = ({
 const interactiveElementSchema = {
 	...baseSchema,
 	...transformSchema,
+} as const satisfies InteractivitySchema;
+
+const interactiveBorderElementSchema = {
+	...interactiveElementSchema,
+	...borderSchema,
+} as const satisfies InteractivitySchema;
+
+const interactiveTextElementSchema = {
+	...interactiveBorderElementSchema,
+	...textSchema,
+	...textContentSchema,
+} as const satisfies InteractivitySchema;
+
+const interactiveSvgTextElementSchema = {
+	...interactiveElementSchema,
 	...textSchema,
 	...textContentSchema,
 } as const satisfies InteractivitySchema;
@@ -166,6 +182,7 @@ const withSchema = <S extends InteractivitySchema, Props extends object>(
 const makeInteractiveElement = <Tag extends InteractiveTag>(
 	tag: Tag,
 	displayName: string,
+	schema: InteractivitySchema,
 ): InteractiveElementComponent<Tag> => {
 	type ElementType = ElementForTag<Tag>;
 	type Props = InteractiveElementProps<Tag>;
@@ -231,13 +248,27 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 			packageName: 'remotion',
 			componentName: displayName.slice(1, -1),
 		}),
-		schema: interactiveElementSchema,
+		schema,
 		supportsEffects: false,
 	}) as InteractiveElementComponent<Tag>;
 
 	Wrapped.displayName = displayName;
 
 	return Wrapped;
+};
+
+const makeInteractiveTextElement = <Tag extends InteractiveTag>(
+	tag: Tag,
+	displayName: string,
+) => {
+	return makeInteractiveElement(tag, displayName, interactiveTextElementSchema);
+};
+
+const makeInteractiveNonTextElement = <Tag extends InteractiveTag>(
+	tag: Tag,
+	displayName: string,
+) => {
+	return makeInteractiveElement(tag, displayName, interactiveElementSchema);
 };
 
 /**
@@ -247,45 +278,54 @@ export const Interactive = {
 	baseSchema,
 	transformSchema,
 	textSchema,
+	borderSchema,
 	premountSchema,
 	sequenceSchema,
 	withSchema,
 	_internalMakeRemotionComponentIdentity: makeRemotionComponentIdentity,
-	A: makeInteractiveElement('a', '<Interactive.A>'),
-	Article: makeInteractiveElement('article', '<Interactive.Article>'),
-	Aside: makeInteractiveElement('aside', '<Interactive.Aside>'),
-	Button: makeInteractiveElement('button', '<Interactive.Button>'),
-	Circle: makeInteractiveElement('circle', '<Interactive.Circle>'),
-	Code: makeInteractiveElement('code', '<Interactive.Code>'),
-	Div: makeInteractiveElement('div', '<Interactive.Div>'),
-	Ellipse: makeInteractiveElement('ellipse', '<Interactive.Ellipse>'),
-	Em: makeInteractiveElement('em', '<Interactive.Em>'),
-	Footer: makeInteractiveElement('footer', '<Interactive.Footer>'),
-	G: makeInteractiveElement('g', '<Interactive.G>'),
-	H1: makeInteractiveElement('h1', '<Interactive.H1>'),
-	H2: makeInteractiveElement('h2', '<Interactive.H2>'),
-	H3: makeInteractiveElement('h3', '<Interactive.H3>'),
-	H4: makeInteractiveElement('h4', '<Interactive.H4>'),
-	H5: makeInteractiveElement('h5', '<Interactive.H5>'),
-	H6: makeInteractiveElement('h6', '<Interactive.H6>'),
-	Header: makeInteractiveElement('header', '<Interactive.Header>'),
-	Label: makeInteractiveElement('label', '<Interactive.Label>'),
-	Li: makeInteractiveElement('li', '<Interactive.Li>'),
-	Line: makeInteractiveElement('line', '<Interactive.Line>'),
-	Main: makeInteractiveElement('main', '<Interactive.Main>'),
-	Nav: makeInteractiveElement('nav', '<Interactive.Nav>'),
-	Ol: makeInteractiveElement('ol', '<Interactive.Ol>'),
-	P: makeInteractiveElement('p', '<Interactive.P>'),
-	Path: makeInteractiveElement('path', '<Interactive.Path>'),
-	Pre: makeInteractiveElement('pre', '<Interactive.Pre>'),
-	Rect: makeInteractiveElement('rect', '<Interactive.Rect>'),
-	Section: makeInteractiveElement('section', '<Interactive.Section>'),
-	Small: makeInteractiveElement('small', '<Interactive.Small>'),
-	Span: makeInteractiveElement('span', '<Interactive.Span>'),
-	Strong: makeInteractiveElement('strong', '<Interactive.Strong>'),
-	Svg: makeInteractiveElement('svg', '<Interactive.Svg>'),
-	Text: makeInteractiveElement('text', '<Interactive.Text>'),
-	Ul: makeInteractiveElement('ul', '<Interactive.Ul>'),
+	A: makeInteractiveTextElement('a', '<Interactive.A>'),
+	Article: makeInteractiveTextElement('article', '<Interactive.Article>'),
+	Aside: makeInteractiveTextElement('aside', '<Interactive.Aside>'),
+	Button: makeInteractiveTextElement('button', '<Interactive.Button>'),
+	Circle: makeInteractiveNonTextElement('circle', '<Interactive.Circle>'),
+	Code: makeInteractiveTextElement('code', '<Interactive.Code>'),
+	Div: makeInteractiveTextElement('div', '<Interactive.Div>'),
+	Ellipse: makeInteractiveNonTextElement('ellipse', '<Interactive.Ellipse>'),
+	Em: makeInteractiveTextElement('em', '<Interactive.Em>'),
+	Footer: makeInteractiveTextElement('footer', '<Interactive.Footer>'),
+	G: makeInteractiveNonTextElement('g', '<Interactive.G>'),
+	H1: makeInteractiveTextElement('h1', '<Interactive.H1>'),
+	H2: makeInteractiveTextElement('h2', '<Interactive.H2>'),
+	H3: makeInteractiveTextElement('h3', '<Interactive.H3>'),
+	H4: makeInteractiveTextElement('h4', '<Interactive.H4>'),
+	H5: makeInteractiveTextElement('h5', '<Interactive.H5>'),
+	H6: makeInteractiveTextElement('h6', '<Interactive.H6>'),
+	Header: makeInteractiveTextElement('header', '<Interactive.Header>'),
+	Label: makeInteractiveTextElement('label', '<Interactive.Label>'),
+	Li: makeInteractiveTextElement('li', '<Interactive.Li>'),
+	Line: makeInteractiveNonTextElement('line', '<Interactive.Line>'),
+	Main: makeInteractiveTextElement('main', '<Interactive.Main>'),
+	Nav: makeInteractiveTextElement('nav', '<Interactive.Nav>'),
+	Ol: makeInteractiveTextElement('ol', '<Interactive.Ol>'),
+	P: makeInteractiveTextElement('p', '<Interactive.P>'),
+	Path: makeInteractiveNonTextElement('path', '<Interactive.Path>'),
+	Pre: makeInteractiveTextElement('pre', '<Interactive.Pre>'),
+	Rect: makeInteractiveNonTextElement('rect', '<Interactive.Rect>'),
+	Section: makeInteractiveTextElement('section', '<Interactive.Section>'),
+	Small: makeInteractiveTextElement('small', '<Interactive.Small>'),
+	Span: makeInteractiveTextElement('span', '<Interactive.Span>'),
+	Strong: makeInteractiveTextElement('strong', '<Interactive.Strong>'),
+	Svg: makeInteractiveElement(
+		'svg',
+		'<Interactive.Svg>',
+		interactiveBorderElementSchema,
+	),
+	Text: makeInteractiveElement(
+		'text',
+		'<Interactive.Text>',
+		interactiveSvgTextElementSchema,
+	),
+	Ul: makeInteractiveTextElement('ul', '<Interactive.Ul>'),
 };
 
 export type InteractiveProps<Tag extends InteractiveTag> =

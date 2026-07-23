@@ -421,6 +421,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/getfunctions',
 				'lambda/deletesite',
 				'lambda/deploysite',
+				'lambda/deploysitefrombundle',
 				'lambda/getawsclient',
 				'lambda/getregions',
 				'lambda/getsites',
@@ -1522,7 +1523,6 @@ const sidebars: SidebarsConfig = {
 			label: 'Miscellaneous',
 			items: [
 				'security',
-				'accessibility',
 				'chromium-flags',
 				'miscellaneous/changing-temp-dir',
 				'miscellaneous/chrome-headless-shell',
@@ -1649,9 +1649,21 @@ const sidebars: SidebarsConfig = {
 				'license/privacy',
 				'license/dpa',
 				'license/dpia',
+				'acknowledgements',
+				{
+					type: 'category',
+					label: 'Accessibility',
+					link: {
+						type: 'doc',
+						id: 'accessibility',
+					},
+					items: [
+						'license/accessibility-statement-remotion-dev',
+						'license/accessibility-statement-remotion-pro',
+					],
+				},
 			],
 		},
-		'acknowledgements',
 
 		{
 			type: 'html',

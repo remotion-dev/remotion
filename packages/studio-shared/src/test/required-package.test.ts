@@ -16,11 +16,19 @@ test('gets required package for insertable elements', () => {
 	).toBe(null);
 	expect(
 		getRequiredPackageForInsertableElement({
+			type: 'svg',
+			markup: '<svg />',
+			position: null,
+		}),
+	).toBe(null);
+	expect(
+		getRequiredPackageForInsertableElement({
 			type: 'asset',
 			assetType: 'image',
 			src: 'image.png',
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		}),
 	).toBe(null);
@@ -31,6 +39,7 @@ test('gets required package for insertable elements', () => {
 			src: 'video.mp4',
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		}),
 	).toBe('@remotion/media');
@@ -41,6 +50,7 @@ test('gets required package for insertable elements', () => {
 			src: 'audio.mp3',
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		}),
 	).toBe('@remotion/media');
@@ -51,6 +61,7 @@ test('gets required package for insertable elements', () => {
 			src: 'animation.gif',
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		}),
 	).toBe('@remotion/gif');
@@ -61,6 +72,7 @@ test('gets required package for insertable elements', () => {
 			src: 'animated.png',
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		}),
 	).toBe(null);

@@ -4,10 +4,12 @@ import {expect, test} from 'vitest';
 import {
 	anchorToContinuousTime,
 	audioIteratorManager,
+	hasEnoughAudioToStartPlayback,
 } from '../audio-iterator-manager';
 import {makeNonceManager} from '../nonce-manager';
 
 const prepare = async (options?: {
+	src?: string;
 	fps?: number;
 	playbackRate?: number;
 	localPlaybackRate?: number;
@@ -18,6 +20,7 @@ const prepare = async (options?: {
 	loop?: boolean;
 }) => {
 	const {
+		src = 'https://remotion.media/video.mp4',
 		fps = 30,
 		playbackRate = 1,
 		localPlaybackRate = playbackRate,
@@ -28,7 +31,7 @@ const prepare = async (options?: {
 		loop = false,
 	} = options ?? {};
 	const input = new Input({
-		source: new UrlSource('https://remotion.media/video.mp4'),
+		source: new UrlSource(src),
 		formats: ALL_FORMATS,
 	});
 	const audioTrack = await input.getPrimaryAudioTrack();
@@ -51,11 +54,14 @@ const prepare = async (options?: {
 
 	const unscheduleAudioNode = () => {};
 	const audioSyncAnchor = {value: 0};
+	let playbackUnblocks = 0;
 
 	const manager = audioIteratorManager({
 		audioTrack,
 		delayPlaybackHandleIfNotPremounting: () => ({
-			unblock: () => {},
+			unblock: () => {
+				playbackUnblocks++;
+			},
 			[Symbol.dispose]: () => {},
 		}),
 		sharedAudioContext: {
@@ -140,6 +146,7 @@ const prepare = async (options?: {
 		scheduledStartOffsets,
 		seek,
 		audioContextCurrentTime,
+		getPlaybackUnblocks: () => playbackUnblocks,
 	};
 };
 
@@ -163,6 +170,27 @@ test('anchor maps unlooped time using the local playback rate', () => {
 			playbackRate: 2,
 		}),
 	).toBe(8);
+});
+
+test('audio startup buffering is based on duration instead of chunk count', () => {
+	expect(hasEnoughAudioToStartPlayback(0.099)).toBe(false);
+	expect(hasEnoughAudioToStartPlayback(0.1)).toBe(true);
+	expect(hasEnoughAudioToStartPlayback(0.5)).toBe(true);
+});
+
+test('PCM chunks unblock playback based on duration before six chunks or EOF', async () => {
+	const {manager, seek, scheduledChunks, getPlaybackUnblocks} = await prepare({
+		src: '/junk.wav',
+	});
+
+	seek({time: 0});
+	await manager.waitForNScheduledNodes(3);
+
+	expect(scheduledChunks).toEqual([
+		0, 0.046439909297052155, 0.09287981859410431,
+	]);
+	expect(getPlaybackUnblocks()).toBe(1);
+	manager.destroyIterator();
 });
 
 test('media player should work', async () => {

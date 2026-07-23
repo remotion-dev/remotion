@@ -25,6 +25,9 @@ import {
 	type TSequence,
 } from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {hasClipboardFigmaPayload} from '../../helpers/clipboard-figma';
+import {hasClipboardImage} from '../../helpers/clipboard-images';
+import {hasClipboardSvgMarkup} from '../../helpers/clipboard-svg';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	areKeyboardShortcutsDisabled,
@@ -890,6 +893,8 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 							setPropStatuses,
 							clientId,
 							confirm,
+							propStatuses,
+							timelinePosition: timelinePositionRef.current,
 						});
 						return deletePromise?.then((deleted) => {
 							if (!deleted) {
@@ -930,7 +935,13 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 			}
 
 			const {selectedItems} = currentSelection.current;
-			if (selectedItems.length === 0 || e.clipboardData === null) {
+			if (
+				selectedItems.length === 0 ||
+				e.clipboardData === null ||
+				hasClipboardFigmaPayload(e.clipboardData) ||
+				hasClipboardImage(e.clipboardData) ||
+				hasClipboardSvgMarkup(e.clipboardData)
+			) {
 				return;
 			}
 
@@ -1010,6 +1021,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 								fieldKey: keyframeTarget.fieldKey,
 								sourceFrame,
 								schema: keyframeTarget.schema,
+								valueWhenLastKeyframeDeleted: null,
 							}),
 						);
 
@@ -1108,21 +1120,12 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 							return;
 						}
 
-						return updatePromise
-							.then(() => {
-								showNotification(
-									easingSelections.length === 1
-										? 'Pasted easing'
-										: 'Pasted easing to selected segments',
-									2000,
-								);
-							})
-							.catch((err) => {
-								showNotification(
-									`Could not paste easing: ${(err as Error).message}`,
-									3000,
-								);
-							});
+						return updatePromise.catch((err) => {
+							showNotification(
+								`Could not paste easing: ${(err as Error).message}`,
+								3000,
+							);
+						});
 					}
 
 					const effectPropResult = parseEffectPropClipboardDataResult(text);

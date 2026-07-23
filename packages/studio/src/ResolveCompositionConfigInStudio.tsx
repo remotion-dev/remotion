@@ -16,11 +16,23 @@ type VideoConfigState =
 	  }
 	| {
 			type: 'success';
-			result: Record<string, unknown>;
+			result: VideoConfig;
+			metadataSource: {
+				readonly durationInFrames: 'calculate-metadata' | 'composition';
+				readonly fps: 'calculate-metadata' | 'composition';
+				readonly height: 'calculate-metadata' | 'composition';
+				readonly width: 'calculate-metadata' | 'composition';
+			};
 	  }
 	| {
 			type: 'success-and-refreshing';
-			result: Record<string, unknown>;
+			result: VideoConfig;
+			metadataSource: {
+				readonly durationInFrames: 'calculate-metadata' | 'composition';
+				readonly fps: 'calculate-metadata' | 'composition';
+				readonly height: 'calculate-metadata' | 'composition';
+				readonly width: 'calculate-metadata' | 'composition';
+			};
 	  }
 	| {
 			type: 'error';
@@ -110,10 +122,10 @@ export const ResolveCompositionConfigInStudio: React.FC<
 
 			const {signal} = controller;
 
-			const result = Internals.resolveVideoConfigOrCatch({
+			const result = Internals.resolveVideoConfigWithMetadataOrCatch({
 				compositionId,
 				calculateMetadata: calculateMetadata as Parameters<
-					typeof Internals.resolveVideoConfigOrCatch
+					typeof Internals.resolveVideoConfigWithMetadataOrCatch
 				>[0]['calculateMetadata'],
 				inputProps: combinedProps,
 				signal,
@@ -149,6 +161,7 @@ export const ResolveCompositionConfigInStudio: React.FC<
 							[compositionId]: {
 								type: 'success-and-refreshing',
 								result: prev.result,
+								metadataSource: prev.metadataSource,
 							},
 						};
 					}
@@ -170,7 +183,8 @@ export const ResolveCompositionConfigInStudio: React.FC<
 							...r,
 							[compositionId]: {
 								type: 'success',
-								result: c,
+								result: c.videoConfig,
+								metadataSource: c.metadataSource,
 							},
 						}));
 					})
@@ -192,7 +206,8 @@ export const ResolveCompositionConfigInStudio: React.FC<
 					...r,
 					[compositionId]: {
 						type: 'success',
-						result: promOrNot,
+						result: promOrNot.videoConfig,
+						metadataSource: promOrNot.metadataSource,
 					},
 				}));
 			}
@@ -221,7 +236,7 @@ export const ResolveCompositionConfigInStudio: React.FC<
 				...(inputProps ?? {}),
 			};
 			const controller = new AbortController();
-			const result = Internals.resolveVideoConfigOrCatch({
+			const result = Internals.resolveVideoConfigWithMetadataOrCatch({
 				compositionId: composition.id,
 				calculateMetadata: composition.calculateMetadata,
 				inputProps: combinedProps,
@@ -242,11 +257,12 @@ export const ResolveCompositionConfigInStudio: React.FC<
 				...configs,
 				[composition.id]: {
 					type: 'success',
-					result: resolved,
+					result: resolved.videoConfig,
+					metadataSource: resolved.metadataSource,
 				},
 			}));
 
-			return resolved;
+			return resolved.videoConfig;
 		},
 		[allEditorProps, compositions, inputProps],
 	);
@@ -414,6 +430,12 @@ export const ResolveCompositionConfigInStudio: React.FC<
 					[curr.id]: {
 						type: 'success',
 						result: {...curr, defaultProps: curr.defaultProps ?? {}},
+						metadataSource: {
+							durationInFrames: 'composition',
+							fps: 'composition',
+							height: 'composition',
+							width: 'composition',
+						},
 					},
 				};
 			}, {}),

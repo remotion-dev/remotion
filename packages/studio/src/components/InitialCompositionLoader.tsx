@@ -17,16 +17,24 @@ import {useStaticFiles} from './use-static-files';
 export const useSelectComposition = () => {
 	const {setCompositionFoldersExpanded} = useContext(FolderContext);
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
+	const setFrame = Internals.useTimelineSetFrame();
 	const isMobileLayout = useMobileLayout();
 	const {setSidebarCollapsedState} = useContext(SidebarContext);
 
 	return useCallback(
-		(c: _InternalTypes['AnyComposition'], push: boolean) => {
+		(
+			c: _InternalTypes['AnyComposition'],
+			push: boolean,
+			frame: number | null = null,
+		) => {
 			if (push) {
 				pushUrl(`/${c.id}`);
 			}
 
 			explorerSidebarTabs.current?.selectCompositionPanel();
+			if (frame !== null) {
+				setFrame((current) => ({...current, [c.id]: frame}));
+			}
 
 			setCanvasContent({type: 'composition', compositionId: c.id});
 
@@ -55,6 +63,7 @@ export const useSelectComposition = () => {
 			isMobileLayout,
 			setCanvasContent,
 			setCompositionFoldersExpanded,
+			setFrame,
 			setSidebarCollapsedState,
 		],
 	);

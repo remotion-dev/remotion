@@ -50,7 +50,7 @@ const confirmDeletingDuplicatedSequences = (
 	});
 };
 
-const deleteSequences = async (
+export const deleteSequencesFromSource = async (
 	nodePathInfos: SequenceNodePathInfo[],
 	confirm: ConfirmationDialogFunction,
 ): Promise<boolean> => {
@@ -177,7 +177,7 @@ export const deleteSelectedTimelineItem = ({
 		case 'guide':
 			return null;
 		case 'sequence':
-			return deleteSequences([selection.nodePathInfo], confirm);
+			return deleteSequencesFromSource([selection.nodePathInfo], confirm);
 		case 'sequence-effect':
 			return deleteEffects([
 				{
@@ -419,6 +419,8 @@ export const deleteSelectedTimelineItems = ({
 	setPropStatuses,
 	clientId,
 	confirm,
+	propStatuses,
+	timelinePosition,
 }: {
 	selections: readonly TimelineSelection[];
 	sequences: TSequence[];
@@ -426,6 +428,8 @@ export const deleteSelectedTimelineItems = ({
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 	confirm: ConfirmationDialogFunction;
+	propStatuses: PropStatuses;
+	timelinePosition: number;
 }): Promise<boolean> | null => {
 	const firstSelection = selections[0];
 	if (!firstSelection) {
@@ -447,6 +451,8 @@ export const deleteSelectedTimelineItems = ({
 			overrideIdsToNodePaths,
 			setPropStatuses,
 			clientId,
+			propStatuses,
+			timelinePosition,
 		});
 		return promise?.then(() => true) ?? null;
 	}
@@ -461,7 +467,7 @@ export const deleteSelectedTimelineItems = ({
 		case 'guide':
 			return null;
 		case 'sequence':
-			return deleteSequences(
+			return deleteSequencesFromSource(
 				selections
 					.filter(isSequenceRowSelection)
 					.map((selection) => selection.nodePathInfo),

@@ -1,5 +1,12 @@
 import {expect, test} from 'bun:test';
 import {LightLeakInternals, lightLeak} from '../light-leak-internals.js';
+import {lightLeakSchema} from '../LightLeak.js';
+
+test('<LightLeak> exposes border controls', () => {
+	expect('style.borderWidth' in lightLeakSchema).toBe(true);
+	expect('style.borderStyle' in lightLeakSchema).toBe(true);
+	expect('style.borderColor' in lightLeakSchema).toBe(true);
+});
 
 test('lightLeak() accepts default params', () => {
 	expect(() => lightLeak()).not.toThrow();

@@ -1,11 +1,26 @@
 import {expect, test} from 'bun:test';
 import {
+	getAssetPositionForDrop,
 	getAssetElement,
+	getAssetElementForDroppedFile,
 	getAssetElementFromPath,
 	getComponentDimensions,
 	getCompositionPositionForDrop,
+	getDurationInFrames,
 	getElementPositionForDrop,
+	hasSvgFile,
 } from '../components/import-assets';
+
+test('converts media duration to composition frames with two decimals', () => {
+	expect(getDurationInFrames({durationInSeconds: 1.2345, fps: 30})).toBe(37.03);
+	expect(getDurationInFrames({durationInSeconds: 2, fps: 29.97})).toBe(59.94);
+	expect(getDurationInFrames({durationInSeconds: null, fps: 30})).toBe(null);
+	expect(getDurationInFrames({durationInSeconds: 0, fps: 30})).toBe(null);
+	expect(getDurationInFrames({durationInSeconds: -1, fps: 30})).toBe(null);
+	expect(getDurationInFrames({durationInSeconds: Number.NaN, fps: 30})).toBe(
+		null,
+	);
+});
 
 test('maps audio file types to Audio assets', () => {
 	for (const type of ['wav', 'mp3', 'aac', 'flac'] as const) {
@@ -20,6 +35,7 @@ test('maps audio file types to Audio assets', () => {
 			src: `sound.${type}`,
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		});
 	}
@@ -49,6 +65,49 @@ test('maps animated PNG file types to AnimatedImage assets', () => {
 		src: 'animated-png.png',
 		srcType: 'static',
 		dimensions: {width: 320, height: 180},
+		durationInFrames: null,
+		position: null,
+	});
+});
+
+test('maps animated WebP file types to AnimatedImage assets', () => {
+	expect(
+		getAssetElement({
+			fileType: {
+				type: 'webp',
+				animated: true,
+				dimensions: {width: 480, height: 290},
+			},
+			src: 'animated.webp',
+		}),
+	).toEqual({
+		type: 'asset',
+		assetType: 'animated-image',
+		src: 'animated.webp',
+		srcType: 'static',
+		dimensions: {width: 480, height: 290},
+		durationInFrames: null,
+		position: null,
+	});
+});
+
+test('maps static WebP file types to static image assets', () => {
+	expect(
+		getAssetElement({
+			fileType: {
+				type: 'webp',
+				animated: false,
+				dimensions: {width: 480, height: 290},
+			},
+			src: 'static.webp',
+		}),
+	).toEqual({
+		type: 'asset',
+		assetType: 'image',
+		src: 'static.webp',
+		srcType: 'static',
+		dimensions: {width: 480, height: 290},
+		durationInFrames: null,
 		position: null,
 	});
 });
@@ -60,6 +119,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'nested/photo.JPG',
 		srcType: 'static',
 		dimensions: null,
+		durationInFrames: null,
 		position: null,
 	});
 	expect(getAssetElementFromPath('movie.webm')).toEqual({
@@ -68,6 +128,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'movie.webm',
 		srcType: 'static',
 		dimensions: null,
+		durationInFrames: null,
 		position: null,
 	});
 	expect(getAssetElementFromPath('audio.flac')).toEqual({
@@ -76,6 +137,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'audio.flac',
 		srcType: 'static',
 		dimensions: null,
+		durationInFrames: null,
 		position: null,
 	});
 	expect(getAssetElementFromPath('animation.apng')).toEqual({
@@ -84,6 +146,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'animation.apng',
 		srcType: 'static',
 		dimensions: null,
+		durationInFrames: null,
 		position: null,
 	});
 	expect(getAssetElementFromPath('animation.gif')).toEqual({
@@ -92,8 +155,45 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'animation.gif',
 		srcType: 'static',
 		dimensions: null,
+		durationInFrames: null,
 		position: null,
 	});
+	expect(getAssetElementFromPath('vector.SVG')).toEqual({
+		type: 'asset',
+		assetType: 'image',
+		src: 'vector.SVG',
+		srcType: 'static',
+		dimensions: null,
+		durationInFrames: null,
+		position: null,
+	});
+});
+
+test('maps dropped SVG files to image assets', () => {
+	expect(
+		getAssetElementForDroppedFile({
+			fileType: {type: 'unknown'},
+			src: 'vector.svg',
+		}),
+	).toEqual({
+		type: 'asset',
+		assetType: 'image',
+		src: 'vector.svg',
+		srcType: 'static',
+		dimensions: null,
+		durationInFrames: null,
+		position: null,
+	});
+});
+
+test('detects whether dropped files include an SVG', () => {
+	expect(
+		hasSvgFile([
+			new File(['svg'], 'icon.SVG'),
+			new File(['image'], 'image.png'),
+		]),
+	).toBe(true);
+	expect(hasSvgFile([new File(['image'], 'image.png')])).toBe(false);
 });
 
 test('does not map unsupported existing static file paths', () => {
@@ -172,6 +272,26 @@ test('centers a composition with different destination dimensions', () => {
 	expect(
 		getCompositionPositionForDrop({
 			compositionDimensions: {width: 1280, height: 720},
+			destinationDimensions: {width: 1920, height: 1080},
+			dropPosition: {centerX: 400, centerY: 300},
+		}),
+	).toEqual({x: -240, y: -60});
+});
+
+test('aligns an asset with matching destination dimensions', () => {
+	expect(
+		getAssetPositionForDrop({
+			assetDimensions: {width: 1920, height: 1080},
+			destinationDimensions: {width: 1920, height: 1080},
+			dropPosition: {centerX: 400, centerY: 300},
+		}),
+	).toBe(null);
+});
+
+test('centers an asset with different destination dimensions', () => {
+	expect(
+		getAssetPositionForDrop({
+			assetDimensions: {width: 1280, height: 720},
 			destinationDimensions: {width: 1920, height: 1080},
 			dropPosition: {centerX: 400, centerY: 300},
 		}),

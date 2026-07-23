@@ -14,14 +14,11 @@ import {
 } from '../helpers/timeline-layout';
 import {Plus} from '../icons/plus';
 import {ModalsContext} from '../state/modals';
+import {AssetFileIcon} from './AssetFileIcon';
 import {CaptionJsonInspector} from './CaptionJsonInspector';
-import {AssetInfo} from './CurrentAsset';
 import {InlineAction} from './InlineAction';
-import {
-	sectionHeaderRow,
-	sectionHeaderTitle,
-	sequenceHeaderDivider,
-} from './InspectorPanel/styles';
+import {InspectorInlineAction, InspectorSection} from './InspectorPanel/common';
+import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 import {
 	getTimelineAssetLinkInfo,
@@ -55,12 +52,7 @@ const emptyState: React.CSSProperties = {
 	fontFamily: 'sans-serif',
 	fontSize: 12,
 	lineHeight: 1.4,
-	padding: '0 12px 8px',
-};
-
-const controlsEffectsDivider: React.CSSProperties = {
-	...sequenceHeaderDivider,
-	margin: '8px 0 4px',
+	padding: '0 12px',
 };
 
 const effectsHeaderTitle: React.CSSProperties = {
@@ -71,6 +63,12 @@ const effectsHeaderTitle: React.CSSProperties = {
 const plusIcon: React.CSSProperties = {
 	width: 15,
 	height: 15,
+};
+
+const assetSelectorIcon: React.CSSProperties = {
+	flexShrink: 0,
+	height: 18,
+	width: 18,
 };
 
 const remoteSourceLabel: React.CSSProperties = {
@@ -205,7 +203,6 @@ export const InspectorSequenceSection: React.FC<{
 	readonly validatedLocation: CodePosition;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
-	readonly renderSectionHeader: (children: React.ReactNode) => React.ReactNode;
 	readonly renderTransformControls: () => React.ReactNode;
 }> = ({
 	sequence,
@@ -213,7 +210,6 @@ export const InspectorSequenceSection: React.FC<{
 	validatedLocation,
 	nodePathInfo,
 	keyframeDisplayOffset,
-	renderSectionHeader,
 	renderTransformControls,
 }) => {
 	const {tree} = useTimelineExpandedTree({
@@ -248,6 +244,9 @@ export const InspectorSequenceSection: React.FC<{
 			openTimelineAssetLink(localAsset, selectAsset);
 		}
 	}, [localAsset, selectAsset]);
+	const localAssetFileName = localAsset
+		? (localAsset.assetPath.split('/').pop() ?? localAsset.assetPath)
+		: null;
 
 	const getIsExpanded = useCallback(
 		(candidate: SequenceNodePathInfo) => {
@@ -319,8 +318,6 @@ export const InspectorSequenceSection: React.FC<{
 	const {schema} = sequence.controls;
 	const showEffectsSection =
 		nodePathInfo.supportsEffects || effectRows.length > 0;
-	const showControlsEffectsDivider =
-		controlRows.length > 0 && showEffectsSection;
 	const canAddEffect =
 		nodePathInfo.supportsEffects &&
 		previewServerState.type === 'connected' &&
@@ -345,19 +342,17 @@ export const InspectorSequenceSection: React.FC<{
 		validatedLocation.source,
 	]);
 
-	const renderEffectsHeader = () => {
-		return renderSectionHeader(
-			<div style={sectionHeaderRow}>
-				<div style={effectsHeaderTitle}>Effects</div>
-				<InlineAction
-					disabled={!canAddEffect}
-					onClick={onAddEffect}
-					title={canAddEffect ? 'Add effect' : undefined}
-					renderAction={(color) => <Plus color={color} style={plusIcon} />}
-				/>
-			</div>,
-		);
-	};
+	const effectsHeader = (
+		<div style={sectionHeaderRow}>
+			<div style={effectsHeaderTitle}>Effects</div>
+			<InlineAction
+				disabled={!canAddEffect}
+				onClick={onAddEffect}
+				title={canAddEffect ? 'Add effect' : undefined}
+				renderAction={(color) => <Plus color={color} style={plusIcon} />}
+			/>
+		</div>
+	);
 
 	const renderRow = ({node, depth}: FlatTreeRow) => {
 		return (
@@ -385,7 +380,9 @@ export const InspectorSequenceSection: React.FC<{
 	if (controlRows.length === 0 && !showEffectsSection) {
 		return (
 			<div style={container}>
-				<div style={emptyState}>No schema</div>
+				<InspectorSection header="Controls">
+					<div style={emptyState}>No schema</div>
+				</InspectorSection>
 			</div>
 		);
 	}
@@ -394,17 +391,24 @@ export const InspectorSequenceSection: React.FC<{
 		<div style={container}>
 			{controlRows.length > 0 ? (
 				<TimelineSelectionOrderProvider items={controlSelectableItems}>
-					{controlGroups.map((group, i) => (
-						<React.Fragment key={group.id}>
-							{i === 0 ? null : <div style={controlsEffectsDivider} />}
-							{renderSectionHeader(group.label)}
+					{controlGroups.map((group) => (
+						<InspectorSection key={group.id} header={group.label}>
 							{group.id === 'source' && localAsset ? (
-								<AssetInfo
-									assetName={localAsset.assetPath}
-									contentSized
-									onAssetClick={jumpToAsset}
-									readOnlyStudio
-								/>
+								<InspectorInlineAction
+									disabled={false}
+									onClick={jumpToAsset}
+									renderIcon={(color) => (
+										<AssetFileIcon
+											color={color}
+											fileType={getPreviewFileType(localAsset.assetPath)}
+											style={assetSelectorIcon}
+										/>
+									)}
+									size="compact"
+									title={localAsset.assetPath}
+								>
+									{localAssetFileName}
+								</InspectorInlineAction>
 							) : null}
 							{group.id === 'source' && remoteAsset && remoteSourceParts ? (
 								<div style={remoteSourceLabel} title={remoteAsset.href}>
@@ -426,22 +430,18 @@ export const InspectorSequenceSection: React.FC<{
 							) : null}
 							{group.id === 'transforms' ? renderTransformControls() : null}
 							{group.id === 'source' ? null : group.rows.map(renderRow)}
-						</React.Fragment>
+						</InspectorSection>
 					))}
 				</TimelineSelectionOrderProvider>
 			) : null}
 			{showEffectsSection ? (
-				<>
-					{showControlsEffectsDivider ? (
-						<div style={controlsEffectsDivider} />
-					) : null}
-					{renderEffectsHeader()}
+				<InspectorSection header={effectsHeader}>
 					{effectRows.length > 0 ? (
 						<TimelineSelectionOrderProvider items={effectSelectableItems}>
 							{effectRows.map(renderRow)}
 						</TimelineSelectionOrderProvider>
 					) : null}
-				</>
+				</InspectorSection>
 			) : null}
 		</div>
 	);

@@ -60,3 +60,8 @@ export const getRendererPortFromConfigFileAndCliFlag = (): number | null => {
 		portOption.getValue({commandLine: parsedCli}).value ?? rendererPort ?? null
 	);
 };
+
+export const resetPreviewServerPorts = () => {
+	studioPort = undefined;
+	rendererPort = undefined;
+};

@@ -61,6 +61,7 @@ export const TimelineVideoInfo: React.FC<{
 	readonly postmountWidth: number;
 	readonly loopDisplay: LoopDisplay | undefined;
 	readonly frozenMediaFrame: number | null;
+	readonly extendLastFrame: boolean;
 }> = ({
 	src,
 	visualizationWidth,
@@ -76,6 +77,7 @@ export const TimelineVideoInfo: React.FC<{
 	postmountWidth,
 	loopDisplay,
 	frozenMediaFrame,
+	extendLastFrame,
 }) => {
 	const {fps} = useVideoConfig();
 	const ref = useRef<HTMLDivElement>(null);
@@ -187,6 +189,7 @@ export const TimelineVideoInfo: React.FC<{
 			}
 
 			extractFrames({
+				repeatLastFrame: extendLastFrame,
 				timestampsInSeconds: ({
 					track,
 				}: {
@@ -324,6 +327,7 @@ export const TimelineVideoInfo: React.FC<{
 		}
 
 		extractFrames({
+			repeatLastFrame: extendLastFrame,
 			timestampsInSeconds: ({
 				track,
 			}: {
@@ -431,6 +435,7 @@ export const TimelineVideoInfo: React.FC<{
 	}, [
 		durationInFrames,
 		error,
+		extendLastFrame,
 		fps,
 		frozenMediaFrame,
 		loopDisplay,

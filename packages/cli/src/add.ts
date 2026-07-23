@@ -186,17 +186,23 @@ export const addCommand = async ({
 		stdio: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'info')
 			? 'inherit'
 			: 'ignore',
+		...StudioServerInternals.getPackageManagerSpawnOptions(),
 	});
 
-	await new Promise<void>((resolve) => {
+	await new Promise<void>((resolve, reject) => {
+		task.on('error', (err) => {
+			reject(err);
+		});
 		task.on('close', (code) => {
 			if (code === 0) {
 				resolve();
 			} else if (RenderInternals.isEqualOrBelowLogLevel(logLevel, 'info')) {
-				throw new Error(`Failed to install packages, see logs above`);
+				reject(new Error(`Failed to install packages, see logs above`));
 			} else {
-				throw new Error(
-					`Failed to install packages, run with --log=info to see logs`,
+				reject(
+					new Error(
+						`Failed to install packages, run with --log=info to see logs`,
+					),
 				);
 			}
 		});

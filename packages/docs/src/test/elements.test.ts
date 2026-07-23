@@ -290,11 +290,22 @@ describe('Element preview definitions', () => {
 		expect(new Set(compositionIds).size).toBe(compositionIds.length);
 
 		for (const definition of elementDefinitionList) {
-			expect(getElementPreviewUrls(definition.slug)).toEqual({
-				mp4: `https://remotion.media/elements/${definition.slug}/preview.mp4`,
+			expect(getElementPreviewUrls(definition)).toEqual({
 				png: `https://remotion.media/elements/${definition.slug}/preview.png`,
+				video: `https://remotion.media/elements/${definition.slug}/preview.${definition.transparentPreview ? 'webm' : 'mp4'}`,
 			});
 		}
+	});
+
+	test('supports transparent preview assets', () => {
+		expect(elementDefinitions['data/product-offer'].transparentPreview).toBe(
+			true,
+		);
+		expect(
+			elementDefinitionList
+				.filter((definition) => definition.transparentPreview)
+				.map((definition) => definition.slug),
+		).toEqual(['data/product-offer']);
 	});
 
 	test('registers Element compositions in a Folder', () => {

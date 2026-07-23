@@ -16,13 +16,13 @@ import {
 	WHITE_ALPHA_06,
 	CURRENT_COLOR,
 	LIGHT_TEXT,
-	SELECTED_BACKGROUND,
 	TRANSPARENT,
 	WHITE,
 } from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
 import type {AssetFolder, AssetStructure} from '../helpers/create-folder-tree';
 import {getFileManagerName} from '../helpers/get-file-manager-name';
+import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {
 	markAssetSidebarScrollFromRowClick,
@@ -33,22 +33,21 @@ import useAssetDragEvents, {
 	isFileDragEvent,
 } from '../helpers/use-asset-drag-events';
 import {ClipboardIcon} from '../icons/clipboard';
-import {FileIcon} from '../icons/file';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {ModalsContext} from '../state/modals';
 import {SidebarContext} from '../state/sidebar';
+import {AssetFileIcon} from './AssetFileIcon';
 import {useConfirmationDialog} from './ConfirmationDialog';
 import {ContextMenu} from './ContextMenu';
 import {getAssetElementFromPath} from './import-assets';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
-import {Row, Spacing} from './layout';
+import {COMPACT_CONTROL_ROW_HEIGHT, Row, Spacing} from './layout';
 import {inlineCodeSnippet} from './Menu/styles';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
+import {getOpenInNewWindowMenuItem} from './open-in-new-window';
 import {openInFileExplorer} from './RenderQueue/actions';
-
-const ASSET_ITEM_HEIGHT = 32;
 
 const iconStyle: React.CSSProperties = {
 	width: 18,
@@ -58,20 +57,23 @@ const iconStyle: React.CSSProperties = {
 
 const itemStyle: React.CSSProperties = {
 	paddingRight: 10,
-	paddingTop: 6,
-	paddingBottom: 6,
+	paddingTop: 5,
+	paddingBottom: 5,
 	fontSize: 13,
 	display: 'flex',
 	textDecoration: 'none',
 	cursor: 'default',
 	alignItems: 'center',
 	marginBottom: 1,
+	marginLeft: 4,
+	marginRight: 4,
 	appearance: 'none',
 	border: 'none',
-	width: '100%',
+	borderRadius: 4,
+	width: 'calc(100% - 8px)',
 	textAlign: 'left',
 	backgroundColor: BACKGROUND,
-	height: ASSET_ITEM_HEIGHT,
+	height: COMPACT_CONTROL_ROW_HEIGHT,
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
 };
@@ -301,6 +303,9 @@ const AssetSelectorItem: React.FC<{
 	const relativePath = useMemo(() => {
 		return parentFolder ? parentFolder + '/' + item.name : item.name;
 	}, [parentFolder, item.name]);
+	const previewFileType = useMemo(() => {
+		return getPreviewFileType(relativePath);
+	}, [relativePath]);
 
 	const selected = useMemo(() => {
 		if (canvasContent && canvasContent.type === 'asset') {
@@ -366,13 +371,7 @@ const AssetSelectorItem: React.FC<{
 		return {
 			...itemStyle,
 			color: hovered || selected ? WHITE : LIGHT_TEXT,
-			backgroundColor: hovered
-				? selected
-					? SELECTED_BACKGROUND
-					: WHITE_ALPHA_06
-				: selected
-					? SELECTED_BACKGROUND
-					: TRANSPARENT,
+			backgroundColor: hovered || selected ? WHITE_ALPHA_06 : TRANSPARENT,
 			paddingLeft: 12 + level * 8,
 		};
 	}, [hovered, level, selected]);
@@ -472,6 +471,11 @@ const AssetSelectorItem: React.FC<{
 
 	const contextMenu = useMemo((): ComboboxValue[] => {
 		return [
+			getOpenInNewWindowMenuItem(`/assets/${relativePath}`),
+			{
+				type: 'divider',
+				id: 'open-in-new-window-divider',
+			},
 			{
 				id: 'copy-asset-file-name',
 				keyHint: null,
@@ -585,7 +589,11 @@ const AssetSelectorItem: React.FC<{
 					tabIndex={tabIndex}
 					title={item.name}
 				>
-					<FileIcon style={iconStyle} color={LIGHT_TEXT} />
+					<AssetFileIcon
+						fileType={previewFileType}
+						style={iconStyle}
+						color={LIGHT_TEXT}
+					/>
 					<Spacing x={1} />
 					<div style={label}>{item.name}</div>
 					{hovered && !isDragging ? (

@@ -158,6 +158,7 @@ export type KeyframeOperation =
 	| {
 			type: 'remove';
 			frame: number;
+			valueWhenLastKeyframeDeleted: unknown | null;
 	  }
 	| {
 			type: 'settings';
@@ -196,6 +197,7 @@ export type EffectKeyframeUpdate = {
 type WritableProp = {
 	expression: Expression;
 	setExpression: (expression: ExpressionKind) => void;
+	remove: () => void;
 };
 
 type MissingPropInitialValue = {
@@ -1163,10 +1165,12 @@ const removeKeyframe = ({
 	expression,
 	frame,
 	videoConfigValues,
+	valueWhenLastKeyframeDeleted,
 }: {
 	expression: Expression;
 	frame: number;
 	videoConfigValues: VideoConfigIdentifierValues;
+	valueWhenLastKeyframeDeleted: unknown | null;
 }): {expression: ExpressionKind; introduced: IntroducedKeyframeIdentifiers} => {
 	const existing = getInterpolationExpression(expression, videoConfigValues);
 	if (!existing) {
@@ -1186,7 +1190,10 @@ const removeKeyframe = ({
 
 	if (nextKeyframes.length === 0) {
 		return {
-			expression: existing.keyframes[keyframeIndex].output,
+			expression:
+				valueWhenLastKeyframeDeleted === null
+					? existing.keyframes[keyframeIndex].output
+					: parseValueExpression(valueWhenLastKeyframeDeleted),
 			introduced: noIntroducedIdentifiers,
 		};
 	}
@@ -1367,6 +1374,7 @@ const applyKeyframeOperation = ({
 		expression,
 		frame: operation.frame,
 		videoConfigValues,
+		valueWhenLastKeyframeDeleted: operation.valueWhenLastKeyframeDeleted,
 	});
 };
 
@@ -1498,6 +1506,41 @@ const getInitialValueForMissingProp = ({
 	return newValue;
 };
 
+const shouldRemovePropAfterKeyframeOperation = ({
+	expression,
+	key,
+	operation,
+	schema,
+	videoConfigValues,
+}: {
+	expression: Expression;
+	key: string;
+	operation: KeyframeOperation;
+	schema: InteractivitySchema | null;
+	videoConfigValues: VideoConfigIdentifierValues;
+}) => {
+	if (operation.type !== 'remove' || !schema) {
+		return false;
+	}
+
+	const existing = getInterpolationExpression(expression, videoConfigValues);
+	if (!existing || existing.keyframes.length !== 1) {
+		return false;
+	}
+
+	const field = findFieldInSchema(schema, key);
+	if (!field || field.type === 'hidden' || field.default === undefined) {
+		return false;
+	}
+
+	const valueAfterRemoval =
+		operation.valueWhenLastKeyframeDeleted === null
+			? existing.keyframes[0].value
+			: operation.valueWhenLastKeyframeDeleted;
+
+	return JSON.stringify(valueAfterRemoval) === JSON.stringify(field.default);
+};
+
 const getObjectExpression = (attr: JSXAttribute): ObjectExpression | null => {
 	if (!attr.value || attr.value.type !== 'JSXExpressionContainer') {
 		return null;
@@ -1557,7 +1600,7 @@ const getSequenceWritableProp = ({
 }): WritableProp => {
 	const dotIndex = key.indexOf('.');
 	if (dotIndex === -1) {
-		const {attr: topLevelAttr} = findJsxAttribute(attributes, key);
+		const {attrIndex, attr: topLevelAttr} = findJsxAttribute(attributes, key);
 		if (!topLevelAttr) {
 			if (missingPropInitialValue) {
 				return {
@@ -1565,6 +1608,7 @@ const getSequenceWritableProp = ({
 					setExpression: (nextExpression) => {
 						attributes.push(createJsxExpressionAttribute(key, nextExpression));
 					},
+					remove: () => undefined,
 				};
 			}
 
@@ -1587,12 +1631,18 @@ const getSequenceWritableProp = ({
 					| null
 					| undefined;
 			},
+			remove: () => {
+				attributes.splice(attrIndex, 1);
+			},
 		};
 	}
 
 	const parentKey = key.slice(0, dotIndex);
 	const childKey = key.slice(dotIndex + 1);
-	const {attr: parentAttr} = findJsxAttribute(attributes, parentKey);
+	const {attrIndex: parentAttrIndex, attr: parentAttr} = findJsxAttribute(
+		attributes,
+		parentKey,
+	);
 	if (!parentAttr) {
 		if (missingPropInitialValue) {
 			return {
@@ -1606,6 +1656,7 @@ const getSequenceWritableProp = ({
 						}),
 					);
 				},
+				remove: () => undefined,
 			};
 		}
 
@@ -1617,7 +1668,7 @@ const getSequenceWritableProp = ({
 		throw new Error(`Cannot update keyframes: "${parentKey}" is computed`);
 	}
 
-	const {prop} = findObjectProperty(objExpr, childKey);
+	const {propIndex, prop} = findObjectProperty(objExpr, childKey);
 	if (!prop) {
 		if (missingPropInitialValue) {
 			return {
@@ -1627,6 +1678,7 @@ const getSequenceWritableProp = ({
 						createObjectProperty(childKey, nextExpression) as ObjectProperty,
 					);
 				},
+				remove: () => undefined,
 			};
 		}
 
@@ -1637,6 +1689,12 @@ const getSequenceWritableProp = ({
 		expression: prop.value as Expression,
 		setExpression: (nextExpression) => {
 			prop.value = nextExpression as ObjectProperty['value'];
+		},
+		remove: () => {
+			objExpr.properties.splice(propIndex, 1);
+			if (objExpr.properties.length === 0) {
+				attributes.splice(parentAttrIndex, 1);
+			}
 		},
 	};
 };
@@ -1650,7 +1708,7 @@ const getEffectWritableProp = ({
 	key: string;
 	missingPropInitialValue: MissingPropInitialValue | null;
 }): WritableProp => {
-	const {prop} = findObjectProperty(objExpr, key);
+	const {propIndex, prop} = findObjectProperty(objExpr, key);
 	if (!prop) {
 		if (missingPropInitialValue) {
 			return {
@@ -1660,6 +1718,7 @@ const getEffectWritableProp = ({
 						createObjectProperty(key, nextExpression) as ObjectProperty,
 					);
 				},
+				remove: () => undefined,
 			};
 		}
 
@@ -1670,6 +1729,9 @@ const getEffectWritableProp = ({
 		expression: prop.value as Expression,
 		setExpression: (nextExpression) => {
 			prop.value = nextExpression as ObjectProperty['value'];
+		},
+		remove: () => {
+			objExpr.properties.splice(propIndex, 1);
 		},
 	};
 };
@@ -1755,7 +1817,19 @@ export const updateSequenceKeyframesAst = ({
 			videoConfigValues: videoConfigIdentifierValues,
 		});
 		newValueStrings.push(recast.print(nextExpression).code);
-		prop.setExpression(nextExpression);
+		if (
+			shouldRemovePropAfterKeyframeOperation({
+				expression: prop.expression,
+				key: update.key,
+				operation: update.operation,
+				schema: schema ?? null,
+				videoConfigValues: videoConfigIdentifierValues,
+			})
+		) {
+			prop.remove();
+		} else {
+			prop.setExpression(nextExpression);
+		}
 
 		if (introduced.calleeName) {
 			requiredImports.add(introduced.calleeName);
@@ -1928,7 +2002,19 @@ export const updateEffectKeyframesAst = ({
 			videoConfigValues: videoConfigIdentifierValues,
 		});
 		newValueStrings.push(recast.print(nextExpression).code);
-		prop.setExpression(nextExpression);
+		if (
+			shouldRemovePropAfterKeyframeOperation({
+				expression: prop.expression,
+				key: update.key,
+				operation: update.operation,
+				schema: schema ?? null,
+				videoConfigValues: videoConfigIdentifierValues,
+			})
+		) {
+			prop.remove();
+		} else {
+			prop.setExpression(nextExpression);
+		}
 
 		if (introduced.calleeName) {
 			requiredImports.add(introduced.calleeName);

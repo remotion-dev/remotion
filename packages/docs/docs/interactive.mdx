@@ -102,13 +102,23 @@ Controls for text-related style props:
 
 Use it for components that accept a `style` prop and render text.
 
+### `Interactive.borderSchema`<AvailableFrom v="4.0.497" />
+
+Controls for border-related style props:
+
+`style.borderWidth`, `style.borderStyle` and `style.borderColor`.
+
+The longhand properties are used rather than the `border` shorthand, because React does not expand shorthands. This lets each control read its own value, and allows `style.borderWidth` and `style.borderColor` to be animated.
+
+Use it for components that accept a `style` prop and render a border.
+
 ### `Interactive.premountSchema`<AvailableFrom v="4.0.479" />
 
 Controls for mounting behavior:
 
-`premountFor`, `postmountFor`, `styleWhilePremounted` and `styleWhilePostmounted`.
+`premountFor` and `postmountFor`.
 
-Use it for components that forward these props to a `<Sequence>` with `layout="absolute-fill"`.
+Use it for components that forward these props to a `<Sequence>`.
 
 ### `Interactive.sequenceSchema`<AvailableFrom v="4.0.479" />
 

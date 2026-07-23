@@ -1,6 +1,7 @@
 import type {Size} from '@remotion/player';
 import {Internals, type PreviewSize, type Translation} from 'remotion';
 import {MAX_ZOOM, MIN_ZOOM} from './smooth-zoom';
+import {calculateStudioScale} from './studio-fit-padding';
 
 const getEffectiveXTranslation = ({
 	canvasSize,
@@ -121,6 +122,7 @@ export const getCenterPointWhileScrolling = ({
 };
 
 export const applyZoomAroundFocalPoint = ({
+	addFitPadding,
 	canvasSize,
 	contentDimensions,
 	previewSizeBefore,
@@ -129,6 +131,7 @@ export const applyZoomAroundFocalPoint = ({
 	clientX,
 	clientY,
 }: {
+	readonly addFitPadding: boolean;
 	readonly canvasSize: Size;
 	readonly contentDimensions: {width: number; height: number};
 	readonly previewSizeBefore: PreviewSize;
@@ -137,12 +140,19 @@ export const applyZoomAroundFocalPoint = ({
 	readonly clientX: number;
 	readonly clientY: number;
 }): PreviewSize => {
-	const scale = Internals.calculateScale({
-		canvasSize,
-		compositionHeight: contentDimensions.height,
-		compositionWidth: contentDimensions.width,
-		previewSize: previewSizeBefore.size,
-	});
+	const scale = addFitPadding
+		? calculateStudioScale({
+				canvasSize,
+				compositionHeight: contentDimensions.height,
+				compositionWidth: contentDimensions.width,
+				previewSize: previewSizeBefore.size,
+			})
+		: Internals.calculateScale({
+				canvasSize,
+				compositionHeight: contentDimensions.height,
+				compositionWidth: contentDimensions.width,
+				previewSize: previewSizeBefore.size,
+			});
 
 	const clampedNew = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, newNumericSize));
 

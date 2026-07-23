@@ -138,6 +138,156 @@ export const Example: React.FC = () => {
 	});
 });
 
+test('computeSequencePropsStatus should expand a static border shorthand', () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return <AbsoluteFill style={{border: '12px dashed rgba(1, 2, 3, 0.5)'}} />;
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 4),
+		componentIdentity: null,
+		keys: ['style.borderWidth', 'style.borderStyle', 'style.borderColor'],
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(result.props['style.borderWidth']).toEqual({
+		status: 'static',
+		codeValue: 12,
+	});
+	expect(result.props['style.borderStyle']).toEqual({
+		status: 'static',
+		codeValue: 'dashed',
+	});
+	expect(result.props['style.borderColor']).toEqual({
+		status: 'static',
+		codeValue: 'rgba(1, 2, 3, 0.5)',
+	});
+});
+
+test('computeSequencePropsStatus should not guess a dynamic border shorthand', () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = ({border}: {border: string}) => {
+	return <AbsoluteFill style={{border}} />;
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 4),
+		componentIdentity: null,
+		keys: ['style.borderWidth', 'style.borderStyle', 'style.borderColor'],
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(result.props['style.borderWidth']).toEqual({status: 'computed'});
+	expect(result.props['style.borderStyle']).toEqual({status: 'computed'});
+	expect(result.props['style.borderColor']).toEqual({status: 'computed'});
+});
+
+test('computeSequencePropsStatus should treat side-specific borders as computed', () => {
+	const sideProperties = [
+		"borderLeft: '1px solid red'",
+		'borderRightWidth: 2',
+		"borderTopStyle: 'dashed'",
+		"'borderBottomColor': 'blue'",
+	];
+
+	for (const sideProperty of sideProperties) {
+		const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return <AbsoluteFill style={{${sideProperty}}} />;
+};
+`;
+		const result = computeSequencePropsStatusFromContent({
+			fileContents: input,
+			nodePath: getNodePathFromContent(input, 4),
+			componentIdentity: null,
+			keys: ['style.borderWidth', 'style.borderStyle', 'style.borderColor'],
+			effects: [],
+			videoConfigValues: null,
+		});
+
+		expect(result.props['style.borderWidth']).toEqual({status: 'computed'});
+		expect(result.props['style.borderStyle']).toEqual({status: 'computed'});
+		expect(result.props['style.borderColor']).toEqual({status: 'computed'});
+	}
+});
+
+test('computeSequencePropsStatus should respect border property order', () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return (
+		<>
+			<AbsoluteFill style={{borderWidth: 8, border: '2px solid red'}} />
+			<AbsoluteFill style={{border: '2px solid red', borderWidth: 8}} />
+		</>
+	);
+};
+`;
+	const beforeShorthand = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 6),
+		componentIdentity: null,
+		keys: ['style.borderWidth'],
+		effects: [],
+		videoConfigValues: null,
+	});
+	const afterShorthand = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
+		keys: ['style.borderWidth'],
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(beforeShorthand.props['style.borderWidth']).toEqual({
+		status: 'static',
+		codeValue: 2,
+	});
+	expect(afterShorthand.props['style.borderWidth']).toEqual({
+		status: 'static',
+		codeValue: 8,
+	});
+});
+
+test('computeSequencePropsStatus should apply border shorthand defaults', () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return <AbsoluteFill style={{border: 'solid'}} />;
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 4),
+		componentIdentity: null,
+		keys: ['style.borderWidth', 'style.borderStyle', 'style.borderColor'],
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(result.props['style.borderWidth']).toEqual({
+		status: 'static',
+		codeValue: 3,
+	});
+	expect(result.props['style.borderStyle']).toEqual({
+		status: 'static',
+		codeValue: 'solid',
+	});
+	expect(result.props['style.borderColor']).toEqual({
+		status: 'static',
+		codeValue: 'currentColor',
+	});
+});
+
 test('canUpdateSequenceProps should flag computed props', () => {
 	const filePath = path.join(__dirname, 'snapshots', 'light-leak-computed.tsx');
 	const result = computeSequencePropsStatus({
@@ -600,6 +750,37 @@ test('computeSequencePropsStatus should flag computed nested props', () => {
 		status: 'static',
 		codeValue: 2,
 	});
+});
+
+test('computeSequencePropsStatus should preserve nested props from object spreads', () => {
+	const input = `import {Interactive} from 'remotion';
+
+const sharedStyle = {color: 'white'};
+
+export const Example = () => {
+	return (
+		<>
+			<Interactive.Div style={{...sharedStyle, fontSize: 40}} />
+			<Interactive.Div style={{color: 'red', ...sharedStyle}} />
+			<Interactive.Div style={{...sharedStyle, color: 'red'}} />
+		</>
+	);
+};
+`;
+	const getColorStatus = (line: number) => {
+		return computeSequencePropsStatusFromContent({
+			fileContents: input,
+			nodePath: getNodePathFromContent(input, line),
+			componentIdentity: null,
+			keys: ['style.color'],
+			effects: [],
+			videoConfigValues: null,
+		}).props['style.color'];
+	};
+
+	expect(getColorStatus(8)).toEqual({status: 'computed'});
+	expect(getColorStatus(9)).toEqual({status: 'computed'});
+	expect(getColorStatus(10)).toEqual({status: 'static', codeValue: 'red'});
 });
 
 test('computeSequencePropsStatus should flag computed when parent is not an object', () => {

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.491",
+	"version": "4.0.496",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",

@@ -60,6 +60,23 @@ const trimTrailingSlash = (p: string): string => {
 	return p;
 };
 
+export const getBundlePublicPath = (publicPath: string | null): string => {
+	return publicPath ?? './';
+};
+
+export const getBundleStaticHash = (publicPath: string): string => {
+	if (publicPath === './') {
+		return './public';
+	}
+
+	return (
+		'/' +
+		[trimTrailingSlash(trimLeadingSlash(publicPath)), 'public']
+			.filter(Boolean)
+			.join('/')
+	);
+};
+
 export type MandatoryLegacyBundleOptions = {
 	webpackOverride: WebpackOverrideFn;
 	outDir: string | null;
@@ -331,12 +348,8 @@ export const internalBundle = async (
 		}
 	}
 
-	const publicPath = actualArgs?.publicPath ?? '/';
-	const staticHash =
-		'/' +
-		[trimTrailingSlash(trimLeadingSlash(publicPath)), 'public']
-			.filter(Boolean)
-			.join('/');
+	const publicPath = getBundlePublicPath(actualArgs.publicPath);
+	const staticHash = getBundleStaticHash(publicPath);
 
 	const from = options?.publicDir
 		? path.resolve(resolvedRemotionRoot, options.publicDir)

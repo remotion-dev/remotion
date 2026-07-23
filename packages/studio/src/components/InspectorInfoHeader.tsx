@@ -49,12 +49,33 @@ const subtitle: React.CSSProperties = {
 	whiteSpace: 'nowrap',
 };
 
+const inspectorSubtitle: React.CSSProperties = {
+	...subtitle,
+	boxSizing: 'border-box',
+	fontFamily: 'sans-serif',
+	fontSize: 13,
+	height: 28,
+	lineHeight: '18px',
+	margin: '0 4px',
+	padding: '5px 8px',
+	width: 'calc(100% - 8px)',
+};
+
 export const InspectorInfoHeader: React.FC<{
 	readonly children?: React.ReactNode;
 	readonly contentSized?: boolean;
-}> = ({children, contentSized = false}) => {
+	readonly minHeight?: number;
+	readonly padding?: React.CSSProperties['padding'];
+}> = ({children, contentSized = false, minHeight, padding}) => {
+	const sizeStyle = contentSized
+		? containerBase
+		: minHeight === undefined
+			? container
+			: {...containerBase, minHeight};
+	const style = padding === undefined ? sizeStyle : {...sizeStyle, padding};
+
 	return (
-		<div style={contentSized ? containerBase : container}>
+		<div style={style}>
 			{children === undefined || children === null ? null : (
 				<div style={row}>
 					<div style={content}>{children}</div>
@@ -72,6 +93,11 @@ export const InspectorInfoTitle: React.FC<{
 
 export const InspectorInfoSubtitle: React.FC<{
 	readonly children: React.ReactNode;
-}> = ({children}) => {
-	return <div style={subtitle}>{children}</div>;
+	readonly size?: 'default' | 'inspector';
+}> = ({children, size = 'default'}) => {
+	return (
+		<div style={size === 'inspector' ? inspectorSubtitle : subtitle}>
+			{children}
+		</div>
+	);
 };

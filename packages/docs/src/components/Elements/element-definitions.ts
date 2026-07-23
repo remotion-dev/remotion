@@ -3,11 +3,14 @@ import {LiquidContours} from '../../../elements/backgrounds/liquid-contours/liqu
 import {NotebookPaper} from '../../../elements/backgrounds/notebook-paper/notebook-paper';
 import {PaperTexture} from '../../../elements/backgrounds/paper-texture/paper-texture';
 import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburst/rotating-starburst';
+import {DataSeriesChart} from '../../../elements/data/data-series-chart/data-series-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
+import {ProductOffer} from '../../../elements/data/product-offer/product-offer';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/lower-third/lower-third';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
+import {NewsArticleHeadlineHighlight} from '../../../elements/text/news-article-headline-highlight/news-article-headline-highlight';
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
 import {TextMarker} from '../../../elements/text/text-marker/text-marker';
 import type {Contributor} from '../Credits';
@@ -26,6 +29,7 @@ export type ElementDefinition = {
 	readonly posterFrame: number;
 	readonly previewPadding: number;
 	readonly slug: string;
+	readonly transparentPreview: boolean;
 	readonly width: number;
 };
 
@@ -45,6 +49,7 @@ export const elementDefinitions = {
 		posterFrame: 120,
 		previewPadding: 0,
 		slug: 'backgrounds/liquid-contours',
+		transparentPreview: false,
 		width: 1920,
 	},
 	'backgrounds/notebook-paper': {
@@ -61,6 +66,7 @@ export const elementDefinitions = {
 		posterFrame: 0,
 		previewPadding: 0,
 		slug: 'backgrounds/notebook-paper',
+		transparentPreview: false,
 		width: 1920,
 	},
 	'backgrounds/paper-texture': {
@@ -78,6 +84,7 @@ export const elementDefinitions = {
 		posterFrame: 60,
 		previewPadding: 0,
 		slug: 'backgrounds/paper-texture',
+		transparentPreview: false,
 		width: 1920,
 	},
 	'backgrounds/rotating-starburst': {
@@ -94,6 +101,7 @@ export const elementDefinitions = {
 		posterFrame: 120,
 		previewPadding: 0,
 		slug: 'backgrounds/rotating-starburst',
+		transparentPreview: false,
 		width: 1920,
 	},
 	'overlays/location-lower-third': {
@@ -110,6 +118,7 @@ export const elementDefinitions = {
 		posterFrame: 60,
 		previewPadding: 300,
 		slug: 'overlays/location-lower-third',
+		transparentPreview: false,
 		width: 1920,
 	},
 	'overlays/lower-third': {
@@ -127,6 +136,25 @@ export const elementDefinitions = {
 		posterFrame: 60,
 		previewPadding: 300,
 		slug: 'overlays/lower-third',
+		transparentPreview: false,
+		width: 1920,
+	},
+	'data/data-series-chart': {
+		category: 'data',
+		component: DataSeriesChart,
+		contributors: [],
+		description:
+			'An animated combination chart with sequential revenue bars and a glowing conversion line.',
+		displayName: 'Data Series Chart',
+		durationInFrames: 120,
+		elementHeight: 864,
+		elementWidth: 1560,
+		fps: 30,
+		height: 1080,
+		posterFrame: 88,
+		previewPadding: 56,
+		slug: 'data/data-series-chart',
+		transparentPreview: false,
 		width: 1920,
 	},
 	'data/number-counter': {
@@ -149,7 +177,26 @@ export const elementDefinitions = {
 		posterFrame: 60,
 		previewPadding: 120,
 		slug: 'data/number-counter',
+		transparentPreview: false,
 		width: 1920,
+	},
+	'data/product-offer': {
+		category: 'data',
+		component: ProductOffer,
+		contributors: [],
+		description:
+			'An animated product card with a bold title, catalog image, pricing, and discount.',
+		displayName: 'Product Offer',
+		durationInFrames: 150,
+		elementHeight: 900,
+		elementWidth: 900,
+		fps: 30,
+		height: 1080,
+		posterFrame: 75,
+		previewPadding: 90,
+		slug: 'data/product-offer',
+		transparentPreview: true,
+		width: 1080,
 	},
 	'text/circle-marker': {
 		category: 'text',
@@ -166,6 +213,7 @@ export const elementDefinitions = {
 		posterFrame: 60,
 		previewPadding: 120,
 		slug: 'text/circle-marker',
+		transparentPreview: false,
 		width: 1920,
 	},
 	'text/crossed-off': {
@@ -183,6 +231,25 @@ export const elementDefinitions = {
 		posterFrame: 60,
 		previewPadding: 120,
 		slug: 'text/crossed-off',
+		transparentPreview: false,
+		width: 1920,
+	},
+	'text/news-article-headline-highlight': {
+		category: 'text',
+		component: NewsArticleHeadlineHighlight,
+		contributors: [],
+		description:
+			'A framed news article with camera movement, blur, and animated passage highlights.',
+		displayName: 'News Article Headline Highlight',
+		durationInFrames: 150,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 100,
+		previewPadding: 0,
+		slug: 'text/news-article-headline-highlight',
+		transparentPreview: false,
 		width: 1920,
 	},
 	'text/strike-through': {
@@ -200,6 +267,7 @@ export const elementDefinitions = {
 		posterFrame: 60,
 		previewPadding: 120,
 		slug: 'text/strike-through',
+		transparentPreview: false,
 		width: 1920,
 	},
 	'text/text-marker': {
@@ -217,6 +285,7 @@ export const elementDefinitions = {
 		posterFrame: 60,
 		previewPadding: 120,
 		slug: 'text/text-marker',
+		transparentPreview: false,
 		width: 1920,
 	},
 } satisfies Record<string, ElementDefinition>;

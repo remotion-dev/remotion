@@ -3,12 +3,8 @@ name: pr
 description: Open a pull request for the current feature
 ---
 
-This skill is only for opening the initial pull request from finished local work.
-
-If a PR already exists for the current branch, stop: do not format, commit, push, amend, or rebase unless the user explicitly asks for that Git action. Leave follow-up changes uncommitted by default.
-
 Ensure we are not on the main branch, make a branch if necessary.  
-Check whether a PR already exists for the current branch with `gh pr status` or `gh pr view`. If it exists, report it and stop.
+Check whether a PR already exists for the current branch with `gh pr status` or `gh pr view`. If one exists, update it with local changes.
 
 Run Oxfmt on the files or package directories affected by the current change. Pass their actual paths; do not assume that the repository root has a `src` directory. Include relevant root-level files, and do not format unrelated packages or the whole repository.
 
@@ -25,7 +21,6 @@ Then run
 ```
 bun run build
 bun run stylecheck
-
 ```
 
 to ensure we compile and CI linting/formatting passes.
@@ -34,7 +29,7 @@ Commit the changes once. The title of the PR must be according to the [`pr-name`
 
 Push the changes to the remote branch once, using `git push -u origin HEAD`.
 
-Never force push. Do not use `git push --force`, `git push -f`, or `git push --force-with-lease`. If a normal push is rejected, stop and report the rejection to the user instead of rewriting remote history.
+Never force push, unless users asks for it.
 
 Use the `gh` CLI to create a pull request and use the same format as above for the title.
 
@@ -49,3 +44,15 @@ Example:
 ```bash
 gh pr create --title '`@remotion/package`: Add feature' --body-file /tmp/remotion-pr-body.md
 ```
+
+## Link directly changed website pages
+
+After creating the PR, check whether it directly adds or modifies a primary page in `packages/docs`. Determine each page's public path from the page source, using `packages/docs/docusaurus.config.ts` as the route source. Do not infer paths for deleted pages or changes that only affect shared components, styles, data, or configuration.
+
+After creating the PR, poll its comments for up to 60 seconds for the Vercel comment, sleeping 5 seconds between checks. Take the `Preview` link from the `remotion` project row and append each page path to it; ignore the `bugs` project row. If that preview link is unavailable and the deployment link only points to the Vercel dashboard, use `vercel inspect <deployment-url>` only when the Vercel CLI is installed and authenticated. Otherwise, do not modify the PR body and report that the preview URL could not be resolved.
+
+Only wait for the Vercel comment. Do not wait for the deployment to finish, create a Vercel heartbeat, or probe the preview page.
+
+Append the deep links to a `## Preview` section in the PR body. Fetch the current body into a temporary Markdown file and update it with `gh pr edit <pr> --body-file <path-to-temp-md-file>`; never pass the replacement body inline.
+
+If either the page path or the preview URL cannot be determined confidently, leave the created PR unchanged and report that preview links were not added.

@@ -1,9 +1,11 @@
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
+import {chalk} from './chalk';
 import {ConfigInternals} from './config';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
+import {getLoadedConfigFile, reloadConfig} from './get-config-file-name';
 import {getEnvironmentVariables} from './get-env';
 import {getGitSource} from './get-github-repository';
 import {getInputProps} from './get-input-props';
@@ -81,6 +83,42 @@ export const studioCommand = async (
 		StudioServerInternals.createFileWatcherRegistry(),
 	);
 
+	const configFile = getLoadedConfigFile();
+	if (configFile) {
+		let isReloadingConfig = false;
+		StudioServerInternals.installFileWatcher({
+			file: configFile,
+			existenceOnly: false,
+			onChange: async () => {
+				if (isReloadingConfig) {
+					return;
+				}
+
+				isReloadingConfig = true;
+				try {
+					const configWasReloaded = await reloadConfig({
+						resetConfigOptions: ConfigInternals.resetConfigOptions,
+					});
+					if (!configWasReloaded) {
+						return;
+					}
+
+					Log.info(
+						{indent: false, logLevel},
+						chalk.blue('Config file changed. Reloading Studio'),
+					);
+					StudioServerInternals.waitForLiveEventsListener().then((listener) => {
+						listener.sendEventToClient({
+							type: 'config-file-changed',
+						});
+					});
+				} finally {
+					isReloadingConfig = false;
+				}
+			},
+		});
+	}
+
 	let inputProps = getInputProps((newProps) => {
 		StudioServerInternals.waitForLiveEventsListener().then((listener) => {
 			inputProps = newProps;
@@ -119,6 +157,7 @@ export const studioCommand = async (
 	const relativePublicDir = publicDirOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const rendererPort = ConfigInternals.getRendererPortFromConfigFile();
 
 	const enableCrossSiteIsolation = enableCrossSiteIsolationOption.getValue({
 		commandLine: parsedCli,
@@ -156,6 +195,12 @@ export const studioCommand = async (
 		bufferStateDelayInMilliseconds:
 			ConfigInternals.getBufferStateDelayInMilliseconds(),
 	});
+	const getNumberOfAudioTags = () =>
+		numberOfSharedAudioTagsOption.getValue({commandLine: parsedCli}).value;
+	const getAudioLatencyHint = () =>
+		audioLatencyHintOption.getValue({commandLine: parsedCli}).value;
+	const getPreviewSampleRate = () =>
+		previewSampleRateOption.getValue({commandLine: parsedCli}).value;
 
 	const result = await StudioServerInternals.startStudio({
 		previewEntry: require.resolve('@remotion/studio/previewEntry'),
@@ -173,13 +218,19 @@ export const studioCommand = async (
 		relativePublicDir,
 		webpackOverride: ConfigInternals.getWebpackOverrideFn(),
 		poll: webpackPollOption.getValue({commandLine: parsedCli}).value,
-		getRenderDefaults,
+		getRenderDefaults: () => getRenderDefaults(logLevel),
 		getRenderQueue,
-		numberOfAudioTags: numberOfSharedAudioTagsOption.getValue({
-			commandLine: parsedCli,
-		}).value,
+		getNumberOfAudioTags,
 		queueMethods: {
-			addJob,
+			addJob: (options) =>
+				addJob({
+					...options,
+					fixedConfig: {
+						publicDir: relativePublicDir,
+						rendererPort,
+						rspack: useRspack,
+					},
+				}),
 			cancelJob,
 			removeJob,
 		},
@@ -188,12 +239,8 @@ export const studioCommand = async (
 			ConfigInternals.getBufferStateDelayInMilliseconds(),
 		binariesDirectory,
 		forceIPv4: ipv4Option.getValue({commandLine: parsedCli}).value,
-		audioLatencyHint: audioLatencyHintOption.getValue({
-			commandLine: parsedCli,
-		}).value,
-		previewSampleRate: previewSampleRateOption.getValue({
-			commandLine: parsedCli,
-		}).value,
+		getAudioLatencyHint,
+		getPreviewSampleRate,
 		enableCrossSiteIsolation,
 		askAIEnabled,
 		interactivityEnabled,

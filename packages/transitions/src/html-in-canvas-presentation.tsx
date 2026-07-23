@@ -34,6 +34,7 @@ export const HtmlInCanvasPresentation = <
 	}
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const outputCanvasRef = useRef<HTMLCanvasElement>(null);
 	const canvasSubtreeStyle: React.CSSProperties = useMemo(() => {
 		return {
 			width: '100%',
@@ -45,8 +46,24 @@ export const HtmlInCanvasPresentation = <
 			bottom: 0,
 		};
 	}, []);
+	const outputCanvasStyle: React.CSSProperties = useMemo(() => {
+		return {
+			width: '100%',
+			height: '100%',
+			position: 'absolute',
+			top: 0,
+			left: 0,
+			right: 0,
+			bottom: 0,
+			pointerEvents: 'none',
+		};
+	}, []);
 
-	const [offscreenCanvas] = useState(() => new OffscreenCanvas(1, 1));
+	const captureCanvasRef = useRef<OffscreenCanvas | null>(null);
+	const captureContextRef = useRef<OffscreenCanvasRenderingContext2D | null>(
+		null,
+	);
+	const [shaderCanvas] = useState(() => new OffscreenCanvas(1, 1));
 
 	const passedPropsRef = useRef(passedProps);
 	passedPropsRef.current = passedProps;
@@ -59,28 +76,56 @@ export const HtmlInCanvasPresentation = <
 	const effectsRef = useRef(memoizedEffects);
 	effectsRef.current = memoizedEffects;
 
-	const [instance] = useState(() => shader(offscreenCanvas));
+	const [instance] = useState(() => shader(shaderCanvas));
 
 	useLayoutEffect(() => {
+		const canvas = canvasRef.current;
+		if (!canvas) {
+			return () => {
+				instance.cleanup();
+			};
+		}
+
+		const captureCanvas = canvas.transferControlToOffscreen();
+		const captureContext = captureCanvas.getContext('2d');
+		if (!captureContext) {
+			throw new Error('Failed to create capture canvas context');
+		}
+
+		captureCanvasRef.current = captureCanvas;
+		captureContextRef.current = captureContext;
+
 		return () => {
 			instance.cleanup();
+			captureCanvasRef.current = null;
+			captureContextRef.current = null;
 		};
-	}, [offscreenCanvas, instance]);
+	}, [instance]);
 
 	const chainState = Internals.useEffectChainState();
 	const {delayRender, continueRender} = useDelayRender();
 
 	const draw: DrawFunction = useCallback(
 		async (prevImage, nextImage, progress) => {
-			if (!canvasRef.current) {
+			const outputCanvas = outputCanvasRef.current;
+			if (!outputCanvas) {
 				throw new Error('Canvas not found');
 			}
 
 			const handle = delayRender('onPaint');
+			const clearOutput = () => {
+				const context = outputCanvas.getContext('2d');
+				if (!context) {
+					throw new Error('Failed to create output canvas context');
+				}
+
+				context.clearRect(0, 0, outputCanvas.width, outputCanvas.height);
+			};
 
 			if (!prevImage && !nextImage) {
-				continueRender(handle);
 				instance.clear();
+				clearOutput();
+				continueRender(handle);
 				return;
 			}
 
@@ -88,13 +133,14 @@ export const HtmlInCanvasPresentation = <
 			const height = prevImage?.height ?? nextImage?.height ?? 0;
 
 			if (width === 0 || height === 0) {
-				continueRender(handle);
 				instance.clear();
+				clearOutput();
+				continueRender(handle);
 				return;
 			}
 
-			offscreenCanvas.width = width;
-			offscreenCanvas.height = height;
+			shaderCanvas.width = width;
+			shaderCanvas.height = height;
 
 			instance.draw({
 				prevImage,
@@ -107,15 +153,15 @@ export const HtmlInCanvasPresentation = <
 
 			await Internals.runEffectChain({
 				state: chainState.get(width, height)!,
-				source: offscreenCanvas,
+				source: shaderCanvas,
 				effects: effectsRef.current ?? [],
 				width,
 				height,
-				output: canvasRef.current,
+				output: outputCanvas,
 			});
 			continueRender(handle);
 		},
-		[chainState, instance, offscreenCanvas, continueRender, delayRender],
+		[chainState, continueRender, delayRender, instance, shaderCanvas],
 	);
 
 	const passThrough =
@@ -135,13 +181,22 @@ export const HtmlInCanvasPresentation = <
 
 		const onPaint = () => {
 			const firstChild = canvas.firstChild as HTMLElement;
+			const captureCanvas = captureCanvasRef.current;
+			const captureContext = captureContextRef.current;
 
-			if (!firstChild) {
+			if (!firstChild || !captureCanvas || !captureContext) {
 				return;
 			}
 
 			const elementImage = canvas.captureElementImage(firstChild);
-			onElementImage(elementImage, draw);
+			try {
+				captureContext.reset();
+				captureContext.drawElementImage(elementImage, 0, 0);
+			} finally {
+				elementImage.close();
+			}
+
+			onElementImage(captureCanvas, draw);
 		};
 
 		canvas.addEventListener('paint', onPaint);
@@ -186,10 +241,25 @@ export const HtmlInCanvasPresentation = <
 
 		// Size the canvas grid to match the device scale factor to prevent blurriness.
 		const observer = new ResizeObserver(([entry]) => {
-			canvas.width = entry.devicePixelContentBoxSize[0].inlineSize;
-			canvas.height = entry.devicePixelContentBoxSize[0].blockSize;
+			const outputCanvas = outputCanvasRef.current;
+			const captureCanvas = captureCanvasRef.current;
+			if (!outputCanvas || !captureCanvas) {
+				return;
+			}
+
+			const width = entry.devicePixelContentBoxSize[0].inlineSize;
+			const height = entry.devicePixelContentBoxSize[0].blockSize;
+			captureCanvas.width = width;
+			captureCanvas.height = height;
+			outputCanvas.width = width;
+			outputCanvas.height = height;
+			canvas.requestPaint?.();
 		});
 		observer.observe(canvas, {box: 'device-pixel-content-box'});
+
+		return () => {
+			observer.disconnect();
+		};
 	}, [passThrough]);
 
 	if (passThrough) {
@@ -201,13 +271,14 @@ export const HtmlInCanvasPresentation = <
 			<canvas ref={canvasRef} style={canvasSubtreeStyle}>
 				{children}
 			</canvas>
+			<canvas ref={outputCanvasRef} style={outputCanvasStyle} />
 		</AbsoluteFill>
 	);
 };
 
 export type HtmlInCanvasShaderDrawParams<Props> = {
-	prevImage: ElementImage | null;
-	nextImage: ElementImage | null;
+	prevImage: OffscreenCanvas | null;
+	nextImage: OffscreenCanvas | null;
 	width: number;
 	height: number;
 	time: number;

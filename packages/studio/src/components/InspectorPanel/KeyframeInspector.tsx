@@ -42,7 +42,8 @@ import {
 import {TimelineSequenceKeyframedValue} from '../Timeline/TimelineSequencePropItem';
 import {canEditEasingForInterpolationFunction} from '../Timeline/update-selected-easing';
 import {
-	InspectorBackHeader,
+	InspectorActionSection,
+	InspectorBackAction,
 	InspectorDetailRow,
 	InspectorInlineAction,
 	InspectorMessage,
@@ -57,10 +58,8 @@ import {SequenceInspectorSections} from './SequenceInspectorHeader';
 import {
 	detailsBeforeInlineAction,
 	detailsWithInlineAction,
-	keyframeEditorLabel,
 	keyframeEditorRow,
 	keyframeEditorValue,
-	sectionHeaderTitle,
 	selectedContainer,
 } from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
@@ -125,8 +124,8 @@ const makeMovedKeyframedDragOverride = ({
 const removeKeyframeIcon: React.CSSProperties = {
 	display: 'block',
 	flexShrink: 0,
-	height: 13,
-	width: 12,
+	height: 16,
+	width: 16,
 };
 
 const TrashIcon: React.FC<{readonly color: string}> = ({color}) => {
@@ -134,7 +133,7 @@ const TrashIcon: React.FC<{readonly color: string}> = ({color}) => {
 		<svg viewBox="0 0 448 512" style={removeKeyframeIcon}>
 			<path
 				fill={color}
-				d="M136.7 5.9C141.1-7.2 153.3-16 167.1-16l113.9 0c13.8 0 26 8.8 30.4 21.9L320 32 416 32c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 8.7-26.1zM32 144l384 0 0 304c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-304zm88 64c-13.3 0-24 10.7-24 24l0 192c0 13.3 10.7 24 24 24s24-10.7 24-24l0-192c0-13.3-10.7-24-24-24zm104 0c-13.3 0-24 10.7-24 24l0 192c0 13.3 10.7 24 24 24s24-10.7 24-24l0-192c0-13.3-10.7-24-24-24zm104 0c-13.3 0-24 10.7-24 24l0 192c0 13.3 10.7 24 24 24s24-10.7 24-24l0-192c0-13.3-10.7-24-24-24z"
+				d="M160.5 27.4c2-6.8 8.3-11.4 15.3-11.4l96.4 0c7.1 0 13.3 4.6 15.3 11.4l11 36.6-149 0 11-36.6zM116.1 64L16 64C7.2 64 0 71.2 0 80S7.2 96 16 96l416 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-100.1 0-13.7-45.8C312.1-2.1 293.4-16 272.2-16l-96.4 0c-21.2 0-39.9 13.9-46 34.2L116.1 64zM28.7 144L51.6 452.7c2.5 33.4 30.3 59.3 63.8 59.3l217.1 0c33.5 0 61.3-25.9 63.8-59.3l22.9-308.7-32.1 0-22.7 306.4c-1.2 16.7-15.2 29.6-31.9 29.6l-217.1 0c-16.8 0-30.7-12.9-31.9-29.6L60.8 144 28.7 144z"
 			/>
 		</svg>
 	);
@@ -512,13 +511,13 @@ export const KeyframeInspector: React.FC<{
 		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<SequenceInspectorSections track={track} />
 			<InspectorSectionDivider />
-			<InspectorBackHeader
+			<InspectorBackAction
 				disabled={parentSelection === null}
 				onClick={onSelectParent}
 				title="Back to property"
 			>
-				<div style={sectionHeaderTitle}>{details.fieldLabel}</div>
-			</InspectorBackHeader>
+				{details.fieldLabel}
+			</InspectorBackAction>
 			<InspectorSectionDivider />
 			<KeyframeEasingNavigator
 				currentSelection={selection}
@@ -550,35 +549,38 @@ export const KeyframeInspector: React.FC<{
 						/>
 					</InspectorDetailRow>
 					<div style={keyframeEditorRow}>
-						<div style={keyframeEditorLabel}>{details.fieldLabel}</div>
-						<div style={keyframeEditorValue}>
-							{details.type === 'sequence' ? (
-								<TimelineSequenceKeyframedValue
-									field={details.field}
-									fileName={details.fileName}
-									nodePath={details.nodePath}
-									schema={details.schema}
-									propStatus={details.propStatus}
-									sourceFrame={details.sourceFrame}
-								/>
-							) : (
-								<TimelineEffectPropValue
-									field={details.field}
-									nodePath={details.nodePath}
-									validatedLocation={details.validatedLocation}
-									sourceFrame={details.sourceFrame}
-								/>
-							)}
-						</div>
+						<InspectorDetailRow label={details.fieldLabel}>
+							<div style={keyframeEditorValue}>
+								{details.type === 'sequence' ? (
+									<TimelineSequenceKeyframedValue
+										field={details.field}
+										fileName={details.fileName}
+										nodePath={details.nodePath}
+										schema={details.schema}
+										propStatus={details.propStatus}
+										sourceFrame={details.sourceFrame}
+									/>
+								) : (
+									<TimelineEffectPropValue
+										field={details.field}
+										nodePath={details.nodePath}
+										validatedLocation={details.validatedLocation}
+										sourceFrame={details.sourceFrame}
+									/>
+								)}
+							</div>
+						</InspectorDetailRow>
 					</div>
 				</div>
-				<InspectorInlineAction
-					disabled={removeDisabled}
-					onClick={onRemoveKeyframe}
-					renderIcon={(color) => <TrashIcon color={color} />}
-				>
-					Remove keyframe
-				</InspectorInlineAction>
+				<InspectorActionSection>
+					<InspectorInlineAction
+						disabled={removeDisabled}
+						onClick={onRemoveKeyframe}
+						renderIcon={(color) => <TrashIcon color={color} />}
+					>
+						Remove keyframe
+					</InspectorInlineAction>
+				</InspectorActionSection>
 			</div>
 		</div>
 	);

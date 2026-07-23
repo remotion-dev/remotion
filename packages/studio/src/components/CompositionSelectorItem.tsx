@@ -18,9 +18,10 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	BACKGROUND,
 	LIGHT_TEXT,
+	TRANSPARENT,
 	WHITE,
+	WHITE_ALPHA_06,
 	WHITE_ALPHA_12,
-	getBackgroundFromHoverState,
 } from '../helpers/colors';
 import {getFolderId} from '../helpers/get-folder-id';
 import {noop} from '../helpers/noop';
@@ -28,39 +29,39 @@ import {
 	markCompositionSidebarScrollFromRowClick,
 	maybeScrollCompositionSidebarRowIntoView,
 } from '../helpers/sidebar-scroll-into-view';
-import {getUrlForRoute} from '../helpers/url-state';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {ModalsContext} from '../state/modals';
-import {getCompositionMenuItems} from './composition-menu-items';
+import {getCompositionContextMenuItems} from './composition-menu-items';
 import {CompositionContextButton} from './CompositionContextButton';
 import {CompositionOrStillIcon} from './CompositionOrStillIcon';
 import {ContextMenu} from './ContextMenu';
 import {getFolderMenuItems} from './folder-menu-items';
-import {Row, Spacing} from './layout';
+import {COMPACT_CONTROL_ROW_HEIGHT, Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {applyCodemod} from './RenderQueue/actions';
 import {SidebarRenderButton} from './SidebarRenderButton';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 
-const COMPOSITION_ITEM_HEIGHT = 32;
-
 const itemStyle: React.CSSProperties = {
 	paddingRight: 10,
-	paddingTop: 6,
-	paddingBottom: 6,
+	paddingTop: 5,
+	paddingBottom: 5,
 	fontSize: 13,
 	display: 'flex',
 	textDecoration: 'none',
 	cursor: 'default',
 	alignItems: 'center',
 	marginBottom: 1,
+	marginLeft: 4,
+	marginRight: 4,
 	appearance: 'none',
 	border: 'none',
-	width: '100%',
+	borderRadius: 4,
+	width: 'calc(100% - 8px)',
 	textAlign: 'left',
 	backgroundColor: BACKGROUND,
-	height: COMPOSITION_ITEM_HEIGHT,
+	height: COMPACT_CONTROL_ROW_HEIGHT,
 	userSelect: 'none',
 };
 
@@ -134,6 +135,7 @@ export const CompositionSelectorItem: React.FC<{
 	const onPointerLeave = useCallback(() => {
 		setHovered(false);
 	}, []);
+	const [isDragging, setIsDragging] = useState(false);
 	const [dragHovered, setDragHovered] = useState(false);
 
 	const compositionRowRef = useRef<HTMLAnchorElement>(null);
@@ -156,7 +158,9 @@ export const CompositionSelectorItem: React.FC<{
 			...itemStyle,
 			backgroundColor: dragHovered
 				? WHITE_ALPHA_12
-				: getBackgroundFromHoverState({hovered, selected}),
+				: hovered || selected
+					? WHITE_ALPHA_06
+					: TRANSPARENT,
 			paddingLeft: 12 + level * 8,
 		};
 	}, [dragHovered, hovered, level, selected]);
@@ -199,65 +203,15 @@ export const CompositionSelectorItem: React.FC<{
 
 	const contextMenu = useMemo((): ComboboxValue[] => {
 		if (item.type === 'composition') {
-			const compositionMenuItems = getCompositionMenuItems({
+			return getCompositionContextMenuItems({
 				closeMenu: noop,
 				composition: item.composition,
 				connectionStatus,
+				includeCompositionManagementItems: true,
 				resolvedLocation,
 				setSelectedModal,
 				readOnlyStudio: window.remotion_isReadOnlyStudio,
 			});
-
-			return [
-				{
-					id: 'open-in-new-window',
-					keyHint: null,
-					label: 'Open in new window',
-					leftItem: null,
-					onClick: () => {
-						const screen = window.screen as Screen & {
-							availLeft?: number;
-							availTop?: number;
-						};
-						const width = Math.min(1200, Math.floor(screen.availWidth * 0.8));
-						const height = Math.min(800, Math.floor(screen.availHeight * 0.8));
-						const displayLeft = screen.availLeft ?? 0;
-						const displayTop = screen.availTop ?? 0;
-						const left = Math.round(
-							Math.min(
-								Math.max(
-									window.screenX + (window.outerWidth - width) / 2,
-									displayLeft,
-								),
-								displayLeft + screen.availWidth - width,
-							),
-						);
-						const top = Math.round(
-							Math.min(
-								Math.max(
-									window.screenY + (window.outerHeight - height) / 2,
-									displayTop,
-								),
-								displayTop + screen.availHeight - height,
-							),
-						);
-						window.open(
-							getUrlForRoute(`/${item.composition.id}`),
-							'_blank',
-							`popup,width=${width},height=${height},left=${left},top=${top}`,
-						);
-					},
-					quickSwitcherLabel: null,
-					subMenu: null,
-					type: 'item',
-					value: 'open-in-new-window',
-				},
-				{
-					type: 'divider',
-					id: 'open-in-new-window-divider',
-				},
-				...compositionMenuItems,
-			];
 		}
 
 		return getFolderMenuItems({
@@ -277,6 +231,7 @@ export const CompositionSelectorItem: React.FC<{
 				return;
 			}
 
+			setIsDragging(true);
 			event.dataTransfer.effectAllowed = 'copyMove';
 			event.dataTransfer.setData(
 				COMPOSITION_DRAG_MIME_TYPE,
@@ -290,6 +245,9 @@ export const CompositionSelectorItem: React.FC<{
 		},
 		[item, resolvedLocation?.source],
 	);
+	const onCompositionDragEnd = useCallback(() => {
+		setIsDragging(false);
+	}, []);
 
 	const onFolderDragOver = useCallback(
 		(event: DragEvent<HTMLElement>) => {
@@ -412,6 +370,7 @@ export const CompositionSelectorItem: React.FC<{
 					<Row align="center">
 						<div
 							style={style}
+							className="__remotion-composition-selector-item"
 							onPointerEnter={onPointerEnter}
 							onPointerLeave={onPointerLeave}
 							tabIndex={tabIndex}
@@ -479,9 +438,10 @@ export const CompositionSelectorItem: React.FC<{
 					onKeyDown={onKeyDown}
 					draggable={!window.remotion_isReadOnlyStudio}
 					onDragStart={onCompositionDragStart}
+					onDragEnd={onCompositionDragEnd}
 					type="button"
 					title={item.composition.id}
-					className="__remotion-composition"
+					className="__remotion-composition __remotion-composition-selector-item"
 					data-compname={item.composition.id}
 				>
 					<CompositionOrStillIcon
@@ -492,9 +452,12 @@ export const CompositionSelectorItem: React.FC<{
 					<Spacing x={1} />
 					<div style={label}>{item.composition.id}</div>
 					<Spacing x={0.5} />
-					<CompositionContextButton values={contextMenu} visible={hovered} />
+					<CompositionContextButton
+						values={contextMenu}
+						visible={hovered && !isDragging}
+					/>
 					<SidebarRenderButton
-						visible={hovered}
+						visible={hovered && !isDragging}
 						composition={item.composition}
 					/>
 				</a>

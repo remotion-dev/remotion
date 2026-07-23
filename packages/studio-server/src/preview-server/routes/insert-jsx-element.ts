@@ -90,6 +90,14 @@ const validateElement = (
 		return;
 	}
 
+	if (element.type === 'svg') {
+		if (typeof element.markup !== 'string' || element.markup.trim() === '') {
+			throw new Error('SVG markup must be a non-empty string');
+		}
+
+		return;
+	}
+
 	if (element.type === 'asset') {
 		if (element.srcType === 'remote') {
 			if (!isUrl(element.src)) {
@@ -102,6 +110,10 @@ const validateElement = (
 		if (element.dimensions) {
 			validateDimension('width', element.dimensions.width);
 			validateDimension('height', element.dimensions.height);
+		}
+
+		if (element.durationInFrames !== null) {
+			validateDimension('durationInFrames', element.durationInFrames);
 		}
 
 		return;
@@ -167,9 +179,13 @@ const getElementLabel = (element: InsertableCompositionElement) => {
 		return '<Solid>';
 	}
 
+	if (element.type === 'svg') {
+		return '<Interactive.Svg>';
+	}
+
 	if (element.type === 'asset') {
 		if (element.assetType === 'image') {
-			return '<Img>';
+			return '<CanvasImage>';
 		}
 
 		if (element.assetType === 'video') {
@@ -204,13 +220,20 @@ export const insertJsxElementHandler: ApiHandler<
 	InsertJsxElementRequest,
 	InsertJsxElementResponse
 > = ({
-	input: {compositionFile, compositionId, element},
+	input: {compositionFile, compositionId, element, from},
 	remotionRoot,
 	logLevel,
 }) =>
 	withSourceFileWriteQueue(async () => {
 		try {
 			validateElement(element, remotionRoot);
+			if (
+				from !== null &&
+				(!Number.isInteger(from) || !Number.isFinite(from) || from < 0)
+			) {
+				throw new Error('from must be a non-negative integer');
+			}
+
 			const elementLabel = getElementLabel(element);
 
 			RenderInternals.Log.trace(
@@ -224,6 +247,7 @@ export const insertJsxElementHandler: ApiHandler<
 					compositionFile,
 					compositionId,
 					element,
+					from,
 					prettierConfigOverride: null,
 				});
 

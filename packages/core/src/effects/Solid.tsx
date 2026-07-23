@@ -12,6 +12,7 @@ import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import type {InteractiveBaseProps} from '../Interactive.js';
 import {
 	baseSchema,
+	borderSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
@@ -96,6 +97,7 @@ export const solidSchema = {
 		hiddenFromList: false,
 	},
 	...transformSchema,
+	...borderSchema,
 } as const satisfies InteractivitySchema;
 
 const SolidInner: React.FC<

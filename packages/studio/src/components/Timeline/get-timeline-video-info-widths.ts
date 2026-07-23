@@ -1,3 +1,5 @@
+import {getTimelineMediaVisualizationLayout} from './get-timeline-media-visualization-layout';
+
 export const getTimelineVideoInfoWidths = ({
 	visualizationWidth,
 	naturalWidth,
@@ -9,10 +11,16 @@ export const getTimelineVideoInfoWidths = ({
 	premountWidth: number;
 	postmountWidth: number;
 }) => {
-	const mountWidth = premountWidth + postmountWidth;
-
 	return {
-		mediaVisualizationWidth: Math.max(0, visualizationWidth - mountWidth),
-		mediaNaturalWidth: Math.max(0, naturalWidth - mountWidth),
+		mediaVisualizationWidth: getTimelineMediaVisualizationLayout({
+			visualizationWidth,
+			premountWidth,
+			postmountWidth,
+		}).width,
+		mediaNaturalWidth: getTimelineMediaVisualizationLayout({
+			visualizationWidth: naturalWidth,
+			premountWidth,
+			postmountWidth,
+		}).width,
 	};
 };

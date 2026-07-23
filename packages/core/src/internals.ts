@@ -1,5 +1,6 @@
 import {createRef} from 'react';
 import {getAbsoluteSrc} from './absolute-src.js';
+import {getAnimatedImageDurationInSeconds} from './animated-image/get-duration-in-seconds.js';
 import {AudioForPreview} from './audio/AudioForPreview.js';
 import type {ScheduleAudioNodeResult} from './audio/shared-audio-tags.js';
 import {
@@ -134,6 +135,7 @@ import {
 import {
 	resolveVideoConfig,
 	resolveVideoConfigOrCatch,
+	resolveVideoConfigWithMetadataOrCatch,
 } from './resolve-video-config.js';
 import {
 	ResolveCompositionContext,
@@ -203,6 +205,7 @@ import {
 	useMediaInTimeline,
 } from './use-media-in-timeline.js';
 import {PixelDensityContext} from './use-pixel-density.js';
+import {usePremounting} from './use-premounting.js';
 import type {
 	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusEasing,
@@ -282,6 +285,7 @@ export const Internals = {
 	useAbsoluteTimelinePosition: TimelinePosition.useAbsoluteTimelinePosition,
 	evaluateVolume,
 	getAbsoluteSrc,
+	getAnimatedImageDurationInSeconds,
 	getAssetDisplayName,
 	Timeline: TimelinePosition,
 	validateMediaTrimProps,
@@ -319,6 +323,7 @@ export const Internals = {
 	truthy,
 	SequenceContext,
 	PremountContext,
+	usePremounting,
 	useRemotionContexts,
 	RemotionContextProvider,
 	CSSUtils,
@@ -352,6 +357,7 @@ export const Internals = {
 	NonceContext,
 	resolveVideoConfig,
 	resolveVideoConfigOrCatch,
+	resolveVideoConfigWithMetadataOrCatch,
 	ResolveCompositionContext,
 	useResolvedVideoConfig,
 	resolveCompositionsRef,

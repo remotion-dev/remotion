@@ -7,3 +7,7 @@ export const getBufferStateDelayInMilliseconds = () => {
 export const setBufferStateDelayInMilliseconds = (val: number | null) => {
 	value = val;
 };
+
+export const resetBufferStateDelayInMilliseconds = () => {
+	value = null;
+};

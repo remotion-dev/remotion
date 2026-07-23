@@ -35,6 +35,13 @@ export const TableOfContents: React.FC = () => {
 						DPIA
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/accessibility">
+					<strong>{'Accessibility'}</strong>
+					<div>
+						Accessibility of Remotion products, with links to accessibility
+						statements for the remotion.dev and remotion.pro websites
+					</div>
+				</TOCItem>
 			</Grid>
 		</div>
 	);

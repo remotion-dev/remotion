@@ -6,41 +6,42 @@ import {
 	useMemo,
 } from 'react';
 import {Internals} from 'remotion';
-import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
-import {isCompositionStill} from '../helpers/is-composition-still';
+import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import {isCompositionStill} from '../../helpers/is-composition-still';
 import {
 	openOriginalPositionInEditor,
 	preloadCompositionComponentInfo,
 	useCachedCompositionComponentInfo,
-} from '../helpers/open-in-editor';
-import {ReactIcon} from '../icons/react';
-import {StillIcon} from '../icons/still';
-import {FilmIcon} from '../icons/video';
-import {renderFrame} from '../state/render-frame';
-import {InlineCompositionName} from './InlineCompositionName';
-import {
-	INSPECTOR_INFO_HEADER_MIN_HEIGHT,
-	InspectorInfoHeader,
-	InspectorInfoSubtitle,
-} from './InspectorInfoHeader';
-import {InspectorLocationCopy} from './InspectorLocationCopy';
-import {InspectorSourceLocation} from './InspectorSourceLocation';
-import {showNotification} from './Notifications/NotificationCenter';
-import {useResolvedStack} from './Timeline/use-resolved-stack';
+} from '../../helpers/open-in-editor';
+import {ReactIcon} from '../../icons/react';
+import {StillIcon} from '../../icons/still';
+import {FilmIcon} from '../../icons/video';
+import {InlineCompositionName} from '../InlineCompositionName';
+import {InspectorInfoHeader} from '../InspectorInfoHeader';
+import {InspectorLocationCopy} from '../InspectorLocationCopy';
+import {InspectorSourceLocation} from '../InspectorSourceLocation';
+import {COMPACT_INLINE_ROW_HEIGHT} from '../layout';
+import {showNotification} from '../Notifications/NotificationCenter';
+import {useResolvedStack} from '../Timeline/use-resolved-stack';
 
-export const CURRENT_COMPOSITION_HEIGHT = INSPECTOR_INFO_HEADER_MIN_HEIGHT;
+const COMPOSITION_INSPECTOR_HEADER_HEIGHT = 66;
 
 const sourceLocationIconStyle: CSSProperties = {
 	flexShrink: 0,
-	height: 13,
-	width: 13,
+	height: 18,
+	width: 18,
+};
+
+const componentLocationPlaceholder: CSSProperties = {
+	flexShrink: 0,
+	height: COMPACT_INLINE_ROW_HEIGHT,
 };
 
 const renderReactIcon = (color: string) => {
 	return <ReactIcon color={color} style={sourceLocationIconStyle} />;
 };
 
-export const CurrentComposition = () => {
+export const CompositionInspectorHeader = () => {
 	const video = Internals.useVideo();
 	const {compositions} = useContext(Internals.CompositionManager);
 
@@ -124,41 +125,39 @@ export const CurrentComposition = () => {
 	);
 
 	return (
-		<InspectorInfoHeader>
+		<InspectorInfoHeader
+			minHeight={COMPOSITION_INSPECTOR_HEADER_HEIGHT}
+			padding="4px 0"
+		>
 			{video ? (
-				<>
-					<InspectorLocationCopy location={validatedLocation} name={video.id}>
-						<InlineCompositionName
-							key={video.id}
-							compositionId={video.id}
-							stack={currentComposition?.stack ?? null}
-							compositions={compositions}
-						/>
-						<InspectorSourceLocation
-							location={validatedLocation}
-							canOpen={validatedLocation !== null}
-							onOpen={openFileLocation}
-							renderIcon={renderCompositionIcon}
-						/>
+				<InspectorLocationCopy location={validatedLocation} name={video.id}>
+					<InlineCompositionName
+						key={video.id}
+						compositionId={video.id}
+						stack={currentComposition?.stack ?? null}
+						compositions={compositions}
+					/>
+					<InspectorSourceLocation
+						location={validatedLocation}
+						canOpen={validatedLocation !== null}
+						onOpen={openFileLocation}
+						renderIcon={renderCompositionIcon}
+						size="inline-action"
+					/>
+					{compositionComponentInfo === null &&
+					compositionFile !== null &&
+					compositionId !== null ? (
+						<div aria-hidden style={componentLocationPlaceholder} />
+					) : (
 						<InspectorSourceLocation
 							location={componentLocation}
 							canOpen={componentLocation !== null}
 							onOpen={openComponentLocation}
 							renderIcon={renderReactIcon}
+							size="inline-action"
 						/>
-					</InspectorLocationCopy>
-					<InspectorInfoSubtitle>
-						{video.width}x{video.height}
-						{isCompositionStill(video) ? null : `, ${video.fps} FPS`}
-					</InspectorInfoSubtitle>
-					{isCompositionStill(video) ? (
-						<InspectorInfoSubtitle>Still</InspectorInfoSubtitle>
-					) : (
-						<InspectorInfoSubtitle>
-							Duration {renderFrame(video.durationInFrames, video.fps)}
-						</InspectorInfoSubtitle>
 					)}
-				</>
+				</InspectorLocationCopy>
 			) : null}
 		</InspectorInfoHeader>
 	);

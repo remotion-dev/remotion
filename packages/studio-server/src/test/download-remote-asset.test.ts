@@ -99,6 +99,7 @@ test('follows validated redirects for remote assets', async () => {
 					height: 600,
 					width: 800,
 				},
+				durationInFrames: null,
 				position: null,
 				src: 'raw-link.gif',
 				srcType: 'static',

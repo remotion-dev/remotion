@@ -22,12 +22,10 @@ const makeDefaultGlobalCSS = () => {
 	    --remotion-cli-internals-blue: ${BLUE};
 	    --remotion-cli-internals-blue-hovered: ${BLUE_HOVERED};
 	    overscroll-behavior-y: none;
-	    overscroll-behavior-x: none;
 	  }
 
   body {
     overscroll-behavior-y: none;
-    overscroll-behavior-x: none;
     /* Override Chakra UI position: relative on body */
     position: static !important;
   }
@@ -98,6 +96,17 @@ const makeDefaultGlobalCSS = () => {
 	    outline: none;
 	    box-shadow: ${FOCUS_BOX_SHADOW};
 	  }
+
+  .__remotion-composition-selector-item:focus,
+  .__remotion-inspector-inline-action:focus {
+    outline: none;
+    box-shadow: none;
+  }
+
+  .__remotion-composition-selector-item:focus-visible,
+  .__remotion-inspector-inline-action:focus-visible {
+    box-shadow: ${FOCUS_BOX_SHADOW};
+  }
 
   .__remotion_color_swatch:focus {
     outline: none;
