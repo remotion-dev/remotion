@@ -9,6 +9,8 @@ type ElementPreviewProps = {
 	readonly height: number;
 };
 
+const maxPreviewHeight = 560;
+
 export const ElementPreview: React.FC<ElementPreviewProps> = ({
 	component,
 	durationInFrames,
@@ -23,21 +25,30 @@ export const ElementPreview: React.FC<ElementPreviewProps> = ({
 				overflow: 'hidden',
 			}}
 		>
-			<Player
-				acknowledgeRemotionLicense
-				autoPlay
-				component={component}
-				durationInFrames={durationInFrames}
-				fps={fps}
-				compositionWidth={width}
-				compositionHeight={height}
-				controls
-				initiallyMuted
-				loop
+			<div
 				style={{
+					aspectRatio: `${width} / ${height}`,
+					maxHeight: maxPreviewHeight,
 					width: '100%',
 				}}
-			/>
+			>
+				<Player
+					acknowledgeRemotionLicense
+					autoPlay
+					component={component}
+					durationInFrames={durationInFrames}
+					fps={fps}
+					compositionWidth={width}
+					compositionHeight={height}
+					controls
+					initiallyMuted
+					loop
+					style={{
+						height: '100%',
+						width: '100%',
+					}}
+				/>
+			</div>
 		</div>
 	);
 };

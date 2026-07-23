@@ -1,7 +1,10 @@
 import {afterEach, expect, test} from 'bun:test';
 import {cleanup, render, waitFor} from '@testing-library/react';
 import React, {useCallback, useMemo, useState} from 'react';
-import {AnimatedImage} from '../animated-image/index.js';
+import {
+	AnimatedImage,
+	animatedImageSchema,
+} from '../animated-image/AnimatedImage.js';
 import type {TSequence} from '../CompositionManager.js';
 import {Img} from '../Img.js';
 import {Interactive} from '../Interactive.js';
@@ -333,7 +336,7 @@ test('Series.Sequence registers with its own visual controls', () => {
 	]);
 });
 
-test('Series.Sequence duration overrides cascade to later sequences', async () => {
+test('Series.Sequence timing overrides cascade to later sequences', async () => {
 	const registeredSequences: TSequence[] = [];
 	const onRegisterSequence = (sequence: TSequence) => {
 		registeredSequences.push(sequence);
@@ -357,7 +360,7 @@ test('Series.Sequence duration overrides cascade to later sequences', async () =
 			}}
 		>
 			<Series>
-				<Series.Sequence name="First" durationInFrames={10}>
+				<Series.Sequence name="First" durationInFrames={10} trimBefore={2}>
 					First
 				</Series.Sequence>
 				<Series.Sequence name="Second" durationInFrames={20}>
@@ -391,7 +394,13 @@ test('Series.Sequence duration overrides cascade to later sequences', async () =
 		videoConfigValues: null,
 	};
 	const subscriptionKey = Internals.makeSequencePropsSubscriptionKey(nodePath);
-	const makeDurationOverride = (durationInFrames: number) => ({
+	const makeTimingOverride = ({
+		durationInFrames,
+		trimBefore,
+	}: {
+		durationInFrames: number;
+		trimBefore: number;
+	}) => ({
 		overrideIdToNodePathMappings: {
 			[firstSequenceControls.overrideId]: nodePath,
 		},
@@ -400,6 +409,7 @@ test('Series.Sequence duration overrides cascade to later sequences', async () =
 				canUpdate: true as const,
 				props: {
 					durationInFrames: {status: 'static' as const, codeValue: 10},
+					trimBefore: {status: 'static' as const, codeValue: 2},
 				},
 				effects: [],
 			},
@@ -407,30 +417,37 @@ test('Series.Sequence duration overrides cascade to later sequences', async () =
 		dragOverrides: {
 			[subscriptionKey]: {
 				durationInFrames: Internals.makeStaticDragOverride(durationInFrames),
+				trimBefore: Internals.makeStaticDragOverride(trimBefore),
 			},
 		},
 	});
 
 	registeredSequences.length = 0;
-	rendered.rerender(renderSeries(makeDurationOverride(15)));
+	rendered.rerender(
+		renderSeries(makeTimingOverride({durationInFrames: 7, trimBefore: 5})),
+	);
 	await waitFor(() => {
-		expect(
-			registeredSequences.find((sequence) => sequence.displayName === 'First')
-				?.duration,
-		).toBe(15);
+		const first = registeredSequences.find(
+			(sequence) => sequence.displayName === 'First',
+		);
+		expect(first?.duration).toBe(7);
+		expect(first?.trimBefore).toBe(5);
 		expect(
 			registeredSequences.find((sequence) => sequence.displayName === 'Second')
 				?.from,
-		).toBe(15);
+		).toBe(7);
 	});
 
 	registeredSequences.length = 0;
-	rendered.rerender(renderSeries(makeDurationOverride(18)));
+	rendered.rerender(
+		renderSeries(makeTimingOverride({durationInFrames: 18, trimBefore: 7})),
+	);
 	await waitFor(() => {
-		expect(
-			registeredSequences.find((sequence) => sequence.displayName === 'First')
-				?.duration,
-		).toBe(18);
+		const first = registeredSequences.find(
+			(sequence) => sequence.displayName === 'First',
+		);
+		expect(first?.duration).toBe(18);
+		expect(first?.trimBefore).toBe(7);
 		expect(
 			registeredSequences.find((sequence) => sequence.displayName === 'Second')
 				?.from,
@@ -493,6 +510,116 @@ test('AnimatedImage registers its canvas ref for the Studio outline', () => {
 
 	expect(refForOutline.current).toBeInstanceOf(HTMLCanvasElement);
 	expect(ref.current).toBe(refForOutline.current);
+});
+
+test('AnimatedImage exposes non-keyframable premounting schema fields', () => {
+	expect(animatedImageSchema.premountFor.keyframable).toBe(false);
+	expect(animatedImageSchema.postmountFor.keyframable).toBe(false);
+});
+
+test('AnimatedImage hides the canvas while premounted and postmounted', () => {
+	const premounted = render(
+		<SequenceTestWrapper currentFrame={0} onRegisterSequence={() => undefined}>
+			<AnimatedImage
+				src="test.gif"
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				style={{opacity: 0.5}}
+				onError={() => undefined}
+			/>
+		</SequenceTestWrapper>,
+	);
+	const premountedStyle = premounted.container
+		.querySelector('canvas')
+		?.getAttribute('style');
+	expect(premountedStyle).toContain('display: none');
+	expect(premountedStyle).toContain('pointer-events: none');
+	expect(premountedStyle).toContain('opacity: 0.5');
+	premounted.unmount();
+
+	const postmounted = render(
+		<SequenceTestWrapper currentFrame={35} onRegisterSequence={() => undefined}>
+			<AnimatedImage
+				src="test.gif"
+				from={10}
+				durationInFrames={20}
+				postmountFor={10}
+				onError={() => undefined}
+			/>
+		</SequenceTestWrapper>,
+	);
+	const postmountedStyle = postmounted.container
+		.querySelector('canvas')
+		?.getAttribute('style');
+	expect(postmountedStyle).toContain('display: none');
+	expect(postmountedStyle).toContain('pointer-events: none');
+});
+
+test('AnimatedImage allows overriding the premount and postmount styles', () => {
+	const premounted = render(
+		<SequenceTestWrapper currentFrame={0} onRegisterSequence={() => undefined}>
+			<AnimatedImage
+				src="test.gif"
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				styleWhilePremounted={{display: 'block', opacity: 0.25}}
+				onError={() => undefined}
+			/>
+		</SequenceTestWrapper>,
+	);
+	const premountedStyle = premounted.container
+		.querySelector('canvas')
+		?.getAttribute('style');
+	expect(premountedStyle).toContain('display: block');
+	expect(premountedStyle).toContain('opacity: 0.25');
+	premounted.unmount();
+
+	const postmounted = render(
+		<SequenceTestWrapper currentFrame={35} onRegisterSequence={() => undefined}>
+			<AnimatedImage
+				src="test.gif"
+				from={10}
+				durationInFrames={20}
+				postmountFor={10}
+				styleWhilePostmounted={{display: 'block', opacity: 0.75}}
+				onError={() => undefined}
+			/>
+		</SequenceTestWrapper>,
+	);
+	const postmountedStyle = postmounted.container
+		.querySelector('canvas')
+		?.getAttribute('style');
+	expect(postmountedStyle).toContain('display: block');
+	expect(postmountedStyle).toContain('opacity: 0.75');
+});
+
+test('AnimatedImage registers premount and postmount ranges once', async () => {
+	const registeredSequences: TSequence[] = [];
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<AnimatedImage
+				src="test.gif"
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				postmountFor={5}
+				onError={() => undefined}
+			/>
+		</SequenceTestWrapper>,
+	);
+
+	await waitFor(() => {
+		expect(registeredSequences).toHaveLength(1);
+	});
+	expect(registeredSequences[0].premountDisplay).toBe(10);
+	expect(registeredSequences[0].postmountDisplay).toBe(5);
 });
 
 test('AnimatedImage remains visible with a negative offset', () => {

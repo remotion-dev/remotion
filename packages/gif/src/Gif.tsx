@@ -32,7 +32,6 @@ export type GifProps = InteractiveBaseProps &
 export const gifSchema: InteractivitySchema = {
 	...Internals.baseSchema,
 	...Internals.premountSchema,
-	...Internals.premountStyleSchema,
 	playbackRate: {
 		type: 'number',
 		min: 0,

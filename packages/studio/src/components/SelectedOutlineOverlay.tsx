@@ -61,7 +61,7 @@ import {
 	SelectedOutlineUvHandleCircleLayer,
 	SelectedOutlineUvHandleConnectionLayer,
 } from './SelectedOutlineUvControls';
-import {callAddSequenceKeyframe} from './Timeline/call-add-keyframe';
+import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {getCurrentDuration, getCurrentFps} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
@@ -996,18 +996,12 @@ export const SelectedOutlineOverlay: React.FC<{
 								: 'Move sequence back',
 					})
 				: Promise.resolve(),
-			...keyframedChanges.map((change) =>
-				callAddSequenceKeyframe({
-					fileName: change.fileName,
-					nodePath: change.nodePath,
-					fieldKey: change.fieldKey,
-					sourceFrame: change.sourceFrame,
-					value: change.value,
-					schema: change.schema,
-					setPropStatuses,
-					clientId: change.clientId,
-				}),
-			),
+			callAddKeyframes({
+				sequenceKeyframes: keyframedChanges,
+				effectKeyframes: [],
+				setPropStatuses,
+				clientId: session.clientId,
+			}),
 		])
 			.catch((err) => {
 				showNotification(

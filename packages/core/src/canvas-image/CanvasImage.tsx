@@ -24,7 +24,6 @@ import {
 	baseSchema,
 	borderSchema,
 	premountSchema,
-	premountStyleSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
@@ -41,7 +40,6 @@ import type {CanvasImageCanvasProps, CanvasImageProps} from './props.js';
 export const canvasImageSchema = {
 	...baseSchema,
 	...premountSchema,
-	...premountStyleSchema,
 	fit: {
 		type: 'enum',
 		default: 'fill',
