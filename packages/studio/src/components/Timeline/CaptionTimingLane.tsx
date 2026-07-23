@@ -22,6 +22,10 @@ import {
 import {CaptionTimingEditContext} from '../../state/caption-timing-edit';
 import type {CaptionJson} from '../caption-json';
 import {
+	forceSpecificCursor,
+	stopForcingSpecificCursor,
+} from '../ForceSpecificCursor';
+import {
 	applyCaptionTimingDrag,
 	millisecondsToFrames,
 	type CaptionTimingDragType,
@@ -179,6 +183,7 @@ const CaptionTimingItem: React.FC<{
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
 				window.removeEventListener('pointercancel', onPointerCancel);
+				stopForcingSpecificCursor();
 				removeListeners.current = null;
 			};
 
@@ -231,6 +236,7 @@ const CaptionTimingItem: React.FC<{
 			};
 
 			removeListeners.current?.();
+			forceSpecificCursor('ew-resize');
 			removeListeners.current = cleanup;
 			window.addEventListener('pointermove', onPointerMove);
 			window.addEventListener('pointerup', onPointerUp);
