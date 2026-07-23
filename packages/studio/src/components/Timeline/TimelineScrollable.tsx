@@ -31,7 +31,8 @@ const marqueeStyle: React.CSSProperties = {
 
 export const TimelineScrollable: React.FC<{
 	readonly children: React.ReactNode;
-}> = ({children}) => {
+	readonly marqueeSelectionEnabled?: boolean;
+}> = ({children, marqueeSelectionEnabled = true}) => {
 	const {marqueeRect, onPointerDownCapture} = useTimelineMarqueeSelection();
 	const containerStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -46,7 +47,9 @@ export const TimelineScrollable: React.FC<{
 			data-timeline-scrollable="true"
 			style={outer}
 			className={HORIZONTAL_SCROLLBAR_CLASSNAME}
-			onPointerDownCapture={onPointerDownCapture}
+			onPointerDownCapture={
+				marqueeSelectionEnabled ? onPointerDownCapture : undefined
+			}
 		>
 			<div style={containerStyle}>{children}</div>
 			<TimelineAssetDropIndicator />

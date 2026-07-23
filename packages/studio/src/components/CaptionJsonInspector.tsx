@@ -1,6 +1,16 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useId,
+	useRef,
+	useState,
+} from 'react';
+import {Internals} from 'remotion';
 import {writeStaticFile} from '../api/write-static-file';
 import {FAIL_COLOR, LIGHT_TEXT} from '../helpers/colors';
+import {CaptionTimingEditContext} from '../state/caption-timing-edit';
+import {Button} from './Button';
 import type {CaptionJson} from './caption-json';
 import {isCaptionJson} from './caption-json';
 import {CaptionJsonEditor} from './CaptionJsonEditor';
@@ -8,7 +18,11 @@ import {
 	InspectorSectionDivider,
 	InspectorSectionHeader,
 } from './InspectorPanel/common';
-import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
+import {
+	sectionHeaderEnd,
+	sectionHeaderRow,
+	sectionHeaderTitle,
+} from './InspectorPanel/styles';
 
 type CaptionSaveStatus =
 	| {readonly type: 'read-only'}
@@ -38,6 +52,10 @@ export const CaptionJsonInspector: React.FC<{
 	readonly editableFilePath?: string;
 }> = ({src, editableFilePath}) => {
 	const [json, setJson] = useState<JsonState>({type: 'loading'});
+	const ownerId = useId();
+	const videoConfig = Internals.useUnsafeVideoConfig();
+	const {selectedCaptionIndex, selectionRevision, session, start, stop, sync} =
+		useContext(CaptionTimingEditContext);
 	const [saveStatus, setSaveStatus] = useState<CaptionSaveStatus>(
 		editableFilePath ? {type: 'saved'} : {type: 'read-only'},
 	);
@@ -77,8 +95,8 @@ export const CaptionJsonInspector: React.FC<{
 	}, [editableFilePath]);
 
 	const onChangeCaptions = useCallback(
-		(captions: CaptionJson[]) => {
-			setJson({type: 'loaded', value: captions});
+		(nextCaptions: CaptionJson[]) => {
+			setJson({type: 'loaded', value: nextCaptions});
 			if (!editableFilePath) {
 				return;
 			}
@@ -91,7 +109,7 @@ export const CaptionJsonInspector: React.FC<{
 				.then(() =>
 					writeStaticFile({
 						filePath: editableFilePath,
-						contents: JSON.stringify(captions, null, '\t') + '\n',
+						contents: JSON.stringify(nextCaptions, null, '\t') + '\n',
 					}),
 				);
 			saveQueue.current = write;
@@ -113,7 +131,47 @@ export const CaptionJsonInspector: React.FC<{
 		[editableFilePath],
 	);
 
-	if (json.type === 'loading' || !isCaptionJson(json.value)) {
+	const captions =
+		json.type === 'loaded' && isCaptionJson(json.value) ? json.value : null;
+	const isEditingTimings = session?.ownerId === ownerId;
+	const canEditTimings =
+		captions !== null && editableFilePath !== undefined && videoConfig !== null;
+
+	useEffect(() => {
+		if (!isEditingTimings || captions === null) {
+			return;
+		}
+
+		sync({ownerId, src, captions, onChange: onChangeCaptions});
+	}, [captions, isEditingTimings, onChangeCaptions, ownerId, src, sync]);
+
+	useEffect(() => {
+		return () => stop(ownerId);
+	}, [ownerId, src, stop]);
+
+	const toggleTimingEdit = useCallback(() => {
+		if (isEditingTimings) {
+			stop(ownerId);
+			return;
+		}
+
+		if (captions === null || !canEditTimings) {
+			return;
+		}
+
+		start({ownerId, src, captions, onChange: onChangeCaptions});
+	}, [
+		canEditTimings,
+		captions,
+		isEditingTimings,
+		onChangeCaptions,
+		ownerId,
+		src,
+		start,
+		stop,
+	]);
+
+	if (captions === null) {
 		return null;
 	}
 
@@ -136,22 +194,40 @@ export const CaptionJsonInspector: React.FC<{
 			<InspectorSectionHeader>
 				<div style={sectionHeaderRow}>
 					<div style={sectionHeaderTitle}>Captions</div>
-					{statusLabel ? (
-						<div
-							style={statusStyle}
+					<div style={sectionHeaderEnd}>
+						{statusLabel ? (
+							<div
+								style={statusStyle}
+								title={
+									saveStatus.type === 'error' ? saveStatus.message : undefined
+								}
+							>
+								{statusLabel}
+							</div>
+						) : null}
+						<Button
+							disabled={!canEditTimings && !isEditingTimings}
+							onClick={toggleTimingEdit}
+							size="condensed"
 							title={
-								saveStatus.type === 'error' ? saveStatus.message : undefined
+								editableFilePath === undefined
+									? 'Timing editing requires a local caption file'
+									: videoConfig === null
+										? 'Select a caption sequence in a composition to edit timings'
+										: undefined
 							}
 						>
-							{statusLabel}
-						</div>
-					) : null}
+							{isEditingTimings ? 'Done' : 'Edit timings'}
+						</Button>
+					</div>
 				</div>
 			</InspectorSectionHeader>
 			<CaptionJsonEditor
-				captions={json.value}
+				captions={captions}
 				onChange={onChangeCaptions}
 				readOnly={saveStatus.type === 'read-only'}
+				selectedCaptionIndex={isEditingTimings ? selectedCaptionIndex : null}
+				selectionRevision={selectionRevision}
 			/>
 		</>
 	);

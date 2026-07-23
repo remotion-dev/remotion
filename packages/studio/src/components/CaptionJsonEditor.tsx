@@ -1,5 +1,11 @@
-import React, {useCallback, useMemo, useRef} from 'react';
-import {BACKGROUND, LIGHT_TEXT, LINE_COLOR, WHITE} from '../helpers/colors';
+import React, {useCallback, useEffect, useMemo, useRef} from 'react';
+import {
+	BACKGROUND,
+	LIGHT_TEXT,
+	LINE_COLOR,
+	WHITE,
+	WHITE_ALPHA_08,
+} from '../helpers/colors';
 import type {CaptionJson} from './caption-json';
 import {RemotionInput} from './NewComposition/RemInput';
 
@@ -53,7 +59,15 @@ export const CaptionJsonEditor: React.FC<{
 	readonly captions: CaptionJson[];
 	readonly onChange: (captions: CaptionJson[]) => void;
 	readonly readOnly: boolean;
-}> = ({captions, onChange, readOnly}) => {
+	readonly selectedCaptionIndex: number | null;
+	readonly selectionRevision: number;
+}> = ({
+	captions,
+	onChange,
+	readOnly,
+	selectedCaptionIndex,
+	selectionRevision,
+}) => {
 	const listRef = useRef<HTMLDivElement>(null);
 	const captionRows = useMemo(() => {
 		const occurrences = new Map<string, number>();
@@ -89,13 +103,32 @@ export const CaptionJsonEditor: React.FC<{
 		input?.scrollIntoView({block: 'nearest'});
 	}, []);
 
+	useEffect(() => {
+		if (selectedCaptionIndex === null) {
+			return;
+		}
+
+		const selectedRow = listRef.current?.querySelector<HTMLElement>(
+			`[data-caption-row-index="${selectedCaptionIndex}"]`,
+		);
+		selectedRow?.scrollIntoView({block: 'center'});
+	}, [selectedCaptionIndex, selectionRevision]);
+
 	return (
 		<div style={container}>
 			<div ref={listRef} style={list}>
 				{captions.length === 0 ? <div style={empty}>No captions</div> : null}
 				{captionRows.map(({caption, key}, index) => {
 					return (
-						<div key={key} style={row}>
+						<div
+							key={key}
+							data-caption-row-index={index}
+							style={{
+								...row,
+								backgroundColor:
+									selectedCaptionIndex === index ? WHITE_ALPHA_08 : undefined,
+							}}
+						>
 							<div style={timing}>
 								{formatMilliseconds(caption.startMs)} →{' '}
 								{formatMilliseconds(caption.endMs)} ms

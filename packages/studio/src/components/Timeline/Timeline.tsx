@@ -7,6 +7,7 @@ import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useIsStill} from '../../helpers/is-current-selected-still';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
+import {CaptionTimingEditContext} from '../../state/caption-timing-edit';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import {importAssets, pickFilesToImport} from '../import-assets';
@@ -16,6 +17,10 @@ import {showNotification} from '../Notifications/NotificationCenter';
 import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
+import {
+	CaptionTimingLane,
+	CaptionTimingTimelineList,
+} from './CaptionTimingLane';
 import {MAX_TIMELINE_TRACKS} from './MaxTimelineTracks';
 import {SequencePropsObserver} from './SequencePropsObserver';
 import {shouldShowTrackInTimeline} from './should-show-track-in-timeline';
@@ -224,6 +229,7 @@ const TimelineContextMenuArea: React.FC<{
 
 const TimelineInner: React.FC = () => {
 	const {sequences} = useContext(Internals.SequenceManager);
+	const {session: captionTimingSession} = useContext(CaptionTimingEditContext);
 	const {compositions} = useContext(Internals.CompositionManager);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const isStill = useIsStill();
@@ -295,7 +301,10 @@ const TimelineInner: React.FC = () => {
 					{studioInteractivityEnabled ? (
 						<TimelineSelectAllKeybindings timeline={shown} />
 					) : null}
-					<TimelineHeightContainer shown={shown} hasBeenCut={hasBeenCut}>
+					<TimelineHeightContainer
+						shown={captionTimingSession ? [] : shown}
+						hasBeenCut={captionTimingSession ? false : hasBeenCut}
+					>
 						{isStill ? (
 							<TimelineList timeline={shown} />
 						) : (
@@ -312,22 +321,34 @@ const TimelineInner: React.FC = () => {
 										type="flexer"
 										sticky={<TimelineTimePlaceholders />}
 									>
-										<TimelineList timeline={shown} />
+										{captionTimingSession ? (
+											<CaptionTimingTimelineList />
+										) : (
+											<TimelineList timeline={shown} />
+										)}
 									</SplitterElement>
 									<SplitterHandle onCollapse={noop} allowToCollapse="none" />
 									<SplitterElement type="anti-flexer" sticky={null}>
-										<TimelineScrollable>
-											<TimelineTracks
-												timeline={shown}
-												hasBeenCut={hasBeenCut}
-											/>
+										<TimelineScrollable
+											marqueeSelectionEnabled={!captionTimingSession}
+										>
+											{captionTimingSession ? (
+												<CaptionTimingLane />
+											) : (
+												<>
+													<TimelineTracks
+														timeline={shown}
+														hasBeenCut={hasBeenCut}
+													/>
+													<TimelineInOutPointer />
+													{studioInteractivityEnabled ? (
+														<TimelineInOutDragHandler />
+													) : null}
+												</>
+											)}
 											<TimelinePlayCursorSyncer />
-											<TimelineInOutPointer />
 											<TimelineTimeIndicators />
 											<TimelineDragHandler />
-											{studioInteractivityEnabled ? (
-												<TimelineInOutDragHandler />
-											) : null}
 											<TimelineSlider />
 										</TimelineScrollable>
 									</SplitterElement>
