@@ -235,6 +235,7 @@ export const Canvas: React.FC<{
 	const confirm = useConfirmationDialog();
 	const chooseSvgImportMode = useSvgImportDialog();
 	const config = Internals.useUnsafeVideoConfig();
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const areRulersVisible = useIsRulerVisible();
 	const {editorShowGuides} = useContext(EditorShowGuidesContext);
 	const {compositions} = useContext(Internals.CompositionManager);
@@ -1013,7 +1014,7 @@ export const Canvas: React.FC<{
 					dropPosition,
 					event,
 					fps: config.fps,
-					from: null,
+					from: timelinePosition,
 				});
 			} finally {
 				setIsAddingAsset(false);
@@ -1030,6 +1031,7 @@ export const Canvas: React.FC<{
 			currentCompositionId,
 			previewSize,
 			size,
+			timelinePosition,
 		],
 	);
 
