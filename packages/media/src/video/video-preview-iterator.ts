@@ -63,8 +63,10 @@ export const createVideoIterator = async (
 
 	const getFrameEndTimestamp = async ({
 		pendingFrameBehavior,
+		shouldContinue,
 	}: {
 		pendingFrameBehavior: 'wait' | 'restart-iterator';
+		shouldContinue: () => boolean;
 	}) => {
 		const peeked = peekIfReady();
 		if (peeked.type === 'ready') {
@@ -78,7 +80,15 @@ export const createVideoIterator = async (
 			return {type: 'pending' as const};
 		}
 
+		if (!shouldContinue()) {
+			return {type: 'cancelled' as const};
+		}
+
 		const awaitedPeeked = setPeekedFrame(await peeked.wait());
+		if (!shouldContinue()) {
+			return {type: 'cancelled' as const};
+		}
+
 		return {
 			type: 'ready' as const,
 			timestamp: getFrameEndTimestampFromPeek(awaitedPeeked),
@@ -143,6 +153,7 @@ export const createVideoIterator = async (
 		time: number,
 		options: {
 			pendingFrameBehavior: 'wait' | 'restart-iterator';
+			shouldContinue: () => boolean;
 		},
 	): Promise<
 		| {
@@ -154,6 +165,13 @@ export const createVideoIterator = async (
 				frame: WrappedCanvas;
 		  }
 	> => {
+		if (!options.shouldContinue()) {
+			return {
+				type: 'not-satisfied',
+				reason: 'seek was superseded',
+			};
+		}
+
 		const timestamp = roundTo4Digits(time);
 		if (lastReturnedFrame) {
 			const frameTimestamp = roundTo4Digits(lastReturnedFrame.timestamp);
@@ -179,7 +197,15 @@ export const createVideoIterator = async (
 
 			const frameEndTimestamp = await getFrameEndTimestamp({
 				pendingFrameBehavior: options.pendingFrameBehavior,
+				shouldContinue: options.shouldContinue,
 			});
+			if (frameEndTimestamp.type === 'cancelled') {
+				return {
+					type: 'not-satisfied',
+					reason: 'seek was superseded',
+				};
+			}
+
 			if (frameEndTimestamp.type === 'pending') {
 				return {
 					type: 'not-satisfied' as const,
@@ -213,6 +239,13 @@ export const createVideoIterator = async (
 		}
 
 		while (true) {
+			if (!options.shouldContinue()) {
+				return {
+					type: 'not-satisfied',
+					reason: 'seek was superseded',
+				};
+			}
+
 			const frame = getNextOrNullIfNotAvailable();
 
 			if (frame.type === 'need-to-wait-for-it') {
@@ -241,7 +274,15 @@ export const createVideoIterator = async (
 				const frameTimestamp = roundTo4Digits(frame.frame.timestamp);
 				const frameEndTimestamp = await getFrameEndTimestamp({
 					pendingFrameBehavior: options.pendingFrameBehavior,
+					shouldContinue: options.shouldContinue,
 				});
+				if (frameEndTimestamp.type === 'cancelled') {
+					return {
+						type: 'not-satisfied',
+						reason: 'seek was superseded',
+					};
+				}
+
 				if (frameEndTimestamp.type === 'pending') {
 					return {
 						type: 'not-satisfied' as const,

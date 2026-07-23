@@ -45,6 +45,7 @@ test('preview iterator uses next frame timestamp instead of reported duration', 
 	try {
 		const result = await iterator.tryToSatisfySeek(1.5, {
 			pendingFrameBehavior: 'wait',
+			shouldContinue: () => true,
 		});
 
 		if (result.type !== 'satisfied') {
@@ -95,6 +96,7 @@ test('preview iterator does not trust reported duration without a next timestamp
 	try {
 		const result = await iterator.tryToSatisfySeek(1.5, {
 			pendingFrameBehavior: 'restart-iterator',
+			shouldContinue: () => true,
 		});
 
 		expect(result.type).toBe('not-satisfied');
@@ -142,6 +144,7 @@ test('preview iterator waits through high-FPS frames for a sequential timeline s
 	try {
 		const result = await iterator.tryToSatisfySeek(1 / timelineFps, {
 			pendingFrameBehavior: 'wait',
+			shouldContinue: () => true,
 		});
 
 		if (result.type !== 'satisfied') {
@@ -190,6 +193,7 @@ test('preview iterator supports frames longer than one timeline step', async () 
 	try {
 		const result = await iterator.tryToSatisfySeek(0.075, {
 			pendingFrameBehavior: 'wait',
+			shouldContinue: () => true,
 		});
 
 		if (result.type !== 'satisfied') {
@@ -197,6 +201,58 @@ test('preview iterator supports frames longer than one timeline step', async () 
 		}
 
 		expect(result.frame.timestamp).toBe(0);
+		expect(pendingWaits).toBe(1);
+	} finally {
+		iterator.destroy();
+	}
+});
+
+test('preview iterator stops decoding when a seek is superseded', async () => {
+	const sourceFps = 240;
+	let frameIndex = 0;
+	let pendingWaits = 0;
+	let shouldContinue = true;
+
+	const iterator = await createVideoIterator(0, {
+		destroy: () => undefined,
+		makeIteratorOrUsePrewarmed: () => {
+			return {
+				closeIterator: () => Promise.resolve(),
+				next: () => {
+					const frame = makeFrame({
+						timestamp: frameIndex / sourceFps,
+						duration: 1 / sourceFps,
+					});
+					frameIndex++;
+
+					if (frameIndex === 1) {
+						return {type: 'ready' as const, frame};
+					}
+
+					return {
+						type: 'pending' as const,
+						wait: () => {
+							pendingWaits++;
+							shouldContinue = false;
+							return Promise.resolve(frame);
+						},
+					};
+				},
+			};
+		},
+		prewarmIteratorForLooping: () => undefined,
+	});
+
+	try {
+		const result = await iterator.tryToSatisfySeek(1, {
+			pendingFrameBehavior: 'wait',
+			shouldContinue: () => shouldContinue,
+		});
+
+		expect(result).toEqual({
+			type: 'not-satisfied',
+			reason: 'seek was superseded',
+		});
 		expect(pendingWaits).toBe(1);
 	} finally {
 		iterator.destroy();

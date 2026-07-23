@@ -502,6 +502,7 @@ export class MediaPlayer {
 					nonce,
 					fps: this.fps,
 					playbackRate: this.playbackRate,
+					isPlaying: this.playing,
 				}),
 				this.audioIteratorManager?.seek({
 					newTime,

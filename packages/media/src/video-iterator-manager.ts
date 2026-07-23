@@ -22,13 +22,15 @@ export const isSequentialMediaTimeAdvance = ({
 	newTime,
 	fps,
 	playbackRate,
+	isPlaying,
 }: {
 	previousTime: number;
 	newTime: number;
 	fps: number;
 	playbackRate: number;
+	isPlaying: boolean;
 }) => {
-	if (newTime < previousTime) {
+	if (!isPlaying || newTime < previousTime) {
 		return false;
 	}
 
@@ -204,11 +206,13 @@ export const videoIteratorManager = async ({
 		nonce,
 		fps,
 		playbackRate,
+		isPlaying,
 	}: {
 		newTime: number;
 		nonce: Nonce;
 		fps: number;
 		playbackRate: number;
+		isPlaying: boolean;
 	}) => {
 		if (!videoFrameIterator) {
 			return;
@@ -240,12 +244,16 @@ export const videoIteratorManager = async ({
 				newTime,
 				fps,
 				playbackRate,
+				isPlaying,
 			})
 				? 'wait'
 				: 'restart-iterator';
 		const videoSatisfyResult = await videoFrameIterator.tryToSatisfySeek(
 			newTime,
-			{pendingFrameBehavior},
+			{
+				pendingFrameBehavior,
+				shouldContinue: () => !nonce.isStale(),
+			},
 		);
 
 		// Doing this before the staleness check, because
