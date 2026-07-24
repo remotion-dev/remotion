@@ -488,6 +488,13 @@ const internalRenderMediaOnWeb = async <
 			};
 		};
 
+		// If a composition never emits audio, no samples are sent to the AAC
+		// encoder - encoder priming would make the audio track longer than the
+		// video track and inflate the container duration (#7099). Silence is
+		// backfilled once the first real audio sample appears.
+		let hasEncounteredAudio = false;
+		let silentFramesBeforeFirstAudio = 0;
+
 		for (let frame = realFrameRange[0]; frame <= realFrameRange[1]; frame++) {
 			if (signal?.aborted) {
 				throw new Error('renderMediaOnWeb() was cancelled');
@@ -588,9 +595,24 @@ const internalRenderMediaOnWeb = async <
 
 			await waitForPageResponsiveness();
 
-			const audio = muted
-				? null
-				: onlyInlineAudio({assets, fps: resolved.fps, timestamp, sampleRate});
+			let audio: AudioData | null = null;
+			if (audioSampleSource) {
+				if (assets.some((a) => a.type === 'inline-audio')) {
+					hasEncounteredAudio = true;
+				}
+
+				if (hasEncounteredAudio) {
+					audio = onlyInlineAudio({
+						assets,
+						fps: resolved.fps,
+						timestamp,
+						sampleRate,
+					});
+				} else {
+					silentFramesBeforeFirstAudio++;
+				}
+			}
+
 			internalState.addAudioMixingTime(performance.now() - audioCombineStart);
 
 			await waitForPageResponsiveness();
@@ -607,6 +629,20 @@ const internalRenderMediaOnWeb = async <
 			}
 
 			if (audio && audioSampleSource) {
+				for (let i = 0; i < silentFramesBeforeFirstAudio; i++) {
+					const silence = onlyInlineAudio({
+						assets: [],
+						fps: resolved.fps,
+						timestamp: Math.round((i / resolved.fps) * 1_000_000),
+						sampleRate,
+					});
+					encodingPromises.push(
+						addAudioSample(silence, audioSampleSource.audioSampleSource),
+					);
+				}
+
+				silentFramesBeforeFirstAudio = 0;
+
 				encodingPromises.push(
 					addAudioSample(audio, audioSampleSource.audioSampleSource),
 				);
