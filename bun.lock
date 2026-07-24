@@ -610,7 +610,7 @@
     },
     "packages/drag-and-drop": {
       "name": "@remotion/drag-and-drop",
-      "version": "4.0.497",
+      "version": "4.0.498",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "@typescript/native-preview": "catalog:",
