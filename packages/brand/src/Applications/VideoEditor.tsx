@@ -1,4 +1,4 @@
-import {AbsoluteFill, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 import {ExtrudeDiv} from '../3DContext/Div3D';
 import {KineticType} from './KineticType';
 
@@ -291,7 +291,10 @@ export function ApplicationVideoEditor({
 									<div
 										style={{
 											bottom: 0,
-											left: '54%',
+											left: `${interpolate(titleFrame, [0, 65], [45, 82], {
+												extrapolateLeft: 'clamp',
+												extrapolateRight: 'clamp',
+											})}%`,
 											pointerEvents: 'none',
 											position: 'absolute',
 											top: -7,
