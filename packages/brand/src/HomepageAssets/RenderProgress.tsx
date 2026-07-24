@@ -1,6 +1,7 @@
 import React from 'react';
 import {
 	AbsoluteFill,
+	interpolate,
 	Sequence,
 	useCurrentFrame,
 	useVideoConfig,
@@ -19,9 +20,36 @@ export const renderProgressDurationInFrames = 268;
 const rotationReferenceDurationInFrames = 1200;
 const phrases = ['video.mp4', 'thumb.png', 'sound.wav', 'doc.pdf'] as const;
 const cycleOffsets = [-1, 0, 1] as const;
+const progressStartFrame = -60;
+const fadeInDurationInFrames = 6;
+const fadeOutStartFrame = 82;
+const fadeOutDurationInFrames = 6;
 
 const modulo = (value: number, by: number) => {
 	return ((value % by) + by) % by;
+};
+
+const getCardOpacity = (localFrame: number) => {
+	const fadeIn = interpolate(
+		localFrame,
+		[progressStartFrame - fadeInDurationInFrames - 4, progressStartFrame - 4],
+		[0, 1],
+		{
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		},
+	);
+	const fadeOut = interpolate(
+		localFrame,
+		[fadeOutStartFrame, fadeOutStartFrame + fadeOutDurationInFrames],
+		[1, 0],
+		{
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		},
+	);
+
+	return Math.min(fadeIn, fadeOut);
 };
 
 export const RenderProgress: React.FC = () => {
@@ -49,24 +77,40 @@ export const RenderProgress: React.FC = () => {
 			const y = initialY + i * spacing - scroll + cycleOffset * cycleHeight;
 			const localFrame = frame - itemIndex * itemSpacingInFrames;
 
-			return getButton({
-				font,
-				phrase,
-				depth,
-				color,
-				delay: 0,
-				transformations: [translateY(y), ...commonTransformations],
-				frame: localFrame,
-				fps,
-			});
+			return {
+				elements: getButton({
+					font,
+					phrase,
+					depth,
+					color,
+					delay: 0,
+					transformations: [translateY(y), ...commonTransformations],
+					frame: localFrame,
+					fps,
+				}),
+				opacity: getCardOpacity(localFrame),
+			};
 		});
 	});
 
 	return (
 		<AbsoluteFill>
-			<svg viewBox={viewBox.join(' ')} style={{overflow: 'visible'}}>
-				<Faces elements={rendered.flat(1)} />
-			</svg>
+			{rendered.map((item, i) => {
+				return (
+					<svg
+						key={i}
+						viewBox={viewBox.join(' ')}
+						style={{
+							inset: 0,
+							opacity: item.opacity,
+							overflow: 'visible',
+							position: 'absolute',
+						}}
+					>
+						<Faces elements={item.elements} />
+					</svg>
+				);
+			})}
 		</AbsoluteFill>
 	);
 };

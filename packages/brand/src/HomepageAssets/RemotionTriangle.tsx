@@ -16,8 +16,11 @@ import {Faces} from './Faces';
 import {extrudeElement} from './join-inbetween-tiles';
 import {rotateX, scaled} from './matrix';
 
-export const RemotionTriangle: React.FC = () => {
-	const frame = useCurrentFrame();
+export const RemotionTriangle: React.FC<{
+	readonly frame?: number;
+}> = ({frame: frameOverride}) => {
+	const currentFrame = useCurrentFrame();
+	const frame = frameOverride ?? currentFrame;
 	const {fps} = useVideoConfig();
 	const progress = spring({
 		fps,
@@ -74,7 +77,6 @@ export const RemotionTriangle: React.FC = () => {
 					height: '100%',
 					overflow: 'visible',
 					width: '100%',
-					translate: '-479.8px -11.8px',
 					scale: 0.667,
 				}}
 			>
