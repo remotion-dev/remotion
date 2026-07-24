@@ -101,7 +101,16 @@ export const saveMultipleEffectProps = ({
 		clientId,
 		undoLabel,
 		redoLabel,
-	}).then(() => undefined);
+	}).then((response) => {
+		for (const result of response.results) {
+			setPropStatuses(result.sequenceNodePath, (prev) =>
+				applyEffectResponseToPropStatuses({
+					previous: prev,
+					response: result.status,
+				}),
+			);
+		}
+	});
 };
 
 export const saveEffectProp = (input: SaveEffectPropInput): Promise<void> => {

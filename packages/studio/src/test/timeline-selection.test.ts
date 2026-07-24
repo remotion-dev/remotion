@@ -1394,12 +1394,125 @@ test('pasting an effect prop targets a matching selected effect', () => {
 		}),
 	).toEqual({
 		type: 'valid',
-		fileName: '/project/src/Comp.tsx',
-		nodePath,
-		effectIndex: 1,
-		fieldKey: 'intensity',
-		defaultValue: '0',
-		schema: effectSchema,
+		targets: [
+			{
+				fileName: '/project/src/Comp.tsx',
+				nodePath,
+				effectIndex: 1,
+				fieldKey: 'intensity',
+				defaultValue: '0',
+				schema: effectSchema,
+			},
+		],
+	} satisfies PasteEffectPropTarget);
+});
+
+test('pasting an effect prop targets multiple matching selected effects', () => {
+	const firstNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0'],
+		true,
+		[['intensity']],
+	);
+	const secondNodePathInfo = makeNodePathInfo(
+		['body', 1],
+		['effects', '0', 'intensity'],
+		true,
+		[['intensity']],
+	);
+	const firstNodePath = firstNodePathInfo.sequenceSubscriptionKey;
+	const secondNodePath = secondNodePathInfo.sequenceSubscriptionKey;
+	const effectSchema = {
+		intensity: {type: 'number', default: 0, hiddenFromList: false},
+	} satisfies InteractivitySchema;
+	const effectStatus = {
+		canUpdate: true,
+		callee: 'halftone',
+		importPath: '@remotion/effects/halftone',
+		effectIndex: 0,
+		props: {
+			intensity: {status: 'static', codeValue: 0},
+		},
+	} as const;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(firstNodePath)]: {
+			canUpdate: true,
+			props: {},
+			effects: [effectStatus],
+		},
+		[Internals.makeSequencePropsSubscriptionKey(secondNodePath)]: {
+			canUpdate: true,
+			props: {},
+			effects: [effectStatus],
+		},
+	} satisfies PropStatuses;
+
+	expect(
+		getPasteEffectPropTarget({
+			selectedItems: [
+				{
+					type: 'sequence-effect',
+					nodePathInfo: firstNodePathInfo,
+					i: 0,
+				},
+				{
+					type: 'sequence-effect-prop',
+					nodePathInfo: secondNodePathInfo,
+					i: 0,
+					key: 'intensity',
+				},
+			],
+			payload: {
+				type: 'effect-prop',
+				version: 1,
+				remotionClipboard: 'effect-prop',
+				effect: {
+					callee: 'halftone',
+					importPath: '@remotion/effects/halftone',
+				},
+				key: 'intensity',
+				param: {type: 'static', value: 10},
+			},
+			propStatuses,
+			sequences: [
+				makeTimelineSequence({
+					schema: {},
+					effects: [{schema: effectSchema}],
+					id: 'first',
+					overrideId: 'first',
+				}),
+				makeTimelineSequence({
+					schema: {},
+					effects: [{schema: effectSchema}],
+					id: 'second',
+					overrideId: 'second',
+				}),
+			],
+			overrideIdsToNodePaths: {
+				first: firstNodePath,
+				second: secondNodePath,
+			},
+		}),
+	).toEqual({
+		type: 'valid',
+		targets: [
+			{
+				fileName: '/project/src/Comp.tsx',
+				nodePath: firstNodePath,
+				effectIndex: 0,
+				fieldKey: 'intensity',
+				defaultValue: '0',
+				schema: effectSchema,
+			},
+			{
+				fileName: '/project/src/Comp.tsx',
+				nodePath: secondNodePath,
+				effectIndex: 0,
+				fieldKey: 'intensity',
+				defaultValue: '0',
+				schema: effectSchema,
+			},
+		],
 	} satisfies PasteEffectPropTarget);
 });
 
