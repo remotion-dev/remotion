@@ -82,12 +82,14 @@ export const ProductOffer = () => {
 					}),
 					overflow: 'hidden',
 					position: 'relative',
+					transform: 'perspective(100px)',
 					translate: interpolate(frame, [0, 28], ['0px -24px', '0px 0px'], {
 						easing: Easing.bezier(0.16, 1, 0.3, 1),
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					}),
 					width: '100%',
+					willChange: 'transform',
 				}}
 			>
 				<Img
@@ -103,7 +105,9 @@ export const ProductOffer = () => {
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
 						}),
+						transform: 'perspective(100px)',
 						width: '100%',
+						willChange: 'transform',
 					}}
 				/>
 
