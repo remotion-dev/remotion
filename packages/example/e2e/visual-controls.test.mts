@@ -149,7 +149,7 @@ test.describe('visual controls', () => {
 		await expect(dragger).toBeVisible({timeout: 10_000});
 		await dragger.click();
 
-		const input = fieldset.locator('input[type="number"]');
+		const input = fieldset.locator('input[type="text"]');
 		await expect(input).toBeVisible({timeout: 5_000});
 
 		const newValue = '90';
