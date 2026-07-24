@@ -5,7 +5,7 @@ description: Finalize a developed Remotion Element, add it to the docs gallery, 
 
 # Publish a Remotion Element
 
-The source of truth for design and quality criteria is the [Element Guidelines](../../../packages/docs/elements/guidelines.mdx). Read them completely before making changes. If this skill and the guidelines diverge on acceptance criteria, follow the guidelines.
+The source of truth for design and quality criteria is the [Element Guidelines](https://github.com/remotion-dev/remotion/blob/main/packages/docs/elements/guidelines.mdx). Read them completely before making changes. If this skill and the guidelines diverge on acceptance criteria, follow the guidelines.
 
 This skill owns the technical publication workflow. It starts with an Element scaffold created by the [`scaffold-element` skill](../scaffold-element/SKILL.md) and does not create the initial development scaffold.
 
