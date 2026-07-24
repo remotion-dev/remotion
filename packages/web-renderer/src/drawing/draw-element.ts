@@ -131,10 +131,10 @@ export const drawElement = async ({
 
 	return {
 		cleanupAfterChildren: () => {
+			finishOverflowHidden();
 			finishFilter();
 			finishOpacity();
 			finishClipPath();
-			finishOverflowHidden();
 		},
 	};
 };
