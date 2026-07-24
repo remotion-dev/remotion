@@ -1,35 +1,6 @@
-import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, useCurrentFrame} from 'remotion';
 import {ExtrudeDiv} from '../3DContext/Div3D';
-
-const titleWords = [
-	{
-		key: 'summer',
-		letters: [
-			{key: 'summer-s', value: 'S'},
-			{key: 'summer-u', value: 'U'},
-			{key: 'summer-first-m', value: 'M'},
-			{key: 'summer-second-m', value: 'M'},
-			{key: 'summer-e', value: 'E'},
-			{key: 'summer-r', value: 'R'},
-		],
-	},
-	{
-		key: 'collection',
-		letters: [
-			{key: 'collection-c', value: 'C'},
-			{key: 'collection-o', value: 'O'},
-			{key: 'collection-first-l', value: 'L'},
-			{key: 'collection-second-l', value: 'L'},
-			{key: 'collection-e', value: 'E'},
-			{key: 'collection-c-2', value: 'C'},
-			{key: 'collection-t', value: 'T'},
-			{key: 'collection-i', value: 'I'},
-			{key: 'collection-o-2', value: 'O'},
-			{key: 'collection-n', value: 'N'},
-		],
-	},
-] as const;
-const wordLetterOffsets = [0, titleWords[0].letters.length] as const;
+import {KineticType} from './KineticType';
 
 export function ApplicationSimpleApp({
 	kineticTypeFrame,
@@ -140,12 +111,11 @@ export function ApplicationSimpleApp({
 								overflow: 'hidden',
 							}}
 						>
-							<div
+							<KineticType
+								frame={titleFrame}
 								style={{
 									alignItems: 'center',
 									color: '#ffffff',
-									display: 'flex',
-									flexDirection: 'column',
 									fontSize: 64,
 									fontWeight: 500,
 									gap: 8,
@@ -153,41 +123,7 @@ export function ApplicationSimpleApp({
 									letterSpacing: 1,
 									lineHeight: 1,
 								}}
-							>
-								{titleWords.map((word, wordIndex) => (
-									<div key={word.key} style={{display: 'flex'}}>
-										{word.letters.map((letter, letterIndex) => {
-											const globalLetterIndex =
-												wordLetterOffsets[wordIndex] + letterIndex;
-
-											return (
-												<div key={letter.key} style={{overflow: 'hidden'}}>
-													<span
-														style={{
-															display: 'inline-block',
-															translate: interpolate(
-																titleFrame,
-																[
-																	6 + globalLetterIndex * 2,
-																	18 + globalLetterIndex * 2,
-																],
-																['0px 80px', '0px 0px'],
-																{
-																	easing: Easing.bezier(0.16, 1, 0.3, 1),
-																	extrapolateLeft: 'clamp',
-																	extrapolateRight: 'clamp',
-																},
-															),
-														}}
-													>
-														{letter.value}
-													</span>
-												</div>
-											);
-										})}
-									</div>
-								))}
-							</div>
+							/>
 						</div>
 						<div
 							style={{

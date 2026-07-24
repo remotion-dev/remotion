@@ -1,6 +1,15 @@
-import {AbsoluteFill} from 'remotion';
+import {AbsoluteFill, useCurrentFrame} from 'remotion';
 import {ExtrudeDiv} from '../3DContext/Div3D';
-export function ApplicationVideoEditor() {
+import {KineticType} from './KineticType';
+
+export function ApplicationVideoEditor({
+	kineticTypeFrame,
+}: {
+	readonly kineticTypeFrame?: number;
+}) {
+	const frame = useCurrentFrame();
+	const titleFrame = kineticTypeFrame ?? frame;
+
 	return (
 		<AbsoluteFill
 			style={{
@@ -169,9 +178,7 @@ export function ApplicationVideoEditor() {
 											textShadow: '0 2px 10px rgba(6, 20, 28, 0.4)',
 										}}
 									>
-										SUMMER
-										<br />
-										COLLECTION
+										<KineticType frame={titleFrame} />
 										<div
 											style={{
 												border: '2px solid #0b84f3',
@@ -320,7 +327,7 @@ export function ApplicationVideoEditor() {
 									<div
 										style={{
 											bottom: 0,
-											left: '48%',
+											left: '54%',
 											pointerEvents: 'none',
 											position: 'absolute',
 											top: -7,

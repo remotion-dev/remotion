@@ -94,7 +94,7 @@ export function Applications() {
 					),
 				}}
 			>
-				<ApplicationVideoEditor />
+				<ApplicationVideoEditor kineticTypeFrame={frame - 95} />
 			</Sequence>
 			<Sequence>
 				<ApplicationRenderButton />
