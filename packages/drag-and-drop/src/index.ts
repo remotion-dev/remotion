@@ -9,6 +9,7 @@ import {
 	getElementComponentNameFromSourceCode,
 	makeElementFileNameFromSlug,
 } from './element-drag-data';
+import {installInStudio} from './install-in-studio';
 
 export type {AssetDragData} from './asset-drag-data';
 export type {
@@ -44,6 +45,10 @@ export type {
 export type {EffectDragData} from './effect-drag-data';
 export type {ElementDragData} from './element-drag-data';
 export type {SfxDragData} from './sfx-drag-data';
+export type {
+	InstallInStudioResult,
+	StudioInstallTarget,
+} from './install-in-studio';
 
 export const DragAndDropInternals = {
 	areComponentProps,
@@ -51,6 +56,7 @@ export const DragAndDropInternals = {
 	getElementComponentNameFromSourceCode,
 	isComponentIdentifier,
 	isComponentImportPath,
+	installInStudio,
 	makeDragData,
 	makeElementFileNameFromSlug,
 	parseDragData,
