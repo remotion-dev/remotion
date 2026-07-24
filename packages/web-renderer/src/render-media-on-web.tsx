@@ -12,7 +12,7 @@ import {canUseWebFsWriter} from './can-use-webfs-target';
 import {createAudioSampleSource} from './create-audio-sample-source';
 import {checkForError, createScaffold} from './create-scaffold';
 import {getRealFrameRange, type FrameRange} from './frame-range';
-import {supportsNestedHtmlInCanvas} from './html-in-canvas';
+import {supportsNativeHtmlInCanvas} from './html-in-canvas';
 import type {InternalState} from './internal-state';
 import {makeInternalState} from './internal-state';
 import {
@@ -44,7 +44,10 @@ import type {CompositionCalculateMetadataOrExplicit} from './props-if-has-props'
 import {onlyOneRenderAtATimeQueue} from './render-operations-queue';
 import {resolveAudioCodec} from './resolve-audio-codec';
 import {sendUsageEvent} from './send-telemetry-event';
-import {createLayer, type HtmlInCanvasLayerOutcome} from './take-screenshot';
+import {
+	createMediaLayer,
+	type HtmlInCanvasLayerOutcome,
+} from './take-screenshot';
 import {createThrottledProgressCallback} from './throttle-progress';
 import {validateScale} from './validate-scale';
 import {validateVideoFrame, type OnFrameCallback} from './validate-video-frame';
@@ -153,6 +156,23 @@ type InternalRenderMediaOnWebOptions<
 > = MandatoryRenderMediaOnWebOptions<Schema, Props> &
 	OptionalRenderMediaOnWebOptions<Schema> &
 	InputPropsIfHasProps<Schema, Props>;
+
+const copyToOffscreenCanvas = (
+	canvas: HTMLCanvasElement | OffscreenCanvas,
+): OffscreenCanvas => {
+	if (canvas instanceof OffscreenCanvas) {
+		return canvas;
+	}
+
+	const offscreen = new OffscreenCanvas(canvas.width, canvas.height);
+	const context = offscreen.getContext('2d');
+	if (!context) {
+		throw new Error('Could not get context');
+	}
+
+	context.drawImage(canvas, 0, 0);
+	return offscreen;
+};
 
 // TODO: Validating inputs
 // TODO: Apply defaultCodec
@@ -311,7 +331,7 @@ const internalRenderMediaOnWeb = async <
 		return Promise.reject(new Error('renderMediaOnWeb() was cancelled'));
 	}
 
-	const useHtmlInCanvas = await supportsNestedHtmlInCanvas();
+	const useHtmlInCanvas = supportsNativeHtmlInCanvas();
 
 	using scaffold = createScaffold({
 		width: resolved.width,
@@ -506,16 +526,15 @@ const internalRenderMediaOnWeb = async <
 			);
 
 			let frameToEncode: VideoFrame | null = null;
-			let layerCanvas: OffscreenCanvas | null = null;
+			let layerCanvas: HTMLCanvasElement | OffscreenCanvas | null = null;
 
 			if (videoEnabled) {
 				const createFrameStart = performance.now();
-				const layer = await createLayer({
+				const layer = await createMediaLayer({
 					element: div,
 					scale,
 					logLevel,
 					internalState,
-					onlyBackgroundClipText: false,
 					cutout: new DOMRect(0, 0, resolved.width, resolved.height),
 					htmlInCanvasContext,
 					onHtmlInCanvasLayerOutcome: htmlInCanvasContext
@@ -579,7 +598,7 @@ const internalRenderMediaOnWeb = async <
 			const assets = collectAssets.current!.collectAssets();
 			if (onArtifact) {
 				await artifactsHandler.handle({
-					imageData: layerCanvas,
+					imageData: layerCanvas ? copyToOffscreenCanvas(layerCanvas) : null,
 					frame,
 					assets,
 					onArtifact,
@@ -640,7 +659,7 @@ const internalRenderMediaOnWeb = async <
 
 		Internals.Log.verbose(
 			{logLevel, tag: 'web-renderer'},
-			`Render timings: waitForReady=${internalState.getWaitForReadyTime().toFixed(2)}ms, createFrame=${internalState.getCreateFrameTime().toFixed(2)}ms, addSample=${internalState.getAddSampleTime().toFixed(2)}ms, audioMixing=${internalState.getAudioMixingTime().toFixed(2)}ms`,
+			`Render timings: waitForReady=${internalState.getWaitForReadyTime().toFixed(2)}ms, createFrame=${internalState.getCreateFrameTime().toFixed(2)}ms, addSample=${internalState.getAddSampleTime().toFixed(2)}ms, audioMixing=${internalState.getAudioMixingTime().toFixed(2)}ms, htmlInCanvasPaint=${internalState.getHtmlInCanvasPaintTime().toFixed(2)}ms, htmlInCanvasDraw=${internalState.getHtmlInCanvasDrawTime().toFixed(2)}ms, htmlInCanvasCopy=${internalState.getHtmlInCanvasCopyTime().toFixed(2)}ms`,
 		);
 
 		if (webFsTarget) {

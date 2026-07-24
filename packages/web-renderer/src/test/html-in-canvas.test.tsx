@@ -1,4 +1,4 @@
-import {Internals} from 'remotion';
+import {AbsoluteFill, Internals} from 'remotion';
 import {expect, test, vi} from 'vitest';
 import {createScaffold} from '../create-scaffold';
 import {
@@ -13,6 +13,52 @@ import {nestedHtmlInCanvas} from './fixtures/nested-html-in-canvas';
 import {testImage} from './utils';
 
 setForceDisableHtmlInCanvasForTesting(false);
+
+test('uses native HTML-in-canvas for compositions without nested layout canvases', async () => {
+	if (!supportsNativeHtmlInCanvas()) {
+		return;
+	}
+
+	const warn = vi
+		.spyOn(Internals.Log, 'warn')
+		.mockImplementation(() => undefined);
+
+	try {
+		const result = await renderStillOnWeb({
+			composition: {
+				component: () => (
+					<AbsoluteFill style={{backgroundColor: 'rgb(255, 0, 0)'}} />
+				),
+				durationInFrames: 1,
+				fps: 30,
+				height: 100,
+				id: 'non-nested-html-in-canvas',
+				width: 100,
+			},
+			frame: 0,
+			inputProps: {},
+			licenseKey: 'free-license',
+		});
+		const canvas = await result.canvas();
+		const context = canvas.getContext('2d');
+		const pixel = context?.getImageData(50, 50, 1, 1).data;
+
+		expect(pixel?.[0]).toBeGreaterThan(250);
+		expect(pixel?.[1]).toBeLessThan(5);
+		expect(pixel?.[2]).toBeLessThan(5);
+		expect(
+			warn.mock.calls.some((call) =>
+				call.some(
+					(value) =>
+						typeof value === 'string' &&
+						value.includes('Using Chromium experimental HTML-in-canvas'),
+				),
+			),
+		).toBe(true);
+	} finally {
+		warn.mockRestore();
+	}
+});
 
 test('captures three nested HTML-in-canvas effect layers natively', async () => {
 	const supportsNesting = await supportsNestedHtmlInCanvas();
