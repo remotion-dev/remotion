@@ -166,6 +166,8 @@ const MapViewportInner = forwardRef<
 
 			const initialCamera = initialCameraRef.current;
 			mapTilerConfig.apiKey = apiKey;
+			// Keep MapTiler's logo and attribution visible:
+			// https://docs.maptiler.com/guides/map-design/attribution/remove-attribution/
 			const mapInstance = new MapTilerMap({
 				bearing: initialCamera.bearing,
 				canvasContextAttributes: {preserveDrawingBuffer: true},
@@ -175,7 +177,6 @@ const MapViewportInner = forwardRef<
 				fullscreenControl: false,
 				geolocateControl: false,
 				interactive: false,
-				maptilerLogo: false,
 				navigationControl: false,
 				scaleControl: false,
 				style: MapStyle.BASIC,
@@ -279,16 +280,6 @@ const MapViewportInner = forwardRef<
 				>
 					{apiKey ? (
 						<>
-							<style>{`
-								.maplibregl-ctrl-top-left,
-								.maplibregl-ctrl-top-right,
-								.maplibregl-ctrl-bottom-left,
-								.maplibregl-ctrl-bottom-right,
-								.maplibregl-ctrl-attrib,
-								.maptiler-logo {
-									display: none !important;
-								}
-							`}</style>
 							<div
 								ref={mapContainerRef}
 								style={{
