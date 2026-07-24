@@ -65,10 +65,38 @@ const dimensionsControls: React.CSSProperties = {
 
 const presetButtonIcon: React.CSSProperties = {
 	alignItems: 'center',
+	color: 'inherit',
 	display: 'flex',
+	flexShrink: 0,
 	height: 12,
 	justifyContent: 'center',
 	width: 12,
+};
+
+const presetDropdownContainer: React.CSSProperties = {
+	display: 'flex',
+	flexShrink: 0,
+};
+
+const metadataLabelControls: React.CSSProperties = {
+	alignItems: 'center',
+	color: 'inherit',
+	display: 'flex',
+	fontFamily: 'sans-serif',
+	fontSize: 13,
+	lineHeight: '18px',
+	minWidth: 0,
+};
+
+const metadataLabelText: React.CSSProperties = {
+	color: 'inherit',
+	fontFamily: 'sans-serif',
+	fontSize: 13,
+	lineHeight: '18px',
+	minWidth: 0,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
 };
 
 type CompositionMetadataValues = Partial<
@@ -99,12 +127,15 @@ const PresetDropdown: React.FC<{
 	}, []);
 
 	return (
-		<InlineDropdown
-			disabled={disabled}
-			renderAction={renderAction}
-			title={title}
-			values={values}
-		/>
+		<div style={presetDropdownContainer}>
+			<InlineDropdown
+				disabled={disabled}
+				renderAction={renderAction}
+				title={title}
+				unhoveredColor={WHITE_ALPHA_40}
+				values={values}
+			/>
+		</div>
 	);
 };
 
@@ -393,7 +424,24 @@ export const CompositionMetadata: React.FC<{
 
 	return (
 		<div style={compositionMetadataContainer}>
-			<InspectorDetailRow label="Dimensions">
+			<InspectorDetailRow
+				label={
+					<div style={metadataLabelControls}>
+						<span style={metadataLabelText}>Dimensions</span>
+						{widthIsComputed || heightIsComputed ? null : (
+							<PresetDropdown
+								disabled={
+									disabled ||
+									pendingValues.width !== undefined ||
+									pendingValues.height !== undefined
+								}
+								title="Choose dimension preset"
+								values={dimensionPresetValues}
+							/>
+						)}
+					</div>
+				}
+			>
 				<div style={dimensionsControls}>
 					<CompositionMetadataValue
 						computed={widthIsComputed}
@@ -411,22 +459,24 @@ export const CompositionMetadata: React.FC<{
 						pendingValue={pendingValues.height ?? null}
 						value={video.height}
 					/>
-					{widthIsComputed || heightIsComputed ? null : (
-						<PresetDropdown
-							disabled={
-								disabled ||
-								pendingValues.width !== undefined ||
-								pendingValues.height !== undefined
-							}
-							title="Choose dimension preset"
-							values={dimensionPresetValues}
-						/>
-					)}
 				</div>
 			</InspectorDetailRow>
 			{isStill ? null : (
 				<>
-					<InspectorDetailRow label="Frame rate">
+					<InspectorDetailRow
+						label={
+							<div style={metadataLabelControls}>
+								<span style={metadataLabelText}>Frame rate</span>
+								{fpsIsComputed ? null : (
+									<PresetDropdown
+										disabled={disabled || pendingValues.fps !== undefined}
+										title="Choose frame rate preset"
+										values={frameRatePresetValues}
+									/>
+								)}
+							</div>
+						}
+					>
 						<div style={dimensionsControls}>
 							<CompositionMetadataValue
 								computed={fpsIsComputed}
@@ -436,13 +486,6 @@ export const CompositionMetadata: React.FC<{
 								pendingValue={pendingValues.fps ?? null}
 								value={video.fps}
 							/>
-							{fpsIsComputed ? null : (
-								<PresetDropdown
-									disabled={disabled || pendingValues.fps !== undefined}
-									title="Choose frame rate preset"
-									values={frameRatePresetValues}
-								/>
-							)}
 						</div>
 					</InspectorDetailRow>
 					<InspectorDetailRow label="Duration">

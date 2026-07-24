@@ -1,6 +1,7 @@
 import {PlayerInternals} from '@remotion/player';
 import {useCallback, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
+import {WHITE} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {noop} from '../helpers/noop';
 import {HigherZIndex, useZIndex} from '../state/z-index';
@@ -30,6 +31,7 @@ type OpenState =
 
 export const InlineDropdown = ({
 	values,
+	unhoveredColor,
 	...props
 }: Omit<InlineActionProps, 'onClick'> & {
 	readonly values: ComboboxValue[];
@@ -118,7 +120,11 @@ export const InlineDropdown = ({
 	return (
 		<>
 			<div ref={ref}>
-				<InlineAction onClick={onClick} {...props} />
+				<InlineAction
+					onClick={onClick}
+					unhoveredColor={opened.type === 'open' ? WHITE : unhoveredColor}
+					{...props}
+				/>
 			</div>
 			{portalStyle
 				? ReactDOM.createPortal(

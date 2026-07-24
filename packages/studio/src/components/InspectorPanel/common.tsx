@@ -98,7 +98,7 @@ export const InspectorMessage: React.FC<{
 }> = ({children}) => <div style={centeredMessage}>{children}</div>;
 
 export const InspectorDetailRow: React.FC<{
-	readonly label: string;
+	readonly label: React.ReactNode;
 	readonly children: React.ReactNode;
 }> = ({label, children}) => (
 	<div style={detailRow}>
