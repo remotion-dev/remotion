@@ -183,33 +183,20 @@ export function ApplicationSimpleApp() {
 								))}
 							</div>
 						</div>
-						<div>
-							<div
-								style={{
-									display: 'flex',
-									flexDirection: 'column',
-									gap: 10,
-								}}
-							>
-								<div style={{color: '#6b7280', fontSize: 18, fontWeight: 500}}>
-									Headline
-								</div>
-								<div
-									style={{
-										alignItems: 'center',
-										backgroundColor: '#f8fafc',
-										border: '2px solid #d9dee7',
-										borderRadius: 12,
-										color: '#15171a',
-										display: 'flex',
-										fontSize: 22,
-										height: 58,
-										padding: '0 18px',
-									}}
-								>
-									Summer collection
-								</div>
-							</div>
+						<div
+							style={{
+								alignItems: 'center',
+								backgroundColor: '#f8fafc',
+								border: '2px solid #d9dee7',
+								borderRadius: 12,
+								color: '#15171a',
+								display: 'flex',
+								fontSize: 22,
+								height: 58,
+								padding: '0 18px',
+							}}
+						>
+							Summer collection
 						</div>
 					</div>
 				</div>
