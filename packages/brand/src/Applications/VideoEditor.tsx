@@ -213,29 +213,10 @@ export function ApplicationVideoEditor({
 								style={{
 									backgroundColor: '#1b1e23',
 									borderTop: '2px solid #2b2f36',
-									height: 190,
-									padding: '14px 18px 12px',
+									height: 120,
 									position: 'relative',
 								}}
 							>
-								<div style={{alignItems: 'center', display: 'flex', gap: 10}}>
-									<div
-										style={{
-											alignItems: 'center',
-											borderRadius: 9,
-											color: '#8f96a3',
-											display: 'flex',
-											fontSize: 16,
-											height: 38,
-											justifyContent: 'center',
-											width: 38,
-										}}
-									>
-										▶
-									</div>
-									<div style={{color: '#8f96a3', fontSize: 14}}>00:04:12</div>
-									<div style={{flex: 1}} />
-								</div>
 								<div
 									style={{
 										bottom: 12,
