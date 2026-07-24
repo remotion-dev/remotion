@@ -6,49 +6,29 @@ import type {
 	RoughAnnotationOptions,
 } from './types';
 
-const svgRect = ({
-	svg,
-	element,
-	scale,
-}: {
-	readonly svg: SVGSVGElement;
-	readonly element: HTMLElement;
-	readonly scale: number;
-}): Rect => {
-	const rect1 = svg.getBoundingClientRect();
-	const rect2 = element.getBoundingClientRect();
-	const inverseScale = 1 / scale;
-
+export const getLocalRect = (element: HTMLElement): Rect => {
 	return {
-		x: (rect2.x - rect1.x) * inverseScale,
-		y: (rect2.y - rect1.y) * inverseScale,
-		w: rect2.width * inverseScale,
-		h: rect2.height * inverseScale,
+		x: element.offsetLeft,
+		y: element.offsetTop,
+		w: element.offsetWidth,
+		h: element.offsetHeight,
 	};
 };
 
 export const render = ({
-	svg,
 	seed,
 	element,
 	config,
-	scale,
 	progress,
 	options,
 }: {
-	readonly svg: SVGSVGElement;
 	readonly seed: number;
 	readonly element: HTMLElement;
 	readonly config: ResolvedAnnotationConfig;
-	readonly scale: number;
 	readonly progress: number;
 	readonly options: RoughAnnotationOptions;
 }): React.ReactElement[] => {
-	if (scale === 0) {
-		return [];
-	}
-
-	const rect = svgRect({svg, element, scale});
+	const rect = getLocalRect(element);
 	if (rect.w === 0 || rect.h === 0) {
 		return [];
 	}
