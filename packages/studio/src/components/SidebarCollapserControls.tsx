@@ -166,7 +166,11 @@ export const SidebarCollapserControl: React.FC<{
 	const toggleLeftAction: RenderInlineAction = useCallback(
 		(color) => {
 			return (
-				<div style={colorStyle(color)} title={toggleLeftTooltip}>
+				<div
+					data-sidebar-toggle="left"
+					style={colorStyle(color)}
+					title={toggleLeftTooltip}
+				>
 					<div style={leftIcon(color)} />
 				</div>
 			);
@@ -177,7 +181,11 @@ export const SidebarCollapserControl: React.FC<{
 	const toggleRightAction: RenderInlineAction = useCallback(
 		(color) => {
 			return (
-				<div style={colorStyle(color)} title={toggleRightTooltip}>
+				<div
+					data-sidebar-toggle="right"
+					style={colorStyle(color)}
+					title={toggleRightTooltip}
+				>
 					<div style={rightIcon(color)} />
 				</div>
 			);

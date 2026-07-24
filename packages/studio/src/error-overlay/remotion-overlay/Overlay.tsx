@@ -5,7 +5,7 @@ import React, {
 	useState,
 } from 'react';
 import {AbsoluteFill} from 'remotion';
-import {MENU_TOOLBAR_HEIGHT} from '../../components/MenuToolbar';
+import {MENU_TOOLBAR_HEIGHT} from '../../components/menu-toolbar-height';
 import {BACKGROUND_HEX, WHITE} from '../../helpers/colors';
 import {KeybindingContextProvider} from '../../state/keybindings';
 import {ErrorLoader} from './ErrorLoader';
