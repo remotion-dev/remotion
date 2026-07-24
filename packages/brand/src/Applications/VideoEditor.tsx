@@ -60,31 +60,165 @@ export function ApplicationVideoEditor() {
 								<div
 									style={{
 										alignItems: 'center',
-										background:
-											'linear-gradient(145deg, #071526 0%, #0b84f3 130%)',
+										backgroundColor: '#b9dff4',
 										display: 'flex',
 										height: 292,
 										justifyContent: 'center',
+										overflow: 'hidden',
 										position: 'relative',
 										width: 292,
 									}}
 								>
 									<div
 										style={{
-											color: 'white',
-											fontSize: 40,
-											fontWeight: 500,
-											lineHeight: 1.05,
-											textAlign: 'center',
-										}}
-									/>
-									<div
-										style={{
-											border: '2px solid #0b84f3',
-											inset: 46,
+											background:
+												'linear-gradient(180deg, #91d5f2 0%, #d9edf4 58%, #f0b46e 59%, #d76d4e 100%)',
+											inset: 0,
 											position: 'absolute',
 										}}
-									/>
+									>
+										<div
+											style={{
+												backgroundColor: '#fff4c7',
+												borderRadius: '50%',
+												boxShadow: '0 0 24px #fff4c7',
+												height: 48,
+												position: 'absolute',
+												right: 34,
+												top: 34,
+												width: 48,
+											}}
+										/>
+										<div
+											style={{
+												background: 'linear-gradient(145deg, #356d67, #173f43)',
+												clipPath: 'polygon(0 100%, 44% 14%, 100% 100%)',
+												height: 122,
+												left: -18,
+												position: 'absolute',
+												top: 96,
+												width: 210,
+											}}
+										/>
+										<div
+											style={{
+												background: 'linear-gradient(145deg, #4d8580, #24545a)',
+												clipPath: 'polygon(0 100%, 62% 18%, 100% 100%)',
+												height: 108,
+												position: 'absolute',
+												right: -24,
+												top: 116,
+												width: 180,
+											}}
+										/>
+										<div
+											style={{
+												alignItems: 'center',
+												backgroundColor: 'rgba(10, 22, 32, 0.68)',
+												borderRadius: 6,
+												color: 'white',
+												display: 'flex',
+												fontSize: 10,
+												fontWeight: 600,
+												gap: 5,
+												left: 12,
+												letterSpacing: 0.8,
+												padding: '5px 7px',
+												position: 'absolute',
+												top: 12,
+											}}
+										>
+											<span style={{fontSize: 8}}>▶</span>
+											VIDEO
+										</div>
+									</div>
+									<div
+										style={{
+											backgroundColor: 'white',
+											boxShadow: '0 7px 18px rgba(4, 18, 28, 0.28)',
+											padding: 5,
+											position: 'absolute',
+											right: 20,
+											top: 62,
+											transform: 'rotate(4deg)',
+											width: 96,
+										}}
+									>
+										<div
+											style={{
+												background:
+													'linear-gradient(150deg, #f7c76f 0%, #f28872 48%, #7a65b6 49%, #443d78 100%)',
+												height: 72,
+												position: 'relative',
+											}}
+										>
+											<div
+												style={{
+													backgroundColor: '#ffe4a6',
+													borderRadius: '50%',
+													height: 22,
+													left: 12,
+													position: 'absolute',
+													top: 10,
+													width: 22,
+												}}
+											/>
+										</div>
+										<div
+											style={{
+												color: '#39404a',
+												fontSize: 8,
+												fontWeight: 700,
+												letterSpacing: 0.9,
+												padding: '5px 1px 1px',
+											}}
+										>
+											IMAGE
+										</div>
+									</div>
+									<div
+										style={{
+											bottom: 32,
+											color: 'white',
+											fontSize: 30,
+											fontWeight: 700,
+											left: 25,
+											letterSpacing: -1.2,
+											lineHeight: 0.88,
+											position: 'absolute',
+											textShadow: '0 2px 10px rgba(6, 20, 28, 0.4)',
+										}}
+									>
+										SUMMER
+										<br />
+										COLLECTION
+										<div
+											style={{
+												border: '2px solid #0b84f3',
+												inset: -10,
+												position: 'absolute',
+											}}
+										>
+											{[
+												{key: 'top-left', left: -5, top: -5},
+												{key: 'top-right', right: -5, top: -5},
+												{bottom: -5, key: 'bottom-left', left: -5},
+												{bottom: -5, key: 'bottom-right', right: -5},
+											].map(({key, ...position}) => (
+												<div
+													key={key}
+													style={{
+														backgroundColor: 'white',
+														border: '2px solid #0b84f3',
+														height: 9,
+														position: 'absolute',
+														width: 9,
+														...position,
+													}}
+												/>
+											))}
+										</div>
+									</div>
 								</div>
 							</div>
 							<div
@@ -136,14 +270,20 @@ export function ApplicationVideoEditor() {
 										<div
 											style={{
 												backgroundColor: '#0b84f3',
+												alignItems: 'center',
 												borderRadius: 4,
+												boxSizing: 'border-box',
+												display: 'flex',
 												height: '100%',
 												left: '5%',
 												opacity: 0.9,
+												padding: '4px 8px',
 												position: 'absolute',
 												width: '72%',
 											}}
-										/>
+										>
+											<span style={{color: 'white', fontSize: 11}}>Video</span>
+										</div>
 									</div>
 									<div
 										style={{
@@ -156,14 +296,20 @@ export function ApplicationVideoEditor() {
 										<div
 											style={{
 												backgroundColor: '#8b5cf6',
+												alignItems: 'center',
 												borderRadius: 4,
+												boxSizing: 'border-box',
+												display: 'flex',
 												height: '100%',
 												left: '18%',
 												opacity: 0.9,
+												padding: '4px 8px',
 												position: 'absolute',
 												width: '55%',
 											}}
-										/>
+										>
+											<span style={{color: 'white', fontSize: 11}}>Image</span>
+										</div>
 									</div>
 									<div
 										style={{
@@ -176,14 +322,20 @@ export function ApplicationVideoEditor() {
 										<div
 											style={{
 												backgroundColor: '#2fbf71',
+												alignItems: 'center',
 												borderRadius: 4,
+												boxSizing: 'border-box',
+												display: 'flex',
 												height: '100%',
 												left: '0%',
 												opacity: 0.9,
+												padding: '4px 8px',
 												position: 'absolute',
 												width: '84%',
 											}}
-										/>
+										>
+											<span style={{color: 'white', fontSize: 11}}>Text</span>
+										</div>
 									</div>
 									<div
 										style={{
