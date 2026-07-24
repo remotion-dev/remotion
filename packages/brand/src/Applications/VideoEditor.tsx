@@ -75,6 +75,7 @@ export function ApplicationVideoEditor({
 										justifyContent: 'center',
 										overflow: 'hidden',
 										position: 'relative',
+										scale: 1.3,
 										width: 292,
 									}}
 								>
