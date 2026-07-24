@@ -101,7 +101,7 @@ This will add a miniscule cost to your renders technically, but will lead to mor
 
 [`deploySite()`](/docs/lambda/deploysite) continues to bundle and deploy a project, but is deprecated because it combines both operations. Existing calls continue to work, so no migration is required.
 
-For new code, build with [`bundle()`](/docs/bundle) and deploy its output with [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle):
+The recommended workflow is to build with [`bundle()`](/docs/bundle) and deploy its output with [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle):
 
 ```ts twoslash title="deploy.ts"
 import {bundle} from '@remotion/bundler';
