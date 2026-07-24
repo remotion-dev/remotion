@@ -46,16 +46,11 @@ const SocialRow: React.FC<{
 				fontWeight: 500,
 				height: 88,
 				letterSpacing: -1.1,
-				translate: interpolate(
-					frame,
-					[18, 48, 146, 176],
-					['0px 96px', '0px 0px', '0px 0px', '0px -96px'],
-					{
-						easing: Easing.out(Easing.cubic),
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					},
-				),
+				translate: interpolate(frame, [18, 48], ['0px 96px', '0px 0px'], {
+					easing: Easing.out(Easing.cubic),
+					extrapolateLeft: 'clamp',
+					extrapolateRight: 'clamp',
+				}),
 			}}
 		>
 			<div
@@ -96,16 +91,11 @@ export const Endcard: React.FC = () => {
 					alignItems: 'center',
 					display: 'flex',
 					position: 'absolute',
-					translate: interpolate(
-						frame,
-						[8, 42, 146, 178],
-						['0px 190px', '0px 0px', '0px 0px', '0px -190px'],
-						{
-							easing: Easing.out(Easing.cubic),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						},
-					),
+					translate: interpolate(frame, [8, 42], ['0px 190px', '0px 0px'], {
+						easing: Easing.out(Easing.cubic),
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					}),
 					left: 80,
 					top: 254,
 				}}
@@ -171,16 +161,6 @@ export const Endcard: React.FC = () => {
 					position: 'absolute',
 					right: 100,
 					top: 135,
-					translate: interpolate(
-						frame,
-						[20, 42, 142, 166],
-						['48px 0px', '0px 0px', '0px 0px', '48px 0px'],
-						{
-							easing: Easing.out(Easing.cubic),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						},
-					),
 					width: 631,
 				}}
 			/>
@@ -193,16 +173,6 @@ export const Endcard: React.FC = () => {
 					position: 'absolute',
 					right: 100,
 					top: 564,
-					translate: interpolate(
-						frame,
-						[26, 48, 146, 170],
-						['48px 0px', '0px 0px', '0px 0px', '48px 0px'],
-						{
-							easing: Easing.out(Easing.cubic),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						},
-					),
 					width: 631,
 				}}
 			/>
