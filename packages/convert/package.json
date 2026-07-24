@@ -63,7 +63,7 @@
 		"@tailwindcss/postcss": "4.2.0",
 		"@types/dom-webcodecs": "catalog:",
 		"eslint": "catalog:",
-		"postcss": "8.5.10",
+		"postcss": "8.5.12",
 		"tailwindcss": "4.2.0",
 		"vite": "6.4.3",
 		"vite-tsconfig-paths": "4.3.2"

@@ -41,7 +41,7 @@
 		"eslint": "catalog:",
 		"eslint-config-next": "15.1.6",
 		"plyr": "3.7.3",
-		"postcss": "8.5.10",
+		"postcss": "8.5.12",
 		"tailwindcss": "4.2.0",
 		"@tailwindcss/cli": "4.2.0",
 		"react": "catalog:",
