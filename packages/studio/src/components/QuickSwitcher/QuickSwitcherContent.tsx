@@ -31,6 +31,7 @@ import {loopIndex} from './shared';
 
 const input: React.CSSProperties = {
 	width: '100%',
+	borderRadius: 4,
 };
 
 const modeSelector: React.CSSProperties = {
