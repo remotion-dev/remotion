@@ -77,19 +77,11 @@ import {
 
 export type {WebhookPayload} from '@remotion/lambda-client';
 
-type DeploySiteFunction<EnableV5BreakingChanges extends boolean> =
-	EnableV5BreakingChanges extends true
-		? {
-				/**
-				 * @deprecated Use `bundle()` from `@remotion/bundler`, then pass its output to `deploySiteFromBundle()`.
-				 */
-				(args: DeploySiteInput): DeploySiteOutput;
-			}
-		: (args: DeploySiteInput) => DeploySiteOutput;
-
-const deploySite: DeploySiteFunction<
-	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES
-> = deploySiteImplementation;
+/**
+ * @deprecated Use `bundle()` from `@remotion/bundler`, then pass its output to `deploySiteFromBundle()`.
+ */
+const deploySite: (args: DeploySiteInput) => DeploySiteOutput =
+	deploySiteImplementation;
 
 /**
  * @deprecated Import this from `@remotion/lambda-client` instead
