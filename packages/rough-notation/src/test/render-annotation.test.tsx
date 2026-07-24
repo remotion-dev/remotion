@@ -5,7 +5,22 @@ import {
 	getInstructions,
 	renderAnnotation,
 } from '../render-annotation';
+import {getLocalRect} from '../rough';
 import type {RoughAnnotationOptions} from '../types';
+
+test('annotation geometry uses local layout coordinates', () => {
+	const element = {
+		offsetHeight: 40,
+		offsetLeft: 12,
+		offsetTop: 8,
+		offsetWidth: 100,
+		getBoundingClientRect: () => {
+			throw new Error('Viewport coordinates should not be read');
+		},
+	} as unknown as HTMLElement;
+
+	expect(getLocalRect(element)).toEqual({x: 12, y: 8, w: 100, h: 40});
+});
 
 test('type none renders no annotation paths', () => {
 	const result = renderAnnotation({

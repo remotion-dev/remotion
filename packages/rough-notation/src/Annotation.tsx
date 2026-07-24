@@ -415,7 +415,10 @@ const makeAnnotationComponent = ({
 				_remotionInternalDocumentationLink={`https://www.remotion.dev/docs/rough-notation/${documentationSlug}`}
 				outlineRef={outlineRef}
 			>
-				<span ref={outlineRef} style={{display: 'inline-block'}}>
+				<span
+					ref={outlineRef}
+					style={{display: 'inline-block', position: 'relative'}}
+				>
 					<annotation.Container>
 						{layer === 'behind' ? annotationElement : null}
 						<annotation.Tracker style={style}>{children}</annotation.Tracker>
