@@ -135,18 +135,19 @@ export const Endcard: React.FC = () => {
 
 			<div
 				style={{
-					height: 264,
+					height: 460,
 					left: 80,
-					overflow: 'hidden',
+					maskImage: 'linear-gradient(black 58%, transparent 74%)',
 					position: 'absolute',
 					top: 474,
+					WebkitMaskImage: 'linear-gradient(black 58%, transparent 74%)',
 					width: 760,
 				}}
 			>
 				<Interactive.Div
 					name="Social links"
 					style={{
-						translate: interpolate(frame, [18, 48], ['0px 264px', '0px 0px'], {
+						translate: interpolate(frame, [18, 48], ['0px 460px', '0px 0px'], {
 							easing: Easing.out(Easing.cubic),
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
