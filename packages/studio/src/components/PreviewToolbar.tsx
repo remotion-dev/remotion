@@ -51,7 +51,7 @@ const container: React.CSSProperties = {
 const mobileContainer: React.CSSProperties = {
 	...container,
 	position: 'relative',
-	overflowY: 'auto',
+	overflowX: 'auto',
 	justifyContent: 'flex-start',
 };
 const scrollIndicatorLeft: React.CSSProperties = {
@@ -82,6 +82,14 @@ const sideContainer: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
+};
+
+const mobileSideContainer: React.CSSProperties = {
+	height: 30,
+	display: 'flex',
+	flexDirection: 'row',
+	alignItems: 'center',
+	flexShrink: 0,
 };
 
 const padding: React.CSSProperties = {
@@ -277,7 +285,6 @@ export const PreviewToolbar: React.FC<{
 			<Flex />
 			{isMobileLayout && (
 				<>
-					<Flex />
 					<PreviewToolbarControl>
 						<SizeSelector />
 					</PreviewToolbarControl>
@@ -291,7 +298,7 @@ export const PreviewToolbar: React.FC<{
 					) : null}
 				</>
 			)}
-			<div style={sideContainer}>
+			<div style={isMobileLayout ? mobileSideContainer : sideContainer}>
 				<Flex />
 				{!isMobileLayout && <FpsCounter playbackSpeed={playbackRate} />}
 				<Spacing x={2} />
