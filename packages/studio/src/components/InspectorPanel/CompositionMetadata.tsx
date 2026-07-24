@@ -117,7 +117,8 @@ const PresetDropdown: React.FC<{
 	readonly disabled: boolean;
 	readonly title: string;
 	readonly values: ComboboxValue[];
-}> = ({disabled, title, values}) => {
+	readonly visible: boolean;
+}> = ({disabled, title, values, visible}) => {
 	const renderAction = useCallback((color: string) => {
 		return (
 			<span style={{...presetButtonIcon, color}}>
@@ -127,7 +128,12 @@ const PresetDropdown: React.FC<{
 	}, []);
 
 	return (
-		<div style={presetDropdownContainer}>
+		<div
+			style={{
+				...presetDropdownContainer,
+				visibility: visible ? 'visible' : 'hidden',
+			}}
+		>
 			<InlineDropdown
 				disabled={disabled}
 				renderAction={renderAction}
@@ -430,7 +436,7 @@ export const CompositionMetadata: React.FC<{
 	return (
 		<div style={compositionMetadataContainer}>
 			<InspectorDetailRow
-				label={
+				label={(hovered) => (
 					<div style={metadataLabelControls}>
 						<span style={metadataLabelText}>Dimensions</span>
 						{widthIsComputed || heightIsComputed ? null : (
@@ -442,10 +448,11 @@ export const CompositionMetadata: React.FC<{
 								}
 								title="Choose dimension preset"
 								values={dimensionPresetValues}
+								visible={hovered}
 							/>
 						)}
 					</div>
-				}
+				)}
 			>
 				<div style={dimensionsControls}>
 					<CompositionMetadataValue
@@ -469,7 +476,7 @@ export const CompositionMetadata: React.FC<{
 			{isStill ? null : (
 				<>
 					<InspectorDetailRow
-						label={
+						label={(hovered) => (
 							<div style={metadataLabelControls}>
 								<span style={metadataLabelText}>Frame rate</span>
 								{fpsIsComputed ? null : (
@@ -477,10 +484,11 @@ export const CompositionMetadata: React.FC<{
 										disabled={disabled || pendingValues.fps !== undefined}
 										title="Choose frame rate preset"
 										values={frameRatePresetValues}
+										visible={hovered}
 									/>
 								)}
 							</div>
-						}
+						)}
 					>
 						<div style={dimensionsControls}>
 							<CompositionMetadataValue
