@@ -78,75 +78,79 @@ const mandatoryDeploySite = async ({
 	}): DeploySiteOutput => {
 	let generatedBundleDir: string | null = null;
 
-	const deploymentOutcome = await deploySiteWithBundle({
-		bucketName,
-		region,
-		siteName,
-		options,
-		privacy,
-		throwIfSiteExists,
-		providerSpecifics,
-		forcePathStyle,
-		fullClientSpecifics,
-		requestHandler,
-		getBundle: async () => {
-			const bundleDir = await fullClientSpecifics.bundleSite({
-				publicPath: `/${getSitesKey(siteName)}/`,
-				bundlerOverride: options.bundlerOverride ?? ((f) => f),
-				rspackOverride: options.rspackOverride ?? ((f) => f),
-				webpackOverride: options.webpackOverride ?? ((f) => f),
-				enableCaching: options.enableCaching ?? true,
-				publicDir: options.publicDir ?? null,
-				rootDir: options.rootDir ?? null,
-				ignoreRegisterRootWarning: options.ignoreRegisterRootWarning ?? false,
-				onProgress: options.onBundleProgress ?? (() => undefined),
-				entryPoint,
-				gitSource,
-				bufferStateDelayInMilliseconds: null,
-				maxTimelineTracks: null,
-				onDirectoryCreated: (directory) => {
-					generatedBundleDir = directory;
-				},
-				onPublicDirCopyProgress: () => undefined,
-				onSymlinkDetected: () => undefined,
-				outDir: null,
-				askAIEnabled: options.askAIEnabled ?? true,
-				interactivityEnabled: options.interactivityEnabled ?? true,
-				audioLatencyHint: null,
-				keyboardShortcutsEnabled: options.keyboardShortcutsEnabled ?? true,
-				renderDefaults: null,
-				rspack: options.rspack ?? false,
-				symlinkPublicDir: false,
-			});
+	let deploymentOutcome:
+		| {type: 'success'; result: Awaited<DeploySiteOutput>}
+		| {type: 'failure'; error: unknown};
 
-			generatedBundleDir = bundleDir;
-			return bundleDir;
-		},
-	}).then(
-		(result) => ({type: 'success' as const, result}),
-		(error: unknown) => ({type: 'failure' as const, error}),
-	);
+	try {
+		const result = await deploySiteWithBundle({
+			bucketName,
+			region,
+			siteName,
+			options,
+			privacy,
+			throwIfSiteExists,
+			providerSpecifics,
+			forcePathStyle,
+			fullClientSpecifics,
+			requestHandler,
+			getBundle: async () => {
+				const bundleDir = await fullClientSpecifics.bundleSite({
+					publicPath: `/${getSitesKey(siteName)}/`,
+					bundlerOverride: options.bundlerOverride ?? ((f) => f),
+					rspackOverride: options.rspackOverride ?? ((f) => f),
+					webpackOverride: options.webpackOverride ?? ((f) => f),
+					enableCaching: options.enableCaching ?? true,
+					publicDir: options.publicDir ?? null,
+					rootDir: options.rootDir ?? null,
+					ignoreRegisterRootWarning: options.ignoreRegisterRootWarning ?? false,
+					onProgress: options.onBundleProgress ?? (() => undefined),
+					entryPoint,
+					gitSource,
+					bufferStateDelayInMilliseconds: null,
+					maxTimelineTracks: null,
+					onDirectoryCreated: (directory) => {
+						generatedBundleDir = directory;
+					},
+					onPublicDirCopyProgress: () => undefined,
+					onSymlinkDetected: () => undefined,
+					outDir: null,
+					askAIEnabled: options.askAIEnabled ?? true,
+					interactivityEnabled: options.interactivityEnabled ?? true,
+					audioLatencyHint: null,
+					keyboardShortcutsEnabled: options.keyboardShortcutsEnabled ?? true,
+					renderDefaults: null,
+					rspack: options.rspack ?? false,
+					symlinkPublicDir: false,
+				});
 
-	const cleanupOutcome = (() => {
-		if (generatedBundleDir === null) {
-			return {type: 'success' as const};
-		}
+				generatedBundleDir = bundleDir;
+				return bundleDir;
+			},
+		});
+		deploymentOutcome = {type: 'success', result};
+	} catch (error) {
+		deploymentOutcome = {type: 'failure', error};
+	}
 
+	let cleanupFailed = false;
+	let cleanupError: unknown;
+	if (generatedBundleDir !== null) {
 		try {
 			fs.rmSync(generatedBundleDir, {
 				force: true,
 				recursive: true,
 			});
-			return {type: 'success' as const};
 		} catch (error) {
-			return {type: 'failure' as const, error};
+			cleanupFailed = true;
+			cleanupError = error;
 		}
-	})();
+	}
 
 	if (deploymentOutcome.type === 'failure') {
-		if (cleanupOutcome.type === 'failure') {
+		if (cleanupFailed) {
 			throw new AggregateError(
-				[deploymentOutcome.error, cleanupOutcome.error],
+				[deploymentOutcome.error, cleanupError],
 				'Deploying the site failed, and removing the generated bundle also failed.',
 				{cause: deploymentOutcome.error},
 			);
@@ -155,8 +159,8 @@ const mandatoryDeploySite = async ({
 		throw deploymentOutcome.error;
 	}
 
-	if (cleanupOutcome.type === 'failure') {
-		throw cleanupOutcome.error;
+	if (cleanupFailed) {
+		throw cleanupError;
 	}
 
 	return deploymentOutcome.result;
