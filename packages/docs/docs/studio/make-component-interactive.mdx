@@ -54,11 +54,11 @@ const badgeSchema = {
 } as const satisfies InteractivitySchema;
 ```
 
-## Forward `controls`
+## Forward `controls` and `stack`
 
-The inner component receives a `controls` prop from `Interactive.withSchema()`.
+The inner component receives `controls` and `stack` props from `Interactive.withSchema()`.
 
-Forward it to the [`<Sequence>`](/docs/sequence) that represents your component in the timeline.
+Forward them to the [`<Sequence>`](/docs/sequence) that represents your component in the timeline.
 
 ```tsx twoslash title="Badge.tsx"
 import React, {forwardRef, useImperativeHandle, useRef} from 'react';
@@ -100,6 +100,7 @@ const BadgeInner = forwardRef<
   HTMLDivElement,
   BadgeProps & {
     readonly controls: SequenceControls | undefined;
+    readonly stack?: string;
   }
 >(
   (
@@ -110,6 +111,7 @@ const BadgeInner = forwardRef<
       style,
       name,
       controls,
+      stack,
       ...sequenceProps
     },
     ref,
@@ -124,6 +126,7 @@ const BadgeInner = forwardRef<
         {...sequenceProps}
         name={name ?? '<Badge>'}
         controls={controls}
+        _remotionInternalStack={stack}
         outlineRef={outlineRef}
       >
         <div
@@ -146,13 +149,13 @@ const BadgeInner = forwardRef<
 );
 ```
 
-The exported component should not expose `controls` as a public prop.
+The exported component should not expose `controls` or `stack` as public props.
 
 Pass [`outlineRef`](/docs/sequence#outlineref) when using `<Sequence layout="none">` so the Studio can draw an outline around the rendered element.
 
 ## Wrap the component
 
-Use a stable `componentIdentity` so saved Studio edits can be associated with the component.
+Set `componentIdentity` to `null` for a component defined in your project.
 
 ```tsx twoslash title="Badge.tsx"
 import React, {forwardRef, useImperativeHandle, useRef} from 'react';
@@ -194,6 +197,7 @@ const BadgeInner = forwardRef<
   HTMLDivElement,
   BadgeProps & {
     readonly controls: SequenceControls | undefined;
+    readonly stack?: string;
   }
 >(
   (
@@ -204,6 +208,7 @@ const BadgeInner = forwardRef<
       style,
       name,
       controls,
+      stack,
       ...sequenceProps
     },
     ref,
@@ -218,6 +223,7 @@ const BadgeInner = forwardRef<
         {...sequenceProps}
         name={name ?? '<Badge>'}
         controls={controls}
+        _remotionInternalStack={stack}
         outlineRef={outlineRef}
       >
         <div
@@ -242,7 +248,7 @@ const BadgeInner = forwardRef<
 export const Badge = Interactive.withSchema({
   Component: BadgeInner,
   componentName: '<Badge>',
-  componentIdentity: 'com.example.Badge',
+  componentIdentity: null,
   schema: badgeSchema,
   supportsEffects: false,
 });
