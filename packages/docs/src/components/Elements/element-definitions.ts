@@ -6,6 +6,7 @@ import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburs
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
 import {ProductOffer} from '../../../elements/data/product-offer/product-offer';
+import {Endcard} from '../../../elements/overlays/endcard/endcard';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/lower-third/lower-third';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
@@ -101,6 +102,24 @@ export const elementDefinitions = {
 		posterFrame: 120,
 		previewPadding: 0,
 		slug: 'backgrounds/rotating-starburst',
+		transparentPreview: false,
+		width: 1920,
+	},
+	'overlays/endcard': {
+		category: 'overlays',
+		component: Endcard,
+		contributors: [],
+		description:
+			'A creator endcard with social links and two YouTube end-screen-safe video slots.',
+		displayName: 'YouTube Endcard',
+		durationInFrames: 180,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 90,
+		previewPadding: 0,
+		slug: 'overlays/endcard',
 		transparentPreview: false,
 		width: 1920,
 	},
