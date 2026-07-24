@@ -111,26 +111,6 @@ export function ApplicationVideoEditor() {
 												width: 180,
 											}}
 										/>
-										<div
-											style={{
-												alignItems: 'center',
-												backgroundColor: 'rgba(10, 22, 32, 0.68)',
-												borderRadius: 6,
-												color: 'white',
-												display: 'flex',
-												fontSize: 10,
-												fontWeight: 600,
-												gap: 5,
-												left: 12,
-												letterSpacing: 0.8,
-												padding: '5px 7px',
-												position: 'absolute',
-												top: 12,
-											}}
-										>
-											<span style={{fontSize: 8}}>▶</span>
-											VIDEO
-										</div>
 									</div>
 									<div
 										style={{
