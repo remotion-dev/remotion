@@ -12,6 +12,7 @@ import type {
 import {validateBucketName, validatePrivacy} from '@remotion/serverless';
 import {getS3DiffOperations} from './get-s3-operations';
 import {validateSiteName} from './validate-site-name';
+import {waitForPromisesToFinish} from './wait-for-promises-to-finish';
 
 export type DeploySiteOutput = Promise<{
 	serveUrl: string;
@@ -87,18 +88,20 @@ export const deploySiteWithBundle: (
 
 	const subFolder = getSitesKey(siteName);
 
-	const [files, bundleDir] = await Promise.all([
-		providerSpecifics.listObjects({
-			bucketName,
-			expectedBucketOwner: accountId,
-			region,
-			// The `/` is important to not accidentally delete sites with the same name but containing a suffix.
-			prefix: `${subFolder}/`,
-			forcePathStyle,
-			requestHandler,
-		}),
-		getBundle(),
-	]);
+	const filesPromise = providerSpecifics.listObjects({
+		bucketName,
+		expectedBucketOwner: accountId,
+		region,
+		// The `/` is important to not accidentally delete sites with the same name but containing a suffix.
+		prefix: `${subFolder}/`,
+		forcePathStyle,
+		requestHandler,
+	});
+	const bundlePromise = getBundle();
+	const [files, bundleDir] = await waitForPromisesToFinish([
+		filesPromise,
+		bundlePromise,
+	] as const);
 
 	if (throwIfSiteExists && files.length > 0) {
 		throw new Error(
@@ -152,20 +155,20 @@ export const deploySiteWithBundle: (
 	await upload(indexHtmlToUpload);
 
 	const limit = LambdaClientInternals.pLimit(deleteConcurrency);
-	await Promise.all(
-		toDelete.map((d) => {
-			return limit(() => {
-				return providerSpecifics.deleteFile({
-					bucketName,
-					customCredentials: null,
-					key: d.Key as string,
-					region,
-					forcePathStyle,
-					requestHandler,
-				});
+	const deletePromises = toDelete.map((d) => {
+		return limit(() => {
+			return providerSpecifics.deleteFile({
+				bucketName,
+				customCredentials: null,
+				key: d.Key as string,
+				region,
+				forcePathStyle,
+				requestHandler,
 			});
-		}),
-	);
+		});
+	});
+
+	await waitForPromisesToFinish(deletePromises);
 
 	return {
 		serveUrl: LambdaClientInternals.makeS3ServeUrl({

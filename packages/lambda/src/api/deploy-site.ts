@@ -78,7 +78,7 @@ const mandatoryDeploySite = async ({
 	}): DeploySiteOutput => {
 	let generatedBundleDir: string | null = null;
 
-	const result = await deploySiteWithBundle({
+	const deploymentOutcome = await deploySiteWithBundle({
 		bucketName,
 		region,
 		siteName,
@@ -90,7 +90,7 @@ const mandatoryDeploySite = async ({
 		fullClientSpecifics,
 		requestHandler,
 		getBundle: async () => {
-			generatedBundleDir = await fullClientSpecifics.bundleSite({
+			const bundleDir = await fullClientSpecifics.bundleSite({
 				publicPath: `/${getSitesKey(siteName)}/`,
 				bundlerOverride: options.bundlerOverride ?? ((f) => f),
 				rspackOverride: options.rspackOverride ?? ((f) => f),
@@ -104,7 +104,9 @@ const mandatoryDeploySite = async ({
 				gitSource,
 				bufferStateDelayInMilliseconds: null,
 				maxTimelineTracks: null,
-				onDirectoryCreated: () => undefined,
+				onDirectoryCreated: (directory) => {
+					generatedBundleDir = directory;
+				},
 				onPublicDirCopyProgress: () => undefined,
 				onSymlinkDetected: () => undefined,
 				outDir: null,
@@ -117,17 +119,47 @@ const mandatoryDeploySite = async ({
 				symlinkPublicDir: false,
 			});
 
-			return generatedBundleDir;
+			generatedBundleDir = bundleDir;
+			return bundleDir;
 		},
-	});
+	}).then(
+		(result) => ({type: 'success' as const, result}),
+		(error: unknown) => ({type: 'failure' as const, error}),
+	);
 
-	if (generatedBundleDir && fs.existsSync(generatedBundleDir)) {
-		fs.rmSync(generatedBundleDir, {
-			recursive: true,
-		});
+	const cleanupOutcome = (() => {
+		if (generatedBundleDir === null) {
+			return {type: 'success' as const};
+		}
+
+		try {
+			fs.rmSync(generatedBundleDir, {
+				force: true,
+				recursive: true,
+			});
+			return {type: 'success' as const};
+		} catch (error) {
+			return {type: 'failure' as const, error};
+		}
+	})();
+
+	if (deploymentOutcome.type === 'failure') {
+		if (cleanupOutcome.type === 'failure') {
+			throw new AggregateError(
+				[deploymentOutcome.error, cleanupOutcome.error],
+				'Deploying the site failed, and removing the generated bundle also failed.',
+				{cause: deploymentOutcome.error},
+			);
+		}
+
+		throw deploymentOutcome.error;
 	}
 
-	return result;
+	if (cleanupOutcome.type === 'failure') {
+		throw cleanupOutcome.error;
+	}
+
+	return deploymentOutcome.result;
 };
 
 export type InternalDeploySiteInput = MandatoryParameters &

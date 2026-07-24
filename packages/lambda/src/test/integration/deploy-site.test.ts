@@ -1,4 +1,8 @@
-import {expect, test} from 'bun:test';
+import {afterEach, expect, spyOn, test} from 'bun:test';
+import fs, {existsSync, mkdtempSync, writeFileSync} from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import type {BundleOptions} from '@remotion/bundler';
 import {LambdaClientInternals} from '@remotion/lambda-client';
 import {internalGetOrCreateBucket} from '@remotion/serverless';
 import {internalDeleteSite} from '../../api/delete-site';
@@ -6,6 +10,93 @@ import {internalDeploySite} from '../../api/deploy-site';
 import {mockFullClientSpecifics} from '../mock-implementation';
 import {mockImplementation} from '../mocks/mock-implementation';
 import {getDirFiles} from '../mocks/upload-dir';
+
+const temporaryDirectories: string[] = [];
+
+const makeGeneratedBundle = () => {
+	const directory = mkdtempSync(
+		path.join(os.tmpdir(), 'remotion-generated-bundle-test-'),
+	);
+	temporaryDirectories.push(directory);
+	writeFileSync(path.join(directory, 'index.html'), '<html></html>');
+	writeFileSync(path.join(directory, 'bundle.js'), 'console.log("bundle")');
+	return directory;
+};
+
+const makeBucket = async () => {
+	const {bucketName} = await internalGetOrCreateBucket({
+		region: 'ap-northeast-1',
+		providerSpecifics: mockImplementation,
+		customCredentials: null,
+		enableFolderExpiry: false,
+		forcePathStyle: false,
+		skipPutAcl: false,
+		requestHandler: null,
+		logLevel: 'error',
+	});
+
+	return bucketName;
+};
+
+const makeBundleSite = ({
+	directory,
+	getBundle,
+	onStarted = () => undefined,
+}: {
+	directory: string;
+	getBundle: () => Promise<string>;
+	onStarted?: () => void;
+}): typeof mockFullClientSpecifics.bundleSite => {
+	return ((options: BundleOptions) => {
+		options.onDirectoryCreated?.(directory);
+		onStarted();
+		return getBundle();
+	}) as typeof mockFullClientSpecifics.bundleSite;
+};
+
+const deployGeneratedBundle = ({
+	bucketName,
+	fullClientSpecifics,
+	providerSpecifics = mockImplementation,
+	siteName,
+}: {
+	bucketName: string;
+	fullClientSpecifics: typeof mockFullClientSpecifics;
+	providerSpecifics?: typeof mockImplementation;
+	siteName: string;
+}) => {
+	return internalDeploySite({
+		bucketName,
+		entryPoint: 'entry-point',
+		region: 'ap-northeast-1',
+		siteName,
+		gitSource: null,
+		providerSpecifics,
+		indent: false,
+		logLevel: 'error',
+		options: {},
+		privacy: 'public',
+		throwIfSiteExists: false,
+		forcePathStyle: false,
+		fullClientSpecifics,
+		requestHandler: null,
+	});
+};
+
+const getRejection = <T>(promise: Promise<T>): Promise<unknown> => {
+	return promise.then(
+		() => {
+			throw new Error('Expected the promise to reject');
+		},
+		(error: unknown) => error,
+	);
+};
+
+afterEach(() => {
+	for (const directory of temporaryDirectories.splice(0)) {
+		fs.rmSync(directory, {force: true, recursive: true});
+	}
+});
 
 test('Should throw on wrong prefix', async () => {
 	await expect(
@@ -401,4 +492,256 @@ test('Should not delete site with same prefix', async () => {
 			}),
 		].sort(),
 	);
+});
+
+test('Should remove a generated bundle after bundling fails', async () => {
+	const directory = makeGeneratedBundle();
+	const bucketName = await makeBucket();
+	const bundlingError = new Error('Bundling failed');
+	const fullClientSpecifics: typeof mockFullClientSpecifics = {
+		...mockFullClientSpecifics,
+		bundleSite: makeBundleSite({
+			directory,
+			getBundle: () => Promise.reject(bundlingError),
+		}),
+	};
+
+	const error = await getRejection(
+		deployGeneratedBundle({
+			bucketName,
+			fullClientSpecifics,
+			siteName: 'bundling-failure',
+		}),
+	);
+
+	expect(error).toBe(bundlingError);
+	expect(existsSync(directory)).toBe(false);
+});
+
+test('Should wait for bundling to finish after listing fails', async () => {
+	const directory = makeGeneratedBundle();
+	const bucketName = await makeBucket();
+	const listingError = new Error('Listing failed');
+	let resolveBundle: (directory: string) => void = () => undefined;
+	const bundlePromise = new Promise<string>((resolve) => {
+		resolveBundle = resolve;
+	});
+	let markBundleStarted: () => void = () => undefined;
+	const bundleStarted = new Promise<void>((resolve) => {
+		markBundleStarted = resolve;
+	});
+	const fullClientSpecifics: typeof mockFullClientSpecifics = {
+		...mockFullClientSpecifics,
+		bundleSite: makeBundleSite({
+			directory,
+			getBundle: () => bundlePromise,
+			onStarted: markBundleStarted,
+		}),
+	};
+	const providerSpecifics: typeof mockImplementation = {
+		...mockImplementation,
+		listObjects: () => Promise.reject(listingError),
+	};
+
+	let settled = false;
+	const observedDeployment = deployGeneratedBundle({
+		bucketName,
+		fullClientSpecifics,
+		providerSpecifics,
+		siteName: 'listing-failure',
+	}).then(
+		() => {
+			settled = true;
+			return null;
+		},
+		(reason: unknown) => {
+			settled = true;
+			return reason;
+		},
+	);
+
+	await bundleStarted;
+	await Promise.resolve();
+	expect(settled).toBe(false);
+	expect(existsSync(directory)).toBe(true);
+
+	resolveBundle(directory);
+	const error = await observedDeployment;
+	expect(error).toBe(listingError);
+	expect(existsSync(directory)).toBe(false);
+});
+
+test('Should remove a generated bundle after uploading fails', async () => {
+	const directory = makeGeneratedBundle();
+	const bucketName = await makeBucket();
+	const uploadError = new Error('Uploading failed');
+	const fullClientSpecifics: typeof mockFullClientSpecifics = {
+		...mockFullClientSpecifics,
+		bundleSite: makeBundleSite({
+			directory,
+			getBundle: () => Promise.resolve(directory),
+		}),
+		uploadDir: () => Promise.reject(uploadError),
+	};
+
+	const error = await getRejection(
+		deployGeneratedBundle({
+			bucketName,
+			fullClientSpecifics,
+			siteName: 'upload-failure',
+		}),
+	);
+
+	expect(error).toBe(uploadError);
+	expect(existsSync(directory)).toBe(false);
+});
+
+test('Should finish stale file deletions before removing the generated bundle', async () => {
+	const directory = makeGeneratedBundle();
+	const bucketName = await makeBucket();
+	const deletionError = new Error('Deleting failed');
+	let deleteCount = 0;
+	let bundleWasRemovedDuringDeletion = false;
+	const providerSpecifics: typeof mockImplementation = {
+		...mockImplementation,
+		listObjects: () => {
+			return Promise.resolve(
+				Array.from({length: 12}, (_, index) => ({
+					Key: `sites/deletion-failure/stale-${index}.js`,
+					ETag: 'stale-etag',
+					LastModified: new Date(0),
+					Size: 0,
+				})),
+			);
+		},
+		deleteFile: async () => {
+			deleteCount++;
+			if (!existsSync(directory)) {
+				bundleWasRemovedDuringDeletion = true;
+			}
+
+			if (deleteCount === 1) {
+				throw deletionError;
+			}
+
+			await new Promise((resolve) => setTimeout(resolve, 1));
+			if (!existsSync(directory)) {
+				bundleWasRemovedDuringDeletion = true;
+			}
+		},
+	};
+	const fullClientSpecifics: typeof mockFullClientSpecifics = {
+		...mockFullClientSpecifics,
+		bundleSite: makeBundleSite({
+			directory,
+			getBundle: () => Promise.resolve(directory),
+		}),
+		uploadDir: () => Promise.resolve(),
+	};
+
+	const error = await getRejection(
+		deployGeneratedBundle({
+			bucketName,
+			fullClientSpecifics,
+			providerSpecifics,
+			siteName: 'deletion-failure',
+		}),
+	);
+
+	expect(error).toBe(deletionError);
+	expect(deleteCount).toBe(12);
+	expect(bundleWasRemovedDuringDeletion).toBe(false);
+	expect(existsSync(directory)).toBe(false);
+});
+
+test('Should remove a generated bundle after a successful deployment', async () => {
+	const directory = makeGeneratedBundle();
+	const bucketName = await makeBucket();
+	const fullClientSpecifics: typeof mockFullClientSpecifics = {
+		...mockFullClientSpecifics,
+		bundleSite: makeBundleSite({
+			directory,
+			getBundle: () => Promise.resolve(directory),
+		}),
+	};
+
+	const result = await deployGeneratedBundle({
+		bucketName,
+		fullClientSpecifics,
+		siteName: 'successful-cleanup',
+	});
+
+	expect(result.stats.uploadedFiles).toBe(2);
+	expect(existsSync(directory)).toBe(false);
+});
+
+test('Should report a cleanup failure after a successful deployment', async () => {
+	const directory = makeGeneratedBundle();
+	const bucketName = await makeBucket();
+	const cleanupError = new Error('Cleanup failed');
+	const fullClientSpecifics: typeof mockFullClientSpecifics = {
+		...mockFullClientSpecifics,
+		bundleSite: makeBundleSite({
+			directory,
+			getBundle: () => Promise.resolve(directory),
+		}),
+	};
+	const cleanupSpy = spyOn(fs, 'rmSync').mockImplementation(() => {
+		throw cleanupError;
+	});
+
+	let error: unknown;
+	try {
+		error = await getRejection(
+			deployGeneratedBundle({
+				bucketName,
+				fullClientSpecifics,
+				siteName: 'cleanup-failure',
+			}),
+		);
+	} finally {
+		cleanupSpy.mockRestore();
+	}
+
+	expect(error).toBe(cleanupError);
+	expect(existsSync(directory)).toBe(true);
+});
+
+test('Should retain deployment and cleanup errors if both fail', async () => {
+	const directory = makeGeneratedBundle();
+	const bucketName = await makeBucket();
+	const deploymentError = new Error('Deployment failed');
+	const cleanupError = new Error('Cleanup failed');
+	const fullClientSpecifics: typeof mockFullClientSpecifics = {
+		...mockFullClientSpecifics,
+		bundleSite: makeBundleSite({
+			directory,
+			getBundle: () => Promise.resolve(directory),
+		}),
+		uploadDir: () => Promise.reject(deploymentError),
+	};
+	const cleanupSpy = spyOn(fs, 'rmSync').mockImplementation(() => {
+		throw cleanupError;
+	});
+
+	let error: unknown;
+	try {
+		error = await getRejection(
+			deployGeneratedBundle({
+				bucketName,
+				fullClientSpecifics,
+				siteName: 'deployment-and-cleanup-failure',
+			}),
+		);
+	} finally {
+		cleanupSpy.mockRestore();
+	}
+
+	expect(error).toBeInstanceOf(AggregateError);
+	expect((error as AggregateError).errors).toEqual([
+		deploymentError,
+		cleanupError,
+	]);
+	expect((error as AggregateError).cause).toBe(deploymentError);
+	expect(existsSync(directory)).toBe(true);
 });
