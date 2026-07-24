@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/drag-and-drop",
-	"version": "4.0.497",
+	"version": "4.0.498",
 	"description": "Internal drag-and-drop helpers for Remotion",
 	"main": "dist/index.cjs",
 	"types": "dist/index.d.ts",

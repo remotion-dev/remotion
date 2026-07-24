@@ -72,6 +72,7 @@ import {showNotification} from './Notifications/NotificationCenter';
 import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
 import {useSvgImportDialog} from './SvgImportDialog';
+import {getCurrentFrame} from './Timeline/imperative-state';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 
 const elementInstallCompositionIdStyle: React.CSSProperties = {
@@ -1172,7 +1173,7 @@ export const Canvas: React.FC<{
 					dropPosition,
 					event,
 					fps: config.fps,
-					from: null,
+					from: getCurrentFrame(),
 				});
 			} finally {
 				setIsAddingAsset(false);
