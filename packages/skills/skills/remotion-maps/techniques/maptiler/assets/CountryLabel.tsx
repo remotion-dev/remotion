@@ -13,7 +13,7 @@ export const CountryLabel: React.FC<{
 	const e = interpolate(reveal, [0, 1], [0, 1], {
 		extrapolateLeft: 'clamp',
 		extrapolateRight: 'clamp',
-		easing: Easing.out(Easing.cubic),
+		easing: Easing.bezier(1 / 3, 1, 2 / 3, 1),
 	});
 	return (
 		<div

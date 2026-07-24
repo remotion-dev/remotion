@@ -251,7 +251,7 @@ export const RiverReveal: React.FC = () => {
 		const reveal = interpolate(t, [RIVER_START, RIVER_END], [0, 1], {
 			extrapolateLeft: 'clamp',
 			extrapolateRight: 'clamp',
-			easing: Easing.inOut(Easing.cubic),
+			easing: Easing.bezier(0.645, 0.045, 0.355, 1),
 		});
 		const riverDrawnKm = lineKm * reveal;
 		(map.getSource('river') as any)?.setData(
@@ -296,7 +296,7 @@ export const RiverReveal: React.FC = () => {
 
 			// 1) border draws on (constant duration), settling to a darker shade — no electric head
 			const bp = interpolate(clamp01(lt / BORDER_S), [0, 1], [0, 1], {
-				easing: Easing.inOut(Easing.cubic),
+				easing: Easing.bezier(0.645, 0.045, 0.355, 1),
 			});
 			(map.getSource(`trail-${c}`) as any)?.setData(
 				bp <= 0 ? EMPTY : sliceBorder(d, 0, d.total * bp),
@@ -311,7 +311,7 @@ export const RiverReveal: React.FC = () => {
 				{
 					extrapolateLeft: 'clamp',
 					extrapolateRight: 'clamp',
-					easing: Easing.out(Easing.cubic),
+					easing: Easing.bezier(1 / 3, 1, 2 / 3, 1),
 				},
 			);
 			map.setPaintProperty(`fill-${c}`, 'fill-opacity', fp <= 0 ? 0 : fo);

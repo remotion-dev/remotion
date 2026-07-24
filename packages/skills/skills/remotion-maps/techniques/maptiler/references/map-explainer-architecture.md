@@ -32,7 +32,7 @@ const RIVER_START = 0.3, RIVER_END = 8.0;            // river draws over this wi
 const BORDER_S = 2.5, FILL_S = 1.0, LABEL_S = 0.7;   // per-country sequence (constant durations)
 const trigger = (c) => RIVER_START + META[c].stop * (RIVER_END - RIVER_START);  // river-arrival time
 // beat length = max over c of (trigger(c) + BORDER_S + FILL_S + LABEL_S) + tail
-const reveal = interpolate(t, [RIVER_START, RIVER_END], [0,1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+const reveal = interpolate(t, [RIVER_START, RIVER_END], [0,1], { ...clamp, easing: Easing.bezier(0.645, 0.045, 0.355, 1) });
 ```
 
 **Constant durations matter:** drive the border draw by _time since trigger_, not a slice of the reveal —
@@ -77,11 +77,11 @@ of the country colour (the electricity is on the river, not here).
 ```ts
 const lt = t - trigger(c);                                   // local seconds since trigger
 // 1) complete source border draws on over a constant BORDER_S, multi-segment-safe
-const bp = interpolate(clamp01(lt / BORDER_S), [0,1], [0,1], { easing: Easing.inOut(Easing.cubic) });
+const bp = interpolate(clamp01(lt / BORDER_S), [0,1], [0,1], { easing: Easing.bezier(0.645, 0.045, 0.355, 1) });
 map.getSource(`trail-${c}`).setData(sliceBorder(DRAW[c], 0, DRAW[c].total * bp));   // COUNTRY_DARK line
 // 2) fill blooms in (opacity overshoots, then settles) after the border completes
 const fp = clamp01((lt - BORDER_S) / FILL_S);
-const fo = interpolate(fp, [0, 0.6, 1], [0, FILL_OPACITY * 1.25, FILL_OPACITY], { ...clamp, easing: Easing.out(Easing.cubic) });
+const fo = interpolate(fp, [0, 0.6, 1], [0, FILL_OPACITY * 1.25, FILL_OPACITY], { ...clamp, easing: Easing.bezier(1 / 3, 1, 2 / 3, 1) });
 map.setPaintProperty(`fill-${c}`, "fill-opacity", fp <= 0 ? 0 : fo);
 // 3) label rises in after the fill
 const lp = clamp01((lt - BORDER_S - FILL_S) / LABEL_S);

@@ -94,20 +94,6 @@ const pop = interpolate(frame, [0, 30], [0, 1], {
 });
 ```
 
-## Studio-editable easing curves
-
-Use an explicit `Easing.bezier()` curve instead of composed presets such as `Easing.inOut(Easing.cubic)`. Explicit Bézier control points remain editable in Remotion Studio.
-
-```ts
-import { interpolate, Easing } from "remotion";
-
-const value1 = interpolate(frame, [0, 100], [0, 1], {
-  easing: Easing.bezier(0.645, 0.045, 0.355, 1),
-  extrapolateLeft: "clamp",
-  extrapolateRight: "clamp",
-});
-```
-
 The default easing is `Easing.linear`.
 
 ### Easing direction for enter/exit animations
