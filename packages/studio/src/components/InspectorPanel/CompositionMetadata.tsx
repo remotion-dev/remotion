@@ -439,10 +439,9 @@ export const CompositionMetadata: React.FC<{
 				label={(hovered) => (
 					<div style={metadataLabelControls}>
 						<span style={metadataLabelText}>Dimensions</span>
-						{widthIsComputed || heightIsComputed ? null : (
+						{disabled || widthIsComputed || heightIsComputed ? null : (
 							<PresetDropdown
 								disabled={
-									disabled ||
 									pendingValues.width !== undefined ||
 									pendingValues.height !== undefined
 								}
@@ -479,9 +478,9 @@ export const CompositionMetadata: React.FC<{
 						label={(hovered) => (
 							<div style={metadataLabelControls}>
 								<span style={metadataLabelText}>Frame rate</span>
-								{fpsIsComputed ? null : (
+								{disabled || fpsIsComputed ? null : (
 									<PresetDropdown
-										disabled={disabled || pendingValues.fps !== undefined}
+										disabled={pendingValues.fps !== undefined}
 										title="Choose frame rate preset"
 										values={frameRatePresetValues}
 										visible={hovered}
