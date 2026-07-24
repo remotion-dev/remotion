@@ -41,6 +41,7 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
+	cursor: 'default',
 	marginBottom: 1,
 	marginLeft: 4,
 	marginRight: 4,
