@@ -132,7 +132,7 @@ export const extraPackages: ExtraPackage[] = [
 	},
 	{
 		name: 'zod',
-		version: '4.3.6',
+		version: '4.4.3',
 		description: 'TypeScript-first schema validation',
 		docsUrl: 'https://zod.dev',
 	},

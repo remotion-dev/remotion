@@ -51,7 +51,7 @@
     "remotion": "workspace:*",
     "tailwind-merge": "3.4.0",
     "three": "0.178.0",
-    "zod": "4.3.6"
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.1.0",

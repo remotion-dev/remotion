@@ -44,7 +44,7 @@
     "react-dom": "19.2.3",
     "tailwind-merge": "1.14.0",
     "tailwindcss-animate": "1.0.7",
-    "zod": "4.3.6"
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",
