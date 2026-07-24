@@ -68,7 +68,7 @@ extract and verify the complete feature, order it once, save it as GeoJSON, and 
 
 ## Custom geodata mode
 
-Use the bundled `../assets/map-explainer/RiverReveal.tsx` and `../scripts/prep-geo.mjs` pattern for custom GeoJSON. This mode owns
+Use the bundled `../assets/RiverReveal.tsx` and `../scripts/prep-geo.mjs` pattern for custom GeoJSON. This mode owns
 the exact geometry and can slice it by distance, calculate entry triggers, draw complete borders, and
 produce deterministic sequences.
 

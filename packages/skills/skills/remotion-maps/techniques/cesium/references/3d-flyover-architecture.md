@@ -1,6 +1,6 @@
 # 3D Flyover — architecture reference
 
-Deep detail behind `SKILL.md`: provider loading, the camera-path pipeline, per-frame camera math, and
+Deep detail behind `TECHNIQUE.md`: provider loading, the camera-path pipeline, per-frame camera math, and
 the proven terrain values. Both landscape and city modes have been forward-tested through Remotion.
 
 ## 1. Provider initialization
@@ -110,7 +110,7 @@ const setCamera = (C, viewer, prog) => {
 
 ## 5. The complete component
 
-The full, runnable component is `../assets/3d-flyover/CesiumFlythrough.tsx` — read it directly. Its shape:
+The full, runnable component is `../assets/CesiumFlythrough.tsx` — read it directly. Its shape:
 
 - `loadCesium()` — inject `CESIUM_BASE_URL` + the CDN `Cesium.js`, resolve when loaded.
 - init effect — build the Viewer (§1), `setCamera(…, 0)`, `await settle(viewer)`, `continueRender`.

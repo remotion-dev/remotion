@@ -1,4 +1,0 @@
-interface:
-  display_name: 'Remotion Maps'
-  short_description: 'Build deterministic animated maps in Remotion'
-  default_prompt: 'Use $remotion-maps to build a deterministic animated map in Remotion.'

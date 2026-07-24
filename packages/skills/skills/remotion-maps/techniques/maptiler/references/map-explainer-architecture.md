@@ -1,11 +1,11 @@
 # Map Explainer — architecture reference
 
-Deep detail behind `SKILL.md`: the timing model, the river reveal + electric head, the per-country
+Deep detail behind `TECHNIQUE.md`: the timing model, the river reveal + electric head, the per-country
 sequence, and label projection. The supplied values are examples, not a production style system.
-The custom-geometry example is `../assets/map-explainer/RiverReveal.tsx` +
-`../assets/map-explainer/CountryLabel.tsx` +
-`../assets/map-explainer/tokens.ts`. Provider-vector setup is in
-`../assets/map-explainer/MapTilerVectorElement.ts`; choose between
+The custom-geometry example is `../assets/RiverReveal.tsx` +
+`../assets/CountryLabel.tsx` +
+`../assets/tokens.ts`. Provider-vector setup is in
+`../assets/MapTilerVectorElement.ts`; choose between
 the two modes with `data-sources.md`.
 
 ## 1. The render harness (per frame)

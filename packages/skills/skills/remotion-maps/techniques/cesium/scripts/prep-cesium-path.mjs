@@ -18,11 +18,8 @@ import {dirname, resolve} from 'path';
 import {fileURLToPath} from 'url';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
-const IN =
-	process.argv[2] ||
-	resolve(__dir, '../assets/3d-flyover/sample-river.geojson');
-const OUT =
-	process.argv[3] || resolve(__dir, '../assets/3d-flyover/cesium-path.json');
+const IN = process.argv[2] || resolve(__dir, '../assets/sample-river.geojson');
+const OUT = process.argv[3] || resolve(__dir, '../assets/cesium-path.json');
 const havKm = (a, b) => {
 	const R = 6371,
 		r = Math.PI / 180,

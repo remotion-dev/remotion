@@ -11,14 +11,19 @@ Use MapLibre GL JS for rendering maps in Remotion. Use Turf for geospatial opera
 
 - Prefer `@turf/turf` for geospatial work. Do not hand-roll distance, great-circle, route slicing, or coordinate interpolation unless the user explicitly needs a custom non-geodesic effect.
 - Use GeoJSON sources and MapLibre layers for lines, markers, and labels. Avoid DOM `Marker` elements unless the user specifically asks for HTML markers.
-- Keep the live map camera static by default. Before moving it on every frame, read [moving-map stability](render-stability.md). Prefer a fixed map plate for satellite imagery, hillshade, or a modest 2D reframe.
-- Use a live per-frame camera only after rendering a short MP4 and checking for shimmer. Use the 3D flyover branch for genuine terrain, pitch, bearing, or banking.
+- Keep the live map camera static by default. Before moving it on every frame, read [moving-map stability](references/render-stability.md). Prefer a fixed map plate for satellite imagery, hillshade, or a modest 2D reframe.
+- Use a live per-frame camera only after rendering a short MP4 and checking for shimmer. This 2D technique does not provide genuine terrain, pitch, bearing, or banking.
 - Disable non-deterministic map behavior: `interactive: false`, `fadeDuration: 0`.
+- Drive animation from `useCurrentFrame()`; do not use CSS transitions or browser-timed animation.
 - Use `delayRender()` / `continueRender()` around map loading and per-frame map updates.
+- Set `preserveDrawingBuffer: true` and render WebGL with `bunx remotion ... --gl=angle`.
 - Before continuing the initial render, add sources/layers, apply the frame-0 camera with `jumpTo()`, then wait for `idle`.
 - Do not add a `mapInstance.remove()` cleanup function; it can interfere with Remotion's render lifecycle.
 - Use standard MapLibre style JSON URLs and layer/source APIs.
 - Do not install `@types/maplibre-gl`; MapLibre ships its own types.
+- Keep required provider attribution visible and verify the current terms of the chosen style and tile providers before rendering.
+- Record the source and effective date of custom or disputed geography.
+- Inspect rendered pixels, not only Studio playback, at every required aspect ratio.
 
 Coordinates in MapLibre, Turf, and GeoJSON are `[longitude, latitude]`.
 
