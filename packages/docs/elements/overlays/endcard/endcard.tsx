@@ -1,5 +1,13 @@
 import React from 'react';
-import {Easing, Img, Interactive, interpolate, useCurrentFrame} from 'remotion';
+import {
+	Easing,
+	Img,
+	Interactive,
+	interpolate,
+	spring,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 
 const YouTubeIcon: React.FC = () => (
 	<svg height={58} viewBox="0 0 576 512">
@@ -32,7 +40,8 @@ const SocialRow: React.FC<{
 	readonly children: React.ReactNode;
 	readonly label: string;
 	readonly name: string;
-}> = ({children, label, name}) => {
+	readonly opacity: number;
+}> = ({children, label, name, opacity}) => {
 	return (
 		<Interactive.Div
 			name={name}
@@ -44,6 +53,7 @@ const SocialRow: React.FC<{
 				fontWeight: 500,
 				height: 88,
 				letterSpacing: -1.1,
+				opacity,
 			}}
 		>
 			<div
@@ -63,12 +73,21 @@ const SocialRow: React.FC<{
 
 export const Endcard: React.FC = () => {
 	const frame = useCurrentFrame();
-	const linkRevealEdge = interpolate(frame, [18, 48], [116, -16], {
-		easing: Easing.out(Easing.cubic),
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
-	const linkRevealMask = `linear-gradient(to bottom, transparent ${linkRevealEdge - 16}%, black ${linkRevealEdge}%)`;
+	const {fps} = useVideoConfig();
+	const slideDelay = 35;
+	const slideDuration = 30;
+	const totalLinks = 3;
+	const linkOpacity = (indexFromLast: number) =>
+		spring({
+			config: {
+				damping: 200,
+			},
+			delay:
+				slideDelay + ((indexFromLast - 1) / totalLinks) * (slideDuration - 15),
+			durationInFrames: 15,
+			fps,
+			frame,
+		});
 
 	return (
 		<Interactive.Div
@@ -141,22 +160,22 @@ export const Endcard: React.FC = () => {
 				style={{
 					height: 460,
 					left: 80,
-					maskImage: linkRevealMask,
-					maskRepeat: 'no-repeat',
 					position: 'absolute',
 					top: 474,
-					WebkitMaskImage: linkRevealMask,
-					WebkitMaskRepeat: 'no-repeat',
 					width: 760,
 				}}
 			>
-				<SocialRow label="@yourchannel" name="YouTube">
+				<SocialRow label="@yourchannel" name="YouTube" opacity={linkOpacity(3)}>
 					<YouTubeIcon />
 				</SocialRow>
-				<SocialRow label="@yourhandle" name="X">
+				<SocialRow label="@yourhandle" name="X" opacity={linkOpacity(2)}>
 					<XIcon />
 				</SocialRow>
-				<SocialRow label="@yourhandle" name="Instagram">
+				<SocialRow
+					label="@yourhandle"
+					name="Instagram"
+					opacity={linkOpacity(1)}
+				>
 					<InstagramIcon />
 				</SocialRow>
 			</Interactive.Div>
