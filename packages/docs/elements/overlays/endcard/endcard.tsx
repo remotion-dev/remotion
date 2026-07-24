@@ -1,5 +1,5 @@
 import React from 'react';
-import {Easing, Interactive, interpolate, useCurrentFrame} from 'remotion';
+import {Easing, Img, Interactive, interpolate, useCurrentFrame} from 'remotion';
 
 const YouTubeIcon: React.FC = () => (
 	<svg height={58} viewBox="0 0 576 512">
@@ -97,20 +97,17 @@ export const Endcard: React.FC = () => {
 					name="Avatar"
 					style={{
 						alignItems: 'center',
-						backgroundColor: '#ff4d8d',
 						borderRadius: 70,
 						boxShadow: '0 8px 28px rgba(0, 0, 0, 0.16)',
-						color: '#ffffff',
-						display: 'flex',
-						fontSize: 47,
-						fontWeight: 700,
 						height: 140,
-						justifyContent: 'center',
-						letterSpacing: -2,
+						overflow: 'hidden',
 						width: 140,
 					}}
 				>
-					YC
+					<Img
+						src="https://remotion.media/elements/endcard/remotion-logo.png"
+						style={{height: '100%', width: '100%'}}
+					/>
 				</Interactive.Div>
 				<Interactive.Div
 					name="Subscribe button"
