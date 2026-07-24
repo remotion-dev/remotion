@@ -18,7 +18,7 @@ const panel: React.CSSProperties = {
 	top: MENU_TOOLBAR_HEIGHT,
 	width: 'min(350px, calc(100% - 50px))',
 	height: `calc(100% - ${MENU_TOOLBAR_HEIGHT}px)`,
-	padding: '0 0px 50px 0px',
+	overflow: 'hidden',
 	background: BACKGROUND,
 	boxShadow: SHADOW_BLACK,
 };
