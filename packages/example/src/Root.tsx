@@ -415,6 +415,22 @@ export const Index: React.FC = () => {
 	return (
 		<>
 			<Composition
+				id="switzerland-map"
+				lazyComponent={() => import('./SwitzerlandMap/SwitzerlandMap')}
+				durationInFrames={240}
+				fps={30}
+				width={1080}
+				height={1080}
+			/>
+			<Composition
+				id="zurich-to-stuttgart-map"
+				lazyComponent={() => import('./SwitzerlandMap/ZurichToStuttgartMap')}
+				durationInFrames={270}
+				fps={30}
+				width={1080}
+				height={1080}
+			/>
+			<Composition
 				id="captions-tester"
 				component={AnimatedCaptions}
 				durationInFrames={CAPTIONS_DURATION_IN_FRAMES}
