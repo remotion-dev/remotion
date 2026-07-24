@@ -104,10 +104,10 @@ type CompositionMetadataValues = Partial<
 >;
 
 const dimensionPresets = [
-	{height: 720, label: 'HD landscape', width: 1280},
-	{height: 1080, label: 'Full HD landscape', width: 1920},
-	{height: 1280, label: 'HD portrait', width: 720},
-	{height: 1920, label: 'Full HD portrait', width: 1080},
+	{height: 1080, label: 'Full HD', width: 1920},
+	{height: 1920, label: 'Full HD', width: 1080},
+	{height: 720, label: 'HD', width: 1280},
+	{height: 1280, label: 'HD', width: 720},
 	{height: 1080, label: 'Square', width: 1080},
 ] as const;
 
@@ -391,20 +391,25 @@ export const CompositionMetadata: React.FC<{
 	const durationIsComputed =
 		metadataSource?.durationInFrames === 'calculate-metadata';
 	const isStill = isCompositionStill(video);
-	const dimensionPresetValues = dimensionPresets.map(
-		(preset): ComboboxValue => ({
-			type: 'item',
-			id: `${preset.width}x${preset.height}`,
-			label: `${preset.label} (${preset.width} × ${preset.height})`,
-			value: `${preset.width}x${preset.height}`,
-			onClick: () => {
-				saveMetadata({height: preset.height, width: preset.width});
+	const dimensionPresetValues = dimensionPresets.flatMap(
+		(preset, index): ComboboxValue[] => [
+			...(index === 2 || index === 4
+				? [{type: 'divider' as const, id: `dimension-divider-${index}`}]
+				: []),
+			{
+				type: 'item',
+				id: `${preset.width}x${preset.height}`,
+				label: `${preset.width}x${preset.height} (${preset.label})`,
+				value: `${preset.width}x${preset.height}`,
+				onClick: () => {
+					saveMetadata({height: preset.height, width: preset.width});
+				},
+				keyHint: null,
+				leftItem: null,
+				subMenu: null,
+				quickSwitcherLabel: null,
 			},
-			keyHint: null,
-			leftItem: null,
-			subMenu: null,
-			quickSwitcherLabel: null,
-		}),
+		],
 	);
 	const frameRatePresetValues = frameRatePresets.map(
 		(fps): ComboboxValue => ({
