@@ -629,10 +629,12 @@ export const useTimelineKeyframeDrag = ({
 				}
 
 				setDraggedKeyframes(
-					targets.map((target) => ({
-						nodePathInfo: target.nodePathInfo,
-						frame: target.displayFrame + delta,
-					})),
+					shouldDragExistingSelection
+						? targets.map((target) => ({
+								nodePathInfo: target.nodePathInfo,
+								frame: target.displayFrame + delta,
+							}))
+						: [],
 				);
 				applyDragOverrides({
 					delta,
