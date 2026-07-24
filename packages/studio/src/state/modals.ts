@@ -50,7 +50,6 @@ export type WebRenderModalState = {
 	initialKeyframeIntervalInSeconds: number | null;
 	initialTransparent: boolean | null;
 	initialMuted: boolean | null;
-	initialLicenseKey: string | null;
 	initialMediaCacheSizeInBytes: number | null;
 	initialPageResponsiveness: WebRendererPageResponsiveness;
 };
@@ -120,6 +119,14 @@ export type ConfirmationDialogState = {
 	onCancel: () => void;
 };
 
+export type SvgImportDialogState = {
+	type: 'svg-import-dialog';
+	id: string;
+	onImage: () => void;
+	onInline: () => void;
+	onDismiss: () => void;
+};
+
 export type AddEffectModalState = {
 	type: 'add-effect';
 	fileName: string;
@@ -171,6 +178,10 @@ export type ModalState =
 	| {
 			type: 'input-props-override';
 	  }
+	| {
+			type: 'configure-license';
+			initialPublicLicenseKey: string | null;
+	  }
 	| RenderModalState
 	| WebRenderModalState
 	| {
@@ -192,7 +203,8 @@ export type ModalState =
 			invocationTimestamp: number;
 	  }
 	| AddEffectModalState
-	| ConfirmationDialogState;
+	| ConfirmationDialogState
+	| SvgImportDialogState;
 
 export type ModalContextType = {
 	selectedModal: ModalState | null;

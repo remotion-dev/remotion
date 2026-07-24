@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {
 	getCurrentAssetMediaDetailLines,
+	getCurrentAssetImageMetadataSource,
 	getCurrentAssetMetadataSource,
 } from '../components/CurrentAsset';
 import {
@@ -8,6 +9,17 @@ import {
 	getStaticFileRenameSelection,
 	validateStaticFileRename,
 } from '../components/NewComposition/use-rename-static-file';
+
+test('requests image metadata for image assets', () => {
+	expect(getCurrentAssetImageMetadataSource('1.jpg')).toBe('/1.jpg');
+	expect(getCurrentAssetImageMetadataSource('nested/file.png')).toBe(
+		'/nested/file.png',
+	);
+	expect(getCurrentAssetImageMetadataSource('animation.gif')).toBe(
+		'/animation.gif',
+	);
+	expect(getCurrentAssetImageMetadataSource('image.webp')).toBe('/image.webp');
+});
 
 test('does not request media metadata for image assets', () => {
 	expect(getCurrentAssetMetadataSource('1.jpg')).toBe(null);

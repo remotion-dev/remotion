@@ -41,7 +41,13 @@ export type AnySchemaFieldInfo =
 
 export const SCHEMA_FIELD_ROW_HEIGHT = 22;
 
-export type SchemaFieldGroup = 'source' | 'controls' | 'transforms' | 'text';
+export type SchemaFieldGroup =
+	| 'source'
+	| 'controls'
+	| 'transforms'
+	| 'background'
+	| 'border'
+	| 'text';
 
 export type SchemaFieldGroupInfo = {
 	readonly id: SchemaFieldGroup;
@@ -53,6 +59,8 @@ export const SCHEMA_FIELD_GROUPS = [
 	{id: 'controls', label: 'Controls'},
 	{id: 'transforms', label: 'Transform'},
 	{id: 'text', label: 'Text'},
+	{id: 'background', label: 'Background'},
+	{id: 'border', label: 'Border'},
 ] as const satisfies readonly SchemaFieldGroupInfo[];
 
 const schemaFieldGroupOrder = SCHEMA_FIELD_GROUPS.reduce(
@@ -70,6 +78,14 @@ const TRANSFORM_FIELD_KEYS = new Set([
 	'style.rotate',
 	'style.opacity',
 ]);
+
+const BORDER_FIELD_KEYS = new Set([
+	'style.borderWidth',
+	'style.borderStyle',
+	'style.borderColor',
+]);
+
+const BACKGROUND_FIELD_KEYS = new Set(['style.backgroundColor']);
 
 const TEXT_FIELD_KEYS = new Set([
 	'children',
@@ -90,6 +106,14 @@ export const getSchemaFieldGroup = (key: string): SchemaFieldGroup => {
 
 	if (TRANSFORM_FIELD_KEYS.has(key)) {
 		return 'transforms';
+	}
+
+	if (BORDER_FIELD_KEYS.has(key)) {
+		return 'border';
+	}
+
+	if (BACKGROUND_FIELD_KEYS.has(key)) {
+		return 'background';
 	}
 
 	if (TEXT_FIELD_KEYS.has(key)) {

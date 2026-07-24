@@ -14,6 +14,7 @@ export const handleRequest = async <Req, Res>({
 	methods,
 	binariesDirectory,
 	publicDir,
+	configFile,
 }: {
 	remotionRoot: string;
 	publicDir: string;
@@ -21,6 +22,7 @@ export const handleRequest = async <Req, Res>({
 	response: ServerResponse;
 	entryPoint: string;
 	binariesDirectory: string | null;
+	configFile: string | null;
 	handler: ApiHandler<Req, Res>;
 	logLevel: LogLevel;
 	methods: QueueMethods;
@@ -49,6 +51,7 @@ export const handleRequest = async <Req, Res>({
 			methods,
 			binariesDirectory,
 			publicDir,
+			configFile,
 		});
 
 		response.end(

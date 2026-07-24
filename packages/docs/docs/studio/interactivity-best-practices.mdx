@@ -71,6 +71,9 @@ Do not animate with frame math such as `frame * 2`, modulo expressions, helper f
 Keep the input range and output range directly in the `interpolate()` call.
 The input range must use hardcoded numbers, not variables or expressions such as `[sendStartFrame, sendStartFrame + duration]`.
 
+Do not use object spreads for interactive props.
+Write the values inline so the Studio can detect and edit them.
+
 ```tsx title="Inline values"
 // 👍 Inline values can be standardized and keyframed
 <Interactive.Div

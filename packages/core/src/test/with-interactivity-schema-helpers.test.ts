@@ -1,4 +1,6 @@
 import {expect, test} from 'bun:test';
+import {animatedImageSchema} from '../animated-image/AnimatedImage.js';
+import {canvasImageSchema} from '../canvas-image/CanvasImage.js';
 import type {SequenceControls} from '../CompositionManager.js';
 import {solidSchema} from '../effects/Solid.js';
 import {getComponentsToAddStacksTo} from '../enable-sequence-stack-traces.js';
@@ -7,14 +9,20 @@ import {
 	getFlatSchemaWithAllKeys,
 } from '../flatten-schema.js';
 import {htmlInCanvasSchema} from '../HtmlInCanvas.js';
+import {imgSchema} from '../Img.js';
 import {Interactive} from '../Interactive.js';
 import {
+	backgroundSchema,
 	baseSchema,
+	borderSchema,
 	extendSchemaWithSequenceName,
 	premountSchema,
+	sequencePremountSchema,
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
 	sequenceStyleSchema,
+	svgPaintSchema,
+	svgStrokeSchema,
 	textContentSchema,
 	textSchema,
 	transformSchema,
@@ -26,10 +34,39 @@ import {
 	selectActiveKeys,
 } from '../with-interactivity-schema.js';
 
-test('sequenceStyleSchema is the union of transform and premount fields', () => {
+test('sequenceStyleSchema contains visual style and premount fields', () => {
 	expect(Object.keys(sequenceStyleSchema).sort()).toEqual(
-		[...Object.keys(transformSchema), ...Object.keys(premountSchema)].sort(),
+		[
+			...Object.keys(transformSchema),
+			...Object.keys(backgroundSchema),
+			...Object.keys(borderSchema),
+			...Object.keys(sequencePremountSchema),
+		].sort(),
 	);
+});
+
+test('CSS box component schemas expose background and border controls', () => {
+	for (const schema of [
+		sequenceStyleSchema,
+		imgSchema,
+		animatedImageSchema,
+		canvasImageSchema,
+		htmlInCanvasSchema,
+		solidSchema,
+	]) {
+		expect('style.backgroundColor' in schema).toBe(true);
+		expect('style.borderWidth' in schema).toBe(true);
+		expect('style.borderStyle' in schema).toBe(true);
+		expect('style.borderColor' in schema).toBe(true);
+	}
+});
+
+test('premount fields are not keyframable', () => {
+	expect(Object.keys(premountSchema).sort()).toEqual(
+		['postmountFor', 'premountFor'].sort(),
+	);
+	expect(premountSchema.premountFor.keyframable).toBe(false);
+	expect(premountSchema.postmountFor.keyframable).toBe(false);
 });
 
 test('baseSchema exposes common timeline fields', () => {
@@ -114,10 +151,12 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'style.rotate',
 			'style.transformOrigin',
 			'style.opacity',
+			'style.backgroundColor',
+			'style.borderWidth',
+			'style.borderStyle',
+			'style.borderColor',
 			'premountFor',
 			'postmountFor',
-			'styleWhilePremounted',
-			'styleWhilePostmounted',
 			'durationInFrames',
 			'from',
 			'freeze',
@@ -288,6 +327,85 @@ test('textSchema exposes common text style fields', () => {
 	});
 });
 
+test('borderSchema exposes the longhand border style fields', () => {
+	expect(Object.keys(borderSchema).sort()).toEqual(
+		['style.borderColor', 'style.borderStyle', 'style.borderWidth'].sort(),
+	);
+	expect(borderSchema['style.borderWidth']).toMatchObject({
+		type: 'number',
+		default: undefined,
+		min: 0,
+		step: 1,
+		hiddenFromList: false,
+	});
+	expect(borderSchema['style.borderStyle']).toMatchObject({
+		type: 'enum',
+		default: 'none',
+	});
+	expect(Object.keys(borderSchema['style.borderStyle'].variants)).toEqual([
+		'none',
+		'hidden',
+		'solid',
+		'dashed',
+		'dotted',
+		'double',
+		'groove',
+		'ridge',
+		'inset',
+		'outset',
+	]);
+	expect(borderSchema['style.borderColor']).toMatchObject({
+		type: 'color',
+		default: undefined,
+	});
+});
+
+test('backgroundSchema exposes the background color style field', () => {
+	expect(Object.keys(backgroundSchema)).toEqual(['style.backgroundColor']);
+	expect(backgroundSchema['style.backgroundColor']).toMatchObject({
+		type: 'color',
+		default: 'transparent',
+	});
+});
+
+test('svgStrokeSchema exposes SVG stroke controls', () => {
+	expect(Object.keys(svgStrokeSchema)).toEqual(['stroke', 'strokeWidth']);
+	expect(svgStrokeSchema.stroke).toMatchObject({
+		type: 'color',
+		default: 'none',
+		description: 'Stroke',
+	});
+	expect(svgStrokeSchema.strokeWidth).toMatchObject({
+		type: 'number',
+		default: 1,
+		description: 'Stroke width',
+		min: 0,
+		step: 1,
+		hiddenFromList: false,
+	});
+	expect(Interactive.svgStrokeSchema).toBe(svgStrokeSchema);
+});
+
+test('svgPaintSchema exposes SVG fill and stroke fields', () => {
+	expect(Object.keys(svgPaintSchema)).toEqual([
+		'fill',
+		'stroke',
+		'strokeWidth',
+	]);
+	expect(svgPaintSchema.fill).toMatchObject({
+		type: 'color',
+		default: undefined,
+		description: 'Fill',
+	});
+	expect(svgPaintSchema.stroke).toMatchObject({
+		type: 'color',
+		default: 'none',
+		description: 'Stroke',
+	});
+	expect(svgPaintSchema.strokeWidth).toBe(svgStrokeSchema.strokeWidth);
+	expect(Interactive.svgPaintSchema).toBe(svgPaintSchema);
+});
+
 test('readValuesFromProps reads dot-notation keys via getNestedValue', () => {
 	const props = {
 		layout: 'absolute-fill',
@@ -352,6 +470,10 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 			'style.rotate',
 			'style.transformOrigin',
 			'style.opacity',
+			'style.backgroundColor',
+			'style.borderWidth',
+			'style.borderStyle',
+			'style.borderColor',
 			'premountFor',
 			'postmountFor',
 		].sort(),

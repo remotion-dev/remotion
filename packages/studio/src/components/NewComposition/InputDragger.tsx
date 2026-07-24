@@ -26,6 +26,27 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 	readonly small?: boolean;
 	readonly snapToStep?: boolean;
 	readonly dragDecimalPlaces?: number;
+	readonly dragSensitivity?: number;
+};
+
+type InputDraggerValidationResult =
+	| {
+			readonly valid: true;
+			readonly value: number;
+	  }
+	| {
+			readonly valid: false;
+			readonly message: string;
+	  };
+
+export const inputDraggerContainerStyle: React.CSSProperties = {
+	...inputBaseStyle,
+	backgroundColor: TRANSPARENT,
+	borderColor: TRANSPARENT,
+	display: 'inline-block',
+	lineHeight: 1.5,
+	outline: 'none',
+	padding: '4px 6px',
 };
 
 const isInt = (num: number) => {
@@ -36,6 +57,294 @@ const roundToDecimalPlaces = (val: number, decimalPlaces: number) => {
 	const factor = 10 ** decimalPlaces;
 	const rounded = Math.round(val * factor) / factor;
 	return Object.is(rounded, -0) ? 0 : rounded;
+};
+
+export type InputDraggerExpressionResult =
+	| {
+			readonly status: 'valid';
+			readonly value: number;
+	  }
+	| {
+			readonly status: 'incomplete' | 'invalid';
+	  };
+
+const numberAtStartPattern = /^(?:(?:\d+(?:\.\d*)?)|(?:\.\d+))(?:e[+-]?\d+)?/i;
+
+export const parseInputDraggerExpression = (
+	input: string,
+): InputDraggerExpressionResult => {
+	let index = 0;
+
+	const invalid = (): InputDraggerExpressionResult => ({status: 'invalid'});
+	const incomplete = (): InputDraggerExpressionResult => ({
+		status: 'incomplete',
+	});
+
+	const skipWhitespace = () => {
+		while (index < input.length && /\s/.test(input[index])) {
+			index++;
+		}
+	};
+
+	const parsePrimary = (): InputDraggerExpressionResult => {
+		skipWhitespace();
+		if (index === input.length) {
+			return incomplete();
+		}
+
+		if (input[index] === '(') {
+			index++;
+			const expression = parseExpression();
+			if (expression.status !== 'valid') {
+				return expression;
+			}
+
+			skipWhitespace();
+			if (index === input.length) {
+				return incomplete();
+			}
+
+			if (input[index] !== ')') {
+				return invalid();
+			}
+
+			index++;
+			return expression;
+		}
+
+		const match = input.slice(index).match(numberAtStartPattern);
+		if (!match) {
+			return invalid();
+		}
+
+		index += match[0].length;
+		const rest = input.slice(index);
+		if (/^e[+-]?\s*$/i.test(rest)) {
+			return incomplete();
+		}
+
+		const value = Number(match[0]);
+		return Number.isFinite(value) ? {status: 'valid', value} : invalid();
+	};
+
+	const parseUnary = (): InputDraggerExpressionResult => {
+		skipWhitespace();
+		if (input[index] !== '+' && input[index] !== '-') {
+			return parsePrimary();
+		}
+
+		const operator = input[index];
+		index++;
+		const operand = parseUnary();
+		if (operand.status !== 'valid') {
+			return operand;
+		}
+
+		const value = operator === '-' ? -operand.value : operand.value;
+		return Number.isFinite(value) ? {status: 'valid', value} : invalid();
+	};
+
+	const parseTerm = (): InputDraggerExpressionResult => {
+		let left = parseUnary();
+		if (left.status !== 'valid') {
+			return left;
+		}
+
+		while (true) {
+			skipWhitespace();
+			const operator = input[index];
+			if (operator !== '*' && operator !== '/') {
+				return left;
+			}
+
+			index++;
+			const right = parseUnary();
+			if (right.status !== 'valid') {
+				return right;
+			}
+
+			if (operator === '/' && right.value === 0) {
+				return invalid();
+			}
+
+			const value: number =
+				operator === '*' ? left.value * right.value : left.value / right.value;
+			if (!Number.isFinite(value)) {
+				return invalid();
+			}
+
+			left = {status: 'valid', value};
+		}
+	};
+
+	const parseExpression = (): InputDraggerExpressionResult => {
+		let left = parseTerm();
+		if (left.status !== 'valid') {
+			return left;
+		}
+
+		while (true) {
+			skipWhitespace();
+			const operator = input[index];
+			if (operator !== '+' && operator !== '-') {
+				return left;
+			}
+
+			index++;
+			const right = parseTerm();
+			if (right.status !== 'valid') {
+				return right;
+			}
+
+			const value: number =
+				operator === '+' ? left.value + right.value : left.value - right.value;
+			if (!Number.isFinite(value)) {
+				return invalid();
+			}
+
+			left = {status: 'valid', value};
+		}
+	};
+
+	const result = parseExpression();
+	if (result.status !== 'valid') {
+		return result;
+	}
+
+	skipWhitespace();
+	return index === input.length ? result : invalid();
+};
+
+export const parseInputDraggerNumber = (value: string) => {
+	const result = parseInputDraggerExpression(value);
+	return result.status === 'valid' ? result.value : null;
+};
+
+const getFiniteAttribute = (
+	value: React.InputHTMLAttributes<HTMLInputElement>['min'],
+) => {
+	const parsed = Number(value);
+	return Number.isFinite(parsed) ? parsed : null;
+};
+
+const getPositiveStep = (
+	step: React.InputHTMLAttributes<HTMLInputElement>['step'],
+) => {
+	if (step === 'any') {
+		return null;
+	}
+
+	const parsed = Number(step);
+	return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+};
+
+export const isInputDraggerValueAlignedToStep = ({
+	min,
+	step,
+	value,
+}: {
+	readonly min: React.InputHTMLAttributes<HTMLInputElement>['min'];
+	readonly step: React.InputHTMLAttributes<HTMLInputElement>['step'];
+	readonly value: number;
+}) => {
+	const numericStep = getPositiveStep(step);
+	if (numericStep === null) {
+		return true;
+	}
+
+	const stepBase = getFiniteAttribute(min) ?? 0;
+	const stepsFromBase = (value - stepBase) / numericStep;
+	const tolerance =
+		Number.EPSILON *
+		10 *
+		Math.max(
+			1,
+			Math.abs(value / numericStep),
+			Math.abs(stepBase / numericStep),
+		);
+
+	return Math.abs(stepsFromBase - Math.round(stepsFromBase)) <= tolerance;
+};
+
+export const validateInputDraggerValue = ({
+	max,
+	min,
+	step,
+	value,
+}: {
+	readonly max: React.InputHTMLAttributes<HTMLInputElement>['max'];
+	readonly min: React.InputHTMLAttributes<HTMLInputElement>['min'];
+	readonly step: React.InputHTMLAttributes<HTMLInputElement>['step'];
+	readonly value: string;
+}): InputDraggerValidationResult => {
+	const parsed = parseInputDraggerNumber(value);
+	if (parsed === null) {
+		return {
+			valid: false,
+			message: 'Enter a valid number.',
+		};
+	}
+
+	const numericMin = getFiniteAttribute(min);
+	if (numericMin !== null && parsed < numericMin) {
+		return {
+			valid: false,
+			message: `Value must be greater than or equal to ${numericMin}.`,
+		};
+	}
+
+	const numericMax = getFiniteAttribute(max);
+	if (numericMax !== null && parsed > numericMax) {
+		return {
+			valid: false,
+			message: `Value must be less than or equal to ${numericMax}.`,
+		};
+	}
+
+	if (!isInputDraggerValueAlignedToStep({min, step, value: parsed})) {
+		return {
+			valid: false,
+			message: `Value must align to a step of ${step}.`,
+		};
+	}
+
+	return {valid: true, value: parsed};
+};
+
+const getDecimalPlaces = (value: number) => {
+	const [mantissa, exponentString] = String(value).toLowerCase().split('e');
+	const exponent = Number(exponentString ?? 0);
+	const fractionLength = mantissa.split('.')[1]?.length ?? 0;
+	return Math.max(0, fractionLength - exponent);
+};
+
+export const deriveInputDraggerArrowValue = ({
+	direction,
+	max,
+	min,
+	step,
+	value,
+}: {
+	readonly direction: 1 | -1;
+	readonly max: React.InputHTMLAttributes<HTMLInputElement>['max'];
+	readonly min: React.InputHTMLAttributes<HTMLInputElement>['min'];
+	readonly step: React.InputHTMLAttributes<HTMLInputElement>['step'];
+	readonly value: number;
+}) => {
+	const numericStep = getPositiveStep(step) ?? 1;
+	const decimalPlaces = Math.max(
+		getDecimalPlaces(value),
+		getDecimalPlaces(numericStep),
+	);
+	const unroundedValue = value + direction * numericStep;
+	const steppedValue =
+		decimalPlaces <= 15
+			? roundToDecimalPlaces(unroundedValue, decimalPlaces)
+			: Number(unroundedValue.toPrecision(15));
+	const numericMin = getFiniteAttribute(min) ?? -Infinity;
+	const numericMax = getFiniteAttribute(max) ?? Infinity;
+
+	return Math.min(numericMax, Math.max(numericMin, steppedValue));
 };
 
 export const deriveInputDraggerStep = ({
@@ -82,6 +391,40 @@ export const deriveInputDraggerDragStartValue = ({
 	return 0;
 };
 
+export const isInputDraggerValueInRange = ({
+	max,
+	min,
+	value,
+}: {
+	readonly max: React.InputHTMLAttributes<HTMLInputElement>['max'];
+	readonly min: React.InputHTMLAttributes<HTMLInputElement>['min'];
+	readonly value: number;
+}) => {
+	const numericMin = Number(min);
+	const numericMax = Number(max);
+
+	return (
+		(!Number.isFinite(numericMin) || value >= numericMin) &&
+		(!Number.isFinite(numericMax) || value <= numericMax)
+	);
+};
+
+export const deriveInputDraggerValueDiff = ({
+	dragSensitivity,
+	step,
+	xDistance,
+}: {
+	readonly dragSensitivity: number;
+	readonly step: number;
+	readonly xDistance: number;
+}) => {
+	return interpolate(
+		xDistance,
+		[-5, -4, 0, 4, 5],
+		[-step * dragSensitivity, 0, 0, 0, step * dragSensitivity],
+	);
+};
+
 const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	HTMLButtonElement,
 	Props
@@ -100,6 +443,8 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		small,
 		snapToStep = true,
 		dragDecimalPlaces,
+		dragSensitivity = 1,
+		type: _type,
 		...props
 	},
 	ref,
@@ -108,15 +453,13 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	const [dragging, setDragging] = useState(false);
 	const fallbackRef = useRef<HTMLInputElement>(null);
 	const pointerDownRef = useRef(false);
-	const style = useMemo(() => {
-		return {
-			...inputBaseStyle,
-			backgroundColor: TRANSPARENT,
-			borderColor: TRANSPARENT,
-			padding: '4px 6px',
-			...{outline: 'none'},
-		};
-	}, []);
+	const deriveStep = useMemo(() => {
+		return deriveInputDraggerStep({
+			min: _min,
+			snapToStep,
+			step: _step,
+		});
+	}, [_min, _step, snapToStep]);
 
 	const span: React.CSSProperties = useMemo(
 		() => ({
@@ -169,12 +512,20 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 
 	const onInputChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
-			const parsed = Number(e.target.value);
-			if (e.target.value !== '' && !Number.isNaN(parsed)) {
+			e.target.setCustomValidity('');
+			const parsed = parseInputDraggerNumber(e.target.value);
+			if (
+				parsed !== null &&
+				isInputDraggerValueInRange({
+					max: _max,
+					min: _min,
+					value: parsed,
+				})
+			) {
 				onValueChange(parsed);
 			}
 		},
-		[onValueChange],
+		[_max, _min, onValueChange],
 	);
 
 	const onBlur = useCallback(() => {
@@ -188,23 +539,58 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			return;
 		}
 
-		if (fallbackRef.current.checkValidity()) {
-			onValueChangeEnd?.(Number(newValue));
+		const validation = validateInputDraggerValue({
+			max: _max,
+			min: _min,
+			step: deriveStep,
+			value: newValue,
+		});
+
+		if (validation.valid) {
+			fallbackRef.current.setCustomValidity('');
+			onValueChangeEnd?.(validation.value);
 
 			setInputFallback(false);
 		} else {
+			fallbackRef.current.setCustomValidity(validation.message);
 			fallbackRef.current.reportValidity();
 		}
-	}, [onEscape, onValueChangeEnd]);
+	}, [_max, _min, deriveStep, onEscape, onValueChangeEnd]);
 
-	const onKeyPress: React.KeyboardEventHandler<HTMLInputElement> = useCallback(
-		(e) => {
-			if (e.key === 'Enter') {
-				fallbackRef.current?.blur();
-			}
-		},
-		[],
-	);
+	const onInputKeyDown: React.KeyboardEventHandler<HTMLInputElement> =
+		useCallback(
+			(e) => {
+				if (e.key === 'Enter') {
+					fallbackRef.current?.blur();
+					return;
+				}
+
+				if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') {
+					return;
+				}
+
+				e.preventDefault();
+				const parsedInputValue = parseInputDraggerNumber(e.currentTarget.value);
+				const currentValue =
+					parsedInputValue ??
+					deriveInputDraggerDragStartValue({
+						min: _min,
+						value,
+					});
+				const nextValue = deriveInputDraggerArrowValue({
+					direction: e.key === 'ArrowUp' ? 1 : -1,
+					max: _max,
+					min: _min,
+					step: deriveStep,
+					value: currentValue,
+				});
+
+				e.currentTarget.value = String(nextValue);
+				e.currentTarget.setCustomValidity('');
+				onValueChange(nextValue);
+			},
+			[_max, _min, deriveStep, onValueChange, value],
+		);
 
 	const roundToStep = (val: number, stepSize: number) => {
 		const factor = 1 / stepSize;
@@ -243,11 +629,11 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 					target.blur();
 				}
 
-				const diff = interpolate(
+				const diff = deriveInputDraggerValueDiff({
+					dragSensitivity,
+					step,
 					xDistance,
-					[-5, -4, 0, 4, 5],
-					[-step, 0, 0, 0, step],
-				);
+				});
 				const newValue = Math.min(max, Math.max(min, dragStartValue + diff));
 				const nextValue = snapToStep
 					? roundToStep(newValue, step)
@@ -259,25 +645,38 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			};
 
 			window.addEventListener('mousemove', moveListener);
-			window.addEventListener(
-				'pointerup',
-				() => {
-					window.removeEventListener('mousemove', moveListener);
-					pointerDownRef.current = false;
-					setDragging(false);
-					stopForcingSpecificCursor();
-					if (lastDragValue !== null && onValueChangeEnd) {
-						onValueChangeEnd(lastDragValue);
-					}
+			const endDrag = (commit: boolean) => {
+				window.removeEventListener('mousemove', moveListener);
+				window.removeEventListener('pointerup', onPointerUp);
+				window.removeEventListener('pointercancel', onPointerCancel);
+				window.removeEventListener('blur', onWindowBlur);
+				pointerDownRef.current = false;
+				setDragging(false);
+				stopForcingSpecificCursor();
+				if (commit && lastDragValue !== null && onValueChangeEnd) {
+					onValueChangeEnd(lastDragValue);
+				}
 
-					setTimeout(() => {
-						setClickLock(false);
-					}, 2);
-				},
-				{
-					once: true,
-				},
-			);
+				setTimeout(() => {
+					setClickLock(false);
+				}, 2);
+			};
+
+			const onPointerUp = () => {
+				endDrag(true);
+			};
+
+			const onPointerCancel = () => {
+				endDrag(false);
+			};
+
+			const onWindowBlur = () => {
+				endDrag(false);
+			};
+
+			window.addEventListener('pointerup', onPointerUp);
+			window.addEventListener('pointercancel', onPointerCancel);
+			window.addEventListener('blur', onWindowBlur);
 		},
 		[
 			_step,
@@ -288,6 +687,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			onValueChangeEnd,
 			snapToStep,
 			dragDecimalPlaces,
+			dragSensitivity,
 		],
 	);
 
@@ -297,21 +697,13 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		}
 	}, [inputFallback]);
 
-	const deriveStep = useMemo(() => {
-		return deriveInputDraggerStep({
-			min: _min,
-			snapToStep,
-			step: _step,
-		});
-	}, [_min, _step, snapToStep]);
-
 	if (inputFallback) {
 		return (
 			<HigherZIndex onEscape={onEscape} onOutsideClick={noop}>
 				<RemotionInput
 					ref={fallbackRef}
 					autoFocus
-					onKeyPress={onKeyPress}
+					onKeyDown={onInputKeyDown}
 					onBlur={onBlur}
 					onChange={onInputChange}
 					min={_min}
@@ -319,10 +711,10 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 					step={deriveStep}
 					defaultValue={value}
 					status={status}
-					pattern={'[0-9]*[.]?[0-9]*'}
 					rightAlign={rightAlign}
 					small={small}
 					{...props}
+					type="text"
 				/>
 			</HigherZIndex>
 		);
@@ -333,7 +725,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			ref={ref}
 			type="button"
 			className={'__remotion_input_dragger'}
-			style={style}
+			style={inputDraggerContainerStyle}
 			onClick={onClick}
 			onFocus={onFocus}
 			onKeyDown={onKeyDown}

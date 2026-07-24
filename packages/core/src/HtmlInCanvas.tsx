@@ -8,7 +8,6 @@ import React, {
 	useRef,
 } from 'react';
 import type {SequenceControls} from './CompositionManager.js';
-import {delayRender} from './delay-render.js';
 import type {EffectsProp} from './effects/effect-types.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
@@ -19,7 +18,9 @@ import {
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import type {InteractiveBaseProps} from './Interactive.js';
 import {
+	backgroundSchema,
 	baseSchema,
+	borderSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
@@ -372,7 +373,7 @@ const HtmlInCanvasContent = forwardRef<
 		const resolvedPixelDensity = resolveHtmlInCanvasPixelDensity(pixelDensity);
 		const canvasWidth = Math.ceil(width * resolvedPixelDensity);
 		const canvasHeight = Math.ceil(height * resolvedPixelDensity);
-		const {continueRender, cancelRender} = useDelayRender();
+		const {delayRender, continueRender, cancelRender} = useDelayRender();
 		const {isClientSideRendering, isRendering} = useRemotionEnvironment();
 		const canRetryMissingPaintRecord = !isRendering || isClientSideRendering;
 		const usesDirectLayoutCanvas =
@@ -579,6 +580,7 @@ const HtmlInCanvasContent = forwardRef<
 			chainState,
 			continueRender,
 			cancelRender,
+			delayRender,
 			resolvedPixelDensity,
 			canRetryMissingPaintRecord,
 		]);
@@ -659,7 +661,7 @@ const HtmlInCanvasContent = forwardRef<
 			return () => {
 				continueRender(handle);
 			};
-		}, [width, height, continueRender, canvasSizeKey]);
+		}, [width, height, continueRender, delayRender, canvasSizeKey]);
 
 		const innerStyle = useMemo(() => {
 			return {
@@ -784,6 +786,8 @@ export const htmlInCanvasSchema = {
 		hiddenFromList: false,
 	},
 	...transformSchema,
+	...backgroundSchema,
+	...borderSchema,
 } as const satisfies InteractivitySchema;
 
 const HtmlInCanvasWrapped = withInteractivitySchema({

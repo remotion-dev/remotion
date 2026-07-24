@@ -158,7 +158,7 @@ const TimelineStaticFileAssetField: React.FC<TimelineAssetFieldProps> = ({
 
 	return (
 		<Combobox
-			small
+			size="small"
 			title={current}
 			selectedId={current}
 			values={items}

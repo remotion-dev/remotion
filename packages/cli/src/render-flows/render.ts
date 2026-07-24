@@ -2,6 +2,11 @@ import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import type {
+	BundlerOverrideFn,
+	RspackOverrideFn,
+	WebpackOverrideFn,
+} from '@remotion/bundler';
+import type {
 	AudioCodec,
 	Browser,
 	BrowserExecutable,
@@ -131,6 +136,9 @@ export const renderVideoFlow = async ({
 	keyboardShortcutsEnabled,
 	shouldCache,
 	sampleRate,
+	bundlerOverride,
+	rspackOverride,
+	webpackOverride,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -199,6 +207,9 @@ export const renderVideoFlow = async ({
 	keyboardShortcutsEnabled: boolean;
 	shouldCache: boolean;
 	sampleRate: number;
+	bundlerOverride: BundlerOverrideFn | null;
+	rspackOverride: RspackOverrideFn | null;
+	webpackOverride: WebpackOverrideFn | null;
 }) => {
 	RenderInternals.validateConcurrency({
 		value: concurrency,
@@ -350,6 +361,9 @@ export const renderVideoFlow = async ({
 			keyboardShortcutsEnabled,
 			rspack,
 			shouldCache,
+			bundlerOverride,
+			rspackOverride,
+			webpackOverride,
 		},
 	);
 

@@ -72,8 +72,7 @@ test('Should be able to create a union', async () => {
 	expect(createZodValues(z.union([z.number(), z.string()]), z, zodTypes)).toBe(
 		0,
 	);
-	// In v4, z.union([]) throws during schema creation
-	expect(() => createZodValues(z.union([]) as never, z, zodTypes)).toThrow();
+	expect(createZodValues(z.union([]) as never, z, zodTypes)).toBeUndefined();
 });
 
 test('Zod literal', async () => {

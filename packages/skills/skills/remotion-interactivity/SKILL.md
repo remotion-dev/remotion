@@ -13,6 +13,11 @@ Use the canonical interactivity best-practices page instead:
 To make an element or custom component interactive, use:
 [Make a component interactive](https://www.remotion.dev/docs/studio/make-component-interactive.md)
 
+## Avoid object spreads
+
+Do not use object spreads for interactive props. Write the values inline so the
+Studio can detect and edit them.
+
 ## Video editing
 
 If a Remotion component mainly consists of video and audio clips, see [Video editing](../remotion-markup/video-editing.md) for best practices on how to structure Remotion markup so the clips are interactively editable in the timeline.

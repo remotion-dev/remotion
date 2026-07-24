@@ -471,21 +471,23 @@ export const SharedAudioTagsContextProvider: React.FC<{
 	const audioContext = audioCtx?.audioContext ?? null;
 	const resume = audioCtx?.resume;
 
-	const refs = useMemo(() => {
+	const [refs] = useState(() => {
 		return new Array(numberOfAudioTags).fill(true).map((): Ref => {
 			const ref = createRef<HTMLAudioElement>();
 			return {
 				id: Math.random(),
 				ref,
-				mediaElementSourceNode: audioContext
-					? makeSharedElementSourceNode({
-							audioContext,
-							ref,
-						})
-					: null,
+				mediaElementSourceNode: makeSharedElementSourceNode({
+					audioContext,
+					ref,
+				}),
 			};
 		});
-	}, [audioContext, numberOfAudioTags]);
+	});
+
+	for (const {mediaElementSourceNode} of refs) {
+		mediaElementSourceNode?.setAudioContext(audioContext);
+	}
 
 	/**
 	 * Effects in React 18 fire twice, and we are looking for a way to only fire it once.
@@ -598,7 +600,9 @@ export const SharedAudioTagsContextProvider: React.FC<{
 			const cloned = [...takenAudios.current];
 			const index = refs.findIndex((r) => r.id === id);
 			if (index === -1) {
-				throw new TypeError('Error occured in ');
+				throw new TypeError(
+					`Unknown audio ref ${id}; refs: ${refs.map((r) => r.id).join(', ')}`,
+				);
 			}
 
 			cloned[index] = false;
@@ -749,12 +753,10 @@ export const useSharedAudio = ({
 
 		// numberOfSharedAudioTags is 0
 		const el = React.createRef<HTMLAudioElement>();
-		const mediaElementSourceNode = audioCtx?.audioContext
-			? makeSharedElementSourceNode({
-					audioContext: audioCtx.audioContext,
-					ref: el,
-				})
-			: null;
+		const mediaElementSourceNode = makeSharedElementSourceNode({
+			audioContext: audioCtx?.audioContext ?? null,
+			ref: el,
+		});
 
 		return {
 			el,
@@ -770,6 +772,7 @@ export const useSharedAudio = ({
 			},
 		};
 	});
+	elem.mediaElementSourceNode?.setAudioContext(audioCtx?.audioContext ?? null);
 
 	/**
 	 * Effects in React 18 fire twice, and we are looking for a way to only fire it once.

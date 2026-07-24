@@ -1,4 +1,4 @@
-import type {EffectDragData} from './effect-drag-data';
+import type {EffectDragData} from '@remotion/drag-and-drop';
 
 export type EffectCatalogItem = {
 	readonly id: string;
@@ -42,16 +42,6 @@ export const getEffectPreviewAlt = (item: EffectCatalogItem) => {
 		.replace(/^tv /, 'TV ');
 
 	return `${effectName} effect preview`;
-};
-
-export const makeEffectDragDataFromCatalogItem = (
-	item: EffectCatalogItem,
-): EffectDragData => {
-	return {
-		type: 'remotion-effect',
-		version: 1,
-		effect: item.effect,
-	};
 };
 
 export const getEffectCatalogCategories = (

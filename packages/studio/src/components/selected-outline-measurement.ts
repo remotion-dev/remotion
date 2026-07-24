@@ -474,10 +474,12 @@ export const getSequencesWithSelectableOutlines = ({
 	sequences,
 	overrideIdsToNodePaths,
 	compositions = [],
+	timelinePosition,
 }: {
 	readonly sequences: readonly TSequence[];
 	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
 	readonly compositions?: readonly _InternalTypes['AnyComposition'][];
+	readonly timelinePosition: number;
 }): SequenceWithSelectedOutline[] => {
 	return calculateTimeline({
 		sequences: [...sequences],
@@ -491,6 +493,8 @@ export const getSequencesWithSelectableOutlines = ({
 
 			return (
 				track.sequence.showInTimeline &&
+				timelinePosition >= track.sequence.from &&
+				timelinePosition < track.sequence.from + track.sequence.duration &&
 				track.nodePathInfo.auxiliaryKeys.length === 0
 			);
 		})

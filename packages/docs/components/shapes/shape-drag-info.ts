@@ -1,3 +1,4 @@
+import type {ComponentDragData} from '@remotion/drag-and-drop';
 import {
 	makeArrow,
 	makeCallout,
@@ -11,7 +12,6 @@ import {
 	makeStar,
 	makeTriangle,
 } from '@remotion/shapes';
-import type {ComponentDragData} from '@remotion/studio-shared';
 import {shapeNames, type ShapeName} from './shapes-info';
 
 export type ShapeDragInfo = {

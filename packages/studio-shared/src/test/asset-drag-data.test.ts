@@ -1,5 +1,28 @@
 import {expect, test} from 'bun:test';
-import {makeAssetDragData, parseAssetDragData} from '../asset-drag-data';
+import {DragAndDropInternals} from '@remotion/drag-and-drop';
+
+const assetMimeType = DragAndDropInternals.makeDragData({
+	type: 'asset',
+	assetPath: 'asset',
+	width: null,
+	height: null,
+	durationInSeconds: null,
+}).mimeType;
+const makeAssetDragData = (assetPath: string) =>
+	DragAndDropInternals.makeDragData({
+		type: 'asset',
+		assetPath,
+		width: null,
+		height: null,
+		durationInSeconds: null,
+	}).data;
+const parseAssetDragData = (payload: string) => {
+	const parsed = DragAndDropInternals.parseDragData({
+		mimeType: assetMimeType,
+		payload,
+	});
+	return parsed?.type === 'asset' ? parsed.data : null;
+};
 
 test('parses asset drag data', () => {
 	expect(

@@ -167,10 +167,6 @@ const config: Config = {
 							to: '/lambda',
 						},
 						{
-							label: 'Learn',
-							to: '/learn',
-						},
-						{
 							label: 'Convert a video',
 							to: 'https://convert.remotion.dev',
 						},
@@ -183,7 +179,11 @@ const config: Config = {
 							href: 'https://github.com/remotion-dev/remotion',
 						},
 						{
-							label: 'License + Pricing',
+							label: 'Changelog',
+							href: 'https://remotion.dev/changelog',
+						},
+						{
+							label: 'License & Pricing',
 							to: '/docs/license/pricing',
 						},
 					],
@@ -198,6 +198,10 @@ const config: Config = {
 						{
 							label: 'Showcase',
 							to: 'showcase',
+						},
+						{
+							label: 'Success Stories',
+							to: 'success-stories',
 						},
 						{
 							label: 'Experts',
@@ -230,61 +234,63 @@ const config: Config = {
 					],
 				},
 				{
-					title: 'More',
+					title: 'Company',
 					items: [
 						{
-							label: 'About us',
+							label: 'About Us',
 							to: 'about',
 						},
 						{
-							label: 'Contact us',
+							label: 'Contact Us',
 							to: 'contact',
-						},
-						{
-							label: 'Blog',
-							to: 'blog',
-						},
-						{
-							label: 'Success Stories',
-							to: 'success-stories',
-						},
-						{
-							label: 'Support',
-							to: '/docs/support',
-						},
-						{
-							label: 'Changelog',
-							href: 'https://remotion.dev/changelog',
-						},
-						{
-							label: 'Acknowledgements',
-							href: 'https://remotion.dev/acknowledgements',
-						},
-						{
-							label: 'License',
-							href: 'https://remotion.dev/license',
-						},
-						{
-							label: 'Terms and Conditions',
-							href: 'https://remotion.dev/docs/license/terms',
-						},
-						{
-							label: 'Privacy Policy',
-							href: 'https://remotion.dev/docs/license/privacy',
-						},
-						{
-							label: 'DPA Statement',
-							href: 'https://www.remotion.dev/docs/license/dpa',
-						},
-						{
-							label: 'DPIA Statement',
-							href: 'https://www.remotion.dev/docs/license/dpia',
 						},
 						{
 							label: 'Brand',
 							href: 'https://remotion.dev/brand',
 						},
-					].filter(Boolean),
+					],
+				},
+				{
+					title: 'Legal & Trust',
+					items: [
+						{
+							label: 'Terms and Conditions',
+							to: '/docs/license/terms',
+						},
+						{
+							label: 'Privacy Policy',
+							to: '/docs/license/privacy',
+						},
+						{
+							label: 'DPA Statement',
+							to: '/docs/license/dpa',
+						},
+						{
+							label: 'DPIA Statement',
+							to: '/docs/license/dpia',
+						},
+						{
+							label: 'Accessibility',
+							to: '/docs/accessibility',
+						},
+						{
+							label: 'Acknowledgments',
+							to: '/docs/acknowledgements',
+						},
+					],
+				},
+				{
+					title: 'More',
+					items: [
+						{
+							label: 'Blog',
+							to: 'blog',
+						},
+						{
+							label: 'Support',
+							to: '/docs/support',
+						},
+					],
 				},
 			],
 		},

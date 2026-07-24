@@ -130,7 +130,11 @@ for (const definition of Object.values(elementDefinitions)) {
 	);
 	mkdirSync(elementOutputDirectory, {recursive: true});
 	const pngPath = path.join(elementOutputDirectory, 'preview.png');
-	const mp4Path = path.join(elementOutputDirectory, 'preview.mp4');
+	const videoExtension = definition.transparentPreview ? 'webm' : 'mp4';
+	const videoPath = path.join(
+		elementOutputDirectory,
+		`preview.${videoExtension}`,
+	);
 
 	console.log(`Rendering ${definition.displayName} poster`);
 	await renderStill({
@@ -144,21 +148,21 @@ for (const definition of Object.values(elementDefinitions)) {
 	console.log(`Rendering ${definition.displayName} video`);
 	await renderMedia({
 		chromiumOptions: {gl: 'angle'},
-		codec: 'h264',
+		codec: definition.transparentPreview ? 'vp8' : 'h264',
 		composition,
 		crf: 23,
 		imageFormat: 'png',
 		muted: true,
-		outputLocation: mp4Path,
-		pixelFormat: 'yuv420p',
+		outputLocation: videoPath,
+		pixelFormat: definition.transparentPreview ? 'yuva420p' : 'yuv420p',
 		serveUrl,
 	});
 
 	console.log(`Rendered ${pngPath}`);
-	console.log(`Rendered ${mp4Path}`);
+	console.log(`Rendered ${videoPath}`);
 
 	if (client) {
-		const urls = getElementPreviewUrls(definition.slug);
+		const urls = getElementPreviewUrls(definition);
 		const baseKey = `elements/${definition.slug}`;
 		await uploadAsset({
 			client,
@@ -169,10 +173,10 @@ for (const definition of Object.values(elementDefinitions)) {
 		});
 		await uploadAsset({
 			client,
-			contentType: 'video/mp4',
-			filePath: mp4Path,
-			key: `${baseKey}/preview.mp4`,
-			publicUrl: urls.mp4,
+			contentType: definition.transparentPreview ? 'video/webm' : 'video/mp4',
+			filePath: videoPath,
+			key: `${baseKey}/preview.${videoExtension}`,
+			publicUrl: urls.video,
 		});
 	}
 }

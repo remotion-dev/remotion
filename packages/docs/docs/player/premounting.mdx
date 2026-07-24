@@ -65,6 +65,19 @@ A premounted [`<Sequence>`](/docs/sequence) does carry the styles `opacity: 0` a
 
 It is not possible to premount a [`<Sequence>`](/docs/sequence) with `layout="none"` because such a sequence does not have a container to apply the styles to.
 
+## Premounting media<AvailableFrom v="4.0.495" />
+
+[`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from `@remotion/media` accept `premountFor` directly. They remain layoutless, carry `display: none` while premounted and register the premounted range in the Studio timeline.
+
+```tsx twoslash title="PremountedVideo.tsx"
+import {Video} from '@remotion/media';
+import {staticFile} from 'remotion';
+
+export const MyVideo = () => {
+  return <Video src={staticFile('video.mp4')} from={60} premountFor={30} />;
+};
+```
+
 ## With `<Series>` and `<TransitionSeries>`
 
 `premountFor` is also available on [`<Series.Sequence>`](/docs/series) and [`<TransitionSeries.Sequence>`](/docs/transitions/transitionseries).  

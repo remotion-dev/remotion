@@ -1,7 +1,7 @@
 import {linearTiming, TransitionSeries} from '@remotion/transitions';
 import {zoomInOut} from '@remotion/transitions/zoom-in-out';
 import React from 'react';
-import {AbsoluteFill, Img} from 'remotion';
+import {AbsoluteFill} from 'remotion';
 
 const sceneStyle: React.CSSProperties = {
 	justifyContent: 'center',
@@ -10,14 +10,19 @@ const sceneStyle: React.CSSProperties = {
 	fontWeight: 900,
 	color: 'white',
 	fontSize: '40cqmin',
+	overflow: 'hidden',
 };
 
-const backgroundImageStyle: React.CSSProperties = {
-	position: 'absolute',
-	inset: 0,
-	width: '100%',
-	height: '100%',
-	objectFit: 'cover',
+const sceneAStyle: React.CSSProperties = {
+	...sceneStyle,
+	backgroundImage:
+		'radial-gradient(circle at 25% 25%, #63c7ff 0%, transparent 38%), linear-gradient(135deg, #087ecc, #032444)',
+};
+
+const sceneBStyle: React.CSSProperties = {
+	...sceneStyle,
+	backgroundImage:
+		'radial-gradient(circle at 75% 30%, #ffb0dc 0%, transparent 38%), linear-gradient(135deg, #d22a80, #4c0a42)',
 };
 
 const letterStyle: React.CSSProperties = {
@@ -27,13 +32,7 @@ const letterStyle: React.CSSProperties = {
 
 const SceneA: React.FC = () => {
 	return (
-		<AbsoluteFill style={sceneStyle}>
-			<Img
-				crossOrigin="anonymous"
-				src="https://remotion.media/transition-bg-blue.jpg"
-				style={backgroundImageStyle}
-				alt=""
-			/>
+		<AbsoluteFill style={sceneAStyle}>
 			<div style={letterStyle}>A</div>
 		</AbsoluteFill>
 	);
@@ -41,13 +40,7 @@ const SceneA: React.FC = () => {
 
 const SceneB: React.FC = () => {
 	return (
-		<AbsoluteFill style={sceneStyle}>
-			<Img
-				crossOrigin="anonymous"
-				src="https://remotion.media/transition-bg-pink.jpg"
-				style={backgroundImageStyle}
-				alt=""
-			/>
+		<AbsoluteFill style={sceneBStyle}>
 			<div style={letterStyle}>B</div>
 		</AbsoluteFill>
 	);

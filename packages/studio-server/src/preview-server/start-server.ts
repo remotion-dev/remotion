@@ -1,6 +1,10 @@
 import type {IncomingMessage} from 'node:http';
 import http from 'node:http';
-import type {WebpackOverrideFn} from '@remotion/bundler';
+import type {
+	BundlerOverrideFn,
+	RspackOverrideFn,
+	WebpackOverrideFn,
+} from '@remotion/bundler';
 import {
 	BundlerInternals,
 	WatchIgnoreNextChangePlugin,
@@ -40,14 +44,13 @@ export type StartServerResult =
 export const startServer = async (options: {
 	entry: string;
 	userDefinedComponent: string;
+	bundlerOverride: BundlerOverrideFn;
+	rspackOverride: RspackOverrideFn;
 	webpackOverride: WebpackOverrideFn;
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
 	port: number | null;
-	maxTimelineTracks: number | null;
-	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
-	keyboardShortcutsEnabled: boolean;
 	publicDir: string;
 	poll: number | null;
 	staticHash: string;
@@ -57,19 +60,18 @@ export const startServer = async (options: {
 	logLevel: LogLevel;
 	getRenderQueue: () => RenderJob[];
 	getRenderDefaults: () => RenderDefaults;
-	numberOfAudioTags: number;
+	getNumberOfAudioTags: () => number;
 	queueMethods: QueueMethods;
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
 	forceIPv4: boolean;
-	audioLatencyHint: AudioContextLatencyCategory | null;
-	previewSampleRate: number | null;
+	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
-	askAIEnabled: boolean;
-	interactivityEnabled: boolean;
 	forceNew: boolean;
 	rspack: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	configFile: string | null;
 }): Promise<StartServerResult> => {
 	const desiredPort =
 		options?.port ??
@@ -101,14 +103,11 @@ export const startServer = async (options: {
 		userDefinedComponent: options.userDefinedComponent,
 		outDir: null,
 		environment: 'development' as const,
+		bundlerOverride: options.bundlerOverride,
+		rspackOverride: options.rspackOverride,
 		webpackOverride: options?.webpackOverride,
-		maxTimelineTracks: options?.maxTimelineTracks ?? null,
 		remotionRoot: options.remotionRoot,
-		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
 		poll: options.poll,
-		bufferStateDelayInMilliseconds: options.bufferStateDelayInMilliseconds,
-		askAIEnabled: options.askAIEnabled,
-		interactivityEnabled: options.interactivityEnabled,
 		extraPlugins: [watchIgnorePlugin],
 	};
 
@@ -169,14 +168,15 @@ export const startServer = async (options: {
 					logLevel: options.logLevel,
 					getRenderQueue: options.getRenderQueue,
 					getRenderDefaults: options.getRenderDefaults,
-					numberOfAudioTags: options.numberOfAudioTags,
+					getNumberOfAudioTags: options.getNumberOfAudioTags,
 					queueMethods: options.queueMethods,
 					gitSource: options.gitSource,
 					binariesDirectory: options.binariesDirectory,
-					audioLatencyHint: options.audioLatencyHint,
-					previewSampleRate: options.previewSampleRate,
+					getAudioLatencyHint: options.getAudioLatencyHint,
+					getPreviewSampleRate: options.getPreviewSampleRate,
 					enableCrossSiteIsolation: options.enableCrossSiteIsolation,
 					getStudioRuntimeConfig: options.getStudioRuntimeConfig,
+					configFile: options.configFile,
 				});
 			})
 			.catch((err) => {

@@ -1,4 +1,5 @@
 import {
+	optimisticAddSequenceKeyframe,
 	optimisticUpdateForPropStatuses,
 	type SaveSequencePropSourceEdit,
 } from '@remotion/studio-shared';
@@ -8,6 +9,7 @@ import type {
 	InteractivitySchema,
 } from 'remotion';
 import {callApi} from '../call-api';
+import type {AddSequenceKeyframeChange} from './call-add-keyframe';
 import {
 	applyOptimisticKeyframeMoves,
 	type MoveEffectKeyframeChange,
@@ -34,10 +36,11 @@ export type SaveSequencePropChange = {
 
 type SaveSequencePropsOptions = {
 	changes: SaveSequencePropChange[];
-	movedKeyframes?: {
+	addedKeyframes: AddSequenceKeyframeChange[] | null;
+	movedKeyframes: {
 		sequenceKeyframes: MoveSequenceKeyframeChange[];
 		effectKeyframes: MoveEffectKeyframeChange[];
-	};
+	} | null;
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 	undoLabel: string;
@@ -54,16 +57,21 @@ const serializeSequencePropValue = (value: unknown) => {
 
 export const saveSequenceProps = ({
 	changes,
+	addedKeyframes,
 	movedKeyframes,
 	setPropStatuses,
 	clientId,
 	undoLabel,
 	redoLabel,
 }: SaveSequencePropsOptions): Promise<void> => {
-	const sequenceKeyframes = movedKeyframes?.sequenceKeyframes ?? [];
-	const effectKeyframes = movedKeyframes?.effectKeyframes ?? [];
+	const keyframesToAdd = addedKeyframes === null ? [] : addedKeyframes;
+	const sequenceKeyframes =
+		movedKeyframes === null ? [] : movedKeyframes.sequenceKeyframes;
+	const effectKeyframes =
+		movedKeyframes === null ? [] : movedKeyframes.effectKeyframes;
 	if (
 		changes.length === 0 &&
+		keyframesToAdd.length === 0 &&
 		sequenceKeyframes.length === 0 &&
 		effectKeyframes.length === 0
 	) {
@@ -72,6 +80,7 @@ export const saveSequenceProps = ({
 
 	if (
 		changes.length === 1 &&
+		keyframesToAdd.length === 0 &&
 		sequenceKeyframes.length === 0 &&
 		effectKeyframes.length === 0
 	) {
@@ -104,6 +113,8 @@ export const saveSequenceProps = ({
 							sourceEdit: change.sourceEdit ?? null,
 						},
 					],
+					addedKeyframes: null,
+					movedKeyframes: null,
 					clientId,
 					undoLabel,
 					redoLabel,
@@ -117,6 +128,18 @@ export const saveSequenceProps = ({
 		effectKeyframes,
 		setPropStatuses,
 	});
+
+	for (const keyframe of keyframesToAdd) {
+		setPropStatuses(keyframe.nodePath, (prev) =>
+			optimisticAddSequenceKeyframe({
+				previous: prev,
+				fieldKey: keyframe.fieldKey,
+				frame: keyframe.sourceFrame,
+				value: keyframe.value,
+				schema: keyframe.schema,
+			}),
+		);
+	}
 
 	for (const change of changes) {
 		setPropStatuses(change.nodePath, (prev) =>
@@ -142,25 +165,39 @@ export const saveSequenceProps = ({
 				sourceEdit: change.sourceEdit ?? null,
 			};
 		}),
-		movedKeyframes: {
-			sequenceKeyframes: sequenceKeyframes.map((keyframe) => ({
-				fileName: keyframe.fileName,
-				nodePath: keyframe.nodePath,
-				key: keyframe.fieldKey,
-				fromFrame: keyframe.fromFrame,
-				toFrame: keyframe.toFrame,
-				schema: keyframe.schema,
-			})),
-			effectKeyframes: effectKeyframes.map((keyframe) => ({
-				fileName: keyframe.fileName,
-				sequenceNodePath: keyframe.nodePath,
-				effectIndex: keyframe.effectIndex,
-				key: keyframe.fieldKey,
-				fromFrame: keyframe.fromFrame,
-				toFrame: keyframe.toFrame,
-				schema: keyframe.schema,
-			})),
-		},
+		addedKeyframes:
+			addedKeyframes === null
+				? null
+				: addedKeyframes.map((keyframe) => ({
+						fileName: keyframe.fileName,
+						nodePath: keyframe.nodePath,
+						key: keyframe.fieldKey,
+						frame: keyframe.sourceFrame,
+						value: JSON.stringify(keyframe.value),
+						schema: keyframe.schema,
+					})),
+		movedKeyframes:
+			movedKeyframes === null
+				? null
+				: {
+						sequenceKeyframes: sequenceKeyframes.map((keyframe) => ({
+							fileName: keyframe.fileName,
+							nodePath: keyframe.nodePath,
+							key: keyframe.fieldKey,
+							fromFrame: keyframe.fromFrame,
+							toFrame: keyframe.toFrame,
+							schema: keyframe.schema,
+						})),
+						effectKeyframes: effectKeyframes.map((keyframe) => ({
+							fileName: keyframe.fileName,
+							sequenceNodePath: keyframe.nodePath,
+							effectIndex: keyframe.effectIndex,
+							key: keyframe.fieldKey,
+							fromFrame: keyframe.fromFrame,
+							toFrame: keyframe.toFrame,
+							schema: keyframe.schema,
+						})),
+					},
 		clientId,
 		undoLabel,
 		redoLabel,

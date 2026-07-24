@@ -21,7 +21,7 @@ import {
 	getSequenceDoubleClickAction,
 } from '../../helpers/get-sequence-double-click-action';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {
 	getTimelineLayerHeight,
@@ -99,7 +99,7 @@ const SEQUENCE_REORDER_MIME_TYPE = 'application/remotion-sequence-reorder';
 type SequenceReorderDragData = {
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly nodePathKey: string;
-	readonly trackIndex: number;
+	readonly siblingIndex: number;
 	readonly parentId: string | null;
 	readonly fileName: string;
 };
@@ -148,6 +148,16 @@ const sequenceReorderLineBase: React.CSSProperties = {
 	zIndex: 1,
 };
 
+const sequenceReorderAfterLineWrapper: React.CSSProperties = {
+	height: 0,
+	position: 'relative',
+};
+
+const sequenceReorderAfterLine: React.CSSProperties = {
+	...sequenceReorderLineBase,
+	top: -1,
+};
+
 const sequenceReorderRejectionStyle: React.CSSProperties = {
 	backgroundColor: BLACK_ALPHA_85,
 	border: BORDER_WHITE_ALPHA_20,
@@ -190,7 +200,7 @@ const getSequenceReorderDragData = (
 		const parsed = JSON.parse(value) as SequenceReorderDragData;
 		if (
 			typeof parsed.nodePathKey === 'string' &&
-			typeof parsed.trackIndex === 'number' &&
+			typeof parsed.siblingIndex === 'number' &&
 			(typeof parsed.parentId === 'string' || parsed.parentId === null) &&
 			typeof parsed.fileName === 'string' &&
 			parsed.nodePath &&
@@ -227,26 +237,28 @@ type SequenceDropTarget =
 	  };
 
 export const TimelineSequenceItem: React.FC<{
+	readonly children: React.ReactNode;
 	readonly sequence: TSequence;
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 	readonly nestedDepth: number;
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly keyframeDisplayOffset: number;
 	readonly sequenceFrameOffset: number;
-	readonly trackIndex: number;
+	readonly siblingIndex: number;
 }> = ({
+	children,
 	connectedCompositions,
 	nestedDepth,
 	sequence,
 	nodePathInfo,
 	keyframeDisplayOffset,
 	sequenceFrameOffset,
-	trackIndex,
+	siblingIndex,
 }) => {
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
-	const previewInteractive = previewConnected && studioInteractivityEnabled;
+	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
@@ -457,13 +469,13 @@ export const TimelineSequenceItem: React.FC<{
 
 			const rect = e.currentTarget.getBoundingClientRect();
 			const before = e.clientY < rect.top + rect.height / 2;
-			const insertionIndex = before ? trackIndex : trackIndex + 1;
+			const insertionIndex = before ? siblingIndex : siblingIndex + 1;
 			const toIndex = getDestinationIndex({
-				fromIndex: dragData.trackIndex,
+				fromIndex: dragData.siblingIndex,
 				insertionIndex,
 			});
 
-			if (toIndex === dragData.trackIndex) {
+			if (toIndex === dragData.siblingIndex) {
 				return {
 					type: 'invalid',
 					reason: 'This sequence is already in that position.',
@@ -481,7 +493,7 @@ export const TimelineSequenceItem: React.FC<{
 			nodePathInfo?.numberOfSequencesWithThisNodePath,
 			nodePathKey,
 			parentId,
-			trackIndex,
+			siblingIndex,
 			validatedLocation?.source,
 		],
 	);
@@ -501,7 +513,7 @@ export const TimelineSequenceItem: React.FC<{
 			const dragData = {
 				nodePath,
 				nodePathKey,
-				trackIndex,
+				siblingIndex,
 				parentId,
 				fileName: validatedLocation.source,
 			};
@@ -518,7 +530,7 @@ export const TimelineSequenceItem: React.FC<{
 			nodePath,
 			nodePathKey,
 			parentId,
-			trackIndex,
+			siblingIndex,
 			validatedLocation?.source,
 		],
 	);
@@ -683,6 +695,8 @@ export const TimelineSequenceItem: React.FC<{
 					: null;
 
 			saveSequenceProps({
+				addedKeyframes: null,
+				movedKeyframes: null,
 				changes: [
 					{
 						fileName: validatedLocation.source,
@@ -736,7 +750,7 @@ export const TimelineSequenceItem: React.FC<{
 	}, [effectDropHovered, inner]);
 
 	const hasExpandableContent =
-		studioInteractivityEnabled &&
+		isStudioInteractivityEnabled() &&
 		(Boolean(sequence.controls) || sequence.effects.length > 0);
 
 	const canToggleVisibility =
@@ -912,7 +926,7 @@ export const TimelineSequenceItem: React.FC<{
 			disableInteractivityDisabled,
 			duplicateDisabled,
 			fileLocation,
-			includeSourceEditItems: studioInteractivityEnabled,
+			includeSourceEditItems: isStudioInteractivityEnabled(),
 			onDeleteSequenceFromSource,
 			onDisableSequenceInteractivity,
 			onDuplicateSequenceFromSource,
@@ -920,7 +934,7 @@ export const TimelineSequenceItem: React.FC<{
 			originalLocation,
 			selectAsset,
 			sequence,
-			sourceActions: studioInteractivityEnabled
+			sourceActions: isStudioInteractivityEnabled()
 				? [
 						...(nodePathInfo?.supportsEffects
 							? [
@@ -989,13 +1003,13 @@ export const TimelineSequenceItem: React.FC<{
 		sequence.controls?.supportsEffects === true;
 
 	const sequenceReorderLineStyle = useMemo((): React.CSSProperties | null => {
-		if (!sequenceDropIndicator) {
+		if (sequenceDropIndicator !== 'before') {
 			return null;
 		}
 
 		return {
 			...sequenceReorderLineBase,
-			...(sequenceDropIndicator === 'before' ? {top: -1} : {bottom: -1}),
+			top: -1,
 		};
 	}, [sequenceDropIndicator]);
 
@@ -1172,7 +1186,7 @@ export const TimelineSequenceItem: React.FC<{
 				draggableTrackRow
 			)}
 			{previewConnected &&
-			studioInteractivityEnabled &&
+			isStudioInteractivityEnabled() &&
 			isExpanded &&
 			hasExpandableContent &&
 			nodePathInfo &&
@@ -1184,6 +1198,12 @@ export const TimelineSequenceItem: React.FC<{
 					nestedDepth={nestedDepth}
 					keyframeDisplayOffset={keyframeDisplayOffset}
 				/>
+			) : null}
+			{children}
+			{sequenceDropIndicator === 'after' ? (
+				<div style={sequenceReorderAfterLineWrapper}>
+					<div style={sequenceReorderAfterLine} />
+				</div>
 			) : null}
 		</>
 	);

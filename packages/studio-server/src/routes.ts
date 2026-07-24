@@ -4,6 +4,7 @@ import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
 import {BundlerInternals} from '@remotion/bundler';
+import {DragAndDropInternals} from '@remotion/drag-and-drop';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
@@ -14,7 +15,7 @@ import type {
 	RenderJob,
 	StudioRuntimeConfig,
 } from '@remotion/studio-shared';
-import {getProjectName, parseElementDragData} from '@remotion/studio-shared';
+import {getProjectName} from '@remotion/studio-shared';
 import {focusBrowserTab} from './better-opn';
 import {getCompletedClientRenders} from './client-render-queue';
 import {getFileSource} from './helpers/get-file-source';
@@ -206,15 +207,16 @@ const handleRequestElementInstall = async ({
 
 	try {
 		const body = await parseRequestBody(request);
-		const parsed = parseElementDragData(
-			JSON.stringify({
-				type: 'remotion-element',
-				version: 1,
-				element: (body as {element?: unknown}).element,
-			}),
-		);
+		const {mimeType, payload} = body as {
+			mimeType?: unknown;
+			payload?: unknown;
+		};
+		const parsed =
+			typeof mimeType === 'string' && typeof payload === 'string'
+				? DragAndDropInternals.parseDragData({mimeType, payload})
+				: null;
 
-		if (parsed === null) {
+		if (parsed?.type !== 'element') {
 			response.writeHead(400);
 			response.end(
 				JSON.stringify({success: false, reason: 'Invalid Element payload'}),
@@ -255,7 +257,7 @@ const handleRequestElementInstall = async ({
 			createdAt: Date.now(),
 			compositionFile: target.compositionFile,
 			compositionId: target.compositionId,
-			element: parsed.element,
+			element: parsed.data.element,
 			position: null,
 		};
 
@@ -297,9 +299,9 @@ const handleFallback = async ({
 	publicDir,
 	getRenderQueue,
 	getRenderDefaults,
-	numberOfAudioTags,
-	audioLatencyHint,
-	previewSampleRate,
+	getNumberOfAudioTags,
+	getAudioLatencyHint,
+	getPreviewSampleRate,
 	gitSource,
 	logLevel,
 	enableCrossSiteIsolation,
@@ -314,9 +316,9 @@ const handleFallback = async ({
 	getEnvVariables: () => Record<string, string>;
 	getRenderQueue: () => RenderJob[];
 	getRenderDefaults: () => RenderDefaults;
-	numberOfAudioTags: number;
-	audioLatencyHint: AudioContextLatencyCategory | null;
-	previewSampleRate: number | null;
+	getNumberOfAudioTags: () => number;
+	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getPreviewSampleRate: () => number | null;
 	gitSource: GitSource | null;
 	logLevel: LogLevel;
 	enableCrossSiteIsolation: boolean;
@@ -380,7 +382,7 @@ const handleFallback = async ({
 				packageManager === 'unknown' ? null : packageManager.startCommand,
 			renderQueue: getRenderQueue(),
 			completedClientRenders: getCompletedClientRenders(),
-			numberOfAudioTags,
+			numberOfAudioTags: getNumberOfAudioTags(),
 			publicFiles: getFiles(),
 			includeFavicon: true,
 			title: 'Remotion Studio',
@@ -398,8 +400,8 @@ const handleFallback = async ({
 				packageManager === 'unknown' ? 'unknown' : packageManager.manager,
 			logLevel,
 			mode: 'dev',
-			audioLatencyHint: audioLatencyHint ?? 'playback',
-			sampleRate: previewSampleRate,
+			audioLatencyHint: getAudioLatencyHint() ?? 'playback',
+			sampleRate: getPreviewSampleRate(),
 			studioRuntimeConfig: getStudioRuntimeConfig(),
 		}),
 	);
@@ -587,14 +589,15 @@ export const handleRoutes = ({
 	logLevel,
 	getRenderQueue,
 	getRenderDefaults,
-	numberOfAudioTags,
+	getNumberOfAudioTags,
 	queueMethods: methods,
 	gitSource,
 	binariesDirectory,
-	audioLatencyHint,
-	previewSampleRate,
+	getAudioLatencyHint,
+	getPreviewSampleRate,
 	enableCrossSiteIsolation,
 	getStudioRuntimeConfig,
+	configFile,
 }: {
 	staticHash: string;
 	staticHashPrefix: string;
@@ -611,14 +614,15 @@ export const handleRoutes = ({
 	logLevel: LogLevel;
 	getRenderQueue: () => RenderJob[];
 	getRenderDefaults: () => RenderDefaults;
-	numberOfAudioTags: number;
+	getNumberOfAudioTags: () => number;
 	queueMethods: QueueMethods;
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
-	audioLatencyHint: AudioContextLatencyCategory | null;
-	previewSampleRate: number | null;
+	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	configFile: string | null;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -690,6 +694,7 @@ export const handleRoutes = ({
 				methods,
 				binariesDirectory,
 				publicDir,
+				configFile,
 			});
 		}
 	}
@@ -760,11 +765,11 @@ export const handleRoutes = ({
 		publicDir,
 		getRenderQueue,
 		getRenderDefaults,
-		numberOfAudioTags,
+		getNumberOfAudioTags,
 		gitSource,
 		logLevel,
-		audioLatencyHint,
-		previewSampleRate,
+		getAudioLatencyHint,
+		getPreviewSampleRate,
 		enableCrossSiteIsolation,
 		getStudioRuntimeConfig,
 	});

@@ -13,7 +13,10 @@ import {NoReactInternals} from 'remotion/no-react';
 import {getInspectorSelectableItems} from '../components/InspectorSequenceSection';
 import type {SelectedOutline} from '../components/selected-outline-geometry';
 import {getSelectedTransformOriginInfo} from '../components/selected-outline-measurement';
-import type {SelectedOutlineTarget} from '../components/selected-outline-types';
+import type {
+	SelectedOutlineTarget,
+	SelectedOutlineTransformOriginDragTarget,
+} from '../components/selected-outline-types';
 import {
 	constrainUv,
 	getSelectedUvHandles,
@@ -44,6 +47,7 @@ import {
 	getSelectedOutlineScaleDragChanges,
 	getSelectedOutlineScaleDragValues,
 	getSelectedOutlineScaleEdgeInfo,
+	getSelectedOutlineTransformOriginDragChanges,
 	getSelectedOutlineTransformOriginLockedAxis,
 	getSelectedSequenceKeys,
 	getSequencesWithSelectableOutlines,
@@ -88,6 +92,7 @@ import {
 } from '../components/Timeline/TimelineClipboardKeybindings';
 import {getSelectedKeyframeControlNodePathInfos} from '../components/Timeline/TimelineKeyframeControls';
 import {
+	extendTimelineMarqueeSelection,
 	getAvailableTimelineSelectionState,
 	getClampedTimelineMarqueePoint,
 	getSelectableTimelineItems,
@@ -108,13 +113,17 @@ import {
 	getTimelineSequenceDurationDragTargets,
 	getTimelineSequenceDurationDragValue,
 	getTimelineSequenceFromDragChanges,
+	getTimelineSequenceFromDragDelta,
 	getTimelineSequenceFromDragKeyframeMoves,
 	getTimelineSequenceFromDragTargets,
 	getTimelineSequenceFromDragValue,
 	getTimelineSequenceLeftEdgeDragChanges,
 	getTimelineSequenceLeftEdgeDragTargets,
 	getTimelineSequenceLeftEdgeDragValues,
+	isCascadingSequence,
 	isTimelineSequenceDurationDraggable,
+	isTimelineSequenceLeftEdgeDraggable,
+	timelineSequenceFromDragSnapThresholdPx,
 } from '../components/Timeline/TimelineSequenceRightEdgeDragHandle';
 import {
 	parsedTransformOriginToUv,
@@ -201,7 +210,13 @@ const makeTimelineSequence = ({
 	refForOutline = null,
 	duration = 100,
 	from = 0,
+	premountDisplay = null,
+	postmountDisplay = null,
+	componentIdentity = null,
+	currentRuntimeValueDotNotation = {},
+	isInsideSeries = false,
 	startMediaFrom = 0,
+	trimBefore = null,
 	type = 'sequence',
 	showInTimeline = true,
 	singleChildComponent,
@@ -214,7 +229,13 @@ const makeTimelineSequence = ({
 	readonly refForOutline?: RefObject<HTMLElement | null> | null;
 	readonly duration?: number;
 	readonly from?: number;
+	readonly premountDisplay?: number | null;
+	readonly postmountDisplay?: number | null;
+	readonly componentIdentity?: string | null;
+	readonly currentRuntimeValueDotNotation?: Record<string, unknown>;
+	readonly isInsideSeries?: boolean;
 	readonly startMediaFrom?: number;
+	readonly trimBefore?: number | null;
 	readonly type?: TSequence['type'];
 	readonly showInTimeline?: boolean;
 	readonly singleChildComponent?: unknown;
@@ -222,7 +243,7 @@ const makeTimelineSequence = ({
 	({
 		type,
 		from,
-		trimBefore: null,
+		trimBefore,
 		duration,
 		id,
 		displayName: id,
@@ -234,18 +255,18 @@ const makeTimelineSequence = ({
 		nonce: [[0, 0]],
 		loopDisplay: undefined,
 		getStack: () => null,
-		premountDisplay: null,
-		postmountDisplay: null,
+		premountDisplay,
+		postmountDisplay,
 		controls: {
 			schema,
-			currentRuntimeValueDotNotation: {},
+			currentRuntimeValueDotNotation,
 			overrideId,
 			supportsEffects: true,
-			componentIdentity: null,
+			componentIdentity,
 			componentName: '<Sequence>',
 		},
 		refForOutline,
-		isInsideSeries: false,
+		isInsideSeries,
 		effects,
 		frozenFrame: null,
 		startMediaFrom,
@@ -548,6 +569,68 @@ test('timeline marquee clears its item kind when no target is selected', () => {
 	expect(result.selectedItems).toEqual([]);
 });
 
+test('timeline marquee can extend a keyframe selection', () => {
+	const nodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'style.opacity'],
+	);
+	const selectedKeyframe = {
+		type: 'keyframe' as const,
+		nodePathInfo,
+		frame: 10,
+	};
+	const newlySelectedKeyframe = {
+		type: 'keyframe' as const,
+		nodePathInfo,
+		frame: 20,
+	};
+
+	expect(
+		extendTimelineMarqueeSelection({
+			currentSelection: [selectedKeyframe],
+			marqueeSelection: [newlySelectedKeyframe],
+		}),
+	).toEqual([selectedKeyframe, newlySelectedKeyframe]);
+});
+
+test('extending a timeline marquee preserves the selection until it intersects an item', () => {
+	const nodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'style.opacity'],
+	);
+	const selectedKeyframe = {
+		type: 'keyframe' as const,
+		nodePathInfo,
+		frame: 10,
+	};
+
+	expect(
+		extendTimelineMarqueeSelection({
+			currentSelection: [selectedKeyframe],
+			marqueeSelection: [],
+		}),
+	).toEqual([selectedKeyframe]);
+});
+
+test('extending a timeline marquee removes duplicate selections', () => {
+	const nodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'style.opacity'],
+	);
+	const selectedKeyframe = {
+		type: 'keyframe' as const,
+		nodePathInfo,
+		frame: 10,
+	};
+
+	expect(
+		extendTimelineMarqueeSelection({
+			currentSelection: [selectedKeyframe],
+			marqueeSelection: [selectedKeyframe],
+		}),
+	).toEqual([selectedKeyframe]);
+});
+
 test('keyframe diamond target resolution uses all selected prop rows when clicked row is selected', () => {
 	const opacity = makeNodePathInfo(['body', 0], ['controls', 'style.opacity']);
 	const rotate = makeNodePathInfo(['body', 0], ['controls', 'style.rotate']);
@@ -843,11 +926,63 @@ test('copying selected keyframes preserves their frame deltas', () => {
 		version: 1,
 		remotionClipboard: 'keyframe',
 		fieldType: 'number',
+		field: {type: 'sequence', fieldKey: 'opacity'},
 		keyframes: [
 			{frameOffset: 0, value: 0.4},
 			{frameOffset: 20, value: 0.8},
 		],
 		easing: [{type: 'linear'}],
+	});
+});
+
+test('pasting keyframes onto a sequence targets the copied property', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const schema = {
+		'style.translate': {
+			type: 'translate',
+			default: 'none',
+		},
+	} satisfies InteractivitySchema;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				'style.translate': {status: 'static', codeValue: 'none'},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	expect(
+		getPasteKeyframeTarget({
+			selectedItems: [{type: 'sequence', nodePathInfo}],
+			payload: {
+				type: 'keyframe',
+				version: 1,
+				remotionClipboard: 'keyframe',
+				fieldType: 'translate',
+				field: {type: 'sequence', fieldKey: 'style.translate'},
+				keyframes: [
+					{frameOffset: 0, value: '0px 0px'},
+					{frameOffset: 20, value: '100px 0px'},
+				],
+				easing: [{type: 'linear'}],
+			},
+			timelinePosition: 50,
+			sequences: [makeTimelineSequence({schema})],
+			overrideIdsToNodePaths: {override: nodePath},
+			propStatuses,
+		}),
+	).toMatchObject({
+		type: 'valid',
+		nodePath,
+		fieldKey: 'style.translate',
+		effectIndex: null,
+		keyframes: [
+			{sourceFrame: 50, value: '0px 0px'},
+			{sourceFrame: 70, value: '100px 0px'},
+		],
 	});
 });
 
@@ -932,6 +1067,7 @@ test('pasting keyframes targets one selected property at the playhead', () => {
 				version: 1,
 				remotionClipboard: 'keyframe',
 				fieldType: 'number',
+				field: null,
 				keyframes: [
 					{frameOffset: 0, value: 0.4},
 					{frameOffset: 20, value: 0.8},
@@ -1003,6 +1139,7 @@ test('pasting keyframes replaces the destination range and preserves easing', ()
 				version: 1,
 				remotionClipboard: 'keyframe',
 				fieldType: 'number',
+				field: null,
 				keyframes: [
 					{frameOffset: 0, value: 0.25},
 					{frameOffset: 20, value: 0.75},
@@ -1064,6 +1201,7 @@ test('pasting a keyframe rejects an incompatible property', () => {
 				version: 1,
 				remotionClipboard: 'keyframe',
 				fieldType: 'number',
+				field: null,
 				keyframes: [{frameOffset: 0, value: 0.4}],
 				easing: [],
 			},
@@ -1256,12 +1394,125 @@ test('pasting an effect prop targets a matching selected effect', () => {
 		}),
 	).toEqual({
 		type: 'valid',
-		fileName: '/project/src/Comp.tsx',
-		nodePath,
-		effectIndex: 1,
-		fieldKey: 'intensity',
-		defaultValue: '0',
-		schema: effectSchema,
+		targets: [
+			{
+				fileName: '/project/src/Comp.tsx',
+				nodePath,
+				effectIndex: 1,
+				fieldKey: 'intensity',
+				defaultValue: '0',
+				schema: effectSchema,
+			},
+		],
+	} satisfies PasteEffectPropTarget);
+});
+
+test('pasting an effect prop targets multiple matching selected effects', () => {
+	const firstNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['effects', '0'],
+		true,
+		[['intensity']],
+	);
+	const secondNodePathInfo = makeNodePathInfo(
+		['body', 1],
+		['effects', '0', 'intensity'],
+		true,
+		[['intensity']],
+	);
+	const firstNodePath = firstNodePathInfo.sequenceSubscriptionKey;
+	const secondNodePath = secondNodePathInfo.sequenceSubscriptionKey;
+	const effectSchema = {
+		intensity: {type: 'number', default: 0, hiddenFromList: false},
+	} satisfies InteractivitySchema;
+	const effectStatus = {
+		canUpdate: true,
+		callee: 'halftone',
+		importPath: '@remotion/effects/halftone',
+		effectIndex: 0,
+		props: {
+			intensity: {status: 'static', codeValue: 0},
+		},
+	} as const;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(firstNodePath)]: {
+			canUpdate: true,
+			props: {},
+			effects: [effectStatus],
+		},
+		[Internals.makeSequencePropsSubscriptionKey(secondNodePath)]: {
+			canUpdate: true,
+			props: {},
+			effects: [effectStatus],
+		},
+	} satisfies PropStatuses;
+
+	expect(
+		getPasteEffectPropTarget({
+			selectedItems: [
+				{
+					type: 'sequence-effect',
+					nodePathInfo: firstNodePathInfo,
+					i: 0,
+				},
+				{
+					type: 'sequence-effect-prop',
+					nodePathInfo: secondNodePathInfo,
+					i: 0,
+					key: 'intensity',
+				},
+			],
+			payload: {
+				type: 'effect-prop',
+				version: 1,
+				remotionClipboard: 'effect-prop',
+				effect: {
+					callee: 'halftone',
+					importPath: '@remotion/effects/halftone',
+				},
+				key: 'intensity',
+				param: {type: 'static', value: 10},
+			},
+			propStatuses,
+			sequences: [
+				makeTimelineSequence({
+					schema: {},
+					effects: [{schema: effectSchema}],
+					id: 'first',
+					overrideId: 'first',
+				}),
+				makeTimelineSequence({
+					schema: {},
+					effects: [{schema: effectSchema}],
+					id: 'second',
+					overrideId: 'second',
+				}),
+			],
+			overrideIdsToNodePaths: {
+				first: firstNodePath,
+				second: secondNodePath,
+			},
+		}),
+	).toEqual({
+		type: 'valid',
+		targets: [
+			{
+				fileName: '/project/src/Comp.tsx',
+				nodePath: firstNodePath,
+				effectIndex: 0,
+				fieldKey: 'intensity',
+				defaultValue: '0',
+				schema: effectSchema,
+			},
+			{
+				fileName: '/project/src/Comp.tsx',
+				nodePath: secondNodePath,
+				effectIndex: 0,
+				fieldKey: 'intensity',
+				defaultValue: '0',
+				schema: effectSchema,
+			},
+		],
 	} satisfies PasteEffectPropTarget);
 });
 
@@ -1454,13 +1705,45 @@ test('Timeline duration drag supports interactive video clips', () => {
 		{
 			fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
 			initialDuration: 78,
+			minimumDuration: 1,
 			nodePath: nodePathInfo.sequenceSubscriptionKey,
 			schema: Internals.baseSchema,
 		},
 	]);
 });
 
-test('Timeline duration drag supports interactive Series.Sequence rows', () => {
+test('Timeline duration drag rejects media without an explicit duration', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const audio = makeTimelineSequence({
+		schema: Internals.baseSchema,
+		type: 'audio',
+		duration: 78,
+	});
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+
+	expect(isTimelineSequenceDurationDraggable(audio)).toBe(true);
+	expect(
+		getTimelineSequenceDurationDragTargets({
+			draggedNodePathInfo: nodePathInfo,
+			selectedItems: [{type: 'sequence', nodePathInfo}],
+			sequences: [audio],
+			overrideIdsToNodePaths: {
+				override: nodePath,
+			},
+			propStatuses: {
+				[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+					canUpdate: true,
+					props: {
+						durationInFrames: {status: 'static', codeValue: undefined},
+					},
+					effects: [],
+				},
+			},
+		}),
+	).toBe(null);
+});
+
+test('Timeline duration drag supports interactive cascading sequence rows', () => {
 	const baseSequence = makeTimelineSequence({
 		schema: Internals.baseSchema,
 		duration: 78,
@@ -1475,6 +1758,25 @@ test('Timeline duration drag supports interactive Series.Sequence rows', () => {
 	} satisfies TSequence;
 
 	expect(isTimelineSequenceDurationDraggable(seriesSequence)).toBe(true);
+	expect(isCascadingSequence(seriesSequence)).toBe(true);
+	expect(isTimelineSequenceLeftEdgeDraggable(seriesSequence)).toBe(true);
+
+	const transitionSeriesSequence = {
+		...baseSequence,
+		isInsideSeries: true,
+		controls: {
+			...baseSequence.controls!,
+			componentIdentity: 'dev.remotion.transitions.TransitionSeries.Sequence',
+		},
+	} satisfies TSequence;
+
+	expect(isTimelineSequenceDurationDraggable(transitionSeriesSequence)).toBe(
+		true,
+	);
+	expect(isCascadingSequence(transitionSeriesSequence)).toBe(true);
+	expect(isTimelineSequenceLeftEdgeDraggable(transitionSeriesSequence)).toBe(
+		true,
+	);
 });
 
 test('Timeline duration drag clamps each selected sequence to one frame', () => {
@@ -1490,6 +1792,81 @@ test('Timeline duration drag clamps each selected sequence to one frame', () => 
 			deltaFrames: -10,
 		}),
 	).toBe(10);
+});
+
+test('TransitionSeries.Sequence resize clamps to adjacent transition durations', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const nodePathInfo = makeNodePathInfo(['body', 2], []);
+	const transitionSeriesSequence = (
+		id: string,
+		duration: number,
+		overrideId: string,
+	) =>
+		makeTimelineSequence({
+			schema,
+			id,
+			overrideId,
+			duration,
+			componentIdentity: 'dev.remotion.transitions.TransitionSeries.Sequence',
+			isInsideSeries: true,
+		});
+	const transition = (id: string, duration: number) =>
+		makeTimelineSequence({
+			schema: {},
+			id,
+			duration,
+			componentIdentity: 'dev.remotion.transitions.TransitionSeries.Transition',
+			isInsideSeries: true,
+		});
+	const sequences = [
+		transitionSeriesSequence('first', 30, 'first'),
+		transition('previous-transition', 8),
+		transitionSeriesSequence('target', 40, 'target'),
+		transition('next-transition', 12),
+		transitionSeriesSequence('last', 30, 'last'),
+	];
+	const propStatuses = makeLeftEdgePropStatuses(
+		[nodePathInfo.sequenceSubscriptionKey],
+		true,
+	);
+	const overrideIdsToNodePaths = {
+		target: nodePathInfo.sequenceSubscriptionKey,
+	};
+	const selectedItems = [{type: 'sequence' as const, nodePathInfo}];
+	const durationTargets = getTimelineSequenceDurationDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		selectedItems,
+		sequences,
+		overrideIdsToNodePaths,
+		propStatuses,
+	});
+
+	expect(durationTargets?.[0].minimumDuration).toBe(12);
+	expect(
+		getTimelineSequenceDurationDragChanges({
+			targets: durationTargets ?? [],
+			deltaFrames: -100,
+		})[0].value,
+	).toBe(12);
+
+	const leftEdgeTargets = getTimelineSequenceLeftEdgeDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		selectedItems,
+		sequences,
+		overrideIdsToNodePaths,
+		propStatuses,
+	});
+
+	expect(leftEdgeTargets?.[0].minimumDuration).toBe(12);
+	expect(
+		getTimelineSequenceLeftEdgeDragChanges({
+			targets: leftEdgeTargets ?? [],
+			deltaFrames: 100,
+		}).map((change) => [change.fieldKey, change.value]),
+	).toEqual([
+		['durationInFrames', 12],
+		['trimBefore', 28],
+	]);
 });
 
 test('Timeline duration drag is blocked if one selected sequence cannot update duration', () => {
@@ -1706,6 +2083,105 @@ test('Timeline left edge drag adjusts from, duration and trimBefore for selected
 	]);
 });
 
+test('TransitionSeries.Sequence left edge drag leaves its calculated position unchanged', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const subscriptionKey = nodePathInfo.sequenceSubscriptionKey;
+	const targets = getTimelineSequenceLeftEdgeDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		selectedItems: [{type: 'sequence', nodePathInfo}],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				componentIdentity: 'dev.remotion.transitions.TransitionSeries.Sequence',
+				duration: 40,
+				from: 12,
+				isInsideSeries: true,
+				trimBefore: 3,
+			}),
+		],
+		overrideIdsToNodePaths: {
+			override: subscriptionKey,
+		},
+		propStatuses: {
+			[Internals.makeSequencePropsSubscriptionKey(subscriptionKey)]: {
+				canUpdate: true,
+				props: {
+					durationInFrames: {status: 'static', codeValue: 40},
+					trimBefore: {status: 'static', codeValue: 3},
+				},
+				effects: [],
+			},
+		},
+	});
+
+	expect(targets?.[0]).toMatchObject({
+		initialDuration: 40,
+		initialFrom: 0,
+		initialTrimBefore: 3,
+		positionField: null,
+	});
+	expect(
+		getTimelineSequenceLeftEdgeDragChanges({
+			targets: targets ?? [],
+			deltaFrames: 6,
+		}).map((change) => [change.fieldKey, change.value]),
+	).toEqual([
+		['durationInFrames', 34],
+		['trimBefore', 9],
+	]);
+});
+
+test('Series.Sequence left edge drag leaves its calculated position unchanged', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const subscriptionKey = nodePathInfo.sequenceSubscriptionKey;
+	const targets = getTimelineSequenceLeftEdgeDragTargets({
+		draggedNodePathInfo: nodePathInfo,
+		selectedItems: [{type: 'sequence', nodePathInfo}],
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				componentIdentity: 'dev.remotion.remotion.Series.Sequence',
+				duration: 40,
+				from: 12,
+				isInsideSeries: true,
+				trimBefore: 3,
+			}),
+		],
+		overrideIdsToNodePaths: {
+			override: subscriptionKey,
+		},
+		propStatuses: {
+			[Internals.makeSequencePropsSubscriptionKey(subscriptionKey)]: {
+				canUpdate: true,
+				props: {
+					durationInFrames: {status: 'static', codeValue: 40},
+					trimBefore: {status: 'static', codeValue: 3},
+				},
+				effects: [],
+			},
+		},
+	});
+
+	expect(targets?.[0]).toMatchObject({
+		initialDuration: 40,
+		initialFrom: 0,
+		initialTrimBefore: 3,
+		minimumDuration: 1,
+		positionField: null,
+	});
+	expect(
+		getTimelineSequenceLeftEdgeDragChanges({
+			targets: targets ?? [],
+			deltaFrames: 6,
+		}).map((change) => [change.fieldKey, change.value]),
+	).toEqual([
+		['durationInFrames', 34],
+		['trimBefore', 9],
+	]);
+});
+
 test('Timeline left edge drag clamps trimBefore to the visible range', () => {
 	expect(
 		getTimelineSequenceLeftEdgeDragValues({
@@ -1713,6 +2189,7 @@ test('Timeline left edge drag clamps trimBefore to the visible range', () => {
 			initialFrom: 20,
 			initialTrimBefore: 2,
 			deltaFrames: 10,
+			playbackRate: 1,
 		}),
 	).toEqual({
 		durationInFrames: 1,
@@ -1725,10 +2202,71 @@ test('Timeline left edge drag clamps trimBefore to the visible range', () => {
 			initialFrom: 20,
 			initialTrimBefore: 2,
 			deltaFrames: -10,
+			playbackRate: 1,
 		}),
 	).toEqual({
 		durationInFrames: 6,
 		from: 18,
+		trimBefore: 0,
+	});
+});
+
+test('Timeline left edge drag scales media trimBefore by the runtime playbackRate', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const cases = [
+		{componentIdentity: 'dev.remotion.media.Video', type: 'video'},
+		{componentIdentity: 'dev.remotion.media.Audio', type: 'audio'},
+		{componentIdentity: 'dev.remotion.gif.Gif', type: 'sequence'},
+		{
+			componentIdentity: 'dev.remotion.remotion.AnimatedImage',
+			type: 'sequence',
+		},
+	] as const;
+
+	for (const [index, testCase] of cases.entries()) {
+		const nodePathInfo = makeNodePathInfo(['body', index], []);
+		const targets = getTimelineSequenceLeftEdgeDragTargets({
+			draggedNodePathInfo: nodePathInfo,
+			selectedItems: [{type: 'sequence', nodePathInfo}],
+			sequences: [
+				makeTimelineSequence({
+					schema,
+					componentIdentity: testCase.componentIdentity,
+					currentRuntimeValueDotNotation: {playbackRate: 2},
+					type: testCase.type,
+				}),
+			],
+			overrideIdsToNodePaths: {
+				override: nodePathInfo.sequenceSubscriptionKey,
+			},
+			propStatuses: makeLeftEdgePropStatuses(
+				[nodePathInfo.sequenceSubscriptionKey],
+				true,
+			),
+		});
+
+		expect(targets?.[0].playbackRate).toBe(2);
+		expect(
+			getTimelineSequenceLeftEdgeDragChanges({
+				targets: targets ?? [],
+				deltaFrames: 6,
+			}).find((change) => change.fieldKey === 'trimBefore')?.value,
+		).toBe(12);
+	}
+});
+
+test('Timeline left edge drag clamps scaled trimBefore at zero', () => {
+	expect(
+		getTimelineSequenceLeftEdgeDragValues({
+			initialDuration: 10,
+			initialFrom: 20,
+			initialTrimBefore: 8,
+			deltaFrames: -10,
+			playbackRate: 2,
+		}),
+	).toEqual({
+		durationInFrames: 14,
+		from: 16,
 		trimBefore: 0,
 	});
 });
@@ -2015,6 +2553,66 @@ test('Timeline from drag supports negative offsets', () => {
 	).toBe(-6);
 });
 
+test('Timeline from drag snaps a root sequence to frame 0', () => {
+	const nodePath = makeNodePathInfo(['body', 0], []).sequenceSubscriptionKey;
+	const target = {
+		canSnapToTimelineStart: true,
+		effectKeyframes: [],
+		fileName: nodePath.absolutePath,
+		initialFrom: 8,
+		nodePath,
+		sequenceKeyframes: [],
+	};
+	const pxPerFrame = timelineSequenceFromDragSnapThresholdPx / 2;
+
+	expect(
+		getTimelineSequenceFromDragDelta({
+			deltaFrames: -6,
+			pxPerFrame,
+			snappingEnabled: true,
+			targets: [target],
+		}),
+	).toBe(-8);
+	expect(
+		getTimelineSequenceFromDragDelta({
+			deltaFrames: -6,
+			pxPerFrame,
+			snappingEnabled: false,
+			targets: [target],
+		}),
+	).toBe(-6);
+	expect(
+		getTimelineSequenceFromDragDelta({
+			deltaFrames: -5,
+			pxPerFrame,
+			snappingEnabled: true,
+			targets: [target],
+		}),
+	).toBe(-5);
+});
+
+test('Timeline from drag does not snap nested sequences to the timeline start', () => {
+	const nodePath = makeNodePathInfo(['body', 0], []).sequenceSubscriptionKey;
+
+	expect(
+		getTimelineSequenceFromDragDelta({
+			deltaFrames: -6,
+			pxPerFrame: timelineSequenceFromDragSnapThresholdPx / 2,
+			snappingEnabled: true,
+			targets: [
+				{
+					canSnapToTimelineStart: false,
+					effectKeyframes: [],
+					fileName: nodePath.absolutePath,
+					initialFrom: 8,
+					nodePath,
+					sequenceKeyframes: [],
+				},
+			],
+		}),
+	).toBe(-6);
+});
+
 test('Timeline from drag saves relative from for nested sequences', () => {
 	const schema = {} satisfies InteractivitySchema;
 	const childNodePathInfo = makeNodePathInfo(['body', 1], []);
@@ -2109,6 +2707,7 @@ test('Timeline from drag removes the prop at the default value', () => {
 	const [change] = getTimelineSequenceFromDragChanges({
 		targets: [
 			{
+				canSnapToTimelineStart: true,
 				effectKeyframes: [],
 				fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
 				initialFrom: 5,
@@ -2270,6 +2869,7 @@ test('Canvas outline hit targets render nested sequences above parents', () => {
 	const parentNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const childNodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
 	const outlines = getSequencesWithSelectableOutlines({
+		timelinePosition: 0,
 		sequences: [
 			makeTimelineSequence({
 				schema,
@@ -2312,6 +2912,7 @@ test('Canvas outlines exclude descendants of connected compositions', () => {
 		componentFromProps: ConnectedChild,
 	} as unknown as _InternalTypes['AnyComposition'];
 	const outlines = getSequencesWithSelectableOutlines({
+		timelinePosition: 0,
 		compositions: [connectedComposition],
 		sequences: [
 			makeTimelineSequence({
@@ -2837,6 +3438,7 @@ test('Canvas outline hit targets exclude sequences hidden from the timeline', ()
 	const visibleNodePathInfo = makeNodePathInfo(['body', 1], []);
 	const childNodePathInfo = makeNodePathInfo(['body', 0, 'children', 0], []);
 	const outlines = getSequencesWithSelectableOutlines({
+		timelinePosition: 0,
 		sequences: [
 			makeTimelineSequence({
 				schema,
@@ -2872,6 +3474,54 @@ test('Canvas outline hit targets exclude sequences hidden from the timeline', ()
 			getTimelineSequenceSelectionKey(childNodePathInfo),
 		].sort(),
 	);
+});
+
+test('Canvas outline hit targets exclude premounted and postmounted sequences', () => {
+	const schema = {} satisfies InteractivitySchema;
+	const refForOutline = {current: null};
+	const premountedNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const activeNodePathInfo = makeNodePathInfo(['body', 1], []);
+	const postmountedNodePathInfo = makeNodePathInfo(['body', 2], []);
+	const outlines = getSequencesWithSelectableOutlines({
+		timelinePosition: 10,
+		sequences: [
+			makeTimelineSequence({
+				schema,
+				id: 'premounted',
+				overrideId: 'premounted',
+				from: 20,
+				duration: 10,
+				premountDisplay: 10,
+				refForOutline,
+			}),
+			makeTimelineSequence({
+				schema,
+				id: 'active',
+				overrideId: 'active',
+				from: 10,
+				duration: 10,
+				refForOutline,
+			}),
+			makeTimelineSequence({
+				schema,
+				id: 'postmounted',
+				overrideId: 'postmounted',
+				from: 0,
+				duration: 10,
+				postmountDisplay: 10,
+				refForOutline,
+			}),
+		],
+		overrideIdsToNodePaths: {
+			premounted: premountedNodePathInfo.sequenceSubscriptionKey,
+			active: activeNodePathInfo.sequenceSubscriptionKey,
+			postmounted: postmountedNodePathInfo.sequenceSubscriptionKey,
+		},
+	});
+
+	expect(outlines.map((outline) => outline.key)).toEqual([
+		getTimelineSequenceSelectionKey(activeNodePathInfo),
+	]);
 });
 
 test('UV handles project semantic outline corners', () => {
@@ -2955,6 +3605,143 @@ test('Transform origin compensation keeps rotated and scaled elements in place',
 
 	expect(next[0]).toBeCloseTo(-5, 5);
 	expect(next[1]).toBeCloseTo(45, 5);
+});
+
+const makeTransformOriginDragTarget = ({
+	originKeyframed,
+	translateKeyframed,
+}: {
+	readonly originKeyframed: boolean;
+	readonly translateKeyframed: boolean;
+}): SelectedOutlineTransformOriginDragTarget => ({
+	clientId: 'client-id',
+	keyframeDisplayOffset: 0,
+	nodePath: makeKey(['program', 'body', 0]),
+	originDefault: '50% 50%',
+	originPropStatus: originKeyframed
+		? {
+				status: 'keyframed',
+				interpolationFunction: 'interpolate',
+				keyframes: [
+					{frame: 0, value: '50% 50%'},
+					{frame: 20, value: '50% 50%'},
+				],
+				easing: [{type: 'linear'}],
+				clamping: {left: 'extend', right: 'extend'},
+				posterize: undefined,
+				output: undefined,
+			}
+		: {status: 'static', codeValue: '50% 50%'},
+	originValue: '50% 50%',
+	rotateValue: '0deg',
+	scaleValue: 1,
+	schema: NoReactInternals.sequenceSchema,
+	sourceFrame: 10,
+	translateDefault: '0px 0px',
+	translatePropStatus: translateKeyframed
+		? {
+				status: 'keyframed',
+				interpolationFunction: 'interpolate',
+				keyframes: [
+					{frame: 0, value: '0px 0px'},
+					{frame: 20, value: '20px 40px'},
+				],
+				easing: [{type: 'linear'}],
+				clamping: {left: 'extend', right: 'extend'},
+				posterize: undefined,
+				output: undefined,
+			}
+		: {status: 'static', codeValue: '10px 20px'},
+	translateValue: '10px 20px',
+});
+
+test('Transform origin drag keeps static properties static', () => {
+	const changes = getSelectedOutlineTransformOriginDragChanges({
+		target: makeTransformOriginDragTarget({
+			originKeyframed: false,
+			translateKeyframed: false,
+		}),
+		startTranslate: [10, 20],
+		origin: '25% 75%',
+		translate: '13px 24px',
+	});
+
+	expect(changes.staticChanges.map((change) => change.fieldKey)).toEqual([
+		'style.transformOrigin',
+		'style.translate',
+	]);
+	expect(changes.keyframedChanges).toEqual([]);
+});
+
+test('Transform origin drag offsets all animated translate keyframes', () => {
+	const changes = getSelectedOutlineTransformOriginDragChanges({
+		target: makeTransformOriginDragTarget({
+			originKeyframed: false,
+			translateKeyframed: true,
+		}),
+		startTranslate: [10, 20],
+		origin: '25% 75%',
+		translate: '13px 24px',
+	});
+
+	expect(changes.staticChanges.map((change) => change.fieldKey)).toEqual([
+		'style.transformOrigin',
+	]);
+	expect(
+		changes.keyframedChanges.map(({fieldKey, sourceFrame, value}) => ({
+			fieldKey,
+			sourceFrame,
+			value,
+		})),
+	).toEqual([
+		{fieldKey: 'style.translate', sourceFrame: 0, value: '3px 4px'},
+		{fieldKey: 'style.translate', sourceFrame: 20, value: '23px 44px'},
+	]);
+});
+
+test('Transform origin drag does not keyframe a static translate', () => {
+	const changes = getSelectedOutlineTransformOriginDragChanges({
+		target: makeTransformOriginDragTarget({
+			originKeyframed: true,
+			translateKeyframed: false,
+		}),
+		startTranslate: [10, 20],
+		origin: '25% 75%',
+		translate: '13px 24px',
+	});
+
+	expect(changes.staticChanges.map((change) => change.fieldKey)).toEqual([
+		'style.translate',
+	]);
+	expect(
+		changes.keyframedChanges.map(({fieldKey, sourceFrame}) => ({
+			fieldKey,
+			sourceFrame,
+		})),
+	).toEqual([{fieldKey: 'style.transformOrigin', sourceFrame: 10}]);
+});
+
+test('Transform origin drag updates both animated properties locally', () => {
+	const changes = getSelectedOutlineTransformOriginDragChanges({
+		target: makeTransformOriginDragTarget({
+			originKeyframed: true,
+			translateKeyframed: true,
+		}),
+		startTranslate: [10, 20],
+		origin: '25% 75%',
+		translate: '13px 24px',
+	});
+
+	expect(changes.staticChanges).toEqual([]);
+	expect(
+		changes.keyframedChanges.map(({fieldKey, sourceFrame}) => ({
+			fieldKey,
+			sourceFrame,
+		})),
+	).toEqual([
+		{fieldKey: 'style.transformOrigin', sourceFrame: 10},
+		{fieldKey: 'style.translate', sourceFrame: 10},
+	]);
 });
 
 test('Transform origin drag snaps to center, edge midpoints and corners', () => {
@@ -4142,6 +4929,51 @@ test('Backspace reset targets multiple selected sequence props', () => {
 		'style.rotate',
 	]);
 	expect(resetTargets?.map((target) => target.value)).toEqual([1, '0deg']);
+});
+
+test('Backspace reset targets stroke with the SVG default', () => {
+	const schema = {
+		stroke: {type: 'color', default: 'none'},
+	} satisfies InteractivitySchema;
+	const strokeNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'stroke'],
+	);
+	const nodePath = strokeNodePathInfo.sequenceSubscriptionKey;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				stroke: {status: 'static', codeValue: '#ff0000'},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	const resetTargets = getTimelinePropResetTargets({
+		selections: [
+			{
+				type: 'sequence-prop',
+				nodePathInfo: strokeNodePathInfo,
+				key: 'stroke',
+			},
+		],
+		sequences: [makeTimelineSequence({schema})],
+		overrideIdsToNodePaths: {override: nodePath},
+		propStatuses,
+	});
+
+	expect(resetTargets).toEqual([
+		{
+			type: 'sequence-prop',
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			fieldKey: 'stroke',
+			value: 'none',
+			defaultValue: '"none"',
+			schema,
+		},
+	]);
 });
 
 test('Backspace reset targets selected keyframed sequence props', () => {

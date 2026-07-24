@@ -72,7 +72,13 @@ export const ElementAssetComposition: React.FC<{
 	const definition = getElementDefinition(slug);
 
 	return (
-		<AbsoluteFill style={{backgroundColor: ELEMENT_PREVIEW_BACKGROUND}}>
+		<AbsoluteFill
+			style={{
+				backgroundColor: definition.transparentPreview
+					? 'transparent'
+					: ELEMENT_PREVIEW_BACKGROUND,
+			}}
+		>
 			<ElementPreviewComposition definition={definition} />
 		</AbsoluteFill>
 	);

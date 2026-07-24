@@ -24,7 +24,8 @@ import {
 	type EasingSelection,
 } from '../Timeline/update-selected-easing';
 import {
-	InspectorBackHeader,
+	InspectorActionSection,
+	InspectorBackAction,
 	InspectorInlineAction,
 	InspectorMessage,
 	InspectorSectionDivider,
@@ -33,11 +34,7 @@ import {getEasingSelectionFromCurrentKeyframes} from './easing-inspector-selecti
 import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
 import {KeyframeSettings} from './KeyframeSettings';
 import {SequenceInspectorSections} from './SequenceInspectorHeader';
-import {
-	detailsWithInlineAction,
-	sectionHeaderTitle,
-	selectedContainer,
-} from './styles';
+import {selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
 
 type EasingInspectorDetails = {
@@ -48,8 +45,8 @@ type EasingInspectorDetails = {
 
 const addKeyframeIcon: React.CSSProperties = {
 	display: 'block',
-	height: 13,
-	width: 12,
+	height: 18,
+	width: 18,
 };
 
 export const EasingInspector: React.FC<{
@@ -281,13 +278,13 @@ export const EasingInspector: React.FC<{
 	const renderHeader = useCallback(
 		() => (
 			<>
-				<InspectorBackHeader
+				<InspectorBackAction
 					disabled={parentSelection === null}
 					onClick={onSelectParent}
 					title="Back to property"
 				>
-					<div style={sectionHeaderTitle}>{fieldLabel}</div>
-				</InspectorBackHeader>
+					{fieldLabel}
+				</InspectorBackAction>
 				<InspectorSectionDivider />
 				{easingUpdate === null || track === null ? null : (
 					<KeyframeEasingNavigator
@@ -334,20 +331,17 @@ export const EasingInspector: React.FC<{
 			<InspectorSectionDivider />
 			<KeyframeSettings update={easingUpdate} />
 			{canAddKeyframeAtPlayhead ? (
-				<>
-					<InspectorSectionDivider />
-					<div style={detailsWithInlineAction}>
-						<InspectorInlineAction
-							disabled={addKeyframeDisabled}
-							onClick={onAddKeyframeAtPlayhead}
-							renderIcon={(color) => (
-								<Plus color={color} style={addKeyframeIcon} />
-							)}
-						>
-							{`Add keyframe at ${addKeyframeTime}`}
-						</InspectorInlineAction>
-					</div>
-				</>
+				<InspectorActionSection>
+					<InspectorInlineAction
+						disabled={addKeyframeDisabled}
+						onClick={onAddKeyframeAtPlayhead}
+						renderIcon={(color) => (
+							<Plus color={color} style={addKeyframeIcon} />
+						)}
+					>
+						{`Add keyframe at ${addKeyframeTime}`}
+					</InspectorInlineAction>
+				</InspectorActionSection>
 			) : null}
 		</div>
 	);

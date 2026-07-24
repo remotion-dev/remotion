@@ -25,6 +25,9 @@ import {
 	type TSequence,
 } from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {hasClipboardFigmaPayload} from '../../helpers/clipboard-figma';
+import {hasClipboardImage} from '../../helpers/clipboard-images';
+import {hasClipboardSvgMarkup} from '../../helpers/clipboard-svg';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	areKeyboardShortcutsDisabled,
@@ -53,7 +56,7 @@ import {
 	getKeyframeClipboardDataFromSelections,
 	getPasteKeyframeTarget,
 } from './keyframe-clipboard';
-import {saveEffectProp} from './save-effect-prop';
+import {saveMultipleEffectProps} from './save-effect-prop';
 import {
 	useCurrentTimelineSelectionStateAsRef,
 	useTimelineSelection,
@@ -97,20 +100,23 @@ export type PasteEffectsTarget =
 			readonly type: 'unsupported';
 	  };
 
+type PasteEffectPropEditTarget = {
+	readonly fileName: string;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly effectIndex: number;
+	readonly fieldKey: string;
+	readonly defaultValue: string | null;
+	readonly schema: InteractivitySchema;
+};
+
 export type PasteEffectPropTarget =
 	| {
 			readonly type: 'valid';
-			readonly fileName: string;
-			readonly nodePath: SequencePropsSubscriptionKey;
-			readonly effectIndex: number;
-			readonly fieldKey: string;
-			readonly defaultValue: string | null;
-			readonly schema: InteractivitySchema;
+			readonly targets: PasteEffectPropEditTarget[];
 	  }
 	| {
 			readonly type:
 				| 'none'
-				| 'multiple'
 				| 'unsupported'
 				| 'effect-type-mismatch'
 				| 'prop-mismatch'
@@ -528,32 +534,21 @@ export const getEasingClipboardDataFromSelection = ({
 	};
 };
 
-export const getPasteEffectPropTarget = ({
-	selectedItems,
+const getPasteEffectPropTargetForSelection = ({
+	selection,
 	payload,
 	propStatuses,
 	sequences,
 	overrideIdsToNodePaths,
 }: {
-	readonly selectedItems: readonly TimelineSelection[];
+	readonly selection: TimelineSelection;
 	readonly payload: EffectPropClipboardData;
 	readonly propStatuses: PropStatuses;
 	readonly sequences: TSequence[];
 	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
-}): PasteEffectPropTarget => {
-	if (selectedItems.length === 0) {
-		return {type: 'none'};
-	}
-
-	if (selectedItems.length !== 1) {
-		return {type: 'multiple'};
-	}
-
-	const [selection] = selectedItems;
-	if (!selection) {
-		return {type: 'none'};
-	}
-
+}):
+	| {type: 'valid'; target: PasteEffectPropEditTarget}
+	| Exclude<PasteEffectPropTarget, {type: 'valid'}> => {
 	if (
 		selection.type !== 'sequence-effect-prop' &&
 		selection.type !== 'sequence-effect'
@@ -627,12 +622,60 @@ export const getPasteEffectPropTarget = ({
 
 	return {
 		type: 'valid',
-		fileName: selection.nodePathInfo.sequenceSubscriptionKey.absolutePath,
-		nodePath: selection.nodePathInfo.sequenceSubscriptionKey,
-		effectIndex: target.effectIndex,
-		fieldKey: target.fieldKey,
-		defaultValue: getDefaultValue(fieldSchema),
-		schema: effect.schema,
+		target: {
+			fileName: selection.nodePathInfo.sequenceSubscriptionKey.absolutePath,
+			nodePath: selection.nodePathInfo.sequenceSubscriptionKey,
+			effectIndex: target.effectIndex,
+			fieldKey: target.fieldKey,
+			defaultValue: getDefaultValue(fieldSchema),
+			schema: effect.schema,
+		},
+	};
+};
+
+export const getPasteEffectPropTarget = ({
+	selectedItems,
+	payload,
+	propStatuses,
+	sequences,
+	overrideIdsToNodePaths,
+}: {
+	readonly selectedItems: readonly TimelineSelection[];
+	readonly payload: EffectPropClipboardData;
+	readonly propStatuses: PropStatuses;
+	readonly sequences: TSequence[];
+	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+}): PasteEffectPropTarget => {
+	if (selectedItems.length === 0) {
+		return {type: 'none'};
+	}
+
+	const targets: PasteEffectPropEditTarget[] = [];
+	for (const selection of selectedItems) {
+		const result = getPasteEffectPropTargetForSelection({
+			selection,
+			payload,
+			propStatuses,
+			sequences,
+			overrideIdsToNodePaths,
+		});
+		if (result.type !== 'valid') {
+			return result;
+		}
+
+		targets.push(result.target);
+	}
+
+	return {
+		type: 'valid',
+		targets: [
+			...new Map(
+				targets.map((target) => [
+					`${makeTargetKey(target.nodePath)}:${target.effectIndex}:${target.fieldKey}`,
+					target,
+				]),
+			).values(),
+		],
 	};
 };
 
@@ -932,7 +975,13 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 			}
 
 			const {selectedItems} = currentSelection.current;
-			if (selectedItems.length === 0 || e.clipboardData === null) {
+			if (
+				selectedItems.length === 0 ||
+				e.clipboardData === null ||
+				hasClipboardFigmaPayload(e.clipboardData) ||
+				hasClipboardImage(e.clipboardData) ||
+				hasClipboardSvgMarkup(e.clipboardData)
+			) {
 				return;
 			}
 
@@ -1111,21 +1160,12 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 							return;
 						}
 
-						return updatePromise
-							.then(() => {
-								showNotification(
-									easingSelections.length === 1
-										? 'Pasted easing'
-										: 'Pasted easing to selected segments',
-									2000,
-								);
-							})
-							.catch((err) => {
-								showNotification(
-									`Could not paste easing: ${(err as Error).message}`,
-									3000,
-								);
-							});
+						return updatePromise.catch((err) => {
+							showNotification(
+								`Could not paste easing: ${(err as Error).message}`,
+								3000,
+							);
+						});
 					}
 
 					const effectPropResult = parseEffectPropClipboardDataResult(text);
@@ -1149,15 +1189,9 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 
 						if (effectPropTarget.type !== 'valid') {
 							switch (effectPropTarget.type) {
-								case 'multiple':
-									showNotification(
-										'Select one target effect prop or effect to paste onto',
-										3000,
-									);
-									return;
 								case 'none':
 									showNotification(
-										'Select a matching effect prop or effect to paste onto',
+										'Select matching effect props or effects to paste onto',
 										3000,
 									);
 									return;
@@ -1192,26 +1226,41 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 							}
 						}
 
-						return saveEffectProp({
-							fileName: effectPropTarget.fileName,
-							nodePath: effectPropTarget.nodePath,
-							effectIndex: effectPropTarget.effectIndex,
-							fieldKey: effectPropTarget.fieldKey,
-							...(effectPropResult.data.param.type === 'static'
-								? {
-										type: 'value' as const,
-										value: effectPropResult.data.param.value,
-									}
-								: {
-										type: 'effect-param' as const,
-										effectParam: effectPropResult.data.param,
-									}),
-							defaultValue: effectPropTarget.defaultValue,
-							schema: effectPropTarget.schema,
+						return saveMultipleEffectProps({
+							changes: effectPropTarget.targets.map((pasteTarget) => ({
+								fileName: pasteTarget.fileName,
+								nodePath: pasteTarget.nodePath,
+								effectIndex: pasteTarget.effectIndex,
+								fieldKey: pasteTarget.fieldKey,
+								...(effectPropResult.data.param.type === 'static'
+									? {
+											type: 'value' as const,
+											value: effectPropResult.data.param.value,
+										}
+									: {
+											type: 'effect-param' as const,
+											effectParam: effectPropResult.data.param,
+										}),
+								defaultValue: pasteTarget.defaultValue,
+								schema: pasteTarget.schema,
+							})),
 							setPropStatuses,
 							clientId,
+							undoLabel:
+								effectPropTarget.targets.length > 1
+									? 'Paste effect prop onto selected effects'
+									: 'Paste effect prop',
+							redoLabel:
+								effectPropTarget.targets.length > 1
+									? 'Reapply effect prop paste onto selected effects'
+									: 'Reapply effect prop paste',
 						}).then(() => {
-							showNotification('Pasted effect prop', 2000);
+							showNotification(
+								effectPropTarget.targets.length > 1
+									? 'Pasted effect prop onto selected effects'
+									: 'Pasted effect prop',
+								2000,
+							);
 						});
 					}
 

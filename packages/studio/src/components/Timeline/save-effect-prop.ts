@@ -1,6 +1,7 @@
 import {
 	optimisticUpdateForEffectPropStatuses,
 	type EffectClipboardParam,
+	type SaveMultipleEffectPropsEdit,
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {callApi} from '../call-api';
@@ -30,6 +31,87 @@ type SaveEffectPropEffectParam = SaveEffectPropBase & {
 };
 
 type SaveEffectPropInput = SaveEffectPropValue | SaveEffectPropEffectParam;
+
+type WithoutSaveContext<T> = T extends unknown
+	? Omit<T, 'setPropStatuses' | 'clientId'>
+	: never;
+
+type SaveMultipleEffectPropChange = WithoutSaveContext<SaveEffectPropInput>;
+
+type SaveMultipleEffectPropsOptions = {
+	changes: SaveMultipleEffectPropChange[];
+	setPropStatuses: SetPropStatuses;
+	clientId: string;
+	undoLabel: string;
+	redoLabel: string;
+};
+
+export const saveMultipleEffectProps = ({
+	changes,
+	setPropStatuses,
+	clientId,
+	undoLabel,
+	redoLabel,
+}: SaveMultipleEffectPropsOptions): Promise<void> => {
+	if (changes.length === 0) {
+		return Promise.resolve();
+	}
+
+	for (const change of changes) {
+		if (change.type === 'effect-param') {
+			continue;
+		}
+
+		setPropStatuses(change.nodePath, (prev) =>
+			optimisticUpdateForEffectPropStatuses({
+				previous: prev,
+				effectIndex: change.effectIndex,
+				fieldKey: change.fieldKey,
+				value: change.value,
+				schema: change.schema,
+			}),
+		);
+	}
+
+	return callApi('/api/save-multiple-effect-props', {
+		edits: changes.map(
+			(change): SaveMultipleEffectPropsEdit =>
+				change.type === 'effect-param'
+					? {
+							type: 'effect-param',
+							fileName: change.fileName,
+							sequenceNodePath: change.nodePath,
+							effectIndex: change.effectIndex,
+							key: change.fieldKey,
+							effectParam: change.effectParam,
+							defaultValue: change.defaultValue,
+							schema: change.schema,
+						}
+					: {
+							type: 'value',
+							fileName: change.fileName,
+							sequenceNodePath: change.nodePath,
+							effectIndex: change.effectIndex,
+							key: change.fieldKey,
+							value: JSON.stringify(change.value),
+							defaultValue: change.defaultValue,
+							schema: change.schema,
+						},
+		),
+		clientId,
+		undoLabel,
+		redoLabel,
+	}).then((response) => {
+		for (const result of response.results) {
+			setPropStatuses(result.sequenceNodePath, (prev) =>
+				applyEffectResponseToPropStatuses({
+					previous: prev,
+					response: result.status,
+				}),
+			);
+		}
+	});
+};
 
 export const saveEffectProp = (input: SaveEffectPropInput): Promise<void> => {
 	const {

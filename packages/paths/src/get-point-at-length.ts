@@ -7,6 +7,10 @@ import {construct} from './helpers/construct';
  */
 export const getPointAtLength = (path: string, length: number) => {
 	const constructed = construct(path);
+	if (length > constructed.totalLength) {
+		return null;
+	}
+
 	const fractionPart = getInstructionIndexAtLengthFromConstructed(
 		constructed,
 		length,

@@ -3204,6 +3204,15 @@ export const articles = [
 		slug: 'lambda/deploysite',
 	},
 	{
+		id: 'deploysitefrombundle',
+		title: 'deploySiteFromBundle()',
+		relativePath: 'docs/lambda/deploysitefrombundle.mdx',
+		compId: 'articles-docs-lambda-deploysitefrombundle',
+		crumb: 'Lambda API',
+		noAi: false,
+		slug: 'lambda/deploysitefrombundle',
+	},
+	{
 		id: 'disk-size',
 		title: 'Disk size',
 		relativePath: 'docs/lambda/disk-size.mdx',
@@ -3256,6 +3265,15 @@ export const articles = [
 		crumb: 'Lambda',
 		noAi: false,
 		slug: 'lambda/faq',
+	},
+	{
+		id: 'lambda/faster-progress-polling',
+		title: 'Faster progress polling',
+		relativePath: 'docs/lambda/faster-progress-polling.mdx',
+		compId: 'articles-docs-lambda-faster-progress-polling',
+		crumb: 'Lambda',
+		noAi: false,
+		slug: 'lambda/faster-progress-polling',
 	},
 	{
 		id: 'feb-2022-outage',
@@ -4879,12 +4897,12 @@ export const articles = [
 	},
 	{
 		id: 'webpack',
-		title: 'Custom Webpack config',
+		title: 'Webpack and Rspack',
 		relativePath: 'docs/overwriting-webpack-config.mdx',
 		compId: 'articles-docs-overwriting-webpack-config',
 		crumb: 'How To',
 		noAi: false,
-		slug: 'webpack',
+		slug: 'bundlers',
 	},
 	{
 		id: 'parameterized-rendering',

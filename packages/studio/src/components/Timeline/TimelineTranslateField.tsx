@@ -23,6 +23,8 @@ const containerStyle: React.CSSProperties = {
 	gap: 4,
 };
 
+const translateDragSensitivity = 3;
+
 export const TimelineTranslateField: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
@@ -175,6 +177,7 @@ export const TimelineTranslateField: React.FC<{
 				rightAlign={false}
 				snapToStep={false}
 				dragDecimalPlaces={decimalPlaces}
+				dragSensitivity={translateDragSensitivity}
 			/>
 			<div style={{marginLeft: -6, marginRight: -6}} />
 			<InputDragger
@@ -193,6 +196,7 @@ export const TimelineTranslateField: React.FC<{
 				rightAlign={false}
 				snapToStep={false}
 				dragDecimalPlaces={decimalPlaces}
+				dragSensitivity={translateDragSensitivity}
 			/>
 		</span>
 	);

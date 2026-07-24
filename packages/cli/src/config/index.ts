@@ -1,4 +1,10 @@
-import type {WebpackConfiguration} from '@remotion/bundler';
+import type {
+	BundlerOverrideFn,
+	RspackConfiguration,
+	RspackOverrideFn,
+	WebpackConfiguration,
+	WebpackOverrideFn,
+} from '@remotion/bundler';
 import type {
 	BrowserExecutable,
 	ChromeMode,
@@ -18,37 +24,58 @@ import {Log} from '../log';
 import {getBrowser} from './browser';
 import {
 	getBufferStateDelayInMilliseconds,
+	resetBufferStateDelayInMilliseconds,
 	setBufferStateDelayInMilliseconds,
 } from './buffer-state-delay-in-milliseconds';
-import {getConcurrency} from './concurrency';
 import type {Concurrency} from './concurrency';
-import {getEntryPoint, setEntryPoint} from './entry-point';
+import {getConcurrency} from './concurrency';
+import {getEntryPoint, resetEntryPoint, setEntryPoint} from './entry-point';
 import {getDotEnvLocation} from './env-file';
 import {
 	getFfmpegOverrideFunction,
+	resetFfmpegOverrideFunction,
 	setFfmpegOverrideFunction,
 } from './ffmpeg-override';
 import {getShouldOutputImageSequence} from './image-sequence';
-import {getMetadata, setMetadata} from './metadata';
-import {getOutputLocation} from './output-location';
-import {setOutputLocation} from './output-location';
+import {getMetadata, resetMetadata, setMetadata} from './metadata';
 import {
+	getOutputLocation,
+	resetOutputLocation,
+	setOutputLocation,
+} from './output-location';
+import {
+	defaultBundlerOverrideFunction,
 	defaultOverrideFunction,
+	defaultRspackOverrideFunction,
+	getBundlerOverrideFn,
+	getRspackOverrideFn,
 	getWebpackOverrideFn,
+	overrideBundlerConfig,
+	overrideRspackConfig,
+	overrideWebpackConfig,
+	resetBundlerOverrides,
 } from './override-webpack';
-import type {WebpackOverrideFn} from './override-webpack';
-import {overrideWebpackConfig} from './override-webpack';
 import {
 	getRendererPortFromConfigFile,
 	getRendererPortFromConfigFileAndCliFlag,
 	getStudioPort,
+	resetPreviewServerPorts,
+	setPort,
+	setRendererPort,
+	setStudioPort,
 } from './preview-server';
-import {setPort, setRendererPort, setStudioPort} from './preview-server';
-import {getStillFrame, setStillFrame} from './still-frame';
+import {getStillFrame, resetStillFrame, setStillFrame} from './still-frame';
 import {getWebpackCaching} from './webpack-caching';
 import {getWebpackPolling} from './webpack-poll';
 
-export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
+export type {
+	BundlerOverrideFn,
+	Concurrency,
+	RspackConfiguration,
+	RspackOverrideFn,
+	WebpackConfiguration,
+	WebpackOverrideFn,
+};
 
 const {
 	benchmarkConcurrenciesOption,
@@ -163,6 +190,8 @@ declare global {
 		 * You can set an absolute path or a relative path that will be resolved from the closest package.json location.
 		 */
 		readonly setPublicDir: (publicDir: string | null) => void;
+		readonly overrideBundlerConfig: (f: BundlerOverrideFn) => void;
+		readonly overrideRspackConfig: (f: RspackOverrideFn) => void;
 		readonly overrideWebpackConfig: (f: WebpackOverrideFn) => void;
 	}
 	// Legacy config format: New options to not need to be added here.
@@ -714,6 +743,8 @@ export const Config: FlatConfig = {
 	setWebpackPollingInMilliseconds: webpackPollOption.setConfig,
 	setShouldOpenBrowser: noOpenOption.setConfig,
 	setBufferStateDelayInMilliseconds,
+	overrideBundlerConfig,
+	overrideRspackConfig,
 	overrideWebpackConfig,
 	setCachingEnabled: bundleCacheOption.setConfig,
 	setPort,
@@ -804,6 +835,69 @@ export const Config: FlatConfig = {
 	setPreviewSampleRate: previewSampleRateOption.setConfig,
 };
 
+type BrowserSafeConfigOption = {
+	cliFlag: string;
+	getValue: (values: {commandLine: Record<string, unknown>}) => {
+		value: unknown;
+		source: string;
+	};
+	setConfig: (value: never) => void;
+	reset?: () => void;
+};
+
+const getDefaultConfigValue = (option: BrowserSafeConfigOption) => {
+	for (const cliValue of [undefined, null]) {
+		const result = option.getValue({
+			commandLine: {[option.cliFlag]: cliValue},
+		});
+		if (result.source !== 'cli') {
+			return result.value;
+		}
+	}
+
+	throw new Error(`Could not determine the default for --${option.cliFlag}`);
+};
+
+const configSetters = new Set(
+	Object.values(Object.getOwnPropertyDescriptors(Config))
+		.map((descriptor) => descriptor.value)
+		.filter(
+			(value): value is (...args: never[]) => unknown =>
+				typeof value === 'function',
+		),
+);
+
+const browserSafeConfigOptionResets = Object.values(BrowserSafeApis.options)
+	.filter((option) => configSetters.has(option.setConfig))
+	.map((untypedOption): (() => void) => {
+		const option = untypedOption as unknown as BrowserSafeConfigOption;
+		if (option.reset) {
+			return option.reset;
+		}
+
+		const defaultValue = getDefaultConfigValue(option);
+		return () => option.setConfig(defaultValue as never);
+	});
+
+const resetBrowserSafeConfigOptions = () => {
+	for (const reset of browserSafeConfigOptionResets) {
+		reset();
+	}
+};
+
+const resetConfigOptions = () => {
+	resetBrowserSafeConfigOptions();
+	StudioServerInternals.resetMaxTimelineTracks();
+	resetBufferStateDelayInMilliseconds();
+	resetEntryPoint();
+	resetFfmpegOverrideFunction();
+	resetMetadata();
+	resetOutputLocation();
+	resetBundlerOverrides();
+	resetPreviewServerPorts();
+	resetStillFrame();
+};
+
 export const ConfigInternals = {
 	getBrowser,
 	getStudioPort,
@@ -813,16 +907,21 @@ export const ConfigInternals = {
 	getStillFrame,
 	getShouldOutputImageSequence,
 	getDotEnvLocation,
+	getBundlerOverrideFn,
+	getRspackOverrideFn,
 	getWebpackOverrideFn,
 	getWebpackCaching,
 	getOutputLocation,
 	setStillFrame,
 	getMaxTimelineTracks: StudioServerInternals.getMaxTimelineTracks,
 	defaultOverrideFunction,
+	defaultBundlerOverrideFunction,
+	defaultRspackOverrideFunction,
 	getFfmpegOverrideFunction,
 	getMetadata,
 	getEntryPoint,
 	getWebpackPolling,
 	getBufferStateDelayInMilliseconds,
 	getOutputCodecOrUndefined: BrowserSafeApis.getOutputCodecOrUndefined,
+	resetConfigOptions,
 };

@@ -39,7 +39,7 @@ npx remotion upgrade
 
 ## Using server-side rendering
 
-This template uses a [custom Webpack override](https://www.remotion.dev/docs/webpack). If you are using server-side rendering, you need to import `enableSkia` from `@remotion/skia/enable` and pass it to [`bundle()`](https://www.remotion.dev/docs/bundle) (if using SSR) and [`deploySite()`](https://www.remotion.dev/docs/lambda/deploysite) (if using Lambda):
+This template uses a [custom Webpack override](https://www.remotion.dev/docs/bundlers). If you are using server-side rendering, you need to import `enableSkia` from `@remotion/skia/enable` and pass it to [`bundle()`](https://www.remotion.dev/docs/bundle) (if using SSR) and [`deploySite()`](https://www.remotion.dev/docs/lambda/deploysite) (if using Lambda):
 
 ```ts
 bundle(entry, () => undefined, {

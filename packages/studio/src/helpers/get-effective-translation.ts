@@ -1,6 +1,7 @@
 import type {Size} from '@remotion/player';
 import {Internals, type PreviewSize, type Translation} from 'remotion';
 import {MAX_ZOOM, MIN_ZOOM} from './smooth-zoom';
+import {calculateStudioScale} from './studio-fit-padding';
 
 const getEffectiveXTranslation = ({
 	canvasSize,
@@ -80,7 +81,7 @@ export const getEffectiveTranslation = ({
 	};
 };
 
-export const getCenterPointWhileScrolling = ({
+export const getUnboundedCenterPointWhileScrolling = ({
 	size,
 	clientX,
 	clientY,
@@ -105,22 +106,25 @@ export const getCenterPointWhileScrolling = ({
 	const contentTopPoint =
 		size.height / 2 - (compositionHeight * scale) / 2 - translation.y;
 
-	const offsetFromVideoLeft = Math.min(
-		compositionWidth,
-		Math.max(0, (mouseLeft - contentLeftPoint) / scale),
-	);
-	const offsetFromVideoTop = Math.min(
-		compositionHeight,
-		Math.max(0, (mouseTop - contentTopPoint) / scale),
-	);
+	return {
+		centerX: (mouseLeft - contentLeftPoint) / scale,
+		centerY: (mouseTop - contentTopPoint) / scale,
+	};
+};
+
+export const getCenterPointWhileScrolling = (
+	options: Parameters<typeof getUnboundedCenterPointWhileScrolling>[0],
+) => {
+	const {centerX, centerY} = getUnboundedCenterPointWhileScrolling(options);
 
 	return {
-		centerX: offsetFromVideoLeft,
-		centerY: offsetFromVideoTop,
+		centerX: Math.min(options.compositionWidth, Math.max(0, centerX)),
+		centerY: Math.min(options.compositionHeight, Math.max(0, centerY)),
 	};
 };
 
 export const applyZoomAroundFocalPoint = ({
+	addFitPadding,
 	canvasSize,
 	contentDimensions,
 	previewSizeBefore,
@@ -129,6 +133,7 @@ export const applyZoomAroundFocalPoint = ({
 	clientX,
 	clientY,
 }: {
+	readonly addFitPadding: boolean;
 	readonly canvasSize: Size;
 	readonly contentDimensions: {width: number; height: number};
 	readonly previewSizeBefore: PreviewSize;
@@ -137,12 +142,19 @@ export const applyZoomAroundFocalPoint = ({
 	readonly clientX: number;
 	readonly clientY: number;
 }): PreviewSize => {
-	const scale = Internals.calculateScale({
-		canvasSize,
-		compositionHeight: contentDimensions.height,
-		compositionWidth: contentDimensions.width,
-		previewSize: previewSizeBefore.size,
-	});
+	const scale = addFitPadding
+		? calculateStudioScale({
+				canvasSize,
+				compositionHeight: contentDimensions.height,
+				compositionWidth: contentDimensions.width,
+				previewSize: previewSizeBefore.size,
+			})
+		: Internals.calculateScale({
+				canvasSize,
+				compositionHeight: contentDimensions.height,
+				compositionWidth: contentDimensions.width,
+				previewSize: previewSizeBefore.size,
+			});
 
 	const clampedNew = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, newNumericSize));
 

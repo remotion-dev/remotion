@@ -131,10 +131,12 @@ export const drawElement = async ({
 
 	return {
 		cleanupAfterChildren: () => {
+			// overflow: hidden saves the canvas state after filter and opacity are set.
+			// Restore it first so it does not reapply those values after they are reset.
+			finishOverflowHidden();
 			finishFilter();
 			finishOpacity();
 			finishClipPath();
-			finishOverflowHidden();
 		},
 	};
 };

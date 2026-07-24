@@ -1,8 +1,11 @@
 import {getStudioEntryPoints} from '@remotion/studio-shared/studio-entry-points';
-import type {Configuration} from '@rspack/core';
-import {DefinePlugin, ProgressPlugin, rspack} from '@rspack/core';
+import {ProgressPlugin, rspack} from '@rspack/core';
 import ReactRefreshPlugin from '@rspack/plugin-react-refresh';
-import {getDefinePluginDefinitions} from './define-plugin-definitions';
+import type {
+	BundlerOverrideFn,
+	RspackConfiguration,
+	RspackOverrideFn,
+} from './override-types';
 import {
 	computeHashAndFinalConfig,
 	getBaseConfig,
@@ -10,55 +13,36 @@ import {
 	getResolveConfig,
 	getSharedModuleRules,
 } from './shared-bundler-config';
-import type {WebpackOverrideFn} from './webpack-config';
 
-export type RspackConfiguration = Configuration;
+export type {RspackConfiguration, RspackOverrideFn} from './override-types';
 
 export const rspackConfig = async ({
 	entry,
 	userDefinedComponent,
 	outDir,
 	environment,
-	webpackOverride = (f) => f,
+	bundlerOverride = (f) => f,
+	rspackOverride = (f) => f,
 	onProgress,
 	enableCaching = true,
-	maxTimelineTracks,
 	remotionRoot,
-	keyboardShortcutsEnabled,
-	bufferStateDelayInMilliseconds,
 	poll,
-	askAIEnabled,
-	interactivityEnabled,
 	extraPlugins,
 }: {
 	entry: string;
 	userDefinedComponent: string;
 	outDir: string | null;
 	environment: 'development' | 'production';
-	webpackOverride: WebpackOverrideFn;
+	bundlerOverride: BundlerOverrideFn;
+	rspackOverride: RspackOverrideFn;
 	onProgress?: (f: number) => void;
 	enableCaching?: boolean;
-	maxTimelineTracks: number | null;
-	keyboardShortcutsEnabled: boolean;
-	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	poll: number | null;
-	askAIEnabled: boolean;
-	interactivityEnabled: boolean;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	extraPlugins: any[];
 }): Promise<[string, RspackConfiguration]> => {
 	let lastProgress = 0;
-
-	const define = new DefinePlugin(
-		getDefinePluginDefinitions({
-			maxTimelineTracks,
-			askAIEnabled,
-			interactivityEnabled,
-			keyboardShortcutsEnabled,
-			bufferStateDelayInMilliseconds,
-		}),
-	);
 
 	const swcLoaderRule = {
 		loader: 'builtin:swc-loader',
@@ -94,9 +78,7 @@ export const rspackConfig = async ({
 		},
 	};
 
-	// Rspack config is structurally compatible with webpack config at runtime,
-	// but the TypeScript types differ. Cast through `any` for the override.
-	const conf = (await webpackOverride({
+	const baseConfig = {
 		...getBaseConfig(environment, poll),
 		node: {
 			// Suppress the warning in `source-map`
@@ -120,7 +102,6 @@ export const rspackConfig = async ({
 				? [
 						new ReactRefreshPlugin({overlay: false}),
 						new rspack.HotModuleReplacementPlugin(),
-						define,
 						...extraPlugins,
 					]
 				: [
@@ -132,7 +113,6 @@ export const rspackConfig = async ({
 								}
 							}
 						}),
-						define,
 					],
 		output: getOutputConfig(environment),
 		resolve: getResolveConfig(),
@@ -162,8 +142,9 @@ export const rspackConfig = async ({
 				},
 			],
 		},
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	} as any)) as RspackConfiguration;
+	} as RspackConfiguration;
+	const sharedConfig = await bundlerOverride(baseConfig, {bundler: 'rspack'});
+	const conf = await rspackOverride(sharedConfig as RspackConfiguration);
 
 	const [hash, finalConf] = computeHashAndFinalConfig(conf, {
 		enableCaching,

@@ -11,6 +11,8 @@ export type TSplitterContext = {
 	ref: React.RefObject<HTMLDivElement | null>;
 	maxFlex: number;
 	minFlex: number;
+	maxFlexerSize: number | null;
+	maxAntiFlexerSize: number | null;
 	defaultFlex: number;
 	id: string;
 	persistFlex: (value: number) => void;
@@ -31,6 +33,8 @@ export const SplitterContext = React.createContext<TSplitterContext>({
 	orientation: 'horizontal',
 	maxFlex: 1,
 	minFlex: 1,
+	maxFlexerSize: null,
+	maxAntiFlexerSize: null,
 	defaultFlex: 1,
 	id: '--',
 	persistFlex: () => undefined,

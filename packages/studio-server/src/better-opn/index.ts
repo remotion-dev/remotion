@@ -125,8 +125,35 @@ const normalizeURLToMatch = (target: string) => {
 	}
 };
 
-export const getFocusBrowserTabAppleScript = (
+const getBrowserArgs = (browserArgs: string | undefined) => {
+	if (browserArgs) {
+		return browserArgs.split(' ');
+	}
+
+	if (process.env.BROWSER_ARGS) {
+		return process.env.BROWSER_ARGS.split(' ');
+	}
+
+	return [];
+};
+
+const shouldTryOpenChromiumWithAppleScript = ({
+	browser,
+	args,
+}: {
+	browser: string | undefined;
+	args: string[];
+}) => {
+	return (
+		process.platform === 'darwin' &&
+		args.length === 0 &&
+		(!browser || browser === 'google chrome' || browser === 'chrome')
+	);
+};
+
+const getFocusBrowserTabAppleScriptWithCondition = (
 	chromiumBrowser: (typeof supportedChromiumBrowsers)[number],
+	condition: string,
 ) => {
 	return `
 property targetTabIndex: -1
@@ -159,7 +186,7 @@ on lookupTabWithUrl(lookupUrl)
         set theTabIndex to 0
         repeat with theTab in every tab of theWindow
           set theTabIndex to theTabIndex + 1
-          if (theTab's URL as string) is lookupUrl then
+          ${condition}
             set targetTabIndex to theTabIndex
             set targetWindow to theWindow
             set found to true
@@ -178,7 +205,34 @@ end lookupTabWithUrl
 `.trim();
 };
 
-export const focusBrowserTab = async ({url}: {url: string}) => {
+export const getFocusBrowserTabAppleScript = (
+	chromiumBrowser: (typeof supportedChromiumBrowsers)[number],
+) => {
+	return getFocusBrowserTabAppleScriptWithCondition(
+		chromiumBrowser,
+		"if (theTab's URL as string) is lookupUrl then",
+	);
+};
+
+export const getFocusBrowserTabByOriginAppleScript = (
+	chromiumBrowser: (typeof supportedChromiumBrowsers)[number],
+) => {
+	return getFocusBrowserTabAppleScriptWithCondition(
+		chromiumBrowser,
+		`set tabURL to theTab's URL as string
+          if tabURL is lookupUrl or tabURL starts with lookupUrl & "/" or tabURL starts with lookupUrl & "?" or tabURL starts with lookupUrl & "#" then`,
+	);
+};
+
+const focusBrowserTabWithAppleScript = async ({
+	url,
+	getAppleScript,
+}: {
+	url: string;
+	getAppleScript: (
+		browser: (typeof supportedChromiumBrowsers)[number],
+	) => string;
+}) => {
 	if (process.platform !== 'darwin') {
 		return false;
 	}
@@ -193,7 +247,7 @@ export const focusBrowserTab = async ({url}: {url: string}) => {
 	for (const chromiumBrowser of browsersToTry) {
 		try {
 			const result = await runAppleScript({
-				appleScript: getFocusBrowserTabAppleScript(chromiumBrowser),
+				appleScript: getAppleScript(chromiumBrowser),
 				args: [url],
 			});
 			if (result.trim() === 'true') {
@@ -209,6 +263,34 @@ export const focusBrowserTab = async ({url}: {url: string}) => {
 	return false;
 };
 
+export const focusBrowserTab = ({url}: {url: string}) => {
+	return focusBrowserTabWithAppleScript({
+		url,
+		getAppleScript: getFocusBrowserTabAppleScript,
+	});
+};
+
+export const focusBrowserTabByOrigin = ({
+	url,
+	browserFlag,
+	browserArgs,
+}: {
+	url: string;
+	browserFlag: string | undefined;
+	browserArgs: string | undefined;
+}) => {
+	const args = getBrowserArgs(browserArgs);
+	const browser = browserFlag ?? process.env.BROWSER;
+	if (!shouldTryOpenChromiumWithAppleScript({browser, args})) {
+		return false;
+	}
+
+	return focusBrowserTabWithAppleScript({
+		url: normalizeURLToMatch(url),
+		getAppleScript: getFocusBrowserTabByOriginAppleScript,
+	});
+};
+
 // Copy from
 // https://github.com/facebook/create-react-app/blob/master/packages/react-dev-utils/openBrowser.js#L64
 const startBrowserProcess = async ({
@@ -222,12 +304,7 @@ const startBrowserProcess = async ({
 }) => {
 	const tryNewInstance = args.length > 0;
 
-	const shouldTryOpenChromiumWithAppleScript =
-		process.platform === 'darwin' &&
-		!tryNewInstance &&
-		(!browser || browser === 'google chrome' || browser === 'chrome');
-
-	if (shouldTryOpenChromiumWithAppleScript) {
+	if (shouldTryOpenChromiumWithAppleScript({browser, args})) {
 		let appleScriptDenied = false;
 
 		// Will use the first open browser found from list
@@ -355,18 +432,6 @@ const startBrowserProcess = async ({
 		newInstance: tryNewInstance,
 		wait: false,
 	});
-};
-
-const getBrowserArgs = (browserArgs: string | undefined) => {
-	if (browserArgs) {
-		return browserArgs.split(' ');
-	}
-
-	if (process.env.BROWSER_ARGS) {
-		return process.env.BROWSER_ARGS.split(' ');
-	}
-
-	return [];
 };
 
 export const openBrowser = ({

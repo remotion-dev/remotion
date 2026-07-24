@@ -83,6 +83,78 @@ test('updateSequenceProps should update a number value', async () => {
 	expect(output.split('\n')[8]).toContain('hueShift={30}');
 });
 
+test('updateSequenceProps should migrate border shorthand to longhands', async () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return (
+		<AbsoluteFill
+			style={{border: '2px solid rgba(10, 20, 30, 0.5)', opacity: 0.5}}
+		/>
+	);
+};
+`;
+	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, 5),
+		updates: [{key: 'style.borderWidth', value: 8, defaultValue: undefined}],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+	});
+
+	expect(output).not.toContain("border: '2px solid");
+	expect(output).toContain('borderWidth: 8');
+	expect(output).toContain("borderStyle: 'solid'");
+	expect(output).toContain("borderColor: 'rgba(10, 20, 30, 0.5)'");
+	expect(output).toContain('opacity: 0.5');
+	expect(oldValueStrings).toEqual(['2']);
+});
+
+test('updateSequenceProps should migrate a color-only background shorthand', async () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return (
+		<AbsoluteFill
+			style={{
+				backgroundImage: 'url(image.png)',
+				background: 'rgba(10, 20, 30, 0.5)',
+				opacity: 0.5,
+			}}
+		/>
+	);
+};
+`;
+	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, 5),
+		updates: [
+			{
+				key: 'style.backgroundColor',
+				value: '#00ff00',
+				defaultValue: 'transparent',
+			},
+		],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+	});
+
+	expect(output).not.toContain("background: 'rgba");
+	expect(output).toContain("backgroundColor: '#00ff00'");
+	expect(output).toContain("backgroundImage: 'url(image.png)'");
+	expect(output).toContain("backgroundImage: 'none'");
+	expect(output).toContain("backgroundPosition: '0% 0%'");
+	expect(output).toContain("backgroundSize: 'auto auto'");
+	expect(output).toContain("backgroundRepeat: 'repeat'");
+	expect(output).toContain("backgroundOrigin: 'padding-box'");
+	expect(output).toContain("backgroundClip: 'border-box'");
+	expect(output).toContain("backgroundAttachment: 'scroll'");
+	expect(output).toContain('opacity: 0.5');
+	expect(oldValueStrings).toEqual(['"rgba(10, 20, 30, 0.5)"']);
+});
+
 test('updateSequenceProps should update durationInFrames', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
 		videoConfigValues: null,
@@ -162,6 +234,61 @@ test('updateSequenceProps should remove attribute when value equals default', as
 	expect(output.split('\n')[8]).not.toContain('hueShift');
 	// First LightLeak should still have hueShift
 	expect(output.split('\n')[7]).toContain('hueShift={30}');
+});
+
+test('resetting strokeWidth removes the JSX attribute', async () => {
+	const input = `import {Interactive} from 'remotion';
+
+export const Example = () => {
+	return <Interactive.Line stroke="red" strokeWidth={10} />;
+};
+`;
+	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, 4),
+		updates: [{key: 'strokeWidth', value: 1, defaultValue: 1}],
+		schema: {
+			strokeWidth: {
+				type: 'number',
+				default: 1,
+				min: 0,
+				step: 1,
+				hiddenFromList: false,
+			},
+		},
+		prettierConfigOverride: null,
+	});
+
+	expect(oldValueStrings).toEqual(['10']);
+	expect(output).toContain('<Interactive.Line stroke="red" />');
+	expect(output).not.toContain('strokeWidth');
+});
+
+test('resetting stroke removes the JSX attribute', async () => {
+	const input = `import {Interactive} from 'remotion';
+
+export const Example = () => {
+	return <Interactive.Line stroke="red" />;
+};
+`;
+	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, 4),
+		updates: [{key: 'stroke', value: 'none', defaultValue: 'none'}],
+		schema: {
+			stroke: {
+				type: 'color',
+				default: 'none',
+			},
+		},
+		prettierConfigOverride: null,
+	});
+
+	expect(oldValueStrings).toEqual(['"red"']);
+	expect(output).toContain('<Interactive.Line />');
+	expect(output).not.toContain('stroke=');
 });
 
 test('updateSequenceProps should remove name when value is empty string default', async () => {

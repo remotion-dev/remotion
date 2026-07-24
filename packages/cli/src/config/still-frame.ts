@@ -12,3 +12,7 @@ export const setStillFrame = (frame: number) => {
 };
 
 export const getStillFrame = () => stillFrame;
+
+export const resetStillFrame = () => {
+	stillFrame = 0;
+};

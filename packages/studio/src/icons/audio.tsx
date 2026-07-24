@@ -9,3 +9,15 @@ export const AudioIcon = (props: SVGProps<SVGSVGElement>) => (
 		/>
 	</svg>
 );
+
+export const AudioFileIcon = ({
+	color,
+	...props
+}: SVGProps<SVGSVGElement> & {readonly color?: string}) => (
+	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" {...props}>
+		<path
+			fill={color ?? CURRENT_COLOR_LOWERCASE}
+			d="M480 16l0-19.9-19.5 4.3-288 64-12.5 2.8 0 273.2c-17-12.7-39.4-20.4-64-20.4-53 0-96 35.8-96 80s43 80 96 80 96-35.8 96-80l0-187.2 256-56.9 0 120.4c-17-12.7-39.4-20.4-64-20.4-53 0-96 35.8-96 80s43 80 96 80 96-35.8 96-80l0-320zM448 336c0 26.5-28.7 48-64 48s-64-21.5-64-48 28.7-48 64-48 64 21.5 64 48zM160 400c0 26.5-28.7 48-64 48s-64-21.5-64-48 28.7-48 64-48 64 21.5 64 48zM448 123.2l-256 56.9 0-87.2 256-56.9 0 87.2z"
+		/>
+	</svg>
+);

@@ -38,6 +38,7 @@ import {
 	DiscriminatedUnionSchemaTest,
 	discriminatedUnionRootSchema,
 } from './DiscriminatedUnionSchemaTest';
+import {DragAndDropExample} from './DragAndDrop';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 import {EasingVisualizer} from './EasingVisualizer/EasingVisualizer';
 import {EffectCopySource, EffectCopyTarget} from './EffectCopyTestbed';
@@ -220,6 +221,7 @@ import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
 import {LightLeakExample} from './LightLeak';
 import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
 import {LoopDisplayTestComp} from './LoopDisplayTest';
+import {MediaTimelineTestbed} from './MediaTimelineTestbed';
 import {NewAudioExample} from './NewAudio/NewAudio';
 import {NewVideoComp, PremountSequenceVideoComp} from './NewVideo';
 import {ObjectFitTestComp} from './ObjectFitTest';
@@ -285,6 +287,7 @@ import {
 	InteractiveSvgElements,
 } from './VisualModeTests/InteractiveComponents';
 import {Issue9170} from './VisualModeTests/Issue9170';
+import {SvgPaintSchema} from './VisualModeTests/SvgPaintSchema';
 import {VideoConfigExpressions} from './VisualModeTests/VideoConfigExpressions';
 import {VoiceVisualization} from './voice-visualization';
 import {WhisperWeb} from './WhisperWeb';
@@ -412,6 +415,22 @@ export const Index: React.FC = () => {
 
 	return (
 		<>
+			<Composition
+				id="switzerland-map"
+				lazyComponent={() => import('./SwitzerlandMap/SwitzerlandMap')}
+				durationInFrames={240}
+				fps={30}
+				width={1080}
+				height={1080}
+			/>
+			<Composition
+				id="zurich-to-stuttgart-map"
+				lazyComponent={() => import('./SwitzerlandMap/ZurichToStuttgartMap')}
+				durationInFrames={270}
+				fps={30}
+				width={1080}
+				height={1080}
+			/>
 			<Composition
 				id="captions-tester"
 				component={AnimatedCaptions}
@@ -2720,6 +2739,14 @@ export const Index: React.FC = () => {
 					durationInFrames={366}
 				/>
 			</Folder>
+			<Composition
+				id="media-timeline-testbed"
+				component={MediaTimelineTestbed}
+				width={1920}
+				height={720}
+				fps={60}
+				durationInFrames={180}
+			/>
 			<Folder name="VisualModeTests">
 				<Composition
 					id="fast-updates"
@@ -2754,6 +2781,14 @@ export const Index: React.FC = () => {
 					durationInFrames={90}
 				/>
 				<Composition
+					id="issue-9582-svg-paint-schema"
+					component={SvgPaintSchema}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
 					id="video-config-expressions"
 					component={VideoConfigExpressions}
 					width={1200}
@@ -2771,6 +2806,14 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<ChangingTrimBeforeValue />
+			<Composition
+				id="drag-and-drop-payloads"
+				component={DragAndDropExample}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={30}
+			/>
 			<Composition
 				id="browser-test"
 				component={BrowserTest}

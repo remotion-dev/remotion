@@ -2,7 +2,11 @@ import {afterEach, expect, test} from 'bun:test';
 import type {TSequence} from 'remotion';
 import type {ComboboxValue} from '../components/NewComposition/ComboBox';
 import {getSequenceContextMenuItems} from '../components/Timeline/get-sequence-context-menu-items';
-import {shouldShowFreezeFrameMenuItem} from '../components/Timeline/use-sequence-freeze-frame-menu-item';
+import {getTimelineMediaStartFrame} from '../components/Timeline/get-timeline-media-start-frame';
+import {
+	calculateSequenceFreezeFrame,
+	shouldShowFreezeFrameMenuItem,
+} from '../components/Timeline/use-sequence-freeze-frame-menu-item';
 
 const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
 	globalThis,
@@ -170,4 +174,62 @@ test('sequence freeze context menu item is hidden for audio', () => {
 	expect(shouldShowFreezeFrameMenuItem({type: 'sequence'} as TSequence)).toBe(
 		true,
 	);
+});
+
+test('sequence freeze frame accounts for trimBefore', () => {
+	const sequence = {
+		duration: 120,
+		from: 0,
+	} as TSequence;
+
+	expect(
+		calculateSequenceFreezeFrame({
+			sequence,
+			sequenceFrameOffset: 20,
+			timelinePosition: -10,
+		}),
+	).toBe(20);
+	expect(
+		calculateSequenceFreezeFrame({
+			sequence,
+			sequenceFrameOffset: 20,
+			timelinePosition: 0,
+		}),
+	).toBe(20);
+	expect(
+		calculateSequenceFreezeFrame({
+			sequence,
+			sequenceFrameOffset: 20,
+			timelinePosition: 119,
+		}),
+	).toBe(139);
+});
+
+test('video freeze preserves the media frame under the playhead at different playback rates', () => {
+	const mediaFrameAtSequenceZero = 5;
+	const playbackRate = 2;
+	const sequence = {
+		duration: 120,
+		from: 0,
+		mediaFrameAtSequenceZero,
+		playbackRate,
+		type: 'video',
+	} as Extract<TSequence, {type: 'video'}>;
+	const timelinePosition = 40;
+	const freezeFrame = calculateSequenceFreezeFrame({
+		sequence,
+		sequenceFrameOffset: 0,
+		timelinePosition,
+	});
+	const mediaFrameUnderPlayhead = getTimelineMediaStartFrame({
+		startMediaFrom: mediaFrameAtSequenceZero,
+		mediaFrameAtSequenceZero,
+		sequenceFrameOffset: timelinePosition,
+		playbackRate,
+	});
+	const mediaFrameAfterFreeze =
+		mediaFrameAtSequenceZero + freezeFrame * playbackRate;
+
+	expect(freezeFrame).toBe(timelinePosition);
+	expect(mediaFrameAfterFreeze).toBe(mediaFrameUnderPlayhead);
 });

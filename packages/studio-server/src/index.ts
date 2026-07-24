@@ -47,8 +47,10 @@ import {
 	getInstalledDependenciesWithVersions,
 } from './helpers/get-installed-dependencies';
 import {getInstallCommand} from './helpers/install-command';
+import {getPackageManagerSpawnOptions} from './helpers/package-manager-spawn-options';
 import {
 	getMaxTimelineTracks,
+	resetMaxTimelineTracks,
 	setMaxTimelineTracks,
 } from './max-timeline-tracks';
 import {
@@ -67,6 +69,7 @@ export const StudioServerInternals = {
 	getPackageManager,
 	getMaxTimelineTracks,
 	setMaxTimelineTracks,
+	resetMaxTimelineTracks,
 	getLatestRemotionVersion,
 	installFileWatcher,
 	writeFileAndNotifyFileWatchers,
@@ -81,6 +84,7 @@ export const StudioServerInternals = {
 	getInstalledDependencies,
 	getInstalledDependenciesWithVersions,
 	getInstallCommand,
+	getPackageManagerSpawnOptions,
 	addCompletedClientRender,
 	getCompletedClientRenders,
 	removeCompletedClientRender,

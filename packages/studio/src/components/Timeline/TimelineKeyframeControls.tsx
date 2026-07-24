@@ -49,12 +49,24 @@ import {
 } from './TimelineSelection';
 import {canEditEasingForInterpolationFunction} from './update-selected-easing';
 
+const NAV_BUTTON_SIZE = 14;
+const INSPECTOR_NAV_BUTTON_WIDTH = NAV_BUTTON_SIZE / 2;
+const INSPECTOR_PREVIOUS_BUTTON_EXTRA_GAP = 1;
+
 const controlsContainerStyle: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
 	flexShrink: 0,
 	gap: 1,
 	marginRight: 4,
+};
+
+const inspectorControlsContainerStyle: React.CSSProperties = {
+	...controlsContainerStyle,
+	paddingLeft:
+		NAV_BUTTON_SIZE -
+		INSPECTOR_NAV_BUTTON_WIDTH -
+		INSPECTOR_PREVIOUS_BUTTON_EXTRA_GAP,
 };
 
 const navButtonStyle: React.CSSProperties = {
@@ -65,13 +77,22 @@ const navButtonStyle: React.CSSProperties = {
 	cursor: 'pointer',
 	display: 'flex',
 	flexShrink: 0,
-	height: 14,
+	height: NAV_BUTTON_SIZE,
 	justifyContent: 'center',
 	lineHeight: 1,
 	outline: 'none',
 	padding: 0,
 	userSelect: 'none',
-	width: 14,
+	width: NAV_BUTTON_SIZE,
+};
+
+const inspectorNavButtonStyle: React.CSSProperties = {
+	width: INSPECTOR_NAV_BUTTON_WIDTH,
+};
+
+const inspectorPreviousNavButtonStyle: React.CSSProperties = {
+	...inspectorNavButtonStyle,
+	marginRight: INSPECTOR_PREVIOUS_BUTTON_EXTRA_GAP,
 };
 
 const isKeyframedStatus = (
@@ -85,7 +106,7 @@ const diamondButtonStyle: React.CSSProperties = {
 	background: 'none',
 };
 
-const svgStyle: React.CSSProperties = {display: 'block'};
+const svgStyle: React.CSSProperties = {display: 'block', flexShrink: 0};
 
 type KeyframeControlTarget = {
 	readonly nodePathInfo: SequenceNodePathInfo;
@@ -751,21 +772,23 @@ export const TimelineKeyframeControls: React.FC<{
 	const previousStyle = useMemo(
 		(): React.CSSProperties => ({
 			...navButtonStyle,
+			...(mode === 'inspector' ? inspectorPreviousNavButtonStyle : null),
 			cursor: previousDisabled ? 'default' : 'pointer',
 			opacity: previousDisabled ? 0.35 : 1,
 			visibility: showNavigationButtons ? 'visible' : 'hidden',
 		}),
-		[previousDisabled, showNavigationButtons],
+		[mode, previousDisabled, showNavigationButtons],
 	);
 
 	const nextStyle = useMemo(
 		(): React.CSSProperties => ({
 			...navButtonStyle,
+			...(mode === 'inspector' ? inspectorNavButtonStyle : null),
 			cursor: nextDisabled ? 'default' : 'pointer',
 			opacity: nextDisabled ? 0.35 : 1,
 			visibility: showNavigationButtons ? 'visible' : 'hidden',
 		}),
-		[nextDisabled, showNavigationButtons],
+		[mode, nextDisabled, showNavigationButtons],
 	);
 
 	const diamondStyle = useMemo(
@@ -780,7 +803,13 @@ export const TimelineKeyframeControls: React.FC<{
 	const diamondColor = hasKeyframeAtCurrentFrame ? BLUE : LIGHT_TEXT;
 
 	return (
-		<div style={controlsContainerStyle}>
+		<div
+			style={
+				mode === 'inspector'
+					? inspectorControlsContainerStyle
+					: controlsContainerStyle
+			}
+		>
 			<button
 				type="button"
 				style={previousStyle}

@@ -1,3 +1,4 @@
+import type {ComponentProp, ElementDragData} from '@remotion/drag-and-drop';
 import type {
 	AudioCodec,
 	ChromeMode,
@@ -26,13 +27,11 @@ import type {
 	VideoConfigValues,
 } from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
-import type {ComponentProp} from './component-drag-data';
 import type {
 	EffectClipboardParam,
 	EffectClipboardPasteType,
 	EffectClipboardSnapshot,
 } from './effect-clipboard-data';
-import type {ElementDragData} from './element-drag-data';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
 import type {
@@ -335,10 +334,11 @@ export type SaveSequencePropEdit = {
 
 export type SaveSequencePropsRequest = {
 	edits: SaveSequencePropEdit[];
-	movedKeyframes?: {
+	addedKeyframes: AddSequenceKeyframe[] | null;
+	movedKeyframes: {
 		sequenceKeyframes: MoveSequenceKeyframe[];
 		effectKeyframes: MoveEffectKeyframe[];
-	};
+	} | null;
 	clientId: string;
 	undoLabel: string;
 	redoLabel: string;
@@ -382,6 +382,28 @@ export type SaveEffectPropsRequest =
 	  });
 
 export type SaveEffectPropsResponse = CanUpdateEffectPropsResponse;
+
+type WithoutClientId<T> = T extends unknown ? Omit<T, 'clientId'> : never;
+
+export type SaveMultipleEffectPropsEdit =
+	WithoutClientId<SaveEffectPropsRequest>;
+
+export type SaveMultipleEffectPropsRequest = {
+	edits: SaveMultipleEffectPropsEdit[];
+	clientId: string;
+	undoLabel: string;
+	redoLabel: string;
+};
+
+export type SaveMultipleEffectPropsResult = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	status: CanUpdateEffectPropsResponse;
+};
+
+export type SaveMultipleEffectPropsResponse = {
+	results: SaveMultipleEffectPropsResult[];
+};
 
 export type AddEffectRequest = {
 	fileName: string;
@@ -596,6 +618,26 @@ export type UpdateEffectKeyframeSettingsRequest = {
 
 export type UpdateEffectKeyframeSettingsResponse = SaveEffectPropsResponse;
 
+export type BatchUpdateSequenceKeyframeSettings = Omit<
+	UpdateSequenceKeyframeSettingsRequest,
+	'clientId'
+>;
+
+export type BatchUpdateEffectKeyframeSettings = Omit<
+	UpdateEffectKeyframeSettingsRequest,
+	'clientId'
+>;
+
+export type BatchUpdateKeyframeSettingsRequest = {
+	sequenceKeyframes: BatchUpdateSequenceKeyframeSettings[];
+	effectKeyframes: BatchUpdateEffectKeyframeSettings[];
+	clientId: string;
+};
+
+export type BatchUpdateKeyframeSettingsResponse = {
+	success: true;
+};
+
 type BaseDeleteEffectRequestItem = {
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
@@ -715,6 +757,12 @@ export type InsertableCompositionElement =
 				width: number;
 				height: number;
 			} | null;
+			durationInFrames: number | null;
+			position: InsertableCompositionElementPosition | null;
+	  }
+	| {
+			type: 'svg';
+			markup: string;
 			position: InsertableCompositionElementPosition | null;
 	  }
 	| {
@@ -737,6 +785,7 @@ export type InsertJsxElementRequest = {
 	compositionFile: string;
 	compositionId: string;
 	element: InsertableCompositionElement;
+	from: number | null;
 };
 
 export type InsertJsxElementResponse =
@@ -749,10 +798,25 @@ export type InsertJsxElementResponse =
 			stack: string;
 	  };
 
+export type ConvertFigmaClipboardToSvgRequest = {
+	html: string;
+};
+
+export type ConvertFigmaClipboardToSvgResponse =
+	| {
+			success: true;
+			svg: string;
+	  }
+	| {
+			success: false;
+			reason: string;
+	  };
+
 export type InsertElementRequest = {
 	compositionFile: string;
 	compositionId: string;
 	element: ElementDragData['element'];
+	from: number | null;
 	position: InsertableCompositionElementPosition | null;
 };
 
@@ -816,6 +880,18 @@ export type ProjectInfoResponse = {
 
 export type RestartStudioRequest = {};
 export type RestartStudioResponse = {};
+
+export type UpdatePublicLicenseRequest = {
+	publicLicenseKey: string;
+};
+export type UpdatePublicLicenseResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+	  };
 
 export type InstallPackageRequest = {
 	packageNames: string[];
@@ -902,6 +978,10 @@ export type ApiRoutes = {
 		SaveEffectPropsRequest,
 		SaveEffectPropsResponse
 	>;
+	'/api/save-multiple-effect-props': ReqAndRes<
+		SaveMultipleEffectPropsRequest,
+		SaveMultipleEffectPropsResponse
+	>;
 	'/api/add-effect': ReqAndRes<AddEffectRequest, AddEffectResponse>;
 	'/api/reorder-effect': ReqAndRes<ReorderEffectRequest, ReorderEffectResponse>;
 	'/api/duplicate-effect': ReqAndRes<
@@ -934,6 +1014,10 @@ export type ApiRoutes = {
 		UpdateEffectKeyframeSettingsRequest,
 		UpdateEffectKeyframeSettingsResponse
 	>;
+	'/api/batch-update-keyframe-settings': ReqAndRes<
+		BatchUpdateKeyframeSettingsRequest,
+		BatchUpdateKeyframeSettingsResponse
+	>;
 	'/api/delete-effect': ReqAndRes<DeleteEffectRequest, DeleteEffectResponse>;
 	'/api/paste-effects': ReqAndRes<PasteEffectsRequest, PasteEffectsResponse>;
 	'/api/delete-jsx-node': ReqAndRes<
@@ -951,6 +1035,10 @@ export type ApiRoutes = {
 	'/api/insert-jsx-element': ReqAndRes<
 		InsertJsxElementRequest,
 		InsertJsxElementResponse
+	>;
+	'/api/convert-figma-clipboard-to-svg': ReqAndRes<
+		ConvertFigmaClipboardToSvgRequest,
+		ConvertFigmaClipboardToSvgResponse
 	>;
 	'/api/insert-element': ReqAndRes<InsertElementRequest, InsertElementResponse>;
 	'/api/update-element-install-target': ReqAndRes<
@@ -976,6 +1064,10 @@ export type ApiRoutes = {
 		RenameStaticFileResponse
 	>;
 	'/api/restart-studio': ReqAndRes<RestartStudioRequest, RestartStudioResponse>;
+	'/api/update-public-license': ReqAndRes<
+		UpdatePublicLicenseRequest,
+		UpdatePublicLicenseResponse
+	>;
 	'/api/install-package': ReqAndRes<
 		InstallPackageRequest,
 		InstallPackageResponse

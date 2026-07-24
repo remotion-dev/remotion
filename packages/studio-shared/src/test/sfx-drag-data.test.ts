@@ -1,6 +1,19 @@
 import {expect, test} from 'bun:test';
-import {parseSfxDragData, type SfxDragData} from '../sfx-drag-data';
+import {DragAndDropInternals, type SfxDragData} from '@remotion/drag-and-drop';
 import {isUrl} from '../url';
+
+const sfxMimeType = DragAndDropInternals.makeDragData({
+	type: 'sfx',
+	name: 'Test',
+	url: 'https://remotion.media/test.wav',
+}).mimeType;
+const parseSfxDragData = (payload: string) => {
+	const parsed = DragAndDropInternals.parseDragData({
+		mimeType: sfxMimeType,
+		payload,
+	});
+	return parsed?.type === 'sfx' ? parsed.data : null;
+};
 
 const validSfxDragData: SfxDragData = {
 	type: 'remotion-sfx',

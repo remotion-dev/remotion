@@ -1,14 +1,18 @@
 import type React from 'react';
 import type {ImageFit} from '../calculate-image-fit.js';
 import type {EffectsProp} from '../effects/effect-types.js';
-import type {InteractiveBaseProps} from '../Interactive.js';
+import type {
+	InteractiveBaseProps,
+	InteractivePremountProps,
+} from '../Interactive.js';
 
-type CanvasImageSequenceProps = InteractiveBaseProps & {
-	/**
-	 * @deprecated For internal use only.
-	 */
-	readonly stack?: string;
-};
+type CanvasImageSequenceProps = InteractiveBaseProps &
+	InteractivePremountProps & {
+		/**
+		 * @deprecated For internal use only.
+		 */
+		readonly stack?: string;
+	};
 
 export type CanvasImageCanvasProps = Omit<
 	React.CanvasHTMLAttributes<HTMLCanvasElement>,

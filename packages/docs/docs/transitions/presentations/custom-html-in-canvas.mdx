@@ -19,7 +19,7 @@ Prefer CSS because it has wider browser support.
 
 ## Concept
 
-Remotion captures both scenes via [`captureElementImage()`](https://github.com/WICG/html-in-canvas#4-captureelementimage) and passes them to your shader as two [`ElementImage`](https://github.com/WICG/html-in-canvas#idl-changes) handles (`prevImage` and `nextImage`) along with the transition `time` (`0` → `1`). Your shader uploads them as textures via [`drawElementImage()`](https://github.com/WICG/html-in-canvas#2-drawelementimage-and-webglwebgpu-equivalents) (or its WebGL/WebGPU equivalents) and writes the blended result to an offscreen WebGL2 canvas, which Remotion then composites into the frame.
+Remotion rasterizes both scenes and passes them to your shader as two `OffscreenCanvas` sources (`prevImage` and `nextImage`) along with the transition `time` (`0` → `1`). Upload them as textures using [`texImage2D()`](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texImage2D) and write the blended result to the supplied offscreen WebGL2 canvas. Remotion composites that canvas into the frame.
 
 You implement a single function — [`HtmlInCanvasShader<Props>`](/docs/transitions/make-html-in-canvas-presentation#htmlincanvasshader) — and pass it to [`makeHtmlInCanvasPresentation()`](/docs/transitions/make-html-in-canvas-presentation) to get back a `TransitionPresentation` constructor.
 
@@ -78,7 +78,7 @@ export const myShader: HtmlInCanvasShader<MyShaderProps> = (canvas) => {
       // Release WebGL resources here
     },
     draw: ({prevImage, nextImage, width, height, time, passedProps}) => {
-      // Upload prevImage / nextImage to textures via gl.texElementImage2D
+      // Upload prevImage / nextImage to textures via gl.texImage2D
       // Set uniforms, draw the quad
     },
   };

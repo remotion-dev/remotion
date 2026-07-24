@@ -42,7 +42,7 @@ See how to parametrize the [content with input props](/docs/passing-props) as we
 
 **If you are using a long-running server:** we recommend to call `bundle()` once in a Node.js context and then reusing it for the lifetime of the server. See: [Rendering in Node.js](/docs/ssr-node)
 
-**If you are rendering on Lambda**: Create a bundle and deploy it once either via [`npx remotion sites create`](/docs/lambda/cli/sites/create) or using [`deploySite()`](/docs/lambda/deploysite) in a non-bundled Node.js script and then refer to the bundle via the URL that you get back.
+**If you are rendering on Lambda**: Create a bundle during the build step and upload it later using [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle). You may also bundle and upload together using [`npx remotion lambda sites create`](/docs/lambda/cli/sites/create) or [`deploySite()`](/docs/lambda/deploysite). Refer to the deployed bundle using the URL returned by the deployment.
 
 In both cases, do all parameterization of the video using [input props](/docs/parameterized-rendering).
 
@@ -53,3 +53,4 @@ In both cases, do all parameterization of the video using [input props](/docs/pa
 - [Parameterized rendering](/docs/parameterized-rendering)
 - [`bundle()`](/docs/bundle)
 - [`deploySite()`](/docs/lambda/deploysite)
+- [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle)

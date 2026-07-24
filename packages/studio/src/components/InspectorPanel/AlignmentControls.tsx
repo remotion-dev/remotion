@@ -192,6 +192,8 @@ export const AlignmentControls: React.FC<{
 
 			if (!propStatus || propStatus.status === 'static') {
 				saveSequenceProps({
+					addedKeyframes: null,
+					movedKeyframes: null,
 					changes: [
 						{
 							fileName: nodePath.absolutePath,

@@ -60,23 +60,35 @@ bun test src/test/elements.test.ts
 
 ## 5. Render and inspect the previews
 
-Perform the preview verification required by the Element Guidelines:
+Perform the preview verification required by the Element Guidelines. Render only the new Element, using its `posterFrame` from `element-definitions.ts`:
 
 ```bash
 cd packages/docs
-bun run render-element-previews
+mkdir -p .element-previews/<category>/<slug>
+bunx remotion still \
+  src/remotion/entry.ts \
+  element-<category>-<slug> \
+  .element-previews/<category>/<slug>/preview.png \
+  --frame=<poster-frame> --gl=angle --overwrite
+bunx remotion render \
+  src/remotion/entry.ts \
+  element-<category>-<slug> \
+  .element-previews/<category>/<slug>/preview.mp4 \
+  --codec=h264 --crf=23 --image-format=png --pixel-format=yuv420p \
+  --gl=angle --muted --overwrite
 cd ../..
 ```
 
+Do not run `render-element-previews`, because it renders every Element and clears the previous preview output.
+
 Inspect `packages/docs/.element-previews/<category>/<slug>/preview.png` and `preview.mp4`, then give both paths to the developer for visual review. Stop and wait for the developer to explicitly confirm that both previews look correct. Do not run the final repository checks or finish the publishing workflow until that approval is received.
 
-This command renders every Element and clears the previous preview output. Do not commit the ignored output or pass `--upload` unless uploading was explicitly requested and maintainer R2 credentials are available.
+Do not commit the ignored output or upload previews unless uploading was explicitly requested and maintainer R2 credentials are available.
 
 ## 6. Run final repository checks
 
 ```bash
 bun run build
-bun run build-docs
 bun run stylecheck
 git diff --check
 git status --short

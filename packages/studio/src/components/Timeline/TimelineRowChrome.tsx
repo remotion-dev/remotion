@@ -73,9 +73,12 @@ export const TimelineRowChrome: React.FC<{
 	onDoubleClick,
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
-	const {basePadding, keyframeControlsPadding} = useContext(
-		TimelineRowLayoutContext,
-	);
+	const {
+		basePadding,
+		keyframeControlsPadding,
+		rowBorderRadius,
+		rowHorizontalMargin,
+	} = useContext(TimelineRowLayoutContext);
 	const indentWidth = getTimelineRowIndentWidth(depth);
 	useTimelineFocusableItem(selectionItem, ref);
 
@@ -132,8 +135,16 @@ export const TimelineRowChrome: React.FC<{
 			...rowBase,
 			...style,
 			backgroundColor: outerHeight === null ? highlightBackground : undefined,
+			borderRadius: rowBorderRadius,
+			margin: `0 ${rowHorizontalMargin}px`,
 		}),
-		[style, outerHeight, highlightBackground],
+		[
+			style,
+			outerHeight,
+			highlightBackground,
+			rowBorderRadius,
+			rowHorizontalMargin,
+		],
 	);
 
 	const outerStyle = useMemo((): React.CSSProperties | undefined => {

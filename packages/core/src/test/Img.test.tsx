@@ -117,10 +117,13 @@ const previewEnvironment: RemotionEnvironment = {
 const wrapImg = (
 	element: React.ReactElement,
 	environment: RemotionEnvironment = previewEnvironment,
+	currentFrame: number = 0,
 ) => {
 	return (
 		<RemotionEnvironmentContext.Provider value={environment}>
-			<WrapSequenceContext>{element}</WrapSequenceContext>
+			<WrapSequenceContext currentFrame={currentFrame}>
+				{element}
+			</WrapSequenceContext>
 		</RemotionEnvironmentContext.Provider>
 	);
 };
@@ -299,6 +302,93 @@ test('<Img> buffers playback when premounting ends before loading finishes', asy
 		await waitFor(() => {
 			expect(events).toEqual(['waiting', 'resume']);
 		});
+	} finally {
+		HTMLImageElement.prototype.decode = originalDecode;
+		restoreNodeEnv();
+	}
+});
+
+test('<Img> does not pause playback while directly premounted', async () => {
+	const originalDecode = HTMLImageElement.prototype.decode;
+	const restoreNodeEnv = forceNodeEnv('development');
+	const events: string[] = [];
+	let decodeResolver: (() => void) | null = null;
+	HTMLImageElement.prototype.decode = () =>
+		new Promise<void>((resolve) => {
+			decodeResolver = resolve;
+		});
+	const img = (
+		<>
+			<BufferingEvents events={events} />
+			<Img
+				src="blob:http://localhost/test-image"
+				from={10}
+				durationInFrames={20}
+				premountFor={10}
+				pauseWhenLoading
+			/>
+		</>
+	);
+
+	try {
+		const {rerender} = render(wrapImg(img, previewEnvironment, 0));
+
+		await waitFor(() => {
+			expect(decodeResolver).not.toBeNull();
+		});
+		expect(events).toEqual([]);
+
+		rerender(wrapImg(img, previewEnvironment, 10));
+
+		await waitFor(() => {
+			expect(events).toEqual(['waiting']);
+		});
+
+		act(() => {
+			decodeResolver?.();
+		});
+
+		await waitFor(() => {
+			expect(events).toEqual(['waiting', 'resume']);
+		});
+	} finally {
+		HTMLImageElement.prototype.decode = originalDecode;
+		restoreNodeEnv();
+	}
+});
+
+test('<Img> does not pause playback while directly postmounted', async () => {
+	const originalDecode = HTMLImageElement.prototype.decode;
+	const restoreNodeEnv = forceNodeEnv('development');
+	const events: string[] = [];
+	let decodeStarted = false;
+	HTMLImageElement.prototype.decode = () => {
+		decodeStarted = true;
+		return new Promise<void>(() => undefined);
+	};
+
+	try {
+		render(
+			wrapImg(
+				<>
+					<BufferingEvents events={events} />
+					<Img
+						src="blob:http://localhost/test-image"
+						from={10}
+						durationInFrames={20}
+						postmountFor={10}
+						pauseWhenLoading
+					/>
+				</>,
+				previewEnvironment,
+				35,
+			),
+		);
+
+		await waitFor(() => {
+			expect(decodeStarted).toBe(true);
+		});
+		expect(events).toEqual([]);
 	} finally {
 		HTMLImageElement.prototype.decode = originalDecode;
 		restoreNodeEnv();

@@ -333,6 +333,76 @@ export const textSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
+export const borderSchema = {
+	'style.borderWidth': {
+		type: 'number',
+		default: undefined,
+		min: 0,
+		step: 1,
+		description: 'Border width',
+		hiddenFromList: false,
+	},
+	'style.borderStyle': {
+		type: 'enum',
+		// `none` is the CSS initial value of border-style.
+		default: 'none',
+		description: 'Border style',
+		variants: {
+			none: {},
+			hidden: {},
+			solid: {},
+			dashed: {},
+			dotted: {},
+			double: {},
+			groove: {},
+			ridge: {},
+			inset: {},
+			outset: {},
+		},
+	},
+	'style.borderColor': {
+		type: 'color',
+		default: undefined,
+		description: 'Border color',
+	},
+} as const satisfies InteractivitySchema;
+
+export const backgroundSchema = {
+	'style.backgroundColor': {
+		type: 'color',
+		// `transparent` is the CSS initial value of background-color.
+		default: 'transparent',
+		description: 'Color',
+	},
+} as const satisfies InteractivitySchema;
+
+export const svgStrokeSchema = {
+	stroke: {
+		type: 'color',
+		// `none` is the SVG initial value of stroke.
+		default: 'none',
+		description: 'Stroke',
+	},
+	strokeWidth: {
+		type: 'number',
+		// `1` is the SVG initial value of stroke-width.
+		default: 1,
+		description: 'Stroke width',
+		min: 0,
+		step: 1,
+		hiddenFromList: false,
+	},
+} as const satisfies InteractivitySchema;
+
+export const svgPaintSchema = {
+	fill: {
+		type: 'color',
+		default: undefined,
+		description: 'Fill',
+	},
+	...svgStrokeSchema,
+} as const satisfies InteractivitySchema;
+
 export const textContentSchema = {
 	children: {
 		type: 'text-content',
@@ -350,6 +420,7 @@ export const premountSchema = {
 		min: 0,
 		step: 1,
 		hiddenFromList: false,
+		keyframable: false,
 	},
 	postmountFor: {
 		type: 'number',
@@ -357,20 +428,19 @@ export const premountSchema = {
 		min: 0,
 		step: 1,
 		hiddenFromList: true,
-	},
-	styleWhilePremounted: {
-		type: 'hidden',
-	},
-	styleWhilePostmounted: {
-		type: 'hidden',
+		keyframable: false,
 	},
 } as const satisfies InteractivitySchema;
 
-export const sequencePremountSchema = premountSchema;
+export const sequencePremountSchema = {
+	...premountSchema,
+} as const satisfies InteractivitySchema;
 
 export const sequenceStyleSchema = {
 	...transformSchema,
-	...premountSchema,
+	...backgroundSchema,
+	...borderSchema,
+	...sequencePremountSchema,
 } as const satisfies InteractivitySchema;
 
 export const hiddenField: InteractivitySchemaField = {

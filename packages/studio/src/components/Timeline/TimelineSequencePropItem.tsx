@@ -133,6 +133,8 @@ const Value: React.FC<{
 			}
 
 			return saveSequenceProps({
+				addedKeyframes: null,
+				movedKeyframes: null,
 				changes: [
 					{
 						fileName: validatedLocation.source,
@@ -391,6 +393,8 @@ export const TimelineSequencePropItem: React.FC<{
 		const fieldLabel = field.description ?? field.key;
 
 		saveSequenceProps({
+			addedKeyframes: null,
+			movedKeyframes: null,
 			changes: [
 				{
 					fileName: validatedLocation.source,

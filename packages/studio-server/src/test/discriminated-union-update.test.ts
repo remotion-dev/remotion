@@ -52,6 +52,10 @@ test('Should expose absolute-fill variant fields when active', () => {
 		'style.scale',
 		'style.rotate',
 		'style.opacity',
+		'style.backgroundColor',
+		'style.borderWidth',
+		'style.borderStyle',
+		'style.borderColor',
 	]);
 });
 
@@ -125,7 +129,7 @@ test('Should remove variant-specific props when switching enum value', async () 
 	expect(await prettify(update.serialized)).toBe(await prettify(expected));
 });
 
-test('Should remove premountFor and styleWhile* when switching to layout="none"', async () => {
+test('Should remove premountFor and preserve styleWhile* when switching to layout="none"', async () => {
 	const file = readFileSync(
 		path.join(__dirname, 'snapshots', 'discriminated-union-with-premount.tsx'),
 		'utf-8',

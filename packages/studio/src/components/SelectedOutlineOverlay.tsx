@@ -11,7 +11,7 @@ import React, {
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {studioInteractivityEnabled} from '../helpers/interactivity-enabled';
+import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
@@ -61,7 +61,7 @@ import {
 	SelectedOutlineUvHandleCircleLayer,
 	SelectedOutlineUvHandleConnectionLayer,
 } from './SelectedOutlineUvControls';
-import {callAddSequenceKeyframe} from './Timeline/call-add-keyframe';
+import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {getCurrentDuration, getCurrentFps} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
@@ -87,6 +87,7 @@ export {
 	getSelectedOutlineScaleDragStates,
 	getSelectedOutlineScaleDragValues,
 	getSelectedOutlineScaleEdgeInfo,
+	getSelectedOutlineTransformOriginDragChanges,
 	getSelectedOutlineTransformOriginLockedAxis,
 	isSelectedOutlineDragPastThreshold,
 	selectedOutlineTransformOriginSnapThresholdPx,
@@ -607,7 +608,7 @@ export const SelectedOutlineOverlay: React.FC<{
 	);
 
 	const outlineTargets = useMemo((): SelectedOutlineTarget[] => {
-		if (!studioInteractivityEnabled || !editorShowOutlines) {
+		if (!isStudioInteractivityEnabled() || !editorShowOutlines) {
 			return [];
 		}
 
@@ -627,6 +628,7 @@ export const SelectedOutlineOverlay: React.FC<{
 			sequences,
 			overrideIdsToNodePaths: overrideIdToNodePathMappings,
 			compositions,
+			timelinePosition,
 		}).map(({key, keyframeDisplayOffset, nodePathInfo, sequence}) => {
 			if (sequence.refForOutline === null) {
 				throw new Error('Expected sequence to have a ref for outline');
@@ -982,6 +984,8 @@ export const SelectedOutlineOverlay: React.FC<{
 			staticChanges.length > 0
 				? saveSequenceProps({
 						changes: staticChanges,
+						addedKeyframes: null,
+						movedKeyframes: null,
 						setPropStatuses,
 						clientId: session.clientId,
 						undoLabel:
@@ -992,18 +996,12 @@ export const SelectedOutlineOverlay: React.FC<{
 								: 'Move sequence back',
 					})
 				: Promise.resolve(),
-			...keyframedChanges.map((change) =>
-				callAddSequenceKeyframe({
-					fileName: change.fileName,
-					nodePath: change.nodePath,
-					fieldKey: change.fieldKey,
-					sourceFrame: change.sourceFrame,
-					value: change.value,
-					schema: change.schema,
-					setPropStatuses,
-					clientId: change.clientId,
-				}),
-			),
+			callAddKeyframes({
+				sequenceKeyframes: keyframedChanges,
+				effectKeyframes: [],
+				setPropStatuses,
+				clientId: session.clientId,
+			}),
 		])
 			.catch((err) => {
 				showNotification(

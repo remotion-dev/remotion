@@ -67,6 +67,24 @@ The HTML `id` attribute to apply to the `<canvas>` element.
 
 Inline styles to apply to the `<canvas>` element.
 
+### `premountFor?`<AvailableFrom v="4.0.495" />
+
+Mounts the canvas for the specified number of frames before its `from` frame. The canvas carries `display: none` and is frozen at its first frame while premounted.
+
+Use this prop to let the image load, decode, and prepare its effects before it becomes visible. See [Premounting](/docs/player/premounting).
+
+### `postmountFor?`<AvailableFrom v="4.0.495" />
+
+Keeps the canvas mounted for the specified number of frames after its duration has ended. The canvas is invisible and frozen at its final frame while postmounted.
+
+### `styleWhilePremounted?`<AvailableFrom v="4.0.495" />
+
+CSS styles applied to the canvas while it is premounted. These styles override the default `display: none` and `pointer-events: none` styles.
+
+### `styleWhilePostmounted?`<AvailableFrom v="4.0.495" />
+
+CSS styles applied to the canvas while it is postmounted. These styles override the default `display: none` and `pointer-events: none` styles.
+
 ### `onError?`
 
 Called when the image cannot be loaded, decoded, or drawn after all retries are exhausted.  

@@ -39,5 +39,8 @@ export const overrideHeightOption = {
 		validateDimension(height, 'height', 'in Config.overrideHeight()');
 		currentHeight = height;
 	},
+	reset: () => {
+		currentHeight = null;
+	},
 	id: cliFlag,
 } satisfies AnyRemotionOption<number | null>;

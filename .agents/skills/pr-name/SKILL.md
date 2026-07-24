@@ -27,14 +27,44 @@ If the change is about docs only:
 Docs: Add page about heart shape
 ```
 
-If the change adds or modifies a skill, or is otherwise internal monorepo work, use the `remotion-monorepo` prefix:
+If the change adds or modifies a skill, or is otherwise internal monorepo work, use the Internal prefix:
 
 ```
-`remotion-monorepo`: Add PR naming skill
+Internal: Add PR naming skill
 ```
 
 If the change relates to Remotion Elements, use the `Elements:` prefix:
 
 ```
 Elements: Add animated title element
+```
+
+If the change relates to packages/convert, use the remotion.dev/convert prefix:
+
+```
+remotion.dev/convert: Support trimming
+```
+
+If the change relates to packages/example, say Internal Testbed:
+
+```
+Internal testbed: Add trimming sample composition
+```
+
+If the change relates to Skills, prefix with Skills:
+
+```
+Skills: Add `/remotion-upgrade` skill
+```
+
+If the change relates to packages/brand, prefix with remotion.dev/brand:
+
+```
+remotion.dev/brand: Add animated logo
+```
+
+If the change relates to packages/it-tests, prefix with Internal tests:
+
+```
+Internal tests: Add video integration test
 ```

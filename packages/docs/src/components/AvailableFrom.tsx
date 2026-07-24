@@ -51,3 +51,7 @@ export const MinNodeVersion: React.FC = () => {
 export const MinBunVersion: React.FC = () => {
 	return <span>{NoReactInternals.MIN_BUN_VERSION}</span>;
 };
+
+export const MinEslintVersion: React.FC = () => {
+	return <span>{NoReactInternals.MIN_ESLINT_VERSION}</span>;
+};

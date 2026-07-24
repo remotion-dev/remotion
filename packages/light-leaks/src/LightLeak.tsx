@@ -235,7 +235,7 @@ const LightLeakCanvas: React.FC<{
  * @description Renders a WebGL-based light leak effect as a Sequence.
  * @see [Documentation](https://www.remotion.dev/docs/light-leaks/light-leak)
  */
-const lightLeakSchema = {
+export const lightLeakSchema: InteractivitySchema = {
 	...Internals.baseSchema,
 	seed: {
 		type: 'number',
@@ -252,6 +252,8 @@ const lightLeakSchema = {
 		hiddenFromList: false,
 	},
 	...Internals.transformSchema,
+	...Interactive.backgroundSchema,
+	...Interactive.borderSchema,
 	...Internals.premountSchema,
 } as const satisfies InteractivitySchema;
 
