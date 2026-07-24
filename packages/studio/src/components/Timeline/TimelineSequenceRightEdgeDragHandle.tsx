@@ -10,6 +10,7 @@ import React, {
 	useState,
 } from 'react';
 import type {
+	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
 	OverrideIdToNodePaths,
 	PropStatuses,
@@ -272,6 +273,24 @@ export const isTimelineSequenceDurationDraggable = (sequence: TSequence) => {
 		(!sequence.isInsideSeries || isInteractiveCascadingSequence) &&
 		Boolean(sequence.controls)
 	);
+};
+
+export const canResizeTimelineSequenceDuration = ({
+	sequence,
+	status,
+}: {
+	readonly sequence: TSequence;
+	readonly status: CanUpdateSequencePropStatus | undefined;
+}) => {
+	if (status?.status !== 'static') {
+		return false;
+	}
+
+	if (sequence.type === 'audio' || sequence.type === 'video') {
+		return status.codeValue !== undefined;
+	}
+
+	return true;
 };
 
 export const isTimelineSequenceLeftEdgeDraggable = (sequence: TSequence) => {
@@ -669,7 +688,16 @@ export const getTimelineSequenceDurationDragTargets = ({
 		}
 
 		const nodePath = track.nodePathInfo.sequenceSubscriptionKey;
-		if (!canUpdateDurationInFrames({propStatuses, nodePath})) {
+		const durationStatus = Internals.getPropStatusesCtx(
+			propStatuses,
+			nodePath,
+		)?.durationInFrames;
+		if (
+			!canResizeTimelineSequenceDuration({
+				sequence: originalSequence,
+				status: durationStatus,
+			})
+		) {
 			return null;
 		}
 

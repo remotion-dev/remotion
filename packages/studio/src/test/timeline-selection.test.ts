@@ -1599,6 +1599,37 @@ test('Timeline duration drag supports interactive video clips', () => {
 	]);
 });
 
+test('Timeline duration drag rejects media without an explicit duration', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0], []);
+	const audio = makeTimelineSequence({
+		schema: Internals.baseSchema,
+		type: 'audio',
+		duration: 78,
+	});
+	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+
+	expect(isTimelineSequenceDurationDraggable(audio)).toBe(true);
+	expect(
+		getTimelineSequenceDurationDragTargets({
+			draggedNodePathInfo: nodePathInfo,
+			selectedItems: [{type: 'sequence', nodePathInfo}],
+			sequences: [audio],
+			overrideIdsToNodePaths: {
+				override: nodePath,
+			},
+			propStatuses: {
+				[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+					canUpdate: true,
+					props: {
+						durationInFrames: {status: 'static', codeValue: undefined},
+					},
+					effects: [],
+				},
+			},
+		}),
+	).toBe(null);
+});
+
 test('Timeline duration drag supports interactive cascading sequence rows', () => {
 	const baseSequence = makeTimelineSequence({
 		schema: Internals.baseSchema,

@@ -55,6 +55,7 @@ import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 import {
 	TimelineSequenceLeftEdgeDragHandle,
 	TimelineSequenceRightEdgeDragHandle,
+	canResizeTimelineSequenceDuration,
 	isCascadingSequence,
 	isTimelineSequenceDurationDraggable,
 	isTimelineSequenceLeftEdgeDraggable,
@@ -294,6 +295,13 @@ const TimelineSequenceInner: React.FC<{
 	const durationCanUpdate = Boolean(
 		isStudioInteractivityEnabled() &&
 		propStatusesForOverride?.durationInFrames?.status === 'static',
+	);
+	const durationCanResize = Boolean(
+		isStudioInteractivityEnabled() &&
+		canResizeTimelineSequenceDuration({
+			sequence: s,
+			status: propStatusesForOverride?.durationInFrames,
+		}),
 	);
 	const fromCanUpdate = Boolean(
 		isStudioInteractivityEnabled() &&
@@ -604,7 +612,7 @@ const TimelineSequenceInner: React.FC<{
 		isTimelineSequenceDurationDraggable(s) &&
 		nodePath !== null &&
 		validatedLocation !== null &&
-		durationCanUpdate;
+		durationCanResize;
 	const showLeftEdgeDragHandle =
 		isTimelineSequenceLeftEdgeDraggable(s) &&
 		nodePath !== null &&
