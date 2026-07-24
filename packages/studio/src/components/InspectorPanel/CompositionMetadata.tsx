@@ -1,7 +1,7 @@
 import type {RecastCodemod} from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
-import {WHITE_ALPHA_25, WHITE_ALPHA_40} from '../../helpers/colors';
+import {WHITE_ALPHA_40} from '../../helpers/colors';
 import {isCompositionStill} from '../../helpers/is-composition-still';
 import {resolvedStackToSymbolicated} from '../../helpers/resolved-stack-to-symbolicated';
 import {CaretDown} from '../../icons/caret';
@@ -121,8 +121,8 @@ const PresetDropdown: React.FC<{
 }> = ({disabled, title, values, visible}) => {
 	const renderAction = useCallback((color: string) => {
 		return (
-			<span style={{...presetButtonIcon, color}}>
-				<CaretDown small />
+			<span style={presetButtonIcon}>
+				<CaretDown color={color} small />
 			</span>
 		);
 	}, []);
@@ -138,7 +138,6 @@ const PresetDropdown: React.FC<{
 				disabled={disabled}
 				renderAction={renderAction}
 				title={title}
-				unhoveredColor={WHITE_ALPHA_25}
 				values={values}
 			/>
 		</div>
