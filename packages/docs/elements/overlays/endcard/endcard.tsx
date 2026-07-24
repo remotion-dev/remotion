@@ -130,38 +130,45 @@ export const Endcard: React.FC = () => {
 				</Interactive.Div>
 			</Interactive.Div>
 
-			<div
+			<Interactive.Div
+				name="Social links"
 				style={{
 					height: 460,
 					left: 80,
 					maskImage: 'linear-gradient(black 58%, transparent 74%)',
+					maskPosition: interpolate(frame, [18, 48], ['0px 460px', '0px 0px'], {
+						easing: Easing.out(Easing.cubic),
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					}),
+					maskRepeat: 'no-repeat',
 					position: 'absolute',
 					top: 474,
 					WebkitMaskImage: 'linear-gradient(black 58%, transparent 74%)',
-					width: 760,
-				}}
-			>
-				<Interactive.Div
-					name="Social links"
-					style={{
-						translate: interpolate(frame, [18, 48], ['0px 460px', '0px 0px'], {
+					WebkitMaskPosition: interpolate(
+						frame,
+						[18, 48],
+						['0px 460px', '0px 0px'],
+						{
 							easing: Easing.out(Easing.cubic),
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
-						}),
-					}}
-				>
-					<SocialRow label="@yourchannel" name="YouTube">
-						<YouTubeIcon />
-					</SocialRow>
-					<SocialRow label="@yourhandle" name="X">
-						<XIcon />
-					</SocialRow>
-					<SocialRow label="@yourhandle" name="Instagram">
-						<InstagramIcon />
-					</SocialRow>
-				</Interactive.Div>
-			</div>
+						},
+					),
+					WebkitMaskRepeat: 'no-repeat',
+					width: 760,
+				}}
+			>
+				<SocialRow label="@yourchannel" name="YouTube">
+					<YouTubeIcon />
+				</SocialRow>
+				<SocialRow label="@yourhandle" name="X">
+					<XIcon />
+				</SocialRow>
+				<SocialRow label="@yourhandle" name="Instagram">
+					<InstagramIcon />
+				</SocialRow>
+			</Interactive.Div>
 
 			<Interactive.Div
 				name="Recommended video"
