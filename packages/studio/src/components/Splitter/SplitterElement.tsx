@@ -9,6 +9,8 @@ export const SplitterElement: React.FC<{
 	readonly sticky: React.ReactNode | null;
 }> = ({children, type, sticky}) => {
 	const context = useContext(SplitterContext);
+	const maxSize =
+		type === 'flexer' ? context.maxFlexerSize : context.maxAntiFlexerSize;
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
@@ -19,8 +21,14 @@ export const SplitterElement: React.FC<{
 			position: 'relative',
 			overflow: 'hidden',
 			flexDirection: 'column',
+			maxWidth:
+				context.orientation === 'vertical' ? (maxSize ?? undefined) : undefined,
+			maxHeight:
+				context.orientation === 'horizontal'
+					? (maxSize ?? undefined)
+					: undefined,
 		};
-	}, [context.flexValue, type]);
+	}, [context.flexValue, context.orientation, maxSize, type]);
 
 	const stickStyle: React.CSSProperties = useMemo(() => {
 		return {

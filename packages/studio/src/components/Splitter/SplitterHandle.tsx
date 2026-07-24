@@ -53,7 +53,33 @@ export const SplitterHandle: React.FC<{
 			// value updates on every pointermove, so it must not be re-read live.
 			const dragContext = latest.current.context;
 			const start = {x: e.clientX, y: e.clientY};
-			const startFlex = dragContext.flexValue;
+			const {width: containerWidth, height: containerHeight} =
+				dragContext.ref.current?.getBoundingClientRect() ?? {
+					width: 0,
+					height: 0,
+				};
+			const availableSize =
+				(dragContext.orientation === 'vertical'
+					? containerWidth
+					: containerHeight) - SPLITTER_HANDLE_SIZE;
+			const minFlex =
+				dragContext.maxAntiFlexerSize === null || availableSize <= 0
+					? dragContext.minFlex
+					: Math.max(
+							dragContext.minFlex,
+							1 - dragContext.maxAntiFlexerSize / availableSize,
+						);
+			const maxFlex =
+				dragContext.maxFlexerSize === null || availableSize <= 0
+					? dragContext.maxFlex
+					: Math.min(
+							dragContext.maxFlex,
+							dragContext.maxFlexerSize / availableSize,
+						);
+			const startFlex = Math.min(
+				maxFlex,
+				Math.max(minFlex, dragContext.flexValue),
+			);
 
 			dragContext.isDragging.current = start;
 			forceSpecificCursor(
@@ -74,10 +100,7 @@ export const SplitterHandle: React.FC<{
 
 				const newFlex = startFlex + change;
 				if (clamp) {
-					return Math.min(
-						dragContext.maxFlex,
-						Math.max(dragContext.minFlex, newFlex),
-					);
+					return Math.min(maxFlex, Math.max(minFlex, newFlex));
 				}
 
 				return newFlex;

@@ -308,6 +308,8 @@ const TimelineInner: React.FC = () => {
 									id="names-to-timeline"
 									maxFlex={0.5}
 									minFlex={0.15}
+									maxFlexerSize={null}
+									maxAntiFlexerSize={null}
 								>
 									<SplitterElement
 										type="flexer"
