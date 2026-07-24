@@ -1,12 +1,12 @@
-import type {
-	RecastCodemod,
-	SymbolicatedStackFrame,
-} from '@remotion/studio-shared';
+import type {RecastCodemod} from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {WHITE_ALPHA_40} from '../../helpers/colors';
 import {isCompositionStill} from '../../helpers/is-composition-still';
 import {resolvedStackToSymbolicated} from '../../helpers/resolved-stack-to-symbolicated';
+import {CaretDown} from '../../icons/caret';
+import {InlineDropdown} from '../InlineDropdown';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {
 	InputDragger,
 	inputDraggerContainerStyle,
@@ -63,40 +63,96 @@ const dimensionsControls: React.CSSProperties = {
 	minWidth: 0,
 };
 
+const presetButtonIcon: React.CSSProperties = {
+	alignItems: 'center',
+	color: 'inherit',
+	display: 'flex',
+	flexShrink: 0,
+	height: 12,
+	justifyContent: 'center',
+	width: 12,
+};
+
+const presetDropdownContainer: React.CSSProperties = {
+	display: 'flex',
+	flexShrink: 0,
+};
+
+const metadataLabelControls: React.CSSProperties = {
+	alignItems: 'center',
+	color: 'inherit',
+	display: 'flex',
+	fontFamily: 'sans-serif',
+	fontSize: 13,
+	gap: 2,
+	lineHeight: '18px',
+	minWidth: 0,
+};
+
+const metadataLabelText: React.CSSProperties = {
+	color: 'inherit',
+	fontFamily: 'sans-serif',
+	fontSize: 13,
+	lineHeight: '18px',
+	minWidth: 0,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+};
+
+type CompositionMetadataValues = Partial<
+	Record<CompositionMetadataField, number>
+>;
+
+const dimensionPresets = [
+	{height: 1080, label: 'Full HD', width: 1920},
+	{height: 1920, label: 'Full HD', width: 1080},
+	{height: 720, label: 'HD', width: 1280},
+	{height: 1280, label: 'HD', width: 720},
+	{height: 1080, label: 'Square', width: 1080},
+] as const;
+
+const frameRatePresets = [23.976, 24, 25, 29.97, 30, 50, 60] as const;
+
+const PresetDropdown: React.FC<{
+	readonly disabled: boolean;
+	readonly title: string;
+	readonly values: ComboboxValue[];
+	readonly visible: boolean;
+}> = ({disabled, title, values, visible}) => {
+	const renderAction = useCallback((color: string) => {
+		return (
+			<span style={presetButtonIcon}>
+				<CaretDown color={color} small />
+			</span>
+		);
+	}, []);
+
+	return (
+		<div
+			style={{
+				...presetDropdownContainer,
+				visibility: visible ? 'visible' : 'hidden',
+			}}
+		>
+			<InlineDropdown
+				disabled={disabled}
+				renderAction={renderAction}
+				title={title}
+				values={values}
+			/>
+		</div>
+	);
+};
+
 const CompositionMetadataValue: React.FC<{
-	readonly compositionId: string;
 	readonly computed: boolean;
 	readonly disabled: boolean;
 	readonly field: CompositionMetadataField;
-	readonly onPendingValue: (
-		field: CompositionMetadataField,
-		value: PendingCompositionMetadataValue,
-	) => void;
-	readonly onPendingValueAccepted: (
-		field: CompositionMetadataField,
-		value: PendingCompositionMetadataValue,
-	) => void;
-	readonly onPendingValueFailed: (
-		field: CompositionMetadataField,
-		value: PendingCompositionMetadataValue,
-	) => void;
+	readonly onSave: (values: CompositionMetadataValues) => void;
 	readonly pendingValue: PendingCompositionMetadataValue | null;
-	readonly resolvedConfig: object;
-	readonly symbolicatedStack: SymbolicatedStackFrame | null;
 	readonly value: number;
-}> = ({
-	compositionId,
-	computed,
-	disabled,
-	field,
-	onPendingValue,
-	onPendingValueAccepted,
-	onPendingValueFailed,
-	pendingValue,
-	resolvedConfig,
-	symbolicatedStack,
-	value,
-}) => {
+}> = ({computed, disabled, field, onSave, pendingValue, value}) => {
 	const [dragValue, setDragValue] = useState<number | null>(null);
 
 	const save = useCallback(
@@ -106,67 +162,10 @@ const CompositionMetadataValue: React.FC<{
 				return;
 			}
 
-			if (symbolicatedStack === null) {
-				setDragValue(null);
-				showNotification(
-					'Could not determine where this composition is defined',
-					2000,
-				);
-				return;
-			}
-
-			const codemod: RecastCodemod = {
-				type: 'update-composition-metadata',
-				idToUpdate: compositionId,
-				newDurationInFrames: field === 'durationInFrames' ? newValue : null,
-				newFps: field === 'fps' ? newValue : null,
-				newHeight: field === 'height' ? newValue : null,
-				newWidth: field === 'width' ? newValue : null,
-			};
-			const optimisticValue: PendingCompositionMetadataValue = {
-				baseline: resolvedConfig,
-				status: 'saving',
-				value: newValue,
-			};
-			onPendingValue(field, optimisticValue);
 			setDragValue(null);
-			applyCodemod({
-				codemod,
-				dryRun: false,
-				signal: new AbortController().signal,
-				symbolicatedStack,
-			})
-				.then((result) => {
-					if (!result.success) {
-						onPendingValueFailed(field, optimisticValue);
-						showNotification(
-							`Could not update composition ${field}: ${result.reason}`,
-							2000,
-						);
-						return;
-					}
-
-					onPendingValueAccepted(field, optimisticValue);
-				})
-				.catch((error) => {
-					onPendingValueFailed(field, optimisticValue);
-					showNotification(
-						`Could not update composition ${field}: ${(error as Error).message}`,
-						2000,
-					);
-				});
+			onSave({[field]: newValue});
 		},
-		[
-			compositionId,
-			field,
-			onPendingValue,
-			onPendingValueAccepted,
-			onPendingValueFailed,
-			pendingValue?.value,
-			resolvedConfig,
-			symbolicatedStack,
-			value,
-		],
+		[field, onSave, pendingValue?.value, value],
 	);
 	const isFps = field === 'fps';
 	const formatValue = useCallback(
@@ -246,15 +245,6 @@ export const CompositionMetadata: React.FC<{
 		);
 	}, [resolvedConfig]);
 
-	const onPendingValue = useCallback(
-		(
-			field: CompositionMetadataField,
-			value: PendingCompositionMetadataValue,
-		) => {
-			setPendingValues((pending) => ({...pending, [field]: value}));
-		},
-		[],
-	);
 	const onPendingValueAccepted = useCallback(
 		(
 			field: CompositionMetadataField,
@@ -286,6 +276,111 @@ export const CompositionMetadata: React.FC<{
 		},
 		[],
 	);
+	const currentValues = useMemo(
+		(): Record<CompositionMetadataField, number> => ({
+			durationInFrames: video?.durationInFrames ?? 0,
+			fps: video?.fps ?? 0,
+			height: video?.height ?? 0,
+			width: video?.width ?? 0,
+		}),
+		[video],
+	);
+	const saveMetadata = useCallback(
+		(newValues: CompositionMetadataValues) => {
+			if (resolvedConfig === null) {
+				return;
+			}
+
+			const changedFields = (
+				Object.keys(newValues) as CompositionMetadataField[]
+			).filter(
+				(field) =>
+					newValues[field] !==
+					(pendingValues[field]?.value ?? currentValues[field]),
+			);
+
+			if (changedFields.length === 0) {
+				return;
+			}
+
+			if (symbolicatedStack === null) {
+				showNotification(
+					'Could not determine where this composition is defined',
+					2000,
+				);
+				return;
+			}
+
+			const optimisticValues = changedFields.reduce((values, field) => {
+				values[field] = {
+					baseline: resolvedConfig,
+					status: 'saving',
+					value: newValues[field] as number,
+				};
+				return values;
+			}, {} as PendingCompositionMetadata);
+			const codemod: RecastCodemod = {
+				type: 'update-composition-metadata',
+				idToUpdate: compositionId,
+				newDurationInFrames: newValues.durationInFrames ?? null,
+				newFps: newValues.fps ?? null,
+				newHeight: newValues.height ?? null,
+				newWidth: newValues.width ?? null,
+			};
+			setPendingValues((pending) => ({...pending, ...optimisticValues}));
+			applyCodemod({
+				codemod,
+				dryRun: false,
+				signal: new AbortController().signal,
+				symbolicatedStack,
+			})
+				.then((result) => {
+					if (!result.success) {
+						for (const field of changedFields) {
+							onPendingValueFailed(
+								field,
+								optimisticValues[field] as PendingCompositionMetadataValue,
+							);
+						}
+
+						showNotification(
+							`Could not update composition metadata: ${result.reason}`,
+							2000,
+						);
+						return;
+					}
+
+					for (const field of changedFields) {
+						onPendingValueAccepted(
+							field,
+							optimisticValues[field] as PendingCompositionMetadataValue,
+						);
+					}
+				})
+				.catch((error) => {
+					for (const field of changedFields) {
+						onPendingValueFailed(
+							field,
+							optimisticValues[field] as PendingCompositionMetadataValue,
+						);
+					}
+
+					showNotification(
+						`Could not update composition metadata: ${(error as Error).message}`,
+						2000,
+					);
+				});
+		},
+		[
+			compositionId,
+			currentValues,
+			onPendingValueAccepted,
+			onPendingValueFailed,
+			pendingValues,
+			resolvedConfig,
+			symbolicatedStack,
+		],
+	);
 
 	if (video === null || resolvedConfig === null) {
 		return null;
@@ -302,68 +397,116 @@ export const CompositionMetadata: React.FC<{
 	const durationIsComputed =
 		metadataSource?.durationInFrames === 'calculate-metadata';
 	const isStill = isCompositionStill(video);
+	const dimensionPresetValues = dimensionPresets.flatMap(
+		(preset, index): ComboboxValue[] => [
+			...(index === 2 || index === 4
+				? [{type: 'divider' as const, id: `dimension-divider-${index}`}]
+				: []),
+			{
+				type: 'item',
+				id: `${preset.width}x${preset.height}`,
+				label: `${preset.width}x${preset.height} (${preset.label})`,
+				value: `${preset.width}x${preset.height}`,
+				onClick: () => {
+					saveMetadata({height: preset.height, width: preset.width});
+				},
+				keyHint: null,
+				leftItem: null,
+				subMenu: null,
+				quickSwitcherLabel: null,
+			},
+		],
+	);
+	const frameRatePresetValues = frameRatePresets.map(
+		(fps): ComboboxValue => ({
+			type: 'item',
+			id: String(fps),
+			label: `${fps} fps`,
+			value: fps,
+			onClick: () => {
+				saveMetadata({fps});
+			},
+			keyHint: null,
+			leftItem: null,
+			subMenu: null,
+			quickSwitcherLabel: null,
+		}),
+	);
 
 	return (
 		<div style={compositionMetadataContainer}>
-			<InspectorDetailRow label="Dimensions">
+			<InspectorDetailRow
+				label={(hovered) => (
+					<div style={metadataLabelControls}>
+						<span style={metadataLabelText}>Dimensions</span>
+						{disabled || widthIsComputed || heightIsComputed ? null : (
+							<PresetDropdown
+								disabled={
+									pendingValues.width !== undefined ||
+									pendingValues.height !== undefined
+								}
+								title="Choose dimension preset"
+								values={dimensionPresetValues}
+								visible={hovered}
+							/>
+						)}
+					</div>
+				)}
+			>
 				<div style={dimensionsControls}>
 					<CompositionMetadataValue
-						compositionId={compositionId}
 						computed={widthIsComputed}
 						disabled={disabled}
 						field="width"
-						onPendingValue={onPendingValue}
-						onPendingValueAccepted={onPendingValueAccepted}
-						onPendingValueFailed={onPendingValueFailed}
+						onSave={saveMetadata}
 						pendingValue={pendingValues.width ?? null}
-						resolvedConfig={resolvedConfig}
-						symbolicatedStack={symbolicatedStack}
 						value={video.width}
 					/>
 					<CompositionMetadataValue
-						compositionId={compositionId}
 						computed={heightIsComputed}
 						disabled={disabled}
 						field="height"
-						onPendingValue={onPendingValue}
-						onPendingValueAccepted={onPendingValueAccepted}
-						onPendingValueFailed={onPendingValueFailed}
+						onSave={saveMetadata}
 						pendingValue={pendingValues.height ?? null}
-						resolvedConfig={resolvedConfig}
-						symbolicatedStack={symbolicatedStack}
 						value={video.height}
 					/>
 				</div>
 			</InspectorDetailRow>
 			{isStill ? null : (
 				<>
-					<InspectorDetailRow label="Frame rate">
-						<CompositionMetadataValue
-							compositionId={compositionId}
-							computed={fpsIsComputed}
-							disabled={disabled}
-							field="fps"
-							onPendingValue={onPendingValue}
-							onPendingValueAccepted={onPendingValueAccepted}
-							onPendingValueFailed={onPendingValueFailed}
-							pendingValue={pendingValues.fps ?? null}
-							resolvedConfig={resolvedConfig}
-							symbolicatedStack={symbolicatedStack}
-							value={video.fps}
-						/>
+					<InspectorDetailRow
+						label={(hovered) => (
+							<div style={metadataLabelControls}>
+								<span style={metadataLabelText}>Frame rate</span>
+								{disabled || fpsIsComputed ? null : (
+									<PresetDropdown
+										disabled={pendingValues.fps !== undefined}
+										title="Choose frame rate preset"
+										values={frameRatePresetValues}
+										visible={hovered}
+									/>
+								)}
+							</div>
+						)}
+					>
+						<div style={dimensionsControls}>
+							<CompositionMetadataValue
+								computed={fpsIsComputed}
+								disabled={disabled}
+								field="fps"
+								onSave={saveMetadata}
+								pendingValue={pendingValues.fps ?? null}
+								value={video.fps}
+							/>
+						</div>
 					</InspectorDetailRow>
 					<InspectorDetailRow label="Duration">
 						<CompositionMetadataValue
-							compositionId={compositionId}
 							computed={durationIsComputed}
 							disabled={disabled}
 							field="durationInFrames"
-							onPendingValue={onPendingValue}
-							onPendingValueAccepted={onPendingValueAccepted}
-							onPendingValueFailed={onPendingValueFailed}
+							onSave={saveMetadata}
 							pendingValue={pendingValues.durationInFrames ?? null}
-							resolvedConfig={resolvedConfig}
-							symbolicatedStack={symbolicatedStack}
 							value={video.durationInFrames}
 						/>
 					</InspectorDetailRow>

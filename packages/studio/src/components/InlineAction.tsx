@@ -56,6 +56,7 @@ export const InlineAction = ({
 	return (
 		<button
 			type="button"
+			disabled={disabled}
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 			onClick={onClick}

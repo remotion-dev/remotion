@@ -98,14 +98,24 @@ export const InspectorMessage: React.FC<{
 }> = ({children}) => <div style={centeredMessage}>{children}</div>;
 
 export const InspectorDetailRow: React.FC<{
-	readonly label: string;
+	readonly label: React.ReactNode | ((hovered: boolean) => React.ReactNode);
 	readonly children: React.ReactNode;
-}> = ({label, children}) => (
-	<div style={detailRow}>
-		<div style={detailLabel}>{label}</div>
-		<div style={detailValue}>{children}</div>
-	</div>
-);
+}> = ({label, children}) => {
+	const [hovered, setHovered] = React.useState(false);
+
+	return (
+		<div
+			style={detailRow}
+			onPointerEnter={() => setHovered(true)}
+			onPointerLeave={() => setHovered(false)}
+		>
+			<div style={detailLabel}>
+				{typeof label === 'function' ? label(hovered) : label}
+			</div>
+			<div style={detailValue}>{children}</div>
+		</div>
+	);
+};
 
 const INLINE_LABEL_BUTTON_MARGIN = 4;
 
