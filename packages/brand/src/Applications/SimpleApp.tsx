@@ -1,16 +1,7 @@
-import {
-	AbsoluteFill,
-	Easing,
-	interpolate,
-	useCurrentFrame,
-	useVideoConfig,
-} from 'remotion';
+import {AbsoluteFill} from 'remotion';
 import {ExtrudeDiv} from '../3DContext/Div3D';
 
 export function ApplicationSimpleApp() {
-	const frame = useCurrentFrame();
-	const {durationInFrames} = useVideoConfig();
-
 	return (
 		<AbsoluteFill
 			style={{
@@ -110,7 +101,6 @@ export function ApplicationSimpleApp() {
 								height: 332,
 								justifyContent: 'center',
 								overflow: 'hidden',
-								position: 'relative',
 							}}
 						>
 							<svg
@@ -125,55 +115,6 @@ export function ApplicationSimpleApp() {
 									fill="#0B84F3"
 								/>
 							</svg>
-							<div
-								style={{
-									alignItems: 'center',
-									bottom: 22,
-									display: 'flex',
-									gap: 16,
-									left: 24,
-									position: 'absolute',
-									right: 24,
-								}}
-							>
-								<div
-									style={{
-										borderColor: 'transparent transparent transparent white',
-										borderStyle: 'solid',
-										borderWidth: '10px 0 10px 16px',
-										height: 0,
-										width: 0,
-									}}
-								/>
-								<div
-									style={{
-										backgroundColor: 'rgba(255, 255, 255, 0.3)',
-										borderRadius: 5,
-										flex: 1,
-										height: 7,
-										overflow: 'hidden',
-									}}
-								>
-									<div
-										style={{
-											backgroundColor: 'white',
-											borderRadius: 5,
-											height: '100%',
-											width: interpolate(
-												frame,
-												[0, durationInFrames - 1],
-												['0%', '100%'],
-												{
-													easing: Easing.linear,
-													extrapolateLeft: 'clamp',
-													extrapolateRight: 'clamp',
-												},
-											),
-										}}
-									/>
-								</div>
-								<div style={{color: 'white', fontSize: 17}}>0:12 / 0:30</div>
-							</div>
 						</div>
 						<div>
 							<div
