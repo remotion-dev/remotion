@@ -63,6 +63,12 @@ const SocialRow: React.FC<{
 
 export const Endcard: React.FC = () => {
 	const frame = useCurrentFrame();
+	const linkRevealEdge = interpolate(frame, [18, 48], [116, -16], {
+		easing: Easing.out(Easing.cubic),
+		extrapolateLeft: 'clamp',
+		extrapolateRight: 'clamp',
+	});
+	const linkRevealMask = `linear-gradient(to bottom, transparent ${linkRevealEdge - 16}%, black ${linkRevealEdge}%)`;
 
 	return (
 		<Interactive.Div
@@ -135,26 +141,11 @@ export const Endcard: React.FC = () => {
 				style={{
 					height: 460,
 					left: 80,
-					maskImage: 'linear-gradient(black 58%, transparent 74%)',
-					maskPosition: interpolate(frame, [18, 48], ['0px 460px', '0px 0px'], {
-						easing: Easing.out(Easing.cubic),
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					}),
+					maskImage: linkRevealMask,
 					maskRepeat: 'no-repeat',
 					position: 'absolute',
 					top: 474,
-					WebkitMaskImage: 'linear-gradient(black 58%, transparent 74%)',
-					WebkitMaskPosition: interpolate(
-						frame,
-						[18, 48],
-						['0px 460px', '0px 0px'],
-						{
-							easing: Easing.out(Easing.cubic),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						},
-					),
+					WebkitMaskImage: linkRevealMask,
 					WebkitMaskRepeat: 'no-repeat',
 					width: 760,
 				}}
