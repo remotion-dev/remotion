@@ -3,7 +3,6 @@ import {AwsProvider} from '@remotion/lambda-client';
 import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import type {ProviderSpecifics} from '@remotion/serverless';
-import {NoReactInternals} from 'remotion/no-react';
 import {quit} from '../../helpers/quit';
 import {SITES_CREATE_SUBCOMMAND, sitesCreateSubcommand} from './create';
 import {SITES_LS_SUBCOMMAND, sitesLsSubcommand} from './ls';
@@ -22,15 +21,11 @@ const printSitesHelp = (logLevel: LogLevel) => {
 	CliInternals.Log.info({indent: false, logLevel});
 	CliInternals.Log.info(
 		{indent: false, logLevel},
-		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_CREATE_SUBCOMMAND} <${NoReactInternals.ENABLE_V5_BREAKING_CHANGES ? 'bundle-directory' : 'entry-point|bundle-directory'}>`,
+		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_CREATE_SUBCOMMAND} [entry-point]`,
 	);
 	CliInternals.Log.info(
 		{indent: false, logLevel},
-		CliInternals.chalk.gray(
-			NoReactInternals.ENABLE_V5_BREAKING_CHANGES
-				? 'Creates a new site based on a Remotion bundle'
-				: 'Creates a new site based on a Remotion project or bundle',
-		),
+		CliInternals.chalk.gray('Creates a new site based on a Remotion project'),
 	);
 	CliInternals.Log.info({indent: false, logLevel});
 	CliInternals.Log.info(

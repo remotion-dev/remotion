@@ -46,7 +46,7 @@ import type {
 } from './api/deploy-function';
 import {deployFunction} from './api/deploy-function';
 import type {DeploySiteInput, DeploySiteOutput} from './api/deploy-site';
-import {deploySite} from './api/deploy-site';
+import {deploySite as deploySiteImplementation} from './api/deploy-site';
 import type {
 	DeploySiteFromBundleInput,
 	DeploySiteFromBundleOutput,
@@ -76,6 +76,20 @@ import {
 } from './internals';
 
 export type {WebhookPayload} from '@remotion/lambda-client';
+
+type DeploySiteFunction<EnableV5BreakingChanges extends boolean> =
+	EnableV5BreakingChanges extends true
+		? {
+				/**
+				 * @deprecated Use `bundle()` from `@remotion/bundler`, then pass its output to `deploySiteFromBundle()`.
+				 */
+				(args: DeploySiteInput): DeploySiteOutput;
+			}
+		: (args: DeploySiteInput) => DeploySiteOutput;
+
+const deploySite: DeploySiteFunction<
+	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+> = deploySiteImplementation;
 
 /**
  * @deprecated Import this from `@remotion/lambda-client` instead

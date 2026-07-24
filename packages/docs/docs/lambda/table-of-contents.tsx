@@ -36,7 +36,7 @@ export const TableOfContents: React.FC = () => {
 				</TOCItem>
 				<TOCItem link="/docs/lambda/deploysite">
 					<strong>deploySite()</strong>
-					<div>Upload a bundle to S3</div>
+					<div>Bundle and upload a site to S3</div>
 				</TOCItem>
 				<TOCItem link="/docs/lambda/deploysitefrombundle">
 					<strong>deploySiteFromBundle()</strong>

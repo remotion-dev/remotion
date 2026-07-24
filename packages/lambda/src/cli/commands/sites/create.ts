@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import {AwsProvider} from '@remotion/lambda-client';
@@ -8,10 +7,8 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {ProviderSpecifics} from '@remotion/serverless';
 import {internalGetOrCreateBucket, type Privacy} from '@remotion/serverless';
 import {NoReactInternals} from 'remotion/no-react';
-import {internalDeploySiteFromBundle} from '../../../api/deploy-site-from-bundle';
 import {awsFullClientSpecifics} from '../../../functions/full-client-implementation';
 import {LambdaInternals} from '../../../internals';
-import {validateBundleDir} from '../../../shared/validate-bundle-dir';
 import {validateSiteName} from '../../../shared/validate-site-name';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
@@ -29,7 +26,6 @@ import {
 } from '../../helpers/progress-bar';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
-import {resolveBundleDirectory} from './resolve-bundle-directory';
 
 export const SITES_CREATE_SUBCOMMAND = 'create';
 
@@ -48,57 +44,30 @@ export const sitesCreateSubcommand = async (
 	logLevel: LogLevel,
 	implementation: ProviderSpecifics<AwsProvider>,
 ) => {
-	const siteInput = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
-		? {
-				file: resolveBundleDirectory({
-					bundleDir: args[0],
-					remotionRoot,
-					currentWorkingDirectory: process.cwd(),
-				}),
-				reason: args[0] ? 'argument passed' : 'default build directory',
-			}
-		: CliInternals.findEntryPoint({
-				args,
-				remotionRoot,
-				logLevel,
-				allowDirectory: true,
-			});
-	const {file, reason} = siteInput;
-	if (
-		args[0] &&
-		reason !== 'argument passed' &&
-		reason !== 'argument passed - found in cwd' &&
-		reason !== 'argument passed - found in root'
-	) {
-		throw new Error(`The specified site input ${args[0]} was not found.`);
-	}
-
+	const {file, reason} = CliInternals.findEntryPoint({
+		args,
+		remotionRoot,
+		logLevel,
+		allowDirectory: false,
+	});
 	if (!file) {
-		Log.error(
-			{indent: false, logLevel},
-			'No entry file or bundle directory passed.',
-		);
+		Log.error({indent: false, logLevel}, 'No entry file passed.');
 		Log.info(
 			{indent: false, logLevel},
-			'Pass an additional argument specifying the entry file or bundle directory:',
+			'Pass an additional argument specifying the entry file of your Remotion project:',
 		);
 		Log.info({indent: false, logLevel});
 		Log.info(
 			{indent: false, logLevel},
-			`${BINARY_NAME} lambda sites create <entry-file.ts|bundle-directory>`,
+			`${BINARY_NAME} lambda sites create <entry-file.ts>`,
 		);
 		quit(1);
 		return;
 	}
 
-	const isBundleDirectory =
-		NoReactInternals.ENABLE_V5_BREAKING_CHANGES ||
-		(fs.existsSync(file) && fs.statSync(file).isDirectory());
-	const bundleDir = isBundleDirectory ? validateBundleDir(file) : null;
-
 	Log.verbose(
 		{indent: false, logLevel},
-		isBundleDirectory ? 'Bundle directory:' : 'Entry point:',
+		'Entry point:',
 		file,
 		'Reason:',
 		reason,
@@ -146,9 +115,7 @@ export const sitesCreateSubcommand = async (
 	const updateProgress = (newLine: boolean) => {
 		progressBar.update(
 			[
-				isBundleDirectory
-					? null
-					: makeBundleProgress(multiProgress.bundleProgress),
+				makeBundleProgress(multiProgress.bundleProgress),
 				makeBucketProgress(multiProgress.bucketProgress),
 				makeDiffingProgressBar(multiProgress.diffingProgress),
 				makeDeployProgressBar(multiProgress.deployProgress),
@@ -183,113 +150,94 @@ export const sitesCreateSubcommand = async (
 	multiProgress.bucketProgress.doneIn = Date.now() - bucketStart;
 	updateProgress(false);
 
-	const operationStart = Date.now();
-	let uploadStart = operationStart;
+	const bundleStart = Date.now();
+	let uploadStart = Date.now();
+
+	const publicDir = publicDirOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
 	const throwIfSiteExists = throwIfSiteExistsOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
-	const siteNameToDeploy = desiredSiteName ?? implementation.randomHash();
-	const region = getAwsRegion();
-	const privacy =
-		(parsedLambdaCli.privacy as Exclude<Privacy, 'private'>) ?? 'public';
-	const forcePathStyle = parsedLambdaCli['force-path-style'] ?? false;
-	const bypassBucketNameValidation = Boolean(
-		parsedLambdaCli['force-bucket-name'],
-	);
-	const onDiffingProgress = (bytes: number, done: boolean) => {
-		const previous = multiProgress.diffingProgress.bytesProcessed;
-		const newBytes = bytes - previous;
-		if (newBytes > 100_000_000 || done) {
-			multiProgress.diffingProgress = {
-				bytesProcessed: bytes,
-				doneIn: done ? Date.now() - operationStart : null,
-			};
-			updateProgress(false);
-		}
-	};
-	const onUploadProgress = (p: {sizeUploaded: number; totalSize: number}) => {
-		multiProgress.deployProgress = {
-			sizeUploaded: p.sizeUploaded,
-			totalSize: p.totalSize,
-			doneIn: null,
-			stats: null,
-		};
-		updateProgress(false);
-	};
+	const disableGitSource = disableGitSourceOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
-	const {serveUrl, siteName, stats} = bundleDir
-		? await internalDeploySiteFromBundle({
-				bundleDir,
-				siteName: siteNameToDeploy,
-				bucketName,
-				options: {
-					onDiffingProgress,
-					onUploadProgress,
-					bypassBucketNameValidation,
-				},
-				region,
-				privacy,
-				indent: false,
-				logLevel,
-				throwIfSiteExists,
-				providerSpecifics: implementation,
-				forcePathStyle,
-				fullClientSpecifics: awsFullClientSpecifics,
-				requestHandler: null,
-			})
-		: await LambdaInternals.internalDeploySite({
-				entryPoint: file,
-				siteName: siteNameToDeploy,
-				bucketName,
-				options: {
-					publicDir: publicDirOption.getValue({
-						commandLine: CliInternals.parsedCli,
-					}).value,
-					rootDir: remotionRoot,
-					onBundleProgress: (progress: number) => {
-						multiProgress.bundleProgress = {
-							progress,
-							doneIn: progress === 100 ? Date.now() - operationStart : null,
-						};
-						if (progress === 100) {
-							uploadStart = Date.now();
-						}
+	const gitSource = CliInternals.getGitSource({
+		remotionRoot,
+		disableGitSource,
+		logLevel,
+	});
 
-						updateProgress(false);
-					},
-					onDiffingProgress,
-					onUploadProgress,
-					enableCaching: BrowserSafeApis.options.bundleCacheOption.getValue({
-						commandLine: CliInternals.parsedCli,
-					}).value,
-					bundlerOverride: ConfigInternals.getBundlerOverrideFn(),
-					rspackOverride: ConfigInternals.getRspackOverrideFn(),
-					webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
-					bypassBucketNameValidation,
-					askAIEnabled: askAIOption.getValue({
-						commandLine: CliInternals.parsedCli,
-					}).value,
-					keyboardShortcutsEnabled: keyboardShortcutsOption.getValue({
-						commandLine: CliInternals.parsedCli,
-					}).value,
-				},
-				region,
-				privacy,
-				gitSource: CliInternals.getGitSource({
-					remotionRoot,
-					disableGitSource: disableGitSourceOption.getValue({
-						commandLine: CliInternals.parsedCli,
-					}).value,
-					logLevel,
-				}),
-				indent: false,
-				logLevel,
-				throwIfSiteExists,
-				providerSpecifics: implementation,
-				forcePathStyle,
-				fullClientSpecifics: awsFullClientSpecifics,
-				requestHandler: null,
-			});
+	const askAIEnabled = askAIOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
+	const {serveUrl, siteName, stats} = await LambdaInternals.internalDeploySite({
+		entryPoint: file,
+		siteName: desiredSiteName ?? implementation.randomHash(),
+		bucketName,
+		options: {
+			publicDir,
+			rootDir: remotionRoot,
+			onBundleProgress: (progress: number) => {
+				multiProgress.bundleProgress = {
+					progress,
+					doneIn: progress === 100 ? Date.now() - bundleStart : null,
+				};
+				if (progress === 100) {
+					uploadStart = Date.now();
+				}
+
+				updateProgress(false);
+			},
+			onDiffingProgress(bytes, done) {
+				const previous = multiProgress.diffingProgress.bytesProcessed;
+
+				const newBytes = bytes - previous;
+				if (newBytes > 100_000_000 || done) {
+					multiProgress.diffingProgress = {
+						bytesProcessed: bytes,
+						doneIn: done ? Date.now() - bundleStart : null,
+					};
+					updateProgress(false);
+				}
+			},
+			onUploadProgress: (p) => {
+				multiProgress.deployProgress = {
+					sizeUploaded: p.sizeUploaded,
+					totalSize: p.totalSize,
+					doneIn: null,
+					stats: null,
+				};
+				updateProgress(false);
+			},
+			enableCaching: BrowserSafeApis.options.bundleCacheOption.getValue({
+				commandLine: CliInternals.parsedCli,
+			}).value,
+			bundlerOverride: ConfigInternals.getBundlerOverrideFn(),
+			rspackOverride: ConfigInternals.getRspackOverrideFn(),
+			webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
+			bypassBucketNameValidation: Boolean(parsedLambdaCli['force-bucket-name']),
+			askAIEnabled,
+			keyboardShortcutsEnabled,
+		},
+		region: getAwsRegion(),
+		privacy:
+			(parsedLambdaCli.privacy as Exclude<Privacy, 'private'>) ?? 'public',
+		gitSource,
+		indent: false,
+		logLevel,
+		throwIfSiteExists,
+		providerSpecifics: implementation,
+		forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
+		fullClientSpecifics: awsFullClientSpecifics,
+		requestHandler: null,
+	});
 
 	const uploadDuration = Date.now() - uploadStart;
 	multiProgress.deployProgress = {
@@ -329,11 +277,7 @@ export const sitesCreateSubcommand = async (
 	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.blueBright(
-			[
-				'npx remotion lambda sites create',
-				args[0] ?? (isBundleDirectory ? './build' : null),
-				`--site-name=${siteName}`,
-			]
+			['npx remotion lambda sites create', args[0], `--site-name=${siteName}`]
 				.filter(NoReactInternals.truthy)
 				.join(' '),
 		),

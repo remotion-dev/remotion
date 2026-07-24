@@ -7,21 +7,12 @@ crumb: 'Lambda CLI Reference'
 ---
 
 ```
-npx remotion lambda sites create <entry-point-or-bundle-directory>?
+npx remotion lambda sites create <entry-point>?
 ```
 
-Bundles and uploads a Remotion project to an S3 bucket.
+You may pass an [entry point](/docs/terminology/entry-point) as the first argument, otherwise the entry point will be [determined](/docs/terminology/entry-point#which-entry-point-is-being-used).
 
-You may pass an [entry point](/docs/terminology/entry-point), or omit the argument to [determine it automatically](/docs/terminology/entry-point#which-entry-point-is-being-used).
-
-From <AvailableFrom v="4.0.499" inline />, you can alternatively pass an existing [Remotion Bundle](/docs/terminology/bundle) to skip bundling:
-
-```sh
-npx remotion bundle
-npx remotion lambda sites create ./build
-```
-
-Passing a bundle directory is compatible with Remotion v5, where entry points are no longer accepted.
+Bundle and upload a Remotion video to an S3 bucket.
 
 The result will be a URL such as `https://remotionlambda-12345.s3.eu-central-1.amazonaws.com/sites/abcdef/index.html`.
 
@@ -39,7 +30,7 @@ You can use this "Serve URL" to render a video on Remotion Lambda using:
 If you are rendering on Lambda, you can also pass the site Name (in this case `abcdef`) as an abbreviation.
 
 <details>
-  <summary>Example output when passing an entry point</summary>
+  <summary>Example output</summary>
   <pre>
     (1/3) [====================] Bundled video 3975ms
     <br />
@@ -66,7 +57,7 @@ The [AWS region](/docs/lambda/region-selection) to select. Both project and func
 Uploads the project to a specific directory and returns a deterministic URL. If a site already existed under this name, it will be overwritten. Can only contain the following characters: `0-9`, `a-z`, `A-Z`, `-`, `!`, `_`, `.`, `*`, `'`, `(`, `)`
 
 ```
-npx remotion lambda sites create ./build --site-name=my-project
+npx remotion lambda sites create src/index.ts --site-name=my-project
 ```
 
 ## `--force-bucket-name`<AvailableFrom v="3.3.42" />
@@ -79,8 +70,6 @@ Either `public` (default) or `no-acl` if you are not using ACL. Sites must have 
 
 ## `--public-dir`<AvailableFrom v="4.0.140" />
 
-Only applies when passing an entry point.
-
 <Options id="public-dir" />
 
 ## `--enable-folder-expiry`<AvailableFrom v="4.0.32" />
@@ -92,8 +81,6 @@ Only applies when passing an entry point.
 <Options id="throw-if-site-exists" />
 
 ## `--disable-git-source`<AvailableFrom v="4.0.182" />
-
-Only applies when passing an entry point.
 
 <Options id="disable-git-source" />
 

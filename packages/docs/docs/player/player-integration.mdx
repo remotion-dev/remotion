@@ -203,7 +203,7 @@ const bundled = await bundle(path.join(process.cwd(), 'src', 'remotion', 'index.
 See [Server-side rendering](/docs/ssr) for a full example.
 
 :::tip
-When using Lambda, you don't need this, you can use the CLI or [`deploySite()`](/docs/lambda/deploysite) which will bundle the video for you.
+When using Lambda, pass the resulting directory to [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle). Alternatively, use the Lambda CLI, which bundles and deploys the project in one command.
 :::
 
 ## See also

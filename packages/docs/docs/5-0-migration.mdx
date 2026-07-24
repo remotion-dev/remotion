@@ -97,34 +97,23 @@ This will add a miniscule cost to your renders technically, but will lead to mor
 - If you want to keep the old behavior, set `diskSizeInMb: 2048`, explicitly.
 - If your Lambda function name is hardcoded to include `disk2048mb`, unhardcode it and use `speculateFunctionName()` to get the correct name.
 
-## `deploySite()` no longer bundles projects
+## `deploySite()` is deprecated
 
-[`deploySite()`](/docs/lambda/deploysite) now requires a pre-built `bundleDir`. Building and deployment are separate operations.
+[`deploySite()`](/docs/lambda/deploysite) continues to bundle and deploy a project, but is deprecated because it combines both operations. Existing calls continue to work, so no migration is required.
+
+For new code, build with [`bundle()`](/docs/bundle) and deploy its output with [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle):
 
 ```ts twoslash title="deploy.ts"
 import {bundle} from '@remotion/bundler';
-import {deploySite} from '@remotion/lambda';
+import {deploySiteFromBundle} from '@remotion/lambda';
 
 const bundleDir = await bundle({entryPoint: './src/index.ts'});
 
-await deploySite({
-  bundleDir,
-  bucketName: 'remotionlambda-c7fsl3d',
-  region: 'us-east-1',
+await deploySiteFromBundle({
+	bundleDir,
+	bucketName: 'remotionlambda-c7fsl3d',
+	region: 'us-east-1',
 });
-```
-
-Pass build-only options such as bundler overrides, `publicDir`, `rootDir`, and `gitSource` to [`bundle()`](/docs/bundle). Replace the `onBundleProgress` callback with [`bundle()`'s `onProgress`](/docs/bundle#onprogress) callback.
-
-Existing calls to [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle) continue to work.
-
-**Required action**: Call [`bundle()`](/docs/bundle) separately and replace `entryPoint` with `bundleDir` when calling [`deploySite()`](/docs/lambda/deploysite).
-
-The Lambda CLI also expects a bundle directory:
-
-```sh
-npx remotion bundle
-npx remotion lambda sites create ./build
 ```
 
 ## Some APIs should be imported from `@remotion/lambda/client`

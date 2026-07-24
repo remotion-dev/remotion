@@ -16,14 +16,11 @@ import type {
 	ProviderSpecifics,
 	UploadDirProgress,
 } from '@remotion/serverless';
-import {NoReactInternals} from 'remotion/no-react';
 import {awsFullClientSpecifics} from '../functions/full-client-implementation';
 import {
 	deploySiteWithBundle,
 	type DeploySiteOutput,
 } from '../shared/deploy-site-with-bundle';
-import type {DeploySiteFromBundleInput} from './deploy-site-from-bundle';
-import {deploySiteFromBundle} from './deploy-site-from-bundle';
 
 export type {DeploySiteOutput};
 
@@ -59,63 +56,7 @@ type OptionalParameters = {
 	requestHandler: RequestHandler | null;
 } & ToOptions<typeof BrowserSafeApis.optionsMap.deploySiteLambda>;
 
-/**
- * @deprecated In Remotion v5, build the project using `bundle()` and pass the resulting `bundleDir` to `deploySite()`.
- */
-export type LegacyDeploySiteInput = MandatoryParameters &
-	Partial<OptionalParameters> & {
-		bundleDir?: never;
-	};
-
-export type DeploySiteWithBundleInput = DeploySiteFromBundleInput & {
-	entryPoint?: never;
-};
-
-export type DeploySiteInputForVersion<EnableV5BreakingChanges extends boolean> =
-	EnableV5BreakingChanges extends true
-		? DeploySiteWithBundleInput
-		: LegacyDeploySiteInput | DeploySiteWithBundleInput;
-
-export type DeploySiteInput = DeploySiteInputForVersion<
-	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES
->;
-
-export const resolveDeploySiteMode = (
-	args: {entryPoint?: unknown; bundleDir?: unknown},
-	enableV5BreakingChanges: boolean,
-): 'bundle-dir' | 'entry-point' => {
-	const hasBundleDir = Object.prototype.hasOwnProperty.call(args, 'bundleDir');
-	const hasEntryPoint = Object.prototype.hasOwnProperty.call(
-		args,
-		'entryPoint',
-	);
-
-	if (hasBundleDir === hasEntryPoint) {
-		throw new TypeError(
-			'Pass exactly one of `bundleDir` or `entryPoint` to deploySite().',
-		);
-	}
-
-	if (hasBundleDir) {
-		if (typeof args.bundleDir !== 'string') {
-			throw new TypeError('`bundleDir` must be a string.');
-		}
-
-		return 'bundle-dir';
-	}
-
-	if (typeof args.entryPoint !== 'string') {
-		throw new TypeError('`entryPoint` must be a string.');
-	}
-
-	if (enableV5BreakingChanges) {
-		throw new TypeError(
-			'In Remotion v5, deploySite() does not bundle projects. Call bundle() from `@remotion/bundler` first and pass the resulting directory as `bundleDir`.',
-		);
-	}
-
-	return 'entry-point';
-};
+export type DeploySiteInput = MandatoryParameters & Partial<OptionalParameters>;
 
 const mandatoryDeploySite = async ({
 	bucketName,
@@ -200,36 +141,25 @@ export const internalDeploySite: (
 ) => DeploySiteOutput = wrapWithErrorHandling(mandatoryDeploySite);
 
 /*
- * @description Deploys a Remotion bundle to an S3 bucket for rendering on AWS Lambda. In Remotion v4, an entry point may be passed instead to bundle and deploy in one step.
+ * @description Bundles a Remotion project and deploys it to an S3 bucket for rendering on AWS Lambda.
  * @see [Documentation](https://remotion.dev/docs/lambda/deploysite)
  */
 export const deploySite = (args: DeploySiteInput) => {
-	const mode = resolveDeploySiteMode(
-		args,
-		NoReactInternals.ENABLE_V5_BREAKING_CHANGES,
-	);
-
-	if (mode === 'bundle-dir') {
-		return deploySiteFromBundle(args as DeploySiteWithBundleInput);
-	}
-
-	const legacyArgs = args as unknown as LegacyDeploySiteInput;
 	return internalDeploySite({
-		bucketName: legacyArgs.bucketName,
-		entryPoint: legacyArgs.entryPoint,
-		region: legacyArgs.region,
-		gitSource: legacyArgs.gitSource ?? null,
-		options: legacyArgs.options ?? {},
-		privacy: legacyArgs.privacy ?? 'public',
+		bucketName: args.bucketName,
+		entryPoint: args.entryPoint,
+		region: args.region,
+		gitSource: args.gitSource ?? null,
+		options: args.options ?? {},
+		privacy: args.privacy ?? 'public',
 		siteName:
-			legacyArgs.siteName ??
-			LambdaClientInternals.awsImplementation.randomHash(),
+			args.siteName ?? LambdaClientInternals.awsImplementation.randomHash(),
 		indent: false,
 		logLevel: 'info',
-		throwIfSiteExists: legacyArgs.throwIfSiteExists ?? false,
+		throwIfSiteExists: args.throwIfSiteExists ?? false,
 		providerSpecifics: LambdaClientInternals.awsImplementation,
-		forcePathStyle: legacyArgs.forcePathStyle ?? false,
+		forcePathStyle: args.forcePathStyle ?? false,
 		fullClientSpecifics: awsFullClientSpecifics,
-		requestHandler: legacyArgs.requestHandler ?? null,
+		requestHandler: args.requestHandler ?? null,
 	});
 };
