@@ -236,6 +236,61 @@ test('updateSequenceProps should remove attribute when value equals default', as
 	expect(output.split('\n')[7]).toContain('hueShift={30}');
 });
 
+test('resetting strokeWidth removes the JSX attribute', async () => {
+	const input = `import {Interactive} from 'remotion';
+
+export const Example = () => {
+	return <Interactive.Line stroke="red" strokeWidth={10} />;
+};
+`;
+	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, 4),
+		updates: [{key: 'strokeWidth', value: 1, defaultValue: 1}],
+		schema: {
+			strokeWidth: {
+				type: 'number',
+				default: 1,
+				min: 0,
+				step: 1,
+				hiddenFromList: false,
+			},
+		},
+		prettierConfigOverride: null,
+	});
+
+	expect(oldValueStrings).toEqual(['10']);
+	expect(output).toContain('<Interactive.Line stroke="red" />');
+	expect(output).not.toContain('strokeWidth');
+});
+
+test('resetting stroke removes the JSX attribute', async () => {
+	const input = `import {Interactive} from 'remotion';
+
+export const Example = () => {
+	return <Interactive.Line stroke="red" />;
+};
+`;
+	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, 4),
+		updates: [{key: 'stroke', value: 'none', defaultValue: 'none'}],
+		schema: {
+			stroke: {
+				type: 'color',
+				default: 'none',
+			},
+		},
+		prettierConfigOverride: null,
+	});
+
+	expect(oldValueStrings).toEqual(['"red"']);
+	expect(output).toContain('<Interactive.Line />');
+	expect(output).not.toContain('stroke=');
+});
+
 test('updateSequenceProps should remove name when value is empty string default', async () => {
 	const input = `import {Sequence} from 'remotion';
 

@@ -21,6 +21,8 @@ import {
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
 	sequenceStyleSchema,
+	svgPaintSchema,
+	svgStrokeSchema,
 	textContentSchema,
 	textSchema,
 	transformSchema,
@@ -364,6 +366,44 @@ test('backgroundSchema exposes the background color style field', () => {
 		type: 'color',
 		default: 'transparent',
 	});
+});
+
+test('svgStrokeSchema exposes SVG stroke controls', () => {
+	expect(Object.keys(svgStrokeSchema)).toEqual(['stroke', 'strokeWidth']);
+	expect(svgStrokeSchema.stroke).toMatchObject({
+		type: 'color',
+		default: 'none',
+		description: 'Stroke',
+	});
+	expect(svgStrokeSchema.strokeWidth).toMatchObject({
+		type: 'number',
+		default: 1,
+		description: 'Stroke width',
+		min: 0,
+		step: 1,
+		hiddenFromList: false,
+	});
+	expect(Interactive.svgStrokeSchema).toBe(svgStrokeSchema);
+});
+
+test('svgPaintSchema exposes SVG fill and stroke fields', () => {
+	expect(Object.keys(svgPaintSchema)).toEqual([
+		'fill',
+		'stroke',
+		'strokeWidth',
+	]);
+	expect(svgPaintSchema.fill).toMatchObject({
+		type: 'color',
+		default: undefined,
+		description: 'Fill',
+	});
+	expect(svgPaintSchema.stroke).toMatchObject({
+		type: 'color',
+		default: 'none',
+		description: 'Stroke',
+	});
+	expect(svgPaintSchema.strokeWidth).toBe(svgStrokeSchema.strokeWidth);
+	expect(Interactive.svgPaintSchema).toBe(svgPaintSchema);
 });
 
 test('readValuesFromProps reads dot-notation keys via getNestedValue', () => {

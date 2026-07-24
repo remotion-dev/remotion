@@ -287,6 +287,7 @@ import {
 	InteractiveSvgElements,
 } from './VisualModeTests/InteractiveComponents';
 import {Issue9170} from './VisualModeTests/Issue9170';
+import {SvgPaintSchema} from './VisualModeTests/SvgPaintSchema';
 import {VideoConfigExpressions} from './VisualModeTests/VideoConfigExpressions';
 import {VoiceVisualization} from './voice-visualization';
 import {WhisperWeb} from './WhisperWeb';
@@ -2758,6 +2759,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="interactive-svg-elements"
 					component={InteractiveSvgElements}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="issue-9582-svg-paint-schema"
+					component={SvgPaintSchema}
 					width={1080}
 					height={1080}
 					fps={30}

@@ -1104,7 +1104,27 @@ test('Interactive elements register their rendered element for Studio outlines',
 		expect(getByName(displayName)?.controls?.schema).not.toHaveProperty(
 			'children',
 		);
+		expect(getByName(displayName)?.controls?.schema).toHaveProperty('stroke');
+		expect(getByName(displayName)?.controls?.schema).toHaveProperty(
+			'strokeWidth',
+		);
 	}
+
+	for (const displayName of [
+		'<Interactive.Circle>',
+		'<Interactive.Ellipse>',
+		'<Interactive.G>',
+		'<Interactive.Path>',
+		'<Interactive.Rect>',
+		'<Interactive.Svg>',
+		'<Interactive.Text>',
+	]) {
+		expect(getByName(displayName)?.controls?.schema).toHaveProperty('fill');
+	}
+
+	expect(getByName('<Interactive.Line>')?.controls?.schema).not.toHaveProperty(
+		'fill',
+	);
 });
 
 test('Interactive elements inherit trimBefore from Sequence', () => {

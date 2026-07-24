@@ -10,6 +10,8 @@ import {
 	borderSchema,
 	premountSchema,
 	sequenceSchema,
+	svgPaintSchema,
+	svgStrokeSchema,
 	textContentSchema,
 	textSchema,
 	transformSchema,
@@ -161,8 +163,24 @@ const interactiveTextElementSchema = {
 
 const interactiveSvgTextElementSchema = {
 	...interactiveElementSchema,
+	...svgPaintSchema,
 	...textSchema,
 	...textContentSchema,
+} as const satisfies InteractivitySchema;
+
+const interactiveSvgElementSchema = {
+	...interactiveElementSchema,
+	...svgPaintSchema,
+} as const satisfies InteractivitySchema;
+
+const interactiveSvgStrokeElementSchema = {
+	...interactiveElementSchema,
+	...svgStrokeSchema,
+} as const satisfies InteractivitySchema;
+
+const interactiveSvgRootElementSchema = {
+	...interactiveBorderElementSchema,
+	...svgPaintSchema,
 } as const satisfies InteractivitySchema;
 
 const setRef = <ElementType,>(
@@ -270,11 +288,22 @@ const makeInteractiveTextElement = <Tag extends InteractiveTag>(
 	return makeInteractiveElement(tag, displayName, interactiveTextElementSchema);
 };
 
-const makeInteractiveNonTextElement = <Tag extends InteractiveTag>(
+const makeInteractiveSvgElement = <Tag extends InteractiveSvgTag>(
 	tag: Tag,
 	displayName: string,
 ) => {
-	return makeInteractiveElement(tag, displayName, interactiveElementSchema);
+	return makeInteractiveElement(tag, displayName, interactiveSvgElementSchema);
+};
+
+const makeInteractiveSvgStrokeElement = <Tag extends InteractiveSvgTag>(
+	tag: Tag,
+	displayName: string,
+) => {
+	return makeInteractiveElement(
+		tag,
+		displayName,
+		interactiveSvgStrokeElementSchema,
+	);
 };
 
 /**
@@ -286,6 +315,8 @@ export const Interactive = {
 	textSchema,
 	backgroundSchema,
 	borderSchema,
+	svgPaintSchema,
+	svgStrokeSchema,
 	premountSchema,
 	sequenceSchema,
 	withSchema,
@@ -294,13 +325,13 @@ export const Interactive = {
 	Article: makeInteractiveTextElement('article', '<Interactive.Article>'),
 	Aside: makeInteractiveTextElement('aside', '<Interactive.Aside>'),
 	Button: makeInteractiveTextElement('button', '<Interactive.Button>'),
-	Circle: makeInteractiveNonTextElement('circle', '<Interactive.Circle>'),
+	Circle: makeInteractiveSvgElement('circle', '<Interactive.Circle>'),
 	Code: makeInteractiveTextElement('code', '<Interactive.Code>'),
 	Div: makeInteractiveTextElement('div', '<Interactive.Div>'),
-	Ellipse: makeInteractiveNonTextElement('ellipse', '<Interactive.Ellipse>'),
+	Ellipse: makeInteractiveSvgElement('ellipse', '<Interactive.Ellipse>'),
 	Em: makeInteractiveTextElement('em', '<Interactive.Em>'),
 	Footer: makeInteractiveTextElement('footer', '<Interactive.Footer>'),
-	G: makeInteractiveNonTextElement('g', '<Interactive.G>'),
+	G: makeInteractiveSvgElement('g', '<Interactive.G>'),
 	H1: makeInteractiveTextElement('h1', '<Interactive.H1>'),
 	H2: makeInteractiveTextElement('h2', '<Interactive.H2>'),
 	H3: makeInteractiveTextElement('h3', '<Interactive.H3>'),
@@ -310,14 +341,14 @@ export const Interactive = {
 	Header: makeInteractiveTextElement('header', '<Interactive.Header>'),
 	Label: makeInteractiveTextElement('label', '<Interactive.Label>'),
 	Li: makeInteractiveTextElement('li', '<Interactive.Li>'),
-	Line: makeInteractiveNonTextElement('line', '<Interactive.Line>'),
+	Line: makeInteractiveSvgStrokeElement('line', '<Interactive.Line>'),
 	Main: makeInteractiveTextElement('main', '<Interactive.Main>'),
 	Nav: makeInteractiveTextElement('nav', '<Interactive.Nav>'),
 	Ol: makeInteractiveTextElement('ol', '<Interactive.Ol>'),
 	P: makeInteractiveTextElement('p', '<Interactive.P>'),
-	Path: makeInteractiveNonTextElement('path', '<Interactive.Path>'),
+	Path: makeInteractiveSvgElement('path', '<Interactive.Path>'),
 	Pre: makeInteractiveTextElement('pre', '<Interactive.Pre>'),
-	Rect: makeInteractiveNonTextElement('rect', '<Interactive.Rect>'),
+	Rect: makeInteractiveSvgElement('rect', '<Interactive.Rect>'),
 	Section: makeInteractiveTextElement('section', '<Interactive.Section>'),
 	Small: makeInteractiveTextElement('small', '<Interactive.Small>'),
 	Span: makeInteractiveTextElement('span', '<Interactive.Span>'),
@@ -325,7 +356,7 @@ export const Interactive = {
 	Svg: makeInteractiveElement(
 		'svg',
 		'<Interactive.Svg>',
-		interactiveBorderElementSchema,
+		interactiveSvgRootElementSchema,
 	),
 	Text: makeInteractiveElement(
 		'text',

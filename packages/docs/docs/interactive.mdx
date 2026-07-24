@@ -53,6 +53,15 @@ Available SVG elements:
 
 `Circle`, `Ellipse`, `G`, `Line`, `Path`, `Rect`, `Svg`, `Text`.
 
+All SVG elements expose controls for the `stroke` and `strokeWidth` props.
+Elements with a paintable interior also expose a color control for `fill`.
+On `Svg` and `G`, these controls set inherited paint defaults for descendants.
+Keep these values inline in JSX if the Studio should edit or keyframe them.
+The `strokeWidth` control defaults to SVG's initial value of `1`; resetting it
+removes the prop from the JSX.
+The `stroke` control defaults to `none`; resetting it also removes the prop and
+therefore removes the stroke.
+
 ## Schema helpers
 
 `Interactive` also exposes schema fragments for custom timeline components.
@@ -117,6 +126,18 @@ Controls for border-related style props:
 The longhand properties are used rather than the `border` shorthand, because React does not expand shorthands. This lets each control read its own value, and allows `style.borderWidth` and `style.borderColor` to be animated.
 
 Use it for components that accept a `style` prop and render a border.
+
+### `Interactive.svgPaintSchema`<AvailableFrom v="4.0.499" />
+
+Controls for the SVG `fill`, `stroke` and `strokeWidth` props.
+
+Use it for custom components that accept SVG paint props.
+
+### `Interactive.svgStrokeSchema`<AvailableFrom v="4.0.499" />
+
+Controls for the SVG `stroke` and `strokeWidth` props.
+
+Use it for custom components such as lines that do not have a paintable interior.
 
 ### `Interactive.premountSchema`<AvailableFrom v="4.0.479" />
 

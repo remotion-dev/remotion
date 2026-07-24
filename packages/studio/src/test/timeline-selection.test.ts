@@ -4818,6 +4818,51 @@ test('Backspace reset targets multiple selected sequence props', () => {
 	expect(resetTargets?.map((target) => target.value)).toEqual([1, '0deg']);
 });
 
+test('Backspace reset targets stroke with the SVG default', () => {
+	const schema = {
+		stroke: {type: 'color', default: 'none'},
+	} satisfies InteractivitySchema;
+	const strokeNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'stroke'],
+	);
+	const nodePath = strokeNodePathInfo.sequenceSubscriptionKey;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				stroke: {status: 'static', codeValue: '#ff0000'},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	const resetTargets = getTimelinePropResetTargets({
+		selections: [
+			{
+				type: 'sequence-prop',
+				nodePathInfo: strokeNodePathInfo,
+				key: 'stroke',
+			},
+		],
+		sequences: [makeTimelineSequence({schema})],
+		overrideIdsToNodePaths: {override: nodePath},
+		propStatuses,
+	});
+
+	expect(resetTargets).toEqual([
+		{
+			type: 'sequence-prop',
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			fieldKey: 'stroke',
+			value: 'none',
+			defaultValue: '"none"',
+			schema,
+		},
+	]);
+});
+
 test('Backspace reset targets selected keyframed sequence props', () => {
 	const schema = {
 		opacity: {type: 'number', default: 1, hiddenFromList: false},

@@ -376,6 +376,33 @@ export const backgroundSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
+export const svgStrokeSchema = {
+	stroke: {
+		type: 'color',
+		// `none` is the SVG initial value of stroke.
+		default: 'none',
+		description: 'Stroke',
+	},
+	strokeWidth: {
+		type: 'number',
+		// `1` is the SVG initial value of stroke-width.
+		default: 1,
+		description: 'Stroke width',
+		min: 0,
+		step: 1,
+		hiddenFromList: false,
+	},
+} as const satisfies InteractivitySchema;
+
+export const svgPaintSchema = {
+	fill: {
+		type: 'color',
+		default: undefined,
+		description: 'Fill',
+	},
+	...svgStrokeSchema,
+} as const satisfies InteractivitySchema;
+
 export const textContentSchema = {
 	children: {
 		type: 'text-content',
