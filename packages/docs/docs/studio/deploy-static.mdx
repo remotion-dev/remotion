@@ -124,7 +124,7 @@ npx remotion render https://remotion-helloworld.vercel.app HelloWorld --props '{
 <TabItem value="ssr">
 
 ```tsx twoslash title="render.mjs"
-const outputLocation = '/path/to/frames';
+const outputLocation = '/path/to/video.mp4';
 
 import {renderMedia, selectComposition} from '@remotion/renderer';
 
@@ -145,6 +145,7 @@ await renderMedia({
   composition,
   serveUrl,
   codec: 'h264',
+  outputLocation,
   inputProps,
 });
 ```
