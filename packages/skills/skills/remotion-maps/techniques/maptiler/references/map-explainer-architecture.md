@@ -81,7 +81,7 @@ const bp = interpolate(clamp01(lt / BORDER_S), [0,1], [0,1], { easing: Easing.be
 map.getSource(`trail-${c}`).setData(sliceBorder(DRAW[c], 0, DRAW[c].total * bp));   // COUNTRY_DARK line
 // 2) fill blooms in (opacity overshoots, then settles) after the border completes
 const fp = clamp01((lt - BORDER_S) / FILL_S);
-const fo = interpolate(fp, [0, 0.6, 1], [0, FILL_OPACITY * 1.25, FILL_OPACITY], { ...clamp, easing: Easing.bezier(1 / 3, 1, 2 / 3, 1) });
+const fo = interpolate(fp, [0, 0.6, 1], [0, FILL_OPACITY * 1.25, FILL_OPACITY], { ...clamp, easing: Easing.bezier(0.3333333333333333, 1, 0.6666666666666666, 1) });
 map.setPaintProperty(`fill-${c}`, "fill-opacity", fp <= 0 ? 0 : fo);
 // 3) label rises in after the fill
 const lp = clamp01((lt - BORDER_S - FILL_S) / LABEL_S);
