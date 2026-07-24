@@ -46,14 +46,10 @@ const SocialRow: React.FC<{
 				fontWeight: 500,
 				height: 88,
 				letterSpacing: -1.1,
-				opacity: interpolate(frame, [28, 40, 146, 162], [0, 1, 1, 0], {
-					extrapolateLeft: 'clamp',
-					extrapolateRight: 'clamp',
-				}),
 				translate: interpolate(
 					frame,
-					[28, 44, 146, 166],
-					['0px 24px', '0px 0px', '0px 0px', '0px -18px'],
+					[18, 48, 146, 176],
+					['0px 96px', '0px 0px', '0px 0px', '0px -96px'],
 					{
 						easing: Easing.out(Easing.cubic),
 						extrapolateLeft: 'clamp',
@@ -99,15 +95,11 @@ export const Endcard: React.FC = () => {
 				style={{
 					alignItems: 'center',
 					display: 'flex',
-					opacity: interpolate(frame, [8, 26, 146, 166], [0, 1, 1, 0], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					}),
 					position: 'absolute',
 					translate: interpolate(
 						frame,
-						[8, 30, 146, 170],
-						['0px 72px', '0px 0px', '0px 0px', '0px -48px'],
+						[8, 42, 146, 178],
+						['0px 190px', '0px 0px', '0px 0px', '0px -190px'],
 						{
 							easing: Easing.out(Easing.cubic),
 							extrapolateLeft: 'clamp',
@@ -176,10 +168,6 @@ export const Endcard: React.FC = () => {
 					border: '6px solid #18181b',
 					boxSizing: 'border-box',
 					height: 361,
-					opacity: interpolate(frame, [20, 38, 142, 160], [0, 1, 1, 0], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					}),
 					position: 'absolute',
 					right: 100,
 					top: 135,
@@ -202,10 +190,6 @@ export const Endcard: React.FC = () => {
 					border: '6px solid #18181b',
 					boxSizing: 'border-box',
 					height: 361,
-					opacity: interpolate(frame, [26, 44, 146, 164], [0, 1, 1, 0], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					}),
 					position: 'absolute',
 					right: 100,
 					top: 564,
