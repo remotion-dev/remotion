@@ -84,6 +84,7 @@ const metadataLabelControls: React.CSSProperties = {
 	display: 'flex',
 	fontFamily: 'sans-serif',
 	fontSize: 13,
+	gap: 2,
 	lineHeight: '18px',
 	minWidth: 0,
 };
