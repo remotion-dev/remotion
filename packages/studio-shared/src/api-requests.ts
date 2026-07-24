@@ -383,6 +383,28 @@ export type SaveEffectPropsRequest =
 
 export type SaveEffectPropsResponse = CanUpdateEffectPropsResponse;
 
+type WithoutClientId<T> = T extends unknown ? Omit<T, 'clientId'> : never;
+
+export type SaveMultipleEffectPropsEdit =
+	WithoutClientId<SaveEffectPropsRequest>;
+
+export type SaveMultipleEffectPropsRequest = {
+	edits: SaveMultipleEffectPropsEdit[];
+	clientId: string;
+	undoLabel: string;
+	redoLabel: string;
+};
+
+export type SaveMultipleEffectPropsResult = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	status: CanUpdateEffectPropsResponse;
+};
+
+export type SaveMultipleEffectPropsResponse = {
+	results: SaveMultipleEffectPropsResult[];
+};
+
 export type AddEffectRequest = {
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
@@ -955,6 +977,10 @@ export type ApiRoutes = {
 	'/api/save-effect-props': ReqAndRes<
 		SaveEffectPropsRequest,
 		SaveEffectPropsResponse
+	>;
+	'/api/save-multiple-effect-props': ReqAndRes<
+		SaveMultipleEffectPropsRequest,
+		SaveMultipleEffectPropsResponse
 	>;
 	'/api/add-effect': ReqAndRes<AddEffectRequest, AddEffectResponse>;
 	'/api/reorder-effect': ReqAndRes<ReorderEffectRequest, ReorderEffectResponse>;

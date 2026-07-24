@@ -35,6 +35,7 @@ import {reorderEffectHandler} from './routes/reorder-effect';
 import {reorderSequenceHandler} from './routes/reorder-sequence';
 import {handleRestartStudio} from './routes/restart-studio';
 import {saveEffectPropsHandler} from './routes/save-effect-props';
+import {saveMultipleEffectPropsHandler} from './routes/save-multiple-effect-props';
 import {saveSequencePropsHandler} from './routes/save-sequence-props';
 import {splitJsxSequenceHandler} from './routes/split-jsx-sequence';
 import {subscribeToDefaultProps} from './routes/subscribe-to-default-props';
@@ -78,6 +79,7 @@ export const allApiRoutes: {
 	'/api/unsubscribe-from-sequence-props': unsubscribeFromSequenceProps,
 	'/api/save-sequence-props': saveSequencePropsHandler,
 	'/api/save-effect-props': saveEffectPropsHandler,
+	'/api/save-multiple-effect-props': saveMultipleEffectPropsHandler,
 	'/api/add-effect': addEffectHandler,
 	'/api/reorder-effect': reorderEffectHandler,
 	'/api/duplicate-effect': duplicateEffectHandler,
