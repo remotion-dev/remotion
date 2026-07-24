@@ -284,7 +284,8 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 ### `overwrite?`<AvailableFrom v="3.2.25" />
 
-If a custom out name is specified and a file already exists at this key in the S3 bucket, decide whether the file should be overwritten. Default `false`.  
+If a custom out name is specified and a file already exists at this key in the S3 bucket, decide whether the file should be overwritten. The default is `false` in Remotion 4.0 and `true` in Remotion 5.0.
+
 If the file exists and `overwrite` is `false`, an error will be thrown.
 
 ### `rendererFunctionName?`<AvailableFrom v="3.3.38" />
