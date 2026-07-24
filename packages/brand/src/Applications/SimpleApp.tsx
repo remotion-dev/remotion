@@ -31,8 +31,13 @@ const titleWords = [
 ] as const;
 const wordLetterOffsets = [0, titleWords[0].letters.length] as const;
 
-export function ApplicationSimpleApp() {
+export function ApplicationSimpleApp({
+	kineticTypeFrame,
+}: {
+	readonly kineticTypeFrame?: number;
+}) {
 	const frame = useCurrentFrame();
+	const titleFrame = kineticTypeFrame ?? frame;
 
 	return (
 		<AbsoluteFill
@@ -160,7 +165,7 @@ export function ApplicationSimpleApp() {
 														style={{
 															display: 'inline-block',
 															translate: interpolate(
-																frame,
+																titleFrame,
 																[
 																	6 + globalLetterIndex * 2,
 																	18 + globalLetterIndex * 2,
