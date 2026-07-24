@@ -120,7 +120,7 @@ const TopPanelInner: React.FC<{
 					>
 						{actualStateLeft === 'expanded' ? (
 							isMobileLayout ? (
-								<MobilePanel onClose={onCollapseLeft}>
+								<MobilePanel onClose={onCollapseLeft} side="left">
 									<ExplorerPanel readOnlyStudio={readOnlyStudio} />
 								</MobilePanel>
 							) : (
@@ -158,7 +158,7 @@ const TopPanelInner: React.FC<{
 								) : null}
 								{actualStateRight === 'expanded' ? (
 									isMobileLayout ? (
-										<MobilePanel onClose={onCollapseRight}>
+										<MobilePanel onClose={onCollapseRight} side="right">
 											<OptionsPanel readOnlyStudio={readOnlyStudio} />
 										</MobilePanel>
 									) : (
