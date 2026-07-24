@@ -6,9 +6,9 @@ slug: /lambda/deploysite
 crumb: 'Lambda API'
 ---
 
-Takes a Remotion project, bundles it and uploads it to an S3 bucket. Once uploaded, a Lambda function can render any composition in the Remotion project by specifying the URL.
+Uploads a local [Remotion Bundle](/docs/terminology/bundle) to an S3 bucket. Once uploaded, a Lambda function can render any composition in the project by specifying the URL.
 
-If the project was already bundled in an earlier build step, use [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle) to upload it without bundling again.
+From <AvailableFrom v="4.0.499" inline />, pass `bundleDir` to keep building and deployment as separate steps. In Remotion v4, you may instead pass `entryPoint` to bundle and deploy in one call. The `entryPoint` mode is removed in Remotion v5.
 
 - If you make changes locally, you need to redeploy the site. You can use [`siteName`](#sitename) to overwrite the previous site.
 - Note that the Remotion project will be deployed to a subdirectory, not the root of the domain. Therefore you must ensure that if you have specified paths in your Remotion project, they are able to handle this scenario.
@@ -16,19 +16,30 @@ If the project was already bundled in an earlier build step, use [`deploySiteFro
 
 ## Example
 
-```ts twoslash
+Build the project:
+
+```ts twoslash title="build.ts"
+import {bundle} from '@remotion/bundler';
+import path from 'node:path';
+
+const bundleDir = await bundle({
+  entryPoint: path.resolve(process.cwd(), 'src/index.ts'),
+  outDir: path.resolve(process.cwd(), 'build'),
+});
+
+console.log(bundleDir);
+```
+
+Deploy the resulting directory:
+
+```ts twoslash title="deploy.ts"
 import {deploySite} from '@remotion/lambda';
-import path from 'path';
 
 const {serveUrl} = await deploySite({
-  entryPoint: path.resolve(process.cwd(), 'src/index.ts'),
+  bundleDir: './build',
   bucketName: 'remotionlambda-c7fsl3d',
   region: 'us-east-1',
   options: {
-    onBundleProgress: (progress) => {
-      // Progress is between 0 and 100
-      console.log(`Bundle progress: ${progress}%`);
-    },
     onUploadProgress: ({totalFiles, filesUploaded, totalSize, sizeUploaded}) => {
       console.log(`Upload progress: Total files ${totalFiles}, Files uploaded ${filesUploaded}, Total size ${totalSize}, Size uploaded ${sizeUploaded}`);
     },
@@ -37,13 +48,31 @@ const {serveUrl} = await deploySite({
 console.log(serveUrl);
 ```
 
+The bundle directory is read but not modified or deleted.
+
 ## Arguments
 
 An object with the following properties:
 
-### `entryPoint`
+Pass exactly one of `bundleDir` and `entryPoint`.
 
-An absolute path pointing to the entry point of your Remotion project. [Usually the entry point in your Remotion project is stored at `src/entry.tsx`](/docs/terminology/entry-point).
+### `bundleDir`?<AvailableFrom v="4.0.499" />
+
+The local directory containing the bundle. It must contain `index.html` and `bundle.js` files at its root.
+
+The bundle must be relocatable. Bundles created using [`npx remotion bundle`](/docs/cli/bundle) or [`bundle()`](/docs/bundle) are relocatable by default.
+
+The default output directory of `npx remotion bundle` is `./build`. If you use `bundle()`, pass its return value.
+
+:::caution
+Deploy only trusted artifacts. Symbolic links to files are followed and the target contents are uploaded. Symbolic links to directories are rejected.
+:::
+
+### `entryPoint`?
+
+An absolute path pointing to the [entry point](/docs/terminology/entry-point) of your Remotion project. Passing an entry point bundles and deploys the project in one operation and is only supported in Remotion v4.
+
+**Required action for Remotion v5:** Call [`bundle()`](/docs/bundle) separately and pass its output as `bundleDir`.
 
 ### `bucketName`
 
@@ -67,7 +96,7 @@ An object with the following properties:
 
 #### `onBundleProgress?`
 
-Callback from Webpack when the bundling has progressed. Passes a number between 0 and 100 to the callback, see example at the top of the page.
+Only available when passing `entryPoint`. Callback from the bundler when bundling has progressed. Passes a number between 0 and 100.
 
 #### `onUploadProgress?`
 
@@ -77,6 +106,8 @@ Callback function that gets called when uploading of the assets has progressed. 
 - `filesUploaded` (_number_): Number of files that have been fully uploaded so far.
 - `totalSize` (_number_): Total size in bytes of all the files in the bundle.
 - `sizeUploaded` (_number_): Amount of bytes uploaded so far.
+
+The following build options are only available when passing `entryPoint` in Remotion v4. Pass them to [`bundle()`](/docs/bundle) when building separately.
 
 #### `webpackOverride?`
 
@@ -167,7 +198,7 @@ From `v3.3.7`, this function is incremental: It only compares the contents of th
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/deploy-site.ts)
-- [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle)
+- [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle), an alias for deploying a bundle directory
 - [CLI equivalent: `npx remotion lambda sites create`](/docs/lambda/cli/sites/create)
 - [getSites()](/docs/lambda/getsites)
 - [deleteSite()](/docs/lambda/deletesite)

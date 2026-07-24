@@ -298,7 +298,7 @@ const innerSetPropsAndEnv = async ({
 				'When using the Remotion Lambda:',
 				' ▸ Use `npx remotion lambda sites create` to redeploy the site with the latest version.',
 				' ℹ Use --site-name with the same name as before to overwrite your site.',
-				' ▸ Use `deploySite()` if you are using the Node.JS APIs.',
+				' ▸ Use `bundle()` and `deploySite()` if you are using the Node.js APIs.',
 			].join('\n'),
 		);
 	}
@@ -315,7 +315,7 @@ const innerSetPropsAndEnv = async ({
 					`To resolve this warning:`,
 					'▸ Use `npx remotion lambda sites create` to redeploy the site with the latest version.',
 					'  ℹ Use --site-name with the same name as before to overwrite your site.',
-					'▸ Use `deploySite()` if you are using the Node.JS APIs.',
+					'▸ Use `bundle()` and `deploySite()` if you are using the Node.js APIs.',
 				].join('\n'),
 			);
 		} else {

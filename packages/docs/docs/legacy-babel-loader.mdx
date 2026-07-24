@@ -60,9 +60,9 @@ Config.overrideWebpackConfig((currentConfiguration) => {
 });
 ```
 
-## When using `bundle` or `deploySite`
+## When using `bundle()`
 
-When using the Node.JS APIs - [`bundle()`](/docs/bundle) for SSR or [`deploySite()`](/docs/lambda/deploysite) for Lambda, you also need to provide the Webpack override, since the Node.JS APIs do not read from the config file.
+When using the [`bundle()`](/docs/bundle) Node.js API, provide the Webpack override directly because Node.js APIs do not read from the config file. Pass the resulting directory to [`deploySite()`](/docs/lambda/deploysite) when deploying to Lambda.
 
 ```ts twoslash title="my-script.js"
 // @filename: ./src/webpack-override.ts
