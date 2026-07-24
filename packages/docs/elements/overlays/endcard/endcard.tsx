@@ -33,8 +33,6 @@ const SocialRow: React.FC<{
 	readonly label: string;
 	readonly name: string;
 }> = ({children, label, name}) => {
-	const frame = useCurrentFrame();
-
 	return (
 		<Interactive.Div
 			name={name}
@@ -46,11 +44,6 @@ const SocialRow: React.FC<{
 				fontWeight: 500,
 				height: 88,
 				letterSpacing: -1.1,
-				translate: interpolate(frame, [18, 48], ['0px 96px', '0px 0px'], {
-					easing: Easing.out(Easing.cubic),
-					extrapolateLeft: 'clamp',
-					extrapolateRight: 'clamp',
-				}),
 			}}
 		>
 			<div
@@ -140,16 +133,36 @@ export const Endcard: React.FC = () => {
 				</Interactive.Div>
 			</Interactive.Div>
 
-			<div style={{position: 'absolute', left: 80, top: 474, width: 760}}>
-				<SocialRow label="@yourchannel" name="YouTube">
-					<YouTubeIcon />
-				</SocialRow>
-				<SocialRow label="@yourhandle" name="X">
-					<XIcon />
-				</SocialRow>
-				<SocialRow label="@yourhandle" name="Instagram">
-					<InstagramIcon />
-				</SocialRow>
+			<div
+				style={{
+					height: 264,
+					left: 80,
+					overflow: 'hidden',
+					position: 'absolute',
+					top: 474,
+					width: 760,
+				}}
+			>
+				<Interactive.Div
+					name="Social links"
+					style={{
+						translate: interpolate(frame, [18, 48], ['0px 264px', '0px 0px'], {
+							easing: Easing.out(Easing.cubic),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
+					}}
+				>
+					<SocialRow label="@yourchannel" name="YouTube">
+						<YouTubeIcon />
+					</SocialRow>
+					<SocialRow label="@yourhandle" name="X">
+						<XIcon />
+					</SocialRow>
+					<SocialRow label="@yourhandle" name="Instagram">
+						<InstagramIcon />
+					</SocialRow>
+				</Interactive.Div>
 			</div>
 
 			<Interactive.Div
