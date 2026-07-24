@@ -10,18 +10,18 @@ crumb: 'Lambda CLI Reference'
 npx remotion lambda sites create <entry-point-or-bundle-directory>?
 ```
 
-Uploads a Remotion project or an existing [Remotion Bundle](/docs/terminology/bundle) to an S3 bucket.
+Bundles and uploads a Remotion project to an S3 bucket.
 
-From <AvailableFrom v="4.0.499" inline />, pass a bundle directory to deploy without bundling again:
+You may pass an [entry point](/docs/terminology/entry-point), or omit the argument to [determine it automatically](/docs/terminology/entry-point#which-entry-point-is-being-used).
+
+From <AvailableFrom v="4.0.499" inline />, you can alternatively pass an existing [Remotion Bundle](/docs/terminology/bundle) to skip bundling:
 
 ```sh
 npx remotion bundle
 npx remotion lambda sites create ./build
 ```
 
-In Remotion v4, you may instead pass an [entry point](/docs/terminology/entry-point), or omit the argument to [determine it automatically](/docs/terminology/entry-point#which-entry-point-is-being-used). This bundles and deploys in one operation.
-
-In Remotion v5, only a bundle directory is accepted. If the argument is omitted, `./build` is used.
+Passing a bundle directory is compatible with Remotion v5, where entry points are no longer accepted.
 
 The result will be a URL such as `https://remotionlambda-12345.s3.eu-central-1.amazonaws.com/sites/abcdef/index.html`.
 
@@ -39,7 +39,7 @@ You can use this "Serve URL" to render a video on Remotion Lambda using:
 If you are rendering on Lambda, you can also pass the site Name (in this case `abcdef`) as an abbreviation.
 
 <details>
-  <summary>Example output when passing an entry point in Remotion v4</summary>
+  <summary>Example output when passing an entry point</summary>
   <pre>
     (1/3) [====================] Bundled video 3975ms
     <br />
@@ -79,7 +79,7 @@ Either `public` (default) or `no-acl` if you are not using ACL. Sites must have 
 
 ## `--public-dir`<AvailableFrom v="4.0.140" />
 
-Only applies when passing an entry point in Remotion v4.
+Only applies when passing an entry point.
 
 <Options id="public-dir" />
 
@@ -93,7 +93,7 @@ Only applies when passing an entry point in Remotion v4.
 
 ## `--disable-git-source`<AvailableFrom v="4.0.182" />
 
-Only applies when passing an entry point in Remotion v4.
+Only applies when passing an entry point.
 
 <Options id="disable-git-source" />
 

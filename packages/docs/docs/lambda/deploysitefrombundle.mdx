@@ -12,7 +12,7 @@ Uploads a local [Remotion Bundle](/docs/terminology/bundle) to an S3 bucket.
 
 Use this API to build an artifact once and deploy it in a later Docker or CI stage. Before calling it, retrieve a bucket using [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket).
 
-From <AvailableFrom v="4.0.499" inline />, [`deploySite({bundleDir})`](/docs/lambda/deploysite) provides the same behavior and is the canonical deployment API for Remotion v5. `deploySiteFromBundle()` remains available as an alias.
+From <AvailableFrom v="4.0.499" inline />, [`deploySite({bundleDir})`](/docs/lambda/deploysite) provides the same behavior and is the preferred API for new code. `deploySiteFromBundle()` remains available as an alias.
 
 ## Example
 
