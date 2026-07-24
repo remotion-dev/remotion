@@ -1,8 +1,9 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
 	LIGHT_TEXT,
+	TRANSPARENT,
 	WHITE,
-	getBackgroundFromHoverState,
+	WHITE_ALPHA_06,
 } from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {StillIcon} from '../../icons/still';
@@ -41,6 +42,10 @@ const container: React.CSSProperties = {
 	flexDirection: 'row',
 	alignItems: 'center',
 	cursor: 'pointer',
+	marginBottom: 1,
+	marginLeft: 4,
+	marginRight: 4,
+	borderRadius: 4,
 };
 
 const label: React.CSSProperties = {
@@ -54,8 +59,9 @@ const searchLabel: React.CSSProperties = {
 };
 
 const iconStyle: React.CSSProperties = {
-	width: 14,
-	height: 14,
+	width: 18,
+	height: 18,
+	flexShrink: 0,
 };
 
 const labelContainer: React.CSSProperties = {
@@ -117,10 +123,7 @@ export const QuickSwitcherResult: React.FC<{
 	const style = useMemo(() => {
 		return {
 			...container,
-			backgroundColor: getBackgroundFromHoverState({
-				hovered,
-				selected,
-			}),
+			backgroundColor: hovered || selected ? WHITE_ALPHA_06 : TRANSPARENT,
 		};
 	}, [hovered, selected]);
 
@@ -141,9 +144,15 @@ export const QuickSwitcherResult: React.FC<{
 		<div ref={ref} key={result.id} style={style} onClick={result.onSelected}>
 			{result.type === 'composition' ? (
 				result.compositionType === 'still' ? (
-					<StillIcon color={selected ? WHITE : LIGHT_TEXT} style={iconStyle} />
+					<StillIcon
+						color={selected || hovered ? WHITE : LIGHT_TEXT}
+						style={iconStyle}
+					/>
 				) : (
-					<FilmIcon color={selected ? WHITE : LIGHT_TEXT} style={iconStyle} />
+					<FilmIcon
+						color={selected || hovered ? WHITE : LIGHT_TEXT}
+						style={iconStyle}
+					/>
 				)
 			) : null}
 			<Spacing x={1} />
