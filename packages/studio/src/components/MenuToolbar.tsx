@@ -4,14 +4,13 @@ import {BACKGROUND, BORDER_BLACK, WHITE} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {useMenuStructure} from '../helpers/use-menu-structure';
 import {Row} from './layout';
+import {MENU_TOOLBAR_HEIGHT} from './menu-toolbar-height';
 import type {MenuId} from './Menu/MenuItem';
 import {MenuItem} from './Menu/MenuItem';
 import {MenuBuildIndicator} from './MenuBuildIndicator';
 import {SidebarCollapserControl} from './SidebarCollapserControls';
 import {UndoRedoButtons} from './UndoRedoButtons';
 import {UpdateCheck} from './UpdateCheck';
-
-export const MENU_TOOLBAR_HEIGHT = 30;
 
 const row: React.CSSProperties = {
 	alignItems: 'center',

@@ -120,7 +120,7 @@ const TopPanelInner: React.FC<{
 					>
 						{actualStateLeft === 'expanded' ? (
 							isMobileLayout ? (
-								<MobilePanel onClose={onCollapseLeft}>
+								<MobilePanel onClose={onCollapseLeft} side="left">
 									<ExplorerPanel readOnlyStudio={readOnlyStudio} />
 								</MobilePanel>
 							) : (
@@ -129,7 +129,7 @@ const TopPanelInner: React.FC<{
 								</SplitterElement>
 							)
 						) : null}
-						{actualStateLeft === 'expanded' ? (
+						{actualStateLeft === 'expanded' && !isMobileLayout ? (
 							<SplitterHandle
 								allowToCollapse="left"
 								onCollapse={onCollapseLeft}
@@ -150,7 +150,7 @@ const TopPanelInner: React.FC<{
 										<CanvasIfSizeIsAvailable />
 									</div>
 								</SplitterElement>
-								{actualStateRight === 'expanded' ? (
+								{actualStateRight === 'expanded' && !isMobileLayout ? (
 									<SplitterHandle
 										allowToCollapse="right"
 										onCollapse={onCollapseRight}
@@ -158,7 +158,7 @@ const TopPanelInner: React.FC<{
 								) : null}
 								{actualStateRight === 'expanded' ? (
 									isMobileLayout ? (
-										<MobilePanel onClose={onCollapseRight}>
+										<MobilePanel onClose={onCollapseRight} side="right">
 											<OptionsPanel readOnlyStudio={readOnlyStudio} />
 										</MobilePanel>
 									) : (
