@@ -14,6 +14,7 @@ export type InlineActionProps = {
 	readonly disabled?: boolean;
 	readonly renderAction: RenderInlineAction;
 	readonly title?: string;
+	readonly unhoveredColor?: string;
 };
 
 export const InlineAction = ({
@@ -21,6 +22,7 @@ export const InlineAction = ({
 	onClick,
 	disabled,
 	title,
+	unhoveredColor = LIGHT_TEXT,
 }: InlineActionProps) => {
 	const {tabIndex} = useZIndex();
 
@@ -61,7 +63,7 @@ export const InlineAction = ({
 			tabIndex={tabIndex}
 			title={title}
 		>
-			{renderAction(hovered ? WHITE : LIGHT_TEXT)}
+			{renderAction(hovered ? WHITE : unhoveredColor)}
 		</button>
 	);
 };
