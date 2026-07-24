@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 import {isWebkit} from './IfYouKnowReact';
 
 export const useTransparentVideoSource = ({
@@ -8,11 +8,7 @@ export const useTransparentVideoSource = ({
 	readonly fallbackVideoSrc: string;
 	readonly videoSrc: string;
 }) => {
-	const [src, setSrc] = useState(videoSrc);
-
-	useEffect(() => {
-		setSrc(isWebkit() ? fallbackVideoSrc : videoSrc);
-	}, [fallbackVideoSrc, videoSrc]);
+	const [src] = useState(() => (isWebkit() ? fallbackVideoSrc : videoSrc));
 
 	return src;
 };
