@@ -240,10 +240,20 @@ export const usePlayback = ({
 		};
 
 		const queueNextFrame = () => {
+			// A stopped loop must not keep rescheduling itself from a promise or
+			// listener that settles after the effect tore down.
+			if (hasBeenStopped) {
+				return;
+			}
+
 			const getIsResumingAudioContext =
 				sharedAudioContext?.getIsResumingAudioContext?.() ?? null;
 			if (getIsResumingAudioContext !== null && !muted) {
 				getIsResumingAudioContext.then(() => {
+					if (hasBeenStopped) {
+						return;
+					}
+
 					startedTime = performance.now();
 					framesAdvanced = 0;
 					queueNextFrame();

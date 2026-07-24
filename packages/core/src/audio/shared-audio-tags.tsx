@@ -384,7 +384,11 @@ export const SharedAudioContextProvider: React.FC<{
 		const resumePromise = ctxAndGain.resume();
 
 		isResuming.current = new Promise<void>((resolve) => {
-			waitUntilActuallyResumed(ctxAndGain.audioContext, logLevel).then(resolve);
+			waitUntilActuallyResumed(
+				ctxAndGain.audioContext,
+				logLevel,
+				() => audioContextIsPlayingEventually.current,
+			).then(resolve);
 			resumePromise.catch((err) => {
 				Log.warn(
 					{logLevel, tag: 'audio'},
