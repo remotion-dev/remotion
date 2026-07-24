@@ -1,6 +1,6 @@
 ---
 name: maps-maplibre
-description: Make deterministic Remotion map animations with MapLibre GL JS and Turf. Use when the user chooses MapLibre for animated routes, flyovers, map markers, labels, and camera movement.
+description: Make deterministic Remotion 2D map animations with MapLibre GL JS and Turf. Use when the user chooses MapLibre for animated routes, map markers, labels, and camera movement.
 metadata:
   tags: map, map animation, maplibre, turf, geojson, route animation
 ---
@@ -11,6 +11,8 @@ Use MapLibre GL JS for rendering maps in Remotion. Use Turf for geospatial opera
 
 - Prefer `@turf/turf` for geospatial work. Do not hand-roll distance, great-circle, route slicing, or coordinate interpolation unless the user explicitly needs a custom non-geodesic effect.
 - Use GeoJSON sources and MapLibre layers for lines, markers, and labels. Avoid DOM `Marker` elements unless the user specifically asks for HTML markers.
+- Keep the live map camera static by default. Before moving it on every frame, read [moving-map stability](render-stability.md). Prefer a fixed map plate for satellite imagery, hillshade, or a modest 2D reframe.
+- Use a live per-frame camera only after rendering a short MP4 and checking for shimmer. Use the 3D flyover branch for genuine terrain, pitch, bearing, or banking.
 - Disable non-deterministic map behavior: `interactive: false`, `fadeDuration: 0`.
 - Use `delayRender()` / `continueRender()` around map loading and per-frame map updates.
 - Before continuing the initial render, add sources/layers, apply the frame-0 camera with `jumpTo()`, then wait for `idle`.

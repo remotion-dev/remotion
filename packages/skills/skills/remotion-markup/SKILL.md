@@ -136,10 +136,6 @@ export const Subtitle = () => {
 };
 ```
 
-## Maps
-
-See [map.md](map.md) for choosing between simple static maps, Mapbox maps, and MapLibre maps.
-
 ## Text highlights and annotations
 
 See [text-highlights.md](text-highlights.md) for text highlights (highlight markers), circles, underlines, strike-throughs, crossed-off text, boxes, and brackets.

@@ -1,6 +1,6 @@
 ---
 name: maps-mapbox
-description: Make deterministic Remotion map animations with Mapbox GL JS and Turf. Use when the user chooses Mapbox for animated routes, flyovers, map markers, labels, camera movement, or Mapbox styles.
+description: Make deterministic Remotion 2D map animations with Mapbox GL JS and Turf. Use when the user chooses Mapbox for animated routes, map markers, labels, camera movement, or Mapbox styles.
 metadata:
   tags: map, map animation, mapbox, turf, geojson, route animation
 ---
@@ -13,6 +13,8 @@ If the user does not have a Mapbox access token or wants an open-source renderer
 
 - Prefer `@turf/turf` for geospatial work. Do not hand-roll distance, great-circle, route slicing, or coordinate interpolation unless the user explicitly needs a custom non-geodesic effect.
 - Use GeoJSON sources and Mapbox layers for lines, markers, and labels. Avoid DOM `Marker` elements unless the user specifically asks for HTML markers.
+- Keep the live map camera static by default. Before moving it on every frame, read [moving-map stability](render-stability.md). Prefer a fixed map plate for satellite imagery, hillshade, or a modest 2D reframe.
+- Use a live per-frame camera only after rendering a short MP4 and checking for shimmer. Use the 3D flyover branch for genuine terrain, pitch, bearing, or banking.
 - Disable non-deterministic map behavior: `interactive: false`, `fadeDuration: 0`.
 - Use `delayRender()` / `continueRender()` around map loading and per-frame map updates.
 - Before continuing the initial render, add sources/layers, apply the frame-0 camera with `jumpTo()` or `setFreeCameraOptions()`, then wait for `idle`.
@@ -344,7 +346,7 @@ export const MyComposition = () => {
 
 ## Camera guidance
 
-For most route animations, animate `center`, `zoom`, `bearing`, and `pitch` with `jumpTo()`:
+For a validated live-camera route animation, animate `center`, `zoom`, `bearing`, and `pitch` with `jumpTo()`:
 
 ```ts
 map.jumpTo({
@@ -355,7 +357,7 @@ map.jumpTo({
 });
 ```
 
-Keep route progress and camera progress separate if the camera needs to lead, lag, zoom out, or zoom back in. For cinematic 3D camera moves, use Mapbox's free camera APIs only when the project needs that extra control.
+Keep route progress and camera progress separate if the camera needs to lead, lag, zoom out, or zoom back in. For cinematic 3D camera moves, load the 3D flyover branch from the parent skill.
 
 ## Lines
 
