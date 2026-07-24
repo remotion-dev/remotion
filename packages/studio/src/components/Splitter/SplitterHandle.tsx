@@ -89,6 +89,8 @@ export const SplitterHandle: React.FC<{
 				current.classList.remove('remotion-splitter-active');
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
+				window.removeEventListener('pointercancel', onPointerCancel);
+				window.removeEventListener('blur', onWindowBlur);
 				endDrag = null;
 				PlayerInternals.updateAllElementsSizes();
 			};
@@ -125,8 +127,18 @@ export const SplitterHandle: React.FC<{
 				endDrag?.();
 			};
 
+			const onPointerCancel = () => {
+				endDrag?.();
+			};
+
+			const onWindowBlur = () => {
+				endDrag?.();
+			};
+
 			window.addEventListener('pointermove', onPointerMove);
 			window.addEventListener('pointerup', onPointerUp);
+			window.addEventListener('pointercancel', onPointerCancel);
+			window.addEventListener('blur', onWindowBlur);
 		};
 
 		current.addEventListener('pointerdown', onPointerDown);

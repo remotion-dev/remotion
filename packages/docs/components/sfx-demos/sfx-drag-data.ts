@@ -1,21 +1,4 @@
-import {SFX_DRAG_MIME_TYPE, type SfxDragData} from '@remotion/studio-shared';
-
-export const makeSfxDragData = ({
-	name,
-	url,
-}: {
-	readonly name: string;
-	readonly url: string;
-}): SfxDragData => {
-	return {
-		type: 'remotion-sfx',
-		version: 1,
-		sfx: {
-			name,
-			url,
-		},
-	};
-};
+import type {ConstructedDragData, SfxDragData} from '@remotion/drag-and-drop';
 
 export const getSfxNameFromUrl = (src: string): string => {
 	try {
@@ -36,11 +19,8 @@ export const setSfxDragData = ({
 	dragData,
 }: {
 	readonly dataTransfer: DataTransfer;
-	readonly dragData: SfxDragData;
+	readonly dragData: ConstructedDragData<SfxDragData>;
 }) => {
-	const serialized = JSON.stringify(dragData);
 	dataTransfer.effectAllowed = 'copy';
-	dataTransfer.setData(SFX_DRAG_MIME_TYPE, serialized);
-	dataTransfer.setData('application/json', serialized);
-	dataTransfer.setData('text/plain', serialized);
+	dataTransfer.setData(dragData.mimeType, dragData.payload);
 };

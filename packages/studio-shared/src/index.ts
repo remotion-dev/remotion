@@ -118,31 +118,8 @@ export {
 	type AddSequenceKeyframe,
 	type KeyframeSettings,
 } from './api-requests';
-export {
-	ASSET_DRAG_MIME_TYPE,
-	makeAssetDragData,
-	parseAssetDragData,
-	type AssetDragData,
-} from './asset-drag-data';
 export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
-export {
-	COMPONENT_DRAG_MIME_TYPE,
-	areComponentProps,
-	isComponentIdentifier,
-	isComponentImportPath,
-	makeComponentDragData,
-	parseComponentDragData,
-	type ComponentDimensions,
-	type ComponentDragData,
-	type ComponentProp,
-} from './component-drag-data';
-export {
-	COMPOSITION_DRAG_MIME_TYPE,
-	compositionDragDataToSymbolicatedStack,
-	makeCompositionDragData,
-	parseCompositionDragData,
-	type CompositionDragData,
-} from './composition-drag-data';
+export {compositionDragDataToSymbolicatedStack} from './composition-drag-data';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {
 	detectFileType,
@@ -151,11 +128,6 @@ export {
 	type FileType,
 	type ImageFileType,
 } from './detect-file-type';
-export {
-	REMOTION_DRAG_MIME_TYPES,
-	isRemotionDragMimeType,
-	type RemotionDragMimeType,
-} from './drag-mime-types';
 export {
 	parseEasingClipboardData,
 	parseEasingClipboardDataResult,
@@ -169,7 +141,6 @@ export {
 	getEffectDocumentationPath,
 	getEffectPreviewAlt,
 	getEffectPreviewSource,
-	makeEffectDragDataFromCatalogItem,
 	type EffectCatalogCategory,
 	type EffectCatalogItem,
 } from './effect-catalog';
@@ -193,20 +164,6 @@ export {
 	type EffectPropClipboardData,
 	type EffectPropClipboardDataParseResult,
 } from './effect-clipboard-data';
-export {
-	EFFECT_DRAG_MIME_TYPE,
-	parseEffectDragData,
-	type EffectDragData,
-} from './effect-drag-data';
-export {
-	ELEMENT_DRAG_MIME_TYPE,
-	getElementComponentNameFromSourceCode,
-	isLowercaseElementFileName,
-	makeElementDragData,
-	makeElementFileNameFromSlug,
-	parseElementDragData,
-	type ElementDragData,
-} from './element-drag-data';
 export {EventSourceEvent} from './event-source-event';
 export {formatBytes} from './format-bytes';
 export {getAllSchemaKeys, getAssetSchemaKeys} from './get-all-keys';
@@ -311,11 +268,6 @@ export type {
 	SchemaFieldInfo,
 	SequenceControls,
 } from './schema-field-info';
-export {
-	SFX_DRAG_MIME_TYPE,
-	parseSfxDragData,
-	type SfxDragData,
-} from './sfx-drag-data';
 export {
 	ScriptLine,
 	SomeStackFrame,

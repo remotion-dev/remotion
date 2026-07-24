@@ -1,4 +1,4 @@
-export {EFFECT_DRAG_MIME_TYPE} from './drag-mime-types';
+import {isRecord} from './validation';
 
 export type EffectDragData = {
 	type: 'remotion-effect';
@@ -10,22 +10,25 @@ export type EffectDragData = {
 	};
 };
 
-const isRecord = (value: unknown): value is Record<string, unknown> => {
-	return typeof value === 'object' && value !== null && !Array.isArray(value);
+export const makeEffectDragData = (
+	effect: EffectDragData['effect'],
+): EffectDragData => {
+	return {
+		type: 'remotion-effect',
+		version: 1,
+		effect,
+	};
 };
 
 export const parseEffectDragData = (value: string): EffectDragData | null => {
 	try {
 		const parsed: unknown = JSON.parse(value);
-		if (!isRecord(parsed)) {
-			return null;
-		}
-
-		if (parsed.type !== 'remotion-effect' || parsed.version !== 1) {
-			return null;
-		}
-
-		if (!isRecord(parsed.effect)) {
+		if (
+			!isRecord(parsed) ||
+			parsed.type !== 'remotion-effect' ||
+			parsed.version !== 1 ||
+			!isRecord(parsed.effect)
+		) {
 			return null;
 		}
 
@@ -38,15 +41,7 @@ export const parseEffectDragData = (value: string): EffectDragData | null => {
 			return null;
 		}
 
-		return {
-			type: 'remotion-effect',
-			version: 1,
-			effect: {
-				name,
-				importPath,
-				config,
-			},
-		};
+		return makeEffectDragData({name, importPath, config});
 	} catch {
 		return null;
 	}

@@ -1,0 +1,47 @@
+{
+	"name": "@remotion/drag-and-drop",
+	"version": "4.0.497",
+	"description": "Internal drag-and-drop helpers for Remotion",
+	"main": "dist/index.cjs",
+	"types": "dist/index.d.ts",
+	"module": "dist/esm/index.mjs",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/drag-and-drop"
+	},
+	"type": "module",
+	"scripts": {
+		"test": "bun test src/test",
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"lint": "eslint src",
+		"watch": "tsgo -w",
+		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"contributors": [],
+	"license": "Remotion License",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.cjs",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		},
+		"./package.json": "./package.json"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "catalog:",
+		"@typescript/native-preview": "catalog:"
+	},
+	"keywords": [
+		"remotion",
+		"drag-and-drop"
+	],
+	"publishConfig": {
+		"access": "public"
+	}
+}

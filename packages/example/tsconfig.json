@@ -42,6 +42,7 @@
 		{"path": "../media-parser"},
 		{"path": "../webcodecs"},
 		{"path": "../whisper-web"},
+		{"path": "../drag-and-drop"},
 		{"path": "../light-leaks"},
 		{"path": "../starburst"},
 		{"path": "../sfx"},

@@ -16,9 +16,9 @@ import type {
 	ObjectProperty,
 	VariableDeclaration,
 } from '@babel/types';
+import type {ComponentProp} from '@remotion/drag-and-drop';
 import {
 	isUrl,
-	type ComponentProp,
 	type InsertableCompositionElement,
 	type InsertableCompositionElementPosition,
 } from '@remotion/studio-shared';

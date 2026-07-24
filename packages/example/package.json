@@ -4,7 +4,7 @@
 	},
 	"name": "@remotion/example",
 	"private": true,
-	"version": "4.0.497",
+	"version": "4.0.498",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
 	"main": "dist/index.js",
@@ -31,6 +31,7 @@
 		"render-transparent": "remotion render --image-format=png --pixel-format=yuva420p --codec=vp8 react-svg out/video.webm"
 	},
 	"dependencies": {
+		"@remotion/drag-and-drop": "workspace:*",
 		"@mdx-js/loader": "2.3.0",
 		"@mdx-js/react": "2.3.0",
 		"@mediabunny/ac3": "catalog:",

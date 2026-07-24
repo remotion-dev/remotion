@@ -16,6 +16,9 @@
 			"path": "../core"
 		},
 		{
+			"path": "../drag-and-drop"
+		},
+		{
 			"path": "../media-utils"
 		},
 		{

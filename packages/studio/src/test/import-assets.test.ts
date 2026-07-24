@@ -258,21 +258,19 @@ test('does not position Elements without a drop position', () => {
 	).toBe(null);
 });
 
-test('aligns a composition with matching destination dimensions', () => {
+test('centers a composition with matching destination dimensions', () => {
 	expect(
 		getCompositionPositionForDrop({
 			compositionDimensions: {width: 1920, height: 1080},
-			destinationDimensions: {width: 1920, height: 1080},
 			dropPosition: {centerX: 400, centerY: 300},
 		}),
-	).toBe(null);
+	).toEqual({x: -560, y: -240});
 });
 
 test('centers a composition with different destination dimensions', () => {
 	expect(
 		getCompositionPositionForDrop({
 			compositionDimensions: {width: 1280, height: 720},
-			destinationDimensions: {width: 1920, height: 1080},
 			dropPosition: {centerX: 400, centerY: 300},
 		}),
 	).toEqual({x: -240, y: -60});

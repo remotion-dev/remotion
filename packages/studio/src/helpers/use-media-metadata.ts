@@ -21,6 +21,10 @@ export type MediaMetadata = {
 const cache = new Map<string, MediaMetadata>();
 const pendingRequests = new Map<string, Promise<MediaMetadata | null>>();
 
+export const getCachedMediaMetadata = (src: string) => {
+	return cache.get(src) ?? null;
+};
+
 const safeCall = async <T>(fn: () => Promise<T>): Promise<T | null> => {
 	try {
 		return await fn();
@@ -155,11 +159,11 @@ export const getMediaMetadata = (
 
 export const useMediaMetadata = (src: string | null): MediaMetadata | null => {
 	const [mediaMetadata, setMediaMetadata] = useState<MediaMetadata | null>(
-		src ? (cache.get(src) ?? null) : null,
+		src ? getCachedMediaMetadata(src) : null,
 	);
 
 	useEffect(() => {
-		const cached = src ? (cache.get(src) ?? null) : null;
+		const cached = src ? getCachedMediaMetadata(src) : null;
 		setMediaMetadata(cached);
 
 		if (!src || cached) {

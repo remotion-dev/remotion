@@ -42,7 +42,7 @@ const shapeThumbnail: React.CSSProperties = {
 const ShapeDragPreview = React.forwardRef<SVGSVGElement, {shape: ShapeName}>(
 	({shape}, ref) => {
 		const dragData = makeDefaultShapeComponentDragData(shape);
-		const shapeInfo = getShapeDragInfo(dragData.component);
+		const shapeInfo = getShapeDragInfo(dragData.data.component);
 		if (shapeInfo === null) {
 			throw new Error(`Could not get shape info for ${shape}`);
 		}

@@ -113,7 +113,6 @@ export const handleDrop = async ({
 			composition,
 			compositionFile,
 			compositionId,
-			destinationDimensions,
 			dropPosition,
 			from,
 		});

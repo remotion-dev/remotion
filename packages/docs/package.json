@@ -4,7 +4,7 @@
 	},
 	"name": "docs",
 	"private": true,
-	"version": "4.0.497",
+	"version": "4.0.498",
 	"scripts": {
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
@@ -22,6 +22,7 @@
 		"render-element-previews": "bun run render-element-previews.ts"
 	},
 	"dependencies": {
+		"@remotion/drag-and-drop": "workspace:*",
 		"@aws-sdk/s3-request-presigner": "catalog:",
 		"@babel/parser": "7.24.1",
 		"@babel/plugin-transform-modules-commonjs": "7.27.1",

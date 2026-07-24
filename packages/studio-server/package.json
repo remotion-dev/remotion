@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio-server"
 	},
 	"name": "@remotion/studio-server",
-	"version": "4.0.497",
+	"version": "4.0.498",
 	"description": "Run a Remotion Studio with a server backend",
 	"main": "dist",
 	"scripts": {
@@ -23,6 +23,7 @@
 		"access": "public"
 	},
 	"dependencies": {
+		"@remotion/drag-and-drop": "workspace:*",
 		"@babel/types": "7.24.0",
 		"@babel/parser": "7.24.1",
 		"@svgr/core": "8.1.0",
