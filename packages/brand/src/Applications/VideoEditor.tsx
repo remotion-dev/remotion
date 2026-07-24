@@ -239,20 +239,14 @@ export function ApplicationVideoEditor({
 										<div
 											style={{
 												backgroundColor: '#0b84f3',
-												alignItems: 'center',
 												borderRadius: 4,
-												boxSizing: 'border-box',
-												display: 'flex',
 												height: '100%',
 												left: '5%',
 												opacity: 0.9,
-												padding: '4px 8px',
 												position: 'absolute',
 												width: '72%',
 											}}
-										>
-											<span style={{color: 'white', fontSize: 11}}>Video</span>
-										</div>
+										/>
 									</div>
 									<div
 										style={{
@@ -265,20 +259,14 @@ export function ApplicationVideoEditor({
 										<div
 											style={{
 												backgroundColor: '#8b5cf6',
-												alignItems: 'center',
 												borderRadius: 4,
-												boxSizing: 'border-box',
-												display: 'flex',
 												height: '100%',
 												left: '18%',
 												opacity: 0.9,
-												padding: '4px 8px',
 												position: 'absolute',
 												width: '55%',
 											}}
-										>
-											<span style={{color: 'white', fontSize: 11}}>Image</span>
-										</div>
+										/>
 									</div>
 									<div
 										style={{
@@ -291,20 +279,14 @@ export function ApplicationVideoEditor({
 										<div
 											style={{
 												backgroundColor: '#2fbf71',
-												alignItems: 'center',
 												borderRadius: 4,
-												boxSizing: 'border-box',
-												display: 'flex',
 												height: '100%',
 												left: '0%',
 												opacity: 0.9,
-												padding: '4px 8px',
 												position: 'absolute',
 												width: '84%',
 											}}
-										>
-											<span style={{color: 'white', fontSize: 11}}>Text</span>
-										</div>
+										/>
 									</div>
 									<div
 										style={{
