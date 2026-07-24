@@ -8,7 +8,10 @@ import {Internals, type PropStatuses} from 'remotion';
 import {findTrackForNodePathInfo} from '../components/Timeline/find-track-for-node-path-info';
 import {getBoundedKeyframeDragDelta} from '../components/Timeline/get-bounded-keyframe-drag-delta';
 import {getNodeKeyframes} from '../components/Timeline/get-node-keyframes';
-import {getTimelineEasingSegments} from '../components/Timeline/get-timeline-easing-segments';
+import {
+	getTimelineEasingSegments,
+	getVisibleTimelineEasingSegment,
+} from '../components/Timeline/get-timeline-easing-segments';
 import {getTimelineKeyframes} from '../components/Timeline/get-timeline-keyframes';
 import {getTimelineKeyframeDragKey} from '../components/Timeline/TimelineKeyframeDragState';
 import {calculateTimeline} from '../helpers/calculate-timeline';
@@ -352,6 +355,30 @@ test('timeline easing segments connect adjacent display keyframes', () => {
 		{fromFrame: 30, toFrame: 60, segmentIndex: 0},
 		{fromFrame: 60, toFrame: 90, segmentIndex: 1},
 	]);
+});
+
+test('timeline easing segments are clipped to the composition timeline', () => {
+	expect(
+		getVisibleTimelineEasingSegment({
+			fromFrame: 80,
+			toFrame: 120,
+			durationInFrames: 100,
+		}),
+	).toEqual({fromFrame: 80, toFrame: 99});
+	expect(
+		getVisibleTimelineEasingSegment({
+			fromFrame: -20,
+			toFrame: 20,
+			durationInFrames: 100,
+		}),
+	).toEqual({fromFrame: 0, toFrame: 20});
+	expect(
+		getVisibleTimelineEasingSegment({
+			fromFrame: 100,
+			toFrame: 120,
+			durationInFrames: 100,
+		}),
+	).toBe(null);
 });
 
 test('bounded keyframe drag delta stays inside the composition timeline', () => {

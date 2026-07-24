@@ -4,6 +4,7 @@ import {LIGHT_TEXT} from '../../helpers/colors';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {isKeyframeInTimelineRange} from './get-keyframe-navigation';
 import {TimelineKeyframeDiamondIcon} from './TimelineKeyframeDiamondIcon';
 import {useTimelineKeyframeDragState} from './TimelineKeyframeDragState';
 import {
@@ -44,7 +45,10 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 		selected || isKeyframeDragging({nodePathInfo, frame});
 
 	const style = useMemo((): React.CSSProperties | null => {
-		if (timelineWidth === null) {
+		if (
+			timelineWidth === null ||
+			!isKeyframeInTimelineRange(frame, videoConfig.durationInFrames)
+		) {
 			return null;
 		}
 

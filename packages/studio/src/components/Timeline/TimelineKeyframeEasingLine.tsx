@@ -11,6 +11,7 @@ import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sor
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {ContextMenuForTarget} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {getVisibleTimelineEasingSegment} from './get-timeline-easing-segments';
 import {
 	TIMELINE_MARQUEE_ITEM_ATTR,
 	useCurrentTimelineSelectionStateAsRef,
@@ -181,15 +182,24 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 			return null;
 		}
 
+		const visibleSegment = getVisibleTimelineEasingSegment({
+			fromFrame,
+			toFrame,
+			durationInFrames: videoConfig.durationInFrames,
+		});
+		if (visibleSegment === null) {
+			return null;
+		}
+
 		const fromLeft =
 			getXPositionOfItemInTimelineImperatively(
-				fromFrame,
+				visibleSegment.fromFrame,
 				videoConfig.durationInFrames,
 				timelineWidth,
 			) - TIMELINE_PADDING;
 		const toLeft =
 			getXPositionOfItemInTimelineImperatively(
-				toFrame,
+				visibleSegment.toFrame,
 				videoConfig.durationInFrames,
 				timelineWidth,
 			) - TIMELINE_PADDING;

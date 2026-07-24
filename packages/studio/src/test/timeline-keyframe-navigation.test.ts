@@ -4,6 +4,7 @@ import {
 	getNextKeyframeDisplayFrame,
 	getPreviousKeyframeDisplayFrame,
 	hasKeyframeAtSourceFrame,
+	isKeyframeInTimelineRange,
 } from '../components/Timeline/get-keyframe-navigation';
 import {
 	shouldShowTimelineKeyframeControls,
@@ -63,6 +64,13 @@ test('keyframe navigation skips frames outside the timeline range', () => {
 	expect(getPreviousKeyframeDisplayFrame(offTimelineKeyframes, 120, 100)).toBe(
 		40,
 	);
+});
+
+test('keyframe timeline range excludes frames beyond the composition', () => {
+	expect(isKeyframeInTimelineRange(-1, 100)).toBe(false);
+	expect(isKeyframeInTimelineRange(0, 100)).toBe(true);
+	expect(isKeyframeInTimelineRange(99, 100)).toBe(true);
+	expect(isKeyframeInTimelineRange(100, 100)).toBe(false);
 });
 
 test('hasKeyframeAtSourceFrame checks source frame membership', () => {

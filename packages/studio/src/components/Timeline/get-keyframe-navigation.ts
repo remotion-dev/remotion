@@ -1,4 +1,4 @@
-const isKeyframeInTimelineRange = (
+export const isKeyframeInTimelineRange = (
 	frame: number,
 	durationInFrames: number,
 ): boolean => {

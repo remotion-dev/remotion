@@ -6,6 +6,28 @@ export type TimelineEasingSegment = {
 	readonly segmentIndex: number;
 };
 
+export const getVisibleTimelineEasingSegment = ({
+	fromFrame,
+	toFrame,
+	durationInFrames,
+}: {
+	readonly fromFrame: number;
+	readonly toFrame: number;
+	readonly durationInFrames: number;
+}): Pick<TimelineEasingSegment, 'fromFrame' | 'toFrame'> | null => {
+	const visibleFromFrame = Math.max(0, fromFrame);
+	const visibleToFrame = Math.min(durationInFrames - 1, toFrame);
+
+	if (visibleFromFrame >= visibleToFrame) {
+		return null;
+	}
+
+	return {
+		fromFrame: visibleFromFrame,
+		toFrame: visibleToFrame,
+	};
+};
+
 export const getTimelineEasingSegments = (
 	keyframes: ReturnType<typeof getTimelineKeyframes>,
 ): TimelineEasingSegment[] => {
