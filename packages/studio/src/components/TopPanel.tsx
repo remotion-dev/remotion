@@ -129,7 +129,7 @@ const TopPanelInner: React.FC<{
 								</SplitterElement>
 							)
 						) : null}
-						{actualStateLeft === 'expanded' ? (
+						{actualStateLeft === 'expanded' && !isMobileLayout ? (
 							<SplitterHandle
 								allowToCollapse="left"
 								onCollapse={onCollapseLeft}
@@ -150,7 +150,7 @@ const TopPanelInner: React.FC<{
 										<CanvasIfSizeIsAvailable />
 									</div>
 								</SplitterElement>
-								{actualStateRight === 'expanded' ? (
+								{actualStateRight === 'expanded' && !isMobileLayout ? (
 									<SplitterHandle
 										allowToCollapse="right"
 										onCollapse={onCollapseRight}
