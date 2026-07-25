@@ -153,12 +153,8 @@ test('Interactive.withCaptions() registers inline captions', () => {
 		style: {height: 240, translate: '0px 100px', width: 960},
 	};
 
-	expect(validProps.name).toBe('Captions');
-	expect(validProps.style).toEqual({
-		height: 240,
-		translate: '0px 100px',
-		width: 960,
-	});
+	// Retain this value so TypeScript checks the public component prop contract.
+	void validProps;
 	expect(captionsSchema).toEqual({
 		captions: {
 			type: 'captions',

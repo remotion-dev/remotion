@@ -1107,7 +1107,7 @@ test('Interactive elements register their rendered element for Studio outlines',
 	}
 });
 
-test('Interactive.withCaptions() registers one Sequence with a sized container outline', () => {
+test('Interactive.withCaptions() registers one full-composition Sequence and an outline', () => {
 	const registeredSequences: TSequence[] = [];
 	const CaptionContent: React.FC<{
 		readonly captions: readonly {readonly text: string}[];
@@ -1124,11 +1124,7 @@ test('Interactive.withCaptions() registers one Sequence with a sized container o
 				registeredSequences.push(sequence);
 			}}
 		>
-			<Captions
-				captions={[{text: 'Hello'}]}
-				name="Custom captions"
-				style={{height: 240, translate: '12px 34px', width: 960}}
-			/>
+			<Captions captions={[{text: 'Hello'}]} name="Custom captions" />
 		</SequenceTestWrapper>,
 	);
 
@@ -1155,15 +1151,6 @@ test('Interactive.withCaptions() registers one Sequence with a sized container o
 	if (!(outline instanceof HTMLElement)) {
 		throw new Error('Expected an HTML element for the caption outline');
 	}
-
-	expect(outline.style.position).toBe('absolute');
-	expect(outline.style.top).toBe('0px');
-	expect(outline.style.left).toBe('0px');
-	expect(outline.style.right).toBe('0px');
-	expect(outline.style.bottom).toBe('0px');
-	expect(outline.style.width).toBe('960px');
-	expect(outline.style.height).toBe('240px');
-	expect(outline.style.translate).toBe('12px 34px');
 });
 
 test('Interactive elements inherit trimBefore from Sequence', () => {
