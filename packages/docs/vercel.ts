@@ -80,6 +80,11 @@ export const config: VercelConfig = {
 			'https://github.com/remotion-dev/remotion/issues/new/choose',
 			{permanent: false},
 		),
+		routes.redirect(
+			'/vision',
+			'https://github.com/remotion-dev/remotion/issues/9081',
+			{permanent: false},
+		),
 		routes.redirect('/skia', '/docs/skia', {permanent: false}),
 		routes.redirect('/gif', '/docs/gif', {permanent: false}),
 		routes.redirect('/lottie', '/docs/lottie', {permanent: false}),
