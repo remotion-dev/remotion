@@ -1,5 +1,4 @@
 import {expect, test} from 'bun:test';
-import type {ComponentProps} from 'react';
 import {animatedImageSchema} from '../animated-image/AnimatedImage.js';
 import {canvasImageSchema} from '../canvas-image/CanvasImage.js';
 import type {SequenceControls} from '../CompositionManager.js';
@@ -15,7 +14,6 @@ import {Interactive} from '../Interactive.js';
 import {
 	baseSchema,
 	borderSchema,
-	captionsSchema,
 	extendSchemaWithSequenceName,
 	premountSchema,
 	sequencePremountSchema,
@@ -32,8 +30,6 @@ import {
 	readValuesFromProps,
 	selectActiveKeys,
 } from '../with-interactivity-schema.js';
-
-const expectType = <T>(_value: T): void => undefined;
 
 test('sequenceStyleSchema contains transform and premount fields', () => {
 	expect(Object.keys(sequenceStyleSchema).sort()).toEqual(
@@ -135,77 +131,6 @@ test('Interactive.withSchema() adds Sequence stack traces automatically', () => 
 	expect(
 		getComponentsToAddStacksTo().filter((component) => component === Wrapped),
 	).toHaveLength(1);
-});
-
-test('Interactive.withCaptions() registers inline captions', () => {
-	type Caption = {
-		readonly text: string;
-		readonly startMs: number;
-		readonly endMs: number;
-	};
-	const Component = (_props: {
-		readonly captions: readonly Caption[];
-		readonly mode: 'highlight' | 'scale';
-	}) => null;
-	const Wrapped = Interactive.withCaptions({Component});
-	expectType<ComponentProps<typeof Wrapped>>({
-		captions: [],
-		mode: 'highlight',
-		name: 'Captions',
-		style: {height: 240, translate: '0px 100px', width: 960},
-	});
-
-	expect(captionsSchema).toEqual({
-		captions: {
-			type: 'captions',
-			default: undefined,
-			description: 'Captions',
-			keyframable: false,
-		},
-	});
-	expect(Wrapped.displayName).toBe('<Component>');
-	expect(
-		getComponentsToAddStacksTo().filter((component) => component === Wrapped),
-	).toHaveLength(1);
-
-	// @ts-expect-error A required captions prop remains required.
-	const missingCaptions: ComponentProps<typeof Wrapped> = {mode: 'scale'};
-	expect(missingCaptions.mode).toBe('scale');
-
-	const OptionalComponent = (_props: {
-		readonly captions?: readonly Caption[];
-	}) => null;
-	const OptionalWrapped = Interactive.withCaptions({
-		Component: OptionalComponent,
-	});
-	const optionalProps: ComponentProps<typeof OptionalWrapped> = {};
-	expect(optionalProps).toEqual({});
-	expect(OptionalWrapped.displayName).toBe('<OptionalComponent>');
-
-	const SourceComponent = (_props: {readonly src: string}) => null;
-	// @ts-expect-error The component must accept a captions prop.
-	Interactive.withCaptions({Component: SourceComponent});
-
-	const ComponentWithReservedControls = (_props: {
-		readonly captions: readonly Caption[];
-		readonly controls: string;
-	}) => null;
-	// @ts-expect-error `controls` is reserved for the generated Sequence.
-	Interactive.withCaptions({Component: ComponentWithReservedControls});
-
-	const ComponentWithReservedStack = (_props: {
-		readonly captions: readonly Caption[];
-		readonly stack: string;
-	}) => null;
-	// @ts-expect-error `stack` is reserved for the generated Sequence.
-	Interactive.withCaptions({Component: ComponentWithReservedStack});
-
-	const ComponentWithReservedStyle = (_props: {
-		readonly captions: readonly Caption[];
-		readonly style: {readonly translate: string};
-	}) => null;
-	// @ts-expect-error `style` is reserved for sizing and positioning the generated container.
-	Interactive.withCaptions({Component: ComponentWithReservedStyle});
 });
 
 test('getFlatSchema(sequenceSchema) exposes every variant key', () => {

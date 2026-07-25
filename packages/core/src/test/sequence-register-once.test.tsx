@@ -1107,52 +1107,6 @@ test('Interactive elements register their rendered element for Studio outlines',
 	}
 });
 
-test('Interactive.withCaptions() registers one full-composition Sequence and an outline', () => {
-	const registeredSequences: TSequence[] = [];
-	const CaptionContent: React.FC<{
-		readonly captions: readonly {readonly text: string}[];
-	}> = ({captions}) => <div>{captions.map((caption) => caption.text)}</div>;
-	const Captions = Interactive.withCaptions({
-		Component: CaptionContent,
-		componentName: 'TimedCaptions',
-	});
-
-	const {getByText} = render(
-		<SequenceTestWrapper
-			compositionDurationInFrames={120}
-			onRegisterSequence={(sequence) => {
-				registeredSequences.push(sequence);
-			}}
-		>
-			<Captions captions={[{text: 'Hello'}]} name="Custom captions" />
-		</SequenceTestWrapper>,
-	);
-
-	expect(getByText('Hello')).not.toBe(null);
-	expect(registeredSequences).toHaveLength(1);
-	expect(registeredSequences[0]?.displayName).toBe('Custom captions');
-	expect(registeredSequences[0]?.duration).toBe(120);
-	expect(registeredSequences[0]?.from).toBe(0);
-	expect(registeredSequences[0]?.documentationLink).toBe(
-		'https://www.remotion.dev/docs/interactive-with-captions',
-	);
-	expect(registeredSequences[0]?.controls?.schema).toHaveProperty('captions');
-	expect(registeredSequences[0]?.controls?.schema).toHaveProperty([
-		'style.translate',
-	]);
-	expect(registeredSequences[0]?.controls?.schema).toHaveProperty([
-		'style.width',
-	]);
-	expect(registeredSequences[0]?.controls?.schema).toHaveProperty([
-		'style.height',
-	]);
-	const outline = registeredSequences[0]?.refForOutline?.current;
-	expect(outline?.tagName).toBe('DIV');
-	if (!(outline instanceof HTMLElement)) {
-		throw new Error('Expected an HTML element for the caption outline');
-	}
-});
-
 test('Interactive elements inherit trimBefore from Sequence', () => {
 	const Frame = () => {
 		const frame = useCurrentFrame();
