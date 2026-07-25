@@ -79,6 +79,8 @@ export {
 	RestartStudioResponse,
 	SaveEffectPropsRequest,
 	SaveEffectPropsResponse,
+	CaptionPatch,
+	SaveInlineCaptionPatchesRequest,
 	SaveSequencePropEdit,
 	SaveSequencePropSourceEdit,
 	SaveSequencePropsRequest,

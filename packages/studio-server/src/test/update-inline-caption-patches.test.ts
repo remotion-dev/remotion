@@ -1,0 +1,79 @@
+import {expect, test} from 'bun:test';
+import {updateInlineCaptionPatches} from '../codemods/update-inline-caption-patches';
+import {lineColumnToNodePath} from './test-utils';
+
+const input = `import {TimedCaptions} from './TimedCaptions';
+
+export const Example = () => {
+	return (
+		<TimedCaptions
+			captions={[
+				{
+					text: 'First',
+					startMs: 0,
+					endMs: 1000,
+					timestampMs: 500,
+					confidence: null,
+				},
+				{
+					text: 'Second',
+					startMs: 1000,
+					endMs: 2000,
+					timestampMs: 1500,
+					confidence: 0.9,
+				},
+			]}
+		/>
+	);
+};
+`;
+
+test('updates only the patched inline caption fields', () => {
+	const {output, changedFields} = updateInlineCaptionPatches({
+		input,
+		nodePath: lineColumnToNodePath(input, 5),
+		patches: [
+			{
+				index: 1,
+				before: {
+					text: 'Second',
+					startMs: 1000,
+					endMs: 2000,
+					timestampMs: 1500,
+					confidence: 0.9,
+				},
+				changes: {startMs: 1100, endMs: 2100},
+			},
+		],
+	});
+
+	expect(changedFields).toEqual([['startMs', 'endMs']]);
+	expect(output).toBe(
+		input.replace(
+			"text: 'Second',\n\t\t\t\t\tstartMs: 1000,\n\t\t\t\t\tendMs: 2000,",
+			"text: 'Second',\n\t\t\t\t\tstartMs: 1100,\n\t\t\t\t\tendMs: 2100,",
+		),
+	);
+});
+
+test('rejects a queued patch whose source caption has changed', () => {
+	expect(() =>
+		updateInlineCaptionPatches({
+			input,
+			nodePath: lineColumnToNodePath(input, 5),
+			patches: [
+				{
+					index: 0,
+					before: {
+						text: 'Different',
+						startMs: 0,
+						endMs: 1000,
+						timestampMs: 500,
+						confidence: null,
+					},
+					changes: {endMs: 900},
+				},
+			],
+		}),
+	).toThrow('Caption 0 changed in the source file');
+});

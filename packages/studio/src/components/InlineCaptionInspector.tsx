@@ -1,3 +1,4 @@
+import type {CaptionPatch} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -11,9 +12,60 @@ import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import type {CaptionJson} from './caption-json';
 import {CaptionInspector, type CaptionSaveStatus} from './CaptionInspector';
-import {saveSequencePropsWithError} from './Timeline/save-sequence-prop';
+import {saveInlineCaptionPatchesWithError} from './Timeline/save-sequence-prop';
 
 const serializeCaptions = (captions: CaptionJson[]) => JSON.stringify(captions);
+
+const getCaptionPatches = ({
+	previous,
+	next,
+}: {
+	previous: CaptionJson[];
+	next: CaptionJson[];
+}): CaptionPatch[] | null => {
+	if (previous.length !== next.length) {
+		return null;
+	}
+
+	const patches: CaptionPatch[] = [];
+	for (const [index, before] of previous.entries()) {
+		const after = next[index];
+		if (!after) {
+			return null;
+		}
+
+		const changes: CaptionPatch['changes'] = {};
+		for (const key of [
+			'text',
+			'startMs',
+			'endMs',
+			'timestampMs',
+			'confidence',
+		] as const) {
+			if (before[key] === after[key]) {
+				continue;
+			}
+
+			if (key === 'text') {
+				changes.text = after.text;
+			} else if (key === 'startMs') {
+				changes.startMs = after.startMs;
+			} else if (key === 'endMs') {
+				changes.endMs = after.endMs;
+			} else if (key === 'timestampMs') {
+				changes.timestampMs = after.timestampMs;
+			} else {
+				changes.confidence = after.confidence;
+			}
+		}
+
+		if (Object.keys(changes).length > 0) {
+			patches.push({index, before, changes});
+		}
+	}
+
+	return patches;
+};
 
 export const InlineCaptionInspector: React.FC<{
 	readonly captions: CaptionJson[];
@@ -41,6 +93,7 @@ export const InlineCaptionInspector: React.FC<{
 	);
 	const runtimeSignature = serializeCaptions(captions);
 	const lastRuntimeSignature = useRef(runtimeSignature);
+	const savedCaptions = useRef(captions);
 	const pendingSignature = useRef<string | null>(null);
 	const draftIsDirty = useRef(false);
 	const saveRevision = useRef(0);
@@ -59,6 +112,7 @@ export const InlineCaptionInspector: React.FC<{
 
 		draftIsDirty.current = false;
 		pendingSignature.current = null;
+		savedCaptions.current = captions;
 		setDraftCaptions(captions);
 		if (pendingSaveWasConfirmed && canSave) {
 			setSaveStatus({type: 'saved'});
@@ -70,6 +124,7 @@ export const InlineCaptionInspector: React.FC<{
 			saveRevision.current += 1;
 			pendingSignature.current = null;
 			draftIsDirty.current = false;
+			savedCaptions.current = captions;
 			setDraftCaptions(captions);
 			setSaveStatus({type: 'read-only'});
 			return;
@@ -82,6 +137,10 @@ export const InlineCaptionInspector: React.FC<{
 
 	const saveCaptions = useCallback(
 		(nextCaptions: CaptionJson[]) => {
+			const patches = getCaptionPatches({
+				previous: savedCaptions.current,
+				next: nextCaptions,
+			});
 			setDraftCaptions(nextCaptions);
 			const nextSignature = serializeCaptions(nextCaptions);
 			if (nextSignature === lastRuntimeSignature.current) {
@@ -95,25 +154,31 @@ export const InlineCaptionInspector: React.FC<{
 				return;
 			}
 
+			if (patches === null) {
+				setSaveStatus({
+					type: 'error',
+					message: 'Adding or removing inline captions is not supported',
+				});
+				return;
+			}
+
+			if (patches.length === 0) {
+				return;
+			}
+
 			draftIsDirty.current = true;
+			savedCaptions.current = nextCaptions;
 			pendingSignature.current = nextSignature;
 			setSaveStatus({type: 'saving'});
 			const currentSaveRevision = saveRevision.current + 1;
 			saveRevision.current = currentSaveRevision;
 			let saveFailed = false;
-			saveSequencePropsWithError({
-				addedKeyframes: null,
-				movedKeyframes: null,
-				changes: [
-					{
-						fileName: validatedLocation.source,
-						nodePath,
-						fieldKey: 'captions',
-						value: nextCaptions,
-						defaultValue: null,
-						schema: controls.schema,
-					},
-				],
+			saveInlineCaptionPatchesWithError({
+				fileName: validatedLocation.source,
+				nodePath,
+				schema: controls.schema,
+				patches,
+				nextCaptions,
 				setPropStatuses,
 				clientId,
 				undoLabel: 'Update captions',
@@ -127,6 +192,7 @@ export const InlineCaptionInspector: React.FC<{
 						return;
 					}
 
+					savedCaptions.current = captions;
 					setSaveStatus({
 						type: 'error',
 						message: error instanceof Error ? error.message : String(error),
@@ -149,6 +215,7 @@ export const InlineCaptionInspector: React.FC<{
 		[
 			canSave,
 			clientId,
+			captions,
 			controls.schema,
 			nodePath,
 			setPropStatuses,

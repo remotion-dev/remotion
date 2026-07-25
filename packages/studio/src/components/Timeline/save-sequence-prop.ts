@@ -1,6 +1,7 @@
 import {
 	optimisticAddSequenceKeyframe,
 	optimisticUpdateForPropStatuses,
+	type CaptionPatch,
 	type SaveSequencePropSourceEdit,
 } from '@remotion/studio-shared';
 import type {
@@ -60,6 +61,55 @@ const serializeSequencePropValue = (value: unknown) => {
 	}
 
 	return {type: 'json' as const, serialized: JSON.stringify(value)};
+};
+
+export const saveInlineCaptionPatchesWithError = ({
+	fileName,
+	nodePath,
+	schema,
+	patches,
+	nextCaptions,
+	setPropStatuses,
+	clientId,
+	undoLabel,
+	redoLabel,
+	onError,
+}: {
+	fileName: string;
+	nodePath: SequencePropsSubscriptionKey;
+	schema: InteractivitySchema;
+	patches: CaptionPatch[];
+	nextCaptions: unknown;
+	setPropStatuses: SetPropStatuses;
+	clientId: string;
+	undoLabel: string;
+	redoLabel: string;
+	onError: (error: unknown) => void;
+}): Promise<void> => {
+	return enqueueSavePropChangeWithError({
+		nodePath,
+		setPropStatuses,
+		applyOptimistic: (previous) =>
+			optimisticUpdateForPropStatuses({
+				previous,
+				fieldKey: 'captions',
+				value: nextCaptions,
+				defaultValue: null,
+				schema,
+			}),
+		apiCall: () =>
+			callApi('/api/save-sequence-props', {
+				edits: [],
+				captionPatches: [{fileName, nodePath, schema, patches}],
+				addedKeyframes: null,
+				movedKeyframes: null,
+				clientId,
+				undoLabel,
+				redoLabel,
+			}),
+		errorLabel: 'Could not save captions',
+		onError,
+	});
 };
 
 const saveSequencePropsInternal = ({
