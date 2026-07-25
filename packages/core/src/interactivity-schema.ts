@@ -192,6 +192,13 @@ export type ArrayFieldSchema = {
 	keyframable?: false;
 };
 
+export type CaptionsFieldSchema = {
+	type: 'captions';
+	default: readonly unknown[] | undefined;
+	description?: string;
+	keyframable: false;
+};
+
 export type VisibleFieldSchema =
 	| NumberFieldSchema
 	| BooleanFieldSchema
@@ -206,6 +213,7 @@ export type VisibleFieldSchema =
 	| FontFamilyFieldSchema
 	| AssetFieldSchema
 	| ArrayFieldSchema
+	| CaptionsFieldSchema
 	| EnumFieldSchema;
 
 export type InteractivitySchemaField = VisibleFieldSchema | HiddenFieldSchema;
@@ -214,6 +222,15 @@ export type InteractivitySchema = {[key: string]: InteractivitySchemaField};
 
 export type InteractivitySchemaKeysRecord<S extends InteractivitySchema> =
 	Record<keyof S, unknown>;
+
+export const captionsSchema = {
+	captions: {
+		type: 'captions',
+		default: undefined,
+		description: 'Captions',
+		keyframable: false,
+	},
+} as const satisfies InteractivitySchema;
 
 export const transformSchema = {
 	'style.transformOrigin': {

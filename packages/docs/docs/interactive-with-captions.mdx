@@ -1,0 +1,129 @@
+---
+image: /generated/articles-docs-interactive-with-captions.png
+id: interactive-with-captions
+title: Interactive.withCaptions()
+crumb: 'API'
+---
+
+# Interactive.withCaptions()<AvailableFrom v="4.0.500" />
+
+Wraps a component that accepts a [`Caption[]`](/docs/captions/caption) so its caption text and timings can be edited in Remotion Studio.
+
+The wrapped component appears in the timeline. A generated container provides the Studio canvas outline and defines the area in which captions are rendered. The component only needs to render the `captions` prop.
+
+## Example
+
+```tsx twoslash title="TimedCaptions.tsx"
+import type {Caption} from '@remotion/captions';
+import React from 'react';
+import {Interactive} from 'remotion';
+
+const TimedCaptionsContent: React.FC<{
+  readonly captions: Caption[];
+  readonly color?: string;
+}> = ({captions, color}) => {
+  // Render the captions using your preferred animation.
+  return null;
+};
+
+export const TimedCaptions = Interactive.withCaptions({
+  Component: TimedCaptionsContent,
+  componentName: 'TimedCaptions',
+});
+
+export const MyComp: React.FC = () => {
+  return (
+    <TimedCaptions
+      style={{height: 240, translate: '120px 700px', width: 1680}}
+      captions={[
+        {
+          text: 'Hello',
+          startMs: 0,
+          endMs: 1000,
+          timestampMs: 500,
+          confidence: null,
+        },
+      ]}
+      color="#ffffff"
+    />
+  );
+};
+```
+
+`Interactive.withCaptions()` creates the caption schema, Studio controls and a layout-free outer `<Sequence>`. It preserves the component's other props and adds optional `name` and `style` props for the Studio timeline and caption container. The `style` prop belongs to the generated container, so the wrapped component should use another prop name such as `captionStyle` for its own styling.
+
+## Editing captions
+
+When the `captions` prop is an inline JSX array, Studio can save caption text and timing changes back to the source file:
+
+```tsx
+<TimedCaptions
+  captions={[
+    {
+      text: 'Hello',
+      startMs: 0,
+      endMs: 1000,
+      timestampMs: 500,
+      confidence: null,
+    },
+  ]}
+/>
+```
+
+Use **Edit timings** in the inspector to resize captions visually against the Studio timeline.
+
+To define a safe area, set the generated container's `width` and `height`. Select its outline in the Studio canvas and drag it to update `style.translate`:
+
+```tsx
+<TimedCaptions
+  style={{height: 300, translate: '120px 1200px', width: 1680}}
+  captions={[/* ... */]}
+/>
+```
+
+Responsive caption renderers can wrap their text within this area. Moving or resizing the container does not change caption timings.
+
+Computed expressions can be inspected, but are read-only because Studio cannot safely rewrite their source:
+
+```tsx
+<TimedCaptions captions={captions} />
+```
+
+This API does not replace file-backed caption editing. Existing interactive components that expose a local caption JSON file through an asset schema continue to use Studio's caption JSON inspector and save changes to that file.
+
+## API
+
+```ts twoslash
+import {Interactive} from 'remotion';
+```
+
+Call `Interactive.withCaptions()` with an options object.
+
+### `Component`
+
+A React component with a required or optional `captions` array prop. Its caption values should use the [`Caption`](/docs/captions/caption) format.
+
+The component is responsible for rendering the captions. It does not receive Studio `controls` and does not need to render its own outer `<Sequence>`. The `style` prop is reserved for the generated container; use a different prop such as `captionStyle` when the inner component needs styling.
+
+### `componentName?`
+
+The name shown in the Studio timeline. By default, the name or `displayName` of `Component` is used.
+
+### Return value
+
+Returns an interactive component with the original component props, an optional `name` prop for the Studio timeline and an optional `style` prop for sizing and positioning the generated container. `style.width`, `style.height`, `style.translate`, `style.scale`, `style.rotate`, `style.transformOrigin` and `style.opacity` are editable in Studio.
+
+The layout-free generated Sequence spans the composition, while the generated container defaults to the full composition size. Its outline follows the configured width, height and transform. Caption timings are composition-relative, so the returned component does not expose `from` or `trimBefore`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [Displaying captions](/docs/captions/displaying)
+- [Studio interactivity](/docs/studio/interactivity)
+- [`Interactive.withSchema()`](/docs/interactive-with-schema)
+- [`Interactive`](/docs/interactive)
+- [Make a component interactive](/docs/studio/make-component-interactive)
+- [Source code for this API](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Interactive.tsx)

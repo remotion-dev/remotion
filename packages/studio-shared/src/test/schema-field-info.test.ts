@@ -8,6 +8,7 @@ import {
 	SCHEMA_FIELD_ROW_HEIGHT,
 	getEffectFieldsToShow,
 	getFieldsToShow,
+	getSchemaFieldGroup,
 } from '../schema-field-info';
 
 const effect = {
@@ -157,6 +158,29 @@ test('getEffectFieldsToShow sizes array fields from the current value', () => {
 
 	const colors = fields.find((field) => field.key === 'colors');
 	expect(colors?.rowHeight).toBe(SCHEMA_FIELD_ROW_HEIGHT * 4);
+});
+
+test('caption container dimensions are grouped with transforms', () => {
+	expect(getSchemaFieldGroup('style.width')).toBe('transforms');
+	expect(getSchemaFieldGroup('style.height')).toBe('transforms');
+});
+
+test('getFieldsToShow leaves captions to the caption inspector', () => {
+	const fields = getFieldsToShow({
+		schema: {
+			captions: {
+				type: 'captions',
+				default: undefined,
+				keyframable: false,
+			},
+		},
+		currentRuntimeValueDotNotation: {captions: []},
+		getDragOverrides: () => ({}),
+		propStatuses: {},
+		nodePath,
+	});
+
+	expect(fields).toEqual([]);
 });
 
 test('getFieldsToShow sorts fields by inspector group order', () => {
