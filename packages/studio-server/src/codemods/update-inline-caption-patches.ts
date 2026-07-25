@@ -152,7 +152,7 @@ const updateCaption = ({
 	patch: CaptionPatch;
 }): {changedFields: string[]; replacements: SourceReplacement[]} => {
 	const current = getStaticCaption(caption);
-	if (JSON.stringify(current) !== JSON.stringify(patch.before)) {
+	if (!captionKeys.every((key) => current[key] === patch.before[key])) {
 		throw new Error(
 			`Caption ${patch.index} changed in the source file before this edit could be saved`,
 		);

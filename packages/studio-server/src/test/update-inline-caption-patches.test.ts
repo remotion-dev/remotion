@@ -35,12 +35,13 @@ test('updates only the patched inline caption fields', () => {
 		patches: [
 			{
 				index: 1,
+				// The browser preserves the source object's property insertion order.
 				before: {
-					text: 'Second',
+					confidence: 0.9,
 					startMs: 1000,
 					endMs: 2000,
+					text: 'Second',
 					timestampMs: 1500,
-					confidence: 0.9,
 				},
 				changes: {startMs: 1100, endMs: 2100},
 			},
