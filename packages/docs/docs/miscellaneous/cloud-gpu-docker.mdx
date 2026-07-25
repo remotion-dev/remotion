@@ -69,7 +69,7 @@ sudo systemctl restart docker
 <kbd>X</kbd> to save and quit. <br />
 
 ```bash title="Dockerfile"
-FROM node:20-bookworm
+FROM node:22-bookworm
 RUN apt-get update
 RUN apt-get install -y curl gnupg git
 RUN rm -rf /var/lib/apt/lists/*
