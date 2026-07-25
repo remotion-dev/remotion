@@ -33,6 +33,8 @@ import {
 	selectActiveKeys,
 } from '../with-interactivity-schema.js';
 
+const expectType = <T>(_value: T): void => undefined;
+
 test('sequenceStyleSchema contains transform and premount fields', () => {
 	expect(Object.keys(sequenceStyleSchema).sort()).toEqual(
 		[
@@ -146,15 +148,13 @@ test('Interactive.withCaptions() registers inline captions', () => {
 		readonly mode: 'highlight' | 'scale';
 	}) => null;
 	const Wrapped = Interactive.withCaptions({Component});
-	const validProps: ComponentProps<typeof Wrapped> = {
+	expectType<ComponentProps<typeof Wrapped>>({
 		captions: [],
 		mode: 'highlight',
 		name: 'Captions',
 		style: {height: 240, translate: '0px 100px', width: 960},
-	};
+	});
 
-	// Retain this value so TypeScript checks the public component prop contract.
-	void validProps;
 	expect(captionsSchema).toEqual({
 		captions: {
 			type: 'captions',
