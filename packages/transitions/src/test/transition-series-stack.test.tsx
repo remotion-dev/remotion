@@ -205,11 +205,20 @@ test('TransitionSeries.Transition and Overlay register at their rendered timelin
 	const root = createRoot(div);
 	const transitionStack = 'Error\n    at UserAuthoredTransition';
 	const overlayStack = 'Error\n    at UserAuthoredOverlay';
+	const pendingRegistrationStacks = new Set([transitionStack, overlayStack]);
+	let resolveRegistrations: () => void = () => undefined;
+	const registrations = new Promise<void>((resolve) => {
+		resolveRegistrations = resolve;
+	});
 
 	root.render(
 		<SequenceTestWrapper
 			onRegisterSequence={(sequence) => {
 				registeredSequences.push(sequence);
+				pendingRegistrationStacks.delete(sequence.getStack() ?? '');
+				if (pendingRegistrationStacks.size === 0) {
+					resolveRegistrations();
+				}
 			}}
 			overrideIdToNodePathMappings={{}}
 			propStatuses={{}}
@@ -240,7 +249,7 @@ test('TransitionSeries.Transition and Overlay register at their rendered timelin
 		</SequenceTestWrapper>,
 	);
 
-	await new Promise((resolve) => setTimeout(resolve, 10));
+	await registrations;
 
 	const transition = registeredSequences.find(
 		(sequence) => sequence.getStack() === transitionStack,
