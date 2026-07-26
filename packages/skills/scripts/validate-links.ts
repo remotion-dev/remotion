@@ -20,7 +20,6 @@ const repoRoot = process.env.SKILLS_REPO_ROOT
 const skillsRoot = process.env.SKILLS_ROOT
 	? path.resolve(process.env.SKILLS_ROOT)
 	: path.join(repoRoot, 'packages', 'skills', 'skills');
-const bestPracticesRoot = path.join(skillsRoot, 'remotion-best-practices');
 
 const markdownLinkRegex = /!?\[[^\]]*]\(([^)]+)\)/g;
 
@@ -128,61 +127,74 @@ const validateMarkdownLinks = () => {
 	return issues;
 };
 
-const validateEmbeddedBestPracticesSkills = () => {
+const validateEmbeddedSkills = () => {
 	const issues: LinkIssue[] = [];
 	const skillFolders = readdirSync(skillsRoot, {withFileTypes: true})
 		.filter((entry) => entry.isDirectory() || entry.isSymbolicLink())
 		.map((entry) => entry.name)
-		.filter((name) => name !== 'remotion-best-practices')
 		.sort();
 
-	for (const skillFolder of skillFolders) {
-		const embeddedPath = path.join(bestPracticesRoot, skillFolder);
+	const embeddedSkillSets = [
+		{
+			parentSkill: 'remotion-best-practices',
+			skillNames: skillFolders.filter(
+				(name) => name !== 'remotion-best-practices',
+			),
+		},
+		{
+			parentSkill: 'remotion-markup',
+			skillNames: ['remotion-maps'],
+		},
+	];
 
-		if (!existsSync(embeddedPath)) {
-			issues.push({
-				file: bestPracticesRoot,
-				link: skillFolder,
-				message: `Missing embedded skill folder in remotion-best-practices: ${skillFolder}`,
-			});
-			continue;
-		}
+	for (const {parentSkill, skillNames} of embeddedSkillSets) {
+		const parentRoot = path.join(skillsRoot, parentSkill);
+		for (const skillName of skillNames) {
+			const embeddedPath = path.join(parentRoot, skillName);
 
-		const embeddedStats = lstatSync(embeddedPath);
-		if (embeddedStats.isSymbolicLink()) {
-			const target = readlinkSync(embeddedPath);
-			if (target !== `../${skillFolder}`) {
+			if (!existsSync(embeddedPath)) {
 				issues.push({
-					file: embeddedPath,
-					link: target,
-					message: `Expected symlink target "../${skillFolder}"`,
+					file: parentRoot,
+					link: skillName,
+					message: `Missing embedded skill folder in ${parentSkill}: ${skillName}`,
 				});
+				continue;
+			}
+
+			const embeddedStats = lstatSync(embeddedPath);
+			if (embeddedStats.isSymbolicLink()) {
+				const target = readlinkSync(embeddedPath);
+				if (target !== `../${skillName}`) {
+					issues.push({
+						file: embeddedPath,
+						link: target,
+						message: `Expected symlink target "../${skillName}"`,
+					});
+				}
 			}
 		}
-	}
 
-	const bestPracticesSkill = path.join(bestPracticesRoot, 'SKILL.md');
-	const contents = readFileSync(bestPracticesSkill, 'utf-8');
-	const parentSkillLinks = [...contents.matchAll(markdownLinkRegex)]
-		.map((match) => stripMarkdownTitle(match[1] as string))
-		.filter((link) => link.startsWith('../'));
+		const parentSkillFile = path.join(parentRoot, 'SKILL.md');
+		const contents = readFileSync(parentSkillFile, 'utf-8');
+		const siblingSkillLinks = [...contents.matchAll(markdownLinkRegex)]
+			.map((match) => stripMarkdownTitle(match[1] as string))
+			.filter((link) =>
+				skillNames.some((skillName) => link.startsWith(`../${skillName}/`)),
+			);
 
-	for (const link of parentSkillLinks) {
-		issues.push({
-			file: bestPracticesSkill,
-			link,
-			message:
-				'Link from remotion-best-practices should point to the embedded copy, not a sibling skill folder',
-		});
+		for (const link of siblingSkillLinks) {
+			issues.push({
+				file: parentSkillFile,
+				link,
+				message: `Link from ${parentSkill} should point to the embedded copy, not a sibling skill folder`,
+			});
+		}
 	}
 
 	return issues;
 };
 
-const issues = [
-	...validateMarkdownLinks(),
-	...validateEmbeddedBestPracticesSkills(),
-];
+const issues = [...validateMarkdownLinks(), ...validateEmbeddedSkills()];
 
 if (issues.length > 0) {
 	console.error(`Found ${issues.length} invalid skill link issue(s):`);

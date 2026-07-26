@@ -1,6 +1,6 @@
 ---
 name: remotion-render
-description: Best practices for rendering videos
+description: Export a Remotion video
 metadata:
   tags: remotion, render
 ---
