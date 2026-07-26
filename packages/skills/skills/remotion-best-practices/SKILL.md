@@ -19,7 +19,7 @@ For static maps, animated routes and markers, geographic explainers, Mapbox, Map
 
 ## Multimedia
 
-For achieving multimedia tasks in the browser, such as trimming, cropping videos, or getting metadata from them, load [Mediabunny Best Practices](remotion-multimedia/SKILL.md)
+For achieving multimedia tasks in the browser, such as trimming, cropping videos, or getting metadata from them, load [Remotion Multimedia](remotion-multimedia/SKILL.md)
 
 ## Improving Interactivity
 
