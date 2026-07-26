@@ -17,9 +17,9 @@ If you are writing Remotion React Markup, load [Remotion Markup Best Practices](
 
 For static maps, animated routes and markers, geographic explainers, Mapbox, MapLibre, MapTiler, GeoJSON, or 3D geographic flyovers, load [Remotion Maps](remotion-maps/SKILL.md).
 
-## Mediabunny Skills
+## Multimedia
 
-For achieving multimedia tasks in the browser, such as trimming, cropping videos, or getting metadata from them, load [Mediabunny Best Practices](mediabunny/SKILL.md)
+For achieving multimedia tasks in the browser, such as trimming, cropping videos, or getting metadata from them, load [Mediabunny Best Practices](remotion-multimedia/SKILL.md)
 
 ## Improving Interactivity
 
