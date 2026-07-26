@@ -42,7 +42,23 @@ export const resolveSequenceCrop = ({
 	return {left, right, top, bottom};
 };
 
-export const validateSequenceCrop = (crop: SequenceCropInput): void => {
+export const getSequenceCropClipPath = ({
+	left,
+	right,
+	top,
+	bottom,
+}: ResolvedSequenceCrop): string | null => {
+	if (left === 0 && right === 0 && top === 0 && bottom === 0) {
+		return null;
+	}
+
+	return `inset(${top * 100}% ${right * 100}% ${bottom * 100}% ${left * 100}%)`;
+};
+
+export const validateSequenceCrop = (
+	crop: SequenceCropInput,
+	componentName = '<Sequence />',
+): void => {
 	for (const [name, value] of Object.entries(crop)) {
 		if (value === undefined) {
 			continue;
@@ -50,13 +66,13 @@ export const validateSequenceCrop = (crop: SequenceCropInput): void => {
 
 		if (typeof value !== 'number' || !Number.isFinite(value)) {
 			throw new TypeError(
-				`The "${name}" prop of <Sequence /> must be a finite number, but got ${String(value)}.`,
+				`The "${name}" prop of ${componentName} must be a finite number, but got ${String(value)}.`,
 			);
 		}
 
 		if (value < 0 || value > 1) {
 			throw new RangeError(
-				`The "${name}" prop of <Sequence /> must be between 0 and 1, but got ${value}.`,
+				`The "${name}" prop of ${componentName} must be between 0 and 1, but got ${value}.`,
 			);
 		}
 	}

@@ -8,6 +8,7 @@ import {
 	backgroundSchema,
 	baseSchema,
 	borderSchema,
+	cropSchema,
 	premountSchema,
 	sequenceSchema,
 	svgPaintSchema,
@@ -84,6 +85,11 @@ export type InteractiveBaseProps = Pick<
 >;
 
 export type InteractiveTransformProps = Pick<AbsoluteFillLayout, 'style'>;
+
+export type InteractiveCropProps = Pick<
+	SequenceProps,
+	'cropLeft' | 'cropRight' | 'cropTop' | 'cropBottom'
+>;
 
 export type InteractivePremountProps = Pick<
 	AbsoluteFillLayout,
@@ -315,6 +321,7 @@ export const Interactive = {
 	textSchema,
 	backgroundSchema,
 	borderSchema,
+	cropSchema,
 	svgPaintSchema,
 	svgStrokeSchema,
 	premountSchema,

@@ -99,6 +99,14 @@ Controls for transform-related style props:
 Use it for components that accept a `style` prop and apply it to the rendered element.
 Keep these values inline in JSX if the Studio should edit or keyframe them.
 
+### `Interactive.cropSchema`<AvailableFrom v="4.0.500" />
+
+Controls for cropping an element from each edge:
+
+[`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop) and [`cropBottom`](/docs/sequence#cropbottom).
+
+Spread this schema into a custom component's schema to opt it into crop controls. The component must apply the crop props to its rendered element or forward them to an absolute-fill [`<Sequence>`](/docs/sequence).
+
 ### `Interactive.textSchema`<AvailableFrom v="4.0.481" />
 
 Controls for text-related style props:
@@ -168,6 +176,10 @@ The prop type matching `Interactive.baseSchema`.
 ### `InteractiveTransformProps`<AvailableFrom v="4.0.479" />
 
 The prop type matching `Interactive.transformSchema`.
+
+### `InteractiveCropProps`<AvailableFrom v="4.0.500" />
+
+The prop type matching `Interactive.cropSchema`.
 
 ### `InteractivePremountProps`<AvailableFrom v="4.0.479" />
 

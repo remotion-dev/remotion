@@ -3,10 +3,12 @@ import type {ImageFit} from '../calculate-image-fit.js';
 import type {EffectsProp} from '../effects/effect-types.js';
 import type {
 	InteractiveBaseProps,
+	InteractiveCropProps,
 	InteractivePremountProps,
 } from '../Interactive.js';
 
 type CanvasImageSequenceProps = InteractiveBaseProps &
+	InteractiveCropProps &
 	InteractivePremountProps & {
 		/**
 		 * @deprecated For internal use only.

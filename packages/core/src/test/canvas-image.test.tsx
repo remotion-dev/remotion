@@ -281,6 +281,29 @@ test('<CanvasImage> exposes non-keyframable premounting schema fields', () => {
 	expect(canvasImageSchema.postmountFor.keyframable).toBe(false);
 });
 
+test('<CanvasImage> applies crop props to the canvas', async () => {
+	const {container} = render(
+		wrapCanvasImage(
+			<CanvasImage
+				src="test.png"
+				width={120}
+				height={80}
+				cropLeft={0.1}
+				cropRight={0.2}
+				cropTop={0.3}
+				cropBottom={0.4}
+			/>,
+		),
+	);
+
+	const canvas = container.querySelector('canvas');
+	expect(canvas?.style.clipPath).toBe('inset(30% 20% 40% 10%)');
+
+	await waitFor(() => {
+		expect(getDelayRenderState().remotion_renderReady).toBe(true);
+	});
+});
+
 test('<CanvasImage> hides the canvas while premounted and postmounted', async () => {
 	const premounted = render(
 		wrapCanvasImage(

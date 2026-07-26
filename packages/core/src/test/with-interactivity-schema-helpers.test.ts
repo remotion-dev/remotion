@@ -15,6 +15,7 @@ import {
 	backgroundSchema,
 	baseSchema,
 	borderSchema,
+	cropSchema,
 	extendSchemaWithSequenceName,
 	premountSchema,
 	sequencePremountSchema,
@@ -81,6 +82,17 @@ test('Sequence crop fields are keyframable ratios', () => {
 			keyframable: true,
 		});
 	}
+});
+
+test('cropSchema is reusable and CanvasImage opts into it', () => {
+	expect(Interactive.cropSchema).toBe(cropSchema);
+	expect(sequenceCropSchema).toBe(cropSchema);
+
+	for (const key of Object.keys(cropSchema)) {
+		expect(key in canvasImageSchema).toBe(true);
+	}
+
+	expect('cropLeft' in baseSchema).toBe(false);
 });
 
 test('baseSchema exposes common timeline fields', () => {

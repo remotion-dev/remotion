@@ -17,7 +17,11 @@ import {
 	sequenceSchemaWithoutFrom,
 } from './interactivity-schema.js';
 import {useNonce} from './nonce.js';
-import {resolveSequenceCrop, validateSequenceCrop} from './sequence-crop.js';
+import {
+	getSequenceCropClipPath,
+	resolveSequenceCrop,
+	validateSequenceCrop,
+} from './sequence-crop.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';
@@ -189,11 +193,12 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		top: resolvedCropTop,
 		bottom: resolvedCropBottom,
 	} = resolveSequenceCrop(cropProps);
-	const hasCrop =
-		resolvedCropLeft > 0 ||
-		resolvedCropRight > 0 ||
-		resolvedCropTop > 0 ||
-		resolvedCropBottom > 0;
+	const cropClipPath = getSequenceCropClipPath({
+		left: resolvedCropLeft,
+		right: resolvedCropRight,
+		top: resolvedCropTop,
+		bottom: resolvedCropBottom,
+	});
 
 	// @ts-expect-error
 	if (layout === 'none' && typeof other.style !== 'undefined') {
@@ -571,22 +576,13 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			...(width ? {width} : {}),
 			...(height ? {height} : {}),
 			...(styleIfThere ?? {}),
-			...(hasCrop
+			...(cropClipPath
 				? {
-						clipPath: `inset(${resolvedCropTop * 100}% ${resolvedCropRight * 100}% ${resolvedCropBottom * 100}% ${resolvedCropLeft * 100}%)`,
+						clipPath: cropClipPath,
 					}
 				: {}),
 		};
-	}, [
-		hasCrop,
-		height,
-		resolvedCropBottom,
-		resolvedCropLeft,
-		resolvedCropRight,
-		resolvedCropTop,
-		styleIfThere,
-		width,
-	]);
+	}, [cropClipPath, height, styleIfThere, width]);
 
 	if (ref !== null && layout === 'none') {
 		throw new TypeError(

@@ -436,7 +436,7 @@ export const sequencePremountSchema = {
 	...premountSchema,
 } as const satisfies InteractivitySchema;
 
-export const sequenceCropSchema = {
+export const cropSchema = {
 	cropLeft: {
 		type: 'number',
 		default: 0,
@@ -478,6 +478,8 @@ export const sequenceCropSchema = {
 		keyframable: true,
 	},
 } as const satisfies InteractivitySchema;
+
+export const sequenceCropSchema = cropSchema;
 
 export const sequenceStyleSchema = {
 	...sequenceCropSchema,

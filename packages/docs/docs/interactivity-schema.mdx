@@ -43,6 +43,12 @@ Timeline props inherited from [`<Sequence>`](/docs/sequence): [`durationInFrames
 
 Transform-related style props: `style.transformOrigin`, `style.translate`, `style.scale`, `style.rotate` and `style.opacity`.
 
+### `Interactive.cropSchema`<AvailableFrom v="4.0.500" />
+
+Crop props inherited from an absolute-fill [`<Sequence>`](/docs/sequence): [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop) and [`cropBottom`](/docs/sequence#cropbottom).
+
+Use this fragment to opt a custom component into crop controls. The component must apply the crop props to its rendered element or forward them to an absolute-fill `<Sequence>`.
+
 ### `Interactive.textSchema`<AvailableFrom v="4.0.481" />
 
 Text-related style props: `style.color`, `style.fontFamily`, `style.fontSize`, `style.lineHeight`, `style.fontWeight`, `style.fontStyle`, `style.textAlign` and `style.letterSpacing`.

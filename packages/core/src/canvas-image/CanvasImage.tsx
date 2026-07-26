@@ -24,11 +24,17 @@ import {
 	backgroundSchema,
 	baseSchema,
 	borderSchema,
+	cropSchema,
 	premountSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
 import {usePreload} from '../prefetch.js';
+import {
+	getSequenceCropClipPath,
+	resolveSequenceCrop,
+	validateSequenceCrop,
+} from '../sequence-crop.js';
 import {Sequence} from '../Sequence.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {truncateSrcForLabel} from '../truncate-src-for-label.js';
@@ -40,6 +46,7 @@ import type {CanvasImageCanvasProps, CanvasImageProps} from './props.js';
 
 export const canvasImageSchema = {
 	...baseSchema,
+	...cropSchema,
 	...premountSchema,
 	fit: {
 		type: 'enum',
@@ -533,6 +540,10 @@ const CanvasImageInner = forwardRef<
 			hidden,
 			name,
 			showInTimeline,
+			cropLeft,
+			cropRight,
+			cropTop,
+			cropBottom,
 			stack,
 			controls,
 			_remotionInternalDocumentationLink,
@@ -544,6 +555,12 @@ const CanvasImageInner = forwardRef<
 		if (!src) {
 			throw new Error('No "src" prop was passed to <CanvasImage>.');
 		}
+
+		const cropProps = {cropLeft, cropRight, cropTop, cropBottom};
+		validateSequenceCrop(cropProps, '<CanvasImage />');
+		const cropClipPath = getSequenceCropClipPath(
+			resolveSequenceCrop(cropProps),
+		);
 
 		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 		const actualRef = useRef<HTMLCanvasElement | null>(null);
@@ -603,7 +620,11 @@ const CanvasImageInner = forwardRef<
 						effects={effects}
 						controls={controls}
 						className={className}
-						style={premountingStyle ?? undefined}
+						style={
+							cropClipPath === null
+								? (premountingStyle ?? undefined)
+								: {...premountingStyle, clipPath: cropClipPath}
+						}
 						id={id}
 						onError={onError}
 						pauseWhenLoading={pauseWhenLoading}
