@@ -20,7 +20,7 @@ import {
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
 import {CaptionTimingEditContext} from '../../state/caption-timing-edit';
-import type {CaptionJson} from '../caption-json';
+import type {CaptionData} from '../caption-data';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
@@ -127,16 +127,16 @@ const count: React.CSSProperties = {
 };
 
 const CaptionTimingItem: React.FC<{
-	readonly caption: CaptionJson;
+	readonly caption: CaptionData;
 	readonly index: number;
-	readonly nextCaption: CaptionJson | null;
+	readonly nextCaption: CaptionData | null;
 	readonly pixelsPerFrame: number;
-	readonly previousCaption: CaptionJson | null;
+	readonly previousCaption: CaptionData | null;
 }> = ({caption, index, nextCaption, pixelsPerFrame, previousCaption}) => {
 	const {durationInFrames, fps} = useVideoConfig();
 	const {selectCaption, selectedCaptionIndex, session, updateCaptions} =
 		useContext(CaptionTimingEditContext);
-	const [preview, setPreview] = useState<CaptionJson | null>(null);
+	const [preview, setPreview] = useState<CaptionData | null>(null);
 	const [hovered, setHovered] = useState(false);
 	const removeListeners = useRef<(() => void) | null>(null);
 	const displayedCaption = preview ?? caption;
@@ -146,7 +146,7 @@ const CaptionTimingItem: React.FC<{
 	}, []);
 
 	const commitCaption = useCallback(
-		(updatedCaption: CaptionJson) => {
+		(updatedCaption: CaptionData) => {
 			if (session === null) {
 				return;
 			}

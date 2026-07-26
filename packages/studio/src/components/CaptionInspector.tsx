@@ -3,8 +3,8 @@ import {Internals} from 'remotion';
 import {FAIL_COLOR, LIGHT_TEXT} from '../helpers/colors';
 import {CaptionTimingEditContext} from '../state/caption-timing-edit';
 import {Button} from './Button';
-import type {CaptionJson} from './caption-json';
-import {CaptionJsonEditor} from './CaptionJsonEditor';
+import type {CaptionData} from './caption-data';
+import {CaptionTextEditor} from './CaptionTextEditor';
 import {
 	InspectorSectionDivider,
 	InspectorSectionHeader,
@@ -35,10 +35,10 @@ const status: React.CSSProperties = {
 };
 
 export const CaptionInspector: React.FC<{
-	readonly captions: CaptionJson[];
-	readonly onTextChange: (captions: CaptionJson[]) => void;
-	readonly onTextSave: ((captions: CaptionJson[]) => void) | null;
-	readonly onTimingChange: (captions: CaptionJson[]) => void;
+	readonly captions: CaptionData[];
+	readonly onTextChange: (captions: CaptionData[]) => void;
+	readonly onTextSave: ((captions: CaptionData[]) => void) | null;
+	readonly onTimingChange: (captions: CaptionData[]) => void;
 	readonly readOnlyTitle: string | null;
 	readonly saveStatus: CaptionSaveStatus;
 }> = ({
@@ -143,7 +143,7 @@ export const CaptionInspector: React.FC<{
 					</div>
 				</div>
 			</InspectorSectionHeader>
-			<CaptionJsonEditor
+			<CaptionTextEditor
 				captions={captions}
 				onChange={onTextChange}
 				onSave={onTextSave}

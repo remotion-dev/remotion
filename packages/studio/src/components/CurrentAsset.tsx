@@ -11,7 +11,6 @@ import {
 import {useImageMetadata} from '../helpers/use-image-metadata';
 import type {MediaMetadata} from '../helpers/use-media-metadata';
 import {useMediaMetadata} from '../helpers/use-media-metadata';
-import {CaptionJsonInspector} from './CaptionJsonInspector';
 import {InlineEditableTitle} from './InlineEditableTitle';
 import {
 	INSPECTOR_INFO_HEADER_MIN_HEIGHT,
@@ -201,23 +200,8 @@ export const CurrentAsset: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
-	const staticFiles = useStaticFiles();
 	const assetName =
 		canvasContent?.type === 'asset' ? canvasContent.asset : null;
-	const staticFileEntry = staticFiles.find((file) => file.name === assetName);
-	const isJson = assetName !== null && getPreviewFileType(assetName) === 'json';
 
-	return (
-		<>
-			<AssetInfo assetName={assetName} readOnlyStudio={readOnlyStudio} />
-			{isJson && staticFileEntry ? (
-				<CaptionJsonInspector
-					src={`${staticFileEntry.src}?date=${staticFileEntry.lastModified}`}
-					editableFilePath={
-						readOnlyStudio ? undefined : (assetName ?? undefined)
-					}
-				/>
-			) : null}
-		</>
-	);
+	return <AssetInfo assetName={assetName} readOnlyStudio={readOnlyStudio} />;
 };

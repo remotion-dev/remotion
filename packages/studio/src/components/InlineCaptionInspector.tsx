@@ -10,18 +10,18 @@ import type {SequenceControls, SequencePropsSubscriptionKey} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import type {CaptionJson} from './caption-json';
+import type {CaptionData} from './caption-data';
 import {CaptionInspector, type CaptionSaveStatus} from './CaptionInspector';
 import {saveInlineCaptionPatchesWithError} from './Timeline/save-sequence-prop';
 
-const serializeCaptions = (captions: CaptionJson[]) => JSON.stringify(captions);
+const serializeCaptions = (captions: CaptionData[]) => JSON.stringify(captions);
 
 const getCaptionPatches = ({
 	previous,
 	next,
 }: {
-	previous: CaptionJson[];
-	next: CaptionJson[];
+	previous: CaptionData[];
+	next: CaptionData[];
 }): CaptionPatch[] | null => {
 	if (previous.length !== next.length) {
 		return null;
@@ -68,7 +68,7 @@ const getCaptionPatches = ({
 };
 
 export const InlineCaptionInspector: React.FC<{
-	readonly captions: CaptionJson[];
+	readonly captions: CaptionData[];
 	readonly controls: SequenceControls;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly readOnlyStudio: boolean;
@@ -136,7 +136,7 @@ export const InlineCaptionInspector: React.FC<{
 	}, [canSave, captions]);
 
 	const saveCaptions = useCallback(
-		(nextCaptions: CaptionJson[]) => {
+		(nextCaptions: CaptionData[]) => {
 			const patches = getCaptionPatches({
 				previous: savedCaptions.current,
 				next: nextCaptions,
@@ -223,7 +223,7 @@ export const InlineCaptionInspector: React.FC<{
 		],
 	);
 
-	const onTextChange = useCallback((nextCaptions: CaptionJson[]) => {
+	const onTextChange = useCallback((nextCaptions: CaptionData[]) => {
 		draftIsDirty.current = true;
 		setDraftCaptions(nextCaptions);
 	}, []);

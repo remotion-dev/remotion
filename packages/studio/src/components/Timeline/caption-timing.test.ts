@@ -1,8 +1,8 @@
 import {expect, test} from 'bun:test';
-import type {CaptionJson} from '../caption-json';
+import type {CaptionData} from '../caption-data';
 import {applyCaptionTimingDrag} from './caption-timing';
 
-const caption: CaptionJson = {
+const caption: CaptionData = {
 	text: ' Hello',
 	startMs: 1000,
 	endMs: 2000,
@@ -10,7 +10,7 @@ const caption: CaptionJson = {
 	confidence: 0.9,
 };
 
-const makeCaption = (startMs: number, endMs: number): CaptionJson => ({
+const makeCaption = (startMs: number, endMs: number): CaptionData => ({
 	...caption,
 	startMs,
 	endMs,

@@ -1,9 +1,9 @@
 import {expect, test} from 'bun:test';
-import {isCaptionJson, isCaptionJsonArray} from './caption-json';
+import {isCaptionDataArray} from './caption-data';
 
-test('recognizes caption JSON', () => {
+test('recognizes caption data', () => {
 	expect(
-		isCaptionJson([
+		isCaptionDataArray([
 			{
 				text: ' Hello',
 				startMs: 0,
@@ -15,15 +15,14 @@ test('recognizes caption JSON', () => {
 	).toBe(true);
 });
 
-test('accepts an empty caption array when the schema identifies it', () => {
-	expect(isCaptionJsonArray([])).toBe(true);
-	expect(isCaptionJson([])).toBe(false);
+test('accepts an empty caption array', () => {
+	expect(isCaptionDataArray([])).toBe(true);
 });
 
-test('rejects JSON that does not match the caption format', () => {
-	expect(isCaptionJson({text: 'Hello'})).toBe(false);
+test('rejects caption data that does not match the caption format', () => {
+	expect(isCaptionDataArray({text: 'Hello'})).toBe(false);
 	expect(
-		isCaptionJson([
+		isCaptionDataArray([
 			{
 				text: 'Hello',
 				startMs: 0,
@@ -34,7 +33,7 @@ test('rejects JSON that does not match the caption format', () => {
 		]),
 	).toBe(false);
 	expect(
-		isCaptionJson([
+		isCaptionDataArray([
 			{
 				text: 'Hello',
 				startMs: 0,

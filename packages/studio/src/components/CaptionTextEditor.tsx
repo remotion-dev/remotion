@@ -6,7 +6,7 @@ import {
 	WHITE,
 	WHITE_ALPHA_08,
 } from '../helpers/colors';
-import type {CaptionJson} from './caption-json';
+import type {CaptionData} from './caption-data';
 import {RemotionInput} from './NewComposition/RemInput';
 
 const container: React.CSSProperties = {
@@ -55,10 +55,10 @@ const formatMilliseconds = (milliseconds: number) => {
 	return Math.round(milliseconds);
 };
 
-export const CaptionJsonEditor: React.FC<{
-	readonly captions: CaptionJson[];
-	readonly onChange: (captions: CaptionJson[]) => void;
-	readonly onSave: ((captions: CaptionJson[]) => void) | null;
+export const CaptionTextEditor: React.FC<{
+	readonly captions: CaptionData[];
+	readonly onChange: (captions: CaptionData[]) => void;
+	readonly onSave: ((captions: CaptionData[]) => void) | null;
 	readonly readOnly: boolean;
 	readonly selectedCaptionIndex: number | null;
 	readonly selectionRevision: number;

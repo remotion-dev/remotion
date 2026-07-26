@@ -1,4 +1,4 @@
-export type CaptionJson = {
+export type CaptionData = {
 	readonly text: string;
 	readonly startMs: number;
 	readonly endMs: number;
@@ -14,7 +14,7 @@ const isNullableNumber = (value: unknown): value is number | null => {
 	return value === null || isNumber(value);
 };
 
-const isCaption = (value: unknown): value is CaptionJson => {
+const isCaption = (value: unknown): value is CaptionData => {
 	if (typeof value !== 'object' || value === null) {
 		return false;
 	}
@@ -29,10 +29,6 @@ const isCaption = (value: unknown): value is CaptionJson => {
 	);
 };
 
-export const isCaptionJsonArray = (value: unknown): value is CaptionJson[] => {
+export const isCaptionDataArray = (value: unknown): value is CaptionData[] => {
 	return Array.isArray(value) && value.every(isCaption);
-};
-
-export const isCaptionJson = (value: unknown): value is CaptionJson[] => {
-	return isCaptionJsonArray(value) && value.length > 0;
 };

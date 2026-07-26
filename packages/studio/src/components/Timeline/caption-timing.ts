@@ -1,4 +1,4 @@
-import type {CaptionJson} from '../caption-json';
+import type {CaptionData} from '../caption-data';
 
 export type CaptionTimingDragType = 'resize-start' | 'resize-end';
 
@@ -19,7 +19,7 @@ const updateTimestamp = ({
 	startMs,
 	endMs,
 }: {
-	caption: CaptionJson;
+	caption: CaptionData;
 	startMs: number;
 	endMs: number;
 }) => {
@@ -45,14 +45,14 @@ export const applyCaptionTimingDrag = ({
 	fps,
 	type,
 }: {
-	caption: CaptionJson;
-	previousCaption: CaptionJson | null;
-	nextCaption: CaptionJson | null;
+	caption: CaptionData;
+	previousCaption: CaptionData | null;
+	nextCaption: CaptionData | null;
 	deltaFrames: number;
 	durationInFrames: number;
 	fps: number;
 	type: CaptionTimingDragType;
-}): CaptionJson => {
+}): CaptionData => {
 	const frameDurationMs = framesToMilliseconds(1, fps);
 	const compositionDurationMs = framesToMilliseconds(durationInFrames, fps);
 	const frameDelta = Math.round(deltaFrames);

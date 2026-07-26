@@ -1,10 +1,10 @@
 import React, {createContext, useCallback, useMemo, useState} from 'react';
-import type {CaptionJson} from '../components/caption-json';
+import type {CaptionData} from '../components/caption-data';
 
 type CaptionTimingEditSession = {
 	readonly ownerId: string;
-	readonly captions: CaptionJson[];
-	readonly onChange: (captions: CaptionJson[]) => void;
+	readonly captions: CaptionData[];
+	readonly onChange: (captions: CaptionData[]) => void;
 };
 
 type CaptionTimingEditContextValue = {
@@ -15,7 +15,7 @@ type CaptionTimingEditContextValue = {
 	readonly start: (session: CaptionTimingEditSession) => void;
 	readonly stop: (ownerId: string) => void;
 	readonly sync: (session: CaptionTimingEditSession) => void;
-	readonly updateCaptions: (ownerId: string, captions: CaptionJson[]) => void;
+	readonly updateCaptions: (ownerId: string, captions: CaptionData[]) => void;
 };
 
 export const CaptionTimingEditContext =
@@ -74,7 +74,7 @@ export const CaptionTimingEditProvider: React.FC<{
 	);
 
 	const updateCaptions = useCallback(
-		(ownerId: string, captions: CaptionJson[]) => {
+		(ownerId: string, captions: CaptionData[]) => {
 			if (session?.ownerId !== ownerId) {
 				return;
 			}
