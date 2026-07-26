@@ -1,6 +1,6 @@
 ---
 name: remotion-docs
-description: Search and fetch Remotion documentation pages
+description: Search Remotion documentation
 metadata:
   tags: remotion, docs, documentation, search
 ---

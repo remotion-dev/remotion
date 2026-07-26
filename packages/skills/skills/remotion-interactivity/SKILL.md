@@ -1,6 +1,6 @@
 ---
 name: remotion-interactivity
-description: Structures Remotion markup to enable interactivity
+description: Structure Remotion markup for interactivity
 metadata:
   tags: remotion, interactivity, studio, visual mode
 ---
@@ -63,7 +63,7 @@ const baseStyle = useMemo(() => {
   return {
     fontSize: 12 // ❌ Non-inline styles are not supported
   }
-}, [])
+}, []);
 
 <Interactive.Div
   style={{

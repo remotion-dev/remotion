@@ -1,6 +1,6 @@
 ---
 name: remotion-create
-description: Creating a new Remotion video
+description: Create a new Remotion video
 metadata:
   tags: remotion
 ---
@@ -41,7 +41,9 @@ If Tailwind is requested, see [tailwind.md](tailwind.md) for using TailwindCSS i
 npx remotion studio --no-open
 ```
 
-This will start a long-running process and print the server URL for the preview.
+This will start a long-running process and print the server URL for the preview.  
+If server is already started, it will print the URL.
+You can visit a specific composition by navigating to `/[composition-id]`, for example `http://localhost:3000/MapAnimation`.
 
 ## Follow-up
 
