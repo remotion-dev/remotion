@@ -24,6 +24,7 @@ import type {
 import type React from 'react';
 import {createContext} from 'react';
 import type {SequencePropsSubscriptionKey, _InternalTypes} from 'remotion';
+import type {StaticFile} from '../api/get-static-files';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
@@ -201,6 +202,10 @@ export type ModalState =
 			type: 'quick-switcher';
 			mode: QuickSwitcherMode;
 			invocationTimestamp: number;
+			assetSelection?: {
+				initialQuery: string;
+				onSelected: (asset: StaticFile) => void;
+			};
 	  }
 	| AddEffectModalState
 	| ConfirmationDialogState

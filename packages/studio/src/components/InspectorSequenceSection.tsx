@@ -19,12 +19,14 @@ import {InlineAction} from './InlineAction';
 import {InspectorInlineAction, InspectorSection} from './InspectorPanel/common';
 import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
+import {getAssetSearchQueryForComponent} from './QuickSwitcher/asset-search';
 import {
 	getTimelineAssetLinkInfo,
 	getTimelineAssetSrcFromSchema,
 	openTimelineAssetLink,
 	splitRemoteSourceForMiddleEllipsis,
 } from './Timeline/timeline-asset-link';
+import {AssetSelectionInitialQueryContext} from './Timeline/TimelineAssetField';
 import {TimelineExpandedRow} from './Timeline/TimelineExpandedRow';
 import {
 	INSPECTOR_TIMELINE_ROW_LAYOUT,
@@ -241,6 +243,9 @@ export const InspectorSequenceSection: React.FC<{
 	const localAssetFileName = localAsset
 		? (localAsset.assetPath.split('/').pop() ?? localAsset.assetPath)
 		: null;
+	const assetSelectionInitialQuery = getAssetSearchQueryForComponent(
+		sequence.controls.componentIdentity,
+	);
 
 	const getIsExpanded = useCallback(
 		(candidate: SequenceNodePathInfo) => {
@@ -292,12 +297,7 @@ export const InspectorSequenceSection: React.FC<{
 	}, [getIsExpanded, tree]);
 
 	const controlSelectableItems = useMemo(
-		() =>
-			getInspectorSelectableItems(
-				controlRows.filter(
-					({node}) => node.kind !== 'field' || node.field?.key !== 'src',
-				),
-			),
+		() => getInspectorSelectableItems(controlRows),
 		[controlRows],
 	);
 	const effectSelectableItems = useMemo(
@@ -382,53 +382,57 @@ export const InspectorSequenceSection: React.FC<{
 	}
 
 	return (
-		<div style={container}>
-			{controlRows.length > 0 ? (
-				<TimelineSelectionOrderProvider items={controlSelectableItems}>
-					{controlGroups.map((group) => (
-						<InspectorSection key={group.id} header={group.label}>
-							{group.id === 'source' && localAsset ? (
-								<InspectorInlineAction
-									disabled={false}
-									onClick={jumpToAsset}
-									renderIcon={(color) => (
-										<AssetFileIcon
-											color={color}
-											fileType={getPreviewFileType(localAsset.assetPath)}
-											style={assetSelectorIcon}
-										/>
-									)}
-									size="compact"
-									title={localAsset.assetPath}
-								>
-									{localAssetFileName}
-								</InspectorInlineAction>
-							) : null}
-							{group.id === 'source' && remoteAsset && remoteSourceParts ? (
-								<div style={remoteSourceLabel} title={remoteAsset.href}>
-									<span style={remoteSourceLeading}>
-										{remoteSourceParts.leading}
-									</span>
-									<span style={remoteSourceTrailing}>
-										{remoteSourceParts.trailing}
-									</span>
-								</div>
-							) : null}
-							{group.id === 'transforms' ? renderTransformControls() : null}
-							{group.id === 'source' ? null : group.rows.map(renderRow)}
-						</InspectorSection>
-					))}
-				</TimelineSelectionOrderProvider>
-			) : null}
-			{showEffectsSection ? (
-				<InspectorSection header={effectsHeader}>
-					{effectRows.length > 0 ? (
-						<TimelineSelectionOrderProvider items={effectSelectableItems}>
-							{effectRows.map(renderRow)}
-						</TimelineSelectionOrderProvider>
-					) : null}
-				</InspectorSection>
-			) : null}
-		</div>
+		<AssetSelectionInitialQueryContext.Provider
+			value={assetSelectionInitialQuery}
+		>
+			<div style={container}>
+				{controlRows.length > 0 ? (
+					<TimelineSelectionOrderProvider items={controlSelectableItems}>
+						{controlGroups.map((group) => (
+							<InspectorSection key={group.id} header={group.label}>
+								{group.id === 'source' && localAsset ? (
+									<InspectorInlineAction
+										disabled={false}
+										onClick={jumpToAsset}
+										renderIcon={(color) => (
+											<AssetFileIcon
+												color={color}
+												fileType={getPreviewFileType(localAsset.assetPath)}
+												style={assetSelectorIcon}
+											/>
+										)}
+										size="compact"
+										title={localAsset.assetPath}
+									>
+										{localAssetFileName}
+									</InspectorInlineAction>
+								) : null}
+								{group.id === 'source' && remoteAsset && remoteSourceParts ? (
+									<div style={remoteSourceLabel} title={remoteAsset.href}>
+										<span style={remoteSourceLeading}>
+											{remoteSourceParts.leading}
+										</span>
+										<span style={remoteSourceTrailing}>
+											{remoteSourceParts.trailing}
+										</span>
+									</div>
+								) : null}
+								{group.id === 'transforms' ? renderTransformControls() : null}
+								{group.rows.map(renderRow)}
+							</InspectorSection>
+						))}
+					</TimelineSelectionOrderProvider>
+				) : null}
+				{showEffectsSection ? (
+					<InspectorSection header={effectsHeader}>
+						{effectRows.length > 0 ? (
+							<TimelineSelectionOrderProvider items={effectSelectableItems}>
+								{effectRows.map(renderRow)}
+							</TimelineSelectionOrderProvider>
+						) : null}
+					</InspectorSection>
+				) : null}
+			</div>
+		</AssetSelectionInitialQueryContext.Provider>
 	);
 };
