@@ -3,7 +3,6 @@ import {tmpdir} from 'node:os';
 import path from 'path';
 import {$} from 'bun';
 import {CreateVideoInternals} from 'create-video';
-import {prepareEmbeddedSkills} from '../../../skills/scripts/prepare-embedded-skills';
 
 type MinimalTemplate = {
 	shortName: string;
@@ -74,7 +73,16 @@ const publish = async (template: MinimalTemplate) => {
 	}
 
 	if (template.templateInMonorepo === 'skills') {
-		prepareEmbeddedSkills(path.join(workingDir, 'skills'));
+		const prepareEmbeddedSkillsScript = path.join(
+			__dirname,
+			'..',
+			'..',
+			'..',
+			'skills',
+			'scripts',
+			'prepare-embedded-skills.ts',
+		);
+		await $`bun ${prepareEmbeddedSkillsScript} ${path.join(workingDir, 'skills')}`;
 	}
 
 	await $`git add .`.cwd(workingDir).nothrow();

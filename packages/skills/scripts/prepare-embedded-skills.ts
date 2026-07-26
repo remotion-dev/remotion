@@ -108,3 +108,12 @@ export const prepareEmbeddedSkills = (skillsRoot: string) => {
 		prepareEmbeddedSkillRoot(embeddedRoot);
 	}
 };
+
+if (import.meta.main) {
+	const skillsRoot = process.argv[2];
+	if (!skillsRoot) {
+		throw new Error('Expected the skills root as the first argument');
+	}
+
+	prepareEmbeddedSkills(path.resolve(skillsRoot));
+}
