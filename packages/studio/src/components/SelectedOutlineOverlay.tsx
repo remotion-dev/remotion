@@ -8,7 +8,12 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {Internals} from 'remotion';
+import {
+	Internals,
+	type GetDragOverrides,
+	type InteractivitySchema,
+	type TSequence,
+} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
@@ -107,6 +112,50 @@ export {
 	getTransformedSvgViewportPoints,
 } from './selected-outline-measurement';
 export {selectedOutlineDragThresholdPx} from './selected-outline-types';
+
+const cropFieldKeys = {
+	left: 'cropLeft',
+	right: 'cropRight',
+	top: 'cropTop',
+	bottom: 'cropBottom',
+} as const;
+
+const getEffectiveCropValue = ({
+	activeSchema,
+	controls,
+	dragOverrides,
+	fieldKey,
+	frame,
+	propStatuses,
+}: {
+	readonly activeSchema: InteractivitySchema | null;
+	readonly controls: NonNullable<TSequence['controls']> | null;
+	readonly dragOverrides: ReturnType<GetDragOverrides>;
+	readonly fieldKey: string;
+	readonly frame: number;
+	readonly propStatuses: ReturnType<typeof Internals.getPropStatusesCtx>;
+}): number => {
+	const fieldSchema = activeSchema?.[fieldKey];
+	if (fieldSchema?.type !== 'number') {
+		return 0;
+	}
+
+	const propStatus = propStatuses?.[fieldKey];
+	const value =
+		propStatus?.status === 'static' || propStatus?.status === 'keyframed'
+			? Internals.getEffectiveVisualModeValue({
+					propStatus,
+					dragOverrideValue: dragOverrides[fieldKey],
+					defaultValue: fieldSchema.default,
+					frame,
+					shouldResortToDefaultValueIfUndefined: true,
+				})
+			: (controls?.currentRuntimeValueDotNotation[fieldKey] ??
+				fieldSchema.default);
+
+	return typeof value === 'number' && Number.isFinite(value) ? value : 0;
+};
+
 export type {
 	SelectedOutlineDragState,
 	SelectedOutlineRotationDragState,
@@ -654,6 +703,40 @@ export const SelectedOutlineOverlay: React.FC<{
 						frame: sourceFrame,
 					})
 				: null;
+			const crop = Internals.resolveSequenceCrop({
+				cropLeft: getEffectiveCropValue({
+					activeSchema,
+					controls,
+					dragOverrides,
+					fieldKey: cropFieldKeys.left,
+					frame: sourceFrame,
+					propStatuses: nodePropStatuses,
+				}),
+				cropRight: getEffectiveCropValue({
+					activeSchema,
+					controls,
+					dragOverrides,
+					fieldKey: cropFieldKeys.right,
+					frame: sourceFrame,
+					propStatuses: nodePropStatuses,
+				}),
+				cropTop: getEffectiveCropValue({
+					activeSchema,
+					controls,
+					dragOverrides,
+					fieldKey: cropFieldKeys.top,
+					frame: sourceFrame,
+					propStatuses: nodePropStatuses,
+				}),
+				cropBottom: getEffectiveCropValue({
+					activeSchema,
+					controls,
+					dragOverrides,
+					fieldKey: cropFieldKeys.bottom,
+					frame: sourceFrame,
+					propStatuses: nodePropStatuses,
+				}),
+			});
 			const fieldSchema = activeSchema?.[translateFieldKey];
 			const propStatus = nodePropStatuses?.[translateFieldKey];
 			const scaleFieldSchema = activeSchema?.[scaleFieldKey];
@@ -733,6 +816,7 @@ export const SelectedOutlineOverlay: React.FC<{
 				controls?.supportsEffects === true;
 			return {
 				key,
+				crop,
 				containsSelection,
 				effectDrop: canDropEffect
 					? {

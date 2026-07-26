@@ -125,6 +125,7 @@ import {ScalePath} from './ScalePath';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
 import {Scripts} from './Scripts';
 import {WidthHeightSequences} from './Sequence/WidthHeightSequences';
+import {SequenceCropTest} from './SequenceCropTest';
 import CircleTest from './Shapes/CircleTest';
 import EllipseTest from './Shapes/EllipseTest';
 import RectTest from './Shapes/RectTest';
@@ -2667,6 +2668,14 @@ export const Index: React.FC = () => {
 				id="controls-showcase"
 				component={ControlsShowcase}
 				width={2300}
+				height={1080}
+				fps={30}
+				durationInFrames={120}
+			/>
+			<Composition
+				id="sequence-crop-controls"
+				component={SequenceCropTest}
+				width={1080}
 				height={1080}
 				fps={30}
 				durationInFrames={120}

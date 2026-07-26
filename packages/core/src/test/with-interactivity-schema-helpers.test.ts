@@ -15,9 +15,11 @@ import {
 	backgroundSchema,
 	baseSchema,
 	borderSchema,
+	cropSchema,
 	extendSchemaWithSequenceName,
 	premountSchema,
 	sequencePremountSchema,
+	sequenceCropSchema,
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
 	sequenceStyleSchema,
@@ -37,6 +39,7 @@ import {
 test('sequenceStyleSchema contains visual style and premount fields', () => {
 	expect(Object.keys(sequenceStyleSchema).sort()).toEqual(
 		[
+			...Object.keys(sequenceCropSchema),
 			...Object.keys(transformSchema),
 			...Object.keys(backgroundSchema),
 			...Object.keys(borderSchema),
@@ -67,6 +70,37 @@ test('premount fields are not keyframable', () => {
 	);
 	expect(premountSchema.premountFor.keyframable).toBe(false);
 	expect(premountSchema.postmountFor.keyframable).toBe(false);
+});
+
+test('Sequence crop fields are keyframable ratios', () => {
+	for (const field of Object.values(sequenceCropSchema)) {
+		expect(field).toMatchObject({
+			type: 'number',
+			default: 0,
+			min: 0,
+			max: 1,
+			keyframable: true,
+		});
+	}
+});
+
+test('cropSchema is reusable and supported components opt into it', () => {
+	expect(Interactive.cropSchema).toBe(cropSchema);
+	expect(sequenceCropSchema).toBe(cropSchema);
+
+	for (const key of Object.keys(cropSchema)) {
+		for (const schema of [
+			animatedImageSchema,
+			canvasImageSchema,
+			htmlInCanvasSchema,
+			imgSchema,
+			solidSchema,
+		]) {
+			expect(key in schema).toBe(true);
+		}
+	}
+
+	expect('cropLeft' in baseSchema).toBe(false);
 });
 
 test('baseSchema exposes common timeline fields', () => {
@@ -142,6 +176,10 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 	const flat = getFlatSchemaWithAllKeys(sequenceSchema);
 	expect(Object.keys(flat).sort()).toEqual(
 		[
+			'cropBottom',
+			'cropLeft',
+			'cropRight',
+			'cropTop',
 			'hidden',
 			'name',
 			'showInTimeline',
@@ -459,6 +497,10 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 	};
 	expect(selectActiveKeys(sequenceSchema, values).sort()).toEqual(
 		[
+			'cropBottom',
+			'cropLeft',
+			'cropRight',
+			'cropTop',
 			'hidden',
 			'layout',
 			'durationInFrames',

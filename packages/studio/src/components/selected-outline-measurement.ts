@@ -310,6 +310,31 @@ const getElementOutlinePoints = (
 	return quadToPoints(quad, containerRect);
 };
 
+export const cropOutlinePoints = (
+	points: SelectedOutline['points'],
+	crop: SelectedOutlineTarget['crop'],
+): SelectedOutline['points'] => {
+	if (
+		crop.left === 0 &&
+		crop.right === 0 &&
+		crop.top === 0 &&
+		crop.bottom === 0
+	) {
+		return points;
+	}
+
+	const {left, top} = crop;
+	const right = 1 - crop.right;
+	const bottom = 1 - crop.bottom;
+
+	return [
+		getUvHandlePosition(points, [left, top]),
+		getUvHandlePosition(points, [right, top]),
+		getUvHandlePosition(points, [right, bottom]),
+		getUvHandlePosition(points, [left, bottom]),
+	];
+};
+
 export const getSelectedSequenceKeys = (
 	selectedItems: readonly TimelineSelection[],
 ): Set<string> => {
@@ -528,10 +553,12 @@ export const measureOutlines = (
 			continue;
 		}
 
-		const points = getElementOutlinePoints(element, containerRect);
-		if (points === null) {
+		const uncroppedPoints = getElementOutlinePoints(element, containerRect);
+		if (uncroppedPoints === null) {
 			continue;
 		}
+
+		const points = cropOutlinePoints(uncroppedPoints, target.crop);
 
 		outlines.push({
 			key: target.key,

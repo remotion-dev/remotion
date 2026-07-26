@@ -9,6 +9,23 @@ test('Video exposes background and border controls', () => {
 	expect('style.borderColor' in videoSchema).toBe(true);
 });
 
+test('Video exposes crop controls', () => {
+	for (const field of [
+		'cropLeft',
+		'cropRight',
+		'cropTop',
+		'cropBottom',
+	] as const) {
+		expect(videoSchema[field]).toMatchObject({
+			type: 'number',
+			default: 0,
+			min: 0,
+			max: 1,
+			keyframable: true,
+		});
+	}
+});
+
 test('Audio does not expose visual background or border controls', () => {
 	expect('style.backgroundColor' in audioSchema).toBe(false);
 	expect('style.borderWidth' in audioSchema).toBe(false);

@@ -56,6 +56,10 @@ test('Should expose absolute-fill variant fields when active', () => {
 		'style.borderWidth',
 		'style.borderStyle',
 		'style.borderColor',
+		'cropLeft',
+		'cropRight',
+		'cropTop',
+		'cropBottom',
 	]);
 });
 

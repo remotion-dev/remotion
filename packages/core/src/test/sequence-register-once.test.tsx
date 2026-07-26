@@ -679,6 +679,24 @@ test('AnimatedImage exposes non-keyframable premounting schema fields', () => {
 	expect(animatedImageSchema.postmountFor.keyframable).toBe(false);
 });
 
+test('AnimatedImage applies crop props to its canvas', () => {
+	const {container} = render(
+		<SequenceTestWrapper onRegisterSequence={() => undefined}>
+			<AnimatedImage
+				cropBottom={0.4}
+				cropLeft={0.1}
+				cropRight={0.2}
+				cropTop={0.3}
+				onError={() => undefined}
+				src="test.gif"
+			/>
+		</SequenceTestWrapper>,
+	);
+
+	const canvas = container.querySelector('canvas');
+	expect(canvas?.style.clipPath).toBe('inset(30% 20% 40% 10%)');
+});
+
 test('AnimatedImage hides the canvas while premounted and postmounted', () => {
 	const premounted = render(
 		<SequenceTestWrapper currentFrame={0} onRegisterSequence={() => undefined}>

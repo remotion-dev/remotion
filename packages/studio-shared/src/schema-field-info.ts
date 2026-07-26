@@ -47,6 +47,7 @@ export type SchemaFieldGroup =
 	| 'transforms'
 	| 'background'
 	| 'border'
+	| 'crop'
 	| 'text';
 
 export type SchemaFieldGroupInfo = {
@@ -61,6 +62,7 @@ export const SCHEMA_FIELD_GROUPS = [
 	{id: 'text', label: 'Text'},
 	{id: 'background', label: 'Background'},
 	{id: 'border', label: 'Border'},
+	{id: 'crop', label: 'Crop'},
 ] as const satisfies readonly SchemaFieldGroupInfo[];
 
 const schemaFieldGroupOrder = SCHEMA_FIELD_GROUPS.reduce(
@@ -77,6 +79,13 @@ const TRANSFORM_FIELD_KEYS = new Set([
 	'style.scale',
 	'style.rotate',
 	'style.opacity',
+]);
+
+const CROP_FIELD_KEYS = new Set([
+	'cropLeft',
+	'cropRight',
+	'cropTop',
+	'cropBottom',
 ]);
 
 const BORDER_FIELD_KEYS = new Set([
@@ -106,6 +115,10 @@ export const getSchemaFieldGroup = (key: string): SchemaFieldGroup => {
 
 	if (TRANSFORM_FIELD_KEYS.has(key)) {
 		return 'transforms';
+	}
+
+	if (CROP_FIELD_KEYS.has(key)) {
+		return 'crop';
 	}
 
 	if (BORDER_FIELD_KEYS.has(key)) {
