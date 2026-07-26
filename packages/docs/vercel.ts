@@ -130,6 +130,11 @@ export const config: VercelConfig = {
 		),
 		routes.redirect('/support', '/docs/support', {permanent: true}),
 		routes.redirect('/webcodecs', '/docs/webcodecs', {permanent: true}),
+		routes.redirect(
+			'/docs/miscellaneous/parse-media-vs-get-video-metadata',
+			'/docs/mediabunny/metadata',
+			{permanent: true},
+		),
 		routes.redirect('/docs/miscellaneous/snippets/hls', '/docs/hls', {
 			permanent: true,
 		}),
