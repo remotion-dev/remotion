@@ -143,7 +143,11 @@ import {
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
 } from './ResolveCompositionConfig.js';
-import {resolveSequenceCrop} from './sequence-crop.js';
+import {
+	getSequenceCropClipPath,
+	resolveSequenceCrop,
+	validateSequenceCrop,
+} from './sequence-crop.js';
 import type {
 	OverrideIdToNodePaths,
 	OverrideToNodePathGetters,
@@ -434,7 +438,9 @@ export const Internals = {
 	durationInFramesField,
 	freezeField,
 	fromField,
+	getSequenceCropClipPath,
 	resolveSequenceCrop,
+	validateSequenceCrop,
 } as const;
 
 export type {

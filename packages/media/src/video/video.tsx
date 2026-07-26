@@ -15,8 +15,14 @@ import type {InnerVideoProps, VideoProps} from './props';
 import {VideoForPreview} from './video-for-preview';
 import {VideoForRendering} from './video-for-rendering';
 
-const {validateMediaTrimProps, resolveTrimProps, validateMediaProps} =
-	Internals;
+const {
+	getSequenceCropClipPath,
+	resolveSequenceCrop,
+	validateMediaTrimProps,
+	resolveTrimProps,
+	validateMediaProps,
+	validateSequenceCrop,
+} = Internals;
 
 export const videoSchema: InteractivitySchema = {
 	src: {
@@ -50,6 +56,7 @@ export const videoSchema: InteractivitySchema = {
 	...Internals.transformSchema,
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
+	...Interactive.cropSchema,
 } as const satisfies InteractivitySchema;
 
 const InnerVideo: React.FC<
@@ -235,6 +242,10 @@ const VideoInner: React.FC<
 	postmountFor,
 	styleWhilePremounted,
 	styleWhilePostmounted,
+	cropLeft,
+	cropRight,
+	cropTop,
+	cropBottom,
 	...props
 }) => {
 	const fallbackLogLevel = Internals.useLogLevel();
@@ -310,6 +321,9 @@ const VideoInner: React.FC<
 		effects ?? [],
 	);
 	const refForOutline = React.useRef<HTMLElement | null>(null);
+	const cropProps = {cropLeft, cropRight, cropTop, cropBottom};
+	validateSequenceCrop(cropProps, '<Video />');
+	const cropClipPath = getSequenceCropClipPath(resolveSequenceCrop(cropProps));
 	const {
 		effectivePostmountFor,
 		effectivePremountFor,
@@ -379,7 +393,11 @@ const VideoInner: React.FC<
 					playbackRate={playbackRate ?? 1}
 					showInTimeline={showInTimeline ?? true}
 					src={src}
-					style={premountingStyle ?? {}}
+					style={
+						cropClipPath === null
+							? (premountingStyle ?? {})
+							: {...premountingStyle, clipPath: cropClipPath}
+					}
 					trimAfter={trimAfter}
 					trimBefore={trimBefore}
 					volume={volume ?? 1}
