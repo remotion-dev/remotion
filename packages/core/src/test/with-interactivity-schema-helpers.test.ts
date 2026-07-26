@@ -92,6 +92,7 @@ test('cropSchema is reusable and supported components opt into it', () => {
 		for (const schema of [
 			animatedImageSchema,
 			canvasImageSchema,
+			htmlInCanvasSchema,
 			imgSchema,
 			solidSchema,
 		]) {

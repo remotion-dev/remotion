@@ -16,16 +16,21 @@ import {
 	useMemoizedEffects,
 } from './effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
-import type {InteractiveBaseProps} from './Interactive.js';
+import type {
+	InteractiveBaseProps,
+	InteractiveCropProps,
+} from './Interactive.js';
 import {
 	backgroundSchema,
 	baseSchema,
 	borderSchema,
+	cropSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
 import type {AbsoluteFillLayout} from './Sequence.js';
 import {Sequence} from './Sequence.js';
+import {useCropStyle} from './use-crop-style.js';
 import {useDelayRender} from './use-delay-render.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
@@ -311,6 +316,7 @@ const defaultOnPaint = ({
 
 /* eslint-disable react/require-default-props -- optional fields mirror `<Sequence>` / canvas hooks API */
 export type HtmlInCanvasProps = Omit<InteractiveBaseProps, 'children'> &
+	InteractiveCropProps &
 	Omit<
 		AbsoluteFillLayout,
 		| 'layout'
@@ -723,6 +729,10 @@ const HtmlInCanvasInner = forwardRef<
 			pixelDensity,
 			controls,
 			style,
+			cropLeft,
+			cropRight,
+			cropTop,
+			cropBottom,
 			durationInFrames,
 			name,
 			...sequenceProps
@@ -742,6 +752,14 @@ const HtmlInCanvasInner = forwardRef<
 			},
 			[ref],
 		);
+		const croppedStyle = useCropStyle({
+			cropLeft,
+			cropRight,
+			cropTop,
+			cropBottom,
+			style: style ?? null,
+			componentName: '<HtmlInCanvas />',
+		});
 
 		return (
 			<Sequence
@@ -763,7 +781,7 @@ const HtmlInCanvasInner = forwardRef<
 					onInit={onInit}
 					pixelDensity={pixelDensity}
 					controls={controls}
-					style={style}
+					style={croppedStyle ?? undefined}
 				>
 					{children}
 				</HtmlInCanvasContent>
@@ -788,6 +806,7 @@ export const htmlInCanvasSchema = {
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,
+	...cropSchema,
 } as const satisfies InteractivitySchema;
 
 const HtmlInCanvasWrapped = withInteractivitySchema({

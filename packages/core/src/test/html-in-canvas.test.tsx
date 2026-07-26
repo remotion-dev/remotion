@@ -4,7 +4,7 @@ import React, {useCallback, useMemo} from 'react';
 import type {TSequence} from '../CompositionManager.js';
 import type {DelayRenderScope} from '../delay-render.js';
 import type {HtmlInCanvasOnPaintParams} from '../HtmlInCanvas.js';
-import {HtmlInCanvas} from '../HtmlInCanvas.js';
+import {HtmlInCanvas, htmlInCanvasSchema} from '../HtmlInCanvas.js';
 import {Internals} from '../internals.js';
 import type {SequenceManagerContext} from '../SequenceManager.js';
 import {
@@ -289,6 +289,34 @@ test('<HtmlInCanvas> registers its canvas for outline selection', async () => {
 	expect(canvas).not.toBeNull();
 	expect(canvasRef.current).toBe(canvas);
 	expect(registeredSequences[0]?.refForOutline?.current).toBe(canvas);
+});
+
+test('<HtmlInCanvas> applies crop props to its canvas', () => {
+	const {container} = render(
+		<SequenceTestWrapper onRegisterSequence={() => undefined}>
+			<HtmlInCanvas
+				width={120}
+				height={80}
+				cropLeft={0.1}
+				cropRight={0.2}
+				cropTop={0.3}
+				cropBottom={0.4}
+			>
+				<div>Test</div>
+			</HtmlInCanvas>
+		</SequenceTestWrapper>,
+	);
+
+	expect(container.querySelector('canvas')?.style.clipPath).toBe(
+		'inset(30% 20% 40% 10%)',
+	);
+});
+
+test('<HtmlInCanvas> exposes crop controls', () => {
+	expect(htmlInCanvasSchema.cropLeft.keyframable).toBe(true);
+	expect(htmlInCanvasSchema.cropRight.keyframable).toBe(true);
+	expect(htmlInCanvasSchema.cropTop.keyframable).toBe(true);
+	expect(htmlInCanvasSchema.cropBottom.keyframable).toBe(true);
 });
 
 test('<HtmlInCanvas> keeps refs current when the canvas remounts', async () => {
