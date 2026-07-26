@@ -6,6 +6,7 @@
       "name": "remotion-monorepo",
       "dependencies": {
         "@typescript/native-preview": "catalog:",
+        "fast-xml-parser": "4.5.4",
         "p-limit": "7.2.0",
         "turbo": "2.9.14",
         "typescript": "5.9.3",
@@ -6017,7 +6018,7 @@
 
     "fast-wrap-ansi": ["fast-wrap-ansi@0.1.6", "", { "dependencies": { "fast-string-width": "^1.1.0" } }, "sha512-HlUwET7a5gqjURj70D5jl7aC3Zmy4weA1SHUfM0JFI0Ptq987NH2TwbBFLoERhfwk+E+eaq4EK3jXoT+R3yp3w=="],
 
-    "fast-xml-parser": ["fast-xml-parser@4.4.1", "", { "dependencies": { "strnum": "1.0.5" }, "bin": { "fxparser": "src/cli/cli.js" } }, "sha512-xkjOecfnKGkSsOwtZ5Pz7Us/T6mrbPQrq0nh+aCO5V9nk5NLWmasAHumTKjiPJPWANe+kAZ84Jc8ooJkzZ88Sw=="],
+    "fast-xml-parser": ["fast-xml-parser@4.5.4", "", { "dependencies": { "strnum": "^1.0.5" }, "bin": { "fxparser": "src/cli/cli.js" } }, "sha512-jE8ugADnYOBsu1uaoayVl1tVKAMNOXyjwvv2U6udEA2ORBhDooJDWoGxTkhd4Qn4yh59JVVt/pKXtjPwx9OguQ=="],
 
     "fastq": ["fastq@1.17.1", "", { "dependencies": { "reusify": "1.0.4" } }, "sha512-sRVD3lWVIXWg6By68ZN7vho9a1pQcN/WBFaAAsDDFzlJjvoGx0P8z7V1t72grFJfJhu3YPZBuu25f7Kaw2jN1w=="],
 
@@ -9286,6 +9287,8 @@
     "@google-cloud/logging/google-auth-library": ["google-auth-library@9.11.0", "", { "dependencies": { "base64-js": "1.5.1", "ecdsa-sig-formatter": "1.0.11", "gaxios": "6.6.0", "gcp-metadata": "6.1.0", "gtoken": "7.1.0", "jws": "4.0.0" } }, "sha512-epX3ww/mNnhl6tL45EQ/oixsY8JLEgUFoT4A5E/5iAR4esld9Kqv6IJGk7EmGuOgDvaarwF95hU2+v7Irql9lw=="],
 
     "@google-cloud/logging/uuid": ["uuid@9.0.1", "", { "bin": { "uuid": "dist/bin/uuid" } }, "sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA=="],
+
+    "@google-cloud/storage/fast-xml-parser": ["fast-xml-parser@4.4.1", "", { "dependencies": { "strnum": "1.0.5" }, "bin": { "fxparser": "src/cli/cli.js" } }, "sha512-xkjOecfnKGkSsOwtZ5Pz7Us/T6mrbPQrq0nh+aCO5V9nk5NLWmasAHumTKjiPJPWANe+kAZ84Jc8ooJkzZ88Sw=="],
 
     "@google-cloud/storage/google-auth-library": ["google-auth-library@9.11.0", "", { "dependencies": { "base64-js": "1.5.1", "ecdsa-sig-formatter": "1.0.11", "gaxios": "6.6.0", "gcp-metadata": "6.1.0", "gtoken": "7.1.0", "jws": "4.0.0" } }, "sha512-epX3ww/mNnhl6tL45EQ/oixsY8JLEgUFoT4A5E/5iAR4esld9Kqv6IJGk7EmGuOgDvaarwF95hU2+v7Irql9lw=="],
 
