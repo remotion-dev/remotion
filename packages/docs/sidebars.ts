@@ -1305,30 +1305,6 @@ const sidebars: SidebarsConfig = {
 			],
 		},
 		{
-			type: 'category',
-			label: 'Cloud Run',
-			link: {
-				type: 'doc',
-				id: 'cloudrun',
-			},
-			items: [
-				'cloudrun',
-				'cloudrun/status',
-				'cloudrun/setup',
-				'cloudrun/permissions',
-				'cloudrun/generate-env',
-				'cloudrun/region-selection',
-				'cloudrun/checklist',
-				'cloudrun/instancecount',
-				'cloudrun/multiple-buckets',
-				'cloudrun/limits',
-				'cloudrun/light-client',
-				'cloudrun/upgrading',
-				'cloudrun/uninstall',
-			],
-		},
-
-		{
 			type: 'html',
 			value:
 				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
@@ -1700,6 +1676,30 @@ const sidebars: SidebarsConfig = {
 			value:
 				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
 			defaultStyle: true, // Use the default menu item styling
+		},
+		{
+			type: 'category',
+			label: 'Cloud Run',
+			className: 'unmaintained-item',
+			link: {
+				type: 'doc',
+				id: 'cloudrun',
+			},
+			items: [
+				'cloudrun',
+				'cloudrun/status',
+				'cloudrun/setup',
+				'cloudrun/permissions',
+				'cloudrun/generate-env',
+				'cloudrun/region-selection',
+				'cloudrun/checklist',
+				'cloudrun/instancecount',
+				'cloudrun/multiple-buckets',
+				'cloudrun/limits',
+				'cloudrun/light-client',
+				'cloudrun/upgrading',
+				'cloudrun/uninstall',
+			],
 		},
 		{
 			type: 'category',
