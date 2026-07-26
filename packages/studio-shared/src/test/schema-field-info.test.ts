@@ -258,7 +258,6 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'style.translate',
 		'style.rotate',
 		'style.opacity',
-		'cropLeft',
 		'style.fontSize',
 		'style.color',
 		'style.fontFamily',
@@ -268,6 +267,7 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'style.borderWidth',
 		'style.borderStyle',
 		'style.borderColor',
+		'cropLeft',
 	]);
 	expect(fields?.map((field) => field.group)).toEqual([
 		'source',
@@ -276,7 +276,6 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'transforms',
 		'transforms',
 		'transforms',
-		'crop',
 		'text',
 		'text',
 		'text',
@@ -286,6 +285,7 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'border',
 		'border',
 		'border',
+		'crop',
 	]);
 });
 

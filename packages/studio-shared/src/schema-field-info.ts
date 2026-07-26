@@ -45,9 +45,9 @@ export type SchemaFieldGroup =
 	| 'source'
 	| 'controls'
 	| 'transforms'
-	| 'crop'
 	| 'background'
 	| 'border'
+	| 'crop'
 	| 'text';
 
 export type SchemaFieldGroupInfo = {
@@ -59,10 +59,10 @@ export const SCHEMA_FIELD_GROUPS = [
 	{id: 'source', label: 'Source'},
 	{id: 'controls', label: 'Controls'},
 	{id: 'transforms', label: 'Transform'},
-	{id: 'crop', label: 'Crop'},
 	{id: 'text', label: 'Text'},
 	{id: 'background', label: 'Background'},
 	{id: 'border', label: 'Border'},
+	{id: 'crop', label: 'Crop'},
 ] as const satisfies readonly SchemaFieldGroupInfo[];
 
 const schemaFieldGroupOrder = SCHEMA_FIELD_GROUPS.reduce(
