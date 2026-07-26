@@ -9,8 +9,6 @@ Use `<Sequence>` to delay when an element appears in the timeline.
 
 ```tsx
 const Main = () => {
-  const {fps} = useVideoConfig();
-
   return (
     <AbsoluteFill>
       <Background />
@@ -51,7 +49,7 @@ export const Subtitle = () => {
 
   return (
     <Interactive.Div
-      name="Label"
+      name="Subtitle"
       style={{
         opacity: interpolate(frame, [0, 60], [0, 1], {
           extrapolateRight: "clamp",
@@ -61,7 +59,7 @@ export const Subtitle = () => {
         fontSize: 32
       }}
     >
-      Title
+      Subtitle
     </Interactive.Div>
   );
 };
