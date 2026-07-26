@@ -30,6 +30,7 @@ const isExternalLink = (link: string) => {
 		link.startsWith('mailto:') ||
 		link.startsWith('tel:') ||
 		link.startsWith('data:') ||
+		link.startsWith('/') ||
 		link.startsWith('#')
 	);
 };
