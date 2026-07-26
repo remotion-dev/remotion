@@ -417,7 +417,7 @@ test('Img with effects renders through the canvas image path', async () => {
 	expect(applyCalls[0].height).toBe(50);
 });
 
-test('<Img> schema exposes src but not fit', () => {
+test('<Img> schema exposes src and crop but not fit', () => {
 	expect(imgSchema.src).toEqual({
 		type: 'asset',
 		default: undefined,
@@ -425,6 +425,48 @@ test('<Img> schema exposes src but not fit', () => {
 		keyframable: false,
 	});
 	expect(Object.keys(imgSchema)).not.toContain('fit');
+	for (const field of ['cropLeft', 'cropRight', 'cropTop', 'cropBottom']) {
+		expect(field in imgSchema).toBe(true);
+	}
+});
+
+test('<Img> applies crop props to the native image', () => {
+	const {container} = renderImg(
+		<Img
+			cropBottom={0.4}
+			cropLeft={0.1}
+			cropRight={0.2}
+			cropTop={0.3}
+			src={testImgUrl}
+		/>,
+	);
+
+	const image = container.querySelector('img');
+	expect(image?.style.clipPath).toBe('inset(30% 20% 40% 10%)');
+});
+
+test('<Img> forwards crop props to the CanvasImage fallback', () => {
+	const {container} = renderImg(
+		<Img
+			cropBottom={0.4}
+			cropLeft={0.1}
+			cropRight={0.2}
+			cropTop={0.3}
+			effects={[makeEffect()]}
+			src={testImgUrl}
+		/>,
+	);
+
+	const canvas = container.querySelector('canvas');
+	expect(canvas?.style.clipPath).toBe('inset(30% 20% 40% 10%)');
+});
+
+test('<Img> keeps its component name in crop errors from the fallback', () => {
+	expect(() =>
+		renderImg(<Img cropLeft={1.1} effects={[makeEffect()]} src={testImgUrl} />),
+	).toThrow(
+		'The "cropLeft" prop of <Img /> must be between 0 and 1, but got 1.1.',
+	);
 });
 
 test('Img throws when native image props conflict with effects', () => {

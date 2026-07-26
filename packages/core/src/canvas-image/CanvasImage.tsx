@@ -543,6 +543,7 @@ const CanvasImageInner = forwardRef<
 			stack,
 			controls,
 			_remotionInternalDocumentationLink,
+			_remotionInternalCropComponentName,
 			outlineRef,
 			...canvasProps
 		},
@@ -581,7 +582,7 @@ const CanvasImageInner = forwardRef<
 			cropTop,
 			cropBottom,
 			style: premountingStyle,
-			componentName: '<CanvasImage />',
+			componentName: _remotionInternalCropComponentName ?? '<CanvasImage />',
 		});
 
 		return (
