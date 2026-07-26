@@ -1,6 +1,6 @@
 ---
 name: remotion-saas
-description: Building video apps with Remotion - framework, rendering and Player advice
+description: Build an app with Remotion
 metadata:
   tags: remotion, saas, player, rendering, templates, lambda
 ---
