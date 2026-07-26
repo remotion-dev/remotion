@@ -99,6 +99,7 @@ import {
 	hiddenField,
 	premountSchema,
 	sequencePremountSchema,
+	sequenceCropSchema,
 	sequenceSchema,
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
@@ -142,6 +143,7 @@ import {
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
 } from './ResolveCompositionConfig.js';
+import {resolveSequenceCrop} from './sequence-crop.js';
 import type {
 	OverrideIdToNodePaths,
 	OverrideToNodePathGetters,
@@ -307,6 +309,7 @@ export const Internals = {
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
 	sequencePremountSchema,
+	sequenceCropSchema,
 	textSchema,
 	transformSchema,
 	premountSchema,
@@ -431,6 +434,7 @@ export const Internals = {
 	durationInFramesField,
 	freezeField,
 	fromField,
+	resolveSequenceCrop,
 } as const;
 
 export type {

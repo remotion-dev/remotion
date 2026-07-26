@@ -436,7 +436,51 @@ export const sequencePremountSchema = {
 	...premountSchema,
 } as const satisfies InteractivitySchema;
 
+export const sequenceCropSchema = {
+	cropLeft: {
+		type: 'number',
+		default: 0,
+		description: 'Crop left',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	cropRight: {
+		type: 'number',
+		default: 0,
+		description: 'Crop right',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	cropTop: {
+		type: 'number',
+		default: 0,
+		description: 'Crop top',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	cropBottom: {
+		type: 'number',
+		default: 0,
+		description: 'Crop bottom',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		hiddenFromList: false,
+		keyframable: true,
+	},
+} as const satisfies InteractivitySchema;
+
 export const sequenceStyleSchema = {
+	...sequenceCropSchema,
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,

@@ -29,6 +29,12 @@ export type SelectedOutlineTarget = {
 	readonly selected: boolean;
 	readonly selection: TimelineSelection;
 	readonly sequence: TSequence;
+	readonly crop: {
+		readonly left: number;
+		readonly right: number;
+		readonly top: number;
+		readonly bottom: number;
+	};
 	readonly drag: SelectedOutlineDragTarget | null;
 	readonly scaleDrag: SelectedOutlineScaleDragTarget | null;
 	readonly rotationDrag: SelectedOutlineRotationDragTarget | null;

@@ -12,7 +12,10 @@ import {
 import {NoReactInternals} from 'remotion/no-react';
 import {getInspectorSelectableItems} from '../components/InspectorSequenceSection';
 import type {SelectedOutline} from '../components/selected-outline-geometry';
-import {getSelectedTransformOriginInfo} from '../components/selected-outline-measurement';
+import {
+	cropOutlinePoints,
+	getSelectedTransformOriginInfo,
+} from '../components/selected-outline-measurement';
 import type {
 	SelectedOutlineTarget,
 	SelectedOutlineTransformOriginDragTarget,
@@ -3549,6 +3552,29 @@ test('UV handles use projective projection for perspective quads', () => {
 
 	expect(projectedCenter.x).toBeCloseTo(50, 5);
 	expect(projectedCenter.y).toBeCloseTo(100 / 3, 5);
+});
+
+test('Sequence crops are projected through perspective transforms', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 150, y: 100},
+		{x: -50, y: 100},
+	] as const;
+
+	const cropped = cropOutlinePoints(points, {
+		left: 0.25,
+		right: 0.25,
+		top: 0.25,
+		bottom: 0.25,
+	});
+
+	expect(cropped[0].x).toBeCloseTo(150 / 7, 5);
+	expect(cropped[0].y).toBeCloseTo(100 / 7, 5);
+	expect(cropped[1].x).toBeCloseTo(550 / 7, 5);
+	expect(cropped[1].y).toBeCloseTo(100 / 7, 5);
+	expect(cropped[2]).toEqual({x: 90, y: 60});
+	expect(cropped[3]).toEqual({x: 10, y: 60});
 });
 
 test('UV handle pointer position maps back to UV coordinates', () => {
