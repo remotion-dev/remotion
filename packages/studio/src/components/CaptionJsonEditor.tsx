@@ -58,20 +58,19 @@ const formatMilliseconds = (milliseconds: number) => {
 export const CaptionJsonEditor: React.FC<{
 	readonly captions: CaptionJson[];
 	readonly onChange: (captions: CaptionJson[]) => void;
-	readonly onChangeEnd: ((captions: CaptionJson[]) => void) | null;
+	readonly onSave: ((captions: CaptionJson[]) => void) | null;
 	readonly readOnly: boolean;
 	readonly selectedCaptionIndex: number | null;
 	readonly selectionRevision: number;
 }> = ({
 	captions,
 	onChange,
-	onChangeEnd,
+	onSave,
 	readOnly,
 	selectedCaptionIndex,
 	selectionRevision,
 }) => {
 	const listRef = useRef<HTMLDivElement>(null);
-	const latestCaptionsRef = useRef(captions);
 	const captionRows = useMemo(() => {
 		const occurrences = new Map<string, number>();
 		return captions.map((caption) => {
@@ -87,19 +86,15 @@ export const CaptionJsonEditor: React.FC<{
 		});
 	}, [captions]);
 
-	useEffect(() => {
-		latestCaptionsRef.current = captions;
-	}, [captions]);
-
 	const updateText = useCallback(
 		(index: number, text: string) => {
 			const nextCaptions = captions.map((caption, captionIndex) => {
 				return captionIndex === index ? {...caption, text} : caption;
 			});
-			latestCaptionsRef.current = nextCaptions;
 			onChange(nextCaptions);
+			onSave?.(nextCaptions);
 		},
-		[captions, onChange],
+		[captions, onChange, onSave],
 	);
 
 	const focusSibling = useCallback((index: number) => {
@@ -143,7 +138,6 @@ export const CaptionJsonEditor: React.FC<{
 							<RemotionInput
 								data-caption-index={index}
 								disabled={readOnly}
-								onBlur={() => onChangeEnd?.(latestCaptionsRef.current)}
 								onChange={(event) => updateText(index, event.target.value)}
 								onKeyDown={(event) => {
 									if (

@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react';
-import type {TSequence} from 'remotion';
+import {Internals, type TSequence} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT, WHITE} from '../helpers/colors';
@@ -214,6 +214,7 @@ export const InspectorSequenceSection: React.FC<{
 	keyframeDisplayOffset,
 	renderTransformControls,
 }) => {
+	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {tree} = useTimelineExpandedTree({
 		sequence,
 		nodePathInfo,
@@ -227,9 +228,15 @@ export const InspectorSequenceSection: React.FC<{
 	const {setSelectedModal} = useContext(ModalsContext);
 	const selectAsset = useSelectAsset();
 	const {schema} = sequence.controls;
+	const captionStatus = Internals.getPropStatusesCtx(
+		propStatuses,
+		nodePathInfo.sequenceSubscriptionKey,
+	)?.captions;
 	const inlineCaptionValue =
 		schema.captions?.type === 'captions'
-			? sequence.controls.currentRuntimeValueDotNotation.captions
+			? captionStatus?.status === 'static'
+				? captionStatus.codeValue
+				: sequence.controls.currentRuntimeValueDotNotation.captions
 			: null;
 	const inlineCaptions = isCaptionJsonArray(inlineCaptionValue)
 		? inlineCaptionValue

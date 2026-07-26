@@ -37,14 +37,14 @@ const status: React.CSSProperties = {
 export const CaptionInspector: React.FC<{
 	readonly captions: CaptionJson[];
 	readonly onTextChange: (captions: CaptionJson[]) => void;
-	readonly onTextChangeEnd: ((captions: CaptionJson[]) => void) | null;
+	readonly onTextSave: ((captions: CaptionJson[]) => void) | null;
 	readonly onTimingChange: (captions: CaptionJson[]) => void;
 	readonly readOnlyTitle: string | null;
 	readonly saveStatus: CaptionSaveStatus;
 }> = ({
 	captions,
 	onTextChange,
-	onTextChangeEnd,
+	onTextSave,
 	onTimingChange,
 	readOnlyTitle,
 	saveStatus,
@@ -146,7 +146,7 @@ export const CaptionInspector: React.FC<{
 			<CaptionJsonEditor
 				captions={captions}
 				onChange={onTextChange}
-				onChangeEnd={onTextChangeEnd}
+				onSave={onTextSave}
 				readOnly={isReadOnly}
 				selectedCaptionIndex={isEditingTimings ? selectedCaptionIndex : null}
 				selectionRevision={selectionRevision}

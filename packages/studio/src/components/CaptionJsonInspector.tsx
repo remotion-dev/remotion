@@ -99,7 +99,7 @@ export const CaptionJsonInspector: React.FC<{
 		<CaptionInspector
 			captions={captions}
 			onTextChange={onChangeCaptions}
-			onTextChangeEnd={null}
+			onTextSave={null}
 			onTimingChange={onChangeCaptions}
 			readOnlyTitle={
 				editableFilePath === undefined

@@ -240,7 +240,7 @@ export const InlineCaptionInspector: React.FC<{
 		<CaptionInspector
 			captions={draftCaptions}
 			onTextChange={onTextChange}
-			onTextChangeEnd={saveCaptions}
+			onTextSave={saveCaptions}
 			onTimingChange={saveCaptions}
 			readOnlyTitle={canSave ? null : readOnlyTitle}
 			saveStatus={saveStatus}
