@@ -1,16 +1,9 @@
-import {
-	cpSync,
-	existsSync,
-	readdirSync,
-	readFileSync,
-	renameSync,
-	statSync,
-	writeFileSync,
-} from 'node:fs';
+import {cpSync, readFileSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'path';
 import {$} from 'bun';
 import {CreateVideoInternals} from 'create-video';
+import {prepareEmbeddedSkills} from '../../../skills/scripts/prepare-embedded-skills';
 
 type MinimalTemplate = {
 	shortName: string;
@@ -33,66 +26,6 @@ const skillsTemplate: MinimalTemplate = {
 };
 
 const templates = [skillsTemplate, ...folders];
-
-const embeddedSkillFilename = 'REFERENCE.md';
-
-const prepareEmbeddedBestPractices = (root: string) => {
-	const embeddedRoot = path.join(root, 'skills', 'remotion-best-practices');
-
-	if (!existsSync(embeddedRoot)) {
-		return;
-	}
-
-	const embeddedSkillNames = readdirSync(embeddedRoot, {withFileTypes: true})
-		.filter((entry) => {
-			const child = path.join(embeddedRoot, entry.name);
-			return (
-				entry.isDirectory() &&
-				entry.name !== 'rules' &&
-				statSync(path.join(child, 'SKILL.md'), {
-					throwIfNoEntry: false,
-				})?.isFile()
-			);
-		})
-		.map((entry) => entry.name)
-		.sort();
-
-	const rewriteMarkdownFiles = (dir: string) => {
-		for (const entry of readdirSync(dir, {withFileTypes: true})) {
-			const file = path.join(dir, entry.name);
-			if (entry.isDirectory()) {
-				rewriteMarkdownFiles(file);
-				continue;
-			}
-
-			if (!entry.isFile() || !file.endsWith('.md')) {
-				continue;
-			}
-
-			const contents = readFileSync(file, 'utf-8');
-			let rewritten = contents.replaceAll('../remotion-best-practices/', '../');
-			for (const skillName of embeddedSkillNames) {
-				rewritten = rewritten.replaceAll(
-					`${skillName}/SKILL.md`,
-					`${skillName}/${embeddedSkillFilename}`,
-				);
-			}
-			if (contents !== rewritten) {
-				writeFileSync(file, rewritten);
-			}
-		}
-	};
-
-	rewriteMarkdownFiles(embeddedRoot);
-
-	for (const skillName of embeddedSkillNames) {
-		const child = path.join(embeddedRoot, skillName);
-		renameSync(
-			path.join(child, 'SKILL.md'),
-			path.join(child, embeddedSkillFilename),
-		);
-	}
-};
 
 const publish = async (template: MinimalTemplate) => {
 	const folder = path.join(
@@ -141,7 +74,7 @@ const publish = async (template: MinimalTemplate) => {
 	}
 
 	if (template.templateInMonorepo === 'skills') {
-		prepareEmbeddedBestPractices(workingDir);
+		prepareEmbeddedSkills(path.join(workingDir, 'skills'));
 	}
 
 	await $`git add .`.cwd(workingDir).nothrow();

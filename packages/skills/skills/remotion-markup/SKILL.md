@@ -136,6 +136,10 @@ export const Subtitle = () => {
 };
 ```
 
+## Maps
+
+See [Remotion Maps](remotion-maps/SKILL.md) for choosing a map technique.
+
 ## Text highlights and annotations
 
 See [text-highlights.md](text-highlights.md) for text highlights (highlight markers), circles, underlines, strike-throughs, crossed-off text, boxes, and brackets.
