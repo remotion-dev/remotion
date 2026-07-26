@@ -15,6 +15,8 @@ Animate properties using `useCurrentFrame()` and `interpolate()`.
 Use `Easing.bezier()` to customize timing, including jumpy or overshooting motion.
 Use `Easing.spring()` if you want spring animations.
 
+Structure your markup according to [Remotion Interactivity Best Practices](../remotion-interactivity/SKILL.md)
+
 ```tsx
 import { useCurrentFrame, Easing, interpolate, Interactive } from "remotion";
 

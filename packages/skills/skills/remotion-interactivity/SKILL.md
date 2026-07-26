@@ -63,7 +63,7 @@ const baseStyle = useMemo(() => {
   return {
     fontSize: 12 // ❌ Non-inline styles are not supported
   }
-}, [])
+}, []);
 
 <Interactive.Div
   style={{
