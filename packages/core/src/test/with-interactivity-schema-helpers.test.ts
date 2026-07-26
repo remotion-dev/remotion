@@ -84,12 +84,17 @@ test('Sequence crop fields are keyframable ratios', () => {
 	}
 });
 
-test('cropSchema is reusable and image components opt into it', () => {
+test('cropSchema is reusable and supported components opt into it', () => {
 	expect(Interactive.cropSchema).toBe(cropSchema);
 	expect(sequenceCropSchema).toBe(cropSchema);
 
 	for (const key of Object.keys(cropSchema)) {
-		for (const schema of [animatedImageSchema, canvasImageSchema, imgSchema]) {
+		for (const schema of [
+			animatedImageSchema,
+			canvasImageSchema,
+			imgSchema,
+			solidSchema,
+		]) {
 			expect(key in schema).toBe(true);
 		}
 	}
