@@ -10,15 +10,10 @@ If this is not relevant, load [Remotion Best Practices](../remotion-best-practic
 
 ## General rules
 
-Animate properties using `useCurrentFrame()` and `interpolate()`.
-
-Use `interpolate()` over `spring()`.
+Animate properties using `useCurrentFrame()` and `interpolate()`.  
 
 Use `Easing.bezier()` to customize timing, including jumpy or overshooting motion.
-Use `Easing.spring()` if you want spring animations
-
-HTML Elements which make sense to be made interactive in the Studio should use `Interactive`: `<div>` -> `<Interactive.Div>`.  
-Set a descriptive `name` prop such as `name="Hero title"` for `Interactive`, `Solid`, `Sequence`.
+Use `Easing.spring()` if you want spring animations.
 
 ```tsx
 import { useCurrentFrame, Easing, interpolate, Interactive } from "remotion";
@@ -49,9 +44,22 @@ Prefer `scale`, `translate`, `rotate` CSS properties over `transform`.
 ```tsx
 // 👍 Inline editable keyframes and transform shorthands
 style={{
-  scale: interpolate(frame, [0, 100], [0, 1]),
-  translate: interpolate(frame, [0, 100], ["0px 0px", "100px 100px"]),
-  rotate: interpolate(frame, [0, 100], ["20deg", "90deg"]),
+  scale: interpolate(frame, [0, 100], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    easing: Easing.spring({damping: 200}),
+    output: 'perceptual-scale' // For `scale` animations, use "output: 'perceptual-scale'"
+  }),
+  translate: interpolate(frame, [0, 100], ["0px 0px", "100px 100px"], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    easing: Easing.spring({damping: 200}),
+  }),
+  rotate: interpolate(frame, [0, 100], ["20deg", "90deg"], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    easing: Easing.spring({damping: 200}),
+  }),
 }}
 
 // 👎 Hidden values and transform strings become harder to edit in Studio
@@ -70,19 +78,19 @@ Place assets in the `public/` folder at your project root.
 Use `staticFile()` to reference files from the `public/` folder.
 
 Add video and audio using `@remotion/media`.  
-Add images using the `<Img>` component.
+Add images using the `<CanvasImage>` component.
 Use `staticFile()` for files in `public/` or pass a remote URL directly:
 
 ```tsx
 import { Audio, Video } from "@remotion/media";
-import { staticFile } from "remotion";
+import { staticFile, CanvasImage } from "remotion";
 
 export const MyComposition = () => {
   return (
     <>
       <Video src={staticFile("video.mp4")} style={{ opacity: 0.5 }} />
       <Audio src={staticFile("audio.mp3")} />
-      <Img src={staticFile("logo.png")} style={{ width: 100, height: 100 }} />
+      <CanvasImage src={staticFile("logo.png")} style={{ width: 100, height: 100 }} />
       <Video src="https://remotion.media/video.mp4" />
     </>
   );
@@ -100,15 +108,15 @@ const Main = () => {
 
   return (
     <AbsoluteFill>
-      <Sequence name="Background">
-        <Background />
-      </Sequence>
-      <Sequence name="Title" from={30} durationInFrames={60} layout="none">
-        <Title />
-      </Sequence>
-      <Sequence name="Subtitle" from={60} durationInFrames={60} layout="none">
-        <Subtitle />
-      </Sequence>
+      <Background />
+      <AbsoluteFill>
+        <Sequence name="Title" from={30} durationInFrames={60} layout="none">
+          <Title />
+        </Sequence>
+        <Sequence name="Subtitle" from={60} durationInFrames={60} layout="none">
+          <Subtitle />
+        </Sequence>
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 }
@@ -117,22 +125,40 @@ export const Title = () => {
   const frame = useCurrentFrame();
 
   return (
-    <div
+    <Interactive.Div
+      name="Label"
       style={{
         opacity: interpolate(frame, [0, 60], [0, 1], {
           extrapolateRight: "clamp",
           extrapolateLeft: "clamp",
           easing: Easing.bezier(0.16, 1, 0.3, 1),
         }),
+        fontSize: 88
       }}
     >
       Title
-    </div>
+    </Interactive.Div>
   );
 };
 
 export const Subtitle = () => {
-  return <div>Subtitle</div>;
+  const frame = useCurrentFrame();
+
+  return (
+    <Interactive.Div
+      name="Label"
+      style={{
+        opacity: interpolate(frame, [0, 60], [0, 1], {
+          extrapolateRight: "clamp",
+          extrapolateLeft: "clamp",
+          easing: Easing.bezier(0.16, 1, 0.3, 1),
+        }),
+        fontSize: 32
+      }}
+    >
+      Title
+    </Interactive.Div>
+  );
 };
 ```
 
@@ -166,11 +192,12 @@ See [transitions.md](transitions.md) for scene transition patterns.
 
 ## Visual and pixel effects
 
-When creating a visual effect, prefer: 1. normal Remotion/HTML/CSS/SVG/filter/blend/mask animation, 2. a listed effect via [effects.md](effects.md), including on HTML rendered through `<HtmlInCanvas>`, 3. a custom `createEffect()` via [effects.md](effects.md) when the user asks for a reusable/project-specific effect, 4. custom `<HtmlInCanvas onPaint>` via [html-in-canvas.md](html-in-canvas.md) only if no effect fits.
+When creating a visual effect, consider whether it is feasible using CSS and HTML, or whether a shader is needed. Order or preference:
 
-For light leak overlays, see [light-leaks.md](light-leaks.md). Docs: https://www.remotion.dev/docs/effects
-
-Available effects: `brightness()`, `contrast()`, `colorKey()`, `duotone()`, `grayscale()`, `hue()`, `invert()`, `saturation()`, `tint()`, `linearGradient()`, `linearGradientTint()`, `thermalVision()`, `blur()`, `linearProgressiveBlur()`, `radialProgressiveBlur()`, `zoomBlur()`, `dropShadow()`, `glow()`, `lightTrail()`, `evolve()`, `venetianBlinds()`, `mirror()`, `scale()`, `uvTranslate()`, `xyTranslate()`, `barrelDistortion()`, `chromaticAberration()`, `fisheye()`, `cornerPin()`, `wave()`, `burlap()`, `emboss()`, `dotGrid()`, `halftone()`, `noise()`, `noiseDisplacement()`, `paper()`, `roughenEdges()`, `pattern()`, `pixelate()`, `pixelDissolve()`, `scanlines()`, `speckle()`, `shine()`, `shrinkwrap()`, `vignette()`, `contourLines()`, `checkerboard()`, `halftoneLinearGradient()`, `gridlines()`, `whiteNoise()`, `tvSignalOff()`, `lines()`, `rings()`, `waves()`, `zigzag()`, `lightLeak()`, `starburst()`.
+1. Normal Remotion/HTML/CSS/SVG/filter/blend/mask animation
+2. An effect applied to the element directly (`<Video>`, `<Img>`), or by wrapping the content in [`<HtmlInCanvas>`](html-in-canvas.md), which also accepts `effects`:
+  - A listed effect via [effects.md](effects.md)
+  - A custom `createEffect()` via [effects.md](effects.md) when no preset is available.
 
 ## 3D content
 
@@ -183,6 +210,10 @@ When needing to use sound effects, load the [./sfx.md](./sfx.md) file for more i
 ## Audio visualization
 
 When needing to visualize audio (spectrum bars, waveforms, bass-reactive effects), load the [./audio-visualization.md](./audio-visualization.md) file for more information.
+
+## Maps
+
+For static maps, animated routes and markers, geographic explainers, Mapbox, MapLibre, MapTiler, GeoJSON, or 3D geographic flyovers, load [Remotion Maps](../remotion-maps/SKILL.md).
 
 ## Captions
 
@@ -256,14 +287,9 @@ This goes for `@remotion/*` packages, `mediabunny`, `@mediabunny/*`, and `zod`.
 
 ## Previewing markup
 
-Only do this if you think the user wants to see the preview.
-
-```bash
-npx remotion studio --no-open
-```
-
 This will start a long-running process and print the server URL for the preview.  
-If already started, the URL will be printed.
+If server is already started, it will print the URL.
+You can visit a specific composition by navigating to `/[composition-id]`, for example `http://localhost:3000/MapAnimation`.
 
 ## Optional: one-frame render check
 
