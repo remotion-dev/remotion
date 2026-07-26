@@ -42,3 +42,18 @@ test('memoizes the cropped style object', () => {
 	});
 	expect(result.current).not.toBe(firstStyle);
 });
+
+test('preserves the inline border radius on the cropped rectangle', () => {
+	const {result} = renderHook(() =>
+		useCropStyle({
+			cropRight: 0.25,
+			style: {borderRadius: '12px 24px'},
+			componentName: '<Test />',
+		}),
+	);
+
+	expect(result.current).toEqual({
+		borderRadius: '12px 24px',
+		clipPath: 'inset(0% 25% 0% 0% round 12px 24px)',
+	});
+});

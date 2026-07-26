@@ -24,9 +24,10 @@ export const useCropStyle = ({
 	);
 
 	return useMemo(() => {
-		const cropClipPath = getSequenceCropClipPath(
-			resolveSequenceCrop({cropLeft, cropRight, cropTop, cropBottom}),
-		);
+		const cropClipPath = getSequenceCropClipPath({
+			...resolveSequenceCrop({cropLeft, cropRight, cropTop, cropBottom}),
+			borderRadius: style?.borderRadius,
+		});
 
 		if (cropClipPath === null) {
 			return style;

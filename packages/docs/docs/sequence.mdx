@@ -277,6 +277,8 @@ If `cropTop` and `cropBottom` overlap, both edges meet in the center.
 
 All four crop props are only supported with `layout="absolute-fill"` and can be animated:
 
+If an inline [`style.borderRadius`](https://developer.mozilla.org/en-US/docs/Web/CSS/border-radius) is set, the cropped rectangle uses the same corner radius. A border radius applied through a CSS class is not inherited by the crop.
+
 ```tsx twoslash title="MyVideo.tsx"
 import {interpolate, Sequence, useCurrentFrame} from 'remotion';
 

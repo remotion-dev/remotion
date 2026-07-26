@@ -21,6 +21,32 @@ test('applies Sequence crop values as an inset clip path', () => {
 	expect(sequence.style.clipPath).toBe('inset(30% 20% 40% 10%)');
 });
 
+test('preserves a numeric border radius on the cropped rectangle', () => {
+	const {container} = render(
+		<WrapSequenceContext>
+			<Sequence cropLeft={0.1} style={{borderRadius: 24}}>
+				Content
+			</Sequence>
+		</WrapSequenceContext>,
+	);
+
+	const sequence = container.firstElementChild as HTMLDivElement;
+	expect(sequence.style.clipPath).toBe('inset(0% 0% 0% 10% round 24px)');
+});
+
+test('preserves a string border radius on the cropped rectangle', () => {
+	const {container} = render(
+		<WrapSequenceContext>
+			<Sequence cropTop={0.2} style={{borderRadius: '20% / 10%'}}>
+				Content
+			</Sequence>
+		</WrapSequenceContext>,
+	);
+
+	const sequence = container.firstElementChild as HTMLDivElement;
+	expect(sequence.style.clipPath).toBe('inset(20% 0% 0% 0% round 20% / 10%)');
+});
+
 test('does not override a custom clip path when no crop is applied', () => {
 	const {container} = render(
 		<WrapSequenceContext>

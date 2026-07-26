@@ -5,6 +5,10 @@ export type ResolvedSequenceCrop = {
 	readonly bottom: number;
 };
 
+type ResolvedSequenceCropWithBorderRadius = ResolvedSequenceCrop & {
+	readonly borderRadius?: string | number;
+};
+
 export type SequenceCropInput = {
 	readonly cropLeft?: number;
 	readonly cropRight?: number;
@@ -47,12 +51,19 @@ export const getSequenceCropClipPath = ({
 	right,
 	top,
 	bottom,
-}: ResolvedSequenceCrop): string | null => {
+	borderRadius,
+}: ResolvedSequenceCropWithBorderRadius): string | null => {
 	if (left === 0 && right === 0 && top === 0 && bottom === 0) {
 		return null;
 	}
 
-	return `inset(${top * 100}% ${right * 100}% ${bottom * 100}% ${left * 100}%)`;
+	const serializedBorderRadius =
+		typeof borderRadius === 'number' ? `${borderRadius}px` : borderRadius;
+	const rounded = serializedBorderRadius
+		? ` round ${serializedBorderRadius}`
+		: '';
+
+	return `inset(${top * 100}% ${right * 100}% ${bottom * 100}% ${left * 100}%${rounded})`;
 };
 
 export const validateSequenceCrop = (

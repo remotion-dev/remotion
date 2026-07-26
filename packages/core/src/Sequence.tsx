@@ -193,13 +193,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		top: resolvedCropTop,
 		bottom: resolvedCropBottom,
 	} = resolveSequenceCrop(cropProps);
-	const cropClipPath = getSequenceCropClipPath({
-		left: resolvedCropLeft,
-		right: resolvedCropRight,
-		top: resolvedCropTop,
-		bottom: resolvedCropBottom,
-	});
-
 	// @ts-expect-error
 	if (layout === 'none' && typeof other.style !== 'undefined') {
 		throw new TypeError(
@@ -556,6 +549,13 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 
 	const styleIfThere = other.layout === 'none' ? undefined : other.style;
+	const cropClipPath = getSequenceCropClipPath({
+		left: resolvedCropLeft,
+		right: resolvedCropRight,
+		top: resolvedCropTop,
+		bottom: resolvedCropBottom,
+		borderRadius: styleIfThere?.borderRadius,
+	});
 
 	const sequenceRef = useCallback(
 		(node: HTMLDivElement | null) => {
