@@ -1,10 +1,10 @@
 import {blur} from '@remotion/effects/blur';
 import {halftone} from '@remotion/effects/halftone';
+import {starburst} from '@remotion/effects/starburst';
 import {tint} from '@remotion/effects/tint';
 import {wave} from '@remotion/effects/wave';
 import {lightLeak} from '@remotion/light-leaks';
 import {Video} from '@remotion/media';
-import {starburst} from '@remotion/starburst';
 import React from 'react';
 import {AbsoluteFill, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
 

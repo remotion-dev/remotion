@@ -1,4 +1,4 @@
-import {starburst} from '@remotion/starburst';
+import {starburst} from '@remotion/effects/starburst';
 import React from 'react';
 import {CanvasImage} from 'remotion';
 import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';

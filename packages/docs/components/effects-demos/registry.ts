@@ -47,6 +47,7 @@ import {shine} from '@remotion/effects/shine';
 import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import {skew} from '@remotion/effects/skew';
 import {speckle} from '@remotion/effects/speckle';
+import {starburst} from '@remotion/effects/starburst';
 import {thermalVision} from '@remotion/effects/thermal-vision';
 import {tint} from '@remotion/effects/tint';
 import {uvTranslate, xyTranslate} from '@remotion/effects/translate';
@@ -59,7 +60,6 @@ import {whiteNoise} from '@remotion/effects/white-noise';
 import {zigzag} from '@remotion/effects/zigzag';
 import {zoomBlur} from '@remotion/effects/zoom-blur';
 import {lightLeakEffectSchema} from '@remotion/light-leaks';
-import {starburstEffectSchema} from '@remotion/starburst';
 import {EffectsBarrelDistortionPreview} from '../effects/effects-barrel-distortion-preview';
 import {EffectsBlurPreview} from '../effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
@@ -686,9 +686,12 @@ export const effectsDemos: EffectsDemoType[] = [
 		...defaults,
 		id: 'effects-starburst',
 		effectName: 'starburst',
-		effectImportPath: '@remotion/starburst',
+		effectImportPath: '@remotion/effects/starburst',
 		comp: EffectsStarburstPreview,
-		schema: starburstEffectSchema,
+		schema: starburst({
+			rays: 16,
+			colors: ['#ff6600', '#ffff00'],
+		}).definition.schema,
 		initialValues: STARBURST_PREVIEW_PARAMS,
 	},
 	{
