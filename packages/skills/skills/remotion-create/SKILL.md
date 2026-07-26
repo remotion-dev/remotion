@@ -1,6 +1,6 @@
 ---
 name: remotion-create
-description: Creating a new Remotion video
+description: Create a new Remotion video
 metadata:
   tags: remotion
 ---

@@ -1,6 +1,6 @@
 ---
 name: remotion-markup
-description: Best practices for writing Remotion React Markup
+description: Content, animation and effects best practices
 metadata:
   tags: remotion, react, markup
 ---

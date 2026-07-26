@@ -1,6 +1,6 @@
 ---
 name: remotion-multimedia
-description: Multimedia handling with the Mediabunny library
+description: Interacting with Mediabunny
 metadata:
   tags: remotion, mediabunny, multimedia, video, audio
 ---

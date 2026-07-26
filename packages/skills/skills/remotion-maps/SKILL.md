@@ -1,6 +1,6 @@
 ---
 name: remotion-maps
-description: Best practices for animating Maps in Remotion
+description: Remotion Map animation knowledge
 ---
 
 # Remotion Maps

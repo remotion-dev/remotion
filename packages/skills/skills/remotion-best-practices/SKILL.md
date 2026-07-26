@@ -1,6 +1,6 @@
 ---
 name: remotion-best-practices
-description: Best practices for Remotion
+description: Router for all Remotion skills
 metadata:
   tags: remotion, video, react, animation, composition
 ---
