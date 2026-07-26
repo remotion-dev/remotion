@@ -6,7 +6,7 @@ crumb: "Remotion Studio"
 
 # Interactivity best practices
 
-By writing Remotion markup in a specific way, the [Remotion Studio](/docs/studio) is able to recognize the structure of the code and makes it [interactive](/docs/studio/interactivity):
+By writing Remotion markup in a specific way, the [Remotion Studio](https://www.remotion.dev/docs/studio) is able to recognize the structure of the code and makes it [interactive](https://www.remotion.dev/docs/studio/interactivity):
 
 - Allowing items to be selected by clicking on them
 - Allowing drag+drop, resizing and rotation
@@ -14,7 +14,7 @@ By writing Remotion markup in a specific way, the [Remotion Studio](/docs/studio
 - Making keyframes and easing values editable
 
 If the markup is too complex for the Studio to make it interactive, then the values become grayed out.  
-Use the [`/remotion-interactivity` skill](/docs/ai/skills#remotion-interactivity) skill to instruct an agent to restructure the markup to make it editable.
+Use the [`/remotion-interactivity` skill](https://www.remotion.dev/docs/ai/skills#remotion-interactivity) skill to instruct an agent to restructure the markup to make it editable.
 
 ## Make an HTML element interactive using `Interactive`
 
@@ -141,9 +141,9 @@ Make this interactive in the Remotion Studio: https://www.remotion.dev/docs/stud
 
 ## Keep composition metadata inline
 
-When scaffolding a composition, keep `width`, `height`, `fps`, `durationInFrames` and [`defaultProps`](/docs/composition#defaultprops) inline and make no type assertions.
+When scaffolding a composition, keep `width`, `height`, `fps`, `durationInFrames` and [`defaultProps`](https://www.remotion.dev/docs/composition#defaultprops) inline and make no type assertions.
 
-The Props editor can save visual edits back to your code when `defaultProps` is an inline object literal on `<Composition>` or [`<Still>`](/docs/still).
+The Props editor can save visual edits back to your code when `defaultProps` is an inline object literal on `<Composition>` or [`<Still>`](https://www.remotion.dev/docs/still).
 
 ```tsx
 // 👍 Static values are in <Composition>, dynamic values are in calculateMetadata()
@@ -179,7 +179,7 @@ const calculateMetadata = useMemo(() => {
 />
 ```
 
-Use only [`calculateMetadata()`](/docs/calculate-metadata) for the part of the metadata that is dynamic.
+Use only [`calculateMetadata()`](https://www.remotion.dev/docs/calculate-metadata) for the part of the metadata that is dynamic.
 
 ```txt title="Prompt"
 Make this interactive in the Remotion Studio: https://www.remotion.dev/docs/studio/interactivity-best-practices.md
@@ -234,13 +234,13 @@ Make this interactive in the Remotion Studio: https://www.remotion.dev/docs/stud
 
 ## Make props of a custom component editable
 
-If you have a custom non-top-level component and want to make the props of that editable, see: [Make a component interactive](/docs/studio/make-component-interactive).
+If you have a custom non-top-level component and want to make the props of that editable, see: [Make a component interactive](https://www.remotion.dev/docs/studio/make-component-interactive).
 
 ## See also
 
-- [Studio interactivity](/docs/studio/interactivity)
-- [Make a component interactive](/docs/studio/make-component-interactive)
-- [Visual editing](/docs/visual-editing)
-- [`Interactive`](/docs/interactive)
-- [`interpolate()`](/docs/interpolate)
-- [`Easing.spring()`](/docs/easing#spring)
+- [Studio interactivity](https://www.remotion.dev/docs/studio/interactivity)
+- [Make a component interactive](https://www.remotion.dev/docs/studio/make-component-interactive)
+- [Visual editing](https://www.remotion.dev/docs/visual-editing)
+- [`Interactive`](https://www.remotion.dev/docs/interactive)
+- [`interpolate()`](https://www.remotion.dev/docs/interpolate)
+- [`Easing.spring()`](https://www.remotion.dev/docs/easing#spring)
