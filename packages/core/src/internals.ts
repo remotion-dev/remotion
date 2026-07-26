@@ -143,11 +143,7 @@ import {
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
 } from './ResolveCompositionConfig.js';
-import {
-	getSequenceCropClipPath,
-	resolveSequenceCrop,
-	validateSequenceCrop,
-} from './sequence-crop.js';
+import {resolveSequenceCrop} from './sequence-crop.js';
 import type {
 	OverrideIdToNodePaths,
 	OverrideToNodePathGetters,
@@ -198,6 +194,7 @@ import {
 	type TimelineContextValue,
 } from './TimelineContext.js';
 import {truthy} from './truthy.js';
+import {useCropStyle} from './use-crop-style.js';
 import {
 	calculateScale,
 	CurrentScaleContext,
@@ -438,9 +435,8 @@ export const Internals = {
 	durationInFramesField,
 	freezeField,
 	fromField,
-	getSequenceCropClipPath,
 	resolveSequenceCrop,
-	validateSequenceCrop,
+	useCropStyle,
 } as const;
 
 export type {

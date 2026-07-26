@@ -30,15 +30,11 @@ import {
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
 import {usePreload} from '../prefetch.js';
-import {
-	getSequenceCropClipPath,
-	resolveSequenceCrop,
-	validateSequenceCrop,
-} from '../sequence-crop.js';
 import {Sequence} from '../Sequence.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {truncateSrcForLabel} from '../truncate-src-for-label.js';
 import {useBufferState} from '../use-buffer-state.js';
+import {useCropStyle} from '../use-crop-style.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {usePremounting} from '../use-premounting.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
@@ -556,12 +552,6 @@ const CanvasImageInner = forwardRef<
 			throw new Error('No "src" prop was passed to <CanvasImage>.');
 		}
 
-		const cropProps = {cropLeft, cropRight, cropTop, cropBottom};
-		validateSequenceCrop(cropProps, '<CanvasImage />');
-		const cropClipPath = getSequenceCropClipPath(
-			resolveSequenceCrop(cropProps),
-		);
-
 		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 		const actualRef = useRef<HTMLCanvasElement | null>(null);
 		useImperativeHandle(ref, () => {
@@ -584,6 +574,14 @@ const CanvasImageInner = forwardRef<
 			styleWhilePremounted: styleWhilePremounted ?? null,
 			styleWhilePostmounted: styleWhilePostmounted ?? null,
 			hideWhilePremounted: 'display-none',
+		});
+		const croppedStyle = useCropStyle({
+			cropLeft,
+			cropRight,
+			cropTop,
+			cropBottom,
+			style: premountingStyle,
+			componentName: '<CanvasImage />',
 		});
 
 		return (
@@ -620,11 +618,7 @@ const CanvasImageInner = forwardRef<
 						effects={effects}
 						controls={controls}
 						className={className}
-						style={
-							cropClipPath === null
-								? (premountingStyle ?? undefined)
-								: {...premountingStyle, clipPath: cropClipPath}
-						}
+						style={croppedStyle ?? undefined}
 						id={id}
 						onError={onError}
 						pauseWhenLoading={pauseWhenLoading}

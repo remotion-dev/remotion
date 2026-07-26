@@ -16,12 +16,10 @@ import {VideoForPreview} from './video-for-preview';
 import {VideoForRendering} from './video-for-rendering';
 
 const {
-	getSequenceCropClipPath,
-	resolveSequenceCrop,
 	validateMediaTrimProps,
 	resolveTrimProps,
 	validateMediaProps,
-	validateSequenceCrop,
+	useCropStyle,
 } = Internals;
 
 export const videoSchema: InteractivitySchema = {
@@ -321,9 +319,6 @@ const VideoInner: React.FC<
 		effects ?? [],
 	);
 	const refForOutline = React.useRef<HTMLElement | null>(null);
-	const cropProps = {cropLeft, cropRight, cropTop, cropBottom};
-	validateSequenceCrop(cropProps, '<Video />');
-	const cropClipPath = getSequenceCropClipPath(resolveSequenceCrop(cropProps));
 	const {
 		effectivePostmountFor,
 		effectivePremountFor,
@@ -341,6 +336,14 @@ const VideoInner: React.FC<
 		styleWhilePremounted: styleWhilePremounted ?? null,
 		styleWhilePostmounted: styleWhilePostmounted ?? null,
 		hideWhilePremounted: 'display-none',
+	});
+	const croppedStyle = useCropStyle({
+		cropLeft,
+		cropRight,
+		cropTop,
+		cropBottom,
+		style: premountingStyle,
+		componentName: '<Video />',
 	});
 
 	if (sequenceDurationInFrames === 0) {
@@ -393,11 +396,7 @@ const VideoInner: React.FC<
 					playbackRate={playbackRate ?? 1}
 					showInTimeline={showInTimeline ?? true}
 					src={src}
-					style={
-						cropClipPath === null
-							? (premountingStyle ?? {})
-							: {...premountingStyle, clipPath: cropClipPath}
-					}
+					style={croppedStyle ?? {}}
 					trimAfter={trimAfter}
 					trimBefore={trimBefore}
 					volume={volume ?? 1}

@@ -5,7 +5,7 @@ export type ResolvedSequenceCrop = {
 	readonly bottom: number;
 };
 
-type SequenceCropInput = {
+export type SequenceCropInput = {
 	readonly cropLeft?: number;
 	readonly cropRight?: number;
 	readonly cropTop?: number;
