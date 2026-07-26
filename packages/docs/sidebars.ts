@@ -1490,7 +1490,6 @@ const sidebars: SidebarsConfig = {
 				'miscellaneous/embed-studio',
 				'miscellaneous/absolute-paths',
 				'miscellaneous/live-streaming',
-				'miscellaneous/parse-media-vs-get-video-metadata',
 				'miscellaneous/pexels',
 				'lovable-for-motion-graphics',
 			],

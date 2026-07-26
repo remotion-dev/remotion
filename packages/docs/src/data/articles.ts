@@ -4653,15 +4653,6 @@ export const articles = [
 		slug: 'miscellaneous/nextjs',
 	},
 	{
-		id: 'miscellaneous/parse-media-vs-get-video-metadata',
-		title: 'parseMedia() vs. getVideoMetadata()',
-		relativePath: 'docs/miscellaneous/parse-media-vs-get-video-metadata.mdx',
-		compId: 'articles-docs-miscellaneous-parse-media-vs-get-video-metadata',
-		crumb: 'FAQ',
-		noAi: false,
-		slug: 'miscellaneous/parse-media-vs-get-video-metadata',
-	},
-	{
 		id: 'miscellaneous/pexels',
 		title: 'Timeouts with Pexels videos',
 		relativePath: 'docs/miscellaneous/pexels.mdx',
