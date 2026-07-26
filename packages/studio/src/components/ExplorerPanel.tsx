@@ -3,7 +3,10 @@ import {BACKGROUND} from '../helpers/colors';
 import {AssetSelector} from './AssetSelector';
 import {CompositionSelector} from './CompositionSelector';
 import {CompSelectorRef} from './CompSelectorRef';
-import {explorerSidebarTabs} from './ExplorerPanelRef';
+import {
+	explorerSidebarTabs,
+	type ExplorerSidebarPanel,
+} from './ExplorerPanelRef';
 import {Tab, Tabs} from './Tabs';
 
 const container: React.CSSProperties = {
@@ -15,11 +18,9 @@ const container: React.CSSProperties = {
 	flex: 1,
 };
 
-type OptionsSidebarPanel = 'compositions' | 'assets';
-
 const localStorageKey = 'remotion.sidebarPanel';
 
-const getSelectedPanel = (): OptionsSidebarPanel => {
+const getSelectedPanel = (): ExplorerSidebarPanel => {
 	const panel = localStorage.getItem(localStorageKey);
 	if (panel === 'assets') {
 		return 'assets';
@@ -32,14 +33,14 @@ const tabsContainer: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 };
 
-const persistSelectedOptionsSidebarPanel = (panel: OptionsSidebarPanel) => {
+const persistSelectedOptionsSidebarPanel = (panel: ExplorerSidebarPanel) => {
 	localStorage.setItem(localStorageKey, panel);
 };
 
 export const ExplorerPanel: React.FC<{
 	readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
-	const [panel, setPanel] = useState<OptionsSidebarPanel>(() =>
+	const [panel, setPanel] = useState<ExplorerSidebarPanel>(() =>
 		getSelectedPanel(),
 	);
 	const onCompositionsSelected = useCallback(() => {
@@ -54,6 +55,7 @@ export const ExplorerPanel: React.FC<{
 
 	useImperativeHandle(explorerSidebarTabs, () => {
 		return {
+			getSelectedPanel: () => panel,
 			selectAssetsPanel: () => {
 				setPanel('assets');
 				persistSelectedOptionsSidebarPanel('assets');
@@ -63,7 +65,7 @@ export const ExplorerPanel: React.FC<{
 				persistSelectedOptionsSidebarPanel('compositions');
 			},
 		};
-	}, []);
+	}, [panel]);
 
 	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
 		// Prevent deselection of currently selected items

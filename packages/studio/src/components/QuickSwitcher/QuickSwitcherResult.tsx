@@ -5,9 +5,11 @@ import {
 	WHITE,
 	WHITE_ALPHA_06,
 } from '../../helpers/colors';
+import type {AssetFileType} from '../../helpers/get-preview-file-type';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {StillIcon} from '../../icons/still';
 import {FilmIcon} from '../../icons/video';
+import {AssetFileIcon} from '../AssetFileIcon';
 import {Spacing} from '../layout';
 import {
 	QUICK_SWITCHER_RESULT_LABEL_FONT_SIZE,
@@ -15,6 +17,10 @@ import {
 } from './shared';
 
 type QuickSwitcherResultDetail =
+	| {
+			type: 'asset';
+			fileType: AssetFileType;
+	  }
 	| {
 			type: 'composition';
 			compositionType: 'composition' | 'still';
@@ -154,6 +160,12 @@ export const QuickSwitcherResult: React.FC<{
 						style={iconStyle}
 					/>
 				)
+			) : result.type === 'asset' ? (
+				<AssetFileIcon
+					fileType={result.fileType}
+					color={selected || hovered ? WHITE : LIGHT_TEXT}
+					style={iconStyle}
+				/>
 			) : null}
 			<Spacing x={1} />
 			<div style={labelContainer}>
