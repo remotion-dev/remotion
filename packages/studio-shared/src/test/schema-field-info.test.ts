@@ -8,6 +8,7 @@ import {
 	SCHEMA_FIELD_ROW_HEIGHT,
 	getEffectFieldsToShow,
 	getFieldsToShow,
+	getSchemaFieldGroup,
 } from '../schema-field-info';
 
 const effect = {
@@ -199,6 +200,11 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 				default: 1,
 				hiddenFromList: false,
 			},
+			cropLeft: {
+				type: 'number',
+				default: 0,
+				hiddenFromList: false,
+			},
 			'style.backgroundColor': {
 				type: 'color',
 				default: 'transparent',
@@ -252,6 +258,7 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'style.translate',
 		'style.rotate',
 		'style.opacity',
+		'cropLeft',
 		'style.fontSize',
 		'style.color',
 		'style.fontFamily',
@@ -269,6 +276,7 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'transforms',
 		'transforms',
 		'transforms',
+		'crop',
 		'text',
 		'text',
 		'text',
@@ -279,6 +287,12 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'border',
 		'border',
 	]);
+});
+
+test('groups Sequence crop controls into the Crop inspector section', () => {
+	expect(
+		['cropLeft', 'cropRight', 'cropTop', 'cropBottom'].map(getSchemaFieldGroup),
+	).toEqual(['crop', 'crop', 'crop', 'crop']);
 });
 
 test('getFieldsToShow does not reserve extra height for text content fields', () => {
