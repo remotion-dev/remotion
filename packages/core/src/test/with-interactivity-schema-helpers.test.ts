@@ -89,7 +89,7 @@ test('cropSchema is reusable and image components opt into it', () => {
 	expect(sequenceCropSchema).toBe(cropSchema);
 
 	for (const key of Object.keys(cropSchema)) {
-		for (const schema of [canvasImageSchema, imgSchema]) {
+		for (const schema of [animatedImageSchema, canvasImageSchema, imgSchema]) {
 			expect(key in schema).toBe(true);
 		}
 	}
