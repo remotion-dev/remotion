@@ -1,11 +1,12 @@
 ---
-name: remotion-interactivity
-description: Structures Remotion markup to enable interactivity
-metadata:
-  tags: remotion, interactivity, studio, visual mode
+image: /generated/articles-docs-studio-interactivity-best-practices.png
+title: Interactivity best practices
+crumb: "Remotion Studio"
 ---
 
-By writing Remotion markup in a specific way, the Remotion Studio is able to recognize the structure of the code and makes it interactive:
+# Interactivity best practices
+
+By writing Remotion markup in a specific way, the [Remotion Studio](/docs/studio) is able to recognize the structure of the code and makes it [interactive](/docs/studio/interactivity):
 
 - Allowing items to be selected by clicking on them
 - Allowing drag+drop, resizing and rotation
@@ -13,6 +14,7 @@ By writing Remotion markup in a specific way, the Remotion Studio is able to rec
 - Making keyframes and easing values editable
 
 If the markup is too complex for the Studio to make it interactive, then the values become grayed out.  
+Use the [`/remotion-interactivity` skill](/docs/ai/skills#remotion-interactivity) skill to instruct an agent to restructure the markup to make it editable.
 
 ## Make an HTML element interactive using `Interactive`
 
@@ -26,7 +28,7 @@ Every HTML and SVG element such as `<div>` can be turned interactive using `Inte
 
 This allows styles and keyframes to be set in the Studio. Be sensible, if a component has many elements, the timeline might get messy.
 
-## Give interactive elements a descriptive name
+## Give interactive elements a descriptive name {#give-interactive-elements-a-descriptive-name}
 
 Add a `name` prop to elements to make them easily identifyable.
 
@@ -77,6 +79,8 @@ const baseStyle = useMemo(() => {
 ```
 
 ## Animate using `interpolate()`
+
+<SuggestedPrompt prompt="/remotion-interactivity Inline the values to make them editable." />
 
 Write animations as inline `interpolate()` calls on the property that changes.  
 All values should also be hardcoded values: Input range, output range, easing, extrapolation, `output` property.
@@ -131,11 +135,15 @@ const translateY = interpolate(frame, [0, 30], [0, 120]); // ❌ Math should be 
 Avoid the `transform` CSS property.  
 If possible, use `scale`, `rotate` and `translate` instead because only they are interactively editable.
 
+```txt title="Prompt"
+Make this interactive in the Remotion Studio: https://www.remotion.dev/docs/studio/interactivity-best-practices.md
+```
+
 ## Keep composition metadata inline
 
-When scaffolding a composition, keep `width`, `height`, `fps`, `durationInFrames` and `defaultProps` inline and make no type assertions.
+When scaffolding a composition, keep `width`, `height`, `fps`, `durationInFrames` and [`defaultProps`](/docs/composition#defaultprops) inline and make no type assertions.
 
-The Props editor can save visual edits back to your code when `defaultProps` is an inline object literal on `<Composition>` or `<Still>`.
+The Props editor can save visual edits back to your code when `defaultProps` is an inline object literal on `<Composition>` or [`<Still>`](/docs/still).
 
 ```tsx
 // 👍 Static values are in <Composition>, dynamic values are in calculateMetadata()
@@ -171,7 +179,11 @@ const calculateMetadata = useMemo(() => {
 />
 ```
 
-Use only `calculateMetadata()` for the part of the metadata that is dynamic.
+Use only [`calculateMetadata()`](/docs/calculate-metadata) for the part of the metadata that is dynamic.
+
+```txt title="Prompt"
+Make this interactive in the Remotion Studio: https://www.remotion.dev/docs/studio/interactivity-best-practices.md
+```
 
 ## Effects should be inline too
 
@@ -216,11 +228,19 @@ const rotation = frame * 1.5;
 
 Render separate elements if one version should have effects and another should not.
 
-## Making your own component interactive
+```txt title="Prompt"
+Make this interactive in the Remotion Studio: https://www.remotion.dev/docs/studio/interactivity-best-practices.md
+```
 
-To make a custom userland component interactive, use:
-[Make a component interactive](https://www.remotion.dev/docs/studio/make-component-interactive.md)
+## Make props of a custom component editable
 
-## Video editing
+If you have a custom non-top-level component and want to make the props of that editable, see: [Make a component interactive](/docs/studio/make-component-interactive).
 
-If a Remotion component mainly consists of video and audio clips, see [Video editing](../remotion-markup/video-editing.md) for best practices on how to structure Remotion markup so the clips are interactively editable in the timeline.
+## See also
+
+- [Studio interactivity](/docs/studio/interactivity)
+- [Make a component interactive](/docs/studio/make-component-interactive)
+- [Visual editing](/docs/visual-editing)
+- [`Interactive`](/docs/interactive)
+- [`interpolate()`](/docs/interpolate)
+- [`Easing.spring()`](/docs/easing#spring)
