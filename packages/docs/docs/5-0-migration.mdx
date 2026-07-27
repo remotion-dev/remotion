@@ -87,6 +87,16 @@ Use [Mediabunny to get video metadata](/docs/mediabunny/metadata) instead.
 
 **Required action**: Replace calls to `getVideoMetadata()` from `@remotion/renderer` with [getting metadata using Mediabunny](/docs/mediabunny/metadata).
 
+## `@remotion/starburst` and `@remotion/light-leaks` are no longer published
+
+Both packages are deprecated and will not be published in Remotion 5.0. Their effects have moved to [`@remotion/effects`](/docs/effects/api).
+
+**Required action**:
+
+- Replace `starburst()` from `@remotion/starburst` with [`starburst()`](/docs/effects/starburst) from `@remotion/effects/starburst`.
+- Replace `lightLeak()` from `@remotion/light-leaks` with [`lightLeak()`](/docs/effects/light-leak) from `@remotion/effects/light-leak`.
+- The `<Starburst>` and `<LightLeak>` components are not available in `@remotion/effects`. Migrate to the canvas-based effect APIs above, or stay on Remotion 4.x if you still need the components.
+
 ## `diskSizeInMb` is now 10240 by default
 
 For Remotion Lambda, the default disk size is now 10240 MB.  
