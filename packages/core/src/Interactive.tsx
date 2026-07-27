@@ -7,6 +7,7 @@ import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {
 	backgroundSchema,
 	baseSchema,
+	captionsSchema,
 	borderSchema,
 	cropSchema,
 	premountSchema,
@@ -317,6 +318,7 @@ const makeInteractiveSvgStrokeElement = <Tag extends InteractiveSvgTag>(
  */
 export const Interactive = {
 	baseSchema,
+	captionsSchema,
 	transformSchema,
 	textSchema,
 	backgroundSchema,
