@@ -20,11 +20,11 @@ export const TimelineFieldRowContent: React.FC<{
 	readonly selected: boolean;
 	readonly children: React.ReactNode;
 }> = ({field, rowDepth, selected, children}) => {
-	const {sourceDisplay} = useContext(AssetSelectionContext);
+	const {sourceAction} = useContext(AssetSelectionContext);
 	if (
 		field.typeName === 'asset' &&
 		field.key === 'src' &&
-		sourceDisplay !== null
+		sourceAction !== null
 	) {
 		return <div style={assetSourceRowStyle}>{children}</div>;
 	}

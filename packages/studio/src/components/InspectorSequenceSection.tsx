@@ -16,9 +16,8 @@ import {Plus} from '../icons/plus';
 import {ModalsContext} from '../state/modals';
 import {AssetFileIcon} from './AssetFileIcon';
 import {InlineAction} from './InlineAction';
-import {InspectorInlineAction, InspectorSection} from './InspectorPanel/common';
+import {InspectorSection} from './InspectorPanel/common';
 import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
-import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 import {getAssetSearchQueryForComponent} from './QuickSwitcher/asset-search';
 import {
 	getTimelineAssetLinkInfo,
@@ -72,22 +71,14 @@ const assetSelectorIcon: React.CSSProperties = {
 	width: 18,
 };
 
-const localSourceAction: React.CSSProperties = {
-	margin: 0,
-	paddingLeft: INSPECTOR_PANEL_HORIZONTAL_PADDING,
-	paddingRight: 4,
-	width: '100%',
-};
-
-const remoteSourceLabel: React.CSSProperties = {
-	color: LIGHT_TEXT,
+const remoteSourcePartsContainer: React.CSSProperties = {
+	color: 'inherit',
 	display: 'flex',
 	fontFamily: 'Arial, Helvetica, sans-serif',
 	fontSize: 12,
 	lineHeight: '18px',
 	minWidth: 0,
 	overflow: 'hidden',
-	padding: `6px 4px 6px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 	whiteSpace: 'nowrap',
 };
 
@@ -253,35 +244,37 @@ export const InspectorSequenceSection: React.FC<{
 	const assetSelectionInitialQuery = getAssetSearchQueryForComponent(
 		sequence.controls.componentIdentity,
 	);
-	const sourceDisplay = useMemo(() => {
+	const sourceAction = useMemo(() => {
 		if (localAsset) {
-			return (
-				<InspectorInlineAction
-					disabled={false}
-					onClick={jumpToAsset}
-					renderIcon={(color) => (
-						<AssetFileIcon
-							color={color}
-							fileType={getPreviewFileType(localAsset.assetPath)}
-							style={assetSelectorIcon}
-						/>
-					)}
-					size="compact"
-					style={localSourceAction}
-					title={localAsset.assetPath}
-				>
-					{localAssetFileName}
-				</InspectorInlineAction>
-			);
+			return {
+				children: localAssetFileName,
+				disabled: false,
+				onClick: jumpToAsset,
+				renderIcon: (color: string) => (
+					<AssetFileIcon
+						color={color}
+						fileType={getPreviewFileType(localAsset.assetPath)}
+						style={assetSelectorIcon}
+					/>
+				),
+				title: localAsset.assetPath,
+			};
 		}
 
 		if (remoteAsset && remoteSourceParts) {
-			return (
-				<div style={remoteSourceLabel} title={remoteAsset.href}>
-					<span style={remoteSourceLeading}>{remoteSourceParts.leading}</span>
-					<span style={remoteSourceTrailing}>{remoteSourceParts.trailing}</span>
-				</div>
-			);
+			return {
+				children: (
+					<span style={remoteSourcePartsContainer}>
+						<span style={remoteSourceLeading}>{remoteSourceParts.leading}</span>
+						<span style={remoteSourceTrailing}>
+							{remoteSourceParts.trailing}
+						</span>
+					</span>
+				),
+				disabled: false,
+				onClick: null,
+				title: remoteAsset.href,
+			};
 		}
 
 		return null;
@@ -295,9 +288,9 @@ export const InspectorSequenceSection: React.FC<{
 	const assetSelectionContextValue = useMemo(
 		() => ({
 			initialQuery: assetSelectionInitialQuery,
-			sourceDisplay,
+			sourceAction,
 		}),
-		[assetSelectionInitialQuery, sourceDisplay],
+		[assetSelectionInitialQuery, sourceAction],
 	);
 
 	const getIsExpanded = useCallback(

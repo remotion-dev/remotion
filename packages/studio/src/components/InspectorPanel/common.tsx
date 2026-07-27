@@ -170,15 +170,58 @@ const inlineLabelIcon: React.CSSProperties = {
 	width: 18,
 };
 
-export const InspectorInlineAction: React.FC<{
-	readonly children: React.ReactNode;
+const segmentedInlineAction: React.CSSProperties = {
+	display: 'flex',
+	gap: 1,
+	margin: `0 ${INLINE_LABEL_BUTTON_MARGIN}px`,
+	width: `calc(100% - ${INLINE_LABEL_BUTTON_MARGIN * 2}px)`,
+};
+
+const segmentedMainAction: React.CSSProperties = {
+	borderRadius: '4px 0 0 4px',
+	flex: 1,
+	margin: 0,
+	minWidth: 0,
+	width: 'auto',
+};
+
+const segmentedTrailingAction: React.CSSProperties = {
+	alignItems: 'center',
+	appearance: 'none',
+	border: 'none',
+	borderRadius: '0 4px 4px 0',
+	display: 'flex',
+	flex: '0 0 28px',
+	justifyContent: 'center',
+	margin: 0,
+	padding: 0,
+	width: 28,
+};
+
+export type InspectorInlineActionSegment = {
 	readonly disabled: boolean;
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
+	readonly renderIcon: (color: string) => React.ReactNode;
+	readonly title?: string;
+};
+
+export type InspectorInlineActionProps = {
+	readonly children: React.ReactNode;
+	readonly disabled: boolean;
+	readonly onClick: React.MouseEventHandler<HTMLButtonElement> | null;
 	readonly renderIcon?: (color: string) => React.ReactNode;
 	readonly size?: 'default' | 'compact';
 	readonly style?: React.CSSProperties;
 	readonly title?: string;
-}> = ({
+	readonly variant?:
+		| {readonly type: 'single'}
+		| {
+				readonly type: 'segmented';
+				readonly trailing: InspectorInlineActionSegment;
+		  };
+};
+
+export const InspectorInlineAction: React.FC<InspectorInlineActionProps> = ({
 	children,
 	disabled,
 	onClick,
@@ -186,9 +229,12 @@ export const InspectorInlineAction: React.FC<{
 	size = 'default',
 	style,
 	title,
+	variant = {type: 'single'},
 }) => {
 	const [hovered, setHovered] = React.useState(false);
+	const [trailingHovered, setTrailingHovered] = React.useState(false);
 	const color = hovered && !disabled ? WHITE : LIGHT_TEXT;
+	const isSegmented = variant.type === 'segmented';
 	const buttonStyle = React.useMemo(
 		(): React.CSSProperties => ({
 			...(disabled ? inlineLabelButtonDisabled : inlineLabelButton),
@@ -198,9 +244,10 @@ export const InspectorInlineAction: React.FC<{
 			}),
 			color,
 			...(size === 'compact' ? compactInlineLabelButton : null),
+			...(isSegmented ? segmentedMainAction : null),
 			...style,
 		}),
-		[color, disabled, hovered, size, style],
+		[color, disabled, hovered, isSegmented, size, style],
 	);
 	const textStyle = React.useMemo(
 		(): React.CSSProperties => ({
@@ -216,8 +263,22 @@ export const InspectorInlineAction: React.FC<{
 	const onPointerLeave = React.useCallback(() => {
 		setHovered(false);
 	}, []);
+	const onTrailingPointerEnter = React.useCallback(() => {
+		setTrailingHovered(true);
+	}, []);
+	const onTrailingPointerLeave = React.useCallback(() => {
+		setTrailingHovered(false);
+	}, []);
 
-	return (
+	const mainContent = (
+		<>
+			{renderIcon ? (
+				<span style={inlineLabelIcon}>{renderIcon(color)}</span>
+			) : null}
+			<span style={textStyle}>{children}</span>
+		</>
+	);
+	const mainAction = onClick ? (
 		<button
 			className="__remotion-inspector-inline-action"
 			type="button"
@@ -228,12 +289,55 @@ export const InspectorInlineAction: React.FC<{
 			onPointerEnter={disabled ? undefined : onPointerEnter}
 			onPointerLeave={onPointerLeave}
 		>
-			{renderIcon ? (
-				<span style={inlineLabelIcon}>{renderIcon(color)}</span>
-			) : null}
-			<span style={textStyle}>{children}</span>
+			{mainContent}
 		</button>
+	) : (
+		<div style={buttonStyle} title={title}>
+			{mainContent}
+		</div>
 	);
+
+	if (variant.type === 'segmented') {
+		const trailingColor =
+			trailingHovered && !variant.trailing.disabled ? WHITE : LIGHT_TEXT;
+		const trailingStyle: React.CSSProperties = {
+			...segmentedTrailingAction,
+			backgroundColor: variant.trailing.disabled
+				? TRANSPARENT
+				: getBackgroundFromHoverState({
+						hovered: trailingHovered,
+						selected: false,
+					}),
+			height:
+				size === 'compact'
+					? COMPACT_INLINE_ROW_HEIGHT
+					: COMPACT_CONTROL_ROW_HEIGHT,
+			opacity: variant.trailing.disabled ? 0.35 : 1,
+		};
+
+		return (
+			<div style={segmentedInlineAction}>
+				{mainAction}
+				<button
+					type="button"
+					disabled={variant.trailing.disabled}
+					style={trailingStyle}
+					title={variant.trailing.title}
+					onClick={variant.trailing.onClick}
+					onPointerEnter={
+						variant.trailing.disabled ? undefined : onTrailingPointerEnter
+					}
+					onPointerLeave={onTrailingPointerLeave}
+				>
+					<span style={inlineLabelIcon}>
+						{variant.trailing.renderIcon(trailingColor)}
+					</span>
+				</button>
+			</div>
+		);
+	}
+
+	return mainAction;
 };
 
 export const InspectorDefaultPropsWarnings: React.FC<{

@@ -9,18 +9,10 @@ import type {
 import {PenIcon} from '../../icons/pen';
 import {ModalsContext} from '../../state/modals';
 import {InlineAction} from '../InlineAction';
-
-const assetFieldRow: React.CSSProperties = {
-	alignItems: 'center',
-	display: 'flex',
-	flex: 1,
-	minWidth: 0,
-};
-
-const sourceDisplayContainer: React.CSSProperties = {
-	flex: 1,
-	minWidth: 0,
-};
+import {
+	InspectorInlineAction,
+	type InspectorInlineActionProps,
+} from '../InspectorPanel/common';
 
 const penIcon: React.CSSProperties = {
 	display: 'block',
@@ -30,12 +22,12 @@ const penIcon: React.CSSProperties = {
 
 type AssetSelectionContextValue = {
 	readonly initialQuery: string;
-	readonly sourceDisplay: React.ReactNode;
+	readonly sourceAction: Omit<InspectorInlineActionProps, 'variant'> | null;
 };
 
 export const AssetSelectionContext = createContext<AssetSelectionContextValue>({
 	initialQuery: '',
-	sourceDisplay: null,
+	sourceAction: null,
 });
 
 export const toFileToken = (name: string) => {
@@ -66,8 +58,8 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 	}
 
 	const {setSelectedModal} = useContext(ModalsContext);
-	const {initialQuery, sourceDisplay} = useContext(AssetSelectionContext);
-	const inlineSourceDisplay = field.key === 'src' ? sourceDisplay : null;
+	const {initialQuery, sourceAction} = useContext(AssetSelectionContext);
+	const inlineSourceAction = field.key === 'src' ? sourceAction : null;
 
 	const onSelect = useCallback(
 		(assetName: string, previewValue: string) => {
@@ -105,14 +97,23 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 		/>
 	);
 
-	if (inlineSourceDisplay === null) {
+	if (inlineSourceAction === null) {
 		return action;
 	}
 
 	return (
-		<div style={assetFieldRow}>
-			<div style={sourceDisplayContainer}>{inlineSourceDisplay}</div>
-			{action}
-		</div>
+		<InspectorInlineAction
+			{...inlineSourceAction}
+			size="compact"
+			variant={{
+				type: 'segmented',
+				trailing: {
+					disabled: window.remotion_isReadOnlyStudio,
+					onClick: openAssetSelection,
+					renderIcon: (color) => <PenIcon color={color} style={penIcon} />,
+					title: 'Change source',
+				},
+			}}
+		/>
 	);
 };
