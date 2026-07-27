@@ -52,6 +52,7 @@ export type OpenInFileExplorerRequest = {
 
 export type OpenInEditorRequest = {
 	stack: SymbolicatedStackFrame;
+	search: string | null;
 };
 
 export type OpenInEditorResponse = {

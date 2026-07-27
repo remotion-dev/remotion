@@ -12,6 +12,7 @@ import {Internals, useVideoConfig} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import {openOriginalPositionInEditorAtProperty} from '../../helpers/open-in-editor';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
@@ -514,6 +515,17 @@ export const TimelineEffectPropItem: React.FC<{
 		React.MouseEventHandler<HTMLDivElement>
 	>(
 		(event) => {
+			if (
+				window.remotion_editorName &&
+				previewServerState.type === 'connected'
+			) {
+				event.stopPropagation();
+				openOriginalPositionInEditorAtProperty({
+					originalPosition: validatedLocation,
+					property: field.key,
+				}).catch(() => undefined);
+			}
+
 			if (propStatus === null || propStatus.status === 'computed') {
 				return;
 			}
@@ -590,7 +602,7 @@ export const TimelineEffectPropItem: React.FC<{
 			selectItems,
 			setPropStatuses,
 			sourceFrame,
-			validatedLocation.source,
+			validatedLocation,
 		],
 	);
 

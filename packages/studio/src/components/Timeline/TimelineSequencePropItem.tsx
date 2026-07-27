@@ -11,6 +11,7 @@ import {Internals, useVideoConfig} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import {openOriginalPositionInEditorAtProperty} from '../../helpers/open-in-editor';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -469,6 +470,17 @@ export const TimelineSequencePropItem: React.FC<{
 		React.MouseEventHandler<HTMLDivElement>
 	>(
 		(event) => {
+			if (
+				window.remotion_editorName &&
+				previewServerState.type === 'connected'
+			) {
+				event.stopPropagation();
+				openOriginalPositionInEditorAtProperty({
+					originalPosition: validatedLocation,
+					property: field.key.split('.').at(-1) ?? field.key,
+				}).catch(() => undefined);
+			}
+
 			if (propStatus === null || propStatus.status === 'computed') {
 				return;
 			}
@@ -543,7 +555,7 @@ export const TimelineSequencePropItem: React.FC<{
 			selectItems,
 			setPropStatuses,
 			sourceFrame,
-			validatedLocation.source,
+			validatedLocation,
 		],
 	);
 

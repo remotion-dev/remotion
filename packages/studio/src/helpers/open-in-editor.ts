@@ -6,7 +6,10 @@ import {useSyncExternalStore} from 'react';
 import {callApi} from '../components/call-api';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 
-export const openInEditor = (stack: SymbolicatedStackFrame) => {
+const openInEditorWithSearch = (
+	stack: SymbolicatedStackFrame,
+	search: string | null,
+) => {
 	const {
 		originalFileName,
 		originalLineNumber,
@@ -16,6 +19,7 @@ export const openInEditor = (stack: SymbolicatedStackFrame) => {
 	} = stack;
 
 	return callApi('/api/open-in-editor', {
+		search,
 		stack: {
 			originalFileName,
 			originalLineNumber,
@@ -26,16 +30,42 @@ export const openInEditor = (stack: SymbolicatedStackFrame) => {
 	});
 };
 
+export const openInEditor = (stack: SymbolicatedStackFrame) => {
+	return openInEditorWithSearch(stack, null);
+};
+
 export const openOriginalPositionInEditor = async (
 	originalPosition: OriginalPosition,
 ) => {
-	await openInEditor({
-		originalColumnNumber: originalPosition.column,
-		originalFileName: originalPosition.source,
-		originalFunctionName: null,
-		originalLineNumber: originalPosition.line,
-		originalScriptCode: null,
-	});
+	await openInEditorWithSearch(
+		{
+			originalColumnNumber: originalPosition.column,
+			originalFileName: originalPosition.source,
+			originalFunctionName: null,
+			originalLineNumber: originalPosition.line,
+			originalScriptCode: null,
+		},
+		null,
+	);
+};
+
+export const openOriginalPositionInEditorAtProperty = async ({
+	originalPosition,
+	property,
+}: {
+	originalPosition: OriginalPosition;
+	property: string;
+}) => {
+	await openInEditorWithSearch(
+		{
+			originalColumnNumber: originalPosition.column,
+			originalFileName: originalPosition.source,
+			originalFunctionName: null,
+			originalLineNumber: originalPosition.line,
+			originalScriptCode: null,
+		},
+		property,
+	);
 };
 
 type ResolvedCompositionComponentInfo = {
