@@ -301,6 +301,7 @@ const sidebars: SidebarsConfig = {
 				'effects/linear-gradient-tint',
 				'effects/linear-progressive-blur',
 				'effects/linear-progressive-pixelate',
+				'effects/light-leak',
 				'effects/light-trail',
 				'effects/lines',
 				'effects/liquid-contours',
@@ -468,15 +469,6 @@ const sidebars: SidebarsConfig = {
 				id: 'licensing/index',
 			},
 			items: ['licensing/register-usage-event', 'licensing/get-usage'],
-		},
-		{
-			type: 'category',
-			label: '@remotion/light-leaks',
-			link: {
-				type: 'doc',
-				id: 'light-leaks/light-leaks-api',
-			},
-			items: ['light-leaks/light-leak-effect', 'light-leaks/light-leak'],
 		},
 		{
 			type: 'category',
@@ -769,15 +761,6 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/starburst',
-			link: {
-				type: 'doc',
-				id: 'starburst/starburst-api',
-			},
-			items: ['starburst/starburst-effect', 'starburst/starburst-component'],
-		},
-		{
-			type: 'category',
 			label: '@remotion/studio',
 			link: {
 				type: 'doc',
@@ -866,6 +849,7 @@ const sidebars: SidebarsConfig = {
 					},
 					items: [
 						'transitions/presentations/fade',
+						'transitions/presentations/push-cut',
 						'transitions/presentations/slide',
 						'transitions/presentations/wipe',
 						'transitions/presentations/flip',
@@ -973,6 +957,15 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/light-leaks (deprecated)',
+			link: {
+				type: 'doc',
+				id: 'light-leaks/light-leaks-api',
+			},
+			items: ['light-leaks/light-leak-effect', 'light-leaks/light-leak'],
+		},
+		{
+			type: 'category',
 			label: '@remotion/media-parser (deprecated)',
 			link: {
 				type: 'doc',
@@ -997,6 +990,15 @@ const sidebars: SidebarsConfig = {
 				'media-parser/node-writer',
 				'media-parser/webcodecs-timescale',
 			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/starburst (deprecated)',
+			link: {
+				type: 'doc',
+				id: 'starburst/starburst-api',
+			},
+			items: ['starburst/starburst-effect', 'starburst/starburst-component'],
 		},
 		{
 			type: 'category',

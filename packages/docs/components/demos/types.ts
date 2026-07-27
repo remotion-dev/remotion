@@ -31,6 +31,7 @@ import {LinearBlurDocsDemo} from './LinearBlurDemo';
 import {NoiseComp} from './NoiseDemo';
 import {PieDemo} from './Pie';
 import {PolygonDemo} from './Polygon';
+import {PushCutDocsDemo} from './PushCutDemo';
 import {RectDemo} from './Rect';
 import {RippleDocsDemo} from './RippleDemo';
 import {RoughNotationAnimatedSeedDemo} from './RoughNotationAnimatedSeedDemo';
@@ -898,6 +899,19 @@ export const fadePresentationDemo: DemoType = {
 	options: [],
 };
 
+export const pushCutPresentationDemo: DemoType = {
+	comp: PushCutDocsDemo,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 60,
+	fps: 30,
+	id: 'push-cut',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
 export const slidePresentationDemo: DemoType = {
 	comp: SlideDemo,
 	compHeight: 280,
@@ -1542,7 +1556,7 @@ export const starburstDemo: DemoType = {
 	comp: StarburstDemoComp,
 	compHeight: 720,
 	compWidth: 1280,
-	durationInFrames: 90,
+	durationInFrames: 180,
 	fps: 30,
 	id: 'starburst',
 	autoPlay: true,

@@ -5,6 +5,7 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {
 	flattenVisibleTreeNodes,
 	SCHEMA_FIELD_GROUPS,
@@ -348,6 +349,10 @@ export const InspectorSequenceSection: React.FC<{
 		() => getInspectorControlGroups(controlRows),
 		[controlRows],
 	);
+	const layoutGroup = controlGroups.find((group) => group.id === 'layout');
+	const controlGroupsWithoutLayout = controlGroups.filter(
+		(group) => group.id !== 'layout',
+	);
 
 	const {schema} = sequence.controls;
 	const showEffectsSection =
@@ -355,6 +360,7 @@ export const InspectorSequenceSection: React.FC<{
 	const canAddEffect =
 		nodePathInfo.supportsEffects &&
 		previewServerState.type === 'connected' &&
+		isStudioInteractivityEnabled() &&
 		Boolean(validatedLocation.source);
 
 	const onAddEffect = useCallback(() => {
@@ -426,7 +432,7 @@ export const InspectorSequenceSection: React.FC<{
 			<div style={container}>
 				{controlRows.length > 0 ? (
 					<TimelineSelectionOrderProvider items={controlSelectableItems}>
-						{controlGroups.map((group) => (
+						{controlGroupsWithoutLayout.map((group) => (
 							<InspectorSection key={group.id} header={group.label}>
 								{group.id === 'transforms' ? renderTransformControls() : null}
 								{group.rows.map(renderRow)}
@@ -442,6 +448,13 @@ export const InspectorSequenceSection: React.FC<{
 							</TimelineSelectionOrderProvider>
 						) : null}
 					</InspectorSection>
+				) : null}
+				{layoutGroup ? (
+					<TimelineSelectionOrderProvider items={controlSelectableItems}>
+						<InspectorSection header={layoutGroup.label}>
+							{layoutGroup.rows.map(renderRow)}
+						</InspectorSection>
+					</TimelineSelectionOrderProvider>
 				) : null}
 			</div>
 		</AssetSelectionContext.Provider>

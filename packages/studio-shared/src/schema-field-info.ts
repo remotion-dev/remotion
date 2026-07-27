@@ -48,7 +48,8 @@ export type SchemaFieldGroup =
 	| 'background'
 	| 'border'
 	| 'crop'
-	| 'text';
+	| 'text'
+	| 'layout';
 
 export type SchemaFieldGroupInfo = {
 	readonly id: SchemaFieldGroup;
@@ -63,6 +64,7 @@ export const SCHEMA_FIELD_GROUPS = [
 	{id: 'background', label: 'Background'},
 	{id: 'border', label: 'Border'},
 	{id: 'crop', label: 'Crop'},
+	{id: 'layout', label: 'Layout'},
 ] as const satisfies readonly SchemaFieldGroupInfo[];
 
 const schemaFieldGroupOrder = SCHEMA_FIELD_GROUPS.reduce(
@@ -96,6 +98,8 @@ const BORDER_FIELD_KEYS = new Set([
 
 const BACKGROUND_FIELD_KEYS = new Set(['style.backgroundColor']);
 
+const LAYOUT_FIELD_KEYS = new Set(['layout', 'premountFor']);
+
 const TEXT_FIELD_KEYS = new Set([
 	'children',
 	'style.color',
@@ -127,6 +131,10 @@ export const getSchemaFieldGroup = (key: string): SchemaFieldGroup => {
 
 	if (BACKGROUND_FIELD_KEYS.has(key)) {
 		return 'background';
+	}
+
+	if (LAYOUT_FIELD_KEYS.has(key)) {
+		return 'layout';
 	}
 
 	if (TEXT_FIELD_KEYS.has(key)) {

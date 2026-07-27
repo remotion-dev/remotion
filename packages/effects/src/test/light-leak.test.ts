@@ -1,13 +1,5 @@
 import {expect, test} from 'bun:test';
-import {LightLeakInternals, lightLeak} from '../light-leak-internals.js';
-import {lightLeakSchema} from '../LightLeak.js';
-
-test('<LightLeak> exposes background and border controls', () => {
-	expect('style.backgroundColor' in lightLeakSchema).toBe(true);
-	expect('style.borderWidth' in lightLeakSchema).toBe(true);
-	expect('style.borderStyle' in lightLeakSchema).toBe(true);
-	expect('style.borderColor' in lightLeakSchema).toBe(true);
-});
+import {lightLeak} from '../light-leak.js';
 
 test('lightLeak() accepts default params', () => {
 	expect(() => lightLeak()).not.toThrow();
@@ -16,16 +8,12 @@ test('lightLeak() accepts default params', () => {
 
 test('lightLeak() exposes its documentation link', () => {
 	expect(lightLeak().definition.documentationLink).toBe(
-		'https://www.remotion.dev/docs/light-leaks/light-leak-effect',
+		'https://www.remotion.dev/docs/effects/light-leak',
 	);
 });
 
 test('lightLeak() exposes its API name as the Studio label', () => {
 	expect(lightLeak().definition.label).toBe('lightLeak()');
-});
-
-test('LightLeakInternals.lightLeak points to lightLeak()', () => {
-	expect(LightLeakInternals.lightLeak).toBe(lightLeak);
 });
 
 test('lightLeak() rejects non-finite seed', () => {

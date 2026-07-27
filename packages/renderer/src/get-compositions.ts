@@ -38,7 +38,7 @@ type InternalGetCompositionsOptions = {
 	onLog: OnLog;
 } & ToOptions<typeof optionsMap.getCompositions>;
 
-export type LegacyGetCompositionsOptions = RequiredInputPropsInV5 & {
+type SharedGetCompositionsOptions = {
 	envVariables?: Record<string, string>;
 	puppeteerInstance?: HeadlessBrowser;
 	onBrowserLog?: (log: BrowserLog) => void;
@@ -47,16 +47,32 @@ export type LegacyGetCompositionsOptions = RequiredInputPropsInV5 & {
 	port?: number | null;
 } & Partial<ToOptions<typeof optionsMap.getCompositions>>;
 
-export type GetCompositionsOptions = LegacyGetCompositionsOptions & {
-	serveUrl: string;
-};
+type V4LegacyGetCompositionsOptions = {
+	inputProps?: Record<string, unknown>;
+} & SharedGetCompositionsOptions;
+
+export type LegacyGetCompositionsOptions =
+	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
+		? never
+		: V4LegacyGetCompositionsOptions;
+
+export type GetCompositionsOptions = RequiredInputPropsInV5 &
+	SharedGetCompositionsOptions & {
+		serveUrl: string;
+	};
+
+type V4GetCompositionsArguments =
+	| [options: GetCompositionsOptions]
+	| [serveUrlOrWebpackUrl: string, config?: V4LegacyGetCompositionsOptions];
 
 type GetCompositionsArguments =
-	| [options: GetCompositionsOptions]
-	| [serveUrlOrWebpackUrl: string, config?: LegacyGetCompositionsOptions];
+	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
+		? [options: GetCompositionsOptions]
+		: V4GetCompositionsArguments;
 
-const convertGetCompositionsArgumentsToOptions = (
-	args: GetCompositionsArguments,
+export const convertGetCompositionsArgumentsToOptions = (
+	args: V4GetCompositionsArguments,
+	enableV5BreakingChanges: boolean,
 ): GetCompositionsOptions => {
 	if ((args.length as number) === 0) {
 		throw new Error(
@@ -66,10 +82,16 @@ const convertGetCompositionsArgumentsToOptions = (
 
 	const firstArg = args[0];
 	if (typeof firstArg === 'string') {
+		if (enableV5BreakingChanges) {
+			throw new TypeError(
+				'getCompositions() no longer supports the legacy positional arguments. Pass an options object instead: getCompositions({serveUrl, ...options}).',
+			);
+		}
+
 		return {
 			...(args[1] ?? {}),
 			serveUrl: firstArg,
-		};
+		} as GetCompositionsOptions;
 	}
 
 	return firstArg;
@@ -311,7 +333,11 @@ export const internalGetCompositions = wrapWithErrorHandling(
 export const getCompositions = (
 	...args: GetCompositionsArguments
 ): Promise<VideoConfig[]> => {
-	const options = convertGetCompositionsArgumentsToOptions(args);
+	const options = convertGetCompositionsArgumentsToOptions(
+		args,
+		NoReactInternals.ENABLE_V5_BREAKING_CHANGES,
+	);
+
 	if (typeof options?.serveUrl !== 'string' || !options.serveUrl) {
 		throw new Error(
 			'No serve URL or webpack bundle directory was passed to getCompositions().',

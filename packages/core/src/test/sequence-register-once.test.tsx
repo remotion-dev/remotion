@@ -43,6 +43,7 @@ type SequenceTestWrapperProps = {
 	readonly rerenderOnRegister?: boolean;
 	readonly compositionDurationInFrames?: number;
 	readonly currentFrame?: number;
+	readonly readOnlyStudio?: boolean;
 };
 
 type VisualModeOverrides = {
@@ -84,6 +85,7 @@ const SequenceTestWrapperWithVisualModeOverrides: React.FC<
 	visualModeOverrides,
 	compositionDurationInFrames,
 	currentFrame,
+	readOnlyStudio = false,
 }) => {
 	const [, setTick] = useState(0);
 
@@ -152,7 +154,7 @@ const SequenceTestWrapperWithVisualModeOverrides: React.FC<
 					isClientSideRendering: false,
 					isPlayer: false,
 					isStudio: true,
-					isReadOnlyStudio: false,
+					isReadOnlyStudio: readOnlyStudio,
 				}}
 			>
 				<OverrideIdsToNodePathsGettersContext.Provider
@@ -181,6 +183,7 @@ const SequenceTestWrapper: React.FC<SequenceTestWrapperProps> = ({
 	rerenderOnRegister = false,
 	compositionDurationInFrames,
 	currentFrame,
+	readOnlyStudio,
 }) => {
 	return (
 		<SequenceTestWrapperWithVisualModeOverrides
@@ -189,6 +192,7 @@ const SequenceTestWrapper: React.FC<SequenceTestWrapperProps> = ({
 			visualModeOverrides={null}
 			compositionDurationInFrames={compositionDurationInFrames}
 			currentFrame={currentFrame}
+			readOnlyStudio={readOnlyStudio}
 		>
 			{children}
 		</SequenceTestWrapperWithVisualModeOverrides>
@@ -359,6 +363,50 @@ test('Series.Sequence registers with its own visual controls', () => {
 		firstStack,
 		secondStack,
 	]);
+});
+
+test('read-only Studio registers visual controls without applying overrides', () => {
+	const registeredSequences: TSequence[] = [];
+	const nodePath = {
+		absolutePath: '/src/Composition.tsx',
+		nodePath: ['body', 0],
+		sequenceKeys: [],
+		effectKeys: [],
+		videoConfigValues: null,
+	};
+	const subscriptionKey = Internals.makeSequencePropsSubscriptionKey(nodePath);
+
+	render(
+		<SequenceTestWrapperWithVisualModeOverrides
+			readOnlyStudio
+			onRegisterSequence={(registeredSequence) => {
+				registeredSequences.push(registeredSequence);
+			}}
+			visualModeOverrides={{
+				overrideIdToNodePathMappings: new Proxy(
+					{},
+					{get: () => nodePath},
+				) as OverrideIdToNodePaths,
+				propStatuses: {},
+				dragOverrides: {
+					[subscriptionKey]: {
+						durationInFrames: Internals.makeStaticDragOverride(20),
+					},
+				},
+			}}
+		>
+			<Interactive.Div durationInFrames={10}>Hello</Interactive.Div>
+		</SequenceTestWrapperWithVisualModeOverrides>,
+	);
+
+	const sequence = registeredSequences.find(
+		(item) => item.displayName === '<Interactive.Div>',
+	);
+	expect(sequence?.controls).not.toBe(null);
+	expect(sequence?.controls?.componentIdentity).toBe(
+		'dev.remotion.remotion.Interactive.Div',
+	);
+	expect(sequence?.duration).toBe(10);
 });
 
 test('Series.Sequence timing overrides cascade to later sequences', async () => {

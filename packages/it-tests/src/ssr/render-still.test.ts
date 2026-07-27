@@ -46,7 +46,10 @@ test('Render video with browser instance open', async () => {
 test(
 	'Render still with browser instance not open and legacy webpack config',
 	async () => {
-		const compositions = await getCompositions(exampleBuild);
+		const compositions = await getCompositions({
+			serveUrl: exampleBuild,
+			inputProps: {},
+		});
 
 		const reactSvg = compositions.find((c) => c.id === 'react-svg');
 

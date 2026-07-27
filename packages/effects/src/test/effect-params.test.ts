@@ -23,6 +23,7 @@ import {halftoneLinearGradient} from '../halftone-linear-gradient.js';
 import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
 import {invert} from '../invert.js';
+import {lightLeak} from '../light-leak.js';
 import {lightTrail} from '../light-trail/index.js';
 import {linearGradientTint} from '../linear-gradient-tint.js';
 import {linearGradient} from '../linear-gradient.js';
@@ -176,6 +177,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(linearProgressivePixelate().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/linear-progressive-pixelate',
+	);
+	expect(lightLeak().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/light-leak',
 	);
 	expect(lightTrail().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/light-trail',

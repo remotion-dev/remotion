@@ -25,6 +25,7 @@ import {
 	TIMELINE_BACKGROUND_COLOR,
 	TIMELINE_SELECTED_BACKGROUND_COLOR,
 	TIMELINE_SELECTED_LABEL_BACKGROUND_COLOR,
+	WHITE_ALPHA_05,
 	WHITE_ALPHA_10,
 	WHITE_ALPHA_80,
 } from '../../helpers/colors';
@@ -32,7 +33,10 @@ import type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
 } from '../../helpers/get-timeline-sequence-sort-key';
-import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {
+	isStudioInteractivityEnabled,
+	isStudioSelectionEnabled,
+} from '../../helpers/interactivity-enabled';
 import {
 	buildTimelineTree,
 	flattenVisibleTreeNodes,
@@ -60,6 +64,7 @@ import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
 
 export const TIMELINE_SELECTED_BACKGROUND = TIMELINE_SELECTED_BACKGROUND_COLOR;
+export const TIMELINE_HOVER_BACKGROUND = WHITE_ALPHA_05;
 export const TIMELINE_SELECTED_LABEL_BACKGROUND =
 	TIMELINE_SELECTED_LABEL_BACKGROUND_COLOR;
 export const TIMELINE_SELECTED_LABEL_TEXT = BLACK;
@@ -105,14 +110,18 @@ export const getTimelineRowHighlightBackground = ({
 	showSelectedBackground,
 	selected,
 	containsSelection,
+	hovered,
 }: {
 	readonly showSelectedBackground: boolean;
 	readonly selected: boolean;
 	readonly containsSelection: boolean;
+	readonly hovered: boolean;
 }): string | undefined => {
-	return showSelectedBackground && (selected || containsSelection)
-		? TIMELINE_SELECTED_BACKGROUND
-		: undefined;
+	if (showSelectedBackground && (selected || containsSelection)) {
+		return TIMELINE_SELECTED_BACKGROUND;
+	}
+
+	return hovered ? TIMELINE_HOVER_BACKGROUND : undefined;
 };
 
 export const TIMELINE_BACKGROUND = TIMELINE_BACKGROUND_COLOR;
@@ -1102,9 +1111,9 @@ export const TimelineSelectionProvider: React.FC<{
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
 	const {expandParentTracks} = useContext(ExpandedTracksSetterContext);
 	const canSelect =
-		isStudioInteractivityEnabled() &&
-		previewServerState.type === 'connected' &&
-		!window.remotion_isReadOnlyStudio;
+		isStudioSelectionEnabled() &&
+		(previewServerState.type === 'connected' ||
+			window.remotion_isReadOnlyStudio);
 	const [selectedItems, setSelectedItems] = useState<
 		readonly TimelineSelection[]
 	>([]);
@@ -1138,7 +1147,9 @@ export const TimelineSelectionProvider: React.FC<{
 	}, [canSelect]);
 
 	const canSelectItem = useCallback(
-		(_item: TimelineSelection) => canSelect,
+		(item: TimelineSelection) =>
+			canSelect &&
+			(!window.remotion_isReadOnlyStudio || item.type === 'sequence'),
 		[canSelect],
 	);
 
@@ -1500,8 +1511,12 @@ export const TimelineSelectionProvider: React.FC<{
 			<TimelineSelectionContext.Provider value={value}>
 				{children}
 				<TimelineEscapeKeybindings />
-				<TimelineClipboardKeybindings />
-				<TimelineDeleteKeybindings />
+				{isStudioInteractivityEnabled() ? (
+					<>
+						<TimelineClipboardKeybindings />
+						<TimelineDeleteKeybindings />
+					</>
+				) : null}
 			</TimelineSelectionContext.Provider>
 		</CurrentTimelineSelectionContext.Provider>
 	);
@@ -1853,6 +1868,7 @@ export const useTimelineRowContainsSelection = (
 
 export const useTimelineRowHighlightBackground = (
 	nodePathInfo: SequenceNodePathInfo | null,
+	hovered = false,
 ): string | undefined => {
 	const {selected} = useTimelineRowSelection(nodePathInfo);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
@@ -1860,5 +1876,6 @@ export const useTimelineRowHighlightBackground = (
 		showSelectedBackground: true,
 		selected,
 		containsSelection,
+		hovered,
 	});
 };

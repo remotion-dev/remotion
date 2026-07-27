@@ -12,6 +12,7 @@ import {
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const row: React.CSSProperties = {
+	overflow: 'hidden',
 	position: 'relative',
 };
 

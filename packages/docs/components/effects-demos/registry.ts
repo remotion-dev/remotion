@@ -22,6 +22,7 @@ import {halftone} from '@remotion/effects/halftone';
 import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
 import {hue} from '@remotion/effects/hue';
 import {invert} from '@remotion/effects/invert';
+import {lightLeak} from '@remotion/effects/light-leak';
 import {lightTrail} from '@remotion/effects/light-trail';
 import {linearGradient} from '@remotion/effects/linear-gradient';
 import {linearGradientTint} from '@remotion/effects/linear-gradient-tint';
@@ -59,7 +60,6 @@ import {waves} from '@remotion/effects/waves';
 import {whiteNoise} from '@remotion/effects/white-noise';
 import {zigzag} from '@remotion/effects/zigzag';
 import {zoomBlur} from '@remotion/effects/zoom-blur';
-import {lightLeakEffectSchema} from '@remotion/light-leaks';
 import {EffectsBarrelDistortionPreview} from '../effects/effects-barrel-distortion-preview';
 import {EffectsBlurPreview} from '../effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
@@ -698,8 +698,8 @@ export const effectsDemos: EffectsDemoType[] = [
 		...defaults,
 		id: 'effects-light-leak',
 		effectName: 'lightLeak',
-		effectImportPath: '@remotion/light-leaks',
+		effectImportPath: '@remotion/effects/light-leak',
 		comp: EffectsLightLeakPreview,
-		schema: lightLeakEffectSchema,
+		schema: lightLeak().definition.schema,
 	},
 ];

@@ -5,6 +5,7 @@ import {getSequenceContextMenuItems} from '../components/Timeline/get-sequence-c
 import {getTimelineMediaStartFrame} from '../components/Timeline/get-timeline-media-start-frame';
 import {
 	calculateSequenceFreezeFrame,
+	isSequenceVisibleAtTimelinePosition,
 	shouldShowFreezeFrameMenuItem,
 } from '../components/Timeline/use-sequence-freeze-frame-menu-item';
 
@@ -164,6 +165,42 @@ test('Interactive.Svg context menu can copy the rendered SVG', () => {
 	expect(items[copySvgIndex + 1]?.type).toBe('divider');
 });
 
+test('read-only sequence menus only contain non-mutating actions', () => {
+	installTestWindow();
+
+	const items = getSequenceContextMenuItems({
+		assetLinkInfo: null,
+		canOpenInEditor: false,
+		deleteDisabled: true,
+		disableInteractivityDisabled: true,
+		duplicateDisabled: true,
+		fileLocation: 'src/Video.tsx:10:2',
+		includeSourceEditItems: false,
+		onDeleteSequenceFromSource: noop,
+		onDisableSequenceInteractivity: noop,
+		onDuplicateSequenceFromSource: noop,
+		openInEditor: noop,
+		originalLocation: null,
+		selectAsset: noop,
+		sequence: {
+			controls: {
+				componentIdentity: 'dev.remotion.remotion.Interactive.Svg',
+			},
+			documentationLink: 'https://www.remotion.dev/docs/interactive',
+			refForOutline: {
+				current: {outerHTML: '<svg><circle /></svg>'},
+			},
+		} as unknown as TSequence,
+	});
+
+	expect(items.map((item) => item.id)).toEqual([
+		'copy-file-location',
+		'open-component-docs',
+		'sequence-link-divider',
+		'copy-svg',
+	]);
+});
+
 test('sequence freeze context menu item is hidden for audio', () => {
 	expect(shouldShowFreezeFrameMenuItem({type: 'audio'} as TSequence)).toBe(
 		false,
@@ -203,6 +240,28 @@ test('sequence freeze frame accounts for trimBefore', () => {
 			timelinePosition: 119,
 		}),
 	).toBe(139);
+});
+
+test('sequence freeze frame can only be toggled while the sequence is visible', () => {
+	const sequence = {
+		from: 20,
+		duration: 40,
+		premountDisplay: 10,
+		postmountDisplay: 10,
+	} as TSequence;
+
+	expect(
+		isSequenceVisibleAtTimelinePosition({sequence, timelinePosition: 19}),
+	).toBe(false);
+	expect(
+		isSequenceVisibleAtTimelinePosition({sequence, timelinePosition: 20}),
+	).toBe(true);
+	expect(
+		isSequenceVisibleAtTimelinePosition({sequence, timelinePosition: 59}),
+	).toBe(true);
+	expect(
+		isSequenceVisibleAtTimelinePosition({sequence, timelinePosition: 60}),
+	).toBe(false);
 });
 
 test('video freeze preserves the media frame under the playhead at different playback rates', () => {

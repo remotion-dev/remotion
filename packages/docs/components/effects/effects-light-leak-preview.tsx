@@ -1,4 +1,4 @@
-import {lightLeak} from '@remotion/light-leaks';
+import {lightLeak} from '@remotion/effects/light-leak';
 import React from 'react';
 import {Solid, useVideoConfig} from 'remotion';
 

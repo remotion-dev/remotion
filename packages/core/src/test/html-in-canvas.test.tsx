@@ -319,6 +319,70 @@ test('<HtmlInCanvas> exposes crop controls', () => {
 	expect(htmlInCanvasSchema.cropBottom.keyframable).toBe(true);
 });
 
+test('<HtmlInCanvas> throws when nested in Chrome older than 152', () => {
+	const originalUserAgent = Object.getOwnPropertyDescriptor(
+		window.navigator,
+		'userAgent',
+	);
+	Object.defineProperty(window.navigator, 'userAgent', {
+		configurable: true,
+		value: 'Mozilla/5.0 HeadlessChrome/151.0.0.0 Safari/537.36',
+	});
+
+	try {
+		expect(() =>
+			render(
+				<SequenceTestWrapper onRegisterSequence={() => undefined}>
+					<HtmlInCanvas width={120} height={80}>
+						<HtmlInCanvas width={60} height={40}>
+							<div>Nested</div>
+						</HtmlInCanvas>
+					</HtmlInCanvas>
+				</SequenceTestWrapper>,
+			),
+		).toThrow(
+			'Nested <HtmlInCanvas> components require Chrome 152 or newer, but the current browser is Chrome 151.',
+		);
+	} finally {
+		if (originalUserAgent) {
+			Object.defineProperty(window.navigator, 'userAgent', originalUserAgent);
+		} else {
+			Reflect.deleteProperty(window.navigator, 'userAgent');
+		}
+	}
+});
+
+test('<HtmlInCanvas> allows nesting in Chrome 152', () => {
+	const originalUserAgent = Object.getOwnPropertyDescriptor(
+		window.navigator,
+		'userAgent',
+	);
+	Object.defineProperty(window.navigator, 'userAgent', {
+		configurable: true,
+		value: 'Mozilla/5.0 Chrome/152.0.0.0 Safari/537.36',
+	});
+
+	try {
+		const {container} = render(
+			<SequenceTestWrapper onRegisterSequence={() => undefined}>
+				<HtmlInCanvas width={120} height={80}>
+					<HtmlInCanvas width={60} height={40}>
+						<div>Nested</div>
+					</HtmlInCanvas>
+				</HtmlInCanvas>
+			</SequenceTestWrapper>,
+		);
+
+		expect(container.querySelectorAll('canvas')).toHaveLength(2);
+	} finally {
+		if (originalUserAgent) {
+			Object.defineProperty(window.navigator, 'userAgent', originalUserAgent);
+		} else {
+			Reflect.deleteProperty(window.navigator, 'userAgent');
+		}
+	}
+});
+
 test('<HtmlInCanvas> keeps refs current when the canvas remounts', async () => {
 	const registeredSequences: TSequence[] = [];
 	const canvasRef = React.createRef<HTMLCanvasElement>();

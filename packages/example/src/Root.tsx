@@ -165,6 +165,10 @@ import {FitText, fitTextSchema} from './Title/FitText';
 import {AudioTransition} from './Transitions/AudioTransition';
 import {BasicTransition} from './Transitions/BasicTransition';
 import {CustomTransition} from './Transitions/CustomTransition';
+import {
+	PUSH_CUT_DEMO_DURATION_IN_FRAMES,
+	PushCutDemo,
+} from './Transitions/PushCutDemo';
 import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoParser} from './VideoParser';
@@ -2214,6 +2218,14 @@ export const Index: React.FC = () => {
 					fps={30}
 					height={1080}
 					durationInFrames={300}
+					width={1920}
+				/>
+				<Composition
+					id="PushCutDemo"
+					component={PushCutDemo}
+					fps={30}
+					height={1080}
+					durationInFrames={PUSH_CUT_DEMO_DURATION_IN_FRAMES}
 					width={1920}
 				/>
 			</Folder>
