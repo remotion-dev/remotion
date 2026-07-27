@@ -43,6 +43,8 @@ Timeline props inherited from [`<Sequence>`](/docs/sequence): [`durationInFrames
 
 A `captions` field for components that accept [`Caption[]`](/docs/captions/caption) data. It enables the captions inspector and is not keyframable.
 
+This schema fragment is headless: it does not render an element or add layout, transform, or text-style controls. Add other `Interactive` schema fragments only when the component renders and supports those props.
+
 ### `Interactive.transformSchema`
 
 Transform-related style props: `style.transformOrigin`, `style.translate`, `style.scale`, `style.rotate` and `style.opacity`.
