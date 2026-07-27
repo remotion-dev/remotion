@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {isMac} from '../helpers/is-mac';
 import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
@@ -96,11 +97,15 @@ export const UndoRedoButtons: React.FC = () => {
 			keepRegisteredWhenNotHighestContext: false,
 		});
 
-		const redo = keybindings.registerKeybinding({
+		const redoWithShiftZ = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'y',
+			key: 'z',
 			commandCtrlKey: true,
-			callback: () => {
+			callback: (e) => {
+				if (!e.shiftKey) {
+					return;
+				}
+
 				if (redoFile) {
 					onRedo();
 				}
@@ -110,9 +115,26 @@ export const UndoRedoButtons: React.FC = () => {
 			keepRegisteredWhenNotHighestContext: false,
 		});
 
+		const redoWithY = isMac
+			? null
+			: keybindings.registerKeybinding({
+					event: 'keydown',
+					key: 'y',
+					commandCtrlKey: true,
+					callback: () => {
+						if (redoFile) {
+							onRedo();
+						}
+					},
+					preventDefault: true,
+					triggerIfInputFieldFocused: false,
+					keepRegisteredWhenNotHighestContext: false,
+				});
+
 		return () => {
 			undo.unregister();
-			redo.unregister();
+			redoWithShiftZ.unregister();
+			redoWithY?.unregister();
 		};
 	}, [keybindings, onRedo, onUndo, redoFile, undoFile]);
 
@@ -122,7 +144,9 @@ export const UndoRedoButtons: React.FC = () => {
 
 	const redoTooltip = areKeyboardShortcutsDisabled()
 		? 'Redo'
-		: `Redo (${cmdOrCtrlCharacter}+Y)`;
+		: isMac
+			? `Redo (${cmdOrCtrlCharacter}+Shift+Z)`
+			: `Redo (${cmdOrCtrlCharacter}+Y)`;
 
 	const renderUndo: RenderInlineAction = useCallback(
 		(color) => {
