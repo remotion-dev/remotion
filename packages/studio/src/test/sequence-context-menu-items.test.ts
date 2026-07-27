@@ -5,6 +5,7 @@ import {getSequenceContextMenuItems} from '../components/Timeline/get-sequence-c
 import {getTimelineMediaStartFrame} from '../components/Timeline/get-timeline-media-start-frame';
 import {
 	calculateSequenceFreezeFrame,
+	isSequenceVisibleAtTimelinePosition,
 	shouldShowFreezeFrameMenuItem,
 } from '../components/Timeline/use-sequence-freeze-frame-menu-item';
 
@@ -203,6 +204,28 @@ test('sequence freeze frame accounts for trimBefore', () => {
 			timelinePosition: 119,
 		}),
 	).toBe(139);
+});
+
+test('sequence freeze frame can only be toggled while the sequence is visible', () => {
+	const sequence = {
+		from: 20,
+		duration: 40,
+		premountDisplay: 10,
+		postmountDisplay: 10,
+	} as TSequence;
+
+	expect(
+		isSequenceVisibleAtTimelinePosition({sequence, timelinePosition: 19}),
+	).toBe(false);
+	expect(
+		isSequenceVisibleAtTimelinePosition({sequence, timelinePosition: 20}),
+	).toBe(true);
+	expect(
+		isSequenceVisibleAtTimelinePosition({sequence, timelinePosition: 59}),
+	).toBe(true);
+	expect(
+		isSequenceVisibleAtTimelinePosition({sequence, timelinePosition: 60}),
+	).toBe(false);
 });
 
 test('video freeze preserves the media frame under the playhead at different playback rates', () => {

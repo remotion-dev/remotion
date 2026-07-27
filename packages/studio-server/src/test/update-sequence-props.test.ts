@@ -341,6 +341,31 @@ export const Example: React.FC = () => {
 	expect(output).toContain('freeze={null}');
 });
 
+test('updateSequenceProps should remove an optional attribute', async () => {
+	const input = `import {Sequence} from 'remotion';
+
+export const Example: React.FC = () => {
+	return (
+		<Sequence from={0} freeze={12}>
+			<div />
+		</Sequence>
+	);
+};
+`;
+
+	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, 5),
+		updates: [{key: 'freeze', value: undefined, defaultValue: null}],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+	});
+
+	expect(oldValueStrings[0]).toBe('12');
+	expect(output).not.toContain('freeze=');
+});
+
 test('updateSequenceProps should set boolean true as shorthand', async () => {
 	const {output} = await updateSequenceProps({
 		videoConfigValues: null,

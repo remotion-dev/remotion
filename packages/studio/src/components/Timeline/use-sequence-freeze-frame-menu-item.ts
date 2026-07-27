@@ -11,6 +11,19 @@ export const shouldShowFreezeFrameMenuItem = (sequence: TSequence): boolean => {
 	return sequence.type !== 'audio';
 };
 
+export const isSequenceVisibleAtTimelinePosition = ({
+	sequence,
+	timelinePosition,
+}: {
+	readonly sequence: TSequence;
+	readonly timelinePosition: number;
+}): boolean => {
+	return (
+		timelinePosition >= sequence.from &&
+		timelinePosition < sequence.from + sequence.duration
+	);
+};
+
 export const calculateSequenceFreezeFrame = ({
 	sequence,
 	sequenceFrameOffset,
@@ -58,6 +71,7 @@ export const useSequenceFreezeFrameMenuItem = ({
 		typeof freezeStatus.codeValue === 'number';
 
 	const canToggleFreeze =
+		isSequenceVisibleAtTimelinePosition({sequence, timelinePosition}) &&
 		clientId !== null &&
 		Boolean(sequence.controls) &&
 		nodePath !== null &&
@@ -92,7 +106,7 @@ export const useSequenceFreezeFrameMenuItem = ({
 					fileName: validatedSource,
 					nodePath,
 					fieldKey: 'freeze',
-					value: remove ? null : freezeFrame,
+					value: remove ? undefined : freezeFrame,
 					defaultValue: null,
 					schema: sequence.controls.schema,
 				},
