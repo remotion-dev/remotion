@@ -47,6 +47,7 @@ export type SchemaFieldGroup =
 	| 'transforms'
 	| 'background'
 	| 'border'
+	| 'border-radius'
 	| 'crop'
 	| 'text'
 	| 'layout';
@@ -63,6 +64,7 @@ export const SCHEMA_FIELD_GROUPS = [
 	{id: 'text', label: 'Text'},
 	{id: 'background', label: 'Background'},
 	{id: 'border', label: 'Border'},
+	{id: 'border-radius', label: 'Border radius'},
 	{id: 'crop', label: 'Crop'},
 	{id: 'layout', label: 'Layout'},
 ] as const satisfies readonly SchemaFieldGroupInfo[];
@@ -90,11 +92,14 @@ const CROP_FIELD_KEYS = new Set([
 	'cropBottom',
 ]);
 
-const BORDER_FIELD_KEYS = new Set([
+const BORDER_RADIUS_FIELD_KEYS = new Set([
 	'style.borderTopLeftRadius',
 	'style.borderTopRightRadius',
 	'style.borderBottomRightRadius',
 	'style.borderBottomLeftRadius',
+]);
+
+const BORDER_FIELD_KEYS = new Set([
 	'style.borderWidth',
 	'style.borderStyle',
 	'style.borderColor',
@@ -127,6 +132,10 @@ export const getSchemaFieldGroup = (key: string): SchemaFieldGroup => {
 
 	if (CROP_FIELD_KEYS.has(key)) {
 		return 'crop';
+	}
+
+	if (BORDER_RADIUS_FIELD_KEYS.has(key)) {
+		return 'border-radius';
 	}
 
 	if (BORDER_FIELD_KEYS.has(key)) {

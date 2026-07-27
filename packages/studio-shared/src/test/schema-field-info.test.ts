@@ -226,6 +226,11 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 				type: 'color',
 				default: undefined,
 			},
+			'style.borderTopLeftRadius': {
+				type: 'number',
+				default: undefined,
+				hiddenFromList: false,
+			},
 			volume: {
 				type: 'number',
 				default: 1,
@@ -280,6 +285,7 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'style.borderWidth',
 		'style.borderStyle',
 		'style.borderColor',
+		'style.borderTopLeftRadius',
 		'cropLeft',
 		'layout',
 		'premountFor',
@@ -300,6 +306,7 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'border',
 		'border',
 		'border',
+		'border-radius',
 		'crop',
 		'layout',
 		'layout',
@@ -312,7 +319,7 @@ test('groups Sequence crop controls into the Crop inspector section', () => {
 	).toEqual(['crop', 'crop', 'crop', 'crop']);
 });
 
-test('groups border radius controls into the Border inspector section', () => {
+test('groups border radius controls into their own inspector section', () => {
 	expect(
 		[
 			'style.borderTopLeftRadius',
@@ -320,7 +327,12 @@ test('groups border radius controls into the Border inspector section', () => {
 			'style.borderBottomRightRadius',
 			'style.borderBottomLeftRadius',
 		].map(getSchemaFieldGroup),
-	).toEqual(['border', 'border', 'border', 'border']);
+	).toEqual([
+		'border-radius',
+		'border-radius',
+		'border-radius',
+		'border-radius',
+	]);
 });
 
 test('groups Sequence layout controls into the final Layout inspector section', () => {
