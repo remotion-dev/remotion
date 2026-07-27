@@ -15,19 +15,38 @@ Apply the effect to a canvas-based component and animate `progress` with [`useCu
 
 ```tsx twoslash title="MyComp.tsx"
 import {lightLeak} from '@remotion/effects/light-leak';
-import {AbsoluteFill, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+  AbsoluteFill,
+  interpolate,
+  Solid,
+  useCurrentFrame,
+  useVideoConfig,
+} from 'remotion';
 
 export const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
   const {durationInFrames, height, width} = useVideoConfig();
-  const progress = durationInFrames <= 1 ? 0 : frame / (durationInFrames - 1);
 
   return (
     <AbsoluteFill style={{backgroundColor: 'black'}}>
       <Solid
         width={width}
         height={height}
-        effects={[lightLeak({seed: 3, hueShift: 30, progress})]}
+        effects={[
+          lightLeak({
+            seed: 3,
+            hueShift: 30,
+            progress: interpolate(
+              frame,
+              [0, durationInFrames - 1],
+              [0, 1],
+              {
+                extrapolateLeft: 'clamp',
+                extrapolateRight: 'clamp',
+              },
+            ),
+          }),
+        ]}
       />
     </AbsoluteFill>
   );
@@ -71,6 +90,7 @@ import {lightLeak} from '@remotion/effects/light-leak';
 import {TransitionSeries} from '@remotion/transitions';
 import {
   AbsoluteFill,
+  interpolate,
   Solid,
   useCurrentFrame,
   useVideoConfig,
@@ -83,13 +103,24 @@ const Fill = ({color}: {color: string}) => (
 const LightLeakOverlay: React.FC = () => {
   const frame = useCurrentFrame();
   const {durationInFrames, height, width} = useVideoConfig();
-  const progress = durationInFrames <= 1 ? 0 : frame / (durationInFrames - 1);
 
   return (
     <Solid
       width={width}
       height={height}
-      effects={[lightLeak({progress})]}
+      effects={[
+        lightLeak({
+          progress: interpolate(
+            frame,
+            [0, durationInFrames - 1],
+            [0, 1],
+            {
+              extrapolateLeft: 'clamp',
+              extrapolateRight: 'clamp',
+            },
+          ),
+        }),
+      ]}
     />
   );
 };

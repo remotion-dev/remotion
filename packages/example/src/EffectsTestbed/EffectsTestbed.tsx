@@ -6,7 +6,13 @@ import {tint} from '@remotion/effects/tint';
 import {wave} from '@remotion/effects/wave';
 import {Video} from '@remotion/media';
 import React from 'react';
-import {AbsoluteFill, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+	AbsoluteFill,
+	interpolate,
+	Solid,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 
 const SAMPLE_VIDEO = 'https://remotion.media/bigbuckbunny.mp4';
 
@@ -102,7 +108,6 @@ const AnimatedWaveVideo: React.FC = () => {
 const AnimatedLightLeakSolid: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {durationInFrames} = useVideoConfig();
-	const progress = durationInFrames <= 1 ? 0 : frame / (durationInFrames - 1);
 
 	return (
 		<Solid
@@ -114,7 +119,10 @@ const AnimatedLightLeakSolid: React.FC = () => {
 				lightLeak({
 					seed: 1,
 					hueShift: 30,
-					progress,
+					progress: interpolate(frame, [0, durationInFrames - 1], [0, 1], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					}),
 				}),
 			]}
 		/>

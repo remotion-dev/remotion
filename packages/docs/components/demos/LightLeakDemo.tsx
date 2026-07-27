@@ -1,6 +1,12 @@
 import {lightLeak} from '@remotion/effects/light-leak';
 import React from 'react';
-import {AbsoluteFill, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+	AbsoluteFill,
+	interpolate,
+	Solid,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 
 interface Props {
 	readonly seed: number;
@@ -10,14 +16,22 @@ interface Props {
 export const LightLeakDemoComp: React.FC<Props> = ({seed, hueShift}) => {
 	const frame = useCurrentFrame();
 	const {durationInFrames, height, width} = useVideoConfig();
-	const progress = durationInFrames <= 1 ? 0 : frame / (durationInFrames - 1);
 
 	return (
 		<AbsoluteFill style={{backgroundColor: 'black'}}>
 			<Solid
 				width={width}
 				height={height}
-				effects={[lightLeak({seed, hueShift, progress})]}
+				effects={[
+					lightLeak({
+						seed,
+						hueShift,
+						progress: interpolate(frame, [0, durationInFrames - 1], [0, 1], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
+					}),
+				]}
 			/>
 		</AbsoluteFill>
 	);

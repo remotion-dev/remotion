@@ -26,10 +26,6 @@ import {CanvasImage, interpolate, staticFile, useCurrentFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
-  const progress = interpolate(frame, [0, 30], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
 
   return (
     <CanvasImage
@@ -41,7 +37,10 @@ export const MyComp: React.FC = () => {
         lightLeak({
           seed: 3,
           hueShift: 30,
-          progress,
+          progress: interpolate(frame, [0, 30], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          }),
         }),
       ]}
     />
