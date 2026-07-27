@@ -332,8 +332,34 @@ export type SaveSequencePropEdit = {
 	sourceEdit: SaveSequencePropSourceEdit | null;
 };
 
+export type CaptionPatch = {
+	index: number;
+	before: {
+		text: string;
+		startMs: number;
+		endMs: number;
+		timestampMs: number | null;
+		confidence: number | null;
+	};
+	changes: Partial<{
+		text: string;
+		startMs: number;
+		endMs: number;
+		timestampMs: number | null;
+		confidence: number | null;
+	}>;
+};
+
+export type SaveInlineCaptionPatchesRequest = {
+	fileName: string;
+	nodePath: SequencePropsSubscriptionKey;
+	schema: InteractivitySchema;
+	patches: CaptionPatch[];
+};
+
 export type SaveSequencePropsRequest = {
 	edits: SaveSequencePropEdit[];
+	captionPatches?: SaveInlineCaptionPatchesRequest[];
 	addedKeyframes: AddSequenceKeyframe[] | null;
 	movedKeyframes: {
 		sequenceKeyframes: MoveSequenceKeyframe[];
