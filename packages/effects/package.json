@@ -189,6 +189,11 @@
 			"module": "./dist/esm/linear-progressive-pixelate.mjs",
 			"import": "./dist/esm/linear-progressive-pixelate.mjs"
 		},
+		"./light-leak": {
+			"types": "./dist/light-leak.d.ts",
+			"module": "./dist/esm/light-leak.mjs",
+			"import": "./dist/esm/light-leak.mjs"
+		},
 		"./light-trail": {
 			"types": "./dist/light-trail.d.ts",
 			"module": "./dist/esm/light-trail.mjs",
@@ -435,6 +440,9 @@
 			],
 			"linear-progressive-pixelate": [
 				"dist/linear-progressive-pixelate.d.ts"
+			],
+			"light-leak": [
+				"dist/light-leak.d.ts"
 			],
 			"light-trail": [
 				"dist/light-trail.d.ts"

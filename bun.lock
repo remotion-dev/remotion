@@ -1087,6 +1087,7 @@
       "name": "@remotion/light-leaks",
       "version": "4.0.499",
       "dependencies": {
+        "@remotion/effects": "workspace:*",
         "remotion": "workspace:*",
         "zod": "catalog:",
       },
