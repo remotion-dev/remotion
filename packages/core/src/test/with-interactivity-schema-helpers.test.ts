@@ -431,7 +431,7 @@ test('borderRadiusSchema exposes the shorthand and four corner radius fields', (
 	] as const) {
 		expect(borderRadiusSchema[radius]).toMatchObject({
 			type: 'number',
-			default: undefined,
+			default: 0,
 			min: 0,
 			step: 1,
 			hiddenFromList: false,

@@ -370,7 +370,7 @@ export const borderSchema = {
 export const borderRadiusSchema = {
 	'style.borderRadius': {
 		type: 'number',
-		default: undefined,
+		default: 0,
 		min: 0,
 		step: 1,
 		description: 'Border radius',
@@ -379,7 +379,7 @@ export const borderRadiusSchema = {
 	},
 	'style.borderTopLeftRadius': {
 		type: 'number',
-		default: undefined,
+		default: 0,
 		min: 0,
 		step: 1,
 		description: 'Top left radius',
@@ -387,7 +387,7 @@ export const borderRadiusSchema = {
 	},
 	'style.borderTopRightRadius': {
 		type: 'number',
-		default: undefined,
+		default: 0,
 		min: 0,
 		step: 1,
 		description: 'Top right radius',
@@ -395,7 +395,7 @@ export const borderRadiusSchema = {
 	},
 	'style.borderBottomRightRadius': {
 		type: 'number',
-		default: undefined,
+		default: 0,
 		min: 0,
 		step: 1,
 		description: 'Bottom right radius',
@@ -403,7 +403,7 @@ export const borderRadiusSchema = {
 	},
 	'style.borderBottomLeftRadius': {
 		type: 'number',
-		default: undefined,
+		default: 0,
 		min: 0,
 		step: 1,
 		description: 'Bottom left radius',

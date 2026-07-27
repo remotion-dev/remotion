@@ -1,4 +1,5 @@
-import type {CanUpdateSequencePropStatus} from 'remotion';
+import type {CanUpdateSequencePropStatus, InteractivitySchema} from 'remotion';
+import {Internals} from 'remotion';
 
 export const BORDER_RADIUS_SHORTHAND_KEY = 'style.borderRadius';
 export const BORDER_RADIUS_LONGHAND_KEYS = [
@@ -37,6 +38,23 @@ export const getBorderRadiusConversionChanges = (
 		})),
 		{fieldKey: BORDER_RADIUS_SHORTHAND_KEY, value: conversion.value},
 	];
+};
+
+export const getBorderRadiusResetFieldKeys = ({
+	fieldKey,
+	schema,
+}: {
+	readonly fieldKey: string;
+	readonly schema: InteractivitySchema;
+}): string[] => {
+	if (fieldKey !== BORDER_RADIUS_SHORTHAND_KEY) {
+		return [fieldKey];
+	}
+
+	const flatSchema = Internals.getFlatSchemaWithAllKeys(schema);
+	return [BORDER_RADIUS_SHORTHAND_KEY, ...BORDER_RADIUS_LONGHAND_KEYS].filter(
+		(key) => key in flatSchema,
+	);
 };
 
 export const getBorderRadiusConversion = (

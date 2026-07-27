@@ -9,6 +9,7 @@ import type {
 	TSequence,
 } from 'remotion';
 import {Internals} from 'remotion';
+import {getBorderRadiusResetFieldKeys} from './border-radius-representation';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {saveMultipleEffectProps} from './save-effect-prop';
 import type {SetPropStatuses} from './save-sequence-prop';
@@ -288,14 +289,19 @@ export const resetSelectedTimelineProps = ({
 			saveSequenceProps({
 				addedKeyframes: null,
 				movedKeyframes: null,
-				changes: sequencePropTargets.map((target) => ({
-					fileName: target.fileName,
-					nodePath: target.nodePath,
-					fieldKey: target.fieldKey,
-					value: target.value,
-					defaultValue: target.defaultValue,
-					schema: target.schema,
-				})),
+				changes: sequencePropTargets.flatMap((target) =>
+					getBorderRadiusResetFieldKeys({
+						fieldKey: target.fieldKey,
+						schema: target.schema,
+					}).map((fieldKey) => ({
+						fileName: target.fileName,
+						nodePath: target.nodePath,
+						fieldKey,
+						value: target.value,
+						defaultValue: target.defaultValue,
+						schema: target.schema,
+					})),
+				),
 				setPropStatuses,
 				clientId,
 				undoLabel:

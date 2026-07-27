@@ -19,6 +19,7 @@ import type {
 import {ContextMenu} from '../ContextMenu';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {getBorderRadiusResetFieldKeys} from './border-radius-representation';
 import {callAddSequenceKeyframe} from './call-add-keyframe';
 import {getAnimationItemSelectionForSourceFrame} from './get-animation-item-selection-for-frame';
 import {saveSequenceProps} from './save-sequence-prop';
@@ -408,16 +409,17 @@ export const TimelineSequencePropItem: React.FC<{
 		saveSequenceProps({
 			addedKeyframes: null,
 			movedKeyframes: null,
-			changes: [
-				{
-					fileName: validatedLocation.source,
-					nodePath,
-					fieldKey: field.key,
-					value: field.fieldSchema.default,
-					defaultValue,
-					schema,
-				},
-			],
+			changes: getBorderRadiusResetFieldKeys({
+				fieldKey: field.key,
+				schema,
+			}).map((fieldKey) => ({
+				fileName: validatedLocation.source,
+				nodePath,
+				fieldKey,
+				value: field.fieldSchema.default,
+				defaultValue,
+				schema,
+			})),
 			setPropStatuses,
 			clientId: previewServerState.clientId,
 			undoLabel: `Reset ${fieldLabel}`,
