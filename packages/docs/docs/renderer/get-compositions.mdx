@@ -11,7 +11,7 @@ Gets a list of compositions defined in a Remotion project based on a [Remotion B
 
 For every compositions their [`calculateMetadata()`](/docs/composition#calculatemetadata) function is evaluated. If you just want to evaluate one composition that you want to render, use [`selectComposition()`](/docs/renderer/select-composition).
 
-The options object signature is available from [v4.0.497](https://github.com/remotion-dev/remotion/releases/v4.0.497) and is the only signature in Remotion v5:
+The options object signature is available from [v4.0.497](https://github.com/remotion-dev/remotion/releases/v4.0.497) and is the only signature in Remotion 5.0:
 
 ```ts twoslash title="Example"
 import {bundle} from '@remotion/bundler';
@@ -160,7 +160,7 @@ An absolute path overriding the `ffprobe` executable to use.
 
 ## Legacy function signature
 
-The positional function signature is supported through Remotion v4 and removed in Remotion v5:
+The positional function signature is supported through Remotion v4 and removed in Remotion 5.0:
 
 ```ts title="Legacy signature"
 import {getCompositions} from '@remotion/renderer';
@@ -170,7 +170,7 @@ const compositions = await getCompositions('https://example.com', {
 });
 ```
 
-Migrate to the options object signature before upgrading to Remotion v5.
+Migrate to the options object signature before upgrading to Remotion 5.0.
 
 ## Return value
 
