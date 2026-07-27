@@ -23,6 +23,7 @@ test('getAllSchemaKeys returns every key across all enum variants', () => {
 			'style.borderWidth',
 			'style.borderStyle',
 			'style.borderColor',
+			'style.borderRadius',
 			'style.borderTopLeftRadius',
 			'style.borderTopRightRadius',
 			'style.borderBottomRightRadius',

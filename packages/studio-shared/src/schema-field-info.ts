@@ -93,11 +93,62 @@ const CROP_FIELD_KEYS = new Set([
 ]);
 
 const BORDER_RADIUS_FIELD_KEYS = new Set([
+	'style.borderRadius',
 	'style.borderTopLeftRadius',
 	'style.borderTopRightRadius',
 	'style.borderBottomRightRadius',
 	'style.borderBottomLeftRadius',
 ]);
+
+const BORDER_RADIUS_SHORTHAND_KEY = 'style.borderRadius';
+const BORDER_RADIUS_LONGHAND_KEYS = [
+	'style.borderTopLeftRadius',
+	'style.borderTopRightRadius',
+	'style.borderBottomRightRadius',
+	'style.borderBottomLeftRadius',
+] as const;
+
+const getBorderRadiusFieldKeysToShow = ({
+	activeSchema,
+	propStatuses,
+	nodePath,
+}: {
+	activeSchema: InteractivitySchema;
+	propStatuses: PropStatuses;
+	nodePath: SequencePropsSubscriptionKey;
+}): ReadonlySet<string> | null => {
+	if (!(BORDER_RADIUS_SHORTHAND_KEY in activeSchema)) {
+		return null;
+	}
+
+	const statuses = Internals.getPropStatusesCtx(propStatuses, nodePath);
+	const shorthand = statuses?.[BORDER_RADIUS_SHORTHAND_KEY];
+	const longhands = BORDER_RADIUS_LONGHAND_KEYS.map((key) => statuses?.[key]);
+
+	// A supported shorthand is canonical even though the server also reports its
+	// expanded longhand values. This keeps one Inspector row and one keyframe track.
+	if (shorthand?.status === 'keyframed') {
+		return new Set([BORDER_RADIUS_SHORTHAND_KEY]);
+	}
+
+	if (shorthand?.status === 'static' && shorthand.codeValue !== undefined) {
+		return new Set([BORDER_RADIUS_SHORTHAND_KEY]);
+	}
+
+	const hasEditableLonghand = longhands.some(
+		(status) =>
+			status?.status === 'keyframed' ||
+			(status?.status === 'static' && status.codeValue !== undefined),
+	);
+	if (hasEditableLonghand) {
+		return new Set(BORDER_RADIUS_LONGHAND_KEYS);
+	}
+
+	// No radius has been authored, an unsupported dynamic shorthand was authored,
+	// or shorthand and longhands were mixed. In all three cases, only show the
+	// shorthand row so duplicate representations never reach the Inspector/timeline.
+	return new Set([BORDER_RADIUS_SHORTHAND_KEY]);
+};
 
 const BORDER_FIELD_KEYS = new Set([
 	'style.borderWidth',
@@ -296,9 +347,22 @@ export const getFieldsToShow = ({
 		schema,
 		(key) => valuesDotNotation[key],
 	);
+	const borderRadiusFieldKeysToShow = getBorderRadiusFieldKeysToShow({
+		activeSchema,
+		propStatuses,
+		nodePath,
+	});
 
 	const fields = Object.entries(activeSchema)
 		.map(([key, fieldSchema]): InteractivitySchemaFieldInfo | null => {
+			if (
+				BORDER_RADIUS_FIELD_KEYS.has(key) &&
+				borderRadiusFieldKeysToShow !== null &&
+				!borderRadiusFieldKeysToShow.has(key)
+			) {
+				return null;
+			}
+
 			if (!isTimelineSchemaFieldSupported(fieldSchema)) {
 				return null;
 			}

@@ -63,6 +63,7 @@ test('CSS box component schemas expose background and border controls', () => {
 		expect('style.borderWidth' in schema).toBe(true);
 		expect('style.borderStyle' in schema).toBe(true);
 		expect('style.borderColor' in schema).toBe(true);
+		expect('style.borderRadius' in schema).toBe(true);
 		expect('style.borderTopLeftRadius' in schema).toBe(true);
 		expect('style.borderTopRightRadius' in schema).toBe(true);
 		expect('style.borderBottomRightRadius' in schema).toBe(true);
@@ -199,6 +200,7 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'style.borderWidth',
 			'style.borderStyle',
 			'style.borderColor',
+			'style.borderRadius',
 			'style.borderTopLeftRadius',
 			'style.borderTopRightRadius',
 			'style.borderBottomRightRadius',
@@ -409,10 +411,11 @@ test('borderSchema exposes the longhand border fields', () => {
 	});
 });
 
-test('borderRadiusSchema exposes the four corner radius fields', () => {
+test('borderRadiusSchema exposes the shorthand and four corner radius fields', () => {
 	expect(Interactive.borderRadiusSchema).toBe(borderRadiusSchema);
 	expect(Object.keys(borderRadiusSchema).sort()).toEqual(
 		[
+			'style.borderRadius',
 			'style.borderTopLeftRadius',
 			'style.borderTopRightRadius',
 			'style.borderBottomRightRadius',
@@ -420,6 +423,7 @@ test('borderRadiusSchema exposes the four corner radius fields', () => {
 		].sort(),
 	);
 	for (const radius of [
+		'style.borderRadius',
 		'style.borderTopLeftRadius',
 		'style.borderTopRightRadius',
 		'style.borderBottomRightRadius',
@@ -433,6 +437,8 @@ test('borderRadiusSchema exposes the four corner radius fields', () => {
 			hiddenFromList: false,
 		});
 	}
+
+	expect(borderRadiusSchema['style.borderRadius'].keyframable).toBe(true);
 });
 
 test('backgroundSchema exposes the background color style field', () => {
@@ -553,6 +559,7 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 			'style.borderWidth',
 			'style.borderStyle',
 			'style.borderColor',
+			'style.borderRadius',
 			'style.borderTopLeftRadius',
 			'style.borderTopRightRadius',
 			'style.borderBottomRightRadius',

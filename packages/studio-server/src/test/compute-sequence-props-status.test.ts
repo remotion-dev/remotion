@@ -217,6 +217,84 @@ export const Example = () => {
 	});
 });
 
+test('computeSequencePropsStatus should normalize uniform border radius shorthands', () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return (
+		<>
+			<AbsoluteFill style={{borderRadius: 12}} />
+			<AbsoluteFill style={{borderRadius: '10px'}} />
+			<AbsoluteFill style={{borderRadius: '8px 8px 8px 8px'}} />
+			<AbsoluteFill style={{borderRadius: '10px 20px'}} />
+		</>
+	);
+};
+`;
+	const getStatus = (line: number) =>
+		computeSequencePropsStatusFromContent({
+			fileContents: input,
+			nodePath: getNodePathFromContent(input, line),
+			componentIdentity: null,
+			keys: [
+				'style.borderRadius',
+				'style.borderTopLeftRadius',
+				'style.borderTopRightRadius',
+				'style.borderBottomRightRadius',
+				'style.borderBottomLeftRadius',
+			],
+			effects: [],
+			videoConfigValues: null,
+		});
+
+	expect(getStatus(6).props['style.borderRadius']).toEqual({
+		status: 'static',
+		codeValue: 12,
+	});
+	expect(getStatus(7).props['style.borderRadius']).toEqual({
+		status: 'static',
+		codeValue: 10,
+	});
+	expect(getStatus(8).props['style.borderRadius']).toEqual({
+		status: 'static',
+		codeValue: 8,
+	});
+	expect(getStatus(9).props['style.borderRadius']).toEqual({
+		status: 'computed',
+	});
+	expect(getStatus(9).props['style.borderTopLeftRadius']).toEqual({
+		status: 'static',
+		codeValue: 10,
+	});
+});
+
+test('computeSequencePropsStatus should recognize numeric border radius keyframes', () => {
+	const input = `import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example = () => {
+	const frame = useCurrentFrame();
+	return <AbsoluteFill style={{borderRadius: interpolate(frame, [0, 30], [0, 24])}} />;
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 5),
+		componentIdentity: null,
+		keys: ['style.borderRadius'],
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(result.props['style.borderRadius']).toMatchObject({
+		status: 'keyframed',
+		interpolationFunction: 'interpolate',
+		keyframes: [
+			{frame: 0, value: 0},
+			{frame: 30, value: 24},
+		],
+	});
+});
+
 test('computeSequencePropsStatus should not guess complex border radius shorthands', () => {
 	for (const borderRadius of ["'50%'", "'10px / 20px'", 'radius']) {
 		const input = `import {AbsoluteFill} from 'remotion';
@@ -240,7 +318,7 @@ export const Example = ({radius}: {radius: string}) => {
 	}
 });
 
-test('computeSequencePropsStatus should respect border radius property order', () => {
+test('computeSequencePropsStatus should reject mixed border radius representations', () => {
 	const input = `import {AbsoluteFill} from 'remotion';
 
 export const Example = () => {
@@ -257,19 +335,22 @@ export const Example = () => {
 			fileContents: input,
 			nodePath: getNodePathFromContent(input, line),
 			componentIdentity: null,
-			keys: ['style.borderTopLeftRadius'],
+			keys: [
+				'style.borderRadius',
+				'style.borderTopLeftRadius',
+				'style.borderTopRightRadius',
+				'style.borderBottomRightRadius',
+				'style.borderBottomLeftRadius',
+			],
 			effects: [],
 			videoConfigValues: null,
 		});
 
-	expect(getStatus(6).props['style.borderTopLeftRadius']).toEqual({
-		status: 'static',
-		codeValue: 2,
-	});
-	expect(getStatus(7).props['style.borderTopLeftRadius']).toEqual({
-		status: 'static',
-		codeValue: 8,
-	});
+	for (const line of [6, 7]) {
+		expect(Object.values(getStatus(line).props)).toEqual(
+			new Array(5).fill({status: 'computed'}),
+		);
+	}
 });
 
 test('computeSequencePropsStatus should not guess a dynamic border shorthand', () => {

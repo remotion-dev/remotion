@@ -368,6 +368,15 @@ export const borderSchema = {
 } as const satisfies InteractivitySchema;
 
 export const borderRadiusSchema = {
+	'style.borderRadius': {
+		type: 'number',
+		default: undefined,
+		min: 0,
+		step: 1,
+		description: 'Border radius',
+		hiddenFromList: false,
+		keyframable: true,
+	},
 	'style.borderTopLeftRadius': {
 		type: 'number',
 		default: undefined,

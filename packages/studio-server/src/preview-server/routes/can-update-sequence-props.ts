@@ -35,6 +35,7 @@ import {parseAst} from '../../codemods/parse-ast';
 import {getCssShorthandForLonghand} from '../../helpers/css-shorthand-properties';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {toImportAgnosticNodePath} from '../../helpers/import-agnostic-node-path';
+import {parseBorderRadiusShorthand} from '../../helpers/parse-border-radius-shorthand';
 import {parseKeyframeEasingExpression} from '../../helpers/parse-keyframe-easing-expression';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import {parseVideoConfigNumericExpression} from '../../helpers/video-config-numeric-expression';
@@ -959,6 +960,102 @@ const getObjectPropertyName = (property: ObjectProperty): string | null => {
 	return null;
 };
 
+const BORDER_RADIUS_SHORTHAND = 'borderRadius';
+const BORDER_RADIUS_LONGHANDS = [
+	'borderTopLeftRadius',
+	'borderTopRightRadius',
+	'borderBottomRightRadius',
+	'borderBottomLeftRadius',
+] as const;
+const BORDER_RADIUS_PROPERTIES = new Set<string>([
+	BORDER_RADIUS_SHORTHAND,
+	...BORDER_RADIUS_LONGHANDS,
+]);
+
+const hasMixedBorderRadiusRepresentation = (
+	jsxElement: JSXOpeningElement,
+): boolean => {
+	const style = jsxElement.attributes.find(
+		(attribute) =>
+			attribute.type === 'JSXAttribute' &&
+			attribute.name.type !== 'JSXNamespacedName' &&
+			attribute.name.name === 'style',
+	);
+	if (
+		!style ||
+		style.type !== 'JSXAttribute' ||
+		style.value?.type !== 'JSXExpressionContainer' ||
+		style.value.expression.type !== 'ObjectExpression'
+	) {
+		return false;
+	}
+
+	let hasShorthand = false;
+	let hasLonghand = false;
+	for (const property of style.value.expression.properties) {
+		if (property.type !== 'ObjectProperty') {
+			continue;
+		}
+
+		const name = getObjectPropertyName(property);
+		hasShorthand ||= name === BORDER_RADIUS_SHORTHAND;
+		hasLonghand ||= BORDER_RADIUS_LONGHANDS.some(
+			(longhand) => longhand === name,
+		);
+	}
+
+	return hasShorthand && hasLonghand;
+};
+
+const getUniformBorderRadius = (value: unknown): number | null => {
+	const parsed = parseBorderRadiusShorthand(value);
+	if (!parsed) {
+		return null;
+	}
+
+	const values = Object.values(parsed);
+	return values.every((radius) => radius === values[0]) ? values[0] : null;
+};
+
+const getBorderRadiusShorthandStatus = ({
+	propValue,
+	ast,
+	videoConfigValues,
+}: {
+	propValue: Expression;
+	ast: File;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): CanUpdatePropStatus => {
+	if (isStaticValue(propValue)) {
+		const uniform = getUniformBorderRadius(extractStaticValue(propValue));
+		return uniform === null ? computedStatus() : staticStatus(uniform, null);
+	}
+
+	const numericExpression = parseVideoConfigNumericExpression({
+		node: propValue,
+		videoConfigValues,
+	});
+	if (numericExpression !== null && numericExpression.value >= 0) {
+		return staticStatus(numericExpression.value, numericExpression);
+	}
+
+	const computed = getComputedStatus(propValue, ast, videoConfigValues);
+	if (
+		computed.status === 'keyframed' &&
+		computed.interpolationFunction === 'interpolate' &&
+		computed.keyframes.every(
+			(keyframe) =>
+				typeof keyframe.value === 'number' &&
+				Number.isFinite(keyframe.value) &&
+				keyframe.value >= 0,
+		)
+	) {
+		return computed;
+	}
+
+	return computedStatus();
+};
+
 const getNestedPropStatus = ({
 	jsxElement,
 	ast,
@@ -1061,6 +1158,14 @@ const getNestedPropStatus = ({
 	}
 
 	const propValue = prop.value as Expression;
+	if (parentKey === 'style' && childKey === BORDER_RADIUS_SHORTHAND) {
+		return getBorderRadiusShorthandStatus({
+			propValue,
+			ast,
+			videoConfigValues,
+		});
+	}
+
 	const staticValueOptions = {allowSpecialValues};
 	if (!isStaticValue(propValue, staticValueOptions)) {
 		const numericExpression = parseVideoConfigNumericExpression({
@@ -1124,7 +1229,17 @@ const computeSequenceOnlyPropsRecord = ({
 		assetKeys,
 	);
 	const filteredProps: Record<string, CanUpdatePropStatus> = {};
+	const mixedBorderRadius = hasMixedBorderRadiusRepresentation(jsxElement);
 	for (const key of keys) {
+		if (
+			mixedBorderRadius &&
+			key.startsWith('style.') &&
+			BORDER_RADIUS_PROPERTIES.has(key.slice('style.'.length))
+		) {
+			filteredProps[key] = computedStatus();
+			continue;
+		}
+
 		if (key === 'children') {
 			const staticChildrenAttribute = getStaticJsxChildrenAttribute(jsxElement);
 			if (staticChildrenAttribute) {
