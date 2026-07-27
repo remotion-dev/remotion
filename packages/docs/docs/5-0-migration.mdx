@@ -83,6 +83,14 @@ It never made sense to have this prop as transitioned elements need to be positi
 
 **Required action**: Remove the `layout` prop.
 
+## `<Series>` is now a `<Sequence>`
+
+In Remotion 5.0, [`<Series>`](/docs/series) is a [`<Sequence>`](/docs/sequence) under the hood with `layout` defaulting to `"none"`.
+It accepts all `<Sequence>` props such as `from`, `durationInFrames`, `name`, `layout`, `showInTimeline`, `premountFor`, and `hidden`.
+
+**Required action**: No migration action required — the default `layout="none"` keeps existing output identical to Remotion 4.x.
+See [`<Series>`](/docs/series) for the inherited props you can now pass on the series container itself.
+
 ## `measureSpring()` does not accept `from` and `to` options anymore
 
 The values passed in there did not influence the calculation at all. Therefore we removed those options.
