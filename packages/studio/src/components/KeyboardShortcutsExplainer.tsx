@@ -7,6 +7,7 @@ import {
 	WHITE,
 	WHITE_ALPHA_10,
 } from '../helpers/colors';
+import {isMac} from '../helpers/is-mac';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {ArrowLeft, ArrowRight, ShiftIcon} from '../icons/keys';
@@ -320,7 +321,15 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 						<div style={left}>
 							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
 							<Spacing x={0.3} />
-							<kbd style={key}>Y</kbd>
+							{isMac ? (
+								<>
+									<kbd style={key}>Shift</kbd>
+									<Spacing x={0.3} />
+									<kbd style={key}>Z</kbd>
+								</>
+							) : (
+								<kbd style={key}>Y</kbd>
+							)}
 						</div>
 						<div style={right}>Redo</div>
 					</Row>
