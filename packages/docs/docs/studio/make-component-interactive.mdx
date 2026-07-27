@@ -56,6 +56,26 @@ const badgeSchema = {
 } as const satisfies InteractivitySchema;
 ```
 
+## Caption fields<AvailableFrom v="4.0.500" />
+
+Add a `captions` field when a custom component accepts [`Caption[]`](/docs/captions/caption) data:
+
+```ts twoslash title="Captions.tsx"
+import {Interactive, type InteractivitySchema} from 'remotion';
+
+const captionsSchema = {
+  ...Interactive.baseSchema,
+  captions: {
+    type: 'captions',
+    default: undefined,
+    description: 'Captions',
+    keyframable: false,
+  },
+} as const satisfies InteractivitySchema;
+```
+
+Studio can edit caption text when the prop is a direct JSX array literal, such as `captions={[...]}`. Variables, imports, computed expressions, and `satisfies` expressions are read-only.
+
 ## Forward `controls` and `stack`
 
 The inner component receives `controls` and `stack` props from `Interactive.withSchema()`.

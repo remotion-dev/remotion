@@ -1,23 +1,36 @@
 import type {Caption, TikTokPage} from '@remotion/captions';
 import {createTikTokStyleCaptions} from '@remotion/captions';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {forwardRef, useImperativeHandle, useMemo, useRef} from 'react';
 import {
 	AbsoluteFill,
+	Interactive,
 	interpolate,
 	Sequence,
 	spring,
-	staticFile,
+	type InteractiveBaseProps,
+	type InteractiveTransformProps,
+	type InteractivitySchema,
+	type SequenceControls,
 	useCurrentFrame,
-	useDelayRender,
 	useVideoConfig,
 } from 'remotion';
 
-export const CAPTIONS_FILE = 'voiceover-captions.json';
 export const CAPTIONS_DURATION_IN_FRAMES = 1628;
 export const CAPTIONS_HEIGHT = 360;
 
 const SWITCH_CAPTIONS_EVERY_MS = 1100;
 const HIGHLIGHT_COLOR = '#6cf6ff';
+
+const animatedCaptionsSchema = {
+	...Interactive.baseSchema,
+	captions: {
+		type: 'captions',
+		default: undefined,
+		description: 'Captions',
+		keyframable: false,
+	},
+	...Interactive.transformSchema,
+} as const satisfies InteractivitySchema;
 
 const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
 	const frame = useCurrentFrame();
@@ -88,72 +101,70 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
 	);
 };
 
-export const AnimatedCaptions: React.FC = () => {
-	const [captions, setCaptions] = useState<Caption[] | null>(null);
-	const {delayRender, continueRender, cancelRender} = useDelayRender();
-	const [handle] = useState(() => delayRender('Loading ElevenLabs captions'));
+type AnimatedCaptionsProps = InteractiveBaseProps &
+	InteractiveTransformProps & {
+		readonly captions: Caption[];
+	};
+
+const AnimatedCaptionsInner = forwardRef<
+	HTMLDivElement,
+	AnimatedCaptionsProps & {readonly controls: SequenceControls | undefined}
+>(({captions, controls, name, style, ...sequenceProps}, ref) => {
+	const outlineRef = useRef<HTMLDivElement>(null);
 	const {fps} = useVideoConfig();
-
-	const loadCaptions = useCallback(async () => {
-		try {
-			const response = await fetch(staticFile(CAPTIONS_FILE));
-			if (!response.ok) {
-				throw new Error(`Could not load captions (${response.status})`);
-			}
-
-			setCaptions((await response.json()) as Caption[]);
-			continueRender(handle);
-		} catch (error) {
-			cancelRender(error);
-		}
-	}, [cancelRender, continueRender, handle]);
-
-	useEffect(() => {
-		loadCaptions();
-	}, [loadCaptions]);
-
 	const pages = useMemo(() => {
-		if (!captions) {
-			return [];
-		}
-
 		return createTikTokStyleCaptions({
 			captions,
 			combineTokensWithinMilliseconds: SWITCH_CAPTIONS_EVERY_MS,
 		}).pages;
 	}, [captions]);
 
-	if (!captions) {
-		return null;
-	}
+	useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
 
 	return (
-		<AbsoluteFill>
-			{pages.map((page, index) => {
-				const nextPage = pages[index + 1];
-				const startFrame = Math.round((page.startMs / 1000) * fps);
-				const naturalEndFrame = Math.ceil(
-					((page.startMs + page.durationMs) / 1000) * fps,
-				);
-				const endFrame = nextPage
-					? Math.min(
-							Math.round((nextPage.startMs / 1000) * fps),
-							naturalEndFrame,
-						)
-					: naturalEndFrame;
-				const durationInFrames = Math.max(1, endFrame - startFrame);
+		<Sequence
+			layout="none"
+			{...sequenceProps}
+			name={name ?? '<AnimatedCaptions>'}
+			controls={controls}
+			outlineRef={outlineRef}
+		>
+			<AbsoluteFill ref={outlineRef} style={style}>
+				{pages.map((page, index) => {
+					const nextPage = pages[index + 1];
+					const startFrame = Math.round((page.startMs / 1000) * fps);
+					const naturalEndFrame = Math.ceil(
+						((page.startMs + page.durationMs) / 1000) * fps,
+					);
+					const endFrame = nextPage
+						? Math.min(
+								Math.round((nextPage.startMs / 1000) * fps),
+								naturalEndFrame,
+							)
+						: naturalEndFrame;
+					const durationInFrames = Math.max(1, endFrame - startFrame);
 
-				return (
-					<Sequence
-						key={`${page.startMs}-${index}`}
-						from={startFrame}
-						durationInFrames={durationInFrames}
-						premountFor={fps}
-					>
-						<CaptionPage page={page} />
-					</Sequence>
-				);
-			})}
-		</AbsoluteFill>
+					return (
+						<Sequence
+							key={`${page.startMs}-${index}`}
+							from={startFrame}
+							durationInFrames={durationInFrames}
+							premountFor={fps}
+							showInTimeline={false}
+						>
+							<CaptionPage page={page} />
+						</Sequence>
+					);
+				})}
+			</AbsoluteFill>
+		</Sequence>
 	);
-};
+});
+
+export const AnimatedCaptions = Interactive.withSchema({
+	Component: AnimatedCaptionsInner,
+	componentName: '<AnimatedCaptions>',
+	componentIdentity: 'dev.remotion.example.AnimatedCaptions',
+	schema: animatedCaptionsSchema,
+	supportsEffects: false,
+});
