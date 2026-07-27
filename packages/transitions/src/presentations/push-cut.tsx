@@ -39,7 +39,7 @@ const validateProps = (props: PushCutProps) => {
 	const outgoingScale = props.outgoingScale ?? 1.04;
 	const incomingStartScale = props.incomingStartScale ?? 1.04;
 	const incomingEndScale = props.incomingEndScale ?? 1.07;
-	const flashOpacity = props.flashOpacity ?? 0.1;
+	const flashOpacity = props.flashOpacity ?? 0.2;
 	const flashFrames = props.flashFrames ?? 2;
 
 	validateFiniteNumber('cutProgress', cutProgress);
@@ -93,7 +93,7 @@ const PushCutPresentation: React.FC<
 		incomingEndScale = 1.07,
 		transformOrigin = '50% 50%',
 		flashColor = '#f5f2ed',
-		flashOpacity: peakFlashOpacity = 0.1,
+		flashOpacity: peakFlashOpacity = 0.2,
 		flashFrames = 2,
 		outerEnterStyle,
 		outerExitStyle,
@@ -136,7 +136,7 @@ const PushCutPresentation: React.FC<
 		? interpolate(
 				presentationProgress,
 				[cutProgress, cutProgress + flashTail],
-				[peakFlashOpacity * 0.7, 0],
+				[peakFlashOpacity, 0],
 				clamp,
 			)
 		: interpolate(
@@ -187,7 +187,7 @@ const PushCutPresentation: React.FC<
 
 /*
  * Created by Tom Vaillant: https://github.com/tomvaillant
- * @description A hard editorial cut with a short punch-in on both scenes and a restrained flash at the edit point.
+ * @description A hard editorial cut with a short punch-in on both scenes and a brief flash at the edit point.
  * @see [Documentation](https://www.remotion.dev/docs/transitions/presentations/push-cut)
  */
 export const pushCut = (

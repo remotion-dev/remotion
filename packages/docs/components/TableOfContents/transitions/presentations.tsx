@@ -82,7 +82,7 @@ export const Presentations: React.FC<{
 						<strong>
 							<code>{'pushCut()'}</code>
 						</strong>
-						<div>Punch into a hard cut with a restrained flash</div>
+						<div>Punch into a hard cut with a brief flash</div>
 					</div>
 				</div>
 			</TOCItem>

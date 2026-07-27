@@ -54,6 +54,7 @@ test('pushCut() should apply the incoming scale and flash at the cut', () => {
 
 	expect(markup).toContain('transform:scale(1.04)');
 	expect(markup).toContain('background-color:#f5f2ed');
+	expect(markup).toContain('opacity:0.2');
 });
 
 test('pushCut() should reject invalid props', () => {
