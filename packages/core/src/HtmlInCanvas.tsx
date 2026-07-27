@@ -23,6 +23,7 @@ import type {
 import {
 	backgroundSchema,
 	baseSchema,
+	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
 	transformSchema,
@@ -806,6 +807,7 @@ export const htmlInCanvasSchema = {
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,
+	...borderRadiusSchema,
 	...cropSchema,
 } as const satisfies InteractivitySchema;
 

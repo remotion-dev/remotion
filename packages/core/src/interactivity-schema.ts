@@ -365,6 +365,9 @@ export const borderSchema = {
 		default: undefined,
 		description: 'Border color',
 	},
+} as const satisfies InteractivitySchema;
+
+export const borderRadiusSchema = {
 	'style.borderTopLeftRadius': {
 		type: 'number',
 		default: undefined,
@@ -518,6 +521,7 @@ export const sequenceStyleSchema = {
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,
+	...borderRadiusSchema,
 	...sequencePremountSchema,
 } as const satisfies InteractivitySchema;
 

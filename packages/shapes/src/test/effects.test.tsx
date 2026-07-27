@@ -124,6 +124,8 @@ mock.module('remotion', () => {
 				'style.borderWidth': {},
 				'style.borderStyle': {},
 				'style.borderColor': {},
+			},
+			borderRadiusSchema: {
 				'style.borderTopLeftRadius': {},
 				'style.borderTopRightRadius': {},
 				'style.borderBottomRightRadius': {},

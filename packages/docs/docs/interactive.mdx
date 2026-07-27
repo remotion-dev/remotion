@@ -129,13 +129,19 @@ Use it for components that accept a `style` prop and render a CSS background.
 
 Controls for border-related style props:
 
-`style.borderWidth`, `style.borderStyle`, `style.borderColor`, `style.borderTopLeftRadius`, `style.borderTopRightRadius`, `style.borderBottomRightRadius` and `style.borderBottomLeftRadius`.
+`style.borderWidth`, `style.borderStyle` and `style.borderColor`.
 
 The longhand properties are used rather than the `border` shorthand, because React does not expand shorthands. This lets each control read its own value, and allows `style.borderWidth` and `style.borderColor` to be animated.
 
-The corner radius controls are available from <AvailableFrom v="4.0.500" inline />. When `style.borderRadius` is a number or contains one to four pixel values, the Studio expands it into the four longhand properties when you edit a corner. Complex values such as percentages and elliptical radii are not editable.
-
 Use it for components that accept a `style` prop and render a border.
+
+### `Interactive.borderRadiusSchema`<AvailableFrom v="4.0.500" />
+
+Controls for `style.borderTopLeftRadius`, `style.borderTopRightRadius`, `style.borderBottomRightRadius` and `style.borderBottomLeftRadius`.
+
+When `style.borderRadius` is a number or contains one to four pixel values, the Studio expands it into the four longhand properties when you edit a corner. Complex values such as percentages and elliptical radii are not editable.
+
+Use it for components that accept a `style` prop and render rounded corners.
 
 ### `Interactive.svgPaintSchema`<AvailableFrom v="4.0.499" />
 
@@ -161,7 +167,7 @@ Use it for components that forward these props to a `<Sequence>`.
 
 The schema used by [`<Sequence>`](/docs/sequence).
 
-It includes `Interactive.baseSchema` and a `layout` field. When `layout` is `"absolute-fill"`, the active fields include [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop), [`cropBottom`](/docs/sequence#cropbottom), `Interactive.transformSchema`, `Interactive.backgroundSchema`, `Interactive.borderSchema` and `Interactive.premountSchema`.
+It includes `Interactive.baseSchema` and a `layout` field. When `layout` is `"absolute-fill"`, the active fields include [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop), [`cropBottom`](/docs/sequence#cropbottom), `Interactive.transformSchema`, `Interactive.backgroundSchema`, `Interactive.borderSchema`, `Interactive.borderRadiusSchema` and `Interactive.premountSchema`.
 
 ### `Interactive.withSchema()`<AvailableFrom v="4.0.479" />
 

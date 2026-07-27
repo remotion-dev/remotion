@@ -54,6 +54,7 @@ export const videoSchema: InteractivitySchema = {
 	...Internals.transformSchema,
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
+	...Interactive.borderRadiusSchema,
 	...Interactive.cropSchema,
 } as const satisfies InteractivitySchema;
 

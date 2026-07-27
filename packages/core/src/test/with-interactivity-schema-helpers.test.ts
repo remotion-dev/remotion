@@ -14,6 +14,7 @@ import {Interactive} from '../Interactive.js';
 import {
 	backgroundSchema,
 	baseSchema,
+	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
 	extendSchemaWithSequenceName,
@@ -43,6 +44,7 @@ test('sequenceStyleSchema contains visual style and premount fields', () => {
 			...Object.keys(transformSchema),
 			...Object.keys(backgroundSchema),
 			...Object.keys(borderSchema),
+			...Object.keys(borderRadiusSchema),
 			...Object.keys(sequencePremountSchema),
 		].sort(),
 	);
@@ -373,32 +375,10 @@ test('textSchema exposes common text style fields', () => {
 	});
 });
 
-test('borderSchema exposes the longhand border style and radius fields', () => {
+test('borderSchema exposes the longhand border fields', () => {
 	expect(Object.keys(borderSchema).sort()).toEqual(
-		[
-			'style.borderColor',
-			'style.borderStyle',
-			'style.borderWidth',
-			'style.borderTopLeftRadius',
-			'style.borderTopRightRadius',
-			'style.borderBottomRightRadius',
-			'style.borderBottomLeftRadius',
-		].sort(),
+		['style.borderColor', 'style.borderStyle', 'style.borderWidth'].sort(),
 	);
-	for (const radius of [
-		'style.borderTopLeftRadius',
-		'style.borderTopRightRadius',
-		'style.borderBottomRightRadius',
-		'style.borderBottomLeftRadius',
-	] as const) {
-		expect(borderSchema[radius]).toMatchObject({
-			type: 'number',
-			default: undefined,
-			min: 0,
-			step: 1,
-			hiddenFromList: false,
-		});
-	}
 
 	expect(borderSchema['style.borderWidth']).toMatchObject({
 		type: 'number',
@@ -427,6 +407,32 @@ test('borderSchema exposes the longhand border style and radius fields', () => {
 		type: 'color',
 		default: undefined,
 	});
+});
+
+test('borderRadiusSchema exposes the four corner radius fields', () => {
+	expect(Interactive.borderRadiusSchema).toBe(borderRadiusSchema);
+	expect(Object.keys(borderRadiusSchema).sort()).toEqual(
+		[
+			'style.borderTopLeftRadius',
+			'style.borderTopRightRadius',
+			'style.borderBottomRightRadius',
+			'style.borderBottomLeftRadius',
+		].sort(),
+	);
+	for (const radius of [
+		'style.borderTopLeftRadius',
+		'style.borderTopRightRadius',
+		'style.borderBottomRightRadius',
+		'style.borderBottomLeftRadius',
+	] as const) {
+		expect(borderRadiusSchema[radius]).toMatchObject({
+			type: 'number',
+			default: undefined,
+			min: 0,
+			step: 1,
+			hiddenFromList: false,
+		});
+	}
 });
 
 test('backgroundSchema exposes the background color style field', () => {
