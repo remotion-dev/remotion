@@ -16,7 +16,8 @@ test(
 	'Legacy SSR way of rendering videos should still work',
 	async () => {
 		const puppeteerInstance = await openBrowser('chrome');
-		const compositions = await getCompositions(exampleBuild, {
+		const compositions = await getCompositions({
+			serveUrl: exampleBuild,
 			puppeteerInstance,
 			inputProps: {},
 		});

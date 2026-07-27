@@ -163,6 +163,12 @@
 			"import": "./dist/esm/swap.mjs",
 			"require": "./dist/presentations/swap.js"
 		},
+		"./push-cut": {
+			"types": "./dist/presentations/push-cut.d.ts",
+			"module": "./dist/esm/push-cut.mjs",
+			"import": "./dist/esm/push-cut.mjs",
+			"require": "./dist/presentations/push-cut.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
@@ -220,6 +226,9 @@
 			],
 			"swap": [
 				"dist/presentations/swap.d.ts"
+			],
+			"push-cut": [
+				"dist/presentations/push-cut.d.ts"
 			]
 		}
 	},

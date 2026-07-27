@@ -31,6 +31,17 @@ Upgrade `remotion` and all packages starting with `@remotion` to the latest vers
 
 Run `npm i `, `yarn`, `pnpm i` or `bun i` respectively afterwards.
 
+## Four packages are no longer published
+
+The following packages stop receiving releases after the 4.x line:
+
+- Replace `@remotion/light-leaks` with [`lightLeak()` from `@remotion/effects`](/docs/effects/light-leak).
+- Replace `@remotion/starburst` with [`starburst()` from `@remotion/effects`](/docs/effects/starburst).
+- Replace `@remotion/media-parser` with [Mediabunny](/docs/mediabunny).
+- Replace `@remotion/webcodecs` with [Mediabunny](/docs/mediabunny).
+
+**Required action**: Migrate usages and remove these packages from your dependencies before upgrading. Existing 4.x versions remain available, but no 5.x versions will be published.
+
 ## Runtime requirements
 
 The minimum Node version is now <MinNodeVersion />. The minimum Bun version is <MinBunVersion />.
@@ -43,6 +54,21 @@ If you use `@remotion/eslint-config`, the minimum ESLint version is now <MinEsli
 A common footgun was the render was not working as intended because the input props were not passed.
 
 **Required action**: Pass an empty object `{}` if you don't have any input props.
+
+## `bundle()` and `getCompositions()` now take an options object
+
+The legacy positional signatures of [`bundle()`](/docs/bundle) and [`getCompositions()`](/docs/renderer/get-compositions) have been removed.
+The return value of `bundle()` remains the output directory as a string.
+
+**Required action**: Move positional arguments into an options object:
+
+```diff title="Before and after"
+- bundle(entryPoint, onProgress, options)
++ bundle({entryPoint, onProgress, ...options})
+
+- getCompositions(serveUrl, options)
++ getCompositions({serveUrl, ...options})
+```
 
 ## `visualizeAudio()` yields different result
 

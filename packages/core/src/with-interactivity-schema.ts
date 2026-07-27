@@ -174,7 +174,7 @@ export const withInteractivitySchema = <
 	const Wrapped = forwardRef<unknown, Props>((props, ref) => {
 		const env = useRemotionEnvironment();
 
-		if (!env.isStudio || env.isReadOnlyStudio || env.isRendering) {
+		if (!env.isStudio || env.isRendering) {
 			return React.createElement(Component, {
 				...props,
 				controls: null,
@@ -222,8 +222,9 @@ export const withInteractivitySchema = <
 			stackToOverrideMap[stack] = newOverrideId;
 			return newOverrideId;
 		});
-		const nodePath =
-			nodePathMapping.overrideIdToNodePathMappings[overrideId] ?? null;
+		const nodePath = env.isReadOnlyStudio
+			? null
+			: (nodePathMapping.overrideIdToNodePathMappings[overrideId] ?? null);
 
 		// Read the runtime values for every flat key from the JSX props,
 		// memoized on the leaf values so the object reference is stable

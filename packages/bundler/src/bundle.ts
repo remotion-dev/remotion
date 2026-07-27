@@ -5,6 +5,7 @@ import {promisify} from 'node:util';
 import {isMainThread} from 'node:worker_threads';
 import type {GitSource, RenderDefaults} from '@remotion/studio-shared';
 import {getProjectName} from '@remotion/studio-shared';
+import {NoReactInternals} from 'remotion/no-react';
 import webpack from 'webpack';
 import {copyDir} from './copy-dir';
 import {indexHtml} from './index-html';
@@ -81,7 +82,7 @@ export const getBundleStaticHash = (publicPath: string): string => {
 	);
 };
 
-export type MandatoryLegacyBundleOptions = {
+export type MandatoryBundleInternalsOptions = {
 	bundlerOverride?: BundlerOverrideFn;
 	rspackOverride?: RspackOverrideFn;
 	webpackOverride: WebpackOverrideFn;
@@ -105,7 +106,17 @@ export type MandatoryLegacyBundleOptions = {
 	symlinkPublicDir: boolean;
 };
 
-export type LegacyBundleOptions = Partial<MandatoryLegacyBundleOptions>;
+type V4LegacyBundleOptions = Partial<MandatoryBundleInternalsOptions>;
+
+export type MandatoryLegacyBundleOptions =
+	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
+		? never
+		: MandatoryBundleInternalsOptions;
+
+export type LegacyBundleOptions =
+	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
+		? never
+		: V4LegacyBundleOptions;
 
 export const getConfig = ({
 	entryPoint,
@@ -118,7 +129,7 @@ export const getConfig = ({
 	entryPoint: string;
 	resolvedRemotionRoot: string;
 	onProgress: (progress: number) => void;
-	options: MandatoryLegacyBundleOptions;
+	options: MandatoryBundleInternalsOptions;
 }) => {
 	const configArgs = {
 		entry: path.join(
@@ -150,7 +161,6 @@ export const getConfig = ({
 };
 
 type NewBundleOptions = {
-	entryPoint: string;
 	onProgress: (progress: number) => void;
 	ignoreRegisterRootWarning: boolean;
 	onDirectoryCreated: (dir: string) => void;
@@ -164,33 +174,47 @@ type NewBundleOptions = {
 type MandatoryBundleOptions = {
 	entryPoint: string;
 } & NewBundleOptions &
-	MandatoryLegacyBundleOptions;
+	MandatoryBundleInternalsOptions;
 
 export type BundleOptions = {
 	entryPoint: string;
 } & Partial<NewBundleOptions> &
-	LegacyBundleOptions;
+	Partial<MandatoryBundleInternalsOptions>;
 
-type Arguments =
+type V4BundleArguments =
 	| [options: BundleOptions]
 	| [
 			entryPoint: string,
 			onProgress?: (progress: number) => void,
-			options?: LegacyBundleOptions,
+			options?: V4LegacyBundleOptions,
 	  ];
 
-const convertArgumentsIntoOptions = (args: Arguments): BundleOptions => {
+type BundleArguments =
+	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
+		? [options: BundleOptions]
+		: V4BundleArguments;
+
+export const convertBundleArgumentsIntoOptions = (
+	args: V4BundleArguments,
+	enableV5BreakingChanges: boolean,
+): BundleOptions => {
 	if ((args.length as number) === 0) {
 		throw new TypeError('bundle() was called without arguments');
 	}
 
 	const firstArg = args[0];
 	if (typeof firstArg === 'string') {
-		return {
-			entryPoint: firstArg,
-			onProgress: args[1],
-			...(args[2] ?? {}),
-		};
+		if (!enableV5BreakingChanges) {
+			return {
+				entryPoint: firstArg,
+				onProgress: args[1],
+				...(args[2] ?? {}),
+			};
+		}
+
+		throw new TypeError(
+			'bundle() no longer supports the legacy positional arguments. Pass an options object instead: bundle({entryPoint, onProgress, ...options}).',
+		);
 	}
 
 	if (typeof firstArg.entryPoint !== 'string') {
@@ -446,8 +470,11 @@ export const internalBundle = async (
  * @description Bundles a Remotion project and prepares it for rendering.
  * @see [Documentation](https://remotion.dev/docs/bundle)
  */
-export async function bundle(...args: Arguments): Promise<string> {
-	const actualArgs = convertArgumentsIntoOptions(args);
+export async function bundle(...args: BundleArguments): Promise<string> {
+	const actualArgs = convertBundleArgumentsIntoOptions(
+		args,
+		NoReactInternals.ENABLE_V5_BREAKING_CHANGES,
+	);
 	const result = await internalBundle({
 		bufferStateDelayInMilliseconds:
 			actualArgs.bufferStateDelayInMilliseconds ?? null,

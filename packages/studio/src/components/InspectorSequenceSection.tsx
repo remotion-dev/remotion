@@ -5,6 +5,7 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {
 	flattenVisibleTreeNodes,
 	SCHEMA_FIELD_GROUPS,
@@ -386,6 +387,7 @@ export const InspectorSequenceSection: React.FC<{
 	const canAddEffect =
 		nodePathInfo.supportsEffects &&
 		previewServerState.type === 'connected' &&
+		isStudioInteractivityEnabled() &&
 		Boolean(validatedLocation.source);
 
 	const onAddEffect = useCallback(() => {
