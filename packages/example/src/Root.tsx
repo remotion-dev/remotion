@@ -17,10 +17,10 @@ import {NativeBufferState} from './BufferState/Simple';
 import {NativeBufferStateForVideo} from './BufferState/Video';
 import {CancelRender} from './CancelRender';
 import {
-	AnimatedCaptions,
 	CAPTIONS_DURATION_IN_FRAMES,
 	CAPTIONS_HEIGHT,
 } from './CaptionsTester/AnimatedCaptions';
+import {AnimatedCaptionsComposition} from './CaptionsTester/AnimatedCaptionsComposition';
 import {ClassSerialization} from './ClassSerialization';
 import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
@@ -438,7 +438,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				id="captions-tester"
-				component={AnimatedCaptions}
+				component={AnimatedCaptionsComposition}
 				durationInFrames={CAPTIONS_DURATION_IN_FRAMES}
 				fps={30}
 				width={1080}
