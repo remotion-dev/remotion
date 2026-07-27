@@ -25,9 +25,17 @@ export const CaptionInspector: React.FC<{
 	readonly captions: Caption[];
 	readonly onTextChange: (captions: Caption[]) => void;
 	readonly onTextSave: ((captions: Caption[]) => void) | null;
+	readonly onTextCancel: (() => void) | null;
 	readonly readOnly: boolean;
 	readonly readOnlyTitle: string | null;
-}> = ({captions, onTextChange, onTextSave, readOnly, readOnlyTitle}) => {
+}> = ({
+	captions,
+	onTextChange,
+	onTextSave,
+	onTextCancel,
+	readOnly,
+	readOnlyTitle,
+}) => {
 	return (
 		<>
 			<InspectorSectionDivider />
@@ -47,6 +55,7 @@ export const CaptionInspector: React.FC<{
 				captions={captions}
 				onChange={onTextChange}
 				onSave={onTextSave}
+				onCancel={onTextCancel}
 				readOnly={readOnly}
 			/>
 		</>

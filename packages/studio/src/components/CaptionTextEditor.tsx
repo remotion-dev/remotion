@@ -53,9 +53,11 @@ export const CaptionTextEditor: React.FC<{
 	readonly captions: Caption[];
 	readonly onChange: (captions: Caption[]) => void;
 	readonly onSave: ((captions: Caption[]) => void) | null;
+	readonly onCancel: (() => void) | null;
 	readonly readOnly: boolean;
-}> = ({captions, onChange, onSave, readOnly}) => {
+}> = ({captions, onChange, onSave, onCancel, readOnly}) => {
 	const listRef = useRef<HTMLDivElement>(null);
+	const cancelledBlurIndexes = useRef(new Set<number>());
 	const captionRows = useMemo(() => {
 		const occurrences = new Map<string, number>();
 		return captions.map((caption) => {
@@ -72,12 +74,14 @@ export const CaptionTextEditor: React.FC<{
 	}, [captions]);
 
 	const updateText = useCallback(
-		(index: number, text: string) => {
+		(index: number, text: string, shouldSave: boolean) => {
 			const nextCaptions = captions.map((caption, captionIndex) => {
 				return captionIndex === index ? {...caption, text} : caption;
 			});
 			onChange(nextCaptions);
-			onSave?.(nextCaptions);
+			if (shouldSave) {
+				onSave?.(nextCaptions);
+			}
 		},
 		[captions, onChange, onSave],
 	);
@@ -104,7 +108,16 @@ export const CaptionTextEditor: React.FC<{
 							<RemotionInput
 								data-caption-index={index}
 								disabled={readOnly}
-								onChange={(event) => updateText(index, event.target.value)}
+								onBlur={(event) => {
+									if (cancelledBlurIndexes.current.delete(index)) {
+										return;
+									}
+
+									updateText(index, event.currentTarget.value, true);
+								}}
+								onChange={(event) =>
+									updateText(index, event.target.value, false)
+								}
 								onKeyDown={(event) => {
 									if (
 										event.key === 'ArrowDown' &&
@@ -117,6 +130,13 @@ export const CaptionTextEditor: React.FC<{
 									if (event.key === 'ArrowUp' && index > 0) {
 										event.preventDefault();
 										focusSibling(index - 1);
+									}
+
+									if (event.key === 'Escape') {
+										event.preventDefault();
+										cancelledBlurIndexes.current.add(index);
+										onCancel?.();
+										event.currentTarget.blur();
 									}
 								}}
 								rightAlign={false}

@@ -57,7 +57,9 @@ export const InlineCaptionInspector: React.FC<{
 }> = ({captions, controls, nodePath, readOnlyStudio, validatedLocation}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
-	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
+	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
+		Internals.VisualModeSettersContext,
+	);
 	const captionStatus = Internals.getPropStatusesCtx(
 		propStatuses,
 		nodePath,
@@ -81,7 +83,25 @@ export const InlineCaptionInspector: React.FC<{
 		lastRuntimeSignature.current = runtimeSignature;
 		savedCaptions.current = captions;
 		setDraftCaptions(captions);
-	}, [captions, runtimeSignature]);
+		clearDragOverrides(nodePath);
+	}, [captions, clearDragOverrides, nodePath, runtimeSignature]);
+
+	const updateCaptions = useCallback(
+		(nextCaptions: Caption[]) => {
+			setDraftCaptions(nextCaptions);
+			setDragOverrides(
+				nodePath,
+				'captions',
+				Internals.makeStaticDragOverride(nextCaptions),
+			);
+		},
+		[nodePath, setDragOverrides],
+	);
+
+	const cancelCaptions = useCallback(() => {
+		setDraftCaptions(savedCaptions.current);
+		clearDragOverrides(nodePath);
+	}, [clearDragOverrides, nodePath]);
 
 	const saveCaptions = useCallback(
 		(nextCaptions: Caption[]) => {
@@ -97,6 +117,7 @@ export const InlineCaptionInspector: React.FC<{
 				patches === null ||
 				patches.length === 0
 			) {
+				clearDragOverrides(nodePath);
 				return;
 			}
 
@@ -112,9 +133,11 @@ export const InlineCaptionInspector: React.FC<{
 				undoLabel: 'Update captions',
 				redoLabel: 'Update captions again',
 			});
+			clearDragOverrides(nodePath);
 		},
 		[
 			canSave,
+			clearDragOverrides,
 			clientId,
 			controls.schema,
 			nodePath,
@@ -134,8 +157,9 @@ export const InlineCaptionInspector: React.FC<{
 	return (
 		<CaptionInspector
 			captions={draftCaptions}
-			onTextChange={setDraftCaptions}
+			onTextChange={updateCaptions}
 			onTextSave={saveCaptions}
+			onTextCancel={cancelCaptions}
 			readOnly={!canSave}
 			readOnlyTitle={canSave ? null : readOnlyTitle}
 		/>
