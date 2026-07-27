@@ -202,10 +202,10 @@ export type ModalState =
 			type: 'quick-switcher';
 			mode: QuickSwitcherMode;
 			invocationTimestamp: number;
-			assetSelection?: {
+			assetSelection: {
 				initialQuery: string;
 				onSelected: (asset: StaticFile) => void;
-			};
+			} | null;
 	  }
 	| AddEffectModalState
 	| ConfirmationDialogState

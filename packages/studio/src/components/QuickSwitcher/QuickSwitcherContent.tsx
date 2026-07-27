@@ -151,14 +151,20 @@ export const QuickSwitcherContent: React.FC<{
 	const staticFiles = useStaticFiles();
 	const [state, setState] = useState(() => {
 		return {
-			query: assetSelection?.initialQuery ?? mapModeToQuery(initialMode),
+			query:
+				assetSelection === null
+					? mapModeToQuery(initialMode)
+					: assetSelection.initialQuery,
 			selectedIndex: 0,
 		};
 	});
 
 	useEffect(() => {
 		setState({
-			query: assetSelection?.initialQuery ?? mapModeToQuery(initialMode),
+			query:
+				assetSelection === null
+					? mapModeToQuery(initialMode)
+					: assetSelection.initialQuery,
 			selectedIndex: 0,
 		});
 	}, [assetSelection, initialMode, invocationTimestamp]);
@@ -175,9 +181,8 @@ export const QuickSwitcherContent: React.FC<{
 
 	const keybindings = useKeybinding();
 
-	const mode: QuickSwitcherMode = assetSelection
-		? 'assets'
-		: mapQueryToMode(state.query);
+	const mode: QuickSwitcherMode =
+		assetSelection !== null ? 'assets' : mapQueryToMode(state.query);
 
 	const actualQuery = useMemo(() => {
 		return stripQuery(state.query);
@@ -217,7 +222,7 @@ export const QuickSwitcherContent: React.FC<{
 						type: 'asset',
 						fileType: getPreviewFileType(asset.name),
 						onSelected: () => {
-							if (assetSelection) {
+							if (assetSelection !== null) {
 								assetSelection.onSelected(asset);
 							} else {
 								selectAsset(asset.name);
@@ -434,7 +439,7 @@ export const QuickSwitcherContent: React.FC<{
 
 	return (
 		<div style={container}>
-			{assetSelection ? null : (
+			{assetSelection === null && (
 				<div style={modeSelector}>
 					<button
 						onClick={onCompositionsSelected}
@@ -469,7 +474,9 @@ export const QuickSwitcherContent: React.FC<{
 					</button>
 				</div>
 			)}
-			<div style={assetSelection ? contentWithoutModeSelector : content}>
+			<div
+				style={assetSelection === null ? content : contentWithoutModeSelector}
+			>
 				<RemotionInput
 					ref={inputRef}
 					type="text"
