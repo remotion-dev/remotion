@@ -8,7 +8,7 @@ import type {
 	CanUpdateSequencePropStatusKeyframed,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
-import {Internals, useVideoConfig} from 'remotion';
+import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
@@ -18,7 +18,6 @@ import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {callAddEffectKeyframe} from './call-add-keyframe';
-import {getAnimationItemSelectionForSourceFrame} from './get-animation-item-selection-for-frame';
 import {getComputedStatusLabel} from './get-timeline-keyframes';
 import {saveEffectProp} from './save-effect-prop';
 import {enqueueSavePropChange} from './save-prop-queue';
@@ -37,11 +36,7 @@ import {
 	TimelineFieldValue,
 	UnsupportedStatus,
 } from './TimelineSchemaField';
-import {
-	useTimelineRowSelection,
-	useTimelineSelection,
-} from './TimelineSelection';
-import {canEditEasingForInterpolationFunction} from './update-selected-easing';
+import {useTimelineRowSelection} from './TimelineSelection';
 
 const fieldRowBase: React.CSSProperties = {};
 
@@ -367,9 +362,6 @@ export const TimelineEffectPropItem: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const selection = useTimelineRowSelection(nodePathInfo);
-	const {selectItems} = useTimelineSelection();
-	const setFrame = Internals.useTimelineSetFrame();
-	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const sourceFrame = timelinePosition - keyframeDisplayOffset;
 	const style = useMemo((): React.CSSProperties => {
@@ -500,110 +492,24 @@ export const TimelineEffectPropItem: React.FC<{
 		];
 	}, [canShowReset, onReset]);
 
-	const seekToDisplayFrame = useCallback(
-		(frame: number) => {
-			setFrame((current) => {
-				const next = {...current, [videoConfig.id]: frame};
-				Internals.persistCurrentFrame(next);
-				return next;
-			});
-		},
-		[setFrame, videoConfig.id],
-	);
-
 	const onPropertyDoubleClick = useCallback<
 		React.MouseEventHandler<HTMLDivElement>
 	>(
 		(event) => {
 			if (
-				window.remotion_editorName &&
-				previewServerState.type === 'connected'
+				!window.remotion_editorName ||
+				previewServerState.type !== 'connected'
 			) {
-				event.stopPropagation();
-				openOriginalPositionInEditorAtProperty({
-					originalPosition: validatedLocation,
-					property: field.key,
-				}).catch(() => undefined);
-			}
-
-			if (propStatus === null || propStatus.status === 'computed') {
-				return;
-			}
-
-			const keyframeSelection = {
-				type: 'keyframe' as const,
-				nodePathInfo,
-				frame: sourceFrame + keyframeDisplayOffset,
-			};
-
-			if (propStatus.status === 'static') {
-				if (!keyframable || previewServerState.type !== 'connected') {
-					return;
-				}
-
-				const value = Internals.getEffectiveVisualModeValue({
-					propStatus,
-					dragOverrideValue,
-					frame: sourceFrame,
-					defaultValue: field.fieldSchema.default,
-					shouldResortToDefaultValueIfUndefined: true,
-				});
-
-				event.stopPropagation();
-				callAddEffectKeyframe({
-					fileName: validatedLocation.source,
-					nodePath,
-					effectIndex: field.effectIndex,
-					fieldKey: field.key,
-					sourceFrame,
-					value,
-					schema: field.effectSchema,
-					setPropStatuses,
-					clientId: previewServerState.clientId,
-				}).catch(() => undefined);
-				selectItems([keyframeSelection], {reveal: true});
-				seekToDisplayFrame(keyframeSelection.frame);
-				return;
-			}
-
-			const targetSelection = getAnimationItemSelectionForSourceFrame({
-				includeEasings: canEditEasingForInterpolationFunction(
-					propStatus.interpolationFunction,
-				),
-				keyframeDisplayOffset,
-				keyframes: propStatus.keyframes,
-				nodePathInfo,
-				sourceFrame,
-			});
-
-			if (targetSelection === null) {
 				return;
 			}
 
 			event.stopPropagation();
-			selectItems([targetSelection], {reveal: true});
-			if (targetSelection.type === 'keyframe') {
-				seekToDisplayFrame(targetSelection.frame);
-			}
+			openOriginalPositionInEditorAtProperty({
+				originalPosition: validatedLocation,
+				property: field.key,
+			}).catch(() => undefined);
 		},
-		[
-			dragOverrideValue,
-			field.effectIndex,
-			field.effectSchema,
-			field.fieldSchema.default,
-			field.key,
-			keyframeDisplayOffset,
-			keyframable,
-			nodePath,
-			nodePathInfo,
-			previewServerState,
-			propStatus,
-			seekToDisplayFrame,
-			selectItems,
-			setPropStatuses,
-			sourceFrame,
-			validatedLocation,
-		],
+		[field.key, previewServerState.type, validatedLocation],
 	);
 
 	const row = (
