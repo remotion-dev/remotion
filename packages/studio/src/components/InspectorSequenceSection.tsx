@@ -12,11 +12,12 @@ import {
 	type SchemaFieldGroupInfo,
 	type TimelineTreeNode,
 } from '../helpers/timeline-layout';
+import {FullscreenIcon} from '../icons/fullscreen';
 import {Plus} from '../icons/plus';
 import {ModalsContext} from '../state/modals';
 import {AssetFileIcon} from './AssetFileIcon';
 import {InlineAction} from './InlineAction';
-import {InspectorInlineAction, InspectorSection} from './InspectorPanel/common';
+import {InspectorSection} from './InspectorPanel/common';
 import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
 import {getAssetSearchQueryForComponent} from './QuickSwitcher/asset-search';
 import {
@@ -72,6 +73,12 @@ const effectsHeaderTitle: React.CSSProperties = {
 const plusIcon: React.CSSProperties = {
 	width: 15,
 	height: 15,
+};
+
+const borderRadiusToggleIcon: React.CSSProperties = {
+	flexShrink: 0,
+	height: 15,
+	width: 15,
 };
 
 const assetSelectorIcon: React.CSSProperties = {
@@ -436,24 +443,29 @@ export const InspectorSequenceSection: React.FC<{
 		validatedLocation.source,
 	]);
 
-	const borderRadiusConversionControl = borderRadiusGroup ? (
-		<InspectorInlineAction
-			disabled={
-				borderRadiusConversion === null ||
-				previewServerState.type !== 'connected'
-			}
-			onClick={onConvertBorderRadius}
-			size="compact"
-			title={
-				borderRadiusConversion === null
-					? borderRadiusUsesShorthand
-						? 'A static border radius is required to use individual corners'
-						: 'All four corners must have the same static value'
-					: undefined
-			}
-		>
-			{borderRadiusUsesShorthand ? 'Individual corners' : 'Use one value'}
-		</InspectorInlineAction>
+	const borderRadiusHeader = borderRadiusGroup ? (
+		<div style={sectionHeaderRow}>
+			<div style={effectsHeaderTitle}>Border radius</div>
+			<InlineAction
+				disabled={
+					borderRadiusConversion === null ||
+					previewServerState.type !== 'connected'
+				}
+				onClick={onConvertBorderRadius}
+				title={
+					borderRadiusConversion === null
+						? borderRadiusUsesShorthand
+							? 'A static border radius is required to use individual corners'
+							: 'All four corners must have the same static value'
+						: borderRadiusUsesShorthand
+							? 'Use individual corner radii'
+							: 'Use one border radius value'
+				}
+				renderAction={(color) => (
+					<FullscreenIcon color={color} style={borderRadiusToggleIcon} />
+				)}
+			/>
+		</div>
 	) : null;
 
 	const effectsHeader = (
@@ -507,11 +519,15 @@ export const InspectorSequenceSection: React.FC<{
 				{controlRows.length > 0 ? (
 					<TimelineSelectionOrderProvider items={controlSelectableItems}>
 						{controlGroupsWithoutLayout.map((group) => (
-							<InspectorSection key={group.id} header={group.label}>
+							<InspectorSection
+								key={group.id}
+								header={
+									group.id === 'border-radius'
+										? borderRadiusHeader
+										: group.label
+								}
+							>
 								{group.id === 'transforms' ? renderTransformControls() : null}
-								{group.id === 'border-radius'
-									? borderRadiusConversionControl
-									: null}
 								{group.rows.map(renderRow)}
 							</InspectorSection>
 						))}
