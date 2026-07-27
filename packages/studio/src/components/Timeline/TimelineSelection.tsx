@@ -25,6 +25,7 @@ import {
 	TIMELINE_BACKGROUND_COLOR,
 	TIMELINE_SELECTED_BACKGROUND_COLOR,
 	TIMELINE_SELECTED_LABEL_BACKGROUND_COLOR,
+	WHITE_ALPHA_05,
 	WHITE_ALPHA_10,
 	WHITE_ALPHA_80,
 } from '../../helpers/colors';
@@ -63,6 +64,7 @@ import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
 
 export const TIMELINE_SELECTED_BACKGROUND = TIMELINE_SELECTED_BACKGROUND_COLOR;
+export const TIMELINE_HOVER_BACKGROUND = WHITE_ALPHA_05;
 export const TIMELINE_SELECTED_LABEL_BACKGROUND =
 	TIMELINE_SELECTED_LABEL_BACKGROUND_COLOR;
 export const TIMELINE_SELECTED_LABEL_TEXT = BLACK;
@@ -108,14 +110,18 @@ export const getTimelineRowHighlightBackground = ({
 	showSelectedBackground,
 	selected,
 	containsSelection,
+	hovered,
 }: {
 	readonly showSelectedBackground: boolean;
 	readonly selected: boolean;
 	readonly containsSelection: boolean;
+	readonly hovered: boolean;
 }): string | undefined => {
-	return showSelectedBackground && (selected || containsSelection)
-		? TIMELINE_SELECTED_BACKGROUND
-		: undefined;
+	if (showSelectedBackground && (selected || containsSelection)) {
+		return TIMELINE_SELECTED_BACKGROUND;
+	}
+
+	return hovered ? TIMELINE_HOVER_BACKGROUND : undefined;
 };
 
 export const TIMELINE_BACKGROUND = TIMELINE_BACKGROUND_COLOR;
@@ -1862,6 +1868,7 @@ export const useTimelineRowContainsSelection = (
 
 export const useTimelineRowHighlightBackground = (
 	nodePathInfo: SequenceNodePathInfo | null,
+	hovered = false,
 ): string | undefined => {
 	const {selected} = useTimelineRowSelection(nodePathInfo);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
@@ -1869,5 +1876,6 @@ export const useTimelineRowHighlightBackground = (
 		showSelectedBackground: true,
 		selected,
 		containsSelection,
+		hovered,
 	});
 };
