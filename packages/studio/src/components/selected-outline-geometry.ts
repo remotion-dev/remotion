@@ -9,6 +9,12 @@ export type SelectedOutline = {
 		readonly width: number;
 		readonly height: number;
 	} | null;
+	readonly uncroppedPoints?: readonly [
+		OutlinePoint,
+		OutlinePoint,
+		OutlinePoint,
+		OutlinePoint,
+	];
 	readonly points: readonly [
 		OutlinePoint,
 		OutlinePoint,

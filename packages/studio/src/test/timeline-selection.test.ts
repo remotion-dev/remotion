@@ -14,12 +14,15 @@ import {getInspectorSelectableItems} from '../components/InspectorSequenceSectio
 import type {SelectedOutline} from '../components/selected-outline-geometry';
 import {
 	cropOutlinePoints,
+	getSelectedCropInfo,
 	getSelectedTransformOriginInfo,
 } from '../components/selected-outline-measurement';
 import type {
+	SelectedOutlineCropDragTarget,
 	SelectedOutlineTarget,
 	SelectedOutlineTransformOriginDragTarget,
 } from '../components/selected-outline-types';
+import {canEditSelectedOutlineCrop} from '../components/selected-outline-types';
 import {
 	constrainUv,
 	getSelectedUvHandles,
@@ -38,6 +41,9 @@ import {
 	getOutlineSelectionInteraction,
 	getSelectedEffectFieldsBySequenceKey,
 	getSelectedOutlineActiveSchema,
+	getSelectedOutlineCropDragChanges,
+	getSelectedOutlineCropDragValues,
+	getSelectedOutlineCropFollowingTransformOrigin,
 	getSelectedOutlineDragChanges,
 	getSelectedOutlineDragValues,
 	getSelectedOutlineKeyboardNudgeDelta,
@@ -85,8 +91,8 @@ import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected
 import {shouldSubscribeToSequenceProps} from '../components/Timeline/should-subscribe-to-sequence-props';
 import {
 	getEasingClipboardDataFromSelection,
-	getEffectsClipboardEnvelopeFromSelections,
 	getEffectPropClipboardDataFromSelection,
+	getEffectsClipboardEnvelopeFromSelections,
 	getPasteEffectPropTarget,
 	getPasteEffectsTarget,
 	getSnapshotsFromSelection,
@@ -3577,6 +3583,314 @@ test('Sequence crops are projected through perspective transforms', () => {
 	expect(cropped[3]).toEqual({x: 10, y: 60});
 });
 
+test('Crop handles update normalized crop values and keep one pixel visible', () => {
+	expect(
+		getSelectedOutlineCropDragValues({
+			crop: {
+				cropLeft: 0.1,
+				cropRight: 0.2,
+				cropTop: 0.15,
+				cropBottom: 0.25,
+			},
+			dimensions: {width: 100, height: 200},
+			handle: 'top-right',
+			uv: [0.65, 0.3],
+		}),
+	).toEqual({
+		cropLeft: 0.1,
+		cropRight: 0.35,
+		cropTop: 0.3,
+		cropBottom: 0.25,
+	});
+
+	expect(
+		getSelectedOutlineCropDragValues({
+			crop: {
+				cropLeft: 0.1,
+				cropRight: 0.2,
+				cropTop: 0.15,
+				cropBottom: 0.25,
+			},
+			dimensions: {width: 100, height: 200},
+			handle: 'left',
+			uv: [1, 0.5],
+		}),
+	).toEqual({
+		cropLeft: 0.79,
+		cropRight: 0.2,
+		cropTop: 0.15,
+		cropBottom: 0.25,
+	});
+});
+
+test('Crop is only available when all crop fields can be edited', () => {
+	const numberField = {
+		type: 'number' as const,
+		default: 0,
+		hiddenFromList: false,
+		keyframable: true,
+	};
+	const schema = {
+		cropLeft: numberField,
+		cropRight: numberField,
+		cropTop: numberField,
+		cropBottom: numberField,
+	} satisfies InteractivitySchema;
+	const propStatuses = {
+		cropLeft: {status: 'static' as const, codeValue: 0},
+		cropRight: {status: 'static' as const, codeValue: 0},
+		cropTop: {status: 'static' as const, codeValue: 0},
+		cropBottom: {status: 'static' as const, codeValue: 0},
+	};
+
+	expect(canEditSelectedOutlineCrop({schema, propStatuses})).toBe(true);
+	expect(
+		canEditSelectedOutlineCrop({
+			schema,
+			propStatuses: {
+				...propStatuses,
+				cropRight: {status: 'computed'},
+			},
+		}),
+	).toBe(false);
+	expect(
+		canEditSelectedOutlineCrop({
+			schema: {
+				cropLeft: numberField,
+				cropRight: numberField,
+				cropTop: numberField,
+			},
+			propStatuses,
+		}),
+	).toBe(false);
+});
+
+test('Crop handle changes preserve static and keyframed field behavior', () => {
+	const schema = {
+		cropLeft: {
+			type: 'number',
+			default: 0,
+			hiddenFromList: false,
+			keyframable: true,
+		},
+		cropRight: {
+			type: 'number',
+			default: 0,
+			hiddenFromList: false,
+			keyframable: true,
+		},
+		cropTop: {
+			type: 'number',
+			default: 0,
+			hiddenFromList: false,
+			keyframable: true,
+		},
+		cropBottom: {
+			type: 'number',
+			default: 0,
+			hiddenFromList: false,
+			keyframable: true,
+		},
+	} satisfies InteractivitySchema;
+	const nodePath = makeKey(['body', 0]);
+	const staticField = (value: number) => ({
+		defaultValue: 0,
+		fieldSchema: schema.cropLeft,
+		propStatus: {status: 'static' as const, codeValue: value},
+		value,
+	});
+	const target = {
+		clientId: 'client',
+		fields: {
+			cropLeft: staticField(0.1),
+			cropRight: {
+				defaultValue: 0,
+				fieldSchema: schema.cropRight,
+				propStatus: {
+					status: 'keyframed',
+					interpolationFunction: 'interpolate',
+					keyframes: [
+						{frame: 0, value: 0.2},
+						{frame: 20, value: 0.3},
+					],
+					easing: [{type: 'linear'}],
+					clamping: {left: 'extend', right: 'extend'},
+					posterize: undefined,
+					output: undefined,
+				},
+				value: 0.2,
+			},
+			cropTop: staticField(0.15),
+			cropBottom: staticField(0.25),
+		},
+		nodePath,
+		schema,
+		sourceFrame: 12,
+		transformOrigin: null,
+	} satisfies SelectedOutlineCropDragTarget;
+
+	expect(
+		getSelectedOutlineCropDragChanges({
+			dimensions: {width: 100, height: 200},
+			target,
+			values: {
+				cropLeft: 0.25,
+				cropRight: 0.35,
+				cropTop: 0.15,
+				cropBottom: 0.25,
+			},
+		}),
+	).toEqual([
+		{
+			type: 'static',
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			fieldKey: 'cropLeft',
+			value: 0.25,
+			defaultValue: '0',
+			schema,
+		},
+		{
+			type: 'keyframed',
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			fieldKey: 'cropRight',
+			sourceFrame: 12,
+			value: 0.35,
+			schema,
+			clientId: 'client',
+		},
+	]);
+
+	expect(
+		getSelectedOutlineCropDragChanges({
+			dimensions: {width: 100, height: 200},
+			target: {
+				...target,
+				transformOrigin: {
+					defaultValue: '50% 50%',
+					propStatus: {status: 'static', codeValue: undefined},
+					value: '50% 50%',
+				},
+			},
+			values: {
+				cropLeft: 0.2,
+				cropRight: 0.2,
+				cropTop: 0.15,
+				cropBottom: 0.25,
+			},
+		}),
+	).toEqual([
+		{
+			type: 'static',
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			fieldKey: 'cropLeft',
+			value: 0.2,
+			defaultValue: '0',
+			schema,
+		},
+		{
+			type: 'static',
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			fieldKey: 'style.transformOrigin',
+			value: '50% 45%',
+			defaultValue: '"50% 50%"',
+			schema,
+		},
+	]);
+});
+
+test('Crop follows an absent or crop-centered static transform origin', () => {
+	const initialCrop = {
+		cropLeft: 0.11,
+		cropRight: 0.64,
+		cropTop: 0,
+		cropBottom: 0.17,
+	};
+	const nextCrop = {...initialCrop, cropLeft: 0.21};
+	const dimensions = {width: 1920, height: 1080};
+
+	expect(
+		getSelectedOutlineCropFollowingTransformOrigin({
+			dimensions,
+			initialCrop,
+			nextCrop,
+			transformOrigin: {
+				defaultValue: '50% 50%',
+				propStatus: {status: 'static', codeValue: undefined},
+				value: '50% 50%',
+			},
+		}),
+	).toBe('28.5% 41.5%');
+	expect(
+		getSelectedOutlineCropFollowingTransformOrigin({
+			dimensions,
+			initialCrop,
+			nextCrop,
+			transformOrigin: {
+				defaultValue: '50% 50%',
+				propStatus: {status: 'static', codeValue: '23.5% 41.5% 10px'},
+				value: '23.5% 41.5% 10px',
+			},
+		}),
+	).toBe('28.5% 41.5% 10px');
+});
+
+test('Crop leaves custom, keyframed and computed transform origins alone', () => {
+	const initialCrop = {
+		cropLeft: 0.11,
+		cropRight: 0.64,
+		cropTop: 0,
+		cropBottom: 0.17,
+	};
+	const base = {
+		dimensions: {width: 1920, height: 1080},
+		initialCrop,
+		nextCrop: {...initialCrop, cropLeft: 0.21},
+	};
+
+	expect(
+		getSelectedOutlineCropFollowingTransformOrigin({
+			...base,
+			transformOrigin: {
+				defaultValue: '50% 50%',
+				propStatus: {status: 'static', codeValue: '50% 50%'},
+				value: '50% 50%',
+			},
+		}),
+	).toBeNull();
+	expect(
+		getSelectedOutlineCropFollowingTransformOrigin({
+			...base,
+			transformOrigin: {
+				defaultValue: '50% 50%',
+				propStatus: {
+					status: 'keyframed',
+					interpolationFunction: 'interpolate',
+					keyframes: [{frame: 0, value: '23.5% 41.5%'}],
+					easing: [],
+					clamping: {left: 'extend', right: 'extend'},
+					posterize: undefined,
+					output: undefined,
+				},
+				value: '23.5% 41.5%',
+			},
+		}),
+	).toBeNull();
+	expect(
+		getSelectedOutlineCropFollowingTransformOrigin({
+			...base,
+			transformOrigin: {
+				defaultValue: '50% 50%',
+				propStatus: {status: 'computed'},
+				value: '23.5% 41.5%',
+			},
+		}),
+	).toBeNull();
+});
+
 test('UV handle pointer position maps back to UV coordinates', () => {
 	const points = [
 		{x: 20, y: 10},
@@ -3825,6 +4139,40 @@ test('Transform origin drag snaps to rotated outline anchors', () => {
 			uv: getUvCoordinateForPoint(points, pointer),
 		}),
 	).toEqual([0.5, 0]);
+});
+
+test('Transform origin drag also snaps to cropped outline anchors', () => {
+	const points = [
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 100, y: 100},
+		{x: 0, y: 100},
+	] as const;
+	const crop = {left: 0.11, right: 0.64, top: 0, bottom: 0.17};
+	const croppedSnapTargets = [
+		[0.11, 0],
+		[0.235, 0],
+		[0.36, 0],
+		[0.36, 0.415],
+		[0.36, 0.83],
+		[0.235, 0.83],
+		[0.11, 0.83],
+		[0.11, 0.415],
+		[0.235, 0.415],
+	] as const;
+
+	for (const snapTarget of croppedSnapTargets) {
+		const snapPoint = getUvHandlePosition(points, snapTarget);
+		const pointer = {x: snapPoint.x + 2, y: snapPoint.y + 2};
+		expect(
+			snapSelectedOutlineTransformOriginUv({
+				crop,
+				point: pointer,
+				points,
+				uv: getUvCoordinateForPoint(points, pointer),
+			}),
+		).toEqual(snapTarget);
+	}
 });
 
 test('Transform origin drag does not snap outside the magnetic threshold', () => {
@@ -4733,6 +5081,42 @@ test('Transform origin easing selection targets the transform origin handle', ()
 		sequenceKey: getTimelineSequenceSelectionKey(transformOriginNodePathInfo),
 		displayFrame: 12,
 	});
+});
+
+test('Crop prop and keyframe selections target crop handles', () => {
+	const cropNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'cropLeft'],
+	);
+	const sequenceKey = getTimelineSequenceSelectionKey(cropNodePathInfo);
+
+	expect(
+		getSelectedCropInfo([
+			{
+				type: 'sequence-prop',
+				nodePathInfo: cropNodePathInfo,
+				key: 'cropLeft',
+			},
+		]),
+	).toEqual({sequenceKey, displayFrame: null});
+	expect(
+		getSelectedCropInfo([
+			{
+				type: 'keyframe',
+				nodePathInfo: cropNodePathInfo,
+				frame: 18,
+			},
+		]),
+	).toEqual({sequenceKey, displayFrame: 18});
+	expect(
+		getSelectedCropInfo([
+			{
+				type: 'sequence-prop',
+				nodePathInfo: cropNodePathInfo,
+				key: 'style.opacity',
+			},
+		]),
+	).toBe(null);
 });
 
 test('selected sequence keys only include exact sequence selections', () => {

@@ -77,6 +77,7 @@ import {
 	type SelectedOutlineSnapTarget,
 } from './selected-outline-snap';
 import {
+	cropFieldKeys,
 	rotateFieldKey,
 	scaleFieldKey,
 	transformOriginFieldKey,
@@ -91,6 +92,7 @@ import {
 	getUvCoordinateForPoint,
 	getUvHandlePosition,
 } from './selected-outline-uv';
+import {SelectedOutlineCropControls} from './SelectedOutlineCropControls';
 import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {disableSequenceInteractivity} from './Timeline/disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './Timeline/duplicate-selected-timeline-item';
@@ -126,6 +128,8 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 	);
 	const {editorSnapping} = useContext(EditorSnappingContext);
 	const transformOriginDrag = target?.transformOriginDrag ?? null;
+	const crop = target?.crop;
+	const transformOriginPoints = outline.uncroppedPoints ?? outline.points;
 
 	const parsed = useMemo(
 		() =>
@@ -146,8 +150,8 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 		});
 	}, [outline.dimensions, parsed]);
 	const position = useMemo(
-		() => (uv === null ? null : getUvHandlePosition(outline.points, uv)),
-		[outline.points, uv],
+		() => (uv === null ? null : getUvHandlePosition(transformOriginPoints, uv)),
+		[transformOriginPoints, uv],
 	);
 
 	const onPointerDown = React.useCallback(
@@ -205,7 +209,7 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 					x: currentPointerX - svgRect.left,
 					y: currentPointerY - svgRect.top,
 				};
-				const rawUv = getUvCoordinateForPoint(outline.points, point);
+				const rawUv = getUvCoordinateForPoint(transformOriginPoints, point);
 				const lockedAxis = getSelectedOutlineTransformOriginLockedAxis({
 					axisLocked,
 					dimensions,
@@ -220,11 +224,12 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 				const snapPoint =
 					lockedAxis === null
 						? point
-						: getUvHandlePosition(outline.points, axisLockedUv);
+						: getUvHandlePosition(transformOriginPoints, axisLockedUv);
 				const snappedUv = editorSnapping
 					? snapSelectedOutlineTransformOriginUv({
+							crop,
 							point: snapPoint,
-							points: outline.points,
+							points: transformOriginPoints,
 							uv: axisLockedUv,
 						})
 					: axisLockedUv;
@@ -391,6 +396,7 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 		},
 		[
 			clearDragOverrides,
+			crop,
 			editorSnapping,
 			onDraggingChange,
 			outline,
@@ -398,6 +404,7 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 			setDragOverrides,
 			setPropStatuses,
 			transformOriginDrag,
+			transformOriginPoints,
 			uv,
 		],
 	);
@@ -1219,7 +1226,7 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			const center = svgPointToClientPoint(
 				getSelectedOutlineRotationPivot({
 					dimensions: outline.dimensions,
-					points: outline.points,
+					points: outline.uncroppedPoints ?? outline.points,
 					transformOriginValue: rotationDrag.transformOriginValue,
 				}),
 				svgRect,
@@ -1416,6 +1423,7 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			onDraggingChange,
 			outline.dimensions,
 			outline.points,
+			outline.uncroppedPoints,
 			onSelect,
 			rotationDrag,
 			selected,
@@ -1612,6 +1620,7 @@ export const SelectedOutlineElement: React.FC<{
 			target.nodePathInfo.supportsEffects &&
 			!sourceEditDisabled &&
 			previewServerState.type === 'connected';
+		const canCrop = target.canCrop && !sourceEditDisabled;
 
 		return getSequenceContextMenuItems({
 			assetLinkInfo,
@@ -1723,12 +1732,40 @@ export const SelectedOutlineElement: React.FC<{
 								subMenu: null,
 								value: 'add-effect',
 							},
-							{
-								type: 'divider' as const,
-								id: 'add-effect-divider',
-							},
 						]
 					: []),
+				{
+					type: 'item' as const,
+					id: 'crop',
+					keyHint: null,
+					label: 'Crop',
+					leftItem: null,
+					disabled: !canCrop,
+					onClick: () => {
+						if (!canCrop) {
+							return;
+						}
+
+						onSelect(
+							{
+								type: 'sequence-prop',
+								nodePathInfo: {
+									...target.nodePathInfo,
+									auxiliaryKeys: ['controls', cropFieldKeys.left],
+								},
+								key: cropFieldKeys.left,
+							},
+							{shiftKey: false, toggleKey: false},
+						);
+					},
+					quickSwitcherLabel: null,
+					subMenu: null,
+					value: 'crop',
+				},
+				{
+					type: 'divider' as const,
+					id: 'crop-divider',
+				},
 			],
 		});
 	}, [
@@ -1761,7 +1798,12 @@ export const SelectedOutlineElement: React.FC<{
 				snapTargets={snapTargets}
 				target={target}
 			/>
-			{target?.containsSelection || hovered
+			<SelectedOutlineCropControls
+				outline={outline}
+				onDraggingChange={onDraggingChange}
+				target={target}
+			/>
+			{target?.cropDrag === null && (target.containsSelection || hovered)
 				? (['top', 'right', 'bottom', 'left'] as const).map((edge) => (
 						<SelectedOutlineScaleEdgeLine
 							key={edge}
@@ -1778,7 +1820,7 @@ export const SelectedOutlineElement: React.FC<{
 						/>
 					))
 				: null}
-			{target?.containsSelection || hovered
+			{target?.cropDrag === null && (target.containsSelection || hovered)
 				? (
 						['top-left', 'top-right', 'bottom-right', 'bottom-left'] as const
 					).map((corner) => (
