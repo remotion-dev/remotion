@@ -239,7 +239,6 @@ const getMinimumSequenceDuration = ({
 		sequences.filter(
 			(candidate) =>
 				candidate.parent === sequence.parent &&
-				candidate.rootId === sequence.rootId &&
 				(isTransitionSeriesSequence(candidate) ||
 					isTransitionSeriesTransition(candidate)),
 		),

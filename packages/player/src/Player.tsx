@@ -223,7 +223,6 @@ const PlayerFn = <
 		[PLAYER_COMP_ID]: initialFrame ?? 0,
 	}));
 	const [playing, setPlaying] = useState<boolean>(false);
-	const [rootId] = useState<string>('player-comp');
 	const rootRef = useRef<PlayerRef>(null);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 	const imperativePlaying = useRef(false);
@@ -392,11 +391,10 @@ const PlayerFn = <
 		return {
 			frame,
 			playing,
-			rootId,
 			imperativePlaying,
 			audioAndVideoTags,
 		};
-	}, [frame, playing, rootId]);
+	}, [frame, playing]);
 
 	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
 		return {

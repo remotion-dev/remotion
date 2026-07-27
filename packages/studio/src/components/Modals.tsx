@@ -180,6 +180,7 @@ export const Modals: React.FC<{
 					readOnlyStudio={readOnlyStudio}
 					invocationTimestamp={modalContextType.invocationTimestamp}
 					initialMode={modalContextType.mode}
+					assetSelection={modalContextType.assetSelection}
 				/>
 			)}
 			{modalContextType && modalContextType.type === 'add-effect' && (

@@ -17,6 +17,7 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {ContextMenu} from '../ContextMenu';
+import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {callAddSequenceKeyframe} from './call-add-keyframe';
 import {getAnimationItemSelectionForSourceFrame} from './get-animation-item-selection-for-frame';
@@ -42,6 +43,18 @@ import {
 import {canEditEasingForInterpolationFunction} from './update-selected-easing';
 
 const fieldRowBase: React.CSSProperties = {};
+
+const inlineSourceFieldRow: React.CSSProperties = {
+	alignItems: 'stretch',
+	display: 'flex',
+	minWidth: 0,
+	width: '100%',
+};
+
+const computedSourceFieldRow: React.CSSProperties = {
+	boxSizing: 'border-box',
+	paddingInline: INSPECTOR_PANEL_HORIZONTAL_PADDING,
+};
 
 const isKeyframedStatus = (
 	status: CanUpdateSequencePropStatus,
@@ -558,6 +571,20 @@ export const TimelineSequencePropItem: React.FC<{
 	) : (
 		<TimelineNonEditableStatus propStatus={propStatus} />
 	);
+
+	if (field.typeName === 'asset' && field.key === 'src') {
+		return (
+			<div
+				style={{
+					...inlineSourceFieldRow,
+					...(propStatus.status === 'computed' ? computedSourceFieldRow : null),
+					...style,
+				}}
+			>
+				{fieldValue}
+			</div>
+		);
+	}
 
 	const row = (
 		<TimelineRowChrome

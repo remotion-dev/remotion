@@ -1,6 +1,9 @@
 import {expect, test} from 'bun:test';
 import type {StaticFile} from '../api/get-static-files';
-import {filterAssetsByType} from '../components/QuickSwitcher/asset-search';
+import {
+	filterAssetsByType,
+	getAssetSearchQueryForComponent,
+} from '../components/QuickSwitcher/asset-search';
 
 const assets: StaticFile[] = [
 	{
@@ -56,4 +59,21 @@ test('returns no assets for an unknown asset type', () => {
 
 	expect(result.query).toBe('');
 	expect(result.assets).toEqual([]);
+});
+
+test('gets an asset type query for interactive media components', () => {
+	expect(getAssetSearchQueryForComponent('dev.remotion.media.Video')).toBe(
+		'type:video ',
+	);
+	expect(getAssetSearchQueryForComponent('dev.remotion.media.Audio')).toBe(
+		'type:audio ',
+	);
+	expect(getAssetSearchQueryForComponent('dev.remotion.remotion.Img')).toBe(
+		'type:image ',
+	);
+	expect(
+		getAssetSearchQueryForComponent('dev.remotion.remotion.AnimatedImage'),
+	).toBe('type:image ');
+	expect(getAssetSearchQueryForComponent('com.example.Custom')).toBe('');
+	expect(getAssetSearchQueryForComponent(null)).toBe('');
 });

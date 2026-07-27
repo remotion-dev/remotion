@@ -115,7 +115,6 @@ export const WrapSequenceContext: React.FC<{
 		() => ({
 			frame: {'my-comp': currentFrame},
 			playing: false,
-			rootId: 'test-root',
 			imperativePlaying: {current: false},
 			audioAndVideoTags: {current: []},
 		}),

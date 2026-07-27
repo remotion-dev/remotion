@@ -1,7 +1,7 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals, type CanUpdateSequencePropStatus} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {AlignBottomIcon} from '../../icons/align-bottom';
 import {AlignCenterHorizontalIcon} from '../../icons/align-center-horizontal';
 import {AlignCenterVerticalIcon} from '../../icons/align-center-vertical';
@@ -68,7 +68,7 @@ const AlignmentButton: React.FC<{
 };
 
 export const AlignmentControls: React.FC<{
-	readonly track: TrackWithHash;
+	readonly track: TimelineTrackData;
 }> = ({track}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);

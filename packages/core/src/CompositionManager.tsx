@@ -119,7 +119,6 @@ export type TSequence = {
 	displayName: string;
 	documentationLink: string | null;
 	parent: string | null;
-	rootId: string;
 	showInTimeline: boolean;
 	nonce: NonceHistory;
 	loopDisplay: LoopDisplay | undefined;
