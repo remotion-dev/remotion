@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {findSearchPosition} from '../preview-server/routes/open-in-editor';
+import {findSearchPosition} from '../preview-server/routes/find-in-file';
 
 test('finds a property after the component location', () => {
 	const contents = [

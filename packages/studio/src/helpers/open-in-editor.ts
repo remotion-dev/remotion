@@ -4,12 +4,12 @@ import type {
 } from '@remotion/studio-shared';
 import {useSyncExternalStore} from 'react';
 import {callApi} from '../components/call-api';
-import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
+import type {
+	CodePosition,
+	OriginalPosition,
+} from '../error-overlay/react-overlay/utils/get-source-map';
 
-const openInEditorWithSearch = (
-	stack: SymbolicatedStackFrame,
-	search: string | null,
-) => {
+export const openInEditor = (stack: SymbolicatedStackFrame) => {
 	const {
 		originalFileName,
 		originalLineNumber,
@@ -19,7 +19,6 @@ const openInEditorWithSearch = (
 	} = stack;
 
 	return callApi('/api/open-in-editor', {
-		search,
 		stack: {
 			originalFileName,
 			originalLineNumber,
@@ -30,42 +29,37 @@ const openInEditorWithSearch = (
 	});
 };
 
-export const openInEditor = (stack: SymbolicatedStackFrame) => {
-	return openInEditorWithSearch(stack, null);
-};
-
 export const openOriginalPositionInEditor = async (
 	originalPosition: OriginalPosition,
 ) => {
-	await openInEditorWithSearch(
-		{
-			originalColumnNumber: originalPosition.column,
-			originalFileName: originalPosition.source,
-			originalFunctionName: null,
-			originalLineNumber: originalPosition.line,
-			originalScriptCode: null,
-		},
-		null,
-	);
+	await openInEditor({
+		originalColumnNumber: originalPosition.column,
+		originalFileName: originalPosition.source,
+		originalFunctionName: null,
+		originalLineNumber: originalPosition.line,
+		originalScriptCode: null,
+	});
 };
 
 export const openOriginalPositionInEditorAtProperty = async ({
 	originalPosition,
 	property,
 }: {
-	originalPosition: OriginalPosition;
+	originalPosition: CodePosition;
 	property: string;
 }) => {
-	await openInEditorWithSearch(
-		{
-			originalColumnNumber: originalPosition.column,
-			originalFileName: originalPosition.source,
-			originalFunctionName: null,
-			originalLineNumber: originalPosition.line,
-			originalScriptCode: null,
-		},
-		property,
-	);
+	const position = await callApi('/api/find-in-file', {
+		fileName: originalPosition.source,
+		lineNumber: originalPosition.line,
+		columnNumber: originalPosition.column,
+		search: property,
+	});
+
+	await openOriginalPositionInEditor({
+		source: originalPosition.source,
+		line: position.lineNumber,
+		column: position.columnNumber,
+	});
 };
 
 type ResolvedCompositionComponentInfo = {

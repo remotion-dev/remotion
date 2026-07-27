@@ -52,11 +52,22 @@ export type OpenInFileExplorerRequest = {
 
 export type OpenInEditorRequest = {
 	stack: SymbolicatedStackFrame;
-	search: string | null;
 };
 
 export type OpenInEditorResponse = {
 	success: boolean;
+};
+
+export type FindInFileRequest = {
+	fileName: string;
+	lineNumber: number;
+	columnNumber: number;
+	search: string;
+};
+
+export type FindInFileResponse = {
+	lineNumber: number;
+	columnNumber: number;
 };
 
 export type CompositionComponentInfoRequest = {
@@ -944,6 +955,7 @@ export type ApiRoutes = {
 	>;
 	'/api/remove-render': ReqAndRes<RemoveRenderRequest, undefined>;
 	'/api/open-in-editor': ReqAndRes<OpenInEditorRequest, OpenInEditorResponse>;
+	'/api/find-in-file': ReqAndRes<FindInFileRequest, FindInFileResponse>;
 	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
 	'/api/register-client-render': ReqAndRes<CompletedClientRender, void>;
 	'/api/unregister-client-render': ReqAndRes<{id: string}, void>;
