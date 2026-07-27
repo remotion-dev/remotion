@@ -56,9 +56,10 @@ export const useTimelineSequenceHover = (
 		});
 	}, [sequenceKey, setHoveredSequence]);
 
-	return {
-		hovered: sequenceKey !== null && hoveredSequence?.key === sequenceKey,
-		onPointerEnter,
-		onPointerLeave,
-	};
+	const hovered = sequenceKey !== null && hoveredSequence?.key === sequenceKey;
+
+	return useMemo(
+		() => ({hovered, onPointerEnter, onPointerLeave}),
+		[hovered, onPointerEnter, onPointerLeave],
+	);
 };
