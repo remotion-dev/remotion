@@ -1,4 +1,5 @@
 import React, {useCallback, useContext, useEffect, useId} from 'react';
+import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
 import {FAIL_COLOR, LIGHT_TEXT} from '../helpers/colors';
 import {CaptionTimingEditContext} from '../state/caption-timing-edit';
@@ -39,6 +40,8 @@ export const CaptionInspector: React.FC<{
 	readonly onTextChange: (captions: CaptionData[]) => void;
 	readonly onTextSave: ((captions: CaptionData[]) => void) | null;
 	readonly onTimingChange: (captions: CaptionData[]) => void;
+	readonly sequence: TSequence;
+	readonly sequenceFrameOffset: number;
 	readonly readOnlyTitle: string | null;
 	readonly saveStatus: CaptionSaveStatus;
 }> = ({
@@ -46,6 +49,8 @@ export const CaptionInspector: React.FC<{
 	onTextChange,
 	onTextSave,
 	onTimingChange,
+	sequence,
+	sequenceFrameOffset,
 	readOnlyTitle,
 	saveStatus,
 }) => {
@@ -62,8 +67,22 @@ export const CaptionInspector: React.FC<{
 			return;
 		}
 
-		sync({ownerId, captions, onChange: onTimingChange});
-	}, [captions, isEditingTimings, onTimingChange, ownerId, sync]);
+		sync({
+			ownerId,
+			captions,
+			onChange: onTimingChange,
+			sequence,
+			sequenceFrameOffset,
+		});
+	}, [
+		captions,
+		isEditingTimings,
+		onTimingChange,
+		ownerId,
+		sequence,
+		sequenceFrameOffset,
+		sync,
+	]);
 
 	useEffect(() => {
 		return () => stop(ownerId);
@@ -85,13 +104,21 @@ export const CaptionInspector: React.FC<{
 			return;
 		}
 
-		start({ownerId, captions, onChange: onTimingChange});
+		start({
+			ownerId,
+			captions,
+			onChange: onTimingChange,
+			sequence,
+			sequenceFrameOffset,
+		});
 	}, [
 		canEditTimings,
 		captions,
 		isEditingTimings,
 		onTimingChange,
 		ownerId,
+		sequence,
+		sequenceFrameOffset,
 		start,
 		stop,
 	]);

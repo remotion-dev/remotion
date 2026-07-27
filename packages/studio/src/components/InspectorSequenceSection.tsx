@@ -204,6 +204,7 @@ export const InspectorSequenceSection: React.FC<{
 	readonly validatedLocation: CodePosition;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
+	readonly sequenceFrameOffset: number;
 	readonly renderTransformControls: () => React.ReactNode;
 }> = ({
 	sequence,
@@ -211,6 +212,7 @@ export const InspectorSequenceSection: React.FC<{
 	validatedLocation,
 	nodePathInfo,
 	keyframeDisplayOffset,
+	sequenceFrameOffset,
 	renderTransformControls,
 }) => {
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
@@ -448,6 +450,8 @@ export const InspectorSequenceSection: React.FC<{
 					controls={sequence.controls}
 					nodePath={nodePathInfo.sequenceSubscriptionKey}
 					readOnlyStudio={readOnlyStudio}
+					sequence={sequence}
+					sequenceFrameOffset={sequenceFrameOffset}
 					validatedLocation={validatedLocation}
 				/>
 			) : null}

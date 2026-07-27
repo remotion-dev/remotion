@@ -182,6 +182,7 @@ const withSchema = <S extends InteractivitySchema, Props extends object>(
 };
 
 const interactiveCaptionsSchema = {
+	...baseSchema,
 	...captionsSchema,
 	'style.width': {
 		type: 'number',
@@ -218,7 +219,7 @@ type WithCaptionsPublicProps<Props extends CaptionComponentProps> = Omit<
 	Props,
 	'style'
 > &
-	Pick<InteractiveBaseProps, 'name'> &
+	InteractiveBaseProps &
 	InteractiveTransformProps;
 
 const formatInteractiveComponentName = (name: string) => {
@@ -243,26 +244,36 @@ const withCaptions = <Props extends CaptionComponentProps>({
 		? formatInteractiveComponentName(componentNameOption)
 		: getInteractiveComponentName(Component as React.ComponentType<object>);
 	type PublicProps = WithCaptionsPublicProps<Props>;
-	type InnerProps = Omit<
-		PublicProps,
-		'controls' | 'name' | 'stack' | 'style'
-	> & {
+	type InnerProps = Omit<PublicProps, 'controls' | 'stack'> & {
 		readonly controls: SequenceControls | undefined;
-		readonly name: string | undefined;
 		readonly stack: string | undefined;
-		readonly style: React.CSSProperties | undefined;
 	};
 	const Inner = forwardRef<unknown, InnerProps>((propsWithControls, _ref) => {
-		const {controls, name, stack, style, ...componentProps} =
-			propsWithControls as InnerProps;
+		const {
+			durationInFrames,
+			from,
+			trimBefore,
+			freeze,
+			hidden,
+			name,
+			showInTimeline,
+			controls,
+			stack,
+			style,
+			...componentProps
+		} = propsWithControls as InnerProps;
 		const outlineRef = useRef<HTMLDivElement>(null);
 
 		return (
 			<Sequence
-				durationInFrames={Infinity}
+				from={from ?? 0}
+				trimBefore={trimBefore}
+				durationInFrames={durationInFrames ?? Infinity}
+				freeze={freeze}
+				hidden={hidden}
 				layout="none"
 				name={name ?? componentName}
-				showInTimeline
+				showInTimeline={showInTimeline ?? true}
 				outlineRef={outlineRef}
 				controls={controls}
 				_remotionInternalStack={stack}

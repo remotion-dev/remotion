@@ -13,11 +13,10 @@ The wrapped component appears in the timeline. A generated container provides th
 
 ## Example
 
-```tsx title="TimedCaptions.tsx"
+```tsx twoslash title="TimedCaptions.tsx"
 import type {Caption} from '@remotion/captions';
 import React from 'react';
 import {Interactive} from 'remotion';
-import {captions} from './captions';
 
 const TimedCaptionsContent: React.FC<{
   readonly captions: Caption[];
@@ -33,36 +32,49 @@ export const TimedCaptions = Interactive.withCaptions({
 });
 
 export const MyComp: React.FC = () => {
-  return <TimedCaptions style={{height: 240, translate: '120px 700px', width: 1680}} captions={captions} color="#ffffff" />;
+  return (
+    <TimedCaptions
+      style={{height: 240, translate: '120px 700px', width: 1680}}
+      captions={[
+        {
+          text: 'Hello',
+          startMs: 0,
+          endMs: 1000,
+          timestampMs: 500,
+          confidence: null,
+        },
+      ]}
+      color="#ffffff"
+    />
+  );
 };
 ```
 
-`Interactive.withCaptions()` creates the caption schema, Studio controls and a layout-free outer `<Sequence>`. It preserves the component's other props and adds optional `name` and `style` props for the Studio timeline and caption container. The `style` prop belongs to the generated container, so the wrapped component should use another prop name such as `captionStyle` for its own styling.
+`Interactive.withCaptions()` creates the caption schema, Studio controls and a layout-free outer `<Sequence>`. It preserves the component's other props and adds the standard `<Sequence>` props, such as `from`, `durationInFrames`, `trimBefore`, `hidden`, `name` and `showInTimeline`. It also adds a `style` prop for the Studio caption container. The `style` prop belongs to the generated container, so the wrapped component should use another prop name such as `captionStyle` for its own styling.
 
 ## Editing captions
 
-Studio can save caption text and timing changes back to an inline JSX array or a directly imported static caption module. For longer transcripts, use a local module:
+When the `captions` prop is an inline JSX array, Studio can save caption text and timing changes back to the source file. For a long transcript, keep the editable JSX in a dedicated component rather than the main composition:
 
-```ts title="captions.ts"
-import type {Caption} from '@remotion/captions';
+```tsx title="MyCaptions.tsx"
+import React from 'react';
+import {TimedCaptions} from './TimedCaptions';
 
-export const captions = [
-  {
-    text: 'Hello',
-    startMs: 0,
-    endMs: 1000,
-    timestampMs: 500,
-    confidence: null,
-  },
-] satisfies Caption[];
-```
-
-Import the named local declaration directly:
-
-```tsx
-import {captions} from './captions';
-
-<TimedCaptions captions={captions} />;
+export const MyCaptions: React.FC = () => {
+  return (
+    <TimedCaptions
+      captions={[
+        {
+          text: 'Hello',
+          startMs: 0,
+          endMs: 1000,
+          timestampMs: 500,
+          confidence: null,
+        },
+      ]}
+    />
+  );
+};
 ```
 
 Use **Edit timings** in the inspector to resize captions visually against the Studio timeline.
@@ -70,12 +82,25 @@ Use **Edit timings** in the inspector to resize captions visually against the St
 To define a safe area, set the generated container's `width` and `height`. Select its outline in the Studio canvas and drag it to update `style.translate`:
 
 ```tsx
-<TimedCaptions style={{height: 300, translate: '120px 1200px', width: 1680}} captions={captions} />
+<TimedCaptions
+  style={{height: 300, translate: '120px 1200px', width: 1680}}
+  captions={
+    [
+      /* ... */
+    ]
+  }
+/>
 ```
 
 Responsive caption renderers can wrap their text within this area. Moving or resizing the container does not change caption timings.
 
-Computed expressions are read-only because Studio cannot safely rewrite their source. A writable imported declaration must be a named export from a local relative TypeScript or JavaScript module and contain a static array of literal caption objects.
+Computed expressions, including imported caption arrays, can be inspected but are read-only because Studio only rewrites the inline JSX value:
+
+```tsx
+<TimedCaptions captions={captions} />
+```
+
+This API does not replace file-backed caption editing.
 
 ## API
 
@@ -97,9 +122,9 @@ The name shown in the Studio timeline. By default, the name or `displayName` of 
 
 ### Return value
 
-Returns an interactive component with the original component props, an optional `name` prop for the Studio timeline and an optional `style` prop for sizing and positioning the generated container. `style.width`, `style.height`, `style.translate`, `style.scale`, `style.rotate`, `style.transformOrigin` and `style.opacity` are editable in Studio.
+Returns an interactive component with the original component props, standard `<Sequence>` props and an optional `style` prop for sizing and positioning the generated container. `style.width`, `style.height`, `style.translate`, `style.scale`, `style.rotate`, `style.transformOrigin` and `style.opacity` are editable in Studio.
 
-The layout-free generated Sequence spans the composition, while the generated container defaults to the full composition size. Its outline follows the configured width, height and transform. Caption timings are composition-relative, so the returned component does not expose `from` or `trimBefore`.
+The layout-free generated Sequence defaults to the full composition. Its outline follows the configured width, height and transform. Caption timings follow the generated Sequence when it is shifted with `from` or restricted with `durationInFrames` and `trimBefore`.
 
 ## Compatibility
 

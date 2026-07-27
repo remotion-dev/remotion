@@ -1130,6 +1130,43 @@ test('Interactive elements inherit trimBefore from Sequence', () => {
 	expect(registeredSequences[0]?.displayName).toBe('<Interactive.Div>');
 });
 
+test('Interactive.withCaptions inherits Sequence timing controls', () => {
+	const Frame = () => {
+		const frame = useCurrentFrame();
+		return <span>{'frame' + frame}</span>;
+	};
+
+	const Captions = Interactive.withCaptions({
+		Component: (_props: {readonly captions?: readonly unknown[]}) => {
+			return <Frame />;
+		},
+	});
+	const registeredSequences: TSequence[] = [];
+	const {queryByText} = render(
+		<SequenceTestWrapper
+			currentFrame={30}
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Captions
+				captions={[]}
+				from={30}
+				durationInFrames={90}
+				trimBefore={7}
+				showInTimeline={false}
+			/>
+		</SequenceTestWrapper>,
+	);
+
+	expect(queryByText('frame7')).not.toBe(null);
+	expect(registeredSequences[0]?.from).toBe(30);
+	expect(registeredSequences[0]?.duration).toBe(90);
+	expect(registeredSequences[0]?.showInTimeline).toBe(false);
+	expect(registeredSequences[0]?.controls?.schema).toHaveProperty('hidden');
+	expect(registeredSequences[0]?.controls?.schema).toHaveProperty('trimBefore');
+});
+
 test('Imperative sequence refs update without rerendering ref-only consumers', async () => {
 	const nodePath = {
 		absolutePath: 'test.tsx',

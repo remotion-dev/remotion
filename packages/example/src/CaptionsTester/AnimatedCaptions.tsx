@@ -10,7 +10,6 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
-import {animatedCaptions} from './animated-captions';
 
 export const CAPTIONS_DURATION_IN_FRAMES = 1628;
 export const CAPTIONS_HEIGHT = 360;
@@ -136,12 +135,3 @@ export const AnimatedCaptions = Interactive.withCaptions({
 	Component: AnimatedCaptionsInner,
 	componentName: 'AnimatedCaptions',
 });
-
-export const AnimatedCaptionsComposition: React.FC = () => {
-	return (
-		<AnimatedCaptions
-			style={{height: 260, translate: '90px 50px', width: 900}}
-			captions={animatedCaptions}
-		/>
-	);
-};

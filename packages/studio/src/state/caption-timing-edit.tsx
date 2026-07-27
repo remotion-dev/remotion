@@ -1,10 +1,35 @@
 import React, {createContext, useCallback, useMemo, useState} from 'react';
+import type {TSequence} from 'remotion';
 import type {CaptionData} from '../components/caption-data';
+
+export type CaptionTimingBounds = {
+	readonly sourceDurationInFrames: number;
+	readonly timelineStartInFrames: number;
+	readonly visibleDurationInFrames: number;
+	readonly visibleStartInFrames: number;
+};
+
+export const getCaptionTimingBounds = ({
+	sequence,
+	sequenceFrameOffset,
+}: {
+	readonly sequence: TSequence;
+	readonly sequenceFrameOffset: number;
+}): CaptionTimingBounds => {
+	return {
+		sourceDurationInFrames: sequence.duration + sequenceFrameOffset,
+		timelineStartInFrames: sequence.from - sequenceFrameOffset,
+		visibleDurationInFrames: sequence.duration,
+		visibleStartInFrames: sequence.from,
+	};
+};
 
 type CaptionTimingEditSession = {
 	readonly ownerId: string;
 	readonly captions: CaptionData[];
 	readonly onChange: (captions: CaptionData[]) => void;
+	readonly sequence: TSequence;
+	readonly sequenceFrameOffset: number;
 };
 
 type CaptionTimingEditContextValue = {

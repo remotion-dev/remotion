@@ -19,7 +19,11 @@ import {
 	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
-import {CaptionTimingEditContext} from '../../state/caption-timing-edit';
+import {
+	CaptionTimingEditContext,
+	getCaptionTimingBounds,
+	type CaptionTimingBounds,
+} from '../../state/caption-timing-edit';
 import type {CaptionData} from '../caption-data';
 import {
 	forceSpecificCursor,
@@ -132,8 +136,16 @@ const CaptionTimingItem: React.FC<{
 	readonly nextCaption: CaptionData | null;
 	readonly pixelsPerFrame: number;
 	readonly previousCaption: CaptionData | null;
-}> = ({caption, index, nextCaption, pixelsPerFrame, previousCaption}) => {
-	const {durationInFrames, fps} = useVideoConfig();
+	readonly timingBounds: CaptionTimingBounds;
+}> = ({
+	caption,
+	index,
+	nextCaption,
+	pixelsPerFrame,
+	previousCaption,
+	timingBounds,
+}) => {
+	const {fps} = useVideoConfig();
 	const {selectCaption, selectedCaptionIndex, session, updateCaptions} =
 		useContext(CaptionTimingEditContext);
 	const [preview, setPreview] = useState<CaptionData | null>(null);
@@ -204,7 +216,7 @@ const CaptionTimingItem: React.FC<{
 					previousCaption,
 					nextCaption,
 					deltaFrames,
-					durationInFrames,
+					durationInFrames: timingBounds.sourceDurationInFrames,
 					fps,
 					type,
 				});
@@ -245,12 +257,12 @@ const CaptionTimingItem: React.FC<{
 		[
 			caption,
 			commitCaption,
-			durationInFrames,
 			fps,
 			nextCaption,
 			pixelsPerFrame,
 			previousCaption,
 			session,
+			timingBounds,
 		],
 	);
 
@@ -269,34 +281,29 @@ const CaptionTimingItem: React.FC<{
 					previousCaption,
 					nextCaption,
 					deltaFrames: direction * (event.shiftKey ? 5 : 1),
-					durationInFrames,
+					durationInFrames: timingBounds.sourceDurationInFrames,
 					fps,
 					type,
 				}),
 			);
 		},
-		[
-			caption,
-			commitCaption,
-			durationInFrames,
-			fps,
-			nextCaption,
-			previousCaption,
-		],
+		[caption, commitCaption, fps, nextCaption, previousCaption, timingBounds],
 	);
 
 	const startFrame = Math.max(
-		0,
+		timingBounds.visibleStartInFrames,
 		Math.min(
-			durationInFrames,
-			millisecondsToFrames(displayedCaption.startMs, fps),
+			timingBounds.visibleStartInFrames + timingBounds.visibleDurationInFrames,
+			timingBounds.timelineStartInFrames +
+				millisecondsToFrames(displayedCaption.startMs, fps),
 		),
 	);
 	const endFrame = Math.max(
 		startFrame,
 		Math.min(
-			durationInFrames,
-			millisecondsToFrames(displayedCaption.endMs, fps),
+			timingBounds.visibleStartInFrames + timingBounds.visibleDurationInFrames,
+			timingBounds.timelineStartInFrames +
+				millisecondsToFrames(displayedCaption.endMs, fps),
 		),
 	);
 	const left = TIMELINE_PADDING + startFrame * pixelsPerFrame;
@@ -364,19 +371,54 @@ const CaptionTimingItem: React.FC<{
 export const CaptionTimingLane: React.FC = () => {
 	const timelineWidth = useContext(TimelineWidthContext);
 	const {session} = useContext(CaptionTimingEditContext);
-	const {durationInFrames} = useVideoConfig();
+	const {durationInFrames, fps} = useVideoConfig();
 	const captions = session?.captions;
+	const timingBounds = useMemo(
+		() =>
+			session
+				? getCaptionTimingBounds({
+						sequence: session.sequence,
+						sequenceFrameOffset: session.sequenceFrameOffset,
+					})
+				: null,
+		[session],
+	);
 	const captionRows = useMemo(() => {
+		if (timingBounds === null) {
+			return [];
+		}
+
 		const occurrences = new Map<string, number>();
-		return (captions ?? []).map((caption, index) => {
+		return (captions ?? []).flatMap((caption, index) => {
+			const startFrame =
+				timingBounds.timelineStartInFrames +
+				millisecondsToFrames(caption.startMs, fps);
+			const endFrame =
+				timingBounds.timelineStartInFrames +
+				millisecondsToFrames(caption.endMs, fps);
+			const visibleEnd =
+				timingBounds.visibleStartInFrames +
+				timingBounds.visibleDurationInFrames;
+			if (
+				endFrame <= timingBounds.visibleStartInFrames ||
+				startFrame >= visibleEnd
+			) {
+				return [];
+			}
+
 			const signature = [caption.text, caption.confidence].join('-');
 			const occurrence = occurrences.get(signature) ?? 0;
 			occurrences.set(signature, occurrence + 1);
-			return {caption, index, key: `${signature}-${occurrence}`};
+			return [{caption, index, key: `${signature}-${occurrence}`}];
 		});
-	}, [captions]);
+	}, [captions, fps, timingBounds]);
 
-	if (timelineWidth === null || session === null || durationInFrames <= 0) {
+	if (
+		timelineWidth === null ||
+		session === null ||
+		timingBounds === null ||
+		durationInFrames <= 0
+	) {
 		return null;
 	}
 
@@ -401,6 +443,7 @@ export const CaptionTimingLane: React.FC = () => {
 						nextCaption={captions?.[index + 1] ?? null}
 						pixelsPerFrame={pixelsPerFrame}
 						previousCaption={captions?.[index - 1] ?? null}
+						timingBounds={timingBounds}
 					/>
 				))}
 			</div>

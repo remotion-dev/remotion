@@ -287,6 +287,7 @@ const SequenceExpandedInspector: React.FC<{
 				validatedLocation={validatedLocation}
 				nodePathInfo={track.nodePathInfo}
 				keyframeDisplayOffset={track.keyframeDisplayOffset}
+				sequenceFrameOffset={track.sequenceFrameOffset}
 				renderTransformControls={() => <AlignmentControls track={track} />}
 			/>
 			<InspectorActionSection>

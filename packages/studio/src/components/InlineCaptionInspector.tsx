@@ -6,7 +6,11 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import type {SequenceControls, SequencePropsSubscriptionKey} from 'remotion';
+import type {
+	SequenceControls,
+	SequencePropsSubscriptionKey,
+	TSequence,
+} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
@@ -72,8 +76,18 @@ export const InlineCaptionInspector: React.FC<{
 	readonly controls: SequenceControls;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly readOnlyStudio: boolean;
+	readonly sequence: TSequence;
+	readonly sequenceFrameOffset: number;
 	readonly validatedLocation: CodePosition;
-}> = ({captions, controls, nodePath, readOnlyStudio, validatedLocation}) => {
+}> = ({
+	captions,
+	controls,
+	nodePath,
+	readOnlyStudio,
+	sequence,
+	sequenceFrameOffset,
+	validatedLocation,
+}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
@@ -242,6 +256,8 @@ export const InlineCaptionInspector: React.FC<{
 			onTextChange={onTextChange}
 			onTextSave={saveCaptions}
 			onTimingChange={saveCaptions}
+			sequence={sequence}
+			sequenceFrameOffset={sequenceFrameOffset}
 			readOnlyTitle={canSave ? null : readOnlyTitle}
 			saveStatus={saveStatus}
 		/>
