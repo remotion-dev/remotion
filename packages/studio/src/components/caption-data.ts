@@ -1,34 +1,13 @@
-export type CaptionData = {
-	readonly text: string;
-	readonly startMs: number;
-	readonly endMs: number;
-	readonly timestampMs: number | null;
-	readonly confidence: number | null;
-};
+import {z} from 'zod';
 
-const isNumber = (value: unknown): value is number => {
-	return typeof value === 'number' && Number.isFinite(value);
-};
+const captionSchema = z.object({
+	text: z.string(),
+	startMs: z.number().finite(),
+	endMs: z.number().finite(),
+	timestampMs: z.number().finite().nullable(),
+	confidence: z.number().finite().nullable(),
+});
 
-const isNullableNumber = (value: unknown): value is number | null => {
-	return value === null || isNumber(value);
-};
+export const captionDataSchema = z.array(captionSchema);
 
-const isCaption = (value: unknown): value is CaptionData => {
-	if (typeof value !== 'object' || value === null) {
-		return false;
-	}
-
-	const caption = value as Record<string, unknown>;
-	return (
-		typeof caption.text === 'string' &&
-		isNumber(caption.startMs) &&
-		isNumber(caption.endMs) &&
-		isNullableNumber(caption.timestampMs) &&
-		isNullableNumber(caption.confidence)
-	);
-};
-
-export const isCaptionDataArray = (value: unknown): value is CaptionData[] => {
-	return Array.isArray(value) && value.every(isCaption);
-};
+export type CaptionData = z.infer<typeof captionSchema>;

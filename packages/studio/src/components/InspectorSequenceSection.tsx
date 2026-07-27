@@ -15,7 +15,7 @@ import {
 import {Plus} from '../icons/plus';
 import {ModalsContext} from '../state/modals';
 import {AssetFileIcon} from './AssetFileIcon';
-import {isCaptionDataArray} from './caption-data';
+import {captionDataSchema} from './caption-data';
 import {InlineAction} from './InlineAction';
 import {InlineCaptionInspector} from './InlineCaptionInspector';
 import {InspectorSection} from './InspectorPanel/common';
@@ -365,9 +365,8 @@ export const InspectorSequenceSection: React.FC<{
 				? captionStatus.codeValue
 				: sequence.controls.currentRuntimeValueDotNotation.captions
 			: null;
-	const inlineCaptions = isCaptionDataArray(inlineCaptionValue)
-		? inlineCaptionValue
-		: null;
+	const parsedCaptions = captionDataSchema.safeParse(inlineCaptionValue);
+	const inlineCaptions = parsedCaptions.success ? parsedCaptions.data : null;
 	const showEffectsSection =
 		nodePathInfo.supportsEffects || effectRows.length > 0;
 	const canAddEffect =
