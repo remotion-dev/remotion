@@ -1,4 +1,7 @@
-export const packages = [
+import {VERSION} from 'remotion';
+import {shouldReleasePackage} from './release-package-policy';
+
+const allPackages = [
 	'svg-3d-engine',
 	'animation-utils',
 	'animated-emoji',
@@ -102,7 +105,14 @@ export const packages = [
 	'effects',
 ] as const;
 
-export type Pkgs = (typeof packages)[number];
+export type Pkgs = (typeof allPackages)[number];
+
+export const packages = allPackages.filter((pkg) =>
+	shouldReleasePackage({
+		packageName: pkg === 'core' ? 'remotion' : `@remotion/${pkg}`,
+		releaseVersion: VERSION,
+	}),
+);
 
 export type ExtraPackage = {
 	name: string;
@@ -327,10 +337,16 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	'test-utils': false,
 	three: true,
 	transitions: true,
-	'media-parser': true,
+	'media-parser': shouldReleasePackage({
+		packageName: '@remotion/media-parser',
+		releaseVersion: VERSION,
+	}),
 	'zod-types': true,
 	'zod-types-v3': true,
-	webcodecs: true,
+	webcodecs: shouldReleasePackage({
+		packageName: '@remotion/webcodecs',
+		releaseVersion: VERSION,
+	}),
 	convert: false,
 	captions: true,
 	'openai-whisper': true,
@@ -342,9 +358,15 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	'web-renderer': false,
 	design: false,
 	'drag-and-drop': true,
-	'light-leaks': true,
+	'light-leaks': shouldReleasePackage({
+		packageName: '@remotion/light-leaks',
+		releaseVersion: VERSION,
+	}),
 	'rough-notation': true,
-	starburst: true,
+	starburst: shouldReleasePackage({
+		packageName: '@remotion/starburst',
+		releaseVersion: VERSION,
+	}),
 	vercel: true,
 	sfx: true,
 	effects: true,

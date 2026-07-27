@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/starburst",
-	"version": "4.0.498",
+	"version": "4.0.499",
 	"description": "Starburst ray effect for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -24,6 +24,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
+		"@remotion/effects": "workspace:*",
 		"remotion": "workspace:*",
 		"zod": "catalog:"
 	},

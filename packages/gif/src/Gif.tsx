@@ -7,6 +7,7 @@ import {
 	useRemotionEnvironment,
 	type EffectsProp,
 	type InteractiveBaseProps,
+	type InteractiveCropProps,
 	type InteractivePremountProps,
 	type InteractiveTransformProps,
 	type SequenceControls,
@@ -19,6 +20,7 @@ import type {RemotionGifProps} from './props';
 const {useMemoizedEffectDefinitions, useMemoizedEffects} = Internals;
 
 export type GifProps = InteractiveBaseProps &
+	InteractiveCropProps &
 	InteractivePremountProps &
 	InteractiveTransformProps &
 	RemotionGifProps & {
@@ -45,6 +47,7 @@ export const gifSchema: InteractivitySchema = {
 	...Internals.transformSchema,
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
+	...Interactive.cropSchema,
 } as const satisfies InteractivitySchema;
 
 const GifInner = ({
@@ -66,6 +69,10 @@ const GifInner = ({
 	styleWhilePremounted,
 	styleWhilePostmounted,
 	style,
+	cropLeft,
+	cropRight,
+	cropTop,
+	cropBottom,
 	controls,
 	effects = [],
 	ref,
@@ -94,6 +101,14 @@ const GifInner = ({
 		styleWhilePostmounted: styleWhilePostmounted ?? null,
 		hideWhilePremounted: 'display-none',
 	});
+	const croppedStyle = Internals.useCropStyle({
+		cropLeft,
+		cropRight,
+		cropTop,
+		cropBottom,
+		style: premountingStyle,
+		componentName: '<Gif />',
+	});
 
 	const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 	const memoizedEffects = useMemoizedEffects({
@@ -115,7 +130,7 @@ const GifInner = ({
 		id,
 		delayRenderTimeoutInMilliseconds,
 		requestInit,
-		style: premountingStyle ?? undefined,
+		style: croppedStyle ?? undefined,
 		effects: memoizedEffects,
 	};
 

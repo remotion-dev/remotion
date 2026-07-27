@@ -43,6 +43,7 @@ type SequenceTestWrapperProps = {
 	readonly rerenderOnRegister?: boolean;
 	readonly compositionDurationInFrames?: number;
 	readonly currentFrame?: number;
+	readonly readOnlyStudio?: boolean;
 };
 
 type VisualModeOverrides = {
@@ -84,6 +85,7 @@ const SequenceTestWrapperWithVisualModeOverrides: React.FC<
 	visualModeOverrides,
 	compositionDurationInFrames,
 	currentFrame,
+	readOnlyStudio = false,
 }) => {
 	const [, setTick] = useState(0);
 
@@ -152,7 +154,7 @@ const SequenceTestWrapperWithVisualModeOverrides: React.FC<
 					isClientSideRendering: false,
 					isPlayer: false,
 					isStudio: true,
-					isReadOnlyStudio: false,
+					isReadOnlyStudio: readOnlyStudio,
 				}}
 			>
 				<OverrideIdsToNodePathsGettersContext.Provider
@@ -181,6 +183,7 @@ const SequenceTestWrapper: React.FC<SequenceTestWrapperProps> = ({
 	rerenderOnRegister = false,
 	compositionDurationInFrames,
 	currentFrame,
+	readOnlyStudio,
 }) => {
 	return (
 		<SequenceTestWrapperWithVisualModeOverrides
@@ -189,6 +192,7 @@ const SequenceTestWrapper: React.FC<SequenceTestWrapperProps> = ({
 			visualModeOverrides={null}
 			compositionDurationInFrames={compositionDurationInFrames}
 			currentFrame={currentFrame}
+			readOnlyStudio={readOnlyStudio}
 		>
 			{children}
 		</SequenceTestWrapperWithVisualModeOverrides>
@@ -207,7 +211,6 @@ const makeMediaInTimelineData = ({
 		duration: 100,
 		doesVolumeChange: false,
 		nonce: {get: () => [[0, 0]]},
-		rootId: 'test-root',
 		finalDisplayName: 'video.mp4',
 		startMediaFrom,
 		src: 'video.mp4',
@@ -360,6 +363,50 @@ test('Series.Sequence registers with its own visual controls', () => {
 		firstStack,
 		secondStack,
 	]);
+});
+
+test('read-only Studio registers visual controls without applying overrides', () => {
+	const registeredSequences: TSequence[] = [];
+	const nodePath = {
+		absolutePath: '/src/Composition.tsx',
+		nodePath: ['body', 0],
+		sequenceKeys: [],
+		effectKeys: [],
+		videoConfigValues: null,
+	};
+	const subscriptionKey = Internals.makeSequencePropsSubscriptionKey(nodePath);
+
+	render(
+		<SequenceTestWrapperWithVisualModeOverrides
+			readOnlyStudio
+			onRegisterSequence={(registeredSequence) => {
+				registeredSequences.push(registeredSequence);
+			}}
+			visualModeOverrides={{
+				overrideIdToNodePathMappings: new Proxy(
+					{},
+					{get: () => nodePath},
+				) as OverrideIdToNodePaths,
+				propStatuses: {},
+				dragOverrides: {
+					[subscriptionKey]: {
+						durationInFrames: Internals.makeStaticDragOverride(20),
+					},
+				},
+			}}
+		>
+			<Interactive.Div durationInFrames={10}>Hello</Interactive.Div>
+		</SequenceTestWrapperWithVisualModeOverrides>,
+	);
+
+	const sequence = registeredSequences.find(
+		(item) => item.displayName === '<Interactive.Div>',
+	);
+	expect(sequence?.controls).not.toBe(null);
+	expect(sequence?.controls?.componentIdentity).toBe(
+		'dev.remotion.remotion.Interactive.Div',
+	);
+	expect(sequence?.duration).toBe(10);
 });
 
 test('Series.Sequence timing overrides cascade to later sequences', async () => {
@@ -677,6 +724,24 @@ test('AnimatedImage registers its canvas ref for the Studio outline', () => {
 test('AnimatedImage exposes non-keyframable premounting schema fields', () => {
 	expect(animatedImageSchema.premountFor.keyframable).toBe(false);
 	expect(animatedImageSchema.postmountFor.keyframable).toBe(false);
+});
+
+test('AnimatedImage applies crop props to its canvas', () => {
+	const {container} = render(
+		<SequenceTestWrapper onRegisterSequence={() => undefined}>
+			<AnimatedImage
+				cropBottom={0.4}
+				cropLeft={0.1}
+				cropRight={0.2}
+				cropTop={0.3}
+				onError={() => undefined}
+				src="test.gif"
+			/>
+		</SequenceTestWrapper>,
+	);
+
+	const canvas = container.querySelector('canvas');
+	expect(canvas?.style.clipPath).toBe('inset(30% 20% 40% 10%)');
 });
 
 test('AnimatedImage hides the canvas while premounted and postmounted', () => {
@@ -1104,7 +1169,27 @@ test('Interactive elements register their rendered element for Studio outlines',
 		expect(getByName(displayName)?.controls?.schema).not.toHaveProperty(
 			'children',
 		);
+		expect(getByName(displayName)?.controls?.schema).toHaveProperty('stroke');
+		expect(getByName(displayName)?.controls?.schema).toHaveProperty(
+			'strokeWidth',
+		);
 	}
+
+	for (const displayName of [
+		'<Interactive.Circle>',
+		'<Interactive.Ellipse>',
+		'<Interactive.G>',
+		'<Interactive.Path>',
+		'<Interactive.Rect>',
+		'<Interactive.Svg>',
+		'<Interactive.Text>',
+	]) {
+		expect(getByName(displayName)?.controls?.schema).toHaveProperty('fill');
+	}
+
+	expect(getByName('<Interactive.Line>')?.controls?.schema).not.toHaveProperty(
+		'fill',
+	);
 });
 
 test('Interactive elements inherit trimBefore from Sequence', () => {

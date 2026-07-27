@@ -27,6 +27,13 @@ const inlineWrapper: React.CSSProperties = {
 	fontSize: 12,
 };
 
+const assetInlineWrapper: React.CSSProperties = {
+	...inlineWrapper,
+	display: 'flex',
+	flex: 1,
+	minWidth: 0,
+};
+
 export type TimelinePrimitiveFieldInfo = Omit<
 	SchemaFieldInfo,
 	'fieldSchema' | 'typeName'
@@ -230,7 +237,7 @@ export const TimelinePrimitiveFieldValue: React.FC<{
 
 	if (field.typeName === 'asset') {
 		return (
-			<span style={inlineWrapper}>
+			<span style={assetInlineWrapper}>
 				<TimelineAssetField
 					effectiveValue={effectiveValue}
 					field={field}

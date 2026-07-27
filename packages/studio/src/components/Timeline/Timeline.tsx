@@ -3,7 +3,7 @@ import {Internals} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useIsStill} from '../../helpers/is-current-selected-still';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
@@ -238,7 +238,7 @@ const TimelineInner: React.FC = () => {
 
 	const videoConfigIsNull = videoConfig === null;
 
-	const timeline = useMemo((): TrackWithHash[] => {
+	const timeline = useMemo((): TimelineTrackData[] => {
 		if (videoConfigIsNull) {
 			return [];
 		}
@@ -308,6 +308,8 @@ const TimelineInner: React.FC = () => {
 									id="names-to-timeline"
 									maxFlex={0.5}
 									minFlex={0.15}
+									maxFlexerSize={null}
+									maxAntiFlexerSize={null}
 								>
 									<SplitterElement
 										type="flexer"

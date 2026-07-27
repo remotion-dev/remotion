@@ -3,6 +3,7 @@ import type {
 	EffectDefinitionAndStack,
 	EffectsProp,
 	InteractiveBaseProps,
+	InteractiveCropProps,
 	InteractivePremountProps,
 	LogLevel,
 	LoopVolumeCurveBehavior,
@@ -102,4 +103,5 @@ export type VideoProps = MandatoryVideoProps &
 	Partial<OptionalVideoProps> &
 	NativeVideoProps &
 	InteractiveBaseProps &
+	InteractiveCropProps &
 	InteractivePremountProps;

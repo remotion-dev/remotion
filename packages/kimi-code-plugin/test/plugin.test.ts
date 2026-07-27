@@ -83,26 +83,43 @@ test('generated skills match the canonical skills', () => {
 	})
 		.filter((file) => !file.endsWith('.tsx'))
 		.map((file) => path.relative(canonicalSkillsRoot, file));
-	const embeddedSkillNames = getDirectories(
-		path.join(canonicalSkillsRoot, 'remotion-best-practices'),
-	).filter((skillName) =>
-		existsSync(
-			path.join(
-				canonicalSkillsRoot,
-				'remotion-best-practices',
-				skillName,
-				'SKILL.md',
+	const embeddedSkillRoots = [
+		{
+			parentEntryFilename: 'REFERENCE.md',
+			rootParts: ['remotion-best-practices', 'remotion-markup'],
+		},
+		{
+			parentEntryFilename: 'SKILL.md',
+			rootParts: ['remotion-markup'],
+		},
+		{
+			parentEntryFilename: 'SKILL.md',
+			rootParts: ['remotion-best-practices'],
+		},
+	].map(({parentEntryFilename, rootParts}) => {
+		const root = path.join(canonicalSkillsRoot, ...rootParts);
+		return {
+			parentEntryFilename,
+			rootParts,
+			skillNames: getDirectories(root).filter((skillName) =>
+				existsSync(path.join(root, skillName, 'SKILL.md')),
 			),
-		),
-	);
+		};
+	});
 	const getGeneratedRelativeFile = (relativeFile: string) => {
 		const pathParts = relativeFile.split(path.sep);
-		if (
-			pathParts[0] === 'remotion-best-practices' &&
-			embeddedSkillNames.includes(pathParts[1]) &&
-			pathParts.at(-1) === 'SKILL.md'
-		) {
-			pathParts[pathParts.length - 1] = 'REFERENCE.md';
+		for (const {rootParts, skillNames} of embeddedSkillRoots) {
+			const isWithinRoot = rootParts.every(
+				(part, index) => pathParts[index] === part,
+			);
+			if (
+				isWithinRoot &&
+				skillNames.includes(pathParts[rootParts.length] as string) &&
+				pathParts.at(-1) === 'SKILL.md'
+			) {
+				pathParts[pathParts.length - 1] = 'REFERENCE.md';
+				break;
+			}
 		}
 
 		return pathParts.join(path.sep);
@@ -126,12 +143,32 @@ test('generated skills match the canonical skills', () => {
 			const pathParts = relativeFile.split(path.sep);
 			const canonicalContents = readFileSync(canonicalFile, 'utf-8');
 			let expectedContents = canonicalContents;
-			if (pathParts[0] === 'remotion-best-practices') {
-				expectedContents = expectedContents.replaceAll(
-					'../remotion-best-practices/',
-					'../',
+			for (const {
+				parentEntryFilename,
+				rootParts,
+				skillNames,
+			} of embeddedSkillRoots) {
+				const isWithinRoot = rootParts.every(
+					(part, index) => pathParts[index] === part,
 				);
-				for (const skillName of embeddedSkillNames) {
+				if (!isWithinRoot) {
+					continue;
+				}
+
+				const parentSkillName = rootParts.at(-1);
+				expectedContents = expectedContents
+					.replaceAll(
+						`../${parentSkillName}/SKILL.md`,
+						`../${parentEntryFilename}`,
+					)
+					.replaceAll(`../${parentSkillName}/`, '../');
+				if (parentSkillName === 'remotion-markup') {
+					expectedContents = expectedContents.replaceAll(
+						'../../../remotion-interactivity/SKILL.md',
+						'../../../../remotion-interactivity/SKILL.md',
+					);
+				}
+				for (const skillName of skillNames) {
 					expectedContents = expectedContents.replaceAll(
 						`${skillName}/SKILL.md`,
 						`${skillName}/REFERENCE.md`,
@@ -142,5 +179,17 @@ test('generated skills match the canonical skills', () => {
 		} else {
 			expect(readFileSync(generatedFile)).toEqual(readFileSync(canonicalFile));
 		}
+	}
+});
+
+test('maps is available from either standalone parent skill', () => {
+	for (const parentSkill of ['remotion-best-practices', 'remotion-markup']) {
+		const parentRoot = path.join(generatedSkillsRoot, parentSkill);
+		expect(readFileSync(path.join(parentRoot, 'SKILL.md'), 'utf-8')).toContain(
+			'(remotion-maps/REFERENCE.md)',
+		);
+		expect(
+			existsSync(path.join(parentRoot, 'remotion-maps', 'REFERENCE.md')),
+		).toBe(true);
 	}
 });

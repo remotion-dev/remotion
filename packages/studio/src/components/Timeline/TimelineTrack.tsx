@@ -1,6 +1,6 @@
 import React, {useContext, useMemo} from 'react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
@@ -15,7 +15,7 @@ import {TimelineSequence} from './TimelineSequence';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const TimelineTrackUnmemoized: React.FC<{
-	readonly track: TrackWithHash;
+	readonly track: TimelineTrackData;
 }> = ({track}) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);

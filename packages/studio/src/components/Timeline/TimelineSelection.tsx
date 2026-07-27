@@ -30,9 +30,12 @@ import {
 } from '../../helpers/colors';
 import type {
 	SequenceNodePathInfo,
-	TrackWithHash,
+	TimelineTrackData,
 } from '../../helpers/get-timeline-sequence-sort-key';
-import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {
+	isStudioInteractivityEnabled,
+	isStudioSelectionEnabled,
+} from '../../helpers/interactivity-enabled';
 import {
 	buildTimelineTree,
 	flattenVisibleTreeNodes,
@@ -802,7 +805,7 @@ const nodePathDescendsFrom = (
 };
 
 export const getSelectableTimelineSequenceSelections = (
-	tracks: readonly Pick<TrackWithHash, 'nodePathInfo'>[],
+	tracks: readonly Pick<TimelineTrackData, 'nodePathInfo'>[],
 ): TimelineSelection[] => {
 	return tracks.flatMap((track): TimelineSelection[] => {
 		if (
@@ -873,7 +876,7 @@ export const getSelectableTimelineItems = ({
 	readonly getIsExpanded: GetIsExpanded;
 	readonly propStatuses: PropStatuses;
 	readonly selectedItems: readonly TimelineSelection[];
-	readonly timeline: readonly TrackWithHash[];
+	readonly timeline: readonly TimelineTrackData[];
 	readonly timelinePosition: number;
 }): TimelineSelection[] => {
 	const selectedRowKeys = getSelectedTimelineExpandedRowKeys(selectedItems);
@@ -976,7 +979,7 @@ export const getTimelineSequenceSelectionKey = (
 ): string => timelineNodePathInfoToKey({...nodePathInfo, auxiliaryKeys: []});
 
 export const TimelineSelectAllKeybindings: React.FC<{
-	readonly timeline: readonly TrackWithHash[];
+	readonly timeline: readonly TimelineTrackData[];
 }> = ({timeline}) => {
 	const keybindings = useKeybinding();
 	const {canSelect} = useTimelineSelection();
@@ -1055,7 +1058,7 @@ const TimelineEscapeKeybindings: React.FC = () => {
 
 export const TimelineSelectableItemsProvider: React.FC<{
 	readonly children: React.ReactNode;
-	readonly timeline: readonly TrackWithHash[];
+	readonly timeline: readonly TimelineTrackData[];
 }> = ({children, timeline}) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
@@ -1102,9 +1105,9 @@ export const TimelineSelectionProvider: React.FC<{
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
 	const {expandParentTracks} = useContext(ExpandedTracksSetterContext);
 	const canSelect =
-		isStudioInteractivityEnabled() &&
-		previewServerState.type === 'connected' &&
-		!window.remotion_isReadOnlyStudio;
+		isStudioSelectionEnabled() &&
+		(previewServerState.type === 'connected' ||
+			window.remotion_isReadOnlyStudio);
 	const [selectedItems, setSelectedItems] = useState<
 		readonly TimelineSelection[]
 	>([]);
@@ -1138,7 +1141,9 @@ export const TimelineSelectionProvider: React.FC<{
 	}, [canSelect]);
 
 	const canSelectItem = useCallback(
-		(_item: TimelineSelection) => canSelect,
+		(item: TimelineSelection) =>
+			canSelect &&
+			(!window.remotion_isReadOnlyStudio || item.type === 'sequence'),
 		[canSelect],
 	);
 
@@ -1500,8 +1505,12 @@ export const TimelineSelectionProvider: React.FC<{
 			<TimelineSelectionContext.Provider value={value}>
 				{children}
 				<TimelineEscapeKeybindings />
-				<TimelineClipboardKeybindings />
-				<TimelineDeleteKeybindings />
+				{isStudioInteractivityEnabled() ? (
+					<>
+						<TimelineClipboardKeybindings />
+						<TimelineDeleteKeybindings />
+					</>
+				) : null}
 			</TimelineSelectionContext.Provider>
 		</CurrentTimelineSelectionContext.Provider>
 	);

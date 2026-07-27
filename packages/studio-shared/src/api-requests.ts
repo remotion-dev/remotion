@@ -58,6 +58,18 @@ export type OpenInEditorResponse = {
 	success: boolean;
 };
 
+export type FindInFileRequest = {
+	fileName: string;
+	lineNumber: number;
+	columnNumber: number;
+	search: string;
+};
+
+export type FindInFileResponse = {
+	lineNumber: number;
+	columnNumber: number;
+};
+
 export type CompositionComponentInfoRequest = {
 	compositionFile: string;
 	compositionId: string;
@@ -382,6 +394,28 @@ export type SaveEffectPropsRequest =
 	  });
 
 export type SaveEffectPropsResponse = CanUpdateEffectPropsResponse;
+
+type WithoutClientId<T> = T extends unknown ? Omit<T, 'clientId'> : never;
+
+export type SaveMultipleEffectPropsEdit =
+	WithoutClientId<SaveEffectPropsRequest>;
+
+export type SaveMultipleEffectPropsRequest = {
+	edits: SaveMultipleEffectPropsEdit[];
+	clientId: string;
+	undoLabel: string;
+	redoLabel: string;
+};
+
+export type SaveMultipleEffectPropsResult = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	status: CanUpdateEffectPropsResponse;
+};
+
+export type SaveMultipleEffectPropsResponse = {
+	results: SaveMultipleEffectPropsResult[];
+};
 
 export type AddEffectRequest = {
 	fileName: string;
@@ -921,6 +955,7 @@ export type ApiRoutes = {
 	>;
 	'/api/remove-render': ReqAndRes<RemoveRenderRequest, undefined>;
 	'/api/open-in-editor': ReqAndRes<OpenInEditorRequest, OpenInEditorResponse>;
+	'/api/find-in-file': ReqAndRes<FindInFileRequest, FindInFileResponse>;
 	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
 	'/api/register-client-render': ReqAndRes<CompletedClientRender, void>;
 	'/api/unregister-client-render': ReqAndRes<{id: string}, void>;
@@ -955,6 +990,10 @@ export type ApiRoutes = {
 	'/api/save-effect-props': ReqAndRes<
 		SaveEffectPropsRequest,
 		SaveEffectPropsResponse
+	>;
+	'/api/save-multiple-effect-props': ReqAndRes<
+		SaveMultipleEffectPropsRequest,
+		SaveMultipleEffectPropsResponse
 	>;
 	'/api/add-effect': ReqAndRes<AddEffectRequest, AddEffectResponse>;
 	'/api/reorder-effect': ReqAndRes<ReorderEffectRequest, ReorderEffectResponse>;

@@ -19,7 +19,7 @@ import type {
 	PlaybackRateContextValue,
 	TimelineContextValue,
 } from 'remotion';
-import {Internals, random} from 'remotion';
+import {Internals} from 'remotion';
 import {ThumbnailEmitterContext} from './emitter-context.js';
 import {ThumbnailEmitter} from './event-emitter.js';
 import type {ThumbnailMethods} from './player-methods.js';
@@ -81,7 +81,6 @@ const ThumbnailFn = <
 		}, []);
 	}
 
-	const [thumbnailId] = useState(() => String(random(null)));
 	const rootRef = useRef<ThumbnailMethods>(null);
 
 	const timelineState: TimelineContextValue = useMemo(() => {
@@ -90,7 +89,6 @@ const ThumbnailFn = <
 			frame: {
 				[PLAYER_COMP_ID]: frameToDisplay,
 			},
-			rootId: thumbnailId,
 			imperativePlaying: {
 				current: false,
 			},
@@ -98,7 +96,7 @@ const ThumbnailFn = <
 		};
 
 		return value;
-	}, [frameToDisplay, thumbnailId]);
+	}, [frameToDisplay]);
 
 	const playbackRateContext: PlaybackRateContextValue = useMemo(() => {
 		return {

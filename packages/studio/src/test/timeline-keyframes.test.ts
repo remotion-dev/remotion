@@ -69,7 +69,6 @@ const makeSequence = ({
 	displayName: id,
 	documentationLink: null,
 	parent,
-	rootId: 'root',
 	showInTimeline: true,
 	nonce: [[0, nonce]],
 	loopDisplay: undefined,

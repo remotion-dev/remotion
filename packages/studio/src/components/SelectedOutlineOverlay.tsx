@@ -8,10 +8,18 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {Internals} from 'remotion';
+import {
+	Internals,
+	type GetDragOverrides,
+	type InteractivitySchema,
+	type TSequence,
+} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
+import {
+	isStudioInteractivityEnabled,
+	isStudioSelectionEnabled,
+} from '../helpers/interactivity-enabled';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
@@ -31,6 +39,7 @@ import {
 } from './selected-outline-drag';
 import {type SelectedOutline} from './selected-outline-geometry';
 import {
+	getSelectedCropInfo,
 	getSelectedEffectFieldsBySequenceKey,
 	getSelectedSequenceKeys,
 	getSelectedTransformOriginInfo,
@@ -45,10 +54,14 @@ import {
 	type SelectedOutlineSnapPoint,
 } from './selected-outline-snap';
 import {
+	canEditSelectedOutlineCrop,
+	cropFieldKeys,
 	rotateFieldKey,
 	scaleFieldKey,
 	transformOriginFieldKey,
 	translateFieldKey,
+	type SelectedOutlineCropDragTarget,
+	type SelectedOutlineCropFieldKey,
 	type SelectedOutlineKeyboardNudgeSession,
 	type SelectedOutlineTarget,
 } from './selected-outline-types';
@@ -76,6 +89,9 @@ export {
 	applySelectedOutlineTransformOriginAxisLock,
 	compensateTranslateForTransformOrigin,
 	getSelectedOutlineActiveSchema,
+	getSelectedOutlineCropDragChanges,
+	getSelectedOutlineCropDragValues,
+	getSelectedOutlineCropFollowingTransformOrigin,
 	getSelectedOutlineDragChanges,
 	getSelectedOutlineDragValues,
 	getSelectedOutlineKeyboardNudgeDelta,
@@ -98,6 +114,7 @@ export {
 } from './selected-outline-drag';
 export {
 	getOutlineSelectionInteraction,
+	getSelectedCropInfo,
 	getSelectedEffectFieldsBySequenceKey,
 	getSelectedOutlineRotationCornerInfo,
 	getSelectedOutlineRotationDeltaDegrees,
@@ -107,6 +124,86 @@ export {
 	getTransformedSvgViewportPoints,
 } from './selected-outline-measurement';
 export {selectedOutlineDragThresholdPx} from './selected-outline-types';
+
+const getEffectiveCropValue = ({
+	activeSchema,
+	controls,
+	dragOverrides,
+	fieldKey,
+	frame,
+	propStatuses,
+}: {
+	readonly activeSchema: InteractivitySchema | null;
+	readonly controls: NonNullable<TSequence['controls']> | null;
+	readonly dragOverrides: ReturnType<GetDragOverrides>;
+	readonly fieldKey: string;
+	readonly frame: number;
+	readonly propStatuses: ReturnType<typeof Internals.getPropStatusesCtx>;
+}): number => {
+	const fieldSchema = activeSchema?.[fieldKey];
+	if (fieldSchema?.type !== 'number') {
+		return 0;
+	}
+
+	const propStatus = propStatuses?.[fieldKey];
+	const value =
+		propStatus?.status === 'static' || propStatus?.status === 'keyframed'
+			? Internals.getEffectiveVisualModeValue({
+					propStatus,
+					dragOverrideValue: dragOverrides[fieldKey],
+					defaultValue: fieldSchema.default,
+					frame,
+					shouldResortToDefaultValueIfUndefined: true,
+				})
+			: (controls?.currentRuntimeValueDotNotation[fieldKey] ??
+				fieldSchema.default);
+
+	return typeof value === 'number' && Number.isFinite(value) ? value : 0;
+};
+
+const getCropDragFields = ({
+	activeSchema,
+	cropValues,
+	propStatuses,
+}: {
+	readonly activeSchema: InteractivitySchema | null;
+	readonly cropValues: Record<SelectedOutlineCropFieldKey, number>;
+	readonly propStatuses: ReturnType<typeof Internals.getPropStatusesCtx>;
+}): SelectedOutlineCropDragTarget['fields'] | null => {
+	if (
+		!canEditSelectedOutlineCrop({
+			schema: activeSchema,
+			propStatuses,
+		})
+	) {
+		return null;
+	}
+
+	const fields: Partial<SelectedOutlineCropDragTarget['fields']> = {};
+
+	for (const fieldKey of Object.values(cropFieldKeys)) {
+		const fieldSchema = activeSchema?.[fieldKey];
+		const propStatus = propStatuses?.[fieldKey];
+		const canEditStatus =
+			propStatus?.status === 'static' ||
+			(propStatus?.status === 'keyframed' &&
+				propStatus.interpolationFunction === 'interpolate');
+
+		if (fieldSchema?.type !== 'number' || !canEditStatus) {
+			return null;
+		}
+
+		fields[fieldKey] = {
+			defaultValue: fieldSchema.default,
+			fieldSchema,
+			propStatus,
+			value: cropValues[fieldKey],
+		};
+	}
+
+	return fields as SelectedOutlineCropDragTarget['fields'];
+};
+
 export type {
 	SelectedOutlineDragState,
 	SelectedOutlineRotationDragState,
@@ -585,6 +682,10 @@ export const SelectedOutlineOverlay: React.FC<{
 	const keyboardNudgeSessionRef =
 		useRef<SelectedOutlineKeyboardNudgeSession | null>(null);
 	const saveKeyboardNudgeSessionRef = useRef<() => void>(() => undefined);
+	const previewInteractive =
+		previewServerState.type === 'connected' && isStudioInteractivityEnabled();
+	const previewSelectionAvailable =
+		previewServerState.type === 'connected' || window.remotion_isReadOnlyStudio;
 
 	const onDraggingChange = React.useCallback((dragging: boolean) => {
 		setDraggingOutline(dragging);
@@ -608,7 +709,11 @@ export const SelectedOutlineOverlay: React.FC<{
 	);
 
 	const outlineTargets = useMemo((): SelectedOutlineTarget[] => {
-		if (!isStudioInteractivityEnabled() || !editorShowOutlines) {
+		if (
+			!isStudioSelectionEnabled() ||
+			!previewSelectionAvailable ||
+			!editorShowOutlines
+		) {
 			return [];
 		}
 
@@ -619,6 +724,7 @@ export const SelectedOutlineOverlay: React.FC<{
 			getSelectedEffectFieldsBySequenceKey(selectedItems);
 		const selectedTransformOriginInfo =
 			getSelectedTransformOriginInfo(selectedItems);
+		const selectedCropInfo = getSelectedCropInfo(selectedItems);
 		const clientId =
 			previewServerState.type === 'connected'
 				? previewServerState.clientId
@@ -654,6 +760,46 @@ export const SelectedOutlineOverlay: React.FC<{
 						frame: sourceFrame,
 					})
 				: null;
+			const cropValues = {
+				cropLeft: getEffectiveCropValue({
+					activeSchema,
+					controls,
+					dragOverrides,
+					fieldKey: cropFieldKeys.left,
+					frame: sourceFrame,
+					propStatuses: nodePropStatuses,
+				}),
+				cropRight: getEffectiveCropValue({
+					activeSchema,
+					controls,
+					dragOverrides,
+					fieldKey: cropFieldKeys.right,
+					frame: sourceFrame,
+					propStatuses: nodePropStatuses,
+				}),
+				cropTop: getEffectiveCropValue({
+					activeSchema,
+					controls,
+					dragOverrides,
+					fieldKey: cropFieldKeys.top,
+					frame: sourceFrame,
+					propStatuses: nodePropStatuses,
+				}),
+				cropBottom: getEffectiveCropValue({
+					activeSchema,
+					controls,
+					dragOverrides,
+					fieldKey: cropFieldKeys.bottom,
+					frame: sourceFrame,
+					propStatuses: nodePropStatuses,
+				}),
+			};
+			const crop = Internals.resolveSequenceCrop(cropValues);
+			const cropFields = getCropDragFields({
+				activeSchema,
+				cropValues,
+				propStatuses: nodePropStatuses,
+			});
 			const fieldSchema = activeSchema?.[translateFieldKey];
 			const propStatus = nodePropStatuses?.[translateFieldKey];
 			const scaleFieldSchema = activeSchema?.[scaleFieldKey];
@@ -687,7 +833,7 @@ export const SelectedOutlineOverlay: React.FC<{
 				(rotationPropStatus?.status === 'keyframed' &&
 					rotationPropStatus.interpolationFunction === 'interpolate');
 			const canDrag =
-				previewServerState.type === 'connected' &&
+				previewInteractive &&
 				controls !== null &&
 				fieldSchema?.type === 'translate' &&
 				canDragStatus;
@@ -696,12 +842,12 @@ export const SelectedOutlineOverlay: React.FC<{
 				(scalePropStatus?.status === 'keyframed' &&
 					scalePropStatus.interpolationFunction === 'interpolate');
 			const canScaleDrag =
-				previewServerState.type === 'connected' &&
+				previewInteractive &&
 				controls !== null &&
 				scaleFieldSchema?.type === 'scale' &&
 				canScaleDragStatus;
 			const canRotationDrag =
-				previewServerState.type === 'connected' &&
+				previewInteractive &&
 				controls !== null &&
 				rotationFieldSchema?.type === 'rotation-css' &&
 				canRotationDragStatus;
@@ -721,18 +867,48 @@ export const SelectedOutlineOverlay: React.FC<{
 				(propStatus?.status === 'keyframed' &&
 					propStatus.interpolationFunction === 'interpolate');
 			const canTransformOriginDrag =
-				previewServerState.type === 'connected' &&
+				previewInteractive &&
 				selectedForTransformOrigin &&
 				controls !== null &&
 				transformOriginFieldSchema?.type === 'transform-origin' &&
 				fieldSchema?.type === 'translate' &&
 				canTransformOriginStatus &&
 				canTransformOriginTranslateStatus;
+			const selectedForCrop = selectedCropInfo?.sequenceKey === key;
+			const cropSourceFrame =
+				selectedCropInfo?.displayFrame === null ||
+				selectedCropInfo?.displayFrame === undefined
+					? sourceFrame
+					: selectedCropInfo.displayFrame - keyframeDisplayOffset;
+			const canCropDrag =
+				previewInteractive &&
+				selectedForCrop &&
+				controls !== null &&
+				cropFields !== null;
 			const canDropEffect =
-				previewServerState.type === 'connected' &&
-				controls?.supportsEffects === true;
+				previewInteractive && controls?.supportsEffects === true;
 			return {
 				key,
+				canCrop: previewInteractive && controls !== null && cropFields !== null,
+				crop,
+				cropDrag: canCropDrag
+					? {
+							clientId: previewServerState.clientId,
+							fields: cropFields,
+							nodePath,
+							schema: controls.schema,
+							sourceFrame: cropSourceFrame,
+							transformOrigin:
+								transformOriginFieldSchema?.type === 'transform-origin' &&
+								transformOriginPropStatus !== undefined
+									? {
+											defaultValue: transformOriginFieldSchema.default,
+											propStatus: transformOriginPropStatus,
+											value: transformOriginValueForRotation,
+										}
+									: null,
+						}
+					: null,
 				containsSelection,
 				effectDrop: canDropEffect
 					? {
@@ -877,6 +1053,8 @@ export const SelectedOutlineOverlay: React.FC<{
 		getScaleLockState,
 		editorShowOutlines,
 		overrideIdToNodePathMappings,
+		previewInteractive,
+		previewSelectionAvailable,
 		previewServerState,
 		selectedItems,
 		sequences,

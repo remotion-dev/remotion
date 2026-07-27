@@ -30,7 +30,7 @@ import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
 import {checkFullscreenSupport} from './check-fullscreen-support';
 import {StudioServerConnectionCtx} from './client-id';
-import {WHITE_HEX} from './colors';
+import {CURRENT_COLOR} from './colors';
 import {getFileManagerName} from './get-file-manager-name';
 import {getGitMenuItem} from './get-git-menu-item';
 import {useMobileLayout} from './mobile-layout';
@@ -47,6 +47,13 @@ const openExternal = (link: string) => {
 
 const rotate: React.CSSProperties = {
 	transform: `rotate(90deg)`,
+	color: 'inherit',
+};
+const iconContainer: React.CSSProperties = {
+	color: 'inherit',
+};
+const iconPath: React.CSSProperties = {
+	color: 'inherit',
 };
 const ICON_SIZE = 16;
 
@@ -309,7 +316,7 @@ export const useMenuStructure = (
 			{
 				id: 'remotion' as const,
 				label: (
-					<Row align="center" justify="center">
+					<Row align="center" justify="center" style={iconContainer}>
 						<svg
 							width={ICON_SIZE}
 							height={ICON_SIZE}
@@ -317,8 +324,9 @@ export const useMenuStructure = (
 							style={rotate}
 						>
 							<path
-								fill={WHITE_HEX}
-								stroke={WHITE_HEX}
+								fill={CURRENT_COLOR}
+								stroke={CURRENT_COLOR}
+								style={iconPath}
 								strokeWidth="100"
 								strokeLinejoin="round"
 								d="M 2 172 a 196 100 0 0 0 195 5 A 196 240 0 0 0 100 2.259 A 196 240 0 0 0 2 172 z"
@@ -681,6 +689,7 @@ export const useMenuStructure = (
 								type: 'quick-switcher',
 								mode: 'compositions',
 								invocationTimestamp: Date.now(),
+								assetSelection: null,
 							});
 						},
 						type: 'item' as const,
@@ -864,6 +873,7 @@ export const useMenuStructure = (
 								type: 'quick-switcher',
 								mode: 'docs',
 								invocationTimestamp: Date.now(),
+								assetSelection: null,
 							});
 						},
 						keyHint: '?',

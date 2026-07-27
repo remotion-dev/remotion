@@ -8,42 +8,61 @@ metadata:
 Use `<Sequence>` to delay when an element appears in the timeline.
 
 ```tsx
-import { Sequence } from "remotion";
-
-export const Title = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-
-  const opacity = interpolate(frame, [0, 2 * fps], [0, 1], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
-    easing: Easing.bezier(0.16, 1, 0.3, 1),
-  });
-
-  return <div style={{ opacity }}>Title</div>;
-};
-
-export const Subtitle = () => {
-  return <div>Subtitle</div>;
-};
-
 const Main = () => {
-  const {fps} = useVideoConfig();
-
   return (
     <AbsoluteFill>
-      <Sequence>
-        <Background />
-      </Sequence>
-      <Sequence from={1 * fps} durationInFrames={2 * fps} layout="none">
-        <Title />
-      </Sequence>
-      <Sequence from={2 * fps} durationInFrames={2 * fps} layout="none">
-        <Subtitle />
-      </Sequence>
+      <Background />
+      <AbsoluteFill>
+        <Sequence name="Title" from={30} durationInFrames={60} layout="none">
+          <Title />
+        </Sequence>
+        <Sequence name="Subtitle" from={60} durationInFrames={60} layout="none">
+          <Subtitle />
+        </Sequence>
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 }
+
+export const Title = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <Interactive.Div
+      name="Label"
+      style={{
+        opacity: interpolate(frame, [0, 60], [0, 1], {
+          extrapolateRight: "clamp",
+          extrapolateLeft: "clamp",
+          easing: Easing.bezier(0.16, 1, 0.3, 1),
+        }),
+        fontSize: 88
+      }}
+    >
+      Title
+    </Interactive.Div>
+  );
+};
+
+export const Subtitle = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <Interactive.Div
+      name="Subtitle"
+      style={{
+        opacity: interpolate(frame, [0, 60], [0, 1], {
+          extrapolateRight: "clamp",
+          extrapolateLeft: "clamp",
+          easing: Easing.bezier(0.16, 1, 0.3, 1),
+        }),
+        fontSize: 32
+      }}
+    >
+      Subtitle
+    </Interactive.Div>
+  );
+};
 ```
 
 This will by default wrap the component in an absolute fill element.  
@@ -133,11 +152,12 @@ Sequences can be nested for complex timing:
 
 ## Nesting compositions within another
 
-To add a composition within another composition, you can use the `<Sequence>` component with a `width` and `height` prop to specify the size of the composition.
+To add a composition within another composition, you can use the `<Sequence>` component with a `width`, `height`, `durationInFrames` prop to specify the size of the composition.  
+This will override the values of `useVideoConfig()` when calling inside that component.
 
 ```tsx
 <AbsoluteFill>
-  <Sequence width={COMPOSITION_WIDTH} height={COMPOSITION_HEIGHT}>
+  <Sequence width={500} height={500} durationInFrames={100} from={30}>
     <CompositionComponent />
   </Sequence>
 </AbsoluteFill>

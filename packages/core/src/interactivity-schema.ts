@@ -376,6 +376,33 @@ export const backgroundSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
+export const svgStrokeSchema = {
+	stroke: {
+		type: 'color',
+		// `none` is the SVG initial value of stroke.
+		default: 'none',
+		description: 'Stroke',
+	},
+	strokeWidth: {
+		type: 'number',
+		// `1` is the SVG initial value of stroke-width.
+		default: 1,
+		description: 'Stroke width',
+		min: 0,
+		step: 1,
+		hiddenFromList: false,
+	},
+} as const satisfies InteractivitySchema;
+
+export const svgPaintSchema = {
+	fill: {
+		type: 'color',
+		default: undefined,
+		description: 'Fill',
+	},
+	...svgStrokeSchema,
+} as const satisfies InteractivitySchema;
+
 export const textContentSchema = {
 	children: {
 		type: 'text-content',
@@ -409,7 +436,53 @@ export const sequencePremountSchema = {
 	...premountSchema,
 } as const satisfies InteractivitySchema;
 
+export const cropSchema = {
+	cropLeft: {
+		type: 'number',
+		default: 0,
+		description: 'Crop left',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	cropRight: {
+		type: 'number',
+		default: 0,
+		description: 'Crop right',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	cropTop: {
+		type: 'number',
+		default: 0,
+		description: 'Crop top',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	cropBottom: {
+		type: 'number',
+		default: 0,
+		description: 'Crop bottom',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		hiddenFromList: false,
+		keyframable: true,
+	},
+} as const satisfies InteractivitySchema;
+
+export const sequenceCropSchema = cropSchema;
+
 export const sequenceStyleSchema = {
+	...sequenceCropSchema,
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,

@@ -31,6 +31,8 @@ const row: React.CSSProperties = {
 	minHeight: 0,
 };
 
+const MAX_SIDEBAR_WIDTH = 350;
+
 export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
 	const {sidebarCollapsedStateLeft} = useContext(SidebarContext);
 	const responsiveLeftStatus = useBreakpoint(1200) ? 'collapsed' : 'expanded';
@@ -111,12 +113,14 @@ const TopPanelInner: React.FC<{
 						minFlex={0.15}
 						maxFlex={0.4}
 						defaultFlex={0.2}
+						maxFlexerSize={MAX_SIDEBAR_WIDTH}
+						maxAntiFlexerSize={null}
 						id="sidebar-to-preview"
 						orientation="vertical"
 					>
 						{actualStateLeft === 'expanded' ? (
 							isMobileLayout ? (
-								<MobilePanel onClose={onCollapseLeft}>
+								<MobilePanel onClose={onCollapseLeft} side="left">
 									<ExplorerPanel readOnlyStudio={readOnlyStudio} />
 								</MobilePanel>
 							) : (
@@ -125,7 +129,7 @@ const TopPanelInner: React.FC<{
 								</SplitterElement>
 							)
 						) : null}
-						{actualStateLeft === 'expanded' ? (
+						{actualStateLeft === 'expanded' && !isMobileLayout ? (
 							<SplitterHandle
 								allowToCollapse="left"
 								onCollapse={onCollapseLeft}
@@ -136,6 +140,8 @@ const TopPanelInner: React.FC<{
 								minFlex={0.5}
 								maxFlex={0.8}
 								defaultFlex={0.7}
+								maxFlexerSize={null}
+								maxAntiFlexerSize={MAX_SIDEBAR_WIDTH}
 								id="canvas-to-right-sidebar"
 								orientation="vertical"
 							>
@@ -144,7 +150,7 @@ const TopPanelInner: React.FC<{
 										<CanvasIfSizeIsAvailable />
 									</div>
 								</SplitterElement>
-								{actualStateRight === 'expanded' ? (
+								{actualStateRight === 'expanded' && !isMobileLayout ? (
 									<SplitterHandle
 										allowToCollapse="right"
 										onCollapse={onCollapseRight}
@@ -152,7 +158,7 @@ const TopPanelInner: React.FC<{
 								) : null}
 								{actualStateRight === 'expanded' ? (
 									isMobileLayout ? (
-										<MobilePanel onClose={onCollapseRight}>
+										<MobilePanel onClose={onCollapseRight} side="right">
 											<OptionsPanel readOnlyStudio={readOnlyStudio} />
 										</MobilePanel>
 									) : (

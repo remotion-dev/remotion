@@ -6,6 +6,7 @@ import {
 	deriveInputDraggerValueDiff,
 	isInputDraggerValueAlignedToStep,
 	isInputDraggerValueInRange,
+	parseInputDraggerExpression,
 	parseInputDraggerNumber,
 	validateInputDraggerValue,
 } from '../components/NewComposition/InputDragger';
@@ -94,42 +95,71 @@ test('live input values must be within the configured range', () => {
 	).toBe(false);
 });
 
-test('text input values are parsed as finite decimal numbers', () => {
-	expect(parseInputDraggerNumber('-12.5')).toBe(-12.5);
-	expect(parseInputDraggerNumber('.5')).toBe(0.5);
-	expect(parseInputDraggerNumber('1e3')).toBe(1000);
-	expect(parseInputDraggerNumber(' 20 ')).toBe(20);
-	expect(parseInputDraggerNumber('')).toBeNull();
-	expect(parseInputDraggerNumber('Infinity')).toBeNull();
-	expect(parseInputDraggerNumber('0x10')).toBeNull();
-	expect(parseInputDraggerNumber('12px')).toBeNull();
+test('text input values support arithmetic expressions', () => {
+	const validExpressions = [
+		['30 * 60', 1800],
+		['2 + 3 * 4', 14],
+		['(2 + 3) * 4', 20],
+		['18 / 3 / 2', 3],
+		['-2 * -(3 + 1)', 8],
+		['+.5 + 1.5', 2],
+		['1e3 / 2E+1', 50],
+		[' 20 ', 20],
+	] as const;
+
+	for (const [expression, value] of validExpressions) {
+		expect(parseInputDraggerExpression(expression)).toEqual({
+			status: 'valid',
+			value,
+		});
+		expect(parseInputDraggerNumber(expression)).toBe(value);
+	}
+});
+
+test('incomplete expressions are distinguished from invalid expressions', () => {
+	const incompleteExpressions = ['', '30 *', '(2 + 3', '-', '1e', '1e+'];
+	for (const expression of incompleteExpressions) {
+		expect(parseInputDraggerExpression(expression)).toEqual({
+			status: 'incomplete',
+		});
+	}
+
+	const invalidExpressions = [
+		'Infinity',
+		'0x10',
+		'12px',
+		'2 + )',
+		'2 3',
+		'2 ** 3',
+		'1 / 0',
+		'1e309',
+	];
+	for (const expression of invalidExpressions) {
+		expect(parseInputDraggerExpression(expression)).toEqual({
+			status: 'invalid',
+		});
+		expect(parseInputDraggerNumber(expression)).toBeNull();
+	}
 });
 
 test('text input values retain range and step validation', () => {
-	expect(
-		validateInputDraggerValue({
-			max: 10,
-			min: 0,
-			step: 0.5,
-			value: '2.5',
-		}),
-	).toEqual({valid: true, value: 2.5});
-	expect(
-		validateInputDraggerValue({
-			max: 10,
-			min: 0,
-			step: 0.5,
-			value: '10.5',
-		}).valid,
-	).toBe(false);
-	expect(
-		validateInputDraggerValue({
-			max: 10,
-			min: 0,
-			step: 0.5,
-			value: '2.25',
-		}).valid,
-	).toBe(false);
+	const constrainedExpressions = [
+		['1 + 1.5', true],
+		['8 + 2.5', false],
+		['1.5 * 1.5', false],
+	] as const;
+
+	for (const [value, valid] of constrainedExpressions) {
+		expect(
+			validateInputDraggerValue({
+				max: 10,
+				min: 0,
+				step: 0.5,
+				value,
+			}).valid,
+		).toBe(valid);
+	}
+
 	expect(
 		validateInputDraggerValue({
 			max: Infinity,

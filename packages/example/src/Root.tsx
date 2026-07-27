@@ -125,6 +125,7 @@ import {ScalePath} from './ScalePath';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
 import {Scripts} from './Scripts';
 import {WidthHeightSequences} from './Sequence/WidthHeightSequences';
+import {SequenceCropTest} from './SequenceCropTest';
 import CircleTest from './Shapes/CircleTest';
 import EllipseTest from './Shapes/EllipseTest';
 import RectTest from './Shapes/RectTest';
@@ -164,6 +165,10 @@ import {FitText, fitTextSchema} from './Title/FitText';
 import {AudioTransition} from './Transitions/AudioTransition';
 import {BasicTransition} from './Transitions/BasicTransition';
 import {CustomTransition} from './Transitions/CustomTransition';
+import {
+	PUSH_CUT_DEMO_DURATION_IN_FRAMES,
+	PushCutDemo,
+} from './Transitions/PushCutDemo';
 import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoParser} from './VideoParser';
@@ -287,6 +292,7 @@ import {
 	InteractiveSvgElements,
 } from './VisualModeTests/InteractiveComponents';
 import {Issue9170} from './VisualModeTests/Issue9170';
+import {SvgPaintSchema} from './VisualModeTests/SvgPaintSchema';
 import {VideoConfigExpressions} from './VisualModeTests/VideoConfigExpressions';
 import {VoiceVisualization} from './voice-visualization';
 import {WhisperWeb} from './WhisperWeb';
@@ -414,6 +420,22 @@ export const Index: React.FC = () => {
 
 	return (
 		<>
+			<Composition
+				id="switzerland-map"
+				lazyComponent={() => import('./SwitzerlandMap/SwitzerlandMap')}
+				durationInFrames={240}
+				fps={30}
+				width={1080}
+				height={1080}
+			/>
+			<Composition
+				id="zurich-to-stuttgart-map"
+				lazyComponent={() => import('./SwitzerlandMap/ZurichToStuttgartMap')}
+				durationInFrames={270}
+				fps={30}
+				width={1080}
+				height={1080}
+			/>
 			<Composition
 				id="captions-tester"
 				component={AnimatedCaptions}
@@ -2198,6 +2220,14 @@ export const Index: React.FC = () => {
 					durationInFrames={300}
 					width={1920}
 				/>
+				<Composition
+					id="PushCutDemo"
+					component={PushCutDemo}
+					fps={30}
+					height={1080}
+					durationInFrames={PUSH_CUT_DEMO_DURATION_IN_FRAMES}
+					width={1920}
+				/>
 			</Folder>
 			<Folder name="Schema">
 				<Composition
@@ -2655,6 +2685,14 @@ export const Index: React.FC = () => {
 				durationInFrames={120}
 			/>
 			<Composition
+				id="sequence-crop-controls"
+				component={SequenceCropTest}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={120}
+			/>
+			<Composition
 				id="sfx"
 				component={SfxExample}
 				width={1080}
@@ -2758,6 +2796,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="interactive-svg-elements"
 					component={InteractiveSvgElements}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="issue-9582-svg-paint-schema"
+					component={SvgPaintSchema}
 					width={1080}
 					height={1080}
 					fps={30}

@@ -19,12 +19,14 @@ import {Freeze} from './freeze.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
 import type {
 	InteractiveBaseProps,
+	InteractiveCropProps,
 	InteractivePremountProps,
 } from './Interactive.js';
 import {
 	backgroundSchema,
 	baseSchema,
 	borderSchema,
+	cropSchema,
 	premountSchema,
 	transformSchema,
 	type InteractivitySchema,
@@ -34,6 +36,7 @@ import {Sequence} from './Sequence.js';
 import {SequenceContext} from './SequenceContext.js';
 import {truncateSrcForLabel} from './truncate-src-for-label.js';
 import {useBufferState} from './use-buffer-state.js';
+import {useCropStyle} from './use-crop-style.js';
 import {useDelayRender} from './use-delay-render.js';
 import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -67,6 +70,7 @@ export type ImgProps = NativeImgProps & {
 	 */
 	readonly stack?: string;
 } & InteractiveBaseProps &
+	InteractiveCropProps &
 	InteractivePremountProps;
 
 type Expected = Omit<
@@ -89,6 +93,10 @@ type ImgContentProps = Omit<
 	| 'postmountFor'
 	| 'styleWhilePremounted'
 	| 'styleWhilePostmounted'
+	| 'cropLeft'
+	| 'cropRight'
+	| 'cropTop'
+	| 'cropBottom'
 > & {
 	readonly refForOutline: React.RefObject<HTMLElement | null>;
 };
@@ -361,6 +369,10 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 	style,
 	styleWhilePremounted,
 	styleWhilePostmounted,
+	cropLeft,
+	cropRight,
+	cropTop,
+	cropBottom,
 	controls,
 	outlineRef: refForOutline,
 	...props
@@ -387,6 +399,14 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 		styleWhilePostmounted: styleWhilePostmounted ?? null,
 		hideWhilePremounted: 'display-none',
 	});
+	const croppedStyle = useCropStyle({
+		cropLeft,
+		cropRight,
+		cropTop,
+		cropBottom,
+		style: premountingStyle,
+		componentName: '<Img />',
+	});
 
 	return (
 		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
@@ -412,7 +432,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 				<ImgContent
 					src={src}
 					refForOutline={refForOutline}
-					style={premountingStyle ?? undefined}
+					style={croppedStyle ?? undefined}
 					{...props}
 				/>
 			</Sequence>
@@ -435,6 +455,7 @@ export const imgSchema = {
 		keyframable: false,
 	},
 	...baseSchema,
+	...cropSchema,
 	...premountSchema,
 	...transformSchema,
 	...backgroundSchema,
@@ -541,6 +562,10 @@ const ImgInner: React.FC<
 	height,
 	className,
 	style,
+	cropLeft,
+	cropRight,
+	cropTop,
+	cropBottom,
 	id,
 	pauseWhenLoading,
 	maxRetries,
@@ -574,6 +599,10 @@ const ImgInner: React.FC<
 				height={height}
 				className={className}
 				style={style}
+				cropLeft={cropLeft}
+				cropRight={cropRight}
+				cropTop={cropTop}
+				cropBottom={cropBottom}
 				id={id}
 				pauseWhenLoading={shouldPauseWhenLoading}
 				maxRetries={maxRetries}
@@ -609,6 +638,10 @@ const ImgInner: React.FC<
 			effects={effects}
 			className={className}
 			style={style}
+			cropLeft={cropLeft}
+			cropRight={cropRight}
+			cropTop={cropTop}
+			cropBottom={cropBottom}
 			id={id}
 			pauseWhenLoading={shouldPauseWhenLoading}
 			maxRetries={maxRetries}
@@ -627,6 +660,7 @@ const ImgInner: React.FC<
 			showInTimeline={showInTimeline}
 			stack={stack}
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
+			_remotionInternalCropComponentName="<Img />"
 			controls={controls}
 			outlineRef={refForOutline}
 			{...canvasProps}

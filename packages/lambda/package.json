@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda"
 	},
 	"name": "@remotion/lambda",
-	"version": "4.0.498",
+	"version": "4.0.499",
 	"description": "Render Remotion videos on AWS Lambda",
 	"main": "dist/index.js",
 	"scripts": {

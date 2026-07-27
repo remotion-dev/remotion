@@ -10,7 +10,7 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
-import {saveEffectProp} from './save-effect-prop';
+import {saveMultipleEffectProps} from './save-effect-prop';
 import type {SetPropStatuses} from './save-sequence-prop';
 import {saveSequenceProps} from './save-sequence-prop';
 import type {TimelineSelection} from './TimelineSelection';
@@ -310,19 +310,29 @@ export const resetSelectedTimelineProps = ({
 		);
 	}
 
-	for (const target of effectPropTargets) {
+	if (effectPropTargets.length > 0) {
 		resetPromises.push(
-			saveEffectProp({
-				type: 'value',
-				fileName: target.fileName,
-				nodePath: target.nodePath,
-				effectIndex: target.effectIndex,
-				fieldKey: target.fieldKey,
-				value: target.value,
-				defaultValue: target.defaultValue,
-				schema: target.schema,
+			saveMultipleEffectProps({
+				changes: effectPropTargets.map((target) => ({
+					type: 'value',
+					fileName: target.fileName,
+					nodePath: target.nodePath,
+					effectIndex: target.effectIndex,
+					fieldKey: target.fieldKey,
+					value: target.value,
+					defaultValue: target.defaultValue,
+					schema: target.schema,
+				})),
 				setPropStatuses,
 				clientId,
+				undoLabel:
+					effectPropTargets.length > 1
+						? 'Reset selected effect props'
+						: 'Reset effect prop',
+				redoLabel:
+					effectPropTargets.length > 1
+						? 'Reapply selected effect props'
+						: 'Reapply effect prop',
 			}),
 		);
 	}

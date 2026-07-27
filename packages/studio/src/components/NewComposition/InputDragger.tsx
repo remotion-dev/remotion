@@ -59,17 +59,165 @@ const roundToDecimalPlaces = (val: number, decimalPlaces: number) => {
 	return Object.is(rounded, -0) ? 0 : rounded;
 };
 
-const validNumberPattern =
-	/^[+-]?(?:(?:\d+(?:\.\d*)?)|(?:\.\d+))(?:e[+-]?\d+)?$/i;
+export type InputDraggerExpressionResult =
+	| {
+			readonly status: 'valid';
+			readonly value: number;
+	  }
+	| {
+			readonly status: 'incomplete' | 'invalid';
+	  };
 
-export const parseInputDraggerNumber = (value: string) => {
-	const trimmedValue = value.trim();
-	if (!validNumberPattern.test(trimmedValue)) {
-		return null;
+const numberAtStartPattern = /^(?:(?:\d+(?:\.\d*)?)|(?:\.\d+))(?:e[+-]?\d+)?/i;
+
+export const parseInputDraggerExpression = (
+	input: string,
+): InputDraggerExpressionResult => {
+	let index = 0;
+
+	const invalid = (): InputDraggerExpressionResult => ({status: 'invalid'});
+	const incomplete = (): InputDraggerExpressionResult => ({
+		status: 'incomplete',
+	});
+
+	const skipWhitespace = () => {
+		while (index < input.length && /\s/.test(input[index])) {
+			index++;
+		}
+	};
+
+	const parsePrimary = (): InputDraggerExpressionResult => {
+		skipWhitespace();
+		if (index === input.length) {
+			return incomplete();
+		}
+
+		if (input[index] === '(') {
+			index++;
+			const expression = parseExpression();
+			if (expression.status !== 'valid') {
+				return expression;
+			}
+
+			skipWhitespace();
+			if (index === input.length) {
+				return incomplete();
+			}
+
+			if (input[index] !== ')') {
+				return invalid();
+			}
+
+			index++;
+			return expression;
+		}
+
+		const match = input.slice(index).match(numberAtStartPattern);
+		if (!match) {
+			return invalid();
+		}
+
+		index += match[0].length;
+		const rest = input.slice(index);
+		if (/^e[+-]?\s*$/i.test(rest)) {
+			return incomplete();
+		}
+
+		const value = Number(match[0]);
+		return Number.isFinite(value) ? {status: 'valid', value} : invalid();
+	};
+
+	const parseUnary = (): InputDraggerExpressionResult => {
+		skipWhitespace();
+		if (input[index] !== '+' && input[index] !== '-') {
+			return parsePrimary();
+		}
+
+		const operator = input[index];
+		index++;
+		const operand = parseUnary();
+		if (operand.status !== 'valid') {
+			return operand;
+		}
+
+		const value = operator === '-' ? -operand.value : operand.value;
+		return Number.isFinite(value) ? {status: 'valid', value} : invalid();
+	};
+
+	const parseTerm = (): InputDraggerExpressionResult => {
+		let left = parseUnary();
+		if (left.status !== 'valid') {
+			return left;
+		}
+
+		while (true) {
+			skipWhitespace();
+			const operator = input[index];
+			if (operator !== '*' && operator !== '/') {
+				return left;
+			}
+
+			index++;
+			const right = parseUnary();
+			if (right.status !== 'valid') {
+				return right;
+			}
+
+			if (operator === '/' && right.value === 0) {
+				return invalid();
+			}
+
+			const value: number =
+				operator === '*' ? left.value * right.value : left.value / right.value;
+			if (!Number.isFinite(value)) {
+				return invalid();
+			}
+
+			left = {status: 'valid', value};
+		}
+	};
+
+	const parseExpression = (): InputDraggerExpressionResult => {
+		let left = parseTerm();
+		if (left.status !== 'valid') {
+			return left;
+		}
+
+		while (true) {
+			skipWhitespace();
+			const operator = input[index];
+			if (operator !== '+' && operator !== '-') {
+				return left;
+			}
+
+			index++;
+			const right = parseTerm();
+			if (right.status !== 'valid') {
+				return right;
+			}
+
+			const value: number =
+				operator === '+' ? left.value + right.value : left.value - right.value;
+			if (!Number.isFinite(value)) {
+				return invalid();
+			}
+
+			left = {status: 'valid', value};
+		}
+	};
+
+	const result = parseExpression();
+	if (result.status !== 'valid') {
+		return result;
 	}
 
-	const parsed = Number(trimmedValue);
-	return Number.isFinite(parsed) ? parsed : null;
+	skipWhitespace();
+	return index === input.length ? result : invalid();
+};
+
+export const parseInputDraggerNumber = (value: string) => {
+	const result = parseInputDraggerExpression(value);
+	return result.status === 'valid' ? result.value : null;
 };
 
 const getFiniteAttribute = (

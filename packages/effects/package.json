@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.498",
+	"version": "4.0.499",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -189,6 +189,11 @@
 			"module": "./dist/esm/linear-progressive-pixelate.mjs",
 			"import": "./dist/esm/linear-progressive-pixelate.mjs"
 		},
+		"./light-leak": {
+			"types": "./dist/light-leak.d.ts",
+			"module": "./dist/esm/light-leak.mjs",
+			"import": "./dist/esm/light-leak.mjs"
+		},
 		"./light-trail": {
 			"types": "./dist/light-trail.d.ts",
 			"module": "./dist/esm/light-trail.mjs",
@@ -278,6 +283,11 @@
 			"types": "./dist/speckle.d.ts",
 			"module": "./dist/esm/speckle.mjs",
 			"import": "./dist/esm/speckle.mjs"
+		},
+		"./starburst": {
+			"types": "./dist/starburst.d.ts",
+			"module": "./dist/esm/starburst.mjs",
+			"import": "./dist/esm/starburst.mjs"
 		},
 		"./thermal-vision": {
 			"types": "./dist/thermal-vision.d.ts",
@@ -431,6 +441,9 @@
 			"linear-progressive-pixelate": [
 				"dist/linear-progressive-pixelate.d.ts"
 			],
+			"light-leak": [
+				"dist/light-leak.d.ts"
+			],
 			"light-trail": [
 				"dist/light-trail.d.ts"
 			],
@@ -484,6 +497,9 @@
 			],
 			"speckle": [
 				"dist/speckle.d.ts"
+			],
+			"starburst": [
+				"dist/starburst.d.ts"
 			],
 			"thermal-vision": [
 				"dist/thermal-vision.d.ts"

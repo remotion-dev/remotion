@@ -10,7 +10,7 @@
 			"lib/*": ["./src/lib/*"]
 		}
 	},
-	"include": ["src"],
+	"include": ["src", "src/**/*.json"],
 	"references": [
 		{"path": "../animated-emoji"},
 		{"path": "../animation-utils"},

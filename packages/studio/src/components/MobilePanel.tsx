@@ -1,60 +1,67 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {BACKGROUND} from '../helpers/colors';
-import {useZIndex} from '../state/z-index';
-import type {RenderInlineAction} from './InlineAction';
-import {InlineAction} from './InlineAction';
+import {BACKGROUND, SHADOW_BLACK} from '../helpers/colors';
+import {HigherZIndex, useZIndex} from '../state/z-index';
+import {MENU_TOOLBAR_HEIGHT} from './menu-toolbar-height';
 import {getPortal} from './Menu/portals';
-import {CancelIcon} from './NewComposition/CancelButton';
 
-const container: React.CSSProperties = {
+const overlay: React.CSSProperties = {
 	position: 'fixed',
-	top: 0,
+	top: MENU_TOOLBAR_HEIGHT,
 	left: 0,
 	width: '100%',
-	height: '100%',
-	padding: '0 0px 50px 0px',
+	height: `calc(100% - ${MENU_TOOLBAR_HEIGHT}px)`,
+};
+
+const panel: React.CSSProperties = {
+	position: 'fixed',
+	top: MENU_TOOLBAR_HEIGHT,
+	width: 'min(350px, calc(100% - 50px))',
+	height: `calc(100% - ${MENU_TOOLBAR_HEIGHT}px)`,
+	overflow: 'hidden',
 	background: BACKGROUND,
-};
-
-const buttonContainer: React.CSSProperties = {
-	height: '40px',
-	width: '100%',
-	alignItems: 'center',
-	display: 'flex',
-	justifyContent: 'flex-end',
-	paddingRight: 8,
-};
-
-const button: React.CSSProperties = {
-	height: 16,
-	width: 16,
-	flexShrink: 0,
-};
-
-const renderCloseIcon: RenderInlineAction = (color) => {
-	return <CancelIcon style={{...button, color}} />;
+	boxShadow: SHADOW_BLACK,
 };
 
 export default function MobilePanel({
 	children,
 	onClose,
+	side,
 }: {
 	children: React.ReactNode;
 	onClose: () => void;
+	side: 'left' | 'right';
 }) {
 	const {currentZIndex} = useZIndex();
+	const onOutsideClick = React.useCallback(
+		(target: Node) => {
+			const element = target instanceof Element ? target : null;
+			const toggleSelector = `[data-sidebar-toggle="${side}"]`;
+			if (
+				element?.closest(toggleSelector) ||
+				element?.closest('button')?.querySelector(toggleSelector)
+			) {
+				return;
+			}
+
+			onClose();
+		},
+		[onClose, side],
+	);
 
 	return ReactDOM.createPortal(
-		<div style={container}>
-			<div style={buttonContainer}>
-				<InlineAction
-					onClick={onClose}
-					renderAction={renderCloseIcon}
-					title="Close sidebar"
-				/>
-			</div>
-			{children}
+		<div style={overlay}>
+			<HigherZIndex onEscape={onClose} onOutsideClick={onOutsideClick}>
+				<div
+					style={{
+						...panel,
+						left: side === 'left' ? 0 : undefined,
+						right: side === 'right' ? 0 : undefined,
+					}}
+				>
+					{children}
+				</div>
+			</HigherZIndex>
 		</div>,
 		getPortal(currentZIndex),
 	);

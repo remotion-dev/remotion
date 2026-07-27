@@ -45,8 +45,6 @@ test('Should expose absolute-fill variant fields when active', () => {
 		getDragOverrides: () => ({}),
 	});
 	expect(schemaFields?.map((s) => s.key)).toEqual([
-		'layout',
-		'premountFor',
 		'style.transformOrigin',
 		'style.translate',
 		'style.scale',
@@ -56,6 +54,12 @@ test('Should expose absolute-fill variant fields when active', () => {
 		'style.borderWidth',
 		'style.borderStyle',
 		'style.borderColor',
+		'cropLeft',
+		'cropRight',
+		'cropTop',
+		'cropBottom',
+		'layout',
+		'premountFor',
 	]);
 });
 

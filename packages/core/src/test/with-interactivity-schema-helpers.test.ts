@@ -15,12 +15,16 @@ import {
 	backgroundSchema,
 	baseSchema,
 	borderSchema,
+	cropSchema,
 	extendSchemaWithSequenceName,
 	premountSchema,
 	sequencePremountSchema,
+	sequenceCropSchema,
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
 	sequenceStyleSchema,
+	svgPaintSchema,
+	svgStrokeSchema,
 	textContentSchema,
 	textSchema,
 	transformSchema,
@@ -35,6 +39,7 @@ import {
 test('sequenceStyleSchema contains visual style and premount fields', () => {
 	expect(Object.keys(sequenceStyleSchema).sort()).toEqual(
 		[
+			...Object.keys(sequenceCropSchema),
 			...Object.keys(transformSchema),
 			...Object.keys(backgroundSchema),
 			...Object.keys(borderSchema),
@@ -65,6 +70,37 @@ test('premount fields are not keyframable', () => {
 	);
 	expect(premountSchema.premountFor.keyframable).toBe(false);
 	expect(premountSchema.postmountFor.keyframable).toBe(false);
+});
+
+test('Sequence crop fields are keyframable ratios', () => {
+	for (const field of Object.values(sequenceCropSchema)) {
+		expect(field).toMatchObject({
+			type: 'number',
+			default: 0,
+			min: 0,
+			max: 1,
+			keyframable: true,
+		});
+	}
+});
+
+test('cropSchema is reusable and supported components opt into it', () => {
+	expect(Interactive.cropSchema).toBe(cropSchema);
+	expect(sequenceCropSchema).toBe(cropSchema);
+
+	for (const key of Object.keys(cropSchema)) {
+		for (const schema of [
+			animatedImageSchema,
+			canvasImageSchema,
+			htmlInCanvasSchema,
+			imgSchema,
+			solidSchema,
+		]) {
+			expect(key in schema).toBe(true);
+		}
+	}
+
+	expect('cropLeft' in baseSchema).toBe(false);
 });
 
 test('baseSchema exposes common timeline fields', () => {
@@ -140,6 +176,10 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 	const flat = getFlatSchemaWithAllKeys(sequenceSchema);
 	expect(Object.keys(flat).sort()).toEqual(
 		[
+			'cropBottom',
+			'cropLeft',
+			'cropRight',
+			'cropTop',
 			'hidden',
 			'name',
 			'showInTimeline',
@@ -366,6 +406,44 @@ test('backgroundSchema exposes the background color style field', () => {
 	});
 });
 
+test('svgStrokeSchema exposes SVG stroke controls', () => {
+	expect(Object.keys(svgStrokeSchema)).toEqual(['stroke', 'strokeWidth']);
+	expect(svgStrokeSchema.stroke).toMatchObject({
+		type: 'color',
+		default: 'none',
+		description: 'Stroke',
+	});
+	expect(svgStrokeSchema.strokeWidth).toMatchObject({
+		type: 'number',
+		default: 1,
+		description: 'Stroke width',
+		min: 0,
+		step: 1,
+		hiddenFromList: false,
+	});
+	expect(Interactive.svgStrokeSchema).toBe(svgStrokeSchema);
+});
+
+test('svgPaintSchema exposes SVG fill and stroke fields', () => {
+	expect(Object.keys(svgPaintSchema)).toEqual([
+		'fill',
+		'stroke',
+		'strokeWidth',
+	]);
+	expect(svgPaintSchema.fill).toMatchObject({
+		type: 'color',
+		default: undefined,
+		description: 'Fill',
+	});
+	expect(svgPaintSchema.stroke).toMatchObject({
+		type: 'color',
+		default: 'none',
+		description: 'Stroke',
+	});
+	expect(svgPaintSchema.strokeWidth).toBe(svgStrokeSchema.strokeWidth);
+	expect(Interactive.svgPaintSchema).toBe(svgPaintSchema);
+});
+
 test('readValuesFromProps reads dot-notation keys via getNestedValue', () => {
 	const props = {
 		layout: 'absolute-fill',
@@ -419,6 +497,10 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 	};
 	expect(selectActiveKeys(sequenceSchema, values).sort()).toEqual(
 		[
+			'cropBottom',
+			'cropLeft',
+			'cropRight',
+			'cropTop',
 			'hidden',
 			'layout',
 			'durationInFrames',

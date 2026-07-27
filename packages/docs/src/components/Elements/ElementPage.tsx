@@ -27,75 +27,11 @@ type ElementPageProps = {
 	readonly sourceCode?: string;
 };
 
-type ElementInstallTarget = {
-	type: 'remotion-studio';
-	projectName: string | null;
-	port: number | null;
-	lastFocusedAt: number | null;
-	canInstall: boolean;
-	activeCompositionId: string | null;
-	readOnly: boolean;
-};
-
 type InstallStatus =
 	| {type: 'idle'}
 	| {type: 'installing'}
 	| {type: 'success'; message: string; studioUrl: string}
 	| {type: 'error'; message: string};
-
-const probePorts = [3000, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009];
-const focusedStudioMaxAge = 5 * 60 * 1000;
-
-const fetchWithTimeout = async (url: string, options: RequestInit = {}) => {
-	const controller = new AbortController();
-	const timeout = window.setTimeout(() => controller.abort(), 700);
-	try {
-		return await fetch(url, {...options, signal: controller.signal});
-	} finally {
-		window.clearTimeout(timeout);
-	}
-};
-
-const findBestInstallTarget = async (): Promise<
-	(ElementInstallTarget & {origin: string}) | null
-> => {
-	const targets = await Promise.all(
-		probePorts.map(async (port) => {
-			const origin = `http://localhost:${port}`;
-			try {
-				const response = await fetchWithTimeout(
-					`${origin}/api/element-install-target`,
-				);
-				if (!response.ok) {
-					return null;
-				}
-
-				const target = (await response.json()) as ElementInstallTarget;
-				if (target.type !== 'remotion-studio') {
-					return null;
-				}
-
-				return {...target, origin};
-			} catch {
-				return null;
-			}
-		}),
-	);
-
-	const now = Date.now();
-	const installableTargets = targets.filter(
-		(target): target is ElementInstallTarget & {origin: string} =>
-			target !== null &&
-			target.canInstall &&
-			target.lastFocusedAt !== null &&
-			now - target.lastFocusedAt < focusedStudioMaxAge,
-	);
-
-	return (
-		installableTargets.sort((a, b) => b.lastFocusedAt! - a.lastFocusedAt!)[0] ??
-		null
-	);
-};
 
 export const ElementPage: React.FC<ElementPageProps> = ({
 	children,
@@ -159,56 +95,23 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		}
 
 		setInstallStatus({type: 'installing'});
-		try {
-			const target = await findBestInstallTarget();
-			if (target === null) {
-				setInstallStatus({
-					type: 'error',
-					message:
-						'Focus the Remotion Studio you want to install into, then click again.',
-				});
-				return;
-			}
-
-			const response = await fetchWithTimeout(
-				`${target.origin}/api/request-element-install`,
-				{
-					method: 'POST',
-					headers: {'Content-Type': 'application/json'},
-					body: JSON.stringify({
-						mimeType: dragData.mimeType,
-						payload: dragData.payload,
-					}),
-				},
-			);
-			const result = (await response.json()) as
-				| {success: true; status: 'sent'}
-				| {success: false; reason: string};
-
-			if (!response.ok || !result.success) {
-				setInstallStatus({
-					type: 'error',
-					message:
-						'success' in result && result.success === false
-							? result.reason
-							: 'Could not send Element to Remotion Studio.',
-				});
-				return;
-			}
-
-			setInstallStatus({
-				type: 'success',
-				message: `Sent to ${target.projectName ?? 'Remotion Studio'}${
-					target.activeCompositionId ? ` / ${target.activeCompositionId}` : ''
-				}. Confirm the install in Studio.`,
-				studioUrl: target.origin,
-			});
-		} catch (err) {
+		const result = await DragAndDropInternals.installInStudio(dragData);
+		if (!result.success) {
 			setInstallStatus({
 				type: 'error',
-				message: err instanceof Error ? err.message : String(err),
+				message: result.reason,
 			});
+			return;
 		}
+
+		const {target} = result;
+		setInstallStatus({
+			type: 'success',
+			message: `Sent to ${target.projectName ?? 'Remotion Studio'}${
+				target.activeCompositionId ? ` / ${target.activeCompositionId}` : ''
+			}. Confirm the install in Studio.`,
+			studioUrl: target.origin,
+		});
 	}, [dragData]);
 
 	const PreviewComponent = useMemo(() => {

@@ -9,25 +9,18 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {
-	BACKGROUND,
-	BLACK_HEX,
-	LIGHT_TEXT,
-	WHITE_ALPHA_12,
-	WHITE_ALPHA_06,
-} from '../helpers/colors';
+import {BACKGROUND, WHITE_ALPHA_12} from '../helpers/colors';
 import {createFolderTree} from '../helpers/create-folder-tree';
 import {ExpandedFoldersContext} from '../helpers/persist-open-folders';
 import {sortItemsByNonceHistory} from '../helpers/sort-by-nonce-history';
-import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {ModalsContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import {CompositionSelectorItem} from './CompositionSelectorItem';
 import {ContextMenuForTarget} from './ContextMenu';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {showNotification} from './Notifications/NotificationCenter';
+import {ExplorerQuickSwitcherTrigger} from './QuickSwitcher/ExplorerQuickSwitcherTrigger';
 import {applyCodemod} from './RenderQueue/actions';
 import {getRootCompositionMenuItems} from './root-composition-menu-items';
 
@@ -95,31 +88,6 @@ const container: React.CSSProperties = {
 	flex: 1,
 	overflow: 'hidden',
 	backgroundColor: BACKGROUND,
-};
-
-const quickSwitcherArea: React.CSSProperties = {
-	padding: '4px 12px',
-	borderBottom: `1px solid ${BLACK_HEX}`,
-};
-
-const quickSwitcherTrigger: React.CSSProperties = {
-	backgroundColor: WHITE_ALPHA_06,
-	borderRadius: 5,
-	padding: '4px 10px',
-	color: LIGHT_TEXT,
-	fontSize: 12,
-	cursor: 'pointer',
-	display: 'flex',
-	alignItems: 'center',
-	justifyContent: 'space-between',
-	border: 'none',
-	width: '100%',
-	appearance: 'none',
-};
-
-const shortcutLabel: React.CSSProperties = {
-	fontSize: 11,
-	opacity: 0.6,
 };
 
 const autoScrollThreshold = 70;
@@ -206,14 +174,6 @@ export const CompositionSelector: React.FC = () => {
 		},
 		[],
 	);
-
-	const openQuickSwitcher = useCallback(() => {
-		setSelectedModal({
-			type: 'quick-switcher',
-			mode: 'compositions',
-			invocationTimestamp: Date.now(),
-		});
-	}, [setSelectedModal]);
 
 	const clearRootDragHover = useCallback(() => {
 		setRootDragHovered(false);
@@ -392,19 +352,11 @@ export const CompositionSelector: React.FC = () => {
 				values={rootContextMenuItems}
 				onOpen={null}
 			/>
-			<div style={quickSwitcherArea}>
-				<button
-					type="button"
-					style={quickSwitcherTrigger}
-					onClick={openQuickSwitcher}
-					tabIndex={tabIndex}
-				>
-					Search...
-					{areKeyboardShortcutsDisabled() ? null : (
-						<span style={shortcutLabel}>{cmdOrCtrlCharacter}+K</span>
-					)}
-				</button>
-			</div>
+			<ExplorerQuickSwitcherTrigger
+				mode="compositions"
+				showShortcut
+				tabIndex={tabIndex}
+			/>
 			<div
 				ref={listRef}
 				className="__remotion-vertical-scrollbar"

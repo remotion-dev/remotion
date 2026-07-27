@@ -4,7 +4,7 @@ import React, {useCallback, useMemo} from 'react';
 import type {TSequence} from '../CompositionManager.js';
 import type {DelayRenderScope} from '../delay-render.js';
 import type {HtmlInCanvasOnPaintParams} from '../HtmlInCanvas.js';
-import {HtmlInCanvas} from '../HtmlInCanvas.js';
+import {HtmlInCanvas, htmlInCanvasSchema} from '../HtmlInCanvas.js';
 import {Internals} from '../internals.js';
 import type {SequenceManagerContext} from '../SequenceManager.js';
 import {
@@ -289,6 +289,98 @@ test('<HtmlInCanvas> registers its canvas for outline selection', async () => {
 	expect(canvas).not.toBeNull();
 	expect(canvasRef.current).toBe(canvas);
 	expect(registeredSequences[0]?.refForOutline?.current).toBe(canvas);
+});
+
+test('<HtmlInCanvas> applies crop props to its canvas', () => {
+	const {container} = render(
+		<SequenceTestWrapper onRegisterSequence={() => undefined}>
+			<HtmlInCanvas
+				width={120}
+				height={80}
+				cropLeft={0.1}
+				cropRight={0.2}
+				cropTop={0.3}
+				cropBottom={0.4}
+			>
+				<div>Test</div>
+			</HtmlInCanvas>
+		</SequenceTestWrapper>,
+	);
+
+	expect(container.querySelector('canvas')?.style.clipPath).toBe(
+		'inset(30% 20% 40% 10%)',
+	);
+});
+
+test('<HtmlInCanvas> exposes crop controls', () => {
+	expect(htmlInCanvasSchema.cropLeft.keyframable).toBe(true);
+	expect(htmlInCanvasSchema.cropRight.keyframable).toBe(true);
+	expect(htmlInCanvasSchema.cropTop.keyframable).toBe(true);
+	expect(htmlInCanvasSchema.cropBottom.keyframable).toBe(true);
+});
+
+test('<HtmlInCanvas> throws when nested in Chrome older than 152', () => {
+	const originalUserAgent = Object.getOwnPropertyDescriptor(
+		window.navigator,
+		'userAgent',
+	);
+	Object.defineProperty(window.navigator, 'userAgent', {
+		configurable: true,
+		value: 'Mozilla/5.0 HeadlessChrome/151.0.0.0 Safari/537.36',
+	});
+
+	try {
+		expect(() =>
+			render(
+				<SequenceTestWrapper onRegisterSequence={() => undefined}>
+					<HtmlInCanvas width={120} height={80}>
+						<HtmlInCanvas width={60} height={40}>
+							<div>Nested</div>
+						</HtmlInCanvas>
+					</HtmlInCanvas>
+				</SequenceTestWrapper>,
+			),
+		).toThrow(
+			'Nested <HtmlInCanvas> components require Chrome 152 or newer, but the current browser is Chrome 151.',
+		);
+	} finally {
+		if (originalUserAgent) {
+			Object.defineProperty(window.navigator, 'userAgent', originalUserAgent);
+		} else {
+			Reflect.deleteProperty(window.navigator, 'userAgent');
+		}
+	}
+});
+
+test('<HtmlInCanvas> allows nesting in Chrome 152', () => {
+	const originalUserAgent = Object.getOwnPropertyDescriptor(
+		window.navigator,
+		'userAgent',
+	);
+	Object.defineProperty(window.navigator, 'userAgent', {
+		configurable: true,
+		value: 'Mozilla/5.0 Chrome/152.0.0.0 Safari/537.36',
+	});
+
+	try {
+		const {container} = render(
+			<SequenceTestWrapper onRegisterSequence={() => undefined}>
+				<HtmlInCanvas width={120} height={80}>
+					<HtmlInCanvas width={60} height={40}>
+						<div>Nested</div>
+					</HtmlInCanvas>
+				</HtmlInCanvas>
+			</SequenceTestWrapper>,
+		);
+
+		expect(container.querySelectorAll('canvas')).toHaveLength(2);
+	} finally {
+		if (originalUserAgent) {
+			Object.defineProperty(window.navigator, 'userAgent', originalUserAgent);
+		} else {
+			Reflect.deleteProperty(window.navigator, 'userAgent');
+		}
+	}
 });
 
 test('<HtmlInCanvas> keeps refs current when the canvas remounts', async () => {
