@@ -26,10 +26,7 @@ import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';
 import {IsInsideSeriesContext} from './series/is-inside-series.js';
-import {
-	useTimelineContext,
-	useTimelinePosition,
-} from './timeline-position-state.js';
+import {useTimelinePosition} from './timeline-position-state.js';
 import type {BasicMediaInTimelineReturnType} from './use-media-in-timeline.js';
 import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -163,7 +160,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const [id] = useState(() => String(Math.random()));
 	const parentSequence = useContext(SequenceContext);
-	const {rootId} = useTimelineContext();
 	const cumulatedFrom = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
@@ -427,7 +423,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					parent: parentSequence?.id ?? null,
 					postmountDisplay: postmountDisplay ?? null,
 					premountDisplay: premountDisplay ?? null,
-					rootId,
 					showInTimeline,
 					src: isMedia.src,
 					getStack: () => stackRef.current,
@@ -454,7 +449,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					playbackRate: isMedia.data.playbackRate,
 					postmountDisplay: postmountDisplay ?? null,
 					premountDisplay: premountDisplay ?? null,
-					rootId,
 					showInTimeline,
 					src: isMedia.data.src,
 					getStack: () => stackRef.current,
@@ -483,7 +477,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			documentationLink: resolvedDocumentationLink,
 			parent: parentSequence?.id ?? null,
 			type: 'sequence',
-			rootId,
 			showInTimeline,
 			nonce: nonce.get(),
 			loopDisplay,
@@ -509,7 +502,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		unregisterSequence,
 		parentSequence?.id,
 		actualDurationInFrames,
-		rootId,
 		from,
 		trimBefore,
 		registeredTrimBefore,
