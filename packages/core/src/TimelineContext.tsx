@@ -6,7 +6,6 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {random} from './random';
 import {
 	getInitialFrameState,
 	type PlayableMediaTag,
@@ -16,7 +15,6 @@ import {useDelayRender} from './use-delay-render';
 export type TimelineContextValue = {
 	frame: Record<string, number>;
 	playing: boolean;
-	rootId: string;
 	imperativePlaying: RefObject<boolean>;
 	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
 };
@@ -58,7 +56,6 @@ export const TimelineContextProvider: React.FC<{
 
 	const [playbackRate, setPlaybackRate] = useState(1);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
-	const [remotionRootId] = useState(() => String(random(null)));
 	const [_frame, setFrame] = useState<Record<string, number>>(() =>
 		getInitialFrameState(),
 	);
@@ -107,10 +104,9 @@ export const TimelineContextProvider: React.FC<{
 			frame,
 			playing,
 			imperativePlaying,
-			rootId: remotionRootId,
 			audioAndVideoTags,
 		};
-	}, [frame, playing, remotionRootId]);
+	}, [frame, playing]);
 
 	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
 		return {

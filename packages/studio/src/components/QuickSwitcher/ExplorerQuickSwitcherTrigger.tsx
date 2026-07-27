@@ -42,6 +42,7 @@ export const ExplorerQuickSwitcherTrigger: React.FC<{
 			type: 'quick-switcher',
 			mode,
 			invocationTimestamp: Date.now(),
+			assetSelection: null,
 		});
 	}, [mode, setSelectedModal]);
 

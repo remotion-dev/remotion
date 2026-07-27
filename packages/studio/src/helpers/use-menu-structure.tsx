@@ -689,6 +689,7 @@ export const useMenuStructure = (
 								type: 'quick-switcher',
 								mode: 'compositions',
 								invocationTimestamp: Date.now(),
+								assetSelection: null,
 							});
 						},
 						type: 'item' as const,
@@ -872,6 +873,7 @@ export const useMenuStructure = (
 								type: 'quick-switcher',
 								mode: 'docs',
 								invocationTimestamp: Date.now(),
+								assetSelection: null,
 							});
 						},
 						keyHint: '?',

@@ -15,7 +15,7 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BLUE, LIGHT_GRAY, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import type {
 	SequenceNodePathInfo,
-	TrackWithHash,
+	TimelineTrackData,
 } from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	buildTimelineTree,
@@ -188,9 +188,9 @@ const findTrackForNodePathInfo = ({
 	tracks,
 	nodePathInfo,
 }: {
-	readonly tracks: readonly TrackWithHash[];
+	readonly tracks: readonly TimelineTrackData[];
 	readonly nodePathInfo: SequenceNodePathInfo;
-}): TrackWithHash | null => {
+}): TimelineTrackData | null => {
 	return (
 		tracks.find((track) => {
 			if (track.nodePathInfo === null) {
@@ -220,7 +220,7 @@ const resolveKeyframeControlTarget = ({
 	timelinePosition,
 }: {
 	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly tracks: readonly TrackWithHash[];
+	readonly tracks: readonly TimelineTrackData[];
 	readonly propStatuses: PropStatuses;
 	readonly getDragOverrides: GetDragOverrides;
 	readonly getEffectDragOverrides: GetEffectDragOverrides;

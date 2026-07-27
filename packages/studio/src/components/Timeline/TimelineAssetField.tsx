@@ -1,45 +1,44 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {createContext, useCallback, useContext, useMemo} from 'react';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {writeStaticFile} from '../../api/write-static-file';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
-import {Checkmark} from '../../icons/Checkmark';
-import {pickFilesToImport} from '../import-assets';
-import type {ComboboxValue} from '../NewComposition/ComboBox';
-import {Combobox} from '../NewComposition/ComboBox';
-import {showNotification} from '../Notifications/NotificationCenter';
-import {useStaticFiles} from '../use-static-files';
+import {PenIcon} from '../../icons/pen';
+import {ModalsContext} from '../../state/modals';
+import {InlineAction} from '../InlineAction';
+import {
+	InspectorInlineAction,
+	type InspectorInlineActionProps,
+} from '../InspectorPanel/common';
 
-const comboboxStyle: React.CSSProperties = {
-	marginLeft: 8,
-	maxWidth: 180,
+const penIcon: React.CSSProperties = {
+	display: 'block',
+	height: 14,
+	width: 14,
 };
 
-const remoteAssetStyle: React.CSSProperties = {
-	display: 'inline-block',
-	marginLeft: 8,
-	maxWidth: 180,
-	overflow: 'hidden',
-	textOverflow: 'ellipsis',
-	verticalAlign: 'middle',
-	whiteSpace: 'nowrap',
+export type InspectorSourceAction = Omit<InspectorInlineActionProps, 'variant'>;
+
+type AssetSelectionContextValue = {
+	readonly initialQuery: string;
+	readonly getSourceAction: (src: string) => InspectorSourceAction | null;
+	readonly sourceAction: InspectorSourceAction | null;
 };
 
-const toFileToken = (name: string) => {
+export const AssetSelectionContext = createContext<AssetSelectionContextValue>({
+	getSourceAction: () => null,
+	initialQuery: '',
+	sourceAction: null,
+});
+
+export const toFileToken = (name: string) => {
 	return `${NoReactInternals.FILE_TOKEN}${name
 		.split('/')
 		.map(encodeURIComponent)
 		.join('/')}`;
-};
-
-const toStaticFileUrl = (fileToken: string) => {
-	return `${window.remotion_staticBase}/${fileToken.slice(
-		NoReactInternals.FILE_TOKEN.length,
-	)}`;
 };
 
 type TimelineAssetFieldProps = {
@@ -51,24 +50,35 @@ type TimelineAssetFieldProps = {
 	readonly onDragEnd: () => void;
 };
 
-export const isStaticFileAssetValue = (value: unknown): value is string => {
-	return (
-		typeof value === 'string' && value.startsWith(NoReactInternals.FILE_TOKEN)
-	);
-};
-
-const TimelineStaticFileAssetField: React.FC<TimelineAssetFieldProps> = ({
-	propStatus,
+export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
+	field,
 	effectiveValue,
+	propStatus,
 	onSave,
 	onDragValueChange,
 	onDragEnd,
 }) => {
-	const staticFiles = useStaticFiles();
-	const current = String(effectiveValue ?? '');
+	if (field.fieldSchema.type !== 'asset') {
+		throw new Error('TimelineAssetField rendered for non-asset field');
+	}
+
+	const {setSelectedModal} = useContext(ModalsContext);
+	const {getSourceAction, initialQuery, sourceAction} = useContext(
+		AssetSelectionContext,
+	);
+	const inlineSourceAction = useMemo(() => {
+		if (field.key !== 'src') {
+			return null;
+		}
+
+		return typeof effectiveValue === 'string'
+			? getSourceAction(effectiveValue)
+			: sourceAction;
+	}, [effectiveValue, field.key, getSourceAction, sourceAction]);
 
 	const onSelect = useCallback(
-		(sourceValue: string, previewValue: string) => {
+		(assetName: string, previewValue: string) => {
+			const sourceValue = toFileToken(assetName);
 			if (sourceValue === propStatus.codeValue) {
 				return;
 			}
@@ -81,107 +91,44 @@ const TimelineStaticFileAssetField: React.FC<TimelineAssetFieldProps> = ({
 		[propStatus.codeValue, onDragValueChange, onSave, onDragEnd],
 	);
 
-	const upload = useCallback(async () => {
-		const [file] = await pickFilesToImport({multiple: false});
-		if (!file) {
-			return;
-		}
-
-		const existing = staticFiles.find(
-			(candidate) => candidate.name === file.name,
-		);
-		if (existing && existing.sizeInBytes !== file.size) {
-			showNotification(
-				`File with name ${file.name} already exists and is different`,
-				4000,
-			);
-			return;
-		}
-
-		try {
-			if (!existing) {
-				await writeStaticFile({
-					contents: await file.arrayBuffer(),
-					filePath: file.name,
-				});
-			}
-
-			const fileToken = toFileToken(file.name);
-			onSelect(fileToken, toStaticFileUrl(fileToken));
-			if (!existing) {
-				showNotification(`Created ${file.name} in public folder`, 3000);
-			}
-		} catch (error) {
-			showNotification(
-				`Could not upload asset: ${
-					error instanceof Error ? error.message : String(error)
-				}`,
-				4000,
-			);
-		}
-	}, [onSelect, staticFiles]);
-
-	const items = useMemo<ComboboxValue[]>(() => {
-		const publicFileItems = staticFiles.map((file): ComboboxValue => {
-			const fileToken = toFileToken(file.name);
-			return {
-				type: 'item',
-				id: fileToken,
-				value: fileToken,
-				label: file.name,
-				onClick: () => onSelect(fileToken, file.src),
-				keyHint: null,
-				leftItem: fileToken === current ? <Checkmark /> : null,
-				subMenu: null,
-				quickSwitcherLabel: null,
-			};
-		});
-		return [
-			...publicFileItems,
-			{type: 'divider', id: 'upload-asset-divider'},
-			{
-				type: 'item',
-				id: 'upload-asset',
-				value: 'upload-asset',
-				label: 'Upload…',
-				onClick: () => {
-					upload().catch(() => undefined);
-				},
-				keyHint: null,
-				leftItem: null,
-				subMenu: null,
-				quickSwitcherLabel: null,
-				disabled: window.remotion_isReadOnlyStudio,
+	const openAssetSelection = useCallback(() => {
+		setSelectedModal({
+			type: 'quick-switcher',
+			mode: 'assets',
+			invocationTimestamp: Date.now(),
+			assetSelection: {
+				initialQuery,
+				onSelected: (asset) => onSelect(asset.name, asset.src),
 			},
-		];
-	}, [current, onSelect, staticFiles, upload]);
+		});
+	}, [initialQuery, onSelect, setSelectedModal]);
 
-	return (
-		<Combobox
-			size="small"
-			title={current}
-			selectedId={current}
-			values={items}
-			style={comboboxStyle}
+	const action = (
+		<InlineAction
+			onClick={openAssetSelection}
+			disabled={window.remotion_isReadOnlyStudio}
+			title="Change source"
+			renderAction={(color) => <PenIcon color={color} style={penIcon} />}
 		/>
 	);
-};
 
-export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = (
-	props,
-) => {
-	if (props.field.fieldSchema.type !== 'asset') {
-		throw new Error('TimelineAssetField rendered for non-asset field');
+	if (inlineSourceAction === null) {
+		return action;
 	}
 
-	if (!isStaticFileAssetValue(props.effectiveValue)) {
-		const remote = String(props.effectiveValue ?? '');
-		return (
-			<span style={remoteAssetStyle} title={remote}>
-				{remote}
-			</span>
-		);
-	}
-
-	return <TimelineStaticFileAssetField {...props} />;
+	return (
+		<InspectorInlineAction
+			{...inlineSourceAction}
+			size="compact"
+			variant={{
+				type: 'segmented',
+				trailing: {
+					disabled: window.remotion_isReadOnlyStudio,
+					onClick: openAssetSelection,
+					renderIcon: (color) => <PenIcon color={color} style={penIcon} />,
+					title: 'Change source',
+				},
+			}}
+		/>
+	);
 };

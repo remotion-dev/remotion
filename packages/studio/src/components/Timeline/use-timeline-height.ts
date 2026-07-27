@@ -1,7 +1,7 @@
 import {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	buildTimelineTree,
 	flattenVisibleTreeNodes,
@@ -24,7 +24,7 @@ export const useTimelineHeight = ({
 	shown,
 	hasBeenCut,
 }: {
-	shown: TrackWithHash[];
+	shown: TimelineTrackData[];
 	hasBeenCut: boolean;
 }): number => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);

@@ -30,7 +30,7 @@ import {
 } from '../../helpers/colors';
 import type {
 	SequenceNodePathInfo,
-	TrackWithHash,
+	TimelineTrackData,
 } from '../../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {
@@ -802,7 +802,7 @@ const nodePathDescendsFrom = (
 };
 
 export const getSelectableTimelineSequenceSelections = (
-	tracks: readonly Pick<TrackWithHash, 'nodePathInfo'>[],
+	tracks: readonly Pick<TimelineTrackData, 'nodePathInfo'>[],
 ): TimelineSelection[] => {
 	return tracks.flatMap((track): TimelineSelection[] => {
 		if (
@@ -873,7 +873,7 @@ export const getSelectableTimelineItems = ({
 	readonly getIsExpanded: GetIsExpanded;
 	readonly propStatuses: PropStatuses;
 	readonly selectedItems: readonly TimelineSelection[];
-	readonly timeline: readonly TrackWithHash[];
+	readonly timeline: readonly TimelineTrackData[];
 	readonly timelinePosition: number;
 }): TimelineSelection[] => {
 	const selectedRowKeys = getSelectedTimelineExpandedRowKeys(selectedItems);
@@ -976,7 +976,7 @@ export const getTimelineSequenceSelectionKey = (
 ): string => timelineNodePathInfoToKey({...nodePathInfo, auxiliaryKeys: []});
 
 export const TimelineSelectAllKeybindings: React.FC<{
-	readonly timeline: readonly TrackWithHash[];
+	readonly timeline: readonly TimelineTrackData[];
 }> = ({timeline}) => {
 	const keybindings = useKeybinding();
 	const {canSelect} = useTimelineSelection();
@@ -1055,7 +1055,7 @@ const TimelineEscapeKeybindings: React.FC = () => {
 
 export const TimelineSelectableItemsProvider: React.FC<{
 	readonly children: React.ReactNode;
-	readonly timeline: readonly TrackWithHash[];
+	readonly timeline: readonly TimelineTrackData[];
 }> = ({children, timeline}) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);

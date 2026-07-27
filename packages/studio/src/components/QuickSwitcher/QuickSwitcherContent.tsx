@@ -7,6 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
+import type {StaticFile} from '../../api/get-static-files';
 import {LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {getPreviewFileType} from '../../helpers/get-preview-file-type';
 import {isCompositionStill} from '../../helpers/is-composition-still';
@@ -78,6 +79,11 @@ const content: React.CSSProperties = {
 	alignItems: 'center',
 };
 
+const contentWithoutModeSelector: React.CSSProperties = {
+	...content,
+	paddingTop: 16,
+};
+
 const stripQuery = (query: string) => {
 	if (query.startsWith('$') || query.startsWith('>') || query.startsWith('?')) {
 		return query.substring(1).trim();
@@ -136,22 +142,32 @@ export const QuickSwitcherContent: React.FC<{
 	readonly initialMode: QuickSwitcherMode;
 	readonly invocationTimestamp: number;
 	readonly readOnlyStudio: boolean;
-}> = ({initialMode, invocationTimestamp, readOnlyStudio}) => {
+	readonly assetSelection: {
+		readonly initialQuery: string;
+		readonly onSelected: (asset: StaticFile) => void;
+	} | null;
+}> = ({initialMode, invocationTimestamp, readOnlyStudio, assetSelection}) => {
 	const {compositions} = useContext(Internals.CompositionManager);
 	const staticFiles = useStaticFiles();
 	const [state, setState] = useState(() => {
 		return {
-			query: mapModeToQuery(initialMode),
+			query:
+				assetSelection === null
+					? mapModeToQuery(initialMode)
+					: assetSelection.initialQuery,
 			selectedIndex: 0,
 		};
 	});
 
 	useEffect(() => {
 		setState({
-			query: mapModeToQuery(initialMode),
+			query:
+				assetSelection === null
+					? mapModeToQuery(initialMode)
+					: assetSelection.initialQuery,
 			selectedIndex: 0,
 		});
-	}, [initialMode, invocationTimestamp]);
+	}, [assetSelection, initialMode, invocationTimestamp]);
 
 	const inputRef = useRef<HTMLInputElement>(null);
 	const selectComposition = useSelectComposition();
@@ -165,7 +181,8 @@ export const QuickSwitcherContent: React.FC<{
 
 	const keybindings = useKeybinding();
 
-	const mode: QuickSwitcherMode = mapQueryToMode(state.query);
+	const mode: QuickSwitcherMode =
+		assetSelection !== null ? 'assets' : mapQueryToMode(state.query);
 
 	const actualQuery = useMemo(() => {
 		return stripQuery(state.query);
@@ -205,8 +222,13 @@ export const QuickSwitcherContent: React.FC<{
 						type: 'asset',
 						fileType: getPreviewFileType(asset.name),
 						onSelected: () => {
-							selectAsset(asset.name);
-							pushUrl(`/assets/${asset.name}`);
+							if (assetSelection !== null) {
+								assetSelection.onSelected(asset);
+							} else {
+								selectAsset(asset.name);
+								pushUrl(`/assets/${asset.name}`);
+							}
+
 							setSelectedModal(null);
 						},
 					};
@@ -245,6 +267,7 @@ export const QuickSwitcherContent: React.FC<{
 		menuActions,
 		docResults,
 		assetSearch,
+		assetSelection,
 		selectAsset,
 		selectComposition,
 		setSelectedModal,
@@ -416,40 +439,44 @@ export const QuickSwitcherContent: React.FC<{
 
 	return (
 		<div style={container}>
-			<div style={modeSelector}>
-				<button
-					onClick={onCompositionsSelected}
-					style={mode === 'compositions' ? modeActive : modeInactive}
-					type="button"
-				>
-					Compositions
-				</button>
-				<Spacing x={1} />
-				<button
-					onClick={onAssetsSelected}
-					style={mode === 'assets' ? modeActive : modeInactive}
-					type="button"
-				>
-					Assets
-				</button>
-				<Spacing x={1} />
-				<button
-					onClick={onActionsSelected}
-					style={mode === 'commands' ? modeActive : modeInactive}
-					type="button"
-				>
-					Actions
-				</button>
-				<Spacing x={1} />
-				<button
-					onClick={onDocSearchSelected}
-					style={mode === 'docs' ? modeActive : modeInactive}
-					type="button"
-				>
-					Documentation
-				</button>
-			</div>
-			<div style={content}>
+			{assetSelection === null && (
+				<div style={modeSelector}>
+					<button
+						onClick={onCompositionsSelected}
+						style={mode === 'compositions' ? modeActive : modeInactive}
+						type="button"
+					>
+						Compositions
+					</button>
+					<Spacing x={1} />
+					<button
+						onClick={onAssetsSelected}
+						style={mode === 'assets' ? modeActive : modeInactive}
+						type="button"
+					>
+						Assets
+					</button>
+					<Spacing x={1} />
+					<button
+						onClick={onActionsSelected}
+						style={mode === 'commands' ? modeActive : modeInactive}
+						type="button"
+					>
+						Actions
+					</button>
+					<Spacing x={1} />
+					<button
+						onClick={onDocSearchSelected}
+						style={mode === 'docs' ? modeActive : modeInactive}
+						type="button"
+					>
+						Documentation
+					</button>
+				</div>
+			)}
+			<div
+				style={assetSelection === null ? content : contentWithoutModeSelector}
+			>
 				<RemotionInput
 					ref={inputRef}
 					type="text"
