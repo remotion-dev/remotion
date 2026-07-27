@@ -7,6 +7,11 @@ export {
 	type StarburstEffectParams,
 	type StarburstOrigin,
 } from './starburst.js';
+export {
+	lightLeak,
+	lightLeakEffectSchema,
+	type LightLeakEffectParams,
+} from './light-leak.js';
 export {gridlines, type GridlinesParams} from './gridlines.js';
 export {zigzag, type ZigzagDirection, type ZigzagParams} from './zigzag.js';
 export {

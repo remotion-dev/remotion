@@ -301,6 +301,7 @@ const sidebars: SidebarsConfig = {
 				'effects/linear-gradient-tint',
 				'effects/linear-progressive-blur',
 				'effects/linear-progressive-pixelate',
+				'effects/light-leak',
 				'effects/light-trail',
 				'effects/lines',
 				'effects/liquid-contours',

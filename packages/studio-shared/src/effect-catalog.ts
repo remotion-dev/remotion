@@ -14,10 +14,6 @@ export type EffectCatalogCategory = {
 };
 
 export const getEffectDocumentationPath = (item: EffectCatalogItem) => {
-	if (item.id === 'effects-light-leak') {
-		return '/docs/light-leaks/light-leak-effect';
-	}
-
 	return `/docs/effects/${item.id.slice('effects-'.length)}`;
 };
 
@@ -777,7 +773,7 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		description: 'Light leak overlay effect',
 		effect: {
 			name: 'lightLeak',
-			importPath: '@remotion/light-leaks',
+			importPath: '@remotion/effects/light-leak',
 			config: {},
 		},
 	},
