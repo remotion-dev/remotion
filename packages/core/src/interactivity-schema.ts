@@ -193,7 +193,7 @@ export type ArrayFieldSchema = {
 };
 
 export type CaptionsFieldSchema = {
-	type: 'captions';
+	type: 'remotion-captions';
 	default: readonly unknown[] | undefined;
 	description?: string;
 	keyframable: false;

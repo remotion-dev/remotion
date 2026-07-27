@@ -164,7 +164,7 @@ test('getFieldsToShow leaves captions to the caption inspector', () => {
 	const fields = getFieldsToShow({
 		schema: {
 			captions: {
-				type: 'captions',
+				type: 'remotion-captions',
 				default: undefined,
 				keyframable: false,
 			},

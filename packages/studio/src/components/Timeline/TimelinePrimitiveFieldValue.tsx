@@ -34,7 +34,10 @@ const assetInlineWrapper: React.CSSProperties = {
 	minWidth: 0,
 };
 
-type CaptionsFieldSchema = Extract<VisibleFieldSchema, {type: 'captions'}>;
+type CaptionsFieldSchema = Extract<
+	VisibleFieldSchema,
+	{type: 'remotion-captions'}
+>;
 
 type PrimitiveFieldSchema = Exclude<
 	VisibleFieldSchema,
@@ -55,7 +58,7 @@ export const isTimelinePrimitiveFieldInfo = (
 	return (
 		field.typeName !== 'array' &&
 		field.fieldSchema.type !== 'array' &&
-		field.fieldSchema.type !== 'captions'
+		field.fieldSchema.type !== 'remotion-captions'
 	);
 };
 
