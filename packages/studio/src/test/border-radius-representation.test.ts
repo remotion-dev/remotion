@@ -1,16 +1,66 @@
 import {expect, test} from 'bun:test';
-import type {CanUpdateSequencePropStatus} from 'remotion';
+import {optimisticUpdateForPropStatuses} from '@remotion/studio-shared';
+import type {
+	CanUpdateSequencePropsResponse,
+	CanUpdateSequencePropStatus,
+} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {
 	BORDER_RADIUS_LONGHAND_KEYS,
+	BORDER_RADIUS_SHORTHAND_KEY,
 	getBorderRadiusConversion,
+	getBorderRadiusConversionChanges,
 } from '../components/Timeline/border-radius-representation';
 
 test('a static shorthand can be converted to individual corners', () => {
-	expect(
-		getBorderRadiusConversion({
-			'style.borderRadius': {status: 'static', codeValue: 12},
-		}),
-	).toEqual({type: 'individual', value: 12});
+	const conversion = getBorderRadiusConversion({
+		'style.borderRadius': {status: 'static', codeValue: 12},
+	});
+	expect(conversion).toEqual({type: 'individual', value: 12});
+	if (conversion === null) {
+		throw new Error('Expected a border radius conversion');
+	}
+
+	const changes = getBorderRadiusConversionChanges(conversion);
+	expect(changes).toEqual([
+		{fieldKey: BORDER_RADIUS_SHORTHAND_KEY, value: undefined},
+		...BORDER_RADIUS_LONGHAND_KEYS.map((fieldKey) => ({
+			fieldKey,
+			value: 12,
+		})),
+	]);
+
+	const initial: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {
+			[BORDER_RADIUS_SHORTHAND_KEY]: {status: 'static', codeValue: 12},
+			...Object.fromEntries(
+				BORDER_RADIUS_LONGHAND_KEYS.map((key) => [
+					key,
+					{status: 'static', codeValue: 12},
+				]),
+			),
+		},
+		effects: [],
+	};
+	const optimistic = changes.reduce<CanUpdateSequencePropsResponse>(
+		(previous, change) =>
+			optimisticUpdateForPropStatuses({
+				previous,
+				fieldKey: change.fieldKey,
+				value: change.value,
+				defaultValue: null,
+				schema: NoReactInternals.sequenceSchema,
+			}),
+		initial,
+	);
+	expect(optimistic.canUpdate).toBe(true);
+	if (optimistic.canUpdate) {
+		expect(optimistic.props[BORDER_RADIUS_SHORTHAND_KEY]).toEqual({
+			status: 'static',
+			codeValue: undefined,
+		});
+	}
 });
 
 test('four equal static longhands can be converted to a shorthand', () => {

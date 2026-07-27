@@ -20,9 +20,9 @@ import {InspectorInlineAction, InspectorSection} from './InspectorPanel/common';
 import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
 import {getAssetSearchQueryForComponent} from './QuickSwitcher/asset-search';
 import {
-	BORDER_RADIUS_LONGHAND_KEYS,
 	BORDER_RADIUS_SHORTHAND_KEY,
 	getBorderRadiusConversion,
+	getBorderRadiusConversionChanges,
 } from './Timeline/border-radius-representation';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {
@@ -414,25 +414,9 @@ export const InspectorSequenceSection: React.FC<{
 			defaultValue: null,
 			schema,
 		};
-		const changes =
-			borderRadiusConversion.type === 'individual'
-				? BORDER_RADIUS_LONGHAND_KEYS.map((fieldKey) => ({
-						...common,
-						fieldKey,
-						value: borderRadiusConversion.value,
-					}))
-				: [
-						...BORDER_RADIUS_LONGHAND_KEYS.map((fieldKey) => ({
-							...common,
-							fieldKey,
-							value: undefined,
-						})),
-						{
-							...common,
-							fieldKey: BORDER_RADIUS_SHORTHAND_KEY,
-							value: borderRadiusConversion.value,
-						},
-					];
+		const changes = getBorderRadiusConversionChanges(
+			borderRadiusConversion,
+		).map((change) => ({...common, ...change}));
 
 		saveSequenceProps({
 			changes,

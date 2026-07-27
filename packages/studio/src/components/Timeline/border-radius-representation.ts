@@ -12,6 +12,33 @@ export type BorderRadiusConversion =
 	| {readonly type: 'individual'; readonly value: number}
 	| {readonly type: 'shorthand'; readonly value: number};
 
+export type BorderRadiusConversionChange = {
+	readonly fieldKey: string;
+	readonly value: number | undefined;
+};
+
+export const getBorderRadiusConversionChanges = (
+	conversion: BorderRadiusConversion,
+): BorderRadiusConversionChange[] => {
+	if (conversion.type === 'individual') {
+		return [
+			{fieldKey: BORDER_RADIUS_SHORTHAND_KEY, value: undefined},
+			...BORDER_RADIUS_LONGHAND_KEYS.map((fieldKey) => ({
+				fieldKey,
+				value: conversion.value,
+			})),
+		];
+	}
+
+	return [
+		...BORDER_RADIUS_LONGHAND_KEYS.map((fieldKey) => ({
+			fieldKey,
+			value: undefined,
+		})),
+		{fieldKey: BORDER_RADIUS_SHORTHAND_KEY, value: conversion.value},
+	];
+};
+
 export const getBorderRadiusConversion = (
 	props: Record<string, CanUpdateSequencePropStatus> | undefined,
 ): BorderRadiusConversion | null => {
