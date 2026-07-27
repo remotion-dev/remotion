@@ -1657,6 +1657,7 @@
       "dependencies": {
         "@jridgewell/trace-mapping": "0.3.31",
         "@remotion/canvas-capture": "workspace:*",
+        "@remotion/captions": "workspace:*",
         "@remotion/drag-and-drop": "workspace:*",
         "@remotion/media-utils": "workspace:*",
         "@remotion/player": "workspace:*",
