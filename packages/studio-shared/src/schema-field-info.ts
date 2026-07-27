@@ -154,6 +154,7 @@ const TIMELINE_SCHEMA_FIELD_TYPE_SUPPORT = {
 	array: true,
 	asset: true,
 	boolean: true,
+	captions: false,
 	color: true,
 	enum: true,
 	'font-family': true,
