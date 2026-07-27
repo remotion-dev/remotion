@@ -16,10 +16,7 @@ import {
 	type MoveEffectKeyframeChange,
 	type MoveSequenceKeyframeChange,
 } from './call-move-keyframe';
-import {
-	enqueueSavePropChange,
-	enqueueSavePropChangeWithError,
-} from './save-prop-queue';
+import {enqueueSavePropChange} from './save-prop-queue';
 
 export type SetPropStatuses = (
 	nodePath: SequencePropsSubscriptionKey,
@@ -51,10 +48,6 @@ type SaveSequencePropsOptions = {
 	redoLabel: string;
 };
 
-type SaveSequencePropsOptionsWithError = SaveSequencePropsOptions & {
-	readonly onError: ((error: unknown) => void) | null;
-};
-
 const serializeSequencePropValue = (value: unknown) => {
 	if (value === undefined) {
 		return {type: 'undefined' as const};
@@ -63,7 +56,7 @@ const serializeSequencePropValue = (value: unknown) => {
 	return {type: 'json' as const, serialized: JSON.stringify(value)};
 };
 
-export const saveInlineCaptionPatchesWithError = ({
+export const saveInlineCaptionPatches = ({
 	fileName,
 	nodePath,
 	schema,
@@ -73,7 +66,6 @@ export const saveInlineCaptionPatchesWithError = ({
 	clientId,
 	undoLabel,
 	redoLabel,
-	onError,
 }: {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
@@ -84,9 +76,8 @@ export const saveInlineCaptionPatchesWithError = ({
 	clientId: string;
 	undoLabel: string;
 	redoLabel: string;
-	onError: (error: unknown) => void;
 }): Promise<void> => {
-	return enqueueSavePropChangeWithError({
+	return enqueueSavePropChange({
 		nodePath,
 		setPropStatuses,
 		applyOptimistic: (previous) =>
@@ -108,11 +99,10 @@ export const saveInlineCaptionPatchesWithError = ({
 				redoLabel,
 			}),
 		errorLabel: 'Could not save captions',
-		onError,
 	});
 };
 
-const saveSequencePropsInternal = ({
+export const saveSequenceProps = ({
 	changes,
 	addedKeyframes,
 	movedKeyframes,
@@ -120,8 +110,7 @@ const saveSequencePropsInternal = ({
 	clientId,
 	undoLabel,
 	redoLabel,
-	onError,
-}: SaveSequencePropsOptionsWithError): Promise<void> => {
+}: SaveSequencePropsOptions): Promise<void> => {
 	const keyframesToAdd = addedKeyframes === null ? [] : addedKeyframes;
 	const sequenceKeyframes =
 		movedKeyframes === null ? [] : movedKeyframes.sequenceKeyframes;
@@ -147,10 +136,10 @@ const saveSequencePropsInternal = ({
 			throw new Error('Expected a sequence prop change');
 		}
 
-		const enqueueOptions = {
+		return enqueueSavePropChange({
 			nodePath: change.nodePath,
 			setPropStatuses,
-			applyOptimistic: (prev: CanUpdateSequencePropsResponse) =>
+			applyOptimistic: (prev) =>
 				optimisticUpdateForPropStatuses({
 					previous: prev,
 					fieldKey: change.fieldKey,
@@ -178,11 +167,7 @@ const saveSequencePropsInternal = ({
 					redoLabel,
 				}),
 			errorLabel: 'Could not save sequence prop',
-		};
-
-		return onError === null
-			? enqueueSavePropChange(enqueueOptions)
-			: enqueueSavePropChangeWithError({...enqueueOptions, onError});
+		});
 	}
 
 	applyOptimisticKeyframeMoves({
@@ -263,25 +248,5 @@ const saveSequencePropsInternal = ({
 		clientId,
 		undoLabel,
 		redoLabel,
-	})
-		.then(() => undefined)
-		.catch((error) => {
-			onError?.(error);
-			throw error;
-		});
-};
-
-export const saveSequenceProps = (
-	options: SaveSequencePropsOptions,
-): Promise<void> => {
-	return saveSequencePropsInternal({...options, onError: null});
-};
-
-export const saveSequencePropsWithError = ({
-	onError,
-	...options
-}: SaveSequencePropsOptions & {
-	readonly onError: (error: unknown) => void;
-}): Promise<void> => {
-	return saveSequencePropsInternal({...options, onError});
+	}).then(() => undefined);
 };
