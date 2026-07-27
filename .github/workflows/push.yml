@@ -5,6 +5,10 @@ on:
   pull_request:
 name: Install and Test
 
+concurrency:
+  group: install-and-test-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   FORCE_COLOR: 1
   TURBO_TELEMETRY_DISABLED: 1
