@@ -24,12 +24,7 @@ const HIGHLIGHT_COLOR = '#6cf6ff';
 
 const animatedCaptionsSchema = {
 	...Interactive.baseSchema,
-	captions: {
-		type: 'remotion-captions',
-		default: undefined,
-		description: 'Captions',
-		keyframable: false,
-	},
+	...Interactive.captionsSchema,
 	width: {
 		type: 'number',
 		min: 1,

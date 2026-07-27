@@ -65,12 +65,7 @@ import {Interactive, type InteractivitySchema} from 'remotion';
 
 const captionsSchema = {
   ...Interactive.baseSchema,
-  captions: {
-    type: 'remotion-captions',
-    default: undefined,
-    description: 'Captions',
-    keyframable: false,
-  },
+  ...Interactive.captionsSchema,
 } as const satisfies InteractivitySchema;
 ```
 
