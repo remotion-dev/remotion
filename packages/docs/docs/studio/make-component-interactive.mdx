@@ -76,6 +76,8 @@ const captionsSchema = {
 
 Studio can edit caption text when the prop is a direct JSX array literal, such as `captions={[...]}`. Variables, imports, computed expressions, and `satisfies` expressions are read-only.
 
+To make a caption area adjustable, add `width` and `height` number fields to the component schema and forward them to the [`<Sequence>`](/docs/sequence). These fields define the area available to captions; wrapping and scaling remain component-defined.
+
 ## Forward `controls` and `stack`
 
 The inner component receives `controls` and `stack` props from `Interactive.withSchema()`.

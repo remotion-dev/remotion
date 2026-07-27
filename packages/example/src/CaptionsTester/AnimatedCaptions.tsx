@@ -11,6 +11,7 @@ import {
 	type InteractiveTransformProps,
 	type InteractivitySchema,
 	type SequenceControls,
+	type SequenceProps,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
@@ -28,6 +29,22 @@ const animatedCaptionsSchema = {
 		default: undefined,
 		description: 'Captions',
 		keyframable: false,
+	},
+	width: {
+		type: 'number',
+		min: 1,
+		step: 1,
+		default: undefined,
+		description: 'Caption area width',
+		hiddenFromList: false,
+	},
+	height: {
+		type: 'number',
+		min: 1,
+		step: 1,
+		default: undefined,
+		description: 'Caption area height',
+		hiddenFromList: false,
 	},
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
@@ -102,7 +119,8 @@ const CaptionPage: React.FC<{page: TikTokPage}> = ({page}) => {
 };
 
 type AnimatedCaptionsProps = InteractiveBaseProps &
-	InteractiveTransformProps & {
+	InteractiveTransformProps &
+	Pick<SequenceProps, 'width' | 'height'> & {
 		readonly captions: Caption[];
 	};
 
@@ -123,40 +141,39 @@ const AnimatedCaptionsInner = forwardRef<
 
 	return (
 		<Sequence
-			layout="none"
+			ref={outlineRef}
 			{...sequenceProps}
 			name={name ?? '<AnimatedCaptions>'}
+			style={style}
 			controls={controls}
 			outlineRef={outlineRef}
 		>
-			<AbsoluteFill ref={outlineRef} style={style}>
-				{pages.map((page, index) => {
-					const nextPage = pages[index + 1];
-					const startFrame = Math.round((page.startMs / 1000) * fps);
-					const naturalEndFrame = Math.ceil(
-						((page.startMs + page.durationMs) / 1000) * fps,
-					);
-					const endFrame = nextPage
-						? Math.min(
-								Math.round((nextPage.startMs / 1000) * fps),
-								naturalEndFrame,
-							)
-						: naturalEndFrame;
-					const durationInFrames = Math.max(1, endFrame - startFrame);
+			{pages.map((page, index) => {
+				const nextPage = pages[index + 1];
+				const startFrame = Math.round((page.startMs / 1000) * fps);
+				const naturalEndFrame = Math.ceil(
+					((page.startMs + page.durationMs) / 1000) * fps,
+				);
+				const endFrame = nextPage
+					? Math.min(
+							Math.round((nextPage.startMs / 1000) * fps),
+							naturalEndFrame,
+						)
+					: naturalEndFrame;
+				const durationInFrames = Math.max(1, endFrame - startFrame);
 
-					return (
-						<Sequence
-							key={`${page.startMs}-${index}`}
-							from={startFrame}
-							durationInFrames={durationInFrames}
-							premountFor={fps}
-							showInTimeline={false}
-						>
-							<CaptionPage page={page} />
-						</Sequence>
-					);
-				})}
-			</AbsoluteFill>
+				return (
+					<Sequence
+						key={`${page.startMs}-${index}`}
+						from={startFrame}
+						durationInFrames={durationInFrames}
+						premountFor={fps}
+						showInTimeline={false}
+					>
+						<CaptionPage page={page} />
+					</Sequence>
+				);
+			})}
 		</Sequence>
 	);
 });

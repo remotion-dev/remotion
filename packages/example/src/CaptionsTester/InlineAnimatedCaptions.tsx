@@ -4,7 +4,9 @@ import {AnimatedCaptions} from './AnimatedCaptions';
 export const InlineAnimatedCaptions: React.FC = () => {
 	return (
 		<AnimatedCaptions
-			style={{height: 260, translate: '90px 50px', width: 900}}
+			height={260}
+			style={{translate: '90px 50px'}}
+			width={900}
 			captions={[
 				{
 					confidence: null,
