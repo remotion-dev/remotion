@@ -231,6 +231,19 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 				default: 1,
 				hiddenFromList: false,
 			},
+			layout: {
+				type: 'enum',
+				default: 'absolute-fill',
+				variants: {
+					'absolute-fill': {},
+					none: {},
+				},
+			},
+			premountFor: {
+				type: 'number',
+				default: 0,
+				hiddenFromList: false,
+			},
 			'style.letterSpacing': {
 				type: 'number',
 				default: undefined,
@@ -268,6 +281,8 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'style.borderStyle',
 		'style.borderColor',
 		'cropLeft',
+		'layout',
+		'premountFor',
 	]);
 	expect(fields?.map((field) => field.group)).toEqual([
 		'source',
@@ -286,6 +301,8 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'border',
 		'border',
 		'crop',
+		'layout',
+		'layout',
 	]);
 });
 
@@ -293,6 +310,13 @@ test('groups Sequence crop controls into the Crop inspector section', () => {
 	expect(
 		['cropLeft', 'cropRight', 'cropTop', 'cropBottom'].map(getSchemaFieldGroup),
 	).toEqual(['crop', 'crop', 'crop', 'crop']);
+});
+
+test('groups Sequence layout controls into the final Layout inspector section', () => {
+	expect(['layout', 'premountFor'].map(getSchemaFieldGroup)).toEqual([
+		'layout',
+		'layout',
+	]);
 });
 
 test('getFieldsToShow does not reserve extra height for text content fields', () => {

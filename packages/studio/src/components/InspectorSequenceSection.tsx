@@ -348,6 +348,10 @@ export const InspectorSequenceSection: React.FC<{
 		() => getInspectorControlGroups(controlRows),
 		[controlRows],
 	);
+	const layoutGroup = controlGroups.find((group) => group.id === 'layout');
+	const controlGroupsWithoutLayout = controlGroups.filter(
+		(group) => group.id !== 'layout',
+	);
 
 	const {schema} = sequence.controls;
 	const showEffectsSection =
@@ -426,7 +430,7 @@ export const InspectorSequenceSection: React.FC<{
 			<div style={container}>
 				{controlRows.length > 0 ? (
 					<TimelineSelectionOrderProvider items={controlSelectableItems}>
-						{controlGroups.map((group) => (
+						{controlGroupsWithoutLayout.map((group) => (
 							<InspectorSection key={group.id} header={group.label}>
 								{group.id === 'transforms' ? renderTransformControls() : null}
 								{group.rows.map(renderRow)}
@@ -442,6 +446,13 @@ export const InspectorSequenceSection: React.FC<{
 							</TimelineSelectionOrderProvider>
 						) : null}
 					</InspectorSection>
+				) : null}
+				{layoutGroup ? (
+					<TimelineSelectionOrderProvider items={controlSelectableItems}>
+						<InspectorSection header={layoutGroup.label}>
+							{layoutGroup.rows.map(renderRow)}
+						</InspectorSection>
+					</TimelineSelectionOrderProvider>
 				) : null}
 			</div>
 		</AssetSelectionContext.Provider>
