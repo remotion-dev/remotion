@@ -220,6 +220,15 @@ export type InteractivitySchemaField = VisibleFieldSchema | HiddenFieldSchema;
 
 export type InteractivitySchema = {[key: string]: InteractivitySchemaField};
 
+export const captionsSchema = {
+	captions: {
+		type: 'remotion-captions',
+		default: undefined,
+		description: 'Captions',
+		keyframable: false,
+	},
+} as const satisfies InteractivitySchema;
+
 export type InteractivitySchemaKeysRecord<S extends InteractivitySchema> =
 	Record<keyof S, unknown>;
 
