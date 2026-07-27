@@ -6,14 +6,37 @@ import type {
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
+import {PenIcon} from '../../icons/pen';
 import {ModalsContext} from '../../state/modals';
-import {Button} from '../Button';
+import {InlineAction} from '../InlineAction';
 
-const buttonStyle: React.CSSProperties = {
-	marginLeft: 8,
+const assetFieldRow: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+	flex: 1,
+	minWidth: 0,
 };
 
-export const AssetSelectionInitialQueryContext = createContext('');
+const sourceDisplayContainer: React.CSSProperties = {
+	flex: 1,
+	minWidth: 0,
+};
+
+const penIcon: React.CSSProperties = {
+	display: 'block',
+	height: 14,
+	width: 14,
+};
+
+type AssetSelectionContextValue = {
+	readonly initialQuery: string;
+	readonly sourceDisplay: React.ReactNode;
+};
+
+export const AssetSelectionContext = createContext<AssetSelectionContextValue>({
+	initialQuery: '',
+	sourceDisplay: null,
+});
 
 export const toFileToken = (name: string) => {
 	return `${NoReactInternals.FILE_TOKEN}${name
@@ -43,7 +66,8 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 	}
 
 	const {setSelectedModal} = useContext(ModalsContext);
-	const initialQuery = useContext(AssetSelectionInitialQueryContext);
+	const {initialQuery, sourceDisplay} = useContext(AssetSelectionContext);
+	const inlineSourceDisplay = field.key === 'src' ? sourceDisplay : null;
 
 	const onSelect = useCallback(
 		(assetName: string, previewValue: string) => {
@@ -72,15 +96,23 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 		});
 	}, [initialQuery, onSelect, setSelectedModal]);
 
-	return (
-		<Button
+	const action = (
+		<InlineAction
 			onClick={openAssetSelection}
 			disabled={window.remotion_isReadOnlyStudio}
-			size="condensed"
-			style={buttonStyle}
 			title="Change source"
-		>
-			Change
-		</Button>
+			renderAction={(color) => <PenIcon color={color} style={penIcon} />}
+		/>
+	);
+
+	if (inlineSourceDisplay === null) {
+		return action;
+	}
+
+	return (
+		<div style={assetFieldRow}>
+			<div style={sourceDisplayContainer}>{inlineSourceDisplay}</div>
+			{action}
+		</div>
 	);
 };

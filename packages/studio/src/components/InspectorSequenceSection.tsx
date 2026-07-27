@@ -26,7 +26,7 @@ import {
 	openTimelineAssetLink,
 	splitRemoteSourceForMiddleEllipsis,
 } from './Timeline/timeline-asset-link';
-import {AssetSelectionInitialQueryContext} from './Timeline/TimelineAssetField';
+import {AssetSelectionContext} from './Timeline/TimelineAssetField';
 import {TimelineExpandedRow} from './Timeline/TimelineExpandedRow';
 import {
 	INSPECTOR_TIMELINE_ROW_LAYOUT,
@@ -72,6 +72,13 @@ const assetSelectorIcon: React.CSSProperties = {
 	width: 18,
 };
 
+const localSourceAction: React.CSSProperties = {
+	margin: 0,
+	paddingLeft: INSPECTOR_PANEL_HORIZONTAL_PADDING,
+	paddingRight: 4,
+	width: '100%',
+};
+
 const remoteSourceLabel: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	display: 'flex',
@@ -80,7 +87,7 @@ const remoteSourceLabel: React.CSSProperties = {
 	lineHeight: '18px',
 	minWidth: 0,
 	overflow: 'hidden',
-	padding: `6px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+	padding: `6px 4px 6px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 	whiteSpace: 'nowrap',
 };
 
@@ -246,6 +253,52 @@ export const InspectorSequenceSection: React.FC<{
 	const assetSelectionInitialQuery = getAssetSearchQueryForComponent(
 		sequence.controls.componentIdentity,
 	);
+	const sourceDisplay = useMemo(() => {
+		if (localAsset) {
+			return (
+				<InspectorInlineAction
+					disabled={false}
+					onClick={jumpToAsset}
+					renderIcon={(color) => (
+						<AssetFileIcon
+							color={color}
+							fileType={getPreviewFileType(localAsset.assetPath)}
+							style={assetSelectorIcon}
+						/>
+					)}
+					size="compact"
+					style={localSourceAction}
+					title={localAsset.assetPath}
+				>
+					{localAssetFileName}
+				</InspectorInlineAction>
+			);
+		}
+
+		if (remoteAsset && remoteSourceParts) {
+			return (
+				<div style={remoteSourceLabel} title={remoteAsset.href}>
+					<span style={remoteSourceLeading}>{remoteSourceParts.leading}</span>
+					<span style={remoteSourceTrailing}>{remoteSourceParts.trailing}</span>
+				</div>
+			);
+		}
+
+		return null;
+	}, [
+		jumpToAsset,
+		localAsset,
+		localAssetFileName,
+		remoteAsset,
+		remoteSourceParts,
+	]);
+	const assetSelectionContextValue = useMemo(
+		() => ({
+			initialQuery: assetSelectionInitialQuery,
+			sourceDisplay,
+		}),
+		[assetSelectionInitialQuery, sourceDisplay],
+	);
 
 	const getIsExpanded = useCallback(
 		(candidate: SequenceNodePathInfo) => {
@@ -382,41 +435,12 @@ export const InspectorSequenceSection: React.FC<{
 	}
 
 	return (
-		<AssetSelectionInitialQueryContext.Provider
-			value={assetSelectionInitialQuery}
-		>
+		<AssetSelectionContext.Provider value={assetSelectionContextValue}>
 			<div style={container}>
 				{controlRows.length > 0 ? (
 					<TimelineSelectionOrderProvider items={controlSelectableItems}>
 						{controlGroups.map((group) => (
 							<InspectorSection key={group.id} header={group.label}>
-								{group.id === 'source' && localAsset ? (
-									<InspectorInlineAction
-										disabled={false}
-										onClick={jumpToAsset}
-										renderIcon={(color) => (
-											<AssetFileIcon
-												color={color}
-												fileType={getPreviewFileType(localAsset.assetPath)}
-												style={assetSelectorIcon}
-											/>
-										)}
-										size="compact"
-										title={localAsset.assetPath}
-									>
-										{localAssetFileName}
-									</InspectorInlineAction>
-								) : null}
-								{group.id === 'source' && remoteAsset && remoteSourceParts ? (
-									<div style={remoteSourceLabel} title={remoteAsset.href}>
-										<span style={remoteSourceLeading}>
-											{remoteSourceParts.leading}
-										</span>
-										<span style={remoteSourceTrailing}>
-											{remoteSourceParts.trailing}
-										</span>
-									</div>
-								) : null}
 								{group.id === 'transforms' ? renderTransformControls() : null}
 								{group.rows.map(renderRow)}
 							</InspectorSection>
@@ -433,6 +457,6 @@ export const InspectorSequenceSection: React.FC<{
 					</InspectorSection>
 				) : null}
 			</div>
-		</AssetSelectionInitialQueryContext.Provider>
+		</AssetSelectionContext.Provider>
 	);
 };

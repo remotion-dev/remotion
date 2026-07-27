@@ -1,10 +1,18 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
 import {
 	timelineFieldValueColumnStyle,
 	timelineStackedFieldContentStyle,
 } from './timeline-field-row-layout';
+import {AssetSelectionContext} from './TimelineAssetField';
 import {TimelineFieldLabel} from './TimelineFieldLabel';
+
+const assetSourceRowStyle: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+	flex: 1,
+	minWidth: 0,
+};
 
 export const TimelineFieldRowContent: React.FC<{
 	readonly field: SchemaFieldInfo;
@@ -12,6 +20,15 @@ export const TimelineFieldRowContent: React.FC<{
 	readonly selected: boolean;
 	readonly children: React.ReactNode;
 }> = ({field, rowDepth, selected, children}) => {
+	const {sourceDisplay} = useContext(AssetSelectionContext);
+	if (
+		field.typeName === 'asset' &&
+		field.key === 'src' &&
+		sourceDisplay !== null
+	) {
+		return <div style={assetSourceRowStyle}>{children}</div>;
+	}
+
 	const label = (
 		<TimelineFieldLabel
 			rowDepth={rowDepth}
