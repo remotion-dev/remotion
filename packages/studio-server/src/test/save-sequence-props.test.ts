@@ -32,7 +32,7 @@ const starSchema = {
 
 const captionsSchema = {
 	captions: {
-		type: 'captions',
+		type: 'remotion-captions',
 		default: undefined,
 		keyframable: false,
 	},
