@@ -198,6 +198,11 @@ const segmentedTrailingAction: React.CSSProperties = {
 	width: 28,
 };
 
+const hiddenSegmentedTrailingIcon: React.CSSProperties = {
+	...inlineLabelIcon,
+	opacity: 0,
+};
+
 export type InspectorInlineActionSegment = {
 	readonly disabled: boolean;
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
@@ -232,7 +237,6 @@ export const InspectorInlineAction: React.FC<InspectorInlineActionProps> = ({
 	variant = {type: 'single'},
 }) => {
 	const [hovered, setHovered] = React.useState(false);
-	const [trailingHovered, setTrailingHovered] = React.useState(false);
 	const color = hovered && !disabled ? WHITE : LIGHT_TEXT;
 	const isSegmented = variant.type === 'segmented';
 	const buttonStyle = React.useMemo(
@@ -263,12 +267,6 @@ export const InspectorInlineAction: React.FC<InspectorInlineActionProps> = ({
 	const onPointerLeave = React.useCallback(() => {
 		setHovered(false);
 	}, []);
-	const onTrailingPointerEnter = React.useCallback(() => {
-		setTrailingHovered(true);
-	}, []);
-	const onTrailingPointerLeave = React.useCallback(() => {
-		setTrailingHovered(false);
-	}, []);
 
 	const mainContent = (
 		<>
@@ -286,8 +284,8 @@ export const InspectorInlineAction: React.FC<InspectorInlineActionProps> = ({
 			style={buttonStyle}
 			title={title}
 			onClick={onClick}
-			onPointerEnter={disabled ? undefined : onPointerEnter}
-			onPointerLeave={onPointerLeave}
+			onPointerEnter={disabled || isSegmented ? undefined : onPointerEnter}
+			onPointerLeave={isSegmented ? undefined : onPointerLeave}
 		>
 			{mainContent}
 		</button>
@@ -299,13 +297,13 @@ export const InspectorInlineAction: React.FC<InspectorInlineActionProps> = ({
 
 	if (variant.type === 'segmented') {
 		const trailingColor =
-			trailingHovered && !variant.trailing.disabled ? WHITE : LIGHT_TEXT;
+			hovered && !variant.trailing.disabled ? WHITE : LIGHT_TEXT;
 		const trailingStyle: React.CSSProperties = {
 			...segmentedTrailingAction,
 			backgroundColor: variant.trailing.disabled
 				? TRANSPARENT
 				: getBackgroundFromHoverState({
-						hovered: trailingHovered,
+						hovered,
 						selected: false,
 					}),
 			height:
@@ -316,7 +314,11 @@ export const InspectorInlineAction: React.FC<InspectorInlineActionProps> = ({
 		};
 
 		return (
-			<div style={segmentedInlineAction}>
+			<div
+				style={segmentedInlineAction}
+				onPointerEnter={onPointerEnter}
+				onPointerLeave={onPointerLeave}
+			>
 				{mainAction}
 				<button
 					type="button"
@@ -324,12 +326,8 @@ export const InspectorInlineAction: React.FC<InspectorInlineActionProps> = ({
 					style={trailingStyle}
 					title={variant.trailing.title}
 					onClick={variant.trailing.onClick}
-					onPointerEnter={
-						variant.trailing.disabled ? undefined : onTrailingPointerEnter
-					}
-					onPointerLeave={onTrailingPointerLeave}
 				>
-					<span style={inlineLabelIcon}>
+					<span style={hovered ? inlineLabelIcon : hiddenSegmentedTrailingIcon}>
 						{variant.trailing.renderIcon(trailingColor)}
 					</span>
 				</button>
