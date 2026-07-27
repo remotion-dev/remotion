@@ -106,7 +106,7 @@ export const useSequenceFreezeFrameMenuItem = ({
 					fileName: validatedSource,
 					nodePath,
 					fieldKey: 'freeze',
-					value: remove ? null : freezeFrame,
+					value: remove ? undefined : freezeFrame,
 					defaultValue: null,
 					schema: sequence.controls.schema,
 				},
