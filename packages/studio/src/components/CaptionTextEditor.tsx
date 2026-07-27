@@ -1,5 +1,5 @@
 import type {Caption} from '@remotion/captions';
-import React, {useCallback, useMemo, useRef} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef} from 'react';
 import {BACKGROUND, LIGHT_TEXT, LINE_COLOR, WHITE} from '../helpers/colors';
 import {RemotionInput} from './NewComposition/RemInput';
 
@@ -58,6 +58,9 @@ export const CaptionTextEditor: React.FC<{
 }> = ({captions, onChange, onSave, onCancel, readOnly}) => {
 	const listRef = useRef<HTMLDivElement>(null);
 	const cancelledBlurIndexes = useRef(new Set<number>());
+	const dirtyRef = useRef(false);
+	const latestRef = useRef({captions, onSave});
+	latestRef.current = {captions, onSave};
 	const captionRows = useMemo(() => {
 		const occurrences = new Map<string, number>();
 		return captions.map((caption) => {
@@ -73,17 +76,35 @@ export const CaptionTextEditor: React.FC<{
 		});
 	}, [captions]);
 
+	const commitPending = useCallback(() => {
+		if (!dirtyRef.current) {
+			return;
+		}
+
+		dirtyRef.current = false;
+		latestRef.current.onSave?.(latestRef.current.captions);
+	}, []);
+
+	useEffect(() => {
+		return commitPending;
+	}, [commitPending]);
+
 	const updateText = useCallback(
-		(index: number, text: string, shouldSave: boolean) => {
-			const nextCaptions = captions.map((caption, captionIndex) => {
-				return captionIndex === index ? {...caption, text} : caption;
-			});
-			onChange(nextCaptions);
-			if (shouldSave) {
-				onSave?.(nextCaptions);
+		(index: number, text: string) => {
+			if (latestRef.current.captions[index]?.text === text) {
+				return;
 			}
+
+			const nextCaptions = latestRef.current.captions.map(
+				(caption, captionIndex) => {
+					return captionIndex === index ? {...caption, text} : caption;
+				},
+			);
+			latestRef.current.captions = nextCaptions;
+			dirtyRef.current = true;
+			onChange(nextCaptions);
 		},
-		[captions, onChange, onSave],
+		[onChange],
 	);
 
 	const focusSibling = useCallback((index: number) => {
@@ -113,11 +134,10 @@ export const CaptionTextEditor: React.FC<{
 										return;
 									}
 
-									updateText(index, event.currentTarget.value, true);
+									updateText(index, event.currentTarget.value);
+									commitPending();
 								}}
-								onChange={(event) =>
-									updateText(index, event.target.value, false)
-								}
+								onChange={(event) => updateText(index, event.target.value)}
 								onKeyDown={(event) => {
 									if (
 										event.key === 'ArrowDown' &&
@@ -135,6 +155,7 @@ export const CaptionTextEditor: React.FC<{
 									if (event.key === 'Escape') {
 										event.preventDefault();
 										cancelledBlurIndexes.current.add(index);
+										dirtyRef.current = false;
 										onCancel?.();
 										event.currentTarget.blur();
 									}
