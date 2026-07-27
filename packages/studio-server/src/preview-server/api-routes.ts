@@ -18,6 +18,7 @@ import {deleteStaticFileHandler} from './routes/delete-static-file';
 import {downloadRemoteAssetHandler} from './routes/download-remote-asset';
 import {duplicateEffectHandler} from './routes/duplicate-effect';
 import {duplicateJsxNodeHandler} from './routes/duplicate-jsx-node';
+import {findInFileHandler} from './routes/find-in-file';
 import {insertElementHandler} from './routes/insert-element';
 import {insertJsxElementHandler} from './routes/insert-jsx-element';
 import {handleInstallPackage} from './routes/install-dependency';
@@ -67,6 +68,7 @@ export const allApiRoutes: {
 	'/api/subscribe-to-file-existence': subscribeToFileExistence,
 	'/api/remove-render': handleRemoveRender,
 	'/api/open-in-editor': openInEditorHandler,
+	'/api/find-in-file': findInFileHandler,
 	'/api/open-in-file-explorer': handleOpenInFileExplorer,
 	'/api/register-client-render': registerClientRenderHandler,
 	'/api/unregister-client-render': unregisterClientRenderHandler,
