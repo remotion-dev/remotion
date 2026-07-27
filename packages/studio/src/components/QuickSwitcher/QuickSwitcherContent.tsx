@@ -79,6 +79,11 @@ const content: React.CSSProperties = {
 	alignItems: 'center',
 };
 
+const contentWithoutModeSelector: React.CSSProperties = {
+	...content,
+	paddingTop: 16,
+};
+
 const stripQuery = (query: string) => {
 	if (query.startsWith('$') || query.startsWith('>') || query.startsWith('?')) {
 		return query.substring(1).trim();
@@ -464,7 +469,7 @@ export const QuickSwitcherContent: React.FC<{
 					</button>
 				</div>
 			)}
-			<div style={content}>
+			<div style={assetSelection ? contentWithoutModeSelector : content}>
 				<RemotionInput
 					ref={inputRef}
 					type="text"

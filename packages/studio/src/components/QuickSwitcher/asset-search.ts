@@ -55,5 +55,5 @@ export const getAssetSearchQueryForComponent = (
 	}
 
 	const assetType = componentAssetTypes[componentIdentity];
-	return assetType ? `type:${assetType}` : '';
+	return assetType ? `type:${assetType} ` : '';
 };

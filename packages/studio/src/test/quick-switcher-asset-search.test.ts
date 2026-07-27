@@ -63,17 +63,17 @@ test('returns no assets for an unknown asset type', () => {
 
 test('gets an asset type query for interactive media components', () => {
 	expect(getAssetSearchQueryForComponent('dev.remotion.media.Video')).toBe(
-		'type:video',
+		'type:video ',
 	);
 	expect(getAssetSearchQueryForComponent('dev.remotion.media.Audio')).toBe(
-		'type:audio',
+		'type:audio ',
 	);
 	expect(getAssetSearchQueryForComponent('dev.remotion.remotion.Img')).toBe(
-		'type:image',
+		'type:image ',
 	);
 	expect(
 		getAssetSearchQueryForComponent('dev.remotion.remotion.AnimatedImage'),
-	).toBe('type:image');
+	).toBe('type:image ');
 	expect(getAssetSearchQueryForComponent('com.example.Custom')).toBe('');
 	expect(getAssetSearchQueryForComponent(null)).toBe('');
 });
