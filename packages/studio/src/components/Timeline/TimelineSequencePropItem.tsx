@@ -21,6 +21,7 @@ import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {callAddSequenceKeyframe} from './call-add-keyframe';
 import {getAnimationItemSelectionForSourceFrame} from './get-animation-item-selection-for-frame';
 import {saveSequenceProps} from './save-sequence-prop';
+import {AssetSelectionContext} from './TimelineAssetField';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
 import {TimelineFieldRowContent} from './TimelineFieldRowContent';
 import {
@@ -42,6 +43,11 @@ import {
 import {canEditEasingForInterpolationFunction} from './update-selected-easing';
 
 const fieldRowBase: React.CSSProperties = {};
+
+const inlineSourceFieldRow: React.CSSProperties = {
+	alignItems: 'stretch',
+	display: 'flex',
+};
 
 const isKeyframedStatus = (
 	status: CanUpdateSequencePropStatus,
@@ -307,6 +313,7 @@ export const TimelineSequencePropItem: React.FC<{
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {sourceAction} = useContext(AssetSelectionContext);
 	const selection = useTimelineRowSelection(nodePathInfo);
 	const {selectItems} = useTimelineSelection();
 	const setFrame = Internals.useTimelineSetFrame();
@@ -558,6 +565,24 @@ export const TimelineSequencePropItem: React.FC<{
 	) : (
 		<TimelineNonEditableStatus propStatus={propStatus} />
 	);
+
+	if (
+		field.typeName === 'asset' &&
+		field.key === 'src' &&
+		sourceAction !== null
+	) {
+		return (
+			<div style={{...inlineSourceFieldRow, ...style}}>
+				<TimelineFieldRowContent
+					field={field}
+					rowDepth={rowDepth}
+					selected={false}
+				>
+					{fieldValue}
+				</TimelineFieldRowContent>
+			</div>
+		);
+	}
 
 	const row = (
 		<TimelineRowChrome
