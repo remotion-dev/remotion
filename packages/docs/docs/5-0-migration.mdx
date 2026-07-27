@@ -50,12 +50,21 @@ If you use `@remotion/eslint-config`, the minimum ESLint version is now <MinEsli
 
 ## WebGL and WebGPU during rendering are now enabled by default
 
-In Remotion 4.0, the default OpenGL renderer was `null`, which would not enable WebGL or WebGPU.
+In Remotion 4.0, the default OpenGL renderer was <code>null</code>, which would not enable WebGL or WebGPU.
 
-In Remotion 5.0, the default is `angle` with automatic fallback to `swangle`.
-Lambda and Cloud Run continue to use `swangle` by default, because they have no GPU.
+In Remotion 5.0, the default is <code>angle</code> on local renders.
+When no compatible GPU is available, Remotion opts into Chromium's automatic SwiftShader fallback via <code>--enable-unsafe-swiftshader</code>, so WebGL content can render on GPU-less machines such as GitHub Actions runners.
 
-**Required action**: If you used `--gl=angle` before, you can now remove it.
+On [Lambda](/docs/lambda), <code>swangle</code> remains the effective default (<code>angle</code> is converted to <code>swangle</code> in the Lambda handler).
+On [Cloud Run](/docs/cloudrun), <code>angle</code> is now the default in Remotion 5.0 (previously <code>null</code>, which Cloud Run mapped to <code>swangle</code>).
+
+**Required action**: Remove redundant <code>--gl=angle</code> configuration if you only added it to enable WebGL.
+Pass <code>chromiumOptions.gl: null</code> to restore the Remotion 4.x behavior and let Chrome decide.
+See [OpenGL renderer options](/docs/gl-options) for when to override the default.
+
+**Performance**: SwiftShader fallback is slower than hardware rendering but enables WebGL where it previously failed.
+
+**Security**: <code>--enable-unsafe-swiftshader</code> lowers Chromium's security guarantees and is intended for trusted rendering workloads.
 
 ## `selectComposition()` and `getCompositions()` now require `inputProps`
 
@@ -188,22 +197,6 @@ This prevents black frames that were commonly seen when a `<Sequence>` containin
 This prevents the Player from continuing while media or images are still loading.
 
 **Required action**: If you want to keep the old behavior, set `pauseWhenBuffering={false}` on video and audio components and `pauseWhenLoading={false}` on `<Img>` explicitly.
-
-## ANGLE is now the default OpenGL renderer
-
-In Remotion 4.x, the default OpenGL renderer was <code>null</code> on local renders, which lets Chrome decide.
-In Remotion 5.0, the default is <code>angle</code>.
-When no compatible GPU is available, Remotion opts into Chromium's automatic SwiftShader fallback via <code>--enable-unsafe-swiftshader</code>, so WebGL content can render on GPU-less machines such as GitHub Actions runners.
-
-On [Lambda](/docs/lambda) and [Cloud Run](/docs/cloudrun), <code>swangle</code> remains the default.
-
-**Required action**: Remove redundant <code>--gl=angle</code> configuration if you only added it to enable WebGL.
-Pass <code>chromiumOptions.gl: null</code> to restore the Remotion 4.x behavior and let Chrome decide.
-See [OpenGL renderer options](/docs/gl-options) for when to override the default.
-
-**Performance**: SwiftShader fallback is slower than hardware rendering but enables WebGL where it previously failed.
-
-**Security**: <code>--enable-unsafe-swiftshader</code> lowers Chromium's security guarantees and is intended for trusted rendering workloads.
 
 ## License changes
 
