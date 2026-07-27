@@ -47,6 +47,8 @@ export {
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse,
 	ElementInstallRequest,
+	FindInFileRequest,
+	FindInFileResponse,
 	GoogleFontSourceEdit,
 	InsertElementRequest,
 	InsertElementResponse,

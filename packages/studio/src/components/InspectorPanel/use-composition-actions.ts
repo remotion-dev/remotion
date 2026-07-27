@@ -43,6 +43,7 @@ export const useCompositionActions = () => {
 
 	const canShowInsertSolid =
 		previewInteractive &&
+		!window.remotion_isReadOnlyStudio &&
 		compositionComponentInfo?.canAddSequence === true &&
 		currentCompositionId !== null &&
 		compositionFile !== null &&

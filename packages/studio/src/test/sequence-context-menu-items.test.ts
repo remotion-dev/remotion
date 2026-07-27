@@ -165,6 +165,42 @@ test('Interactive.Svg context menu can copy the rendered SVG', () => {
 	expect(items[copySvgIndex + 1]?.type).toBe('divider');
 });
 
+test('read-only sequence menus only contain non-mutating actions', () => {
+	installTestWindow();
+
+	const items = getSequenceContextMenuItems({
+		assetLinkInfo: null,
+		canOpenInEditor: false,
+		deleteDisabled: true,
+		disableInteractivityDisabled: true,
+		duplicateDisabled: true,
+		fileLocation: 'src/Video.tsx:10:2',
+		includeSourceEditItems: false,
+		onDeleteSequenceFromSource: noop,
+		onDisableSequenceInteractivity: noop,
+		onDuplicateSequenceFromSource: noop,
+		openInEditor: noop,
+		originalLocation: null,
+		selectAsset: noop,
+		sequence: {
+			controls: {
+				componentIdentity: 'dev.remotion.remotion.Interactive.Svg',
+			},
+			documentationLink: 'https://www.remotion.dev/docs/interactive',
+			refForOutline: {
+				current: {outerHTML: '<svg><circle /></svg>'},
+			},
+		} as unknown as TSequence,
+	});
+
+	expect(items.map((item) => item.id)).toEqual([
+		'copy-file-location',
+		'open-component-docs',
+		'sequence-link-divider',
+		'copy-svg',
+	]);
+});
+
 test('sequence freeze context menu item is hidden for audio', () => {
 	expect(shouldShowFreezeFrameMenuItem({type: 'audio'} as TSequence)).toBe(
 		false,

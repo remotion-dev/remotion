@@ -252,15 +252,17 @@ const SequenceExpandedInspector: React.FC<{
 		[selectItems, sequenceSelected, sequenceSelection],
 	);
 
-	if (previewServerState.type !== 'connected') {
+	if (
+		previewServerState.type !== 'connected' &&
+		!window.remotion_isReadOnlyStudio
+	) {
 		return <InspectorMessage>Studio server disconnected</InspectorMessage>;
 	}
 
 	if (
 		!track.nodePathInfo ||
 		sequenceSelection === null ||
-		!hasSequenceControls(track.sequence) ||
-		!validatedLocation
+		!hasSequenceControls(track.sequence)
 	) {
 		return <InspectorMessage>Sequence inspector unavailable</InspectorMessage>;
 	}
@@ -280,21 +282,27 @@ const SequenceExpandedInspector: React.FC<{
 					/>
 				</>
 			) : null}
-			<InspectorSequenceSection
-				sequence={track.sequence}
-				validatedLocation={validatedLocation}
-				nodePathInfo={track.nodePathInfo}
-				keyframeDisplayOffset={track.keyframeDisplayOffset}
-				renderTransformControls={() => <AlignmentControls track={track} />}
-			/>
-			<InspectorActionSection>
-				<SplitSequenceAction selection={sequenceSelection} track={track} />
-				<SequenceSourceActions
-					selection={sequenceSelection}
-					track={track}
-					validatedSource={validatedLocation.source}
-				/>
-			</InspectorActionSection>
+			{validatedLocation ? (
+				<>
+					<InspectorSequenceSection
+						sequence={track.sequence}
+						validatedLocation={validatedLocation}
+						nodePathInfo={track.nodePathInfo}
+						keyframeDisplayOffset={track.keyframeDisplayOffset}
+						renderTransformControls={() => <AlignmentControls track={track} />}
+					/>
+					<InspectorActionSection>
+						<SplitSequenceAction selection={sequenceSelection} track={track} />
+						<SequenceSourceActions
+							selection={sequenceSelection}
+							track={track}
+							validatedSource={validatedLocation.source}
+						/>
+					</InspectorActionSection>
+				</>
+			) : (
+				<InspectorMessage>Source controls unavailable</InspectorMessage>
+			)}
 		</div>
 	);
 };
