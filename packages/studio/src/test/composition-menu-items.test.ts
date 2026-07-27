@@ -1,5 +1,6 @@
 import {afterEach, expect, test} from 'bun:test';
 import type {_InternalTypes} from 'remotion';
+import type {ResolvedStackLocation} from 'remotion';
 import {
 	getCompositionContextMenuItems,
 	getCompositionMenuItems,
@@ -42,6 +43,12 @@ const composition = {
 	id: 'ConnectedComposition',
 	durationInFrames: 100,
 } as _InternalTypes['AnyComposition'];
+
+const resolvedLocation: ResolvedStackLocation = {
+	column: 1,
+	line: 10,
+	source: '/project/src/Composition.tsx',
+};
 
 const commonArgs = {
 	closeMenu: () => undefined,
@@ -121,4 +128,45 @@ test('editor actions use Open labels and are adjacent', () => {
 
 	expect(compositionItem.label).toBe('Open composition in VS Code');
 	expect(componentItem.label).toBe('Open component in VS Code');
+});
+
+test('read-only composition menus keep navigation and copy actions enabled', () => {
+	installTestWindowWithEditor();
+
+	const mainMenuItems = getCompositionMenuItems({
+		...commonArgs,
+		includeCompositionManagementItems: true,
+		includeNewCompositionItem: true,
+		readOnlyStudio: true,
+		resolvedLocation,
+	});
+	const items = getCompositionContextMenuItems({
+		...commonArgs,
+		includeCompositionManagementItems: true,
+		readOnlyStudio: true,
+		resolvedLocation,
+	});
+	const itemById = (id: string) => {
+		const item = items.find((candidate) => candidate.id === id);
+		if (item?.type !== 'item') {
+			throw new Error(`Expected ${id} to be a menu item`);
+		}
+
+		return item;
+	};
+
+	expect(itemById('open-in-new-window').disabled).not.toBe(true);
+	expect(itemById('show-in-editor').disabled).toBe(false);
+	expect(itemById('open-component-in-editor').disabled).toBe(false);
+	expect(itemById('copy-file-location').disabled).toBe(false);
+	expect(itemById('copy-id').disabled).toBe(false);
+	expect(itemById('rename').disabled).toBe(true);
+	expect(itemById('duplicate').disabled).toBe(true);
+	expect(itemById('delete').disabled).toBe(true);
+	const newItem = mainMenuItems.find((item) => item.id === 'new');
+	if (newItem?.type !== 'item') {
+		throw new Error('Expected new to be a menu item');
+	}
+
+	expect(newItem.disabled).toBe(true);
 });

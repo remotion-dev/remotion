@@ -287,7 +287,7 @@ export const CompositionMetadata: React.FC<{
 	);
 	const saveMetadata = useCallback(
 		(newValues: CompositionMetadataValues) => {
-			if (resolvedConfig === null) {
+			if (disabled || resolvedConfig === null) {
 				return;
 			}
 
@@ -374,6 +374,7 @@ export const CompositionMetadata: React.FC<{
 		[
 			compositionId,
 			currentValues,
+			disabled,
 			onPendingValueAccepted,
 			onPendingValueFailed,
 			pendingValues,

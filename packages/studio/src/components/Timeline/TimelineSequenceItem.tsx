@@ -965,10 +965,6 @@ export const TimelineSequenceItem: React.FC<{
 	}, [canCrop, nodePathInfo, selectItem]);
 
 	const contextMenuValues = useMemo(() => {
-		if (!previewConnected) {
-			return [];
-		}
-
 		return getSequenceContextMenuItems({
 			assetLinkInfo,
 			canOpenInEditor,
@@ -1056,7 +1052,6 @@ export const TimelineSequenceItem: React.FC<{
 		onRenameSequence,
 		openInEditor,
 		originalLocation,
-		previewConnected,
 		selectAsset,
 		sequence,
 	]);
@@ -1239,7 +1234,7 @@ export const TimelineSequenceItem: React.FC<{
 
 	return (
 		<>
-			{previewConnected ? (
+			{previewConnected || window.remotion_isReadOnlyStudio ? (
 				<ContextMenu
 					values={contextMenuValues}
 					onOpen={selectable ? onSelect : null}

@@ -12,6 +12,7 @@ import {
 import {formatFileLocation} from '../helpers/format-file-location';
 import {getConnectedCompositions} from '../helpers/get-connected-compositions';
 import {getSequenceDoubleClickAction} from '../helpers/get-sequence-double-click-action';
+import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {ModalsContext} from '../state/modals';
@@ -1589,7 +1590,7 @@ export const SelectedOutlineElement: React.FC<{
 	);
 
 	const onContextMenuOpen = React.useCallback(async () => {
-		if (target === undefined || previewServerState.type !== 'connected') {
+		if (target === undefined) {
 			return false;
 		}
 
@@ -1614,9 +1615,13 @@ export const SelectedOutlineElement: React.FC<{
 		const canOpenInEditor = Boolean(
 			window.remotion_editorName && originalLocation,
 		);
-		const disableInteractivityDisabled = !target.sequence.showInTimeline;
+		const sourceEditingEnabled = isStudioInteractivityEnabled();
+		const disableInteractivityDisabled =
+			!sourceEditingEnabled || !target.sequence.showInTimeline;
 		const sourceEditDisabled =
-			!target.sequence.controls || !nodePath.absolutePath;
+			!sourceEditingEnabled ||
+			!target.sequence.controls ||
+			!nodePath.absolutePath;
 		const canAddEffect =
 			target.nodePathInfo.supportsEffects &&
 			!sourceEditDisabled &&
@@ -1630,7 +1635,7 @@ export const SelectedOutlineElement: React.FC<{
 			disableInteractivityDisabled,
 			duplicateDisabled: sourceEditDisabled,
 			fileLocation,
-			includeSourceEditItems: true,
+			includeSourceEditItems: sourceEditingEnabled,
 			onDeleteSequenceFromSource: async () => {
 				if (sourceEditDisabled || previewServerState.type !== 'connected') {
 					return;
@@ -1704,70 +1709,72 @@ export const SelectedOutlineElement: React.FC<{
 			originalLocation,
 			selectAsset,
 			sequence: target.sequence,
-			sourceActions: [
-				...(target.nodePathInfo.supportsEffects
-					? [
-							{
-								type: 'item' as const,
-								id: 'add-effect',
-								keyHint: null,
-								label: 'Add effect...',
-								leftItem: null,
-								disabled: !canAddEffect,
-								onClick: () => {
-									if (
-										!canAddEffect ||
-										previewServerState.type !== 'connected'
-									) {
-										return;
-									}
+			sourceActions: sourceEditingEnabled
+				? [
+						...(target.nodePathInfo.supportsEffects
+							? [
+									{
+										type: 'item' as const,
+										id: 'add-effect',
+										keyHint: null,
+										label: 'Add effect...',
+										leftItem: null,
+										disabled: !canAddEffect,
+										onClick: () => {
+											if (
+												!canAddEffect ||
+												previewServerState.type !== 'connected'
+											) {
+												return;
+											}
 
-									setSelectedModal({
-										type: 'add-effect',
-										clientId: previewServerState.clientId,
-										fileName: nodePath.absolutePath,
-										nodePath,
-									});
-								},
-								quickSwitcherLabel: null,
-								subMenu: null,
-								value: 'add-effect',
-							},
-						]
-					: []),
-				{
-					type: 'item' as const,
-					id: 'crop',
-					keyHint: null,
-					label: 'Crop',
-					leftItem: null,
-					disabled: !canCrop,
-					onClick: () => {
-						if (!canCrop) {
-							return;
-						}
+											setSelectedModal({
+												type: 'add-effect',
+												clientId: previewServerState.clientId,
+												fileName: nodePath.absolutePath,
+												nodePath,
+											});
+										},
+										quickSwitcherLabel: null,
+										subMenu: null,
+										value: 'add-effect',
+									},
+								]
+							: []),
+						{
+							type: 'item' as const,
+							id: 'crop',
+							keyHint: null,
+							label: 'Crop',
+							leftItem: null,
+							disabled: !canCrop,
+							onClick: () => {
+								if (!canCrop) {
+									return;
+								}
 
-						onSelect(
-							{
-								type: 'sequence-prop',
-								nodePathInfo: {
-									...target.nodePathInfo,
-									auxiliaryKeys: ['controls', cropFieldKeys.left],
-								},
-								key: cropFieldKeys.left,
+								onSelect(
+									{
+										type: 'sequence-prop',
+										nodePathInfo: {
+											...target.nodePathInfo,
+											auxiliaryKeys: ['controls', cropFieldKeys.left],
+										},
+										key: cropFieldKeys.left,
+									},
+									{shiftKey: false, toggleKey: false},
+								);
 							},
-							{shiftKey: false, toggleKey: false},
-						);
-					},
-					quickSwitcherLabel: null,
-					subMenu: null,
-					value: 'crop',
-				},
-				{
-					type: 'divider' as const,
-					id: 'crop-divider',
-				},
-			],
+							quickSwitcherLabel: null,
+							subMenu: null,
+							value: 'crop',
+						},
+						{
+							type: 'divider' as const,
+							id: 'crop-divider',
+						},
+					]
+				: [],
 		});
 	}, [
 		confirm,

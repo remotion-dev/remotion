@@ -16,7 +16,10 @@ import {
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
+import {
+	isStudioInteractivityEnabled,
+	isStudioSelectionEnabled,
+} from '../helpers/interactivity-enabled';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
@@ -679,6 +682,10 @@ export const SelectedOutlineOverlay: React.FC<{
 	const keyboardNudgeSessionRef =
 		useRef<SelectedOutlineKeyboardNudgeSession | null>(null);
 	const saveKeyboardNudgeSessionRef = useRef<() => void>(() => undefined);
+	const previewInteractive =
+		previewServerState.type === 'connected' && isStudioInteractivityEnabled();
+	const previewSelectionAvailable =
+		previewServerState.type === 'connected' || window.remotion_isReadOnlyStudio;
 
 	const onDraggingChange = React.useCallback((dragging: boolean) => {
 		setDraggingOutline(dragging);
@@ -702,7 +709,11 @@ export const SelectedOutlineOverlay: React.FC<{
 	);
 
 	const outlineTargets = useMemo((): SelectedOutlineTarget[] => {
-		if (!isStudioInteractivityEnabled() || !editorShowOutlines) {
+		if (
+			!isStudioSelectionEnabled() ||
+			!previewSelectionAvailable ||
+			!editorShowOutlines
+		) {
 			return [];
 		}
 
@@ -822,7 +833,7 @@ export const SelectedOutlineOverlay: React.FC<{
 				(rotationPropStatus?.status === 'keyframed' &&
 					rotationPropStatus.interpolationFunction === 'interpolate');
 			const canDrag =
-				previewServerState.type === 'connected' &&
+				previewInteractive &&
 				controls !== null &&
 				fieldSchema?.type === 'translate' &&
 				canDragStatus;
@@ -831,12 +842,12 @@ export const SelectedOutlineOverlay: React.FC<{
 				(scalePropStatus?.status === 'keyframed' &&
 					scalePropStatus.interpolationFunction === 'interpolate');
 			const canScaleDrag =
-				previewServerState.type === 'connected' &&
+				previewInteractive &&
 				controls !== null &&
 				scaleFieldSchema?.type === 'scale' &&
 				canScaleDragStatus;
 			const canRotationDrag =
-				previewServerState.type === 'connected' &&
+				previewInteractive &&
 				controls !== null &&
 				rotationFieldSchema?.type === 'rotation-css' &&
 				canRotationDragStatus;
@@ -856,7 +867,7 @@ export const SelectedOutlineOverlay: React.FC<{
 				(propStatus?.status === 'keyframed' &&
 					propStatus.interpolationFunction === 'interpolate');
 			const canTransformOriginDrag =
-				previewServerState.type === 'connected' &&
+				previewInteractive &&
 				selectedForTransformOrigin &&
 				controls !== null &&
 				transformOriginFieldSchema?.type === 'transform-origin' &&
@@ -870,19 +881,15 @@ export const SelectedOutlineOverlay: React.FC<{
 					? sourceFrame
 					: selectedCropInfo.displayFrame - keyframeDisplayOffset;
 			const canCropDrag =
-				previewServerState.type === 'connected' &&
+				previewInteractive &&
 				selectedForCrop &&
 				controls !== null &&
 				cropFields !== null;
 			const canDropEffect =
-				previewServerState.type === 'connected' &&
-				controls?.supportsEffects === true;
+				previewInteractive && controls?.supportsEffects === true;
 			return {
 				key,
-				canCrop:
-					previewServerState.type === 'connected' &&
-					controls !== null &&
-					cropFields !== null,
+				canCrop: previewInteractive && controls !== null && cropFields !== null,
 				crop,
 				cropDrag: canCropDrag
 					? {
@@ -1046,6 +1053,8 @@ export const SelectedOutlineOverlay: React.FC<{
 		getScaleLockState,
 		editorShowOutlines,
 		overrideIdToNodePathMappings,
+		previewInteractive,
+		previewSelectionAvailable,
 		previewServerState,
 		selectedItems,
 		sequences,
