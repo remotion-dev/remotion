@@ -22,6 +22,7 @@ import {getAssetSearchQueryForComponent} from './QuickSwitcher/asset-search';
 import {
 	getTimelineAssetLinkInfo,
 	getTimelineAssetSrcFromSchema,
+	openTimelineAssetLink,
 	splitRemoteSourceForMiddleEllipsis,
 } from './Timeline/timeline-asset-link';
 import {AssetSelectionContext} from './Timeline/TimelineAssetField';
@@ -36,6 +37,7 @@ import {
 	type TimelineSelection,
 } from './Timeline/TimelineSelection';
 import {useTimelineExpandedTree} from './Timeline/use-timeline-expanded-tree';
+import {useSelectAsset} from './use-select-asset';
 
 const container: React.CSSProperties = {
 	color: WHITE,
@@ -183,14 +185,6 @@ export const getInspectorSelectableItems = (
 	rows: readonly FlatTreeRow[],
 ): TimelineSelection[] => {
 	return rows.flatMap(({node}): TimelineSelection[] => {
-		if (
-			node.kind === 'field' &&
-			node.field?.typeName === 'asset' &&
-			node.field.key === 'src'
-		) {
-			return [];
-		}
-
 		const selection = getTimelineSelectionFromNodePathInfo(node.nodePathInfo);
 		return selection ? [selection] : [];
 	});
@@ -226,6 +220,7 @@ export const InspectorSequenceSection: React.FC<{
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setSelectedModal} = useContext(ModalsContext);
+	const selectAsset = useSelectAsset();
 	const mediaSrc = getTimelineAssetSrcFromSchema(sequence.controls);
 	const assetLinkInfo = useMemo(
 		() => (mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null),
@@ -238,6 +233,11 @@ export const InspectorSequenceSection: React.FC<{
 			remoteAsset ? splitRemoteSourceForMiddleEllipsis(remoteAsset.href) : null,
 		[remoteAsset],
 	);
+	const jumpToAsset = useCallback(() => {
+		if (localAsset) {
+			openTimelineAssetLink(localAsset, selectAsset);
+		}
+	}, [localAsset, selectAsset]);
 	const localAssetFileName = localAsset
 		? (localAsset.assetPath.split('/').pop() ?? localAsset.assetPath)
 		: null;
@@ -249,7 +249,7 @@ export const InspectorSequenceSection: React.FC<{
 			return {
 				children: localAssetFileName,
 				disabled: false,
-				onClick: null,
+				onClick: jumpToAsset,
 				renderIcon: (color: string) => (
 					<AssetFileIcon
 						color={color}
@@ -278,7 +278,13 @@ export const InspectorSequenceSection: React.FC<{
 		}
 
 		return null;
-	}, [localAsset, localAssetFileName, remoteAsset, remoteSourceParts]);
+	}, [
+		jumpToAsset,
+		localAsset,
+		localAssetFileName,
+		remoteAsset,
+		remoteSourceParts,
+	]);
 	const assetSelectionContextValue = useMemo(
 		() => ({
 			initialQuery: assetSelectionInitialQuery,
@@ -337,7 +343,12 @@ export const InspectorSequenceSection: React.FC<{
 	}, [getIsExpanded, tree]);
 
 	const controlSelectableItems = useMemo(
-		() => getInspectorSelectableItems(controlRows),
+		() =>
+			getInspectorSelectableItems(
+				controlRows.filter(
+					({node}) => node.kind !== 'field' || node.field?.key !== 'src',
+				),
+			),
 		[controlRows],
 	);
 	const effectSelectableItems = useMemo(
