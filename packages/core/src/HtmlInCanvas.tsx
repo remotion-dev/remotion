@@ -218,6 +218,21 @@ export const isHtmlInCanvasSupported = (): boolean => {
 export const HTML_IN_CANVAS_UNSUPPORTED_MESSAGE =
 	'HTML in Canvas is not supported. Two common causes: Chrome is older than version 148 (update Chrome), or the HTML-in-Canvas flag is disabled at chrome://flags/#canvas-draw-element (enable it and restart Chrome).';
 
+const MINIMUM_CHROME_VERSION_FOR_NESTED_HTML_IN_CANVAS = 152;
+
+const getChromeMajorVersion = (): number | null => {
+	if (typeof navigator === 'undefined') {
+		return null;
+	}
+
+	const match = navigator.userAgent.match(/\b(?:HeadlessChrome|Chrome)\/(\d+)/);
+	if (!match) {
+		return null;
+	}
+
+	return Number(match[1]);
+};
+
 export type HtmlInCanvasOnPaint = (
 	params: HtmlInCanvasOnPaintParams,
 ) => void | Promise<void>;
@@ -376,6 +391,17 @@ const HtmlInCanvasContent = forwardRef<
 	) => {
 		const ancestor = useContext(HtmlInCanvasAncestorContext);
 		assertHtmlInCanvasDimensions(width, height);
+		const chromeMajorVersion = getChromeMajorVersion();
+		if (
+			ancestor &&
+			chromeMajorVersion !== null &&
+			chromeMajorVersion < MINIMUM_CHROME_VERSION_FOR_NESTED_HTML_IN_CANVAS
+		) {
+			throw new Error(
+				`Nested <HtmlInCanvas> components require Chrome ${MINIMUM_CHROME_VERSION_FOR_NESTED_HTML_IN_CANVAS} or newer, but the current browser is Chrome ${chromeMajorVersion}. Upgrade Chrome or avoid nesting components that use <HtmlInCanvas>, such as shapes with effects.`,
+			);
+		}
+
 		const resolvedPixelDensity = resolveHtmlInCanvasPixelDensity(pixelDensity);
 		const canvasWidth = Math.ceil(width * resolvedPixelDensity);
 		const canvasHeight = Math.ceil(height * resolvedPixelDensity);
