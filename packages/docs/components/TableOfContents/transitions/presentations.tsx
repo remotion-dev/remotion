@@ -1,9 +1,11 @@
 import {cube} from '@remotion-dev/cube-presentation';
+import {linearTiming} from '@remotion/transitions';
 import {clockWipe} from '@remotion/transitions/clock-wipe';
 import {fade} from '@remotion/transitions/fade';
 import {flip} from '@remotion/transitions/flip';
 import {iris} from '@remotion/transitions/iris';
 import {none} from '@remotion/transitions/none';
+import {pushCut} from '@remotion/transitions/push-cut';
 import {slide} from '@remotion/transitions/slide';
 import {wipe} from '@remotion/transitions/wipe';
 import React from 'react';
@@ -52,7 +54,13 @@ export const Presentations: React.FC<{
 			)}
 			<TOCItem link="/docs/transitions/presentations/fade">
 				<div style={row}>
-					<PresentationPreview durationRestThreshold={0.001} effect={fade()} />
+					<PresentationPreview
+						durationRestThreshold={0.001}
+						effect={fade()}
+						firstSceneDurationInFrames={null}
+						secondSceneDurationInFrames={null}
+						transition={null}
+					/>
 					<div style={{flex: 1, marginLeft: 10}}>
 						<strong>
 							<code>{'fade()'}</code>
@@ -61,9 +69,32 @@ export const Presentations: React.FC<{
 					</div>
 				</div>
 			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/push-cut">
+				<div style={row}>
+					<PresentationPreview
+						durationRestThreshold={0.001}
+						effect={pushCut()}
+						firstSceneDurationInFrames={35}
+						secondSceneDurationInFrames={36}
+						transition={linearTiming({durationInFrames: 11})}
+					/>
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'pushCut()'}</code>
+						</strong>
+						<div>Punch into a hard cut with a restrained flash</div>
+					</div>
+				</div>
+			</TOCItem>
 			<TOCItem link="/docs/transitions/presentations/slide">
 				<div style={row}>
-					<PresentationPreview durationRestThreshold={0.001} effect={slide()} />
+					<PresentationPreview
+						durationRestThreshold={0.001}
+						effect={slide()}
+						firstSceneDurationInFrames={null}
+						secondSceneDurationInFrames={null}
+						transition={null}
+					/>
 					<div style={{flex: 1, marginLeft: 10}}>
 						<strong>
 							<code>{'slide()'}</code>
@@ -74,7 +105,13 @@ export const Presentations: React.FC<{
 			</TOCItem>
 			<TOCItem link="/docs/transitions/presentations/wipe">
 				<div style={row}>
-					<PresentationPreview durationRestThreshold={0.001} effect={wipe()} />
+					<PresentationPreview
+						durationRestThreshold={0.001}
+						effect={wipe()}
+						firstSceneDurationInFrames={null}
+						secondSceneDurationInFrames={null}
+						transition={null}
+					/>
 					<div style={{flex: 1, marginLeft: 10}}>
 						<strong>
 							<code>{'wipe()'}</code>
@@ -85,7 +122,13 @@ export const Presentations: React.FC<{
 			</TOCItem>
 			<TOCItem link="/docs/transitions/presentations/flip">
 				<div style={row}>
-					<PresentationPreview durationRestThreshold={0.001} effect={flip()} />
+					<PresentationPreview
+						durationRestThreshold={0.001}
+						effect={flip()}
+						firstSceneDurationInFrames={null}
+						secondSceneDurationInFrames={null}
+						transition={null}
+					/>
 					<div style={{flex: 1, marginLeft: 10}}>
 						<strong>
 							<code>{'flip()'}</code>
@@ -102,6 +145,9 @@ export const Presentations: React.FC<{
 							width: presentationCompositionWidth,
 							height: presentationCompositionHeight,
 						})}
+						firstSceneDurationInFrames={null}
+						secondSceneDurationInFrames={null}
+						transition={null}
 					/>
 					<div style={{flex: 1, marginLeft: 10}}>
 						<strong>
@@ -119,6 +165,9 @@ export const Presentations: React.FC<{
 							width: presentationCompositionWidth,
 							height: presentationCompositionHeight,
 						})}
+						firstSceneDurationInFrames={null}
+						secondSceneDurationInFrames={null}
+						transition={null}
 					/>
 					<div style={{flex: 1, marginLeft: 10}}>
 						<strong>
@@ -268,6 +317,9 @@ export const Presentations: React.FC<{
 						effect={cube({
 							direction: 'from-left',
 						})}
+						firstSceneDurationInFrames={null}
+						secondSceneDurationInFrames={null}
+						transition={null}
 					/>
 					<div style={{flex: 1, marginLeft: 10}}>
 						<strong>
@@ -283,6 +335,9 @@ export const Presentations: React.FC<{
 					<PresentationPreview
 						durationRestThreshold={0.001}
 						effect={none({})}
+						firstSceneDurationInFrames={null}
+						secondSceneDurationInFrames={null}
+						transition={null}
 					/>
 					<div style={{flex: 1, marginLeft: 10}}>
 						<strong>

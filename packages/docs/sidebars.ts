@@ -867,6 +867,7 @@ const sidebars: SidebarsConfig = {
 					},
 					items: [
 						'transitions/presentations/fade',
+						'transitions/presentations/push-cut',
 						'transitions/presentations/slide',
 						'transitions/presentations/wipe',
 						'transitions/presentations/flip',

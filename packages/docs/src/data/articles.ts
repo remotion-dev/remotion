@@ -7580,6 +7580,15 @@ export const articles = [
 		slug: 'transitions/presentations/none',
 	},
 	{
+		id: 'transitions/presentations/push-cut',
+		title: 'pushCut()',
+		relativePath: 'docs/transitions/presentations/push-cut.mdx',
+		compId: 'articles-docs-transitions-presentations-push-cut',
+		crumb: '@remotion/transitions - Presentations',
+		noAi: false,
+		slug: 'transitions/presentations/push-cut',
+	},
+	{
 		id: 'transitions/presentations/ripple',
 		title: 'ripple()',
 		relativePath: 'docs/transitions/presentations/ripple.mdx',
