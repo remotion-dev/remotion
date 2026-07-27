@@ -1,7 +1,9 @@
 # Cropping
 
-The following components support the `cropLeft`, `cropRight`, `cropTop`, and
-`cropBottom` props:
+Preferably, the `cropLeft`, `cropRight`, `cropTop` and `cropBottom` props are used to crop content.
+It allows for interactively dragging the components and adapting the outlines in the canvas to the crop.
+
+The following components support `crop*` props:
 
 - `<Sequence>` from `remotion`, when `layout="absolute-fill"`
 - `<CanvasImage>` from `remotion`
@@ -13,9 +15,10 @@ The following components support the `cropLeft`, `cropRight`, `cropTop`, and
 - `<Gif>` from `@remotion/gif`
 - `<RemotionRiveCanvas>` from `@remotion/rive`
 
-Crop values are ratios between `0` and `1`. A value of `0` applies no crop on
-that edge. Keep crop props directly on the component and keep animations inline
-so Remotion Studio can expose and edit its crop controls:
+Crop values are ratios between `0` and `1`.
+A value of `0` applies no crop on that edge.
+A value of `1` is a full crop.
+Keep [Interactivity Best Practices](../remotion-interactivity/SKILL.md) also for cropping, to keep it editable and keyframable.
 
 ```tsx
 <CanvasImage
@@ -28,10 +31,4 @@ so Remotion Studio can expose and edit its crop controls:
 />
 ```
 
-Do not use `clipPath` when one of these crop props is sufficient. The crop props
-remain editable in Studio and work with its on-canvas crop handles.
-
-`Interactive.*` HTML and SVG elements do not support cropping by default. To
-make a custom component croppable, include `Interactive.cropSchema` in its
-interactivity schema, accept `InteractiveCropProps`, and apply or forward all
-four crop props to the rendered element or an absolute-fill `<Sequence>`.
+Do not use `clipPath` together with crop props.
