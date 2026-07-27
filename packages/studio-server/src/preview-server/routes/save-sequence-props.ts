@@ -553,7 +553,9 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		const undoMessage = `↩️  ${undoLabel}`;
 		const redoMessage = `↪️  ${redoLabel}`;
-		const suppressHmr = shouldSuppressHmrForSequencePropEdits(edits);
+		const suppressHmr =
+			captionPatches.length === 0 &&
+			shouldSuppressHmrForSequencePropEdits(edits);
 
 		pushTransactionToUndoStack({
 			snapshots,
