@@ -472,15 +472,6 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/light-leaks',
-			link: {
-				type: 'doc',
-				id: 'light-leaks/light-leaks-api',
-			},
-			items: ['light-leaks/light-leak-effect', 'light-leaks/light-leak'],
-		},
-		{
-			type: 'category',
 			label: '@remotion/lottie',
 			link: {
 				type: 'doc',
@@ -770,15 +761,6 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/starburst',
-			link: {
-				type: 'doc',
-				id: 'starburst/starburst-api',
-			},
-			items: ['starburst/starburst-effect', 'starburst/starburst-component'],
-		},
-		{
-			type: 'category',
 			label: '@remotion/studio',
 			link: {
 				type: 'doc',
@@ -974,6 +956,15 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/light-leaks (deprecated)',
+			link: {
+				type: 'doc',
+				id: 'light-leaks/light-leaks-api',
+			},
+			items: ['light-leaks/light-leak-effect', 'light-leaks/light-leak'],
+		},
+		{
+			type: 'category',
 			label: '@remotion/media-parser (deprecated)',
 			link: {
 				type: 'doc',
@@ -998,6 +989,15 @@ const sidebars: SidebarsConfig = {
 				'media-parser/node-writer',
 				'media-parser/webcodecs-timescale',
 			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/starburst (deprecated)',
+			link: {
+				type: 'doc',
+				id: 'starburst/starburst-api',
+			},
+			items: ['starburst/starburst-effect', 'starburst/starburst-component'],
 		},
 		{
 			type: 'category',

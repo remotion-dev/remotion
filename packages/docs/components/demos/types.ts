@@ -1542,7 +1542,7 @@ export const starburstDemo: DemoType = {
 	comp: StarburstDemoComp,
 	compHeight: 720,
 	compWidth: 1280,
-	durationInFrames: 90,
+	durationInFrames: 180,
 	fps: 30,
 	id: 'starburst',
 	autoPlay: true,
