@@ -1,7 +1,7 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {DuplicateIcon} from '../../icons/duplicate';
 import {ScissorsIcon} from '../../icons/scissors';
@@ -58,7 +58,7 @@ const largeActionIconStyle: React.CSSProperties = {
 
 const SplitSequenceAction: React.FC<{
 	readonly selection: Extract<TimelineSelection, {type: 'sequence'}>;
-	readonly track: TrackWithHash;
+	readonly track: TimelineTrackData;
 }> = ({selection, track}) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
@@ -118,7 +118,7 @@ const SplitSequenceAction: React.FC<{
 
 const SequenceSourceActions: React.FC<{
 	readonly selection: Extract<TimelineSelection, {type: 'sequence'}>;
-	readonly track: TrackWithHash;
+	readonly track: TimelineTrackData;
 	readonly validatedSource: string;
 }> = ({selection, track, validatedSource}) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
@@ -206,7 +206,7 @@ const SequenceSourceActions: React.FC<{
 };
 
 const SequenceExpandedInspector: React.FC<{
-	readonly track: TrackWithHash;
+	readonly track: TimelineTrackData;
 }> = ({track}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {selectedItems, selectItems} = useTimelineSelection();

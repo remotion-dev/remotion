@@ -207,7 +207,6 @@ const makeMediaInTimelineData = ({
 		duration: 100,
 		doesVolumeChange: false,
 		nonce: {get: () => [[0, 0]]},
-		rootId: 'test-root',
 		finalDisplayName: 'video.mp4',
 		startMediaFrom,
 		src: 'video.mp4',

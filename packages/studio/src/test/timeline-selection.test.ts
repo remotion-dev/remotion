@@ -258,7 +258,6 @@ const makeTimelineSequence = ({
 		displayName: id,
 		documentationLink: null,
 		parent: parentId,
-		rootId: 'root',
 		showInTimeline,
 		singleChildComponent,
 		nonce: [[0, 0]],
@@ -5219,7 +5218,6 @@ test('Derived selectable timeline items follow expanded timeline order', () => {
 			timeline: [
 				{
 					depth: 0,
-					hash: 'hash',
 					keyframeDisplayOffset: 0,
 					nodePathInfo: sequenceNodePathInfo,
 					sequence: makeTimelineSequence({schema}),
