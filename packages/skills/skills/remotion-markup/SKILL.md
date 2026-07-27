@@ -10,7 +10,7 @@ If this is not relevant, load [Remotion Best Practices](../remotion-best-practic
 
 ## General rules
 
-Animate properties using `useCurrentFrame()` and `interpolate()`.  
+Animate properties using `useCurrentFrame()` and `interpolate()`.
 
 Use `Easing.bezier()` to customize timing, including jumpy or overshooting motion.
 Use `Easing.spring()` if you want spring animations.
@@ -98,6 +98,11 @@ export const MyComposition = () => {
   );
 };
 ```
+
+## Cropping
+
+See [cropping.md](cropping.md) for supported components, crop props, Studio
+controls, animation, and custom component support.
 
 To delay content wrap it in `<Sequence>` and use `from`.
 To limit the duration of an element, use `durationInFrames` of `<Sequence>`.
@@ -202,8 +207,9 @@ When creating a visual effect, consider whether it is feasible using CSS and HTM
 
 1. Normal Remotion/HTML/CSS/SVG/filter/blend/mask animation
 2. An effect applied to the element directly (`<Video>`, `<Img>`), or by wrapping the content in [`<HtmlInCanvas>`](html-in-canvas.md), which also accepts `effects`:
-  - A listed effect via [effects.md](effects.md)
-  - A custom `createEffect()` via [effects.md](effects.md) when no preset is available.
+
+- A listed effect via [effects.md](effects.md)
+- A custom `createEffect()` via [effects.md](effects.md) when no preset is available.
 
 ## 3D content
 
