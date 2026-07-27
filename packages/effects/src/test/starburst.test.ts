@@ -1,7 +1,5 @@
 import {expect, test} from 'bun:test';
-import {colorToRgb} from '../color-to-rgb.js';
-import {starburst} from '../starburst-effect.js';
-import {starburstSchema} from '../Starburst.js';
+import {starburst} from '../starburst.js';
 
 test('starburst() throws when rays is not passed', () => {
 	expect(() =>
@@ -21,16 +19,11 @@ test('starburst() accepts CSS named colors', () => {
 	expect(() => starburst({rays: 12, colors: ['red', 'blue']})).not.toThrow();
 });
 
-test('colorToRgb() parses CSS colors using Remotion color parsing', () => {
-	expect(colorToRgb('red')).toEqual([255, 0, 0]);
-	expect(colorToRgb('hsl(120, 100%, 50%)')).toEqual([0, 255, 0]);
-});
-
 test('starburst() exposes its documentation link', () => {
 	expect(
 		starburst({rays: 12, colors: ['#ff0000', '#00ff00']}).definition
 			.documentationLink,
-	).toBe('https://www.remotion.dev/docs/starburst/starburst-effect');
+	).toBe('https://www.remotion.dev/docs/effects/starburst');
 });
 
 test('starburst() exposes its API name as the Studio label', () => {
@@ -39,7 +32,7 @@ test('starburst() exposes its API name as the Studio label', () => {
 	).toBe('starburst()');
 });
 
-test('starburst() does not expose the removed vignette control', () => {
+test('starburst() does not expose a vignette control', () => {
 	expect(
 		'vignette' in
 			starburst({rays: 12, colors: ['#ff0000', '#00ff00']}).definition.schema,
@@ -52,8 +45,6 @@ test('starburst() exposes origin as a UV coordinate control', () => {
 		colors: ['#ff0000', '#00ff00'],
 	}).definition;
 
-	expect('originOffsetX' in schema).toBe(false);
-	expect('originOffsetY' in schema).toBe(false);
 	expect(schema.origin).toEqual({
 		type: 'uv-coordinate',
 		min: 0,
@@ -81,27 +72,6 @@ test('starburst() exposes colors as an array control', () => {
 		description: 'Colors',
 		keyframable: false,
 	});
-});
-
-test('<Starburst> exposes colors as an array control', () => {
-	expect(starburstSchema.colors).toEqual({
-		type: 'array',
-		item: {
-			type: 'color',
-		},
-		default: undefined,
-		minLength: 2,
-		newItemDefault: '#ff0000',
-		description: 'Colors',
-		keyframable: false,
-	});
-});
-
-test('<Starburst> exposes background and border controls', () => {
-	expect('style.backgroundColor' in starburstSchema).toBe(true);
-	expect('style.borderWidth' in starburstSchema).toBe(true);
-	expect('style.borderStyle' in starburstSchema).toBe(true);
-	expect('style.borderColor' in starburstSchema).toBe(true);
 });
 
 test('starburst() parameters produce distinct effect keys', () => {

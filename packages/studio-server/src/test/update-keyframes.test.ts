@@ -1212,7 +1212,7 @@ test('updateSequenceKeyframes migrates rotate away from interpolateColors', asyn
 });
 
 test('updateSequenceKeyframes returns a node path that still resolves after inserting a frame hook', async () => {
-	const input = `import {starburst} from '@remotion/starburst';
+	const input = `import {starburst} from '@remotion/effects/starburst';
 import React from 'react';
 import {AbsoluteFill, Solid} from 'remotion';
 

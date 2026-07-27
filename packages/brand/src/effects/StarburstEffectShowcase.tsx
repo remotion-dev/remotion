@@ -1,5 +1,5 @@
 import {halftone} from '@remotion/effects/halftone';
-import {starburst} from '@remotion/starburst';
+import {starburst} from '@remotion/effects/starburst';
 import React from 'react';
 import {
 	AbsoluteFill,

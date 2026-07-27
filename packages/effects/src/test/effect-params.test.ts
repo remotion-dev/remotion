@@ -51,6 +51,7 @@ import {shine} from '../shine.js';
 import {shrinkwrap} from '../shrinkwrap.js';
 import {skew} from '../skew.js';
 import {speckle} from '../speckle.js';
+import {starburst} from '../starburst.js';
 import {thermalVision} from '../thermal-vision.js';
 import {tint} from '../tint.js';
 import {uvTranslate, xyTranslate} from '../translate.js';
@@ -231,6 +232,10 @@ test('@remotion/effects expose documentation links', () => {
 	expect(speckle().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/speckle',
 	);
+	expect(
+		starburst({rays: 12, colors: ['#ff0000', '#00ff00']}).definition
+			.documentationLink,
+	).toBe('https://www.remotion.dev/docs/effects/starburst');
 	expect(thermalVision().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/thermal-vision',
 	);

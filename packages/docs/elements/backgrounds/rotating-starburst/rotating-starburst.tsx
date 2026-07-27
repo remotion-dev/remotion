@@ -1,4 +1,4 @@
-import {starburst} from '@remotion/starburst';
+import {starburst} from '@remotion/effects/starburst';
 import React from 'react';
 import {interpolate, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
 

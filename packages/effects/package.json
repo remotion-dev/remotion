@@ -279,6 +279,11 @@
 			"module": "./dist/esm/speckle.mjs",
 			"import": "./dist/esm/speckle.mjs"
 		},
+		"./starburst": {
+			"types": "./dist/starburst.d.ts",
+			"module": "./dist/esm/starburst.mjs",
+			"import": "./dist/esm/starburst.mjs"
+		},
 		"./thermal-vision": {
 			"types": "./dist/thermal-vision.d.ts",
 			"module": "./dist/esm/thermal-vision.mjs",
@@ -484,6 +489,9 @@
 			],
 			"speckle": [
 				"dist/speckle.d.ts"
+			],
+			"starburst": [
+				"dist/starburst.d.ts"
 			],
 			"thermal-vision": [
 				"dist/thermal-vision.d.ts"

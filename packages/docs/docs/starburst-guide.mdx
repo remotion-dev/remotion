@@ -2,47 +2,54 @@
 image: /generated/articles-docs-starburst-guide.png
 id: starburst
 title: Starburst
-crumb: 'Techniques'
+crumb: 'Designing visuals'
 ---
 
-# Starburst<AvailableFrom v="4.0.435"/>
+# Starburst<AvailableFrom v="4.0.500"/>
 
-The [`<Starburst>`](/docs/starburst/starburst) component from [`@remotion/starburst`](/docs/starburst/api) renders a static WebGL-based retro starburst ray pattern.
+The [`starburst()`](/docs/effects/starburst) effect from [`@remotion/effects`](/docs/effects/api) renders a WebGL2-based retro ray pattern.
 
 <Demo type="starburst" />
 
+Apply the effect to a [`<Solid>`](/docs/solid) and animate its parameters with [`interpolate()`](/docs/interpolate):
+
 ```tsx twoslash title="MyComp.tsx"
-import {Starburst} from '@remotion/starburst';
-import {AbsoluteFill} from 'remotion';
+import {starburst} from '@remotion/effects/starburst';
+import {
+  AbsoluteFill,
+  interpolate,
+  Solid,
+  useCurrentFrame,
+  useVideoConfig,
+} from 'remotion';
 
-const MyComp = () => {
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {width, height} = useVideoConfig();
+
   return (
-    <AbsoluteFill style={{backgroundColor: 'black'}}>
-      <Starburst durationInFrames={60} rays={16} colors={['#ffdd00', '#ff8800']} />
+    <AbsoluteFill>
+      <Solid
+        width={width}
+        height={height}
+        effects={[
+          starburst({
+            rays: 16,
+            colors: ['#ffdd00', '#ff8800'],
+            rotation: interpolate(frame, [0, 45, 89], [0, 180, 360]),
+            smoothness: interpolate(frame, [0, 45, 89], [0, 0.3, 0]),
+            origin: [0.5, 0.5],
+          }),
+        ]}
+      />
     </AbsoluteFill>
   );
 };
 ```
 
-## Rotating the pattern
-
-Use [`rotation`](/docs/starburst/starburst#rotation) to offset the angle of the rays in degrees:
-
-```tsx twoslash title="Rotated.tsx"
-import {Starburst} from '@remotion/starburst';
-import {AbsoluteFill} from 'remotion';
-
-// ---cut---
-const MyComp = () => {
-  return (
-    <AbsoluteFill style={{backgroundColor: 'black'}}>
-      <Starburst rays={12} colors={['#ffdd00', '#ff8800']} rotation={45} durationInFrames={30} />
-    </AbsoluteFill>
-  );
-};
-```
+Keeping the `interpolate()` calls inline makes the keyframes editable in [Remotion Studio](/docs/studio/interactivity-best-practices#keep-effects-editable).
 
 ## See also
 
-- [`<Starburst>` API reference](/docs/starburst/starburst)
-- [`@remotion/starburst`](/docs/starburst/api)
+- [`starburst()` API reference](/docs/effects/starburst)
+- [`@remotion/effects`](/docs/effects/api)

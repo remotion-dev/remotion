@@ -322,6 +322,7 @@ const sidebars: SidebarsConfig = {
 				'effects/shrinkwrap',
 				'effects/skew',
 				'effects/speckle',
+				'effects/starburst',
 				'effects/thermal-vision',
 				'effects/tint',
 				'effects/tv-signal-off',

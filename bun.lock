@@ -109,7 +109,6 @@
         "@remotion/rough-notation": "workspace:*",
         "@remotion/sfx": "workspace:*",
         "@remotion/shapes": "workspace:*",
-        "@remotion/starburst": "workspace:*",
         "@remotion/svg-3d-engine": "workspace:*",
         "@remotion/tailwind-v4": "workspace:*",
         "@remotion/transitions": "workspace:*",
@@ -1627,6 +1626,7 @@
       "name": "@remotion/starburst",
       "version": "4.0.499",
       "dependencies": {
+        "@remotion/effects": "workspace:*",
         "remotion": "workspace:*",
         "zod": "catalog:",
       },
