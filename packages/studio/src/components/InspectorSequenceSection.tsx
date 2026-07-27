@@ -360,7 +360,7 @@ export const InspectorSequenceSection: React.FC<{
 		nodePathInfo.sequenceSubscriptionKey,
 	)?.captions;
 	const inlineCaptionValue =
-		schema.captions?.type === 'captions'
+		schema.captions?.type === 'remotion-captions'
 			? captionStatus?.status === 'static'
 				? captionStatus.codeValue
 				: sequence.controls.currentRuntimeValueDotNotation.captions
