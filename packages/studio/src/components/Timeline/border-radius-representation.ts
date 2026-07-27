@@ -69,6 +69,15 @@ export const getBorderRadiusConversion = (
 	}
 
 	const longhands = BORDER_RADIUS_LONGHAND_KEYS.map((key) => props?.[key]);
+	const hasNoAuthoredRadius = [shorthand, ...longhands].every(
+		(status) =>
+			status === undefined ||
+			(status.status === 'static' && status.codeValue === undefined),
+	);
+	if (hasNoAuthoredRadius) {
+		return {type: 'individual', value: 0};
+	}
+
 	if (
 		longhands.every(
 			(status) =>

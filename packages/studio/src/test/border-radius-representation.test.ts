@@ -64,6 +64,39 @@ test('a static shorthand can be converted to individual corners', () => {
 	}
 });
 
+test('an unauthored border radius can be converted to zero-valued corners', () => {
+	for (const props of [
+		undefined,
+		{},
+		{
+			[BORDER_RADIUS_SHORTHAND_KEY]: {
+				status: 'static' as const,
+				codeValue: undefined,
+			},
+			...Object.fromEntries(
+				BORDER_RADIUS_LONGHAND_KEYS.map((key) => [
+					key,
+					{status: 'static' as const, codeValue: undefined},
+				]),
+			),
+		},
+	]) {
+		const conversion = getBorderRadiusConversion(props);
+		expect(conversion).toEqual({type: 'individual', value: 0});
+		if (conversion === null) {
+			throw new Error('Expected an unauthored border radius conversion');
+		}
+
+		expect(getBorderRadiusConversionChanges(conversion)).toEqual([
+			{fieldKey: BORDER_RADIUS_SHORTHAND_KEY, value: undefined},
+			...BORDER_RADIUS_LONGHAND_KEYS.map((fieldKey) => ({
+				fieldKey,
+				value: 0,
+			})),
+		]);
+	}
+});
+
 test('four equal static longhands can be converted to a shorthand', () => {
 	expect(
 		getBorderRadiusConversion(
