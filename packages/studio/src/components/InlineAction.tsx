@@ -49,6 +49,7 @@ export const InlineAction = ({
 			justifyContent: 'center',
 			alignItems: 'center',
 			borderRadius: 3,
+			opacity: disabled ? 0.5 : 1,
 			pointerEvents: disabled ? 'none' : 'auto',
 		};
 	}, [disabled, hovered]);
