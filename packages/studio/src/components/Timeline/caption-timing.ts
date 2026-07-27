@@ -14,6 +14,10 @@ export const framesToMilliseconds = (frames: number, fps: number) => {
 	return (frames / fps) * 1000;
 };
 
+const roundTimestamp = (timestampMs: number) => {
+	return Math.round(timestampMs * 1_000_000) / 1_000_000;
+};
+
 const updateTimestamp = ({
 	caption,
 	startMs,
@@ -29,11 +33,11 @@ const updateTimestamp = ({
 
 	const previousDuration = caption.endMs - caption.startMs;
 	if (previousDuration <= 0) {
-		return (startMs + endMs) / 2;
+		return roundTimestamp((startMs + endMs) / 2);
 	}
 
 	const position = (caption.timestampMs - caption.startMs) / previousDuration;
-	return startMs + position * (endMs - startMs);
+	return roundTimestamp(startMs + position * (endMs - startMs));
 };
 
 export const applyCaptionTimingDrag = ({

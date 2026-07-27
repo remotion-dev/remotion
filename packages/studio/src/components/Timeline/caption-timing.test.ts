@@ -97,6 +97,33 @@ test('resizing the start preserves a non-frame-aligned end', () => {
 	expect(result.endMs).toBe(2184);
 });
 
+test('rounds timestamp floating-point artifacts without losing sub-millisecond precision', () => {
+	const timestampedCaption = {
+		...makeCaption(20_000, 22_000),
+		timestampMs: 21_029,
+	};
+	const moved = applyCaptionTimingDrag({
+		caption: timestampedCaption,
+		previousCaption: null,
+		nextCaption: null,
+		deltaFrames: 1,
+		durationInFrames: 900,
+		fps: 30,
+		type: 'resize-start',
+	});
+	const restored = applyCaptionTimingDrag({
+		caption: moved,
+		previousCaption: null,
+		nextCaption: null,
+		deltaFrames: -1,
+		durationInFrames: 900,
+		fps: 30,
+		type: 'resize-start',
+	});
+
+	expect(restored.timestampMs).toBe(21_029);
+});
+
 test('keeps captions at least one frame long', () => {
 	const result = applyCaptionTimingDrag({
 		caption,
