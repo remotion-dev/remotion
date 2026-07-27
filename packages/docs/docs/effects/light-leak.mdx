@@ -1,22 +1,18 @@
 ---
-image: /generated/articles-docs-light-leaks-light-leak-effect.png
-slug: /light-leaks/light-leak-effect
+image: /generated/articles-docs-effects-light-leak.png
+slug: /effects/light-leak
 title: lightLeak()
 sidebar_label: lightLeak()
-crumb: '@remotion/light-leaks'
+crumb: '@remotion/effects'
 ---
 
-# lightLeak()<AvailableFrom v="4.0.468" />
+# lightLeak()<AvailableFrom v="4.0.500" />
 
-:::warning Deprecated
-`@remotion/light-leaks` is deprecated and will no longer be published starting with Remotion 5.0. Migrate to [`lightLeak()`](/docs/effects/light-leak) from `@remotion/effects/light-leak`.
-:::
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
 
-_Part of the [`@remotion/light-leaks`](/docs/light-leaks/api) package._
+Applies a WebGL2-based light leak overlay to canvas-based components such as [`<Video>`](/docs/media/video), [`<CanvasImage>`](/docs/canvasimage) and [`<Solid>`](/docs/solid).
 
-Applies a WebGL2-based light leak effect to canvas-based components such as [`<Video>`](/docs/media/video), [`<CanvasImage>`](/docs/canvasimage) and [`<Solid>`](/docs/solid).
-
-Use it when you want to add the light leak effect through an [`effects`](/docs/effects) array instead of rendering the [`<LightLeak>`](/docs/light-leaks/light-leak) component.
+The light leak reveals during the first half of its progress and retracts during the second half.
 
 ## Preview
 
@@ -25,7 +21,7 @@ Use it when you want to add the light leak effect through an [`effects`](/docs/e
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {lightLeak} from '@remotion/light-leaks';
+import {lightLeak} from '@remotion/effects/light-leak';
 import {CanvasImage, interpolate, staticFile, useCurrentFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
@@ -55,19 +51,15 @@ export const MyComp: React.FC = () => {
 
 ## API
 
-Pass an object with the following properties.
+Pass an object with the following properties. You can also call `lightLeak()` without arguments.
 
 ### `seed?`
 
-Determines the shape of the light leak pattern. Different seeds produce different patterns. Default: `0`.
+Determines the shape of the light leak pattern. Different seeds produce different patterns. Defaults to `0`.
 
 ### `hueShift?`
 
-Rotates the hue of the light leak in degrees (`0`-`360`).
-
-- `0` (default) yellow-to-orange
-- `120` shifts toward green
-- `240` shifts toward blue
+Rotates the hue of the light leak from `0` to `360` degrees. Defaults to `0` for a yellow-to-orange light leak.
 
 ### `progress?`
 
@@ -85,8 +77,7 @@ When `true`, the effect is skipped. Defaults to `false`.
 
 ## See also
 
-- [`@remotion/light-leaks`](/docs/light-leaks/api)
-- [`lightLeak()` from `@remotion/effects`](/docs/effects/light-leak)
-- [`<LightLeak>`](/docs/light-leaks/light-leak)
+- [Designing light leaks](/docs/light-leaks)
+- [`<LightLeak>` from `@remotion/light-leaks`](/docs/light-leaks/light-leak)
 - [`@remotion/effects`](/docs/effects/api)
 - [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/light-leak.ts)

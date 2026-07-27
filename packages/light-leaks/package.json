@@ -24,6 +24,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
+		"@remotion/effects": "workspace:*",
 		"remotion": "workspace:*",
 		"zod": "catalog:"
 	},
