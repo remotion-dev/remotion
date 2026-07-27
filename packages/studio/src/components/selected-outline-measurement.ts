@@ -648,11 +648,11 @@ export const outlinesAreEqual = (
 
 		const aUncropped = a[i].uncroppedPoints;
 		const bUncropped = b[i].uncroppedPoints;
-		if ((aUncropped === undefined) !== (bUncropped === undefined)) {
+		if ((aUncropped === null) !== (bUncropped === null)) {
 			return false;
 		}
 
-		if (aUncropped !== undefined && bUncropped !== undefined) {
+		if (aUncropped !== null && bUncropped !== null) {
 			for (let j = 0; j < aUncropped.length; j++) {
 				if (
 					Math.abs(aUncropped[j].x - bUncropped[j].x) > 0.01 ||

@@ -2970,6 +2970,7 @@ test('Canvas outline rendering preserves unconstrained outline order', () => {
 	const makeOutline = (key: string): SelectedOutline => ({
 		key,
 		dimensions: null,
+		uncroppedPoints: null,
 		points: [
 			{x: 0, y: 0},
 			{x: 10, y: 0},
@@ -3016,6 +3017,7 @@ const makeTestOutline = ({
 }): SelectedOutline => ({
 	key,
 	dimensions: {width, height},
+	uncroppedPoints: null,
 	points: [
 		{x: left, y: top},
 		{x: left + width, y: top},
@@ -4094,29 +4096,37 @@ test('Transform origin drag snaps to center, edge midpoints and corners', () => 
 
 	expect(
 		snapSelectedOutlineTransformOriginUv({
+			crop: null,
 			point: {x: 47, y: 53},
 			points,
+			thresholdPx: null,
 			uv: getUvCoordinateForPoint(points, {x: 47, y: 53}),
 		}),
 	).toEqual([0.5, 0.5]);
 	expect(
 		snapSelectedOutlineTransformOriginUv({
+			crop: null,
 			point: {x: 52, y: 4},
 			points,
+			thresholdPx: null,
 			uv: getUvCoordinateForPoint(points, {x: 52, y: 4}),
 		}),
 	).toEqual([0.5, 0]);
 	expect(
 		snapSelectedOutlineTransformOriginUv({
+			crop: null,
 			point: {x: 96, y: 49},
 			points,
+			thresholdPx: null,
 			uv: getUvCoordinateForPoint(points, {x: 96, y: 49}),
 		}),
 	).toEqual([1, 0.5]);
 	expect(
 		snapSelectedOutlineTransformOriginUv({
+			crop: null,
 			point: {x: 3, y: 96},
 			points,
+			thresholdPx: null,
 			uv: getUvCoordinateForPoint(points, {x: 3, y: 96}),
 		}),
 	).toEqual([0, 1]);
@@ -4134,8 +4144,10 @@ test('Transform origin drag snaps to rotated outline anchors', () => {
 
 	expect(
 		snapSelectedOutlineTransformOriginUv({
+			crop: null,
 			point: pointer,
 			points,
+			thresholdPx: null,
 			uv: getUvCoordinateForPoint(points, pointer),
 		}),
 	).toEqual([0.5, 0]);
@@ -4169,6 +4181,7 @@ test('Transform origin drag also snaps to cropped outline anchors', () => {
 				crop,
 				point: pointer,
 				points,
+				thresholdPx: null,
 				uv: getUvCoordinateForPoint(points, pointer),
 			}),
 		).toEqual(snapTarget);
@@ -4188,8 +4201,10 @@ test('Transform origin drag does not snap outside the magnetic threshold', () =>
 	};
 	const uv = getUvCoordinateForPoint(points, pointer);
 	const snapped = snapSelectedOutlineTransformOriginUv({
+		crop: null,
 		point: pointer,
 		points,
+		thresholdPx: null,
 		uv,
 	});
 

@@ -1188,17 +1188,20 @@ export const snapSelectedOutlineTransformOriginUv = ({
 	crop,
 	point,
 	points,
-	thresholdPx = selectedOutlineTransformOriginSnapThresholdPx,
+	thresholdPx,
 	uv,
 }: {
-	readonly crop?: SelectedOutlineTarget['crop'];
+	readonly crop: SelectedOutlineTarget['crop'] | null;
 	readonly point: OutlinePoint;
 	readonly points: SelectedOutline['points'];
-	readonly thresholdPx?: number;
+	readonly thresholdPx: number | null;
 	readonly uv: UvCoordinate;
 }): UvCoordinate => {
-	if (crop === undefined) {
-		return snapSelectedOutlineUv({point, points, thresholdPx, uv});
+	const threshold =
+		thresholdPx ?? selectedOutlineTransformOriginSnapThresholdPx;
+
+	if (crop === null) {
+		return snapSelectedOutlineUv({point, points, thresholdPx: threshold, uv});
 	}
 
 	let best: {
@@ -1213,7 +1216,7 @@ export const snapSelectedOutlineTransformOriginUv = ({
 	for (const snapUv of snapTargets) {
 		const snapPoint = getUvHandlePosition(points, snapUv);
 		const distance = Math.hypot(point.x - snapPoint.x, point.y - snapPoint.y);
-		if (distance > thresholdPx) {
+		if (distance > threshold) {
 			continue;
 		}
 

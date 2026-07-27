@@ -227,9 +227,10 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 						: getUvHandlePosition(transformOriginPoints, axisLockedUv);
 				const snappedUv = editorSnapping
 					? snapSelectedOutlineTransformOriginUv({
-							crop,
+							crop: crop ?? null,
 							point: snapPoint,
 							points: transformOriginPoints,
+							thresholdPx: null,
 							uv: axisLockedUv,
 						})
 					: axisLockedUv;
