@@ -29,7 +29,8 @@ const serveUrl = await bundle({
   entryPoint: require.resolve('./src/index.ts'),
 });
 
-const comps = await getCompositions(serveUrl, {
+const comps = await getCompositions({
+  serveUrl,
   inputProps: {
     custom: 'data',
   },

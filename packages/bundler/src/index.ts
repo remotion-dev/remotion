@@ -28,6 +28,7 @@ export {
 	BundleOptions,
 	LegacyBundleOptions,
 	MandatoryLegacyBundleOptions,
+	MandatoryBundleInternalsOptions,
 } from './bundle';
 export type {
 	BundlerConfiguration,

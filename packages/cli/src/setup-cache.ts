@@ -2,7 +2,7 @@ import {existsSync} from 'fs';
 import path from 'path';
 import type {
 	BundlerOverrideFn,
-	MandatoryLegacyBundleOptions,
+	MandatoryBundleInternalsOptions,
 	RspackOverrideFn,
 	WebpackOverrideFn,
 } from '@remotion/bundler';
@@ -226,7 +226,7 @@ export const bundleOnCli = async ({
 		updateProgress(false);
 	};
 
-	const options: MandatoryLegacyBundleOptions = {
+	const options: MandatoryBundleInternalsOptions = {
 		enableCaching: shouldCache,
 		bundlerOverride: bundlerOverride ?? ConfigInternals.getBundlerOverrideFn(),
 		rspackOverride: rspackOverride ?? ConfigInternals.getRspackOverrideFn(),
