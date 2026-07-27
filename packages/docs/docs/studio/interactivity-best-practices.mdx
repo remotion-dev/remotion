@@ -83,12 +83,12 @@ const baseStyle = useMemo(() => {
 <SuggestedPrompt prompt="/remotion-interactivity Inline the values to make them editable." />
 
 Write animations as inline `interpolate()` calls on the property that changes.  
-All values should also be hardcoded values: Input range, output range, easing, extrapolation, `output` property.
+The output range, easing, extrapolation and `output` property should use hardcoded values.
 
-No math should be performed, except basic arithmetic 2-side arithmetic with `durationInFrames`, `fps`, `width` and `height` from `useVideoConfig()`.
+The input range may additionally use `durationInFrames`, `fps`, `width` and `height` destructured directly from [`useVideoConfig()`](/docs/use-video-config). Bare identifiers such as `durationInFrames`, multiplication with a number such as `2 * fps` or `fps * 2`, and subtraction of a number such as `durationInFrames - 1` are supported.
 
 ```tsx title="Inline values"
-const {fps} = useVideoConfig();
+const {fps, durationInFrames} = useVideoConfig();
 
 // 👍 Inline values can be standardized and keyframed
 <Interactive.Div
@@ -163,7 +163,7 @@ const calculateMetadata = useMemo(async () => {
 ```
 
 ```tsx title="Negative examples"
-const defaultProps = {title: 'Hello', color: '#0b84ff'}; // ❌ Don't extract defaultProps, must be inline 
+const defaultProps = {title: 'Hello', color: '#0b84ff'}; // ❌ Don't extract defaultProps, must be inline
 const calculateMetadata = useMemo(() => {
   // ❌ Unnecessary because no calculation is being done,
   return {durationInFrames: 150, fps: 30, width: 1920, height: 1080};
@@ -235,8 +235,6 @@ Make this interactive in the Remotion Studio: https://www.remotion.dev/docs/stud
 ## Make props of a custom component editable
 
 If you have a custom non-top-level component and want to make the props of that editable, see: [Make a component interactive](/docs/studio/make-component-interactive).
-
-
 
 ## See also
 
