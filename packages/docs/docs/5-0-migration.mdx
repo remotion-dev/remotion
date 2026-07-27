@@ -189,6 +189,22 @@ This prevents the Player from continuing while media or images are still loading
 
 **Required action**: If you want to keep the old behavior, set `pauseWhenBuffering={false}` on video and audio components and `pauseWhenLoading={false}` on `<Img>` explicitly.
 
+## ANGLE is now the default OpenGL renderer
+
+In Remotion 4.x, the default OpenGL renderer was <code>null</code> on local renders, which lets Chrome decide.
+In Remotion 5.0, the default is <code>angle</code>.
+When no compatible GPU is available, Remotion opts into Chromium's automatic SwiftShader fallback via <code>--enable-unsafe-swiftshader</code>, so WebGL content can render on GPU-less machines such as GitHub Actions runners.
+
+On [Lambda](/docs/lambda) and [Cloud Run](/docs/cloudrun), <code>swangle</code> remains the default.
+
+**Required action**: Remove redundant <code>--gl=angle</code> configuration if you only added it to enable WebGL.
+Pass <code>chromiumOptions.gl: null</code> to restore the Remotion 4.x behavior and let Chrome decide.
+See [OpenGL renderer options](/docs/gl-options) for when to override the default.
+
+**Performance**: SwiftShader fallback is slower than hardware rendering but enables WebGL where it previously failed.
+
+**Security**: <code>--enable-unsafe-swiftshader</code> lowers Chromium's security guarantees and is intended for trusted rendering workloads.
+
 ## License changes
 
 Remotion 5.0 has an updated license. View the [license](https://github.com/remotion-dev/remotion/blob/5-0-license/LICENSE.md) here or compare the [changes](https://github.com/remotion-dev/remotion/pull/3750).

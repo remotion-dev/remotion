@@ -9,7 +9,7 @@ When rendering a video in Remotion, different [GL](https://en.wikipedia.org/wiki
 
 The following renderer backends are supported in Remotion:
 
-- <code>null</code> - default in Remotion 4.0, lets Chrome decide
+- <code>null</code> - default in Remotion 4.0, lets Chrome decide (opt-out in Remotion 5.0)
 - <code>angle</code> - default in Remotion 5.0
 - <code>egl</code>
 - <code>swiftshader</code>
@@ -19,20 +19,30 @@ The following renderer backends are supported in Remotion:
 
 ## Remotion 5.0 default
 
-From Remotion 5.0, `angle` is the default renderer. A compatible GPU is used when available, and Chromium automatically falls back to software rendering through SwiftShader otherwise. No renderer option is needed to make WebGL or WebGPU work.
+From Remotion 5.0, `angle` is the default renderer on local renders. A compatible GPU is used when available, and Chromium automatically falls back to software rendering through SwiftShader otherwise via <code>--enable-unsafe-swiftshader</code>. No renderer option is needed to make WebGL or WebGPU work.
 
-Lambda and Cloud Run continue to use `swangle` by default.
+This means you no longer need to pass <code>--gl=angle</code> merely to make WebGL work, and you no longer need to manually select <code>swangle</code> on machines without a GPU.
+
+:::note
+<code>--enable-unsafe-swiftshader</code> lowers Chromium's security guarantees.
+It is intended for trusted rendering workloads where you control the rendered content.
+:::
+
+To restore the Remotion 4.x behavior and let Chrome decide the renderer, pass <code>chromiumOptions.gl: null</code> in Node.js APIs or set the renderer to <code>null</code> via config or CLI.
+
+On [Lambda](/docs/lambda), <code>swangle</code> remains the effective default (<code>angle</code> is converted to <code>swangle</code> in the Lambda handler).
+On [Cloud Run](/docs/cloudrun), the v5 CLI default of <code>angle</code> is passed through; <code>swangle</code> is only used when <code>gl</code> is <code>null</code>.
 
 ## Recommended renderers in Remotion 4.0
 
 <Step>1</Step> If you use WebGL, WebGPU or Three.js:
 
-- On a desktop, `angle` is recommended
-- On a [cloud instance with a GPU](/docs/miscellaneous/cloud-gpu), `angle-egl` is recommended
-- On Lambda, use `swangle` (default on Lambda)
-- On a machine with no GPU, `swangle` is recommended. Rendering might be slow.
+- From Remotion 5.0, <code>angle</code> is already the local default (with automatic SwiftShader fallback when needed)
+- On a [cloud instance with a GPU](/docs/miscellaneous/cloud-gpu), <code>angle-egl</code> is recommended
+- On Lambda, use <code>swangle</code> (default)
+- On Cloud Run, <code>angle</code> is the v5 default (with automatic SwiftShader fallback when needed)
 
-<Step>2</Step> If you don't use WebGL, WebGPU or Three.js, the default renderer (<code>null</code> on local, <code>swangle</code> on Lambda and Cloud Run) is the best choice.<br/>
+<Step>2</Step> If you don't use WebGL, WebGPU or Three.js, the default renderer is the best choice: <code>angle</code> on local renders and Cloud Run in Remotion 5.0 (<code>null</code> in Remotion 4.x), and <code>swangle</code> on Lambda.<br/>
 
 ## Using the GPU
 
@@ -75,3 +85,4 @@ Pass [`--gl=[angle,swangle,...]`](/docs/cli) in one of the following commands: [
 ## See also
 
 - [Using the GPU](/docs/gpu)
+- [v5.0 Migration](/docs/5-0-migration)
