@@ -107,7 +107,6 @@ const compositionContext = {
 const timelineContext = {
 	frame: {},
 	playing: false,
-	rootId: 'test-root',
 	imperativePlaying: {current: false},
 	audioAndVideoTags: {current: []},
 } as React.ContextType<typeof Internals.TimelineContext>;
