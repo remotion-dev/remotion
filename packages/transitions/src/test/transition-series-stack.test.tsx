@@ -286,8 +286,14 @@ test('TransitionSeries.Sequence timing overrides cascade to later sequences', as
 	const firstStack = 'Error\n    at FirstTransitionSeriesSequence';
 	const secondStack = 'Error\n    at SecondTransitionSeriesSequence';
 	const transitionStack = 'Error\n    at TransitionBetweenSequences';
+	let pendingRegistrationStacks = new Set<string>();
+	let resolveRegistrations: () => void = () => undefined;
 	const onRegisterSequence = (sequence: RegisteredSequence) => {
 		registeredSequences.push(sequence);
+		pendingRegistrationStacks.delete(sequence.getStack() ?? '');
+		if (pendingRegistrationStacks.size === 0) {
+			resolveRegistrations();
+		}
 	};
 
 	const renderTransitionSeries = ({
@@ -299,6 +305,14 @@ test('TransitionSeries.Sequence timing overrides cascade to later sequences', as
 		propStatuses: PropStatuses;
 		dragOverrides: DragOverrides;
 	}) => {
+		pendingRegistrationStacks = new Set([
+			firstStack,
+			secondStack,
+			transitionStack,
+		]);
+		const registrations = new Promise<void>((resolve) => {
+			resolveRegistrations = resolve;
+		});
 		root.render(
 			<SequenceTestWrapper
 				frame={7}
@@ -328,14 +342,14 @@ test('TransitionSeries.Sequence timing overrides cascade to later sequences', as
 				</TransitionSeries>
 			</SequenceTestWrapper>,
 		);
+		return registrations;
 	};
 
-	renderTransitionSeries({
+	await renderTransitionSeries({
 		overrideIdToNodePathMappings: {},
 		propStatuses: {},
 		dragOverrides: {},
 	});
-	await new Promise((resolve) => setTimeout(resolve, 10));
 
 	const firstSequence = registeredSequences.find(
 		(sequence) => sequence.getStack() === firstStack,
@@ -382,10 +396,9 @@ test('TransitionSeries.Sequence timing overrides cascade to later sequences', as
 		},
 	});
 
-	renderTransitionSeries(
+	await renderTransitionSeries(
 		makeTimingOverride({durationInFrames: 7, trimBefore: 5}),
 	);
-	await new Promise((resolve) => setTimeout(resolve, 10));
 
 	const updatedFirstSequence = registeredSequences.findLast(
 		(sequence) => sequence.getStack() === firstStack,
@@ -406,10 +419,9 @@ test('TransitionSeries.Sequence timing overrides cascade to later sequences', as
 	expect(updatedSecondSequence?.from).toBe(2);
 
 	registeredSequences.length = 0;
-	renderTransitionSeries(
+	await renderTransitionSeries(
 		makeTimingOverride({durationInFrames: 18, trimBefore: 7}),
 	);
-	await new Promise((resolve) => setTimeout(resolve, 10));
 
 	const repeatedlyUpdatedFirstSequence = registeredSequences.find(
 		(sequence) => sequence.getStack() === firstStack,

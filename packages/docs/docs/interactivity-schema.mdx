@@ -39,6 +39,12 @@ Keys may use dot notation. For example, a key named `style.opacity` reads from a
 
 Timeline props inherited from [`<Sequence>`](/docs/sequence): [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
 
+### `Interactive.captionsSchema`<AvailableFrom v="4.0.500" />
+
+A `captions` field for components that accept [`Caption[]`](/docs/captions/caption) data. It enables the captions inspector and is not keyframable.
+
+This schema fragment is headless: it does not render an element or add layout, transform, or text-style controls. Add other `Interactive` schema fragments only when the component renders and supports those props.
+
 ### `Interactive.transformSchema`
 
 Transform-related style props: `style.transformOrigin`, `style.translate`, `style.scale`, `style.rotate` and `style.opacity`.
@@ -100,6 +106,10 @@ Shows a select control. Each variant can define its own nested `InteractivitySch
 ### `array`
 
 Shows a list of values. Array fields are not keyframable.
+
+### `remotion-captions`<AvailableFrom v="4.0.500" />
+
+Marks a prop containing [`Caption[]`](/docs/captions/caption) data for the captions inspector. Caption fields are not keyframable.
 
 ### `rotation-css`
 

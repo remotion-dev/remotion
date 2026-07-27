@@ -30,6 +30,7 @@ import {
 } from '../../helpers/timeline-layout';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {ModalsContext} from '../../state/modals';
+import {useTimelineSequenceHover} from '../../state/timeline-sequence-hover';
 import {callApi} from '../call-api';
 import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
 import {useConfirmationDialog} from '../ConfirmationDialog';
@@ -260,6 +261,8 @@ export const TimelineSequenceItem: React.FC<{
 	siblingIndex,
 }) => {
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
+	const {hovered, onPointerEnter, onPointerLeave} =
+		useTimelineSequenceHover(nodePathInfo);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
@@ -1173,6 +1176,7 @@ export const TimelineSequenceItem: React.FC<{
 			onSelect={onSelect}
 			showSelectedBackground
 			containsSelection={containsSelection}
+			hovered={hovered}
 			outerHeight={outerHeight}
 			onDragLeave={canDropEffect ? onEffectDragLeave : undefined}
 			onDragOver={canDropEffect ? onEffectDragOver : undefined}
@@ -1180,6 +1184,8 @@ export const TimelineSequenceItem: React.FC<{
 			onDoubleClick={
 				canHandleSequenceDoubleClick ? onSequenceDoubleClick : undefined
 			}
+			onPointerEnter={onPointerEnter}
+			onPointerLeave={onPointerLeave}
 		>
 			<div style={labelContainerStyle}>
 				{connectedCompositions.length > 0 ? (

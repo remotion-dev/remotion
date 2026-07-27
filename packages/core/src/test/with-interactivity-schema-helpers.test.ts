@@ -15,6 +15,7 @@ import {
 	backgroundSchema,
 	baseSchema,
 	borderSchema,
+	captionsSchema,
 	cropSchema,
 	extendSchemaWithSequenceName,
 	premountSchema,
@@ -101,6 +102,18 @@ test('cropSchema is reusable and supported components opt into it', () => {
 	}
 
 	expect('cropLeft' in baseSchema).toBe(false);
+});
+
+test('captionsSchema is reusable', () => {
+	expect(Interactive.captionsSchema).toBe(captionsSchema);
+	expect(captionsSchema).toEqual({
+		captions: {
+			type: 'remotion-captions',
+			default: undefined,
+			description: 'Captions',
+			keyframable: false,
+		},
+	});
 });
 
 test('baseSchema exposes common timeline fields', () => {

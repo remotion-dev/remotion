@@ -5,6 +5,7 @@ import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
 } from '../../helpers/timeline-layout';
+import {useTimelineSequenceHover} from '../../state/timeline-sequence-hover';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {TimelineExpandedTrackKeyframes} from './TimelineExpandedTrackKeyframes';
 import {
@@ -21,8 +22,12 @@ const TimelineTrackUnmemoized: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewServerConnected = previewServerState.type === 'connected';
 	const timelineWidth = useContext(TimelineWidthContext);
+	const {hovered, onPointerEnter, onPointerLeave} = useTimelineSequenceHover(
+		track.nodePathInfo,
+	);
 	const rowHighlightBackground = useTimelineRowHighlightBackground(
 		track.nodePathInfo,
+		hovered,
 	);
 
 	const layerStyle = useMemo(
@@ -40,7 +45,7 @@ const TimelineTrackUnmemoized: React.FC<{
 		getIsExpanded(track.nodePathInfo);
 
 	return (
-		<div>
+		<div onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave}>
 			<div style={layerStyle}>
 				{rowHighlightBackground && timelineWidth !== null ? (
 					<div
