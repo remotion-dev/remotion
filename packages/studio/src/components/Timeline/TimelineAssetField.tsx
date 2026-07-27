@@ -1,4 +1,4 @@
-import React, {createContext, useCallback, useContext} from 'react';
+import React, {createContext, useCallback, useContext, useMemo} from 'react';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import type {
@@ -20,12 +20,16 @@ const penIcon: React.CSSProperties = {
 	width: 14,
 };
 
+export type InspectorSourceAction = Omit<InspectorInlineActionProps, 'variant'>;
+
 type AssetSelectionContextValue = {
 	readonly initialQuery: string;
-	readonly sourceAction: Omit<InspectorInlineActionProps, 'variant'> | null;
+	readonly getSourceAction: (src: string) => InspectorSourceAction | null;
+	readonly sourceAction: InspectorSourceAction | null;
 };
 
 export const AssetSelectionContext = createContext<AssetSelectionContextValue>({
+	getSourceAction: () => null,
 	initialQuery: '',
 	sourceAction: null,
 });
@@ -48,6 +52,7 @@ type TimelineAssetFieldProps = {
 
 export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 	field,
+	effectiveValue,
 	propStatus,
 	onSave,
 	onDragValueChange,
@@ -58,8 +63,18 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 	}
 
 	const {setSelectedModal} = useContext(ModalsContext);
-	const {initialQuery, sourceAction} = useContext(AssetSelectionContext);
-	const inlineSourceAction = field.key === 'src' ? sourceAction : null;
+	const {getSourceAction, initialQuery, sourceAction} = useContext(
+		AssetSelectionContext,
+	);
+	const inlineSourceAction = useMemo(() => {
+		if (field.key !== 'src') {
+			return null;
+		}
+
+		return typeof effectiveValue === 'string'
+			? getSourceAction(effectiveValue)
+			: sourceAction;
+	}, [effectiveValue, field.key, getSourceAction, sourceAction]);
 
 	const onSelect = useCallback(
 		(assetName: string, previewValue: string) => {

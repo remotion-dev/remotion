@@ -256,6 +256,16 @@ test('asset selections serialize to staticFile source tokens', () => {
 	);
 });
 
+test('timeline asset links resolve staticFile source tokens', () => {
+	expect(
+		getTimelineAssetLinkInfo('remotion-file:folder%20name/video%20%231.mp4'),
+	).toEqual({
+		kind: 'local',
+		assetPath: 'folder name/video #1.mp4',
+		title: 'folder name/video #1.mp4',
+	});
+});
+
 test('timeline local asset links select the asset and push the asset route', () => {
 	const pushedUrls: (string | URL | null | undefined)[] = [];
 	installTestWindow({

@@ -25,7 +25,10 @@ import {
 	openTimelineAssetLink,
 	splitRemoteSourceForMiddleEllipsis,
 } from './Timeline/timeline-asset-link';
-import {AssetSelectionContext} from './Timeline/TimelineAssetField';
+import {
+	AssetSelectionContext,
+	type InspectorSourceAction,
+} from './Timeline/TimelineAssetField';
 import {TimelineExpandedRow} from './Timeline/TimelineExpandedRow';
 import {
 	INSPECTOR_TIMELINE_ROW_LAYOUT,
@@ -222,75 +225,61 @@ export const InspectorSequenceSection: React.FC<{
 	const {setSelectedModal} = useContext(ModalsContext);
 	const selectAsset = useSelectAsset();
 	const mediaSrc = getTimelineAssetSrcFromSchema(sequence.controls);
-	const assetLinkInfo = useMemo(
-		() => (mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null),
-		[mediaSrc],
-	);
-	const localAsset = assetLinkInfo?.kind === 'local' ? assetLinkInfo : null;
-	const remoteAsset = assetLinkInfo?.kind === 'remote' ? assetLinkInfo : null;
-	const remoteSourceParts = useMemo(
-		() =>
-			remoteAsset ? splitRemoteSourceForMiddleEllipsis(remoteAsset.href) : null,
-		[remoteAsset],
-	);
-	const jumpToAsset = useCallback(() => {
-		if (localAsset) {
-			openTimelineAssetLink(localAsset, selectAsset);
-		}
-	}, [localAsset, selectAsset]);
-	const localAssetFileName = localAsset
-		? (localAsset.assetPath.split('/').pop() ?? localAsset.assetPath)
-		: null;
 	const assetSelectionInitialQuery = getAssetSearchQueryForComponent(
 		sequence.controls.componentIdentity,
 	);
-	const sourceAction = useMemo(() => {
-		if (localAsset) {
-			return {
-				children: localAssetFileName,
-				disabled: false,
-				onClick: jumpToAsset,
-				renderIcon: (color: string) => (
-					<AssetFileIcon
-						color={color}
-						fileType={getPreviewFileType(localAsset.assetPath)}
-						style={assetSelectorIcon}
-					/>
-				),
-				title: localAsset.assetPath,
-			};
-		}
+	const getSourceAction = useCallback(
+		(src: string): InspectorSourceAction | null => {
+			const linkInfo = getTimelineAssetLinkInfo(src);
+			if (linkInfo?.kind === 'local') {
+				const fileName =
+					linkInfo.assetPath.split('/').pop() ?? linkInfo.assetPath;
 
-		if (remoteAsset && remoteSourceParts) {
-			return {
-				children: (
-					<span style={remoteSourcePartsContainer}>
-						<span style={remoteSourceLeading}>{remoteSourceParts.leading}</span>
-						<span style={remoteSourceTrailing}>
-							{remoteSourceParts.trailing}
+				return {
+					children: fileName,
+					disabled: false,
+					onClick: () => openTimelineAssetLink(linkInfo, selectAsset),
+					renderIcon: (color: string) => (
+						<AssetFileIcon
+							color={color}
+							fileType={getPreviewFileType(linkInfo.assetPath)}
+							style={assetSelectorIcon}
+						/>
+					),
+					title: linkInfo.assetPath,
+				};
+			}
+
+			if (linkInfo?.kind === 'remote') {
+				const parts = splitRemoteSourceForMiddleEllipsis(linkInfo.href);
+
+				return {
+					children: (
+						<span style={remoteSourcePartsContainer}>
+							<span style={remoteSourceLeading}>{parts.leading}</span>
+							<span style={remoteSourceTrailing}>{parts.trailing}</span>
 						</span>
-					</span>
-				),
-				disabled: false,
-				onClick: null,
-				title: remoteAsset.href,
-			};
-		}
+					),
+					disabled: false,
+					onClick: null,
+					title: linkInfo.href,
+				};
+			}
 
-		return null;
-	}, [
-		jumpToAsset,
-		localAsset,
-		localAssetFileName,
-		remoteAsset,
-		remoteSourceParts,
-	]);
+			return null;
+		},
+		[selectAsset],
+	);
+	const sourceAction = useMemo(() => {
+		return mediaSrc ? getSourceAction(mediaSrc) : null;
+	}, [getSourceAction, mediaSrc]);
 	const assetSelectionContextValue = useMemo(
 		() => ({
+			getSourceAction,
 			initialQuery: assetSelectionInitialQuery,
 			sourceAction,
 		}),
-		[assetSelectionInitialQuery, sourceAction],
+		[assetSelectionInitialQuery, getSourceAction, sourceAction],
 	);
 
 	const getIsExpanded = useCallback(
