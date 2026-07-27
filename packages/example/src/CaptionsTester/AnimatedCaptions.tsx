@@ -164,7 +164,7 @@ const AnimatedCaptionsInner = forwardRef<
 export const AnimatedCaptions = Interactive.withSchema({
 	Component: AnimatedCaptionsInner,
 	componentName: '<AnimatedCaptions>',
-	componentIdentity: 'dev.remotion.example.AnimatedCaptions',
+	componentIdentity: null,
 	schema: animatedCaptionsSchema,
 	supportsEffects: false,
 });
