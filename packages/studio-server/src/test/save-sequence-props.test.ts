@@ -21,6 +21,15 @@ import {
 } from '../preview-server/undo-stack';
 import {lineColumnToNodePath} from './test-utils';
 
+const captionsSchema = {
+	captions: {
+		type: 'captions',
+		default: undefined,
+		description: 'Captions',
+		keyframable: false,
+	},
+} satisfies InteractivitySchema;
+
 const starSchema = {
 	points: {
 		type: 'number',
@@ -309,6 +318,105 @@ export const Comp = () => {
 
 		expect(popUndo()).toEqual({success: true});
 		expect(readFileSync(filePath, 'utf-8')).toBe(input);
+	} finally {
+		clearUndoStackForTests();
+		cleanupLiveEvents();
+		cleanupFileWatcher();
+		rmSync(dir, {force: true, recursive: true});
+	}
+});
+
+test('saveSequenceProps updates a directly imported caption module', async () => {
+	clearUndoStackForTests();
+	const cleanupFileWatcher = setFileWatcherRegistry(
+		createFileWatcherRegistry(),
+	);
+	const cleanupLiveEvents = setLiveEventsListener({
+		addNewClientListener: () => () => undefined,
+		closeConnections: () => Promise.resolve(),
+		router: () => Promise.resolve(),
+		sendEventToClient: () => undefined,
+		sendEventToClientId: () => true,
+	});
+	const dir = mkdtempSync(join(tmpdir(), 'remotion-save-imported-captions-'));
+	const fileName = 'Comp.tsx';
+	const filePath = join(dir, fileName);
+	const captionPath = join(dir, 'captions.ts');
+	const input = `import {Sequence} from 'remotion';
+import {captions as voiceoverCaptions} from './captions';
+
+export const Comp = () => <Sequence captions={voiceoverCaptions} />;
+`;
+	const captionInput = `export const captions = [
+	{
+		text: 'First',
+		startMs: 0,
+		endMs: 1000,
+		timestampMs: 500,
+		confidence: null,
+	},
+] as const;
+`;
+	const nodePath = {
+		absolutePath: fileName,
+		nodePath: lineColumnToNodePath(input, 4),
+		sequenceKeys: ['captions'],
+		effectKeys: [],
+		videoConfigValues: null,
+	};
+
+	try {
+		writeFileSync(filePath, input);
+		writeFileSync(captionPath, captionInput);
+
+		await saveSequencePropsHandler({
+			input: {
+				addedKeyframes: null,
+				edits: [],
+				captionPatches: [
+					{
+						fileName,
+						nodePath,
+						schema: captionsSchema,
+						patches: [
+							{
+								index: 0,
+								before: {
+									text: 'First',
+									startMs: 0,
+									endMs: 1000,
+									timestampMs: 500,
+									confidence: null,
+								},
+								changes: {text: 'Updated'},
+							},
+						],
+					},
+				],
+				movedKeyframes: null,
+				clientId: 'test-client',
+				undoLabel: 'Update captions',
+				redoLabel: 'Update captions again',
+			},
+			entryPoint: '',
+			remotionRoot: dir,
+			request: {} as never,
+			response: {} as never,
+			logLevel: 'error',
+			methods: {
+				addJob: () => undefined,
+				cancelJob: () => undefined,
+				removeJob: () => undefined,
+			},
+			publicDir: '',
+			binariesDirectory: null,
+		});
+
+		expect(readFileSync(filePath, 'utf-8')).toBe(input);
+		expect(readFileSync(captionPath, 'utf-8')).toContain("text: 'Updated'");
+		expect(getUndoStack()).toHaveLength(1);
+		expect(popUndo()).toEqual({success: true});
+		expect(readFileSync(captionPath, 'utf-8')).toBe(captionInput);
 	} finally {
 		clearUndoStackForTests();
 		cleanupLiveEvents();

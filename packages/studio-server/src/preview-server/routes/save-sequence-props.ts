@@ -11,6 +11,9 @@ import type {
 	SaveSequencePropsResult,
 } from '@remotion/studio-shared';
 import {getAllSchemaKeys, getAssetSchemaKeys} from '@remotion/studio-shared';
+import {parseAst} from '../../codemods/parse-ast';
+import {resolveImportedCaptions} from '../../codemods/resolve-imported-captions';
+import {updateImportedCaptionPatches} from '../../codemods/update-imported-caption-patches';
 import {updateInlineCaptionPatches} from '../../codemods/update-inline-caption-patches';
 import {
 	updateEffectKeyframes,
@@ -30,7 +33,10 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
-import {computeSequencePropsStatusFromContent} from './can-update-sequence-props';
+import {
+	computeSequencePropsStatusFromContent,
+	findJsxElementNodeAtNodePath,
+} from './can-update-sequence-props';
 import {logEffectUpdate} from './log-updates/log-effect-update';
 import {logUpdate} from './log-updates/log-update';
 import {withSourceFileWriteQueue} from './source-file-write-queue';
@@ -48,10 +54,15 @@ type ResolvedSequencePropEdit = {
 	sourceEdit: SaveSequencePropEdit['sourceEdit'];
 };
 
+type ResolvedCaptionPatchRequest = {
+	readonly request: SaveInlineCaptionPatchesRequest;
+	readonly importedExportName: string | null;
+};
+
 type SequencePropEditGroup = {
 	fileRelativeToRoot: string;
 	edits: ResolvedSequencePropEdit[];
-	captionPatches: SaveInlineCaptionPatchesRequest[];
+	captionPatches: ResolvedCaptionPatchRequest[];
 	addedKeyframes: AddSequenceKeyframe[];
 	movedSequenceKeyframes: ResolvedSequenceKeyframe[];
 	effectKeyframes: ResolvedEffectKeyframe[];
@@ -249,21 +260,38 @@ export const saveSequencePropsHandler: ApiHandler<
 		}
 
 		for (const captionPatch of captionPatches) {
-			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
+			const owner = resolveFileInsideProject({
 				remotionRoot,
 				fileName: captionPatch.fileName,
 				action: 'modify',
 			});
-			const group = editGroups.get(absolutePath) ?? {
-				fileRelativeToRoot,
+			const ownerAst = parseAst(readFileSync(owner.absolutePath, 'utf-8'));
+			const jsxElement = findJsxElementNodeAtNodePath(
+				ownerAst,
+				captionPatch.nodePath.nodePath,
+			)?.openingElement;
+			const importedCaptions = jsxElement
+				? resolveImportedCaptions({
+						ownerAst,
+						jsxElement,
+						ownerAbsolutePath: owner.absolutePath,
+						remotionRoot,
+					})
+				: null;
+			const target = importedCaptions ?? owner;
+			const group = editGroups.get(target.absolutePath) ?? {
+				fileRelativeToRoot: target.fileRelativeToRoot,
 				edits: [],
 				captionPatches: [],
 				addedKeyframes: [],
 				movedSequenceKeyframes: [],
 				effectKeyframes: [],
 			};
-			group.captionPatches.push(captionPatch);
-			editGroups.set(absolutePath, group);
+			group.captionPatches.push({
+				request: captionPatch,
+				importedExportName: importedCaptions?.exportName ?? null,
+			});
+			editGroups.set(target.absolutePath, group);
 		}
 
 		for (const keyframe of keyframesToAdd) {
@@ -323,6 +351,11 @@ export const saveSequencePropsHandler: ApiHandler<
 			editGroups.set(absolutePath, group);
 		}
 
+		const hasImportedCaptionPatches = [...editGroups.values()].some((group) =>
+			group.captionPatches.some(
+				(captionPatch) => captionPatch.importedExportName !== null,
+			),
+		);
 		const snapshots: SequencePropUndoSnapshot[] = [];
 		const outputByPath = new Map<string, string>();
 		const resultByIndex = new Map<number, SequencePropEditResult>();
@@ -362,12 +395,20 @@ export const saveSequencePropsHandler: ApiHandler<
 				}
 			}
 
-			for (const captionPatchRequest of group.captionPatches) {
-				const result = updateInlineCaptionPatches({
-					input: output,
-					nodePath: captionPatchRequest.nodePath.nodePath,
-					patches: captionPatchRequest.patches,
-				});
+			for (const captionPatch of group.captionPatches) {
+				const {request: captionPatchRequest, importedExportName} = captionPatch;
+				const result =
+					importedExportName === null
+						? updateInlineCaptionPatches({
+								input: output,
+								nodePath: captionPatchRequest.nodePath.nodePath,
+								patches: captionPatchRequest.patches,
+							})
+						: updateImportedCaptionPatches({
+								input: output,
+								exportName: importedExportName,
+								patches: captionPatchRequest.patches,
+							});
 				output = result.output;
 				firstLogLine = Math.min(firstLogLine, result.logLine);
 				for (const [index, patch] of captionPatchRequest.patches.entries()) {
@@ -553,7 +594,9 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		const undoMessage = `↩️  ${undoLabel}`;
 		const redoMessage = `↪️  ${redoLabel}`;
-		const suppressHmr = shouldSuppressHmrForSequencePropEdits(edits);
+		const suppressHmr =
+			!hasImportedCaptionPatches &&
+			shouldSuppressHmrForSequencePropEdits(edits);
 
 		pushTransactionToUndoStack({
 			snapshots,
@@ -657,10 +700,8 @@ export const saveSequencePropsHandler: ApiHandler<
 				fileName: target.fileName,
 				action: 'modify',
 			});
-			const output = outputByPath.get(absolutePath);
-			if (!output) {
-				throw new Error('Could not compute sequence prop edit status');
-			}
+			const output =
+				outputByPath.get(absolutePath) ?? readFileSync(absolutePath, 'utf-8');
 
 			const newStatus = computeSequencePropsStatusFromContent({
 				fileContents: output,
@@ -670,6 +711,7 @@ export const saveSequencePropsHandler: ApiHandler<
 				componentIdentity: null,
 				effects: [],
 				videoConfigValues: target.nodePath.videoConfigValues,
+				captionSourceContext: {ownerAbsolutePath: absolutePath, remotionRoot},
 			});
 
 			return {

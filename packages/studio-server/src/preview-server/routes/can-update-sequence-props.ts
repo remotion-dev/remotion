@@ -32,6 +32,7 @@ import type {
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {parseAst} from '../../codemods/parse-ast';
+import {resolveImportedCaptions} from '../../codemods/resolve-imported-captions';
 import {getCssShorthandForLonghand} from '../../helpers/css-shorthand-properties';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {toImportAgnosticNodePath} from '../../helpers/import-agnostic-node-path';
@@ -1176,6 +1177,7 @@ export const computeSequencePropsStatusFromContent = ({
 	assetKeys = [],
 	effects,
 	videoConfigValues,
+	captionSourceContext = null,
 }: {
 	fileContents: string;
 	nodePath: SequenceNodePath;
@@ -1184,6 +1186,10 @@ export const computeSequencePropsStatusFromContent = ({
 	assetKeys?: string[];
 	effects: string[][];
 	videoConfigValues: VideoConfigValues | null;
+	captionSourceContext?: {
+		readonly ownerAbsolutePath: string;
+		readonly remotionRoot: string;
+	} | null;
 }): CanUpdateSequencePropsResponseTrue => {
 	const ast = parseAst(fileContents);
 	const videoConfigIdentifierValues = getVideoConfigIdentifierValues({
@@ -1215,6 +1221,18 @@ export const computeSequencePropsStatusFromContent = ({
 		assetKeys,
 		videoConfigValues: videoConfigIdentifierValues,
 	});
+	if (captionSourceContext !== null && keys.includes('captions')) {
+		const importedCaptions = resolveImportedCaptions({
+			ownerAst: ast,
+			jsxElement,
+			ownerAbsolutePath: captionSourceContext.ownerAbsolutePath,
+			remotionRoot: captionSourceContext.remotionRoot,
+		});
+		if (importedCaptions !== null) {
+			filteredProps.captions = staticStatus(importedCaptions.captions, null);
+		}
+	}
+
 	const effectsStatuses = computeEffectsForJsx({
 		ast,
 		jsxElement,
@@ -1263,6 +1281,7 @@ export const computeSequencePropsStatus = ({
 		assetKeys,
 		effects,
 		videoConfigValues,
+		captionSourceContext: {ownerAbsolutePath: absolutePath, remotionRoot},
 	});
 };
 

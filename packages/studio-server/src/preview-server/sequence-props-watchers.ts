@@ -1,3 +1,4 @@
+import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
@@ -10,6 +11,8 @@ import type {
 	SequenceNodePath,
 	VideoConfigValues,
 } from 'remotion';
+import {parseAst} from '../codemods/parse-ast';
+import {resolveImportedCaptions} from '../codemods/resolve-imported-captions';
 import {installFileWatcher} from '../file-watcher';
 import {JsxElementIdentityMismatchError} from './jsx-component-identity';
 import {JsxElementNotFoundAtLocationError} from './jsx-element-not-found-at-location-error';
@@ -19,6 +22,7 @@ import {
 	computeSequencePropsStatus,
 	computeSequencePropsStatusFromContent,
 	computeSequencePropsStatusFromFilenameByLine,
+	findJsxElementNodeAtNodePath,
 } from './routes/can-update-sequence-props';
 
 type WatcherInfo = {
@@ -217,6 +221,7 @@ export const subscribeToSequencePropsWatchers = ({
 		return initialResult;
 	}
 
+	let unwatchImportedCaptions: (() => void) | null = null;
 	const {unwatch} = installFileWatcher({
 		file: absolutePath,
 		existenceOnly: false,
@@ -238,6 +243,7 @@ export const subscribeToSequencePropsWatchers = ({
 					assetKeys,
 					effects,
 					videoConfigValues,
+					captionSourceContext: {ownerAbsolutePath: absolutePath, remotionRoot},
 				});
 				const previousEffectChain = result.effects.map(
 					(effect) => effect.canUpdate && effect.callee,
@@ -284,11 +290,68 @@ export const subscribeToSequencePropsWatchers = ({
 		},
 	});
 
+	const ownerAst = parseAst(readFileSync(absolutePath, 'utf-8'));
+	const jsxElement = findJsxElementNodeAtNodePath(
+		ownerAst,
+		nodePath.nodePath,
+	)?.openingElement;
+	const importedCaptions = jsxElement
+		? resolveImportedCaptions({
+				ownerAst,
+				jsxElement,
+				ownerAbsolutePath: absolutePath,
+				remotionRoot,
+			})
+		: null;
+	if (
+		importedCaptions !== null &&
+		importedCaptions.absolutePath !== absolutePath
+	) {
+		const watcher = installFileWatcher({
+			file: importedCaptions.absolutePath,
+			existenceOnly: false,
+			onChange: () => {
+				try {
+					const result = computeSequencePropsStatusFromContent({
+						fileContents: readFileSync(absolutePath, 'utf-8'),
+						nodePath: nodePath.nodePath,
+						componentIdentity,
+						keys,
+						assetKeys,
+						effects,
+						videoConfigValues,
+						captionSourceContext: {
+							ownerAbsolutePath: absolutePath,
+							remotionRoot,
+						},
+					});
+					waitForLiveEventsListener().then((listener) => {
+						listener.sendEventToClientId(clientId, {
+							type: 'sequence-props-updated',
+							fileName,
+							nodePath,
+							result,
+						});
+					});
+				} catch (error) {
+					RenderInternals.Log.error({indent: false, logLevel}, error);
+				}
+			},
+		});
+		unwatchImportedCaptions = watcher.unwatch;
+	}
+
 	if (!sequencePropsWatchers[clientId]) {
 		sequencePropsWatchers[clientId] = {};
 	}
 
-	sequencePropsWatchers[clientId][watcherKey] = {unwatch, refCount: 1};
+	sequencePropsWatchers[clientId][watcherKey] = {
+		unwatch: () => {
+			unwatch();
+			unwatchImportedCaptions?.();
+		},
+		refCount: 1,
+	};
 
 	return initialResult;
 };
