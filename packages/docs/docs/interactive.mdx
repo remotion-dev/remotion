@@ -129,9 +129,11 @@ Use it for components that accept a `style` prop and render a CSS background.
 
 Controls for border-related style props:
 
-`style.borderWidth`, `style.borderStyle` and `style.borderColor`.
+`style.borderWidth`, `style.borderStyle`, `style.borderColor`, `style.borderTopLeftRadius`, `style.borderTopRightRadius`, `style.borderBottomRightRadius` and `style.borderBottomLeftRadius`.
 
 The longhand properties are used rather than the `border` shorthand, because React does not expand shorthands. This lets each control read its own value, and allows `style.borderWidth` and `style.borderColor` to be animated.
+
+The corner radius controls are available from <AvailableFrom v="4.0.500" inline />. When `style.borderRadius` is a number or contains one to four pixel values, the Studio expands it into the four longhand properties when you edit a corner. Complex values such as percentages and elliptical radii are not editable.
 
 Use it for components that accept a `style` prop and render a border.
 

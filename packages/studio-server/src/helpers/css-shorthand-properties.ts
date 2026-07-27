@@ -1,4 +1,5 @@
 import {parseBackgroundShorthand} from './parse-background-shorthand';
+import {parseBorderRadiusShorthand} from './parse-border-radius-shorthand';
 import {parseBorderShorthand} from './parse-border-shorthand';
 
 type ParsedCssShorthand = Readonly<Record<string, string | number>>;
@@ -7,7 +8,7 @@ export type CssShorthandProperty = {
 	readonly parentKey: string;
 	readonly shorthand: string;
 	readonly longhands: readonly string[];
-	readonly parse: (value: string) => ParsedCssShorthand | null;
+	readonly parse: (value: unknown) => ParsedCssShorthand | null;
 	readonly isUnsupportedProperty: (propertyName: string) => boolean;
 };
 
@@ -18,9 +19,24 @@ const borderShorthand = {
 	parentKey: 'style',
 	shorthand: 'border',
 	longhands: ['borderWidth', 'borderStyle', 'borderColor'],
-	parse: parseBorderShorthand,
+	parse: (value) =>
+		typeof value === 'string' ? parseBorderShorthand(value) : null,
 	isUnsupportedProperty: (propertyName: string) =>
 		borderSidePropertyRegex.test(propertyName),
+} as const satisfies CssShorthandProperty;
+
+const borderRadiusShorthand = {
+	parentKey: 'style',
+	shorthand: 'borderRadius',
+	longhands: [
+		'borderTopLeftRadius',
+		'borderTopRightRadius',
+		'borderBottomRightRadius',
+		'borderBottomLeftRadius',
+	],
+	parse: parseBorderRadiusShorthand,
+	isUnsupportedProperty: (propertyName: string) =>
+		/^border(?:StartStart|StartEnd|EndStart|EndEnd)Radius$/.test(propertyName),
 } as const satisfies CssShorthandProperty;
 
 const backgroundShorthand = {
@@ -36,13 +52,15 @@ const backgroundShorthand = {
 		'backgroundClip',
 		'backgroundAttachment',
 	],
-	parse: parseBackgroundShorthand,
+	parse: (value) =>
+		typeof value === 'string' ? parseBackgroundShorthand(value) : null,
 	isUnsupportedProperty: () => false,
 } as const satisfies CssShorthandProperty;
 
 export const cssShorthandProperties = [
 	backgroundShorthand,
 	borderShorthand,
+	borderRadiusShorthand,
 ] as const satisfies readonly CssShorthandProperty[];
 
 export const getCssShorthandForLonghand = ({

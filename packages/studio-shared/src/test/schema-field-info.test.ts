@@ -312,6 +312,17 @@ test('groups Sequence crop controls into the Crop inspector section', () => {
 	).toEqual(['crop', 'crop', 'crop', 'crop']);
 });
 
+test('groups border radius controls into the Border inspector section', () => {
+	expect(
+		[
+			'style.borderTopLeftRadius',
+			'style.borderTopRightRadius',
+			'style.borderBottomRightRadius',
+			'style.borderBottomLeftRadius',
+		].map(getSchemaFieldGroup),
+	).toEqual(['border', 'border', 'border', 'border']);
+});
+
 test('groups Sequence layout controls into the final Layout inspector section', () => {
 	expect(['layout', 'premountFor'].map(getSchemaFieldGroup)).toEqual([
 		'layout',

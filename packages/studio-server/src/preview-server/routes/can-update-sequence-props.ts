@@ -1051,10 +1051,6 @@ const getNestedPropStatus = ({
 		const staticShorthandValue = extractStaticValue(shorthandValue, {
 			allowSpecialValues: false,
 		});
-		if (typeof staticShorthandValue !== 'string') {
-			return computedStatus();
-		}
-
 		const parsed = cssShorthand.parse(staticShorthandValue);
 		return parsed ? staticStatus(parsed[childKey], null) : computedStatus();
 	}

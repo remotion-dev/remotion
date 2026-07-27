@@ -168,6 +168,110 @@ export const Example = () => {
 	});
 });
 
+test('computeSequencePropsStatus should expand static border radius shorthands', () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return (
+		<>
+			<AbsoluteFill style={{borderRadius: 12}} />
+			<AbsoluteFill style={{borderRadius: '10px 20px 30px 40px'}} />
+		</>
+	);
+};
+`;
+	const keys = [
+		'style.borderTopLeftRadius',
+		'style.borderTopRightRadius',
+		'style.borderBottomRightRadius',
+		'style.borderBottomLeftRadius',
+	];
+	const numeric = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 6),
+		componentIdentity: null,
+		keys,
+		effects: [],
+		videoConfigValues: null,
+	});
+	const pixelValues = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
+		keys,
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(numeric.props).toMatchObject({
+		'style.borderTopLeftRadius': {status: 'static', codeValue: 12},
+		'style.borderTopRightRadius': {status: 'static', codeValue: 12},
+		'style.borderBottomRightRadius': {status: 'static', codeValue: 12},
+		'style.borderBottomLeftRadius': {status: 'static', codeValue: 12},
+	});
+	expect(pixelValues.props).toMatchObject({
+		'style.borderTopLeftRadius': {status: 'static', codeValue: 10},
+		'style.borderTopRightRadius': {status: 'static', codeValue: 20},
+		'style.borderBottomRightRadius': {status: 'static', codeValue: 30},
+		'style.borderBottomLeftRadius': {status: 'static', codeValue: 40},
+	});
+});
+
+test('computeSequencePropsStatus should not guess complex border radius shorthands', () => {
+	for (const borderRadius of ["'50%'", "'10px / 20px'", 'radius']) {
+		const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = ({radius}: {radius: string}) => {
+	return <AbsoluteFill style={{borderRadius: ${borderRadius}}} />;
+};
+`;
+		const result = computeSequencePropsStatusFromContent({
+			fileContents: input,
+			nodePath: getNodePathFromContent(input, 4),
+			componentIdentity: null,
+			keys: ['style.borderTopLeftRadius'],
+			effects: [],
+			videoConfigValues: null,
+		});
+
+		expect(result.props['style.borderTopLeftRadius']).toEqual({
+			status: 'computed',
+		});
+	}
+});
+
+test('computeSequencePropsStatus should respect border radius property order', () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return (
+		<>
+			<AbsoluteFill style={{borderTopLeftRadius: 8, borderRadius: 2}} />
+			<AbsoluteFill style={{borderRadius: 2, borderTopLeftRadius: 8}} />
+		</>
+	);
+};
+`;
+	const getStatus = (line: number) =>
+		computeSequencePropsStatusFromContent({
+			fileContents: input,
+			nodePath: getNodePathFromContent(input, line),
+			componentIdentity: null,
+			keys: ['style.borderTopLeftRadius'],
+			effects: [],
+			videoConfigValues: null,
+		});
+
+	expect(getStatus(6).props['style.borderTopLeftRadius']).toEqual({
+		status: 'static',
+		codeValue: 2,
+	});
+	expect(getStatus(7).props['style.borderTopLeftRadius']).toEqual({
+		status: 'static',
+		codeValue: 8,
+	});
+});
+
 test('computeSequencePropsStatus should not guess a dynamic border shorthand', () => {
 	const input = `import {AbsoluteFill} from 'remotion';
 

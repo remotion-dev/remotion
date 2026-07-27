@@ -111,6 +111,37 @@ export const Example = () => {
 	expect(oldValueStrings).toEqual(['2']);
 });
 
+test('updateSequenceProps should migrate border radius shorthand to longhands', async () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return <AbsoluteFill style={{borderRadius: 12, opacity: 0.5}} />;
+};
+`;
+	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, 4),
+		updates: [
+			{
+				key: 'style.borderTopRightRadius',
+				value: 20,
+				defaultValue: undefined,
+			},
+		],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+	});
+
+	expect(output).not.toContain('borderRadius: 12');
+	expect(output).toContain('borderTopLeftRadius: 12');
+	expect(output).toContain('borderTopRightRadius: 20');
+	expect(output).toContain('borderBottomRightRadius: 12');
+	expect(output).toContain('borderBottomLeftRadius: 12');
+	expect(output).toContain('opacity: 0.5');
+	expect(oldValueStrings).toEqual(['12']);
+});
+
 test('updateSequenceProps should migrate a color-only background shorthand', async () => {
 	const input = `import {AbsoluteFill} from 'remotion';
 

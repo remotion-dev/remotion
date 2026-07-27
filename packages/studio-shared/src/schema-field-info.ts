@@ -91,6 +91,10 @@ const CROP_FIELD_KEYS = new Set([
 ]);
 
 const BORDER_FIELD_KEYS = new Set([
+	'style.borderTopLeftRadius',
+	'style.borderTopRightRadius',
+	'style.borderBottomRightRadius',
+	'style.borderBottomLeftRadius',
 	'style.borderWidth',
 	'style.borderStyle',
 	'style.borderColor',

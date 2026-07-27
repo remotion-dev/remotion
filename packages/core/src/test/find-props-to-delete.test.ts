@@ -47,6 +47,10 @@ test('find right values to delete when upgrading a discriminated union', () => {
 		'style.borderWidth',
 		'style.borderStyle',
 		'style.borderColor',
+		'style.borderTopLeftRadius',
+		'style.borderTopRightRadius',
+		'style.borderBottomRightRadius',
+		'style.borderBottomLeftRadius',
 		'premountFor',
 		'postmountFor',
 	]);

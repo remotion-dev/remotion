@@ -365,6 +365,38 @@ export const borderSchema = {
 		default: undefined,
 		description: 'Border color',
 	},
+	'style.borderTopLeftRadius': {
+		type: 'number',
+		default: undefined,
+		min: 0,
+		step: 1,
+		description: 'Top left radius',
+		hiddenFromList: false,
+	},
+	'style.borderTopRightRadius': {
+		type: 'number',
+		default: undefined,
+		min: 0,
+		step: 1,
+		description: 'Top right radius',
+		hiddenFromList: false,
+	},
+	'style.borderBottomRightRadius': {
+		type: 'number',
+		default: undefined,
+		min: 0,
+		step: 1,
+		description: 'Bottom right radius',
+		hiddenFromList: false,
+	},
+	'style.borderBottomLeftRadius': {
+		type: 'number',
+		default: undefined,
+		min: 0,
+		step: 1,
+		description: 'Bottom left radius',
+		hiddenFromList: false,
+	},
 } as const satisfies InteractivitySchema;
 
 export const backgroundSchema = {
