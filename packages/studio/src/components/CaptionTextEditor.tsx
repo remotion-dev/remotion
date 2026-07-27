@@ -1,6 +1,6 @@
+import type {Caption} from '@remotion/captions';
 import React, {useCallback, useMemo, useRef} from 'react';
 import {BACKGROUND, LIGHT_TEXT, LINE_COLOR, WHITE} from '../helpers/colors';
-import type {CaptionData} from './caption-data';
 import {RemotionInput} from './NewComposition/RemInput';
 
 const container: React.CSSProperties = {
@@ -50,9 +50,9 @@ const formatMilliseconds = (milliseconds: number): number => {
 };
 
 export const CaptionTextEditor: React.FC<{
-	readonly captions: CaptionData[];
-	readonly onChange: (captions: CaptionData[]) => void;
-	readonly onSave: ((captions: CaptionData[]) => void) | null;
+	readonly captions: Caption[];
+	readonly onChange: (captions: Caption[]) => void;
+	readonly onSave: ((captions: Caption[]) => void) | null;
 	readonly readOnly: boolean;
 }> = ({captions, onChange, onSave, readOnly}) => {
 	const listRef = useRef<HTMLDivElement>(null);

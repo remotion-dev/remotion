@@ -1,3 +1,4 @@
+import type {Caption} from '@remotion/captions';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals, type TSequence} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
@@ -15,7 +16,6 @@ import {
 import {Plus} from '../icons/plus';
 import {ModalsContext} from '../state/modals';
 import {AssetFileIcon} from './AssetFileIcon';
-import {captionDataSchema} from './caption-data';
 import {InlineAction} from './InlineAction';
 import {InlineCaptionInspector} from './InlineCaptionInspector';
 import {InspectorSection} from './InspectorPanel/common';
@@ -365,8 +365,9 @@ export const InspectorSequenceSection: React.FC<{
 				? captionStatus.codeValue
 				: sequence.controls.currentRuntimeValueDotNotation.captions
 			: null;
-	const parsedCaptions = captionDataSchema.safeParse(inlineCaptionValue);
-	const inlineCaptions = parsedCaptions.success ? parsedCaptions.data : null;
+	const inlineCaptions = Array.isArray(inlineCaptionValue)
+		? (inlineCaptionValue as Caption[])
+		: null;
 	const showEffectsSection =
 		nodePathInfo.supportsEffects || effectRows.length > 0;
 	const canAddEffect =

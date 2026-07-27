@@ -1,3 +1,4 @@
+import type {Caption} from '@remotion/captions';
 import type {CaptionPatch} from '@remotion/studio-shared';
 import React, {
 	useCallback,
@@ -10,11 +11,10 @@ import type {SequenceControls, SequencePropsSubscriptionKey} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import type {CaptionData} from './caption-data';
 import {CaptionInspector} from './CaptionInspector';
 import {saveInlineCaptionPatches} from './Timeline/save-sequence-prop';
 
-const serializeCaptions = (captions: CaptionData[]): string => {
+const serializeCaptions = (captions: Caption[]): string => {
 	return JSON.stringify(captions);
 };
 
@@ -22,8 +22,8 @@ const getCaptionPatches = ({
 	previous,
 	next,
 }: {
-	previous: CaptionData[];
-	next: CaptionData[];
+	previous: Caption[];
+	next: Caption[];
 }): CaptionPatch[] | null => {
 	if (previous.length !== next.length) {
 		return null;
@@ -49,7 +49,7 @@ const getCaptionPatches = ({
 };
 
 export const InlineCaptionInspector: React.FC<{
-	readonly captions: CaptionData[];
+	readonly captions: Caption[];
 	readonly controls: SequenceControls;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly readOnlyStudio: boolean;
@@ -84,7 +84,7 @@ export const InlineCaptionInspector: React.FC<{
 	}, [captions, runtimeSignature]);
 
 	const saveCaptions = useCallback(
-		(nextCaptions: CaptionData[]) => {
+		(nextCaptions: Caption[]) => {
 			const patches = getCaptionPatches({
 				previous: savedCaptions.current,
 				next: nextCaptions,

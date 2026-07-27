@@ -1,6 +1,6 @@
+import type {Caption} from '@remotion/captions';
 import React from 'react';
 import {LIGHT_TEXT} from '../helpers/colors';
-import type {CaptionData} from './caption-data';
 import {CaptionTextEditor} from './CaptionTextEditor';
 import {
 	InspectorSectionDivider,
@@ -22,9 +22,9 @@ const readOnlyStatus: React.CSSProperties = {
 };
 
 export const CaptionInspector: React.FC<{
-	readonly captions: CaptionData[];
-	readonly onTextChange: (captions: CaptionData[]) => void;
-	readonly onTextSave: ((captions: CaptionData[]) => void) | null;
+	readonly captions: Caption[];
+	readonly onTextChange: (captions: Caption[]) => void;
+	readonly onTextSave: ((captions: Caption[]) => void) | null;
 	readonly readOnly: boolean;
 	readonly readOnlyTitle: string | null;
 }> = ({captions, onTextChange, onTextSave, readOnly, readOnlyTitle}) => {
