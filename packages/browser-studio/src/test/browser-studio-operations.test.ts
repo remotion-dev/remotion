@@ -31,7 +31,9 @@ test('adds a Solid to the blank Browser Studio project', () => {
 	const updated = insertSolid(project);
 	const composition = updated.files['/project/src/Composition.tsx'];
 
-	expect(composition).toContain("import {Solid} from 'remotion';");
+	expect(composition).toContain(
+		'import { CalculateMetadataFunction, Composition, Solid } from "remotion";',
+	);
 	expect(composition).toContain(
 		'<Solid width={1280} height={720} color="gray"',
 	);
@@ -44,9 +46,7 @@ test('adds multiple Solids without duplicating the import', () => {
 	const twice = insertSolid(once);
 	const composition = twice.files['/project/src/Composition.tsx'];
 
-	expect(composition.match(/import \{Solid\} from 'remotion';/g)).toHaveLength(
-		1,
-	);
+	expect(composition.match(/\bSolid\b/g)).toHaveLength(3);
 	expect(composition.match(/<Solid /g)).toHaveLength(2);
 });
 
@@ -136,7 +136,7 @@ registerRoot(Root);
 	const output = updated.files['/project/src/index.tsx'];
 
 	expect(output).toContain(
-		"import {Solid as RemotionSolid, Sequence as RemotionSequence} from 'remotion';",
+		"import {AbsoluteFill, Composition, registerRoot, Solid as RemotionSolid, Sequence as RemotionSequence} from 'remotion';",
 	);
 	expect(output).toContain('<RemotionSequence>');
 	expect(output).toContain('<RemotionSolid width={1280}');
