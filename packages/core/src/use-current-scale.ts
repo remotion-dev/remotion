@@ -24,8 +24,14 @@ export type CurrentScaleContextType =
 			canvasSize: Size;
 	  };
 
+type InternalCurrentScaleContextType =
+	| Extract<CurrentScaleContextType, {type: 'scale'}>
+	| (Extract<CurrentScaleContextType, {type: 'canvas-size'}> & {
+			canvasSizeForAuto: Size;
+	  });
+
 export const CurrentScaleContext =
-	React.createContext<CurrentScaleContextType | null>(null);
+	React.createContext<InternalCurrentScaleContextType | null>(null);
 
 type Options = {
 	dontThrowIfOutsideOfRemotion: boolean;
@@ -113,7 +119,7 @@ export const useCurrentScale = (options?: Options) => {
 	}
 
 	return calculateScale({
-		canvasSize: hasContext.canvasSize,
+		canvasSize: hasContext.canvasSizeForAuto,
 		compositionHeight: config.height,
 		compositionWidth: config.width,
 		previewSize: zoomContext.size.size,

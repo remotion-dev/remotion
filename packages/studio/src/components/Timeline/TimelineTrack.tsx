@@ -1,10 +1,11 @@
 import React, {useContext, useMemo} from 'react';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	getTimelineLayerHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
 } from '../../helpers/timeline-layout';
+import {useTimelineSequenceHover} from '../../state/timeline-sequence-hover';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {TimelineExpandedTrackKeyframes} from './TimelineExpandedTrackKeyframes';
 import {
@@ -15,14 +16,18 @@ import {TimelineSequence} from './TimelineSequence';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const TimelineTrackUnmemoized: React.FC<{
-	readonly track: TrackWithHash;
+	readonly track: TimelineTrackData;
 }> = ({track}) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewServerConnected = previewServerState.type === 'connected';
 	const timelineWidth = useContext(TimelineWidthContext);
+	const {hovered, onPointerEnter, onPointerLeave} = useTimelineSequenceHover(
+		track.nodePathInfo,
+	);
 	const rowHighlightBackground = useTimelineRowHighlightBackground(
 		track.nodePathInfo,
+		hovered,
 	);
 
 	const layerStyle = useMemo(
@@ -40,7 +45,7 @@ const TimelineTrackUnmemoized: React.FC<{
 		getIsExpanded(track.nodePathInfo);
 
 	return (
-		<div>
+		<div onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave}>
 			<div style={layerStyle}>
 				{rowHighlightBackground && timelineWidth !== null ? (
 					<div

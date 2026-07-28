@@ -45,6 +45,7 @@ export const TimelineRowChrome: React.FC<{
 	readonly onSelect: (interaction?: TimelineSelectionInteraction) => void;
 	readonly showSelectedBackground: boolean;
 	readonly containsSelection: boolean;
+	readonly hovered?: boolean;
 	// When set, the chrome is wrapped in an outer container of this height with a
 	// bottom track separator. The background highlight and click target span the
 	// outer (used by sequence rows whose layer is taller than the chrome row).
@@ -53,6 +54,8 @@ export const TimelineRowChrome: React.FC<{
 	readonly onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
 	readonly onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
 	readonly onDoubleClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
+	readonly onPointerEnter?: () => void;
+	readonly onPointerLeave?: () => void;
 }> = ({
 	depth,
 	eye,
@@ -66,16 +69,22 @@ export const TimelineRowChrome: React.FC<{
 	onSelect,
 	showSelectedBackground,
 	containsSelection,
+	hovered = false,
 	outerHeight,
 	onDragLeave,
 	onDragOver,
 	onDrop,
 	onDoubleClick,
+	onPointerEnter,
+	onPointerLeave,
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
-	const {basePadding, keyframeControlsPadding} = useContext(
-		TimelineRowLayoutContext,
-	);
+	const {
+		basePadding,
+		keyframeControlsPadding,
+		rowBorderRadius,
+		rowHorizontalMargin,
+	} = useContext(TimelineRowLayoutContext);
 	const indentWidth = getTimelineRowIndentWidth(depth);
 	useTimelineFocusableItem(selectionItem, ref);
 
@@ -125,6 +134,7 @@ export const TimelineRowChrome: React.FC<{
 		showSelectedBackground,
 		selected,
 		containsSelection,
+		hovered,
 	});
 
 	const innerRowStyle = useMemo(
@@ -132,8 +142,16 @@ export const TimelineRowChrome: React.FC<{
 			...rowBase,
 			...style,
 			backgroundColor: outerHeight === null ? highlightBackground : undefined,
+			borderRadius: rowBorderRadius,
+			margin: `0 ${rowHorizontalMargin}px`,
 		}),
-		[style, outerHeight, highlightBackground],
+		[
+			style,
+			outerHeight,
+			highlightBackground,
+			rowBorderRadius,
+			rowHorizontalMargin,
+		],
 	);
 
 	const outerStyle = useMemo((): React.CSSProperties | undefined => {
@@ -179,6 +197,8 @@ export const TimelineRowChrome: React.FC<{
 				onPointerDown={selectable ? onPointerDown : undefined}
 				onContextMenu={selectable ? onContextMenu : undefined}
 				onDoubleClick={onDoubleClick}
+				onPointerEnter={onPointerEnter}
+				onPointerLeave={onPointerLeave}
 			>
 				<div style={innerRowStyle}>{chrome}</div>
 			</div>
@@ -194,6 +214,8 @@ export const TimelineRowChrome: React.FC<{
 			onPointerDown={selectable ? onPointerDown : undefined}
 			onContextMenu={selectable ? onContextMenu : undefined}
 			onDoubleClick={onDoubleClick}
+			onPointerEnter={onPointerEnter}
+			onPointerLeave={onPointerLeave}
 			style={innerRowStyle}
 		>
 			{chrome}

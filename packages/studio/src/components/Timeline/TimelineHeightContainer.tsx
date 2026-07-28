@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_BACKGROUND} from './TimelineSelection';
 import {useTimelineHeight} from './use-timeline-height';
 
@@ -12,7 +12,7 @@ const baseStyle: React.CSSProperties = {
 };
 
 const TimelineHeightContainerInner: React.FC<{
-	readonly shown: TrackWithHash[];
+	readonly shown: TimelineTrackData[];
 	readonly hasBeenCut: boolean;
 	readonly children: React.ReactNode;
 }> = ({shown, hasBeenCut, children}) => {

@@ -18,8 +18,6 @@ Install the package that provides the chosen effect:
 npx remotion add @remotion/effects
 ```
 
-Use `npx remotion add @remotion/light-leaks` for `lightLeak()` and `npx remotion add @remotion/starburst` for `starburst()`.
-
 Effects are functions passed to the `effects` prop of canvas-based components such as `<Video>` from `@remotion/media`, `<Solid>`, `<CanvasImage>`, and `<HtmlInCanvas>`.
 
 ```tsx
@@ -29,7 +27,7 @@ import {blur} from '@remotion/effects/blur';
 <Video src="https://remotion.media/video.mp4" effects={[blur({radius: 8})]} />;
 ```
 
-Use the effect docs for exact props and imports. Most `@remotion/effects` imports use `@remotion/effects/<effect-slug>`; `uvTranslate()` and `xyTranslate()` use `@remotion/effects/translate`; `lightLeak()` uses `@remotion/light-leaks`; `starburst()` uses `@remotion/starburst`.
+Use the effect docs for exact props and imports. Most `@remotion/effects` imports use `@remotion/effects/<effect-slug>`; `uvTranslate()` and `xyTranslate()` use `@remotion/effects/translate`.
 
 These effects use WebGL2. During renders, enable WebGL with:
 
@@ -37,6 +35,18 @@ These effects use WebGL2. During renders, enable WebGL with:
 import {Config} from '@remotion/cli/config';
 
 Config.setChromiumOpenGlRenderer('angle');
+```
+
+## Available effects
+
+`brightness()`, `contrast()`, `colorKey()`, `duotone()`, `grayscale()`, `hue()`, `invert()`, `saturation()`, `tint()`, `linearGradient()`, `linearGradientTint()`, `thermalVision()`, `blur()`, `linearProgressiveBlur()`, `radialProgressiveBlur()`, `zoomBlur()`, `dropShadow()`, `glow()`, `lightTrail()`, `evolve()`, `venetianBlinds()`, `mirror()`, `scale()`, `uvTranslate()`, `xyTranslate()`, `barrelDistortion()`, `chromaticAberration()`, `fisheye()`, `cornerPin()`, `wave()`, `burlap()`, `emboss()`, `dotGrid()`, `halftone()`, `noise()`, `noiseDisplacement()`, `paper()`, `roughenEdges()`, `pattern()`, `pixelate()`, `pixelDissolve()`, `scanlines()`, `speckle()`, `shine()`, `shrinkwrap()`, `vignette()`, `contourLines()`, `checkerboard()`, `halftoneLinearGradient()`, `gridlines()`, `whiteNoise()`, `tvSignalOff()`, `lines()`, `rings()`, `waves()`, `zigzag()`, `lightLeak()`, `starburst()`.
+
+Example:
+
+```tsx
+import {brightness} from "@remotion/effects";
+
+<Video src="https://remotion.media/video.mp4" effects={[brightness({})]} />;
 ```
 
 ## Custom effects

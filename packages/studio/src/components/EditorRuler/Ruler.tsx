@@ -10,8 +10,8 @@ import {Internals} from 'remotion';
 import {BACKGROUND, RULER_COLOR} from '../../helpers/colors';
 import {getRulerGuideHighlight} from '../../helpers/editor-guide-selection';
 import {drawMarkingOnRulerCanvas} from '../../helpers/editor-ruler';
+import {getRulerCanvasSize} from '../../helpers/ruler-canvas-size';
 import {EditorShowGuidesContext} from '../../state/editor-guides';
-import {RULER_WIDTH} from '../../state/editor-rulers';
 import {forceSpecificCursor} from '../ForceSpecificCursor';
 import {PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR} from '../Timeline/should-clear-selection-on-pointer-down';
 import {useTimelineSelection} from '../Timeline/TimelineSelection';
@@ -75,8 +75,10 @@ const Ruler: React.FC<RulerProps> = ({
 		[draggingGuideId, guidesList, hoveredGuideId, selectedItems],
 	);
 
-	const rulerWidth = isVerticalRuler ? RULER_WIDTH : size.width - RULER_WIDTH;
-	const rulerHeight = isVerticalRuler ? size.height - RULER_WIDTH : RULER_WIDTH;
+	const {width: rulerWidth, height: rulerHeight} = getRulerCanvasSize({
+		orientation,
+		size,
+	});
 
 	useEffect(() => {
 		drawMarkingOnRulerCanvas({

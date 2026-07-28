@@ -1,6 +1,6 @@
 ---
 name: remotion-best-practices
-description: Best practices for Remotion
+description: Router for all Remotion skills
 metadata:
   tags: remotion, video, react, animation, composition
 ---
@@ -13,9 +13,13 @@ If no Remotion project currently exists, load [Create a new Remotion project](re
 
 If you are writing Remotion React Markup, load [Remotion Markup Best Practices](remotion-markup/SKILL.md)
 
-## Mediabunny Skills
+## Maps
 
-For achieving multimedia tasks in the browser, such as trimming, cropping videos, or getting metadata from them, load [Mediabunny Best Practices](mediabunny/SKILL.md)
+For static maps, animated routes and markers, geographic explainers, Mapbox, MapLibre, MapTiler, GeoJSON, or 3D geographic flyovers, load [Remotion Maps](remotion-maps/SKILL.md).
+
+## Multimedia
+
+For achieving multimedia tasks in the browser, such as trimming, cropping videos, or getting metadata from them, load [Remotion Multimedia](remotion-multimedia/SKILL.md)
 
 ## Improving Interactivity
 

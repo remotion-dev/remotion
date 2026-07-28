@@ -1,9 +1,9 @@
-import {bundle} from '@remotion/bundler';
-import {getCompositions, renderStill} from '@remotion/renderer';
 import {execSync} from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import {bundle} from '@remotion/bundler';
+import {getCompositions, renderStill} from '@remotion/renderer';
 import {readDir} from './get-pages.mjs';
 
 const data: {
@@ -176,7 +176,10 @@ const serveUrl = await bundle({
 	entryPoint: path.join(process.cwd(), './src/remotion/entry.ts'),
 	publicDir: path.join(process.cwd(), 'static'),
 });
-const compositions = await getCompositions(serveUrl);
+const compositions = await getCompositions({
+	serveUrl,
+	inputProps: {},
+});
 
 for (const composition of compositions.filter(
 	(c) => c.id.startsWith('expert') || c.id.startsWith('template'),

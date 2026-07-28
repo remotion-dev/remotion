@@ -1,4 +1,3 @@
-import {getDefinePluginDefinitions} from '@remotion/studio-shared/define-plugin-definitions';
 import {getStudioEntryPoints} from '@remotion/studio-shared/studio-entry-points';
 import type * as RspackBrowser from '@rspack/browser';
 import {browserStudioDependencyVersions} from './dependency-versions';
@@ -115,6 +114,47 @@ const applyDependencyResolution = ({
 	}
 };
 
+const isBarePackageImport = (request: string) => {
+	return (
+		!request.startsWith('.') &&
+		!request.startsWith('/') &&
+		!request.startsWith('http://') &&
+		!request.startsWith('https://') &&
+		!request.includes('!')
+	);
+};
+
+const getVersionedPackageRequest = (request: string, version: string) => {
+	if (!request.startsWith('@')) {
+		const slashIndex = request.indexOf('/');
+		if (slashIndex === -1) {
+			return `${request}@${version}`;
+		}
+
+		return `${request.slice(0, slashIndex)}@${version}${request.slice(slashIndex)}`;
+	}
+
+	const secondSlashIndex = request.indexOf('/', request.indexOf('/') + 1);
+	if (secondSlashIndex === -1) {
+		return `${request}@${version}`;
+	}
+
+	return `${request.slice(0, secondSlashIndex)}@${version}${request.slice(secondSlashIndex)}`;
+};
+
+const getPackageName = (request: string) => {
+	if (request.startsWith('@')) {
+		return request.split('/').slice(0, 2).join('/');
+	}
+
+	return request.split('/')[0];
+};
+
+const externalizeSharedReactDependencies = (url: URL) => {
+	url.searchParams.set('dev', '');
+	url.searchParams.set('external', 'react,react-dom');
+};
+
 const compileProject = async ({
 	project,
 	dependencyResolutions,
@@ -156,7 +196,7 @@ const compileProject = async ({
 			},
 			experiments: {
 				buildHttp: {
-					allowedUris: ['https://esm.sh/'],
+					allowedUris: ['https://esm.sh/', `${self.location.origin}/`],
 					cacheLocation: false,
 				},
 			},
@@ -226,19 +266,31 @@ const compileProject = async ({
 				publicPath: '',
 			},
 			plugins: [
-				new rspack.DefinePlugin(
-					getDefinePluginDefinitions({
-						askAIEnabled: false,
-						bufferStateDelayInMilliseconds: null,
-						interactivityEnabled: true,
-						keyboardShortcutsEnabled: true,
-						maxTimelineTracks: null,
-					}),
-				),
 				new BrowserHttpImportEsmPlugin({
-					dependencyUrl: resolvedUrls,
+					dependencyUrl: ({request}) => {
+						if (!isBarePackageImport(request)) {
+							return undefined;
+						}
+
+						const packageName = getPackageName(request);
+						const resolvedUrl = resolvedUrls[packageName];
+						if (resolvedUrl) {
+							return resolvedUrl;
+						}
+
+						const version = resolvedVersions[packageName] ?? 'latest';
+						const url = new URL(
+							getVersionedPackageRequest(request, version),
+							'https://esm.sh/',
+						);
+						externalizeSharedReactDependencies(url);
+						return url.href;
+					},
 					dependencyVersions: resolvedVersions,
 					domain: 'https://esm.sh',
+					postprocess: ({url}) => {
+						externalizeSharedReactDependencies(url);
+					},
 				}),
 				new rspack.optimize.LimitChunkCountPlugin({maxChunks: 1}),
 			],

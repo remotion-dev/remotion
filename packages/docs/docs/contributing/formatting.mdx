@@ -24,11 +24,11 @@ bunx oxfmt src --write
 
 ESLint will warn about code style issues and errors. You can install the [ESLint VS Code](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) extension to get warnings in the editor as you write code. Extensions for other editors are available on the [ESLint website](https://eslint.org/docs/user-guide/integrations).
 
-You can also run `pnpm run lint` in any package to check if there are any errors. Example:
+You can also run `bun run lint` in any package to check if there are any errors. Example:
 
 ```bash
 cd packages/renderer
-pnpm run lint
+bun run lint
 ```
 
 ## Testing everything
@@ -36,7 +36,7 @@ pnpm run lint
 You can run
 
 ```bash
-pnpm run stylecheck
+bun run stylecheck
 ```
 
 in the root to test locally if the whole repo is well-formatted and will pass the continuous integration checks.

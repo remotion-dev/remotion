@@ -43,7 +43,6 @@ const makeSequence = (overrides: Partial<TSequence> = {}): TSequence =>
 		displayName: 'Sequence',
 		documentationLink: null,
 		parent: null,
-		rootId: 'root',
 		showInTimeline: true,
 		nonce: [[0, 0]],
 		loopDisplay: undefined,

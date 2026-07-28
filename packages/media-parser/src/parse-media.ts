@@ -6,6 +6,9 @@ import {internalParseMedia} from './internal-parse-media';
 import type {ParseMedia} from './options';
 import {webReader} from './web';
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny/metadata
+ */
 export const parseMedia: ParseMedia = (options) => {
 	if (!options) {
 		return Promise.reject(

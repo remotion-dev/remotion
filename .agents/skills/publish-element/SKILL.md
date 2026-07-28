@@ -5,7 +5,7 @@ description: Finalize a developed Remotion Element, add it to the docs gallery, 
 
 # Publish a Remotion Element
 
-The source of truth for design and quality criteria is the [Element Guidelines](../../../packages/docs/elements/guidelines.mdx). Read them completely before making changes. If this skill and the guidelines diverge on acceptance criteria, follow the guidelines.
+The source of truth for design and quality criteria is the [Element Guidelines](https://github.com/remotion-dev/remotion/blob/main/packages/docs/elements/guidelines.mdx). Read them completely before making changes. If this skill and the guidelines diverge on acceptance criteria, follow the guidelines.
 
 This skill owns the technical publication workflow. It starts with an Element scaffold created by the [`scaffold-element` skill](../scaffold-element/SKILL.md) and does not create the initial development scaffold.
 
@@ -26,7 +26,7 @@ bun run remotion
 
 ## 2. Perform the publication review
 
-Review the finished source, MDX page, and central definition against the Element Guidelines. Resolve placeholder content and finalize the description, display name, contributors, dimensions, duration, preview padding, and poster frame.
+Review the finished source, MDX page, and central definition against the Element Guidelines. Resolve placeholder content and finalize the description, display name, contributors, dimensions, duration, preview padding, poster frame, and `preview` object. Confirm that `posterUrl` and `videoUrl` use flat `https://remotion.media/elements/<category>-<slug>-preview.png` and `.mp4` paths. Preview assets are composited onto the standard background and use MP4 for broad browser, social-card, and embed compatibility, even when the Element itself supports transparency. These explicit URLs are the publishing source of truth.
 
 Re-check the technical implementation requirements from the [`scaffold-element` skill](../scaffold-element/SKILL.md): The reusable implementation must remain in one self-contained TSX file, fill its configured bounds without a wrapper `<Sequence>` or preview-only source padding, and leave outer placement to the surrounding project. Animated entrances must have exits with inline, hardcoded frame ranges on useful named `Interactive.*` elements. Inner control names must not repeat the Element display name.
 
@@ -60,23 +60,43 @@ bun test src/test/elements.test.ts
 
 ## 5. Render and inspect the previews
 
-Perform the preview verification required by the Element Guidelines:
+Perform the preview verification required by the Element Guidelines. Render only the new Element, using its `posterFrame` from `element-definitions.ts`:
 
 ```bash
 cd packages/docs
-bun run render-element-previews
+mkdir -p .element-previews/<category>/<slug>
+bunx remotion still \
+  src/remotion/entry.ts \
+  element-<category>-<slug> \
+  .element-previews/<category>/<slug>/preview.png \
+  --frame=<poster-frame> --gl=angle --overwrite
+bunx remotion render \
+  src/remotion/entry.ts \
+  element-<category>-<slug> \
+  .element-previews/<category>/<slug>/preview.mp4 \
+  --codec=h264 --crf=23 --image-format=png --pixel-format=yuv420p \
+  --gl=angle --muted --overwrite
 cd ../..
 ```
 
+Do not run `render-element-previews` without an Element filter, because that renders every Element and clears the complete preview output. If uploading is explicitly requested later, use:
+
+```bash
+cd packages/docs
+bun run render-element-previews --element=<category>/<slug> --upload
+cd ../..
+```
+
+The filtered command clears and regenerates only that Element's nested local review output, then uses its explicit metadata URLs for the public locations and R2 keys.
+
 Inspect `packages/docs/.element-previews/<category>/<slug>/preview.png` and `preview.mp4`, then give both paths to the developer for visual review. Stop and wait for the developer to explicitly confirm that both previews look correct. Do not run the final repository checks or finish the publishing workflow until that approval is received.
 
-This command renders every Element and clears the previous preview output. Do not commit the ignored output or pass `--upload` unless uploading was explicitly requested and maintainer R2 credentials are available.
+Do not commit the ignored output or upload previews unless uploading was explicitly requested and maintainer R2 credentials are available.
 
 ## 6. Run final repository checks
 
 ```bash
 bun run build
-bun run build-docs
 bun run stylecheck
 git diff --check
 git status --short

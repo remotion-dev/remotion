@@ -10,6 +10,10 @@ import {
 } from 'fs';
 import path from 'path';
 import {FEATURED_TEMPLATES} from './packages/create-video/src/templates.ts';
+import {
+	moveRemovedDependenciesToDevDependencies,
+	shouldReleasePackage,
+} from './packages/studio-shared/src/release-package-policy';
 
 let version = process.argv[2];
 let noCommit = process.argv.includes('--no-commit');
@@ -63,7 +67,23 @@ for (const dir of [path.join('cloudrun', 'container'), ...dirs]) {
 		unlinkSync(tsconfigBuildPath);
 	}
 
-	const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+	let packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+	if (
+		!shouldReleasePackage({
+			packageName: packageJson.name,
+			releaseVersion: version,
+		})
+	) {
+		continue;
+	}
+
+	if (!packageJson.private) {
+		packageJson = moveRemovedDependenciesToDevDependencies({
+			packageJson,
+			releaseVersion: version,
+		});
+	}
+
 	packageJson.version = version;
 	writeFileSync(
 		packageJsonPath,

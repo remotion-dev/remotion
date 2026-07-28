@@ -1,11 +1,11 @@
 import React, {
-	createContext,
 	createRef,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useState,
 } from 'react';
-import {continueRender, delayRender} from 'remotion';
+import {continueRender, delayRender, useCurrentFrame} from 'remotion';
 import {useElementSize} from './element-size';
 import {render} from './rough';
 import {
@@ -14,26 +14,6 @@ import {
 	type AnnotationConfig,
 	type RoughAnnotationOptions,
 } from './types';
-
-const AnnotationContext = createContext<{
-	readonly svgChildren: React.ReactElement[];
-	readonly setSvgChildren: React.Dispatch<
-		React.SetStateAction<React.ReactElement[]>
-	>;
-}>({
-	setSvgChildren: () => undefined,
-	svgChildren: [],
-});
-
-const MEASURER_SIZE = 100;
-
-const measurerSize: React.CSSProperties = {
-	height: MEASURER_SIZE,
-	width: MEASURER_SIZE,
-	position: 'fixed',
-	opacity: 0,
-	top: -10000,
-};
 
 type ChildrenProps = {
 	readonly children: React.ReactNode;
@@ -53,21 +33,8 @@ type AnnotationProps = Readonly<
 export const createAnnotation = () => {
 	const ref = createRef<HTMLSpanElement>();
 	const svgRef = createRef<SVGSVGElement>();
-	const measurer = createRef<HTMLDivElement>();
-
 	const Container: React.FC<ChildrenProps> = (props) => {
-		const [svgChildren, setSvgChildren] = useState<React.ReactElement[]>([]);
-
-		const value = useMemo(() => {
-			return {setSvgChildren, svgChildren};
-		}, [svgChildren]);
-
-		return (
-			<AnnotationContext.Provider value={value}>
-				{props.children}
-				<div ref={measurer} style={measurerSize} />
-			</AnnotationContext.Provider>
-		);
+		return props.children;
 	};
 
 	const Tracker: React.FC<TrackerProps> = ({children, style}) => {
@@ -99,9 +66,13 @@ export const createAnnotation = () => {
 		progress,
 		...config
 	}) => {
+		const frame = useCurrentFrame();
+		const parsedKey = JSON.stringify(resolveAnnotationConfig(config));
 		const parsed = useMemo(() => {
-			return resolveAnnotationConfig(config);
-		}, [config]);
+			return JSON.parse(parsedKey) as ReturnType<
+				typeof resolveAnnotationConfig
+			>;
+		}, [parsedKey]);
 		const roughJsOptions = useMemo(() => {
 			return resolveRoughOptions({
 				roughness,
@@ -135,22 +106,24 @@ export const createAnnotation = () => {
 			continueRender(initial);
 		}, [initial, size]);
 
-		const scale = measurer.current
-			? measurer.current.getBoundingClientRect().width / MEASURER_SIZE
-			: null;
+		const [svgChildren, setSvgChildren] = useState<React.ReactElement[]>([]);
 
-		const svgChildren =
-			ref.current && scale
-				? render({
-						config: parsed,
-						svg: svgRef.current as SVGSVGElement,
-						element: ref.current,
-						seed: seed ?? 1,
-						scale,
-						progress,
-						options: roughJsOptions,
-					})
-				: [];
+		useLayoutEffect(() => {
+			if (!ref.current || !svgRef.current) {
+				setSvgChildren([]);
+				return;
+			}
+
+			setSvgChildren(
+				render({
+					config: parsed,
+					element: ref.current,
+					seed: seed ?? 1,
+					progress,
+					options: roughJsOptions,
+				}),
+			);
+		}, [frame, parsed, progress, roughJsOptions, seed, size]);
 
 		return (
 			<svg

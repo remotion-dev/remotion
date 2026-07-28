@@ -1,7 +1,8 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals, type CanUpdateSequencePropStatus} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
+import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {AlignBottomIcon} from '../../icons/align-bottom';
 import {AlignCenterHorizontalIcon} from '../../icons/align-center-horizontal';
 import {AlignCenterVerticalIcon} from '../../icons/align-center-vertical';
@@ -68,7 +69,7 @@ const AlignmentButton: React.FC<{
 };
 
 export const AlignmentControls: React.FC<{
-	readonly track: TrackWithHash;
+	readonly track: TimelineTrackData;
 }> = ({track}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
@@ -93,6 +94,7 @@ export const AlignmentControls: React.FC<{
 			direction: 'left' | 'center-h' | 'right' | 'top' | 'center-v' | 'bottom',
 		) => {
 			if (
+				!isStudioInteractivityEnabled() ||
 				previewServerState.type !== 'connected' ||
 				!track.nodePathInfo ||
 				!track.sequence.controls
@@ -192,6 +194,8 @@ export const AlignmentControls: React.FC<{
 
 			if (!propStatus || propStatus.status === 'static') {
 				saveSequenceProps({
+					addedKeyframes: null,
+					movedKeyframes: null,
 					changes: [
 						{
 							fileName: nodePath.absolutePath,
@@ -235,6 +239,7 @@ export const AlignmentControls: React.FC<{
 	);
 
 	if (
+		!isStudioInteractivityEnabled() ||
 		previewServerState.type !== 'connected' ||
 		!track.nodePathInfo ||
 		!track.sequence.controls ||

@@ -9,6 +9,9 @@
 	"include": ["src"],
 	"references": [
 		{
+			"path": "../drag-and-drop"
+		},
+		{
 			"path": "../renderer"
 		}
 	]

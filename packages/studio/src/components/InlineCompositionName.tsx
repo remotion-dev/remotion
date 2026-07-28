@@ -85,6 +85,7 @@ export const InlineCompositionName: React.FC<{
 			value={compositionId}
 			canRename={canRename}
 			onCommit={commit}
+			size="inspector"
 		/>
 	);
 };

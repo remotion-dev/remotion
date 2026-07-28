@@ -25,8 +25,27 @@ export const sliceWaveformPeaks = ({
 		(startTimeInSeconds + durationInSeconds) * TARGET_SAMPLE_RATE,
 	);
 
-	return peaks.subarray(
-		Math.max(0, startPeakIndex),
-		Math.min(peaks.length, endPeakIndex),
-	);
+	if (!Number.isFinite(startPeakIndex) || !Number.isFinite(endPeakIndex)) {
+		return peaks.subarray(
+			Math.max(0, startPeakIndex),
+			Math.min(peaks.length, endPeakIndex),
+		);
+	}
+
+	if (startPeakIndex >= 0 && endPeakIndex <= peaks.length) {
+		return peaks.subarray(startPeakIndex, endPeakIndex);
+	}
+
+	const portion = new Float32Array(Math.max(0, endPeakIndex - startPeakIndex));
+	const sourceStart = Math.max(0, startPeakIndex);
+	const sourceEnd = Math.min(peaks.length, endPeakIndex);
+
+	if (sourceStart < sourceEnd) {
+		portion.set(
+			peaks.subarray(sourceStart, sourceEnd),
+			sourceStart - startPeakIndex,
+		);
+	}
+
+	return portion;
 };

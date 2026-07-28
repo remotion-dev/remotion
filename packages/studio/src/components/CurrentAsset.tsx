@@ -17,6 +17,7 @@ import {
 	InspectorInfoHeader,
 	InspectorInfoSubtitle,
 } from './InspectorInfoHeader';
+import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 import {
 	getStaticFileRenameSelection,
 	useRenameStaticFile,
@@ -156,27 +157,40 @@ export const AssetInfo: React.FC<{
 		: [];
 
 	return (
-		<InspectorInfoHeader contentSized={contentSized}>
+		<InspectorInfoHeader
+			contentSized={contentSized}
+			padding={
+				contentSized ? `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 6px` : '4px 0'
+			}
+		>
 			<InlineEditableTitle
 				value={fileName}
 				canRename={canRename}
 				getInitialSelection={getStaticFileRenameSelection}
 				onClick={onAssetClick}
 				onCommit={onRename}
+				size={contentSized ? 'default' : 'inspector'}
 				title={assetName}
 			/>
 			{subtitleParts.length > 0 ? (
-				<InspectorInfoSubtitle>
+				<InspectorInfoSubtitle size={contentSized ? 'default' : 'inspector'}>
 					{subtitleParts.join(' · ')}
 				</InspectorInfoSubtitle>
 			) : null}
 			{mediaMetadata ? (
-				<InspectorInfoSubtitle>
+				<InspectorInfoSubtitle size={contentSized ? 'default' : 'inspector'}>
 					{formatMediaDuration(mediaMetadata.duration)}
 				</InspectorInfoSubtitle>
 			) : null}
 			{mediaDetailLines.map((line) => {
-				return <InspectorInfoSubtitle key={line}>{line}</InspectorInfoSubtitle>;
+				return (
+					<InspectorInfoSubtitle
+						key={line}
+						size={contentSized ? 'default' : 'inspector'}
+					>
+						{line}
+					</InspectorInfoSubtitle>
+				);
 			})}
 		</InspectorInfoHeader>
 	);

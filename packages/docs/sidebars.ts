@@ -301,6 +301,7 @@ const sidebars: SidebarsConfig = {
 				'effects/linear-gradient-tint',
 				'effects/linear-progressive-blur',
 				'effects/linear-progressive-pixelate',
+				'effects/light-leak',
 				'effects/light-trail',
 				'effects/lines',
 				'effects/liquid-contours',
@@ -322,6 +323,7 @@ const sidebars: SidebarsConfig = {
 				'effects/shrinkwrap',
 				'effects/skew',
 				'effects/speckle',
+				'effects/starburst',
 				'effects/thermal-vision',
 				'effects/tint',
 				'effects/tv-signal-off',
@@ -421,6 +423,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/getfunctions',
 				'lambda/deletesite',
 				'lambda/deploysite',
+				'lambda/deploysitefrombundle',
 				'lambda/getawsclient',
 				'lambda/getregions',
 				'lambda/getsites',
@@ -466,15 +469,6 @@ const sidebars: SidebarsConfig = {
 				id: 'licensing/index',
 			},
 			items: ['licensing/register-usage-event', 'licensing/get-usage'],
-		},
-		{
-			type: 'category',
-			label: '@remotion/light-leaks',
-			link: {
-				type: 'doc',
-				id: 'light-leaks/light-leaks-api',
-			},
-			items: ['light-leaks/light-leak-effect', 'light-leaks/light-leak'],
 		},
 		{
 			type: 'category',
@@ -767,15 +761,6 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/starburst',
-			link: {
-				type: 'doc',
-				id: 'starburst/starburst-api',
-			},
-			items: ['starburst/starburst-effect', 'starburst/starburst-component'],
-		},
-		{
-			type: 'category',
 			label: '@remotion/studio',
 			link: {
 				type: 'doc',
@@ -864,6 +849,7 @@ const sidebars: SidebarsConfig = {
 					},
 					items: [
 						'transitions/presentations/fade',
+						'transitions/presentations/push-cut',
 						'transitions/presentations/slide',
 						'transitions/presentations/wipe',
 						'transitions/presentations/flip',
@@ -971,6 +957,15 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/light-leaks (deprecated)',
+			link: {
+				type: 'doc',
+				id: 'light-leaks/light-leaks-api',
+			},
+			items: ['light-leaks/light-leak-effect', 'light-leaks/light-leak'],
+		},
+		{
+			type: 'category',
 			label: '@remotion/media-parser (deprecated)',
 			link: {
 				type: 'doc',
@@ -995,6 +990,15 @@ const sidebars: SidebarsConfig = {
 				'media-parser/node-writer',
 				'media-parser/webcodecs-timescale',
 			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/starburst (deprecated)',
+			link: {
+				type: 'doc',
+				id: 'starburst/starburst-api',
+			},
+			items: ['starburst/starburst-effect', 'starburst/starburst-component'],
 		},
 		{
 			type: 'category',
@@ -1292,6 +1296,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/bucket-naming',
 				'lambda/optimizing-cost',
 				'lambda/optimizing-speed',
+				'lambda/faster-progress-polling',
 				'lambda/proxy',
 				'lambda/limits',
 				'lambda/changelog',
@@ -1302,30 +1307,6 @@ const sidebars: SidebarsConfig = {
 				'lambda/naming-convention',
 			],
 		},
-		{
-			type: 'category',
-			label: 'Cloud Run',
-			link: {
-				type: 'doc',
-				id: 'cloudrun',
-			},
-			items: [
-				'cloudrun',
-				'cloudrun/status',
-				'cloudrun/setup',
-				'cloudrun/permissions',
-				'cloudrun/generate-env',
-				'cloudrun/region-selection',
-				'cloudrun/checklist',
-				'cloudrun/instancecount',
-				'cloudrun/multiple-buckets',
-				'cloudrun/limits',
-				'cloudrun/light-client',
-				'cloudrun/upgrading',
-				'cloudrun/uninstall',
-			],
-		},
-
 		{
 			type: 'html',
 			value:
@@ -1512,7 +1493,6 @@ const sidebars: SidebarsConfig = {
 				'miscellaneous/embed-studio',
 				'miscellaneous/absolute-paths',
 				'miscellaneous/live-streaming',
-				'miscellaneous/parse-media-vs-get-video-metadata',
 				'miscellaneous/pexels',
 				'lovable-for-motion-graphics',
 			],
@@ -1701,6 +1681,30 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: 'Cloud Run',
+			className: 'unmaintained-item',
+			link: {
+				type: 'doc',
+				id: 'cloudrun',
+			},
+			items: [
+				'cloudrun',
+				'cloudrun/status',
+				'cloudrun/setup',
+				'cloudrun/permissions',
+				'cloudrun/generate-env',
+				'cloudrun/region-selection',
+				'cloudrun/checklist',
+				'cloudrun/instancecount',
+				'cloudrun/multiple-buckets',
+				'cloudrun/limits',
+				'cloudrun/light-client',
+				'cloudrun/upgrading',
+				'cloudrun/uninstall',
+			],
+		},
+		{
+			type: 'category',
 			label: 'Media Parser',
 			link: {
 				type: 'doc',
@@ -1788,6 +1792,7 @@ const sidebars: SidebarsConfig = {
 				'editor-starter/persistance',
 				'editor-starter/captioning',
 				'editor-starter/rendering',
+				'editor-starter/client-side-rendering',
 				'editor-starter/backend-routes',
 				'editor-starter/production-checklist',
 				'editor-starter/features-not-included',

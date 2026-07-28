@@ -29,7 +29,11 @@ const sidebars: SidebarsConfig = {
 			label: 'Data',
 			link: {type: 'doc', id: 'data/index'},
 			collapsed: false,
-			items: ['data/number-counter/index'],
+			items: [
+				'data/horizontal-bar-chart/index',
+				'data/number-counter/index',
+				'data/product-offer/index',
+			],
 		},
 		{
 			type: 'category',
@@ -49,8 +53,10 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'text/circle-marker/index',
 				'text/crossed-off/index',
+				'text/news-article-headline-highlight/index',
 				'text/strike-through/index',
 				'text/text-marker/index',
+				'text/timed-captions/index',
 			],
 		},
 	],

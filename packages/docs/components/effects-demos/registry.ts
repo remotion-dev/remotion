@@ -22,6 +22,7 @@ import {halftone} from '@remotion/effects/halftone';
 import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
 import {hue} from '@remotion/effects/hue';
 import {invert} from '@remotion/effects/invert';
+import {lightLeak} from '@remotion/effects/light-leak';
 import {lightTrail} from '@remotion/effects/light-trail';
 import {linearGradient} from '@remotion/effects/linear-gradient';
 import {linearGradientTint} from '@remotion/effects/linear-gradient-tint';
@@ -47,6 +48,7 @@ import {shine} from '@remotion/effects/shine';
 import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import {skew} from '@remotion/effects/skew';
 import {speckle} from '@remotion/effects/speckle';
+import {starburst} from '@remotion/effects/starburst';
 import {thermalVision} from '@remotion/effects/thermal-vision';
 import {tint} from '@remotion/effects/tint';
 import {uvTranslate, xyTranslate} from '@remotion/effects/translate';
@@ -58,8 +60,6 @@ import {waves} from '@remotion/effects/waves';
 import {whiteNoise} from '@remotion/effects/white-noise';
 import {zigzag} from '@remotion/effects/zigzag';
 import {zoomBlur} from '@remotion/effects/zoom-blur';
-import {lightLeakEffectSchema} from '@remotion/light-leaks';
-import {starburstEffectSchema} from '@remotion/starburst';
 import {EffectsBarrelDistortionPreview} from '../effects/effects-barrel-distortion-preview';
 import {EffectsBlurPreview} from '../effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
@@ -686,17 +686,20 @@ export const effectsDemos: EffectsDemoType[] = [
 		...defaults,
 		id: 'effects-starburst',
 		effectName: 'starburst',
-		effectImportPath: '@remotion/starburst',
+		effectImportPath: '@remotion/effects/starburst',
 		comp: EffectsStarburstPreview,
-		schema: starburstEffectSchema,
+		schema: starburst({
+			rays: 16,
+			colors: ['#dff4ff', '#7cc6ff'],
+		}).definition.schema,
 		initialValues: STARBURST_PREVIEW_PARAMS,
 	},
 	{
 		...defaults,
 		id: 'effects-light-leak',
 		effectName: 'lightLeak',
-		effectImportPath: '@remotion/light-leaks',
+		effectImportPath: '@remotion/effects/light-leak',
 		comp: EffectsLightLeakPreview,
-		schema: lightLeakEffectSchema,
+		schema: lightLeak().definition.schema,
 	},
 ];

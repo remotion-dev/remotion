@@ -1,7 +1,7 @@
-import {
-	EFFECT_DRAG_MIME_TYPE,
-	type EffectDragData,
-} from '@remotion/studio-shared';
+import type {
+	ConstructedDragData,
+	EffectDragData,
+} from '@remotion/drag-and-drop';
 
 const FX_ICON_PATH =
 	'M4.405 4.48C4.575 3.82 4.865 3.325 5.275 2.995C5.695 2.665 6.25 2.5 6.94 2.5H9.235V4.06H7.045C6.555 4.06 6.235 4.3 6.085 4.78L5.83 5.68H7.975V7.255H5.395L3.805 13H2.02L3.625 7.255H1.96V5.68H4.075L4.405 4.48ZM8.57102 9.085L6.87602 5.68H8.79602L9.86102 7.99L11.991 5.68H14.331L10.686 9.415L12.426 13H10.491L9.35102 10.585L7.02602 13H4.68602L8.57102 9.085Z';
@@ -35,38 +35,15 @@ const makeEffectDragImage = () => {
 	return wrapper;
 };
 
-export const makeEffectDragData = ({
-	effectName,
-	effectImportPath,
-	effectConfig,
-}: {
-	readonly effectName: string;
-	readonly effectImportPath: string;
-	readonly effectConfig: Record<string, unknown>;
-}): EffectDragData => {
-	return {
-		type: 'remotion-effect',
-		version: 1,
-		effect: {
-			name: effectName,
-			importPath: effectImportPath,
-			config: effectConfig,
-		},
-	};
-};
-
 export const setEffectDragData = ({
 	dataTransfer,
 	dragData,
 }: {
 	readonly dataTransfer: DataTransfer;
-	readonly dragData: EffectDragData;
+	readonly dragData: ConstructedDragData<EffectDragData>;
 }) => {
-	const serialized = JSON.stringify(dragData);
 	dataTransfer.effectAllowed = 'copy';
-	dataTransfer.setData(EFFECT_DRAG_MIME_TYPE, serialized);
-	dataTransfer.setData('application/json', serialized);
-	dataTransfer.setData('text/plain', serialized);
+	dataTransfer.setData(dragData.mimeType, dragData.payload);
 };
 
 export const setEffectDragImage = (dataTransfer: DataTransfer) => {

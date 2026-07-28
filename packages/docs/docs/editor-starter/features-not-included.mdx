@@ -71,7 +71,7 @@ For example, each item has a `from` and `durationInFrames` property which is exp
 There is no login, authentication, authorization or user management included in the Editor Starter.  
 We foresee that you mount the `<Editor />` component in a page that is shown only if the user is logged in if you desire to have a login flow.
 
-Make sure to add adequate protection to the asset uploading, captioning and rendering endpoints that come with the template, as we have not added any protection to them.
+Make sure to protect the backend endpoints you enable. The template does not add authentication or rate limits to asset uploading, captioning, or Lambda rendering endpoints.
 
 ## Arbitrary fonts
 

@@ -18,6 +18,7 @@ import React, {
 import type {
 	EffectsProp,
 	InteractiveBaseProps,
+	InteractiveCropProps,
 	SequenceControls,
 	InteractivitySchema,
 } from 'remotion';
@@ -60,7 +61,8 @@ type RemotionRiveCanvasOwnProps = {
 };
 
 export type RemotionRiveCanvasProps = RemotionRiveCanvasOwnProps &
-	InteractiveBaseProps;
+	InteractiveBaseProps &
+	InteractiveCropProps;
 
 export type RiveCanvasRef = {
 	getAnimationInstance: () => LinearAnimationInstance | null;
@@ -94,7 +96,7 @@ const riveAlignmentVariants: Record<
 	'top-right': {},
 };
 
-const riveCanvasSchema = {
+export const riveCanvasSchema: InteractivitySchema = {
 	...Internals.baseSchema,
 	fit: {
 		type: 'enum',
@@ -109,7 +111,11 @@ const riveCanvasSchema = {
 		variants: riveAlignmentVariants,
 	},
 	...Internals.transformSchema,
-} as const satisfies InteractivitySchema;
+	...Interactive.backgroundSchema,
+	...Interactive.borderSchema,
+	...Interactive.borderRadiusSchema,
+	...Interactive.cropSchema,
+};
 
 type RemotionRiveCanvasContentProps = Omit<
 	RemotionRiveCanvasOwnProps,
@@ -120,6 +126,7 @@ type RemotionRiveCanvasContentProps = Omit<
 	readonly enableRiveAssetCdn: boolean;
 	readonly effects: EffectsProp;
 	readonly controls: SequenceControls | undefined;
+	readonly canvasRef: React.RefObject<HTMLCanvasElement | null>;
 };
 
 const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunction<
@@ -139,12 +146,12 @@ const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunctio
 		style,
 		effects,
 		controls,
+		canvasRef,
 	},
 	ref,
 ) => {
 	const {width, fps, height} = useVideoConfig();
 	const frame = useCurrentFrame();
-	const canvas = useRef<HTMLCanvasElement>(null);
 	const [riveCanvasInstance, setRiveCanvas] = useState<RiveCanvas | null>(null);
 	const [err, setError] = useState<Error | null>(null);
 	const {delayRender, continueRender} = useDelayRender();
@@ -283,7 +290,7 @@ const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunctio
 			return;
 		}
 
-		const outputCanvas = canvas.current;
+		const outputCanvas = canvasRef.current;
 		if (!outputCanvas || !sourceCanvas) {
 			return;
 		}
@@ -385,6 +392,7 @@ const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunctio
 		delayRender,
 		continueRender,
 		src,
+		canvasRef,
 	]);
 
 	const canvasStyle: React.CSSProperties = useMemo(
@@ -398,7 +406,7 @@ const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunctio
 
 	return (
 		<canvas
-			ref={canvas}
+			ref={canvasRef}
 			width={width}
 			height={height}
 			className={className}
@@ -437,6 +445,10 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 		freeze,
 		showInTimeline,
 		hidden,
+		cropLeft,
+		cropRight,
+		cropTop,
+		cropBottom,
 		...props
 	},
 	ref,
@@ -444,6 +456,15 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 	props satisfies Record<string, never>;
 
 	const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
+	const canvasRef = useRef<HTMLCanvasElement | null>(null);
+	const croppedStyle = Internals.useCropStyle({
+		cropLeft,
+		cropRight,
+		cropTop,
+		cropBottom,
+		style: style ?? null,
+		componentName: '<RemotionRiveCanvas />',
+	});
 
 	return (
 		<Sequence
@@ -462,6 +483,7 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 			durationInFrames={durationInFrames}
 			controls={controls}
 			_remotionInternalEffects={memoizedEffectDefinitions}
+			outlineRef={canvasRef}
 			// 'stack' is in props
 			{...props}
 		>
@@ -476,9 +498,10 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 				assetLoader={assetLoader}
 				enableRiveAssetCdn={enableRiveAssetCdn}
 				className={className}
-				style={style}
+				style={croppedStyle ?? undefined}
 				effects={effects}
 				controls={controls}
+				canvasRef={canvasRef}
 			/>
 		</Sequence>
 	);

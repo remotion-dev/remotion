@@ -64,33 +64,6 @@ export const inspectorSectionBody: React.CSSProperties = {
 	paddingBottom: 8,
 };
 
-export const sequenceHeader: React.CSSProperties = {
-	backgroundColor: BACKGROUND,
-	display: 'flex',
-	flexDirection: 'column',
-	minWidth: 0,
-	padding: `6px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 4px`,
-};
-
-export const sequenceHeaderTitle: React.CSSProperties = {
-	alignSelf: 'stretch',
-	backgroundColor: BACKGROUND,
-	border: 'none',
-	color: WHITE,
-	display: 'flex',
-	fontFamily: 'sans-serif',
-	fontSize: 12,
-	lineHeight: '18px',
-	margin: 0,
-	maxWidth: '100%',
-	minWidth: 0,
-	overflow: 'hidden',
-	padding: 0,
-	textAlign: 'left',
-	textOverflow: 'ellipsis',
-	whiteSpace: 'nowrap',
-};
-
 export const sequenceHeaderSubtitle: React.CSSProperties = {
 	alignSelf: 'flex-start',
 	backgroundColor: BACKGROUND,
@@ -214,6 +187,10 @@ export const detailRow: React.CSSProperties = {
 export const detailLabel: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	fontSize: 13,
+	minWidth: 0,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
 };
 
 export const detailValue: React.CSSProperties = {
@@ -226,22 +203,7 @@ export const detailValue: React.CSSProperties = {
 };
 
 export const keyframeEditorRow: React.CSSProperties = {
-	alignItems: 'flex-start',
-	display: 'flex',
-	gap: 12,
-	justifyContent: 'space-between',
-	minWidth: 0,
 	padding: '10px 0',
-};
-
-export const keyframeEditorLabel: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontSize: 13,
-	lineHeight: '22px',
-	minWidth: 0,
-	overflow: 'hidden',
-	textOverflow: 'ellipsis',
-	whiteSpace: 'nowrap',
 };
 
 export const keyframeEditorValue: React.CSSProperties = {

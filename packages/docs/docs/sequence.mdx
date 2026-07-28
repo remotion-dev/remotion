@@ -255,6 +255,49 @@ You can give your sequence a name and it will be shown as the label of the seque
 
 Either `"absolute-fill"` _(default)_ or `"none"`. By default, your sequences will be absolutely positioned, so they will overlay each other. If you would like to opt out of it and handle layouting yourself, pass `layout="none"`. Available since v1.4.
 
+### `cropLeft?`<AvailableFrom v="4.0.500" />
+
+Crops the Sequence from the left edge without changing its size or transform origin. The value is a ratio between `0` and `1`: `0` does not crop the edge, while `1` crops the full width.
+
+### `cropRight?`<AvailableFrom v="4.0.500" />
+
+Like [`cropLeft`](#cropleft), but crops from the right edge.
+
+If `cropLeft` and `cropRight` overlap, both edges meet in the center.
+
+### `cropTop?`<AvailableFrom v="4.0.500" />
+
+Like [`cropLeft`](#cropleft), but crops the height from the top edge.
+
+### `cropBottom?`<AvailableFrom v="4.0.500" />
+
+Like [`cropTop`](#croptop), but crops from the bottom edge.
+
+If `cropTop` and `cropBottom` overlap, both edges meet in the center.
+
+All four crop props are only supported with `layout="absolute-fill"` and can be animated:
+
+:::note
+If inline [`border-radius`](https://developer.mozilla.org/en-US/docs/Web/CSS/border-radius) styles are set using `style.borderRadius` or its four corner longhands, the cropped rectangle uses the same corner radii. Border radii applied through a CSS class are not inherited by the crop.
+:::
+
+```tsx twoslash title="MyVideo.tsx"
+import {interpolate, Sequence, useCurrentFrame} from 'remotion';
+
+export const MyVideo = () => {
+  const frame = useCurrentFrame();
+  const cropLeft = interpolate(frame, [0, 30], [0, 0.5], {
+    extrapolateRight: 'clamp',
+  });
+
+  return (
+    <Sequence cropLeft={cropLeft}>
+      <div>Revealed from the left</div>
+    </Sequence>
+  );
+};
+```
+
 ### `outlineRef?`<AvailableFrom v="4.0.479" />
 
 A React ref pointing to the element that the Remotion Studio should use for drawing the selection outline in the preview.

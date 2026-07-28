@@ -14,6 +14,7 @@ export type InlineActionProps = {
 	readonly disabled?: boolean;
 	readonly renderAction: RenderInlineAction;
 	readonly title?: string;
+	readonly unhoveredColor?: string;
 };
 
 export const InlineAction = ({
@@ -21,6 +22,7 @@ export const InlineAction = ({
 	onClick,
 	disabled,
 	title,
+	unhoveredColor = LIGHT_TEXT,
 }: InlineActionProps) => {
 	const {tabIndex} = useZIndex();
 
@@ -47,6 +49,7 @@ export const InlineAction = ({
 			justifyContent: 'center',
 			alignItems: 'center',
 			borderRadius: 3,
+			opacity: disabled ? 0.5 : 1,
 			pointerEvents: disabled ? 'none' : 'auto',
 		};
 	}, [disabled, hovered]);
@@ -54,6 +57,7 @@ export const InlineAction = ({
 	return (
 		<button
 			type="button"
+			disabled={disabled}
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 			onClick={onClick}
@@ -61,7 +65,7 @@ export const InlineAction = ({
 			tabIndex={tabIndex}
 			title={title}
 		>
-			{renderAction(hovered ? WHITE : LIGHT_TEXT)}
+			{renderAction(hovered ? WHITE : unhoveredColor)}
 		</button>
 	);
 };

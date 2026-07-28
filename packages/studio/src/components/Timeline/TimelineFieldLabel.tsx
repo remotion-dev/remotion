@@ -25,15 +25,20 @@ export const TimelineFieldLabel: React.FC<{
 	readonly label: string;
 	readonly stacked?: boolean;
 }> = ({rowDepth, selected, label, stacked = false}) => {
-	const {basePadding} = useContext(TimelineRowLayoutContext);
+	const {basePadding, highlightSelectedLabel} = useContext(
+		TimelineRowLayoutContext,
+	);
 	const labelRowStyle = useMemo(
 		(): React.CSSProperties => ({
 			...getTimelineFieldLabelRowStyle(rowDepth, basePadding),
-			...getTimelineSelectedLabelStyle(selected, true),
+			...getTimelineSelectedLabelStyle(
+				selected && highlightSelectedLabel,
+				true,
+			),
 			...(stacked ? {flex: `0 0 ${SCHEMA_FIELD_ROW_HEIGHT}px`} : null),
 			alignSelf: 'stretch',
 		}),
-		[basePadding, rowDepth, selected, stacked],
+		[basePadding, highlightSelectedLabel, rowDepth, selected, stacked],
 	);
 
 	const fieldNameStyle = useMemo(

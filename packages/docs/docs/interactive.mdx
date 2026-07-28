@@ -17,9 +17,7 @@ import {AbsoluteFill, Interactive} from 'remotion';
 export const MyComp: React.FC = () => {
   return (
     <AbsoluteFill>
-      <Interactive.Div style={{backgroundColor: 'white', padding: 24}}>
-        Hello World
-      </Interactive.Div>
+      <Interactive.Div style={{backgroundColor: 'white', padding: 24}}>Hello World</Interactive.Div>
     </AbsoluteFill>
   );
 };
@@ -54,6 +52,15 @@ Available HTML elements:
 Available SVG elements:
 
 `Circle`, `Ellipse`, `G`, `Line`, `Path`, `Rect`, `Svg`, `Text`.
+
+All SVG elements expose controls for the `stroke` and `strokeWidth` props.
+Elements with a paintable interior also expose a color control for `fill`.
+On `Svg` and `G`, these controls set inherited paint defaults for descendants.
+Keep these values inline in JSX if the Studio should edit or keyframe them.
+The `strokeWidth` control defaults to SVG's initial value of `1`; resetting it
+removes the prop from the JSX.
+The `stroke` control defaults to `none`; resetting it also removes the prop and
+therefore removes the stroke.
 
 ## Schema helpers
 
@@ -92,6 +99,14 @@ Controls for transform-related style props:
 Use it for components that accept a `style` prop and apply it to the rendered element.
 Keep these values inline in JSX if the Studio should edit or keyframe them.
 
+### `Interactive.cropSchema`<AvailableFrom v="4.0.500" />
+
+Controls for cropping an element from each edge:
+
+[`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop) and [`cropBottom`](/docs/sequence#cropbottom).
+
+Spread this schema into a custom component's schema to opt it into crop controls. The component must apply the crop props to its rendered element or forward them to an absolute-fill [`<Sequence>`](/docs/sequence).
+
 ### `Interactive.textSchema`<AvailableFrom v="4.0.481" />
 
 Controls for text-related style props:
@@ -102,19 +117,59 @@ Controls for text-related style props:
 
 Use it for components that accept a `style` prop and render text.
 
+### `Interactive.backgroundSchema`<AvailableFrom v="4.0.497" />
+
+A color control for `style.backgroundColor`.
+
+The `backgroundColor` longhand is used rather than the `background` shorthand so complex backgrounds such as gradients and images can remain untouched.
+
+Use it for components that accept a `style` prop and render a CSS background.
+
+### `Interactive.borderSchema`<AvailableFrom v="4.0.497" />
+
+Controls for border-related style props:
+
+`style.borderWidth`, `style.borderStyle` and `style.borderColor`.
+
+The longhand properties are used rather than the `border` shorthand, because React does not expand shorthands. This lets each control read its own value, and allows `style.borderWidth` and `style.borderColor` to be animated.
+
+Use it for components that accept a `style` prop and render a border.
+
+### `Interactive.borderRadiusSchema`<AvailableFrom v="4.0.501" />
+
+Controls for `style.borderRadius` and its four corner longhands: `style.borderTopLeftRadius`, `style.borderTopRightRadius`, `style.borderBottomRightRadius` and `style.borderBottomLeftRadius`.
+
+The Studio shows either the shorthand or the four longhands. Mixing `style.borderRadius` with a corner longhand is treated as computed and cannot be edited visually.
+
+When `style.borderRadius` is a number or contains one to four pixel values, the Studio expands it into the four longhand properties when you edit a corner. Complex values such as percentages and elliptical radii are not editable.
+
+Use it for components that accept a `style` prop and render rounded corners.
+
+### `Interactive.svgPaintSchema`<AvailableFrom v="4.0.499" />
+
+Controls for the SVG `fill`, `stroke` and `strokeWidth` props.
+
+Use it for custom components that accept SVG paint props.
+
+### `Interactive.svgStrokeSchema`<AvailableFrom v="4.0.499" />
+
+Controls for the SVG `stroke` and `strokeWidth` props.
+
+Use it for custom components such as lines that do not have a paintable interior.
+
 ### `Interactive.premountSchema`<AvailableFrom v="4.0.479" />
 
 Controls for mounting behavior:
 
-`premountFor`, `postmountFor`, `styleWhilePremounted` and `styleWhilePostmounted`.
+`premountFor` and `postmountFor`.
 
-Use it for components that forward these props to a `<Sequence>` with `layout="absolute-fill"`.
+Use it for components that forward these props to a `<Sequence>`.
 
 ### `Interactive.sequenceSchema`<AvailableFrom v="4.0.479" />
 
 The schema used by [`<Sequence>`](/docs/sequence).
 
-It includes `Interactive.baseSchema` and a `layout` field. When `layout` is `"absolute-fill"`, the active fields include `Interactive.transformSchema` and `Interactive.premountSchema`.
+It includes `Interactive.baseSchema` and a `layout` field. When `layout` is `"absolute-fill"`, the active fields include [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop), [`cropBottom`](/docs/sequence#cropbottom), `Interactive.transformSchema`, `Interactive.backgroundSchema`, `Interactive.borderSchema`, `Interactive.borderRadiusSchema` and `Interactive.premountSchema`.
 
 ### `Interactive.withSchema()`<AvailableFrom v="4.0.479" />
 
@@ -131,6 +186,10 @@ The prop type matching `Interactive.baseSchema`.
 ### `InteractiveTransformProps`<AvailableFrom v="4.0.479" />
 
 The prop type matching `Interactive.transformSchema`.
+
+### `InteractiveCropProps`<AvailableFrom v="4.0.500" />
+
+The prop type matching `Interactive.cropSchema`.
 
 ### `InteractivePremountProps`<AvailableFrom v="4.0.479" />
 

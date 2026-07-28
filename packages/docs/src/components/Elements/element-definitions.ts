@@ -3,14 +3,23 @@ import {LiquidContours} from '../../../elements/backgrounds/liquid-contours/liqu
 import {NotebookPaper} from '../../../elements/backgrounds/notebook-paper/notebook-paper';
 import {PaperTexture} from '../../../elements/backgrounds/paper-texture/paper-texture';
 import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburst/rotating-starburst';
+import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
+import {ProductOffer} from '../../../elements/data/product-offer/product-offer';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/lower-third/lower-third';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
+import {NewsArticleHeadlineHighlight} from '../../../elements/text/news-article-headline-highlight/news-article-headline-highlight';
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
 import {TextMarker} from '../../../elements/text/text-marker/text-marker';
+import {TimedCaptions} from '../../../elements/text/timed-captions/timed-captions';
 import type {Contributor} from '../Credits';
+
+export type ElementPreviewMetadata = {
+	readonly posterUrl: `https://remotion.media/elements/${string}-preview.png`;
+	readonly videoUrl: `https://remotion.media/elements/${string}-preview.mp4`;
+};
 
 export type ElementDefinition = {
 	readonly category: string;
@@ -24,6 +33,7 @@ export type ElementDefinition = {
 	readonly fps: number;
 	readonly height: number;
 	readonly posterFrame: number;
+	readonly preview: ElementPreviewMetadata;
 	readonly previewPadding: number;
 	readonly slug: string;
 	readonly width: number;
@@ -43,6 +53,12 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 120,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/backgrounds-liquid-contours-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/backgrounds-liquid-contours-preview.mp4',
+		},
 		previewPadding: 0,
 		slug: 'backgrounds/liquid-contours',
 		width: 1920,
@@ -59,6 +75,12 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 0,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/backgrounds-notebook-paper-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/backgrounds-notebook-paper-preview.mp4',
+		},
 		previewPadding: 0,
 		slug: 'backgrounds/notebook-paper',
 		width: 1920,
@@ -76,6 +98,12 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 60,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/backgrounds-paper-texture-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/backgrounds-paper-texture-preview.mp4',
+		},
 		previewPadding: 0,
 		slug: 'backgrounds/paper-texture',
 		width: 1920,
@@ -92,6 +120,12 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 120,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/backgrounds-rotating-starburst-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/backgrounds-rotating-starburst-preview.mp4',
+		},
 		previewPadding: 0,
 		slug: 'backgrounds/rotating-starburst',
 		width: 1920,
@@ -108,6 +142,12 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 60,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/overlays-location-lower-third-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/overlays-location-lower-third-preview.mp4',
+		},
 		previewPadding: 300,
 		slug: 'overlays/location-lower-third',
 		width: 1920,
@@ -125,8 +165,37 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 60,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/overlays-lower-third-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/overlays-lower-third-preview.mp4',
+		},
 		previewPadding: 300,
 		slug: 'overlays/lower-third',
+		width: 1920,
+	},
+	'data/horizontal-bar-chart': {
+		category: 'data',
+		component: HorizontalBarChart,
+		contributors: [],
+		description:
+			'A bold bar chart card with three directly labeled data points.',
+		displayName: 'Horizontal Bar Chart',
+		durationInFrames: 120,
+		elementHeight: 864,
+		elementWidth: 1560,
+		fps: 30,
+		height: 1080,
+		posterFrame: 48,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/data-horizontal-bar-chart-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/data-horizontal-bar-chart-preview.mp4',
+		},
+		previewPadding: 56,
+		slug: 'data/horizontal-bar-chart',
 		width: 1920,
 	},
 	'data/number-counter': {
@@ -147,9 +216,38 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 60,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/data-number-counter-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/data-number-counter-preview.mp4',
+		},
 		previewPadding: 120,
 		slug: 'data/number-counter',
 		width: 1920,
+	},
+	'data/product-offer': {
+		category: 'data',
+		component: ProductOffer,
+		contributors: [],
+		description:
+			'An animated product card with a bold title, catalog image, pricing, and discount.',
+		displayName: 'Product Offer',
+		durationInFrames: 150,
+		elementHeight: 900,
+		elementWidth: 900,
+		fps: 30,
+		height: 1080,
+		posterFrame: 75,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/data-product-offer-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/data-product-offer-preview.mp4',
+		},
+		previewPadding: 90,
+		slug: 'data/product-offer',
+		width: 1080,
 	},
 	'text/circle-marker': {
 		category: 'text',
@@ -164,6 +262,12 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 60,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/text-circle-marker-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/text-circle-marker-preview.mp4',
+		},
 		previewPadding: 120,
 		slug: 'text/circle-marker',
 		width: 1920,
@@ -181,8 +285,35 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 60,
+		preview: {
+			posterUrl: 'https://remotion.media/elements/text-crossed-off-preview.png',
+			videoUrl: 'https://remotion.media/elements/text-crossed-off-preview.mp4',
+		},
 		previewPadding: 120,
 		slug: 'text/crossed-off',
+		width: 1920,
+	},
+	'text/news-article-headline-highlight': {
+		category: 'text',
+		component: NewsArticleHeadlineHighlight,
+		contributors: [],
+		description:
+			'A framed news article with camera movement, blur, and animated passage highlights.',
+		displayName: 'News Article Headline Highlight',
+		durationInFrames: 150,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 100,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/text-news-article-headline-highlight-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/text-news-article-headline-highlight-preview.mp4',
+		},
+		previewPadding: 0,
+		slug: 'text/news-article-headline-highlight',
 		width: 1920,
 	},
 	'text/strike-through': {
@@ -198,6 +329,12 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 60,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/text-strike-through-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/text-strike-through-preview.mp4',
+		},
 		previewPadding: 120,
 		slug: 'text/strike-through',
 		width: 1920,
@@ -215,8 +352,35 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 60,
+		preview: {
+			posterUrl: 'https://remotion.media/elements/text-text-marker-preview.png',
+			videoUrl: 'https://remotion.media/elements/text-text-marker-preview.mp4',
+		},
 		previewPadding: 120,
 		slug: 'text/text-marker',
+		width: 1920,
+	},
+	'text/timed-captions': {
+		category: 'text',
+		component: TimedCaptions,
+		contributors: [{username: 'JonnyBurger', contribution: null}],
+		description:
+			'Previously a paid template on remotion.pro, Timed Captions is now free for everyone.',
+		displayName: 'Timed Captions',
+		durationInFrames: 210,
+		elementHeight: 180,
+		elementWidth: 900,
+		fps: 30,
+		height: 1080,
+		posterFrame: 75,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/text-timed-captions-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/text-timed-captions-preview.mp4',
+		},
+		previewPadding: 120,
+		slug: 'text/timed-captions',
 		width: 1920,
 	},
 } satisfies Record<string, ElementDefinition>;

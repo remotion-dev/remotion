@@ -185,6 +185,8 @@ export const sitesCreateSubcommand = async (
 			enableCaching: BrowserSafeApis.options.bundleCacheOption.getValue({
 				commandLine: CliInternals.parsedCli,
 			}).value,
+			bundlerOverride: ConfigInternals.getBundlerOverrideFn(),
+			rspackOverride: ConfigInternals.getRspackOverrideFn(),
 			webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
 			gitSource,
 			bypassBucketNameValidation: true,

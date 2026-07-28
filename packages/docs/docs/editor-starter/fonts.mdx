@@ -48,7 +48,7 @@ Every font has metadata which includes the available font family, font style, fo
 
 Storing all of this metadata on the client for all of the 250 default fonts would already result in a bundle size increase of 10MB.
 
-Because of this, font metadata is being stored in the backend and only the metadata of the fonts that are required are loaded to the client. This is the reason for the [`GET /api/font/:name`](/docs/editor-starter/backend-routes#get-apifontname) endpoint.
+Because of this, font metadata is being stored in the backend and only the metadata of the fonts that are required are loaded to the client. This is the reason for the [`GET /api/fonts/:name`](/docs/editor-starter/backend-routes#get-apifontsname) endpoint.
 
 ## Previews in the font dropdown
 

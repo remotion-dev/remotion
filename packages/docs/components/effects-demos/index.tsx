@@ -1,13 +1,9 @@
 import {useColorMode} from '@docusaurus/theme-common';
+import {DragAndDropInternals} from '@remotion/drag-and-drop';
 import {Player} from '@remotion/player';
 import React, {useCallback, useMemo, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
-import controlStyles from '../demos/styles.module.css';
-import {
-	makeEffectDragData,
-	setEffectDragData,
-	setEffectDragImage,
-} from './effect-drag-data';
+import {setEffectDragData, setEffectDragImage} from './effect-drag-data';
 import {
 	fillSchemaDefaults,
 	getActiveSchemaFields,
@@ -15,6 +11,7 @@ import {
 } from './get-default-props-from-schema';
 import {effectsDemos} from './registry';
 import {SchemaControl} from './schema-control';
+import controlStyles from '../demos/styles.module.css';
 import styles from './styles.module.css';
 
 export const EffectsDemo: React.FC<{
@@ -52,10 +49,11 @@ export const EffectsDemo: React.FC<{
 	}, [initialState]);
 
 	const dragData = useMemo(() => {
-		return makeEffectDragData({
-			effectName: demo.effectName,
-			effectImportPath: demo.effectImportPath,
-			effectConfig: state,
+		return DragAndDropInternals.makeDragData({
+			type: 'effect',
+			name: demo.effectName,
+			importPath: demo.effectImportPath,
+			config: state,
 		});
 	}, [demo.effectImportPath, demo.effectName, state]);
 

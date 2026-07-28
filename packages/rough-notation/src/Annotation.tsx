@@ -235,6 +235,9 @@ const sharedSchema = (defaultRoughness: number): InteractivitySchema => ({
 	...colorSchema,
 	...Interactive.textSchema,
 	...textContentSchema,
+	...Interactive.backgroundSchema,
+	...Interactive.borderSchema,
+	...Interactive.borderRadiusSchema,
 });
 
 export const highlightSchema: InteractivitySchema = {
@@ -413,7 +416,10 @@ const makeAnnotationComponent = ({
 				_remotionInternalDocumentationLink={`https://www.remotion.dev/docs/rough-notation/${documentationSlug}`}
 				outlineRef={outlineRef}
 			>
-				<span ref={outlineRef} style={{display: 'inline-block'}}>
+				<span
+					ref={outlineRef}
+					style={{display: 'inline-block', position: 'relative'}}
+				>
 					<annotation.Container>
 						{layer === 'behind' ? annotationElement : null}
 						<annotation.Tracker style={style}>{children}</annotation.Tracker>

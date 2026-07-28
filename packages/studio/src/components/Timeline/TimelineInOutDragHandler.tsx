@@ -297,6 +297,15 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 		],
 	);
 
+	const onPointerCancelInOut = useCallback(() => {
+		document.body.style.userSelect = '';
+		document.body.style.webkitUserSelect = '';
+		stopForcingSpecificCursor();
+		setInOutDragging({
+			dragging: false,
+		});
+	}, []);
+
 	useEffect(() => {
 		if (inOutDragging.dragging === false) {
 			return;
@@ -304,11 +313,28 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 
 		window.addEventListener('pointermove', onPointerMoveInOut);
 		window.addEventListener('pointerup', onPointerUpInOut);
+		window.addEventListener('pointercancel', onPointerCancelInOut);
+		window.addEventListener('blur', onPointerCancelInOut);
 		return () => {
 			window.removeEventListener('pointermove', onPointerMoveInOut);
 			window.removeEventListener('pointerup', onPointerUpInOut);
+			window.removeEventListener('pointercancel', onPointerCancelInOut);
+			window.removeEventListener('blur', onPointerCancelInOut);
 		};
-	}, [inOutDragging.dragging, onPointerMoveInOut, onPointerUpInOut]);
+	}, [
+		inOutDragging.dragging,
+		onPointerCancelInOut,
+		onPointerMoveInOut,
+		onPointerUpInOut,
+	]);
+
+	useEffect(() => {
+		return () => {
+			document.body.style.userSelect = '';
+			document.body.style.webkitUserSelect = '';
+			stopForcingSpecificCursor();
+		};
+	}, []);
 
 	const inContextMenu = useMemo((): ComboboxValue[] => {
 		return [

@@ -69,6 +69,7 @@ test('serves file source from an origin-less GET request', async () => {
 
 		await handleRoutes({
 			binariesDirectory: null,
+			configFile: null,
 			enableCrossSiteIsolation: false,
 			entryPoint: '',
 			getAudioLatencyHint: () => null,

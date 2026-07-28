@@ -2,10 +2,10 @@ import type {
 	RecastCodemod,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
-import {useCallback, useContext, useMemo} from 'react';
-import {Internals, type _InternalTypes} from 'remotion';
+import {useCallback, useMemo} from 'react';
+import type {_InternalTypes} from 'remotion';
+import {useSelectComposition} from '../components/InitialCompositionLoader';
 import {applyCodemod} from '../components/RenderQueue/actions';
-import {pushUrl} from './url-state';
 import {
 	validateCompositionDimension,
 	validateCompositionName,
@@ -80,7 +80,7 @@ export const useCreateComposition = ({
 		height: number;
 	};
 }) => {
-	const {setCanvasContent} = useContext(Internals.CompositionSetters);
+	const selectComposition = useSelectComposition();
 	const componentName = useMemo(() => toPascalCase(newId), [newId]);
 
 	const nameValidationMessage = useMemo(() => {
@@ -141,13 +141,19 @@ export const useCreateComposition = ({
 
 			if (result.success) {
 				await waitForComposition(newId);
-				setCanvasContent({type: 'composition', compositionId: newId});
-				pushUrl(`/${newId}`);
+				selectComposition(
+					{
+						id: newId,
+						folderName,
+						parentFolderName: parentName,
+					},
+					true,
+				);
 			}
 
 			return result;
 		},
-		[codemod, newId, setCanvasContent],
+		[codemod, folderName, newId, parentName, selectComposition],
 	);
 
 	return {

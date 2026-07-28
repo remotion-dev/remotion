@@ -212,7 +212,7 @@ export const KeyframeSettings: React.FC<{
 								selectedId={propStatus.clamping.left}
 								title="Extrapolate left"
 								style={comboStyle}
-								small
+								size="small"
 							/>
 						</InspectorDetailRow>
 						<InspectorDetailRow label="Extrapolate right">
@@ -221,7 +221,7 @@ export const KeyframeSettings: React.FC<{
 								selectedId={propStatus.clamping.right}
 								title="Extrapolate right"
 								style={comboStyle}
-								small
+								size="small"
 							/>
 						</InspectorDetailRow>
 						<InspectorDetailRow label="Output">
@@ -230,7 +230,7 @@ export const KeyframeSettings: React.FC<{
 								selectedId={propStatus.output ?? 'linear'}
 								title="Output"
 								style={comboStyle}
-								small
+								size="small"
 							/>
 						</InspectorDetailRow>
 					</>

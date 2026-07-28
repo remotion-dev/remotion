@@ -1,10 +1,10 @@
+import {DragAndDropInternals} from '@remotion/drag-and-drop';
 import {
 	EFFECT_CATALOG,
 	getEffectCatalogCategories,
 	getEffectDocumentationPath,
 	getEffectPreviewAlt,
 	getEffectPreviewSource,
-	makeEffectDragDataFromCatalogItem,
 	type EffectCatalogItem,
 } from '@remotion/studio-shared';
 import React from 'react';
@@ -34,7 +34,10 @@ const previewImage: React.CSSProperties = {
 const EffectCard: React.FC<{
 	readonly effect: EffectCatalogItem;
 }> = ({effect}) => {
-	const dragData = makeEffectDragDataFromCatalogItem(effect);
+	const dragData = DragAndDropInternals.makeDragData({
+		type: 'effect',
+		...effect.effect,
+	});
 
 	return (
 		<TOCItem

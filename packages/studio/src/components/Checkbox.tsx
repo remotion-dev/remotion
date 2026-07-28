@@ -2,7 +2,6 @@ import React, {useEffect, useMemo, useRef} from 'react';
 import {
 	INPUT_BACKGROUND,
 	BLACK_ALPHA_60,
-	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
 } from '../helpers/colors';
@@ -51,7 +50,7 @@ export const Checkbox: React.FC<{
 		() => ({
 			width: bulletSize,
 			height: bulletSize,
-			backgroundColor: LIGHT_TEXT,
+			backgroundColor: WHITE,
 			borderRadius: '50%',
 		}),
 		[bulletSize],

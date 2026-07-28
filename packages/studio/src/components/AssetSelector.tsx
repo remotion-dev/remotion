@@ -13,6 +13,7 @@ import {useZIndex} from '../state/z-index';
 import {AssetFolderTree} from './AssetSelectorItem';
 import {inlineCodeSnippet} from './Menu/styles';
 import {showNotification} from './Notifications/NotificationCenter';
+import {ExplorerQuickSwitcherTrigger} from './QuickSwitcher/ExplorerQuickSwitcherTrigger';
 import {useStaticFiles} from './use-static-files';
 
 const container: React.CSSProperties = {
@@ -165,6 +166,11 @@ export const AssetSelector: React.FC<{
 			onDragOver={shouldAllowUpload ? onDragOver : undefined}
 			onDrop={shouldAllowUpload ? onDrop : undefined}
 		>
+			<ExplorerQuickSwitcherTrigger
+				mode="assets"
+				showShortcut
+				tabIndex={tabIndex}
+			/>
 			{staticFiles.length === 0 ? (
 				publicFolderExists ? (
 					<div style={emptyState}>

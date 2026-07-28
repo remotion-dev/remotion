@@ -199,6 +199,9 @@
 			"path": "./packages/studio"
 		},
 		{
+			"path": "./packages/studio-codemods"
+		},
+		{
 			"path": "./packages/studio-server"
 		},
 		{
@@ -260,6 +263,9 @@
 		},
 		{
 			"path": "./packages/canvas-capture"
+		},
+		{
+			"path": "./packages/drag-and-drop"
 		},
 		{
 			"path": "./packages/light-leaks"

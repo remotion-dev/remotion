@@ -25,14 +25,18 @@ import {
 	TIMELINE_BACKGROUND_COLOR,
 	TIMELINE_SELECTED_BACKGROUND_COLOR,
 	TIMELINE_SELECTED_LABEL_BACKGROUND_COLOR,
+	WHITE_ALPHA_05,
 	WHITE_ALPHA_10,
 	WHITE_ALPHA_80,
 } from '../../helpers/colors';
 import type {
 	SequenceNodePathInfo,
-	TrackWithHash,
+	TimelineTrackData,
 } from '../../helpers/get-timeline-sequence-sort-key';
-import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {
+	isStudioInteractivityEnabled,
+	isStudioSelectionEnabled,
+} from '../../helpers/interactivity-enabled';
 import {
 	buildTimelineTree,
 	flattenVisibleTreeNodes,
@@ -60,6 +64,7 @@ import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
 
 export const TIMELINE_SELECTED_BACKGROUND = TIMELINE_SELECTED_BACKGROUND_COLOR;
+export const TIMELINE_HOVER_BACKGROUND = WHITE_ALPHA_05;
 export const TIMELINE_SELECTED_LABEL_BACKGROUND =
 	TIMELINE_SELECTED_LABEL_BACKGROUND_COLOR;
 export const TIMELINE_SELECTED_LABEL_TEXT = BLACK;
@@ -105,14 +110,18 @@ export const getTimelineRowHighlightBackground = ({
 	showSelectedBackground,
 	selected,
 	containsSelection,
+	hovered,
 }: {
 	readonly showSelectedBackground: boolean;
 	readonly selected: boolean;
 	readonly containsSelection: boolean;
+	readonly hovered: boolean;
 }): string | undefined => {
-	return showSelectedBackground && (selected || containsSelection)
-		? TIMELINE_SELECTED_BACKGROUND
-		: undefined;
+	if (showSelectedBackground && (selected || containsSelection)) {
+		return TIMELINE_SELECTED_BACKGROUND;
+	}
+
+	return hovered ? TIMELINE_HOVER_BACKGROUND : undefined;
 };
 
 export const TIMELINE_BACKGROUND = TIMELINE_BACKGROUND_COLOR;
@@ -560,6 +569,41 @@ export const getTimelineMarqueeSelection = ({
 	};
 };
 
+export const extendTimelineMarqueeSelection = ({
+	currentSelection,
+	marqueeSelection,
+}: {
+	readonly currentSelection: readonly TimelineSelection[];
+	readonly marqueeSelection: readonly TimelineSelection[];
+}): readonly TimelineSelection[] => {
+	if (marqueeSelection.length === 0) {
+		return currentSelection;
+	}
+
+	const marqueeKind = getTimelineMarqueeSelectionKind(marqueeSelection[0]);
+	if (marqueeKind === null) {
+		return marqueeSelection;
+	}
+
+	const selectedKeys = new Set(
+		currentSelection.map((item) => getTimelineSelectionKey(item)),
+	);
+	return [
+		...currentSelection.filter((item) =>
+			isTimelineSelectionCompatibleWithMarqueeKind(item, marqueeKind),
+		),
+		...marqueeSelection.filter((item) => {
+			const key = getTimelineSelectionKey(item);
+			if (selectedKeys.has(key)) {
+				return false;
+			}
+
+			selectedKeys.add(key);
+			return true;
+		}),
+	];
+};
+
 type TimelineSelectionContextValue = {
 	readonly canSelect: boolean;
 	readonly selectedItems: readonly TimelineSelection[];
@@ -767,7 +811,7 @@ const nodePathDescendsFrom = (
 };
 
 export const getSelectableTimelineSequenceSelections = (
-	tracks: readonly Pick<TrackWithHash, 'nodePathInfo'>[],
+	tracks: readonly Pick<TimelineTrackData, 'nodePathInfo'>[],
 ): TimelineSelection[] => {
 	return tracks.flatMap((track): TimelineSelection[] => {
 		if (
@@ -838,7 +882,7 @@ export const getSelectableTimelineItems = ({
 	readonly getIsExpanded: GetIsExpanded;
 	readonly propStatuses: PropStatuses;
 	readonly selectedItems: readonly TimelineSelection[];
-	readonly timeline: readonly TrackWithHash[];
+	readonly timeline: readonly TimelineTrackData[];
 	readonly timelinePosition: number;
 }): TimelineSelection[] => {
 	const selectedRowKeys = getSelectedTimelineExpandedRowKeys(selectedItems);
@@ -941,7 +985,7 @@ export const getTimelineSequenceSelectionKey = (
 ): string => timelineNodePathInfoToKey({...nodePathInfo, auxiliaryKeys: []});
 
 export const TimelineSelectAllKeybindings: React.FC<{
-	readonly timeline: readonly TrackWithHash[];
+	readonly timeline: readonly TimelineTrackData[];
 }> = ({timeline}) => {
 	const keybindings = useKeybinding();
 	const {canSelect} = useTimelineSelection();
@@ -1020,7 +1064,7 @@ const TimelineEscapeKeybindings: React.FC = () => {
 
 export const TimelineSelectableItemsProvider: React.FC<{
 	readonly children: React.ReactNode;
-	readonly timeline: readonly TrackWithHash[];
+	readonly timeline: readonly TimelineTrackData[];
 }> = ({children, timeline}) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
@@ -1067,9 +1111,9 @@ export const TimelineSelectionProvider: React.FC<{
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
 	const {expandParentTracks} = useContext(ExpandedTracksSetterContext);
 	const canSelect =
-		studioInteractivityEnabled &&
-		previewServerState.type === 'connected' &&
-		!window.remotion_isReadOnlyStudio;
+		isStudioSelectionEnabled() &&
+		(previewServerState.type === 'connected' ||
+			window.remotion_isReadOnlyStudio);
 	const [selectedItems, setSelectedItems] = useState<
 		readonly TimelineSelection[]
 	>([]);
@@ -1103,7 +1147,9 @@ export const TimelineSelectionProvider: React.FC<{
 	}, [canSelect]);
 
 	const canSelectItem = useCallback(
-		(_item: TimelineSelection) => canSelect,
+		(item: TimelineSelection) =>
+			canSelect &&
+			(!window.remotion_isReadOnlyStudio || item.type === 'sequence'),
 		[canSelect],
 	);
 
@@ -1465,8 +1511,12 @@ export const TimelineSelectionProvider: React.FC<{
 			<TimelineSelectionContext.Provider value={value}>
 				{children}
 				<TimelineEscapeKeybindings />
-				<TimelineClipboardKeybindings />
-				<TimelineDeleteKeybindings />
+				{isStudioInteractivityEnabled() ? (
+					<>
+						<TimelineClipboardKeybindings />
+						<TimelineDeleteKeybindings />
+					</>
+				) : null}
 			</TimelineSelectionContext.Provider>
 		</CurrentTimelineSelectionContext.Provider>
 	);
@@ -1491,7 +1541,8 @@ export const useCurrentTimelineSelectionStateAsRef = () => {
 };
 
 export const useTimelineMarqueeSelection = () => {
-	const {canSelect, getMarqueeSelection, selectItems} = useTimelineSelection();
+	const {canSelect, getMarqueeSelection, selectedItems, selectItems} =
+		useTimelineSelection();
 	const {isHighestContext} = useZIndex();
 	const [marqueeRect, setMarqueeRect] = useState<TimelineMarqueeRect | null>(
 		null,
@@ -1507,7 +1558,7 @@ export const useTimelineMarqueeSelection = () => {
 				return;
 			}
 
-			if (event.shiftKey || event.metaKey || event.ctrlKey) {
+			if (event.shiftKey) {
 				return;
 			}
 
@@ -1548,6 +1599,8 @@ export const useTimelineMarqueeSelection = () => {
 
 			let hasDragged = false;
 			let lockedSelectionKind: TimelineMarqueeSelectionKind | null = null;
+			const extendSelection = event.metaKey || event.ctrlKey;
+			const selectionBeforeMarquee = selectedItems;
 
 			const cleanup = () => {
 				window.removeEventListener('pointermove', onPointerMove);
@@ -1586,7 +1639,14 @@ export const useTimelineMarqueeSelection = () => {
 				const nextSelection = getMarqueeSelection(rect, lockedSelectionKind);
 				lockedSelectionKind = nextSelection.lockedSelectionKind;
 				setMarqueeRect(rect);
-				selectItems(nextSelection.selectedItems);
+				selectItems(
+					extendSelection
+						? extendTimelineMarqueeSelection({
+								currentSelection: selectionBeforeMarquee,
+								marqueeSelection: nextSelection.selectedItems,
+							})
+						: nextSelection.selectedItems,
+				);
 			};
 
 			const onPointerMove = (moveEvent: PointerEvent) => {
@@ -1606,7 +1666,13 @@ export const useTimelineMarqueeSelection = () => {
 			window.addEventListener('pointerup', onPointerUp);
 			window.addEventListener('pointercancel', onPointerCancel);
 		},
-		[canSelect, getMarqueeSelection, isHighestContext, selectItems],
+		[
+			canSelect,
+			getMarqueeSelection,
+			isHighestContext,
+			selectedItems,
+			selectItems,
+		],
 	);
 
 	return {marqueeRect, onPointerDownCapture};
@@ -1802,6 +1868,7 @@ export const useTimelineRowContainsSelection = (
 
 export const useTimelineRowHighlightBackground = (
 	nodePathInfo: SequenceNodePathInfo | null,
+	hovered = false,
 ): string | undefined => {
 	const {selected} = useTimelineRowSelection(nodePathInfo);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
@@ -1809,5 +1876,6 @@ export const useTimelineRowHighlightBackground = (
 		showSelectedBackground: true,
 		selected,
 		containsSelection,
+		hovered,
 	});
 };

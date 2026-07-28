@@ -43,6 +43,9 @@ const labelSchema = {
 	...Interactive.baseSchema,
 	...Interactive.transformSchema,
 	...Interactive.textSchema,
+	...Interactive.backgroundSchema,
+	...Interactive.borderSchema,
+	...Interactive.borderRadiusSchema,
 	children: {
 		type: 'text-content',
 		default: '',

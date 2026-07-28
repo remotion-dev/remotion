@@ -50,6 +50,10 @@ export const Arc: React.FC<{
 	const d = ellipseToPath(cx, cy);
 	const tangent = getTangentAtLength(d, (electronProgress % 1) * arcLength);
 	const pointAtLength = getPointAtLength(d, (electronProgress % 1) * arcLength);
+	if (!tangent || !pointAtLength) {
+		return null;
+	}
+
 	const move = (orig: number, x: number, y: number): number =>
 		orig + x * tangent.x + y * tangent.y;
 

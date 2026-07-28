@@ -60,14 +60,12 @@ import {useEncodableVideoCodecs} from './use-encodable-video-codecs';
 import {WebRenderModalAdvanced} from './WebRenderModalAdvanced';
 import {WebRenderModalAudio} from './WebRenderModalAudio';
 import {WebRenderModalBasic} from './WebRenderModalBasic';
-import {WebRenderModalLicense} from './WebRenderModalLicense';
 import {WebRenderModalPicture} from './WebRenderModalPicture';
 
 type WebRenderModalProps = {
 	readonly compositionId: string;
 	readonly initialFrame: number;
 	readonly initialLogLevel: LogLevel;
-	readonly initialLicenseKey: string | null;
 	readonly defaultProps: Record<string, unknown>;
 	readonly inFrameMark: number | null;
 	readonly outFrameMark: number | null;
@@ -90,13 +88,7 @@ type WebRenderModalProps = {
 
 export type RenderType = 'still' | 'video' | 'audio';
 
-type TabType =
-	| 'general'
-	| 'data'
-	| 'picture'
-	| 'audio'
-	| 'advanced'
-	| 'license';
+type TabType = 'general' | 'data' | 'picture' | 'audio' | 'advanced';
 
 const invalidCharacters = ['?', '*', '+', ':', '%'];
 
@@ -174,7 +166,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	inFrameMark,
 	outFrameMark,
 	initialLogLevel,
-	initialLicenseKey,
 	initialStillImageFormat,
 	initialDefaultOutName,
 	initialScale,
@@ -200,6 +191,13 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			'Should not be able to render without resolving comp first',
 		);
 	}
+
+	const renderDefaults = window.remotion_renderDefaults;
+	if (!renderDefaults) {
+		throw new Error('Render defaults are not available');
+	}
+
+	const {publicLicenseKey} = renderDefaults;
 
 	const {
 		resolved: {result: resolvedComposition},
@@ -272,8 +270,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [transparent, setTransparent] = useState(initialTransparent ?? false);
 	const [muted, setMuted] = useState(initialMuted ?? false);
 	const [scale, setScale] = useState(initialScale ?? 1);
-
-	const [licenseKey, setLicenseKey] = useState(initialLicenseKey);
 
 	const [pageResponsiveness, setPageResponsiveness] =
 		useState<WebRendererPageResponsiveness>(
@@ -547,7 +543,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					delayRenderTimeout,
 					mediaCacheSizeInBytes,
 					logLevel,
-					licenseKey,
+					licenseKey: publicLicenseKey,
 					scale,
 				},
 				compositionRef,
@@ -575,7 +571,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					delayRenderTimeout,
 					mediaCacheSizeInBytes,
 					logLevel,
-					licenseKey,
+					licenseKey: publicLicenseKey,
 					scale,
 					pageResponsiveness,
 				},
@@ -605,7 +601,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		delayRenderTimeout,
 		mediaCacheSizeInBytes,
 		logLevel,
-		licenseKey,
+		publicLicenseKey,
 		container,
 		effectiveVideoCodec,
 		effectiveAudioCodec,
@@ -698,8 +694,13 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					</VerticalTab>
 					<VerticalTab
 						style={horizontalTab}
-						selected={tab === 'license'}
-						onClick={() => setTab('license')}
+						selected={false}
+						onClick={() =>
+							setSelectedModal({
+								type: 'configure-license',
+								initialPublicLicenseKey: publicLicenseKey,
+							})
+						}
 					>
 						<div style={iconContainer}>
 							<CertificateIcon style={icon} />
@@ -785,13 +786,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							pageResponsiveness={pageResponsiveness}
 							setPageResponsiveness={setPageResponsiveness}
 						/>
-					) : (
-						<WebRenderModalLicense
-							licenseKey={licenseKey}
-							setLicenseKey={setLicenseKey}
-							initialPublicLicenseKey={initialLicenseKey}
-						/>
-					)}
+					) : null}
 				</div>
 			</div>
 		</div>

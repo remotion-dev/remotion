@@ -192,6 +192,13 @@ export type ArrayFieldSchema = {
 	keyframable?: false;
 };
 
+export type CaptionsFieldSchema = {
+	type: 'remotion-captions';
+	default: readonly unknown[] | undefined;
+	description?: string;
+	keyframable: false;
+};
+
 export type VisibleFieldSchema =
 	| NumberFieldSchema
 	| BooleanFieldSchema
@@ -206,11 +213,21 @@ export type VisibleFieldSchema =
 	| FontFamilyFieldSchema
 	| AssetFieldSchema
 	| ArrayFieldSchema
+	| CaptionsFieldSchema
 	| EnumFieldSchema;
 
 export type InteractivitySchemaField = VisibleFieldSchema | HiddenFieldSchema;
 
 export type InteractivitySchema = {[key: string]: InteractivitySchemaField};
+
+export const captionsSchema = {
+	captions: {
+		type: 'remotion-captions',
+		default: undefined,
+		description: 'Captions',
+		keyframable: false,
+	},
+} as const satisfies InteractivitySchema;
 
 export type InteractivitySchemaKeysRecord<S extends InteractivitySchema> =
 	Record<keyof S, unknown>;
@@ -333,6 +350,120 @@ export const textSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
+export const borderSchema = {
+	'style.borderWidth': {
+		type: 'number',
+		default: undefined,
+		min: 0,
+		step: 1,
+		description: 'Border width',
+		hiddenFromList: false,
+	},
+	'style.borderStyle': {
+		type: 'enum',
+		// `none` is the CSS initial value of border-style.
+		default: 'none',
+		description: 'Border style',
+		variants: {
+			none: {},
+			hidden: {},
+			solid: {},
+			dashed: {},
+			dotted: {},
+			double: {},
+			groove: {},
+			ridge: {},
+			inset: {},
+			outset: {},
+		},
+	},
+	'style.borderColor': {
+		type: 'color',
+		default: undefined,
+		description: 'Border color',
+	},
+} as const satisfies InteractivitySchema;
+
+export const borderRadiusSchema = {
+	'style.borderRadius': {
+		type: 'number',
+		default: 0,
+		min: 0,
+		step: 1,
+		description: 'Border radius',
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	'style.borderTopLeftRadius': {
+		type: 'number',
+		default: 0,
+		min: 0,
+		step: 1,
+		description: 'Top left radius',
+		hiddenFromList: false,
+	},
+	'style.borderTopRightRadius': {
+		type: 'number',
+		default: 0,
+		min: 0,
+		step: 1,
+		description: 'Top right radius',
+		hiddenFromList: false,
+	},
+	'style.borderBottomRightRadius': {
+		type: 'number',
+		default: 0,
+		min: 0,
+		step: 1,
+		description: 'Bottom right radius',
+		hiddenFromList: false,
+	},
+	'style.borderBottomLeftRadius': {
+		type: 'number',
+		default: 0,
+		min: 0,
+		step: 1,
+		description: 'Bottom left radius',
+		hiddenFromList: false,
+	},
+} as const satisfies InteractivitySchema;
+
+export const backgroundSchema = {
+	'style.backgroundColor': {
+		type: 'color',
+		// `transparent` is the CSS initial value of background-color.
+		default: 'transparent',
+		description: 'Color',
+	},
+} as const satisfies InteractivitySchema;
+
+export const svgStrokeSchema = {
+	stroke: {
+		type: 'color',
+		// `none` is the SVG initial value of stroke.
+		default: 'none',
+		description: 'Stroke',
+	},
+	strokeWidth: {
+		type: 'number',
+		// `1` is the SVG initial value of stroke-width.
+		default: 1,
+		description: 'Stroke width',
+		min: 0,
+		step: 1,
+		hiddenFromList: false,
+	},
+} as const satisfies InteractivitySchema;
+
+export const svgPaintSchema = {
+	fill: {
+		type: 'color',
+		default: undefined,
+		description: 'Fill',
+	},
+	...svgStrokeSchema,
+} as const satisfies InteractivitySchema;
+
 export const textContentSchema = {
 	children: {
 		type: 'text-content',
@@ -362,22 +493,61 @@ export const premountSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-export const premountStyleSchema = {
-	styleWhilePremounted: {
-		type: 'hidden',
-	},
-	styleWhilePostmounted: {
-		type: 'hidden',
-	},
-} as const satisfies InteractivitySchema;
-
 export const sequencePremountSchema = {
 	...premountSchema,
-	...premountStyleSchema,
 } as const satisfies InteractivitySchema;
 
+export const cropSchema = {
+	cropLeft: {
+		type: 'number',
+		default: 0,
+		description: 'Crop left',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	cropRight: {
+		type: 'number',
+		default: 0,
+		description: 'Crop right',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	cropTop: {
+		type: 'number',
+		default: 0,
+		description: 'Crop top',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	cropBottom: {
+		type: 'number',
+		default: 0,
+		description: 'Crop bottom',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		hiddenFromList: false,
+		keyframable: true,
+	},
+} as const satisfies InteractivitySchema;
+
+export const sequenceCropSchema = cropSchema;
+
 export const sequenceStyleSchema = {
+	...sequenceCropSchema,
 	...transformSchema,
+	...backgroundSchema,
+	...borderSchema,
+	...borderRadiusSchema,
 	...sequencePremountSchema,
 } as const satisfies InteractivitySchema;
 

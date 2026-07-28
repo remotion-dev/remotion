@@ -8,7 +8,6 @@ import React, {
 	useRef,
 } from 'react';
 import type {SequenceControls} from './CompositionManager.js';
-import {delayRender} from './delay-render.js';
 import type {EffectsProp} from './effects/effect-types.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
@@ -17,14 +16,22 @@ import {
 	useMemoizedEffects,
 } from './effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
-import type {InteractiveBaseProps} from './Interactive.js';
+import type {
+	InteractiveBaseProps,
+	InteractiveCropProps,
+} from './Interactive.js';
 import {
+	backgroundSchema,
 	baseSchema,
+	borderRadiusSchema,
+	borderSchema,
+	cropSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
 import type {AbsoluteFillLayout} from './Sequence.js';
 import {Sequence} from './Sequence.js';
+import {useCropStyle} from './use-crop-style.js';
 import {useDelayRender} from './use-delay-render.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
@@ -212,6 +219,21 @@ export const isHtmlInCanvasSupported = (): boolean => {
 export const HTML_IN_CANVAS_UNSUPPORTED_MESSAGE =
 	'HTML in Canvas is not supported. Two common causes: Chrome is older than version 148 (update Chrome), or the HTML-in-Canvas flag is disabled at chrome://flags/#canvas-draw-element (enable it and restart Chrome).';
 
+const MINIMUM_CHROME_VERSION_FOR_NESTED_HTML_IN_CANVAS = 152;
+
+const getChromeMajorVersion = (): number | null => {
+	if (typeof navigator === 'undefined') {
+		return null;
+	}
+
+	const match = navigator.userAgent.match(/\b(?:HeadlessChrome|Chrome)\/(\d+)/);
+	if (!match) {
+		return null;
+	}
+
+	return Number(match[1]);
+};
+
 export type HtmlInCanvasOnPaint = (
 	params: HtmlInCanvasOnPaintParams,
 ) => void | Promise<void>;
@@ -310,6 +332,7 @@ const defaultOnPaint = ({
 
 /* eslint-disable react/require-default-props -- optional fields mirror `<Sequence>` / canvas hooks API */
 export type HtmlInCanvasProps = Omit<InteractiveBaseProps, 'children'> &
+	InteractiveCropProps &
 	Omit<
 		AbsoluteFillLayout,
 		| 'layout'
@@ -369,10 +392,21 @@ const HtmlInCanvasContent = forwardRef<
 	) => {
 		const ancestor = useContext(HtmlInCanvasAncestorContext);
 		assertHtmlInCanvasDimensions(width, height);
+		const chromeMajorVersion = getChromeMajorVersion();
+		if (
+			ancestor &&
+			chromeMajorVersion !== null &&
+			chromeMajorVersion < MINIMUM_CHROME_VERSION_FOR_NESTED_HTML_IN_CANVAS
+		) {
+			throw new Error(
+				`Nested <HtmlInCanvas> components require Chrome ${MINIMUM_CHROME_VERSION_FOR_NESTED_HTML_IN_CANVAS} or newer, but the current browser is Chrome ${chromeMajorVersion}. Upgrade Chrome or avoid nesting components that use <HtmlInCanvas>, such as shapes with effects.`,
+			);
+		}
+
 		const resolvedPixelDensity = resolveHtmlInCanvasPixelDensity(pixelDensity);
 		const canvasWidth = Math.ceil(width * resolvedPixelDensity);
 		const canvasHeight = Math.ceil(height * resolvedPixelDensity);
-		const {continueRender, cancelRender} = useDelayRender();
+		const {delayRender, continueRender, cancelRender} = useDelayRender();
 		const {isClientSideRendering, isRendering} = useRemotionEnvironment();
 		const canRetryMissingPaintRecord = !isRendering || isClientSideRendering;
 		const usesDirectLayoutCanvas =
@@ -579,6 +613,7 @@ const HtmlInCanvasContent = forwardRef<
 			chainState,
 			continueRender,
 			cancelRender,
+			delayRender,
 			resolvedPixelDensity,
 			canRetryMissingPaintRecord,
 		]);
@@ -659,7 +694,7 @@ const HtmlInCanvasContent = forwardRef<
 			return () => {
 				continueRender(handle);
 			};
-		}, [width, height, continueRender, canvasSizeKey]);
+		}, [width, height, continueRender, delayRender, canvasSizeKey]);
 
 		const innerStyle = useMemo(() => {
 			return {
@@ -721,6 +756,10 @@ const HtmlInCanvasInner = forwardRef<
 			pixelDensity,
 			controls,
 			style,
+			cropLeft,
+			cropRight,
+			cropTop,
+			cropBottom,
 			durationInFrames,
 			name,
 			...sequenceProps
@@ -740,6 +779,14 @@ const HtmlInCanvasInner = forwardRef<
 			},
 			[ref],
 		);
+		const croppedStyle = useCropStyle({
+			cropLeft,
+			cropRight,
+			cropTop,
+			cropBottom,
+			style: style ?? null,
+			componentName: '<HtmlInCanvas />',
+		});
 
 		return (
 			<Sequence
@@ -761,7 +808,7 @@ const HtmlInCanvasInner = forwardRef<
 					onInit={onInit}
 					pixelDensity={pixelDensity}
 					controls={controls}
-					style={style}
+					style={croppedStyle ?? undefined}
 				>
 					{children}
 				</HtmlInCanvasContent>
@@ -784,6 +831,10 @@ export const htmlInCanvasSchema = {
 		hiddenFromList: false,
 	},
 	...transformSchema,
+	...backgroundSchema,
+	...borderSchema,
+	...borderRadiusSchema,
+	...cropSchema,
 } as const satisfies InteractivitySchema;
 
 const HtmlInCanvasWrapped = withInteractivitySchema({

@@ -1,15 +1,15 @@
-import type {WebpackConfiguration} from '@remotion/bundler';
+import type {BundlerConfiguration} from '@remotion/bundler';
 
 /**
- * @description A function that modifies the default Webpack configuration to make the necessary changes to support Tailwind.
+ * @description A function that modifies the default bundler configuration to make the necessary changes to support Tailwind.
  * @see [Documentation](https://www.remotion.dev/docs/tailwind/enable-tailwind)
  */
-export const enableTailwind: (
-	currentConfiguration: WebpackConfiguration,
+export const enableTailwind = <Configuration extends BundlerConfiguration>(
+	currentConfiguration: Configuration,
 	options?: {
 		configLocation?: string;
 	},
-) => WebpackConfiguration = (currentConfiguration, options) => {
+): Configuration => {
 	return {
 		...currentConfiguration,
 		module: {

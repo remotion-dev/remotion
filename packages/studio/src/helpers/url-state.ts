@@ -20,6 +20,10 @@ export const pushUrl = (url: string) => {
 	window.history.pushState({}, 'Studio', getUrlForRoute(url));
 };
 
+export const replaceUrl = (url: string) => {
+	window.history.replaceState({}, 'Studio', getUrlForRoute(url));
+};
+
 export const clearUrl = () => {
 	window.location.href = window.location.pathname;
 };

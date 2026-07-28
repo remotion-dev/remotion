@@ -66,7 +66,7 @@ export const TimelineEnumField: React.FC<{
 
 	return (
 		<Combobox
-			small
+			size="small"
 			title={field.key}
 			selectedId={current}
 			values={items}

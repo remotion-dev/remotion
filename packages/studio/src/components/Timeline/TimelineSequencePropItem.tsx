@@ -7,19 +7,21 @@ import type {
 	InteractivitySchema,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
-import {Internals, useVideoConfig} from 'remotion';
+import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import {openOriginalPositionInEditorAtProperty} from '../../helpers/open-in-editor';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {ContextMenu} from '../ContextMenu';
+import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {callAddSequenceKeyframe} from './call-add-keyframe';
-import {getAnimationItemSelectionForSourceFrame} from './get-animation-item-selection-for-frame';
+import {getSequencePropResetChanges} from './get-sequence-prop-reset-changes';
 import {saveSequenceProps} from './save-sequence-prop';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
 import {TimelineFieldRowContent} from './TimelineFieldRowContent';
@@ -35,13 +37,21 @@ import {
 	TimelineFieldValue,
 	TimelineNonEditableStatus,
 } from './TimelineSchemaField';
-import {
-	useTimelineRowSelection,
-	useTimelineSelection,
-} from './TimelineSelection';
-import {canEditEasingForInterpolationFunction} from './update-selected-easing';
+import {useTimelineRowSelection} from './TimelineSelection';
 
 const fieldRowBase: React.CSSProperties = {};
+
+const inlineSourceFieldRow: React.CSSProperties = {
+	alignItems: 'stretch',
+	display: 'flex',
+	minWidth: 0,
+	width: '100%',
+};
+
+const computedSourceFieldRow: React.CSSProperties = {
+	boxSizing: 'border-box',
+	paddingInline: INSPECTOR_PANEL_HORIZONTAL_PADDING,
+};
 
 const isKeyframedStatus = (
 	status: CanUpdateSequencePropStatus,
@@ -133,6 +143,8 @@ const Value: React.FC<{
 			}
 
 			return saveSequenceProps({
+				addedKeyframes: null,
+				movedKeyframes: null,
 				changes: [
 					{
 						fileName: validatedLocation.source,
@@ -306,9 +318,6 @@ export const TimelineSequencePropItem: React.FC<{
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const selection = useTimelineRowSelection(nodePathInfo);
-	const {selectItems} = useTimelineSelection();
-	const setFrame = Internals.useTimelineSetFrame();
-	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const sourceFrame = timelinePosition - keyframeDisplayOffset;
 
@@ -391,16 +400,16 @@ export const TimelineSequencePropItem: React.FC<{
 		const fieldLabel = field.description ?? field.key;
 
 		saveSequenceProps({
-			changes: [
-				{
-					fileName: validatedLocation.source,
-					nodePath,
-					fieldKey: field.key,
-					value: field.fieldSchema.default,
-					defaultValue,
-					schema,
-				},
-			],
+			addedKeyframes: null,
+			movedKeyframes: null,
+			changes: getSequencePropResetChanges({
+				fileName: validatedLocation.source,
+				nodePath,
+				fieldKey: field.key,
+				value: field.fieldSchema.default,
+				defaultValue,
+				schema,
+			}),
 			setPropStatuses,
 			clientId: previewServerState.clientId,
 			undoLabel: `Reset ${fieldLabel}`,
@@ -437,97 +446,24 @@ export const TimelineSequencePropItem: React.FC<{
 		];
 	}, [canShowReset, onReset]);
 
-	const seekToDisplayFrame = useCallback(
-		(frame: number) => {
-			setFrame((current) => {
-				const next = {...current, [videoConfig.id]: frame};
-				Internals.persistCurrentFrame(next);
-				return next;
-			});
-		},
-		[setFrame, videoConfig.id],
-	);
-
 	const onPropertyDoubleClick = useCallback<
 		React.MouseEventHandler<HTMLDivElement>
 	>(
 		(event) => {
-			if (propStatus === null || propStatus.status === 'computed') {
-				return;
-			}
-
-			const keyframeSelection = {
-				type: 'keyframe' as const,
-				nodePathInfo,
-				frame: sourceFrame + keyframeDisplayOffset,
-			};
-
-			if (propStatus.status === 'static') {
-				if (!keyframable || previewServerState.type !== 'connected') {
-					return;
-				}
-
-				const value = Internals.getEffectiveVisualModeValue({
-					propStatus,
-					dragOverrideValue,
-					frame: sourceFrame,
-					defaultValue: field.fieldSchema.default,
-					shouldResortToDefaultValueIfUndefined: true,
-				});
-
-				event.stopPropagation();
-				callAddSequenceKeyframe({
-					fileName: validatedLocation.source,
-					nodePath,
-					fieldKey: field.key,
-					sourceFrame,
-					value,
-					schema,
-					setPropStatuses,
-					clientId: previewServerState.clientId,
-				}).catch(() => undefined);
-				selectItems([keyframeSelection], {reveal: true});
-				seekToDisplayFrame(keyframeSelection.frame);
-				return;
-			}
-
-			const targetSelection = getAnimationItemSelectionForSourceFrame({
-				includeEasings: canEditEasingForInterpolationFunction(
-					propStatus.interpolationFunction,
-				),
-				keyframeDisplayOffset,
-				keyframes: propStatus.keyframes,
-				nodePathInfo,
-				sourceFrame,
-			});
-
-			if (targetSelection === null) {
+			if (
+				!window.remotion_editorName ||
+				previewServerState.type !== 'connected'
+			) {
 				return;
 			}
 
 			event.stopPropagation();
-			selectItems([targetSelection], {reveal: true});
-			if (targetSelection.type === 'keyframe') {
-				seekToDisplayFrame(targetSelection.frame);
-			}
+			openOriginalPositionInEditorAtProperty({
+				originalPosition: validatedLocation,
+				property: field.key.split('.').at(-1) ?? field.key,
+			}).catch(() => undefined);
 		},
-		[
-			dragOverrideValue,
-			field.fieldSchema.default,
-			field.key,
-			keyframeDisplayOffset,
-			keyframable,
-			nodePath,
-			nodePathInfo,
-			previewServerState,
-			propStatus,
-			schema,
-			seekToDisplayFrame,
-			selectItems,
-			setPropStatuses,
-			sourceFrame,
-			validatedLocation.source,
-		],
+		[field.key, previewServerState.type, validatedLocation],
 	);
 
 	if (propStatus === null) {
@@ -554,6 +490,20 @@ export const TimelineSequencePropItem: React.FC<{
 	) : (
 		<TimelineNonEditableStatus propStatus={propStatus} />
 	);
+
+	if (field.typeName === 'asset' && field.key === 'src') {
+		return (
+			<div
+				style={{
+					...inlineSourceFieldRow,
+					...(propStatus.status === 'computed' ? computedSourceFieldRow : null),
+					...style,
+				}}
+			>
+				{fieldValue}
+			</div>
+		);
+	}
 
 	const row = (
 		<TimelineRowChrome

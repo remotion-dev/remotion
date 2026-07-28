@@ -23,6 +23,7 @@ import type {
 	AssetFieldSchema,
 	ArrayFieldSchema,
 	ArrayItemFieldSchema,
+	CaptionsFieldSchema,
 	InteractivitySchemaField,
 	InteractivitySchema,
 } from './interactivity-schema.js';
@@ -202,6 +203,7 @@ export {Img, ImgProps} from './Img.js';
 export {
 	Interactive,
 	type InteractiveBaseProps,
+	type InteractiveCropProps,
 	type InteractivePremountProps,
 	type InteractiveProps,
 	type InteractiveTransformProps,
@@ -342,6 +344,7 @@ export type {
 	AssetFieldSchema,
 	ArrayFieldSchema,
 	ArrayItemFieldSchema,
+	CaptionsFieldSchema,
 	DelayRenderScope,
 	JsxComponentIdentity,
 	LoopDisplay,

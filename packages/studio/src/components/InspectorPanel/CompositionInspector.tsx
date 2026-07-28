@@ -1,8 +1,8 @@
 import React, {useContext, useEffect, useMemo, useState} from 'react';
 import type {_InternalTypes} from 'remotion';
-import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
-import {FileIcon} from '../../icons/file';
-import {Plus} from '../../icons/plus';
+import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {PicIcon} from '../../icons/frame';
+import {SolidIcon} from '../../icons/solid';
 import {VisualControlsContext} from '../../visual-controls/VisualControls';
 import {DefaultPropsEditor} from '../DefaultPropsEditor';
 import {useZodIfPossible} from '../get-zod-if-possible';
@@ -43,11 +43,13 @@ import {
 import {useCompositionActions} from './use-composition-actions';
 
 const actionIconStyle: React.CSSProperties = {
-	height: 13,
-	width: 13,
+	height: 18,
+	width: 18,
 };
 
-const CompositionActions: React.FC = () => {
+const CompositionActions: React.FC<{
+	readonly readOnlyStudio: boolean;
+}> = ({readOnlyStudio}) => {
 	const {
 		canInsertAsset,
 		canInsertSolid,
@@ -57,7 +59,10 @@ const CompositionActions: React.FC = () => {
 		insertSolid,
 	} = useCompositionActions();
 
-	if (!canShowInsertAsset && !canShowInsertSolid) {
+	if (
+		(readOnlyStudio && !canShowInsertSolid) ||
+		(!canShowInsertAsset && !canShowInsertSolid)
+	) {
 		return null;
 	}
 
@@ -67,7 +72,9 @@ const CompositionActions: React.FC = () => {
 				<InspectorInlineAction
 					disabled={!canInsertSolid}
 					onClick={insertSolid}
-					renderIcon={(color) => <Plus color={color} style={actionIconStyle} />}
+					renderIcon={(color) => (
+						<SolidIcon color={color} style={actionIconStyle} />
+					)}
 				>
 					Add Solid
 				</InspectorInlineAction>
@@ -77,10 +84,10 @@ const CompositionActions: React.FC = () => {
 					disabled={!canInsertAsset}
 					onClick={insertAsset}
 					renderIcon={(color) => (
-						<FileIcon color={color} style={actionIconStyle} />
+						<PicIcon color={color} style={actionIconStyle} />
 					)}
 				>
-					Add asset
+					Add asset...
 				</InspectorInlineAction>
 			) : null}
 		</InspectorActionSection>
@@ -90,8 +97,9 @@ const CompositionActions: React.FC = () => {
 const CompositionDefaultPropsSection: React.FC<{
 	readonly composition: _InternalTypes['AnyComposition'];
 	readonly currentDefaultProps: Record<string, unknown>;
+	readonly readOnlyStudio: boolean;
 	readonly setDefaultProps: UpdaterFunction<Record<string, unknown>>;
-}> = ({composition, currentDefaultProps, setDefaultProps}) => {
+}> = ({composition, currentDefaultProps, readOnlyStudio, setDefaultProps}) => {
 	const z = useZodIfPossible();
 	const canSaveDefaultProps = useContext(ObserveDefaultPropsContext);
 	const [defaultPropsMode, setDefaultPropsMode] =
@@ -148,7 +156,7 @@ const CompositionDefaultPropsSection: React.FC<{
 		showCannotSaveDefaultPropsWarning: canShowDefaultPropsSection,
 	});
 
-	if (!canShowDefaultPropsSection) {
+	if (readOnlyStudio || !canShowDefaultPropsSection) {
 		return null;
 	}
 
@@ -204,10 +212,14 @@ const CompositionDefaultPropsSection: React.FC<{
 	);
 };
 
-const CompositionVisualControlsSection: React.FC = () => {
+const CompositionVisualControlsSection: React.FC<{
+	readonly readOnlyStudio: boolean;
+}> = ({readOnlyStudio}) => {
 	const {handles: visualControlHandles} = useContext(VisualControlsContext);
 	const hasVisualControls =
-		studioInteractivityEnabled && Object.keys(visualControlHandles).length > 0;
+		!readOnlyStudio &&
+		isStudioInteractivityEnabled() &&
+		Object.keys(visualControlHandles).length > 0;
 
 	if (!hasVisualControls) {
 		return null;
@@ -244,10 +256,11 @@ export const CompositionInspector: React.FC<{
 			<CompositionDefaultPropsSection
 				composition={composition}
 				currentDefaultProps={currentDefaultProps}
+				readOnlyStudio={readOnlyStudio}
 				setDefaultProps={setDefaultProps}
 			/>
-			<CompositionVisualControlsSection />
-			<CompositionActions />
+			<CompositionVisualControlsSection readOnlyStudio={readOnlyStudio} />
+			<CompositionActions readOnlyStudio={readOnlyStudio} />
 		</div>
 	);
 };

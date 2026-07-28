@@ -4,10 +4,7 @@ import {bundle} from '@remotion/bundler';
 import {getCompositions, renderMedia, renderStill} from '@remotion/renderer';
 import {S3Client} from 'bun';
 import {elementDefinitions} from './src/components/Elements/element-definitions';
-import {
-	getElementCompositionId,
-	getElementPreviewUrls,
-} from './src/components/Elements/element-utils';
+import {getElementCompositionId} from './src/components/Elements/element-utils';
 
 const r2Endpoint =
 	'https://2fe488b3b0f4deee223aef7464784c46.r2.cloudflarestorage.com';
@@ -19,6 +16,45 @@ const outputDirectoryArgument = process.argv.find((argument) =>
 const outputDirectory = outputDirectoryArgument
 	? path.resolve(outputDirectoryArgument.slice('--output-dir='.length))
 	: path.join(process.cwd(), '.element-previews');
+const elementArguments = process.argv.filter((argument) =>
+	argument.startsWith('--element='),
+);
+if (process.argv.includes('--element')) {
+	throw new Error('Use --element=<category>/<slug>');
+}
+
+if (elementArguments.length > 1) {
+	throw new Error('Only one --element argument may be specified');
+}
+
+const selectedElementSlug = elementArguments[0]
+	? elementArguments[0].slice('--element='.length)
+	: null;
+const allElementDefinitions = Object.values(elementDefinitions);
+const selectedElementDefinition = selectedElementSlug
+	? allElementDefinitions.find(
+			(definition) => definition.slug === selectedElementSlug,
+		)
+	: null;
+if (selectedElementSlug !== null && !selectedElementDefinition) {
+	throw new Error(`Unknown Element: ${selectedElementSlug}`);
+}
+
+const definitionsToRender = selectedElementDefinition
+	? [selectedElementDefinition]
+	: allElementDefinitions;
+
+const getUploadKey = (publicUrl: string) => {
+	const url = new URL(publicUrl);
+	if (
+		url.origin !== 'https://remotion.media' ||
+		!url.pathname.startsWith('/elements/')
+	) {
+		throw new Error(`Unexpected Element preview URL: ${publicUrl}`);
+	}
+
+	return url.pathname.slice(1);
+};
 
 const ensureUploadCredentials = () => {
 	if (!Bun.env.AWS_ACCESS_KEY_ID || !Bun.env.AWS_SECRET_ACCESS_KEY) {
@@ -82,14 +118,25 @@ const client = credentials
 		})
 	: null;
 
-rmSync(outputDirectory, {force: true, recursive: true});
+if (selectedElementSlug === null) {
+	rmSync(outputDirectory, {force: true, recursive: true});
+} else {
+	rmSync(path.join(outputDirectory, ...selectedElementSlug.split('/')), {
+		force: true,
+		recursive: true,
+	});
+}
+
 mkdirSync(outputDirectory, {recursive: true});
 
 const serveUrl = await bundle({
 	entryPoint: path.join(process.cwd(), 'src', 'remotion', 'entry.ts'),
 	publicDir: path.join(process.cwd(), 'static'),
 });
-const compositions = await getCompositions(serveUrl);
+const compositions = await getCompositions({
+	serveUrl,
+	inputProps: {},
+});
 const elementCompositions = compositions.filter((composition) =>
 	composition.id.startsWith('element-'),
 );
@@ -115,7 +162,8 @@ for (const actualId of actualCompositionIds) {
 	}
 }
 
-for (const definition of Object.values(elementDefinitions)) {
+for (const definition of definitionsToRender) {
+	const {posterUrl, videoUrl} = definition.preview;
 	const compositionId = getElementCompositionId(definition.slug);
 	const composition = elementCompositions.find(
 		(candidate) => candidate.id === compositionId,
@@ -130,7 +178,7 @@ for (const definition of Object.values(elementDefinitions)) {
 	);
 	mkdirSync(elementOutputDirectory, {recursive: true});
 	const pngPath = path.join(elementOutputDirectory, 'preview.png');
-	const mp4Path = path.join(elementOutputDirectory, 'preview.mp4');
+	const videoPath = path.join(elementOutputDirectory, 'preview.mp4');
 
 	console.log(`Rendering ${definition.displayName} poster`);
 	await renderStill({
@@ -149,36 +197,37 @@ for (const definition of Object.values(elementDefinitions)) {
 		crf: 23,
 		imageFormat: 'png',
 		muted: true,
-		outputLocation: mp4Path,
+		outputLocation: videoPath,
 		pixelFormat: 'yuv420p',
 		serveUrl,
 	});
 
 	console.log(`Rendered ${pngPath}`);
-	console.log(`Rendered ${mp4Path}`);
+	console.log(`Rendered ${videoPath}`);
 
 	if (client) {
-		const urls = getElementPreviewUrls(definition.slug);
-		const baseKey = `elements/${definition.slug}`;
 		await uploadAsset({
 			client,
 			contentType: 'image/png',
 			filePath: pngPath,
-			key: `${baseKey}/preview.png`,
-			publicUrl: urls.png,
+			key: getUploadKey(posterUrl),
+			publicUrl: posterUrl,
 		});
 		await uploadAsset({
 			client,
 			contentType: 'video/mp4',
-			filePath: mp4Path,
-			key: `${baseKey}/preview.mp4`,
-			publicUrl: urls.mp4,
+			filePath: videoPath,
+			key: getUploadKey(videoUrl),
+			publicUrl: videoUrl,
 		});
 	}
 }
 
+const renderedScope = selectedElementSlug
+	? `Element ${selectedElementSlug}`
+	: 'all Element previews';
 console.log(
 	upload
-		? 'Rendered and uploaded all Element previews.'
-		: `Rendered all Element previews to ${outputDirectory}.`,
+		? `Rendered and uploaded ${renderedScope}.`
+		: `Rendered ${renderedScope} to ${outputDirectory}.`,
 );
