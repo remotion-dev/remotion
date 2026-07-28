@@ -2,22 +2,38 @@ import type {Caption, TikTokPage, TikTokToken} from '@remotion/captions';
 import {createTikTokStyleCaptions} from '@remotion/captions';
 import {loadFont} from '@remotion/google-fonts/Montserrat';
 import {fitText, measureText} from '@remotion/layout-utils';
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {
+	forwardRef,
+	useEffect,
+	useImperativeHandle,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {
 	cancelRender,
 	Interactive,
 	interpolate,
 	spring,
+	type InteractiveBaseProps,
+	type InteractiveTransformProps,
+	type InteractivitySchema,
+	type SequenceControls,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
 
 export type TimedCaptionsMode = 'highlight' | 'scale' | 'background';
 
-export type TimedCaptionsProps = {
-	readonly captions?: Caption[];
-	readonly mode?: TimedCaptionsMode;
-	readonly combineTokensWithinMilliseconds?: number;
+export type TimedCaptionsProps = InteractiveBaseProps &
+	InteractiveTransformProps & {
+		readonly captions?: Caption[];
+		readonly mode?: TimedCaptionsMode;
+		readonly combineTokensWithinMilliseconds?: number;
+	};
+
+type TimedCaptionsLayerProps = Omit<TimedCaptionsProps, 'captions'> & {
+	readonly captions: Caption[];
 };
 
 const desiredFontSize = 80;
@@ -33,57 +49,35 @@ const pillBorderRadius = 10;
 const pillMoveDurationInFrames = 5;
 const defaultCombineTokensWithinMilliseconds = 800;
 
-const previewCaptions: Caption[] = [
-	{
-		text: 'Captions',
-		startMs: 0,
-		endMs: 800,
-		timestampMs: 400,
-		confidence: null,
+const timedCaptionsSchema = {
+	...Interactive.baseSchema,
+	...Interactive.captionsSchema,
+	mode: {
+		type: 'enum',
+		default: 'background',
+		description: 'Caption animation',
+		variants: {
+			highlight: {},
+			scale: {},
+			background: {},
+		},
 	},
-	{
-		text: ' can',
-		startMs: 800,
-		endMs: 1500,
-		timestampMs: 1150,
-		confidence: null,
+	combineTokensWithinMilliseconds: {
+		type: 'number',
+		min: 0,
+		step: 50,
+		default: defaultCombineTokensWithinMilliseconds,
+		description: 'Time between caption pages',
+		hiddenFromList: false,
 	},
-	{
-		text: ' move',
-		startMs: 1500,
-		endMs: 2300,
-		timestampMs: 1900,
-		confidence: null,
-	},
-	{
-		text: ' with',
-		startMs: 2300,
-		endMs: 3100,
-		timestampMs: 2700,
-		confidence: null,
-	},
-	{
-		text: ' every',
-		startMs: 3100,
-		endMs: 4000,
-		timestampMs: 3550,
-		confidence: null,
-	},
-	{
-		text: ' spoken',
-		startMs: 4000,
-		endMs: 5100,
-		timestampMs: 4550,
-		confidence: null,
-	},
-	{
-		text: ' word.',
-		startMs: 5100,
-		endMs: 6500,
-		timestampMs: 5800,
-		confidence: null,
-	},
-];
+	...Interactive.transformSchema,
+} as const satisfies InteractivitySchema;
+
+const InteractiveDivWithControls = Interactive.Div as React.ComponentType<
+	React.ComponentProps<typeof Interactive.Div> & {
+		readonly controls: SequenceControls | undefined;
+	}
+>;
 
 const {fontFamily, waitUntilDone} = loadFont('normal', {
 	weights: [fontWeight],
@@ -284,8 +278,7 @@ const CaptionPage: React.FC<{
 	const textStrokeWidth = fontSize / 7;
 
 	return (
-		<Interactive.Div
-			name="Container"
+		<div
 			aria-label={page.text}
 			aria-live="off"
 			role="group"
@@ -355,29 +348,18 @@ const CaptionPage: React.FC<{
 					);
 				})}
 			</div>
-		</Interactive.Div>
+		</div>
 	);
 };
 
-export const TimedCaptions: React.FC<TimedCaptionsProps> = ({
-	captions = previewCaptions,
-	mode = 'background',
-	combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
-}) => {
+const TimedCaptionsContent: React.FC<{
+	readonly captions: Caption[];
+	readonly combineTokensWithinMilliseconds: number;
+	readonly fontLoaded: boolean;
+	readonly mode: TimedCaptionsMode;
+}> = ({captions, combineTokensWithinMilliseconds, fontLoaded, mode}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
-	const [fontLoaded, setFontLoaded] = useState(false);
-
-	useEffect(() => {
-		waitUntilDone()
-			.then(() => {
-				setFontLoaded(true);
-			})
-			.catch((error) => {
-				cancelRender(error instanceof Error ? error : new Error(String(error)));
-			});
-	}, []);
-
 	const pages = useMemo(
 		() =>
 			createTikTokStyleCaptions({
@@ -402,6 +384,141 @@ export const TimedCaptions: React.FC<TimedCaptionsProps> = ({
 			mode={mode}
 			page={page}
 			pageIndex={activePageIndex}
+		/>
+	);
+};
+
+const TimedCaptionsInner = forwardRef<
+	HTMLDivElement,
+	TimedCaptionsLayerProps & {
+		readonly controls: SequenceControls | undefined;
+		readonly stack?: string;
+	}
+>(
+	(
+		{
+			captions,
+			combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
+			controls,
+			mode = 'background',
+			name,
+			stack,
+			style,
+			...interactiveProps
+		},
+		ref,
+	) => {
+		const outlineRef = useRef<HTMLDivElement>(null);
+		const [fontLoaded, setFontLoaded] = useState(false);
+
+		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
+
+		useEffect(() => {
+			waitUntilDone()
+				.then(() => {
+					setFontLoaded(true);
+				})
+				.catch((error) => {
+					cancelRender(
+						error instanceof Error ? error : new Error(String(error)),
+					);
+				});
+		}, []);
+
+		return (
+			<InteractiveDivWithControls
+				ref={outlineRef}
+				{...interactiveProps}
+				controls={controls}
+				name={name ?? '<TimedCaptions>'}
+				stack={stack}
+				style={{
+					height: '100%',
+					width: '100%',
+					...style,
+				}}
+			>
+				<TimedCaptionsContent
+					captions={captions}
+					combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
+					fontLoaded={fontLoaded}
+					mode={mode}
+				/>
+			</InteractiveDivWithControls>
+		);
+	},
+);
+
+const TimedCaptionsLayer = Interactive.withSchema({
+	Component: TimedCaptionsInner,
+	componentName: '<TimedCaptions>',
+	componentIdentity: null,
+	schema: timedCaptionsSchema,
+	supportsEffects: false,
+}) as React.FC<TimedCaptionsLayerProps>;
+
+export const TimedCaptions: React.FC<TimedCaptionsProps> = ({
+	captions,
+	...props
+}) => {
+	if (captions) {
+		return <TimedCaptionsLayer {...props} captions={captions} />;
+	}
+
+	return (
+		<TimedCaptionsLayer
+			{...props}
+			captions={[
+				{
+					text: 'Captions',
+					startMs: 0,
+					endMs: 800,
+					timestampMs: 400,
+					confidence: null,
+				},
+				{
+					text: ' can',
+					startMs: 800,
+					endMs: 1500,
+					timestampMs: 1150,
+					confidence: null,
+				},
+				{
+					text: ' move',
+					startMs: 1500,
+					endMs: 2300,
+					timestampMs: 1900,
+					confidence: null,
+				},
+				{
+					text: ' with',
+					startMs: 2300,
+					endMs: 3100,
+					timestampMs: 2700,
+					confidence: null,
+				},
+				{
+					text: ' every',
+					startMs: 3100,
+					endMs: 4000,
+					timestampMs: 3550,
+					confidence: null,
+				},
+				{
+					text: ' spoken',
+					startMs: 4000,
+					endMs: 5100,
+					timestampMs: 4550,
+					confidence: null,
+				},
+				{
+					text: ' word.',
+					startMs: 5100,
+					endMs: 6500,
+					timestampMs: 5800,
+					confidence: null,
+				},
+			]}
 		/>
 	);
 };
