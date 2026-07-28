@@ -51,6 +51,7 @@
 		"@remotion/tailwind": "workspace:*",
 		"@remotion/transitions": "workspace:*",
 		"@remotion/webcodecs": "workspace:*",
+		"@rspack/core": "1.7.11",
 		"@types/sharp": "0.28.6",
 		"create-video": "workspace:*",
 		"execa": "5.1.1",

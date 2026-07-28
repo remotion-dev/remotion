@@ -63,7 +63,9 @@ Remotion provides three config file APIs:
 
 You can call each override API more than once. Overrides of the same type run in registration order.
 
-Only use [`Config.overrideBundlerConfig()`](/docs/config#overridebundlerconfig) for changes that are compatible with both bundlers. Webpack and Rspack plugins are not interchangeable.
+Only use [`Config.overrideBundlerConfig()`](/docs/config#overridebundlerconfig) for changes that are compatible with both bundlers. Many loaders implement an API that works with both bundlers, but you should verify each loader individually.
+
+Webpack and Rspack plugins are not interchangeable. Use the plugin implementation from the selected bundler in its bundler-specific override.
 
 Remotion ships with its own [Webpack configuration](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/webpack-config.ts) and [Rspack configuration](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/rspack-config.ts). Each override receives the previous configuration and returns the next one.
 
@@ -221,6 +223,50 @@ Config.overrideBundlerConfig(enableTailwind);
 ```
 
 ## Snippets
+
+### Add a plugin
+
+Use Webpack plugins with `Config.overrideWebpackConfig()`:
+
+```ts twoslash title="remotion.config.ts"
+import {webpack} from '@remotion/bundler';
+import {Config} from '@remotion/cli/config';
+
+Config.overrideWebpackConfig((config) => {
+  return {
+    ...config,
+    plugins: [
+      ...(config.plugins ?? []),
+      new webpack.DefinePlugin({
+        MY_CONSTANT: JSON.stringify('value'),
+      }),
+    ],
+  };
+});
+```
+
+Use the equivalent Rspack plugin with `Config.overrideRspackConfig()`:
+
+<Installation pkg="@rspack/core" />
+
+```ts title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+import {DefinePlugin} from '@rspack/core';
+
+Config.overrideRspackConfig((config) => {
+  return {
+    ...config,
+    plugins: [
+      ...(config.plugins ?? []),
+      new DefinePlugin({
+        MY_CONSTANT: JSON.stringify('value'),
+      }),
+    ],
+  };
+});
+```
+
+Do not pass a plugin created by `webpack` to Rspack or a plugin created by `@rspack/core` to Webpack.
 
 ### Enabling MDX support
 
@@ -540,7 +586,9 @@ Add the asynchronous override as `bundlerOverride` to your [Node.JS API calls if
 
 ### Change the `@jsxImportSource`
 
-```tsx twoslash
+Webpack uses Remotion's esbuild loader for TypeScript and JSX. Change its `jsxImportSource` option in a Webpack-specific override:
+
+```tsx twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
 
 Config.overrideWebpackConfig((config) => {
@@ -567,6 +615,62 @@ Config.overrideWebpackConfig((config) => {
               options: {
                 ...use.options,
                 jsxImportSource: 'react',
+              },
+            };
+          }),
+        };
+      }),
+    },
+  };
+});
+```
+
+Rspack uses its built-in SWC loader instead. Change `jsc.transform.react.importSource` in a Rspack-specific override:
+
+```tsx twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+Config.overrideRspackConfig((config) => {
+  return {
+    ...config,
+    module: {
+      ...config.module,
+      rules: config.module?.rules?.map((rule) => {
+        if (!rule || rule === '...' || !Array.isArray(rule.use)) {
+          return rule;
+        }
+
+        return {
+          ...rule,
+          use: rule.use.map((use) => {
+            if (
+              typeof use === 'string' ||
+              use.loader !== 'builtin:swc-loader'
+            ) {
+              return use;
+            }
+
+            const options = use.options as
+              | {
+                  jsc?: {
+                    transform?: {react?: Record<string, unknown>};
+                  };
+                }
+              | undefined;
+            return {
+              ...use,
+              options: {
+                ...options,
+                jsc: {
+                  ...options?.jsc,
+                  transform: {
+                    ...options?.jsc?.transform,
+                    react: {
+                      ...options?.jsc?.transform?.react,
+                      importSource: 'react',
+                    },
+                  },
+                },
               },
             };
           }),
