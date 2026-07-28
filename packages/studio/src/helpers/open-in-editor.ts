@@ -140,7 +140,7 @@ export const useCachedCompositionComponentInfo = ({
 
 	useEffect(() => {
 		if (
-			!getBrowserStudioServer()?.capabilities.insertSolid ||
+			!getBrowserStudioServer() ||
 			compositionFile === null ||
 			compositionId === null
 		) {
@@ -173,10 +173,14 @@ export const loadCompositionComponentInfo = async ({
 	}
 
 	const promise = (async () => {
-		const body = await callApi('/api/composition-component-info', {
+		const request = {
 			compositionFile,
 			compositionId,
-		});
+		};
+		const browserStudioServer = getBrowserStudioServer();
+		const body = browserStudioServer
+			? await browserStudioServer.getCompositionComponentInfo(request)
+			: await callApi('/api/composition-component-info', request);
 
 		const result = {
 			location: body.location,

@@ -1,6 +1,5 @@
 import {parse} from '@babel/parser';
 import type {
-	ApiRoutes,
 	BrowserStudioServer,
 	CompositionComponentInfoRequest,
 	InsertJsxElementRequest,
@@ -1137,26 +1136,19 @@ export const createBrowserStudioServer = ({
 	getProject: () => VirtualProject;
 	onProjectChange: (project: VirtualProject) => void;
 }): BrowserStudioServer => {
-	const callApi = ((endpoint: keyof ApiRoutes, body: unknown) => {
-		if (endpoint === '/api/composition-component-info') {
-			return Promise.resolve(
-				componentInfo({
-					project: getProject(),
-					request: body as CompositionComponentInfoRequest,
-				}),
-			);
-		}
-
-		if (endpoint === '/api/insert-jsx-element') {
+	return {
+		getCompositionFile: (compositionId) =>
+			getCompositionFile({compositionId, project: getProject()}),
+		getCompositionComponentInfo: (request) =>
+			Promise.resolve(componentInfo({project: getProject(), request})),
+		insertSolid: (request) => {
 			try {
 				const project = insertSolidIntoProject({
 					project: getProject(),
-					request: body as InsertJsxElementRequest,
+					request,
 				});
 				onProjectChange(project);
-				return Promise.resolve({
-					success: true,
-				} satisfies InsertJsxElementResponse);
+				return Promise.resolve({success: true});
 			} catch (error) {
 				return Promise.resolve({
 					success: false,
@@ -1164,19 +1156,6 @@ export const createBrowserStudioServer = ({
 					stack: error instanceof Error ? (error.stack ?? '') : '',
 				} satisfies InsertJsxElementResponse);
 			}
-		}
-
-		return Promise.reject(
-			new Error(`The Browser Studio does not implement ${String(endpoint)}`),
-		);
-	}) as BrowserStudioServer['callApi'];
-
-	return {
-		callApi,
-		capabilities: {
-			insertSolid: true,
 		},
-		getCompositionFile: (compositionId) =>
-			getCompositionFile({compositionId, project: getProject()}),
 	};
 };

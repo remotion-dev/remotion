@@ -1,3 +1,4 @@
+import type {InsertJsxElementRequest} from '@remotion/studio-shared';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {getBrowserStudioServer} from '../../helpers/browser-studio-server';
@@ -20,8 +21,7 @@ export const useCompositionActions = () => {
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 	const browserStudioServer = getBrowserStudioServer();
-	const browserStudioCanInsertSolid =
-		browserStudioServer?.capabilities.insertSolid === true;
+	const browserStudioCanInsertSolid = browserStudioServer !== null;
 
 	const currentCompositionId =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
@@ -78,7 +78,7 @@ export const useCompositionActions = () => {
 
 		setIsAddingSolid(true);
 		try {
-			const result = await callApi('/api/insert-jsx-element', {
+			const request: InsertJsxElementRequest = {
 				compositionFile,
 				compositionId: currentCompositionId,
 				from: null,
@@ -88,7 +88,10 @@ export const useCompositionActions = () => {
 					height: videoConfig.height,
 					position: null,
 				},
-			});
+			};
+			const result = browserStudioServer
+				? await browserStudioServer.insertSolid(request)
+				: await callApi('/api/insert-jsx-element', request);
 
 			if (result.success) {
 				showNotification('Added <Solid> to source file', 2000);
@@ -101,7 +104,13 @@ export const useCompositionActions = () => {
 		} finally {
 			setIsAddingSolid(false);
 		}
-	}, [canInsertSolid, compositionFile, currentCompositionId, videoConfig]);
+	}, [
+		browserStudioServer,
+		canInsertSolid,
+		compositionFile,
+		currentCompositionId,
+		videoConfig,
+	]);
 
 	const insertAsset = useCallback(async () => {
 		if (

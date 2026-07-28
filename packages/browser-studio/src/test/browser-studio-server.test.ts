@@ -86,7 +86,7 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 	expect(server.getCompositionFile('MyComp')).toBe('src/index.tsx');
 	expect(server.getCompositionFile('Unknown')).toBeNull();
 
-	const info = await server.callApi('/api/composition-component-info', {
+	const info = await server.getCompositionComponentInfo({
 		compositionFile: 'src/index.tsx',
 		compositionId: 'MyComp',
 	});
@@ -99,6 +99,22 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 			column: 13,
 		},
 	});
+
+	const result = await server.insertSolid({
+		compositionFile: 'src/index.tsx',
+		compositionId: 'MyComp',
+		from: null,
+		element: {
+			type: 'solid',
+			width: 1280,
+			height: 720,
+			position: null,
+		},
+	});
+	expect(result).toEqual({success: true});
+	expect(currentProject.files['/project/src/MyComponent.tsx']).toContain(
+		'<Solid width={1280}',
+	);
 });
 
 test('wraps a self-closing root and aliases conflicting bindings', () => {

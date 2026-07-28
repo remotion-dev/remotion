@@ -1,14 +1,18 @@
-import type {ApiRoutes} from './api-requests';
+import type {
+	CompositionComponentInfoRequest,
+	CompositionComponentInfoResponse,
+	InsertJsxElementRequest,
+	InsertJsxElementResponse,
+} from './api-requests';
 
 export type BrowserStudioServer = {
-	callApi: <Endpoint extends keyof ApiRoutes>(
-		endpoint: Endpoint,
-		body: ApiRoutes[Endpoint]['Request'],
-	) => Promise<ApiRoutes[Endpoint]['Response']>;
-	capabilities: {
-		insertSolid: boolean;
-	};
 	getCompositionFile: (compositionId: string) => string | null;
+	getCompositionComponentInfo: (
+		request: CompositionComponentInfoRequest,
+	) => Promise<CompositionComponentInfoResponse>;
+	insertSolid: (
+		request: InsertJsxElementRequest,
+	) => Promise<InsertJsxElementResponse>;
 };
 
 declare global {

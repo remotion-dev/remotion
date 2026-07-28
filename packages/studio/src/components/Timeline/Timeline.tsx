@@ -1,3 +1,4 @@
+import type {InsertJsxElementRequest} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {getBrowserStudioServer} from '../../helpers/browser-studio-server';
@@ -72,8 +73,7 @@ const TimelineContextMenuArea: React.FC<{
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 	const browserStudioServer = getBrowserStudioServer();
-	const browserStudioCanInsertSolid =
-		browserStudioServer?.capabilities.insertSolid === true;
+	const browserStudioCanInsertSolid = browserStudioServer !== null;
 
 	const currentCompositionId =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
@@ -129,7 +129,7 @@ const TimelineContextMenuArea: React.FC<{
 
 		setIsAddingSolid(true);
 		try {
-			const result = await callApi('/api/insert-jsx-element', {
+			const request: InsertJsxElementRequest = {
 				compositionFile,
 				compositionId: currentCompositionId,
 				from: null,
@@ -139,7 +139,10 @@ const TimelineContextMenuArea: React.FC<{
 					height: videoConfig.height,
 					position: null,
 				},
-			});
+			};
+			const result = browserStudioServer
+				? await browserStudioServer.insertSolid(request)
+				: await callApi('/api/insert-jsx-element', request);
 
 			if (result.success) {
 				showNotification('Added <Solid> to source file', 2000);
@@ -152,7 +155,13 @@ const TimelineContextMenuArea: React.FC<{
 		} finally {
 			setIsAddingSolid(false);
 		}
-	}, [canInsertSolid, compositionFile, currentCompositionId, videoConfig]);
+	}, [
+		browserStudioServer,
+		canInsertSolid,
+		compositionFile,
+		currentCompositionId,
+		videoConfig,
+	]);
 
 	const insertAsset = useCallback(async () => {
 		if (
