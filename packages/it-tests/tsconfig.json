@@ -8,6 +8,9 @@
 	},
 	"references": [
 		{
+			"path": "../babel-loader"
+		},
+		{
 			"path": "../bundler"
 		},
 		{
@@ -15,6 +18,9 @@
 		},
 		{
 			"path": "../create-video"
+		},
+		{
+			"path": "../enable-scss"
 		},
 		{
 			"path": "../lambda"
@@ -30,6 +36,9 @@
 		},
 		{
 			"path": "../studio-shared"
+		},
+		{
+			"path": "../tailwind"
 		},
 		{
 			"path": "../cli"

@@ -908,6 +908,8 @@
       "name": "@remotion/it-tests",
       "version": "4.0.500",
       "devDependencies": {
+        "@mdx-js/loader": "2.3.0",
+        "@remotion/babel-loader": "workspace:*",
         "@remotion/bundler": "workspace:*",
         "@remotion/captions": "workspace:*",
         "@remotion/cli": "workspace:*",
@@ -916,6 +918,7 @@
         "@remotion/compositor-darwin-x64": "workspace:*",
         "@remotion/compositor-linux-x64-gnu": "workspace:*",
         "@remotion/compositor-win32-x64-msvc": "workspace:*",
+        "@remotion/enable-scss": "workspace:*",
         "@remotion/example-videos": "workspace:*",
         "@remotion/google-fonts": "workspace:*",
         "@remotion/install-whisper-cpp": "workspace:*",
@@ -935,6 +938,7 @@
         "@remotion/shapes": "workspace:*",
         "@remotion/studio-server": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
+        "@remotion/tailwind": "workspace:*",
         "@remotion/transitions": "workspace:*",
         "@remotion/webcodecs": "workspace:*",
         "@remotion/zod-types": "workspace:*",
@@ -942,7 +946,11 @@
         "@types/sharp": "0.28.6",
         "create-video": "workspace:*",
         "execa": "5.1.1",
+        "postcss": "8.5.18",
+        "postcss-loader": "7.3.4",
+        "postcss-size": "5.0.0",
         "remotion": "workspace:*",
+        "sass": "1.77.2",
         "sharp": "catalog:",
       },
     },
@@ -7319,6 +7327,8 @@
     "postcss-selector-not": ["postcss-selector-not@7.0.1", "", { "dependencies": { "postcss-selector-parser": "6.1.1" }, "peerDependencies": { "postcss": "8.4.47" } }, "sha512-1zT5C27b/zeJhchN7fP0kBr16Cc61mu7Si9uWWLoA3Px/D9tIJPKchJCkUH3tPO5D0pCFmGeApAv8XpXBQJ8SQ=="],
 
     "postcss-selector-parser": ["postcss-selector-parser@6.1.1", "", { "dependencies": { "cssesc": "3.0.0", "util-deprecate": "1.0.2" } }, "sha512-b4dlw/9V8A71rLIDsSwVmak9z2DuBUB7CA1/wSdelNEzqsjoSPeADTWNO09lpH49Diy3/JIZ2bSPB1dI3LJCHg=="],
+
+    "postcss-size": ["postcss-size@5.0.0", "", { "peerDependencies": { "postcss": "^8.1.0" } }, "sha512-FCDVT8YrdtzJFqzfpDM2gy/uUk3F2UkOtatIjrDeTJgadmOtL/X9jN6iD6YIepK4eK4NoJtAPZ/ZPXIDNdabfQ=="],
 
     "postcss-sort-media-queries": ["postcss-sort-media-queries@5.2.0", "", { "dependencies": { "sort-css-media-queries": "2.2.0" }, "peerDependencies": { "postcss": "8.5.5" } }, "sha512-AZ5fDMLD8SldlAYlvi8NIqo0+Z8xnXU2ia0jxmuhxAU+Lqt9K+AlmLNJ/zWEnE9x+Zx3qL3+1K20ATgNOr3fAA=="],
 
