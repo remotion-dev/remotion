@@ -1,6 +1,8 @@
 import {describe, expect, test} from 'bun:test';
 import {existsSync, readdirSync, readFileSync, statSync} from 'fs';
 import path from 'path';
+import React from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
 import {
 	expandElementSourceReferences,
 	getRemotionElementDependencies,
@@ -8,9 +10,14 @@ import {
 import remarkElementSource from '../../plugins/remark-element-source';
 import {elementDefinitions} from '../components/Elements/element-definitions';
 import {
+	getElementDocumentationUrl,
+	getElementLibrarySections,
+} from '../components/Elements/element-library-data';
+import {
 	getElementCompositionId,
 	getElementDimensionsLabel,
 } from '../components/Elements/element-utils';
+import {ElementLibrary} from '../components/Elements/ElementLibrary';
 import {getElementPreviewDimensions} from '../components/Elements/ElementPreviewComposition';
 
 const elementsRoot = path.join(__dirname, '..', '..', 'elements');
@@ -200,6 +207,51 @@ describe('Elements must follow the colocated single-file format', () => {
 			});
 		});
 	}
+});
+
+describe('Element library', () => {
+	test('renders every definition and filters the real category entry points', () => {
+		const overviewMarkup = renderToStaticMarkup(
+			React.createElement(ElementLibrary, {category: null}),
+		);
+		const sections = getElementLibrarySections(null);
+
+		for (const definition of elementDefinitionList) {
+			expect(
+				overviewMarkup.split(`>${definition.displayName}</h3>`),
+			).toHaveLength(2);
+			expect(overviewMarkup).toContain(definition.description);
+			expect(overviewMarkup).toContain(definition.preview.posterUrl);
+			expect(overviewMarkup).toContain(getElementDocumentationUrl(definition));
+		}
+
+		expect(overviewMarkup).not.toContain('.mp4');
+
+		for (const section of sections) {
+			const categoryMarkup = renderToStaticMarkup(
+				React.createElement(ElementLibrary, {category: section.category}),
+			);
+			const categoryIndex = readFileSync(
+				path.join(elementsRoot, section.category, 'index.mdx'),
+				'utf8',
+			);
+
+			expect(categoryIndex).toContain(
+				`<ElementLibrary category="${section.category}" />`,
+			);
+
+			for (const definition of elementDefinitionList) {
+				if (definition.category === section.category) {
+					expect(categoryMarkup).toContain(definition.displayName);
+					expect(categoryMarkup).toContain(
+						getElementDocumentationUrl(definition),
+					);
+				} else {
+					expect(categoryMarkup).not.toContain(definition.displayName);
+				}
+			}
+		}
+	});
 });
 
 describe('Element preview definitions', () => {
