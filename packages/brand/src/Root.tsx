@@ -69,8 +69,8 @@ import {FolderTreeComposition} from './HomepageAssets/FolderTree';
 import {Map} from './HomepageAssets/Map';
 import {
 	HomepageAssetMaster,
-	homepageAssetMasterSchema,
 	homepageAssetMasterDurationInFrames,
+	homepageAssetMasterSchema,
 } from './HomepageAssets/Master';
 import {NpmIniVideo} from './HomepageAssets/NpmInitVideo/NpmInitVideo';
 import {RemotionTriangleComposition} from './HomepageAssets/RemotionTriangle';
@@ -99,6 +99,8 @@ import {
 	htmlInCanvasAllEffectsDefaultProps,
 	htmlInCanvasAllEffectsSchema,
 } from './Showcase/HtmlInCanvasAllEffects';
+import {Skills2Announcement} from './Skills2Announcement';
+import {Skills2Gesture} from './Skills2Gesture';
 import {SvgLogoCompositions} from './SvgLogos';
 import {
 	FlyingCardsLeft,
@@ -120,6 +122,24 @@ import {UpperThird, upperThirdSchema} from './video-elements/UpperThird';
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<Folder name="announcements">
+				<Composition
+					id="Skills2Announcement"
+					component={Skills2Announcement}
+					durationInFrames={180}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="Skills2Gesture"
+					component={Skills2Gesture}
+					durationInFrames={180}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+			</Folder>
 			<Folder name="docs">
 				<Composition
 					id="1000-documentation-pages"
