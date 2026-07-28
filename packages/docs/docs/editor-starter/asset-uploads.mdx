@@ -6,7 +6,7 @@ id: asset-uploads
 crumb: Editor Starter
 ---
 
-If the user drops in any image, audio, video or GIF, they are uploaded to cloud storage so that rendering in the cloud can be performed later.  
+If the user drops in any image, audio, video or GIF, they are uploaded to cloud storage so that they remain accessible during editing and rendering.
 By default, S3 is used for cloud storage, which requires some setup.
 
 ## Setup
@@ -30,9 +30,8 @@ By default, S3 is used for cloud storage, which requires some setup.
 ```
 
 - Go to [IAM -> "Users"](https://us-east-1.console.aws.amazon.com/iam/home?region=us-east-1#/users) in the AWS console.
-  - **If you have already [setup rendering](/docs/editor-starter/rendering)**: Select the user you created.
+  - **If you have already set up [Lambda rendering](/docs/editor-starter/rendering)**: Select the user you created.
   - **If you have not:** Create a new user with all settings left as default.
-- Create a new user with all settings left as default.
 - Click "Add permissions -> Add inline policy" and add the following policy:
 
 ```json
@@ -71,7 +70,7 @@ Rename the `.env.example` file to `.env` to get a template.
 :::
 
 :::note
-The same environment variables are also used for [rendering](/docs/editor-starter/rendering) in the cloud.
+The same environment variables are also used for [Lambda rendering](/docs/editor-starter/rendering).
 :::
 
 Now, restart the Editor Starter.  

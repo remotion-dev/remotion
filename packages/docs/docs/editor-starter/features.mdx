@@ -630,7 +630,14 @@ See: [Captioning](/docs/editor-starter/captioning)
 
 Feature flag: [`FEATURE_RENDERING`](https://github.com/search?q=repo%3Aremotion-dev%2Feditor-starter%20FEATURE_RENDERING&type=code)
 
-Enables UI for [rendering](/docs/editor-starter/rendering) the current composition to a video file. Shows render progress and allows download of the final rendered video.
+Enables UI for rendering the current composition using [Remotion Lambda](/docs/editor-starter/rendering) or [client-side rendering](/docs/editor-starter/client-side-rendering). Shows render progress and allows download of the final rendered video.
+
+### Client-side rendering
+
+Feature flag: [`ENABLE_CLIENT_SIDE_RENDERING`](https://github.com/remotion-dev/editor-starter/blob/main/src/editor/flags.ts)
+
+Renders videos in the browser instead of using Remotion Lambda.
+Requires `FEATURE_NEW_MEDIA_TAGS` to also be enabled.
 
 ### Codec selector
 

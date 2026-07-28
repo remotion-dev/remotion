@@ -1792,6 +1792,7 @@ const sidebars: SidebarsConfig = {
 				'editor-starter/persistance',
 				'editor-starter/captioning',
 				'editor-starter/rendering',
+				'editor-starter/client-side-rendering',
 				'editor-starter/backend-routes',
 				'editor-starter/production-checklist',
 				'editor-starter/features-not-included',
