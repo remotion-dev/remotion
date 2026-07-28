@@ -54,3 +54,24 @@ test('should keep spaces', () => {
 		'/static-abcdef/mediaparsernextsteps/Screenshot%202025-01-31%20at%2008.13.54.png',
 	);
 });
+
+test('should use the source from the matching static file', () => {
+	const previousStaticFiles = window.remotion_staticFiles;
+	window.remotion_staticFiles = [
+		{
+			lastModified: 0,
+			name: 'virtual/image.png',
+			sizeInBytes: 10,
+			src: 'blob:http://localhost:3000/virtual-image',
+		},
+	];
+
+	try {
+		expect(staticFile('/virtual/image.png')).toBe(
+			'blob:http://localhost:3000/virtual-image',
+		);
+		expect(staticFile('missing.png')).toBe('/static-abcdef/missing.png');
+	} finally {
+		window.remotion_staticFiles = previousStaticFiles;
+	}
+});

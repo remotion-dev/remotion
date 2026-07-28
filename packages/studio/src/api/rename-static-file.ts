@@ -1,6 +1,7 @@
 import type {RenameStaticFileResponse} from '@remotion/studio-shared';
 import {getRemotionEnvironment} from 'remotion';
 import {callApi} from '../components/call-api';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 
 export const renameStaticFile = ({
 	oldRelativePath,
@@ -11,6 +12,14 @@ export const renameStaticFile = ({
 }): Promise<RenameStaticFileResponse> => {
 	if (!getRemotionEnvironment().isStudio) {
 		throw new Error('renameStaticFile() is only available in the Studio');
+	}
+
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (browserStudioOperations?.renameStaticFile) {
+		return browserStudioOperations.renameStaticFile({
+			oldRelativePath,
+			newRelativePath,
+		});
 	}
 
 	if (window.remotion_isReadOnlyStudio) {

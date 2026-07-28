@@ -67,6 +67,20 @@ test('disables asset mutations while an editable Studio is disconnected', () => 
 	});
 });
 
+test('enables supported Browser Studio asset mutations', () => {
+	const availability = getAssetActionAvailability({
+		browserStudioCanMutateAssets: true,
+		readOnlyStudio: true,
+		connectionStatus: 'connected',
+		publicFolderExists: '/public',
+	});
+
+	expect(availability).toEqual({
+		fileExplorerDisabled: true,
+		mutationsDisabled: false,
+	});
+});
+
 test('disables drag insertion in read-only Studio', () => {
 	expect(
 		getCanDragAsset({

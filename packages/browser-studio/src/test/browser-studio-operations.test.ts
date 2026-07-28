@@ -50,6 +50,29 @@ test('adds multiple Solids without duplicating the import', () => {
 	expect(composition.match(/<Solid /g)).toHaveLength(2);
 });
 
+test('adds a Solid at a timeline frame', () => {
+	const project = createBlankTemplateProject();
+	const updated = insertSolidIntoProject({
+		project,
+		request: {
+			compositionFile: '/project/src/Composition.tsx',
+			compositionId: 'MyComp',
+			from: 42,
+			element: {
+				type: 'solid',
+				width: 1280,
+				height: 720,
+				position: {x: 100, y: 50},
+			},
+		},
+	});
+	const composition = updated.files['/project/src/Composition.tsx'];
+
+	expect(composition).toContain('<Sequence from={42}');
+	expect(composition).toContain("translate: '100px 50px'");
+	expect(composition).toContain('<Solid width={1280} height={720}');
+});
+
 test('resolves an imported composition component', async () => {
 	const project: VirtualProject = {
 		rootDir: '/project',
@@ -140,4 +163,34 @@ registerRoot(Root);
 	);
 	expect(output).toContain('<RemotionSequence>');
 	expect(output).toContain('<RemotionSolid width={1280}');
+});
+
+test('reports invalid timeline Solid input without changing the project', async () => {
+	const project = createBlankTemplateProject();
+	let currentProject = project;
+	const operations = createBrowserStudioOperations({
+		getProject: () => currentProject,
+		onProjectChange: (nextProject) => {
+			currentProject = nextProject;
+		},
+	});
+
+	const result = await operations.insertSolid({
+		compositionFile: '/project/src/Composition.tsx',
+		compositionId: 'MyComp',
+		from: 1.5,
+		element: {
+			type: 'solid',
+			width: 1280,
+			height: 720,
+			position: null,
+		},
+	});
+
+	expect(result.success).toBe(false);
+	if (!result.success) {
+		expect(result.reason).toBe('from must be a non-negative integer');
+	}
+
+	expect(currentProject).toBe(project);
 });

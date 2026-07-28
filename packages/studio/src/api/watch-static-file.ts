@@ -1,4 +1,5 @@
 import {getRemotionEnvironment} from 'remotion';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import type {StaticFile} from './get-static-files';
 import {watchPublicFolder} from './watch-public-folder';
 
@@ -24,7 +25,10 @@ export const watchStaticFile = (
 		return {cancel: () => undefined};
 	}
 
-	if (window.remotion_isReadOnlyStudio) {
+	if (
+		window.remotion_isReadOnlyStudio &&
+		!getBrowserStudioOperations()?.subscribeToEvent
+	) {
 		// eslint-disable-next-line no-console
 		console.warn(
 			'watchStaticFile() is only available in an interactive Studio.',

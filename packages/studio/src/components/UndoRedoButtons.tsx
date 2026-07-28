@@ -7,6 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {isMac} from '../helpers/is-mac';
 import {
@@ -54,7 +55,11 @@ export const UndoRedoButtons: React.FC = () => {
 		}
 
 		undoInFlight.current = true;
-		callApi('/api/undo', {})
+		const browserStudioOperations = getBrowserStudioOperations();
+		const promise = browserStudioOperations?.undo
+			? browserStudioOperations.undo()
+			: callApi('/api/undo', {});
+		promise
 			.catch(() => {
 				// Ignore errors
 			})
@@ -69,7 +74,11 @@ export const UndoRedoButtons: React.FC = () => {
 		}
 
 		redoInFlight.current = true;
-		callApi('/api/redo', {})
+		const browserStudioOperations = getBrowserStudioOperations();
+		const promise = browserStudioOperations?.redo
+			? browserStudioOperations.redo()
+			: callApi('/api/redo', {});
+		promise
 			.catch(() => {
 				// Ignore errors
 			})

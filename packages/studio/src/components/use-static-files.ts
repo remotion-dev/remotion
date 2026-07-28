@@ -2,6 +2,8 @@ import React, {createContext, useContext, useEffect, useState} from 'react';
 import {useRemotionEnvironment} from 'remotion';
 import {type StaticFile, getStaticFiles} from '../api/get-static-files';
 import {watchPublicFolder} from '../api/watch-public-folder';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 
 const StaticFilesContext = createContext<StaticFile[]>([]);
 
@@ -10,13 +12,17 @@ export const StaticFilesProvider: React.FC<{
 }> = ({children}) => {
 	const [files, setFiles] = useState(() => getStaticFiles());
 	const env = useRemotionEnvironment();
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const browserStudioCanWatch =
+		previewServerState.type === 'connected' &&
+		Boolean(getBrowserStudioOperations()?.subscribeToEvent);
 
 	useEffect(() => {
 		if (!env.isStudio) {
 			return;
 		}
 
-		if (env.isReadOnlyStudio) {
+		if (env.isReadOnlyStudio && !browserStudioCanWatch) {
 			return;
 		}
 
@@ -25,7 +31,7 @@ export const StaticFilesProvider: React.FC<{
 		});
 
 		return cancel;
-	}, [env.isStudio, env.isReadOnlyStudio]);
+	}, [browserStudioCanWatch, env.isStudio, env.isReadOnlyStudio]);
 
 	return React.createElement(
 		StaticFilesContext.Provider,

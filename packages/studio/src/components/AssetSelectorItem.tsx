@@ -10,6 +10,7 @@ import React, {
 import {Internals, staticFile, type StaticFile} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {deleteStaticFile} from '../api/delete-static-file';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	BACKGROUND,
@@ -96,16 +97,20 @@ const revealIconStyle: React.CSSProperties = {
 };
 
 export const getAssetActionAvailability = ({
+	browserStudioCanMutateAssets = false,
 	readOnlyStudio,
 	connectionStatus,
 	publicFolderExists,
 }: {
+	browserStudioCanMutateAssets?: boolean;
 	readOnlyStudio: boolean;
 	connectionStatus: 'init' | 'connected' | 'disconnected';
 	publicFolderExists: string | null;
 }) => {
 	return {
-		mutationsDisabled: readOnlyStudio || connectionStatus !== 'connected',
+		mutationsDisabled:
+			!browserStudioCanMutateAssets &&
+			(readOnlyStudio || connectionStatus !== 'connected'),
 		fileExplorerDisabled:
 			publicFolderExists === null ||
 			readOnlyStudio ||
@@ -575,6 +580,10 @@ const AssetSelectorItem: React.FC<{
 	}, [relativePath]);
 
 	const {mutationsDisabled, fileExplorerDisabled} = getAssetActionAvailability({
+		browserStudioCanMutateAssets: Boolean(
+			getBrowserStudioOperations()?.deleteStaticFile &&
+			getBrowserStudioOperations()?.renameStaticFile,
+		),
 		readOnlyStudio,
 		connectionStatus,
 		publicFolderExists: window.remotion_publicFolderExists,

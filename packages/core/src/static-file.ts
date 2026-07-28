@@ -138,6 +138,15 @@ export const staticFile = (path: string) => {
 		);
 	}
 
+	if (typeof window !== 'undefined') {
+		const matchingStaticFile = window.remotion_staticFiles?.find(
+			(file) => file.name === trimLeadingSlash(path),
+		);
+		if (matchingStaticFile) {
+			return matchingStaticFile.src;
+		}
+	}
+
 	const preprocessed = encodeBySplitting(path);
 	const preparsed = inner(preprocessed);
 

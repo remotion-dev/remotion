@@ -49,12 +49,16 @@ export const openOriginalPositionInEditorAtProperty = async ({
 	originalPosition: CodePosition;
 	property: string;
 }) => {
-	const position = await callApi('/api/find-in-file', {
+	const request = {
 		fileName: originalPosition.source,
 		lineNumber: originalPosition.line,
 		columnNumber: originalPosition.column,
 		search: property,
-	});
+	};
+	const browserStudioOperations = getBrowserStudioOperations();
+	const position = browserStudioOperations?.findInFile
+		? await browserStudioOperations.findInFile(request)
+		: await callApi('/api/find-in-file', request);
 
 	await openOriginalPositionInEditor({
 		source: originalPosition.source,

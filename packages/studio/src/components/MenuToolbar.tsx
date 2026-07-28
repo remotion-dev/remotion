@@ -1,5 +1,7 @@
 import type {SetStateAction} from 'react';
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BACKGROUND, BORDER_BLACK, WHITE} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {useMenuStructure} from '../helpers/use-menu-structure';
@@ -34,6 +36,12 @@ export const MenuToolbar: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
 	const [selected, setSelected] = useState<string | null>(null);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const browserStudioOperations = getBrowserStudioOperations();
+	const canUndoAndRedo =
+		!readOnlyStudio ||
+		(previewServerState.type === 'connected' &&
+			Boolean(browserStudioOperations?.undo && browserStudioOperations.redo));
 
 	const mobileLayout = useMobileLayout();
 
@@ -154,7 +162,7 @@ export const MenuToolbar: React.FC<{
 			<MenuBuildIndicator />
 			<div style={flex} />
 			<div style={fixedWidthRight}>
-				{readOnlyStudio ? null : <UndoRedoButtons />}
+				{canUndoAndRedo ? <UndoRedoButtons /> : null}
 				<SidebarCollapserControl side="right" />
 			</div>
 		</Row>
