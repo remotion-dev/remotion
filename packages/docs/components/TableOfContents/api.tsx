@@ -85,7 +85,7 @@ export const TableOfContents: React.FC = () => {
 			<p>Work with transcriptions from ElevenLabs</p>
 			<ElevenLabsTableOfContents />
 			<h2>@remotion/enable-scss</h2>
-			<p>Webpack override for enabling SASS/SCSS</p>
+			<p>Bundler override for enabling SASS/SCSS</p>
 			<EnableScssTableOfContents />
 			<h2>@remotion/fonts</h2>
 			<p>Load font files onto a page.</p>
@@ -169,10 +169,10 @@ export const TableOfContents: React.FC = () => {
 			<p>APIs for controlling theRemotion Studio</p>
 			<StudioTableOfContents />
 			<h2>@remotion/tailwind</h2>
-			<p>Webpack override for using TailwindCSS v3</p>
+			<p>Bundler override for using TailwindCSS v3</p>
 			<TailwindTableOfContents />
 			<h2>@remotion/tailwind-v4</h2>
-			<p>Webpack override for using TailwindCSS v4</p>
+			<p>Bundler override for using TailwindCSS v4</p>
 			<TailwindV4TableOfContents />
 			<h2>@remotion/three</h2>
 			<p>Create 3D videos using React Three Fiber</p>

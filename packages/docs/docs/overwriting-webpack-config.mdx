@@ -129,12 +129,12 @@ Config.overrideRspackConfig((currentConfiguration) => {
 
 Node.js APIs do not read `remotion.config.ts`. Pass the overrides directly to [`bundle()`](/docs/bundle) or [`deploySite()`](/docs/lambda/deploysite). Put an override in a separate file to import it from both `remotion.config.ts` and your Node.js script.
 
-For Rspack, pass `rspackOverride`. Pass portable changes as `bundlerOverride`.
+Pass portable changes as `bundlerOverride`.
 
-```ts twoslash title="src/webpack-override.ts"
-import {WebpackOverrideFn} from '@remotion/bundler';
+```ts twoslash title="src/bundler-override.ts"
+import {BundlerOverrideFn} from '@remotion/bundler';
 
-export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
+export const bundlerOverride: BundlerOverrideFn = (currentConfiguration) => {
   return {
     ...currentConfiguration,
     // Your override here
@@ -143,57 +143,59 @@ export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
 ```
 
 ```ts twoslash title="remotion.config.ts"
-// @filename: ./src/webpack-override.ts
-import {WebpackOverrideFn} from '@remotion/bundler';
-export const webpackOverride: WebpackOverrideFn = (c) => c;
+// @filename: ./src/bundler-override.ts
+import {BundlerOverrideFn} from '@remotion/bundler';
+export const bundlerOverride: BundlerOverrideFn = (c) => c;
 // @filename: remotion.config.ts
 // ---cut---
 import {Config} from '@remotion/cli/config';
-import {webpackOverride} from './src/webpack-override';
+import {bundlerOverride} from './src/bundler-override';
 
-Config.overrideWebpackConfig(webpackOverride);
+Config.overrideBundlerConfig(bundlerOverride);
 ```
 
 With `bundle`:
 
 ```ts twoslash title="my-script.js"
-// @filename: ./src/webpack-override.ts
-import {WebpackOverrideFn} from '@remotion/bundler';
-export const webpackOverride: WebpackOverrideFn = (c) => c;
+// @filename: ./src/bundler-override.ts
+import {BundlerOverrideFn} from '@remotion/bundler';
+export const bundlerOverride: BundlerOverrideFn = (c) => c;
 // @filename: remotion.config.ts
 // @target: esnext
 // ---cut---
 import {bundle} from '@remotion/bundler';
-import {webpackOverride} from './src/webpack-override';
+import {bundlerOverride} from './src/bundler-override';
 
 await bundle({
   entryPoint: require.resolve('./src/index.ts'),
-  webpackOverride,
+  bundlerOverride,
 });
 ```
 
 Or while using with `deploySite`:
 
 ```ts twoslash title="my-script.js"
-// @filename: ./src/webpack-override.ts
-import {WebpackOverrideFn} from '@remotion/bundler';
-export const webpackOverride: WebpackOverrideFn = (c) => c;
+// @filename: ./src/bundler-override.ts
+import {BundlerOverrideFn} from '@remotion/bundler';
+export const bundlerOverride: BundlerOverrideFn = (c) => c;
 // @filename: remotion.config.ts
 // @target: esnext
 // ---cut---
 import {deploySite} from '@remotion/lambda';
-import {webpackOverride} from './src/webpack-override';
+import {bundlerOverride} from './src/bundler-override';
 
 await deploySite({
   entryPoint: require.resolve('./src/index.ts'),
   region: 'us-east-1',
   bucketName: 'remotionlambda-c7fsl3d',
   options: {
-    webpackOverride,
+    bundlerOverride,
   },
   // ...other parameters
 });
 ```
+
+For bundler-specific changes, pass `webpackOverride` or `rspackOverride` instead.
 
 ## Multiple overrides
 
@@ -204,18 +206,18 @@ import {Config} from '@remotion/cli/config';
 import {enableScss} from '@remotion/enable-scss';
 import {enableTailwind} from '@remotion/tailwind-v4';
 
-Config.overrideWebpackConfig((c) => enableScss(enableTailwind(c)));
+Config.overrideBundlerConfig((c) => enableScss(enableTailwind(c)));
 ```
 
-From Remotion v4.0.229, you can also use `Config.overrideWebpackConfig` multiple times, but this only works in the config file:
+You can also call `Config.overrideBundlerConfig()` multiple times in the config file:
 
 ```tsx twoslash
 import {Config} from '@remotion/cli/config';
 import {enableScss} from '@remotion/enable-scss';
 import {enableTailwind} from '@remotion/tailwind-v4';
 
-Config.overrideWebpackConfig(enableScss);
-Config.overrideWebpackConfig(enableTailwind);
+Config.overrideBundlerConfig(enableScss);
+Config.overrideBundlerConfig(enableTailwind);
 ```
 
 ## Snippets
@@ -226,12 +228,12 @@ Config.overrideWebpackConfig(enableTailwind);
 
 <Installation pkg="@mdx-js/loader @mdx-js/react" />
 
-2. Create a file with the Webpack override:
+2. Create a file with the bundler override:
 
 ```ts twoslash title="enable-mdx.ts"
-import {WebpackOverrideFn} from '@remotion/bundler';
+import {BundlerOverrideFn} from '@remotion/bundler';
 // ---cut---
-export const enableMdx: WebpackOverrideFn = (currentConfiguration) => {
+export const enableMdx: BundlerOverrideFn = (currentConfiguration) => {
   return {
     ...currentConfiguration,
     module: {
@@ -257,14 +259,14 @@ export const enableMdx: WebpackOverrideFn = (currentConfiguration) => {
 
 ```ts twoslash title="remotion.config.ts"
 // @filename: ./src/enable-mdx.ts
-import {WebpackOverrideFn} from '@remotion/bundler';
-export const enableMdx: WebpackOverrideFn = (c) => c;
+import {BundlerOverrideFn} from '@remotion/bundler';
+export const enableMdx: BundlerOverrideFn = (c) => c;
 // @filename: remotion.config.ts
 // ---cut---
 import {Config} from '@remotion/cli/config';
 import {enableMdx} from './src/enable-mdx';
 
-Config.overrideWebpackConfig(enableMdx);
+Config.overrideBundlerConfig(enableMdx);
 ```
 
 4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
@@ -285,12 +287,12 @@ For TailwindCSS, use the [TailwindCSS docs](/docs/tailwind) instead.
 
 <Installation pkg="postcss postcss-loader postcss-size" />
 
-2. Create a file with the Webpack override:
+2. Create a file with the bundler override:
 
 ```ts twoslash title="src/enable-postcss.ts"
-import {WebpackOverrideFn} from '@remotion/bundler';
+import {BundlerOverrideFn} from '@remotion/bundler';
 // ---cut---
-export const enablePostCSS: WebpackOverrideFn = (currentConfiguration) => {
+export const enablePostCSS: BundlerOverrideFn = (currentConfiguration) => {
   return {
     ...currentConfiguration,
     module: {
@@ -334,14 +336,14 @@ export const enablePostCSS: WebpackOverrideFn = (currentConfiguration) => {
 
 ```ts twoslash title="remotion.config.ts"
 // @filename: ./src/enable-postcss.ts
-import {WebpackOverrideFn} from '@remotion/bundler';
-export const enablePostCSS: WebpackOverrideFn = (c) => c;
+import {BundlerOverrideFn} from '@remotion/bundler';
+export const enablePostCSS: BundlerOverrideFn = (c) => c;
 // @filename: remotion.config.ts
 // ---cut---
 import {Config} from '@remotion/cli/config';
 import {enablePostCSS} from './src/enable-postcss';
 
-Config.overrideWebpackConfig(enablePostCSS);
+Config.overrideBundlerConfig(enablePostCSS);
 ```
 
 4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).

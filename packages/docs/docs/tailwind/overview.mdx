@@ -31,7 +31,7 @@ Install `@remotion/tailwind` as well as TailwindCSS dependencies.
 import {Config} from '@remotion/cli/config';
 import {enableTailwind} from '@remotion/tailwind';
 
-Config.overrideWebpackConfig((currentConfiguration) => {
+Config.overrideBundlerConfig((currentConfiguration) => {
   return enableTailwind(currentConfiguration);
 });
 ```
