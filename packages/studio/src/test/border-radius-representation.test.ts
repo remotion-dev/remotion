@@ -10,7 +10,6 @@ import {
 	BORDER_RADIUS_SHORTHAND_KEY,
 	getBorderRadiusConversion,
 	getBorderRadiusConversionChanges,
-	getBorderRadiusResetFieldKeys,
 } from '../components/Timeline/border-radius-representation';
 
 test('a static shorthand can be converted to individual corners', () => {
@@ -156,27 +155,6 @@ test('static drag overrides determine the border radius conversion', () => {
 			},
 		),
 	).toBe(null);
-});
-
-test('resetting the shorthand also clears its expanded longhand statuses', () => {
-	expect(
-		getBorderRadiusResetFieldKeys({
-			fieldKey: BORDER_RADIUS_SHORTHAND_KEY,
-			schema: NoReactInternals.sequenceSchema,
-		}),
-	).toEqual([BORDER_RADIUS_SHORTHAND_KEY, ...BORDER_RADIUS_LONGHAND_KEYS]);
-	expect(
-		getBorderRadiusResetFieldKeys({
-			fieldKey: BORDER_RADIUS_SHORTHAND_KEY,
-			schema: {
-				[BORDER_RADIUS_SHORTHAND_KEY]: {
-					type: 'number',
-					default: 0,
-					hiddenFromList: false,
-				},
-			},
-		}),
-	).toEqual([BORDER_RADIUS_SHORTHAND_KEY]);
 });
 
 test('unequal, keyframed, and computed radii cannot be converted', () => {

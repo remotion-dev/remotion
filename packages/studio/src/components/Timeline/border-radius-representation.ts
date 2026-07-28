@@ -1,17 +1,10 @@
-import type {
-	CanUpdateSequencePropStatus,
-	DragOverrideValue,
-	InteractivitySchema,
-} from 'remotion';
-import {Internals} from 'remotion';
+import {
+	BORDER_RADIUS_LONGHAND_KEYS,
+	BORDER_RADIUS_SHORTHAND_KEY,
+} from '@remotion/studio-shared';
+import type {CanUpdateSequencePropStatus, DragOverrideValue} from 'remotion';
 
-export const BORDER_RADIUS_SHORTHAND_KEY = 'style.borderRadius';
-export const BORDER_RADIUS_LONGHAND_KEYS = [
-	'style.borderTopLeftRadius',
-	'style.borderTopRightRadius',
-	'style.borderBottomRightRadius',
-	'style.borderBottomLeftRadius',
-] as const;
+export {BORDER_RADIUS_LONGHAND_KEYS, BORDER_RADIUS_SHORTHAND_KEY};
 
 export type BorderRadiusConversion =
 	| {readonly type: 'individual'; readonly value: number}
@@ -42,23 +35,6 @@ export const getBorderRadiusConversionChanges = (
 		})),
 		{fieldKey: BORDER_RADIUS_SHORTHAND_KEY, value: conversion.value},
 	];
-};
-
-export const getBorderRadiusResetFieldKeys = ({
-	fieldKey,
-	schema,
-}: {
-	readonly fieldKey: string;
-	readonly schema: InteractivitySchema;
-}): string[] => {
-	if (fieldKey !== BORDER_RADIUS_SHORTHAND_KEY) {
-		return [fieldKey];
-	}
-
-	const flatSchema = Internals.getFlatSchemaWithAllKeys(schema);
-	return [BORDER_RADIUS_SHORTHAND_KEY, ...BORDER_RADIUS_LONGHAND_KEYS].filter(
-		(key) => key in flatSchema,
-	);
 };
 
 export const getBorderRadiusConversion = (

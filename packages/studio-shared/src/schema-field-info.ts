@@ -13,6 +13,10 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {
+	BORDER_RADIUS_LONGHAND_KEYS,
+	BORDER_RADIUS_SHORTHAND_KEY,
+} from './style-property-relations';
 
 export type {DragOverrides, PropStatuses, SequenceControls};
 
@@ -99,14 +103,6 @@ const BORDER_RADIUS_FIELD_KEYS = new Set([
 	'style.borderBottomRightRadius',
 	'style.borderBottomLeftRadius',
 ]);
-
-const BORDER_RADIUS_SHORTHAND_KEY = 'style.borderRadius';
-const BORDER_RADIUS_LONGHAND_KEYS = [
-	'style.borderTopLeftRadius',
-	'style.borderTopRightRadius',
-	'style.borderBottomRightRadius',
-	'style.borderBottomLeftRadius',
-] as const;
 
 const getBorderRadiusFieldKeysToShow = ({
 	activeSchema,
