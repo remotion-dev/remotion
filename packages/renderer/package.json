@@ -24,7 +24,7 @@
 		"execa": "5.1.1",
 		"remotion": "workspace:*",
 		"@remotion/streaming": "workspace:*",
-		"source-map": "0.8.0-beta.0",
+		"source-map": "0.8.0",
 		"ws": "8.21.0",
 		"@remotion/licensing": "workspace:*"
 	},
