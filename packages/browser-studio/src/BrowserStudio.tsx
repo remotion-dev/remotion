@@ -1,6 +1,6 @@
 import {studioHtml} from '@remotion/studio-shared/studio-html';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {createBrowserStudioServer} from './browser-studio-server';
+import {createBrowserStudioOperations} from './browser-studio-operations';
 import {browserStudioDependencyVersions} from './dependency-versions';
 import {Spinner} from './Spinner';
 import type {
@@ -109,9 +109,9 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		[incomingProjectKey, onProjectChange],
 	);
 
-	const browserStudioServer = useMemo(
+	const browserStudioOperations = useMemo(
 		() =>
-			createBrowserStudioServer({
+			createBrowserStudioOperations({
 				getProject: () => activeProjectRef.current,
 				onProjectChange: updateProject,
 			}),
@@ -266,9 +266,9 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 
 		contentDocument.open();
 		contentDocument.write(iframeHtml);
-		contentWindow.remotion_browserStudioServer = browserStudioServer;
+		contentWindow.remotion_browserStudio = browserStudioOperations;
 		contentDocument.close();
-	}, [browserStudioServer, iframeHtml, iframeLoaded, iframeSrc]);
+	}, [browserStudioOperations, iframeHtml, iframeLoaded, iframeSrc]);
 
 	return (
 		<div style={containerStyle}>

@@ -1,7 +1,7 @@
 import type {InsertJsxElementRequest} from '@remotion/studio-shared';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
-import {getBrowserStudioServer} from '../../helpers/browser-studio-server';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
@@ -20,8 +20,8 @@ export const useCompositionActions = () => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
-	const browserStudioServer = getBrowserStudioServer();
-	const browserStudioCanInsertSolid = browserStudioServer !== null;
+	const browserStudioOperations = getBrowserStudioOperations();
+	const browserStudioCanInsertSolid = browserStudioOperations !== null;
 
 	const currentCompositionId =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
@@ -42,7 +42,8 @@ export const useCompositionActions = () => {
 	const compositionFile =
 		resolvedCompositionLocation?.source ??
 		(currentCompositionId
-			? (browserStudioServer?.getCompositionFile(currentCompositionId) ?? null)
+			? (browserStudioOperations?.getCompositionFile(currentCompositionId) ??
+				null)
 			: null);
 	const compositionComponentInfo = useCachedCompositionComponentInfo({
 		compositionFile,
@@ -89,8 +90,8 @@ export const useCompositionActions = () => {
 					position: null,
 				},
 			};
-			const result = browserStudioServer
-				? await browserStudioServer.insertSolid(request)
+			const result = browserStudioOperations
+				? await browserStudioOperations.insertSolid(request)
 				: await callApi('/api/insert-jsx-element', request);
 
 			if (result.success) {
@@ -105,7 +106,7 @@ export const useCompositionActions = () => {
 			setIsAddingSolid(false);
 		}
 	}, [
-		browserStudioServer,
+		browserStudioOperations,
 		canInsertSolid,
 		compositionFile,
 		currentCompositionId,

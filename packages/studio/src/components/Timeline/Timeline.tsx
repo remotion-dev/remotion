@@ -1,7 +1,7 @@
 import type {InsertJsxElementRequest} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
-import {getBrowserStudioServer} from '../../helpers/browser-studio-server';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
@@ -72,8 +72,8 @@ const TimelineContextMenuArea: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
-	const browserStudioServer = getBrowserStudioServer();
-	const browserStudioCanInsertSolid = browserStudioServer !== null;
+	const browserStudioOperations = getBrowserStudioOperations();
+	const browserStudioCanInsertSolid = browserStudioOperations !== null;
 
 	const currentCompositionId =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
@@ -94,7 +94,8 @@ const TimelineContextMenuArea: React.FC<{
 	const compositionFile =
 		resolvedCompositionLocation?.source ??
 		(currentCompositionId
-			? (browserStudioServer?.getCompositionFile(currentCompositionId) ?? null)
+			? (browserStudioOperations?.getCompositionFile(currentCompositionId) ??
+				null)
 			: null);
 	const compositionComponentInfo = useCachedCompositionComponentInfo({
 		compositionFile,
@@ -140,8 +141,8 @@ const TimelineContextMenuArea: React.FC<{
 					position: null,
 				},
 			};
-			const result = browserStudioServer
-				? await browserStudioServer.insertSolid(request)
+			const result = browserStudioOperations
+				? await browserStudioOperations.insertSolid(request)
 				: await callApi('/api/insert-jsx-element', request);
 
 			if (result.success) {
@@ -156,7 +157,7 @@ const TimelineContextMenuArea: React.FC<{
 			setIsAddingSolid(false);
 		}
 	}, [
-		browserStudioServer,
+		browserStudioOperations,
 		canInsertSolid,
 		compositionFile,
 		currentCompositionId,

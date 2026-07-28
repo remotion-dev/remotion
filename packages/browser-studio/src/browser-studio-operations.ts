@@ -1,6 +1,6 @@
 import {parse} from '@babel/parser';
 import type {
-	BrowserStudioServer,
+	BrowserStudioOperations,
 	CompositionComponentInfoRequest,
 	InsertJsxElementRequest,
 	InsertJsxElementResponse,
@@ -1129,13 +1129,13 @@ const getCompositionFile = ({
 	return null;
 };
 
-export const createBrowserStudioServer = ({
+export const createBrowserStudioOperations = ({
 	getProject,
 	onProjectChange,
 }: {
 	getProject: () => VirtualProject;
 	onProjectChange: (project: VirtualProject) => void;
-}): BrowserStudioServer => {
+}): BrowserStudioOperations => {
 	return {
 		getCompositionFile: (compositionId) =>
 			getCompositionFile({compositionId, project: getProject()}),

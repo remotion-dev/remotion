@@ -1,8 +1,8 @@
 import {expect, test} from 'bun:test';
 import {
-	createBrowserStudioServer,
+	createBrowserStudioOperations,
 	insertSolidIntoProject,
-} from '../browser-studio-server';
+} from '../browser-studio-operations';
 import {createBlankTemplateProject} from '../templates/blank';
 import type {VirtualProject} from '../types';
 
@@ -77,16 +77,16 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 	);
 
 	let currentProject = project;
-	const server = createBrowserStudioServer({
+	const operations = createBrowserStudioOperations({
 		getProject: () => currentProject,
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
 		},
 	});
-	expect(server.getCompositionFile('MyComp')).toBe('src/index.tsx');
-	expect(server.getCompositionFile('Unknown')).toBeNull();
+	expect(operations.getCompositionFile('MyComp')).toBe('src/index.tsx');
+	expect(operations.getCompositionFile('Unknown')).toBeNull();
 
-	const info = await server.getCompositionComponentInfo({
+	const info = await operations.getCompositionComponentInfo({
 		compositionFile: 'src/index.tsx',
 		compositionId: 'MyComp',
 	});
@@ -100,7 +100,7 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 		},
 	});
 
-	const result = await server.insertSolid({
+	const result = await operations.insertSolid({
 		compositionFile: 'src/index.tsx',
 		compositionId: 'MyComp',
 		from: null,

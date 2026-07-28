@@ -5,7 +5,7 @@ import type {
 	InsertJsxElementResponse,
 } from './api-requests';
 
-export type BrowserStudioServer = {
+export type BrowserStudioOperations = {
 	getCompositionFile: (compositionId: string) => string | null;
 	getCompositionComponentInfo: (
 		request: CompositionComponentInfoRequest,
@@ -17,6 +17,6 @@ export type BrowserStudioServer = {
 
 declare global {
 	interface Window {
-		remotion_browserStudioServer?: BrowserStudioServer;
+		remotion_browserStudio?: BrowserStudioOperations;
 	}
 }

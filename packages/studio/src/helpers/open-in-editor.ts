@@ -8,7 +8,7 @@ import type {
 	CodePosition,
 	OriginalPosition,
 } from '../error-overlay/react-overlay/utils/get-source-map';
-import {getBrowserStudioServer} from './browser-studio-server';
+import {getBrowserStudioOperations} from './browser-studio-operations';
 
 export const openInEditor = (stack: SymbolicatedStackFrame) => {
 	const {
@@ -140,7 +140,7 @@ export const useCachedCompositionComponentInfo = ({
 
 	useEffect(() => {
 		if (
-			!getBrowserStudioServer() ||
+			!getBrowserStudioOperations() ||
 			compositionFile === null ||
 			compositionId === null
 		) {
@@ -177,9 +177,9 @@ export const loadCompositionComponentInfo = async ({
 			compositionFile,
 			compositionId,
 		};
-		const browserStudioServer = getBrowserStudioServer();
-		const body = browserStudioServer
-			? await browserStudioServer.getCompositionComponentInfo(request)
+		const browserStudioOperations = getBrowserStudioOperations();
+		const body = browserStudioOperations
+			? await browserStudioOperations.getCompositionComponentInfo(request)
 			: await callApi('/api/composition-component-info', request);
 
 		const result = {
