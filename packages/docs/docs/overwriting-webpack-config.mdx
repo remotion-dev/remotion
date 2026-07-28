@@ -378,6 +378,11 @@ export const enableSvgr: WebpackOverrideFn = (currentConfiguration) => {
           resourceQuery: {not: [/url/]}, // Exclude react component if *.svg?url
           use: ['@svgr/webpack'],
         },
+        {
+          test: /\.svg$/i,
+          resourceQuery: /url/, // Load *.svg?url as an asset URL
+          type: 'asset/resource',
+        },
         ...(currentConfiguration.module?.rules ?? []).map((r) => {
           if (!r) {
             return r;
@@ -422,7 +427,7 @@ Config.overrideWebpackConfig(enableSvgr);
 
 1. Install the following dependencies:
 
-<Installation pkg="glsl-shader-loader glslify glslify-import-loader raw-loader" />
+<Installation pkg="glslify glslify-import-loader glslify-loader raw-loader" />
 
 2. Declare a webpack override:
 
@@ -439,7 +444,14 @@ export const enableGlsl: WebpackOverrideFn = (currentConfiguration) => {
         {
           test: /\.(glsl|vs|fs|vert|frag)$/,
           exclude: /node_modules/,
-          use: ['glslify-import-loader', 'raw-loader', 'glslify-loader'],
+          use: [
+            'glslify-import-loader',
+            {
+              loader: 'raw-loader',
+              options: {esModule: false},
+            },
+            'glslify-loader',
+          ],
         },
       ],
     },
