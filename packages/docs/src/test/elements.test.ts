@@ -10,7 +10,6 @@ import {elementDefinitions} from '../components/Elements/element-definitions';
 import {
 	getElementCompositionId,
 	getElementDimensionsLabel,
-	getElementPreviewUrls,
 } from '../components/Elements/element-utils';
 import {getElementPreviewDimensions} from '../components/Elements/ElementPreviewComposition';
 
@@ -283,29 +282,31 @@ describe('Element preview definitions', () => {
 		}
 	});
 
-	test('derives stable composition IDs and preview URLs', () => {
+	test('uses stable composition IDs and explicit flat MP4 preview URLs', () => {
 		const compositionIds = elementDefinitionList.map((definition) =>
 			getElementCompositionId(definition.slug),
 		);
 		expect(new Set(compositionIds).size).toBe(compositionIds.length);
 
 		for (const definition of elementDefinitionList) {
-			expect(getElementPreviewUrls(definition)).toEqual({
-				png: `https://remotion.media/elements/${definition.slug}/preview.png`,
-				video: `https://remotion.media/elements/${definition.slug}/preview.${definition.transparentPreview ? 'webm' : 'mp4'}`,
-			});
+			const assetSlug = definition.slug.replaceAll('/', '-');
+			expect(String(definition.preview.posterUrl)).toBe(
+				`https://remotion.media/elements/${assetSlug}-preview.png`,
+			);
+			expect(String(definition.preview.videoUrl)).toBe(
+				`https://remotion.media/elements/${assetSlug}-preview.mp4`,
+			);
 		}
 	});
 
-	test('supports transparent preview assets', () => {
-		expect(elementDefinitions['data/product-offer'].transparentPreview).toBe(
-			true,
+	test('the Element template includes explicit flat preview URLs', () => {
+		const template = readFileSync(path.join(templateRoot, 'index.mdx'), 'utf8');
+		expect(template).toContain(
+			"posterUrl: 'https://remotion.media/elements/category-element-title-preview.png'",
 		);
-		expect(
-			elementDefinitionList
-				.filter((definition) => definition.transparentPreview)
-				.map((definition) => definition.slug),
-		).toEqual(['data/horizontal-bar-chart', 'data/product-offer']);
+		expect(template).toContain(
+			"videoUrl: 'https://remotion.media/elements/category-element-title-preview.mp4'",
+		);
 	});
 
 	test('registers Element compositions in a Folder', () => {

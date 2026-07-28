@@ -26,7 +26,7 @@ bun run remotion
 
 ## 2. Perform the publication review
 
-Review the finished source, MDX page, and central definition against the Element Guidelines. Resolve placeholder content and finalize the description, display name, contributors, dimensions, duration, preview padding, and poster frame.
+Review the finished source, MDX page, and central definition against the Element Guidelines. Resolve placeholder content and finalize the description, display name, contributors, dimensions, duration, preview padding, poster frame, and `preview` object. Confirm that `posterUrl` and `videoUrl` use flat `https://remotion.media/elements/<category>-<slug>-preview.png` and `.mp4` paths. Preview assets are composited onto the standard background and use MP4 for broad browser, social-card, and embed compatibility, even when the Element itself supports transparency. These explicit URLs are the publishing source of truth.
 
 Re-check the technical implementation requirements from the [`scaffold-element` skill](../scaffold-element/SKILL.md): The reusable implementation must remain in one self-contained TSX file, fill its configured bounds without a wrapper `<Sequence>` or preview-only source padding, and leave outer placement to the surrounding project. Animated entrances must have exits with inline, hardcoded frame ranges on useful named `Interactive.*` elements. Inner control names must not repeat the Element display name.
 
@@ -79,7 +79,15 @@ bunx remotion render \
 cd ../..
 ```
 
-Do not run `render-element-previews`, because it renders every Element and clears the previous preview output.
+Do not run `render-element-previews` without an Element filter, because that renders every Element and clears the complete preview output. If uploading is explicitly requested later, use:
+
+```bash
+cd packages/docs
+bun run render-element-previews --element=<category>/<slug> --upload
+cd ../..
+```
+
+The filtered command clears and regenerates only that Element's nested local review output, then uses its explicit metadata URLs for the public locations and R2 keys.
 
 Inspect `packages/docs/.element-previews/<category>/<slug>/preview.png` and `preview.mp4`, then give both paths to the developer for visual review. Stop and wait for the developer to explicitly confirm that both previews look correct. Do not run the final repository checks or finish the publishing workflow until that approval is received.
 
