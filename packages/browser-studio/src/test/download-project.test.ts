@@ -20,6 +20,7 @@ test('downloads the current Browser Studio project as a runnable archive', async
 	};
 	const operations = createBrowserStudioOperations({
 		dependencyVersions,
+		getStaticFiles: null,
 		getProject: () => project,
 		onProjectChange: (nextProject) => {
 			project = nextProject;
@@ -39,10 +40,7 @@ test('downloads the current Browser Studio project as a runnable archive', async
 	});
 	expect(insertResult).toEqual({success: true});
 
-	const archive = await operations.downloadProject?.();
-	if (!archive) {
-		throw new Error('Expected Browser Studio to support project downloads');
-	}
+	const archive = await operations.downloadProject();
 
 	const files = unzipSync(archive.data);
 	const packageJson = JSON.parse(strFromU8(files['package.json'])) as Record<

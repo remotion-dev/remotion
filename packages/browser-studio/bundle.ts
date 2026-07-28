@@ -35,8 +35,20 @@ if (!output.success) {
 	process.exit(1);
 }
 
+const externalStudioSharedImport =
+	/\bfrom\s*["']@remotion\/studio-shared["']|\bimport\s*\(\s*["']@remotion\/studio-shared["']|\brequire\s*\(\s*["']@remotion\/studio-shared["']/;
+
 for (const file of output.outputs) {
 	const str = await file.text();
+	if (
+		path.basename(file.path) === 'browser-studio-render-entry.mjs' &&
+		externalStudioSharedImport.test(str)
+	) {
+		throw new Error(
+			'Browser Studio must bundle @remotion/studio-shared into its render entry so it cannot link against an incompatible published version.',
+		);
+	}
+
 	const out = path.join('dist', 'esm', file.path);
 
 	await Bun.write(out, str);

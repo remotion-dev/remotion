@@ -7,8 +7,8 @@ import type {
 	BrowserStudioOperations,
 	InsertJsxElementResponse,
 } from '@remotion/studio-shared';
-import {makeBrowserStudioProjectArchive} from './download-project';
 import {createBrowserStudioProjectController} from './browser-studio-project-controller';
+import {makeBrowserStudioProjectArchive} from './download-project';
 import type {VirtualProject} from './types';
 
 export {insertSolidIntoProject} from '@remotion/studio-codemods';

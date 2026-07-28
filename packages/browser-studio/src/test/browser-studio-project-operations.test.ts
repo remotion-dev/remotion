@@ -21,6 +21,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		revokeObjectUrl: (url) => revokedUrls.push(url),
 	});
 	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
 		getStaticFiles: publicFileManager.getStaticFiles,
 		getProject: () => project,
 		onProjectChange: (nextProject) => {
@@ -140,6 +141,7 @@ test('rejects unsafe public paths and conflicting renames', async () => {
 		publicFiles: {'existing.txt': 'existing'},
 	};
 	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
 		getStaticFiles: null,
 		getProject: () => project,
 		onProjectChange: (nextProject) => {

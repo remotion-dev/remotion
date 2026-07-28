@@ -40,9 +40,7 @@ export type BrowserStudioOperations = {
 	renameStaticFile: (
 		request: RenameStaticFileRequest,
 	) => Promise<RenameStaticFileResponse>;
-	subscribeToEvent: (
-		listener: (event: EventSourceEvent) => void,
-	) => () => void;
+	subscribeToEvent: (listener: (event: EventSourceEvent) => void) => () => void;
 	undo: () => Promise<UndoResponse>;
 	writeStaticFile: (request: WriteStaticFileRequest) => Promise<void>;
 };

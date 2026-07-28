@@ -4,7 +4,6 @@ export const studioRenderEntryExternal = [
 	'@remotion/media-utils',
 	'@remotion/player',
 	'@remotion/renderer',
-	'@remotion/studio-shared',
 	'@remotion/timeline-utils',
 	'@remotion/web-renderer',
 	'@remotion/zod-types',
