@@ -27,13 +27,13 @@ export const Skills2Router: React.FC = () => {
 				name="Skills2Gesture"
 				width={1344}
 				height={1700}
-				durationInFrames={150}
+				durationInFrames={456}
 				style={{
 					position: 'absolute',
 					translate: interpolate(
 						frame,
-						[27, 49],
-						['0px 391.5px', '0px -190.2px'],
+						[27, 49, 301],
+						['0px 391.5px', '0px -190.2px', '0px -162.2px'],
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
@@ -46,6 +46,7 @@ export const Skills2Router: React.FC = () => {
 									durationRestThreshold: 0.02,
 									overshootClamping: false,
 								}),
+								Easing.linear,
 							],
 						},
 					),

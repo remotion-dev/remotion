@@ -145,7 +145,7 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="Skills2Gesture"
 					component={Skills2Gesture}
-					durationInFrames={150}
+					durationInFrames={456}
 					fps={30}
 					width={1344}
 					height={1700}
@@ -177,7 +177,7 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="Skills2Router"
 					component={Skills2Router}
-					durationInFrames={150}
+					durationInFrames={456}
 					fps={30}
 					width={1344}
 					height={1700}
