@@ -1,12 +1,12 @@
+import {burlap} from '@remotion/effects/burlap';
 import {loadFont} from '@remotion/fonts';
 import React from 'react';
 import {
 	AbsoluteFill,
-	Easing,
 	Interactive,
-	interpolate,
+	Solid,
 	staticFile,
-	useCurrentFrame,
+	useVideoConfig,
 } from 'remotion';
 import {z} from 'zod';
 
@@ -54,25 +54,12 @@ export const RemotionCube: React.FC<{readonly name: string}> = ({name}) => {
 	);
 };
 
-const AnimatedRemotionCube: React.FC = () => {
-	const frame = useCurrentFrame();
-
+const StaticRemotionCube: React.FC = () => {
 	return (
 		<Interactive.Div
-			name="Animated Remotion cube"
+			name="Static Remotion cube"
 			style={{
 				display: 'flex',
-				opacity: interpolate(frame, [0, 12], [0, 1], {
-					extrapolateLeft: 'clamp',
-					extrapolateRight: 'clamp',
-					easing: Easing.bezier(0.16, 1, 0.3, 1),
-				}),
-				scale: interpolate(frame, [0, 18], [0.82, 1], {
-					extrapolateLeft: 'clamp',
-					extrapolateRight: 'clamp',
-					easing: Easing.spring({damping: 200}),
-					output: 'perceptual-scale',
-				}),
 			}}
 		>
 			<RemotionCube name="Remotion cube" />
@@ -100,9 +87,10 @@ export const Skills2Announcement: React.FC<
 					padding: '18px 54px',
 					borderRadius: 24,
 					backgroundColor: '#edf7ff',
+					filter: 'drop-shadow(0 14px 20px rgba(18, 45, 58, 0.28))',
 				}}
 			>
-				<AnimatedRemotionCube />
+				<StaticRemotionCube />
 				<Interactive.Div
 					name="Typed title"
 					style={{
@@ -126,6 +114,7 @@ export const Skills2Announcement: React.FC<
 							fontWeight: 500,
 							letterSpacing: -1.5,
 							lineHeight: 1,
+							translate: '0 -2px',
 							whiteSpace: 'nowrap',
 						}}
 					>
@@ -133,6 +122,31 @@ export const Skills2Announcement: React.FC<
 					</Interactive.Div>
 				</Interactive.Div>
 			</Interactive.Div>
+		</AbsoluteFill>
+	);
+};
+
+export const Skills2AnnouncementComposition: React.FC<
+	z.infer<typeof skills2AnnouncementSchema>
+> = ({title}) => {
+	const {width, height} = useVideoConfig();
+
+	return (
+		<AbsoluteFill>
+			<Solid
+				width={width}
+				height={height}
+				color="#f5fafb"
+				style={{position: 'absolute'}}
+				effects={[
+					burlap({
+						size: 10,
+						roughness: 0,
+						color: '#e9e9e9',
+					}),
+				]}
+			/>
+			<Skills2Announcement title={title} />
 		</AbsoluteFill>
 	);
 };

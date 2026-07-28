@@ -100,11 +100,13 @@ import {
 	htmlInCanvasAllEffectsSchema,
 } from './Showcase/HtmlInCanvasAllEffects';
 import {
-	Skills2Announcement,
+	Skills2AnnouncementComposition,
 	skills2AnnouncementSchema,
 } from './Skills2Announcement';
 import {Skills2Gesture} from './Skills2Gesture';
 import {Skills2Pick} from './Skills2Pick';
+import {Skills2TableBang} from './Skills2TableBang';
+import {Skills2TableBangComp} from './Skills2TableBangComp';
 import {SvgLogoCompositions} from './SvgLogos';
 import {
 	FlyingCardsLeft,
@@ -129,7 +131,7 @@ export const RemotionRoot: React.FC = () => {
 			<Folder name="announcements">
 				<Composition
 					id="Skills2Announcement"
-					component={Skills2Announcement}
+					component={Skills2AnnouncementComposition}
 					durationInFrames={180}
 					fps={30}
 					width={1071}
@@ -142,10 +144,10 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="Skills2Gesture"
 					component={Skills2Gesture}
-					durationInFrames={180}
+					durationInFrames={150}
 					fps={30}
-					width={1920}
-					height={1080}
+					width={1344}
+					height={1700}
 				/>
 				<Composition
 					id="Skills2Pick"
@@ -154,6 +156,22 @@ export const RemotionRoot: React.FC = () => {
 					fps={30}
 					width={1920}
 					height={1080}
+				/>
+				<Composition
+					id="Skills2Hand"
+					component={Skills2TableBang}
+					durationInFrames={78}
+					fps={10}
+					width={1344}
+					height={1126}
+				/>
+				<Composition
+					id="Skills2TableBangComp"
+					component={Skills2TableBangComp}
+					durationInFrames={120}
+					fps={30}
+					width={1344}
+					height={1700}
 				/>
 			</Folder>
 			<Folder name="docs">

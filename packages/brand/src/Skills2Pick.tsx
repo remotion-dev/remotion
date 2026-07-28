@@ -1,10 +1,14 @@
+import {burlap} from '@remotion/effects/burlap';
+import {tint} from '@remotion/effects/tint';
 import {loadFont} from '@remotion/fonts';
 import {Video} from '@remotion/media';
 import React from 'react';
 import {
 	AbsoluteFill,
+	getStaticFiles,
 	Interactive,
 	interpolate,
+	Solid,
 	staticFile,
 	useCurrentFrame,
 } from 'remotion';
@@ -30,6 +34,7 @@ const SkillPill: React.FC<{readonly name: string}> = ({name}) => {
 				paddingRight: 42,
 				borderRadius: 24,
 				backgroundColor: '#edf7ff',
+				filter: 'drop-shadow(0 14px 20px rgba(18, 45, 58, 0.28))',
 				color: '#2888dd',
 				fontFamily: 'GT Planar, sans-serif',
 				fontSize: 54,
@@ -54,8 +59,25 @@ const SkillPill: React.FC<{readonly name: string}> = ({name}) => {
 
 export const Skills2Pick: React.FC = () => {
 	const frame = useCurrentFrame();
+	const localPinchHand = getStaticFiles().find(
+		(file) => file.name === 'grainy-retro-hand-pinch.mov',
+	);
+
 	return (
-		<AbsoluteFill style={{backgroundColor: '#ffffff'}}>
+		<AbsoluteFill style={{backgroundColor: '#f5fafb'}}>
+			<Solid
+				width={1920}
+				height={1080}
+				color={'#f5fafb'}
+				style={{position: 'absolute'}}
+				effects={[
+					burlap({
+						size: 10,
+						roughness: 0,
+						color: '#e9e9e9',
+					}),
+				]}
+			/>
 			<Interactive.Div
 				name="Skill picker"
 				style={{
@@ -138,7 +160,10 @@ export const Skills2Pick: React.FC = () => {
 				</Interactive.Div>
 			</Interactive.Div>
 			<Video
-				src="https://remotion.media/skills-2-announcement/grainy-retro-hand-pinch.mov"
+				src={
+					localPinchHand?.src ??
+					'https://remotion.media/skills-2-announcement/grainy-retro-hand-pinch.mov'
+				}
 				durationInFrames={78}
 				style={{
 					position: 'absolute',
@@ -147,6 +172,12 @@ export const Skills2Pick: React.FC = () => {
 					height: 1440,
 					scale: 0.898,
 				}}
+				effects={[
+					tint({
+						color: '#1ec8ff',
+						amount: 0.06,
+					}),
+				]}
 			/>
 		</AbsoluteFill>
 	);
