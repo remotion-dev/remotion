@@ -20,6 +20,7 @@ import {
 	insertElement,
 	insertExistingAssets,
 	insertRemoteAudio,
+	type ConfirmElementOverwrite,
 	type InsertElementDropPosition,
 } from './import-assets';
 import type {SvgImportMode} from './SvgImportDialog';
@@ -27,6 +28,7 @@ import type {SvgImportMode} from './SvgImportDialog';
 export const handleDrop = async ({
 	chooseSvgImportMode,
 	compositionFile,
+	confirmElementOverwrite,
 	compositionId,
 	destinationDimensions,
 	dropPosition,
@@ -36,6 +38,7 @@ export const handleDrop = async ({
 }: {
 	chooseSvgImportMode: () => Promise<SvgImportMode | null>;
 	compositionFile: string;
+	confirmElementOverwrite: ConfirmElementOverwrite;
 	compositionId: string;
 	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
@@ -124,6 +127,7 @@ export const handleDrop = async ({
 		await insertElement({
 			compositionFile,
 			compositionId,
+			confirmOverwrite: confirmElementOverwrite,
 			dropPosition,
 			element: element.element,
 			from,

@@ -51,6 +51,7 @@ export {
 	FindInFileRequest,
 	FindInFileResponse,
 	GoogleFontSourceEdit,
+	InsertElementFileConflict,
 	InsertElementRequest,
 	InsertElementResponse,
 	InsertJsxElementRequest,
