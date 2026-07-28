@@ -490,7 +490,7 @@ declare module '*.glsl' {
 
 ### Enable WebAssembly
 
-Rspack and Webpack support asynchronous WebAssembly. Synchronous WebAssembly is only supported by Webpack.
+Rspack and Webpack support asynchronous WebAssembly. Webpack's `syncWebAssembly` mode is only supported by Webpack.
 
 #### Asynchronous WebAssembly
 
@@ -512,9 +512,9 @@ Config.overrideBundlerConfig((conf) => {
 
 Static and dynamic `.wasm` imports are supported.
 
-#### Synchronous WebAssembly (Webpack only)
+#### Webpack's synchronous WebAssembly mode
 
-Rspack does not support `syncWebAssembly`. Use a Webpack-specific override:
+Rspack does not implement Webpack's `syncWebAssembly` experiment. If a library relies on synchronous named exports from a `.wasm` import, use a Webpack-specific override:
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
