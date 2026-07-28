@@ -1,11 +1,12 @@
 import type {Caption, TikTokPage, TikTokToken} from '@remotion/captions';
 import {createTikTokStyleCaptions} from '@remotion/captions';
 import {loadFont} from '@remotion/google-fonts/Montserrat';
-import {fitText, measureText} from '@remotion/layout-utils';
+import {fitText} from '@remotion/layout-utils';
 import React, {
 	forwardRef,
 	useEffect,
 	useImperativeHandle,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -19,6 +20,7 @@ import {
 	type InteractiveTransformProps,
 	type InteractivitySchema,
 	type SequenceControls,
+	type SequenceProps,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
@@ -26,7 +28,8 @@ import {
 export type TimedCaptionsMode = 'highlight' | 'scale' | 'background';
 
 export type TimedCaptionsProps = InteractiveBaseProps &
-	InteractiveTransformProps & {
+	InteractiveTransformProps &
+	Pick<SequenceProps, 'width' | 'height'> & {
 		readonly captions?: Caption[];
 		readonly mode?: TimedCaptionsMode;
 		readonly combineTokensWithinMilliseconds?: number;
@@ -52,6 +55,22 @@ const defaultCombineTokensWithinMilliseconds = 800;
 const timedCaptionsSchema = {
 	...Interactive.baseSchema,
 	...Interactive.captionsSchema,
+	width: {
+		type: 'number',
+		min: 1,
+		step: 1,
+		default: undefined,
+		description: 'Caption area width',
+		hiddenFromList: false,
+	},
+	height: {
+		type: 'number',
+		min: 1,
+		step: 1,
+		default: undefined,
+		description: 'Caption area height',
+		hiddenFromList: false,
+	},
 	mode: {
 		type: 'enum',
 		default: 'background',
@@ -158,74 +177,95 @@ export const getTokenScale = ({
 	return 1 + Math.min(enterProgress, exitProgress) * (activeWordScale - 1);
 };
 
-type TokenMeasurement = {
-	readonly fullWidth: number;
-	readonly visibleOffset: number;
-	readonly visibleWidth: number;
+type TokenLayout = {
+	readonly height: number;
+	readonly left: number;
+	readonly top: number;
+	readonly width: number;
 };
 
 const CaptionPage: React.FC<{
+	readonly captionAreaWidth: number | null;
 	readonly currentTimeMs: number;
 	readonly fps: number;
 	readonly mode: TimedCaptionsMode;
 	readonly page: TikTokPage;
 	readonly pageIndex: number;
-}> = ({currentTimeMs, fps, mode, page, pageIndex}) => {
-	const fontSize = useMemo(
-		() =>
+}> = ({captionAreaWidth, currentTimeMs, fps, mode, page, pageIndex}) => {
+	const fontSize = useMemo(() => {
+		const availableWidth = Math.min(
+			maximumTextWidth,
+			captionAreaWidth ?? maximumTextWidth,
+		);
+		const maximumTokenWidth = Math.max(
+			1,
 			Math.min(
-				desiredFontSize,
-				fitText({
-					fontFamily,
-					fontWeight,
-					text: page.text,
-					validateFontIsLoaded: true,
-					withinWidth: maximumTextWidth,
-				}).fontSize,
+				availableWidth - pillHorizontalPadding * 2,
+				availableWidth / activeWordScale,
 			),
-		[page.text],
-	);
-	const tokenMeasurements = useMemo(() => {
-		let currentOffset = 0;
+		);
+		const tokenFontSizes = page.tokens
+			.map((token) => token.text.trim())
+			.filter(Boolean)
+			.map(
+				(text) =>
+					fitText({
+						fontFamily,
+						fontWeight,
+						text,
+						validateFontIsLoaded: true,
+						withinWidth: maximumTokenWidth,
+					}).fontSize,
+			);
 
-		return page.tokens.map((token): TokenMeasurement => {
-			const fullMeasurement = measureText({
+		return Math.min(
+			desiredFontSize,
+			fitText({
 				fontFamily,
-				fontSize,
 				fontWeight,
-				text: token.text,
+				text: page.text,
 				validateFontIsLoaded: true,
-			});
-			const withoutLeadingWhitespace = measureText({
-				fontFamily,
-				fontSize,
-				fontWeight,
-				text: token.text.trimStart(),
-				validateFontIsLoaded: true,
-			});
-			const visibleMeasurement = measureText({
-				fontFamily,
-				fontSize,
-				fontWeight,
-				text: token.text.trim(),
-				validateFontIsLoaded: true,
-			});
-			const measurement = {
-				fullWidth: fullMeasurement.width,
-				visibleOffset:
-					currentOffset +
-					(fullMeasurement.width - withoutLeadingWhitespace.width),
-				visibleWidth: visibleMeasurement.width,
-			};
+				withinWidth: maximumTextWidth,
+			}).fontSize,
+			...tokenFontSizes,
+		);
+	}, [captionAreaWidth, page.text, page.tokens]);
+	const textContainerRef = useRef<HTMLDivElement>(null);
+	const tokenRefs = useRef<Array<HTMLSpanElement | null>>([]);
+	const [tokenLayouts, setTokenLayouts] = useState<TokenLayout[]>([]);
 
-			currentOffset += fullMeasurement.width;
-			return measurement;
-		});
+	useLayoutEffect(() => {
+		const container = textContainerRef.current;
+
+		if (!container) {
+			return;
+		}
+
+		const updateTokenLayouts = () => {
+			setTokenLayouts(
+				page.tokens.map((_, tokenIndex) => {
+					const token = tokenRefs.current[tokenIndex];
+
+					if (!token) {
+						return {height: 0, left: 0, top: 0, width: 0};
+					}
+
+					return {
+						height: token.offsetHeight,
+						left: token.offsetLeft,
+						top: token.offsetTop,
+						width: token.offsetWidth,
+					};
+				}),
+			);
+		};
+
+		updateTokenLayouts();
+		const resizeObserver = new ResizeObserver(updateTokenLayouts);
+		resizeObserver.observe(container);
+
+		return () => resizeObserver.disconnect();
 	}, [fontSize, page.tokens]);
-	const textWidth = tokenMeasurements.reduce(
-		(sum, measurement) => sum + measurement.fullWidth,
-		0,
-	);
 	const activeTokenIndex = getActiveTokenIndex(page.tokens, currentTimeMs);
 	const latestStartedTokenIndex = getLatestStartedTokenIndex(
 		page.tokens,
@@ -252,29 +292,37 @@ const CaptionPage: React.FC<{
 		},
 		0,
 	);
+	const hasTokenLayouts = tokenLayouts.length === page.tokens.length;
 	const clampedBackgroundWordIndex = Math.min(
 		Math.max(backgroundWordIndex, 0),
-		Math.max(0, tokenMeasurements.length - 1),
+		Math.max(0, tokenLayouts.length - 1),
 	);
-	const interpolationInput = tokenMeasurements.map((_, tokenIndex) =>
+	const interpolationInput = tokenLayouts.map((_, tokenIndex) =>
 		Number(tokenIndex),
 	);
-	const pillLeft =
-		tokenMeasurements.length === 1
-			? tokenMeasurements[0].visibleOffset
-			: interpolate(
-					clampedBackgroundWordIndex,
-					interpolationInput,
-					tokenMeasurements.map((measurement) => measurement.visibleOffset),
-				);
-	const pillWidth =
-		tokenMeasurements.length === 1
-			? tokenMeasurements[0].visibleWidth
-			: interpolate(
-					clampedBackgroundWordIndex,
-					interpolationInput,
-					tokenMeasurements.map((measurement) => measurement.visibleWidth),
-				);
+	const interpolateTokenLayout = (values: number[]) => {
+		if (values.length === 0) {
+			return 0;
+		}
+
+		if (values.length === 1) {
+			return values[0];
+		}
+
+		return interpolate(clampedBackgroundWordIndex, interpolationInput, values);
+	};
+	const pillHeight = fontSize + pillVerticalPadding * 2;
+	const pillLeft = interpolateTokenLayout(
+		tokenLayouts.map((measurement) => measurement.left),
+	);
+	const pillTop = interpolateTokenLayout(
+		tokenLayouts.map(
+			(measurement) => measurement.top + (measurement.height - pillHeight) / 2,
+		),
+	);
+	const pillWidth = interpolateTokenLayout(
+		tokenLayouts.map((measurement) => measurement.width),
+	);
 	const textStrokeWidth = fontSize / 7;
 
 	return (
@@ -291,6 +339,7 @@ const CaptionPage: React.FC<{
 			}}
 		>
 			<div
+				ref={textContainerRef}
 				aria-hidden="true"
 				style={{
 					color: textColor,
@@ -298,53 +347,71 @@ const CaptionPage: React.FC<{
 					fontSize,
 					fontWeight,
 					lineHeight: 1.5,
+					maxWidth: maximumTextWidth,
 					paintOrder: 'stroke fill',
 					position: 'relative',
 					textAlign: 'center',
 					WebkitTextStroke: `${textStrokeWidth}px #000000`,
-					whiteSpace: 'pre',
-					width: textWidth,
+					whiteSpace: 'normal',
+					width: '100%',
 				}}
 			>
-				{mode === 'background' && latestStartedTokenIndex >= 0 ? (
+				{mode === 'background' &&
+				hasTokenLayouts &&
+				latestStartedTokenIndex >= 0 ? (
 					<div
 						aria-hidden="true"
 						style={{
 							backgroundColor,
 							borderRadius: pillBorderRadius,
-							height: fontSize + pillVerticalPadding * 2,
+							height: pillHeight,
 							left: pillLeft - pillHorizontalPadding,
 							position: 'absolute',
-							top: '50%',
-							translate: '0 -50%',
+							top: pillTop,
 							width: pillWidth + pillHorizontalPadding * 2,
 						}}
 					/>
 				) : null}
 				{page.tokens.map((token, tokenIndex) => {
 					const isActive = tokenIndex === activeTokenIndex;
+					const visibleText = token.text.trim();
+					const visibleTextIndex = token.text.indexOf(visibleText);
+					const leadingWhitespace = visibleText
+						? token.text.slice(0, visibleTextIndex)
+						: token.text;
+					const trailingWhitespace = visibleText
+						? token.text.slice(visibleTextIndex + visibleText.length)
+						: '';
 
 					return (
-						<span
+						<React.Fragment
 							key={`${pageIndex}-${page.startMs}-${token.fromMs}-${tokenIndex}`}
-							style={{
-								color:
-									mode !== 'background' && isActive
-										? highlightColor
-										: textColor,
-								display: 'inline-block',
-								position: 'relative',
-								scale:
-									mode === 'scale'
-										? getTokenScale({currentTimeMs, fps, token})
-										: 1,
-								transformOrigin: 'center bottom',
-								whiteSpace: 'pre',
-								zIndex: 1,
-							}}
 						>
-							{token.text}
-						</span>
+							{leadingWhitespace}
+							<span
+								ref={(element) => {
+									tokenRefs.current[tokenIndex] = element;
+								}}
+								style={{
+									color:
+										mode !== 'background' && isActive
+											? highlightColor
+											: textColor,
+									display: 'inline-block',
+									position: 'relative',
+									scale:
+										mode === 'scale'
+											? getTokenScale({currentTimeMs, fps, token})
+											: 1,
+									transformOrigin: 'center bottom',
+									whiteSpace: 'pre',
+									zIndex: 1,
+								}}
+							>
+								{visibleText}
+							</span>
+							{trailingWhitespace}
+						</React.Fragment>
 					);
 				})}
 			</div>
@@ -353,11 +420,18 @@ const CaptionPage: React.FC<{
 };
 
 const TimedCaptionsContent: React.FC<{
+	readonly captionAreaWidth: number | null;
 	readonly captions: Caption[];
 	readonly combineTokensWithinMilliseconds: number;
 	readonly fontLoaded: boolean;
 	readonly mode: TimedCaptionsMode;
-}> = ({captions, combineTokensWithinMilliseconds, fontLoaded, mode}) => {
+}> = ({
+	captionAreaWidth,
+	captions,
+	combineTokensWithinMilliseconds,
+	fontLoaded,
+	mode,
+}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const pages = useMemo(
@@ -379,6 +453,7 @@ const TimedCaptionsContent: React.FC<{
 	return (
 		<CaptionPage
 			key={`${activePageIndex}-${page.startMs}`}
+			captionAreaWidth={captionAreaWidth}
 			currentTimeMs={currentTimeMs}
 			fps={fps}
 			mode={mode}
@@ -400,10 +475,12 @@ const TimedCaptionsInner = forwardRef<
 			captions,
 			combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
 			controls,
+			height,
 			mode = 'background',
 			name,
 			stack,
 			style,
+			width,
 			...interactiveProps
 		},
 		ref,
@@ -433,12 +510,13 @@ const TimedCaptionsInner = forwardRef<
 				name={name ?? '<TimedCaptions>'}
 				stack={stack}
 				style={{
-					height: '100%',
-					width: '100%',
+					height: height ?? '100%',
+					width: width ?? '100%',
 					...style,
 				}}
 			>
 				<TimedCaptionsContent
+					captionAreaWidth={width ?? null}
 					captions={captions}
 					combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
 					fontLoaded={fontLoaded}
@@ -519,6 +597,11 @@ export const TimedCaptions: React.FC<TimedCaptionsProps> = ({
 					confidence: null,
 				},
 			]}
+			width={681}
+			height={252}
+			style={{
+				translate: '109.5px -36px',
+			}}
 		/>
 	);
 };
