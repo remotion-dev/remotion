@@ -113,6 +113,7 @@ export const riveCanvasSchema: InteractivitySchema = {
 	...Internals.transformSchema,
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
+	...Interactive.borderRadiusSchema,
 	...Interactive.cropSchema,
 };
 

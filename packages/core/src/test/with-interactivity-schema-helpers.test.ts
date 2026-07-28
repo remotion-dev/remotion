@@ -14,7 +14,9 @@ import {Interactive} from '../Interactive.js';
 import {
 	backgroundSchema,
 	baseSchema,
+	borderRadiusSchema,
 	borderSchema,
+	captionsSchema,
 	cropSchema,
 	extendSchemaWithSequenceName,
 	premountSchema,
@@ -43,6 +45,7 @@ test('sequenceStyleSchema contains visual style and premount fields', () => {
 			...Object.keys(transformSchema),
 			...Object.keys(backgroundSchema),
 			...Object.keys(borderSchema),
+			...Object.keys(borderRadiusSchema),
 			...Object.keys(sequencePremountSchema),
 		].sort(),
 	);
@@ -61,6 +64,11 @@ test('CSS box component schemas expose background and border controls', () => {
 		expect('style.borderWidth' in schema).toBe(true);
 		expect('style.borderStyle' in schema).toBe(true);
 		expect('style.borderColor' in schema).toBe(true);
+		expect('style.borderRadius' in schema).toBe(true);
+		expect('style.borderTopLeftRadius' in schema).toBe(true);
+		expect('style.borderTopRightRadius' in schema).toBe(true);
+		expect('style.borderBottomRightRadius' in schema).toBe(true);
+		expect('style.borderBottomLeftRadius' in schema).toBe(true);
 	}
 });
 
@@ -101,6 +109,18 @@ test('cropSchema is reusable and supported components opt into it', () => {
 	}
 
 	expect('cropLeft' in baseSchema).toBe(false);
+});
+
+test('captionsSchema is reusable', () => {
+	expect(Interactive.captionsSchema).toBe(captionsSchema);
+	expect(captionsSchema).toEqual({
+		captions: {
+			type: 'remotion-captions',
+			default: undefined,
+			description: 'Captions',
+			keyframable: false,
+		},
+	});
 });
 
 test('baseSchema exposes common timeline fields', () => {
@@ -193,6 +213,11 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'style.borderWidth',
 			'style.borderStyle',
 			'style.borderColor',
+			'style.borderRadius',
+			'style.borderTopLeftRadius',
+			'style.borderTopRightRadius',
+			'style.borderBottomRightRadius',
+			'style.borderBottomLeftRadius',
 			'premountFor',
 			'postmountFor',
 			'durationInFrames',
@@ -365,10 +390,11 @@ test('textSchema exposes common text style fields', () => {
 	});
 });
 
-test('borderSchema exposes the longhand border style fields', () => {
+test('borderSchema exposes the longhand border fields', () => {
 	expect(Object.keys(borderSchema).sort()).toEqual(
 		['style.borderColor', 'style.borderStyle', 'style.borderWidth'].sort(),
 	);
+
 	expect(borderSchema['style.borderWidth']).toMatchObject({
 		type: 'number',
 		default: undefined,
@@ -396,6 +422,36 @@ test('borderSchema exposes the longhand border style fields', () => {
 		type: 'color',
 		default: undefined,
 	});
+});
+
+test('borderRadiusSchema exposes the shorthand and four corner radius fields', () => {
+	expect(Interactive.borderRadiusSchema).toBe(borderRadiusSchema);
+	expect(Object.keys(borderRadiusSchema).sort()).toEqual(
+		[
+			'style.borderRadius',
+			'style.borderTopLeftRadius',
+			'style.borderTopRightRadius',
+			'style.borderBottomRightRadius',
+			'style.borderBottomLeftRadius',
+		].sort(),
+	);
+	for (const radius of [
+		'style.borderRadius',
+		'style.borderTopLeftRadius',
+		'style.borderTopRightRadius',
+		'style.borderBottomRightRadius',
+		'style.borderBottomLeftRadius',
+	] as const) {
+		expect(borderRadiusSchema[radius]).toMatchObject({
+			type: 'number',
+			default: 0,
+			min: 0,
+			step: 1,
+			hiddenFromList: false,
+		});
+	}
+
+	expect(borderRadiusSchema['style.borderRadius'].keyframable).toBe(true);
 });
 
 test('backgroundSchema exposes the background color style field', () => {
@@ -516,6 +572,11 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 			'style.borderWidth',
 			'style.borderStyle',
 			'style.borderColor',
+			'style.borderRadius',
+			'style.borderTopLeftRadius',
+			'style.borderTopRightRadius',
+			'style.borderBottomRightRadius',
+			'style.borderBottomLeftRadius',
 			'premountFor',
 			'postmountFor',
 		].sort(),

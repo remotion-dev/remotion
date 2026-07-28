@@ -490,10 +490,6 @@ const TimelineSequenceInner: React.FC<{
 		validatedSource: validatedLocation?.source ?? null,
 	});
 	const contextMenuValues = useMemo(() => {
-		if (!previewConnected) {
-			return [];
-		}
-
 		return getSequenceContextMenuItems({
 			assetLinkInfo,
 			canOpenInEditor,
@@ -527,7 +523,6 @@ const TimelineSequenceInner: React.FC<{
 		onDuplicateSequenceFromSource,
 		openInEditor,
 		originalLocation,
-		previewConnected,
 		s,
 		selectAsset,
 	]);
@@ -703,7 +698,7 @@ const TimelineSequenceInner: React.FC<{
 		</TimelineSequenceCurrentFrame>
 	);
 
-	return previewConnected ? (
+	return previewConnected || window.remotion_isReadOnlyStudio ? (
 		<ContextMenu values={contextMenuValues} onOpen={onContextMenuOpen}>
 			{sequence}
 		</ContextMenu>

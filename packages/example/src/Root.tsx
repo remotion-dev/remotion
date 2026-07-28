@@ -17,10 +17,10 @@ import {NativeBufferState} from './BufferState/Simple';
 import {NativeBufferStateForVideo} from './BufferState/Video';
 import {CancelRender} from './CancelRender';
 import {
-	AnimatedCaptions,
 	CAPTIONS_DURATION_IN_FRAMES,
 	CAPTIONS_HEIGHT,
 } from './CaptionsTester/AnimatedCaptions';
+import {AnimatedCaptionsComposition} from './CaptionsTester/AnimatedCaptionsComposition';
 import {ClassSerialization} from './ClassSerialization';
 import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
@@ -165,6 +165,10 @@ import {FitText, fitTextSchema} from './Title/FitText';
 import {AudioTransition} from './Transitions/AudioTransition';
 import {BasicTransition} from './Transitions/BasicTransition';
 import {CustomTransition} from './Transitions/CustomTransition';
+import {
+	PUSH_CUT_DEMO_DURATION_IN_FRAMES,
+	PushCutDemo,
+} from './Transitions/PushCutDemo';
 import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoParser} from './VideoParser';
@@ -434,7 +438,7 @@ export const Index: React.FC = () => {
 			/>
 			<Composition
 				id="captions-tester"
-				component={AnimatedCaptions}
+				component={AnimatedCaptionsComposition}
 				durationInFrames={CAPTIONS_DURATION_IN_FRAMES}
 				fps={30}
 				width={1080}
@@ -2214,6 +2218,14 @@ export const Index: React.FC = () => {
 					fps={30}
 					height={1080}
 					durationInFrames={300}
+					width={1920}
+				/>
+				<Composition
+					id="PushCutDemo"
+					component={PushCutDemo}
+					fps={30}
+					height={1080}
+					durationInFrames={PUSH_CUT_DEMO_DURATION_IN_FRAMES}
 					width={1920}
 				/>
 			</Folder>

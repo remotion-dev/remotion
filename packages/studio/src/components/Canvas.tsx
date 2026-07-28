@@ -74,6 +74,7 @@ import {ResetZoomButton} from './ResetZoomButton';
 import {useSvgImportDialog} from './SvgImportDialog';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
+import {useElementOverwriteConfirmation} from './use-element-overwrite-confirmation';
 
 const elementInstallCompositionIdStyle: React.CSSProperties = {
 	fontFamily: 'monospace',
@@ -251,6 +252,7 @@ export const Canvas: React.FC<{
 	} | null>(null);
 	const keybindings = useKeybinding();
 	const confirm = useConfirmationDialog();
+	const confirmElementOverwrite = useElementOverwriteConfirmation();
 	const chooseSvgImportMode = useSvgImportDialog();
 	const config = Internals.useUnsafeVideoConfig();
 	const areRulersVisible = useIsRulerVisible();
@@ -934,6 +936,7 @@ export const Canvas: React.FC<{
 					element: activeElementInstallRequest.element,
 					compositionFile: activeElementInstallRequest.compositionFile,
 					compositionId: activeElementInstallRequest.compositionId,
+					confirmOverwrite: confirmElementOverwrite,
 					dropPosition: null,
 					from: null,
 				});
@@ -958,7 +961,7 @@ export const Canvas: React.FC<{
 		return () => {
 			canceled = true;
 		};
-	}, [activeElementInstallRequest, confirm]);
+	}, [activeElementInstallRequest, confirm, confirmElementOverwrite]);
 
 	const onDragOver = useCallback(
 		(event: DragEvent) => {
@@ -1167,6 +1170,7 @@ export const Canvas: React.FC<{
 				await handleDrop({
 					chooseSvgImportMode,
 					compositionFile,
+					confirmElementOverwrite,
 					compositionId: currentCompositionId,
 					destinationDimensions:
 						contentDimensions === 'none' ? null : contentDimensions,
@@ -1185,6 +1189,7 @@ export const Canvas: React.FC<{
 			cannotAddSequence,
 			chooseSvgImportMode,
 			compositionFile,
+			confirmElementOverwrite,
 			config,
 			contentDimensions,
 			currentCompositionId,

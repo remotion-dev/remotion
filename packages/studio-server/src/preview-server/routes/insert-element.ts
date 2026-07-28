@@ -117,7 +117,14 @@ export const insertElementHandler: ApiHandler<
 	InsertElementRequest,
 	InsertElementResponse
 > = ({
-	input: {compositionFile, compositionId, element, from, position},
+	input: {
+		compositionFile,
+		compositionId,
+		element,
+		from,
+		position,
+		overwriteExisting,
+	},
 	remotionRoot,
 	logLevel,
 }) =>
@@ -175,17 +182,30 @@ export const insertElementHandler: ApiHandler<
 			}
 
 			const elementFileExists = existsSync(elementFileName);
-			if (elementFileExists) {
-				const existingSource = readFileSync(elementFileName, 'utf-8');
-				if (
-					normalizeSourceForComparison(existingSource) !==
-					normalizeSourceForComparison(element.sourceCode)
-				) {
-					throw new Error(
-						`Element file already exists with different contents: ${derivedElementFileName}`,
-					);
-				}
+			const existingElementSource = elementFileExists
+				? readFileSync(elementFileName, 'utf-8')
+				: null;
+			const elementSourcesDiffer =
+				existingElementSource !== null &&
+				normalizeSourceForComparison(existingElementSource) !==
+					normalizeSourceForComparison(element.sourceCode);
+
+			if (elementSourcesDiffer && !overwriteExisting) {
+				return {
+					success: false,
+					type: 'file-conflict',
+					conflict: {
+						filePath: path
+							.relative(remotionRoot, elementFileName)
+							.split(path.sep)
+							.join('/'),
+						existingSource: existingElementSource,
+						incomingSource: element.sourceCode,
+					},
+				};
 			}
+
+			const shouldWriteElementFile = !elementFileExists || elementSourcesDiffer;
 
 			const importPath = makeRelativeImportPath({
 				fromFile: location.fileName,
@@ -216,16 +236,16 @@ export const insertElementHandler: ApiHandler<
 
 			pushTransactionToUndoStack({
 				snapshots: [
-					...(elementFileExists
-						? []
-						: [
+					...(shouldWriteElementFile
+						? [
 								{
 									filePath: elementFileName,
-									oldContents: null,
+									oldContents: existingElementSource,
 									newContents: element.sourceCode,
 									logLine: 1,
 								},
-							]),
+							]
+						: []),
 					{
 						filePath: inserted.fileName,
 						oldContents: inserted.oldContents,
@@ -242,13 +262,13 @@ export const insertElementHandler: ApiHandler<
 				entryType: 'insert-jsx-element',
 				suppressHmrOnFileRestore: false,
 			});
-			if (!elementFileExists) {
+			if (shouldWriteElementFile) {
 				suppressUndoStackInvalidation(elementFileName);
 			}
 
 			suppressUndoStackInvalidation(inserted.fileName);
 
-			if (!elementFileExists) {
+			if (shouldWriteElementFile) {
 				writeFileAndNotifyFileWatchers(
 					elementFileName,
 					element.sourceCode,
@@ -272,9 +292,14 @@ export const insertElementHandler: ApiHandler<
 				absolutePath: elementFileName,
 				line: 1,
 			});
+			const elementFileAction = elementSourcesDiffer
+				? 'Overwrote existing Element source'
+				: elementFileExists
+					? 'Reused existing Element source'
+					: 'Created Element source';
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				`${RenderInternals.chalk.blueBright(elementLocationLabel)} ${elementFileExists ? 'Reused existing Element source' : 'Created Element source'}`,
+				`${RenderInternals.chalk.blueBright(elementLocationLabel)} ${elementFileAction}`,
 			);
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
@@ -292,6 +317,7 @@ export const insertElementHandler: ApiHandler<
 		} catch (err) {
 			return {
 				success: false,
+				type: 'error',
 				reason: (err as Error).message,
 				stack: (err as Error).stack as string,
 			};

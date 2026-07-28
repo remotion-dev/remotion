@@ -237,6 +237,7 @@ const sharedSchema = (defaultRoughness: number): InteractivitySchema => ({
 	...textContentSchema,
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
+	...Interactive.borderRadiusSchema,
 });
 
 export const highlightSchema: InteractivitySchema = {

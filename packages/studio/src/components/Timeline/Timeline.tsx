@@ -1,5 +1,7 @@
+import type {InsertJsxElementRequest} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
@@ -70,6 +72,8 @@ const TimelineContextMenuArea: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
+	const browserStudioOperations = getBrowserStudioOperations();
+	const browserStudioCanInsertSolid = browserStudioOperations !== null;
 
 	const currentCompositionId =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
@@ -87,14 +91,19 @@ const TimelineContextMenuArea: React.FC<{
 	const resolvedCompositionLocation = useResolvedStack(
 		currentComposition?.stack ?? null,
 	);
-	const compositionFile = resolvedCompositionLocation?.source ?? null;
+	const compositionFile =
+		resolvedCompositionLocation?.source ??
+		(currentCompositionId
+			? (browserStudioOperations?.getCompositionFile(currentCompositionId) ??
+				null)
+			: null);
 	const compositionComponentInfo = useCachedCompositionComponentInfo({
 		compositionFile,
 		compositionId: currentCompositionId,
 	});
 
 	const canInsertSolid =
-		previewInteractive &&
+		(previewInteractive || browserStudioCanInsertSolid) &&
 		compositionComponentInfo?.canAddSequence === true &&
 		currentCompositionId !== null &&
 		compositionFile !== null &&
@@ -121,7 +130,7 @@ const TimelineContextMenuArea: React.FC<{
 
 		setIsAddingSolid(true);
 		try {
-			const result = await callApi('/api/insert-jsx-element', {
+			const request: InsertJsxElementRequest = {
 				compositionFile,
 				compositionId: currentCompositionId,
 				from: null,
@@ -131,7 +140,10 @@ const TimelineContextMenuArea: React.FC<{
 					height: videoConfig.height,
 					position: null,
 				},
-			});
+			};
+			const result = browserStudioOperations
+				? await browserStudioOperations.insertSolid(request)
+				: await callApi('/api/insert-jsx-element', request);
 
 			if (result.success) {
 				showNotification('Added <Solid> to source file', 2000);
@@ -144,7 +156,13 @@ const TimelineContextMenuArea: React.FC<{
 		} finally {
 			setIsAddingSolid(false);
 		}
-	}, [canInsertSolid, compositionFile, currentCompositionId, videoConfig]);
+	}, [
+		browserStudioOperations,
+		canInsertSolid,
+		compositionFile,
+		currentCompositionId,
+		videoConfig,
+	]);
 
 	const insertAsset = useCallback(async () => {
 		if (

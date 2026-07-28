@@ -131,6 +131,7 @@ const extrudeDivSchema = {
 	...Interactive.transformSchema,
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
+	...Interactive.borderRadiusSchema,
 } as const satisfies InteractivitySchema;
 
 const setRef = <ElementType,>(

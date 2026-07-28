@@ -191,18 +191,20 @@ export const getSequenceContextMenuItems = ({
 				}
 			: null,
 		...sourceActions,
-		{
-			type: 'item' as const,
-			id: 'disable-interactivity',
-			keyHint: null,
-			label: 'Disable interactivity',
-			leftItem: null,
-			disabled: disableInteractivityDisabled,
-			onClick: onDisableSequenceInteractivity,
-			quickSwitcherLabel: null,
-			subMenu: null,
-			value: 'disable-interactivity',
-		},
+		includeSourceEditItems
+			? {
+					type: 'item' as const,
+					id: 'disable-interactivity',
+					keyHint: null,
+					label: 'Disable interactivity',
+					leftItem: null,
+					disabled: disableInteractivityDisabled,
+					onClick: onDisableSequenceInteractivity,
+					quickSwitcherLabel: null,
+					subMenu: null,
+					value: 'disable-interactivity',
+				}
+			: null,
 		includeSourceEditItems
 			? {
 					type: 'item' as const,

@@ -40,6 +40,7 @@ import {issue7199ScaleAndDropShadow} from './fixtures/issue-7199-scale-and-drop-
 import {issue7243SvgJapaneseText} from './fixtures/issue-7243-svg-japanese-text';
 import {issue7489Minimal} from './fixtures/issue-7489-minimal';
 import {issue8650LottieControlChars} from './fixtures/issue-8650-lottie-control-chars';
+import {issue9736BackgroundPosition} from './fixtures/issue-9736-background-position';
 import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
@@ -149,6 +150,7 @@ export const Root: React.FC = () => {
 				<Composition {...backfaceVisibilityMask} />
 				<Composition {...linearGradient} />
 				<Composition {...gradientTransparentKeyword} />
+				<Composition {...issue9736BackgroundPosition} />
 			</Folder>
 			<Composition {...outline} />
 			<Composition {...inlineScaleAfterOutline} />

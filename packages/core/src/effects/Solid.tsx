@@ -16,6 +16,7 @@ import type {
 import {
 	backgroundSchema,
 	baseSchema,
+	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
 	transformSchema,
@@ -107,6 +108,7 @@ export const solidSchema = {
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,
+	...borderRadiusSchema,
 	...cropSchema,
 } as const satisfies InteractivitySchema;
 

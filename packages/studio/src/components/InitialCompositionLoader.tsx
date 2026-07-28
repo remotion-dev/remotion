@@ -23,7 +23,10 @@ export const useSelectComposition = () => {
 
 	return useCallback(
 		(
-			c: _InternalTypes['AnyComposition'],
+			c: Pick<
+				_InternalTypes['AnyComposition'],
+				'id' | 'folderName' | 'parentFolderName'
+			>,
 			push: boolean,
 			frame: number | null = null,
 		) => {

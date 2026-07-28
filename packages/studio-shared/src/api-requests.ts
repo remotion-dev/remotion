@@ -58,6 +58,18 @@ export type OpenInEditorResponse = {
 	success: boolean;
 };
 
+export type FindInFileRequest = {
+	fileName: string;
+	lineNumber: number;
+	columnNumber: number;
+	search: string;
+};
+
+export type FindInFileResponse = {
+	lineNumber: number;
+	columnNumber: number;
+};
+
 export type CompositionComponentInfoRequest = {
 	compositionFile: string;
 	compositionId: string;
@@ -332,8 +344,34 @@ export type SaveSequencePropEdit = {
 	sourceEdit: SaveSequencePropSourceEdit | null;
 };
 
+export type CaptionPatch = {
+	index: number;
+	before: {
+		text: string;
+		startMs: number;
+		endMs: number;
+		timestampMs: number | null;
+		confidence: number | null;
+	};
+	changes: Partial<{
+		text: string;
+		startMs: number;
+		endMs: number;
+		timestampMs: number | null;
+		confidence: number | null;
+	}>;
+};
+
+export type SaveInlineCaptionPatchesRequest = {
+	fileName: string;
+	nodePath: SequencePropsSubscriptionKey;
+	schema: InteractivitySchema;
+	patches: CaptionPatch[];
+};
+
 export type SaveSequencePropsRequest = {
 	edits: SaveSequencePropEdit[];
+	captionPatches?: SaveInlineCaptionPatchesRequest[];
 	addedKeyframes: AddSequenceKeyframe[] | null;
 	movedKeyframes: {
 		sequenceKeyframes: MoveSequenceKeyframe[];
@@ -818,6 +856,13 @@ export type InsertElementRequest = {
 	element: ElementDragData['element'];
 	from: number | null;
 	position: InsertableCompositionElementPosition | null;
+	overwriteExisting: boolean;
+};
+
+export type InsertElementFileConflict = {
+	filePath: string;
+	existingSource: string;
+	incomingSource: string;
 };
 
 export type InsertElementResponse =
@@ -826,6 +871,12 @@ export type InsertElementResponse =
 	  }
 	| {
 			success: false;
+			type: 'file-conflict';
+			conflict: InsertElementFileConflict;
+	  }
+	| {
+			success: false;
+			type: 'error';
 			reason: string;
 			stack: string;
 	  };
@@ -926,6 +977,8 @@ export type LogStudioErrorRequest = {
 };
 export type LogStudioErrorResponse = {};
 
+// When adding a route, also update the Browser Studio parity checklist:
+// https://github.com/remotion-dev/remotion/issues/9807
 export type ApiRoutes = {
 	'/api/composition-component-info': ReqAndRes<
 		CompositionComponentInfoRequest,
@@ -943,6 +996,7 @@ export type ApiRoutes = {
 	>;
 	'/api/remove-render': ReqAndRes<RemoveRenderRequest, undefined>;
 	'/api/open-in-editor': ReqAndRes<OpenInEditorRequest, OpenInEditorResponse>;
+	'/api/find-in-file': ReqAndRes<FindInFileRequest, FindInFileResponse>;
 	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
 	'/api/register-client-render': ReqAndRes<CompletedClientRender, void>;
 	'/api/unregister-client-render': ReqAndRes<{id: string}, void>;

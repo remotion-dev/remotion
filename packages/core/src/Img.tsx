@@ -25,6 +25,7 @@ import type {
 import {
 	backgroundSchema,
 	baseSchema,
+	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
 	premountSchema,
@@ -460,6 +461,7 @@ export const imgSchema = {
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,
+	...borderRadiusSchema,
 } as const satisfies InteractivitySchema;
 
 const imgCanvasFallbackIncompatibleProps = new Set([

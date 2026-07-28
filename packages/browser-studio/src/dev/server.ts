@@ -3,6 +3,7 @@ import {fileURLToPath} from 'url';
 import {build} from 'bun';
 import {getBrowserStudioDependencyVersionsForBuild} from './get-dependency-versions-for-build';
 import {getBrowserStudioSetupEnvironmentForBuild} from './get-setup-environment-for-build';
+import {studioRenderEntryExternal} from './studio-render-entry-external';
 
 const port = Number(process.env.PORT ?? 62338);
 const outDir = path.join(import.meta.dir, '..', '..', 'dist', 'dev');
@@ -81,6 +82,21 @@ const buildDevAssets = async () => {
 
 	if (!output.success) {
 		process.stderr.write(`${output.logs.join('\n')}\n`);
+		process.exit(1);
+	}
+
+	const studioRenderEntryOutput = await build({
+		entrypoints: ['src/browser-studio-render-entry.ts'],
+		external: studioRenderEntryExternal,
+		format: 'esm',
+		naming: '[name].mjs',
+		outdir: outDir,
+		sourcemap: 'linked',
+		target: 'browser',
+	});
+
+	if (!studioRenderEntryOutput.success) {
+		process.stderr.write(`${studioRenderEntryOutput.logs.join('\n')}\n`);
 		process.exit(1);
 	}
 

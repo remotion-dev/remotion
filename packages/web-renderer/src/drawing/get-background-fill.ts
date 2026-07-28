@@ -1,3 +1,4 @@
+import {getBackgroundImageRect} from './background-image-rect';
 import {
 	createCanvasGradient,
 	parseLinearGradient,
@@ -14,12 +15,16 @@ const isColorTransparent = (color: string) => {
 export const getBackgroundFill = ({
 	backgroundColor,
 	backgroundImage,
+	backgroundPosition,
+	backgroundSize,
 	contextToDraw,
 	boundingRect,
 	offsetLeft,
 	offsetTop,
 }: {
 	backgroundImage: string;
+	backgroundPosition: string;
+	backgroundSize: string;
 	backgroundColor: string;
 	contextToDraw: OffscreenCanvasRenderingContext2D;
 	boundingRect: DOMRect;
@@ -29,9 +34,14 @@ export const getBackgroundFill = ({
 	if (backgroundImage && backgroundImage !== 'none') {
 		const gradientInfo = parseLinearGradient(backgroundImage);
 		if (gradientInfo) {
+			const backgroundImageRect = getBackgroundImageRect({
+				backgroundPosition,
+				backgroundSize,
+				positioningArea: boundingRect,
+			});
 			const gradient = createCanvasGradient({
 				ctx: contextToDraw,
-				rect: boundingRect,
+				rect: backgroundImageRect,
 				gradientInfo,
 				offsetLeft,
 				offsetTop,

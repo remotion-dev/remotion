@@ -10,6 +10,7 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
+import {getSequencePropResetChanges} from './get-sequence-prop-reset-changes';
 import {saveMultipleEffectProps} from './save-effect-prop';
 import type {SetPropStatuses} from './save-sequence-prop';
 import {saveSequenceProps} from './save-sequence-prop';
@@ -288,14 +289,9 @@ export const resetSelectedTimelineProps = ({
 			saveSequenceProps({
 				addedKeyframes: null,
 				movedKeyframes: null,
-				changes: sequencePropTargets.map((target) => ({
-					fileName: target.fileName,
-					nodePath: target.nodePath,
-					fieldKey: target.fieldKey,
-					value: target.value,
-					defaultValue: target.defaultValue,
-					schema: target.schema,
-				})),
+				changes: sequencePropTargets.flatMap((target) =>
+					getSequencePropResetChanges(target),
+				),
 				setPropStatuses,
 				clientId,
 				undoLabel:

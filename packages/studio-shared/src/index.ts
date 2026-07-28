@@ -1,4 +1,5 @@
 export {splitAnsi, stripAnsi} from './ansi';
+export type {BrowserStudioOperations} from './browser-studio-operations';
 export {
 	AddEffectKeyframeRequest,
 	AddEffectKeyframeResponse,
@@ -20,6 +21,7 @@ export {
 	BatchUpdateSequenceKeyframeSettings,
 	CanUpdateDefaultPropsResponse,
 	CanUpdateSequencePropsRequest,
+	CaptionPatch,
 	CancelRenderRequest,
 	CancelRenderResponse,
 	CompositionComponentInfoRequest,
@@ -47,7 +49,10 @@ export {
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse,
 	ElementInstallRequest,
+	FindInFileRequest,
+	FindInFileResponse,
 	GoogleFontSourceEdit,
+	InsertElementFileConflict,
 	InsertElementRequest,
 	InsertElementResponse,
 	InsertJsxElementRequest,
@@ -87,6 +92,7 @@ export {
 	SaveMultipleEffectPropsRequest,
 	SaveMultipleEffectPropsResponse,
 	SaveMultipleEffectPropsResult,
+	SaveInlineCaptionPatchesRequest,
 	SaveSequencePropEdit,
 	SaveSequencePropSourceEdit,
 	SaveSequencePropsRequest,
@@ -278,6 +284,11 @@ export {
 	StackFrame,
 	SymbolicatedStackFrame,
 } from './stack-types';
+export {
+	BORDER_RADIUS_LONGHAND_KEYS,
+	BORDER_RADIUS_SHORTHAND_KEY,
+	getStylePropertyLonghandKeys,
+} from './style-property-relations';
 export {EnumPath, stringifyDefaultProps} from './stringify-default-props';
 export {
 	getStudioEntryPoints,

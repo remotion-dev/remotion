@@ -89,10 +89,22 @@ export const SampleTransition: React.FC<{
 	readonly durationRestThreshold: number;
 	readonly transition?: TransitionTiming;
 	readonly small?: boolean;
-}> = ({durationRestThreshold, effect, transition, small = false}) => {
+	readonly firstSceneDurationInFrames: number | null;
+	readonly secondSceneDurationInFrames: number | null;
+}> = ({
+	durationRestThreshold,
+	effect,
+	transition,
+	small = false,
+	firstSceneDurationInFrames,
+	secondSceneDurationInFrames,
+}) => {
+	const firstSceneDuration = firstSceneDurationInFrames ?? 60;
+	const secondSceneDuration = secondSceneDurationInFrames ?? 90;
+
 	return (
 		<TransitionSeries>
-			<TransitionSeries.Sequence durationInFrames={60}>
+			<TransitionSeries.Sequence durationInFrames={firstSceneDuration}>
 				<SceneA small={small} />
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
@@ -108,7 +120,7 @@ export const SampleTransition: React.FC<{
 					})
 				}
 			/>
-			<TransitionSeries.Sequence durationInFrames={90}>
+			<TransitionSeries.Sequence durationInFrames={secondSceneDuration}>
 				<SceneB small={small} />
 			</TransitionSeries.Sequence>
 		</TransitionSeries>
@@ -116,7 +128,14 @@ export const SampleTransition: React.FC<{
 };
 
 export const FadeDemo: React.FC = () => {
-	return <SampleTransition effect={fade()} durationRestThreshold={0.001} />;
+	return (
+		<SampleTransition
+			durationRestThreshold={0.001}
+			effect={fade()}
+			firstSceneDurationInFrames={null}
+			secondSceneDurationInFrames={null}
+		/>
+	);
 };
 
 export const SlideDemo: React.FC<{
@@ -126,6 +145,8 @@ export const SlideDemo: React.FC<{
 		<SampleTransition
 			effect={slide({direction})}
 			durationRestThreshold={0.001}
+			firstSceneDurationInFrames={null}
+			secondSceneDurationInFrames={null}
 		/>
 	);
 };
@@ -137,12 +158,21 @@ export const FlipDemo: React.FC<{
 		<SampleTransition
 			effect={flip({direction})}
 			durationRestThreshold={0.001}
+			firstSceneDurationInFrames={null}
+			secondSceneDurationInFrames={null}
 		/>
 	);
 };
 
 export const NoneDemo: React.FC<{}> = () => {
-	return <SampleTransition effect={none({})} durationRestThreshold={0.001} />;
+	return (
+		<SampleTransition
+			durationRestThreshold={0.001}
+			effect={none({})}
+			firstSceneDurationInFrames={null}
+			secondSceneDurationInFrames={null}
+		/>
+	);
 };
 
 export const SlideDemoLongDurationRest: React.FC<{
@@ -152,6 +182,8 @@ export const SlideDemoLongDurationRest: React.FC<{
 		<SampleTransition
 			effect={slide({direction})}
 			durationRestThreshold={0.005}
+			firstSceneDurationInFrames={null}
+			secondSceneDurationInFrames={null}
 		/>
 	);
 };
@@ -163,6 +195,8 @@ export const WipeDemo: React.FC<{
 		<SampleTransition
 			effect={wipe({direction})}
 			durationRestThreshold={0.001}
+			firstSceneDurationInFrames={null}
+			secondSceneDurationInFrames={null}
 		/>
 	);
 };
@@ -174,6 +208,8 @@ export const ClockWipeDemo: React.FC<{}> = () => {
 		<SampleTransition
 			effect={clockWipe({width, height})}
 			durationRestThreshold={0.001}
+			firstSceneDurationInFrames={null}
+			secondSceneDurationInFrames={null}
 		/>
 	);
 };
@@ -186,6 +222,8 @@ export const IrisDemo: React.FC<{}> = () => {
 			effect={iris({width, height})}
 			transition={linearTiming({durationInFrames: 30})}
 			durationRestThreshold={0.001}
+			firstSceneDurationInFrames={null}
+			secondSceneDurationInFrames={null}
 		/>
 	);
 };
@@ -197,6 +235,8 @@ export const CubeDemo: React.FC<{readonly direction: CubeDirection}> = ({
 		<SampleTransition
 			effect={cube({direction})}
 			durationRestThreshold={0.001}
+			firstSceneDurationInFrames={null}
+			secondSceneDurationInFrames={null}
 		/>
 	);
 };
@@ -208,6 +248,8 @@ export const CustomTransitionDemo: React.FC<{}> = () => {
 		<SampleTransition
 			effect={customPresentation({height, width})}
 			durationRestThreshold={0.001}
+			firstSceneDurationInFrames={null}
+			secondSceneDurationInFrames={null}
 		/>
 	);
 };
@@ -250,6 +292,8 @@ export const CustomTimingDemo: React.FC<{}> = () => {
 			effect={slide({direction: 'from-left'})}
 			transition={customTiming({pauseDuration: 5})}
 			durationRestThreshold={0.001}
+			firstSceneDurationInFrames={null}
+			secondSceneDurationInFrames={null}
 		/>
 	);
 };
@@ -257,7 +301,16 @@ export const CustomTimingDemo: React.FC<{}> = () => {
 export const PresentationPreview: React.FC<{
 	readonly effect: TransitionPresentation<Record<string, unknown>>;
 	readonly durationRestThreshold: number;
-}> = ({effect, durationRestThreshold}) => {
+	readonly transition: TransitionTiming | null;
+	readonly firstSceneDurationInFrames: number | null;
+	readonly secondSceneDurationInFrames: number | null;
+}> = ({
+	effect,
+	durationRestThreshold,
+	transition,
+	firstSceneDurationInFrames,
+	secondSceneDurationInFrames,
+}) => {
 	const ref = useRef<PlayerRef>(null);
 
 	useEffect(() => {
@@ -298,7 +351,10 @@ export const PresentationPreview: React.FC<{
 			inputProps={{
 				effect,
 				durationRestThreshold,
+				firstSceneDurationInFrames,
+				secondSceneDurationInFrames,
 				small: true,
+				transition,
 			}}
 		/>
 	);

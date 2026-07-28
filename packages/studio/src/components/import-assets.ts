@@ -10,6 +10,7 @@ import {
 	isUrl,
 	type DownloadRemoteAssetResponse,
 	type FileType,
+	type InsertElementFileConflict,
 	type InsertableCompositionElement,
 	type InsertableCompositionElementPosition,
 } from '@remotion/studio-shared';
@@ -28,6 +29,10 @@ export type InsertElementDropPosition = {
 	readonly centerX: number;
 	readonly centerY: number;
 };
+
+export type ConfirmElementOverwrite = (
+	conflict: InsertElementFileConflict,
+) => Promise<boolean>;
 
 type InsertableAssetElement = Extract<
 	InsertableCompositionElement,
@@ -1310,12 +1315,14 @@ export const insertComposition = async ({
 export const insertElement = async ({
 	compositionFile,
 	compositionId,
+	confirmOverwrite,
 	dropPosition,
 	element,
 	from,
 }: {
 	compositionFile: string;
 	compositionId: string;
+	confirmOverwrite: ConfirmElementOverwrite;
 	dropPosition: InsertElementDropPosition | null;
 	element: ElementDragData['element'];
 	from: number | null;
@@ -1323,19 +1330,36 @@ export const insertElement = async ({
 	try {
 		await installRequiredPackages(element.dependencies);
 
-		const response = await callApi('/api/insert-element', {
-			compositionFile,
-			compositionId,
-			element,
-			from,
-			position: getElementPositionForDrop({
-				dimensions: element.dimensions,
-				dropPosition,
-			}),
+		const position = getElementPositionForDrop({
+			dimensions: element.dimensions,
+			dropPosition,
 		});
+		const callInsertElementApi = (overwriteExisting: boolean) =>
+			callApi('/api/insert-element', {
+				compositionFile,
+				compositionId,
+				element,
+				from,
+				overwriteExisting,
+				position,
+			});
+
+		let response = await callInsertElementApi(false);
+		if (!response.success && response.type === 'file-conflict') {
+			const shouldOverwrite = await confirmOverwrite(response.conflict);
+			if (!shouldOverwrite) {
+				return;
+			}
+
+			response = await callInsertElementApi(true);
+		}
 
 		if (!response.success) {
-			showNotification(`Could not add Element: ${response.reason}`, 4000);
+			const reason =
+				response.type === 'error'
+					? response.reason
+					: `Element file still conflicts: ${response.conflict.filePath}`;
+			showNotification(`Could not add Element: ${reason}`, 4000);
 			return;
 		}
 

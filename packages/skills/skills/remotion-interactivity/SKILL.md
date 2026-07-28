@@ -12,7 +12,7 @@ By writing Remotion markup in a specific way, the Remotion Studio is able to rec
 - Editing the CSS styles
 - Making keyframes and easing values editable
 
-If the markup is too complex for the Studio to make it interactive, then the values become grayed out.  
+If the markup is too complex for the Studio to make it interactive, then the values become grayed out.
 
 ## Make an HTML element interactive using `Interactive`
 
@@ -25,6 +25,19 @@ Every HTML and SVG element such as `<div>` can be turned interactive using `Inte
 ```
 
 This allows styles and keyframes to be set in the Studio. Be sensible, if a component has many elements, the timeline might get messy.
+
+## Prefer inline text
+
+If text is fixed and only used once, write it directly inside the interactive element instead of extracting it into a constant.
+
+```tsx title="Inline text"
+// 👍 Fixed copy stays editable
+<Interactive.Div name="Title">
+  Remotion Best Practices
+</Interactive.Div>
+```
+
+Use a prop or variable only when the text is dynamic or reused.
 
 ## Give interactive elements a descriptive name
 
@@ -79,12 +92,12 @@ const baseStyle = useMemo(() => {
 ## Animate using `interpolate()`
 
 Write animations as inline `interpolate()` calls on the property that changes.  
-All values should also be hardcoded values: Input range, output range, easing, extrapolation, `output` property.
+The output range, easing, extrapolation and `output` property should use hardcoded values.
 
-No math should be performed, except basic arithmetic 2-side arithmetic with `durationInFrames`, `fps`, `width` and `height` from `useVideoConfig()`.
+The input range may additionally use `durationInFrames`, `fps`, `width` and `height` destructured directly from `useVideoConfig()`. Bare identifiers such as `durationInFrames`, multiplication with a number such as `2 * fps` or `fps * 2`, and subtraction of a number such as `durationInFrames - 1` are supported.
 
 ```tsx title="Inline values"
-const {fps} = useVideoConfig();
+const {fps, durationInFrames} = useVideoConfig();
 
 // 👍 Inline values can be standardized and keyframed
 <Interactive.Div
@@ -155,7 +168,7 @@ const calculateMetadata = useMemo(async () => {
 ```
 
 ```tsx title="Negative examples"
-const defaultProps = {title: 'Hello', color: '#0b84ff'}; // ❌ Don't extract defaultProps, must be inline 
+const defaultProps = {title: 'Hello', color: '#0b84ff'}; // ❌ Don't extract defaultProps, must be inline
 const calculateMetadata = useMemo(() => {
   // ❌ Unnecessary because no calculation is being done,
   return {durationInFrames: 150, fps: 30, width: 1920, height: 1080};

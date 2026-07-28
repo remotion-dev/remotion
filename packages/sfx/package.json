@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/sfx",
-	"version": "4.0.499",
+	"version": "4.0.500",
 	"description": "Sound effect library",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",

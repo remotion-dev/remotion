@@ -1,4 +1,7 @@
-export const packages = [
+import {VERSION} from 'remotion';
+import {shouldReleasePackage} from './release-package-policy';
+
+const allPackages = [
 	'svg-3d-engine',
 	'animation-utils',
 	'animated-emoji',
@@ -69,6 +72,7 @@ export const packages = [
 	'serverless-client',
 	'skills',
 	'skills-evals',
+	'studio-codemods',
 	'studio-server',
 	'studio-shared',
 	'studio',
@@ -102,7 +106,14 @@ export const packages = [
 	'effects',
 ] as const;
 
-export type Pkgs = (typeof packages)[number];
+export type Pkgs = (typeof allPackages)[number];
+
+export const packages = allPackages.filter((pkg) =>
+	shouldReleasePackage({
+		packageName: pkg === 'core' ? 'remotion' : `@remotion/${pkg}`,
+		releaseVersion: VERSION,
+	}),
+);
 
 export type ExtraPackage = {
 	name: string;
@@ -152,6 +163,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	bundler: 'Bundle Remotion compositions using Webpack',
 	'browser-studio': 'Run Remotion Studio in the browser',
 	'canvas-capture': 'Capture HTML-in-canvas content as a video',
+	'studio-codemods': 'Shared codemods for Remotion Studio',
 	'studio-server': 'Run a Remotion Studio with a server backend',
 	'install-whisper-cpp': 'Helpers for installing and using Whisper.cpp',
 	'whisper-web': 'Helpers for using Whisper.cpp in browser using WASM',
@@ -318,6 +330,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	'promo-pages': false,
 	streaming: false,
 	serverless: false,
+	'studio-codemods': false,
 	'studio-server': false,
 	'studio-shared': false,
 	studio: true,
@@ -327,10 +340,16 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	'test-utils': false,
 	three: true,
 	transitions: true,
-	'media-parser': true,
+	'media-parser': shouldReleasePackage({
+		packageName: '@remotion/media-parser',
+		releaseVersion: VERSION,
+	}),
 	'zod-types': true,
 	'zod-types-v3': true,
-	webcodecs: true,
+	webcodecs: shouldReleasePackage({
+		packageName: '@remotion/webcodecs',
+		releaseVersion: VERSION,
+	}),
 	convert: false,
 	captions: true,
 	'openai-whisper': true,
@@ -342,9 +361,15 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	'web-renderer': false,
 	design: false,
 	'drag-and-drop': true,
-	'light-leaks': true,
+	'light-leaks': shouldReleasePackage({
+		packageName: '@remotion/light-leaks',
+		releaseVersion: VERSION,
+	}),
 	'rough-notation': true,
-	starburst: true,
+	starburst: shouldReleasePackage({
+		packageName: '@remotion/starburst',
+		releaseVersion: VERSION,
+	}),
 	vercel: true,
 	sfx: true,
 	effects: true,
@@ -363,6 +388,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	bundler: 'https://www.remotion.dev/docs/bundler',
 	'browser-studio': null,
 	'canvas-capture': null,
+	'studio-codemods': null,
 	'lambda-client': null,
 	'serverless-client': null,
 	'studio-server': null,

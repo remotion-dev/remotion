@@ -23,6 +23,7 @@ import type {
 	AssetFieldSchema,
 	ArrayFieldSchema,
 	ArrayItemFieldSchema,
+	CaptionsFieldSchema,
 	InteractivitySchemaField,
 	InteractivitySchema,
 } from './interactivity-schema.js';
@@ -343,6 +344,7 @@ export type {
 	AssetFieldSchema,
 	ArrayFieldSchema,
 	ArrayItemFieldSchema,
+	CaptionsFieldSchema,
 	DelayRenderScope,
 	JsxComponentIdentity,
 	LoopDisplay,

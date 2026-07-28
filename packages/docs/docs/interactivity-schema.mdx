@@ -39,6 +39,12 @@ Keys may use dot notation. For example, a key named `style.opacity` reads from a
 
 Timeline props inherited from [`<Sequence>`](/docs/sequence): [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline).
 
+### `Interactive.captionsSchema`<AvailableFrom v="4.0.500" />
+
+A `captions` field for components that accept [`Caption[]`](/docs/captions/caption) data. It enables the captions inspector and is not keyframable.
+
+This schema fragment is headless: it does not render an element or add layout, transform, or text-style controls. Add other `Interactive` schema fragments only when the component renders and supports those props.
+
 ### `Interactive.transformSchema`
 
 Transform-related style props: `style.transformOrigin`, `style.translate`, `style.scale`, `style.rotate` and `style.opacity`.
@@ -66,6 +72,14 @@ The `backgroundColor` longhand is used rather than the `background` shorthand so
 Border-related style props: `style.borderWidth`, `style.borderStyle` and `style.borderColor`.
 
 The longhand properties are used rather than the `border` shorthand, because React does not expand shorthands. This lets each control read its own value, and allows `style.borderWidth` and `style.borderColor` to be animated.
+
+### `Interactive.borderRadiusSchema`<AvailableFrom v="4.0.501" />
+
+Corner radius style props: `style.borderRadius`, `style.borderTopLeftRadius`, `style.borderTopRightRadius`, `style.borderBottomRightRadius` and `style.borderBottomLeftRadius`.
+
+The Studio shows either the shorthand or the four longhands. Mixing `style.borderRadius` with a corner longhand is treated as computed and cannot be edited visually.
+
+When `style.borderRadius` is a number or contains one to four pixel values, the Studio expands it into the four longhand properties when you edit a corner. Complex values such as percentages and elliptical radii are not editable.
 
 ### `Interactive.premountSchema`
 
@@ -100,6 +114,10 @@ Shows a select control. Each variant can define its own nested `InteractivitySch
 ### `array`
 
 Shows a list of values. Array fields are not keyframable.
+
+### `remotion-captions`<AvailableFrom v="4.0.500" />
+
+Marks a prop containing [`Caption[]`](/docs/captions/caption) data for the captions inspector. Caption fields are not keyframable.
 
 ### `rotation-css`
 
