@@ -25,6 +25,7 @@ export const RenderAssetManager = createContext<RenderAssetManagerContext>({
 
 export type CollectAssetsRef = {
 	collectAssets: () => TRenderAsset[];
+	peekAssets: () => TRenderAsset[];
 };
 
 export const RenderAssetManagerProvider: React.FC<{
@@ -49,6 +50,9 @@ export const RenderAssetManagerProvider: React.FC<{
 					renderAssetsRef.current = [];
 					setRenderAssets([]);
 					return assets;
+				},
+				peekAssets: () => {
+					return renderAssetsRef.current;
 				},
 			};
 		}, []);

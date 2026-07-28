@@ -1,6 +1,6 @@
 import {Audio, Video} from '@remotion/media';
 import {ALL_FORMATS, BlobSource, Input, type InputAudioTrack} from 'mediabunny';
-import {staticFile} from 'remotion';
+import {Sequence, staticFile} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import '../symbol-dispose';
@@ -264,6 +264,78 @@ test('should render audio at 44100 Hz when sampleRate is set', async (t) => {
 	const blob = await result.getBlob();
 	const track = await getAudioTrackFromBlob(blob);
 	expect(track.sampleRate).toBe(44100);
+});
+
+test('silent composition should not get an audio track that inflates the container duration', async () => {
+	const Component: React.FC = () => {
+		return null;
+	};
+
+	const durationInFrames = 10;
+	const fps = 30;
+
+	const result = await renderMediaOnWeb({
+		licenseKey: 'free-license',
+		composition: {
+			component: Component,
+			id: 'silent-no-audio-track-test',
+			width: 100,
+			height: 100,
+			fps,
+			durationInFrames,
+			calculateMetadata: null,
+		},
+		container: 'mp4',
+		outputTarget: 'arraybuffer',
+	});
+
+	const blob = await result.getBlob();
+	using input = new Input({
+		formats: ALL_FORMATS,
+		source: new BlobSource(blob),
+	});
+
+	const tracks = await input.getTracks();
+	expect(tracks.some((track) => track.isAudioTrack())).toBe(false);
+
+	const duration = await input.computeDuration();
+	expect(duration).toBeLessThanOrEqual(durationInFrames / fps);
+});
+
+test('audio starting after a silent lead-in should stay in sync', async () => {
+	const from = 5;
+
+	const Component: React.FC = () => {
+		return (
+			<Sequence from={from}>
+				<Audio src={staticFile('dialogue.wav')} />
+			</Sequence>
+		);
+	};
+
+	const result = await renderMediaOnWeb({
+		licenseKey: 'free-license',
+		composition: {
+			component: Component,
+			id: 'silent-lead-in-test',
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 10,
+			calculateMetadata: null,
+		},
+		container: 'mp4',
+		outputTarget: 'arraybuffer',
+	});
+
+	const blob = await result.getBlob();
+	const track = await getAudioTrackFromBlob(blob);
+
+	const firstTimestamp = await track.getFirstTimestamp();
+	expect(firstTimestamp).toBe(0);
+
+	const duration = await track.computeDuration();
+	expect(duration).toBeGreaterThanOrEqual(10 / 30);
 });
 
 test('should render audio at default 48000 Hz when sampleRate is not set', async (t) => {

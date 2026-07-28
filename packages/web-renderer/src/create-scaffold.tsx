@@ -166,6 +166,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	timeUpdater: React.RefObject<TimeUpdaterRef | null>;
 	collectAssets: React.RefObject<{
 		collectAssets: () => TRenderAsset[];
+		peekAssets: () => TRenderAsset[];
 	} | null>;
 	errorHolder: ErrorHolder;
 	htmlInCanvasContext: HtmlInCanvasContext | null;
@@ -251,6 +252,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 
 	const collectAssets = createRef<{
 		collectAssets: () => TRenderAsset[];
+		peekAssets: () => TRenderAsset[];
 	}>();
 
 	flushSync(() => {

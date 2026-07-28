@@ -408,6 +408,36 @@ const internalRenderMediaOnWeb = async <
 			throw new Error('renderMediaOnWeb() was cancelled');
 		}
 
+		// A composition without any audio should not get an audio track:
+		// An all-silence AAC track would be longer than the video track due to
+		// encoder priming, inflating the container duration (#7099).
+		// Scan the frame range for audio and treat the render as muted if there
+		// is none. Audio-only containers keep their track.
+		let compositionHasAudio = false;
+		if (!muted && finalAudioCodec !== null && videoEnabled) {
+			for (let frame = realFrameRange[0]; frame <= realFrameRange[1]; frame++) {
+				if (signal?.aborted) {
+					throw new Error('renderMediaOnWeb() was cancelled');
+				}
+
+				timeUpdater.current?.update(frame);
+				await waitForRenderReady();
+
+				const assets = collectAssets.current!.peekAssets();
+				if (assets.some((asset) => asset.type === 'inline-audio')) {
+					compositionHasAudio = true;
+					break;
+				}
+
+				await waitForPageResponsiveness();
+			}
+
+			timeUpdater.current?.update(realFrameRange[0]);
+			await waitForRenderReady();
+		} else {
+			compositionHasAudio = !muted;
+		}
+
 		using videoSampleSource =
 			videoEnabled && codec
 				? makeVideoSampleSourceCleanup({
@@ -443,7 +473,7 @@ const internalRenderMediaOnWeb = async <
 		}
 
 		using audioSampleSource = createAudioSampleSource({
-			muted,
+			muted: muted || !compositionHasAudio,
 			codec: finalAudioCodec
 				? audioCodecToMediabunnyAudioCodec(finalAudioCodec)
 				: null,
@@ -588,9 +618,9 @@ const internalRenderMediaOnWeb = async <
 
 			await waitForPageResponsiveness();
 
-			const audio = muted
-				? null
-				: onlyInlineAudio({assets, fps: resolved.fps, timestamp, sampleRate});
+			const audio = audioSampleSource
+				? onlyInlineAudio({assets, fps: resolved.fps, timestamp, sampleRate})
+				: null;
 			internalState.addAudioMixingTime(performance.now() - audioCombineStart);
 
 			await waitForPageResponsiveness();
