@@ -728,6 +728,7 @@ export const useMenuStructure = (
 								mode: 'compositions',
 								invocationTimestamp: Date.now(),
 								assetSelection: null,
+								compositionSelection: null,
 							});
 						},
 						type: 'item' as const,
@@ -912,6 +913,7 @@ export const useMenuStructure = (
 								mode: 'docs',
 								invocationTimestamp: Date.now(),
 								assetSelection: null,
+								compositionSelection: null,
 							});
 						},
 						keyHint: '?',
