@@ -19,6 +19,8 @@ Use [`Interactive.baseSchema`](/docs/interactive#interactivebaseschema) for prop
 
 Use [`Interactive.transformSchema`](/docs/interactive#interactivetransformschema) if your component accepts a `style` prop and applies it to the rendered element.
 
+Use [`Interactive.cropSchema`](/docs/interactive#interactivecropschema) and `InteractiveCropProps` to opt a component into the crop controls inherited from an absolute-fill [`<Sequence>`](/docs/sequence).
+
 ```tsx twoslash title="Badge.tsx"
 import type React from 'react';
 import {
@@ -54,11 +56,26 @@ const badgeSchema = {
 } as const satisfies InteractivitySchema;
 ```
 
-## Forward `controls`
+## Caption fields<AvailableFrom v="4.0.500" />
 
-The inner component receives a `controls` prop from `Interactive.withSchema()`.
+Add a `captions` field when a custom component accepts [`Caption[]`](/docs/captions/caption) data:
 
-Forward it to the [`<Sequence>`](/docs/sequence) that represents your component in the timeline.
+```ts twoslash title="Captions.tsx"
+import {Interactive, type InteractivitySchema} from 'remotion';
+
+const captionsSchema = {
+  ...Interactive.baseSchema,
+  ...Interactive.captionsSchema,
+} as const satisfies InteractivitySchema;
+```
+
+Studio can edit caption text when the prop is a direct JSX array literal, such as `captions={[...]}`. Variables, imports, computed expressions, and `satisfies` expressions are read-only.
+
+## Forward `controls` and `stack`
+
+The inner component receives `controls` and `stack` props from `Interactive.withSchema()`.
+
+Forward them to the [`<Sequence>`](/docs/sequence) that represents your component in the timeline.
 
 ```tsx twoslash title="Badge.tsx"
 import React, {forwardRef, useImperativeHandle, useRef} from 'react';
@@ -100,6 +117,7 @@ const BadgeInner = forwardRef<
   HTMLDivElement,
   BadgeProps & {
     readonly controls: SequenceControls | undefined;
+    readonly stack?: string;
   }
 >(
   (
@@ -110,6 +128,7 @@ const BadgeInner = forwardRef<
       style,
       name,
       controls,
+      stack,
       ...sequenceProps
     },
     ref,
@@ -124,6 +143,7 @@ const BadgeInner = forwardRef<
         {...sequenceProps}
         name={name ?? '<Badge>'}
         controls={controls}
+        _remotionInternalStack={stack}
         outlineRef={outlineRef}
       >
         <div
@@ -146,13 +166,13 @@ const BadgeInner = forwardRef<
 );
 ```
 
-The exported component should not expose `controls` as a public prop.
+The exported component should not expose `controls` or `stack` as public props.
 
 Pass [`outlineRef`](/docs/sequence#outlineref) when using `<Sequence layout="none">` so the Studio can draw an outline around the rendered element.
 
 ## Wrap the component
 
-Use a stable `componentIdentity` so saved Studio edits can be associated with the component.
+Set `componentIdentity` to `null` for a component defined in your project.
 
 ```tsx twoslash title="Badge.tsx"
 import React, {forwardRef, useImperativeHandle, useRef} from 'react';
@@ -194,6 +214,7 @@ const BadgeInner = forwardRef<
   HTMLDivElement,
   BadgeProps & {
     readonly controls: SequenceControls | undefined;
+    readonly stack?: string;
   }
 >(
   (
@@ -204,6 +225,7 @@ const BadgeInner = forwardRef<
       style,
       name,
       controls,
+      stack,
       ...sequenceProps
     },
     ref,
@@ -218,6 +240,7 @@ const BadgeInner = forwardRef<
         {...sequenceProps}
         name={name ?? '<Badge>'}
         controls={controls}
+        _remotionInternalStack={stack}
         outlineRef={outlineRef}
       >
         <div
@@ -242,7 +265,7 @@ const BadgeInner = forwardRef<
 export const Badge = Interactive.withSchema({
   Component: BadgeInner,
   componentName: '<Badge>',
-  componentIdentity: 'com.example.Badge',
+  componentIdentity: null,
   schema: badgeSchema,
   supportsEffects: false,
 });
@@ -282,9 +305,13 @@ Use it when the component renders a `<Sequence>` internally.
 
 Use it when the component accepts a `style` prop and applies it to the rendered element.
 
+### `Interactive.cropSchema`<AvailableFrom v="4.0.500" />
+
+Use it with `InteractiveCropProps` when the component applies crop props to its rendered element or forwards them to an absolute-fill [`<Sequence>`](/docs/sequence).
+
 ### `Interactive.premountSchema`
 
-Use it when the component forwards `premountFor`, `postmountFor`, `styleWhilePremounted` and `styleWhilePostmounted` to a `<Sequence>` with `layout="absolute-fill"`.
+Use it when the component forwards `premountFor` and `postmountFor` to a `<Sequence>`.
 
 ## See also
 

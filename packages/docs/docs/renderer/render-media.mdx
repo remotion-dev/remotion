@@ -13,7 +13,7 @@ Render a video or an audio programmatically.
 
 ```tsx twoslash title="render.mjs"
 const serveUrl = '/path/to/bundle';
-const outputLocation = '/path/to/frames';
+const outputLocation = '/path/to/video.mp4';
 
 import {renderMedia, selectComposition} from '@remotion/renderer';
 
@@ -391,7 +391,7 @@ _boolean - default `false`_
 
 Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
-#### ~`headless?`~
+#### `headless?`
 
 <Options id="disable-headless" />
 

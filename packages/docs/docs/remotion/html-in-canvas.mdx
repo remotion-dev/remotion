@@ -145,6 +145,22 @@ Runs once before the first paint. Use it to create GPU contexts or other resourc
 
 The argument object matches [`onPaint`](#onpaint) (`canvas`, `element`, `elementImage`). The `elementImage` passed here is only for initialization — capture again inside [`onPaint`](#onpaint) for each frame.
 
+### `cropLeft?`<AvailableFrom v="4.0.500" />
+
+Crops the canvas from the left by a ratio between 0 and 1. See [`cropLeft`](/docs/sequence#cropleft) on `<Sequence>`.
+
+### `cropRight?`<AvailableFrom v="4.0.500" />
+
+Crops the canvas from the right by a ratio between 0 and 1. See [`cropRight`](/docs/sequence#cropright) on `<Sequence>`.
+
+### `cropTop?`<AvailableFrom v="4.0.500" />
+
+Crops the canvas from the top by a ratio between 0 and 1. See [`cropTop`](/docs/sequence#croptop) on `<Sequence>`.
+
+### `cropBottom?`<AvailableFrom v="4.0.500" />
+
+Crops the canvas from the bottom by a ratio between 0 and 1. See [`cropBottom`](/docs/sequence#cropbottom) on `<Sequence>`.
+
 ### `durationInFrames?`
 
 Inherited from [`<Sequence>`](/docs/sequence#durationinframes).

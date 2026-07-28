@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {
 	getFrameFromX,
+	getFrameFromTimelineDrop,
 	getFrameIncrementFromWidth,
 	getScrollLeftToKeepCursorInPlace,
 } from '../components/Timeline/timeline-scroll-logic';
@@ -15,6 +16,18 @@ test('getFrameFromX handles collapsed timeline widths', () => {
 			width: 0,
 		}),
 	).toBe(0);
+});
+
+test('gets a timeline drop frame from viewport coordinates and scroll position', () => {
+	expect(
+		getFrameFromTimelineDrop({
+			clientX: 300,
+			durationInFrames: 100,
+			scrollLeft: 200,
+			timelineLeft: 100,
+			timelineWidth: 1000,
+		}),
+	).toBe(40);
 });
 
 test('getFrameIncrementFromWidth never returns a negative increment', () => {

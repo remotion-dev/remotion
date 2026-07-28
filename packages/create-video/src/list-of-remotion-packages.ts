@@ -94,6 +94,7 @@ export const listOfRemotionPackages = [
 	'@remotion/remotion-media',
 	'@remotion/web-renderer',
 	'@remotion/design',
+	'@remotion/drag-and-drop',
 	'@remotion/light-leaks',
 	'@remotion/rough-notation',
 	'@remotion/starburst',

@@ -1,4 +1,10 @@
-import type {WebpackConfiguration} from '@remotion/bundler';
+import type {
+	BundlerOverrideFn,
+	RspackConfiguration,
+	RspackOverrideFn,
+	WebpackConfiguration,
+	WebpackOverrideFn,
+} from '@remotion/bundler';
 import type {
 	BrowserExecutable,
 	ChromeMode,
@@ -37,12 +43,17 @@ import {
 	resetOutputLocation,
 	setOutputLocation,
 } from './output-location';
-import type {WebpackOverrideFn} from './override-webpack';
 import {
+	defaultBundlerOverrideFunction,
 	defaultOverrideFunction,
+	defaultRspackOverrideFunction,
+	getBundlerOverrideFn,
+	getRspackOverrideFn,
 	getWebpackOverrideFn,
+	overrideBundlerConfig,
+	overrideRspackConfig,
 	overrideWebpackConfig,
-	resetWebpackOverride,
+	resetBundlerOverrides,
 } from './override-webpack';
 import {
 	getRendererPortFromConfigFile,
@@ -57,7 +68,14 @@ import {getStillFrame, resetStillFrame, setStillFrame} from './still-frame';
 import {getWebpackCaching} from './webpack-caching';
 import {getWebpackPolling} from './webpack-poll';
 
-export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
+export type {
+	BundlerOverrideFn,
+	Concurrency,
+	RspackConfiguration,
+	RspackOverrideFn,
+	WebpackConfiguration,
+	WebpackOverrideFn,
+};
 
 const {
 	benchmarkConcurrenciesOption,
@@ -172,6 +190,8 @@ declare global {
 		 * You can set an absolute path or a relative path that will be resolved from the closest package.json location.
 		 */
 		readonly setPublicDir: (publicDir: string | null) => void;
+		readonly overrideBundlerConfig: (f: BundlerOverrideFn) => void;
+		readonly overrideRspackConfig: (f: RspackOverrideFn) => void;
 		readonly overrideWebpackConfig: (f: WebpackOverrideFn) => void;
 	}
 	// Legacy config format: New options to not need to be added here.
@@ -723,6 +743,8 @@ export const Config: FlatConfig = {
 	setWebpackPollingInMilliseconds: webpackPollOption.setConfig,
 	setShouldOpenBrowser: noOpenOption.setConfig,
 	setBufferStateDelayInMilliseconds,
+	overrideBundlerConfig,
+	overrideRspackConfig,
 	overrideWebpackConfig,
 	setCachingEnabled: bundleCacheOption.setConfig,
 	setPort,
@@ -871,7 +893,7 @@ const resetConfigOptions = () => {
 	resetFfmpegOverrideFunction();
 	resetMetadata();
 	resetOutputLocation();
-	resetWebpackOverride();
+	resetBundlerOverrides();
 	resetPreviewServerPorts();
 	resetStillFrame();
 };
@@ -885,12 +907,16 @@ export const ConfigInternals = {
 	getStillFrame,
 	getShouldOutputImageSequence,
 	getDotEnvLocation,
+	getBundlerOverrideFn,
+	getRspackOverrideFn,
 	getWebpackOverrideFn,
 	getWebpackCaching,
 	getOutputLocation,
 	setStillFrame,
 	getMaxTimelineTracks: StudioServerInternals.getMaxTimelineTracks,
 	defaultOverrideFunction,
+	defaultBundlerOverrideFunction,
+	defaultRspackOverrideFunction,
 	getFfmpegOverrideFunction,
 	getMetadata,
 	getEntryPoint,

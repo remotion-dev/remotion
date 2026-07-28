@@ -1,6 +1,6 @@
 import React, {useMemo} from 'react';
 import {BACKGROUND} from '../../helpers/colors';
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	nestTimelineTracks,
 	type NestedTimelineTrack,
@@ -14,7 +14,7 @@ const container: React.CSSProperties = {
 };
 
 const TimelineListTrack: React.FC<{
-	readonly nestedTrack: NestedTimelineTrack<TrackWithHash>;
+	readonly nestedTrack: NestedTimelineTrack<TimelineTrackData>;
 }> = ({nestedTrack}) => {
 	const {track, children, siblingIndex} = nestedTrack;
 
@@ -41,7 +41,7 @@ const TimelineListTrack: React.FC<{
 };
 
 export const TimelineList: React.FC<{
-	readonly timeline: TrackWithHash[];
+	readonly timeline: TimelineTrackData[];
 }> = ({timeline}) => {
 	const nestedTimeline = useMemo(
 		() => nestTimelineTracks(timeline),

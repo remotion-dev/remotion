@@ -47,6 +47,7 @@ import {
 	getInstalledDependenciesWithVersions,
 } from './helpers/get-installed-dependencies';
 import {getInstallCommand} from './helpers/install-command';
+import {getPackageManagerSpawnOptions} from './helpers/package-manager-spawn-options';
 import {
 	getMaxTimelineTracks,
 	resetMaxTimelineTracks,
@@ -83,6 +84,7 @@ export const StudioServerInternals = {
 	getInstalledDependencies,
 	getInstalledDependenciesWithVersions,
 	getInstallCommand,
+	getPackageManagerSpawnOptions,
 	addCompletedClientRender,
 	getCompletedClientRenders,
 	removeCompletedClientRender,

@@ -5,6 +5,10 @@ on:
   pull_request:
 name: Install and Test
 
+concurrency:
+  group: install-and-test-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   FORCE_COLOR: 1
   TURBO_TELEMETRY_DISABLED: 1
@@ -12,6 +16,7 @@ env:
 jobs:
   lambda-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     name: Lambda integration
     steps:
       - uses: actions/checkout@v6
@@ -38,6 +43,7 @@ jobs:
           cd packages/lambda && bunx remotion browser ensure && bun test src/test/integration --run
   nextjs-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     name: Next.js SSR build
     steps:
       - uses: actions/checkout@v6
@@ -60,6 +66,7 @@ jobs:
           cd packages/player-example && bun run build-site
   browser-tests:
     runs-on: macos-latest
+    timeout-minutes: 30
     name: Browser tests
     steps:
       - uses: actions/checkout@v6
@@ -85,6 +92,7 @@ jobs:
           bun run teste2e
   webrenderer-tests:
     runs-on: macos-latest
+    timeout-minutes: 30
     name: Web renderer tests
     steps:
       - uses: actions/checkout@v6
@@ -105,6 +113,7 @@ jobs:
           bun run testwebrenderer
   ssr-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     name: SSR + Monorepo checks
     steps:
       - uses: actions/checkout@v6
@@ -141,6 +150,7 @@ jobs:
           cd packages/it-tests && bun test src/monorepo --run --timeout 40000
   template-tests-check:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     name: Template tests precheck
     outputs:
       should_run: ${{ steps.check.outputs.should_run }}
@@ -177,6 +187,7 @@ jobs:
     needs: template-tests-check
     if: needs.template-tests-check.outputs.should_run == 'true'
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -212,6 +223,7 @@ jobs:
           bun run testtemplates
   lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     name: Linting + Formatting
     steps:
       - uses: actions/checkout@v6
@@ -234,6 +246,7 @@ jobs:
   build:
     name: Build Node ${{ matrix.node_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
     strategy:
       fail-fast: false
       matrix:

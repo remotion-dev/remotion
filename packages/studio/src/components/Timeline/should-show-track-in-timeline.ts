@@ -1,4 +1,4 @@
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 
 // A track is shown in the timeline list when:
 // - The sequence opted-in via `showInTimeline` (the default).
@@ -8,7 +8,7 @@ import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 // - The sequence has a positive duration.
 // - The sequence starts before the composition ends.
 export const shouldShowTrackInTimeline = (
-	track: TrackWithHash,
+	track: TimelineTrackData,
 	durationInFrames: number,
 ): boolean => {
 	if (!track.sequence.showInTimeline) {

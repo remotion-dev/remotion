@@ -27,10 +27,21 @@ export const SplitterContainer: React.FC<{
 	readonly orientation: SplitterOrientation;
 	readonly maxFlex: number;
 	readonly minFlex: number;
+	readonly maxFlexerSize: number | null;
+	readonly maxAntiFlexerSize: number | null;
 	readonly id: string;
 	readonly defaultFlex: number;
 	readonly children: React.ReactNode;
-}> = ({orientation, children, defaultFlex, maxFlex, minFlex, id}) => {
+}> = ({
+	orientation,
+	children,
+	defaultFlex,
+	maxFlex,
+	minFlex,
+	maxFlexerSize,
+	maxAntiFlexerSize,
+	id,
+}) => {
 	const [initialTimelineFlex, persistFlex] = useTimelineFlex(id);
 	const [flexValue, setFlexValue] = useState(
 		initialTimelineFlex ?? defaultFlex,
@@ -49,6 +60,8 @@ export const SplitterContainer: React.FC<{
 			id,
 			maxFlex,
 			minFlex,
+			maxFlexerSize,
+			maxAntiFlexerSize,
 			defaultFlex,
 			persistFlex,
 		};
@@ -57,6 +70,8 @@ export const SplitterContainer: React.FC<{
 		flexValue,
 		id,
 		maxFlex,
+		maxFlexerSize,
+		maxAntiFlexerSize,
 		minFlex,
 		orientation,
 		persistFlex,

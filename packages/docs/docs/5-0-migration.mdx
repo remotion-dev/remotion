@@ -31,9 +31,22 @@ Upgrade `remotion` and all packages starting with `@remotion` to the latest vers
 
 Run `npm i `, `yarn`, `pnpm i` or `bun i` respectively afterwards.
 
+## Four packages are no longer published
+
+The following packages stop receiving releases after the 4.x line:
+
+- Replace `@remotion/light-leaks` with [`lightLeak()` from `@remotion/effects`](/docs/effects/light-leak).
+- Replace `@remotion/starburst` with [`starburst()` from `@remotion/effects`](/docs/effects/starburst).
+- Replace `@remotion/media-parser` with [Mediabunny](/docs/mediabunny).
+- Replace `@remotion/webcodecs` with [Mediabunny](/docs/mediabunny).
+
+**Required action**: Migrate usages and remove these packages from your dependencies before upgrading. Existing 4.x versions remain available, but no 5.x versions will be published.
+
 ## Runtime requirements
 
-The minimum Node version is now 18.0.0. The minimum Bun version is 1.1.3.
+The minimum Node version is now <MinNodeVersion />. The minimum Bun version is <MinBunVersion />.
+
+If you use `@remotion/eslint-config`, the minimum ESLint version is now <MinEslintVersion />.
 
 ## `selectComposition()` and `getCompositions()` now require `inputProps`
 
@@ -41,6 +54,21 @@ The minimum Node version is now 18.0.0. The minimum Bun version is 1.1.3.
 A common footgun was the render was not working as intended because the input props were not passed.
 
 **Required action**: Pass an empty object `{}` if you don't have any input props.
+
+## `bundle()` and `getCompositions()` now take an options object
+
+The legacy positional signatures of [`bundle()`](/docs/bundle) and [`getCompositions()`](/docs/renderer/get-compositions) have been removed.
+The return value of `bundle()` remains the output directory as a string.
+
+**Required action**: Move positional arguments into an options object:
+
+```diff title="Before and after"
+- bundle(entryPoint, onProgress, options)
++ bundle({entryPoint, onProgress, ...options})
+
+- getCompositions(serveUrl, options)
++ getCompositions({serveUrl, ...options})
+```
 
 ## `visualizeAudio()` yields different result
 
@@ -61,6 +89,13 @@ The values passed in there did not influence the calculation at all. Therefore w
 
 **Required action**: Remove the `from` and `to` options from your code.
 
+## Path sampling returns `null` beyond the end of a path
+
+[`getPointAtLength()`](/docs/paths/get-point-at-length) and [`getTangentAtLength()`](/docs/paths/get-tangent-at-length) now return `null` if the requested length is greater than the return value of [`getLength()`](/docs/paths/get-length).
+Previously, they returned the point or tangent at the end of the path.
+
+**Required action**: Handle the `null` return value or ensure that the requested length does not exceed the path length.
+
 ## `overwrite` is now `true` by default in `renderMediaOnLambda()`
 
 The default value of `overwrite` has been changed to `true` in `renderMediaOnLambda()`. This skips a check that the file already exists in the S3 bucket, which makes the render start faster.
@@ -71,6 +106,12 @@ The default value of `overwrite` has been changed to `true` in `renderMediaOnLam
 
 The `shouldDumpIo` option has been be removed in 5.0.  
 Use `logLevel: "verbose"` instead.
+
+## `getVideoMetadata()` has been removed from `@remotion/renderer`
+
+Use [Mediabunny to get video metadata](/docs/mediabunny/metadata) instead.
+
+**Required action**: Replace calls to `getVideoMetadata()` from `@remotion/renderer` with [getting metadata using Mediabunny](/docs/mediabunny/metadata).
 
 ## `diskSizeInMb` is now 10240 by default
 
@@ -86,6 +127,13 @@ This will add a miniscule cost to your renders technically, but will lead to mor
 
 `renderMediaOnLambda()`, `getRenderProgress()`, `renderStillOnLambda()`, `presignUrl()`, `getSites()` have been removed from `@remotion/lambda`.  
 They are now available in `@remotion/lambda/client`.
+
+## Cloud Run services use a lower maximum instance count
+
+The default [`maxInstances`](/docs/cloudrun/deployservice#maxinstances) for new Cloud Run services has been reduced from `100` to `5`.
+On some GCP accounts, the previous default exceeded the available Cloud Run quota and caused deployments to fail with an `Invalid value specified for cpu` error.
+
+**Required action**: If you want to keep the old scaling limit, set `maxInstances: 100` when using [`deployService()`](/docs/cloudrun/deployservice), or pass `--maxInstances=100` to the [Cloud Run CLI](/docs/cloudrun/cli/services/deploy).
 
 ## `bt709` is now the default color space
 
@@ -109,12 +157,28 @@ loadFont('normal', {
 });
 ```
 
+## `validateFontIsLoaded` is now `true` by default in `@remotion/layout-utils`
+
+[`measureText()`](/docs/layout-utils/measure-text), [`fitText()`](/docs/layout-utils/fit-text), [`fillTextBox()`](/docs/layout-utils/fill-text-box), and [`fitTextOnNLines()`](/docs/layout-utils/fit-text-on-n-lines) now default `validateFontIsLoaded` to `true`.
+
+**Required action**: Ensure custom fonts are loaded before calling these APIs, or pass `validateFontIsLoaded: false` explicitly to keep the previous behavior. See [layout utils best practices](/docs/layout-utils/best-practices).
+
 ## Sequences are automatically premounted
 
 [`<Sequence>`](/docs/sequence), [`<Series.Sequence>`](/docs/series) and [`<TransitionSeries.Sequence>`](/docs/transitions/transitionseries) components now automatically [premount](/docs/player/premounting) for 1 second (`fps` frames) before they appear.
 This prevents black frames that were commonly seen when a `<Sequence>` containing heavy content (e.g. videos, images) appeared.
 
 **Required action**: If you don't want this behavior for a specific Sequence, opt out by passing [`premountFor={0}`](/docs/sequence#premountfor).
+
+## Media and images pause playback while loading
+
+[`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media) have paused playback while loading by default since they were introduced.
+
+[`<Html5Video>`](/docs/html5-video), [`<OffthreadVideo>`](/docs/offthreadvideo), and [`<Html5Audio>`](/docs/html5-audio) now set [`pauseWhenBuffering`](/docs/player/buffer-state) to `true` by default.
+[`<Img>`](/docs/img) now sets [`pauseWhenLoading`](/docs/img#pausewhenloading) to `true` by default.
+This prevents the Player from continuing while media or images are still loading.
+
+**Required action**: If you want to keep the old behavior, set `pauseWhenBuffering={false}` on video and audio components and `pauseWhenLoading={false}` on `<Img>` explicitly.
 
 ## License changes
 

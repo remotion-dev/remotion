@@ -1,18 +1,6 @@
+import {DragAndDropInternals} from '@remotion/drag-and-drop';
 import type {Size} from '@remotion/player';
-import {
-	ASSET_DRAG_MIME_TYPE,
-	COMPONENT_DRAG_MIME_TYPE,
-	COMPOSITION_DRAG_MIME_TYPE,
-	ELEMENT_DRAG_MIME_TYPE,
-	parseAssetDragData,
-	parseComponentDragData,
-	parseCompositionDragData,
-	parseSfxDragData,
-	SFX_DRAG_MIME_TYPE,
-	type ComponentDragData,
-	type CompositionDragData,
-	type ElementInstallRequest,
-} from '@remotion/studio-shared';
+import type {ElementInstallRequest} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -28,20 +16,21 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getClipboardFigmaHtml} from '../helpers/clipboard-figma';
 import {getClipboardImageFiles} from '../helpers/clipboard-images';
 import {getClipboardSvgMarkup} from '../helpers/clipboard-svg';
-import {BACKGROUND} from '../helpers/colors';
+import {
+	BACKGROUND,
+	BORDER_TIMELINE_DROP_BLUE,
+	TIMELINE_DROP_BLUE_ALPHA_16,
+} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {getAssetMetadata} from '../helpers/get-asset-metadata';
 import {
 	applyZoomAroundFocalPoint,
 	getCenterPointWhileScrolling,
 	getEffectiveTranslation,
+	getUnboundedCenterPointWhileScrolling,
 } from '../helpers/get-effective-translation';
 import {getMissingPackages} from '../helpers/install-required-package';
 import {useCachedCompositionComponentInfo} from '../helpers/open-in-editor';
-import {
-	getRemoteAssetUrlFromDataTransfer,
-	hasRemoteAssetDragData,
-} from '../helpers/remote-asset-drag';
 import {
 	MAX_ZOOM,
 	MIN_ZOOM,
@@ -55,24 +44,26 @@ import {
 } from '../helpers/use-keybinding';
 import {canvasRef} from '../state/canvas-ref';
 import {EditorShowGuidesContext} from '../state/editor-guides';
+import {EditorSnappingContext} from '../state/editor-snapping';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import {callApi} from './call-api';
+import {
+	getCompositionDropPreviewBox,
+	snapCompositionDropPosition,
+	type CompositionDropPreview,
+} from './composition-drop-preview';
 import {useConfirmationDialog} from './ConfirmationDialog';
+import {isSupportedDropEvent} from './drop-handler-data';
 import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {getEffectDragData} from './effect-drag-and-drop';
-import {getElementDragData} from './element-drag-and-drop';
+import {handleDrop} from './handle-drop';
 import {
 	hasSvgFile,
 	importAssets,
 	importFigmaClipboard,
-	importRemoteAsset,
-	insertComponent,
-	insertComposition,
 	insertElement,
-	insertExistingAssets,
-	insertRemoteAudio,
 	insertSvgMarkup,
 	type InsertElementDropPosition,
 } from './import-assets';
@@ -81,6 +72,7 @@ import {showNotification} from './Notifications/NotificationCenter';
 import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
 import {useSvgImportDialog} from './SvgImportDialog';
+import {getCurrentFrame} from './Timeline/imperative-state';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 
 const elementInstallCompositionIdStyle: React.CSSProperties = {
@@ -176,118 +168,12 @@ const calculateCanvasScale = ({
 		: Internals.calculateScale(options);
 };
 
-const isFileDragEvent = (event: DragEvent): boolean => {
-	return Array.from(event.dataTransfer?.types ?? []).includes('Files');
-};
-
-const isAssetDragEvent = (event: DragEvent): boolean => {
-	return Array.from(event.dataTransfer?.types ?? []).includes(
-		ASSET_DRAG_MIME_TYPE,
-	);
-};
-
-const isComponentDragEvent = (event: DragEvent): boolean => {
-	return Array.from(event.dataTransfer?.types ?? []).includes(
-		COMPONENT_DRAG_MIME_TYPE,
-	);
-};
-
-const isCompositionDragEvent = (event: DragEvent): boolean => {
-	return Array.from(event.dataTransfer?.types ?? []).includes(
-		COMPOSITION_DRAG_MIME_TYPE,
-	);
-};
-
-const isElementDragEvent = (event: DragEvent): boolean => {
-	return Array.from(event.dataTransfer?.types ?? []).includes(
-		ELEMENT_DRAG_MIME_TYPE,
-	);
-};
-
-const isSfxDragEvent = (event: DragEvent): boolean => {
-	return Array.from(event.dataTransfer?.types ?? []).includes(
-		SFX_DRAG_MIME_TYPE,
-	);
-};
-
-const isRemoteAssetDragEvent = (event: DragEvent): boolean => {
-	return (
-		!isFileDragEvent(event) &&
-		!isAssetDragEvent(event) &&
-		!isCompositionDragEvent(event) &&
-		!isComponentDragEvent(event) &&
-		!isElementDragEvent(event) &&
-		!isSfxDragEvent(event) &&
-		hasRemoteAssetDragData(event.dataTransfer)
-	);
-};
-
-const getAssetDragPath = (event: DragEvent): string | null => {
-	const value = event.dataTransfer?.getData(ASSET_DRAG_MIME_TYPE);
-	if (!value) {
-		return null;
-	}
-
-	return parseAssetDragData(value)?.assetPath ?? null;
-};
-
-const getCompositionDragData = (
-	event: DragEvent,
-): CompositionDragData | null => {
-	const value = event.dataTransfer?.getData(COMPOSITION_DRAG_MIME_TYPE);
-	if (!value) {
-		return null;
-	}
-
-	return parseCompositionDragData(value);
-};
-
-const getComponentDragData = (event: DragEvent): ComponentDragData | null => {
-	for (const type of [
-		COMPONENT_DRAG_MIME_TYPE,
-		'application/json',
-		'text/plain',
-	]) {
-		const value = event.dataTransfer?.getData(type);
-		if (!value) {
-			continue;
-		}
-
-		const parsed = parseComponentDragData(value);
-		if (parsed) {
-			return parsed;
-		}
-	}
-
-	return null;
-};
-
-const getSfxDragUrl = (event: DragEvent): string | null => {
-	const {dataTransfer} = event;
-	if (!dataTransfer) {
-		return null;
-	}
-
-	for (const type of [SFX_DRAG_MIME_TYPE, 'application/json', 'text/plain']) {
-		const value = dataTransfer.getData(type);
-		if (!value) {
-			continue;
-		}
-
-		const parsed = parseSfxDragData(value);
-		if (parsed) {
-			return parsed.sfx.url;
-		}
-	}
-
-	return null;
-};
-
 const getDropPosition = ({
 	addFitPadding,
 	clientX,
 	clientY,
 	contentDimensions,
+	unbounded,
 	previewSize,
 	size,
 }: {
@@ -295,6 +181,7 @@ const getDropPosition = ({
 	clientX: number;
 	clientY: number;
 	contentDimensions: {width: number; height: number} | 'none' | null;
+	unbounded: boolean;
 	previewSize: PreviewSize;
 	size: Size;
 }): InsertElementDropPosition | null => {
@@ -309,7 +196,10 @@ const getDropPosition = ({
 		compositionWidth: contentDimensions.width,
 		previewSize: previewSize.size,
 	});
-	const {centerX, centerY} = getCenterPointWhileScrolling({
+	const getCenterPoint = unbounded
+		? getUnboundedCenterPointWhileScrolling
+		: getCenterPointWhileScrolling;
+	const {centerX, centerY} = getCenterPoint({
 		size,
 		clientX,
 		clientY,
@@ -365,6 +255,7 @@ export const Canvas: React.FC<{
 	const config = Internals.useUnsafeVideoConfig();
 	const areRulersVisible = useIsRulerVisible();
 	const {editorShowGuides} = useContext(EditorShowGuidesContext);
+	const {editorSnapping} = useContext(EditorSnappingContext);
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {previewServerState, subscribeToEvent} = useContext(
 		StudioServerConnectionCtx,
@@ -374,6 +265,8 @@ export const Canvas: React.FC<{
 			? previewServerState.clientId
 			: null;
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
+	const [compositionDropPreview, setCompositionDropPreview] =
+		useState<CompositionDropPreview | null>(null);
 	const [installingElementName, setInstallingElementName] = useState<
 		string | null
 	>(null);
@@ -1042,6 +935,7 @@ export const Canvas: React.FC<{
 					compositionFile: activeElementInstallRequest.compositionFile,
 					compositionId: activeElementInstallRequest.compositionId,
 					dropPosition: null,
+					from: null,
 				});
 			}
 		};
@@ -1068,20 +962,13 @@ export const Canvas: React.FC<{
 
 	const onDragOver = useCallback(
 		(event: DragEvent) => {
-			if (
-				(!isFileDragEvent(event) &&
-					!isAssetDragEvent(event) &&
-					!isCompositionDragEvent(event) &&
-					!isComponentDragEvent(event) &&
-					!isElementDragEvent(event) &&
-					!isSfxDragEvent(event) &&
-					!isRemoteAssetDragEvent(event)) ||
-				!isDragEventInsideCanvas(event)
-			) {
+			if (!isSupportedDropEvent(event) || !isDragEventInsideCanvas(event)) {
+				setCompositionDropPreview(null);
 				return;
 			}
 
 			if (!canDropAssets && !cannotAddSequence) {
+				setCompositionDropPreview(null);
 				return;
 			}
 
@@ -1089,22 +976,118 @@ export const Canvas: React.FC<{
 			if (event.dataTransfer) {
 				event.dataTransfer.dropEffect = canDropAssets ? 'copy' : 'none';
 			}
+
+			if (
+				!canDropAssets ||
+				contentDimensions === null ||
+				contentDimensions === 'none'
+			) {
+				setCompositionDropPreview(null);
+				return;
+			}
+
+			const metadata = DragAndDropInternals.getDragPreviewMetadata(
+				event.dataTransfer?.types ?? [],
+			);
+			if (
+				metadata?.type !== 'composition' ||
+				metadata.width === undefined ||
+				metadata.height === undefined
+			) {
+				setCompositionDropPreview(null);
+				return;
+			}
+
+			let dropPosition = getDropPosition({
+				addFitPadding,
+				clientX: event.clientX,
+				clientY: event.clientY,
+				contentDimensions,
+				unbounded: true,
+				previewSize,
+				size,
+			});
+			if (dropPosition === null) {
+				setCompositionDropPreview(null);
+				return;
+			}
+
+			const compositionDimensions = {
+				width: metadata.width,
+				height: metadata.height,
+			};
+			if (editorSnapping && !event.metaKey && !event.ctrlKey) {
+				dropPosition = snapCompositionDropPosition({
+					compositionDimensions,
+					destinationDimensions: contentDimensions,
+					dropPosition,
+					scale: calculateCanvasScale({
+						addFitPadding,
+						canvasSize: size,
+						compositionHeight: contentDimensions.height,
+						compositionWidth: contentDimensions.width,
+						previewSize: previewSize.size,
+					}),
+				});
+			}
+
+			setCompositionDropPreview((currentPreview) => {
+				if (
+					currentPreview?.compositionDimensions.width ===
+						compositionDimensions.width &&
+					currentPreview.compositionDimensions.height ===
+						compositionDimensions.height &&
+					currentPreview.dropPosition.centerX === dropPosition.centerX &&
+					currentPreview.dropPosition.centerY === dropPosition.centerY
+				) {
+					return currentPreview;
+				}
+
+				return {
+					compositionDimensions,
+					dropPosition,
+				};
+			});
 		},
-		[canDropAssets, cannotAddSequence],
+		[
+			addFitPadding,
+			canDropAssets,
+			cannotAddSequence,
+			contentDimensions,
+			editorSnapping,
+			previewSize,
+			size,
+		],
 	);
+
+	const onDragLeave = useCallback((event: DragEvent) => {
+		const canvas = canvasRef.current;
+		if (canvas !== null) {
+			const rect = canvas.getBoundingClientRect();
+			if (
+				(event.clientX >= rect.left &&
+					event.clientX <= rect.right &&
+					event.clientY >= rect.top &&
+					event.clientY <= rect.bottom) ||
+				(event.relatedTarget instanceof Node &&
+					canvas.contains(event.relatedTarget))
+			) {
+				return;
+			}
+		}
+
+		setCompositionDropPreview(null);
+	}, []);
+
+	const onDragEnd = useCallback(() => {
+		setCompositionDropPreview(null);
+	}, []);
 
 	const onDrop = useCallback(
 		async (event: DragEvent) => {
-			if (
-				(!isFileDragEvent(event) &&
-					!isAssetDragEvent(event) &&
-					!isCompositionDragEvent(event) &&
-					!isComponentDragEvent(event) &&
-					!isElementDragEvent(event) &&
-					!isSfxDragEvent(event) &&
-					!isRemoteAssetDragEvent(event)) ||
-				!isDragEventInsideCanvas(event)
-			) {
+			setCompositionDropPreview(null);
+
+			if (!isSupportedDropEvent(event) || !isDragEventInsideCanvas(event)) {
 				return;
 			}
 
@@ -1121,7 +1104,8 @@ export const Canvas: React.FC<{
 			if (
 				!canDropAssets ||
 				compositionFile === null ||
-				currentCompositionId === null
+				currentCompositionId === null ||
+				config === null
 			) {
 				return;
 			}
@@ -1139,113 +1123,58 @@ export const Canvas: React.FC<{
 
 			setIsAddingAsset(true);
 			try {
-				const dropPosition = getDropPosition({
+				const metadata = DragAndDropInternals.getDragPreviewMetadata(
+					event.dataTransfer?.types ?? [],
+				);
+				const isComposition = metadata?.type === 'composition';
+				let dropPosition = getDropPosition({
 					addFitPadding,
 					clientX: event.clientX,
 					clientY: event.clientY,
 					contentDimensions,
+					unbounded: isComposition,
 					previewSize,
 					size,
 				});
-
-				if (isFileDragEvent(event)) {
-					const files = Array.from(event.dataTransfer?.files ?? []);
-					if (files.length === 0) {
-						return;
-					}
-
-					const svgImportMode = hasSvgFile(files)
-						? await chooseSvgImportMode()
-						: 'image';
-					if (svgImportMode === null) {
-						return;
-					}
-
-					await importAssets({
-						files,
-						compositionFile,
-						compositionId: currentCompositionId,
-						destinationDimensions:
-							contentDimensions === 'none' ? null : contentDimensions,
+				if (
+					dropPosition !== null &&
+					isComposition &&
+					metadata.width !== undefined &&
+					metadata.height !== undefined &&
+					contentDimensions !== null &&
+					contentDimensions !== 'none' &&
+					editorSnapping &&
+					!event.metaKey &&
+					!event.ctrlKey
+				) {
+					dropPosition = snapCompositionDropPosition({
+						compositionDimensions: {
+							width: metadata.width,
+							height: metadata.height,
+						},
+						destinationDimensions: contentDimensions,
 						dropPosition,
-						svgImportMode,
-					});
-				} else if (isAssetDragEvent(event)) {
-					const assetPath = getAssetDragPath(event);
-					if (assetPath === null) {
-						return;
-					}
-
-					await insertExistingAssets({
-						assetPaths: [assetPath],
-						compositionFile,
-						compositionId: currentCompositionId,
-						destinationDimensions:
-							contentDimensions === 'none' ? null : contentDimensions,
-						dropPosition,
-					});
-				} else if (isSfxDragEvent(event)) {
-					const url = getSfxDragUrl(event);
-					if (url === null) {
-						return;
-					}
-
-					await insertRemoteAudio({
-						url,
-						compositionFile,
-						compositionId: currentCompositionId,
-					});
-				} else if (isCompositionDragEvent(event)) {
-					const compositionDragData = getCompositionDragData(event);
-					if (compositionDragData === null) {
-						return;
-					}
-
-					await insertComposition({
-						composition: compositionDragData,
-						compositionFile,
-						compositionId: currentCompositionId,
-						destinationDimensions:
-							contentDimensions === 'none' ? null : contentDimensions,
-						dropPosition,
-					});
-				} else {
-					const elementDragData = getElementDragData(event.dataTransfer);
-					if (elementDragData !== null) {
-						await insertElement({
-							element: elementDragData.element,
-							compositionFile,
-							compositionId: currentCompositionId,
-							dropPosition,
-						});
-						return;
-					}
-
-					const componentDragData = getComponentDragData(event);
-					if (componentDragData !== null) {
-						await insertComponent({
-							component: componentDragData.component,
-							compositionFile,
-							compositionId: currentCompositionId,
-							dropPosition,
-						});
-						return;
-					}
-
-					const url = getRemoteAssetUrlFromDataTransfer(event.dataTransfer);
-					if (url === null) {
-						return;
-					}
-
-					await importRemoteAsset({
-						url,
-						compositionFile,
-						compositionId: currentCompositionId,
-						destinationDimensions:
-							contentDimensions === 'none' ? null : contentDimensions,
-						dropPosition,
+						scale: calculateCanvasScale({
+							addFitPadding,
+							canvasSize: size,
+							compositionHeight: contentDimensions.height,
+							compositionWidth: contentDimensions.width,
+							previewSize: previewSize.size,
+						}),
 					});
 				}
+
+				await handleDrop({
+					chooseSvgImportMode,
+					compositionFile,
+					compositionId: currentCompositionId,
+					destinationDimensions:
+						contentDimensions === 'none' ? null : contentDimensions,
+					dropPosition,
+					event,
+					fps: config.fps,
+					from: getCurrentFrame(),
+				});
 			} finally {
 				setIsAddingAsset(false);
 			}
@@ -1256,8 +1185,10 @@ export const Canvas: React.FC<{
 			cannotAddSequence,
 			chooseSvgImportMode,
 			compositionFile,
+			config,
 			contentDimensions,
 			currentCompositionId,
+			editorSnapping,
 			previewSize,
 			size,
 		],
@@ -1270,6 +1201,7 @@ export const Canvas: React.FC<{
 				!canDropAssets ||
 				compositionFile === null ||
 				currentCompositionId === null ||
+				config === null ||
 				event.clipboardData === null ||
 				activeElement instanceof HTMLInputElement ||
 				activeElement instanceof HTMLTextAreaElement ||
@@ -1346,11 +1278,13 @@ export const Canvas: React.FC<{
 			try {
 				await importAssets({
 					files,
+					fps: config.fps,
 					compositionFile,
 					compositionId: currentCompositionId,
 					destinationDimensions:
 						contentDimensions === 'none' ? null : contentDimensions,
 					dropPosition,
+					from: null,
 					svgImportMode,
 				});
 			} finally {
@@ -1361,6 +1295,7 @@ export const Canvas: React.FC<{
 			canDropAssets,
 			chooseSvgImportMode,
 			compositionFile,
+			config,
 			contentDimensions,
 			currentCompositionId,
 		],
@@ -1368,13 +1303,17 @@ export const Canvas: React.FC<{
 
 	useEffect(() => {
 		document.addEventListener('dragover', onDragOver, {capture: true});
+		document.addEventListener('dragleave', onDragLeave, {capture: true});
+		document.addEventListener('dragend', onDragEnd, {capture: true});
 		document.addEventListener('drop', onDrop, {capture: true});
 
 		return () => {
 			document.removeEventListener('dragover', onDragOver, {capture: true});
+			document.removeEventListener('dragleave', onDragLeave, {capture: true});
+			document.removeEventListener('dragend', onDragEnd, {capture: true});
 			document.removeEventListener('drop', onDrop, {capture: true});
 		};
-	}, [onDragOver, onDrop]);
+	}, [onDragEnd, onDragLeave, onDragOver, onDrop]);
 
 	useEffect(() => {
 		if (
@@ -1389,6 +1328,34 @@ export const Canvas: React.FC<{
 		return () => document.removeEventListener('paste', onPaste);
 	}, [canDropAssets, keybindings.isHighestContext, onPaste]);
 
+	const compositionDropPreviewStyle =
+		useMemo((): React.CSSProperties | null => {
+			if (
+				compositionDropPreview === null ||
+				contentDimensions === null ||
+				contentDimensions === 'none'
+			) {
+				return null;
+			}
+
+			const box = getCompositionDropPreviewBox({
+				canvasSize: size,
+				destinationDimensions: contentDimensions,
+				preview: compositionDropPreview,
+				previewSize,
+			});
+
+			return {
+				...box,
+				position: 'absolute',
+				boxSizing: 'border-box',
+				border: BORDER_TIMELINE_DROP_BLUE,
+				backgroundColor: TIMELINE_DROP_BLUE_ALPHA_16,
+				pointerEvents: 'none',
+				zIndex: 1,
+			};
+		}, [compositionDropPreview, contentDimensions, previewSize, size]);
+
 	return (
 		<>
 			<div ref={canvasRef} style={getContainerStyle(editorZoomGestures)}>
@@ -1401,6 +1368,13 @@ export const Canvas: React.FC<{
 						onRetryAssetMetadata={fetchMetadata}
 					/>
 				) : null}
+				{compositionDropPreviewStyle === null ? null : (
+					<div
+						className="css-reset"
+						data-testid="composition-drop-preview"
+						style={compositionDropPreviewStyle}
+					/>
+				)}
 				{isFit ? null : (
 					<div style={resetZoom} className="css-reset">
 						<ResetZoomButton onClick={onReset} />

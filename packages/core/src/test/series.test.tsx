@@ -47,7 +47,6 @@ const AbsoluteFromPrinter = () => {
 
 const renderForFrame = (frame: number, markup: React.ReactNode) => {
 	const timelineContextValue: TimelineContextValue = {
-		rootId: '',
 		frame: {
 			'my-comp': frame,
 		},

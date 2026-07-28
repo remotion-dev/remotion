@@ -8,9 +8,10 @@ const container: React.CSSProperties = {
 	fontSize: 14,
 };
 
-export type QuickSwitcherMode = 'commands' | 'compositions' | 'docs';
+export type QuickSwitcherMode = 'assets' | 'commands' | 'compositions' | 'docs';
 
 const MODE_TO_STRING: {[key in QuickSwitcherMode]: string} = {
+	assets: 'assets',
 	commands: 'commands',
 	compositions: 'compositions',
 	docs: 'documentation',

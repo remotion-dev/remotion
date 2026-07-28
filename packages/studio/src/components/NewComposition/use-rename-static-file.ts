@@ -1,7 +1,7 @@
 import {useCallback, useContext} from 'react';
 import {Internals, type StaticFile} from 'remotion';
 import {renameStaticFile} from '../../api/rename-static-file';
-import {pushUrl} from '../../helpers/url-state';
+import {replaceUrl} from '../../helpers/url-state';
 import {showNotification} from '../Notifications/NotificationCenter';
 
 export const getStaticFileParent = (relativePath: string) => {
@@ -116,7 +116,7 @@ export const useRenameStaticFile = ({
 					canvasContent.asset === relativePath
 				) {
 					setCanvasContent({type: 'asset', asset: newRelativePath});
-					pushUrl(`/assets/${newRelativePath}`);
+					replaceUrl(`/assets/${newRelativePath}`);
 				}
 
 				notification.replaceContent(`Renamed to ${newRelativePath}`, 2000);

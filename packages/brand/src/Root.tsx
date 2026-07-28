@@ -4,6 +4,12 @@ import {AnimatedLogo} from './animated-logo/AnimatedLogo';
 import {AnimatedLogoStringer} from './animated-logo/AnimatedLogoStinger';
 import {AnimatedMaster} from './animated-logo/AnimatedMaster';
 import {ExplodingLogo} from './animated-logo/ExplodingLogo';
+import {
+	ApplicationRenderButton,
+	ApplicationSimpleApp,
+	ApplicationVideoEditor,
+	Applications,
+} from './Applications';
 import {Banner} from './Brand/Banner';
 import {Comp} from './Brand/Composition';
 import {TriangleDemo} from './Brand/TriangleToSquare';
@@ -17,7 +23,7 @@ import {
 	whatIsRemotionCalculateMetadata,
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
-import {DesignSystems} from './DesignSystems';
+import {DesignSystems, designSystemsDurationInFrames} from './DesignSystems';
 import {
 	DocsPagesShowcase,
 	INSTAGRAM_POST_HEIGHT,
@@ -240,7 +246,39 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="DesignSystems"
 					component={DesignSystems}
-					durationInFrames={150}
+					durationInFrames={designSystemsDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
+					id="ApplicationSimpleApp"
+					component={ApplicationSimpleApp}
+					durationInFrames={240}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
+					id="ApplicationVideoEditor"
+					component={ApplicationVideoEditor}
+					durationInFrames={240}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
+					id="ApplicationRenderButton"
+					component={ApplicationRenderButton}
+					durationInFrames={240}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
+					id="Applications"
+					component={Applications}
+					durationInFrames={180}
 					fps={30}
 					width={1080}
 					height={1080}

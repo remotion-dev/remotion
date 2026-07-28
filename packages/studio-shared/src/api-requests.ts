@@ -1,3 +1,4 @@
+import type {ComponentProp, ElementDragData} from '@remotion/drag-and-drop';
 import type {
 	AudioCodec,
 	ChromeMode,
@@ -26,13 +27,11 @@ import type {
 	VideoConfigValues,
 } from 'remotion';
 import type {RecastCodemod, VisualControlChange} from './codemods';
-import type {ComponentProp} from './component-drag-data';
 import type {
 	EffectClipboardParam,
 	EffectClipboardPasteType,
 	EffectClipboardSnapshot,
 } from './effect-clipboard-data';
-import type {ElementDragData} from './element-drag-data';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
 import type {
@@ -57,6 +56,18 @@ export type OpenInEditorRequest = {
 
 export type OpenInEditorResponse = {
 	success: boolean;
+};
+
+export type FindInFileRequest = {
+	fileName: string;
+	lineNumber: number;
+	columnNumber: number;
+	search: string;
+};
+
+export type FindInFileResponse = {
+	lineNumber: number;
+	columnNumber: number;
 };
 
 export type CompositionComponentInfoRequest = {
@@ -333,12 +344,39 @@ export type SaveSequencePropEdit = {
 	sourceEdit: SaveSequencePropSourceEdit | null;
 };
 
+export type CaptionPatch = {
+	index: number;
+	before: {
+		text: string;
+		startMs: number;
+		endMs: number;
+		timestampMs: number | null;
+		confidence: number | null;
+	};
+	changes: Partial<{
+		text: string;
+		startMs: number;
+		endMs: number;
+		timestampMs: number | null;
+		confidence: number | null;
+	}>;
+};
+
+export type SaveInlineCaptionPatchesRequest = {
+	fileName: string;
+	nodePath: SequencePropsSubscriptionKey;
+	schema: InteractivitySchema;
+	patches: CaptionPatch[];
+};
+
 export type SaveSequencePropsRequest = {
 	edits: SaveSequencePropEdit[];
-	movedKeyframes?: {
+	captionPatches?: SaveInlineCaptionPatchesRequest[];
+	addedKeyframes: AddSequenceKeyframe[] | null;
+	movedKeyframes: {
 		sequenceKeyframes: MoveSequenceKeyframe[];
 		effectKeyframes: MoveEffectKeyframe[];
-	};
+	} | null;
 	clientId: string;
 	undoLabel: string;
 	redoLabel: string;
@@ -382,6 +420,28 @@ export type SaveEffectPropsRequest =
 	  });
 
 export type SaveEffectPropsResponse = CanUpdateEffectPropsResponse;
+
+type WithoutClientId<T> = T extends unknown ? Omit<T, 'clientId'> : never;
+
+export type SaveMultipleEffectPropsEdit =
+	WithoutClientId<SaveEffectPropsRequest>;
+
+export type SaveMultipleEffectPropsRequest = {
+	edits: SaveMultipleEffectPropsEdit[];
+	clientId: string;
+	undoLabel: string;
+	redoLabel: string;
+};
+
+export type SaveMultipleEffectPropsResult = {
+	fileName: string;
+	sequenceNodePath: SequencePropsSubscriptionKey;
+	status: CanUpdateEffectPropsResponse;
+};
+
+export type SaveMultipleEffectPropsResponse = {
+	results: SaveMultipleEffectPropsResult[];
+};
 
 export type AddEffectRequest = {
 	fileName: string;
@@ -596,6 +656,26 @@ export type UpdateEffectKeyframeSettingsRequest = {
 
 export type UpdateEffectKeyframeSettingsResponse = SaveEffectPropsResponse;
 
+export type BatchUpdateSequenceKeyframeSettings = Omit<
+	UpdateSequenceKeyframeSettingsRequest,
+	'clientId'
+>;
+
+export type BatchUpdateEffectKeyframeSettings = Omit<
+	UpdateEffectKeyframeSettingsRequest,
+	'clientId'
+>;
+
+export type BatchUpdateKeyframeSettingsRequest = {
+	sequenceKeyframes: BatchUpdateSequenceKeyframeSettings[];
+	effectKeyframes: BatchUpdateEffectKeyframeSettings[];
+	clientId: string;
+};
+
+export type BatchUpdateKeyframeSettingsResponse = {
+	success: true;
+};
+
 type BaseDeleteEffectRequestItem = {
 	fileName: string;
 	sequenceNodePath: SequencePropsSubscriptionKey;
@@ -715,6 +795,7 @@ export type InsertableCompositionElement =
 				width: number;
 				height: number;
 			} | null;
+			durationInFrames: number | null;
 			position: InsertableCompositionElementPosition | null;
 	  }
 	| {
@@ -742,6 +823,7 @@ export type InsertJsxElementRequest = {
 	compositionFile: string;
 	compositionId: string;
 	element: InsertableCompositionElement;
+	from: number | null;
 };
 
 export type InsertJsxElementResponse =
@@ -772,6 +854,7 @@ export type InsertElementRequest = {
 	compositionFile: string;
 	compositionId: string;
 	element: ElementDragData['element'];
+	from: number | null;
 	position: InsertableCompositionElementPosition | null;
 };
 
@@ -836,6 +919,18 @@ export type ProjectInfoResponse = {
 export type RestartStudioRequest = {};
 export type RestartStudioResponse = {};
 
+export type UpdatePublicLicenseRequest = {
+	publicLicenseKey: string;
+};
+export type UpdatePublicLicenseResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+	  };
+
 export type InstallPackageRequest = {
 	packageNames: string[];
 };
@@ -886,6 +981,7 @@ export type ApiRoutes = {
 	>;
 	'/api/remove-render': ReqAndRes<RemoveRenderRequest, undefined>;
 	'/api/open-in-editor': ReqAndRes<OpenInEditorRequest, OpenInEditorResponse>;
+	'/api/find-in-file': ReqAndRes<FindInFileRequest, FindInFileResponse>;
 	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
 	'/api/register-client-render': ReqAndRes<CompletedClientRender, void>;
 	'/api/unregister-client-render': ReqAndRes<{id: string}, void>;
@@ -921,6 +1017,10 @@ export type ApiRoutes = {
 		SaveEffectPropsRequest,
 		SaveEffectPropsResponse
 	>;
+	'/api/save-multiple-effect-props': ReqAndRes<
+		SaveMultipleEffectPropsRequest,
+		SaveMultipleEffectPropsResponse
+	>;
 	'/api/add-effect': ReqAndRes<AddEffectRequest, AddEffectResponse>;
 	'/api/reorder-effect': ReqAndRes<ReorderEffectRequest, ReorderEffectResponse>;
 	'/api/duplicate-effect': ReqAndRes<
@@ -952,6 +1052,10 @@ export type ApiRoutes = {
 	'/api/update-effect-keyframe-settings': ReqAndRes<
 		UpdateEffectKeyframeSettingsRequest,
 		UpdateEffectKeyframeSettingsResponse
+	>;
+	'/api/batch-update-keyframe-settings': ReqAndRes<
+		BatchUpdateKeyframeSettingsRequest,
+		BatchUpdateKeyframeSettingsResponse
 	>;
 	'/api/delete-effect': ReqAndRes<DeleteEffectRequest, DeleteEffectResponse>;
 	'/api/paste-effects': ReqAndRes<PasteEffectsRequest, PasteEffectsResponse>;
@@ -999,6 +1103,10 @@ export type ApiRoutes = {
 		RenameStaticFileResponse
 	>;
 	'/api/restart-studio': ReqAndRes<RestartStudioRequest, RestartStudioResponse>;
+	'/api/update-public-license': ReqAndRes<
+		UpdatePublicLicenseRequest,
+		UpdatePublicLicenseResponse
+	>;
 	'/api/install-package': ReqAndRes<
 		InstallPackageRequest,
 		InstallPackageResponse

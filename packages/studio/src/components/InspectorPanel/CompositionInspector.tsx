@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useMemo, useState} from 'react';
 import type {_InternalTypes} from 'remotion';
-import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {PicIcon} from '../../icons/frame';
 import {SolidIcon} from '../../icons/solid';
 import {VisualControlsContext} from '../../visual-controls/VisualControls';
@@ -47,7 +47,9 @@ const actionIconStyle: React.CSSProperties = {
 	width: 18,
 };
 
-const CompositionActions: React.FC = () => {
+const CompositionActions: React.FC<{
+	readonly readOnlyStudio: boolean;
+}> = ({readOnlyStudio}) => {
 	const {
 		canInsertAsset,
 		canInsertSolid,
@@ -57,7 +59,7 @@ const CompositionActions: React.FC = () => {
 		insertSolid,
 	} = useCompositionActions();
 
-	if (!canShowInsertAsset && !canShowInsertSolid) {
+	if (readOnlyStudio || (!canShowInsertAsset && !canShowInsertSolid)) {
 		return null;
 	}
 
@@ -92,8 +94,9 @@ const CompositionActions: React.FC = () => {
 const CompositionDefaultPropsSection: React.FC<{
 	readonly composition: _InternalTypes['AnyComposition'];
 	readonly currentDefaultProps: Record<string, unknown>;
+	readonly readOnlyStudio: boolean;
 	readonly setDefaultProps: UpdaterFunction<Record<string, unknown>>;
-}> = ({composition, currentDefaultProps, setDefaultProps}) => {
+}> = ({composition, currentDefaultProps, readOnlyStudio, setDefaultProps}) => {
 	const z = useZodIfPossible();
 	const canSaveDefaultProps = useContext(ObserveDefaultPropsContext);
 	const [defaultPropsMode, setDefaultPropsMode] =
@@ -150,7 +153,7 @@ const CompositionDefaultPropsSection: React.FC<{
 		showCannotSaveDefaultPropsWarning: canShowDefaultPropsSection,
 	});
 
-	if (!canShowDefaultPropsSection) {
+	if (readOnlyStudio || !canShowDefaultPropsSection) {
 		return null;
 	}
 
@@ -206,10 +209,14 @@ const CompositionDefaultPropsSection: React.FC<{
 	);
 };
 
-const CompositionVisualControlsSection: React.FC = () => {
+const CompositionVisualControlsSection: React.FC<{
+	readonly readOnlyStudio: boolean;
+}> = ({readOnlyStudio}) => {
 	const {handles: visualControlHandles} = useContext(VisualControlsContext);
 	const hasVisualControls =
-		studioInteractivityEnabled && Object.keys(visualControlHandles).length > 0;
+		!readOnlyStudio &&
+		isStudioInteractivityEnabled() &&
+		Object.keys(visualControlHandles).length > 0;
 
 	if (!hasVisualControls) {
 		return null;
@@ -246,10 +253,11 @@ export const CompositionInspector: React.FC<{
 			<CompositionDefaultPropsSection
 				composition={composition}
 				currentDefaultProps={currentDefaultProps}
+				readOnlyStudio={readOnlyStudio}
 				setDefaultProps={setDefaultProps}
 			/>
-			<CompositionVisualControlsSection />
-			<CompositionActions />
+			<CompositionVisualControlsSection readOnlyStudio={readOnlyStudio} />
+			<CompositionActions readOnlyStudio={readOnlyStudio} />
 		</div>
 	);
 };

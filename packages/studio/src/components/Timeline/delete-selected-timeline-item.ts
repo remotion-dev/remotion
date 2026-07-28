@@ -50,7 +50,7 @@ const confirmDeletingDuplicatedSequences = (
 	});
 };
 
-const deleteSequences = async (
+export const deleteSequencesFromSource = async (
 	nodePathInfos: SequenceNodePathInfo[],
 	confirm: ConfirmationDialogFunction,
 ): Promise<boolean> => {
@@ -177,7 +177,7 @@ export const deleteSelectedTimelineItem = ({
 		case 'guide':
 			return null;
 		case 'sequence':
-			return deleteSequences([selection.nodePathInfo], confirm);
+			return deleteSequencesFromSource([selection.nodePathInfo], confirm);
 		case 'sequence-effect':
 			return deleteEffects([
 				{
@@ -467,7 +467,7 @@ export const deleteSelectedTimelineItems = ({
 		case 'guide':
 			return null;
 		case 'sequence':
-			return deleteSequences(
+			return deleteSequencesFromSource(
 				selections
 					.filter(isSequenceRowSelection)
 					.map((selection) => selection.nodePathInfo),

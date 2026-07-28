@@ -117,6 +117,14 @@ mock.module('remotion', () => {
 			useMemoizedEffectDefinitions: mock(() => effectDefinitions),
 		},
 		Interactive: {
+			backgroundSchema: {
+				'style.backgroundColor': {},
+			},
+			borderSchema: {
+				'style.borderWidth': {},
+				'style.borderStyle': {},
+				'style.borderColor': {},
+			},
 			withSchema: mock(({Component}) => Component),
 		},
 		Sequence: ({

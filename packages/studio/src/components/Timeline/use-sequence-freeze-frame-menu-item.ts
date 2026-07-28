@@ -11,6 +11,39 @@ export const shouldShowFreezeFrameMenuItem = (sequence: TSequence): boolean => {
 	return sequence.type !== 'audio';
 };
 
+export const isSequenceVisibleAtTimelinePosition = ({
+	sequence,
+	timelinePosition,
+}: {
+	readonly sequence: TSequence;
+	readonly timelinePosition: number;
+}): boolean => {
+	return (
+		timelinePosition >= sequence.from &&
+		timelinePosition < sequence.from + sequence.duration
+	);
+};
+
+export const calculateSequenceFreezeFrame = ({
+	sequence,
+	sequenceFrameOffset,
+	timelinePosition,
+}: {
+	readonly sequence: TSequence;
+	readonly sequenceFrameOffset: number;
+	readonly timelinePosition: number;
+}): number => {
+	const rawFreezeFrame = Math.round(
+		timelinePosition - sequence.from + sequenceFrameOffset,
+	);
+	const minFrame = sequenceFrameOffset;
+	const maxFrame = Number.isFinite(sequence.duration)
+		? Math.max(minFrame, sequence.duration + sequenceFrameOffset - 1)
+		: Infinity;
+
+	return Math.min(Math.max(minFrame, rawFreezeFrame), maxFrame);
+};
+
 export const useSequenceFreezeFrameMenuItem = ({
 	clientId,
 	nodePath,
@@ -38,6 +71,7 @@ export const useSequenceFreezeFrameMenuItem = ({
 		typeof freezeStatus.codeValue === 'number';
 
 	const canToggleFreeze =
+		isSequenceVisibleAtTimelinePosition({sequence, timelinePosition}) &&
 		clientId !== null &&
 		Boolean(sequence.controls) &&
 		nodePath !== null &&
@@ -57,22 +91,22 @@ export const useSequenceFreezeFrameMenuItem = ({
 			return;
 		}
 
-		const rawFreezeFrame = Math.round(
-			timelinePosition - sequence.from + sequenceFrameOffset,
-		);
-		const maxFrame = Number.isFinite(sequence.duration)
-			? Math.max(0, sequence.duration - 1)
-			: rawFreezeFrame;
-		const freezeFrame = Math.min(Math.max(0, rawFreezeFrame), maxFrame);
+		const freezeFrame = calculateSequenceFreezeFrame({
+			sequence,
+			sequenceFrameOffset,
+			timelinePosition,
+		});
 		const remove = isFrozen;
 
 		saveSequenceProps({
+			addedKeyframes: null,
+			movedKeyframes: null,
 			changes: [
 				{
 					fileName: validatedSource,
 					nodePath,
 					fieldKey: 'freeze',
-					value: remove ? null : freezeFrame,
+					value: remove ? undefined : freezeFrame,
 					defaultValue: null,
 					schema: sequence.controls.schema,
 				},
@@ -87,9 +121,7 @@ export const useSequenceFreezeFrameMenuItem = ({
 		clientId,
 		isFrozen,
 		nodePath,
-		sequence.controls,
-		sequence.duration,
-		sequence.from,
+		sequence,
 		sequenceFrameOffset,
 		setPropStatuses,
 		timelinePosition,

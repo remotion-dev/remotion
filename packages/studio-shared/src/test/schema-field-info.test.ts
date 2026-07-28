@@ -8,6 +8,7 @@ import {
 	SCHEMA_FIELD_ROW_HEIGHT,
 	getEffectFieldsToShow,
 	getFieldsToShow,
+	getSchemaFieldGroup,
 } from '../schema-field-info';
 
 const effect = {
@@ -159,6 +160,24 @@ test('getEffectFieldsToShow sizes array fields from the current value', () => {
 	expect(colors?.rowHeight).toBe(SCHEMA_FIELD_ROW_HEIGHT * 4);
 });
 
+test('getFieldsToShow leaves captions to the caption inspector', () => {
+	const fields = getFieldsToShow({
+		schema: {
+			captions: {
+				type: 'remotion-captions',
+				default: undefined,
+				keyframable: false,
+			},
+		},
+		currentRuntimeValueDotNotation: {captions: []},
+		getDragOverrides: () => ({}),
+		propStatuses: {},
+		nodePath,
+	});
+
+	expect(fields).toEqual([]);
+});
+
 test('getFieldsToShow sorts fields by inspector group order', () => {
 	const fields = getFieldsToShow({
 		schema: {
@@ -199,9 +218,48 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 				default: 1,
 				hiddenFromList: false,
 			},
+			cropLeft: {
+				type: 'number',
+				default: 0,
+				hiddenFromList: false,
+			},
+			'style.backgroundColor': {
+				type: 'color',
+				default: 'transparent',
+			},
+			'style.borderWidth': {
+				type: 'number',
+				default: undefined,
+				hiddenFromList: false,
+			},
+			'style.borderStyle': {
+				type: 'enum',
+				default: 'none',
+				variants: {
+					none: {},
+					solid: {},
+				},
+			},
+			'style.borderColor': {
+				type: 'color',
+				default: undefined,
+			},
 			volume: {
 				type: 'number',
 				default: 1,
+				hiddenFromList: false,
+			},
+			layout: {
+				type: 'enum',
+				default: 'absolute-fill',
+				variants: {
+					'absolute-fill': {},
+					none: {},
+				},
+			},
+			premountFor: {
+				type: 'number',
+				default: 0,
 				hiddenFromList: false,
 			},
 			'style.letterSpacing': {
@@ -236,6 +294,13 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'style.fontFamily',
 		'style.letterSpacing',
 		'style.textAlign',
+		'style.backgroundColor',
+		'style.borderWidth',
+		'style.borderStyle',
+		'style.borderColor',
+		'cropLeft',
+		'layout',
+		'premountFor',
 	]);
 	expect(fields?.map((field) => field.group)).toEqual([
 		'source',
@@ -249,6 +314,26 @@ test('getFieldsToShow sorts fields by inspector group order', () => {
 		'text',
 		'text',
 		'text',
+		'background',
+		'border',
+		'border',
+		'border',
+		'crop',
+		'layout',
+		'layout',
+	]);
+});
+
+test('groups Sequence crop controls into the Crop inspector section', () => {
+	expect(
+		['cropLeft', 'cropRight', 'cropTop', 'cropBottom'].map(getSchemaFieldGroup),
+	).toEqual(['crop', 'crop', 'crop', 'crop']);
+});
+
+test('groups Sequence layout controls into the final Layout inspector section', () => {
+	expect(['layout', 'premountFor'].map(getSchemaFieldGroup)).toEqual([
+		'layout',
+		'layout',
 	]);
 });
 

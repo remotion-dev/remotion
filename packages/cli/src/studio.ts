@@ -142,10 +142,6 @@ export const studioCommand = async (
 		false,
 	);
 
-	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
-		commandLine: parsedCli,
-	}).value;
-
 	const binariesDirectory = binariesDirectoryOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -163,16 +159,12 @@ export const studioCommand = async (
 		commandLine: parsedCli,
 	}).value;
 
-	const askAIEnabled = askAIOption.getValue({
-		commandLine: parsedCli,
-	}).value;
-	const interactivityEnabled = interactivityOption.getValue({
-		commandLine: parsedCli,
-	}).value;
-
 	const gitSource = getGitSource({remotionRoot, disableGitSource, logLevel});
 
 	const useRspack = rspackOption.getValue({commandLine: parsedCli}).value;
+	const bundlerOverride = ConfigInternals.getBundlerOverrideFn();
+	const rspackOverride = ConfigInternals.getRspackOverrideFn();
+	const webpackOverride = ConfigInternals.getWebpackOverrideFn();
 
 	if (useRspack) {
 		Log.warn(
@@ -212,11 +204,11 @@ export const studioCommand = async (
 		getCurrentInputProps: () => inputProps,
 		getEnvVariables: () => envVariables,
 		desiredPort,
-		keyboardShortcutsEnabled,
-		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 		remotionRoot,
 		relativePublicDir,
-		webpackOverride: ConfigInternals.getWebpackOverrideFn(),
+		bundlerOverride,
+		rspackOverride,
+		webpackOverride,
 		poll: webpackPollOption.getValue({commandLine: parsedCli}).value,
 		getRenderDefaults: () => getRenderDefaults(logLevel),
 		getRenderQueue,
@@ -226,27 +218,27 @@ export const studioCommand = async (
 				addJob({
 					...options,
 					fixedConfig: {
+						bundlerOverride,
 						publicDir: relativePublicDir,
 						rendererPort,
+						rspackOverride,
 						rspack: useRspack,
+						webpackOverride,
 					},
 				}),
 			cancelJob,
 			removeJob,
 		},
 		gitSource,
-		bufferStateDelayInMilliseconds:
-			ConfigInternals.getBufferStateDelayInMilliseconds(),
 		binariesDirectory,
 		forceIPv4: ipv4Option.getValue({commandLine: parsedCli}).value,
 		getAudioLatencyHint,
 		getPreviewSampleRate,
 		enableCrossSiteIsolation,
-		askAIEnabled,
-		interactivityEnabled,
 		forceNew: forceNewStudioOption.getValue({commandLine: parsedCli}).value,
 		rspack: useRspack,
 		getStudioRuntimeConfig,
+		configFile,
 	});
 
 	if (result.type === 'already-running') {

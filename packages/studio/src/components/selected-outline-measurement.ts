@@ -8,7 +8,7 @@ import type {
 	SelectedOutlineTarget,
 	SequenceWithSelectedOutline,
 } from './selected-outline-types';
-import {transformOriginFieldKey} from './selected-outline-types';
+import {cropFieldKeys, transformOriginFieldKey} from './selected-outline-types';
 import {getUvHandlePosition} from './selected-outline-uv';
 import {parseKeyframeFieldFromNodePath} from './Timeline/parse-keyframe-field-from-node-path';
 import {
@@ -17,8 +17,8 @@ import {
 	type TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
 import {
-	parseTransformOrigin,
 	parsedTransformOriginToUv,
+	parseTransformOrigin,
 } from './Timeline/transform-origin-utils';
 
 export const pointToString = (point: OutlinePoint) => `${point.x},${point.y}`;
@@ -310,6 +310,31 @@ const getElementOutlinePoints = (
 	return quadToPoints(quad, containerRect);
 };
 
+export const cropOutlinePoints = (
+	points: SelectedOutline['points'],
+	crop: SelectedOutlineTarget['crop'],
+): SelectedOutline['points'] => {
+	if (
+		crop.left === 0 &&
+		crop.right === 0 &&
+		crop.top === 0 &&
+		crop.bottom === 0
+	) {
+		return points;
+	}
+
+	const {left, top} = crop;
+	const right = 1 - crop.right;
+	const bottom = 1 - crop.bottom;
+
+	return [
+		getUvHandlePosition(points, [left, top]),
+		getUvHandlePosition(points, [right, top]),
+		getUvHandlePosition(points, [right, bottom]),
+		getUvHandlePosition(points, [left, bottom]),
+	];
+};
+
 export const getSelectedSequenceKeys = (
 	selectedItems: readonly TimelineSelection[],
 ): Set<string> => {
@@ -431,6 +456,50 @@ type SelectedTransformOriginInfo = {
 	readonly displayFrame: number | null;
 };
 
+export type SelectedCropInfo = {
+	readonly sequenceKey: string;
+	readonly displayFrame: number | null;
+};
+
+const isCropFieldKey = (key: string): boolean =>
+	Object.values(cropFieldKeys).some((cropFieldKey) => cropFieldKey === key);
+
+export const getSelectedCropInfo = (
+	selectedItems: readonly TimelineSelection[],
+): SelectedCropInfo | null => {
+	if (selectedItems.length !== 1) {
+		return null;
+	}
+
+	const [selectedItem] = selectedItems;
+	if (
+		selectedItem.type === 'sequence-prop' &&
+		isCropFieldKey(selectedItem.key)
+	) {
+		return {
+			sequenceKey: getTimelineSequenceSelectionKey(selectedItem.nodePathInfo),
+			displayFrame: null,
+		};
+	}
+
+	if (selectedItem.type !== 'keyframe' && selectedItem.type !== 'easing') {
+		return null;
+	}
+
+	const field = getKeyframeOrEasingField(selectedItem);
+	if (field?.type !== 'sequence' || !isCropFieldKey(field.fieldKey)) {
+		return null;
+	}
+
+	return {
+		sequenceKey: getTimelineSequenceSelectionKey(selectedItem.nodePathInfo),
+		displayFrame:
+			selectedItem.type === 'keyframe'
+				? selectedItem.frame
+				: selectedItem.fromFrame,
+	};
+};
+
 export const getSelectedTransformOriginInfo = (
 	selectedItems: readonly TimelineSelection[],
 ): SelectedTransformOriginInfo | null => {
@@ -528,10 +597,12 @@ export const measureOutlines = (
 			continue;
 		}
 
-		const points = getElementOutlinePoints(element, containerRect);
-		if (points === null) {
+		const uncroppedPoints = getElementOutlinePoints(element, containerRect);
+		if (uncroppedPoints === null) {
 			continue;
 		}
+
+		const points = cropOutlinePoints(uncroppedPoints, target.crop);
 
 		outlines.push({
 			key: target.key,
@@ -547,6 +618,7 @@ export const measureOutlines = (
 								height: element.height.baseVal.value,
 							}
 						: null,
+			uncroppedPoints,
 			points,
 		});
 	}
@@ -572,6 +644,23 @@ export const outlinesAreEqual = (
 			a[i].dimensions?.height !== b[i].dimensions?.height
 		) {
 			return false;
+		}
+
+		const aUncropped = a[i].uncroppedPoints;
+		const bUncropped = b[i].uncroppedPoints;
+		if ((aUncropped === null) !== (bUncropped === null)) {
+			return false;
+		}
+
+		if (aUncropped !== null && bUncropped !== null) {
+			for (let j = 0; j < aUncropped.length; j++) {
+				if (
+					Math.abs(aUncropped[j].x - bUncropped[j].x) > 0.01 ||
+					Math.abs(aUncropped[j].y - bUncropped[j].y) > 0.01
+				) {
+					return false;
+				}
+			}
 		}
 
 		for (let j = 0; j < a[i].points.length; j++) {

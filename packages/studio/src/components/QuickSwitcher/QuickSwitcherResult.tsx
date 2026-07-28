@@ -1,12 +1,15 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
 	LIGHT_TEXT,
+	TRANSPARENT,
 	WHITE,
-	getBackgroundFromHoverState,
+	WHITE_ALPHA_06,
 } from '../../helpers/colors';
+import type {AssetFileType} from '../../helpers/get-preview-file-type';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {StillIcon} from '../../icons/still';
 import {FilmIcon} from '../../icons/video';
+import {AssetFileIcon} from '../AssetFileIcon';
 import {Spacing} from '../layout';
 import {
 	QUICK_SWITCHER_RESULT_LABEL_FONT_SIZE,
@@ -14,6 +17,10 @@ import {
 } from './shared';
 
 type QuickSwitcherResultDetail =
+	| {
+			type: 'asset';
+			fileType: AssetFileType;
+	  }
 	| {
 			type: 'composition';
 			compositionType: 'composition' | 'still';
@@ -40,7 +47,11 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
-	cursor: 'pointer',
+	cursor: 'default',
+	marginBottom: 1,
+	marginLeft: 4,
+	marginRight: 4,
+	borderRadius: 4,
 };
 
 const label: React.CSSProperties = {
@@ -54,8 +65,9 @@ const searchLabel: React.CSSProperties = {
 };
 
 const iconStyle: React.CSSProperties = {
-	width: 14,
-	height: 14,
+	width: 18,
+	height: 18,
+	flexShrink: 0,
 };
 
 const labelContainer: React.CSSProperties = {
@@ -117,10 +129,7 @@ export const QuickSwitcherResult: React.FC<{
 	const style = useMemo(() => {
 		return {
 			...container,
-			backgroundColor: getBackgroundFromHoverState({
-				hovered,
-				selected,
-			}),
+			backgroundColor: hovered || selected ? WHITE_ALPHA_06 : TRANSPARENT,
 		};
 	}, [hovered, selected]);
 
@@ -141,10 +150,22 @@ export const QuickSwitcherResult: React.FC<{
 		<div ref={ref} key={result.id} style={style} onClick={result.onSelected}>
 			{result.type === 'composition' ? (
 				result.compositionType === 'still' ? (
-					<StillIcon color={selected ? WHITE : LIGHT_TEXT} style={iconStyle} />
+					<StillIcon
+						color={selected || hovered ? WHITE : LIGHT_TEXT}
+						style={iconStyle}
+					/>
 				) : (
-					<FilmIcon color={selected ? WHITE : LIGHT_TEXT} style={iconStyle} />
+					<FilmIcon
+						color={selected || hovered ? WHITE : LIGHT_TEXT}
+						style={iconStyle}
+					/>
 				)
+			) : result.type === 'asset' ? (
+				<AssetFileIcon
+					fileType={result.fileType}
+					color={selected || hovered ? WHITE : LIGHT_TEXT}
+					style={iconStyle}
+				/>
 			) : null}
 			<Spacing x={1} />
 			<div style={labelContainer}>

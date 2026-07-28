@@ -1,10 +1,8 @@
 import React, {useMemo} from 'react';
+import {isMac} from '../../helpers/is-mac';
 import {areKeyboardShortcutsDisabled} from '../../helpers/use-keybinding';
 
-export const cmdOrCtrlCharacter =
-	typeof window !== 'undefined' && window.navigator.platform.startsWith('Mac')
-		? '⌘'
-		: 'Ctrl';
+export const cmdOrCtrlCharacter = isMac ? '⌘' : 'Ctrl';
 
 const container: React.CSSProperties = {
 	display: 'inline-block',

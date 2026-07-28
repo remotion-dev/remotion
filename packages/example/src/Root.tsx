@@ -17,10 +17,10 @@ import {NativeBufferState} from './BufferState/Simple';
 import {NativeBufferStateForVideo} from './BufferState/Video';
 import {CancelRender} from './CancelRender';
 import {
-	AnimatedCaptions,
 	CAPTIONS_DURATION_IN_FRAMES,
 	CAPTIONS_HEIGHT,
 } from './CaptionsTester/AnimatedCaptions';
+import {AnimatedCaptionsComposition} from './CaptionsTester/AnimatedCaptionsComposition';
 import {ClassSerialization} from './ClassSerialization';
 import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
@@ -38,6 +38,7 @@ import {
 	DiscriminatedUnionSchemaTest,
 	discriminatedUnionRootSchema,
 } from './DiscriminatedUnionSchemaTest';
+import {DragAndDropExample} from './DragAndDrop';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 import {EasingVisualizer} from './EasingVisualizer/EasingVisualizer';
 import {EffectCopySource, EffectCopyTarget} from './EffectCopyTestbed';
@@ -124,6 +125,7 @@ import {ScalePath} from './ScalePath';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
 import {Scripts} from './Scripts';
 import {WidthHeightSequences} from './Sequence/WidthHeightSequences';
+import {SequenceCropTest} from './SequenceCropTest';
 import CircleTest from './Shapes/CircleTest';
 import EllipseTest from './Shapes/EllipseTest';
 import RectTest from './Shapes/RectTest';
@@ -163,6 +165,10 @@ import {FitText, fitTextSchema} from './Title/FitText';
 import {AudioTransition} from './Transitions/AudioTransition';
 import {BasicTransition} from './Transitions/BasicTransition';
 import {CustomTransition} from './Transitions/CustomTransition';
+import {
+	PUSH_CUT_DEMO_DURATION_IN_FRAMES,
+	PushCutDemo,
+} from './Transitions/PushCutDemo';
 import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoParser} from './VideoParser';
@@ -220,6 +226,7 @@ import {JumpCuts, SAMPLE_SECTIONS, calculateMetadataJumpCuts} from './JumpCuts';
 import {LightLeakExample} from './LightLeak';
 import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
 import {LoopDisplayTestComp} from './LoopDisplayTest';
+import {MediaTimelineTestbed} from './MediaTimelineTestbed';
 import {NewAudioExample} from './NewAudio/NewAudio';
 import {NewVideoComp, PremountSequenceVideoComp} from './NewVideo';
 import {ObjectFitTestComp} from './ObjectFitTest';
@@ -285,6 +292,7 @@ import {
 	InteractiveSvgElements,
 } from './VisualModeTests/InteractiveComponents';
 import {Issue9170} from './VisualModeTests/Issue9170';
+import {SvgPaintSchema} from './VisualModeTests/SvgPaintSchema';
 import {VideoConfigExpressions} from './VisualModeTests/VideoConfigExpressions';
 import {VoiceVisualization} from './voice-visualization';
 import {WhisperWeb} from './WhisperWeb';
@@ -413,8 +421,24 @@ export const Index: React.FC = () => {
 	return (
 		<>
 			<Composition
+				id="switzerland-map"
+				lazyComponent={() => import('./SwitzerlandMap/SwitzerlandMap')}
+				durationInFrames={240}
+				fps={30}
+				width={1080}
+				height={1080}
+			/>
+			<Composition
+				id="zurich-to-stuttgart-map"
+				lazyComponent={() => import('./SwitzerlandMap/ZurichToStuttgartMap')}
+				durationInFrames={270}
+				fps={30}
+				width={1080}
+				height={1080}
+			/>
+			<Composition
 				id="captions-tester"
-				component={AnimatedCaptions}
+				component={AnimatedCaptionsComposition}
 				durationInFrames={CAPTIONS_DURATION_IN_FRAMES}
 				fps={30}
 				width={1080}
@@ -2196,6 +2220,14 @@ export const Index: React.FC = () => {
 					durationInFrames={300}
 					width={1920}
 				/>
+				<Composition
+					id="PushCutDemo"
+					component={PushCutDemo}
+					fps={30}
+					height={1080}
+					durationInFrames={PUSH_CUT_DEMO_DURATION_IN_FRAMES}
+					width={1920}
+				/>
 			</Folder>
 			<Folder name="Schema">
 				<Composition
@@ -2653,6 +2685,14 @@ export const Index: React.FC = () => {
 				durationInFrames={120}
 			/>
 			<Composition
+				id="sequence-crop-controls"
+				component={SequenceCropTest}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={120}
+			/>
+			<Composition
 				id="sfx"
 				component={SfxExample}
 				width={1080}
@@ -2720,6 +2760,14 @@ export const Index: React.FC = () => {
 					durationInFrames={366}
 				/>
 			</Folder>
+			<Composition
+				id="media-timeline-testbed"
+				component={MediaTimelineTestbed}
+				width={1920}
+				height={720}
+				fps={60}
+				durationInFrames={180}
+			/>
 			<Folder name="VisualModeTests">
 				<Composition
 					id="fast-updates"
@@ -2754,6 +2802,14 @@ export const Index: React.FC = () => {
 					durationInFrames={90}
 				/>
 				<Composition
+					id="issue-9582-svg-paint-schema"
+					component={SvgPaintSchema}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
 					id="video-config-expressions"
 					component={VideoConfigExpressions}
 					width={1200}
@@ -2771,6 +2827,14 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<ChangingTrimBeforeValue />
+			<Composition
+				id="drag-and-drop-payloads"
+				component={DragAndDropExample}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={30}
+			/>
 			<Composition
 				id="browser-test"
 				component={BrowserTest}

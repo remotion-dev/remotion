@@ -12,6 +12,29 @@
 import fs from 'fs';
 import path from 'path';
 
+const getMinEslintVersion = () => {
+	const packageJson = JSON.parse(
+		fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'),
+	) as {version: string};
+	const isV5Package = Number(packageJson.version.split('.')[0]) >= 5;
+
+	try {
+		const {NoReactInternals} = require('remotion/no-react') as {
+			NoReactInternals: {
+				ENABLE_V5_BREAKING_CHANGES: boolean;
+				MIN_ESLINT_VERSION: string;
+			};
+		};
+		if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
+			return NoReactInternals.MIN_ESLINT_VERSION;
+		}
+	} catch {
+		// @remotion/eslint-config can be installed without remotion.
+	}
+
+	return isV5Package ? '8.57.0' : null;
+};
+
 export const allowESLintShareableConfig = () => {
 	const isModuleResolutionError: (ex: unknown) => boolean = (ex) =>
 		typeof ex === 'object' &&
@@ -228,12 +251,29 @@ export const allowESLintShareableConfig = () => {
 		.toString();
 	const eslintPackageObject = JSON.parse(eslintPackageJson);
 	const eslintPackageVersion = eslintPackageObject.version;
-	const versionMatch = /^([0-9]+)\./.exec(eslintPackageVersion); // parse the SemVer MAJOR part
+	const versionMatch = /^([0-9]+)\.([0-9]+)\./.exec(eslintPackageVersion);
 	if (!versionMatch) {
 		throw new Error('Unable to parse ESLint version: ' + eslintPackageVersion);
 	}
 
 	const eslintMajorVersion = Number(versionMatch[1]);
+	const eslintMinorVersion = Number(versionMatch[2]);
+	const minEslintVersion = getMinEslintVersion();
+	if (minEslintVersion !== null) {
+		const minVersionMatch = /^([0-9]+)\.([0-9]+)\./.exec(minEslintVersion)!;
+		const minMajorVersion = Number(minVersionMatch[1]);
+		const minMinorVersion = Number(minVersionMatch[2]);
+		if (
+			eslintMajorVersion < minMajorVersion ||
+			(eslintMajorVersion === minMajorVersion &&
+				eslintMinorVersion < minMinorVersion)
+		) {
+			throw new Error(
+				`Remotion 5 requires ESLint ${minEslintVersion} or later. You currently have ESLint ${eslintPackageVersion}.`,
+			);
+		}
+	}
+
 	if (!(eslintMajorVersion >= 6 && eslintMajorVersion <= 9)) {
 		throw new Error(
 			'The patch-eslint.js script has only been tested with ESLint version 6.x, 7.x, and 8.x, and 9.x.' +

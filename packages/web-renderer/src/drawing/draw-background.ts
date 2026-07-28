@@ -92,6 +92,8 @@ export const drawBackground = async ({
 
 	const backgroundFill = getBackgroundFill({
 		backgroundImage,
+		backgroundPosition: computedStyle.backgroundPosition,
+		backgroundSize: computedStyle.backgroundSize,
 		backgroundColor,
 		contextToDraw,
 		boundingRect,

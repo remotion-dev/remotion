@@ -1,6 +1,6 @@
 ---
 name: remotion-captions
-description: Dealing with captions in Remotion
+description: Transcribing, displaying and animating captions
 metadata:
   tags: subtitles, captions, remotion, json
 ---

@@ -129,6 +129,8 @@ const extrudeDivSchema = {
 	scaleY: scaleTransformField('Scale Y'),
 	scaleZ: scaleTransformField('Scale Z'),
 	...Interactive.transformSchema,
+	...Interactive.backgroundSchema,
+	...Interactive.borderSchema,
 } as const satisfies InteractivitySchema;
 
 const setRef = <ElementType,>(

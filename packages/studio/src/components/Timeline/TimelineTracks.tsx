@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {MaxTimelineTracksReached} from './MaxTimelineTracks';
 import {TimelineTimePadding} from './TimelineTimeIndicators';
@@ -15,7 +15,7 @@ const timelineContent: React.CSSProperties = {
 };
 
 const TimelineTracksInner: React.FC<{
-	readonly timeline: TrackWithHash[];
+	readonly timeline: TimelineTrackData[];
 	readonly hasBeenCut: boolean;
 }> = ({timeline, hasBeenCut}) => {
 	const timelineStyle: React.CSSProperties = useMemo(() => {

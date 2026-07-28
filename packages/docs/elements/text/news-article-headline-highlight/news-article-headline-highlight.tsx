@@ -55,7 +55,8 @@ export const NewsArticleHeadlineHighlight: React.FC = () => {
 				perspective: 1800,
 			}}
 		>
-			<div
+			<Interactive.Div
+				name="Container"
 				style={{
 					filter: `blur(${interpolate(frame, [0, 30, 125, 149], [16, 0, 0, 8], {
 						easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -282,7 +283,7 @@ export const NewsArticleHeadlineHighlight: React.FC = () => {
 						</article>
 					</div>
 				</div>
-			</div>
+			</Interactive.Div>
 		</AbsoluteFill>
 	);
 };

@@ -1,3 +1,4 @@
+import {createImageDecoder} from './create-image-decoder';
 import type {RemotionAnimatedImageLoopBehavior} from './props';
 
 export type AnimatedImageCacheItem = {
@@ -46,29 +47,12 @@ export const decodeImage = async ({
 	currentTime: number;
 	initialLoopBehavior: RemotionAnimatedImageLoopBehavior;
 }): Promise<RemotionImageDecoder> => {
-	if (typeof ImageDecoder === 'undefined') {
-		throw new Error(
-			'Your browser does not support the WebCodecs ImageDecoder API.',
-		);
-	}
-
-	const res = await fetch(resolvedSrc, {...requestInit, signal});
-	const {body} = res;
-
-	if (!body) {
-		throw new Error('Got no body');
-	}
-
-	const decoder = new ImageDecoder({
-		data: body,
-		type: res.headers.get('Content-Type') || 'image/gif',
+	const {decoder, selectedTrack} = await createImageDecoder({
+		resolvedSrc,
+		signal,
+		requestInit,
+		contentType: null,
 	});
-	const {tracks} = decoder;
-	await Promise.all([decoder.completed, tracks.ready]);
-	const {selectedTrack} = tracks;
-	if (!selectedTrack) {
-		throw new Error('No selected track');
-	}
 
 	const cache: AnimatedImageCacheItem[] = [];
 

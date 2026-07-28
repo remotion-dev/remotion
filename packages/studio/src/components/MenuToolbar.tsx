@@ -3,15 +3,14 @@ import React, {useCallback, useMemo, useState} from 'react';
 import {BACKGROUND, BORDER_BLACK, WHITE} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {useMenuStructure} from '../helpers/use-menu-structure';
-import {Row, Spacing} from './layout';
+import {Row} from './layout';
+import {MENU_TOOLBAR_HEIGHT} from './menu-toolbar-height';
 import type {MenuId} from './Menu/MenuItem';
 import {MenuItem} from './Menu/MenuItem';
 import {MenuBuildIndicator} from './MenuBuildIndicator';
-import {SidebarCollapserControls} from './SidebarCollapserControls';
+import {SidebarCollapserControl} from './SidebarCollapserControls';
 import {UndoRedoButtons} from './UndoRedoButtons';
 import {UpdateCheck} from './UpdateCheck';
-
-export const MENU_TOOLBAR_HEIGHT = 30;
 
 const row: React.CSSProperties = {
 	alignItems: 'center',
@@ -23,7 +22,7 @@ const row: React.CSSProperties = {
 	fontSize: 13,
 	height: MENU_TOOLBAR_HEIGHT,
 	paddingLeft: 6,
-	paddingRight: 10,
+	paddingRight: 6,
 	backgroundColor: BACKGROUND,
 };
 
@@ -131,6 +130,7 @@ export const MenuToolbar: React.FC<{
 			onPointerDown={onPointerDown}
 		>
 			<div style={fixedWidthLeft}>
+				<SidebarCollapserControl side="left" />
 				{structure.map((s) => {
 					return (
 						<MenuItem
@@ -155,9 +155,8 @@ export const MenuToolbar: React.FC<{
 			<div style={flex} />
 			<div style={fixedWidthRight}>
 				{readOnlyStudio ? null : <UndoRedoButtons />}
-				<SidebarCollapserControls />
+				<SidebarCollapserControl side="right" />
 			</div>
-			<Spacing x={1} />
 		</Row>
 	);
 };

@@ -1,7 +1,7 @@
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
 import {callApi} from '../call-api';
 import {importAssets, pickFilesToImport} from '../import-assets';
@@ -17,7 +17,7 @@ export const useCompositionActions = () => {
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
-	const previewInteractive = previewConnected && studioInteractivityEnabled;
+	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 
 	const currentCompositionId =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
@@ -43,6 +43,7 @@ export const useCompositionActions = () => {
 
 	const canShowInsertSolid =
 		previewInteractive &&
+		!window.remotion_isReadOnlyStudio &&
 		compositionComponentInfo?.canAddSequence === true &&
 		currentCompositionId !== null &&
 		compositionFile !== null &&
@@ -72,6 +73,7 @@ export const useCompositionActions = () => {
 			const result = await callApi('/api/insert-jsx-element', {
 				compositionFile,
 				compositionId: currentCompositionId,
+				from: null,
 				element: {
 					type: 'solid',
 					width: videoConfig.width,
@@ -97,7 +99,8 @@ export const useCompositionActions = () => {
 		if (
 			!canInsertAsset ||
 			currentCompositionId === null ||
-			compositionFile === null
+			compositionFile === null ||
+			videoConfig === null
 		) {
 			return;
 		}
@@ -111,16 +114,18 @@ export const useCompositionActions = () => {
 		try {
 			await importAssets({
 				files,
+				fps: videoConfig.fps,
 				compositionFile,
 				compositionId: currentCompositionId,
 				destinationDimensions: null,
 				dropPosition: null,
+				from: null,
 				svgImportMode: 'image',
 			});
 		} finally {
 			setIsAddingAsset(false);
 		}
-	}, [canInsertAsset, compositionFile, currentCompositionId]);
+	}, [canInsertAsset, compositionFile, currentCompositionId, videoConfig]);
 
 	return {
 		canInsertAsset,

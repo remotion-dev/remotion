@@ -1,6 +1,17 @@
 export {checkerboard, type CheckerboardParams} from './checkerboard.js';
 export {pattern, type PatternOrigin, type PatternParams} from './pattern.js';
 export {rings, type RingsCenter, type RingsParams} from './rings.js';
+export {
+	starburst,
+	starburstEffectSchema,
+	type StarburstEffectParams,
+	type StarburstOrigin,
+} from './starburst.js';
+export {
+	lightLeak,
+	lightLeakEffectSchema,
+	type LightLeakEffectParams,
+} from './light-leak.js';
 export {gridlines, type GridlinesParams} from './gridlines.js';
 export {zigzag, type ZigzagDirection, type ZigzagParams} from './zigzag.js';
 export {

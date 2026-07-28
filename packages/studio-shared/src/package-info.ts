@@ -1,4 +1,7 @@
-export const packages = [
+import {VERSION} from 'remotion';
+import {shouldReleasePackage} from './release-package-policy';
+
+const allPackages = [
 	'svg-3d-engine',
 	'animation-utils',
 	'animated-emoji',
@@ -93,6 +96,7 @@ export const packages = [
 	'remotion-media',
 	'web-renderer',
 	'design',
+	'drag-and-drop',
 	'light-leaks',
 	'rough-notation',
 	'starburst',
@@ -101,7 +105,14 @@ export const packages = [
 	'effects',
 ] as const;
 
-export type Pkgs = (typeof packages)[number];
+export type Pkgs = (typeof allPackages)[number];
+
+export const packages = allPackages.filter((pkg) =>
+	shouldReleasePackage({
+		packageName: pkg === 'core' ? 'remotion' : `@remotion/${pkg}`,
+		releaseVersion: VERSION,
+	}),
+);
 
 export type ExtraPackage = {
 	name: string;
@@ -131,7 +142,7 @@ export const extraPackages: ExtraPackage[] = [
 	},
 	{
 		name: 'zod',
-		version: '4.3.6',
+		version: '4.4.3',
 		description: 'TypeScript-first schema validation',
 		docsUrl: 'https://zod.dev',
 	},
@@ -236,6 +247,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'remotion-media': null,
 	'web-renderer': 'Render videos in the browser',
 	design: 'Design system',
+	'drag-and-drop': 'Construct and parse drag-and-drop payloads for Remotion',
 	'light-leaks': 'Light leak effects for Remotion',
 	'rough-notation': 'Rough annotation primitives for Remotion',
 	'player-a11y': 'Internal accessibility wrapper around @remotion/player',
@@ -325,10 +337,16 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	'test-utils': false,
 	three: true,
 	transitions: true,
-	'media-parser': true,
+	'media-parser': shouldReleasePackage({
+		packageName: '@remotion/media-parser',
+		releaseVersion: VERSION,
+	}),
 	'zod-types': true,
 	'zod-types-v3': true,
-	webcodecs: true,
+	webcodecs: shouldReleasePackage({
+		packageName: '@remotion/webcodecs',
+		releaseVersion: VERSION,
+	}),
 	convert: false,
 	captions: true,
 	'openai-whisper': true,
@@ -339,9 +357,16 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	'remotion-media': false,
 	'web-renderer': false,
 	design: false,
-	'light-leaks': true,
+	'drag-and-drop': true,
+	'light-leaks': shouldReleasePackage({
+		packageName: '@remotion/light-leaks',
+		releaseVersion: VERSION,
+	}),
 	'rough-notation': true,
-	starburst: true,
+	starburst: shouldReleasePackage({
+		packageName: '@remotion/starburst',
+		releaseVersion: VERSION,
+	}),
 	vercel: true,
 	sfx: true,
 	effects: true,
@@ -445,6 +470,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	media: 'https://remotion.dev/docs/media',
 	'web-renderer': 'https://www.remotion.dev/docs/web-renderer/',
 	design: 'https://www.remotion.dev/design',
+	'drag-and-drop': 'https://www.remotion.dev/docs/drag-and-drop',
 	'light-leaks': 'https://www.remotion.dev/docs/light-leaks',
 	'rough-notation': 'https://www.remotion.dev/docs/rough-notation',
 	starburst: 'https://www.remotion.dev/docs/starburst',

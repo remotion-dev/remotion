@@ -27,18 +27,39 @@ const inlineWrapper: React.CSSProperties = {
 	fontSize: 12,
 };
 
+const assetInlineWrapper: React.CSSProperties = {
+	...inlineWrapper,
+	display: 'flex',
+	flex: 1,
+	minWidth: 0,
+};
+
+type CaptionsFieldSchema = Extract<
+	VisibleFieldSchema,
+	{type: 'remotion-captions'}
+>;
+
+type PrimitiveFieldSchema = Exclude<
+	VisibleFieldSchema,
+	ArrayFieldSchema | CaptionsFieldSchema
+>;
+
 export type TimelinePrimitiveFieldInfo = Omit<
 	SchemaFieldInfo,
 	'fieldSchema' | 'typeName'
 > & {
-	readonly fieldSchema: Exclude<VisibleFieldSchema, ArrayFieldSchema>;
-	readonly typeName: Exclude<VisibleFieldSchema['type'], 'array'>;
+	readonly fieldSchema: PrimitiveFieldSchema;
+	readonly typeName: PrimitiveFieldSchema['type'];
 };
 
 export const isTimelinePrimitiveFieldInfo = (
 	field: SchemaFieldInfo,
 ): field is TimelinePrimitiveFieldInfo => {
-	return field.typeName !== 'array' && field.fieldSchema.type !== 'array';
+	return (
+		field.typeName !== 'array' &&
+		field.fieldSchema.type !== 'array' &&
+		field.fieldSchema.type !== 'remotion-captions'
+	);
 };
 
 export const TimelinePrimitiveFieldValue: React.FC<{
@@ -230,7 +251,7 @@ export const TimelinePrimitiveFieldValue: React.FC<{
 
 	if (field.typeName === 'asset') {
 		return (
-			<span style={inlineWrapper}>
+			<span style={assetInlineWrapper}>
 				<TimelineAssetField
 					effectiveValue={effectiveValue}
 					field={field}

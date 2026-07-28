@@ -80,6 +80,11 @@ export const config: VercelConfig = {
 			'https://github.com/remotion-dev/remotion/issues/new/choose',
 			{permanent: false},
 		),
+		routes.redirect(
+			'/vision',
+			'https://github.com/remotion-dev/remotion/issues/9081',
+			{permanent: false},
+		),
 		routes.redirect('/skia', '/docs/skia', {permanent: false}),
 		routes.redirect('/gif', '/docs/gif', {permanent: false}),
 		routes.redirect('/lottie', '/docs/lottie', {permanent: false}),
@@ -104,6 +109,7 @@ export const config: VercelConfig = {
 			'/docs/renderer/get-compositions',
 			{permanent: true},
 		),
+		routes.redirect('/docs/webpack', '/docs/bundlers', {permanent: true}),
 		routes.redirect(
 			'/docs/stitch-frames-to-video',
 			'/docs/renderer/stitch-frames-to-video',
@@ -124,6 +130,11 @@ export const config: VercelConfig = {
 		),
 		routes.redirect('/support', '/docs/support', {permanent: true}),
 		routes.redirect('/webcodecs', '/docs/webcodecs', {permanent: true}),
+		routes.redirect(
+			'/docs/miscellaneous/parse-media-vs-get-video-metadata',
+			'/docs/mediabunny/metadata',
+			{permanent: true},
+		),
 		routes.redirect('/docs/miscellaneous/snippets/hls', '/docs/hls', {
 			permanent: true,
 		}),

@@ -1,7 +1,11 @@
 import crypto from 'node:crypto';
 import {existsSync} from 'node:fs';
 import path from 'node:path';
-import type {WebpackOverrideFn} from '@remotion/bundler';
+import type {
+	BundlerOverrideFn,
+	RspackOverrideFn,
+	WebpackOverrideFn,
+} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
@@ -37,10 +41,10 @@ export const startStudio = async ({
 	getCurrentInputProps,
 	getEnvVariables,
 	desiredPort,
-	maxTimelineTracks,
 	remotionRoot,
-	keyboardShortcutsEnabled,
 	relativePublicDir,
+	bundlerOverride,
+	rspackOverride,
 	webpackOverride,
 	poll,
 	getRenderDefaults,
@@ -49,17 +53,15 @@ export const startStudio = async ({
 	queueMethods,
 	previewEntry,
 	gitSource,
-	bufferStateDelayInMilliseconds,
 	binariesDirectory,
 	forceIPv4,
 	getAudioLatencyHint,
 	getPreviewSampleRate,
 	enableCrossSiteIsolation,
-	askAIEnabled,
-	interactivityEnabled,
 	forceNew,
 	rspack,
 	getStudioRuntimeConfig,
+	configFile,
 }: {
 	browserArgs: string;
 	browserFlag: string;
@@ -69,11 +71,10 @@ export const startStudio = async ({
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
 	desiredPort: number | null;
-	maxTimelineTracks: number | null;
-	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
-	keyboardShortcutsEnabled: boolean;
 	relativePublicDir: string | null;
+	bundlerOverride: BundlerOverrideFn;
+	rspackOverride: RspackOverrideFn;
 	webpackOverride: WebpackOverrideFn;
 	poll: number | null;
 	getRenderDefaults: () => RenderDefaults;
@@ -87,11 +88,10 @@ export const startStudio = async ({
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
 	forceIPv4: boolean;
-	askAIEnabled: boolean;
-	interactivityEnabled: boolean;
 	forceNew: boolean;
 	rspack: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	configFile: string | null;
 }): Promise<StartStudioResult> => {
 	try {
 		if (typeof Bun === 'undefined') {
@@ -146,10 +146,10 @@ export const startStudio = async ({
 		getCurrentInputProps,
 		getEnvVariables,
 		port: desiredPort,
-		maxTimelineTracks,
 		remotionRoot,
-		keyboardShortcutsEnabled,
 		publicDir,
+		bundlerOverride,
+		rspackOverride,
 		webpackOverride,
 		poll,
 		staticHash,
@@ -162,17 +162,15 @@ export const startStudio = async ({
 		getNumberOfAudioTags,
 		queueMethods,
 		gitSource,
-		bufferStateDelayInMilliseconds,
 		binariesDirectory,
 		forceIPv4,
 		getAudioLatencyHint,
 		getPreviewSampleRate,
 		enableCrossSiteIsolation,
-		askAIEnabled,
-		interactivityEnabled,
 		forceNew,
 		rspack,
 		getStudioRuntimeConfig,
+		configFile,
 	});
 
 	if (result.type === 'already-running') {

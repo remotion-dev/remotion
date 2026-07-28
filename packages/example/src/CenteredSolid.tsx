@@ -2,8 +2,8 @@ import {fisheye} from '@remotion/effects/fisheye';
 import {glow} from '@remotion/effects/glow';
 import {halftone} from '@remotion/effects/halftone';
 import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
+import {starburst} from '@remotion/effects/starburst';
 import {vignette} from '@remotion/effects/vignette';
-import {starburst} from '@remotion/starburst';
 import React from 'react';
 import {AbsoluteFill, Solid, interpolate, useCurrentFrame} from 'remotion';
 

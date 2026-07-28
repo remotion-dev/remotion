@@ -10,6 +10,7 @@ import {EditorSnappingContext} from '../state/editor-snapping';
 import {ModalsContext} from '../state/modals';
 import {askAiModalRef} from './AskAiModal';
 import {useCompositionNavigation} from './CompositionSelector';
+import {explorerSidebarTabs} from './ExplorerPanelRef';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
 	getTimelineSequenceSelectionKey,
@@ -146,8 +147,12 @@ export const GlobalKeybindings: React.FC = () => {
 			callback: () => {
 				setSelectedModal({
 					type: 'quick-switcher',
-					mode: 'compositions',
+					mode:
+						explorerSidebarTabs.current?.getSelectedPanel() === 'assets'
+							? 'assets'
+							: 'compositions',
 					invocationTimestamp: Date.now(),
+					assetSelection: null,
 				});
 			},
 			triggerIfInputFieldFocused: true,
@@ -199,6 +204,7 @@ export const GlobalKeybindings: React.FC = () => {
 					type: 'quick-switcher',
 					mode: 'docs',
 					invocationTimestamp: Date.now(),
+					assetSelection: null,
 				});
 			},
 			commandCtrlKey: false,

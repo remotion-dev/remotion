@@ -59,6 +59,7 @@ test('rejects cross-origin API requests before calling the handler', async () =>
 	await expect(
 		handleRequest({
 			binariesDirectory: null,
+			configFile: null,
 			entryPoint: '',
 			handler: () => {
 				didCallHandler = true;
@@ -90,6 +91,7 @@ test('allows same-origin API requests from non-local peers', async () => {
 
 	await handleRequest({
 		binariesDirectory: null,
+		configFile: null,
 		entryPoint: '',
 		handler: ({input}) => {
 			return Promise.resolve({input});
@@ -129,6 +131,7 @@ test('rejects API requests without an Origin header before calling the handler',
 	await expect(
 		handleRequest({
 			binariesDirectory: null,
+			configFile: null,
 			entryPoint: '',
 			handler: () => {
 				didCallHandler = true;
@@ -160,6 +163,7 @@ test('allows GET API requests without an Origin header', async () => {
 
 	await handleRequest({
 		binariesDirectory: null,
+		configFile: null,
 		entryPoint: '',
 		handler: ({input}) => {
 			return Promise.resolve({input});
@@ -197,6 +201,7 @@ test('allows HEAD API requests without an Origin header', async () => {
 
 	await handleRequest({
 		binariesDirectory: null,
+		configFile: null,
 		entryPoint: '',
 		handler: ({input}) => {
 			return Promise.resolve({input});
@@ -236,6 +241,7 @@ test('rejects requests with a mismatched Origin scheme before calling the handle
 	await expect(
 		handleRequest({
 			binariesDirectory: null,
+			configFile: null,
 			entryPoint: '',
 			handler: () => {
 				didCallHandler = true;
@@ -267,6 +273,7 @@ test('allows same-origin API requests', async () => {
 
 	await handleRequest({
 		binariesDirectory: null,
+		configFile: null,
 		entryPoint: '',
 		handler: ({input}) => {
 			return Promise.resolve({input});

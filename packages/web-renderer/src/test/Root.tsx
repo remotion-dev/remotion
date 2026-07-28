@@ -40,6 +40,7 @@ import {issue7199ScaleAndDropShadow} from './fixtures/issue-7199-scale-and-drop-
 import {issue7243SvgJapaneseText} from './fixtures/issue-7243-svg-japanese-text';
 import {issue7489Minimal} from './fixtures/issue-7489-minimal';
 import {issue8650LottieControlChars} from './fixtures/issue-8650-lottie-control-chars';
+import {issue9736BackgroundPosition} from './fixtures/issue-9736-background-position';
 import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
@@ -53,6 +54,7 @@ import {opacityNested} from './fixtures/opacity-nested';
 import {opacityReset} from './fixtures/opacity-reset';
 import {opacitySimple} from './fixtures/opacity-simple';
 import {opacityZero} from './fixtures/opacity-zero';
+import {opaqueLayerOverFadingLayer} from './fixtures/opaque-layer-over-fading-layer';
 import {outline} from './fixtures/outline';
 import {overflowHidden} from './fixtures/overflow-hidden';
 import {overflowHidden3dTransform} from './fixtures/overflow-hidden-3d-transform';
@@ -91,6 +93,8 @@ import {threeDTransformOutOfBounds} from './fixtures/three-d-transform-out-of-bo
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
 import {orthographic} from './fixtures/transforms/orthographic';
 import {transformWithAllShorthands} from './fixtures/transforms/transform-with-all-shorthands';
+import {transformWithAxisRotate} from './fixtures/transforms/transform-with-axis-rotate';
+import {transformWithMultiComponentScale} from './fixtures/transforms/transform-with-multi-component-scale';
 import {transformWithRotate} from './fixtures/transforms/transform-with-rotate';
 import {transformWithScale} from './fixtures/transforms/transform-with-scale';
 import {transformWithTranslate} from './fixtures/transforms/transform-with-translate';
@@ -137,6 +141,7 @@ export const Root: React.FC = () => {
 				<Composition {...opacityZero} />
 				<Composition {...opacityReset} />
 				<Composition {...opacityInherited} />
+				<Composition {...opaqueLayerOverFadingLayer} />
 			</Folder>
 			<Composition {...threeDTransformOpacity} />
 			<Composition {...backgroundColor} />
@@ -145,6 +150,7 @@ export const Root: React.FC = () => {
 				<Composition {...backfaceVisibilityMask} />
 				<Composition {...linearGradient} />
 				<Composition {...gradientTransparentKeyword} />
+				<Composition {...issue9736BackgroundPosition} />
 			</Folder>
 			<Composition {...outline} />
 			<Composition {...inlineScaleAfterOutline} />
@@ -193,7 +199,9 @@ export const Root: React.FC = () => {
 				<Composition {...withMargin} />
 				<Composition {...withNegativeMargin} />
 				<Composition {...transformWithScale} />
+				<Composition {...transformWithMultiComponentScale} />
 				<Composition {...transformWithRotate} />
+				<Composition {...transformWithAxisRotate} />
 				<Composition {...transformWithTranslate} />
 				<Composition {...transformWithAllShorthands} />
 				<Composition {...inside3dTransform} />

@@ -20,3 +20,23 @@ export const applyRulerInsetsToCanvasSize = ({
 		height: size.height - RULER_WIDTH,
 	};
 };
+
+export const getRulerCanvasSize = ({
+	orientation,
+	size,
+}: {
+	readonly orientation: 'horizontal' | 'vertical';
+	readonly size: Size;
+}) => {
+	if (orientation === 'vertical') {
+		return {
+			height: size.height,
+			width: RULER_WIDTH,
+		};
+	}
+
+	return {
+		height: RULER_WIDTH,
+		width: size.width,
+	};
+};

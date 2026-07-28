@@ -1,13 +1,16 @@
 import {getStudioEntryPoints} from '@remotion/studio-shared/studio-entry-points';
-import type {Configuration} from 'webpack';
 import webpack, {ProgressPlugin} from 'webpack';
 import {CaseSensitivePathsPlugin} from './case-sensitive-paths';
-import {getDefinePluginDefinitions} from './define-plugin-definitions';
 import type {LoaderOptions} from './esbuild-loader/interfaces';
 import {ReactFreshWebpackPlugin} from './fast-refresh';
 import {AllowDependencyExpressionPlugin} from './hide-expression-dependency';
 import {IgnorePackFileCacheWarningsPlugin} from './ignore-packfilecache-warnings';
 import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
+import type {
+	BundlerOverrideFn,
+	WebpackConfiguration,
+	WebpackOverrideFn,
+} from './override-types';
 import {
 	computeHashAndFinalConfig,
 	getBaseConfig,
@@ -16,11 +19,7 @@ import {
 	getSharedModuleRules,
 } from './shared-bundler-config';
 import esbuild = require('esbuild');
-export type WebpackConfiguration = Configuration;
-
-export type WebpackOverrideFn = (
-	currentConfiguration: WebpackConfiguration,
-) => WebpackConfiguration | Promise<WebpackConfiguration>;
+export type {WebpackConfiguration, WebpackOverrideFn} from './override-types';
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
 
@@ -33,32 +32,24 @@ export const webpackConfig = async ({
 	userDefinedComponent,
 	outDir,
 	environment,
+	bundlerOverride = (f) => f,
 	webpackOverride = (f) => f,
 	onProgress,
 	enableCaching = true,
-	maxTimelineTracks,
 	remotionRoot,
-	keyboardShortcutsEnabled,
-	bufferStateDelayInMilliseconds,
 	poll,
-	askAIEnabled,
-	interactivityEnabled,
 	extraPlugins,
 }: {
 	entry: string;
 	userDefinedComponent: string;
 	outDir: string | null;
 	environment: 'development' | 'production';
+	bundlerOverride: BundlerOverrideFn;
 	webpackOverride: WebpackOverrideFn;
 	onProgress?: (f: number) => void;
 	enableCaching?: boolean;
-	maxTimelineTracks: number | null;
-	keyboardShortcutsEnabled: boolean;
-	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
 	poll: number | null;
-	askAIEnabled: boolean;
-	interactivityEnabled: boolean;
 	extraPlugins: webpack.WebpackPluginInstance[];
 }): Promise<[string, WebpackConfiguration]> => {
 	const esbuildLoaderOptions: LoaderOptions = {
@@ -70,17 +61,7 @@ export const webpackConfig = async ({
 
 	let lastProgress = 0;
 
-	const define = new webpack.DefinePlugin(
-		getDefinePluginDefinitions({
-			maxTimelineTracks,
-			askAIEnabled,
-			interactivityEnabled,
-			keyboardShortcutsEnabled,
-			bufferStateDelayInMilliseconds,
-		}),
-	);
-
-	const conf: WebpackConfiguration = await webpackOverride({
+	const baseConfig: WebpackConfiguration = {
 		...getBaseConfig(environment, poll),
 		entry: getStudioEntryPoints({
 			fastRefreshRuntime:
@@ -103,7 +84,6 @@ export const webpackConfig = async ({
 						new ReactFreshWebpackPlugin(),
 						new CaseSensitivePathsPlugin(),
 						new webpack.HotModuleReplacementPlugin(),
-						define,
 						new AllowOptionalDependenciesPlugin(),
 						new AllowDependencyExpressionPlugin(),
 						new IgnorePackFileCacheWarningsPlugin(),
@@ -118,7 +98,6 @@ export const webpackConfig = async ({
 								}
 							}
 						}),
-						define,
 						new AllowOptionalDependenciesPlugin(),
 						new AllowDependencyExpressionPlugin(),
 						new IgnorePackFileCacheWarningsPlugin(),
@@ -160,7 +139,9 @@ export const webpackConfig = async ({
 				},
 			],
 		},
-	});
+	};
+	const sharedConfig = await bundlerOverride(baseConfig, {bundler: 'webpack'});
+	const conf = await webpackOverride(sharedConfig as WebpackConfiguration);
 
 	return computeHashAndFinalConfig(conf, {
 		enableCaching,
