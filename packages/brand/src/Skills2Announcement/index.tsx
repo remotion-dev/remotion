@@ -83,12 +83,9 @@ const AnimatedRemotionCube: React.FC = () => {
 export const Skills2Announcement: React.FC<
 	z.infer<typeof skills2AnnouncementSchema>
 > = ({title}) => {
-	const frame = useCurrentFrame();
-
 	return (
 		<AbsoluteFill
 			style={{
-				backgroundColor: '#ffffff',
 				alignItems: 'center',
 				justifyContent: 'center',
 			}}
@@ -103,11 +100,6 @@ export const Skills2Announcement: React.FC<
 					padding: '18px 54px',
 					borderRadius: 24,
 					backgroundColor: '#edf7ff',
-					opacity: interpolate(frame, [0, 10], [0, 1], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-						easing: Easing.bezier(0.16, 1, 0.3, 1),
-					}),
 				}}
 			>
 				<AnimatedRemotionCube />
