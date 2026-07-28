@@ -244,7 +244,7 @@ import {enableMdx} from './src/enable-mdx';
 Config.overrideWebpackConfig(enableMdx);
 ```
 
-4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle).
 
 5. Create a file which contains `declare module '*.mdx';` in your project to fix a TypeScript error showing up.
 
@@ -321,7 +321,7 @@ import {enablePostCSS} from './src/enable-postcss';
 Config.overrideWebpackConfig(enablePostCSS);
 ```
 
-4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle).
 
 5. Restart the Remotion Studio.
 
@@ -391,7 +391,7 @@ import {enableSvgr} from './src/enable-svgr';
 Config.overrideWebpackConfig(enableSvgr);
 ```
 
-4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle).
 
 5. Restart the Remotion Studio.
 
@@ -446,7 +446,7 @@ declare module '*.glsl' {
 }
 ```
 
-4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle).
 
 5. Reset the webpack cache by deleting the `node_modules/.cache` folder.
 6. Restart the Remotion Studio.
@@ -493,7 +493,7 @@ rm -rf node_modules/.cache
 
 After restarting, you can import `.wasm` files using an import statement.
 
-Add the Webpack override to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+Add the Webpack override to your [Node.JS API calls as well if necessary](#when-using-bundle).
 
 ### Change the `@jsxImportSource`
 
