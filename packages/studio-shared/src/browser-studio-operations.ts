@@ -6,6 +6,10 @@ import type {
 } from './api-requests';
 
 export type BrowserStudioOperations = {
+	downloadProject?: () => Promise<{
+		data: Uint8Array;
+		fileName: string;
+	}>;
 	getCompositionFile: (compositionId: string) => string | null;
 	getCompositionComponentInfo: (
 		request: CompositionComponentInfoRequest,

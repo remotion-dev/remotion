@@ -112,6 +112,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	const browserStudioOperations = useMemo(
 		() =>
 			createBrowserStudioOperations({
+				dependencyVersions: browserStudioDependencyVersions,
 				getProject: () => activeProjectRef.current,
 				onProjectChange: updateProject,
 			}),

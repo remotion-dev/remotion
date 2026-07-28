@@ -10,6 +10,7 @@ import {
 	registerClientRender,
 	saveOutputFile,
 } from '../../api/save-render-output';
+import {downloadBlob} from '../../helpers/download-blob';
 import type {
 	ClientRenderJob,
 	ClientRenderJobProgress,
@@ -23,18 +24,6 @@ type RenderResult = {
 	getBlob: GetBlobCallback;
 	width: number;
 	height: number;
-};
-
-export const downloadBlob = (blob: Blob, filename: string): void => {
-	const url = URL.createObjectURL(blob);
-	const a = document.createElement('a');
-	a.href = url;
-	const cleanFilename = filename.includes('/')
-		? filename.substring(filename.lastIndexOf('/') + 1)
-		: filename;
-	a.download = cleanFilename;
-	a.click();
-	URL.revokeObjectURL(url);
 };
 
 export const ClientRenderQueueProcessor: React.FC = () => {

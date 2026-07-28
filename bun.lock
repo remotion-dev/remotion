@@ -136,6 +136,7 @@
         "@remotion/studio-codemods": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
         "@rspack/browser": "2.1.1",
+        "fflate": "0.8.2",
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",

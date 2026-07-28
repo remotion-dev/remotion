@@ -7,18 +7,32 @@ import type {
 	BrowserStudioOperations,
 	InsertJsxElementResponse,
 } from '@remotion/studio-shared';
+import {makeBrowserStudioProjectArchive} from './download-project';
 import type {VirtualProject} from './types';
 
 export {insertSolidIntoProject} from '@remotion/studio-codemods';
 
 export const createBrowserStudioOperations = ({
+	dependencyVersions,
 	getProject,
 	onProjectChange,
 }: {
+	dependencyVersions?: Record<string, string>;
 	getProject: () => VirtualProject;
 	onProjectChange: (project: VirtualProject) => void;
 }): BrowserStudioOperations => {
 	return {
+		...(dependencyVersions
+			? {
+					downloadProject: () =>
+						Promise.resolve(
+							makeBrowserStudioProjectArchive({
+								dependencyVersions,
+								project: getProject(),
+							}),
+						),
+				}
+			: {}),
 		getCompositionFile: (compositionId) =>
 			getCompositionFile({compositionId, project: getProject()}),
 		getCompositionComponentInfo: (request) =>
