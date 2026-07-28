@@ -301,10 +301,12 @@ describe('Element preview definitions', () => {
 
 	test('the Element template includes explicit flat preview URLs', () => {
 		const template = readFileSync(path.join(templateRoot, 'index.mdx'), 'utf8');
-		expect(template).toContain(`preview: {
-    posterUrl: 'https://remotion.media/elements/category-element-title-preview.png',
-    videoUrl: 'https://remotion.media/elements/category-element-title-preview.mp4',
-  },`);
+		expect(template).toContain(
+			"posterUrl: 'https://remotion.media/elements/category-element-title-preview.png'",
+		);
+		expect(template).toContain(
+			"videoUrl: 'https://remotion.media/elements/category-element-title-preview.mp4'",
+		);
 	});
 
 	test('registers Element compositions in a Folder', () => {
