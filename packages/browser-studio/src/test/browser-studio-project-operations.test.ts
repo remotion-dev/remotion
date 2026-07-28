@@ -1,7 +1,10 @@
 import {expect, test} from 'bun:test';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import {createBrowserStudioOperations} from '../browser-studio-operations';
-import {createBrowserStudioPublicFileManager} from '../browser-studio-project-controller';
+import {
+	areBrowserStudioProjectsEqual,
+	createBrowserStudioPublicFileManager,
+} from '../browser-studio-project-controller';
 import {createBlankTemplateProject} from '../templates/blank';
 import type {VirtualProject} from '../types';
 
@@ -215,4 +218,23 @@ test('refreshes object URLs if a supplied byte array is mutated', () => {
 	expect(revokedUrls).toEqual(['blob:mutable-1']);
 
 	publicFileManager.dispose();
+});
+
+test('compares deep-cloned virtual projects without serializing binary assets', () => {
+	const left: VirtualProject = {
+		...createBlankTemplateProject(),
+		publicFiles: {'asset.bin': new Uint8Array([0, 127, 128, 255])},
+	};
+	const equalClone: VirtualProject = {
+		...left,
+		files: {...left.files},
+		publicFiles: {'asset.bin': new Uint8Array([0, 127, 128, 255])},
+	};
+	const changedClone: VirtualProject = {
+		...equalClone,
+		publicFiles: {'asset.bin': new Uint8Array([0, 127, 128, 254])},
+	};
+
+	expect(areBrowserStudioProjectsEqual(left, equalClone)).toBe(true);
+	expect(areBrowserStudioProjectsEqual(left, changedClone)).toBe(false);
 });

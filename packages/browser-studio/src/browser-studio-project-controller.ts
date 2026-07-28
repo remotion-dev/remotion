@@ -71,6 +71,48 @@ const arePublicFileContentsEqual = (
 	return left.every((value, index) => value === right[index]);
 };
 
+const areStringRecordsEqual = (
+	left: Record<string, string>,
+	right: Record<string, string>,
+) => {
+	const leftEntries = Object.entries(left);
+	if (leftEntries.length !== Object.keys(right).length) {
+		return false;
+	}
+
+	return leftEntries.every(([path, contents]) => right[path] === contents);
+};
+
+const arePublicFileRecordsEqual = (
+	left: Record<string, Uint8Array | string> | undefined,
+	right: Record<string, Uint8Array | string> | undefined,
+) => {
+	const leftEntries = Object.entries(left ?? {});
+	if (leftEntries.length !== Object.keys(right ?? {}).length) {
+		return false;
+	}
+
+	return leftEntries.every(([path, contents]) =>
+		arePublicFileContentsEqual(contents, right?.[path]),
+	);
+};
+
+export const areBrowserStudioProjectsEqual = (
+	left: VirtualProject,
+	right: VirtualProject,
+) => {
+	if (left === right) {
+		return true;
+	}
+
+	return (
+		left.entryPoint === right.entryPoint &&
+		left.rootDir === right.rootDir &&
+		areStringRecordsEqual(left.files, right.files) &&
+		arePublicFileRecordsEqual(left.publicFiles, right.publicFiles)
+	);
+};
+
 const getChangedPublicFilePaths = (
 	previousProject: VirtualProject,
 	nextProject: VirtualProject,

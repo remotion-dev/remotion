@@ -1,7 +1,10 @@
 import {studioHtml} from '@remotion/studio-shared/studio-html';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {createBrowserStudioOperations} from './browser-studio-operations';
-import {createBrowserStudioPublicFileManager} from './browser-studio-project-controller';
+import {
+	areBrowserStudioProjectsEqual,
+	createBrowserStudioPublicFileManager,
+} from './browser-studio-project-controller';
 import {browserStudioDependencyVersions} from './dependency-versions';
 import {Spinner} from './Spinner';
 import type {
@@ -86,19 +89,21 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		return () => publicFileManager.dispose();
 	}, [publicFileManager]);
 
-	const incomingProjectKey = useMemo(() => JSON.stringify(project), [project]);
 	const [editedProject, setEditedProject] = useState<{
 		project: BrowserStudioProps['project'];
-		sourceKey: string;
+		sourceProject: BrowserStudioProps['project'];
 	} | null>(null);
+	const incomingProjectMatchesEditSource =
+		editedProject !== null &&
+		areBrowserStudioProjectsEqual(editedProject.sourceProject, project);
 	const activeProject =
-		editedProject?.sourceKey === incomingProjectKey
+		editedProject && incomingProjectMatchesEditSource
 			? editedProject.project
 			: project;
 	const activeProjectRef = useRef(activeProject);
 	activeProjectRef.current = activeProject;
-	const incomingProjectKeyRef = useRef(incomingProjectKey);
-	incomingProjectKeyRef.current = incomingProjectKey;
+	const incomingProjectRef = useRef(project);
+	incomingProjectRef.current = project;
 	const onProjectChangeRef = useRef(onProjectChange);
 	onProjectChangeRef.current = onProjectChange;
 
@@ -107,7 +112,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			activeProjectRef.current = nextProject;
 			setEditedProject({
 				project: nextProject,
-				sourceKey: incomingProjectKeyRef.current,
+				sourceProject: incomingProjectRef.current,
 			});
 			onProjectChangeRef.current?.(nextProject);
 		},
@@ -124,25 +129,28 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			}),
 		[publicFileManager, updateProject],
 	);
-	const previousIncomingProjectKey = useRef(incomingProjectKey);
+	const previousIncomingProject = useRef(project);
 	const incomingProjectAcknowledgesEdit =
 		editedProject !== null &&
-		JSON.stringify(editedProject.project) === incomingProjectKey;
+		areBrowserStudioProjectsEqual(editedProject.project, project);
 
 	useEffect(() => {
 		if (
-			previousIncomingProjectKey.current !== incomingProjectKey &&
+			!areBrowserStudioProjectsEqual(
+				previousIncomingProject.current,
+				project,
+			) &&
 			!incomingProjectAcknowledgesEdit
 		) {
 			browserStudioOperations.resetHistory();
 		}
 
-		previousIncomingProjectKey.current = incomingProjectKey;
-	}, [
-		browserStudioOperations,
-		incomingProjectAcknowledgesEdit,
-		incomingProjectKey,
-	]);
+		if (incomingProjectAcknowledgesEdit) {
+			setEditedProject(null);
+		}
+
+		previousIncomingProject.current = project;
+	}, [browserStudioOperations, incomingProjectAcknowledgesEdit, project]);
 
 	useEffect(() => {
 		setIframeLoaded(false);
