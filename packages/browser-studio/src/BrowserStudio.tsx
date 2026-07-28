@@ -119,6 +119,10 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	);
 
 	useEffect(() => {
+		setIframeLoaded(false);
+	}, [iframeSrc]);
+
+	useEffect(() => {
 		let cleanupBundle: string | null = null;
 		let didCancel = false;
 
@@ -131,8 +135,6 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			onCompileStateChange?.(nextState);
 		};
 
-		setIframeHtml(null);
-		setIframeLoaded(false);
 		setCompileState({status: 'compiling'});
 
 		const worker = new Worker(
@@ -281,7 +283,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 					title="Remotion Studio"
 				/>
 			) : null}
-			{state.status === 'compiling' ? (
+			{state.status === 'compiling' && iframeHtml === null ? (
 				<div style={overlayStyle}>
 					<Spinner duration={0.5} size={14} />
 				</div>
