@@ -68,8 +68,10 @@ const StaticRemotionCube: React.FC = () => {
 };
 
 export const Skills2Announcement: React.FC<
-	z.infer<typeof skills2AnnouncementSchema>
-> = ({title}) => {
+	z.infer<typeof skills2AnnouncementSchema> & {
+		readonly revealScale?: number;
+	}
+> = ({title, revealScale = 1}) => {
 	return (
 		<AbsoluteFill
 			style={{
@@ -88,6 +90,8 @@ export const Skills2Announcement: React.FC<
 					borderRadius: 24,
 					backgroundColor: '#edf7ff',
 					filter: 'drop-shadow(0 14px 20px rgba(18, 45, 58, 0.28))',
+					scale: revealScale,
+					transformOrigin: 'left center',
 				}}
 			>
 				<StaticRemotionCube />

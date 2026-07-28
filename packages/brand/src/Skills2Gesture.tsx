@@ -801,7 +801,14 @@ export const Skills2Gesture: React.FC = () => {
 					),
 				}}
 			>
-				<Skills2Announcement title="/remotion-markup" />
+				<Skills2Announcement
+					title="/remotion-markup"
+					revealScale={interpolate(frame, [7, 14], [0, 1], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+						output: 'perceptual-scale',
+					})}
+				/>
 			</Sequence>
 			<Sequence
 				name="Remotion maps"
@@ -1147,7 +1154,14 @@ export const Skills2Gesture: React.FC = () => {
 					),
 				}}
 			>
-				<Skills2Announcement title="/remotion-maps" />
+				<Skills2Announcement
+					title="/remotion-maps"
+					revealScale={interpolate(frame, [7, 13], [0, 1], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+						output: 'perceptual-scale',
+					})}
+				/>
 			</Sequence>
 			<Sequence
 				name="Remotion create 1"
@@ -1497,7 +1511,14 @@ export const Skills2Gesture: React.FC = () => {
 					),
 				}}
 			>
-				<Skills2Announcement title="/remotion-create" />
+				<Skills2Announcement
+					title="/remotion-create"
+					revealScale={interpolate(frame, [5, 11], [0, 1], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+						output: 'perceptual-scale',
+					})}
+				/>
 			</Sequence>
 			<Sequence
 				name="Remotion captions"
@@ -1849,7 +1870,14 @@ export const Skills2Gesture: React.FC = () => {
 					),
 				}}
 			>
-				<Skills2Announcement title="/remotion-captions" />
+				<Skills2Announcement
+					title="/remotion-captions"
+					revealScale={interpolate(frame, [4, 10], [0, 1], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+						output: 'perceptual-scale',
+					})}
+				/>
 			</Sequence>
 			<Sequence
 				name="Remotion SaaS"
@@ -2196,7 +2224,14 @@ export const Skills2Gesture: React.FC = () => {
 					),
 				}}
 			>
-				<Skills2Announcement title="/remotion-saas" />
+				<Skills2Announcement
+					title="/remotion-saas"
+					revealScale={interpolate(frame, [2, 8], [0, 1], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+						output: 'perceptual-scale',
+					})}
+				/>
 			</Sequence>
 		</Sequence>
 	);
