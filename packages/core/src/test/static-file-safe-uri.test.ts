@@ -55,8 +55,11 @@ test('should keep spaces', () => {
 	);
 });
 
-test('should use the source from the matching static file', () => {
+test('should use static file sources while preserving regular Studio encoding', () => {
 	const previousStaticFiles = window.remotion_staticFiles;
+	const regularStudioName = 'regular/special #?% ü.png';
+	const regularStudioSrc =
+		'/static-abcdef/regular/special%20%23%3F%25%20%C3%BC.png';
 	window.remotion_staticFiles = [
 		{
 			lastModified: 0,
@@ -64,12 +67,22 @@ test('should use the source from the matching static file', () => {
 			sizeInBytes: 10,
 			src: 'blob:http://localhost:3000/virtual-image',
 		},
+		{
+			lastModified: 0,
+			name: regularStudioName,
+			sizeInBytes: 10,
+			src: regularStudioSrc,
+		},
 	];
 
 	try {
 		expect(staticFile('/virtual/image.png')).toBe(
 			'blob:http://localhost:3000/virtual-image',
 		);
+		expect(staticFile(regularStudioName)).toBe(regularStudioSrc);
+
+		window.remotion_staticFiles = [];
+		expect(staticFile(regularStudioName)).toBe(regularStudioSrc);
 		expect(staticFile('missing.png')).toBe('/static-abcdef/missing.png');
 	} finally {
 		window.remotion_staticFiles = previousStaticFiles;
