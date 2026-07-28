@@ -44,6 +44,7 @@
 		"./package.json": "./package.json"
 	},
 	"devDependencies": {
+		"@remotion/studio": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@types/react": "catalog:",
 		"@types/react-dom": "catalog:",

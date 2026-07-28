@@ -8,6 +8,7 @@ export type BrowserStudioServer = {
 	capabilities: {
 		insertSolid: boolean;
 	};
+	getCompositionFile: (compositionId: string) => string | null;
 };
 
 declare global {
@@ -15,11 +16,3 @@ declare global {
 		remotion_browserStudioServer?: BrowserStudioServer;
 	}
 }
-
-export const getBrowserStudioServer = (): BrowserStudioServer | null => {
-	if (typeof window === 'undefined') {
-		return null;
-	}
-
-	return window.remotion_browserStudioServer ?? null;
-};

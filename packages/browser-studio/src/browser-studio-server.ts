@@ -1105,6 +1105,31 @@ const componentInfo = ({
 	};
 };
 
+const getCompositionFile = ({
+	compositionId,
+	project,
+}: {
+	compositionId: string;
+	project: VirtualProject;
+}) => {
+	for (const [filePath, source] of Object.entries(project.files)) {
+		if (typeof source !== 'string') {
+			continue;
+		}
+
+		try {
+			const ast = parseSource(source);
+			if (findCompositionElement({ast, compositionId})) {
+				return relativeToRoot(filePath, project.rootDir);
+			}
+		} catch {
+			// Ignore files that are not parseable source modules.
+		}
+	}
+
+	return null;
+};
+
 export const createBrowserStudioServer = ({
 	getProject,
 	onProjectChange,
@@ -1151,5 +1176,7 @@ export const createBrowserStudioServer = ({
 		capabilities: {
 			insertSolid: true,
 		},
+		getCompositionFile: (compositionId) =>
+			getCompositionFile({compositionId, project: getProject()}),
 	};
 };

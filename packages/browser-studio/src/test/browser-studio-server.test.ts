@@ -83,6 +83,9 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 			currentProject = nextProject;
 		},
 	});
+	expect(server.getCompositionFile('MyComp')).toBe('src/index.tsx');
+	expect(server.getCompositionFile('Unknown')).toBeNull();
+
 	const info = await server.callApi('/api/composition-component-info', {
 		compositionFile: 'src/index.tsx',
 		compositionId: 'MyComp',

@@ -1,6 +1,6 @@
-import {getBrowserStudioServer} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
+import {getBrowserStudioServer} from '../../helpers/browser-studio-server';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
@@ -71,8 +71,9 @@ const TimelineContextMenuArea: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
+	const browserStudioServer = getBrowserStudioServer();
 	const browserStudioCanInsertSolid =
-		getBrowserStudioServer()?.capabilities.insertSolid === true;
+		browserStudioServer?.capabilities.insertSolid === true;
 
 	const currentCompositionId =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
@@ -90,7 +91,11 @@ const TimelineContextMenuArea: React.FC<{
 	const resolvedCompositionLocation = useResolvedStack(
 		currentComposition?.stack ?? null,
 	);
-	const compositionFile = resolvedCompositionLocation?.source ?? null;
+	const compositionFile =
+		resolvedCompositionLocation?.source ??
+		(currentCompositionId
+			? (browserStudioServer?.getCompositionFile(currentCompositionId) ?? null)
+			: null);
 	const compositionComponentInfo = useCachedCompositionComponentInfo({
 		compositionFile,
 		compositionId: currentCompositionId,

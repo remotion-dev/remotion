@@ -1,4 +1,5 @@
-import {type ApiRoutes, getBrowserStudioServer} from '@remotion/studio-shared';
+import type {ApiRoutes} from '@remotion/studio-shared';
+import {getBrowserStudioServer} from '../helpers/browser-studio-server';
 
 export const callApi = <Endpoint extends keyof ApiRoutes>(
 	endpoint: Endpoint,

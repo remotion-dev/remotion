@@ -14,6 +14,11 @@ const makeInitialState = (): CompileState => ({
 	status: 'idle',
 });
 
+const localStudioRenderEntry = new URL(
+	'./browser-studio-render-entry.mjs',
+	import.meta.url,
+).href;
+
 const containerStyle: React.CSSProperties = {
 	backgroundColor: '#111111',
 	color: '#ffffff',
@@ -204,13 +209,22 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 
 		const request: BrowserStudioWorkerCompileRequest = {
 			type: 'compile',
-			dependencyResolutions: dependencyResolver
-				? Object.fromEntries(
-						Object.entries(browserStudioDependencyVersions).map(
-							([name, version]) => [name, dependencyResolver({name, version})],
-						),
-					)
-				: {},
+			dependencyResolutions: Object.fromEntries(
+				Object.entries(browserStudioDependencyVersions).map(
+					([name, version]) => {
+						const customResolution = dependencyResolver?.({name, version});
+						if (customResolution) {
+							return [name, customResolution];
+						}
+
+						if (name === '@remotion/studio') {
+							return [name, {url: localStudioRenderEntry}];
+						}
+
+						return [name, null];
+					},
+				),
+			),
 			project: activeProject,
 		};
 
@@ -249,8 +263,8 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		}
 
 		contentDocument.open();
-		contentWindow.remotion_browserStudioServer = browserStudioServer;
 		contentDocument.write(iframeHtml);
+		contentWindow.remotion_browserStudioServer = browserStudioServer;
 		contentDocument.close();
 	}, [browserStudioServer, iframeHtml, iframeLoaded, iframeSrc]);
 

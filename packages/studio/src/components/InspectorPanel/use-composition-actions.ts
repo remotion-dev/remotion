@@ -1,6 +1,6 @@
-import {getBrowserStudioServer} from '@remotion/studio-shared';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
+import {getBrowserStudioServer} from '../../helpers/browser-studio-server';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
@@ -19,8 +19,9 @@ export const useCompositionActions = () => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
+	const browserStudioServer = getBrowserStudioServer();
 	const browserStudioCanInsertSolid =
-		getBrowserStudioServer()?.capabilities.insertSolid === true;
+		browserStudioServer?.capabilities.insertSolid === true;
 
 	const currentCompositionId =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
@@ -38,7 +39,11 @@ export const useCompositionActions = () => {
 	const resolvedCompositionLocation = useResolvedStack(
 		currentComposition?.stack ?? null,
 	);
-	const compositionFile = resolvedCompositionLocation?.source ?? null;
+	const compositionFile =
+		resolvedCompositionLocation?.source ??
+		(currentCompositionId
+			? (browserStudioServer?.getCompositionFile(currentCompositionId) ?? null)
+			: null);
 	const compositionComponentInfo = useCachedCompositionComponentInfo({
 		compositionFile,
 		compositionId: currentCompositionId,

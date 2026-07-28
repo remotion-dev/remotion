@@ -2,13 +2,13 @@ import type {
 	CompositionComponentInfoResponse,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
-import {getBrowserStudioServer} from '@remotion/studio-shared';
 import {useEffect, useSyncExternalStore} from 'react';
 import {callApi} from '../components/call-api';
 import type {
 	CodePosition,
 	OriginalPosition,
 } from '../error-overlay/react-overlay/utils/get-source-map';
+import {getBrowserStudioServer} from './browser-studio-server';
 
 export const openInEditor = (stack: SymbolicatedStackFrame) => {
 	const {

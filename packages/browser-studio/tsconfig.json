@@ -12,5 +12,5 @@
 		"emitDeclarationOnly": true
 	},
 	"include": ["src"],
-	"references": [{"path": "../studio-shared"}]
+	"references": [{"path": "../studio"}, {"path": "../studio-shared"}]
 }
