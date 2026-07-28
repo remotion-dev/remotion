@@ -1,15 +1,8 @@
-import {burlap} from '@remotion/effects/burlap';
 import {dropShadow} from '@remotion/effects/drop-shadow';
 import {tint} from '@remotion/effects/tint';
 import {Video} from '@remotion/media';
 import React from 'react';
-import {
-	Sequence,
-	Solid,
-	getStaticFiles,
-	interpolate,
-	useCurrentFrame,
-} from 'remotion';
+import {Sequence, getStaticFiles, interpolate, useCurrentFrame} from 'remotion';
 import {Skills2Announcement} from './Skills2Announcement/index';
 
 export const Skills2Gesture: React.FC = () => {
@@ -25,22 +18,6 @@ export const Skills2Gesture: React.FC = () => {
 				translate: '-288px 310px',
 			}}
 		>
-			<Solid
-				width={1344}
-				height={1700}
-				color={'#f5fafb'}
-				style={{
-					position: 'absolute',
-					translate: '288px -310px',
-				}}
-				effects={[
-					burlap({
-						size: 10,
-						roughness: 0,
-						color: '#e9e9e9',
-					}),
-				]}
-			/>
 			<Video
 				src={
 					localPuppetHand?.src ??

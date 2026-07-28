@@ -105,6 +105,7 @@ import {
 } from './Skills2Announcement';
 import {Skills2Gesture} from './Skills2Gesture';
 import {Skills2Pick} from './Skills2Pick';
+import {Skills2Router} from './Skills2Router';
 import {Skills2TableBang} from './Skills2TableBang';
 import {Skills2TableBangComp} from './Skills2TableBangComp';
 import {SvgLogoCompositions} from './SvgLogos';
@@ -169,6 +170,14 @@ export const RemotionRoot: React.FC = () => {
 					id="Skills2TableBangComp"
 					component={Skills2TableBangComp}
 					durationInFrames={120}
+					fps={30}
+					width={1344}
+					height={1700}
+				/>
+				<Composition
+					id="Skills2Router"
+					component={Skills2Router}
+					durationInFrames={150}
 					fps={30}
 					width={1344}
 					height={1700}
