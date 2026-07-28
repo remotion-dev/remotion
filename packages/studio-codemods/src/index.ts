@@ -4,6 +4,8 @@ import type {
 	InsertJsxElementRequest,
 } from '@remotion/studio-shared';
 
+export {findSearchPosition} from './find-search-position';
+
 export type CodemodProject = {
 	files: Record<string, string>;
 	rootDir: string;
@@ -879,21 +881,29 @@ const roundCoordinate = (value: number) => {
 };
 
 const solidElement = ({
+	from,
 	height,
 	localName,
 	position,
+	sequenceLocalName,
 	width,
 }: {
+	from: number | null;
 	height: number;
 	localName: string;
 	position: {x: number; y: number} | null;
+	sequenceLocalName: string | null;
 	width: number;
 }) => {
 	const translate = position
 		? `, translate: '${roundCoordinate(position.x)}px ${roundCoordinate(position.y)}px'`
 		: '';
+	const solid = `<${localName} width={${width}} height={${height}} color="gray" style={{position: 'absolute'${translate}}} />`;
+	if (from === null || sequenceLocalName === null) {
+		return solid;
+	}
 
-	return `<${localName} width={${width}} height={${height}} color="gray" style={{position: 'absolute'${translate}}} />`;
+	return `<${sequenceLocalName} from={${from}} style={{position: 'absolute'${translate}}}>${solid}</${sequenceLocalName}>`;
 };
 
 const appendToJsxRoot = ({
@@ -1006,12 +1016,14 @@ const applyTextEdits = (source: string, edits: TextEdit[]) => {
 
 export const insertSolidIntoSource = ({
 	exportName,
+	from = null,
 	height,
 	position,
 	source,
 	width,
 }: {
 	exportName: string | 'default';
+	from?: number | null;
 	height: number;
 	position: {x: number; y: number} | null;
 	source: string;
@@ -1041,13 +1053,14 @@ export const insertSolidIntoSource = ({
 	const openingElement =
 		root.type === 'JSXElement' ? getNode(root, 'openingElement') : null;
 	const isSelfClosing = openingElement?.selfClosing === true;
-	const sequenceImport = isSelfClosing
-		? chooseLocalName({
-				ast,
-				candidates: ['Sequence', 'RemotionSequence'],
-				importedName: 'Sequence',
-			})
-		: null;
+	const sequenceImport =
+		isSelfClosing || from !== null
+			? chooseLocalName({
+					ast,
+					candidates: ['Sequence', 'RemotionSequence'],
+					importedName: 'Sequence',
+				})
+			: null;
 	const imports = [
 		...(solidImport.addImport
 			? [{importedName: 'Solid', localName: solidImport.localName}]
@@ -1058,9 +1071,11 @@ export const insertSolidIntoSource = ({
 	];
 	const unit = indentationUnit(source);
 	const element = solidElement({
+		from,
 		height,
 		localName: solidImport.localName,
 		position,
+		sequenceLocalName: sequenceImport?.localName ?? null,
 		width,
 	});
 	const rootEdit =
@@ -1106,10 +1121,27 @@ export const insertSolidIntoProject = <Project extends CodemodProject>({
 		throw new Error('This codemod only supports adding <Solid>');
 	}
 
-	if (request.from !== null) {
-		throw new Error(
-			'This codemod only supports adding <Solid> at the current root',
-		);
+	if (!Number.isFinite(request.element.width) || request.element.width < 1) {
+		throw new Error('width must be a positive number');
+	}
+
+	if (!Number.isFinite(request.element.height) || request.element.height < 1) {
+		throw new Error('height must be a positive number');
+	}
+
+	if (
+		request.element.position !== null &&
+		(!Number.isFinite(request.element.position.x) ||
+			!Number.isFinite(request.element.position.y))
+	) {
+		throw new Error('Position must be finite');
+	}
+
+	if (
+		request.from !== null &&
+		(!Number.isInteger(request.from) || request.from < 0)
+	) {
+		throw new Error('from must be a non-negative integer');
 	}
 
 	const resolved = resolveCompositionComponent({
@@ -1119,6 +1151,7 @@ export const insertSolidIntoProject = <Project extends CodemodProject>({
 	});
 	const {output} = insertSolidIntoSource({
 		exportName: resolved.exportName,
+		from: request.from,
 		height: request.element.height,
 		position: request.element.position,
 		source: resolved.source,

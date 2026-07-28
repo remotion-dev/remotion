@@ -1,6 +1,7 @@
 import {formatBytes} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals, staticFile} from 'remotion';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {formatMediaDuration} from '../helpers/format-media-duration';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
@@ -119,8 +120,8 @@ export const AssetInfo: React.FC<{
 	const imageMetadata = useImageMetadata(imageSrc);
 	const canRename =
 		onAssetClick === undefined &&
-		connectionStatus === 'connected' &&
-		!readOnlyStudio;
+		(getBrowserStudioOperations() !== null ||
+			(connectionStatus === 'connected' && !readOnlyStudio));
 	const onRename = useCallback(
 		(newName: string) => {
 			renameFile(newName).catch(() => undefined);
