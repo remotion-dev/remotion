@@ -6,7 +6,7 @@ id: backend-routes
 crumb: Editor Starter
 ---
 
-Some backend endpoints must be implemented by for all features to work.  
+Some Editor Starter features require backend endpoints.
 The default implementation uses the React Router 7 framework.
 
 ### `POST /api/captions`
@@ -36,7 +36,7 @@ Needed to create a presigned URL for uploading a file to S3.
 
 ### `POST /api/render`
 
-Triggers a render on Remotion Lambda.
+Triggers a render on Remotion Lambda. This route is only used when rendering with Remotion Lambda.
 
 - [Reference implementation using React Router 7](https://github.com/remotion-dev/editor-starter/blob/main/src/routes/api/render.ts)
 - [Implementation using Next.js](https://gist.github.com/MehmetAdemi/a96784de92ee91e4907bdedb20e6b90c)
@@ -44,7 +44,7 @@ Triggers a render on Remotion Lambda.
 
 ### `POST /api/progress`
 
-Gets the current progress of a render on Remotion Lambda.
+Gets the current progress of a render on Remotion Lambda. This route is only used when rendering with Remotion Lambda.
 
 - [Reference implementation using React Router 7](https://github.com/remotion-dev/editor-starter/blob/main/src/routes/api/progress.ts)
 - [Implementation using Next.js](https://gist.github.com/MehmetAdemi/15c21e1b847e5e79e7df7b2c4d5dc494)

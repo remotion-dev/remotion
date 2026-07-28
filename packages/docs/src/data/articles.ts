@@ -1711,7 +1711,7 @@ export const articles = [
 	},
 	{
 		id: 'rendering',
-		title: 'Rendering in the Editor Starter',
+		title: 'Rendering with Remotion Lambda in the Editor Starter',
 		relativePath: 'docs/editor-starter/rendering.mdx',
 		compId: 'articles-docs-editor-starter-rendering',
 		crumb: 'Editor Starter',

@@ -34,18 +34,20 @@ When the user clicks **Render**, the Editor Starter:
 3. Encodes the video in the browser using WebCodecs.
 4. Creates a temporary blob URL and shows the completed render in the task indicator, where it can be downloaded.
 
-## Dead code
+## Unused Lambda routes
 
 The [`/api/render`](/docs/editor-starter/backend-routes#post-apirender) and [`/api/progress`](/docs/editor-starter/backend-routes#post-apiprogress) routes are not used for client-side rendering.  
 However, by default, assets still upload to S3.
 
-## Main Tradeoffs
+## Main tradeoffs
 
 - The user can leave the page when rendering on Lambda, but not with client-side rendering.
-- Lambda incurs cost for you, while client-side rendering is free (except Remotion licensing cost).
+- Client-side rendering avoids Lambda compute costs. Remotion licensing, S3 asset storage, and bandwidth costs may still apply.
+- The browser must support WebCodecs, and the composition must work within the [limitations of client-side rendering](/docs/client-side-rendering/limitations).
 - Client-side rendering [may make the page less responsive](/docs/client-side-rendering/page-responsiveness).
-- Lambda is faster, the difference is higher the longer the video.
+- Lambda is generally better suited to long or distributed renders.
 - More codecs are supported on Lambda, such as ProRes.
+- Client-side rendering creates a temporary blob URL. Unlike Lambda output in S3, it is not persisted automatically.
 
 ## See also
 
