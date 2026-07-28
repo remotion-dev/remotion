@@ -181,6 +181,7 @@ export const Modals: React.FC<{
 					invocationTimestamp={modalContextType.invocationTimestamp}
 					initialMode={modalContextType.mode}
 					assetSelection={modalContextType.assetSelection}
+					compositionSelection={modalContextType.compositionSelection}
 				/>
 			)}
 			{modalContextType && modalContextType.type === 'add-effect' && (

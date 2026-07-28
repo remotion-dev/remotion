@@ -7,6 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
+import type {_InternalTypes} from 'remotion';
 import type {StaticFile} from '../../api/get-static-files';
 import {LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {getPreviewFileType} from '../../helpers/get-preview-file-type';
@@ -146,14 +147,27 @@ export const QuickSwitcherContent: React.FC<{
 		readonly initialQuery: string;
 		readonly onSelected: (asset: StaticFile) => void;
 	} | null;
-}> = ({initialMode, invocationTimestamp, readOnlyStudio, assetSelection}) => {
+	readonly compositionSelection: {
+		readonly onSelected: (
+			composition: _InternalTypes['AnyComposition'],
+		) => void;
+	} | null;
+}> = ({
+	initialMode,
+	invocationTimestamp,
+	readOnlyStudio,
+	assetSelection,
+	compositionSelection,
+}) => {
 	const {compositions} = useContext(Internals.CompositionManager);
 	const staticFiles = useStaticFiles();
 	const [state, setState] = useState(() => {
 		return {
 			query:
 				assetSelection === null
-					? mapModeToQuery(initialMode)
+					? compositionSelection === null
+						? mapModeToQuery(initialMode)
+						: ''
 					: assetSelection.initialQuery,
 			selectedIndex: 0,
 		};
@@ -163,11 +177,13 @@ export const QuickSwitcherContent: React.FC<{
 		setState({
 			query:
 				assetSelection === null
-					? mapModeToQuery(initialMode)
+					? compositionSelection === null
+						? mapModeToQuery(initialMode)
+						: ''
 					: assetSelection.initialQuery,
 			selectedIndex: 0,
 		});
-	}, [assetSelection, initialMode, invocationTimestamp]);
+	}, [assetSelection, compositionSelection, initialMode, invocationTimestamp]);
 
 	const inputRef = useRef<HTMLInputElement>(null);
 	const selectComposition = useSelectComposition();
@@ -182,7 +198,11 @@ export const QuickSwitcherContent: React.FC<{
 	const keybindings = useKeybinding();
 
 	const mode: QuickSwitcherMode =
-		assetSelection !== null ? 'assets' : mapQueryToMode(state.query);
+		assetSelection !== null
+			? 'assets'
+			: compositionSelection !== null
+				? 'compositions'
+				: mapQueryToMode(state.query);
 
 	const actualQuery = useMemo(() => {
 		return stripQuery(state.query);
@@ -244,6 +264,12 @@ export const QuickSwitcherContent: React.FC<{
 					title: c.id,
 					type: 'composition',
 					onSelected: () => {
+						if (compositionSelection !== null) {
+							compositionSelection.onSelected(c);
+							setSelectedModal(null);
+							return;
+						}
+
 						selectComposition(c, true);
 						setSelectedModal(null);
 
@@ -268,6 +294,7 @@ export const QuickSwitcherContent: React.FC<{
 		docResults,
 		assetSearch,
 		assetSelection,
+		compositionSelection,
 		selectAsset,
 		selectComposition,
 		setSelectedModal,
@@ -439,7 +466,7 @@ export const QuickSwitcherContent: React.FC<{
 
 	return (
 		<div style={container}>
-			{assetSelection === null && (
+			{assetSelection === null && compositionSelection === null && (
 				<div style={modeSelector}>
 					<button
 						onClick={onCompositionsSelected}
@@ -475,7 +502,11 @@ export const QuickSwitcherContent: React.FC<{
 				</div>
 			)}
 			<div
-				style={assetSelection === null ? content : contentWithoutModeSelector}
+				style={
+					assetSelection === null && compositionSelection === null
+						? content
+						: contentWithoutModeSelector
+				}
 			>
 				<RemotionInput
 					ref={inputRef}
