@@ -15,7 +15,7 @@ export const renameStaticFile = ({
 	}
 
 	const browserStudioOperations = getBrowserStudioOperations();
-	if (browserStudioOperations?.renameStaticFile) {
+	if (browserStudioOperations) {
 		return browserStudioOperations.renameStaticFile({
 			oldRelativePath,
 			newRelativePath,

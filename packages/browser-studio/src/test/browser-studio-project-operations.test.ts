@@ -8,14 +8,6 @@ import {
 import {createBlankTemplateProject} from '../templates/blank';
 import type {VirtualProject} from '../types';
 
-const getRequiredOperation = <T>(operation: T | undefined, name: string): T => {
-	if (!operation) {
-		throw new Error(`Expected Browser Studio operation ${name}`);
-	}
-
-	return operation;
-};
-
 test('mutates virtual files, emits events, and preserves undo and redo history', async () => {
 	const initialProject = createBlankTemplateProject();
 	let project: VirtualProject = {
@@ -36,20 +28,16 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		},
 	});
 	const events: EventSourceEvent[] = [];
-	const unsubscribe = getRequiredOperation(
-		operations.subscribeToEvent,
-		'subscribeToEvent',
-	)((event) => events.push(event));
+	const unsubscribe = operations.subscribeToEvent((event) =>
+		events.push(event),
+	);
 
 	expect(events.slice(0, 2).map((event) => event.type)).toEqual([
 		'init',
 		'new-public-folder',
 	]);
 	expect(
-		await getRequiredOperation(
-			operations.findInFile,
-			'findInFile',
-		)({
+		await operations.findInFile({
 			fileName: 'webpack://remotion/./src/Composition.tsx',
 			lineNumber: 1,
 			columnNumber: 1,
@@ -73,8 +61,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		'<Solid width={1280}',
 	);
 
-	const undo = getRequiredOperation(operations.undo, 'undo');
-	const redo = getRequiredOperation(operations.redo, 'redo');
+	const {redo, undo} = operations;
 	expect(await undo()).toEqual({success: true});
 	expect(project.files['/project/src/Composition.tsx']).toBe(
 		initialProject.files['/project/src/Composition.tsx'],
@@ -84,10 +71,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		'<Solid width={1280}',
 	);
 
-	const writeStaticFile = getRequiredOperation(
-		operations.writeStaticFile,
-		'writeStaticFile',
-	);
+	const {writeStaticFile} = operations;
 	await writeStaticFile({
 		contents: new Uint8Array([0, 127, 128, 255]).buffer,
 		filePath: '/nested/upload.bin',
@@ -110,10 +94,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		src: 'blob:virtual-2',
 	});
 
-	const renameStaticFile = getRequiredOperation(
-		operations.renameStaticFile,
-		'renameStaticFile',
-	);
+	const {renameStaticFile} = operations;
 	await renameStaticFile({
 		oldRelativePath: 'nested/upload.bin',
 		newRelativePath: 'renamed.bin',
@@ -123,10 +104,7 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 		new Uint8Array([0, 127, 128, 255]),
 	);
 
-	const deleteStaticFile = getRequiredOperation(
-		operations.deleteStaticFile,
-		'deleteStaticFile',
-	);
+	const {deleteStaticFile} = operations;
 	expect(await deleteStaticFile({relativePath: 'renamed.bin'})).toEqual({
 		success: true,
 		existed: true,
@@ -143,10 +121,9 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 	);
 
 	expect(
-		await getRequiredOperation(
-			operations.getFileSource,
-			'getFileSource',
-		)('webpack://remotion/./src/Composition.tsx?source'),
+		await operations.getFileSource(
+			'webpack://remotion/./src/Composition.tsx?source',
+		),
 	).toContain('<Solid width={1280}');
 
 	const eventCount = events.length;
@@ -168,14 +145,7 @@ test('rejects unsafe public paths and conflicting renames', async () => {
 			project = nextProject;
 		},
 	});
-	const writeStaticFile = getRequiredOperation(
-		operations.writeStaticFile,
-		'writeStaticFile',
-	);
-	const renameStaticFile = getRequiredOperation(
-		operations.renameStaticFile,
-		'renameStaticFile',
-	);
+	const {renameStaticFile, writeStaticFile} = operations;
 
 	await expect(
 		writeStaticFile({contents: 'unsafe', filePath: '../outside.txt'}),
@@ -189,7 +159,7 @@ test('rejects unsafe public paths and conflicting renames', async () => {
 	).rejects.toThrow('already exists');
 
 	operations.resetHistory();
-	expect(await getRequiredOperation(operations.undo, 'undo')()).toEqual({
+	expect(await operations.undo()).toEqual({
 		success: false,
 		reason: 'Nothing to undo',
 	});

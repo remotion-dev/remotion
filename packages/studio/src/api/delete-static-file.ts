@@ -17,7 +17,7 @@ export const deleteStaticFile = async (
 	}
 
 	const browserStudioOperations = getBrowserStudioOperations();
-	if (browserStudioOperations?.deleteStaticFile) {
+	if (browserStudioOperations) {
 		return browserStudioOperations.deleteStaticFile({relativePath});
 	}
 

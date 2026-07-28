@@ -1,8 +1,8 @@
 import {afterEach, expect, test} from 'bun:test';
-import type {BrowserStudioOperations} from '@remotion/studio-shared';
 import {deleteStaticFile} from '../api/delete-static-file';
 import {renameStaticFile} from '../api/rename-static-file';
 import {writeStaticFile} from '../api/write-static-file';
+import {makeBrowserStudioOperations} from './make-browser-studio-operations';
 
 const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
 	globalThis,
@@ -18,9 +18,9 @@ afterEach(() => {
 	Reflect.deleteProperty(globalThis, 'window');
 });
 
-test('routes static-file mutations through Browser Studio capabilities', async () => {
+test('routes static-file mutations through Browser Studio operations', async () => {
 	const calls: string[] = [];
-	const operations = {
+	const operations = makeBrowserStudioOperations({
 		deleteStaticFile: ({relativePath}) => {
 			calls.push(`delete:${relativePath}`);
 			return Promise.resolve({success: true, existed: true});
@@ -33,7 +33,7 @@ test('routes static-file mutations through Browser Studio capabilities', async (
 			calls.push(`write:${filePath}:${String(contents)}`);
 			return Promise.resolve();
 		},
-	} as BrowserStudioOperations;
+	});
 
 	Object.defineProperty(globalThis, 'window', {
 		configurable: true,

@@ -55,7 +55,7 @@ export const AssetSelector: React.FC<{
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
 	const shouldAllowUpload =
-		Boolean(getBrowserStudioOperations()?.writeStaticFile) ||
+		getBrowserStudioOperations() !== null ||
 		(connectionStatus === 'connected' && !readOnlyStudio);
 
 	const list: React.CSSProperties = useMemo(() => {

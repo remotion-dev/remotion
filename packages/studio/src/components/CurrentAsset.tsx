@@ -120,7 +120,7 @@ export const AssetInfo: React.FC<{
 	const imageMetadata = useImageMetadata(imageSrc);
 	const canRename =
 		onAssetClick === undefined &&
-		(Boolean(getBrowserStudioOperations()?.renameStaticFile) ||
+		(getBrowserStudioOperations() !== null ||
 			(connectionStatus === 'connected' && !readOnlyStudio));
 	const onRename = useCallback(
 		(newName: string) => {

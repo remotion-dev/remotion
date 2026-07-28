@@ -15,7 +15,7 @@ export const StaticFilesProvider: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const browserStudioCanWatch =
 		previewServerState.type === 'connected' &&
-		Boolean(getBrowserStudioOperations()?.subscribeToEvent);
+		getBrowserStudioOperations() !== null;
 
 	useEffect(() => {
 		if (!env.isStudio) {

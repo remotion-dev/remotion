@@ -41,7 +41,7 @@ export const MenuToolbar: React.FC<{
 	const canUndoAndRedo =
 		!readOnlyStudio ||
 		(previewServerState.type === 'connected' &&
-			Boolean(browserStudioOperations?.undo && browserStudioOperations.redo));
+			browserStudioOperations !== null);
 
 	const mobileLayout = useMobileLayout();
 

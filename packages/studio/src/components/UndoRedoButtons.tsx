@@ -56,7 +56,7 @@ export const UndoRedoButtons: React.FC = () => {
 
 		undoInFlight.current = true;
 		const browserStudioOperations = getBrowserStudioOperations();
-		const promise = browserStudioOperations?.undo
+		const promise = browserStudioOperations
 			? browserStudioOperations.undo()
 			: callApi('/api/undo', {});
 		promise
@@ -75,7 +75,7 @@ export const UndoRedoButtons: React.FC = () => {
 
 		redoInFlight.current = true;
 		const browserStudioOperations = getBrowserStudioOperations();
-		const promise = browserStudioOperations?.redo
+		const promise = browserStudioOperations
 			? browserStudioOperations.redo()
 			: callApi('/api/redo', {});
 		promise

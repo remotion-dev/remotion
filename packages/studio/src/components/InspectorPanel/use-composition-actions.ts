@@ -41,9 +41,8 @@ export const useCompositionActions = () => {
 	);
 	const compositionFile =
 		resolvedCompositionLocation?.source ??
-		(currentCompositionId
-			? (browserStudioOperations?.getCompositionFile(currentCompositionId) ??
-				null)
+		(currentCompositionId && browserStudioOperations
+			? browserStudioOperations.getCompositionFile(currentCompositionId)
 			: null);
 	const compositionComponentInfo = useCachedCompositionComponentInfo({
 		compositionFile,

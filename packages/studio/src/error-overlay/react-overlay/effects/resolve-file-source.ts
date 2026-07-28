@@ -10,7 +10,7 @@ export const resolveFileSource = async (
 ): Promise<SymbolicatedStackFrame> => {
 	const browserStudioOperations = getBrowserStudioOperations();
 	let text: string;
-	if (browserStudioOperations?.getFileSource) {
+	if (browserStudioOperations) {
 		const browserSource = await browserStudioOperations.getFileSource(
 			location.fileName,
 		);

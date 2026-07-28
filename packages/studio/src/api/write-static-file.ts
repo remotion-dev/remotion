@@ -12,7 +12,7 @@ export const writeStaticFile = async ({
 	}
 
 	const browserStudioOperations = getBrowserStudioOperations();
-	if (browserStudioOperations?.writeStaticFile) {
+	if (browserStudioOperations) {
 		return browserStudioOperations.writeStaticFile({contents, filePath});
 	}
 

@@ -580,10 +580,7 @@ const AssetSelectorItem: React.FC<{
 	}, [relativePath]);
 
 	const {mutationsDisabled, fileExplorerDisabled} = getAssetActionAvailability({
-		browserStudioCanMutateAssets: Boolean(
-			getBrowserStudioOperations()?.deleteStaticFile &&
-			getBrowserStudioOperations()?.renameStaticFile,
-		),
+		browserStudioCanMutateAssets: getBrowserStudioOperations() !== null,
 		readOnlyStudio,
 		connectionStatus,
 		publicFolderExists: window.remotion_publicFolderExists,

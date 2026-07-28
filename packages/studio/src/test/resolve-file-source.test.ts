@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
-import type {BrowserStudioOperations} from '@remotion/studio-shared';
 import {resolveFileSource} from '../error-overlay/react-overlay/effects/resolve-file-source';
+import {makeBrowserStudioOperations} from './make-browser-studio-operations';
 
 test('resolves file source using a GET request', async () => {
 	const previousFetch = globalThis.fetch;
@@ -47,9 +47,9 @@ test('resolves file source using a Browser Studio operation', async () => {
 	const previousWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
 	const previousFetch = globalThis.fetch;
 	let fetchCalled = false;
-	const operations = {
+	const operations = makeBrowserStudioOperations({
 		getFileSource: () => Promise.resolve('const fromBrowserStudio = true;'),
-	} as unknown as BrowserStudioOperations;
+	});
 
 	Object.defineProperty(globalThis, 'window', {
 		configurable: true,
@@ -93,9 +93,9 @@ test('does not fall back to the server when Browser Studio cannot find a file', 
 	const previousWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
 	const previousFetch = globalThis.fetch;
 	let fetchCalled = false;
-	const operations = {
+	const operations = makeBrowserStudioOperations({
 		getFileSource: () => Promise.resolve(null),
-	} as unknown as BrowserStudioOperations;
+	});
 
 	Object.defineProperty(globalThis, 'window', {
 		configurable: true,

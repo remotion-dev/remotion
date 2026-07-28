@@ -260,15 +260,15 @@ const getFileSource = ({
 
 export type BrowserStudioProjectController = {
 	applyMutation: (mutation: ProjectMutation) => VirtualProject;
-	deleteStaticFile: NonNullable<BrowserStudioOperations['deleteStaticFile']>;
-	findInFile: NonNullable<BrowserStudioOperations['findInFile']>;
-	getFileSource: NonNullable<BrowserStudioOperations['getFileSource']>;
-	redo: NonNullable<BrowserStudioOperations['redo']>;
+	deleteStaticFile: BrowserStudioOperations['deleteStaticFile'];
+	findInFile: BrowserStudioOperations['findInFile'];
+	getFileSource: BrowserStudioOperations['getFileSource'];
+	redo: BrowserStudioOperations['redo'];
 	resetHistory: () => void;
-	renameStaticFile: NonNullable<BrowserStudioOperations['renameStaticFile']>;
-	subscribeToEvent: NonNullable<BrowserStudioOperations['subscribeToEvent']>;
-	undo: NonNullable<BrowserStudioOperations['undo']>;
-	writeStaticFile: NonNullable<BrowserStudioOperations['writeStaticFile']>;
+	renameStaticFile: BrowserStudioOperations['renameStaticFile'];
+	subscribeToEvent: BrowserStudioOperations['subscribeToEvent'];
+	undo: BrowserStudioOperations['undo'];
+	writeStaticFile: BrowserStudioOperations['writeStaticFile'];
 };
 
 export const createBrowserStudioProjectController = ({

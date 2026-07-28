@@ -25,10 +25,7 @@ export const watchStaticFile = (
 		return {cancel: () => undefined};
 	}
 
-	if (
-		window.remotion_isReadOnlyStudio &&
-		!getBrowserStudioOperations()?.subscribeToEvent
-	) {
+	if (window.remotion_isReadOnlyStudio && !getBrowserStudioOperations()) {
 		// eslint-disable-next-line no-console
 		console.warn(
 			'watchStaticFile() is only available in an interactive Studio.',

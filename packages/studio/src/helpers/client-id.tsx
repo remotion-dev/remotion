@@ -145,7 +145,7 @@ export const PreviewServerConnection: React.FC<{
 			}
 
 			const browserStudioOperations = getBrowserStudioOperations();
-			if (!browserStudioOperations?.subscribeToEvent) {
+			if (!browserStudioOperations) {
 				return false;
 			}
 

@@ -21,10 +21,7 @@ export const watchPublicFolder = (
 		return {cancel: () => undefined};
 	}
 
-	if (
-		window.remotion_isReadOnlyStudio &&
-		!getBrowserStudioOperations()?.subscribeToEvent
-	) {
+	if (window.remotion_isReadOnlyStudio && !getBrowserStudioOperations()) {
 		throw new Error('watchPublicFolder() is not available in read-only Studio');
 	}
 
