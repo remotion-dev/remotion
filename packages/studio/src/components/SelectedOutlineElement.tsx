@@ -1664,9 +1664,7 @@ export const SelectedOutlineElement: React.FC<{
 							},
 						],
 					});
-					if (result.success) {
-						showNotification('Removed sequence from source file', 2000);
-					} else {
+					if (!result.success) {
 						showNotification(result.reason, 4000);
 					}
 				} catch (err) {
