@@ -490,15 +490,40 @@ declare module '*.glsl' {
 
 ### Enable WebAssembly
 
-There are two WebAssembly modes: asynchronous and synchronous. We recommend testing both and seeing which one works for the WASM library you are trying to use.
+Rspack and Webpack support asynchronous WebAssembly. Synchronous WebAssembly is only supported by Webpack.
 
-```ts twoslash title="remotion.config.ts - synchronous"
+#### Asynchronous WebAssembly
+
+Use a shared override to enable asynchronous WebAssembly with either bundler:
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+Config.overrideBundlerConfig((conf) => {
+  return {
+    ...conf,
+    experiments: {
+      ...conf.experiments,
+      asyncWebAssembly: true,
+    },
+  };
+});
+```
+
+Static and dynamic `.wasm` imports are supported.
+
+#### Synchronous WebAssembly (Webpack only)
+
+Rspack does not support `syncWebAssembly`. Use a Webpack-specific override:
+
+```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
 
 Config.overrideWebpackConfig((conf) => {
   return {
     ...conf,
     experiments: {
+      ...conf.experiments,
       syncWebAssembly: true,
     },
   };
@@ -509,28 +534,9 @@ Config.overrideWebpackConfig((conf) => {
 Since Webpack does not allow synchronous WebAssembly code in the main chunk, you most likely need to declare your composition using [`lazyComponent`](/docs/composition#example-using-lazycomponent) instead of `component`. Check out a [demo project](https://github.com/remotion-dev/id3-tags) for an example.
 :::
 
-```ts twoslash title="remotion.config.ts - asynchronous"
-import {Config} from '@remotion/cli/config';
+After changing the configuration, restart the Remotion Studio.
 
-Config.overrideWebpackConfig((conf) => {
-  return {
-    ...conf,
-    experiments: {
-      asyncWebAssembly: true,
-    },
-  };
-});
-```
-
-After you've done that, clear the Webpack cache:
-
-```bash
-rm -rf node_modules/.cache
-```
-
-After restarting, you can import `.wasm` files using an import statement.
-
-Add the Webpack override to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+Add the asynchronous override as `bundlerOverride` to your [Node.JS API calls if necessary](#when-using-bundle-and-deploysite). Pass the synchronous override as `webpackOverride`.
 
 ### Change the `@jsxImportSource`
 
