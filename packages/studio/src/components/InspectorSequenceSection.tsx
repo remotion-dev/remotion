@@ -13,6 +13,7 @@ import {
 	type SchemaFieldGroupInfo,
 	type TimelineTreeNode,
 } from '../helpers/timeline-layout';
+import {BorderRadiusIcon} from '../icons/border-radius';
 import {FullscreenIcon} from '../icons/fullscreen';
 import {Plus} from '../icons/plus';
 import {ModalsContext} from '../state/modals';
@@ -463,9 +464,13 @@ export const InspectorSequenceSection: React.FC<{
 							? 'Use individual corner radii'
 							: 'Use one border radius value'
 				}
-				renderAction={(color) => (
-					<FullscreenIcon color={color} style={borderRadiusToggleIcon} />
-				)}
+				renderAction={(color) =>
+					borderRadiusUsesShorthand ? (
+						<FullscreenIcon color={color} style={borderRadiusToggleIcon} />
+					) : (
+						<BorderRadiusIcon color={color} style={borderRadiusToggleIcon} />
+					)
+				}
 			/>
 		</div>
 	) : null;
