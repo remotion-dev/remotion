@@ -239,6 +239,8 @@ export const MyVideo = () => {
 
 This is equivalent to wrapping the children in [`<Freeze frame={20}>`](/docs/freeze), but without remounting the sequence.
 
+To freeze multiple portions of a sequence and resume afterwards, see [Freeze portions of a sequence](/docs/miscellaneous/snippets/freeze-portions).
+
 ### `height?`<AvailableFrom v="4.0.80"/>
 
 Gives the sequence a specific `style={{height: height}}` style and overrides `height` that is returned by the [`useVideoConfig()`](/docs/use-video-config) hook in child components. Useful for including a component that was designed for a specific height.
