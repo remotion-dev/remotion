@@ -9,6 +9,7 @@ export const makeBrowserStudioOperations = (
 ): BrowserStudioOperations => {
 	return {
 		deleteStaticFile: () => unusedOperation('deleteStaticFile'),
+		downloadProject: () => unusedOperation('downloadProject'),
 		findInFile: () => unusedOperation('findInFile'),
 		getCompositionComponentInfo: () =>
 			unusedOperation('getCompositionComponentInfo'),
