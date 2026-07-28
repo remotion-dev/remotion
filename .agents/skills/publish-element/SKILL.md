@@ -36,10 +36,12 @@ If the Element imports a package that is not available to `packages/docs`, add i
 
 ## 3. Add it to the gallery
 
-- Add the Element page to `packages/docs/elements/<category>/index.mdx`.
+- Confirm that the entry in `packages/docs/src/components/Elements/element-definitions.ts` places the Element in the generated overview and category library.
 - Add `'<category>/<slug>/index'` to the matching category in `packages/docs/elements-sidebars.ts`.
 
-Preserve the ordering used by the category page and sidebar. If the task explicitly introduces a new category, create its category index and sidebar group as part of this step.
+Preserve the ordering used by the sidebar. Do not add a manual link to the category index: the visual and raw Markdown libraries are generated from the central definitions. If the task explicitly introduces a new category, create an index that renders the filtered `ElementLibrary` and add its sidebar group as part of this step.
+
+Before considering gallery registration complete, verify that the Element appears on the overview page, its category page, and the generated raw Markdown routes.
 
 Do not edit `packages/docs/src/remotion/Root.tsx`; Element compositions are derived from the central definitions.
 
@@ -102,4 +104,4 @@ git diff --check
 git status --short
 ```
 
-Before finishing, verify that the page is listed in its category and sidebar, all checks pass, and only intended files are part of the change. Report the commands run, their results, and the preview files inspected.
+Before finishing, verify that the page is listed in the generated overview and category library, the generated raw Markdown, and the sidebar; all checks pass; and only intended files are part of the change. Report the commands run, their results, and the preview files inspected.
