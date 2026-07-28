@@ -221,10 +221,16 @@ export const useCompositionActions = () => {
 			invocationTimestamp: Date.now(),
 			assetSelection: null,
 			compositionSelection: {
+				excludeCompositionId: currentCompositionId,
 				onSelected: onCompositionSelected,
 			},
 		});
-	}, [canInsertComposition, onCompositionSelected, setSelectedModal]);
+	}, [
+		canInsertComposition,
+		currentCompositionId,
+		onCompositionSelected,
+		setSelectedModal,
+	]);
 
 	return {
 		canInsertAsset,

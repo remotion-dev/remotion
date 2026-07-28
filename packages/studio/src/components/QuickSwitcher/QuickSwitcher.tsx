@@ -19,6 +19,7 @@ const QuickSwitcher: React.FC<{
 		readonly onSelected: (asset: StaticFile) => void;
 	} | null;
 	readonly compositionSelection: {
+		readonly excludeCompositionId: string;
 		readonly onSelected: (
 			composition: _InternalTypes['AnyComposition'],
 		) => void;

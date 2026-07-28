@@ -207,6 +207,7 @@ export type ModalState =
 				onSelected: (asset: StaticFile) => void;
 			} | null;
 			compositionSelection: {
+				excludeCompositionId: string;
 				onSelected: (composition: _InternalTypes['AnyComposition']) => void;
 			} | null;
 	  }

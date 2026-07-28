@@ -148,6 +148,7 @@ export const QuickSwitcherContent: React.FC<{
 		readonly onSelected: (asset: StaticFile) => void;
 	} | null;
 	readonly compositionSelection: {
+		readonly excludeCompositionId: string;
 		readonly onSelected: (
 			composition: _InternalTypes['AnyComposition'],
 		) => void;
@@ -258,33 +259,35 @@ export const QuickSwitcherContent: React.FC<{
 
 		return fuzzySearch(
 			actualQuery,
-			compositions.map((c) => {
-				return {
-					id: 'composition-' + c.id,
-					title: c.id,
-					type: 'composition',
-					onSelected: () => {
-						if (compositionSelection !== null) {
-							compositionSelection.onSelected(c);
+			compositions
+				.filter((c) => c.id !== compositionSelection?.excludeCompositionId)
+				.map((c) => {
+					return {
+						id: 'composition-' + c.id,
+						title: c.id,
+						type: 'composition',
+						onSelected: () => {
+							if (compositionSelection !== null) {
+								compositionSelection.onSelected(c);
+								setSelectedModal(null);
+								return;
+							}
+
+							selectComposition(c, true);
 							setSelectedModal(null);
-							return;
-						}
 
-						selectComposition(c, true);
-						setSelectedModal(null);
+							const selector = `.__remotion-composition[data-compname="${c.id}"]`;
 
-						const selector = `.__remotion-composition[data-compname="${c.id}"]`;
-
-						Internals.compositionSelectorRef.current?.expandComposition(c.id);
-						waitForElm(selector).then(() => {
-							document
-								.querySelector(selector)
-								?.scrollIntoView({block: 'center'});
-						});
-					},
-					compositionType: isCompositionStill(c) ? 'still' : 'composition',
-				};
-			}),
+							Internals.compositionSelectorRef.current?.expandComposition(c.id);
+							waitForElm(selector).then(() => {
+								document
+									.querySelector(selector)
+									?.scrollIntoView({block: 'center'});
+							});
+						},
+						compositionType: isCompositionStill(c) ? 'still' : 'composition',
+					};
+				}),
 		);
 	}, [
 		mode,
