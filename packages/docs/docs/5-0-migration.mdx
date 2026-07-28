@@ -157,6 +157,12 @@ loadFont('normal', {
 });
 ```
 
+## `validateFontIsLoaded` is now `true` by default in `@remotion/layout-utils`
+
+[`measureText()`](/docs/layout-utils/measure-text), [`fitText()`](/docs/layout-utils/fit-text), [`fillTextBox()`](/docs/layout-utils/fill-text-box), and [`fitTextOnNLines()`](/docs/layout-utils/fit-text-on-n-lines) now default `validateFontIsLoaded` to `true`.
+
+**Required action**: Ensure custom fonts are loaded before calling these APIs, or pass `validateFontIsLoaded: false` explicitly to keep the previous behavior. See [layout utils best practices](/docs/layout-utils/best-practices).
+
 ## Sequences are automatically premounted
 
 [`<Sequence>`](/docs/sequence), [`<Series.Sequence>`](/docs/series) and [`<TransitionSeries.Sequence>`](/docs/transitions/transitionseries) components now automatically [premount](/docs/player/premounting) for 1 second (`fps` frames) before they appear.

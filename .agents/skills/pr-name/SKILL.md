@@ -19,7 +19,15 @@ If multiple packages are affected, use the one that you think is most relevant.
 
 ## Special handling
 
-For changes that match one of the categories below, use its special prefix instead of a package name.
+For changes that match one of the categories below, use its special prefix instead of a package name. Classify the change by its user-facing impact, not merely by the package directory containing the changed files.
+
+If a change only adds, fixes, or stabilizes internal tests, test fixtures, snapshots, or test infrastructure, and does not change shipped behavior, use the `Internal:` prefix. This also applies to package-local tests under a published package. Do not use that package's name as the prefix just because the test is located there. The package name may instead appear in the description when useful:
+
+```
+Internal: Stabilize registration range test in `@remotion/transitions`
+```
+
+If shipped implementation changes are accompanied by tests, use the normal affected-package prefix instead.
 
 If the change is about docs only:
 

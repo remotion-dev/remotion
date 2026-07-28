@@ -8,6 +8,7 @@ import {
 	backgroundSchema,
 	baseSchema,
 	borderRadiusSchema,
+	captionsSchema,
 	borderSchema,
 	cropSchema,
 	premountSchema,
@@ -319,6 +320,7 @@ const makeInteractiveSvgStrokeElement = <Tag extends InteractiveSvgTag>(
  */
 export const Interactive = {
 	baseSchema,
+	captionsSchema,
 	transformSchema,
 	textSchema,
 	backgroundSchema,

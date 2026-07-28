@@ -1,3 +1,4 @@
+import type {Caption} from '@remotion/captions';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals, type TSequence} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
@@ -19,6 +20,7 @@ import {Plus} from '../icons/plus';
 import {ModalsContext} from '../state/modals';
 import {AssetFileIcon} from './AssetFileIcon';
 import {InlineAction} from './InlineAction';
+import {InlineCaptionInspector} from './InlineCaptionInspector';
 import {InspectorSection} from './InspectorPanel/common';
 import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
 import {getAssetSearchQueryForComponent} from './QuickSwitcher/asset-search';
@@ -216,12 +218,14 @@ export const hasSequenceControls = (
 
 export const InspectorSequenceSection: React.FC<{
 	readonly sequence: SequenceWithControls;
+	readonly readOnlyStudio: boolean;
 	readonly validatedLocation: CodePosition;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
 	readonly renderTransformControls: () => React.ReactNode;
 }> = ({
 	sequence,
+	readOnlyStudio,
 	validatedLocation,
 	nodePathInfo,
 	keyframeDisplayOffset,
@@ -387,6 +391,13 @@ export const InspectorSequenceSection: React.FC<{
 		),
 		getDragOverrides(nodePathInfo.sequenceSubscriptionKey),
 	);
+	const inlineCaptionValue =
+		schema.captions?.type === 'remotion-captions'
+			? sequence.controls.currentRuntimeValueDotNotation.captions
+			: null;
+	const inlineCaptions = Array.isArray(inlineCaptionValue)
+		? (inlineCaptionValue as Caption[])
+		: null;
 	const showEffectsSection =
 		nodePathInfo.supportsEffects || effectRows.length > 0;
 	const canAddEffect =
@@ -514,7 +525,11 @@ export const InspectorSequenceSection: React.FC<{
 		);
 	};
 
-	if (controlRows.length === 0 && !showEffectsSection) {
+	if (
+		controlRows.length === 0 &&
+		!showEffectsSection &&
+		inlineCaptions === null
+	) {
 		return (
 			<div style={container}>
 				<InspectorSection header="Controls">
@@ -543,6 +558,15 @@ export const InspectorSequenceSection: React.FC<{
 							</InspectorSection>
 						))}
 					</TimelineSelectionOrderProvider>
+				) : null}
+				{inlineCaptions ? (
+					<InlineCaptionInspector
+						captions={inlineCaptions}
+						controls={sequence.controls}
+						nodePath={nodePathInfo.sequenceSubscriptionKey}
+						readOnlyStudio={readOnlyStudio}
+						validatedLocation={validatedLocation}
+					/>
 				) : null}
 				{showEffectsSection ? (
 					<InspectorSection header={effectsHeader}>

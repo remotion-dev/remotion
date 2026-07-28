@@ -24,6 +24,7 @@ import {useKeybinding} from '../helpers/use-keybinding';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
 import {ScaleLockContext} from '../state/scale-lock';
+import {TimelineSequenceHoverContext} from '../state/timeline-sequence-hover';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
 	clearSelectedOutlineDragOverrides,
@@ -665,15 +666,15 @@ export const SelectedOutlineOverlay: React.FC<{
 	);
 	const {getScaleLockState} = useContext(ScaleLockContext);
 	const {editorShowOutlines} = useContext(EditorShowOutlinesContext);
+	const {hoveredSequence, setHoveredSequence} = useContext(
+		TimelineSequenceHoverContext,
+	);
 	const {editorShowGuides, guidesList} = useContext(EditorShowGuidesContext);
 	const {frameBack, frameForward, getCurrentFrame, seek} =
 		PlayerInternals.usePlayer();
 	const keybindings = useKeybinding();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const [outlines, setOutlines] = useState<readonly SelectedOutline[]>([]);
-	const [hoveredOutlineKey, setHoveredOutlineKey] = useState<string | null>(
-		null,
-	);
 	const [draggingOutline, setDraggingOutline] = useState(false);
 	const [activeSnapPoints, setActiveSnapPoints] = useState<
 		readonly SelectedOutlineSnapPoint[]
@@ -687,14 +688,31 @@ export const SelectedOutlineOverlay: React.FC<{
 	const previewSelectionAvailable =
 		previewServerState.type === 'connected' || window.remotion_isReadOnlyStudio;
 
-	const onDraggingChange = React.useCallback((dragging: boolean) => {
-		setDraggingOutline(dragging);
-		if (dragging) {
-			setHoveredOutlineKey(null);
-		} else {
-			setActiveSnapPoints([]);
-		}
-	}, []);
+	const onDraggingChange = React.useCallback(
+		(dragging: boolean) => {
+			setDraggingOutline(dragging);
+			if (dragging) {
+				setHoveredSequence((currentHover) =>
+					currentHover?.source === 'canvas' ? null : currentHover,
+				);
+			} else {
+				setActiveSnapPoints([]);
+			}
+		},
+		[setHoveredSequence],
+	);
+	const onHoverChange = useCallback(
+		(key: string | null) => {
+			setHoveredSequence((currentHover) => {
+				if (key !== null) {
+					return {key, source: 'canvas'};
+				}
+
+				return currentHover?.source === 'canvas' ? null : currentHover;
+			});
+		},
+		[setHoveredSequence],
+	);
 	const onSnapPointsChange = useCallback(
 		(snapPoints: readonly SelectedOutlineSnapPoint[]) => {
 			setActiveSnapPoints(snapPoints);
@@ -1064,12 +1082,14 @@ export const SelectedOutlineOverlay: React.FC<{
 
 	useEffect(() => {
 		if (
-			hoveredOutlineKey !== null &&
-			!outlineTargets.some((target) => target.key === hoveredOutlineKey)
+			hoveredSequence?.source === 'canvas' &&
+			!outlineTargets.some((target) => target.key === hoveredSequence.key)
 		) {
-			setHoveredOutlineKey(null);
+			setHoveredSequence((currentHover) =>
+				currentHover?.source === 'canvas' ? null : currentHover,
+			);
 		}
-	}, [hoveredOutlineKey, outlineTargets]);
+	}, [hoveredSequence, outlineTargets, setHoveredSequence]);
 
 	const targetsByKey = useMemo(() => {
 		return new Map(outlineTargets.map((target) => [target.key, target]));
@@ -1500,10 +1520,10 @@ export const SelectedOutlineOverlay: React.FC<{
 					allRotationDragTargets={allRotationDragTargets}
 					allScaleDragTargets={allScaleDragTargets}
 					dragging={draggingOutline}
-					hovered={hoveredOutlineKey === outline.key}
+					hovered={hoveredSequence?.key === outline.key}
 					outline={outline}
 					onDraggingChange={onDraggingChange}
-					onHoverChange={setHoveredOutlineKey}
+					onHoverChange={onHoverChange}
 					onSnapPointsChange={onSnapPointsChange}
 					onSelect={selectOutlineItem}
 					scale={scale}

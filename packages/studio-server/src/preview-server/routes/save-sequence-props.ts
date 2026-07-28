@@ -2,6 +2,7 @@ import {readFileSync} from 'node:fs';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	AddSequenceKeyframe,
+	SaveInlineCaptionPatchesRequest,
 	MoveEffectKeyframe,
 	MoveSequenceKeyframe,
 	SaveSequencePropEdit,
@@ -10,6 +11,7 @@ import type {
 	SaveSequencePropsResult,
 } from '@remotion/studio-shared';
 import {getAllSchemaKeys, getAssetSchemaKeys} from '@remotion/studio-shared';
+import {updateInlineCaptionPatches} from '../../codemods/update-inline-caption-patches';
 import {
 	updateEffectKeyframes,
 	updateSequenceKeyframes,
@@ -49,6 +51,7 @@ type ResolvedSequencePropEdit = {
 type SequencePropEditGroup = {
 	fileRelativeToRoot: string;
 	edits: ResolvedSequencePropEdit[];
+	captionPatches: SaveInlineCaptionPatchesRequest[];
 	addedKeyframes: AddSequenceKeyframe[];
 	movedSequenceKeyframes: ResolvedSequenceKeyframe[];
 	effectKeyframes: ResolvedEffectKeyframe[];
@@ -101,6 +104,14 @@ type SequenceKeyframeLog = {
 	oldValueString: string;
 	newValueString: string;
 	formatted: boolean;
+};
+
+type CaptionPatchLog = {
+	fileRelativeToRoot: string;
+	line: number;
+	index: number;
+	oldValueString: string;
+	newValueString: string;
 };
 
 type EffectKeyframeLog = {
@@ -168,6 +179,7 @@ export const saveSequencePropsHandler: ApiHandler<
 		edits,
 		addedKeyframes,
 		movedKeyframes,
+		captionPatches = [],
 		clientId,
 		undoLabel,
 		redoLabel,
@@ -186,6 +198,7 @@ export const saveSequencePropsHandler: ApiHandler<
 			keyframesToMove.effectKeyframes.length;
 		if (
 			edits.length === 0 &&
+			captionPatches.length === 0 &&
 			keyframesToAdd.length === 0 &&
 			totalKeyframeMoves === 0
 		) {
@@ -194,7 +207,7 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		RenderInternals.Log.trace(
 			{indent: false, logLevel},
-			`[save-sequence-props] Received request with ${edits.length} edit(s), ${keyframesToAdd.length} added keyframe(s), and ${totalKeyframeMoves} moved keyframe(s)`,
+			`[save-sequence-props] Received request with ${edits.length} edit(s), ${captionPatches.length} caption patch request(s), ${keyframesToAdd.length} added keyframe(s), and ${totalKeyframeMoves} moved keyframe(s)`,
 		);
 
 		const editGroups = new Map<string, SequencePropEditGroup>();
@@ -212,6 +225,7 @@ export const saveSequencePropsHandler: ApiHandler<
 			const group = editGroups.get(absolutePath) ?? {
 				fileRelativeToRoot,
 				edits: [],
+				captionPatches: [],
 				addedKeyframes: [],
 				movedSequenceKeyframes: [],
 				effectKeyframes: [],
@@ -234,6 +248,24 @@ export const saveSequencePropsHandler: ApiHandler<
 			editGroups.set(absolutePath, group);
 		}
 
+		for (const captionPatch of captionPatches) {
+			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
+				remotionRoot,
+				fileName: captionPatch.fileName,
+				action: 'modify',
+			});
+			const group = editGroups.get(absolutePath) ?? {
+				fileRelativeToRoot,
+				edits: [],
+				captionPatches: [],
+				addedKeyframes: [],
+				movedSequenceKeyframes: [],
+				effectKeyframes: [],
+			};
+			group.captionPatches.push(captionPatch);
+			editGroups.set(absolutePath, group);
+		}
+
 		for (const keyframe of keyframesToAdd) {
 			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 				remotionRoot,
@@ -243,6 +275,7 @@ export const saveSequencePropsHandler: ApiHandler<
 			const group = editGroups.get(absolutePath) ?? {
 				fileRelativeToRoot,
 				edits: [],
+				captionPatches: [],
 				addedKeyframes: [],
 				movedSequenceKeyframes: [],
 				effectKeyframes: [],
@@ -263,6 +296,7 @@ export const saveSequencePropsHandler: ApiHandler<
 			const group = editGroups.get(absolutePath) ?? {
 				fileRelativeToRoot,
 				edits: [],
+				captionPatches: [],
 				addedKeyframes: [],
 				movedSequenceKeyframes: [],
 				effectKeyframes: [],
@@ -280,6 +314,7 @@ export const saveSequencePropsHandler: ApiHandler<
 			const group = editGroups.get(absolutePath) ?? {
 				fileRelativeToRoot,
 				edits: [],
+				captionPatches: [],
 				addedKeyframes: [],
 				movedSequenceKeyframes: [],
 				effectKeyframes: [],
@@ -292,6 +327,7 @@ export const saveSequencePropsHandler: ApiHandler<
 		const outputByPath = new Map<string, string>();
 		const resultByIndex = new Map<number, SequencePropEditResult>();
 		const sequenceKeyframeLogs: SequenceKeyframeLog[] = [];
+		const captionPatchLogs: CaptionPatchLog[] = [];
 		const effectKeyframeLogs: EffectKeyframeLog[] = [];
 
 		for (const [absolutePath, group] of editGroups) {
@@ -322,6 +358,40 @@ export const saveSequencePropsHandler: ApiHandler<
 						logLine: result.logLine,
 						removedProps: result.removedProps,
 						formatted,
+					});
+				}
+			}
+
+			for (const captionPatchRequest of group.captionPatches) {
+				const result = updateInlineCaptionPatches({
+					input: output,
+					nodePath: captionPatchRequest.nodePath.nodePath,
+					patches: captionPatchRequest.patches,
+				});
+				output = result.output;
+				firstLogLine = Math.min(firstLogLine, result.logLine);
+				for (const [index, patch] of captionPatchRequest.patches.entries()) {
+					const changedFields = result.changedFields[index];
+					if (!changedFields) {
+						throw new Error('Could not determine changed caption fields');
+					}
+
+					captionPatchLogs.push({
+						fileRelativeToRoot: group.fileRelativeToRoot,
+						line: result.logLine,
+						index: patch.index,
+						oldValueString: changedFields
+							.map(
+								(field) =>
+									`${field}: ${patch.before[field as keyof typeof patch.before]}`,
+							)
+							.join(', '),
+						newValueString: changedFields
+							.map(
+								(field) =>
+									`${field}: ${patch.changes[field as keyof typeof patch.changes]}`,
+							)
+							.join(', '),
 					});
 				}
 			}
@@ -483,7 +553,9 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		const undoMessage = `↩️  ${undoLabel}`;
 		const redoMessage = `↪️  ${redoLabel}`;
-		const suppressHmr = shouldSuppressHmrForSequencePropEdits(edits);
+		const suppressHmr =
+			captionPatches.length === 0 &&
+			shouldSuppressHmrForSequencePropEdits(edits);
 
 		pushTransactionToUndoStack({
 			snapshots,
@@ -525,6 +597,21 @@ export const saveSequencePropsHandler: ApiHandler<
 			}
 		}
 
+		for (const log of captionPatchLogs) {
+			logUpdate({
+				fileRelativeToRoot: log.fileRelativeToRoot,
+				line: log.line,
+				key: `captions[${log.index}]`,
+				oldValueString: log.oldValueString,
+				newValueString: log.newValueString,
+				defaultValueString: null,
+				formatted: true,
+				logLevel,
+				removedProps: [],
+				addedProps: [],
+			});
+		}
+
 		for (const log of sequenceKeyframeLogs) {
 			logUpdate({
 				fileRelativeToRoot: log.fileRelativeToRoot,
@@ -560,7 +647,7 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		const statusTargets = [
 			...new Map(
-				[...edits, ...keyframesToAdd].map((target) => [
+				[...edits, ...captionPatches, ...keyframesToAdd].map((target) => [
 					JSON.stringify(target.nodePath),
 					target,
 				]),

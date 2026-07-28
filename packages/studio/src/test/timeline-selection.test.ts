@@ -107,6 +107,7 @@ import {
 	getSelectableTimelineItems,
 	getSelectableTimelineSequenceSelections,
 	getTimelineMarqueeSelection,
+	getTimelineRowHighlightBackground,
 	getTimelineSelectionAfterInteraction,
 	getTimelineSelectionFromNodePathInfo,
 	getTimelineSelectionKey,
@@ -114,6 +115,8 @@ import {
 	isTimelineSelectionModifierEvent,
 	shouldSelectTimelineRowOnPointerDown,
 	TIMELINE_BACKGROUND,
+	TIMELINE_HOVER_BACKGROUND,
+	TIMELINE_SELECTED_BACKGROUND,
 	TIMELINE_TICKS_BACKGROUND,
 	timelineMarqueeRectsIntersect,
 } from '../components/Timeline/TimelineSelection';
@@ -2739,6 +2742,25 @@ test('Timeline from drag removes the prop at the default value', () => {
 test('Timeline colors use the outlines palette', () => {
 	expect(TIMELINE_BACKGROUND).toBe('#0F1113');
 	expect(TIMELINE_TICKS_BACKGROUND).not.toBe(TIMELINE_BACKGROUND);
+});
+
+test('Timeline hover highlight is weaker than selection', () => {
+	expect(
+		getTimelineRowHighlightBackground({
+			showSelectedBackground: true,
+			selected: false,
+			containsSelection: false,
+			hovered: true,
+		}),
+	).toBe(TIMELINE_HOVER_BACKGROUND);
+	expect(
+		getTimelineRowHighlightBackground({
+			showSelectedBackground: true,
+			selected: true,
+			containsSelection: false,
+			hovered: true,
+		}),
+	).toBe(TIMELINE_SELECTED_BACKGROUND);
 });
 
 test('Timeline outlines visibility is enabled by default and persisted', () => {

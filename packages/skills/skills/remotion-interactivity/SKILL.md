@@ -26,6 +26,19 @@ Every HTML and SVG element such as `<div>` can be turned interactive using `Inte
 
 This allows styles and keyframes to be set in the Studio. Be sensible, if a component has many elements, the timeline might get messy.
 
+## Prefer inline text
+
+If text is fixed and only used once, write it directly inside the interactive element instead of extracting it into a constant.
+
+```tsx title="Inline text"
+// 👍 Fixed copy stays editable
+<Interactive.Div name="Title">
+  Remotion Best Practices
+</Interactive.Div>
+```
+
+Use a prop or variable only when the text is dynamic or reused.
+
 ## Give interactive elements a descriptive name
 
 Add a `name` prop to elements to make them easily identifyable.

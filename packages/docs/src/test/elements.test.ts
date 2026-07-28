@@ -143,8 +143,8 @@ describe('Elements must follow the colocated single-file format', () => {
 				expect(tsx).not.toContain('export const width');
 				expect(tsx).not.toContain('export const height');
 				expect(tsx).not.toContain('export const RemotionRoot');
-				expect(tsx).not.toContain('<Composition');
-				expect(tsx).not.toContain('<Sequence');
+				expect(tsx).not.toMatch(/<Composition(?:\s|\/?>)/);
+				expect(tsx).not.toMatch(/<Sequence(?:\s|\/?>)/);
 			});
 
 			test('MDX uses the ElementPage template', () => {
