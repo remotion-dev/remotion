@@ -9,3 +9,4 @@ Config.overrideBundlerConfig(async (config) => {
 	});
 	return bundlerOverride(config);
 });
+Config.setEnableCrossSiteIsolation(true);
