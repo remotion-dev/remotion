@@ -944,6 +944,7 @@
         "@remotion/transitions": "workspace:*",
         "@remotion/webcodecs": "workspace:*",
         "@remotion/zod-types": "workspace:*",
+        "@rspack/core": "1.7.11",
         "@types/node": "catalog:",
         "@types/sharp": "0.28.6",
         "create-video": "workspace:*",
