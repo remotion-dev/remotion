@@ -53,6 +53,7 @@ export type BrowserStudioProps = {
 	iframeSrc?: string;
 	dependencyResolver?: BrowserStudioDependencyResolver;
 	onCompileStateChange?: (state: CompileState) => void;
+	onProjectChange?: (project: VirtualProject) => void;
 };
 
 export type BrowserStudioWorkerCompileRequest = {

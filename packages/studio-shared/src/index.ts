@@ -1,4 +1,5 @@
 export {splitAnsi, stripAnsi} from './ansi';
+export type {BrowserStudioOperations} from './browser-studio-operations';
 export {
 	AddEffectKeyframeRequest,
 	AddEffectKeyframeResponse,

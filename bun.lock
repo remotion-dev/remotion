@@ -133,11 +133,13 @@
       "name": "@remotion/browser-studio",
       "version": "4.0.500",
       "dependencies": {
+        "@remotion/studio-codemods": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
         "@rspack/browser": "2.1.1",
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
+        "@remotion/studio": "workspace:*",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
         "@typescript/native-preview": "catalog:",
@@ -1695,6 +1697,19 @@
         "react-dom": ">=16.8.0",
       },
     },
+    "packages/studio-codemods": {
+      "name": "@remotion/studio-codemods",
+      "version": "4.0.500",
+      "dependencies": {
+        "@babel/parser": "7.24.1",
+        "@remotion/studio-shared": "workspace:*",
+      },
+      "devDependencies": {
+        "@remotion/eslint-config-internal": "workspace:*",
+        "@typescript/native-preview": "catalog:",
+        "eslint": "catalog:",
+      },
+    },
     "packages/studio-server": {
       "name": "@remotion/studio-server",
       "version": "4.0.500",
@@ -1704,6 +1719,7 @@
         "@remotion/bundler": "workspace:*",
         "@remotion/drag-and-drop": "workspace:*",
         "@remotion/renderer": "workspace:*",
+        "@remotion/studio-codemods": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
         "@svgr/core": "8.1.0",
         "@svgr/plugin-jsx": "8.1.0",
@@ -4195,6 +4211,8 @@
     "@remotion/streaming": ["@remotion/streaming@workspace:packages/streaming"],
 
     "@remotion/studio": ["@remotion/studio@workspace:packages/studio"],
+
+    "@remotion/studio-codemods": ["@remotion/studio-codemods@workspace:packages/studio-codemods"],
 
     "@remotion/studio-server": ["@remotion/studio-server@workspace:packages/studio-server"],
 

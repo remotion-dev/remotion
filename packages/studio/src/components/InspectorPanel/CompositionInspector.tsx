@@ -59,7 +59,10 @@ const CompositionActions: React.FC<{
 		insertSolid,
 	} = useCompositionActions();
 
-	if (readOnlyStudio || (!canShowInsertAsset && !canShowInsertSolid)) {
+	if (
+		(readOnlyStudio && !canShowInsertSolid) ||
+		(!canShowInsertAsset && !canShowInsertSolid)
+	) {
 		return null;
 	}
 

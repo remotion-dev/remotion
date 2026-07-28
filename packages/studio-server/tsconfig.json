@@ -28,6 +28,9 @@
 			"path": "../studio-shared"
 		},
 		{
+			"path": "../studio-codemods"
+		},
+		{
 			"path": "../renderer"
 		},
 		{

@@ -3,7 +3,6 @@
 	"compilerOptions": {
 		"rootDir": "src",
 		"outDir": "dist",
-		"jsx": "react-jsx",
 		"skipLibCheck": true,
 		"target": "ES2022",
 		"module": "es2020",
@@ -12,9 +11,5 @@
 		"emitDeclarationOnly": true
 	},
 	"include": ["src"],
-	"references": [
-		{"path": "../studio"},
-		{"path": "../studio-codemods"},
-		{"path": "../studio-shared"}
-	]
+	"references": [{"path": "../studio-shared"}]
 }
