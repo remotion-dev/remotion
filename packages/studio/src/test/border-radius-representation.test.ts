@@ -110,6 +110,54 @@ test('four equal static longhands can be converted to a shorthand', () => {
 	).toEqual({type: 'shorthand', value: 8});
 });
 
+test('static drag overrides determine the border radius conversion', () => {
+	expect(
+		getBorderRadiusConversion(
+			{
+				[BORDER_RADIUS_SHORTHAND_KEY]: {
+					status: 'static',
+					codeValue: 12,
+				},
+			},
+			{
+				[BORDER_RADIUS_SHORTHAND_KEY]: {type: 'static', value: 18},
+			},
+		),
+	).toEqual({type: 'individual', value: 18});
+
+	const unequalLonghands = Object.fromEntries(
+		BORDER_RADIUS_LONGHAND_KEYS.map((key, index) => [
+			key,
+			{status: 'static' as const, codeValue: index},
+		]),
+	);
+	expect(
+		getBorderRadiusConversion(
+			unequalLonghands,
+			Object.fromEntries(
+				BORDER_RADIUS_LONGHAND_KEYS.map((key) => [
+					key,
+					{type: 'static' as const, value: 24},
+				]),
+			),
+		),
+	).toEqual({type: 'shorthand', value: 24});
+
+	expect(
+		getBorderRadiusConversion(
+			Object.fromEntries(
+				BORDER_RADIUS_LONGHAND_KEYS.map((key) => [
+					key,
+					{status: 'static' as const, codeValue: 8},
+				]),
+			),
+			{
+				[BORDER_RADIUS_LONGHAND_KEYS[0]]: {type: 'static', value: 9},
+			},
+		),
+	).toBe(null);
+});
+
 test('resetting the shorthand also clears its expanded longhand statuses', () => {
 	expect(
 		getBorderRadiusResetFieldKeys({

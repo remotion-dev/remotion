@@ -237,6 +237,9 @@ export const InspectorSequenceSection: React.FC<{
 		loadInspectorCollapsedKeys,
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {getDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(ModalsContext);
 	const selectAsset = useSelectAsset();
@@ -382,6 +385,7 @@ export const InspectorSequenceSection: React.FC<{
 			propStatuses,
 			nodePathInfo.sequenceSubscriptionKey,
 		),
+		getDragOverrides(nodePathInfo.sequenceSubscriptionKey),
 	);
 	const showEffectsSection =
 		nodePathInfo.supportsEffects || effectRows.length > 0;
