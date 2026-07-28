@@ -1,5 +1,6 @@
 import {studioHtml} from '@remotion/studio-shared/studio-html';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {createBrowserStudioServer} from './browser-studio-server';
 import {browserStudioDependencyVersions} from './dependency-versions';
 import {Spinner} from './Spinner';
 import type {
@@ -72,13 +73,45 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	iframeSrc,
 	dependencyResolver,
 	onCompileStateChange,
+	onProjectChange,
 }) => {
 	const [state, setState] = useState<CompileState>(makeInitialState);
 	const [iframeHtml, setIframeHtml] = useState<string | null>(null);
 	const [iframeLoaded, setIframeLoaded] = useState(false);
 	const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
-	const projectKey = useMemo(() => JSON.stringify(project), [project]);
+	const incomingProjectKey = useMemo(() => JSON.stringify(project), [project]);
+	const [editedProject, setEditedProject] = useState<{
+		project: BrowserStudioProps['project'];
+		sourceKey: string;
+	} | null>(null);
+	const activeProject =
+		editedProject?.sourceKey === incomingProjectKey
+			? editedProject.project
+			: project;
+	const activeProjectRef = useRef(activeProject);
+	activeProjectRef.current = activeProject;
+
+	const updateProject = useCallback(
+		(nextProject: BrowserStudioProps['project']) => {
+			activeProjectRef.current = nextProject;
+			setEditedProject({
+				project: nextProject,
+				sourceKey: incomingProjectKey,
+			});
+			onProjectChange?.(nextProject);
+		},
+		[incomingProjectKey, onProjectChange],
+	);
+
+	const browserStudioServer = useMemo(
+		() =>
+			createBrowserStudioServer({
+				getProject: () => activeProjectRef.current,
+				onProjectChange: updateProject,
+			}),
+		[updateProject],
+	);
 
 	useEffect(() => {
 		let cleanupBundle: string | null = null;
@@ -135,12 +168,12 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				numberOfAudioTags: 0,
 				packageManager: 'unknown',
 				projectName: 'template-blank',
-				publicFiles: makeStaticFiles(project.publicFiles),
+				publicFiles: makeStaticFiles(activeProject.publicFiles),
 				publicFolderExists: null,
 				fileSystemPlatform: null,
 				publicPath: '',
 				readOnlyStudio: readOnly,
-				remotionRoot: project.rootDir,
+				remotionRoot: activeProject.rootDir,
 				renderDefaults: undefined,
 				renderQueue: [],
 				sampleRate: null,
@@ -178,7 +211,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 						),
 					)
 				: {},
-			project,
+			project: activeProject,
 		};
 
 		worker.postMessage(request);
@@ -195,8 +228,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		dependencyResolver,
 		iframeSrc,
 		onCompileStateChange,
-		project,
-		projectKey,
+		activeProject,
 		readOnly,
 	]);
 
@@ -210,15 +242,17 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		}
 
 		const iframe = iframeRef.current;
+		const contentWindow = iframe?.contentWindow;
 		const contentDocument = iframe?.contentDocument;
-		if (!contentDocument) {
+		if (!contentWindow || !contentDocument) {
 			return;
 		}
 
 		contentDocument.open();
+		contentWindow.remotion_browserStudioServer = browserStudioServer;
 		contentDocument.write(iframeHtml);
 		contentDocument.close();
-	}, [iframeHtml, iframeLoaded, iframeSrc]);
+	}, [browserStudioServer, iframeHtml, iframeLoaded, iframeSrc]);
 
 	return (
 		<div style={containerStyle}>

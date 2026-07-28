@@ -2,7 +2,8 @@ import type {
 	CompositionComponentInfoResponse,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
-import {useSyncExternalStore} from 'react';
+import {getBrowserStudioServer} from '@remotion/studio-shared';
+import {useEffect, useSyncExternalStore} from 'react';
 import {callApi} from '../components/call-api';
 import type {
 	CodePosition,
@@ -122,7 +123,7 @@ export const useCachedCompositionComponentInfo = ({
 	compositionFile: string | null;
 	compositionId: string | null;
 }) => {
-	return useSyncExternalStore(
+	const result = useSyncExternalStore(
 		subscribeToCompositionComponentInfo,
 		() => {
 			if (compositionFile === null || compositionId === null) {
@@ -136,6 +137,23 @@ export const useCachedCompositionComponentInfo = ({
 		},
 		() => null,
 	);
+
+	useEffect(() => {
+		if (
+			!getBrowserStudioServer()?.capabilities.insertSolid ||
+			compositionFile === null ||
+			compositionId === null
+		) {
+			return;
+		}
+
+		preloadCompositionComponentInfo({
+			compositionFile,
+			compositionId,
+		});
+	}, [compositionFile, compositionId]);
+
+	return result;
 };
 
 export const loadCompositionComponentInfo = async ({

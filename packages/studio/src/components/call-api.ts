@@ -1,10 +1,15 @@
-import type {ApiRoutes} from '@remotion/studio-shared';
+import {type ApiRoutes, getBrowserStudioServer} from '@remotion/studio-shared';
 
 export const callApi = <Endpoint extends keyof ApiRoutes>(
 	endpoint: Endpoint,
 	body: ApiRoutes[Endpoint]['Request'],
 	signal?: AbortSignal,
 ): Promise<ApiRoutes[Endpoint]['Response']> => {
+	const browserStudioServer = getBrowserStudioServer();
+	if (browserStudioServer) {
+		return browserStudioServer.callApi(endpoint, body);
+	}
+
 	return new Promise<ApiRoutes[Endpoint]['Response']>((resolve, reject) => {
 		fetch(endpoint as string, {
 			method: 'post',

@@ -1,3 +1,4 @@
+import {getBrowserStudioServer} from '@remotion/studio-shared';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -18,6 +19,8 @@ export const useCompositionActions = () => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
+	const browserStudioCanInsertSolid =
+		getBrowserStudioServer()?.capabilities.insertSolid === true;
 
 	const currentCompositionId =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
@@ -42,8 +45,8 @@ export const useCompositionActions = () => {
 	});
 
 	const canShowInsertSolid =
-		previewInteractive &&
-		!window.remotion_isReadOnlyStudio &&
+		(previewInteractive || browserStudioCanInsertSolid) &&
+		(!window.remotion_isReadOnlyStudio || browserStudioCanInsertSolid) &&
 		compositionComponentInfo?.canAddSequence === true &&
 		currentCompositionId !== null &&
 		compositionFile !== null &&

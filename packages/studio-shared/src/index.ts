@@ -1,5 +1,9 @@
 export {splitAnsi, stripAnsi} from './ansi';
 export {
+	getBrowserStudioServer,
+	type BrowserStudioServer,
+} from './browser-studio-server';
+export {
 	AddEffectKeyframeRequest,
 	AddEffectKeyframeResponse,
 	AddEffectRequest,

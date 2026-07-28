@@ -1,3 +1,4 @@
+import {getBrowserStudioServer} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
@@ -70,6 +71,8 @@ const TimelineContextMenuArea: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
+	const browserStudioCanInsertSolid =
+		getBrowserStudioServer()?.capabilities.insertSolid === true;
 
 	const currentCompositionId =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
@@ -94,7 +97,7 @@ const TimelineContextMenuArea: React.FC<{
 	});
 
 	const canInsertSolid =
-		previewInteractive &&
+		(previewInteractive || browserStudioCanInsertSolid) &&
 		compositionComponentInfo?.canAddSequence === true &&
 		currentCompositionId !== null &&
 		compositionFile !== null &&
