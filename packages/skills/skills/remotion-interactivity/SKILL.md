@@ -12,7 +12,7 @@ By writing Remotion markup in a specific way, the Remotion Studio is able to rec
 - Editing the CSS styles
 - Making keyframes and easing values editable
 
-If the markup is too complex for the Studio to make it interactive, then the values become grayed out.  
+If the markup is too complex for the Studio to make it interactive, then the values become grayed out.
 
 ## Make an HTML element interactive using `Interactive`
 
@@ -25,6 +25,19 @@ Every HTML and SVG element such as `<div>` can be turned interactive using `Inte
 ```
 
 This allows styles and keyframes to be set in the Studio. Be sensible, if a component has many elements, the timeline might get messy.
+
+## Prefer inline text for fixed copy
+
+If text is fixed and only used once, write it directly inside the interactive element instead of extracting it into a constant. This allows the Studio to recognize and edit the text.
+
+```tsx title="Inline text"
+// 👍 Fixed copy stays editable
+<Interactive.Div name="Title">
+  Remotion Best Practices
+</Interactive.Div>
+```
+
+Use a prop or variable when the text is genuinely dynamic or reused.
 
 ## Give interactive elements a descriptive name
 
@@ -155,7 +168,7 @@ const calculateMetadata = useMemo(async () => {
 ```
 
 ```tsx title="Negative examples"
-const defaultProps = {title: 'Hello', color: '#0b84ff'}; // ❌ Don't extract defaultProps, must be inline 
+const defaultProps = {title: 'Hello', color: '#0b84ff'}; // ❌ Don't extract defaultProps, must be inline
 const calculateMetadata = useMemo(() => {
   // ❌ Unnecessary because no calculation is being done,
   return {durationInFrames: 150, fps: 30, width: 1920, height: 1080};
