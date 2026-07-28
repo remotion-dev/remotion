@@ -81,7 +81,11 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	const [iframeLoaded, setIframeLoaded] = useState(false);
 	const iframeRef = useRef<HTMLIFrameElement | null>(null);
 	const publicFileManager = useMemo(
-		() => createBrowserStudioPublicFileManager(),
+		() =>
+			createBrowserStudioPublicFileManager({
+				createObjectUrl: null,
+				revokeObjectUrl: null,
+			}),
 		[],
 	);
 
@@ -209,7 +213,10 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				numberOfAudioTags: 0,
 				packageManager: 'unknown',
 				projectName: 'template-blank',
-				publicFiles: publicFileManager.getStaticFiles({project: activeProject}),
+				publicFiles: publicFileManager.getStaticFiles({
+					lastModifiedByPath: null,
+					project: activeProject,
+				}),
 				publicFolderExists: null,
 				fileSystemPlatform: null,
 				publicPath: '',

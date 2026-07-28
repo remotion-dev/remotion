@@ -133,34 +133,46 @@ const encodePublicFilePath = (path: string) =>
 		.join('/');
 
 export const getBrowserStudioStaticFiles = ({
-	getSrc = (name) => `/${encodePublicFilePath(name)}`,
+	getSrc,
 	lastModifiedByPath,
 	project,
 }: {
-	getSrc?: (name: string, contents: Uint8Array | string) => string;
-	lastModifiedByPath?: ReadonlyMap<string, number>;
+	getSrc: ((name: string, contents: Uint8Array | string) => string) | null;
+	lastModifiedByPath: ReadonlyMap<string, number> | null;
 	project: VirtualProject;
 }) => {
 	return Object.entries(getCanonicalPublicFiles(project)).map(
 		([name, contents]) => ({
-			lastModified: lastModifiedByPath?.get(name) ?? 0,
+			lastModified:
+				lastModifiedByPath === null ? 0 : (lastModifiedByPath.get(name) ?? 0),
 			name,
 			sizeInBytes:
 				typeof contents === 'string'
 					? new TextEncoder().encode(contents).byteLength
 					: contents.byteLength,
-			src: getSrc(name, contents),
+			src:
+				getSrc === null
+					? `/${encodePublicFilePath(name)}`
+					: getSrc(name, contents),
 		}),
 	);
 };
 
 export const createBrowserStudioPublicFileManager = ({
-	createObjectUrl = (blob: Blob) => URL.createObjectURL(blob),
-	revokeObjectUrl = (url: string) => URL.revokeObjectURL(url),
+	createObjectUrl,
+	revokeObjectUrl,
 }: {
-	createObjectUrl?: (blob: Blob) => string;
-	revokeObjectUrl?: (url: string) => void;
-} = {}) => {
+	createObjectUrl: ((blob: Blob) => string) | null;
+	revokeObjectUrl: ((url: string) => void) | null;
+}) => {
+	const resolvedCreateObjectUrl =
+		createObjectUrl === null
+			? (blob: Blob) => URL.createObjectURL(blob)
+			: createObjectUrl;
+	const resolvedRevokeObjectUrl =
+		revokeObjectUrl === null
+			? (url: string) => URL.revokeObjectURL(url)
+			: revokeObjectUrl;
 	const objectUrls = new Map<
 		string,
 		{contents: Uint8Array | string; url: string}
@@ -173,12 +185,12 @@ export const createBrowserStudioPublicFileManager = ({
 		}
 
 		if (existing) {
-			revokeObjectUrl(existing.url);
+			resolvedRevokeObjectUrl(existing.url);
 		}
 
 		const blobContents =
 			typeof contents === 'string' ? contents : contents.slice().buffer;
-		const url = createObjectUrl(new Blob([blobContents]));
+		const url = resolvedCreateObjectUrl(new Blob([blobContents]));
 		objectUrls.set(name, {
 			contents: typeof contents === 'string' ? contents : contents.slice(),
 			url,
@@ -190,13 +202,13 @@ export const createBrowserStudioPublicFileManager = ({
 		lastModifiedByPath,
 		project,
 	}: {
-		lastModifiedByPath?: ReadonlyMap<string, number>;
+		lastModifiedByPath: ReadonlyMap<string, number> | null;
 		project: VirtualProject;
 	}) => {
 		const currentNames = new Set(Object.keys(getCanonicalPublicFiles(project)));
 		for (const [name, entry] of objectUrls) {
 			if (!currentNames.has(name)) {
-				revokeObjectUrl(entry.url);
+				resolvedRevokeObjectUrl(entry.url);
 				objectUrls.delete(name);
 			}
 		}
@@ -211,7 +223,7 @@ export const createBrowserStudioPublicFileManager = ({
 	return {
 		dispose: () => {
 			for (const {url} of objectUrls.values()) {
-				revokeObjectUrl(url);
+				resolvedRevokeObjectUrl(url);
 			}
 
 			objectUrls.clear();
@@ -271,15 +283,29 @@ export type BrowserStudioProjectController = {
 	writeStaticFile: BrowserStudioOperations['writeStaticFile'];
 };
 
+export type BrowserStudioStaticFilesGetter = (input: {
+	lastModifiedByPath: ReadonlyMap<string, number> | null;
+	project: VirtualProject;
+}) => ReturnType<typeof getBrowserStudioStaticFiles>;
+
 export const createBrowserStudioProjectController = ({
-	getStaticFiles = getBrowserStudioStaticFiles,
+	getStaticFiles,
 	getProject,
 	onProjectChange,
 }: {
-	getStaticFiles?: typeof getBrowserStudioStaticFiles;
+	getStaticFiles: BrowserStudioStaticFilesGetter | null;
 	getProject: () => VirtualProject;
 	onProjectChange: (project: VirtualProject) => void;
 }): BrowserStudioProjectController => {
+	const resolvedGetStaticFiles: BrowserStudioStaticFilesGetter =
+		getStaticFiles === null
+			? ({lastModifiedByPath: revisionByPath, project}) =>
+					getBrowserStudioStaticFiles({
+						getSrc: null,
+						lastModifiedByPath: revisionByPath,
+						project,
+					})
+			: getStaticFiles;
 	const undoStack: HistoryEntry[] = [];
 	const redoStack: HistoryEntry[] = [];
 	const listeners = new Set<(event: EventSourceEvent) => void>();
@@ -294,7 +320,7 @@ export const createBrowserStudioProjectController = ({
 
 	const getPublicFilesEvent = (): EventSourceEvent => ({
 		type: 'new-public-folder',
-		files: getStaticFiles({
+		files: resolvedGetStaticFiles({
 			lastModifiedByPath,
 			project: getProject(),
 		}),

@@ -101,6 +101,7 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 
 	let currentProject = project;
 	const operations = createBrowserStudioOperations({
+		getStaticFiles: null,
 		getProject: () => currentProject,
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;
@@ -169,6 +170,7 @@ test('reports invalid timeline Solid input without changing the project', async 
 	const project = createBlankTemplateProject();
 	let currentProject = project;
 	const operations = createBrowserStudioOperations({
+		getStaticFiles: null,
 		getProject: () => currentProject,
 		onProjectChange: (nextProject) => {
 			currentProject = nextProject;

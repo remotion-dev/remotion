@@ -140,6 +140,7 @@ test('rejects unsafe public paths and conflicting renames', async () => {
 		publicFiles: {'existing.txt': 'existing'},
 	};
 	const operations = createBrowserStudioOperations({
+		getStaticFiles: null,
 		getProject: () => project,
 		onProjectChange: (nextProject) => {
 			project = nextProject;
@@ -178,15 +179,39 @@ test('refreshes object URLs if a supplied byte array is mutated', () => {
 		publicFiles: {'mutable.bin': contents},
 	};
 
-	expect(publicFileManager.getStaticFiles({project})[0].src).toBe(
-		'blob:mutable-1',
-	);
+	expect(
+		publicFileManager.getStaticFiles({lastModifiedByPath: null, project})[0]
+			.src,
+	).toBe('blob:mutable-1');
 	contents[0] = 4;
-	expect(publicFileManager.getStaticFiles({project})[0].src).toBe(
-		'blob:mutable-2',
-	);
+	expect(
+		publicFileManager.getStaticFiles({lastModifiedByPath: null, project})[0]
+			.src,
+	).toBe('blob:mutable-2');
 	expect(revokedUrls).toEqual(['blob:mutable-1']);
 
+	publicFileManager.dispose();
+});
+
+test('uses the platform object URL implementation when overrides are null', () => {
+	const publicFileManager = createBrowserStudioPublicFileManager({
+		createObjectUrl: null,
+		revokeObjectUrl: null,
+	});
+	const project: VirtualProject = {
+		...createBlankTemplateProject(),
+		publicFiles: {'default.txt': 'contents'},
+	};
+
+	const [file] = publicFileManager.getStaticFiles({
+		lastModifiedByPath: null,
+		project,
+	});
+	if (!file) {
+		throw new Error('Expected the virtual static file');
+	}
+
+	expect(file.src.startsWith('blob:')).toBe(true);
 	publicFileManager.dispose();
 });
 

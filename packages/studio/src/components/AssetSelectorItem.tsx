@@ -97,19 +97,19 @@ const revealIconStyle: React.CSSProperties = {
 };
 
 export const getAssetActionAvailability = ({
-	browserStudioCanMutateAssets = false,
+	browserStudioCanMutateAssets,
 	readOnlyStudio,
 	connectionStatus,
 	publicFolderExists,
 }: {
-	browserStudioCanMutateAssets?: boolean;
+	browserStudioCanMutateAssets: boolean | null;
 	readOnlyStudio: boolean;
 	connectionStatus: 'init' | 'connected' | 'disconnected';
 	publicFolderExists: string | null;
 }) => {
 	return {
 		mutationsDisabled:
-			!browserStudioCanMutateAssets &&
+			browserStudioCanMutateAssets !== true &&
 			(readOnlyStudio || connectionStatus !== 'connected'),
 		fileExplorerDisabled:
 			publicFolderExists === null ||
@@ -580,7 +580,8 @@ const AssetSelectorItem: React.FC<{
 	}, [relativePath]);
 
 	const {mutationsDisabled, fileExplorerDisabled} = getAssetActionAvailability({
-		browserStudioCanMutateAssets: getBrowserStudioOperations() !== null,
+		browserStudioCanMutateAssets:
+			getBrowserStudioOperations() === null ? null : true,
 		readOnlyStudio,
 		connectionStatus,
 		publicFolderExists: window.remotion_publicFolderExists,
