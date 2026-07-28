@@ -1,0 +1,64 @@
+---
+image: /generated/articles-docs-editor-starter-client-side-rendering.png
+title: Client-side rendering in the Editor Starter
+sidebar_label: Client-side rendering
+id: client-side-rendering
+crumb: Editor Starter
+---
+
+The Editor Starter can render videos in the browser using [`@remotion/web-renderer`](/docs/web-renderer), without using Remotion Lambda.
+
+Client-side rendering is disabled by default.
+
+## Enable client-side rendering
+
+Set [`ENABLE_CLIENT_SIDE_RENDERING`](https://github.com/remotion-dev/editor-starter/blob/main/src/editor/flags.ts) to `true`:
+
+```ts title="src/editor/flags.ts"
+export const ENABLE_CLIENT_SIDE_RENDERING = true;
+```
+
+Keep `FEATURE_NEW_MEDIA_TAGS` enabled. The Editor Starter will throw an error if client-side rendering is enabled without it.
+
+You do not need to configure the `REMOTION_AWS_*` environment variables or run `deploy.ts` for rendering.
+
+:::note
+Other Editor Starter features may still need backend routes or AWS credentials. For example, text rendering loads font metadata from [`/api/fonts/:name`](/docs/editor-starter/backend-routes#get-apifontsname), [asset uploads](/docs/editor-starter/asset-uploads) use Amazon S3, and [captioning](/docs/editor-starter/captioning) uses a backend route.
+:::
+
+## How it works
+
+When the user clicks **Render**, the Editor Starter:
+
+1. Collects the current tracks, items, assets, composition settings, and font metadata.
+2. Passes the composition directly to [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web).
+3. Encodes the video in the browser using WebCodecs.
+4. Creates a temporary blob URL and shows the completed render in the task indicator, where it can be downloaded.
+
+MP4 exports use H.264, while WebM exports use VP8. Rendering progress is shown in the same task indicator as a Lambda render.
+
+The [`/api/render`](/docs/editor-starter/backend-routes#post-apirender) and [`/api/progress`](/docs/editor-starter/backend-routes#post-apiprogress) routes are not used for client-side rendering. The output is not uploaded to S3.
+
+## Tradeoffs
+
+|                          | Client-side rendering                                                                    | Remotion Lambda                                                    |
+| ------------------------ | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Infrastructure           | No rendering infrastructure                                                              | Requires AWS setup and a deployed Lambda function                  |
+| Compute                  | Uses the user's browser and device                                                       | Uses distributed AWS Lambda compute                                |
+| Browser support          | Requires a [browser with WebCodecs support](/docs/client-side-rendering#browser-support) | The user's browser does not encode the video                       |
+| Rendering compatibility  | Subject to [client-side rendering limitations](/docs/client-side-rendering/limitations)  | Renders the composition in Chromium with server-side rendering     |
+| Output                   | Temporary browser blob that the user downloads                                           | File stored in S3, with configurable privacy and download behavior |
+| Long or parallel renders | Limited by the user's device; client-side rendering uses a single concurrency            | Better suited to long videos and parallel renders                  |
+
+Client-side rendering is a good fit if you want simpler rendering infrastructure, expect users to have supported browsers, and want exports to be processed on their devices.
+
+Use Remotion Lambda if you need persistent output URLs, support for more compositions, consistent rendering resources, or distributed rendering.
+
+The Editor Starter uses `pageResponsiveness: "high"` to keep the interface responsive during a render. This trades some rendering speed for responsiveness. Rendering in a background tab can also be slower.
+
+## See also
+
+- [Rendering with Remotion Lambda in the Editor Starter](/docs/editor-starter/rendering)
+- [Client-side rendering](/docs/client-side-rendering)
+- [How client-side rendering works](/docs/client-side-rendering/how-it-works)
+- [Limitations of client-side rendering](/docs/client-side-rendering/limitations)

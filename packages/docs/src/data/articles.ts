@@ -1602,6 +1602,15 @@ export const articles = [
 		slug: 'editor-starter/captioning',
 	},
 	{
+		id: 'client-side-rendering',
+		title: 'Client-side rendering in the Editor Starter',
+		relativePath: 'docs/editor-starter/client-side-rendering.mdx',
+		compId: 'articles-docs-editor-starter-client-side-rendering',
+		crumb: 'Editor Starter',
+		noAi: false,
+		slug: 'editor-starter/client-side-rendering',
+	},
+	{
 		id: 'copy-paste',
 		title: 'Copy and Paste in the Editor Starter',
 		relativePath: 'docs/editor-starter/copy-paste.mdx',

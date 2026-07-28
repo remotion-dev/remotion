@@ -85,15 +85,15 @@ Buy from the same email address and then contact us at [hi@remotion.dev](mailto:
 
 ## Does this use client-side rendering / WebCodecs?
 
-No, the rendering happens using [Remotion Lambda](/docs/editor-starter/rendering).
+The Editor Starter supports [client-side rendering using WebCodecs](/docs/editor-starter/client-side-rendering), but it is disabled by default.
 
-That being said, the goal is to create the video using [client-side rendering](/docs/client-side-rendering) in the future.  
-There is no timeline available for this yet - only buy the Editor Starter if you are satisfied with the current state.
+By default, rendering happens using [Remotion Lambda](/docs/editor-starter/rendering).
 
 ## Do I have to use Remotion Lambda?
 
-The default template can be deployed in a fully serverless fashion.  
-If you want to render on a long-running server, you can modify the architecture to use the Remotion [Server-side rendering](/docs/ssr) APIs:
+No. You can [enable client-side rendering](/docs/editor-starter/client-side-rendering) to render on the user's device.
+
+You can also modify the architecture to render on a long-running server using the Remotion [server-side rendering](/docs/ssr) APIs:
 
 - Copy the [frontend code](/docs/editor-starter/setup) into your existing project
 - For the [backend routes](/docs/editor-starter/backend-routes), implement them in your long-running server. For how to implement the rendering endpoints, you can take the [Render Server](/templates/render-server) as a reference.
@@ -101,7 +101,7 @@ If you want to render on a long-running server, you can modify the architecture 
 ## Can I export the videos generated with the Editor Starter as Remotion compositions?
 
 The Editor Starter previews and renders it's videos using the regular Remotion APIs.  
-The state is stored as a JSON and being fed as [input props](/docs/terminology/input-props) to the [`<Player />`](/docs/player) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
+The state is stored as JSON and fed as [input props](/docs/terminology/input-props) to the [`<Player />`](/docs/player) and either [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) or [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web).
 
 So yes, the Editor Starter produces just Remotion compositions and they can also be rendered if they are decoupled from the editor user interface.
 However, it is important to understand that the Editor Starter applies an abstraction on top of Remotion where the whole state is expressed as JSON, which then maps to code.
