@@ -15,6 +15,9 @@
 		"lint": "eslint src",
 		"render-homepage-assets": "./render-homepage-assets.sh"
 	},
+	"dependencies": {
+		"@mediabunny/prores": "catalog:"
+	},
 	"devDependencies": {
 		"@remotion/cli": "workspace:*",
 		"@remotion/effects": "workspace:*",

@@ -95,6 +95,9 @@
     "packages/brand": {
       "name": "@remotion/brand",
       "version": "4.0.499",
+      "dependencies": {
+        "@mediabunny/prores": "catalog:",
+      },
       "devDependencies": {
         "@remotion/captions": "workspace:*",
         "@remotion/cli": "workspace:*",

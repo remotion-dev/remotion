@@ -10,3 +10,4 @@ Config.overrideWebpackConfig(async (config) => {
 	return webpackOverride(config);
 });
 Config.overrideRspackConfig(webpackOverride);
+Config.setEnableCrossSiteIsolation(true);

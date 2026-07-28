@@ -1,37 +1,36 @@
+import {loadFont} from '@remotion/fonts';
 import React from 'react';
 import {
 	AbsoluteFill,
 	Easing,
 	Interactive,
 	interpolate,
+	staticFile,
 	useCurrentFrame,
 } from 'remotion';
+import {z} from 'zod';
 
-const TITLE = 'Remotion Best Practices';
+export const skills2AnnouncementSchema = z.object({
+	title: z.string(),
+});
 
-const RemotionCube: React.FC = () => {
-	const frame = useCurrentFrame();
+loadFont({
+	family: 'GT Planar',
+	url: staticFile('GT Planar/GT-Planar-Medium.woff2'),
+	weight: '500',
+});
 
+export const RemotionCube: React.FC<{readonly name: string}> = ({name}) => {
 	return (
 		<Interactive.Svg
-			name="Remotion cube"
+			name={name}
 			viewBox="0 0 22 28"
 			style={{
 				width: 66,
 				height: 84,
 				overflow: 'visible',
-				opacity: interpolate(frame, [0, 12], [0, 1], {
-					extrapolateLeft: 'clamp',
-					extrapolateRight: 'clamp',
-					easing: Easing.bezier(0.16, 1, 0.3, 1),
-				}),
-				scale: interpolate(frame, [0, 18], [0.82, 1], {
-					extrapolateLeft: 'clamp',
-					extrapolateRight: 'clamp',
-					easing: Easing.spring({damping: 200}),
-					output: 'perceptual-scale',
-				}),
 			}}
+			showInTimeline={false}
 		>
 			<Interactive.Path
 				name="Cube outline"
@@ -55,7 +54,35 @@ const RemotionCube: React.FC = () => {
 	);
 };
 
-export const Skills2Announcement: React.FC = () => {
+const AnimatedRemotionCube: React.FC = () => {
+	const frame = useCurrentFrame();
+
+	return (
+		<Interactive.Div
+			name="Animated Remotion cube"
+			style={{
+				display: 'flex',
+				opacity: interpolate(frame, [0, 12], [0, 1], {
+					extrapolateLeft: 'clamp',
+					extrapolateRight: 'clamp',
+					easing: Easing.bezier(0.16, 1, 0.3, 1),
+				}),
+				scale: interpolate(frame, [0, 18], [0.82, 1], {
+					extrapolateLeft: 'clamp',
+					extrapolateRight: 'clamp',
+					easing: Easing.spring({damping: 200}),
+					output: 'perceptual-scale',
+				}),
+			}}
+		>
+			<RemotionCube name="Remotion cube" />
+		</Interactive.Div>
+	);
+};
+
+export const Skills2Announcement: React.FC<
+	z.infer<typeof skills2AnnouncementSchema>
+> = ({title}) => {
 	const frame = useCurrentFrame();
 
 	return (
@@ -70,10 +97,12 @@ export const Skills2Announcement: React.FC = () => {
 				name="Best practices title lockup"
 				style={{
 					position: 'relative',
-					display: 'flex',
+					display: 'inline-flex',
 					alignItems: 'center',
-					width: 1071,
-					height: 102,
+					width: 'fit-content',
+					padding: '18px 54px',
+					borderRadius: 24,
+					backgroundColor: '#edf7ff',
 					opacity: interpolate(frame, [0, 10], [0, 1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
@@ -81,12 +110,13 @@ export const Skills2Announcement: React.FC = () => {
 					}),
 				}}
 			>
-				<RemotionCube />
+				<AnimatedRemotionCube />
 				<Interactive.Div
 					name="Typed title"
 					style={{
-						position: 'relative',
-						width: 927,
+						display: 'flex',
+						alignItems: 'center',
+						width: 'fit-content',
 						height: 102,
 						marginLeft: 36,
 						overflow: 'hidden',
@@ -95,23 +125,19 @@ export const Skills2Announcement: React.FC = () => {
 					<Interactive.Div
 						name="Title text"
 						style={{
-							position: 'absolute',
-							left: 0,
-							top: 0,
-							width: 927,
 							height: 102,
 							display: 'flex',
 							alignItems: 'center',
 							color: '#2888dd',
-							fontFamily: 'Arial, Helvetica, sans-serif',
+							fontFamily: 'GT Planar, sans-serif',
 							fontSize: 88,
-							fontWeight: 400,
+							fontWeight: 500,
 							letterSpacing: -1.5,
 							lineHeight: 1,
 							whiteSpace: 'nowrap',
 						}}
 					>
-						{TITLE}
+						{title}
 					</Interactive.Div>
 				</Interactive.Div>
 			</Interactive.Div>

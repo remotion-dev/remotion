@@ -99,8 +99,12 @@ import {
 	htmlInCanvasAllEffectsDefaultProps,
 	htmlInCanvasAllEffectsSchema,
 } from './Showcase/HtmlInCanvasAllEffects';
-import {Skills2Announcement} from './Skills2Announcement';
+import {
+	Skills2Announcement,
+	skills2AnnouncementSchema,
+} from './Skills2Announcement';
 import {Skills2Gesture} from './Skills2Gesture';
+import {Skills2Pick} from './Skills2Pick';
 import {SvgLogoCompositions} from './SvgLogos';
 import {
 	FlyingCardsLeft,
@@ -128,13 +132,25 @@ export const RemotionRoot: React.FC = () => {
 					component={Skills2Announcement}
 					durationInFrames={180}
 					fps={30}
-					width={1920}
-					height={1080}
+					width={1071}
+					height={102}
+					schema={skills2AnnouncementSchema}
+					defaultProps={{
+						title: '/react-best-practices',
+					}}
 				/>
 				<Composition
 					id="Skills2Gesture"
 					component={Skills2Gesture}
 					durationInFrames={180}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="Skills2Pick"
+					component={Skills2Pick}
+					durationInFrames={78}
 					fps={30}
 					width={1920}
 					height={1080}
