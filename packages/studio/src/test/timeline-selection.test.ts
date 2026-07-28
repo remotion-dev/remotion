@@ -5421,6 +5421,50 @@ test('Backspace reset targets stroke with the SVG default', () => {
 	]);
 });
 
+test('Backspace reset targets border radius with the CSS default', () => {
+	const radiusNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'style.borderRadius'],
+	);
+	const nodePath = radiusNodePathInfo.sequenceSubscriptionKey;
+	const propStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			canUpdate: true,
+			props: {
+				'style.borderRadius': {status: 'static', codeValue: 24},
+			},
+			effects: [],
+		},
+	} satisfies PropStatuses;
+
+	const resetTargets = getTimelinePropResetTargets({
+		selections: [
+			{
+				type: 'sequence-prop',
+				nodePathInfo: radiusNodePathInfo,
+				key: 'style.borderRadius',
+			},
+		],
+		sequences: [
+			makeTimelineSequence({schema: NoReactInternals.sequenceSchema}),
+		],
+		overrideIdsToNodePaths: {override: nodePath},
+		propStatuses,
+	});
+
+	expect(resetTargets).toEqual([
+		{
+			type: 'sequence-prop',
+			fileName: '/project/src/Comp.tsx',
+			nodePath,
+			fieldKey: 'style.borderRadius',
+			value: 0,
+			defaultValue: '0',
+			schema: NoReactInternals.sequenceSchema,
+		},
+	]);
+});
+
 test('Backspace reset targets selected keyframed sequence props', () => {
 	const schema = {
 		opacity: {type: 'number', default: 1, hiddenFromList: false},

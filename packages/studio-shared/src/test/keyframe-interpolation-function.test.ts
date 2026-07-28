@@ -9,7 +9,10 @@ import {
 } from '../keyframe-interpolation-function';
 
 test('border longhand fields keyframe width and color, but not style', () => {
-	const schema = Interactive.borderSchema;
+	const schema = {
+		...Interactive.borderSchema,
+		...Interactive.borderRadiusSchema,
+	};
 
 	expect(isSchemaFieldKeyframable({schema, key: 'style.borderWidth'})).toBe(
 		true,
@@ -20,6 +23,12 @@ test('border longhand fields keyframe width and color, but not style', () => {
 	expect(isSchemaFieldKeyframable({schema, key: 'style.borderStyle'})).toBe(
 		false,
 	);
+	expect(isSchemaFieldKeyframable({schema, key: 'style.borderRadius'})).toBe(
+		true,
+	);
+	expect(
+		isSchemaFieldKeyframable({schema, key: 'style.borderTopLeftRadius'}),
+	).toBe(true);
 });
 
 test('background color is keyframable', () => {

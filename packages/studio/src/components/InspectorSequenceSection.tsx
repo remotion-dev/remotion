@@ -1,6 +1,6 @@
 import type {Caption} from '@remotion/captions';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
-import type {TSequence} from 'remotion';
+import {Internals, type TSequence} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT, WHITE} from '../helpers/colors';
@@ -14,6 +14,8 @@ import {
 	type SchemaFieldGroupInfo,
 	type TimelineTreeNode,
 } from '../helpers/timeline-layout';
+import {BorderRadiusIcon} from '../icons/border-radius';
+import {FullscreenIcon} from '../icons/fullscreen';
 import {Plus} from '../icons/plus';
 import {ModalsContext} from '../state/modals';
 import {AssetFileIcon} from './AssetFileIcon';
@@ -22,6 +24,12 @@ import {InlineCaptionInspector} from './InlineCaptionInspector';
 import {InspectorSection} from './InspectorPanel/common';
 import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
 import {getAssetSearchQueryForComponent} from './QuickSwitcher/asset-search';
+import {
+	BORDER_RADIUS_SHORTHAND_KEY,
+	getBorderRadiusConversion,
+	getBorderRadiusConversionChanges,
+} from './Timeline/border-radius-representation';
+import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {
 	getTimelineAssetLinkInfo,
 	getTimelineAssetSrcFromSchema,
@@ -69,6 +77,12 @@ const effectsHeaderTitle: React.CSSProperties = {
 const plusIcon: React.CSSProperties = {
 	width: 15,
 	height: 15,
+};
+
+const borderRadiusToggleIcon: React.CSSProperties = {
+	flexShrink: 0,
+	height: 15,
+	width: 15,
 };
 
 const assetSelectorIcon: React.CSSProperties = {
@@ -217,7 +231,7 @@ export const InspectorSequenceSection: React.FC<{
 	keyframeDisplayOffset,
 	renderTransformControls,
 }) => {
-	const {tree} = useTimelineExpandedTree({
+	const {tree, propStatuses} = useTimelineExpandedTree({
 		sequence,
 		nodePathInfo,
 		includeTextContent: true,
@@ -227,6 +241,10 @@ export const InspectorSequenceSection: React.FC<{
 		loadInspectorCollapsedKeys,
 	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {getDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
+	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(ModalsContext);
 	const selectAsset = useSelectAsset();
 	const mediaSrc = getTimelineAssetSrcFromSchema(sequence.controls);
@@ -359,6 +377,20 @@ export const InspectorSequenceSection: React.FC<{
 	);
 
 	const {schema} = sequence.controls;
+	const borderRadiusGroup = controlGroups.find(
+		(group) => group.id === 'border-radius',
+	);
+	const borderRadiusUsesShorthand = borderRadiusGroup?.rows.some(
+		({node}) =>
+			node.kind === 'field' && node.field?.key === BORDER_RADIUS_SHORTHAND_KEY,
+	);
+	const borderRadiusConversion = getBorderRadiusConversion(
+		Internals.getPropStatusesCtx(
+			propStatuses,
+			nodePathInfo.sequenceSubscriptionKey,
+		),
+		getDragOverrides(nodePathInfo.sequenceSubscriptionKey),
+	);
 	const inlineCaptionValue =
 		schema.captions?.type === 'remotion-captions'
 			? sequence.controls.currentRuntimeValueDotNotation.captions
@@ -392,6 +424,71 @@ export const InspectorSequenceSection: React.FC<{
 		setSelectedModal,
 		validatedLocation.source,
 	]);
+
+	const onConvertBorderRadius = useCallback(() => {
+		if (
+			borderRadiusConversion === null ||
+			previewServerState.type !== 'connected'
+		) {
+			return;
+		}
+
+		const common = {
+			fileName: validatedLocation.source,
+			nodePath: nodePathInfo.sequenceSubscriptionKey,
+			defaultValue: null,
+			schema,
+		};
+		const changes = getBorderRadiusConversionChanges(
+			borderRadiusConversion,
+		).map((change) => ({...common, ...change}));
+
+		saveSequenceProps({
+			changes,
+			addedKeyframes: null,
+			movedKeyframes: null,
+			setPropStatuses,
+			clientId: previewServerState.clientId,
+			undoLabel: 'Change border radius representation',
+			redoLabel: 'Change border radius representation again',
+		});
+	}, [
+		borderRadiusConversion,
+		nodePathInfo.sequenceSubscriptionKey,
+		previewServerState,
+		schema,
+		setPropStatuses,
+		validatedLocation.source,
+	]);
+
+	const borderRadiusHeader = borderRadiusGroup ? (
+		<div style={sectionHeaderRow}>
+			<div style={effectsHeaderTitle}>Border radius</div>
+			<InlineAction
+				disabled={
+					borderRadiusConversion === null ||
+					previewServerState.type !== 'connected'
+				}
+				onClick={onConvertBorderRadius}
+				title={
+					borderRadiusConversion === null
+						? borderRadiusUsesShorthand
+							? 'A static border radius is required to use individual corners'
+							: 'All four corners must have the same static value'
+						: borderRadiusUsesShorthand
+							? 'Use individual corner radii'
+							: 'Use one border radius value'
+				}
+				renderAction={(color) =>
+					borderRadiusUsesShorthand ? (
+						<FullscreenIcon color={color} style={borderRadiusToggleIcon} />
+					) : (
+						<BorderRadiusIcon color={color} style={borderRadiusToggleIcon} />
+					)
+				}
+			/>
+		</div>
+	) : null;
 
 	const effectsHeader = (
 		<div style={sectionHeaderRow}>
@@ -448,7 +545,14 @@ export const InspectorSequenceSection: React.FC<{
 				{controlRows.length > 0 ? (
 					<TimelineSelectionOrderProvider items={controlSelectableItems}>
 						{controlGroupsWithoutLayout.map((group) => (
-							<InspectorSection key={group.id} header={group.label}>
+							<InspectorSection
+								key={group.id}
+								header={
+									group.id === 'border-radius'
+										? borderRadiusHeader
+										: group.label
+								}
+							>
 								{group.id === 'transforms' ? renderTransformControls() : null}
 								{group.rows.map(renderRow)}
 							</InspectorSection>

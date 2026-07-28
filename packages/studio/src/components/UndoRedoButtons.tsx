@@ -148,23 +148,13 @@ export const UndoRedoButtons: React.FC = () => {
 			? `Redo (${cmdOrCtrlCharacter}+Shift+Z)`
 			: `Redo (${cmdOrCtrlCharacter}+Y)`;
 
-	const renderUndo: RenderInlineAction = useCallback(
-		(color) => {
-			return (
-				<UndoIcon style={{...iconStyle, color, opacity: undoFile ? 1 : 0.5}} />
-			);
-		},
-		[undoFile],
-	);
+	const renderUndo: RenderInlineAction = useCallback((color) => {
+		return <UndoIcon style={{...iconStyle, color}} />;
+	}, []);
 
-	const renderRedo: RenderInlineAction = useCallback(
-		(color) => {
-			return (
-				<RedoIcon style={{...iconStyle, color, opacity: redoFile ? 1 : 0.5}} />
-			);
-		},
-		[redoFile],
-	);
+	const renderRedo: RenderInlineAction = useCallback((color) => {
+		return <RedoIcon style={{...iconStyle, color}} />;
+	}, []);
 
 	const canUndo = undoFile !== null;
 	const canRedo = redoFile !== null;

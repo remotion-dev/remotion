@@ -54,6 +54,7 @@ test('Should expose absolute-fill variant fields when active', () => {
 		'style.borderWidth',
 		'style.borderStyle',
 		'style.borderColor',
+		'style.borderRadius',
 		'cropLeft',
 		'cropRight',
 		'cropTop',

@@ -125,6 +125,12 @@ mock.module('remotion', () => {
 				'style.borderStyle': {},
 				'style.borderColor': {},
 			},
+			borderRadiusSchema: {
+				'style.borderTopLeftRadius': {},
+				'style.borderTopRightRadius': {},
+				'style.borderBottomRightRadius': {},
+				'style.borderBottomLeftRadius': {},
+			},
 			withSchema: mock(({Component}) => Component),
 		},
 		Sequence: ({

@@ -49,6 +49,27 @@ test('registers the background color longhand', () => {
 	expect(background?.isUnsupportedProperty('backgroundImage')).toBe(false);
 });
 
+test('registers border radius longhands and logical-property blockers', () => {
+	const borderRadius = getCssShorthandForLonghand({
+		parentKey: 'style',
+		longhand: 'borderTopLeftRadius',
+	});
+
+	expect(borderRadius?.shorthand).toBe('borderRadius');
+	expect(borderRadius?.longhands).toEqual([
+		'borderTopLeftRadius',
+		'borderTopRightRadius',
+		'borderBottomRightRadius',
+		'borderBottomLeftRadius',
+	]);
+	expect(borderRadius?.isUnsupportedProperty('borderStartStartRadius')).toBe(
+		true,
+	);
+	expect(borderRadius?.isUnsupportedProperty('borderTopLeftRadius')).toBe(
+		false,
+	);
+});
+
 test('selects shorthand migrations from dot-notation update keys', () => {
 	expect(
 		getCssShorthandsForUpdates([
@@ -58,4 +79,9 @@ test('selects shorthand migrations from dot-notation update keys', () => {
 		]).map((property) => property.shorthand),
 	).toEqual(['background', 'border']);
 	expect(getCssShorthandsForUpdates(['style.opacity'])).toEqual([]);
+	expect(
+		getCssShorthandsForUpdates(['style.borderBottomRightRadius']).map(
+			(property) => property.shorthand,
+		),
+	).toEqual(['borderRadius']);
 });

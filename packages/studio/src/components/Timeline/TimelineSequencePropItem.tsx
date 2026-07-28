@@ -21,6 +21,7 @@ import {ContextMenu} from '../ContextMenu';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {callAddSequenceKeyframe} from './call-add-keyframe';
+import {getSequencePropResetChanges} from './get-sequence-prop-reset-changes';
 import {saveSequenceProps} from './save-sequence-prop';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
 import {TimelineFieldRowContent} from './TimelineFieldRowContent';
@@ -401,16 +402,14 @@ export const TimelineSequencePropItem: React.FC<{
 		saveSequenceProps({
 			addedKeyframes: null,
 			movedKeyframes: null,
-			changes: [
-				{
-					fileName: validatedLocation.source,
-					nodePath,
-					fieldKey: field.key,
-					value: field.fieldSchema.default,
-					defaultValue,
-					schema,
-				},
-			],
+			changes: getSequencePropResetChanges({
+				fileName: validatedLocation.source,
+				nodePath,
+				fieldKey: field.key,
+				value: field.fieldSchema.default,
+				defaultValue,
+				schema,
+			}),
 			setPropStatuses,
 			clientId: previewServerState.clientId,
 			undoLabel: `Reset ${fieldLabel}`,
