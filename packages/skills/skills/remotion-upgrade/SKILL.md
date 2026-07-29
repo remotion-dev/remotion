@@ -1,6 +1,6 @@
 ---
 name: remotion-upgrade
-description: Upgrade Remotion, its related packages, compatible Mediabunny packages, and installed Remotion Agent Skills. Use when asked to upgrade or update a Remotion project.
+description: Upgrade Remotion, and related packages
 ---
 
 # Upgrade Remotion
