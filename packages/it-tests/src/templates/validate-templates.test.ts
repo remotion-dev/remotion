@@ -261,6 +261,15 @@ describe('Templates should be valid', () => {
 			) {
 				expect(contents).not.toInclude('"incremental": true');
 			}
+
+			const tsconfig = JSON.parse(contents!);
+			const usesNodeModuleResolution = [
+				'template-still',
+				'template-skia',
+			].includes(template.templateInMonorepo);
+			if (!usesNodeModuleResolution) {
+				expect(tsconfig.compilerOptions.moduleResolution).toBe('Bundler');
+			}
 		});
 
 		it(`${template.shortName} should use correct prettier`, async () => {

@@ -74,7 +74,8 @@ export const MyComponent: React.FC<Props> = () => {
 	'/project/tsconfig.json': `{
   "compilerOptions": {
     "target": "ES2018",
-    "module": "commonjs",
+    "module": "Preserve",
+    "moduleResolution": "Bundler",
     "jsx": "react-jsx",
     "strict": true,
     "noEmit": true,
