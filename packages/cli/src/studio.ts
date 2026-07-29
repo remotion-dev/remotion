@@ -166,12 +166,10 @@ export const studioCommand = async (
 	const rspackOverride = ConfigInternals.getRspackOverrideFn();
 	const webpackOverride = ConfigInternals.getWebpackOverrideFn();
 
-	if (useRspack) {
-		Log.warn(
-			{indent: false, logLevel},
-			'Enabling experimental Rspack bundler.',
-		);
-	}
+	Log.verbose(
+		{indent: false, logLevel},
+		`Using ${useRspack ? 'Rspack' : 'Webpack'} bundler.`,
+	);
 
 	const getStudioRuntimeConfig = () => ({
 		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
