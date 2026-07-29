@@ -300,6 +300,43 @@ export const Example = () => {
 	expect(output).toContain(`src={staticFile('folder/new image.png')}`);
 });
 
+test('updateMultipleSequenceProps should import staticFile() when changing a remote asset to a local asset', async () => {
+	const input = `import {Video} from '@remotion/media';
+
+export const Example = () => {
+	return <Video src="https://example.com/old.mp4" />;
+};
+`;
+	const {output, results} = await updateMultipleSequenceProps({
+		input,
+		changes: [
+			{
+				nodePath: lineColumnToNodePath(input, 4),
+				updates: [
+					{
+						key: 'src',
+						value: 'remotion-file:folder/new%20video.mp4',
+						defaultValue: null,
+					},
+				],
+				schema: {
+					src: {
+						type: 'asset',
+						default: undefined,
+						keyframable: false,
+					},
+				},
+				videoConfigValues: null,
+			},
+		],
+		prettierConfigOverride: null,
+	});
+
+	expect(results[0].oldValueStrings[0]).toBe('"https://example.com/old.mp4"');
+	expect(output).toContain("import {staticFile} from 'remotion';");
+	expect(output).toContain(`src={staticFile('folder/new video.mp4')}`);
+});
+
 test('updateSequenceProps should remove attribute when value equals default', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
 		videoConfigValues: null,
