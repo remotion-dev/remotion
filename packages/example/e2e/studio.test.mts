@@ -27,4 +27,25 @@ test.describe('visual mode', () => {
 	test('should navigate to schema-test composition', async ({page}) => {
 		await navigateToSchemaTest(page);
 	});
+
+	test('should seek in read-only Studio', async ({page}) => {
+		await page.addInitScript(() => {
+			Object.defineProperty(window, 'remotion_isReadOnlyStudio', {
+				configurable: false,
+				get: () => true,
+				set: () => undefined,
+			});
+		});
+
+		await page.goto(`${STUDIO_URL}/schema-test`);
+		await expect(
+			page.getByRole('button', {name: '0', exact: true}),
+		).toBeVisible({timeout: 15_000});
+
+		await page.locator('[data-timeline-scrubber]').click();
+
+		await expect(
+			page.getByRole('button', {name: '75', exact: true}),
+		).toBeVisible();
+	});
 });
