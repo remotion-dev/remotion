@@ -4,7 +4,7 @@ import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from '../ForceSpecificCursor';
-import {SplitterContext} from './SplitterContext';
+import {getSplitterFlexBounds, SplitterContext} from './SplitterContext';
 
 export const SPLITTER_HANDLE_SIZE = 3;
 
@@ -62,20 +62,14 @@ export const SplitterHandle: React.FC<{
 				(dragContext.orientation === 'vertical'
 					? containerWidth
 					: containerHeight) - SPLITTER_HANDLE_SIZE;
-			const minFlex =
-				dragContext.maxAntiFlexerSize === null || availableSize <= 0
-					? dragContext.minFlex
-					: Math.max(
-							dragContext.minFlex,
-							1 - dragContext.maxAntiFlexerSize / availableSize,
-						);
-			const maxFlex =
-				dragContext.maxFlexerSize === null || availableSize <= 0
-					? dragContext.maxFlex
-					: Math.min(
-							dragContext.maxFlex,
-							dragContext.maxFlexerSize / availableSize,
-						);
+			const {minFlex, maxFlex} = getSplitterFlexBounds({
+				availableSize,
+				maxAntiFlexerSize: dragContext.maxAntiFlexerSize,
+				maxFlex: dragContext.maxFlex,
+				maxFlexerSize: dragContext.maxFlexerSize,
+				minFlex: dragContext.minFlex,
+				minFlexerSize: dragContext.minFlexerSize,
+			});
 			const startFlex = Math.min(
 				maxFlex,
 				Math.max(minFlex, dragContext.flexValue),

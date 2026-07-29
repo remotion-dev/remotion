@@ -64,6 +64,7 @@ export const InlineAction = ({
 			style={style}
 			tabIndex={tabIndex}
 			title={title}
+			aria-label={title}
 		>
 			{renderAction(hovered ? WHITE : unhoveredColor)}
 		</button>
