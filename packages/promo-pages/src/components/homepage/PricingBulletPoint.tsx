@@ -12,6 +12,8 @@ const greyCircle: React.CSSProperties = {
 	height: 20,
 	borderRadius: 10,
 	backgroundColor: 'var(--footer-border)',
+	flexShrink: 0,
+	marginTop: 4,
 };
 
 export const PricingBulletPoint: React.FC<{
@@ -28,6 +30,7 @@ export const PricingBulletPoint: React.FC<{
 			xmlns="http://www.w3.org/2000/svg"
 			style={{
 				flexShrink: 0,
+				marginTop: 4,
 			}}
 		>
 			<circle cx="10" cy="10" r="10" fill="#0B84F3" />
