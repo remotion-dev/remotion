@@ -1,6 +1,7 @@
 import {
-	StudioProtocolInternals,
-	type ComponentDimensions,
+	createElementPayload,
+	installInStudio,
+	setStudioDragData,
 } from '@remotion/studio-protocol';
 import React, {
 	useCallback,
@@ -11,7 +12,7 @@ import React, {
 } from 'react';
 import {BlueButton, PlainButton} from '../../../components/layout/Button';
 import type {ElementDefinition} from './element-definitions';
-import {setElementDragData, setElementDragImage} from './element-drag-data';
+import {setElementDragImage} from './element-drag-data';
 import {getElementDimensionsLabel} from './element-utils';
 import {ElementPreview} from './ElementPreview';
 import {
@@ -57,12 +58,12 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	const {height: previewHeight, width: previewWidth} =
 		getElementPreviewDimensions(definition);
 
-	const dragData = useMemo(() => {
+	const elementPayload = useMemo(() => {
 		if (!sourceCode) {
 			return null;
 		}
 
-		const dimensions: ComponentDimensions | null =
+		const dimensions =
 			elementWidth !== null && elementHeight !== null
 				? {
 						width: elementWidth,
@@ -70,8 +71,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 					}
 				: null;
 
-		return StudioProtocolInternals.makeDragData({
-			type: 'element',
+		return createElementPayload({
 			dependencies,
 			dimensions,
 			displayName,
@@ -90,16 +90,16 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	]);
 
 	const installElement = useCallback(async () => {
-		if (dragData === null) {
+		if (elementPayload === null) {
 			return;
 		}
 
 		setInstallStatus({type: 'installing'});
-		const result = await StudioProtocolInternals.installInStudio(dragData);
+		const result = await installInStudio({payload: elementPayload});
 		if (!result.success) {
 			setInstallStatus({
 				type: 'error',
-				message: result.reason,
+				message: result.message,
 			});
 			return;
 		}
@@ -107,12 +107,10 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		const {target} = result;
 		setInstallStatus({
 			type: 'success',
-			message: `Sent to ${target.projectName ?? 'Remotion Studio'}${
-				target.activeCompositionId ? ` / ${target.activeCompositionId}` : ''
-			}. Confirm the install in Studio.`,
-			studioUrl: target.origin,
+			message: `Sent to ${target.projectName ?? 'Remotion Studio'} / ${target.compositionId}. Confirm the installation in Studio.`,
+			studioUrl: target.studioOrigin,
 		});
-	}, [dragData]);
+	}, [elementPayload]);
 
 	const PreviewComponent = useMemo(() => {
 		return () => <ElementPreviewComposition definition={definition} />;
@@ -165,7 +163,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				className={styles.actionsColumn}
 			>
 				<div className={styles.useIt}>
-					{dragData === null ? null : (
+					{elementPayload === null ? null : (
 						<>
 							<div className={styles.actionRow}>
 								<BlueButton
@@ -178,16 +176,16 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 								>
 									{installStatus.type === 'installing'
 										? 'Finding Studio…'
-										: 'Install Element'}
+										: 'Install in Studio'}
 								</BlueButton>
 								<PlainButton
 									draggable
 									fullWidth
 									loading={false}
 									onDragStart={(event) => {
-										setElementDragData({
+										setStudioDragData({
 											dataTransfer: event.dataTransfer,
-											dragData,
+											payload: elementPayload,
 										});
 										setElementDragImage(event.dataTransfer);
 									}}
@@ -198,6 +196,10 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									Drag into Studio
 								</PlainButton>
 							</div>
+							<p className={styles.poweredBy}>
+								Powered by the{' '}
+								<a href="/docs/studio-protocol">Remotion Studio Protocol</a>
+							</p>
 							{installStatus.type === 'success' ||
 							installStatus.type === 'error' ? (
 								<p
