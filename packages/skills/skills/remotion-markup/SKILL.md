@@ -10,9 +10,11 @@ If this is not relevant, load [Remotion Best Practices](../remotion-best-practic
 
 ## General rules
 
-Animate properties using `useCurrentFrame()` and `interpolate()`.
+Drive animations using `useCurrentFrame()` and `interpolate()`.  
+CSS `transition` or `animation` will not render correctly, they need to refactored.  
+Tailwind animation class will not render correctly, they need to be refactored.
 
-Use `Easing.bezier()` to customize timing, including jumpy or overshooting motion.
+Use `Easing.bezier()` to customize timing.
 Use `Easing.spring()` if you want spring animations.
 
 Structure your markup according to [Remotion Interactivity Best Practices](../remotion-interactivity/SKILL.md)
@@ -27,7 +29,7 @@ export const FadeIn = () => {
     <Interactive.Div
       name="Title"
       style={{
-        opacity: interpolate(frame, [0, 60], [0, 1], {
+        opacity: interpolate(frame, [0, 2 * fps], [0, 1], {
           extrapolateRight: "clamp",
           extrapolateLeft: "clamp",
           easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -41,7 +43,7 @@ export const FadeIn = () => {
 ```
 
 Keep the `interpolate()` call inline in the `style` prop.
-Prefer `scale`, `translate`, `rotate` CSS properties over `transform`.
+Use `scale`, `translate`, `rotate` CSS properties over `transform`.
 
 ```tsx
 // 👍 Inline editable keyframes and transform shorthands
@@ -64,7 +66,7 @@ style={{
   }),
 }}
 
-// 👎 Hidden values and transform strings become harder to edit in Studio
+// 👎 Non-inline values and transform strings become harder to edit in Studio
 const scale = interpolate(frame, [0, 100], [0, 1]);
 
 style={{
@@ -72,20 +74,21 @@ style={{
 }}
 ```
 
-CSS transitions or animations are FORBIDDEN - they will not render correctly.  
-Tailwind animation class names are FORBIDDEN - they will not render correctly.
+## Assets
 
 Place assets in the `public/` folder at your project root.
-
 Use `staticFile()` to reference files from the `public/` folder.
 
-Add video and audio using `@remotion/media`.  
+## Media components
+
+Add video and audio using `<Video>` and `<Audio>` from `@remotion/media`.  
 Add images using the `<CanvasImage>` component.
+Add animated GIFs, APNG, WebP or AVIF images using `<AnimatedImage>`, use `@remotion/gif` if not using Chrome.
 Use `staticFile()` for files in `public/` or pass a remote URL directly:
 
 ```tsx
 import { Audio, Video } from "@remotion/media";
-import { staticFile, CanvasImage } from "remotion";
+import { staticFile, CanvasImage, AnimatedImage } from "remotion";
 
 export const MyComposition = () => {
   return (
@@ -94,108 +97,127 @@ export const MyComposition = () => {
       <Audio src={staticFile("audio.mp3")} />
       <CanvasImage src={staticFile("logo.png")} style={{ width: 100, height: 100 }} />
       <Video src="https://remotion.media/video.mp4" />
+      <AnimatedImage src={staticFile('nyancat.gif')} />
     </>
   );
 };
 ```
 
-## Cropping
-
-See [cropping.md](cropping.md) for supported components, crop props, Studio
-controls, animation, and custom component support.
-
-To delay content wrap it in `<Sequence>` and use `from`.
-To limit the duration of an element, use `durationInFrames` of `<Sequence>`.
-`<Sequence>` by default is an absolute fill covering the scene.  
-For inline content, use `layout="none"`.
+## Example scene
 
 ```tsx
-const Main = () => {
+import {
+  AbsoluteFill,
+  Easing,
+  Interactive,
+  interpolate,
+  useCurrentFrame,
+  useVideoConfig
+} from "remotion";
+
+export const Empty = () => {
   const {fps} = useVideoConfig();
+  const frame = useCurrentFrame();
 
   return (
-    <AbsoluteFill>
-      <Background />
-      <AbsoluteFill>
-        <Sequence name="Title" from={30} durationInFrames={60} layout="none">
-          <Title />
-        </Sequence>
-        <Sequence name="Subtitle" from={60} durationInFrames={60} layout="none">
-          <Subtitle />
-        </Sequence>
-      </AbsoluteFill>
+    <AbsoluteFill style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+      <Interactive.Div
+        name="Title"
+        style={{
+          opacity: interpolate(frame, [1 * fps, 2 * fps], [0, 1], {
+            extrapolateRight: "clamp",
+            extrapolateLeft: "clamp",
+            easing: Easing.bezier(0.16, 1, 0.3, 1),
+          }),
+          fontSize: 88
+        }}
+      >
+        Title
+      </Interactive.Div>
+      <Interactive.Div
+        name="Subtitle"
+        style={{
+          opacity: interpolate(frame, [2 * fps, 3 * fps, 8 * fps, 10 * fps], [0, 1, 1, 0], {
+            extrapolateRight: "clamp",
+            extrapolateLeft: "clamp",
+            easing: [Easing.bezier(0.16, 1, 0.3, 1), Easing.linear, Easing.bezier(0.16, 1, 0.3, 1)],
+          }),
+          fontSize: 32
+        }}
+      >
+        Subtitle
+      </Interactive.Div>
     </AbsoluteFill>
   );
 }
-
-export const Title = () => {
-  const frame = useCurrentFrame();
-
-  return (
-    <Interactive.Div
-      name="Label"
-      style={{
-        opacity: interpolate(frame, [0, 60], [0, 1], {
-          extrapolateRight: "clamp",
-          extrapolateLeft: "clamp",
-          easing: Easing.bezier(0.16, 1, 0.3, 1),
-        }),
-        fontSize: 88
-      }}
-    >
-      Title
-    </Interactive.Div>
-  );
-};
-
-export const Subtitle = () => {
-  const frame = useCurrentFrame();
-
-  return (
-    <Interactive.Div
-      name="Subtitle"
-      style={{
-        opacity: interpolate(frame, [0, 60], [0, 1], {
-          extrapolateRight: "clamp",
-          extrapolateLeft: "clamp",
-          easing: Easing.bezier(0.16, 1, 0.3, 1),
-        }),
-        fontSize: 32
-      }}
-    >
-      Subtitle
-    </Interactive.Div>
-  );
-};
 ```
+
+## Delaying, trimming
+
+Most components (`<Interactive.*>` `<Img>`, `<AnimatedImage>`, `<CanvasImage>`, `<HtmlInCanvas>`, `<Solid>`, `<Sequence>` from `remotion`, `<Video>` and `<Audio>` from `@remotion/media`, `<Gif>`, and more) support the following props:
+
+### from
+
+```tsx
+<Img from={1 * fps} {/* ... */}/>
+<Video from={1 * fps} {/* ... */}/>
+<Interactive.Div from={1 * fps} {/* ... */}/>
+```
+
+When the element starts appearing in the timelien.
+
+### durationInFrames
+
+```tsx
+<Img durationInFrames={20 * fps} {/* ... */}/>
+<Interactive.Div durationInFrames={20 * fps} {/* ... */}/>
+```
+
+For how long the layer plays in the timeline.  
+For media, pass the natural duration of the media: `<Video durationInFrames={29.322 * fps}/>`
+
+### `trimBefore`
+
+Useful for components whose internal clock should start later:
+
+```tsx
+<Video trimBefore={2 * fps} {/* ... */} /> // Trim away first 2 seconds of footage
+<Sequence trimBefore={10 * fps} {/* ... */} /> // `useCurrenFrame()` for children starts at `10 * fps`
+```
+
+### Fallback
+
+If a component does not support these props, wrap it in`<Sequence>` from `remotion`, which has them.
+- `layout="absolute-fill"` makes the Sequence behave like AbsoluteFill
+- `layout="none"` is  "headless" mode, no wrapper element is used.
 
 ## Maps
 
-See [Remotion Maps](remotion-maps/SKILL.md) for choosing a map technique.
+See [Remotion Maps](remotion-maps/SKILL.md) if wanting to include maps in the video.
 
 ## Text highlights and annotations
 
-See [text-highlights.md](text-highlights.md) for text highlights (highlight markers), circles, underlines, strike-throughs, crossed-off text, boxes, and brackets.
+See [text-highlights.md](text-highlights.md) for text highlights (highlight markers), circles, underlines, strike-throughs, crossed-off text, boxes.
 
 ## Voiceover
 
-See [voiceover.md](voiceover.md) for adding AI-generated voiceover to Remotion compositions using ElevenLabs TTS.
-
-## Trimming
-
-See [trimming.md](trimming.md) for trimming patterns - cutting the beginning or end of animations.
+See [voiceover.md](voiceover.md) for adding an AI-generated voiceover to Remotion compositions using ElevenLabs TTS.
 
 ## Embedding Videos
 
 See [embedding-videos.md](embedding-videos.md) for advanced knowledge about embedding videos - trimming, volume, speed, looping, pitch.
 
+## Embedding Audio
+
+See [audio.md](audio.md) for advanced audio features like trimming, volume, speed, pitch.
+
 ## Video editing
 
 See [video-editing.md](video-editing.md) for structuring editable video timelines in Remotion Studio.
 
-## Embedding Audio
+## Cropping
 
-See [audio.md](audio.md) for advanced audio features like trimming, volume, speed, pitch.
+See [cropping.md](cropping.md) if needing to crop the visible rectangle of a component.
 
 ## Transitions
 
@@ -203,9 +225,10 @@ See [transitions.md](transitions.md) for scene transition patterns.
 
 ## Visual and pixel effects
 
-When creating a visual effect, consider whether it is feasible using CSS and HTML, or whether a shader is needed. Order or preference:
+When creating a visual effect, consider whether it is feasible using CSS and HTML, or whether a shader is needed.  
+Order or preference:
 
-1. Normal Remotion/HTML/CSS/SVG/filter/blend/mask animation
+1. Regular HTML + CSS or other web techniques
 2. An effect applied to the element directly (`<Video>`, `<Img>`), or by wrapping the content in [`<HtmlInCanvas>`](html-in-canvas.md), which also accepts `effects`:
 
 - A listed effect via [effects.md](effects.md)
@@ -213,7 +236,7 @@ When creating a visual effect, consider whether it is feasible using CSS and HTM
 
 ## 3D content
 
-See [3d.md](3d.md) for 3D content in Remotion using Three.js and React Three Fiber.
+See [./3d.md](./3d.md) for 3D content in Remotion using Three.js and React Three Fiber.
 
 ## Sound effects
 
@@ -251,9 +274,9 @@ See [images.md](images.md) for sizing and positioning images, dynamic image path
 
 See [lottie.md](lottie.md) for embedding Lottie animations in Remotion.
 
-## Advanced timing
+## Timing
 
-See [timing.md](timing.md) for advanced timing with `interpolate` and Bézier easing, and springs.
+See [timing.md](timing.md) for more timing techniques for `interpolate()`.
 
 ## Parameterized videos
 
@@ -298,6 +321,10 @@ npx remotion add @remotion/media
 This goes for `@remotion/*` packages, `mediabunny`, `@mediabunny/*`, and `zod`.
 
 ## Previewing markup
+
+```
+npx remotion studio --no-open
+```
 
 This will start a long-running process and print the server URL for the preview.  
 If server is already started, it will print the URL.
