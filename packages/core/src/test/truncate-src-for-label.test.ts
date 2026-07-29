@@ -36,8 +36,8 @@ test('truncates large blob URLs', () => {
 	expect(result).toContain('[' + hugeBlob.length + ' chars total]');
 });
 
-test('handles non-string inputs safely', () => {
-	expect(truncateSrcForLabel(null as unknown as string)).toBe('');
-	expect(truncateSrcForLabel(undefined as unknown as string)).toBe('');
+test('stringifies non-string inputs for diagnostic labels', () => {
+	expect(truncateSrcForLabel(null as unknown as string)).toBe('null');
+	expect(truncateSrcForLabel(undefined as unknown as string)).toBe('undefined');
 	expect(truncateSrcForLabel(123 as unknown as string)).toBe('123');
 });
