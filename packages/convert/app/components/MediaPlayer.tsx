@@ -1,9 +1,13 @@
 import {Audio, Video} from '@remotion/media';
 import {Player, type PlayerRef} from '@remotion/player';
 import type {CropRectangle} from 'mediabunny';
-import {useEffect, useRef, useState} from 'react';
+import {type CSSProperties, useEffect, useRef, useState} from 'react';
 import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
-import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
+import {
+	calculateNewDimensionsFromRotate,
+	type Dimensions,
+	normalizeVideoRotation,
+} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {Source} from '~/lib/convert-state';
 import {cn} from '~/lib/utils';
 import {AudioWaveForm, AudioWaveformContainer} from './AudioWaveform';
@@ -60,13 +64,64 @@ const useVideoSourceUrl = (source: Source) => {
 	return objectUrl;
 };
 
+export const getPlayerDimensions = ({
+	dimensions,
+	isAudio,
+	rotation,
+}: {
+	dimensions: Dimensions | null | undefined;
+	isAudio: boolean;
+	rotation: number;
+}): Dimensions | null => {
+	if (isAudio) {
+		return {width: 732, height: 197};
+	}
+
+	if (!dimensions) {
+		return null;
+	}
+
+	return calculateNewDimensionsFromRotate({
+		...dimensions,
+		rotation,
+	});
+};
+
+export const getVideoPreviewStyle = ({
+	width,
+	height,
+	rotation,
+	mirrorHorizontal,
+	mirrorVertical,
+}: Dimensions & {
+	rotation: number;
+	mirrorHorizontal: boolean;
+	mirrorVertical: boolean;
+}): CSSProperties => {
+	const normalizedRotation = normalizeVideoRotation(rotation);
+	const switchesDimensions =
+		normalizedRotation % 90 === 0 && normalizedRotation % 180 !== 0;
+
+	return {
+		position: 'absolute',
+		left: '50%',
+		top: '50%',
+		width: switchesDimensions ? height : width,
+		height: switchesDimensions ? width : height,
+		transform: `translate(-50%, -50%) rotate(${normalizedRotation}deg) scale(${mirrorHorizontal ? -1 : 1}, ${mirrorVertical ? -1 : 1})`,
+	};
+};
+
 const RemotionMediaPreview: React.FC<{
 	readonly src: string;
 	readonly isAudio: boolean;
 	readonly waveform: number[];
-}> = ({src, isAudio, waveform}) => {
+	readonly rotation: number;
+	readonly mirrorHorizontal: boolean;
+	readonly mirrorVertical: boolean;
+}> = ({src, isAudio, waveform, rotation, mirrorHorizontal, mirrorVertical}) => {
 	const frame = useCurrentFrame();
-	const {durationInFrames} = useVideoConfig();
+	const {durationInFrames, width, height} = useVideoConfig();
 	const progress = frame / Math.max(1, durationInFrames - 1);
 
 	if (!isAudio) {
@@ -75,10 +130,13 @@ const RemotionMediaPreview: React.FC<{
 				<Video
 					src={src}
 					objectFit="contain"
-					style={{
-						width: '100%',
-						height: '100%',
-					}}
+					style={getVideoPreviewStyle({
+						width,
+						height,
+						rotation,
+						mirrorHorizontal,
+						mirrorVertical,
+					})}
 				/>
 			</AbsoluteFill>
 		);
@@ -109,6 +167,9 @@ export function VideoPlayer({
 	dimensions,
 	durationInSeconds,
 	fps,
+	rotation,
+	mirrorHorizontal,
+	mirrorVertical,
 	onPlaybackTimeChange,
 }: {
 	readonly src: Source;
@@ -124,6 +185,9 @@ export function VideoPlayer({
 	readonly dimensions: Dimensions | null | undefined;
 	readonly durationInSeconds: number | null | undefined;
 	readonly fps: number | null | undefined;
+	readonly rotation: number;
+	readonly mirrorHorizontal: boolean;
+	readonly mirrorVertical: boolean;
 	readonly onPlaybackTimeChange: (timeInSeconds: number) => void;
 	readonly setUnclampedRect: React.Dispatch<
 		React.SetStateAction<CropRectangle>
@@ -139,9 +203,11 @@ export function VideoPlayer({
 		durationInSeconds,
 		fps: playerFps,
 	});
-	const playerDimensions = isAudio
-		? {width: 732, height: 197}
-		: (dimensions ?? null);
+	const playerDimensions = getPlayerDimensions({
+		dimensions,
+		isAudio,
+		rotation,
+	});
 	const actualInFrame =
 		trim &&
 		trimInFrame !== null &&
@@ -221,7 +287,14 @@ export function VideoPlayer({
 						ref={playerRef}
 						key={videoSourceUrl}
 						component={RemotionMediaPreview}
-						inputProps={{src: videoSourceUrl, isAudio, waveform}}
+						inputProps={{
+							src: videoSourceUrl,
+							isAudio,
+							waveform,
+							rotation,
+							mirrorHorizontal,
+							mirrorVertical,
+						}}
 						durationInFrames={durationInFrames}
 						compositionWidth={playerDimensions.width}
 						compositionHeight={playerDimensions.height}
