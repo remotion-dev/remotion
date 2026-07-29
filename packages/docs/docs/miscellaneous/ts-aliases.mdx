@@ -51,7 +51,7 @@ Config.overrideBundlerConfig((config) => {
 });
 ```
 
-Remember that in Node.JS APIs, the config file does not apply, so you need to pass the shared override as `bundlerOverride` to the [`bundle()`](/docs/bundle) and [`deploySite()`](/docs/lambda/deploysite) functions.
+Remember that in the [`bundle()`](/docs/bundle) Node.js API, the config file does not apply, so you need to pass the shared override directly as `bundlerOverride`.
 
 ## Automatically syncing Webpack and TypeScript aliases
 

@@ -21,7 +21,7 @@ const printSitesHelp = (logLevel: LogLevel) => {
 	CliInternals.Log.info({indent: false, logLevel});
 	CliInternals.Log.info(
 		{indent: false, logLevel},
-		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_CREATE_SUBCOMMAND} <entry-point>`,
+		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_CREATE_SUBCOMMAND} [entry-point]`,
 	);
 	CliInternals.Log.info(
 		{indent: false, logLevel},

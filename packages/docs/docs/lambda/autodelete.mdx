@@ -54,8 +54,9 @@ npx remotion lambda sites create --site-name=my-site-name --enable-folder-expiry
 
   <TabItem value="bucket">
 
-```ts twoslash title="deploy.mjs" {6}
-import {deploySite, getOrCreateBucket} from '@remotion/lambda';
+```ts twoslash title="deploy.mjs"
+import {bundle} from '@remotion/bundler';
+import {deploySiteFromBundle, getOrCreateBucket} from '@remotion/lambda';
 import path from 'path';
 
 const {bucketName} = await getOrCreateBucket({
@@ -63,9 +64,13 @@ const {bucketName} = await getOrCreateBucket({
   enableFolderExpiry: true,
 });
 
-const {serveUrl} = await deploySite({
+const bundleDir = await bundle({
   entryPoint: path.resolve(process.cwd(), 'src/index.ts'),
-  bucketName, // use the bucket with lifecyle rules
+});
+
+const {serveUrl} = await deploySiteFromBundle({
+  bundleDir,
+  bucketName, // use the bucket with lifecycle rules
   region: 'us-east-1',
 });
 console.log(serveUrl);
@@ -216,5 +221,5 @@ The basis of the deletion is based on the `Last modified date` of the file/folde
 ## See also
 
 - [AWS Expiring objects](https://docs.aws.amazon.com/AmazonS3/latest/userguide/lifecycle-expire-general-considerations.html)
-- [`deploySite()`](/docs/lambda/deploysite)
+- [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle)
 - [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda)
