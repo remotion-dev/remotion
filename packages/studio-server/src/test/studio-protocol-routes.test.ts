@@ -125,6 +125,23 @@ test('discovers an exact Studio target and delivers one install request over HTT
 			targetId: descriptor.installTarget.id,
 			payload,
 		};
+		const invalidEnvelopeResponse = await fetch(
+			`${origin}/api/studio-protocol/install`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Origin: 'http://localhost:4000',
+				},
+				body: JSON.stringify({...installBody, protocolVersion: 2}),
+			},
+		);
+		expect(invalidEnvelopeResponse.status).toBe(400);
+		expect(await invalidEnvelopeResponse.json()).toMatchObject({
+			status: 'error',
+			error: {code: 'unsupported-protocol'},
+		});
+
 		const invalidPayloadResponse = await fetch(
 			`${origin}/api/studio-protocol/install`,
 			{

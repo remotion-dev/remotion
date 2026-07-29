@@ -1737,6 +1737,7 @@
         "recast": "0.23.11",
         "remotion": "workspace:*",
         "semver": "7.5.3",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",

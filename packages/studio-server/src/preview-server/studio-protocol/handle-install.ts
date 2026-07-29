@@ -1,6 +1,7 @@
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import type {ElementInstallRequest} from '@remotion/studio-shared';
+import {z} from 'zod';
 import {consumeStudioProtocolTarget} from '../element-install-state';
 import type {getElementInstallTarget} from '../element-install-state';
 import type {LiveEventsServer} from '../live-events';
@@ -12,6 +13,13 @@ import {
 import {writeStudioProtocolError} from './protocol-response';
 
 type FocusStudioTab = (studioUrl: string) => void;
+
+const studioProtocolInstallRequestSchema = z.object({
+	protocol: z.literal('remotion-studio-protocol'),
+	protocolVersion: z.literal(1),
+	targetId: z.string(),
+	payload: z.unknown(),
+});
 
 const deliverElementInstall = ({
 	element,
@@ -94,18 +102,8 @@ export const handleStudioProtocolInstall = async ({
 		return;
 	}
 
-	if (
-		typeof body !== 'object' ||
-		body === null ||
-		Array.isArray(body) ||
-		!('protocol' in body) ||
-		body.protocol !== 'remotion-studio-protocol' ||
-		!('protocolVersion' in body) ||
-		body.protocolVersion !== 1 ||
-		!('targetId' in body) ||
-		typeof body.targetId !== 'string' ||
-		!('payload' in body)
-	) {
+	const parsedRequest = studioProtocolInstallRequestSchema.safeParse(body);
+	if (!parsedRequest.success) {
 		writeStudioProtocolError({
 			code: 'unsupported-protocol',
 			message: 'Invalid Remotion Studio Protocol request.',
@@ -116,7 +114,7 @@ export const handleStudioProtocolInstall = async ({
 	}
 
 	const payload = StudioProtocolInternals.parseStudioElementPayload(
-		body.payload,
+		parsedRequest.data.payload,
 	);
 	if (payload === null) {
 		writeStudioProtocolError({
@@ -130,7 +128,7 @@ export const handleStudioProtocolInstall = async ({
 
 	const target = consumeStudioProtocolTarget({
 		now: Date.now(),
-		targetId: body.targetId,
+		targetId: parsedRequest.data.targetId,
 	});
 	if (target === null) {
 		writeStudioProtocolError({

@@ -30,6 +30,7 @@
 		"@svgr/plugin-jsx": "8.1.0",
 		"kiwi-schema": "0.5.0",
 		"semver": "7.5.3",
+		"zod": "catalog:",
 		"prettier": "catalog:",
 		"remotion": "workspace:*",
 		"recast": "0.23.11",
