@@ -11,6 +11,7 @@ import {callApi} from '../call-api';
 import {
 	importAssets,
 	insertComposition as insertCompositionFromDrop,
+	insertExistingAssets,
 	pickFilesToImport,
 } from '../import-assets';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -123,7 +124,7 @@ export const useCompositionActions = () => {
 		videoConfig,
 	]);
 
-	const insertAsset = useCallback(async () => {
+	const onFilesSelected = useCallback(async () => {
 		if (
 			!canInsertAsset ||
 			currentCompositionId === null ||
@@ -154,6 +155,57 @@ export const useCompositionActions = () => {
 			setIsAddingAsset(false);
 		}
 	}, [canInsertAsset, compositionFile, currentCompositionId, videoConfig]);
+
+	const onAssetSelected = useCallback(
+		async (asset: {readonly name: string}) => {
+			if (
+				!canInsertAsset ||
+				currentCompositionId === null ||
+				compositionFile === null ||
+				videoConfig === null
+			) {
+				return;
+			}
+
+			setIsAddingAsset(true);
+			try {
+				await insertExistingAssets({
+					assetPaths: [asset.name],
+					fps: videoConfig.fps,
+					compositionFile,
+					compositionId: currentCompositionId,
+					destinationDimensions: null,
+					dropPosition: null,
+					from: null,
+				});
+			} finally {
+				setIsAddingAsset(false);
+			}
+		},
+		[canInsertAsset, compositionFile, currentCompositionId, videoConfig],
+	);
+
+	const insertAsset = useCallback(() => {
+		if (!canInsertAsset) {
+			return;
+		}
+
+		setSelectedModal({
+			type: 'quick-switcher',
+			mode: 'assets',
+			invocationTimestamp: Date.now(),
+			assetSelection: {
+				initialQuery: '',
+				onSelectFile: () => {
+					onFilesSelected().catch(() => undefined);
+				},
+				onSelected: (asset) => {
+					onAssetSelected(asset).catch(() => undefined);
+				},
+			},
+			compositionSelection: null,
+		});
+	}, [canInsertAsset, onAssetSelected, onFilesSelected, setSelectedModal]);
 
 	const onCompositionSelected = useCallback(
 		async (composition: _InternalTypes['AnyComposition']) => {

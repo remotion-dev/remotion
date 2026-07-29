@@ -145,6 +145,7 @@ export const QuickSwitcherContent: React.FC<{
 	readonly readOnlyStudio: boolean;
 	readonly assetSelection: {
 		readonly initialQuery: string;
+		readonly onSelectFile: () => void;
 		readonly onSelected: (asset: StaticFile) => void;
 	} | null;
 	readonly compositionSelection: {
@@ -234,7 +235,7 @@ export const QuickSwitcherContent: React.FC<{
 		}
 
 		if (mode === 'assets') {
-			return fuzzySearch(
+			const assetResults = fuzzySearch(
 				assetSearch.query,
 				assetSearch.assets.map((asset) => {
 					return {
@@ -255,6 +256,23 @@ export const QuickSwitcherContent: React.FC<{
 					};
 				}),
 			);
+
+			if (assetSelection === null) {
+				return assetResults;
+			}
+
+			return [
+				{
+					id: 'select-file',
+					title: 'Select file',
+					type: 'select-file',
+					onSelected: () => {
+						assetSelection.onSelectFile();
+						setSelectedModal(null);
+					},
+				},
+				...assetResults,
+			];
 		}
 
 		return fuzzySearch(

@@ -16,6 +16,7 @@ const QuickSwitcher: React.FC<{
 	readonly readOnlyStudio: boolean;
 	readonly assetSelection: {
 		readonly initialQuery: string;
+		readonly onSelectFile: () => void;
 		readonly onSelected: (asset: StaticFile) => void;
 	} | null;
 	readonly compositionSelection: {

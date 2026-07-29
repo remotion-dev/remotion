@@ -8,6 +8,7 @@ import {
 import type {AssetFileType} from '../../helpers/get-preview-file-type';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {StillIcon} from '../../icons/still';
+import {UploadIcon} from '../../icons/upload';
 import {FilmIcon} from '../../icons/video';
 import {AssetFileIcon} from '../AssetFileIcon';
 import {Spacing} from '../layout';
@@ -27,6 +28,9 @@ type QuickSwitcherResultDetail =
 	  }
 	| {
 			type: 'menu-item';
+	  }
+	| {
+			type: 'select-file';
 	  }
 	| {
 			type: 'search-result';
@@ -163,6 +167,11 @@ export const QuickSwitcherResult: React.FC<{
 			) : result.type === 'asset' ? (
 				<AssetFileIcon
 					fileType={result.fileType}
+					color={selected || hovered ? WHITE : LIGHT_TEXT}
+					style={iconStyle}
+				/>
+			) : result.type === 'select-file' ? (
+				<UploadIcon
 					color={selected || hovered ? WHITE : LIGHT_TEXT}
 					style={iconStyle}
 				/>
