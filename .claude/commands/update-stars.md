@@ -1,1 +1,0 @@
-../../.agents/commands/update-stars.md

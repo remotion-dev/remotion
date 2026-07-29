@@ -1,4 +1,10 @@
-import {lstatSync, readdirSync, readlinkSync, symlinkSync} from 'node:fs';
+import {
+	lstatSync,
+	mkdirSync,
+	readdirSync,
+	readlinkSync,
+	symlinkSync,
+} from 'node:fs';
 import path from 'node:path';
 
 const repoRoot = process.env.SKILLS_REPO_ROOT
@@ -6,6 +12,7 @@ const repoRoot = process.env.SKILLS_REPO_ROOT
 	: path.resolve(__dirname, '..', '..', '..');
 const skillsRoot = path.join(repoRoot, 'packages', 'skills', 'skills');
 const agentsSkillsRoot = path.join(repoRoot, '.agents', 'skills');
+const claudeSkillsRoot = path.join(repoRoot, '.claude', 'skills');
 const checkOnly = process.argv.includes('--check');
 const issues: string[] = [];
 
@@ -47,12 +54,39 @@ for (const skillFolder of skillFolders) {
 	}
 }
 
+const expectedClaudeTarget = '../.agents/skills';
+const claudeSkillsStats = lstatSync(claudeSkillsRoot, {throwIfNoEntry: false});
+
+if (!claudeSkillsStats) {
+	const message = `Missing ${path.relative(repoRoot, claudeSkillsRoot)} -> ${expectedClaudeTarget}`;
+	if (checkOnly) {
+		issues.push(message);
+	} else {
+		mkdirSync(path.dirname(claudeSkillsRoot), {recursive: true});
+		symlinkSync(expectedClaudeTarget, claudeSkillsRoot, 'dir');
+		console.log(
+			`Created ${path.relative(repoRoot, claudeSkillsRoot)} -> ${expectedClaudeTarget}`,
+		);
+	}
+} else if (!claudeSkillsStats.isSymbolicLink()) {
+	issues.push(
+		`${path.relative(repoRoot, claudeSkillsRoot)} exists but is not a symlink`,
+	);
+} else {
+	const actualTarget = readlinkSync(claudeSkillsRoot);
+	if (actualTarget !== expectedClaudeTarget) {
+		issues.push(
+			`${path.relative(repoRoot, claudeSkillsRoot)} points to ${actualTarget}, expected ${expectedClaudeTarget}`,
+		);
+	}
+}
+
 if (issues.length > 0) {
-	console.error('Public skills are not linked into .agents/skills:');
+	console.error('Skill links are out of sync:');
 	for (const issue of issues) {
 		console.error(`- ${issue}`);
 	}
 	process.exit(1);
 }
 
-console.log('All public skills are linked into .agents/skills.');
+console.log('All skill links are in sync.');
