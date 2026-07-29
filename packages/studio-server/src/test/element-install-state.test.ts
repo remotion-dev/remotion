@@ -1,7 +1,9 @@
 import {expect, test} from 'bun:test';
 import {
 	clearElementInstallStateForTests,
+	consumeStudioProtocolTarget,
 	getElementInstallTarget,
+	issueStudioProtocolTarget,
 	updateElementInstallTarget,
 } from '../preview-server/element-install-state';
 
@@ -73,6 +75,66 @@ test('falls back to update recency when focus timestamps match', async () => {
 	});
 
 	expect(getElementInstallTarget(null)?.clientId).toBe('second-tab');
+});
+
+test('binds a single-use Studio Protocol token to the selected composition', () => {
+	clearElementInstallStateForTests();
+	updateElementInstallTarget({
+		requestId: 'protocol-request',
+		clientId: 'focused-tab',
+		compositionFile: '/project/src/main.tsx',
+		compositionId: 'Main',
+		canInstall: true,
+		lastFocusedAt: Date.now(),
+		readOnly: false,
+		studioUrl: 'http://localhost:3000/Main',
+	});
+	const selected = getElementInstallTarget('protocol-request');
+	if (selected === null) {
+		throw new Error('Expected an install target');
+	}
+
+	const issued = issueStudioProtocolTarget({now: Date.now(), target: selected});
+	expect(
+		consumeStudioProtocolTarget({now: Date.now(), targetId: issued.id})
+			?.compositionId,
+	).toBe('Main');
+	expect(
+		consumeStudioProtocolTarget({now: Date.now(), targetId: issued.id}),
+	).toBe(null);
+});
+
+test('invalidates a token if the selected tab changes compositions', () => {
+	clearElementInstallStateForTests();
+	updateElementInstallTarget({
+		requestId: 'protocol-request',
+		clientId: 'focused-tab',
+		compositionFile: '/project/src/main.tsx',
+		compositionId: 'Main',
+		canInstall: true,
+		lastFocusedAt: Date.now(),
+		readOnly: false,
+		studioUrl: 'http://localhost:3000/Main',
+	});
+	const selected = getElementInstallTarget('protocol-request');
+	if (selected === null) {
+		throw new Error('Expected an install target');
+	}
+
+	const issued = issueStudioProtocolTarget({now: Date.now(), target: selected});
+	updateElementInstallTarget({
+		requestId: null,
+		clientId: 'focused-tab',
+		compositionFile: '/project/src/other.tsx',
+		compositionId: 'Other',
+		canInstall: true,
+		lastFocusedAt: Date.now(),
+		readOnly: false,
+		studioUrl: 'http://localhost:3000/Other',
+	});
+	expect(
+		consumeStudioProtocolTarget({now: Date.now(), targetId: issued.id}),
+	).toBe(null);
 });
 
 test('can select a target for a specific request', () => {
