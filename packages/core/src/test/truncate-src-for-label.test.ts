@@ -26,3 +26,18 @@ test('truncates large data URLs', () => {
 	expect(result.startsWith('data:image/png;base64,')).toBe(true);
 	expect(result).toContain('[' + huge.length + ' chars total]');
 });
+
+test('truncates large blob URLs', () => {
+	const hugeBlob = 'blob:https://example.com/' + 'B'.repeat(500);
+	const result = truncateSrcForLabel(hugeBlob);
+
+	expect(result.length).toBeLessThan(200);
+	expect(result.startsWith('blob:https://example.com/')).toBe(true);
+	expect(result).toContain('[' + hugeBlob.length + ' chars total]');
+});
+
+test('stringifies non-string inputs for diagnostic labels', () => {
+	expect(truncateSrcForLabel(null as unknown as string)).toBe('null');
+	expect(truncateSrcForLabel(undefined as unknown as string)).toBe('undefined');
+	expect(truncateSrcForLabel(123 as unknown as string)).toBe('123');
+});
