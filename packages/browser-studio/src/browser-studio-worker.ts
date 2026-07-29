@@ -150,9 +150,9 @@ const getPackageName = (request: string) => {
 	return request.split('/')[0];
 };
 
-const externalizeSharedReactDependencies = (url: URL) => {
+const externalizeSharedDependencies = (url: URL) => {
 	url.searchParams.set('dev', '');
-	url.searchParams.set('external', 'react,react-dom');
+	url.searchParams.set('external', 'mediabunny,react,react-dom');
 };
 
 const compileProject = async ({
@@ -283,13 +283,13 @@ const compileProject = async ({
 							getVersionedPackageRequest(request, version),
 							'https://esm.sh/',
 						);
-						externalizeSharedReactDependencies(url);
+						externalizeSharedDependencies(url);
 						return url.href;
 					},
 					dependencyVersions: resolvedVersions,
 					domain: 'https://esm.sh',
 					postprocess: ({url}) => {
-						externalizeSharedReactDependencies(url);
+						externalizeSharedDependencies(url);
 					},
 				}),
 				new rspack.optimize.LimitChunkCountPlugin({maxChunks: 1}),
