@@ -23,6 +23,7 @@ import {
 	getCssShorthandsForUpdates,
 	type CssShorthandProperty,
 } from '../../helpers/css-shorthand-properties';
+import {ensureNamedImports} from '../../helpers/imports';
 import {
 	parseVideoConfigNumericExpression,
 	updateVideoConfigNumericExpression,
@@ -48,6 +49,30 @@ export type SequencePropUpdate = {
 	value: unknown;
 	defaultValue: unknown | null;
 	googleFont?: GoogleFontSourceEdit | null;
+};
+
+const ensureImportsForUpdates = ({
+	ast,
+	updates,
+}: {
+	ast: File;
+	updates: SequencePropUpdate[];
+}) => {
+	if (
+		updates.some(
+			({value, defaultValue}) =>
+				typeof value === 'string' &&
+				value.startsWith(NoReactInternals.FILE_TOKEN) &&
+				(defaultValue === null ||
+					JSON.stringify(value) !== JSON.stringify(defaultValue)),
+		)
+	) {
+		ensureNamedImports({
+			ast,
+			importedNames: new Set(['staticFile']),
+			sourcePath: 'remotion',
+		});
+	}
 };
 
 export type RemovedProp = {
@@ -1057,6 +1082,7 @@ export const updateSequencePropsAst = ({
 		schema,
 		videoConfigValues: videoConfigIdentifierValues,
 	});
+	ensureImportsForUpdates({ast, updates});
 	applyGoogleFontSourceEdits({ast, updates});
 
 	return {
@@ -1099,6 +1125,7 @@ export const updateMultipleSequenceProps = async ({
 			});
 		},
 	);
+	ensureImportsForUpdates({ast, updates: allUpdates});
 	applyGoogleFontSourceEdits({ast, updates: allUpdates});
 
 	const {output, formatted} = await formatFileContent({
