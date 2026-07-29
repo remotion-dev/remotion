@@ -12,6 +12,6 @@ createRoot(root).render(
 	<BrowserStudio
 		iframeSrc="/frame.html"
 		project={createBlankTemplateProject()}
-		readOnly
+		readOnly={false}
 	/>,
 );

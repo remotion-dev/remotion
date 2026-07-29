@@ -2,6 +2,7 @@ import path from 'path';
 import {fileURLToPath} from 'url';
 import {build} from 'bun';
 import {getBrowserStudioDependencyVersionsForBuild} from './get-dependency-versions-for-build';
+import {getBrowserStudioReactRefreshFilesForBuild} from './get-react-refresh-files-for-build';
 import {getBrowserStudioSetupEnvironmentForBuild} from './get-setup-environment-for-build';
 import {studioRenderEntryExternal} from './studio-render-entry-external';
 
@@ -65,12 +66,14 @@ const frameHtml = `<!DOCTYPE html>
 
 const buildDevAssets = async () => {
 	const dependencyVersions = getBrowserStudioDependencyVersionsForBuild();
+	const reactRefreshFiles = getBrowserStudioReactRefreshFilesForBuild();
 	const setupEnvironment = getBrowserStudioSetupEnvironmentForBuild();
 	const output = await build({
 		entrypoints: ['src/dev/index.tsx', 'src/browser-studio-worker.ts'],
 		define: {
 			__BROWSER_STUDIO_DEPENDENCY_VERSIONS__:
 				JSON.stringify(dependencyVersions),
+			__BROWSER_STUDIO_REACT_REFRESH_FILES__: JSON.stringify(reactRefreshFiles),
 			__BROWSER_STUDIO_SETUP_ENVIRONMENT__: JSON.stringify(setupEnvironment),
 		},
 		format: 'esm',
@@ -85,8 +88,8 @@ const buildDevAssets = async () => {
 		process.exit(1);
 	}
 
-	const studioRenderEntryOutput = await build({
-		entrypoints: ['src/browser-studio-render-entry.ts'],
+	const studioPreviewEntryOutput = await build({
+		entrypoints: ['src/browser-studio-preview-entry.ts'],
 		external: studioRenderEntryExternal,
 		format: 'esm',
 		naming: '[name].mjs',
@@ -95,8 +98,8 @@ const buildDevAssets = async () => {
 		target: 'browser',
 	});
 
-	if (!studioRenderEntryOutput.success) {
-		process.stderr.write(`${studioRenderEntryOutput.logs.join('\n')}\n`);
+	if (!studioPreviewEntryOutput.success) {
+		process.stderr.write(`${studioPreviewEntryOutput.logs.join('\n')}\n`);
 		process.exit(1);
 	}
 
