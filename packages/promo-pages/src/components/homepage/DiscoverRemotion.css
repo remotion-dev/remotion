@@ -1,0 +1,80 @@
+.discovery-section {
+	margin: 80px auto 104px;
+	max-width: 1000px;
+	text-align: center;
+}
+
+.discovery-subtitle {
+	color: var(--subtitle);
+	font-family: var(--font-brand);
+	font-size: 18px;
+	margin: -14px 0 42px;
+}
+
+.discovery-perspective {
+	perspective: 800px;
+	position: relative;
+}
+
+.discovery-cluster {
+	display: grid;
+	gap: 14px;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	position: relative;
+	transform-style: preserve-3d;
+}
+
+.discovery-row {
+	display: contents;
+}
+
+.discovery-merit {
+	min-width: 0;
+	transform-style: preserve-3d;
+}
+
+.discovery-merit-last {
+	grid-column: 1 / -1;
+	justify-self: center;
+	width: calc(50% - 7px);
+}
+
+.discovery-merit-button {
+	font-size: 13px;
+	height: auto;
+	line-height: 1.2;
+	min-height: 54px;
+	padding: 10px 12px;
+	text-align: center;
+	width: 100%;
+}
+
+@media (min-width: 768px) {
+	.discovery-cluster {
+		display: block;
+	}
+
+	.discovery-row {
+		display: flex;
+		gap: 14px;
+		justify-content: center;
+		margin-top: 14px;
+		transform-style: preserve-3d;
+	}
+
+	.discovery-row:first-child {
+		margin-top: 0;
+	}
+
+	.discovery-merit,
+	.discovery-merit-last {
+		width: auto;
+	}
+
+	.discovery-merit-button {
+		font-size: 14px;
+		min-height: 48px;
+		padding: 12px 16px;
+		white-space: nowrap;
+	}
+}

@@ -1,12 +1,15 @@
 import {Slot, Slottable} from '@radix-ui/react-slot';
-import React, {useCallback, useRef, useState} from 'react';
+import type {MatrixTransform4D} from '@remotion/svg-3d-engine';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {cn} from './helpers/cn';
+import {getChildNodeFrom} from './helpers/get-child-node-from';
 import {useHoverTransforms} from './helpers/hover-transforms';
 import {Outer} from './helpers/Outer';
 import {Spinner} from './Spinner';
 
 type CommonProps = {
 	readonly depth?: number;
+	readonly initialTransform?: MatrixTransform4D;
 	readonly loading?: boolean;
 	readonly disabled?: boolean;
 };
@@ -41,6 +44,7 @@ export const Button: React.FC<ButtonProps> = ({
 	className,
 	disabled,
 	depth,
+	initialTransform,
 	loading,
 	...rest
 }) => {
@@ -56,57 +60,77 @@ export const Button: React.FC<ButtonProps> = ({
 		Boolean(disabled || loading),
 	);
 
+	const measure = useCallback(() => {
+		setDimensions((prevDim) => {
+			const childNode = getChildNodeFrom(ref.current);
+			if (!childNode) {
+				return prevDim;
+			}
+
+			const rect = childNode.getBoundingClientRect();
+			const {borderRadius} = getComputedStyle(childNode);
+
+			const cornerRadius = borderRadius.includes('e')
+				? Infinity
+				: parseInt(borderRadius ?? '0', 10);
+
+			const newCornerRadius = Math.min(
+				cornerRadius,
+				rect.width / 2,
+				rect.height / 2,
+			);
+
+			if (prevDim) {
+				return {
+					width: rect.width,
+					height: rect.height,
+					borderRadius: prevDim.borderRadius,
+				};
+			}
+
+			return {
+				width: rect.width,
+				height: rect.height,
+				borderRadius: newCornerRadius,
+			};
+		});
+	}, []);
+
 	const onPointerEnter = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			if (e.pointerType !== 'mouse') {
 				return;
 			}
 
-			setDimensions((prevDim) => {
-				if (!ref.current) {
-					throw new Error('Ref is not set');
-				}
-
-				const {childNodes} = ref.current;
-				if (childNodes.length === 0) {
-					throw new Error('No child nodes');
-				}
-
-				const childNode = childNodes[0] as HTMLElement;
-				if (!childNode) {
-					throw new Error('No child node');
-				}
-
-				const rect = childNode.getBoundingClientRect();
-				const {borderRadius} = getComputedStyle(childNode);
-
-				const cornerRadius = borderRadius.includes('e')
-					? Infinity
-					: parseInt(borderRadius ?? '0', 10);
-
-				const newCornerRadius = Math.min(
-					cornerRadius,
-					rect.width / 2,
-					rect.height / 2,
-				);
-
-				if (prevDim) {
-					return {
-						width: rect.width,
-						height: rect.height,
-						borderRadius: prevDim.borderRadius,
-					};
-				}
-
-				return {
-					width: rect.width,
-					height: rect.height,
-					borderRadius: newCornerRadius,
-				};
-			});
+			measure();
 		},
-		[],
+		[measure],
 	);
+
+	const hasInitialTransform = initialTransform !== undefined;
+
+	useEffect(() => {
+		if (!hasInitialTransform) {
+			return;
+		}
+
+		const childNode = getChildNodeFrom(ref.current);
+		if (!childNode) {
+			return;
+		}
+
+		measure();
+		if (typeof ResizeObserver === 'undefined') {
+			return;
+		}
+
+		const resizeObserver = new ResizeObserver(measure);
+		resizeObserver.observe(childNode);
+
+		return () => {
+			resizeObserver.disconnect();
+		};
+	}, [hasInitialTransform, measure]);
 
 	const isDisabled = disabled || loading;
 	const isAnchor = !asChild && 'href' in rest && rest.href !== undefined;
@@ -206,7 +230,7 @@ export const Button: React.FC<ButtonProps> = ({
 
 	return (
 		<div ref={ref} className="contents" onPointerEnter={onPointerEnter}>
-			{dimensions && (isActive || progress > 0) ? (
+			{dimensions && (hasInitialTransform || isActive || progress > 0) ? (
 				<Outer
 					parentRef={ref}
 					width={dimensions.width}
@@ -214,6 +238,7 @@ export const Button: React.FC<ButtonProps> = ({
 					cornerRadius={dimensions.borderRadius}
 					hoverTransform={progress}
 					depthFactor={depth ?? 1}
+					initialTransform={initialTransform}
 				>
 					{content}
 				</Outer>

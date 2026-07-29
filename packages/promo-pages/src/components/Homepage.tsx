@@ -4,6 +4,7 @@ import React from 'react';
 import {BackgroundAnimation} from './homepage/BackgroundAnimation';
 import CommunityStats from './homepage/CommunityStats';
 import {Demo} from './homepage/Demo';
+import {DiscoverRemotion} from './homepage/DiscoverRemotion';
 import EvaluateRemotionSection from './homepage/EvaluateRemotion';
 import type {ColorMode} from './homepage/layout/use-color-mode';
 import {ColorModeProvider} from './homepage/layout/use-color-mode';
@@ -98,6 +99,7 @@ export const NewLanding: React.FC<{
 						<br />
 						<SectionTitle>Pricing</SectionTitle>
 						<Pricing />
+						<DiscoverRemotion initialOrientation={{x: -4, y: 6}} />
 						<TrustedByBanner />
 						<br />
 						<EvaluateRemotionSection />
