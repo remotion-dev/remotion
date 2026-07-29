@@ -62,7 +62,7 @@ Config.overrideWebpackConfig((currentConfiguration) => {
 
 ## `overrideRspackConfig()`<AvailableFrom v="4.0.498" />
 
-Overrides the Rspack configuration. It is only called when [Rspack](/docs/config#setexperimentalrspackenabled) is enabled.
+Overrides the Rspack configuration. It is only called when [Rspack](/docs/config#setrspack) is enabled.
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -233,17 +233,25 @@ The [command line flag](/docs/cli/studio#--disable-interactivity) `--disable-int
 From Remotion v4.0.491, this method is a no-op and can be removed from your config file. [`@remotion/web-renderer`](/docs/web-renderer) automatically uses HTML-in-canvas when the browser supports nested captures.
 :::
 
-## `setExperimentalRspackEnabled()`<AvailableFrom v="4.0.426" />
+## `setRspack()`<AvailableFrom v="4.0.502" />
 
-Use [Rspack](/docs/bundlers#enable-rspack) instead of Webpack for CLI commands that bundle your project. Default `false`.
+<Options id="rspack" />
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
 // ---cut---
-Config.setExperimentalRspackEnabled(true);
+Config.setRspack(true);
 ```
 
-The [command line flag](/docs/cli/studio#--experimental-rspack) `--experimental-rspack` will take precedence over this option.
+The [command line flag](/docs/cli/studio#--rspack) `--rspack` will take precedence over this option.
+
+## ~~`setExperimentalRspackEnabled()`~~<AvailableFrom v="4.0.426" />
+
+:::info Deprecated
+Use [`setRspack()`](/docs/config#setrspack) instead.
+:::
+
+`setExperimentalRspackEnabled()` is an alias for `setRspack()`.
 
 ## `setWebpackPollingInMilliseconds()`<AvailableFrom v="3.3.11" />
 

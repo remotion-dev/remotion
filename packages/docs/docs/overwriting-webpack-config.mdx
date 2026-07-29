@@ -26,13 +26,13 @@ Enable Rspack for CLI commands in [`remotion.config.ts`](/docs/config):
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
 
-Config.setExperimentalRspackEnabled(true);
+Config.setRspack(true);
 ```
 
-To enable it for one command, use the `--experimental-rspack` flag:
+To enable it for one command, use the `--rspack` flag:
 
 ```bash
-npx remotion studio --experimental-rspack
+npx remotion studio --rspack
 ```
 
 The flag is also available for other commands that bundle your project, such as [`render`](/docs/cli/render), [`still`](/docs/cli/still), and [`bundle`](/docs/cli/bundle).

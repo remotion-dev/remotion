@@ -13,6 +13,24 @@ test('Studio render defaults keep the startup log level', () => {
 	expect(getRenderDefaults('warn').logLevel).toBe('warn');
 });
 
+test('Rspack can be configured using the current and deprecated APIs', () => {
+	ConfigInternals.resetConfigOptions();
+
+	expect(
+		BrowserSafeApis.options.rspackOption.getValue({commandLine: {}}).value,
+	).toBe(false);
+
+	Config.setRspack(true);
+	expect(
+		BrowserSafeApis.options.rspackOption.getValue({commandLine: {}}).value,
+	).toBe(true);
+
+	Config.setExperimentalRspackEnabled(false);
+	expect(
+		BrowserSafeApis.options.rspackOption.getValue({commandLine: {}}).value,
+	).toBe(false);
+});
+
 test('reset config options restores defaults before reloading config', async () => {
 	ConfigInternals.resetConfigOptions();
 
