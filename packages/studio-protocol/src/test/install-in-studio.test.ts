@@ -165,6 +165,32 @@ test('returns an actionable result when no Studio is running', async () => {
 	});
 });
 
+test('reports malformed discovery JSON as an invalid response', async () => {
+	const fetchFn = (input: string | URL | Request) => {
+		if (String(input) === 'http://localhost:3000/api/studio-protocol') {
+			return Promise.resolve(
+				new Response('not JSON', {
+					headers: {'Content-Type': 'application/json'},
+				}),
+			);
+		}
+
+		return Promise.resolve(new Response(null, {status: 404}));
+	};
+
+	expect(
+		await installInStudioWithDependencies(elementPayload, {
+			...dependencies,
+			ports: [3000],
+			fetchFn,
+		}),
+	).toEqual({
+		success: false,
+		code: 'invalid-response',
+		message: 'Remotion Studio returned an invalid Studio Protocol response.',
+	});
+});
+
 test('reports a legacy Studio as requiring an upgrade without sending a payload', async () => {
 	const requests: string[] = [];
 	const fetchFn = (input: string | URL | Request) => {
@@ -234,6 +260,46 @@ test('returns a structured error when the selected target expired', async () => 
 		success: false,
 		code: 'target-expired',
 		message: 'Target expired',
+	});
+});
+
+test('reports a truncated install response as invalid', async () => {
+	const fetchFn = (input: string | URL | Request) => {
+		const url = String(input);
+		if (url === 'http://localhost:3000/api/studio-protocol') {
+			return Promise.resolve(
+				jsonResponse(
+					descriptor({
+						compositionId: 'Main',
+						lastFocusedAt: 950_000,
+						projectName: 'Project',
+						targetId: 'target',
+					}),
+				),
+			);
+		}
+
+		if (url === 'http://localhost:3000/api/studio-protocol/install') {
+			return Promise.resolve(
+				new Response('{"protocol":"remotion-studio-protocol"', {
+					headers: {'Content-Type': 'application/json'},
+				}),
+			);
+		}
+
+		return Promise.resolve(new Response(null, {status: 404}));
+	};
+
+	expect(
+		await installInStudioWithDependencies(elementPayload, {
+			...dependencies,
+			ports: [3000],
+			fetchFn,
+		}),
+	).toEqual({
+		success: false,
+		code: 'invalid-response',
+		message: 'Remotion Studio returned an invalid installation response.',
 	});
 });
 
