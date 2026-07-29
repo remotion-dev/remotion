@@ -22,10 +22,10 @@ import {TransitionSeries} from '@remotion/transitions';
 const MyVideo: React.FC = () => {
   return (
     <TransitionSeries>
-      <TransitionSeries.Sequence durationInFrames={4 * fps}>
+      <TransitionSeries.Sequence durationInFrames={4 * fps} name="SceneA">
         <SceneA />
       </TransitionSeries.Sequence>
-      <TransitionSeries.Sequence durationInFrames={4 * fps}>
+      <TransitionSeries.Sequence durationInFrames={4 * fps} name="SceneB">
         <SceneB />
       </TransitionSeries.Sequence>
     </TransitionSeries>
