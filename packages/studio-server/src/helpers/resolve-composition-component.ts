@@ -377,6 +377,8 @@ const findReExportTargets = ({
 					continue;
 				}
 
+				// Support barrel files that import a component and export it in a
+				// separate declaration. See https://github.com/remotion-dev/remotion/issues/9172.
 				if (typeof node.source?.value !== 'string') {
 					const importTarget = findImportTarget({
 						ast,
@@ -466,6 +468,9 @@ const findLocalSymbolLocation = ({
 }): SourceLocation | null => {
 	let location: SourceLocation | null = null;
 
+	// Recast can omit the declaration location for exported functions and
+	// classes, including components resolved through barrel files. The identifier
+	// keeps its location. See https://github.com/remotion-dev/remotion/issues/9172.
 	recast.types.visit(ast, {
 		visitVariableDeclarator(astPath) {
 			if (location) {
