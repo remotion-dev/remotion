@@ -73,5 +73,27 @@ test.describe('inspector section collapse', () => {
 			page.getByRole('button', {name: 'Collapse Crop', exact: true}),
 		).toBeVisible();
 		await expect(page.getByText('Crop left', {exact: true})).toBeVisible();
+
+		await page
+			.locator('[title="Default absolute-fill layout"]')
+			.first()
+			.click();
+		await expect(
+			page.getByRole('button', {name: 'Expand Layout', exact: true}),
+		).toBeVisible();
+		await page
+			.getByRole('button', {name: 'Expand Layout', exact: true})
+			.click();
+		await expect(page.getByText('Premount For', {exact: true})).toBeVisible();
+
+		await page.locator('[title="Default none layout"]').first().click();
+		await expect(
+			page.getByRole('button', {name: 'Expand Layout', exact: true}),
+		).toBeVisible();
+
+		await page.locator('[title="Default premount"]').first().click();
+		await expect(
+			page.getByRole('button', {name: 'Expand Layout', exact: true}),
+		).toBeVisible();
 	});
 });
