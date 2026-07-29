@@ -1,5 +1,6 @@
 import {afterEach, expect, test} from 'bun:test';
 import {
+	saveSequenceProps,
 	subscribeToSequenceProps,
 	unsubscribeFromSequenceProps,
 } from '../components/sequence-props-api';
@@ -19,7 +20,7 @@ afterEach(() => {
 	Reflect.deleteProperty(globalThis, 'window');
 });
 
-test('routes sequence prop subscriptions through Browser Studio operations', async () => {
+test('routes sequence prop operations through Browser Studio', async () => {
 	const calls: string[] = [];
 	const nodePath = {
 		absolutePath: '/project/src/Composition.tsx',
@@ -34,6 +35,20 @@ test('routes sequence prop subscriptions through Browser Studio operations', asy
 		},
 	};
 	const operations = makeBrowserStudioOperations({
+		saveSequenceProps: (request) => {
+			calls.push(`save:${request.clientId}:${request.edits[0]?.fileName}`);
+			return Promise.resolve({
+				canUpdate: true,
+				props: {from: {status: 'static', codeValue: 15}},
+				results: [
+					{
+						fileName: 'src/Composition.tsx',
+						nodePath,
+						props: {from: {status: 'static', codeValue: 15}},
+					},
+				],
+			});
+		},
 		subscribeToSequenceProps: (request) => {
 			calls.push(`subscribe:${request.clientId}:${request.fileName}`);
 			return Promise.resolve({
@@ -70,6 +85,30 @@ test('routes sequence prop subscriptions through Browser Studio operations', asy
 		videoConfigValues: nodePath.videoConfigValues,
 	});
 	expect(subscription.success).toBe(true);
+	await saveSequenceProps({
+		edits: [
+			{
+				fileName: 'src/Composition.tsx',
+				nodePath,
+				key: 'from',
+				value: {type: 'json', serialized: '15'},
+				defaultValue: '0',
+				schema: {
+					from: {
+						type: 'number',
+						default: 0,
+						hiddenFromList: false,
+					},
+				},
+				sourceEdit: null,
+			},
+		],
+		addedKeyframes: null,
+		movedKeyframes: null,
+		clientId: 'browser-studio',
+		undoLabel: 'Update from',
+		redoLabel: 'Update from again',
+	});
 	await unsubscribeFromSequenceProps({
 		fileName: 'src/Composition.tsx',
 		nodePath,
@@ -80,6 +119,7 @@ test('routes sequence prop subscriptions through Browser Studio operations', asy
 	});
 	expect(calls).toEqual([
 		'subscribe:browser-studio:src/Composition.tsx',
+		'save:browser-studio:src/Composition.tsx',
 		'unsubscribe:browser-studio:src/Composition.tsx',
 	]);
 });
