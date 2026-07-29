@@ -196,10 +196,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									Drag into Studio
 								</PlainButton>
 							</div>
-							<p className={styles.poweredBy}>
-								Powered by the{' '}
-								<a href="/docs/studio-protocol">Remotion Studio Protocol</a>
-							</p>
 							{installStatus.type === 'success' ||
 							installStatus.type === 'error' ? (
 								<p

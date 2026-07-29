@@ -102,12 +102,6 @@
 	gap: 10px;
 }
 
-.poweredBy {
-	margin: 8px 0 0;
-	font-size: 0.75rem;
-	color: var(--ifm-color-emphasis-600);
-}
-
 .successStatus,
 .errorStatus {
 	margin: 12px 0 0;
