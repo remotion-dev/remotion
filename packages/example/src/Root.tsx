@@ -44,6 +44,7 @@ import {EasingVisualizer} from './EasingVisualizer/EasingVisualizer';
 import {EffectCopySource, EffectCopyTarget} from './EffectCopyTestbed';
 import {EmojiTestbed} from './Emoji';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
+import {UnsymbolicatedErrorOverlayRepro} from './ErrorOverlayE2e/ErrorOverlayRepro';
 import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
 import {FractionalSequenceVideo} from './FractionalSequenceVideo';
@@ -2873,6 +2874,16 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={30}
 			/>
+			<Folder name="error-overlay">
+				<Composition
+					id="error-overlay-unsymbolicated-e2e"
+					component={UnsymbolicatedErrorOverlayRepro}
+					width={400}
+					height={400}
+					fps={30}
+					durationInFrames={30}
+				/>
+			</Folder>
 			<Composition
 				id="browser-test"
 				component={BrowserTest}

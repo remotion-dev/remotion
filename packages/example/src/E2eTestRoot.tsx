@@ -1,7 +1,10 @@
 import React from 'react';
 import {Composition, Folder} from 'remotion';
 import {EffectKeyframeE2e} from './EffectKeyframeE2e';
-import {ErrorOverlayRepro} from './ErrorOverlayE2e/ErrorOverlayRepro';
+import {
+	ErrorOverlayRepro,
+	UnsymbolicatedErrorOverlayRepro,
+} from './ErrorOverlayE2e/ErrorOverlayRepro';
 import {HookOrderChangeE2e} from './HookOrderChangeE2e/HookOrderChangeRepro';
 import {Issue8216} from './Issue8216/Issue8216';
 import {LostNodePathRepro} from './LostNodePathE2e/LostNodePathRepro';
@@ -71,6 +74,14 @@ export const E2eTestRoot: React.FC = () => {
 				<Composition
 					id="error-overlay-e2e"
 					component={ErrorOverlayRepro}
+					width={400}
+					height={400}
+					fps={30}
+					durationInFrames={30}
+				/>
+				<Composition
+					id="error-overlay-unsymbolicated-e2e"
+					component={UnsymbolicatedErrorOverlayRepro}
 					width={400}
 					height={400}
 					fps={30}
