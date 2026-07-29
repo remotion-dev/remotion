@@ -42,6 +42,18 @@
 			"types": "./dist/studio-html.d.ts",
 			"default": "./dist/studio-html.js"
 		},
+		"./keyframe-easing-presets": {
+			"types": "./dist/keyframe-easing-presets.d.ts",
+			"default": "./dist/keyframe-easing-presets.js"
+		},
+		"./keyframe-interpolation-function": {
+			"types": "./dist/keyframe-interpolation-function.d.ts",
+			"default": "./dist/keyframe-interpolation-function.js"
+		},
+		"./parse-spring-easing-config": {
+			"types": "./dist/parse-spring-easing-config.d.ts",
+			"default": "./dist/parse-spring-easing-config.js"
+		},
 		"./package.json": "./package.json"
 	}
 }

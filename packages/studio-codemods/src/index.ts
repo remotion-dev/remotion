@@ -6,6 +6,12 @@ import type {
 } from '@remotion/studio-shared';
 
 export {findSearchPosition} from './find-search-position';
+export {
+	computeSequencePropsStatusFromContent,
+	computeSequencePropsSubscriptionFromContent,
+} from './sequence-props';
+export {JsxElementIdentityMismatchError} from './sequence-props/jsx-component-identity';
+export {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-not-found-at-location-error';
 
 export type CodemodProject = {
 	files: Record<string, string>;
@@ -157,7 +163,7 @@ const stripSourceProtocol = (filePath: string) => {
 		.split(/[?#]/, 1)[0];
 };
 
-const findProjectFile = ({
+export const findProjectFile = ({
 	filePath,
 	project,
 }: {

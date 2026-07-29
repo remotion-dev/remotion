@@ -20,9 +20,12 @@ export const makeBrowserStudioOperations = (
 		renameStaticFile: () => unusedOperation('renameStaticFile'),
 		subscribeToDefaultProps: () => unusedOperation('subscribeToDefaultProps'),
 		subscribeToEvent: () => unusedOperation('subscribeToEvent'),
+		subscribeToSequenceProps: () => unusedOperation('subscribeToSequenceProps'),
 		undo: () => unusedOperation('undo'),
 		unsubscribeFromDefaultProps: () =>
 			unusedOperation('unsubscribeFromDefaultProps'),
+		unsubscribeFromSequenceProps: () =>
+			unusedOperation('unsubscribeFromSequenceProps'),
 		writeStaticFile: () => unusedOperation('writeStaticFile'),
 		...overrides,
 	};

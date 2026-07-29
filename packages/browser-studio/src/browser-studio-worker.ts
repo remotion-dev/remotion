@@ -299,6 +299,8 @@ const createCompiler = async ({
 										react: {
 											development: true,
 											refresh: true,
+											importSource:
+												browserStudioVirtualFilePaths.jsxImportSource,
 											runtime: 'automatic',
 										},
 									},
@@ -321,6 +323,8 @@ const createCompiler = async ({
 										react: {
 											development: true,
 											refresh: true,
+											importSource:
+												browserStudioVirtualFilePaths.jsxImportSource,
 											runtime: 'automatic',
 										},
 									},

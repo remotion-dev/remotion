@@ -6,6 +6,9 @@ export const browserStudioVirtualFilePaths = {
 	setupEnvironment: '/__remotion_browser_studio__/setup-environment.ts',
 	setupSequenceStackTraces:
 		'/__remotion_browser_studio__/setup-sequence-stack-traces.ts',
+	jsxRuntime: '/__remotion_browser_studio__/jsx-runtime.ts',
+	jsxDevRuntime: '/__remotion_browser_studio__/jsx-dev-runtime.ts',
+	jsxImportSource: '/__remotion_browser_studio__',
 	reactShim: '/__remotion_browser_studio__/react-shim.js',
 };
 
@@ -35,19 +38,16 @@ const getInjectedReactRefreshFiles = () => {
 };
 
 const setupSequenceStackTraces = `import React from 'react';
-import JsxRuntimeDev from 'react/jsx-dev-runtime';
-import JsxRuntime from 'react/jsx-runtime';
 import {Internals} from 'remotion';
 
 const componentsToAddStacksTo = Internals.getComponentsToAddStacksTo();
 const sequenceComponent = Internals.getSequenceComponent();
+const internalStackProp = Internals.REMOTION_INTERNAL_STACK_PROP;
+const browserStudioOriginalSourcePrefix = 'browser-studio-original://';
 
 const originalCreateElement = React.createElement;
-const originalJsx = JsxRuntime.jsx;
-const originalJsxs = JsxRuntime.jsxs;
-const originalJsxDev = JsxRuntimeDev.jsxDEV;
 
-const enableProxy = (api, isCreateElement) => {
+export const enableProxy = (api, isCreateElement, sourceArgumentIndex) => {
   return new Proxy(api, {
     apply(target, thisArg, argArray) {
       if (componentsToAddStacksTo.includes(argArray[0])) {
@@ -57,9 +57,25 @@ const enableProxy = (api, isCreateElement) => {
             ? props?.children
             : rest
           : props?.children;
-        const newProps = props?.stack
+        const source =
+          sourceArgumentIndex === null ? null : argArray[sourceArgumentIndex];
+        const stack =
+          source &&
+          typeof source.fileName === 'string' &&
+          typeof source.lineNumber === 'number' &&
+          typeof source.columnNumber === 'number'
+            ? 'Error\\n    at browserStudioOriginal (' +
+              browserStudioOriginalSourcePrefix +
+              encodeURIComponent(source.fileName) +
+              ':' +
+              source.lineNumber +
+              ':' +
+              source.columnNumber +
+              ')'
+            : new Error().stack;
+        const newProps = props?.[internalStackProp]
           ? {...props}
-          : {...(props ?? {}), stack: new Error().stack};
+          : {...(props ?? {}), [internalStackProp]: stack};
         if (first === sequenceComponent) {
           newProps._remotionInternalSingleChildComponent =
             Internals.getSingleChildComponent(children);
@@ -73,10 +89,29 @@ const enableProxy = (api, isCreateElement) => {
   });
 };
 
-React.createElement = enableProxy(originalCreateElement, true);
-JsxRuntime.jsx = enableProxy(originalJsx, false);
-JsxRuntime.jsxs = enableProxy(originalJsxs, false);
-JsxRuntimeDev.jsxDEV = enableProxy(originalJsxDev, false);
+React.createElement = enableProxy(originalCreateElement, true, null);
+`;
+
+const jsxRuntime = `import {
+  Fragment,
+  jsx as originalJsx,
+  jsxs as originalJsxs,
+} from 'react/jsx-runtime';
+import {enableProxy} from './setup-sequence-stack-traces';
+
+export {Fragment};
+export const jsx = enableProxy(originalJsx, false, null);
+export const jsxs = enableProxy(originalJsxs, false, null);
+`;
+
+const jsxDevRuntime = `import {
+  Fragment,
+  jsxDEV as originalJsxDev,
+} from 'react/jsx-dev-runtime';
+import {enableProxy} from './setup-sequence-stack-traces';
+
+export {Fragment};
+export const jsxDEV = enableProxy(originalJsxDev, false, 4);
 `;
 
 const reactShim = `import * as React from 'react';
@@ -119,6 +154,8 @@ export const getBrowserStudioVirtualFiles = (): Record<string, string> => {
 			getInjectedSetupEnvironment(),
 		[browserStudioVirtualFilePaths.setupSequenceStackTraces]:
 			setupSequenceStackTraces,
+		[browserStudioVirtualFilePaths.jsxRuntime]: jsxRuntime,
+		[browserStudioVirtualFilePaths.jsxDevRuntime]: jsxDevRuntime,
 		[browserStudioVirtualFilePaths.reactShim]: reactShim,
 	};
 };
