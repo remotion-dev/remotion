@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import type {InteractivitySchema} from 'remotion';
 import {
 	getInspectorSectionActivity,
 	isInspectorSectionEffectivelyInactive,
@@ -193,4 +194,103 @@ test('treats a static border as inactive only when it cannot be seen', () => {
 			},
 		}),
 	).toBe(false);
+});
+
+test('uses the component schema defaults to determine layout activity', () => {
+	const schema = ({
+		layout,
+		premountFor,
+	}: {
+		readonly layout: string;
+		readonly premountFor: number;
+	}): InteractivitySchema => ({
+		layout: {
+			type: 'enum',
+			default: layout,
+			variants: {
+				'absolute-fill': {
+					premountFor: {
+						type: 'number',
+						default: premountFor,
+						hiddenFromList: false,
+					},
+				},
+				none: {},
+			},
+		},
+	});
+
+	for (const defaults of [
+		{layout: 'absolute-fill', premountFor: 0},
+		{layout: 'none', premountFor: 30},
+	]) {
+		const componentSchema = schema(defaults);
+		const defaultStatuses = staticStatuses({
+			layout: undefined,
+			premountFor: undefined,
+		});
+
+		expect(
+			getInspectorSectionActivity({
+				group: 'layout',
+				propStatuses: defaultStatuses,
+				schema: componentSchema,
+			}),
+		).toBe('inactive');
+		expect(
+			getInspectorSectionActivity({
+				group: 'layout',
+				propStatuses: staticStatuses(defaults),
+				schema: componentSchema,
+			}),
+		).toBe('inactive');
+		expect(
+			getInspectorSectionActivity({
+				group: 'layout',
+				propStatuses: {
+					...defaultStatuses,
+					layout: {
+						status: 'static',
+						codeValue: defaults.layout === 'none' ? 'absolute-fill' : 'none',
+					},
+				},
+				schema: componentSchema,
+			}),
+		).toBe('active');
+		expect(
+			getInspectorSectionActivity({
+				group: 'layout',
+				propStatuses: {
+					...defaultStatuses,
+					premountFor: {
+						status: 'static',
+						codeValue: defaults.premountFor + 1,
+					},
+				},
+				schema: componentSchema,
+			}),
+		).toBe('active');
+	}
+
+	const premountOnlySchema = {
+		premountFor: {
+			type: 'number',
+			default: 0,
+			hiddenFromList: false,
+		},
+	} as const satisfies InteractivitySchema;
+	expect(
+		getInspectorSectionActivity({
+			group: 'layout',
+			propStatuses: staticStatuses({premountFor: undefined}),
+			schema: premountOnlySchema,
+		}),
+	).toBe('inactive');
+	expect(
+		getInspectorSectionActivity({
+			group: 'layout',
+			propStatuses: staticStatuses({premountFor: 1}),
+			schema: premountOnlySchema,
+		}),
+	).toBe('active');
 });

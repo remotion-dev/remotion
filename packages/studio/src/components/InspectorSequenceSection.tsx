@@ -510,6 +510,7 @@ export const InspectorSequenceSection: React.FC<{
 		propStatuses,
 		nodePathInfo.sequenceSubscriptionKey,
 	);
+	const {schema} = sequence.controls;
 	const getControlGroupActivity = useCallback(
 		(group: InspectorControlGroup) => {
 			if (!isSmartCollapsibleInspectorGroup(group.id)) {
@@ -519,9 +520,10 @@ export const InspectorSequenceSection: React.FC<{
 			return getInspectorSectionActivity({
 				group: group.id,
 				propStatuses: sequencePropStatuses,
+				schema,
 			});
 		},
-		[sequencePropStatuses],
+		[schema, sequencePropStatuses],
 	);
 	useEffect(() => {
 		setAutomaticSectionExpansion((previous) => {
@@ -609,7 +611,6 @@ export const InspectorSequenceSection: React.FC<{
 		[visibleControlRows],
 	);
 
-	const {schema} = sequence.controls;
 	const borderRadiusGroup = controlGroups.find(
 		(group) => group.id === 'border-radius',
 	);
@@ -831,8 +832,10 @@ export const InspectorSequenceSection: React.FC<{
 				) : null}
 				{layoutGroup ? (
 					<TimelineSelectionOrderProvider items={controlSelectableItems}>
-						<InspectorSection header={layoutGroup.label}>
-							{layoutGroup.rows.map(renderRow)}
+						<InspectorSection header={renderControlGroupHeader(layoutGroup)}>
+							{isControlGroupExpanded(layoutGroup)
+								? layoutGroup.rows.map(renderRow)
+								: null}
 						</InspectorSection>
 					</TimelineSelectionOrderProvider>
 				) : null}
