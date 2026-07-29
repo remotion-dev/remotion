@@ -14,21 +14,21 @@ const BlueSquare: React.FC = () => <div></div>
 // - BlueSquare
 ```
 
-## Recommendation: &lt;Sequence freeze&gt;
+## Recommendation: `freeze` prop
 
-For new code, prefer [`<Sequence freeze>`](/docs/sequence#freeze) if you want to freeze a timeline item.
+For new code, pass [`freeze`](/docs/sequence#freeze) directly to a timeline item.
 The `freeze` prop is supported by Studio [interactivity](/docs/interactive), so it can be edited visually.
 
 ```tsx twoslash title="MyComp.tsx"
 // @include: example-BlueSquare
 // ---cut---
-import {Sequence} from 'remotion';
+import {AbsoluteFill} from 'remotion';
 
 const MyVideo = () => {
   return (
-    <Sequence freeze={30}>
+    <AbsoluteFill freeze={30}>
       <BlueSquare />
-    </Sequence>
+    </AbsoluteFill>
   );
 };
 ```

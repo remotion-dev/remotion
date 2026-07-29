@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {Sequence} from 'remotion';
+import {Interactive} from 'remotion';
 import type {Item} from './item';
 
 export const Layer: React.FC<{
@@ -17,13 +17,10 @@ export const Layer: React.FC<{
 	}, [item.color, item.height, item.left, item.top, item.width]);
 
 	return (
-		<Sequence
-			key={item.id}
+		<Interactive.Div
 			from={item.from}
 			durationInFrames={item.durationInFrames}
-			layout="none"
-		>
-			<div style={style} />
-		</Sequence>
+			style={style}
+		/>
 	);
 };
