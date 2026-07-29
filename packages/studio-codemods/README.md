@@ -1,5 +1,7 @@
 # @remotion/studio-codemods
 
-Shared codemods used internally by the Remotion Studio server and Browser Studio.
+Shared codemods for Remotion Studio
 
-This package is an internal implementation detail of Remotion Studio.
+## Usage
+
+This is an internal package and has no documentation.
