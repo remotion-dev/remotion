@@ -1,15 +1,21 @@
 ---
 name: deprecate-api
-description: Deprecate a public Remotion API consistently in its TypeScript source and documentation. Use when marking a function, component, hook, type, prop, option, or other public API as deprecated while keeping it available.
+description: Reference for how deprecation of public Remotion APIs is represented in TypeScript source and documentation. Use when adding, reviewing, or discussing a deprecation of a function, component, hook, type, prop, option, or other public API that remains available.
 ---
 
-# Deprecate a Remotion API
+# API deprecations in Remotion
 
-Apply all three changes below when deprecating a public API that remains available.
+Deprecation of a public API that remains available is represented in three places:
 
-## TypeScript API
+1. A JSDoc `@deprecated` annotation on the public TypeScript API.
+2. Strikethrough formatting on the API's documentation heading.
+3. An `info` admonition named `Deprecated` directly after that heading.
 
-Add a JSDoc `@deprecated` annotation to the public symbol. State the replacement when one exists and link to its documentation when useful.
+These conventions apply to functions, components, hooks, types, props, options, and other public APIs.
+
+## TypeScript representation
+
+The public symbol carries a JSDoc `@deprecated` annotation. The annotation states the replacement when one exists and may link to its documentation.
 
 ```ts
 /**
@@ -18,11 +24,11 @@ Add a JSDoc `@deprecated` annotation to the public symbol. State the replacement
 export const oldApi = () => {};
 ```
 
-Place the annotation where consumers receive it. For a re-export or compatibility alias, annotate the exported symbol rather than the non-deprecated implementation.
+The annotation belongs where consumers receive it. For a re-export or compatibility alias, this is the exported symbol rather than the non-deprecated implementation.
 
-## Documentation heading
+## Documentation representation
 
-Strikethrough the deprecated API name in its heading with double tildes. Keep `<AvailableFrom>` outside the strikethrough.
+The deprecated API name in its heading uses double-tilde strikethrough. `<AvailableFrom>` remains outside the strikethrough.
 
 ```mdx
 # ~~oldApi()~~<AvailableFrom v="4.0.0" />
@@ -34,11 +40,9 @@ For a prop or option:
 ### ~~`oldOption?`~~
 ```
 
-Keep the frontmatter `title` unchanged. Add an explicit heading if the page currently relies only on its frontmatter title.
+The frontmatter `title` remains unchanged. A page that otherwise relies only on its frontmatter title has an explicit struck-through heading.
 
-## Documentation admonition
-
-Place an info admonition directly after the deprecated heading. Name it `Deprecated` and point to the replacement when one exists.
+An info admonition named `Deprecated` appears directly after the heading and points to the replacement when one exists.
 
 ```mdx
 :::info Deprecated
@@ -48,6 +52,6 @@ Use [`newApi()`](/docs/new-api) instead.
 
 ## Scope
 
-Do not infer or standardize runtime warnings, sidebar badges, release notes, removal versions, or removal behavior. Change those only when the task explicitly requires them.
+Runtime warnings, sidebar badges, release notes, removal versions, and removal behavior are not currently standardized as part of API deprecation.
 
-Do not apply this skill to an API that has already been removed. Removed APIs may remain documented for migration purposes, but they no longer have a public symbol to annotate.
+Removed APIs are outside this convention. They may remain documented for migration purposes, but they no longer have a public symbol to annotate.
