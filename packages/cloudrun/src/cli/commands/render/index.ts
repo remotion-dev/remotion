@@ -1,6 +1,10 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
-import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
+import type {
+	ChromiumOptions,
+	LogLevel,
+	SingleFrameRange,
+} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
@@ -97,11 +101,16 @@ export const renderCommand = async (
 			logLevel,
 			indent: false,
 		});
-	if (selectedFrames !== null) {
+	if (
+		selectedFrames !== null ||
+		(Array.isArray(frameRange) && Array.isArray(frameRange[0]))
+	) {
 		throw new Error(
-			'Comma-separated individual frames are only supported by the local `remotion render` command. Pass frame ranges to render a video on Cloud Run.',
+			'Comma-separated frame selections are only supported by the local `remotion render` command. Pass one frame range to render a video on Cloud Run.',
 		);
 	}
+
+	const singleFrameRange = frameRange as SingleFrameRange | null;
 
 	const height = overrideHeightOption.getValue({
 		commandLine: CliInternals.parsedCli,
@@ -383,7 +392,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		scale,
 		everyNthFrame,
 		numberOfGifLoops,
-		frameRange: frameRange ?? undefined,
+		frameRange: singleFrameRange ?? undefined,
 		envVariables,
 		chromiumOptions,
 		muted,

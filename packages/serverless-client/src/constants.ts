@@ -4,10 +4,10 @@ import type {
 	AudioCodec,
 	ChromiumOptions,
 	ColorSpace,
-	FrameRange,
 	LogLevel,
 	PixelFormat,
 	StillImageFormat,
+	SingleFrameRange,
 	ToOptions,
 	VideoImageFormat,
 	X264Preset,
@@ -131,7 +131,7 @@ export type ServerlessStartPayload<Provider extends CloudProvider> = {
 	maxRetries: number;
 	privacy: Privacy;
 	logLevel: LogLevel;
-	frameRange: FrameRange | null;
+	frameRange: SingleFrameRange | null;
 	outName: OutNameInput<Provider> | null;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
@@ -196,7 +196,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		maxRetries: number;
 		privacy: Privacy;
 		logLevel: LogLevel;
-		frameRange: FrameRange | null;
+		frameRange: SingleFrameRange | null;
 		outName: OutNameInput<Provider> | null;
 		timeoutInMilliseconds: number;
 		// Non-JS SDKs may not set chromiumOptions, may be undefined
@@ -280,7 +280,6 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		compositionStart: number;
 		framesPerLambda: number;
 		progressEveryNthFrame: number;
-		hasDiscontinuousFrameRanges: boolean;
 		forcePathStyle: boolean;
 		metadata: Record<string, string> | null;
 		sampleRate: number;

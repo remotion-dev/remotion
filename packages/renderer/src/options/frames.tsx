@@ -126,19 +126,11 @@ const parseFrameRangeFromCli = (
 export const framesOption = {
 	name: 'Frame Range',
 	cliFlag,
-	description: (mode) => (
+	description: () => (
 		<>
 			Render a subset of a video. Pass a single number to render a still, or a
 			range (e.g. <code>0-9</code>) to render a subset of frames. Pass{' '}
 			<code>100-</code> to render from frame 100 to the end.
-			{mode === 'cli' ? (
-				<>
-					{' '}
-					Pass a comma-separated selection (e.g. <code>0,10,20</code> or{' '}
-					<code>0-9,20-29</code>) to render individual frames or multiple
-					ranges.
-				</>
-			) : null}
 		</>
 	),
 	ssrName: 'frameRange' as const,

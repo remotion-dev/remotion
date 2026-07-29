@@ -231,7 +231,7 @@ How the output file should behave when accessed through the Cloud Storage output
 
 Specify a single frame (a number) or a range of frames (a tuple [number, number]) to be rendered. Pass `[number, null]` to render from a frame to the end of the composition.<AvailableFrom v="4.0.421" inline />
 
-Pass an array of ordered, non-overlapping ranges to concatenate multiple sections into one video. Video and audio from gaps are omitted. Ranges are inclusive, and an open-ended range may only appear last.<AvailableFrom v="4.0.502" inline />
+Multiple frame ranges are not supported. Use local [`renderMedia()`](/docs/renderer/render-media) to render discontinuous sections.
 
 ### `envVariables?`
 

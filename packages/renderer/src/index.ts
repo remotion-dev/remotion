@@ -96,6 +96,7 @@ export {
 	FrameSelection,
 	OpenEndedFrameRange,
 	ResolvedFrameRange,
+	SingleFrameRange,
 } from './frame-range';
 export {
 	GetCompositionsOptions,

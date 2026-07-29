@@ -175,13 +175,13 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			(params.rendererFunctionName ?? null) === null,
 	});
 
-	const realFrameRanges = RenderInternals.getRealFrameRanges(
+	const realFrameRange = RenderInternals.getRealFrameRange(
 		comp.durationInFrames,
 		params.frameRange,
 	);
 
 	const frameCount = RenderInternals.getFramesToRender(
-		realFrameRanges,
+		realFrameRange,
 		params.everyNthFrame,
 	);
 
@@ -204,7 +204,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 
 	const {chunks} = planFrameRanges({
 		framesPerFunction: framesPerLambda,
-		frameRanges: realFrameRanges,
+		frameRange: realFrameRange,
 		everyNthFrame: params.everyNthFrame,
 	});
 
@@ -215,6 +215,8 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	}
 
 	overallProgress.setExpectedChunks(chunks.length);
+
+	const sortedChunks = chunks.slice().sort((a, b) => a[0] - b[0]);
 
 	const serializedResolved = serializeOrThrow(comp.props, 'resolved-props');
 
@@ -260,18 +262,11 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 	const progressEveryNthFrame = Math.ceil(chunks.length / 15);
 
 	const lambdaPayloads = chunks.map((chunkPayload) => {
-		const containingRange = realFrameRanges.find(
-			(range) => chunkPayload[0] >= range[0] && chunkPayload[0] <= range[1],
-		);
-		if (!containingRange) {
-			throw new Error('Could not find the selected range for a render chunk.');
-		}
-
 		const payload: ServerlessPayload<Provider> = {
 			type: ServerlessRoutines.renderer,
 			frameRange: chunkPayload,
 			serveUrl: params.serveUrl,
-			chunk: chunks.indexOf(chunkPayload),
+			chunk: sortedChunks.indexOf(chunkPayload),
 			composition: params.composition,
 			fps: comp.fps,
 			height: comp.height,
@@ -311,10 +306,9 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 			deleteAfter: params.deleteAfter,
 			colorSpace: params.colorSpace,
 			preferLossless: params.preferLossless,
-			compositionStart: containingRange[0],
+			compositionStart: realFrameRange[0],
 			framesPerLambda,
 			progressEveryNthFrame,
-			hasDiscontinuousFrameRanges: realFrameRanges.length > 1,
 			forcePathStyle: params.forcePathStyle,
 			metadata: params.metadata,
 			offthreadVideoThreads: params.offthreadVideoThreads,
@@ -358,9 +352,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		outName: removeOutnameCredentials(params.outName ?? undefined),
 		privacy: params.privacy,
 		everyNthFrame: params.everyNthFrame,
-		frameRange:
-			realFrameRanges.length === 1 ? realFrameRanges[0] : realFrameRanges,
-		chunkRanges: chunks,
+		frameRange: realFrameRange,
 		audioCodec: params.audioCodec,
 		deleteAfter: params.deleteAfter,
 		numberOfGifLoops: params.numberOfGifLoops,
@@ -537,7 +529,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		framesPerLambda,
 		binariesDirectory: null,
 		preferLossless: params.preferLossless,
-		compositionStart: realFrameRanges[0][0],
+		compositionStart: realFrameRange[0],
 		outdir,
 		files: files.sort(),
 		overallProgress,
@@ -546,8 +538,7 @@ const innerLaunchHandler = async <Provider extends CloudProvider>({
 		forcePathStyle: params.forcePathStyle,
 		insideFunctionSpecifics,
 		everyNthFrame: params.everyNthFrame,
-		frameRange:
-			realFrameRanges.length === 1 ? realFrameRanges[0] : realFrameRanges,
+		frameRange: params.frameRange,
 		storageClass: params.storageClass,
 		requestHandler: null,
 		sampleRate: params.sampleRate,

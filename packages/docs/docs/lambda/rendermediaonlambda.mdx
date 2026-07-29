@@ -86,20 +86,7 @@ Cannot be used together with `framesPerLambda`. Use only one of them.
 
 Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to render a subset of a video. Example: `[0, 9]` to select the first 10 frames. By passing `null` (default) all frames of a composition get rendered. Pass `[number, null]` to render from a frame to the end of the composition.<AvailableFrom v="4.0.421" inline /> To render a still, use [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda).
 
-Pass an array of ordered, non-overlapping ranges to concatenate multiple sections into one video. Video and audio from gaps are omitted. Ranges are inclusive, and an open-ended range may only appear last.<AvailableFrom v="4.0.502" inline />
-
-```ts twoslash title="render-on-lambda.ts"
-import {renderMediaOnLambda} from '@remotion/lambda/client';
-declare const options: Parameters<typeof renderMediaOnLambda>[0];
-// ---cut---
-await renderMediaOnLambda({
-	...options,
-  frameRange: [
-    [0, 100],
-    [150, 200],
-  ],
-});
-```
+Multiple frame ranges are not supported. Use local [`renderMedia()`](/docs/renderer/render-media) to render discontinuous sections.
 
 ### `serveUrl`
 

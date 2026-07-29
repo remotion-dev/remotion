@@ -39,12 +39,6 @@ export const createPostRenderData = <Provider extends CloudProvider>({
 	providerSpecifics: ProviderSpecifics<Provider>;
 }): PostRenderData<Provider> => {
 	const parsedTimings = overallProgress.timings;
-	const selectedRanges: [number, number][] =
-		renderMetadata.type === 'video'
-			? Array.isArray(renderMetadata.frameRange[0])
-				? (renderMetadata.frameRange as [number, number][])
-				: [renderMetadata.frameRange as [number, number]]
-			: [];
 
 	const estimatedBillingDurationInMilliseconds = calculateBillingDuration({
 		timings: parsedTimings,
@@ -109,9 +103,8 @@ export const createPostRenderData = <Provider extends CloudProvider>({
 				: getMostExpensiveChunks({
 						parsedTimings,
 						framesPerFunction: renderMetadata.framesPerLambda,
-						firstFrame: selectedRanges[0][0],
-						lastFrame: selectedRanges[selectedRanges.length - 1][1],
-						chunkRanges: renderMetadata.chunkRanges ?? null,
+						firstFrame: renderMetadata.frameRange[0],
+						lastFrame: renderMetadata.frameRange[1],
 					}),
 		deleteAfter: renderMetadata.deleteAfter,
 		estimatedBillingDurationInMilliseconds,

@@ -144,12 +144,10 @@ const renderHandler = async <Provider extends CloudProvider>({
 		preferLossless: params.preferLossless,
 	});
 
-	const seamlessAudio =
-		!params.hasDiscontinuousFrameRanges &&
-		RenderInternals.canConcatAudioSeamlessly(
-			defaultAudioCodec,
-			params.framesPerLambda,
-		);
+	const seamlessAudio = RenderInternals.canConcatAudioSeamlessly(
+		defaultAudioCodec,
+		params.framesPerLambda,
+	);
 	const seamlessVideo = RenderInternals.canConcatVideoSeamlessly(params.codec);
 
 	RenderInternals.Log.verbose(

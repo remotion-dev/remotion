@@ -5,11 +5,11 @@ import type {
 	BrowserSafeApis,
 	ChromiumOptions,
 	DownloadBehavior,
-	FrameRange,
 	OutNameInput,
 	PixelFormat,
 	Privacy,
 	ServerlessCodec,
+	SingleFrameRange,
 	ToOptions,
 	VideoImageFormat,
 	WebhookOption,
@@ -52,7 +52,7 @@ export type RenderMediaOnLambdaInput = {
 	maxRetries?: number;
 	framesPerLambda?: number;
 	concurrency?: number;
-	frameRange?: FrameRange;
+	frameRange?: SingleFrameRange;
 	outName?: OutNameInput<AwsProvider>;
 	chromiumOptions?: Omit<ChromiumOptions, 'enableMultiProcessOnLinux'>;
 	scale?: number;
@@ -229,6 +229,15 @@ const wrapped = wrapWithErrorHandling(internalRenderMediaOnLambdaRaw);
 export const renderMediaOnLambda = (
 	options: RenderMediaOnLambdaInput,
 ): Promise<RenderMediaOnLambdaOutput> => {
+	if (
+		Array.isArray(options.frameRange) &&
+		Array.isArray(options.frameRange[0])
+	) {
+		throw new Error(
+			'Multiple frame ranges are not supported on Lambda. Use renderMedia() locally to render multiple ranges.',
+		);
+	}
+
 	if (options.quality) {
 		throw new Error(
 			'quality has been renamed to jpegQuality. Please rename the option.',

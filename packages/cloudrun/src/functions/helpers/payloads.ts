@@ -58,7 +58,6 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		numberOfGifLoops: z.number().nullable(),
 		frameRange: z
 			.tuple([z.number(), z.number().nullable()])
-			.or(z.array(z.tuple([z.number(), z.number().nullable()])))
 			.or(z.number())
 			.nullable(),
 		envVariables: z.record(z.string(), z.string()),

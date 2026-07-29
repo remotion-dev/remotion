@@ -1,7 +1,6 @@
 import type {
 	AudioCodec,
 	DeleteAfter,
-	ResolvedFrameRange,
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
@@ -24,8 +23,7 @@ type Discriminated =
 			type: 'video';
 			imageFormat: VideoImageFormat;
 			muted: boolean;
-			frameRange: ResolvedFrameRange | ResolvedFrameRange[];
-			chunkRanges?: ResolvedFrameRange[];
+			frameRange: [number, number];
 			everyNthFrame: number;
 			codec: ServerlessCodec;
 	  };

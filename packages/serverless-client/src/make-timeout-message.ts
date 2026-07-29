@@ -31,28 +31,13 @@ const makeChunkMissingMessage = <Provider extends CloudProvider>({
 		...missingChunks
 			.map((ch) => {
 				const isLastChunk = ch === renderMetadata.totalChunks - 1;
-				const selectedRanges: [number, number][] =
-					renderMetadata.type === 'video'
-						? Array.isArray(renderMetadata.frameRange[0])
-							? (renderMetadata.frameRange as [number, number][])
-							: [renderMetadata.frameRange as [number, number]]
-						: [];
-				const chunkRange =
-					renderMetadata.type === 'video'
-						? renderMetadata.chunkRanges?.[ch]
-						: undefined;
-				const start =
-					chunkRange?.[0] ??
-					ch * renderMetadata.framesPerLambda + (selectedRanges[0]?.[0] ?? 0);
+				const start = ch * renderMetadata.framesPerLambda;
 				const end =
-					chunkRange?.[1] ??
-					(renderMetadata.type === 'still'
+					renderMetadata.type === 'still'
 						? 0
 						: isLastChunk
-							? selectedRanges[selectedRanges.length - 1][1]
-							: (ch + 1) * renderMetadata.framesPerLambda -
-								1 +
-								selectedRanges[0][0]);
+							? renderMetadata.frameRange[1]
+							: (ch + 1) * renderMetadata.framesPerLambda - 1;
 
 				const msg = `Chunk ${ch} (Frames ${start} - ${end})`;
 

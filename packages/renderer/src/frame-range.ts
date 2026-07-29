@@ -1,8 +1,9 @@
 export type ResolvedFrameRange = [number, number];
 export type OpenEndedFrameRange = [number, null];
 export type FrameRangeTuple = ResolvedFrameRange | OpenEndedFrameRange;
+export type SingleFrameRange = number | FrameRangeTuple;
 
-export type FrameRange = number | FrameRangeTuple | FrameRangeTuple[];
+export type FrameRange = SingleFrameRange | FrameRangeTuple[];
 
 export type FrameSelection =
 	| FrameRange
