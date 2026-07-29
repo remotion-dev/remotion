@@ -264,7 +264,7 @@ export const QuickSwitcherContent: React.FC<{
 			return [
 				{
 					id: 'select-file',
-					title: 'Select file',
+					title: 'Select file...',
 					type: 'select-file',
 					onSelected: () => {
 						assetSelection.onSelectFile();
