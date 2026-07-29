@@ -274,7 +274,7 @@ registerRoot(Root);`,
 	).toHaveLength(1);
 });
 
-test('subscribes to sequence prop updates and emits virtual project events', async () => {
+test('saves sequence props with events and undo history', async () => {
 	const fileName = '/project/src/Composition.tsx';
 	let currentProject: VirtualProject = {
 		rootDir: '/project',
@@ -328,17 +328,37 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 	});
 	expect(subscription.nodePath.absolutePath).toBe(fileName);
 
-	currentProject = {
-		...currentProject,
-		files: {
-			...currentProject.files,
-			[fileName]: currentProject.files[fileName].replace(
-				'from={10}',
-				'from={15}',
-			),
-		},
-	};
-	operations.resetHistory();
+	const saveResult = await operations.saveSequenceProps({
+		edits: [
+			{
+				fileName: request.fileName,
+				nodePath: subscription.nodePath,
+				key: 'from',
+				value: {type: 'json', serialized: '15'},
+				defaultValue: '0',
+				schema: {
+					from: {
+						type: 'number',
+						default: 0,
+						hiddenFromList: false,
+					},
+					durationInFrames: {
+						type: 'number',
+						default: null,
+						hiddenFromList: false,
+					},
+				},
+				sourceEdit: null,
+			},
+		],
+		addedKeyframes: null,
+		movedKeyframes: null,
+		clientId: request.clientId,
+		undoLabel: 'Update from',
+		redoLabel: 'Update from again',
+	});
+	expect(saveResult.canUpdate).toBe(true);
+	expect(currentProject.files[fileName]).toContain('from={15}');
 	const update = events.findLast(
 		(
 			event,
@@ -352,6 +372,10 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 	}
 
 	expect(update.result.props.from).toEqual({status: 'static', codeValue: 15});
+	expect(await operations.undo()).toEqual({success: true});
+	expect(currentProject.files[fileName]).toContain('from={10}');
+	expect(await operations.redo()).toEqual({success: true});
+	expect(currentProject.files[fileName]).toContain('from={15}');
 
 	currentProject = {
 		...currentProject,

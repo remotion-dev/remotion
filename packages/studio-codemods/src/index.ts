@@ -12,6 +12,15 @@ export {
 } from './sequence-props';
 export {JsxElementIdentityMismatchError} from './sequence-props/jsx-component-identity';
 export {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-not-found-at-location-error';
+export {updateInlineCaptionPatches} from './update-inline-caption-patches';
+export {
+	type RemovedProp,
+	type SequencePropsNodeUpdate,
+	type SequencePropsNodeUpdateResult,
+	type SequencePropUpdate,
+	updateMultipleSequenceProps,
+	updateSequencePropsAst,
+} from './update-sequence-props';
 
 export type CodemodProject = {
 	files: Record<string, string>;

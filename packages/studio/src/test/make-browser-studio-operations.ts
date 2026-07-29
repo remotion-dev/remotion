@@ -18,6 +18,7 @@ export const makeBrowserStudioOperations = (
 		insertSolid: () => unusedOperation('insertSolid'),
 		redo: () => unusedOperation('redo'),
 		renameStaticFile: () => unusedOperation('renameStaticFile'),
+		saveSequenceProps: () => unusedOperation('saveSequenceProps'),
 		subscribeToDefaultProps: () => unusedOperation('subscribeToDefaultProps'),
 		subscribeToEvent: () => unusedOperation('subscribeToEvent'),
 		subscribeToSequenceProps: () => unusedOperation('subscribeToSequenceProps'),

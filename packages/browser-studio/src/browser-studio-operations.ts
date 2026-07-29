@@ -19,6 +19,7 @@ import type {
 } from '@remotion/studio-shared';
 import {createBrowserStudioProjectController} from './browser-studio-project-controller';
 import {makeBrowserStudioProjectArchive} from './download-project';
+import {saveSequencePropsInProject} from './save-sequence-props';
 import type {VirtualProject} from './types';
 
 export {insertSolidIntoProject} from '@remotion/studio-codemods';
@@ -230,6 +231,29 @@ export const createBrowserStudioOperations = ({
 		},
 		redo: controller.redo,
 		renameStaticFile: controller.renameStaticFile,
+		saveSequenceProps: (request) => {
+			try {
+				let response: Awaited<
+					ReturnType<BrowserStudioOperations['saveSequenceProps']>
+				> | null = null;
+				const firstTarget = request.edits[0] ?? request.captionPatches?.[0];
+				controller.applyMutation({
+					fileName: firstTarget?.fileName ?? 'Sequence props',
+					mutate: (project) => {
+						const result = saveSequencePropsInProject({project, request});
+						response = result.response;
+						return result.project;
+					},
+				});
+				if (response === null) {
+					throw new Error('Could not save sequence props');
+				}
+
+				return Promise.resolve(response);
+			} catch (error) {
+				return Promise.reject(error);
+			}
+		},
 		resetHistory: () => {
 			controller.resetHistory();
 			refreshDefaultPropsSubscriptions();

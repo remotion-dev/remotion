@@ -31,7 +31,8 @@
 		"@remotion/studio-shared": "workspace:*",
 		"@rspack/browser": "2.1.1",
 		"fflate": "0.8.2",
-		"react-refresh": "0.18.0"
+		"react-refresh": "0.18.0",
+		"remotion": "workspace:*"
 	},
 	"exports": {
 		".": {
