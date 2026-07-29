@@ -158,8 +158,6 @@ export const Empty = () => {
 
 Most components (`<AbsoluteFill>`, `<Interactive.*>` `<Img>`, `<AnimatedImage>`, `<CanvasImage>`, `<HtmlInCanvas>`, `<Solid>`, `<Sequence>` from `remotion`, `<Video>` and `<Audio>` from `@remotion/media`, `<Gif>`, and more) support the following props:
 
-`<AbsoluteFill>` is an interactive full-frame layer. Inline styles such as `backgroundColor` can be edited in the Studio. Use it for actual layers that should appear in the timeline, and use a plain `<div>` for structural layout that should not create a timeline item.
-
 ### from
 
 ```tsx
