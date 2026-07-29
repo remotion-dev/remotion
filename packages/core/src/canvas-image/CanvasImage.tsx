@@ -23,6 +23,7 @@ import {Freeze} from '../freeze.js';
 import {
 	backgroundSchema,
 	baseSchema,
+	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
 	premountSchema,
@@ -57,6 +58,7 @@ export const canvasImageSchema = {
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,
+	...borderRadiusSchema,
 } as const satisfies InteractivitySchema;
 
 type LoadedImage = {

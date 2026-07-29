@@ -1,5 +1,6 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {writeStaticFile} from '../api/write-static-file';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BACKGROUND, WHITE_ALPHA_06, LIGHT_TEXT} from '../helpers/colors';
 import {buildAssetFolderStructure} from '../helpers/create-folder-tree';
@@ -53,7 +54,9 @@ export const AssetSelector: React.FC<{
 	const [dropLocation, setDropLocation] = useState<string | null>(null);
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
-	const shouldAllowUpload = connectionStatus === 'connected' && !readOnlyStudio;
+	const shouldAllowUpload =
+		getBrowserStudioOperations() !== null ||
+		(connectionStatus === 'connected' && !readOnlyStudio);
 
 	const list: React.CSSProperties = useMemo(() => {
 		return {

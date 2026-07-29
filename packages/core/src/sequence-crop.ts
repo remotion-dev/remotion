@@ -1,3 +1,5 @@
+import type {CSSProperties} from 'react';
+
 export type ResolvedSequenceCrop = {
 	readonly left: number;
 	readonly right: number;
@@ -5,8 +7,8 @@ export type ResolvedSequenceCrop = {
 	readonly bottom: number;
 };
 
-type ResolvedSequenceCropWithBorderRadius = ResolvedSequenceCrop & {
-	readonly borderRadius?: string | number;
+type ResolvedSequenceCropWithStyle = ResolvedSequenceCrop & {
+	readonly style: CSSProperties | null | undefined;
 };
 
 export type SequenceCropInput = {
@@ -51,14 +53,26 @@ export const getSequenceCropClipPath = ({
 	right,
 	top,
 	bottom,
-	borderRadius,
-}: ResolvedSequenceCropWithBorderRadius): string | null => {
+	style,
+}: ResolvedSequenceCropWithStyle): string | null => {
 	if (left === 0 && right === 0 && top === 0 && bottom === 0) {
 		return null;
 	}
 
+	const serializeRadius = (radius: string | number | undefined) =>
+		typeof radius === 'number' ? `${radius}px` : radius;
+	const shorthand = serializeRadius(style?.borderRadius);
+	const longhands = [
+		style?.borderTopLeftRadius,
+		style?.borderTopRightRadius,
+		style?.borderBottomRightRadius,
+		style?.borderBottomLeftRadius,
+	];
 	const serializedBorderRadius =
-		typeof borderRadius === 'number' ? `${borderRadius}px` : borderRadius;
+		shorthand ||
+		(longhands.some((radius) => radius !== undefined)
+			? longhands.map((radius) => serializeRadius(radius) ?? '0px').join(' ')
+			: undefined);
 	const rounded = serializedBorderRadius
 		? ` round ${serializedBorderRadius}`
 		: '';

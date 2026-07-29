@@ -1,5 +1,4 @@
-import type {WebpackConfiguration} from '@remotion/bundler';
-import type {RuleSetUseItem} from 'webpack';
+import type {BundlerConfiguration} from '@remotion/bundler';
 
 const envPreset = [
 	require.resolve('@babel/preset-env'),
@@ -15,9 +14,11 @@ function truthy<T>(value: T): value is Truthy<T> {
 	return Boolean(value);
 }
 
-export const replaceLoadersWithBabel = (
-	conf: WebpackConfiguration,
-): WebpackConfiguration => {
+export const replaceLoadersWithBabel = <
+	Configuration extends BundlerConfiguration,
+>(
+	conf: Configuration,
+): Configuration => {
 	return {
 		...conf,
 		module: {
@@ -29,6 +30,7 @@ export const replaceLoadersWithBabel = (
 
 				// All modules that use require.resolve need to be added to cli/src/load-config -> external array
 				if (rule && rule.test?.toString().includes('.tsx')) {
+					const existingUse = Array.isArray(rule.use) ? rule.use : [];
 					return {
 						test: /\.tsx?$/,
 						use: [
@@ -59,7 +61,7 @@ export const replaceLoadersWithBabel = (
 									].filter(truthy),
 								},
 							},
-							(rule.use as RuleSetUseItem[])[1],
+							existingUse[1],
 						].filter(truthy),
 					};
 				}

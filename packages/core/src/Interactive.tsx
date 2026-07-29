@@ -7,6 +7,7 @@ import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {
 	backgroundSchema,
 	baseSchema,
+	borderRadiusSchema,
 	captionsSchema,
 	borderSchema,
 	cropSchema,
@@ -160,6 +161,7 @@ const interactiveBackgroundElementSchema = {
 const interactiveBorderElementSchema = {
 	...interactiveBackgroundElementSchema,
 	...borderSchema,
+	...borderRadiusSchema,
 } as const satisfies InteractivitySchema;
 
 const interactiveTextElementSchema = {
@@ -323,6 +325,7 @@ export const Interactive = {
 	textSchema,
 	backgroundSchema,
 	borderSchema,
+	borderRadiusSchema,
 	cropSchema,
 	svgPaintSchema,
 	svgStrokeSchema,

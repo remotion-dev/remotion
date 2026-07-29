@@ -17,6 +17,11 @@ Choose an existing category and a kebab-case slug. Before creating files, determ
 - Fixed Element width and height, or `null` for both so it inherits the composition dimensions
 - Preview padding, which affects only the docs preview and not the Element bounds
 - A provisional poster frame
+- Explicit poster and video URLs using the flat asset convention:
+  - `https://remotion.media/elements/<category>-<slug>-preview.png`
+  - `https://remotion.media/elements/<category>-<slug>-preview.mp4`
+
+Preview videos are always opaque MP4 files for broad browser, social-card, and embed compatibility. Elements that are transparent in a composition are composited onto the standard preview background for these assets.
 
 Inspect `packages/docs/elements-template/` and at least one existing Element in the same category. Do not create a new category unless the task explicitly requires one.
 
@@ -39,7 +44,7 @@ Follow the Element Guidelines for the component itself. When using Studio-editab
 
 ## 3. Register the development composition
 
-Import and register the component in `packages/docs/src/components/Elements/element-definitions.ts` using the planned preview metadata.
+Import and register the component in `packages/docs/src/components/Elements/element-definitions.ts` using the planned preview metadata. Add the explicit `preview` object next to the render metadata, including `posterUrl` and `videoUrl`. The URLs in this object are the source of truth for publishing; do not add a helper that derives production URLs from the Element slug.
 
 Do not edit `packages/docs/src/remotion/Root.tsx`. It automatically creates a composition for every central definition using the same sizing and wrapper used by published Elements.
 

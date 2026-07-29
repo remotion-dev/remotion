@@ -1,4 +1,5 @@
 import React from 'react';
+import type {_InternalTypes} from 'remotion';
 import type {StaticFile} from '../../api/get-static-files';
 import {DismissableModal} from '../NewComposition/DismissableModal';
 import type {QuickSwitcherMode} from './NoResults';
@@ -17,7 +18,19 @@ const QuickSwitcher: React.FC<{
 		readonly initialQuery: string;
 		readonly onSelected: (asset: StaticFile) => void;
 	} | null;
-}> = ({initialMode, invocationTimestamp, readOnlyStudio, assetSelection}) => {
+	readonly compositionSelection: {
+		readonly excludeCompositionId: string;
+		readonly onSelected: (
+			composition: _InternalTypes['AnyComposition'],
+		) => void;
+	} | null;
+}> = ({
+	initialMode,
+	invocationTimestamp,
+	readOnlyStudio,
+	assetSelection,
+	compositionSelection,
+}) => {
 	return (
 		<DismissableModal panelStyle={panelStyle}>
 			<QuickSwitcherContent
@@ -25,6 +38,7 @@ const QuickSwitcher: React.FC<{
 				invocationTimestamp={invocationTimestamp}
 				initialMode={initialMode}
 				assetSelection={assetSelection}
+				compositionSelection={compositionSelection}
 			/>
 		</DismissableModal>
 	);

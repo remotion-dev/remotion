@@ -3,6 +3,7 @@ import type {_InternalTypes} from 'remotion';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {PicIcon} from '../../icons/frame';
 import {SolidIcon} from '../../icons/solid';
+import {FilmIcon} from '../../icons/video';
 import {VisualControlsContext} from '../../visual-controls/VisualControls';
 import {DefaultPropsEditor} from '../DefaultPropsEditor';
 import {useZodIfPossible} from '../get-zod-if-possible';
@@ -52,14 +53,20 @@ const CompositionActions: React.FC<{
 }> = ({readOnlyStudio}) => {
 	const {
 		canInsertAsset,
+		canInsertComposition,
 		canInsertSolid,
 		canShowInsertAsset,
+		canShowInsertComposition,
 		canShowInsertSolid,
 		insertAsset,
+		insertComposition,
 		insertSolid,
 	} = useCompositionActions();
 
-	if (readOnlyStudio || (!canShowInsertAsset && !canShowInsertSolid)) {
+	if (
+		(readOnlyStudio && !canShowInsertSolid) ||
+		(!canShowInsertAsset && !canShowInsertComposition && !canShowInsertSolid)
+	) {
 		return null;
 	}
 
@@ -85,6 +92,17 @@ const CompositionActions: React.FC<{
 					)}
 				>
 					Add asset...
+				</InspectorInlineAction>
+			) : null}
+			{canShowInsertComposition ? (
+				<InspectorInlineAction
+					disabled={!canInsertComposition}
+					onClick={insertComposition}
+					renderIcon={(color) => (
+						<FilmIcon color={color} style={actionIconStyle} />
+					)}
+				>
+					Add composition...
 				</InspectorInlineAction>
 			) : null}
 		</InspectorActionSection>

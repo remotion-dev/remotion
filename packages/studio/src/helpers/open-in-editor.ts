@@ -2,12 +2,13 @@ import type {
 	CompositionComponentInfoResponse,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
-import {useSyncExternalStore} from 'react';
+import {useEffect, useSyncExternalStore} from 'react';
 import {callApi} from '../components/call-api';
 import type {
 	CodePosition,
 	OriginalPosition,
 } from '../error-overlay/react-overlay/utils/get-source-map';
+import {getBrowserStudioOperations} from './browser-studio-operations';
 
 export const openInEditor = (stack: SymbolicatedStackFrame) => {
 	const {
@@ -48,12 +49,16 @@ export const openOriginalPositionInEditorAtProperty = async ({
 	originalPosition: CodePosition;
 	property: string;
 }) => {
-	const position = await callApi('/api/find-in-file', {
+	const request = {
 		fileName: originalPosition.source,
 		lineNumber: originalPosition.line,
 		columnNumber: originalPosition.column,
 		search: property,
-	});
+	};
+	const browserStudioOperations = getBrowserStudioOperations();
+	const position = browserStudioOperations
+		? await browserStudioOperations.findInFile(request)
+		: await callApi('/api/find-in-file', request);
 
 	await openOriginalPositionInEditor({
 		source: originalPosition.source,
@@ -122,7 +127,7 @@ export const useCachedCompositionComponentInfo = ({
 	compositionFile: string | null;
 	compositionId: string | null;
 }) => {
-	return useSyncExternalStore(
+	const result = useSyncExternalStore(
 		subscribeToCompositionComponentInfo,
 		() => {
 			if (compositionFile === null || compositionId === null) {
@@ -136,6 +141,23 @@ export const useCachedCompositionComponentInfo = ({
 		},
 		() => null,
 	);
+
+	useEffect(() => {
+		if (
+			!getBrowserStudioOperations() ||
+			compositionFile === null ||
+			compositionId === null
+		) {
+			return;
+		}
+
+		preloadCompositionComponentInfo({
+			compositionFile,
+			compositionId,
+		});
+	}, [compositionFile, compositionId]);
+
+	return result;
 };
 
 export const loadCompositionComponentInfo = async ({
@@ -155,10 +177,14 @@ export const loadCompositionComponentInfo = async ({
 	}
 
 	const promise = (async () => {
-		const body = await callApi('/api/composition-component-info', {
+		const request = {
 			compositionFile,
 			compositionId,
-		});
+		};
+		const browserStudioOperations = getBrowserStudioOperations();
+		const body = browserStudioOperations
+			? await browserStudioOperations.getCompositionComponentInfo(request)
+			: await callApi('/api/composition-component-info', request);
 
 		const result = {
 			location: body.location,

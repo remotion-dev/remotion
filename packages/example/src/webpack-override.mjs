@@ -84,10 +84,8 @@ const aliases = {
 	),
 };
 
-/**
- * @typedef {import('@remotion/bundler').WebpackOverrideFn} WebpackOverrideFn
- */
-export const webpackOverride = (currentConfiguration) => {
+/** @type {import('@remotion/bundler').BundlerOverrideFn} */
+export const bundlerOverride = (currentConfiguration) => {
 	const replaced = (() => {
 		if (WEBPACK_OR_ESBUILD === 'webpack') {
 			const {replaceLoadersWithBabel} = require(

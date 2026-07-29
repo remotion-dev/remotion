@@ -5,6 +5,7 @@ import {Internals} from 'remotion';
 import {showNotification} from '../components/Notifications/NotificationCenter';
 import playBeepSound from '../components/PlayBeepSound';
 import {renderJobsRef} from '../components/RenderQueue/context';
+import {getBrowserStudioOperations} from './browser-studio-operations';
 import {
 	subscribeToPreviewServerConnectionState,
 	subscribeToPreviewServerEvents,
@@ -19,6 +20,11 @@ type Context = {
 		listener: (event: EventSourceEvent) => void,
 	) => () => void;
 };
+
+// Browser Studio may be hosted by a different studio-shared version, so this
+// handshake intentionally has no shared runtime import.
+const BROWSER_STUDIO_OPERATIONS_READY_EVENT =
+	'remotion-browser-studio-operations-ready';
 
 export const StudioServerConnectionCtx = React.createContext<Context>({
 	previewServerState: {
@@ -39,6 +45,9 @@ export const PreviewServerConnection: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({children, readOnlyStudio}) => {
 	const listeners = useRef<Listeners>([]);
+	const latestUndoRedoEvent = useRef<
+		Extract<EventSourceEvent, {type: 'undo-redo-stack-changed'}> | undefined
+	>(undefined);
 
 	const subscribeToEvent = useCallback(
 		(
@@ -46,6 +55,9 @@ export const PreviewServerConnection: React.FC<{
 			listener: (event: EventSourceEvent) => void,
 		) => {
 			listeners.current.push({type, listener});
+			if (type === 'undo-redo-stack-changed' && latestUndoRedoEvent.current) {
+				listener(latestUndoRedoEvent.current);
+			}
 
 			return () => {
 				listeners.current = listeners.current.filter(
@@ -61,10 +73,6 @@ export const PreviewServerConnection: React.FC<{
 	});
 
 	useEffect(() => {
-		if (readOnlyStudio) {
-			return;
-		}
-
 		const handleEvent = (newEvent: EventSourceEvent) => {
 			if (
 				newEvent.type === 'new-input-props' ||
@@ -75,15 +83,20 @@ export const PreviewServerConnection: React.FC<{
 			}
 
 			if (newEvent.type === 'init') {
+				latestUndoRedoEvent.current = {
+					type: 'undo-redo-stack-changed',
+					undoFile: newEvent.undoFile,
+					redoFile: newEvent.redoFile,
+				};
 				listeners.current.forEach((l) => {
 					if (l.type === 'undo-redo-stack-changed') {
-						l.listener({
-							type: 'undo-redo-stack-changed',
-							undoFile: newEvent.undoFile,
-							redoFile: newEvent.redoFile,
-						});
+						l.listener(latestUndoRedoEvent.current!);
 					}
 				});
+			}
+
+			if (newEvent.type === 'undo-redo-stack-changed') {
+				latestUndoRedoEvent.current = newEvent;
 			}
 
 			if (newEvent.type === 'render-queue-updated') {
@@ -124,6 +137,46 @@ export const PreviewServerConnection: React.FC<{
 				}
 			});
 		};
+
+		let unsubscribeFromBrowserStudio: (() => void) | null = null;
+		const connectToBrowserStudio = () => {
+			if (unsubscribeFromBrowserStudio) {
+				return true;
+			}
+
+			const browserStudioOperations = getBrowserStudioOperations();
+			if (!browserStudioOperations) {
+				return false;
+			}
+
+			setState({type: 'connected', clientId: 'browser-studio'});
+			unsubscribeFromBrowserStudio =
+				browserStudioOperations.subscribeToEvent(handleEvent);
+			return true;
+		};
+
+		if (connectToBrowserStudio()) {
+			return () => unsubscribeFromBrowserStudio?.();
+		}
+
+		if (readOnlyStudio) {
+			window.addEventListener(
+				BROWSER_STUDIO_OPERATIONS_READY_EVENT,
+				connectToBrowserStudio,
+			);
+			const animationFrame = window.requestAnimationFrame(() => {
+				connectToBrowserStudio();
+			});
+
+			return () => {
+				window.cancelAnimationFrame(animationFrame);
+				window.removeEventListener(
+					BROWSER_STUDIO_OPERATIONS_READY_EVENT,
+					connectToBrowserStudio,
+				);
+				unsubscribeFromBrowserStudio?.();
+			};
+		}
 
 		const unsubscribeFromEvents = subscribeToPreviewServerEvents(handleEvent);
 		const unsubscribeFromConnectionState =

@@ -26,8 +26,10 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
+		"@remotion/studio-codemods": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
-		"@rspack/browser": "2.1.1"
+		"@rspack/browser": "2.1.1",
+		"fflate": "0.8.2"
 	},
 	"exports": {
 		".": {
@@ -43,6 +45,7 @@
 		"./package.json": "./package.json"
 	},
 	"devDependencies": {
+		"@remotion/studio": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@types/react": "catalog:",
 		"@types/react-dom": "catalog:",

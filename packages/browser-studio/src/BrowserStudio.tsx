@@ -1,5 +1,10 @@
 import {studioHtml} from '@remotion/studio-shared/studio-html';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {createBrowserStudioOperations} from './browser-studio-operations';
+import {
+	areBrowserStudioProjectsEqual,
+	createBrowserStudioPublicFileManager,
+} from './browser-studio-project-controller';
 import {browserStudioDependencyVersions} from './dependency-versions';
 import {Spinner} from './Spinner';
 import type {
@@ -12,6 +17,16 @@ import type {
 const makeInitialState = (): CompileState => ({
 	status: 'idle',
 });
+
+// The host and iframe may use different studio-shared versions, so this
+// handshake intentionally has no shared runtime import.
+const BROWSER_STUDIO_OPERATIONS_READY_EVENT =
+	'remotion-browser-studio-operations-ready';
+
+const localStudioRenderEntry = new URL(
+	'./browser-studio-render-entry.mjs',
+	import.meta.url,
+).href;
 
 const containerStyle: React.CSSProperties = {
 	backgroundColor: '#111111',
@@ -53,32 +68,97 @@ const errorStyle: React.CSSProperties = {
 	whiteSpace: 'pre-wrap',
 };
 
-const makeStaticFiles = (
-	publicFiles: BrowserStudioProps['project']['publicFiles'],
-) =>
-	Object.entries(publicFiles ?? {}).map(([name, contents]) => ({
-		lastModified: 0,
-		name: name.replace(/^\//, ''),
-		sizeInBytes:
-			typeof contents === 'string'
-				? new Blob([contents]).size
-				: contents.length,
-		src: `/public/${name.replace(/^\//, '')}`,
-	}));
-
 export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	project,
 	readOnly,
 	iframeSrc,
 	dependencyResolver,
 	onCompileStateChange,
+	onProjectChange,
 }) => {
 	const [state, setState] = useState<CompileState>(makeInitialState);
 	const [iframeHtml, setIframeHtml] = useState<string | null>(null);
 	const [iframeLoaded, setIframeLoaded] = useState(false);
 	const iframeRef = useRef<HTMLIFrameElement | null>(null);
+	const publicFileManager = useMemo(
+		() =>
+			createBrowserStudioPublicFileManager({
+				createObjectUrl: null,
+				revokeObjectUrl: null,
+			}),
+		[],
+	);
 
-	const projectKey = useMemo(() => JSON.stringify(project), [project]);
+	useEffect(() => {
+		return () => publicFileManager.dispose();
+	}, [publicFileManager]);
+
+	const [editedProject, setEditedProject] = useState<{
+		project: BrowserStudioProps['project'];
+		sourceProject: BrowserStudioProps['project'];
+	} | null>(null);
+	const incomingProjectMatchesEditSource =
+		editedProject !== null &&
+		areBrowserStudioProjectsEqual(editedProject.sourceProject, project);
+	const activeProject =
+		editedProject && incomingProjectMatchesEditSource
+			? editedProject.project
+			: project;
+	const activeProjectRef = useRef(activeProject);
+	activeProjectRef.current = activeProject;
+	const incomingProjectRef = useRef(project);
+	incomingProjectRef.current = project;
+	const onProjectChangeRef = useRef(onProjectChange);
+	onProjectChangeRef.current = onProjectChange;
+
+	const updateProject = useCallback(
+		(nextProject: BrowserStudioProps['project']) => {
+			activeProjectRef.current = nextProject;
+			setEditedProject({
+				project: nextProject,
+				sourceProject: incomingProjectRef.current,
+			});
+			onProjectChangeRef.current?.(nextProject);
+		},
+		[],
+	);
+
+	const browserStudioOperations = useMemo(
+		() =>
+			createBrowserStudioOperations({
+				dependencyVersions: browserStudioDependencyVersions,
+				getStaticFiles: publicFileManager.getStaticFiles,
+				getProject: () => activeProjectRef.current,
+				onProjectChange: updateProject,
+			}),
+		[publicFileManager, updateProject],
+	);
+	const previousIncomingProject = useRef(project);
+	const incomingProjectAcknowledgesEdit =
+		editedProject !== null &&
+		areBrowserStudioProjectsEqual(editedProject.project, project);
+
+	useEffect(() => {
+		if (
+			!areBrowserStudioProjectsEqual(
+				previousIncomingProject.current,
+				project,
+			) &&
+			!incomingProjectAcknowledgesEdit
+		) {
+			browserStudioOperations.resetHistory();
+		}
+
+		if (incomingProjectAcknowledgesEdit) {
+			setEditedProject(null);
+		}
+
+		previousIncomingProject.current = project;
+	}, [browserStudioOperations, incomingProjectAcknowledgesEdit, project]);
+
+	useEffect(() => {
+		setIframeLoaded(false);
+	}, [iframeSrc]);
 
 	useEffect(() => {
 		let cleanupBundle: string | null = null;
@@ -93,8 +173,6 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			onCompileStateChange?.(nextState);
 		};
 
-		setIframeHtml(null);
-		setIframeLoaded(false);
 		setCompileState({status: 'compiling'});
 
 		const worker = new Worker(
@@ -135,12 +213,15 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				numberOfAudioTags: 0,
 				packageManager: 'unknown',
 				projectName: 'template-blank',
-				publicFiles: makeStaticFiles(project.publicFiles),
+				publicFiles: publicFileManager.getStaticFiles({
+					lastModifiedByPath: null,
+					project: activeProject,
+				}),
 				publicFolderExists: null,
 				fileSystemPlatform: null,
 				publicPath: '',
 				readOnlyStudio: readOnly,
-				remotionRoot: project.rootDir,
+				remotionRoot: activeProject.rootDir,
 				renderDefaults: undefined,
 				renderQueue: [],
 				sampleRate: null,
@@ -171,14 +252,23 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 
 		const request: BrowserStudioWorkerCompileRequest = {
 			type: 'compile',
-			dependencyResolutions: dependencyResolver
-				? Object.fromEntries(
-						Object.entries(browserStudioDependencyVersions).map(
-							([name, version]) => [name, dependencyResolver({name, version})],
-						),
-					)
-				: {},
-			project,
+			dependencyResolutions: Object.fromEntries(
+				Object.entries(browserStudioDependencyVersions).map(
+					([name, version]) => {
+						const customResolution = dependencyResolver?.({name, version});
+						if (customResolution) {
+							return [name, customResolution];
+						}
+
+						if (name === '@remotion/studio') {
+							return [name, {url: localStudioRenderEntry}];
+						}
+
+						return [name, null];
+					},
+				),
+			),
+			project: activeProject,
 		};
 
 		worker.postMessage(request);
@@ -195,8 +285,8 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		dependencyResolver,
 		iframeSrc,
 		onCompileStateChange,
-		project,
-		projectKey,
+		activeProject,
+		publicFileManager,
 		readOnly,
 	]);
 
@@ -210,15 +300,25 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		}
 
 		const iframe = iframeRef.current;
+		const contentWindow = iframe?.contentWindow;
 		const contentDocument = iframe?.contentDocument;
-		if (!contentDocument) {
+		if (!contentWindow || !contentDocument) {
 			return;
 		}
 
 		contentDocument.open();
 		contentDocument.write(iframeHtml);
+		contentWindow.remotion_browserStudio = browserStudioOperations;
 		contentDocument.close();
-	}, [iframeHtml, iframeLoaded, iframeSrc]);
+
+		const activeContentWindow = iframe.contentWindow;
+		if (activeContentWindow) {
+			activeContentWindow.remotion_browserStudio = browserStudioOperations;
+			activeContentWindow.dispatchEvent(
+				new Event(BROWSER_STUDIO_OPERATIONS_READY_EVENT),
+			);
+		}
+	}, [browserStudioOperations, iframeHtml, iframeLoaded, iframeSrc]);
 
 	return (
 		<div style={containerStyle}>
@@ -233,7 +333,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 					title="Remotion Studio"
 				/>
 			) : null}
-			{state.status === 'compiling' ? (
+			{state.status === 'compiling' && iframeHtml === null ? (
 				<div style={overlayStyle}>
 					<Spinner duration={0.5} size={14} />
 				</div>

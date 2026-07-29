@@ -792,10 +792,12 @@ const migrateCssShorthand = ({
 		const shorthandValue =
 			property.value.type === 'StringLiteral'
 				? property.value.value
-				: property.value.type === 'TemplateLiteral' &&
-					  property.value.expressions.length === 0
-					? (property.value.quasis[0]?.value.cooked ?? null)
-					: null;
+				: property.value.type === 'NumericLiteral'
+					? property.value.value
+					: property.value.type === 'TemplateLiteral' &&
+						  property.value.expressions.length === 0
+						? (property.value.quasis[0]?.value.cooked ?? null)
+						: null;
 		if (shorthandValue === null) {
 			continue;
 		}

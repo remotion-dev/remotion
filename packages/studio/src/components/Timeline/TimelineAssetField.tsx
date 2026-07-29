@@ -100,6 +100,7 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 				initialQuery,
 				onSelected: (asset) => onSelect(asset.name, asset.src),
 			},
+			compositionSelection: null,
 		});
 	}, [initialQuery, onSelect, setSelectedModal]);
 

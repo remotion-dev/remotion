@@ -1,6 +1,8 @@
 import {describe, expect, test} from 'bun:test';
 import {existsSync, readdirSync, readFileSync, statSync} from 'fs';
 import path from 'path';
+import React from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
 import {
 	expandElementSourceReferences,
 	getRemotionElementDependencies,
@@ -8,10 +10,14 @@ import {
 import remarkElementSource from '../../plugins/remark-element-source';
 import {elementDefinitions} from '../components/Elements/element-definitions';
 import {
+	getElementDocumentationUrl,
+	getElementLibrarySections,
+} from '../components/Elements/element-library-data';
+import {
 	getElementCompositionId,
 	getElementDimensionsLabel,
-	getElementPreviewUrls,
 } from '../components/Elements/element-utils';
+import {ElementLibrary} from '../components/Elements/ElementLibrary';
 import {getElementPreviewDimensions} from '../components/Elements/ElementPreviewComposition';
 
 const elementsRoot = path.join(__dirname, '..', '..', 'elements');
@@ -143,8 +149,8 @@ describe('Elements must follow the colocated single-file format', () => {
 				expect(tsx).not.toContain('export const width');
 				expect(tsx).not.toContain('export const height');
 				expect(tsx).not.toContain('export const RemotionRoot');
-				expect(tsx).not.toContain('<Composition');
-				expect(tsx).not.toContain('<Sequence');
+				expect(tsx).not.toMatch(/<Composition(?:\s|\/?>)/);
+				expect(tsx).not.toMatch(/<Sequence(?:\s|\/?>)/);
 			});
 
 			test('MDX uses the ElementPage template', () => {
@@ -201,6 +207,51 @@ describe('Elements must follow the colocated single-file format', () => {
 			});
 		});
 	}
+});
+
+describe('Element library', () => {
+	test('renders every definition and filters the real category entry points', () => {
+		const overviewMarkup = renderToStaticMarkup(
+			React.createElement(ElementLibrary, {category: null}),
+		);
+		const sections = getElementLibrarySections(null);
+
+		for (const definition of elementDefinitionList) {
+			expect(
+				overviewMarkup.split(`>${definition.displayName}</h3>`),
+			).toHaveLength(2);
+			expect(overviewMarkup).toContain(definition.description);
+			expect(overviewMarkup).toContain(definition.preview.posterUrl);
+			expect(overviewMarkup).toContain(getElementDocumentationUrl(definition));
+		}
+
+		expect(overviewMarkup).not.toContain('.mp4');
+
+		for (const section of sections) {
+			const categoryMarkup = renderToStaticMarkup(
+				React.createElement(ElementLibrary, {category: section.category}),
+			);
+			const categoryIndex = readFileSync(
+				path.join(elementsRoot, section.category, 'index.mdx'),
+				'utf8',
+			);
+
+			expect(categoryIndex).toContain(
+				`<ElementLibrary category="${section.category}" />`,
+			);
+
+			for (const definition of elementDefinitionList) {
+				if (definition.category === section.category) {
+					expect(categoryMarkup).toContain(definition.displayName);
+					expect(categoryMarkup).toContain(
+						getElementDocumentationUrl(definition),
+					);
+				} else {
+					expect(categoryMarkup).not.toContain(definition.displayName);
+				}
+			}
+		}
+	});
 });
 
 describe('Element preview definitions', () => {
@@ -283,29 +334,31 @@ describe('Element preview definitions', () => {
 		}
 	});
 
-	test('derives stable composition IDs and preview URLs', () => {
+	test('uses stable composition IDs and explicit flat MP4 preview URLs', () => {
 		const compositionIds = elementDefinitionList.map((definition) =>
 			getElementCompositionId(definition.slug),
 		);
 		expect(new Set(compositionIds).size).toBe(compositionIds.length);
 
 		for (const definition of elementDefinitionList) {
-			expect(getElementPreviewUrls(definition)).toEqual({
-				png: `https://remotion.media/elements/${definition.slug}/preview.png`,
-				video: `https://remotion.media/elements/${definition.slug}/preview.${definition.transparentPreview ? 'webm' : 'mp4'}`,
-			});
+			const assetSlug = definition.slug.replaceAll('/', '-');
+			expect(String(definition.preview.posterUrl)).toBe(
+				`https://remotion.media/elements/${assetSlug}-preview.png`,
+			);
+			expect(String(definition.preview.videoUrl)).toBe(
+				`https://remotion.media/elements/${assetSlug}-preview.mp4`,
+			);
 		}
 	});
 
-	test('supports transparent preview assets', () => {
-		expect(elementDefinitions['data/product-offer'].transparentPreview).toBe(
-			true,
+	test('the Element template includes explicit flat preview URLs', () => {
+		const template = readFileSync(path.join(templateRoot, 'index.mdx'), 'utf8');
+		expect(template).toContain(
+			"posterUrl: 'https://remotion.media/elements/category-element-title-preview.png'",
 		);
-		expect(
-			elementDefinitionList
-				.filter((definition) => definition.transparentPreview)
-				.map((definition) => definition.slug),
-		).toEqual(['data/horizontal-bar-chart', 'data/product-offer']);
+		expect(template).toContain(
+			"videoUrl: 'https://remotion.media/elements/category-element-title-preview.mp4'",
+		);
 	});
 
 	test('registers Element compositions in a Folder', () => {

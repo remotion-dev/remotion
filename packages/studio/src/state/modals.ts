@@ -206,6 +206,10 @@ export type ModalState =
 				initialQuery: string;
 				onSelected: (asset: StaticFile) => void;
 			} | null;
+			compositionSelection: {
+				excludeCompositionId: string;
+				onSelected: (composition: _InternalTypes['AnyComposition']) => void;
+			} | null;
 	  }
 	| AddEffectModalState
 	| ConfirmationDialogState

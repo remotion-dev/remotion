@@ -546,7 +546,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		right: resolvedCropRight,
 		top: resolvedCropTop,
 		bottom: resolvedCropBottom,
-		borderRadius: styleIfThere?.borderRadius,
+		style: styleIfThere,
 	});
 
 	const sequenceRef = useCallback(

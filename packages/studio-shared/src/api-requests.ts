@@ -856,6 +856,13 @@ export type InsertElementRequest = {
 	element: ElementDragData['element'];
 	from: number | null;
 	position: InsertableCompositionElementPosition | null;
+	overwriteExisting: boolean;
+};
+
+export type InsertElementFileConflict = {
+	filePath: string;
+	existingSource: string;
+	incomingSource: string;
 };
 
 export type InsertElementResponse =
@@ -864,6 +871,12 @@ export type InsertElementResponse =
 	  }
 	| {
 			success: false;
+			type: 'file-conflict';
+			conflict: InsertElementFileConflict;
+	  }
+	| {
+			success: false;
+			type: 'error';
 			reason: string;
 			stack: string;
 	  };
@@ -964,6 +977,8 @@ export type LogStudioErrorRequest = {
 };
 export type LogStudioErrorResponse = {};
 
+// When adding a route, also update the Browser Studio parity checklist:
+// https://github.com/remotion-dev/remotion/issues/9807
 export type ApiRoutes = {
 	'/api/composition-component-info': ReqAndRes<
 		CompositionComponentInfoRequest,
