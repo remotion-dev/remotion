@@ -78,6 +78,7 @@ const {
 	browserOption,
 	sampleRateOption,
 	previewSampleRateOption,
+	rspackOption,
 } = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
@@ -190,6 +191,8 @@ export type CommandLineOptions = {
 	[previewSampleRateOption.cliFlag]: TypeOfOption<
 		typeof previewSampleRateOption
 	>;
+	[rspackOption.cliFlag]: TypeOfOption<typeof rspackOption> | null;
+	'experimental-rspack'?: unknown;
 	[isProductionOption.cliFlag]: TypeOfOption<typeof isProductionOption> | null;
 };
 
@@ -216,6 +219,7 @@ export const BooleanFlags = [
 	isProductionOption.cliFlag,
 	forceNewStudioOption.cliFlag,
 	bundleCacheOption.cliFlag,
+	rspackOption.cliFlag,
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
@@ -237,6 +241,7 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 		[isProductionOption.cliFlag]: null,
 		[forceNewStudioOption.cliFlag]: null,
 		[mutedOption.cliFlag]: null,
+		[rspackOption.cliFlag]: null,
 	},
 }) as CommandLineOptions & {
 	_: string[];
