@@ -116,7 +116,13 @@ type LogOptions =
 		? {
 				logLevel?: LogLevel;
 			}
-		: {shouldDumpIo?: boolean; logLevel?: LogLevel};
+		: {
+				/**
+				 * @deprecated Use `logLevel` instead.
+				 */
+				shouldDumpIo?: boolean;
+				logLevel?: LogLevel;
+			};
 
 export type OpenBrowserOptions = {
 	browserExecutable?: string | null;
