@@ -179,39 +179,48 @@ const discoverStudios = async (
 	const studios = await Promise.all(
 		dependencies.ports.map(async (port): Promise<DiscoveredStudio | null> => {
 			const origin = `http://localhost:${port}`;
+			let response: Response;
 			try {
-				const response = await fetchWithTimeout({
+				response = await fetchWithTimeout({
 					fetchFn: dependencies.fetchFn,
 					options: {cache: 'no-store'},
 					url: `${origin}/api/studio-protocol`,
 				});
-				if (!response.ok) {
-					return null;
-				}
-
-				const value: unknown = await response.json();
-				if (
-					isRecord(value) &&
-					value.protocol === 'remotion-studio-protocol' &&
-					value.protocolVersion !== 1
-				) {
-					foundUnsupportedProtocol = true;
-					return null;
-				}
-
-				if (!isDescriptor(value)) {
-					foundInvalidResponse = true;
-					return null;
-				}
-
-				return {
-					descriptor: value,
-					discoveredAt: dependencies.now(),
-					origin,
-				};
 			} catch {
 				return null;
 			}
+
+			if (!response.ok) {
+				return null;
+			}
+
+			let value: unknown;
+			try {
+				value = await response.json();
+			} catch {
+				foundInvalidResponse = true;
+				return null;
+			}
+
+			if (
+				isRecord(value) &&
+				value.protocol === 'remotion-studio-protocol' &&
+				value.protocolVersion !== 1
+			) {
+				foundUnsupportedProtocol = true;
+				return null;
+			}
+
+			if (!isDescriptor(value)) {
+				foundInvalidResponse = true;
+				return null;
+			}
+
+			return {
+				descriptor: value,
+				discoveredAt: dependencies.now(),
+				origin,
+			};
 		}),
 	);
 
@@ -328,8 +337,9 @@ export const installInStudioWithDependencies = async (
 		);
 	}
 
+	let response: Response;
 	try {
-		const response = await fetchWithTimeout({
+		response = await fetchWithTimeout({
 			fetchFn: dependencies.fetchFn,
 			url: `${selected.origin}/api/studio-protocol/install`,
 			options: {
@@ -343,44 +353,6 @@ export const installInStudioWithDependencies = async (
 				}),
 			},
 		});
-		const result: unknown = await response.json();
-		if (
-			response.ok &&
-			isRecord(result) &&
-			result.protocol === 'remotion-studio-protocol' &&
-			result.protocolVersion === 1 &&
-			result.status === 'awaiting-confirmation'
-		) {
-			return {
-				success: true,
-				status: 'awaiting-confirmation',
-				target: {
-					projectName: selected.descriptor.projectName,
-					compositionId: selected.descriptor.installTarget.compositionId,
-					studioOrigin: selected.origin,
-					studioVersion: selected.descriptor.studioVersion,
-				},
-			};
-		}
-
-		if (
-			isRecord(result) &&
-			result.status === 'error' &&
-			isRecord(result.error) &&
-			typeof result.error.code === 'string' &&
-			typeof result.error.message === 'string'
-		) {
-			const {code} = result.error;
-			return failure(
-				code === 'target-expired' ? 'target-expired' : 'request-rejected',
-				result.error.message,
-			);
-		}
-
-		return failure(
-			'invalid-response',
-			'Remotion Studio returned an invalid installation response.',
-		);
 	} catch (error) {
 		return failure(
 			isAbortError(error) ? 'request-timed-out' : 'network-error',
@@ -389,6 +361,54 @@ export const installInStudioWithDependencies = async (
 				: 'Could not connect to Remotion Studio.',
 		);
 	}
+
+	let result: unknown;
+	try {
+		result = await response.json();
+	} catch {
+		return failure(
+			'invalid-response',
+			'Remotion Studio returned an invalid installation response.',
+		);
+	}
+
+	if (
+		response.ok &&
+		isRecord(result) &&
+		result.protocol === 'remotion-studio-protocol' &&
+		result.protocolVersion === 1 &&
+		result.status === 'awaiting-confirmation'
+	) {
+		return {
+			success: true,
+			status: 'awaiting-confirmation',
+			target: {
+				projectName: selected.descriptor.projectName,
+				compositionId: selected.descriptor.installTarget.compositionId,
+				studioOrigin: selected.origin,
+				studioVersion: selected.descriptor.studioVersion,
+			},
+		};
+	}
+
+	if (
+		isRecord(result) &&
+		result.status === 'error' &&
+		isRecord(result.error) &&
+		typeof result.error.code === 'string' &&
+		typeof result.error.message === 'string'
+	) {
+		const {code} = result.error;
+		return failure(
+			code === 'target-expired' ? 'target-expired' : 'request-rejected',
+			result.error.message,
+		);
+	}
+
+	return failure(
+		'invalid-response',
+		'Remotion Studio returned an invalid installation response.',
+	);
 };
 
 export const installInStudio = ({
