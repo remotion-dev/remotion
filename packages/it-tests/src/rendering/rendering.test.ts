@@ -252,6 +252,52 @@ test(
 );
 
 test(
+	'Should render selected frames as an image sequence',
+	async () => {
+		const relativeOutDir = 'out-selected-frames';
+		const outDir = path.join(
+			__dirname,
+			'..',
+			'..',
+			'..',
+			'example',
+			'out-selected-frames',
+		);
+		await fs.promises.rm(outDir, {force: true, recursive: true});
+
+		try {
+			const task = await execa(
+				'bun',
+				[
+					'x',
+					'remotion',
+					'render',
+					'build',
+					'ten-frame-tester',
+					'--frames=8,2,5',
+					'--image-format=png',
+					relativeOutDir,
+				],
+				{
+					cwd: path.join(process.cwd(), '..', 'example'),
+					reject: false,
+				},
+			);
+
+			expect(task.exitCode).toBe(0);
+			expect((await fs.promises.readdir(outDir)).sort()).toEqual([
+				'element-2.png',
+				'element-5.png',
+				'element-8.png',
+			]);
+		} finally {
+			await fs.promises.rm(outDir, {force: true, recursive: true});
+		}
+	},
+	{timeout: 30000},
+);
+
+test(
 	'Should be able to render a WAV audio file',
 	async () => {
 		const out = outputPath.replace('mp4', 'wav');

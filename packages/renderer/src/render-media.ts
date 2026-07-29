@@ -694,6 +694,7 @@ const internalRenderMediaRaw = ({
 					imageFormat,
 					jpegQuality,
 					frameRange,
+					frames: null,
 					puppeteerInstance,
 					everyNthFrame,
 					onFrameBuffer: parallelEncoding

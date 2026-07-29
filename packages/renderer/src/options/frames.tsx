@@ -1,12 +1,15 @@
-import type {FrameRange} from '../frame-range';
+import type {FrameSelection} from '../frame-range';
 import {validateFrameRange} from '../frame-range';
+import {validateSelectedFrames} from '../validate-selected-frames';
 import type {AnyRemotionOption} from './option';
 
 const cliFlag = 'frames' as const;
 
-let frameRange: FrameRange | null = null;
+let frameSelection: FrameSelection = null;
 
-const parseFrameRangeFromCli = (newFrameRange: string | number): FrameRange => {
+const parseFrameRangeFromCli = (
+	newFrameRange: string | number,
+): Exclude<FrameSelection, null> => {
 	if (typeof newFrameRange === 'number') {
 		if (newFrameRange < 0) {
 			return [0, Math.abs(newFrameRange)];
@@ -20,6 +23,22 @@ const parseFrameRangeFromCli = (newFrameRange: string | number): FrameRange => {
 			throw new Error(
 				'--frames flag must be a single number, or 2 numbers separated by `-`',
 			);
+		}
+
+		if (newFrameRange.includes(',')) {
+			const frameStrings = newFrameRange.split(',');
+			if (frameStrings.some((frame) => frame.trim() === '')) {
+				throw new TypeError(
+					'--frames must contain a frame number between commas.',
+				);
+			}
+
+			const frames = validateSelectedFrames({
+				frames: frameStrings.map((frame) => Number(frame)),
+				durationInFrames: null,
+			});
+
+			return {type: 'frames', frames};
 		}
 
 		const parts = newFrameRange.split('-');
@@ -81,22 +100,37 @@ const parseFrameRangeFromCli = (newFrameRange: string | number): FrameRange => {
 export const framesOption = {
 	name: 'Frame Range',
 	cliFlag,
-	description: () => (
+	description: (mode) => (
 		<>
 			Render a subset of a video. Pass a single number to render a still, or a
 			range (e.g. <code>0-9</code>) to render a subset of frames. Pass{' '}
 			<code>100-</code> to render from frame 100 to the end.
+			{mode === 'cli' ? (
+				<>
+					{' '}
+					Pass a comma-separated list (e.g. <code>0,10,20</code>) to render
+					selected frames as an image sequence.
+				</>
+			) : null}
 		</>
 	),
 	ssrName: 'frameRange' as const,
 	docLink: 'https://www.remotion.dev/docs/config#setframerange',
-	type: null as FrameRange | null,
+	type: null as FrameSelection,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			const value = parseFrameRangeFromCli(
 				commandLine[cliFlag] as string | number,
 			);
-			validateFrameRange(value);
+			if (typeof value === 'object' && !Array.isArray(value)) {
+				validateSelectedFrames({
+					frames: value.frames,
+					durationInFrames: null,
+				});
+			} else {
+				validateFrameRange(value);
+			}
+
 			return {
 				source: 'cli',
 				value,
@@ -105,15 +139,17 @@ export const framesOption = {
 
 		return {
 			source: 'config',
-			value: frameRange,
+			value: frameSelection,
 		};
 	},
-	setConfig: (value: FrameRange | null) => {
-		if (value !== null) {
+	setConfig: (value: FrameSelection) => {
+		if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+			validateSelectedFrames({frames: value.frames, durationInFrames: null});
+		} else if (value !== null) {
 			validateFrameRange(value);
 		}
 
-		frameRange = value;
+		frameSelection = value;
 	},
 	id: cliFlag,
-} satisfies AnyRemotionOption<FrameRange | null>;
+} satisfies AnyRemotionOption<FrameSelection>;

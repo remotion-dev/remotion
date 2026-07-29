@@ -74,3 +74,48 @@ test(
 	},
 	{retry: 3},
 );
+
+test('renderFrames() should render selected frames', async () => {
+	const puppeteerInstance = await openBrowser('chrome');
+	const selectedFramesDir = await fs.promises.mkdtemp(
+		path.join(os.tmpdir(), 'remotion-selected-frames-'),
+	);
+
+	try {
+		const compositions = await getCompositions({
+			serveUrl: exampleBuild,
+			puppeteerInstance,
+			inputProps: {},
+		});
+		const tenFrameTester = compositions.find(
+			(c) => c.id === 'ten-frame-tester',
+		);
+
+		if (!tenFrameTester) {
+			throw new Error('not found');
+		}
+
+		const selectedFramesRender = await renderFrames({
+			composition: tenFrameTester,
+			frames: [5, 0, 2],
+			imageFormat: 'jpeg',
+			inputProps: {},
+			onFrameUpdate: () => undefined,
+			serveUrl: exampleBuild,
+			concurrency: null,
+			outputDir: selectedFramesDir,
+			onStart: () => undefined,
+			puppeteerInstance,
+		});
+
+		expect(selectedFramesRender.frameCount).toBe(3);
+		expect((await fs.promises.readdir(selectedFramesDir)).sort()).toEqual([
+			'element-0.jpeg',
+			'element-2.jpeg',
+			'element-5.jpeg',
+		]);
+	} finally {
+		RenderInternals.deleteDirectory(selectedFramesDir);
+		await puppeteerInstance.close({silent: false});
+	}
+});

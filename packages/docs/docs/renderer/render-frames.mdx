@@ -133,6 +133,23 @@ Prefer a specific port that will be used to serve the Remotion project. If not s
 
 Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered. Pass `[number, null]` to render from a frame to the end of the composition.<AvailableFrom v="4.0.421" inline />
 
+Cannot be combined with [`frames`](#frames) or [`everyNthFrame`](#everynthframe).
+
+### `frames?` <AvailableFrom v="4.0.502" />
+
+An array of frame numbers to render. The frames may be passed in any order and are rendered in ascending order. The source frame number is preserved in the output filename.
+
+```ts
+import {renderFrames} from '@remotion/renderer';
+
+await renderFrames({
+  // ...other options
+  frames: [0, 42, 69],
+});
+```
+
+Cannot be combined with [`frameRange`](#framerange) or [`everyNthFrame`](#everynthframe). Use this option to sample stills; its output cannot be passed to [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video).
+
 ### `muted?`<AvailableFrom v="3.2.1" />
 
 Disables audio output. This option may only be set in combination with a video codec and should also be passed to [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video).
@@ -225,6 +242,8 @@ A number describing how long one frame may take to resolve all [`delayRender()`]
 ### `everyNthFrame?`<AvailableFrom v="3.1.0" />
 
 Renders only every nth frame. For example only every second frame, every third frame and so on. Only meant for rendering GIFs. [See here for more details.](/docs/render-as-gif)
+
+Cannot be combined with [`frames`](#frames).
 
 ### `chromiumOptions?`<AvailableFrom v="2.6.5" />
 

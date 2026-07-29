@@ -58,6 +58,7 @@ import {
 	validateFps,
 } from './validate';
 import {validateScale} from './validate-scale';
+import {validateSelectedFrames} from './validate-selected-frames';
 import {wrapWithErrorHandling} from './wrap-with-error-handling';
 
 const MAX_RETRIES_PER_FRAME = 1;
@@ -78,6 +79,7 @@ type InternalRenderFramesOptions = {
 	imageFormat: VideoImageFormat;
 	jpegQuality: number;
 	frameRange: FrameRange | null;
+	frames: number[] | null;
 	everyNthFrame: number;
 	puppeteerInstance: HeadlessBrowser | undefined;
 	browserExecutable: BrowserExecutable | null;
@@ -115,6 +117,7 @@ type InnerRenderFramesOptions = {
 	envVariables: Record<string, string>;
 	imageFormat: VideoImageFormat;
 	frameRange: FrameRange | null;
+	frames: number[] | null;
 	everyNthFrame: number;
 	onBrowserLog: null | ((log: BrowserLog) => void);
 	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void);
@@ -177,6 +180,7 @@ export type RenderFramesOptions = Prettify<
 		 */
 		quality?: never;
 		frameRange?: FrameRange | null;
+		frames?: number[];
 		everyNthFrame?: number;
 		/**
 		 * @deprecated Use "logLevel": "verbose" instead
@@ -213,6 +217,7 @@ const innerRenderFrames = async ({
 	jpegQuality,
 	imageFormat,
 	frameRange,
+	frames,
 	onError,
 	envVariables,
 	onBrowserLog,
@@ -258,10 +263,19 @@ const innerRenderFrames = async ({
 
 	const downloadPromises: Promise<unknown>[] = [];
 
-	const realFrameRange = getRealFrameRange(
-		composition.durationInFrames,
-		frameRange,
-	);
+	const framesToRender = frames
+		? validateSelectedFrames({
+				frames,
+				durationInFrames: composition.durationInFrames,
+			})
+		: getFramesToRender(
+				getRealFrameRange(composition.durationInFrames, frameRange),
+				everyNthFrame,
+			);
+	const realFrameRange: [number, number] = [
+		framesToRender[0],
+		framesToRender[framesToRender.length - 1],
+	];
 
 	const {
 		extraFramesToCaptureAssetsBackend,
@@ -277,7 +291,6 @@ const innerRenderFrames = async ({
 		sampleRate,
 	});
 
-	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
 	const concurrencyOrFramesToRender = Math.min(
@@ -463,6 +476,7 @@ const internalRenderFramesRaw = ({
 	envVariables,
 	everyNthFrame,
 	frameRange,
+	frames,
 	imageFormat,
 	indent,
 	jpegQuality,
@@ -606,6 +620,7 @@ const internalRenderFramesRaw = ({
 					envVariables,
 					everyNthFrame,
 					frameRange,
+					frames,
 					imageFormat,
 					jpegQuality,
 					muted,
@@ -712,6 +727,7 @@ export const renderFrames = (
 		envVariables,
 		everyNthFrame,
 		frameRange,
+		frames,
 		imageFormat,
 		jpegQuality,
 		muted,
@@ -742,6 +758,26 @@ export const renderFrames = (
 		);
 	}
 
+	if (frames !== undefined && frameRange !== undefined && frameRange !== null) {
+		throw new Error(
+			'The `frames` and `frameRange` options are mutually exclusive.',
+		);
+	}
+
+	if (frames !== undefined && everyNthFrame !== undefined) {
+		throw new Error(
+			'The `frames` and `everyNthFrame` options are mutually exclusive.',
+		);
+	}
+
+	const validatedFrames =
+		frames === undefined
+			? null
+			: validateSelectedFrames({
+					frames,
+					durationInFrames: composition.durationInFrames,
+				});
+
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
 		throw new Error(
 			"You can only pass the `quality` option if `imageFormat` is 'jpeg'.",
@@ -768,6 +804,7 @@ export const renderFrames = (
 		envVariables: envVariables ?? {},
 		everyNthFrame: everyNthFrame ?? 1,
 		frameRange: frameRange ?? null,
+		frames: validatedFrames,
 		imageFormat: imageFormat ?? 'jpeg',
 		indent,
 		jpegQuality: jpegQuality ?? DEFAULT_JPEG_QUALITY,

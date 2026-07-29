@@ -1,4 +1,5 @@
 import {describe, expect, test} from 'bun:test';
+import type {FrameSelection} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {expectToThrow} from './expect-to-throw';
@@ -87,6 +88,10 @@ describe('Frame range CLI should throw exception with invalid inputs', () => {
 			'',
 			/--frames flag must be a single number, or 2 numbers separated by `-`/,
 		],
+		['0,2,2', /must not contain duplicate frames/],
+		['0,two,4', /must contain only finite numbers/],
+		['0,-2,4', /must contain only non-negative numbers/],
+		['0,,4', /must contain a frame number between commas/],
 	];
 	testValues.forEach((entry) =>
 		test(`test with input ${entry[0]}`, () =>
@@ -99,10 +104,7 @@ describe('Frame range CLI should throw exception with invalid inputs', () => {
 describe('Frame range CLI tests with valid inputs', () => {
 	framesOption.setConfig(null);
 
-	const testValues: [
-		number | string,
-		number | [number, number] | [number, null],
-	][] = [
+	const testValues: [number | string, Exclude<FrameSelection, null>][] = [
 		[0, 0],
 		[10, 10],
 		['1-10', [1, 10]],
@@ -112,6 +114,7 @@ describe('Frame range CLI tests with valid inputs', () => {
 		['1920-', [1920, null]],
 		['0-', [0, null]],
 		[-1920, [0, 1920]],
+		['8,2,5', {type: 'frames', frames: [2, 5, 8]}],
 	];
 	testValues.forEach((entry) =>
 		test(`test with input ${JSON.stringify(entry[0])}`, () => {

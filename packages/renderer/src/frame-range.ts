@@ -1,4 +1,10 @@
 export type FrameRange = number | [number, number] | [number, null];
+
+export type FrameSelection =
+	| FrameRange
+	| {type: 'frames'; frames: number[]}
+	| null;
+
 export const validateFrameRange = (frameRange: FrameRange | null) => {
 	if (frameRange === null) {
 		return;
