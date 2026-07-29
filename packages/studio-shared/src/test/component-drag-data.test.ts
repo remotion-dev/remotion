@@ -1,12 +1,12 @@
 import {expect, test} from 'bun:test';
 import {
-	DragAndDropInternals,
+	StudioProtocolInternals,
 	type MakeComponentDragDataInput,
-} from '@remotion/drag-and-drop';
+} from '@remotion/studio-protocol';
 
 const makeComponentDragData = (
 	input: Omit<MakeComponentDragDataInput, 'type'>,
-) => DragAndDropInternals.makeDragData({type: 'component', ...input}).data;
+) => StudioProtocolInternals.makeDragData({type: 'component', ...input}).data;
 const parseComponentDragData = (payload: string) => {
 	let dimensions: MakeComponentDragDataInput['dimensions'];
 	try {
@@ -23,7 +23,7 @@ const parseComponentDragData = (payload: string) => {
 		// The unified parser handles the malformed payload below.
 	}
 
-	const {mimeType} = DragAndDropInternals.makeDragData({
+	const {mimeType} = StudioProtocolInternals.makeDragData({
 		type: 'component',
 		componentName: 'Test',
 		dimensions,
@@ -31,7 +31,7 @@ const parseComponentDragData = (payload: string) => {
 		importPath: 'test',
 		props: [],
 	});
-	const parsed = DragAndDropInternals.parseDragData({mimeType, payload});
+	const parsed = StudioProtocolInternals.parseDragData({mimeType, payload});
 	return parsed?.type === 'component' ? parsed.data : null;
 };
 

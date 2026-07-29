@@ -32,7 +32,7 @@
 	},
 	"dependencies": {
 		"@maptiler/sdk": "4.0.2",
-		"@remotion/drag-and-drop": "workspace:*",
+		"@remotion/studio-protocol": "workspace:*",
 		"@mdx-js/loader": "2.3.0",
 		"@mdx-js/react": "2.3.0",
 		"@mediabunny/ac3": "catalog:",

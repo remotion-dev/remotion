@@ -1,7 +1,7 @@
 import {existsSync, readFileSync} from 'node:fs';
 import path from 'node:path';
-import {DragAndDropInternals} from '@remotion/drag-and-drop';
 import {RenderInternals} from '@remotion/renderer';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
 	type InsertElementRequest,
 	type InsertElementResponse,
@@ -88,7 +88,9 @@ const validateDimensions = (
 };
 
 const validateElement = (element: InsertElementRequest['element']) => {
-	if (DragAndDropInternals.makeElementFileNameFromSlug(element.slug) === null) {
+	if (
+		StudioProtocolInternals.makeElementFileNameFromSlug(element.slug) === null
+	) {
 		throw new Error(
 			'Element slug must produce a safe lowercase .tsx file name',
 		);
@@ -103,7 +105,7 @@ const validateElement = (element: InsertElementRequest['element']) => {
 	}
 
 	if (
-		DragAndDropInternals.getElementComponentNameFromSourceCode(
+		StudioProtocolInternals.getElementComponentNameFromSourceCode(
 			element.sourceCode,
 		) === null
 	) {
@@ -140,7 +142,7 @@ export const insertElementHandler: ApiHandler<
 			}
 
 			const componentName =
-				DragAndDropInternals.getElementComponentNameFromSourceCode(
+				StudioProtocolInternals.getElementComponentNameFromSourceCode(
 					element.sourceCode,
 				);
 			if (componentName === null) {
@@ -166,7 +168,7 @@ export const insertElementHandler: ApiHandler<
 			}
 
 			const derivedElementFileName =
-				DragAndDropInternals.makeElementFileNameFromSlug(element.slug);
+				StudioProtocolInternals.makeElementFileNameFromSlug(element.slug);
 			if (derivedElementFileName === null) {
 				throw new Error(
 					'Element slug must produce a safe lowercase .tsx file name',

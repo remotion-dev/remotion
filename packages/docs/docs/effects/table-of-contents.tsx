@@ -1,4 +1,4 @@
-import {DragAndDropInternals} from '@remotion/drag-and-drop';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
 	EFFECT_CATALOG,
 	getEffectCatalogCategories,
@@ -34,7 +34,7 @@ const previewImage: React.CSSProperties = {
 const EffectCard: React.FC<{
 	readonly effect: EffectCatalogItem;
 }> = ({effect}) => {
-	const dragData = DragAndDropInternals.makeDragData({
+	const dragData = StudioProtocolInternals.makeDragData({
 		type: 'effect',
 		...effect.effect,
 	});

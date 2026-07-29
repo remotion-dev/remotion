@@ -1,4 +1,4 @@
-import {DragAndDropInternals} from '@remotion/drag-and-drop';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import React, {
 	useCallback,
 	useContext,
@@ -505,7 +505,7 @@ const AssetSelectorItem: React.FC<{
 					? mediaMetadata.duration
 					: null;
 
-			const dragData = DragAndDropInternals.makeDragData({
+			const dragData = StudioProtocolInternals.makeDragData({
 				type: 'asset',
 				assetPath: relativePath,
 				width: hasDimensions ? width : null,
