@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {absoluteFillSchema} from '../AbsoluteFill.js';
 import {animatedImageSchema} from '../animated-image/AnimatedImage.js';
 import {canvasImageSchema} from '../canvas-image/CanvasImage.js';
 import type {SequenceControls} from '../CompositionManager.js';
@@ -53,6 +54,7 @@ test('sequenceStyleSchema contains visual style and premount fields', () => {
 
 test('CSS box component schemas expose background and border controls', () => {
 	for (const schema of [
+		absoluteFillSchema,
 		sequenceStyleSchema,
 		imgSchema,
 		animatedImageSchema,

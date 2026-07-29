@@ -45,6 +45,44 @@ const MyComp = () => {
 
 The layers that get rendered last appear on top - this is because of how HTML works.
 
+## Sequencing<AvailableFrom v="4.0.501" />
+
+`<AbsoluteFill>` is registered as a layer in the [Remotion Studio](/docs/studio) timeline and supports timing props.
+
+### from?
+
+The frame at which the layer starts. Default: `0`.
+
+### durationInFrames?
+
+The duration of the layer. Default: `Infinity`.
+
+### trimBefore?
+
+Shifts the local timeline of the children without changing when the layer starts. Default: `0`.
+
+### freeze?
+
+Pins the children to the specified local frame. By default, the children are not frozen.
+
+### hidden?
+
+If `true`, the layer and its children are not rendered. Default: `false`.
+
+### name?
+
+The label shown in the Studio timeline. Default: `"<AbsoluteFill>"`.
+
+### showInTimeline?
+
+If `false`, the layer is omitted from the Studio timeline. Default: `true`.
+
+## Visual editing<AvailableFrom v="4.0.501" />
+
+Inline `style` values such as `backgroundColor`, `opacity`, borders, typography and transforms can be edited in the Studio.
+
+Use `<AbsoluteFill>` for layers you want to see in the timeline. Use a regular `<div>` for structural layout that should not create a timeline item.
+
 ## Adding a ref
 
 You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to an `<AbsoluteFill>` from version `v3.2.13` on. If you use TypeScript, you need to type it with `HTMLDivElement`:
@@ -76,7 +114,7 @@ Review the source code below to see how we detect Tailwind classes.
 
 ## Compatibility
 
-<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers/>
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
 
 ## See also
 

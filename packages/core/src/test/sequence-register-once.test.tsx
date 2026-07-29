@@ -1,6 +1,7 @@
 import {afterEach, expect, test} from 'bun:test';
-import {cleanup, render, waitFor} from '@testing-library/react';
+import {cleanup, fireEvent, render, waitFor} from '@testing-library/react';
 import React, {useCallback, useMemo, useState} from 'react';
+import {AbsoluteFill} from '../AbsoluteFill.js';
 import {
 	AnimatedImage,
 	animatedImageSchema,
@@ -1190,6 +1191,61 @@ test('Interactive elements register their rendered element for Studio outlines',
 	expect(getByName('<Interactive.Line>')?.controls?.schema).not.toHaveProperty(
 		'fill',
 	);
+});
+
+test('AbsoluteFill is an interactive sequence while preserving its div contract', () => {
+	const registeredSequences: TSequence[] = [];
+	const divRef = React.createRef<HTMLDivElement>();
+	let clickCount = 0;
+
+	const {container} = render(
+		<SequenceTestWrapper
+			currentFrame={4}
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<AbsoluteFill
+				ref={divRef}
+				id="interactive-fill"
+				from={4}
+				durationInFrames={12}
+				style={{backgroundColor: 'red'}}
+				onClick={() => {
+					clickCount++;
+				}}
+			>
+				Hello
+			</AbsoluteFill>
+		</SequenceTestWrapper>,
+	);
+
+	const element = container.querySelector<HTMLDivElement>('#interactive-fill');
+	if (!element) {
+		throw new Error('Expected AbsoluteFill to render its div');
+	}
+
+	fireEvent.click(element);
+
+	expect(container.querySelectorAll('#interactive-fill')).toHaveLength(1);
+	expect(divRef.current).toBe(element);
+	expect(clickCount).toBe(1);
+	expect(registeredSequences).toHaveLength(1);
+	expect(registeredSequences[0]).toMatchObject({
+		displayName: '<AbsoluteFill>',
+		documentationLink: 'https://www.remotion.dev/docs/absolute-fill',
+		from: 4,
+		duration: 12,
+		showInTimeline: true,
+	});
+	expect(registeredSequences[0]?.refForOutline?.current).toBe(element);
+	expect(registeredSequences[0]?.controls?.componentIdentity).toBe(
+		'dev.remotion.remotion.AbsoluteFill',
+	);
+	expect(registeredSequences[0]?.controls?.schema).toHaveProperty([
+		'style.backgroundColor',
+	]);
+	expect(registeredSequences[0]?.controls?.schema).toHaveProperty('children');
 });
 
 test('Interactive elements inherit trimBefore from Sequence', () => {
