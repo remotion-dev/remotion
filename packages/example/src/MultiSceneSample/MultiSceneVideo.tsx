@@ -1,5 +1,4 @@
 import {TransitionSeries} from '@remotion/transitions';
-import {Sequence} from 'remotion';
 import {ClosingScene} from './ClosingScene';
 import {FeatureScene} from './FeatureScene';
 import {OpeningScene} from './OpeningScene';
