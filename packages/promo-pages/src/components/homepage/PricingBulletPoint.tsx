@@ -3,7 +3,7 @@ import React from 'react';
 const container: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
-	alignItems: 'center',
+	alignItems: 'flex-start',
 	gap: '10px',
 };
 
