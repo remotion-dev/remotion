@@ -87,13 +87,13 @@ Removes a portion of the video at the end (right side). See [`trimBefore`](#trim
 
 ### ~~`startFrom?`~~
 
-:::note Deprecated
+:::info Deprecated
 This prop has been renamed to [`trimBefore`](#trimbefore) in 4.0.319. It will continue to work but you cannot use it together with the new prop.
 :::
 
 ### ~~`endAt?`~~
 
-:::note Deprecated
+:::info Deprecated
 This prop has been renamed to [`trimAfter`](#trimafter) in 4.0.319. It will continue to work but you cannot use it together with the new prop.
 :::
 
@@ -311,12 +311,15 @@ Default: `"anonymous"` if `onVideoFrame` is specified, `undefined`, otherwise.
 
 Enables the Web Audio API for the video tag, allowing volume values above `1` and volume control on iOS Safari. Set `crossOrigin="anonymous"` and ensure the video source supports CORS. On Safari, this cannot be combined with [`playbackRate`](#playbackrate); otherwise, volume changes are ignored.
 
-### ~`allowAmplificationDuringRender?`<AvailableFrom v="3.3.17" />~
+### ~~`allowAmplificationDuringRender?`~~<AvailableFrom v="3.3.17" />
 
+:::info Deprecated
 Deprecated since v4.0.279: This prop intended to opt into setting the volume to a value higher than one, even though it would only apply during render.
 
-The option does not make sense anymore, because it is now possible to set the volume higher than `1`.  
 To prevent synthetic amplification, set a volume not higher than 1.
+:::
+
+The option does not make sense anymore, because it is now possible to set the volume higher than `1`.
 
 ## Speed up renders for video with silent audio
 

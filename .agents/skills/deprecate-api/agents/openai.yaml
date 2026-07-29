@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Deprecate API'
+  short_description: 'Standardize public Remotion API deprecations'
+  default_prompt: 'Use $deprecate-api to deprecate a public Remotion API consistently.'
