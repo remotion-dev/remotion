@@ -15,6 +15,12 @@ export const SceneB: React.FC = () => {
 } 
 ```
 
+Install `@remotion/transitions` if not yet available:
+
+```
+npx remotion add @remotion/transitions
+```
+
 // MyVideo.tsx
 ```tsx
 import {TransitionSeries} from '@remotion/transitions';
