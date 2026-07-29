@@ -6,12 +6,13 @@
 	"version": "4.0.501",
 	"description": "Internal package for shared objects between the Studio backend and frontend",
 	"main": "dist",
+	"module": "dist/esm/index.mjs",
 	"scripts": {
 		"lint": "eslint src",
 		"test": "bun test src",
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
-		"make": "tsgo -d"
+		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -33,27 +34,61 @@
 		"access": "public"
 	},
 	"exports": {
-		".": "./dist/index.js",
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		},
 		"./studio-entry-points": {
 			"types": "./dist/studio-entry-points.d.ts",
-			"default": "./dist/studio-entry-points.js"
+			"require": "./dist/studio-entry-points.js",
+			"module": "./dist/esm/studio-entry-points.mjs",
+			"import": "./dist/esm/studio-entry-points.mjs"
 		},
 		"./studio-html": {
 			"types": "./dist/studio-html.d.ts",
-			"default": "./dist/studio-html.js"
+			"require": "./dist/studio-html.js",
+			"module": "./dist/esm/studio-html.mjs",
+			"import": "./dist/esm/studio-html.mjs"
 		},
 		"./keyframe-easing-presets": {
 			"types": "./dist/keyframe-easing-presets.d.ts",
-			"default": "./dist/keyframe-easing-presets.js"
+			"require": "./dist/keyframe-easing-presets.js",
+			"module": "./dist/esm/keyframe-easing-presets.mjs",
+			"import": "./dist/esm/keyframe-easing-presets.mjs"
 		},
 		"./keyframe-interpolation-function": {
 			"types": "./dist/keyframe-interpolation-function.d.ts",
-			"default": "./dist/keyframe-interpolation-function.js"
+			"require": "./dist/keyframe-interpolation-function.js",
+			"module": "./dist/esm/keyframe-interpolation-function.mjs",
+			"import": "./dist/esm/keyframe-interpolation-function.mjs"
 		},
 		"./parse-spring-easing-config": {
 			"types": "./dist/parse-spring-easing-config.d.ts",
-			"default": "./dist/parse-spring-easing-config.js"
+			"require": "./dist/parse-spring-easing-config.js",
+			"module": "./dist/esm/parse-spring-easing-config.mjs",
+			"import": "./dist/esm/parse-spring-easing-config.mjs"
 		},
 		"./package.json": "./package.json"
+	},
+	"typesVersions": {
+		">=1.0": {
+			"studio-entry-points": [
+				"./dist/studio-entry-points.d.ts"
+			],
+			"studio-html": [
+				"./dist/studio-html.d.ts"
+			],
+			"keyframe-easing-presets": [
+				"./dist/keyframe-easing-presets.d.ts"
+			],
+			"keyframe-interpolation-function": [
+				"./dist/keyframe-interpolation-function.d.ts"
+			],
+			"parse-spring-easing-config": [
+				"./dist/parse-spring-easing-config.d.ts"
+			]
+		}
 	}
 }
