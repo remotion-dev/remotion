@@ -425,16 +425,6 @@ export const Index: React.FC = () => {
 
 	return (
 		<>
-			<Folder name="error-overlay">
-				<Composition
-					id="error-overlay-unsymbolicated-e2e"
-					component={UnsymbolicatedErrorOverlayRepro}
-					width={400}
-					height={400}
-					fps={30}
-					durationInFrames={30}
-				/>
-			</Folder>
 			<Composition
 				id="switzerland-map"
 				lazyComponent={() => import('./SwitzerlandMap/SwitzerlandMap')}
@@ -2884,6 +2874,16 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={30}
 			/>
+			<Folder name="error-overlay">
+				<Composition
+					id="error-overlay-unsymbolicated-e2e"
+					component={UnsymbolicatedErrorOverlayRepro}
+					width={400}
+					height={400}
+					fps={30}
+					durationInFrames={30}
+				/>
+			</Folder>
 			<Composition
 				id="browser-test"
 				component={BrowserTest}
