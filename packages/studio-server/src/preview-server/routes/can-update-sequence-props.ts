@@ -908,25 +908,71 @@ export const findNodePathForJsxElement = (
 	return foundPath;
 };
 
+const RECAST_TAB_WIDTH = 4;
+
+const sourceColumnToRecastColumn = ({
+	fileContents,
+	line,
+	column,
+}: {
+	fileContents: string;
+	line: number;
+	column: number;
+}) => {
+	const sourceLine = fileContents.split('\n')[line - 1];
+	if (sourceLine === undefined) {
+		return column;
+	}
+
+	let recastColumn = 0;
+	for (let index = 0; index < column; index++) {
+		if (sourceLine[index] === '\t') {
+			recastColumn += RECAST_TAB_WIDTH - (recastColumn % RECAST_TAB_WIDTH);
+		} else {
+			recastColumn++;
+		}
+	}
+
+	return recastColumn;
+};
+
 export const lineColumnToNodePath = (
 	ast: File,
 	targetLine: number,
+	targetColumn?: number,
+	fileContents?: string,
 ): SequenceNodePath | null => {
-	let foundPath: SequenceNodePath | null = null;
+	const lineMatches: SequenceNodePath[] = [];
+	const exactMatches: SequenceNodePath[] = [];
+	const recastTargetColumn =
+		targetColumn === undefined || fileContents === undefined
+			? targetColumn
+			: sourceColumnToRecastColumn({
+					fileContents,
+					line: targetLine,
+					column: targetColumn,
+				});
 
 	recast.types.visit(ast, {
 		visitJSXOpeningElement(p) {
 			const {node} = p;
 			if (node.loc && node.loc.start.line === targetLine) {
-				foundPath = getNodePathForRecastPath(p, ast);
-				return false;
+				const nodePath = getNodePathForRecastPath(p, ast);
+				lineMatches.push(nodePath);
+				if (node.loc.start.column === recastTargetColumn) {
+					exactMatches.push(nodePath);
+				}
 			}
 
 			return this.traverse(p);
 		},
 	});
 
-	return foundPath;
+	if (exactMatches.length === 1) {
+		return exactMatches[0];
+	}
+
+	return lineMatches.at(-1) ?? null;
 };
 
 const PIXEL_VALUE_REGEX = /^-?\d+(\.\d+)?px$/;
@@ -1377,9 +1423,10 @@ export const computeSequencePropsStatus = ({
 	});
 };
 
-export const computeSequencePropsStatusFromFilenameByLine = ({
+export const computeSequencePropsStatusFromFilenameByLocation = ({
 	fileName,
 	line,
+	column,
 	componentIdentity,
 	keys,
 	assetKeys = [],
@@ -1390,6 +1437,7 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 }: {
 	fileName: string;
 	line: number;
+	column: number;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
 	assetKeys?: string[];
@@ -1408,7 +1456,12 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 		const fileContents = readFileSync(absolutePath, 'utf-8');
 		const ast = parseAst(fileContents);
 
-		const resolvedNodePath = lineColumnToNodePath(ast, line);
+		const resolvedNodePath = lineColumnToNodePath(
+			ast,
+			line,
+			column,
+			fileContents,
+		);
 		if (!resolvedNodePath) {
 			return {
 				status: {
@@ -1440,6 +1493,19 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 			success: true,
 		};
 	} catch (err) {
+		if (
+			err instanceof JsxElementIdentityMismatchError ||
+			err instanceof JsxElementNotFoundAtLocationError
+		) {
+			return {
+				status: {
+					canUpdate: false as const,
+					reason: 'not-found',
+				},
+				success: false,
+			};
+		}
+
 		RenderInternals.Log.error({indent: false, logLevel}, err);
 		return {
 			status: {
