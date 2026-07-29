@@ -1,0 +1,50 @@
+---
+image: /generated/articles-docs-studio-protocol-security.png
+title: 'Studio Protocol security'
+crumb: '@remotion/studio-protocol'
+---
+
+# Studio Protocol security<AvailableFrom v="4.0.502" />
+
+An Element contains executable React source code and may declare npm dependencies. Studio therefore requires confirmation before applying an installation request.
+
+## Confirmation boundary
+
+A successful [`installInStudio()`](/docs/studio-protocol/install-in-studio) result only means the request reached Studio and is awaiting confirmation.
+
+Before confirming, review:
+
+- The Element name
+- The target composition
+- The source code
+- Dependencies that need to be installed
+
+Declining the confirmation does not install the Element.
+
+## Allowed origins
+
+Protocol v1 accepts requests from:
+
+- `https://remotion.dev`
+- `https://www.remotion.dev`
+- HTTP `localhost`
+- HTTP `127.0.0.1`
+
+Other hosted origins receive a `403` response. Wildcard CORS is not used.
+
+Local HTTP origins are intended for development and testing. Only run local pages you trust while Studio is open.
+
+## Target information
+
+Discovery exposes limited metadata needed to present the destination: project name, composition ID, Studio version, focus time, and a short-lived target token. It does not expose project source code or filesystem contents.
+
+Target tokens are opaque, single-use, short-lived, and bound to the selected Studio tab and composition.
+
+## Third-party websites
+
+Protocol v1 is supported by the official Remotion Elements library. Other hosted websites are not currently authorized to send installation requests. There is no third-party integration support promise in v1.
+
+## See also
+
+- [Protocol reference](/docs/studio-protocol/protocol)
+- [Remotion security best practices](/docs/security)
