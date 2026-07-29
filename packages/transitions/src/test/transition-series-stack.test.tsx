@@ -26,6 +26,7 @@ type RegisteredSequence = {
 	readonly duration: number;
 	readonly from: number;
 	readonly trimBefore: number | null;
+	readonly singleChildComponent?: unknown;
 };
 
 const remotionEnvironment = {
@@ -139,6 +140,7 @@ test('TransitionSeries registers with its own visual mode identity', async () =>
 	const transitionSeriesStack = 'Error\n    at UserAuthoredTransitionSeries';
 	const childSequenceStack =
 		'Error\n    at UserAuthoredTransitionSeriesSequence';
+	const ConnectedComposition: React.FC = () => null;
 
 	root.render(
 		<SequenceTestWrapper
@@ -157,7 +159,7 @@ test('TransitionSeries registers with its own visual mode identity', async () =>
 					trimBefore={4}
 					{...({stack: childSequenceStack} as {readonly stack: string})}
 				>
-					First
+					<ConnectedComposition />
 				</TransitionSeries.Sequence>
 			</TransitionSeries>
 		</SequenceTestWrapper>,
@@ -195,6 +197,13 @@ test('TransitionSeries registers with its own visual mode identity', async () =>
 					10 &&
 				sequence.controls.currentRuntimeValueDotNotation.trimBefore === 4 &&
 				sequence.trimBefore === 4,
+		),
+	).toBe(true);
+	expect(
+		registeredSequences.some(
+			(sequence) =>
+				sequence.displayName === '<TS.Sequence>' &&
+				sequence.singleChildComponent === ConnectedComposition,
 		),
 	).toBe(true);
 });

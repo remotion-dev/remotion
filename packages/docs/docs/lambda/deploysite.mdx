@@ -6,9 +6,11 @@ slug: /lambda/deploysite
 crumb: 'Lambda API'
 ---
 
-Takes a Remotion project, bundles it and uploads it to an S3 bucket. Once uploaded, a Lambda function can render any composition in the Remotion project by specifying the URL.
+:::warning Deprecated
+Prefer building with [`bundle()`](/docs/bundle) and uploading its output with [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle). Separating these steps avoids rebuilding an unchanged bundle during deployment.
+:::
 
-If the project was already bundled in an earlier build step, use [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle) to upload it without bundling again.
+`deploySite()` remains available and continues to bundle a Remotion project and upload it to an S3 bucket. Once uploaded, a Lambda function can render any composition in the Remotion project by specifying the URL.
 
 - If you make changes locally, you need to redeploy the site. You can use [`siteName`](#sitename) to overwrite the previous site.
 - Note that the Remotion project will be deployed to a subdirectory, not the root of the domain. Therefore you must ensure that if you have specified paths in your Remotion project, they are able to handle this scenario.

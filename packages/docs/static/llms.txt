@@ -357,12 +357,12 @@ Rendering requires a Lambda function and a site deployed on S3.
 If the user is using the CLI:
 
 - A Lambda function can be deployed using `npx remotion lambda functions deploy`: https://www.remotion.dev/docs/lambda/cli/functions/deploy
-- A site can be deployed using `npx remotion lambda sites create`: https://www.remotion.dev/docs/lambda/cli/sites/create. The first argument must refer to the entry point.
+- A site can be deployed using `npx remotion lambda sites create`: https://www.remotion.dev/docs/lambda/cli/sites/create. The entry point may be passed as the first argument; otherwise it is determined automatically.
 - A video can be rendered using `npx remotion lambda render [comp-id]`. The composition ID must be referenced.
 
 If the user is using the Node.js APIs:
 
 - A Lambda function can be deployed using `deployFunction()`: https://www.remotion.dev/docs/lambda/deployfunction
-- A site can be deployed using `deploySite()`: https://www.remotion.dev/docs/lambda/deploysite
+- A site can be built using `bundle()` and deployed using `deploySiteFromBundle()`: https://www.remotion.dev/docs/bundle and https://www.remotion.dev/docs/lambda/deploysitefrombundle
 - A video can be rendered using `renderMediaOnLambda()`: https://www.remotion.dev/docs/lambda/rendermediaonlambda.
 - If a video is rendered, the progress must be polled using `getRenderProgress()`: https://www.remotion.dev/docs/lambda/getrenderprogress

@@ -49,7 +49,7 @@ await bundle({
 });
 ```
 
-The [`deploySite()`](/docs/lambda/deploysite#rspack) options for Lambda and [Cloud Run](/docs/cloudrun/deploysite#rspack) have the same `rspack` setting.
+The [`bundle()`](/docs/bundle#rspack) API and [Cloud Run's `deploySite()`](/docs/cloudrun/deploysite#rspack) have the same `rspack` setting.
 
 ## Override the bundler configuration
 
@@ -127,9 +127,9 @@ Config.overrideRspackConfig((currentConfiguration) => {
 });
 ```
 
-## When using `bundle()` and `deploySite()`
+## When using `bundle()`
 
-Node.js APIs do not read `remotion.config.ts`. Pass the overrides directly to [`bundle()`](/docs/bundle) or [`deploySite()`](/docs/lambda/deploysite). Put an override in a separate file to import it from both `remotion.config.ts` and your Node.js script.
+The `bundle()` Node.js API does not read `remotion.config.ts`. Pass the overrides directly to [`bundle()`](/docs/bundle). Put an override in a separate file to import it from both `remotion.config.ts` and your Node.js script.
 
 Pass portable changes as `bundlerOverride`.
 
@@ -171,29 +171,6 @@ import {bundlerOverride} from './src/bundler-override';
 await bundle({
   entryPoint: require.resolve('./src/index.ts'),
   bundlerOverride,
-});
-```
-
-Or while using with `deploySite`:
-
-```ts twoslash title="my-script.js"
-// @filename: ./src/bundler-override.ts
-import {BundlerOverrideFn} from '@remotion/bundler';
-export const bundlerOverride: BundlerOverrideFn = (c) => c;
-// @filename: remotion.config.ts
-// @target: esnext
-// ---cut---
-import {deploySite} from '@remotion/lambda';
-import {bundlerOverride} from './src/bundler-override';
-
-await deploySite({
-  entryPoint: require.resolve('./src/index.ts'),
-  region: 'us-east-1',
-  bucketName: 'remotionlambda-c7fsl3d',
-  options: {
-    bundlerOverride,
-  },
-  // ...other parameters
 });
 ```
 
@@ -315,7 +292,7 @@ import {enableMdx} from './src/enable-mdx';
 Config.overrideBundlerConfig(enableMdx);
 ```
 
-4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle).
 
 5. Create a file which contains `declare module '*.mdx';` in your project to fix a TypeScript error showing up.
 
@@ -392,7 +369,7 @@ import {enablePostCSS} from './src/enable-postcss';
 Config.overrideBundlerConfig(enablePostCSS);
 ```
 
-4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle).
 
 5. Restart the Remotion Studio.
 
@@ -467,7 +444,7 @@ import {enableSvgr} from './src/enable-svgr';
 Config.overrideWebpackConfig(enableSvgr);
 ```
 
-4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle).
 
 5. Restart the Remotion Studio.
 
@@ -529,7 +506,7 @@ declare module '*.glsl' {
 }
 ```
 
-4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle).
 
 5. Reset the webpack cache by deleting the `node_modules/.cache` folder.
 6. Restart the Remotion Studio.
@@ -582,7 +559,7 @@ Since Webpack does not allow synchronous WebAssembly code in the main chunk, you
 
 After changing the configuration, restart the Remotion Studio.
 
-Add the asynchronous override as `bundlerOverride` to your [Node.JS API calls if necessary](#when-using-bundle-and-deploysite). Pass the synchronous override as `webpackOverride`.
+Add the asynchronous override as `bundlerOverride` to your [Node.JS API calls if necessary](#when-using-bundle). Pass the synchronous override as `webpackOverride`.
 
 ### Change the `@jsxImportSource`
 
