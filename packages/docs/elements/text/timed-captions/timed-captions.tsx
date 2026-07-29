@@ -15,6 +15,7 @@ import {
 	cancelRender,
 	Interactive,
 	interpolate,
+	Sequence,
 	spring,
 	type InteractiveBaseProps,
 	type InteractiveTransformProps,
@@ -35,10 +36,6 @@ export type TimedCaptionsProps = InteractiveBaseProps &
 		readonly combineTokensWithinMilliseconds?: number;
 	};
 
-type TimedCaptionsLayerProps = Omit<TimedCaptionsProps, 'captions'> & {
-	readonly captions: Caption[];
-};
-
 const desiredFontSize = 80;
 const maximumTextWidth = 800;
 const fontWeight = '700';
@@ -51,6 +48,57 @@ const pillVerticalPadding = 12;
 const pillBorderRadius = 10;
 const pillMoveDurationInFrames = 5;
 const defaultCombineTokensWithinMilliseconds = 800;
+const defaultCaptions: Caption[] = [
+	{
+		text: 'Captions',
+		startMs: 0,
+		endMs: 800,
+		timestampMs: 400,
+		confidence: null,
+	},
+	{
+		text: ' can',
+		startMs: 800,
+		endMs: 1500,
+		timestampMs: 1150,
+		confidence: null,
+	},
+	{
+		text: ' move',
+		startMs: 1500,
+		endMs: 2300,
+		timestampMs: 1900,
+		confidence: null,
+	},
+	{
+		text: ' with',
+		startMs: 2300,
+		endMs: 3100,
+		timestampMs: 2700,
+		confidence: null,
+	},
+	{
+		text: ' every',
+		startMs: 3100,
+		endMs: 4000,
+		timestampMs: 3550,
+		confidence: null,
+	},
+	{
+		text: ' spoken',
+		startMs: 4000,
+		endMs: 5100,
+		timestampMs: 4550,
+		confidence: null,
+	},
+	{
+		text: ' word.',
+		startMs: 5100,
+		endMs: 6500,
+		timestampMs: 5800,
+		confidence: null,
+	},
+];
 
 const timedCaptionsSchema = {
 	...Interactive.baseSchema,
@@ -91,12 +139,6 @@ const timedCaptionsSchema = {
 	},
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
-
-const InteractiveDivWithControls = Interactive.Div as React.ComponentType<
-	React.ComponentProps<typeof Interactive.Div> & {
-		readonly controls: SequenceControls | undefined;
-	}
->;
 
 const {fontFamily, waitUntilDone} = loadFont('normal', {
 	weights: [fontWeight],
@@ -465,7 +507,7 @@ const TimedCaptionsContent: React.FC<{
 
 const TimedCaptionsInner = forwardRef<
 	HTMLDivElement,
-	TimedCaptionsLayerProps & {
+	TimedCaptionsProps & {
 		readonly controls: SequenceControls | undefined;
 	}
 >(
@@ -485,6 +527,8 @@ const TimedCaptionsInner = forwardRef<
 	) => {
 		const outlineRef = useRef<HTMLDivElement>(null);
 		const [fontLoaded, setFontLoaded] = useState(false);
+		const usesDefaultCaptions = captions === undefined;
+		const captionAreaWidth = width ?? (usesDefaultCaptions ? 681 : null);
 
 		useImperativeHandle(ref, () => outlineRef.current as HTMLDivElement, []);
 
@@ -501,104 +545,39 @@ const TimedCaptionsInner = forwardRef<
 		}, []);
 
 		return (
-			<InteractiveDivWithControls
-				ref={outlineRef}
+			<Sequence
+				layout="none"
 				{...interactiveProps}
 				controls={controls}
 				name={name ?? '<TimedCaptions>'}
-				style={{
-					height: height ?? '100%',
-					width: width ?? '100%',
-					...style,
-				}}
+				outlineRef={outlineRef}
 			>
-				<TimedCaptionsContent
-					captionAreaWidth={width ?? null}
-					captions={captions}
-					combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-					fontLoaded={fontLoaded}
-					mode={mode}
-				/>
-			</InteractiveDivWithControls>
+				<div
+					ref={outlineRef}
+					style={{
+						height: height ?? (usesDefaultCaptions ? 252 : '100%'),
+						width: width ?? (usesDefaultCaptions ? 681 : '100%'),
+						translate: usesDefaultCaptions ? '109.5px -36px' : undefined,
+						...style,
+					}}
+				>
+					<TimedCaptionsContent
+						captionAreaWidth={captionAreaWidth}
+						captions={captions ?? defaultCaptions}
+						combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
+						fontLoaded={fontLoaded}
+						mode={mode}
+					/>
+				</div>
+			</Sequence>
 		);
 	},
 );
 
-const TimedCaptionsLayer = Interactive.withSchema({
+export const TimedCaptions = Interactive.withSchema({
 	Component: TimedCaptionsInner,
 	componentName: '<TimedCaptions>',
 	componentIdentity: null,
 	schema: timedCaptionsSchema,
 	supportsEffects: false,
-}) as React.FC<TimedCaptionsLayerProps>;
-
-export const TimedCaptions: React.FC<TimedCaptionsProps> = ({
-	captions,
-	...props
-}) => {
-	if (captions) {
-		return <TimedCaptionsLayer {...props} captions={captions} />;
-	}
-
-	return (
-		<TimedCaptionsLayer
-			{...props}
-			captions={[
-				{
-					text: 'Captions',
-					startMs: 0,
-					endMs: 800,
-					timestampMs: 400,
-					confidence: null,
-				},
-				{
-					text: ' can',
-					startMs: 800,
-					endMs: 1500,
-					timestampMs: 1150,
-					confidence: null,
-				},
-				{
-					text: ' move',
-					startMs: 1500,
-					endMs: 2300,
-					timestampMs: 1900,
-					confidence: null,
-				},
-				{
-					text: ' with',
-					startMs: 2300,
-					endMs: 3100,
-					timestampMs: 2700,
-					confidence: null,
-				},
-				{
-					text: ' every',
-					startMs: 3100,
-					endMs: 4000,
-					timestampMs: 3550,
-					confidence: null,
-				},
-				{
-					text: ' spoken',
-					startMs: 4000,
-					endMs: 5100,
-					timestampMs: 4550,
-					confidence: null,
-				},
-				{
-					text: ' word.',
-					startMs: 5100,
-					endMs: 6500,
-					timestampMs: 5800,
-					confidence: null,
-				},
-			]}
-			width={681}
-			height={252}
-			style={{
-				translate: '109.5px -36px',
-			}}
-		/>
-	);
-};
+}) as React.FC<TimedCaptionsProps>;
