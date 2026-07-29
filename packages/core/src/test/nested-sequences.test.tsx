@@ -145,6 +145,27 @@ test('trimBefore applies to nested sequence timing', () => {
 	expect(getForFrame(25, content)(/^frame3$/i)).not.toBe(null);
 });
 
+test('AbsoluteFill supports Sequence timing props', () => {
+	const Child = () => {
+		const frame = useCurrentFrame();
+		return <div>{'absolute-fill-frame' + frame}</div>;
+	};
+
+	const content = (
+		<AbsoluteFill from={20} trimBefore={8} durationInFrames={10}>
+			<Child />
+		</AbsoluteFill>
+	);
+
+	expect(getForFrame(19, content)(/^absolute-fill-frame/i)).toBe(null);
+	cleanup();
+	expect(getForFrame(20, content)(/^absolute-fill-frame8$/i)).not.toBe(null);
+	cleanup();
+	expect(getForFrame(29, content)(/^absolute-fill-frame17$/i)).not.toBe(null);
+	cleanup();
+	expect(getForFrame(30, content)(/^absolute-fill-frame/i)).toBe(null);
+});
+
 test('Negative offset edge case', () => {
 	const NestedChild = () => {
 		const frame = useCurrentFrame();

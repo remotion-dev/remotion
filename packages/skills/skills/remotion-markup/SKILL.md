@@ -119,7 +119,10 @@ export const Empty = () => {
   const frame = useCurrentFrame();
 
   return (
-    <AbsoluteFill name="Container" style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+    <AbsoluteFill
+      name="Scene"
+      style={{display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: 'white'}}
+    >
       <Interactive.Div
         name="Title"
         style={{
@@ -153,7 +156,7 @@ export const Empty = () => {
 
 ## Delaying, trimming
 
-Most components (`<Interactive.*>` `<Img>`, `<AnimatedImage>`, `<CanvasImage>`, `<HtmlInCanvas>`, `<Solid>`, `<Sequence>` from `remotion`, `<Video>` and `<Audio>` from `@remotion/media`, `<Gif>`, and more) support the following props:
+Most components (`<AbsoluteFill>`, `<Interactive.*>` `<Img>`, `<AnimatedImage>`, `<CanvasImage>`, `<HtmlInCanvas>`, `<Solid>`, `<Sequence>` from `remotion`, `<Video>` and `<Audio>` from `@remotion/media`, `<Gif>`, and more) support the following props:
 
 ### from
 
@@ -187,8 +190,9 @@ Useful for components whose internal clock should start later:
 ### Fallback
 
 If a component does not support these props, wrap it in`<Sequence>` from `remotion`, which has them.
+
 - `layout="absolute-fill"` makes the Sequence behave like AbsoluteFill
-- `layout="none"` is  "headless" mode, no wrapper element is used.
+- `layout="none"` is "headless" mode, no wrapper element is used.
 
 ## Maps
 

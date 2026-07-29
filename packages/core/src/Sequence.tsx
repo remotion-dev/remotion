@@ -8,7 +8,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {AbsoluteFill} from './AbsoluteFill.js';
+import {AbsoluteFillElement} from './AbsoluteFillElement.js';
 import type {LoopDisplay, SequenceControls} from './CompositionManager.js';
 import type {EffectDefinition} from './effects/effect-types.js';
 import {Freeze} from './freeze.js';
@@ -591,13 +591,13 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			{frozenContent === null ? null : other.layout === 'none' ? (
 				frozenContent
 			) : (
-				<AbsoluteFill
+				<AbsoluteFillElement
 					ref={sequenceRef}
 					style={defaultStyle}
 					className={other.className}
 				>
 					{frozenContent}
-				</AbsoluteFill>
+				</AbsoluteFillElement>
 			)}
 		</SequenceContext.Provider>
 	);
