@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import type {EventSourceEvent} from '@remotion/studio-shared';
 import {
 	createBrowserStudioOperations,
 	insertSolidIntoProject,
@@ -197,4 +198,78 @@ test('reports invalid timeline Solid input without changing the project', async 
 	}
 
 	expect(currentProject).toBe(project);
+});
+
+test('subscribes to default prop updates in the virtual project', async () => {
+	let currentProject: VirtualProject = {
+		rootDir: '/project',
+		entryPoint: '/project/src/index.tsx',
+		files: {
+			'/project/src/index.tsx': `import {Composition, registerRoot} from 'remotion';
+const Component = () => null;
+const Root = () => <Composition id="MyComp" component={Component} durationInFrames={60} fps={30} width={1280} height={720} defaultProps={{title: 'Before'}} />;
+registerRoot(Root);`,
+		},
+	};
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
+		getStaticFiles: null,
+		getProject: () => currentProject,
+		onProjectChange: (nextProject) => {
+			currentProject = nextProject;
+		},
+	});
+	const events: EventSourceEvent[] = [];
+	operations.subscribeToEvent((event) => events.push(event));
+
+	expect(
+		await operations.subscribeToDefaultProps({
+			clientId: 'browser-studio',
+			compositionId: 'MyComp',
+		}),
+	).toEqual({
+		canUpdate: true,
+		currentDefaultProps: {title: 'Before'},
+	});
+
+	currentProject = {
+		...currentProject,
+		files: {
+			...currentProject.files,
+			'/project/src/index.tsx': currentProject.files[
+				'/project/src/index.tsx'
+			].replace("title: 'Before'", "title: 'After'"),
+		},
+	};
+	operations.resetHistory();
+	expect(
+		events.filter((event) => event.type === 'default-props-updatable-changed'),
+	).toEqual([
+		{
+			type: 'default-props-updatable-changed',
+			compositionId: 'MyComp',
+			result: {
+				canUpdate: true,
+				currentDefaultProps: {title: 'After'},
+			},
+		},
+	]);
+
+	await operations.unsubscribeFromDefaultProps({
+		clientId: 'browser-studio',
+		compositionId: 'MyComp',
+	});
+	currentProject = {
+		...currentProject,
+		files: {
+			...currentProject.files,
+			'/project/src/index.tsx': currentProject.files[
+				'/project/src/index.tsx'
+			].replace("title: 'After'", "title: 'Ignored'"),
+		},
+	};
+	operations.resetHistory();
+	expect(
+		events.filter((event) => event.type === 'default-props-updatable-changed'),
+	).toHaveLength(1);
 });

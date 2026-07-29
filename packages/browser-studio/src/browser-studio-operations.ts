@@ -1,4 +1,5 @@
 import {
+	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
 	getCompositionFile,
 	insertSolidIntoProject,
@@ -32,11 +33,40 @@ export const createBrowserStudioOperations = ({
 	getProject: () => VirtualProject;
 	onProjectChange: (project: VirtualProject) => void;
 }): BrowserStudioOperationsController => {
+	const defaultPropsSubscriptions = new Map<string, Set<string>>();
+	const lastDefaultPropsResults = new Map<string, string>();
+	let refreshDefaultPropsSubscriptions = () => undefined;
 	const controller = createBrowserStudioProjectController({
 		getStaticFiles,
 		getProject,
-		onProjectChange,
+		onProjectChange: (project) => {
+			onProjectChange(project);
+			refreshDefaultPropsSubscriptions();
+		},
 	});
+
+	const getDefaultPropsStatus = (compositionId: string) =>
+		getCanUpdateDefaultPropsForProject({
+			compositionId,
+			project: getProject(),
+		});
+
+	refreshDefaultPropsSubscriptions = () => {
+		for (const compositionId of defaultPropsSubscriptions.keys()) {
+			const result = getDefaultPropsStatus(compositionId);
+			const serialized = JSON.stringify(result);
+			if (lastDefaultPropsResults.get(compositionId) === serialized) {
+				continue;
+			}
+
+			lastDefaultPropsResults.set(compositionId, serialized);
+			controller.emitEvent({
+				type: 'default-props-updatable-changed',
+				compositionId,
+				result,
+			});
+		}
+	};
 
 	return {
 		deleteStaticFile: controller.deleteStaticFile,
@@ -77,9 +107,31 @@ export const createBrowserStudioOperations = ({
 		},
 		redo: controller.redo,
 		renameStaticFile: controller.renameStaticFile,
-		resetHistory: controller.resetHistory,
+		resetHistory: () => {
+			controller.resetHistory();
+			refreshDefaultPropsSubscriptions();
+		},
+		subscribeToDefaultProps: ({clientId, compositionId}) => {
+			const clients =
+				defaultPropsSubscriptions.get(compositionId) ?? new Set<string>();
+			clients.add(clientId);
+			defaultPropsSubscriptions.set(compositionId, clients);
+			const result = getDefaultPropsStatus(compositionId);
+			lastDefaultPropsResults.set(compositionId, JSON.stringify(result));
+			return Promise.resolve(result);
+		},
 		subscribeToEvent: controller.subscribeToEvent,
 		undo: controller.undo,
+		unsubscribeFromDefaultProps: ({clientId, compositionId}) => {
+			const clients = defaultPropsSubscriptions.get(compositionId);
+			clients?.delete(clientId);
+			if (clients?.size === 0) {
+				defaultPropsSubscriptions.delete(compositionId);
+				lastDefaultPropsResults.delete(compositionId);
+			}
+
+			return Promise.resolve(undefined);
+		},
 		writeStaticFile: controller.writeStaticFile,
 	};
 };
