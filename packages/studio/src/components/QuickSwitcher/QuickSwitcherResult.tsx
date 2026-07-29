@@ -74,6 +74,12 @@ const iconStyle: React.CSSProperties = {
 	flexShrink: 0,
 };
 
+const selectFileIconStyle: React.CSSProperties = {
+	...iconStyle,
+	width: 20,
+	height: 20,
+};
+
 const labelContainer: React.CSSProperties = {
 	overflow: 'hidden',
 	flex: 1,
@@ -173,7 +179,7 @@ export const QuickSwitcherResult: React.FC<{
 			) : result.type === 'select-file' ? (
 				<UploadIcon
 					color={selected || hovered ? WHITE : LIGHT_TEXT}
-					style={iconStyle}
+					style={selectFileIconStyle}
 				/>
 			) : null}
 			<Spacing x={1} />
