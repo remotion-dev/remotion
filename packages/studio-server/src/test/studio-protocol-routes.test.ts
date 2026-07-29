@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
 import {createServer} from 'node:http';
+import {connect} from 'node:net';
 import {createElementPayload} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import {
@@ -19,6 +20,83 @@ const payload = createElementPayload({
 	slug: 'lower-third',
 	sourceCode: 'export const LowerThird = () => null;',
 });
+
+const sendUnfinishedOversizedInstallRequest = (
+	url: string,
+): Promise<{
+	readonly body: unknown;
+	readonly corsHeader: string | undefined;
+	readonly statusCode: number;
+}> => {
+	return new Promise((resolve, reject) => {
+		const parsedUrl = new URL(url);
+		let responseText = '';
+		let settled = false;
+		const socket = connect(Number(parsedUrl.port), parsedUrl.hostname, () => {
+			socket.write(
+				`POST ${parsedUrl.pathname} HTTP/1.1\r\nHost: ${parsedUrl.host}\r\nOrigin: http://localhost:4000\r\nContent-Type: application/json\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n`,
+			);
+
+			const writeChunk = (chunk: string) => {
+				socket.write(`${chunk.length.toString(16)}\r\n${chunk}\r\n`);
+			};
+
+			writeChunk('{"padding":"');
+			for (let index = 0; index < 65; index++) {
+				writeChunk('x'.repeat(16_384));
+			}
+			// Deliberately omit the terminating zero-length chunk. The server must
+			// respond once the streaming limit is exceeded, before the body ends.
+		});
+		const rejectOnce = (error: Error) => {
+			if (settled) {
+				return;
+			}
+
+			settled = true;
+			clearTimeout(timeout);
+			socket.destroy();
+			reject(error);
+		};
+
+		const timeout = setTimeout(
+			() => rejectOnce(new Error('Studio did not reject the unfinished body')),
+			5_000,
+		);
+		socket.on('data', (chunk: Buffer) => {
+			responseText += chunk.toString('utf8');
+		});
+		socket.on('error', rejectOnce);
+		socket.on('end', () => {
+			if (settled) {
+				return;
+			}
+
+			settled = true;
+			clearTimeout(timeout);
+			try {
+				const [headerText] = responseText.split('\r\n\r\n');
+				const headerLines = headerText!.split('\r\n');
+				const statusCode = Number(headerLines[0]!.split(' ')[1]);
+				const corsHeader = headerLines
+					.find((line) =>
+						line.toLowerCase().startsWith('access-control-allow-origin:'),
+					)
+					?.slice('access-control-allow-origin:'.length)
+					.trim();
+				const jsonStart = responseText.indexOf('{');
+				const jsonEnd = responseText.lastIndexOf('}');
+				resolve({
+					body: JSON.parse(responseText.slice(jsonStart, jsonEnd + 1)),
+					corsHeader,
+					statusCode,
+				});
+			} catch (error) {
+				reject(error);
+			}
+		});
+	});
+};
 
 test('discovers an exact Studio target and delivers one install request over HTTP', async () => {
 	clearElementInstallStateForTests();
@@ -157,6 +235,19 @@ test('discovers an exact Studio target and delivers one install request over HTT
 		expect(await invalidPayloadResponse.json()).toMatchObject({
 			status: 'error',
 			error: {code: 'invalid-payload'},
+		});
+		expect(deliveredEvents).toHaveLength(0);
+
+		const oversizedResponse = await sendUnfinishedOversizedInstallRequest(
+			`${origin}/api/studio-protocol/install`,
+		);
+		expect(oversizedResponse.statusCode).toBe(413);
+		expect(oversizedResponse.corsHeader).toBe('http://localhost:4000');
+		expect(oversizedResponse.body).toMatchObject({
+			protocol: 'remotion-studio-protocol',
+			protocolVersion: 1,
+			status: 'error',
+			error: {code: 'request-too-large'},
 		});
 		expect(deliveredEvents).toHaveLength(0);
 
