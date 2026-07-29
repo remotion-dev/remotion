@@ -21,13 +21,13 @@ import {getShouldUsePartitionedRendering} from './can-use-parallel-encoding';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {defaultOnLog} from './default-on-log';
 import {findRemotionRoot} from './find-closest-package-json';
-import type {FrameRange} from './frame-range';
+import {isMultipleFrameRanges, type FrameRange} from './frame-range';
 import {resolveConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getExtraFramesToCapture} from './get-extra-frames-to-capture';
 import type {CountType} from './get-frame-padded-index';
 import {getFilePadLength} from './get-frame-padded-index';
-import {getRealFrameRange} from './get-frame-to-render';
+import {getRealFrameRanges} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import type {LogLevel} from './log-level';
@@ -80,6 +80,7 @@ type InternalRenderFramesOptions = {
 	jpegQuality: number;
 	frameRange: FrameRange | null;
 	frames: number[] | null;
+	outputFramesInSequence: boolean;
 	everyNthFrame: number;
 	puppeteerInstance: HeadlessBrowser | undefined;
 	browserExecutable: BrowserExecutable | null;
@@ -118,6 +119,7 @@ type InnerRenderFramesOptions = {
 	imageFormat: VideoImageFormat;
 	frameRange: FrameRange | null;
 	frames: number[] | null;
+	outputFramesInSequence: boolean;
 	everyNthFrame: number;
 	onBrowserLog: null | ((log: BrowserLog) => void);
 	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void);
@@ -218,6 +220,7 @@ const innerRenderFrames = async ({
 	imageFormat,
 	frameRange,
 	frames,
+	outputFramesInSequence,
 	onError,
 	envVariables,
 	onBrowserLog,
@@ -269,7 +272,7 @@ const innerRenderFrames = async ({
 				durationInFrames: composition.durationInFrames,
 			})
 		: getFramesToRender(
-				getRealFrameRange(composition.durationInFrames, frameRange),
+				getRealFrameRanges(composition.durationInFrames, frameRange),
 				everyNthFrame,
 			);
 	const realFrameRange: [number, number] = [
@@ -280,7 +283,7 @@ const innerRenderFrames = async ({
 	const {
 		extraFramesToCaptureAssetsBackend,
 		extraFramesToCaptureAssetsFrontend,
-		chunkLengthInSeconds,
+		chunkLengthInSeconds: seamlessChunkLengthInSeconds,
 		trimLeftOffset,
 		trimRightOffset,
 	} = getExtraFramesToCapture({
@@ -290,6 +293,9 @@ const innerRenderFrames = async ({
 		forSeamlessAacConcatenation,
 		sampleRate,
 	});
+	const chunkLengthInSeconds = forSeamlessAacConcatenation
+		? seamlessChunkLengthInSeconds
+		: framesToRender.length / composition.fps;
 
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
@@ -338,8 +344,11 @@ const innerRenderFrames = async ({
 
 	// If rendering a GIF and skipping frames, we must ensure it starts from 0
 	// and then is consecutive so FFMPEG recognizes the sequence
-	const countType: CountType =
-		everyNthFrame === 1 ? 'actual-frames' : 'from-zero';
+	const countType: CountType = outputFramesInSequence
+		? 'from-zero'
+		: everyNthFrame === 1
+			? 'actual-frames'
+			: 'from-zero';
 
 	const filePadLength = getFilePadLength({
 		lastFrame,
@@ -477,6 +486,7 @@ const internalRenderFramesRaw = ({
 	everyNthFrame,
 	frameRange,
 	frames,
+	outputFramesInSequence,
 	imageFormat,
 	indent,
 	jpegQuality,
@@ -621,6 +631,7 @@ const internalRenderFramesRaw = ({
 					everyNthFrame,
 					frameRange,
 					frames,
+					outputFramesInSequence,
 					imageFormat,
 					jpegQuality,
 					muted,
@@ -805,6 +816,10 @@ export const renderFrames = (
 		everyNthFrame: everyNthFrame ?? 1,
 		frameRange: frameRange ?? null,
 		frames: validatedFrames,
+		outputFramesInSequence:
+			frameRange !== undefined &&
+			frameRange !== null &&
+			isMultipleFrameRanges(frameRange),
 		imageFormat: imageFormat ?? 'jpeg',
 		indent,
 		jpegQuality: jpegQuality ?? DEFAULT_JPEG_QUALITY,

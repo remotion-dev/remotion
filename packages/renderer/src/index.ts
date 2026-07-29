@@ -32,7 +32,7 @@ import {
 	makeFileExtensionMap,
 } from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
-import {getRealFrameRange} from './get-frame-to-render';
+import {getRealFrameRange, getRealFrameRanges} from './get-frame-to-render';
 import {getDesiredPort} from './get-port';
 import {
 	DEFAULT_STILL_IMAGE_FORMAT,
@@ -90,7 +90,13 @@ export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception'
 export {extractAudio} from './extract-audio';
 export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FileExtension} from './file-extensions';
-export {FrameRange, FrameSelection} from './frame-range';
+export {
+	FrameRange,
+	FrameRangeTuple,
+	FrameSelection,
+	OpenEndedFrameRange,
+	ResolvedFrameRange,
+} from './frame-range';
 export {
 	GetCompositionsOptions,
 	getCompositions,
@@ -186,6 +192,7 @@ export const RenderInternals = {
 	isServeUrl,
 	ensureOutputDirectory,
 	getRealFrameRange,
+	getRealFrameRanges,
 	validatePuppeteerTimeout,
 	downloadFile,
 	parseStack,

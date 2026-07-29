@@ -280,6 +280,7 @@ export type ServerlessPayloads<Provider extends CloudProvider> = {
 		compositionStart: number;
 		framesPerLambda: number;
 		progressEveryNthFrame: number;
+		hasDiscontinuousFrameRanges: boolean;
 		forcePathStyle: boolean;
 		metadata: Record<string, string> | null;
 		sampleRate: number;

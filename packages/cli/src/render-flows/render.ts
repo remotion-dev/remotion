@@ -543,7 +543,7 @@ export const renderVideoFlow = async ({
 				durationInFrames: config.durationInFrames,
 			})
 		: RenderInternals.getFramesToRender(
-				RenderInternals.getRealFrameRange(config.durationInFrames, frameRange),
+				RenderInternals.getRealFrameRanges(config.durationInFrames, frameRange),
 				everyNthFrame,
 			);
 
@@ -628,6 +628,7 @@ export const renderVideoFlow = async ({
 			envVariables,
 			frameRange,
 			frames: selectedFrames,
+			outputFramesInSequence: false,
 			concurrency: resolvedConcurrency,
 			puppeteerInstance,
 			jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,

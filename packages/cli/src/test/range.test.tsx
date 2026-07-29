@@ -78,7 +78,7 @@ describe('Frame range CLI should throw exception with invalid inputs', () => {
 		],
 		[
 			'one-two',
-			/--frames flag must be a single number, or 2 numbers separated by `-`/,
+			/--frames flag must be a frame number, range, or comma-separated selection/,
 		],
 		[
 			' ',
@@ -90,8 +90,10 @@ describe('Frame range CLI should throw exception with invalid inputs', () => {
 		],
 		['0,2,2', /must not contain duplicate frames/],
 		['0,two,4', /must contain only finite numbers/],
-		['0,-2,4', /must contain only non-negative numbers/],
-		['0,,4', /must contain a frame number between commas/],
+		['0,-2,4', /Invalid frame selector/],
+		['0,,4', /must contain a frame or frame range between commas/],
+		['0-4,4-8', /must be ordered and non-overlapping/],
+		['10-,20-30', /open-ended frame range must be the last range/],
 	];
 	testValues.forEach((entry) =>
 		test(`test with input ${entry[0]}`, () =>
@@ -115,6 +117,21 @@ describe('Frame range CLI tests with valid inputs', () => {
 		['0-', [0, null]],
 		[-1920, [0, 1920]],
 		['8,2,5', {type: 'frames', frames: [2, 5, 8]}],
+		[
+			'0-4,10-14',
+			[
+				[0, 4],
+				[10, 14],
+			],
+		],
+		[
+			'0,4-6,10-',
+			[
+				[0, 0],
+				[4, 6],
+				[10, null],
+			],
+		],
 	];
 	testValues.forEach((entry) =>
 		test(`test with input ${JSON.stringify(entry[0])}`, () => {
@@ -150,5 +167,21 @@ describe('getRealFrameRange resolves open-ended ranges', () => {
 		expect(() => RenderInternals.getRealFrameRange(3600, [5000, null])).toThrow(
 			/not inbetween/,
 		);
+	});
+});
+
+describe('getRealFrameRanges resolves multiple ranges', () => {
+	test('resolves open-ended ranges and expands the selected frames', () => {
+		const ranges = RenderInternals.getRealFrameRanges(20, [
+			[0, 2],
+			[10, null],
+		]);
+		expect(ranges).toEqual([
+			[0, 2],
+			[10, 19],
+		]);
+		expect(RenderInternals.getFramesToRender(ranges, 1)).toEqual([
+			0, 1, 2, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+		]);
 	});
 });

@@ -104,11 +104,17 @@ export const renderCommand = async ({
 
 	const region = getAwsRegion();
 
-	const {envVariables, frameRange, inputProps} = CliInternals.getCliOptions({
-		isStill: false,
-		logLevel,
-		indent: false,
-	});
+	const {envVariables, frameRange, inputProps, selectedFrames} =
+		CliInternals.getCliOptions({
+			isStill: false,
+			logLevel,
+			indent: false,
+		});
+	if (selectedFrames !== null) {
+		throw new Error(
+			'Comma-separated individual frames are only supported by the local `remotion render` command. Pass frame ranges to render a video on Lambda.',
+		);
+	}
 
 	const height = overrideHeightOption.getValue({
 		commandLine: CliInternals.parsedCli,

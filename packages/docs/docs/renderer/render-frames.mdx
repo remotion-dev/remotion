@@ -133,17 +133,33 @@ Prefer a specific port that will be used to serve the Remotion project. If not s
 
 Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered. Pass `[number, null]` to render from a frame to the end of the composition.<AvailableFrom v="4.0.421" inline />
 
+Pass an array of ranges to render discontinuous sections. The ranges must be ordered and non-overlapping. An open-ended range may only appear last.<AvailableFrom v="4.0.502" inline />
+
+```ts twoslash title="render-frames.ts"
+import {renderFrames} from '@remotion/renderer';
+declare const options: Parameters<typeof renderFrames>[0];
+// ---cut---
+await renderFrames({
+	...options,
+  frameRange: [
+    [0, 100],
+    [150, 200],
+  ],
+});
+```
+
 Cannot be combined with [`frames`](#frames) or [`everyNthFrame`](#everynthframe).
 
 ### `frames?` <AvailableFrom v="4.0.502" />
 
 An array of frame numbers to render. The frames may be passed in any order and are rendered in ascending order. The source frame number is preserved in the output filename.
 
-```ts
+```ts twoslash title="render-frames.ts"
 import {renderFrames} from '@remotion/renderer';
-
+declare const options: Parameters<typeof renderFrames>[0];
+// ---cut---
 await renderFrames({
-  // ...other options
+	...options,
   frames: [0, 42, 69],
 });
 ```

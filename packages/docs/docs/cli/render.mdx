@@ -150,7 +150,9 @@ If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot s
 
 <Options id="frames" />
 
-Passing a comma-separated list such as `--frames=0,42,69` outputs only those frames and automatically enables [`--sequence`](#--sequence).<AvailableFrom v="4.0.502" inline />
+Pass comma-separated frame numbers such as `--frames=0,42,69` to output selected frames. This automatically enables [`--sequence`](#--sequence).<AvailableFrom v="4.0.502" inline />
+
+Pass comma-separated ranges such as `--frames=0-100,150-200` to remove the gap and render one video. Ranges are inclusive. Add [`--sequence`](#--sequence) to output the selected ranges as images instead. Individual frames and ranges can be combined, for example `--frames=0,42-69,100-`.<AvailableFrom v="4.0.502" inline />
 
 ### `--every-nth-frame`<AvailableFrom v="3.1.0" />
 

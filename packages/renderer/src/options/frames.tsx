@@ -1,4 +1,4 @@
-import type {FrameSelection} from '../frame-range';
+import type {FrameRangeTuple, FrameSelection} from '../frame-range';
 import {validateFrameRange} from '../frame-range';
 import {validateSelectedFrames} from '../validate-selected-frames';
 import type {AnyRemotionOption} from './option';
@@ -26,19 +26,45 @@ const parseFrameRangeFromCli = (
 		}
 
 		if (newFrameRange.includes(',')) {
-			const frameStrings = newFrameRange.split(',');
-			if (frameStrings.some((frame) => frame.trim() === '')) {
+			const selectors = newFrameRange
+				.split(',')
+				.map((selector) => selector.trim());
+			if (selectors.some((selector) => selector === '')) {
 				throw new TypeError(
-					'--frames must contain a frame number between commas.',
+					'--frames must contain a frame or frame range between commas.',
 				);
 			}
 
-			const frames = validateSelectedFrames({
-				frames: frameStrings.map((frame) => Number(frame)),
-				durationInFrames: null,
+			const onlyFrames = selectors.every((selector) => !selector.includes('-'));
+			if (onlyFrames) {
+				const frames = validateSelectedFrames({
+					frames: selectors.map((frame) => Number(frame)),
+					durationInFrames: null,
+				});
+
+				return {type: 'frames', frames};
+			}
+
+			const ranges = selectors.map((selector): FrameRangeTuple => {
+				if (!selector.includes('-')) {
+					const frame = Number(selector);
+					return [frame, frame];
+				}
+
+				const rangeParts = selector.split('-');
+				if (rangeParts.length !== 2 || rangeParts[0] === '') {
+					throw new Error(
+						`Invalid frame selector "${selector}". Use a frame number, a range such as 0-9, or an open-ended range such as 100-.`,
+					);
+				}
+
+				const start = Number(rangeParts[0]);
+				const end = rangeParts[1] === '' ? null : Number(rangeParts[1]);
+				return [start, end];
 			});
 
-			return {type: 'frames', frames};
+			validateFrameRange(ranges);
+			return ranges;
 		}
 
 		const parts = newFrameRange.split('-');
@@ -52,7 +78,7 @@ const parseFrameRangeFromCli = (
 			const value = Number(parts[0]);
 			if (isNaN(value)) {
 				throw new Error(
-					'--frames flag must be a single number, or 2 numbers separated by `-`',
+					'--frames flag must be a frame number, range, or comma-separated selection',
 				);
 			}
 
@@ -65,7 +91,7 @@ const parseFrameRangeFromCli = (
 			const start = Number(firstPart);
 			if (isNaN(start)) {
 				throw new Error(
-					'--frames flag must be a single number, or 2 numbers separated by `-`',
+					'--frames flag must be a frame number, range, or comma-separated selection',
 				);
 			}
 
@@ -78,7 +104,7 @@ const parseFrameRangeFromCli = (
 		for (const value of parsed) {
 			if (isNaN(value)) {
 				throw new Error(
-					'--frames flag must be a single number, or 2 numbers separated by `-`',
+					'--frames flag must be a frame number, range, or comma-separated selection',
 				);
 			}
 		}
@@ -108,8 +134,9 @@ export const framesOption = {
 			{mode === 'cli' ? (
 				<>
 					{' '}
-					Pass a comma-separated list (e.g. <code>0,10,20</code>) to render
-					selected frames as an image sequence.
+					Pass a comma-separated selection (e.g. <code>0,10,20</code> or{' '}
+					<code>0-9,20-29</code>) to render individual frames or multiple
+					ranges.
 				</>
 			) : null}
 		</>

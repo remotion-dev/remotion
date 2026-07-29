@@ -29,7 +29,7 @@ import {resolveConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
-import {getRealFrameRange} from './get-frame-to-render';
+import {getRealFrameRanges} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
 import {
 	DEFAULT_VIDEO_IMAGE_FORMAT,
@@ -495,18 +495,17 @@ const internalRenderMediaRaw = ({
 		width: widthEvenDimensions,
 	};
 
-	const realFrameRange = getRealFrameRange(
+	const realFrameRanges = getRealFrameRanges(
 		composition.durationInFrames,
 		frameRange,
 	);
-	const totalFramesToRender = getFramesToRender(
-		realFrameRange,
-		everyNthFrame,
-	).length;
+	const framesToRender = getFramesToRender(realFrameRanges, everyNthFrame);
+	const totalFramesToRender = framesToRender.length;
+	const lastFrameToRender = framesToRender[framesToRender.length - 1];
 
 	Log.verbose(
 		{indent, logLevel, tag: 'renderMedia()'},
-		`Rendering frames ${realFrameRange.join('-')}`,
+		`Rendering frames ${realFrameRanges.map((range) => range.join('-')).join(', ')}`,
 	);
 
 	const callUpdate = () => {
@@ -533,7 +532,7 @@ const internalRenderMediaRaw = ({
 	});
 
 	const {waitForRightTimeOfFrameToBeInserted, setFrameToStitch, waitForFinish} =
-		ensureFramesInOrder(realFrameRange);
+		ensureFramesInOrder(framesToRender);
 
 	const fps = composition.fps / everyNthFrame;
 
@@ -695,6 +694,7 @@ const internalRenderMediaRaw = ({
 					jpegQuality,
 					frameRange,
 					frames: null,
+					outputFramesInSequence: true,
 					puppeteerInstance,
 					everyNthFrame,
 					onFrameBuffer: parallelEncoding
@@ -721,8 +721,9 @@ const internalRenderMediaRaw = ({
 								stitcherFfmpeg?.stdin?.write(buffer);
 								stopPerfMeasure(id);
 
+								const frameIndex = framesToRender.indexOf(frame);
 								setFrameToStitch(
-									Math.min(realFrameRange[1] + 1, frame + everyNthFrame),
+									framesToRender[frameIndex + 1] ?? lastFrameToRender + 1,
 								);
 							}
 						: null,

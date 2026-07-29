@@ -3,6 +3,7 @@ import {getMostExpensiveChunks} from '../most-expensive-chunks';
 
 test('Should calculate most expensive chunks', () => {
 	const most = getMostExpensiveChunks({
+		chunkRanges: null,
 		parsedTimings: [
 			{
 				chunk: 0,
@@ -59,6 +60,7 @@ test('Render starting from frame 10 should have correct offset', () => {
 	const firstFrame = 10;
 	const lastFrame = 99;
 	const most = getMostExpensiveChunks({
+		chunkRanges: null,
 		parsedTimings: [
 			{
 				chunk: 0,
@@ -115,6 +117,7 @@ test('Render starting from frame 10 and last chunk in most expensive should be c
 	const firstFrame = 10;
 	const lastFrame = 79;
 	const most = getMostExpensiveChunks({
+		chunkRanges: null,
 		parsedTimings: [
 			{
 				chunk: 0,
