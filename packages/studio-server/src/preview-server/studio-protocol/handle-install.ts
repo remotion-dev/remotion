@@ -5,7 +5,7 @@ import {z} from 'zod';
 import {consumeStudioProtocolTarget} from '../element-install-state';
 import type {getElementInstallTarget} from '../element-install-state';
 import type {LiveEventsServer} from '../live-events';
-import {parseRequestBody} from '../parse-body';
+import {parseRequestBody, RequestBodyTooLargeError} from '../parse-body';
 import {
 	isAllowedStudioProtocolOrigin,
 	setStudioProtocolCorsHeaders,
@@ -20,6 +20,10 @@ const studioProtocolInstallRequestSchema = z.object({
 	targetId: z.string(),
 	payload: z.unknown(),
 });
+
+// A valid payload may contain 250,000 JSON characters. Allow room for its
+// UTF-8 representation and the protocol envelope while keeping memory bounded.
+const MAX_STUDIO_PROTOCOL_INSTALL_BODY_SIZE = 1_000_000;
 
 const deliverElementInstall = ({
 	element,
@@ -91,8 +95,20 @@ export const handleStudioProtocolInstall = async ({
 
 	let body: unknown;
 	try {
-		body = await parseRequestBody(request);
-	} catch {
+		body = await parseRequestBody(request, {
+			maxBytes: MAX_STUDIO_PROTOCOL_INSTALL_BODY_SIZE,
+		});
+	} catch (error) {
+		if (error instanceof RequestBodyTooLargeError) {
+			writeStudioProtocolError({
+				code: 'request-too-large',
+				message: 'The request body is too large.',
+				response,
+				status: 413,
+			});
+			return;
+		}
+
 		writeStudioProtocolError({
 			code: 'invalid-request',
 			message: 'The request body is not valid JSON.',
