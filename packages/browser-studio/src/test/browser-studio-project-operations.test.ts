@@ -135,6 +135,34 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 	expect(revokedUrls).toContain('blob:virtual-2');
 });
 
+test('replays an HMR event emitted before the Studio subscribes', () => {
+	const project = createBlankTemplateProject();
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
+		getStaticFiles: null,
+		getProject: () => project,
+		onProjectChange: () => undefined,
+	});
+	const hmrEvent = {
+		type: 'hmr',
+		hmrEvent: {
+			action: 'built',
+			errors: [],
+			hash: 'new-hash',
+			modules: {'/project/src/Composition.tsx': 'Composition.tsx'},
+			name: '',
+			time: 12,
+			warnings: [],
+		},
+	} satisfies EventSourceEvent;
+
+	operations.emitEvent(hmrEvent);
+	const events: EventSourceEvent[] = [];
+	operations.subscribeToEvent((event) => events.push(event));
+
+	expect(events.at(-1)).toEqual(hmrEvent);
+});
+
 test('rejects unsafe public paths and conflicting renames', async () => {
 	let project: VirtualProject = {
 		...createBlankTemplateProject(),

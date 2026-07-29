@@ -1,4 +1,8 @@
 export const browserStudioVirtualFilePaths = {
+	browserRequireShim: '/__remotion_browser_studio__/browser-require-shim.js',
+	reactRefreshEntry: '/__remotion_browser_studio__/react-refresh-entry.js',
+	reactRefreshRuntime: '/__remotion_browser_studio__/reactRefresh.js',
+	reactRefreshUtils: '/__remotion_browser_studio__/refreshUtils.js',
 	setupEnvironment: '/__remotion_browser_studio__/setup-environment.ts',
 	setupSequenceStackTraces:
 		'/__remotion_browser_studio__/setup-sequence-stack-traces.ts',
@@ -6,6 +10,13 @@ export const browserStudioVirtualFilePaths = {
 };
 
 declare const __BROWSER_STUDIO_SETUP_ENVIRONMENT__: string | undefined;
+declare const __BROWSER_STUDIO_REACT_REFRESH_FILES__:
+	| {
+			entry: string;
+			runtime: string;
+			utils: string;
+	  }
+	| undefined;
 
 const getInjectedSetupEnvironment = () => {
 	if (typeof __BROWSER_STUDIO_SETUP_ENVIRONMENT__ === 'undefined') {
@@ -13,6 +24,14 @@ const getInjectedSetupEnvironment = () => {
 	}
 
 	return __BROWSER_STUDIO_SETUP_ENVIRONMENT__;
+};
+
+const getInjectedReactRefreshFiles = () => {
+	if (typeof __BROWSER_STUDIO_REACT_REFRESH_FILES__ === 'undefined') {
+		throw new Error('Browser Studio React Refresh files were not injected');
+	}
+
+	return __BROWSER_STUDIO_REACT_REFRESH_FILES__;
 };
 
 const setupSequenceStackTraces = `import React from 'react';
@@ -69,10 +88,37 @@ if (typeof globalThis === 'undefined') {
 }
 `;
 
-export const getBrowserStudioVirtualFiles = (): Record<string, string> => ({
-	[browserStudioVirtualFilePaths.setupEnvironment]:
-		getInjectedSetupEnvironment(),
-	[browserStudioVirtualFilePaths.setupSequenceStackTraces]:
-		setupSequenceStackTraces,
-	[browserStudioVirtualFilePaths.reactShim]: reactShim,
-});
+const browserRequireShim = `import * as Remotion from 'remotion';
+import * as RemotionNoReact from 'remotion/no-react';
+
+const modules = {
+  remotion: Remotion,
+  'remotion/no-react': RemotionNoReact,
+};
+
+globalThis.require = (id) => {
+  const module = modules[id];
+  if (!module) {
+    throw new Error('Unsupported Browser Studio require: ' + id);
+  }
+
+  return module;
+};
+`;
+
+export const getBrowserStudioVirtualFiles = (): Record<string, string> => {
+	const reactRefreshFiles = getInjectedReactRefreshFiles();
+
+	return {
+		[browserStudioVirtualFilePaths.browserRequireShim]: browserRequireShim,
+		[browserStudioVirtualFilePaths.reactRefreshEntry]: reactRefreshFiles.entry,
+		[browserStudioVirtualFilePaths.reactRefreshRuntime]:
+			reactRefreshFiles.runtime,
+		[browserStudioVirtualFilePaths.reactRefreshUtils]: reactRefreshFiles.utils,
+		[browserStudioVirtualFilePaths.setupEnvironment]:
+			getInjectedSetupEnvironment(),
+		[browserStudioVirtualFilePaths.setupSequenceStackTraces]:
+			setupSequenceStackTraces,
+		[browserStudioVirtualFilePaths.reactShim]: reactShim,
+	};
+};

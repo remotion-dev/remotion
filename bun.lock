@@ -140,10 +140,12 @@
         "@remotion/studio-shared": "workspace:*",
         "@rspack/browser": "2.1.1",
         "fflate": "0.8.2",
+        "react-refresh": "0.18.0",
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "@remotion/studio": "workspace:*",
+        "@rspack/plugin-react-refresh": "1.6.1",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
         "@typescript/native-preview": "catalog:",

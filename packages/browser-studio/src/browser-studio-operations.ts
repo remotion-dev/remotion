@@ -5,6 +5,7 @@ import {
 } from '@remotion/studio-codemods';
 import type {
 	BrowserStudioOperations,
+	EventSourceEvent,
 	InsertJsxElementResponse,
 } from '@remotion/studio-shared';
 import {createBrowserStudioProjectController} from './browser-studio-project-controller';
@@ -14,6 +15,7 @@ import type {VirtualProject} from './types';
 export {insertSolidIntoProject} from '@remotion/studio-codemods';
 
 export type BrowserStudioOperationsController = BrowserStudioOperations & {
+	emitEvent: (event: EventSourceEvent) => void;
 	resetHistory: () => void;
 };
 
@@ -45,6 +47,7 @@ export const createBrowserStudioOperations = ({
 					project: getProject(),
 				}),
 			),
+		emitEvent: controller.emitEvent,
 		findInFile: controller.findInFile,
 		getFileSource: controller.getFileSource,
 		getCompositionFile: (compositionId) =>

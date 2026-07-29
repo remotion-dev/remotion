@@ -62,5 +62,10 @@ const renderToDOM = (content: React.ReactElement) => {
 renderToDOM(<NoRegisterRoot />);
 
 Internals.waitForRoot((NewRoot) => {
-	renderToDOM(<Studio readOnly={false} rootComponent={NewRoot} />);
+	renderToDOM(
+		<Studio
+			readOnly={window.remotion_isReadOnlyStudio}
+			rootComponent={NewRoot}
+		/>,
+	);
 });

@@ -1,1 +1,0 @@
-import '@remotion/studio/renderEntry';

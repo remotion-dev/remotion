@@ -29,7 +29,8 @@
 		"@remotion/studio-codemods": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
 		"@rspack/browser": "2.1.1",
-		"fflate": "0.8.2"
+		"fflate": "0.8.2",
+		"react-refresh": "0.18.0"
 	},
 	"exports": {
 		".": {
@@ -45,6 +46,7 @@
 		"./package.json": "./package.json"
 	},
 	"devDependencies": {
+		"@rspack/plugin-react-refresh": "1.6.1",
 		"@remotion/studio": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@types/react": "catalog:",

@@ -273,6 +273,7 @@ const getFileSource = ({
 export type BrowserStudioProjectController = {
 	applyMutation: (mutation: ProjectMutation) => VirtualProject;
 	deleteStaticFile: BrowserStudioOperations['deleteStaticFile'];
+	emitEvent: (event: EventSourceEvent) => void;
 	findInFile: BrowserStudioOperations['findInFile'];
 	getFileSource: BrowserStudioOperations['getFileSource'];
 	redo: BrowserStudioOperations['redo'];
@@ -310,6 +311,7 @@ export const createBrowserStudioProjectController = ({
 	const redoStack: HistoryEntry[] = [];
 	const listeners = new Set<(event: EventSourceEvent) => void>();
 	const lastModifiedByPath = new Map<string, number>();
+	let latestHmrEvent: Extract<EventSourceEvent, {type: 'hmr'}> | null = null;
 	let publicFileRevision = 0;
 
 	const getUndoRedoEvent = (): EventSourceEvent => ({
@@ -328,6 +330,10 @@ export const createBrowserStudioProjectController = ({
 	});
 
 	const emit = (event: EventSourceEvent) => {
+		if (event.type === 'hmr' && listeners.size === 0) {
+			latestHmrEvent = event;
+		}
+
 		for (const listener of listeners) {
 			listener(event);
 		}
@@ -438,6 +444,7 @@ export const createBrowserStudioProjectController = ({
 				return Promise.reject(error);
 			}
 		},
+		emitEvent: emit,
 		findInFile: (request) => {
 			const contents = getFileSource({
 				fileName: request.fileName,
@@ -497,6 +504,10 @@ export const createBrowserStudioProjectController = ({
 				redoFile: redoStack.at(-1)?.fileName ?? null,
 			});
 			listener(getPublicFilesEvent());
+			if (latestHmrEvent) {
+				listener(latestHmrEvent);
+				latestHmrEvent = null;
+			}
 
 			return () => {
 				listeners.delete(listener);
