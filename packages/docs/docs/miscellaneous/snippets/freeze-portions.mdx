@@ -9,20 +9,13 @@ With the following snippet, two portions of a sequence are frozen and resumed af
 
 ```tsx twoslash
 import React, {useMemo} from 'react';
-import {Freeze, Interactive, useCurrentFrame} from 'remotion';
+import {Freeze, Sequence, useCurrentFrame} from 'remotion';
 
-const CurrentFrame: React.FC = () => {
-  return useCurrentFrame();
-};
-
-export const Counter: React.FC<{from: number}> = ({from}) => {
+export const Counter: React.FC = () => {
   return (
-    <Interactive.Div
-      from={from}
-      className="flex h-full justify-center items-center text-6xl"
-    >
-      <CurrentFrame />
-    </Interactive.Div>
+    <div className="flex h-full justify-center items-center text-6xl">
+      {useCurrentFrame()}
+    </div>
   );
 };
 
@@ -86,7 +79,9 @@ export const FreezePortion: React.FC = () => {
       frame={activeFreeze ? activeFreeze.frame : 0}
       active={Boolean(activeFreeze)}
     >
-      <Counter from={from} />
+      <Sequence layout="none" from={from}>
+        <Counter />
+      </Sequence>
     </Freeze>
   );
 };
