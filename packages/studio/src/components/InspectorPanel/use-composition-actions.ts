@@ -1,4 +1,4 @@
-import {DragAndDropInternals} from '@remotion/drag-and-drop';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import type {InsertJsxElementRequest} from '@remotion/studio-shared';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals, type _InternalTypes} from 'remotion';
@@ -226,7 +226,7 @@ export const useCompositionActions = () => {
 					resolvedLocation?.source ??
 					browserStudioOperations?.getCompositionFile(composition.id) ??
 					null;
-				const compositionDragData = DragAndDropInternals.makeDragData({
+				const compositionDragData = StudioProtocolInternals.makeDragData({
 					type: 'composition',
 					compositionFile: selectedCompositionFile,
 					compositionId: composition.id,

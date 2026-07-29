@@ -1,6 +1,6 @@
 import path from 'node:path';
-import {DragAndDropInternals} from '@remotion/drag-and-drop';
 import {RenderInternals} from '@remotion/renderer';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
 	isUrl,
 	type InsertJsxElementRequest,
@@ -118,19 +118,19 @@ const validateElement = (
 	}
 
 	if (element.type === 'component') {
-		if (!DragAndDropInternals.isComponentIdentifier(element.componentName)) {
+		if (!StudioProtocolInternals.isComponentIdentifier(element.componentName)) {
 			throw new Error('Unsupported component name');
 		}
 
-		if (!DragAndDropInternals.isComponentIdentifier(element.importName)) {
+		if (!StudioProtocolInternals.isComponentIdentifier(element.importName)) {
 			throw new Error('Unsupported component import name');
 		}
 
-		if (!DragAndDropInternals.isComponentImportPath(element.importPath)) {
+		if (!StudioProtocolInternals.isComponentImportPath(element.importPath)) {
 			throw new Error('Unsupported component import path');
 		}
 
-		if (!DragAndDropInternals.areComponentProps(element.props)) {
+		if (!StudioProtocolInternals.areComponentProps(element.props)) {
 			throw new Error('Unsupported component props');
 		}
 

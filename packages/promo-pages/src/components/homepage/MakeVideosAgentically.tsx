@@ -55,7 +55,7 @@ export const MakeVideosAgentically: React.FC<{
 	return (
 		<div ref={ref} className={'flex min-w-0 basis-0 flex-col flex-1'}>
 			<div className="flex aspect-square w-full items-start">
-				{showVideo ? (
+				{showVideo && src ? (
 					<video
 						ref={videoRef}
 						src={src}

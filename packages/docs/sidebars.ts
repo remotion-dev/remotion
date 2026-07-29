@@ -787,6 +787,21 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/studio-protocol',
+			link: {
+				type: 'doc',
+				id: 'studio-protocol/index',
+			},
+			items: [
+				'studio-protocol/create-element-payload',
+				'studio-protocol/set-studio-drag-data',
+				'studio-protocol/install-in-studio',
+				'studio-protocol/protocol',
+				'studio-protocol/security',
+			],
+		},
+		{
+			type: 'category',
 			label: '@remotion/tailwind',
 			link: {
 				type: 'doc',

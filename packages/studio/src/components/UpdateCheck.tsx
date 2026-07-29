@@ -8,11 +8,11 @@ import React, {
 } from 'react';
 import {VERSION} from 'remotion';
 import {
-	BLUE,
 	CURRENT_COLOR_LOWERCASE,
-	LIGHT_TEXT,
 	TRANSPARENT,
 	WARNING_COLOR,
+	WHITE,
+	WHITE_ALPHA_80,
 } from '../helpers/colors';
 import {ModalsContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
@@ -28,7 +28,6 @@ export type UpdateInfo = {
 
 const buttonStyle: React.CSSProperties = {
 	appearance: 'none',
-	color: BLUE,
 	border: 'none',
 	fontWeight: 'bold',
 	backgroundColor: TRANSPARENT,
@@ -51,6 +50,7 @@ export const UpdateCheck = () => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {tabIndex} = useZIndex();
 	const [knownBugs, setKnownBugs] = useState<Bug[] | null>(null);
+	const [hovered, setHovered] = useState(false);
 
 	const hasKnownBugs = useMemo(() => {
 		return knownBugs && knownBugs.length > 0;
@@ -118,9 +118,17 @@ export const UpdateCheck = () => {
 	const dynButtonStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...buttonStyle,
-			color: hasKnownBugs ? WARNING_COLOR : LIGHT_TEXT,
+			color: hovered ? WHITE : hasKnownBugs ? WARNING_COLOR : WHITE_ALPHA_80,
 		};
-	}, [hasKnownBugs]);
+	}, [hasKnownBugs, hovered]);
+
+	const onPointerEnter = useCallback(() => {
+		setHovered(true);
+	}, []);
+
+	const onPointerLeave = useCallback(() => {
+		setHovered(false);
+	}, []);
 
 	if (!info) {
 		return null;
@@ -135,6 +143,8 @@ export const UpdateCheck = () => {
 			tabIndex={tabIndex}
 			style={dynButtonStyle}
 			onClick={openModal}
+			onPointerEnter={onPointerEnter}
+			onPointerLeave={onPointerLeave}
 			type="button"
 			title={hasKnownBugs ? 'Bugfixes available' : 'Update available'}
 		>
@@ -146,6 +156,7 @@ export const UpdateCheck = () => {
 					style={{
 						height: 16,
 						width: 16,
+						color: 'inherit',
 					}}
 					viewBox="0 0 512 512"
 				>

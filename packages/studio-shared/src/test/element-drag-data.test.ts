@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {DragAndDropInternals} from '@remotion/drag-and-drop';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 
 const validElement = {
 	dependencies: ['@remotion/google-fonts'],
@@ -19,7 +19,7 @@ const makeElementDragData = (
 				dimensions: null;
 		  },
 ) =>
-	DragAndDropInternals.makeDragData({
+	StudioProtocolInternals.makeDragData({
 		type: 'element',
 		...element,
 		durationInFrames: 120,
@@ -40,13 +40,13 @@ const parseElementDragData = (payload: string) => {
 		// The unified parser handles the malformed payload below.
 	}
 
-	const {mimeType} = DragAndDropInternals.makeDragData({
+	const {mimeType} = StudioProtocolInternals.makeDragData({
 		type: 'element',
 		...validElement,
 		dimensions,
 		durationInFrames: 120,
 	});
-	const parsed = DragAndDropInternals.parseDragData({mimeType, payload});
+	const parsed = StudioProtocolInternals.parseDragData({mimeType, payload});
 	return parsed?.type === 'element' ? parsed.data : null;
 };
 
@@ -93,13 +93,15 @@ test('accepts element drag data with null dimensions', () => {
 
 test('derives element file name from slug', () => {
 	expect(
-		DragAndDropInternals.makeElementFileNameFromSlug('overlays/lower-third'),
+		StudioProtocolInternals.makeElementFileNameFromSlug('overlays/lower-third'),
 	).toBe('lower-third.element.tsx');
-	expect(DragAndDropInternals.makeElementFileNameFromSlug('LowerThird')).toBe(
-		null,
-	);
 	expect(
-		DragAndDropInternals.makeElementFileNameFromSlug('overlays/../lower-third'),
+		StudioProtocolInternals.makeElementFileNameFromSlug('LowerThird'),
+	).toBe(null);
+	expect(
+		StudioProtocolInternals.makeElementFileNameFromSlug(
+			'overlays/../lower-third',
+		),
 	).toBe(null);
 });
 

@@ -9,7 +9,7 @@
 	"include": ["src"],
 	"references": [
 		{
-			"path": "../drag-and-drop"
+			"path": "../studio-protocol"
 		},
 		{
 			"path": "../renderer"

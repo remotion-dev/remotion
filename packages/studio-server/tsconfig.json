@@ -16,7 +16,7 @@
 			"path": "../core"
 		},
 		{
-			"path": "../drag-and-drop"
+			"path": "../studio-protocol"
 		},
 		{
 			"path": "../media-utils"

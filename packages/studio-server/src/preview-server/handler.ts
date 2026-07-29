@@ -39,7 +39,7 @@ export const handleRequest = async <Req, Res>({
 	response.writeHead(200);
 
 	try {
-		const body = (await parseRequestBody(request)) as Req;
+		const body = (await parseRequestBody(request, {maxBytes: null})) as Req;
 
 		const outputData = await handler({
 			entryPoint,

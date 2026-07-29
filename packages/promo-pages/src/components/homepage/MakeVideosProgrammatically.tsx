@@ -29,7 +29,7 @@ export const MakeVideosProgrammatically: React.FC<{
 	return (
 		<div className={'flex min-w-0 basis-0 flex-col flex-1'}>
 			<div className="flex aspect-square w-full items-start">
-				{showVideo ? (
+				{showVideo && src ? (
 					<video
 						src={src}
 						muted

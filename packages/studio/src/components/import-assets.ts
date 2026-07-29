@@ -3,7 +3,7 @@ import {
 	type CompositionDragData,
 	type ComponentProp,
 	type ElementDragData,
-} from '@remotion/drag-and-drop';
+} from '@remotion/studio-protocol';
 import {
 	detectFileType,
 	getRequiredPackageForInsertableElement,

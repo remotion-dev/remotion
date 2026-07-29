@@ -1,12 +1,12 @@
 {
-	"name": "@remotion/drag-and-drop",
+	"name": "@remotion/studio-protocol",
 	"version": "4.0.501",
-	"description": "Construct and parse drag-and-drop payloads for Remotion",
+	"description": "Create Element payloads and request installation into Remotion Studio",
 	"main": "dist/index.cjs",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
 	"repository": {
-		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/drag-and-drop"
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio-protocol"
 	},
 	"type": "module",
 	"scripts": {
@@ -39,10 +39,13 @@
 	},
 	"keywords": [
 		"remotion",
+		"studio",
+		"protocol",
+		"elements",
 		"drag-and-drop"
 	],
 	"publishConfig": {
 		"access": "public"
 	},
-	"homepage": "https://www.remotion.dev/docs/drag-and-drop"
+	"homepage": "https://www.remotion.dev/docs/studio-protocol"
 }

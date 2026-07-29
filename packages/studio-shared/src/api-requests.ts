@@ -1,4 +1,3 @@
-import type {ComponentProp, ElementDragData} from '@remotion/drag-and-drop';
 import type {
 	AudioCodec,
 	ChromeMode,
@@ -11,6 +10,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
+import type {ComponentProp, ElementDragData} from '@remotion/studio-protocol';
 import type {
 	_InternalTypes,
 	CannotUpdateSequenceReason,

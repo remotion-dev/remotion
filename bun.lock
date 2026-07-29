@@ -501,7 +501,6 @@
         "@remotion/convert": "workspace:*",
         "@remotion/design": "workspace:*",
         "@remotion/docusaurus-plugin": "workspace:*",
-        "@remotion/drag-and-drop": "workspace:*",
         "@remotion/effects": "workspace:*",
         "@remotion/elevenlabs": "workspace:*",
         "@remotion/enable-scss": "workspace:*",
@@ -535,6 +534,7 @@
         "@remotion/skia": "workspace:*",
         "@remotion/starburst": "workspace:*",
         "@remotion/studio": "workspace:*",
+        "@remotion/studio-protocol": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
         "@remotion/svg-3d-engine": "workspace:*",
         "@remotion/tailwind": "workspace:*",
@@ -612,15 +612,6 @@
         "unified": "11.0.5",
         "unist-util-visit": "5.1.0",
       },
-      "devDependencies": {
-        "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
-        "eslint": "catalog:",
-      },
-    },
-    "packages/drag-and-drop": {
-      "name": "@remotion/drag-and-drop",
-      "version": "4.0.501",
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "@typescript/native-preview": "catalog:",
@@ -760,7 +751,6 @@
         "@remotion/captions": "workspace:*",
         "@remotion/cli": "workspace:*",
         "@remotion/cloudrun": "workspace:*",
-        "@remotion/drag-and-drop": "workspace:*",
         "@remotion/effects": "workspace:*",
         "@remotion/enable-scss": "workspace:*",
         "@remotion/eslint-config-flat": "workspace:*",
@@ -790,6 +780,7 @@
         "@remotion/skia": "workspace:*",
         "@remotion/starburst": "workspace:*",
         "@remotion/studio": "workspace:*",
+        "@remotion/studio-protocol": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
         "@remotion/svg-3d-engine": "workspace:*",
         "@remotion/tailwind-v4": "workspace:*",
@@ -1679,10 +1670,10 @@
         "@jridgewell/trace-mapping": "0.3.31",
         "@remotion/canvas-capture": "workspace:*",
         "@remotion/captions": "workspace:*",
-        "@remotion/drag-and-drop": "workspace:*",
         "@remotion/media-utils": "workspace:*",
         "@remotion/player": "workspace:*",
         "@remotion/renderer": "workspace:*",
+        "@remotion/studio-protocol": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
         "@remotion/timeline-utils": "workspace:*",
         "@remotion/web-renderer": "workspace:*",
@@ -1724,6 +1715,15 @@
         "eslint": "catalog:",
       },
     },
+    "packages/studio-protocol": {
+      "name": "@remotion/studio-protocol",
+      "version": "4.0.501",
+      "devDependencies": {
+        "@remotion/eslint-config-internal": "workspace:*",
+        "@typescript/native-preview": "catalog:",
+        "eslint": "catalog:",
+      },
+    },
     "packages/studio-server": {
       "name": "@remotion/studio-server",
       "version": "4.0.501",
@@ -1731,9 +1731,9 @@
         "@babel/parser": "7.24.1",
         "@babel/types": "7.24.0",
         "@remotion/bundler": "workspace:*",
-        "@remotion/drag-and-drop": "workspace:*",
         "@remotion/renderer": "workspace:*",
         "@remotion/studio-codemods": "workspace:*",
+        "@remotion/studio-protocol": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
         "@svgr/core": "8.1.0",
         "@svgr/plugin-jsx": "8.1.0",
@@ -1744,6 +1744,7 @@
         "recast": "0.23.11",
         "remotion": "workspace:*",
         "semver": "7.5.3",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
@@ -1759,7 +1760,7 @@
       "name": "@remotion/studio-shared",
       "version": "4.0.501",
       "dependencies": {
-        "@remotion/drag-and-drop": "workspace:*",
+        "@remotion/studio-protocol": "workspace:*",
         "remotion": "workspace:*",
       },
       "devDependencies": {
@@ -4112,8 +4113,6 @@
 
     "@remotion/docusaurus-plugin": ["@remotion/docusaurus-plugin@workspace:packages/docusaurus-plugin"],
 
-    "@remotion/drag-and-drop": ["@remotion/drag-and-drop@workspace:packages/drag-and-drop"],
-
     "@remotion/effects": ["@remotion/effects@workspace:packages/effects"],
 
     "@remotion/elevenlabs": ["@remotion/elevenlabs@workspace:packages/elevenlabs"],
@@ -4227,6 +4226,8 @@
     "@remotion/studio": ["@remotion/studio@workspace:packages/studio"],
 
     "@remotion/studio-codemods": ["@remotion/studio-codemods@workspace:packages/studio-codemods"],
+
+    "@remotion/studio-protocol": ["@remotion/studio-protocol@workspace:packages/studio-protocol"],
 
     "@remotion/studio-server": ["@remotion/studio-server@workspace:packages/studio-server"],
 

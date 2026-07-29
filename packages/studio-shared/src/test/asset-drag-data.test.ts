@@ -1,7 +1,7 @@
 import {expect, test} from 'bun:test';
-import {DragAndDropInternals} from '@remotion/drag-and-drop';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 
-const assetMimeType = DragAndDropInternals.makeDragData({
+const assetMimeType = StudioProtocolInternals.makeDragData({
 	type: 'asset',
 	assetPath: 'asset',
 	width: null,
@@ -9,7 +9,7 @@ const assetMimeType = DragAndDropInternals.makeDragData({
 	durationInSeconds: null,
 }).mimeType;
 const makeAssetDragData = (assetPath: string) =>
-	DragAndDropInternals.makeDragData({
+	StudioProtocolInternals.makeDragData({
 		type: 'asset',
 		assetPath,
 		width: null,
@@ -17,7 +17,7 @@ const makeAssetDragData = (assetPath: string) =>
 		durationInSeconds: null,
 	}).data;
 const parseAssetDragData = (payload: string) => {
-	const parsed = DragAndDropInternals.parseDragData({
+	const parsed = StudioProtocolInternals.parseDragData({
 		mimeType: assetMimeType,
 		payload,
 	});
