@@ -36,7 +36,6 @@ type Listeners = {
 
 export const PreviewServerConnection: React.FC<{
 	readonly children: React.ReactNode;
-	readonly readOnlyStudio: boolean;
 }> = ({children}) => {
 	const listeners = useRef<Listeners>([]);
 	const latestUndoRedoEvent = useRef<
