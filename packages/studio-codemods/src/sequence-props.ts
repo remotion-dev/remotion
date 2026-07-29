@@ -12,10 +12,8 @@ import type {
 	UnaryExpression,
 } from '@babel/types';
 import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
-import {
-	isKeyframeInterpolationFunction,
-	LINEAR_KEYFRAME_EASING,
-} from '@remotion/studio-shared';
+import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared/keyframe-easing-presets';
+import {isKeyframeInterpolationFunction} from '@remotion/studio-shared/keyframe-interpolation-function';
 import type {NodePath} from 'ast-types';
 import * as recast from 'recast';
 import type {

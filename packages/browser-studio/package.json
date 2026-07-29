@@ -13,9 +13,10 @@
 	"scripts": {
 		"dev": "bun src/dev/server.ts",
 		"test": "bun test src/test",
-		"formatting": "oxfmt src --check",
-		"format": "oxfmt src",
-		"lint": "eslint src",
+		"testbrowserstudio": "playwright test",
+		"formatting": "oxfmt src e2e playwright.config.ts --check",
+		"format": "oxfmt src e2e playwright.config.ts",
+		"lint": "eslint src e2e playwright.config.ts",
 		"watch": "tsgo -w",
 		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts"
 	},
@@ -46,6 +47,8 @@
 		"./package.json": "./package.json"
 	},
 	"devDependencies": {
+		"@playwright/test": "1.55.1",
+		"@rspack/core": "1.7.11",
 		"@rspack/plugin-react-refresh": "1.6.1",
 		"@remotion/studio": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",

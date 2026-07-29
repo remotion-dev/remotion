@@ -6,9 +6,9 @@ import {
 	getOutKeyframeEasing,
 	getPolyKeyframeEasing,
 	LINEAR_KEYFRAME_EASING,
-	parseSpringEasingConfig,
 	QUAD_KEYFRAME_EASING,
-} from '@remotion/studio-shared';
+} from '@remotion/studio-shared/keyframe-easing-presets';
+import {parseSpringEasingConfig} from '@remotion/studio-shared/parse-spring-easing-config';
 import type {CanUpdateSequencePropStatusEasing} from 'remotion';
 
 const getNumericValue = (node: Expression): number | null => {

@@ -30,6 +30,9 @@
 		"testwebrenderer": {
 			"dependsOn": ["@remotion/web-renderer#make"]
 		},
+		"testbrowserstudio": {
+			"dependsOn": ["@remotion/browser-studio#make"]
+		},
 		"testlayoututils": {
 			"dependsOn": ["@remotion/layout-utils#make"]
 		},

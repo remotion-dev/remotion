@@ -111,6 +111,9 @@ jobs:
       - name: Test web renderer
         run: |
           bun run testwebrenderer
+      - name: Test Browser Studio
+        run: |
+          bun run testbrowserstudio
   ssr-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 30
