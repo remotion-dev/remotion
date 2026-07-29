@@ -437,6 +437,7 @@ export class MediaPlayer {
 					'[MediaPlayer] Failed to start audio and video iterators',
 					error,
 				);
+				throw error;
 			}
 
 			return {type: 'success', durationInSeconds};
@@ -502,6 +503,7 @@ export class MediaPlayer {
 					nonce,
 					fps: this.fps,
 					playbackRate: this.playbackRate,
+					globalPlaybackRate: this.globalPlaybackRate,
 					isPlaying: this.playing,
 				}),
 				this.audioIteratorManager?.seek({

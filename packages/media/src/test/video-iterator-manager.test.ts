@@ -13,7 +13,9 @@ test('detects one timeline frame as a sequential media time advance', () => {
 			newTime: 1 / 30,
 			fps: 30,
 			playbackRate: 1,
+			globalPlaybackRate: 1,
 			isPlaying: true,
+			elapsedTimeInSeconds: 0,
 		}),
 	).toBe(true);
 
@@ -23,7 +25,9 @@ test('detects one timeline frame as a sequential media time advance', () => {
 			newTime: 2 / 30,
 			fps: 30,
 			playbackRate: 1,
+			globalPlaybackRate: 1,
 			isPlaying: true,
+			elapsedTimeInSeconds: 0,
 		}),
 	).toBe(false);
 });
@@ -35,7 +39,9 @@ test('accounts for playback rate when detecting sequential advances', () => {
 			newTime: 1 + 2 / 30,
 			fps: 30,
 			playbackRate: 2,
+			globalPlaybackRate: 1,
 			isPlaying: true,
+			elapsedTimeInSeconds: 0,
 		}),
 	).toBe(true);
 
@@ -45,7 +51,9 @@ test('accounts for playback rate when detecting sequential advances', () => {
 			newTime: 0.9,
 			fps: 30,
 			playbackRate: 2,
+			globalPlaybackRate: 1,
 			isPlaying: true,
+			elapsedTimeInSeconds: 0,
 		}),
 	).toBe(false);
 });
@@ -57,7 +65,49 @@ test('does not treat a paused forward scrub as sequential playback', () => {
 			newTime: 1.1,
 			fps: 30,
 			playbackRate: 4,
+			globalPlaybackRate: 1,
 			isPlaying: false,
+			elapsedTimeInSeconds: 0.1,
+		}),
+	).toBe(false);
+});
+
+test('allows playback to skip frames after expensive frame processing', () => {
+	expect(
+		isSequentialMediaTimeAdvance({
+			previousTime: 0,
+			newTime: 4 / 30,
+			fps: 30,
+			playbackRate: 1,
+			globalPlaybackRate: 1,
+			isPlaying: true,
+			elapsedTimeInSeconds: 0.1,
+		}),
+	).toBe(true);
+});
+
+test('still detects user seeks while playback is active', () => {
+	expect(
+		isSequentialMediaTimeAdvance({
+			previousTime: 0,
+			newTime: 4 / 30,
+			fps: 30,
+			playbackRate: 1,
+			globalPlaybackRate: 1,
+			isPlaying: true,
+			elapsedTimeInSeconds: 0,
+		}),
+	).toBe(false);
+
+	expect(
+		isSequentialMediaTimeAdvance({
+			previousTime: 0,
+			newTime: 2,
+			fps: 30,
+			playbackRate: 1,
+			globalPlaybackRate: 1,
+			isPlaying: true,
+			elapsedTimeInSeconds: 2,
 		}),
 	).toBe(false);
 });
@@ -114,6 +164,7 @@ test('plays at a high playback rate without restarting the iterator', async () =
 				nonce: nonceManager.createAsyncOperation(),
 				fps: 30,
 				playbackRate: 3.75,
+				globalPlaybackRate: 1,
 				isPlaying: true,
 			});
 		}
@@ -151,6 +202,7 @@ test('paused forward scrubs do not wait for pending frames', async () => {
 			nonce: nonceManager.createAsyncOperation(),
 			fps: 30,
 			playbackRate: 4,
+			globalPlaybackRate: 1,
 			isPlaying: false,
 		});
 
@@ -208,6 +260,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 		nonce: nonceManager.createAsyncOperation(),
 		fps: 30,
 		playbackRate: 1,
+		globalPlaybackRate: 1,
 		isPlaying: false,
 	});
 	await manager.seek({
@@ -215,6 +268,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 		nonce: nonceManager.createAsyncOperation(),
 		fps: 30,
 		playbackRate: 1,
+		globalPlaybackRate: 1,
 		isPlaying: false,
 	});
 	await manager.seek({
@@ -222,6 +276,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 		nonce: nonceManager.createAsyncOperation(),
 		fps: 30,
 		playbackRate: 1,
+		globalPlaybackRate: 1,
 		isPlaying: false,
 	});
 
@@ -281,6 +336,7 @@ test('rapid sequential seeks should not cause overlapping blocks', async () => {
 			nonce: nonceManager.createAsyncOperation(),
 			fps: 30,
 			playbackRate: 1,
+			globalPlaybackRate: 1,
 			isPlaying: false,
 		});
 	}

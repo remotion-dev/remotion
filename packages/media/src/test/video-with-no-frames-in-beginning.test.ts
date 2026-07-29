@@ -52,6 +52,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 		nonce: nonceManager.createAsyncOperation(),
 		fps: 30,
 		playbackRate: 1,
+		globalPlaybackRate: 1,
 		isPlaying: false,
 	});
 	await manager.seek({
@@ -59,6 +60,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 		nonce: nonceManager.createAsyncOperation(),
 		fps: 30,
 		playbackRate: 1,
+		globalPlaybackRate: 1,
 		isPlaying: false,
 	});
 	await manager.seek({
@@ -66,6 +68,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 		nonce: nonceManager.createAsyncOperation(),
 		fps: 30,
 		playbackRate: 1,
+		globalPlaybackRate: 1,
 		isPlaying: false,
 	});
 
@@ -77,6 +80,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 		nonce: nonceManager.createAsyncOperation(),
 		fps: 30,
 		playbackRate: 1,
+		globalPlaybackRate: 1,
 		isPlaying: false,
 	});
 

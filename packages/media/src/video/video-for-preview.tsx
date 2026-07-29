@@ -375,6 +375,11 @@ const VideoForPreviewAssertedShowing: React.FC<
 					}
 				})
 				.catch((error) => {
+					if (mediaPlayerRef.current === player) {
+						player.dispose();
+						mediaPlayerRef.current = null;
+					}
+
 					// ProRes without a registered decoder is unrecoverable and must not
 					// fall back to a native <video> (which cannot decode it either).
 					// Notify onError once for observability, then rethrow.

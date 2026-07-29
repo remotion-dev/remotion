@@ -17,24 +17,34 @@ import {
 
 const {runEffectChain} = Internals;
 
+const MAXIMUM_DROPPED_FRAME_RECOVERY_IN_SECONDS = 1;
+
 export const isSequentialMediaTimeAdvance = ({
 	previousTime,
 	newTime,
 	fps,
 	playbackRate,
+	globalPlaybackRate,
 	isPlaying,
+	elapsedTimeInSeconds,
 }: {
 	previousTime: number;
 	newTime: number;
 	fps: number;
 	playbackRate: number;
+	globalPlaybackRate: number;
 	isPlaying: boolean;
+	elapsedTimeInSeconds: number;
 }) => {
 	if (!isPlaying || newTime < previousTime) {
 		return false;
 	}
 
-	const maximumSequentialAdvance = Math.abs(playbackRate) / fps;
+	const oneFrameInMediaTime = Math.abs(playbackRate) / fps;
+	const elapsedPlaybackTime =
+		Math.min(elapsedTimeInSeconds, MAXIMUM_DROPPED_FRAME_RECOVERY_IN_SECONDS) *
+		Math.abs(playbackRate * globalPlaybackRate);
+	const maximumSequentialAdvance = oneFrameInMediaTime + elapsedPlaybackTime;
 	return (
 		roundTo4Digits(newTime - previousTime) <=
 		roundTo4Digits(maximumSequentialAdvance)
@@ -77,6 +87,7 @@ export const videoIteratorManager = async ({
 	let currentDelayHandle: {unblock: () => void} | null = null;
 	let lastDrawnFrame: WrappedCanvas | null = null;
 	let currentSeek: number | null = null;
+	let currentSeekStartedAt: number | null = null;
 
 	const clearLastDrawnFrame = () => {
 		lastDrawnFrame = null;
@@ -167,12 +178,14 @@ export const videoIteratorManager = async ({
 	const startVideoIterator = async (
 		timeToSeek: number,
 		nonce: Nonce,
+		seekStartedAt = performance.now(),
 	): Promise<void> => {
 		clearLastDrawnFrame();
 		videoFrameIterator?.destroy();
 		using delayHandle = delayPlaybackHandleIfNotPremounting();
 		currentDelayHandle = delayHandle;
 		currentSeek = timeToSeek;
+		currentSeekStartedAt = seekStartedAt;
 
 		const iterator = await createVideoIterator(
 			timeToSeek,
@@ -206,12 +219,14 @@ export const videoIteratorManager = async ({
 		nonce,
 		fps,
 		playbackRate,
+		globalPlaybackRate,
 		isPlaying,
 	}: {
 		newTime: number;
 		nonce: Nonce;
 		fps: number;
 		playbackRate: number;
+		globalPlaybackRate: number;
 		isPlaying: boolean;
 	}) => {
 		if (!videoFrameIterator) {
@@ -225,8 +240,11 @@ export const videoIteratorManager = async ({
 			return;
 		}
 
+		const seekStartedAt = performance.now();
 		const previousTime = currentSeek;
+		const previousSeekStartedAt = currentSeekStartedAt;
 		currentSeek = newTime;
+		currentSeekStartedAt = seekStartedAt;
 
 		if (getIsLooping()) {
 			// If less than 1 second from the end away, we pre-warm a new iterator
@@ -244,7 +262,12 @@ export const videoIteratorManager = async ({
 				newTime,
 				fps,
 				playbackRate,
+				globalPlaybackRate,
 				isPlaying,
+				elapsedTimeInSeconds:
+					previousSeekStartedAt === null
+						? 0
+						: (seekStartedAt - previousSeekStartedAt) / 1000,
 			})
 				? 'wait'
 				: 'restart-iterator';
@@ -268,7 +291,7 @@ export const videoIteratorManager = async ({
 			return;
 		}
 
-		await startVideoIterator(newTime, nonce);
+		await startVideoIterator(newTime, nonce, seekStartedAt);
 	};
 
 	return {
