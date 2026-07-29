@@ -1,6 +1,7 @@
 import {getStudioEntryPoints} from '@remotion/studio-shared/studio-entry-points';
 import type * as RspackBrowser from '@rspack/browser';
 import {browserStudioDependencyVersions} from './dependency-versions';
+import {studioRenderEntryExternal} from './dev/studio-render-entry-external';
 import type {
 	BrowserStudioDependencyResolution,
 	BrowserStudioError,
@@ -152,7 +153,7 @@ const getPackageName = (request: string) => {
 
 const externalizeSharedDependencies = (url: URL) => {
 	url.searchParams.set('dev', '');
-	url.searchParams.set('external', 'mediabunny,react,react-dom');
+	url.searchParams.set('external', studioRenderEntryExternal.join(','));
 };
 
 const compileProject = async ({
