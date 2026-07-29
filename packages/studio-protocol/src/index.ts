@@ -9,7 +9,8 @@ import {
 	getElementComponentNameFromSourceCode,
 	makeElementFileNameFromSlug,
 } from './element-drag-data';
-import {installInStudio} from './install-in-studio';
+import {parseStudioElementPayload} from './element-payload';
+import {installInStudioWithDependencies} from './install-in-studio';
 
 export type {AssetDragData} from './asset-drag-data';
 export type {
@@ -45,9 +46,18 @@ export type {
 export type {EffectDragData} from './effect-drag-data';
 export type {ElementDragData} from './element-drag-data';
 export type {SfxDragData} from './sfx-drag-data';
-export type {
-	InstallInStudioResult,
-	StudioInstallTarget,
+export {setStudioDragData} from './drag-transport';
+export {
+	createElementPayload,
+	type CreateElementPayloadInput,
+	type StudioElementPayload,
+} from './element-payload';
+export {
+	installInStudio,
+	type InstallInStudioErrorCode,
+	type InstallInStudioResult,
+	type StudioProtocolDescriptor,
+	type StudioProtocolInstallTarget,
 } from './install-in-studio';
 
 export const StudioProtocolInternals = {
@@ -56,8 +66,9 @@ export const StudioProtocolInternals = {
 	getElementComponentNameFromSourceCode,
 	isComponentIdentifier,
 	isComponentImportPath,
-	installInStudio,
+	installInStudioWithDependencies,
 	makeDragData,
 	makeElementFileNameFromSlug,
 	parseDragData,
+	parseStudioElementPayload,
 };

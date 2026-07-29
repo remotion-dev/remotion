@@ -1,129 +1,258 @@
 import {expect, test} from 'bun:test';
+import {createElementPayload} from '../element-payload';
 import {installInStudioWithDependencies} from '../install-in-studio';
 
-const dragData = {
-	mimeType: 'application/vnd.remotion.drag+json;v=1;type=element;duration=90',
-	payload: '{"type":"remotion-element"}',
-	data: {type: 'not-sent'},
-};
-
-const target = ({
-	lastFocusedAt,
-	projectName,
-}: {
-	lastFocusedAt: number;
-	projectName: string;
-}) => ({
-	type: 'remotion-studio' as const,
-	projectName,
-	port: 3000,
-	lastFocusedAt,
-	canInstall: true,
-	activeCompositionId: 'Main',
-	readOnly: false,
+const elementPayload = createElementPayload({
+	dependencies: ['remotion'],
+	dimensions: {width: 800, height: 200},
+	displayName: 'Lower Third',
+	durationInFrames: 90,
+	slug: 'lower-third',
+	sourceCode: 'export const LowerThird = () => null;',
 });
 
-const jsonResponse = (value: unknown, status = 200) => {
-	return new Response(JSON.stringify(value), {
+const descriptor = ({
+	compositionId,
+	lastFocusedAt,
+	projectName,
+	targetId,
+}: {
+	readonly compositionId: string;
+	readonly lastFocusedAt: number;
+	readonly projectName: string;
+	readonly targetId: string;
+}) => ({
+	protocol: 'remotion-studio-protocol',
+	protocolVersion: 1,
+	studioVersion: '4.0.502',
+	capabilities: {
+		install: [{payloadType: 'remotion-element', payloadVersions: [1]}],
+	},
+	projectName,
+	installTarget: {
+		id: targetId,
+		expiresAt: 1_010_000,
+		compositionId,
+		lastFocusedAt,
+	},
+});
+
+const jsonResponse = (value: unknown, status = 200) =>
+	new Response(JSON.stringify(value), {
 		headers: {'Content-Type': 'application/json'},
 		status,
 	});
+
+const dependencies = {
+	now: () => 1_000_000,
+	pageOrigin: 'http://localhost:4000',
+	ports: [3000, 3001],
 };
 
-test('installs into the most recently focused Studio', async () => {
+test('delivers the payload to the exact most recently focused Studio target', async () => {
 	const requests: Array<{url: string; options?: RequestInit}> = [];
 	const fetchFn = (input: string | URL | Request, options?: RequestInit) => {
 		const url = String(input);
 		requests.push({url, options});
-
-		if (url === 'http://localhost:3000/api/element-install-target') {
+		if (url === 'http://localhost:3000/api/studio-protocol') {
 			return Promise.resolve(
 				jsonResponse(
-					target({lastFocusedAt: 900_000, projectName: 'Older project'}),
+					descriptor({
+						compositionId: 'Older',
+						lastFocusedAt: 900_000,
+						projectName: 'Older project',
+						targetId: 'older-target',
+					}),
 				),
 			);
 		}
 
-		if (url === 'http://localhost:3001/api/element-install-target') {
+		if (url === 'http://localhost:3001/api/studio-protocol') {
 			return Promise.resolve(
 				jsonResponse(
-					target({lastFocusedAt: 950_000, projectName: 'Newest project'}),
+					descriptor({
+						compositionId: 'Main',
+						lastFocusedAt: 950_000,
+						projectName: 'Newest project',
+						targetId: 'newest-target',
+					}),
 				),
 			);
 		}
 
-		if (url === 'http://localhost:3001/api/request-element-install') {
-			return Promise.resolve(jsonResponse({success: true, status: 'sent'}));
+		if (url === 'http://localhost:3001/api/studio-protocol/install') {
+			return Promise.resolve(
+				jsonResponse({
+					protocol: 'remotion-studio-protocol',
+					protocolVersion: 1,
+					status: 'awaiting-confirmation',
+				}),
+			);
 		}
 
 		return Promise.resolve(new Response(null, {status: 404}));
 	};
 
-	const result = await installInStudioWithDependencies(dragData, {
+	const result = await installInStudioWithDependencies(elementPayload, {
+		...dependencies,
 		fetchFn,
-		now: () => 1_000_000,
-		ports: [3000, 3001],
 	});
 
 	expect(result).toEqual({
 		success: true,
+		status: 'awaiting-confirmation',
 		target: {
-			...target({lastFocusedAt: 950_000, projectName: 'Newest project'}),
-			origin: 'http://localhost:3001',
+			projectName: 'Newest project',
+			compositionId: 'Main',
+			studioOrigin: 'http://localhost:3001',
+			studioVersion: '4.0.502',
 		},
 	});
-	expect(requests.at(-1)).toEqual({
-		url: 'http://localhost:3001/api/request-element-install',
-		options: {
-			method: 'POST',
-			headers: {'Content-Type': 'application/json'},
-			body: JSON.stringify({
-				mimeType: dragData.mimeType,
-				payload: dragData.payload,
-			}),
-			signal: expect.any(AbortSignal),
-		},
+	const installRequest = requests.at(-1);
+	expect(installRequest?.url).toBe(
+		'http://localhost:3001/api/studio-protocol/install',
+	);
+	expect(JSON.parse(String(installRequest?.options?.body))).toEqual({
+		protocol: 'remotion-studio-protocol',
+		protocolVersion: 1,
+		targetId: 'newest-target',
+		payload: elementPayload,
 	});
 });
 
-test('returns an actionable error if no focused Studio is available', async () => {
-	const fetchFn = () => Promise.resolve(new Response(null, {status: 404}));
+test('distinguishes a compatible Studio without an installable target', async () => {
+	const fetchFn = (input: string | URL | Request) => {
+		const url = String(input);
+		if (url === 'http://localhost:3000/api/studio-protocol') {
+			return Promise.resolve(
+				jsonResponse({
+					...descriptor({
+						compositionId: 'Main',
+						lastFocusedAt: 950_000,
+						projectName: 'Project',
+						targetId: 'target',
+					}),
+					installTarget: null,
+				}),
+			);
+		}
 
-	const result = await installInStudioWithDependencies(dragData, {
-		fetchFn,
-		now: () => 1_000_000,
-		ports: [3000],
+		return Promise.resolve(new Response(null, {status: 404}));
+	};
+
+	expect(
+		await installInStudioWithDependencies(elementPayload, {
+			...dependencies,
+			fetchFn,
+		}),
+	).toEqual({
+		success: false,
+		code: 'no-installable-target',
+		message: 'Focus a writable composition in Remotion Studio, then try again.',
+	});
+});
+
+test('returns an actionable result when no Studio is running', async () => {
+	const result = await installInStudioWithDependencies(elementPayload, {
+		...dependencies,
+		fetchFn: () => Promise.resolve(new Response(null, {status: 404})),
 	});
 
 	expect(result).toEqual({
 		success: false,
-		reason:
-			'Focus the Remotion Studio you want to install into, then click again.',
+		code: 'no-compatible-studio',
+		message: 'Start Remotion Studio and open a composition, then try again.',
 	});
 });
 
-test('returns the error from Studio if installation is rejected', async () => {
+test('reports a legacy Studio as requiring an upgrade without sending a payload', async () => {
+	const requests: string[] = [];
 	const fetchFn = (input: string | URL | Request) => {
 		const url = String(input);
-		if (url.endsWith('/api/element-install-target')) {
+		requests.push(url);
+		if (url === 'http://localhost:3000/api/element-install-target') {
 			return Promise.resolve(
-				jsonResponse(target({lastFocusedAt: 950_000, projectName: 'Project'})),
+				jsonResponse({type: 'remotion-studio', canInstall: true}),
+			);
+		}
+
+		return Promise.resolve(new Response(null, {status: 404}));
+	};
+
+	expect(
+		await installInStudioWithDependencies(elementPayload, {
+			...dependencies,
+			fetchFn,
+		}),
+	).toEqual({
+		success: false,
+		code: 'studio-upgrade-required',
+		message:
+			'This Remotion Studio does not support the Remotion Studio Protocol. Upgrade Remotion to 4.0.502 or newer.',
+	});
+	expect(
+		requests.some((url) => url.endsWith('/api/request-element-install')),
+	).toBe(false);
+});
+
+test('returns a structured error when the selected target expired', async () => {
+	const fetchFn = (input: string | URL | Request) => {
+		const url = String(input);
+		if (url.endsWith('/api/studio-protocol')) {
+			return Promise.resolve(
+				jsonResponse(
+					descriptor({
+						compositionId: 'Main',
+						lastFocusedAt: 950_000,
+						projectName: 'Project',
+						targetId: 'expired-target',
+					}),
+				),
 			);
 		}
 
 		return Promise.resolve(
-			jsonResponse({success: false, reason: 'No active composition'}, 409),
+			jsonResponse(
+				{
+					protocol: 'remotion-studio-protocol',
+					protocolVersion: 1,
+					status: 'error',
+					error: {code: 'target-expired', message: 'Target expired'},
+				},
+				409,
+			),
 		);
 	};
 
-	const result = await installInStudioWithDependencies(dragData, {
-		fetchFn,
-		now: () => 1_000_000,
-		ports: [3000],
+	expect(
+		await installInStudioWithDependencies(elementPayload, {
+			...dependencies,
+			ports: [3000],
+			fetchFn,
+		}),
+	).toEqual({
+		success: false,
+		code: 'target-expired',
+		message: 'Target expired',
+	});
+});
+
+test('does not probe Studio from an unsupported origin', async () => {
+	let requests = 0;
+	const result = await installInStudioWithDependencies(elementPayload, {
+		...dependencies,
+		fetchFn: () => {
+			requests++;
+			return Promise.resolve(new Response(null, {status: 404}));
+		},
+		pageOrigin: 'https://example.com',
 	});
 
 	expect(result).toEqual({
 		success: false,
-		reason: 'No active composition',
+		code: 'unsupported-origin',
+		message:
+			'Install in Studio is only supported on remotion.dev and local development origins.',
 	});
+	expect(requests).toBe(0);
 });
