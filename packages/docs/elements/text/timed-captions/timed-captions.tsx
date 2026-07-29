@@ -467,7 +467,6 @@ const TimedCaptionsInner = forwardRef<
 	HTMLDivElement,
 	TimedCaptionsLayerProps & {
 		readonly controls: SequenceControls | undefined;
-		readonly stack?: string;
 	}
 >(
 	(
@@ -478,7 +477,6 @@ const TimedCaptionsInner = forwardRef<
 			height,
 			mode = 'background',
 			name,
-			stack,
 			style,
 			width,
 			...interactiveProps
@@ -508,7 +506,6 @@ const TimedCaptionsInner = forwardRef<
 				{...interactiveProps}
 				controls={controls}
 				name={name ?? '<TimedCaptions>'}
-				stack={stack}
 				style={{
 					height: height ?? '100%',
 					width: width ?? '100%',

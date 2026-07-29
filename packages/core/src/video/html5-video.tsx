@@ -26,7 +26,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			/**
 			 * @deprecated For internal use only
 			 */
-			readonly stack?: string;
+			readonly _remotionInternalStack?: string;
 		}
 > = (props, ref) => {
 	const {
@@ -36,7 +36,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 		trimAfter,
 		name,
 		pauseWhenBuffering,
-		stack,
+		_remotionInternalStack,
 		_remotionInternalNativeLoopPassed,
 		showInTimeline,
 		onAutoPlayError,
@@ -95,7 +95,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				<Html5Video
 					{...propsOtherThanLoop}
 					ref={ref}
-					stack={stack}
+					_remotionInternalStack={_remotionInternalStack}
 					_remotionInternalNativeLoopPassed
 				/>
 			);
@@ -118,7 +118,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 				<Html5Video
 					{...propsOtherThanLoop}
 					ref={ref}
-					stack={stack}
+					_remotionInternalStack={_remotionInternalStack}
 					_remotionInternalNativeLoopPassed
 				/>
 			</Loop>
@@ -146,7 +146,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 					onVideoFrame={onVideoFrame}
 					{...otherProps}
 					ref={ref}
-					stack={stack}
+					_remotionInternalStack={_remotionInternalStack}
 				/>
 			</Sequence>
 		);
@@ -180,7 +180,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 			onVideoFrame={onVideoFrame ?? null}
 			pauseWhenBuffering={shouldPauseWhenBuffering}
 			onDuration={onDuration}
-			_remotionInternalStack={stack ?? null}
+			_remotionInternalStack={_remotionInternalStack ?? null}
 			_remotionInternalNativeLoopPassed={
 				_remotionInternalNativeLoopPassed ?? false
 			}

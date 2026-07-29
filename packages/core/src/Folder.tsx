@@ -35,7 +35,9 @@ export const Folder: FC<{
 	const parent = useContext(FolderContext);
 	const {registerFolder, unregisterFolder} = useContext(CompositionSetters);
 	const nonce = useNonce();
-	const stack = (props as {stack?: string}).stack ?? null;
+	const stack =
+		(props as {readonly _remotionInternalStack?: string})
+			._remotionInternalStack ?? null;
 
 	validateFolderName(name);
 

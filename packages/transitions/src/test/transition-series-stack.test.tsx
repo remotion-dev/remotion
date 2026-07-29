@@ -150,12 +150,16 @@ test('TransitionSeries registers with its own visual mode identity', async () =>
 			dragOverrides={{}}
 		>
 			<TransitionSeries
-				{...({stack: transitionSeriesStack} as {readonly stack: string})}
+				{...({
+					_remotionInternalStack: transitionSeriesStack,
+				} as {readonly _remotionInternalStack: string})}
 			>
 				<TransitionSeries.Sequence
 					durationInFrames={10}
 					trimBefore={4}
-					{...({stack: childSequenceStack} as {readonly stack: string})}
+					{...({
+						_remotionInternalStack: childSequenceStack,
+					} as {readonly _remotionInternalStack: string})}
 				>
 					First
 				</TransitionSeries.Sequence>
@@ -230,7 +234,9 @@ test('TransitionSeries.Transition and Overlay register at their rendered timelin
 				</TransitionSeries.Sequence>
 				<TransitionSeries.Transition
 					timing={linearTiming({durationInFrames: 10})}
-					{...({stack: transitionStack} as {readonly stack: string})}
+					{...({
+						_remotionInternalStack: transitionStack,
+					} as {readonly _remotionInternalStack: string})}
 				/>
 				<TransitionSeries.Sequence durationInFrames={30}>
 					Second
@@ -238,7 +244,9 @@ test('TransitionSeries.Transition and Overlay register at their rendered timelin
 				<TransitionSeries.Overlay
 					durationInFrames={12}
 					offset={2}
-					{...({stack: overlayStack} as {readonly stack: string})}
+					{...({
+						_remotionInternalStack: overlayStack,
+					} as {readonly _remotionInternalStack: string})}
 				>
 					Overlay
 				</TransitionSeries.Overlay>
@@ -325,17 +333,23 @@ test('TransitionSeries.Sequence timing overrides cascade to later sequences', as
 					<TransitionSeries.Sequence
 						durationInFrames={10}
 						trimBefore={2}
-						{...({stack: firstStack} as {readonly stack: string})}
+						{...({
+							_remotionInternalStack: firstStack,
+						} as {readonly _remotionInternalStack: string})}
 					>
 						First
 					</TransitionSeries.Sequence>
 					<TransitionSeries.Transition
 						timing={linearTiming({durationInFrames: 5})}
-						{...({stack: transitionStack} as {readonly stack: string})}
+						{...({
+							_remotionInternalStack: transitionStack,
+						} as {readonly _remotionInternalStack: string})}
 					/>
 					<TransitionSeries.Sequence
 						durationInFrames={20}
-						{...({stack: secondStack} as {readonly stack: string})}
+						{...({
+							_remotionInternalStack: secondStack,
+						} as {readonly _remotionInternalStack: string})}
 					>
 						Second
 					</TransitionSeries.Sequence>

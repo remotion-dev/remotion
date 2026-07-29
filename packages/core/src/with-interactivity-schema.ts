@@ -6,6 +6,10 @@ import type {
 import {deleteNestedKey} from './delete-nested-key.js';
 import {getPropStatusesCtx} from './effects/use-memoized-effects.js';
 import {
+	getStackForControls,
+	setStackForControls,
+} from './enable-sequence-stack-traces.js';
+import {
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
 } from './flatten-schema.js';
@@ -172,11 +176,16 @@ export const withInteractivitySchema = <
 	const flatKeys = Object.keys(flatSchema);
 
 	const Wrapped = forwardRef<unknown, Props>((props, ref) => {
+		const {
+			_remotionInternalStack: internalStack,
+			...propsWithoutInternalStack
+		} = props as Props & {readonly _remotionInternalStack?: string};
+		const cleanProps = propsWithoutInternalStack as Props;
 		const env = useRemotionEnvironment();
 
 		if (!env.isStudio || env.isRendering) {
 			return React.createElement(Component, {
-				...props,
+				...cleanProps,
 				controls: null,
 				ref,
 			} as Props & {
@@ -196,9 +205,15 @@ export const withInteractivitySchema = <
 
 		// If the parent has passed `controls`, we should not override it.
 		// @ts-expect-error
-		if (props.controls) {
+		if (cleanProps.controls) {
+			// @ts-expect-error `controls` is injected by another interactive wrapper.
+			const passedControls = cleanProps.controls as SequenceControls;
+			if (getStackForControls(passedControls) === null) {
+				setStackForControls(passedControls, internalStack);
+			}
+
 			return React.createElement(Component, {
-				...props,
+				...cleanProps,
 				ref,
 			} as unknown as Props & {
 				controls: SequenceControls | undefined;
@@ -208,18 +223,17 @@ export const withInteractivitySchema = <
 
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const [overrideId] = useState(() => {
-			const {stack} = props as {stack?: string};
-			if (!stack) {
+			if (!internalStack) {
 				return String(Math.random());
 			}
 
-			const existingOverrideId = stackToOverrideMap[stack];
+			const existingOverrideId = stackToOverrideMap[internalStack];
 			if (existingOverrideId) {
 				return existingOverrideId;
 			}
 
 			const newOverrideId = String(Math.random());
-			stackToOverrideMap[stack] = newOverrideId;
+			stackToOverrideMap[internalStack] = newOverrideId;
 			return newOverrideId;
 		});
 		const nodePath = env.isReadOnlyStudio
@@ -234,14 +248,14 @@ export const withInteractivitySchema = <
 			getRuntimeValueForSchemaKey({
 				flatSchema,
 				key,
-				props: props as Record<string, unknown>,
+				props: cleanProps as Record<string, unknown>,
 			}),
 		);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const currentRuntimeValueDotNotation = useMemo(
 			() =>
 				readValuesFromProps(
-					props as Record<string, unknown>,
+					cleanProps as Record<string, unknown>,
 					flatKeys,
 					flatSchema,
 				),
@@ -260,6 +274,7 @@ export const withInteractivitySchema = <
 				componentName,
 			};
 		}, [currentRuntimeValueDotNotation, overrideId]);
+		setStackForControls(controls, internalStack);
 
 		// 3. Apply drag/code overrides on top of the runtime values.
 		// eslint-disable-next-line react-hooks/rules-of-hooks
@@ -291,7 +306,7 @@ export const withInteractivitySchema = <
 		// 5. Apply the active values back onto the props.
 		const mergedProps = mergeValues({
 			flatSchema,
-			props: props as Record<string, unknown>,
+			props: cleanProps as Record<string, unknown>,
 			valuesDotNotation,
 			schemaKeys: activeKeys,
 			propsToDelete,

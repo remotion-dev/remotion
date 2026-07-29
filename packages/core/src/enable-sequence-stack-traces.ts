@@ -1,7 +1,11 @@
 import React from 'react';
+import type {SequenceControls} from './CompositionManager.js';
 
 const componentsToAddStacksTo: unknown[] = [];
 let sequenceComponent: unknown = null;
+const stacksByControls = new WeakMap<SequenceControls, string>();
+
+export const REMOTION_INTERNAL_STACK_PROP = '_remotionInternalStack';
 
 export const getComponentsToAddStacksTo = () => componentsToAddStacksTo;
 
@@ -14,6 +18,24 @@ export const setSequenceComponent = (component: unknown) => {
 };
 
 export const getSequenceComponent = () => sequenceComponent;
+
+export const setStackForControls = (
+	controls: SequenceControls,
+	stack: string | undefined,
+) => {
+	if (stack === undefined) {
+		stacksByControls.delete(controls);
+		return;
+	}
+
+	stacksByControls.set(controls, stack);
+};
+
+export const getStackForControls = (
+	controls: SequenceControls,
+): string | null => {
+	return stacksByControls.get(controls) ?? null;
+};
 
 export const getSingleChildComponent = (children: React.ReactNode): unknown => {
 	const mountedChildren = React.Children.toArray(children);
