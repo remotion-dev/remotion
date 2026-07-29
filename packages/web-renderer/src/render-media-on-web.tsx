@@ -343,7 +343,10 @@ const internalRenderMediaOnWeb = async <
 		htmlInCanvasContext,
 	} = scaffold;
 
-	using internalState = makeInternalState();
+	using internalState = makeInternalState({
+		signal,
+		maskImageTimeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
+	});
 	const pageResponsivenessController = createPageResponsivenessController({
 		intervalInMilliseconds: pageResponsivenessIntervalInMilliseconds,
 		now: () => performance.now(),
