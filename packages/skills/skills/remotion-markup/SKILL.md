@@ -94,7 +94,10 @@ export const MyComposition = () => {
     <>
       <Video src={staticFile("video.mp4")} style={{ opacity: 0.5 }} />
       <Audio src={staticFile("audio.mp3")} />
-      <CanvasImage src={staticFile("logo.png")} style={{ width: 100, height: 100 }} />
+      <CanvasImage
+        src={staticFile("logo.png")}
+        style={{ width: 100, height: 100 }}
+      />
       <Video src="https://remotion.media/video.mp4" />
       <AnimatedImage src={staticFile('nyancat.gif')} />
     </>
@@ -121,7 +124,12 @@ export const Empty = () => {
   return (
     <AbsoluteFill
       name="Scene"
-      style={{display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: 'white'}}
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'white'
+      }}
     >
       <Interactive.Div
         name="Title"
@@ -183,8 +191,11 @@ For media, pass the natural duration of the media: `<Video durationInFrames={29.
 Useful for components whose internal clock should start later:
 
 ```tsx
-<Video trimBefore={2 * fps} {/* ... */} /> // Trim away first 2 seconds of footage
-<Sequence trimBefore={10 * fps} {/* ... */} /> // `useCurrenFrame()` for children starts at `10 * fps`
+// Trim away first 2 seconds of footage
+<Video trimBefore={2 * fps} {/* ... */} />
+
+// `useCurrenFrame()` for children starts at `10 * fps`
+<Sequence trimBefore={10 * fps} {/* ... */} />
 ```
 
 ### Fallback

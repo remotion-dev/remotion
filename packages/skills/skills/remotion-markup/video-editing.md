@@ -10,11 +10,35 @@ Keep every editable clip as its own authored JSX node. Do not generate editable 
 Place every `<Video>` directly in the composition and hardcode its timing props. `from={0}` may be omitted:
 
 ```tsx
-<Video src="https://remotion.media/video.mp4" trimBefore={0} durationInFrames={78} />
-<Video src="https://remotion.media/video.webm" trimBefore={12} from={78} durationInFrames={66} />
-<Video src="https://remotion.media/video.mp4" trimBefore={72} from={144} durationInFrames={90} />
-<Video src="https://remotion.media/video.webm" trimBefore={58} from={234} durationInFrames={72} />
-<Video src="https://remotion.media/video.mp4" trimBefore={180} from={306} durationInFrames={60} />
+<Video
+  src="https://remotion.media/video.mp4"
+  trimBefore={0}
+  durationInFrames={78}
+/>
+<Video
+  src="https://remotion.media/video.webm"
+  trimBefore={12}
+  from={78}
+  durationInFrames={66}
+/>
+<Video
+  src="https://remotion.media/video.mp4"
+  trimBefore={72}
+  from={144}
+  durationInFrames={90}
+/>
+<Video
+  src="https://remotion.media/video.webm"
+  trimBefore={58}
+  from={234}
+  durationInFrames={72}
+/>
+<Video
+  src="https://remotion.media/video.mp4"
+  trimBefore={180}
+  from={306}
+  durationInFrames={60}
+/>
 ```
 
 - `from` is the clip's absolute start frame in its parent timeline.

@@ -24,7 +24,10 @@ Effects are functions passed to the `effects` prop of canvas-based components su
 import {Video} from '@remotion/media';
 import {blur} from '@remotion/effects/blur';
 
-<Video src="https://remotion.media/video.mp4" effects={[blur({radius: 8})]} />;
+<Video
+  src="https://remotion.media/video.mp4"
+  effects={[blur({radius: 8})]}
+/>;
 ```
 
 Use the effect docs for exact props and imports. Most `@remotion/effects` imports use `@remotion/effects/<effect-slug>`; `uvTranslate()` and `xyTranslate()` use `@remotion/effects/translate`.
@@ -46,7 +49,10 @@ Example:
 ```tsx
 import {brightness} from "@remotion/effects";
 
-<Video src="https://remotion.media/video.mp4" effects={[brightness({})]} />;
+<Video
+  src="https://remotion.media/video.mp4"
+  effects={[brightness({})]}
+/>;
 ```
 
 ## Custom effects
