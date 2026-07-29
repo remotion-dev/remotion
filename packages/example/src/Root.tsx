@@ -103,6 +103,10 @@ import {ManyAudio} from './ManyAudio';
 import {HandleAudioRenderError} from './MediaErrorHandling/HandleAudioRenderError';
 import {InfiniteAudio} from './MediaErrorHandling/InfiniteAudio';
 import {MissingImg} from './MissingImg';
+import {ClosingScene} from './MultiSceneSample/ClosingScene';
+import {FeatureScene} from './MultiSceneSample/FeatureScene';
+import {MultiSceneVideo} from './MultiSceneSample/MultiSceneVideo';
+import {OpeningScene} from './MultiSceneSample/OpeningScene';
 import {OffthreadRemoteVideo} from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OffthreadVideoToCanvas} from './OffthreadVideoToCanvas';
 import {OrbScene} from './Orb';
@@ -2541,6 +2545,40 @@ export const Index: React.FC = () => {
 				height={1080}
 				fps={30}
 				durationInFrames={900}
+			/>
+			<Folder name="MultiSceneSample-Scenes">
+				<Composition
+					id="MultiSceneSample-Opening"
+					component={OpeningScene}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="MultiSceneSample-Feature"
+					component={FeatureScene}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="MultiSceneSample-Closing"
+					component={ClosingScene}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+			</Folder>
+			<Composition
+				id="MultiSceneSample"
+				component={MultiSceneVideo}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={270}
 			/>
 			<Composition
 				id="spring-season"
