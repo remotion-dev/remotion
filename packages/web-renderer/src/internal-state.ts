@@ -1,3 +1,5 @@
+import {makeMaskImageLoaderState} from './drawing/mask-image-loader';
+
 type HelperCanvas = {
 	canvas: OffscreenCanvas;
 	gl: WebGLRenderingContext;
@@ -17,7 +19,13 @@ export type HelperCanvasState = {
 	current: HelperCanvas | null;
 };
 
-export const makeInternalState = () => {
+export const makeInternalState = ({
+	signal = null,
+	maskImageTimeoutInMilliseconds = 30_000,
+}: {
+	signal?: AbortSignal | null;
+	maskImageTimeoutInMilliseconds?: number;
+} = {}) => {
 	let drawnPrecomposedPixels = 0;
 	let precomposedTextures = 0;
 
@@ -29,6 +37,10 @@ export const makeInternalState = () => {
 	const helperCanvasState: HelperCanvasState = {
 		current: null,
 	};
+	const maskImageLoaderState = makeMaskImageLoaderState({
+		signal,
+		timeoutInMilliseconds: maskImageTimeoutInMilliseconds,
+	});
 
 	return {
 		getDrawn3dPixels: () => drawnPrecomposedPixels,
@@ -44,10 +56,13 @@ export const makeInternalState = () => {
 			precomposedTextures++;
 		},
 		helperCanvasState,
+		maskImageLoaderState,
 		[Symbol.dispose]: () => {
 			if (helperCanvasState.current) {
 				helperCanvasState.current.cleanup();
 			}
+
+			maskImageLoaderState[Symbol.dispose]();
 		},
 		getWaitForReadyTime: () => waitForReadyTime,
 		addWaitForReadyTime: (time: number) => {

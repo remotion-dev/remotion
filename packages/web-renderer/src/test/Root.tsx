@@ -45,6 +45,7 @@ import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
 import {maskImage} from './fixtures/mask-image';
+import {maskImageUrl} from './fixtures/mask-image-url';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
 import {nestedHtmlInCanvas} from './fixtures/nested-html-in-canvas';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
@@ -147,6 +148,7 @@ export const Root: React.FC = () => {
 			<Composition {...backgroundColor} />
 			<Folder name="linear-gradient">
 				<Composition {...maskImage} />
+				<Composition {...maskImageUrl} />
 				<Composition {...backfaceVisibilityMask} />
 				<Composition {...linearGradient} />
 				<Composition {...gradientTransparentKeyword} />

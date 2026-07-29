@@ -158,12 +158,13 @@ export const processNode = async ({
 		);
 
 		if (precompositing.needsMaskImage) {
-			handleMask({
-				gradientInfo: precompositing.needsMaskImage,
+			await handleMask({
+				maskImageInfo: precompositing.needsMaskImage,
 				maskRect: dimensions,
 				precomposeRect,
 				tempContext,
 				scale,
+				internalState,
 			});
 			if (waitForPageResponsiveness !== null) {
 				await waitForPageResponsiveness();
