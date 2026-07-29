@@ -119,7 +119,7 @@ export const Empty = () => {
   const frame = useCurrentFrame();
 
   return (
-    <AbsoluteFill style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+    <AbsoluteFill name="Container" style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
       <Interactive.Div
         name="Title"
         style={{
