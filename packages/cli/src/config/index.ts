@@ -219,9 +219,13 @@ declare global {
 		 */
 		readonly setAllowHtmlInCanvasEnabled: (enabled: boolean) => void;
 		/**
-		 * Enable experimental Rspack bundler instead of Webpack.
+		 * Enable the Rspack bundler instead of Webpack.
 		 * @param enabled Boolean whether to enable the Rspack bundler
 		 * @default false
+		 */
+		readonly setRspack: (enabled: boolean) => void;
+		/**
+		 * @deprecated Use `setRspack()` instead: https://www.remotion.dev/docs/config#setrspack
 		 */
 		readonly setExperimentalRspackEnabled: (enabled: boolean) => void;
 		/**
@@ -738,6 +742,7 @@ export const Config: FlatConfig = {
 	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
 	setInteractivityEnabled: interactivityOption.setConfig,
 	setAllowHtmlInCanvasEnabled,
+	setRspack: rspackOption.setConfig,
 	setExperimentalRspackEnabled: rspackOption.setConfig,
 	setNumberOfSharedAudioTags: numberOfSharedAudioTagsOption.setConfig,
 	setWebpackPollingInMilliseconds: webpackPollOption.setConfig,
