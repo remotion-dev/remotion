@@ -60,6 +60,8 @@ import {AbsoluteFill, Sequence} from 'remotion';
 export const Example: React.FC = () => {
 	return <AbsoluteFill><Sequence name="Hook" durationInFrames={150}><HeroScene /></Sequence><Sequence name="Create" from={150} durationInFrames={150}><CreateScene /></Sequence></AbsoluteFill>;
 };
+
+export const Fallback = () => <><Sequence name="First" /><Sequence name="Fallback" from={300} /></>;
 `;
 	const remotionRoot = mkdtempSync(
 		path.join(tmpdir(), 'remotion-jsx-location-'),
@@ -68,10 +70,13 @@ export const Example: React.FC = () => {
 	writeFileSync(path.join(remotionRoot, fileName), input);
 
 	try {
-		const getStatus = (search: string) =>
-			computeSequencePropsStatusFromFilenameByLocation({
+		const getStatus = (search: string, columnOffset = 0) => {
+			const location = getSourceLocation(input, search);
+
+			return computeSequencePropsStatusFromFilenameByLocation({
 				fileName,
-				...getSourceLocation(input, search),
+				line: location.line,
+				column: location.column + columnOffset,
 				componentIdentity: 'dev.remotion.remotion.Sequence',
 				keys: ['name', 'from'],
 				effects: [],
@@ -79,6 +84,7 @@ export const Example: React.FC = () => {
 				logLevel: 'info',
 				videoConfigValues,
 			});
+		};
 
 		const hook = getStatus('<Sequence name="Hook"');
 		expect(hook.success).toBe(true);
@@ -106,6 +112,17 @@ export const Example: React.FC = () => {
 		expect(child).toEqual({
 			success: false,
 			status: {canUpdate: false, reason: 'not-found'},
+		});
+
+		const fallback = getStatus('<Sequence name="Fallback"', 1);
+		expect(fallback.success).toBe(true);
+		if (!fallback.success) {
+			throw new Error('Expected the line fallback to find the last sequence');
+		}
+
+		expect(fallback.status.props).toMatchObject({
+			name: {status: 'static', codeValue: 'Fallback'},
+			from: {status: 'static', codeValue: 300},
 		});
 	} finally {
 		rmSync(remotionRoot, {recursive: true, force: true});

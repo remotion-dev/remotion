@@ -968,15 +968,11 @@ export const lineColumnToNodePath = (
 		},
 	});
 
-	if (targetColumn === undefined) {
-		return lineMatches.at(-1) ?? null;
-	}
-
 	if (exactMatches.length === 1) {
 		return exactMatches[0];
 	}
 
-	return lineMatches.length === 1 ? lineMatches[0] : null;
+	return lineMatches.at(-1) ?? null;
 };
 
 const PIXEL_VALUE_REGEX = /^-?\d+(\.\d+)?px$/;
