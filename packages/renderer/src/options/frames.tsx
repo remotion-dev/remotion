@@ -1,12 +1,15 @@
-import type {FrameRange} from '../frame-range';
+import type {FrameRangeTuple, FrameSelection} from '../frame-range';
 import {validateFrameRange} from '../frame-range';
+import {validateSelectedFrames} from '../validate-selected-frames';
 import type {AnyRemotionOption} from './option';
 
 const cliFlag = 'frames' as const;
 
-let frameRange: FrameRange | null = null;
+let frameSelection: FrameSelection = null;
 
-const parseFrameRangeFromCli = (newFrameRange: string | number): FrameRange => {
+const parseFrameRangeFromCli = (
+	newFrameRange: string | number,
+): Exclude<FrameSelection, null> => {
 	if (typeof newFrameRange === 'number') {
 		if (newFrameRange < 0) {
 			return [0, Math.abs(newFrameRange)];
@@ -22,6 +25,48 @@ const parseFrameRangeFromCli = (newFrameRange: string | number): FrameRange => {
 			);
 		}
 
+		if (newFrameRange.includes(',')) {
+			const selectors = newFrameRange
+				.split(',')
+				.map((selector) => selector.trim());
+			if (selectors.some((selector) => selector === '')) {
+				throw new TypeError(
+					'--frames must contain a frame or frame range between commas.',
+				);
+			}
+
+			const onlyFrames = selectors.every((selector) => !selector.includes('-'));
+			if (onlyFrames) {
+				const frames = validateSelectedFrames({
+					frames: selectors.map((frame) => Number(frame)),
+					durationInFrames: null,
+				});
+
+				return {type: 'frames', frames};
+			}
+
+			const ranges = selectors.map((selector): FrameRangeTuple => {
+				if (!selector.includes('-')) {
+					const frame = Number(selector);
+					return [frame, frame];
+				}
+
+				const rangeParts = selector.split('-');
+				if (rangeParts.length !== 2 || rangeParts[0] === '') {
+					throw new Error(
+						`Invalid frame selector "${selector}". Use a frame number, a range such as 0-9, or an open-ended range such as 100-.`,
+					);
+				}
+
+				const start = Number(rangeParts[0]);
+				const end = rangeParts[1] === '' ? null : Number(rangeParts[1]);
+				return [start, end];
+			});
+
+			validateFrameRange(ranges);
+			return ranges;
+		}
+
 		const parts = newFrameRange.split('-');
 		if (parts.length > 2 || parts.length <= 0) {
 			throw new Error(
@@ -33,7 +78,7 @@ const parseFrameRangeFromCli = (newFrameRange: string | number): FrameRange => {
 			const value = Number(parts[0]);
 			if (isNaN(value)) {
 				throw new Error(
-					'--frames flag must be a single number, or 2 numbers separated by `-`',
+					'--frames flag must be a frame number, range, or comma-separated selection',
 				);
 			}
 
@@ -46,7 +91,7 @@ const parseFrameRangeFromCli = (newFrameRange: string | number): FrameRange => {
 			const start = Number(firstPart);
 			if (isNaN(start)) {
 				throw new Error(
-					'--frames flag must be a single number, or 2 numbers separated by `-`',
+					'--frames flag must be a frame number, range, or comma-separated selection',
 				);
 			}
 
@@ -59,7 +104,7 @@ const parseFrameRangeFromCli = (newFrameRange: string | number): FrameRange => {
 		for (const value of parsed) {
 			if (isNaN(value)) {
 				throw new Error(
-					'--frames flag must be a single number, or 2 numbers separated by `-`',
+					'--frames flag must be a frame number, range, or comma-separated selection',
 				);
 			}
 		}
@@ -90,13 +135,21 @@ export const framesOption = {
 	),
 	ssrName: 'frameRange' as const,
 	docLink: 'https://www.remotion.dev/docs/config#setframerange',
-	type: null as FrameRange | null,
+	type: null as FrameSelection,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			const value = parseFrameRangeFromCli(
 				commandLine[cliFlag] as string | number,
 			);
-			validateFrameRange(value);
+			if (typeof value === 'object' && !Array.isArray(value)) {
+				validateSelectedFrames({
+					frames: value.frames,
+					durationInFrames: null,
+				});
+			} else {
+				validateFrameRange(value);
+			}
+
 			return {
 				source: 'cli',
 				value,
@@ -105,15 +158,17 @@ export const framesOption = {
 
 		return {
 			source: 'config',
-			value: frameRange,
+			value: frameSelection,
 		};
 	},
-	setConfig: (value: FrameRange | null) => {
-		if (value !== null) {
+	setConfig: (value: FrameSelection) => {
+		if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+			validateSelectedFrames({frames: value.frames, durationInFrames: null});
+		} else if (value !== null) {
 			validateFrameRange(value);
 		}
 
-		frameRange = value;
+		frameSelection = value;
 	},
 	id: cliFlag,
-} satisfies AnyRemotionOption<FrameRange | null>;
+} satisfies AnyRemotionOption<FrameSelection>;

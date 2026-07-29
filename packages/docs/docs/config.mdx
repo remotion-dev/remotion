@@ -565,6 +565,17 @@ Config.setFrameRange([100, null]); // Render from frame 100 to the end of the co
 
 Pass `[number, null]` to render from a frame to the end of the composition.<AvailableFrom v="4.0.421" inline />
 
+Pass multiple ordered, non-overlapping ranges to render discontinuous sections.<AvailableFrom v="4.0.502" inline />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setFrameRange([
+  [0, 100],
+  [150, 200],
+]);
+```
+
 The [command line flag](/docs/cli/render#--frames) `--frames` will take precedence over this option.
 
 ## `setJpegQuality()`

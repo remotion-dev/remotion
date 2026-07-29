@@ -32,7 +32,7 @@ import {
 	makeFileExtensionMap,
 } from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
-import {getRealFrameRange} from './get-frame-to-render';
+import {getRealFrameRange, getRealFrameRanges} from './get-frame-to-render';
 import {getDesiredPort} from './get-port';
 import {
 	DEFAULT_STILL_IMAGE_FORMAT,
@@ -70,6 +70,7 @@ import {
 	validateConcurrency,
 } from './validate-concurrency';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
+import {validateSelectedFrames} from './validate-selected-frames';
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 export type {Bitrate} from './bitrate';
 export {Browser} from './browser';
@@ -89,7 +90,14 @@ export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception'
 export {extractAudio} from './extract-audio';
 export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FileExtension} from './file-extensions';
-export {FrameRange} from './frame-range';
+export {
+	FrameRange,
+	FrameRangeTuple,
+	FrameSelection,
+	OpenEndedFrameRange,
+	ResolvedFrameRange,
+	SingleFrameRange,
+} from './frame-range';
 export {
 	GetCompositionsOptions,
 	getCompositions,
@@ -185,6 +193,7 @@ export const RenderInternals = {
 	isServeUrl,
 	ensureOutputDirectory,
 	getRealFrameRange,
+	getRealFrameRanges,
 	validatePuppeteerTimeout,
 	downloadFile,
 	parseStack,
@@ -207,6 +216,7 @@ export const RenderInternals = {
 	validPixelFormats,
 	DEFAULT_BROWSER,
 	validateFrameRange,
+	validateSelectedFrames,
 	DEFAULT_OPENGL_RENDERER,
 	validateOpenGlRenderer,
 	validCodecs,

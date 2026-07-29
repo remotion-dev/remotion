@@ -2,7 +2,7 @@ import fs from 'fs';
 import type {
 	AudioCodec,
 	CombineChunksOnProgress,
-	FrameRange,
+	SingleFrameRange,
 	LogLevel,
 } from '@remotion/renderer';
 import type {DownloadBehavior} from '@remotion/serverless-client';
@@ -57,7 +57,7 @@ export const mergeChunksAndFinishRender = async <
 	insideFunctionSpecifics: InsideFunctionSpecifics<Provider>;
 	forcePathStyle: boolean;
 	everyNthFrame: number;
-	frameRange: FrameRange | null;
+	frameRange: SingleFrameRange | null;
 	storageClass: Provider['storageClass'] | null;
 	requestHandler: Provider['requestHandler'] | null;
 	sampleRate: number;
