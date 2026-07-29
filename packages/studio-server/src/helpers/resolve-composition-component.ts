@@ -361,9 +361,6 @@ const findReExportTargets = ({
 	recast.types.visit(ast, {
 		visitExportNamedDeclaration(astPath) {
 			const node = astPath.node as ExportNamedDeclaration;
-			if (typeof node.source?.value !== 'string') {
-				return false;
-			}
 
 			for (const specifier of node.specifiers) {
 				if (specifier.type !== 'ExportSpecifier') {
@@ -377,6 +374,18 @@ const findReExportTargets = ({
 
 				const localName = getSpecifierLocalName(specifier);
 				if (!localName) {
+					continue;
+				}
+
+				if (typeof node.source?.value !== 'string') {
+					const importTarget = findImportTarget({
+						ast,
+						componentName: localName,
+					});
+					if (importTarget) {
+						targets.push(importTarget);
+					}
+
 					continue;
 				}
 
@@ -479,7 +488,7 @@ const findLocalSymbolLocation = ({
 
 			const {node} = astPath;
 			if (node.id?.name === name) {
-				location = locationFromNode(node);
+				location = locationFromNode(node) ?? locationFromNode(node.id);
 				return false;
 			}
 
@@ -493,7 +502,7 @@ const findLocalSymbolLocation = ({
 
 			const {node} = astPath;
 			if (node.id?.name === name) {
-				location = locationFromNode(node);
+				location = locationFromNode(node) ?? locationFromNode(node.id);
 				return false;
 			}
 
