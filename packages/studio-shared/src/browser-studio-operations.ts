@@ -12,8 +12,11 @@ import type {
 	RenameStaticFileResponse,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
+	SubscribeToSequencePropsRequest,
+	SubscribeToSequencePropsResponse,
 	UndoResponse,
 	UnsubscribeFromDefaultPropsRequest,
+	UnsubscribeFromSequencePropsRequest,
 } from './api-requests';
 import type {EventSourceEvent} from './event-source-event';
 
@@ -46,10 +49,16 @@ export type BrowserStudioOperations = {
 	subscribeToDefaultProps: (
 		request: SubscribeToDefaultPropsRequest,
 	) => Promise<SubscribeToDefaultPropsResponse>;
+	subscribeToSequenceProps: (
+		request: SubscribeToSequencePropsRequest,
+	) => Promise<SubscribeToSequencePropsResponse>;
 	subscribeToEvent: (listener: (event: EventSourceEvent) => void) => () => void;
 	undo: () => Promise<UndoResponse>;
 	unsubscribeFromDefaultProps: (
 		request: UnsubscribeFromDefaultPropsRequest,
+	) => Promise<undefined>;
+	unsubscribeFromSequenceProps: (
+		request: UnsubscribeFromSequencePropsRequest,
 	) => Promise<undefined>;
 	writeStaticFile: (request: WriteStaticFileRequest) => Promise<void>;
 };

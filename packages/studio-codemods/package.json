@@ -25,7 +25,11 @@
 	},
 	"dependencies": {
 		"@babel/parser": "7.24.1",
-		"@remotion/studio-shared": "workspace:*"
+		"@babel/types": "7.24.0",
+		"@remotion/studio-shared": "workspace:*",
+		"ast-types": "0.16.1",
+		"recast": "0.23.11",
+		"remotion": "workspace:*"
 	},
 	"exports": {
 		".": {
