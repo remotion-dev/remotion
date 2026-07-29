@@ -204,6 +204,7 @@ export type ModalState =
 			invocationTimestamp: number;
 			assetSelection: {
 				initialQuery: string;
+				onSelectFile: () => void;
 				onSelected: (asset: StaticFile) => void;
 			} | null;
 			compositionSelection: {

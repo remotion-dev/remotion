@@ -1,6 +1,7 @@
 import React, {createContext, useCallback, useContext, useMemo} from 'react';
-import type {CanUpdateSequencePropStatusStatic} from 'remotion';
+import {staticFile, type CanUpdateSequencePropStatusStatic} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {writeStaticFile} from '../../api/write-static-file';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -8,11 +9,14 @@ import type {
 } from '../../helpers/timeline-layout';
 import {PenIcon} from '../../icons/pen';
 import {ModalsContext} from '../../state/modals';
+import {pickFilesToImport} from '../import-assets';
 import {InlineAction} from '../InlineAction';
 import {
 	InspectorInlineAction,
 	type InspectorInlineActionProps,
 } from '../InspectorPanel/common';
+import {showNotification} from '../Notifications/NotificationCenter';
+import {useStaticFiles} from '../use-static-files';
 
 const penIcon: React.CSSProperties = {
 	display: 'block',
@@ -63,6 +67,7 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 	}
 
 	const {setSelectedModal} = useContext(ModalsContext);
+	const staticFiles = useStaticFiles();
 	const {getSourceAction, initialQuery, sourceAction} = useContext(
 		AssetSelectionContext,
 	);
@@ -91,6 +96,45 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 		[propStatus.codeValue, onDragValueChange, onSave, onDragEnd],
 	);
 
+	const selectFile = useCallback(async () => {
+		const [file] = await pickFilesToImport({multiple: false});
+		if (!file) {
+			return;
+		}
+
+		const existing = staticFiles.find(
+			(candidate) => candidate.name === file.name,
+		);
+		if (existing && existing.sizeInBytes !== file.size) {
+			showNotification(
+				`File with name ${file.name} already exists and is different`,
+				4000,
+			);
+			return;
+		}
+
+		try {
+			if (!existing) {
+				await writeStaticFile({
+					contents: await file.arrayBuffer(),
+					filePath: file.name,
+				});
+			}
+
+			onSelect(file.name, staticFile(file.name));
+			if (!existing) {
+				showNotification(`Created ${file.name} in public folder`, 3000);
+			}
+		} catch (error) {
+			showNotification(
+				`Could not upload asset: ${
+					error instanceof Error ? error.message : String(error)
+				}`,
+				4000,
+			);
+		}
+	}, [onSelect, staticFiles]);
+
 	const openAssetSelection = useCallback(() => {
 		setSelectedModal({
 			type: 'quick-switcher',
@@ -98,11 +142,14 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 			invocationTimestamp: Date.now(),
 			assetSelection: {
 				initialQuery,
+				onSelectFile: () => {
+					selectFile().catch(() => undefined);
+				},
 				onSelected: (asset) => onSelect(asset.name, asset.src),
 			},
 			compositionSelection: null,
 		});
-	}, [initialQuery, onSelect, setSelectedModal]);
+	}, [initialQuery, onSelect, selectFile, setSelectedModal]);
 
 	const action = (
 		<InlineAction

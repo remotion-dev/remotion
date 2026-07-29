@@ -93,6 +93,11 @@ export const FileAvailable: React.FC<{
 							dimensions={probeResult.dimensions}
 							durationInSeconds={probeResult.durationInSeconds}
 							fps={probeResult.fps}
+							rotation={actualUserRotation}
+							mirrorHorizontal={
+								flipHorizontal && enableRotateOrMirrow === 'mirror'
+							}
+							mirrorVertical={flipVertical && enableRotateOrMirrow === 'mirror'}
 							onPlaybackTimeChange={setPlaybackTime}
 						/>
 						<div className="h-8" />

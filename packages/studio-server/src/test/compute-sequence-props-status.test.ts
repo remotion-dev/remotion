@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
-import {readFileSync} from 'node:fs';
+import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
 import {parseAst} from '../codemods/parse-ast';
@@ -7,6 +8,7 @@ import {JsxElementIdentityMismatchError} from '../preview-server/jsx-component-i
 import {
 	computeSequencePropsStatus,
 	computeSequencePropsStatusFromContent,
+	computeSequencePropsStatusFromFilenameByLocation,
 	lineColumnToNodePath,
 } from '../preview-server/routes/can-update-sequence-props';
 
@@ -37,6 +39,95 @@ const videoConfigValues = {
 	height: 1080,
 	width: 1920,
 };
+
+const getSourceLocation = (source: string, search: string) => {
+	const index = source.indexOf(search);
+	if (index === -1) {
+		throw new Error(`Could not find ${search}`);
+	}
+
+	const linesBeforeMatch = source.slice(0, index).split('\n');
+	return {
+		line: linesBeforeMatch.length,
+		column: linesBeforeMatch.at(-1)?.length ?? 0,
+	};
+};
+
+test('computeSequencePropsStatus should distinguish JSX elements on the same line', () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, Sequence} from 'remotion';
+
+export const Example: React.FC = () => {
+	return <AbsoluteFill><Sequence name="Hook" durationInFrames={150}><HeroScene /></Sequence><Sequence name="Create" from={150} durationInFrames={150}><CreateScene /></Sequence></AbsoluteFill>;
+};
+
+export const Fallback = () => <><Sequence name="First" /><Sequence name="Fallback" from={300} /></>;
+`;
+	const remotionRoot = mkdtempSync(
+		path.join(tmpdir(), 'remotion-jsx-location-'),
+	);
+	const fileName = 'Example.tsx';
+	writeFileSync(path.join(remotionRoot, fileName), input);
+
+	try {
+		const getStatus = (search: string, columnOffset = 0) => {
+			const location = getSourceLocation(input, search);
+
+			return computeSequencePropsStatusFromFilenameByLocation({
+				fileName,
+				line: location.line,
+				column: location.column + columnOffset,
+				componentIdentity: 'dev.remotion.remotion.Sequence',
+				keys: ['name', 'from'],
+				effects: [],
+				remotionRoot,
+				logLevel: 'info',
+				videoConfigValues,
+			});
+		};
+
+		const hook = getStatus('<Sequence name="Hook"');
+		expect(hook.success).toBe(true);
+		if (!hook.success) {
+			throw new Error('Expected the Hook sequence to be found');
+		}
+
+		expect(hook.status.props.name).toEqual({
+			status: 'static',
+			codeValue: 'Hook',
+		});
+
+		const create = getStatus('<Sequence name="Create"');
+		expect(create.success).toBe(true);
+		if (!create.success) {
+			throw new Error('Expected the Create sequence to be found');
+		}
+
+		expect(create.status.props).toMatchObject({
+			name: {status: 'static', codeValue: 'Create'},
+			from: {status: 'static', codeValue: 150},
+		});
+
+		const child = getStatus('<HeroScene');
+		expect(child).toEqual({
+			success: false,
+			status: {canUpdate: false, reason: 'not-found'},
+		});
+
+		const fallback = getStatus('<Sequence name="Fallback"', 1);
+		expect(fallback.success).toBe(true);
+		if (!fallback.success) {
+			throw new Error('Expected the line fallback to find the last sequence');
+		}
+
+		expect(fallback.status.props).toMatchObject({
+			name: {status: 'static', codeValue: 'Fallback'},
+			from: {status: 'static', codeValue: 300},
+		});
+	} finally {
+		rmSync(remotionRoot, {recursive: true, force: true});
+	}
+});
 
 test('computeSequencePropsStatus should treat staticFile() asset props as static', () => {
 	const input = `import {Img, staticFile} from 'remotion';

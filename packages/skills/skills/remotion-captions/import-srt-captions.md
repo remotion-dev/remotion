@@ -58,7 +58,11 @@ export const MyComponent: React.FC = () => {
     return null;
   }
 
-  return <AbsoluteFill>{/* Use captions here */}</AbsoluteFill>;
+  return (
+    <AbsoluteFill>
+      {/* Use captions here */}
+    </AbsoluteFill>
+  );
 };
 ```
 
