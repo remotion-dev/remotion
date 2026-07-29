@@ -1,17 +1,7 @@
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useRef,
-	useState,
-} from 'react';
+import React, {useCallback, useContext, useState} from 'react';
 import {Internals} from 'remotion';
 import {checkFullscreenSupport} from '../helpers/check-fullscreen-support';
-import {
-	BACKGROUND,
-	BACKGROUND__TRANSPARENT,
-	BORDER_BLACK_ALPHA_50,
-} from '../helpers/colors';
+import {BACKGROUND, BORDER_BLACK_ALPHA_50} from '../helpers/colors';
 import {
 	useIsStill,
 	useIsVideoComposition,
@@ -30,6 +20,7 @@ import {PlaybackKeyboardShortcutsManager} from './PlaybackKeyboardShortcutsManag
 import {PlaybackRatePersistor} from './PlaybackRatePersistor';
 import {PlaybackRateSelector} from './PlaybackRateSelector';
 import {PlayPause} from './PlayPause';
+import {PreviewToolbarOverflowButton} from './PreviewToolbarOverflowButton';
 import {RenderButton} from './RenderButton';
 import {SizeSelector} from './SizeSelector';
 import {SnappingToggle} from './SnappingToggle';
@@ -40,6 +31,7 @@ const TOOLBAR_HEIGHT = 40;
 
 const container: React.CSSProperties = {
 	display: 'flex',
+	position: 'relative',
 	justifyContent: 'center',
 	borderTop: BORDER_BLACK_ALPHA_50,
 	alignItems: 'center',
@@ -48,32 +40,14 @@ const container: React.CSSProperties = {
 	height: TOOLBAR_HEIGHT,
 };
 
-const mobileContainer: React.CSSProperties = {
-	...container,
-	position: 'relative',
-	overflowX: 'auto',
-	justifyContent: 'flex-start',
-};
-const scrollIndicatorLeft: React.CSSProperties = {
-	position: 'fixed',
-	display: 'none',
+const centeredPlayButton: React.CSSProperties = {
+	position: 'absolute',
+	left: '50%',
 	top: 0,
-	left: 0,
-	width: 40,
-	height: '100%',
-	pointerEvents: 'none',
-	background: `linear-gradient(to right, ${BACKGROUND}, ${BACKGROUND__TRANSPARENT})`,
-};
-
-const scrollIndicatorRight: React.CSSProperties = {
-	position: 'fixed',
-	display: 'none',
-	top: 0,
-	right: 0,
-	width: 40,
-	height: '100%',
-	pointerEvents: 'none',
-	background: `linear-gradient(to left, ${BACKGROUND}, ${BACKGROUND__TRANSPARENT})`,
+	height: TOOLBAR_HEIGHT,
+	display: 'flex',
+	alignItems: 'center',
+	transform: 'translateX(-50%)',
 };
 
 const sideContainer: React.CSSProperties = {
@@ -82,14 +56,6 @@ const sideContainer: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
-};
-
-const mobileSideContainer: React.CSSProperties = {
-	height: 30,
-	display: 'flex',
-	flexDirection: 'row',
-	alignItems: 'center',
-	flexShrink: 0,
 };
 
 const padding: React.CSSProperties = {
@@ -125,130 +91,55 @@ export const PreviewToolbar: React.FC<{
 	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const isVideoComposition = useIsVideoComposition();
-	const previewToolbarRef = useRef<HTMLDivElement | null>(null);
-	const leftScrollIndicatorRef = useRef<HTMLDivElement | null>(null);
-	const rightScrollIndicatorRef = useRef<HTMLDivElement | null>(null);
 
 	const isStill = useIsStill();
 
 	const [loop, setLoop] = useState(loadLoopOption());
 
 	const isFullscreenSupported = checkFullscreenSupport();
-
 	const isMobileLayout = useMobileLayout();
-
-	useEffect(() => {
-		if (!isMobileLayout) {
-			// The indicators are `position: fixed` and are shown/placed
-			// imperatively by the scroll handler below. Without this reset,
-			// leaving the mobile layout (window resized past the breakpoint)
-			// leaves them visible at stale viewport coordinates — an orphaned
-			// grey gradient rectangle floating over the canvas.
-			if (leftScrollIndicatorRef.current) {
-				leftScrollIndicatorRef.current.style.display = 'none';
-			}
-
-			if (rightScrollIndicatorRef.current) {
-				rightScrollIndicatorRef.current.style.display = 'none';
-			}
-
-			return;
-		}
-
-		if (previewToolbarRef.current) {
-			const updateScrollableIndicatorProps = (target: HTMLDivElement) => {
-				const boundingBox = target.getBoundingClientRect();
-				const {scrollLeft, scrollWidth, clientWidth} = target;
-				const scrollRight = scrollWidth - clientWidth - scrollLeft;
-				if (
-					!leftScrollIndicatorRef.current ||
-					!rightScrollIndicatorRef.current
-				) {
-					return;
-				}
-
-				if (scrollLeft !== 0) {
-					Object.assign(leftScrollIndicatorRef.current.style, {
-						display: 'block',
-						height: `${boundingBox.height}px`,
-						top: `${boundingBox.top}px`,
-						left: `${boundingBox.left}px`,
-					});
-				} else {
-					Object.assign(leftScrollIndicatorRef.current.style, {
-						display: 'none',
-					});
-				}
-
-				if (scrollRight !== 0) {
-					const itemWidth = rightScrollIndicatorRef.current?.clientWidth || 0;
-					Object.assign(rightScrollIndicatorRef.current.style, {
-						display: 'block',
-						height: `${boundingBox.height}px`,
-						top: `${boundingBox.top}px`,
-						left: `${boundingBox.left + boundingBox.width - itemWidth}px`,
-					});
-				} else {
-					Object.assign(rightScrollIndicatorRef.current.style, {
-						display: 'none',
-					});
-				}
-			};
-
-			const previewToolbar = previewToolbarRef.current;
-			const scrollHandler = () => {
-				updateScrollableIndicatorProps(previewToolbar);
-			};
-
-			previewToolbar.addEventListener('scroll', scrollHandler);
-			scrollHandler();
-			return () => {
-				previewToolbar.removeEventListener('scroll', scrollHandler);
-			};
-		}
-	});
+	const playPause = (
+		<PreviewToolbarControl>
+			<PlayPause
+				bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
+				loop={loop}
+				playbackRate={playbackRate}
+				muted={playerMuted}
+				hideNavigationControls={isMobileLayout}
+			/>
+		</PreviewToolbarControl>
+	);
 
 	return (
-		<div
-			ref={previewToolbarRef}
-			style={isMobileLayout ? mobileContainer : container}
-			className="css-reset"
-		>
-			<div ref={leftScrollIndicatorRef} style={scrollIndicatorLeft} />
+		<div style={container} className="css-reset">
+			<div style={sideContainer}>
+				<div style={padding} />
+				<PreviewToolbarControl>
+					<TimelineZoomControls />
+				</PreviewToolbarControl>
+			</div>
+			<Flex />
 			{isMobileLayout ? null : (
-				<>
-					<div style={sideContainer}>
-						<div style={padding} />
-						<PreviewToolbarControl>
-							<TimelineZoomControls />
-						</PreviewToolbarControl>
-					</div>
-					<Flex />
-					<PreviewToolbarControl>
-						<SizeSelector />
-					</PreviewToolbarControl>
-					{isStill || isVideoComposition ? (
-						<PreviewToolbarControl>
-							<PlaybackRateSelector
-								setPlaybackRate={setPlaybackRate}
-								playbackRate={playbackRate}
-							/>
-						</PreviewToolbarControl>
-					) : null}
-				</>
+				<PreviewToolbarControl>
+					<SizeSelector />
+				</PreviewToolbarControl>
 			)}
+			{!isMobileLayout && (isStill || isVideoComposition) ? (
+				<PreviewToolbarControl>
+					<PlaybackRateSelector
+						setPlaybackRate={setPlaybackRate}
+						playbackRate={playbackRate}
+					/>
+				</PreviewToolbarControl>
+			) : null}
 
-			{isVideoComposition ? (
+			{isVideoComposition && isMobileLayout ? (
+				<div style={centeredPlayButton}>{playPause}</div>
+			) : null}
+			{isVideoComposition && !isMobileLayout ? (
 				<>
 					<Spacing x={2} />
-					<PreviewToolbarControl>
-						<PlayPause
-							bufferStateDelayInMilliseconds={bufferStateDelayInMilliseconds}
-							loop={loop}
-							playbackRate={playbackRate}
-							muted={playerMuted}
-						/>
-					</PreviewToolbarControl>
+					{playPause}
 					<Spacing x={2} />
 					<PreviewToolbarControl>
 						<LoopToggle loop={loop} setLoop={setLoop} />
@@ -265,13 +156,17 @@ export const PreviewToolbar: React.FC<{
 			) : null}
 			{canvasContent?.type === 'composition' ? (
 				<>
-					<PreviewToolbarControl>
-						<CheckboardToggle />
-					</PreviewToolbarControl>
-					<PreviewToolbarControl>
-						<OutlineToggle />
-					</PreviewToolbarControl>
-					{readOnlyStudio ? null : (
+					{isMobileLayout ? null : (
+						<PreviewToolbarControl>
+							<CheckboardToggle />
+						</PreviewToolbarControl>
+					)}
+					{isMobileLayout ? null : (
+						<PreviewToolbarControl>
+							<OutlineToggle />
+						</PreviewToolbarControl>
+					)}
+					{readOnlyStudio || isMobileLayout ? null : (
 						<PreviewToolbarControl>
 							<SnappingToggle />
 						</PreviewToolbarControl>
@@ -281,37 +176,47 @@ export const PreviewToolbar: React.FC<{
 			<Spacing x={1} />
 			{canvasContent && isFullscreenSupported ? (
 				<PreviewToolbarControl>
-					<FullScreenToggle />
+					<FullScreenToggle hidden={isMobileLayout} />
 				</PreviewToolbarControl>
 			) : null}
 			<Flex />
-			{isMobileLayout && (
-				<>
-					<PreviewToolbarControl>
-						<SizeSelector />
-					</PreviewToolbarControl>
-					{isStill || isVideoComposition ? (
-						<PreviewToolbarControl>
-							<PlaybackRateSelector
-								setPlaybackRate={setPlaybackRate}
-								playbackRate={playbackRate}
-							/>
-						</PreviewToolbarControl>
-					) : null}
-				</>
-			)}
-			<div style={isMobileLayout ? mobileSideContainer : sideContainer}>
+			<div style={sideContainer}>
 				<Flex />
-				{!isMobileLayout && <FpsCounter playbackSpeed={playbackRate} />}
+				<FpsCounter playbackSpeed={playbackRate} />
 				<Spacing x={2} />
 				<PreviewToolbarControl>
-					<RenderButton readOnlyStudio={readOnlyStudio} size="compact" />
+					<RenderButton
+						readOnlyStudio={readOnlyStudio}
+						size="compact"
+						hidden={isMobileLayout}
+					/>
 				</PreviewToolbarControl>
+				{isMobileLayout ? (
+					<>
+						{isVideoComposition ? (
+							<PreviewToolbarControl>
+								<MuteToggle muted={playerMuted} setMuted={setPlayerMuted} />
+							</PreviewToolbarControl>
+						) : null}
+						<PreviewToolbarControl>
+							<PreviewToolbarOverflowButton
+								readOnlyStudio={readOnlyStudio}
+								showFullscreen={Boolean(canvasContent && isFullscreenSupported)}
+								showPlaybackRate={isVideoComposition}
+								showLoop={isVideoComposition}
+								showCompositionControls={canvasContent?.type === 'composition'}
+								playbackRate={playbackRate}
+								setPlaybackRate={setPlaybackRate}
+								loop={loop}
+								setLoop={setLoop}
+							/>
+						</PreviewToolbarControl>
+					</>
+				) : null}
 				<Spacing x={1.5} />
 			</div>
 			<PlaybackKeyboardShortcutsManager setPlaybackRate={setPlaybackRate} />
 			<PlaybackRatePersistor />
-			<div ref={rightScrollIndicatorRef} style={scrollIndicatorRight} />
 		</div>
 	);
 };

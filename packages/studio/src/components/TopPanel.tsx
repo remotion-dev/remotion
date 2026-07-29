@@ -114,6 +114,7 @@ const TopPanelInner: React.FC<{
 						maxFlex={0.4}
 						defaultFlex={0.2}
 						maxFlexerSize={MAX_SIDEBAR_WIDTH}
+						minFlexerSize={null}
 						maxAntiFlexerSize={null}
 						id="sidebar-to-preview"
 						orientation="vertical"
@@ -141,6 +142,7 @@ const TopPanelInner: React.FC<{
 								maxFlex={0.8}
 								defaultFlex={0.7}
 								maxFlexerSize={null}
+								minFlexerSize={null}
 								maxAntiFlexerSize={MAX_SIDEBAR_WIDTH}
 								id="canvas-to-right-sidebar"
 								orientation="vertical"

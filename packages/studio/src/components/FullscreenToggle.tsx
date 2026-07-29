@@ -17,7 +17,9 @@ const accessibilityLabel = [
 	.filter(NoReactInternals.truthy)
 	.join(' ');
 
-export const FullScreenToggle: React.FC<{}> = () => {
+export const FullScreenToggle: React.FC<{
+	readonly hidden: boolean;
+}> = ({hidden}) => {
 	const keybindings = useKeybinding();
 	const {setSize} = useContext(Internals.PreviewSizeContext);
 
@@ -49,8 +51,16 @@ export const FullScreenToggle: React.FC<{}> = () => {
 		};
 	}, [keybindings, onClick]);
 
-	return (
+	return hidden ? (
+		<button
+			id="fullscreen-toggle"
+			type="button"
+			style={{display: 'none'}}
+			onClick={onClick}
+		/>
+	) : (
 		<ControlButton
+			id="fullscreen-toggle"
 			title={accessibilityLabel}
 			aria-label={accessibilityLabel}
 			onClick={onClick}
