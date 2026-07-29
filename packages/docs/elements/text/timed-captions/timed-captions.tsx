@@ -15,6 +15,7 @@ import {
 	cancelRender,
 	Interactive,
 	interpolate,
+	Sequence,
 	spring,
 	type InteractiveBaseProps,
 	type InteractiveTransformProps,
@@ -91,12 +92,6 @@ const timedCaptionsSchema = {
 	},
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
-
-const InteractiveDivWithControls = Interactive.Div as React.ComponentType<
-	React.ComponentProps<typeof Interactive.Div> & {
-		readonly controls: SequenceControls | undefined;
-	}
->;
 
 const {fontFamily, waitUntilDone} = loadFont('normal', {
 	weights: [fontWeight],
@@ -467,7 +462,6 @@ const TimedCaptionsInner = forwardRef<
 	HTMLDivElement,
 	TimedCaptionsLayerProps & {
 		readonly controls: SequenceControls | undefined;
-		readonly stack?: string;
 	}
 >(
 	(
@@ -478,7 +472,6 @@ const TimedCaptionsInner = forwardRef<
 			height,
 			mode = 'background',
 			name,
-			stack,
 			style,
 			width,
 			...interactiveProps
@@ -503,26 +496,30 @@ const TimedCaptionsInner = forwardRef<
 		}, []);
 
 		return (
-			<InteractiveDivWithControls
-				ref={outlineRef}
+			<Sequence
+				layout="none"
 				{...interactiveProps}
 				controls={controls}
 				name={name ?? '<TimedCaptions>'}
-				stack={stack}
-				style={{
-					height: height ?? '100%',
-					width: width ?? '100%',
-					...style,
-				}}
+				outlineRef={outlineRef}
 			>
-				<TimedCaptionsContent
-					captionAreaWidth={width ?? null}
-					captions={captions}
-					combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
-					fontLoaded={fontLoaded}
-					mode={mode}
-				/>
-			</InteractiveDivWithControls>
+				<div
+					ref={outlineRef}
+					style={{
+						height: height ?? '100%',
+						width: width ?? '100%',
+						...style,
+					}}
+				>
+					<TimedCaptionsContent
+						captionAreaWidth={width ?? null}
+						captions={captions}
+						combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
+						fontLoaded={fontLoaded}
+						mode={mode}
+					/>
+				</div>
+			</Sequence>
 		);
 	},
 );

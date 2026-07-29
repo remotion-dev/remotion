@@ -32,7 +32,6 @@ type MapRouteProps = InteractiveBaseProps & {
 	readonly glow?: number;
 	readonly id: string;
 	readonly progress?: number;
-	readonly stack?: string;
 	readonly strokeColor?: string;
 	readonly strokeWidth?: number;
 };
@@ -257,12 +256,7 @@ const MapRouteBounds = ({
 	);
 };
 
-const MapRouteInner = forwardRef<
-	HTMLDivElement,
-	MapRouteProps & {
-		readonly stack?: undefined;
-	}
->(
+const MapRouteInner = forwardRef<HTMLDivElement, MapRouteProps>(
 	(
 		{
 			feature,
@@ -279,7 +273,6 @@ const MapRouteInner = forwardRef<
 			name,
 			showInTimeline,
 			controls,
-			stack,
 		},
 		ref,
 	) => {
@@ -299,7 +292,6 @@ const MapRouteInner = forwardRef<
 				showInTimeline={showInTimeline ?? true}
 				controls={controls}
 				outlineRef={refForOutline}
-				_remotionInternalStack={stack}
 			>
 				<MapRouteDrawing
 					feature={feature}

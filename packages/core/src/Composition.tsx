@@ -139,7 +139,9 @@ const InnerComposition = <
 	defaultProps,
 	schema,
 	...compProps
-}: CompositionProps<Schema, Props> & {readonly stack?: string}) => {
+}: CompositionProps<Schema, Props> & {
+	readonly _remotionInternalStack?: string;
+}) => {
 	const compManager = useContext(CompositionSetters);
 
 	const {registerComposition, unregisterComposition} = compManager;
@@ -179,7 +181,9 @@ const InnerComposition = <
 	}
 
 	const {folderName, parentName} = useContext(FolderContext);
-	const stack = (compProps as {stack?: string}).stack ?? null;
+	const stack =
+		(compProps as {readonly _remotionInternalStack?: string})
+			._remotionInternalStack ?? null;
 	const componentFromProps =
 		'component' in compProps ? compProps.component : null;
 

@@ -6,7 +6,7 @@ import {
 	AnimatedImage,
 	animatedImageSchema,
 } from '../animated-image/AnimatedImage.js';
-import type {TSequence} from '../CompositionManager.js';
+import type {SequenceControls, TSequence} from '../CompositionManager.js';
 import type {
 	EffectDefinition,
 	EffectDescriptor,
@@ -328,13 +328,17 @@ test('Series.Sequence registers with its own visual controls', () => {
 				<Series.Sequence
 					durationInFrames={10}
 					premountFor={30}
-					{...({stack: firstStack} as {readonly stack: string})}
+					{...({
+						_remotionInternalStack: firstStack,
+					} as {readonly _remotionInternalStack: string})}
 				>
 					First
 				</Series.Sequence>
 				<Series.Sequence
 					durationInFrames={20}
-					{...({stack: secondStack} as {readonly stack: string})}
+					{...({
+						_remotionInternalStack: secondStack,
+					} as {readonly _remotionInternalStack: string})}
 				>
 					Second
 				</Series.Sequence>
@@ -364,6 +368,55 @@ test('Series.Sequence registers with its own visual controls', () => {
 		firstStack,
 		secondStack,
 	]);
+});
+
+test('Interactive.withSchema preserves source stacks through controls without consuming a public stack prop', () => {
+	const registeredSequences: TSequence[] = [];
+	const sourceStack = 'Error\n    at UserAuthoredComponent';
+	const received = {
+		stack: null as string | null,
+		internalStack: false,
+	};
+
+	type PublicProps = {readonly stack: string};
+	const Inner: React.FC<
+		PublicProps & {readonly controls: SequenceControls | undefined}
+	> = (props) => {
+		received.stack = props.stack;
+		received.internalStack = '_remotionInternalStack' in props;
+		return <Sequence controls={props.controls} name="<Component>" />;
+	};
+
+	const Component = Interactive.withSchema({
+		Component: Inner,
+		componentName: '<Component>',
+		componentIdentity: 'com.example.Component',
+		schema: {},
+		supportsEffects: false,
+	});
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Component
+				stack="application-stack"
+				{...({
+					_remotionInternalStack: sourceStack,
+				} as {readonly _remotionInternalStack: string})}
+			/>
+		</SequenceTestWrapper>,
+	);
+
+	expect(received.stack).toBe('application-stack');
+	expect(received.internalStack).toBe(false);
+	expect(registeredSequences).toHaveLength(1);
+	expect(registeredSequences[0]?.getStack()).toBe(sourceStack);
+	expect(registeredSequences[0]?.controls?.componentIdentity).toBe(
+		'com.example.Component',
+	);
 });
 
 test('read-only Studio registers visual controls without applying overrides', () => {

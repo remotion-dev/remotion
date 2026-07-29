@@ -27,7 +27,6 @@ type SequenceCall = {
 	readonly _remotionInternalDocumentationLink: string | undefined;
 	readonly _remotionInternalEffects: unknown;
 	readonly outlineRef: React.RefObject<Element | null> | undefined;
-	readonly stack: string | undefined;
 };
 
 const htmlInCanvasCalls: HtmlInCanvasCall[] = [];
@@ -280,18 +279,6 @@ test('Should pass integer dimensions to HtmlInCanvas', async () => {
 
 	expect(htmlInCanvasCalls[0].width).toBe(11);
 	expect(htmlInCanvasCalls[0].height).toBe(21);
-});
-
-test('Should forward stack to the shape Sequence', async () => {
-	const {Circle} = await loadComponents();
-	hasVideoConfig = true;
-	htmlInCanvasCalls.length = 0;
-	sequenceCalls.length = 0;
-
-	render(<Circle radius={100} effects={[effect]} stack="shape-stack" />);
-
-	expect(htmlInCanvasCalls[0]).not.toBe(undefined);
-	expect(sequenceCalls[0].stack).toBe('shape-stack');
 });
 
 test('Should not add a documentation link if a custom name is passed', async () => {

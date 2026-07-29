@@ -484,7 +484,6 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 			controls={controls}
 			_remotionInternalEffects={memoizedEffectDefinitions}
 			outlineRef={canvasRef}
-			// 'stack' is in props
 			{...props}
 		>
 			<RemotionRiveCanvasContent

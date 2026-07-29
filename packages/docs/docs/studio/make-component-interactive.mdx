@@ -71,11 +71,11 @@ const captionsSchema = {
 
 Studio can edit caption text when the prop is a direct JSX array literal, such as `captions={[...]}`. Variables, imports, computed expressions, and `satisfies` expressions are read-only.
 
-## Forward `controls` and `stack`
+## Forward `controls`
 
-The inner component receives `controls` and `stack` props from `Interactive.withSchema()`.
+The inner component receives a `controls` prop from `Interactive.withSchema()`.
 
-Forward them to the [`<Sequence>`](/docs/sequence) that represents your component in the timeline.
+Forward it unchanged to the [`<Sequence>`](/docs/sequence) that represents your component in the timeline. Forwarding it also allows the Studio to associate the timeline item with the outer component's source location.
 
 ```tsx twoslash title="Badge.tsx"
 import React, {forwardRef, useImperativeHandle, useRef} from 'react';
@@ -117,7 +117,6 @@ const BadgeInner = forwardRef<
   HTMLDivElement,
   BadgeProps & {
     readonly controls: SequenceControls | undefined;
-    readonly stack?: string;
   }
 >(
   (
@@ -128,7 +127,6 @@ const BadgeInner = forwardRef<
       style,
       name,
       controls,
-      stack,
       ...sequenceProps
     },
     ref,
@@ -143,7 +141,6 @@ const BadgeInner = forwardRef<
         {...sequenceProps}
         name={name ?? '<Badge>'}
         controls={controls}
-        _remotionInternalStack={stack}
         outlineRef={outlineRef}
       >
         <div
@@ -166,7 +163,7 @@ const BadgeInner = forwardRef<
 );
 ```
 
-The exported component should not expose `controls` or `stack` as public props.
+The exported component should not expose `controls` as a public prop.
 
 Pass [`outlineRef`](/docs/sequence#outlineref) when using `<Sequence layout="none">` so the Studio can draw an outline around the rendered element.
 
@@ -214,7 +211,6 @@ const BadgeInner = forwardRef<
   HTMLDivElement,
   BadgeProps & {
     readonly controls: SequenceControls | undefined;
-    readonly stack?: string;
   }
 >(
   (
@@ -225,7 +221,6 @@ const BadgeInner = forwardRef<
       style,
       name,
       controls,
-      stack,
       ...sequenceProps
     },
     ref,
@@ -240,7 +235,6 @@ const BadgeInner = forwardRef<
         {...sequenceProps}
         name={name ?? '<Badge>'}
         controls={controls}
-        _remotionInternalStack={stack}
         outlineRef={outlineRef}
       >
         <div

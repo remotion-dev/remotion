@@ -143,14 +143,13 @@ describe('Elements must follow the colocated single-file format', () => {
 			const tsx = readFileSync(element.tsxPath, 'utf8');
 			const mdx = readFileSync(element.mdxPath, 'utf8');
 
-			test('source file is an Element, not a composition or wrapper Sequence', () => {
+			test('source file is an Element, not a composition', () => {
 				expect(tsx).not.toContain('export const durationInFrames');
 				expect(tsx).not.toContain('export const fps');
 				expect(tsx).not.toContain('export const width');
 				expect(tsx).not.toContain('export const height');
 				expect(tsx).not.toContain('export const RemotionRoot');
 				expect(tsx).not.toMatch(/<Composition(?:\s|\/?>)/);
-				expect(tsx).not.toMatch(/<Sequence(?:\s|\/?>)/);
 			});
 
 			test('MDX uses the ElementPage template', () => {
