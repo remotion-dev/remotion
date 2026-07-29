@@ -198,6 +198,10 @@ See [Remotion Maps](remotion-maps/SKILL.md) if wanting to include maps in the vi
 
 See [text-highlights.md](text-highlights.md) for text highlights (highlight markers), circles, underlines, strike-throughs, crossed-off text, boxes.
 
+## Multi-scene videos
+
+See [multi-scene-video.md](multi-scene-video.md) if planning to make a video with multiple subsequent scenes.
+
 ## Voiceover
 
 See [voiceover.md](voiceover.md) for adding an AI-generated voiceover to Remotion compositions using ElevenLabs TTS.
