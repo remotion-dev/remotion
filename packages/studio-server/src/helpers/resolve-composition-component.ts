@@ -474,7 +474,7 @@ const findLocalSymbolLocation = ({
 
 			const {node} = astPath;
 			if (node.id.type === 'Identifier' && node.id.name === name) {
-				location = locationFromNode(node);
+				location = locationFromNode(node.id);
 				return false;
 			}
 
@@ -488,7 +488,7 @@ const findLocalSymbolLocation = ({
 
 			const {node} = astPath;
 			if (node.id?.name === name) {
-				location = locationFromNode(node) ?? locationFromNode(node.id);
+				location = locationFromNode(node.id);
 				return false;
 			}
 
@@ -502,7 +502,7 @@ const findLocalSymbolLocation = ({
 
 			const {node} = astPath;
 			if (node.id?.name === name) {
-				location = locationFromNode(node) ?? locationFromNode(node.id);
+				location = locationFromNode(node.id);
 				return false;
 			}
 
