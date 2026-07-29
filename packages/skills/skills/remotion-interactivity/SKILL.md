@@ -19,7 +19,10 @@ If the markup is too complex for the Studio to make it interactive, then the val
 Every HTML and SVG element such as `<div>` can be turned interactive using `Interactive`:
 
 ```tsx title="Interactive elements"
-<Interactive.Div name="Greeting card" style={{fontSize: 80, padding: 24}}>
+<Interactive.Div
+  name="Greeting card"
+  style={{fontSize: 80, padding: 24}}
+>
   Hello
 </Interactive.Div>
 ```
@@ -116,12 +119,17 @@ const {fps, durationInFrames} = useVideoConfig();
       extrapolateLeft: 'clamp',
       extrapolateRight: 'clamp'
     }),
-    translate: interpolate(frame, [durationInFrames - 30, durationInFrames], ['0px 0px', '0px 120px'], {
-      easing: Easing.spring({damping: 200}),
-      output: 'perceptual-scale',
-      extrapolateLeft: 'clamp',
-      extrapolateRight: 'clamp'
-    }),
+    translate: interpolate(
+      frame,
+      [durationInFrames - 30, durationInFrames],
+      ['0px 0px', '0px 120px'],
+      {
+        easing: Easing.spring({damping: 200}),
+        output: 'perceptual-scale',
+        extrapolateLeft: 'clamp',
+        extrapolateRight: 'clamp'
+      }
+    ),
   }}
 />
 ```

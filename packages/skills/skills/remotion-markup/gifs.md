@@ -16,7 +16,11 @@ import { AnimatedImage, staticFile } from "remotion";
 
 export const MyComposition = () => {
   return (
-    <AnimatedImage src={staticFile("animation.gif")} width={500} height={500} />
+    <AnimatedImage
+      src={staticFile("animation.gif")}
+      width={500}
+      height={500}
+    />
   );
 };
 ```
@@ -37,13 +41,28 @@ Control how the image fills its container with the `fit` prop:
 
 ```tsx
 // Stretch to fill (default)
-<AnimatedImage src={staticFile("animation.gif")} width={500} height={300} fit="fill" />
+<AnimatedImage
+  src={staticFile("animation.gif")}
+  width={500}
+  height={300}
+  fit="fill"
+/>
 
 // Maintain aspect ratio, fit inside container
-<AnimatedImage src={staticFile("animation.gif")} width={500} height={300} fit="contain" />
+<AnimatedImage
+  src={staticFile("animation.gif")}
+  width={500}
+  height={300}
+  fit="contain"
+/>
 
 // Fill container, crop if needed
-<AnimatedImage src={staticFile("animation.gif")} width={500} height={300} fit="cover" />
+<AnimatedImage
+  src={staticFile("animation.gif")}
+  width={500}
+  height={300}
+  fit="cover"
+/>
 ```
 
 ## Playback speed
@@ -51,8 +70,20 @@ Control how the image fills its container with the `fit` prop:
 Use `playbackRate` to control the animation speed:
 
 ```tsx
-<AnimatedImage src={staticFile("animation.gif")} width={500} height={500} playbackRate={2} /> {/* 2x speed */}
-<AnimatedImage src={staticFile("animation.gif")} width={500} height={500} playbackRate={0.5} /> {/* Half speed */}
+// 2x speed
+<AnimatedImage
+  src={staticFile("animation.gif")}
+  width={500}
+  height={500}
+  playbackRate={2}
+/>
+// Half speed
+<AnimatedImage
+  src={staticFile("animation.gif")}
+  width={500}
+  height={500}
+  playbackRate={0.5}
+/>
 ```
 
 ## Looping behavior
@@ -61,13 +92,28 @@ Control what happens when the animation finishes:
 
 ```tsx
 // Loop indefinitely (default)
-<AnimatedImage src={staticFile("animation.gif")} width={500} height={500} loopBehavior="loop" />
+<AnimatedImage
+  src={staticFile("animation.gif")}
+  width={500}
+  height={500}
+  loopBehavior="loop"
+/>
 
 // Play once, show final frame
-<AnimatedImage src={staticFile("animation.gif")} width={500} height={500} loopBehavior="pause-after-finish" />
+<AnimatedImage
+  src={staticFile("animation.gif")}
+  width={500}
+  height={500}
+  loopBehavior="pause-after-finish"
+/>
 
 // Play once, then clear canvas
-<AnimatedImage src={staticFile("animation.gif")} width={500} height={500} loopBehavior="clear-after-finish" />
+<AnimatedImage
+  src={staticFile("animation.gif")}
+  width={500}
+  height={500}
+  loopBehavior="clear-after-finish"
+/>
 ```
 
 ## Styling

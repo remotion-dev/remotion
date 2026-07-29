@@ -17,7 +17,16 @@ for (const l of m.getStyle().layers as any[])
 - Logo/attribution: `maptilerLogo:false` + `attributionControl:false` aren't always enough — also hide
   via CSS in the component:
   ```tsx
-  <style>{`.maplibregl-ctrl-bottom-left,.maplibregl-ctrl-bottom-right,.maplibregl-ctrl-attrib,.maptiler-logo{display:none!important}`}</style>
+  <style>
+    {`
+      .maplibregl-ctrl-bottom-left,
+      .maplibregl-ctrl-bottom-right,
+      .maplibregl-ctrl-attrib,
+      .maptiler-logo {
+        display: none !important;
+      }
+    `}
+  </style>
   ```
 
 ## `../scripts/prep-geo.mjs` → outputs
