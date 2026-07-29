@@ -25,7 +25,12 @@ Replace `my-video` with a suitable project name.
 
 ## Designing a video
 
-Keep the scaffold and add React Markup. Follow [Remotion React Markup Best Practices](../remotion-markup/SKILL.md) and [Video Layout Rules](video-layout.md) for video-first layout and text sizing guidance.
+Keep the scaffold and add React Markup.
+Follow [Remotion React Markup Best Practices](../remotion-markup/SKILL.md) and [Video Layout Rules](video-layout.md) for video-first layout and text sizing guidance.
+
+## Is this a multi-scene video?
+
+If this is a video with multiple subsequence videos, follow guidance at [Multi-scene videos](../remotion-markup/multi-scene-video.md).
 
 ## Interactivity Best Practices
 
