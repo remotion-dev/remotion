@@ -23,6 +23,7 @@ import {makeFileExecutableIfItIsNot} from '../compositor/make-file-executable';
 import type {LogLevel} from '../log-level';
 import {ChromeMode} from '../options/chrome-mode';
 import type {DownloadBrowserProgressFn} from '../options/on-browser-download';
+import {acquireBrowserDownloadLock} from './browser-download-lock';
 import {extractZipArchive} from './extract-zip-archive';
 import {
 	getChromeDownloadUrl,
@@ -135,9 +136,6 @@ export const downloadBrowser = async ({
 		if (installedVersion === expectedVersion) {
 			return getRevisionInfo(chromeMode);
 		}
-
-		// VERSION file missing or mismatched - delete and re-download
-		fs.rmSync(outputPath, {recursive: true, force: true});
 	}
 
 	if (!(await existsAsync(downloadsFolder))) {
@@ -158,75 +156,93 @@ export const downloadBrowser = async ({
 		);
 	}
 
-	logDownloadUrl({url: downloadURL, logLevel, indent});
+	const releaseLock = await acquireBrowserDownloadLock(
+		path.join(downloadsFolder, 'download.lock'),
+	);
 
 	try {
-		await downloadFile({
-			url: downloadURL,
-			to: () => archivePath,
-			onProgress: (progress) => {
-				if (progress.totalSize === null || progress.percent === null) {
-					throw new Error('Expected totalSize and percent to be defined');
-				}
-
-				onProgress({
-					downloadedBytes: progress.downloaded,
-					totalSizeInBytes: progress.totalSize,
-					percent: progress.percent,
-					alreadyAvailable: false,
-				});
-			},
-			indent,
-			logLevel,
-			abortSignal: new AbortController().signal,
-		});
-		await extractZipArchive(archivePath, outputPath);
-
-		const possibleSubdirs = [
-			'chrome-linux',
-			'chrome-headless-shell-linux64',
-			'chromium-headless-shell-amazon-linux2023-arm64',
-			'chromium-headless-shell-amazon-linux2023-x64',
-		];
-
-		for (const subdir of possibleSubdirs) {
-			const chromeLinuxFolder = path.join(outputPath, subdir);
-			const chromePath = path.join(chromeLinuxFolder, 'chrome');
-
-			if (fs.existsSync(chromePath)) {
-				const chromeHeadlessShellPath = path.join(
-					chromeLinuxFolder,
-					'chrome-headless-shell',
-				);
-
-				fs.renameSync(chromePath, chromeHeadlessShellPath);
+		if (await existsAsync(outputPath)) {
+			const installedVersion = readVersionFile(chromeMode);
+			if (installedVersion === expectedVersion) {
+				return getRevisionInfo(chromeMode);
 			}
 
-			if (fs.existsSync(chromeLinuxFolder)) {
-				const targetFolder = path.join(
-					outputPath,
-					'chrome-headless-shell-' + platform,
-				);
+			// VERSION file missing or mismatched - delete and re-download
+			fs.rmSync(outputPath, {recursive: true, force: true});
+		}
 
-				if (chromeLinuxFolder !== targetFolder) {
-					fs.renameSync(chromeLinuxFolder, targetFolder);
+		logDownloadUrl({url: downloadURL, logLevel, indent});
+
+		try {
+			await downloadFile({
+				url: downloadURL,
+				to: () => archivePath,
+				onProgress: (progress) => {
+					if (progress.totalSize === null || progress.percent === null) {
+						throw new Error('Expected totalSize and percent to be defined');
+					}
+
+					onProgress({
+						downloadedBytes: progress.downloaded,
+						totalSizeInBytes: progress.totalSize,
+						percent: progress.percent,
+						alreadyAvailable: false,
+					});
+				},
+				indent,
+				logLevel,
+				abortSignal: new AbortController().signal,
+			});
+			await extractZipArchive(archivePath, outputPath);
+
+			const possibleSubdirs = [
+				'chrome-linux',
+				'chrome-headless-shell-linux64',
+				'chromium-headless-shell-amazon-linux2023-arm64',
+				'chromium-headless-shell-amazon-linux2023-x64',
+			];
+
+			for (const subdir of possibleSubdirs) {
+				const chromeLinuxFolder = path.join(outputPath, subdir);
+				const chromePath = path.join(chromeLinuxFolder, 'chrome');
+
+				if (fs.existsSync(chromePath)) {
+					const chromeHeadlessShellPath = path.join(
+						chromeLinuxFolder,
+						'chrome-headless-shell',
+					);
+
+					fs.renameSync(chromePath, chromeHeadlessShellPath);
 				}
+
+				if (fs.existsSync(chromeLinuxFolder)) {
+					const targetFolder = path.join(
+						outputPath,
+						'chrome-headless-shell-' + platform,
+					);
+
+					if (chromeLinuxFolder !== targetFolder) {
+						fs.renameSync(chromeLinuxFolder, targetFolder);
+					}
+				}
+			}
+		} catch (err) {
+			return Promise.reject(err);
+		} finally {
+			if (await existsAsync(archivePath)) {
+				await unlinkAsync(archivePath);
 			}
 		}
-	} catch (err) {
-		return Promise.reject(err);
+
+		writeVersionFile(chromeMode, expectedVersion);
+
+		const revisionInfo = getRevisionInfo(chromeMode);
+		makeFileExecutableIfItIsNot(revisionInfo.executablePath);
+
+		return revisionInfo;
 	} finally {
-		if (await existsAsync(archivePath)) {
-			await unlinkAsync(archivePath);
-		}
+		await releaseLock();
 	}
-
-	writeVersionFile(chromeMode, expectedVersion);
-
-	const revisionInfo = getRevisionInfo(chromeMode);
-	makeFileExecutableIfItIsNot(revisionInfo.executablePath);
-
-	return revisionInfo;
 };
 
 const getFolderPath = (downloadsFolder: string, platform: Platform): string => {
