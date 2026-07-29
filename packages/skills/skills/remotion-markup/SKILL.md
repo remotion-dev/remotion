@@ -14,8 +14,7 @@ Drive animations using `useCurrentFrame()` and `interpolate()`.
 CSS `transition` or `animation` will not render correctly, they need to refactored.  
 Tailwind animation class will not render correctly, they need to be refactored.
 
-Use `Easing.bezier()` to customize timing.
-Use `Easing.spring()` if you want spring animations.
+Use `Easing.bezier()` and `Easing.spring()` to customize timing.
 
 Structure your markup according to [Remotion Interactivity Best Practices](../remotion-interactivity/SKILL.md)
 
