@@ -1,5 +1,6 @@
 import {parse} from '@babel/parser';
 import type {
+	CanUpdateDefaultPropsResponse,
 	CompositionComponentInfoRequest,
 	InsertJsxElementRequest,
 } from '@remotion/studio-shared';
@@ -1223,4 +1224,227 @@ export const getCompositionFile = ({
 	}
 
 	return null;
+};
+
+const staticFileToken = 'remotion-file:';
+const dateToken = 'remotion-date:';
+
+type ExtractedStaticValue = {success: true; value: unknown} | {success: false};
+
+const extractSpecialDefaultPropValue = (
+	node: AstNode,
+): ExtractedStaticValue | null => {
+	if (node.type === 'CallExpression') {
+		const callee = getNode(node, 'callee');
+		const args = getNodes(node, 'arguments');
+		if (
+			callee?.type === 'Identifier' &&
+			getString(callee, 'name') === 'staticFile' &&
+			args.length === 1 &&
+			args[0].type === 'StringLiteral'
+		) {
+			const value = getString(args[0], 'value');
+			if (value !== null) {
+				return {
+					success: true,
+					value: `${staticFileToken}${value
+						.split('/')
+						.map(encodeURIComponent)
+						.join('/')}`,
+				};
+			}
+		}
+
+		return {success: false};
+	}
+
+	if (node.type === 'NewExpression') {
+		const callee = getNode(node, 'callee');
+		const args = getNodes(node, 'arguments');
+		if (
+			callee?.type === 'Identifier' &&
+			getString(callee, 'name') === 'Date' &&
+			args.length === 1 &&
+			args[0].type === 'StringLiteral'
+		) {
+			const value = getString(args[0], 'value');
+			if (value !== null) {
+				return {success: true, value: `${dateToken}${value}`};
+			}
+		}
+
+		return {success: false};
+	}
+
+	return null;
+};
+
+const extractStaticDefaultPropValue = (node: AstNode): ExtractedStaticValue => {
+	const special = extractSpecialDefaultPropValue(node);
+	if (special !== null) {
+		return special;
+	}
+
+	switch (node.type) {
+		case 'NumericLiteral':
+		case 'StringLiteral':
+		case 'BooleanLiteral':
+			return {success: true, value: node.value};
+		case 'NullLiteral':
+			return {success: true, value: null};
+		case 'UnaryExpression': {
+			const argument = getNode(node, 'argument');
+			const operator = getString(node, 'operator');
+			if (
+				argument?.type === 'NumericLiteral' &&
+				typeof argument.value === 'number' &&
+				(operator === '-' || operator === '+')
+			) {
+				return {
+					success: true,
+					value: operator === '-' ? -argument.value : argument.value,
+				};
+			}
+
+			return {success: false};
+		}
+
+		case 'TSAsExpression': {
+			const expression = getNode(node, 'expression');
+			return expression
+				? extractStaticDefaultPropValue(expression)
+				: {success: false};
+		}
+
+		case 'ArrayExpression': {
+			const {elements} = node;
+			if (!Array.isArray(elements)) {
+				return {success: false};
+			}
+
+			const values: unknown[] = [];
+			for (const element of elements) {
+				if (!isAstNode(element) || element.type === 'SpreadElement') {
+					return {success: false};
+				}
+
+				const extracted = extractStaticDefaultPropValue(element);
+				if (!extracted.success) {
+					return extracted;
+				}
+
+				values.push(extracted.value);
+			}
+
+			return {success: true, value: values};
+		}
+
+		case 'ObjectExpression': {
+			const result: Record<string, unknown> = {};
+			for (const property of getNodes(node, 'properties')) {
+				if (property.type !== 'ObjectProperty') {
+					return {success: false};
+				}
+
+				const value = getNode(property, 'value');
+				if (!value) {
+					return {success: false};
+				}
+
+				const extracted = extractStaticDefaultPropValue(value);
+				if (!extracted.success) {
+					return extracted;
+				}
+
+				const key = getNode(property, 'key');
+				const propertyName =
+					key?.type === 'Identifier'
+						? getString(key, 'name')
+						: key?.type === 'StringLiteral' || key?.type === 'NumericLiteral'
+							? String(key.value)
+							: null;
+				if (propertyName !== null) {
+					result[propertyName] = extracted.value;
+				}
+			}
+
+			return {success: true, value: result};
+		}
+
+		default:
+			return {success: false};
+	}
+};
+
+export const computeCanUpdateDefaultPropsFromContent = (
+	content: string,
+	compositionId: string,
+): CanUpdateDefaultPropsResponse => {
+	try {
+		const ast = parseSource(content);
+		const composition = findCompositionElement({ast, compositionId});
+		const defaultProps = composition
+			? getJsxAttribute(composition, 'defaultProps')
+			: null;
+		const value = defaultProps ? getNode(defaultProps, 'value') : null;
+		const expression =
+			value?.type === 'JSXExpressionContainer'
+				? getNode(value, 'expression')
+				: null;
+		const extracted = expression
+			? extractStaticDefaultPropValue(expression)
+			: {success: false as const};
+
+		if (
+			!extracted.success ||
+			extracted.value === null ||
+			typeof extracted.value !== 'object' ||
+			Array.isArray(extracted.value)
+		) {
+			throw new Error(
+				`Could not find or extract defaultProps for composition "${compositionId}"`,
+			);
+		}
+
+		return {
+			canUpdate: true,
+			currentDefaultProps: extracted.value as Record<string, unknown>,
+		};
+	} catch (error) {
+		return {
+			canUpdate: false,
+			reason: error instanceof Error ? error.message : String(error),
+		};
+	}
+};
+
+export const getCanUpdateDefaultPropsForProject = ({
+	compositionId,
+	project,
+}: {
+	compositionId: string;
+	project: CodemodProject;
+}): CanUpdateDefaultPropsResponse => {
+	const compositionFile = getCompositionFile({compositionId, project});
+	if (compositionFile === null) {
+		return {canUpdate: false, reason: 'Cannot find root file in project'};
+	}
+
+	if (
+		!compositionFile.endsWith('.tsx') &&
+		!compositionFile.endsWith('.ts') &&
+		!compositionFile.endsWith('.mtsx') &&
+		!compositionFile.endsWith('.mts')
+	) {
+		return {
+			canUpdate: false,
+			reason: 'Cannot update Root file if not using TypeScript',
+		};
+	}
+
+	const filePath = findProjectFile({filePath: compositionFile, project});
+	return computeCanUpdateDefaultPropsFromContent(
+		project.files[filePath],
+		compositionId,
+	);
 };
