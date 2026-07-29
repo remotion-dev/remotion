@@ -251,6 +251,12 @@ Gives the sequence a specific `style={{width: width}}` style and overrides `widt
 
 You can give your sequence a name and it will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of sequences in the timeline.
 
+### `controls?`<AvailableFrom v="4.0.501" />
+
+The control state created by [`Interactive.withSchema()`](/docs/interactive-with-schema).
+
+When [making a custom component interactive](/docs/studio/make-component-interactive), forward `controls` unchanged from the inner component to the `<Sequence>` that represents it in the timeline. Do not create this object manually.
+
 ### `layout?`
 
 Either `"absolute-fill"` _(default)_ or `"none"`. By default, your sequences will be absolutely positioned, so they will overlay each other. If you would like to opt out of it and handle layouting yourself, pass `layout="none"`. Available since v1.4.
