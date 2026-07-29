@@ -16,8 +16,8 @@ import type {
 	ObjectProperty,
 	VariableDeclaration,
 } from '@babel/types';
-import type {ComponentProp} from '@remotion/drag-and-drop';
 import {insertSolidIntoSource} from '@remotion/studio-codemods';
+import type {ComponentProp} from '@remotion/studio-protocol';
 import {
 	isUrl,
 	type InsertableCompositionElement,

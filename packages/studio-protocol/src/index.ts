@@ -50,7 +50,7 @@ export type {
 	StudioInstallTarget,
 } from './install-in-studio';
 
-export const DragAndDropInternals = {
+export const StudioProtocolInternals = {
 	areComponentProps,
 	getDragPreviewMetadata,
 	getElementComponentNameFromSourceCode,

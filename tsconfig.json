@@ -265,7 +265,7 @@
 			"path": "./packages/canvas-capture"
 		},
 		{
-			"path": "./packages/drag-and-drop"
+			"path": "./packages/studio-protocol"
 		},
 		{
 			"path": "./packages/light-leaks"

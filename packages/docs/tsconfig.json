@@ -25,7 +25,7 @@
 	"references": [
 		{"path": "../player"},
 		{"path": "../core"},
-		{"path": "../drag-and-drop"},
+		{"path": "../studio-protocol"},
 		{"path": "../media-utils"},
 		{"path": "../browser-studio"},
 		{"path": "../docusaurus-plugin"},

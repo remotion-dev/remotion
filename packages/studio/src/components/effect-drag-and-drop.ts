@@ -1,7 +1,7 @@
 import {
-	DragAndDropInternals,
+	StudioProtocolInternals,
 	type EffectDragData,
-} from '@remotion/drag-and-drop';
+} from '@remotion/studio-protocol';
 import {getRequiredPackageForEffectImportPath} from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey} from 'remotion';
 import {installRequiredPackages} from '../helpers/install-required-package';
@@ -10,7 +10,7 @@ import {showNotification} from './Notifications/NotificationCenter';
 
 export const hasEffectDragType = (dataTransfer: DataTransfer) => {
 	return (
-		DragAndDropInternals.getDragPreviewMetadata(dataTransfer.types)?.type ===
+		StudioProtocolInternals.getDragPreviewMetadata(dataTransfer.types)?.type ===
 		'effect'
 	);
 };
@@ -22,7 +22,7 @@ export const hasExplicitEffectDragType = (dataTransfer: DataTransfer) => {
 export const getEffectDragData = (
 	dataTransfer: DataTransfer,
 ): EffectDragData | null => {
-	const parsed = DragAndDropInternals.parseDragData(dataTransfer);
+	const parsed = StudioProtocolInternals.parseDragData(dataTransfer);
 	return parsed?.type === 'effect' ? parsed.data : null;
 };
 

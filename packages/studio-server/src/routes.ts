@@ -4,9 +4,9 @@ import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
 import {BundlerInternals} from '@remotion/bundler';
-import {DragAndDropInternals} from '@remotion/drag-and-drop';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import type {
 	ApiRoutes,
 	ElementInstallRequest,
@@ -213,7 +213,7 @@ const handleRequestElementInstall = async ({
 		};
 		const parsed =
 			typeof mimeType === 'string' && typeof payload === 'string'
-				? DragAndDropInternals.parseDragData({mimeType, payload})
+				? StudioProtocolInternals.parseDragData({mimeType, payload})
 				: null;
 
 		if (parsed?.type !== 'element') {

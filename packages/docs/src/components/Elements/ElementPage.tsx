@@ -1,7 +1,7 @@
 import {
-	DragAndDropInternals,
+	StudioProtocolInternals,
 	type ComponentDimensions,
-} from '@remotion/drag-and-drop';
+} from '@remotion/studio-protocol';
 import React, {
 	useCallback,
 	useId,
@@ -70,7 +70,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 					}
 				: null;
 
-		return DragAndDropInternals.makeDragData({
+		return StudioProtocolInternals.makeDragData({
 			type: 'element',
 			dependencies,
 			dimensions,
@@ -95,7 +95,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		}
 
 		setInstallStatus({type: 'installing'});
-		const result = await DragAndDropInternals.installInStudio(dragData);
+		const result = await StudioProtocolInternals.installInStudio(dragData);
 		if (!result.success) {
 			setInstallStatus({
 				type: 'error',

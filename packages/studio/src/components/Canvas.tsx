@@ -1,5 +1,5 @@
-import {DragAndDropInternals} from '@remotion/drag-and-drop';
 import type {Size} from '@remotion/player';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import type {ElementInstallRequest} from '@remotion/studio-shared';
 import React, {
 	useCallback,
@@ -989,7 +989,7 @@ export const Canvas: React.FC<{
 				return;
 			}
 
-			const metadata = DragAndDropInternals.getDragPreviewMetadata(
+			const metadata = StudioProtocolInternals.getDragPreviewMetadata(
 				event.dataTransfer?.types ?? [],
 			);
 			if (
@@ -1126,7 +1126,7 @@ export const Canvas: React.FC<{
 
 			setIsAddingAsset(true);
 			try {
-				const metadata = DragAndDropInternals.getDragPreviewMetadata(
+				const metadata = StudioProtocolInternals.getDragPreviewMetadata(
 					event.dataTransfer?.types ?? [],
 				);
 				const isComposition = metadata?.type === 'composition';
