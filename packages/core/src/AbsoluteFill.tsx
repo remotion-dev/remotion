@@ -17,6 +17,7 @@ import {
 	type InteractivitySchema,
 } from './interactivity-schema.js';
 import {Sequence} from './Sequence.js';
+import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 export type AbsoluteFillProps = Omit<
@@ -67,6 +68,7 @@ const AbsoluteFillInner: React.FC<
 	children,
 	...divProps
 }) => {
+	const videoConfig = useUnsafeVideoConfig();
 	const refForOutline = useRef<HTMLDivElement | null>(null);
 	const callbackRef = useCallback(
 		(element: HTMLDivElement | null) => {
@@ -75,6 +77,14 @@ const AbsoluteFillInner: React.FC<
 		},
 		[ref],
 	);
+
+	if (videoConfig === null) {
+		return hidden ? null : (
+			<AbsoluteFillElement ref={callbackRef} {...divProps}>
+				{children}
+			</AbsoluteFillElement>
+		);
+	}
 
 	return (
 		<Sequence
