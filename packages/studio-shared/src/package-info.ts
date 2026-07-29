@@ -249,7 +249,8 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'remotion-media': null,
 	'web-renderer': 'Render videos in the browser',
 	design: 'Design system',
-	'studio-protocol': 'Construct and parse drag-and-drop payloads for Remotion',
+	'studio-protocol':
+		'Create Element payloads and request installation into Remotion Studio',
 	'light-leaks': 'Light leak effects for Remotion',
 	'rough-notation': 'Rough annotation primitives for Remotion',
 	'player-a11y': 'Internal accessibility wrapper around @remotion/player',
