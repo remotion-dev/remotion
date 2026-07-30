@@ -96,7 +96,7 @@ export const CompositionInspectorHeader = () => {
 			return;
 		}
 
-		openOriginalPositionInEditor(validatedLocation).catch((err) => {
+		openOriginalPositionInEditor(validatedLocation, null).catch((err) => {
 			showNotification((err as Error).message, 2000);
 		});
 	}, [validatedLocation]);
@@ -105,7 +105,7 @@ export const CompositionInspectorHeader = () => {
 			return;
 		}
 
-		openOriginalPositionInEditor(componentLocation).catch((err) => {
+		openOriginalPositionInEditor(componentLocation, null).catch((err) => {
 			showNotification((err as Error).message, 2000);
 		});
 	}, [componentLocation]);

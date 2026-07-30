@@ -89,8 +89,10 @@ const SublimeTextIcon: React.FC<{readonly size: number}> = ({size}) => (
 
 export const EditorIcon: React.FC<{
 	readonly editorId: EditorPickerId | null;
-	readonly size?: number;
-}> = ({editorId, size = 14}) => {
+	readonly size: number | null;
+}> = ({editorId, size: sizeProp}) => {
+	const size = sizeProp ?? 14;
+
 	switch (editorId) {
 		case 'vscode':
 			return <VsCodeIcon size={size} />;

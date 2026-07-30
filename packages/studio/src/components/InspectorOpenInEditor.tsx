@@ -1,16 +1,6 @@
-import type {
-	EditorPickerId,
-	GetDefaultEditorInfoResponse,
-} from '@remotion/studio-shared';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import type {EditorPickerId} from '@remotion/studio-shared';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
-import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	LIGHT_TEXT,
@@ -21,14 +11,17 @@ import {
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
 import {CaretDown} from '../icons/caret';
 import {EditorIcon} from '../icons/editor';
-import {GearIcon} from '../icons/gear';
 import {ModalsContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
-import {callApi} from './call-api';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineDropdown} from './InlineDropdown';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
+import {
+	canUseEditorPicker,
+	getPreferredEditorId,
+	useDefaultEditorInfo,
+} from './use-default-editor-info';
 
 const splitButton: React.CSSProperties = {
 	alignItems: 'center',
@@ -47,18 +40,10 @@ const mainButtonBase: React.CSSProperties = {
 	display: 'inline-flex',
 	fontFamily: 'sans-serif',
 	fontSize: 11,
-	gap: 5,
 	height: 24,
 	lineHeight: '14px',
 	padding: '0 6px',
 	whiteSpace: 'nowrap',
-};
-
-const label: React.CSSProperties = {
-	color: 'inherit',
-	fontFamily: 'inherit',
-	fontSize: 'inherit',
-	lineHeight: 'inherit',
 };
 
 const menuLabel: React.CSSProperties = {
@@ -68,22 +53,8 @@ const menuLabel: React.CSSProperties = {
 	lineHeight: '16px',
 };
 
-const gearStyle: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	flexShrink: 0,
-	height: 12,
-	width: 12,
-};
-
-const getPreferredEditorId = (
-	editorInfo: GetDefaultEditorInfoResponse | null,
-) => {
-	return (
-		editorInfo?.installedEditors.find(
-			(editor) => editor.name === window.remotion_editorName,
-		)?.id ?? null
-	);
-};
+const editorButtonIconSize = 18;
+const editorMenuIconSize = 18;
 
 export const InspectorOpenInEditor: React.FC<{
 	readonly location: OriginalPosition | null;
@@ -92,28 +63,13 @@ export const InspectorOpenInEditor: React.FC<{
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {tabIndex} = useZIndex();
 	const [hovered, setHovered] = useState(false);
-	const [editorInfo, setEditorInfo] =
-		useState<GetDefaultEditorInfoResponse | null>(null);
-	const canUseEditorPicker =
-		previewServerState.type === 'connected' &&
-		!window.remotion_isReadOnlyStudio &&
-		getBrowserStudioOperations() === null;
-
-	useEffect(() => {
-		if (!canUseEditorPicker) {
-			return;
-		}
-
-		const controller = new AbortController();
-		callApi('/api/default-editor-info', {}, controller.signal)
-			.then(setEditorInfo)
-			.catch(() => undefined);
-
-		return () => controller.abort();
-	}, [canUseEditorPicker]);
+	const editorPickerAvailable = canUseEditorPicker(
+		previewServerState.type === 'connected',
+	);
+	const editorInfo = useDefaultEditorInfo(editorPickerAvailable);
 
 	const openWithEditor = useCallback(
-		async (editorId?: EditorPickerId) => {
+		async (editorId: EditorPickerId | null) => {
 			if (!location) {
 				return;
 			}
@@ -134,7 +90,7 @@ export const InspectorOpenInEditor: React.FC<{
 	const onOpenDefault: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(event) => {
 			event.stopPropagation();
-			openWithEditor().catch(() => undefined);
+			openWithEditor(null).catch(() => undefined);
 		},
 		[openWithEditor],
 	);
@@ -162,7 +118,7 @@ export const InspectorOpenInEditor: React.FC<{
 				id: `open-in-${editor.id}`,
 				keyHint: null,
 				label: <span style={menuLabel}>{editor.name}</span>,
-				leftItem: <EditorIcon editorId={editor.id} />,
+				leftItem: <EditorIcon editorId={editor.id} size={editorMenuIconSize} />,
 				onClick: () => {
 					openWithEditor(editor.id).catch(() => undefined);
 				},
@@ -179,7 +135,7 @@ export const InspectorOpenInEditor: React.FC<{
 				id: 'set-default-editor',
 				keyHint: null,
 				label: <span style={menuLabel}>Set default editor...</span>,
-				leftItem: <GearIcon style={gearStyle} />,
+				leftItem: null,
 				onClick: () => {
 					setSelectedModal({type: 'configure-default-editor'});
 				},
@@ -198,7 +154,7 @@ export const InspectorOpenInEditor: React.FC<{
 		setSelectedModal,
 	]);
 
-	if (!canUseEditorPicker) {
+	if (!editorPickerAvailable) {
 		return null;
 	}
 
@@ -215,13 +171,13 @@ export const InspectorOpenInEditor: React.FC<{
 				title={`Open in ${editorName}`}
 				type="button"
 			>
-				<EditorIcon editorId={preferredEditorId} />
-				<span style={label}>Open in</span>
+				<EditorIcon editorId={preferredEditorId} size={editorButtonIconSize} />
 			</button>
 			<InlineDropdown
 				renderAction={renderDropdownAction}
 				title="Open in another editor"
 				values={menuItems}
+				variant="compact"
 			/>
 		</div>
 	);

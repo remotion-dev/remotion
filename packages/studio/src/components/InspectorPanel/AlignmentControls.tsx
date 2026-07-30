@@ -60,6 +60,7 @@ const AlignmentButton: React.FC<{
 }> = ({onClick, title, Icon, disabled}) => {
 	return (
 		<InlineAction
+			variant={null}
 			title={title}
 			onClick={onClick}
 			renderAction={(color) => <Icon style={iconStyle} color={color} />}

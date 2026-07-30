@@ -76,7 +76,7 @@ export const useSequenceInspectorSourceLocation = (
 			return;
 		}
 
-		openInEditor();
+		openInEditor(null);
 	}, [canOpenInEditor, openInEditor]);
 
 	return {

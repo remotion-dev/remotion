@@ -16,13 +16,13 @@ const makeContext = ({
 	paths,
 	env = {},
 	macApplications = {},
-	windowsApplications = {},
+	windowsApplications,
 }: {
 	platform: NodeJS.Platform;
 	paths: readonly string[];
 	env?: NodeJS.ProcessEnv;
 	macApplications?: Record<string, readonly string[]>;
-	windowsApplications?: Partial<Record<BuiltInEditor, readonly string[]>>;
+	windowsApplications: Partial<Record<BuiltInEditor, readonly string[]>> | null;
 }): EditorDiscoveryContext => {
 	const existingPaths = new Set(paths);
 	return {
@@ -33,7 +33,7 @@ const makeContext = ({
 		findMacApplications: (bundleIdentifier) =>
 			Promise.resolve(macApplications[bundleIdentifier] ?? []),
 		findWindowsApplications: (editor) =>
-			Promise.resolve(windowsApplications[editor] ?? []),
+			Promise.resolve(windowsApplications?.[editor] ?? []),
 	};
 };
 
@@ -47,6 +47,7 @@ test('discovers installed macOS editors by bundle ID without running them', asyn
 		makeContext({
 			platform: 'darwin',
 			paths: [cursorApplication, cursorExecutable],
+			windowsApplications: null,
 			macApplications: {
 				'com.todesktop.230313mzl4w4u92': [cursorApplication],
 			},
@@ -69,6 +70,7 @@ test('discovers installed Linux editors from known locations and PATH', async ()
 			platform: 'linux',
 			paths: ['/custom/bin/code', '/home/test/.local/bin/zed'],
 			env: {PATH: '/custom/bin:/usr/local/bin'},
+			windowsApplications: null,
 		}),
 	);
 
@@ -116,7 +118,7 @@ test('uses the configured installed editor instead of legacy detection', async (
 	let legacyDetectionCalls = 0;
 
 	const resolved = await resolveEditor(
-		{defaultEditor: 'cursor', logLevel: 'info'},
+		{defaultEditor: 'cursor', logLevel: 'info', preferredEditor: null},
 		{
 			getInstalledEditors: () => Promise.resolve([cursor]),
 			getLegacyEditors: () => {
@@ -195,7 +197,7 @@ test('resolves a custom editor without exposing it to built-in discovery', async
 		arguments: ['--goto', '%TARGET_PATH%:%LINE_NUMBER%:%COLUMN_NUMBER%'],
 	} as const;
 	const resolved = await resolveEditor(
-		{defaultEditor: customEditor, logLevel: 'info'},
+		{defaultEditor: customEditor, logLevel: 'info', preferredEditor: null},
 		{
 			getInstalledEditors: () => {
 				installedEditorDetectionCalls++;
@@ -230,6 +232,7 @@ test('warns and falls back when a custom editor executable is unavailable', asyn
 				arguments: ['%TARGET_PATH%'],
 			},
 			logLevel: 'info',
+			preferredEditor: null,
 		},
 		{
 			getLegacyEditors: () =>
@@ -258,11 +261,11 @@ test('warns once and falls back when the configured editor is unavailable', asyn
 	};
 
 	const first = await resolveEditor(
-		{defaultEditor: 'cursor', logLevel: 'info'},
+		{defaultEditor: 'cursor', logLevel: 'info', preferredEditor: null},
 		dependencies,
 	);
 	const second = await resolveEditor(
-		{defaultEditor: 'cursor', logLevel: 'info'},
+		{defaultEditor: 'cursor', logLevel: 'info', preferredEditor: null},
 		dependencies,
 	);
 
@@ -282,7 +285,7 @@ test('warns once and falls back when the configured editor is unavailable', asyn
 test('preserves legacy detection when no default editor is configured', async () => {
 	let installedEditorDetectionCalls = 0;
 	const resolved = await resolveEditor(
-		{defaultEditor: null, logLevel: 'info'},
+		{defaultEditor: null, logLevel: 'info', preferredEditor: null},
 		{
 			getInstalledEditors: () => {
 				installedEditorDetectionCalls++;

@@ -55,6 +55,7 @@ export const RenderQueueDownloadItem: React.FC<{
 
 	return (
 		<InlineAction
+			variant={null}
 			renderAction={renderAction}
 			onClick={onClick}
 			title="Download"

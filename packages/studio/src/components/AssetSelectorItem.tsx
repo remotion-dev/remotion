@@ -703,6 +703,7 @@ const AssetSelectorItem: React.FC<{
 						<>
 							<Spacing x={0.5} />
 							<InlineAction
+								variant={null}
 								title="Copy staticFile() path"
 								renderAction={renderCopyAction}
 								onClick={copyToClipboard}
@@ -711,6 +712,7 @@ const AssetSelectorItem: React.FC<{
 								<>
 									<Spacing x={0.5} />
 									<InlineAction
+										variant={null}
 										title={`Show in ${fileManagerName}`}
 										renderAction={renderFileExplorerAction}
 										onClick={revealInExplorer}

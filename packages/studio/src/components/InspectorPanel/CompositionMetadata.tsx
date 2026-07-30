@@ -140,6 +140,7 @@ const PresetDropdown: React.FC<{
 				renderAction={renderAction}
 				title={title}
 				values={values}
+				variant="compact"
 			/>
 		</div>
 	);

@@ -52,7 +52,7 @@ export type OpenInFileExplorerRequest = {
 };
 
 export type OpenInEditorRequest = {
-	editorId?: EditorPickerId;
+	editorId: EditorPickerId | null;
 	stack: SymbolicatedStackFrame;
 };
 

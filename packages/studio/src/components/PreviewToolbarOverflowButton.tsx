@@ -262,6 +262,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 
 	return (
 		<InlineDropdown
+			variant={null}
 			renderAction={renderAction}
 			values={values}
 			title="More actions"

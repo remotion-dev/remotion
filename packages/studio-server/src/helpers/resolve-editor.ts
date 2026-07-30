@@ -56,7 +56,7 @@ export const resolveEditor = async (
 	}: {
 		defaultEditor: DefaultEditor | null;
 		logLevel: LogLevel;
-		preferredEditor?: BuiltInEditor | 'custom';
+		preferredEditor: BuiltInEditor | 'custom' | null;
 	},
 	overrides: Partial<ResolveEditorDependencies> = {},
 ): Promise<ResolvedEditor | null> => {
@@ -87,7 +87,7 @@ export const resolveEditor = async (
 		};
 	}
 
-	if (preferredEditor) {
+	if (preferredEditor !== null) {
 		const installedEditors = await dependencies.getInstalledEditors();
 		const installedEditor = installedEditors.find(
 			(editor) => editor.id === preferredEditor,

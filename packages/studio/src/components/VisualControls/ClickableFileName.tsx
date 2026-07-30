@@ -53,7 +53,7 @@ export const ClickableFileName = ({
 			return;
 		}
 
-		await openOriginalPositionInEditor(originalFileName.originalFileName);
+		await openOriginalPositionInEditor(originalFileName.originalFileName, null);
 	}, [originalFileName]);
 
 	return (

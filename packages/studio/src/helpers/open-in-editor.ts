@@ -13,7 +13,7 @@ import {getBrowserStudioOperations} from './browser-studio-operations';
 
 export const openInEditor = (
 	stack: SymbolicatedStackFrame,
-	editorId?: EditorPickerId,
+	editorId: EditorPickerId | null,
 ) => {
 	const {
 		originalFileName,
@@ -37,7 +37,7 @@ export const openInEditor = (
 
 export const openOriginalPositionInEditor = async (
 	originalPosition: OriginalPosition,
-	editorId?: EditorPickerId,
+	editorId: EditorPickerId | null,
 ) => {
 	const response = await openInEditor(
 		{
@@ -72,11 +72,14 @@ export const openOriginalPositionInEditorAtProperty = async ({
 		? await browserStudioOperations.findInFile(request)
 		: await callApi('/api/find-in-file', request);
 
-	await openOriginalPositionInEditor({
-		source: originalPosition.source,
-		line: position.lineNumber,
-		column: position.columnNumber,
-	});
+	await openOriginalPositionInEditor(
+		{
+			source: originalPosition.source,
+			line: position.lineNumber,
+			column: position.columnNumber,
+		},
+		null,
+	);
 };
 
 type ResolvedCompositionComponentInfo = {
@@ -243,5 +246,5 @@ export const openCompositionComponentInEditor = async ({
 		compositionFile,
 		compositionId,
 	});
-	await openOriginalPositionInEditor(info.location);
+	await openOriginalPositionInEditor(info.location, null);
 };

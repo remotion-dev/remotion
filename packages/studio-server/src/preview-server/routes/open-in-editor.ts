@@ -24,6 +24,7 @@ export const getEditorName = async ({
 	const editor = await resolveEditor({
 		defaultEditor: getDefaultEditor(),
 		logLevel,
+		preferredEditor: null,
 	});
 	return editor?.name ?? null;
 };
@@ -39,7 +40,7 @@ export const openInEditorHandler: ApiHandler<
 
 		const {stack} = input;
 		if (
-			input.editorId !== undefined &&
+			input.editorId !== null &&
 			input.editorId !== 'custom' &&
 			!defaultEditorIds.includes(input.editorId as BuiltInEditor)
 		) {
@@ -68,6 +69,7 @@ export const openInEditorHandler: ApiHandler<
 						lineNumber: stack.originalLineNumber as number,
 						columnNumber: stack.originalColumnNumber as number,
 						logLevel,
+						spawnProcess: null,
 					})
 				: await launchEditor({
 						colNumber: stack.originalColumnNumber as number,

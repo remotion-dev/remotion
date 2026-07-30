@@ -97,6 +97,7 @@ export const InspectorLocationCopy: React.FC<{
 					<InspectorOpenInEditor location={openInEditorLocation} />
 					{textToCopy ? (
 						<InlineAction
+							variant={null}
 							onClick={onCopy}
 							renderAction={renderCopyAction}
 							title="Copy location for agents"

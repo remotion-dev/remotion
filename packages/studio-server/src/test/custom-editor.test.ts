@@ -29,7 +29,7 @@ const makeResolutionContext = ({
 	platform,
 	env,
 	paths,
-	executablePaths = Object.keys(paths),
+	executablePaths,
 }: {
 	platform: NodeJS.Platform;
 	env: NodeJS.ProcessEnv;
@@ -37,14 +37,15 @@ const makeResolutionContext = ({
 		string,
 		Exclude<ReturnType<CustomEditorResolutionContext['inspectPath']>, null>
 	>;
-	executablePaths?: readonly string[];
+	executablePaths: readonly string[] | null;
 }): CustomEditorResolutionContext => ({
 	platform,
 	env,
 	currentWorkingDirectory:
 		platform === 'win32' ? 'C:\\project' : '/home/project',
 	inspectPath: (filePath) => paths[filePath] ?? null,
-	canExecute: (filePath) => executablePaths.includes(filePath),
+	canExecute: (filePath) =>
+		(executablePaths ?? Object.keys(paths)).includes(filePath),
 });
 
 test('resolves commands, Windows executables, and macOS app bundles without a shell', () => {
@@ -55,6 +56,7 @@ test('resolves commands, Windows executables, and macOS app bundles without a sh
 				platform: 'linux',
 				env: {PATH: '/usr/local/bin:/usr/bin'},
 				paths: {'/usr/local/bin/acme': 'file'},
+				executablePaths: null,
 			}),
 		),
 	).toEqual({
@@ -69,6 +71,7 @@ test('resolves commands, Windows executables, and macOS app bundles without a sh
 				platform: 'win32',
 				env: {PATH: 'C:\\Tools', PATHEXT: '.CMD;.EXE'},
 				paths: {'C:\\Tools\\acme.exe': 'file'},
+				executablePaths: null,
 			}),
 		),
 	).toEqual({
@@ -83,6 +86,7 @@ test('resolves commands, Windows executables, and macOS app bundles without a sh
 				platform: 'darwin',
 				env: {},
 				paths: {'/Applications/Acme Editor.app': 'directory'},
+				executablePaths: null,
 			}),
 		),
 	).toEqual({
@@ -97,6 +101,7 @@ test('resolves commands, Windows executables, and macOS app bundles without a sh
 				platform: 'win32',
 				env: {},
 				paths: {'C:\\Tools\\acme.cmd': 'file'},
+				executablePaths: null,
 			}),
 		),
 	).toBeNull();
@@ -120,6 +125,7 @@ test('resolves commands, Windows executables, and macOS app bundles without a sh
 				platform: 'linux',
 				env: {PATH: '/usr/bin'},
 				paths: {},
+				executablePaths: null,
 			}),
 		),
 	).toBeNull();
