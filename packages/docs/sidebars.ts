@@ -1195,6 +1195,7 @@ const sidebars: SidebarsConfig = {
 				'artifacts',
 				'metadata',
 				'hardware-acceleration',
+				'webgl',
 				'hdr',
 				'sample-rate',
 			],

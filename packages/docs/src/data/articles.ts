@@ -8706,6 +8706,15 @@ export const articles = [
 		slug: 'webcodecs/webcodecs-controller',
 	},
 	{
+		id: 'webgl',
+		title: 'Using WebGL during renders',
+		relativePath: 'docs/webgl.mdx',
+		compId: 'articles-docs-webgl',
+		crumb: 'Rendering',
+		noAi: false,
+		slug: 'webgl',
+	},
+	{
 		id: 'whisper-web/can-use-whisper-web',
 		title: 'canUseWhisperWeb()',
 		relativePath: 'docs/whisper-web/can-use-whisper-web.mdx',
