@@ -11,16 +11,16 @@ import {
 	isSfxDragEvent,
 } from './drop-handler-data';
 import {getElementDragData} from './element-drag-and-drop';
+import {enqueueElementInstallRequest} from './element-install-request';
 import {
+	getElementPositionForDrop,
 	hasSvgFile,
 	importAssets,
 	importRemoteAsset,
 	insertComponent,
 	insertComposition,
-	insertElement,
 	insertExistingAssets,
 	insertRemoteAudio,
-	type ConfirmElementOverwrite,
 	type InsertElementDropPosition,
 } from './import-assets';
 import type {SvgImportMode} from './SvgImportDialog';
@@ -28,7 +28,6 @@ import type {SvgImportMode} from './SvgImportDialog';
 export const handleDrop = async ({
 	chooseSvgImportMode,
 	compositionFile,
-	confirmElementOverwrite,
 	compositionId,
 	destinationDimensions,
 	dropPosition,
@@ -38,7 +37,6 @@ export const handleDrop = async ({
 }: {
 	chooseSvgImportMode: () => Promise<SvgImportMode | null>;
 	compositionFile: string;
-	confirmElementOverwrite: ConfirmElementOverwrite;
 	compositionId: string;
 	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
@@ -124,13 +122,19 @@ export const handleDrop = async ({
 
 	const element = getElementDragData(event.dataTransfer);
 	if (element !== null) {
-		await insertElement({
+		enqueueElementInstallRequest({
+			id: crypto.randomUUID(),
+			clientId: 'drag-and-drop',
+			createdAt: Date.now(),
 			compositionFile,
 			compositionId,
-			confirmOverwrite: confirmElementOverwrite,
-			dropPosition,
 			element: element.element,
 			from,
+			position: getElementPositionForDrop({
+				dimensions: element.element.dimensions,
+				dropPosition,
+			}),
+			source: {type: 'drag-and-drop'},
 		});
 		return;
 	}

@@ -150,9 +150,7 @@ const isAllowedOrigin = (origin: string | null): boolean => {
 	try {
 		const parsed = new URL(origin);
 		return (
-			(parsed.protocol === 'https:' &&
-				(parsed.hostname === 'remotion.dev' ||
-					parsed.hostname === 'www.remotion.dev')) ||
+			parsed.protocol === 'https:' ||
 			(parsed.protocol === 'http:' &&
 				(parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1'))
 		);
@@ -268,7 +266,7 @@ export const installInStudioWithDependencies = async (
 	if (!isAllowedOrigin(dependencies.pageOrigin)) {
 		return failure(
 			'unsupported-origin',
-			'Install in Studio is only supported on remotion.dev and local development origins.',
+			'Install in Studio is only supported on HTTPS websites and local development origins.',
 		);
 	}
 

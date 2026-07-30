@@ -7,7 +7,7 @@ import type {getElementInstallTarget} from '../element-install-state';
 import type {LiveEventsServer} from '../live-events';
 import {parseRequestBody, RequestBodyTooLargeError} from '../parse-body';
 import {
-	isAllowedStudioProtocolOrigin,
+	getAllowedStudioProtocolOrigin,
 	setStudioProtocolCorsHeaders,
 } from './origin-policy';
 import {writeStudioProtocolError} from './protocol-response';
@@ -29,11 +29,13 @@ const deliverElementInstall = ({
 	element,
 	focusStudioTab,
 	liveEventsServer,
+	origin,
 	target,
 }: {
 	readonly element: ElementInstallRequest['element'];
 	readonly focusStudioTab: FocusStudioTab;
 	readonly liveEventsServer: LiveEventsServer;
+	readonly origin: string;
 	readonly target: NonNullable<ReturnType<typeof getElementInstallTarget>>;
 }): boolean => {
 	if (target.compositionFile === null || target.compositionId === null) {
@@ -47,7 +49,12 @@ const deliverElementInstall = ({
 		compositionFile: target.compositionFile,
 		compositionId: target.compositionId,
 		element,
+		from: null,
 		position: null,
+		source: {
+			type: 'studio-protocol',
+			origin,
+		},
 	};
 
 	const delivered = liveEventsServer.sendEventToClientId(target.clientId, {
@@ -73,7 +80,8 @@ export const handleStudioProtocolInstall = async ({
 	readonly response: ServerResponse;
 }): Promise<void> => {
 	setStudioProtocolCorsHeaders({request, response});
-	if (!isAllowedStudioProtocolOrigin(request.headers.origin)) {
+	const requestOrigin = getAllowedStudioProtocolOrigin(request.headers.origin);
+	if (requestOrigin === null) {
 		writeStudioProtocolError({
 			code: 'unsupported-origin',
 			message: 'Origin not allowed',
@@ -144,6 +152,7 @@ export const handleStudioProtocolInstall = async ({
 
 	const target = consumeStudioProtocolTarget({
 		now: Date.now(),
+		origin: requestOrigin,
 		targetId: parsedRequest.data.targetId,
 	});
 	if (target === null) {
@@ -161,6 +170,7 @@ export const handleStudioProtocolInstall = async ({
 			element: payload.element,
 			focusStudioTab,
 			liveEventsServer,
+			origin: requestOrigin,
 			target,
 		})
 	) {

@@ -850,10 +850,40 @@ export type ConvertFigmaClipboardToSvgResponse =
 			reason: string;
 	  };
 
+export type ElementInstallExpectedFileState =
+	| {
+			exists: false;
+	  }
+	| {
+			exists: true;
+			sourceHash: string;
+	  };
+
+export type PrepareElementInstallRequest = {
+	compositionFile: string;
+	compositionId: string;
+	element: ElementDragData['element'];
+};
+
+export type PrepareElementInstallResponse =
+	| {
+			success: true;
+			plan: {
+				filePath: string;
+				expectedFileState: ElementInstallExpectedFileState;
+			};
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
 export type InsertElementRequest = {
 	compositionFile: string;
 	compositionId: string;
 	element: ElementDragData['element'];
+	expectedFileState: ElementInstallExpectedFileState | null;
 	from: number | null;
 	position: InsertableCompositionElementPosition | null;
 	overwriteExisting: boolean;
@@ -881,6 +911,15 @@ export type InsertElementResponse =
 			stack: string;
 	  };
 
+export type ElementInstallSource =
+	| {
+			type: 'studio-protocol';
+			origin: string;
+	  }
+	| {
+			type: 'drag-and-drop';
+	  };
+
 export type ElementInstallRequest = {
 	id: string;
 	clientId: string;
@@ -888,7 +927,9 @@ export type ElementInstallRequest = {
 	compositionFile: string;
 	compositionId: string;
 	element: ElementDragData['element'];
+	from: number | null;
 	position: InsertableCompositionElementPosition | null;
+	source: ElementInstallSource;
 };
 
 export type UpdateElementInstallTargetRequest = {
@@ -1095,6 +1136,10 @@ export type ApiRoutes = {
 		ConvertFigmaClipboardToSvgResponse
 	>;
 	'/api/insert-element': ReqAndRes<InsertElementRequest, InsertElementResponse>;
+	'/api/prepare-element-install': ReqAndRes<
+		PrepareElementInstallRequest,
+		PrepareElementInstallResponse
+	>;
 	'/api/update-element-install-target': ReqAndRes<
 		UpdateElementInstallTargetRequest,
 		UpdateElementInstallTargetResponse

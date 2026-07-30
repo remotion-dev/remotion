@@ -27,6 +27,7 @@ import {moveKeyframesHandler} from './routes/move-keyframes';
 import {openInEditorHandler} from './routes/open-in-editor';
 import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
 import {pasteEffectsHandler} from './routes/paste-effects';
+import {prepareElementInstallHandler} from './routes/prepare-element-install';
 import {projectInfoHandler} from './routes/project-info';
 import {redoHandler} from './routes/redo';
 import {registerClientRenderHandler} from './routes/register-client-render';
@@ -67,9 +68,9 @@ export const allApiRoutes: {
 	'/api/unsubscribe-from-file-existence': unsubscribeFromFileExistence,
 	'/api/subscribe-to-file-existence': subscribeToFileExistence,
 	'/api/remove-render': handleRemoveRender,
-	'/api/open-in-editor': openInEditorHandler,
 	'/api/find-in-file': findInFileHandler,
 	'/api/open-in-file-explorer': handleOpenInFileExplorer,
+	'/api/open-in-editor': openInEditorHandler,
 	'/api/register-client-render': registerClientRenderHandler,
 	'/api/unregister-client-render': unregisterClientRenderHandler,
 	'/api/update-default-props': updateDefaultPropsHandler,
@@ -109,6 +110,7 @@ export const allApiRoutes: {
 	'/api/install-package': handleInstallPackage,
 	'/api/insert-jsx-element': insertJsxElementHandler,
 	'/api/insert-element': insertElementHandler,
+	'/api/prepare-element-install': prepareElementInstallHandler,
 	'/api/update-element-install-target': updateElementInstallTargetHandler,
 	'/api/download-remote-asset': downloadRemoteAssetHandler,
 	'/api/undo': undoHandler,

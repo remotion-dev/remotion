@@ -170,16 +170,16 @@ test('discovers an exact Studio target and delivers one install request over HTT
 		const preflight = await fetch(`${origin}/api/studio-protocol/install`, {
 			method: 'OPTIONS',
 			headers: {
-				Origin: 'http://localhost:4000',
+				Origin: 'https://example.com',
 				'Access-Control-Request-Method': 'POST',
 			},
 		});
 		expect(preflight.status).toBe(204);
 		expect(preflight.headers.get('access-control-allow-origin')).toBe(
-			'http://localhost:4000',
+			'https://example.com',
 		);
 		const disallowedResponse = await fetch(`${origin}/api/studio-protocol`, {
-			headers: {Origin: 'https://example.com'},
+			headers: {Origin: 'http://example.com'},
 		});
 		expect(disallowedResponse.status).toBe(403);
 		expect(await disallowedResponse.json()).toMatchObject({
@@ -188,7 +188,7 @@ test('discovers an exact Studio target and delivers one install request over HTT
 		});
 
 		const discoveryResponse = await fetch(`${origin}/api/studio-protocol`, {
-			headers: {Origin: 'http://localhost:4000'},
+			headers: {Origin: 'https://example.com'},
 		});
 		expect(discoveryResponse.status).toBe(200);
 		expect(discoveryResponse.headers.get('cache-control')).toBe('no-store');
@@ -257,7 +257,7 @@ test('discovers an exact Studio target and delivers one install request over HTT
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					Origin: 'http://localhost:4000',
+					Origin: 'https://example.com',
 				},
 				body: JSON.stringify(installBody),
 			},
@@ -275,6 +275,10 @@ test('discovers an exact Studio target and delivers one install request over HTT
 				compositionFile: '/tmp/protocol-project/src/Composition.tsx',
 				compositionId: 'Main',
 				element: {displayName: 'Lower Third'},
+				source: {
+					type: 'studio-protocol',
+					origin: 'https://example.com',
+				},
 			},
 		});
 
@@ -284,7 +288,7 @@ test('discovers an exact Studio target and delivers one install request over HTT
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					Origin: 'http://localhost:4000',
+					Origin: 'https://example.com',
 				},
 				body: JSON.stringify(installBody),
 			},

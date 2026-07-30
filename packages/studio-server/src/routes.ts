@@ -4,7 +4,7 @@ import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
 import {BundlerInternals} from '@remotion/bundler';
-import type {LogLevel} from '@remotion/renderer';
+import type {DefaultEditor, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ApiRoutes,
@@ -85,6 +85,7 @@ const handleFallback = async ({
 	logLevel,
 	enableCrossSiteIsolation,
 	getStudioRuntimeConfig,
+	getDefaultEditor,
 }: {
 	remotionRoot: string;
 	hash: string;
@@ -102,6 +103,7 @@ const handleFallback = async ({
 	logLevel: LogLevel;
 	enableCrossSiteIsolation: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	getDefaultEditor: () => DefaultEditor | null;
 }) => {
 	const acceptsHtml = (request.headers.accept ?? '').includes('text/html');
 	if (request.method === 'GET' && acceptsHtml) {
@@ -131,7 +133,7 @@ const handleFallback = async ({
 		);
 	}
 
-	const displayName = await getEditorName();
+	const displayName = await getEditorName({getDefaultEditor, logLevel});
 
 	response.setHeader('content-type', 'text/html');
 	if (enableCrossSiteIsolation) {
@@ -376,6 +378,7 @@ export const handleRoutes = ({
 	getPreviewSampleRate,
 	enableCrossSiteIsolation,
 	getStudioRuntimeConfig,
+	getDefaultEditor,
 	configFile,
 }: {
 	staticHash: string;
@@ -401,6 +404,7 @@ export const handleRoutes = ({
 	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	getDefaultEditor: () => DefaultEditor | null;
 	configFile: string | null;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
@@ -477,6 +481,7 @@ export const handleRoutes = ({
 				binariesDirectory,
 				publicDir,
 				configFile,
+				getDefaultEditor,
 			});
 		}
 	}
@@ -554,5 +559,6 @@ export const handleRoutes = ({
 		getPreviewSampleRate,
 		enableCrossSiteIsolation,
 		getStudioRuntimeConfig,
+		getDefaultEditor,
 	});
 };

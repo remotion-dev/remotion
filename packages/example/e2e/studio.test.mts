@@ -28,6 +28,36 @@ test.describe('visual mode', () => {
 		await navigateToSchemaTest(page);
 	});
 
+	test('should not subscribe to package-owned sequence props', async ({
+		page,
+	}) => {
+		const subscriptionSources: string[] = [];
+		page.on('request', (request) => {
+			if (!request.url().includes('/api/subscribe-to-sequence-props')) {
+				return;
+			}
+
+			const body = request.postDataJSON() as {fileName: string};
+			subscriptionSources.push(body.fileName);
+		});
+
+		await page.goto(`${STUDIO_URL}/package-absolute-fill`);
+		await expect
+			.poll(
+				() =>
+					subscriptionSources.filter((source) =>
+						source.startsWith('./src/LightLeak/'),
+					).length,
+				{timeout: 15_000},
+			)
+			.toBeGreaterThan(0);
+
+		await page.waitForTimeout(500);
+		expect(subscriptionSources.some((source) => source.startsWith('../'))).toBe(
+			false,
+		);
+	});
+
 	test('should seek in read-only Studio', async ({page}) => {
 		await page.addInitScript(() => {
 			Object.defineProperty(window, 'remotion_isReadOnlyStudio', {

@@ -17,10 +17,6 @@ export const TableOfContents: React.FC = () => {
 				<strong>installInStudio()</strong>
 				<div>Request installation into the active Studio</div>
 			</TOCItem>
-			<TOCItem link="/docs/studio-protocol/protocol">
-				<strong>Protocol reference</strong>
-				<div>Wire format, capabilities, and versioning</div>
-			</TOCItem>
 			<TOCItem link="/docs/studio-protocol/security">
 				<strong>Security</strong>
 				<div>Confirmation and origin policy</div>

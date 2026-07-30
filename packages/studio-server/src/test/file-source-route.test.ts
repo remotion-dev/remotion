@@ -74,6 +74,7 @@ test('serves file source from an origin-less GET request', async () => {
 			entryPoint: '',
 			getAudioLatencyHint: () => null,
 			getCurrentInputProps: () => ({}),
+			getDefaultEditor: () => null,
 			getEnvVariables: () => ({}),
 			getRenderDefaults: () => ({}) as RenderDefaults,
 			getRenderQueue: () => [],

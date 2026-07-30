@@ -29,6 +29,7 @@ const {
 	publicPathOption,
 	audioLatencyHintOption,
 	darkModeOption,
+	defaultEditorOption,
 	publicLicenseKeyOption,
 	forceNewStudioOption,
 	numberOfSharedAudioTagsOption,
@@ -95,6 +96,7 @@ export type CommandLineOptions = {
 		typeof ignoreCertificateErrorsOption
 	> | null;
 	[darkModeOption.cliFlag]: TypeOfOption<typeof darkModeOption> | null;
+	[defaultEditorOption.cliFlag]: TypeOfOption<typeof defaultEditorOption>;
 	[disableWebSecurityOption.cliFlag]: TypeOfOption<
 		typeof disableWebSecurityOption
 	> | null;

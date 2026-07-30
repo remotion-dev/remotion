@@ -37,6 +37,7 @@ test('reset config options restores defaults before reloading config', async () 
 	Config.setStudioPort(4321);
 	Config.setMaxTimelineTracks(123);
 	Config.setChromiumOpenGlRenderer('angle');
+	Config.setDefaultEditor('cursor');
 	Config.setBufferStateDelayInMilliseconds(200);
 	Config.overrideBundlerConfig((config, {bundler}) => ({
 		...config,
@@ -60,6 +61,10 @@ test('reset config options restores defaults before reloading config', async () 
 	expect(
 		BrowserSafeApis.options.glOption.getValue({commandLine: {}}).value,
 	).toBe('angle');
+	expect(
+		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
+			.value,
+	).toBe('cursor');
 	expect(ConfigInternals.getBufferStateDelayInMilliseconds()).toBe(200);
 	const sharedWebpackConfig = await ConfigInternals.getBundlerOverrideFn()(
 		{mode: 'development'},
@@ -96,6 +101,10 @@ test('reset config options restores defaults before reloading config', async () 
 	expect(
 		BrowserSafeApis.options.glOption.getValue({commandLine: {}}).value,
 	).toBeNull();
+	expect(
+		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
+			.value,
+	).toBeNull();
 	expect(ConfigInternals.getBufferStateDelayInMilliseconds()).toBeNull();
 	expect(
 		await ConfigInternals.getBundlerOverrideFn()(
@@ -122,6 +131,20 @@ test('reset config options restores defaults before reloading config', async () 
 		BrowserSafeApis.options.overwriteOption.getValue({commandLine: {}}, true)
 			.value,
 	).toBe(true);
+});
+
+test('the CLI editor flag takes precedence over Config.setDefaultEditor()', () => {
+	ConfigInternals.resetConfigOptions();
+	Config.setDefaultEditor('cursor');
+
+	expect(
+		BrowserSafeApis.options.defaultEditorOption.getValue({
+			commandLine: {editor: 'zed'},
+		}),
+	).toEqual({source: 'cli', value: 'zed'});
+	expect(() => Config.setDefaultEditor('invalid' as 'cursor')).toThrow(
+		'Config.setDefaultEditor() must be one of',
+	);
 });
 
 test('bundler overrides can be fixed at Studio startup', async () => {

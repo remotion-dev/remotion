@@ -19,6 +19,7 @@ const targetsByClientId = new Map<string, ElementInstallTarget>();
 
 type StudioProtocolTarget = {
 	readonly id: string;
+	readonly origin: string;
 	readonly target: ElementInstallTarget;
 	readonly expiresAt: number;
 };
@@ -73,9 +74,11 @@ export const getElementInstallTarget = (requestId: string | null) => {
 
 export const issueStudioProtocolTarget = ({
 	now,
+	origin,
 	target,
 }: {
 	readonly now: number;
+	readonly origin: string;
 	readonly target: ElementInstallTarget;
 }) => {
 	for (const [id, existing] of studioProtocolTargets) {
@@ -86,6 +89,7 @@ export const issueStudioProtocolTarget = ({
 
 	const issued: StudioProtocolTarget = {
 		id: randomUUID(),
+		origin,
 		target: {...target},
 		expiresAt: now + STUDIO_PROTOCOL_TARGET_MAX_AGE,
 	};
@@ -95,14 +99,20 @@ export const issueStudioProtocolTarget = ({
 
 export const consumeStudioProtocolTarget = ({
 	now,
+	origin,
 	targetId,
 }: {
 	readonly now: number;
+	readonly origin: string;
 	readonly targetId: string;
 }): ElementInstallTarget | null => {
 	const issued = studioProtocolTargets.get(targetId);
 	studioProtocolTargets.delete(targetId);
-	if (issued === undefined || issued.expiresAt <= now) {
+	if (
+		issued === undefined ||
+		issued.expiresAt <= now ||
+		issued.origin !== origin
+	) {
 		return null;
 	}
 
