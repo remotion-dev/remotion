@@ -158,6 +158,7 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 				) : null}
 				{editorInfo === null ? null : (
 					<Combobox
+						matchMenuWidth
 						values={editorValues}
 						selectedId={selectedEditor ?? NO_PREFERENCE_ID}
 						style={comboBoxStyle}
