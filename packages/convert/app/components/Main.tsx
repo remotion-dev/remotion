@@ -6,6 +6,7 @@ import type {RouteAction} from '~/seo';
 import {getHeaderTitle} from '~/seo';
 import {FileAvailable} from './FileAvailable';
 import {PickFile} from './PickFile';
+import {ReplaceVideo} from './ReplaceVideo';
 
 export const Main: React.FC<{
 	readonly routeAction: RouteAction;
@@ -34,6 +35,7 @@ export const Main: React.FC<{
 						title={getHeaderTitle(routeAction)}
 					/>
 				)}
+				<ReplaceVideo src={src} setSrc={setSrc} />
 			</div>
 		</TitleProvider>
 	);
