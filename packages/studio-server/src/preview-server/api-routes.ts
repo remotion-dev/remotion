@@ -11,6 +11,10 @@ import {batchUpdateKeyframeSettingsHandler} from './routes/batch-update-keyframe
 import {handleCancelRender} from './routes/cancel-render';
 import {compositionComponentInfoHandler} from './routes/composition-component-info';
 import {convertFigmaClipboardToSvgHandler} from './routes/convert-figma-clipboard-to-svg';
+import {
+	getDefaultEditorInfoHandler,
+	updateDefaultEditorHandler,
+} from './routes/default-editor';
 import {deleteEffectHandler} from './routes/delete-effect';
 import {deleteJsxNodeHandler} from './routes/delete-jsx-node';
 import {deleteKeyframesHandler} from './routes/delete-keyframes';
@@ -107,6 +111,8 @@ export const allApiRoutes: {
 	'/api/rename-static-file': renameStaticFileHandler,
 	'/api/restart-studio': handleRestartStudio,
 	'/api/update-public-license': updatePublicLicenseHandler,
+	'/api/default-editor-info': getDefaultEditorInfoHandler,
+	'/api/update-default-editor': updateDefaultEditorHandler,
 	'/api/install-package': handleInstallPackage,
 	'/api/insert-jsx-element': insertJsxElementHandler,
 	'/api/insert-element': insertElementHandler,

@@ -304,6 +304,10 @@ export const useMenuStructure = (
 		Internals.CompositionManager,
 	);
 	const {type} = useContext(StudioServerConnectionCtx).previewServerState;
+	const canConfigureDefaultEditor =
+		!readOnlyStudio &&
+		type === 'connected' &&
+		getBrowserStudioOperations() === null;
 
 	const {
 		setSidebarCollapsedState,
@@ -402,6 +406,24 @@ export const useMenuStructure = (
 						subMenu: null,
 						quickSwitcherLabel: 'Help: Changelog',
 					},
+					canConfigureDefaultEditor
+						? {
+								id: 'default-editor',
+								value: 'default-editor',
+								label: 'Configure default editor...',
+								onClick: () => {
+									closeMenu();
+									setSelectedModal({
+										type: 'configure-default-editor',
+									});
+								},
+								type: 'item' as const,
+								keyHint: null,
+								leftItem: null,
+								subMenu: null,
+								quickSwitcherLabel: 'Configure default editor...',
+							}
+						: null,
 					{
 						id: 'license',
 						value: 'license',
@@ -453,7 +475,7 @@ export const useMenuStructure = (
 						subMenu: null,
 						quickSwitcherLabel: 'Restart Studio Server',
 					},
-				],
+				].filter(NoReactInternals.truthy),
 				quickSwitcherLabel: null,
 			},
 			getFileMenu({
@@ -1074,6 +1096,7 @@ export const useMenuStructure = (
 
 		return struct;
 	}, [
+		canConfigureDefaultEditor,
 		readOnlyStudio,
 		closeMenu,
 		type,
