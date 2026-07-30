@@ -108,14 +108,12 @@ export const Combobox: React.FC<{
 	readonly style?: React.CSSProperties;
 	readonly title: string;
 	readonly size?: ComboboxSize;
-	readonly matchMenuWidth?: boolean;
 }> = ({
 	values,
 	selectedId,
 	style: customStyle,
 	title,
 	size: controlSize = 'default',
-	matchMenuWidth = false,
 }) => {
 	const [hovered, setIsHovered] = useState(false);
 	const [opened, setOpened] = useState(false);
@@ -243,7 +241,6 @@ export const Combobox: React.FC<{
 		const canOpenOnRight = spaceToRight >= minSpaceRequired;
 		const horizontalLayout = canOpenOnRight ? 'left' : 'right';
 		return {
-			...(matchMenuWidth ? {width: size.width} : null),
 			...(verticalLayout === 'top'
 				? {
 						...menuContainerTowardsBottom,
@@ -263,7 +260,7 @@ export const Combobox: React.FC<{
 						}
 					: {left: 0}),
 		};
-	}, [isMobileLayout, matchMenuWidth, opened, size, spaceToBottom, spaceToTop]);
+	}, [isMobileLayout, opened, size, spaceToBottom, spaceToTop]);
 
 	const selected = values.find((v) => v.id === selectedId) as
 		| SelectionItem
