@@ -403,6 +403,23 @@ export const useMenuStructure = (
 						quickSwitcherLabel: 'Help: Changelog',
 					},
 					{
+						id: 'default-editor',
+						value: 'default-editor',
+						label: 'Configure default editor...',
+						onClick: () => {
+							closeMenu();
+							setSelectedModal({
+								type: 'configure-default-editor',
+							});
+						},
+						type: 'item' as const,
+						keyHint: null,
+						leftItem: null,
+						subMenu: null,
+						quickSwitcherLabel: 'Configure default editor...',
+						disabled: readOnlyStudio || type !== 'connected',
+					},
+					{
 						id: 'license',
 						value: 'license',
 						label: 'Configure License...',

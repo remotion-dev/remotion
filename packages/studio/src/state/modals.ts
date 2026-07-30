@@ -183,6 +183,9 @@ export type ModalState =
 			type: 'configure-license';
 			initialPublicLicenseKey: string | null;
 	  }
+	| {
+			type: 'configure-default-editor';
+	  }
 	| RenderModalState
 	| WebRenderModalState
 	| {

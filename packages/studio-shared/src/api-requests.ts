@@ -3,6 +3,7 @@ import type {
 	ChromeMode,
 	Codec,
 	ColorSpace,
+	DefaultEditor,
 	LogLevel,
 	PixelFormat,
 	StillImageFormat,
@@ -985,6 +986,24 @@ export type UpdatePublicLicenseResponse =
 			reason: string;
 	  };
 
+export type GetDefaultEditorInfoRequest = {};
+export type GetDefaultEditorInfoResponse = {
+	defaultEditor: DefaultEditor | null;
+	installedEditors: {id: DefaultEditor; name: string}[];
+};
+
+export type UpdateDefaultEditorRequest = {
+	defaultEditor: DefaultEditor;
+};
+export type UpdateDefaultEditorResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+	  };
+
 export type InstallPackageRequest = {
 	packageNames: string[];
 };
@@ -1166,6 +1185,14 @@ export type ApiRoutes = {
 	'/api/update-public-license': ReqAndRes<
 		UpdatePublicLicenseRequest,
 		UpdatePublicLicenseResponse
+	>;
+	'/api/default-editor-info': ReqAndRes<
+		GetDefaultEditorInfoRequest,
+		GetDefaultEditorInfoResponse
+	>;
+	'/api/update-default-editor': ReqAndRes<
+		UpdateDefaultEditorRequest,
+		UpdateDefaultEditorResponse
 	>;
 	'/api/install-package': ReqAndRes<
 		InstallPackageRequest,
