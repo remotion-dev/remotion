@@ -192,6 +192,30 @@ export const containsLayoutSubtreeCanvas = (element: HTMLElement): boolean => {
 	return countLayoutSubtreeCanvases(element) > 0;
 };
 
+export const containsLayoutSubtreeCanvasWithNonDefaultPixelDensity = (
+	element: HTMLElement,
+): boolean => {
+	return Array.from(element.querySelectorAll('canvas')).some((canvas) => {
+		if ((canvas as HTMLCanvasWithLayoutSubtree).layoutSubtree !== true) {
+			return false;
+		}
+
+		const computedStyle = getComputedStyle(canvas);
+		const cssWidth = Number.parseFloat(computedStyle.width);
+		const cssHeight = Number.parseFloat(computedStyle.height);
+		if (cssWidth <= 0 || cssHeight <= 0) {
+			return false;
+		}
+
+		const horizontalDensity = canvas.width / cssWidth;
+		const verticalDensity = canvas.height / cssHeight;
+		return (
+			Math.abs(horizontalDensity - 1) > 0.001 ||
+			Math.abs(verticalDensity - 1) > 0.001
+		);
+	});
+};
+
 export type HtmlInCanvasContext = {
 	layoutCanvas: HTMLCanvasWithLayoutSubtree;
 	ctx: Canvas2DWithDrawElement;

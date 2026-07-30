@@ -49,6 +49,7 @@ import {maskImage} from './fixtures/mask-image';
 import {maskImageUrl} from './fixtures/mask-image-url';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
 import {nestedHtmlInCanvas} from './fixtures/nested-html-in-canvas';
+import {nestedHtmlInCanvasPixelDensity} from './fixtures/nested-html-in-canvas-pixel-density';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
 import {objectFit} from './fixtures/object-fit';
 import {opacityInherited} from './fixtures/opacity-inherited';
@@ -132,6 +133,7 @@ export const Root: React.FC = () => {
 			<Composition {...objectFit} />
 			<Composition {...nestedTranslateScale} />
 			<Composition {...nestedHtmlInCanvas} />
+			<Composition {...nestedHtmlInCanvasPixelDensity} />
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...flexPositionedScaled} />

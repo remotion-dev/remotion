@@ -5,6 +5,7 @@ import {containsUrlMaskImage} from './drawing/mask-image';
 import type {HtmlInCanvasContext} from './html-in-canvas';
 import {
 	containsLayoutSubtreeCanvas,
+	containsLayoutSubtreeCanvasWithNonDefaultPixelDensity,
 	drawWithHtmlInCanvas,
 } from './html-in-canvas';
 import type {InternalState} from './internal-state';
@@ -50,6 +51,13 @@ export const createLayer = async ({
 				native: false,
 				reason:
 					'URL masks are loaded by the built-in DOM composer to guarantee deterministic rendering.',
+				shouldWarn: false,
+			});
+		} else if (containsLayoutSubtreeCanvasWithNonDefaultPixelDensity(element)) {
+			onHtmlInCanvasLayerOutcome({
+				native: false,
+				reason:
+					'A nested HTML-in-canvas bitmap has a non-default pixel density.',
 				shouldWarn: false,
 			});
 		} else {

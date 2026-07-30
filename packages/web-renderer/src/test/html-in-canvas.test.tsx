@@ -10,6 +10,7 @@ import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {nestedHtmlInCanvas} from './fixtures/nested-html-in-canvas';
+import {nestedHtmlInCanvasPixelDensity} from './fixtures/nested-html-in-canvas-pixel-density';
 import {testImage} from './utils';
 
 setForceDisableHtmlInCanvasForTesting(false);
@@ -46,6 +47,77 @@ test('captures three nested HTML-in-canvas effect layers natively', async () => 
 		await testImage({blob, testId: 'nested-html-in-canvas'});
 	} finally {
 		warn.mockRestore();
+	}
+});
+
+const getLimeBounds = async (blob: Blob) => {
+	const image = document.createElement('img');
+	const objectUrl = URL.createObjectURL(blob);
+	image.src = objectUrl;
+	await image.decode();
+
+	const canvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight);
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Could not get context');
+	}
+
+	context.drawImage(image, 0, 0);
+	const imageData = context.getImageData(
+		0,
+		0,
+		image.naturalWidth,
+		image.naturalHeight,
+	).data;
+	URL.revokeObjectURL(objectUrl);
+
+	let minX = image.naturalWidth;
+	let minY = image.naturalHeight;
+	let maxX = -1;
+	let maxY = -1;
+	for (let y = 0; y < image.naturalHeight; y++) {
+		for (let x = 0; x < image.naturalWidth; x++) {
+			const index = (y * image.naturalWidth + x) * 4;
+			if (
+				imageData[index] === 0 &&
+				imageData[index + 1] === 255 &&
+				imageData[index + 2] === 0 &&
+				imageData[index + 3] === 255
+			) {
+				minX = Math.min(minX, x);
+				minY = Math.min(minY, y);
+				maxX = Math.max(maxX, x);
+				maxY = Math.max(maxY, y);
+			}
+		}
+	}
+
+	return [minX, minY, maxX, maxY];
+};
+
+test('keeps nested HTML-in-canvas geometry independent of its pixel density', async () => {
+	const supportsNesting = await supportsNestedHtmlInCanvas();
+	if (!supportsNesting) {
+		return;
+	}
+
+	for (const scale of [1, 2]) {
+		const result = await renderStillOnWeb({
+			composition: nestedHtmlInCanvasPixelDensity,
+			frame: 0,
+			inputProps: {},
+			licenseKey: 'free-license',
+			scale,
+		});
+		const blob = await result.blob({format: 'png'});
+		const bounds = await getLimeBounds(blob);
+
+		expect(bounds).toEqual([
+			40 * scale,
+			30 * scale,
+			80 * scale - 1,
+			50 * scale - 1,
+		]);
 	}
 });
 
