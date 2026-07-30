@@ -9,8 +9,8 @@ When rendering a video in Remotion, different [GL](https://en.wikipedia.org/wiki
 
 The following renderer backends are supported in Remotion:
 
-- <code>null</code> - default in Remotion 4, lets Chrome decide
-- <code>angle</code> - default in Remotion 5
+- <code>null</code> - default in Remotion 4.0, lets Chrome decide
+- <code>angle</code> - default in Remotion 5.0
 - <code>egl</code>
 - <code>swiftshader</code>
 - <code>vulkan</code> (from Remotion v4.0.41)
@@ -23,7 +23,7 @@ From Remotion 5.0, `angle` is the default renderer. A compatible GPU is used whe
 
 Lambda and Cloud Run continue to use `swangle` by default.
 
-To retain the Remotion 4 behavior in a Node.js API, pass `null` to let Chrome decide:
+To retain the Remotion 4.0 behavior in a Node.js API, pass `null` to let Chrome decide:
 
 ```ts title="render.ts"
 await renderMedia({
@@ -34,7 +34,7 @@ await renderMedia({
 });
 ```
 
-## Recommended renderers in Remotion 4
+## Recommended renderers in Remotion 4.0
 
 <Step>1</Step> If you use WebGL/Three.js:
 
@@ -51,7 +51,7 @@ In cases where a GPU could be beneficial for rendering, it can often make sense 
 
 ⚠️ Memory leaks are a known problem with <code>angle</code>. We recommend to split up long renders into multiple parts when rendering large videos, since sometimes renders can fail due to memory leaks.
 
-In Remotion 4, GitHub Actions will fail when using <code>angle</code>, since Actions runners don't have a GPU.
+In Remotion 4.0, GitHub Actions will fail when using <code>angle</code>, since Actions runners don't have a GPU.
 
 ## Selecting the renderer backend
 
