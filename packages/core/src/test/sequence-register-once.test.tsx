@@ -14,6 +14,7 @@ import type {
 import {Img, imgSchema} from '../Img.js';
 import {Interactive} from '../Interactive.js';
 import {Internals} from '../internals.js';
+import {Loading} from '../loading-indicator.js';
 import type {OverrideIdToNodePaths} from '../sequence-node-path.js';
 import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
 import {Sequence} from '../Sequence.js';
@@ -1299,6 +1300,24 @@ test('AbsoluteFill is an interactive sequence while preserving its div contract'
 		'style.backgroundColor',
 	]);
 	expect(registeredSequences[0]?.controls?.schema).toHaveProperty('children');
+});
+
+test('Loading indicator does not register an interactive sequence', () => {
+	const registeredSequences: TSequence[] = [];
+
+	const {container, getByText} = render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Loading />
+		</SequenceTestWrapper>,
+	);
+
+	expect(getByText('Resolving <Suspense>...')).toBeTruthy();
+	expect(container.querySelector('#remotion-comp-loading')).toBeTruthy();
+	expect(registeredSequences).toHaveLength(0);
 });
 
 test('Interactive elements inherit trimBefore from Sequence', () => {
