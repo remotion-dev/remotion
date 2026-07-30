@@ -81,6 +81,8 @@ const elementInstallCompositionIdStyle: React.CSSProperties = {
 	fontSize: 13,
 };
 
+const elementInstallDependencyIgnoreList = ['react', 'react-dom', 'remotion'];
+
 const elementInstallDependencyListStyle: React.CSSProperties = {
 	marginTop: 8,
 	marginBottom: 0,
@@ -924,6 +926,14 @@ export const Canvas: React.FC<{
 				new Set(activeElementInstallRequest.element.dependencies),
 			);
 			const missingPackages = getMissingPackages(declaredDependencies);
+			const ignoredDependencies = declaredDependencies.filter(
+				(packageName) =>
+					elementInstallDependencyIgnoreList.includes(packageName) &&
+					!missingPackages.includes(packageName),
+			);
+			const dependenciesToReview = declaredDependencies.filter(
+				(packageName) => !ignoredDependencies.includes(packageName),
+			);
 			const sourceLabel =
 				activeElementInstallRequest.source.type === 'studio-protocol'
 					? `Requested by ${activeElementInstallRequest.source.origin}`
@@ -951,13 +961,13 @@ export const Canvas: React.FC<{
 						<br />
 						Accepted source code and package lifecycle scripts run with this
 						project&apos;s access to files and the network.
-						{declaredDependencies.length > 0 ? (
+						{dependenciesToReview.length > 0 ? (
 							<>
 								<br />
 								<br />
 								Declared dependencies:
 								<ul style={elementInstallDependencyListStyle}>
-									{declaredDependencies.map((packageName) => (
+									{dependenciesToReview.map((packageName) => (
 										<li key={packageName} style={elementInstallDependencyStyle}>
 											{packageName}{' '}
 											{missingPackages.includes(packageName)
@@ -967,6 +977,21 @@ export const Canvas: React.FC<{
 									))}
 								</ul>
 							</>
+						) : null}
+						{ignoredDependencies.length > 0 ? (
+							<details style={elementInstallCodeDetailsStyle}>
+								<summary style={elementInstallCodeSummaryStyle}>
+									Already available in this project (
+									{ignoredDependencies.length})
+								</summary>
+								<ul style={elementInstallDependencyListStyle}>
+									{ignoredDependencies.map((packageName) => (
+										<li key={packageName} style={elementInstallDependencyStyle}>
+											{packageName}
+										</li>
+									))}
+								</ul>
+							</details>
 						) : null}
 						<details style={elementInstallCodeDetailsStyle}>
 							<summary style={elementInstallCodeSummaryStyle}>
