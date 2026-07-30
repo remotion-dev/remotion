@@ -85,7 +85,7 @@ export type HtmlInCanvasRenderingContext2D = CanvasRenderingContext2D & {
 	reset?: () => void;
 };
 
-export type CanvasCaptureRecorderOptions = {
+type CanvasCaptureRecorderOptions = {
 	readonly canvas: HTMLCanvasElement;
 	readonly crop?: CropRectangle;
 	readonly getContentRect: () => DOMRect;
@@ -97,7 +97,7 @@ const fallbackFrameDurationInSeconds = 1 / 60;
 const recordingVideoBitrate = 120_000_000;
 const recordingKeyFrameIntervalInSeconds = 0.5;
 
-export const CAPTURE_METADATA_TAG_KEY = 'REMOTION_CAPTURE_DATA';
+const CAPTURE_METADATA_TAG_KEY = 'REMOTION_CAPTURE_DATA';
 
 export const isHtmlInCanvasAvailable = () => {
 	if (typeof document === 'undefined') {

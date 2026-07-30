@@ -186,30 +186,10 @@
         "react-dom": ">=16.8.0",
       },
     },
-    "packages/canvas-capture": {
-      "name": "@remotion/canvas-capture",
-      "version": "4.0.502",
-      "dependencies": {
-        "mediabunny": "catalog:",
-        "remotion": "workspace:*",
-      },
-      "devDependencies": {
-        "@remotion/eslint-config-internal": "workspace:*",
-        "@typescript/native-preview": "catalog:",
-        "eslint": "catalog:",
-        "react": "catalog:",
-        "react-dom": "catalog:",
-      },
-      "peerDependencies": {
-        "react": ">=16.8.0",
-        "react-dom": ">=16.8.0",
-      },
-    },
     "packages/canvas-capture-extension": {
       "name": "@remotion/canvas-capture-extension",
       "version": "0.1.0",
       "dependencies": {
-        "@remotion/canvas-capture": "workspace:*",
         "mediabunny": "catalog:",
       },
       "devDependencies": {
@@ -4087,8 +4067,6 @@
     "@remotion/browser-studio": ["@remotion/browser-studio@workspace:packages/browser-studio"],
 
     "@remotion/bundler": ["@remotion/bundler@workspace:packages/bundler"],
-
-    "@remotion/canvas-capture": ["@remotion/canvas-capture@workspace:packages/canvas-capture"],
 
     "@remotion/canvas-capture-extension": ["@remotion/canvas-capture-extension@workspace:packages/canvas-capture-extension"],
 

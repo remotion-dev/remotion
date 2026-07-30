@@ -1,11 +1,11 @@
+import type {CropRectangle} from 'mediabunny';
 import {
 	CanvasCaptureRecorder,
 	type HtmlInCanvasElement,
 	type HtmlInCanvasRenderingContext2D,
 	resetCanvas,
 	syncCanvasSize,
-} from '@remotion/canvas-capture/recorder';
-import type {CropRectangle} from 'mediabunny';
+} from './recorder';
 
 const maxCanvasDimension = 32_767;
 

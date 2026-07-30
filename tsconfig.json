@@ -262,9 +262,6 @@
 			"path": "./packages/rounded-text-box"
 		},
 		{
-			"path": "./packages/canvas-capture"
-		},
-		{
 			"path": "./packages/canvas-capture-extension"
 		},
 		{

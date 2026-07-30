@@ -1,5 +1,5 @@
-import {isHtmlInCanvasAvailable} from '@remotion/canvas-capture/recorder';
 import {type CaptureCrop, ElementCapture} from './capture';
+import {isHtmlInCanvasAvailable} from './recorder';
 import {
 	findLowestElementContainingRectangle,
 	makeSelectionRectangle,

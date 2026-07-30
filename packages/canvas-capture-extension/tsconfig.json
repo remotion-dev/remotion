@@ -6,6 +6,5 @@
 		"module": "esnext",
 		"moduleResolution": "bundler"
 	},
-	"include": ["src"],
-	"references": [{"path": "../canvas-capture"}]
+	"include": ["src"]
 }
