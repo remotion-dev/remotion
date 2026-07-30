@@ -121,6 +121,7 @@ const makeFixture = () => {
 			binariesDirectory: null,
 			configFile: null,
 			entryPoint: compositionFile,
+			getDefaultEditor: () => null,
 			input,
 			logLevel: 'error',
 			methods: {
