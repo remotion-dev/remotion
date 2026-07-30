@@ -37,12 +37,18 @@ type ResolveEditorDependencies = {
 	warnedEditors: Set<string>;
 };
 
-const legacyEditors = guessEditor();
+let legacyEditors: ReturnType<typeof guessEditor> | null = null;
+const getLegacyEditors = () => {
+	legacyEditors ??= guessEditor();
+
+	return legacyEditors;
+};
+
 const warnedEditors = new Set<string>();
 
 const defaultDependencies: ResolveEditorDependencies = {
 	getInstalledEditors: getAvailableEditors,
-	getLegacyEditors: () => legacyEditors,
+	getLegacyEditors,
 	resolveCustomEditor: resolveCustomEditorExecutable,
 	warn: () => undefined,
 	warnedEditors,
