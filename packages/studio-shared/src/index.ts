@@ -50,6 +50,7 @@ export {
 	DuplicateJsxNodeResponse,
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
+	ElementInstallSource,
 	FindInFileRequest,
 	FindInFileResponse,
 	GoogleFontSourceEdit,

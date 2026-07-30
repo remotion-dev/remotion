@@ -58,6 +58,7 @@ import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {getEffectDragData} from './effect-drag-and-drop';
+import {subscribeToElementInstallRequests} from './element-install-request';
 import {handleDrop} from './handle-drop';
 import {
 	hasSvgFile,
@@ -74,7 +75,6 @@ import {ResetZoomButton} from './ResetZoomButton';
 import {useSvgImportDialog} from './SvgImportDialog';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
-import {useElementOverwriteConfirmation} from './use-element-overwrite-confirmation';
 
 const elementInstallCompositionIdStyle: React.CSSProperties = {
 	fontFamily: 'monospace',
@@ -117,6 +117,15 @@ const elementInstallCodeBlockStyle: React.CSSProperties = {
 	fontSize: 12,
 	lineHeight: 1.5,
 	whiteSpace: 'pre',
+};
+
+const makeSourceControlsVisible = (sourceCode: string) => {
+	return sourceCode.replace(
+		/[\u200b-\u200f\u202a-\u202e\u2066-\u2069\ufeff]/g,
+		(character) => {
+			return `\\u${character.codePointAt(0)?.toString(16).padStart(4, '0')}`;
+		},
+	);
 };
 
 const getContainerStyle = (
@@ -252,7 +261,6 @@ export const Canvas: React.FC<{
 	} | null>(null);
 	const keybindings = useKeybinding();
 	const confirm = useConfirmationDialog();
-	const confirmElementOverwrite = useElementOverwriteConfirmation();
 	const chooseSvgImportMode = useSvgImportDialog();
 	const config = Internals.useUnsafeVideoConfig();
 	const areRulersVisible = useIsRulerVisible();
@@ -313,7 +321,6 @@ export const Canvas: React.FC<{
 		compositionFile !== null;
 	const canDropAssets = canInstallElements && !isAddingAsset;
 	const cannotAddSequence = compositionComponentInfo?.canAddSequence === false;
-
 	const contentDimensions = useMemo(() => {
 		if (
 			(canvasContent.type === 'asset' ||
@@ -865,6 +872,12 @@ export const Canvas: React.FC<{
 	}, [previewServerClientId, subscribeToEvent]);
 
 	useEffect(() => {
+		return subscribeToElementInstallRequests((request) => {
+			setPendingElementInstallRequests((requests) => [...requests, request]);
+		});
+	}, []);
+
+	useEffect(() => {
 		if (
 			activeElementInstallRequest !== null ||
 			pendingElementInstallRequests.length === 0
@@ -890,39 +903,85 @@ export const Canvas: React.FC<{
 
 		const handleInstallRequest = async () => {
 			setInstallingElementName(activeElementInstallRequest.element.displayName);
+			const preflight = await callApi('/api/prepare-element-install', {
+				compositionFile: activeElementInstallRequest.compositionFile,
+				compositionId: activeElementInstallRequest.compositionId,
+				element: activeElementInstallRequest.element,
+			});
+			if (!preflight.success) {
+				showNotification(
+					`Could not review Element installation: ${preflight.reason}`,
+					4000,
+				);
+				return;
+			}
+
+			if (canceled) {
+				return;
+			}
+
 			const missingPackages = getMissingPackages(
 				activeElementInstallRequest.element.dependencies,
 			);
+			const sourceLabel =
+				activeElementInstallRequest.source.type === 'studio-protocol'
+					? `Requested by ${activeElementInstallRequest.source.origin}`
+					: 'Unverified drag-and-drop payload';
 			const accepted = await confirm({
 				title: 'Install Element',
 				message: (
 					<>
+						<strong>{sourceLabel}</strong>
+						<br />
+						<br />
 						Install “{activeElementInstallRequest.element.displayName}” into{' '}
 						<code style={elementInstallCompositionIdStyle}>
 							{activeElementInstallRequest.compositionId}
 						</code>{' '}
-						composition? This will create an Element source file and update the
-						composition source.
-						{missingPackages.length > 0 ? (
+						as <code>{preflight.plan.filePath}</code>?
+						{preflight.plan.expectedFileState.exists ? (
 							<>
 								<br />
 								<br />
-								The following dependencies will also be installed:
+								This replaces the existing Element source file.
+							</>
+						) : null}
+						<br />
+						<br />
+						Accepted source code and package lifecycle scripts run with this
+						project's access to files and the network.
+						{activeElementInstallRequest.element.dependencies.length > 0 ? (
+							<>
+								<br />
+								<br />
+								Declared dependencies:
 								<ul style={elementInstallDependencyListStyle}>
-									{missingPackages.map((packageName) => (
-										<li key={packageName} style={elementInstallDependencyStyle}>
-											{packageName}
-										</li>
-									))}
+									{activeElementInstallRequest.element.dependencies.map(
+										(packageName, index) => (
+											<li
+												key={`${packageName}-${index}`}
+												style={elementInstallDependencyStyle}
+											>
+												{packageName}{' '}
+												{missingPackages.includes(packageName)
+													? '(will install)'
+													: '(already installed)'}
+											</li>
+										),
+									)}
 								</ul>
 							</>
 						) : null}
 						<details style={elementInstallCodeDetailsStyle}>
 							<summary style={elementInstallCodeSummaryStyle}>
-								Preview Element source
+								Review Element source
 							</summary>
 							<pre style={elementInstallCodeBlockStyle}>
-								<code>{activeElementInstallRequest.element.sourceCode}</code>
+								<code>
+									{makeSourceControlsVisible(
+										activeElementInstallRequest.element.sourceCode,
+									)}
+								</code>
 							</pre>
 						</details>
 					</>
@@ -936,9 +995,10 @@ export const Canvas: React.FC<{
 					element: activeElementInstallRequest.element,
 					compositionFile: activeElementInstallRequest.compositionFile,
 					compositionId: activeElementInstallRequest.compositionId,
-					confirmOverwrite: confirmElementOverwrite,
-					dropPosition: null,
-					from: null,
+					expectedFileState: preflight.plan.expectedFileState,
+					from: activeElementInstallRequest.from,
+					position: activeElementInstallRequest.position,
+					overwriteExisting: preflight.plan.expectedFileState.exists,
 				});
 			}
 		};
@@ -961,7 +1021,7 @@ export const Canvas: React.FC<{
 		return () => {
 			canceled = true;
 		};
-	}, [activeElementInstallRequest, confirm, confirmElementOverwrite]);
+	}, [activeElementInstallRequest, confirm]);
 
 	const onDragOver = useCallback(
 		(event: DragEvent) => {
@@ -1170,7 +1230,6 @@ export const Canvas: React.FC<{
 				await handleDrop({
 					chooseSvgImportMode,
 					compositionFile,
-					confirmElementOverwrite,
 					compositionId: currentCompositionId,
 					destinationDimensions:
 						contentDimensions === 'none' ? null : contentDimensions,
@@ -1189,7 +1248,6 @@ export const Canvas: React.FC<{
 			cannotAddSequence,
 			chooseSvgImportMode,
 			compositionFile,
-			confirmElementOverwrite,
 			config,
 			contentDimensions,
 			currentCompositionId,

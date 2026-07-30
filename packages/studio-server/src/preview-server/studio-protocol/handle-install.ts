@@ -29,11 +29,13 @@ const deliverElementInstall = ({
 	element,
 	focusStudioTab,
 	liveEventsServer,
+	origin,
 	target,
 }: {
 	readonly element: ElementInstallRequest['element'];
 	readonly focusStudioTab: FocusStudioTab;
 	readonly liveEventsServer: LiveEventsServer;
+	readonly origin: string;
 	readonly target: NonNullable<ReturnType<typeof getElementInstallTarget>>;
 }): boolean => {
 	if (target.compositionFile === null || target.compositionId === null) {
@@ -47,7 +49,12 @@ const deliverElementInstall = ({
 		compositionFile: target.compositionFile,
 		compositionId: target.compositionId,
 		element,
+		from: null,
 		position: null,
+		source: {
+			type: 'studio-protocol',
+			origin,
+		},
 	};
 
 	const delivered = liveEventsServer.sendEventToClientId(target.clientId, {
@@ -73,7 +80,11 @@ export const handleStudioProtocolInstall = async ({
 	readonly response: ServerResponse;
 }): Promise<void> => {
 	setStudioProtocolCorsHeaders({request, response});
-	if (!isAllowedStudioProtocolOrigin(request.headers.origin)) {
+	const requestOrigin = request.headers.origin;
+	if (
+		typeof requestOrigin !== 'string' ||
+		!isAllowedStudioProtocolOrigin(requestOrigin)
+	) {
 		writeStudioProtocolError({
 			code: 'unsupported-origin',
 			message: 'Origin not allowed',
@@ -161,6 +172,7 @@ export const handleStudioProtocolInstall = async ({
 			element: payload.element,
 			focusStudioTab,
 			liveEventsServer,
+			origin: new URL(requestOrigin).origin,
 			target,
 		})
 	) {

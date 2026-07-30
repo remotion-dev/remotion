@@ -911,6 +911,15 @@ export type InsertElementResponse =
 			stack: string;
 	  };
 
+export type ElementInstallSource =
+	| {
+			type: 'studio-protocol';
+			origin: string;
+	  }
+	| {
+			type: 'drag-and-drop';
+	  };
+
 export type ElementInstallRequest = {
 	id: string;
 	clientId: string;
@@ -918,7 +927,9 @@ export type ElementInstallRequest = {
 	compositionFile: string;
 	compositionId: string;
 	element: ElementDragData['element'];
+	from: number | null;
 	position: InsertableCompositionElementPosition | null;
+	source: ElementInstallSource;
 };
 
 export type UpdateElementInstallTargetRequest = {

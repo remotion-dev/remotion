@@ -275,6 +275,10 @@ test('discovers an exact Studio target and delivers one install request over HTT
 				compositionFile: '/tmp/protocol-project/src/Composition.tsx',
 				compositionId: 'Main',
 				element: {displayName: 'Lower Third'},
+				source: {
+					type: 'studio-protocol',
+					origin: 'http://localhost:4000',
+				},
 			},
 		});
 
