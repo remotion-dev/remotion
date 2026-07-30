@@ -24,6 +24,52 @@ test.describe('visual mode', () => {
 		});
 	});
 
+	test('should layer modals above floating sidebars', async ({page}) => {
+		await page.setViewportSize({width: 1000, height: 700});
+		await page.goto(STUDIO_URL);
+
+		const toggleLeftSidebar = page.locator('[data-sidebar-toggle="left"]');
+		const compositionsTab = page.getByText('Compositions', {exact: true});
+		const waitForZIndexEffects = () =>
+			page.evaluate(
+				() =>
+					new Promise<void>((resolve) => {
+						requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+					}),
+			);
+
+		await expect(toggleLeftSidebar).toBeVisible({timeout: 15_000});
+		await toggleLeftSidebar.click();
+		await expect(compositionsTab).toBeVisible();
+
+		await page.mouse.click(500, 250);
+		await expect(compositionsTab).toBeVisible();
+
+		await page.setViewportSize({width: 800, height: 700});
+		await expect(compositionsTab).toBeVisible();
+		await waitForZIndexEffects();
+
+		await page.getByRole('button', {name: /Search/}).click();
+		const dialog = page.getByRole('dialog');
+		await expect(dialog).toBeVisible();
+		expect(
+			await page.evaluate(
+				() =>
+					document.elementFromPoint(100, 100)?.closest('[role="dialog"]') !==
+					null,
+			),
+		).toBe(true);
+		await waitForZIndexEffects();
+
+		await page.mouse.click(790, 690);
+		await expect(dialog).toBeHidden();
+		await expect(compositionsTab).toBeVisible();
+		await waitForZIndexEffects();
+
+		await page.mouse.click(500, 250);
+		await expect(compositionsTab).toBeHidden();
+	});
+
 	test('should navigate to schema-test composition', async ({page}) => {
 		await navigateToSchemaTest(page);
 	});

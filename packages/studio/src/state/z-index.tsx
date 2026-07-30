@@ -17,6 +17,19 @@ const ZIndexContext = createContext<ZIndex>({
 	currentIndex: 0,
 });
 
+export const ZIndexContextProvider: React.FC<{
+	readonly currentIndex: number;
+	readonly children: React.ReactNode;
+}> = ({currentIndex, children}) => {
+	const value = useMemo((): ZIndex => {
+		return {currentIndex};
+	}, [currentIndex]);
+
+	return (
+		<ZIndexContext.Provider value={value}>{children}</ZIndexContext.Provider>
+	);
+};
+
 const margin: React.CSSProperties = {
 	margin: 'auto',
 };
@@ -136,19 +149,13 @@ export const HigherZIndex: React.FC<{
 		outsideClickButton,
 	]);
 
-	const value = useMemo((): ZIndex => {
-		return {
-			currentIndex,
-		};
-	}, [currentIndex]);
-
 	return (
-		<ZIndexContext.Provider value={value}>
+		<ZIndexContextProvider currentIndex={currentIndex}>
 			{disabled ? null : <EscapeHook onEscape={onEscape} />}
 			<div ref={containerRef} style={margin}>
 				{children}
 			</div>
-		</ZIndexContext.Provider>
+		</ZIndexContextProvider>
 	);
 };
 

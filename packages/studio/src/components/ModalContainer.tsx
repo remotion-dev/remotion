@@ -6,6 +6,7 @@ import {
 	WHITE_ALPHA_20,
 } from '../helpers/colors';
 import {HigherZIndex} from '../state/z-index';
+import {TopmostPortal} from './TopmostPortal';
 
 const padding = 20;
 
@@ -50,7 +51,7 @@ export const ModalContainer: React.FC<{
 		e.stopPropagation();
 	}, []);
 
-	return (
+	const modal = (
 		<div
 			className="css-reset"
 			style={backgroundOverlay}
@@ -67,4 +68,6 @@ export const ModalContainer: React.FC<{
 			</HigherZIndex>
 		</div>
 	);
+
+	return <TopmostPortal disabled={Boolean(noZIndex)}>{modal}</TopmostPortal>;
 };
