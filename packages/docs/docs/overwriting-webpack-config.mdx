@@ -26,13 +26,13 @@ Enable Rspack for CLI commands in [`remotion.config.ts`](/docs/config):
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
 
-Config.setExperimentalRspackEnabled(true);
+Config.setRspack(true);
 ```
 
-To enable it for one command, use the `--experimental-rspack` flag:
+To enable it for one command, use the `--rspack` flag:
 
 ```bash
-npx remotion studio --experimental-rspack
+npx remotion studio --rspack
 ```
 
 The flag is also available for other commands that bundle your project, such as [`render`](/docs/cli/render), [`still`](/docs/cli/still), and [`bundle`](/docs/cli/bundle).
@@ -49,7 +49,7 @@ await bundle({
 });
 ```
 
-The [`deploySite()`](/docs/lambda/deploysite#rspack) options for Lambda and [Cloud Run](/docs/cloudrun/deploysite#rspack) have the same `rspack` setting.
+The [`bundle()`](/docs/bundle#rspack) API and [Cloud Run's `deploySite()`](/docs/cloudrun/deploysite#rspack) have the same `rspack` setting.
 
 ## Override the bundler configuration
 
@@ -63,7 +63,9 @@ Remotion provides three config file APIs:
 
 You can call each override API more than once. Overrides of the same type run in registration order.
 
-Only use [`Config.overrideBundlerConfig()`](/docs/config#overridebundlerconfig) for changes that are compatible with both bundlers. Webpack and Rspack plugins are not interchangeable.
+Only use [`Config.overrideBundlerConfig()`](/docs/config#overridebundlerconfig) for changes that are compatible with both bundlers. Many loaders implement an API that works with both bundlers, but you should verify each loader individually.
+
+Webpack and Rspack plugins are not interchangeable. Use the plugin implementation from the selected bundler in its bundler-specific override.
 
 Remotion ships with its own [Webpack configuration](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/webpack-config.ts) and [Rspack configuration](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/rspack-config.ts). Each override receives the previous configuration and returns the next one.
 
@@ -125,9 +127,9 @@ Config.overrideRspackConfig((currentConfiguration) => {
 });
 ```
 
-## When using `bundle()` and `deploySite()`
+## When using `bundle()`
 
-Node.js APIs do not read `remotion.config.ts`. Pass the overrides directly to [`bundle()`](/docs/bundle) or [`deploySite()`](/docs/lambda/deploysite). Put an override in a separate file to import it from both `remotion.config.ts` and your Node.js script.
+The `bundle()` Node.js API does not read `remotion.config.ts`. Pass the overrides directly to [`bundle()`](/docs/bundle). Put an override in a separate file to import it from both `remotion.config.ts` and your Node.js script.
 
 Pass portable changes as `bundlerOverride`.
 
@@ -172,29 +174,6 @@ await bundle({
 });
 ```
 
-Or while using with `deploySite`:
-
-```ts twoslash title="my-script.js"
-// @filename: ./src/bundler-override.ts
-import {BundlerOverrideFn} from '@remotion/bundler';
-export const bundlerOverride: BundlerOverrideFn = (c) => c;
-// @filename: remotion.config.ts
-// @target: esnext
-// ---cut---
-import {deploySite} from '@remotion/lambda';
-import {bundlerOverride} from './src/bundler-override';
-
-await deploySite({
-  entryPoint: require.resolve('./src/index.ts'),
-  region: 'us-east-1',
-  bucketName: 'remotionlambda-c7fsl3d',
-  options: {
-    bundlerOverride,
-  },
-  // ...other parameters
-});
-```
-
 For bundler-specific changes, pass `webpackOverride` or `rspackOverride` instead.
 
 ## Multiple overrides
@@ -221,6 +200,50 @@ Config.overrideBundlerConfig(enableTailwind);
 ```
 
 ## Snippets
+
+### Add a plugin
+
+Use Webpack plugins with `Config.overrideWebpackConfig()`:
+
+```ts twoslash title="remotion.config.ts"
+import {webpack} from '@remotion/bundler';
+import {Config} from '@remotion/cli/config';
+
+Config.overrideWebpackConfig((config) => {
+  return {
+    ...config,
+    plugins: [
+      ...(config.plugins ?? []),
+      new webpack.DefinePlugin({
+        MY_CONSTANT: JSON.stringify('value'),
+      }),
+    ],
+  };
+});
+```
+
+Use the equivalent Rspack plugin with `Config.overrideRspackConfig()`:
+
+<Installation pkg="@rspack/core" />
+
+```ts title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+import {DefinePlugin} from '@rspack/core';
+
+Config.overrideRspackConfig((config) => {
+  return {
+    ...config,
+    plugins: [
+      ...(config.plugins ?? []),
+      new DefinePlugin({
+        MY_CONSTANT: JSON.stringify('value'),
+      }),
+    ],
+  };
+});
+```
+
+Do not pass a plugin created by `webpack` to Rspack or a plugin created by `@rspack/core` to Webpack.
 
 ### Enabling MDX support
 
@@ -269,7 +292,7 @@ import {enableMdx} from './src/enable-mdx';
 Config.overrideBundlerConfig(enableMdx);
 ```
 
-4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle).
 
 5. Create a file which contains `declare module '*.mdx';` in your project to fix a TypeScript error showing up.
 
@@ -346,7 +369,7 @@ import {enablePostCSS} from './src/enable-postcss';
 Config.overrideBundlerConfig(enablePostCSS);
 ```
 
-4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle).
 
 5. Restart the Remotion Studio.
 
@@ -421,7 +444,7 @@ import {enableSvgr} from './src/enable-svgr';
 Config.overrideWebpackConfig(enableSvgr);
 ```
 
-4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle).
 
 5. Restart the Remotion Studio.
 
@@ -483,22 +506,47 @@ declare module '*.glsl' {
 }
 ```
 
-4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle).
 
 5. Reset the webpack cache by deleting the `node_modules/.cache` folder.
 6. Restart the Remotion Studio.
 
 ### Enable WebAssembly
 
-There are two WebAssembly modes: asynchronous and synchronous. We recommend testing both and seeing which one works for the WASM library you are trying to use.
+Rspack and Webpack support asynchronous WebAssembly. Webpack's `syncWebAssembly` mode is only supported by Webpack.
 
-```ts twoslash title="remotion.config.ts - synchronous"
+#### Asynchronous WebAssembly
+
+Use a shared override to enable asynchronous WebAssembly with either bundler:
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+Config.overrideBundlerConfig((conf) => {
+  return {
+    ...conf,
+    experiments: {
+      ...conf.experiments,
+      asyncWebAssembly: true,
+    },
+  };
+});
+```
+
+Static and dynamic `.wasm` imports are supported.
+
+#### Webpack's synchronous WebAssembly mode
+
+Rspack does not implement Webpack's `syncWebAssembly` experiment. If a library relies on synchronous named exports from a `.wasm` import, use a Webpack-specific override:
+
+```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
 
 Config.overrideWebpackConfig((conf) => {
   return {
     ...conf,
     experiments: {
+      ...conf.experiments,
       syncWebAssembly: true,
     },
   };
@@ -509,32 +557,15 @@ Config.overrideWebpackConfig((conf) => {
 Since Webpack does not allow synchronous WebAssembly code in the main chunk, you most likely need to declare your composition using [`lazyComponent`](/docs/composition#example-using-lazycomponent) instead of `component`. Check out a [demo project](https://github.com/remotion-dev/id3-tags) for an example.
 :::
 
-```ts twoslash title="remotion.config.ts - asynchronous"
-import {Config} from '@remotion/cli/config';
+After changing the configuration, restart the Remotion Studio.
 
-Config.overrideWebpackConfig((conf) => {
-  return {
-    ...conf,
-    experiments: {
-      asyncWebAssembly: true,
-    },
-  };
-});
-```
-
-After you've done that, clear the Webpack cache:
-
-```bash
-rm -rf node_modules/.cache
-```
-
-After restarting, you can import `.wasm` files using an import statement.
-
-Add the Webpack override to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+Add the asynchronous override as `bundlerOverride` to your [Node.JS API calls if necessary](#when-using-bundle). Pass the synchronous override as `webpackOverride`.
 
 ### Change the `@jsxImportSource`
 
-```tsx twoslash
+Webpack uses Remotion's esbuild loader for TypeScript and JSX. Change its `jsxImportSource` option in a Webpack-specific override:
+
+```tsx twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
 
 Config.overrideWebpackConfig((config) => {
@@ -561,6 +592,62 @@ Config.overrideWebpackConfig((config) => {
               options: {
                 ...use.options,
                 jsxImportSource: 'react',
+              },
+            };
+          }),
+        };
+      }),
+    },
+  };
+});
+```
+
+Rspack uses its built-in SWC loader instead. Change `jsc.transform.react.importSource` in a Rspack-specific override:
+
+```tsx twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+Config.overrideRspackConfig((config) => {
+  return {
+    ...config,
+    module: {
+      ...config.module,
+      rules: config.module?.rules?.map((rule) => {
+        if (!rule || rule === '...' || !Array.isArray(rule.use)) {
+          return rule;
+        }
+
+        return {
+          ...rule,
+          use: rule.use.map((use) => {
+            if (
+              typeof use === 'string' ||
+              use.loader !== 'builtin:swc-loader'
+            ) {
+              return use;
+            }
+
+            const options = use.options as
+              | {
+                  jsc?: {
+                    transform?: {react?: Record<string, unknown>};
+                  };
+                }
+              | undefined;
+            return {
+              ...use,
+              options: {
+                ...options,
+                jsc: {
+                  ...options?.jsc,
+                  transform: {
+                    ...options?.jsc?.transform,
+                    react: {
+                      ...options?.jsc?.transform?.react,
+                      importSource: 'react',
+                    },
+                  },
+                },
               },
             };
           }),

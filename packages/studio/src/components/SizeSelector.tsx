@@ -76,14 +76,9 @@ export const getUniqueSizes = (size: PreviewSize) => {
 
 const zoomableFileTypes: AssetFileType[] = ['video', 'image'];
 
-export const SizeSelector: React.FC = () => {
+export const usePreviewSizeMenuItems = () => {
 	const {size, setSize} = useContext(Internals.PreviewSizeContext);
 	const {canvasContent} = useContext(Internals.CompositionManager);
-	const style = useMemo(() => {
-		return {
-			padding: CONTROL_BUTTON_PADDING - 2,
-		};
-	}, []);
 
 	const zoomable = useMemo(() => {
 		if (!canvasContent) {
@@ -132,6 +127,21 @@ export const SizeSelector: React.FC = () => {
 		});
 	}, [setSize, size]);
 
+	return {
+		items,
+		selectedId: String(size.size),
+		zoomable,
+	};
+};
+
+export const SizeSelector: React.FC = () => {
+	const {items, selectedId, zoomable} = usePreviewSizeMenuItems();
+	const style = useMemo(() => {
+		return {
+			padding: CONTROL_BUTTON_PADDING - 2,
+		};
+	}, []);
+
 	if (!zoomable) {
 		return null;
 	}
@@ -142,7 +152,7 @@ export const SizeSelector: React.FC = () => {
 				size="compact"
 				title={accessibilityLabel}
 				style={comboStyle}
-				selectedId={String(size.size)}
+				selectedId={selectedId}
 				values={items}
 			/>
 		</div>

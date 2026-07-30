@@ -66,7 +66,7 @@ The `text-transform` property is <a style={{color: 'green'}}>supported</a>.
 The `text-rendering` property is <a style={{color: 'green'}}>supported</a>.
 The `font-variant-caps` property is <a style={{color: 'green'}}>supported</a>.
 The `font-kerning` property is <a style={{color: 'green'}}>supported</a>.
-The `font-stretch` property is <a style={{color: 'green'}}>supported</a>.
+The `font-stretch` property is <a style={{color: 'green'}}>supported</a>. Percentage values are approximated to the closest named stretch supported by the Canvas API.
 The `direction` HTML attribute is <a style={{color: 'green'}}>supported</a>.
 The `writing-mode` property is <a style={{color: 'red'}}>not supported</a>.
 The `text-decoration` property is <a style={{color: 'green'}}>supported</a> for `solid`, `dotted`, `dashed`, `double`, and `wavy` `text-decoration-style` values on `underline`, `overline`, and `line-through` lines with `text-decoration-color` and `text-decoration-thickness`.
@@ -82,8 +82,11 @@ Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.
 
 ## Masks
 
-`mask-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>.  
-Other `mask-image` values are <a style={{color: 'red'}}>not supported</a>.
+`mask-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>.
+
+`mask-image` with a single raster `url()` is <a style={{color: 'green'}}>supported</a> from <AvailableFrom v="4.0.501" inline /> for same-origin, `data:`, and `blob:` URLs when using `mask-size: 100% 100%`, `mask-position: 0% 0%`, and `mask-repeat: no-repeat`. The mask uses its alpha channel.
+
+Cross-origin URLs, SVG masks, multiple mask layers, luminance masks, and other mask sizing, positioning, or repetition values are <a style={{color: 'red'}}>not supported</a>.
 
 ## Filters
 

@@ -30,6 +30,9 @@
 		"testwebrenderer": {
 			"dependsOn": ["@remotion/web-renderer#make"]
 		},
+		"testbrowserstudio": {
+			"dependsOn": ["@remotion/browser-studio#make"]
+		},
 		"testlayoututils": {
 			"dependsOn": ["@remotion/layout-utils#make"]
 		},
@@ -66,19 +69,68 @@
 			"outputs": [],
 			"outputLogs": "new-only"
 		},
+		"prewarm-twoslash": {
+			"dependsOn": ["^make"],
+			"inputs": [
+				"$TURBO_ROOT$/bun.lock",
+				"$TURBO_ROOT$/package.json",
+				"$TURBO_ROOT$/packages/**/package.json",
+				"$TURBO_ROOT$/packages/**/*.d.ts",
+				"$TURBO_ROOT$/packages/**/*.d.mts",
+				"$TURBO_ROOT$/packages/**/*.d.cts",
+				"docs/**",
+				"blog/**",
+				"learn/**",
+				"new-docs/**",
+				"elements/**",
+				"plugins/element-source-utils.js",
+				"prewarm-twoslash.ts",
+				"twoslash-worker.mjs",
+				"package.json"
+			],
+			"outputs": ["node_modules/.cache/twoslash/**"],
+			"passThroughEnv": [
+				"NODE_OPTIONS",
+				"REMOTION_DOCS_LOW_MEMORY_BUILD",
+				"TWOSLASH_RECYCLE_LIMIT_BYTES",
+				"TWOSLASH_SHARED_CACHE_DIR",
+				"TWOSLASH_SHARED_CACHE_GC_INTERVAL_MS",
+				"TWOSLASH_SHARED_CACHE_MAX_AGE_MS",
+				"TWOSLASH_SHARED_CACHE_MAX_BYTES",
+				"TWOSLASH_STALL_TIMEOUT_MS",
+				"TWOSLASH_WORKER_COUNT",
+				"VERCEL"
+			],
+			"outputLogs": "new-only"
+		},
 		"build-docs": {
 			"dependsOn": [
 				"^make",
 				"make",
+				"prewarm-twoslash",
 				"@remotion/convert#build-spa",
 				"@remotion/brand#bundle",
 				"@remotion/example#bundle-testbed"
 			],
-			"outputs": [".docusaurus", "build", "node_modules/.cache/twoslash"],
+			"outputs": [".docusaurus", "build"],
 			"outputLogs": "new-only"
 		},
 		"test": {
 			"dependsOn": ["^make", "make"],
+			"outputs": [],
+			"outputLogs": "new-only"
+		},
+		"@remotion/browser-studio#test": {
+			"dependsOn": ["^make", "make"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"$TURBO_ROOT$/packages/template-blank/package.json",
+				"$TURBO_ROOT$/packages/template-blank/remotion.config.ts",
+				"$TURBO_ROOT$/packages/template-blank/src/Composition.tsx",
+				"$TURBO_ROOT$/packages/template-blank/src/Root.tsx",
+				"$TURBO_ROOT$/packages/template-blank/src/index.ts",
+				"$TURBO_ROOT$/packages/template-blank/tsconfig.json"
+			],
 			"outputs": [],
 			"outputLogs": "new-only"
 		},

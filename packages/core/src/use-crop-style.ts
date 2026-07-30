@@ -26,7 +26,7 @@ export const useCropStyle = ({
 	return useMemo(() => {
 		const cropClipPath = getSequenceCropClipPath({
 			...resolveSequenceCrop({cropLeft, cropRight, cropTop, cropBottom}),
-			borderRadius: style?.borderRadius,
+			style,
 		});
 
 		if (cropClipPath === null) {

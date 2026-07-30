@@ -1,129 +1,111 @@
-import React, {forwardRef, useMemo} from 'react';
+import React, {useCallback, useRef} from 'react';
+import {
+	AbsoluteFillElement,
+	type AbsoluteFillElementProps,
+} from './AbsoluteFillElement.js';
+import type {SequenceControls} from './CompositionManager.js';
+import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import type {InteractiveBaseProps} from './Interactive.js';
+import {
+	backgroundSchema,
+	baseSchema,
+	borderRadiusSchema,
+	borderSchema,
+	textContentSchema,
+	textSchema,
+	transformSchema,
+	type InteractivitySchema,
+} from './interactivity-schema.js';
+import {Sequence} from './Sequence.js';
+import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
+import {withInteractivitySchema} from './with-interactivity-schema.js';
 
-const hasTailwindClassName = ({
-	className,
-	classPrefix,
-	type,
-}: {
-	className: string | undefined;
-	classPrefix: string[];
-	type: 'prefix' | 'exact';
-}) => {
-	if (!className) {
-		return false;
+export type AbsoluteFillProps = Omit<
+	AbsoluteFillElementProps,
+	keyof InteractiveBaseProps
+> &
+	InteractiveBaseProps & {
+		/**
+		 * @deprecated For internal use only
+		 */
+		readonly stack?: string;
+	};
+
+export const absoluteFillSchema = {
+	...baseSchema,
+	...transformSchema,
+	...backgroundSchema,
+	...borderSchema,
+	...borderRadiusSchema,
+	...textSchema,
+	...textContentSchema,
+} as const satisfies InteractivitySchema;
+
+const setRef = <ElementType,>(
+	ref: React.Ref<ElementType> | undefined,
+	value: ElementType | null,
+) => {
+	if (typeof ref === 'function') {
+		ref(value);
+	} else if (ref) {
+		ref.current = value;
 	}
-
-	if (type === 'exact') {
-		const split = className.split(' ');
-		return classPrefix.some((token) => {
-			return split.some((part) => {
-				return (
-					part.trim() === token ||
-					part.trim().endsWith(`:${token}`) ||
-					part.trim().endsWith(`!${token}`)
-				);
-			});
-		});
-	}
-
-	return classPrefix.some((prefix) => {
-		return (
-			className.startsWith(prefix) ||
-			className.includes(` ${prefix}`) ||
-			className.includes(`!${prefix}`) ||
-			className.includes(`:${prefix}`)
-		);
-	});
 };
 
-const AbsoluteFillRefForwarding: React.ForwardRefRenderFunction<
-	HTMLDivElement,
-	React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>
-> = (props, ref) => {
-	const {style, ...other} = props;
+const AbsoluteFillInner: React.FC<
+	AbsoluteFillProps & {readonly controls: SequenceControls | undefined}
+> = ({
+	ref,
+	from,
+	trimBefore,
+	freeze,
+	durationInFrames,
+	hidden,
+	name,
+	showInTimeline,
+	stack,
+	controls,
+	children,
+	...divProps
+}) => {
+	const videoConfig = useUnsafeVideoConfig();
+	const refForOutline = useRef<HTMLDivElement | null>(null);
+	const callbackRef = useCallback(
+		(element: HTMLDivElement | null) => {
+			refForOutline.current = element;
+			setRef(ref, element);
+		},
+		[ref],
+	);
 
-	const actualStyle = useMemo((): React.CSSProperties => {
-		// Make TailwindCSS classes get accepted
-		return {
-			position: 'absolute',
-			top: hasTailwindClassName({
-				className: other.className,
-				classPrefix: ['top-', 'inset-'],
-				type: 'prefix',
-			})
-				? undefined
-				: 0,
-			left: hasTailwindClassName({
-				className: other.className,
-				classPrefix: ['left-', 'inset-'],
-				type: 'prefix',
-			})
-				? undefined
-				: 0,
-			right: hasTailwindClassName({
-				className: other.className,
-				classPrefix: ['right-', 'inset-'],
-				type: 'prefix',
-			})
-				? undefined
-				: 0,
-			bottom: hasTailwindClassName({
-				className: other.className,
-				classPrefix: ['bottom-', 'inset-'],
-				type: 'prefix',
-			})
-				? undefined
-				: 0,
-			width: hasTailwindClassName({
-				className: other.className,
-				classPrefix: ['w-'],
-				type: 'prefix',
-			})
-				? undefined
-				: '100%',
-			height: hasTailwindClassName({
-				className: other.className,
-				classPrefix: ['h-'],
-				type: 'prefix',
-			})
-				? undefined
-				: '100%',
-			display: hasTailwindClassName({
-				className: other.className,
-				classPrefix: [
-					'block',
-					'inline-block',
-					'inline',
-					'flex',
-					'inline-flex',
-					'flow-root',
-					'grid',
-					'inline-grid',
-					'contents',
-					'list-item',
-					'hidden',
-				],
-				type: 'exact',
-			})
-				? undefined
-				: 'flex',
-			flexDirection: hasTailwindClassName({
-				className: other.className,
-				classPrefix: [
-					'flex-row',
-					'flex-col',
-					'flex-row-reverse',
-					'flex-col-reverse',
-				],
-				type: 'exact',
-			})
-				? undefined
-				: 'column',
-			...style,
-		};
-	}, [other.className, style]);
+	if (videoConfig === null) {
+		return hidden ? null : (
+			<AbsoluteFillElement ref={callbackRef} {...divProps}>
+				{children}
+			</AbsoluteFillElement>
+		);
+	}
 
-	return <div ref={ref} style={actualStyle} {...other} />;
+	return (
+		<Sequence
+			layout="none"
+			from={from ?? 0}
+			trimBefore={trimBefore}
+			freeze={freeze}
+			durationInFrames={durationInFrames ?? Infinity}
+			hidden={hidden}
+			name={name ?? '<AbsoluteFill>'}
+			showInTimeline={showInTimeline ?? true}
+			controls={controls}
+			_remotionInternalStack={stack}
+			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/absolute-fill"
+			outlineRef={refForOutline}
+		>
+			<AbsoluteFillElement ref={callbackRef} {...divProps}>
+				{children}
+			</AbsoluteFillElement>
+		</Sequence>
+	);
 };
 
 /*
@@ -131,4 +113,12 @@ const AbsoluteFillRefForwarding: React.ForwardRefRenderFunction<
  * @see [Documentation](https://remotion.dev/docs/absolute-fill)
  */
 
-export const AbsoluteFill = forwardRef(AbsoluteFillRefForwarding);
+export const AbsoluteFill = withInteractivitySchema({
+	Component: AbsoluteFillInner,
+	componentName: '<AbsoluteFill>',
+	componentIdentity: 'dev.remotion.remotion.AbsoluteFill',
+	schema: absoluteFillSchema,
+	supportsEffects: false,
+});
+
+addSequenceStackTraces(AbsoluteFill);

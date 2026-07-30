@@ -54,3 +54,37 @@ test('should keep spaces', () => {
 		'/static-abcdef/mediaparsernextsteps/Screenshot%202025-01-31%20at%2008.13.54.png',
 	);
 });
+
+test('should use static file sources while preserving regular Studio encoding', () => {
+	const previousStaticFiles = window.remotion_staticFiles;
+	const regularStudioName = 'regular/special #?% ü.png';
+	const regularStudioSrc =
+		'/static-abcdef/regular/special%20%23%3F%25%20%C3%BC.png';
+	window.remotion_staticFiles = [
+		{
+			lastModified: 0,
+			name: 'virtual/image.png',
+			sizeInBytes: 10,
+			src: 'blob:http://localhost:3000/virtual-image',
+		},
+		{
+			lastModified: 0,
+			name: regularStudioName,
+			sizeInBytes: 10,
+			src: regularStudioSrc,
+		},
+	];
+
+	try {
+		expect(staticFile('/virtual/image.png')).toBe(
+			'blob:http://localhost:3000/virtual-image',
+		);
+		expect(staticFile(regularStudioName)).toBe(regularStudioSrc);
+
+		window.remotion_staticFiles = [];
+		expect(staticFile(regularStudioName)).toBe(regularStudioSrc);
+		expect(staticFile('missing.png')).toBe('/static-abcdef/missing.png');
+	} finally {
+		window.remotion_staticFiles = previousStaticFiles;
+	}
+});

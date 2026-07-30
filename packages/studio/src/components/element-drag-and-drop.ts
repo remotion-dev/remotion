@@ -1,11 +1,11 @@
 import {
-	DragAndDropInternals,
+	StudioProtocolInternals,
 	type ElementDragData,
-} from '@remotion/drag-and-drop';
+} from '@remotion/studio-protocol';
 
 export const hasElementDragType = (dataTransfer: DataTransfer | null) => {
 	return (
-		DragAndDropInternals.getDragPreviewMetadata(dataTransfer?.types ?? [])
+		StudioProtocolInternals.getDragPreviewMetadata(dataTransfer?.types ?? [])
 			?.type === 'element'
 	);
 };
@@ -17,6 +17,6 @@ export const getElementDragData = (
 		return null;
 	}
 
-	const parsed = DragAndDropInternals.parseDragData(dataTransfer);
+	const parsed = StudioProtocolInternals.parseDragData(dataTransfer);
 	return parsed?.type === 'element' ? parsed.data : null;
 };

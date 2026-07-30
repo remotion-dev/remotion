@@ -33,6 +33,7 @@ import {TableOfContents as ShapesTableOfContents} from '../../docs/shapes/table-
 import {TableOfContents as SkiaTableOfContents} from '../../docs/skia/TableOfContents';
 import {TableOfContents as StarburstTableOfContents} from '../../docs/starburst/table-of-contents';
 import {TableOfContents as StudioTableOfContents} from '../../docs/studio/TableOfContents';
+import {TableOfContents as StudioProtocolTableOfContents} from '../../docs/studio-protocol/table-of-contents';
 import {TableOfContents as TailwindV4TableOfContents} from '../../docs/tailwind-v4/TableOfContents';
 import {TableOfContents as TailwindTableOfContents} from '../../docs/tailwind/TableOfContents';
 import {TableOfContents as ThreeTableOfContents} from '../../docs/three/TableOfContents';
@@ -168,6 +169,9 @@ export const TableOfContents: React.FC = () => {
 			<h2>@remotion/studio</h2>
 			<p>APIs for controlling theRemotion Studio</p>
 			<StudioTableOfContents />
+			<h2>@remotion/studio-protocol</h2>
+			<p>Create Element payloads and send them into Remotion Studio</p>
+			<StudioProtocolTableOfContents />
 			<h2>@remotion/tailwind</h2>
 			<p>Bundler override for using TailwindCSS v3</p>
 			<TailwindTableOfContents />

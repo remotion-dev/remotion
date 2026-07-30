@@ -1,11 +1,12 @@
 import {afterEach, expect, test} from 'bun:test';
-import {cleanup, render, waitFor} from '@testing-library/react';
+import {cleanup, fireEvent, render, waitFor} from '@testing-library/react';
 import React, {useCallback, useMemo, useState} from 'react';
+import {AbsoluteFill} from '../AbsoluteFill.js';
 import {
 	AnimatedImage,
 	animatedImageSchema,
 } from '../animated-image/AnimatedImage.js';
-import type {TSequence} from '../CompositionManager.js';
+import type {SequenceControls, TSequence} from '../CompositionManager.js';
 import type {
 	EffectDefinition,
 	EffectDescriptor,
@@ -13,6 +14,7 @@ import type {
 import {Img, imgSchema} from '../Img.js';
 import {Interactive} from '../Interactive.js';
 import {Internals} from '../internals.js';
+import {Loading} from '../loading-indicator.js';
 import type {OverrideIdToNodePaths} from '../sequence-node-path.js';
 import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
 import {Sequence} from '../Sequence.js';
@@ -327,13 +329,17 @@ test('Series.Sequence registers with its own visual controls', () => {
 				<Series.Sequence
 					durationInFrames={10}
 					premountFor={30}
-					{...({stack: firstStack} as {readonly stack: string})}
+					{...({
+						_remotionInternalStack: firstStack,
+					} as {readonly _remotionInternalStack: string})}
 				>
 					First
 				</Series.Sequence>
 				<Series.Sequence
 					durationInFrames={20}
-					{...({stack: secondStack} as {readonly stack: string})}
+					{...({
+						_remotionInternalStack: secondStack,
+					} as {readonly _remotionInternalStack: string})}
 				>
 					Second
 				</Series.Sequence>
@@ -363,6 +369,55 @@ test('Series.Sequence registers with its own visual controls', () => {
 		firstStack,
 		secondStack,
 	]);
+});
+
+test('Interactive.withSchema preserves source stacks through controls without consuming a public stack prop', () => {
+	const registeredSequences: TSequence[] = [];
+	const sourceStack = 'Error\n    at UserAuthoredComponent';
+	const received = {
+		stack: null as string | null,
+		internalStack: false,
+	};
+
+	type PublicProps = {readonly stack: string};
+	const Inner: React.FC<
+		PublicProps & {readonly controls: SequenceControls | undefined}
+	> = (props) => {
+		received.stack = props.stack;
+		received.internalStack = '_remotionInternalStack' in props;
+		return <Sequence controls={props.controls} name="<Component>" />;
+	};
+
+	const Component = Interactive.withSchema({
+		Component: Inner,
+		componentName: '<Component>',
+		componentIdentity: 'com.example.Component',
+		schema: {},
+		supportsEffects: false,
+	});
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Component
+				stack="application-stack"
+				{...({
+					_remotionInternalStack: sourceStack,
+				} as {readonly _remotionInternalStack: string})}
+			/>
+		</SequenceTestWrapper>,
+	);
+
+	expect(received.stack).toBe('application-stack');
+	expect(received.internalStack).toBe(false);
+	expect(registeredSequences).toHaveLength(1);
+	expect(registeredSequences[0]?.getStack()).toBe(sourceStack);
+	expect(registeredSequences[0]?.controls?.componentIdentity).toBe(
+		'com.example.Component',
+	);
 });
 
 test('read-only Studio registers visual controls without applying overrides', () => {
@@ -1190,6 +1245,79 @@ test('Interactive elements register their rendered element for Studio outlines',
 	expect(getByName('<Interactive.Line>')?.controls?.schema).not.toHaveProperty(
 		'fill',
 	);
+});
+
+test('AbsoluteFill is an interactive sequence while preserving its div contract', () => {
+	const registeredSequences: TSequence[] = [];
+	const divRef = React.createRef<HTMLDivElement>();
+	let clickCount = 0;
+
+	const {container} = render(
+		<SequenceTestWrapper
+			currentFrame={4}
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<AbsoluteFill
+				ref={divRef}
+				id="interactive-fill"
+				from={4}
+				durationInFrames={12}
+				style={{backgroundColor: 'red'}}
+				onClick={() => {
+					clickCount++;
+				}}
+			>
+				Hello
+			</AbsoluteFill>
+		</SequenceTestWrapper>,
+	);
+
+	const element = container.querySelector<HTMLDivElement>('#interactive-fill');
+	if (!element) {
+		throw new Error('Expected AbsoluteFill to render its div');
+	}
+
+	fireEvent.click(element);
+
+	expect(container.querySelectorAll('#interactive-fill')).toHaveLength(1);
+	expect(divRef.current).toBe(element);
+	expect(clickCount).toBe(1);
+	expect(registeredSequences).toHaveLength(1);
+	expect(registeredSequences[0]).toMatchObject({
+		displayName: '<AbsoluteFill>',
+		documentationLink: 'https://www.remotion.dev/docs/absolute-fill',
+		from: 4,
+		duration: 12,
+		showInTimeline: true,
+	});
+	expect(registeredSequences[0]?.refForOutline?.current).toBe(element);
+	expect(registeredSequences[0]?.controls?.componentIdentity).toBe(
+		'dev.remotion.remotion.AbsoluteFill',
+	);
+	expect(registeredSequences[0]?.controls?.schema).toHaveProperty([
+		'style.backgroundColor',
+	]);
+	expect(registeredSequences[0]?.controls?.schema).toHaveProperty('children');
+});
+
+test('Loading indicator does not register an interactive sequence', () => {
+	const registeredSequences: TSequence[] = [];
+
+	const {container, getByText} = render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Loading />
+		</SequenceTestWrapper>,
+	);
+
+	expect(getByText('Resolving <Suspense>...')).toBeTruthy();
+	expect(container.querySelector('#remotion-comp-loading')).toBeTruthy();
+	expect(registeredSequences).toHaveLength(0);
 });
 
 test('Interactive elements inherit trimBefore from Sequence', () => {

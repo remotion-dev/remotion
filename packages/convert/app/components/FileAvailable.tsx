@@ -12,7 +12,6 @@ import {Footer} from './Footer';
 import {VideoPlayer} from './MediaPlayer';
 import {Page} from './Page';
 import {Probe} from './Probe';
-import {ReplaceVideo} from './ReplaceVideo';
 import Transcribe from './transcribe/App';
 import {useProbe} from './use-probe';
 import type {VideoThumbnailRef} from './VideoThumbnail';
@@ -93,6 +92,11 @@ export const FileAvailable: React.FC<{
 							dimensions={probeResult.dimensions}
 							durationInSeconds={probeResult.durationInSeconds}
 							fps={probeResult.fps}
+							rotation={actualUserRotation}
+							mirrorHorizontal={
+								flipHorizontal && enableRotateOrMirrow === 'mirror'
+							}
+							mirrorVertical={flipVertical && enableRotateOrMirrow === 'mirror'}
 							onPlaybackTimeChange={setPlaybackTime}
 						/>
 						<div className="h-8" />
@@ -171,7 +175,6 @@ export const FileAvailable: React.FC<{
 				</div>
 				<div className="h-16" />
 				<Footer routeAction={routeAction} />
-				<ReplaceVideo setSrc={setSrc} />
 			</div>
 		</Page>
 	);

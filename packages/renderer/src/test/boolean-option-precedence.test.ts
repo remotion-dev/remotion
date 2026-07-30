@@ -11,6 +11,7 @@ import {isProductionOption} from '../options/is-production';
 import {keyboardShortcutsOption} from '../options/keyboard-shortcuts';
 import {overwriteOption} from '../options/overwrite';
 import {reproOption} from '../options/repro';
+import {rspackOption} from '../options/rspack';
 
 test('boolean options respect config if CLI flag is absent', () => {
 	overwriteOption.setConfig(false);
@@ -134,4 +135,13 @@ test('boolean options respect config if CLI flag is absent', () => {
 		forceNewStudioOption.getValue({commandLine: {'force-new': false}}).value,
 	).toEqual(false);
 	forceNewStudioOption.setConfig(false);
+
+	rspackOption.setConfig(true);
+	expect(rspackOption.getValue({commandLine: {rspack: null}}).value).toEqual(
+		true,
+	);
+	expect(rspackOption.getValue({commandLine: {rspack: false}}).value).toEqual(
+		false,
+	);
+	rspackOption.setConfig(false);
 });

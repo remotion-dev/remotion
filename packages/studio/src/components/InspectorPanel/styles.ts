@@ -51,9 +51,11 @@ export const sequenceHeaderDivider: React.CSSProperties = {
 
 export const sectionHeader: React.CSSProperties = {
 	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
 	fontSize: 12,
 	fontWeight: 'bold',
-	padding: `8px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+	lineHeight: '24px',
+	padding: `4px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 	userSelect: 'none',
 };
 
@@ -92,11 +94,15 @@ export const sectionHeaderRow: React.CSSProperties = {
 };
 
 export const sectionHeaderTitle: React.CSSProperties = {
+	alignItems: 'center',
 	color: LIGHT_TEXT,
+	display: 'flex',
 	flexShrink: 0,
+	fontFamily: 'sans-serif',
 	fontSize: 12,
 	fontWeight: 'bold',
 	lineHeight: '16px',
+	minHeight: 24,
 	minWidth: 0,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',

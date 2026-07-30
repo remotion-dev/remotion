@@ -1,0 +1,103 @@
+---
+image: /generated/articles-docs-three-webgpu-canvas.png
+id: three-webgpu-canvas
+title: '<ThreeWebGPUCanvas>'
+crumb: '@remotion/three'
+---
+
+# &lt;ThreeWebGPUCanvas&gt;<AvailableFrom v="4.0.503" />
+
+<ExperimentalBadge>
+<p>Three.js currently considers its WebGPU renderer experimental.</p>
+</ExperimentalBadge>
+
+A wrapper for [React Three Fiber](https://github.com/pmndrs/react-three-fiber)'s [`<Canvas>`](https://r3f.docs.pmnd.rs/api/canvas) which uses Three.js's [`WebGPURenderer`](https://threejs.org/manual/en/webgpurenderer).
+
+Import it from the `@remotion/three/webgpu` entry point. The regular [`<ThreeCanvas>`](/docs/three-canvas) entry point does not load WebGPU code.
+
+`<ThreeWebGPUCanvas>` requires `three` 0.167 or newer, `@react-three/fiber` 9.0 or newer and React 19.
+
+## Example
+
+```tsx twoslash title="ThreeWebGPU.tsx"
+import {ThreeWebGPUCanvas} from '@remotion/three/webgpu';
+import {useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const ThreeWebGPU: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {height, width} = useVideoConfig();
+
+  return (
+    <ThreeWebGPUCanvas
+      width={width}
+      height={height}
+      camera={{fov: 60, position: [0, 0, 5]}}
+    >
+      <ambientLight intensity={0.4} />
+      <directionalLight position={[5, 5, 5]} intensity={2.5} />
+      <mesh rotation={[frame / 80, frame / 100, 0]}>
+        <torusKnotGeometry args={[1.1, 0.38, 220, 36]} />
+        <meshStandardMaterial color="#4f9dff" />
+      </mesh>
+    </ThreeWebGPUCanvas>
+  );
+};
+```
+
+Animate properties using [`useCurrentFrame()`](/docs/use-current-frame), rather than React Three Fiber's `useFrame()` hook. This keeps rendered frames deterministic.
+
+## TSL
+
+Import TSL utilities from `three/tsl`. To use node materials as JSX elements, extend React Three Fiber's catalogue with the `three/webgpu` namespace. See the [React Three Fiber WebGPU guide](https://r3f.docs.pmnd.rs/tutorials/v9-migration-guide#webgpu) for the required type augmentation and `extend()` call.
+
+## Fallback
+
+Three.js's `WebGPURenderer` falls back to a WebGL 2 backend when WebGPU is unavailable. Features which specifically require native WebGPU may not be available when using the fallback.
+
+## Rendering
+
+In Remotion 5.0 and later, no renderer option is needed. ANGLE is the default, with an automatic SwiftShader fallback if no compatible GPU is available.
+
+In Remotion 4.0, enable ANGLE when rendering. Without it, Chrome Headless Shell may produce an empty canvas:
+
+```bash title="Render using ANGLE"
+npx remotion render three-webgpu out/video.mp4 --gl=angle
+```
+
+`--gl=angle` configures Chromium's GPU process and compositor. It does not force Three.js to use its WebGL fallback: If WebGPU is available, `WebGPURenderer` continues to use its WebGPU backend.
+
+When using a [server-side rendering API](/docs/ssr), pass the equivalent option:
+
+```ts title="render.ts"
+import {renderMedia} from '@remotion/renderer';
+
+await renderMedia({
+  // ...
+  chromiumOptions: {gl: 'angle'},
+});
+```
+
+When using Remotion 4.0 on a machine without a GPU, use `swangle` instead of `angle`. It provides a software-backed rendering path and is the default on Lambda and Cloud Run.
+
+To use a native GPU on a headless Linux server, follow the [GPU rendering guide](/docs/miscellaneous/cloud-gpu). This setup uses Chrome for Testing and may require `--gl=vulkan`.
+
+Use [`npx remotion gpu`](/docs/cli/gpu) to inspect GPU support.
+
+## Props
+
+`<ThreeWebGPUCanvas>` accepts the props of [`<ThreeCanvas>`](/docs/three-canvas), except for `gl`. The renderer is initialized by `<ThreeWebGPUCanvas>`.
+
+## See also
+
+- [`<ThreeCanvas>`](/docs/three-canvas)
+- [`@remotion/three`](/docs/three)
+- [Three.js WebGPU renderer](https://threejs.org/manual/en/webgpurenderer)
+
+<Credits
+  contributors={[
+    {
+      username: 'rayBlock',
+      contribution: 'Author',
+    },
+  ]}
+/>

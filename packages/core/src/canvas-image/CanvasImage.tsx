@@ -23,6 +23,7 @@ import {Freeze} from '../freeze.js';
 import {
 	backgroundSchema,
 	baseSchema,
+	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
 	premountSchema,
@@ -57,6 +58,7 @@ export const canvasImageSchema = {
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,
+	...borderRadiusSchema,
 } as const satisfies InteractivitySchema;
 
 type LoadedImage = {
@@ -540,7 +542,6 @@ const CanvasImageInner = forwardRef<
 			cropRight,
 			cropTop,
 			cropBottom,
-			stack,
 			controls,
 			_remotionInternalDocumentationLink,
 			_remotionInternalCropComponentName,
@@ -603,7 +604,6 @@ const CanvasImageInner = forwardRef<
 					controls={controls}
 					_remotionInternalEffects={memoizedEffectDefinitions}
 					_remotionInternalIsMedia={{type: 'image', src}}
-					_remotionInternalStack={stack}
 					_remotionInternalPremountDisplay={effectivePremountFor || null}
 					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 					_remotionInternalIsPremounting={premountingActive}

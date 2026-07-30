@@ -11,8 +11,9 @@ import {
 } from './ui/dialog';
 
 export const ReplaceVideo: React.FC<{
+	readonly src: Source | null;
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
-}> = ({setSrc}) => {
+}> = ({src, setSrc}) => {
 	const [fileToReplace, setFileToReplace] = useState<File | null>(null);
 	const [dragging, setDragging] = useState(false);
 
@@ -23,7 +24,7 @@ export const ReplaceVideo: React.FC<{
 
 		const onDragOver = (e: DragEvent) => {
 			e.preventDefault();
-			setDragging(true);
+			setDragging(src !== null);
 		};
 
 		const onDragEnd = () => {
@@ -35,20 +36,24 @@ export const ReplaceVideo: React.FC<{
 			e.preventDefault();
 			const file = e.dataTransfer?.files[0];
 			if (file) {
-				setFileToReplace(file);
+				if (src === null) {
+					setSrc({type: 'file', file});
+				} else {
+					setFileToReplace(file);
+				}
 			}
 		};
 
-		document.body.addEventListener('dragover', onDragOver);
-		document.body.addEventListener('dragleave', onDragEnd);
-		document.body.addEventListener('drop', onDrop);
+		document.addEventListener('dragover', onDragOver, {capture: true});
+		document.addEventListener('dragleave', onDragEnd, {capture: true});
+		document.addEventListener('drop', onDrop, {capture: true});
 
 		return () => {
-			document.body.removeEventListener('dragleave', onDragEnd);
-			document.body.removeEventListener('dragover', onDragOver);
-			document.body.removeEventListener('drop', onDrop);
+			document.removeEventListener('dragleave', onDragEnd, {capture: true});
+			document.removeEventListener('dragover', onDragOver, {capture: true});
+			document.removeEventListener('drop', onDrop, {capture: true});
 		};
-	}, [fileToReplace]);
+	}, [fileToReplace, setSrc, src]);
 
 	const keepCurrent = useCallback(() => {
 		setFileToReplace(null);

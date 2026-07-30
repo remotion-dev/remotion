@@ -60,9 +60,9 @@ Config.overrideBundlerConfig((currentConfiguration) => {
 });
 ```
 
-## When using `bundle` or `deploySite`
+## When using `bundle()`
 
-When using the Node.JS APIs - [`bundle()`](/docs/bundle) for SSR or [`deploySite()`](/docs/lambda/deploysite) for Lambda, also provide the bundler override because these APIs do not read the config file.
+When using the [`bundle()`](/docs/bundle) Node.js API, provide the bundler override directly because Node.js APIs do not read from the config file. To deploy the resulting directory to Lambda, pass it to [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle).
 
 ```ts twoslash title="my-script.js"
 // @filename: ./src/bundler-override.ts

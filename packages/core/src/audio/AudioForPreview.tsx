@@ -35,7 +35,6 @@ type AudioForPreviewProps = RemotionAudioProps & {
 	readonly _remotionInternalNativeLoopPassed: boolean;
 	readonly _remotionInternalStack: string | null;
 	readonly showInTimeline: boolean;
-	readonly stack?: string | undefined;
 	readonly onNativeError: React.ReactEventHandler<HTMLAudioElement>;
 };
 
@@ -71,7 +70,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		pauseWhenBuffering,
 		showInTimeline,
 		loopVolumeCurveBehavior,
-		stack,
 		crossOrigin,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,

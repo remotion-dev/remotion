@@ -34,7 +34,6 @@ const Letter: React.FC<{
   );
 };
 // ---cut---
-import {Sequence} from 'remotion';
 import {linearTiming, TransitionSeries} from '@remotion/transitions';
 import {pushCut} from '@remotion/transitions/push-cut';
 
@@ -58,9 +57,9 @@ export const PushCutTransition = () => {
       <TransitionSeries.Sequence
         durationInFrames={60 + outgoingPunchFrames}
       >
-        <Sequence from={outgoingPunchFrames}>
+        <AbsoluteFill from={outgoingPunchFrames}>
           <Letter color="pink">B</Letter>
-        </Sequence>
+        </AbsoluteFill>
       </TransitionSeries.Sequence>
     </TransitionSeries>
   );

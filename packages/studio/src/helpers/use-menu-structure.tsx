@@ -28,9 +28,11 @@ import type {ModalState} from '../state/modals';
 import {ModalsContext} from '../state/modals';
 import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
+import {getBrowserStudioOperations} from './browser-studio-operations';
 import {checkFullscreenSupport} from './check-fullscreen-support';
 import {StudioServerConnectionCtx} from './client-id';
 import {CURRENT_COLOR} from './colors';
+import {downloadBlob} from './download-blob';
 import {getFileManagerName} from './get-file-manager-name';
 import {getGitMenuItem} from './get-git-menu-item';
 import {useMobileLayout} from './mobile-layout';
@@ -71,6 +73,8 @@ const getFileMenu = ({
 	const fileManagerName = getFileManagerName(
 		window.remotion_fileSystemPlatform,
 	);
+	const browserStudioOperations = getBrowserStudioOperations();
+	const downloadProject = browserStudioOperations?.downloadProject;
 	const items: ComboboxValue[] = [
 		readOnlyStudio
 			? null
@@ -161,6 +165,40 @@ const getFileMenu = ({
 			subMenu: null,
 			quickSwitcherLabel: 'Render on web...',
 		},
+		downloadProject
+			? {
+					id: 'download-project',
+					value: 'download-project',
+					label: 'Download project',
+					onClick: async () => {
+						closeMenu();
+
+						try {
+							const {data, fileName} = await downloadProject();
+							const arrayBuffer = data.buffer.slice(
+								data.byteOffset,
+								data.byteOffset + data.byteLength,
+							) as ArrayBuffer;
+							downloadBlob(
+								new Blob([arrayBuffer], {type: 'application/zip'}),
+								fileName,
+							);
+						} catch (error) {
+							showNotification(
+								`Could not download project: ${
+									error instanceof Error ? error.message : String(error)
+								}`,
+								2000,
+							);
+						}
+					},
+					type: 'item' as const,
+					keyHint: null,
+					leftItem: null,
+					subMenu: null,
+					quickSwitcherLabel: 'Download project',
+				}
+			: null,
 		!readOnlyStudio
 			? {
 					type: 'divider' as const,
@@ -173,13 +211,16 @@ const getFileMenu = ({
 					value: 'open-in-editor',
 					label: `Open in ${window.remotion_editorName}`,
 					onClick: async () => {
-						await openInEditor({
-							originalFileName: `${window.remotion_cwd}`,
-							originalLineNumber: 1,
-							originalColumnNumber: 1,
-							originalFunctionName: null,
-							originalScriptCode: null,
-						})
+						await openInEditor(
+							{
+								originalFileName: `${window.remotion_cwd}`,
+								originalLineNumber: 1,
+								originalColumnNumber: 1,
+								originalFunctionName: null,
+								originalScriptCode: null,
+							},
+							null,
+						)
 							.then(({success}) => {
 								if (!success) {
 									showNotification(
@@ -266,6 +307,10 @@ export const useMenuStructure = (
 		Internals.CompositionManager,
 	);
 	const {type} = useContext(StudioServerConnectionCtx).previewServerState;
+	const canConfigureDefaultEditor =
+		!readOnlyStudio &&
+		type === 'connected' &&
+		getBrowserStudioOperations() === null;
 
 	const {
 		setSidebarCollapsedState,
@@ -364,6 +409,24 @@ export const useMenuStructure = (
 						subMenu: null,
 						quickSwitcherLabel: 'Help: Changelog',
 					},
+					canConfigureDefaultEditor
+						? {
+								id: 'default-editor',
+								value: 'default-editor',
+								label: 'Configure default editor...',
+								onClick: () => {
+									closeMenu();
+									setSelectedModal({
+										type: 'configure-default-editor',
+									});
+								},
+								type: 'item' as const,
+								keyHint: null,
+								leftItem: null,
+								subMenu: null,
+								quickSwitcherLabel: 'Configure default editor...',
+							}
+						: null,
 					{
 						id: 'license',
 						value: 'license',
@@ -415,7 +478,7 @@ export const useMenuStructure = (
 						subMenu: null,
 						quickSwitcherLabel: 'Restart Studio Server',
 					},
-				],
+				].filter(NoReactInternals.truthy),
 				quickSwitcherLabel: null,
 			},
 			getFileMenu({
@@ -690,6 +753,7 @@ export const useMenuStructure = (
 								mode: 'compositions',
 								invocationTimestamp: Date.now(),
 								assetSelection: null,
+								compositionSelection: null,
 							});
 						},
 						type: 'item' as const,
@@ -874,6 +938,7 @@ export const useMenuStructure = (
 								mode: 'docs',
 								invocationTimestamp: Date.now(),
 								assetSelection: null,
+								compositionSelection: null,
 							});
 						},
 						keyHint: '?',
@@ -1034,6 +1099,7 @@ export const useMenuStructure = (
 
 		return struct;
 	}, [
+		canConfigureDefaultEditor,
 		readOnlyStudio,
 		closeMenu,
 		type,

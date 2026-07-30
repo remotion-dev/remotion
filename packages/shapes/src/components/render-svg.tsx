@@ -33,10 +33,6 @@ export type AllShapesProps = Omit<
 		readonly effects?: EffectsProp;
 		readonly pathStyle?: React.CSSProperties;
 		readonly pixelDensity?: HtmlInCanvasPixelDensity;
-		/**
-		 * @deprecated For internal use only
-		 */
-		readonly stack?: string;
 	};
 
 export const RenderSvg = ({
@@ -60,7 +56,6 @@ export const RenderSvg = ({
 	name,
 	showInTimeline,
 	controls,
-	stack,
 	...props
 }: {
 	readonly defaultName: string;
@@ -209,8 +204,6 @@ export const RenderSvg = ({
 			</HtmlInCanvasWithPrivateProps>
 		);
 
-	const stackProps = stack === undefined ? null : ({stack} as const);
-
 	if (!videoConfig) {
 		return svg;
 	}
@@ -231,7 +224,6 @@ export const RenderSvg = ({
 			_remotionInternalDocumentationLink={
 				name === undefined ? documentationLink : undefined
 			}
-			{...stackProps}
 		>
 			{content}
 		</Sequence>

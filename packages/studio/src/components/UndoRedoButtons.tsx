@@ -7,6 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {isMac} from '../helpers/is-mac';
 import {
@@ -54,7 +55,11 @@ export const UndoRedoButtons: React.FC = () => {
 		}
 
 		undoInFlight.current = true;
-		callApi('/api/undo', {})
+		const browserStudioOperations = getBrowserStudioOperations();
+		const promise = browserStudioOperations
+			? browserStudioOperations.undo()
+			: callApi('/api/undo', {});
+		promise
 			.catch(() => {
 				// Ignore errors
 			})
@@ -69,7 +74,11 @@ export const UndoRedoButtons: React.FC = () => {
 		}
 
 		redoInFlight.current = true;
-		callApi('/api/redo', {})
+		const browserStudioOperations = getBrowserStudioOperations();
+		const promise = browserStudioOperations
+			? browserStudioOperations.redo()
+			: callApi('/api/redo', {});
+		promise
 			.catch(() => {
 				// Ignore errors
 			})
@@ -148,23 +157,13 @@ export const UndoRedoButtons: React.FC = () => {
 			? `Redo (${cmdOrCtrlCharacter}+Shift+Z)`
 			: `Redo (${cmdOrCtrlCharacter}+Y)`;
 
-	const renderUndo: RenderInlineAction = useCallback(
-		(color) => {
-			return (
-				<UndoIcon style={{...iconStyle, color, opacity: undoFile ? 1 : 0.5}} />
-			);
-		},
-		[undoFile],
-	);
+	const renderUndo: RenderInlineAction = useCallback((color) => {
+		return <UndoIcon style={{...iconStyle, color}} />;
+	}, []);
 
-	const renderRedo: RenderInlineAction = useCallback(
-		(color) => {
-			return (
-				<RedoIcon style={{...iconStyle, color, opacity: redoFile ? 1 : 0.5}} />
-			);
-		},
-		[redoFile],
-	);
+	const renderRedo: RenderInlineAction = useCallback((color) => {
+		return <RedoIcon style={{...iconStyle, color}} />;
+	}, []);
 
 	const canUndo = undoFile !== null;
 	const canRedo = redoFile !== null;
@@ -176,12 +175,14 @@ export const UndoRedoButtons: React.FC = () => {
 	return (
 		<>
 			<InlineAction
+				variant={null}
 				onClick={onUndo}
 				renderAction={renderUndo}
 				title={undoTooltip}
 				disabled={!canUndo}
 			/>
 			<InlineAction
+				variant={null}
 				onClick={onRedo}
 				renderAction={renderRedo}
 				title={redoTooltip}

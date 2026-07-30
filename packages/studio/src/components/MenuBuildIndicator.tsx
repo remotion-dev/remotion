@@ -65,13 +65,16 @@ export const MenuBuildIndicator: React.FC = () => {
 
 	const handleProjectNameClick = useCallback(async () => {
 		if (showEditorLink) {
-			await openInEditor({
-				originalFileName: `${window.remotion_cwd}`,
-				originalLineNumber: 1,
-				originalColumnNumber: 1,
-				originalFunctionName: null,
-				originalScriptCode: null,
-			})
+			await openInEditor(
+				{
+					originalFileName: `${window.remotion_cwd}`,
+					originalLineNumber: 1,
+					originalColumnNumber: 1,
+					originalFunctionName: null,
+					originalScriptCode: null,
+				},
+				null,
+			)
 				.then(({success}) => {
 					if (!success) {
 						showNotification(

@@ -34,7 +34,6 @@ type MapRegionProps = InteractiveBaseProps & {
 	readonly glow?: number;
 	readonly id: string;
 	readonly progress?: number;
-	readonly stack?: string;
 	readonly strokeColor?: string;
 	readonly strokeWidth?: number;
 };
@@ -322,12 +321,7 @@ const MapRegionBounds = ({
 	);
 };
 
-const MapRegionInner = forwardRef<
-	HTMLDivElement,
-	MapRegionProps & {
-		readonly stack?: undefined;
-	}
->(
+const MapRegionInner = forwardRef<HTMLDivElement, MapRegionProps>(
 	(
 		{
 			feature,
@@ -346,7 +340,6 @@ const MapRegionInner = forwardRef<
 			name,
 			showInTimeline,
 			controls,
-			stack,
 		},
 		ref,
 	) => {
@@ -366,7 +359,6 @@ const MapRegionInner = forwardRef<
 				showInTimeline={showInTimeline ?? true}
 				controls={controls}
 				outlineRef={refForOutline}
-				_remotionInternalStack={stack}
 			>
 				<MapRegionDrawing
 					feature={feature}

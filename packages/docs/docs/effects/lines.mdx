@@ -74,6 +74,7 @@ With `gap: 0` (the default), stripes are packed solid with no gap between them â
 With `gap > 0`, a transparent band appears between each stripe, allowing the source content to show through.
 
 For example, with `colors: ['red', 'blue']` and `gap: 10`:
+
 - 40px red stripe
 - 10px transparent (source image visible)
 - 40px blue stripe
@@ -102,7 +103,7 @@ When `true`, the effect is skipped. Defaults to `false`.
 
 ## Requirements
 
-`lines()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+`lines()` uses a WebGL2 backend. See [Using WebGL and WebGPU during renders](/docs/webgl).
 
 ## See also
 

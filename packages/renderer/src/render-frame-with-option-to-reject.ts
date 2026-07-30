@@ -226,6 +226,8 @@ export const renderFrameWithOptionToReject = async ({
 	});
 
 	const inlineAudioAssets = onlyInlineAudio(collectedAssets);
+	const outputFrame =
+		allFramesAndExtraFrames[0] + allFramesAndExtraFrames.indexOf(frame);
 
 	assets.push({
 		audioAndVideoAssets: compressedAssets,
@@ -263,7 +265,7 @@ export const renderFrameWithOptionToReject = async ({
 
 	for (const renderAsset of inlineAudioAssets) {
 		downloadMap.inlineAudioMixing.addAsset({
-			asset: renderAsset,
+			asset: {...renderAsset, frame: outputFrame},
 			fps,
 			totalNumberOfFrames: allFramesAndExtraFrames.length,
 			firstFrame: allFramesAndExtraFrames[0],

@@ -55,10 +55,6 @@ type OptionalVideoProps = {
 	delayRenderRetries: number | null;
 	delayRenderTimeoutInMilliseconds: number | null;
 	style: React.CSSProperties;
-	/**
-	 * @deprecated For internal use only
-	 */
-	stack: string | undefined;
 	logLevel: LogLevel;
 	loop: boolean;
 	audioStreamIndex: number;
@@ -96,6 +92,7 @@ export type InnerVideoProps = MandatoryVideoProps &
 	Omit<OptionalVideoProps, 'effects'> &
 	NativeVideoProps & {
 		effects: EffectDefinitionAndStack<unknown>[];
+		_remotionInternalStack: string | undefined;
 	};
 
 export type VideoProps = MandatoryVideoProps &

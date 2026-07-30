@@ -8,7 +8,7 @@ import React, {
 	useState,
 } from 'react';
 import {Internals, useVideoConfig} from 'remotion';
-import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {isStudioSelectionEnabled} from '../../helpers/interactivity-enabled';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
@@ -85,7 +85,7 @@ export const TimelineDragHandler: React.FC = () => {
 			style={containerStyle}
 			{...{[TIMELINE_SCRUBBER_ATTR]: true}}
 		>
-			{video && isStudioInteractivityEnabled() ? (
+			{video && isStudioSelectionEnabled() ? (
 				<TimelineDragHandlerInnerMemo />
 			) : null}
 		</div>

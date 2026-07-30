@@ -26,7 +26,7 @@ const Title: React.FC<{
 const Audience: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	return <div className={'fontbrand text-lg leading-none'}>{children}</div>;
+	return <div className={'fontbrand text-lg leading-snug'}>{children}</div>;
 };
 
 const BottomInfo: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({

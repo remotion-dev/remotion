@@ -12,6 +12,7 @@ import type {
 	ColorSpace,
 	Crf,
 	DeleteAfter,
+	DefaultEditor,
 	FrameRange,
 	NumberOfGifLoops,
 	StillImageFormat,
@@ -120,6 +121,7 @@ const {
 	enableCrossSiteIsolationOption,
 	imageSequencePatternOption,
 	darkModeOption,
+	defaultEditorOption,
 	askAIOption,
 	publicLicenseKeyOption,
 	interactivityOption,
@@ -219,9 +221,13 @@ declare global {
 		 */
 		readonly setAllowHtmlInCanvasEnabled: (enabled: boolean) => void;
 		/**
-		 * Enable experimental Rspack bundler instead of Webpack.
+		 * Enable the Rspack bundler instead of Webpack.
 		 * @param enabled Boolean whether to enable the Rspack bundler
 		 * @default false
+		 */
+		readonly setRspack: (enabled: boolean) => void;
+		/**
+		 * @deprecated Use `setRspack()` instead: https://www.remotion.dev/docs/config#setrspack
 		 */
 		readonly setExperimentalRspackEnabled: (enabled: boolean) => void;
 		/**
@@ -610,6 +616,10 @@ type FlatConfig = RemotionConfigObject &
 		 * Default: false
 		 */
 		setForceNewStudioEnabled: (forceNew: boolean) => void;
+		/**
+		 * Set the editor used when opening files from Remotion Studio.
+		 */
+		setDefaultEditor: (editor: DefaultEditor) => void;
 
 		setDeleteAfter: (day: DeleteAfter | null) => void;
 		/**
@@ -738,6 +748,7 @@ export const Config: FlatConfig = {
 	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
 	setInteractivityEnabled: interactivityOption.setConfig,
 	setAllowHtmlInCanvasEnabled,
+	setRspack: rspackOption.setConfig,
 	setExperimentalRspackEnabled: rspackOption.setConfig,
 	setNumberOfSharedAudioTags: numberOfSharedAudioTagsOption.setConfig,
 	setWebpackPollingInMilliseconds: webpackPollOption.setConfig,
@@ -826,6 +837,7 @@ export const Config: FlatConfig = {
 	setEnableCrossSiteIsolation: enableCrossSiteIsolationOption.setConfig,
 	setAskAIEnabled: askAIOption.setConfig,
 	setPublicLicenseKey: publicLicenseKeyOption.setConfig,
+	setDefaultEditor: defaultEditorOption.setConfig,
 	setForceNewStudioEnabled: forceNewStudioOption.setConfig,
 	setIPv4: ipv4Option.setConfig,
 	setBundleOutDir: outDirOption.setConfig,

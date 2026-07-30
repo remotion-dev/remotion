@@ -9,7 +9,7 @@ import type {
 	SequencePropsSubscriptionKey,
 	InteractivitySchema,
 } from 'remotion';
-import {callApi} from '../call-api';
+import {saveSequenceProps as saveSequencePropsApi} from '../sequence-props-api';
 import type {AddSequenceKeyframeChange} from './call-add-keyframe';
 import {
 	applyOptimisticKeyframeMoves,
@@ -89,7 +89,7 @@ export const saveInlineCaptionPatches = ({
 				schema,
 			}),
 		apiCall: () =>
-			callApi('/api/save-sequence-props', {
+			saveSequencePropsApi({
 				edits: [],
 				captionPatches: [{fileName, nodePath, schema, patches}],
 				addedKeyframes: null,
@@ -148,7 +148,7 @@ export const saveSequenceProps = ({
 					schema: change.schema,
 				}),
 			apiCall: () =>
-				callApi('/api/save-sequence-props', {
+				saveSequencePropsApi({
 					edits: [
 						{
 							fileName: change.fileName,
@@ -200,7 +200,7 @@ export const saveSequenceProps = ({
 		);
 	}
 
-	return callApi('/api/save-sequence-props', {
+	return saveSequencePropsApi({
 		edits: changes.map((change) => {
 			return {
 				fileName: change.fileName,

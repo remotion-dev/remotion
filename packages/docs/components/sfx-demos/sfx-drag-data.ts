@@ -1,4 +1,4 @@
-import type {ConstructedDragData, SfxDragData} from '@remotion/drag-and-drop';
+import type {ConstructedDragData, SfxDragData} from '@remotion/studio-protocol';
 
 export const getSfxNameFromUrl = (src: string): string => {
 	try {

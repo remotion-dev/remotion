@@ -5,6 +5,7 @@ import {Internals} from 'remotion';
 
 const componentsToAddStacksTo = Internals.getComponentsToAddStacksTo();
 const sequenceComponent = Internals.getSequenceComponent();
+const internalStackProp = Internals.REMOTION_INTERNAL_STACK_PROP;
 
 const originalCreateElement = React.createElement;
 const originalJsx = JsxRuntime.jsx;
@@ -29,9 +30,12 @@ const enableProxy = <
 						? props?.children
 						: rest
 					: props?.children;
-				const newProps = props?.stack
+				const newProps = props?.[internalStackProp]
 					? {...props}
-					: {...(props ?? {}), stack: new Error().stack};
+					: {
+							...(props ?? {}),
+							[internalStackProp]: new Error().stack,
+						};
 				if (first === sequenceComponent) {
 					newProps._remotionInternalSingleChildComponent =
 						Internals.getSingleChildComponent(children);

@@ -10,17 +10,21 @@ Consider the following markup:
 
 ```tsx twoslash title="MyComponent.tsx"
 import {Video} from '@remotion/media';
-import {AbsoluteFill, Sequence} from 'remotion';
+import {AbsoluteFill} from 'remotion';
 
 const MyComponent: React.FC = () => {
   return (
     <AbsoluteFill>
-      <Sequence from={0} durationInFrames={120}>
-        <Video src="https://example.com/video1.mp4" />
-      </Sequence>
-      <Sequence from={120} durationInFrames={120}>
-        <Video src="https://example.com/video2.mp4" />
-      </Sequence>
+      <Video
+        from={0}
+        durationInFrames={120}
+        src="https://example.com/video1.mp4"
+      />
+      <Video
+        from={120}
+        durationInFrames={120}
+        src="https://example.com/video2.mp4"
+      />
     </AbsoluteFill>
   );
 };

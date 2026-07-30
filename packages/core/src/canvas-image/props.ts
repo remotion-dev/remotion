@@ -9,12 +9,7 @@ import type {
 
 type CanvasImageSequenceProps = InteractiveBaseProps &
 	InteractiveCropProps &
-	InteractivePremountProps & {
-		/**
-		 * @deprecated For internal use only.
-		 */
-		readonly stack?: string;
-	};
+	InteractivePremountProps;
 
 export type CanvasImageCanvasProps = Omit<
 	React.CanvasHTMLAttributes<HTMLCanvasElement>,

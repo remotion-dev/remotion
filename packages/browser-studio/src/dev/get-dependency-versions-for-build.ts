@@ -77,6 +77,9 @@ export const getBrowserStudioDependencyVersionsForBuild = (): Record<
 	const studioPackageJson = readPackageJson(
 		join(repoDir, 'packages', 'studio', 'package.json'),
 	);
+	const browserStudioPackageJson = readPackageJson(
+		join(repoDir, 'packages', 'browser-studio', 'package.json'),
+	);
 	const catalog = rootPackageJson.workspaces?.catalog;
 
 	if (!catalog) {
@@ -91,6 +94,8 @@ export const getBrowserStudioDependencyVersionsForBuild = (): Record<
 		[studioPackageJson.name]: studioPackageJson.version,
 		react: 'catalog:',
 		'react-dom': 'catalog:',
+		'react-refresh':
+			browserStudioPackageJson.dependencies?.['react-refresh'] ?? '0.18.0',
 	};
 
 	for (const [name, spec] of Object.entries(

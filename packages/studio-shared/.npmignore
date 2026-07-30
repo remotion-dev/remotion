@@ -6,3 +6,4 @@ eslint.config.mjs
 .prettierrc.js
 .turbo
 tsconfig.tsbuildinfo
+bundle.ts

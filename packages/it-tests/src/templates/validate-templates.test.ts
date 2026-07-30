@@ -235,6 +235,15 @@ describe('Templates should be valid', () => {
 			expect(contents).not.toContain('setExperimentalRspackEnabled');
 		});
 
+		it(`${template.shortName} should enable Rspack`, async () => {
+			const {contents, entryPoint} = await findFile([
+				getFileForTemplate(template, 'remotion.config.ts'),
+				getFileForTemplate(template, 'remotion.config.js'),
+			]);
+			expect(entryPoint).toBeTruthy();
+			expect(contents).toContain('Config.setRspack(true)');
+		});
+
 		it(`${template.shortName} should use good tsconfig values`, async () => {
 			if (template.shortName.includes('JavaScript')) {
 				return;
@@ -260,6 +269,15 @@ describe('Templates should be valid', () => {
 				)
 			) {
 				expect(contents).not.toInclude('"incremental": true');
+			}
+
+			const tsconfig = JSON.parse(contents!);
+			const usesNodeModuleResolution = [
+				'template-still',
+				'template-skia',
+			].includes(template.templateInMonorepo);
+			if (!usesNodeModuleResolution) {
+				expect(tsconfig.compilerOptions.moduleResolution).toBe('Bundler');
 			}
 		});
 

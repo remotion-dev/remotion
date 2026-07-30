@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback} from 'react';
 import {SAMPLE_FILE_CONVERT, SAMPLE_FILE_TRANSCRIBE} from '~/lib/config';
 import type {Source} from '~/lib/convert-state';
 import type {RouteAction} from '~/seo';
@@ -21,28 +21,6 @@ export const PickFile: React.FC<{
 					: SAMPLE_FILE_CONVERT,
 		});
 	}, [setSrc, action]);
-
-	useEffect(() => {
-		const onDragOver = (e: DragEvent) => {
-			e.preventDefault();
-		};
-
-		const onDrop = (e: DragEvent) => {
-			e.preventDefault();
-			const file = e.dataTransfer?.files[0];
-			if (file) {
-				setSrc({type: 'file', file});
-			}
-		};
-
-		document.body.addEventListener('dragover', onDragOver);
-		document.body.addEventListener('drop', onDrop);
-
-		return () => {
-			document.body.removeEventListener('dragover', onDragOver);
-			document.body.removeEventListener('drop', onDrop);
-		};
-	}, [setSrc]);
 
 	return (
 		<div className="text-center items-center justify-center flex flex-col h-full w-full">

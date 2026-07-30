@@ -48,6 +48,8 @@ import {TimelineWidthProvider} from './TimelineWidthProvider';
 import {useResolvedStack} from './use-resolved-stack';
 import {useTimelineAssetDrop} from './use-timeline-asset-drop';
 
+const MIN_TIMELINE_LABELS_WIDTH = 240;
+
 const container: React.CSSProperties = {
 	minHeight: '100%',
 	flex: 1,
@@ -93,9 +95,8 @@ const TimelineContextMenuArea: React.FC<{
 	);
 	const compositionFile =
 		resolvedCompositionLocation?.source ??
-		(currentCompositionId
-			? (browserStudioOperations?.getCompositionFile(currentCompositionId) ??
-				null)
+		(currentCompositionId && browserStudioOperations
+			? browserStudioOperations.getCompositionFile(currentCompositionId)
 			: null);
 	const compositionComponentInfo = useCachedCompositionComponentInfo({
 		compositionFile,
@@ -327,6 +328,7 @@ const TimelineInner: React.FC = () => {
 									maxFlex={0.5}
 									minFlex={0.15}
 									maxFlexerSize={null}
+									minFlexerSize={MIN_TIMELINE_LABELS_WIDTH}
 									maxAntiFlexerSize={null}
 								>
 									<SplitterElement

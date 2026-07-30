@@ -787,6 +787,20 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/studio-protocol',
+			link: {
+				type: 'doc',
+				id: 'studio-protocol/index',
+			},
+			items: [
+				'studio-protocol/create-element-payload',
+				'studio-protocol/set-studio-drag-data',
+				'studio-protocol/install-in-studio',
+				'studio-protocol/security',
+			],
+		},
+		{
+			type: 'category',
 			label: '@remotion/tailwind',
 			link: {
 				type: 'doc',
@@ -812,6 +826,7 @@ const sidebars: SidebarsConfig = {
 			},
 			items: [
 				'three-canvas',
+				'three-webgpu-canvas',
 				'use-video-texture',
 				'use-offthread-video-texture',
 			],
@@ -1180,6 +1195,7 @@ const sidebars: SidebarsConfig = {
 				'artifacts',
 				'metadata',
 				'hardware-acceleration',
+				'webgl',
 				'hdr',
 				'sample-rate',
 			],
@@ -1318,6 +1334,7 @@ const sidebars: SidebarsConfig = {
 			label: 'Studio',
 			items: [
 				'studio/studio',
+				'studio/open-in-editor',
 				'studio/shortcuts',
 				'studio/quick-switcher',
 				'studio/interactivity',

@@ -4,12 +4,10 @@ import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
 import {BundlerInternals} from '@remotion/bundler';
-import {DragAndDropInternals} from '@remotion/drag-and-drop';
-import type {LogLevel} from '@remotion/renderer';
+import type {DefaultEditor, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ApiRoutes,
-	ElementInstallRequest,
 	GitSource,
 	RenderDefaults,
 	RenderJob,
@@ -23,24 +21,20 @@ import {getInstalledInstallablePackages} from './helpers/get-installed-installab
 import {resolveOutputPath} from './helpers/resolve-output-path';
 import {allApiRoutes} from './preview-server/api-routes';
 import type {ApiHandler, QueueMethods} from './preview-server/api-types';
-import {
-	ELEMENT_INSTALL_TARGET_MAX_AGE,
-	getElementInstallTarget,
-} from './preview-server/element-install-state';
 import {getPackageManager} from './preview-server/get-package-manager';
 import {getStaticFileFallbackHint} from './preview-server/get-static-file-fallback-hint';
 import {handleRequest} from './preview-server/handler';
 import type {LiveEventsServer} from './preview-server/live-events';
-import {parseRequestBody} from './preview-server/parse-body';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
 import {getEditorName} from './preview-server/routes/open-in-editor';
 import {serveStatic} from './preview-server/serve-static';
+import {handleStudioProtocolDiscovery} from './preview-server/studio-protocol/handle-discovery';
+import {handleStudioProtocolInstall} from './preview-server/studio-protocol/handle-install';
+import {handleStudioProtocolOptions} from './preview-server/studio-protocol/origin-policy';
 import {validateSameOrigin} from './preview-server/validate-same-origin';
 import {reloadPreviouslySuppressedFiles} from './preview-server/watch-ignore-next-change';
 import type {RemotionConfigResponse} from './remotion-config-response';
 const loggedStaticFileHints = new Set<string>();
-const ELEMENT_INSTALL_FOCUS_MAX_AGE = 5 * 60 * 1000;
-const ELEMENT_INSTALL_TARGET_RESPONSE_WAIT = 250;
 
 const static404 = (response: ServerResponse): Promise<void> => {
 	response.writeHead(404);
@@ -74,221 +68,6 @@ const handleRemotionConfig = (
 	return Promise.resolve();
 };
 
-const isAllowedElementInstallOrigin = (origin: string | undefined) => {
-	if (!origin) {
-		return false;
-	}
-
-	try {
-		const url = new URL(origin);
-		return (
-			(url.protocol === 'https:' &&
-				(url.hostname === 'remotion.dev' ||
-					url.hostname === 'www.remotion.dev')) ||
-			(url.protocol === 'http:' &&
-				(url.hostname === 'localhost' || url.hostname === '127.0.0.1'))
-		);
-	} catch {
-		return false;
-	}
-};
-
-const setElementInstallCorsHeaders = ({
-	request,
-	response,
-}: {
-	request: IncomingMessage;
-	response: ServerResponse;
-}) => {
-	const {origin} = request.headers;
-	if (isAllowedElementInstallOrigin(origin)) {
-		response.setHeader('Access-Control-Allow-Origin', origin as string);
-		response.setHeader('Vary', 'Origin');
-		response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-		response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-		response.setHeader('Access-Control-Max-Age', '600');
-		response.setHeader('Access-Control-Allow-Private-Network', 'true');
-	}
-};
-
-const handleElementInstallOptions = ({
-	request,
-	response,
-}: {
-	request: IncomingMessage;
-	response: ServerResponse;
-}) => {
-	setElementInstallCorsHeaders({request, response});
-	response.writeHead(
-		isAllowedElementInstallOrigin(request.headers.origin) ? 204 : 403,
-	);
-	response.end();
-	return Promise.resolve();
-};
-
-const handleElementInstallTarget = ({
-	liveEventsServer,
-	request,
-	response,
-	remotionRoot,
-	gitSource,
-}: {
-	liveEventsServer: LiveEventsServer;
-	request: IncomingMessage;
-	response: ServerResponse;
-	remotionRoot: string;
-	gitSource: GitSource | null;
-}) => {
-	if (!isAllowedElementInstallOrigin(request.headers.origin)) {
-		response.writeHead(403);
-		response.end(
-			JSON.stringify({success: false, reason: 'Origin not allowed'}),
-		);
-		return Promise.resolve();
-	}
-
-	const requestId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-
-	liveEventsServer.sendEventToClient({
-		type: 'request-element-install-target',
-		requestId,
-	});
-
-	return new Promise<void>((resolve) => {
-		setTimeout(() => {
-			const target = getElementInstallTarget(requestId);
-			const now = Date.now();
-			const targetIsLive =
-				target !== null &&
-				now - target.updatedAt < ELEMENT_INSTALL_TARGET_MAX_AGE;
-			const host = request.headers.host ?? null;
-			const port = host?.split(':').at(-1) ?? null;
-			setElementInstallCorsHeaders({request, response});
-			response.writeHead(200, {'Content-Type': 'application/json'});
-			response.end(
-				JSON.stringify({
-					type: 'remotion-studio',
-					projectName: getProjectName({
-						basename: path.basename,
-						gitSource,
-						resolvedRemotionRoot: remotionRoot,
-					}),
-					port: port === null ? null : Number(port),
-					lastFocusedAt: target?.lastFocusedAt ?? null,
-					canInstall: target !== null && target.canInstall && targetIsLive,
-					activeCompositionId: target?.compositionId ?? null,
-					readOnly: target?.readOnly ?? false,
-				}),
-			);
-			resolve();
-		}, ELEMENT_INSTALL_TARGET_RESPONSE_WAIT);
-	});
-};
-
-const handleRequestElementInstall = async ({
-	liveEventsServer,
-	request,
-	response,
-}: {
-	liveEventsServer: LiveEventsServer;
-	request: IncomingMessage;
-	response: ServerResponse;
-}) => {
-	if (!isAllowedElementInstallOrigin(request.headers.origin)) {
-		response.writeHead(403);
-		response.end(
-			JSON.stringify({success: false, reason: 'Origin not allowed'}),
-		);
-		return;
-	}
-
-	setElementInstallCorsHeaders({request, response});
-	response.setHeader('Content-Type', 'application/json');
-
-	try {
-		const body = await parseRequestBody(request);
-		const {mimeType, payload} = body as {
-			mimeType?: unknown;
-			payload?: unknown;
-		};
-		const parsed =
-			typeof mimeType === 'string' && typeof payload === 'string'
-				? DragAndDropInternals.parseDragData({mimeType, payload})
-				: null;
-
-		if (parsed?.type !== 'element') {
-			response.writeHead(400);
-			response.end(
-				JSON.stringify({success: false, reason: 'Invalid Element payload'}),
-			);
-			return;
-		}
-
-		const target = getElementInstallTarget(null);
-		const now = Date.now();
-		const targetIsLive =
-			target !== null &&
-			now - target.updatedAt < ELEMENT_INSTALL_TARGET_MAX_AGE;
-		const targetWasRecentlyFocused =
-			target !== null &&
-			target.lastFocusedAt !== null &&
-			now - target.lastFocusedAt < ELEMENT_INSTALL_FOCUS_MAX_AGE;
-		if (
-			target === null ||
-			!target.canInstall ||
-			target.compositionFile === null ||
-			target.compositionId === null ||
-			!targetIsLive ||
-			!targetWasRecentlyFocused
-		) {
-			response.writeHead(409);
-			response.end(
-				JSON.stringify({
-					success: false,
-					reason: 'No focused writable Remotion Studio composition',
-				}),
-			);
-			return;
-		}
-
-		const installRequest: ElementInstallRequest = {
-			id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-			clientId: target.clientId,
-			createdAt: Date.now(),
-			compositionFile: target.compositionFile,
-			compositionId: target.compositionId,
-			element: parsed.data.element,
-			position: null,
-		};
-
-		const delivered = liveEventsServer.sendEventToClientId(target.clientId, {
-			type: 'element-install-request',
-			request: installRequest,
-		});
-
-		if (delivered === false) {
-			response.writeHead(409);
-			response.end(
-				JSON.stringify({
-					success: false,
-					reason: 'The selected Remotion Studio tab is no longer connected',
-				}),
-			);
-			return;
-		}
-
-		focusBrowserTab({url: target.studioUrl}).catch(() => undefined);
-
-		response.writeHead(200);
-		response.end(JSON.stringify({success: true, status: 'sent'}));
-	} catch (err) {
-		response.writeHead(500);
-		response.end(
-			JSON.stringify({success: false, reason: (err as Error).message}),
-		);
-	}
-};
-
 const handleFallback = async ({
 	remotionRoot,
 	hash,
@@ -306,6 +85,7 @@ const handleFallback = async ({
 	logLevel,
 	enableCrossSiteIsolation,
 	getStudioRuntimeConfig,
+	getDefaultEditor,
 }: {
 	remotionRoot: string;
 	hash: string;
@@ -323,6 +103,7 @@ const handleFallback = async ({
 	logLevel: LogLevel;
 	enableCrossSiteIsolation: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	getDefaultEditor: () => DefaultEditor | null;
 }) => {
 	const acceptsHtml = (request.headers.accept ?? '').includes('text/html');
 	if (request.method === 'GET' && acceptsHtml) {
@@ -352,7 +133,7 @@ const handleFallback = async ({
 		);
 	}
 
-	const displayName = await getEditorName();
+	const displayName = await getEditorName({getDefaultEditor, logLevel});
 
 	response.setHeader('content-type', 'text/html');
 	if (enableCrossSiteIsolation) {
@@ -597,6 +378,7 @@ export const handleRoutes = ({
 	getPreviewSampleRate,
 	enableCrossSiteIsolation,
 	getStudioRuntimeConfig,
+	getDefaultEditor,
 	configFile,
 }: {
 	staticHash: string;
@@ -622,6 +404,7 @@ export const handleRoutes = ({
 	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	getDefaultEditor: () => DefaultEditor | null;
 	configFile: string | null;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
@@ -655,24 +438,27 @@ export const handleRoutes = ({
 	}
 
 	if (
-		url.pathname === '/api/element-install-target' ||
-		url.pathname === '/api/request-element-install'
+		url.pathname === '/api/studio-protocol' ||
+		url.pathname === '/api/studio-protocol/install'
 	) {
 		if (request.method === 'OPTIONS') {
-			return handleElementInstallOptions({request, response});
+			return handleStudioProtocolOptions({request, response});
 		}
 
-		if (url.pathname === '/api/element-install-target') {
-			return handleElementInstallTarget({
+		if (url.pathname === '/api/studio-protocol') {
+			return handleStudioProtocolDiscovery({
+				gitSource,
 				liveEventsServer,
+				remotionRoot,
 				request,
 				response,
-				remotionRoot,
-				gitSource,
 			});
 		}
 
-		return handleRequestElementInstall({
+		return handleStudioProtocolInstall({
+			focusStudioTab: (studioUrl) => {
+				focusBrowserTab({url: studioUrl}).catch(() => undefined);
+			},
 			liveEventsServer,
 			request,
 			response,
@@ -695,6 +481,7 @@ export const handleRoutes = ({
 				binariesDirectory,
 				publicDir,
 				configFile,
+				getDefaultEditor,
 			});
 		}
 	}
@@ -772,5 +559,6 @@ export const handleRoutes = ({
 		getPreviewSampleRate,
 		enableCrossSiteIsolation,
 		getStudioRuntimeConfig,
+		getDefaultEditor,
 	});
 };

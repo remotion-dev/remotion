@@ -346,6 +346,7 @@ export const starburstSchema: InteractivitySchema = {
 	...Internals.transformSchema,
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
+	...Interactive.borderRadiusSchema,
 	...Internals.premountSchema,
 };
 
@@ -437,6 +438,9 @@ const StarburstInner: React.FC<
 	);
 };
 
+/**
+ * @deprecated Use `starburst()` from `@remotion/effects/starburst` instead: https://www.remotion.dev/docs/effects/starburst
+ */
 export const Starburst = Interactive.withSchema({
 	Component: StarburstInner,
 	componentName: '<Starburst>',

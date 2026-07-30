@@ -13,6 +13,10 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {
+	BORDER_RADIUS_LONGHAND_KEYS,
+	BORDER_RADIUS_SHORTHAND_KEY,
+} from './style-property-relations';
 
 export type {DragOverrides, PropStatuses, SequenceControls};
 
@@ -47,6 +51,7 @@ export type SchemaFieldGroup =
 	| 'transforms'
 	| 'background'
 	| 'border'
+	| 'border-radius'
 	| 'crop'
 	| 'text'
 	| 'layout';
@@ -63,6 +68,7 @@ export const SCHEMA_FIELD_GROUPS = [
 	{id: 'text', label: 'Text'},
 	{id: 'background', label: 'Background'},
 	{id: 'border', label: 'Border'},
+	{id: 'border-radius', label: 'Border radius'},
 	{id: 'crop', label: 'Crop'},
 	{id: 'layout', label: 'Layout'},
 ] as const satisfies readonly SchemaFieldGroupInfo[];
@@ -89,6 +95,56 @@ const CROP_FIELD_KEYS = new Set([
 	'cropTop',
 	'cropBottom',
 ]);
+
+const BORDER_RADIUS_FIELD_KEYS = new Set([
+	'style.borderRadius',
+	'style.borderTopLeftRadius',
+	'style.borderTopRightRadius',
+	'style.borderBottomRightRadius',
+	'style.borderBottomLeftRadius',
+]);
+
+const getBorderRadiusFieldKeysToShow = ({
+	activeSchema,
+	propStatuses,
+	nodePath,
+}: {
+	activeSchema: InteractivitySchema;
+	propStatuses: PropStatuses;
+	nodePath: SequencePropsSubscriptionKey;
+}): ReadonlySet<string> | null => {
+	if (!(BORDER_RADIUS_SHORTHAND_KEY in activeSchema)) {
+		return null;
+	}
+
+	const statuses = Internals.getPropStatusesCtx(propStatuses, nodePath);
+	const shorthand = statuses?.[BORDER_RADIUS_SHORTHAND_KEY];
+	const longhands = BORDER_RADIUS_LONGHAND_KEYS.map((key) => statuses?.[key]);
+
+	// A supported shorthand is canonical even though the server also reports its
+	// expanded longhand values. This keeps one Inspector row and one keyframe track.
+	if (shorthand?.status === 'keyframed') {
+		return new Set([BORDER_RADIUS_SHORTHAND_KEY]);
+	}
+
+	if (shorthand?.status === 'static' && shorthand.codeValue !== undefined) {
+		return new Set([BORDER_RADIUS_SHORTHAND_KEY]);
+	}
+
+	const hasEditableLonghand = longhands.some(
+		(status) =>
+			status?.status === 'keyframed' ||
+			(status?.status === 'static' && status.codeValue !== undefined),
+	);
+	if (hasEditableLonghand) {
+		return new Set(BORDER_RADIUS_LONGHAND_KEYS);
+	}
+
+	// No radius has been authored, an unsupported dynamic shorthand was authored,
+	// or shorthand and longhands were mixed. In all three cases, only show the
+	// shorthand row so duplicate representations never reach the Inspector/timeline.
+	return new Set([BORDER_RADIUS_SHORTHAND_KEY]);
+};
 
 const BORDER_FIELD_KEYS = new Set([
 	'style.borderWidth',
@@ -123,6 +179,10 @@ export const getSchemaFieldGroup = (key: string): SchemaFieldGroup => {
 
 	if (CROP_FIELD_KEYS.has(key)) {
 		return 'crop';
+	}
+
+	if (BORDER_RADIUS_FIELD_KEYS.has(key)) {
+		return 'border-radius';
 	}
 
 	if (BORDER_FIELD_KEYS.has(key)) {
@@ -284,9 +344,22 @@ export const getFieldsToShow = ({
 		schema,
 		(key) => valuesDotNotation[key],
 	);
+	const borderRadiusFieldKeysToShow = getBorderRadiusFieldKeysToShow({
+		activeSchema,
+		propStatuses,
+		nodePath,
+	});
 
 	const fields = Object.entries(activeSchema)
 		.map(([key, fieldSchema]): InteractivitySchemaFieldInfo | null => {
+			if (
+				BORDER_RADIUS_FIELD_KEYS.has(key) &&
+				borderRadiusFieldKeysToShow !== null &&
+				!borderRadiusFieldKeysToShow.has(key)
+			) {
+				return null;
+			}
+
 			if (!isTimelineSchemaFieldSupported(fieldSchema)) {
 				return null;
 			}

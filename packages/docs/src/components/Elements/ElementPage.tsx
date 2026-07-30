@@ -1,7 +1,9 @@
+import Head from '@docusaurus/Head';
 import {
-	DragAndDropInternals,
-	type ComponentDimensions,
-} from '@remotion/drag-and-drop';
+	createElementPayload,
+	installInStudio,
+	setStudioDragData,
+} from '@remotion/studio-protocol';
 import React, {
 	useCallback,
 	useId,
@@ -10,8 +12,9 @@ import React, {
 	type ReactNode,
 } from 'react';
 import {BlueButton, PlainButton} from '../../../components/layout/Button';
+import {Seo} from '../Seo';
 import type {ElementDefinition} from './element-definitions';
-import {setElementDragData, setElementDragImage} from './element-drag-data';
+import {setElementDragImage} from './element-drag-data';
 import {getElementDimensionsLabel} from './element-utils';
 import {ElementPreview} from './ElementPreview';
 import {
@@ -57,12 +60,12 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	const {height: previewHeight, width: previewWidth} =
 		getElementPreviewDimensions(definition);
 
-	const dragData = useMemo(() => {
+	const elementPayload = useMemo(() => {
 		if (!sourceCode) {
 			return null;
 		}
 
-		const dimensions: ComponentDimensions | null =
+		const dimensions =
 			elementWidth !== null && elementHeight !== null
 				? {
 						width: elementWidth,
@@ -70,8 +73,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 					}
 				: null;
 
-		return DragAndDropInternals.makeDragData({
-			type: 'element',
+		return createElementPayload({
 			dependencies,
 			dimensions,
 			displayName,
@@ -90,16 +92,16 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	]);
 
 	const installElement = useCallback(async () => {
-		if (dragData === null) {
+		if (elementPayload === null) {
 			return;
 		}
 
 		setInstallStatus({type: 'installing'});
-		const result = await DragAndDropInternals.installInStudio(dragData);
+		const result = await installInStudio({payload: elementPayload});
 		if (!result.success) {
 			setInstallStatus({
 				type: 'error',
-				message: result.reason,
+				message: result.message,
 			});
 			return;
 		}
@@ -107,12 +109,10 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		const {target} = result;
 		setInstallStatus({
 			type: 'success',
-			message: `Sent to ${target.projectName ?? 'Remotion Studio'}${
-				target.activeCompositionId ? ` / ${target.activeCompositionId}` : ''
-			}. Confirm the install in Studio.`,
-			studioUrl: target.origin,
+			message: `Sent to ${target.projectName ?? 'Remotion Studio'} / ${target.compositionId}. Confirm the installation in Studio.`,
+			studioUrl: target.studioOrigin,
 		});
-	}, [dragData]);
+	}, [elementPayload]);
 
 	const PreviewComponent = useMemo(() => {
 		return () => <ElementPreviewComposition definition={definition} />;
@@ -120,6 +120,13 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 
 	return (
 		<div className={styles.workbench}>
+			<Head>
+				{Seo.renderVideo({
+					height: previewHeight,
+					url: definition.preview.videoUrl,
+					width: previewWidth,
+				})}
+			</Head>
 			<section aria-label="Preview" className={styles.previewColumn}>
 				<div className={styles.previewAndSource}>
 					<ElementPreview
@@ -165,7 +172,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				className={styles.actionsColumn}
 			>
 				<div className={styles.useIt}>
-					{dragData === null ? null : (
+					{elementPayload === null ? null : (
 						<>
 							<div className={styles.actionRow}>
 								<BlueButton
@@ -178,16 +185,16 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 								>
 									{installStatus.type === 'installing'
 										? 'Finding Studio…'
-										: 'Install Element'}
+										: 'Install in Studio'}
 								</BlueButton>
 								<PlainButton
 									draggable
 									fullWidth
 									loading={false}
 									onDragStart={(event) => {
-										setElementDragData({
+										setStudioDragData({
 											dataTransfer: event.dataTransfer,
-											dragData,
+											payload: elementPayload,
 										});
 										setElementDragImage(event.dataTransfer);
 									}}

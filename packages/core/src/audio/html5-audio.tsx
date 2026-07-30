@@ -28,7 +28,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			/**
 			 * @deprecated For internal use only
 			 */
-			readonly stack?: string;
+			readonly _remotionInternalStack?: string;
 		}
 > = (props, ref) => {
 	const audioTagsContext = useContext(SharedAudioTagsContext);
@@ -39,7 +39,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		trimBefore,
 		trimAfter,
 		name,
-		stack,
+		_remotionInternalStack,
 		pauseWhenBuffering,
 		showInTimeline,
 		onError: onRemotionError,
@@ -199,7 +199,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			_remotionInternalNativeLoopPassed={
 				props._remotionInternalNativeLoopPassed ?? false
 			}
-			_remotionInternalStack={stack ?? null}
+			_remotionInternalStack={_remotionInternalStack ?? null}
 			shouldPreMountAudioTags={
 				audioTagsContext !== null && audioTagsContext.numberOfAudioTags > 0
 			}

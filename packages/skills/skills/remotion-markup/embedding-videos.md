@@ -125,8 +125,10 @@ Use `muted` to silence the video entirely:
 Use `playbackRate` to change the playback speed:
 
 ```tsx
-<Video src={staticFile("video.mp4")} playbackRate={2} /> {/* 2x speed */}
-<Video src={staticFile("video.mp4")} playbackRate={0.5} /> {/* Half speed */}
+// 2x speed
+<Video src={staticFile("video.mp4")} playbackRate={2} />
+// Half speed
+<Video src={staticFile("video.mp4")} playbackRate={0.5} />
 ```
 
 Reverse playback is not supported.

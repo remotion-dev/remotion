@@ -135,6 +135,16 @@ The longhand properties are used rather than the `border` shorthand, because Rea
 
 Use it for components that accept a `style` prop and render a border.
 
+### `Interactive.borderRadiusSchema`<AvailableFrom v="4.0.501" />
+
+Controls for `style.borderRadius` and its four corner longhands: `style.borderTopLeftRadius`, `style.borderTopRightRadius`, `style.borderBottomRightRadius` and `style.borderBottomLeftRadius`.
+
+The Studio shows either the shorthand or the four longhands. Mixing `style.borderRadius` with a corner longhand is treated as computed and cannot be edited visually.
+
+When `style.borderRadius` is a number or contains one to four pixel values, the Studio expands it into the four longhand properties when you edit a corner. Complex values such as percentages and elliptical radii are not editable.
+
+Use it for components that accept a `style` prop and render rounded corners.
+
 ### `Interactive.svgPaintSchema`<AvailableFrom v="4.0.499" />
 
 Controls for the SVG `fill`, `stroke` and `strokeWidth` props.
@@ -159,7 +169,7 @@ Use it for components that forward these props to a `<Sequence>`.
 
 The schema used by [`<Sequence>`](/docs/sequence).
 
-It includes `Interactive.baseSchema` and a `layout` field. When `layout` is `"absolute-fill"`, the active fields include [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop), [`cropBottom`](/docs/sequence#cropbottom), `Interactive.transformSchema`, `Interactive.backgroundSchema`, `Interactive.borderSchema` and `Interactive.premountSchema`.
+It includes `Interactive.baseSchema` and a `layout` field. When `layout` is `"absolute-fill"`, the active fields include [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop), [`cropBottom`](/docs/sequence#cropbottom), `Interactive.transformSchema`, `Interactive.backgroundSchema`, `Interactive.borderSchema`, `Interactive.borderRadiusSchema` and `Interactive.premountSchema`.
 
 ### `Interactive.withSchema()`<AvailableFrom v="4.0.479" />
 

@@ -1,4 +1,4 @@
-import {DragAndDropInternals} from '@remotion/drag-and-drop';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import React, {
 	useCallback,
 	useContext,
@@ -10,6 +10,7 @@ import React, {
 import {Internals, staticFile, type StaticFile} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {deleteStaticFile} from '../api/delete-static-file';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	BACKGROUND,
@@ -96,16 +97,20 @@ const revealIconStyle: React.CSSProperties = {
 };
 
 export const getAssetActionAvailability = ({
+	browserStudioCanMutateAssets,
 	readOnlyStudio,
 	connectionStatus,
 	publicFolderExists,
 }: {
+	browserStudioCanMutateAssets: boolean | null;
 	readOnlyStudio: boolean;
 	connectionStatus: 'init' | 'connected' | 'disconnected';
 	publicFolderExists: string | null;
 }) => {
 	return {
-		mutationsDisabled: readOnlyStudio || connectionStatus !== 'connected',
+		mutationsDisabled:
+			browserStudioCanMutateAssets !== true &&
+			(readOnlyStudio || connectionStatus !== 'connected'),
 		fileExplorerDisabled:
 			publicFolderExists === null ||
 			readOnlyStudio ||
@@ -500,7 +505,7 @@ const AssetSelectorItem: React.FC<{
 					? mediaMetadata.duration
 					: null;
 
-			const dragData = DragAndDropInternals.makeDragData({
+			const dragData = StudioProtocolInternals.makeDragData({
 				type: 'asset',
 				assetPath: relativePath,
 				width: hasDimensions ? width : null,
@@ -575,6 +580,8 @@ const AssetSelectorItem: React.FC<{
 	}, [relativePath]);
 
 	const {mutationsDisabled, fileExplorerDisabled} = getAssetActionAvailability({
+		browserStudioCanMutateAssets:
+			getBrowserStudioOperations() === null ? null : true,
 		readOnlyStudio,
 		connectionStatus,
 		publicFolderExists: window.remotion_publicFolderExists,
@@ -696,6 +703,7 @@ const AssetSelectorItem: React.FC<{
 						<>
 							<Spacing x={0.5} />
 							<InlineAction
+								variant={null}
 								title="Copy staticFile() path"
 								renderAction={renderCopyAction}
 								onClick={copyToClipboard}
@@ -704,6 +712,7 @@ const AssetSelectorItem: React.FC<{
 								<>
 									<Spacing x={0.5} />
 									<InlineAction
+										variant={null}
 										title={`Show in ${fileManagerName}`}
 										renderAction={renderFileExplorerAction}
 										onClick={revealInExplorer}

@@ -5,15 +5,21 @@ import {ControlButton} from './ControlButton';
 
 const accessibilityLabel = 'Loop video';
 
+export const toggleLoop = (
+	setLoop: React.Dispatch<React.SetStateAction<boolean>>,
+) => {
+	setLoop((currentLoop) => {
+		persistLoopOption(!currentLoop);
+		return !currentLoop;
+	});
+};
+
 export const LoopToggle: React.FC<{
 	readonly loop: boolean;
 	readonly setLoop: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({loop, setLoop}) => {
 	const onClick = useCallback(() => {
-		setLoop((c) => {
-			persistLoopOption(!c);
-			return !c;
-		});
+		toggleLoop(setLoop);
 	}, [setLoop]);
 
 	return (

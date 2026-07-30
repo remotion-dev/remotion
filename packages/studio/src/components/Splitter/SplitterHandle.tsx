@@ -4,7 +4,7 @@ import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from '../ForceSpecificCursor';
-import {SplitterContext} from './SplitterContext';
+import {getSplitterFlexBounds, SplitterContext} from './SplitterContext';
 
 export const SPLITTER_HANDLE_SIZE = 3;
 
@@ -62,20 +62,14 @@ export const SplitterHandle: React.FC<{
 				(dragContext.orientation === 'vertical'
 					? containerWidth
 					: containerHeight) - SPLITTER_HANDLE_SIZE;
-			const minFlex =
-				dragContext.maxAntiFlexerSize === null || availableSize <= 0
-					? dragContext.minFlex
-					: Math.max(
-							dragContext.minFlex,
-							1 - dragContext.maxAntiFlexerSize / availableSize,
-						);
-			const maxFlex =
-				dragContext.maxFlexerSize === null || availableSize <= 0
-					? dragContext.maxFlex
-					: Math.min(
-							dragContext.maxFlex,
-							dragContext.maxFlexerSize / availableSize,
-						);
+			const {minFlex, maxFlex} = getSplitterFlexBounds({
+				availableSize,
+				maxAntiFlexerSize: dragContext.maxAntiFlexerSize,
+				maxFlex: dragContext.maxFlex,
+				maxFlexerSize: dragContext.maxFlexerSize,
+				minFlex: dragContext.minFlex,
+				minFlexerSize: dragContext.minFlexerSize,
+			});
 			const startFlex = Math.min(
 				maxFlex,
 				Math.max(minFlex, dragContext.flexValue),
@@ -85,7 +79,6 @@ export const SplitterHandle: React.FC<{
 			forceSpecificCursor(
 				dragContext.orientation === 'horizontal' ? 'row-resize' : 'col-resize',
 			);
-			current.classList.add('remotion-splitter-active');
 
 			const getNewValue = (ev: PointerEvent, clamp: boolean) => {
 				if (!dragContext.ref.current) {
@@ -109,7 +102,6 @@ export const SplitterHandle: React.FC<{
 			endDrag = () => {
 				dragContext.isDragging.current = false;
 				stopForcingSpecificCursor();
-				current.classList.remove('remotion-splitter-active');
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
 				window.removeEventListener('pointercancel', onPointerCancel);
@@ -169,55 +161,6 @@ export const SplitterHandle: React.FC<{
 		return () => {
 			current.removeEventListener('pointerdown', onPointerDown);
 			endDrag?.();
-		};
-	}, []);
-
-	useEffect(() => {
-		const {current} = ref;
-		if (!current) {
-			return;
-		}
-
-		let isMouseDown = false;
-
-		const onMouseDown = () => {
-			isMouseDown = true;
-		};
-
-		const onMouseUp = () => {
-			isMouseDown = false;
-		};
-
-		const onMouseEnter = (e: MouseEvent) => {
-			if (e.button !== 0) {
-				return;
-			}
-
-			if (isMouseDown) {
-				return;
-			}
-
-			current.classList.add('remotion-splitter-hover');
-		};
-
-		const onMouseLeave = (e: MouseEvent) => {
-			if (e.button !== 0) {
-				return;
-			}
-
-			current.classList.remove('remotion-splitter-hover');
-		};
-
-		current.addEventListener('mouseenter', onMouseEnter);
-		current.addEventListener('mouseleave', onMouseLeave);
-		window.addEventListener('mousedown', onMouseDown);
-		window.addEventListener('mouseup', onMouseUp);
-
-		return () => {
-			current.removeEventListener('mouseenter', onMouseEnter);
-			current.removeEventListener('mouseleave', onMouseLeave);
-			window.removeEventListener('mousedown', onMouseDown);
-			window.removeEventListener('mouseup', onMouseUp);
 		};
 	}, []);
 

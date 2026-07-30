@@ -183,6 +183,9 @@ export type ModalState =
 			type: 'configure-license';
 			initialPublicLicenseKey: string | null;
 	  }
+	| {
+			type: 'configure-default-editor';
+	  }
 	| RenderModalState
 	| WebRenderModalState
 	| {
@@ -204,7 +207,12 @@ export type ModalState =
 			invocationTimestamp: number;
 			assetSelection: {
 				initialQuery: string;
+				onSelectFile: () => void;
 				onSelected: (asset: StaticFile) => void;
+			} | null;
+			compositionSelection: {
+				excludeCompositionId: string;
+				onSelected: (composition: _InternalTypes['AnyComposition']) => void;
 			} | null;
 	  }
 	| AddEffectModalState

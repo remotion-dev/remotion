@@ -27,7 +27,7 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 		trimAfter,
 		name,
 		pauseWhenBuffering,
-		stack,
+		_remotionInternalStack,
 		showInTimeline,
 		...otherProps
 	} = props;
@@ -78,7 +78,7 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 					name={undefined}
 					showInTimeline={showInTimeline}
 					trimBefore={undefined}
-					stack={undefined}
+					_remotionInternalStack={undefined}
 					startFrom={undefined}
 					endAt={undefined}
 				/>
@@ -97,7 +97,7 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 				name={undefined}
 				showInTimeline={showInTimeline}
 				trimBefore={undefined}
-				stack={undefined}
+				_remotionInternalStack={undefined}
 				startFrom={undefined}
 				endAt={undefined}
 			/>
@@ -117,7 +117,7 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 
 	return (
 		<VideoForPreview
-			_remotionInternalStack={stack ?? null}
+			_remotionInternalStack={_remotionInternalStack ?? null}
 			onDuration={onDuration}
 			onlyWarnForMediaSeekingError
 			pauseWhenBuffering={shouldPauseWhenBuffering}
@@ -164,7 +164,7 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = ({
 	volume,
 	_remotionInternalNativeLoopPassed,
 	endAt,
-	stack,
+	_remotionInternalStack,
 	startFrom,
 	imageFormat,
 	...props
@@ -195,7 +195,7 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = ({
 			toneFrequency={toneFrequency ?? 1}
 			showInTimeline={showInTimeline ?? true}
 			src={src}
-			stack={stack}
+			_remotionInternalStack={_remotionInternalStack}
 			startFrom={startFrom}
 			_remotionInternalNativeLoopPassed={
 				_remotionInternalNativeLoopPassed ?? false

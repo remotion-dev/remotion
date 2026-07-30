@@ -19,18 +19,15 @@ const accessibilityLabel = 'Change the playback rate';
 
 const comboStyle: React.CSSProperties = {width: 64};
 
-export const PlaybackRateSelector: React.FC<{
+type PlaybackRateMenuItemsProps = {
 	readonly playbackRate: number;
 	readonly setPlaybackRate: React.Dispatch<React.SetStateAction<number>>;
-}> = ({playbackRate, setPlaybackRate}) => {
-	const {canvasContent} = useContext(Internals.CompositionManager);
-	const isStill = useIsStill();
-	const style = useMemo(() => {
-		return {
-			padding: CONTROL_BUTTON_PADDING - 2,
-		};
-	}, []);
+};
 
+export const usePlaybackRateMenuItems = ({
+	playbackRate,
+	setPlaybackRate,
+}: PlaybackRateMenuItemsProps) => {
 	const items: ComboboxValue[] = useMemo(() => {
 		const divider: ComboboxValue = {
 			type: 'divider',
@@ -61,6 +58,28 @@ export const PlaybackRateSelector: React.FC<{
 		return [...values.slice(0, middle), divider, ...values.slice(middle)];
 	}, [playbackRate, setPlaybackRate]);
 
+	return {
+		items,
+		selectedId: String(playbackRate),
+	};
+};
+
+export const PlaybackRateSelector: React.FC<PlaybackRateMenuItemsProps> = ({
+	playbackRate,
+	setPlaybackRate,
+}) => {
+	const {canvasContent} = useContext(Internals.CompositionManager);
+	const isStill = useIsStill();
+	const {items, selectedId} = usePlaybackRateMenuItems({
+		playbackRate,
+		setPlaybackRate,
+	});
+	const style = useMemo(() => {
+		return {
+			padding: CONTROL_BUTTON_PADDING - 2,
+		};
+	}, []);
+
 	if (isStill || canvasContent === null || canvasContent.type === 'asset') {
 		return null;
 	}
@@ -71,7 +90,7 @@ export const PlaybackRateSelector: React.FC<{
 				size="compact"
 				title={accessibilityLabel}
 				style={comboStyle}
-				selectedId={String(playbackRate)}
+				selectedId={selectedId}
 				values={items}
 			/>
 		</div>

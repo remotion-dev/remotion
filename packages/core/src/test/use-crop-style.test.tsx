@@ -57,3 +57,22 @@ test('preserves the inline border radius on the cropped rectangle', () => {
 		clipPath: 'inset(0% 25% 0% 0% round 12px 24px)',
 	});
 });
+
+test('preserves individual inline corner radii on the cropped rectangle', () => {
+	const {result} = renderHook(() =>
+		useCropStyle({
+			cropBottom: 0.25,
+			style: {
+				borderTopLeftRadius: 12,
+				borderBottomRightRadius: '25%',
+			},
+			componentName: '<Test />',
+		}),
+	);
+
+	expect(result.current).toEqual({
+		borderTopLeftRadius: 12,
+		borderBottomRightRadius: '25%',
+		clipPath: 'inset(0% 0% 25% 0% round 12px 0px 25% 0px)',
+	});
+});

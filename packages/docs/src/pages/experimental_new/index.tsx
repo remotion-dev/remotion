@@ -55,7 +55,7 @@ const NewRemotionProject = () => {
 						<BrowserStudio
 							iframeSrc="/experimental_new/frame.html"
 							project={createBlankTemplateProject()}
-							readOnly
+							readOnly={false}
 						/>
 					)}
 				</BrowserOnly>

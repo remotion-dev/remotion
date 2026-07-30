@@ -384,6 +384,50 @@ export const borderSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
+export const borderRadiusSchema = {
+	'style.borderRadius': {
+		type: 'number',
+		default: 0,
+		min: 0,
+		step: 1,
+		description: 'Border radius',
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	'style.borderTopLeftRadius': {
+		type: 'number',
+		default: 0,
+		min: 0,
+		step: 1,
+		description: 'Top left radius',
+		hiddenFromList: false,
+	},
+	'style.borderTopRightRadius': {
+		type: 'number',
+		default: 0,
+		min: 0,
+		step: 1,
+		description: 'Top right radius',
+		hiddenFromList: false,
+	},
+	'style.borderBottomRightRadius': {
+		type: 'number',
+		default: 0,
+		min: 0,
+		step: 1,
+		description: 'Bottom right radius',
+		hiddenFromList: false,
+	},
+	'style.borderBottomLeftRadius': {
+		type: 'number',
+		default: 0,
+		min: 0,
+		step: 1,
+		description: 'Bottom left radius',
+		hiddenFromList: false,
+	},
+} as const satisfies InteractivitySchema;
+
 export const backgroundSchema = {
 	'style.backgroundColor': {
 		type: 'color',
@@ -503,6 +547,7 @@ export const sequenceStyleSchema = {
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,
+	...borderRadiusSchema,
 	...sequencePremountSchema,
 } as const satisfies InteractivitySchema;
 

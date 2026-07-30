@@ -69,8 +69,8 @@ import {FolderTreeComposition} from './HomepageAssets/FolderTree';
 import {Map} from './HomepageAssets/Map';
 import {
 	HomepageAssetMaster,
-	homepageAssetMasterSchema,
 	homepageAssetMasterDurationInFrames,
+	homepageAssetMasterSchema,
 } from './HomepageAssets/Master';
 import {NpmIniVideo} from './HomepageAssets/NpmInitVideo/NpmInitVideo';
 import {RemotionTriangleComposition} from './HomepageAssets/RemotionTriangle';
@@ -99,6 +99,15 @@ import {
 	htmlInCanvasAllEffectsDefaultProps,
 	htmlInCanvasAllEffectsSchema,
 } from './Showcase/HtmlInCanvasAllEffects';
+import {
+	Skills2AnnouncementComposition,
+	skills2AnnouncementSchema,
+} from './Skills2Announcement';
+import {Skills2Gesture} from './Skills2Gesture';
+import {Skills2Pick} from './Skills2Pick';
+import {Skills2Router} from './Skills2Router';
+import {Skills2TableBang} from './Skills2TableBang';
+import {Skills2TableBangComp} from './Skills2TableBangComp';
 import {SvgLogoCompositions} from './SvgLogos';
 import {
 	FlyingCardsLeft,
@@ -120,6 +129,60 @@ import {UpperThird, upperThirdSchema} from './video-elements/UpperThird';
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<Folder name="announcements">
+				<Composition
+					id="Skills2Announcement"
+					component={Skills2AnnouncementComposition}
+					durationInFrames={180}
+					fps={30}
+					width={1071}
+					height={102}
+					schema={skills2AnnouncementSchema}
+					defaultProps={{
+						title: '/react-best-practices',
+					}}
+				/>
+				<Composition
+					id="Skills2Gesture"
+					component={Skills2Gesture}
+					durationInFrames={456}
+					fps={30}
+					width={1344}
+					height={1700}
+				/>
+				<Composition
+					id="Skills2Pick"
+					component={Skills2Pick}
+					durationInFrames={78}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="Skills2Hand"
+					component={Skills2TableBang}
+					durationInFrames={78}
+					fps={10}
+					width={1344}
+					height={1126}
+				/>
+				<Composition
+					id="Skills2TableBangComp"
+					component={Skills2TableBangComp}
+					durationInFrames={120}
+					fps={30}
+					width={1344}
+					height={1700}
+				/>
+				<Composition
+					id="Skills2Router"
+					component={Skills2Router}
+					durationInFrames={456}
+					fps={30}
+					width={1344}
+					height={1700}
+				/>
+			</Folder>
 			<Folder name="docs">
 				<Composition
 					id="1000-documentation-pages"

@@ -1,6 +1,6 @@
-import type {ComponentProp, ElementDragData} from '@remotion/drag-and-drop';
 import type {
 	AudioCodec,
+	BuiltInEditor,
 	ChromeMode,
 	Codec,
 	ColorSpace,
@@ -11,6 +11,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
+import type {ComponentProp, ElementDragData} from '@remotion/studio-protocol';
 import type {
 	_InternalTypes,
 	CannotUpdateSequenceReason,
@@ -51,6 +52,7 @@ export type OpenInFileExplorerRequest = {
 };
 
 export type OpenInEditorRequest = {
+	editorId: EditorPickerId | null;
 	stack: SymbolicatedStackFrame;
 };
 
@@ -850,10 +852,40 @@ export type ConvertFigmaClipboardToSvgResponse =
 			reason: string;
 	  };
 
+export type ElementInstallExpectedFileState =
+	| {
+			exists: false;
+	  }
+	| {
+			exists: true;
+			sourceHash: string;
+	  };
+
+export type PrepareElementInstallRequest = {
+	compositionFile: string;
+	compositionId: string;
+	element: ElementDragData['element'];
+};
+
+export type PrepareElementInstallResponse =
+	| {
+			success: true;
+			plan: {
+				filePath: string;
+				expectedFileState: ElementInstallExpectedFileState;
+			};
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
 export type InsertElementRequest = {
 	compositionFile: string;
 	compositionId: string;
 	element: ElementDragData['element'];
+	expectedFileState: ElementInstallExpectedFileState | null;
 	from: number | null;
 	position: InsertableCompositionElementPosition | null;
 	overwriteExisting: boolean;
@@ -881,6 +913,15 @@ export type InsertElementResponse =
 			stack: string;
 	  };
 
+export type ElementInstallSource =
+	| {
+			type: 'studio-protocol';
+			origin: string;
+	  }
+	| {
+			type: 'drag-and-drop';
+	  };
+
 export type ElementInstallRequest = {
 	id: string;
 	clientId: string;
@@ -888,7 +929,9 @@ export type ElementInstallRequest = {
 	compositionFile: string;
 	compositionId: string;
 	element: ElementDragData['element'];
+	from: number | null;
 	position: InsertableCompositionElementPosition | null;
+	source: ElementInstallSource;
 };
 
 export type UpdateElementInstallTargetRequest = {
@@ -920,6 +963,8 @@ export type UpdateAvailableResponse = {
 	currentVersion: string;
 	latestVersion: string;
 	updateAvailable: boolean;
+	skillsUpdateAvailable: boolean;
+	remotionUpgradeSkillAvailable: boolean;
 	timedOut: boolean;
 	packageManager: PackageManager | 'unknown';
 };
@@ -936,6 +981,25 @@ export type UpdatePublicLicenseRequest = {
 	publicLicenseKey: string;
 };
 export type UpdatePublicLicenseResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+	  };
+
+export type GetDefaultEditorInfoRequest = {};
+export type EditorPickerId = BuiltInEditor | 'custom';
+export type GetDefaultEditorInfoResponse = {
+	defaultEditor: EditorPickerId | null;
+	installedEditors: {id: EditorPickerId; name: string}[];
+};
+
+export type UpdateDefaultEditorRequest = {
+	defaultEditor: EditorPickerId | null;
+};
+export type UpdateDefaultEditorResponse =
 	| {
 			success: true;
 	  }
@@ -977,6 +1041,8 @@ export type LogStudioErrorRequest = {
 };
 export type LogStudioErrorResponse = {};
 
+// When adding a route, also update the Browser Studio parity checklist:
+// https://github.com/remotion-dev/remotion/issues/9807
 export type ApiRoutes = {
 	'/api/composition-component-info': ReqAndRes<
 		CompositionComponentInfoRequest,
@@ -1093,6 +1159,10 @@ export type ApiRoutes = {
 		ConvertFigmaClipboardToSvgResponse
 	>;
 	'/api/insert-element': ReqAndRes<InsertElementRequest, InsertElementResponse>;
+	'/api/prepare-element-install': ReqAndRes<
+		PrepareElementInstallRequest,
+		PrepareElementInstallResponse
+	>;
 	'/api/update-element-install-target': ReqAndRes<
 		UpdateElementInstallTargetRequest,
 		UpdateElementInstallTargetResponse
@@ -1119,6 +1189,14 @@ export type ApiRoutes = {
 	'/api/update-public-license': ReqAndRes<
 		UpdatePublicLicenseRequest,
 		UpdatePublicLicenseResponse
+	>;
+	'/api/default-editor-info': ReqAndRes<
+		GetDefaultEditorInfoRequest,
+		GetDefaultEditorInfoResponse
+	>;
+	'/api/update-default-editor': ReqAndRes<
+		UpdateDefaultEditorRequest,
+		UpdateDefaultEditorResponse
 	>;
 	'/api/install-package': ReqAndRes<
 		InstallPackageRequest,

@@ -92,7 +92,7 @@ type OptionalOffthreadVideoProps = {
 	/**
 	 * @deprecated For internal use only
 	 */
-	stack: string | undefined;
+	_remotionInternalStack: string | undefined;
 	showInTimeline: boolean;
 	onAutoPlayError: null | (() => void);
 	onVideoFrame: OnVideoFrame | undefined;
