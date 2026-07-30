@@ -1,4 +1,4 @@
-import {afterEach, expect, test} from 'bun:test';
+import {afterEach, expect, spyOn, test} from 'bun:test';
 import {mkdtempSync, rmSync, writeFileSync} from 'node:fs';
 import {createRequire} from 'node:module';
 import {tmpdir} from 'node:os';
@@ -66,4 +66,60 @@ test('an invalid config reload keeps the previous configuration', async () => {
 		}),
 	).toBe(true);
 	expect(ConfigInternals.getStudioPort()).toBe(6789);
+});
+
+test('warns when the bundler-specific override does not match the selected bundler', async () => {
+	process.env.PATCH_BUN_DEVELOPMENT = '1';
+	Object.assign(globalThis, {
+		require: createRequire(path.join(__dirname, '..', 'load-config.ts')),
+	});
+	temporaryDirectory = mkdtempSync(path.join(tmpdir(), 'remotion-config-'));
+	const warn = spyOn(console, 'warn').mockImplementation(() => undefined);
+
+	try {
+		writeConfig(
+			`const {Config} = require('@remotion/cli/config'); Config.overrideWebpackConfig((config) => config); Config.setRspack(true);`,
+		);
+		await loadConfig(temporaryDirectory);
+		expect(warn.mock.calls.flat().join(' ')).toContain(
+			'You have selected Rspack as the bundler, but Config.overrideWebpackConfig() was called. The Webpack override will be ignored. Use Config.overrideRspackConfig() or Config.overrideBundlerConfig() instead.',
+		);
+
+		warn.mockClear();
+		writeConfig(
+			`const {Config} = require('@remotion/cli/config'); Config.setRspack(false); Config.overrideRspackConfig((config) => config);`,
+		);
+		expect(
+			await reloadConfig({
+				resetConfigOptions: ConfigInternals.resetConfigOptions,
+			}),
+		).toBe(true);
+		expect(warn.mock.calls.flat().join(' ')).toContain(
+			'You have selected Webpack as the bundler, but Config.overrideRspackConfig() was called. The Rspack override will be ignored. Use Config.overrideWebpackConfig() or Config.overrideBundlerConfig() instead.',
+		);
+
+		warn.mockClear();
+		writeConfig(
+			`const {Config} = require('@remotion/cli/config'); Config.setRspack(true); Config.overrideRspackConfig((config) => config); Config.overrideBundlerConfig((config) => config);`,
+		);
+		expect(
+			await reloadConfig({
+				resetConfigOptions: ConfigInternals.resetConfigOptions,
+			}),
+		).toBe(true);
+		expect(warn.mock.calls.length).toBe(0);
+
+		warn.mockClear();
+		writeConfig(
+			`const {Config} = require('@remotion/cli/config'); Config.setRspack(false); Config.overrideWebpackConfig((config) => config); Config.overrideBundlerConfig((config) => config);`,
+		);
+		expect(
+			await reloadConfig({
+				resetConfigOptions: ConfigInternals.resetConfigOptions,
+			}),
+		).toBe(true);
+		expect(warn.mock.calls.length).toBe(0);
+	} finally {
+		warn.mockRestore();
+	}
 });
