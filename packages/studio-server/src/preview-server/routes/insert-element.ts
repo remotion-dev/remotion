@@ -156,7 +156,14 @@ export const insertElementHandler: ApiHandler<
 			});
 			if (
 				finalPlan.safePaths.compositionFileName !==
-					plan.safePaths.compositionFileName ||
+				plan.safePaths.compositionFileName
+			) {
+				throw new Error(
+					'Composition source changed during Element installation',
+				);
+			}
+
+			if (
 				!hasExpectedFileState({
 					actual: finalPlan.expectedFileState,
 					expected: plan.expectedFileState,
