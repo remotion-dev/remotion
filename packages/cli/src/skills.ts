@@ -26,7 +26,17 @@ export const printSkillsHelp = (logLevel: LogLevel) => {
 	);
 };
 
-export const skillsCommand = (args: string[], logLevel: LogLevel) => {
+export const skillsCommand = (
+	args: string[],
+	logLevel: LogLevel,
+	{
+		cwd,
+		environment,
+	}: {
+		cwd: string;
+		environment: NodeJS.ProcessEnv;
+	},
+) => {
 	const subcommand = args[0];
 	const restArgs = args.slice(1);
 
@@ -56,6 +66,8 @@ export const skillsCommand = (args: string[], logLevel: LogLevel) => {
 				];
 
 	const child = spawn(command, fullArgs, {
+		cwd,
+		env: environment,
 		stdio: 'inherit',
 	});
 
