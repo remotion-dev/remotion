@@ -12,7 +12,6 @@ import {Footer} from './Footer';
 import {VideoPlayer} from './MediaPlayer';
 import {Page} from './Page';
 import {Probe} from './Probe';
-import {ReplaceVideo} from './ReplaceVideo';
 import Transcribe from './transcribe/App';
 import {useProbe} from './use-probe';
 import type {VideoThumbnailRef} from './VideoThumbnail';
@@ -176,7 +175,6 @@ export const FileAvailable: React.FC<{
 				</div>
 				<div className="h-16" />
 				<Footer routeAction={routeAction} />
-				<ReplaceVideo setSrc={setSrc} />
 			</div>
 		</Page>
 	);
