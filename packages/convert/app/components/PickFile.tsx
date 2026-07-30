@@ -35,12 +35,12 @@ export const PickFile: React.FC<{
 			}
 		};
 
-		document.body.addEventListener('dragover', onDragOver);
-		document.body.addEventListener('drop', onDrop);
+		document.addEventListener('dragover', onDragOver, {capture: true});
+		document.addEventListener('drop', onDrop, {capture: true});
 
 		return () => {
-			document.body.removeEventListener('dragover', onDragOver);
-			document.body.removeEventListener('drop', onDrop);
+			document.removeEventListener('dragover', onDragOver, {capture: true});
+			document.removeEventListener('drop', onDrop, {capture: true});
 		};
 	}, [setSrc]);
 
