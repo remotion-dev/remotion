@@ -53,7 +53,16 @@ Any running instances, even if they are not performing a render, will be billabl
 
 ### `maxInstances`
 
-The maximum number of service instances that can be create by GCP in response to incoming requests. The default is 100. [Read more about the maximum instance limit here](/docs/cloudrun/instancecount#maximum-instance-count)
+The maximum number of service instances that can be create by GCP in response to incoming requests.
+
+| Remotion Version | Default |
+| ---------------- | ------- |
+| &lt;5.0.0        | 100     |
+| &gt;=5.0.0       | 5       |
+
+In Remotion 5.0, the default was reduced because the previous value exceeded the Cloud Run quota on some GCP accounts and caused deployments to fail. If you want the old scaling limit, pass `maxInstances: 100`. See the [v5 migration guide](/docs/5-0-migration#cloud-run-services-use-a-lower-maximum-instance-count).
+
+[Read more about the maximum instance limit here](/docs/cloudrun/instancecount#maximum-instance-count)
 
 ### `timeoutSeconds`
 
