@@ -86,10 +86,6 @@ This is useful to counteract quality loss when the canvas is scaled up – for e
 Children to draw to the canvas.  
 Children will be wrapped in a `<div>` with the given `width` and `height`.
 
-Nesting `<HtmlInCanvas>` components is supported from <AvailableFrom v="4.0.491" inline />.
-Native browser support for nesting requires Chrome 152.0.7944.0 or later.
-Older Chrome versions support a single `<HtmlInCanvas>`, but do not correctly paint nested HTML-in-canvas subtrees.
-
 ### `effects?`<AvailableFrom v="4.0.464" />
 
 Apply [effects](/docs/effects/api) after the children have been painted to the canvas.  
@@ -813,6 +809,12 @@ const onPaint: HtmlInCanvasOnPaint = async ({canvas, elementImage}) => {
   }
 };
 ```
+
+## Nested HTML-in-canvas
+
+Nesting `<HtmlInCanvas>` components is supported from <AvailableFrom v="4.0.491" inline /> for client-side rendering and preview if on Chrome 152.0.7944.0 or later.
+
+On server-side rendering, nested HTML-in-canvas is not yet supported, pending a Chrome upgrade which we are working on.
 
 ## Compatibility
 
