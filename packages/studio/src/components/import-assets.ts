@@ -1339,6 +1339,7 @@ export const insertElement = async ({
 				compositionFile,
 				compositionId,
 				element,
+				expectedFileState: null,
 				from,
 				overwriteExisting,
 				position,
