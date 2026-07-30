@@ -1572,7 +1572,7 @@ export const SelectedOutlineElement: React.FC<{
 					return;
 				}
 
-				await openOriginalPositionInEditor(originalLocation);
+				await openOriginalPositionInEditor(originalLocation, null);
 			};
 
 			openTargetInEditor().catch((err) => {
@@ -1634,6 +1634,7 @@ export const SelectedOutlineElement: React.FC<{
 			deleteDisabled: sourceEditDisabled,
 			disableInteractivityDisabled,
 			duplicateDisabled: sourceEditDisabled,
+			editorInfo: null,
 			fileLocation,
 			includeSourceEditItems: sourceEditingEnabled,
 			onDeleteSequenceFromSource: async () => {
@@ -1700,7 +1701,7 @@ export const SelectedOutlineElement: React.FC<{
 					return;
 				}
 
-				openOriginalPositionInEditor(originalLocation).catch((err) => {
+				openOriginalPositionInEditor(originalLocation, null).catch((err) => {
 					showNotification((err as Error).message, 2000);
 				});
 			},

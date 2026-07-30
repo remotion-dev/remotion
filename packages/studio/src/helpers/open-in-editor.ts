@@ -1,5 +1,6 @@
 import type {
 	CompositionComponentInfoResponse,
+	EditorPickerId,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
 import {useEffect, useSyncExternalStore} from 'react';
@@ -10,7 +11,10 @@ import type {
 } from '../error-overlay/react-overlay/utils/get-source-map';
 import {getBrowserStudioOperations} from './browser-studio-operations';
 
-export const openInEditor = (stack: SymbolicatedStackFrame) => {
+export const openInEditor = (
+	stack: SymbolicatedStackFrame,
+	editorId: EditorPickerId | null,
+) => {
 	const {
 		originalFileName,
 		originalLineNumber,
@@ -20,6 +24,7 @@ export const openInEditor = (stack: SymbolicatedStackFrame) => {
 	} = stack;
 
 	return callApi('/api/open-in-editor', {
+		editorId,
 		stack: {
 			originalFileName,
 			originalLineNumber,
@@ -32,14 +37,21 @@ export const openInEditor = (stack: SymbolicatedStackFrame) => {
 
 export const openOriginalPositionInEditor = async (
 	originalPosition: OriginalPosition,
+	editorId: EditorPickerId | null,
 ) => {
-	await openInEditor({
-		originalColumnNumber: originalPosition.column,
-		originalFileName: originalPosition.source,
-		originalFunctionName: null,
-		originalLineNumber: originalPosition.line,
-		originalScriptCode: null,
-	});
+	const response = await openInEditor(
+		{
+			originalColumnNumber: originalPosition.column,
+			originalFileName: originalPosition.source,
+			originalFunctionName: null,
+			originalLineNumber: originalPosition.line,
+			originalScriptCode: null,
+		},
+		editorId,
+	);
+	if (!response.success) {
+		throw new Error('Could not open the file in the editor.');
+	}
 };
 
 export const openOriginalPositionInEditorAtProperty = async ({
@@ -60,11 +72,14 @@ export const openOriginalPositionInEditorAtProperty = async ({
 		? await browserStudioOperations.findInFile(request)
 		: await callApi('/api/find-in-file', request);
 
-	await openOriginalPositionInEditor({
-		source: originalPosition.source,
-		line: position.lineNumber,
-		column: position.columnNumber,
-	});
+	await openOriginalPositionInEditor(
+		{
+			source: originalPosition.source,
+			line: position.lineNumber,
+			column: position.columnNumber,
+		},
+		null,
+	);
 };
 
 type ResolvedCompositionComponentInfo = {
@@ -231,5 +246,5 @@ export const openCompositionComponentInEditor = async ({
 		compositionFile,
 		compositionId,
 	});
-	await openOriginalPositionInEditor(info.location);
+	await openOriginalPositionInEditor(info.location, null);
 };

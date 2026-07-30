@@ -35,8 +35,17 @@ import {
 } from './pixel-format';
 import {validateOutputFilename} from './validate-output-filename';
 export {AvailableOptions, TypeOfOption} from './options';
-export {defaultEditorIds} from './options/default-editor';
-export type {DefaultEditor} from './options/default-editor';
+export {
+	customEditorColumnNumberPlaceholder,
+	customEditorLineNumberPlaceholder,
+	customEditorTargetPathPlaceholder,
+	defaultEditorIds,
+} from './options/default-editor';
+export type {
+	BuiltInEditor,
+	CustomEditor,
+	DefaultEditor,
+} from './options/default-editor';
 export {HardwareAccelerationOption} from './options/hardware-acceleration';
 export {ProResProfile} from './options/prores-profile';
 

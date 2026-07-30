@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
 import path from 'node:path';
-import type {DefaultEditor} from '@remotion/renderer';
+import type {BuiltInEditor} from '@remotion/renderer';
 import {
 	discoverAvailableEditors,
 	getDefaultEditorName,
@@ -16,13 +16,13 @@ const makeContext = ({
 	paths,
 	env = {},
 	macApplications = {},
-	windowsApplications = {},
+	windowsApplications,
 }: {
 	platform: NodeJS.Platform;
 	paths: readonly string[];
 	env?: NodeJS.ProcessEnv;
 	macApplications?: Record<string, readonly string[]>;
-	windowsApplications?: Partial<Record<DefaultEditor, readonly string[]>>;
+	windowsApplications: Partial<Record<BuiltInEditor, readonly string[]>> | null;
 }): EditorDiscoveryContext => {
 	const existingPaths = new Set(paths);
 	return {
@@ -33,7 +33,7 @@ const makeContext = ({
 		findMacApplications: (bundleIdentifier) =>
 			Promise.resolve(macApplications[bundleIdentifier] ?? []),
 		findWindowsApplications: (editor) =>
-			Promise.resolve(windowsApplications[editor] ?? []),
+			Promise.resolve(windowsApplications?.[editor] ?? []),
 	};
 };
 
@@ -47,6 +47,7 @@ test('discovers installed macOS editors by bundle ID without running them', asyn
 		makeContext({
 			platform: 'darwin',
 			paths: [cursorApplication, cursorExecutable],
+			windowsApplications: null,
 			macApplications: {
 				'com.todesktop.230313mzl4w4u92': [cursorApplication],
 			},
@@ -69,6 +70,7 @@ test('discovers installed Linux editors from known locations and PATH', async ()
 			platform: 'linux',
 			paths: ['/custom/bin/code', '/home/test/.local/bin/zed'],
 			env: {PATH: '/custom/bin:/usr/local/bin'},
+			windowsApplications: null,
 		}),
 	);
 
@@ -116,7 +118,7 @@ test('uses the configured installed editor instead of legacy detection', async (
 	let legacyDetectionCalls = 0;
 
 	const resolved = await resolveEditor(
-		{defaultEditor: 'cursor', logLevel: 'info'},
+		{defaultEditor: 'cursor', logLevel: 'info', preferredEditor: null},
 		{
 			getInstalledEditors: () => Promise.resolve([cursor]),
 			getLegacyEditors: () => {
@@ -126,13 +128,130 @@ test('uses the configured installed editor instead of legacy detection', async (
 		},
 	);
 
-	expect(resolved).toEqual(cursor);
+	expect(resolved).toEqual({...cursor, type: 'built-in'});
 	expect(legacyDetectionCalls).toBe(0);
+});
+
+test('uses the editor selected by the picker without changing the default', async () => {
+	const vscode: InstalledEditor = {
+		command: '/usr/bin/code',
+		id: 'vscode',
+		name: 'VS Code',
+		process: '/usr/bin/code',
+	};
+	const cursor: InstalledEditor = {
+		command: '/usr/bin/cursor',
+		id: 'cursor',
+		name: 'Cursor',
+		process: '/usr/bin/cursor',
+	};
+	let legacyDetectionCalls = 0;
+
+	const resolved = await resolveEditor(
+		{
+			defaultEditor: 'vscode',
+			logLevel: 'info',
+			preferredEditor: 'cursor',
+		},
+		{
+			getInstalledEditors: () => Promise.resolve([vscode, cursor]),
+			getLegacyEditors: () => {
+				legacyDetectionCalls++;
+				return Promise.resolve([]);
+			},
+		},
+	);
+
+	expect(resolved).toEqual({...cursor, type: 'built-in'});
+	expect(legacyDetectionCalls).toBe(0);
+});
+
+test('does not fall back when the editor selected by the picker is unavailable', async () => {
+	let legacyDetectionCalls = 0;
+
+	const resolved = await resolveEditor(
+		{
+			defaultEditor: 'vscode',
+			logLevel: 'info',
+			preferredEditor: 'cursor',
+		},
+		{
+			getInstalledEditors: () => Promise.resolve([]),
+			getLegacyEditors: () => {
+				legacyDetectionCalls++;
+				return Promise.resolve([{command: 'code', process: 'code'}]);
+			},
+		},
+	);
+
+	expect(resolved).toBeNull();
+	expect(legacyDetectionCalls).toBe(0);
+});
+
+test('resolves a custom editor without exposing it to built-in discovery', async () => {
+	let installedEditorDetectionCalls = 0;
+	const customEditor = {
+		type: 'custom',
+		name: 'Acme Editor',
+		executable: '/opt/acme/editor',
+		arguments: ['--goto', '%TARGET_PATH%:%LINE_NUMBER%:%COLUMN_NUMBER%'],
+	} as const;
+	const resolved = await resolveEditor(
+		{defaultEditor: customEditor, logLevel: 'info', preferredEditor: null},
+		{
+			getInstalledEditors: () => {
+				installedEditorDetectionCalls++;
+				return Promise.resolve([]);
+			},
+			resolveCustomEditor: () => ({
+				executable: '/opt/acme/editor',
+				spawnAsMacApplication: false,
+			}),
+		},
+	);
+
+	expect(installedEditorDetectionCalls).toBe(0);
+	expect(resolved).toEqual({
+		type: 'custom',
+		id: 'custom',
+		name: 'Acme Editor',
+		editor: customEditor,
+		executable: '/opt/acme/editor',
+		spawnAsMacApplication: false,
+	});
+});
+
+test('warns and falls back when a custom editor executable is unavailable', async () => {
+	const warnings: string[] = [];
+	const resolved = await resolveEditor(
+		{
+			defaultEditor: {
+				type: 'custom',
+				name: 'Acme Editor',
+				executable: '/missing/acme',
+				arguments: ['%TARGET_PATH%'],
+			},
+			logLevel: 'info',
+			preferredEditor: null,
+		},
+		{
+			getLegacyEditors: () =>
+				Promise.resolve([{command: 'code', process: 'code'}]),
+			resolveCustomEditor: () => null,
+			warn: (message) => warnings.push(message),
+			warnedEditors: new Set(),
+		},
+	);
+
+	expect(resolved?.name).toBe('VS Code');
+	expect(warnings).toEqual([
+		'The executable for custom editor Acme Editor (/missing/acme) was not found or is not executable. Falling back to automatic editor detection.',
+	]);
 });
 
 test('warns once and falls back when the configured editor is unavailable', async () => {
 	const warnings: string[] = [];
-	const warnedEditors = new Set<DefaultEditor>();
+	const warnedEditors = new Set<string>();
 	const dependencies = {
 		getInstalledEditors: () => Promise.resolve([]),
 		getLegacyEditors: () =>
@@ -142,11 +261,11 @@ test('warns once and falls back when the configured editor is unavailable', asyn
 	};
 
 	const first = await resolveEditor(
-		{defaultEditor: 'cursor', logLevel: 'info'},
+		{defaultEditor: 'cursor', logLevel: 'info', preferredEditor: null},
 		dependencies,
 	);
 	const second = await resolveEditor(
-		{defaultEditor: 'cursor', logLevel: 'info'},
+		{defaultEditor: 'cursor', logLevel: 'info', preferredEditor: null},
 		dependencies,
 	);
 
@@ -155,6 +274,7 @@ test('warns once and falls back when the configured editor is unavailable', asyn
 		id: null,
 		name: 'VS Code',
 		process: 'code',
+		type: 'built-in',
 	});
 	expect(second).toEqual(first);
 	expect(warnings).toEqual([
@@ -165,7 +285,7 @@ test('warns once and falls back when the configured editor is unavailable', asyn
 test('preserves legacy detection when no default editor is configured', async () => {
 	let installedEditorDetectionCalls = 0;
 	const resolved = await resolveEditor(
-		{defaultEditor: null, logLevel: 'info'},
+		{defaultEditor: null, logLevel: 'info', preferredEditor: null},
 		{
 			getInstalledEditors: () => {
 				installedEditorDetectionCalls++;

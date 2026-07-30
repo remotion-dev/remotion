@@ -153,6 +153,7 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 
 	const action = (
 		<InlineAction
+			variant={null}
 			onClick={openAssetSelection}
 			disabled={window.remotion_isReadOnlyStudio}
 			title="Change source"

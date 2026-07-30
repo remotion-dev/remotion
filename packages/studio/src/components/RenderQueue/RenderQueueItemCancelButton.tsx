@@ -54,5 +54,11 @@ export const RenderQueueCancelButton: React.FC<{
 		[icon],
 	);
 
-	return <InlineAction renderAction={renderAction} onClick={onClick} />;
+	return (
+		<InlineAction
+			renderAction={renderAction}
+			onClick={onClick}
+			variant={null}
+		/>
+	);
 };

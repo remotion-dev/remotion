@@ -211,13 +211,16 @@ const getFileMenu = ({
 					value: 'open-in-editor',
 					label: `Open in ${window.remotion_editorName}`,
 					onClick: async () => {
-						await openInEditor({
-							originalFileName: `${window.remotion_cwd}`,
-							originalLineNumber: 1,
-							originalColumnNumber: 1,
-							originalFunctionName: null,
-							originalScriptCode: null,
-						})
+						await openInEditor(
+							{
+								originalFileName: `${window.remotion_cwd}`,
+								originalLineNumber: 1,
+								originalColumnNumber: 1,
+								originalFunctionName: null,
+								originalScriptCode: null,
+							},
+							null,
+						)
 							.then(({success}) => {
 								if (!success) {
 									showNotification(

@@ -61,7 +61,7 @@ export const StackElement: React.FC<{
 			return;
 		}
 
-		openInEditor(s).catch((err: unknown) => {
+		openInEditor(s, null).catch((err: unknown) => {
 			// eslint-disable-next-line no-console
 			console.log('Could not open in editor', err);
 		});

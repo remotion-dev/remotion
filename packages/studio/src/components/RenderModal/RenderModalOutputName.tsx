@@ -91,6 +91,7 @@ export const RenderModalOutputName = ({
 								message={
 									<span style={existsMessageStyle}>
 										<InlineAction
+											variant={null}
 											onClick={openExistingOutput}
 											renderAction={renderOpenIcon}
 											title={`Open in ${fileManagerName}`}

@@ -243,6 +243,7 @@ export const KeyframeEasingNavigator: React.FC<{
 	return (
 		<div style={navigatorContainer}>
 			<InlineAction
+				variant={null}
 				disabled={previousItem === null}
 				onClick={selectPrevious}
 				title="Previous animation item"
@@ -279,6 +280,7 @@ export const KeyframeEasingNavigator: React.FC<{
 				/>
 			</div>
 			<InlineAction
+				variant={null}
 				disabled={nextItem === null}
 				onClick={selectNext}
 				title="Next animation item"
