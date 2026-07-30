@@ -176,7 +176,7 @@ export const insertElementHandler: ApiHandler<
 				),
 				remotionRoot,
 			});
-			const elementFileName = safePaths.elementFileName;
+			const {elementFileName} = safePaths;
 
 			const elementFileExists = existsSync(elementFileName);
 			const existingElementSource = elementFileExists
