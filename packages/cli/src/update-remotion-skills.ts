@@ -38,15 +38,4 @@ export const updateRemotionSkills = async ({
 			environment,
 		});
 	}
-
-	if (skillsStatuses.global.type === 'outdated') {
-		Log.info(
-			{indent: false, logLevel},
-			'Updating global Remotion Agent Skills...',
-		);
-		await skillsCommand(['update', '--global'], logLevel, {
-			cwd,
-			environment,
-		});
-	}
 };

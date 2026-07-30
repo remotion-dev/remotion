@@ -24,7 +24,7 @@ const writeRecognizedSkill = (skillsDirectory: string) => {
 	);
 };
 
-test('updates only recognized project and global Remotion skills unless skipped', async () => {
+test('updates only recognized project-local Remotion skills unless skipped', async () => {
 	const temporaryDirectory = mkdtempSync(
 		path.join(tmpdir(), 'remotion-upgrade-skills-'),
 	);
@@ -60,6 +60,7 @@ appendFileSync(process.env.REMOTION_SKILLS_TEST_OUTPUT, JSON.stringify({args: pr
 
 		const environment = {
 			...process.env,
+			HOME: homeDirectory,
 			PATH: `${fakeNpxDirectory}${path.delimiter}${process.env.PATH}`,
 			REMOTION_SKILLS_TEST_OUTPUT: outputFile,
 		};
@@ -100,17 +101,6 @@ appendFileSync(process.env.REMOTION_SKILLS_TEST_OUTPUT, JSON.stringify({args: pr
 				],
 				cwd: canonicalProjectDirectory,
 			},
-			{
-				args: [
-					'--loglevel=error',
-					'skills',
-					'update',
-					...remotionSkillNames,
-					'--global',
-					'--yes',
-				],
-				cwd: canonicalProjectDirectory,
-			},
 		]);
 
 		await updateRemotionSkills({
@@ -121,7 +111,7 @@ appendFileSync(process.env.REMOTION_SKILLS_TEST_OUTPUT, JSON.stringify({args: pr
 			logLevel: 'error',
 			environment,
 		});
-		expect(readFileSync(outputFile, 'utf8').trim().split('\n')).toHaveLength(2);
+		expect(readFileSync(outputFile, 'utf8').trim().split('\n')).toHaveLength(1);
 	} finally {
 		rmSync(temporaryDirectory, {recursive: true, force: true});
 	}

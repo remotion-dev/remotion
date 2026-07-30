@@ -9,7 +9,7 @@ Upgrades all Remotion-related packages.
 
 If `mediabunny` is installed, it will also be upgraded to the version [compatible with the new Remotion version](/docs/mediabunny/version).
 
-If Remotion Agent Skills are installed locally or globally, they will also be updated. Directories without recognized Remotion skills are left unchanged.
+If Remotion Agent Skills are installed in the project's `.agents/skills` directory, they will also be updated. Directories without recognized Remotion skills are left unchanged. Global skills are not updated.
 
 ```
 npx remotion upgrade

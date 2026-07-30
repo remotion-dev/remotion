@@ -13,7 +13,7 @@ version: 4.0.502
    npx remotion upgrade
    ```
 
-   This also updates installed Remotion skills. Skip the manual upgrade below.
+   This also updates project-local Remotion skills. Skip the manual upgrade below.
 
 3. If `@remotion/cli` is not available, upgrade manually:
    - Get the latest stable Remotion version with `npm view remotion version`.
