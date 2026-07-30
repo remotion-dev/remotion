@@ -6,7 +6,16 @@ sidebar_label: Using the GPU
 crumb: 'Need for Speed'
 ---
 
-Some types of content in Remotion can benefit from a GPU being available on the machine that is used for rendering.  
+Some types of content in Remotion can benefit from a GPU being available on the machine that is used for rendering.
+
+## Remotion 5.0
+
+In Remotion 5.0, headless rendering uses the [`angle`](/docs/gl-options) OpenGL backend by default. Chromium uses a compatible GPU when available and automatically falls back to software rendering through SwiftShader otherwise. You no longer need to pass [`--gl=angle`](/docs/cli/render#--gl) just to enable GPU-accelerated rendering during headless exports.
+
+See [Using WebGL and WebGPU during renders](/docs/webgl) for the full setup guide.
+
+## Remotion 4.0
+
 By default in many cases, the GPU is disabled in headless mode, which can lead to a significant slowdown in rendering time.
 
 ## Content accelerated by the GPU
@@ -23,10 +32,9 @@ By default in many cases, the GPU is disabled in headless mode, which can lead t
 - Many 2D Canvas operations
 
 If a GPU is available, it should be enabled by default while in the Remotion Studio or Remotion Player.  
-However, in headless mode, Chromium disables the GPU, leading to a significant
-slowdown in rendering time.
+However, in headless mode, Chromium disables the GPU, leading to a significant slowdown in rendering time.
 
-## Use the `--gl` flag to enable the GPU during rendering
+## Use the `--gl` flag to enable the GPU during rendering (Remotion 4.0)
 
 See [here](/docs/gl-options) for recommendations which OpenGL backend you should use during rendering.
 
