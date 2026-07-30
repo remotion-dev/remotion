@@ -796,7 +796,6 @@ const sidebars: SidebarsConfig = {
 				'studio-protocol/create-element-payload',
 				'studio-protocol/set-studio-drag-data',
 				'studio-protocol/install-in-studio',
-				'studio-protocol/protocol',
 				'studio-protocol/security',
 			],
 		},
