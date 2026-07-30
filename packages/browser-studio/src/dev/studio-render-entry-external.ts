@@ -1,6 +1,5 @@
 export const studioRenderEntryExternal = [
 	'@jridgewell/trace-mapping',
-	'@remotion/canvas-capture',
 	'@remotion/media-utils',
 	'@remotion/player',
 	'@remotion/renderer',

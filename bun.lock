@@ -186,23 +186,16 @@
         "react-dom": ">=16.8.0",
       },
     },
-    "packages/canvas-capture": {
-      "name": "@remotion/canvas-capture",
-      "version": "4.0.502",
+    "packages/canvas-capture-extension": {
+      "name": "@remotion/canvas-capture-extension",
+      "version": "0.1.0",
       "dependencies": {
         "mediabunny": "catalog:",
-        "remotion": "workspace:*",
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "@typescript/native-preview": "catalog:",
         "eslint": "catalog:",
-        "react": "catalog:",
-        "react-dom": "catalog:",
-      },
-      "peerDependencies": {
-        "react": ">=16.8.0",
-        "react-dom": ">=16.8.0",
       },
     },
     "packages/captions": {
@@ -749,7 +742,6 @@
         "@remotion/animation-utils": "workspace:*",
         "@remotion/babel-loader": "workspace:*",
         "@remotion/bundler": "workspace:*",
-        "@remotion/canvas-capture": "workspace:*",
         "@remotion/captions": "workspace:*",
         "@remotion/cli": "workspace:*",
         "@remotion/cloudrun": "workspace:*",
@@ -1670,7 +1662,6 @@
       "version": "4.0.502",
       "dependencies": {
         "@jridgewell/trace-mapping": "0.3.31",
-        "@remotion/canvas-capture": "workspace:*",
         "@remotion/captions": "workspace:*",
         "@remotion/media-utils": "workspace:*",
         "@remotion/player": "workspace:*",
@@ -4079,7 +4070,7 @@
 
     "@remotion/bundler": ["@remotion/bundler@workspace:packages/bundler"],
 
-    "@remotion/canvas-capture": ["@remotion/canvas-capture@workspace:packages/canvas-capture"],
+    "@remotion/canvas-capture-extension": ["@remotion/canvas-capture-extension@workspace:packages/canvas-capture-extension"],
 
     "@remotion/captions": ["@remotion/captions@workspace:packages/captions"],
 

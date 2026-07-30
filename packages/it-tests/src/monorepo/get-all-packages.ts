@@ -5,6 +5,8 @@ import {Pkgs, packages} from '@remotion/studio-shared';
 import {CreateVideoInternals} from 'create-video';
 import {packagesRemovedInV5} from '../../../studio-shared/src/release-package-policy';
 
+const workspaceOnlyPackages = ['canvas-capture-extension'];
+
 export const getAllPackages = () => {
 	const pkgDir = path.join(__dirname, '..', '..', '..');
 
@@ -25,7 +27,12 @@ export const getAllPackages = () => {
 		pkg.replace('@remotion/', ''),
 	);
 	const packageAndTemplateNames = [
-		...new Set([...packages, ...localTemplates, ...packagesKeptForV4]),
+		...new Set([
+			...packages,
+			...localTemplates,
+			...packagesKeptForV4,
+			...workspaceOnlyPackages,
+		]),
 	].sort();
 
 	const packagesAndTemplates = folders.map((pkg) => pkg.pkg).sort() as string[];

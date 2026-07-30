@@ -27,7 +27,6 @@
 		"@remotion/studio-protocol": "workspace:*",
 		"semver": "7.5.3",
 		"remotion": "workspace:*",
-		"@remotion/canvas-capture": "workspace:*",
 		"@remotion/captions": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
