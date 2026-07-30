@@ -120,8 +120,8 @@ const makeFixture = () => {
 		return prepareElementInstallHandler({
 			binariesDirectory: null,
 			configFile: null,
-			entryPoint: compositionFile,
 			getDefaultEditor: () => null,
+			entryPoint: compositionFile,
 			input,
 			logLevel: 'error',
 			methods: {
