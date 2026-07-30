@@ -1,3 +1,4 @@
+import type {DefaultEditor} from '@remotion/renderer';
 import type {ApiRoutes} from '@remotion/studio-shared';
 import type {ApiHandler} from './api-types';
 import {addEffectHandler} from './routes/add-effect';
@@ -24,6 +25,7 @@ import {insertJsxElementHandler} from './routes/insert-jsx-element';
 import {handleInstallPackage} from './routes/install-dependency';
 import {logStudioErrorHandler} from './routes/log-studio-error';
 import {moveKeyframesHandler} from './routes/move-keyframes';
+import {openInEditorHandler} from './routes/open-in-editor';
 import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
 import {pasteEffectsHandler} from './routes/paste-effects';
 import {projectInfoHandler} from './routes/project-info';
@@ -53,12 +55,16 @@ import {updateElementInstallTargetHandler} from './routes/update-element-install
 import {updatePublicLicenseHandler} from './routes/update-public-license';
 import {updateSequenceKeyframeSettingsHandler} from './routes/update-sequence-keyframe-settings';
 
-export const allApiRoutes: {
-	[key in Exclude<keyof ApiRoutes, '/api/open-in-editor'>]: ApiHandler<
+export const getAllApiRoutes = ({
+	getDefaultEditor,
+}: {
+	getDefaultEditor: () => DefaultEditor | null;
+}): {
+	[key in keyof ApiRoutes]: ApiHandler<
 		ApiRoutes[key]['Request'],
 		ApiRoutes[key]['Response']
 	>;
-} = {
+} => ({
 	'/api/composition-component-info': compositionComponentInfoHandler,
 	'/api/convert-figma-clipboard-to-svg': convertFigmaClipboardToSvgHandler,
 	'/api/cancel': handleCancelRender,
@@ -68,6 +74,8 @@ export const allApiRoutes: {
 	'/api/remove-render': handleRemoveRender,
 	'/api/find-in-file': findInFileHandler,
 	'/api/open-in-file-explorer': handleOpenInFileExplorer,
+	'/api/open-in-editor': (params) =>
+		openInEditorHandler({...params, getDefaultEditor}),
 	'/api/register-client-render': registerClientRenderHandler,
 	'/api/unregister-client-render': unregisterClientRenderHandler,
 	'/api/update-default-props': updateDefaultPropsHandler,
@@ -112,4 +120,4 @@ export const allApiRoutes: {
 	'/api/undo': undoHandler,
 	'/api/redo': redoHandler,
 	'/api/log-studio-error': logStudioErrorHandler,
-};
+});

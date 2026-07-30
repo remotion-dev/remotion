@@ -9,8 +9,6 @@ import {RenderInternals} from '@remotion/renderer';
 import type {
 	ApiRoutes,
 	GitSource,
-	OpenInEditorRequest,
-	OpenInEditorResponse,
 	RenderDefaults,
 	RenderJob,
 	StudioRuntimeConfig,
@@ -21,7 +19,7 @@ import {getCompletedClientRenders} from './client-render-queue';
 import {getFileSource} from './helpers/get-file-source';
 import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
 import {resolveOutputPath} from './helpers/resolve-output-path';
-import {allApiRoutes} from './preview-server/api-routes';
+import {getAllApiRoutes} from './preview-server/api-routes';
 import type {ApiHandler, QueueMethods} from './preview-server/api-types';
 import {getPackageManager} from './preview-server/get-package-manager';
 import {getStaticFileFallbackHint} from './preview-server/get-static-file-fallback-hint';
@@ -29,7 +27,6 @@ import {handleRequest} from './preview-server/handler';
 import type {LiveEventsServer} from './preview-server/live-events';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
 import {getEditorName} from './preview-server/routes/open-in-editor';
-import {openInEditorHandler} from './preview-server/routes/open-in-editor';
 import {serveStatic} from './preview-server/serve-static';
 import {handleStudioProtocolDiscovery} from './preview-server/studio-protocol/handle-discovery';
 import {handleStudioProtocolInstall} from './preview-server/studio-protocol/handle-install';
@@ -468,22 +465,9 @@ export const handleRoutes = ({
 		});
 	}
 
-	if (url.pathname === '/api/open-in-editor') {
-		return handleRequest<OpenInEditorRequest, OpenInEditorResponse>({
-			remotionRoot,
-			entryPoint,
-			handler: (params) => openInEditorHandler({...params, getDefaultEditor}),
-			request,
-			response,
-			logLevel,
-			methods,
-			binariesDirectory,
-			publicDir,
-			configFile,
-		});
-	}
-
-	for (const [key, value] of Object.entries(allApiRoutes)) {
+	for (const [key, value] of Object.entries(
+		getAllApiRoutes({getDefaultEditor}),
+	)) {
 		if (url.pathname === key) {
 			return handleRequest({
 				remotionRoot,
