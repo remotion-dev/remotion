@@ -61,6 +61,19 @@
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs",
 			"require": "./dist/cjs/index.js"
+		},
+		"./webgpu": {
+			"types": "./dist/cjs/webgpu.d.ts",
+			"module": "./dist/esm/webgpu.mjs",
+			"import": "./dist/esm/webgpu.mjs",
+			"require": "./dist/cjs/webgpu.js"
+		}
+	},
+	"typesVersions": {
+		">=1.0": {
+			"webgpu": [
+				"dist/cjs/webgpu.d.ts"
+			]
 		}
 	},
 	"homepage": "https://www.remotion.dev/docs/three"

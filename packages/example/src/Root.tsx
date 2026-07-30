@@ -165,6 +165,7 @@ import {TextStroke} from './TextStroke';
 import ThreeBasic from './ThreeBasic';
 import {ThreeHtml} from './ThreeHtml/ThreeHtml';
 import {VideoTextureDemo} from './ThreeScene/Scene';
+import {ThreeWebGPU} from './ThreeWebGPU';
 import {Timeout} from './Timeout';
 import {FitText, fitTextSchema} from './Title/FitText';
 import {AudioTransition} from './Transitions/AudioTransition';
@@ -1797,6 +1798,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="three-basic"
 					component={ThreeBasic}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={600}
+				/>
+				<Composition
+					id="three-webgpu"
+					component={ThreeWebGPU}
 					width={1280}
 					height={720}
 					fps={30}

@@ -10,6 +10,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'<ThreeCanvas>'}</strong>
 					<div>A wrapper for React Three Fiber{"'"} Canvas</div>
 				</TOCItem>
+				<TOCItem link="/docs/three-webgpu-canvas">
+					<strong>{'<ThreeWebGPUCanvas>'}</strong>
+					<div>Use Three.js with the WebGPU renderer</div>
+				</TOCItem>
 				<TOCItem link="/docs/use-video-texture">
 					<strong>{'useVideoTexture('}</strong>
 					<div>Use a video in React Three Fiber </div>
