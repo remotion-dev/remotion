@@ -183,6 +183,7 @@ test.skipIf(process.platform === 'win32')(
 					arguments: [output, '%TARGET_PATH%:%LINE_NUMBER%:%COLUMN_NUMBER%'],
 				}),
 				input: {
+					editorId: 'custom',
 					stack: {
 						originalFileName: path.basename(source),
 						originalLineNumber: 12,
@@ -212,3 +213,32 @@ test.skipIf(process.platform === 'win32')(
 		}
 	},
 );
+
+test('rejects an unknown editor ID at the open-in-editor route', async () => {
+	const response = await openInEditorHandler({
+		binariesDirectory: null,
+		configFile: null,
+		entryPoint: '',
+		getDefaultEditor: () => null,
+		input: {
+			editorId: 'unknown-editor' as never,
+			stack: {
+				originalFileName: 'source.tsx',
+				originalLineNumber: 1,
+				originalColumnNumber: 1,
+			} as never,
+		},
+		logLevel: 'error',
+		methods: {
+			addJob: () => undefined,
+			cancelJob: () => undefined,
+			removeJob: () => undefined,
+		},
+		publicDir: '',
+		remotionRoot: '/project',
+		request: {} as never,
+		response: {} as never,
+	});
+
+	expect(response).toEqual({success: false});
+});

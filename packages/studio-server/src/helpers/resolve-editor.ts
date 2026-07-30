@@ -52,9 +52,11 @@ export const resolveEditor = async (
 	{
 		defaultEditor,
 		logLevel,
+		preferredEditor,
 	}: {
 		defaultEditor: DefaultEditor | null;
 		logLevel: LogLevel;
+		preferredEditor?: BuiltInEditor | 'custom';
 	},
 	overrides: Partial<ResolveEditorDependencies> = {},
 ): Promise<ResolvedEditor | null> => {
@@ -65,6 +67,34 @@ export const resolveEditor = async (
 		},
 		...overrides,
 	};
+
+	if (preferredEditor === 'custom') {
+		if (!defaultEditor || typeof defaultEditor !== 'object') {
+			return null;
+		}
+
+		const resolvedExecutable = dependencies.resolveCustomEditor(defaultEditor);
+		if (!resolvedExecutable) {
+			return null;
+		}
+
+		return {
+			...resolvedExecutable,
+			type: 'custom',
+			id: 'custom',
+			name: defaultEditor.name,
+			editor: defaultEditor,
+		};
+	}
+
+	if (preferredEditor) {
+		const installedEditors = await dependencies.getInstalledEditors();
+		const installedEditor = installedEditors.find(
+			(editor) => editor.id === preferredEditor,
+		);
+
+		return installedEditor ? {...installedEditor, type: 'built-in'} : null;
+	}
 
 	if (defaultEditor && typeof defaultEditor === 'object') {
 		const resolvedExecutable = dependencies.resolveCustomEditor(defaultEditor);

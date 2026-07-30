@@ -132,6 +132,7 @@ export const SequenceInspectorHeader: React.FC<{
 			<InspectorLocationCopy
 				location={sourceLocation.validatedLocation}
 				name={componentName ?? null}
+				openInEditorLocation={sourceLocation.validatedLocation}
 			>
 				<InlineEditableTitle
 					value={sequenceDisplayName}

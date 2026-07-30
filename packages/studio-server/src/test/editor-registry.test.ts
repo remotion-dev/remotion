@@ -130,6 +130,62 @@ test('uses the configured installed editor instead of legacy detection', async (
 	expect(legacyDetectionCalls).toBe(0);
 });
 
+test('uses the editor selected by the picker without changing the default', async () => {
+	const vscode: InstalledEditor = {
+		command: '/usr/bin/code',
+		id: 'vscode',
+		name: 'VS Code',
+		process: '/usr/bin/code',
+	};
+	const cursor: InstalledEditor = {
+		command: '/usr/bin/cursor',
+		id: 'cursor',
+		name: 'Cursor',
+		process: '/usr/bin/cursor',
+	};
+	let legacyDetectionCalls = 0;
+
+	const resolved = await resolveEditor(
+		{
+			defaultEditor: 'vscode',
+			logLevel: 'info',
+			preferredEditor: 'cursor',
+		},
+		{
+			getInstalledEditors: () => Promise.resolve([vscode, cursor]),
+			getLegacyEditors: () => {
+				legacyDetectionCalls++;
+				return Promise.resolve([]);
+			},
+		},
+	);
+
+	expect(resolved).toEqual({...cursor, type: 'built-in'});
+	expect(legacyDetectionCalls).toBe(0);
+});
+
+test('does not fall back when the editor selected by the picker is unavailable', async () => {
+	let legacyDetectionCalls = 0;
+
+	const resolved = await resolveEditor(
+		{
+			defaultEditor: 'vscode',
+			logLevel: 'info',
+			preferredEditor: 'cursor',
+		},
+		{
+			getInstalledEditors: () => Promise.resolve([]),
+			getLegacyEditors: () => {
+				legacyDetectionCalls++;
+				return Promise.resolve([{command: 'code', process: 'code'}]);
+			},
+		},
+	);
+
+	expect(resolved).toBeNull();
+	expect(legacyDetectionCalls).toBe(0);
+});
+
 test('resolves a custom editor without exposing it to built-in discovery', async () => {
 	let installedEditorDetectionCalls = 0;
 	const customEditor = {

@@ -130,7 +130,11 @@ export const CompositionInspectorHeader = () => {
 			padding="4px 0"
 		>
 			{video ? (
-				<InspectorLocationCopy location={validatedLocation} name={video.id}>
+				<InspectorLocationCopy
+					location={validatedLocation}
+					name={video.id}
+					openInEditorLocation={componentLocation}
+				>
 					<InlineCompositionName
 						key={video.id}
 						compositionId={video.id}

@@ -4,6 +4,7 @@ import {formatLocationForAgents} from '../helpers/format-file-location';
 import {ClipboardIcon} from '../icons/clipboard';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
+import {InspectorOpenInEditor} from './InspectorOpenInEditor';
 import {showNotification} from './Notifications/NotificationCenter';
 
 const row: React.CSSProperties = {
@@ -23,6 +24,8 @@ const content: React.CSSProperties = {
 };
 
 const action: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
 	flexShrink: 0,
 	height: 24,
 	marginLeft: 0,
@@ -39,7 +42,8 @@ export const InspectorLocationCopy: React.FC<{
 	readonly children: React.ReactNode;
 	readonly location: OriginalPosition | null;
 	readonly name: string | null;
-}> = ({children, location, name}) => {
+	readonly openInEditorLocation: OriginalPosition | null;
+}> = ({children, location, name, openInEditorLocation}) => {
 	const [hovered, setHovered] = useState(false);
 	const [focusedWithin, setFocusedWithin] = useState(false);
 	const textToCopy = useMemo(() => {
@@ -82,7 +86,7 @@ export const InspectorLocationCopy: React.FC<{
 			onBlur={() => setFocusedWithin(false)}
 		>
 			<div style={content}>{children}</div>
-			{textToCopy ? (
+			{textToCopy || openInEditorLocation ? (
 				<div
 					style={{
 						...action,
@@ -90,11 +94,14 @@ export const InspectorLocationCopy: React.FC<{
 						pointerEvents: showAction ? 'auto' : 'none',
 					}}
 				>
-					<InlineAction
-						onClick={onCopy}
-						renderAction={renderCopyAction}
-						title="Copy location for agents"
-					/>
+					<InspectorOpenInEditor location={openInEditorLocation} />
+					{textToCopy ? (
+						<InlineAction
+							onClick={onCopy}
+							renderAction={renderCopyAction}
+							title="Copy location for agents"
+						/>
+					) : null}
 				</div>
 			) : null}
 		</div>
