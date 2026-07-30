@@ -59,6 +59,7 @@ import {EditorRulers} from './EditorRuler';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {getEffectDragData} from './effect-drag-and-drop';
 import {subscribeToElementInstallRequests} from './element-install-request';
+import {ElementInstallConfirmation} from './ElementInstallConfirmation';
 import {handleDrop} from './handle-drop';
 import {
 	hasSvgFile,
@@ -76,59 +77,7 @@ import {useSvgImportDialog} from './SvgImportDialog';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 
-const elementInstallCompositionIdStyle: React.CSSProperties = {
-	fontFamily: 'monospace',
-	fontSize: 13,
-};
-
 const elementInstallDependencyIgnoreList = ['react', 'react-dom', 'remotion'];
-
-const elementInstallDependencyListStyle: React.CSSProperties = {
-	marginTop: 8,
-	marginBottom: 0,
-	paddingLeft: 24,
-	listStyleType: 'disc',
-};
-
-const elementInstallDependencyStyle: React.CSSProperties = {
-	color: 'inherit',
-	fontFamily: 'monospace',
-	fontSize: 13,
-	lineHeight: 1.5,
-};
-
-const elementInstallCodeDetailsStyle: React.CSSProperties = {
-	marginTop: 12,
-	fontSize: 13,
-};
-
-const elementInstallCodeSummaryStyle: React.CSSProperties = {
-	cursor: 'pointer',
-	fontSize: 13,
-	fontWeight: 500,
-};
-
-const elementInstallCodeBlockStyle: React.CSSProperties = {
-	marginTop: 8,
-	marginBottom: 0,
-	maxHeight: 240,
-	overflow: 'auto',
-	padding: 12,
-	borderRadius: 6,
-	backgroundColor: 'rgba(255, 255, 255, 0.06)',
-	fontSize: 12,
-	lineHeight: 1.5,
-	whiteSpace: 'pre',
-};
-
-const makeSourceControlsVisible = (sourceCode: string) => {
-	return sourceCode.replace(
-		/[\u200b-\u200f\u202a-\u202e\u2066-\u2069\ufeff]/g,
-		(character) => {
-			return `\\u${character.codePointAt(0)?.toString(16).padStart(4, '0')}`;
-		},
-	);
-};
 
 const getContainerStyle = (
 	editorZoomGestures: boolean,
@@ -936,76 +885,24 @@ export const Canvas: React.FC<{
 			);
 			const sourceLabel =
 				activeElementInstallRequest.source.type === 'studio-protocol'
-					? `Requested by ${activeElementInstallRequest.source.origin}`
+					? activeElementInstallRequest.source.origin
 					: 'Unverified drag-and-drop payload';
 			const accepted = await confirm({
 				title: 'Install Element',
 				message: (
-					<>
-						<strong>{sourceLabel}</strong>
-						<br />
-						<br />
-						Install “{activeElementInstallRequest.element.displayName}” into{' '}
-						<code style={elementInstallCompositionIdStyle}>
-							{activeElementInstallRequest.compositionId}
-						</code>{' '}
-						as <code>{preflight.plan.filePath}</code>?
-						{preflight.plan.expectedFileState.exists ? (
-							<>
-								<br />
-								<br />
-								This replaces the existing Element source file.
-							</>
-						) : null}
-						<br />
-						<br />
-						Accepted source code and package lifecycle scripts run with this
-						project&apos;s access to files and the network.
-						{dependenciesToReview.length > 0 ? (
-							<>
-								<br />
-								<br />
-								Declared dependencies:
-								<ul style={elementInstallDependencyListStyle}>
-									{dependenciesToReview.map((packageName) => (
-										<li key={packageName} style={elementInstallDependencyStyle}>
-											{packageName}{' '}
-											{missingPackages.includes(packageName)
-												? '(will install)'
-												: '(already installed)'}
-										</li>
-									))}
-								</ul>
-							</>
-						) : null}
-						{ignoredDependencies.length > 0 ? (
-							<details style={elementInstallCodeDetailsStyle}>
-								<summary style={elementInstallCodeSummaryStyle}>
-									Already available in this project (
-									{ignoredDependencies.length})
-								</summary>
-								<ul style={elementInstallDependencyListStyle}>
-									{ignoredDependencies.map((packageName) => (
-										<li key={packageName} style={elementInstallDependencyStyle}>
-											{packageName}
-										</li>
-									))}
-								</ul>
-							</details>
-						) : null}
-						<details style={elementInstallCodeDetailsStyle}>
-							<summary style={elementInstallCodeSummaryStyle}>
-								Review Element source
-							</summary>
-							<pre style={elementInstallCodeBlockStyle}>
-								<code>
-									{makeSourceControlsVisible(
-										activeElementInstallRequest.element.sourceCode,
-									)}
-								</code>
-							</pre>
-						</details>
-					</>
+					<ElementInstallConfirmation
+						displayName={activeElementInstallRequest.element.displayName}
+						sourceLabel={sourceLabel}
+						sourceIsUnverified={
+							activeElementInstallRequest.source.type === 'drag-and-drop'
+						}
+						compositionId={activeElementInstallRequest.compositionId}
+						filePath={preflight.plan.filePath}
+						overwritesExistingFile={preflight.plan.expectedFileState.exists}
+						dependenciesToReview={dependenciesToReview}
+						missingPackages={missingPackages}
+						sourceCode={activeElementInstallRequest.element.sourceCode}
+					/>
 				),
 				confirmLabel: 'Install',
 				cancelLabel: 'Cancel',

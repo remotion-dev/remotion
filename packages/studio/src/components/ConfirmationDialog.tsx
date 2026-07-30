@@ -20,9 +20,13 @@ const content: React.CSSProperties = {
 	padding: 16,
 	fontSize: 14,
 	flex: 1,
-	minWidth: 420,
-	maxWidth: 560,
+	width: 'min(600px, calc(100vw - 40px))',
+	minWidth: 0,
 	lineHeight: 1.4,
+};
+
+const footerStyle: React.CSSProperties = {
+	minWidth: 0,
 };
 
 export const useConfirmationDialog = (): ConfirmationDialogFunction => {
@@ -126,7 +130,7 @@ export const ConfirmationDialog: React.FC<{
 			<ModalHeader title={state.title} onClose={onCancel} />
 			<form onSubmit={onSubmit}>
 				<div style={content}>{state.message}</div>
-				<ModalFooterContainer>
+				<ModalFooterContainer style={footerStyle}>
 					<Row align="center">
 						<Flex />
 						<Button onClick={onCancel} style={cancelStyle}>
