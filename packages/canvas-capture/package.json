@@ -36,6 +36,11 @@
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs"
 		},
+		"./recorder": {
+			"types": "./dist/recorder.d.ts",
+			"module": "./dist/esm/recorder.mjs",
+			"import": "./dist/esm/recorder.mjs"
+		},
 		"./package.json": "./package.json"
 	},
 	"devDependencies": {

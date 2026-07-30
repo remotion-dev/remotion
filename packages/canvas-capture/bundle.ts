@@ -7,7 +7,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 console.time('Generated.');
 const output = await build({
-	entrypoints: ['src/index.tsx'],
+	entrypoints: ['src/index.tsx', 'src/recorder.ts'],
 	naming: '[name].mjs',
 	external: [
 		'mediabunny',
