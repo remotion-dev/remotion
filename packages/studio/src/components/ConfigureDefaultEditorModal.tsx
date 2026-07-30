@@ -1,15 +1,23 @@
 import type {DefaultEditor} from '@remotion/renderer';
 import type {GetDefaultEditorInfoResponse} from '@remotion/studio-shared';
-import React, {useCallback, useContext, useEffect, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {LIGHT_TEXT} from '../helpers/colors';
+import {Checkmark} from '../icons/Checkmark';
 import {ModalsContext} from '../state/modals';
 import {callApi} from './call-api';
-import {Checkbox} from './Checkbox';
 import {Row, Spacing} from './layout';
 import {ModalButton} from './ModalButton';
 import {ModalContainer} from './ModalContainer';
 import {ModalFooterContainer} from './ModalFooter';
 import {ModalHeader} from './ModalHeader';
+import type {ComboboxValue} from './NewComposition/ComboBox';
+import {Combobox} from './NewComposition/ComboBox';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
 
 const content: React.CSSProperties = {
@@ -26,26 +34,8 @@ const description: React.CSSProperties = {
 	margin: 0,
 };
 
-const editorRow: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
-	alignItems: 'center',
-	cursor: 'pointer',
-	marginTop: 5,
-	marginBottom: 5,
-};
-
-const editorLabel: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontFamily: 'sans-serif',
-	fontSize: 14,
-	lineHeight: '20px',
-	cursor: 'pointer',
-	minWidth: 0,
-	overflow: 'hidden',
-	textOverflow: 'ellipsis',
-	whiteSpace: 'nowrap',
-	userSelect: 'none',
+const comboBoxStyle: React.CSSProperties = {
+	width: '100%',
 };
 
 export const ConfigureDefaultEditorModal: React.FC = () => {
@@ -57,6 +47,24 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 	);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const editorValues = useMemo((): ComboboxValue[] => {
+		return (editorInfo?.installedEditors ?? []).map((editor) => {
+			return {
+				id: editor.id,
+				keyHint: null,
+				label: editor.name,
+				leftItem: selectedEditor === editor.id ? <Checkmark /> : null,
+				onClick: () => {
+					setSelectedEditor(editor.id);
+					setError(null);
+				},
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: editor.id,
+			};
+		});
+	}, [editorInfo?.installedEditors, selectedEditor]);
 
 	const dismiss = useCallback(() => {
 		setSelectedModal(null);
@@ -127,25 +135,14 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 						No supported editors were found on this computer.
 					</p>
 				) : null}
-				{editorInfo?.installedEditors.map((editor) => {
-					const chooseEditor = () => {
-						setSelectedEditor(editor.id);
-						setError(null);
-					};
-
-					return (
-						<div key={editor.id} style={editorRow} onClick={chooseEditor}>
-							<Checkbox
-								checked={selectedEditor === editor.id}
-								onChange={chooseEditor}
-								name={`default-editor-${editor.id}`}
-								rounded
-							/>
-							<Spacing x={1} />
-							<div style={editorLabel}>{editor.name}</div>
-						</div>
-					);
-				})}
+				{selectedEditor === null ? null : (
+					<Combobox
+						values={editorValues}
+						selectedId={selectedEditor}
+						style={comboBoxStyle}
+						title="Default editor"
+					/>
+				)}
 				{error ? (
 					<>
 						<Spacing y={1.5} />
