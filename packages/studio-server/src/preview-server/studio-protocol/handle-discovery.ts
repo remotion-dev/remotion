@@ -10,7 +10,7 @@ import {
 } from '../element-install-state';
 import type {LiveEventsServer} from '../live-events';
 import {
-	isAllowedStudioProtocolOrigin,
+	getAllowedStudioProtocolOrigin,
 	setStudioProtocolCorsHeaders,
 } from './origin-policy';
 import {writeStudioProtocolError} from './protocol-response';
@@ -77,7 +77,8 @@ export const handleStudioProtocolDiscovery = ({
 	readonly response: ServerResponse;
 }): Promise<void> => {
 	setStudioProtocolCorsHeaders({request, response});
-	if (!isAllowedStudioProtocolOrigin(request.headers.origin)) {
+	const requestOrigin = getAllowedStudioProtocolOrigin(request.headers.origin);
+	if (requestOrigin === null) {
 		writeStudioProtocolError({
 			code: 'unsupported-origin',
 			message: 'Origin not allowed',
@@ -103,7 +104,13 @@ export const handleStudioProtocolDiscovery = ({
 			const now = Date.now();
 			const target = getLiveInstallableTarget(requestId);
 			const issued =
-				target === null ? null : issueStudioProtocolTarget({now, target});
+				target === null
+					? null
+					: issueStudioProtocolTarget({
+							now,
+							origin: requestOrigin,
+							target,
+						});
 			response.writeHead(200, {
 				'Cache-Control': 'no-store',
 				'Content-Type': 'application/json',

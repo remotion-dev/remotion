@@ -303,7 +303,7 @@ test('reports a truncated install response as invalid', async () => {
 	});
 });
 
-test('does not probe Studio from an unsupported origin', async () => {
+test('does not probe Studio from a non-loopback HTTP origin', async () => {
 	let requests = 0;
 	const result = await installInStudioWithDependencies(elementPayload, {
 		...dependencies,
@@ -311,14 +311,14 @@ test('does not probe Studio from an unsupported origin', async () => {
 			requests++;
 			return Promise.resolve(new Response(null, {status: 404}));
 		},
-		pageOrigin: 'https://example.com',
+		pageOrigin: 'http://example.com',
 	});
 
 	expect(result).toEqual({
 		success: false,
 		code: 'unsupported-origin',
 		message:
-			'Install in Studio is only supported on remotion.dev and local development origins.',
+			'Install in Studio is only supported on HTTPS websites and local development origins.',
 	});
 	expect(requests).toBe(0);
 });

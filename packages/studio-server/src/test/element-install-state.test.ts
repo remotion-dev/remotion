@@ -94,13 +94,55 @@ test('binds a single-use Studio Protocol token to the selected composition', () 
 		throw new Error('Expected an install target');
 	}
 
-	const issued = issueStudioProtocolTarget({now: Date.now(), target: selected});
+	const issued = issueStudioProtocolTarget({
+		now: Date.now(),
+		origin: 'https://example.com',
+		target: selected,
+	});
 	expect(
-		consumeStudioProtocolTarget({now: Date.now(), targetId: issued.id})
-			?.compositionId,
+		consumeStudioProtocolTarget({
+			now: Date.now(),
+			origin: 'https://example.com',
+			targetId: issued.id,
+		})?.compositionId,
 	).toBe('Main');
 	expect(
-		consumeStudioProtocolTarget({now: Date.now(), targetId: issued.id}),
+		consumeStudioProtocolTarget({
+			now: Date.now(),
+			origin: 'https://example.com',
+			targetId: issued.id,
+		}),
+	).toBe(null);
+});
+
+test('rejects a token from another origin', () => {
+	clearElementInstallStateForTests();
+	updateElementInstallTarget({
+		requestId: 'protocol-request',
+		clientId: 'focused-tab',
+		compositionFile: '/project/src/main.tsx',
+		compositionId: 'Main',
+		canInstall: true,
+		lastFocusedAt: Date.now(),
+		readOnly: false,
+		studioUrl: 'http://localhost:3000/Main',
+	});
+	const selected = getElementInstallTarget('protocol-request');
+	if (selected === null) {
+		throw new Error('Expected an install target');
+	}
+
+	const issued = issueStudioProtocolTarget({
+		now: Date.now(),
+		origin: 'https://example.com',
+		target: selected,
+	});
+	expect(
+		consumeStudioProtocolTarget({
+			now: Date.now(),
+			origin: 'https://other.example',
+			targetId: issued.id,
+		}),
 	).toBe(null);
 });
 
@@ -121,7 +163,11 @@ test('invalidates a token if the selected tab changes compositions', () => {
 		throw new Error('Expected an install target');
 	}
 
-	const issued = issueStudioProtocolTarget({now: Date.now(), target: selected});
+	const issued = issueStudioProtocolTarget({
+		now: Date.now(),
+		origin: 'https://example.com',
+		target: selected,
+	});
 	updateElementInstallTarget({
 		requestId: null,
 		clientId: 'focused-tab',
@@ -133,7 +179,11 @@ test('invalidates a token if the selected tab changes compositions', () => {
 		studioUrl: 'http://localhost:3000/Other',
 	});
 	expect(
-		consumeStudioProtocolTarget({now: Date.now(), targetId: issued.id}),
+		consumeStudioProtocolTarget({
+			now: Date.now(),
+			origin: 'https://example.com',
+			targetId: issued.id,
+		}),
 	).toBe(null);
 });
 
