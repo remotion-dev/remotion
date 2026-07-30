@@ -37,7 +37,10 @@ import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {toImportAgnosticNodePath} from '../../helpers/import-agnostic-node-path';
 import {parseBorderRadiusShorthand} from '../../helpers/parse-border-radius-shorthand';
 import {parseKeyframeEasingExpression} from '../../helpers/parse-keyframe-easing-expression';
-import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
+import {
+	FileOutsideProjectError,
+	resolveFileInsideProject,
+} from '../../helpers/resolve-file-inside-project';
 import {parseVideoConfigNumericExpression} from '../../helpers/video-config-numeric-expression';
 import {
 	getVideoConfigIdentifierValues,
@@ -1494,6 +1497,7 @@ export const computeSequencePropsStatusFromFilenameByLocation = ({
 		};
 	} catch (err) {
 		if (
+			err instanceof FileOutsideProjectError ||
 			err instanceof JsxElementIdentityMismatchError ||
 			err instanceof JsxElementNotFoundAtLocationError
 		) {
