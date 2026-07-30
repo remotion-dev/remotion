@@ -4,6 +4,7 @@ import {
 	mkdtempSync,
 	readFileSync,
 	rmSync,
+	symlinkSync,
 	writeFileSync,
 } from 'node:fs';
 import {tmpdir} from 'node:os';
@@ -53,6 +54,9 @@ const element = {
 
 const makeFixture = () => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-element-'));
+	const outsideRoot = mkdtempSync(
+		path.join(tmpdir(), 'remotion-element-outside-'),
+	);
 	const compositionFile = path.join(remotionRoot, 'Root.tsx');
 	const elementFile = path.join(remotionRoot, 'lower-third.element.tsx');
 	writeFileSync(compositionFile, compositionSource);
@@ -102,9 +106,16 @@ const makeFixture = () => {
 		cleanupLiveEvents();
 		cleanupFileWatcher();
 		rmSync(remotionRoot, {force: true, recursive: true});
+		rmSync(outsideRoot, {force: true, recursive: true});
 	};
 
-	return {callHandler, cleanup, compositionFile, elementFile};
+	return {
+		callHandler,
+		cleanup,
+		compositionFile,
+		elementFile,
+		outsideRoot,
+	};
 };
 
 test('creates a new Element file without an overwrite conflict', async () => {
@@ -164,6 +175,53 @@ test('returns a structured conflict without changing the project', async () => {
 			compositionSource,
 		);
 		expect(getUndoStack()).toHaveLength(0);
+	} finally {
+		fixture.cleanup();
+	}
+});
+
+test('rejects an Element source symlink that escapes the project', async () => {
+	const fixture = makeFixture();
+	try {
+		const outsideElement = path.join(
+			fixture.outsideRoot,
+			'lower-third.element.tsx',
+		);
+		writeFileSync(outsideElement, existingElementSource);
+		symlinkSync(outsideElement, fixture.elementFile);
+
+		const response = await fixture.callHandler(true);
+
+		expect(response).toMatchObject({
+			success: false,
+			type: 'error',
+			reason: 'Element source file must not be a symbolic link',
+		});
+		expect(readFileSync(outsideElement, 'utf-8')).toBe(existingElementSource);
+		expect(readFileSync(fixture.compositionFile, 'utf-8')).toBe(
+			compositionSource,
+		);
+	} finally {
+		fixture.cleanup();
+	}
+});
+
+test('rejects a composition source symlink that escapes the project', async () => {
+	const fixture = makeFixture();
+	try {
+		const outsideComposition = path.join(fixture.outsideRoot, 'Root.tsx');
+		writeFileSync(outsideComposition, compositionSource);
+		rmSync(fixture.compositionFile);
+		symlinkSync(outsideComposition, fixture.compositionFile);
+
+		const response = await fixture.callHandler(false);
+
+		expect(response).toMatchObject({
+			success: false,
+			type: 'error',
+			reason: 'Element installation must stay inside the Remotion project',
+		});
+		expect(readFileSync(outsideComposition, 'utf-8')).toBe(compositionSource);
 	} finally {
 		fixture.cleanup();
 	}
