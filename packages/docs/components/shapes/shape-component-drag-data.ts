@@ -1,9 +1,9 @@
 import {
-	DragAndDropInternals,
+	StudioProtocolInternals,
 	type ComponentDragData,
 	type ComponentProp,
 	type ConstructedDragData,
-} from '@remotion/drag-and-drop';
+} from '@remotion/studio-protocol';
 import {getShapeDragInfo} from './shape-drag-info';
 import type {ShapeName} from './shapes-info';
 
@@ -164,7 +164,7 @@ const makeShapeComponentDragData = ({
 	} satisfies ComponentDragData['component'];
 	const shapeInfo = getShapeDragInfo(component);
 
-	return DragAndDropInternals.makeDragData({
+	return StudioProtocolInternals.makeDragData({
 		type: 'component',
 		...component,
 		dimensions: shapeInfo

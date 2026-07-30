@@ -30,7 +30,6 @@ type MapViewportProps = InteractiveBaseProps & {
 	readonly centerLongitude?: number;
 	readonly children?: ReactNode;
 	readonly controls?: SequenceControls;
-	readonly stack?: string;
 	readonly zoom?: number;
 };
 
@@ -107,12 +106,7 @@ const MissingApiKey = () => {
 	);
 };
 
-const MapViewportInner = forwardRef<
-	HTMLDivElement,
-	MapViewportProps & {
-		readonly stack?: undefined;
-	}
->(
+const MapViewportInner = forwardRef<HTMLDivElement, MapViewportProps>(
 	(
 		{
 			backgroundColor = '#dfe7e2',
@@ -129,7 +123,6 @@ const MapViewportInner = forwardRef<
 			showInTimeline,
 			zoom = 4,
 			controls,
-			stack,
 		},
 		ref,
 	) => {
@@ -267,7 +260,6 @@ const MapViewportInner = forwardRef<
 				name={name ?? '<MapViewport>'}
 				showInTimeline={showInTimeline ?? true}
 				controls={controls}
-				_remotionInternalStack={stack}
 			>
 				<div
 					ref={viewportRef}

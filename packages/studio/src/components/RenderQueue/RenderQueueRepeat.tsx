@@ -74,5 +74,11 @@ export const RenderQueueRepeatItem: React.FC<{
 		[icon],
 	);
 
-	return <InlineAction onClick={onClick} renderAction={renderAction} />;
+	return (
+		<InlineAction
+			onClick={onClick}
+			renderAction={renderAction}
+			variant={null}
+		/>
+	);
 };

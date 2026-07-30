@@ -7,13 +7,13 @@ crumb: "@remotion/enable-scss"
 
 _available from v4.0.162_
 
-A function that modifies the default Webpack configuration to make the necessary changes to support SASS/SCSS.
+A function that modifies the default bundler configuration to make the necessary changes to support SASS/SCSS.
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
 import { enableScss } from "@remotion/enable-scss";
 
-Config.overrideWebpackConfig((currentConfiguration) => {
+Config.overrideBundlerConfig((currentConfiguration) => {
   return enableScss(currentConfiguration);
 });
 ```
@@ -24,7 +24,7 @@ If you want to make other configuration changes, you can do so by doing them red
 import { Config } from "@remotion/cli/config";
 import { enableScss } from "@remotion/enable-scss";
 
-Config.overrideWebpackConfig((currentConfiguration) => {
+Config.overrideBundlerConfig((currentConfiguration) => {
   return enableScss({
     ...currentConfiguration,
     // Make other changes

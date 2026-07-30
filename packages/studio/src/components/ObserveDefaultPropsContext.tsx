@@ -7,8 +7,12 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {callApi} from './call-api';
+import {
+	subscribeToDefaultProps,
+	unsubscribeFromDefaultProps,
+} from './default-props-api';
 import type {TypeCanSaveState} from './RenderModal/get-render-modal-warnings';
 
 type AllCompStates = {
@@ -85,11 +89,15 @@ export const ObserveDefaultProps: React.FC<{
 	);
 
 	useEffect(() => {
-		if (readOnlyStudio || !clientId || compositionId === null) {
+		if (
+			(readOnlyStudio && !getBrowserStudioOperations()) ||
+			!clientId ||
+			compositionId === null
+		) {
 			return;
 		}
 
-		callApi('/api/subscribe-to-default-props', {compositionId, clientId})
+		subscribeToDefaultProps({compositionId, clientId})
 			.then((can) => {
 				applyResult(compositionId, can);
 			})
@@ -101,7 +109,7 @@ export const ObserveDefaultProps: React.FC<{
 			});
 
 		return () => {
-			callApi('/api/unsubscribe-from-default-props', {
+			unsubscribeFromDefaultProps({
 				compositionId,
 				clientId,
 			}).catch(() => {

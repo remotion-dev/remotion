@@ -16,7 +16,8 @@ import type {
 	ObjectProperty,
 	VariableDeclaration,
 } from '@babel/types';
-import type {ComponentProp} from '@remotion/drag-and-drop';
+import {insertSolidIntoSource} from '@remotion/studio-codemods';
+import type {ComponentProp} from '@remotion/studio-protocol';
 import {
 	isUrl,
 	type InsertableCompositionElement,
@@ -360,9 +361,6 @@ const findReExportTargets = ({
 	recast.types.visit(ast, {
 		visitExportNamedDeclaration(astPath) {
 			const node = astPath.node as ExportNamedDeclaration;
-			if (typeof node.source?.value !== 'string') {
-				return false;
-			}
 
 			for (const specifier of node.specifiers) {
 				if (specifier.type !== 'ExportSpecifier') {
@@ -376,6 +374,20 @@ const findReExportTargets = ({
 
 				const localName = getSpecifierLocalName(specifier);
 				if (!localName) {
+					continue;
+				}
+
+				// Support barrel files that import a component and export it in a
+				// separate declaration. See https://github.com/remotion-dev/remotion/issues/9172.
+				if (typeof node.source?.value !== 'string') {
+					const importTarget = findImportTarget({
+						ast,
+						componentName: localName,
+					});
+					if (importTarget) {
+						targets.push(importTarget);
+					}
+
 					continue;
 				}
 
@@ -456,6 +468,9 @@ const findLocalSymbolLocation = ({
 }): SourceLocation | null => {
 	let location: SourceLocation | null = null;
 
+	// Recast can omit the declaration location for exported functions and
+	// classes, including components resolved through barrel files. The identifier
+	// keeps its location. See https://github.com/remotion-dev/remotion/issues/9172.
 	recast.types.visit(ast, {
 		visitVariableDeclarator(astPath) {
 			if (location) {
@@ -464,7 +479,7 @@ const findLocalSymbolLocation = ({
 
 			const {node} = astPath;
 			if (node.id.type === 'Identifier' && node.id.name === name) {
-				location = locationFromNode(node);
+				location = locationFromNode(node.id);
 				return false;
 			}
 
@@ -478,7 +493,7 @@ const findLocalSymbolLocation = ({
 
 			const {node} = astPath;
 			if (node.id?.name === name) {
-				location = locationFromNode(node);
+				location = locationFromNode(node.id);
 				return false;
 			}
 
@@ -492,7 +507,7 @@ const findLocalSymbolLocation = ({
 
 			const {node} = astPath;
 			if (node.id?.name === name) {
-				location = locationFromNode(node);
+				location = locationFromNode(node.id);
 				return false;
 			}
 
@@ -2305,61 +2320,76 @@ export const insertJsxElementIntoComposition = async ({
 		remotionRoot,
 		fileName: location.fileName,
 	});
-	const ast = parseAst(input);
-	if (
-		element.type === 'composition' &&
-		element.compositionId === compositionId
-	) {
-		throw new Error('Cannot insert a composition into itself');
-	}
+	let finalFile: string;
+	let logLine: number;
+	if (element.type === 'solid' && from === null && wrapInSequence === null) {
+		const inserted = insertSolidIntoSource({
+			exportName: location.exportName,
+			height: element.height,
+			position: element.position,
+			source: input,
+			width: element.width,
+		});
+		finalFile = inserted.output;
+		logLine = inserted.line;
+	} else {
+		const ast = parseAst(input);
+		if (
+			element.type === 'composition' &&
+			element.compositionId === compositionId
+		) {
+			throw new Error('Cannot insert a composition into itself');
+		}
 
-	const sequenceWrapper =
-		element.type === 'composition'
-			? {
-					dimensions: {width: element.width, height: element.height},
-					durationInFrames: element.durationInFrames,
-					name: element.compositionId,
-					position: element.position,
-					from,
-				}
-			: from === null ||
-				  element.type === 'asset' ||
-				  element.type === 'svg' ||
-				  element.type === 'component'
-				? wrapInSequence
-				: {
-						dimensions: null,
-						durationInFrames: null,
-						name: null,
+		const sequenceWrapper =
+			element.type === 'composition'
+				? {
+						dimensions: {width: element.width, height: element.height},
+						durationInFrames: element.durationInFrames,
+						name: element.compositionId,
 						position: element.position,
 						from,
-					};
-	const elementToInsert = await createInsertableJsxElement({
-		addPositionStyleToComponent: sequenceWrapper === null,
-		ast,
-		destinationFileName: location.fileName,
-		element,
-		from,
-		remotionRoot,
-	});
-	const finalElementToInsert = sequenceWrapper
-		? createSequenceWrappedElement({
-				child: elementToInsert,
-				dimensions: sequenceWrapper.dimensions,
-				durationInFrames: sequenceWrapper.durationInFrames ?? null,
-				from: sequenceWrapper.from,
-				name: sequenceWrapper.name,
-				position: sequenceWrapper.position,
-				sequenceLocalName: ensureSequenceImport(ast),
-			})
-		: elementToInsert;
-	const logLine = addElementToComponentRoot({
-		ast,
-		exportName: location.exportName,
-		element: finalElementToInsert,
-	});
+					}
+				: from === null ||
+					  element.type === 'asset' ||
+					  element.type === 'svg' ||
+					  element.type === 'component'
+					? wrapInSequence
+					: {
+							dimensions: null,
+							durationInFrames: null,
+							name: null,
+							position: element.position,
+							from,
+						};
+		const elementToInsert = await createInsertableJsxElement({
+			addPositionStyleToComponent: sequenceWrapper === null,
+			ast,
+			destinationFileName: location.fileName,
+			element,
+			from,
+			remotionRoot,
+		});
+		const finalElementToInsert = sequenceWrapper
+			? createSequenceWrappedElement({
+					child: elementToInsert,
+					dimensions: sequenceWrapper.dimensions,
+					durationInFrames: sequenceWrapper.durationInFrames ?? null,
+					from: sequenceWrapper.from,
+					name: sequenceWrapper.name,
+					position: sequenceWrapper.position,
+					sequenceLocalName: ensureSequenceImport(ast),
+				})
+			: elementToInsert;
+		logLine = addElementToComponentRoot({
+			ast,
+			exportName: location.exportName,
+			element: finalElementToInsert,
+		});
 
-	const finalFile = serializeAst(ast);
+		finalFile = serializeAst(ast);
+	}
+
 	const {output, formatted} = await formatFileContent({
 		input: finalFile,
 		prettierConfigOverride,

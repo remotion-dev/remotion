@@ -10,7 +10,7 @@ crumb: 'Lambda API'
 
 Uploads a local [Remotion Bundle](/docs/terminology/bundle) to an S3 bucket.
 
-Use this API to build an artifact once and deploy it in a later Docker or CI stage. Before calling it, retrieve a bucket using [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket).
+Use this API together with [`bundle()`](/docs/bundle) to separate building from deployment. This allows an artifact to be built once and deployed in a later Docker or CI stage. Before calling it, retrieve a bucket using [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket).
 
 ## Example
 

@@ -1,0 +1,57 @@
+---
+image: /generated/articles-docs-editor-starter-client-side-rendering.png
+title: Client-side rendering in the Editor Starter
+sidebar_label: Client-side rendering
+id: client-side-rendering
+crumb: Editor Starter
+---
+
+The Editor Starter can render videos in the browser using [`@remotion/web-renderer`](/docs/web-renderer).
+
+## Enable client-side rendering
+
+This feature is disabled by default.  
+Set [`ENABLE_CLIENT_SIDE_RENDERING`](https://github.com/remotion-dev/editor-starter/blob/main/src/editor/flags.ts) to `true`:
+
+```ts title="src/editor/flags.ts"
+export const ENABLE_CLIENT_SIDE_RENDERING = true;
+```
+
+`FEATURE_NEW_MEDIA_TAGS` must also be enabled (which it is by default).
+
+You do not need to configure the `REMOTION_AWS_*` environment variables or run `deploy.ts` for rendering.
+
+:::note
+Other Editor Starter features may still need backend routes or AWS credentials. For example, text rendering loads font metadata from [`/api/fonts/:name`](/docs/editor-starter/backend-routes#get-apifontsname), [asset uploads](/docs/editor-starter/asset-uploads) use Amazon S3, and [captioning](/docs/editor-starter/captioning) uses a backend route.
+:::
+
+## How it works
+
+When the user clicks **Render**, the Editor Starter:
+
+1. Collects the current tracks, items, assets, composition settings, and font metadata.
+2. Passes the composition directly to [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web).
+3. Encodes the video in the browser using WebCodecs.
+4. Creates a temporary blob URL and shows the completed render in the task indicator, where it can be downloaded.
+
+## Unused Lambda routes
+
+The [`/api/render`](/docs/editor-starter/backend-routes#post-apirender) and [`/api/progress`](/docs/editor-starter/backend-routes#post-apiprogress) routes are not used for client-side rendering.  
+However, by default, assets still upload to S3.
+
+## Main tradeoffs
+
+- The user can leave the page when rendering on Lambda, but not with client-side rendering.
+- Client-side rendering avoids Lambda compute costs. Remotion licensing, S3 asset storage, and bandwidth costs may still apply.
+- The browser must support WebCodecs, and the composition must work within the [limitations of client-side rendering](/docs/client-side-rendering/limitations).
+- Client-side rendering [may make the page less responsive](/docs/client-side-rendering/page-responsiveness).
+- Lambda is generally better suited to long or distributed renders.
+- More codecs are supported on Lambda, such as ProRes.
+- Client-side rendering creates a temporary blob URL. Unlike Lambda output in S3, it is not persisted automatically.
+
+## See also
+
+- [Rendering with Remotion Lambda in the Editor Starter](/docs/editor-starter/rendering)
+- [Client-side rendering](/docs/client-side-rendering)
+- [How client-side rendering works](/docs/client-side-rendering/how-it-works)
+- [Limitations of client-side rendering](/docs/client-side-rendering/limitations)

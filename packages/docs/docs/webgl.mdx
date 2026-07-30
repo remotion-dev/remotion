@@ -1,0 +1,30 @@
+---
+image: /generated/articles-docs-webgl.png
+id: webgl
+title: Using WebGL and WebGPU during renders
+crumb: 'Rendering'
+---
+
+Some Remotion packages and third-party libraries use WebGL or WebGPU during rendering, including [`@remotion/effects`](/docs/effects), [`@remotion/three`](/docs/three), Skia and map libraries.
+
+## Remotion 5.0
+
+In Remotion 5.0, you don't need to specify any option for `--gl`. The renderer does automatically enable WebGL and WebGPU if possible and uses software fallbacks otherwise.
+
+## Remotion 4.0
+
+In Remotion 4.0, enable WebGL and WebGPU when rendering from the CLI:
+
+```bash title="Terminal"
+npx remotion render --gl=angle
+```
+
+To use `angle` by default for Studio and CLI renders, set it in `remotion.config.ts`:
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setChromiumOpenGlRenderer('angle');
+```
+
+See [`Config.setChromiumOpenGlRenderer()`](/docs/config#setchromiumopenglrenderer) and the [`--gl` flag reference](/docs/gl-options) for more renderer options.

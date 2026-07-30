@@ -93,6 +93,7 @@ export const renderVideoFlow = async ({
 	quiet,
 	concurrency,
 	frameRange,
+	selectedFrames,
 	everyNthFrame,
 	outputLocationFromUI,
 	jpegQuality,
@@ -166,6 +167,7 @@ export const renderVideoFlow = async ({
 	quiet: boolean;
 	concurrency: number | string | null;
 	frameRange: FrameRange | null;
+	selectedFrames: number[] | null;
 	everyNthFrame: number;
 	jpegQuality: number | undefined;
 	onProgress: JobProgressCallback;
@@ -535,14 +537,15 @@ export const renderVideoFlow = async ({
 		? existsSync(absoluteSeparateAudioTo)
 		: false;
 
-	const realFrameRange = RenderInternals.getRealFrameRange(
-		config.durationInFrames,
-		frameRange,
-	);
-	const totalFrames: number[] = RenderInternals.getFramesToRender(
-		realFrameRange,
-		everyNthFrame,
-	);
+	const totalFrames: number[] = selectedFrames
+		? RenderInternals.validateSelectedFrames({
+				frames: selectedFrames,
+				durationInFrames: config.durationInFrames,
+			})
+		: RenderInternals.getFramesToRender(
+				RenderInternals.getRealFrameRanges(config.durationInFrames, frameRange),
+				everyNthFrame,
+			);
 
 	renderingProgress = {
 		frames: 0,
@@ -624,6 +627,8 @@ export const renderVideoFlow = async ({
 			everyNthFrame,
 			envVariables,
 			frameRange,
+			frames: selectedFrames,
+			outputFramesInSequence: false,
 			concurrency: resolvedConcurrency,
 			puppeteerInstance,
 			jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,

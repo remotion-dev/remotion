@@ -65,6 +65,7 @@ test('rejects cross-origin API requests before calling the handler', async () =>
 				didCallHandler = true;
 				return Promise.resolve({});
 			},
+			getDefaultEditor: () => null,
 			logLevel: 'info',
 			methods: {
 				addJob: () => undefined,
@@ -96,6 +97,7 @@ test('allows same-origin API requests from non-local peers', async () => {
 		handler: ({input}) => {
 			return Promise.resolve({input});
 		},
+		getDefaultEditor: () => null,
 		logLevel: 'info',
 		methods: {
 			addJob: () => undefined,
@@ -137,6 +139,7 @@ test('rejects API requests without an Origin header before calling the handler',
 				didCallHandler = true;
 				return Promise.resolve({});
 			},
+			getDefaultEditor: () => null,
 			logLevel: 'info',
 			methods: {
 				addJob: () => undefined,
@@ -168,6 +171,7 @@ test('allows GET API requests without an Origin header', async () => {
 		handler: ({input}) => {
 			return Promise.resolve({input});
 		},
+		getDefaultEditor: () => null,
 		logLevel: 'info',
 		methods: {
 			addJob: () => undefined,
@@ -206,6 +210,7 @@ test('allows HEAD API requests without an Origin header', async () => {
 		handler: ({input}) => {
 			return Promise.resolve({input});
 		},
+		getDefaultEditor: () => null,
 		logLevel: 'info',
 		methods: {
 			addJob: () => undefined,
@@ -247,6 +252,7 @@ test('rejects requests with a mismatched Origin scheme before calling the handle
 				didCallHandler = true;
 				return Promise.resolve({});
 			},
+			getDefaultEditor: () => null,
 			logLevel: 'info',
 			methods: {
 				addJob: () => undefined,
@@ -275,9 +281,10 @@ test('allows same-origin API requests', async () => {
 		binariesDirectory: null,
 		configFile: null,
 		entryPoint: '',
-		handler: ({input}) => {
-			return Promise.resolve({input});
+		handler: ({getDefaultEditor, input}) => {
+			return Promise.resolve({defaultEditor: getDefaultEditor(), input});
 		},
+		getDefaultEditor: () => 'cursor',
 		logLevel: 'info',
 		methods: {
 			addJob: () => undefined,
@@ -297,6 +304,7 @@ test('allows same-origin API requests', async () => {
 	expect(response.statusCode).toBe(200);
 	expect(JSON.parse(response.body)).toEqual({
 		data: {
+			defaultEditor: 'cursor',
 			input: {
 				relativePath: 'logo.png',
 			},

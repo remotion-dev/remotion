@@ -1,3 +1,5 @@
+import type {HotMiddlewareMessage} from '@remotion/studio-shared';
+
 export type VirtualProject = {
 	rootDir: string;
 	entryPoint: string;
@@ -49,22 +51,42 @@ export type CompileState =
 
 export type BrowserStudioProps = {
 	project: VirtualProject;
-	readOnly: true;
+	readOnly: boolean;
 	iframeSrc?: string;
 	dependencyResolver?: BrowserStudioDependencyResolver;
 	onCompileStateChange?: (state: CompileState) => void;
+	onProjectChange?: (project: VirtualProject) => void;
 };
 
-export type BrowserStudioWorkerCompileRequest = {
-	type: 'compile';
-	project: VirtualProject;
-	dependencyResolutions: Record<string, BrowserStudioDependencyResolution>;
+export type BrowserStudioWorkerCompileRequest =
+	| {
+			type: 'init';
+			project: VirtualProject;
+			dependencyResolutions: Record<string, BrowserStudioDependencyResolution>;
+	  }
+	| {
+			type: 'update-project';
+			project: VirtualProject;
+	  };
+
+export type BrowserStudioHmrAsset = {
+	content: string;
+	name: string;
 };
 
 export type BrowserStudioWorkerCompileResponse =
 	| {
-			type: 'compiled';
+			type: 'initial-compiled';
 			bundle: string;
+			warnings: string[];
+	  }
+	| {
+			type: 'building';
+	  }
+	| {
+			type: 'hmr-update';
+			assets: BrowserStudioHmrAsset[];
+			hmrEvent: HotMiddlewareMessage;
 			warnings: string[];
 	  }
 	| {

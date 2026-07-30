@@ -25,6 +25,7 @@ import type {
 import {
 	backgroundSchema,
 	baseSchema,
+	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
 	premountSchema,
@@ -65,10 +66,6 @@ export type ImgProps = NativeImgProps & {
 	readonly effects?: EffectsProp;
 	readonly showInTimeline?: boolean;
 	readonly name?: string;
-	/**
-	 * @deprecated For internal use only
-	 */
-	readonly stack?: string;
 } & InteractiveBaseProps &
 	InteractiveCropProps &
 	InteractivePremountProps;
@@ -82,7 +79,6 @@ type ImgContentProps = Omit<
 	ImgProps,
 	| 'hidden'
 	| 'name'
-	| 'stack'
 	| 'showInTimeline'
 	| 'from'
 	| 'trimBefore'
@@ -357,7 +353,6 @@ type NativeImgInnerProps = Omit<ImgProps, 'effects'> & {
 const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 	hidden,
 	name,
-	stack,
 	showInTimeline,
 	src,
 	from,
@@ -416,7 +411,6 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 				trimBefore={trimBefore}
 				durationInFrames={durationInFrames ?? Infinity}
 				freeze={freeze}
-				_remotionInternalStack={stack}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
 				_remotionInternalIsMedia={{type: 'image', src}}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}
@@ -460,6 +454,7 @@ export const imgSchema = {
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,
+	...borderRadiusSchema,
 } as const satisfies InteractivitySchema;
 
 const imgCanvasFallbackIncompatibleProps = new Set([
@@ -546,7 +541,6 @@ const ImgInner: React.FC<
 	ref,
 	hidden,
 	name,
-	stack,
 	showInTimeline,
 	src,
 	from,
@@ -583,7 +577,6 @@ const ImgInner: React.FC<
 				ref={ref}
 				hidden={hidden}
 				name={name}
-				stack={stack}
 				showInTimeline={showInTimeline}
 				src={src}
 				from={from}
@@ -658,7 +651,6 @@ const ImgInner: React.FC<
 			hidden={hidden}
 			name={name ?? '<Img>'}
 			showInTimeline={showInTimeline}
-			stack={stack}
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
 			_remotionInternalCropComponentName="<Img />"
 			controls={controls}

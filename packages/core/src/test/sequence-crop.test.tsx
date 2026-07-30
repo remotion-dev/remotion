@@ -47,6 +47,29 @@ test('preserves a string border radius on the cropped rectangle', () => {
 	expect(sequence.style.clipPath).toBe('inset(20% 0% 0% 0% round 20% / 10%)');
 });
 
+test('preserves individual border radii on the cropped rectangle', () => {
+	const {container} = render(
+		<WrapSequenceContext>
+			<Sequence
+				cropRight={0.2}
+				style={{
+					borderTopLeftRadius: 8,
+					borderTopRightRadius: 16,
+					borderBottomRightRadius: 24,
+					borderBottomLeftRadius: 32,
+				}}
+			>
+				Content
+			</Sequence>
+		</WrapSequenceContext>,
+	);
+
+	const sequence = container.firstElementChild as HTMLDivElement;
+	expect(sequence.style.clipPath).toBe(
+		'inset(0% 20% 0% 0% round 8px 16px 24px 32px)',
+	);
+});
+
 test('does not override a custom clip path when no crop is applied', () => {
 	const {container} = render(
 		<WrapSequenceContext>

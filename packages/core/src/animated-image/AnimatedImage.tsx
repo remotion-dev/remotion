@@ -19,6 +19,7 @@ import {Freeze} from '../freeze.js';
 import {
 	backgroundSchema,
 	baseSchema,
+	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
 	premountSchema,
@@ -68,6 +69,7 @@ export const animatedImageSchema = {
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,
+	...borderRadiusSchema,
 } as const satisfies InteractivitySchema;
 
 const getCanvasPropsFromSequenceProps = (

@@ -8,11 +8,11 @@ import React, {
 } from 'react';
 import {VERSION} from 'remotion';
 import {
-	BLUE,
 	CURRENT_COLOR_LOWERCASE,
-	LIGHT_TEXT,
 	TRANSPARENT,
 	WARNING_COLOR,
+	WHITE,
+	WHITE_ALPHA_80,
 } from '../helpers/colors';
 import {ModalsContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
@@ -22,13 +22,14 @@ export type UpdateInfo = {
 	currentVersion: string;
 	latestVersion: string;
 	updateAvailable: boolean;
+	skillsUpdateAvailable: boolean;
+	remotionUpgradeSkillAvailable: boolean;
 	timedOut: boolean;
 	packageManager: PackageManager | 'unknown';
 };
 
 const buttonStyle: React.CSSProperties = {
 	appearance: 'none',
-	color: BLUE,
 	border: 'none',
 	fontWeight: 'bold',
 	backgroundColor: TRANSPARENT,
@@ -36,6 +37,7 @@ const buttonStyle: React.CSSProperties = {
 	fontSize: 14,
 	display: 'inline-flex',
 	justifyContent: 'center',
+	marginLeft: 8,
 };
 
 // Keep in sync with packages/bugs/api/[v].ts
@@ -51,10 +53,11 @@ export const UpdateCheck = () => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {tabIndex} = useZIndex();
 	const [knownBugs, setKnownBugs] = useState<Bug[] | null>(null);
+	const [hovered, setHovered] = useState(false);
 
-	const hasKnownBugs = useMemo(() => {
-		return knownBugs && knownBugs.length > 0;
-	}, [knownBugs]);
+	const hasBugfixesAvailable = useMemo(() => {
+		return Boolean(info?.updateAvailable && knownBugs && knownBugs.length > 0);
+	}, [info?.updateAvailable, knownBugs]);
 
 	const checkForUpdates = useCallback(() => {
 		const controller = new AbortController();
@@ -118,15 +121,27 @@ export const UpdateCheck = () => {
 	const dynButtonStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...buttonStyle,
-			color: hasKnownBugs ? WARNING_COLOR : LIGHT_TEXT,
+			color: hovered
+				? WHITE
+				: hasBugfixesAvailable
+					? WARNING_COLOR
+					: WHITE_ALPHA_80,
 		};
-	}, [hasKnownBugs]);
+	}, [hasBugfixesAvailable, hovered]);
+
+	const onPointerEnter = useCallback(() => {
+		setHovered(true);
+	}, []);
+
+	const onPointerLeave = useCallback(() => {
+		setHovered(false);
+	}, []);
 
 	if (!info) {
 		return null;
 	}
 
-	if (!info.updateAvailable) {
+	if (!info.updateAvailable && !info.skillsUpdateAvailable) {
 		return null;
 	}
 
@@ -135,10 +150,12 @@ export const UpdateCheck = () => {
 			tabIndex={tabIndex}
 			style={dynButtonStyle}
 			onClick={openModal}
+			onPointerEnter={onPointerEnter}
+			onPointerLeave={onPointerLeave}
 			type="button"
-			title={hasKnownBugs ? 'Bugfixes available' : 'Update available'}
+			title={hasBugfixesAvailable ? 'Bugfixes available' : 'Update available'}
 		>
-			{hasKnownBugs ? (
+			{hasBugfixesAvailable ? (
 				'Bugfixes available'
 			) : (
 				<svg
@@ -146,6 +163,7 @@ export const UpdateCheck = () => {
 					style={{
 						height: 16,
 						width: 16,
+						color: 'inherit',
 					}}
 					viewBox="0 0 512 512"
 				>

@@ -1,0 +1,65 @@
+---
+image: /generated/articles-docs-studio-protocol-create-element-payload.png
+title: 'createElementPayload()'
+crumb: '@remotion/studio-protocol'
+---
+
+# createElementPayload()<AvailableFrom v="4.0.502" />
+
+Creates a validated, versioned Element payload for [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) and [`installInStudio()`](/docs/studio-protocol/install-in-studio).
+
+```ts twoslash title="element-payload.ts"
+import {createElementPayload} from '@remotion/studio-protocol';
+
+const payload = createElementPayload({
+  displayName: 'Lower Third',
+  slug: 'lower-third',
+  sourceCode: 'export const LowerThird = () => null;',
+  dependencies: ['remotion'],
+  dimensions: {width: 900, height: 260},
+  durationInFrames: 90,
+});
+```
+
+## Arguments
+
+Pass an object with the following properties.
+
+### displayName
+
+The name shown in the Studio confirmation dialog. It must be a non-empty string shorter than 120 characters.
+
+### slug
+
+A lowercase Element identifier. Its final path segment is used to create the `.element.tsx` filename. Directory traversal and unsafe filename characters are rejected.
+
+### sourceCode
+
+The complete Element source code. It must contain exactly one exported named component.
+
+### dependencies
+
+An array of npm package names needed by the Element. Duplicate names are removed.
+
+### dimensions
+
+The preferred width and height, or `null` for an Element without fixed dimensions. Both values must be positive finite numbers.
+
+### durationInFrames
+
+The preferred duration shown while dragging. It must be a positive integer.
+
+## Return value
+
+A `StudioElementPayload` with payload version `1`. Pass the returned object unchanged to a transport API instead of serializing it manually.
+
+Invalid input throws a `TypeError`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering={false} player={false} studio={false} hideServers />
+
+## See also
+
+- [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data)
+- [`installInStudio()`](/docs/studio-protocol/install-in-studio)

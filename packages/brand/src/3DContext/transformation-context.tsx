@@ -97,9 +97,7 @@ export const NewTransform: React.FC<{
 
 type TransformBaseProps = InteractiveBaseProps & {
 	readonly children: React.ReactNode;
-} & Partial<{
-		readonly stack: string;
-	}>;
+};
 
 type TransformInnerProps<ValueKey extends string> = TransformBaseProps &
 	Readonly<Record<ValueKey, number>> & {
@@ -141,7 +139,6 @@ const make3DTransform = <ValueKey extends string>({
 				hidden,
 				name,
 				showInTimeline,
-				stack,
 				controls,
 			} = props;
 			const value = props[valueKey] ?? defaultValue;
@@ -158,7 +155,6 @@ const make3DTransform = <ValueKey extends string>({
 					name={name ?? componentName}
 					showInTimeline={showInTimeline ?? true}
 					controls={controls ?? undefined}
-					_remotionInternalStack={stack}
 					_remotionInternalDocumentationLink={transformDocumentationLink}
 				>
 					<NewTransform transform={transform}>{children}</NewTransform>

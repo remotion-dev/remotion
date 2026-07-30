@@ -73,5 +73,11 @@ export const RenderQueueRemoveItem: React.FC<{
 		[icon],
 	);
 
-	return <InlineAction renderAction={renderAction} onClick={onClick} />;
+	return (
+		<InlineAction
+			renderAction={renderAction}
+			onClick={onClick}
+			variant={null}
+		/>
+	);
 };

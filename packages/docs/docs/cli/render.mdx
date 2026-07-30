@@ -150,6 +150,10 @@ If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot s
 
 <Options id="frames" />
 
+Use a comma-separated list of frame numbers, for example `--frames=0,30,60`, to render specific frames as an image sequence. This automatically enables [`--sequence`](#--sequence).<AvailableFrom v="4.0.502" inline />
+
+Use a comma-separated list of ranges, for example `--frames=0-99,150-199`, to concatenate the selected ranges into one video. Frames between the ranges are omitted. Ranges are inclusive. Add [`--sequence`](#--sequence) to output the selected ranges as images instead. Individual frames and ranges can be combined, for example `--frames=0,30-59,90-`.<AvailableFrom v="4.0.502" inline />
+
 ### `--every-nth-frame`<AvailableFrom v="3.1.0" />
 
 <Options id="every-nth-frame" />
@@ -252,9 +256,9 @@ Not to be confused with the [`--timeout` flag when deploying a Lambda function](
 
 <Options cli id="binaries-directory" />
 
-### `--experimental-rspack`<AvailableFrom v="4.0.426" />
+### `--rspack`<AvailableFrom v="4.0.502" />
 
-<Options id="experimental-rspack" />
+<Options id="rspack" />
 
 ### `--sample-rate`<AvailableFrom v="4.0.448" />
 

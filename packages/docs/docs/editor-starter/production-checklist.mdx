@@ -11,17 +11,32 @@ Before shipping your project to production, here are some things you should chec
 
 ## Protected endpoints
 
-The [backend routes](/docs/editor-starter/backend-routes) for assets, captions and rendering are not protected by any authentication or rate limit in our template.  
-Did you implement the necessary protections to prevent abuse?
+The [backend routes](/docs/editor-starter/backend-routes) are not protected by authentication or rate limits in the template.
+Did you protect the routes you enabled, including the Lambda rendering routes if you use them?
 
 ## Asset cleanup
 
 By default, deleted assets are not automatically cleaned up.  
 Have you implemented [asset cleanup](/docs/editor-starter/asset-cleanup)?
 
-## Lambda checklist
+## Remotion Lambda
 
-There is a separate [Lambda checklist](/docs/lambda/checklist) for the Remotion Lambda integration.
+If you use Remotion Lambda, complete the [Lambda checklist](/docs/lambda/checklist).
+
+By default, the AWS infrastructure is updated whenever you deploy the app.
+[Make production deployments more robust by separating them from development deployments](/docs/editor-starter/rendering#auto-deployment-of-aws-infrastructure).
+
+## Client-side rendering
+
+If you use [client-side rendering](/docs/editor-starter/client-side-rendering), verify that:
+
+- Your supported browsers provide WebCodecs and meet the [browser requirements](/docs/client-side-rendering#browser-support).
+- Your compositions work within the [limitations of client-side rendering](/docs/client-side-rendering/limitations).
+- The user keeps the page open until the render finishes.
+- A temporary downloadable result is sufficient, or you persist the output separately.
+- The chosen [page responsiveness](/docs/client-side-rendering/page-responsiveness) behavior suits your app.
+
+Client-side rendering does not remove the default S3 asset workflow. Assets are still uploaded to S3, so the asset cleanup guidance above still applies.
 
 ## Features not included
 
@@ -30,11 +45,6 @@ Did you check the [features not included](/docs/editor-starter/features-not-incl
 ## Unintentional features
 
 Did you check the [features](/docs/editor-starter/features) to see if there are any features you are shipping you didn't know about? Disable them if you don't need them.
-
-## AWS auto-deployment
-
-Be aware that whenever you deploy, the AWS infrastructure is also updated.  
-[Make it more robust by separating production deployments from development deployments](/docs/editor-starter/rendering#auto-deployment-of-aws-infrastructure).
 
 ## Limits
 

@@ -1,6 +1,7 @@
 ---
 name: remotion-interactivity
 description: Structure Remotion markup for interactivity
+version: 4.0.502
 metadata:
   tags: remotion, interactivity, studio, visual mode
 ---
@@ -19,12 +20,28 @@ If the markup is too complex for the Studio to make it interactive, then the val
 Every HTML and SVG element such as `<div>` can be turned interactive using `Interactive`:
 
 ```tsx title="Interactive elements"
-<Interactive.Div name="Greeting card" style={{fontSize: 80, padding: 24}}>
+<Interactive.Div
+  name="Greeting card"
+  style={{fontSize: 80, padding: 24}}
+>
   Hello
 </Interactive.Div>
 ```
 
 This allows styles and keyframes to be set in the Studio. Be sensible, if a component has many elements, the timeline might get messy.
+
+## Prefer inline text
+
+If text is fixed and only used once, write it directly inside the interactive element instead of extracting it into a constant.
+
+```tsx title="Inline text"
+// 👍 Fixed copy stays editable
+<Interactive.Div name="Title">
+  Remotion Best Practices
+</Interactive.Div>
+```
+
+Use a prop or variable only when the text is dynamic or reused.
 
 ## Give interactive elements a descriptive name
 
@@ -103,12 +120,17 @@ const {fps, durationInFrames} = useVideoConfig();
       extrapolateLeft: 'clamp',
       extrapolateRight: 'clamp'
     }),
-    translate: interpolate(frame, [durationInFrames - 30, durationInFrames], ['0px 0px', '0px 120px'], {
-      easing: Easing.spring({damping: 200}),
-      output: 'perceptual-scale',
-      extrapolateLeft: 'clamp',
-      extrapolateRight: 'clamp'
-    }),
+    translate: interpolate(
+      frame,
+      [durationInFrames - 30, durationInFrames],
+      ['0px 0px', '0px 120px'],
+      {
+        easing: Easing.spring({damping: 200}),
+        output: 'perceptual-scale',
+        extrapolateLeft: 'clamp',
+        extrapolateRight: 'clamp'
+      }
+    ),
   }}
 />
 ```

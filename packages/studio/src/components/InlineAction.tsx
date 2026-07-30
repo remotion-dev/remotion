@@ -15,6 +15,7 @@ export type InlineActionProps = {
 	readonly renderAction: RenderInlineAction;
 	readonly title?: string;
 	readonly unhoveredColor?: string;
+	readonly variant: 'compact' | null;
 };
 
 export const InlineAction = ({
@@ -23,6 +24,7 @@ export const InlineAction = ({
 	disabled,
 	title,
 	unhoveredColor = LIGHT_TEXT,
+	variant,
 }: InlineActionProps) => {
 	const {tabIndex} = useZIndex();
 
@@ -43,15 +45,16 @@ export const InlineAction = ({
 				? TRANSPARENT
 				: getBackgroundFromHoverState({hovered, selected: false}),
 			height: 24,
-			width: 24,
+			width: variant === 'compact' ? 14 : 24,
 			padding: 0,
 			display: 'inline-flex',
 			justifyContent: 'center',
 			alignItems: 'center',
 			borderRadius: 3,
+			opacity: disabled ? 0.5 : 1,
 			pointerEvents: disabled ? 'none' : 'auto',
 		};
-	}, [disabled, hovered]);
+	}, [disabled, hovered, variant]);
 
 	return (
 		<button
@@ -63,6 +66,7 @@ export const InlineAction = ({
 			style={style}
 			tabIndex={tabIndex}
 			title={title}
+			aria-label={title}
 		>
 			{renderAction(hovered ? WHITE : unhoveredColor)}
 		</button>

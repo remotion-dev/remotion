@@ -1,4 +1,4 @@
-import {DragAndDropInternals} from '@remotion/drag-and-drop';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {compositionDragDataToSymbolicatedStack} from '@remotion/studio-shared';
 import type {DragEvent, KeyboardEvent, MouseEvent} from 'react';
 import React, {
@@ -229,7 +229,7 @@ export const CompositionSelectorItem: React.FC<{
 
 			setIsDragging(true);
 			event.dataTransfer.effectAllowed = 'copyMove';
-			const dragData = DragAndDropInternals.makeDragData({
+			const dragData = StudioProtocolInternals.makeDragData({
 				type: 'composition',
 				compositionFile: resolvedLocation?.source ?? null,
 				compositionId: item.composition.id,
@@ -250,7 +250,7 @@ export const CompositionSelectorItem: React.FC<{
 			if (
 				item.type !== 'folder' ||
 				window.remotion_isReadOnlyStudio ||
-				DragAndDropInternals.getDragPreviewMetadata(event.dataTransfer.types)
+				StudioProtocolInternals.getDragPreviewMetadata(event.dataTransfer.types)
 					?.type !== 'composition'
 			) {
 				return;
@@ -274,7 +274,7 @@ export const CompositionSelectorItem: React.FC<{
 			if (
 				item.type !== 'folder' ||
 				window.remotion_isReadOnlyStudio ||
-				DragAndDropInternals.getDragPreviewMetadata(event.dataTransfer.types)
+				StudioProtocolInternals.getDragPreviewMetadata(event.dataTransfer.types)
 					?.type !== 'composition'
 			) {
 				return;
@@ -294,7 +294,7 @@ export const CompositionSelectorItem: React.FC<{
 				return;
 			}
 
-			const parsed = DragAndDropInternals.parseDragData(event.dataTransfer);
+			const parsed = StudioProtocolInternals.parseDragData(event.dataTransfer);
 			if (parsed?.type !== 'composition') {
 				return;
 			}

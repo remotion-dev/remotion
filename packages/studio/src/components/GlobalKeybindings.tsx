@@ -153,6 +153,7 @@ export const GlobalKeybindings: React.FC = () => {
 							: 'compositions',
 					invocationTimestamp: Date.now(),
 					assetSelection: null,
+					compositionSelection: null,
 				});
 			},
 			triggerIfInputFieldFocused: true,
@@ -205,6 +206,7 @@ export const GlobalKeybindings: React.FC = () => {
 					mode: 'docs',
 					invocationTimestamp: Date.now(),
 					assetSelection: null,
+					compositionSelection: null,
 				});
 			},
 			commandCtrlKey: false,

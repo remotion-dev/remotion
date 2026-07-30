@@ -40,7 +40,7 @@ type NewAudioForPreviewProps = {
 	readonly trimBefore: number | undefined;
 	readonly name: string | undefined;
 	readonly showInTimeline: boolean;
-	readonly stack: string | null;
+	readonly _remotionInternalStack: string | null;
 	readonly disallowFallbackToHtml5Audio: boolean;
 	readonly toneFrequency: number | undefined;
 	readonly audioStreamIndex: number | undefined;
@@ -63,7 +63,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 	trimBefore,
 	name,
 	showInTimeline,
-	stack,
+	_remotionInternalStack,
 	disallowFallbackToHtml5Audio,
 	toneFrequency,
 	audioStreamIndex,
@@ -378,7 +378,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 				loop={loop}
 				showInTimeline={showInTimeline}
 				style={style ?? undefined}
-				stack={stack ?? undefined}
+				_remotionInternalStack={_remotionInternalStack ?? undefined}
 				toneFrequency={toneFrequency}
 				audioStreamIndex={audioStreamIndex}
 				pauseWhenBuffering={fallbackHtml5AudioProps?.pauseWhenBuffering}
@@ -411,7 +411,7 @@ type InnerAudioProps = {
 	readonly showInTimeline?: boolean;
 	readonly trimAfter?: number | undefined;
 	readonly trimBefore?: number | undefined;
-	readonly stack: string | null;
+	readonly _remotionInternalStack: string | null;
 	readonly disallowFallbackToHtml5Audio?: boolean;
 	readonly toneFrequency?: number;
 	readonly audioStreamIndex?: number;
@@ -434,7 +434,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 	trimAfter,
 	trimBefore,
 	showInTimeline,
-	stack,
+	_remotionInternalStack,
 	disallowFallbackToHtml5Audio,
 	toneFrequency,
 	audioStreamIndex,
@@ -498,7 +498,7 @@ export const AudioForPreview: React.FC<InnerAudioProps> = ({
 			trimBefore={trimBefore}
 			name={name}
 			showInTimeline={showInTimeline ?? true}
-			stack={stack}
+			_remotionInternalStack={_remotionInternalStack}
 			disallowFallbackToHtml5Audio={disallowFallbackToHtml5Audio ?? false}
 			toneFrequency={toneFrequency}
 			onError={onError}

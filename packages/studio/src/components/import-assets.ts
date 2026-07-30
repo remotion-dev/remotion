@@ -3,12 +3,13 @@ import {
 	type CompositionDragData,
 	type ComponentProp,
 	type ElementDragData,
-} from '@remotion/drag-and-drop';
+} from '@remotion/studio-protocol';
 import {
 	detectFileType,
 	getRequiredPackageForInsertableElement,
 	isUrl,
 	type DownloadRemoteAssetResponse,
+	type ElementInstallExpectedFileState,
 	type FileType,
 	type InsertableCompositionElement,
 	type InsertableCompositionElementPosition,
@@ -1310,15 +1311,19 @@ export const insertComposition = async ({
 export const insertElement = async ({
 	compositionFile,
 	compositionId,
-	dropPosition,
 	element,
+	expectedFileState,
+	position,
 	from,
+	overwriteExisting,
 }: {
 	compositionFile: string;
 	compositionId: string;
-	dropPosition: InsertElementDropPosition | null;
 	element: ElementDragData['element'];
+	expectedFileState: ElementInstallExpectedFileState;
+	position: InsertableCompositionElementPosition | null;
 	from: number | null;
+	overwriteExisting: boolean;
 }) => {
 	try {
 		await installRequiredPackages(element.dependencies);
@@ -1327,15 +1332,18 @@ export const insertElement = async ({
 			compositionFile,
 			compositionId,
 			element,
+			expectedFileState,
 			from,
-			position: getElementPositionForDrop({
-				dimensions: element.dimensions,
-				dropPosition,
-			}),
+			overwriteExisting,
+			position,
 		});
 
 		if (!response.success) {
-			showNotification(`Could not add Element: ${response.reason}`, 4000);
+			const reason =
+				response.type === 'error'
+					? response.reason
+					: `Element file changed: ${response.conflict.filePath}`;
+			showNotification(`Could not add Element: ${reason}`, 4000);
 			return;
 		}
 

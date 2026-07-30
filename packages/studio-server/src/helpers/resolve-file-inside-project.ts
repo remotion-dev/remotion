@@ -13,6 +13,8 @@ const formatOutsideProjectError = ({
 }) =>
 	`Cannot ${action} a file outside the project: "${fileName}" resolves to "${absolutePath}", but the project root is "${remotionRoot}".`;
 
+export class FileOutsideProjectError extends Error {}
+
 export const resolveFileInsideProject = ({
 	remotionRoot,
 	fileName,
@@ -31,7 +33,7 @@ export const resolveFileInsideProject = ({
 		fileRelativeToRoot.startsWith(`..${path.sep}`) ||
 		path.isAbsolute(fileRelativeToRoot)
 	) {
-		throw new Error(
+		throw new FileOutsideProjectError(
 			formatOutsideProjectError({
 				action,
 				fileName,

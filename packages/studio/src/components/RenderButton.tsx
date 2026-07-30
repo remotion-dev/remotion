@@ -15,10 +15,10 @@ import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
+	BLACK_ALPHA_60,
 	CURRENT_COLOR,
 	CURRENT_COLOR_LOWERCASE,
 	INPUT_BACKGROUND,
-	BLACK_ALPHA_60,
 	TRANSPARENT,
 	WHITE,
 } from '../helpers/colors';
@@ -160,7 +160,8 @@ const getInitialRenderType = (readOnlyStudio: boolean): RenderType => {
 export const RenderButton: React.FC<{
 	readonly readOnlyStudio: boolean;
 	readonly size?: 'default' | 'compact';
-}> = ({readOnlyStudio, size: controlSize = 'default'}) => {
+	readonly hidden: boolean;
+}> = ({readOnlyStudio, size: controlSize = 'default', hidden}) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const {setSelectedModal} = useContext(ModalsContext);
 	const [preferredRenderType, setPreferredRenderType] = useState<RenderType>(
@@ -552,49 +553,66 @@ export const RenderButton: React.FC<{
 				onClick={openClientRenderModal}
 				type="button"
 			/>
-			<div ref={containerRef} style={containerStyle} title={tooltip}>
+			<button
+				style={{display: 'none'}}
+				id="render-modal-button-command"
+				onClick={() => openServerRenderModal(true)}
+				type="button"
+			/>
+			{hidden ? (
 				<button
-					type="button"
-					style={
-						controlSize === 'compact' ? compactMainButtonStyle : mainButtonStyle
-					}
+					style={{display: 'none'}}
 					onClick={onClick}
 					id="render-modal-button"
-				>
-					<Row
-						align="center"
+					type="button"
+				/>
+			) : (
+				<div ref={containerRef} style={containerStyle} title={tooltip}>
+					<button
+						type="button"
 						style={
 							controlSize === 'compact'
-								? compactMainButtonContent
-								: mainButtonContent
+								? compactMainButtonStyle
+								: mainButtonStyle
 						}
+						onClick={onClick}
+						id="render-modal-button"
 					>
-						<ThinRenderIcon
-							fill={CURRENT_COLOR_LOWERCASE}
-							svgProps={iconStyle}
-						/>
-						<Spacing x={controlSize === 'compact' ? 0.75 : 1} />
-						<span style={controlSize === 'compact' ? compactLabel : label}>
-							{renderLabel}
-						</span>
-					</Row>
-				</button>
-				<div style={dividerStyle} />
-				<button
-					ref={dropdownRef}
-					type="button"
-					style={
-						controlSize === 'compact'
-							? compactDropdownTriggerStyle
-							: dropdownTriggerStyle
-					}
-					className={MENU_INITIATOR_CLASSNAME}
-					onPointerDown={onPointerDown}
-					onClick={onClickDropdown}
-				>
-					<CaretDown />
-				</button>
-			</div>
+						<Row
+							align="center"
+							style={
+								controlSize === 'compact'
+									? compactMainButtonContent
+									: mainButtonContent
+							}
+						>
+							<ThinRenderIcon
+								fill={CURRENT_COLOR_LOWERCASE}
+								svgProps={iconStyle}
+							/>
+							<Spacing x={controlSize === 'compact' ? 0.75 : 1} />
+							<span style={controlSize === 'compact' ? compactLabel : label}>
+								{renderLabel}
+							</span>
+						</Row>
+					</button>
+					<div style={dividerStyle} />
+					<button
+						ref={dropdownRef}
+						type="button"
+						style={
+							controlSize === 'compact'
+								? compactDropdownTriggerStyle
+								: dropdownTriggerStyle
+						}
+						className={MENU_INITIATOR_CLASSNAME}
+						onPointerDown={onPointerDown}
+						onClick={onClickDropdown}
+					>
+						<CaretDown />
+					</button>
+				</div>
+			)}
 			{portalStyle
 				? ReactDOM.createPortal(
 						<div style={fullScreenOverlay}>

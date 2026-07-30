@@ -14,11 +14,13 @@ is a package for integrating [React Three Fiber](https://github.com/pmndrs/react
 
 - [`<ThreeCanvas />`](/docs/three-canvas) will allow you to use `useCurrentFrame()` and other Remotion hooks within a R3F Canvas. Animations are now not inside a `useFrame()` hook, but directly rendered into the markup.
 
+- [`<ThreeWebGPUCanvas />`](/docs/three-webgpu-canvas) uses Three.js's `WebGPURenderer` and supports TSL node materials.
+
 - [`useVideoTexture()`](/docs/use-video-texture) allows you to use a Remotion [`<Html5Video />`](/docs/html5-video) as a texture map.
 
 - [`useOffthreadVideoTexture()`](/docs/use-offthread-video-texture) is an equivalent to [`useVideoTexture()`](/docs/use-video-texture), but displays the exact frame as an `Three.ImageTexture` during rendering, similarly to [`<OffthreadVideo />`](/docs/offthreadvideo).
 
-These are the only two APIs provided - for everything else you can use the standard [React Three Fiber](https://github.com/pmndrs/react-three-fiber) APIs.
+For everything else, you can use the standard [React Three Fiber](https://github.com/pmndrs/react-three-fiber) APIs.
 
 ## Starter template
 

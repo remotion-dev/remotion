@@ -89,9 +89,24 @@ Prefer a specific port that will be used to serve the Remotion project. If not s
 
 ### `frameRange?`
 
-_number | [number, number] | [number, null]_ <TsType type="FrameRange" source="@remotion/renderer" href="/docs/renderer/types#framerange" />
+<TsType type="FrameRange" source="@remotion/renderer" href="/docs/renderer/types#framerange" />
 
 Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered. Pass `[number, null]` to render from a frame to the end of the composition.<AvailableFrom v="4.0.421" inline />
+
+Pass an array of ordered, non-overlapping ranges to concatenate multiple sections into one video. Video and audio from gaps are omitted. Ranges are inclusive, and an open-ended range may only appear last.<AvailableFrom v="4.0.502" inline />
+
+```ts twoslash title="render.ts"
+import {renderMedia} from '@remotion/renderer';
+declare const options: Parameters<typeof renderMedia>[0];
+// ---cut---
+await renderMedia({
+	...options,
+  frameRange: [
+    [0, 100],
+    [150, 200],
+  ],
+});
+```
 
 ### `concurrency?`
 
@@ -505,7 +520,9 @@ _default `true`_
 
 ### ~~`apiKey?`<AvailableFrom v="4.0.375"/>~~
 
-_deprecated in v4.0.409_
+:::info Deprecated
+Use [`licenseKey`](#licensekey) instead.
+:::
 
 <Options id="api-key" />
 
@@ -520,15 +537,17 @@ Renamed to `jpegQuality` in `v4.0.0`.
 
 ### ~~`dumpBrowserLogs?`~~
 
-_default `false`, deprecated in v4.0_
+:::info Deprecated
+Use [`logLevel`](#loglevel) instead.
+:::
 
-Deprecated in favor of [`logLevel`](#loglevel).
+_default `false`_
 
 ### ~~`verbose?`~~
 
-_deprecated in v4.0_
-
-Deprecated in favor of [`logLevel`](#loglevel).
+:::info Deprecated
+Use [`logLevel`](#loglevel) instead.
+:::
 
 ### ~~`onSlowestFrames?`~~
 

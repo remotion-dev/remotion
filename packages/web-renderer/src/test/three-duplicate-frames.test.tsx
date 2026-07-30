@@ -1,5 +1,6 @@
 /* eslint-disable react/no-unknown-property */
 import {ThreeCanvas} from '@remotion/three';
+import {ThreeWebGPUCanvas} from '@remotion/three/webgpu';
 import React from 'react';
 import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 import {expect, test} from 'vitest';
@@ -38,6 +39,30 @@ const ThreeTestComponent: React.FC = () => {
 			<pointLight args={[undefined, 0.4]} position={[200, 200, 0]} />
 			<Mesh />
 		</ThreeCanvas>
+	);
+};
+
+const ThreeWebGPUTestComponent: React.FC = () => {
+	const {width, height} = useVideoConfig();
+	return (
+		<ThreeWebGPUCanvas
+			width={width}
+			height={height}
+			style={{backgroundColor: '#0b1020'}}
+			camera={{fov: 60, position: [0, 0, 5]}}
+		>
+			<ambientLight intensity={0.4} />
+			<directionalLight position={[5, 5, 5]} intensity={2.5} />
+			<pointLight position={[-5, -3, 2]} intensity={30} color="#4f9dff" />
+			<mesh>
+				<torusKnotGeometry args={[1.1, 0.38, 220, 36]} />
+				<meshStandardMaterial
+					color="#ff8080"
+					metalness={0.6}
+					roughness={0.25}
+				/>
+			</mesh>
+		</ThreeWebGPUCanvas>
 	);
 };
 
@@ -93,5 +118,40 @@ test(
 		}
 
 		expect(duplicates.length).toBe(0);
+	},
+);
+
+test(
+	'ThreeWebGPUCanvas should fully render its first frame',
+	{timeout: 60_000},
+	async (t) => {
+		if (t.task.file.projectName === 'webkit' || !('gpu' in navigator)) {
+			t.skip();
+			return;
+		}
+
+		const framePixelData: Uint8Array[] = [];
+
+		await renderMediaOnWeb({
+			composition: {
+				component: ThreeWebGPUTestComponent,
+				id: 'three-webgpu-first-frame-test',
+				width: 400,
+				height: 400,
+				fps: 30,
+				durationInFrames: 2,
+			},
+			inputProps: {},
+			licenseKey: 'free-license',
+			onFrame: async (videoFrame) => {
+				const pixelData = await extractPixelData(videoFrame);
+				framePixelData.push(pixelData);
+				return videoFrame;
+			},
+		});
+
+		expect(framePixelData).toHaveLength(2);
+		expect(new Set(framePixelData[0]).size).toBeGreaterThan(10);
+		expect(framesAreIdentical(framePixelData[0], framePixelData[1])).toBe(true);
 	},
 );

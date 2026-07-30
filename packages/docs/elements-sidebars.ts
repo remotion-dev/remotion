@@ -56,6 +56,7 @@ const sidebars: SidebarsConfig = {
 				'text/news-article-headline-highlight/index',
 				'text/strike-through/index',
 				'text/text-marker/index',
+				'text/timed-captions/index',
 			],
 		},
 	],

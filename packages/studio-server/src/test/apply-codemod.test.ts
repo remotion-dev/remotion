@@ -322,6 +322,7 @@ const getHandlerOptions = <T>({
 	publicDir: remotionRoot,
 	binariesDirectory: null,
 	configFile: null,
+	getDefaultEditor: () => null,
 });
 
 const runCompositionCodemodUndoRedoTest = async ({

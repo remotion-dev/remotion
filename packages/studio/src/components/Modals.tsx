@@ -3,6 +3,7 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {ModalsContext} from '../state/modals';
 import {AskAiModal} from './AskAiModal';
+import {ConfigureDefaultEditorModal} from './ConfigureDefaultEditorModal';
 import {ConfigureLicenseModal} from './ConfigureLicenseModal';
 import {ConfirmationDialog} from './ConfirmationDialog';
 import {EffectPickerModal} from './EffectPickerModal';
@@ -83,6 +84,10 @@ export const Modals: React.FC<{
 					initialPublicLicenseKey={modalContextType.initialPublicLicenseKey}
 				/>
 			)}
+			{modalContextType &&
+				modalContextType.type === 'configure-default-editor' && (
+					<ConfigureDefaultEditorModal />
+				)}
 			{modalContextType && modalContextType.type === 'web-render' && (
 				<WebRenderModalWithLoader {...modalContextType} />
 			)}
@@ -181,6 +186,7 @@ export const Modals: React.FC<{
 					invocationTimestamp={modalContextType.invocationTimestamp}
 					initialMode={modalContextType.mode}
 					assetSelection={modalContextType.assetSelection}
+					compositionSelection={modalContextType.compositionSelection}
 				/>
 			)}
 			{modalContextType && modalContextType.type === 'add-effect' && (

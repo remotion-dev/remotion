@@ -54,6 +54,7 @@ export const videoSchema: InteractivitySchema = {
 	...Internals.transformSchema,
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
+	...Interactive.borderRadiusSchema,
 	...Interactive.cropSchema,
 } as const satisfies InteractivitySchema;
 
@@ -81,7 +82,7 @@ const InnerVideo: React.FC<
 	trimAfter,
 	trimBefore,
 	volume,
-	stack,
+	_remotionInternalStack,
 	toneFrequency,
 	showInTimeline,
 	debugOverlay,
@@ -144,7 +145,7 @@ const InnerVideo: React.FC<
 				onVideoFrame={onVideoFrame}
 				playbackRate={playbackRate}
 				src={src}
-				stack={stack}
+				_remotionInternalStack={_remotionInternalStack}
 				style={style}
 				volume={volume}
 				toneFrequency={toneFrequency}
@@ -178,7 +179,7 @@ const InnerVideo: React.FC<
 			showInTimeline={showInTimeline}
 			trimAfter={trimAfterValue}
 			trimBefore={trimBeforeValue}
-			stack={stack ?? null}
+			_remotionInternalStack={_remotionInternalStack ?? null}
 			disallowFallbackToOffthreadVideo={disallowFallbackToOffthreadVideo}
 			fallbackOffthreadVideoProps={fallbackOffthreadVideoProps}
 			debugOverlay={debugOverlay ?? false}
@@ -221,7 +222,6 @@ const VideoInner: React.FC<
 	trimAfter,
 	trimBefore,
 	volume,
-	stack,
 	toneFrequency,
 	debugOverlay,
 	headless,
@@ -246,6 +246,9 @@ const VideoInner: React.FC<
 	cropBottom,
 	...props
 }) => {
+	const sourceStack = controls
+		? (Internals.getStackForControls(controls) ?? undefined)
+		: undefined;
 	const fallbackLogLevel = Internals.useLogLevel();
 	const [mediaVolume] = Internals.useMediaVolumeState();
 	const mediaStartsAt = Internals.useMediaStartsAt();
@@ -357,7 +360,6 @@ const VideoInner: React.FC<
 				from={from ?? 0}
 				durationInFrames={videoSequenceDuration}
 				freeze={freeze}
-				_remotionInternalStack={stack}
 				_remotionInternalIsMedia={isMedia}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
@@ -401,7 +403,7 @@ const VideoInner: React.FC<
 					trimBefore={trimBefore}
 					volume={volume ?? 1}
 					toneFrequency={toneFrequency ?? 1}
-					stack={stack}
+					_remotionInternalStack={sourceStack}
 					debugOverlay={debugOverlay ?? false}
 					headless={headless ?? false}
 					onError={onError}

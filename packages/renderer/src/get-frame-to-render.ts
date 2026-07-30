@@ -1,13 +1,15 @@
-import type {FrameRange} from './frame-range';
+import {
+	isMultipleFrameRanges,
+	type FrameRange,
+	type FrameRangeTuple,
+	type ResolvedFrameRange,
+	validateFrameRange,
+} from './frame-range';
 
-export const getRealFrameRange = (
+const resolveFrameRange = (
 	durationInFrames: number,
-	frameRange: FrameRange | null,
-): [number, number] => {
-	if (frameRange === null) {
-		return [0, durationInFrames - 1];
-	}
-
+	frameRange: number | FrameRangeTuple,
+): ResolvedFrameRange => {
 	if (typeof frameRange === 'number') {
 		if (frameRange < 0 || frameRange >= durationInFrames) {
 			throw new Error(
@@ -20,7 +22,7 @@ export const getRealFrameRange = (
 		return [frameRange, frameRange];
 	}
 
-	const resolved: [number, number] = [
+	const resolved: ResolvedFrameRange = [
 		frameRange[0],
 		frameRange[1] === null ? durationInFrames - 1 : frameRange[1],
 	];
@@ -38,4 +40,37 @@ export const getRealFrameRange = (
 	}
 
 	return resolved;
+};
+
+export const getRealFrameRanges = (
+	durationInFrames: number,
+	frameRange: FrameRange | null,
+): ResolvedFrameRange[] => {
+	if (frameRange === null) {
+		return [[0, durationInFrames - 1]];
+	}
+
+	validateFrameRange(frameRange);
+
+	if (isMultipleFrameRanges(frameRange)) {
+		return frameRange.map((range) =>
+			resolveFrameRange(durationInFrames, range),
+		);
+	}
+
+	return [resolveFrameRange(durationInFrames, frameRange)];
+};
+
+export const getRealFrameRange = (
+	durationInFrames: number,
+	frameRange: FrameRange | null,
+): [number, number] => {
+	const ranges = getRealFrameRanges(durationInFrames, frameRange);
+	if (ranges.length !== 1) {
+		throw new Error(
+			'Expected a single frame range, but received multiple frame ranges.',
+		);
+	}
+
+	return ranges[0];
 };

@@ -52,7 +52,7 @@ type InnerVideoProps = NativeVideoProps & {
 	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
 	readonly audioStreamIndex: number;
 	readonly disallowFallbackToOffthreadVideo: boolean;
-	readonly stack: string | undefined;
+	readonly _remotionInternalStack: string | undefined;
 	readonly toneFrequency: number;
 	readonly trimBeforeValue: number | undefined;
 	readonly trimAfterValue: number | undefined;
@@ -84,7 +84,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	fallbackOffthreadVideoProps,
 	audioStreamIndex,
 	disallowFallbackToOffthreadVideo,
-	stack,
+	_remotionInternalStack,
 	toneFrequency,
 	trimAfterValue,
 	trimBeforeValue,
@@ -494,7 +494,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				preservePitch={fallbackOffthreadVideoProps?.preservePitch ?? true}
 				startFrom={undefined}
 				endAt={undefined}
-				stack={stack}
+				_remotionInternalStack={_remotionInternalStack}
 				_remotionInternalNativeLoopPassed={false}
 			/>
 		);

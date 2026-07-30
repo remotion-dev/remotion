@@ -1,5 +1,5 @@
-import {expect, test} from '@playwright/test';
 import fs from 'fs';
+import {expect, test} from '@playwright/test';
 import {errorOverlayE2eFile, STUDIO_URL} from './constants.mts';
 import {readStudioLogs, stripAnsi} from './helpers.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
@@ -27,7 +27,8 @@ test.describe('error overlay dismissal', () => {
 		await stopStudio();
 	});
 
-	test('error UI toggles with the underlying runtime error across HMR cycles', async ({
+	test('error overlay remains useful without symbolication and recovers across HMR cycles', async ({
+		context,
 		page,
 	}) => {
 		const originalContent = fs.readFileSync(errorOverlayE2eFile, 'utf-8');
@@ -64,6 +65,51 @@ test.describe('error overlay dismissal', () => {
 				)
 				.toBe(true);
 		};
+
+		await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
+			origin: STUDIO_URL,
+		});
+		await page.goto(`${STUDIO_URL}/error-overlay-unsymbolicated-e2e`);
+		await expect(page.getByText('Expected defaults').first()).toBeVisible({
+			timeout: 15_000,
+		});
+		await expect(
+			page.getByText('Could not symbolicate the stack trace: Failed to fetch'),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Copy Stacktrace'}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: /Search GitHub Issues/}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: /Ask on Discord/}),
+		).toBeVisible();
+
+		const rawStack = page.getByLabel('Unsymbolicated stack trace');
+		await expect(rawStack).toContainText(
+			'webpack-internal:///cannot-symbolicate.js',
+		);
+		await expect
+			.poll(() =>
+				page.evaluate(
+					() =>
+						document.documentElement.scrollWidth ===
+						document.documentElement.clientWidth,
+				),
+			)
+			.toBe(true);
+		expect(
+			await rawStack.evaluate(
+				(element) => element.scrollWidth > element.clientWidth,
+			),
+		).toBe(true);
+
+		await page.getByRole('button', {name: 'Copy Stacktrace'}).click();
+		await expect(page.getByRole('button', {name: 'Copied!'})).toBeVisible();
+		expect(await page.evaluate(() => navigator.clipboard.readText())).toContain(
+			'webpack-internal:///cannot-symbolicate.js',
+		);
 
 		await page.goto(`${STUDIO_URL}/error-overlay-e2e`);
 		await expect(page).toHaveURL(/error-overlay-e2e/, {timeout: 15_000});

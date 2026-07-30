@@ -88,7 +88,7 @@ Specify a single frame (passing a `number`) or a range of frames (passing a tupl
 
 ### `serveUrl`
 
-A URL pointing to a Remotion project. Use [`deploySite()`](/docs/lambda/deploysite) to deploy a Remotion project.
+A URL pointing to a Remotion project. Create one by building with [`bundle()`](/docs/bundle) and deploying with [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle).
 
 ### `composition`
 
@@ -377,13 +377,17 @@ _default `true`_
 
 ### ~~`apiKey?`<AvailableFrom v="4.0.253"/>~~
 
-_deprecated in v4.0.409_
+:::info Deprecated
+Use [`licenseKey`](#licensekey) instead.
+:::
 
 <Options id="api-key" />
 
 ### ~~`dumpBrowserLogs?`~~
 
-Deprecated in v4.0 in favor of [`logLevel`](#loglevel).
+:::info Deprecated
+Use [`logLevel`](#loglevel) instead.
+:::
 
 ## Return value
 

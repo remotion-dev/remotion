@@ -69,14 +69,7 @@ export const deleteSequencesFromSource = async (
 		}),
 	})
 		.then((result) => {
-			if (result.success) {
-				showNotification(
-					nodePathInfos.length === 1
-						? 'Removed sequence from source file'
-						: 'Removed sequences from source files',
-					2000,
-				);
-			} else {
+			if (!result.success) {
 				showNotification(result.reason, 4000);
 			}
 

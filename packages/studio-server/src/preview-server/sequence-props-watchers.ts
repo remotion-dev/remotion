@@ -18,7 +18,7 @@ import {getCachedNodePath, setCachedNodePath} from './node-path-cache';
 import {
 	computeSequencePropsStatus,
 	computeSequencePropsStatusFromContent,
-	computeSequencePropsStatusFromFilenameByLine,
+	computeSequencePropsStatusFromFilenameByLocation,
 } from './routes/can-update-sequence-props';
 
 type WatcherInfo = {
@@ -143,9 +143,10 @@ const getSequencePropsStatus = ({
 		}
 	}
 
-	const status = computeSequencePropsStatusFromFilenameByLine({
+	const status = computeSequencePropsStatusFromFilenameByLocation({
 		fileName,
 		line,
+		column,
 		componentIdentity,
 		keys,
 		assetKeys,

@@ -4,7 +4,7 @@ title: '<Video>'
 crumb: 'API - @remotion/media'
 ---
 
-[`<Video>` from `@remotion/media`](/docs/media/video) is the recommended component for embedding videos in Remotion.
+`<Video>` from `@remotion/media` is the recommended component for embedding videos in Remotion.
 
 During rendering, it extracts the exact frame from the video using [Mediabunny](/docs/mediabunny) and displays it in a `<canvas>` tag. This keeps the video in sync with Remotion's timeline.
 
@@ -66,6 +66,22 @@ The URL of the video to be rendered. Can be a remote URL or a local file referen
 ### `effects?`<AvailableFrom v="4.0.464" />
 
 Apply [effects](/docs/effects/api) to the video frame after it has been drawn to the canvas.
+
+### `cropLeft?`<AvailableFrom v="4.0.500" />
+
+Crops the video from the left by a ratio between `0` and `1`. See [`cropLeft`](/docs/sequence#cropleft).
+
+### `cropRight?`<AvailableFrom v="4.0.500" />
+
+Crops the video from the right by a ratio between `0` and `1`. See [`cropRight`](/docs/sequence#cropright).
+
+### `cropTop?`<AvailableFrom v="4.0.500" />
+
+Crops the video from the top by a ratio between `0` and `1`. See [`cropTop`](/docs/sequence#croptop).
+
+### `cropBottom?`<AvailableFrom v="4.0.500" />
+
+Crops the video from the bottom by a ratio between `0` and `1`. See [`cropBottom`](/docs/sequence#cropbottom).
 
 ### `from?`<AvailableFrom v="4.0.445" />
 
@@ -362,7 +378,7 @@ export const MyComposition = () => {
 
 ### ~~`credentials?`<AvailableFrom v="4.0.437" />~~
 
-:::note Deprecated
+:::info Deprecated
 Use [`requestInit`](#requestinit) instead.
 :::
 

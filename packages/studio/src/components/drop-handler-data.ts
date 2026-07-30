@@ -1,9 +1,9 @@
 import {
-	DragAndDropInternals,
+	StudioProtocolInternals,
 	type ComponentDragData,
 	type CompositionDragData,
 	type DragPreviewMetadata,
-} from '@remotion/drag-and-drop';
+} from '@remotion/studio-protocol';
 import {hasRemoteAssetDragData} from '../helpers/remote-asset-drag';
 
 export const isFileDragEvent = (event: DragEvent): boolean => {
@@ -15,8 +15,9 @@ const isRemotionDragEvent = (
 	type: DragPreviewMetadata['type'],
 ) => {
 	return (
-		DragAndDropInternals.getDragPreviewMetadata(event.dataTransfer?.types ?? [])
-			?.type === type
+		StudioProtocolInternals.getDragPreviewMetadata(
+			event.dataTransfer?.types ?? [],
+		)?.type === type
 	);
 };
 
@@ -66,7 +67,7 @@ export const isSupportedDropEvent = (event: DragEvent): boolean => {
 
 export const getAssetDragPath = (event: DragEvent): string | null => {
 	const parsed = event.dataTransfer
-		? DragAndDropInternals.parseDragData(event.dataTransfer)
+		? StudioProtocolInternals.parseDragData(event.dataTransfer)
 		: null;
 	return parsed?.type === 'asset' ? parsed.data.assetPath : null;
 };
@@ -75,7 +76,7 @@ export const getCompositionDragData = (
 	event: DragEvent,
 ): CompositionDragData | null => {
 	const parsed = event.dataTransfer
-		? DragAndDropInternals.parseDragData(event.dataTransfer)
+		? StudioProtocolInternals.parseDragData(event.dataTransfer)
 		: null;
 	return parsed?.type === 'composition' ? parsed.data : null;
 };
@@ -84,14 +85,14 @@ export const getComponentDragData = (
 	event: DragEvent,
 ): ComponentDragData | null => {
 	const parsed = event.dataTransfer
-		? DragAndDropInternals.parseDragData(event.dataTransfer)
+		? StudioProtocolInternals.parseDragData(event.dataTransfer)
 		: null;
 	return parsed?.type === 'component' ? parsed.data : null;
 };
 
 export const getSfxDragUrl = (event: DragEvent): string | null => {
 	const parsed = event.dataTransfer
-		? DragAndDropInternals.parseDragData(event.dataTransfer)
+		? StudioProtocolInternals.parseDragData(event.dataTransfer)
 		: null;
 	return parsed?.type === 'sfx' ? parsed.data.sfx.url : null;
 };

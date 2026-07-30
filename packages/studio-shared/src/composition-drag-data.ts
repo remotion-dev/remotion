@@ -1,4 +1,4 @@
-import type {CompositionDragData} from '@remotion/drag-and-drop';
+import type {CompositionDragData} from '@remotion/studio-protocol';
 import type {SymbolicatedStackFrame} from './stack-types';
 
 export const compositionDragDataToSymbolicatedStack = (

@@ -16,7 +16,7 @@
 			"path": "../core"
 		},
 		{
-			"path": "../drag-and-drop"
+			"path": "../studio-protocol"
 		},
 		{
 			"path": "../media-utils"
@@ -26,6 +26,9 @@
 		},
 		{
 			"path": "../studio-shared"
+		},
+		{
+			"path": "../studio-codemods"
 		},
 		{
 			"path": "../renderer"

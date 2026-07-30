@@ -1,6 +1,7 @@
 import {existsSync} from 'node:fs';
 import path from 'node:path';
 import {BrowserSafeApis} from '@remotion/renderer/client';
+import {ConfigInternals} from './config';
 import {
 	executeConfigFile,
 	loadConfigFile,
@@ -10,7 +11,7 @@ import type {PreparedConfigFile} from './load-config';
 import {Log} from './log';
 import {parsedCli} from './parsed-cli';
 
-const {configOption} = BrowserSafeApis.options;
+const {configOption, logLevelOption, rspackOption} = BrowserSafeApis.options;
 
 const defaultConfigFileJavascript = 'remotion.config.js';
 const defaultConfigFileTypescript = 'remotion.config.ts';
@@ -18,13 +19,51 @@ let loadedConfigFile: PreparedConfigFile | null = null;
 
 export const getLoadedConfigFile = () => loadedConfigFile?.resolved ?? null;
 
+const warnAboutBundlerOverride = () => {
+	const useRspack = rspackOption.getValue({commandLine: parsedCli}).value;
+	const hasWebpackOverride =
+		ConfigInternals.getWebpackOverrideFn() !==
+		ConfigInternals.defaultOverrideFunction;
+	const hasRspackOverride =
+		ConfigInternals.getRspackOverrideFn() !==
+		ConfigInternals.defaultRspackOverrideFunction;
+
+	if (
+		(useRspack && !hasWebpackOverride) ||
+		(!useRspack && !hasRspackOverride)
+	) {
+		return;
+	}
+
+	const selectedBundler = useRspack ? 'Rspack' : 'Webpack';
+	const ignoredBundler = useRspack ? 'Webpack' : 'Rspack';
+	const selectedOverride = useRspack
+		? 'overrideRspackConfig'
+		: 'overrideWebpackConfig';
+	const ignoredOverride = useRspack
+		? 'overrideWebpackConfig'
+		: 'overrideRspackConfig';
+	const logLevel = logLevelOption.getValue({commandLine: parsedCli}).value;
+
+	Log.warn(
+		{indent: false, logLevel},
+		`You have selected ${selectedBundler} as the bundler, but Config.${ignoredOverride}() was called. The ${ignoredBundler} override will be ignored. Use Config.${selectedOverride}() or Config.overrideBundlerConfig() instead.`,
+	);
+};
+
 const loadInitialConfigFile = async (
 	remotionRoot: string,
 	configFileName: string,
 	isJavascript: boolean,
 ) => {
 	try {
-		return await loadConfigFile(remotionRoot, configFileName, isJavascript);
+		const config = await loadConfigFile(
+			remotionRoot,
+			configFileName,
+			isJavascript,
+		);
+		warnAboutBundlerOverride();
+		return config;
 	} catch (error) {
 		Log.error(
 			{indent: false, logLevel: 'error'},
@@ -114,6 +153,7 @@ export const reloadConfig = async ({
 	try {
 		executeConfigFile(nextConfigFile);
 		loadedConfigFile = nextConfigFile;
+		warnAboutBundlerOverride();
 		return true;
 	} catch (error) {
 		resetConfigOptions();

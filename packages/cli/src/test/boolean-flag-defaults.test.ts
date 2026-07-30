@@ -15,6 +15,7 @@ const {
 	keyboardShortcutsOption,
 	overwriteOption,
 	reproOption,
+	rspackOption,
 } = BrowserSafeApis.options;
 
 test('config-backed boolean flags default to null when absent', () => {
@@ -30,4 +31,5 @@ test('config-backed boolean flags default to null when absent', () => {
 	expect(parsedCli[reproOption.cliFlag]).toEqual(null);
 	expect(parsedCli[isProductionOption.cliFlag]).toEqual(null);
 	expect(parsedCli[forceNewStudioOption.cliFlag]).toEqual(null);
+	expect(parsedCli[rspackOption.cliFlag]).toEqual(null);
 });

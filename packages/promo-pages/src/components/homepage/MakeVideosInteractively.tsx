@@ -35,7 +35,7 @@ export const MakeVideosInteractively: React.FC<{
 			}
 		>
 			<div className="flex aspect-square w-full items-start">
-				{showVideo ? (
+				{showVideo && src ? (
 					<video
 						src={src}
 						autoPlay

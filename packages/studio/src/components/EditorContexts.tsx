@@ -24,12 +24,11 @@ import {ZoomGesturesProvider} from './ZoomGesturesProvider';
 
 export const EditorContexts: React.FC<{
 	readonly children: React.ReactNode;
-	readonly readOnlyStudio: boolean;
-}> = ({children, readOnlyStudio}) => {
+}> = ({children}) => {
 	return (
 		<ZodProvider>
 			<VisualControlsProvider>
-				<PreviewServerConnection readOnlyStudio={readOnlyStudio}>
+				<PreviewServerConnection>
 					<VisualControlsUndoSync />
 					<RenderQueueContextProvider>
 						<ClientRenderQueueProcessor />

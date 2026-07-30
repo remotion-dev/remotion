@@ -76,7 +76,7 @@ export const useSequenceInspectorSourceLocation = (
 			return;
 		}
 
-		openInEditor();
+		openInEditor(null);
 	}, [canOpenInEditor, openInEditor]);
 
 	return {
@@ -132,6 +132,7 @@ export const SequenceInspectorHeader: React.FC<{
 			<InspectorLocationCopy
 				location={sourceLocation.validatedLocation}
 				name={componentName ?? null}
+				openInEditorLocation={sourceLocation.validatedLocation}
 			>
 				<InlineEditableTitle
 					value={sequenceDisplayName}

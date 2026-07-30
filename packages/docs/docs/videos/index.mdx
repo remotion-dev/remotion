@@ -60,20 +60,16 @@ export const MyComp: React.FC = () => {
 
 ## Delaying
 
-Use the [`<Sequence>`](/docs/sequence) component to delay the appearance of a video.  
+Use the [`from`](/docs/media/video#from) prop to delay the appearance of a video.
 In the example below, the video will start playing at frame 60.
 
 ```tsx twoslash
 import React from 'react';
 import {Video} from '@remotion/media';
-import {Sequence, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
-  return (
-    <Sequence from={60}>
-      <Video src={staticFile('video.mp4')} />
-    </Sequence>
-  );
+  return <Video from={60} src={staticFile('video.mp4')} />;
 };
 ```
 

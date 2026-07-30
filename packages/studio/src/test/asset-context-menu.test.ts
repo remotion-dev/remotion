@@ -21,6 +21,7 @@ const getItem = (
 
 test('keeps copy and open-in-new-window asset actions enabled in read-only Studio', () => {
 	const availability = getAssetActionAvailability({
+		browserStudioCanMutateAssets: null,
 		readOnlyStudio: true,
 		connectionStatus: 'init',
 		publicFolderExists: '/project/public',
@@ -46,6 +47,7 @@ test('keeps copy and open-in-new-window asset actions enabled in read-only Studi
 
 test('only offers file-manager actions when a local public folder is available', () => {
 	const availability = getAssetActionAvailability({
+		browserStudioCanMutateAssets: null,
 		readOnlyStudio: true,
 		connectionStatus: 'init',
 		publicFolderExists: null,
@@ -56,6 +58,7 @@ test('only offers file-manager actions when a local public folder is available',
 
 test('disables asset mutations while an editable Studio is disconnected', () => {
 	const availability = getAssetActionAvailability({
+		browserStudioCanMutateAssets: null,
 		readOnlyStudio: false,
 		connectionStatus: 'disconnected',
 		publicFolderExists: '/project/public',
@@ -64,6 +67,20 @@ test('disables asset mutations while an editable Studio is disconnected', () => 
 	expect(availability).toEqual({
 		fileExplorerDisabled: true,
 		mutationsDisabled: true,
+	});
+});
+
+test('enables supported Browser Studio asset mutations', () => {
+	const availability = getAssetActionAvailability({
+		browserStudioCanMutateAssets: true,
+		readOnlyStudio: true,
+		connectionStatus: 'connected',
+		publicFolderExists: '/public',
+	});
+
+	expect(availability).toEqual({
+		fileExplorerDisabled: true,
+		mutationsDisabled: false,
 	});
 });
 

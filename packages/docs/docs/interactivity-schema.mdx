@@ -73,6 +73,14 @@ Border-related style props: `style.borderWidth`, `style.borderStyle` and `style.
 
 The longhand properties are used rather than the `border` shorthand, because React does not expand shorthands. This lets each control read its own value, and allows `style.borderWidth` and `style.borderColor` to be animated.
 
+### `Interactive.borderRadiusSchema`<AvailableFrom v="4.0.501" />
+
+Corner radius style props: `style.borderRadius`, `style.borderTopLeftRadius`, `style.borderTopRightRadius`, `style.borderBottomRightRadius` and `style.borderBottomLeftRadius`.
+
+The Studio shows either the shorthand or the four longhands. Mixing `style.borderRadius` with a corner longhand is treated as computed and cannot be edited visually.
+
+When `style.borderRadius` is a number or contains one to four pixel values, the Studio expands it into the four longhand properties when you edit a corner. Complex values such as percentages and elliptical radii are not editable.
+
 ### `Interactive.premountSchema`
 
 Mounting props: `premountFor` and `postmountFor`.

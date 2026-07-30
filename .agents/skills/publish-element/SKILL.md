@@ -26,7 +26,7 @@ bun run remotion
 
 ## 2. Perform the publication review
 
-Review the finished source, MDX page, and central definition against the Element Guidelines. Resolve placeholder content and finalize the description, display name, contributors, dimensions, duration, preview padding, and poster frame.
+Review the finished source, MDX page, and central definition against the Element Guidelines. Resolve placeholder content and finalize the description, display name, contributors, dimensions, duration, preview padding, poster frame, and `preview` object. Confirm that `posterUrl` and `videoUrl` use flat `https://remotion.media/elements/<category>-<slug>-preview.png` and `.mp4` paths. Preview assets are composited onto the standard background and use MP4 for broad browser, social-card, and embed compatibility, even when the Element itself supports transparency. These explicit URLs are the publishing source of truth.
 
 Re-check the technical implementation requirements from the [`scaffold-element` skill](../scaffold-element/SKILL.md): The reusable implementation must remain in one self-contained TSX file, fill its configured bounds without a wrapper `<Sequence>` or preview-only source padding, and leave outer placement to the surrounding project. Animated entrances must have exits with inline, hardcoded frame ranges on useful named `Interactive.*` elements. Inner control names must not repeat the Element display name.
 
@@ -36,10 +36,12 @@ If the Element imports a package that is not available to `packages/docs`, add i
 
 ## 3. Add it to the gallery
 
-- Add the Element page to `packages/docs/elements/<category>/index.mdx`.
+- Confirm that the entry in `packages/docs/src/components/Elements/element-definitions.ts` places the Element in the generated overview and category library.
 - Add `'<category>/<slug>/index'` to the matching category in `packages/docs/elements-sidebars.ts`.
 
-Preserve the ordering used by the category page and sidebar. If the task explicitly introduces a new category, create its category index and sidebar group as part of this step.
+Preserve the ordering used by the sidebar. Do not add a manual link to the category index: the visual and raw Markdown libraries are generated from the central definitions. If the task explicitly introduces a new category, create an index that renders the filtered `ElementLibrary` and add its sidebar group as part of this step.
+
+Before considering gallery registration complete, verify that the Element appears on the overview page, its category page, and the generated raw Markdown routes.
 
 Do not edit `packages/docs/src/remotion/Root.tsx`; Element compositions are derived from the central definitions.
 
@@ -79,7 +81,15 @@ bunx remotion render \
 cd ../..
 ```
 
-Do not run `render-element-previews`, because it renders every Element and clears the previous preview output.
+Do not run `render-element-previews` without an Element filter, because that renders every Element and clears the complete preview output. If uploading is explicitly requested later, use:
+
+```bash
+cd packages/docs
+bun run render-element-previews --element=<category>/<slug> --upload
+cd ../..
+```
+
+The filtered command clears and regenerates only that Element's nested local review output, then uses its explicit metadata URLs for the public locations and R2 keys.
 
 Inspect `packages/docs/.element-previews/<category>/<slug>/preview.png` and `preview.mp4`, then give both paths to the developer for visual review. Stop and wait for the developer to explicitly confirm that both previews look correct. Do not run the final repository checks or finish the publishing workflow until that approval is received.
 
@@ -94,4 +104,4 @@ git diff --check
 git status --short
 ```
 
-Before finishing, verify that the page is listed in its category and sidebar, all checks pass, and only intended files are part of the change. Report the commands run, their results, and the preview files inspected.
+Before finishing, verify that the page is listed in the generated overview and category library, the generated raw Markdown, and the sidebar; all checks pass; and only intended files are part of the change. Report the commands run, their results, and the preview files inspected.

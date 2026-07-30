@@ -20,9 +20,9 @@ export {
 	BatchUpdateSequenceKeyframeSettings,
 	CanUpdateDefaultPropsResponse,
 	CanUpdateSequencePropsRequest,
-	CaptionPatch,
 	CancelRenderRequest,
 	CancelRenderResponse,
+	CaptionPatch,
 	CompositionComponentInfoRequest,
 	CompositionComponentInfoResponse,
 	ConvertFigmaClipboardToSvgRequest,
@@ -47,10 +47,16 @@ export {
 	DuplicateEffectResponse,
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse,
+	ElementInstallExpectedFileState,
 	ElementInstallRequest,
+	ElementInstallSource,
+	EditorPickerId,
 	FindInFileRequest,
 	FindInFileResponse,
+	GetDefaultEditorInfoRequest,
+	GetDefaultEditorInfoResponse,
 	GoogleFontSourceEdit,
+	InsertElementFileConflict,
 	InsertElementRequest,
 	InsertElementResponse,
 	InsertJsxElementRequest,
@@ -70,6 +76,8 @@ export {
 	OpenInFileExplorerRequest,
 	PasteEffectsRequest,
 	PasteEffectsResponse,
+	PrepareElementInstallRequest,
+	PrepareElementInstallResponse,
 	ProjectInfoRequest,
 	ProjectInfoResponse,
 	RedoRequest,
@@ -86,11 +94,11 @@ export {
 	RestartStudioResponse,
 	SaveEffectPropsRequest,
 	SaveEffectPropsResponse,
+	SaveInlineCaptionPatchesRequest,
 	SaveMultipleEffectPropsEdit,
 	SaveMultipleEffectPropsRequest,
 	SaveMultipleEffectPropsResponse,
 	SaveMultipleEffectPropsResult,
-	SaveInlineCaptionPatchesRequest,
 	SaveSequencePropEdit,
 	SaveSequencePropSourceEdit,
 	SaveSequencePropsRequest,
@@ -112,6 +120,8 @@ export {
 	UnsubscribeFromSequencePropsRequest,
 	UpdateAvailableRequest,
 	UpdateAvailableResponse,
+	UpdateDefaultEditorRequest,
+	UpdateDefaultEditorResponse,
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse,
 	UpdateEffectKeyframeSettingsRequest,
@@ -126,6 +136,7 @@ export {
 	type AddSequenceKeyframe,
 	type KeyframeSettings,
 } from './api-requests';
+export type {BrowserStudioOperations} from './browser-studio-operations';
 export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
 export {compositionDragDataToSymbolicatedStack} from './composition-drag-data';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
@@ -189,6 +200,14 @@ export {
 	hotMiddlewareOptions,
 } from './hot-middleware';
 export {
+	isKeyframeClipboardFieldType,
+	parseKeyframeClipboardData,
+	parseKeyframeClipboardDataResult,
+	type KeyframeClipboardData,
+	type KeyframeClipboardDataParseResult,
+	type KeyframeClipboardFieldType,
+} from './keyframe-clipboard-data';
+export {
 	CUBIC_KEYFRAME_EASING,
 	EASE_KEYFRAME_EASING,
 	KEYFRAME_EASING_PRESETS,
@@ -210,14 +229,6 @@ export {
 	keyframeInterpolationFunctions,
 	type KeyframeInterpolationFunction,
 } from './keyframe-interpolation-function';
-export {
-	isKeyframeClipboardFieldType,
-	parseKeyframeClipboardData,
-	parseKeyframeClipboardDataResult,
-	type KeyframeClipboardData,
-	type KeyframeClipboardDataParseResult,
-	type KeyframeClipboardFieldType,
-} from './keyframe-clipboard-data';
 export {DEFAULT_TIMELINE_TRACKS} from './max-timeline-tracks';
 export {
 	Pkgs,
@@ -289,6 +300,11 @@ export {
 } from './studio-entry-points';
 export {studioHtml, type StudioHtmlOptions} from './studio-html';
 export type {StudioRuntimeConfig} from './studio-runtime-config';
+export {
+	BORDER_RADIUS_LONGHAND_KEYS,
+	BORDER_RADIUS_SHORTHAND_KEY,
+	getStylePropertyLonghandKeys,
+} from './style-property-relations';
 
 export type {VisualControlChange} from './codemods';
 export {

@@ -7,6 +7,7 @@ import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {
 	backgroundSchema,
 	baseSchema,
+	borderRadiusSchema,
 	captionsSchema,
 	borderSchema,
 	cropSchema,
@@ -100,12 +101,7 @@ export type InteractivePremountProps = Pick<
 	| 'styleWhilePostmounted'
 >;
 
-type InteractiveSequenceProps = InteractiveBaseProps & {
-	/**
-	 * @deprecated For internal use only
-	 */
-	readonly stack?: string;
-};
+type InteractiveSequenceProps = InteractiveBaseProps;
 
 type InteractiveElementProps<Tag extends InteractiveTag> = Omit<
 	React.ComponentPropsWithoutRef<Tag>,
@@ -160,6 +156,7 @@ const interactiveBackgroundElementSchema = {
 const interactiveBorderElementSchema = {
 	...interactiveBackgroundElementSchema,
 	...borderSchema,
+	...borderRadiusSchema,
 } as const satisfies InteractivitySchema;
 
 const interactiveTextElementSchema = {
@@ -232,7 +229,6 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 			hidden,
 			name,
 			showInTimeline,
-			stack,
 			controls,
 			...props
 		} = propsWithControls as Props & {
@@ -258,7 +254,6 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 				name={name ?? displayName}
 				showInTimeline={showInTimeline ?? true}
 				controls={controls}
-				_remotionInternalStack={stack}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/interactive"
 				outlineRef={refForOutline}
 			>
@@ -323,6 +318,7 @@ export const Interactive = {
 	textSchema,
 	backgroundSchema,
 	borderSchema,
+	borderRadiusSchema,
 	cropSchema,
 	svgPaintSchema,
 	svgStrokeSchema,

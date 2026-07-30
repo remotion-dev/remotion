@@ -113,6 +113,7 @@ export const riveCanvasSchema: InteractivitySchema = {
 	...Internals.transformSchema,
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
+	...Interactive.borderRadiusSchema,
 	...Interactive.cropSchema,
 };
 
@@ -483,7 +484,6 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 			controls={controls}
 			_remotionInternalEffects={memoizedEffectDefinitions}
 			outlineRef={canvasRef}
-			// 'stack' is in props
 			{...props}
 		>
 			<RemotionRiveCanvasContent

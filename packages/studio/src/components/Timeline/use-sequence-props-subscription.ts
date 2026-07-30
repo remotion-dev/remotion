@@ -13,6 +13,7 @@ import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
 import {acquireSequencePropsSubscription} from './sequence-props-subscription-store';
+import {shouldSubscribeToSourceFile} from './should-subscribe-to-source-file';
 
 export const useSequencePropsSubscription = ({
 	originalLocation,
@@ -75,6 +76,7 @@ export const useSequencePropsSubscription = ({
 		if (
 			!clientId ||
 			!locationSource ||
+			!shouldSubscribeToSourceFile(locationSource) ||
 			!locationLine ||
 			locationColumn === null ||
 			!schema ||

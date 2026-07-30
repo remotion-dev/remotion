@@ -152,29 +152,29 @@ export const MyComp: React.FC = () => {
 };
 ```
 
-Any Element can be wrapped in a "Sequence" component from "remotion" to place the element later in the video.
+Components such as "Interactive", "AbsoluteFill", "Audio" and "Video" accept timing props that place them later in the video.
 
 ```tsx
-import {Sequence} from 'remotion';
+import {Interactive} from 'remotion';
 
 export const MyComp: React.FC = () => {
 	return (
-		<Sequence from={10} durationInFrames={20}>
-			<div>This only appears after 10 frames</div>
-		</Sequence>
+		<Interactive.Div from={10} durationInFrames={20}>
+			This only appears after 10 frames
+		</Interactive.Div>
 	);
 };
 ```
 
-A Sequence has a "from" prop that specifies the frame number where the element should appear.
-A Sequence has a "trimBefore" prop that trims the start of the child timeline by a number of frames.
+The "from" prop specifies the frame number where the element should appear.
+The "trimBefore" prop trims the start of the component timeline by a number of frames.
 
-A Sequence has a "durationInFrames" prop that specifies how long the element should appear.
+The "durationInFrames" prop specifies how long the element should appear.
 
-If a child component of Sequence calls "useCurrentFrame()", the enumeration starts from the first frame the Sequence appears and starts at "trimBefore".
+If a child of a timed component calls "useCurrentFrame()", the enumeration starts from the first frame the parent appears and starts at "trimBefore".
 
 ```tsx
-import {Sequence} from 'remotion';
+import {AbsoluteFill} from 'remotion';
 
 export const Child: React.FC = () => {
 	const frame = useCurrentFrame();
@@ -184,9 +184,9 @@ export const Child: React.FC = () => {
 
 export const MyComp: React.FC = () => {
 	return (
-		<Sequence from={10} durationInFrames={20}>
+		<AbsoluteFill from={10} durationInFrames={20}>
 			<Child />
-		</Sequence>
+		</AbsoluteFill>
 	);
 };
 ```
@@ -357,12 +357,12 @@ Rendering requires a Lambda function and a site deployed on S3.
 If the user is using the CLI:
 
 - A Lambda function can be deployed using `npx remotion lambda functions deploy`: https://www.remotion.dev/docs/lambda/cli/functions/deploy
-- A site can be deployed using `npx remotion lambda sites create`: https://www.remotion.dev/docs/lambda/cli/sites/create. The first argument must refer to the entry point.
+- A site can be deployed using `npx remotion lambda sites create`: https://www.remotion.dev/docs/lambda/cli/sites/create. The entry point may be passed as the first argument; otherwise it is determined automatically.
 - A video can be rendered using `npx remotion lambda render [comp-id]`. The composition ID must be referenced.
 
 If the user is using the Node.js APIs:
 
 - A Lambda function can be deployed using `deployFunction()`: https://www.remotion.dev/docs/lambda/deployfunction
-- A site can be deployed using `deploySite()`: https://www.remotion.dev/docs/lambda/deploysite
+- A site can be built using `bundle()` and deployed using `deploySiteFromBundle()`: https://www.remotion.dev/docs/bundle and https://www.remotion.dev/docs/lambda/deploysitefrombundle
 - A video can be rendered using `renderMediaOnLambda()`: https://www.remotion.dev/docs/lambda/rendermediaonlambda.
 - If a video is rendered, the progress must be polled using `getRenderProgress()`: https://www.remotion.dev/docs/lambda/getrenderprogress

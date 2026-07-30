@@ -41,10 +41,12 @@ import {issue7243SvgJapaneseText} from './fixtures/issue-7243-svg-japanese-text'
 import {issue7489Minimal} from './fixtures/issue-7489-minimal';
 import {issue8650LottieControlChars} from './fixtures/issue-8650-lottie-control-chars';
 import {issue9736BackgroundPosition} from './fixtures/issue-9736-background-position';
+import {issue9901RotatedDropShadow} from './fixtures/issue-9901-rotated-drop-shadow';
 import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
 import {maskImage} from './fixtures/mask-image';
+import {maskImageUrl} from './fixtures/mask-image-url';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
 import {nestedHtmlInCanvas} from './fixtures/nested-html-in-canvas';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
@@ -72,6 +74,7 @@ import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
 import {backgroundClipText3dTransform} from './fixtures/text/background-clip-text-3d-transform';
 import {filterText} from './fixtures/text/filter-text';
+import {fontStretch} from './fixtures/text/font-stretch';
 import {fontStyle} from './fixtures/text/font-style';
 import {fontVariantCaps} from './fixtures/text/font-variant-caps';
 import {letterSpacing} from './fixtures/text/letter-spacing';
@@ -147,6 +150,7 @@ export const Root: React.FC = () => {
 			<Composition {...backgroundColor} />
 			<Folder name="linear-gradient">
 				<Composition {...maskImage} />
+				<Composition {...maskImageUrl} />
 				<Composition {...backfaceVisibilityMask} />
 				<Composition {...linearGradient} />
 				<Composition {...gradientTransparentKeyword} />
@@ -181,6 +185,7 @@ export const Root: React.FC = () => {
 				<Composition {...textDecorationStyles} />
 				<Composition {...textDecorationWavy} />
 				<Composition {...fontStyle} />
+				<Composition {...fontStretch} />
 				<Composition {...fontVariantCaps} />
 				<Composition {...lineHeight} />
 				<Composition {...webkitTextFillColor} />
@@ -213,6 +218,7 @@ export const Root: React.FC = () => {
 				<Composition {...issue7050Minimal} />
 				<Composition {...issue6211MaskWheel} />
 				<Composition {...issue7199ScaleAndDropShadow} />
+				<Composition {...issue9901RotatedDropShadow} />
 				<Composition {...issue7243SvgJapaneseText} />
 				<Composition {...issue7489Minimal} />
 			</Folder>

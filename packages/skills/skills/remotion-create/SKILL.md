@@ -1,6 +1,7 @@
 ---
 name: remotion-create
 description: Create a new Remotion video
+version: 4.0.502
 metadata:
   tags: remotion
 ---
@@ -25,7 +26,12 @@ Replace `my-video` with a suitable project name.
 
 ## Designing a video
 
-Keep the scaffold and add React Markup. Follow [Remotion React Markup Best Practices](../remotion-markup/SKILL.md) and [Video Layout Rules](video-layout.md) for video-first layout and text sizing guidance.
+Keep the scaffold and add React Markup.
+Follow [Remotion React Markup Best Practices](../remotion-markup/SKILL.md) and [Video Layout Rules](video-layout.md) for video-first layout and text sizing guidance.
+
+## Is this a multi-scene video?
+
+If this is a video with multiple subsequence videos, follow guidance at [Multi-scene videos](../remotion-markup/multi-scene-video.md).
 
 ## Interactivity Best Practices
 
@@ -42,7 +48,8 @@ npx remotion studio --no-open
 ```
 
 This will start a long-running process and print the server URL for the preview.  
-If server is already started, it will print the URL.
+If server is already started, it will print the URL. 
+If the harness has an in-agent browser, open the preview.
 You can visit a specific composition by navigating to `/[composition-id]`, for example `http://localhost:3000/MapAnimation`.
 
 ## Follow-up

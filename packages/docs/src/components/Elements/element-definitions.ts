@@ -13,7 +13,13 @@ import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
 import {NewsArticleHeadlineHighlight} from '../../../elements/text/news-article-headline-highlight/news-article-headline-highlight';
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
 import {TextMarker} from '../../../elements/text/text-marker/text-marker';
+import {TimedCaptions} from '../../../elements/text/timed-captions/timed-captions';
 import type {Contributor} from '../Credits';
+
+export type ElementPreviewMetadata = {
+	readonly posterUrl: `https://remotion.media/elements/${string}-preview.png`;
+	readonly videoUrl: `https://remotion.media/elements/${string}-preview.mp4`;
+};
 
 export type ElementDefinition = {
 	readonly category: string;
@@ -27,9 +33,9 @@ export type ElementDefinition = {
 	readonly fps: number;
 	readonly height: number;
 	readonly posterFrame: number;
+	readonly preview: ElementPreviewMetadata;
 	readonly previewPadding: number;
 	readonly slug: string;
-	readonly transparentPreview: boolean;
 	readonly width: number;
 };
 
@@ -47,9 +53,14 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 120,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/backgrounds-liquid-contours-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/backgrounds-liquid-contours-preview.mp4',
+		},
 		previewPadding: 0,
 		slug: 'backgrounds/liquid-contours',
-		transparentPreview: false,
 		width: 1920,
 	},
 	'backgrounds/notebook-paper': {
@@ -64,9 +75,14 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 0,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/backgrounds-notebook-paper-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/backgrounds-notebook-paper-preview.mp4',
+		},
 		previewPadding: 0,
 		slug: 'backgrounds/notebook-paper',
-		transparentPreview: false,
 		width: 1920,
 	},
 	'backgrounds/paper-texture': {
@@ -82,9 +98,14 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 60,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/backgrounds-paper-texture-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/backgrounds-paper-texture-preview.mp4',
+		},
 		previewPadding: 0,
 		slug: 'backgrounds/paper-texture',
-		transparentPreview: false,
 		width: 1920,
 	},
 	'backgrounds/rotating-starburst': {
@@ -99,9 +120,14 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 120,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/backgrounds-rotating-starburst-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/backgrounds-rotating-starburst-preview.mp4',
+		},
 		previewPadding: 0,
 		slug: 'backgrounds/rotating-starburst',
-		transparentPreview: false,
 		width: 1920,
 	},
 	'overlays/location-lower-third': {
@@ -116,9 +142,14 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 60,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/overlays-location-lower-third-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/overlays-location-lower-third-preview.mp4',
+		},
 		previewPadding: 300,
 		slug: 'overlays/location-lower-third',
-		transparentPreview: false,
 		width: 1920,
 	},
 	'overlays/lower-third': {
@@ -134,9 +165,14 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 60,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/overlays-lower-third-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/overlays-lower-third-preview.mp4',
+		},
 		previewPadding: 300,
 		slug: 'overlays/lower-third',
-		transparentPreview: false,
 		width: 1920,
 	},
 	'data/horizontal-bar-chart': {
@@ -152,9 +188,14 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 48,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/data-horizontal-bar-chart-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/data-horizontal-bar-chart-preview.mp4',
+		},
 		previewPadding: 56,
 		slug: 'data/horizontal-bar-chart',
-		transparentPreview: true,
 		width: 1920,
 	},
 	'data/number-counter': {
@@ -175,9 +216,14 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 60,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/data-number-counter-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/data-number-counter-preview.mp4',
+		},
 		previewPadding: 120,
 		slug: 'data/number-counter',
-		transparentPreview: false,
 		width: 1920,
 	},
 	'data/product-offer': {
@@ -193,9 +239,14 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 75,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/data-product-offer-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/data-product-offer-preview.mp4',
+		},
 		previewPadding: 90,
 		slug: 'data/product-offer',
-		transparentPreview: true,
 		width: 1080,
 	},
 	'text/circle-marker': {
@@ -211,9 +262,14 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 60,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/text-circle-marker-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/text-circle-marker-preview.mp4',
+		},
 		previewPadding: 120,
 		slug: 'text/circle-marker',
-		transparentPreview: false,
 		width: 1920,
 	},
 	'text/crossed-off': {
@@ -229,9 +285,12 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 60,
+		preview: {
+			posterUrl: 'https://remotion.media/elements/text-crossed-off-preview.png',
+			videoUrl: 'https://remotion.media/elements/text-crossed-off-preview.mp4',
+		},
 		previewPadding: 120,
 		slug: 'text/crossed-off',
-		transparentPreview: false,
 		width: 1920,
 	},
 	'text/news-article-headline-highlight': {
@@ -247,9 +306,14 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 100,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/text-news-article-headline-highlight-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/text-news-article-headline-highlight-preview.mp4',
+		},
 		previewPadding: 0,
 		slug: 'text/news-article-headline-highlight',
-		transparentPreview: false,
 		width: 1920,
 	},
 	'text/strike-through': {
@@ -265,9 +329,14 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 60,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/text-strike-through-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/text-strike-through-preview.mp4',
+		},
 		previewPadding: 120,
 		slug: 'text/strike-through',
-		transparentPreview: false,
 		width: 1920,
 	},
 	'text/text-marker': {
@@ -283,9 +352,35 @@ export const elementDefinitions = {
 		fps: 30,
 		height: 1080,
 		posterFrame: 60,
+		preview: {
+			posterUrl: 'https://remotion.media/elements/text-text-marker-preview.png',
+			videoUrl: 'https://remotion.media/elements/text-text-marker-preview.mp4',
+		},
 		previewPadding: 120,
 		slug: 'text/text-marker',
-		transparentPreview: false,
+		width: 1920,
+	},
+	'text/timed-captions': {
+		category: 'text',
+		component: TimedCaptions,
+		contributors: [{username: 'JonnyBurger', contribution: null}],
+		description:
+			'Previously a paid template on remotion.pro, Timed Captions is now free for everyone.',
+		displayName: 'Timed Captions',
+		durationInFrames: 210,
+		elementHeight: 180,
+		elementWidth: 900,
+		fps: 30,
+		height: 1080,
+		posterFrame: 75,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/text-timed-captions-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/text-timed-captions-preview.mp4',
+		},
+		previewPadding: 120,
+		slug: 'text/timed-captions',
 		width: 1920,
 	},
 } satisfies Record<string, ElementDefinition>;

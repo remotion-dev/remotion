@@ -16,7 +16,12 @@ const Main = () => {
         <Sequence name="Title" from={30} durationInFrames={60} layout="none">
           <Title />
         </Sequence>
-        <Sequence name="Subtitle" from={60} durationInFrames={60} layout="none">
+        <Sequence
+          name="Subtitle"
+          from={60}
+          durationInFrames={60}
+          layout="none"
+        >
           <Subtitle />
         </Sequence>
       </AbsoluteFill>

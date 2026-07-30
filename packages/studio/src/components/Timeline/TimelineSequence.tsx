@@ -1,3 +1,4 @@
+import type {EditorPickerId} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import type {_InternalTypes, TSequence} from 'remotion';
 import {Internals, useCurrentFrame} from 'remotion';
@@ -36,6 +37,10 @@ import {useConfirmationDialog} from '../ConfirmationDialog';
 import {ContextMenu} from '../ContextMenu';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {
+	canUseEditorPicker,
+	useDefaultEditorInfo,
+} from '../use-default-editor-info';
 import {useSelectAsset} from '../use-select-asset';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
@@ -314,6 +319,7 @@ const TimelineSequenceInner: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
+	const editorInfo = useDefaultEditorInfo(canUseEditorPicker(previewConnected));
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const selectAsset = useSelectAsset();
@@ -331,15 +337,18 @@ const TimelineSequenceInner: React.FC<{
 	const canOpenInEditor = Boolean(
 		window.remotion_editorName && previewConnected && originalLocation,
 	);
-	const openInEditor = useCallback(() => {
-		if (!canOpenInEditor || !originalLocation) {
-			return;
-		}
+	const openInEditor = useCallback(
+		(editorId: EditorPickerId | null) => {
+			if (!canOpenInEditor || !originalLocation) {
+				return;
+			}
 
-		openOriginalPositionInEditor(originalLocation).catch((err) => {
-			showNotification((err as Error).message, 2000);
-		});
-	}, [canOpenInEditor, originalLocation]);
+			openOriginalPositionInEditor(originalLocation, editorId).catch((err) => {
+				showNotification((err as Error).message, 2000);
+			});
+		},
+		[canOpenInEditor, originalLocation],
+	);
 	const onSequenceDoubleClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
 			if (isTimelineSelectionModifierEvent(e)) {
@@ -370,7 +379,7 @@ const TimelineSequenceInner: React.FC<{
 				return;
 			}
 
-			openInEditor();
+			openInEditor(null);
 		},
 		[
 			canOpenInEditor,
@@ -438,9 +447,7 @@ const TimelineSequenceInner: React.FC<{
 					},
 				],
 			});
-			if (result.success) {
-				showNotification('Removed sequence from source file', 2000);
-			} else {
+			if (!result.success) {
 				showNotification(result.reason, 4000);
 			}
 		} catch (err) {
@@ -496,6 +503,7 @@ const TimelineSequenceInner: React.FC<{
 			deleteDisabled,
 			disableInteractivityDisabled,
 			duplicateDisabled,
+			editorInfo,
 			fileLocation,
 			includeSourceEditItems: isStudioInteractivityEnabled(),
 			onDeleteSequenceFromSource,
@@ -516,6 +524,7 @@ const TimelineSequenceInner: React.FC<{
 		deleteDisabled,
 		disableInteractivityDisabled,
 		duplicateDisabled,
+		editorInfo,
 		fileLocation,
 		freezeFrameMenuItem,
 		onDeleteSequenceFromSource,

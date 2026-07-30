@@ -199,6 +199,9 @@
 			"path": "./packages/studio"
 		},
 		{
+			"path": "./packages/studio-codemods"
+		},
+		{
 			"path": "./packages/studio-server"
 		},
 		{
@@ -259,10 +262,10 @@
 			"path": "./packages/rounded-text-box"
 		},
 		{
-			"path": "./packages/canvas-capture"
+			"path": "./packages/canvas-capture-extension"
 		},
 		{
-			"path": "./packages/drag-and-drop"
+			"path": "./packages/studio-protocol"
 		},
 		{
 			"path": "./packages/light-leaks"

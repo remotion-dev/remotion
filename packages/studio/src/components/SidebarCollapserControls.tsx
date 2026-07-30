@@ -196,6 +196,7 @@ export const SidebarCollapserControl: React.FC<{
 	if (side === 'left') {
 		return (
 			<InlineAction
+				variant={null}
 				onClick={toggleLeft}
 				renderAction={toggleLeftAction}
 				unhoveredColor={WHITE_ALPHA_80}
@@ -205,6 +206,7 @@ export const SidebarCollapserControl: React.FC<{
 
 	return (
 		<InlineAction
+			variant={null}
 			onClick={toggleRight}
 			renderAction={toggleRightAction}
 			unhoveredColor={WHITE_ALPHA_80}

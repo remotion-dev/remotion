@@ -1,4 +1,4 @@
-import type {ComponentDragData} from '@remotion/drag-and-drop';
+import type {ComponentDragData} from '@remotion/studio-protocol';
 import {
 	makeArrow,
 	makeCallout,

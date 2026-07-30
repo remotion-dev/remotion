@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo} from 'react';
-import {useCurrentScale} from 'remotion';
+import {Interactive, useCurrentScale} from 'remotion';
 import type {Item} from './item';
 import {ResizeHandle} from './ResizeHandle';
 
@@ -92,7 +92,9 @@ export const SelectionOutline: React.FC<{
 	);
 
 	return (
-		<div
+		<Interactive.Div
+			from={item.from}
+			durationInFrames={item.durationInFrames}
 			onPointerDown={onPointerDown}
 			onPointerEnter={onMouseEnter}
 			onPointerLeave={onMouseLeave}
@@ -106,6 +108,6 @@ export const SelectionOutline: React.FC<{
 					<ResizeHandle item={item} setItem={changeItem} type="bottom-right" />
 				</>
 			) : null}
-		</div>
+		</Interactive.Div>
 	);
 };

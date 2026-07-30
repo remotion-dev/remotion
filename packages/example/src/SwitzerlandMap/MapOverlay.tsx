@@ -21,7 +21,6 @@ type MapOverlayProps = InteractiveBaseProps &
 		readonly controls?: SequenceControls;
 		readonly latitude: number;
 		readonly longitude: number;
-		readonly stack?: string;
 	};
 
 const mapOverlaySchema = {
@@ -47,12 +46,7 @@ const mapOverlaySchema = {
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
-const MapOverlayInner = forwardRef<
-	HTMLDivElement,
-	MapOverlayProps & {
-		readonly stack?: undefined;
-	}
->(
+const MapOverlayInner = forwardRef<HTMLDivElement, MapOverlayProps>(
 	(
 		{
 			children,
@@ -67,7 +61,6 @@ const MapOverlayInner = forwardRef<
 			name,
 			showInTimeline,
 			controls,
-			stack,
 		},
 		ref,
 	) => {
@@ -89,7 +82,6 @@ const MapOverlayInner = forwardRef<
 				showInTimeline={showInTimeline ?? true}
 				controls={controls}
 				outlineRef={refForOutline}
-				_remotionInternalStack={stack}
 			>
 				<div
 					ref={refForOutline}

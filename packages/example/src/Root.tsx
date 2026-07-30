@@ -44,6 +44,7 @@ import {EasingVisualizer} from './EasingVisualizer/EasingVisualizer';
 import {EffectCopySource, EffectCopyTarget} from './EffectCopyTestbed';
 import {EmojiTestbed} from './Emoji';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
+import {UnsymbolicatedErrorOverlayRepro} from './ErrorOverlayE2e/ErrorOverlayRepro';
 import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
 import {FractionalSequenceVideo} from './FractionalSequenceVideo';
@@ -103,6 +104,10 @@ import {ManyAudio} from './ManyAudio';
 import {HandleAudioRenderError} from './MediaErrorHandling/HandleAudioRenderError';
 import {InfiniteAudio} from './MediaErrorHandling/InfiniteAudio';
 import {MissingImg} from './MissingImg';
+import {ClosingScene} from './MultiSceneSample/ClosingScene';
+import {FeatureScene} from './MultiSceneSample/FeatureScene';
+import {MultiSceneVideo} from './MultiSceneSample/MultiSceneVideo';
+import {OpeningScene} from './MultiSceneSample/OpeningScene';
 import {OffthreadRemoteVideo} from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OffthreadVideoToCanvas} from './OffthreadVideoToCanvas';
 import {OrbScene} from './Orb';
@@ -160,6 +165,7 @@ import {TextStroke} from './TextStroke';
 import ThreeBasic from './ThreeBasic';
 import {ThreeHtml} from './ThreeHtml/ThreeHtml';
 import {VideoTextureDemo} from './ThreeScene/Scene';
+import {ThreeWebGPU} from './ThreeWebGPU';
 import {Timeout} from './Timeout';
 import {FitText, fitTextSchema} from './Title/FitText';
 import {AudioTransition} from './Transitions/AudioTransition';
@@ -1798,6 +1804,14 @@ export const Index: React.FC = () => {
 					durationInFrames={600}
 				/>
 				<Composition
+					id="three-webgpu"
+					component={ThreeWebGPU}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={600}
+				/>
+				<Composition
 					id="three-html"
 					component={ThreeHtml}
 					width={1280}
@@ -2542,6 +2556,40 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={900}
 			/>
+			<Folder name="MultiSceneSample-Scenes">
+				<Composition
+					id="MultiSceneSample-Opening"
+					component={OpeningScene}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="MultiSceneSample-Feature"
+					component={FeatureScene}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="MultiSceneSample-Closing"
+					component={ClosingScene}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={90}
+				/>
+			</Folder>
+			<Composition
+				id="MultiSceneSample"
+				component={MultiSceneVideo}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={270}
+			/>
 			<Composition
 				id="spring-season"
 				component={SpringSeason}
@@ -2835,6 +2883,16 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={30}
 			/>
+			<Folder name="error-overlay">
+				<Composition
+					id="error-overlay-unsymbolicated-e2e"
+					component={UnsymbolicatedErrorOverlayRepro}
+					width={400}
+					height={400}
+					fps={30}
+					durationInFrames={30}
+				/>
+			</Folder>
 			<Composition
 				id="browser-test"
 				component={BrowserTest}

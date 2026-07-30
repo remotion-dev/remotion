@@ -6,9 +6,9 @@ sidebar_label: starburst()
 crumb: '@remotion/starburst'
 ---
 
-# starburst()<AvailableFrom v="4.0.468" />
+# ~~starburst()~~<AvailableFrom v="4.0.468" />
 
-:::warning Deprecated
+:::info Deprecated
 `@remotion/starburst` is deprecated and will no longer be published starting with Remotion 5.0. Migrate to [`starburst()`](/docs/effects/starburst) from `@remotion/effects/starburst`.
 :::
 
@@ -82,7 +82,7 @@ When `true`, the effect is skipped. Defaults to `false`.
 
 ## Requirements
 
-`starburst()` uses a WebGL2 backend. During renders, enable WebGL via [`Config.setChromiumOpenGlRenderer('angle')`](/docs/config#setchromiumopenglrenderer). See [Using WebGL during renders](/docs/remotion/html-in-canvas#using-webgl-during-renders).
+`starburst()` uses a WebGL2 backend. See [Using WebGL and WebGPU during renders](/docs/webgl).
 
 ## See also
 
