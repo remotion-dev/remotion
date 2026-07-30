@@ -920,9 +920,10 @@ export const Canvas: React.FC<{
 				return;
 			}
 
-			const missingPackages = getMissingPackages(
-				activeElementInstallRequest.element.dependencies,
+			const declaredDependencies = Array.from(
+				new Set(activeElementInstallRequest.element.dependencies),
 			);
+			const missingPackages = getMissingPackages(declaredDependencies);
 			const sourceLabel =
 				activeElementInstallRequest.source.type === 'studio-protocol'
 					? `Requested by ${activeElementInstallRequest.source.origin}`
@@ -949,26 +950,21 @@ export const Canvas: React.FC<{
 						<br />
 						<br />
 						Accepted source code and package lifecycle scripts run with this
-						project's access to files and the network.
-						{activeElementInstallRequest.element.dependencies.length > 0 ? (
+						project&apos;s access to files and the network.
+						{declaredDependencies.length > 0 ? (
 							<>
 								<br />
 								<br />
 								Declared dependencies:
 								<ul style={elementInstallDependencyListStyle}>
-									{activeElementInstallRequest.element.dependencies.map(
-										(packageName, index) => (
-											<li
-												key={`${packageName}-${index}`}
-												style={elementInstallDependencyStyle}
-											>
-												{packageName}{' '}
-												{missingPackages.includes(packageName)
-													? '(will install)'
-													: '(already installed)'}
-											</li>
-										),
-									)}
+									{declaredDependencies.map((packageName) => (
+										<li key={packageName} style={elementInstallDependencyStyle}>
+											{packageName}{' '}
+											{missingPackages.includes(packageName)
+												? '(will install)'
+												: '(already installed)'}
+										</li>
+									))}
 								</ul>
 							</>
 						) : null}
