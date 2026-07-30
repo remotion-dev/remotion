@@ -143,10 +143,7 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 		<ModalContainer onEscape={dismiss} onOutsideClick={dismiss}>
 			<ModalHeader title="Configure default editor" onClose={dismiss} />
 			<div style={content}>
-				<p style={description}>
-					Select the editor Remotion Studio should use when opening source
-					files. Choose No preference to use automatic detection.
-				</p>
+				<p style={description}>This setting gets saved to your config file.</p>
 				<Spacing y={2} block />
 				{editorInfo === null && error === null ? (
 					<p style={description}>Detecting installed editors...</p>
