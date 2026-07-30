@@ -19,7 +19,7 @@ import {getCompletedClientRenders} from './client-render-queue';
 import {getFileSource} from './helpers/get-file-source';
 import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
 import {resolveOutputPath} from './helpers/resolve-output-path';
-import {getAllApiRoutes} from './preview-server/api-routes';
+import {allApiRoutes} from './preview-server/api-routes';
 import type {ApiHandler, QueueMethods} from './preview-server/api-types';
 import {getPackageManager} from './preview-server/get-package-manager';
 import {getStaticFileFallbackHint} from './preview-server/get-static-file-fallback-hint';
@@ -465,9 +465,7 @@ export const handleRoutes = ({
 		});
 	}
 
-	for (const [key, value] of Object.entries(
-		getAllApiRoutes({getDefaultEditor}),
-	)) {
+	for (const [key, value] of Object.entries(allApiRoutes)) {
 		if (url.pathname === key) {
 			return handleRequest({
 				remotionRoot,
@@ -483,6 +481,7 @@ export const handleRoutes = ({
 				binariesDirectory,
 				publicDir,
 				configFile,
+				getDefaultEditor,
 			});
 		}
 	}

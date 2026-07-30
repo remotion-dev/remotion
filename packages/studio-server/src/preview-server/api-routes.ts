@@ -1,4 +1,3 @@
-import type {DefaultEditor} from '@remotion/renderer';
 import type {ApiRoutes} from '@remotion/studio-shared';
 import type {ApiHandler} from './api-types';
 import {addEffectHandler} from './routes/add-effect';
@@ -55,16 +54,12 @@ import {updateElementInstallTargetHandler} from './routes/update-element-install
 import {updatePublicLicenseHandler} from './routes/update-public-license';
 import {updateSequenceKeyframeSettingsHandler} from './routes/update-sequence-keyframe-settings';
 
-export const getAllApiRoutes = ({
-	getDefaultEditor,
-}: {
-	getDefaultEditor: () => DefaultEditor | null;
-}): {
+export const allApiRoutes: {
 	[key in keyof ApiRoutes]: ApiHandler<
 		ApiRoutes[key]['Request'],
 		ApiRoutes[key]['Response']
 	>;
-} => ({
+} = {
 	'/api/composition-component-info': compositionComponentInfoHandler,
 	'/api/convert-figma-clipboard-to-svg': convertFigmaClipboardToSvgHandler,
 	'/api/cancel': handleCancelRender,
@@ -74,8 +69,7 @@ export const getAllApiRoutes = ({
 	'/api/remove-render': handleRemoveRender,
 	'/api/find-in-file': findInFileHandler,
 	'/api/open-in-file-explorer': handleOpenInFileExplorer,
-	'/api/open-in-editor': (params) =>
-		openInEditorHandler({...params, getDefaultEditor}),
+	'/api/open-in-editor': openInEditorHandler,
 	'/api/register-client-render': registerClientRenderHandler,
 	'/api/unregister-client-render': unregisterClientRenderHandler,
 	'/api/update-default-props': updateDefaultPropsHandler,
@@ -120,4 +114,4 @@ export const getAllApiRoutes = ({
 	'/api/undo': undoHandler,
 	'/api/redo': redoHandler,
 	'/api/log-studio-error': logStudioErrorHandler,
-});
+};

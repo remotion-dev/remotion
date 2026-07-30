@@ -22,18 +22,10 @@ export const getEditorName = async ({
 	return editor?.name ?? null;
 };
 
-type OpenInEditorHandlerParams = Parameters<
-	ApiHandler<OpenInEditorRequest, OpenInEditorResponse>
->[0] & {
-	getDefaultEditor: () => DefaultEditor | null;
-};
-
-export const openInEditorHandler = async ({
-	input,
-	remotionRoot,
-	logLevel,
-	getDefaultEditor,
-}: OpenInEditorHandlerParams): Promise<OpenInEditorResponse> => {
+export const openInEditorHandler: ApiHandler<
+	OpenInEditorRequest,
+	OpenInEditorResponse
+> = async ({input, remotionRoot, logLevel, getDefaultEditor}) => {
 	try {
 		if (!('stack' in input)) {
 			throw new TypeError('Need to pass stack');
