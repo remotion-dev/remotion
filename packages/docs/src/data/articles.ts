@@ -7382,6 +7382,15 @@ export const articles = [
 		slug: 'three-canvas',
 	},
 	{
+		id: 'three-webgpu-canvas',
+		title: '<ThreeWebGPUCanvas>',
+		relativePath: 'docs/three-webgpu-canvas.mdx',
+		compId: 'articles-docs-three-webgpu-canvas',
+		crumb: '@remotion/three',
+		noAi: false,
+		slug: 'three-webgpu-canvas',
+	},
+	{
 		id: 'three',
 		title: '@remotion/three',
 		relativePath: 'docs/three.mdx',

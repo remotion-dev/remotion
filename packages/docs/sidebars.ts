@@ -827,6 +827,7 @@ const sidebars: SidebarsConfig = {
 			},
 			items: [
 				'three-canvas',
+				'three-webgpu-canvas',
 				'use-video-texture',
 				'use-offthread-video-texture',
 			],
