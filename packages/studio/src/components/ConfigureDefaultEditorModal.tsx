@@ -147,7 +147,7 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 					Select the editor Remotion Studio should use when opening source
 					files. Choose No preference to use automatic detection.
 				</p>
-				<Spacing y={2} />
+				<Spacing y={2} block />
 				{editorInfo === null && error === null ? (
 					<p style={description}>Detecting installed editors...</p>
 				) : null}
