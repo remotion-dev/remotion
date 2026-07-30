@@ -62,6 +62,8 @@ Enable a Chromium graphics backend when rendering. Without one, Chrome Headless 
 npx remotion render three-webgpu out/video.mp4 --gl=angle
 ```
 
+`--gl=angle` configures Chromium's GPU process and compositor. It does not force Three.js to use its WebGL fallback: If WebGPU is available, `WebGPURenderer` continues to use its WebGPU backend.
+
 When using a [server-side rendering API](/docs/ssr), pass the equivalent option:
 
 ```ts title="render.ts"
