@@ -26,7 +26,7 @@ const WebGPUFrameRenderer = ({onRendered}: ThreeCanvasFrameRendererProps) => {
 	const {advance, camera, gl, scene} = useThree();
 	const frame = useCurrentFrame();
 	const {cancelRender, continueRender, delayRender} = useDelayRender();
-	const compilePromise = useRef<Promise<unknown> | null>(null);
+	const initializationPromise = useRef<Promise<void> | null>(null);
 	const frameDelayHandle = useRef<number | null>(null);
 
 	useLayoutEffect(() => {
@@ -53,8 +53,14 @@ const WebGPUFrameRenderer = ({onRendered}: ThreeCanvasFrameRendererProps) => {
 				);
 			}
 
-			compilePromise.current ??= renderer.compileAsync(scene, camera);
-			await compilePromise.current;
+			initializationPromise.current ??= (async () => {
+				await renderer.compileAsync(scene, camera);
+				// The first WebGPU render initializes material and lighting node bindings
+				// which compileAsync() alone does not make ready for frame capture.
+				await renderer.renderAsync(scene, camera);
+				await waitForGpu(renderer);
+			})();
+			await initializationPromise.current;
 			if (cancelled) {
 				return;
 			}
