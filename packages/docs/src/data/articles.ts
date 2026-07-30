@@ -6869,15 +6869,6 @@ export const articles = [
 		slug: 'studio-protocol/install-in-studio',
 	},
 	{
-		id: 'studio-protocol/protocol',
-		title: 'Studio Protocol reference',
-		relativePath: 'docs/studio-protocol/protocol.mdx',
-		compId: 'articles-docs-studio-protocol-protocol',
-		crumb: '@remotion/studio-protocol',
-		noAi: false,
-		slug: 'studio-protocol/protocol',
-	},
-	{
 		id: 'studio-protocol/security',
 		title: 'Studio Protocol security',
 		relativePath: 'docs/studio-protocol/security.mdx',
