@@ -1,5 +1,5 @@
 import type {IncomingMessage, ServerResponse} from 'node:http';
-import type {LogLevel} from '@remotion/renderer';
+import type {DefaultEditor, LogLevel} from '@remotion/renderer';
 import type {ApiHandler, QueueMethods} from './api-types';
 import {parseRequestBody} from './parse-body';
 import {validateSameOrigin} from './validate-same-origin';
@@ -15,6 +15,7 @@ export const handleRequest = async <Req, Res>({
 	binariesDirectory,
 	publicDir,
 	configFile,
+	getDefaultEditor,
 }: {
 	remotionRoot: string;
 	publicDir: string;
@@ -23,6 +24,7 @@ export const handleRequest = async <Req, Res>({
 	entryPoint: string;
 	binariesDirectory: string | null;
 	configFile: string | null;
+	getDefaultEditor: () => DefaultEditor | null;
 	handler: ApiHandler<Req, Res>;
 	logLevel: LogLevel;
 	methods: QueueMethods;
@@ -52,6 +54,7 @@ export const handleRequest = async <Req, Res>({
 			binariesDirectory,
 			publicDir,
 			configFile,
+			getDefaultEditor,
 		});
 
 		response.end(

@@ -115,6 +115,7 @@ export const Comp = () => {
 			publicDir: '',
 			binariesDirectory: null,
 			configFile: null,
+			getDefaultEditor: () => null,
 		});
 
 		const output = readFileSync(filePath, 'utf-8');

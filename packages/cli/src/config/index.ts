@@ -12,6 +12,7 @@ import type {
 	ColorSpace,
 	Crf,
 	DeleteAfter,
+	DefaultEditor,
 	FrameRange,
 	NumberOfGifLoops,
 	StillImageFormat,
@@ -120,6 +121,7 @@ const {
 	enableCrossSiteIsolationOption,
 	imageSequencePatternOption,
 	darkModeOption,
+	defaultEditorOption,
 	askAIOption,
 	publicLicenseKeyOption,
 	interactivityOption,
@@ -614,6 +616,10 @@ type FlatConfig = RemotionConfigObject &
 		 * Default: false
 		 */
 		setForceNewStudioEnabled: (forceNew: boolean) => void;
+		/**
+		 * Set the editor used when opening files from Remotion Studio.
+		 */
+		setDefaultEditor: (editor: DefaultEditor) => void;
 
 		setDeleteAfter: (day: DeleteAfter | null) => void;
 		/**
@@ -831,6 +837,7 @@ export const Config: FlatConfig = {
 	setEnableCrossSiteIsolation: enableCrossSiteIsolationOption.setConfig,
 	setAskAIEnabled: askAIOption.setConfig,
 	setPublicLicenseKey: publicLicenseKeyOption.setConfig,
+	setDefaultEditor: defaultEditorOption.setConfig,
 	setForceNewStudioEnabled: forceNewStudioOption.setConfig,
 	setIPv4: ipv4Option.setConfig,
 	setBundleOutDir: outDirOption.setConfig,

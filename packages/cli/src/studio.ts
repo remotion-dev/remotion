@@ -37,6 +37,7 @@ const {
 	portOption,
 	browserOption,
 	previewSampleRateOption,
+	defaultEditorOption,
 } = BrowserSafeApis.options;
 
 export const studioCommand = async (
@@ -191,6 +192,8 @@ export const studioCommand = async (
 		audioLatencyHintOption.getValue({commandLine: parsedCli}).value;
 	const getPreviewSampleRate = () =>
 		previewSampleRateOption.getValue({commandLine: parsedCli}).value;
+	const getDefaultEditor = () =>
+		defaultEditorOption.getValue({commandLine: parsedCli}).value;
 
 	const result = await StudioServerInternals.startStudio({
 		previewEntry: require.resolve('@remotion/studio/previewEntry'),
@@ -232,6 +235,7 @@ export const studioCommand = async (
 		forceIPv4: ipv4Option.getValue({commandLine: parsedCli}).value,
 		getAudioLatencyHint,
 		getPreviewSampleRate,
+		getDefaultEditor,
 		enableCrossSiteIsolation,
 		forceNew: forceNewStudioOption.getValue({commandLine: parsedCli}).value,
 		rspack: useRspack,

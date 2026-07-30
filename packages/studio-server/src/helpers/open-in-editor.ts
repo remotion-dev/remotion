@@ -31,6 +31,7 @@ const isVsCodeDerivative = (editor: Editor) => {
 		editor === 'Code.exe' ||
 		editor === 'vscodium' ||
 		editor === 'VSCodium.exe' ||
+		editor === 'codium' ||
 		editor === 'Code - Insiders.exe' ||
 		editor === 'cursor' ||
 		editor === 'Cursor.exe' ||
@@ -50,83 +51,7 @@ function isTerminalEditor(editor: Editor) {
 	}
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const editorNames = [
-	'atom',
-	'/Applications/Atom Beta.app/Contents/MacOS/Atom Beta',
-	'brackets',
-	'/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl',
-	'/Applications/Sublime Text Dev.app/Contents/SharedSupport/bin/subl',
-	'/Applications/Sublime Text 2.app/Contents/SharedSupport/bin/subl',
-	'code',
-	'code-insiders',
-	'vscodium',
-	'/Applications/AppCode.app/Contents/MacOS/appcode',
-	'/Applications/CLion.app/Contents/MacOS/clion',
-	'/Applications/IntelliJ IDEA.app/Contents/MacOS/idea',
-	'/Applications/PhpStorm.app/Contents/MacOS/phpstorm',
-	'/Applications/PyCharm.app/Contents/MacOS/pycharm',
-	'/Applications/PyCharm CE.app/Contents/MacOS/pycharm',
-	'/Applications/RubyMine.app/Contents/MacOS/rubymine',
-	'/Applications/WebStorm.app/Contents/MacOS/webstorm',
-	'/Applications/GoLand.app/Contents/MacOS/goland',
-	'/Applications/Rider.app/Contents/MacOS/rider',
-	'mvim',
-	'emacs',
-	'gvim',
-	'idea',
-	'phpstorm',
-	'pycharm',
-	'rubymine',
-	'subl',
-	'sublime_text',
-	'vim',
-	'webstorm',
-	'goland',
-	'rider',
-	'Brackets.exe',
-	'Code.exe',
-	'Code - Insiders.exe',
-	'VSCodium.exe',
-	'atom.exe',
-	'sublime_text.exe',
-	'notepad++.exe',
-	'clion.exe',
-	'clion64.exe',
-	'idea.exe',
-	'idea64.exe',
-	'phpstorm.exe',
-	'phpstorm64.exe',
-	'pycharm.exe',
-	'pycharm64.exe',
-	'rubymine.exe',
-	'rubymine64.exe',
-	'webstorm.exe',
-	'webstorm64.exe',
-	'goland.exe',
-	'goland64.exe',
-	'rider.exe',
-	'rider64.exe',
-	'nano',
-	'cursor',
-	'/Applications/Cursor.app/Contents/MacOS/Cursor',
-	'Cursor.exe',
-	'windsurf',
-	'/Applications/Windsurf.app/Contents/MacOS/Windsurf',
-	'Windsurf.exe',
-	'zed',
-	'zedit',
-	'zeditor',
-	'zed-editor',
-	'/Applications/Zed.app/Contents/MacOS/zed',
-	'/Applications/Zed.app/Contents/MacOS/cli',
-	'/Applications/Zed Preview.app/Contents/MacOS/zed',
-	'/Applications/Zed Preview.app/Contents/MacOS/cli',
-	'/Applications/Zed Preview.app/Contents/MacOS/Zed Preview',
-	'Zed.exe',
-] as const;
-
-const displayNameForEditor: {[key in Editor]: string} = {
+const displayNameForEditor: Record<string, string> = {
 	'/Applications/AppCode.app/Contents/MacOS/appcode': 'AppCode',
 	'/Applications/Atom Beta.app/Contents/MacOS/Atom Beta': 'Atom Beta',
 	'/Applications/CLion.app/Contents/MacOS/clion': 'CLion',
@@ -222,7 +147,7 @@ export const getDisplayNameForEditor = (
 	);
 };
 
-type Editor = (typeof editorNames)[number];
+type Editor = string;
 
 // Map from full process name to binary that starts the process
 // We can't just re-use full process name, because it will spawn a new instance
@@ -387,6 +312,10 @@ function getArgumentsForLineNumber(
 		case 'Code - Insiders':
 		case 'vscodium':
 		case 'VSCodium':
+		case 'codium':
+		case 'com.vscodium.codium':
+		case 'com.visualstudio.code':
+		case 'com.visualstudio.code.insiders':
 		case 'cursor':
 		case 'Cursor':
 		case 'windsurf':
@@ -418,7 +347,7 @@ function getArgumentsForLineNumber(
 	}
 }
 
-type ProcessAndCommand = {
+export type ProcessAndCommand = {
 	process: string;
 	command: Editor;
 };

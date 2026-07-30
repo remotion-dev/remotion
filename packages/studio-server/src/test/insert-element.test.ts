@@ -82,6 +82,7 @@ const makeFixture = () => {
 		return insertElementHandler({
 			binariesDirectory: null,
 			configFile: null,
+			getDefaultEditor: () => null,
 			entryPoint: compositionFile,
 			input,
 			logLevel: 'error',
