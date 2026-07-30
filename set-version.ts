@@ -96,6 +96,28 @@ for (const dir of [path.join('cloudrun', 'container'), ...dirs]) {
 	}
 }
 
+const skillsRoot = path.join(process.cwd(), 'packages', 'skills', 'skills');
+for (const skillName of readdirSync(skillsRoot)) {
+	const skillFile = path.join(skillsRoot, skillName, 'SKILL.md');
+	if (!existsSync(skillFile)) {
+		continue;
+	}
+
+	const contents = readFileSync(skillFile, 'utf8');
+	const frontmatterEnd = contents.indexOf('\n---', 4);
+	if (frontmatterEnd === -1) {
+		throw new Error(`No frontmatter found in ${skillFile}`);
+	}
+
+	const frontmatter = contents.slice(0, frontmatterEnd);
+	const versionPattern = /^version:.*$/m;
+	const updatedFrontmatter = versionPattern.test(frontmatter)
+		? frontmatter.replace(versionPattern, `version: ${version}`)
+		: `${frontmatter}\nversion: ${version}`;
+	writeFileSync(skillFile, updatedFrontmatter + contents.slice(frontmatterEnd));
+	console.log('setting version for', path.join('skills', skillName));
+}
+
 const kimiCodePluginManifestPath = path.join(
 	process.cwd(),
 	'packages',
