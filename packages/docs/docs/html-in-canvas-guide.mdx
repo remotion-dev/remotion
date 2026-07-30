@@ -16,14 +16,6 @@ crumb: 'Designing visuals'
   style={{width: '100%', borderRadius: 'var(--ifm-global-radius)', marginBottom: 0, aspectRatio: '3 / 1'}}
 />
 
-<SuggestedPrompt prompt="/remotion-create Create a sample composition and apply an HTML-in-canvas glitch effect to it." />
-
-<SuggestedPrompt
-  prompt={
-    '/remotion-create Make a new composition with a subtle CRT convex-shape shader over an HTML element. Use a terminal and Remotion theme. Animate the command and output of "npx create-video@latest --yes --blank my-video", followed by invoking "claude" and entering the prompt "Add a CRT effect using HTML-in-canvas".'
-  }
-/>
-
 Regular video editors are canvas-based which allows for complex effects and compositing that is not possible with plain CSS.
 
 [HTML-in-canvas](https://github.com/WICG/html-in-canvas) is an experimental browser API available in Chrome and other Chromium-based browsers behind a flag, which allows you to draw a live DOM node into a `<canvas>` and post-process it with the Canvas 2D API, WebGL or WebGPU.
@@ -87,6 +79,16 @@ Also see the following sample prompts in our prompt gallery that you can give yo
 - [Vintage screen effect](https://www.remotion.dev/prompts/vintage-screen-effect-html-in-canvas)
 - [Glitch effect](https://www.remotion.dev/prompts/glitch-effect-html-in-canvas)
 
+## Example prompts
+
+<SuggestedPrompt prompt="/remotion-create Create a sample composition and apply an HTML-in-canvas glitch effect to it." />
+
+<SuggestedPrompt
+  prompt={
+    '/remotion-create Make a new composition with a subtle CRT convex-shape shader over an HTML element. Use a terminal and Remotion theme. Animate the command and output of "npx create-video@latest --yes --blank my-video", followed by invoking "claude" and entering the prompt "Add a CRT effect using HTML-in-canvas".'
+  }
+/>
+
 ## With `@remotion/transitions`
 
 [`@remotion/transitions`](/docs/transitions) can take advantage of HTML-in-canvas as well to blend two scenes.  
@@ -139,7 +141,11 @@ Not directly related, but [`@remotion/web-renderer`](/docs/client-side-rendering
 
 The [client-side renderer](/docs/client-side-rendering) automatically uses HTML-in-canvas when the browser supports nested captures. This can produce more accurate output than the built-in DOM compositor.
 
-Compositions containing nested [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) elements require Chrome or Chromium `152.0.7944.0` or later.
+## Nested HTML-in-canvas
+
+Nesting `<HtmlInCanvas>` components is supported from <AvailableFrom v="4.0.491" inline /> for client-side rendering and preview if on Chrome 152.0.7944.0 or later.
+
+On server-side rendering, nested HTML-in-canvas is not yet supported, pending a Chrome upgrade which we are working on.
 
 ## See also
 
