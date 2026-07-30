@@ -77,6 +77,7 @@ import {runsOption} from './runs';
 import {sampleRateOption} from './sample-rate';
 import {scaleOption} from './scale';
 import {separateAudioOption} from './separate-audio';
+import {skipSkillsOption} from './skip-skills';
 import {stillFrameOption} from './still-frame';
 import {stillImageFormatOption} from './still-image-format';
 import {throwIfSiteExistsOption} from './throw-if-site-exists';
@@ -172,6 +173,7 @@ export const allOptions = {
 	rspackOption,
 	outDirOption,
 	packageManagerOption,
+	skipSkillsOption,
 	sampleRateOption,
 	webpackPollOption,
 	stillFrameOption,
