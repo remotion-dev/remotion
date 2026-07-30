@@ -20,7 +20,6 @@ Monthly downloads of Remotion packages
 [![NPM Downloads](https://img.shields.io/npm/dm/remotion.svg?style=flat&color=black&label=remotion)](https://npmcharts.com/compare/remotion?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/create-video.svg?style=flat&color=black&label=create-video)](https://npmcharts.com/compare/create-video?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/design.svg?style=flat&color=black&label=@remotion/design)](https://npmcharts.com/compare/@remotion/design?minimal=true)  
-[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/studio-protocol.svg?style=flat&color=black&label=@remotion/studio-protocol)](https://npmcharts.com/compare/@remotion/studio-protocol?minimal=true)<br />
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/effects.svg?style=flat&color=black&label=@remotion/effects)](https://npmcharts.com/compare/@remotion/effects?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/elevenlabs.svg?style=flat&color=black&label=@remotion/elevenlabs)](https://npmcharts.com/compare/@remotion/elevenlabs?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/enable-scss.svg?style=flat&color=black&label=@remotion/enable-scss)](https://npmcharts.com/compare/@remotion/enable-scss?minimal=true)  
@@ -60,6 +59,7 @@ Monthly downloads of Remotion packages
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/streaming.svg?style=flat&color=black&label=@remotion/streaming)](https://npmcharts.com/compare/@remotion/streaming?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/studio.svg?style=flat&color=black&label=@remotion/studio)](https://npmcharts.com/compare/@remotion/studio?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/studio-codemods.svg?style=flat&color=black&label=@remotion/studio-codemods)](https://npmcharts.com/compare/@remotion/studio-codemods?minimal=true)  
+[![NPM Downloads](https://img.shields.io/npm/dm/@remotion/studio-protocol.svg?style=flat&color=black&label=@remotion/studio-protocol)](https://npmcharts.com/compare/@remotion/studio-protocol?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/studio-server.svg?style=flat&color=black&label=@remotion/studio-server)](https://npmcharts.com/compare/@remotion/studio-server?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/studio-shared.svg?style=flat&color=black&label=@remotion/studio-shared)](https://npmcharts.com/compare/@remotion/studio-shared?minimal=true)  
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/svg-3d-engine.svg?style=flat&color=black&label=@remotion/svg-3d-engine)](https://npmcharts.com/compare/@remotion/svg-3d-engine?minimal=true)  
