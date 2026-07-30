@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Canvas Capture Extension'
+  short_description: 'Rebuild and reload the local Chrome extension'
+  default_prompt: 'Use $canvas-capture-extension to rebuild and reload the Remotion Canvas Capture extension.'
