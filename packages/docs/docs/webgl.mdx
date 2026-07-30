@@ -1,21 +1,21 @@
 ---
 image: /generated/articles-docs-webgl.png
 id: webgl
-title: Using WebGL during renders
+title: Using WebGL and WebGPU during renders
 crumb: 'Rendering'
 ---
 
-Some Remotion packages and third-party libraries use WebGL during rendering, including [`@remotion/effects`](/docs/effects), [`@remotion/three`](/docs/three), Skia and map libraries.
+Some Remotion packages and third-party libraries use WebGL or WebGPU during rendering, including [`@remotion/effects`](/docs/effects), [`@remotion/three`](/docs/three), Skia and map libraries.
 
 ## Remotion 5.0
 
-In Remotion 5.0, WebGL works during rendering by default. The default OpenGL renderer is `angle`, with automatic fallback to `swangle`. No renderer option is needed.
+In Remotion 5.0, WebGL and WebGPU work during rendering by default. The default OpenGL renderer is `angle`, with automatic fallback to `swangle`. No renderer option is needed.
 
 Lambda and Cloud Run continue to use `swangle` by default, because they have no GPU.
 
 ## Remotion 4.0
 
-In Remotion 4.0, enable WebGL when rendering from the CLI:
+In Remotion 4.0, enable WebGL and WebGPU when rendering from the CLI:
 
 ```bash title="Terminal"
 npx remotion render --gl=angle

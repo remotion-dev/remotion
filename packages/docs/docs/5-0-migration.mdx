@@ -48,9 +48,9 @@ The minimum Node version is now <MinNodeVersion />. The minimum Bun version is <
 
 If you use `@remotion/eslint-config`, the minimum ESLint version is now <MinEslintVersion />.
 
-## WebGL during rendering is now enabled by default
+## WebGL and WebGPU during rendering are now enabled by default
 
-In Remotion 4.0, the default OpenGL renderer was `null`, which would not enable WebGL.
+In Remotion 4.0, the default OpenGL renderer was `null`, which would not enable WebGL or WebGPU.
 
 In Remotion 5.0, the default is `angle` with automatic fallback to `swangle`.
 Lambda and Cloud Run continue to use `swangle` by default, because they have no GPU.

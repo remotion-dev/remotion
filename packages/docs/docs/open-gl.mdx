@@ -19,7 +19,7 @@ The following renderer backends are supported in Remotion:
 
 ## Remotion 5.0 default<AvailableFrom v="5.0.0" />
 
-From Remotion 5.0, `angle` is the default renderer. A compatible GPU is used when available, and Chromium automatically falls back to software rendering through SwiftShader otherwise. No renderer option is needed to make WebGL work.
+From Remotion 5.0, `angle` is the default renderer. A compatible GPU is used when available, and Chromium automatically falls back to software rendering through SwiftShader otherwise. No renderer option is needed to make WebGL or WebGPU work.
 
 Lambda and Cloud Run continue to use `swangle` by default.
 
@@ -36,14 +36,14 @@ await renderMedia({
 
 ## Recommended renderers in Remotion 4.0
 
-<Step>1</Step> If you use WebGL/Three.js:
+<Step>1</Step> If you use WebGL, WebGPU or Three.js:
 
 - On a desktop, `angle` is recommended
 - On a [cloud instance with a GPU](/docs/miscellaneous/cloud-gpu), `angle-egl` is recommended
 - On Lambda, use `swangle` (default on Lambda)
 - On a machine with no GPU, `swangle` is recommended. Rendering might be slow.
 
-<Step>2</Step> If you don't use WebGL/Three.js, the default renderer (<code>null</code> on local, <code>swangle</code> on Lambda and Cloud Run) is the best choice.<br/>
+<Step>2</Step> If you don't use WebGL, WebGPU or Three.js, the default renderer (<code>null</code> on local, <code>swangle</code> on Lambda and Cloud Run) is the best choice.<br/>
 
 ## Using the GPU
 

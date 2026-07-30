@@ -8707,7 +8707,7 @@ export const articles = [
 	},
 	{
 		id: 'webgl',
-		title: 'Using WebGL during renders',
+		title: 'Using WebGL and WebGPU during renders',
 		relativePath: 'docs/webgl.mdx',
 		compId: 'articles-docs-webgl',
 		crumb: 'Rendering',
