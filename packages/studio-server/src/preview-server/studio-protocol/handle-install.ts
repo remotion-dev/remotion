@@ -7,7 +7,7 @@ import type {getElementInstallTarget} from '../element-install-state';
 import type {LiveEventsServer} from '../live-events';
 import {parseRequestBody, RequestBodyTooLargeError} from '../parse-body';
 import {
-	isAllowedStudioProtocolOrigin,
+	getAllowedStudioProtocolOrigin,
 	setStudioProtocolCorsHeaders,
 } from './origin-policy';
 import {writeStudioProtocolError} from './protocol-response';
@@ -80,11 +80,8 @@ export const handleStudioProtocolInstall = async ({
 	readonly response: ServerResponse;
 }): Promise<void> => {
 	setStudioProtocolCorsHeaders({request, response});
-	const requestOrigin = request.headers.origin;
-	if (
-		typeof requestOrigin !== 'string' ||
-		!isAllowedStudioProtocolOrigin(requestOrigin)
-	) {
+	const requestOrigin = getAllowedStudioProtocolOrigin(request.headers.origin);
+	if (requestOrigin === null) {
 		writeStudioProtocolError({
 			code: 'unsupported-origin',
 			message: 'Origin not allowed',
@@ -155,6 +152,7 @@ export const handleStudioProtocolInstall = async ({
 
 	const target = consumeStudioProtocolTarget({
 		now: Date.now(),
+		origin: requestOrigin,
 		targetId: parsedRequest.data.targetId,
 	});
 	if (target === null) {
@@ -172,7 +170,7 @@ export const handleStudioProtocolInstall = async ({
 			element: payload.element,
 			focusStudioTab,
 			liveEventsServer,
-			origin: new URL(requestOrigin).origin,
+			origin: requestOrigin,
 			target,
 		})
 	) {
