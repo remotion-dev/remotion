@@ -3,6 +3,20 @@ import type {LogLevel} from '@remotion/renderer';
 import {chalk} from './chalk';
 import {Log} from './log';
 
+const remotionSkillNames = [
+	'remotion-best-practices',
+	'remotion-captions',
+	'remotion-create',
+	'remotion-docs',
+	'remotion-interactivity',
+	'remotion-maps',
+	'remotion-markup',
+	'remotion-multimedia',
+	'remotion-render',
+	'remotion-saas',
+	'remotion-upgrade',
+];
+
 export const printSkillsHelp = (logLevel: LogLevel) => {
 	Log.info({indent: false, logLevel}, chalk.blue('remotion skills'));
 	Log.info(
@@ -35,14 +49,24 @@ export const skillsCommand = (args: string[], logLevel: LogLevel) => {
 	}
 
 	const command = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-	const fullArgs = [
-		'-y',
-		'--loglevel=error',
-		'skills@1.5.20',
-		subcommand,
-		'remotion-dev/skills',
-		...restArgs,
-	];
+	const fullArgs =
+		subcommand === 'add'
+			? [
+					'--loglevel=error',
+					'skills@1.5.20',
+					'add',
+					'remotion-dev/skills',
+					...restArgs,
+					'--yes',
+				]
+			: [
+					'--loglevel=error',
+					'skills',
+					'update',
+					...remotionSkillNames,
+					...restArgs,
+					'--yes',
+				];
 
 	const child = spawn(command, fullArgs, {
 		stdio: 'inherit',
