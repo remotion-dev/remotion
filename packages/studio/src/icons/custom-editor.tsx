@@ -1,14 +1,18 @@
 import React from 'react';
 import {CURRENT_COLOR} from '../helpers/colors';
 
-export const CustomEditorIcon: React.FC<{readonly size?: number}> = ({
-	size = 14,
+export const CustomEditorIcon: React.FC<{readonly size: number | null}> = ({
+	size: sizeProp,
 }) => (
 	<svg
 		focusable="false"
 		role="img"
 		viewBox="0 0 24 24"
-		style={{width: size, height: size, flexShrink: 0}}
+		style={{
+			width: sizeProp ?? 14,
+			height: sizeProp ?? 14,
+			flexShrink: 0,
+		}}
 	>
 		<path
 			fill="none"

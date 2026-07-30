@@ -22,5 +22,11 @@ export const SchemaResetButton: React.FC<{
 		);
 	}, []);
 
-	return <InlineAction renderAction={renderAction} onClick={onClick} />;
+	return (
+		<InlineAction
+			renderAction={renderAction}
+			onClick={onClick}
+			variant={null}
+		/>
+	);
 };

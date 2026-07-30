@@ -694,6 +694,7 @@ export const InspectorSequenceSection: React.FC<{
 
 	const borderRadiusAction = borderRadiusGroup ? (
 		<InlineAction
+			variant={null}
 			disabled={
 				borderRadiusConversion === null ||
 				previewServerState.type !== 'connected'
@@ -722,6 +723,7 @@ export const InspectorSequenceSection: React.FC<{
 		<div style={sectionHeaderRow}>
 			<div style={effectsHeaderTitle}>Effects</div>
 			<InlineAction
+				variant={null}
 				disabled={!canAddEffect}
 				onClick={onAddEffect}
 				title={canAddEffect ? 'Add effect' : undefined}

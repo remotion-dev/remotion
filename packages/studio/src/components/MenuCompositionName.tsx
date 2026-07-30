@@ -85,7 +85,7 @@ export const MenuCompositionName: React.FC = () => {
 					directory: `${window.remotion_publicFolderExists}/${asset}`,
 				});
 			} else if (resolvedLocation) {
-				await openOriginalPositionInEditor(resolvedLocation);
+				await openOriginalPositionInEditor(resolvedLocation, null);
 			}
 		} catch (err) {
 			showNotification((err as Error).message, 2000);

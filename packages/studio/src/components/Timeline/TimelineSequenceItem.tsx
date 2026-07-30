@@ -285,7 +285,7 @@ export const TimelineSequenceItem: React.FC<{
 		string | null
 	>(null);
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const {canOpenInEditor, openInEditor, originalLocation} =
+	const {canOpenInEditor, editorInfo, openInEditor, originalLocation} =
 		useOpenSequenceInEditor(sequence);
 	const fileLocation = useMemo(
 		() =>
@@ -797,7 +797,7 @@ export const TimelineSequenceItem: React.FC<{
 				return;
 			}
 
-			openInEditor();
+			openInEditor(null);
 		},
 		[
 			canOpenInEditor,
@@ -972,6 +972,7 @@ export const TimelineSequenceItem: React.FC<{
 			deleteDisabled,
 			disableInteractivityDisabled,
 			duplicateDisabled,
+			editorInfo,
 			fileLocation,
 			includeSourceEditItems: isStudioInteractivityEnabled(),
 			onDeleteSequenceFromSource,
@@ -999,22 +1000,26 @@ export const TimelineSequenceItem: React.FC<{
 									},
 								]
 							: []),
-						{
-							type: 'item' as const,
-							id: 'crop',
-							keyHint: null,
-							label: 'Crop',
-							leftItem: null,
-							disabled: !canCrop,
-							onClick: onCrop,
-							quickSwitcherLabel: null,
-							subMenu: null,
-							value: 'crop',
-						},
-						{
-							type: 'divider' as const,
-							id: 'crop-divider',
-						},
+						...(canCrop
+							? [
+									{
+										type: 'item' as const,
+										id: 'crop',
+										keyHint: null,
+										label: 'Crop',
+										leftItem: null,
+										disabled: false,
+										onClick: onCrop,
+										quickSwitcherLabel: null,
+										subMenu: null,
+										value: 'crop',
+									},
+									{
+										type: 'divider' as const,
+										id: 'crop-divider',
+									},
+								]
+							: []),
 						{
 							type: 'item' as const,
 							id: 'rename-sequence',
@@ -1042,6 +1047,7 @@ export const TimelineSequenceItem: React.FC<{
 		deleteDisabled,
 		disableInteractivityDisabled,
 		duplicateDisabled,
+		editorInfo,
 		fileLocation,
 		freezeFrameMenuItem,
 		nodePathInfo?.supportsEffects,

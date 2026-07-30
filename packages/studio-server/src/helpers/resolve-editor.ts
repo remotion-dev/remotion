@@ -37,12 +37,18 @@ type ResolveEditorDependencies = {
 	warnedEditors: Set<string>;
 };
 
-const legacyEditors = guessEditor();
+let legacyEditors: ReturnType<typeof guessEditor> | null = null;
+const getLegacyEditors = () => {
+	legacyEditors ??= guessEditor();
+
+	return legacyEditors;
+};
+
 const warnedEditors = new Set<string>();
 
 const defaultDependencies: ResolveEditorDependencies = {
 	getInstalledEditors: getAvailableEditors,
-	getLegacyEditors: () => legacyEditors,
+	getLegacyEditors,
 	resolveCustomEditor: resolveCustomEditorExecutable,
 	warn: () => undefined,
 	warnedEditors,
@@ -52,9 +58,11 @@ export const resolveEditor = async (
 	{
 		defaultEditor,
 		logLevel,
+		preferredEditor,
 	}: {
 		defaultEditor: DefaultEditor | null;
 		logLevel: LogLevel;
+		preferredEditor: BuiltInEditor | 'custom' | null;
 	},
 	overrides: Partial<ResolveEditorDependencies> = {},
 ): Promise<ResolvedEditor | null> => {
@@ -65,6 +73,34 @@ export const resolveEditor = async (
 		},
 		...overrides,
 	};
+
+	if (preferredEditor === 'custom') {
+		if (!defaultEditor || typeof defaultEditor !== 'object') {
+			return null;
+		}
+
+		const resolvedExecutable = dependencies.resolveCustomEditor(defaultEditor);
+		if (!resolvedExecutable) {
+			return null;
+		}
+
+		return {
+			...resolvedExecutable,
+			type: 'custom',
+			id: 'custom',
+			name: defaultEditor.name,
+			editor: defaultEditor,
+		};
+	}
+
+	if (preferredEditor !== null) {
+		const installedEditors = await dependencies.getInstalledEditors();
+		const installedEditor = installedEditors.find(
+			(editor) => editor.id === preferredEditor,
+		);
+
+		return installedEditor ? {...installedEditor, type: 'built-in'} : null;
+	}
 
 	if (defaultEditor && typeof defaultEditor === 'object') {
 		const resolvedExecutable = dependencies.resolveCustomEditor(defaultEditor);

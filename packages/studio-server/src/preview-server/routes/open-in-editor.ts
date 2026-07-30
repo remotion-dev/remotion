@@ -1,5 +1,10 @@
 import path from 'node:path';
-import type {DefaultEditor, LogLevel} from '@remotion/renderer';
+import {
+	defaultEditorIds,
+	type BuiltInEditor,
+	type DefaultEditor,
+	type LogLevel,
+} from '@remotion/renderer';
 import type {
 	OpenInEditorRequest,
 	OpenInEditorResponse,
@@ -19,6 +24,7 @@ export const getEditorName = async ({
 	const editor = await resolveEditor({
 		defaultEditor: getDefaultEditor(),
 		logLevel,
+		preferredEditor: null,
 	});
 	return editor?.name ?? null;
 };
@@ -33,9 +39,18 @@ export const openInEditorHandler: ApiHandler<
 		}
 
 		const {stack} = input;
+		if (
+			input.editorId !== null &&
+			input.editorId !== 'custom' &&
+			!defaultEditorIds.includes(input.editorId as BuiltInEditor)
+		) {
+			return {success: false};
+		}
+
 		const editor = await resolveEditor({
 			defaultEditor: getDefaultEditor(),
 			logLevel,
+			preferredEditor: input.editorId,
 		});
 		if (!editor) {
 			return {success: false};
@@ -54,6 +69,7 @@ export const openInEditorHandler: ApiHandler<
 						lineNumber: stack.originalLineNumber as number,
 						columnNumber: stack.originalColumnNumber as number,
 						logLevel,
+						spawnProcess: null,
 					})
 				: await launchEditor({
 						colNumber: stack.originalColumnNumber as number,

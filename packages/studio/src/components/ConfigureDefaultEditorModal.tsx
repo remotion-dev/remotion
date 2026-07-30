@@ -99,7 +99,7 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 					label:
 						editor.id === 'custom' ? (
 							<span style={customEditorLabel}>
-								<CustomEditorIcon />
+								<CustomEditorIcon size={null} />
 								<span style={customEditorName}>{editor.name}</span>
 							</span>
 						) : (
@@ -174,15 +174,16 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 		}
 	}, [dismiss, editorInfo, selectedEditor]);
 
+	if (editorInfo === null && error === null) {
+		return null;
+	}
+
 	return (
 		<ModalContainer onEscape={dismiss} onOutsideClick={dismiss}>
 			<ModalHeader title="Configure default editor" onClose={dismiss} />
 			<div style={content}>
 				<p style={description}>This setting gets saved to your config file.</p>
 				<Spacing y={2} block />
-				{editorInfo === null && error === null ? (
-					<p style={description}>Detecting installed editors...</p>
-				) : null}
 				{editorInfo?.installedEditors.length === 0 ? (
 					<p style={description}>
 						No supported editors were found on this computer.

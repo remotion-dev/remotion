@@ -175,12 +175,14 @@ export const UndoRedoButtons: React.FC = () => {
 	return (
 		<>
 			<InlineAction
+				variant={null}
 				onClick={onUndo}
 				renderAction={renderUndo}
 				title={undoTooltip}
 				disabled={!canUndo}
 			/>
 			<InlineAction
+				variant={null}
 				onClick={onRedo}
 				renderAction={renderRedo}
 				title={redoTooltip}

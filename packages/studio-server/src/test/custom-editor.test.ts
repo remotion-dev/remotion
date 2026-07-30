@@ -29,7 +29,7 @@ const makeResolutionContext = ({
 	platform,
 	env,
 	paths,
-	executablePaths = Object.keys(paths),
+	executablePaths,
 }: {
 	platform: NodeJS.Platform;
 	env: NodeJS.ProcessEnv;
@@ -37,14 +37,15 @@ const makeResolutionContext = ({
 		string,
 		Exclude<ReturnType<CustomEditorResolutionContext['inspectPath']>, null>
 	>;
-	executablePaths?: readonly string[];
+	executablePaths: readonly string[] | null;
 }): CustomEditorResolutionContext => ({
 	platform,
 	env,
 	currentWorkingDirectory:
 		platform === 'win32' ? 'C:\\project' : '/home/project',
 	inspectPath: (filePath) => paths[filePath] ?? null,
-	canExecute: (filePath) => executablePaths.includes(filePath),
+	canExecute: (filePath) =>
+		(executablePaths ?? Object.keys(paths)).includes(filePath),
 });
 
 test('resolves commands, Windows executables, and macOS app bundles without a shell', () => {
@@ -55,6 +56,7 @@ test('resolves commands, Windows executables, and macOS app bundles without a sh
 				platform: 'linux',
 				env: {PATH: '/usr/local/bin:/usr/bin'},
 				paths: {'/usr/local/bin/acme': 'file'},
+				executablePaths: null,
 			}),
 		),
 	).toEqual({
@@ -69,6 +71,7 @@ test('resolves commands, Windows executables, and macOS app bundles without a sh
 				platform: 'win32',
 				env: {PATH: 'C:\\Tools', PATHEXT: '.CMD;.EXE'},
 				paths: {'C:\\Tools\\acme.exe': 'file'},
+				executablePaths: null,
 			}),
 		),
 	).toEqual({
@@ -83,6 +86,7 @@ test('resolves commands, Windows executables, and macOS app bundles without a sh
 				platform: 'darwin',
 				env: {},
 				paths: {'/Applications/Acme Editor.app': 'directory'},
+				executablePaths: null,
 			}),
 		),
 	).toEqual({
@@ -97,6 +101,7 @@ test('resolves commands, Windows executables, and macOS app bundles without a sh
 				platform: 'win32',
 				env: {},
 				paths: {'C:\\Tools\\acme.cmd': 'file'},
+				executablePaths: null,
 			}),
 		),
 	).toBeNull();
@@ -120,6 +125,7 @@ test('resolves commands, Windows executables, and macOS app bundles without a sh
 				platform: 'linux',
 				env: {PATH: '/usr/bin'},
 				paths: {},
+				executablePaths: null,
 			}),
 		),
 	).toBeNull();
@@ -183,6 +189,7 @@ test.skipIf(process.platform === 'win32')(
 					arguments: [output, '%TARGET_PATH%:%LINE_NUMBER%:%COLUMN_NUMBER%'],
 				}),
 				input: {
+					editorId: 'custom',
 					stack: {
 						originalFileName: path.basename(source),
 						originalLineNumber: 12,
@@ -212,3 +219,32 @@ test.skipIf(process.platform === 'win32')(
 		}
 	},
 );
+
+test('rejects an unknown editor ID at the open-in-editor route', async () => {
+	const response = await openInEditorHandler({
+		binariesDirectory: null,
+		configFile: null,
+		entryPoint: '',
+		getDefaultEditor: () => null,
+		input: {
+			editorId: 'unknown-editor' as never,
+			stack: {
+				originalFileName: 'source.tsx',
+				originalLineNumber: 1,
+				originalColumnNumber: 1,
+			} as never,
+		},
+		logLevel: 'error',
+		methods: {
+			addJob: () => undefined,
+			cancelJob: () => undefined,
+			removeJob: () => undefined,
+		},
+		publicDir: '',
+		remotionRoot: '/project',
+		request: {} as never,
+		response: {} as never,
+	});
+
+	expect(response).toEqual({success: false});
+});

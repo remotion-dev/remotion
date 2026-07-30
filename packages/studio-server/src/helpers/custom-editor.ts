@@ -183,7 +183,7 @@ export const launchCustomEditor = ({
 	lineNumber,
 	columnNumber,
 	logLevel,
-	spawnProcess = spawn,
+	spawnProcess,
 }: {
 	editor: CustomEditor;
 	resolvedExecutable: ResolvedCustomEditorExecutable;
@@ -191,7 +191,7 @@ export const launchCustomEditor = ({
 	lineNumber: number;
 	columnNumber: number;
 	logLevel: LogLevel;
-	spawnProcess?: typeof spawn;
+	spawnProcess: typeof spawn | null;
 }): Promise<boolean> => {
 	if (
 		!existsSync(targetPath) ||
@@ -225,7 +225,7 @@ export const launchCustomEditor = ({
 	return new Promise<boolean>((resolve) => {
 		let child: ChildProcess;
 		try {
-			child = spawnProcess(command, args, {
+			child = (spawnProcess ?? spawn)(command, args, {
 				detached: true,
 				shell: false,
 				stdio: 'ignore',
