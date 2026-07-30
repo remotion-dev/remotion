@@ -38,6 +38,8 @@ const comboBoxStyle: React.CSSProperties = {
 	width: '100%',
 };
 
+const NO_PREFERENCE_ID = 'no-preference';
+
 export const ConfigureDefaultEditorModal: React.FC = () => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const [editorInfo, setEditorInfo] =
@@ -48,22 +50,40 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const editorValues = useMemo((): ComboboxValue[] => {
-		return (editorInfo?.installedEditors ?? []).map((editor) => {
-			return {
-				id: editor.id,
-				keyHint: null,
-				label: editor.name,
-				leftItem: selectedEditor === editor.id ? <Checkmark /> : null,
-				onClick: () => {
-					setSelectedEditor(editor.id);
-					setError(null);
-				},
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: editor.id,
-			};
-		});
+		const noPreference: ComboboxValue = {
+			id: NO_PREFERENCE_ID,
+			keyHint: null,
+			label: 'No preference',
+			leftItem: selectedEditor === null ? <Checkmark /> : null,
+			onClick: () => {
+				setSelectedEditor(null);
+				setError(null);
+			},
+			quickSwitcherLabel: null,
+			subMenu: null,
+			type: 'item',
+			value: NO_PREFERENCE_ID,
+		};
+		const installedEditors = (editorInfo?.installedEditors ?? []).map(
+			(editor): ComboboxValue => {
+				return {
+					id: editor.id,
+					keyHint: null,
+					label: editor.name,
+					leftItem: selectedEditor === editor.id ? <Checkmark /> : null,
+					onClick: () => {
+						setSelectedEditor(editor.id);
+						setError(null);
+					},
+					quickSwitcherLabel: null,
+					subMenu: null,
+					type: 'item',
+					value: editor.id,
+				};
+			},
+		);
+
+		return [noPreference, ...installedEditors];
 	}, [editorInfo?.installedEditors, selectedEditor]);
 
 	const dismiss = useCallback(() => {
@@ -76,11 +96,12 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 			.then((response) => {
 				setEditorInfo(response);
 				setSelectedEditor(
-					response.installedEditors.some(
-						({id}) => id === response.defaultEditor,
-					)
+					response.defaultEditor !== null &&
+						response.installedEditors.some(
+							({id}) => id === response.defaultEditor,
+						)
 						? response.defaultEditor
-						: (response.installedEditors[0]?.id ?? null),
+						: null,
 				);
 			})
 			.catch((err) => {
@@ -95,7 +116,7 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 	}, []);
 
 	const submit = useCallback(async () => {
-		if (selectedEditor === null) {
+		if (editorInfo === null) {
 			return;
 		}
 
@@ -116,7 +137,7 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 			setError((err as Error).message);
 			setIsSubmitting(false);
 		}
-	}, [dismiss, selectedEditor]);
+	}, [dismiss, editorInfo, selectedEditor]);
 
 	return (
 		<ModalContainer onEscape={dismiss} onOutsideClick={dismiss}>
@@ -124,7 +145,7 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 			<div style={content}>
 				<p style={description}>
 					Select the editor Remotion Studio should use when opening source
-					files.
+					files. Choose No preference to use automatic detection.
 				</p>
 				<Spacing y={2} />
 				{editorInfo === null && error === null ? (
@@ -135,10 +156,10 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 						No supported editors were found on this computer.
 					</p>
 				) : null}
-				{selectedEditor === null ? null : (
+				{editorInfo === null ? null : (
 					<Combobox
 						values={editorValues}
-						selectedId={selectedEditor}
+						selectedId={selectedEditor ?? NO_PREFERENCE_ID}
 						style={comboBoxStyle}
 						title="Default editor"
 					/>
@@ -158,7 +179,7 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 				<Row justify="flex-end">
 					<ModalButton
 						onClick={submit}
-						disabled={isSubmitting || selectedEditor === null}
+						disabled={isSubmitting || editorInfo === null}
 					>
 						{isSubmitting ? 'Saving...' : 'Save and reload'}
 					</ModalButton>

@@ -18,7 +18,7 @@ export const updateDefaultEditorInConfig = ({
 	defaultEditor,
 }: {
 	configContents: string;
-	defaultEditor: DefaultEditor;
+	defaultEditor: DefaultEditor | null;
 }) => {
 	const ast = parseAst(configContents);
 	recast.types.visit(ast.program, {
@@ -44,6 +44,10 @@ export const updateDefaultEditorInConfig = ({
 	const configWithoutExistingCalls = recast.print(ast, {
 		lineTerminator: '\n',
 	}).code;
+	if (defaultEditor === null) {
+		return configWithoutExistingCalls;
+	}
+
 	const separator = configWithoutExistingCalls.endsWith('\n') ? '' : '\n';
 	return `${configWithoutExistingCalls}${separator}Config.setDefaultEditor('${defaultEditor}');\n`;
 };
@@ -70,19 +74,24 @@ export const updateDefaultEditorHandler: ApiHandler<
 		};
 	}
 
-	if (!defaultEditorIds.includes(input.defaultEditor)) {
+	if (
+		input.defaultEditor !== null &&
+		!defaultEditorIds.includes(input.defaultEditor)
+	) {
 		return {
 			success: false,
 			reason: `Unknown editor: ${input.defaultEditor}`,
 		};
 	}
 
-	const installedEditors = await getAvailableEditors();
-	if (!installedEditors.some(({id}) => id === input.defaultEditor)) {
-		return {
-			success: false,
-			reason: 'The selected editor is not installed.',
-		};
+	if (input.defaultEditor !== null) {
+		const installedEditors = await getAvailableEditors();
+		if (!installedEditors.some(({id}) => id === input.defaultEditor)) {
+			return {
+				success: false,
+				reason: 'The selected editor is not installed.',
+			};
+		}
 	}
 
 	const configContents = readFileSync(configFile, 'utf8');

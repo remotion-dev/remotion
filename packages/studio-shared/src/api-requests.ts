@@ -993,7 +993,7 @@ export type GetDefaultEditorInfoResponse = {
 };
 
 export type UpdateDefaultEditorRequest = {
-	defaultEditor: DefaultEditor;
+	defaultEditor: DefaultEditor | null;
 };
 export type UpdateDefaultEditorResponse =
 	| {
