@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
 import path from 'node:path';
-import type {DefaultEditor} from '@remotion/renderer';
+import type {BuiltInEditor} from '@remotion/renderer';
 import {
 	discoverAvailableEditors,
 	getDefaultEditorName,
@@ -22,7 +22,7 @@ const makeContext = ({
 	paths: readonly string[];
 	env?: NodeJS.ProcessEnv;
 	macApplications?: Record<string, readonly string[]>;
-	windowsApplications?: Partial<Record<DefaultEditor, readonly string[]>>;
+	windowsApplications?: Partial<Record<BuiltInEditor, readonly string[]>>;
 }): EditorDiscoveryContext => {
 	const existingPaths = new Set(paths);
 	return {
@@ -126,13 +126,73 @@ test('uses the configured installed editor instead of legacy detection', async (
 		},
 	);
 
-	expect(resolved).toEqual(cursor);
+	expect(resolved).toEqual({...cursor, type: 'built-in'});
 	expect(legacyDetectionCalls).toBe(0);
+});
+
+test('resolves a custom editor without exposing it to built-in discovery', async () => {
+	let installedEditorDetectionCalls = 0;
+	const customEditor = {
+		type: 'custom',
+		name: 'Acme Editor',
+		executable: '/opt/acme/editor',
+		arguments: ['--goto', '%TARGET_PATH%:%LINE_NUMBER%:%COLUMN_NUMBER%'],
+	} as const;
+	const resolved = await resolveEditor(
+		{defaultEditor: customEditor, logLevel: 'info'},
+		{
+			getInstalledEditors: () => {
+				installedEditorDetectionCalls++;
+				return Promise.resolve([]);
+			},
+			resolveCustomEditor: () => ({
+				executable: '/opt/acme/editor',
+				spawnAsMacApplication: false,
+			}),
+		},
+	);
+
+	expect(installedEditorDetectionCalls).toBe(0);
+	expect(resolved).toEqual({
+		type: 'custom',
+		id: 'custom',
+		name: 'Acme Editor',
+		editor: customEditor,
+		executable: '/opt/acme/editor',
+		spawnAsMacApplication: false,
+	});
+});
+
+test('warns and falls back when a custom editor executable is unavailable', async () => {
+	const warnings: string[] = [];
+	const resolved = await resolveEditor(
+		{
+			defaultEditor: {
+				type: 'custom',
+				name: 'Acme Editor',
+				executable: '/missing/acme',
+				arguments: ['%TARGET_PATH%'],
+			},
+			logLevel: 'info',
+		},
+		{
+			getLegacyEditors: () =>
+				Promise.resolve([{command: 'code', process: 'code'}]),
+			resolveCustomEditor: () => null,
+			warn: (message) => warnings.push(message),
+			warnedEditors: new Set(),
+		},
+	);
+
+	expect(resolved?.name).toBe('VS Code');
+	expect(warnings).toEqual([
+		'The executable for custom editor Acme Editor (/missing/acme) was not found or is not executable. Falling back to automatic editor detection.',
+	]);
 });
 
 test('warns once and falls back when the configured editor is unavailable', async () => {
 	const warnings: string[] = [];
-	const warnedEditors = new Set<DefaultEditor>();
+	const warnedEditors = new Set<string>();
 	const dependencies = {
 		getInstalledEditors: () => Promise.resolve([]),
 		getLegacyEditors: () =>
@@ -155,6 +215,7 @@ test('warns once and falls back when the configured editor is unavailable', asyn
 		id: null,
 		name: 'VS Code',
 		process: 'code',
+		type: 'built-in',
 	});
 	expect(second).toEqual(first);
 	expect(warnings).toEqual([

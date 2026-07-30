@@ -231,17 +231,7 @@ The [command line flag](/docs/cli/studio#--disable-interactivity) `--disable-int
 
 <Options id="editor" />
 
-```ts twoslash title="remotion.config.ts"
-import {Config} from '@remotion/cli/config';
-// ---cut---
-Config.setDefaultEditor('cursor');
-```
-
-The supported editor IDs are `vscode`, `cursor`, `windsurf`, `zed`, `vscodium`, `webstorm`, and `sublime-text`. `vscode` also recognizes VS Code Insiders, and `zed` also recognizes Zed Preview.
-
-The editor is detected from its installation and does not need to be running. If the configured editor is not installed, Remotion prints a warning and falls back to automatic editor detection.
-
-The [command line flag](/docs/cli/studio#--editor) `--editor` will take precedence over this option.
+See [Opening files in a code editor](/docs/studio/open-in-editor) for built-in editor IDs, custom editor configuration, and platform support.
 
 ## ~~`setAllowHtmlInCanvasEnabled()`~~<AvailableFrom v="4.0.447" />
 

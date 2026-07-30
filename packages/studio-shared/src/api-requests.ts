@@ -1,9 +1,9 @@
 import type {
 	AudioCodec,
+	BuiltInEditor,
 	ChromeMode,
 	Codec,
 	ColorSpace,
-	DefaultEditor,
 	LogLevel,
 	PixelFormat,
 	StillImageFormat,
@@ -989,13 +989,14 @@ export type UpdatePublicLicenseResponse =
 	  };
 
 export type GetDefaultEditorInfoRequest = {};
+export type EditorPickerId = BuiltInEditor | 'custom';
 export type GetDefaultEditorInfoResponse = {
-	defaultEditor: DefaultEditor | null;
-	installedEditors: {id: DefaultEditor; name: string}[];
+	defaultEditor: EditorPickerId | null;
+	installedEditors: {id: EditorPickerId; name: string}[];
 };
 
 export type UpdateDefaultEditorRequest = {
-	defaultEditor: DefaultEditor | null;
+	defaultEditor: EditorPickerId | null;
 };
 export type UpdateDefaultEditorResponse =
 	| {

@@ -1,28 +1,49 @@
-import type {DefaultEditor, LogLevel} from '@remotion/renderer';
+import type {
+	BuiltInEditor,
+	CustomEditor,
+	DefaultEditor,
+	LogLevel,
+} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {
+	resolveCustomEditorExecutable,
+	type ResolvedCustomEditorExecutable,
+} from './custom-editor';
 import {getAvailableEditors, getDefaultEditorName} from './editor-registry';
 import type {InstalledEditor} from './editor-registry';
 import {getDisplayNameForEditor, guessEditor} from './open-in-editor';
 import type {ProcessAndCommand} from './open-in-editor';
 
-export type ResolvedEditor = ProcessAndCommand & {
-	id: DefaultEditor | null;
-	name: string;
-};
+export type ResolvedEditor =
+	| (ProcessAndCommand & {
+			type: 'built-in';
+			id: BuiltInEditor | null;
+			name: string;
+	  })
+	| (ResolvedCustomEditorExecutable & {
+			type: 'custom';
+			id: 'custom';
+			name: string;
+			editor: CustomEditor;
+	  });
 
 type ResolveEditorDependencies = {
 	getInstalledEditors: () => Promise<readonly InstalledEditor[]>;
 	getLegacyEditors: () => Promise<readonly ProcessAndCommand[]>;
+	resolveCustomEditor: (
+		editor: CustomEditor,
+	) => ResolvedCustomEditorExecutable | null;
 	warn: (message: string) => void;
-	warnedEditors: Set<DefaultEditor>;
+	warnedEditors: Set<string>;
 };
 
 const legacyEditors = guessEditor();
-const warnedEditors = new Set<DefaultEditor>();
+const warnedEditors = new Set<string>();
 
 const defaultDependencies: ResolveEditorDependencies = {
 	getInstalledEditors: getAvailableEditors,
 	getLegacyEditors: () => legacyEditors,
+	resolveCustomEditor: resolveCustomEditorExecutable,
 	warn: () => undefined,
 	warnedEditors,
 };
@@ -45,13 +66,34 @@ export const resolveEditor = async (
 		...overrides,
 	};
 
-	if (defaultEditor) {
+	if (defaultEditor && typeof defaultEditor === 'object') {
+		const resolvedExecutable = dependencies.resolveCustomEditor(defaultEditor);
+		if (resolvedExecutable) {
+			return {
+				...resolvedExecutable,
+				type: 'custom',
+				id: 'custom',
+				name: defaultEditor.name,
+				editor: defaultEditor,
+			};
+		}
+
+		const warningId = `custom:${defaultEditor.executable}`;
+		if (!dependencies.warnedEditors.has(warningId)) {
+			dependencies.warnedEditors.add(warningId);
+			dependencies.warn(
+				`The executable for custom editor ${defaultEditor.name} (${defaultEditor.executable}) was not found or is not executable. Falling back to automatic editor detection.`,
+			);
+		}
+	}
+
+	if (typeof defaultEditor === 'string') {
 		const installedEditors = await dependencies.getInstalledEditors();
 		const installedEditor = installedEditors.find(
 			(editor) => editor.id === defaultEditor,
 		);
 		if (installedEditor) {
-			return installedEditor;
+			return {...installedEditor, type: 'built-in'};
 		}
 
 		if (!dependencies.warnedEditors.has(defaultEditor)) {
@@ -69,6 +111,7 @@ export const resolveEditor = async (
 
 	return {
 		...legacyEditor,
+		type: 'built-in',
 		id: null,
 		name: getDisplayNameForEditor(legacyEditor.command) ?? legacyEditor.command,
 	};

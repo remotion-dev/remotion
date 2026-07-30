@@ -119,8 +119,17 @@ export type {ChromiumOptions} from './open-browser';
 export {ChromeMode} from './options/chrome-mode';
 export {ColorSpace} from './options/color-space';
 export type {Concurrency} from './options/concurrency';
-export {defaultEditorIds} from './options/default-editor';
-export type {DefaultEditor} from './options/default-editor';
+export {
+	customEditorColumnNumberPlaceholder,
+	customEditorLineNumberPlaceholder,
+	customEditorTargetPathPlaceholder,
+	defaultEditorIds,
+} from './options/default-editor';
+export type {
+	BuiltInEditor,
+	CustomEditor,
+	DefaultEditor,
+} from './options/default-editor';
 export type {DeleteAfter} from './options/delete-after';
 export {OpenGlRenderer} from './options/gl';
 export {NumberOfGifLoops} from './options/number-of-gif-loops';

@@ -1,5 +1,7 @@
-import type {DefaultEditor} from '@remotion/renderer';
-import type {GetDefaultEditorInfoResponse} from '@remotion/studio-shared';
+import type {
+	EditorPickerId,
+	GetDefaultEditorInfoResponse,
+} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -9,6 +11,7 @@ import React, {
 } from 'react';
 import {LIGHT_TEXT} from '../helpers/colors';
 import {Checkmark} from '../icons/Checkmark';
+import {CustomEditorIcon} from '../icons/custom-editor';
 import {ModalsContext} from '../state/modals';
 import {callApi} from './call-api';
 import {Row, Spacing} from './layout';
@@ -39,13 +42,36 @@ const comboBoxStyle: React.CSSProperties = {
 	width: '100%',
 };
 
+const customEditorLabel: React.CSSProperties = {
+	display: 'inline-flex',
+	alignItems: 'center',
+	gap: 8,
+	maxWidth: '100%',
+	minWidth: 0,
+	color: 'inherit',
+	fontFamily: 'inherit',
+	fontSize: 'inherit',
+	lineHeight: 'inherit',
+};
+
+const customEditorName: React.CSSProperties = {
+	minWidth: 0,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+	color: 'inherit',
+	fontFamily: 'inherit',
+	fontSize: 'inherit',
+	lineHeight: 'inherit',
+};
+
 const NO_PREFERENCE_ID = 'no-preference';
 
 export const ConfigureDefaultEditorModal: React.FC = () => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const [editorInfo, setEditorInfo] =
 		useState<GetDefaultEditorInfoResponse | null>(null);
-	const [selectedEditor, setSelectedEditor] = useState<DefaultEditor | null>(
+	const [selectedEditor, setSelectedEditor] = useState<EditorPickerId | null>(
 		null,
 	);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -70,7 +96,15 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 				return {
 					id: editor.id,
 					keyHint: null,
-					label: editor.name,
+					label:
+						editor.id === 'custom' ? (
+							<span style={customEditorLabel}>
+								<CustomEditorIcon />
+								<span style={customEditorName}>{editor.name}</span>
+							</span>
+						) : (
+							editor.name
+						),
 					leftItem: selectedEditor === editor.id ? <Checkmark /> : null,
 					onClick: () => {
 						setSelectedEditor(editor.id);
