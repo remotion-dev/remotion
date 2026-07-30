@@ -46,18 +46,27 @@ test('forwards the correct arguments to the skills CLI', async () => {
 	const temporaryDirectory = mkdtempSync(
 		path.join(tmpdir(), 'remotion-skills-cli-'),
 	);
-	const fakeNpxPath = path.join(temporaryDirectory, 'npx');
+	const fakeNpxPath = path.join(
+		temporaryDirectory,
+		process.platform === 'win32' ? 'npx.cmd' : 'npx',
+	);
 	const outputFile = path.join(temporaryDirectory, 'arguments.jsonl');
+	const fakeNpxScript = `import {appendFileSync} from 'node:fs';
+appendFileSync(process.env.REMOTION_SKILLS_TEST_OUTPUT, JSON.stringify(process.argv.slice(2)) + '\\n');
+`;
 
 	try {
-		writeFileSync(
-			fakeNpxPath,
-			`#!${process.execPath}
-import {appendFileSync} from 'node:fs';
-appendFileSync(process.env.REMOTION_SKILLS_TEST_OUTPUT, JSON.stringify(process.argv.slice(2)) + '\\n');
-`,
-		);
-		chmodSync(fakeNpxPath, 0o755);
+		if (process.platform === 'win32') {
+			const fakeNpxScriptPath = path.join(temporaryDirectory, 'fake-npx.mjs');
+			writeFileSync(fakeNpxScriptPath, fakeNpxScript);
+			writeFileSync(
+				fakeNpxPath,
+				`@"${process.execPath}" "${fakeNpxScriptPath}" %*\r\n`,
+			);
+		} else {
+			writeFileSync(fakeNpxPath, `#!${process.execPath}\n${fakeNpxScript}`);
+			chmodSync(fakeNpxPath, 0o755);
+		}
 
 		await runSkillsCommand({
 			args: ['add'],
