@@ -962,6 +962,8 @@ export type UpdateAvailableResponse = {
 	currentVersion: string;
 	latestVersion: string;
 	updateAvailable: boolean;
+	skillsUpdateAvailable: boolean;
+	remotionUpgradeSkillAvailable: boolean;
 	timedOut: boolean;
 	packageManager: PackageManager | 'unknown';
 };

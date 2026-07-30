@@ -22,6 +22,8 @@ export type UpdateInfo = {
 	currentVersion: string;
 	latestVersion: string;
 	updateAvailable: boolean;
+	skillsUpdateAvailable: boolean;
+	remotionUpgradeSkillAvailable: boolean;
 	timedOut: boolean;
 	packageManager: PackageManager | 'unknown';
 };
@@ -35,6 +37,7 @@ const buttonStyle: React.CSSProperties = {
 	fontSize: 14,
 	display: 'inline-flex',
 	justifyContent: 'center',
+	marginLeft: 8,
 };
 
 // Keep in sync with packages/bugs/api/[v].ts
@@ -52,9 +55,9 @@ export const UpdateCheck = () => {
 	const [knownBugs, setKnownBugs] = useState<Bug[] | null>(null);
 	const [hovered, setHovered] = useState(false);
 
-	const hasKnownBugs = useMemo(() => {
-		return knownBugs && knownBugs.length > 0;
-	}, [knownBugs]);
+	const hasBugfixesAvailable = useMemo(() => {
+		return Boolean(info?.updateAvailable && knownBugs && knownBugs.length > 0);
+	}, [info?.updateAvailable, knownBugs]);
 
 	const checkForUpdates = useCallback(() => {
 		const controller = new AbortController();
@@ -118,9 +121,13 @@ export const UpdateCheck = () => {
 	const dynButtonStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...buttonStyle,
-			color: hovered ? WHITE : hasKnownBugs ? WARNING_COLOR : WHITE_ALPHA_80,
+			color: hovered
+				? WHITE
+				: hasBugfixesAvailable
+					? WARNING_COLOR
+					: WHITE_ALPHA_80,
 		};
-	}, [hasKnownBugs, hovered]);
+	}, [hasBugfixesAvailable, hovered]);
 
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
@@ -134,7 +141,7 @@ export const UpdateCheck = () => {
 		return null;
 	}
 
-	if (!info.updateAvailable) {
+	if (!info.updateAvailable && !info.skillsUpdateAvailable) {
 		return null;
 	}
 
@@ -146,9 +153,9 @@ export const UpdateCheck = () => {
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 			type="button"
-			title={hasKnownBugs ? 'Bugfixes available' : 'Update available'}
+			title={hasBugfixesAvailable ? 'Bugfixes available' : 'Update available'}
 		>
-			{hasKnownBugs ? (
+			{hasBugfixesAvailable ? (
 				'Bugfixes available'
 			) : (
 				<svg

@@ -1,15 +1,2 @@
-export const remotionSkillNames = [
-	'remotion-best-practices',
-	'remotion-captions',
-	'remotion-create',
-	'remotion-docs',
-	'remotion-interactivity',
-	'remotion-maps',
-	'remotion-markup',
-	'remotion-multimedia',
-	'remotion-render',
-	'remotion-saas',
-	'remotion-upgrade',
-] as const;
-
-export type RemotionSkillName = (typeof remotionSkillNames)[number];
+export {remotionSkillNames} from '@remotion/studio-server';
+export type {RemotionSkillName} from '@remotion/studio-server';

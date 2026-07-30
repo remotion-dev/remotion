@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo} from 'react';
-import {BLUE, SELECTED_BACKGROUND} from '../../helpers/colors';
+import {BLUE, LIGHT_TEXT, SELECTED_BACKGROUND} from '../../helpers/colors';
 import {copyText} from '../../helpers/copy-text';
 import {CopyButton} from '../CopyButton';
 import {KnownBugs} from '../KnownBugs';
@@ -15,7 +15,10 @@ const container: React.CSSProperties = {
 };
 
 const text: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
 	fontSize: 14,
+	lineHeight: 1.5,
 };
 
 const title: React.CSSProperties = {
@@ -26,17 +29,20 @@ const title: React.CSSProperties = {
 
 const code: React.CSSProperties = {
 	background: SELECTED_BACKGROUND,
+	color: LIGHT_TEXT,
+	fontFamily: 'monospace',
 	padding: '12px 10px',
 	fontSize: 14,
+	lineHeight: 1.5,
 	marginTop: 10,
 	marginBottom: 10,
 };
 
 const link: React.CSSProperties = {
+	...text,
 	fontWeight: 'bold',
 	color: BLUE,
 	textDecoration: 'none',
-	...text,
 };
 
 const commands: {[key in UpdateInfo['packageManager']]: string} = {
@@ -47,6 +53,9 @@ const commands: {[key in UpdateInfo['packageManager']]: string} = {
 	unknown: 'npx remotion upgrade',
 };
 
+const skillsUpdateCommand = 'npx remotion skills update';
+const remotionUpgradeSkill = '/remotion-upgrade';
+
 export const UpdateModal: React.FC<{
 	readonly info: UpdateInfo;
 	readonly knownBugs: Bug[];
@@ -55,19 +64,26 @@ export const UpdateModal: React.FC<{
 		return knownBugs && knownBugs?.length > 0;
 	}, [knownBugs]);
 
-	const command = commands[info.packageManager];
+	const updateAction = info.remotionUpgradeSkillAvailable
+		? remotionUpgradeSkill
+		: info.updateAvailable
+			? commands[info.packageManager]
+			: skillsUpdateCommand;
+	const updateActionType = info.remotionUpgradeSkillAvailable
+		? 'skill'
+		: 'command';
 
 	const onClick = useCallback(() => {
-		copyText(command).catch((err) => {
+		copyText(updateAction).catch((err) => {
 			showNotification(`Could not copy: ${err.message}`, 2000);
 		});
-	}, [command]);
+	}, [updateAction]);
 
 	return (
 		<DismissableModal>
 			<ModalHeader title="Update available" />
 			<div style={container}>
-				{hasKnownBugs ? (
+				{hasKnownBugs && info.updateAvailable ? (
 					<>
 						<div style={title}>
 							The currently installed version {info.currentVersion} has the
@@ -75,41 +91,56 @@ export const UpdateModal: React.FC<{
 						</div>
 						<KnownBugs bugs={knownBugs as Bug[]} />
 						<div style={{height: '20px'}} />
-						<div style={text}>To upgrade, run the following command:</div>
+						<div style={text}>
+							To upgrade, run the following {updateActionType}:
+						</div>
 					</>
+				) : info.updateAvailable ? (
+					<div style={title}>
+						A new update for Remotion is available! Run the following{' '}
+						{updateActionType}:
+					</div>
 				) : (
 					<div style={title}>
-						A new update for Remotion is available! Run the following command:
+						Your Remotion Agent Skills are out of date. Run the following{' '}
+						{updateActionType}:
 					</div>
 				)}
 				<Row align="center">
 					<Flex>
 						<pre onClick={onClick} style={code}>
-							{command}
+							{updateAction}
 						</pre>
 					</Flex>
 					<Spacing x={1} />
 					<CopyButton
-						textToCopy={command}
+						textToCopy={updateAction}
 						label="Copy"
 						labelWhenCopied="Copied!"
 					/>
 				</Row>
-				<div style={text}>
-					This will upgrade Remotion from {info.currentVersion} to{' '}
-					{info.latestVersion}.
-				</div>
-				<div style={text}>
-					Read the{' '}
-					<a
-						style={link}
-						target="_blank"
-						href="https://github.com/remotion-dev/remotion/releases"
-					>
-						Release notes
-					</a>{' '}
-					to know what{"'s"} new in Remotion.
-				</div>
+				{info.updateAvailable ? (
+					<div style={text}>
+						This will upgrade Remotion from {info.currentVersion} to{' '}
+						{info.latestVersion}
+						{info.skillsUpdateAvailable
+							? ' and update your project Remotion Agent Skills.'
+							: '.'}
+					</div>
+				) : null}
+				{info.updateAvailable ? (
+					<div style={text}>
+						Read the{' '}
+						<a
+							style={link}
+							target="_blank"
+							href="https://github.com/remotion-dev/remotion/releases"
+						>
+							Release notes
+						</a>{' '}
+						to know what{"'s"} new in Remotion.
+					</div>
+				) : null}
 			</div>
 		</DismissableModal>
 	);
