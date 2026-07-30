@@ -129,6 +129,33 @@ export const Fallback = () => <><Sequence name="First" /><Sequence name="Fallbac
 	}
 });
 
+test('computeSequencePropsStatus should ignore source locations outside the project', () => {
+	const remotionRoot = mkdtempSync(
+		path.join(tmpdir(), 'remotion-jsx-location-'),
+	);
+
+	try {
+		expect(
+			computeSequencePropsStatusFromFilenameByLocation({
+				fileName: '../studio/RefreshCompositionOverlay.js',
+				line: 1,
+				column: 1,
+				componentIdentity: null,
+				keys: [],
+				effects: [],
+				remotionRoot,
+				logLevel: 'info',
+				videoConfigValues,
+			}),
+		).toEqual({
+			success: false,
+			status: {canUpdate: false, reason: 'not-found'},
+		});
+	} finally {
+		rmSync(remotionRoot, {recursive: true, force: true});
+	}
+});
+
 test('computeSequencePropsStatus should treat staticFile() asset props as static', () => {
 	const input = `import {Img, staticFile} from 'remotion';
 

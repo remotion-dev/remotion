@@ -69,6 +69,12 @@ export const CaptionedVideo: React.FC<{
   const fetchSubtitles = useCallback(async () => {
     try {
       await loadFont();
+      if (!getFileExists(subtitlesFile)) {
+        setSubtitles([]);
+        continueRender(handle);
+        return;
+      }
+
       const res = await fetch(subtitlesFile);
       const data = (await res.json()) as Caption[];
       setSubtitles(data);
