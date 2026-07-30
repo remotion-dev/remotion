@@ -74,6 +74,7 @@ import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
 import {backgroundClipText3dTransform} from './fixtures/text/background-clip-text-3d-transform';
 import {filterText} from './fixtures/text/filter-text';
+import {fontStretch} from './fixtures/text/font-stretch';
 import {fontStyle} from './fixtures/text/font-style';
 import {fontVariantCaps} from './fixtures/text/font-variant-caps';
 import {letterSpacing} from './fixtures/text/letter-spacing';
@@ -184,6 +185,7 @@ export const Root: React.FC = () => {
 				<Composition {...textDecorationStyles} />
 				<Composition {...textDecorationWavy} />
 				<Composition {...fontStyle} />
+				<Composition {...fontStretch} />
 				<Composition {...fontVariantCaps} />
 				<Composition {...lineHeight} />
 				<Composition {...webkitTextFillColor} />
