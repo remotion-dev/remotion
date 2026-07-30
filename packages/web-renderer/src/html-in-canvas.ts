@@ -45,6 +45,8 @@ const runNestedHtmlInCanvasProbe = (): Promise<boolean> => {
 	const innerTarget = document.createElement('div');
 	const outerCtx = outer.getContext('2d') as Canvas2DWithDrawElement | null;
 	const innerCtx = inner.getContext('2d') as Canvas2DWithDrawElement | null;
+	const density = devicePixelRatio;
+	const canvasSize = Math.ceil(4 * density);
 
 	if (
 		!outerCtx ||
@@ -57,10 +59,10 @@ const runNestedHtmlInCanvasProbe = (): Promise<boolean> => {
 
 	outer.layoutSubtree = true;
 	inner.layoutSubtree = true;
-	outer.width = 4;
-	outer.height = 4;
-	inner.width = 4;
-	inner.height = 4;
+	outer.width = canvasSize;
+	outer.height = canvasSize;
+	inner.width = canvasSize;
+	inner.height = canvasSize;
 
 	Object.assign(outer.style, {
 		display: 'block',
@@ -119,10 +121,10 @@ const runNestedHtmlInCanvasProbe = (): Promise<boolean> => {
 		inner.addEventListener('paint', () => {
 			try {
 				innerCtx.reset();
+				innerCtx.scale(density, density);
 				const transform = innerCtx.drawElementImage(innerTarget, 0, 0, 4, 4);
 				innerTarget.style.transform = transform.toString();
 				innerPainted = true;
-				requestAnimationFrame(() => outer.requestPaint!());
 			} catch {
 				settle(false);
 			}
@@ -135,6 +137,7 @@ const runNestedHtmlInCanvasProbe = (): Promise<boolean> => {
 
 			try {
 				outerCtx.reset();
+				outerCtx.scale(density, density);
 				if (typeof outer.captureElementImage !== 'function') {
 					settle(false);
 					return;
@@ -144,7 +147,13 @@ const runNestedHtmlInCanvasProbe = (): Promise<boolean> => {
 				const transform = outerCtx.drawElementImage(elementImage, 0, 0, 4, 4);
 				elementImage.close();
 				outerTarget.style.transform = transform.toString();
-				const pixel = outerCtx.getImageData(2, 2, 1, 1).data;
+				const sampleCoordinate = Math.floor(canvasSize / 2);
+				const pixel = outerCtx.getImageData(
+					sampleCoordinate,
+					sampleCoordinate,
+					1,
+					1,
+				).data;
 				settle(
 					pixel[0] > 200 && pixel[1] < 20 && pixel[2] < 20 && pixel[3] > 200,
 				);
@@ -153,7 +162,11 @@ const runNestedHtmlInCanvasProbe = (): Promise<boolean> => {
 			}
 		});
 
+		// Request both paints in the same rendering update. Nested layout canvases
+		// dispatch their paint events deepest-first, so the inner bitmap is ready
+		// when the outer canvas captures its subtree.
 		inner.requestPaint!();
+		outer.requestPaint!();
 	});
 };
 
