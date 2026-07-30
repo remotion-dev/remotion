@@ -32,6 +32,9 @@ test('blank template virtual files match the source template', () => {
 	expect(readTemplateFile('tsconfig.json')).toBe(
 		blankTemplateFiles['/project/tsconfig.json'],
 	);
+	expect(readTemplateFile('remotion.config.ts')).toBe(
+		blankTemplateFiles['/project/remotion.config.ts'],
+	);
 });
 
 test('createBlankTemplateProject points to the virtual entry point', () => {
