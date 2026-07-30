@@ -20,6 +20,7 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
+import {getSafeElementInstallPaths} from './safe-element-install-path';
 import {withSourceFileWriteQueue} from './source-file-write-queue';
 
 const validatePosition = (
@@ -32,14 +33,6 @@ const validatePosition = (
 	if (!Number.isFinite(position.x) || !Number.isFinite(position.y)) {
 		throw new Error('Position must be finite');
 	}
-};
-
-const isInside = ({child, parent}: {child: string; parent: string}) => {
-	const relative = path.relative(parent, child);
-	return (
-		relative === '' ||
-		(!relative.startsWith('..') && !path.isAbsolute(relative))
-	);
 };
 
 const withoutTsxExtension = (fileName: string) => {
@@ -175,13 +168,15 @@ export const insertElementHandler: ApiHandler<
 				);
 			}
 
-			const elementFileName = path.resolve(
-				path.dirname(location.fileName),
-				derivedElementFileName,
-			);
-			if (!isInside({child: elementFileName, parent: remotionRoot})) {
-				throw new Error('Element file must stay inside the Remotion project');
-			}
+			const safePaths = await getSafeElementInstallPaths({
+				compositionFileName: location.fileName,
+				elementFileName: path.resolve(
+					path.dirname(location.fileName),
+					derivedElementFileName,
+				),
+				remotionRoot,
+			});
+			const {elementFileName} = safePaths;
 
 			const elementFileExists = existsSync(elementFileName);
 			const existingElementSource = elementFileExists
@@ -198,7 +193,7 @@ export const insertElementHandler: ApiHandler<
 					type: 'file-conflict',
 					conflict: {
 						filePath: path
-							.relative(remotionRoot, elementFileName)
+							.relative(safePaths.remotionRoot, elementFileName)
 							.split(path.sep)
 							.join('/'),
 						existingSource: existingElementSource,
@@ -235,6 +230,19 @@ export const insertElementHandler: ApiHandler<
 					position,
 				},
 			});
+
+			const finalSafePaths = await getSafeElementInstallPaths({
+				compositionFileName: inserted.fileName,
+				elementFileName,
+				remotionRoot,
+			});
+			if (
+				finalSafePaths.compositionFileName !== safePaths.compositionFileName
+			) {
+				throw new Error(
+					'Composition source changed during Element installation',
+				);
+			}
 
 			pushTransactionToUndoStack({
 				snapshots: [
