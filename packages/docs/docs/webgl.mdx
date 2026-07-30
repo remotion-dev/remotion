@@ -9,9 +9,7 @@ Some Remotion packages and third-party libraries use WebGL or WebGPU during rend
 
 ## Remotion 5.0
 
-In Remotion 5.0, WebGL and WebGPU work during rendering by default. The default OpenGL renderer is `angle`, with automatic fallback to `swangle`. No renderer option is needed.
-
-Lambda and Cloud Run continue to use `swangle` by default, because they have no GPU.
+In Remotion 5.0, you don't need to specify any option for `--gl`. The renderer does automatically enable WebGL and WebGPU if possible and uses software fallbacks otherwise.
 
 ## Remotion 4.0
 
