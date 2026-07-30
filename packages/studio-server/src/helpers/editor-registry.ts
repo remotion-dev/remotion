@@ -3,13 +3,13 @@ import {existsSync} from 'node:fs';
 import {homedir} from 'node:os';
 import path from 'node:path';
 import {promisify} from 'node:util';
-import type {DefaultEditor} from '@remotion/renderer';
+import type {BuiltInEditor} from '@remotion/renderer';
 import {defaultEditorIds} from '@remotion/renderer';
 
 const execFilePromise = promisify(execFile);
 
 export type InstalledEditor = {
-	id: DefaultEditor;
+	id: BuiltInEditor;
 	name: string;
 	process: string;
 	command: string;
@@ -42,7 +42,7 @@ export type EditorDiscoveryContext = {
 	pathExists: (filePath: string) => boolean;
 	findMacApplications: (bundleIdentifier: string) => Promise<readonly string[]>;
 	findWindowsApplications: (
-		editor: DefaultEditor,
+		editor: BuiltInEditor,
 	) => Promise<readonly string[]>;
 };
 
@@ -346,9 +346,9 @@ const editorDefinitions = {
 			},
 		],
 	},
-} satisfies Record<DefaultEditor, EditorDefinition>;
+} satisfies Record<BuiltInEditor, EditorDefinition>;
 
-export const getDefaultEditorName = (id: DefaultEditor) =>
+export const getDefaultEditorName = (id: BuiltInEditor) =>
 	editorDefinitions[id].darwin[0].name;
 
 const findMacApplications = async (
@@ -380,7 +380,7 @@ const windowsDisplayNamePrefixes = {
 	vscodium: ['VSCodium'],
 	webstorm: ['WebStorm', 'JetBrains WebStorm'],
 	'sublime-text': ['Sublime Text'],
-} satisfies Record<DefaultEditor, readonly string[]>;
+} satisfies Record<BuiltInEditor, readonly string[]>;
 
 const parseWindowsRegistryApplications = (
 	output: string,
@@ -455,7 +455,7 @@ const getWindowsRegistryApplications = () => {
 	return windowsRegistryApplications;
 };
 
-const findWindowsApplications = async (editor: DefaultEditor) => {
+const findWindowsApplications = async (editor: BuiltInEditor) => {
 	const prefixes = windowsDisplayNamePrefixes[editor];
 	const applications = await getWindowsRegistryApplications();
 	return applications
@@ -481,7 +481,7 @@ const findDarwinEditor = async ({
 	variants,
 	context,
 }: {
-	id: DefaultEditor;
+	id: BuiltInEditor;
 	variants: readonly DarwinEditorVariant[];
 	context: EditorDiscoveryContext;
 }): Promise<InstalledEditor | null> => {
@@ -558,7 +558,7 @@ const findExecutableEditor = ({
 	context,
 	additionalPaths,
 }: {
-	id: DefaultEditor;
+	id: BuiltInEditor;
 	variants: readonly ExecutableEditorVariant[];
 	context: EditorDiscoveryContext;
 	additionalPaths: readonly string[];

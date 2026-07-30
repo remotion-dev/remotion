@@ -135,7 +135,12 @@ test('reset config options restores defaults before reloading config', async () 
 
 test('the CLI editor flag takes precedence over Config.setDefaultEditor()', () => {
 	ConfigInternals.resetConfigOptions();
-	Config.setDefaultEditor('cursor');
+	Config.setDefaultEditor({
+		type: 'custom',
+		name: 'Acme Editor',
+		executable: '/opt/acme/editor',
+		arguments: ['--goto', '%TARGET_PATH%:%LINE_NUMBER%:%COLUMN_NUMBER%'],
+	});
 
 	expect(
 		BrowserSafeApis.options.defaultEditorOption.getValue({
@@ -145,6 +150,14 @@ test('the CLI editor flag takes precedence over Config.setDefaultEditor()', () =
 	expect(() => Config.setDefaultEditor('invalid' as 'cursor')).toThrow(
 		'Config.setDefaultEditor() must be one of',
 	);
+	expect(() =>
+		Config.setDefaultEditor({
+			type: 'custom',
+			name: 'Acme Editor',
+			executable: '/opt/acme/editor',
+			arguments: ['--goto'],
+		}),
+	).toThrow('Custom editor arguments must include %TARGET_PATH%');
 });
 
 test('bundler overrides can be fixed at Studio startup', async () => {

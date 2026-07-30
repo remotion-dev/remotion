@@ -50,6 +50,7 @@ export {
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
 	ElementInstallSource,
+	EditorPickerId,
 	FindInFileRequest,
 	FindInFileResponse,
 	GetDefaultEditorInfoRequest,

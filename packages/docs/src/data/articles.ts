@@ -6977,6 +6977,15 @@ export const articles = [
 		slug: 'studio/make-component-interactive',
 	},
 	{
+		id: 'studio/open-in-editor',
+		title: 'Setting the default code editor',
+		relativePath: 'docs/studio/open-in-editor.mdx',
+		compId: 'articles-docs-studio-open-in-editor',
+		crumb: 'Remotion Studio',
+		noAi: false,
+		slug: 'studio/open-in-editor',
+	},
+	{
 		id: 'studio/pause',
 		title: 'pause()',
 		relativePath: 'docs/studio/pause.mdx',

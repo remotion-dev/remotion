@@ -67,7 +67,7 @@ test('an invalid config reload keeps the previous configuration', async () => {
 	expect(ConfigInternals.getStudioPort()).toBe(4321);
 
 	writeConfig(
-		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(6789); Config.setDefaultEditor('zed');`,
+		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(6789); Config.setDefaultEditor({type: 'custom', name: 'Acme Editor', executable: '/opt/acme/editor', arguments: ['--goto', '%TARGET_PATH%:%LINE_NUMBER%:%COLUMN_NUMBER%']});`,
 	);
 	expect(
 		await reloadConfig({
@@ -78,7 +78,12 @@ test('an invalid config reload keeps the previous configuration', async () => {
 	expect(
 		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
 			.value,
-	).toBe('zed');
+	).toEqual({
+		type: 'custom',
+		name: 'Acme Editor',
+		executable: '/opt/acme/editor',
+		arguments: ['--goto', '%TARGET_PATH%:%LINE_NUMBER%:%COLUMN_NUMBER%'],
+	});
 
 	writeConfig(
 		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(7890);`,

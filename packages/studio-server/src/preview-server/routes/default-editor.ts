@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import type {DefaultEditor} from '@remotion/renderer';
+import type {BuiltInEditor} from '@remotion/renderer';
 import {defaultEditorIds} from '@remotion/renderer';
 import type {
 	GetDefaultEditorInfoRequest,
@@ -18,7 +18,7 @@ export const updateDefaultEditorInConfig = ({
 	defaultEditor,
 }: {
 	configContents: string;
-	defaultEditor: DefaultEditor | null;
+	defaultEditor: BuiltInEditor | null;
 }) => {
 	const ast = parseAst(configContents);
 	recast.types.visit(ast.program, {
@@ -57,16 +57,27 @@ export const getDefaultEditorInfoHandler: ApiHandler<
 	GetDefaultEditorInfoResponse
 > = async ({getDefaultEditor}) => {
 	const installedEditors = await getAvailableEditors();
+	const configuredEditor = getDefaultEditor();
+	const customEditor =
+		configuredEditor && typeof configuredEditor === 'object'
+			? configuredEditor
+			: null;
 	return {
-		defaultEditor: getDefaultEditor(),
-		installedEditors: installedEditors.map(({id, name}) => ({id, name})),
+		defaultEditor:
+			typeof configuredEditor === 'object' ? 'custom' : configuredEditor,
+		installedEditors: [
+			...installedEditors.map(({id, name}) => ({id, name})),
+			...(customEditor
+				? [{id: 'custom' as const, name: customEditor.name}]
+				: []),
+		],
 	};
 };
 
 export const updateDefaultEditorHandler: ApiHandler<
 	UpdateDefaultEditorRequest,
 	UpdateDefaultEditorResponse
-> = async ({input, configFile}) => {
+> = async ({input, configFile, getDefaultEditor}) => {
 	if (configFile === null || configFile === undefined) {
 		return {
 			success: false,
@@ -74,9 +85,24 @@ export const updateDefaultEditorHandler: ApiHandler<
 		};
 	}
 
+	if (input.defaultEditor === 'custom') {
+		const configuredEditor = getDefaultEditor();
+		if (!configuredEditor || typeof configuredEditor !== 'object') {
+			return {
+				success: false,
+				reason: 'No custom editor is configured.',
+			};
+		}
+
+		// The browser only knows the opaque "custom" ID. Keeping the existing
+		// config call untouched avoids exposing or rewriting its executable and
+		// arguments, which may have come from environment variables.
+		return {success: true};
+	}
+
 	if (
 		input.defaultEditor !== null &&
-		!defaultEditorIds.includes(input.defaultEditor)
+		!defaultEditorIds.includes(input.defaultEditor as BuiltInEditor)
 	) {
 		return {
 			success: false,
@@ -99,7 +125,7 @@ export const updateDefaultEditorHandler: ApiHandler<
 		configFile,
 		updateDefaultEditorInConfig({
 			configContents,
-			defaultEditor: input.defaultEditor,
+			defaultEditor: input.defaultEditor as BuiltInEditor | null,
 		}),
 		undefined,
 	);

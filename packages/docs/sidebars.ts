@@ -1334,6 +1334,7 @@ const sidebars: SidebarsConfig = {
 			label: 'Studio',
 			items: [
 				'studio/studio',
+				'studio/open-in-editor',
 				'studio/shortcuts',
 				'studio/quick-switcher',
 				'studio/interactivity',
