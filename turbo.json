@@ -120,6 +120,20 @@
 			"outputs": [],
 			"outputLogs": "new-only"
 		},
+		"@remotion/browser-studio#test": {
+			"dependsOn": ["^make", "make"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"$TURBO_ROOT$/packages/template-blank/package.json",
+				"$TURBO_ROOT$/packages/template-blank/remotion.config.ts",
+				"$TURBO_ROOT$/packages/template-blank/src/Composition.tsx",
+				"$TURBO_ROOT$/packages/template-blank/src/Root.tsx",
+				"$TURBO_ROOT$/packages/template-blank/src/index.ts",
+				"$TURBO_ROOT$/packages/template-blank/tsconfig.json"
+			],
+			"outputs": [],
+			"outputLogs": "new-only"
+		},
 		"@remotion/renderer#test": {
 			"dependsOn": [
 				"^make",
