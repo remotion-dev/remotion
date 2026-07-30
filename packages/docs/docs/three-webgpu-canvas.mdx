@@ -56,13 +56,32 @@ Three.js's `WebGPURenderer` falls back to a WebGL 2 backend when WebGPU is unava
 
 ## Rendering
 
-Chrome Headless Shell does not have access to a GPU. Use Chrome for Testing when rendering:
+Enable a Chromium graphics backend when rendering. Without one, Chrome Headless Shell may produce an empty canvas:
 
-```bash title="Render using Chrome for Testing"
-npx remotion render --chrome-mode=chrome-for-testing
+```bash title="Render using ANGLE"
+npx remotion render three-webgpu out/video.mp4 --gl=angle
 ```
 
-On Linux, a Vulkan-capable GPU may additionally require `--gl=vulkan`. Use [`npx remotion gpu`](/docs/cli/gpu) with the same browser options to inspect GPU support.
+When using a [server-side rendering API](/docs/ssr), pass the equivalent option:
+
+```ts title="render.ts"
+import {renderMedia} from '@remotion/renderer';
+
+await renderMedia({
+  // ...
+  chromiumOptions: {gl: 'angle'},
+});
+```
+
+Use `swangle` instead of `angle` on a machine without a GPU. It provides a software-backed rendering path and is the default on Lambda.
+
+To render using a native GPU, use Chrome for Testing. On Linux, a Vulkan-capable GPU may additionally require `--gl=vulkan`:
+
+```bash title="Render using a native GPU"
+npx remotion render three-webgpu out/video.mp4 --chrome-mode=chrome-for-testing --gl=angle
+```
+
+Use [`npx remotion gpu`](/docs/cli/gpu) with the same browser options to inspect GPU support.
 
 ## Props
 
