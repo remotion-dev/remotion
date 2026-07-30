@@ -23,4 +23,21 @@ export const Seo = {
 			<meta key="img2" name="twitter:image" content={imgSrc} />,
 		];
 	},
+	renderVideo: ({
+		height,
+		url,
+		width,
+	}: {
+		readonly height: number;
+		readonly url: string;
+		readonly width: number;
+	}) => {
+		return [
+			<meta key="video1" property="og:video" content={url} />,
+			<meta key="video2" property="og:video:secure_url" content={url} />,
+			<meta key="video3" property="og:video:type" content="video/mp4" />,
+			<meta key="video4" property="og:video:width" content={String(width)} />,
+			<meta key="video5" property="og:video:height" content={String(height)} />,
+		];
+	},
 };
