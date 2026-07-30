@@ -27,6 +27,7 @@ import {moveKeyframesHandler} from './routes/move-keyframes';
 import {openInEditorHandler} from './routes/open-in-editor';
 import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
 import {pasteEffectsHandler} from './routes/paste-effects';
+import {prepareElementInstallHandler} from './routes/prepare-element-install';
 import {projectInfoHandler} from './routes/project-info';
 import {redoHandler} from './routes/redo';
 import {registerClientRenderHandler} from './routes/register-client-render';
@@ -109,6 +110,7 @@ export const allApiRoutes: {
 	'/api/install-package': handleInstallPackage,
 	'/api/insert-jsx-element': insertJsxElementHandler,
 	'/api/insert-element': insertElementHandler,
+	'/api/prepare-element-install': prepareElementInstallHandler,
 	'/api/update-element-install-target': updateElementInstallTargetHandler,
 	'/api/download-remote-asset': downloadRemoteAssetHandler,
 	'/api/undo': undoHandler,
