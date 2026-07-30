@@ -2,20 +2,7 @@ import {spawn} from 'node:child_process';
 import type {LogLevel} from '@remotion/renderer';
 import {chalk} from './chalk';
 import {Log} from './log';
-
-const remotionSkillNames = [
-	'remotion-best-practices',
-	'remotion-captions',
-	'remotion-create',
-	'remotion-docs',
-	'remotion-interactivity',
-	'remotion-maps',
-	'remotion-markup',
-	'remotion-multimedia',
-	'remotion-render',
-	'remotion-saas',
-	'remotion-upgrade',
-];
+import {remotionSkillNames} from './remotion-skill-names';
 
 export const printSkillsHelp = (logLevel: LogLevel) => {
 	Log.info({indent: false, logLevel}, chalk.blue('remotion skills'));

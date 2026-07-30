@@ -1,6 +1,7 @@
 ---
 name: remotion-interactivity
 description: Structure Remotion markup for interactivity
+version: 4.0.502
 metadata:
   tags: remotion, interactivity, studio, visual mode
 ---
