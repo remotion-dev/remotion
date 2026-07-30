@@ -87,7 +87,7 @@ export const insertElementHandler: ApiHandler<
 					expected: expectedFileState,
 				})
 			) {
-				const existingElementSource = plan.existingElementSource;
+				const {existingElementSource} = plan;
 				if (existingElementSource !== null) {
 					return {
 						success: false,
