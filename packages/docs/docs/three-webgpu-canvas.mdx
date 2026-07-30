@@ -79,13 +79,9 @@ await renderMedia({
 
 When using Remotion 4.0 on a machine without a GPU, use `swangle` instead of `angle`. It provides a software-backed rendering path and is the default on Lambda and Cloud Run.
 
-To explicitly use ANGLE with a native GPU, use Chrome for Testing. On Linux, a Vulkan-capable GPU may additionally require `--gl=vulkan`:
+To use a native GPU on a headless Linux server, follow the [GPU rendering guide](/docs/miscellaneous/cloud-gpu). This setup uses Chrome for Testing and may require `--gl=vulkan`.
 
-```bash title="Render using a native GPU"
-npx remotion render three-webgpu out/video.mp4 --chrome-mode=chrome-for-testing --gl=angle
-```
-
-Use [`npx remotion gpu`](/docs/cli/gpu) with the same browser options to inspect GPU support.
+Use [`npx remotion gpu`](/docs/cli/gpu) to inspect GPU support.
 
 ## Props
 
