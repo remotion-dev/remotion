@@ -23,17 +23,6 @@ From Remotion 5.0, `angle` is the default renderer. A compatible GPU is used whe
 
 Lambda and Cloud Run continue to use `swangle` by default.
 
-To retain the Remotion 4.0 behavior in a Node.js API, pass `null` to let Chrome decide:
-
-```ts title="render.ts"
-await renderMedia({
-  // ...
-  chromiumOptions: {
-    gl: null,
-  },
-});
-```
-
 ## Recommended renderers in Remotion 4.0
 
 <Step>1</Step> If you use WebGL, WebGPU or Three.js:
