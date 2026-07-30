@@ -48,6 +48,18 @@ The minimum Node version is now <MinNodeVersion />. The minimum Bun version is <
 
 If you use `@remotion/eslint-config`, the minimum ESLint version is now <MinEslintVersion />.
 
+## ANGLE is now the default OpenGL renderer
+
+In Remotion 4, the default OpenGL renderer is `null`, which lets Chrome decide which renderer to use.
+
+In Remotion 5, the default is `angle`. A compatible GPU is used when available, and Chromium automatically falls back to software rendering through SwiftShader otherwise. Lambda and Cloud Run continue to use `swangle` by default.
+
+This change can affect rendering performance and the output of WebGL content.
+
+The automatic fallback uses Chromium's `--enable-unsafe-swiftshader` flag, which has lower security guarantees and is intended for trusted rendering workloads.
+
+**Required action**: Review WebGL-heavy compositions after upgrading. To retain the Remotion 4 behavior in a Node.js API, pass `chromiumOptions: {gl: null}`. See [OpenGL renderer backends](/docs/gl-options) for details.
+
 ## `selectComposition()` and `getCompositions()` now require `inputProps`
 
 `inputProps` is now required in [`selectComposition()`](/docs/renderer/select-composition) and [`getCompositions()`](/docs/renderer/get-compositions).  
