@@ -21,8 +21,6 @@ The following renderer backends are supported in Remotion:
 
 From Remotion 5.0, `angle` is the default renderer. A compatible GPU is used when available, and Chromium automatically falls back to software rendering through SwiftShader otherwise. No renderer option is needed to make WebGL work.
 
-The automatic fallback uses Chromium's `--enable-unsafe-swiftshader` flag, which opts into lower security guarantees and is intended for trusted rendering workloads.
-
 Lambda and Cloud Run continue to use `swangle` by default.
 
 To retain the Remotion 4 behavior in a Node.js API, pass `null` to let Chrome decide:
