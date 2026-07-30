@@ -8,7 +8,6 @@ import {getEffectDragData} from '../effect-drag-and-drop';
 import {handleDrop} from '../handle-drop';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useSvgImportDialog} from '../SvgImportDialog';
-import {useElementOverwriteConfirmation} from '../use-element-overwrite-confirmation';
 import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
 import {getFrameFromTimelineDrop} from './timeline-scroll-logic';
 import {useResolvedStack} from './use-resolved-stack';
@@ -34,7 +33,6 @@ export const useTimelineAssetDrop = () => {
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const chooseSvgImportMode = useSvgImportDialog();
-	const confirmElementOverwrite = useElementOverwriteConfirmation();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
 	const [assetDropFrame, setAssetDropFrame] = useState<number | null>(null);
@@ -162,7 +160,6 @@ export const useTimelineAssetDrop = () => {
 				await handleDrop({
 					chooseSvgImportMode,
 					compositionFile,
-					confirmElementOverwrite,
 					compositionId: currentCompositionId,
 					destinationDimensions: {
 						height: videoConfig.height,
@@ -185,7 +182,6 @@ export const useTimelineAssetDrop = () => {
 			chooseSvgImportMode,
 			compositionComponentInfo?.canAddSequence,
 			compositionFile,
-			confirmElementOverwrite,
 			currentCompositionId,
 			getDropFrame,
 			videoConfig,
