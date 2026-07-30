@@ -3,6 +3,7 @@ import {spawn} from 'node:child_process';
 import {
 	chmodSync,
 	mkdtempSync,
+	readdirSync,
 	readFileSync,
 	rmSync,
 	writeFileSync,
@@ -73,6 +74,20 @@ appendFileSync(process.env.REMOTION_SKILLS_TEST_OUTPUT, JSON.stringify(process.a
 			.trim()
 			.split('\n')
 			.map((line) => JSON.parse(line));
+		const skillsDirectory = path.join(
+			__dirname,
+			'..',
+			'..',
+			'..',
+			'skills',
+			'skills',
+		);
+		const remotionSkillNames = readdirSync(skillsDirectory, {
+			withFileTypes: true,
+		})
+			.filter((entry) => entry.isDirectory())
+			.map((entry) => entry.name)
+			.sort();
 
 		expect(addArguments).toEqual([
 			'--loglevel=error',
@@ -85,17 +100,7 @@ appendFileSync(process.env.REMOTION_SKILLS_TEST_OUTPUT, JSON.stringify(process.a
 			'--loglevel=error',
 			'skills',
 			'update',
-			'remotion-best-practices',
-			'remotion-captions',
-			'remotion-create',
-			'remotion-docs',
-			'remotion-interactivity',
-			'remotion-maps',
-			'remotion-markup',
-			'remotion-multimedia',
-			'remotion-render',
-			'remotion-saas',
-			'remotion-upgrade',
+			...remotionSkillNames,
 			'--yes',
 		]);
 	} finally {
