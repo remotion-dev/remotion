@@ -19,6 +19,7 @@ import {
 } from '../components/Elements/element-utils';
 import {ElementLibrary} from '../components/Elements/ElementLibrary';
 import {getElementPreviewDimensions} from '../components/Elements/ElementPreviewComposition';
+import {Seo} from '../components/Seo';
 
 const elementsRoot = path.join(__dirname, '..', '..', 'elements');
 const templateRoot = path.join(__dirname, '..', '..', 'elements-template');
@@ -250,6 +251,48 @@ describe('Element library', () => {
 				}
 			}
 		}
+	});
+});
+
+describe('Element social previews', () => {
+	test('uses the published poster in each Element page frontmatter', () => {
+		for (const definition of elementDefinitionList) {
+			const mdx = readFileSync(
+				path.join(elementsRoot, definition.slug, 'index.mdx'),
+				'utf8',
+			);
+			expect(mdx).toContain(`image: ${definition.preview.posterUrl}`);
+		}
+	});
+
+	test('renders Open Graph video metadata for the published preview', () => {
+		const markup = renderToStaticMarkup(
+			React.createElement(
+				React.Fragment,
+				null,
+				...Seo.renderVideo({
+					height: 420,
+					url: 'https://remotion.media/elements/text-timed-captions-preview.mp4',
+					width: 1140,
+				}),
+			),
+		);
+
+		expect(markup).toContain(
+			'<meta property="og:video" content="https://remotion.media/elements/text-timed-captions-preview.mp4"/>',
+		);
+		expect(markup).toContain(
+			'<meta property="og:video:secure_url" content="https://remotion.media/elements/text-timed-captions-preview.mp4"/>',
+		);
+		expect(markup).toContain(
+			'<meta property="og:video:type" content="video/mp4"/>',
+		);
+		expect(markup).toContain(
+			'<meta property="og:video:width" content="1140"/>',
+		);
+		expect(markup).toContain(
+			'<meta property="og:video:height" content="420"/>',
+		);
 	});
 });
 

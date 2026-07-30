@@ -1,3 +1,4 @@
+import Head from '@docusaurus/Head';
 import {
 	createElementPayload,
 	installInStudio,
@@ -11,6 +12,7 @@ import React, {
 	type ReactNode,
 } from 'react';
 import {BlueButton, PlainButton} from '../../../components/layout/Button';
+import {Seo} from '../Seo';
 import type {ElementDefinition} from './element-definitions';
 import {setElementDragImage} from './element-drag-data';
 import {getElementDimensionsLabel} from './element-utils';
@@ -118,6 +120,13 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 
 	return (
 		<div className={styles.workbench}>
+			<Head>
+				{Seo.renderVideo({
+					height: previewHeight,
+					url: definition.preview.videoUrl,
+					width: previewWidth,
+				})}
+			</Head>
 			<section aria-label="Preview" className={styles.previewColumn}>
 				<div className={styles.previewAndSource}>
 					<ElementPreview
