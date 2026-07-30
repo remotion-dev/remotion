@@ -24,7 +24,6 @@ import {insertJsxElementHandler} from './routes/insert-jsx-element';
 import {handleInstallPackage} from './routes/install-dependency';
 import {logStudioErrorHandler} from './routes/log-studio-error';
 import {moveKeyframesHandler} from './routes/move-keyframes';
-import {openInEditorHandler} from './routes/open-in-editor';
 import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
 import {pasteEffectsHandler} from './routes/paste-effects';
 import {projectInfoHandler} from './routes/project-info';
@@ -55,7 +54,7 @@ import {updatePublicLicenseHandler} from './routes/update-public-license';
 import {updateSequenceKeyframeSettingsHandler} from './routes/update-sequence-keyframe-settings';
 
 export const allApiRoutes: {
-	[key in keyof ApiRoutes]: ApiHandler<
+	[key in Exclude<keyof ApiRoutes, '/api/open-in-editor'>]: ApiHandler<
 		ApiRoutes[key]['Request'],
 		ApiRoutes[key]['Response']
 	>;
@@ -67,7 +66,6 @@ export const allApiRoutes: {
 	'/api/unsubscribe-from-file-existence': unsubscribeFromFileExistence,
 	'/api/subscribe-to-file-existence': subscribeToFileExistence,
 	'/api/remove-render': handleRemoveRender,
-	'/api/open-in-editor': openInEditorHandler,
 	'/api/find-in-file': findInFileHandler,
 	'/api/open-in-file-explorer': handleOpenInFileExplorer,
 	'/api/register-client-render': registerClientRenderHandler,

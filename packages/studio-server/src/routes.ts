@@ -4,11 +4,13 @@ import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
 import {BundlerInternals} from '@remotion/bundler';
-import type {LogLevel} from '@remotion/renderer';
+import type {DefaultEditor, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ApiRoutes,
 	GitSource,
+	OpenInEditorRequest,
+	OpenInEditorResponse,
 	RenderDefaults,
 	RenderJob,
 	StudioRuntimeConfig,
@@ -27,6 +29,7 @@ import {handleRequest} from './preview-server/handler';
 import type {LiveEventsServer} from './preview-server/live-events';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
 import {getEditorName} from './preview-server/routes/open-in-editor';
+import {openInEditorHandler} from './preview-server/routes/open-in-editor';
 import {serveStatic} from './preview-server/serve-static';
 import {handleStudioProtocolDiscovery} from './preview-server/studio-protocol/handle-discovery';
 import {handleStudioProtocolInstall} from './preview-server/studio-protocol/handle-install';
@@ -85,6 +88,7 @@ const handleFallback = async ({
 	logLevel,
 	enableCrossSiteIsolation,
 	getStudioRuntimeConfig,
+	getDefaultEditor,
 }: {
 	remotionRoot: string;
 	hash: string;
@@ -102,6 +106,7 @@ const handleFallback = async ({
 	logLevel: LogLevel;
 	enableCrossSiteIsolation: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	getDefaultEditor: () => DefaultEditor | null;
 }) => {
 	const acceptsHtml = (request.headers.accept ?? '').includes('text/html');
 	if (request.method === 'GET' && acceptsHtml) {
@@ -131,7 +136,7 @@ const handleFallback = async ({
 		);
 	}
 
-	const displayName = await getEditorName();
+	const displayName = await getEditorName({getDefaultEditor, logLevel});
 
 	response.setHeader('content-type', 'text/html');
 	if (enableCrossSiteIsolation) {
@@ -376,6 +381,7 @@ export const handleRoutes = ({
 	getPreviewSampleRate,
 	enableCrossSiteIsolation,
 	getStudioRuntimeConfig,
+	getDefaultEditor,
 	configFile,
 }: {
 	staticHash: string;
@@ -401,6 +407,7 @@ export const handleRoutes = ({
 	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	getDefaultEditor: () => DefaultEditor | null;
 	configFile: string | null;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
@@ -458,6 +465,21 @@ export const handleRoutes = ({
 			liveEventsServer,
 			request,
 			response,
+		});
+	}
+
+	if (url.pathname === '/api/open-in-editor') {
+		return handleRequest<OpenInEditorRequest, OpenInEditorResponse>({
+			remotionRoot,
+			entryPoint,
+			handler: (params) => openInEditorHandler({...params, getDefaultEditor}),
+			request,
+			response,
+			logLevel,
+			methods,
+			binariesDirectory,
+			publicDir,
+			configFile,
 		});
 	}
 
@@ -554,5 +576,6 @@ export const handleRoutes = ({
 		getPreviewSampleRate,
 		enableCrossSiteIsolation,
 		getStudioRuntimeConfig,
+		getDefaultEditor,
 	});
 };

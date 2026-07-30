@@ -15,6 +15,7 @@ import {configOption} from './config';
 import {crfOption} from './crf';
 import {enableCrossSiteIsolationOption} from './cross-site-isolation';
 import {darkModeOption} from './dark-mode';
+import {defaultEditorOption} from './default-editor';
 import {deleteAfterOption} from './delete-after';
 import {disableGitSourceOption} from './disable-git-source';
 import {disableWebSecurityOption} from './disable-web-security';
@@ -151,6 +152,7 @@ export const allOptions = {
 	imageSequencePatternOption,
 	mediaCacheSizeInBytesOption,
 	darkModeOption,
+	defaultEditorOption,
 	publicLicenseKeyOption,
 	isProductionOption,
 	askAIOption,

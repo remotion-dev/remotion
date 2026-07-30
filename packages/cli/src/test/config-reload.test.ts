@@ -3,6 +3,7 @@ import {mkdtempSync, rmSync, writeFileSync} from 'node:fs';
 import {createRequire} from 'node:module';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {ConfigInternals} from '../config';
 import {loadConfig, reloadConfig} from '../get-config-file-name';
 
@@ -33,14 +34,18 @@ test('an invalid config reload keeps the previous configuration', async () => {
 	});
 	temporaryDirectory = mkdtempSync(path.join(tmpdir(), 'remotion-config-'));
 	writeConfig(
-		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(4321);`,
+		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(4321); Config.setDefaultEditor('cursor');`,
 	);
 
 	await loadConfig(temporaryDirectory);
 	expect(ConfigInternals.getStudioPort()).toBe(4321);
+	expect(
+		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
+			.value,
+	).toBe('cursor');
 
 	writeConfig(
-		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(5678); throw new Error('Invalid config');`,
+		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(5678); Config.setDefaultEditor('windsurf'); throw new Error('Invalid config');`,
 	);
 	expect(
 		await reloadConfig({
@@ -48,6 +53,10 @@ test('an invalid config reload keeps the previous configuration', async () => {
 		}),
 	).toBe(false);
 	expect(ConfigInternals.getStudioPort()).toBe(4321);
+	expect(
+		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
+			.value,
+	).toBe('cursor');
 
 	writeConfig('this is not valid JavaScript }');
 	expect(
@@ -58,7 +67,7 @@ test('an invalid config reload keeps the previous configuration', async () => {
 	expect(ConfigInternals.getStudioPort()).toBe(4321);
 
 	writeConfig(
-		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(6789);`,
+		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(6789); Config.setDefaultEditor('zed');`,
 	);
 	expect(
 		await reloadConfig({
@@ -66,4 +75,21 @@ test('an invalid config reload keeps the previous configuration', async () => {
 		}),
 	).toBe(true);
 	expect(ConfigInternals.getStudioPort()).toBe(6789);
+	expect(
+		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
+			.value,
+	).toBe('zed');
+
+	writeConfig(
+		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(7890);`,
+	);
+	expect(
+		await reloadConfig({
+			resetConfigOptions: ConfigInternals.resetConfigOptions,
+		}),
+	).toBe(true);
+	expect(
+		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
+			.value,
+	).toBeNull();
 });
