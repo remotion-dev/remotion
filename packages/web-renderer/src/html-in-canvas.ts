@@ -59,8 +59,9 @@ const runNestedHtmlInCanvasProbe = (): Promise<boolean> => {
 	inner.layoutSubtree = true;
 	outer.width = 4;
 	outer.height = 4;
-	inner.width = 4;
-	inner.height = 4;
+	const pixelDensity = window.devicePixelRatio;
+	inner.width = Math.ceil(4 * pixelDensity);
+	inner.height = Math.ceil(4 * pixelDensity);
 
 	Object.assign(outer.style, {
 		display: 'block',
@@ -119,7 +120,13 @@ const runNestedHtmlInCanvasProbe = (): Promise<boolean> => {
 		inner.addEventListener('paint', () => {
 			try {
 				innerCtx.reset();
-				const transform = innerCtx.drawElementImage(innerTarget, 0, 0, 4, 4);
+				const transform = innerCtx.drawElementImage(
+					innerTarget,
+					0,
+					0,
+					inner.width,
+					inner.height,
+				);
 				innerTarget.style.transform = transform.toString();
 				innerPainted = true;
 				requestAnimationFrame(() => outer.requestPaint!());
@@ -169,14 +176,16 @@ export const supportsNestedHtmlInCanvas = (): Promise<boolean> => {
 	return nestedHtmlInCanvasSupport;
 };
 
-const countLayoutSubtreeCanvases = (element: HTMLElement): number => {
+const getLayoutSubtreeCanvases = (
+	element: HTMLElement,
+): HTMLCanvasWithLayoutSubtree[] => {
 	return Array.from(element.querySelectorAll('canvas')).filter(
 		(canvas) => (canvas as HTMLCanvasWithLayoutSubtree).layoutSubtree === true,
-	).length;
+	) as HTMLCanvasWithLayoutSubtree[];
 };
 
 export const containsLayoutSubtreeCanvas = (element: HTMLElement): boolean => {
-	return countLayoutSubtreeCanvases(element) > 0;
+	return getLayoutSubtreeCanvases(element).length > 0;
 };
 
 export type HtmlInCanvasContext = {
@@ -286,9 +295,10 @@ export const drawWithHtmlInCanvas = async ({
 	// Each nested layout canvas needs one paint to run its async effect and a
 	// second paint to propagate the completed bitmap to its parent. One final
 	// cycle records the fully composed tree on the web renderer's root canvas.
-	const nestedPaintCycles = useElementImage
-		? countLayoutSubtreeCanvases(element) * 2 + 1
-		: 0;
+	const nestedCanvases = useElementImage
+		? getLayoutSubtreeCanvases(element).reverse()
+		: [];
+	const nestedPaintCycles = useElementImage ? nestedCanvases.length * 2 + 1 : 0;
 	for (let i = 0; i < nestedPaintCycles; i++) {
 		await new Promise<void>((resolve) =>
 			requestAnimationFrame(() => resolve()),
@@ -297,30 +307,47 @@ export const drawWithHtmlInCanvas = async ({
 		await waitForPaint(layoutCanvas);
 	}
 
-	ctx.reset();
-	if (useElementImage) {
-		if (typeof layoutCanvas.captureElementImage !== 'function') {
-			throw new Error('canvas.captureElementImage() is unavailable');
-		}
-
-		const elementImage = layoutCanvas.captureElementImage(element);
-		try {
-			ctx.drawElementImage(elementImage, 0, 0, scaledWidth, scaledHeight);
-		} finally {
-			elementImage.close();
-		}
-	} else {
-		ctx.drawElementImage(element, 0, 0, scaledWidth, scaledHeight);
+	// Chromium can drop an already-painted nested canvas backing store while
+	// recursively capturing layoutSubtree nodes. Capture finished child canvases
+	// as ordinary canvases, then restore their layout behavior for future paints.
+	for (const canvas of nestedCanvases) {
+		canvas.layoutSubtree = false;
 	}
 
-	const offscreen = new OffscreenCanvas(scaledWidth, scaledHeight);
-	const offCtx = offscreen.getContext('2d');
-	if (!offCtx) {
-		throw new Error('Could not get offscreen context');
-	}
+	try {
+		if (nestedCanvases.length > 0) {
+			await waitForPaint(layoutCanvas);
+		}
 
-	offCtx.drawImage(layoutCanvas, 0, 0);
-	return offCtx;
+		ctx.reset();
+		if (useElementImage) {
+			if (typeof layoutCanvas.captureElementImage !== 'function') {
+				throw new Error('canvas.captureElementImage() is unavailable');
+			}
+
+			const elementImage = layoutCanvas.captureElementImage(element);
+			try {
+				ctx.drawElementImage(elementImage, 0, 0, scaledWidth, scaledHeight);
+			} finally {
+				elementImage.close();
+			}
+		} else {
+			ctx.drawElementImage(element, 0, 0, scaledWidth, scaledHeight);
+		}
+
+		const offscreen = new OffscreenCanvas(scaledWidth, scaledHeight);
+		const offCtx = offscreen.getContext('2d');
+		if (!offCtx) {
+			throw new Error('Could not get offscreen context');
+		}
+
+		offCtx.drawImage(layoutCanvas, 0, 0);
+		return offCtx;
+	} finally {
+		for (const canvas of nestedCanvases) {
+			canvas.layoutSubtree = true;
+		}
+	}
 };
 
 export const teardownHtmlInCanvas = ({

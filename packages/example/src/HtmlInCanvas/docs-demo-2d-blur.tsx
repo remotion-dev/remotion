@@ -23,7 +23,7 @@ export const HtmlInCanvasDocsDemo2DBlur: React.FC = () => {
 	const {width, height, fps} = useVideoConfig();
 
 	const onPaint: HtmlInCanvasOnPaint = useCallback(
-		({canvas, element, elementImage}) => {
+		({canvas, element, elementImage, pixelDensity}) => {
 			const ctx = canvas.getContext('2d');
 			if (!ctx) {
 				throw new Error('Failed to acquire 2D context');
@@ -34,7 +34,7 @@ export const HtmlInCanvasDocsDemo2DBlur: React.FC = () => {
 				BLUR_MIN_PX + (BLUR_MAX_PX - BLUR_MIN_PX) * (0.5 + 0.5 * Math.sin(t));
 
 			ctx.reset();
-			ctx.filter = `blur(${blurPx}px)`;
+			ctx.filter = `blur(${blurPx * pixelDensity}px)`;
 			const transform = ctx.drawElementImage(elementImage, 0, 0);
 			element.style.transform = transform.toString();
 		},

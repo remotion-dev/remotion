@@ -2,6 +2,7 @@ import {Internals} from 'remotion';
 import {expect, test, vi} from 'vitest';
 import {createScaffold} from '../create-scaffold';
 import {
+	drawWithHtmlInCanvas,
 	setForceDisableHtmlInCanvasForTesting,
 	supportsNativeHtmlInCanvas,
 	supportsNestedHtmlInCanvas,
@@ -115,6 +116,56 @@ test('retries a transient missing nested paint record during a client-side rende
 	}
 
 	expect(simulatedMissingRecord).toBe(true);
+});
+
+test('captures painted nested canvases without layoutSubtree recursion', async () => {
+	const layoutCanvas = document.createElement('canvas') as HTMLCanvasElement & {
+		captureElementImage: (element: Element) => ElementImage;
+		layoutSubtree: boolean;
+		requestPaint: () => void;
+	};
+	const element = document.createElement('div');
+	const nestedCanvas = document.createElement('canvas') as HTMLCanvasElement & {
+		layoutSubtree: boolean;
+	};
+	nestedCanvas.layoutSubtree = true;
+	element.appendChild(nestedCanvas);
+	layoutCanvas.layoutSubtree = true;
+	layoutCanvas.requestPaint = () => {
+		layoutCanvas.dispatchEvent(new Event('paint'));
+	};
+
+	let capturedWithoutLayoutSubtree = false;
+	layoutCanvas.captureElementImage = () => {
+		capturedWithoutLayoutSubtree = nestedCanvas.layoutSubtree === false;
+		return {
+			close: () => undefined,
+			height: 1,
+			width: 1,
+		};
+	};
+
+	const drawElementImage = vi.fn(() => new DOMMatrix());
+	const reset = vi.fn();
+	await drawWithHtmlInCanvas({
+		element,
+		htmlInCanvasContext: {
+			ctx: {
+				drawElementImage,
+				reset,
+			} as unknown as CanvasRenderingContext2D,
+			layoutCanvas,
+		},
+		scaledHeight: 40,
+		scaledWidth: 50,
+		useElementImage: true,
+		waitForRenderReady: () => Promise.resolve(),
+	});
+
+	expect(capturedWithoutLayoutSubtree).toBe(true);
+	expect(nestedCanvas.layoutSubtree).toBe(true);
+	expect(drawElementImage).toHaveBeenCalledTimes(1);
+	expect(reset).toHaveBeenCalledTimes(1);
 });
 
 test('keeps a scaffold without HTML-in-canvas hidden', () => {

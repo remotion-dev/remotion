@@ -180,12 +180,13 @@ declare global {
 	}
 }
 
+export type HtmlInCanvasPaintTarget = HTMLCanvasElement | OffscreenCanvas;
+
 export type HtmlInCanvasOnPaintParams = {
 	/**
-	 * The `OffscreenCanvas` from {@link HTMLCanvasElement.transferControlToOffscreen}
-	 * on the layout `<canvas>` (same logical canvas as the forwarded ref).
+	 * The canvas that receives the painted output.
 	 */
-	readonly canvas: OffscreenCanvas;
+	readonly canvas: HtmlInCanvasPaintTarget;
 	readonly element: HTMLDivElement;
 	readonly elementImage: ElementImage;
 	readonly pixelDensity: number;
@@ -195,6 +196,26 @@ export type HtmlInCanvasOnPaintParams = {
 // capability nor the chrome://flags toggle can change between calls.
 // SSR results are not cached so the check runs again once `document` exists.
 let cachedSupport: boolean | null = null;
+
+// `transferControlToOffscreen()` is one-shot, while React may rerun the layout
+// effect against the same canvas. Reuse the original transfer on later runs.
+const transferredOffscreenCanvases = new WeakMap<
+	HTMLCanvasElement,
+	OffscreenCanvas
+>();
+
+const getTransferredOffscreenCanvas = (
+	canvas: HTMLCanvasElement,
+): OffscreenCanvas => {
+	const existing = transferredOffscreenCanvases.get(canvas);
+	if (existing) {
+		return existing;
+	}
+
+	const offscreen = canvas.transferControlToOffscreen();
+	transferredOffscreenCanvases.set(canvas, offscreen);
+	return offscreen;
+};
 
 export const isHtmlInCanvasSupported = (): boolean => {
 	if (cachedSupport !== null) {
@@ -293,8 +314,6 @@ const isMissingPaintRecordError = (error: unknown): boolean => {
 const missingPaintRecordMessage =
 	'HtmlInCanvas: Expected the element to be inside the viewport during rendering, but Chrome had no cached paint record for it.';
 
-type HtmlInCanvasPaintTarget = HTMLCanvasElement | OffscreenCanvas;
-
 const resizePaintTarget = ({
 	target,
 	width,
@@ -311,6 +330,31 @@ const resizePaintTarget = ({
 	if (target.height !== height) {
 		target.height = height;
 	}
+};
+
+const installTransferToImageBitmapShim = (canvas: HTMLCanvasElement): void => {
+	if ('transferToImageBitmap' in canvas) {
+		return;
+	}
+
+	Object.defineProperty(canvas, 'transferToImageBitmap', {
+		configurable: true,
+		value: () => {
+			const scratch = new OffscreenCanvas(canvas.width, canvas.height);
+			const scratchContext = scratch.getContext('2d');
+			const canvasContext = canvas.getContext('2d');
+			if (!scratchContext || !canvasContext) {
+				throw new Error(
+					'Failed to acquire 2D context for transferToImageBitmap()',
+				);
+			}
+
+			scratchContext.drawImage(canvas, 0, 0);
+			const bitmap = scratch.transferToImageBitmap();
+			canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+			return bitmap;
+		},
+	});
 };
 
 const defaultOnPaint = ({
@@ -403,11 +447,15 @@ const HtmlInCanvasContent = forwardRef<
 			);
 		}
 
-		const resolvedPixelDensity = resolveHtmlInCanvasPixelDensity(pixelDensity);
-		const canvasWidth = Math.ceil(width * resolvedPixelDensity);
-		const canvasHeight = Math.ceil(height * resolvedPixelDensity);
 		const {delayRender, continueRender, cancelRender} = useDelayRender();
 		const {isClientSideRendering, isRendering} = useRemotionEnvironment();
+		const browserPixelDensity =
+			typeof window === 'undefined' ? undefined : window.devicePixelRatio;
+		const resolvedPixelDensity = resolveHtmlInCanvasPixelDensity(
+			pixelDensity ?? browserPixelDensity,
+		);
+		const canvasWidth = Math.ceil(width * resolvedPixelDensity);
+		const canvasHeight = Math.ceil(height * resolvedPixelDensity);
 		const canRetryMissingPaintRecord = !isRendering || isClientSideRendering;
 		const usesDirectLayoutCanvas =
 			onPaint === undefined && onInit === undefined;
@@ -511,7 +559,10 @@ const HtmlInCanvasContent = forwardRef<
 
 						initializedRef.current = true;
 						try {
-							if (paintTarget instanceof HTMLCanvasElement) {
+							if (
+								paintTarget instanceof HTMLCanvasElement &&
+								!isClientSideRendering
+							) {
 								throw new Error(
 									'HtmlInCanvas: onInit requires an OffscreenCanvas paint target',
 								);
@@ -562,7 +613,10 @@ const HtmlInCanvasContent = forwardRef<
 				try {
 					const currentOnPaint = onPaintRef.current;
 					if (currentOnPaint) {
-						if (paintTarget instanceof HTMLCanvasElement) {
+						if (
+							paintTarget instanceof HTMLCanvasElement &&
+							!isClientSideRendering
+						) {
 							throw new Error(
 								'HtmlInCanvas: onPaint requires an OffscreenCanvas paint target',
 							);
@@ -616,6 +670,7 @@ const HtmlInCanvasContent = forwardRef<
 			delayRender,
 			resolvedPixelDensity,
 			canRetryMissingPaintRecord,
+			isClientSideRendering,
 		]);
 
 		// Default paint handlers draw synchronously on the layout canvas itself so
@@ -629,9 +684,14 @@ const HtmlInCanvasContent = forwardRef<
 
 			placeholder.layoutSubtree = true;
 
-			const paintTarget = usesDirectLayoutCanvas
-				? placeholder
-				: placeholder.transferControlToOffscreen();
+			if (isClientSideRendering && !usesDirectLayoutCanvas) {
+				installTransferToImageBitmapShim(placeholder);
+			}
+
+			const paintTarget =
+				isClientSideRendering || usesDirectLayoutCanvas
+					? placeholder
+					: getTransferredOffscreenCanvas(placeholder);
 
 			paintTargetRef.current = paintTarget;
 			resizePaintTarget({
@@ -659,6 +719,7 @@ const HtmlInCanvasContent = forwardRef<
 			canvasWidth,
 			canvasHeight,
 			usesDirectLayoutCanvas,
+			isClientSideRendering,
 		]);
 
 		const onPaintChangedRef = useRef(false);

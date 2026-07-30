@@ -473,6 +473,96 @@ test('<HtmlInCanvas> can use a higher backing density', async () => {
 	expect(transferControlToOffscreenCalls).toBe(1);
 });
 
+test('<HtmlInCanvas> defaults to the browser pixel density', async () => {
+	const originalPixelDensity = Object.getOwnPropertyDescriptor(
+		window,
+		'devicePixelRatio',
+	);
+	Object.defineProperty(window, 'devicePixelRatio', {
+		configurable: true,
+		value: 2,
+	});
+	let paintParams: HtmlInCanvasOnPaintParams | undefined;
+
+	try {
+		const {container} = render(
+			<SequenceTestWrapper onRegisterSequence={() => undefined}>
+				<HtmlInCanvas
+					width={50}
+					height={40}
+					onPaint={(params) => {
+						paintParams = params;
+					}}
+				>
+					<div>Test</div>
+				</HtmlInCanvas>
+			</SequenceTestWrapper>,
+		);
+
+		const canvas = container.querySelector('canvas')!;
+		expect(canvas.getAttribute('width')).toBe('100');
+		expect(canvas.getAttribute('height')).toBe('80');
+		canvas.dispatchEvent(new Event('paint'));
+
+		await waitFor(() => {
+			expect(paintParams?.pixelDensity).toBe(2);
+		});
+	} finally {
+		if (originalPixelDensity) {
+			Object.defineProperty(window, 'devicePixelRatio', originalPixelDensity);
+		} else {
+			Reflect.deleteProperty(window, 'devicePixelRatio');
+		}
+	}
+});
+
+test('<HtmlInCanvas> paints on the layout canvas during client-side rendering', async () => {
+	let paintCanvas: HtmlInCanvasOnPaintParams['canvas'] | undefined;
+	const {container} = render(
+		<SequenceTestWrapper
+			isClientSideRendering
+			onRegisterSequence={() => undefined}
+		>
+			<HtmlInCanvas
+				width={50}
+				height={50}
+				onPaint={({canvas: targetCanvas}) => {
+					paintCanvas = targetCanvas;
+				}}
+			>
+				<div>Test</div>
+			</HtmlInCanvas>
+		</SequenceTestWrapper>,
+	);
+
+	const canvas = container.querySelector('canvas')!;
+	canvas.dispatchEvent(new Event('paint'));
+
+	await waitFor(() => {
+		expect(paintCanvas).toBe(canvas);
+	});
+	expect(transferControlToOffscreenCalls).toBe(0);
+	expect('transferToImageBitmap' in canvas).toBe(true);
+});
+
+test('<HtmlInCanvas> reuses an OffscreenCanvas when its layout effect reruns', async () => {
+	const onPaint = () => undefined;
+	const {container} = render(
+		<React.StrictMode>
+			<SequenceTestWrapper onRegisterSequence={() => undefined}>
+				<HtmlInCanvas width={50} height={50} onPaint={onPaint}>
+					<div>Test</div>
+				</HtmlInCanvas>
+			</SequenceTestWrapper>
+		</React.StrictMode>,
+	);
+
+	await waitFor(() => {
+		expect(container.querySelector('canvas')).not.toBeNull();
+	});
+	expect(transferControlToOffscreenCalls).toBe(1);
+});
+
 test('<HtmlInCanvas> does not apply pixel density to the live DOM transform', async () => {
 	const {container} = render(
 		<SequenceTestWrapper onRegisterSequence={() => undefined}>

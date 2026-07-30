@@ -76,10 +76,10 @@ Logical height of the canvas and the inner layout area, in pixels. Must be a pos
 
 _number_
 
-Controls the backing bitmap density. Default: `1`.
+Controls the backing bitmap density. Default: `window.devicePixelRatio`.
 
 Set a higher value to paint to a higher-resolution backing canvas while keeping the logical canvas size unchanged.  
-This is useful to counteract quality loss when the canvas is scaled up – for example via the [`scale`](/docs/scaling) render option, or on a high-DPI display in the preview. Pass [`usePixelDensity()`](/docs/use-pixel-density) to use the render `scale` while rendering and `window.devicePixelRatio` while previewing.
+By default, `<HtmlInCanvas>` uses `window.devicePixelRatio` so previews and client-side renders use the same backing density. Pass a number to override it, or [`usePixelDensity()`](/docs/use-pixel-density) to follow the render [`scale`](/docs/scaling) while rendering.
 
 ### `children`
 
@@ -122,7 +122,7 @@ The callback receives:
 
 #### `canvas`
 
-An [`OffscreenCanvas`](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas) with backing dimensions `width * pixelDensity` × `height * pixelDensity`, rounded up.  
+An [`OffscreenCanvas`](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas), or the layout [`HTMLCanvasElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement) during a client-side render, with backing dimensions `width * pixelDensity` × `height * pixelDensity`, rounded up.
 You should paint to this canvas.
 
 #### `element`
@@ -137,11 +137,11 @@ You should paint this image to the canvas.
 
 #### `pixelDensity`
 
-The resolved pixel density. It is `1` by default, or the number passed to `pixelDensity`.
+The resolved pixel density. It is `window.devicePixelRatio` by default, or the number passed to `pixelDensity`.
 
 ### `onInit?`
 
-Runs once before the first paint. Use it to create GPU contexts or other resources tied to the [`OffscreenCanvas`](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas). Must return a cleanup function, or a `Promise` that resolves to one. The cleanup runs on unmount.
+Runs once before the first paint. Use it to create GPU contexts or other resources tied to the callback canvas. Must return a cleanup function, or a `Promise` that resolves to one. The cleanup runs on unmount.
 
 The argument object matches [`onPaint`](#onpaint) (`canvas`, `element`, `elementImage`). The `elementImage` passed here is only for initialization — capture again inside [`onPaint`](#onpaint) for each frame.
 
