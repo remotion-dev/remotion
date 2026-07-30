@@ -37,14 +37,14 @@ export const isUpdateAvailable = async ({
 	remotionRoot,
 	currentVersion,
 	logLevel,
-	getLatestVersion = getLatestRemotionVersion,
+	getLatestVersion,
 }: {
 	remotionRoot: string;
 	currentVersion: string;
 	logLevel: LogLevel;
-	getLatestVersion?: () => Promise<string>;
+	getLatestVersion: (() => Promise<string>) | null;
 }): Promise<UpdateAvailableResponse> => {
-	const latest = await getLatestVersion();
+	const latest = await (getLatestVersion ?? getLatestRemotionVersion)();
 	const skillsUpdateInfo = getSkillsUpdateInfo({remotionRoot, currentVersion});
 
 	const pkgManager = getPackageManager({
@@ -103,6 +103,11 @@ export const isUpdateAvailableWithTimeout = (
 	});
 	return Promise.race([
 		threeSecTimeout,
-		isUpdateAvailable({remotionRoot, currentVersion: version, logLevel}),
+		isUpdateAvailable({
+			remotionRoot,
+			currentVersion: version,
+			logLevel,
+			getLatestVersion: null,
+		}),
 	]);
 };
