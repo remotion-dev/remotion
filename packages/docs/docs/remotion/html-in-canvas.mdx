@@ -42,25 +42,9 @@ if (HtmlInCanvas.isSupported()) {
 }
 ```
 
-## Using WebGL during renders
+## Using WebGL and WebGPU during renders
 
-If you make use of WebGL during renders, you need to enable it:
-
-From the CLI:
-
-```bash
-npx remotion render --gl=angle
-```
-
-It is advised to set this as default in `remotion.config.ts` so Studio and CLI renders pick it up:
-
-```ts twoslash title="remotion.config.ts"
-import {Config} from '@remotion/cli/config';
-// ---cut---
-Config.setChromiumOpenGlRenderer('angle');
-```
-
-See [`Config.setChromiumOpenGlRenderer()`](/docs/config#setchromiumopenglrenderer).
+See [Using WebGL and WebGPU during renders](/docs/webgl).
 
 ## API
 
