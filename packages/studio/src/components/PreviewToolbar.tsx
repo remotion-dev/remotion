@@ -189,9 +189,6 @@ export const PreviewToolbar: React.FC<{
 						<MuteToggle muted={playerMuted} setMuted={setPlayerMuted} />
 					</PreviewToolbarControl>
 				) : null}
-				<PreviewToolbarControl>
-					<RenderButton readOnlyStudio={readOnlyStudio} size="compact" />
-				</PreviewToolbarControl>
 				{isMobileLayout ? (
 					<PreviewToolbarControl>
 						<PreviewToolbarOverflowButton
@@ -207,6 +204,9 @@ export const PreviewToolbar: React.FC<{
 						/>
 					</PreviewToolbarControl>
 				) : null}
+				<PreviewToolbarControl>
+					<RenderButton readOnlyStudio={readOnlyStudio} size="compact" />
+				</PreviewToolbarControl>
 				<Spacing x={1.5} />
 			</div>
 			<PlaybackKeyboardShortcutsManager setPlaybackRate={setPlaybackRate} />
