@@ -52,20 +52,30 @@ export const HigherZIndex: React.FC<{
 	readonly children: React.ReactNode;
 	readonly disabled?: boolean;
 	readonly outsideClickButton?: 'any' | 'primary';
+	readonly stackOnHighest?: boolean;
 }> = ({
 	children,
 	onEscape,
 	onOutsideClick,
 	disabled,
 	outsideClickButton = 'any',
+	stackOnHighest = false,
 }) => {
 	const context = useContext(ZIndexContext);
 	const highestContext = useContext(HighestZIndexContext);
 	const containerRef = useRef<HTMLDivElement>(null);
+	const stackedIndex = useRef<number | null>(null);
+
+	if (disabled || !stackOnHighest) {
+		stackedIndex.current = null;
+	} else if (stackedIndex.current === null) {
+		stackedIndex.current =
+			Math.max(context.currentIndex, highestContext.highestIndex) + 1;
+	}
 
 	const currentIndex = disabled
 		? context.currentIndex
-		: context.currentIndex + 1;
+		: (stackedIndex.current ?? context.currentIndex + 1);
 
 	useEffect(() => {
 		if (disabled) {
