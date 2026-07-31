@@ -24,7 +24,7 @@ An Element should demonstrate one visual idea, technique, or workflow. It should
 
 If two variants are worth showing, prefer two separate Elements over a variant prop.
 
-The Elements gallery provides the preview dimensions, frame rate, and duration. The Element itself should remain a building block.
+The Elements gallery provides preview dimensions, frame rate, and duration. The `durationInFrames` value is used both for the preview and for the `<Sequence>` inserted into Studio.
 
 ## Make it portable
 
@@ -37,12 +37,14 @@ An Element should work when it is dragged or copied into another project.
 - Use stable remote URLs for assets and Google Fonts for non-websafe fonts.
 - Avoid project-specific branding or footage, and make colors easy to change.
 - Avoid dependencies where possible. [Remotion Effects](/docs/effects) are an acceptable exception.
+- Declare packages that Studio may need to install, but do not declare `react`, `react-dom`, or `remotion`; every Remotion project already provides them.
+- Declare every external dependency in the central Element definition. Use an exact version only when a non-Remotion package requires one. Remotion packages use the project's installed Remotion version.
 
 ## Design it for composition
 
 An Element should be safe to combine with other content using normal Studio layering.
 
-Size it to the smallest useful bounding box. Let the surrounding [`<Sequence>`](/docs/sequence) control its placement and how long it appears in the video.
+Size it to the smallest useful bounding box. Let the surrounding [`<Sequence>`](/docs/sequence) control its placement and how long it appears in the video. Set both Element dimensions to `null` when it adapts to the composition.
 
 Do not add internal padding solely to improve the gallery preview. Preview spacing should not change the bounds of the Element when it is dragged into a project.
 
