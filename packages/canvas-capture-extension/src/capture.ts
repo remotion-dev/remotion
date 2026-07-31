@@ -283,7 +283,12 @@ export class ElementCapture {
 			}
 
 			this.#draw();
-			await this.#recorder.stopRecording();
+			const file = await this.#recorder.stopRecording();
+			if (!file) {
+				throw new Error('No canvas recording was available to open.');
+			}
+
+			return file;
 		} finally {
 			this.restore();
 		}

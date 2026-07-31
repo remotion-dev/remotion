@@ -61,7 +61,7 @@ fi
 	bun run make
 )
 
-for required_file in manifest.json background.js content.js; do
+for required_file in manifest.json background.js content.js receiver.js; do
 	if [[ ! -f "$dist_dir/$required_file" ]]; then
 		printf 'Build did not produce %s\n' "$dist_dir/$required_file" >&2
 		exit 1
@@ -69,7 +69,7 @@ for required_file in manifest.json background.js content.js; do
 done
 
 mkdir -p "$install_dir"
-for extension_file in manifest.json background.js content.js; do
+for extension_file in manifest.json background.js content.js receiver.js; do
 	cp "$dist_dir/$extension_file" "$install_dir/$extension_file"
 done
 
