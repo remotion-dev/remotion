@@ -32,7 +32,7 @@ for (const fn of info) {
   console.log(fn.functionName); // "remotion-render-d8a03x"
   console.log(fn.memorySizeInMb); // 1536
   console.log(fn.timeoutInSeconds); // 120
-  console.log(fn.diskSizeInMb); // 2048
+  console.log(fn.diskSizeInMb); // 10240 (Remotion >=5.0 default)
   console.log(fn.version); // "2021-07-25"
 }
 ```
@@ -71,7 +71,12 @@ The amount of memory allocated to the function.
 
 ### `diskSizeInMb`
 
-The amount of ephemereal disk storage allocated to the function.
+The amount of ephemereal disk storage allocated to the function. See [Disk size](/docs/lambda/disk-size) for defaults when deploying:
+
+| Remotion Version | Default |
+| ---------------- | ------- |
+| &lt;5.0.0        | 2048MB  |
+| &gt;=5.0.0       | 10240MB |
 
 ### `version`
 

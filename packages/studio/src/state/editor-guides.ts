@@ -14,6 +14,7 @@ export type GuideState = {
 	guidesList: Guide[];
 	setGuidesList: (cb: (prevState: Guide[]) => Guide[]) => void;
 	draggingGuideId: string | null;
+	moveGuidePointerRef: React.RefObject<((event: PointerEvent) => void) | null>;
 	setDraggingGuideId: (cb: (prevState: string | null) => string | null) => void;
 	setHoveredGuideId: (cb: (prevState: string | null) => string | null) => void;
 	hoveredGuideId: string | null;
@@ -45,6 +46,7 @@ export const EditorShowGuidesContext = createContext<GuideState>({
 	guidesList: [],
 	setGuidesList: () => undefined,
 	draggingGuideId: null,
+	moveGuidePointerRef: {current: null},
 	setDraggingGuideId: () => undefined,
 	shouldCreateGuideRef: {current: false},
 	shouldDeleteGuideRef: {current: false},

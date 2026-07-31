@@ -114,6 +114,26 @@ export const PreviewToolbar: React.FC<{
 		<div style={container} className="css-reset">
 			<div style={sideContainer}>
 				<div style={padding} />
+				{isMobileLayout ? (
+					<PreviewToolbarControl>
+						<PreviewToolbarOverflowButton
+							readOnlyStudio={readOnlyStudio}
+							showFullscreen={Boolean(canvasContent && isFullscreenSupported)}
+							showPlaybackRate={isVideoComposition}
+							showLoop={isVideoComposition}
+							showCompositionControls={canvasContent?.type === 'composition'}
+							playbackRate={playbackRate}
+							setPlaybackRate={setPlaybackRate}
+							loop={loop}
+							setLoop={setLoop}
+						/>
+					</PreviewToolbarControl>
+				) : null}
+				{isVideoComposition && isMobileLayout ? (
+					<PreviewToolbarControl>
+						<MuteToggle muted={playerMuted} setMuted={setPlayerMuted} />
+					</PreviewToolbarControl>
+				) : null}
 				<PreviewToolbarControl>
 					<TimelineZoomControls />
 				</PreviewToolbarControl>
@@ -185,34 +205,8 @@ export const PreviewToolbar: React.FC<{
 				<FpsCounter playbackSpeed={playbackRate} />
 				<Spacing x={2} />
 				<PreviewToolbarControl>
-					<RenderButton
-						readOnlyStudio={readOnlyStudio}
-						size="compact"
-						hidden={isMobileLayout}
-					/>
+					<RenderButton readOnlyStudio={readOnlyStudio} size="compact" />
 				</PreviewToolbarControl>
-				{isMobileLayout ? (
-					<>
-						{isVideoComposition ? (
-							<PreviewToolbarControl>
-								<MuteToggle muted={playerMuted} setMuted={setPlayerMuted} />
-							</PreviewToolbarControl>
-						) : null}
-						<PreviewToolbarControl>
-							<PreviewToolbarOverflowButton
-								readOnlyStudio={readOnlyStudio}
-								showFullscreen={Boolean(canvasContent && isFullscreenSupported)}
-								showPlaybackRate={isVideoComposition}
-								showLoop={isVideoComposition}
-								showCompositionControls={canvasContent?.type === 'composition'}
-								playbackRate={playbackRate}
-								setPlaybackRate={setPlaybackRate}
-								loop={loop}
-								setLoop={setLoop}
-							/>
-						</PreviewToolbarControl>
-					</>
-				) : null}
 				<Spacing x={1.5} />
 			</div>
 			<PlaybackKeyboardShortcutsManager setPlaybackRate={setPlaybackRate} />

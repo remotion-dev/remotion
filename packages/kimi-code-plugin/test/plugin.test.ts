@@ -186,7 +186,7 @@ test('maps is available from either standalone parent skill', () => {
 	for (const parentSkill of ['remotion-best-practices', 'remotion-markup']) {
 		const parentRoot = path.join(generatedSkillsRoot, parentSkill);
 		expect(readFileSync(path.join(parentRoot, 'SKILL.md'), 'utf-8')).toContain(
-			'(remotion-maps/REFERENCE.md)',
+			'(./remotion-maps/REFERENCE.md)',
 		);
 		expect(
 			existsSync(path.join(parentRoot, 'remotion-maps', 'REFERENCE.md')),

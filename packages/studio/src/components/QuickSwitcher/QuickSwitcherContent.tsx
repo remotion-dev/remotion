@@ -67,7 +67,6 @@ const modeInactive: React.CSSProperties = {
 const modeActive: React.CSSProperties = {
 	...modeItem,
 	color: WHITE,
-	fontWeight: 'bold',
 };
 
 const content: React.CSSProperties = {
@@ -467,7 +466,7 @@ export const QuickSwitcherContent: React.FC<{
 
 	const container: React.CSSProperties = useMemo(() => {
 		return {
-			width: showKeyboardShortcuts ? 800 : 500,
+			width: showKeyboardShortcuts ? 800 : 400,
 		};
 	}, [showKeyboardShortcuts]);
 

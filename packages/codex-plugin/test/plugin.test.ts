@@ -74,10 +74,45 @@ test('maps is available from either standalone parent skill', () => {
 	for (const parentSkill of ['remotion-best-practices', 'remotion-markup']) {
 		const parentRoot = path.join(generatedSkillsRoot, parentSkill);
 		expect(readFileSync(path.join(parentRoot, 'SKILL.md'), 'utf-8')).toContain(
-			'(remotion-maps/REFERENCE.md)',
+			'(./remotion-maps/REFERENCE.md)',
 		);
 		expect(
 			existsSync(path.join(parentRoot, 'remotion-maps', 'REFERENCE.md')),
 		).toBe(true);
+	}
+});
+
+test('remotion-create opens the preview in the Codex in-app browser by default', () => {
+	const remotionCreateSkill = readFileSync(
+		path.join(generatedSkillsRoot, 'remotion-create', 'SKILL.md'),
+		'utf-8',
+	);
+
+	expect(remotionCreateSkill).toContain('start the preview server by default');
+	expect(remotionCreateSkill).toContain(
+		'Open the exact URL in the Codex in-app browser.',
+	);
+	expect(remotionCreateSkill).not.toContain(
+		'consider starting the preview server',
+	);
+});
+
+test('Codex troubleshooting does not open the system browser', () => {
+	const remotionSkill = readFileSync(
+		path.join(generatedSkillsRoot, 'remotion-best-practices', 'SKILL.md'),
+		'utf-8',
+	);
+
+	expect(remotionSkill).toContain('npx remotion studio --no-open');
+	expect(remotionSkill).not.toMatch(/^npx remotion studio$/m);
+});
+
+test('skill display names match their slash commands', () => {
+	for (const skillName of getDirectories(generatedSkillsRoot)) {
+		const openAiConfig = readFileSync(
+			path.join(generatedSkillsRoot, skillName, 'agents', 'openai.yaml'),
+			'utf-8',
+		);
+		expect(openAiConfig).toContain(`display_name: '/${skillName}'`);
 	}
 });

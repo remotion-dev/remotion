@@ -163,6 +163,7 @@ const COMMON_EDITORS_OSX: Record<string, Editor> = {
 		'/Applications/Sublime Text Dev.app/Contents/SharedSupport/bin/subl',
 	'/Applications/Sublime Text 2.app/Contents/MacOS/Sublime Text 2':
 		'/Applications/Sublime Text 2.app/Contents/SharedSupport/bin/subl',
+	'/Applications/Visual Studio Code.app/Contents/MacOS/Code': 'code',
 	'/Applications/Visual Studio Code.app/Contents/MacOS/Electron': 'code',
 	'/Applications/Visual Studio Code - Insiders.app/Contents/MacOS/Electron':
 		'code-insiders',
@@ -352,6 +353,24 @@ export type ProcessAndCommand = {
 	command: Editor;
 };
 
+export const findMacOsEditorsFromProcessOutput = (
+	output: string,
+): ProcessAndCommand[] => {
+	const availableEditors: ProcessAndCommand[] = [];
+	const processNames = Object.keys(COMMON_EDITORS_OSX);
+	for (let i = 0; i < processNames.length; i++) {
+		const processName = processNames[i];
+		if (output.includes(processName)) {
+			availableEditors.push({
+				process: processName,
+				command: COMMON_EDITORS_OSX[processName],
+			});
+		}
+	}
+
+	return availableEditors;
+};
+
 export async function guessEditor(): Promise<ProcessAndCommand[]> {
 	// We can find out which editor is currently running by:
 	// `ps x` on macOS and Linux
@@ -360,18 +379,7 @@ export async function guessEditor(): Promise<ProcessAndCommand[]> {
 	try {
 		if (process.platform === 'darwin') {
 			const output = (await execProm('ps x')).stdout.toString();
-			const processNames = Object.keys(COMMON_EDITORS_OSX);
-			for (let i = 0; i < processNames.length; i++) {
-				const processName = processNames[i];
-				if (output.indexOf(processName) !== -1) {
-					availableEditors.push({
-						process: processName,
-						command: COMMON_EDITORS_OSX[processName],
-					});
-				}
-			}
-
-			return availableEditors;
+			return findMacOsEditorsFromProcessOutput(output);
 		}
 
 		if (process.platform === 'win32') {

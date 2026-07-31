@@ -2,7 +2,7 @@ import path from 'path';
 import {build} from 'bun';
 
 const output = await build({
-	entrypoints: ['src/background.ts', 'src/content.ts'],
+	entrypoints: ['src/background.ts', 'src/content.ts', 'src/receiver.ts'],
 	outdir: 'dist',
 	naming: '[name].js',
 	target: 'browser',

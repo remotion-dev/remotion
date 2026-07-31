@@ -4,9 +4,15 @@ test('loads the Browser Studio canvas and enables Visual Mode', async ({
 	page,
 }) => {
 	const pageErrors: Error[] = [];
+	const updateAvailableRequests: string[] = [];
 	let rejectPageError: (error: Error) => void = () => undefined;
 	const pageError = new Promise<never>((_resolve, reject) => {
 		rejectPageError = reject;
+	});
+	page.on('request', (request) => {
+		if (new URL(request.url()).pathname === '/api/update-available') {
+			updateAvailableRequests.push(request.url());
+		}
 	});
 	page.on('pageerror', (error) => {
 		pageErrors.push(error);
@@ -37,4 +43,5 @@ test('loads the Browser Studio canvas and enables Visual Mode', async ({
 	]);
 
 	expect(pageErrors).toEqual([]);
+	expect(updateAvailableRequests).toEqual([]);
 });

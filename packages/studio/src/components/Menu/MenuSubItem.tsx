@@ -148,8 +148,10 @@ export const MenuSubItem: React.FC<{
 		const minSpaceRequired = mobileLayout
 			? MAX_MOBILE_MENU_WIDTH
 			: MAX_MENU_WIDTH;
+		const spaceToLeft = size.left;
+		const spaceToRight = size.windowSize.width - size.left - size.width;
 		const canOpenOnRight =
-			size.windowSize.width - size.left - size.width >= minSpaceRequired;
+			spaceToRight >= minSpaceRequired || spaceToRight >= spaceToLeft;
 
 		return {
 			...menuContainerTowardsBottom,

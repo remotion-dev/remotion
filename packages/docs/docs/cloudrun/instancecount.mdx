@@ -25,7 +25,14 @@ Any running instances, even if they are not performing a render, will be billabl
 
 ### Maximum instance count
 
-This is the maximum number of instances that can be created at one time, with the default set to 100. The maximum that can be set in GCP is also 100 - [more information around limits can be found here](https://cloud.google.com/run/docs/configuring/max-instances#limits). If the maximum number of instances is exceeded, further requests will fail with a `503 service unavailable` response. GCP provides Cloud Tasks for queueing requests, [which can be used in conjunction with Cloud Run](https://cloud.google.com/run/docs/triggering/using-tasks).
+This is the maximum number of instances that can be created at one time.
+
+| Remotion Version | Default |
+| ---------------- | ------- |
+| &lt;5.0.0        | 100     |
+| &gt;=5.0.0       | 5       |
+
+The maximum that can be set in GCP is also 100 - [more information around limits can be found here](https://cloud.google.com/run/docs/configuring/max-instances#limits). If the maximum number of instances is exceeded, further requests will fail with a `503 service unavailable` response. GCP provides Cloud Tasks for queueing requests, [which can be used in conjunction with Cloud Run](https://cloud.google.com/run/docs/triggering/using-tasks).
 
 :::note
 You may wish to provide a low maximum instance limit for certain tiers of your product, and have a higher instance limit for higher tier plans. This can be achieved by deploying multiple Cloud Run services and calling them within your product as required.

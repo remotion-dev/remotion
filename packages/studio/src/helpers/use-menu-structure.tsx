@@ -79,9 +79,31 @@ const getFileMenu = ({
 		readOnlyStudio
 			? null
 			: {
+					id: 'new-composition',
+					value: 'new-composition',
+					label: 'New composition...',
+					onClick: () => {
+						closeMenu();
+						setSelectedModal({
+							type: 'new-comp',
+							folderName: null,
+							parentName: null,
+							stack: null,
+						});
+					},
+					type: 'item' as const,
+					keyHint: null,
+					leftItem: null,
+					subMenu: null,
+					quickSwitcherLabel: 'New composition...',
+					disabled: previewServerState !== 'connected',
+				},
+		readOnlyStudio
+			? null
+			: {
 					id: 'new-folder',
 					value: 'new-folder',
-					label: 'New Folder...',
+					label: 'New folder...',
 					onClick: () => {
 						closeMenu();
 						setSelectedModal({
@@ -101,7 +123,7 @@ const getFileMenu = ({
 			? null
 			: {
 					type: 'divider' as const,
-					id: 'new-folder-divider',
+					id: 'new-project-item-divider',
 				},
 		window.remotion_isReadOnlyStudio
 			? {
@@ -121,50 +143,6 @@ const getFileMenu = ({
 					quickSwitcherLabel: 'Override input props',
 				}
 			: null,
-		readOnlyStudio
-			? null
-			: {
-					id: 'render',
-					value: 'render',
-					label: 'Render...',
-					onClick: () => {
-						closeMenu();
-						if (previewServerState !== 'connected') {
-							showNotification('Restart the studio to render', 2000);
-							return;
-						}
-
-						const renderButton = document.getElementById(
-							'render-modal-button-server',
-						) as HTMLButtonElement;
-
-						renderButton.click();
-					},
-					type: 'item' as const,
-					keyHint: 'R',
-					leftItem: null,
-					subMenu: null,
-					quickSwitcherLabel: 'Render...',
-				},
-		{
-			id: 'render-on-web',
-			value: 'render-on-web',
-			label: 'Render on web...',
-			onClick: () => {
-				closeMenu();
-
-				const renderButton = document.getElementById(
-					'render-modal-button-client',
-				) as HTMLButtonElement;
-
-				renderButton.click();
-			},
-			type: 'item' as const,
-			keyHint: null,
-			leftItem: null,
-			subMenu: null,
-			quickSwitcherLabel: 'Render on web...',
-		},
 		downloadProject
 			? {
 					id: 'download-project',
@@ -199,7 +177,7 @@ const getFileMenu = ({
 					quickSwitcherLabel: 'Download project',
 				}
 			: null,
-		!readOnlyStudio
+		!readOnlyStudio && downloadProject
 			? {
 					type: 'divider' as const,
 					id: 'open-project-divider',
@@ -284,6 +262,67 @@ const getFileMenu = ({
 		items,
 		quickSwitcherLabel: null,
 	};
+};
+
+const getRenderMenuItems = ({
+	closeMenu,
+	previewServerState,
+	readOnlyStudio,
+}: {
+	closeMenu: () => void;
+	previewServerState: 'connected' | 'init' | 'disconnected';
+	readOnlyStudio: boolean;
+}): ComboboxValue[] => {
+	return [
+		readOnlyStudio
+			? null
+			: {
+					id: 'render',
+					value: 'render',
+					label: 'Render...',
+					onClick: () => {
+						closeMenu();
+						if (previewServerState !== 'connected') {
+							showNotification('Restart the studio to render', 2000);
+							return;
+						}
+
+						const renderButton = document.getElementById(
+							'render-modal-button-server',
+						) as HTMLButtonElement;
+
+						renderButton.click();
+					},
+					type: 'item' as const,
+					keyHint: 'R',
+					leftItem: null,
+					subMenu: null,
+					quickSwitcherLabel: 'Render...',
+				},
+		{
+			id: 'render-on-web',
+			value: 'render-on-web',
+			label: 'Render on web...',
+			onClick: () => {
+				closeMenu();
+
+				const renderButton = document.getElementById(
+					'render-modal-button-client',
+				) as HTMLButtonElement;
+
+				renderButton.click();
+			},
+			type: 'item' as const,
+			keyHint: null,
+			leftItem: null,
+			subMenu: null,
+			quickSwitcherLabel: 'Render on web...',
+		},
+		{
+			type: 'divider' as const,
+			id: 'render-divider',
+		},
+	].filter(NoReactInternals.truthy);
 };
 
 export const useMenuStructure = (
@@ -848,16 +887,22 @@ export const useMenuStructure = (
 				id: 'composition' as const,
 				label: 'Composition',
 				leaveLeftPadding: false,
-				items: getCompositionMenuItems({
-					closeMenu,
-					composition: currentComposition,
-					connectionStatus: type,
-					includeCompositionManagementItems: true,
-					includeNewCompositionItem: true,
-					resolvedLocation: resolvedCompositionLocation,
-					setSelectedModal,
-					readOnlyStudio,
-				}),
+				items: [
+					...getRenderMenuItems({
+						closeMenu,
+						previewServerState: type,
+						readOnlyStudio,
+					}),
+					...getCompositionMenuItems({
+						closeMenu,
+						composition: currentComposition,
+						connectionStatus: type,
+						includeCompositionManagementItems: true,
+						resolvedLocation: resolvedCompositionLocation,
+						setSelectedModal,
+						readOnlyStudio,
+					}),
+				],
 				quickSwitcherLabel: null,
 			},
 			{

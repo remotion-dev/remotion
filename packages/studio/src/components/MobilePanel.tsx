@@ -16,12 +16,16 @@ const overlay: React.CSSProperties = {
 const panel: React.CSSProperties = {
 	position: 'fixed',
 	top: MENU_TOOLBAR_HEIGHT,
-	width: 'min(350px, calc(100% - 50px))',
 	height: `calc(100% - ${MENU_TOOLBAR_HEIGHT}px)`,
 	overflow: 'hidden',
 	background: BACKGROUND,
 	boxShadow: SHADOW_BLACK,
 };
+
+const sidebarWidth = {
+	left: 'min(210px, calc(100% - 50px))',
+	right: 'min(245px, calc(100% - 50px))',
+} satisfies Record<'left' | 'right', React.CSSProperties['width']>;
 
 export default function MobilePanel({
 	children,
@@ -55,6 +59,7 @@ export default function MobilePanel({
 				<div
 					style={{
 						...panel,
+						width: sidebarWidth[side],
 						left: side === 'left' ? 0 : undefined,
 						right: side === 'right' ? 0 : undefined,
 					}}

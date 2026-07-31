@@ -176,18 +176,33 @@ const validateEmbeddedSkills = () => {
 
 		const parentSkillFile = path.join(parentRoot, 'SKILL.md');
 		const contents = readFileSync(parentSkillFile, 'utf-8');
-		const siblingSkillLinks = [...contents.matchAll(markdownLinkRegex)]
-			.map((match) => stripMarkdownTitle(match[1] as string))
-			.filter((link) =>
-				skillNames.some((skillName) => link.startsWith(`../${skillName}/`)),
-			);
+		const links = [...contents.matchAll(markdownLinkRegex)].map((match) =>
+			stripMarkdownTitle(match[1] as string),
+		);
 
-		for (const link of siblingSkillLinks) {
-			issues.push({
-				file: parentSkillFile,
-				link,
-				message: `Link from ${parentSkill} should point to the embedded copy, not a sibling skill folder`,
-			});
+		for (const link of links) {
+			const siblingSkill = skillNames.find((skillName) =>
+				link.startsWith(`../${skillName}/`),
+			);
+			if (siblingSkill) {
+				issues.push({
+					file: parentSkillFile,
+					link,
+					message: `Link from ${parentSkill} should point to the embedded copy, not a sibling skill folder`,
+				});
+				continue;
+			}
+
+			const ambiguousSkill = skillNames.find((skillName) =>
+				link.startsWith(`${skillName}/`),
+			);
+			if (ambiguousSkill) {
+				issues.push({
+					file: parentSkillFile,
+					link,
+					message: `Link to embedded skill "${ambiguousSkill}" must start with "./" so it resolves relative to ${parentSkill}`,
+				});
+			}
 		}
 	}
 
