@@ -15,11 +15,14 @@ export type ElementInstallTarget = {
 	updatedAt: number;
 };
 
+export type StudioProtocolTargetPurpose = 'install-element' | 'set-license-key';
+
 const targetsByClientId = new Map<string, ElementInstallTarget>();
 
 type StudioProtocolTarget = {
 	readonly id: string;
 	readonly origin: string;
+	readonly purpose: StudioProtocolTargetPurpose;
 	readonly target: ElementInstallTarget;
 	readonly expiresAt: number;
 };
@@ -75,10 +78,12 @@ export const getElementInstallTarget = (requestId: string | null) => {
 export const issueStudioProtocolTarget = ({
 	now,
 	origin,
+	purpose,
 	target,
 }: {
 	readonly now: number;
 	readonly origin: string;
+	readonly purpose: StudioProtocolTargetPurpose;
 	readonly target: ElementInstallTarget;
 }) => {
 	for (const [id, existing] of studioProtocolTargets) {
@@ -90,6 +95,7 @@ export const issueStudioProtocolTarget = ({
 	const issued: StudioProtocolTarget = {
 		id: randomUUID(),
 		origin,
+		purpose,
 		target: {...target},
 		expiresAt: now + STUDIO_PROTOCOL_TARGET_MAX_AGE,
 	};
@@ -100,10 +106,12 @@ export const issueStudioProtocolTarget = ({
 export const consumeStudioProtocolTarget = ({
 	now,
 	origin,
+	purpose,
 	targetId,
 }: {
 	readonly now: number;
 	readonly origin: string;
+	readonly purpose: StudioProtocolTargetPurpose;
 	readonly targetId: string;
 }): ElementInstallTarget | null => {
 	const issued = studioProtocolTargets.get(targetId);
@@ -111,7 +119,8 @@ export const consumeStudioProtocolTarget = ({
 	if (
 		issued === undefined ||
 		issued.expiresAt <= now ||
-		issued.origin !== origin
+		issued.origin !== origin ||
+		issued.purpose !== purpose
 	) {
 		return null;
 	}
@@ -120,8 +129,17 @@ export const consumeStudioProtocolTarget = ({
 	if (
 		current === null ||
 		now - current.updatedAt >= ELEMENT_INSTALL_TARGET_MAX_AGE ||
+		current.readOnly
+	) {
+		return null;
+	}
+
+	if (purpose === 'set-license-key') {
+		return issued.target;
+	}
+
+	if (
 		!current.canInstall ||
-		current.readOnly ||
 		current.compositionFile !== issued.target.compositionFile ||
 		current.compositionId !== issued.target.compositionId
 	) {

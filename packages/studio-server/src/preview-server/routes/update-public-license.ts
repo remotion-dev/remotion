@@ -50,6 +50,21 @@ export const updatePublicLicenseInConfig = ({
 	return `${configWithoutExistingCalls}${separator}Config.setPublicLicenseKey('${escapedPublicLicenseKey}');\n`;
 };
 
+export const setPublicLicenseKeyInConfigFile = ({
+	configFile,
+	publicLicenseKey,
+}: {
+	readonly configFile: string;
+	readonly publicLicenseKey: string;
+}) => {
+	const configContents = readFileSync(configFile, 'utf8');
+	writeFileAndNotifyFileWatchers(
+		configFile,
+		updatePublicLicenseInConfig({configContents, publicLicenseKey}),
+		undefined,
+	);
+};
+
 export const updatePublicLicenseHandler: ApiHandler<
 	UpdatePublicLicenseRequest,
 	UpdatePublicLicenseResponse
@@ -68,15 +83,10 @@ export const updatePublicLicenseHandler: ApiHandler<
 		});
 	}
 
-	const configContents = readFileSync(configFile, 'utf8');
-	writeFileAndNotifyFileWatchers(
+	setPublicLicenseKeyInConfigFile({
 		configFile,
-		updatePublicLicenseInConfig({
-			configContents,
-			publicLicenseKey: input.publicLicenseKey,
-		}),
-		undefined,
-	);
+		publicLicenseKey: input.publicLicenseKey,
+	});
 
 	return Promise.resolve({success: true});
 };

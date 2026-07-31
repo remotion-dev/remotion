@@ -8,6 +8,12 @@ export type StudioProtocolInstallTarget = {
 	readonly lastFocusedAt: number;
 };
 
+export type StudioProtocolLicenseKeyTarget = {
+	readonly id: string;
+	readonly expiresAt: number;
+	readonly lastFocusedAt: number;
+};
+
 export type StudioProtocolDescriptor = {
 	readonly protocol: 'remotion-studio-protocol';
 	readonly protocolVersion: 1;
@@ -17,9 +23,11 @@ export type StudioProtocolDescriptor = {
 			readonly payloadType: 'remotion-element';
 			readonly payloadVersions: readonly number[];
 		}[];
+		readonly setLicenseKey?: true;
 	};
 	readonly projectName: string | null;
 	readonly installTarget: StudioProtocolInstallTarget | null;
+	readonly licenseKeyTarget?: StudioProtocolLicenseKeyTarget | null;
 };
 
 export type InstallInStudioErrorCode =
@@ -51,20 +59,22 @@ export type InstallInStudioResult =
 			readonly message: string;
 	  };
 
-type Fetcher = (
+export type StudioProtocolFetcher = (
 	input: string | URL | Request,
 	options?: RequestInit,
 ) => Promise<Response>;
 
 export type InstallInStudioDependencies = {
-	readonly fetchFn: Fetcher;
+	readonly fetchFn: StudioProtocolFetcher;
 	readonly now: () => number;
 	readonly ports: readonly number[];
 	readonly pageOrigin: string | null;
 };
 
-const probePorts = [3000, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009];
-const focusedStudioMaxAge = 5 * 60 * 1000;
+export const studioProtocolProbePorts = [
+	3000, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009,
+];
+export const focusedStudioMaxAge = 5 * 60 * 1000;
 const requestTimeout = 2_000;
 
 const failure = (
@@ -72,12 +82,12 @@ const failure = (
 	message: string,
 ): InstallInStudioResult => ({success: false, code, message});
 
-const fetchWithTimeout = async ({
+export const fetchWithTimeout = async ({
 	fetchFn,
 	options,
 	url,
 }: {
-	readonly fetchFn: Fetcher;
+	readonly fetchFn: StudioProtocolFetcher;
 	readonly options: RequestInit | null;
 	readonly url: string;
 }) => {
@@ -112,7 +122,20 @@ const isInstallTarget = (
 	);
 };
 
-const isDescriptor = (value: unknown): value is StudioProtocolDescriptor => {
+const isLicenseKeyTarget = (
+	value: unknown,
+): value is StudioProtocolLicenseKeyTarget =>
+	isRecord(value) &&
+	typeof value.id === 'string' &&
+	value.id.length > 0 &&
+	typeof value.expiresAt === 'number' &&
+	Number.isFinite(value.expiresAt) &&
+	typeof value.lastFocusedAt === 'number' &&
+	Number.isFinite(value.lastFocusedAt);
+
+export const isStudioProtocolDescriptor = (
+	value: unknown,
+): value is StudioProtocolDescriptor => {
 	if (
 		!isRecord(value) ||
 		value.protocol !== 'remotion-studio-protocol' ||
@@ -134,7 +157,12 @@ const isDescriptor = (value: unknown): value is StudioProtocolDescriptor => {
 		capability.payloadVersions.every(
 			(version) => typeof version === 'number',
 		) &&
-		(value.installTarget === null || isInstallTarget(value.installTarget))
+		(value.installTarget === null || isInstallTarget(value.installTarget)) &&
+		(value.capabilities.setLicenseKey === undefined ||
+			value.capabilities.setLicenseKey === true) &&
+		(value.licenseKeyTarget === undefined ||
+			value.licenseKeyTarget === null ||
+			isLicenseKeyTarget(value.licenseKeyTarget))
 	);
 };
 
@@ -142,7 +170,9 @@ const hasSupportedElementCapability = (
 	descriptor: StudioProtocolDescriptor,
 ): boolean => descriptor.capabilities.install[0]!.payloadVersions.includes(1);
 
-const isAllowedOrigin = (origin: string | null): boolean => {
+export const isAllowedStudioProtocolPageOrigin = (
+	origin: string | null,
+): boolean => {
 	if (origin === null) {
 		return false;
 	}
@@ -159,13 +189,13 @@ const isAllowedOrigin = (origin: string | null): boolean => {
 	}
 };
 
-type DiscoveredStudio = {
+export type DiscoveredStudio = {
 	readonly descriptor: StudioProtocolDescriptor;
 	readonly discoveredAt: number;
 	readonly origin: string;
 };
 
-const discoverStudios = async (
+export const discoverStudios = async (
 	dependencies: InstallInStudioDependencies,
 ): Promise<{
 	readonly studios: DiscoveredStudio[];
@@ -209,7 +239,7 @@ const discoverStudios = async (
 				return null;
 			}
 
-			if (!isDescriptor(value)) {
+			if (!isStudioProtocolDescriptor(value)) {
 				foundInvalidResponse = true;
 				return null;
 			}
@@ -231,7 +261,7 @@ const discoverStudios = async (
 	};
 };
 
-const hasLegacyStudio = async (
+export const hasLegacyStudio = async (
 	dependencies: InstallInStudioDependencies,
 ): Promise<boolean> => {
 	const results = await Promise.all(
@@ -256,14 +286,14 @@ const hasLegacyStudio = async (
 	return results.some(Boolean);
 };
 
-const isAbortError = (error: unknown): boolean =>
+export const isAbortError = (error: unknown): boolean =>
 	error instanceof Error && error.name === 'AbortError';
 
 export const installInStudioWithDependencies = async (
 	payload: StudioElementPayload,
 	dependencies: InstallInStudioDependencies,
 ): Promise<InstallInStudioResult> => {
-	if (!isAllowedOrigin(dependencies.pageOrigin)) {
+	if (!isAllowedStudioProtocolPageOrigin(dependencies.pageOrigin)) {
 		return failure(
 			'unsupported-origin',
 			'Install in Studio is only supported on HTTPS websites and local development origins.',
@@ -421,6 +451,6 @@ export const installInStudio = ({
 			typeof globalThis.location === 'undefined'
 				? null
 				: globalThis.location.origin,
-		ports: probePorts,
+		ports: studioProtocolProbePorts,
 	});
 };

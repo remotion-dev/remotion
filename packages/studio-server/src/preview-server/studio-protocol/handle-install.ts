@@ -79,7 +79,7 @@ export const handleStudioProtocolInstall = async ({
 	readonly request: IncomingMessage;
 	readonly response: ServerResponse;
 }): Promise<void> => {
-	setStudioProtocolCorsHeaders({request, response});
+	setStudioProtocolCorsHeaders({licenseKey: false, request, response});
 	const requestOrigin = getAllowedStudioProtocolOrigin(request.headers.origin);
 	if (requestOrigin === null) {
 		writeStudioProtocolError({
@@ -153,6 +153,7 @@ export const handleStudioProtocolInstall = async ({
 	const target = consumeStudioProtocolTarget({
 		now: Date.now(),
 		origin: requestOrigin,
+		purpose: 'install-element',
 		targetId: parsedRequest.data.targetId,
 	});
 	if (target === null) {

@@ -1,8 +1,15 @@
 import {expect, test} from 'bun:test';
+import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {createServer} from 'node:http';
 import {connect} from 'node:net';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
 import {createElementPayload} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
+import {
+	createFileWatcherRegistry,
+	setFileWatcherRegistry,
+} from '../file-watcher';
 import {
 	clearElementInstallStateForTests,
 	updateElementInstallTarget,
@@ -10,6 +17,7 @@ import {
 import type {LiveEventsServer} from '../preview-server/live-events';
 import {handleStudioProtocolDiscovery} from '../preview-server/studio-protocol/handle-discovery';
 import {handleStudioProtocolInstall} from '../preview-server/studio-protocol/handle-install';
+import {handleStudioProtocolLicenseKey} from '../preview-server/studio-protocol/handle-license-key';
 import {handleStudioProtocolOptions} from '../preview-server/studio-protocol/origin-policy';
 
 const payload = createElementPayload({
@@ -134,9 +142,11 @@ test('discovers an exact Studio target and delivers one install request over HTT
 	const server = createServer((request, response) => {
 		const {pathname} = new URL(request.url ?? '/', 'http://localhost');
 		if (request.method === 'OPTIONS') {
-			handleStudioProtocolOptions({request, response}).catch((error) =>
-				response.destroy(error),
-			);
+			handleStudioProtocolOptions({
+				licenseKey: false,
+				request,
+				response,
+			}).catch((error) => response.destroy(error));
 			return;
 		}
 
@@ -274,7 +284,7 @@ test('discovers an exact Studio target and delivers one install request over HTT
 				clientId: 'focused-studio-tab',
 				compositionFile: '/tmp/protocol-project/src/Composition.tsx',
 				compositionId: 'Main',
-				element: {displayName: 'Lower Third', durationInFrames: 90},
+				element: {displayName: 'Lower Third'},
 				source: {
 					type: 'studio-protocol',
 					origin: 'https://example.com',
@@ -303,6 +313,207 @@ test('discovers an exact Studio target and delivers one install request over HTT
 		await new Promise<void>((resolve, reject) => {
 			server.close((error) => (error ? reject(error) : resolve()));
 		});
+		clearElementInstallStateForTests();
+	}
+});
+
+test('sets a public license key in the focused Studio project over HTTP', async () => {
+	clearElementInstallStateForTests();
+	const directory = mkdtempSync(
+		path.join(tmpdir(), 'remotion-license-protocol-'),
+	);
+	const configFile = path.join(directory, 'remotion.config.ts');
+	let loadedConfigFile: string | null = configFile;
+	writeFileSync(
+		configFile,
+		[
+			"import {Config} from '@remotion/cli/config';",
+			"Config.setPublicLicenseKey('rm_pub_old');",
+			'',
+		].join('\n'),
+	);
+	const unsetRegistry = setFileWatcherRegistry(createFileWatcherRegistry());
+	const liveEventsServer: LiveEventsServer = {
+		addNewClientListener: () => () => undefined,
+		closeConnections: () => Promise.resolve(),
+		router: () => Promise.resolve(),
+		sendEventToClient: (event) => {
+			if (event.type !== 'request-element-install-target') {
+				return;
+			}
+
+			updateElementInstallTarget({
+				requestId: event.requestId,
+				clientId: 'focused-studio-tab',
+				compositionFile: null,
+				compositionId: null,
+				canInstall: false,
+				lastFocusedAt: Date.now(),
+				readOnly: false,
+				studioUrl: 'http://localhost:3000',
+			});
+		},
+		sendEventToClientId: () => false,
+	};
+	const server = createServer((request, response) => {
+		const {pathname} = new URL(request.url ?? '/', 'http://localhost');
+		if (request.method === 'OPTIONS') {
+			handleStudioProtocolOptions({
+				licenseKey: pathname === '/api/studio-protocol/license-key',
+				request,
+				response,
+			}).catch((error) => response.destroy(error));
+			return;
+		}
+
+		if (pathname === '/api/studio-protocol') {
+			handleStudioProtocolDiscovery({
+				gitSource: null,
+				liveEventsServer,
+				remotionRoot: directory,
+				request,
+				response,
+			}).catch((error) => response.destroy(error));
+			return;
+		}
+
+		handleStudioProtocolLicenseKey({
+			configFile: loadedConfigFile,
+			request,
+			response,
+		}).catch((error) => response.destroy(error));
+	});
+	await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+
+	try {
+		const address = server.address();
+		if (address === null || typeof address === 'string') {
+			throw new Error('Expected an HTTP server address');
+		}
+
+		const origin = `http://127.0.0.1:${address.port}`;
+		const deniedPreflight = await fetch(
+			`${origin}/api/studio-protocol/license-key`,
+			{
+				method: 'OPTIONS',
+				headers: {Origin: 'https://example.com'},
+			},
+		);
+		expect(deniedPreflight.status).toBe(403);
+		expect(
+			deniedPreflight.headers.get('access-control-allow-origin'),
+		).toBeNull();
+
+		const untrustedDiscovery = await fetch(`${origin}/api/studio-protocol`, {
+			headers: {Origin: 'https://example.com'},
+		});
+		expect(untrustedDiscovery.status).toBe(200);
+		expect(await untrustedDiscovery.json()).toMatchObject({
+			capabilities: {setLicenseKey: true},
+			installTarget: null,
+			licenseKeyTarget: null,
+		});
+
+		const discovery = await fetch(`${origin}/api/studio-protocol`, {
+			headers: {Origin: 'https://www.remotion.pro'},
+		});
+		const descriptor = (await discovery.json()) as {
+			licenseKeyTarget: {id: string};
+		};
+		expect(descriptor.licenseKeyTarget.id).toBeString();
+
+		const validLicenseKey = `rm_pub_${'a'.repeat(48)}`;
+		const body = {
+			protocol: 'remotion-studio-protocol',
+			protocolVersion: 1,
+			targetId: descriptor.licenseKeyTarget.id,
+			licenseKey: validLicenseKey,
+		};
+		const invalidKeyResponse = await fetch(
+			`${origin}/api/studio-protocol/license-key`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Origin: 'https://www.remotion.pro',
+				},
+				body: JSON.stringify({...body, licenseKey: 'rm_sec_private'}),
+			},
+		);
+		expect(invalidKeyResponse.status).toBe(400);
+		expect(await invalidKeyResponse.json()).toMatchObject({
+			status: 'error',
+			error: {code: 'invalid-license-key'},
+		});
+		expect(readFileSync(configFile, 'utf8')).toContain('rm_pub_old');
+
+		const response = await fetch(`${origin}/api/studio-protocol/license-key`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Origin: 'https://www.remotion.pro',
+			},
+			body: JSON.stringify(body),
+		});
+		expect(await response.json()).toEqual({
+			protocol: 'remotion-studio-protocol',
+			protocolVersion: 1,
+			status: 'license-key-set',
+		});
+		expect(readFileSync(configFile, 'utf8')).toBe(
+			[
+				"import {Config} from '@remotion/cli/config';",
+				`Config.setPublicLicenseKey('${validLicenseKey}');`,
+				'',
+			].join('\n'),
+		);
+
+		const replay = await fetch(`${origin}/api/studio-protocol/license-key`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Origin: 'https://www.remotion.pro',
+			},
+			body: JSON.stringify(body),
+		});
+		expect(replay.status).toBe(409);
+		expect(await replay.json()).toMatchObject({
+			status: 'error',
+			error: {code: 'target-expired'},
+		});
+
+		const noConfigDiscovery = await fetch(`${origin}/api/studio-protocol`, {
+			headers: {Origin: 'https://www.remotion.pro'},
+		});
+		const noConfigDescriptor = (await noConfigDiscovery.json()) as {
+			licenseKeyTarget: {id: string};
+		};
+		loadedConfigFile = null;
+		const noConfigResponse = await fetch(
+			`${origin}/api/studio-protocol/license-key`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Origin: 'https://www.remotion.pro',
+				},
+				body: JSON.stringify({
+					...body,
+					targetId: noConfigDescriptor.licenseKeyTarget.id,
+				}),
+			},
+		);
+		expect(noConfigResponse.status).toBe(409);
+		expect(await noConfigResponse.json()).toMatchObject({
+			status: 'error',
+			error: {code: 'no-config-file'},
+		});
+	} finally {
+		await new Promise<void>((resolve, reject) => {
+			server.close((error) => (error ? reject(error) : resolve()));
+		});
+		unsetRegistry();
+		rmSync(directory, {recursive: true, force: true});
 		clearElementInstallStateForTests();
 	}
 });

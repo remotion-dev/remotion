@@ -11,6 +11,8 @@ import {
 } from './element-drag-data';
 import {parseStudioElementPayload} from './element-payload';
 import {installInStudioWithDependencies} from './install-in-studio';
+import {isValidPublicLicenseKey} from './license-key';
+import {setLicenseKeyInStudio} from './set-license-key-in-studio';
 
 export type {AssetDragData} from './asset-drag-data';
 export type {
@@ -67,8 +69,10 @@ export const StudioProtocolInternals = {
 	isComponentIdentifier,
 	isComponentImportPath,
 	installInStudioWithDependencies,
+	isValidPublicLicenseKey,
 	makeDragData,
 	makeElementFileNameFromSlug,
 	parseDragData,
 	parseStudioElementPayload,
+	setLicenseKeyInStudio,
 };
