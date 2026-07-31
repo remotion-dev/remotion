@@ -314,7 +314,7 @@ test('Sequence layout="none" uses outlineRef for Studio outlines', () => {
 	expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe('DIV');
 });
 
-test('Series inherits Sequence controls except durationInFrames', () => {
+test('Series inherits Sequence controls', () => {
 	const registeredSequences: TSequence[] = [];
 
 	render(
@@ -336,7 +336,7 @@ test('Series inherits Sequence controls except durationInFrames', () => {
 
 	expect(series?.controls?.schema).toHaveProperty('from');
 	expect(series?.controls?.schema).toHaveProperty('freeze');
-	expect(series?.controls?.schema).not.toHaveProperty('durationInFrames');
+	expect(series?.controls?.schema).toHaveProperty('durationInFrames');
 });
 
 test('Series.Sequence registers with its own visual controls', () => {
