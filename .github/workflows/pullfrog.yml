@@ -29,7 +29,7 @@ jobs:
           fetch-depth: 1
       - uses: actions/setup-node@v6
         with:
-          node-version: 25
+          node-version: 24
       - uses: oven-sh/setup-bun@v2.1.2
         with:
           bun-version: 1.3.3
