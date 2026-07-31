@@ -1,3 +1,4 @@
+import type {ElementDependency} from '@remotion/studio-protocol';
 import type {ComponentType} from 'react';
 import {LiquidContours} from '../../../elements/backgrounds/liquid-contours/liquid-contours';
 import {NotebookPaper} from '../../../elements/backgrounds/notebook-paper/notebook-paper';
@@ -25,6 +26,7 @@ export type ElementDefinition = {
 	readonly category: string;
 	readonly component: ComponentType<Record<string, never>>;
 	readonly contributors: readonly Contributor[];
+	readonly dependencies: readonly ElementDependency[];
 	readonly description: string;
 	readonly displayName: string;
 	readonly durationInFrames: number;
@@ -46,6 +48,7 @@ export const elementDefinitions = {
 		contributors: [],
 		description:
 			'A flowing two-color background made from animated liquid contour bands.',
+		dependencies: [{name: '@remotion/effects', version: null}],
 		displayName: 'Liquid Contours',
 		durationInFrames: 240,
 		elementHeight: null,
@@ -68,6 +71,7 @@ export const elementDefinitions = {
 		component: NotebookPaper,
 		contributors: [],
 		description: 'A white paper background with subtle blue gridlines.',
+		dependencies: [{name: '@remotion/effects', version: null}],
 		displayName: 'Notebook Paper',
 		durationInFrames: 120,
 		elementHeight: null,
@@ -91,6 +95,7 @@ export const elementDefinitions = {
 		contributors: [],
 		description:
 			'A white paper texture background with a slowly changing posterized seed.',
+		dependencies: [{name: '@remotion/effects', version: null}],
 		displayName: 'Paper Texture',
 		durationInFrames: 120,
 		elementHeight: null,
@@ -113,6 +118,7 @@ export const elementDefinitions = {
 		component: RotatingStarburst,
 		contributors: [],
 		description: 'A solid background with a slowly rotating starburst effect.',
+		dependencies: [{name: '@remotion/effects', version: null}],
 		displayName: 'Rotating Starburst',
 		durationInFrames: 240,
 		elementHeight: null,
@@ -135,6 +141,7 @@ export const elementDefinitions = {
 		component: LocationLowerThird,
 		contributors: [],
 		description: 'An animated lower third for an event location and venue.',
+		dependencies: [],
 		displayName: 'Location Lower Third',
 		durationInFrames: 120,
 		elementHeight: 138,
@@ -158,6 +165,7 @@ export const elementDefinitions = {
 		contributors: [],
 		description:
 			'A clean animated lower third for introducing a speaker, guest, or host.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		displayName: 'Name Lower Third',
 		durationInFrames: 120,
 		elementHeight: 138,
@@ -181,6 +189,7 @@ export const elementDefinitions = {
 		contributors: [],
 		description:
 			'A bold bar chart card with three directly labeled data points.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		displayName: 'Horizontal Bar Chart',
 		durationInFrames: 120,
 		elementHeight: 864,
@@ -209,6 +218,7 @@ export const elementDefinitions = {
 		],
 		description:
 			'A simple animated counter that smoothly counts from a start value to an end value.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		displayName: 'Number Counter',
 		durationInFrames: 120,
 		elementHeight: 200,
@@ -232,6 +242,7 @@ export const elementDefinitions = {
 		contributors: [],
 		description:
 			'An animated product card with a bold title, catalog image, pricing, and discount.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		displayName: 'Product Offer',
 		durationInFrames: 150,
 		elementHeight: 900,
@@ -255,6 +266,10 @@ export const elementDefinitions = {
 		contributors: [],
 		description:
 			'An animated hand-drawn circle with posterized drawing progress and shape changes.',
+		dependencies: [
+			{name: '@remotion/google-fonts', version: null},
+			{name: '@remotion/rough-notation', version: null},
+		],
 		displayName: 'Circle Marker',
 		durationInFrames: 120,
 		elementHeight: 220,
@@ -278,6 +293,10 @@ export const elementDefinitions = {
 		contributors: [],
 		description:
 			'An animated hand-drawn cross for removing a word or phrase with emphasis.',
+		dependencies: [
+			{name: '@remotion/google-fonts', version: null},
+			{name: '@remotion/rough-notation', version: null},
+		],
 		displayName: 'Crossed Off',
 		durationInFrames: 120,
 		elementHeight: 220,
@@ -299,6 +318,7 @@ export const elementDefinitions = {
 		contributors: [],
 		description:
 			'A framed news article with camera movement, blur, and animated passage highlights.',
+		dependencies: [{name: '@remotion/rough-notation', version: null}],
 		displayName: 'News Article Headline Highlight',
 		durationInFrames: 150,
 		elementHeight: null,
@@ -322,6 +342,10 @@ export const elementDefinitions = {
 		contributors: [],
 		description:
 			'An animated hand-drawn line for striking through a word or phrase.',
+		dependencies: [
+			{name: '@remotion/google-fonts', version: null},
+			{name: '@remotion/rough-notation', version: null},
+		],
 		displayName: 'Strike Through',
 		durationInFrames: 120,
 		elementHeight: 220,
@@ -345,6 +369,10 @@ export const elementDefinitions = {
 		contributors: [],
 		description:
 			'A hand-drawn animated text marker for calling attention to one phrase.',
+		dependencies: [
+			{name: '@remotion/google-fonts', version: null},
+			{name: '@remotion/rough-notation', version: null},
+		],
 		displayName: 'Text Marker',
 		durationInFrames: 120,
 		elementHeight: 220,
@@ -366,6 +394,11 @@ export const elementDefinitions = {
 		contributors: [{username: 'JonnyBurger', contribution: null}],
 		description:
 			'Previously a paid template on remotion.pro, Timed Captions is now free for everyone.',
+		dependencies: [
+			{name: '@remotion/captions', version: null},
+			{name: '@remotion/google-fonts', version: null},
+			{name: '@remotion/layout-utils', version: null},
+		],
 		displayName: 'Timed Captions',
 		durationInFrames: 210,
 		elementHeight: 180,

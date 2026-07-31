@@ -17,3 +17,12 @@ test('lets the package manager resolve other packages', () => {
 	expect(getPackageInstallSpec('lodash')).toBe('lodash');
 	expect(getPackageInstallSpec('@acme/video')).toBe('@acme/video');
 });
+
+test('uses exact declared versions for non-Remotion dependencies', () => {
+	expect(getPackageInstallSpec({name: 'lodash', version: '4.17.21'})).toBe(
+		'lodash@4.17.21',
+	);
+	expect(
+		getPackageInstallSpec({name: '@remotion/effects', version: '1.0.0'}),
+	).toBe(`@remotion/effects@${VERSION}`);
+});

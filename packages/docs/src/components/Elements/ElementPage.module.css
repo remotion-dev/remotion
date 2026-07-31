@@ -152,6 +152,16 @@
 	font-weight: 600;
 }
 
+.dependencyList {
+	margin: 0;
+	padding-left: 18px;
+	text-align: left;
+}
+
+.dependencyList li + li {
+	margin-top: 4px;
+}
+
 .contributors {
 	display: flex;
 	align-items: center;

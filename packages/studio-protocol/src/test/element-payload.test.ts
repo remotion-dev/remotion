@@ -4,7 +4,13 @@ import {setStudioDragData} from '../drag-transport';
 import {createElementPayload} from '../element-payload';
 
 const validInput = {
-	dependencies: ['remotion', 'remotion'],
+	dependencies: [
+		'react',
+		'react-dom',
+		'remotion',
+		'@remotion/google-fonts',
+		'@remotion/google-fonts',
+	],
 	dimensions: {width: 800, height: 200},
 	displayName: 'Lower Third',
 	durationInFrames: 90,
@@ -19,7 +25,7 @@ test('creates one canonical Element payload for HTTP and drag transports', () =>
 		version: 1,
 		durationInFrames: 90,
 		element: {
-			dependencies: ['remotion'],
+			dependencies: [{name: '@remotion/google-fonts', version: null}],
 			dimensions: {width: 800, height: 200},
 			displayName: 'Lower Third',
 			durationInFrames: 90,
@@ -69,7 +75,7 @@ test('rejects invalid Element authoring input with actionable errors', () => {
 		},
 		{
 			input: {...validInput, dependencies: ['FS']},
-			message: 'Invalid dependency package name: FS',
+			message: 'Invalid Element dependency: "FS"',
 		},
 		{
 			input: {...validInput, dimensions: {width: 0, height: 200}},

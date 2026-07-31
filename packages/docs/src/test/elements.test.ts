@@ -107,20 +107,18 @@ describe('Elements must follow the colocated single-file format', () => {
 		expect(
 			elementPage.attributes.some((attr) => attr.name === 'sourceCode'),
 		).toBe(true);
-		const dependencies = elementPage.attributes.find(
-			(attribute) => attribute.name === 'dependencies',
-		);
-		expect(dependencies?.value.value).toBe(
-			JSON.stringify(
-				getRemotionElementDependencies(readFileSync(element.tsxPath, 'utf8')),
+		expect(
+			elementPage.attributes.some(
+				(attribute) => attribute.name === 'dependencies',
 			),
-		);
+		).toBe(false);
 	});
 
 	test('extracts dependencies using the TypeScript parser', () => {
 		expect(
 			getRemotionElementDependencies(`
 				import type {FC} from 'react';
+				import {createRoot} from 'react-dom/client';
 				import {loadFont} from '@remotion/google-fonts/Inter';
 				import {AbsoluteFill} from 'remotion';
 				// import value from 'comment-dependency';
@@ -131,12 +129,7 @@ describe('Elements must follow the colocated single-file format', () => {
 
 				export const Element: FC = () => <AbsoluteFill />;
 			`),
-		).toEqual([
-			'react',
-			'@remotion/google-fonts',
-			'actual-reexport',
-			'actual-dynamic',
-		]);
+		).toEqual(['@remotion/google-fonts', 'actual-reexport', 'actual-dynamic']);
 	});
 
 	for (const element of allElements) {
@@ -312,6 +305,25 @@ describe('Element preview definitions', () => {
 
 		for (const [slug, definition] of Object.entries(elementDefinitions)) {
 			expect(definition.slug).toBe(slug);
+		}
+	});
+
+	test('declares every external source dependency centrally', () => {
+		for (const element of productionElements) {
+			const definition = elementDefinitionList.find(
+				(entry) => entry.slug === element.name,
+			);
+			if (!definition) {
+				throw new Error(`Missing definition for ${element.name}`);
+			}
+
+			expect(
+				definition.dependencies.map((dependency) => dependency.name).sort(),
+			).toEqual(
+				getRemotionElementDependencies(
+					readFileSync(element.tsxPath, 'utf8'),
+				).sort(),
+			);
 		}
 	});
 

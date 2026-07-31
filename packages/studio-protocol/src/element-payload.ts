@@ -1,10 +1,12 @@
 import type {ComponentDimensions} from './component-drag-data';
 import {makeDragData} from './drag-data';
-import type {makeElementDragData} from './element-drag-data';
 import {
 	getElementComponentNameFromSourceCode,
+	isElementDependency,
 	makeElementFileNameFromSlug,
 	parseElementDragData,
+	type ElementDependency,
+	type ElementDragData,
 } from './element-drag-data';
 import {isRecord, isValidPackageName} from './validation';
 
@@ -16,12 +18,12 @@ export type CreateElementPayloadInput = {
 	readonly displayName: string;
 	readonly slug: string;
 	readonly sourceCode: string;
-	readonly dependencies: readonly string[];
+	readonly dependencies: readonly (ElementDependency | string)[];
 	readonly dimensions: ComponentDimensions | null;
 	readonly durationInFrames: number;
 };
 
-export type StudioElementPayload = ReturnType<typeof makeElementDragData> & {
+export type StudioElementPayload = ElementDragData & {
 	readonly durationInFrames: number;
 };
 
@@ -38,79 +40,71 @@ const assertCreateElementPayloadInput = (
 		throw new TypeError('displayName must be a non-empty string');
 	}
 
-	if (input.displayName.length >= 120) {
+	if (input.displayName.length >= 120)
 		throw new TypeError('displayName must be shorter than 120 characters');
-	}
-
-	if (makeElementFileNameFromSlug(input.slug) === null) {
+	if (makeElementFileNameFromSlug(input.slug) === null)
 		throw new TypeError('slug must be a safe lowercase Element slug');
-	}
-
 	if (
 		typeof input.sourceCode !== 'string' ||
 		input.sourceCode.trim().length === 0
-	) {
+	)
 		throw new TypeError('sourceCode must be a non-empty string');
-	}
-
-	if (input.sourceCode.length >= MAX_SOURCE_CODE_SIZE) {
+	if (input.sourceCode.length >= MAX_SOURCE_CODE_SIZE)
 		throw new TypeError(
 			`sourceCode must be shorter than ${MAX_SOURCE_CODE_SIZE} characters`,
 		);
-	}
-
-	if (getElementComponentNameFromSourceCode(input.sourceCode) === null) {
+	if (getElementComponentNameFromSourceCode(input.sourceCode) === null)
 		throw new TypeError(
 			'sourceCode must contain exactly one exported named React component',
 		);
-	}
-
-	if (!Array.isArray(input.dependencies)) {
+	if (!Array.isArray(input.dependencies))
 		throw new TypeError('dependencies must be an array');
-	}
-
-	if (input.dependencies.length > MAX_DEPENDENCIES) {
+	if (input.dependencies.length > MAX_DEPENDENCIES)
 		throw new TypeError(
 			`dependencies must contain at most ${MAX_DEPENDENCIES} packages`,
 		);
-	}
-
 	for (const dependency of input.dependencies) {
-		if (typeof dependency !== 'string' || !isValidPackageName(dependency)) {
+		if (
+			(typeof dependency === 'string' && !isValidPackageName(dependency)) ||
+			(typeof dependency !== 'string' && !isElementDependency(dependency))
+		) {
 			throw new TypeError(
-				`Invalid dependency package name: ${String(dependency)}`,
+				`Invalid Element dependency: ${JSON.stringify(dependency)}`,
 			);
 		}
 	}
 
-	if (!isDuration(input.durationInFrames)) {
+	if (!isDuration(input.durationInFrames))
 		throw new TypeError(
 			'durationInFrames must be an integer between 1 and 100000000',
 		);
-	}
 };
 
 export const createElementPayload = (
 	input: CreateElementPayloadInput,
 ): StudioElementPayload => {
 	assertCreateElementPayloadInput(input);
-
 	const constructed = makeDragData({
 		type: 'element',
-		...input,
-		dependencies: input.dependencies.slice(),
+		dependencies: input.dependencies.map((dependency) =>
+			typeof dependency === 'string'
+				? {name: dependency, version: null}
+				: dependency,
+		),
+		dimensions: input.dimensions,
+		displayName: input.displayName,
+		durationInFrames: input.durationInFrames,
+		slug: input.slug,
+		sourceCode: input.sourceCode,
 	});
 	const payload: StudioElementPayload = {
 		...constructed.data,
 		durationInFrames: input.durationInFrames,
 	};
-
-	if (JSON.stringify(payload).length > MAX_PAYLOAD_SIZE) {
+	if (JSON.stringify(payload).length > MAX_PAYLOAD_SIZE)
 		throw new TypeError(
 			`The Element payload must be smaller than ${MAX_PAYLOAD_SIZE} characters`,
 		);
-	}
-
 	return payload;
 };
 
@@ -123,35 +117,20 @@ export const parseStudioElementPayload = (
 		value.version !== 1 ||
 		!isDuration(value.durationInFrames) ||
 		!isRecord(value.element)
-	) {
+	)
 		return null;
-	}
-
-	const parsed = parseElementDragData(
+	const element = parseElementDragData(
 		JSON.stringify({
 			type: value.type,
 			version: value.version,
 			element: value.element,
 		}),
 	);
-	if (parsed === null) {
-		return null;
-	}
-
-	try {
-		makeDragData({
-			type: 'element',
-			...parsed.element,
-			durationInFrames: value.durationInFrames,
-		});
-	} catch {
-		return null;
-	}
-
+	if (element === null) return null;
 	const payload: StudioElementPayload = {
-		...parsed,
+		...element,
 		element: {
-			...parsed.element,
+			...element.element,
 			durationInFrames: value.durationInFrames,
 		},
 		durationInFrames: value.durationInFrames,

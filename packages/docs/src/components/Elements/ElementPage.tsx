@@ -26,7 +26,6 @@ import styles from './ElementPage.module.css';
 type ElementPageProps = {
 	readonly children?: ReactNode;
 	readonly definition: ElementDefinition;
-	readonly dependencies: string[];
 	readonly sourceCode?: string;
 };
 
@@ -39,7 +38,6 @@ type InstallStatus =
 export const ElementPage: React.FC<ElementPageProps> = ({
 	children,
 	definition,
-	dependencies,
 	sourceCode,
 }) => {
 	const {
@@ -74,7 +72,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				: null;
 
 		return createElementPayload({
-			dependencies,
+			dependencies: definition.dependencies,
 			dimensions,
 			displayName,
 			durationInFrames,
@@ -82,7 +80,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			sourceCode,
 		});
 	}, [
-		dependencies,
+		definition.dependencies,
 		displayName,
 		durationInFrames,
 		elementHeight,
@@ -241,6 +239,24 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 								<dt>Duration</dt>
 								<dd>
 									{`${durationInFrames} frames (${durationInFrames / fps}s)`}
+								</dd>
+							</div>
+							<div>
+								<dt>Dependencies</dt>
+								<dd>
+									{definition.dependencies.length === 0 ? (
+										'None'
+									) : (
+										<ul className={styles.dependencyList}>
+											{definition.dependencies.map((dependency) => (
+												<li key={dependency.name}>
+													{dependency.version === null
+														? dependency.name
+														: `${dependency.name}@${dependency.version}`}
+												</li>
+											))}
+										</ul>
+									)}
 								</dd>
 							</div>
 						</dl>

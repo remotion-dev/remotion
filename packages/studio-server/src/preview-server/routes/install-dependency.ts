@@ -1,5 +1,6 @@
 import {spawn} from 'node:child_process';
 import {RenderInternals} from '@remotion/renderer';
+import type {ElementDependency} from '@remotion/studio-protocol';
 import {
 	extraPackages,
 	isValidPackageName,
@@ -17,27 +18,43 @@ const getExtraPackageVersion = (packageName: string): string | null => {
 	return pkg ? pkg.version : null;
 };
 
-export const getPackageInstallSpec = (packageName: string): string => {
-	const extraVersion = getExtraPackageVersion(packageName);
-	if (extraVersion) {
-		return `${packageName}@${extraVersion}`;
-	}
-
-	if (packageName === 'remotion' || packageName.startsWith('@remotion/')) {
-		return `${packageName}@${VERSION}`;
-	}
-
-	return packageName;
+export const getPackageInstallSpec = (
+	dependency: ElementDependency | string,
+): string => {
+	const {name, version} =
+		typeof dependency === 'string'
+			? {name: dependency, version: null}
+			: dependency;
+	const extraVersion = getExtraPackageVersion(name);
+	if (extraVersion) return `${name}@${extraVersion}`;
+	if (name === 'remotion' || name.startsWith('@remotion/'))
+		return `${name}@${VERSION}`;
+	return version === null ? name : `${name}@${version}`;
 };
 
 export const handleInstallPackage: ApiHandler<
 	InstallPackageRequest,
 	InstallPackageResponse
-> = async ({logLevel, remotionRoot, input: {packageNames}}) => {
-	for (const packageName of packageNames) {
-		if (!isValidPackageName(packageName)) {
+> = async ({logLevel, remotionRoot, input: {dependencies}}) => {
+	for (const dependency of dependencies) {
+		if (!isValidPackageName(dependency.name)) {
 			return Promise.reject(
-				new Error(`Package name ${JSON.stringify(packageName)} is invalid.`),
+				new Error(
+					`Package name ${JSON.stringify(dependency.name)} is invalid.`,
+				),
+			);
+		}
+
+		if (
+			dependency.version !== null &&
+			!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/.test(
+				dependency.version,
+			)
+		) {
+			return Promise.reject(
+				new Error(
+					`Package version ${JSON.stringify(dependency.version)} is invalid.`,
+				),
 			);
 		}
 	}
@@ -50,28 +67,21 @@ export const handleInstallPackage: ApiHandler<
 	});
 	if (manager === 'unknown') {
 		throw new Error(
-			`No lockfile was found in your project (one of ${lockFilePaths
-				.map((p) => p.path)
-				.join(', ')}). Install dependencies using your favorite manager!`,
+			`No lockfile was found in your project (one of ${lockFilePaths.map((p) => p.path).join(', ')}). Install dependencies using your favorite manager!`,
 		);
 	}
 
-	// Remotion packages must match the Studio version and catalogued extra
-	// packages use their supported version. Other packages resolve normally.
-	const packagesWithVersions = packageNames.map(getPackageInstallSpec);
-
+	const packagesWithVersions = dependencies.map(getPackageInstallSpec);
 	const command = getInstallCommand({
 		manager: manager.manager,
 		packages: packagesWithVersions,
 		version: '',
 		additionalArgs: [],
 	});
-
 	RenderInternals.Log.info(
 		{indent: false, logLevel},
 		RenderInternals.chalk.gray(`╭─  ${manager.manager} ${command.join(' ')}`),
 	);
-
 	const time = Date.now();
 	try {
 		await new Promise<void>((resolve, reject) => {
@@ -80,42 +90,38 @@ export const handleInstallPackage: ApiHandler<
 				command,
 				getPackageManagerSpawnOptions(),
 			);
-			cmd.on('error', (err) => {
-				reject(err);
-			});
-			cmd.stdout.on('data', (d: Buffer) => {
-				const splitted = d.toString().trim().split('\n');
-				splitted.forEach((line) => {
-					RenderInternals.Log.info({indent: true, logLevel}, line);
-				});
-			});
-			cmd.stdout.on('end', () => {
-				resolve();
-			});
-			cmd.on('close', (code, signal) => {
-				if (code === 0) {
-					resolve();
-				} else {
-					reject(
-						new Error(`Command exited with code ${code} and signal ${signal}`),
-					);
-				}
-			});
+			cmd.on('error', reject);
+			cmd.stdout.on('data', (d: Buffer) =>
+				d
+					.toString()
+					.trim()
+					.split('\n')
+					.forEach((line) =>
+						RenderInternals.Log.info({indent: true, logLevel}, line),
+					),
+			);
+			cmd.stdout.on('end', resolve);
+			cmd.on('close', (code, signal) =>
+				code === 0
+					? resolve()
+					: reject(
+							new Error(
+								`Command exited with code ${code} and signal ${signal}`,
+							),
+						),
+			);
 		});
-		const timeEnd = Date.now();
-
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
 			RenderInternals.chalk.gray('╰─ '),
-			`Done in ${timeEnd - time}ms`,
+			`Done in ${Date.now() - time}ms`,
 		);
-		return Promise.resolve({});
+		return {};
 	} catch (err) {
-		const timeEnd = Date.now();
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
 			RenderInternals.chalk.gray('╰─ '),
-			RenderInternals.chalk.red(`Errored in ${timeEnd - time}ms`),
+			RenderInternals.chalk.red(`Errored in ${Date.now() - time}ms`),
 		);
 		return Promise.reject(err);
 	}

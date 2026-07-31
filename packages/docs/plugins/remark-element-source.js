@@ -1,7 +1,4 @@
-import {
-	getRemotionElementDependencies,
-	getRemotionElementSource,
-} from './element-source-utils.js';
+import {getRemotionElementSource} from './element-source-utils.js';
 
 const getAttributeValue = (node, name) => {
 	const attribute = node.attributes?.find((attr) => attr.name === name);
@@ -42,51 +39,17 @@ const sourceCodeAttribute = (sourceCode) => {
 	};
 };
 
-const dependenciesAttribute = (dependencies) => {
-	const value = JSON.stringify(dependencies);
-
-	return {
-		type: 'mdxJsxAttribute',
-		name: 'dependencies',
-		value: {
-			type: 'mdxJsxAttributeValueExpression',
-			value,
-			data: {
-				estree: {
-					type: 'Program',
-					body: [
-						{
-							type: 'ExpressionStatement',
-							expression: {
-								type: 'ArrayExpression',
-								elements: dependencies.map((dependency) => ({
-									type: 'Literal',
-									value: dependency,
-									raw: JSON.stringify(dependency),
-								})),
-							},
-						},
-					],
-					sourceType: 'module',
-				},
-			},
-		},
-	};
-};
-
-const setElementPageSource = ({dependencies, node, sourceCode}) => {
+const setElementPageSource = ({node, sourceCode}) => {
 	const attributesWithoutSourceFile = (node.attributes ?? []).filter(
 		(attribute) => attribute.name !== 'sourceFile',
 	);
 	const attributesWithoutGeneratedValues = attributesWithoutSourceFile.filter(
-		(attribute) =>
-			attribute.name !== 'sourceCode' && attribute.name !== 'dependencies',
+		(attribute) => attribute.name !== 'sourceCode',
 	);
 
 	node.attributes = [
 		...attributesWithoutGeneratedValues,
 		sourceCodeAttribute(sourceCode),
-		dependenciesAttribute(dependencies),
 	];
 };
 
@@ -102,8 +65,7 @@ const getSourceCodeNode = ({node, sourceFilePath}) => {
 	}
 
 	const sourceCode = getRemotionElementSource({file, sourceFilePath});
-	const dependencies = getRemotionElementDependencies(sourceCode);
-	setElementPageSource({dependencies, node, sourceCode});
+	setElementPageSource({node, sourceCode});
 
 	return {
 		type: 'code',

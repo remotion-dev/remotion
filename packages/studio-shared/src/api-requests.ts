@@ -11,7 +11,11 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
-import type {ComponentProp, ElementDragData} from '@remotion/studio-protocol';
+import type {
+	ComponentProp,
+	ElementDependency,
+	ElementDragData,
+} from '@remotion/studio-protocol';
 import type {
 	_InternalTypes,
 	CannotUpdateSequenceReason,
@@ -1009,7 +1013,7 @@ export type UpdateDefaultEditorResponse =
 	  };
 
 export type InstallPackageRequest = {
-	packageNames: string[];
+	dependencies: ElementDependency[];
 };
 export type InstallPackageResponse = {};
 
