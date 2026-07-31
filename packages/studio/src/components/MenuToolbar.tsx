@@ -158,8 +158,8 @@ export const MenuToolbar: React.FC<{
 				})}
 				{readOnlyStudio ? null : <UpdateCheck />}
 			</div>
-			<div style={flex} />
-			<MenuBuildIndicator />
+			{mobileLayout ? null : <div style={flex} />}
+			<MenuBuildIndicator mobileLayout={mobileLayout} />
 			<div style={flex} />
 			<div style={fixedWidthRight}>
 				{canUndoAndRedo ? <UndoRedoButtons /> : null}
