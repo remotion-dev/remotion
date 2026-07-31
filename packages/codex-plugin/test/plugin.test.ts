@@ -96,3 +96,13 @@ test('remotion-create opens the preview in the Codex in-app browser by default',
 		'consider starting the preview server',
 	);
 });
+
+test('Codex troubleshooting does not open the system browser', () => {
+	const remotionSkill = readFileSync(
+		path.join(generatedSkillsRoot, 'remotion-best-practices', 'SKILL.md'),
+		'utf-8',
+	);
+
+	expect(remotionSkill).toContain('npx remotion studio --no-open');
+	expect(remotionSkill).not.toMatch(/^npx remotion studio$/m);
+});

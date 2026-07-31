@@ -49,10 +49,10 @@ const addCodexOnlyInstructions = () => {
 
 ## Codex troubleshooting
 
-When running inside Codex, first try starting the Remotion Studio normally:
+When running inside Codex, first try starting the Remotion Studio without opening the system browser:
 
 \`\`\`bash
-npx remotion studio
+npx remotion studio --no-open
 \`\`\`
 
 Only if that fails with file watcher limits such as \`EMFILE: too many open files, watch\`, retry with polling and without opening a browser from Codex:
