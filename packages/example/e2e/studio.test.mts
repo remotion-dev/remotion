@@ -24,6 +24,32 @@ test.describe('visual mode', () => {
 		});
 	});
 
+	test('should open submenus toward the side with more space', async ({
+		page,
+	}) => {
+		await page.setViewportSize({width: 500, height: 904});
+		await page.goto(STUDIO_URL);
+		await expect(page).toHaveTitle(/Remotion/i, {timeout: 15_000});
+
+		await page.locator('.__remotion-studio-menu-initiator').first().click();
+		const compositionItem = page
+			.locator('.__remotion-studio-menu-item')
+			.filter({hasText: 'Composition'});
+		await compositionItem.hover();
+
+		const subMenuItem = page.getByRole('button', {name: 'Copy file location'});
+		await expect(subMenuItem).toBeVisible();
+
+		const [compositionBox, subMenuItemBox] = await Promise.all([
+			compositionItem.boundingBox(),
+			subMenuItem.boundingBox(),
+		]);
+
+		expect(compositionBox).not.toBeNull();
+		expect(subMenuItemBox).not.toBeNull();
+		expect(subMenuItemBox!.x).toBeGreaterThan(compositionBox!.x);
+	});
+
 	test('should navigate to schema-test composition', async ({page}) => {
 		await navigateToSchemaTest(page);
 	});
