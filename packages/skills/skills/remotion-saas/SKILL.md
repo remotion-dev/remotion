@@ -1,7 +1,7 @@
 ---
 name: remotion-saas
 description: Build an app with Remotion
-version: 4.0.502
+version: 4.0.503
 metadata:
   tags: remotion, saas, player, rendering, templates, lambda
 ---

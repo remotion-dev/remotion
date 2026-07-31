@@ -1,7 +1,7 @@
 ---
 name: remotion-captions
 description: Transcribing, displaying and animating captions
-version: 4.0.502
+version: 4.0.503
 metadata:
   tags: subtitles, captions, remotion, json
 ---

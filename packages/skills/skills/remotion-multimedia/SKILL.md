@@ -1,7 +1,7 @@
 ---
 name: remotion-multimedia
 description: Interacting with Mediabunny
-version: 4.0.502
+version: 4.0.503
 metadata:
   tags: remotion, mediabunny, multimedia, video, audio
 ---
