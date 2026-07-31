@@ -106,3 +106,13 @@ test('Codex troubleshooting does not open the system browser', () => {
 	expect(remotionSkill).toContain('npx remotion studio --no-open');
 	expect(remotionSkill).not.toMatch(/^npx remotion studio$/m);
 });
+
+test('skill display names match their slash commands', () => {
+	for (const skillName of getDirectories(generatedSkillsRoot)) {
+		const openAiConfig = readFileSync(
+			path.join(generatedSkillsRoot, skillName, 'agents', 'openai.yaml'),
+			'utf-8',
+		);
+		expect(openAiConfig).toContain(`display_name: '/${skillName}'`);
+	}
+});

@@ -1,5 +1,5 @@
 interface:
-  display_name: 'Remotion'
+  display_name: '/remotion-best-practices'
   short_description: 'Route Remotion tasks to the right workflow'
   icon_small: './assets/remotion-icon.png'
   icon_large: './assets/remotion-icon.png'
