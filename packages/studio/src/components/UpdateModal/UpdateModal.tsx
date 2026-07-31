@@ -1,17 +1,27 @@
 import React, {useCallback, useMemo} from 'react';
-import {BLUE, LIGHT_TEXT, SELECTED_BACKGROUND} from '../../helpers/colors';
+import {
+	BLUE,
+	LIGHT_TEXT,
+	SELECTED_BACKGROUND,
+	WHITE,
+} from '../../helpers/colors';
 import {copyText} from '../../helpers/copy-text';
-import {CopyButton} from '../CopyButton';
+import {ClipboardIcon} from '../../icons/clipboard';
+import type {RenderInlineAction} from '../InlineAction';
+import {InlineAction} from '../InlineAction';
 import {KnownBugs} from '../KnownBugs';
-import {Flex, Row, Spacing} from '../layout';
 import {ModalHeader} from '../ModalHeader';
 import {DismissableModal} from '../NewComposition/DismissableModal';
 import {showNotification} from '../Notifications/NotificationCenter';
 import type {Bug, UpdateInfo} from '../UpdateCheck';
 
 const container: React.CSSProperties = {
-	padding: 20,
-	paddingTop: 0,
+	padding: '0 16px 8px',
+};
+
+const panelStyle: React.CSSProperties = {
+	borderRadius: 6,
+	overflow: 'hidden',
 };
 
 const text: React.CSSProperties = {
@@ -27,15 +37,34 @@ const title: React.CSSProperties = {
 	...text,
 };
 
-const code: React.CSSProperties = {
+const commandField: React.CSSProperties = {
+	alignItems: 'center',
 	background: SELECTED_BACKGROUND,
-	color: LIGHT_TEXT,
+	borderRadius: 6,
+	boxSizing: 'border-box',
+	display: 'flex',
+	marginBottom: 10,
+	marginTop: 10,
+	padding: '8px 8px 8px 10px',
+	width: '100%',
+};
+
+const code: React.CSSProperties = {
+	color: WHITE,
+	flex: 1,
 	fontFamily: 'monospace',
-	padding: '12px 10px',
 	fontSize: 14,
 	lineHeight: 1.5,
-	marginTop: 10,
-	marginBottom: 10,
+	margin: 0,
+	minWidth: 0,
+	overflowX: 'auto',
+	whiteSpace: 'pre',
+};
+
+const copyIcon: React.CSSProperties = {
+	flexShrink: 0,
+	height: 12,
+	width: 12,
 };
 
 const link: React.CSSProperties = {
@@ -79,8 +108,12 @@ export const UpdateModal: React.FC<{
 		});
 	}, [updateAction]);
 
+	const renderCopyAction: RenderInlineAction = useCallback((color) => {
+		return <ClipboardIcon color={color} style={copyIcon} />;
+	}, []);
+
 	return (
-		<DismissableModal>
+		<DismissableModal panelStyle={panelStyle}>
 			<ModalHeader title="Update available" />
 			<div style={container}>
 				{hasKnownBugs && info.updateAvailable ? (
@@ -106,19 +139,15 @@ export const UpdateModal: React.FC<{
 						{updateActionType}:
 					</div>
 				)}
-				<Row align="center">
-					<Flex>
-						<pre onClick={onClick} style={code}>
-							{updateAction}
-						</pre>
-					</Flex>
-					<Spacing x={1} />
-					<CopyButton
-						textToCopy={updateAction}
-						label="Copy"
-						labelWhenCopied="Copied!"
+				<div style={commandField}>
+					<pre style={code}>{updateAction}</pre>
+					<InlineAction
+						variant={null}
+						onClick={onClick}
+						renderAction={renderCopyAction}
+						title="Copy command"
 					/>
-				</Row>
+				</div>
 				{info.updateAvailable ? (
 					<div style={text}>
 						This will upgrade Remotion from {info.currentVersion} to{' '}

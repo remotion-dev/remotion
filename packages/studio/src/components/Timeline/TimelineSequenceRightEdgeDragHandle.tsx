@@ -12,11 +12,11 @@ import React, {
 import type {
 	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
+	InteractivitySchema,
 	OverrideIdToNodePaths,
 	PropStatuses,
 	SequencePropsSubscriptionKey,
 	TSequence,
-	InteractivitySchema,
 } from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -24,6 +24,7 @@ import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TRANSPARENT} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import {startPointerSession} from '../../helpers/pointer-session';
 import {sortItemsByNonceHistory} from '../../helpers/sort-by-nonce-history';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {EditorSnappingContext} from '../../state/editor-snapping';
@@ -969,6 +970,8 @@ export const TimelineSequenceLeftEdgeDragHandle: React.FC<{
 		latestDeltaFrames: number;
 		pxPerFrame: number;
 		pointerId: number;
+		button: number;
+		target: HTMLDivElement;
 		targets: readonly TimelineSequenceLeftEdgeDragTarget[];
 	} | null>(null);
 
@@ -1093,8 +1096,11 @@ export const TimelineSequenceLeftEdgeDragHandle: React.FC<{
 				latestDeltaFrames: 0,
 				pxPerFrame,
 				pointerId: e.pointerId,
+				button: e.button,
+				target: e.currentTarget,
 				targets,
 			};
+			e.currentTarget.setPointerCapture?.(e.pointerId);
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
 			forceSpecificCursor('ew-resize');
@@ -1171,22 +1177,28 @@ export const TimelineSequenceLeftEdgeDragHandle: React.FC<{
 			finishDrag(false);
 		};
 
-		const onWindowBlur = () => {
-			finishDrag(false);
-		};
+		const activeDragState = dragStateRef.current;
+		if (!activeDragState) {
+			return;
+		}
 
-		window.addEventListener('pointermove', onMove);
-		window.addEventListener('pointerup', onUp);
-		window.addEventListener('pointercancel', onCancel);
-		window.addEventListener('blur', onWindowBlur);
-
-		return () => {
-			window.removeEventListener('pointermove', onMove);
-			window.removeEventListener('pointerup', onUp);
-			window.removeEventListener('pointercancel', onCancel);
-			window.removeEventListener('blur', onWindowBlur);
-			finishDrag(false);
-		};
+		return startPointerSession({
+			event: activeDragState,
+			target: activeDragState.target,
+			onMove,
+			onEnd: (reason, endEvent) => {
+				if (
+					(reason === 'pointerup' || reason === 'buttons-released') &&
+					endEvent
+				) {
+					onUp(endEvent);
+				} else if (endEvent) {
+					onCancel(endEvent);
+				} else {
+					finishDrag(false);
+				}
+			},
+		});
 	}, [dragging, finishDrag]);
 
 	const style: React.CSSProperties = {
@@ -1239,6 +1251,8 @@ export const useTimelineSequenceFromDrag = ({
 		latestDeltaFrames: number;
 		pxPerFrame: number;
 		pointerId: number;
+		button: number;
+		target: HTMLDivElement;
 		targets: readonly TimelineSequenceFromDragTarget[];
 	} | null>(null);
 
@@ -1383,8 +1397,11 @@ export const useTimelineSequenceFromDrag = ({
 				latestDeltaFrames: 0,
 				pxPerFrame,
 				pointerId: e.pointerId,
+				button: e.button,
+				target: e.currentTarget,
 				targets,
 			};
+			e.currentTarget.setPointerCapture?.(e.pointerId);
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
 			setDragging(true);
@@ -1476,22 +1493,28 @@ export const useTimelineSequenceFromDrag = ({
 			finishDrag(false);
 		};
 
-		const onWindowBlur = () => {
-			finishDrag(false);
-		};
+		const activeDragState = dragStateRef.current;
+		if (!activeDragState) {
+			return;
+		}
 
-		window.addEventListener('pointermove', onMove);
-		window.addEventListener('pointerup', onUp);
-		window.addEventListener('pointercancel', onCancel);
-		window.addEventListener('blur', onWindowBlur);
-
-		return () => {
-			window.removeEventListener('pointermove', onMove);
-			window.removeEventListener('pointerup', onUp);
-			window.removeEventListener('pointercancel', onCancel);
-			window.removeEventListener('blur', onWindowBlur);
-			finishDrag(false);
-		};
+		return startPointerSession({
+			event: activeDragState,
+			target: activeDragState.target,
+			onMove,
+			onEnd: (reason, endEvent) => {
+				if (
+					(reason === 'pointerup' || reason === 'buttons-released') &&
+					endEvent
+				) {
+					onUp(endEvent);
+				} else if (endEvent) {
+					onCancel(endEvent);
+				} else {
+					finishDrag(false);
+				}
+			},
+		});
 	}, [dragging, finishDrag]);
 
 	return {
@@ -1524,6 +1547,8 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 		latestDeltaFrames: number;
 		pxPerFrame: number;
 		pointerId: number;
+		button: number;
+		target: HTMLDivElement;
 		targets: readonly TimelineSequenceDurationDragTarget[];
 	} | null>(null);
 
@@ -1647,8 +1672,11 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 				latestDeltaFrames: 0,
 				pxPerFrame,
 				pointerId: e.pointerId,
+				button: e.button,
+				target: e.currentTarget,
 				targets,
 			};
+			e.currentTarget.setPointerCapture?.(e.pointerId);
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
 			forceSpecificCursor('ew-resize');
@@ -1713,23 +1741,28 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 			finishDrag(false);
 		};
 
-		// Bail if the page loses focus mid-drag.
-		const onWindowBlur = () => {
-			finishDrag(false);
-		};
+		const activeDragState = dragStateRef.current;
+		if (!activeDragState) {
+			return;
+		}
 
-		window.addEventListener('pointermove', onMove);
-		window.addEventListener('pointerup', onUp);
-		window.addEventListener('pointercancel', onCancel);
-		window.addEventListener('blur', onWindowBlur);
-
-		return () => {
-			window.removeEventListener('pointermove', onMove);
-			window.removeEventListener('pointerup', onUp);
-			window.removeEventListener('pointercancel', onCancel);
-			window.removeEventListener('blur', onWindowBlur);
-			finishDrag(false);
-		};
+		return startPointerSession({
+			event: activeDragState,
+			target: activeDragState.target,
+			onMove,
+			onEnd: (reason, endEvent) => {
+				if (
+					(reason === 'pointerup' || reason === 'buttons-released') &&
+					endEvent
+				) {
+					onUp(endEvent);
+				} else if (endEvent) {
+					onCancel(endEvent);
+				} else {
+					finishDrag(false);
+				}
+			},
+		});
 	}, [dragging, finishDrag]);
 
 	const style: React.CSSProperties = {

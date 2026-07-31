@@ -40,7 +40,7 @@ import {SidebarRenderButton} from './SidebarRenderButton';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 
 const itemStyle: React.CSSProperties = {
-	paddingRight: 10,
+	paddingRight: 2,
 	paddingTop: 5,
 	paddingBottom: 5,
 	fontSize: 13,
@@ -50,11 +50,10 @@ const itemStyle: React.CSSProperties = {
 	alignItems: 'center',
 	marginBottom: 1,
 	marginLeft: 4,
-	marginRight: 4,
 	appearance: 'none',
 	border: 'none',
 	borderRadius: 4,
-	width: 'calc(100% - 8px)',
+	width: 'calc(100% - 4px)',
 	textAlign: 'left',
 	backgroundColor: BACKGROUND,
 	height: COMPACT_CONTROL_ROW_HEIGHT,

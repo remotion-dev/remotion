@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2932b952e90bd5a8a9d951f71ed7be23",
+    "content-hash": "f3fe2665ab1e976343bccc831b2bc295",
     "packages": [
         {
             "name": "aws/aws-crt-php",

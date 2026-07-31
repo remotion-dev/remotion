@@ -5,6 +5,7 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
+import {startPointerSession} from '../helpers/pointer-session';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {HighestZIndexContext} from './highest-z-index';
 import {getClickLock} from './input-dragger-click-lock';
@@ -52,20 +53,30 @@ export const HigherZIndex: React.FC<{
 	readonly children: React.ReactNode;
 	readonly disabled?: boolean;
 	readonly outsideClickButton?: 'any' | 'primary';
+	readonly stackOnHighest?: boolean;
 }> = ({
 	children,
 	onEscape,
 	onOutsideClick,
 	disabled,
 	outsideClickButton = 'any',
+	stackOnHighest = false,
 }) => {
 	const context = useContext(ZIndexContext);
 	const highestContext = useContext(HighestZIndexContext);
 	const containerRef = useRef<HTMLDivElement>(null);
+	const stackedIndex = useRef<number | null>(null);
+
+	if (disabled || !stackOnHighest) {
+		stackedIndex.current = null;
+	} else if (stackedIndex.current === null) {
+		stackedIndex.current =
+			Math.max(context.currentIndex, highestContext.highestIndex) + 1;
+	}
 
 	const currentIndex = disabled
 		? context.currentIndex
-		: context.currentIndex + 1;
+		: (stackedIndex.current ?? context.currentIndex + 1);
 
 	useEffect(() => {
 		if (disabled) {
@@ -81,9 +92,9 @@ export const HigherZIndex: React.FC<{
 			return;
 		}
 
-		let onUp: ((upEvent: MouseEvent) => void) | null = null;
+		let endPointerSession: (() => void) | null = null;
 
-		const listener = (downEvent: MouseEvent) => {
+		const listener = (downEvent: PointerEvent) => {
 			if (outsideClickButton === 'primary' && downEvent.button !== 0) {
 				return;
 			}
@@ -95,19 +106,28 @@ export const HigherZIndex: React.FC<{
 				return;
 			}
 
-			onUp = (upEvent: MouseEvent) => {
-				if (
-					highestContext.highestIndex === currentIndex &&
-					!getClickLock() &&
-					// Don't trigger if that click removed that node
-					document.contains(upEvent.target as Node)
-				) {
-					upEvent.stopPropagation();
-					onOutsideClick(upEvent.target as Node);
-				}
-			};
-
-			window.addEventListener('pointerup', onUp, {once: true});
+			endPointerSession?.();
+			endPointerSession = startPointerSession({
+				event: downEvent,
+				target: downEvent.target as Element,
+				onEnd: (reason, upEvent) => {
+					endPointerSession = null;
+					if (
+						(reason === 'pointerup' || reason === 'buttons-released') &&
+						upEvent &&
+						highestContext.highestIndex === currentIndex &&
+						!getClickLock()
+					) {
+						const target =
+							document.elementFromPoint(upEvent.clientX, upEvent.clientY) ??
+							(upEvent.target as Element);
+						if (document.contains(target)) {
+							upEvent.stopPropagation();
+							onOutsideClick(target);
+						}
+					}
+				},
+			});
 		};
 
 		// If a menu is opened, then this component will also still receive the pointerdown event.
@@ -119,12 +139,8 @@ export const HigherZIndex: React.FC<{
 			window.addEventListener('pointerdown', listener, true);
 		});
 		return () => {
-			if (onUp) {
-				// @ts-expect-error
-				window.removeEventListener('pointerup', onUp, {once: true});
-			}
-
-			onUp = null;
+			endPointerSession?.();
+			endPointerSession = null;
 
 			return window.removeEventListener('pointerdown', listener, true);
 		};

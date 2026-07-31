@@ -62,15 +62,19 @@ const commonArgs = {
 const ids = (items: ReturnType<typeof getCompositionMenuItems>) =>
 	items.map((item) => item.id);
 
-test('composition context menus do not include New', () => {
+test('composition menus exclude creation and include management actions', () => {
 	installTestWindow();
 
+	const menuItems = getCompositionMenuItems({
+		...commonArgs,
+		includeCompositionManagementItems: true,
+	});
 	const items = getCompositionContextMenuItems({
 		...commonArgs,
 		includeCompositionManagementItems: true,
 	});
 
-	expect(ids(items)).not.toContain('new');
+	expect(ids(menuItems)).not.toContain('new');
 	expect(ids(items)).toContain('rename');
 	expect(ids(items)).toContain('duplicate');
 	expect(ids(items)).toContain('delete');
@@ -88,21 +92,23 @@ test('connected composition context menus omit management actions', () => {
 		'open-in-new-window',
 		'open-in-new-window-divider',
 		'copy-file-location',
-		'copy-id-divider',
 		'copy-id',
 	]);
 });
 
-test('the main composition menu still includes New', () => {
+test('copy actions are adjacent', () => {
 	installTestWindow();
 
 	const items = getCompositionMenuItems({
 		...commonArgs,
 		includeCompositionManagementItems: true,
-		includeNewCompositionItem: true,
 	});
+	const copyFileLocationIndex = items.findIndex(
+		(item) => item.id === 'copy-file-location',
+	);
+	const copyIdIndex = items.findIndex((item) => item.id === 'copy-id');
 
-	expect(ids(items)).toContain('new');
+	expect(copyIdIndex).toBe(copyFileLocationIndex + 1);
 });
 
 test('editor actions use Open labels and are adjacent', () => {
@@ -133,13 +139,6 @@ test('editor actions use Open labels and are adjacent', () => {
 test('read-only composition menus keep navigation and copy actions enabled', () => {
 	installTestWindowWithEditor();
 
-	const mainMenuItems = getCompositionMenuItems({
-		...commonArgs,
-		includeCompositionManagementItems: true,
-		includeNewCompositionItem: true,
-		readOnlyStudio: true,
-		resolvedLocation,
-	});
 	const items = getCompositionContextMenuItems({
 		...commonArgs,
 		includeCompositionManagementItems: true,
@@ -163,10 +162,4 @@ test('read-only composition menus keep navigation and copy actions enabled', () 
 	expect(itemById('rename').disabled).toBe(true);
 	expect(itemById('duplicate').disabled).toBe(true);
 	expect(itemById('delete').disabled).toBe(true);
-	const newItem = mainMenuItems.find((item) => item.id === 'new');
-	if (newItem?.type !== 'item') {
-		throw new Error('Expected new to be a menu item');
-	}
-
-	expect(newItem.disabled).toBe(true);
 });

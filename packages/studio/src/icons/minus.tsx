@@ -7,7 +7,7 @@ export const Minus: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 		<svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
 			<path
 				fill={CURRENT_COLOR}
-				d="M400 288h-352c-17.69 0-32-14.32-32-32.01s14.31-31.99 32-31.99h352c17.69 0 32 14.3 32 31.99S417.7 288 400 288z"
+				d="M0 256c0-8.8 7.2-16 16-16l416 0c8.8 0 16 7.2 16 16s-7.2 16-16 16L16 272c-8.8 0-16-7.2-16-16z"
 			/>
 		</svg>
 	);

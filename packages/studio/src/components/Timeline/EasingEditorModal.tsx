@@ -18,13 +18,14 @@ import {
 	BLUE,
 	EASING_SELECTED_BACKGROUND,
 	INPUT_BACKGROUND,
-	WHITE_ALPHA_05,
 	LIGHT_TEXT,
 	WHITE,
+	WHITE_ALPHA_05,
 	WHITE_ALPHA_12,
 	WHITE_ALPHA_35,
 	WHITE_ALPHA_72,
 } from '../../helpers/colors';
+import {startPointerSession} from '../../helpers/pointer-session';
 import {Checkbox} from '../Checkbox';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {InputDragger} from '../NewComposition/InputDragger';
@@ -1041,32 +1042,6 @@ export const EasingEditor: React.FC<{
 		[getValueFromPointer, setBezierAndPreview],
 	);
 
-	useEffect(() => {
-		if (activeHandle === null) {
-			return;
-		}
-
-		const onPointerMove = (event: PointerEvent) => {
-			updateHandleFromPointer(activeHandle, event);
-		};
-
-		const onPointerUp = () => {
-			commitEasing(
-				serializeBezier(bezierRef.current),
-				liveOverrideVersionRef.current,
-			);
-			setActiveHandle(null);
-		};
-
-		window.addEventListener('pointermove', onPointerMove);
-		window.addEventListener('pointerup', onPointerUp, {once: true});
-
-		return () => {
-			window.removeEventListener('pointermove', onPointerMove);
-			window.removeEventListener('pointerup', onPointerUp);
-		};
-	}, [activeHandle, commitEasing, updateHandleFromPointer]);
-
 	const onHandlePointerDown = useCallback(
 		(handle: HandleIndex, event: React.PointerEvent<SVGCircleElement>) => {
 			if (previewServerState.type !== 'connected') {
@@ -1075,10 +1050,38 @@ export const EasingEditor: React.FC<{
 
 			event.preventDefault();
 			event.stopPropagation();
+			const bezierBeforeDrag = [...bezierRef.current] as CubicBezierTuple;
 			setActiveHandle(handle);
 			updateHandleFromPointer(handle, event);
+			startPointerSession({
+				event,
+				target: event.currentTarget,
+				onMove: (moveEvent) => {
+					updateHandleFromPointer(handle, moveEvent);
+				},
+				onEnd: (reason) => {
+					if (reason === 'pointerup' || reason === 'buttons-released') {
+						commitEasing(
+							serializeBezier(bezierRef.current),
+							liveOverrideVersionRef.current,
+						);
+					} else {
+						clearEasingDragOverrides(pendingOverrideTargetsRef.current);
+						pendingOverrideTargetsRef.current = [];
+						bezierRef.current = bezierBeforeDrag;
+						setBezier(bezierBeforeDrag);
+					}
+
+					setActiveHandle(null);
+				},
+			});
 		},
-		[previewServerState.type, updateHandleFromPointer],
+		[
+			clearEasingDragOverrides,
+			commitEasing,
+			previewServerState.type,
+			updateHandleFromPointer,
+		],
 	);
 
 	useEffect(() => {

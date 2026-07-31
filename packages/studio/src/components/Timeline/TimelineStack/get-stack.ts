@@ -8,6 +8,7 @@ import {
 const traceMapCache: Partial<Record<string, TraceMap>> = {};
 const traceMapPromises: Partial<Record<string, Promise<TraceMap>>> = {};
 const browserStudioOriginalSourcePrefix = 'browser-studio-original://';
+const studioOriginalSourcePrefix = 'studio-original://';
 
 const getSourceMapCache = async (fileName: string) => {
 	if (traceMapCache[fileName]) {
@@ -45,12 +46,17 @@ export const getOriginalLocationFromStack = async (
 		return null;
 	}
 
-	if (location.fileName.startsWith(browserStudioOriginalSourcePrefix)) {
+	const originalSourcePrefix = [
+		browserStudioOriginalSourcePrefix,
+		studioOriginalSourcePrefix,
+	].find((prefix) => location.fileName.startsWith(prefix));
+
+	if (originalSourcePrefix) {
 		return {
 			column: location.columnNumber,
 			line: location.lineNumber,
 			source: decodeURIComponent(
-				location.fileName.slice(browserStudioOriginalSourcePrefix.length),
+				location.fileName.slice(originalSourcePrefix.length),
 			),
 		};
 	}

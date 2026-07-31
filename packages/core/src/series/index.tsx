@@ -236,16 +236,14 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 	}, [props.children]);
 
 	return (
-		<IsInsideSeriesContainer>
-			<Sequence
-				layout="none"
-				name="<Series>"
-				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/series"
-				{...props}
-			>
-				{childrenValue}
-			</Sequence>
-		</IsInsideSeriesContainer>
+		<Sequence
+			layout="none"
+			name="<Series>"
+			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/series"
+			{...props}
+		>
+			<IsInsideSeriesContainer>{childrenValue}</IsInsideSeriesContainer>
+		</Sequence>
 	);
 };
 
