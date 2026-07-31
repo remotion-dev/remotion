@@ -4,7 +4,10 @@ import React, {
 	useImperativeHandle,
 	useState,
 } from 'react';
+import ReactDOM from 'react-dom';
 import {TRANSPARENT} from '../../helpers/colors';
+import {useZIndex} from '../../state/z-index';
+import {getPortal} from '../Menu/portals';
 import {Notification} from './Notification';
 
 const container: React.CSSProperties = {
@@ -53,6 +56,7 @@ export const showNotification = (
 
 export const NotificationCenter: React.FC = () => {
 	const [notifications, setNotifications] = useState<TNotification[]>([]);
+	const {currentZIndex} = useZIndex();
 
 	const onRemove = useCallback((id: string) => {
 		setNotifications((not) => {
@@ -97,7 +101,7 @@ export const NotificationCenter: React.FC = () => {
 		};
 	}, [addNotification]);
 
-	return (
+	return ReactDOM.createPortal(
 		<div style={container}>
 			{notifications.map((n) => {
 				return (
@@ -112,6 +116,9 @@ export const NotificationCenter: React.FC = () => {
 					</Notification>
 				);
 			})}
-		</div>
+		</div>,
+		// Notifications must be above overlays opened from the editor, such as the
+		// floating sidebars used in the mobile layout.
+		getPortal(currentZIndex + 1),
 	);
 };
