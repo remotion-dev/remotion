@@ -114,6 +114,26 @@ export const PreviewToolbar: React.FC<{
 		<div style={container} className="css-reset">
 			<div style={sideContainer}>
 				<div style={padding} />
+				{isMobileLayout ? (
+					<PreviewToolbarControl>
+						<PreviewToolbarOverflowButton
+							readOnlyStudio={readOnlyStudio}
+							showFullscreen={Boolean(canvasContent && isFullscreenSupported)}
+							showPlaybackRate={isVideoComposition}
+							showLoop={isVideoComposition}
+							showCompositionControls={canvasContent?.type === 'composition'}
+							playbackRate={playbackRate}
+							setPlaybackRate={setPlaybackRate}
+							loop={loop}
+							setLoop={setLoop}
+						/>
+					</PreviewToolbarControl>
+				) : null}
+				{isVideoComposition && isMobileLayout ? (
+					<PreviewToolbarControl>
+						<MuteToggle muted={playerMuted} setMuted={setPlayerMuted} />
+					</PreviewToolbarControl>
+				) : null}
 				<PreviewToolbarControl>
 					<TimelineZoomControls />
 				</PreviewToolbarControl>
@@ -184,26 +204,6 @@ export const PreviewToolbar: React.FC<{
 				<Flex />
 				<FpsCounter playbackSpeed={playbackRate} />
 				<Spacing x={2} />
-				{isVideoComposition && isMobileLayout ? (
-					<PreviewToolbarControl>
-						<MuteToggle muted={playerMuted} setMuted={setPlayerMuted} />
-					</PreviewToolbarControl>
-				) : null}
-				{isMobileLayout ? (
-					<PreviewToolbarControl>
-						<PreviewToolbarOverflowButton
-							readOnlyStudio={readOnlyStudio}
-							showFullscreen={Boolean(canvasContent && isFullscreenSupported)}
-							showPlaybackRate={isVideoComposition}
-							showLoop={isVideoComposition}
-							showCompositionControls={canvasContent?.type === 'composition'}
-							playbackRate={playbackRate}
-							setPlaybackRate={setPlaybackRate}
-							loop={loop}
-							setLoop={setLoop}
-						/>
-					</PreviewToolbarControl>
-				) : null}
 				<PreviewToolbarControl>
 					<RenderButton readOnlyStudio={readOnlyStudio} size="compact" />
 				</PreviewToolbarControl>
