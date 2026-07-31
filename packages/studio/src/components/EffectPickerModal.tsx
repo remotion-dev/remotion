@@ -12,6 +12,7 @@ import React, {
 	useState,
 } from 'react';
 import {
+	CURRENT_COLOR,
 	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
@@ -19,6 +20,7 @@ import {
 } from '../helpers/colors';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {EffectsIcon} from '../icons/effects';
+import {ExpandedFolderIconSolid} from '../icons/folder';
 import {ModalsContext, type AddEffectModalState} from '../state/modals';
 import {ContextMenu} from './ContextMenu';
 import {addEffectToSequence} from './effect-drag-and-drop';
@@ -50,6 +52,46 @@ const content: React.CSSProperties = {
 const inputStyle: React.CSSProperties = {
 	width: '100%',
 	borderRadius: 4,
+};
+
+const aboutEffectsRow: React.CSSProperties = {
+	display: 'flex',
+	justifyContent: 'flex-end',
+	marginBottom: 8,
+};
+
+const aboutEffectsLink: React.CSSProperties = {
+	alignItems: 'center',
+	color: LIGHT_TEXT,
+	display: 'inline-flex',
+	fontFamily: 'sans-serif',
+	fontSize: 11,
+	gap: 4,
+	lineHeight: '14px',
+	minWidth: 0,
+	textDecoration: 'none',
+};
+
+const aboutEffectsLinkHovered: React.CSSProperties = {
+	...aboutEffectsLink,
+	color: WHITE,
+};
+
+const aboutEffectsLabel: React.CSSProperties = {
+	color: 'inherit',
+	fontFamily: 'sans-serif',
+	fontSize: 11,
+	lineHeight: '14px',
+	minWidth: 0,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+};
+
+const aboutEffectsIcon: React.CSSProperties = {
+	flexShrink: 0,
+	height: 12,
+	width: 12,
 };
 
 const resultList: React.CSSProperties = {
@@ -181,6 +223,7 @@ const EffectPickerContent: React.FC<{
 	readonly state: AddEffectModalState;
 }> = ({state}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
+	const [aboutEffectsHovered, setAboutEffectsHovered] = useState(false);
 	const [query, setQuery] = useState('');
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -269,6 +312,25 @@ const EffectPickerContent: React.FC<{
 	return (
 		<div style={container}>
 			<div style={content}>
+				<div style={aboutEffectsRow}>
+					<a
+						href="https://remotion.dev/effects"
+						target="_blank"
+						rel="noopener noreferrer"
+						style={
+							aboutEffectsHovered ? aboutEffectsLinkHovered : aboutEffectsLink
+						}
+						onMouseEnter={() => setAboutEffectsHovered(true)}
+						onMouseLeave={() => setAboutEffectsHovered(false)}
+					>
+						<span style={aboutEffectsLabel}>About effects</span>
+						<ExpandedFolderIconSolid
+							aria-hidden="true"
+							color={CURRENT_COLOR}
+							style={aboutEffectsIcon}
+						/>
+					</a>
+				</div>
 				<RemotionInput
 					ref={inputRef}
 					type="text"
