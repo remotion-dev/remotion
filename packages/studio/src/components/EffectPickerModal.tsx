@@ -19,7 +19,7 @@ import {
 } from '../helpers/colors';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {EffectsIcon} from '../icons/effects';
-import {ExpandedFolderIconSolid} from '../icons/folder';
+import {ExternalLinkIcon} from '../icons/external-link';
 import {ModalsContext, type AddEffectModalState} from '../state/modals';
 import {ContextMenu} from './ContextMenu';
 import {addEffectToSequence} from './effect-drag-and-drop';
@@ -324,7 +324,7 @@ const EffectPickerContent: React.FC<{
 						onMouseLeave={() => setAboutEffectsHovered(false)}
 					>
 						<span style={aboutEffectsLabel}>About effects</span>
-						<ExpandedFolderIconSolid
+						<ExternalLinkIcon
 							aria-hidden="true"
 							color={aboutEffectsHovered ? WHITE : LIGHT_TEXT}
 							style={aboutEffectsIcon}
