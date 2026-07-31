@@ -13,10 +13,12 @@ import React, {
 } from 'react';
 import {
 	LIGHT_TEXT,
+	TRANSPARENT,
 	WHITE,
-	getBackgroundFromHoverState,
+	WHITE_ALPHA_06,
 } from '../helpers/colors';
 import {useKeybinding} from '../helpers/use-keybinding';
+import {EffectsIcon} from '../icons/effects';
 import {ModalsContext, type AddEffectModalState} from '../state/modals';
 import {ContextMenu} from './ContextMenu';
 import {addEffectToSequence} from './effect-drag-and-drop';
@@ -33,7 +35,12 @@ import {
 } from './QuickSwitcher/shared';
 
 const container: React.CSSProperties = {
-	width: 500,
+	width: 400,
+};
+
+const panelStyle: React.CSSProperties = {
+	borderRadius: 6,
+	overflow: 'hidden',
 };
 
 const content: React.CSSProperties = {
@@ -42,6 +49,7 @@ const content: React.CSSProperties = {
 
 const inputStyle: React.CSSProperties = {
 	width: '100%',
+	borderRadius: 4,
 };
 
 const resultList: React.CSSProperties = {
@@ -57,16 +65,30 @@ const noResults: React.CSSProperties = {
 };
 
 const resultContainer: React.CSSProperties = {
-	cursor: 'pointer',
+	cursor: 'default',
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
-	padding: '7px 16px',
+	paddingLeft: 16,
+	paddingRight: 16,
+	marginBottom: 1,
+	marginLeft: 4,
+	marginRight: 4,
+	borderRadius: 4,
+};
+
+const iconStyle: React.CSSProperties = {
+	width: 18,
+	height: 18,
+	flexShrink: 0,
 };
 
 const labelContainer: React.CSSProperties = {
 	flex: 1,
 	minWidth: 0,
+	overflow: 'hidden',
+	paddingTop: 5,
+	paddingBottom: 5,
 };
 
 const label: React.CSSProperties = {
@@ -95,7 +117,7 @@ const EffectPickerResult: React.FC<{
 	const style = useMemo((): React.CSSProperties => {
 		return {
 			...resultContainer,
-			backgroundColor: getBackgroundFromHoverState({hovered, selected}),
+			backgroundColor: hovered || selected ? WHITE_ALPHA_06 : TRANSPARENT,
 		};
 	}, [hovered, selected]);
 
@@ -140,6 +162,11 @@ const EffectPickerResult: React.FC<{
 				onMouseEnter={() => setHovered(true)}
 				onMouseLeave={() => setHovered(false)}
 			>
+				<EffectsIcon
+					color={selected || hovered ? WHITE : LIGHT_TEXT}
+					style={iconStyle}
+				/>
+				<Spacing x={1} />
 				<div style={labelContainer}>
 					<div style={labelStyle}>{item.label}</div>
 				</div>
@@ -278,7 +305,7 @@ export const EffectPickerModal: React.FC<{
 	readonly state: AddEffectModalState;
 }> = ({state}) => {
 	return (
-		<DismissableModal>
+		<DismissableModal panelStyle={panelStyle}>
 			<EffectPickerContent state={state} />
 		</DismissableModal>
 	);
