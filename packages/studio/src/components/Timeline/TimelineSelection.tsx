@@ -37,6 +37,7 @@ import {
 	isStudioInteractivityEnabled,
 	isStudioSelectionEnabled,
 } from '../../helpers/interactivity-enabled';
+import {startPointerSession} from '../../helpers/pointer-session';
 import {
 	buildTimelineTree,
 	flattenVisibleTreeNodes,
@@ -1573,10 +1574,7 @@ export const useTimelineMarqueeSelection = () => {
 				return;
 			}
 
-			const {currentTarget: target, pointerId} = event;
-			if (target.setPointerCapture) {
-				target.setPointerCapture(pointerId);
-			}
+			const {currentTarget: target} = event;
 
 			const initialBounds = target.getBoundingClientRect();
 			const marqueeBounds: TimelineMarqueeRect = {
@@ -1603,13 +1601,6 @@ export const useTimelineMarqueeSelection = () => {
 			const selectionBeforeMarquee = selectedItems;
 
 			const cleanup = () => {
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerCancel);
-				if (target.hasPointerCapture?.(pointerId)) {
-					target.releasePointerCapture(pointerId);
-				}
-
 				document.body.style.userSelect = previousUserSelect;
 				document.body.style.webkitUserSelect = previousWebkitUserSelect;
 				setMarqueeRect(null);
@@ -1653,18 +1644,21 @@ export const useTimelineMarqueeSelection = () => {
 				updateSelection(moveEvent.clientX, moveEvent.clientY);
 			};
 
-			const onPointerUp = (upEvent: PointerEvent) => {
-				updateSelection(upEvent.clientX, upEvent.clientY);
-				cleanup();
-			};
+			startPointerSession({
+				event,
+				target,
+				onMove: onPointerMove,
+				onEnd: (reason, endEvent) => {
+					if (
+						(reason === 'pointerup' || reason === 'buttons-released') &&
+						endEvent
+					) {
+						updateSelection(endEvent.clientX, endEvent.clientY);
+					}
 
-			const onPointerCancel = () => {
-				cleanup();
-			};
-
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerCancel);
+					cleanup();
+				},
+			});
 		},
 		[
 			canSelect,

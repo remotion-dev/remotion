@@ -1,5 +1,6 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useRef} from 'react';
+import {startPointerSession} from '../../helpers/pointer-session';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
@@ -38,7 +39,6 @@ export const SplitterHandle: React.FC<{
 			return;
 		}
 
-		// Cleanup for the listeners that only exist for the duration of a drag.
 		let endDrag: (() => void) | null = null;
 
 		const onPointerDown = (e: PointerEvent) => {
@@ -99,17 +99,6 @@ export const SplitterHandle: React.FC<{
 				return newFlex;
 			};
 
-			endDrag = () => {
-				dragContext.isDragging.current = false;
-				stopForcingSpecificCursor();
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerCancel);
-				window.removeEventListener('blur', onWindowBlur);
-				endDrag = null;
-				PlayerInternals.updateAllElementsSizes();
-			};
-
 			const onPointerMove = (ev: PointerEvent) => {
 				if (!dragContext.isDragging.current) {
 					return;
@@ -133,27 +122,25 @@ export const SplitterHandle: React.FC<{
 				}
 			};
 
-			const onPointerUp = (ev: PointerEvent) => {
-				if (!dragContext.isDragging.current) {
-					return;
-				}
+			endDrag = startPointerSession({
+				event: e,
+				target: current,
+				onMove: onPointerMove,
+				onEnd: (reason, endEvent) => {
+					if (
+						(reason === 'pointerup' || reason === 'buttons-released') &&
+						endEvent &&
+						dragContext.isDragging.current
+					) {
+						dragContext.persistFlex(getNewValue(endEvent, true));
+					}
 
-				dragContext.persistFlex(getNewValue(ev, true));
-				endDrag?.();
-			};
-
-			const onPointerCancel = () => {
-				endDrag?.();
-			};
-
-			const onWindowBlur = () => {
-				endDrag?.();
-			};
-
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerCancel);
-			window.addEventListener('blur', onWindowBlur);
+					dragContext.isDragging.current = false;
+					stopForcingSpecificCursor();
+					endDrag = null;
+					PlayerInternals.updateAllElementsSizes();
+				},
+			});
 		};
 
 		current.addEventListener('pointerdown', onPointerDown);
