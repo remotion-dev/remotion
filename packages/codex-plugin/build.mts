@@ -74,9 +74,17 @@ const makeRemotionCreateOpenPreview = () => {
 	}
 
 	const currentInstructions = readFileSync(remotionCreateSkill, 'utf8');
+	const previewInstruction = [
+		'Instead of rendering the video, consider starting the preview server for faster iteration:',
+		'Start the preview server after building the composition:',
+	].find((instruction) => currentInstructions.includes(instruction));
+	if (!previewInstruction) {
+		throw new Error('Could not find a remotion-create preview instruction');
+	}
+
 	const codexReplacements = [
 		[
-			'Instead of rendering the video, consider starting the preview server for faster iteration:',
+			previewInstruction,
 			'After creating or updating the video, start the preview server by default:',
 		],
 		[
