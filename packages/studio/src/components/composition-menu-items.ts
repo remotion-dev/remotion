@@ -19,7 +19,6 @@ export const getCompositionMenuItems = ({
 	setSelectedModal,
 	closeMenu,
 	readOnlyStudio,
-	includeNewCompositionItem,
 	includeCompositionManagementItems,
 }: {
 	composition: _InternalTypes['AnyComposition'] | null;
@@ -28,7 +27,6 @@ export const getCompositionMenuItems = ({
 	setSelectedModal: (value: SetStateAction<ModalState | null>) => void;
 	closeMenu: () => void;
 	readOnlyStudio: boolean;
-	includeNewCompositionItem: boolean;
 	includeCompositionManagementItems: boolean;
 }): ComboboxValue[] => {
 	const editorName = window.remotion_editorName;
@@ -96,62 +94,10 @@ export const getCompositionMenuItems = ({
 					disabled: openComponentInEditorDisabled,
 				}
 			: null,
-		{
-			id: 'copy-file-location',
-			keyHint: null,
-			label: `Copy file location`,
-			leftItem: null,
-			onClick: () => {
-				closeMenu();
-				if (!fileLocation) {
-					return;
-				}
-
-				navigator.clipboard
-					.writeText(fileLocation)
-					.then(() => {
-						showNotification('Copied file location to clipboard', 1000);
-					})
-					.catch((err) => {
-						showNotification(
-							`Could not copy to clipboard: ${(err as Error).message}`,
-							1000,
-						);
-					});
-			},
-			quickSwitcherLabel: 'Copy composition file location',
-			subMenu: null,
-			type: 'item' as const,
-			value: 'copy-file-location',
-			disabled: copyFileLocationDisabled,
-		},
-		(editorName || fileLocation) &&
-		(includeNewCompositionItem || includeCompositionManagementItems)
+		editorName && includeCompositionManagementItems
 			? {
 					type: 'divider' as const,
 					id: 'show-in-editor-divider',
-				}
-			: null,
-		includeNewCompositionItem
-			? {
-					id: 'new',
-					keyHint: null,
-					label: `New...`,
-					leftItem: null,
-					onClick: () => {
-						closeMenu();
-						setSelectedModal({
-							type: 'new-comp',
-							folderName: null,
-							parentName: null,
-							stack: null,
-						});
-					},
-					quickSwitcherLabel: 'New composition...',
-					subMenu: null,
-					type: 'item' as const,
-					value: 'new',
-					disabled: readOnlyStudio,
 				}
 			: null,
 		includeCompositionManagementItems
@@ -228,9 +174,40 @@ export const getCompositionMenuItems = ({
 					disabled: !composition || readOnlyStudio,
 				}
 			: null,
+		editorName || includeCompositionManagementItems
+			? {
+					type: 'divider' as const,
+					id: 'copy-actions-divider',
+				}
+			: null,
 		{
-			type: 'divider' as const,
-			id: 'copy-id-divider',
+			id: 'copy-file-location',
+			keyHint: null,
+			label: `Copy file location`,
+			leftItem: null,
+			onClick: () => {
+				closeMenu();
+				if (!fileLocation) {
+					return;
+				}
+
+				navigator.clipboard
+					.writeText(fileLocation)
+					.then(() => {
+						showNotification('Copied file location to clipboard', 1000);
+					})
+					.catch((err) => {
+						showNotification(
+							`Could not copy to clipboard: ${(err as Error).message}`,
+							1000,
+						);
+					});
+			},
+			quickSwitcherLabel: 'Copy composition file location',
+			subMenu: null,
+			type: 'item' as const,
+			value: 'copy-file-location',
+			disabled: copyFileLocationDisabled,
 		},
 		{
 			id: 'copy-id',
@@ -267,7 +244,7 @@ export const getCompositionMenuItems = ({
 export const getCompositionContextMenuItems = (
 	args: Omit<
 		Parameters<typeof getCompositionMenuItems>[0],
-		'includeNewCompositionItem' | 'includeCompositionManagementItems'
+		'includeCompositionManagementItems'
 	> & {
 		readonly includeCompositionManagementItems: boolean;
 	},
@@ -275,7 +252,6 @@ export const getCompositionContextMenuItems = (
 	if (args.composition === null) {
 		return getCompositionMenuItems({
 			...args,
-			includeNewCompositionItem: false,
 		});
 	}
 
@@ -287,7 +263,6 @@ export const getCompositionContextMenuItems = (
 		},
 		...getCompositionMenuItems({
 			...args,
-			includeNewCompositionItem: false,
 		}),
 	];
 };
