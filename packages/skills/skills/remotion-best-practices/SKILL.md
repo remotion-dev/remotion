@@ -4,6 +4,10 @@ description: Router for all Remotion skills
 version: 4.0.503
 ---
 
+## Creating a video
+
+If the user asks to make, create, or build a new video or composition, load [Create a new Remotion video](./remotion-create/SKILL.md), whether or not a Remotion project already exists. Creation requests should end by opening the composition in Remotion Studio. Do not infer a render request from the word “video”; only render or export when the user explicitly asks for a video file or finished render.
+
 ## New project setup
 
 If no Remotion project currently exists, load [Create a new Remotion project](./remotion-create/SKILL.md)
