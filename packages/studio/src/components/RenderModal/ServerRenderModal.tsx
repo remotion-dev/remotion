@@ -48,8 +48,8 @@ import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
 import {GearIcon} from '../../icons/gear';
-import {SnowflakeIcon} from '../../icons/snowflake';
 import {GifIcon} from '../../icons/gif';
+import {SnowflakeIcon} from '../../icons/snowflake';
 import {FilmIcon} from '../../icons/video';
 import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
@@ -1448,7 +1448,7 @@ const RenderModal: React.FC<
 							onClick={() => setTab('data')}
 						>
 							<div style={iconContainer}>
-							<DataIcon style={icon} />
+								<DataIcon style={icon} />
 							</div>
 							Input Props
 						</VerticalTab>
@@ -1508,7 +1508,7 @@ const RenderModal: React.FC<
 							onClick={() => setTab('environment')}
 						>
 							<div style={iconContainer}>
-							<SnowflakeIcon style={icon} color={CURRENT_COLOR_LOWERCASE} />
+								<SnowflakeIcon style={icon} color={CURRENT_COLOR_LOWERCASE} />
 							</div>
 							Environment
 						</VerticalTab>
