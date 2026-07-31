@@ -81,3 +81,18 @@ test('maps is available from either standalone parent skill', () => {
 		).toBe(true);
 	}
 });
+
+test('remotion-create opens the preview in the Codex in-app browser by default', () => {
+	const remotionCreateSkill = readFileSync(
+		path.join(generatedSkillsRoot, 'remotion-create', 'SKILL.md'),
+		'utf-8',
+	);
+
+	expect(remotionCreateSkill).toContain('start the preview server by default');
+	expect(remotionCreateSkill).toContain(
+		'Open the exact URL in the Codex in-app browser.',
+	);
+	expect(remotionCreateSkill).not.toContain(
+		'consider starting the preview server',
+	);
+});
