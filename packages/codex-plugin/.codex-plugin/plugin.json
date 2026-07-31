@@ -24,7 +24,7 @@
 	"skills": "./skills/",
 	"interface": {
 		"displayName": "Remotion",
-		"shortDescription": "Create motion graphics from prompts",
+		"shortDescription": "Make videos agentically",
 		"longDescription": "Build videos programmatically with Remotion and React. Covers animations, timing, audio, captions, 3D, transitions, charts, text effects, and more.",
 		"developerName": "Remotion",
 		"category": "Creativity",
