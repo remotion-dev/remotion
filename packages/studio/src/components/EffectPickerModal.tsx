@@ -12,7 +12,6 @@ import React, {
 	useState,
 } from 'react';
 import {
-	CURRENT_COLOR,
 	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
@@ -326,7 +325,7 @@ const EffectPickerContent: React.FC<{
 						<span style={aboutEffectsLabel}>About effects</span>
 						<ExpandedFolderIconSolid
 							aria-hidden="true"
-							color={CURRENT_COLOR}
+							color={aboutEffectsHovered ? WHITE : LIGHT_TEXT}
 							style={aboutEffectsIcon}
 						/>
 					</a>
