@@ -85,6 +85,7 @@ import {Logo} from './Logo';
 import {LogoCollab, logoCollabSchema} from './LogoCollab/LogoCollab';
 import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
 import NewSticker from './NewSticker';
+import {PreviewToolbarIcons} from './PreviewToolbarIcons';
 import {
 	RulesEnumeration,
 	rulesEnumerationSchema,
@@ -129,6 +130,14 @@ import {UpperThird, upperThirdSchema} from './video-elements/UpperThird';
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<Composition
+				id="preview-toolbar-icons"
+				component={PreviewToolbarIcons}
+				durationInFrames={1}
+				fps={30}
+				width={3200}
+				height={520}
+			/>
 			<Folder name="announcements">
 				<Composition
 					id="Skills2Announcement"

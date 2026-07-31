@@ -30,7 +30,7 @@ export const SnappingToggle: React.FC = () => {
 			onClick={onClick}
 		>
 			<MagnetIcon
-				style={{width: 17, height: 17}}
+				style={{width: 17, height: 17, transform: 'translateY(1px)'}}
 				fill={color}
 				aria-hidden="true"
 				focusable="false"

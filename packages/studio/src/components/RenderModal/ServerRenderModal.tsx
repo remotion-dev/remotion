@@ -49,6 +49,7 @@ import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
 import {GearIcon} from '../../icons/gear';
 import {GifIcon} from '../../icons/gif';
+import {InputPropsIcon} from '../../icons/input-props';
 import {FilmIcon} from '../../icons/video';
 import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
@@ -1447,7 +1448,7 @@ const RenderModal: React.FC<
 							onClick={() => setTab('data')}
 						>
 							<div style={iconContainer}>
-								<DataIcon style={icon} />
+								<InputPropsIcon style={icon} />
 							</div>
 							Input Props
 						</VerticalTab>
