@@ -22,6 +22,7 @@ test('creates one canonical Element payload for HTTP and drag transports', () =>
 			dependencies: ['remotion'],
 			dimensions: {width: 800, height: 200},
 			displayName: 'Lower Third',
+			durationInFrames: 90,
 			slug: 'lower-third',
 			sourceCode: 'export const LowerThird = () => null;',
 		},

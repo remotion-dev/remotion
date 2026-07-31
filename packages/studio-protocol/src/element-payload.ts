@@ -25,6 +25,12 @@ export type StudioElementPayload = ReturnType<typeof makeElementDragData> & {
 	readonly durationInFrames: number;
 };
 
+const isDuration = (value: unknown): value is number =>
+	typeof value === 'number' &&
+	Number.isInteger(value) &&
+	value >= 1 &&
+	value <= 100_000_000;
+
 const assertCreateElementPayloadInput = (
 	input: CreateElementPayloadInput,
 ): void => {
@@ -76,6 +82,12 @@ const assertCreateElementPayloadInput = (
 			);
 		}
 	}
+
+	if (!isDuration(input.durationInFrames)) {
+		throw new TypeError(
+			'durationInFrames must be an integer between 1 and 100000000',
+		);
+	}
 };
 
 export const createElementPayload = (
@@ -109,8 +121,7 @@ export const parseStudioElementPayload = (
 		!isRecord(value) ||
 		value.type !== 'remotion-element' ||
 		value.version !== 1 ||
-		typeof value.durationInFrames !== 'number' ||
-		!Number.isInteger(value.durationInFrames) ||
+		!isDuration(value.durationInFrames) ||
 		!isRecord(value.element)
 	) {
 		return null;
@@ -139,6 +150,10 @@ export const parseStudioElementPayload = (
 
 	const payload: StudioElementPayload = {
 		...parsed,
+		element: {
+			...parsed.element,
+			durationInFrames: value.durationInFrames,
+		},
 		durationInFrames: value.durationInFrames,
 	};
 	return JSON.stringify(payload).length <= MAX_PAYLOAD_SIZE ? payload : null;

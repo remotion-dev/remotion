@@ -56,7 +56,7 @@ test('parses element drag data', () => {
 	).toEqual({
 		type: 'remotion-element',
 		version: 1,
-		element: validElement,
+		element: {...validElement, durationInFrames: 120},
 	});
 });
 
@@ -87,7 +87,7 @@ test('accepts element drag data with null dimensions', () => {
 	).toEqual({
 		type: 'remotion-element',
 		version: 1,
-		element: elementWithoutDimensions,
+		element: {...elementWithoutDimensions, durationInFrames: 120},
 	});
 });
 

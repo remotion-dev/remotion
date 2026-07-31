@@ -271,6 +271,7 @@ export const makeDragData = ((
 					dependencies: input.dependencies,
 					dimensions: input.dimensions,
 					displayName: input.displayName,
+					durationInFrames: input.durationInFrames,
 					slug: input.slug,
 					sourceCode: input.sourceCode,
 				}),

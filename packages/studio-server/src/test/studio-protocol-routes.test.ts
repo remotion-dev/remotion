@@ -274,7 +274,7 @@ test('discovers an exact Studio target and delivers one install request over HTT
 				clientId: 'focused-studio-tab',
 				compositionFile: '/tmp/protocol-project/src/Composition.tsx',
 				compositionId: 'Main',
-				element: {displayName: 'Lower Third'},
+				element: {displayName: 'Lower Third', durationInFrames: 90},
 				source: {
 					type: 'studio-protocol',
 					origin: 'https://example.com',
