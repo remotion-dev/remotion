@@ -49,10 +49,18 @@ The spring configuration that you pass to [spring()](/docs/spring#config).
 ### ~~`from?`~~ / ~~`to?`~~
 
 :::info Deprecated
-The `from` and `to` options are deprecated and will be removed in [Remotion 5.0](/docs/5-0-migration#measurespring-does-not-accept-from-and-to-options-anymore) because they do not influence the duration calculation.  
+Will be removed in [Remotion 5.0](/docs/5-0-migration#measurespring-does-not-accept-from-and-to-options-anymore) because this param does not influence the duration calculation.  
 :::
 
-In Remotion 4.x, these options documented the initial and end values of the animation (defaults `0` and `1`), but they did not affect the returned duration.
+The initial value of the animation. Default: `0`.
+
+### `to?`
+
+:::info Deprecated
+Will be removed in [Remotion 5.0](/docs/5-0-migration#measurespring-does-not-accept-from-and-to-options-anymore) because this param does not influence the duration calculation.  
+:::
+
+The end value of the animation. Default: `1`. Note that depending on the parameters, spring animations may overshoot the target a bit, before they bounce back to their final target.
 
 ## Compatibility
 
