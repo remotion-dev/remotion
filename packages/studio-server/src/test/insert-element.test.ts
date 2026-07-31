@@ -51,6 +51,7 @@ const existingElementSource =
 const element = {
 	dependencies: [],
 	dimensions: {width: 900, height: 260},
+	durationInFrames: 72,
 	displayName: 'Lower Third',
 	slug: 'overlays/lower-third',
 	sourceCode: incomingElementSource,
@@ -184,8 +185,9 @@ test('creates a new Element file without an overwrite conflict', async () => {
 		expect(readFileSync(fixture.elementFile, 'utf-8')).toBe(
 			incomingElementSource,
 		);
-		expect(readFileSync(fixture.compositionFile, 'utf-8')).toContain(
-			'<LowerThird',
+		const composition = readFileSync(fixture.compositionFile, 'utf-8');
+		expect(composition).toMatch(
+			/<Sequence\b(?=[^>]*\bdurationInFrames=\{72\})[^>]*>\s*<LowerThird\s*\/>\s*<\/Sequence>/,
 		);
 	} finally {
 		fixture.cleanup();

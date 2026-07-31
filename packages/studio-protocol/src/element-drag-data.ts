@@ -9,6 +9,8 @@ export type ElementDragData = {
 	version: 1;
 	element: {
 		dependencies: string[];
+		/** Absent in legacy v1 drag payloads. */
+		durationInFrames?: number;
 		slug: string;
 		displayName: string;
 		sourceCode: string;
@@ -77,6 +79,7 @@ export const makeElementDragData = ({
 	dependencies,
 	dimensions,
 	displayName,
+	durationInFrames,
 	slug,
 	sourceCode,
 }: ElementDragData['element']): ElementDragData => {
@@ -85,6 +88,7 @@ export const makeElementDragData = ({
 		version: 1,
 		element: {
 			dependencies: Array.from(new Set(dependencies)),
+			...(durationInFrames === undefined ? {} : {durationInFrames}),
 			slug,
 			displayName,
 			sourceCode,
@@ -105,6 +109,12 @@ const isDimensions = (value: unknown): value is ComponentDimensions => {
 	);
 };
 
+const isDuration = (value: unknown): value is number =>
+	typeof value === 'number' &&
+	Number.isInteger(value) &&
+	value > 0 &&
+	value <= 100_000_000;
+
 export const parseElementDragData = (value: string): ElementDragData | null => {
 	try {
 		const parsed: unknown = JSON.parse(value);
@@ -117,8 +127,14 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			return null;
 		}
 
-		const {dependencies, dimensions, displayName, slug, sourceCode} =
-			parsed.element;
+		const {
+			dependencies,
+			dimensions,
+			displayName,
+			durationInFrames,
+			slug,
+			sourceCode,
+		} = parsed.element;
 		if (
 			!isSlug(slug) ||
 			typeof displayName !== 'string' ||
@@ -129,6 +145,7 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			sourceCode.length >= 200000 ||
 			getElementComponentNameFromSourceCode(sourceCode) === null ||
 			makeElementFileNameFromSlug(slug) === null ||
+			(durationInFrames !== undefined && !isDuration(durationInFrames)) ||
 			(dependencies !== undefined &&
 				(!Array.isArray(dependencies) ||
 					dependencies.length > 100 ||
@@ -145,6 +162,7 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 
 		return makeElementDragData({
 			dependencies: dependencies ?? [],
+			durationInFrames,
 			slug,
 			displayName,
 			sourceCode,
