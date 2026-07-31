@@ -45,7 +45,6 @@ const updateIconContainer: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
 	flexShrink: 0,
-	marginLeft: 8,
 };
 
 // Keep in sync with packages/bugs/api/[v].ts
