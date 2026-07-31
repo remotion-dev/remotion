@@ -2,7 +2,9 @@
 
 Use this reference when creating Remotion-branded pages and assets.
 
-[Studio icon reference](packages/brand/src/PreviewToolbarIcons.tsx)
+## Studio icons
+
+Use the [Studio icon reference](packages/brand/src/PreviewToolbarIcons.tsx) when adding or updating icons.
 
 ## Colors
 
