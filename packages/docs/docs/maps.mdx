@@ -292,6 +292,16 @@ map.addLayer({
 
 ## Rendering
 
+### Remotion 5.0
+
+In Remotion 5.0, headless rendering uses the [`angle`](/docs/gl-options) OpenGL backend by default, so you do not need to pass [`--gl=angle`](/docs/cli/render#--gl) for map animations. Use single concurrency for WebGL-heavy map renders:
+
+```sh
+npx remotion render <composition-id> out/video.mp4 --concurrency=1
+```
+
+### Remotion 4.0
+
 Render map animations with [`--gl=angle`](/docs/gl-options) to enable the GPU. Use single concurrency for WebGL-heavy map renders:
 
 ```sh
