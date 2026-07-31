@@ -75,3 +75,24 @@ test('normalizes windows-style bundle-relative keys before diffing against s3 ke
 		existingCount: 1,
 	});
 });
+
+test('preserves platform-native bundle-relative keys for upload decisions', async () => {
+	const bundle = await mkdtemp(path.join(tmpdir(), 'remotion-s3-diff-upload-'));
+	const operations = await getS3DiffOperations({
+		objects: [],
+		bundle,
+		prefix: 'sites/test',
+		onProgress: () => undefined,
+		fullClientSpecifics: {
+			readDirectory: () => ({
+				'assets\\chunk.js': () => Promise.resolve('etag'),
+			}),
+		} as FullClientSpecifics<AwsProvider>,
+	});
+
+	expect(operations).toEqual({
+		toDelete: [],
+		toUpload: ['assets\\chunk.js'],
+		existingCount: 0,
+	});
+});

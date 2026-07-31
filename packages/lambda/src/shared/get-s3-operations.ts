@@ -30,6 +30,9 @@ export const getS3DiffOperations = async ({
 	const normalizedDir = Object.fromEntries(
 		Object.entries(dir).map(([key, value]) => [normalizeKey(key), value]),
 	);
+	const originalDir = Object.fromEntries(
+		Object.keys(dir).map((key) => [normalizeKey(key), key]),
+	);
 
 	const filesOnS3ButNotLocal: _Object[] = [];
 	for (const fileOnS3 of objects) {
@@ -54,7 +57,7 @@ export const getS3DiffOperations = async ({
 		}
 
 		if (!found) {
-			localFilesNotOnS3.push(normalizedLocalKey);
+			localFilesNotOnS3.push(originalDir[normalizedLocalKey]);
 		}
 	}
 
@@ -64,7 +67,7 @@ export const getS3DiffOperations = async ({
 		for (const o of objects) {
 			const key = normalizeKey(o.Key?.substring(prefix.length + 1) as string);
 			if (key === normalizedLocalKey && o.ETag === (await normalizedDir[d]())) {
-				existing.push(normalizedLocalKey);
+				existing.push(originalDir[normalizedLocalKey]);
 				break;
 			}
 		}
