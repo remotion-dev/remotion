@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Remotion Markup'
+  short_description: 'Apply Remotion animation and effects practices'
+  default_prompt: '$remotion-markup: Apply best Remotion Practices to MyComp.tsx.'

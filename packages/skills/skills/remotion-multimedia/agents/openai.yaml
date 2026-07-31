@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Remotion Multimedia'
+  short_description: 'Inspect browser-based audio and video media'
+  default_prompt: '$remotion-multimedia: Make my video the same duration as the footage'

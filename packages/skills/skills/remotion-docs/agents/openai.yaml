@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Remotion Docs'
+  short_description: 'Search current Remotion documentation'
+  default_prompt: '$remotion-docs: What server-side rendering options does Remotion have?'

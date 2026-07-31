@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Remotion Best Practices'
+  short_description: 'Route Remotion tasks to the right workflow'
+  default_prompt: '$remotion-best-practices: Make a promo video for my product'

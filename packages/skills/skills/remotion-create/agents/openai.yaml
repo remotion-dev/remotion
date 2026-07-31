@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Create a Remotion Video'
+  short_description: 'Create a new Remotion video project'
+  default_prompt: '$remotion-create: Create a Remotion video and make a promo for my product'

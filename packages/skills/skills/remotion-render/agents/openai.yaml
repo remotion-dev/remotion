@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Render with Remotion'
+  short_description: 'Export Remotion videos and stills'
+  default_prompt: '$remotion-render: Render this as transparent ProRes'

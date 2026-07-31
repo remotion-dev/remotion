@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Remotion Maps'
+  short_description: 'Create animated maps in Remotion videos'
+  default_prompt: '$remotion-maps: Animate a dot from Zurich to New York.'

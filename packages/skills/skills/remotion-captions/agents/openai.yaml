@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Remotion Captions'
+  short_description: 'Transcribe, display, and animate captions'
+  default_prompt: '$remotion-captions: Transcribe my video and display captions'

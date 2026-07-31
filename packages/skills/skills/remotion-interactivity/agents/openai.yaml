@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Remotion Interactivity'
+  short_description: 'Make compositions editable in Remotion Studio'
+  default_prompt: '$remotion-interactivity: Make the markup in MyComp.tsx interactive'

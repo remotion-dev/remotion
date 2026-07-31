@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Upgrade Remotion'
+  short_description: 'Upgrade Remotion and related dependencies'
+  default_prompt: '$remotion-upgrade: Upgrade my project.'
