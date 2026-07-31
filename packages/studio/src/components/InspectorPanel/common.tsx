@@ -268,6 +268,26 @@ export const InspectorInlineAction: React.FC<InspectorInlineActionProps> = ({
 		setHovered(false);
 	}, []);
 
+	React.useEffect(() => {
+		if (!hovered) {
+			return;
+		}
+
+		const clearHover = () => {
+			setHovered(false);
+		};
+
+		window.addEventListener('blur', clearHover);
+		window.addEventListener('pointercancel', clearHover, true);
+		document.addEventListener('visibilitychange', clearHover);
+
+		return () => {
+			window.removeEventListener('blur', clearHover);
+			window.removeEventListener('pointercancel', clearHover, true);
+			document.removeEventListener('visibilitychange', clearHover);
+		};
+	}, [hovered]);
+
 	const mainContent = (
 		<>
 			{renderIcon ? (

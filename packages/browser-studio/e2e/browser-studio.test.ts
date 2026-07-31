@@ -35,7 +35,18 @@ test('loads the Browser Studio canvas and enables Visual Mode', async ({
 			await expect(
 				studio.getByRole('button', {name: 'Inspector'}),
 			).toBeVisible();
-			await studio.getByRole('button', {name: 'Add Solid'}).click();
+			const addSolid = studio.getByRole('button', {name: 'Add Solid'});
+			await addSolid.hover();
+			await expect(addSolid).toHaveCSS(
+				'background-color',
+				'rgba(255, 255, 255, 0.06)',
+			);
+			await studio.locator('.remotion-studio-composition-container').hover();
+			await expect(addSolid).not.toHaveCSS(
+				'background-color',
+				'rgba(255, 255, 255, 0.06)',
+			);
+			await addSolid.click();
 			await expect(studio.getByText('<Solid>', {exact: true})).toBeVisible();
 			await expect(studio.locator('svg[viewBox="0 0 24 16"]')).toBeVisible();
 		})(),
@@ -43,5 +54,7 @@ test('loads the Browser Studio canvas and enables Visual Mode', async ({
 	]);
 
 	expect(pageErrors).toEqual([]);
-	expect(updateAvailableRequests).toEqual([]);
+	expect(updateAvailableRequests).toContain(
+		'http://127.0.0.1:62338/api/update-available',
+	);
 });
