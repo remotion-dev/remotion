@@ -62,6 +62,7 @@ export const ModalContainer: React.FC<{
 				disabled={noZIndex}
 				onOutsideClick={onOutsideClick}
 				onEscape={onEscape}
+				stackOnHighest
 			>
 				<div style={{...panel, ...panelStyle}}>{children}</div>
 			</HigherZIndex>
