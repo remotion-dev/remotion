@@ -36,7 +36,7 @@ const outputNameRow: React.CSSProperties = {
 const outputNameInputContainer: React.CSSProperties = {
 	flex: 1,
 	minWidth: 0,
-	maxWidth: 440,
+	maxWidth: 280,
 };
 
 type Props = {
