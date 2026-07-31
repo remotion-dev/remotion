@@ -44,7 +44,9 @@ test('recognizes an unchanged file above the multipart part-size boundary', asyn
 		bundle: temporaryDirectory as string,
 		prefix: 'sites/test',
 		onProgress: () => undefined,
-		fullClientSpecifics: {readDirectory} as FullClientSpecifics<AwsProvider>,
+		fullClientSpecifics: {
+			readDirectory,
+		} as unknown as FullClientSpecifics<AwsProvider>,
 	});
 
 	expect(operations).toEqual({
@@ -56,7 +58,9 @@ test('recognizes an unchanged file above the multipart part-size boundary', asyn
 
 test('normalizes windows-style bundle-relative keys before diffing against s3 keys', async () => {
 	const bundle = await mkdtemp(path.join(tmpdir(), 'remotion-s3-diff-'));
-	const objects: _Object[] = [{Key: 'sites/test/assets/chunk.js', ETag: 'etag'}];
+	const objects: _Object[] = [
+		{Key: 'sites/test/assets/chunk.js', ETag: 'etag'},
+	];
 	const operations = await getS3DiffOperations({
 		objects,
 		bundle,
@@ -66,7 +70,7 @@ test('normalizes windows-style bundle-relative keys before diffing against s3 ke
 			readDirectory: () => ({
 				'assets\\chunk.js': () => Promise.resolve('etag'),
 			}),
-		} as FullClientSpecifics<AwsProvider>,
+		} as unknown as FullClientSpecifics<AwsProvider>,
 	});
 
 	expect(operations).toEqual({
@@ -87,7 +91,7 @@ test('preserves platform-native bundle-relative keys for upload decisions', asyn
 			readDirectory: () => ({
 				'assets\\chunk.js': () => Promise.resolve('etag'),
 			}),
-		} as FullClientSpecifics<AwsProvider>,
+		} as unknown as FullClientSpecifics<AwsProvider>,
 	});
 
 	expect(operations).toEqual({
