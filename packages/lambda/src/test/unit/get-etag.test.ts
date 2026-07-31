@@ -53,3 +53,25 @@ test('recognizes an unchanged file above the multipart part-size boundary', asyn
 		existingCount: 1,
 	});
 });
+
+test('normalizes windows-style bundle-relative keys before diffing against s3 keys', async () => {
+	const bundle = await mkdtemp(path.join(tmpdir(), 'remotion-s3-diff-'));
+	const objects: _Object[] = [{Key: 'sites/test/assets/chunk.js', ETag: 'etag'}];
+	const operations = await getS3DiffOperations({
+		objects,
+		bundle,
+		prefix: 'sites/test',
+		onProgress: () => undefined,
+		fullClientSpecifics: {
+			readDirectory: () => ({
+				'assets\\chunk.js': () => Promise.resolve('etag'),
+			}),
+		} as FullClientSpecifics<AwsProvider>,
+	});
+
+	expect(operations).toEqual({
+		toDelete: [],
+		toUpload: [],
+		existingCount: 1,
+	});
+});
