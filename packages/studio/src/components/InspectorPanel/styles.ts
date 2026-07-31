@@ -192,7 +192,9 @@ export const detailRow: React.CSSProperties = {
 
 export const detailLabel: React.CSSProperties = {
 	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
 	fontSize: 13,
+	lineHeight: '20px',
 	minWidth: 0,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
@@ -201,8 +203,10 @@ export const detailLabel: React.CSSProperties = {
 
 export const detailValue: React.CSSProperties = {
 	color: WHITE,
+	fontFamily: 'sans-serif',
 	fontSize: 13,
 	fontVariantNumeric: 'tabular-nums',
+	lineHeight: '20px',
 	minWidth: 0,
 	textAlign: 'right',
 	wordBreak: 'break-word',
