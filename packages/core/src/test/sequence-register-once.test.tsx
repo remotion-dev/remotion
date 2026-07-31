@@ -337,6 +337,7 @@ test('Series inherits Sequence controls', () => {
 	expect(series?.controls?.schema).toHaveProperty('from');
 	expect(series?.controls?.schema).toHaveProperty('freeze');
 	expect(series?.controls?.schema).toHaveProperty('durationInFrames');
+	expect(series?.isInsideSeries).toBe(false);
 });
 
 test('Series.Sequence registers with its own visual controls', () => {
