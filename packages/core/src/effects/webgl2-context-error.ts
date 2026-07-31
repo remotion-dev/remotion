@@ -8,7 +8,7 @@ const webGlContextErrorMessage = (
 	effectName: string,
 ): string =>
 	`Failed to acquire ${versionLabel} context for ${effectName}. ` +
-	'Pass --gl=angle when using the CLI, set chromiumOptions: { gl: "angle" } when using SSR APIs, ' +
+	'In Remotion 5.0, the CLI already defaults to --gl=angle; for Remotion 4.0, pass --gl=angle when using the CLI, set chromiumOptions: { gl: "angle" } when using SSR APIs, ' +
 	'or set "OpenGL render backend" to "angle" in the Advanced section when rendering in the Studio. ' +
 	`See ${WEBGL_CONTEXT_DOCS_URL}`;
 
