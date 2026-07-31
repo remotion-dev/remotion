@@ -76,6 +76,17 @@ The default value of `overwrite` has been changed to `true` in `renderMediaOnLam
 
 **Required action**: If you want to keep the old behavior, set `overwrite: false`, explicitly.
 
+In the Go SDK, `Overwrite` is now a `*bool` so that an omitted value can be distinguished from an explicit `false`:
+
+```go
+overwrite := false
+
+options := lambda_go_sdk.RemotionOptions{
+	// Other options...
+	Overwrite: &overwrite,
+}
+```
+
 ## `openBrowser()` now takes a `logLevel` instead of `shouldDumpIo`
 
 The `shouldDumpIo` option has been be removed in 5.0.  

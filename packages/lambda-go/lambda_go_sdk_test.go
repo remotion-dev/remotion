@@ -66,6 +66,40 @@ func TestPrintVersion(t *testing.T) {
 	println(string(jsonData))
 }
 
+func TestOverwriteDefaultsToTrue(t *testing.T) {
+	payload, err := constructRenderInternals(&RemotionOptions{
+		Region:       "us-east-1",
+		Composition:  "react-svg",
+		FunctionName: "remotion-render",
+		ServeUrl:     "testbed",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if !payload.Overwrite {
+		t.Fatal("expected overwrite to default to true")
+	}
+}
+
+func TestOverwriteCanBeDisabled(t *testing.T) {
+	overwrite := false
+	payload, err := constructRenderInternals(&RemotionOptions{
+		Region:       "us-east-1",
+		Composition:  "react-svg",
+		FunctionName: "remotion-render",
+		ServeUrl:     "testbed",
+		Overwrite:    &overwrite,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if payload.Overwrite {
+		t.Fatal("expected an explicit false overwrite value to be preserved")
+	}
+}
+
 func TestSerializeNilInputProps(t *testing.T) {
 	result, err := serializeInputProps(nil, "us-east-1", "video-or-audio", "", false)
 	if err != nil {
