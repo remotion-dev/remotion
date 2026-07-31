@@ -236,10 +236,12 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 								<dd>{getElementDimensionsLabel(definition)}</dd>
 							</div>
 							<div>
+								<dt>Preview FPS</dt>
+								<dd>{fps}</dd>
+							</div>
+							<div>
 								<dt>Duration</dt>
-								<dd>
-									{`${durationInFrames} frames (${durationInFrames / fps}s)`}
-								</dd>
+								<dd>{durationInFrames / fps}s</dd>
 							</div>
 							<div>
 								<dt>Dependencies</dt>
