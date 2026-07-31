@@ -184,34 +184,28 @@ export const PreviewToolbar: React.FC<{
 				<Flex />
 				<FpsCounter playbackSpeed={playbackRate} />
 				<Spacing x={2} />
+				{isVideoComposition && isMobileLayout ? (
+					<PreviewToolbarControl>
+						<MuteToggle muted={playerMuted} setMuted={setPlayerMuted} />
+					</PreviewToolbarControl>
+				) : null}
 				<PreviewToolbarControl>
-					<RenderButton
-						readOnlyStudio={readOnlyStudio}
-						size="compact"
-						hidden={isMobileLayout}
-					/>
+					<RenderButton readOnlyStudio={readOnlyStudio} size="compact" />
 				</PreviewToolbarControl>
 				{isMobileLayout ? (
-					<>
-						{isVideoComposition ? (
-							<PreviewToolbarControl>
-								<MuteToggle muted={playerMuted} setMuted={setPlayerMuted} />
-							</PreviewToolbarControl>
-						) : null}
-						<PreviewToolbarControl>
-							<PreviewToolbarOverflowButton
-								readOnlyStudio={readOnlyStudio}
-								showFullscreen={Boolean(canvasContent && isFullscreenSupported)}
-								showPlaybackRate={isVideoComposition}
-								showLoop={isVideoComposition}
-								showCompositionControls={canvasContent?.type === 'composition'}
-								playbackRate={playbackRate}
-								setPlaybackRate={setPlaybackRate}
-								loop={loop}
-								setLoop={setLoop}
-							/>
-						</PreviewToolbarControl>
-					</>
+					<PreviewToolbarControl>
+						<PreviewToolbarOverflowButton
+							readOnlyStudio={readOnlyStudio}
+							showFullscreen={Boolean(canvasContent && isFullscreenSupported)}
+							showPlaybackRate={isVideoComposition}
+							showLoop={isVideoComposition}
+							showCompositionControls={canvasContent?.type === 'composition'}
+							playbackRate={playbackRate}
+							setPlaybackRate={setPlaybackRate}
+							loop={loop}
+							setLoop={setLoop}
+						/>
+					</PreviewToolbarControl>
 				) : null}
 				<Spacing x={1.5} />
 			</div>
