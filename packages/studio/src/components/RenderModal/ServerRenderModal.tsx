@@ -84,6 +84,7 @@ import {
 	leftSidebar,
 	optionsPanel,
 	outerModalStyle,
+	renderModalTabIconClassName,
 } from './render-modals';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalAdvanced} from './RenderModalAdvanced';
@@ -1400,7 +1401,6 @@ const RenderModal: React.FC<
 			};
 		});
 	}, [availablePixelFormats, pixelFormat]);
-
 	return (
 		<div style={outerModalStyle}>
 			<ModalHeader title={`Render ${resolvedComposition.id}`} />
@@ -1434,7 +1434,10 @@ const RenderModal: React.FC<
 							selected={tab === 'general'}
 							onClick={() => setTab('general')}
 						>
-							<div style={iconContainer}>
+							<div
+								className={renderModalTabIconClassName}
+								style={iconContainer}
+							>
 								<FileIcon style={icon} />
 							</div>
 							General
@@ -1446,7 +1449,10 @@ const RenderModal: React.FC<
 							selected={tab === 'data'}
 							onClick={() => setTab('data')}
 						>
-							<div style={iconContainer}>
+							<div
+								className={renderModalTabIconClassName}
+								style={iconContainer}
+							>
 								<DataIcon style={icon} />
 							</div>
 							Input Props
@@ -1458,7 +1464,10 @@ const RenderModal: React.FC<
 							selected={tab === 'picture'}
 							onClick={() => setTab('picture')}
 						>
-							<div style={iconContainer}>
+							<div
+								className={renderModalTabIconClassName}
+								style={iconContainer}
+							>
 								<PicIcon style={icon} />
 							</div>
 							Picture
@@ -1470,7 +1479,10 @@ const RenderModal: React.FC<
 							selected={tab === 'audio'}
 							onClick={() => setTab('audio')}
 						>
-							<div style={iconContainer}>
+							<div
+								className={renderModalTabIconClassName}
+								style={iconContainer}
+							>
 								<AudioIcon style={icon} />
 							</div>
 							Audio
@@ -1482,7 +1494,10 @@ const RenderModal: React.FC<
 							selected={tab === 'gif'}
 							onClick={() => setTab('gif')}
 						>
-							<div style={iconContainer}>
+							<div
+								className={renderModalTabIconClassName}
+								style={iconContainer}
+							>
 								<GifIcon style={icon} />
 							</div>
 							GIF
@@ -1494,7 +1509,10 @@ const RenderModal: React.FC<
 							selected={tab === 'encoding'}
 							onClick={() => setTab('encoding')}
 						>
-							<div style={iconContainer}>
+							<div
+								className={renderModalTabIconClassName}
+								style={iconContainer}
+							>
 								<FilmIcon style={icon} color={CURRENT_COLOR_LOWERCASE} />
 							</div>
 							Encoding
@@ -1506,7 +1524,10 @@ const RenderModal: React.FC<
 							selected={tab === 'environment'}
 							onClick={() => setTab('environment')}
 						>
-							<div style={iconContainer}>
+							<div
+								className={renderModalTabIconClassName}
+								style={iconContainer}
+							>
 								<DataIcon style={icon} />
 							</div>
 							Environment
@@ -1518,7 +1539,10 @@ const RenderModal: React.FC<
 							selected={tab === 'advanced'}
 							onClick={() => setTab('advanced')}
 						>
-							<div style={iconContainer}>
+							<div
+								className={renderModalTabIconClassName}
+								style={iconContainer}
+							>
 								<GearIcon style={icon} />
 							</div>
 							Other

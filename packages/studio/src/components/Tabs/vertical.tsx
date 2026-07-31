@@ -2,7 +2,6 @@ import React, {useCallback, useMemo, useState} from 'react';
 import {
 	WHITE_ALPHA_06,
 	LIGHT_TEXT,
-	SELECTED_BACKGROUND,
 	TRANSPARENT,
 	WHITE,
 } from '../../helpers/colors';
@@ -15,6 +14,7 @@ const selectorButton: React.CSSProperties = {
 	paddingLeft: 16,
 	display: 'flex',
 	flexDirection: 'row',
+	fontFamily: 'sans-serif',
 	fontSize: 14,
 	color: 'inherit',
 	alignItems: 'center',
@@ -42,13 +42,9 @@ export const VerticalTab: React.FC<{
 	const definiteStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...selectorButton,
-			backgroundColor: selected
-				? SELECTED_BACKGROUND
-				: hovered
-					? WHITE_ALPHA_06
-					: TRANSPARENT,
-			color: selected ? WHITE : LIGHT_TEXT,
-			boxShadow: selected ? 'none' : undefined,
+			backgroundColor: selected || hovered ? WHITE_ALPHA_06 : TRANSPARENT,
+			color: selected || hovered ? WHITE : LIGHT_TEXT,
+			boxShadow: 'none',
 			...style,
 		};
 	}, [hovered, selected, style]);

@@ -49,6 +49,7 @@ import {
 	leftSidebar,
 	optionsPanel,
 	outerModalStyle,
+	renderModalTabIconClassName,
 } from './render-modals';
 import {
 	ResolveCompositionBeforeModal,
@@ -643,7 +644,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						selected={tab === 'general'}
 						onClick={() => setTab('general')}
 					>
-						<div style={iconContainer}>
+						<div className={renderModalTabIconClassName} style={iconContainer}>
 							<FileIcon style={icon} />
 						</div>
 						General
@@ -653,7 +654,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						selected={tab === 'data'}
 						onClick={() => setTab('data')}
 					>
-						<div style={iconContainer}>
+						<div className={renderModalTabIconClassName} style={iconContainer}>
 							<DataIcon style={icon} />
 						</div>
 						Input Props
@@ -664,7 +665,10 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							selected={tab === 'picture'}
 							onClick={() => setTab('picture')}
 						>
-							<div style={iconContainer}>
+							<div
+								className={renderModalTabIconClassName}
+								style={iconContainer}
+							>
 								<PicIcon style={icon} />
 							</div>
 							Picture
@@ -676,7 +680,10 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							selected={tab === 'audio'}
 							onClick={() => setTab('audio')}
 						>
-							<div style={iconContainer}>
+							<div
+								className={renderModalTabIconClassName}
+								style={iconContainer}
+							>
 								<AudioIcon style={icon} />
 							</div>
 							Audio
@@ -687,7 +694,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						selected={tab === 'advanced'}
 						onClick={() => setTab('advanced')}
 					>
-						<div style={iconContainer}>
+						<div className={renderModalTabIconClassName} style={iconContainer}>
 							<GearIcon style={icon} />
 						</div>
 						Other
@@ -702,7 +709,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							})
 						}
 					>
-						<div style={iconContainer}>
+						<div className={renderModalTabIconClassName} style={iconContainer}>
 							<CertificateIcon style={icon} />
 						</div>
 						License
