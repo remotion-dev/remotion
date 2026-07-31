@@ -40,11 +40,11 @@ import {useRenderModalSections} from '../../helpers/render-modal-sections';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {AudioIcon} from '../../icons/audio';
 import {Checkmark} from '../../icons/Checkmark';
-import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
 import {GearIcon} from '../../icons/gear';
 import {GifIcon} from '../../icons/gif';
+import {InputPropsIcon} from '../../icons/input-props';
 import {SnowflakeIcon} from '../../icons/snowflake';
 import {FilmIcon} from '../../icons/video';
 import {ModalsContext} from '../../state/modals';
@@ -1445,7 +1445,7 @@ const RenderModal: React.FC<
 							onClick={() => setTab('data')}
 							renderIcon={(color) => (
 								<div style={iconContainer}>
-									<DataIcon color={color} style={icon} />
+									<InputPropsIcon color={color} style={icon} />
 								</div>
 							)}
 						>

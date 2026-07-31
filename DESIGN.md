@@ -2,6 +2,10 @@
 
 Use this reference when creating Remotion-branded pages and assets.
 
+## Studio icons
+
+Use the [Studio icon reference](packages/brand/src/PreviewToolbarIcons.tsx) when adding or updating icons.
+
 ## Colors
 
 - Brand accent: `#0B84F3`
