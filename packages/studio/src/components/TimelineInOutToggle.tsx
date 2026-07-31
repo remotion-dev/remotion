@@ -33,8 +33,8 @@ const getTooltipText = (pointType: string, key: string) =>
 		.join(' ');
 
 const style: React.CSSProperties = {
-	width: 16,
-	height: 16,
+	width: 17,
+	height: 17,
 };
 
 export const inOutHandles = createRef<{

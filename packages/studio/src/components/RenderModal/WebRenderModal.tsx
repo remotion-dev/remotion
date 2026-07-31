@@ -19,10 +19,10 @@ import {useCallback, useContext, useMemo, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {AudioIcon} from '../../icons/audio';
 import {CertificateIcon} from '../../icons/certificate';
-import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
 import {GearIcon} from '../../icons/gear';
+import {InputPropsIcon} from '../../icons/input-props';
 import type {WebRenderModalState} from '../../state/modals';
 import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
@@ -656,7 +656,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						onClick={() => setTab('data')}
 						renderIcon={(color) => (
 							<div style={iconContainer}>
-								<DataIcon color={color} style={icon} />
+								<InputPropsIcon color={color} style={icon} />
 							</div>
 						)}
 					>
