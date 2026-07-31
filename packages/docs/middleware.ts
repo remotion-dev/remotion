@@ -1,7 +1,7 @@
 import {rewrite} from '@vercel/functions';
 
 export const config = {
-	matcher: ['/pricing', '/docs/:path*', '/elements/:path*'],
+	matcher: ['/pricing', '/docs/:path*', '/elements', '/elements.md', '/elements/:path*'],
 };
 
 function parseAcceptHeader(acceptHeader: string): string[] {
@@ -73,6 +73,14 @@ export default function middleware(request: Request) {
 
 	if (pathname === '/docs/license/license-faq') {
 		return Response.redirect(new URL('/docs/license/faq', request.url), 308);
+	}
+
+	if (pathname === '/elements.md') {
+		return rewrite(new URL('/_raw/elements/index.md', request.url));
+	}
+
+	if (pathname === '/elements') {
+		return;
 	}
 
 	if (!pathname.startsWith('/docs/') && !pathname.startsWith('/elements/')) {
