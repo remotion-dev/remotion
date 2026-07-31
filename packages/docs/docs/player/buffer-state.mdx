@@ -319,11 +319,11 @@ const MyApp: React.FC = () => {
 };
 ```
 
-## Upcoming changes in Remotion 5.0
+## Remotion 5.0
 
-In Remotion 5.0, it is planned that `<Html5Audio>`, `<Html5Video>`, and `<OffthreadVideo>` will automatically use the buffer state, but they can opt out of it.
+In Remotion 5.0, [`<Html5Audio>`](/docs/html5-audio), [`<Html5Video>`](/docs/html5-video), [`<OffthreadVideo>`](/docs/offthreadvideo), and [`<Img>`](/docs/img) automatically use the buffer state by default. Pass [`pauseWhenBuffering={false}`](/docs/html5-video#pausewhenbuffering) on video and audio components or [`pauseWhenLoading={false}`](/docs/img#pausewhenloading) on `<Img>` to opt out. See the [migration guide](/docs/5-0-migration).
 
-This does not change the behavior of [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media), which already use the buffer state by default in Remotion 4.0.
+This does not change the behavior of [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media), which already use the buffer state by default since they were introduced.
 
 ## See also
 
