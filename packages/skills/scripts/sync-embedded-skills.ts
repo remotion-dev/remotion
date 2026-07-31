@@ -70,7 +70,11 @@ for (const {parentSkill, skillNames} of embeddedSkillSets) {
 	for (const skillName of skillNames) {
 		skillContents = skillContents.replaceAll(
 			`../${skillName}/`,
-			`${skillName}/`,
+			`./${skillName}/`,
+		);
+		skillContents = skillContents.replaceAll(
+			`](${skillName}/`,
+			`](./${skillName}/`,
 		);
 	}
 
