@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 
 const validElement = {
-	dependencies: ['@remotion/google-fonts'],
+	dependencies: [{name: '@remotion/google-fonts', version: null}],
 	slug: 'overlays/lower-third',
 	displayName: 'Lower Third',
 	sourceCode: 'export const LowerThird = () => null;',
@@ -12,7 +12,7 @@ const makeElementDragData = (
 	element:
 		| typeof validElement
 		| {
-				dependencies: string[];
+				dependencies: {name: string; version: null}[];
 				slug: string;
 				displayName: string;
 				sourceCode: string;
@@ -23,7 +23,7 @@ const makeElementDragData = (
 		type: 'element',
 		...element,
 		durationInFrames: 120,
-	}).data;
+	} as never).data;
 const parseElementDragData = (payload: string) => {
 	let dimensions: (typeof validElement)['dimensions'] | null = null;
 	try {
@@ -45,7 +45,7 @@ const parseElementDragData = (payload: string) => {
 		...validElement,
 		dimensions,
 		durationInFrames: 120,
-	});
+	} as never);
 	const parsed = StudioProtocolInternals.parseDragData({mimeType, payload});
 	return parsed?.type === 'element' ? parsed.data : null;
 };

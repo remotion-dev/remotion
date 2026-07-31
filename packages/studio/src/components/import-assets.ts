@@ -693,7 +693,9 @@ const insertCompositionElement = async ({
 	from: number | null;
 }) => {
 	const requiredPackage = getRequiredPackageForInsertableElement(element);
-	await installRequiredPackages(requiredPackage ? [requiredPackage] : []);
+	await installRequiredPackages(
+		requiredPackage ? [{name: requiredPackage, version: null}] : [],
+	);
 
 	const result = await callApi('/api/insert-jsx-element', {
 		compositionFile,

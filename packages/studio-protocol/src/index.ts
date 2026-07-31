@@ -44,7 +44,7 @@ export type {
 	SfxDragPreviewMetadata,
 } from './drag-preview-metadata';
 export type {EffectDragData} from './effect-drag-data';
-export type {ElementDragData} from './element-drag-data';
+export type {ElementDependency, ElementDragData} from './element-drag-data';
 export type {SfxDragData} from './sfx-drag-data';
 export {setStudioDragData} from './drag-transport';
 export {

@@ -39,7 +39,7 @@ const inputs: MakeDragDataInput[] = [
 	},
 	{
 		type: 'element',
-		dependencies: ['@remotion/google-fonts'],
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		slug: 'overlays/lower-third',
 		displayName: 'Lower Third',
 		sourceCode: 'export const LowerThird = () => null;',
