@@ -46,13 +46,13 @@ Lower values mean the spring duration is longer, higher values result in the spr
 
 The spring configuration that you pass to [spring()](/docs/spring#config).
 
-### `from?`
+### ~~`from?`~~ / ~~`to?`~~
 
-The initial value of the animation. Default: `0`.
+:::info Removed in Remotion 5.0
+The `from` and `to` options have been removed because they did not influence the duration calculation. See the [v5 migration guide](/docs/5-0-migration#measurespring-does-not-accept-from-and-to-options-anymore).
+:::
 
-### `to?`
-
-The end value of the animation. Default: `1`. Note that depending on the parameters, spring animations may overshoot the target a bit, before they bounce back to their final target.
+In Remotion 4.x, these options documented the initial and end values of the animation (defaults `0` and `1`), but they did not affect the returned duration.
 
 ## Compatibility
 
