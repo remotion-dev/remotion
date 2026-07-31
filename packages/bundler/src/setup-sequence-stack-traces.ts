@@ -13,6 +13,31 @@ const originalJsx = JsxRuntime.jsx;
 const originalJsxs = JsxRuntime.jsxs;
 const originalJsxDev = JsxRuntimeDev.jsxDEV;
 
+const getSourceFileName = (fileName: string) => {
+	if (typeof window === 'undefined' || !window.remotion_cwd) {
+		return fileName;
+	}
+
+	const normalizedFileName = fileName.replaceAll('\\', '/');
+	const normalizedRoot = window.remotion_cwd
+		.replaceAll('\\', '/')
+		.replace(/\/+$/, '');
+	const shouldCompareCaseInsensitive =
+		/^[a-z]:\//i.test(normalizedFileName) || /^[a-z]:\//i.test(normalizedRoot);
+	const comparableFileName = shouldCompareCaseInsensitive
+		? normalizedFileName.toLowerCase()
+		: normalizedFileName;
+	const comparableRoot = shouldCompareCaseInsensitive
+		? normalizedRoot.toLowerCase()
+		: normalizedRoot;
+
+	if (!comparableFileName.startsWith(`${comparableRoot}/`)) {
+		return normalizedFileName;
+	}
+
+	return `./${normalizedFileName.slice(normalizedRoot.length + 1)}`;
+};
+
 const enableProxy = <
 	T extends
 		| typeof React.createElement
@@ -39,7 +64,7 @@ const enableProxy = <
 					typeof source.fileName === 'string' &&
 					typeof source.lineNumber === 'number' &&
 					typeof source.columnNumber === 'number'
-						? `Error\n    at remotionOriginalSource (${studioOriginalSourcePrefix}${encodeURIComponent(source.fileName)}:${source.lineNumber}:${source.columnNumber})`
+						? `Error\n    at remotionOriginalSource (${studioOriginalSourcePrefix}${encodeURIComponent(getSourceFileName(source.fileName))}:${source.lineNumber}:${source.columnNumber})`
 						: new Error().stack;
 				const newProps = props?.[internalStackProp]
 					? {...props}

@@ -28,22 +28,31 @@ test('injects a namespaced source stack without conflicting with application pro
 		};
 	expect(existingProps._remotionInternalStack).toBe('existing-source-stack');
 
-	const sourceElement = JsxRuntimeDev.jsxDEV(
-		Component,
-		{stack: 'application-stack'},
-		undefined,
-		false,
-		{
-			fileName: '/project/src/Video.tsx',
-			lineNumber: 12,
-			columnNumber: 4,
-		},
-		undefined,
-	);
-	const sourceProps = sourceElement.props as typeof sourceElement.props & {
-		readonly _remotionInternalStack: string;
-	};
-	expect(sourceProps._remotionInternalStack).toBe(
-		'Error\n    at remotionOriginalSource (studio-original://%2Fproject%2Fsrc%2FVideo.tsx:12:4)',
-	);
+	Object.defineProperty(globalThis, 'window', {
+		configurable: true,
+		value: {remotion_cwd: '/project'},
+	});
+
+	try {
+		const sourceElement = JsxRuntimeDev.jsxDEV(
+			Component,
+			{stack: 'application-stack'},
+			undefined,
+			false,
+			{
+				fileName: '/project/src/Video.tsx',
+				lineNumber: 12,
+				columnNumber: 4,
+			},
+			undefined,
+		);
+		const sourceProps = sourceElement.props as typeof sourceElement.props & {
+			readonly _remotionInternalStack: string;
+		};
+		expect(sourceProps._remotionInternalStack).toBe(
+			'Error\n    at remotionOriginalSource (studio-original://.%2Fsrc%2FVideo.tsx:12:4)',
+		);
+	} finally {
+		Reflect.deleteProperty(globalThis, 'window');
+	}
 });
