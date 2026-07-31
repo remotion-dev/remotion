@@ -156,7 +156,7 @@ export const MenuToolbar: React.FC<{
 						/>
 					);
 				})}
-				{readOnlyStudio ? null : <UpdateCheck />}
+				{readOnlyStudio || browserStudioOperations ? null : <UpdateCheck />}
 			</div>
 			{mobileLayout ? null : <div style={flex} />}
 			<MenuBuildIndicator mobileLayout={mobileLayout} />
