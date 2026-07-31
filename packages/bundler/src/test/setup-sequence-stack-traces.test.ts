@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
 import React from 'react';
+import JsxRuntimeDev from 'react/jsx-dev-runtime';
 import {Internals} from 'remotion';
 
 test('injects a namespaced source stack without conflicting with application props', async () => {
@@ -26,4 +27,23 @@ test('injects a namespaced source stack without conflicting with application pro
 			readonly _remotionInternalStack: string;
 		};
 	expect(existingProps._remotionInternalStack).toBe('existing-source-stack');
+
+	const sourceElement = JsxRuntimeDev.jsxDEV(
+		Component,
+		{stack: 'application-stack'},
+		undefined,
+		false,
+		{
+			fileName: '/project/src/Video.tsx',
+			lineNumber: 12,
+			columnNumber: 4,
+		},
+		undefined,
+	);
+	const sourceProps = sourceElement.props as typeof sourceElement.props & {
+		readonly _remotionInternalStack: string;
+	};
+	expect(sourceProps._remotionInternalStack).toBe(
+		'Error\n    at remotionOriginalSource (studio-original://%2Fproject%2Fsrc%2FVideo.tsx:12:4)',
+	);
 });
