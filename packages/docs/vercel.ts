@@ -268,6 +268,11 @@ export const config: VercelConfig = {
 		}),
 		routes.redirect('/skills', '/docs/ai/skills', {permanent: false}),
 		routes.redirect(
+			'/codex',
+			'https://chatgpt.com/plugins/plugins~Plugin_efd07789186881918253a50acfc32762?open_in_codex',
+			{permanent: false},
+		),
+		routes.redirect(
 			'/repro',
 			'https://stackblitz.com/fork/github/remotion-dev/template-helloworld',
 			{permanent: false},
