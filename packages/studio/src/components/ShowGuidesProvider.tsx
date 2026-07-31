@@ -12,6 +12,9 @@ export const ShowGuidesProvider: React.FC<{
 }> = ({children}) => {
 	const [guidesList, setGuidesList] = useState<Guide[]>(() => loadGuidesList());
 	const [draggingGuideId, setDraggingGuideId] = useState<string | null>(null);
+	const moveGuidePointerRef = useRef<((event: PointerEvent) => void) | null>(
+		null,
+	);
 	const [hoveredGuideId, setHoveredGuideId] = useState<string | null>(null);
 	const [editorShowGuides, setEditorShowGuidesState] = useState(() =>
 		loadEditorShowGuidesOption(),
@@ -37,6 +40,7 @@ export const ShowGuidesProvider: React.FC<{
 			guidesList,
 			setGuidesList,
 			draggingGuideId,
+			moveGuidePointerRef,
 			setDraggingGuideId,
 			shouldCreateGuideRef,
 			shouldDeleteGuideRef,

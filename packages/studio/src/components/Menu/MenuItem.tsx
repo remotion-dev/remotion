@@ -7,6 +7,7 @@ import {
 	WHITE_ALPHA_80,
 	getBackgroundFromHoverState,
 } from '../../helpers/colors';
+import {startPointerSession} from '../../helpers/pointer-session';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {MenuContent} from '../NewComposition/MenuContent';
@@ -115,17 +116,24 @@ export const MenuItem: React.FC<{
 
 				onItemSelected(id);
 
-				window.addEventListener(
-					'pointerup',
-					(evt) => {
-						if (!isMenuItem(evt.target as HTMLElement)) {
-							onItemQuit();
+				startPointerSession({
+					event: e.nativeEvent,
+					target: e.currentTarget,
+					onEnd: (reason, evt) => {
+						if (
+							(reason === 'pointerup' || reason === 'buttons-released') &&
+							evt
+						) {
+							const target = document.elementFromPoint(
+								evt.clientX,
+								evt.clientY,
+							);
+							if (!target || !isMenuItem(target as HTMLElement)) {
+								onItemQuit();
+							}
 						}
 					},
-					{
-						once: true,
-					},
-				);
+				});
 			},
 			[id, onItemQuit, onItemSelected],
 		);

@@ -7,6 +7,7 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {interpolate} from 'remotion';
 import {BLUE, TRANSPARENT} from '../../helpers/colors';
 import {noop} from '../../helpers/noop';
+import {startPointerSession} from '../../helpers/pointer-session';
 import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';
 import {HigherZIndex} from '../../state/z-index';
 import {
@@ -600,16 +601,16 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	const onPointerDown: PointerEventHandler<HTMLButtonElement> = useCallback(
 		(e) => {
 			e.stopPropagation();
-			pointerDownRef.current = true;
 			const target = e.currentTarget as HTMLButtonElement;
 			const {pageX, pageY, button} = e;
 			if (button !== 0) {
 				return;
 			}
 
+			pointerDownRef.current = true;
 			let lastDragValue: number | null = null;
 
-			const moveListener = (ev: MouseEvent) => {
+			const moveListener = (ev: PointerEvent) => {
 				const xDistance = ev.pageX - pageX;
 				const distanceFromStart = Math.sqrt(
 					xDistance ** 2 + (ev.pageY - pageY) ** 2,
@@ -644,39 +645,25 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 				onValueChange(nextValue);
 			};
 
-			window.addEventListener('mousemove', moveListener);
-			const endDrag = (commit: boolean) => {
-				window.removeEventListener('mousemove', moveListener);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerCancel);
-				window.removeEventListener('blur', onWindowBlur);
-				pointerDownRef.current = false;
-				setDragging(false);
-				stopForcingSpecificCursor();
-				if (commit && lastDragValue !== null && onValueChangeEnd) {
-					onValueChangeEnd(lastDragValue);
-				}
+			startPointerSession({
+				event: e.nativeEvent,
+				target,
+				onMove: moveListener,
+				onEnd: (reason) => {
+					pointerDownRef.current = false;
+					setDragging(false);
+					stopForcingSpecificCursor();
+					const commit =
+						reason === 'pointerup' || reason === 'buttons-released';
+					if (commit && lastDragValue !== null && onValueChangeEnd) {
+						onValueChangeEnd(lastDragValue);
+					}
 
-				setTimeout(() => {
-					setClickLock(false);
-				}, 2);
-			};
-
-			const onPointerUp = () => {
-				endDrag(true);
-			};
-
-			const onPointerCancel = () => {
-				endDrag(false);
-			};
-
-			const onWindowBlur = () => {
-				endDrag(false);
-			};
-
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerCancel);
-			window.addEventListener('blur', onWindowBlur);
+					setTimeout(() => {
+						setClickLock(false);
+					}, 2);
+				},
+			});
 		},
 		[
 			_step,

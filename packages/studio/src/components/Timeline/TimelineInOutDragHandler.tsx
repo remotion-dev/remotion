@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
+import {startPointerSession} from '../../helpers/pointer-session';
 import {
 	useTimelineInOutFramePosition,
 	useTimelineSetInOutFramePosition,
@@ -61,6 +62,9 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 				dragging: 'in' | 'out';
 				initialOffset: number;
 				boundaries: [number, number];
+				button: number;
+				pointerId: number;
+				target: HTMLDivElement;
 		  }
 	>({
 		dragging: false,
@@ -120,7 +124,11 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 				dragging: 'in',
 				initialOffset: getClientXWithScroll(e.clientX),
 				boundaries: [-Infinity, outMarker - inMarker],
+				button: e.button,
+				pointerId: e.pointerId,
+				target: e.currentTarget,
 			});
+			e.currentTarget.setPointerCapture?.(e.pointerId);
 		},
 		[isHighestContext, videoConfig, inFrame, get, outFrame],
 	);
@@ -155,7 +163,11 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 				dragging: 'out',
 				initialOffset: getClientXWithScroll(e.clientX),
 				boundaries: [inMarker - outMarker, Infinity],
+				button: e.button,
+				pointerId: e.pointerId,
+				target: e.currentTarget,
 			});
+			e.currentTarget.setPointerCapture?.(e.pointerId);
 		},
 		[isHighestContext, videoConfig, inFrame, get, outFrame],
 	);
@@ -311,18 +323,23 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 			return;
 		}
 
-		window.addEventListener('pointermove', onPointerMoveInOut);
-		window.addEventListener('pointerup', onPointerUpInOut);
-		window.addEventListener('pointercancel', onPointerCancelInOut);
-		window.addEventListener('blur', onPointerCancelInOut);
-		return () => {
-			window.removeEventListener('pointermove', onPointerMoveInOut);
-			window.removeEventListener('pointerup', onPointerUpInOut);
-			window.removeEventListener('pointercancel', onPointerCancelInOut);
-			window.removeEventListener('blur', onPointerCancelInOut);
-		};
+		return startPointerSession({
+			event: inOutDragging,
+			target: inOutDragging.target,
+			onMove: onPointerMoveInOut,
+			onEnd: (reason, endEvent) => {
+				if (
+					(reason === 'pointerup' || reason === 'buttons-released') &&
+					endEvent
+				) {
+					onPointerUpInOut(endEvent);
+				} else {
+					onPointerCancelInOut();
+				}
+			},
+		});
 	}, [
-		inOutDragging.dragging,
+		inOutDragging,
 		onPointerCancelInOut,
 		onPointerMoveInOut,
 		onPointerUpInOut,

@@ -14,6 +14,7 @@ import {getConnectedCompositions} from '../helpers/get-connected-compositions';
 import {getSequenceDoubleClickAction} from '../helpers/get-sequence-double-click-action';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
+import {startPointerSession} from '../helpers/pointer-session';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {ModalsContext} from '../state/modals';
 import {callApi} from './call-api';
@@ -333,9 +334,6 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 			};
 
 			const onPointerUp = () => {
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerUp);
 				window.removeEventListener('keydown', onKeyChange);
 				window.removeEventListener('keyup', onKeyChange);
 				stopForcingSpecificCursor();
@@ -390,9 +388,12 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 					});
 			};
 
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerUp);
+			startPointerSession({
+				event,
+				target: event.currentTarget,
+				onMove: onPointerMove,
+				onEnd: onPointerUp,
+			});
 			window.addEventListener('keydown', onKeyChange);
 			window.addEventListener('keyup', onKeyChange);
 		},
@@ -671,9 +672,6 @@ const SelectedOutlinePolygon: React.FC<{
 			};
 
 			const onPointerUp = () => {
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerUp);
 				window.removeEventListener('keydown', onKeyChange);
 				window.removeEventListener('keyup', onKeyChange);
 				if (dragStarted) {
@@ -738,9 +736,12 @@ const SelectedOutlinePolygon: React.FC<{
 					});
 			};
 
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerUp);
+			startPointerSession({
+				event,
+				target: event.currentTarget,
+				onMove: onPointerMove,
+				onEnd: onPointerUp,
+			});
 			window.addEventListener('keydown', onKeyChange);
 			window.addEventListener('keyup', onKeyChange);
 		},
@@ -1010,9 +1011,6 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 			};
 
 			const onPointerUp = () => {
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerUp);
 				if (dragStarted) {
 					stopForcingSpecificCursor();
 					onDraggingChange(false);
@@ -1081,9 +1079,12 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 					});
 			};
 
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerUp);
+			startPointerSession({
+				event,
+				target: event.currentTarget,
+				onMove: onPointerMove,
+				onEnd: onPointerUp,
+			});
 		},
 		[
 			allScaleDragTargets,
@@ -1337,9 +1338,6 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			};
 
 			const onPointerUp = () => {
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerUp);
 				window.removeEventListener('keydown', onKeyChange);
 				window.removeEventListener('keyup', onKeyChange);
 				if (dragStarted) {
@@ -1410,9 +1408,12 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 					});
 			};
 
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerUp);
+			startPointerSession({
+				event,
+				target: event.currentTarget,
+				onMove: onPointerMove,
+				onEnd: onPointerUp,
+			});
 			window.addEventListener('keydown', onKeyChange);
 			window.addEventListener('keyup', onKeyChange);
 		},

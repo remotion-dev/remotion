@@ -5,7 +5,21 @@ const ref = React.createRef<HTMLDivElement>();
 const removeAutomaticCleanupListeners = () => {
 	window.removeEventListener('pointerup', stopForcingSpecificCursor, true);
 	window.removeEventListener('pointercancel', stopForcingSpecificCursor, true);
+	window.removeEventListener('pointermove', stopIfNoButtonsArePressed, true);
 	window.removeEventListener('blur', stopForcingSpecificCursor, true);
+	document.removeEventListener('visibilitychange', stopIfDocumentIsHidden);
+};
+
+const stopIfNoButtonsArePressed = (event: PointerEvent) => {
+	if (event.buttons === 0) {
+		stopForcingSpecificCursor();
+	}
+};
+
+const stopIfDocumentIsHidden = () => {
+	if (document.visibilityState === 'hidden') {
+		stopForcingSpecificCursor();
+	}
 };
 
 export const forceSpecificCursor = (cursor: string): void => {
@@ -21,7 +35,9 @@ export const forceSpecificCursor = (cursor: string): void => {
 	// initiator so the cursor overlay can never remain stuck.
 	window.addEventListener('pointerup', stopForcingSpecificCursor, true);
 	window.addEventListener('pointercancel', stopForcingSpecificCursor, true);
+	window.addEventListener('pointermove', stopIfNoButtonsArePressed, true);
 	window.addEventListener('blur', stopForcingSpecificCursor, true);
+	document.addEventListener('visibilitychange', stopIfDocumentIsHidden);
 };
 
 export const stopForcingSpecificCursor = () => {
