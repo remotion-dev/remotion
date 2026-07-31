@@ -1,6 +1,6 @@
 {
 	"name": "remotion",
-	"version": "1.0.0",
+	"version": "1.0.6",
 	"description": "Remotion video creation skills — best practices, animations, audio, captions, 3D, and more for building programmatic videos with React.",
 	"author": {
 		"name": "Remotion",
@@ -27,7 +27,7 @@
 		"shortDescription": "Create motion graphics from prompts",
 		"longDescription": "Build videos programmatically with Remotion and React. Covers animations, timing, audio, captions, 3D, transitions, charts, text effects, and more.",
 		"developerName": "Remotion",
-		"category": "Design",
+		"category": "Creativity",
 		"capabilities": ["Read", "Write"],
 		"websiteURL": "https://remotion.dev",
 		"privacyPolicyURL": "https://www.remotion.dev/docs/license/privacy",
