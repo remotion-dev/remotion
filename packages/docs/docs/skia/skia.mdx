@@ -110,6 +110,12 @@ pnpm create video --skia
 
 ## Rendering
 
+### Remotion 5.0
+
+In Remotion 5.0, headless rendering uses the [`angle`](/docs/gl-options) OpenGL backend by default, so you do not need to pass [`--gl=angle`](/docs/cli/render#--gl) for Skia exports. Some Skia effects still rely on advanced GPU features; if performance is poor on a machine without a compatible GPU, see [Using the GPU](/docs/gpu) and [Using WebGL and WebGPU during renders](/docs/webgl).
+
+### Remotion 4.0
+
 By default Remotion rendering are done on the CPU. Some Skia effects rely on advanced GPU features, which may be slow to run on the CPU depending on the kind of effect you are using. If your Skia export is extremely slow, we found that enabling the GPU via the `--gl=angle` option improves things substantially. Please check out the documentation on [GPU rendering](/docs/gpu).
 
 ```sh
