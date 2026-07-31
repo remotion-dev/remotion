@@ -109,13 +109,13 @@ From [`v4.0.455`](https://github.com/remotion-dev/remotion/releases/tag/v4.0.455
 
 We compiled a version of Chrome and made it the default, and enabled the flag for you.
 
-If your effect uses a WebGL shader, pass [`--gl=angle`](/docs/gl-options) to make the render work:
+If your effect uses a WebGL shader, Remotion 5 already defaults to [`angle`](/docs/gl-options) and falls back automatically. For older versions or explicit overrides, pass it to make the render work:
 
 ```bash
 npx remotion render --gl=angle
 ```
 
-Set it as the default in [`remotion.config.ts`](/docs/config) so Studio and CLI renders pick it up as a default:
+Set it as the default in [`remotion.config.ts`](/docs/config) if you are on Remotion 4 or want to pin the renderer explicitly so Studio and CLI renders pick it up:
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
@@ -123,11 +123,11 @@ import {Config} from '@remotion/cli/config';
 Config.setChromiumOpenGlRenderer('angle');
 ```
 
-If your machine has no GPU, we recommend `--gl=swangle` instead (default on Lambda).
+If your machine has no GPU, `--gl=swangle` remains the fallback option (and is the default on Lambda).
 
 ## AI agents
 
-Remotion publishes [Agent Skills](/docs/ai/skills) that teach AI agents like Claude Code, Codex and Cursor how to use [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) correctly — including the [`onInit`](/docs/remotion/html-in-canvas#oninit) / [`onPaint`](/docs/remotion/html-in-canvas#onpaint) lifecycle, the [`--gl=angle` flag](#rendering) and [nesting requirements](#limitations).
+Remotion publishes [Agent Skills](/docs/ai/skills) that teach AI agents like Claude Code, Codex and Cursor how to use [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) correctly — including the [`onInit`](/docs/remotion/html-in-canvas#oninit) / [`onPaint`](/docs/remotion/html-in-canvas#onpaint) lifecycle, renderer defaults, and [nesting requirements](#limitations).
 
 Install them with:
 
