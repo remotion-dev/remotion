@@ -1,5 +1,5 @@
 interface:
-  display_name: 'Docs'
+  display_name: 'Remotion Docs'
   short_description: 'Search current Remotion documentation'
   icon_small: './assets/remotion-icon.png'
   icon_large: './assets/remotion-icon.png'

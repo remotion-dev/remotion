@@ -1,5 +1,5 @@
 interface:
-  display_name: 'SaaS'
+  display_name: 'Remotion SaaS'
   short_description: 'Build apps that preview and render videos'
   icon_small: './assets/remotion-icon.png'
   icon_large: './assets/remotion-icon.png'
