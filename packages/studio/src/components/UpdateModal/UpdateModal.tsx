@@ -16,8 +16,7 @@ import {showNotification} from '../Notifications/NotificationCenter';
 import type {Bug, UpdateInfo} from '../UpdateCheck';
 
 const container: React.CSSProperties = {
-	padding: 20,
-	paddingTop: 0,
+	padding: '0 16px 8px',
 };
 
 const panelStyle: React.CSSProperties = {
