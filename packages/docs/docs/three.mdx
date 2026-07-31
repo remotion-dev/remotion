@@ -82,7 +82,7 @@ import {Config} from '@remotion/cli/config';
 Config.setChromiumOpenGlRenderer('angle');
 ```
 
-If you are on Remotion 4 or have overridden the renderer, the config file does not apply to server-side rendering, so you need to explicitly add
+If you are on Remotion 4 or have overridden the renderer, pass the renderer to server-side rendering APIs explicitly, since the config file does not apply there. Add
 
 ```json
 "chromiumOptions": {
