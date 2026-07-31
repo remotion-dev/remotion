@@ -8,7 +8,7 @@ export const TableOfContents: React.FC = () => {
 			<Grid>
 				<TOCItem link="/docs/tailwind-v4/enable-tailwind">
 					<strong>{'enableTailwind()'}</strong>
-					<div>Override the Webpack config to enable TailwindCSS</div>
+					<div>Override the bundler config to enable TailwindCSS</div>
 				</TOCItem>
 			</Grid>
 		</div>

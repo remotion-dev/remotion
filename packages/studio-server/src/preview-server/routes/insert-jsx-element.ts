@@ -1,9 +1,7 @@
 import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
-	areComponentProps,
-	isComponentIdentifier,
-	isComponentImportPath,
 	isUrl,
 	type InsertJsxElementRequest,
 	type InsertJsxElementResponse,
@@ -120,19 +118,19 @@ const validateElement = (
 	}
 
 	if (element.type === 'component') {
-		if (!isComponentIdentifier(element.componentName)) {
+		if (!StudioProtocolInternals.isComponentIdentifier(element.componentName)) {
 			throw new Error('Unsupported component name');
 		}
 
-		if (!isComponentIdentifier(element.importName)) {
+		if (!StudioProtocolInternals.isComponentIdentifier(element.importName)) {
 			throw new Error('Unsupported component import name');
 		}
 
-		if (!isComponentImportPath(element.importPath)) {
+		if (!StudioProtocolInternals.isComponentImportPath(element.importPath)) {
 			throw new Error('Unsupported component import path');
 		}
 
-		if (!areComponentProps(element.props)) {
+		if (!StudioProtocolInternals.areComponentProps(element.props)) {
 			throw new Error('Unsupported component props');
 		}
 

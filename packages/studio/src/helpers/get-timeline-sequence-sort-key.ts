@@ -12,7 +12,7 @@ export type SequenceNodePathInfo = {
 	supportsEffects: boolean;
 };
 
-type Track = {
+export type TimelineTrackData = {
 	sequence: TSequence;
 	connectedCompositions?: readonly _InternalTypes['AnyComposition'][];
 	depth: number;
@@ -21,27 +21,17 @@ type Track = {
 	sequenceFrameOffset: number;
 };
 
-export type TrackWithHash = Track & {
-	hash: string;
-};
-
-export type TrackWithHashAndOriginalTimings = TrackWithHash & {
-	hash: string;
+export type TimelineTrackWithOriginalTimings = TimelineTrackData & {
 	cascadedStart: number;
 	cascadedDuration: number;
 };
 
-export const getTimelineSequenceSequenceSortKey = (
-	track: TrackWithHash,
-	tracks: TrackWithHash[],
-	sameHashes: {[hash: string]: string[]} = {},
-	nonceRanks: Map<string, number> = new Map(),
+export const getTimelineSequenceSortKey = (
+	track: TimelineTrackData,
+	tracks: TimelineTrackData[],
+	nonceRanks: Map<string, number>,
 ): string => {
-	const firstSequenceWithSameHash = tracks.find((t) =>
-		sameHashes[track.hash].includes(t.sequence.id),
-	);
-	const sequenceId = (firstSequenceWithSameHash as TrackWithHash).sequence.id;
-	const rank = nonceRanks.get(sequenceId) ?? 0;
+	const rank = nonceRanks.get(track.sequence.id) ?? 0;
 	const id = String(rank).padStart(6, '0');
 	if (!track.sequence.parent) {
 		return id;
@@ -54,17 +44,5 @@ export const getTimelineSequenceSequenceSortKey = (
 		return id;
 	}
 
-	const firstParentWithSameHash = tracks.find((a) => {
-		return sameHashes[parent.hash].includes(a.sequence.id as string);
-	});
-	if (!firstParentWithSameHash) {
-		throw new Error('could not find parent: ' + track.sequence.parent);
-	}
-
-	return `${getTimelineSequenceSequenceSortKey(
-		firstParentWithSameHash,
-		tracks,
-		sameHashes,
-		nonceRanks,
-	)}-${id}`;
+	return `${getTimelineSequenceSortKey(parent, tracks, nonceRanks)}-${id}`;
 };

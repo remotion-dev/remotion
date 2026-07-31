@@ -109,9 +109,7 @@ export const Demo: React.FC = () => {
 	}, []);
 
 	return (
-		<div id="demo">
-			<br />
-			<br />
+		<div id="demo" className="pt-24">
 			<SectionTitle>Interactive demo</SectionTitle>
 			<div className="max-w-[760px] mx-auto">
 				<div className="h-[105px] relative">

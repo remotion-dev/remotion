@@ -7,11 +7,12 @@
 import {enableSkia} from '@remotion/skia/enable';
 import {Config} from '@remotion/cli/config';
 
+Config.setRspack(true);
 Config.setVideoImageFormat('jpeg');
 Config.setOverwriteOutput(true);
 
-Config.overrideWebpackConfig((config) => {
-	return enableSkia(config);
+Config.overrideBundlerConfig((config, context) => {
+	return enableSkia(config, context);
 });
 
 Config.setConcurrency(2);

@@ -8,23 +8,26 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {AbsoluteFill} from './AbsoluteFill.js';
+import {AbsoluteFillElement} from './AbsoluteFillElement.js';
 import type {LoopDisplay, SequenceControls} from './CompositionManager.js';
 import type {EffectDefinition} from './effects/effect-types.js';
+import {getStackForControls} from './enable-sequence-stack-traces.js';
 import {Freeze} from './freeze.js';
 import {
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
 } from './interactivity-schema.js';
 import {useNonce} from './nonce.js';
+import {
+	getSequenceCropClipPath,
+	resolveSequenceCrop,
+	validateSequenceCrop,
+} from './sequence-crop.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';
 import {IsInsideSeriesContext} from './series/is-inside-series.js';
-import {
-	useTimelineContext,
-	useTimelinePosition,
-} from './timeline-position-state.js';
+import {useTimelinePosition} from './timeline-position-state.js';
 import type {BasicMediaInTimelineReturnType} from './use-media-in-timeline.js';
 import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -54,6 +57,10 @@ export type SequencePropsWithoutDuration = {
 	readonly children?: React.ReactNode;
 	readonly width?: number;
 	readonly height?: number;
+	readonly cropLeft?: number;
+	readonly cropRight?: number;
+	readonly cropTop?: number;
+	readonly cropBottom?: number;
 	readonly from?: number;
 	readonly trimBefore?: number;
 	readonly freeze?: number | null;
@@ -142,6 +149,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalPostmountDisplay: postmountDisplay,
 		_remotionInternalIsMedia: isMedia,
 		outlineRef: passedRefForOutline,
+		cropLeft,
+		cropRight,
+		cropTop,
+		cropBottom,
 		...other
 	},
 	ref,
@@ -150,7 +161,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const [id] = useState(() => String(Math.random()));
 	const parentSequence = useContext(SequenceContext);
-	const {rootId} = useTimelineContext();
 	const cumulatedFrom = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
@@ -162,6 +172,24 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
+	const cropProps = {cropLeft, cropRight, cropTop, cropBottom};
+	const hasCropProp = Object.values(cropProps).some(
+		(value) => value !== undefined,
+	);
+
+	if (layout === 'none' && hasCropProp) {
+		throw new TypeError(
+			'The cropLeft, cropRight, cropTop and cropBottom props of <Sequence /> are only supported with layout="absolute-fill".',
+		);
+	}
+
+	validateSequenceCrop(cropProps);
+	const {
+		left: resolvedCropLeft,
+		right: resolvedCropRight,
+		top: resolvedCropTop,
+		bottom: resolvedCropBottom,
+	} = resolveSequenceCrop(cropProps);
 	// @ts-expect-error
 	if (layout === 'none' && typeof other.style !== 'undefined') {
 		throw new TypeError(
@@ -344,11 +372,12 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const isInsideSeries = useContext(IsInsideSeriesContext);
 
-	const inheritedStack = (other as {readonly stack?: string})?.stack ?? null;
 	// Our assumption: Stack doesnt' change. After we symbolicate we assign it a nodePath
 	// and if it changes, it would lead to-remounting of the sequence.
 	const stackRef = useRef<string | null>(null);
-	stackRef.current = stack ?? inheritedStack;
+	stackRef.current = controls
+		? (getStackForControls(controls) ?? stack ?? null)
+		: (stack ?? null);
 	const registeredFrozenFrame = typeof freeze === 'number' ? freeze : null;
 	const registeredTrimBefore = trimBefore === 0 ? null : trimBefore;
 	const parentCumulatedNegativeFrom =
@@ -396,7 +425,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					parent: parentSequence?.id ?? null,
 					postmountDisplay: postmountDisplay ?? null,
 					premountDisplay: premountDisplay ?? null,
-					rootId,
 					showInTimeline,
 					src: isMedia.src,
 					getStack: () => stackRef.current,
@@ -423,7 +451,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					playbackRate: isMedia.data.playbackRate,
 					postmountDisplay: postmountDisplay ?? null,
 					premountDisplay: premountDisplay ?? null,
-					rootId,
 					showInTimeline,
 					src: isMedia.data.src,
 					getStack: () => stackRef.current,
@@ -452,7 +479,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			documentationLink: resolvedDocumentationLink,
 			parent: parentSequence?.id ?? null,
 			type: 'sequence',
-			rootId,
 			showInTimeline,
 			nonce: nonce.get(),
 			loopDisplay,
@@ -478,7 +504,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		unregisterSequence,
 		parentSequence?.id,
 		actualDurationInFrames,
-		rootId,
 		from,
 		trimBefore,
 		registeredTrimBefore,
@@ -518,6 +543,13 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 
 	const styleIfThere = other.layout === 'none' ? undefined : other.style;
+	const cropClipPath = getSequenceCropClipPath({
+		left: resolvedCropLeft,
+		right: resolvedCropRight,
+		top: resolvedCropTop,
+		bottom: resolvedCropBottom,
+		style: styleIfThere,
+	});
 
 	const sequenceRef = useCallback(
 		(node: HTMLDivElement | null) => {
@@ -538,8 +570,13 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			...(width ? {width} : {}),
 			...(height ? {height} : {}),
 			...(styleIfThere ?? {}),
+			...(cropClipPath
+				? {
+						clipPath: cropClipPath,
+					}
+				: {}),
 		};
-	}, [height, styleIfThere, width]);
+	}, [cropClipPath, height, styleIfThere, width]);
 
 	if (ref !== null && layout === 'none') {
 		throw new TypeError(
@@ -556,13 +593,13 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			{frozenContent === null ? null : other.layout === 'none' ? (
 				frozenContent
 			) : (
-				<AbsoluteFill
+				<AbsoluteFillElement
 					ref={sequenceRef}
 					style={defaultStyle}
 					className={other.className}
 				>
 					{frozenContent}
-				</AbsoluteFill>
+				</AbsoluteFillElement>
 			)}
 		</SequenceContext.Provider>
 	);

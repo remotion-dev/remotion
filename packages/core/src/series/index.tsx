@@ -38,7 +38,6 @@ type SeriesSequenceProps = PropsWithChildren<
 
 type ResolvedSeriesSequenceProps = SeriesSequenceProps & {
 	readonly controls: SequenceControls | null | undefined;
-	readonly stack: string | null;
 };
 
 type InternalSeriesSequenceProps = ResolvedSeriesSequenceProps & {
@@ -65,19 +64,13 @@ const SeriesSequenceInner = forwardRef<
 	InternalSeriesSequenceProps
 >(
 	(
-		{
-			offset = 0,
-			className = '',
-			stack = null,
-			_remotionInternalRender = null,
-			...props
-		},
+		{offset = 0, className = '', _remotionInternalRender = null, ...props},
 		ref,
 	) => {
 		useRequireToBeInsideSeries();
 		if (_remotionInternalRender) {
 			return _remotionInternalRender(
-				{...props, offset, className: className || undefined, stack},
+				{...props, offset, className: className || undefined},
 				ref,
 			);
 		}
@@ -200,7 +193,6 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 						children: sequenceChildren,
 						offset: offsetProp,
 						controls,
-						stack,
 						from: _from,
 						name,
 						...passedProps
@@ -224,7 +216,6 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 								_remotionInternalDocumentationLink={
 									name ? undefined : 'https://www.remotion.dev/docs/series'
 								}
-								_remotionInternalStack={stack ?? undefined}
 								controls={controls ?? undefined}
 								from={currentStartFrame}
 								durationInFrames={durationInFramesProp}
@@ -245,16 +236,14 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 	}, [props.children]);
 
 	return (
-		<IsInsideSeriesContainer>
-			<Sequence
-				layout="none"
-				name="<Series>"
-				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/series"
-				{...props}
-			>
-				{childrenValue}
-			</Sequence>
-		</IsInsideSeriesContainer>
+		<Sequence
+			layout="none"
+			name="<Series>"
+			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/series"
+			{...props}
+		>
+			<IsInsideSeriesContainer>{childrenValue}</IsInsideSeriesContainer>
+		</Sequence>
 	);
 };
 

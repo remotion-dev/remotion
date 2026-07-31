@@ -10,6 +10,7 @@ import {BACKGROUND, RULER_COLOR} from '../../helpers/colors';
 import {getRulerPoints, getRulerScaleRange} from '../../helpers/editor-ruler';
 import type {AssetMetadata} from '../../helpers/get-asset-metadata';
 import type {Dimensions} from '../../helpers/is-current-selected-still';
+import {startPointerSession} from '../../helpers/pointer-session';
 import {useStudioCanvasDimensions} from '../../helpers/use-studio-canvas-dimensions';
 import {
 	EditorShowGuidesContext,
@@ -56,6 +57,7 @@ export const EditorRulers: React.FC<{
 		shouldDeleteGuideRef,
 		setGuidesList,
 		draggingGuideId,
+		moveGuidePointerRef,
 		setDraggingGuideId,
 	} = useContext(EditorShowGuidesContext);
 	const {clearSelection, selectedItems} = useTimelineSelection();
@@ -116,7 +118,7 @@ export const EditorRulers: React.FC<{
 	const requestAnimationFrameRef = useRef<number | null>(null);
 
 	const onMouseMove = useCallback(
-		(e: PointerEvent) => {
+		(e: PointerEvent, guideId: string | null) => {
 			if (requestAnimationFrameRef.current) {
 				cancelAnimationFrame(requestAnimationFrameRef.current);
 			}
@@ -141,7 +143,7 @@ export const EditorRulers: React.FC<{
 
 					setGuidesList((prevState) => {
 						const newGuides = prevState.map((guide) => {
-							if (guide.id !== draggingGuideId) {
+							if (guide.id !== guideId) {
 								return guide;
 							}
 
@@ -165,7 +167,7 @@ export const EditorRulers: React.FC<{
 					setGuidesList((prevState) => {
 						// Intentionally no persist, only persist on mouse up
 						return prevState.map((guide) => {
-							if (guide.id !== draggingGuideId) {
+							if (guide.id !== guideId) {
 								return guide;
 							}
 
@@ -194,69 +196,79 @@ export const EditorRulers: React.FC<{
 			containerRef,
 			shouldDeleteGuideRef,
 			setGuidesList,
-			draggingGuideId,
 			scale,
 			canvasPosition.left,
 			canvasPosition.top,
 		],
 	);
 
-	const onMouseUp = useCallback(() => {
-		const shouldDeleteGuide = shouldDeleteGuideRef.current;
+	const finishGuideInteraction = useCallback(
+		(guideId: string) => {
+			if (requestAnimationFrameRef.current) {
+				cancelAnimationFrame(requestAnimationFrameRef.current);
+				requestAnimationFrameRef.current = null;
+			}
 
-		setGuidesList((prevState) => {
-			const newGuides = prevState.filter((selected) => {
-				if (!shouldDeleteGuide) {
-					return true;
-				}
+			const shouldDeleteGuide = shouldDeleteGuideRef.current;
 
-				return selected.id !== draggingGuideId;
+			setGuidesList((prevState) => {
+				const newGuides = prevState.filter((selected) => {
+					if (!shouldDeleteGuide) {
+						return true;
+					}
+
+					return selected.id !== guideId;
+				});
+				persistGuidesList(newGuides);
+				return newGuides;
 			});
-			persistGuidesList(newGuides);
-			return newGuides;
-		});
 
-		const deletedGuideWasSelected = selectedItems.some(
-			(item) => item.type === 'guide' && item.guideId === draggingGuideId,
-		);
-		if (shouldDeleteGuide && deletedGuideWasSelected) {
-			clearSelection();
-		}
+			const deletedGuideWasSelected = selectedItems.some(
+				(item) => item.type === 'guide' && item.guideId === guideId,
+			);
+			if (shouldDeleteGuide && deletedGuideWasSelected) {
+				clearSelection();
+			}
 
-		shouldDeleteGuideRef.current = false;
-		stopForcingSpecificCursor();
-		shouldCreateGuideRef.current = false;
-		setDraggingGuideId(() => null);
-		document.removeEventListener('pointerup', onMouseUp);
-		document.removeEventListener('pointercancel', onMouseUp);
-		document.removeEventListener('pointermove', onMouseMove);
-	}, [
-		clearSelection,
-		draggingGuideId,
-		shouldCreateGuideRef,
-		shouldDeleteGuideRef,
-		setDraggingGuideId,
-		setGuidesList,
-		onMouseMove,
-		selectedItems,
-	]);
+			shouldDeleteGuideRef.current = false;
+			stopForcingSpecificCursor();
+			shouldCreateGuideRef.current = false;
+			setDraggingGuideId(() => null);
+		},
+		[
+			clearSelection,
+			shouldCreateGuideRef,
+			shouldDeleteGuideRef,
+			setDraggingGuideId,
+			setGuidesList,
+			selectedItems,
+		],
+	);
 
 	useLayoutEffect(() => {
-		if (draggingGuideId !== null) {
-			document.addEventListener('pointermove', onMouseMove);
-			document.addEventListener('pointerup', onMouseUp);
-			document.addEventListener('pointercancel', onMouseUp);
-		}
+		moveGuidePointerRef.current = (event) => {
+			onMouseMove(event, draggingGuideId);
+		};
 
 		return () => {
-			document.removeEventListener('pointermove', onMouseMove);
-			document.removeEventListener('pointerup', onMouseUp);
-			document.removeEventListener('pointercancel', onMouseUp);
+			moveGuidePointerRef.current = null;
 			if (requestAnimationFrameRef.current) {
 				cancelAnimationFrame(requestAnimationFrameRef.current);
 			}
 		};
-	}, [draggingGuideId, onMouseMove, onMouseUp]);
+	}, [draggingGuideId, moveGuidePointerRef, onMouseMove]);
+
+	const onPointerSessionStart = useCallback(
+		(event: React.PointerEvent<HTMLCanvasElement>, guideId: string) => {
+			startPointerSession({
+				event: event.nativeEvent,
+				target: event.currentTarget,
+				onMove: (moveEvent) => onMouseMove(moveEvent, guideId),
+				onEnd: () => finishGuideInteraction(guideId),
+			});
+		},
+		[finishGuideInteraction, onMouseMove],
+	);
 
 	return (
 		<>
@@ -269,6 +281,7 @@ export const EditorRulers: React.FC<{
 				markingGaps={rulerMarkingGaps}
 				originOffset={canvasPosition.left}
 				size={canvasSize}
+				onPointerSessionStart={onPointerSessionStart}
 			/>
 			<Ruler
 				orientation="vertical"
@@ -278,6 +291,7 @@ export const EditorRulers: React.FC<{
 				markingGaps={rulerMarkingGaps}
 				originOffset={canvasPosition.top}
 				size={canvasSize}
+				onPointerSessionStart={onPointerSessionStart}
 			/>
 		</>
 	);

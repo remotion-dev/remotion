@@ -35,7 +35,14 @@ export const PlayPause: React.FC<{
 	readonly loop: boolean;
 	readonly bufferStateDelayInMilliseconds: number;
 	readonly muted: boolean;
-}> = ({playbackRate, loop, bufferStateDelayInMilliseconds, muted}) => {
+	readonly hideNavigationControls: boolean;
+}> = ({
+	playbackRate,
+	loop,
+	bufferStateDelayInMilliseconds,
+	muted,
+	hideNavigationControls,
+}) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const [showBufferIndicator, setShowBufferState] = useState<boolean>(false);
@@ -245,22 +252,26 @@ export const PlayPause: React.FC<{
 
 	return (
 		<>
-			<ControlButton
-				aria-label="Jump to beginning"
-				title="Jump to beginning"
-				disabled={!videoConfig || isFirstFrame}
-				onClick={jumpToStart}
-			>
-				<JumpToStart style={backStyle} />
-			</ControlButton>
-			<ControlButton
-				aria-label="Step back one frame"
-				title="Step back one frame"
-				disabled={!videoConfig || isFirstFrame}
-				onClick={oneFrameBack}
-			>
-				<StepBack style={forwardBackStyle} />
-			</ControlButton>
+			{hideNavigationControls ? null : (
+				<ControlButton
+					aria-label="Jump to beginning"
+					title="Jump to beginning"
+					disabled={!videoConfig || isFirstFrame}
+					onClick={jumpToStart}
+				>
+					<JumpToStart style={backStyle} />
+				</ControlButton>
+			)}
+			{hideNavigationControls ? null : (
+				<ControlButton
+					aria-label="Step back one frame"
+					title="Step back one frame"
+					disabled={!videoConfig || isFirstFrame}
+					onClick={oneFrameBack}
+				>
+					<StepBack style={forwardBackStyle} />
+				</ControlButton>
+			)}
 
 			<ControlButton
 				aria-label={playing ? 'Pause' : 'Play'}
@@ -279,14 +290,16 @@ export const PlayPause: React.FC<{
 				)}
 			</ControlButton>
 
-			<ControlButton
-				aria-label="Step forward one frame"
-				title="Step forward one frame"
-				disabled={!videoConfig || isLastFrame}
-				onClick={oneFrameForward}
-			>
-				<StepForward style={forwardBackStyle} />
-			</ControlButton>
+			{hideNavigationControls ? null : (
+				<ControlButton
+					aria-label="Step forward one frame"
+					title="Step forward one frame"
+					disabled={!videoConfig || isLastFrame}
+					onClick={oneFrameForward}
+				>
+					<StepForward style={forwardBackStyle} />
+				</ControlButton>
+			)}
 		</>
 	);
 };

@@ -17,7 +17,7 @@
     "remotion": "workspace:*",
     "twoslash-cdn": "0.3.1",
     "polished": "4.3.1",
-    "zod": "4.3.6"
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",

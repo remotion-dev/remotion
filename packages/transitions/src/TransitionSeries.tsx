@@ -33,7 +33,6 @@ type ResolvedTransitionSeriesTransitionProps<
 	PresentationProps extends Record<string, unknown>,
 > = TransitionSeriesTransitionProps<PresentationProps> & {
 	readonly controls: SequenceControls | null | undefined;
-	readonly stack: string | null;
 };
 
 type InternalTransitionSeriesTransitionProps<
@@ -49,12 +48,11 @@ type InternalTransitionSeriesTransitionProps<
 const TransitionSeriesTransitionInner = <
 	PresentationProps extends Record<string, unknown>,
 >({
-	stack = null,
 	_remotionInternalRender = null,
 	...props
 }: InternalTransitionSeriesTransitionProps<PresentationProps>) => {
 	if (_remotionInternalRender) {
-		return _remotionInternalRender({...props, stack});
+		return _remotionInternalRender(props);
 	}
 
 	return null;
@@ -82,7 +80,6 @@ const TransitionSeriesTransition = Interactive.withSchema({
 
 type ResolvedTransitionSeriesOverlayProps = TransitionSeriesOverlayProps & {
 	readonly controls: SequenceControls | null | undefined;
-	readonly stack: string | null;
 };
 
 type InternalTransitionSeriesOverlayProps =
@@ -93,12 +90,11 @@ type InternalTransitionSeriesOverlayProps =
 	};
 
 const SeriesOverlayInner: FC<InternalTransitionSeriesOverlayProps> = ({
-	stack = null,
 	_remotionInternalRender = null,
 	...props
 }) => {
 	if (_remotionInternalRender) {
-		return _remotionInternalRender({...props, stack});
+		return _remotionInternalRender(props);
 	}
 
 	return null;
@@ -137,7 +133,6 @@ type SeriesSequenceProps = PropsWithChildren<
 
 type ResolvedSeriesSequenceProps = SeriesSequenceProps & {
 	readonly controls: SequenceControls | null | undefined;
-	readonly stack: string | null;
 };
 
 type InternalSeriesSequenceProps = ResolvedSeriesSequenceProps & {
@@ -159,7 +154,6 @@ const transitionSeriesSequenceSchema = {
 const SeriesSequenceInner: FC<InternalSeriesSequenceProps> = ({
 	offset = 0,
 	className = '',
-	stack = null,
 	_remotionInternalRender = null,
 	...props
 }) => {
@@ -168,7 +162,6 @@ const SeriesSequenceInner: FC<InternalSeriesSequenceProps> = ({
 			...props,
 			offset,
 			className: className || undefined,
-			stack,
 		});
 	}
 
@@ -310,7 +303,6 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 			readonly children: React.ReactNode;
 			readonly index: number;
 			readonly controls: SequenceControls | null | undefined;
-			readonly stack: string | null;
 		};
 
 		type RenderState = {
@@ -340,7 +332,6 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						durationInFrames={info.durationInFrames}
 						name="<TS.Overlay>"
 						_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
-						_remotionInternalStack={info.stack ?? undefined}
 						controls={info.controls ?? undefined}
 						layout="absolute-fill"
 					>
@@ -479,7 +470,6 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 							children: overlayProps.children,
 							index: i,
 							controls: overlayProps.controls,
-							stack: overlayProps.stack,
 						};
 
 						return renderNext({
@@ -527,7 +517,6 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 										durationInFrames={transitionDuration}
 										name="<TS.Transition>"
 										_remotionInternalDocumentationLink="https://www.remotion.dev/docs/transitions/transitionseries"
-										_remotionInternalStack={transitionProps.stack ?? undefined}
 										controls={transitionProps.controls ?? undefined}
 										layout="none"
 									/>
@@ -573,10 +562,14 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						children: sequenceChildren,
 						offset: offsetProp,
 						controls,
-						stack,
 						from: _from,
 						...passedProps
 					} = resolvedProps as InternalSeriesSequenceProps & {from: never};
+					const propsForSequence = {
+						...passedProps,
+						_remotionInternalSingleChildComponent:
+							Internals.getSingleChildComponent(sequenceChildren),
+					};
 					validateDurationInFrames(durationInFramesProp, {
 						component: `of a <TransitionSeries.Sequence /> component`,
 						allowFloats: true,
@@ -714,14 +707,13 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 								key={i}
 								from={actualStartFrame}
 								durationInFrames={durationInFramesProp}
-								{...passedProps}
+								{...propsForSequence}
 								name={passedProps.name || '<TS.Sequence>'}
 								_remotionInternalDocumentationLink={
 									passedProps.name
 										? undefined
 										: 'https://www.remotion.dev/docs/transitions/transitionseries'
 								}
-								_remotionInternalStack={stack ?? undefined}
 								controls={controls ?? undefined}
 							>
 								<UppercaseNextPresentation
@@ -791,14 +783,13 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 								key={i}
 								from={actualStartFrame}
 								durationInFrames={durationInFramesProp}
-								{...passedProps}
+								{...propsForSequence}
 								name={passedProps.name || '<TS.Sequence>'}
 								_remotionInternalDocumentationLink={
 									passedProps.name
 										? undefined
 										: 'https://www.remotion.dev/docs/transitions/transitionseries'
 								}
-								_remotionInternalStack={stack ?? undefined}
 								controls={controls ?? undefined}
 							>
 								<UppercasePrevPresentation
@@ -836,14 +827,13 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 								key={i}
 								from={actualStartFrame}
 								durationInFrames={durationInFramesProp}
-								{...passedProps}
+								{...propsForSequence}
 								name={passedProps.name || '<TS.Sequence>'}
 								_remotionInternalDocumentationLink={
 									passedProps.name
 										? undefined
 										: 'https://www.remotion.dev/docs/transitions/transitionseries'
 								}
-								_remotionInternalStack={stack ?? undefined}
 								controls={controls ?? undefined}
 							>
 								<UppercaseNextPresentation
@@ -876,14 +866,13 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 							key={i}
 							from={actualStartFrame}
 							durationInFrames={durationInFramesProp}
-							{...passedProps}
+							{...propsForSequence}
 							name={passedProps.name || '<TS.Sequence>'}
 							_remotionInternalDocumentationLink={
 								passedProps.name
 									? undefined
 									: 'https://www.remotion.dev/docs/transitions/transitionseries'
 							}
-							_remotionInternalStack={stack ?? undefined}
 							controls={controls ?? undefined}
 						>
 							{sequenceChildren}
@@ -921,9 +910,6 @@ const TransitionSeriesInner: FC<SequencePropsWithoutDuration> = (props) => {
 	} = props as SequencePropsWithoutDuration & {
 		readonly controls: SequenceControls | null;
 	};
-	const {stack, ...propsForSequence} = otherProps as typeof otherProps & {
-		readonly stack: string | null;
-	};
 	const displayName = name ?? '<TransitionSeries>';
 	const layout = passedLayout ?? 'absolute-fill';
 	if (
@@ -944,8 +930,7 @@ const TransitionSeriesInner: FC<SequencePropsWithoutDuration> = (props) => {
 					? 'https://www.remotion.dev/docs/transitions/transitionseries'
 					: undefined
 			}
-			{...propsForSequence}
-			_remotionInternalStack={stack ?? undefined}
+			{...otherProps}
 			controls={controls ?? undefined}
 		>
 			<TransitionSeriesChildren>{children}</TransitionSeriesChildren>

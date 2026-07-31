@@ -5,7 +5,7 @@ export const EXTRA_PACKAGES: Record<string, string> = {
 	'@mediabunny/aac-encoder': '1.50.8',
 	'@mediabunny/flac-encoder': '1.50.8',
 	'@mediabunny/prores': '1.50.8',
-	zod: '4.3.6',
+	zod: '4.4.3',
 };
 
 export const EXTRA_PACKAGES_DOCS: Record<string, string> = {

@@ -1,6 +1,7 @@
 import {
 	optimisticAddSequenceKeyframe,
 	optimisticUpdateForPropStatuses,
+	type CaptionPatch,
 	type SaveSequencePropSourceEdit,
 } from '@remotion/studio-shared';
 import type {
@@ -8,7 +9,7 @@ import type {
 	SequencePropsSubscriptionKey,
 	InteractivitySchema,
 } from 'remotion';
-import {callApi} from '../call-api';
+import {saveSequenceProps as saveSequencePropsApi} from '../sequence-props-api';
 import type {AddSequenceKeyframeChange} from './call-add-keyframe';
 import {
 	applyOptimisticKeyframeMoves,
@@ -53,6 +54,52 @@ const serializeSequencePropValue = (value: unknown) => {
 	}
 
 	return {type: 'json' as const, serialized: JSON.stringify(value)};
+};
+
+export const saveInlineCaptionPatches = ({
+	fileName,
+	nodePath,
+	schema,
+	patches,
+	nextCaptions,
+	setPropStatuses,
+	clientId,
+	undoLabel,
+	redoLabel,
+}: {
+	fileName: string;
+	nodePath: SequencePropsSubscriptionKey;
+	schema: InteractivitySchema;
+	patches: CaptionPatch[];
+	nextCaptions: unknown;
+	setPropStatuses: SetPropStatuses;
+	clientId: string;
+	undoLabel: string;
+	redoLabel: string;
+}): Promise<void> => {
+	return enqueueSavePropChange({
+		nodePath,
+		setPropStatuses,
+		applyOptimistic: (previous) =>
+			optimisticUpdateForPropStatuses({
+				previous,
+				fieldKey: 'captions',
+				value: nextCaptions,
+				defaultValue: null,
+				schema,
+			}),
+		apiCall: () =>
+			saveSequencePropsApi({
+				edits: [],
+				captionPatches: [{fileName, nodePath, schema, patches}],
+				addedKeyframes: null,
+				movedKeyframes: null,
+				clientId,
+				undoLabel,
+				redoLabel,
+			}),
+		errorLabel: 'Could not save captions',
+	});
 };
 
 export const saveSequenceProps = ({
@@ -101,7 +148,7 @@ export const saveSequenceProps = ({
 					schema: change.schema,
 				}),
 			apiCall: () =>
-				callApi('/api/save-sequence-props', {
+				saveSequencePropsApi({
 					edits: [
 						{
 							fileName: change.fileName,
@@ -153,7 +200,7 @@ export const saveSequenceProps = ({
 		);
 	}
 
-	return callApi('/api/save-sequence-props', {
+	return saveSequencePropsApi({
 		edits: changes.map((change) => {
 			return {
 				fileName: change.fileName,

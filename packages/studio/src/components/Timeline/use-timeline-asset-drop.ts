@@ -1,7 +1,7 @@
 import {useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
 import {isSupportedDropEvent} from '../drop-handler-data';
 import {getEffectDragData} from '../effect-drag-and-drop';
@@ -56,7 +56,7 @@ export const useTimelineAssetDrop = () => {
 	});
 
 	const previewInteractive =
-		previewServerState.type === 'connected' && studioInteractivityEnabled;
+		previewServerState.type === 'connected' && isStudioInteractivityEnabled();
 	const canInsertAsset =
 		previewInteractive &&
 		!window.remotion_isReadOnlyStudio &&

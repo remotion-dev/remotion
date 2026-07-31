@@ -1,4 +1,4 @@
-import type {EffectDragData} from './effect-drag-data';
+import type {EffectDragData} from '@remotion/studio-protocol';
 
 export type EffectCatalogItem = {
 	readonly id: string;
@@ -14,14 +14,6 @@ export type EffectCatalogCategory = {
 };
 
 export const getEffectDocumentationPath = (item: EffectCatalogItem) => {
-	if (item.id === 'effects-light-leak') {
-		return '/docs/light-leaks/light-leak-effect';
-	}
-
-	if (item.id === 'effects-starburst') {
-		return '/docs/starburst/starburst-effect';
-	}
-
 	return `/docs/effects/${item.id.slice('effects-'.length)}`;
 };
 
@@ -42,16 +34,6 @@ export const getEffectPreviewAlt = (item: EffectCatalogItem) => {
 		.replace(/^tv /, 'TV ');
 
 	return `${effectName} effect preview`;
-};
-
-export const makeEffectDragDataFromCatalogItem = (
-	item: EffectCatalogItem,
-): EffectDragData => {
-	return {
-		type: 'remotion-effect',
-		version: 1,
-		effect: item.effect,
-	};
 };
 
 export const getEffectCatalogCategories = (
@@ -791,7 +773,7 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		description: 'Light leak overlay effect',
 		effect: {
 			name: 'lightLeak',
-			importPath: '@remotion/light-leaks',
+			importPath: '@remotion/effects/light-leak',
 			config: {},
 		},
 	},
@@ -802,7 +784,7 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		description: 'Starburst ray effect',
 		effect: {
 			name: 'starburst',
-			importPath: '@remotion/starburst',
+			importPath: '@remotion/effects/starburst',
 			config: {
 				rays: 16,
 				colors: ['#ff6600', '#ffff00'],

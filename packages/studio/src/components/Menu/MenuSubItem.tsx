@@ -2,7 +2,7 @@ import {PlayerInternals} from '@remotion/player';
 import type {PointerEvent} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
-import {WHITE_ALPHA_06, LIGHT_TEXT, TRANSPARENT} from '../../helpers/colors';
+import {LIGHT_TEXT, TRANSPARENT, WHITE_ALPHA_06} from '../../helpers/colors';
 import {useMobileLayout} from '../../helpers/mobile-layout';
 import {areKeyboardShortcutsDisabled} from '../../helpers/use-keybinding';
 import {CaretRight} from '../../icons/caret';
@@ -12,6 +12,8 @@ import type {SubMenu} from '../NewComposition/ComboBox';
 import {MENU_ITEM_CLASSNAME} from './is-menu-item';
 import {getPortal} from './portals';
 import {
+	MAX_MENU_WIDTH,
+	MAX_MOBILE_MENU_WIDTH,
 	MENU_VERTICAL_PADDING,
 	SUBMENU_LEFT_INSET,
 	menuContainerTowardsBottom,
@@ -143,10 +145,21 @@ export const MenuSubItem: React.FC<{
 		}
 
 		const left = size.left + size.width + SUBMENU_LEFT_INSET;
+		const minSpaceRequired = mobileLayout
+			? MAX_MOBILE_MENU_WIDTH
+			: MAX_MENU_WIDTH;
+		const spaceToLeft = size.left;
+		const spaceToRight = size.windowSize.width - size.left - size.width;
+		const canOpenOnRight =
+			spaceToRight >= minSpaceRequired || spaceToRight >= spaceToLeft;
 
 		return {
 			...menuContainerTowardsBottom,
-			left: mobileLayout ? left * 0.7 : left,
+			...(canOpenOnRight
+				? {left}
+				: {
+						right: size.windowSize.width - size.left + SUBMENU_LEFT_INSET,
+					}),
 			top: size.top - MENU_VERTICAL_PADDING,
 		};
 	}, [mobileLayout, selected, size, subMenu, subMenuActivated]);

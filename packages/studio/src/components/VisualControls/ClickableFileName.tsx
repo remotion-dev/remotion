@@ -2,6 +2,7 @@ import {useCallback, useMemo, useState} from 'react';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {BORDER_WHITE, LIGHT_COLOR, WHITE_HEX} from '../../helpers/colors';
 import {openOriginalPositionInEditor} from '../../helpers/open-in-editor';
+import {showNotification} from '../Notifications/NotificationCenter';
 import {getSchemaEditorFieldsetPadding} from '../RenderModal/SchemaEditor/Fieldset';
 import {getOriginalSourceAttribution} from '../Timeline/TimelineStack/source-attribution';
 
@@ -48,12 +49,16 @@ export const ClickableFileName = ({
 		};
 	}, [originalFileName, hoverEffect]);
 
-	const onClick = useCallback(async () => {
+	const onClick = useCallback(() => {
 		if (originalFileName.type !== 'loaded') {
 			return;
 		}
 
-		await openOriginalPositionInEditor(originalFileName.originalFileName);
+		openOriginalPositionInEditor(originalFileName.originalFileName, null).catch(
+			(err) => {
+				showNotification((err as Error).message, 2000);
+			},
+		);
 	}, [originalFileName]);
 
 	return (

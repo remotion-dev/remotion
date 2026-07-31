@@ -2,7 +2,12 @@ import {afterEach, expect, test} from 'bun:test';
 import type {TSequence} from 'remotion';
 import type {ComboboxValue} from '../components/NewComposition/ComboBox';
 import {getSequenceContextMenuItems} from '../components/Timeline/get-sequence-context-menu-items';
-import {shouldShowFreezeFrameMenuItem} from '../components/Timeline/use-sequence-freeze-frame-menu-item';
+import {getTimelineMediaStartFrame} from '../components/Timeline/get-timeline-media-start-frame';
+import {
+	calculateSequenceFreezeFrame,
+	isSequenceVisibleAtTimelinePosition,
+	shouldShowFreezeFrameMenuItem,
+} from '../components/Timeline/use-sequence-freeze-frame-menu-item';
 
 const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
 	globalThis,
@@ -75,6 +80,7 @@ test('sequence context menu does not put two dividers between docs and rename', 
 		deleteDisabled: false,
 		disableInteractivityDisabled: false,
 		duplicateDisabled: false,
+		editorInfo: null,
 		fileLocation: 'src/Video.tsx:10:2',
 		includeSourceEditItems: true,
 		onDeleteSequenceFromSource: noop,
@@ -123,6 +129,7 @@ test('Interactive.Svg context menu can copy the rendered SVG', () => {
 		deleteDisabled: false,
 		disableInteractivityDisabled: false,
 		duplicateDisabled: false,
+		editorInfo: null,
 		fileLocation: 'src/Video.tsx:10:2',
 		includeSourceEditItems: true,
 		onDeleteSequenceFromSource: noop,
@@ -160,6 +167,43 @@ test('Interactive.Svg context menu can copy the rendered SVG', () => {
 	expect(items[copySvgIndex + 1]?.type).toBe('divider');
 });
 
+test('read-only sequence menus only contain non-mutating actions', () => {
+	installTestWindow();
+
+	const items = getSequenceContextMenuItems({
+		assetLinkInfo: null,
+		canOpenInEditor: false,
+		deleteDisabled: true,
+		disableInteractivityDisabled: true,
+		duplicateDisabled: true,
+		editorInfo: null,
+		fileLocation: 'src/Video.tsx:10:2',
+		includeSourceEditItems: false,
+		onDeleteSequenceFromSource: noop,
+		onDisableSequenceInteractivity: noop,
+		onDuplicateSequenceFromSource: noop,
+		openInEditor: noop,
+		originalLocation: null,
+		selectAsset: noop,
+		sequence: {
+			controls: {
+				componentIdentity: 'dev.remotion.remotion.Interactive.Svg',
+			},
+			documentationLink: 'https://www.remotion.dev/docs/interactive',
+			refForOutline: {
+				current: {outerHTML: '<svg><circle /></svg>'},
+			},
+		} as unknown as TSequence,
+	});
+
+	expect(items.map((item) => item.id)).toEqual([
+		'copy-file-location',
+		'open-component-docs',
+		'sequence-link-divider',
+		'copy-svg',
+	]);
+});
+
 test('sequence freeze context menu item is hidden for audio', () => {
 	expect(shouldShowFreezeFrameMenuItem({type: 'audio'} as TSequence)).toBe(
 		false,
@@ -170,4 +214,84 @@ test('sequence freeze context menu item is hidden for audio', () => {
 	expect(shouldShowFreezeFrameMenuItem({type: 'sequence'} as TSequence)).toBe(
 		true,
 	);
+});
+
+test('sequence freeze frame accounts for trimBefore', () => {
+	const sequence = {
+		duration: 120,
+		from: 0,
+	} as TSequence;
+
+	expect(
+		calculateSequenceFreezeFrame({
+			sequence,
+			sequenceFrameOffset: 20,
+			timelinePosition: -10,
+		}),
+	).toBe(20);
+	expect(
+		calculateSequenceFreezeFrame({
+			sequence,
+			sequenceFrameOffset: 20,
+			timelinePosition: 0,
+		}),
+	).toBe(20);
+	expect(
+		calculateSequenceFreezeFrame({
+			sequence,
+			sequenceFrameOffset: 20,
+			timelinePosition: 119,
+		}),
+	).toBe(139);
+});
+
+test('sequence freeze frame can only be toggled while the sequence is visible', () => {
+	const sequence = {
+		from: 20,
+		duration: 40,
+		premountDisplay: 10,
+		postmountDisplay: 10,
+	} as TSequence;
+
+	expect(
+		isSequenceVisibleAtTimelinePosition({sequence, timelinePosition: 19}),
+	).toBe(false);
+	expect(
+		isSequenceVisibleAtTimelinePosition({sequence, timelinePosition: 20}),
+	).toBe(true);
+	expect(
+		isSequenceVisibleAtTimelinePosition({sequence, timelinePosition: 59}),
+	).toBe(true);
+	expect(
+		isSequenceVisibleAtTimelinePosition({sequence, timelinePosition: 60}),
+	).toBe(false);
+});
+
+test('video freeze preserves the media frame under the playhead at different playback rates', () => {
+	const mediaFrameAtSequenceZero = 5;
+	const playbackRate = 2;
+	const sequence = {
+		duration: 120,
+		from: 0,
+		mediaFrameAtSequenceZero,
+		playbackRate,
+		type: 'video',
+	} as Extract<TSequence, {type: 'video'}>;
+	const timelinePosition = 40;
+	const freezeFrame = calculateSequenceFreezeFrame({
+		sequence,
+		sequenceFrameOffset: 0,
+		timelinePosition,
+	});
+	const mediaFrameUnderPlayhead = getTimelineMediaStartFrame({
+		startMediaFrom: mediaFrameAtSequenceZero,
+		mediaFrameAtSequenceZero,
+		sequenceFrameOffset: timelinePosition,
+		playbackRate,
+	});
+	const mediaFrameAfterFreeze =
+		mediaFrameAtSequenceZero + freezeFrame * playbackRate;
+
+	expect(freezeFrame).toBe(timelinePosition);
+	expect(mediaFrameAfterFreeze).toBe(mediaFrameUnderPlayhead);
 });

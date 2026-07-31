@@ -72,6 +72,22 @@ Must be one of these values:
 
 Allows to pass in custom CSS styles. You may not pass `width` and `height`, instead use the props `width` and `height` to set the size of the image.
 
+### `cropLeft?`<AvailableFrom v="4.0.500" />
+
+Crops the canvas from the left by a ratio between `0` and `1`. See [`cropLeft`](/docs/sequence#cropleft).
+
+### `cropRight?`<AvailableFrom v="4.0.500" />
+
+Crops the canvas from the right by a ratio between `0` and `1`. See [`cropRight`](/docs/sequence#cropright).
+
+### `cropTop?`<AvailableFrom v="4.0.500" />
+
+Crops the canvas from the top by a ratio between `0` and `1`. See [`cropTop`](/docs/sequence#croptop).
+
+### `cropBottom?`<AvailableFrom v="4.0.500" />
+
+Crops the canvas from the bottom by a ratio between `0` and `1`. See [`cropBottom`](/docs/sequence#cropbottom).
+
 ### `premountFor?`<AvailableFrom v="4.0.497" />
 
 Mounts the canvas for the specified number of frames before its `from` frame. The canvas carries `display: none` and is frozen at its first frame while premounted.

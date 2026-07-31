@@ -45,7 +45,9 @@ test('Still forwards its stack to the registered composition', async () => {
 				component={AnyComp}
 				width={100}
 				height={100}
-				{...({stack: stillStack} as {readonly stack: string})}
+				{...({
+					_remotionInternalStack: stillStack,
+				} as {readonly _remotionInternalStack: string})}
 			/>
 		</CompositionSetters.Provider>,
 	);

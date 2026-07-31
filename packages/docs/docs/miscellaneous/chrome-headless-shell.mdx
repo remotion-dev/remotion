@@ -93,6 +93,12 @@ If you don't want Chrome Headless Shell or Chrome for Testing to get installed o
 - Using the [`setBrowserExecutable()`](/docs/config#setbrowserexecutable) option in the config file (for the CLI)
 - Using the [`browserExecutable`](/docs/renderer/render-media) option in [`renderMedia()`](/docs/renderer/render-media) and other SSR APIs
 
+:::warning
+Remotion recommends using the Chrome Headless Shell version that is installed and pinned by Remotion.
+
+When using a full Chrome binary through `browserExecutable`, rendering behavior may differ between Chrome versions and may be less deterministic than Chrome Headless Shell.
+:::
+
 In [Lambda](/docs/lambda) and [Cloud Run](/docs/cloudrun), a version of Chrome is already installed, so you don't need to do anything.
 
 :::note

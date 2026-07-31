@@ -1,12 +1,16 @@
 import React, {useContext} from 'react';
+import ReactDOM from 'react-dom';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {ModalsContext} from '../state/modals';
+import {useZIndex} from '../state/z-index';
 import {AskAiModal} from './AskAiModal';
+import {ConfigureDefaultEditorModal} from './ConfigureDefaultEditorModal';
 import {ConfigureLicenseModal} from './ConfigureLicenseModal';
 import {ConfirmationDialog} from './ConfirmationDialog';
 import {EffectPickerModal} from './EffectPickerModal';
 import {InstallPackageModal} from './InstallPackage';
+import {getPortal} from './Menu/portals';
 import {DeleteComposition} from './NewComposition/DeleteComposition';
 import {DeleteFolder} from './NewComposition/DeleteFolder';
 import {DuplicateComposition} from './NewComposition/DuplicateComposition';
@@ -27,11 +31,12 @@ export const Modals: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
 	const {selectedModal: modalContextType} = useContext(ModalsContext);
+	const {currentZIndex} = useZIndex();
 	const canRender =
 		useContext(StudioServerConnectionCtx).previewServerState.type ===
 		'connected';
 
-	return (
+	return ReactDOM.createPortal(
 		<>
 			{modalContextType && modalContextType.type === 'new-comp' && (
 				<NewComposition
@@ -83,6 +88,10 @@ export const Modals: React.FC<{
 					initialPublicLicenseKey={modalContextType.initialPublicLicenseKey}
 				/>
 			)}
+			{modalContextType &&
+				modalContextType.type === 'configure-default-editor' && (
+					<ConfigureDefaultEditorModal />
+				)}
 			{modalContextType && modalContextType.type === 'web-render' && (
 				<WebRenderModalWithLoader {...modalContextType} />
 			)}
@@ -180,6 +189,8 @@ export const Modals: React.FC<{
 					readOnlyStudio={readOnlyStudio}
 					invocationTimestamp={modalContextType.invocationTimestamp}
 					initialMode={modalContextType.mode}
+					assetSelection={modalContextType.assetSelection}
+					compositionSelection={modalContextType.compositionSelection}
 				/>
 			)}
 			{modalContextType && modalContextType.type === 'add-effect' && (
@@ -192,6 +203,9 @@ export const Modals: React.FC<{
 				<SvgImportDialog state={modalContextType} />
 			)}
 			{getStudioAskAIEnabled() && <AskAiModal />}
-		</>
+		</>,
+		// Modals must be above overlays opened from the editor, such as the
+		// floating sidebars used in the mobile layout.
+		getPortal(currentZIndex + 1),
 	);
 };

@@ -1,5 +1,6 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {writeStaticFile} from '../api/write-static-file';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BACKGROUND, WHITE_ALPHA_06, LIGHT_TEXT} from '../helpers/colors';
 import {buildAssetFolderStructure} from '../helpers/create-folder-tree';
@@ -13,6 +14,7 @@ import {useZIndex} from '../state/z-index';
 import {AssetFolderTree} from './AssetSelectorItem';
 import {inlineCodeSnippet} from './Menu/styles';
 import {showNotification} from './Notifications/NotificationCenter';
+import {ExplorerQuickSwitcherTrigger} from './QuickSwitcher/ExplorerQuickSwitcherTrigger';
 import {useStaticFiles} from './use-static-files';
 
 const container: React.CSSProperties = {
@@ -52,7 +54,9 @@ export const AssetSelector: React.FC<{
 	const [dropLocation, setDropLocation] = useState<string | null>(null);
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
-	const shouldAllowUpload = connectionStatus === 'connected' && !readOnlyStudio;
+	const shouldAllowUpload =
+		getBrowserStudioOperations() !== null ||
+		(connectionStatus === 'connected' && !readOnlyStudio);
 
 	const list: React.CSSProperties = useMemo(() => {
 		return {
@@ -165,6 +169,11 @@ export const AssetSelector: React.FC<{
 			onDragOver={shouldAllowUpload ? onDragOver : undefined}
 			onDrop={shouldAllowUpload ? onDrop : undefined}
 		>
+			<ExplorerQuickSwitcherTrigger
+				mode="assets"
+				showShortcut
+				tabIndex={tabIndex}
+			/>
 			{staticFiles.length === 0 ? (
 				publicFolderExists ? (
 					<div style={emptyState}>

@@ -1,0 +1,91 @@
+---
+image: /generated/articles-docs-studio-protocol-install-in-studio.png
+title: 'installInStudio()'
+crumb: '@remotion/studio-protocol'
+---
+
+# installInStudio()<AvailableFrom v="4.0.502" />
+
+Discovers a recently focused Remotion Studio and sends it an Element payload.
+
+```ts twoslash title="install-element.ts"
+import {
+  createElementPayload,
+  installInStudio,
+} from '@remotion/studio-protocol';
+
+const payload = createElementPayload({
+  displayName: 'Lower Third',
+  slug: 'lower-third',
+  sourceCode: 'export const LowerThird = () => null;',
+  dependencies: [],
+  dimensions: {width: 900, height: 260},
+  durationInFrames: 90,
+});
+
+const result = await installInStudio({payload});
+if (!result.success) {
+  console.error(result.code, result.message);
+} else {
+  console.log(result.status); // "awaiting-confirmation"
+}
+```
+
+## Arguments
+
+### payload
+
+The value returned by [`createElementPayload()`](/docs/studio-protocol/create-element-payload).
+
+## Return value
+
+Returns a promise with a discriminated union.
+
+### success
+
+Indicates whether the request reached the exact selected Studio tab and composition.
+
+### status
+
+On success, the value is `"awaiting-confirmation"`. Studio is showing or queuing a confirmation dialog. No dependency or source-file installation is guaranteed yet.
+
+### target
+
+On success, contains the project name, composition ID, Studio origin, and Studio version.
+
+### code
+
+On failure, one of:
+
+- `unsupported-origin`
+- `no-compatible-studio`
+- `studio-upgrade-required`
+- `no-installable-target`
+- `unsupported-protocol`
+- `invalid-response`
+- `target-expired`
+- `request-rejected`
+- `request-timed-out`
+- `network-error`
+
+### message
+
+A human-readable failure message. Use `code` for application logic.
+
+## Discovery
+
+Ports 3000 through 3009 are probed in parallel. The most recently focused compatible target is selected. Discovery returns a short-lived, single-use token bound to that Studio tab and composition.
+
+Studios older than 4.0.502 are detected and return `studio-upgrade-required`. The Element is not sent through the legacy endpoint.
+
+## Supported origins
+
+The function supports any HTTPS website. HTTP is supported only on `localhost` and `127.0.0.1` for local development.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering={false} player={false} studio={false} hideServers />
+
+## See also
+
+- [Security](/docs/studio-protocol/security)

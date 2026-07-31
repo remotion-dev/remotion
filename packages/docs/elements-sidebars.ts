@@ -53,8 +53,10 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'text/circle-marker/index',
 				'text/crossed-off/index',
+				'text/news-article-headline-highlight/index',
 				'text/strike-through/index',
 				'text/text-marker/index',
+				'text/timed-captions/index',
 			],
 		},
 	],

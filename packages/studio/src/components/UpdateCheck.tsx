@@ -8,27 +8,29 @@ import React, {
 } from 'react';
 import {VERSION} from 'remotion';
 import {
-	BLUE,
-	CURRENT_COLOR_LOWERCASE,
-	LIGHT_TEXT,
 	TRANSPARENT,
 	WARNING_COLOR,
+	WHITE,
+	WHITE_ALPHA_80,
 } from '../helpers/colors';
 import {ModalsContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
+import type {RenderInlineAction} from './InlineAction';
+import {InlineAction} from './InlineAction';
 import {updateAvailable} from './RenderQueue/actions';
 
 export type UpdateInfo = {
 	currentVersion: string;
 	latestVersion: string;
 	updateAvailable: boolean;
+	skillsUpdateAvailable: boolean;
+	remotionUpgradeSkillAvailable: boolean;
 	timedOut: boolean;
 	packageManager: PackageManager | 'unknown';
 };
 
 const buttonStyle: React.CSSProperties = {
 	appearance: 'none',
-	color: BLUE,
 	border: 'none',
 	fontWeight: 'bold',
 	backgroundColor: TRANSPARENT,
@@ -36,6 +38,13 @@ const buttonStyle: React.CSSProperties = {
 	fontSize: 14,
 	display: 'inline-flex',
 	justifyContent: 'center',
+	marginLeft: 8,
+};
+
+const updateIconContainer: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+	flexShrink: 0,
 };
 
 // Keep in sync with packages/bugs/api/[v].ts
@@ -51,10 +60,11 @@ export const UpdateCheck = () => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {tabIndex} = useZIndex();
 	const [knownBugs, setKnownBugs] = useState<Bug[] | null>(null);
+	const [hovered, setHovered] = useState(false);
 
-	const hasKnownBugs = useMemo(() => {
-		return knownBugs && knownBugs.length > 0;
-	}, [knownBugs]);
+	const hasBugfixesAvailable = useMemo(() => {
+		return Boolean(info?.updateAvailable && knownBugs && knownBugs.length > 0);
+	}, [info?.updateAvailable, knownBugs]);
 
 	const checkForUpdates = useCallback(() => {
 		const controller = new AbortController();
@@ -118,16 +128,62 @@ export const UpdateCheck = () => {
 	const dynButtonStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...buttonStyle,
-			color: hasKnownBugs ? WARNING_COLOR : LIGHT_TEXT,
+			color: hovered
+				? WHITE
+				: hasBugfixesAvailable
+					? WARNING_COLOR
+					: WHITE_ALPHA_80,
 		};
-	}, [hasKnownBugs]);
+	}, [hasBugfixesAvailable, hovered]);
+
+	const onPointerEnter = useCallback(() => {
+		setHovered(true);
+	}, []);
+
+	const onPointerLeave = useCallback(() => {
+		setHovered(false);
+	}, []);
+
+	const renderUpdateIcon: RenderInlineAction = useCallback((color) => {
+		return (
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				style={{
+					height: 16,
+					width: 16,
+					color,
+					flexShrink: 0,
+				}}
+				viewBox="0 0 512 512"
+			>
+				<path
+					fill={color}
+					d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM135.1 217.4c-4.5 4.2-7.1 10.1-7.1 16.3c0 12.3 10 22.3 22.3 22.3H208v96c0 17.7 14.3 32 32 32h32c17.7 0 32-14.3 32-32V256h57.7c12.3 0 22.3-10 22.3-22.3c0-6.2-2.6-12.1-7.1-16.3L269.8 117.5c-3.8-3.5-8.7-5.5-13.8-5.5s-10.1 2-13.8 5.5L135.1 217.4z"
+				/>
+			</svg>
+		);
+	}, []);
 
 	if (!info) {
 		return null;
 	}
 
-	if (!info.updateAvailable) {
+	if (!info.updateAvailable && !info.skillsUpdateAvailable) {
 		return null;
+	}
+
+	if (!hasBugfixesAvailable) {
+		return (
+			<div style={updateIconContainer}>
+				<InlineAction
+					variant={null}
+					onClick={openModal}
+					renderAction={renderUpdateIcon}
+					unhoveredColor={WHITE_ALPHA_80}
+					title="Update available"
+				/>
+			</div>
+		);
 	}
 
 	return (
@@ -135,26 +191,12 @@ export const UpdateCheck = () => {
 			tabIndex={tabIndex}
 			style={dynButtonStyle}
 			onClick={openModal}
+			onPointerEnter={onPointerEnter}
+			onPointerLeave={onPointerLeave}
 			type="button"
-			title={hasKnownBugs ? 'Bugfixes available' : 'Update available'}
+			title="Bugfixes available"
 		>
-			{hasKnownBugs ? (
-				'Bugfixes available'
-			) : (
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					style={{
-						height: 16,
-						width: 16,
-					}}
-					viewBox="0 0 512 512"
-				>
-					<path
-						fill={CURRENT_COLOR_LOWERCASE}
-						d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM135.1 217.4c-4.5 4.2-7.1 10.1-7.1 16.3c0 12.3 10 22.3 22.3 22.3H208v96c0 17.7 14.3 32 32 32h32c17.7 0 32-14.3 32-32V256h57.7c12.3 0 22.3-10 22.3-22.3c0-6.2-2.6-12.1-7.1-16.3L269.8 117.5c-3.8-3.5-8.7-5.5-13.8-5.5s-10.1 2-13.8 5.5L135.1 217.4z"
-					/>
-				</svg>
-			)}
+			Bugfixes available
 		</button>
 	);
 };

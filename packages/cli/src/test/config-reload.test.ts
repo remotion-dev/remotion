@@ -1,8 +1,9 @@
-import {afterEach, expect, test} from 'bun:test';
+import {afterEach, expect, spyOn, test} from 'bun:test';
 import {mkdtempSync, rmSync, writeFileSync} from 'node:fs';
 import {createRequire} from 'node:module';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {ConfigInternals} from '../config';
 import {loadConfig, reloadConfig} from '../get-config-file-name';
 
@@ -33,14 +34,18 @@ test('an invalid config reload keeps the previous configuration', async () => {
 	});
 	temporaryDirectory = mkdtempSync(path.join(tmpdir(), 'remotion-config-'));
 	writeConfig(
-		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(4321);`,
+		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(4321); Config.setDefaultEditor('cursor');`,
 	);
 
 	await loadConfig(temporaryDirectory);
 	expect(ConfigInternals.getStudioPort()).toBe(4321);
+	expect(
+		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
+			.value,
+	).toBe('cursor');
 
 	writeConfig(
-		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(5678); throw new Error('Invalid config');`,
+		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(5678); Config.setDefaultEditor('windsurf'); throw new Error('Invalid config');`,
 	);
 	expect(
 		await reloadConfig({
@@ -48,6 +53,10 @@ test('an invalid config reload keeps the previous configuration', async () => {
 		}),
 	).toBe(false);
 	expect(ConfigInternals.getStudioPort()).toBe(4321);
+	expect(
+		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
+			.value,
+	).toBe('cursor');
 
 	writeConfig('this is not valid JavaScript }');
 	expect(
@@ -58,7 +67,7 @@ test('an invalid config reload keeps the previous configuration', async () => {
 	expect(ConfigInternals.getStudioPort()).toBe(4321);
 
 	writeConfig(
-		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(6789);`,
+		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(6789); Config.setDefaultEditor({type: 'custom', name: 'Acme Editor', executable: '/opt/acme/editor', arguments: ['--goto', '%TARGET_PATH%:%LINE_NUMBER%:%COLUMN_NUMBER%']});`,
 	);
 	expect(
 		await reloadConfig({
@@ -66,4 +75,82 @@ test('an invalid config reload keeps the previous configuration', async () => {
 		}),
 	).toBe(true);
 	expect(ConfigInternals.getStudioPort()).toBe(6789);
+	expect(
+		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
+			.value,
+	).toEqual({
+		type: 'custom',
+		name: 'Acme Editor',
+		executable: '/opt/acme/editor',
+		arguments: ['--goto', '%TARGET_PATH%:%LINE_NUMBER%:%COLUMN_NUMBER%'],
+	});
+
+	writeConfig(
+		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(7890);`,
+	);
+	expect(
+		await reloadConfig({
+			resetConfigOptions: ConfigInternals.resetConfigOptions,
+		}),
+	).toBe(true);
+	expect(
+		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
+			.value,
+	).toBeNull();
+});
+
+test('warns when the bundler-specific override does not match the selected bundler', async () => {
+	process.env.PATCH_BUN_DEVELOPMENT = '1';
+	Object.assign(globalThis, {
+		require: createRequire(path.join(__dirname, '..', 'load-config.ts')),
+	});
+	temporaryDirectory = mkdtempSync(path.join(tmpdir(), 'remotion-config-'));
+	const warn = spyOn(console, 'warn').mockImplementation(() => undefined);
+
+	try {
+		writeConfig(
+			`const {Config} = require('@remotion/cli/config'); Config.overrideWebpackConfig((config) => config); Config.setRspack(true);`,
+		);
+		await loadConfig(temporaryDirectory);
+		expect(warn.mock.calls.flat().join(' ')).toContain(
+			'You have selected Rspack as the bundler, but Config.overrideWebpackConfig() was called. The Webpack override will be ignored. Use Config.overrideRspackConfig() or Config.overrideBundlerConfig() instead.',
+		);
+
+		warn.mockClear();
+		writeConfig(
+			`const {Config} = require('@remotion/cli/config'); Config.setRspack(false); Config.overrideRspackConfig((config) => config);`,
+		);
+		expect(
+			await reloadConfig({
+				resetConfigOptions: ConfigInternals.resetConfigOptions,
+			}),
+		).toBe(true);
+		expect(warn.mock.calls.flat().join(' ')).toContain(
+			'You have selected Webpack as the bundler, but Config.overrideRspackConfig() was called. The Rspack override will be ignored. Use Config.overrideWebpackConfig() or Config.overrideBundlerConfig() instead.',
+		);
+
+		warn.mockClear();
+		writeConfig(
+			`const {Config} = require('@remotion/cli/config'); Config.setRspack(true); Config.overrideRspackConfig((config) => config); Config.overrideBundlerConfig((config) => config);`,
+		);
+		expect(
+			await reloadConfig({
+				resetConfigOptions: ConfigInternals.resetConfigOptions,
+			}),
+		).toBe(true);
+		expect(warn.mock.calls.length).toBe(0);
+
+		warn.mockClear();
+		writeConfig(
+			`const {Config} = require('@remotion/cli/config'); Config.setRspack(false); Config.overrideWebpackConfig((config) => config); Config.overrideBundlerConfig((config) => config);`,
+		);
+		expect(
+			await reloadConfig({
+				resetConfigOptions: ConfigInternals.resetConfigOptions,
+			}),
+		).toBe(true);
+		expect(warn.mock.calls.length).toBe(0);
+	} finally {
+		warn.mockRestore();
+	}
 });

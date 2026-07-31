@@ -67,6 +67,22 @@ The unsupported props include `ref`, `srcSet`, `sizes`, `loading`, `decoding`, `
 Canvas-compatible props such as `aria-*`, `data-*`, `role`, `title`, `tabIndex` and pointer or mouse event handlers are forwarded to the underlying `<canvas>`.
 When [`effects`](#effects) is a non-empty array, `style.objectFit` controls how the image is drawn into the canvas. Supported values are `"fill"`, `"contain"` and `"cover"`.
 
+### `cropLeft?`<AvailableFrom v="4.0.500" />
+
+Crops the image from the left by a ratio between `0` and `1`. See [`cropLeft`](/docs/sequence#cropleft).
+
+### `cropRight?`<AvailableFrom v="4.0.500" />
+
+Crops the image from the right by a ratio between `0` and `1`. See [`cropRight`](/docs/sequence#cropright).
+
+### `cropTop?`<AvailableFrom v="4.0.500" />
+
+Crops the image from the top by a ratio between `0` and `1`. See [`cropTop`](/docs/sequence#croptop).
+
+### `cropBottom?`<AvailableFrom v="4.0.500" />
+
+Crops the image from the bottom by a ratio between `0` and `1`. See [`cropBottom`](/docs/sequence#cropbottom).
+
 ### `onError`
 
 To use the `<Img>` tag in a resilient way, handle the error that occurs when an image can not be loaded:

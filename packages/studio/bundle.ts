@@ -5,7 +5,6 @@ const external = [
 	'remotion',
 	'react-dom',
 	'react',
-	'@remotion/canvas-capture',
 	'@remotion/media-utils',
 	'@remotion/studio-shared',
 	'@remotion/timeline-utils',

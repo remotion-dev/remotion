@@ -70,6 +70,8 @@ import {
 	getComponentsToAddStacksTo,
 	getSequenceComponent,
 	getSingleChildComponent,
+	getStackForControls,
+	REMOTION_INTERNAL_STACK_PROP,
 } from './enable-sequence-stack-traces.js';
 import {findPropsToDelete} from './find-props-to-delete.js';
 import {
@@ -99,6 +101,7 @@ import {
 	hiddenField,
 	premountSchema,
 	sequencePremountSchema,
+	sequenceCropSchema,
 	sequenceSchema,
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
@@ -142,6 +145,7 @@ import {
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
 } from './ResolveCompositionConfig.js';
+import {resolveSequenceCrop} from './sequence-crop.js';
 import type {
 	OverrideIdToNodePaths,
 	OverrideToNodePathGetters,
@@ -192,6 +196,7 @@ import {
 	type TimelineContextValue,
 } from './TimelineContext.js';
 import {truthy} from './truthy.js';
+import {useCropStyle} from './use-crop-style.js';
 import {
 	calculateScale,
 	CurrentScaleContext,
@@ -307,6 +312,7 @@ export const Internals = {
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
 	sequencePremountSchema,
+	sequenceCropSchema,
 	textSchema,
 	transformSchema,
 	premountSchema,
@@ -376,6 +382,8 @@ export const Internals = {
 	getComponentsToAddStacksTo,
 	getSequenceComponent,
 	getSingleChildComponent,
+	getStackForControls,
+	REMOTION_INTERNAL_STACK_PROP,
 	CurrentScaleContext,
 	PixelDensityContext,
 	PreviewSizeContext,
@@ -431,6 +439,8 @@ export const Internals = {
 	durationInFramesField,
 	freezeField,
 	fromField,
+	resolveSequenceCrop,
+	useCropStyle,
 } as const;
 
 export type {

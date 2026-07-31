@@ -10,7 +10,7 @@ import type {Codec} from './codec';
 import {createCombinedAudio} from './combine-audio';
 import {combineVideoStreams} from './combine-video-streams';
 import {combineVideoStreamsSeamlessly} from './combine-video-streams-seamlessly';
-import type {FrameRange} from './frame-range';
+import type {SingleFrameRange} from './frame-range';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getRealFrameRange} from './get-frame-to-render';
@@ -55,7 +55,7 @@ type OptionalCombineChunksOptions = {
 	audioCodec: AudioCodec | null;
 	cancelSignal: CancelSignal | undefined;
 	metadata: Record<string, string> | null;
-	frameRange: FrameRange | null;
+	frameRange: SingleFrameRange | null;
 	everyNthFrame: number;
 	sampleRate: number;
 };
@@ -124,14 +124,13 @@ export const internalCombineChunks = async ({
 		resolvedAudioCodec !== null && audioFiles.length > 0;
 
 	const seamlessVideo = canConcatVideoSeamlessly(codec);
-	const seamlessAudio = canConcatAudioSeamlessly(
-		resolvedAudioCodec,
-		framesPerChunk,
-	);
-
 	const realFrameRange = getRealFrameRange(
 		compositionDurationInFrames,
 		frameRange,
+	);
+	const seamlessAudio = canConcatAudioSeamlessly(
+		resolvedAudioCodec,
+		framesPerChunk,
 	);
 
 	const numberOfFrames = getFramesToRender(

@@ -1,8 +1,8 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
-import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
+import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {DuplicateIcon} from '../../icons/duplicate';
 import {ScissorsIcon} from '../../icons/scissors';
 import {SnowflakeIcon} from '../../icons/snowflake';
@@ -58,7 +58,7 @@ const largeActionIconStyle: React.CSSProperties = {
 
 const SplitSequenceAction: React.FC<{
 	readonly selection: Extract<TimelineSelection, {type: 'sequence'}>;
-	readonly track: TrackWithHash;
+	readonly track: TimelineTrackData;
 }> = ({selection, track}) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
@@ -81,7 +81,7 @@ const SplitSequenceAction: React.FC<{
 		[selection, sequencePropStatuses, timelinePosition, track.sequence],
 	);
 	const canSplit =
-		studioInteractivityEnabled &&
+		isStudioInteractivityEnabled() &&
 		sequencePropStatuses !== undefined &&
 		eligibility.canSplit;
 	const onSplit = useCallback(() => {
@@ -94,7 +94,7 @@ const SplitSequenceAction: React.FC<{
 			splitFrame: timelinePosition,
 		}).catch(() => undefined);
 	}, [canSplit, eligibility, timelinePosition]);
-	const disabledReason = !studioInteractivityEnabled
+	const disabledReason = !isStudioInteractivityEnabled()
 		? 'Studio is read-only'
 		: sequencePropStatuses === undefined
 			? 'Waiting for sequence prop status'
@@ -118,7 +118,7 @@ const SplitSequenceAction: React.FC<{
 
 const SequenceSourceActions: React.FC<{
 	readonly selection: Extract<TimelineSelection, {type: 'sequence'}>;
-	readonly track: TrackWithHash;
+	readonly track: TimelineTrackData;
 	readonly validatedSource: string;
 }> = ({selection, track, validatedSource}) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
@@ -136,7 +136,7 @@ const SequenceSourceActions: React.FC<{
 	);
 	const freezeFrameMenuItem = useSequenceFreezeFrameMenuItem({
 		clientId:
-			previewServerState.type === 'connected' && studioInteractivityEnabled
+			previewServerState.type === 'connected' && isStudioInteractivityEnabled()
 				? previewServerState.clientId
 				: null,
 		nodePath: selection.nodePathInfo.sequenceSubscriptionKey,
@@ -148,7 +148,7 @@ const SequenceSourceActions: React.FC<{
 		validatedSource,
 	});
 	const sourceActionsDisabled =
-		previewServerState.type !== 'connected' || !studioInteractivityEnabled;
+		previewServerState.type !== 'connected' || !isStudioInteractivityEnabled();
 	const onDuplicate = useCallback(() => {
 		if (sourceActionsDisabled) {
 			return;
@@ -206,8 +206,9 @@ const SequenceSourceActions: React.FC<{
 };
 
 const SequenceExpandedInspector: React.FC<{
-	readonly track: TrackWithHash;
-}> = ({track}) => {
+	readonly track: TimelineTrackData;
+	readonly readOnlyStudio: boolean;
+}> = ({track, readOnlyStudio}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {selectedItems, selectItems} = useTimelineSelection();
 	const sourceLocation = useSequenceInspectorSourceLocation(track.sequence);
@@ -252,15 +253,17 @@ const SequenceExpandedInspector: React.FC<{
 		[selectItems, sequenceSelected, sequenceSelection],
 	);
 
-	if (previewServerState.type !== 'connected') {
+	if (
+		previewServerState.type !== 'connected' &&
+		!window.remotion_isReadOnlyStudio
+	) {
 		return <InspectorMessage>Studio server disconnected</InspectorMessage>;
 	}
 
 	if (
 		!track.nodePathInfo ||
 		sequenceSelection === null ||
-		!hasSequenceControls(track.sequence) ||
-		!validatedLocation
+		!hasSequenceControls(track.sequence)
 	) {
 		return <InspectorMessage>Sequence inspector unavailable</InspectorMessage>;
 	}
@@ -280,28 +283,36 @@ const SequenceExpandedInspector: React.FC<{
 					/>
 				</>
 			) : null}
-			<InspectorSequenceSection
-				sequence={track.sequence}
-				validatedLocation={validatedLocation}
-				nodePathInfo={track.nodePathInfo}
-				keyframeDisplayOffset={track.keyframeDisplayOffset}
-				renderTransformControls={() => <AlignmentControls track={track} />}
-			/>
-			<InspectorActionSection>
-				<SplitSequenceAction selection={sequenceSelection} track={track} />
-				<SequenceSourceActions
-					selection={sequenceSelection}
-					track={track}
-					validatedSource={validatedLocation.source}
-				/>
-			</InspectorActionSection>
+			{validatedLocation ? (
+				<>
+					<InspectorSequenceSection
+						sequence={track.sequence}
+						readOnlyStudio={readOnlyStudio}
+						validatedLocation={validatedLocation}
+						nodePathInfo={track.nodePathInfo}
+						keyframeDisplayOffset={track.keyframeDisplayOffset}
+						renderTransformControls={() => <AlignmentControls track={track} />}
+					/>
+					<InspectorActionSection>
+						<SplitSequenceAction selection={sequenceSelection} track={track} />
+						<SequenceSourceActions
+							selection={sequenceSelection}
+							track={track}
+							validatedSource={validatedLocation.source}
+						/>
+					</InspectorActionSection>
+				</>
+			) : (
+				<InspectorMessage>Source controls unavailable</InspectorMessage>
+			)}
 		</div>
 	);
 };
 
 export const SequenceSelectionInspector: React.FC<{
 	readonly selection: SequenceSectionSelection;
-}> = ({selection}) => {
+	readonly readOnlyStudio: boolean;
+}> = ({selection, readOnlyStudio}) => {
 	const track = useTrackForSelection(selection);
 
 	if (!track) {
@@ -314,6 +325,7 @@ export const SequenceSelectionInspector: React.FC<{
 		<SequenceExpandedInspector
 			key={stackKey ?? track.sequence.id}
 			track={track}
+			readOnlyStudio={readOnlyStudio}
 		/>
 	);
 };

@@ -13,10 +13,13 @@ import React, {
 } from 'react';
 import {
 	LIGHT_TEXT,
+	TRANSPARENT,
 	WHITE,
-	getBackgroundFromHoverState,
+	WHITE_ALPHA_06,
 } from '../helpers/colors';
 import {useKeybinding} from '../helpers/use-keybinding';
+import {EffectsIcon} from '../icons/effects';
+import {ExternalLinkIcon} from '../icons/external-link';
 import {ModalsContext, type AddEffectModalState} from '../state/modals';
 import {ContextMenu} from './ContextMenu';
 import {addEffectToSequence} from './effect-drag-and-drop';
@@ -33,7 +36,12 @@ import {
 } from './QuickSwitcher/shared';
 
 const container: React.CSSProperties = {
-	width: 500,
+	width: 400,
+};
+
+const panelStyle: React.CSSProperties = {
+	borderRadius: 6,
+	overflow: 'hidden',
 };
 
 const content: React.CSSProperties = {
@@ -42,6 +50,48 @@ const content: React.CSSProperties = {
 
 const inputStyle: React.CSSProperties = {
 	width: '100%',
+	borderRadius: 4,
+};
+
+const aboutEffectsRow: React.CSSProperties = {
+	display: 'flex',
+	justifyContent: 'flex-end',
+	marginBottom: 8,
+};
+
+const aboutEffectsLink: React.CSSProperties = {
+	alignItems: 'center',
+	color: LIGHT_TEXT,
+	cursor: 'default',
+	display: 'inline-flex',
+	fontFamily: 'sans-serif',
+	fontSize: 12,
+	gap: 4,
+	lineHeight: '14px',
+	minWidth: 0,
+	textDecoration: 'none',
+};
+
+const aboutEffectsLinkHovered: React.CSSProperties = {
+	...aboutEffectsLink,
+	color: WHITE,
+};
+
+const aboutEffectsLabel: React.CSSProperties = {
+	color: 'inherit',
+	fontFamily: 'sans-serif',
+	fontSize: 12,
+	lineHeight: '14px',
+	minWidth: 0,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+};
+
+const aboutEffectsIcon: React.CSSProperties = {
+	flexShrink: 0,
+	height: 12,
+	width: 12,
 };
 
 const resultList: React.CSSProperties = {
@@ -57,16 +107,30 @@ const noResults: React.CSSProperties = {
 };
 
 const resultContainer: React.CSSProperties = {
-	cursor: 'pointer',
+	cursor: 'default',
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
-	padding: '7px 16px',
+	paddingLeft: 16,
+	paddingRight: 16,
+	marginBottom: 1,
+	marginLeft: 4,
+	marginRight: 4,
+	borderRadius: 4,
+};
+
+const iconStyle: React.CSSProperties = {
+	width: 18,
+	height: 18,
+	flexShrink: 0,
 };
 
 const labelContainer: React.CSSProperties = {
 	flex: 1,
 	minWidth: 0,
+	overflow: 'hidden',
+	paddingTop: 5,
+	paddingBottom: 5,
 };
 
 const label: React.CSSProperties = {
@@ -95,7 +159,7 @@ const EffectPickerResult: React.FC<{
 	const style = useMemo((): React.CSSProperties => {
 		return {
 			...resultContainer,
-			backgroundColor: getBackgroundFromHoverState({hovered, selected}),
+			backgroundColor: hovered || selected ? WHITE_ALPHA_06 : TRANSPARENT,
 		};
 	}, [hovered, selected]);
 
@@ -140,6 +204,11 @@ const EffectPickerResult: React.FC<{
 				onMouseEnter={() => setHovered(true)}
 				onMouseLeave={() => setHovered(false)}
 			>
+				<EffectsIcon
+					color={selected || hovered ? WHITE : LIGHT_TEXT}
+					style={iconStyle}
+				/>
+				<Spacing x={1} />
 				<div style={labelContainer}>
 					<div style={labelStyle}>{item.label}</div>
 				</div>
@@ -154,6 +223,7 @@ const EffectPickerContent: React.FC<{
 	readonly state: AddEffectModalState;
 }> = ({state}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
+	const [aboutEffectsHovered, setAboutEffectsHovered] = useState(false);
 	const [query, setQuery] = useState('');
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -242,6 +312,25 @@ const EffectPickerContent: React.FC<{
 	return (
 		<div style={container}>
 			<div style={content}>
+				<div style={aboutEffectsRow}>
+					<a
+						href="https://remotion.dev/effects"
+						target="_blank"
+						rel="noopener noreferrer"
+						style={
+							aboutEffectsHovered ? aboutEffectsLinkHovered : aboutEffectsLink
+						}
+						onMouseEnter={() => setAboutEffectsHovered(true)}
+						onMouseLeave={() => setAboutEffectsHovered(false)}
+					>
+						<span style={aboutEffectsLabel}>About effects</span>
+						<ExternalLinkIcon
+							aria-hidden="true"
+							color={aboutEffectsHovered ? WHITE : LIGHT_TEXT}
+							style={aboutEffectsIcon}
+						/>
+					</a>
+				</div>
 				<RemotionInput
 					ref={inputRef}
 					type="text"
@@ -278,7 +367,7 @@ export const EffectPickerModal: React.FC<{
 	readonly state: AddEffectModalState;
 }> = ({state}) => {
 	return (
-		<DismissableModal>
+		<DismissableModal panelStyle={panelStyle}>
 			<EffectPickerContent state={state} />
 		</DismissableModal>
 	);

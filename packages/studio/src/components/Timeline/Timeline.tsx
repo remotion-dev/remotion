@@ -1,12 +1,15 @@
+import type {InsertJsxElementRequest} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
-import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
+import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useIsStill} from '../../helpers/is-current-selected-still';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
+import {getStudioMaxTimelineTracks} from '../../helpers/studio-runtime-config';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import {importAssets, pickFilesToImport} from '../import-assets';
@@ -16,7 +19,6 @@ import {showNotification} from '../Notifications/NotificationCenter';
 import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
-import {MAX_TIMELINE_TRACKS} from './MaxTimelineTracks';
 import {SequencePropsObserver} from './SequencePropsObserver';
 import {shouldShowTrackInTimeline} from './should-show-track-in-timeline';
 import {shouldSubscribeToSequenceProps} from './should-subscribe-to-sequence-props';
@@ -46,6 +48,8 @@ import {TimelineWidthProvider} from './TimelineWidthProvider';
 import {useResolvedStack} from './use-resolved-stack';
 import {useTimelineAssetDrop} from './use-timeline-asset-drop';
 
+const MIN_TIMELINE_LABELS_WIDTH = 240;
+
 const container: React.CSSProperties = {
 	minHeight: '100%',
 	flex: 1,
@@ -69,7 +73,9 @@ const TimelineContextMenuArea: React.FC<{
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
-	const previewInteractive = previewConnected && studioInteractivityEnabled;
+	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
+	const browserStudioOperations = getBrowserStudioOperations();
+	const browserStudioCanInsertSolid = browserStudioOperations !== null;
 
 	const currentCompositionId =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
@@ -87,14 +93,18 @@ const TimelineContextMenuArea: React.FC<{
 	const resolvedCompositionLocation = useResolvedStack(
 		currentComposition?.stack ?? null,
 	);
-	const compositionFile = resolvedCompositionLocation?.source ?? null;
+	const compositionFile =
+		resolvedCompositionLocation?.source ??
+		(currentCompositionId && browserStudioOperations
+			? browserStudioOperations.getCompositionFile(currentCompositionId)
+			: null);
 	const compositionComponentInfo = useCachedCompositionComponentInfo({
 		compositionFile,
 		compositionId: currentCompositionId,
 	});
 
 	const canInsertSolid =
-		previewInteractive &&
+		(previewInteractive || browserStudioCanInsertSolid) &&
 		compositionComponentInfo?.canAddSequence === true &&
 		currentCompositionId !== null &&
 		compositionFile !== null &&
@@ -121,7 +131,7 @@ const TimelineContextMenuArea: React.FC<{
 
 		setIsAddingSolid(true);
 		try {
-			const result = await callApi('/api/insert-jsx-element', {
+			const request: InsertJsxElementRequest = {
 				compositionFile,
 				compositionId: currentCompositionId,
 				from: null,
@@ -131,7 +141,10 @@ const TimelineContextMenuArea: React.FC<{
 					height: videoConfig.height,
 					position: null,
 				},
-			});
+			};
+			const result = browserStudioOperations
+				? await browserStudioOperations.insertSolid(request)
+				: await callApi('/api/insert-jsx-element', request);
 
 			if (result.success) {
 				showNotification('Added <Solid> to source file', 2000);
@@ -144,7 +157,13 @@ const TimelineContextMenuArea: React.FC<{
 		} finally {
 			setIsAddingSolid(false);
 		}
-	}, [canInsertSolid, compositionFile, currentCompositionId, videoConfig]);
+	}, [
+		browserStudioOperations,
+		canInsertSolid,
+		compositionFile,
+		currentCompositionId,
+		videoConfig,
+	]);
 
 	const insertAsset = useCallback(async () => {
 		if (
@@ -234,11 +253,11 @@ const TimelineInner: React.FC = () => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 
 	const previewConnected = previewServerState.type === 'connected';
-	const previewInteractive = previewConnected && studioInteractivityEnabled;
+	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 
 	const videoConfigIsNull = videoConfig === null;
 
-	const timeline = useMemo((): TrackWithHash[] => {
+	const timeline = useMemo((): TimelineTrackData[] => {
 		if (videoConfigIsNull) {
 			return [];
 		}
@@ -263,11 +282,12 @@ const TimelineInner: React.FC = () => {
 		);
 	}, [durationInFrames, timeline]);
 
+	const maxTimelineTracks = getStudioMaxTimelineTracks();
 	const shown = useMemo(() => {
-		return filtered.length > MAX_TIMELINE_TRACKS
-			? filtered.slice(0, MAX_TIMELINE_TRACKS)
+		return filtered.length > maxTimelineTracks
+			? filtered.slice(0, maxTimelineTracks)
 			: filtered;
-	}, [filtered]);
+	}, [filtered, maxTimelineTracks]);
 
 	const hasBeenCut = filtered.length > shown.length;
 
@@ -289,10 +309,10 @@ const TimelineInner: React.FC = () => {
 					/>
 				);
 			})}
-			{studioInteractivityEnabled ? <SequencePropsObserver /> : null}
+			{isStudioInteractivityEnabled() ? <SequencePropsObserver /> : null}
 			<TimelineKeyframeTracksProvider tracks={filtered}>
 				<TimelineSelectableItemsProvider timeline={shown}>
-					{studioInteractivityEnabled ? (
+					{isStudioInteractivityEnabled() ? (
 						<TimelineSelectAllKeybindings timeline={shown} />
 					) : null}
 					<TimelineHeightContainer shown={shown} hasBeenCut={hasBeenCut}>
@@ -307,6 +327,9 @@ const TimelineInner: React.FC = () => {
 									id="names-to-timeline"
 									maxFlex={0.5}
 									minFlex={0.15}
+									maxFlexerSize={null}
+									minFlexerSize={MIN_TIMELINE_LABELS_WIDTH}
+									maxAntiFlexerSize={null}
 								>
 									<SplitterElement
 										type="flexer"
@@ -325,7 +348,7 @@ const TimelineInner: React.FC = () => {
 											<TimelineInOutPointer />
 											<TimelineTimeIndicators />
 											<TimelineDragHandler />
-											{studioInteractivityEnabled ? (
+											{isStudioInteractivityEnabled() ? (
 												<TimelineInOutDragHandler />
 											) : null}
 											<TimelineSlider />

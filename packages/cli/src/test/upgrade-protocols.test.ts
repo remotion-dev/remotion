@@ -133,7 +133,7 @@ test('includes Remotion and extra packages that only exist in pnpm catalog entri
 		targetVersion: '4.0.462',
 		extraPackageVersions: {
 			mediabunny: '1.50.7',
-			zod: '4.3.6',
+			zod: '4.4.3',
 		},
 	});
 
@@ -149,7 +149,7 @@ test('uses the Mediabunny version for extension packages', () => {
 	expect(
 		resolveExtraPackageVersions({
 			mediabunny: '1.50.8',
-			zod: '4.3.6',
+			zod: '4.4.3',
 		}),
 	).toMatchObject({
 		mediabunny: '1.50.8',
@@ -158,7 +158,7 @@ test('uses the Mediabunny version for extension packages', () => {
 		'@mediabunny/aac-encoder': '1.50.8',
 		'@mediabunny/flac-encoder': '1.50.8',
 		'@mediabunny/prores': '1.50.8',
-		zod: '4.3.6',
+		zod: '4.4.3',
 	});
 });
 
@@ -171,7 +171,7 @@ test('end-to-end: updates catalog in bun-style package.json and preserves catalo
 				workspaces: {
 					packages: ['packages/*'],
 					catalog: {
-						zod: '4.3.6',
+						zod: '4.4.3',
 						mediabunny: '1.34.4',
 						react: '19.2.3',
 					},
@@ -238,7 +238,7 @@ test('end-to-end: updates catalog in pnpm-workspace.yaml', () => {
 			'packages:',
 			'  - packages/*',
 			'catalog:',
-			'  zod: 4.3.6',
+			'  zod: 4.4.3',
 			'  mediabunny: 1.34.4',
 			'  react: ^19.0.0',
 			'',

@@ -11,13 +11,14 @@ import {
 	isSfxDragEvent,
 } from './drop-handler-data';
 import {getElementDragData} from './element-drag-and-drop';
+import {enqueueElementInstallRequest} from './element-install-request';
 import {
+	getElementPositionForDrop,
 	hasSvgFile,
 	importAssets,
 	importRemoteAsset,
 	insertComponent,
 	insertComposition,
-	insertElement,
 	insertExistingAssets,
 	insertRemoteAudio,
 	type InsertElementDropPosition,
@@ -113,7 +114,6 @@ export const handleDrop = async ({
 			composition,
 			compositionFile,
 			compositionId,
-			destinationDimensions,
 			dropPosition,
 			from,
 		});
@@ -122,12 +122,19 @@ export const handleDrop = async ({
 
 	const element = getElementDragData(event.dataTransfer);
 	if (element !== null) {
-		await insertElement({
+		enqueueElementInstallRequest({
+			id: crypto.randomUUID(),
+			clientId: 'drag-and-drop',
+			createdAt: Date.now(),
 			compositionFile,
 			compositionId,
-			dropPosition,
 			element: element.element,
 			from,
+			position: getElementPositionForDrop({
+				dimensions: element.element.dimensions,
+				dropPosition,
+			}),
+			source: {type: 'drag-and-drop'},
 		});
 		return;
 	}

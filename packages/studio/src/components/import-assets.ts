@@ -1,12 +1,15 @@
 import {
+	type ComponentDragData,
+	type CompositionDragData,
+	type ComponentProp,
+	type ElementDragData,
+} from '@remotion/studio-protocol';
+import {
 	detectFileType,
 	getRequiredPackageForInsertableElement,
 	isUrl,
-	type ComponentDragData,
-	type ComponentProp,
-	type CompositionDragData,
 	type DownloadRemoteAssetResponse,
-	type ElementDragData,
+	type ElementInstallExpectedFileState,
 	type FileType,
 	type InsertableCompositionElement,
 	type InsertableCompositionElementPosition,
@@ -299,22 +302,11 @@ export const getElementPositionForDrop = ({
 
 export const getCompositionPositionForDrop = ({
 	compositionDimensions,
-	destinationDimensions,
 	dropPosition,
 }: {
 	compositionDimensions: Dimensions;
-	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
 }): InsertableCompositionElementPosition | null => {
-	// No translation makes an equal-sized composition fill the destination.
-	if (
-		destinationDimensions !== null &&
-		compositionDimensions.width === destinationDimensions.width &&
-		compositionDimensions.height === destinationDimensions.height
-	) {
-		return null;
-	}
-
 	return getCenteredPosition({
 		dimensions: compositionDimensions,
 		dropPosition,
@@ -1246,14 +1238,12 @@ export const insertComposition = async ({
 	composition,
 	compositionFile,
 	compositionId,
-	destinationDimensions,
 	dropPosition,
 	from,
 }: {
 	composition: CompositionDragData;
 	compositionFile: string;
 	compositionId: string;
-	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
 	from: number | null;
 }) => {
@@ -1295,7 +1285,6 @@ export const insertComposition = async ({
 					serializeResolvedPropsForSourceCode(calculated.props),
 				position: getCompositionPositionForDrop({
 					compositionDimensions: dimensions,
-					destinationDimensions,
 					dropPosition,
 				}),
 			},
@@ -1322,15 +1311,19 @@ export const insertComposition = async ({
 export const insertElement = async ({
 	compositionFile,
 	compositionId,
-	dropPosition,
 	element,
+	expectedFileState,
+	position,
 	from,
+	overwriteExisting,
 }: {
 	compositionFile: string;
 	compositionId: string;
-	dropPosition: InsertElementDropPosition | null;
 	element: ElementDragData['element'];
+	expectedFileState: ElementInstallExpectedFileState;
+	position: InsertableCompositionElementPosition | null;
 	from: number | null;
+	overwriteExisting: boolean;
 }) => {
 	try {
 		await installRequiredPackages(element.dependencies);
@@ -1339,15 +1332,18 @@ export const insertElement = async ({
 			compositionFile,
 			compositionId,
 			element,
+			expectedFileState,
 			from,
-			position: getElementPositionForDrop({
-				dimensions: element.dimensions,
-				dropPosition,
-			}),
+			overwriteExisting,
+			position,
 		});
 
 		if (!response.success) {
-			showNotification(`Could not add Element: ${response.reason}`, 4000);
+			const reason =
+				response.type === 'error'
+					? response.reason
+					: `Element file changed: ${response.conflict.filePath}`;
+			showNotification(`Could not add Element: ${reason}`, 4000);
 			return;
 		}
 

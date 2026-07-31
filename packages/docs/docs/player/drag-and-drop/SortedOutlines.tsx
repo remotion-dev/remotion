@@ -1,5 +1,4 @@
 import React from 'react';
-import {Sequence} from 'remotion';
 import type {Item} from './item';
 import {SelectionOutline} from './SelectionOutline';
 
@@ -31,20 +30,14 @@ export const SortedOutlines: React.FC<{
 
 	return itemsToDisplay.map((item) => {
 		return (
-			<Sequence
+			<SelectionOutline
 				key={item.id}
-				from={item.from}
-				durationInFrames={item.durationInFrames}
-				layout="none"
-			>
-				<SelectionOutline
-					changeItem={changeItem}
-					item={item}
-					setSelectedItem={setSelectedItem}
-					selectedItem={selectedItem}
-					isDragging={isDragging}
-				/>
-			</Sequence>
+				changeItem={changeItem}
+				item={item}
+				setSelectedItem={setSelectedItem}
+				selectedItem={selectedItem}
+				isDragging={isDragging}
+			/>
 		);
 	});
 };

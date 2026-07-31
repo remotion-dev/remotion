@@ -83,13 +83,13 @@ Removes a portion of the video at the end (right side). See [`trimBefore`](/docs
 
 ### ~~`startFrom?`~~
 
-:::note Deprecated
+:::info Deprecated
 This prop has been renamed to [`trimBefore`](#trimbefore) in 4.0.319. It will continue to work but you cannot use it together with the new prop.
 :::
 
 ### ~~`endAt?`~~
 
-:::note Deprecated
+:::info Deprecated
 This prop has been renamed to [`trimAfter`](#trimafter) in 4.0.319. It will continue to work but you cannot use it together with the new prop.
 :::
 
@@ -315,12 +315,15 @@ _removed in v4.0.0_
 Either `jpeg` or `png`. Default `jpeg`.  
 With `png`, transparent videos (VP8, VP9, ProRes) can be displayed, however it is around 40% slower, with VP8 videos being [much slower](/docs/slow-method-to-extract-frame).
 
-### ~`allowAmplificationDuringRender?`<AvailableFrom v="3.3.17" />~
+### ~~`allowAmplificationDuringRender?`~~<AvailableFrom v="3.3.17" />
 
+:::info Deprecated
 Deprecated since v4.0.279: This prop intended to opt into setting the volume to a value higher than one, even though it would only apply during render.
 
-The option does not make sense anymore, because it is now possible to set the volume higher than `1`.  
 To prevent synthetic amplification, set a volume not higher than 1.
+:::
+
+The option does not make sense anymore, because it is now possible to set the volume higher than `1`.
 
 ### Other props
 

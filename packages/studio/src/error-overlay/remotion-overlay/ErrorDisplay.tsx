@@ -3,6 +3,11 @@ import React, {useMemo} from 'react';
 import {MediaPlaybackError} from 'remotion';
 import {Spacing} from '../../components/layout';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../../components/Menu/is-menu-item';
+import {
+	ERROR_CODE_FRAME_BACKGROUND,
+	WHITE,
+	WHITE_ALPHA_60,
+} from '../../helpers/colors';
 import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {AskOnDiscord} from './AskOnDiscord';
 import {CalculateMetadataErrorExplainer} from './CalculateMetadataErrorExplainer';
@@ -22,6 +27,30 @@ const stack: React.CSSProperties = {
 	marginBottom: '10vh',
 };
 
+const rawStack: React.CSSProperties = {
+	backgroundColor: ERROR_CODE_FRAME_BACKGROUND,
+	boxSizing: 'border-box',
+	color: WHITE,
+	fontFamily: 'monospace',
+	fontSize: 14,
+	lineHeight: 1.7,
+	marginBottom: 0,
+	marginTop: 17,
+	maxWidth: '100%',
+	overflowX: 'auto',
+	padding: 12,
+	whiteSpace: 'pre',
+};
+
+const symbolicationFailureStyle: React.CSSProperties = {
+	color: WHITE_ALPHA_60,
+	fontFamily: 'SF Pro Text, sans-serif',
+	fontSize: 14,
+	lineHeight: 1.5,
+	marginBottom: '10vh',
+	marginTop: 24,
+};
+
 const spacer: React.CSSProperties = {
 	width: 5,
 	display: 'inline-block',
@@ -35,14 +64,17 @@ export const ErrorDisplay: React.FC<{
 	readonly onRetry: OnRetry;
 	readonly canHaveDismissButton: boolean;
 	readonly calculateMetadata: boolean;
+	readonly symbolicationFailure: string | null;
 }> = ({
 	display,
 	keyboardShortcuts,
 	onRetry,
 	canHaveDismissButton,
 	calculateMetadata,
+	symbolicationFailure,
 }) => {
 	const highestLineNumber = Math.max(
+		0,
 		...display.stackFrames
 			.map((s) => s.originalScriptCode)
 			.flat(1)
@@ -140,20 +172,36 @@ export const ErrorDisplay: React.FC<{
 					<MediaPlaybackErrorExplainer src={display.error.src} />
 				</>
 			) : null}
-			<div style={stack} className={HORIZONTAL_SCROLLBAR_CLASSNAME}>
-				{display.stackFrames.map((s, i) => {
-					return (
-						<StackElement
-							// eslint-disable-next-line react/no-array-index-key
-							key={i}
-							isFirst={i === 0}
-							s={s}
-							lineNumberWidth={lineNumberWidth}
-							defaultFunctionName={'(anonymous function)'}
-						/>
-					);
-				})}
-			</div>
+			{display.stackFrames.length > 0 ? (
+				<div style={stack} className={HORIZONTAL_SCROLLBAR_CLASSNAME}>
+					{display.stackFrames.map((s, i) => {
+						return (
+							<StackElement
+								// eslint-disable-next-line react/no-array-index-key
+								key={i}
+								isFirst={i === 0}
+								s={s}
+								lineNumberWidth={lineNumberWidth}
+								defaultFunctionName={'(anonymous function)'}
+							/>
+						);
+					})}
+				</div>
+			) : (
+				<>
+					<pre
+						aria-label="Unsymbolicated stack trace"
+						className={HORIZONTAL_SCROLLBAR_CLASSNAME}
+						style={rawStack}
+					>
+						{display.error.stack ??
+							'Check the Terminal and browser console for error messages.'}
+					</pre>
+					{symbolicationFailure ? (
+						<div style={symbolicationFailureStyle}>{symbolicationFailure}</div>
+					) : null}
+				</>
+			)}
 		</div>
 	);
 };

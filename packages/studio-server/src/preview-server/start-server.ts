@@ -1,12 +1,16 @@
 import type {IncomingMessage} from 'node:http';
 import http from 'node:http';
-import type {WebpackOverrideFn} from '@remotion/bundler';
+import type {
+	BundlerOverrideFn,
+	RspackOverrideFn,
+	WebpackOverrideFn,
+} from '@remotion/bundler';
 import {
 	BundlerInternals,
 	WatchIgnoreNextChangePlugin,
 	webpack,
 } from '@remotion/bundler';
-import type {LogLevel} from '@remotion/renderer';
+import type {DefaultEditor, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	GitSource,
@@ -40,14 +44,13 @@ export type StartServerResult =
 export const startServer = async (options: {
 	entry: string;
 	userDefinedComponent: string;
+	bundlerOverride: BundlerOverrideFn;
+	rspackOverride: RspackOverrideFn;
 	webpackOverride: WebpackOverrideFn;
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
 	port: number | null;
-	maxTimelineTracks: number | null;
-	bufferStateDelayInMilliseconds: number | null;
 	remotionRoot: string;
-	keyboardShortcutsEnabled: boolean;
 	publicDir: string;
 	poll: number | null;
 	staticHash: string;
@@ -65,11 +68,10 @@ export const startServer = async (options: {
 	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
 	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
-	askAIEnabled: boolean;
-	interactivityEnabled: boolean;
 	forceNew: boolean;
 	rspack: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	getDefaultEditor: () => DefaultEditor | null;
 	configFile: string | null;
 }): Promise<StartServerResult> => {
 	const desiredPort =
@@ -102,14 +104,11 @@ export const startServer = async (options: {
 		userDefinedComponent: options.userDefinedComponent,
 		outDir: null,
 		environment: 'development' as const,
+		bundlerOverride: options.bundlerOverride,
+		rspackOverride: options.rspackOverride,
 		webpackOverride: options?.webpackOverride,
-		maxTimelineTracks: options?.maxTimelineTracks ?? null,
 		remotionRoot: options.remotionRoot,
-		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
 		poll: options.poll,
-		bufferStateDelayInMilliseconds: options.bufferStateDelayInMilliseconds,
-		askAIEnabled: options.askAIEnabled,
-		interactivityEnabled: options.interactivityEnabled,
 		extraPlugins: [watchIgnorePlugin],
 	};
 
@@ -178,6 +177,7 @@ export const startServer = async (options: {
 					getPreviewSampleRate: options.getPreviewSampleRate,
 					enableCrossSiteIsolation: options.enableCrossSiteIsolation,
 					getStudioRuntimeConfig: options.getStudioRuntimeConfig,
+					getDefaultEditor: options.getDefaultEditor,
 					configFile: options.configFile,
 				});
 			})

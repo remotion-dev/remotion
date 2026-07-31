@@ -2,7 +2,12 @@ import {PlayerInternals} from '@remotion/player';
 import type {SetStateAction} from 'react';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
-import {WHITE, getBackgroundFromHoverState} from '../../helpers/colors';
+import {
+	WHITE,
+	WHITE_ALPHA_80,
+	getBackgroundFromHoverState,
+} from '../../helpers/colors';
+import {startPointerSession} from '../../helpers/pointer-session';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {MenuContent} from '../NewComposition/MenuContent';
@@ -12,7 +17,7 @@ import {menuContainerTowardsBottom, outerPortal} from './styles';
 
 const container: React.CSSProperties = {
 	fontSize: 13,
-	color: WHITE,
+	color: WHITE_ALPHA_80,
 	paddingLeft: 10,
 	paddingRight: 10,
 	cursor: 'default',
@@ -71,6 +76,7 @@ export const MenuItem: React.FC<{
 	const containerStyle = useMemo((): React.CSSProperties => {
 		return {
 			...container,
+			color: hovered || selected ? WHITE : WHITE_ALPHA_80,
 			backgroundColor: getBackgroundFromHoverState({
 				hovered,
 				selected,
@@ -110,17 +116,24 @@ export const MenuItem: React.FC<{
 
 				onItemSelected(id);
 
-				window.addEventListener(
-					'pointerup',
-					(evt) => {
-						if (!isMenuItem(evt.target as HTMLElement)) {
-							onItemQuit();
+				startPointerSession({
+					event: e.nativeEvent,
+					target: e.currentTarget,
+					onEnd: (reason, evt) => {
+						if (
+							(reason === 'pointerup' || reason === 'buttons-released') &&
+							evt
+						) {
+							const target = document.elementFromPoint(
+								evt.clientX,
+								evt.clientY,
+							);
+							if (!target || !isMenuItem(target as HTMLElement)) {
+								onItemQuit();
+							}
 						}
 					},
-					{
-						once: true,
-					},
-				);
+				});
 			},
 			[id, onItemQuit, onItemSelected],
 		);

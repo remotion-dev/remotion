@@ -3,6 +3,11 @@
 import {existsSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
 import type {
+	BundlerOverrideFn,
+	RspackOverrideFn,
+	WebpackOverrideFn,
+} from '@remotion/bundler';
+import type {
 	Browser,
 	BrowserExecutable,
 	CancelSignal,
@@ -88,6 +93,9 @@ export const renderStillFlow = async ({
 	askAIEnabled,
 	keyboardShortcutsEnabled,
 	shouldCache,
+	bundlerOverride,
+	rspackOverride,
+	webpackOverride,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -128,6 +136,9 @@ export const renderStillFlow = async ({
 	askAIEnabled: boolean;
 	keyboardShortcutsEnabled: boolean;
 	shouldCache: boolean;
+	bundlerOverride: BundlerOverrideFn | null;
+	rspackOverride: RspackOverrideFn | null;
+	webpackOverride: WebpackOverrideFn | null;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 	Log.verbose(
@@ -233,6 +244,9 @@ export const renderStillFlow = async ({
 			keyboardShortcutsEnabled,
 			rspack,
 			shouldCache,
+			bundlerOverride,
+			rspackOverride,
+			webpackOverride,
 		},
 	);
 

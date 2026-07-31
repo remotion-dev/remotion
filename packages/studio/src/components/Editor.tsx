@@ -9,14 +9,12 @@ import {drawRef} from '../state/canvas-ref';
 import {ScaleLockProvider} from '../state/scale-lock';
 import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
-import {CANVAS_CAPTURE_ENABLED} from './canvas-capture-enabled';
 import {EditorContent} from './EditorContent';
 import {ForceSpecificCursor} from './ForceSpecificCursor';
 import {Modals} from './Modals';
 import {NotificationCenter} from './Notifications/NotificationCenter';
 import {RenderErrorContext} from './RenderErrorContext';
 import {SequencePropsSubscriptionProvider} from './SequencePropsSubscriptionProvider';
-import {StudioCanvasCapture} from './StudioCanvasCapture';
 import {TopPanel} from './TopPanel';
 
 const background: React.CSSProperties = {
@@ -27,9 +25,6 @@ const background: React.CSSProperties = {
 	flexDirection: 'column',
 	position: 'absolute',
 };
-
-export const BUFFER_STATE_DELAY_IN_MILLISECONDS =
-	getStudioBufferStateDelayInMilliseconds();
 
 export const Editor: React.FC<{
 	readonly Root: React.FC;
@@ -82,7 +77,7 @@ export const Editor: React.FC<{
 		[renderError],
 	);
 
-	const editor = (
+	return (
 		<HigherZIndex onEscape={noop} onOutsideClick={noop}>
 			<TimelineZoomContext>
 				<SequencePropsSubscriptionProvider>
@@ -100,9 +95,7 @@ export const Editor: React.FC<{
 										<EditorContent readOnlyStudio={readOnlyStudio}>
 											<TopPanel
 												drawRef={setDrawRef}
-												bufferStateDelayInMilliseconds={
-													BUFFER_STATE_DELAY_IN_MILLISECONDS
-												}
+												bufferStateDelayInMilliseconds={getStudioBufferStateDelayInMilliseconds()}
 												onMounted={onMounted}
 												readOnlyStudio={readOnlyStudio}
 											/>
@@ -117,11 +110,5 @@ export const Editor: React.FC<{
 				</SequencePropsSubscriptionProvider>
 			</TimelineZoomContext>
 		</HigherZIndex>
-	);
-
-	return CANVAS_CAPTURE_ENABLED ? (
-		<StudioCanvasCapture density={1.5}>{editor}</StudioCanvasCapture>
-	) : (
-		editor
 	);
 };

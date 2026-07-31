@@ -6,7 +6,10 @@ import type {
 	VideoConfigValues,
 } from 'remotion';
 import {Internals} from 'remotion';
-import {callApi} from '../call-api';
+import {
+	subscribeToSequenceProps,
+	unsubscribeFromSequenceProps,
+} from '../sequence-props-api';
 
 type Key = string;
 
@@ -31,9 +34,7 @@ const makeKey = ({
 }): Key =>
 	`${fileName}\0${line}\0${column}\0${componentIdentity ?? ''}\0${sequenceKeys.join('\0')}\0${assetKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}\0${JSON.stringify(videoConfigValues)}`;
 
-type SubscribeResult = Awaited<
-	ReturnType<typeof callApi<'/api/subscribe-to-sequence-props'>>
->;
+type SubscribeResult = Awaited<ReturnType<typeof subscribeToSequenceProps>>;
 
 type ApplyResult = (result: SubscribeResult) => void;
 
@@ -88,7 +89,7 @@ export const acquireSequencePropsSubscription = ({
 	let entry = entries.get(key);
 
 	if (!entry) {
-		const promise = callApi('/api/subscribe-to-sequence-props', {
+		const promise = subscribeToSequenceProps({
 			fileName,
 			line,
 			column,
@@ -163,7 +164,7 @@ export const acquireSequencePropsSubscription = ({
 						return;
 					}
 
-					return callApi('/api/unsubscribe-from-sequence-props', {
+					return unsubscribeFromSequenceProps({
 						fileName: acquired.fileName,
 						nodePath: result.nodePath,
 						clientId: acquired.clientId,

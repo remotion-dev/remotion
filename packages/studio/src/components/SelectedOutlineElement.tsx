@@ -12,7 +12,9 @@ import {
 import {formatFileLocation} from '../helpers/format-file-location';
 import {getConnectedCompositions} from '../helpers/get-connected-compositions';
 import {getSequenceDoubleClickAction} from '../helpers/get-sequence-double-click-action';
+import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
+import {startPointerSession} from '../helpers/pointer-session';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {ModalsContext} from '../state/modals';
 import {callApi} from './call-api';
@@ -77,6 +79,7 @@ import {
 	type SelectedOutlineSnapTarget,
 } from './selected-outline-snap';
 import {
+	cropFieldKeys,
 	rotateFieldKey,
 	scaleFieldKey,
 	transformOriginFieldKey,
@@ -91,6 +94,7 @@ import {
 	getUvCoordinateForPoint,
 	getUvHandlePosition,
 } from './selected-outline-uv';
+import {SelectedOutlineCropControls} from './SelectedOutlineCropControls';
 import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {disableSequenceInteractivity} from './Timeline/disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './Timeline/duplicate-selected-timeline-item';
@@ -126,6 +130,8 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 	);
 	const {editorSnapping} = useContext(EditorSnappingContext);
 	const transformOriginDrag = target?.transformOriginDrag ?? null;
+	const crop = target?.crop;
+	const transformOriginPoints = outline.uncroppedPoints ?? outline.points;
 
 	const parsed = useMemo(
 		() =>
@@ -146,8 +152,8 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 		});
 	}, [outline.dimensions, parsed]);
 	const position = useMemo(
-		() => (uv === null ? null : getUvHandlePosition(outline.points, uv)),
-		[outline.points, uv],
+		() => (uv === null ? null : getUvHandlePosition(transformOriginPoints, uv)),
+		[transformOriginPoints, uv],
 	);
 
 	const onPointerDown = React.useCallback(
@@ -205,7 +211,7 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 					x: currentPointerX - svgRect.left,
 					y: currentPointerY - svgRect.top,
 				};
-				const rawUv = getUvCoordinateForPoint(outline.points, point);
+				const rawUv = getUvCoordinateForPoint(transformOriginPoints, point);
 				const lockedAxis = getSelectedOutlineTransformOriginLockedAxis({
 					axisLocked,
 					dimensions,
@@ -220,11 +226,13 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 				const snapPoint =
 					lockedAxis === null
 						? point
-						: getUvHandlePosition(outline.points, axisLockedUv);
+						: getUvHandlePosition(transformOriginPoints, axisLockedUv);
 				const snappedUv = editorSnapping
 					? snapSelectedOutlineTransformOriginUv({
+							crop: crop ?? null,
 							point: snapPoint,
-							points: outline.points,
+							points: transformOriginPoints,
+							thresholdPx: null,
 							uv: axisLockedUv,
 						})
 					: axisLockedUv;
@@ -326,9 +334,6 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 			};
 
 			const onPointerUp = () => {
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerUp);
 				window.removeEventListener('keydown', onKeyChange);
 				window.removeEventListener('keyup', onKeyChange);
 				stopForcingSpecificCursor();
@@ -383,14 +388,18 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 					});
 			};
 
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerUp);
+			startPointerSession({
+				event,
+				target: event.currentTarget,
+				onMove: onPointerMove,
+				onEnd: onPointerUp,
+			});
 			window.addEventListener('keydown', onKeyChange);
 			window.addEventListener('keyup', onKeyChange);
 		},
 		[
 			clearDragOverrides,
+			crop,
 			editorSnapping,
 			onDraggingChange,
 			outline,
@@ -398,6 +407,7 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 			setDragOverrides,
 			setPropStatuses,
 			transformOriginDrag,
+			transformOriginPoints,
 			uv,
 		],
 	);
@@ -662,9 +672,6 @@ const SelectedOutlinePolygon: React.FC<{
 			};
 
 			const onPointerUp = () => {
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerUp);
 				window.removeEventListener('keydown', onKeyChange);
 				window.removeEventListener('keyup', onKeyChange);
 				if (dragStarted) {
@@ -729,9 +736,12 @@ const SelectedOutlinePolygon: React.FC<{
 					});
 			};
 
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerUp);
+			startPointerSession({
+				event,
+				target: event.currentTarget,
+				onMove: onPointerMove,
+				onEnd: onPointerUp,
+			});
 			window.addEventListener('keydown', onKeyChange);
 			window.addEventListener('keyup', onKeyChange);
 		},
@@ -1001,9 +1011,6 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 			};
 
 			const onPointerUp = () => {
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerUp);
 				if (dragStarted) {
 					stopForcingSpecificCursor();
 					onDraggingChange(false);
@@ -1072,9 +1079,12 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 					});
 			};
 
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerUp);
+			startPointerSession({
+				event,
+				target: event.currentTarget,
+				onMove: onPointerMove,
+				onEnd: onPointerUp,
+			});
 		},
 		[
 			allScaleDragTargets,
@@ -1219,7 +1229,7 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			const center = svgPointToClientPoint(
 				getSelectedOutlineRotationPivot({
 					dimensions: outline.dimensions,
-					points: outline.points,
+					points: outline.uncroppedPoints ?? outline.points,
 					transformOriginValue: rotationDrag.transformOriginValue,
 				}),
 				svgRect,
@@ -1328,9 +1338,6 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			};
 
 			const onPointerUp = () => {
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerUp);
 				window.removeEventListener('keydown', onKeyChange);
 				window.removeEventListener('keyup', onKeyChange);
 				if (dragStarted) {
@@ -1401,9 +1408,12 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 					});
 			};
 
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerUp);
+			startPointerSession({
+				event,
+				target: event.currentTarget,
+				onMove: onPointerMove,
+				onEnd: onPointerUp,
+			});
 			window.addEventListener('keydown', onKeyChange);
 			window.addEventListener('keyup', onKeyChange);
 		},
@@ -1416,6 +1426,7 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			onDraggingChange,
 			outline.dimensions,
 			outline.points,
+			outline.uncroppedPoints,
 			onSelect,
 			rotationDrag,
 			selected,
@@ -1562,7 +1573,7 @@ export const SelectedOutlineElement: React.FC<{
 					return;
 				}
 
-				await openOriginalPositionInEditor(originalLocation);
+				await openOriginalPositionInEditor(originalLocation, null);
 			};
 
 			openTargetInEditor().catch((err) => {
@@ -1580,7 +1591,7 @@ export const SelectedOutlineElement: React.FC<{
 	);
 
 	const onContextMenuOpen = React.useCallback(async () => {
-		if (target === undefined || previewServerState.type !== 'connected') {
+		if (target === undefined) {
 			return false;
 		}
 
@@ -1605,13 +1616,18 @@ export const SelectedOutlineElement: React.FC<{
 		const canOpenInEditor = Boolean(
 			window.remotion_editorName && originalLocation,
 		);
-		const disableInteractivityDisabled = !target.sequence.showInTimeline;
+		const sourceEditingEnabled = isStudioInteractivityEnabled();
+		const disableInteractivityDisabled =
+			!sourceEditingEnabled || !target.sequence.showInTimeline;
 		const sourceEditDisabled =
-			!target.sequence.controls || !nodePath.absolutePath;
+			!sourceEditingEnabled ||
+			!target.sequence.controls ||
+			!nodePath.absolutePath;
 		const canAddEffect =
 			target.nodePathInfo.supportsEffects &&
 			!sourceEditDisabled &&
 			previewServerState.type === 'connected';
+		const canCrop = target.canCrop && !sourceEditDisabled;
 
 		return getSequenceContextMenuItems({
 			assetLinkInfo,
@@ -1619,8 +1635,9 @@ export const SelectedOutlineElement: React.FC<{
 			deleteDisabled: sourceEditDisabled,
 			disableInteractivityDisabled,
 			duplicateDisabled: sourceEditDisabled,
+			editorInfo: null,
 			fileLocation,
-			includeSourceEditItems: true,
+			includeSourceEditItems: sourceEditingEnabled,
 			onDeleteSequenceFromSource: async () => {
 				if (sourceEditDisabled || previewServerState.type !== 'connected') {
 					return;
@@ -1649,9 +1666,7 @@ export const SelectedOutlineElement: React.FC<{
 							},
 						],
 					});
-					if (result.success) {
-						showNotification('Removed sequence from source file', 2000);
-					} else {
+					if (!result.success) {
 						showNotification(result.reason, 4000);
 					}
 				} catch (err) {
@@ -1687,49 +1702,79 @@ export const SelectedOutlineElement: React.FC<{
 					return;
 				}
 
-				openOriginalPositionInEditor(originalLocation).catch((err) => {
+				openOriginalPositionInEditor(originalLocation, null).catch((err) => {
 					showNotification((err as Error).message, 2000);
 				});
 			},
 			originalLocation,
 			selectAsset,
 			sequence: target.sequence,
-			sourceActions: [
-				...(target.nodePathInfo.supportsEffects
-					? [
-							{
-								type: 'item' as const,
-								id: 'add-effect',
-								keyHint: null,
-								label: 'Add effect...',
-								leftItem: null,
-								disabled: !canAddEffect,
-								onClick: () => {
-									if (
-										!canAddEffect ||
-										previewServerState.type !== 'connected'
-									) {
-										return;
-									}
+			sourceActions: sourceEditingEnabled
+				? [
+						...(target.nodePathInfo.supportsEffects
+							? [
+									{
+										type: 'item' as const,
+										id: 'add-effect',
+										keyHint: null,
+										label: 'Add effect...',
+										leftItem: null,
+										disabled: !canAddEffect,
+										onClick: () => {
+											if (
+												!canAddEffect ||
+												previewServerState.type !== 'connected'
+											) {
+												return;
+											}
 
-									setSelectedModal({
-										type: 'add-effect',
-										clientId: previewServerState.clientId,
-										fileName: nodePath.absolutePath,
-										nodePath,
-									});
-								},
-								quickSwitcherLabel: null,
-								subMenu: null,
-								value: 'add-effect',
+											setSelectedModal({
+												type: 'add-effect',
+												clientId: previewServerState.clientId,
+												fileName: nodePath.absolutePath,
+												nodePath,
+											});
+										},
+										quickSwitcherLabel: null,
+										subMenu: null,
+										value: 'add-effect',
+									},
+								]
+							: []),
+						{
+							type: 'item' as const,
+							id: 'crop',
+							keyHint: null,
+							label: 'Crop',
+							leftItem: null,
+							disabled: !canCrop,
+							onClick: () => {
+								if (!canCrop) {
+									return;
+								}
+
+								onSelect(
+									{
+										type: 'sequence-prop',
+										nodePathInfo: {
+											...target.nodePathInfo,
+											auxiliaryKeys: ['controls', cropFieldKeys.left],
+										},
+										key: cropFieldKeys.left,
+									},
+									{shiftKey: false, toggleKey: false},
+								);
 							},
-							{
-								type: 'divider' as const,
-								id: 'add-effect-divider',
-							},
-						]
-					: []),
-			],
+							quickSwitcherLabel: null,
+							subMenu: null,
+							value: 'crop',
+						},
+						{
+							type: 'divider' as const,
+							id: 'crop-divider',
+						},
+					]
+				: [],
 		});
 	}, [
 		confirm,
@@ -1761,7 +1806,12 @@ export const SelectedOutlineElement: React.FC<{
 				snapTargets={snapTargets}
 				target={target}
 			/>
-			{target?.containsSelection || hovered
+			<SelectedOutlineCropControls
+				outline={outline}
+				onDraggingChange={onDraggingChange}
+				target={target}
+			/>
+			{target?.cropDrag === null && (target.containsSelection || hovered)
 				? (['top', 'right', 'bottom', 'left'] as const).map((edge) => (
 						<SelectedOutlineScaleEdgeLine
 							key={edge}
@@ -1778,7 +1828,7 @@ export const SelectedOutlineElement: React.FC<{
 						/>
 					))
 				: null}
-			{target?.containsSelection || hovered
+			{target?.cropDrag === null && (target.containsSelection || hovered)
 				? (
 						['top-left', 'top-right', 'bottom-right', 'bottom-left'] as const
 					).map((corner) => (

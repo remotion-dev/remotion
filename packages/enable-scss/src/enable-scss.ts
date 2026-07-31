@@ -1,6 +1,8 @@
-import type {WebpackOverrideFn} from '@remotion/bundler';
+import type {BundlerConfiguration} from '@remotion/bundler';
 
-export const enableScss: WebpackOverrideFn = (currentConfiguration) => {
+export const enableScss = <Configuration extends BundlerConfiguration>(
+	currentConfiguration: Configuration,
+): Configuration => {
 	return {
 		...currentConfiguration,
 		module: {

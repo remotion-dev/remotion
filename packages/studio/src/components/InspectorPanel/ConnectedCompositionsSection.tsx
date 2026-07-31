@@ -3,7 +3,7 @@ import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {getConnectedCompositions} from '../../helpers/get-connected-compositions';
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {noop} from '../../helpers/noop';
 import {ModalsContext} from '../../state/modals';
 import {getCompositionContextMenuItems} from '../composition-menu-items';
@@ -31,7 +31,7 @@ const compositionContextMenuStyle: React.CSSProperties = {
 export const useConnectedCompositions = ({
 	track,
 }: {
-	readonly track: TrackWithHash;
+	readonly track: TimelineTrackData;
 }) => {
 	const {compositions} = useContext(Internals.CompositionManager);
 	return useMemo(

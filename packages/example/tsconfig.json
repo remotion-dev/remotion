@@ -10,14 +10,13 @@
 			"lib/*": ["./src/lib/*"]
 		}
 	},
-	"include": ["src"],
+	"include": ["src", "src/**/*.json"],
 	"references": [
 		{"path": "../animated-emoji"},
 		{"path": "../animation-utils"},
 		{"path": "../core"},
 		{"path": "../babel-loader"},
 		{"path": "../bundler"},
-		{"path": "../canvas-capture"},
 		{"path": "../captions"},
 		{"path": "../effects"},
 		{"path": "../cli"},
@@ -42,6 +41,7 @@
 		{"path": "../media-parser"},
 		{"path": "../webcodecs"},
 		{"path": "../whisper-web"},
+		{"path": "../studio-protocol"},
 		{"path": "../light-leaks"},
 		{"path": "../starburst"},
 		{"path": "../sfx"},

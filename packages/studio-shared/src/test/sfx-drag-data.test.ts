@@ -1,6 +1,22 @@
 import {expect, test} from 'bun:test';
-import {parseSfxDragData, type SfxDragData} from '../sfx-drag-data';
+import {
+	StudioProtocolInternals,
+	type SfxDragData,
+} from '@remotion/studio-protocol';
 import {isUrl} from '../url';
+
+const sfxMimeType = StudioProtocolInternals.makeDragData({
+	type: 'sfx',
+	name: 'Test',
+	url: 'https://remotion.media/test.wav',
+}).mimeType;
+const parseSfxDragData = (payload: string) => {
+	const parsed = StudioProtocolInternals.parseDragData({
+		mimeType: sfxMimeType,
+		payload,
+	});
+	return parsed?.type === 'sfx' ? parsed.data : null;
+};
 
 const validSfxDragData: SfxDragData = {
 	type: 'remotion-sfx',

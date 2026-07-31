@@ -1,5 +1,6 @@
 import React, {useRef} from 'react';
 import {MakeVideosLinks, type MakeVideosLink} from './MakeVideosLinks';
+import {useTransparentVideoSource} from './use-transparent-video-source';
 
 export const MakeVideosInteractively: React.FC<{
 	readonly title?: React.ReactNode;
@@ -24,6 +25,7 @@ export const MakeVideosInteractively: React.FC<{
 	fallbackVideoSrc = '/img/editing-safari.mp4',
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
+	const src = useTransparentVideoSource({fallbackVideoSrc, videoSrc});
 
 	return (
 		<div
@@ -33,8 +35,9 @@ export const MakeVideosInteractively: React.FC<{
 			}
 		>
 			<div className="flex aspect-square w-full items-start">
-				{showVideo ? (
+				{showVideo && src ? (
 					<video
+						src={src}
 						autoPlay
 						muted
 						playsInline
@@ -48,10 +51,7 @@ export const MakeVideosInteractively: React.FC<{
 							overflow: 'hidden',
 						}}
 						className="object-contain"
-					>
-						<source src={fallbackVideoSrc} type="video/mp4" />
-						<source src={videoSrc} type="video/webm" />
-					</video>
+					/>
 				) : null}
 			</div>
 			<div className="font-brand">

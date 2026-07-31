@@ -1,10 +1,18 @@
-import React, {useCallback, useContext, useMemo, useState} from 'react';
-import type {TSequence} from 'remotion';
+import type {Caption} from '@remotion/captions';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
+import {Internals, type TSequence} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {
 	flattenVisibleTreeNodes,
 	SCHEMA_FIELD_GROUPS,
@@ -12,19 +20,36 @@ import {
 	type SchemaFieldGroupInfo,
 	type TimelineTreeNode,
 } from '../helpers/timeline-layout';
+import {BorderRadiusIcon} from '../icons/border-radius';
+import {FullscreenIcon} from '../icons/fullscreen';
 import {Plus} from '../icons/plus';
 import {ModalsContext} from '../state/modals';
 import {AssetFileIcon} from './AssetFileIcon';
 import {InlineAction} from './InlineAction';
-import {InspectorInlineAction, InspectorSection} from './InspectorPanel/common';
+import {InlineCaptionInspector} from './InlineCaptionInspector';
+import {InspectorSection} from './InspectorPanel/common';
+import {
+	getInspectorSectionActivity,
+	isSmartCollapsibleInspectorGroup,
+} from './InspectorPanel/inspector-section-collapse';
 import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
-import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
+import {getAssetSearchQueryForComponent} from './QuickSwitcher/asset-search';
+import {
+	BORDER_RADIUS_SHORTHAND_KEY,
+	getBorderRadiusConversion,
+	getBorderRadiusConversionChanges,
+} from './Timeline/border-radius-representation';
+import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {
 	getTimelineAssetLinkInfo,
 	getTimelineAssetSrcFromSchema,
 	openTimelineAssetLink,
 	splitRemoteSourceForMiddleEllipsis,
 } from './Timeline/timeline-asset-link';
+import {
+	AssetSelectionContext,
+	type InspectorSourceAction,
+} from './Timeline/TimelineAssetField';
 import {TimelineExpandedRow} from './Timeline/TimelineExpandedRow';
 import {
 	INSPECTOR_TIMELINE_ROW_LAYOUT,
@@ -64,21 +89,81 @@ const plusIcon: React.CSSProperties = {
 	height: 15,
 };
 
+const borderRadiusToggleIcon: React.CSSProperties = {
+	flexShrink: 0,
+	height: 15,
+	width: 15,
+};
+
+const collapsibleSectionHeaderButton: React.CSSProperties = {
+	appearance: 'none',
+	backgroundColor: 'transparent',
+	border: 'none',
+	borderRadius: 3,
+	cursor: 'default',
+	display: 'block',
+	flex: 1,
+	fontFamily: 'Arial, Helvetica, sans-serif',
+	fontSize: 12,
+	fontWeight: 'bold',
+	lineHeight: '16px',
+	margin: 0,
+	minWidth: 0,
+	overflow: 'hidden',
+	padding: '4px 0',
+	textAlign: 'left',
+	textOverflow: 'ellipsis',
+	userSelect: 'none',
+	whiteSpace: 'nowrap',
+};
+
+const CollapsibleInspectorSectionHeader: React.FC<{
+	readonly action: React.ReactNode;
+	readonly expanded: boolean;
+	readonly label: string;
+	readonly onToggle: () => void;
+}> = ({action, expanded, label, onToggle}) => {
+	const [hovered, setHovered] = useState(false);
+	const style = useMemo<React.CSSProperties>(() => {
+		return {
+			...collapsibleSectionHeaderButton,
+			color: hovered ? WHITE : LIGHT_TEXT,
+		};
+	}, [hovered]);
+
+	return (
+		<div style={sectionHeaderRow}>
+			<button
+				type="button"
+				aria-expanded={expanded}
+				aria-label={`${expanded ? 'Collapse' : 'Expand'} ${label}`}
+				className="__remotion-inspector-section-title"
+				onClick={onToggle}
+				onPointerEnter={() => setHovered(true)}
+				onPointerLeave={() => setHovered(false)}
+				style={style}
+			>
+				{label}
+			</button>
+			{action}
+		</div>
+	);
+};
+
 const assetSelectorIcon: React.CSSProperties = {
 	flexShrink: 0,
 	height: 18,
 	width: 18,
 };
 
-const remoteSourceLabel: React.CSSProperties = {
-	color: LIGHT_TEXT,
+const remoteSourcePartsContainer: React.CSSProperties = {
+	color: 'inherit',
 	display: 'flex',
 	fontFamily: 'Arial, Helvetica, sans-serif',
 	fontSize: 12,
 	lineHeight: '18px',
 	minWidth: 0,
 	overflow: 'hidden',
-	padding: `6px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 	whiteSpace: 'nowrap',
 };
 
@@ -118,6 +203,8 @@ const isEffectsRoot = (
 
 const INSPECTOR_COLLAPSED_ROWS_SESSION_STORAGE_KEY =
 	'remotion.editor.inspectorCollapsedRows';
+const INSPECTOR_SECTION_EXPANSION_OVERRIDES_SESSION_STORAGE_KEY =
+	'remotion.editor.inspectorSectionExpansionOverrides';
 
 const getInspectorExpansionKey = (nodePathInfo: SequenceNodePathInfo) => {
 	return JSON.stringify(nodePathInfo);
@@ -162,6 +249,73 @@ const persistInspectorCollapsedKeys = (keys: ReadonlySet<string>): void => {
 	}
 };
 
+type InspectorSectionExpansionOverrides = Readonly<Record<string, boolean>>;
+
+const loadInspectorSectionExpansionOverrides =
+	(): InspectorSectionExpansionOverrides => {
+		if (typeof window === 'undefined') {
+			return {};
+		}
+
+		try {
+			const raw = window.sessionStorage.getItem(
+				INSPECTOR_SECTION_EXPANSION_OVERRIDES_SESSION_STORAGE_KEY,
+			);
+			if (raw === null) {
+				return {};
+			}
+
+			const parsed: unknown = JSON.parse(raw);
+			if (
+				parsed === null ||
+				typeof parsed !== 'object' ||
+				Array.isArray(parsed)
+			) {
+				return {};
+			}
+
+			return Object.fromEntries(
+				Object.entries(parsed).filter((entry): entry is [string, boolean] => {
+					return typeof entry[1] === 'boolean';
+				}),
+			);
+		} catch {
+			return {};
+		}
+	};
+
+const persistInspectorSectionExpansionOverrides = (
+	overrides: InspectorSectionExpansionOverrides,
+): void => {
+	if (typeof window === 'undefined') {
+		return;
+	}
+
+	try {
+		window.sessionStorage.setItem(
+			INSPECTOR_SECTION_EXPANSION_OVERRIDES_SESSION_STORAGE_KEY,
+			JSON.stringify(overrides),
+		);
+	} catch {
+		// Ignore quota errors or disabled storage.
+	}
+};
+
+const getInspectorSectionExpansionKey = ({
+	nodePathInfo,
+	groupId,
+}: {
+	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly groupId: SchemaFieldGroupInfo['id'];
+}) => {
+	return JSON.stringify([
+		nodePathInfo.sequenceSubscriptionKey.absolutePath,
+		nodePathInfo.sequenceSubscriptionKey.nodePath,
+		nodePathInfo.index,
+		groupId,
+	]);
+};
+
 type SequenceWithControls = TSequence & {
 	readonly controls: NonNullable<TSequence['controls']>;
 };
@@ -198,18 +352,20 @@ export const hasSequenceControls = (
 
 export const InspectorSequenceSection: React.FC<{
 	readonly sequence: SequenceWithControls;
+	readonly readOnlyStudio: boolean;
 	readonly validatedLocation: CodePosition;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
 	readonly renderTransformControls: () => React.ReactNode;
 }> = ({
 	sequence,
+	readOnlyStudio,
 	validatedLocation,
 	nodePathInfo,
 	keyframeDisplayOffset,
 	renderTransformControls,
 }) => {
-	const {tree} = useTimelineExpandedTree({
+	const {tree, propStatuses} = useTimelineExpandedTree({
 		sequence,
 		nodePathInfo,
 		includeTextContent: true,
@@ -218,29 +374,76 @@ export const InspectorSequenceSection: React.FC<{
 	const [collapsedKeys, setCollapsedKeys] = useState<ReadonlySet<string>>(
 		loadInspectorCollapsedKeys,
 	);
+	const [sectionExpansionOverrides, setSectionExpansionOverrides] = useState(
+		loadInspectorSectionExpansionOverrides,
+	);
+	const [automaticSectionExpansion, setAutomaticSectionExpansion] = useState<
+		Readonly<Record<string, boolean>>
+	>({});
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {getDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
+	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(ModalsContext);
 	const selectAsset = useSelectAsset();
 	const mediaSrc = getTimelineAssetSrcFromSchema(sequence.controls);
-	const assetLinkInfo = useMemo(
-		() => (mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null),
-		[mediaSrc],
+	const assetSelectionInitialQuery = getAssetSearchQueryForComponent(
+		sequence.controls.componentIdentity,
 	);
-	const localAsset = assetLinkInfo?.kind === 'local' ? assetLinkInfo : null;
-	const remoteAsset = assetLinkInfo?.kind === 'remote' ? assetLinkInfo : null;
-	const remoteSourceParts = useMemo(
-		() =>
-			remoteAsset ? splitRemoteSourceForMiddleEllipsis(remoteAsset.href) : null,
-		[remoteAsset],
+	const getSourceAction = useCallback(
+		(src: string): InspectorSourceAction | null => {
+			const linkInfo = getTimelineAssetLinkInfo(src);
+			if (linkInfo?.kind === 'local') {
+				const fileName =
+					linkInfo.assetPath.split('/').pop() ?? linkInfo.assetPath;
+
+				return {
+					children: fileName,
+					disabled: false,
+					onClick: () => openTimelineAssetLink(linkInfo, selectAsset),
+					renderIcon: (color: string) => (
+						<AssetFileIcon
+							color={color}
+							fileType={getPreviewFileType(linkInfo.assetPath)}
+							style={assetSelectorIcon}
+						/>
+					),
+					title: linkInfo.assetPath,
+				};
+			}
+
+			if (linkInfo?.kind === 'remote') {
+				const parts = splitRemoteSourceForMiddleEllipsis(linkInfo.href);
+
+				return {
+					children: (
+						<span style={remoteSourcePartsContainer}>
+							<span style={remoteSourceLeading}>{parts.leading}</span>
+							<span style={remoteSourceTrailing}>{parts.trailing}</span>
+						</span>
+					),
+					disabled: false,
+					onClick: null,
+					title: linkInfo.href,
+				};
+			}
+
+			return null;
+		},
+		[selectAsset],
 	);
-	const jumpToAsset = useCallback(() => {
-		if (localAsset) {
-			openTimelineAssetLink(localAsset, selectAsset);
-		}
-	}, [localAsset, selectAsset]);
-	const localAssetFileName = localAsset
-		? (localAsset.assetPath.split('/').pop() ?? localAsset.assetPath)
-		: null;
+	const sourceAction = useMemo(() => {
+		return mediaSrc ? getSourceAction(mediaSrc) : null;
+	}, [getSourceAction, mediaSrc]);
+	const assetSelectionContextValue = useMemo(
+		() => ({
+			getSourceAction,
+			initialQuery: assetSelectionInitialQuery,
+			sourceAction,
+		}),
+		[assetSelectionInitialQuery, getSourceAction, sourceAction],
+	);
 
 	const getIsExpanded = useCallback(
 		(candidate: SequenceNodePathInfo) => {
@@ -291,15 +494,6 @@ export const InspectorSequenceSection: React.FC<{
 		};
 	}, [getIsExpanded, tree]);
 
-	const controlSelectableItems = useMemo(
-		() =>
-			getInspectorSelectableItems(
-				controlRows.filter(
-					({node}) => node.kind !== 'field' || node.field?.key !== 'src',
-				),
-			),
-		[controlRows],
-	);
 	const effectSelectableItems = useMemo(
 		() => getInspectorSelectableItems(effectRows),
 		[effectRows],
@@ -308,13 +502,139 @@ export const InspectorSequenceSection: React.FC<{
 		() => getInspectorControlGroups(controlRows),
 		[controlRows],
 	);
-
+	const layoutGroup = controlGroups.find((group) => group.id === 'layout');
+	const controlGroupsWithoutLayout = controlGroups.filter(
+		(group) => group.id !== 'layout',
+	);
+	const sequencePropStatuses = Internals.getPropStatusesCtx(
+		propStatuses,
+		nodePathInfo.sequenceSubscriptionKey,
+	);
 	const {schema} = sequence.controls;
+	const getControlGroupActivity = useCallback(
+		(group: InspectorControlGroup) => {
+			if (!isSmartCollapsibleInspectorGroup(group.id)) {
+				return 'active' as const;
+			}
+
+			return getInspectorSectionActivity({
+				group: group.id,
+				propStatuses: sequencePropStatuses,
+				schema,
+			});
+		},
+		[schema, sequencePropStatuses],
+	);
+	useEffect(() => {
+		setAutomaticSectionExpansion((previous) => {
+			let changed = false;
+			const next = {...previous};
+			for (const group of controlGroups) {
+				if (!isSmartCollapsibleInspectorGroup(group.id)) {
+					continue;
+				}
+
+				const expansionKey = getInspectorSectionExpansionKey({
+					nodePathInfo,
+					groupId: group.id,
+				});
+				const activity = getControlGroupActivity(group);
+				if (activity === 'active' && next[expansionKey] !== true) {
+					next[expansionKey] = true;
+					changed = true;
+				} else if (
+					activity === 'inactive' &&
+					next[expansionKey] === undefined
+				) {
+					next[expansionKey] = false;
+					changed = true;
+				}
+			}
+
+			return changed ? next : previous;
+		});
+	}, [controlGroups, getControlGroupActivity, nodePathInfo]);
+	const isControlGroupExpanded = useCallback(
+		(group: InspectorControlGroup): boolean => {
+			if (!isSmartCollapsibleInspectorGroup(group.id)) {
+				return true;
+			}
+
+			const expansionKey = getInspectorSectionExpansionKey({
+				nodePathInfo,
+				groupId: group.id,
+			});
+			const override = sectionExpansionOverrides[expansionKey];
+			if (override !== undefined) {
+				return override;
+			}
+
+			const automaticExpansion = automaticSectionExpansion[expansionKey];
+			if (automaticExpansion !== undefined) {
+				return automaticExpansion;
+			}
+
+			return getControlGroupActivity(group) !== 'inactive';
+		},
+		[
+			automaticSectionExpansion,
+			getControlGroupActivity,
+			nodePathInfo,
+			sectionExpansionOverrides,
+		],
+	);
+	const toggleControlGroup = useCallback(
+		(group: InspectorControlGroup) => {
+			const expansionKey = getInspectorSectionExpansionKey({
+				nodePathInfo,
+				groupId: group.id,
+			});
+			const nextExpanded = !isControlGroupExpanded(group);
+			setSectionExpansionOverrides((previous) => {
+				const next = {...previous, [expansionKey]: nextExpanded};
+				persistInspectorSectionExpansionOverrides(next);
+				return next;
+			});
+		},
+		[isControlGroupExpanded, nodePathInfo],
+	);
+	const visibleControlRows = controlGroups.flatMap((group) => {
+		return isControlGroupExpanded(group) ? group.rows : [];
+	});
+	const controlSelectableItems = useMemo(
+		() =>
+			getInspectorSelectableItems(
+				visibleControlRows.filter(
+					({node}) => node.kind !== 'field' || node.field?.key !== 'src',
+				),
+			),
+		[visibleControlRows],
+	);
+
+	const borderRadiusGroup = controlGroups.find(
+		(group) => group.id === 'border-radius',
+	);
+	const borderRadiusUsesShorthand = borderRadiusGroup?.rows.some(
+		({node}) =>
+			node.kind === 'field' && node.field?.key === BORDER_RADIUS_SHORTHAND_KEY,
+	);
+	const borderRadiusConversion = getBorderRadiusConversion(
+		sequencePropStatuses,
+		getDragOverrides(nodePathInfo.sequenceSubscriptionKey),
+	);
+	const inlineCaptionValue =
+		schema.captions?.type === 'remotion-captions'
+			? sequence.controls.currentRuntimeValueDotNotation.captions
+			: null;
+	const inlineCaptions = Array.isArray(inlineCaptionValue)
+		? (inlineCaptionValue as Caption[])
+		: null;
 	const showEffectsSection =
 		nodePathInfo.supportsEffects || effectRows.length > 0;
 	const canAddEffect =
 		nodePathInfo.supportsEffects &&
 		previewServerState.type === 'connected' &&
+		isStudioInteractivityEnabled() &&
 		Boolean(validatedLocation.source);
 
 	const onAddEffect = useCallback(() => {
@@ -336,10 +656,74 @@ export const InspectorSequenceSection: React.FC<{
 		validatedLocation.source,
 	]);
 
+	const onConvertBorderRadius = useCallback(() => {
+		if (
+			borderRadiusConversion === null ||
+			previewServerState.type !== 'connected'
+		) {
+			return;
+		}
+
+		const common = {
+			fileName: validatedLocation.source,
+			nodePath: nodePathInfo.sequenceSubscriptionKey,
+			defaultValue: null,
+			schema,
+		};
+		const changes = getBorderRadiusConversionChanges(
+			borderRadiusConversion,
+		).map((change) => ({...common, ...change}));
+
+		saveSequenceProps({
+			changes,
+			addedKeyframes: null,
+			movedKeyframes: null,
+			setPropStatuses,
+			clientId: previewServerState.clientId,
+			undoLabel: 'Change border radius representation',
+			redoLabel: 'Change border radius representation again',
+		});
+	}, [
+		borderRadiusConversion,
+		nodePathInfo.sequenceSubscriptionKey,
+		previewServerState,
+		schema,
+		setPropStatuses,
+		validatedLocation.source,
+	]);
+
+	const borderRadiusAction = borderRadiusGroup ? (
+		<InlineAction
+			variant={null}
+			disabled={
+				borderRadiusConversion === null ||
+				previewServerState.type !== 'connected'
+			}
+			onClick={onConvertBorderRadius}
+			title={
+				borderRadiusConversion === null
+					? borderRadiusUsesShorthand
+						? 'A static border radius is required to use individual corners'
+						: 'All four corners must have the same static value'
+					: borderRadiusUsesShorthand
+						? 'Use individual corner radii'
+						: 'Use one border radius value'
+			}
+			renderAction={(color) =>
+				borderRadiusUsesShorthand ? (
+					<FullscreenIcon color={color} style={borderRadiusToggleIcon} />
+				) : (
+					<BorderRadiusIcon color={color} style={borderRadiusToggleIcon} />
+				)
+			}
+		/>
+	) : null;
+
 	const effectsHeader = (
 		<div style={sectionHeaderRow}>
 			<div style={effectsHeaderTitle}>Effects</div>
 			<InlineAction
+				variant={null}
 				disabled={!canAddEffect}
 				onClick={onAddEffect}
 				title={canAddEffect ? 'Add effect' : undefined}
@@ -371,7 +755,34 @@ export const InspectorSequenceSection: React.FC<{
 		);
 	};
 
-	if (controlRows.length === 0 && !showEffectsSection) {
+	const renderControlGroupHeader = (group: InspectorControlGroup) => {
+		const collapsible = isSmartCollapsibleInspectorGroup(group.id);
+		const expanded = isControlGroupExpanded(group);
+		if (collapsible) {
+			return (
+				<CollapsibleInspectorSectionHeader
+					action={
+						group.id === 'border-radius' && expanded ? borderRadiusAction : null
+					}
+					expanded={expanded}
+					label={group.label}
+					onToggle={() => toggleControlGroup(group)}
+				/>
+			);
+		}
+
+		return (
+			<div style={sectionHeaderRow}>
+				<div style={effectsHeaderTitle}>{group.label}</div>
+			</div>
+		);
+	};
+
+	if (
+		controlRows.length === 0 &&
+		!showEffectsSection &&
+		inlineCaptions === null
+	) {
 		return (
 			<div style={container}>
 				<InspectorSection header="Controls">
@@ -382,53 +793,55 @@ export const InspectorSequenceSection: React.FC<{
 	}
 
 	return (
-		<div style={container}>
-			{controlRows.length > 0 ? (
-				<TimelineSelectionOrderProvider items={controlSelectableItems}>
-					{controlGroups.map((group) => (
-						<InspectorSection key={group.id} header={group.label}>
-							{group.id === 'source' && localAsset ? (
-								<InspectorInlineAction
-									disabled={false}
-									onClick={jumpToAsset}
-									renderIcon={(color) => (
-										<AssetFileIcon
-											color={color}
-											fileType={getPreviewFileType(localAsset.assetPath)}
-											style={assetSelectorIcon}
-										/>
-									)}
-									size="compact"
-									title={localAsset.assetPath}
-								>
-									{localAssetFileName}
-								</InspectorInlineAction>
-							) : null}
-							{group.id === 'source' && remoteAsset && remoteSourceParts ? (
-								<div style={remoteSourceLabel} title={remoteAsset.href}>
-									<span style={remoteSourceLeading}>
-										{remoteSourceParts.leading}
-									</span>
-									<span style={remoteSourceTrailing}>
-										{remoteSourceParts.trailing}
-									</span>
-								</div>
-							) : null}
-							{group.id === 'transforms' ? renderTransformControls() : null}
-							{group.id === 'source' ? null : group.rows.map(renderRow)}
+		<AssetSelectionContext.Provider value={assetSelectionContextValue}>
+			<div style={container}>
+				{controlRows.length > 0 ? (
+					<TimelineSelectionOrderProvider items={controlSelectableItems}>
+						{controlGroupsWithoutLayout.map((group) => (
+							<InspectorSection
+								key={group.id}
+								header={renderControlGroupHeader(group)}
+							>
+								{isControlGroupExpanded(group) ? (
+									<>
+										{group.id === 'transforms'
+											? renderTransformControls()
+											: null}
+										{group.rows.map(renderRow)}
+									</>
+								) : null}
+							</InspectorSection>
+						))}
+					</TimelineSelectionOrderProvider>
+				) : null}
+				{inlineCaptions ? (
+					<InlineCaptionInspector
+						captions={inlineCaptions}
+						controls={sequence.controls}
+						nodePath={nodePathInfo.sequenceSubscriptionKey}
+						readOnlyStudio={readOnlyStudio}
+						validatedLocation={validatedLocation}
+					/>
+				) : null}
+				{showEffectsSection ? (
+					<InspectorSection header={effectsHeader}>
+						{effectRows.length > 0 ? (
+							<TimelineSelectionOrderProvider items={effectSelectableItems}>
+								{effectRows.map(renderRow)}
+							</TimelineSelectionOrderProvider>
+						) : null}
+					</InspectorSection>
+				) : null}
+				{layoutGroup ? (
+					<TimelineSelectionOrderProvider items={controlSelectableItems}>
+						<InspectorSection header={renderControlGroupHeader(layoutGroup)}>
+							{isControlGroupExpanded(layoutGroup)
+								? layoutGroup.rows.map(renderRow)
+								: null}
 						</InspectorSection>
-					))}
-				</TimelineSelectionOrderProvider>
-			) : null}
-			{showEffectsSection ? (
-				<InspectorSection header={effectsHeader}>
-					{effectRows.length > 0 ? (
-						<TimelineSelectionOrderProvider items={effectSelectableItems}>
-							{effectRows.map(renderRow)}
-						</TimelineSelectionOrderProvider>
-					) : null}
-				</InspectorSection>
-			) : null}
-		</div>
+					</TimelineSelectionOrderProvider>
+				) : null}
+			</div>
+		</AssetSelectionContext.Provider>
 	);
 };

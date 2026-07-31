@@ -32,10 +32,7 @@ import {LabelOpacityContext, useLabelOpacity} from './LabelOpacity';
 import {Rotations} from './Rotations';
 
 type LabelProps = InteractiveBaseProps &
-	InteractiveTransformProps &
-	Partial<{
-		readonly stack: string;
-	}> & {
+	InteractiveTransformProps & {
 		readonly children: string;
 	};
 
@@ -45,6 +42,7 @@ const labelSchema = {
 	...Interactive.textSchema,
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
+	...Interactive.borderRadiusSchema,
 	children: {
 		type: 'text-content',
 		default: '',
@@ -80,7 +78,6 @@ const LabelInner = React.forwardRef<
 			hidden,
 			name,
 			showInTimeline,
-			stack,
 			controls,
 			style,
 		},
@@ -107,7 +104,6 @@ const LabelInner = React.forwardRef<
 				name={name ?? '<Label>'}
 				showInTimeline={showInTimeline ?? true}
 				controls={controls ?? undefined}
-				_remotionInternalStack={stack}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/studio/make-component-interactive"
 				outlineRef={outlineRef}
 			>

@@ -42,25 +42,9 @@ if (HtmlInCanvas.isSupported()) {
 }
 ```
 
-## Using WebGL during renders
+## Using WebGL and WebGPU during renders
 
-If you make use of WebGL during renders, you need to enable it:
-
-From the CLI:
-
-```bash
-npx remotion render --gl=angle
-```
-
-It is advised to set this as default in `remotion.config.ts` so Studio and CLI renders pick it up:
-
-```ts twoslash title="remotion.config.ts"
-import {Config} from '@remotion/cli/config';
-// ---cut---
-Config.setChromiumOpenGlRenderer('angle');
-```
-
-See [`Config.setChromiumOpenGlRenderer()`](/docs/config#setchromiumopenglrenderer).
+See [Using WebGL and WebGPU during renders](/docs/webgl).
 
 ## API
 
@@ -85,10 +69,6 @@ This is useful to counteract quality loss when the canvas is scaled up – for e
 
 Children to draw to the canvas.  
 Children will be wrapped in a `<div>` with the given `width` and `height`.
-
-Nesting `<HtmlInCanvas>` components is supported from <AvailableFrom v="4.0.491" inline />.
-Native browser support for nesting requires Chrome 152.0.7944.0 or later.
-Older Chrome versions support a single `<HtmlInCanvas>`, but do not correctly paint nested HTML-in-canvas subtrees.
 
 ### `effects?`<AvailableFrom v="4.0.464" />
 
@@ -144,6 +124,22 @@ The resolved pixel density. It is `1` by default, or the number passed to `pixel
 Runs once before the first paint. Use it to create GPU contexts or other resources tied to the [`OffscreenCanvas`](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas). Must return a cleanup function, or a `Promise` that resolves to one. The cleanup runs on unmount.
 
 The argument object matches [`onPaint`](#onpaint) (`canvas`, `element`, `elementImage`). The `elementImage` passed here is only for initialization — capture again inside [`onPaint`](#onpaint) for each frame.
+
+### `cropLeft?`<AvailableFrom v="4.0.500" />
+
+Crops the canvas from the left by a ratio between 0 and 1. See [`cropLeft`](/docs/sequence#cropleft) on `<Sequence>`.
+
+### `cropRight?`<AvailableFrom v="4.0.500" />
+
+Crops the canvas from the right by a ratio between 0 and 1. See [`cropRight`](/docs/sequence#cropright) on `<Sequence>`.
+
+### `cropTop?`<AvailableFrom v="4.0.500" />
+
+Crops the canvas from the top by a ratio between 0 and 1. See [`cropTop`](/docs/sequence#croptop) on `<Sequence>`.
+
+### `cropBottom?`<AvailableFrom v="4.0.500" />
+
+Crops the canvas from the bottom by a ratio between 0 and 1. See [`cropBottom`](/docs/sequence#cropbottom) on `<Sequence>`.
 
 ### `durationInFrames?`
 
@@ -797,6 +793,12 @@ const onPaint: HtmlInCanvasOnPaint = async ({canvas, elementImage}) => {
   }
 };
 ```
+
+## Nested HTML-in-canvas
+
+Nesting `<HtmlInCanvas>` components is supported from <AvailableFrom v="4.0.491" inline /> for client-side rendering and preview if on Chrome 152.0.7944.0 or later.
+
+On server-side rendering, nested HTML-in-canvas is not yet supported, pending a Chrome upgrade which we are working on.
 
 ## Compatibility
 

@@ -128,5 +128,11 @@ export const SidebarRenderButton: React.FC<{
 		return null;
 	}
 
-	return <InlineAction renderAction={renderAction} onClick={onClick} />;
+	return (
+		<InlineAction
+			renderAction={renderAction}
+			onClick={onClick}
+			variant={null}
+		/>
+	);
 };

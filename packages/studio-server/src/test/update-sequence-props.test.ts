@@ -111,6 +111,87 @@ export const Example = () => {
 	expect(oldValueStrings).toEqual(['2']);
 });
 
+test('updateSequenceProps should migrate border radius shorthand to longhands', async () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return <AbsoluteFill style={{borderRadius: 12, opacity: 0.5}} />;
+};
+`;
+	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, 4),
+		updates: [
+			{
+				key: 'style.borderTopRightRadius',
+				value: 20,
+				defaultValue: undefined,
+			},
+		],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+	});
+
+	expect(output).not.toContain('borderRadius: 12');
+	expect(output).toContain('borderTopLeftRadius: 12');
+	expect(output).toContain('borderTopRightRadius: 20');
+	expect(output).toContain('borderBottomRightRadius: 12');
+	expect(output).toContain('borderBottomLeftRadius: 12');
+	expect(output).toContain('opacity: 0.5');
+	expect(oldValueStrings).toEqual(['12']);
+});
+
+test('updateSequenceProps should collapse equal border radius longhands to the shorthand', async () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return <AbsoluteFill style={{borderTopLeftRadius: 12, borderTopRightRadius: 12, borderBottomRightRadius: 12, borderBottomLeftRadius: 12, opacity: 0.5}} />;
+};
+`;
+	const nodePath = lineColumnToNodePath(input, 4);
+	const updates = [
+		{
+			key: 'style.borderTopLeftRadius',
+			value: undefined,
+			defaultValue: undefined,
+		},
+		{
+			key: 'style.borderTopRightRadius',
+			value: undefined,
+			defaultValue: undefined,
+		},
+		{
+			key: 'style.borderBottomRightRadius',
+			value: undefined,
+			defaultValue: undefined,
+		},
+		{
+			key: 'style.borderBottomLeftRadius',
+			value: undefined,
+			defaultValue: undefined,
+		},
+		{key: 'style.borderRadius', value: 12, defaultValue: undefined},
+	];
+	const {output} = await updateMultipleSequenceProps({
+		input,
+		changes: updates.map((update) => ({
+			nodePath,
+			updates: [update],
+			schema: NoReactInternals.sequenceSchema,
+			videoConfigValues: null,
+		})),
+		prettierConfigOverride: null,
+	});
+
+	expect(output).toContain('borderRadius: 12');
+	expect(output).not.toContain('borderTopLeftRadius');
+	expect(output).not.toContain('borderTopRightRadius');
+	expect(output).not.toContain('borderBottomRightRadius');
+	expect(output).not.toContain('borderBottomLeftRadius');
+	expect(output).toContain('opacity: 0.5');
+});
+
 test('updateSequenceProps should migrate a color-only background shorthand', async () => {
 	const input = `import {AbsoluteFill} from 'remotion';
 
@@ -219,6 +300,43 @@ export const Example = () => {
 	expect(output).toContain(`src={staticFile('folder/new image.png')}`);
 });
 
+test('updateMultipleSequenceProps should import staticFile() when changing a remote asset to a local asset', async () => {
+	const input = `import {Video} from '@remotion/media';
+
+export const Example = () => {
+	return <Video src="https://example.com/old.mp4" />;
+};
+`;
+	const {output, results} = await updateMultipleSequenceProps({
+		input,
+		changes: [
+			{
+				nodePath: lineColumnToNodePath(input, 4),
+				updates: [
+					{
+						key: 'src',
+						value: 'remotion-file:folder/new%20video.mp4',
+						defaultValue: null,
+					},
+				],
+				schema: {
+					src: {
+						type: 'asset',
+						default: undefined,
+						keyframable: false,
+					},
+				},
+				videoConfigValues: null,
+			},
+		],
+		prettierConfigOverride: null,
+	});
+
+	expect(results[0].oldValueStrings[0]).toBe('"https://example.com/old.mp4"');
+	expect(output).toContain("import {staticFile} from 'remotion';");
+	expect(output).toContain(`src={staticFile('folder/new video.mp4')}`);
+});
+
 test('updateSequenceProps should remove attribute when value equals default', async () => {
 	const {output, oldValueStrings} = await updateSequenceProps({
 		videoConfigValues: null,
@@ -234,6 +352,61 @@ test('updateSequenceProps should remove attribute when value equals default', as
 	expect(output.split('\n')[8]).not.toContain('hueShift');
 	// First LightLeak should still have hueShift
 	expect(output.split('\n')[7]).toContain('hueShift={30}');
+});
+
+test('resetting strokeWidth removes the JSX attribute', async () => {
+	const input = `import {Interactive} from 'remotion';
+
+export const Example = () => {
+	return <Interactive.Line stroke="red" strokeWidth={10} />;
+};
+`;
+	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, 4),
+		updates: [{key: 'strokeWidth', value: 1, defaultValue: 1}],
+		schema: {
+			strokeWidth: {
+				type: 'number',
+				default: 1,
+				min: 0,
+				step: 1,
+				hiddenFromList: false,
+			},
+		},
+		prettierConfigOverride: null,
+	});
+
+	expect(oldValueStrings).toEqual(['10']);
+	expect(output).toContain('<Interactive.Line stroke="red" />');
+	expect(output).not.toContain('strokeWidth');
+});
+
+test('resetting stroke removes the JSX attribute', async () => {
+	const input = `import {Interactive} from 'remotion';
+
+export const Example = () => {
+	return <Interactive.Line stroke="red" />;
+};
+`;
+	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, 4),
+		updates: [{key: 'stroke', value: 'none', defaultValue: 'none'}],
+		schema: {
+			stroke: {
+				type: 'color',
+				default: 'none',
+			},
+		},
+		prettierConfigOverride: null,
+	});
+
+	expect(oldValueStrings).toEqual(['"red"']);
+	expect(output).toContain('<Interactive.Line />');
+	expect(output).not.toContain('stroke=');
 });
 
 test('updateSequenceProps should remove name when value is empty string default', async () => {
@@ -284,6 +457,31 @@ export const Example: React.FC = () => {
 
 	expect(oldValueStrings[0]).toBe('12');
 	expect(output).toContain('freeze={null}');
+});
+
+test('updateSequenceProps should remove an optional attribute', async () => {
+	const input = `import {Sequence} from 'remotion';
+
+export const Example: React.FC = () => {
+	return (
+		<Sequence from={0} freeze={12}>
+			<div />
+		</Sequence>
+	);
+};
+`;
+
+	const {output, oldValueStrings} = await updateSequenceProps({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, 5),
+		updates: [{key: 'freeze', value: undefined, defaultValue: null}],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+	});
+
+	expect(oldValueStrings[0]).toBe('12');
+	expect(output).not.toContain('freeze=');
 });
 
 test('updateSequenceProps should set boolean true as shorthand', async () => {

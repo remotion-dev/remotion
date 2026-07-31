@@ -1,4 +1,4 @@
-# Remotion + React Router 7 Starter Kit
+# Remotion + React Router 8 Starter Kit
 
 <p align="center">
   <a href="https://github.com/remotion-dev/logo">
@@ -9,10 +9,12 @@
   </a>
 </p>
 
-This is a [React Router 7 starter kit](https://reactrouter.com/home) with [Remotion](https://remotion.dev), [`@remotion/player`](https://remotion.dev/player) and [`@remotion/lambda`](https://remotion.dev/lambda) built in.  
+This is a [React Router 8 starter kit](https://reactrouter.com/home) with [Remotion](https://remotion.dev), [`@remotion/player`](https://remotion.dev/player) and [`@remotion/lambda`](https://remotion.dev/lambda) built in.
 It lets you render a video from a React Router app with AWS Lambda.
 
 ## Getting started
+
+Use Node.js 22.22.0 or newer.
 
 Install dependencies using
 

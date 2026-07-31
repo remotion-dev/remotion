@@ -32,5 +32,11 @@ export const CompositionContextButton: React.FC<{
 		return null;
 	}
 
-	return <InlineDropdown renderAction={renderAction} values={values} />;
+	return (
+		<InlineDropdown
+			renderAction={renderAction}
+			values={values}
+			variant={null}
+		/>
+	);
 };

@@ -1,6 +1,6 @@
 import React, {useCallback, useMemo} from 'react';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
-import {BLACK_HEX} from '../../helpers/colors';
+import {BLACK_HEX, BLUE, LIGHT_TEXT} from '../../helpers/colors';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -16,6 +16,22 @@ const containerStyle: React.CSSProperties = {
 
 const SWATCH_WIDTH = 20;
 const SWATCH_HEIGHT = 15;
+const DEFAULT_SET_COLOR = '#808080';
+
+const noneLabelStyle: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	fontSize: 12,
+};
+
+const setButtonStyle: React.CSSProperties = {
+	background: 'none',
+	border: 'none',
+	color: BLUE,
+	cursor: 'pointer',
+	fontSize: 12,
+	margin: 0,
+	padding: 0,
+};
 
 export const TimelineColorField: React.FC<{
 	readonly field: SchemaFieldInfo;
@@ -62,6 +78,22 @@ export const TimelineColorField: React.FC<{
 			marginLeft: 5,
 		};
 	}, []);
+
+	if (currentValue === 'none') {
+		return (
+			<span style={containerStyle}>
+				<span style={noneLabelStyle}>None</span>
+				<button
+					type="button"
+					style={setButtonStyle}
+					title={`Set ${field.description ?? field.key} to gray`}
+					onClick={() => onChangeComplete(DEFAULT_SET_COLOR)}
+				>
+					Set
+				</button>
+			</span>
+		);
+	}
 
 	return (
 		<span style={containerStyle}>

@@ -19,12 +19,15 @@ import {Freeze} from '../freeze.js';
 import {
 	backgroundSchema,
 	baseSchema,
+	borderRadiusSchema,
 	borderSchema,
+	cropSchema,
 	premountSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
 import {Sequence} from '../Sequence.js';
+import {useCropStyle} from '../use-crop-style.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {usePremounting} from '../use-premounting.js';
@@ -51,6 +54,7 @@ export const animatedImageSchema = {
 		keyframable: false,
 	},
 	...baseSchema,
+	...cropSchema,
 	...premountSchema,
 	playbackRate: {
 		type: 'number',
@@ -65,6 +69,7 @@ export const animatedImageSchema = {
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,
+	...borderRadiusSchema,
 } as const satisfies InteractivitySchema;
 
 const getCanvasPropsFromSequenceProps = (
@@ -307,6 +312,10 @@ const AnimatedImageInner = ({
 	postmountFor,
 	styleWhilePremounted,
 	styleWhilePostmounted,
+	cropLeft,
+	cropRight,
+	cropTop,
+	cropBottom,
 	requestInit,
 	effects = [],
 	controls,
@@ -341,6 +350,14 @@ const AnimatedImageInner = ({
 		styleWhilePostmounted: styleWhilePostmounted ?? null,
 		hideWhilePremounted: 'display-none',
 	});
+	const croppedStyle = useCropStyle({
+		cropLeft,
+		cropRight,
+		cropTop,
+		cropBottom,
+		style: premountingStyle,
+		componentName: '<AnimatedImage />',
+	});
 
 	const canvasProps = getCanvasPropsFromSequenceProps(sequenceProps);
 
@@ -354,7 +371,7 @@ const AnimatedImageInner = ({
 		loopBehavior,
 		id,
 		className,
-		style: premountingStyle ?? undefined,
+		style: croppedStyle ?? undefined,
 		requestInit,
 		...canvasProps,
 	};

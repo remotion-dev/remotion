@@ -23,7 +23,11 @@ type Props = {
   readonly title: string;
 };
 
-export const MyComposition = ({ title }: Props) => <h1>{title}</h1>;
+export const MyComposition = ({ title }: Props) => (
+  <h1>
+    {title}
+  </h1>
+);
 
 const defaultProps = { title: "Hello World" };
 
@@ -86,7 +90,12 @@ import { Thumbnail } from "./Thumbnail";
 
 export const RemotionRoot = () => {
   return (
-    <Still id="Thumbnail" component={Thumbnail} width={1280} height={720} />
+    <Still
+      id="Thumbnail"
+      component={Thumbnail}
+      width={1280}
+      height={720}
+    />
   );
 };
 ```

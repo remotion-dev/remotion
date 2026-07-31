@@ -23,7 +23,9 @@ import {Freeze} from '../freeze.js';
 import {
 	backgroundSchema,
 	baseSchema,
+	borderRadiusSchema,
 	borderSchema,
+	cropSchema,
 	premountSchema,
 	transformSchema,
 	type InteractivitySchema,
@@ -33,6 +35,7 @@ import {Sequence} from '../Sequence.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {truncateSrcForLabel} from '../truncate-src-for-label.js';
 import {useBufferState} from '../use-buffer-state.js';
+import {useCropStyle} from '../use-crop-style.js';
 import {useDelayRender} from '../use-delay-render.js';
 import {usePremounting} from '../use-premounting.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
@@ -40,6 +43,7 @@ import type {CanvasImageCanvasProps, CanvasImageProps} from './props.js';
 
 export const canvasImageSchema = {
 	...baseSchema,
+	...cropSchema,
 	...premountSchema,
 	fit: {
 		type: 'enum',
@@ -54,6 +58,7 @@ export const canvasImageSchema = {
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,
+	...borderRadiusSchema,
 } as const satisfies InteractivitySchema;
 
 type LoadedImage = {
@@ -533,9 +538,13 @@ const CanvasImageInner = forwardRef<
 			hidden,
 			name,
 			showInTimeline,
-			stack,
+			cropLeft,
+			cropRight,
+			cropTop,
+			cropBottom,
 			controls,
 			_remotionInternalDocumentationLink,
+			_remotionInternalCropComponentName,
 			outlineRef,
 			...canvasProps
 		},
@@ -568,6 +577,14 @@ const CanvasImageInner = forwardRef<
 			styleWhilePostmounted: styleWhilePostmounted ?? null,
 			hideWhilePremounted: 'display-none',
 		});
+		const croppedStyle = useCropStyle({
+			cropLeft,
+			cropRight,
+			cropTop,
+			cropBottom,
+			style: premountingStyle,
+			componentName: _remotionInternalCropComponentName ?? '<CanvasImage />',
+		});
 
 		return (
 			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
@@ -587,7 +604,6 @@ const CanvasImageInner = forwardRef<
 					controls={controls}
 					_remotionInternalEffects={memoizedEffectDefinitions}
 					_remotionInternalIsMedia={{type: 'image', src}}
-					_remotionInternalStack={stack}
 					_remotionInternalPremountDisplay={effectivePremountFor || null}
 					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 					_remotionInternalIsPremounting={premountingActive}
@@ -603,7 +619,7 @@ const CanvasImageInner = forwardRef<
 						effects={effects}
 						controls={controls}
 						className={className}
-						style={premountingStyle ?? undefined}
+						style={croppedStyle ?? undefined}
 						id={id}
 						onError={onError}
 						pauseWhenLoading={pauseWhenLoading}

@@ -2,8 +2,10 @@ import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
+import {getFileManagerName} from '../helpers/get-file-manager-name';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
 import {showNotification} from './Notifications/NotificationCenter';
+import {openInFileExplorer} from './RenderQueue/actions';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 
 const baseStyle: React.CSSProperties = {
@@ -54,32 +56,56 @@ export const MenuCompositionName: React.FC = () => {
 			compositions.find((c) => c.id === canvasContent.compositionId) ?? null
 		);
 	}, [canvasContent, compositions]);
+	const asset = canvasContent?.type === 'asset' ? canvasContent.asset : null;
 
 	const resolvedLocation = useResolvedStack(composition?.stack ?? null);
+	const fileManagerName = getFileManagerName(
+		window.remotion_fileSystemPlatform,
+	);
 
-	const canOpen =
+	const canOpenComposition =
 		resolvedLocation &&
 		window.remotion_editorName &&
 		connectionStatus === 'connected';
+	const canOpenAsset =
+		asset !== null &&
+		window.remotion_publicFolderExists !== null &&
+		connectionStatus === 'connected';
+	const canOpen = canOpenComposition || canOpenAsset;
 
 	const handleClick = useCallback(async () => {
-		if (!canOpen || !resolvedLocation) {
+		if (!canOpen || opening) {
 			return;
 		}
 
 		setOpening(true);
 		try {
-			await openOriginalPositionInEditor(resolvedLocation);
+			if (asset !== null && window.remotion_publicFolderExists !== null) {
+				await openInFileExplorer({
+					directory: `${window.remotion_publicFolderExists}/${asset}`,
+				});
+			} else if (resolvedLocation) {
+				await openOriginalPositionInEditor(resolvedLocation, null);
+			}
 		} catch (err) {
 			showNotification((err as Error).message, 2000);
 		} finally {
 			setOpening(false);
 		}
-	}, [canOpen, resolvedLocation]);
+	}, [asset, canOpen, opening, resolvedLocation]);
 
-	if (!composition) {
+	if (!composition && asset === null) {
 		return null;
 	}
+
+	const name = composition?.id ?? asset;
+	const title = composition
+		? canOpenComposition
+			? `Open in ${window.remotion_editorName}`
+			: composition.id
+		: canOpenAsset
+			? `Show in ${fileManagerName}`
+			: (asset ?? undefined);
 
 	return (
 		<>
@@ -92,14 +118,12 @@ export const MenuCompositionName: React.FC = () => {
 							: clickableStyle
 						: compositionNameStyle
 				}
-				title={
-					canOpen ? `Open in ${window.remotion_editorName}` : composition.id
-				}
+				title={title}
 				onClick={handleClick}
 				onPointerEnter={() => setHovered(true)}
 				onPointerLeave={() => setHovered(false)}
 			>
-				{composition.id}
+				{name}
 			</a>
 		</>
 	);

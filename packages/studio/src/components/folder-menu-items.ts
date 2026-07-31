@@ -52,7 +52,7 @@ export const getFolderMenuItems = ({
 						}
 
 						try {
-							await openOriginalPositionInEditor(resolvedLocation);
+							await openOriginalPositionInEditor(resolvedLocation, null);
 						} catch (err) {
 							showNotification((err as Error).message, 2000);
 						}

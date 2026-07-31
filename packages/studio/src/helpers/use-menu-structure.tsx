@@ -28,9 +28,11 @@ import type {ModalState} from '../state/modals';
 import {ModalsContext} from '../state/modals';
 import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
+import {getBrowserStudioOperations} from './browser-studio-operations';
 import {checkFullscreenSupport} from './check-fullscreen-support';
 import {StudioServerConnectionCtx} from './client-id';
-import {WHITE_HEX} from './colors';
+import {CURRENT_COLOR} from './colors';
+import {downloadBlob} from './download-blob';
 import {getFileManagerName} from './get-file-manager-name';
 import {getGitMenuItem} from './get-git-menu-item';
 import {useMobileLayout} from './mobile-layout';
@@ -47,6 +49,13 @@ const openExternal = (link: string) => {
 
 const rotate: React.CSSProperties = {
 	transform: `rotate(90deg)`,
+	color: 'inherit',
+};
+const iconContainer: React.CSSProperties = {
+	color: 'inherit',
+};
+const iconPath: React.CSSProperties = {
+	color: 'inherit',
 };
 const ICON_SIZE = 16;
 
@@ -64,13 +73,37 @@ const getFileMenu = ({
 	const fileManagerName = getFileManagerName(
 		window.remotion_fileSystemPlatform,
 	);
+	const browserStudioOperations = getBrowserStudioOperations();
+	const downloadProject = browserStudioOperations?.downloadProject;
 	const items: ComboboxValue[] = [
+		readOnlyStudio
+			? null
+			: {
+					id: 'new-composition',
+					value: 'new-composition',
+					label: 'New composition...',
+					onClick: () => {
+						closeMenu();
+						setSelectedModal({
+							type: 'new-comp',
+							folderName: null,
+							parentName: null,
+							stack: null,
+						});
+					},
+					type: 'item' as const,
+					keyHint: null,
+					leftItem: null,
+					subMenu: null,
+					quickSwitcherLabel: 'New composition...',
+					disabled: previewServerState !== 'connected',
+				},
 		readOnlyStudio
 			? null
 			: {
 					id: 'new-folder',
 					value: 'new-folder',
-					label: 'New Folder...',
+					label: 'New folder...',
 					onClick: () => {
 						closeMenu();
 						setSelectedModal({
@@ -90,7 +123,7 @@ const getFileMenu = ({
 			? null
 			: {
 					type: 'divider' as const,
-					id: 'new-folder-divider',
+					id: 'new-project-item-divider',
 				},
 		window.remotion_isReadOnlyStudio
 			? {
@@ -110,51 +143,41 @@ const getFileMenu = ({
 					quickSwitcherLabel: 'Override input props',
 				}
 			: null,
-		readOnlyStudio
-			? null
-			: {
-					id: 'render',
-					value: 'render',
-					label: 'Render...',
-					onClick: () => {
+		downloadProject
+			? {
+					id: 'download-project',
+					value: 'download-project',
+					label: 'Download project',
+					onClick: async () => {
 						closeMenu();
-						if (previewServerState !== 'connected') {
-							showNotification('Restart the studio to render', 2000);
-							return;
+
+						try {
+							const {data, fileName} = await downloadProject();
+							const arrayBuffer = data.buffer.slice(
+								data.byteOffset,
+								data.byteOffset + data.byteLength,
+							) as ArrayBuffer;
+							downloadBlob(
+								new Blob([arrayBuffer], {type: 'application/zip'}),
+								fileName,
+							);
+						} catch (error) {
+							showNotification(
+								`Could not download project: ${
+									error instanceof Error ? error.message : String(error)
+								}`,
+								2000,
+							);
 						}
-
-						const renderButton = document.getElementById(
-							'render-modal-button-server',
-						) as HTMLButtonElement;
-
-						renderButton.click();
 					},
 					type: 'item' as const,
-					keyHint: 'R',
+					keyHint: null,
 					leftItem: null,
 					subMenu: null,
-					quickSwitcherLabel: 'Render...',
-				},
-		{
-			id: 'render-on-web',
-			value: 'render-on-web',
-			label: 'Render on web...',
-			onClick: () => {
-				closeMenu();
-
-				const renderButton = document.getElementById(
-					'render-modal-button-client',
-				) as HTMLButtonElement;
-
-				renderButton.click();
-			},
-			type: 'item' as const,
-			keyHint: null,
-			leftItem: null,
-			subMenu: null,
-			quickSwitcherLabel: 'Render on web...',
-		},
-		!readOnlyStudio
+					quickSwitcherLabel: 'Download project',
+				}
+			: null,
+		!readOnlyStudio && downloadProject
 			? {
 					type: 'divider' as const,
 					id: 'open-project-divider',
@@ -166,13 +189,16 @@ const getFileMenu = ({
 					value: 'open-in-editor',
 					label: `Open in ${window.remotion_editorName}`,
 					onClick: async () => {
-						await openInEditor({
-							originalFileName: `${window.remotion_cwd}`,
-							originalLineNumber: 1,
-							originalColumnNumber: 1,
-							originalFunctionName: null,
-							originalScriptCode: null,
-						})
+						await openInEditor(
+							{
+								originalFileName: `${window.remotion_cwd}`,
+								originalLineNumber: 1,
+								originalColumnNumber: 1,
+								originalFunctionName: null,
+								originalScriptCode: null,
+							},
+							null,
+						)
 							.then(({success}) => {
 								if (!success) {
 									showNotification(
@@ -238,6 +264,67 @@ const getFileMenu = ({
 	};
 };
 
+const getRenderMenuItems = ({
+	closeMenu,
+	previewServerState,
+	readOnlyStudio,
+}: {
+	closeMenu: () => void;
+	previewServerState: 'connected' | 'init' | 'disconnected';
+	readOnlyStudio: boolean;
+}): ComboboxValue[] => {
+	return [
+		readOnlyStudio
+			? null
+			: {
+					id: 'render',
+					value: 'render',
+					label: 'Render...',
+					onClick: () => {
+						closeMenu();
+						if (previewServerState !== 'connected') {
+							showNotification('Restart the studio to render', 2000);
+							return;
+						}
+
+						const renderButton = document.getElementById(
+							'render-modal-button-server',
+						) as HTMLButtonElement;
+
+						renderButton.click();
+					},
+					type: 'item' as const,
+					keyHint: 'R',
+					leftItem: null,
+					subMenu: null,
+					quickSwitcherLabel: 'Render...',
+				},
+		{
+			id: 'render-on-web',
+			value: 'render-on-web',
+			label: 'Render on web...',
+			onClick: () => {
+				closeMenu();
+
+				const renderButton = document.getElementById(
+					'render-modal-button-client',
+				) as HTMLButtonElement;
+
+				renderButton.click();
+			},
+			type: 'item' as const,
+			keyHint: null,
+			leftItem: null,
+			subMenu: null,
+			quickSwitcherLabel: 'Render on web...',
+		},
+		{
+			type: 'divider' as const,
+			id: 'render-divider',
+		},
+	].filter(NoReactInternals.truthy);
+};
+
 export const useMenuStructure = (
 	closeMenu: () => void,
 	readOnlyStudio: boolean,
@@ -259,6 +346,10 @@ export const useMenuStructure = (
 		Internals.CompositionManager,
 	);
 	const {type} = useContext(StudioServerConnectionCtx).previewServerState;
+	const canConfigureDefaultEditor =
+		!readOnlyStudio &&
+		type === 'connected' &&
+		getBrowserStudioOperations() === null;
 
 	const {
 		setSidebarCollapsedState,
@@ -309,7 +400,7 @@ export const useMenuStructure = (
 			{
 				id: 'remotion' as const,
 				label: (
-					<Row align="center" justify="center">
+					<Row align="center" justify="center" style={iconContainer}>
 						<svg
 							width={ICON_SIZE}
 							height={ICON_SIZE}
@@ -317,8 +408,9 @@ export const useMenuStructure = (
 							style={rotate}
 						>
 							<path
-								fill={WHITE_HEX}
-								stroke={WHITE_HEX}
+								fill={CURRENT_COLOR}
+								stroke={CURRENT_COLOR}
+								style={iconPath}
 								strokeWidth="100"
 								strokeLinejoin="round"
 								d="M 2 172 a 196 100 0 0 0 195 5 A 196 240 0 0 0 100 2.259 A 196 240 0 0 0 2 172 z"
@@ -356,6 +448,24 @@ export const useMenuStructure = (
 						subMenu: null,
 						quickSwitcherLabel: 'Help: Changelog',
 					},
+					canConfigureDefaultEditor
+						? {
+								id: 'default-editor',
+								value: 'default-editor',
+								label: 'Configure default editor...',
+								onClick: () => {
+									closeMenu();
+									setSelectedModal({
+										type: 'configure-default-editor',
+									});
+								},
+								type: 'item' as const,
+								keyHint: null,
+								leftItem: null,
+								subMenu: null,
+								quickSwitcherLabel: 'Configure default editor...',
+							}
+						: null,
 					{
 						id: 'license',
 						value: 'license',
@@ -407,7 +517,7 @@ export const useMenuStructure = (
 						subMenu: null,
 						quickSwitcherLabel: 'Restart Studio Server',
 					},
-				],
+				].filter(NoReactInternals.truthy),
 				quickSwitcherLabel: null,
 			},
 			getFileMenu({
@@ -681,6 +791,8 @@ export const useMenuStructure = (
 								type: 'quick-switcher',
 								mode: 'compositions',
 								invocationTimestamp: Date.now(),
+								assetSelection: null,
+								compositionSelection: null,
 							});
 						},
 						type: 'item' as const,
@@ -775,16 +887,22 @@ export const useMenuStructure = (
 				id: 'composition' as const,
 				label: 'Composition',
 				leaveLeftPadding: false,
-				items: getCompositionMenuItems({
-					closeMenu,
-					composition: currentComposition,
-					connectionStatus: type,
-					includeCompositionManagementItems: true,
-					includeNewCompositionItem: true,
-					resolvedLocation: resolvedCompositionLocation,
-					setSelectedModal,
-					readOnlyStudio,
-				}),
+				items: [
+					...getRenderMenuItems({
+						closeMenu,
+						previewServerState: type,
+						readOnlyStudio,
+					}),
+					...getCompositionMenuItems({
+						closeMenu,
+						composition: currentComposition,
+						connectionStatus: type,
+						includeCompositionManagementItems: true,
+						resolvedLocation: resolvedCompositionLocation,
+						setSelectedModal,
+						readOnlyStudio,
+					}),
+				],
 				quickSwitcherLabel: null,
 			},
 			{
@@ -864,6 +982,8 @@ export const useMenuStructure = (
 								type: 'quick-switcher',
 								mode: 'docs',
 								invocationTimestamp: Date.now(),
+								assetSelection: null,
+								compositionSelection: null,
 							});
 						},
 						keyHint: '?',
@@ -1024,6 +1144,7 @@ export const useMenuStructure = (
 
 		return struct;
 	}, [
+		canConfigureDefaultEditor,
 		readOnlyStudio,
 		closeMenu,
 		type,

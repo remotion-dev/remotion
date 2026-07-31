@@ -101,18 +101,18 @@ bun i -D @remotion/tailwind-v4 tailwindcss
   </TabItem>
 </Tabs>
 
-2. Add the Webpack override from `@remotion/tailwind-v4` to your config file:
+2. Add the bundler override from `@remotion/tailwind-v4` to your config file:
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
 import {enableTailwind} from '@remotion/tailwind-v4';
 
-Config.overrideWebpackConfig((currentConfiguration) => {
+Config.overrideBundlerConfig((currentConfiguration) => {
   return enableTailwind(currentConfiguration);
 });
 ```
 
-3. If you use the [`bundle()` or `deploySite()` Node.JS API, add the Webpack override to it as well](/docs/webpack#when-using-bundle-and-deploysite).
+3. If you use the [`bundle()` Node.js API, add the bundler override to it as well](/docs/bundlers#when-using-bundle).
 
 4. Create a file `src/index.css` with the following content:
 
@@ -184,13 +184,13 @@ bun i -D @remotion/tailwind
   </TabItem>
 </Tabs>
 
-2. Add the Webpack override from `@remotion/tailwind` to your config file:
+2. Add the bundler override from `@remotion/tailwind` to your config file:
 
 ```ts twoslash title="remotion.config.ts"
 import {Config} from '@remotion/cli/config';
 import {enableTailwind} from '@remotion/tailwind';
 
-Config.overrideWebpackConfig((currentConfiguration) => {
+Config.overrideBundlerConfig((currentConfiguration) => {
   return enableTailwind(currentConfiguration);
 });
 ```
@@ -199,7 +199,7 @@ Config.overrideWebpackConfig((currentConfiguration) => {
 Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig()`.
 :::
 
-3. If you use the [`bundle()` or `deploySite()` Node.JS API, add the Webpack override to it as well](/docs/webpack#when-using-bundle-and-deploysite).
+3. If you use the [`bundle()` Node.js API, add the bundler override to it as well](/docs/bundlers#when-using-bundle).
 
 4. Create a file `src/style.css` with the following content:
 

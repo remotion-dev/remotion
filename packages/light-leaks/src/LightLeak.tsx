@@ -254,6 +254,7 @@ export const lightLeakSchema: InteractivitySchema = {
 	...Internals.transformSchema,
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
+	...Interactive.borderRadiusSchema,
 	...Internals.premountSchema,
 } as const satisfies InteractivitySchema;
 
@@ -303,6 +304,9 @@ const LightLeakInner: React.FC<
 	);
 };
 
+/**
+ * @deprecated Use `lightLeak()` from `@remotion/effects/light-leak` instead: https://www.remotion.dev/docs/effects/light-leak
+ */
 export const LightLeak = Interactive.withSchema({
 	Component: LightLeakInner,
 	componentName: '<LightLeak>',

@@ -69,7 +69,7 @@ test('parsePnpmWorkspaceCatalog handles basic, quoted, scoped entries and stops 
 		'  - packages/*',
 		'catalog:',
 		'  react: ^18.3.1',
-		'  zod: 4.3.6',
+		'  zod: 4.4.3',
 		'  "react-dom": "^18.3.1"',
 		"  typescript: '5.8.3'",
 		'  "@remotion/core": 4.0.10',
@@ -81,7 +81,7 @@ test('parsePnpmWorkspaceCatalog handles basic, quoted, scoped entries and stops 
 
 	const result = parsePnpmWorkspaceCatalog(richContent);
 	expect(result.react).toBe('^18.3.1');
-	expect(result.zod).toBe('4.3.6');
+	expect(result.zod).toBe('4.4.3');
 	expect(result['react-dom']).toBe('^18.3.1');
 	expect(result.typescript).toBe('5.8.3');
 	expect(result['@remotion/core']).toBe('4.0.10');
@@ -100,7 +100,7 @@ test('bun-style monorepo: finds workspace root, catalog source, and reads entrie
 				packages: ['packages/*'],
 				catalog: {
 					react: '^19.0.0',
-					zod: '4.3.6',
+					zod: '4.4.3',
 				},
 			},
 		}),
@@ -124,7 +124,7 @@ test('bun-style monorepo: finds workspace root, catalog source, and reads entrie
 
 	expect(getCatalogEntries(tmpDir)).toEqual({
 		react: '^19.0.0',
-		zod: '4.3.6',
+		zod: '4.4.3',
 	});
 });
 
@@ -133,7 +133,7 @@ test('top-level catalog in package.json: finds catalog source and reads entries'
 		path.join(tmpDir, 'package.json'),
 		JSON.stringify({
 			name: 'my-monorepo',
-			catalog: {zod: '4.3.6'},
+			catalog: {zod: '4.4.3'},
 		}),
 	);
 
@@ -144,13 +144,13 @@ test('top-level catalog in package.json: finds catalog source and reads entries'
 		expect(source!.catalogKey).toBe('root');
 	}
 
-	expect(getCatalogEntries(tmpDir)).toEqual({zod: '4.3.6'});
+	expect(getCatalogEntries(tmpDir)).toEqual({zod: '4.4.3'});
 });
 
 test('pnpm monorepo: finds workspace root, catalog source, and reads entries', () => {
 	fs.writeFileSync(
 		path.join(tmpDir, 'pnpm-workspace.yaml'),
-		'packages:\n  - packages/*\ncatalog:\n  zod: 4.3.6\n  react: ^19.0.0\n',
+		'packages:\n  - packages/*\ncatalog:\n  zod: 4.4.3\n  react: ^19.0.0\n',
 	);
 
 	const subPkgDir = path.join(tmpDir, 'packages', 'my-app');
@@ -163,7 +163,7 @@ test('pnpm monorepo: finds workspace root, catalog source, and reads entries', (
 	expect(source!.type).toBe('pnpm-workspace');
 
 	expect(getCatalogEntries(tmpDir)).toEqual({
-		zod: '4.3.6',
+		zod: '4.4.3',
 		react: '^19.0.0',
 	});
 });
@@ -193,7 +193,7 @@ test('updating catalog entries in bun-style package.json', () => {
 					packages: ['packages/*'],
 					catalog: {
 						react: '^18.0.0',
-						zod: '4.3.6',
+						zod: '4.4.3',
 						mediabunny: '1.34.4',
 					},
 				},
@@ -245,7 +245,7 @@ test('updating catalog entries in top-level package.json catalog', () => {
 		JSON.stringify(
 			{
 				name: 'my-monorepo',
-				catalog: {zod: '4.3.6', mediabunny: '1.34.4'},
+				catalog: {zod: '4.4.3', mediabunny: '1.34.4'},
 			},
 			null,
 			'\t',
@@ -263,7 +263,7 @@ test('updating catalog entries in top-level package.json catalog', () => {
 
 	const updated = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
 	expect(updated.catalog.mediabunny).toBe('1.35.0');
-	expect(updated.catalog.zod).toBe('4.3.6');
+	expect(updated.catalog.zod).toBe('4.4.3');
 });
 
 test('updating catalog entries in pnpm-workspace.yaml', () => {
@@ -275,7 +275,7 @@ test('updating catalog entries in pnpm-workspace.yaml', () => {
 			'  - packages/*',
 			'catalog:',
 			'  react: ^18.3.1',
-			'  zod: 4.3.6',
+			'  zod: 4.4.3',
 			'  "react-dom": "^18.3.1"',
 			'  "@aws-sdk/client-s3": 3.986.0',
 			'catalogs:',

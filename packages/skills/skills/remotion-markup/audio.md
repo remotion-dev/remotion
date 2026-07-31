@@ -123,8 +123,10 @@ return (
 Use `playbackRate` to change the playback speed:
 
 ```tsx
-<Audio src={staticFile("audio.mp3")} playbackRate={2} /> {/* 2x speed */}
-<Audio src={staticFile("audio.mp3")} playbackRate={0.5} /> {/* Half speed */}
+// 2x speed
+<Audio src={staticFile("audio.mp3")} playbackRate={2} />
+// Half speed
+<Audio src={staticFile("audio.mp3")} playbackRate={0.5} />
 ```
 
 Reverse playback is not supported.

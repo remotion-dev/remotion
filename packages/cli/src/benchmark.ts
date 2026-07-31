@@ -219,12 +219,19 @@ export const benchmarkCommand = async (
 		inputProps,
 		envVariables,
 		frameRange: defaultFrameRange,
+		selectedFrames,
 		ffmpegOverride,
 	} = getCliOptions({
 		isStill: false,
 		logLevel,
 		indent: false,
 	});
+
+	if (selectedFrames !== null) {
+		throw new Error(
+			'Comma-separated frame selections are only supported by the `render` command.',
+		);
+	}
 
 	const unparsedConcurrency = concurrencyOption.getValue({
 		commandLine: parsedCli,
@@ -346,6 +353,9 @@ export const benchmarkCommand = async (
 			keyboardShortcutsEnabled,
 			rspack,
 			shouldCache,
+			bundlerOverride: null,
+			rspackOverride: null,
+			webpackOverride: null,
 		});
 
 	registerCleanupJob(`Deleting bundle`, () => cleanupBundle());

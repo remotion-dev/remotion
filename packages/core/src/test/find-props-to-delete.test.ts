@@ -34,6 +34,10 @@ test('find right values to delete when upgrading a discriminated union', () => {
 			value: 'none',
 		}),
 	).toEqual([
+		'cropLeft',
+		'cropRight',
+		'cropTop',
+		'cropBottom',
 		'style.transformOrigin',
 		'style.translate',
 		'style.scale',
@@ -43,6 +47,11 @@ test('find right values to delete when upgrading a discriminated union', () => {
 		'style.borderWidth',
 		'style.borderStyle',
 		'style.borderColor',
+		'style.borderRadius',
+		'style.borderTopLeftRadius',
+		'style.borderTopRightRadius',
+		'style.borderBottomRightRadius',
+		'style.borderBottomLeftRadius',
 		'premountFor',
 		'postmountFor',
 	]);

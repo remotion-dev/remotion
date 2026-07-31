@@ -14,11 +14,15 @@ type RegisteredSequence = {
 	readonly postmountDisplay: number | null;
 };
 
-test('Gif exposes background and border controls', () => {
+test('Gif exposes background, border, and crop controls', () => {
 	expect('style.backgroundColor' in gifSchema).toBe(true);
 	expect('style.borderWidth' in gifSchema).toBe(true);
 	expect('style.borderStyle' in gifSchema).toBe(true);
 	expect('style.borderColor' in gifSchema).toBe(true);
+	expect('cropLeft' in gifSchema).toBe(true);
+	expect('cropRight' in gifSchema).toBe(true);
+	expect('cropTop' in gifSchema).toBe(true);
+	expect('cropBottom' in gifSchema).toBe(true);
 });
 
 class MockWorker {
@@ -103,7 +107,6 @@ const compositionContext = {
 const timelineContext = {
 	frame: {},
 	playing: false,
-	rootId: 'test-root',
 	imperativePlaying: {current: false},
 	audioAndVideoTags: {current: []},
 } as React.ContextType<typeof Internals.TimelineContext>;
@@ -227,6 +230,24 @@ test('<Gif> registers its canvas as the outline ref', async () => {
 test('<Gif> exposes non-keyframable premounting schema fields', () => {
 	expect(gifSchema.premountFor).toMatchObject({keyframable: false});
 	expect(gifSchema.postmountFor).toMatchObject({keyframable: false});
+});
+
+test('<Gif> applies crop props to its canvas', () => {
+	const {container} = render(
+		<SequenceRegistrationWrapper onRegisterSequence={() => undefined}>
+			<Gif
+				src="test.gif"
+				cropLeft={0.1}
+				cropRight={0.2}
+				cropTop={0.3}
+				cropBottom={0.4}
+			/>
+		</SequenceRegistrationWrapper>,
+	);
+
+	expect(container.querySelector('canvas')?.style.clipPath).toBe(
+		'inset(30% 20% 40% 10%)',
+	);
 });
 
 test('<Gif> hides the canvas while premounted and postmounted', () => {

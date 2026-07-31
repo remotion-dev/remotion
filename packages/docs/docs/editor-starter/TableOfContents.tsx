@@ -71,8 +71,12 @@ export const TableOfContents: React.FC = () => {
 					<div>How to setup captions and how they work</div>
 				</TOCItem>
 				<TOCItem link="/docs/editor-starter/rendering">
-					<strong>Rendering</strong>
-					<div>How to setup exports and how they work</div>
+					<strong>Lambda Rendering</strong>
+					<div>How to set up Lambda renders and how they work</div>
+				</TOCItem>
+				<TOCItem link="/docs/editor-starter/client-side-rendering">
+					<strong>Client-side Rendering</strong>
+					<div>How to render videos in the browser</div>
 				</TOCItem>
 				<TOCItem link="/docs/editor-starter/backend-routes">
 					<strong>Backend Routes</strong>

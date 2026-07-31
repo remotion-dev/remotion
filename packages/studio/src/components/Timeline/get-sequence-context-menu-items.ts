@@ -1,5 +1,11 @@
+import type {
+	EditorPickerId,
+	GetDefaultEditorInfoResponse,
+} from '@remotion/studio-shared';
+import {createElement} from 'react';
 import type {ResolvedStackLocation, TSequence} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {EditorIcon} from '../../icons/editor';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import type {TimelineAssetLinkInfo} from './timeline-asset-link';
@@ -36,6 +42,7 @@ export const getSequenceContextMenuItems = ({
 	duplicateDisabled,
 	fileLocation,
 	includeSourceEditItems,
+	editorInfo,
 	onDeleteSequenceFromSource,
 	onDisableSequenceInteractivity,
 	onDuplicateSequenceFromSource,
@@ -52,10 +59,11 @@ export const getSequenceContextMenuItems = ({
 	readonly duplicateDisabled: boolean;
 	readonly fileLocation: string | null;
 	readonly includeSourceEditItems: boolean;
+	readonly editorInfo: GetDefaultEditorInfoResponse | null;
 	readonly onDeleteSequenceFromSource: () => void;
 	readonly onDisableSequenceInteractivity: () => void;
 	readonly onDuplicateSequenceFromSource: () => void;
-	readonly openInEditor: () => void;
+	readonly openInEditor: (editorId: EditorPickerId | null) => void;
 	readonly originalLocation: ResolvedStackLocation | null;
 	readonly selectAsset: (src: string) => void;
 	readonly sequence: TSequence;
@@ -65,6 +73,7 @@ export const getSequenceContextMenuItems = ({
 	const {documentationLink} = sequence;
 	const isInteractiveSvg =
 		sequence.controls?.componentIdentity === interactiveSvgComponentIdentity;
+	const installedEditors = editorInfo?.installedEditors ?? [];
 
 	const items = [
 		editorName
@@ -75,10 +84,42 @@ export const getSequenceContextMenuItems = ({
 					label: `Open in ${editorName}`,
 					leftItem: null,
 					disabled: !canOpenInEditor || !originalLocation,
-					onClick: openInEditor,
+					onClick: () => openInEditor(null),
 					quickSwitcherLabel: null,
 					subMenu: null,
 					value: 'open-in-editor',
+				}
+			: null,
+		editorName && installedEditors.length > 0
+			? {
+					type: 'item' as const,
+					id: 'open-in-another-editor',
+					keyHint: null,
+					label: 'Open in...',
+					leftItem: null,
+					disabled: !canOpenInEditor || !originalLocation,
+					onClick: () => undefined,
+					quickSwitcherLabel: null,
+					subMenu: {
+						items: installedEditors.map((editor) => ({
+							type: 'item' as const,
+							id: `open-in-${editor.id}`,
+							keyHint: null,
+							label: editor.name,
+							leftItem: createElement(EditorIcon, {
+								editorId: editor.id,
+								size: 18,
+							}),
+							disabled: false,
+							onClick: () => openInEditor(editor.id),
+							quickSwitcherLabel: null,
+							subMenu: null,
+							value: editor.id,
+						})),
+						leaveLeftSpace: true,
+						preselectIndex: false as const,
+					},
+					value: 'open-in-another-editor',
 				}
 			: null,
 		{
@@ -191,18 +232,20 @@ export const getSequenceContextMenuItems = ({
 				}
 			: null,
 		...sourceActions,
-		{
-			type: 'item' as const,
-			id: 'disable-interactivity',
-			keyHint: null,
-			label: 'Disable interactivity',
-			leftItem: null,
-			disabled: disableInteractivityDisabled,
-			onClick: onDisableSequenceInteractivity,
-			quickSwitcherLabel: null,
-			subMenu: null,
-			value: 'disable-interactivity',
-		},
+		includeSourceEditItems
+			? {
+					type: 'item' as const,
+					id: 'disable-interactivity',
+					keyHint: null,
+					label: 'Disable interactivity',
+					leftItem: null,
+					disabled: disableInteractivityDisabled,
+					onClick: onDisableSequenceInteractivity,
+					quickSwitcherLabel: null,
+					subMenu: null,
+					value: 'disable-interactivity',
+				}
+			: null,
 		includeSourceEditItems
 			? {
 					type: 'item' as const,

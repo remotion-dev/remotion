@@ -15,10 +15,10 @@ import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
+	BLACK_ALPHA_60,
 	CURRENT_COLOR,
 	CURRENT_COLOR_LOWERCASE,
 	INPUT_BACKGROUND,
-	BLACK_ALPHA_60,
 	TRANSPARENT,
 	WHITE,
 } from '../helpers/colors';
@@ -550,6 +550,12 @@ export const RenderButton: React.FC<{
 				style={{display: 'none'}}
 				id="render-modal-button-client"
 				onClick={openClientRenderModal}
+				type="button"
+			/>
+			<button
+				style={{display: 'none'}}
+				id="render-modal-button-command"
+				onClick={() => openServerRenderModal(true)}
 				type="button"
 			/>
 			<div ref={containerRef} style={containerStyle} title={tooltip}>

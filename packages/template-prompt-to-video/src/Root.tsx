@@ -13,6 +13,7 @@ export const RemotionRoot: React.FC = () => {
     <>
       {timelines.map((storyName) => (
         <Composition
+          key={storyName}
           id={storyName}
           component={AIVideo}
           fps={FPS}

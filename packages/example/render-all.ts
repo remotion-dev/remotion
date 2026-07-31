@@ -8,7 +8,10 @@ const start = async () => {
 		webpackOverride,
 	});
 
-	const compositions = await getCompositions(bundled, {inputProps: {}});
+	const compositions = await getCompositions({
+		serveUrl: bundled,
+		inputProps: {},
+	});
 
 	for (const composition of compositions) {
 		console.log(`Rendering ${composition.id}...`);

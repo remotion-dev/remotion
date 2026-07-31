@@ -1,5 +1,6 @@
 import {afterEach, expect, test} from 'bun:test';
 import type {_InternalTypes} from 'remotion';
+import type {ResolvedStackLocation} from 'remotion';
 import {
 	getCompositionContextMenuItems,
 	getCompositionMenuItems,
@@ -43,6 +44,12 @@ const composition = {
 	durationInFrames: 100,
 } as _InternalTypes['AnyComposition'];
 
+const resolvedLocation: ResolvedStackLocation = {
+	column: 1,
+	line: 10,
+	source: '/project/src/Composition.tsx',
+};
+
 const commonArgs = {
 	closeMenu: () => undefined,
 	composition,
@@ -55,15 +62,19 @@ const commonArgs = {
 const ids = (items: ReturnType<typeof getCompositionMenuItems>) =>
 	items.map((item) => item.id);
 
-test('composition context menus do not include New', () => {
+test('composition menus exclude creation and include management actions', () => {
 	installTestWindow();
 
+	const menuItems = getCompositionMenuItems({
+		...commonArgs,
+		includeCompositionManagementItems: true,
+	});
 	const items = getCompositionContextMenuItems({
 		...commonArgs,
 		includeCompositionManagementItems: true,
 	});
 
-	expect(ids(items)).not.toContain('new');
+	expect(ids(menuItems)).not.toContain('new');
 	expect(ids(items)).toContain('rename');
 	expect(ids(items)).toContain('duplicate');
 	expect(ids(items)).toContain('delete');
@@ -81,21 +92,23 @@ test('connected composition context menus omit management actions', () => {
 		'open-in-new-window',
 		'open-in-new-window-divider',
 		'copy-file-location',
-		'copy-id-divider',
 		'copy-id',
 	]);
 });
 
-test('the main composition menu still includes New', () => {
+test('copy actions are adjacent', () => {
 	installTestWindow();
 
 	const items = getCompositionMenuItems({
 		...commonArgs,
 		includeCompositionManagementItems: true,
-		includeNewCompositionItem: true,
 	});
+	const copyFileLocationIndex = items.findIndex(
+		(item) => item.id === 'copy-file-location',
+	);
+	const copyIdIndex = items.findIndex((item) => item.id === 'copy-id');
 
-	expect(ids(items)).toContain('new');
+	expect(copyIdIndex).toBe(copyFileLocationIndex + 1);
 });
 
 test('editor actions use Open labels and are adjacent', () => {
@@ -121,4 +134,32 @@ test('editor actions use Open labels and are adjacent', () => {
 
 	expect(compositionItem.label).toBe('Open composition in VS Code');
 	expect(componentItem.label).toBe('Open component in VS Code');
+});
+
+test('read-only composition menus keep navigation and copy actions enabled', () => {
+	installTestWindowWithEditor();
+
+	const items = getCompositionContextMenuItems({
+		...commonArgs,
+		includeCompositionManagementItems: true,
+		readOnlyStudio: true,
+		resolvedLocation,
+	});
+	const itemById = (id: string) => {
+		const item = items.find((candidate) => candidate.id === id);
+		if (item?.type !== 'item') {
+			throw new Error(`Expected ${id} to be a menu item`);
+		}
+
+		return item;
+	};
+
+	expect(itemById('open-in-new-window').disabled).not.toBe(true);
+	expect(itemById('show-in-editor').disabled).toBe(false);
+	expect(itemById('open-component-in-editor').disabled).toBe(false);
+	expect(itemById('copy-file-location').disabled).toBe(false);
+	expect(itemById('copy-id').disabled).toBe(false);
+	expect(itemById('rename').disabled).toBe(true);
+	expect(itemById('duplicate').disabled).toBe(true);
+	expect(itemById('delete').disabled).toBe(true);
 });

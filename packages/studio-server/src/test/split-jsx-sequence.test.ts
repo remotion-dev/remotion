@@ -186,6 +186,7 @@ const getHandlerOptions = <T>({
 	publicDir: remotionRoot,
 	binariesDirectory: null,
 	configFile: null,
+	getDefaultEditor: () => null,
 });
 
 test('splitJsxSequenceHandler writes success and failure responses', async () => {

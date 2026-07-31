@@ -35,7 +35,7 @@ const StudioInner: React.FC<{
 			>
 				<StaticFilesProvider>
 					<ResolveCompositionConfigInStudio>
-						<EditorContexts readOnlyStudio={readOnly}>
+						<EditorContexts>
 							<Editor readOnlyStudio={readOnly} Root={rootComponent} />
 							{readOnly
 								? null

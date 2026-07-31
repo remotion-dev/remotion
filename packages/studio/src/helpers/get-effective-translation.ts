@@ -81,7 +81,7 @@ export const getEffectiveTranslation = ({
 	};
 };
 
-export const getCenterPointWhileScrolling = ({
+export const getUnboundedCenterPointWhileScrolling = ({
 	size,
 	clientX,
 	clientY,
@@ -106,18 +106,20 @@ export const getCenterPointWhileScrolling = ({
 	const contentTopPoint =
 		size.height / 2 - (compositionHeight * scale) / 2 - translation.y;
 
-	const offsetFromVideoLeft = Math.min(
-		compositionWidth,
-		Math.max(0, (mouseLeft - contentLeftPoint) / scale),
-	);
-	const offsetFromVideoTop = Math.min(
-		compositionHeight,
-		Math.max(0, (mouseTop - contentTopPoint) / scale),
-	);
+	return {
+		centerX: (mouseLeft - contentLeftPoint) / scale,
+		centerY: (mouseTop - contentTopPoint) / scale,
+	};
+};
+
+export const getCenterPointWhileScrolling = (
+	options: Parameters<typeof getUnboundedCenterPointWhileScrolling>[0],
+) => {
+	const {centerX, centerY} = getUnboundedCenterPointWhileScrolling(options);
 
 	return {
-		centerX: offsetFromVideoLeft,
-		centerY: offsetFromVideoTop,
+		centerX: Math.min(options.compositionWidth, Math.max(0, centerX)),
+		centerY: Math.min(options.compositionHeight, Math.max(0, centerY)),
 	};
 };
 

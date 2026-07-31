@@ -1,4 +1,10 @@
-import type {WebpackConfiguration} from '@remotion/bundler';
+import type {
+	BundlerOverrideFn,
+	RspackConfiguration,
+	RspackOverrideFn,
+	WebpackConfiguration,
+	WebpackOverrideFn,
+} from '@remotion/bundler';
 import type {
 	BrowserExecutable,
 	ChromeMode,
@@ -6,6 +12,7 @@ import type {
 	ColorSpace,
 	Crf,
 	DeleteAfter,
+	DefaultEditor,
 	FrameRange,
 	NumberOfGifLoops,
 	StillImageFormat,
@@ -37,12 +44,17 @@ import {
 	resetOutputLocation,
 	setOutputLocation,
 } from './output-location';
-import type {WebpackOverrideFn} from './override-webpack';
 import {
+	defaultBundlerOverrideFunction,
 	defaultOverrideFunction,
+	defaultRspackOverrideFunction,
+	getBundlerOverrideFn,
+	getRspackOverrideFn,
 	getWebpackOverrideFn,
+	overrideBundlerConfig,
+	overrideRspackConfig,
 	overrideWebpackConfig,
-	resetWebpackOverride,
+	resetBundlerOverrides,
 } from './override-webpack';
 import {
 	getRendererPortFromConfigFile,
@@ -57,7 +69,14 @@ import {getStillFrame, resetStillFrame, setStillFrame} from './still-frame';
 import {getWebpackCaching} from './webpack-caching';
 import {getWebpackPolling} from './webpack-poll';
 
-export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
+export type {
+	BundlerOverrideFn,
+	Concurrency,
+	RspackConfiguration,
+	RspackOverrideFn,
+	WebpackConfiguration,
+	WebpackOverrideFn,
+};
 
 const {
 	benchmarkConcurrenciesOption,
@@ -102,6 +121,7 @@ const {
 	enableCrossSiteIsolationOption,
 	imageSequencePatternOption,
 	darkModeOption,
+	defaultEditorOption,
 	askAIOption,
 	publicLicenseKeyOption,
 	interactivityOption,
@@ -172,6 +192,8 @@ declare global {
 		 * You can set an absolute path or a relative path that will be resolved from the closest package.json location.
 		 */
 		readonly setPublicDir: (publicDir: string | null) => void;
+		readonly overrideBundlerConfig: (f: BundlerOverrideFn) => void;
+		readonly overrideRspackConfig: (f: RspackOverrideFn) => void;
 		readonly overrideWebpackConfig: (f: WebpackOverrideFn) => void;
 	}
 	// Legacy config format: New options to not need to be added here.
@@ -199,9 +221,13 @@ declare global {
 		 */
 		readonly setAllowHtmlInCanvasEnabled: (enabled: boolean) => void;
 		/**
-		 * Enable experimental Rspack bundler instead of Webpack.
+		 * Enable the Rspack bundler instead of Webpack.
 		 * @param enabled Boolean whether to enable the Rspack bundler
 		 * @default false
+		 */
+		readonly setRspack: (enabled: boolean) => void;
+		/**
+		 * @deprecated Use `setRspack()` instead: https://www.remotion.dev/docs/config#setrspack
 		 */
 		readonly setExperimentalRspackEnabled: (enabled: boolean) => void;
 		/**
@@ -590,6 +616,10 @@ type FlatConfig = RemotionConfigObject &
 		 * Default: false
 		 */
 		setForceNewStudioEnabled: (forceNew: boolean) => void;
+		/**
+		 * Set the editor used when opening files from Remotion Studio.
+		 */
+		setDefaultEditor: (editor: DefaultEditor) => void;
 
 		setDeleteAfter: (day: DeleteAfter | null) => void;
 		/**
@@ -718,11 +748,14 @@ export const Config: FlatConfig = {
 	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
 	setInteractivityEnabled: interactivityOption.setConfig,
 	setAllowHtmlInCanvasEnabled,
+	setRspack: rspackOption.setConfig,
 	setExperimentalRspackEnabled: rspackOption.setConfig,
 	setNumberOfSharedAudioTags: numberOfSharedAudioTagsOption.setConfig,
 	setWebpackPollingInMilliseconds: webpackPollOption.setConfig,
 	setShouldOpenBrowser: noOpenOption.setConfig,
 	setBufferStateDelayInMilliseconds,
+	overrideBundlerConfig,
+	overrideRspackConfig,
 	overrideWebpackConfig,
 	setCachingEnabled: bundleCacheOption.setConfig,
 	setPort,
@@ -804,6 +837,7 @@ export const Config: FlatConfig = {
 	setEnableCrossSiteIsolation: enableCrossSiteIsolationOption.setConfig,
 	setAskAIEnabled: askAIOption.setConfig,
 	setPublicLicenseKey: publicLicenseKeyOption.setConfig,
+	setDefaultEditor: defaultEditorOption.setConfig,
 	setForceNewStudioEnabled: forceNewStudioOption.setConfig,
 	setIPv4: ipv4Option.setConfig,
 	setBundleOutDir: outDirOption.setConfig,
@@ -871,7 +905,7 @@ const resetConfigOptions = () => {
 	resetFfmpegOverrideFunction();
 	resetMetadata();
 	resetOutputLocation();
-	resetWebpackOverride();
+	resetBundlerOverrides();
 	resetPreviewServerPorts();
 	resetStillFrame();
 };
@@ -885,12 +919,16 @@ export const ConfigInternals = {
 	getStillFrame,
 	getShouldOutputImageSequence,
 	getDotEnvLocation,
+	getBundlerOverrideFn,
+	getRspackOverrideFn,
 	getWebpackOverrideFn,
 	getWebpackCaching,
 	getOutputLocation,
 	setStillFrame,
 	getMaxTimelineTracks: StudioServerInternals.getMaxTimelineTracks,
 	defaultOverrideFunction,
+	defaultBundlerOverrideFunction,
+	defaultRspackOverrideFunction,
 	getFfmpegOverrideFunction,
 	getMetadata,
 	getEntryPoint,

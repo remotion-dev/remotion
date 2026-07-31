@@ -7,8 +7,12 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
+import type {_InternalTypes} from 'remotion';
+import type {StaticFile} from '../../api/get-static-files';
 import {LIGHT_TEXT, WHITE} from '../../helpers/colors';
+import {getPreviewFileType} from '../../helpers/get-preview-file-type';
 import {isCompositionStill} from '../../helpers/is-composition-still';
+import {pushUrl} from '../../helpers/url-state';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {
 	makeSearchResults,
@@ -20,8 +24,11 @@ import {KeyboardShortcutsExplainer} from '../KeyboardShortcutsExplainer';
 import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {RemotionInput} from '../NewComposition/RemInput';
+import {useSelectAsset} from '../use-select-asset';
+import {useStaticFiles} from '../use-static-files';
 import {algoliaSearch} from './algolia-search';
 import {AlgoliaCredit} from './AlgoliaCredit';
+import {filterAssetsByType} from './asset-search';
 import {fuzzySearch} from './fuzzy-search';
 import type {QuickSwitcherMode} from './NoResults';
 import {QuickSwitcherNoResults} from './NoResults';
@@ -31,6 +38,7 @@ import {loopIndex} from './shared';
 
 const input: React.CSSProperties = {
 	width: '100%',
+	borderRadius: 4,
 };
 
 const modeSelector: React.CSSProperties = {
@@ -59,7 +67,6 @@ const modeInactive: React.CSSProperties = {
 const modeActive: React.CSSProperties = {
 	...modeItem,
 	color: WHITE,
-	fontWeight: 'bold',
 };
 
 const content: React.CSSProperties = {
@@ -72,8 +79,13 @@ const content: React.CSSProperties = {
 	alignItems: 'center',
 };
 
+const contentWithoutModeSelector: React.CSSProperties = {
+	...content,
+	paddingTop: 16,
+};
+
 const stripQuery = (query: string) => {
-	if (query.startsWith('>') || query.startsWith('?')) {
+	if (query.startsWith('$') || query.startsWith('>') || query.startsWith('?')) {
 		return query.substring(1).trim();
 	}
 
@@ -85,10 +97,16 @@ const mapQueryToMode = (query: string): QuickSwitcherMode => {
 		? 'commands'
 		: query.startsWith('?')
 			? 'docs'
-			: 'compositions';
+			: query.startsWith('$')
+				? 'assets'
+				: 'compositions';
 };
 
 const mapModeToQuery = (mode: QuickSwitcherMode): string => {
+	if (mode === 'assets') {
+		return '$ ';
+	}
+
 	if (mode === 'commands') {
 		return '> ';
 	}
@@ -124,24 +142,53 @@ export const QuickSwitcherContent: React.FC<{
 	readonly initialMode: QuickSwitcherMode;
 	readonly invocationTimestamp: number;
 	readonly readOnlyStudio: boolean;
-}> = ({initialMode, invocationTimestamp, readOnlyStudio}) => {
+	readonly assetSelection: {
+		readonly initialQuery: string;
+		readonly onSelectFile: () => void;
+		readonly onSelected: (asset: StaticFile) => void;
+	} | null;
+	readonly compositionSelection: {
+		readonly excludeCompositionId: string;
+		readonly onSelected: (
+			composition: _InternalTypes['AnyComposition'],
+		) => void;
+	} | null;
+}> = ({
+	initialMode,
+	invocationTimestamp,
+	readOnlyStudio,
+	assetSelection,
+	compositionSelection,
+}) => {
 	const {compositions} = useContext(Internals.CompositionManager);
+	const staticFiles = useStaticFiles();
 	const [state, setState] = useState(() => {
 		return {
-			query: mapModeToQuery(initialMode),
+			query:
+				assetSelection === null
+					? compositionSelection === null
+						? mapModeToQuery(initialMode)
+						: ''
+					: assetSelection.initialQuery,
 			selectedIndex: 0,
 		};
 	});
 
 	useEffect(() => {
 		setState({
-			query: mapModeToQuery(initialMode),
+			query:
+				assetSelection === null
+					? compositionSelection === null
+						? mapModeToQuery(initialMode)
+						: ''
+					: assetSelection.initialQuery,
 			selectedIndex: 0,
 		});
-	}, [initialMode, invocationTimestamp]);
+	}, [assetSelection, compositionSelection, initialMode, invocationTimestamp]);
 
 	const inputRef = useRef<HTMLInputElement>(null);
 	const selectComposition = useSelectComposition();
+	const selectAsset = useSelectAsset();
 
 	const closeMenu = useCallback(() => undefined, []);
 	const actions = useMenuStructure(closeMenu, readOnlyStudio);
@@ -151,7 +198,12 @@ export const QuickSwitcherContent: React.FC<{
 
 	const keybindings = useKeybinding();
 
-	const mode: QuickSwitcherMode = mapQueryToMode(state.query);
+	const mode: QuickSwitcherMode =
+		assetSelection !== null
+			? 'assets'
+			: compositionSelection !== null
+				? 'compositions'
+				: mapQueryToMode(state.query);
 
 	const actualQuery = useMemo(() => {
 		return stripQuery(state.query);
@@ -165,6 +217,13 @@ export const QuickSwitcherContent: React.FC<{
 		return makeSearchResults(actions, setSelectedModal);
 	}, [actions, mode, setSelectedModal]);
 
+	const assetSearch = useMemo(() => {
+		return filterAssetsByType({
+			assets: staticFiles,
+			query: actualQuery,
+		});
+	}, [actualQuery, staticFiles]);
+
 	const resultsArray = useMemo((): TQuickSwitcherResult[] => {
 		if (mode === 'commands') {
 			return fuzzySearch(actualQuery, menuActions);
@@ -174,29 +233,78 @@ export const QuickSwitcherContent: React.FC<{
 			return docResults.results;
 		}
 
+		if (mode === 'assets') {
+			const assetResults = fuzzySearch(
+				assetSearch.query,
+				assetSearch.assets.map((asset) => {
+					return {
+						id: 'asset-' + asset.name,
+						title: asset.name,
+						type: 'asset',
+						fileType: getPreviewFileType(asset.name),
+						onSelected: () => {
+							if (assetSelection !== null) {
+								assetSelection.onSelected(asset);
+							} else {
+								selectAsset(asset.name);
+								pushUrl(`/assets/${asset.name}`);
+							}
+
+							setSelectedModal(null);
+						},
+					};
+				}),
+			);
+
+			if (assetSelection === null) {
+				return assetResults;
+			}
+
+			return [
+				{
+					id: 'select-file',
+					title: 'Select file...',
+					type: 'select-file',
+					onSelected: () => {
+						assetSelection.onSelectFile();
+						setSelectedModal(null);
+					},
+				},
+				...assetResults,
+			];
+		}
+
 		return fuzzySearch(
 			actualQuery,
-			compositions.map((c) => {
-				return {
-					id: 'composition-' + c.id,
-					title: c.id,
-					type: 'composition',
-					onSelected: () => {
-						selectComposition(c, true);
-						setSelectedModal(null);
+			compositions
+				.filter((c) => c.id !== compositionSelection?.excludeCompositionId)
+				.map((c) => {
+					return {
+						id: 'composition-' + c.id,
+						title: c.id,
+						type: 'composition',
+						onSelected: () => {
+							if (compositionSelection !== null) {
+								compositionSelection.onSelected(c);
+								setSelectedModal(null);
+								return;
+							}
 
-						const selector = `.__remotion-composition[data-compname="${c.id}"]`;
+							selectComposition(c, true);
+							setSelectedModal(null);
 
-						Internals.compositionSelectorRef.current?.expandComposition(c.id);
-						waitForElm(selector).then(() => {
-							document
-								.querySelector(selector)
-								?.scrollIntoView({block: 'center'});
-						});
-					},
-					compositionType: isCompositionStill(c) ? 'still' : 'composition',
-				};
-			}),
+							const selector = `.__remotion-composition[data-compname="${c.id}"]`;
+
+							Internals.compositionSelectorRef.current?.expandComposition(c.id);
+							waitForElm(selector).then(() => {
+								document
+									.querySelector(selector)
+									?.scrollIntoView({block: 'center'});
+							});
+						},
+						compositionType: isCompositionStill(c) ? 'still' : 'composition',
+					};
+				}),
 		);
 	}, [
 		mode,
@@ -204,6 +312,10 @@ export const QuickSwitcherContent: React.FC<{
 		compositions,
 		menuActions,
 		docResults,
+		assetSearch,
+		assetSelection,
+		compositionSelection,
+		selectAsset,
 		selectComposition,
 		setSelectedModal,
 	]);
@@ -323,6 +435,14 @@ export const QuickSwitcherContent: React.FC<{
 		inputRef.current?.focus();
 	}, []);
 
+	const onAssetsSelected = useCallback(() => {
+		setState((s) => ({
+			query: `$ ${stripQuery(s.query)}`,
+			selectedIndex: 0,
+		}));
+		inputRef.current?.focus();
+	}, []);
+
 	const onDocSearchSelected = useCallback(() => {
 		setState((s) => ({
 			query: `? ${stripQuery(s.query)}`,
@@ -335,10 +455,18 @@ export const QuickSwitcherContent: React.FC<{
 	const showKeyboardShortcuts = mode === 'docs' && actualQuery.trim() === '';
 	const showSearchLoadingState =
 		mode === 'docs' && docResults.type === 'loading';
+	const placeholder =
+		mode === 'assets'
+			? 'Search assets...'
+			: mode === 'commands'
+				? 'Search actions...'
+				: mode === 'docs'
+					? 'Search documentation...'
+					: 'Search compositions...';
 
 	const container: React.CSSProperties = useMemo(() => {
 		return {
-			width: showKeyboardShortcuts ? 800 : 500,
+			width: showKeyboardShortcuts ? 800 : 400,
 		};
 	}, [showKeyboardShortcuts]);
 
@@ -358,32 +486,48 @@ export const QuickSwitcherContent: React.FC<{
 
 	return (
 		<div style={container}>
-			<div style={modeSelector}>
-				<button
-					onClick={onCompositionsSelected}
-					style={mode === 'compositions' ? modeActive : modeInactive}
-					type="button"
-				>
-					Compositions
-				</button>
-				<Spacing x={1} />
-				<button
-					onClick={onActionsSelected}
-					style={mode === 'commands' ? modeActive : modeInactive}
-					type="button"
-				>
-					Actions
-				</button>
-				<Spacing x={1} />
-				<button
-					onClick={onDocSearchSelected}
-					style={mode === 'docs' ? modeActive : modeInactive}
-					type="button"
-				>
-					Documentation
-				</button>
-			</div>
-			<div style={content}>
+			{assetSelection === null && compositionSelection === null && (
+				<div style={modeSelector}>
+					<button
+						onClick={onCompositionsSelected}
+						style={mode === 'compositions' ? modeActive : modeInactive}
+						type="button"
+					>
+						Compositions
+					</button>
+					<Spacing x={1} />
+					<button
+						onClick={onAssetsSelected}
+						style={mode === 'assets' ? modeActive : modeInactive}
+						type="button"
+					>
+						Assets
+					</button>
+					<Spacing x={1} />
+					<button
+						onClick={onActionsSelected}
+						style={mode === 'commands' ? modeActive : modeInactive}
+						type="button"
+					>
+						Actions
+					</button>
+					<Spacing x={1} />
+					<button
+						onClick={onDocSearchSelected}
+						style={mode === 'docs' ? modeActive : modeInactive}
+						type="button"
+					>
+						Documentation
+					</button>
+				</div>
+			)}
+			<div
+				style={
+					assetSelection === null && compositionSelection === null
+						? content
+						: contentWithoutModeSelector
+				}
+			>
 				<RemotionInput
 					ref={inputRef}
 					type="text"
@@ -392,7 +536,7 @@ export const QuickSwitcherContent: React.FC<{
 					status="ok"
 					value={state.query}
 					onChange={onTextChange}
-					placeholder="Search compositions..."
+					placeholder={placeholder}
 					rightAlign={false}
 				/>
 				{showKeyboardShortcuts ? (
