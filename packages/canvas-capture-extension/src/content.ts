@@ -1,4 +1,5 @@
 import {type CaptureCrop, ElementCapture} from './capture';
+import {openCaptureInConvert} from './handoff';
 import {isHtmlInCanvasAvailable} from './recorder';
 import {
 	findLowestElementContainingRectangle,
@@ -243,7 +244,9 @@ const createController = (): ExtensionController => {
 		closeButton.disabled = finalizing;
 		recordButton.disabled =
 			!isSupported || finalizing || (!selectedElement && !wholePage);
-		recordButton.textContent = isRecording ? 'Stop and save WebM' : 'Record';
+		recordButton.textContent = isRecording
+			? 'Stop and open in Convert'
+			: 'Record';
 		recordButton.classList.toggle('recording', isRecording);
 		updateHighlight();
 	};
@@ -345,8 +348,10 @@ const createController = (): ExtensionController => {
 				updateControls();
 				const currentCapture = capture;
 				try {
-					await currentCapture.stop();
-					setStatus('WebM saved. Ready to record again.');
+					const file = await currentCapture.stop();
+					setStatus('Opening recording in Remotion Convert…');
+					await openCaptureInConvert(file);
+					setStatus('Recording opened. Ready to record again.');
 				} catch (error) {
 					setStatus(
 						error instanceof Error ? error.message : String(error),

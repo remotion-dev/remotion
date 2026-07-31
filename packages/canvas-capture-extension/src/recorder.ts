@@ -166,17 +166,6 @@ const getCursorForElement = (element: Element | null): string => {
 	return 'auto';
 };
 
-const downloadBlob = (blob: Blob, filename: string) => {
-	const url = URL.createObjectURL(blob);
-	const anchor = document.createElement('a');
-	anchor.href = url;
-	anchor.download = filename;
-	document.body.appendChild(anchor);
-	anchor.click();
-	document.body.removeChild(anchor);
-	URL.revokeObjectURL(url);
-};
-
 const addFrame = (recording: RecordingState) => {
 	const elapsedInSeconds = Math.max(
 		0,
@@ -206,7 +195,7 @@ const addFrame = (recording: RecordingState) => {
 const finalizeRecording = async (
 	recording: RecordingState,
 	filename: string,
-) => {
+): Promise<File> => {
 	addFrame(recording);
 	await recording.lastFramePromise;
 
@@ -261,7 +250,7 @@ const finalizeRecording = async (
 		throw new Error('Mediabunny remux did not return an output buffer.');
 	}
 
-	downloadBlob(new Blob([remuxTarget.buffer], {type: 'video/webm'}), filename);
+	return new File([remuxTarget.buffer], filename, {type: 'video/webm'});
 };
 
 export class CanvasCaptureRecorder {
@@ -326,15 +315,15 @@ export class CanvasCaptureRecorder {
 		};
 	};
 
-	stopRecording = async () => {
+	stopRecording = async (): Promise<File | null> => {
 		const recording = this.#recording;
 		if (!recording || recording.isFinalizing) {
-			return;
+			return null;
 		}
 
 		recording.isFinalizing = true;
 		try {
-			await finalizeRecording(recording, this.#options.getFilename());
+			return await finalizeRecording(recording, this.#options.getFilename());
 		} catch (err) {
 			await recording.output.cancel().catch(() => undefined);
 			throw err;

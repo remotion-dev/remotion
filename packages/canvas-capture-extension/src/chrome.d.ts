@@ -10,8 +10,11 @@ declare const chrome: {
 	};
 	readonly runtime: {
 		readonly onMessage: {
-			addListener: (listener: (message: unknown) => void) => void;
+			addListener: (
+				listener: (message: unknown) => void | Promise<unknown>,
+			) => void;
 		};
+		sendMessage: (message: unknown) => Promise<unknown>;
 	};
 	readonly scripting: {
 		executeScript: (options: {
@@ -20,6 +23,14 @@ declare const chrome: {
 		}) => Promise<void>;
 	};
 	readonly tabs: {
+		create: (options: {readonly url: string}) => Promise<unknown>;
 		sendMessage: (tabId: number, message: unknown) => Promise<unknown>;
+	};
+	readonly storage: {
+		readonly local: {
+			get: (key: string) => Promise<Record<string, unknown>>;
+			remove: (keys: string | readonly string[]) => Promise<void>;
+			set: (items: Record<string, unknown>) => Promise<void>;
+		};
 	};
 };
