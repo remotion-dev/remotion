@@ -55,7 +55,9 @@ const projectNameLinkHovered: React.CSSProperties = {
 	textDecoration: 'underline',
 };
 
-export const MenuBuildIndicator: React.FC = () => {
+export const MenuBuildIndicator: React.FC<{
+	readonly mobileLayout: boolean;
+}> = ({mobileLayout}) => {
 	const [isBuilding, setIsBuilding] = useState(false);
 	const [projectNameHovered, setProjectNameHovered] = useState(false);
 	const ctx = useContext(StudioServerConnectionCtx).previewServerState;
@@ -130,15 +132,15 @@ export const MenuBuildIndicator: React.FC = () => {
 
 	return (
 		<div style={cwd} title={window.remotion_cwd}>
-			{isClickable ? <Spacing x={2} /> : null}
-			{isBuilding ? (
+			{isClickable ? <Spacing x={mobileLayout ? 0.5 : 2} /> : null}
+			{mobileLayout ? null : isBuilding ? (
 				<div style={spinner}>
 					<Spinner duration={0.5} size={spinnerSize} />
 				</div>
 			) : (
 				<div style={noSpinner} />
 			)}
-			<Spacing x={0.5} />
+			{mobileLayout ? null : <Spacing x={0.5} />}
 			{isClickable ? (
 				<a
 					style={projectNameHovered ? projectNameLinkHovered : projectNameLink}
@@ -153,6 +155,14 @@ export const MenuBuildIndicator: React.FC = () => {
 				window.remotion_projectName
 			)}
 			<MenuCompositionName />
+			{mobileLayout && isBuilding ? (
+				<>
+					<Spacing x={0.5} />
+					<div style={spinner}>
+						<Spinner duration={0.5} size={spinnerSize} />
+					</div>
+				</>
+			) : null}
 		</div>
 	);
 };
