@@ -24,7 +24,7 @@ For achieving multimedia tasks in the browser, such as trimming, cropping videos
 
 ## Improving Interactivity
 
-By structuring the Remotion markup well, we can allow users to interactively change things in the Studio and write back to code. If relevant: [Interactivity Best Practices](remotion-interactivity/SKILL.md)
+By structuring the Remotion markup well, we can allow users to interactively change things in the Studio and write back to code. If relevant: [Interactivity Best Practices](../remotion-interactivity/SKILL.md)
 
 ## Rendering
 
