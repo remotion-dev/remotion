@@ -74,7 +74,7 @@ A [`<Sequence>`](/docs/sequence) by default will return a `<div>` component, whi
 
 ## Note on server-side rendering
 
-For Remotion 5, Three.js rendering uses `angle` by default and falls back automatically when needed. Older projects or explicit overrides can still set it in the config file:
+Three.JS does not render with the default OpenGL renderer - we recommend to set it to `angle`. The config file of new projects includes by default:
 
 ```ts twoslash
 import {Config} from '@remotion/cli/config';
@@ -82,7 +82,7 @@ import {Config} from '@remotion/cli/config';
 Config.setChromiumOpenGlRenderer('angle');
 ```
 
-If you are on Remotion 4 or have overridden the renderer, pass the renderer to server-side rendering APIs explicitly, since the config file does not apply there. Add
+Since the config file does not apply to server-side rendering, you need to explicitly add
 
 ```json
 "chromiumOptions": {

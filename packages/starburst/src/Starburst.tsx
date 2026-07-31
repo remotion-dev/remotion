@@ -135,7 +135,7 @@ const StarburstCanvas: React.FC<{
 			if (!gl) {
 				cancelRender(
 					new Error(
-						'Failed to get WebGL context. In Remotion 5.0, the CLI already defaults to --gl=angle; in Remotion 4.0, try rendering with --gl=angle to enable WebGL.',
+						'Failed to get WebGL context. If your project does not already default to --gl=angle, try rendering with --gl=angle to enable WebGL.',
 					),
 				);
 				return null;
