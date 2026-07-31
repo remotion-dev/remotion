@@ -41,7 +41,9 @@ export const GoogleFontsExample: React.FC = () => {
 Pass a specific style (e.g. `normal`, `italic`) and optionally weights and subsets to narrow down what gets loaded.
 
 :::warning
-Calling `loadFont()` without arguments loads all styles, weights and character subsets of a font. This can trigger a lot of network requests and may lead to warnings or timeouts.
+In Remotion 4.0, calling `loadFont()` without arguments loads all styles, weights and character subsets of a font. This can trigger a lot of network requests and may lead to warnings or timeouts.
+
+From [v5.0](/docs/5-0-migration), you must pass non-empty `weights` and `subsets` arrays in the `options` argument. Otherwise `loadFont()` throws.
 :::
 
 :::info
@@ -85,7 +87,11 @@ If your project uses multiple fonts, load them in one module and export a `waitF
 
 ## Arguments
 
-All arguments and options are optional. Use TypeScript autocompletion or [`getInfo`](/docs/google-fonts/get-info) to discover available options. If no arguments are passed, all styles, weights and subsets are loaded.
+Use TypeScript autocompletion or [`getInfo`](/docs/google-fonts/get-info) to discover available options.
+
+The `style` argument is optional. In Remotion 4.0, if no arguments are passed, all styles, weights and subsets are loaded.
+
+From [v5.0](/docs/5-0-migration), `options.weights` and `options.subsets` are required and must be non-empty arrays.
 
 ### style
 
@@ -95,11 +101,11 @@ The font style we want to load. While each font has a different set of styles, c
 
 #### weights?
 
-Array of weights that should be loaded. By default, all.
+Array of weights that should be loaded. Optional in v4.x. Required from v5.0.
 
 #### subsets?
 
-Array of font subsets that should be loaded. By default, all.
+Array of font subsets that should be loaded. Optional in v4.x. Required from v5.0.
 
 #### document?
 
