@@ -25,9 +25,10 @@ const selectorButton: React.CSSProperties = {
 export const VerticalTab: React.FC<{
 	readonly children: React.ReactNode;
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
+	readonly renderIcon?: (color: string) => React.ReactNode;
 	readonly style?: React.CSSProperties;
 	readonly selected: boolean;
-}> = ({children, onClick, style, selected}) => {
+}> = ({children, onClick, renderIcon, style, selected}) => {
 	const [hovered, setHovered] = useState(false);
 	const {tabIndex} = useZIndex();
 
@@ -39,15 +40,17 @@ export const VerticalTab: React.FC<{
 		setHovered(false);
 	}, []);
 
+	const color = selected || hovered ? WHITE : LIGHT_TEXT;
+
 	const definiteStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...selectorButton,
 			backgroundColor: selected || hovered ? WHITE_ALPHA_06 : TRANSPARENT,
-			color: selected || hovered ? WHITE : LIGHT_TEXT,
+			color,
 			boxShadow: 'none',
 			...style,
 		};
-	}, [hovered, selected, style]);
+	}, [color, hovered, selected, style]);
 
 	return (
 		<button
@@ -58,6 +61,7 @@ export const VerticalTab: React.FC<{
 			onPointerLeave={onPointerLeave}
 			onPointerEnter={onPointerEnter}
 		>
+			{renderIcon ? renderIcon(color) : null}
 			{children}
 		</button>
 	);

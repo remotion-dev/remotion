@@ -59,8 +59,6 @@ export const iconContainer: React.CSSProperties = {
 	alignItems: 'center',
 };
 
-export const renderModalTabIconClassName = '__remotion-render-modal-tab-icon';
-
 export const icon: React.CSSProperties = {
 	color: 'inherit',
 	height: 18,

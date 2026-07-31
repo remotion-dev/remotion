@@ -49,7 +49,6 @@ import {
 	leftSidebar,
 	optionsPanel,
 	outerModalStyle,
-	renderModalTabIconClassName,
 } from './render-modals';
 import {
 	ResolveCompositionBeforeModal,
@@ -643,20 +642,24 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						style={horizontalTab}
 						selected={tab === 'general'}
 						onClick={() => setTab('general')}
+						renderIcon={(color) => (
+							<div style={iconContainer}>
+								<FileIcon color={color} style={icon} />
+							</div>
+						)}
 					>
-						<div className={renderModalTabIconClassName} style={iconContainer}>
-							<FileIcon style={icon} />
-						</div>
 						General
 					</VerticalTab>
 					<VerticalTab
 						style={horizontalTab}
 						selected={tab === 'data'}
 						onClick={() => setTab('data')}
+						renderIcon={(color) => (
+							<div style={iconContainer}>
+								<DataIcon color={color} style={icon} />
+							</div>
+						)}
 					>
-						<div className={renderModalTabIconClassName} style={iconContainer}>
-							<DataIcon style={icon} />
-						</div>
 						Input Props
 					</VerticalTab>
 					{renderMode !== 'audio' ? (
@@ -664,13 +667,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							style={horizontalTab}
 							selected={tab === 'picture'}
 							onClick={() => setTab('picture')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<PicIcon color={color} style={icon} />
+								</div>
+							)}
 						>
-							<div
-								className={renderModalTabIconClassName}
-								style={iconContainer}
-							>
-								<PicIcon style={icon} />
-							</div>
 							Picture
 						</VerticalTab>
 					) : null}
@@ -679,13 +681,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							style={horizontalTab}
 							selected={tab === 'audio'}
 							onClick={() => setTab('audio')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<AudioIcon color={color} style={icon} />
+								</div>
+							)}
 						>
-							<div
-								className={renderModalTabIconClassName}
-								style={iconContainer}
-							>
-								<AudioIcon style={icon} />
-							</div>
 							Audio
 						</VerticalTab>
 					) : null}
@@ -693,10 +694,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						style={horizontalTab}
 						selected={tab === 'advanced'}
 						onClick={() => setTab('advanced')}
+						renderIcon={(color) => (
+							<div style={iconContainer}>
+								<GearIcon color={color} style={icon} />
+							</div>
+						)}
 					>
-						<div className={renderModalTabIconClassName} style={iconContainer}>
-							<GearIcon style={icon} />
-						</div>
 						Other
 					</VerticalTab>
 					<VerticalTab
@@ -708,10 +711,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 								initialPublicLicenseKey: publicLicenseKey,
 							})
 						}
+						renderIcon={(color) => (
+							<div style={iconContainer}>
+								<CertificateIcon color={color} style={icon} />
+							</div>
+						)}
 					>
-						<div className={renderModalTabIconClassName} style={iconContainer}>
-							<CertificateIcon style={icon} />
-						</div>
 						License
 					</VerticalTab>
 				</div>

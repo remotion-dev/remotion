@@ -91,11 +91,6 @@ const makeDefaultGlobalCSS = () => {
 	    box-shadow: ${FOCUS_BOX_SHADOW};
 	  }
 
-	  .css-reset .__remotion-render-modal-tab-icon,
-	  .css-reset .__remotion-render-modal-tab-icon * {
-	    color: inherit;
-	  }
-
 	  .__remotion_thumb,
 	  .__remotion_thumb::-webkit-slider-thumb {
 	    -webkit-appearance: none;
