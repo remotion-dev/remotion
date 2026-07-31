@@ -286,3 +286,7 @@ jobs:
         timeout-minutes: 30
         run: |
           bun run ci
+      - name: Bundle example
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cd packages/example && bun run bundle-testbed

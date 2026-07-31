@@ -1,3 +1,4 @@
+import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {enableScss} from '@remotion/enable-scss';
 import {enableSkia} from '@remotion/skia/enable';
@@ -11,75 +12,74 @@ const resolveCwd = (p) => {
 	});
 };
 
+const getPackageAliases = (packageName) => {
+	const packageJsonPath = path.join(
+		process.cwd(),
+		'node_modules',
+		...packageName.split('/'),
+		'package.json',
+	);
+	const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+	const packageExports = packageJson.exports;
+
+	if (typeof packageExports !== 'object' || packageExports === null) {
+		return {
+			[`${packageName}$`]: resolveCwd(packageName),
+		};
+	}
+
+	return Object.fromEntries(
+		Object.keys(packageExports)
+			.filter((subpath) => {
+				return (
+					(subpath === '.' || subpath.startsWith('./')) &&
+					subpath !== './package.json' &&
+					!subpath.includes('*')
+				);
+			})
+			.map((subpath) => {
+				const importPath =
+					subpath === '.' ? packageName : `${packageName}/${subpath.slice(2)}`;
+
+				// `$` makes the alias exact, so it cannot capture undeclared subpaths.
+				return [`${importPath}$`, resolveCwd(importPath)];
+			}),
+	);
+};
+
 // this is so the studio live reloads when the CJS modules are changed
 // probably a bad idea and we should slowly get rid of the ones which compile MJS with turbo
 const aliases = {
-	'@remotion/gif': resolveCwd('@remotion/gif'),
-	'@remotion/layout-utils': resolveCwd('@remotion/layout-utils'),
-	'@remotion/lottie': resolveCwd('@remotion/lottie'),
-	'@remotion/media-utils': resolveCwd('@remotion/media-utils'),
-	'@remotion/motion-blur': resolveCwd('@remotion/motion-blur'),
-	'@remotion/noise': resolveCwd('@remotion/noise'),
-	'@remotion/paths': resolveCwd('@remotion/paths'),
-	'@remotion/fonts': resolveCwd('@remotion/fonts'),
-	'@remotion/player': resolveCwd('@remotion/player'),
-	'@remotion/preload': resolveCwd('@remotion/preload'),
-	'@remotion/rive': resolveCwd('@remotion/rive'),
-	'@remotion/shapes': resolveCwd('@remotion/shapes'),
-	'@remotion/animated-emoji': resolveCwd('@remotion/animated-emoji'),
-	'@remotion/skia': resolveCwd('@remotion/skia'),
-	'@remotion/three/webgpu': resolveCwd('@remotion/three/webgpu'),
-	'@remotion/three': resolveCwd('@remotion/three'),
-	'@remotion/transitions/fade': resolveCwd('@remotion/transitions/fade'),
-	'@remotion/transitions/slide': resolveCwd('@remotion/transitions/slide'),
-	'@remotion/transitions/flip': resolveCwd('@remotion/transitions/flip'),
-	'@remotion/transitions/clock-wipe': resolveCwd(
-		'@remotion/transitions/clock-wipe',
-	),
-	'@remotion/transitions/zoom-blur': resolveCwd(
-		'@remotion/transitions/zoom-blur',
-	),
-	'@remotion/transitions/linear-blur': resolveCwd(
-		'@remotion/transitions/linear-blur',
-	),
-	'@remotion/transitions/zoom-in-out': resolveCwd(
-		'@remotion/transitions/zoom-in-out',
-	),
-	'@remotion/transitions/book-flip': resolveCwd(
-		'@remotion/transitions/book-flip',
-	),
-	'@remotion/transitions/dissolve': resolveCwd(
-		'@remotion/transitions/dissolve',
-	),
-	'@remotion/transitions/ripple': resolveCwd('@remotion/transitions/ripple'),
-	'@remotion/transitions/crosswarp': resolveCwd(
-		'@remotion/transitions/crosswarp',
-	),
-	'@remotion/transitions/cross-zoom': resolveCwd(
-		'@remotion/transitions/cross-zoom',
-	),
-	'@remotion/transitions/swap': resolveCwd('@remotion/transitions/swap'),
-	'@remotion/transitions/wipe': resolveCwd('@remotion/transitions/wipe'),
-	'@remotion/transitions/push-cut': resolveCwd(
-		'@remotion/transitions/push-cut',
-	),
-	'@remotion/transitions/iris': resolveCwd('@remotion/transitions/iris'),
-	'@remotion/transitions/none': resolveCwd('@remotion/transitions/none'),
-	'@remotion/transitions': resolveCwd('@remotion/transitions'),
-	'@remotion/zod-types': resolveCwd('@remotion/zod-types'),
-	'@remotion/effects/blur': path.join(
+	...getPackageAliases('@remotion/gif'),
+	...getPackageAliases('@remotion/layout-utils'),
+	...getPackageAliases('@remotion/lottie'),
+	...getPackageAliases('@remotion/media-utils'),
+	...getPackageAliases('@remotion/motion-blur'),
+	...getPackageAliases('@remotion/noise'),
+	...getPackageAliases('@remotion/paths'),
+	...getPackageAliases('@remotion/fonts'),
+	...getPackageAliases('@remotion/player'),
+	...getPackageAliases('@remotion/preload'),
+	...getPackageAliases('@remotion/rive'),
+	...getPackageAliases('@remotion/shapes'),
+	...getPackageAliases('@remotion/animated-emoji'),
+	...getPackageAliases('@remotion/skia'),
+	...getPackageAliases('@remotion/three'),
+	...getPackageAliases('@remotion/transitions'),
+	...getPackageAliases('@remotion/zod-types'),
+	'@remotion/effects/blur$': path.join(
 		process.cwd(),
 		'../effects/dist/esm/blur.mjs',
 	),
-	'@remotion/effects/wave': path.join(
+	'@remotion/effects/wave$': path.join(
 		process.cwd(),
 		'../effects/dist/esm/wave.mjs',
 	),
-	'@remotion/effects/halftone': path.join(
+	'@remotion/effects/halftone$': path.join(
 		process.cwd(),
 		'../effects/dist/esm/halftone.mjs',
 	),
-	'@remotion/effects/tint': path.join(
+	'@remotion/effects/tint$': path.join(
 		process.cwd(),
 		'../effects/dist/esm/tint.mjs',
 	),
