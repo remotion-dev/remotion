@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {HLS, MP4, QTFF, WEBM} from 'mediabunny';
 import {
+	defaultCropEnabledState,
 	isConvertEnabledByDefault,
 	isVideoOnlySection,
 } from '../app/lib/default-ui';
@@ -88,4 +89,12 @@ test('uses conversion defaults on conversion pages', () => {
 			action: {type: 'generic-convert'},
 		}),
 	).toBe('mp4');
+});
+
+test('enables crop independently from mirror defaults', () => {
+	expect(defaultCropEnabledState({type: 'generic-crop'})).toBe(true);
+	expect(defaultCropEnabledState({type: 'crop-format', format: 'mp4'})).toBe(
+		true,
+	);
+	expect(defaultCropEnabledState({type: 'generic-mirror'})).toBe(false);
 });

@@ -74,6 +74,18 @@ export const defaultRotateOrMirorState = (
 	);
 };
 
+export const defaultCropEnabledState = (action: RouteAction) => {
+	if (action.type === 'generic-crop') {
+		return true;
+	}
+
+	if (action.type === 'crop-format') {
+		return true;
+	}
+
+	return false;
+};
+
 export const isConvertEnabledByDefault = (action: RouteAction) => {
 	if (action.type === 'convert') {
 		return true;

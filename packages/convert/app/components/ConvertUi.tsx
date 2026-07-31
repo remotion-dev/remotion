@@ -71,6 +71,7 @@ const ConvertUI = ({
 	trimOutFrame,
 	enableRotateOrMirror,
 	setEnableRotateOrMirror,
+	setEnableCrop,
 	userRotation,
 	setRotation,
 	flipHorizontal,
@@ -107,6 +108,7 @@ const ConvertUI = ({
 	readonly setEnableRotateOrMirror: React.Dispatch<
 		React.SetStateAction<RotateOrMirrorOrCropState | null>
 	>;
+	readonly setEnableCrop: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly userRotation: number;
 	readonly setRotation: React.Dispatch<React.SetStateAction<number>>;
 	readonly flipHorizontal: boolean;
@@ -491,19 +493,19 @@ const ConvertUI = ({
 	}, [setEnableRotateOrMirror]);
 
 	const onCropClick = useCallback(() => {
-		setEnableRotateOrMirror((m) => {
-			if (m !== 'crop') {
+		setEnableCrop((active) => {
+			if (!active) {
 				// Scroll to top of the page when crop is activated
 				if (typeof window !== 'undefined') {
 					window.scrollTo({top: 0, behavior: 'smooth'});
 				}
 
-				return 'crop';
+				return true;
 			}
 
-			return null;
+			return false;
 		});
-	}, [setEnableRotateOrMirror]);
+	}, [setEnableCrop]);
 
 	const onResizeClick = useCallback(() => {
 		setResizeOperation((r) => {
@@ -524,12 +526,12 @@ const ConvertUI = ({
 			return null;
 		}
 
-		if (enableRotateOrMirror !== 'crop') {
+		if (!crop) {
 			return dimensions;
 		}
 
 		return applyCrop(dimensions, cropRect);
-	}, [dimensions, cropRect, enableRotateOrMirror]);
+	}, [crop, dimensions, cropRect]);
 
 	const newDimensions = useMemo(() => {
 		if (unrotatedDimensions === null) {
@@ -804,7 +806,7 @@ const ConvertUI = ({
 											rotation={userRotation - (rotation ?? 0)}
 											setResizeMode={setResizeOperation}
 											requireTwoStep={Boolean(isH264Reencode)}
-											crop={enableRotateOrMirror === 'crop'}
+											crop={crop}
 											cropRect={cropRect}
 											dimensionsBeforeCrop={dimensions}
 										/>

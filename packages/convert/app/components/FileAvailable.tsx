@@ -3,7 +3,7 @@ import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {normalizeVideoRotation} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {Source} from '~/lib/convert-state';
 import type {RotateOrMirrorOrCropState} from '~/lib/default-ui';
-import {defaultRotateOrMirorState} from '~/lib/default-ui';
+import {defaultCropEnabledState, defaultRotateOrMirorState} from '~/lib/default-ui';
 import {isAudioOnly} from '~/lib/is-audio-container';
 import type {RouteAction} from '~/seo';
 import {BackButton} from './BackButton';
@@ -27,10 +27,10 @@ export const FileAvailable: React.FC<{
 
 	const videoThumbnailRef = useRef<VideoThumbnailRef>(null);
 
-	const [enableRotateOrMirrow, setEnableRotateOrMirror] =
-		useState<RotateOrMirrorOrCropState>(() =>
-			defaultRotateOrMirorState(routeAction),
-		);
+	const [enableRotateOrMirrow, setEnableRotateOrMirror] = useState<RotateOrMirrorOrCropState>(() =>
+		defaultRotateOrMirorState(routeAction),
+	);
+	const [enableCrop, setEnableCrop] = useState(() => defaultCropEnabledState(routeAction));
 	const [enableTrim, setEnableTrim] = useState(
 		() =>
 			routeAction.type === 'generic-trim' || routeAction.type === 'trim-format',
@@ -81,7 +81,7 @@ export const FileAvailable: React.FC<{
 							src={src}
 							isAudio={isAudio}
 							waveform={waveform}
-							crop={enableRotateOrMirrow === 'crop'}
+							crop={enableCrop}
 							trim={enableTrim}
 							trimInFrame={trimInFrame}
 							trimOutFrame={trimOutFrame}
@@ -132,7 +132,7 @@ export const FileAvailable: React.FC<{
 										data-hidden={probeDetails}
 									>
 										<ConvertUI
-											crop={enableRotateOrMirrow === 'crop'}
+											crop={enableCrop}
 											inputContainer={probeResult.container}
 											currentVideoCodec={probeResult.videoCodec ?? null}
 											tracks={probeResult.tracks}
@@ -159,6 +159,7 @@ export const FileAvailable: React.FC<{
 											name={probeResult.name}
 											input={probeResult.input}
 											cropRect={cropOperation}
+											setEnableCrop={setEnableCrop}
 										/>
 									</div>
 								) : null}
