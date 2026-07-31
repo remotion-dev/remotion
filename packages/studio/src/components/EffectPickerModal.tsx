@@ -62,6 +62,7 @@ const aboutEffectsRow: React.CSSProperties = {
 const aboutEffectsLink: React.CSSProperties = {
 	alignItems: 'center',
 	color: LIGHT_TEXT,
+	cursor: 'default',
 	display: 'inline-flex',
 	fontFamily: 'sans-serif',
 	fontSize: 12,
