@@ -1,5 +1,5 @@
 interface:
-  display_name: 'Remotion Markup'
+  display_name: '/remotion-markup'
   short_description: 'Apply Remotion animation and effects practices'
   icon_small: './assets/remotion-icon.png'
   icon_large: './assets/remotion-icon.png'

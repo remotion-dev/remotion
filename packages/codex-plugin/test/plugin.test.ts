@@ -107,26 +107,12 @@ test('Codex troubleshooting does not open the system browser', () => {
 	expect(remotionSkill).not.toMatch(/^npx remotion studio$/m);
 });
 
-test('skill display names include Remotion', () => {
-	const expectedDisplayNames = {
-		'remotion-best-practices': 'Remotion Best Practices',
-		'remotion-captions': 'Remotion Captions',
-		'remotion-create': 'Create a Remotion Video',
-		'remotion-docs': 'Remotion Docs',
-		'remotion-interactivity': 'Remotion Interactivity',
-		'remotion-maps': 'Remotion Maps',
-		'remotion-markup': 'Remotion Markup',
-		'remotion-multimedia': 'Remotion Multimedia',
-		'remotion-render': 'Render with Remotion',
-		'remotion-saas': 'Remotion SaaS',
-		'remotion-upgrade': 'Upgrade Remotion',
-	};
-
-	for (const [skillName, displayName] of Object.entries(expectedDisplayNames)) {
+test('skill display names match their slash commands', () => {
+	for (const skillName of getDirectories(generatedSkillsRoot)) {
 		const openAiConfig = readFileSync(
 			path.join(generatedSkillsRoot, skillName, 'agents', 'openai.yaml'),
 			'utf-8',
 		);
-		expect(openAiConfig).toContain(`display_name: '${displayName}'`);
+		expect(openAiConfig).toContain(`display_name: '/${skillName}'`);
 	}
 });

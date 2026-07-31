@@ -1,5 +1,5 @@
 interface:
-  display_name: 'Remotion Captions'
+  display_name: '/remotion-captions'
   short_description: 'Transcribe, display, and animate captions'
   icon_small: './assets/remotion-icon.png'
   icon_large: './assets/remotion-icon.png'

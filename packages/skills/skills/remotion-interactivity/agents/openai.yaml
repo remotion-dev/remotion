@@ -1,5 +1,5 @@
 interface:
-  display_name: 'Remotion Interactivity'
+  display_name: '/remotion-interactivity'
   short_description: 'Make compositions editable in Remotion Studio'
   icon_small: './assets/remotion-icon.png'
   icon_large: './assets/remotion-icon.png'

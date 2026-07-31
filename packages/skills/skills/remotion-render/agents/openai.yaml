@@ -1,5 +1,5 @@
 interface:
-  display_name: 'Render with Remotion'
+  display_name: '/remotion-render'
   short_description: 'Export Remotion videos and stills'
   icon_small: './assets/remotion-icon.png'
   icon_large: './assets/remotion-icon.png'

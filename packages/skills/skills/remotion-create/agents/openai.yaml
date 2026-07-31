@@ -1,5 +1,5 @@
 interface:
-  display_name: 'Create a Remotion Video'
+  display_name: '/remotion-create'
   short_description: 'Create a new Remotion video project'
   icon_small: './assets/remotion-icon.png'
   icon_large: './assets/remotion-icon.png'

@@ -1,5 +1,5 @@
 interface:
-  display_name: 'Remotion Multimedia'
+  display_name: '/remotion-multimedia'
   short_description: 'Inspect browser-based audio and video media'
   icon_small: './assets/remotion-icon.png'
   icon_large: './assets/remotion-icon.png'
