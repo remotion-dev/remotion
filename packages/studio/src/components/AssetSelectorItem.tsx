@@ -695,7 +695,7 @@ const AssetSelectorItem: React.FC<{
 					<AssetFileIcon
 						fileType={previewFileType}
 						style={iconStyle}
-						color={LIGHT_TEXT}
+						color={hovered || selected ? WHITE : LIGHT_TEXT}
 					/>
 					<Spacing x={1} />
 					<div style={label}>{item.name}</div>
