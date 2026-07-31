@@ -1,6 +1,6 @@
 ---
 name: remotion-create
-description: Create a new Remotion video or composition and preview it
+description: Create a new Remotion video
 version: 4.0.503
 ---
 
