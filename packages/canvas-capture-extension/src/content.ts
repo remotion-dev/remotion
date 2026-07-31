@@ -24,6 +24,17 @@ const createButton = (label: string) => {
 	return button;
 };
 
+const downloadFile = (file: File) => {
+	const url = URL.createObjectURL(file);
+	const anchor = document.createElement('a');
+	anchor.href = url;
+	anchor.download = file.name;
+	document.body.appendChild(anchor);
+	anchor.click();
+	anchor.remove();
+	URL.revokeObjectURL(url);
+};
+
 const describeElement = (element: Element) => {
 	const id = element.id ? `#${element.id}` : '';
 	const className =
@@ -170,10 +181,19 @@ const createController = (): ExtensionController => {
 
 	const recordButton = createButton('Record');
 	recordButton.className = 'record';
+	const downloadButton = createButton('Stop and download WebM');
+	downloadButton.style.display = 'none';
 	const status = document.createElement('div');
 	status.className = 'status';
 
-	panel.append(header, scaleLabel, targetRow, recordButton, status);
+	panel.append(
+		header,
+		scaleLabel,
+		targetRow,
+		recordButton,
+		downloadButton,
+		status,
+	);
 
 	const selectionLayer = document.createElement('div');
 	selectionLayer.className = 'selection-layer';
@@ -248,6 +268,8 @@ const createController = (): ExtensionController => {
 			? 'Stop and open in Convert'
 			: 'Record';
 		recordButton.classList.toggle('recording', isRecording);
+		downloadButton.style.display = isRecording ? 'block' : 'none';
+		downloadButton.disabled = finalizing;
 		updateHighlight();
 	};
 
@@ -340,29 +362,38 @@ const createController = (): ExtensionController => {
 	selectionLayer.addEventListener('pointerup', finishSelection);
 	wholePageButton.addEventListener('click', selectWholePage);
 
+	const finishRecording = async (destination: 'convert' | 'download') => {
+		if (!capture) {
+			return;
+		}
+
+		finalizing = true;
+		setStatus('Finalizing WebM…');
+		updateControls();
+		const currentCapture = capture;
+		try {
+			const file = await currentCapture.stop();
+			if (destination === 'convert') {
+				setStatus('Opening recording in Remotion Convert…');
+				await openCaptureInConvert(file);
+				setStatus('Recording opened. Ready to record again.');
+			} else {
+				downloadFile(file);
+				setStatus('WebM downloaded. Ready to record again.');
+			}
+		} catch (error) {
+			setStatus(error instanceof Error ? error.message : String(error), true);
+		} finally {
+			capture = null;
+			finalizing = false;
+			updateControls();
+		}
+	};
+
 	recordButton.addEventListener('click', () => {
 		const toggle = async () => {
 			if (capture) {
-				finalizing = true;
-				setStatus('Finalizing WebM…');
-				updateControls();
-				const currentCapture = capture;
-				try {
-					const file = await currentCapture.stop();
-					setStatus('Opening recording in Remotion Convert…');
-					await openCaptureInConvert(file);
-					setStatus('Recording opened. Ready to record again.');
-				} catch (error) {
-					setStatus(
-						error instanceof Error ? error.message : String(error),
-						true,
-					);
-				} finally {
-					capture = null;
-					finalizing = false;
-					updateControls();
-				}
-
+				await finishRecording('convert');
 				return;
 			}
 
@@ -401,6 +432,12 @@ const createController = (): ExtensionController => {
 		};
 
 		toggle().catch((error) => {
+			setStatus(error instanceof Error ? error.message : String(error), true);
+		});
+	});
+
+	downloadButton.addEventListener('click', () => {
+		finishRecording('download').catch((error) => {
 			setStatus(error instanceof Error ? error.message : String(error), true);
 		});
 	});
