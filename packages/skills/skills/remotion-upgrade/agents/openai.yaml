@@ -1,5 +1,5 @@
 interface:
-  display_name: 'Upgrade'
+  display_name: '/remotion-upgrade'
   short_description: 'Upgrade Remotion and related dependencies'
   icon_small: './assets/remotion-icon.png'
   icon_large: './assets/remotion-icon.png'
