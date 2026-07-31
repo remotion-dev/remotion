@@ -314,6 +314,31 @@ test('Sequence layout="none" uses outlineRef for Studio outlines', () => {
 	expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe('DIV');
 });
 
+test('Series inherits Sequence controls except durationInFrames', () => {
+	const registeredSequences: TSequence[] = [];
+
+	render(
+		<SequenceTestWrapper
+			onRegisterSequence={(sequence) => {
+				registeredSequences.push(sequence);
+			}}
+		>
+			<Series from={5} freeze={2}>
+				<Series.Sequence durationInFrames={10}>First</Series.Sequence>
+			</Series>
+		</SequenceTestWrapper>,
+	);
+
+	const series = registeredSequences.find(
+		(sequence) =>
+			sequence.controls?.componentIdentity === 'dev.remotion.remotion.Series',
+	);
+
+	expect(series?.controls?.schema).toHaveProperty('from');
+	expect(series?.controls?.schema).toHaveProperty('freeze');
+	expect(series?.controls?.schema).not.toHaveProperty('durationInFrames');
+});
+
 test('Series.Sequence registers with its own visual controls', () => {
 	const registeredSequences: TSequence[] = [];
 	const firstStack = 'Error\n    at FirstSeriesSequence';

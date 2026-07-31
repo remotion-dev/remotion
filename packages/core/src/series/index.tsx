@@ -11,7 +11,11 @@ import {
 	sequenceSchemaDefaultLayoutNone,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
-import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
+import type {
+	LayoutAndStyle,
+	SequenceProps,
+	SequencePropsWithoutDuration,
+} from '../Sequence.js';
 import {Sequence, SequenceWithoutSchema} from '../Sequence.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
@@ -95,11 +99,14 @@ const SeriesSequence = Interactive.withSchema({
 	SeriesSequenceProps & React.RefAttributes<HTMLDivElement>
 >;
 
-type SeriesProps = SequenceProps;
+type SeriesProps = SequencePropsWithoutDuration;
 const SequenceWithoutSchemaWithRef =
 	SequenceWithoutSchema as React.ComponentType<
 		SequenceProps & {readonly ref?: React.Ref<HTMLDivElement>}
 	>;
+
+const {durationInFrames: _seriesDurationInFramesSchema, ...seriesSchema} =
+	sequenceSchemaDefaultLayoutNone;
 
 const validateSeriesSequenceProps = ({
 	durationInFrames,
@@ -260,7 +267,7 @@ const Series: React.ComponentType<SeriesProps> & {
 		Component: SeriesInner,
 		componentName: '<Series>',
 		componentIdentity: 'dev.remotion.remotion.Series',
-		schema: sequenceSchemaDefaultLayoutNone,
+		schema: seriesSchema,
 		supportsEffects: false,
 	}),
 	{

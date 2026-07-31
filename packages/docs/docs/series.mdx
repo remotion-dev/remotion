@@ -48,9 +48,9 @@ export const Example: React.FC = () => {
 
 ## `<Series>` props
 
-Since <AvailableFrom v="4.0.443" inline />, `<Series>` is a [`<Sequence>`](/docs/sequence) under the hood and accepts all of its props, with `layout` defaulting to `"none"`.
+Since <AvailableFrom v="4.0.443" inline />, `<Series>` is a [`<Sequence>`](/docs/sequence) under the hood and accepts its props, except for [`durationInFrames`](/docs/sequence#durationinframes). The duration of a `<Series>` is determined by its `<Series.Sequence>` children.
 
-Apart from the props listed below, all props from [`<Sequence>`](/docs/sequence) are accepted.
+The `layout` prop defaults to `"none"`.
 
 ### `layout?`
 
