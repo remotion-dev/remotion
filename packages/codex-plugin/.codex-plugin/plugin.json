@@ -38,7 +38,7 @@
 			"Use Remotion to add captions and audio to a video composition."
 		],
 		"brandColor": "#0B84F3",
-		"composerIcon": "./assets/icon.png",
+		"composerIcon": "./assets/composer-icon.svg",
 		"logo": "./assets/logo.png",
 		"logoDark": "./assets/logo-dark.png"
 	}
