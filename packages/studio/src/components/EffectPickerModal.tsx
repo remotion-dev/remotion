@@ -65,7 +65,7 @@ const aboutEffectsLink: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	display: 'inline-flex',
 	fontFamily: 'sans-serif',
-	fontSize: 11,
+	fontSize: 12,
 	gap: 4,
 	lineHeight: '14px',
 	minWidth: 0,
@@ -80,7 +80,7 @@ const aboutEffectsLinkHovered: React.CSSProperties = {
 const aboutEffectsLabel: React.CSSProperties = {
 	color: 'inherit',
 	fontFamily: 'sans-serif',
-	fontSize: 11,
+	fontSize: 12,
 	lineHeight: '14px',
 	minWidth: 0,
 	overflow: 'hidden',
