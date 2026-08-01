@@ -66,6 +66,7 @@ const isColorFunction = (name: string, fullValue: string): boolean => {
 		if (name === 'lab') return matchers.lab!.test(fullValue);
 		if (name === 'lch') return matchers.lch!.test(fullValue);
 	}
+
 	return false;
 };
 
@@ -75,21 +76,29 @@ const getTrimmed = (s: string, start: number, end: number) => {
 	return s.substring(start, end);
 };
 
-const classifyArg = (val: string) => {
+type ClassifiedValue = {
+	color?: string;
+	number?: number;
+	unit?: string;
+	function?: {name: string; values: ClassifiedValue[]};
+};
+
+const classifyArg = (val: string): ClassifiedValue => {
 	const c0 = val.charCodeAt(0);
 	if ((c0 >= 48 && c0 <= 57) || c0 === 45) {
 		const match = numberUnitRegex.exec(val);
 		if (match) {
-			const number = +match[1];
+			const number = Number(match[1]);
 			const unit = match[2];
 			return unit ? {number, unit} : {number};
 		}
 	}
+
 	return {unit: val};
 };
 
-const classifyArgsOfFunction = (value: string) => {
-	const result = [];
+const classifyArgsOfFunction = (value: string): ClassifiedValue[] => {
+	const result: ClassifiedValue[] = [];
 	let nestedLevel = 0;
 	let start = 0;
 	const len = value.length;
@@ -104,14 +113,16 @@ const classifyArgsOfFunction = (value: string) => {
 			start = i + 1;
 		}
 	}
+
 	const last = getTrimmed(value, start, len);
 	if (last) {
 		result.push(classifyArg(last));
 	}
+
 	return result;
 };
 
-const classifyNonFunctionPart = (token: string) => {
+const classifyNonFunctionPart = (token: string): ClassifiedValue => {
 	const c0 = token.charCodeAt(0);
 	if (c0 === 35) {
 		const len = token.length;
@@ -130,6 +141,7 @@ const classifyNonFunctionPart = (token: string) => {
 					break;
 				}
 			}
+
 			if (valid) return {color: token};
 		}
 	} else if (c0 >= 97 && c0 <= 122) {
@@ -139,40 +151,42 @@ const classifyNonFunctionPart = (token: string) => {
 	if ((c0 >= 48 && c0 <= 57) || c0 === 45) {
 		const match = numberUnitRegex.exec(token);
 		if (match) {
-			const number = +match[1];
+			const number = Number(match[1]);
 			const unit = match[2];
 			return unit ? {number, unit} : {number};
 		}
 	}
+
 	return {unit: token};
 };
 
 const breakDownValueIntoUnitNumberAndFunctions = (
 	value: CSSPropertiesValue,
-) => {
+): ClassifiedValue[] => {
 	if (typeof value === 'number') {
 		return [{number: value}];
 	}
+
 	if (typeof value !== 'string') {
 		return [];
 	}
 
-	const result: any[] = [];
+	const result: ClassifiedValue[] = [];
 	let lastIndex = 0;
 	functionGlobalRegex.lastIndex = 0;
 	let match;
 
 	while ((match = functionGlobalRegex.exec(value)) !== null) {
-		const index = match.index;
+		const {index} = match;
 		if (index > lastIndex) {
-			let i = lastIndex;
-			while (i < index) {
-				while (i < index && value.charCodeAt(i) <= 32) i++;
-				if (i >= index) break;
-				let end = i;
+			let cursor = lastIndex;
+			while (cursor < index) {
+				while (cursor < index && value.charCodeAt(cursor) <= 32) cursor++;
+				if (cursor >= index) break;
+				let end = cursor;
 				while (end < index && value.charCodeAt(end) > 32) end++;
-				result.push(classifyNonFunctionPart(value.substring(i, end)));
-				i = end;
+				result.push(classifyNonFunctionPart(value.substring(cursor, end)));
+				cursor = end;
 			}
 		}
 
@@ -188,6 +202,7 @@ const breakDownValueIntoUnitNumberAndFunctions = (
 				},
 			});
 		}
+
 		lastIndex = functionGlobalRegex.lastIndex;
 	}
 
