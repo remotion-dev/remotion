@@ -1,5 +1,6 @@
 import {formatBytes} from '@remotion/studio-shared';
 import React from 'react';
+import {Internals} from 'remotion';
 import {WHITE} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import type {AssetFileType} from '../helpers/get-preview-file-type';
@@ -38,7 +39,50 @@ export const FilePreview: React.FC<{
 	}
 
 	if (fileType === 'video') {
-		return <video src={src} controls />;
+		return (
+			<Internals.VideoForPreview
+				{...({
+					src,
+					className: undefined,
+					style: {
+						width: '100%',
+						height: '100%',
+						objectFit: 'contain',
+					},
+					volume: 1,
+					playbackRate: 1,
+					muted: true,
+					loop: false,
+					trimBefore: undefined,
+					trimAfter: undefined,
+					logLevel: 'warn',
+					delayRenderRetries: undefined,
+					delayRenderTimeoutInMilliseconds: undefined,
+					loopVolumeCurveBehavior: 'repeat',
+					audioStreamIndex: 0,
+					disallowFallbackToOffthreadVideo: false,
+					fallbackOffthreadVideoProps: {},
+					toneFrequency: 1000,
+					debugOverlay: false,
+					headless: false,
+					onError: undefined,
+					credentials: undefined,
+					requestInit: undefined,
+					objectFit: 'contain',
+					_experimentalInitiallyDrawCachedFrame: false,
+					effects: [],
+					controls: undefined,
+					onVideoFrame: null,
+					showInTimeline: false,
+					onlyWarnForMediaSeekingError: true,
+					onDuration: () => undefined,
+					pauseWhenBuffering: false,
+					_remotionInternalNativeLoopPassed: false,
+					_remotionInternalStack: null,
+					crossOrigin: undefined,
+				} as any)}
+			/>
+		);
 	}
 
 	if (fileType === 'image') {
