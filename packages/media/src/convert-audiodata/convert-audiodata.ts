@@ -1,14 +1,7 @@
-import {
-	resampleAudioData,
-	TARGET_NUMBER_OF_CHANNELS,
-	getTargetSampleRate,
-} from './resample-audiodata';
-
 export type ConvertAudioDataOptions = {
 	audioData: AudioData;
 	trimStartInSeconds: number;
 	trimEndInSeconds: number;
-	playbackRate: number;
 	audioDataTimestamp: number;
 	isLast: boolean;
 };
@@ -20,6 +13,14 @@ export type PcmS16AudioData = {
 	numberOfFrames: number;
 	timestamp: number;
 	durationInMicroSeconds: number;
+};
+
+export type RawPcmS16Chunk = {
+	data: Int16Array;
+	numberOfFrames: number;
+	numberOfChannels: number;
+	sampleRate: number;
+	timestamp: number;
 };
 
 export const fixFloatingPoint = (value: number) => {
@@ -41,20 +42,23 @@ const ceilButNotIfFloatingPointIssue = (value: number) => {
 	return Math.ceil(fixed);
 };
 
+/**
+ * Converts a WebCodecs AudioData to interleaved s16 PCM at the SOURCE sample rate.
+ * Handles format normalization (f32 → s16) and frame trimming.
+ * Does NOT resample or change channel count — that is handled by AudioResampler.
+ */
 export const convertAudioData = ({
 	audioData,
 	trimStartInSeconds,
 	trimEndInSeconds,
-	playbackRate,
 	audioDataTimestamp,
 	isLast,
-}: ConvertAudioDataOptions): PcmS16AudioData => {
+}: ConvertAudioDataOptions): RawPcmS16Chunk => {
 	const {
 		numberOfChannels: srcNumberOfChannels,
 		sampleRate: currentSampleRate,
 		numberOfFrames,
 	} = audioData;
-	const ratio = currentSampleRate / getTargetSampleRate();
 
 	// Always rounding down start timestamps and rounding up end durations
 	// to ensure there are no gaps when the samples don't align
@@ -73,14 +77,8 @@ export const convertAudioData = ({
 		? ceilButNotIfFloatingPointIssue(unroundedFrameCount)
 		: Math.round(unroundedFrameCount);
 
-	const newNumberOfFrames = isLast
-		? ceilButNotIfFloatingPointIssue(unroundedFrameCount / ratio / playbackRate)
-		: Math.round(unroundedFrameCount / ratio / playbackRate);
-
-	if (newNumberOfFrames === 0) {
-		throw new Error(
-			'Cannot resample - the given sample rate would result in less than 1 sample',
-		);
+	if (frameCount === 0) {
+		throw new Error('Cannot convert - the trimming would result in 0 frames');
 	}
 
 	const srcChannels = new Int16Array(srcNumberOfChannels * frameCount);
@@ -126,47 +124,16 @@ export const convertAudioData = ({
 		});
 	}
 
-	const data = new Int16Array(newNumberOfFrames * TARGET_NUMBER_OF_CHANNELS);
-	const chunkSize = frameCount / newNumberOfFrames;
-
 	const timestampOffsetMicroseconds =
 		(frameOffset / audioData.sampleRate) * 1_000_000;
 
-	if (
-		newNumberOfFrames === frameCount &&
-		TARGET_NUMBER_OF_CHANNELS === srcNumberOfChannels &&
-		playbackRate === 1
-	) {
-		return {
-			data: srcChannels,
-			numberOfFrames: newNumberOfFrames,
-			timestamp:
-				audioDataTimestamp * 1_000_000 +
-				fixFloatingPoint(timestampOffsetMicroseconds),
-			durationInMicroSeconds: fixFloatingPoint(
-				(newNumberOfFrames / getTargetSampleRate()) * 1_000_000,
-			),
-		};
-	}
-
-	resampleAudioData({
-		srcNumberOfChannels,
-		sourceChannels: srcChannels,
-		destination: data,
-		targetFrames: newNumberOfFrames,
-		chunkSize,
-	});
-
-	const newAudioData: PcmS16AudioData = {
-		data,
-		numberOfFrames: newNumberOfFrames,
+	return {
+		data: srcChannels,
+		numberOfFrames: frameCount,
+		numberOfChannels: srcNumberOfChannels,
+		sampleRate: currentSampleRate,
 		timestamp:
 			audioDataTimestamp * 1_000_000 +
 			fixFloatingPoint(timestampOffsetMicroseconds),
-		durationInMicroSeconds: fixFloatingPoint(
-			(newNumberOfFrames / getTargetSampleRate()) * 1_000_000,
-		),
 	};
-
-	return newAudioData;
 };

@@ -1,5 +1,6 @@
 import {type LogLevel} from 'remotion';
 import {audioManager} from '../caches';
+import {createAudioResampler} from '../convert-audiodata/audio-resampler';
 import {combineAudioDataAndClosePrevious} from '../convert-audiodata/combine-audiodata';
 import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
 import {
@@ -117,29 +118,33 @@ const extractAudioInternal = async ({
 			timeInSeconds,
 			durationInSeconds,
 		);
-
-		audioManager.logOpenFrames();
-
-		const audioDataArray: PcmS16AudioData[] = [];
-		for (let i = 0; i < samples.length; i++) {
-			const sample = samples[i];
-
+		const samplesToProcess = samples.filter((sample) => {
 			// Less than 1 sample would be included - we did not need it after all!
 			if (
 				Math.abs(sample.timestamp - (timeInSeconds + durationInSeconds)) *
 					sample.sampleRate <
 				1
 			) {
-				continue;
+				return false;
 			}
 
 			// Less than 1 sample would be included - we did not need it after all!
-			if (sample.timestamp + sample.duration <= timeInSeconds) {
-				continue;
-			}
+			return sample.timestamp + sample.duration > timeInSeconds;
+		});
+
+		audioManager.logOpenFrames();
+
+		// Create a stateful resampler for this extraction.
+		// It carries fractional position and last-sample state across chunks
+		// to eliminate boundary artifacts.
+		const resampler = createAudioResampler();
+
+		const audioDataArray: PcmS16AudioData[] = [];
+		for (let i = 0; i < samplesToProcess.length; i++) {
+			const sample = samplesToProcess[i];
 
 			const isFirstSample = i === 0;
-			const isLastSample = i === samples.length - 1;
+			const isLastSample = i === samplesToProcess.length - 1;
 
 			const audioDataRaw = sample.toAudioData();
 
@@ -177,17 +182,17 @@ const extractAudioInternal = async ({
 					);
 			}
 
-			const audioData = convertAudioData({
+			// Stage 1: Format conversion + trimming (raw s16 at source rate)
+			const rawChunk = convertAudioData({
 				audioData: audioDataRaw,
 				trimStartInSeconds,
 				trimEndInSeconds,
-				playbackRate,
 				audioDataTimestamp: sample.timestamp,
 				isLast: isLastSample,
 			});
 			audioDataRaw.close();
 
-			if (audioData.numberOfFrames === 0) {
+			if (rawChunk.numberOfFrames === 0) {
 				continue;
 			}
 
@@ -195,7 +200,26 @@ const extractAudioInternal = async ({
 				audioDataArray.push(leadingSilence);
 			}
 
-			audioDataArray.push(audioData);
+			// Stage 2: Stateful resampling (sample rate + channel mix + playback rate)
+			const resampled = resampler.resample({
+				sourceChannels: rawChunk.data,
+				srcNumberOfChannels: rawChunk.numberOfChannels,
+				sourceSampleRate: rawChunk.sampleRate,
+				frameCount: rawChunk.numberOfFrames,
+				playbackRate,
+				timestamp: rawChunk.timestamp,
+				isLast: isLastSample,
+			});
+
+			if (resampled.numberOfFrames > 0) {
+				audioDataArray.push(resampled);
+			}
+		}
+
+		// Flush any remaining samples from the resampler
+		const flushed = resampler.flush();
+		if (flushed && flushed.numberOfFrames > 0) {
+			audioDataArray.push(flushed);
 		}
 
 		if (audioDataArray.length === 0) {
