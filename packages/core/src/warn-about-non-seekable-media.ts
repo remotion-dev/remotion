@@ -29,7 +29,7 @@ export const warnAboutNonSeekableMedia = (
 			`The media ${ref.src} cannot be seeked. This could be one of few reasons:`,
 			'1) The media resource was replaced while the video is playing but it was not loaded yet.',
 			'2) The media does not support seeking.',
-			'3) The media was loaded with security headers prventing it from being included.',
+			'3) The media was loaded with security headers preventing it from being included.',
 			'Please see https://remotion.dev/docs/non-seekable-media for assistance.',
 		].join('\n');
 
