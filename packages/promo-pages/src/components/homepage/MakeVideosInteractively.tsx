@@ -17,9 +17,12 @@ export const MakeVideosInteractively: React.FC<{
 			<br /> interactively
 		</>
 	),
-	description = 'Edit and animate using drag and drop and save back to code.',
+	description = 'Edit and animate using drag and drop, reusable Elements, and save back to code.',
 	showLinks = true,
-	links = [{label: 'Remotion Studio', href: '/docs/studio'}],
+	links = [
+		{label: 'Remotion Studio', href: '/docs/studio'},
+		{label: 'Remotion Elements', href: '/elements'},
+	],
 	showVideo = true,
 	videoSrc = '/img/editing-vp9-chrome.webm',
 	fallbackVideoSrc = '/img/editing-safari.mp4',
