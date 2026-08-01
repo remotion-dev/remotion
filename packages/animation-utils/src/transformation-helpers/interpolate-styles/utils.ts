@@ -23,176 +23,128 @@ function modernColorCall(name: string): RegExp {
 	);
 }
 
-function getColorMatchers(): ColorMatchers {
-	const cachedMatchers: ColorMatchers = {
-		rgb: undefined,
-		rgba: undefined,
-		hsl: undefined,
-		hsla: undefined,
-		hex3: undefined,
-		hex4: undefined,
-		hex5: undefined,
-		hex6: undefined,
-		hex8: undefined,
-		oklch: undefined,
-		oklab: undefined,
-		lab: undefined,
-		lch: undefined,
-		hwb: undefined,
-	};
-	if (cachedMatchers.rgb === undefined) {
-		cachedMatchers.rgb = new RegExp('rgb' + call(NUMBER, NUMBER, NUMBER));
-		cachedMatchers.rgba = new RegExp(
-			'rgba' + call(NUMBER, NUMBER, NUMBER, NUMBER),
-		);
-		cachedMatchers.hsl = new RegExp(
-			'hsl' + call(NUMBER, PERCENTAGE, PERCENTAGE),
-		);
-		cachedMatchers.hsla = new RegExp(
-			'hsla' + call(NUMBER, PERCENTAGE, PERCENTAGE, NUMBER),
-		);
-		cachedMatchers.hex3 = /^#([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/;
-		cachedMatchers.hex4 =
-			/^#([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/;
-		cachedMatchers.hex6 = /^#([0-9a-fA-F]{6})$/;
-		cachedMatchers.hex8 = /^#([0-9a-fA-F]{8})$/;
-		cachedMatchers.oklch = modernColorCall('oklch');
-		cachedMatchers.oklab = modernColorCall('oklab');
-		cachedMatchers.lab = modernColorCall('lab');
-		cachedMatchers.lch = modernColorCall('lch');
-		cachedMatchers.hwb = modernColorCall('hwb');
+const matchers: ColorMatchers = {
+	rgb: new RegExp('rgb' + call(NUMBER, NUMBER, NUMBER)),
+	rgba: new RegExp('rgba' + call(NUMBER, NUMBER, NUMBER, NUMBER)),
+	hsl: new RegExp('hsl' + call(NUMBER, PERCENTAGE, PERCENTAGE)),
+	hsla: new RegExp('hsla' + call(NUMBER, PERCENTAGE, PERCENTAGE, NUMBER)),
+	hex3: /^#([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/,
+	hex4: /^#([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/,
+	hex5: undefined,
+	hex6: /^#([0-9a-fA-F]{6})$/,
+	hex8: /^#([0-9a-fA-F]{8})$/,
+	oklch: modernColorCall('oklch'),
+	oklab: modernColorCall('oklab'),
+	lab: modernColorCall('lab'),
+	lch: modernColorCall('lch'),
+	hwb: modernColorCall('hwb'),
+};
+
+const namedColors = new Set(Object.keys(NoReactInternals.colorNames));
+const numberUnitRegex = /^(-?\d+(?:\.\d+)?)([a-zA-Z%]*)$/;
+const functionGlobalRegex = /([a-zA-Z-]+)\(([^)]+)\)/g;
+
+const getColorMatchers = (): ColorMatchers => matchers;
+
+const isColorFunction = (name: string, fullValue: string): boolean => {
+	const c0 = name.charCodeAt(0);
+	if (c0 === 114) {
+		// r
+		if (name === 'rgb') return matchers.rgb!.test(fullValue);
+		if (name === 'rgba') return matchers.rgba!.test(fullValue);
+	} else if (c0 === 104) {
+		// h
+		if (name === 'hsl') return matchers.hsl!.test(fullValue);
+		if (name === 'hsla') return matchers.hsla!.test(fullValue);
+		if (name === 'hwb') return matchers.hwb!.test(fullValue);
+	} else if (c0 === 111) {
+		// o
+		if (name === 'oklch') return matchers.oklch!.test(fullValue);
+		if (name === 'oklab') return matchers.oklab!.test(fullValue);
+	} else if (c0 === 108) {
+		// l
+		if (name === 'lab') return matchers.lab!.test(fullValue);
+		if (name === 'lch') return matchers.lch!.test(fullValue);
 	}
+	return false;
+};
 
-	return cachedMatchers;
-}
+const getTrimmed = (s: string, start: number, end: number) => {
+	while (start < end && s.charCodeAt(start) <= 32) start++;
+	while (end > start && s.charCodeAt(end - 1) <= 32) end--;
+	return s.substring(start, end);
+};
 
-const extractOrderedPartsOfValue = (value: string) => {
-	const parts = [];
-	let remainingValue = value;
-
-	while (remainingValue.length > 0) {
-		const functionMatch = remainingValue.match(/([a-zA-Z-]+)\(([^)]+)\)/);
-
-		// If there's a function, add it to the parts and remove it from the remaining value
-		if (functionMatch) {
-			const {index} = functionMatch;
-			const matchedFunction = functionMatch[0];
-
-			// Add any parts before the function
-			if ((index || 0) > 0) {
-				parts.push(...remainingValue.substring(0, index).trim().split(/\s+/));
-			}
-
-			parts.push(matchedFunction);
-
-			remainingValue = remainingValue.substring(
-				(index || 0) + matchedFunction.length,
-			);
-		} else {
-			// If there's no function, add the remaining value to the parts
-			parts.push(...remainingValue.trim().split(/\s+/));
-			break;
+const classifyArg = (val: string) => {
+	const c0 = val.charCodeAt(0);
+	if ((c0 >= 48 && c0 <= 57) || c0 === 45) {
+		const match = numberUnitRegex.exec(val);
+		if (match) {
+			const number = +match[1];
+			const unit = match[2];
+			return unit ? {number, unit} : {number};
 		}
 	}
-
-	return parts.filter((part) => part !== ''); // Filter out any empty strings
+	return {unit: val};
 };
 
 const classifyArgsOfFunction = (value: string) => {
+	const result = [];
 	let nestedLevel = 0;
-	const values = [];
-	let currentValue = '';
-
-	for (const char of value) {
-		if (char === '(') nestedLevel++;
-		else if (char === ')') nestedLevel--;
-
-		if (char === ',' && nestedLevel === 0) {
-			values.push(currentValue.trim());
-			currentValue = '';
-		} else {
-			currentValue += char;
+	let start = 0;
+	const len = value.length;
+	for (let i = 0; i < len; i++) {
+		const code = value.charCodeAt(i);
+		if (code === 40) {
+			nestedLevel++;
+		} else if (code === 41) {
+			nestedLevel--;
+		} else if (code === 44 && nestedLevel === 0) {
+			result.push(classifyArg(getTrimmed(value, start, i)));
+			start = i + 1;
 		}
 	}
-
-	if (currentValue) values.push(currentValue.trim());
-
-	// Classify each value
-	return values.map((val) => {
-		const numberUnitMatch = val.match(/^(-?\d+(?:\.\d+)?)([a-zA-Z%]*)$/);
-		if (numberUnitMatch) {
-			const number = parseFloat(numberUnitMatch[1]);
-			const unit = numberUnitMatch[2];
-			return unit ? {number, unit} : {number};
-		}
-
-		const numberMatch = val.match(/^(\d+(?:\.\d+)?)$/);
-		if (numberMatch) {
-			const number = parseFloat(numberMatch[1]);
-			return {number};
-		}
-
-		return {unit: val};
-	});
+	const last = getTrimmed(value, start, len);
+	if (last) {
+		result.push(classifyArg(last));
+	}
+	return result;
 };
 
-const isColorValue = (value: string) => {
-	if (Object.keys(NoReactInternals.colorNames).includes(value)) {
-		return true;
+const classifyNonFunctionPart = (token: string) => {
+	const c0 = token.charCodeAt(0);
+	if (c0 === 35) {
+		const len = token.length;
+		if (len === 4 || len === 5 || len === 7 || len === 9) {
+			let valid = true;
+			for (let j = 1; j < len; j++) {
+				const c = token.charCodeAt(j);
+				if (
+					!(
+						(c >= 48 && c <= 57) ||
+						(c >= 65 && c <= 70) ||
+						(c >= 97 && c <= 102)
+					)
+				) {
+					valid = false;
+					break;
+				}
+			}
+			if (valid) return {color: token};
+		}
+	} else if (c0 >= 97 && c0 <= 122) {
+		if (namedColors.has(token)) return {color: token};
 	}
 
-	const matchers = getColorMatchers();
-	return (
-		matchers.rgb?.test(value) ||
-		matchers.rgba?.test(value) ||
-		matchers.hsl?.test(value) ||
-		matchers.hsla?.test(value) ||
-		matchers.hex3?.test(value) ||
-		matchers.hex4?.test(value) ||
-		matchers.hex5?.test(value) ||
-		matchers.hex6?.test(value) ||
-		matchers.hex8?.test(value) ||
-		matchers.oklch?.test(value) ||
-		matchers.oklab?.test(value) ||
-		matchers.lab?.test(value) ||
-		matchers.lch?.test(value) ||
-		matchers.hwb?.test(value)
-	);
-};
-
-const classifyParts = (parts: string[]) => {
-	return parts.map((part) => {
-		// Check for a color value like 'red', 'rgba(0, 0, 0, 0)', '#fff', etc.
-		if (isColorValue(part)) {
-			return {color: part};
-		}
-
-		// Check for a function like 'translateX(10px)' or 'rotate(90deg)'
-		const functionMatch = part.match(/([a-zA-Z-]+)\(([^)]+)\)/);
-		if (functionMatch) {
-			const functionName = functionMatch[1];
-			const functionValues = classifyArgsOfFunction(functionMatch[2]);
-			return {function: {name: functionName, values: functionValues}};
-		}
-
-		// Check for a number possibly followed by a unit like '10px' or '10' or '-10px'
-		const numberUnitMatch = part.match(/^(-?\d+(?:\.\d+)?)([a-zA-Z%]*)$/);
-		if (numberUnitMatch) {
-			const number = parseFloat(numberUnitMatch[1]);
-			const unit = numberUnitMatch[2];
+	if ((c0 >= 48 && c0 <= 57) || c0 === 45) {
+		const match = numberUnitRegex.exec(token);
+		if (match) {
+			const number = +match[1];
+			const unit = match[2];
 			return unit ? {number, unit} : {number};
 		}
-
-		// Check for a number without a unit like '10' or '-10'
-		const numberMatch = part.match(/^(-?\d+(?:\.\d+)?)$/);
-		if (numberMatch) {
-			const number = parseFloat(numberMatch[1]);
-			return {number};
-		}
-
-		// If neither, treat as a unit (like 'solid', 'none', etc.)
-		return {unit: part};
-	});
+	}
+	return {unit: token};
 };
 
 const breakDownValueIntoUnitNumberAndFunctions = (
@@ -201,13 +153,56 @@ const breakDownValueIntoUnitNumberAndFunctions = (
 	if (typeof value === 'number') {
 		return [{number: value}];
 	}
-
 	if (typeof value !== 'string') {
 		return [];
 	}
 
-	const valueParts = extractOrderedPartsOfValue(value);
-	return classifyParts(valueParts);
+	const result: any[] = [];
+	let lastIndex = 0;
+	functionGlobalRegex.lastIndex = 0;
+	let match;
+
+	while ((match = functionGlobalRegex.exec(value)) !== null) {
+		const index = match.index;
+		if (index > lastIndex) {
+			let i = lastIndex;
+			while (i < index) {
+				while (i < index && value.charCodeAt(i) <= 32) i++;
+				if (i >= index) break;
+				let end = i;
+				while (end < index && value.charCodeAt(end) > 32) end++;
+				result.push(classifyNonFunctionPart(value.substring(i, end)));
+				i = end;
+			}
+		}
+
+		const fullFunction = match[0];
+		const name = match[1];
+		if (isColorFunction(name, fullFunction)) {
+			result.push({color: fullFunction});
+		} else {
+			result.push({
+				function: {
+					name,
+					values: classifyArgsOfFunction(match[2]),
+				},
+			});
+		}
+		lastIndex = functionGlobalRegex.lastIndex;
+	}
+
+	const len = value.length;
+	let i = lastIndex;
+	while (i < len) {
+		while (i < len && value.charCodeAt(i) <= 32) i++;
+		if (i >= len) break;
+		let end = i;
+		while (end < len && value.charCodeAt(end) > 32) end++;
+		result.push(classifyNonFunctionPart(value.substring(i, end)));
+		i = end;
+	}
+
+	return result;
 };
 
 export {breakDownValueIntoUnitNumberAndFunctions, getColorMatchers};
