@@ -118,7 +118,7 @@ const drawLoopedWaveform = ({
 	ctx.fillRect(0, 0, w, h);
 };
 
-export const AudioWaveform: React.FC<{
+const AudioWaveformInner: React.FC<{
 	readonly src: string;
 	readonly height: number;
 	readonly visualizationWidth: number;
@@ -407,3 +407,5 @@ export const AudioWaveform: React.FC<{
 		</div>
 	);
 };
+
+export const AudioWaveform = React.memo(AudioWaveformInner);

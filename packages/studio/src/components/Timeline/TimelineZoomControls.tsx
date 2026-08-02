@@ -77,7 +77,7 @@ const TimelineZoomSlider: React.FC<{
 	);
 };
 
-export const TimelineZoomControls: React.FC<{
+const TimelineZoomControlsInner: React.FC<{
 	readonly sliderMaxWidth?: number;
 }> = ({sliderMaxWidth}) => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
@@ -147,3 +147,5 @@ export const TimelineZoomControls: React.FC<{
 		</div>
 	);
 };
+
+export const TimelineZoomControls = React.memo(TimelineZoomControlsInner);
