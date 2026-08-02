@@ -32,6 +32,7 @@ import {
 } from '../Timeline/call-delete-keyframe';
 import {callMoveKeyframes} from '../Timeline/call-move-keyframe';
 import {getEasingSelectionAfterKeyframeDelete} from '../Timeline/get-easing-selection-after-keyframe-delete';
+import {getCurrentFrame} from '../Timeline/imperative-state';
 import {parseKeyframeFieldFromNodePath} from '../Timeline/parse-keyframe-field-from-node-path';
 import {TimelineEffectPropValue} from '../Timeline/TimelineEffectPropItem';
 import {
@@ -144,7 +145,6 @@ export const KeyframeInspector: React.FC<{
 }> = ({selection}) => {
 	const track = useTrackForSelection(selection);
 	const videoConfig = useVideoConfig();
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {
 		clearDragOverrides,
@@ -459,7 +459,7 @@ export const KeyframeInspector: React.FC<{
 						keyframeDisplayOffset: details.keyframeDisplayOffset,
 						nodePathInfo: selection.nodePathInfo,
 						propStatus: details.propStatus,
-						timelinePosition,
+						timelinePosition: getCurrentFrame(),
 					})
 				: null;
 			if (easingSelection !== null) {
@@ -499,7 +499,6 @@ export const KeyframeInspector: React.FC<{
 			selectItems,
 			selection.nodePathInfo,
 			setPropStatuses,
-			timelinePosition,
 		],
 	);
 
