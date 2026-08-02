@@ -15,6 +15,7 @@ import {
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const rowClipper: React.CSSProperties = {
+	boxSizing: 'border-box',
 	marginLeft: -TIMELINE_PADDING,
 	marginRight: -TIMELINE_PADDING,
 	overflow: 'hidden',
@@ -47,7 +48,7 @@ const TimelineExpandedKeyframeRowUnmemoized: React.FC<{
 	return (
 		<>
 			{showSeparator ? <div style={rowSeparator} /> : null}
-			<div style={{...rowClipper, height}}>
+			<div style={{...rowClipper, height, width: timelineWidth ?? undefined}}>
 				<div style={{...row, height}}>
 					{rowHighlightBackground && timelineWidth !== null ? (
 						<div
