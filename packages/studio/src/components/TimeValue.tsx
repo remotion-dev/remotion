@@ -27,7 +27,7 @@ const text: React.CSSProperties = {
 const currentTimeTypography: React.CSSProperties = {
 	color: WHITE,
 	display: 'inline-block',
-	fontSize: 16,
+	fontSize: 15,
 	fontVariantNumeric: 'tabular-nums',
 	fontWeight: 400,
 	lineHeight: 1,
