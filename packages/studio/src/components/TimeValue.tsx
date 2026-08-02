@@ -25,9 +25,12 @@ const text: React.CSSProperties = {
 	width: '100%',
 };
 
-const time: React.CSSProperties = {
+const currentTimeTypography: React.CSSProperties = {
+	color: WHITE,
 	display: 'inline-block',
 	fontSize: 16,
+	fontVariantNumeric: 'tabular-nums',
+	fontWeight: 400,
 	lineHeight: 1,
 	fontFamily: 'monospace',
 };
@@ -107,9 +110,10 @@ export const TimeValue: React.FC = () => {
 				onTextChange={onTextChange}
 				onValueChange={onValueChange}
 				formatter={formatter}
+				formatterStyle={currentTimeTypography}
 				rightAlign={false}
 				status="ok"
-				style={time}
+				style={currentTimeTypography}
 			/>
 			<Spacing x={2} />
 			<Flex />

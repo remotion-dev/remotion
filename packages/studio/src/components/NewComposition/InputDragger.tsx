@@ -23,6 +23,7 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 	readonly onTextChange: (newVal: string) => void;
 	readonly status: RemInputStatus;
 	readonly formatter?: (str: number | string) => string;
+	readonly formatterStyle?: React.CSSProperties;
 	readonly rightAlign: boolean;
 	readonly small?: boolean;
 	readonly snapToStep?: boolean;
@@ -439,6 +440,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		value,
 		onTextChange,
 		formatter = (q) => String(q),
+		formatterStyle,
 		status,
 		rightAlign,
 		small,
@@ -470,8 +472,9 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			WebkitUserSelect: 'none',
 			fontSize: small ? 12 : 14,
 			fontVariantNumeric: 'tabular-nums',
+			...formatterStyle,
 		}),
-		[dragging, small],
+		[dragging, formatterStyle, small],
 	);
 
 	const onFocus = useCallback(() => {
