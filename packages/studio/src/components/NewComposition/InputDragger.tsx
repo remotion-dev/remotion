@@ -29,6 +29,7 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 	readonly buttonStyle?: React.CSSProperties;
 	readonly rightAlign: boolean;
 	readonly small?: boolean;
+	readonly allowStepMismatch?: boolean;
 	readonly snapToStep?: boolean;
 	readonly dragDecimalPlaces?: number;
 	readonly dragSensitivity?: number;
@@ -450,6 +451,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		status,
 		rightAlign,
 		small,
+		allowStepMismatch = false,
 		snapToStep = true,
 		dragDecimalPlaces,
 		dragSensitivity = 1,
@@ -469,6 +471,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			step: _step,
 		});
 	}, [_min, _step, snapToStep]);
+	const validationStep = allowStepMismatch ? 'any' : deriveStep;
 
 	const span: React.CSSProperties = useMemo(
 		() => ({
@@ -552,7 +555,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		const validation = validateInputDraggerValue({
 			max: _max,
 			min: _min,
-			step: deriveStep,
+			step: validationStep,
 			value: newValue,
 		});
 
@@ -565,7 +568,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			fallbackRef.current.setCustomValidity(validation.message);
 			fallbackRef.current.reportValidity();
 		}
-	}, [_max, _min, deriveStep, onEscape, onValueChangeEnd]);
+	}, [_max, _min, onEscape, onValueChangeEnd, validationStep]);
 
 	const onInputKeyDown: React.KeyboardEventHandler<HTMLInputElement> =
 		useCallback(
@@ -704,7 +707,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 					onChange={onInputChange}
 					min={_min}
 					max={_max}
-					step={deriveStep}
+					step={validationStep}
 					defaultValue={value}
 					status={status}
 					rightAlign={rightAlign}

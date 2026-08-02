@@ -448,6 +448,7 @@ export const TimelineScaleField: React.FC<{
 				step={step}
 				formatter={formatter}
 				rightAlign={false}
+				allowStepMismatch
 			/>
 			<div style={gapStyle} />
 			<InputDragger
@@ -464,6 +465,7 @@ export const TimelineScaleField: React.FC<{
 				step={step}
 				formatter={formatter}
 				rightAlign={false}
+				allowStepMismatch
 			/>
 			<LinkToggle linked={linked} onToggle={onToggleLink} />
 		</span>
