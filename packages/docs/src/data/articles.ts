@@ -3942,6 +3942,15 @@ export const articles = [
 		slug: 'license/privacy',
 	},
 	{
+		id: 'license/telemetry',
+		title: 'Telemetry',
+		relativePath: 'docs/license/telemetry.mdx',
+		compId: 'articles-docs-license-telemetry',
+		crumb: 'License, Pricing and Compliance',
+		noAi: false,
+		slug: 'license/telemetry',
+	},
+	{
 		id: 'license/terms',
 		title: 'Terms and Conditions of Remotion (v5.0)',
 		relativePath: 'docs/license/terms.mdx',

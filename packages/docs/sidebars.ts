@@ -1643,6 +1643,7 @@ const sidebars: SidebarsConfig = {
 				'license/faq',
 				'license/terms',
 				'license/privacy',
+				'license/telemetry',
 				'license/dpa',
 				'license/dpia',
 				'acknowledgements',

@@ -1,0 +1,116 @@
+---
+image: /generated/articles-docs-license-telemetry.png
+crumb: 'License, Pricing and Compliance'
+sidebar_label: Telemetry
+title: Telemetry
+---
+
+Remotion sometimes sends telemetry that reports when a render has been made.
+
+## Why Remotion has telemetry
+
+Remotion is [free for individuals and small companies](/docs/license) but requires a [paid license](https://remotion.pro) for bigger companies.
+The price depends on the amount of renders.
+
+Telemetry makes it easier to track renders and ensure accountability.  
+We do not use telemetry for any other purposes than ensuring proper licensing.
+
+## APIs which send telemetry
+
+Server-side rendering APIs do only send telemetry when the `licenseKey` option is set.  
+Client-side rendering APIs do always have telemetry.
+
+## Obligation to set a license key
+
+In Remotion 5.0, it becomes obligatory for companies which are under the "Remotion for Automators" plan to set the `licenseKey` field and opt into telemetry.
+
+Customers who cannot enable telemetry due to company policy must arrange an alternative reporting method with Remotion.
+
+## Sent information
+
+The following information is sent:
+
+- IP Address
+- Domain name (e.g. `https://www.remotion.dev`)
+- Whether this render was in production or development
+- Whether this render was a video or a still image
+
+No content or metadata of the video rendered, or any user data is collected.
+
+## Setting a license key
+
+If you [qualify for the free license](/docs/license), pass `"free-license"` to `licenseKey` to disable any warning in the console and declare your eligibility for the free license.
+
+```tsx twoslash title="Declare eligibility for the free license" {6}
+import React from 'react';
+const Component: React.FC = () => {
+  return (
+    <svg viewBox="0 0 100 100" width="100" height="100" style={{transform: 'rotate(45deg)'}}>
+      <polygon points="50,10 90,90 10,90" fill="orange" />
+    </svg>
+  );
+};
+
+const composition = {
+  component: Component,
+  durationInFrames: 100,
+  fps: 30,
+  width: 100,
+  height: 100,
+  calculateMetadata: null,
+  id: 'my-composition',
+};
+
+// ---cut---
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+
+await renderMediaOnWeb({
+  composition,
+  inputProps: {},
+  licenseKey: 'free-license',
+});
+```
+
+If you have a Remotion Company License or Enterprise License, go to [remotion.pro](https://remotion.pro) and get your license key from the License keys page.
+
+```tsx twoslash title="Set a license key" {6}
+import React from 'react';
+const Component: React.FC = () => {
+  return (
+    <svg viewBox="0 0 100 100" width="100" height="100" style={{transform: 'rotate(45deg)'}}>
+      <polygon points="50,10 90,90 10,90" fill="orange" />
+    </svg>
+  );
+};
+
+const composition = {
+  component: Component,
+  durationInFrames: 100,
+  fps: 30,
+  width: 100,
+  height: 100,
+  calculateMetadata: null,
+  id: 'my-composition',
+};
+
+// ---cut---
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+
+await renderMediaOnWeb({
+  composition,
+  inputProps: {},
+  licenseKey: 'rm_pub_abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
+});
+```
+
+For tracking client-side renders, you should use the public key.  
+We recommend limiting which domains which can send telemetry in your dashboard.
+
+For tracking server-side renders, you should use the private key.
+
+## Tracking usage
+
+After you set up the license key, you can now track your usage on the same Usage tab.
+
+Usage is not (yet) tied to billing.  
+You will need to update your render count manually periodically to reflect your usage.
