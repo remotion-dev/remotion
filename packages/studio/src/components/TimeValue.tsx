@@ -47,6 +47,7 @@ const currentTimeSubtitle: React.CSSProperties = {
 	fontSize: 10,
 	fontWeight: 400,
 	lineHeight: 1,
+	textAlign: 'left',
 };
 
 export const TimeValue: React.FC = () => {
