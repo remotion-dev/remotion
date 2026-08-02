@@ -143,12 +143,15 @@ export const PreviewToolbar: React.FC<{
 				</PreviewToolbarControl>
 			)}
 			{!isMobileLayout && (isStill || isVideoComposition) ? (
-				<PreviewToolbarControl>
-					<PlaybackRateSelector
-						setPlaybackRate={setPlaybackRate}
-						playbackRate={playbackRate}
-					/>
-				</PreviewToolbarControl>
+				<>
+					<Spacing x={2} />
+					<PreviewToolbarControl>
+						<PlaybackRateSelector
+							setPlaybackRate={setPlaybackRate}
+							playbackRate={playbackRate}
+						/>
+					</PreviewToolbarControl>
+				</>
 			) : null}
 
 			{isVideoComposition && isMobileLayout ? (

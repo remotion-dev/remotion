@@ -2,8 +2,7 @@ import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
 import {BLACK} from '../../helpers/colors';
 import {useIsStill} from '../../helpers/is-current-selected-still';
-import {Minus} from '../../icons/minus';
-import {Plus} from '../../icons/plus';
+import {CanvasZoomIcon, CanvasZoomOutIcon} from '../../icons/canvas-zoom';
 import {
 	TIMELINE_MAX_ZOOM,
 	TIMELINE_MIN_ZOOM,
@@ -22,10 +21,6 @@ const container: React.CSSProperties = {
 
 const buttonStyle: React.CSSProperties = {
 	fontSize: 24,
-};
-
-const iconStyle: React.CSSProperties = {
-	width: 14,
 };
 
 const TimelineZoomSlider: React.FC<{
@@ -129,7 +124,7 @@ export const TimelineZoomControls: React.FC<{
 				type="button"
 				disabled={TIMELINE_MIN_ZOOM === zoom}
 			>
-				{(color) => <Minus style={iconStyle} color={color} />}
+				{(color) => <CanvasZoomOutIcon color={color} />}
 			</ControlButton>
 			<Spacing x={0.5} />
 			<TimelineZoomSlider maxWidth={sliderMaxWidth} />
@@ -142,7 +137,7 @@ export const TimelineZoomControls: React.FC<{
 				type="button"
 				disabled={TIMELINE_MAX_ZOOM === zoom}
 			>
-				{(color) => <Plus color={color} style={iconStyle} />}
+				{(color) => <CanvasZoomIcon color={color} />}
 			</ControlButton>
 		</div>
 	);
