@@ -261,11 +261,11 @@ export const TimelineTimeIndicators: React.FC = () => {
 	);
 };
 
-const TimelineTimeIndicatorsInner: React.FC<{
+const TimelineTimeIndicatorsInner = React.memo<{
 	readonly windowWidth: number;
 	readonly fps: number;
 	readonly durationInFrames: number;
-}> = ({windowWidth, durationInFrames, fps}) => {
+}>(({windowWidth, durationInFrames, fps}) => {
 	const ref = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
@@ -407,4 +407,4 @@ const TimelineTimeIndicatorsInner: React.FC<{
 			})}
 		</div>
 	);
-};
+});

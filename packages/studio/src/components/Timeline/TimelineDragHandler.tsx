@@ -293,6 +293,10 @@ const TimelineDragHandlerInner: React.FC = () => {
 			});
 
 			setFrame((c) => {
+				if (c[videoConfig.id] === frame) {
+					return c;
+				}
+
 				const newObj = {...c, [videoConfig.id]: frame};
 				Internals.persistCurrentFrame(newObj);
 				return newObj;
