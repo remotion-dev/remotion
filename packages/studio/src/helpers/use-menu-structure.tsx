@@ -57,7 +57,7 @@ const iconContainer: React.CSSProperties = {
 const iconPath: React.CSSProperties = {
 	color: 'inherit',
 };
-const ICON_SIZE = 16;
+const ICON_SIZE = 17;
 
 const getFileMenu = ({
 	readOnlyStudio,
