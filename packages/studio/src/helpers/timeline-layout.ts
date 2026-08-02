@@ -65,6 +65,28 @@ export type TimelineEffectGroupInfo = {
 	readonly documentationLink: string | null;
 };
 
+export type TimelineNodePathInfoFactory = (
+	auxiliaryKeys: string[],
+) => SequenceNodePathInfo;
+
+export const createTimelineNodePathInfoFactory = (
+	base: Omit<SequenceNodePathInfo, 'auxiliaryKeys'>,
+): TimelineNodePathInfoFactory => {
+	const cache = new Map<string, SequenceNodePathInfo>();
+
+	return (auxiliaryKeys) => {
+		const key = JSON.stringify(auxiliaryKeys);
+		const existing = cache.get(key);
+		if (existing) {
+			return existing;
+		}
+
+		const nodePathInfo: SequenceNodePathInfo = {...base, auxiliaryKeys};
+		cache.set(key, nodePathInfo);
+		return nodePathInfo;
+	};
+};
+
 export type TimelineTreeNode =
 	| {
 			readonly kind: 'group';
@@ -91,6 +113,7 @@ export const buildTimelineTree = ({
 	propStatuses,
 	includeTextContent,
 	includeSourceControls,
+	nodePathInfoFactory,
 }: {
 	sequence: TSequence;
 	nodePathInfo: SequenceNodePathInfo;
@@ -99,10 +122,19 @@ export const buildTimelineTree = ({
 	propStatuses: PropStatuses;
 	includeTextContent: boolean;
 	includeSourceControls: boolean;
+	nodePathInfoFactory?: TimelineNodePathInfoFactory;
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
 	const {sequenceSubscriptionKey, index, auxiliaryKeys, supportsEffects} =
 		nodePathInfo;
+	const getNodePathInfo =
+		nodePathInfoFactory ??
+		createTimelineNodePathInfoFactory({
+			sequenceSubscriptionKey,
+			index,
+			numberOfSequencesWithThisNodePath: 0,
+			supportsEffects,
+		});
 
 	const controlFields = getFieldsToShow({
 		schema: sequence.controls!.schema,
@@ -122,13 +154,7 @@ export const buildTimelineTree = ({
 
 			roots.push({
 				kind: 'field',
-				nodePathInfo: {
-					sequenceSubscriptionKey,
-					auxiliaryKeys: [...auxiliaryKeys, 'controls', f.key],
-					index,
-					numberOfSequencesWithThisNodePath: 0,
-					supportsEffects,
-				},
+				nodePathInfo: getNodePathInfo([...auxiliaryKeys, 'controls', f.key]),
 				label: f.description ?? f.key,
 				field: f,
 			});
@@ -138,13 +164,7 @@ export const buildTimelineTree = ({
 	if (sequence.effects.length > 0) {
 		roots.push({
 			kind: 'group',
-			nodePathInfo: {
-				sequenceSubscriptionKey,
-				auxiliaryKeys: [...auxiliaryKeys, 'effects'],
-				index,
-				numberOfSequencesWithThisNodePath: 0,
-				supportsEffects,
-			},
+			nodePathInfo: getNodePathInfo([...auxiliaryKeys, 'effects']),
 			label: 'Effects',
 			effectInfo: null,
 			children: sequence.effects.map((effect, i): TimelineTreeNode => {
@@ -157,13 +177,11 @@ export const buildTimelineTree = ({
 				});
 				return {
 					kind: 'group',
-					nodePathInfo: {
-						sequenceSubscriptionKey,
-						auxiliaryKeys: [...auxiliaryKeys, 'effects', i.toString()],
-						index,
-						numberOfSequencesWithThisNodePath: 0,
-						supportsEffects,
-					},
+					nodePathInfo: getNodePathInfo([
+						...auxiliaryKeys,
+						'effects',
+						i.toString(),
+					]),
 					label: effect.label,
 					effectInfo: {
 						effectIndex: i,
@@ -173,18 +191,12 @@ export const buildTimelineTree = ({
 					children: effectFields.map(
 						(f): TimelineTreeNode => ({
 							kind: 'field',
-							nodePathInfo: {
-								sequenceSubscriptionKey,
-								auxiliaryKeys: [
-									...auxiliaryKeys,
-									'effects',
-									i.toString(),
-									f.key,
-								],
-								index,
-								numberOfSequencesWithThisNodePath: 0,
-								supportsEffects,
-							},
+							nodePathInfo: getNodePathInfo([
+								...auxiliaryKeys,
+								'effects',
+								i.toString(),
+								f.key,
+							]),
 							label: f.description ?? f.key,
 							field: f,
 						}),

@@ -137,7 +137,9 @@ test('expanded rows preserve node path references until their identity changes',
 		{
 			initialProps: {
 				sequence: makeSequence(0),
-				nodePathInfo: makeNodePathInfo(),
+				nodePathInfo: makeNodePathInfo({
+					sequenceSubscriptionKey: baseSubscriptionKey,
+				}),
 			},
 			wrapper,
 		},
@@ -148,7 +150,9 @@ test('expanded rows preserve node path references until their identity changes',
 
 	rerender({
 		sequence: makeSequence(0.5),
-		nodePathInfo: makeNodePathInfo(),
+		nodePathInfo: makeNodePathInfo({
+			sequenceSubscriptionKey: baseSubscriptionKey,
+		}),
 	});
 	expect(result.current.rows[0]?.nodePathInfo).toBe(firstNodePathInfo);
 
@@ -174,7 +178,9 @@ test('expanded rows preserve node path references until their identity changes',
 	for (const changedNodePathInfo of identityChanges) {
 		rerender({
 			sequence: makeSequence(0.5),
-			nodePathInfo: makeNodePathInfo(),
+			nodePathInfo: makeNodePathInfo({
+				sequenceSubscriptionKey: baseSubscriptionKey,
+			}),
 		});
 		const stableNodePathInfo = result.current.rows[0]?.nodePathInfo;
 
