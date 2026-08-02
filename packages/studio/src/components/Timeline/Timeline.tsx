@@ -315,9 +315,13 @@ const TimelineInner: React.FC = () => {
 					{isStudioInteractivityEnabled() ? (
 						<TimelineSelectAllKeybindings timeline={shown} />
 					) : null}
-					<TimelineHeightContainer shown={shown} hasBeenCut={hasBeenCut}>
+					<TimelineHeightContainer
+						shown={shown}
+						hasBeenCut={hasBeenCut}
+						isStill={isStill}
+					>
 						{isStill ? (
-							<TimelineList timeline={shown} />
+							<TimelineList timeline={shown} showTimePadding={false} />
 						) : (
 							<TimelineWidthProvider>
 								<TimelinePinchZoom />
@@ -336,7 +340,7 @@ const TimelineInner: React.FC = () => {
 										type="flexer"
 										sticky={<TimelineTimePlaceholders />}
 									>
-										<TimelineList timeline={shown} />
+										<TimelineList timeline={shown} showTimePadding />
 									</SplitterElement>
 									<SplitterHandle onCollapse={noop} allowToCollapse="none" />
 									<SplitterElement type="anti-flexer" sticky={null}>
