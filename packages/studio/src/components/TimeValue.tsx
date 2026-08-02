@@ -36,11 +36,11 @@ const currentTimeTypography: React.CSSProperties = {
 
 const currentTimeInputStyle: React.CSSProperties = {
 	...currentTimeTypography,
-	padding: '4px 6px 4px 2px',
+	padding: '4px 6px 4px 0',
 };
 
 const currentTimeButtonStyle: React.CSSProperties = {
-	paddingLeft: 2,
+	paddingLeft: 0,
 };
 
 const currentTimeSubtitle: React.CSSProperties = {
