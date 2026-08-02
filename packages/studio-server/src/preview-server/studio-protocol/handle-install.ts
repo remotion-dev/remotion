@@ -2,8 +2,8 @@ import type {IncomingMessage, ServerResponse} from 'node:http';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import type {ElementInstallRequest} from '@remotion/studio-shared';
 import {z} from 'zod';
-import {consumeStudioProtocolTarget} from '../element-install-state';
 import type {getElementInstallTarget} from '../element-install-state';
+import {consumeStudioProtocolTarget} from '../element-install-state';
 import type {LiveEventsServer} from '../live-events';
 import {parseRequestBody, RequestBodyTooLargeError} from '../parse-body';
 import {
@@ -15,6 +15,7 @@ import {writeStudioProtocolError} from './protocol-response';
 type FocusStudioTab = (studioUrl: string) => void;
 
 const studioProtocolInstallRequestSchema = z.object({
+	operation: z.literal('install-element').optional(),
 	protocol: z.literal('remotion-studio-protocol'),
 	protocolVersion: z.literal(1),
 	targetId: z.string(),

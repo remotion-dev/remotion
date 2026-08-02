@@ -113,6 +113,7 @@ test('delivers the payload to the exact most recently focused Studio target', as
 		'http://localhost:3001/api/studio-protocol/install',
 	);
 	expect(JSON.parse(String(installRequest?.options?.body))).toEqual({
+		operation: 'install-element',
 		protocol: 'remotion-studio-protocol',
 		protocolVersion: 1,
 		targetId: 'newest-target',

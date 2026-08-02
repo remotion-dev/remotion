@@ -1,13 +1,14 @@
+import {isValidPublicLicenseKey} from './license-key';
+import type {StudioProtocolFetcher} from './studio-discovery';
 import {
 	discoverStudios,
 	fetchWithTimeout,
 	focusedStudioMaxAge,
+	getSetLicenseKeyCapability,
 	hasLegacyStudio,
 	isAbortError,
 	studioProtocolProbePorts,
-} from './install-in-studio';
-import type {StudioProtocolFetcher} from './install-in-studio';
-import {isValidPublicLicenseKey} from './license-key';
+} from './studio-discovery';
 import {isRecord} from './validation';
 
 export type SetLicenseKeyInStudioErrorCode =
@@ -45,6 +46,14 @@ export type SetLicenseKeyInStudioDependencies = {
 	readonly now: () => number;
 	readonly ports: readonly number[];
 	readonly pageOrigin: string | null;
+};
+
+export type StudioProtocolSetLicenseKeyRequest = {
+	readonly operation: 'set-license-key';
+	readonly protocol: 'remotion-studio-protocol';
+	readonly protocolVersion: 1;
+	readonly targetId: string;
+	readonly licenseKey: string;
 };
 
 const isAllowedLicenseKeyPageOrigin = (origin: string | null): boolean => {
@@ -127,9 +136,10 @@ export const setLicenseKeyInStudioWithDependencies = async (
 		};
 	}
 
-	const supportedStudios = discovery.studios.filter(
-		({descriptor}) => descriptor.capabilities.setLicenseKey === true,
-	);
+	const supportedStudios = discovery.studios.flatMap((studio) => {
+		const capability = getSetLicenseKeyCapability(studio.descriptor);
+		return capability === null ? [] : [{...studio, capability}];
+	});
 	if (supportedStudios.length === 0) {
 		return {
 			success: false,
@@ -141,25 +151,23 @@ export const setLicenseKeyInStudioWithDependencies = async (
 
 	const now = dependencies.now();
 	const configurable = supportedStudios
-		.filter(({descriptor}) => {
-			const target = descriptor.licenseKeyTarget;
+		.filter(({capability}) => {
+			const {target} = capability;
 			return (
 				target !== null &&
-				target !== undefined &&
 				target.expiresAt > now &&
 				now - target.lastFocusedAt < focusedStudioMaxAge
 			);
 		})
 		.sort((a, b) => {
 			const focusDifference =
-				b.descriptor.licenseKeyTarget!.lastFocusedAt -
-				a.descriptor.licenseKeyTarget!.lastFocusedAt;
+				b.capability.target!.lastFocusedAt - a.capability.target!.lastFocusedAt;
 			return focusDifference === 0
 				? b.discoveredAt - a.discoveredAt
 				: focusDifference;
 		});
 	const selected = configurable[0];
-	const selectedTarget = selected?.descriptor.licenseKeyTarget;
+	const selectedTarget = selected?.capability.target;
 	if (!selected || selectedTarget === null || selectedTarget === undefined) {
 		return {
 			success: false,
@@ -170,18 +178,20 @@ export const setLicenseKeyInStudioWithDependencies = async (
 
 	let response: Response;
 	try {
+		const requestBody = {
+			operation: 'set-license-key',
+			protocol: 'remotion-studio-protocol',
+			protocolVersion: 1,
+			targetId: selectedTarget.id,
+			licenseKey,
+		} satisfies StudioProtocolSetLicenseKeyRequest;
 		response = await fetchWithTimeout({
 			fetchFn: dependencies.fetchFn,
 			url: `${selected.origin}/api/studio-protocol/license-key`,
 			options: {
 				method: 'POST',
 				headers: {'Content-Type': 'application/json'},
-				body: JSON.stringify({
-					protocol: 'remotion-studio-protocol',
-					protocolVersion: 1,
-					targetId: selectedTarget.id,
-					licenseKey,
-				}),
+				body: JSON.stringify(requestBody),
 			},
 		});
 	} catch (error) {

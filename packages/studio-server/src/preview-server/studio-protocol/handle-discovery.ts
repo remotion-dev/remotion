@@ -3,12 +3,12 @@ import path from 'node:path';
 import type {GitSource} from '@remotion/studio-shared';
 import {getProjectName} from '@remotion/studio-shared';
 import {VERSION} from 'remotion/version';
+import type {ElementInstallTarget} from '../element-install-state';
 import {
 	ELEMENT_INSTALL_TARGET_MAX_AGE,
 	getElementInstallTarget,
 	issueStudioProtocolTarget,
 } from '../element-install-state';
-import type {ElementInstallTarget} from '../element-install-state';
 import type {LiveEventsServer} from '../live-events';
 import {
 	getAllowedLicenseKeyOrigin,
@@ -146,6 +146,7 @@ export const handleStudioProtocolDiscovery = ({
 					protocol: 'remotion-studio-protocol',
 					protocolVersion: 1,
 					studioVersion: VERSION,
+					projectName: getProject({gitSource, remotionRoot}),
 					capabilities: {
 						install: [
 							{
@@ -155,7 +156,6 @@ export const handleStudioProtocolDiscovery = ({
 						],
 						setLicenseKey: true,
 					},
-					projectName: getProject({gitSource, remotionRoot}),
 					installTarget:
 						issuedInstallTarget === null || installTarget === null
 							? null

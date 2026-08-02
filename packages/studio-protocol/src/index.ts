@@ -45,10 +45,9 @@ export type {
 	ElementDragPreviewMetadata,
 	SfxDragPreviewMetadata,
 } from './drag-preview-metadata';
+export {setStudioDragData} from './drag-transport';
 export type {EffectDragData} from './effect-drag-data';
 export type {ElementDependency, ElementDragData} from './element-drag-data';
-export type {SfxDragData} from './sfx-drag-data';
-export {setStudioDragData} from './drag-transport';
 export {
 	createElementPayload,
 	type CreateElementPayloadInput,
@@ -58,9 +57,12 @@ export {
 	installInStudio,
 	type InstallInStudioErrorCode,
 	type InstallInStudioResult,
-	type StudioProtocolDescriptor,
-	type StudioProtocolInstallTarget,
 } from './install-in-studio';
+export type {SfxDragData} from './sfx-drag-data';
+export type {
+	StudioProtocolDescriptor,
+	StudioProtocolInstallTarget,
+} from './studio-discovery';
 
 export const StudioProtocolInternals = {
 	areComponentProps,

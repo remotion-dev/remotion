@@ -108,6 +108,7 @@ test('sets the key in the most recently focused Studio project', async () => {
 	);
 	expect(request?.options?.method).toBe('POST');
 	expect(JSON.parse(String(request?.options?.body))).toEqual({
+		operation: 'set-license-key',
 		protocol: 'remotion-studio-protocol',
 		protocolVersion: 1,
 		targetId: 'focused-target',

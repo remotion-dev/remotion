@@ -11,6 +11,7 @@ import {
 import {writeStudioProtocolError} from './protocol-response';
 
 const studioProtocolLicenseKeyRequestSchema = z.object({
+	operation: z.literal('set-license-key').optional(),
 	protocol: z.literal('remotion-studio-protocol'),
 	protocolVersion: z.literal(1),
 	targetId: z.string().min(1),

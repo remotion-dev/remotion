@@ -205,12 +205,13 @@ test('discovers an exact Studio target and delivers one install request over HTT
 		const descriptor = (await discoveryResponse.json()) as {
 			installTarget: {id: string; compositionId: string};
 		};
-		expect(descriptor.installTarget.compositionId).toBe('Main');
+		const {installTarget} = descriptor;
+		expect(installTarget.compositionId).toBe('Main');
 
 		const installBody = {
 			protocol: 'remotion-studio-protocol',
 			protocolVersion: 1,
-			targetId: descriptor.installTarget.id,
+			targetId: installTarget.id,
 			payload,
 		};
 		const invalidEnvelopeResponse = await fetch(
@@ -420,13 +421,15 @@ test('sets a public license key in the focused Studio project over HTTP', async 
 		const descriptor = (await discovery.json()) as {
 			licenseKeyTarget: {id: string};
 		};
-		expect(descriptor.licenseKeyTarget.id).toBeString();
+		const {licenseKeyTarget} = descriptor;
+		expect(licenseKeyTarget.id).toBeString();
 
 		const validLicenseKey = `rm_pub_${'a'.repeat(48)}`;
 		const body = {
+			operation: 'set-license-key',
 			protocol: 'remotion-studio-protocol',
 			protocolVersion: 1,
-			targetId: descriptor.licenseKeyTarget.id,
+			targetId: licenseKeyTarget.id,
 			licenseKey: validLicenseKey,
 		};
 		const invalidKeyResponse = await fetch(
