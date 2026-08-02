@@ -1,7 +1,7 @@
 {
 	"name": "@remotion/studio-protocol",
 	"version": "4.0.503",
-	"description": "Create Element payloads and request installation into Remotion Studio",
+	"description": "Connect websites to Remotion Studio",
 	"main": "dist/index.cjs",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",

@@ -1,6 +1,6 @@
 # @remotion/studio-protocol
 
-Create Element payloads and request installation into Remotion Studio
+Connect websites to Remotion Studio
 
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/studio-protocol.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/studio-protocol?minimal=true)
 

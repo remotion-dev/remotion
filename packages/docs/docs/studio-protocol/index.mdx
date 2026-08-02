@@ -6,7 +6,7 @@ crumb: '@remotion/studio-protocol'
 
 # Remotion Studio Protocol<AvailableFrom v="4.0.502" />
 
-A versioned protocol for bringing reusable content into Remotion Studio.
+A versioned protocol for connecting websites to Remotion Studio.
 
 Protocol v1 supports [Remotion Elements](/elements) from the official Remotion Elements library. It provides one Element payload that can be delivered by dragging it into Studio or by requesting installation into the active composition.
 
@@ -45,14 +45,7 @@ import {TableOfContents} from './table-of-contents';
 
 ## Supported origins
 
-Install requests are accepted from:
-
-- `https://remotion.dev`
-- `https://www.remotion.dev`
-- HTTP `localhost`
-- HTTP `127.0.0.1`
-
-Protocol v1 is supported by the official Remotion Elements library. Other hosted websites are not currently authorized to send installation requests.
+Any HTTPS website can request an Element installation confirmation. HTTP is supported on `localhost` and `127.0.0.1` for local development.
 
 ## Compatibility
 
