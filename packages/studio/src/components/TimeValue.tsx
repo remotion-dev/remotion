@@ -12,6 +12,7 @@ import {useKeybinding} from '../helpers/use-keybinding';
 import {renderFrame} from '../state/render-frame';
 import {Flex, Spacing} from './layout';
 import {InputDragger} from './NewComposition/InputDragger';
+import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 
 const text: React.CSSProperties = {
 	color: WHITE,
@@ -23,20 +24,35 @@ const text: React.CSSProperties = {
 	width: '100%',
 };
 
-const time: React.CSSProperties = {
+const currentTimeTypography: React.CSSProperties = {
+	color: WHITE,
 	display: 'inline-block',
-	fontSize: 16,
+	fontSize: 14,
+	fontVariantNumeric: 'tabular-nums',
+	fontWeight: 400,
 	lineHeight: 1,
 	fontFamily: 'monospace',
 };
 
-const frameStyle: React.CSSProperties = {
+const currentTimeInputStyle: React.CSSProperties = {
+	...currentTimeTypography,
+	padding: '4px 6px 4px 0',
+};
+
+const currentTimeButtonStyle: React.CSSProperties = {
+	paddingLeft: 0,
+	transform: 'translateY(-1px)',
+};
+
+const currentTimeSubtitle: React.CSSProperties = {
 	color: LIGHT_TEXT,
-	fontWeight: 500,
-	lineHeight: 1,
-	fontSize: 16,
+	display: 'block',
 	fontFamily: 'monospace',
-	paddingRight: 10,
+	fontSize: 10,
+	fontWeight: 400,
+	lineHeight: 1,
+	marginTop: -2,
+	textAlign: 'left',
 };
 
 export const TimeValue: React.FC = () => {
@@ -58,6 +74,16 @@ export const TimeValue: React.FC = () => {
 			seek(val);
 		},
 		[seek],
+	);
+	const formatter = useCallback(
+		(value: string | number) => {
+			return config ? renderFrame(Number(value), config.fps) : String(value);
+		},
+		[config],
+	);
+	const formatterSubtitle = useCallback(
+		(value: string | number) => String(value),
+		[],
 	);
 	useImperativeHandle(
 		Internals.timeValueRef,
@@ -101,18 +127,25 @@ export const TimeValue: React.FC = () => {
 
 	return (
 		<div style={text}>
-			<div style={time}>{renderFrame(frame, config.fps)}</div>
-			<Spacing x={2} />
-			<Flex />
 			<InputDragger
 				ref={ref}
+				aria-label={String(frame)}
 				value={frame}
 				onTextChange={onTextChange}
 				onValueChange={onValueChange}
-				rightAlign
+				formatter={formatter}
+				formatterStyle={currentTimeTypography}
+				formatterSubtitle={formatterSubtitle}
+				formatterSubtitleStyle={currentTimeSubtitle}
+				buttonStyle={currentTimeButtonStyle}
+				rightAlign={false}
 				status="ok"
-				style={frameStyle}
+				style={currentTimeInputStyle}
 			/>
+			<Spacing x={2} />
+			<Flex />
+			<TimelineZoomControls sliderMaxWidth={80} />
+			<Spacing x={0.5} />
 		</div>
 	);
 };

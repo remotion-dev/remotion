@@ -23,7 +23,8 @@ const studioStyle: React.CSSProperties = {
 
 export const BufferingIndicator: React.FC<{
 	readonly type: 'player' | 'studio';
-}> = ({type}) => {
+	readonly color?: string;
+}> = ({type, color = 'white'}) => {
 	const style: React.CSSProperties =
 		type === 'player' ? playerStyle : studioStyle;
 	return (
@@ -54,7 +55,7 @@ export const BufferingIndicator: React.FC<{
 								? 'M 11 4 A 7 7 0 0 1 15.1145 16.66312'
 								: 'M 9 2 A 7 7 0 0 1 13.1145 14.66312'
 						}
-						stroke="white"
+						stroke={color}
 						strokeLinecap="round"
 						fill="none"
 						strokeWidth={3}

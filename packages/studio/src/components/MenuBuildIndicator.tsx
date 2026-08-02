@@ -7,6 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {WHITE_ALPHA_80} from '../helpers/colors';
 import {
 	getGitSourceBranchUrl,
 	getGitSourceName,
@@ -135,7 +136,7 @@ export const MenuBuildIndicator: React.FC<{
 			{isClickable ? <Spacing x={mobileLayout ? 0.5 : 2} /> : null}
 			{mobileLayout ? null : isBuilding ? (
 				<div style={spinner}>
-					<Spinner duration={0.5} size={spinnerSize} />
+					<Spinner duration={0.5} size={spinnerSize} color={WHITE_ALPHA_80} />
 				</div>
 			) : (
 				<div style={noSpinner} />
@@ -159,7 +160,7 @@ export const MenuBuildIndicator: React.FC<{
 				<>
 					<Spacing x={0.5} />
 					<div style={spinner}>
-						<Spinner duration={0.5} size={spinnerSize} />
+						<Spinner duration={0.5} size={spinnerSize} color={WHITE_ALPHA_80} />
 					</div>
 				</>
 			) : null}

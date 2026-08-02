@@ -24,7 +24,6 @@ import {PreviewToolbarOverflowButton} from './PreviewToolbarOverflowButton';
 import {RenderButton} from './RenderButton';
 import {SizeSelector} from './SizeSelector';
 import {SnappingToggle} from './SnappingToggle';
-import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
 
 const TOOLBAR_HEIGHT = 40;
@@ -115,28 +114,27 @@ export const PreviewToolbar: React.FC<{
 			<div style={sideContainer}>
 				<div style={padding} />
 				{isMobileLayout ? (
-					<PreviewToolbarControl>
-						<PreviewToolbarOverflowButton
-							readOnlyStudio={readOnlyStudio}
-							showFullscreen={Boolean(canvasContent && isFullscreenSupported)}
-							showPlaybackRate={isVideoComposition}
-							showLoop={isVideoComposition}
-							showCompositionControls={canvasContent?.type === 'composition'}
-							playbackRate={playbackRate}
-							setPlaybackRate={setPlaybackRate}
-							loop={loop}
-							setLoop={setLoop}
-						/>
-					</PreviewToolbarControl>
+					<>
+						<PreviewToolbarControl>
+							<PreviewToolbarOverflowButton
+								showFullscreen={Boolean(canvasContent && isFullscreenSupported)}
+								showPlaybackRate={isVideoComposition}
+								showLoop={isVideoComposition}
+								showCompositionControls={canvasContent?.type === 'composition'}
+								playbackRate={playbackRate}
+								setPlaybackRate={setPlaybackRate}
+								loop={loop}
+								setLoop={setLoop}
+							/>
+						</PreviewToolbarControl>
+						<Spacing x={1.5} />
+					</>
 				) : null}
 				{isVideoComposition && isMobileLayout ? (
 					<PreviewToolbarControl>
 						<MuteToggle muted={playerMuted} setMuted={setPlayerMuted} />
 					</PreviewToolbarControl>
 				) : null}
-				<PreviewToolbarControl>
-					<TimelineZoomControls />
-				</PreviewToolbarControl>
 			</div>
 			<Flex />
 			{isMobileLayout ? null : (
@@ -164,6 +162,7 @@ export const PreviewToolbar: React.FC<{
 					<PreviewToolbarControl>
 						<LoopToggle loop={loop} setLoop={setLoop} />
 					</PreviewToolbarControl>
+					<Spacing x={0.75} />
 					<PreviewToolbarControl>
 						<MuteToggle muted={playerMuted} setMuted={setPlayerMuted} />
 					</PreviewToolbarControl>
@@ -181,15 +180,19 @@ export const PreviewToolbar: React.FC<{
 							<CheckboardToggle />
 						</PreviewToolbarControl>
 					)}
+					{isMobileLayout ? null : <Spacing x={0.25} />}
 					{isMobileLayout ? null : (
 						<PreviewToolbarControl>
 							<OutlineToggle />
 						</PreviewToolbarControl>
 					)}
 					{readOnlyStudio || isMobileLayout ? null : (
-						<PreviewToolbarControl>
-							<SnappingToggle />
-						</PreviewToolbarControl>
+						<>
+							<Spacing x={0.25} />
+							<PreviewToolbarControl>
+								<SnappingToggle />
+							</PreviewToolbarControl>
+						</>
 					)}
 				</>
 			) : null}

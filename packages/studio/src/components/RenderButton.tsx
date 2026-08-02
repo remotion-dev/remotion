@@ -16,11 +16,10 @@ import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	BLACK_ALPHA_60,
-	CURRENT_COLOR,
-	CURRENT_COLOR_LOWERCASE,
 	INPUT_BACKGROUND,
 	TRANSPARENT,
 	WHITE,
+	WHITE_ALPHA_80,
 } from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {CaretDown} from '../icons/caret';
@@ -167,6 +166,8 @@ export const RenderButton: React.FC<{
 		() => getInitialRenderType(readOnlyStudio),
 	);
 	const [dropdownOpened, setDropdownOpened] = useState(false);
+	const [mainButtonHovered, setMainButtonHovered] = useState(false);
+	const [dropdownButtonHovered, setDropdownButtonHovered] = useState(false);
 	const dropdownRef = useRef<HTMLButtonElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const {currentZIndex} = useZIndex();
@@ -260,7 +261,6 @@ export const RenderButton: React.FC<{
 		return {
 			style: {
 				height: controlSize === 'compact' ? 14 : 16,
-				color: CURRENT_COLOR,
 				flexShrink: 0,
 			},
 		};
@@ -532,6 +532,9 @@ export const RenderButton: React.FC<{
 			: renderType === 'render-command'
 				? 'Render via CLI'
 				: 'Render on web';
+	const mainIconColor = mainButtonHovered ? WHITE : WHITE_ALPHA_80;
+	const dropdownIconColor =
+		dropdownOpened || dropdownButtonHovered ? WHITE : WHITE_ALPHA_80;
 
 	if (!video) {
 		return null;
@@ -565,6 +568,8 @@ export const RenderButton: React.FC<{
 						controlSize === 'compact' ? compactMainButtonStyle : mainButtonStyle
 					}
 					onClick={onClick}
+					onPointerEnter={() => setMainButtonHovered(true)}
+					onPointerLeave={() => setMainButtonHovered(false)}
 					id="render-modal-button"
 				>
 					<Row
@@ -575,10 +580,7 @@ export const RenderButton: React.FC<{
 								: mainButtonContent
 						}
 					>
-						<ThinRenderIcon
-							fill={CURRENT_COLOR_LOWERCASE}
-							svgProps={iconStyle}
-						/>
+						<ThinRenderIcon fill={mainIconColor} svgProps={iconStyle} />
 						<Spacing x={controlSize === 'compact' ? 0.75 : 1} />
 						<span style={controlSize === 'compact' ? compactLabel : label}>
 							{renderLabel}
@@ -597,8 +599,10 @@ export const RenderButton: React.FC<{
 					className={MENU_INITIATOR_CLASSNAME}
 					onPointerDown={onPointerDown}
 					onClick={onClickDropdown}
+					onPointerEnter={() => setDropdownButtonHovered(true)}
+					onPointerLeave={() => setDropdownButtonHovered(false)}
 				>
-					<CaretDown />
+					<CaretDown color={dropdownIconColor} />
 				</button>
 			</div>
 			{portalStyle

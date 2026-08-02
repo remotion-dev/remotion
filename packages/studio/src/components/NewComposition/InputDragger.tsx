@@ -23,6 +23,10 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 	readonly onTextChange: (newVal: string) => void;
 	readonly status: RemInputStatus;
 	readonly formatter?: (str: number | string) => string;
+	readonly formatterStyle?: React.CSSProperties;
+	readonly formatterSubtitle?: (str: number | string) => string;
+	readonly formatterSubtitleStyle?: React.CSSProperties;
+	readonly buttonStyle?: React.CSSProperties;
 	readonly rightAlign: boolean;
 	readonly small?: boolean;
 	readonly snapToStep?: boolean;
@@ -439,6 +443,10 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		value,
 		onTextChange,
 		formatter = (q) => String(q),
+		formatterStyle,
+		formatterSubtitle,
+		formatterSubtitleStyle,
+		buttonStyle,
 		status,
 		rightAlign,
 		small,
@@ -470,8 +478,9 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			WebkitUserSelect: 'none',
 			fontSize: small ? 12 : 14,
 			fontVariantNumeric: 'tabular-nums',
+			...formatterStyle,
 		}),
-		[dragging, small],
+		[dragging, formatterStyle, small],
 	);
 
 	const onFocus = useCallback(() => {
@@ -711,14 +720,24 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		<button
 			ref={ref}
 			type="button"
+			aria-label={props['aria-label']}
 			className={'__remotion_input_dragger'}
-			style={inputDraggerContainerStyle}
+			style={
+				buttonStyle
+					? {...inputDraggerContainerStyle, ...buttonStyle}
+					: inputDraggerContainerStyle
+			}
 			onClick={onClick}
 			onFocus={onFocus}
 			onKeyDown={onKeyDown}
 			onPointerDown={onPointerDown}
 		>
 			<span style={span}>{formatter(value as string | number)}</span>
+			{formatterSubtitle ? (
+				<span style={formatterSubtitleStyle}>
+					{formatterSubtitle(value as string | number)}
+				</span>
+			) : null}
 		</button>
 	);
 };

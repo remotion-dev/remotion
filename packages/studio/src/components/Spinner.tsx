@@ -13,7 +13,8 @@ const translated =
 export const Spinner: React.FC<{
 	readonly size: number;
 	readonly duration: number;
-}> = ({size, duration}) => {
+	readonly color?: string;
+}> = ({size, duration, color = LIGHT_TEXT}) => {
 	const style = useMemo(() => {
 		return {
 			width: size,
@@ -50,7 +51,7 @@ export const Spinner: React.FC<{
 								animationDelay: `${index * (duration / lines) - duration}s`,
 							}}
 							d={translated}
-							fill={LIGHT_TEXT}
+							fill={color}
 						/>
 					);
 				})}
