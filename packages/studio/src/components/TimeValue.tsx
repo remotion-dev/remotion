@@ -35,6 +35,11 @@ const currentTimeTypography: React.CSSProperties = {
 	fontFamily: 'monospace',
 };
 
+const currentTimeInputStyle: React.CSSProperties = {
+	...currentTimeTypography,
+	padding: '4px 6px',
+};
+
 export const TimeValue: React.FC = () => {
 	const frame = useCurrentFrame();
 	const config = Internals.useUnsafeVideoConfig();
@@ -113,7 +118,7 @@ export const TimeValue: React.FC = () => {
 				formatterStyle={currentTimeTypography}
 				rightAlign={false}
 				status="ok"
-				style={currentTimeTypography}
+				style={currentTimeInputStyle}
 			/>
 			<Spacing x={2} />
 			<Flex />
