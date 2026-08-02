@@ -76,7 +76,7 @@ export const TimelineZoomControls: React.FC<{
 	readonly sliderMaxWidth?: number;
 }> = ({sliderMaxWidth}) => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
-	const {setZoom, zoom: zoomMap} = useContext(TimelineZoomCtx);
+	const {setZoom} = useContext(TimelineZoomCtx);
 
 	const onMinusClicked = useCallback(() => {
 		if (canvasContent === null || canvasContent.type !== 'composition') {
@@ -112,8 +112,6 @@ export const TimelineZoomControls: React.FC<{
 		return null;
 	}
 
-	const zoom = zoomMap[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM;
-
 	return (
 		<div style={container}>
 			<ControlButton
@@ -122,7 +120,6 @@ export const TimelineZoomControls: React.FC<{
 				title="Zoom out timeline"
 				role={'ControlButton'}
 				type="button"
-				disabled={TIMELINE_MIN_ZOOM === zoom}
 			>
 				{(color) => <CanvasZoomOutIcon color={color} />}
 			</ControlButton>
@@ -135,7 +132,6 @@ export const TimelineZoomControls: React.FC<{
 				title="Zoom in timeline"
 				role={'button'}
 				type="button"
-				disabled={TIMELINE_MAX_ZOOM === zoom}
 			>
 				{(color) => <CanvasZoomIcon color={color} />}
 			</ControlButton>

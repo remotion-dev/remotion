@@ -51,8 +51,6 @@ export const PlayPause: React.FC<{
 		frameBack,
 		seek,
 		frameForward,
-		isLastFrame,
-		isFirstFrame,
 		emitter,
 		getCurrentFrame,
 	} = PlayerInternals.usePlayer();
@@ -252,7 +250,7 @@ export const PlayPause: React.FC<{
 				<ControlButton
 					aria-label="Jump to beginning"
 					title="Jump to beginning"
-					disabled={!videoConfig || isFirstFrame}
+					disabled={!videoConfig}
 					onClick={jumpToStart}
 				>
 					{(color) => <JumpToStart style={backStyle} color={color} />}
@@ -262,7 +260,7 @@ export const PlayPause: React.FC<{
 				<ControlButton
 					aria-label="Step back one frame"
 					title="Step back one frame"
-					disabled={!videoConfig || isFirstFrame}
+					disabled={!videoConfig}
 					onClick={oneFrameBack}
 				>
 					{(color) => <StepBack style={forwardBackStyle} color={color} />}
@@ -292,7 +290,7 @@ export const PlayPause: React.FC<{
 				<ControlButton
 					aria-label="Step forward one frame"
 					title="Step forward one frame"
-					disabled={!videoConfig || isLastFrame}
+					disabled={!videoConfig}
 					onClick={oneFrameForward}
 				>
 					{(color) => <StepForward style={forwardBackStyle} color={color} />}

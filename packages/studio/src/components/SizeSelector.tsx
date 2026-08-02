@@ -4,7 +4,7 @@ import {Internals} from 'remotion';
 import {WHITE_ALPHA_80} from '../helpers/colors';
 import type {AssetFileType} from '../helpers/get-preview-file-type';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
-import {CanvasZoomIcon} from '../icons/canvas-zoom';
+import {CanvasZoomIcon, CanvasZoomOutIcon} from '../icons/canvas-zoom';
 import {Checkmark} from '../icons/Checkmark';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {TimelineCombobox} from './TimelineCombobox';
@@ -145,7 +145,13 @@ export const SizeSelector: React.FC = () => {
 			title={accessibilityLabel}
 			selectedId={selectedId}
 			values={items}
-			renderLeftItem={(color) => <CanvasZoomIcon color={color} />}
+			renderLeftItem={(color) =>
+				selectedId !== 'auto' && Number(selectedId) < 1 ? (
+					<CanvasZoomOutIcon color={color} />
+				) : (
+					<CanvasZoomIcon color={color} />
+				)
+			}
 			unhoveredIconColor={WHITE_ALPHA_80}
 		/>
 	);
