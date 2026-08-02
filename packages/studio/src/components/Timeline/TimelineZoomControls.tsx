@@ -28,7 +28,9 @@ const iconStyle: React.CSSProperties = {
 	width: 14,
 };
 
-const TimelineZoomSlider: React.FC = () => {
+const TimelineZoomSlider: React.FC<{
+	readonly maxWidth?: number;
+}> = ({maxWidth}) => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {setZoom, zoom: zoomMap} = useContext(TimelineZoomCtx);
 	const {tabIndex} = useZIndex();
@@ -60,6 +62,7 @@ const TimelineZoomSlider: React.FC = () => {
 
 	return (
 		<input
+			style={maxWidth === undefined ? undefined : {maxWidth}}
 			title={`Timeline zoom (${zoom}x)`}
 			alt={`Timeline zoom (${zoom}x)`}
 			type="range"
@@ -74,7 +77,9 @@ const TimelineZoomSlider: React.FC = () => {
 	);
 };
 
-export const TimelineZoomControls: React.FC = () => {
+export const TimelineZoomControls: React.FC<{
+	readonly sliderMaxWidth?: number;
+}> = ({sliderMaxWidth}) => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {setZoom, zoom: zoomMap} = useContext(TimelineZoomCtx);
 
@@ -127,7 +132,7 @@ export const TimelineZoomControls: React.FC = () => {
 				{(color) => <Minus style={iconStyle} color={color} />}
 			</ControlButton>
 			<Spacing x={0.5} />
-			<TimelineZoomSlider />
+			<TimelineZoomSlider maxWidth={sliderMaxWidth} />
 			<Spacing x={0.5} />
 			<ControlButton
 				onClick={onPlusClicked}
