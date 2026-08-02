@@ -22,25 +22,20 @@ const panel: React.CSSProperties = {
 	boxShadow: SHADOW_BLACK,
 };
 
-const sidebarWidth = {
-	left: 'min(210px, calc(100% - 50px))',
-	right: 'min(245px, calc(100% - 50px))',
-} satisfies Record<'left' | 'right', React.CSSProperties['width']>;
+const sidebarWidth = 'min(290px, calc(100% - 50px))';
 
 export default function MobilePanel({
 	children,
 	onClose,
-	side,
 }: {
 	children: React.ReactNode;
 	onClose: () => void;
-	side: 'left' | 'right';
 }) {
 	const {currentZIndex} = useZIndex();
 	const onOutsideClick = React.useCallback(
 		(target: Node) => {
 			const element = target instanceof Element ? target : null;
-			const toggleSelector = `[data-sidebar-toggle="${side}"]`;
+			const toggleSelector = '[data-sidebar-toggle="left"]';
 			if (
 				element?.closest(toggleSelector) ||
 				element?.closest('button')?.querySelector(toggleSelector)
@@ -50,7 +45,7 @@ export default function MobilePanel({
 
 			onClose();
 		},
-		[onClose, side],
+		[onClose],
 	);
 
 	return ReactDOM.createPortal(
@@ -59,9 +54,8 @@ export default function MobilePanel({
 				<div
 					style={{
 						...panel,
-						width: sidebarWidth[side],
-						left: side === 'left' ? 0 : undefined,
-						right: side === 'right' ? 0 : undefined,
+						width: sidebarWidth,
+						left: 0,
 					}}
 				>
 					{children}

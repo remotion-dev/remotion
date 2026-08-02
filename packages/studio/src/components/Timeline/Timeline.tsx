@@ -330,6 +330,7 @@ const TimelineInner: React.FC = () => {
 									maxFlexerSize={null}
 									minFlexerSize={MIN_TIMELINE_LABELS_WIDTH}
 									maxAntiFlexerSize={null}
+									minAntiFlexerSize={null}
 								>
 									<SplitterElement
 										type="flexer"

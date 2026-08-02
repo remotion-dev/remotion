@@ -11,10 +11,8 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {useMobileLayout} from '../helpers/mobile-layout';
 import {ThinRenderIcon} from '../icons/render';
 import {ModalsContext} from '../state/modals';
-import {SidebarContext} from '../state/sidebar';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 
@@ -23,8 +21,6 @@ export const SidebarRenderButton: React.FC<{
 	readonly visible: boolean;
 }> = ({composition, visible}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
-	const {setSidebarCollapsedState} = useContext(SidebarContext);
-	const isMobileLayout = useMobileLayout();
 
 	const iconStyle: SVGProps<SVGSVGElement> = useMemo(() => {
 		return {
@@ -102,19 +98,8 @@ export const SidebarRenderButton: React.FC<{
 				initialDarkMode: defaults.darkMode,
 				readOnlyStudio: false,
 			});
-
-			if (isMobileLayout) {
-				setSidebarCollapsedState({left: 'collapsed', right: 'collapsed'});
-			}
 		},
-		[
-			composition.defaultProps,
-			composition.id,
-			isMobileLayout,
-			props,
-			setSelectedModal,
-			setSidebarCollapsedState,
-		],
+		[composition.defaultProps, composition.id, props, setSelectedModal],
 	);
 
 	const renderAction: RenderInlineAction = useCallback(

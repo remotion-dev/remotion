@@ -67,6 +67,7 @@ export const SplitterHandle: React.FC<{
 				maxAntiFlexerSize: dragContext.maxAntiFlexerSize,
 				maxFlex: dragContext.maxFlex,
 				maxFlexerSize: dragContext.maxFlexerSize,
+				minAntiFlexerSize: dragContext.minAntiFlexerSize,
 				minFlex: dragContext.minFlex,
 				minFlexerSize: dragContext.minFlexerSize,
 			});
