@@ -27,7 +27,7 @@ const text: React.CSSProperties = {
 const currentTimeTypography: React.CSSProperties = {
 	color: WHITE,
 	display: 'inline-block',
-	fontSize: 15,
+	fontSize: 14,
 	fontVariantNumeric: 'tabular-nums',
 	fontWeight: 400,
 	lineHeight: 1,
@@ -50,6 +50,7 @@ const currentTimeSubtitle: React.CSSProperties = {
 	fontSize: 10,
 	fontWeight: 400,
 	lineHeight: 1,
+	marginTop: -1,
 	textAlign: 'left',
 };
 
