@@ -1,5 +1,5 @@
 import {canEditEasingForInterpolationFunction} from '@remotion/studio-shared';
-import {useContext, useMemo} from 'react';
+import {useContext, useEffect, useMemo, useRef} from 'react';
 import {Internals, type TSequence} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
@@ -7,7 +7,10 @@ import {
 	flattenVisibleTreeNodes,
 	getTreeRowHeight,
 } from '../../helpers/timeline-layout';
-import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
+import {
+	timelineNodePathInfoToIdentityKey,
+	timelineNodePathInfoToKey,
+} from '../../helpers/timeline-node-path-key';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {getNodeHasKeyframes, getNodeKeyframes} from './get-node-keyframes';
 import type {getTimelineKeyframes} from './get-timeline-keyframes';
@@ -88,6 +91,7 @@ export const useExpandedTrackKeyframeRows = ({
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {selectedItems} = useTimelineSelection();
+	const previousNodePathInfos = useRef(new Map<string, SequenceNodePathInfo>());
 
 	const tree = useMemo(
 		() =>
@@ -181,10 +185,20 @@ export const useExpandedTrackKeyframeRows = ({
 		],
 	);
 
-	const rows = useMemo(
-		(): ExpandedTrackKeyframeRow[] =>
-			flat.map(({node}) => {
+	const {rows, nextNodePathInfos} = useMemo((): {
+		readonly rows: ExpandedTrackKeyframeRow[];
+		readonly nextNodePathInfos: Map<string, SequenceNodePathInfo>;
+	} => {
+		const next = new Map<string, SequenceNodePathInfo>();
+		return {
+			rows: flat.map(({node}) => {
 				const rowKey = timelineNodePathInfoToKey(node.nodePathInfo);
+				const identityKey = timelineNodePathInfoToIdentityKey(
+					node.nodePathInfo,
+				);
+				const stableNodePathInfo =
+					previousNodePathInfos.current.get(identityKey) ?? node.nodePathInfo;
+				next.set(identityKey, stableNodePathInfo);
 				return {
 					height: getTreeRowHeight(node),
 					keyframes: nodeKeyframes.get(rowKey) ?? [],
@@ -194,11 +208,16 @@ export const useExpandedTrackKeyframeRows = ({
 						propStatuses,
 					}),
 					rowKey,
-					nodePathInfo: node.nodePathInfo,
+					nodePathInfo: stableNodePathInfo,
 				};
 			}),
-		[propStatuses, flat, nodePathInfo.sequenceSubscriptionKey, nodeKeyframes],
-	);
+			nextNodePathInfos: next,
+		};
+	}, [propStatuses, flat, nodePathInfo.sequenceSubscriptionKey, nodeKeyframes]);
+
+	useEffect(() => {
+		previousNodePathInfos.current = nextNodePathInfos;
+	}, [nextNodePathInfos]);
 
 	return {rows, expandedHeight};
 };
