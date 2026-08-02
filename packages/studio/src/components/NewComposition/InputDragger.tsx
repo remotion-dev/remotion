@@ -720,6 +720,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		<button
 			ref={ref}
 			type="button"
+			aria-label={props['aria-label']}
 			className={'__remotion_input_dragger'}
 			style={
 				buttonStyle

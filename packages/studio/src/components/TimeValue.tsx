@@ -129,6 +129,7 @@ export const TimeValue: React.FC = () => {
 		<div style={text}>
 			<InputDragger
 				ref={ref}
+				aria-label={String(frame)}
 				value={frame}
 				onTextChange={onTextChange}
 				onValueChange={onValueChange}
