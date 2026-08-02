@@ -50,7 +50,7 @@ const currentTimeSubtitle: React.CSSProperties = {
 	fontSize: 10,
 	fontWeight: 400,
 	lineHeight: 1,
-	marginTop: -1,
+	marginTop: -2,
 	textAlign: 'left',
 };
 
