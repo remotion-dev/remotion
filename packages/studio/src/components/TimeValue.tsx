@@ -41,6 +41,7 @@ const currentTimeInputStyle: React.CSSProperties = {
 
 const currentTimeButtonStyle: React.CSSProperties = {
 	paddingLeft: 0,
+	transform: 'translateY(-1px)',
 };
 
 const currentTimeSubtitle: React.CSSProperties = {
