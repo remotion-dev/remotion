@@ -55,6 +55,7 @@ import {
 import {selectOptionsSidebarInspectorPanel} from '../options-sidebar-tabs';
 import {getNodeHasKeyframes, getNodeKeyframes} from './get-node-keyframes';
 import {getTimelineEasingSegments} from './get-timeline-easing-segments';
+import {getCurrentFrame} from './imperative-state';
 import {
 	filterTimelineExpandedTree,
 	getSelectedTimelineExpandedRowKeys,
@@ -1072,7 +1073,6 @@ export const TimelineSelectableItemsProvider: React.FC<{
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {selectedItems} = useTimelineSelection();
 	const selectableItems = useMemo(
 		() =>
@@ -1083,7 +1083,7 @@ export const TimelineSelectableItemsProvider: React.FC<{
 				propStatuses,
 				selectedItems,
 				timeline,
-				timelinePosition,
+				timelinePosition: getCurrentFrame(),
 			}),
 		[
 			getDragOverrides,
@@ -1092,7 +1092,6 @@ export const TimelineSelectableItemsProvider: React.FC<{
 			propStatuses,
 			selectedItems,
 			timeline,
-			timelinePosition,
 		],
 	);
 

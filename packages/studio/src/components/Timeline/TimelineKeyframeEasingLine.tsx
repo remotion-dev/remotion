@@ -55,7 +55,7 @@ export const getTimelineKeyframeEasingLineStyle = (
 	outline: selected ? `1px solid ${BLUE}` : undefined,
 });
 
-export const TimelineKeyframeEasingLineVisual: React.FC<{
+const TimelineKeyframeEasingLineVisualUnmemoized: React.FC<{
 	readonly selected: boolean;
 }> = ({selected}) => {
 	const lineStyle = useMemo(
@@ -65,6 +65,10 @@ export const TimelineKeyframeEasingLineVisual: React.FC<{
 
 	return <div style={lineStyle} />;
 };
+
+export const TimelineKeyframeEasingLineVisual = React.memo(
+	TimelineKeyframeEasingLineVisualUnmemoized,
+);
 
 const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 	readonly fromFrame: number;

@@ -8,6 +8,7 @@ import {getEffectDragData} from '../effect-drag-and-drop';
 import {handleDrop} from '../handle-drop';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useSvgImportDialog} from '../SvgImportDialog';
+import {getCurrentFrame} from './imperative-state';
 import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
 import {getFrameFromTimelineDrop} from './timeline-scroll-logic';
 import {useResolvedStack} from './use-resolved-stack';
@@ -31,7 +32,6 @@ export const useTimelineAssetDrop = () => {
 		Internals.CompositionManager,
 	);
 	const videoConfig = Internals.useUnsafeVideoConfig();
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const chooseSvgImportMode = useSvgImportDialog();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
@@ -81,9 +81,9 @@ export const useTimelineAssetDrop = () => {
 						timelineLeft: scrollable.getBoundingClientRect().left,
 						timelineWidth: scrollable.scrollWidth,
 					})
-				: timelinePosition;
+				: getCurrentFrame();
 		},
-		[timelinePosition, videoConfig],
+		[videoConfig],
 	);
 
 	const onAssetDragOver = useCallback(

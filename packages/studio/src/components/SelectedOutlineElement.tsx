@@ -100,6 +100,7 @@ import {disableSequenceInteractivity} from './Timeline/disable-sequence-interact
 import {duplicateSequencesFromSource} from './Timeline/duplicate-selected-timeline-item';
 import {commitPendingInspectorFields} from './Timeline/focus-inspector-field';
 import {getSequenceContextMenuItems} from './Timeline/get-sequence-context-menu-items';
+import {getCurrentFrame} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {getTimelineAssetLinkInfo} from './Timeline/timeline-asset-link';
 import {
@@ -510,9 +511,6 @@ const SelectedOutlinePolygon: React.FC<{
 		Internals.VisualModeSettersContext,
 	);
 	const {editorSnapping} = useContext(EditorSnappingContext);
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const timelinePositionRef = useRef(timelinePosition);
-	timelinePositionRef.current = timelinePosition;
 	const polygonRef = useRef<SVGPolygonElement>(null);
 	const points = useMemo(
 		() => outline.points.map(pointToString).join(' '),
@@ -554,7 +552,7 @@ const SelectedOutlinePolygon: React.FC<{
 			const dragStates = getSelectedOutlineDragStates({
 				dragTargets: selected ? allDragTargets : [drag],
 				getDragOverrides,
-				timelinePosition: timelinePositionRef.current,
+				timelinePosition: getCurrentFrame(),
 			});
 			let lastValues = new Map<string, string>();
 			let currentPointerX = startPointerX;
@@ -906,9 +904,6 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const timelinePositionRef = useRef(timelinePosition);
-	timelinePositionRef.current = timelinePosition;
 	const scaleDrag = target?.scaleDrag ?? null;
 	const selected = target?.selected ?? false;
 	const lineRef = useRef<SVGLineElement>(null);
@@ -945,7 +940,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 			const dragStates = getSelectedOutlineScaleDragStates({
 				dragTargets: selected ? allScaleDragTargets : [scaleDrag],
 				getDragOverrides,
-				timelinePosition: timelinePositionRef.current,
+				timelinePosition: getCurrentFrame(),
 			});
 			let lastValues = new Map<string, number | string>();
 			let dragStarted = false;
@@ -1182,9 +1177,6 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 		Internals.VisualModeSettersContext,
 	);
 	const {editorSnapping} = useContext(EditorSnappingContext);
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const timelinePositionRef = useRef(timelinePosition);
-	timelinePositionRef.current = timelinePosition;
 	const rotationDrag = target?.rotationDrag ?? null;
 	const selected = target?.selected ?? false;
 	const circleRef = useRef<SVGCircleElement>(null);
@@ -1237,7 +1229,7 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			const dragStates = getSelectedOutlineRotationDragStates({
 				dragTargets: selected ? allRotationDragTargets : [rotationDrag],
 				getDragOverrides,
-				timelinePosition: timelinePositionRef.current,
+				timelinePosition: getCurrentFrame(),
 			});
 			let previousAngle = getAngleDegrees(center, {
 				x: event.clientX,
