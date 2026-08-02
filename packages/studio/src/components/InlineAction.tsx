@@ -1,10 +1,12 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useMemo} from 'react';
 import {
+	CURRENT_COLOR,
 	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
 	getBackgroundFromHoverState,
 } from '../helpers/colors';
+import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../helpers/hoverable';
 import {useZIndex} from '../state/z-index';
 
 export type RenderInlineAction = (color: string) => React.ReactNode;
@@ -28,26 +30,14 @@ export const InlineAction = ({
 	unhoveredColor = LIGHT_TEXT,
 	variant,
 	style: customStyle,
+	className,
 	...buttonProps
 }: InlineActionProps) => {
 	const {tabIndex} = useZIndex();
 
-	const [hovered, setHovered] = useState(false);
-
-	const onPointerEnter = useCallback(() => {
-		setHovered(true);
-	}, []);
-
-	const onPointerLeave = useCallback(() => {
-		setHovered(false);
-	}, []);
-
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			border: 'none',
-			background: disabled
-				? TRANSPARENT
-				: getBackgroundFromHoverState({hovered, selected: false}),
 			height: 24,
 			width: variant === 'compact' ? 14 : 24,
 			padding: 0,
@@ -57,24 +47,35 @@ export const InlineAction = ({
 			borderRadius: 3,
 			opacity: disabled ? 0.5 : 1,
 			pointerEvents: disabled ? 'none' : 'auto',
+			...hoverableStyle({
+				idleBackground: TRANSPARENT,
+				hoverBackground: disabled
+					? TRANSPARENT
+					: getBackgroundFromHoverState({hovered: true, selected: false}),
+				idleColor: unhoveredColor,
+				hoverColor: disabled ? unhoveredColor : WHITE,
+			}),
 			...customStyle,
 		};
-	}, [customStyle, disabled, hovered, variant]);
+	}, [customStyle, disabled, unhoveredColor, variant]);
 
 	return (
 		<button
 			{...buttonProps}
 			type="button"
+			className={
+				className
+					? `${HOVERABLE_CLASS_NAME} ${className}`
+					: HOVERABLE_CLASS_NAME
+			}
 			disabled={disabled}
-			onPointerEnter={onPointerEnter}
-			onPointerLeave={onPointerLeave}
 			onClick={onClick}
 			style={style}
 			tabIndex={tabIndex}
 			title={title}
 			aria-label={buttonProps['aria-label'] ?? title}
 		>
-			{renderAction(hovered ? WHITE : unhoveredColor)}
+			{renderAction(CURRENT_COLOR)}
 		</button>
 	);
 };
