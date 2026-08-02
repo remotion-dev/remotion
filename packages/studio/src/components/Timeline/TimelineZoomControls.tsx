@@ -28,9 +28,7 @@ const iconStyle: React.CSSProperties = {
 	width: 14,
 };
 
-export const TimelineZoomSlider: React.FC<{
-	readonly width?: number;
-}> = ({width}) => {
+export const TimelineZoomSlider: React.FC = () => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {setZoom, zoom: zoomMap} = useContext(TimelineZoomCtx);
 	const {tabIndex} = useZIndex();
@@ -62,7 +60,6 @@ export const TimelineZoomSlider: React.FC<{
 
 	return (
 		<input
-			style={width === undefined ? undefined : {width}}
 			title={`Timeline zoom (${zoom}x)`}
 			alt={`Timeline zoom (${zoom}x)`}
 			type="range"

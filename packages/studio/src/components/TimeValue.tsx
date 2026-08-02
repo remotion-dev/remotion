@@ -108,7 +108,7 @@ export const TimeValue: React.FC = () => {
 			<Spacing x={2} />
 			<Flex />
 			{isMobileLayout ? (
-				<TimelineZoomSlider width={80} />
+				<TimelineZoomSlider />
 			) : (
 				<InputDragger
 					ref={ref}
