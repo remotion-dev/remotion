@@ -32,6 +32,7 @@ const row: React.CSSProperties = {
 };
 
 const MAX_SIDEBAR_WIDTH = 350;
+const MIN_SIDEBAR_WIDTH = 250;
 
 export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
 	const {sidebarCollapsedStateLeft} = useContext(SidebarContext);
@@ -116,12 +117,13 @@ const TopPanelInner: React.FC<{
 						maxFlexerSize={MAX_SIDEBAR_WIDTH}
 						minFlexerSize={null}
 						maxAntiFlexerSize={null}
+						minAntiFlexerSize={null}
 						id="sidebar-to-preview"
 						orientation="vertical"
 					>
 						{actualStateLeft === 'expanded' ? (
 							isMobileLayout ? (
-								<MobilePanel onClose={onCollapseLeft} side="left">
+								<MobilePanel onClose={onCollapseLeft}>
 									<ExplorerPanel readOnlyStudio={readOnlyStudio} />
 								</MobilePanel>
 							) : (
@@ -144,6 +146,7 @@ const TopPanelInner: React.FC<{
 								maxFlexerSize={null}
 								minFlexerSize={null}
 								maxAntiFlexerSize={MAX_SIDEBAR_WIDTH}
+								minAntiFlexerSize={MIN_SIDEBAR_WIDTH}
 								id="canvas-to-right-sidebar"
 								orientation="vertical"
 							>
@@ -152,22 +155,16 @@ const TopPanelInner: React.FC<{
 										<CanvasIfSizeIsAvailable />
 									</div>
 								</SplitterElement>
-								{actualStateRight === 'expanded' && !isMobileLayout ? (
+								{actualStateRight === 'expanded' ? (
 									<SplitterHandle
 										allowToCollapse="right"
 										onCollapse={onCollapseRight}
 									/>
 								) : null}
 								{actualStateRight === 'expanded' ? (
-									isMobileLayout ? (
-										<MobilePanel onClose={onCollapseRight} side="right">
-											<OptionsPanel readOnlyStudio={readOnlyStudio} />
-										</MobilePanel>
-									) : (
-										<SplitterElement sticky={null} type="anti-flexer">
-											<OptionsPanel readOnlyStudio={readOnlyStudio} />
-										</SplitterElement>
-									)
+									<SplitterElement sticky={null} type="anti-flexer">
+										<OptionsPanel readOnlyStudio={readOnlyStudio} />
+									</SplitterElement>
 								) : null}
 							</SplitterContainer>
 						</SplitterElement>

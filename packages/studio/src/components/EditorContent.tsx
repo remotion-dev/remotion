@@ -66,6 +66,7 @@ export const EditorContent: React.FC<{
 			maxFlexerSize={null}
 			minFlexerSize={null}
 			maxAntiFlexerSize={null}
+			minAntiFlexerSize={null}
 		>
 			<SplitterElement sticky={null} type="flexer">
 				{children}
