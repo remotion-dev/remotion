@@ -6,7 +6,6 @@ import React, {
 	forwardRef,
 	useEffect,
 	useImperativeHandle,
-	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -26,17 +25,17 @@ import {
 	useVideoConfig,
 } from 'remotion';
 
-export type TimedCaptionsMode = 'highlight' | 'scale' | 'background';
-
-export type TimedCaptionsProps = InteractiveBaseProps &
+type TimedCaptionsScaleProps = InteractiveBaseProps &
 	InteractiveTransformProps &
 	Pick<SequenceProps, 'width' | 'height'> & {
 		readonly captions?: Caption[];
-		readonly mode?: TimedCaptionsMode;
 		readonly combineTokensWithinMilliseconds?: number;
 	};
 
-type TimedCaptionsLayerProps = Omit<TimedCaptionsProps, 'captions'> & {
+type TimedCaptionsScaleLayerProps = Omit<
+	TimedCaptionsScaleProps,
+	'captions'
+> & {
 	readonly captions: Caption[];
 };
 
@@ -45,15 +44,10 @@ const maximumTextWidth = 800;
 const fontWeight = '700';
 const textColor = '#ffffff';
 const highlightColor = '#18ff0e';
-const backgroundColor = '#0b84f3';
 const activeWordScale = 1.2;
-const pillHorizontalPadding = 12;
-const pillVerticalPadding = 12;
-const pillBorderRadius = 10;
-const pillMoveDurationInFrames = 5;
 const defaultCombineTokensWithinMilliseconds = 800;
 
-const timedCaptionsSchema = {
+const timedCaptionsScaleSchema = {
 	...Interactive.baseSchema,
 	...Interactive.captionsSchema,
 	width: {
@@ -72,16 +66,6 @@ const timedCaptionsSchema = {
 		description: 'Caption area height',
 		hiddenFromList: false,
 	},
-	mode: {
-		type: 'enum',
-		default: 'background',
-		description: 'Caption animation',
-		variants: {
-			highlight: {},
-			scale: {},
-			background: {},
-		},
-	},
 	combineTokensWithinMilliseconds: {
 		type: 'number',
 		min: 0,
@@ -98,16 +82,16 @@ const {fontFamily, waitUntilDone} = loadFont('normal', {
 	subsets: ['latin'],
 });
 
-export const frameToMilliseconds = (frame: number, fps: number) =>
+const frameToMilliseconds = (frame: number, fps: number) =>
 	(frame / fps) * 1000;
 
-export const isTimeWithinHalfOpenInterval = (
+const isTimeWithinHalfOpenInterval = (
 	timeMs: number,
 	fromMs: number,
 	toMs: number,
 ) => timeMs >= fromMs && timeMs < toMs;
 
-export const getActivePageIndex = (
+const getActivePageIndex = (
 	pages: readonly Pick<TikTokPage, 'startMs' | 'durationMs'>[],
 	timeMs: number,
 ) =>
@@ -119,7 +103,7 @@ export const getActivePageIndex = (
 		),
 	);
 
-export const getActiveTokenIndex = (
+const getActiveTokenIndex = (
 	tokens: readonly Pick<TikTokToken, 'fromMs' | 'toMs'>[],
 	timeMs: number,
 ) =>
@@ -127,17 +111,7 @@ export const getActiveTokenIndex = (
 		isTimeWithinHalfOpenInterval(timeMs, token.fromMs, token.toMs),
 	);
 
-export const getLatestStartedTokenIndex = (
-	tokens: readonly Pick<TikTokToken, 'fromMs'>[],
-	timeMs: number,
-) =>
-	tokens.reduce(
-		(latestIndex, token, tokenIndex) =>
-			token.fromMs <= timeMs ? tokenIndex : latestIndex,
-		-1,
-	);
-
-export const getTokenScale = ({
+const getTokenScale = ({
 	currentTimeMs,
 	fps,
 	token,
@@ -172,33 +146,19 @@ export const getTokenScale = ({
 	return 1 + Math.min(enterProgress, exitProgress) * (activeWordScale - 1);
 };
 
-type TokenLayout = {
-	readonly height: number;
-	readonly left: number;
-	readonly top: number;
-	readonly width: number;
-};
-
 const CaptionPage: React.FC<{
 	readonly captionAreaWidth: number | null;
 	readonly currentTimeMs: number;
 	readonly fps: number;
-	readonly mode: TimedCaptionsMode;
 	readonly page: TikTokPage;
 	readonly pageIndex: number;
-}> = ({captionAreaWidth, currentTimeMs, fps, mode, page, pageIndex}) => {
+}> = ({captionAreaWidth, currentTimeMs, fps, page, pageIndex}) => {
 	const fontSize = useMemo(() => {
 		const availableWidth = Math.min(
 			maximumTextWidth,
 			captionAreaWidth ?? maximumTextWidth,
 		);
-		const maximumTokenWidth = Math.max(
-			1,
-			Math.min(
-				availableWidth - pillHorizontalPadding * 2,
-				availableWidth / activeWordScale,
-			),
-		);
+		const maximumTokenWidth = Math.max(1, availableWidth / activeWordScale);
 		const tokenFontSizes = page.tokens
 			.map((token) => token.text.trim())
 			.filter(Boolean)
@@ -225,99 +185,7 @@ const CaptionPage: React.FC<{
 			...tokenFontSizes,
 		);
 	}, [captionAreaWidth, page.text, page.tokens]);
-	const textContainerRef = useRef<HTMLDivElement>(null);
-	const tokenRefs = useRef<Array<HTMLSpanElement | null>>([]);
-	const [tokenLayouts, setTokenLayouts] = useState<TokenLayout[]>([]);
-
-	useLayoutEffect(() => {
-		const container = textContainerRef.current;
-
-		if (!container) {
-			return;
-		}
-
-		const updateTokenLayouts = () => {
-			setTokenLayouts(
-				page.tokens.map((_, tokenIndex) => {
-					const token = tokenRefs.current[tokenIndex];
-
-					if (!token) {
-						return {height: 0, left: 0, top: 0, width: 0};
-					}
-
-					return {
-						height: token.offsetHeight,
-						left: token.offsetLeft,
-						top: token.offsetTop,
-						width: token.offsetWidth,
-					};
-				}),
-			);
-		};
-
-		updateTokenLayouts();
-		const resizeObserver = new ResizeObserver(updateTokenLayouts);
-		resizeObserver.observe(container);
-
-		return () => resizeObserver.disconnect();
-	}, [fontSize, page.tokens]);
 	const activeTokenIndex = getActiveTokenIndex(page.tokens, currentTimeMs);
-	const latestStartedTokenIndex = getLatestStartedTokenIndex(
-		page.tokens,
-		currentTimeMs,
-	);
-	const pageLocalFrame = ((currentTimeMs - page.startMs) / 1000) * fps;
-	const backgroundWordIndex = page.tokens.reduce(
-		(wordIndex, token, tokenIndex) => {
-			if (tokenIndex === 0) {
-				return wordIndex;
-			}
-
-			const tokenStartFrame = ((token.fromMs - page.startMs) / 1000) * fps;
-			return (
-				wordIndex +
-				spring({
-					config: {damping: 100},
-					delay: Math.max(0, tokenStartFrame - pillMoveDurationInFrames / 2),
-					durationInFrames: pillMoveDurationInFrames,
-					fps,
-					frame: pageLocalFrame,
-				})
-			);
-		},
-		0,
-	);
-	const hasTokenLayouts = tokenLayouts.length === page.tokens.length;
-	const clampedBackgroundWordIndex = Math.min(
-		Math.max(backgroundWordIndex, 0),
-		Math.max(0, tokenLayouts.length - 1),
-	);
-	const interpolationInput = tokenLayouts.map((_, tokenIndex) =>
-		Number(tokenIndex),
-	);
-	const interpolateTokenLayout = (values: number[]) => {
-		if (values.length === 0) {
-			return 0;
-		}
-
-		if (values.length === 1) {
-			return values[0];
-		}
-
-		return interpolate(clampedBackgroundWordIndex, interpolationInput, values);
-	};
-	const pillHeight = fontSize + pillVerticalPadding * 2;
-	const pillLeft = interpolateTokenLayout(
-		tokenLayouts.map((measurement) => measurement.left),
-	);
-	const pillTop = interpolateTokenLayout(
-		tokenLayouts.map(
-			(measurement) => measurement.top + (measurement.height - pillHeight) / 2,
-		),
-	);
-	const pillWidth = interpolateTokenLayout(
-		tokenLayouts.map((measurement) => measurement.width),
-	);
 	const textStrokeWidth = fontSize / 7;
 
 	return (
@@ -334,7 +202,6 @@ const CaptionPage: React.FC<{
 			}}
 		>
 			<div
-				ref={textContainerRef}
 				aria-hidden="true"
 				style={{
 					color: textColor,
@@ -351,22 +218,6 @@ const CaptionPage: React.FC<{
 					width: '100%',
 				}}
 			>
-				{mode === 'background' &&
-				hasTokenLayouts &&
-				latestStartedTokenIndex >= 0 ? (
-					<div
-						aria-hidden="true"
-						style={{
-							backgroundColor,
-							borderRadius: pillBorderRadius,
-							height: pillHeight,
-							left: pillLeft - pillHorizontalPadding,
-							position: 'absolute',
-							top: pillTop,
-							width: pillWidth + pillHorizontalPadding * 2,
-						}}
-					/>
-				) : null}
 				{page.tokens.map((token, tokenIndex) => {
 					const isActive = tokenIndex === activeTokenIndex;
 					const visibleText = token.text.trim();
@@ -384,20 +235,11 @@ const CaptionPage: React.FC<{
 						>
 							{leadingWhitespace}
 							<span
-								ref={(element) => {
-									tokenRefs.current[tokenIndex] = element;
-								}}
 								style={{
-									color:
-										mode !== 'background' && isActive
-											? highlightColor
-											: textColor,
+									color: isActive ? highlightColor : textColor,
 									display: 'inline-block',
 									position: 'relative',
-									scale:
-										mode === 'scale'
-											? getTokenScale({currentTimeMs, fps, token})
-											: 1,
+									scale: getTokenScale({currentTimeMs, fps, token}),
 									transformOrigin: 'center bottom',
 									whiteSpace: 'pre',
 									zIndex: 1,
@@ -414,18 +256,16 @@ const CaptionPage: React.FC<{
 	);
 };
 
-const TimedCaptionsContent: React.FC<{
+const TimedCaptionsScaleContent: React.FC<{
 	readonly captionAreaWidth: number | null;
 	readonly captions: Caption[];
 	readonly combineTokensWithinMilliseconds: number;
 	readonly fontLoaded: boolean;
-	readonly mode: TimedCaptionsMode;
 }> = ({
 	captionAreaWidth,
 	captions,
 	combineTokensWithinMilliseconds,
 	fontLoaded,
-	mode,
 }) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
@@ -451,16 +291,15 @@ const TimedCaptionsContent: React.FC<{
 			captionAreaWidth={captionAreaWidth}
 			currentTimeMs={currentTimeMs}
 			fps={fps}
-			mode={mode}
 			page={page}
 			pageIndex={activePageIndex}
 		/>
 	);
 };
 
-const TimedCaptionsInner = forwardRef<
+const TimedCaptionsScaleInner = forwardRef<
 	HTMLDivElement,
-	TimedCaptionsLayerProps & {
+	TimedCaptionsScaleLayerProps & {
 		readonly controls: SequenceControls | undefined;
 	}
 >(
@@ -470,7 +309,6 @@ const TimedCaptionsInner = forwardRef<
 			combineTokensWithinMilliseconds = defaultCombineTokensWithinMilliseconds,
 			controls,
 			height,
-			mode = 'background',
 			name,
 			style,
 			width,
@@ -500,7 +338,7 @@ const TimedCaptionsInner = forwardRef<
 				layout="none"
 				{...interactiveProps}
 				controls={controls}
-				name={name ?? '<TimedCaptions>'}
+				name={name ?? '<TimedCaptionsScale>'}
 				outlineRef={outlineRef}
 			>
 				<div
@@ -511,12 +349,11 @@ const TimedCaptionsInner = forwardRef<
 						...style,
 					}}
 				>
-					<TimedCaptionsContent
+					<TimedCaptionsScaleContent
 						captionAreaWidth={width ?? null}
 						captions={captions}
 						combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
 						fontLoaded={fontLoaded}
-						mode={mode}
 					/>
 				</div>
 			</Sequence>
@@ -524,81 +361,88 @@ const TimedCaptionsInner = forwardRef<
 	},
 );
 
-const TimedCaptionsLayer = Interactive.withSchema({
-	Component: TimedCaptionsInner,
-	componentName: '<TimedCaptions>',
+const TimedCaptionsScaleLayer = Interactive.withSchema({
+	Component: TimedCaptionsScaleInner,
+	componentName: '<TimedCaptionsScale>',
 	componentIdentity: null,
-	schema: timedCaptionsSchema,
+	schema: timedCaptionsScaleSchema,
 	supportsEffects: false,
-}) as React.FC<TimedCaptionsLayerProps>;
+}) as React.FC<TimedCaptionsScaleLayerProps>;
 
-export const TimedCaptions: React.FC<TimedCaptionsProps> = ({
+export const TimedCaptionsScale: React.FC<TimedCaptionsScaleProps> = ({
 	captions,
 	...props
 }) => {
 	if (captions) {
-		return <TimedCaptionsLayer {...props} captions={captions} />;
+		return <TimedCaptionsScaleLayer {...props} captions={captions} />;
 	}
 
 	return (
-		<TimedCaptionsLayer
-			{...props}
-			captions={[
-				{
-					text: 'Captions',
-					startMs: 0,
-					endMs: 800,
-					timestampMs: 400,
-					confidence: null,
-				},
-				{
-					text: ' can',
-					startMs: 800,
-					endMs: 1500,
-					timestampMs: 1150,
-					confidence: null,
-				},
-				{
-					text: ' move',
-					startMs: 1500,
-					endMs: 2300,
-					timestampMs: 1900,
-					confidence: null,
-				},
-				{
-					text: ' with',
-					startMs: 2300,
-					endMs: 3100,
-					timestampMs: 2700,
-					confidence: null,
-				},
-				{
-					text: ' every',
-					startMs: 3100,
-					endMs: 4000,
-					timestampMs: 3550,
-					confidence: null,
-				},
-				{
-					text: ' spoken',
-					startMs: 4000,
-					endMs: 5100,
-					timestampMs: 4550,
-					confidence: null,
-				},
-				{
-					text: ' word.',
-					startMs: 5100,
-					endMs: 6500,
-					timestampMs: 5800,
-					confidence: null,
-				},
-			]}
-			width={681}
-			height={252}
+		<div
 			style={{
-				translate: '109.5px -36px',
+				alignItems: 'center',
+				display: 'flex',
+				height: 180,
+				justifyContent: 'center',
+				width: 900,
 			}}
-		/>
+		>
+			<TimedCaptionsScaleLayer
+				{...props}
+				captions={[
+					{
+						text: 'Captions',
+						startMs: 0,
+						endMs: 800,
+						timestampMs: 400,
+						confidence: null,
+					},
+					{
+						text: ' can',
+						startMs: 800,
+						endMs: 1500,
+						timestampMs: 1150,
+						confidence: null,
+					},
+					{
+						text: ' move',
+						startMs: 1500,
+						endMs: 2300,
+						timestampMs: 1900,
+						confidence: null,
+					},
+					{
+						text: ' with',
+						startMs: 2300,
+						endMs: 3100,
+						timestampMs: 2700,
+						confidence: null,
+					},
+					{
+						text: ' every',
+						startMs: 3100,
+						endMs: 4000,
+						timestampMs: 3550,
+						confidence: null,
+					},
+					{
+						text: ' spoken',
+						startMs: 4000,
+						endMs: 5100,
+						timestampMs: 4550,
+						confidence: null,
+					},
+					{
+						text: ' word.',
+						startMs: 5100,
+						endMs: 6500,
+						timestampMs: 5800,
+						confidence: null,
+					},
+				]}
+				width={681}
+				height={252}
+			/>
+		</div>
 	);
 };

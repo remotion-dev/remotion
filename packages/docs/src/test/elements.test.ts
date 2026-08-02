@@ -258,34 +258,37 @@ describe('Element social previews', () => {
 		}
 	});
 
-	test('renders Open Graph video metadata for the published preview', () => {
-		const markup = renderToStaticMarkup(
-			React.createElement(
-				React.Fragment,
-				null,
-				...Seo.renderVideo({
-					height: 420,
-					url: 'https://remotion.media/elements/text-timed-captions-preview.mp4',
-					width: 1140,
-				}),
-			),
-		);
+	test('renders Open Graph video metadata for published previews', () => {
+		for (const definition of elementDefinitionList) {
+			const url = definition.preview.videoUrl;
+			const markup = renderToStaticMarkup(
+				React.createElement(
+					React.Fragment,
+					null,
+					...Seo.renderVideo({
+						height: 420,
+						url,
+						width: 1140,
+					}),
+				),
+			);
 
-		expect(markup).toContain(
-			'<meta property="og:video" content="https://remotion.media/elements/text-timed-captions-preview.mp4"/>',
-		);
-		expect(markup).toContain(
-			'<meta property="og:video:secure_url" content="https://remotion.media/elements/text-timed-captions-preview.mp4"/>',
-		);
-		expect(markup).toContain(
-			'<meta property="og:video:type" content="video/mp4"/>',
-		);
-		expect(markup).toContain(
-			'<meta property="og:video:width" content="1140"/>',
-		);
-		expect(markup).toContain(
-			'<meta property="og:video:height" content="420"/>',
-		);
+			expect(markup).toContain(
+				`<meta property="og:video" content="${url}"/>`,
+			);
+			expect(markup).toContain(
+				`<meta property="og:video:secure_url" content="${url}"/>`,
+			);
+			expect(markup).toContain(
+				'<meta property="og:video:type" content="video/mp4"/>',
+			);
+			expect(markup).toContain(
+				'<meta property="og:video:width" content="1140"/>',
+			);
+			expect(markup).toContain(
+				'<meta property="og:video:height" content="420"/>',
+			);
+		}
 	});
 });
 
@@ -305,6 +308,31 @@ describe('Element preview definitions', () => {
 
 		for (const [slug, definition] of Object.entries(elementDefinitions)) {
 			expect(definition.slug).toBe(slug);
+		}
+	});
+
+	test('publishes timed caption styles as separate Elements', () => {
+		const timedCaptionSlugs = elementDefinitionList
+			.map((definition) => definition.slug)
+			.filter((slug) => slug.startsWith('text/timed-captions'))
+			.sort();
+
+		expect(timedCaptionSlugs).toEqual([
+			'text/timed-captions-background',
+			'text/timed-captions-highlight',
+			'text/timed-captions-scale',
+		]);
+
+		for (const slug of timedCaptionSlugs) {
+			const element = productionElements.find((entry) => entry.name === slug);
+			if (!element) {
+				throw new Error(`Missing timed caption Element for ${slug}`);
+			}
+
+			const source = readFileSync(element.tsxPath, 'utf8');
+			expect(source).not.toContain('readonly mode');
+			expect(source).not.toContain('TimedCaptionsMode');
+			expect(source).not.toContain("translate: '109.5px -36px'");
 		}
 	});
 

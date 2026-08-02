@@ -14,7 +14,9 @@ import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
 import {NewsArticleHeadlineHighlight} from '../../../elements/text/news-article-headline-highlight/news-article-headline-highlight';
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
 import {TextMarker} from '../../../elements/text/text-marker/text-marker';
-import {TimedCaptions} from '../../../elements/text/timed-captions/timed-captions';
+import {TimedCaptionsBackground} from '../../../elements/text/timed-captions-background/timed-captions-background';
+import {TimedCaptionsHighlight} from '../../../elements/text/timed-captions-highlight/timed-captions-highlight';
+import {TimedCaptionsScale} from '../../../elements/text/timed-captions-scale/timed-captions-scale';
 import type {Contributor} from '../Credits';
 
 export type ElementPreviewMetadata = {
@@ -388,18 +390,17 @@ export const elementDefinitions = {
 		slug: 'text/text-marker',
 		width: 1920,
 	},
-	'text/timed-captions': {
+	'text/timed-captions-background': {
 		category: 'text',
-		component: TimedCaptions,
+		component: TimedCaptionsBackground,
 		contributors: [{username: 'JonnyBurger', contribution: null}],
-		description:
-			'Previously a paid template on remotion.pro, Timed Captions is now free for everyone.',
+		description: 'Animated captions with word-level moving background styling.',
 		dependencies: [
 			{name: '@remotion/captions', version: null},
 			{name: '@remotion/google-fonts', version: null},
 			{name: '@remotion/layout-utils', version: null},
 		],
-		displayName: 'Timed Captions',
+		displayName: 'Background Timed Captions',
 		durationInFrames: 210,
 		elementHeight: 180,
 		elementWidth: 900,
@@ -408,12 +409,66 @@ export const elementDefinitions = {
 		posterFrame: 75,
 		preview: {
 			posterUrl:
-				'https://remotion.media/elements/text-timed-captions-preview.png',
+				'https://remotion.media/elements/text-timed-captions-background-preview.png',
 			videoUrl:
-				'https://remotion.media/elements/text-timed-captions-preview.mp4',
+				'https://remotion.media/elements/text-timed-captions-background-preview.mp4',
 		},
 		previewPadding: 120,
-		slug: 'text/timed-captions',
+		slug: 'text/timed-captions-background',
+		width: 1920,
+	},
+	'text/timed-captions-highlight': {
+		category: 'text',
+		component: TimedCaptionsHighlight,
+		contributors: [{username: 'JonnyBurger', contribution: null}],
+		description: 'Animated captions with word-level highlight styling.',
+		dependencies: [
+			{name: '@remotion/captions', version: null},
+			{name: '@remotion/google-fonts', version: null},
+			{name: '@remotion/layout-utils', version: null},
+		],
+		displayName: 'Highlight Timed Captions',
+		durationInFrames: 210,
+		elementHeight: 180,
+		elementWidth: 900,
+		fps: 30,
+		height: 1080,
+		posterFrame: 75,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/text-timed-captions-highlight-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/text-timed-captions-highlight-preview.mp4',
+		},
+		previewPadding: 120,
+		slug: 'text/timed-captions-highlight',
+		width: 1920,
+	},
+	'text/timed-captions-scale': {
+		category: 'text',
+		component: TimedCaptionsScale,
+		contributors: [{username: 'JonnyBurger', contribution: null}],
+		description: 'Animated captions with word-level scale styling.',
+		dependencies: [
+			{name: '@remotion/captions', version: null},
+			{name: '@remotion/google-fonts', version: null},
+			{name: '@remotion/layout-utils', version: null},
+		],
+		displayName: 'Scale Timed Captions',
+		durationInFrames: 210,
+		elementHeight: 180,
+		elementWidth: 900,
+		fps: 30,
+		height: 1080,
+		posterFrame: 75,
+		preview: {
+			posterUrl:
+				'https://remotion.media/elements/text-timed-captions-scale-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/text-timed-captions-scale-preview.mp4',
+		},
+		previewPadding: 120,
+		slug: 'text/timed-captions-scale',
 		width: 1920,
 	},
 } satisfies Record<string, ElementDefinition>;
