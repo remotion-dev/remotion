@@ -43,7 +43,7 @@ const currentTimeInputStyle: React.CSSProperties = {
 const currentTimeSubtitle: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	display: 'block',
-	fontFamily: 'sans-serif',
+	fontFamily: 'monospace',
 	fontSize: 10,
 	fontWeight: 400,
 	lineHeight: 1,
@@ -78,7 +78,7 @@ export const TimeValue: React.FC = () => {
 		[config],
 	);
 	const formatterSubtitle = useCallback(
-		(value: string | number) => `Frame ${value}`,
+		(value: string | number) => String(value),
 		[],
 	);
 	useImperativeHandle(
