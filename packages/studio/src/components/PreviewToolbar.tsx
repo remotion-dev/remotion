@@ -136,9 +136,11 @@ export const PreviewToolbar: React.FC<{
 						<MuteToggle muted={playerMuted} setMuted={setPlayerMuted} />
 					</PreviewToolbarControl>
 				) : null}
-				<PreviewToolbarControl>
-					<TimelineZoomControls />
-				</PreviewToolbarControl>
+				{isMobileLayout ? null : (
+					<PreviewToolbarControl>
+						<TimelineZoomControls />
+					</PreviewToolbarControl>
+				)}
 			</div>
 			<Flex />
 			{isMobileLayout ? null : (

@@ -8,10 +8,12 @@ import React, {
 import {Internals, useCurrentFrame} from 'remotion';
 import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {useIsStill} from '../helpers/is-current-selected-still';
+import {useMobileLayout} from '../helpers/mobile-layout';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {renderFrame} from '../state/render-frame';
 import {Flex, Spacing} from './layout';
 import {InputDragger} from './NewComposition/InputDragger';
+import {TimelineZoomSlider} from './Timeline/TimelineZoomControls';
 
 const text: React.CSSProperties = {
 	color: WHITE,
@@ -43,6 +45,7 @@ export const TimeValue: React.FC = () => {
 	const frame = useCurrentFrame();
 	const config = Internals.useUnsafeVideoConfig();
 	const isStill = useIsStill();
+	const isMobileLayout = useMobileLayout();
 	const {seek, play, pause, toggle} = PlayerInternals.usePlayer();
 	const keybindings = useKeybinding();
 	const ref = useRef<HTMLButtonElement>(null);
@@ -104,15 +107,19 @@ export const TimeValue: React.FC = () => {
 			<div style={time}>{renderFrame(frame, config.fps)}</div>
 			<Spacing x={2} />
 			<Flex />
-			<InputDragger
-				ref={ref}
-				value={frame}
-				onTextChange={onTextChange}
-				onValueChange={onValueChange}
-				rightAlign
-				status="ok"
-				style={frameStyle}
-			/>
+			{isMobileLayout ? (
+				<TimelineZoomSlider width={80} />
+			) : (
+				<InputDragger
+					ref={ref}
+					value={frame}
+					onTextChange={onTextChange}
+					onValueChange={onValueChange}
+					rightAlign
+					status="ok"
+					style={frameStyle}
+				/>
+			)}
 		</div>
 	);
 };
