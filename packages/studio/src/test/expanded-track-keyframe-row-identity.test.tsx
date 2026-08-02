@@ -1,6 +1,6 @@
 import {afterAll, afterEach, beforeAll, expect, test} from 'bun:test';
 import {GlobalRegistrator} from '@happy-dom/global-registrator';
-import {cleanup, render, renderHook} from '@testing-library/react';
+import {cleanup, renderHook} from '@testing-library/react';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	PropStatuses,
@@ -9,7 +9,6 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import {ExpandedTracksGetterContext} from '../components/ExpandedTracksProvider';
-import {TimelineZoomControls} from '../components/Timeline/TimelineZoomControls';
 import {useExpandedTrackKeyframeRows} from '../components/Timeline/use-expanded-track-keyframe-rows';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 
@@ -185,33 +184,4 @@ test('expanded rows preserve node path references until their identity changes',
 		});
 		expect(result.current.rows[0]?.nodePathInfo).not.toBe(stableNodePathInfo);
 	}
-});
-
-test('timeline zoom controls do not render for unrelated parent updates', () => {
-	let canvasContentReads = 0;
-	const compositionManager = Object.defineProperty(
-		{
-			compositions: [],
-			currentCompositionMetadata: null,
-		} as unknown as React.ContextType<typeof Internals.CompositionManager>,
-		'canvasContent',
-		{
-			get: () => {
-				canvasContentReads++;
-				return null;
-			},
-		},
-	);
-	const controls = () => (
-		<Internals.CompositionManager.Provider value={compositionManager}>
-			<TimelineZoomControls sliderMaxWidth={80} />
-		</Internals.CompositionManager.Provider>
-	);
-
-	const view = render(controls());
-	const readsAfterInitialRender = canvasContentReads;
-	expect(readsAfterInitialRender).toBeGreaterThan(0);
-
-	view.rerender(controls());
-	expect(canvasContentReads).toBe(readsAfterInitialRender);
 });
