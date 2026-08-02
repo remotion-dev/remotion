@@ -47,6 +47,7 @@ import {
 } from '../ExpandedTracksProvider';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {Spacing} from '../layout';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {
 	canEditSelectedOutlineCrop,
@@ -56,6 +57,7 @@ import {useSelectAsset} from '../use-select-asset';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
 import {getSequenceContextMenuItems} from './get-sequence-context-menu-items';
+import {getCurrentFrame} from './imperative-state';
 import {saveSequenceProps} from './save-sequence-prop';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {
@@ -241,7 +243,54 @@ type SequenceDropTarget =
 			readonly reason: string;
 	  };
 
-export const TimelineSequenceItem: React.FC<{
+const TimelineSequenceItemContextMenu: React.FC<{
+	readonly children: React.ReactNode;
+	readonly contextMenuValues: ComboboxValue[];
+	readonly includeFreezeFrameMenuItem: boolean;
+	readonly onOpen: (() => void) | null;
+	readonly freezeFrameMenuItemProps: Omit<
+		Parameters<typeof useSequenceFreezeFrameMenuItem>[0],
+		'timelinePosition'
+	>;
+}> = ({
+	children,
+	contextMenuValues,
+	freezeFrameMenuItemProps,
+	includeFreezeFrameMenuItem,
+	onOpen,
+}) => {
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const freezeFrameMenuItem = useSequenceFreezeFrameMenuItem({
+		...freezeFrameMenuItemProps,
+		timelinePosition,
+	});
+	const values = useMemo(() => {
+		if (!includeFreezeFrameMenuItem || freezeFrameMenuItem === null) {
+			return contextMenuValues;
+		}
+
+		const renameIndex = contextMenuValues.findIndex(
+			(item) => item.id === 'rename-sequence',
+		);
+		if (renameIndex === -1) {
+			return contextMenuValues;
+		}
+
+		return [
+			...contextMenuValues.slice(0, renameIndex + 1),
+			freezeFrameMenuItem,
+			...contextMenuValues.slice(renameIndex + 1),
+		];
+	}, [contextMenuValues, freezeFrameMenuItem, includeFreezeFrameMenuItem]);
+
+	return (
+		<ContextMenu values={values} onOpen={onOpen}>
+			{children}
+		</ContextMenu>
+	);
+};
+
+const TimelineSequenceItemInner: React.FC<{
 	readonly children: React.ReactNode;
 	readonly sequence: TSequence;
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
@@ -284,7 +333,6 @@ export const TimelineSequenceItem: React.FC<{
 	const [sequenceDropRejection, setSequenceDropRejection] = useState<
 		string | null
 	>(null);
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {canOpenInEditor, editorInfo, openInEditor, originalLocation} =
 		useOpenSequenceInEditor(sequence);
 	const fileLocation = useMemo(
@@ -789,7 +837,7 @@ export const TimelineSequenceItem: React.FC<{
 					connectedCompositions[0],
 					true,
 					getConnectedCompositionFrame({
-						timelinePosition,
+						timelinePosition: getCurrentFrame(),
 						sequence,
 						sequenceFrameOffset,
 					}),
@@ -806,7 +854,6 @@ export const TimelineSequenceItem: React.FC<{
 			selectComposition,
 			sequence,
 			sequenceFrameOffset,
-			timelinePosition,
 		],
 	);
 	const canHandleSequenceDoubleClick =
@@ -876,19 +923,30 @@ export const TimelineSequenceItem: React.FC<{
 		setIsRenaming(true);
 	}, [canRenameThisSequence]);
 
-	const freezeFrameMenuItem = useSequenceFreezeFrameMenuItem({
-		clientId:
-			previewInteractive && previewServerState.type === 'connected'
-				? previewServerState.clientId
-				: null,
-		nodePath,
-		propStatusesForOverride,
-		sequence,
-		sequenceFrameOffset,
-		setPropStatuses,
-		timelinePosition,
-		validatedSource: validatedLocation?.source ?? null,
-	});
+	const freezeFrameMenuItemProps = useMemo(
+		() => ({
+			clientId:
+				previewInteractive && previewServerState.type === 'connected'
+					? previewServerState.clientId
+					: null,
+			nodePath,
+			propStatusesForOverride,
+			sequence,
+			sequenceFrameOffset,
+			setPropStatuses,
+			validatedSource: validatedLocation?.source ?? null,
+		}),
+		[
+			nodePath,
+			previewInteractive,
+			previewServerState,
+			propStatusesForOverride,
+			sequence,
+			sequenceFrameOffset,
+			setPropStatuses,
+			validatedLocation?.source,
+		],
+	);
 
 	const canAddEffect =
 		nodePathInfo?.supportsEffects === true &&
@@ -1034,7 +1092,6 @@ export const TimelineSequenceItem: React.FC<{
 							subMenu: null,
 							value: 'rename-sequence',
 						},
-						...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
 					]
 				: [],
 		});
@@ -1049,7 +1106,6 @@ export const TimelineSequenceItem: React.FC<{
 		duplicateDisabled,
 		editorInfo,
 		fileLocation,
-		freezeFrameMenuItem,
 		nodePathInfo?.supportsEffects,
 		onAddEffect,
 		onCrop,
@@ -1245,12 +1301,14 @@ export const TimelineSequenceItem: React.FC<{
 	return (
 		<>
 			{previewConnected || window.remotion_isReadOnlyStudio ? (
-				<ContextMenu
-					values={contextMenuValues}
+				<TimelineSequenceItemContextMenu
+					contextMenuValues={contextMenuValues}
+					freezeFrameMenuItemProps={freezeFrameMenuItemProps}
+					includeFreezeFrameMenuItem={isStudioInteractivityEnabled()}
 					onOpen={selectable ? onSelect : null}
 				>
 					{draggableTrackRow}
-				</ContextMenu>
+				</TimelineSequenceItemContextMenu>
 			) : (
 				draggableTrackRow
 			)}
@@ -1277,3 +1335,5 @@ export const TimelineSequenceItem: React.FC<{
 		</>
 	);
 };
+
+export const TimelineSequenceItem = React.memo(TimelineSequenceItemInner);
