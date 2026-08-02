@@ -26,6 +26,7 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 	readonly formatterStyle?: React.CSSProperties;
 	readonly formatterSubtitle?: (str: number | string) => string;
 	readonly formatterSubtitleStyle?: React.CSSProperties;
+	readonly buttonStyle?: React.CSSProperties;
 	readonly rightAlign: boolean;
 	readonly small?: boolean;
 	readonly snapToStep?: boolean;
@@ -445,6 +446,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		formatterStyle,
 		formatterSubtitle,
 		formatterSubtitleStyle,
+		buttonStyle,
 		status,
 		rightAlign,
 		small,
@@ -719,7 +721,11 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			ref={ref}
 			type="button"
 			className={'__remotion_input_dragger'}
-			style={inputDraggerContainerStyle}
+			style={
+				buttonStyle
+					? {...inputDraggerContainerStyle, ...buttonStyle}
+					: inputDraggerContainerStyle
+			}
 			onClick={onClick}
 			onFocus={onFocus}
 			onKeyDown={onKeyDown}

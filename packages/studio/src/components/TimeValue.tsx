@@ -36,7 +36,11 @@ const currentTimeTypography: React.CSSProperties = {
 
 const currentTimeInputStyle: React.CSSProperties = {
 	...currentTimeTypography,
-	padding: '4px 6px',
+	padding: '4px 6px 4px 2px',
+};
+
+const currentTimeButtonStyle: React.CSSProperties = {
+	paddingLeft: 2,
 };
 
 const currentTimeSubtitle: React.CSSProperties = {
@@ -130,6 +134,7 @@ export const TimeValue: React.FC = () => {
 				formatterStyle={currentTimeTypography}
 				formatterSubtitle={formatterSubtitle}
 				formatterSubtitleStyle={currentTimeSubtitle}
+				buttonStyle={currentTimeButtonStyle}
 				rightAlign={false}
 				status="ok"
 				style={currentTimeInputStyle}
