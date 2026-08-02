@@ -11,6 +11,7 @@ import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {getNodeHasKeyframes, getNodeKeyframes} from './get-node-keyframes';
 import type {getTimelineKeyframes} from './get-timeline-keyframes';
+import {getCurrentFrame} from './imperative-state';
 import {
 	filterTimelineExpandedTree,
 	getSelectedTimelineExpandedRowKeys,
@@ -87,7 +88,6 @@ export const useExpandedTrackKeyframeRows = ({
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {selectedItems} = useTimelineSelection();
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
 
 	const tree = useMemo(
 		() =>
@@ -167,7 +167,7 @@ export const useExpandedTrackKeyframeRows = ({
 						keyframeDisplayOffset,
 						getDragOverrides,
 						getEffectDragOverrides,
-						timelinePosition,
+						timelinePosition: getCurrentFrame(),
 					}),
 				]),
 			),
@@ -178,7 +178,6 @@ export const useExpandedTrackKeyframeRows = ({
 			keyframeDisplayOffset,
 			nodePathInfo.sequenceSubscriptionKey,
 			propStatuses,
-			timelinePosition,
 		],
 	);
 
