@@ -28,7 +28,7 @@ const iconStyle: React.CSSProperties = {
 	width: 14,
 };
 
-export const TimelineZoomSlider: React.FC = () => {
+const TimelineZoomSlider: React.FC = () => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {setZoom, zoom: zoomMap} = useContext(TimelineZoomCtx);
 	const {tabIndex} = useZIndex();

@@ -13,7 +13,7 @@ import {useKeybinding} from '../helpers/use-keybinding';
 import {renderFrame} from '../state/render-frame';
 import {Flex, Spacing} from './layout';
 import {InputDragger} from './NewComposition/InputDragger';
-import {TimelineZoomSlider} from './Timeline/TimelineZoomControls';
+import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 
 const text: React.CSSProperties = {
 	color: WHITE,
@@ -108,7 +108,7 @@ export const TimeValue: React.FC = () => {
 			<Spacing x={2} />
 			{isMobileLayout ? null : <Flex />}
 			{isMobileLayout ? (
-				<TimelineZoomSlider />
+				<TimelineZoomControls />
 			) : (
 				<InputDragger
 					ref={ref}
