@@ -472,10 +472,9 @@ const TimedCaptionsBackgroundLayer = Interactive.withSchema({
 	supportsEffects: false,
 }) as React.FC<TimedCaptionsBackgroundLayerProps>;
 
-export const TimedCaptionsBackground: React.FC<TimedCaptionsBackgroundProps> = ({
-	captions,
-	...props
-}) => {
+export const TimedCaptionsBackground: React.FC<
+	TimedCaptionsBackgroundProps
+> = ({captions, ...props}) => {
 	if (captions) {
 		return <TimedCaptionsBackgroundLayer {...props} captions={captions} />;
 	}

@@ -273,9 +273,7 @@ describe('Element social previews', () => {
 				),
 			);
 
-			expect(markup).toContain(
-				`<meta property="og:video" content="${url}"/>`,
-			);
+			expect(markup).toContain(`<meta property="og:video" content="${url}"/>`);
 			expect(markup).toContain(
 				`<meta property="og:video:secure_url" content="${url}"/>`,
 			);
