@@ -1,6 +1,6 @@
 import {afterEach, expect, test} from 'bun:test';
-import React, {useRef} from 'react';
-import {Html5Audio, Internals} from 'remotion';
+import React, {createRef, useRef} from 'react';
+import {Html5Audio, Internals, useCurrentFrame} from 'remotion';
 import type {PlayerRef} from '../player-methods.js';
 import {Player} from '../Player.js';
 import {usePlayer} from '../use-player.js';
@@ -14,6 +14,36 @@ test('It should throw an error if not being used inside a RemotionRoot', () => {
 	expect(() => {
 		usePlayer();
 	}).toThrow();
+});
+
+test('Seeking to the current frame does not rerender the composition', () => {
+	let compositionRenders = 0;
+	const playerRef = createRef<PlayerRef>();
+	const Composition = () => {
+		compositionRenders++;
+		const frame = useCurrentFrame();
+		return React.createElement('div', null, `Frame ${frame}`);
+	};
+
+	const view = render(
+		React.createElement(Player, {
+			ref: playerRef,
+			component: Composition,
+			durationInFrames: 100,
+			compositionWidth: 1920,
+			compositionHeight: 1080,
+			fps: 30,
+		}),
+	);
+	const rendersAfterMount = compositionRenders;
+	expect(view.getByText('Frame 0')).toBeTruthy();
+
+	act(() => {
+		playerRef.current?.seekTo(0);
+	});
+
+	expect(playerRef.current?.getCurrentFrame()).toBe(0);
+	expect(compositionRenders).toBe(rendersAfterMount);
 });
 
 let createdAudioContexts = 0;
