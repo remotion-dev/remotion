@@ -30,6 +30,7 @@ import {getEditorName} from './preview-server/routes/open-in-editor';
 import {serveStatic} from './preview-server/serve-static';
 import {handleStudioProtocolDiscovery} from './preview-server/studio-protocol/handle-discovery';
 import {handleStudioProtocolInstall} from './preview-server/studio-protocol/handle-install';
+import {handleStudioProtocolLicenseKey} from './preview-server/studio-protocol/handle-license-key';
 import {handleStudioProtocolOptions} from './preview-server/studio-protocol/origin-policy';
 import {validateSameOrigin} from './preview-server/validate-same-origin';
 import {reloadPreviouslySuppressedFiles} from './preview-server/watch-ignore-next-change';
@@ -439,10 +440,15 @@ export const handleRoutes = ({
 
 	if (
 		url.pathname === '/api/studio-protocol' ||
-		url.pathname === '/api/studio-protocol/install'
+		url.pathname === '/api/studio-protocol/install' ||
+		url.pathname === '/api/studio-protocol/license-key'
 	) {
 		if (request.method === 'OPTIONS') {
-			return handleStudioProtocolOptions({request, response});
+			return handleStudioProtocolOptions({
+				licenseKey: url.pathname === '/api/studio-protocol/license-key',
+				request,
+				response,
+			});
 		}
 
 		if (url.pathname === '/api/studio-protocol') {
@@ -453,6 +459,10 @@ export const handleRoutes = ({
 				request,
 				response,
 			});
+		}
+
+		if (url.pathname === '/api/studio-protocol/license-key') {
+			return handleStudioProtocolLicenseKey({configFile, request, response});
 		}
 
 		return handleStudioProtocolInstall({

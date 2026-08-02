@@ -7,212 +7,148 @@ import {
 	updateElementInstallTarget,
 } from '../preview-server/element-install-state';
 
+const updateTarget = ({
+	canInstall = true,
+	clientId = 'focused-tab',
+	compositionId = 'Main',
+	lastFocusedAt = Date.now(),
+	readOnly = false,
+	requestId = 'protocol-request',
+}: {
+	readonly canInstall?: boolean;
+	readonly clientId?: string;
+	readonly compositionId?: string | null;
+	readonly lastFocusedAt?: number;
+	readonly readOnly?: boolean;
+	readonly requestId?: string | null;
+}) => {
+	updateElementInstallTarget({
+		requestId,
+		clientId,
+		compositionFile:
+			compositionId === null ? null : `/project/src/${compositionId}.tsx`,
+		compositionId,
+		canInstall,
+		lastFocusedAt,
+		readOnly,
+		studioUrl: `http://localhost:3000/${compositionId ?? ''}`,
+	});
+};
+
 test('uses the most recently focused Studio target even when older tabs keep updating', () => {
 	clearElementInstallStateForTests();
-
-	updateElementInstallTarget({
-		requestId: null,
-		clientId: 'older-tab',
-		compositionFile: '/project/src/older.tsx',
-		compositionId: 'older-composition',
-		canInstall: true,
-		lastFocusedAt: 1000,
-		readOnly: false,
-		studioUrl: 'http://localhost:3000/older-composition',
-	});
-	updateElementInstallTarget({
-		requestId: null,
-		clientId: 'focused-tab',
-		compositionFile: '/project/src/focused.tsx',
-		compositionId: 'focused-composition',
-		canInstall: true,
-		lastFocusedAt: 2000,
-		readOnly: false,
-		studioUrl: 'http://localhost:3000/focused-composition',
-	});
-	updateElementInstallTarget({
-		requestId: null,
-		clientId: 'older-tab',
-		compositionFile: '/project/src/older.tsx',
-		compositionId: 'older-composition',
-		canInstall: true,
-		lastFocusedAt: 1000,
-		readOnly: false,
-		studioUrl: 'http://localhost:3000/older-composition',
-	});
+	updateTarget({clientId: 'older-tab', lastFocusedAt: 1000, requestId: null});
+	updateTarget({clientId: 'focused-tab', lastFocusedAt: 2000, requestId: null});
+	updateTarget({clientId: 'older-tab', lastFocusedAt: 1000, requestId: null});
 
 	expect(getElementInstallTarget(null)?.clientId).toBe('focused-tab');
-	expect(getElementInstallTarget(null)?.studioUrl).toBe(
-		'http://localhost:3000/focused-composition',
-	);
 });
 
-test('falls back to update recency when focus timestamps match', async () => {
+test('binds install tokens to one origin, purpose and composition', () => {
 	clearElementInstallStateForTests();
-
-	updateElementInstallTarget({
-		requestId: null,
-		clientId: 'first-tab',
-		compositionFile: '/project/src/first.tsx',
-		compositionId: 'first-composition',
-		canInstall: true,
-		lastFocusedAt: 1000,
-		readOnly: false,
-		studioUrl: 'http://localhost:3000/first-composition',
-	});
-
-	await new Promise((resolve) => setTimeout(resolve, 2));
-
-	updateElementInstallTarget({
-		requestId: null,
-		clientId: 'second-tab',
-		compositionFile: '/project/src/second.tsx',
-		compositionId: 'second-composition',
-		canInstall: true,
-		lastFocusedAt: 1000,
-		readOnly: false,
-		studioUrl: 'http://localhost:3000/second-composition',
-	});
-
-	expect(getElementInstallTarget(null)?.clientId).toBe('second-tab');
-});
-
-test('binds a single-use Studio Protocol token to the selected composition', () => {
-	clearElementInstallStateForTests();
-	updateElementInstallTarget({
-		requestId: 'protocol-request',
-		clientId: 'focused-tab',
-		compositionFile: '/project/src/main.tsx',
-		compositionId: 'Main',
-		canInstall: true,
-		lastFocusedAt: Date.now(),
-		readOnly: false,
-		studioUrl: 'http://localhost:3000/Main',
-	});
+	updateTarget({});
 	const selected = getElementInstallTarget('protocol-request');
 	if (selected === null) {
 		throw new Error('Expected an install target');
 	}
 
-	const issued = issueStudioProtocolTarget({
+	const wrongPurpose = issueStudioProtocolTarget({
 		now: Date.now(),
 		origin: 'https://example.com',
+		purpose: 'install-element',
 		target: selected,
 	});
 	expect(
 		consumeStudioProtocolTarget({
 			now: Date.now(),
 			origin: 'https://example.com',
-			targetId: issued.id,
-		})?.compositionId,
-	).toBe('Main');
-	expect(
-		consumeStudioProtocolTarget({
-			now: Date.now(),
-			origin: 'https://example.com',
-			targetId: issued.id,
+			purpose: 'set-license-key',
+			targetId: wrongPurpose.id,
 		}),
 	).toBe(null);
-});
 
-test('rejects a token from another origin', () => {
-	clearElementInstallStateForTests();
-	updateElementInstallTarget({
-		requestId: 'protocol-request',
-		clientId: 'focused-tab',
-		compositionFile: '/project/src/main.tsx',
-		compositionId: 'Main',
-		canInstall: true,
-		lastFocusedAt: Date.now(),
-		readOnly: false,
-		studioUrl: 'http://localhost:3000/Main',
+	const changedComposition = issueStudioProtocolTarget({
+		now: Date.now(),
+		origin: 'https://example.com',
+		purpose: 'install-element',
+		target: selected,
 	});
-	const selected = getElementInstallTarget('protocol-request');
-	if (selected === null) {
+	updateTarget({compositionId: 'Other', requestId: null});
+	expect(
+		consumeStudioProtocolTarget({
+			now: Date.now(),
+			origin: 'https://example.com',
+			purpose: 'install-element',
+			targetId: changedComposition.id,
+		}),
+	).toBe(null);
+
+	updateTarget({});
+	const current = getElementInstallTarget('protocol-request');
+	if (current === null) {
 		throw new Error('Expected an install target');
 	}
 
-	const issued = issueStudioProtocolTarget({
+	const wrongOrigin = issueStudioProtocolTarget({
 		now: Date.now(),
 		origin: 'https://example.com',
-		target: selected,
+		purpose: 'install-element',
+		target: current,
 	});
 	expect(
 		consumeStudioProtocolTarget({
 			now: Date.now(),
 			origin: 'https://other.example',
-			targetId: issued.id,
+			purpose: 'install-element',
+			targetId: wrongOrigin.id,
 		}),
 	).toBe(null);
 });
 
-test('invalidates a token if the selected tab changes compositions', () => {
+test('license-key targets are project-level, single-use and invalidated by read-only mode', () => {
 	clearElementInstallStateForTests();
-	updateElementInstallTarget({
-		requestId: 'protocol-request',
-		clientId: 'focused-tab',
-		compositionFile: '/project/src/main.tsx',
-		compositionId: 'Main',
-		canInstall: true,
-		lastFocusedAt: Date.now(),
-		readOnly: false,
-		studioUrl: 'http://localhost:3000/Main',
-	});
+	updateTarget({canInstall: false, compositionId: null});
 	const selected = getElementInstallTarget('protocol-request');
 	if (selected === null) {
-		throw new Error('Expected an install target');
+		throw new Error('Expected a Studio target');
 	}
 
 	const issued = issueStudioProtocolTarget({
 		now: Date.now(),
-		origin: 'https://example.com',
+		origin: 'https://remotion.pro',
+		purpose: 'set-license-key',
 		target: selected,
-	});
-	updateElementInstallTarget({
-		requestId: null,
-		clientId: 'focused-tab',
-		compositionFile: '/project/src/other.tsx',
-		compositionId: 'Other',
-		canInstall: true,
-		lastFocusedAt: Date.now(),
-		readOnly: false,
-		studioUrl: 'http://localhost:3000/Other',
 	});
 	expect(
 		consumeStudioProtocolTarget({
 			now: Date.now(),
-			origin: 'https://example.com',
+			origin: 'https://remotion.pro',
+			purpose: 'set-license-key',
+			targetId: issued.id,
+		})?.clientId,
+	).toBe('focused-tab');
+	expect(
+		consumeStudioProtocolTarget({
+			now: Date.now(),
+			origin: 'https://remotion.pro',
+			purpose: 'set-license-key',
 			targetId: issued.id,
 		}),
 	).toBe(null);
-});
 
-test('can select a target for a specific request', () => {
-	clearElementInstallStateForTests();
-
-	updateElementInstallTarget({
-		requestId: 'first-request',
-		clientId: 'first-tab',
-		compositionFile: '/project/src/first.tsx',
-		compositionId: 'first-composition',
-		canInstall: true,
-		lastFocusedAt: 1000,
-		readOnly: false,
-		studioUrl: 'http://localhost:3000/first-composition',
+	const readOnlyToken = issueStudioProtocolTarget({
+		now: Date.now(),
+		origin: 'https://remotion.pro',
+		purpose: 'set-license-key',
+		target: selected,
 	});
-	updateElementInstallTarget({
-		requestId: 'second-request',
-		clientId: 'second-tab',
-		compositionFile: '/project/src/second.tsx',
-		compositionId: 'second-composition',
-		canInstall: true,
-		lastFocusedAt: 2000,
-		readOnly: false,
-		studioUrl: 'http://localhost:3000/second-composition',
-	});
-
-	expect(getElementInstallTarget('first-request')?.clientId).toBe('first-tab');
-	expect(getElementInstallTarget('second-request')?.clientId).toBe(
-		'second-tab',
-	);
+	updateTarget({canInstall: false, compositionId: null, readOnly: true});
+	expect(
+		consumeStudioProtocolTarget({
+			now: Date.now(),
+			origin: 'https://remotion.pro',
+			purpose: 'set-license-key',
+			targetId: readOnlyToken.id,
+		}),
+	).toBe(null);
 });

@@ -169,7 +169,13 @@ export const MyComponent = () => {
 			)
 			.toMatchObject({
 				protocol: 'remotion-studio-protocol',
-				installTarget: {compositionId: 'MyComp'},
+				capabilities: [
+					{
+						type: 'install-element',
+						target: {compositionId: 'MyComp'},
+					},
+					{type: 'set-license-key'},
+				],
 			});
 
 		const address = senderServer.address();

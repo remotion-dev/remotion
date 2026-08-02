@@ -3,6 +3,7 @@ import path from 'node:path';
 import type {GitSource} from '@remotion/studio-shared';
 import {getProjectName} from '@remotion/studio-shared';
 import {VERSION} from 'remotion/version';
+import type {ElementInstallTarget} from '../element-install-state';
 import {
 	ELEMENT_INSTALL_TARGET_MAX_AGE,
 	getElementInstallTarget,
@@ -10,12 +11,13 @@ import {
 } from '../element-install-state';
 import type {LiveEventsServer} from '../live-events';
 import {
+	getAllowedLicenseKeyOrigin,
 	getAllowedStudioProtocolOrigin,
 	setStudioProtocolCorsHeaders,
 } from './origin-policy';
 import {writeStudioProtocolError} from './protocol-response';
 
-const ELEMENT_INSTALL_FOCUS_MAX_AGE = 5 * 60 * 1000;
+const STUDIO_PROTOCOL_FOCUS_MAX_AGE = 5 * 60 * 1000;
 export const ELEMENT_INSTALL_TARGET_RESPONSE_WAIT = 250;
 
 const requestInstallTarget = ({
@@ -31,24 +33,34 @@ const requestInstallTarget = ({
 	return requestId;
 };
 
-const getLiveInstallableTarget = (requestId: string) => {
+const getLiveStudioTarget = (requestId: string) => {
 	const target = getElementInstallTarget(requestId);
 	const now = Date.now();
 	if (
 		target === null ||
 		now - target.updatedAt >= ELEMENT_INSTALL_TARGET_MAX_AGE ||
 		target.lastFocusedAt === null ||
-		now - target.lastFocusedAt >= ELEMENT_INSTALL_FOCUS_MAX_AGE ||
-		!target.canInstall ||
-		target.readOnly ||
-		target.compositionFile === null ||
-		target.compositionId === null
+		now - target.lastFocusedAt >= STUDIO_PROTOCOL_FOCUS_MAX_AGE ||
+		target.readOnly
 	) {
 		return null;
 	}
 
 	return target;
 };
+
+const isInstallableTarget = (
+	target: ElementInstallTarget | null,
+): target is ElementInstallTarget & {
+	readonly compositionFile: string;
+	readonly compositionId: string;
+	readonly lastFocusedAt: number;
+} =>
+	target !== null &&
+	target.canInstall &&
+	target.compositionFile !== null &&
+	target.compositionId !== null &&
+	target.lastFocusedAt !== null;
 
 const getProject = ({
 	gitSource,
@@ -76,7 +88,7 @@ export const handleStudioProtocolDiscovery = ({
 	readonly request: IncomingMessage;
 	readonly response: ServerResponse;
 }): Promise<void> => {
-	setStudioProtocolCorsHeaders({request, response});
+	setStudioProtocolCorsHeaders({licenseKey: false, request, response});
 	const requestOrigin = getAllowedStudioProtocolOrigin(request.headers.origin);
 	if (requestOrigin === null) {
 		writeStudioProtocolError({
@@ -102,13 +114,27 @@ export const handleStudioProtocolDiscovery = ({
 	return new Promise<void>((resolve) => {
 		setTimeout(() => {
 			const now = Date.now();
-			const target = getLiveInstallableTarget(requestId);
-			const issued =
-				target === null
+			const target = getLiveStudioTarget(requestId);
+			const installTarget = isInstallableTarget(target) ? target : null;
+			const issuedInstallTarget =
+				installTarget === null
 					? null
 					: issueStudioProtocolTarget({
 							now,
 							origin: requestOrigin,
+							purpose: 'install-element',
+							target: installTarget,
+						});
+			const licenseKeyOrigin = getAllowedLicenseKeyOrigin(
+				request.headers.origin,
+			);
+			const issuedLicenseKeyTarget =
+				target === null || licenseKeyOrigin === null
+					? null
+					: issueStudioProtocolTarget({
+							now,
+							origin: licenseKeyOrigin,
+							purpose: 'set-license-key',
 							target,
 						});
 			response.writeHead(200, {
@@ -120,24 +146,36 @@ export const handleStudioProtocolDiscovery = ({
 					protocol: 'remotion-studio-protocol',
 					protocolVersion: 1,
 					studioVersion: VERSION,
-					capabilities: {
-						install: [
-							{
-								payloadType: 'remotion-element',
-								payloadVersions: [1],
-							},
-						],
-					},
 					projectName: getProject({gitSource, remotionRoot}),
-					installTarget:
-						issued === null || target === null
-							? null
-							: {
-									id: issued.id,
-									expiresAt: issued.expiresAt,
-									compositionId: target.compositionId,
-									lastFocusedAt: target.lastFocusedAt,
-								},
+					capabilities: [
+						{
+							type: 'install-element',
+							payloadType: 'remotion-element',
+							payloadVersions: [1],
+							target:
+								issuedInstallTarget === null || installTarget === null
+									? null
+									: {
+											id: issuedInstallTarget.id,
+											expiresAt: issuedInstallTarget.expiresAt,
+											compositionId: installTarget.compositionId,
+											lastFocusedAt: installTarget.lastFocusedAt,
+										},
+						},
+						{
+							type: 'set-license-key',
+							target:
+								issuedLicenseKeyTarget === null ||
+								target === null ||
+								target.lastFocusedAt === null
+									? null
+									: {
+											id: issuedLicenseKeyTarget.id,
+											expiresAt: issuedLicenseKeyTarget.expiresAt,
+											lastFocusedAt: target.lastFocusedAt,
+										},
+						},
+					],
 				}),
 			);
 			resolve();
