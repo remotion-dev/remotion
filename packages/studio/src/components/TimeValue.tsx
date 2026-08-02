@@ -106,7 +106,7 @@ export const TimeValue: React.FC = () => {
 		<div style={text}>
 			<div style={time}>{renderFrame(frame, config.fps)}</div>
 			<Spacing x={2} />
-			{isMobileLayout ? null : <Flex />}
+			<Flex />
 			{isMobileLayout ? (
 				<TimelineZoomControls sliderMaxWidth={60} />
 			) : (
