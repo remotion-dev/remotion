@@ -120,6 +120,7 @@ export const TimeValue: React.FC = () => {
 					style={frameStyle}
 				/>
 			)}
+			{isMobileLayout ? <Spacing x={0.5} /> : null}
 		</div>
 	);
 };
