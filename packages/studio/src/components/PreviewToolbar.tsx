@@ -24,7 +24,6 @@ import {PreviewToolbarOverflowButton} from './PreviewToolbarOverflowButton';
 import {RenderButton} from './RenderButton';
 import {SizeSelector} from './SizeSelector';
 import {SnappingToggle} from './SnappingToggle';
-import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
 
 const TOOLBAR_HEIGHT = 40;
@@ -136,11 +135,6 @@ export const PreviewToolbar: React.FC<{
 						<MuteToggle muted={playerMuted} setMuted={setPlayerMuted} />
 					</PreviewToolbarControl>
 				) : null}
-				{isMobileLayout ? null : (
-					<PreviewToolbarControl>
-						<TimelineZoomControls />
-					</PreviewToolbarControl>
-				)}
 			</div>
 			<Flex />
 			{isMobileLayout ? null : (
