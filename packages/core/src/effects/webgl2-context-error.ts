@@ -1,3 +1,5 @@
+import {NoReactInternals} from 'remotion/no-react';
+
 const WEBGL_CONTEXT_DOCS_URL =
 	'https://remotion.dev/docs/troubleshooting/webgl2-context';
 
@@ -8,8 +10,9 @@ const webGlContextErrorMessage = (
 	effectName: string,
 ): string =>
 	`Failed to acquire ${versionLabel} context for ${effectName}. ` +
-	'If your project does not already default to --gl=angle, pass --gl=angle when using the CLI, set chromiumOptions: { gl: "angle" } when using SSR APIs, ' +
-	'or set "OpenGL render backend" to "angle" in the Advanced section when rendering in the Studio. ' +
+	(NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+		? 'Remotion 5 already defaults to --gl=angle, but you can still pass it explicitly when using the CLI, set chromiumOptions: { gl: "angle" } when using SSR APIs, or set "OpenGL render backend" to "angle" in the Advanced section when rendering in the Studio. '
+		: 'Pass --gl=angle when using the CLI, set chromiumOptions: { gl: "angle" } when using SSR APIs, or set "OpenGL render backend" to "angle" in the Advanced section when rendering in the Studio. ') +
 	`See ${WEBGL_CONTEXT_DOCS_URL}`;
 
 export const createWebGLContextError = (effectName: string): Error =>

@@ -8,7 +8,7 @@ crumb: 'Troubleshooting'
 You may see an error like this when rendering a composition that uses WebGL:
 
 ```
-Failed to acquire WebGL2 context for blur effect. Pass --gl=angle when using the CLI, set chromiumOptions: { gl: "angle" } when using SSR APIs, or set "OpenGL render backend" to "angle" in the Advanced section when rendering in the Studio. See https://remotion.dev/docs/troubleshooting/webgl2-context
+Failed to acquire WebGL2 context for blur effect. Remotion 5 already defaults to --gl=angle, but you can still pass it explicitly when using the CLI, set chromiumOptions: { gl: "angle" } when using SSR APIs, or set "OpenGL render backend" to "angle" in the Advanced section when rendering in the Studio. See https://remotion.dev/docs/troubleshooting/webgl2-context
 ```
 
 ## Fix: use the ANGLE renderer
