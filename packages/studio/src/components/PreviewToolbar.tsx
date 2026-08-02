@@ -115,19 +115,21 @@ export const PreviewToolbar: React.FC<{
 			<div style={sideContainer}>
 				<div style={padding} />
 				{isMobileLayout ? (
-					<PreviewToolbarControl>
-						<PreviewToolbarOverflowButton
-							readOnlyStudio={readOnlyStudio}
-							showFullscreen={Boolean(canvasContent && isFullscreenSupported)}
-							showPlaybackRate={isVideoComposition}
-							showLoop={isVideoComposition}
-							showCompositionControls={canvasContent?.type === 'composition'}
-							playbackRate={playbackRate}
-							setPlaybackRate={setPlaybackRate}
-							loop={loop}
-							setLoop={setLoop}
-						/>
-					</PreviewToolbarControl>
+					<>
+						<PreviewToolbarControl>
+							<PreviewToolbarOverflowButton
+								showFullscreen={Boolean(canvasContent && isFullscreenSupported)}
+								showPlaybackRate={isVideoComposition}
+								showLoop={isVideoComposition}
+								showCompositionControls={canvasContent?.type === 'composition'}
+								playbackRate={playbackRate}
+								setPlaybackRate={setPlaybackRate}
+								loop={loop}
+								setLoop={setLoop}
+							/>
+						</PreviewToolbarControl>
+						<Spacing x={1.5} />
+					</>
 				) : null}
 				{isVideoComposition && isMobileLayout ? (
 					<PreviewToolbarControl>
