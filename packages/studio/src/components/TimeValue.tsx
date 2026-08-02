@@ -6,7 +6,7 @@ import React, {
 	useRef,
 } from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
-import {LIGHT_TEXT, WHITE} from '../helpers/colors';
+import {WHITE} from '../helpers/colors';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {useKeybinding} from '../helpers/use-keybinding';
@@ -32,15 +32,6 @@ const time: React.CSSProperties = {
 	fontFamily: 'monospace',
 };
 
-const frameStyle: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontWeight: 500,
-	lineHeight: 1,
-	fontSize: 16,
-	fontFamily: 'monospace',
-	paddingRight: 10,
-};
-
 export const TimeValue: React.FC = () => {
 	const frame = useCurrentFrame();
 	const config = Internals.useUnsafeVideoConfig();
@@ -61,6 +52,12 @@ export const TimeValue: React.FC = () => {
 			seek(val);
 		},
 		[seek],
+	);
+	const formatter = useCallback(
+		(value: string | number) => {
+			return config ? renderFrame(Number(value), config.fps) : String(value);
+		},
+		[config],
 	);
 	useImperativeHandle(
 		Internals.timeValueRef,
@@ -104,22 +101,19 @@ export const TimeValue: React.FC = () => {
 
 	return (
 		<div style={text}>
-			<div style={time}>{renderFrame(frame, config.fps)}</div>
+			<InputDragger
+				ref={ref}
+				value={frame}
+				onTextChange={onTextChange}
+				onValueChange={onValueChange}
+				formatter={formatter}
+				rightAlign={false}
+				status="ok"
+				style={time}
+			/>
 			<Spacing x={2} />
 			<Flex />
-			{isMobileLayout ? (
-				<TimelineZoomControls sliderMaxWidth={60} />
-			) : (
-				<InputDragger
-					ref={ref}
-					value={frame}
-					onTextChange={onTextChange}
-					onValueChange={onValueChange}
-					rightAlign
-					status="ok"
-					style={frameStyle}
-				/>
-			)}
+			{isMobileLayout ? <TimelineZoomControls sliderMaxWidth={60} /> : null}
 			{isMobileLayout ? <Spacing x={0.5} /> : null}
 		</div>
 	);
