@@ -1,6 +1,7 @@
 import React, {useContext, useMemo} from 'react';
 import type {PreviewSize} from 'remotion';
 import {Internals} from 'remotion';
+import {WHITE_ALPHA_80} from '../helpers/colors';
 import type {AssetFileType} from '../helpers/get-preview-file-type';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {Checkmark} from '../icons/Checkmark';
@@ -154,6 +155,7 @@ export const SizeSelector: React.FC = () => {
 				style={comboStyle}
 				selectedId={selectedId}
 				values={items}
+				unhoveredIconColor={WHITE_ALPHA_80}
 			/>
 		</div>
 	);

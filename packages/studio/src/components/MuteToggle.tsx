@@ -1,4 +1,5 @@
 import {useCallback} from 'react';
+import {BLUE} from '../helpers/colors';
 import {VolumeOffIcon, VolumeOnIcon} from '../icons/media-volume';
 import {persistMuteOption} from '../state/mute';
 import {ControlButton} from './ControlButton';
@@ -21,7 +22,9 @@ export const MuteToggle: React.FC<{
 			aria-label={accessibilityLabel}
 			onClick={onClick}
 		>
-			{muted ? <VolumeOffIcon /> : <VolumeOnIcon />}
+			{(color) =>
+				muted ? <VolumeOffIcon color={BLUE} /> : <VolumeOnIcon color={color} />
+			}
 		</ControlButton>
 	);
 };

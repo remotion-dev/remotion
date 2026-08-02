@@ -1,7 +1,7 @@
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {WHITE} from '../helpers/colors';
+import {WHITE_ALPHA_80} from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {Checkmark} from '../icons/Checkmark';
 import {EllipsisIcon} from '../icons/ellipsis';
@@ -266,7 +266,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 			renderAction={renderAction}
 			values={values}
 			title="More actions"
-			unhoveredColor={WHITE}
+			unhoveredColor={WHITE_ALPHA_80}
 		/>
 	);
 };

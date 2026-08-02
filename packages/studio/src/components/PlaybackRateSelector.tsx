@@ -1,5 +1,6 @@
 import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
+import {WHITE_ALPHA_80} from '../helpers/colors';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {Checkmark} from '../icons/Checkmark';
 import {persistPlaybackRate} from '../state/playbackrate';
@@ -92,6 +93,7 @@ export const PlaybackRateSelector: React.FC<PlaybackRateMenuItemsProps> = ({
 				style={comboStyle}
 				selectedId={selectedId}
 				values={items}
+				unhoveredIconColor={WHITE_ALPHA_80}
 			/>
 		</div>
 	);

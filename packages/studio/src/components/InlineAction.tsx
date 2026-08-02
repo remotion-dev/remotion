@@ -9,13 +9,15 @@ import {useZIndex} from '../state/z-index';
 
 export type RenderInlineAction = (color: string) => React.ReactNode;
 
-export type InlineActionProps = {
+export type InlineActionProps = Omit<
+	React.ButtonHTMLAttributes<HTMLButtonElement>,
+	'children' | 'onClick' | 'style'
+> & {
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
-	readonly disabled?: boolean;
 	readonly renderAction: RenderInlineAction;
-	readonly title?: string;
 	readonly unhoveredColor?: string;
 	readonly variant: 'compact' | null;
+	readonly style?: React.CSSProperties;
 };
 
 export const InlineAction = ({
@@ -25,6 +27,8 @@ export const InlineAction = ({
 	title,
 	unhoveredColor = LIGHT_TEXT,
 	variant,
+	style: customStyle,
+	...buttonProps
 }: InlineActionProps) => {
 	const {tabIndex} = useZIndex();
 
@@ -53,11 +57,13 @@ export const InlineAction = ({
 			borderRadius: 3,
 			opacity: disabled ? 0.5 : 1,
 			pointerEvents: disabled ? 'none' : 'auto',
+			...customStyle,
 		};
-	}, [disabled, hovered, variant]);
+	}, [customStyle, disabled, hovered, variant]);
 
 	return (
 		<button
+			{...buttonProps}
 			type="button"
 			disabled={disabled}
 			onPointerEnter={onPointerEnter}
@@ -66,7 +72,7 @@ export const InlineAction = ({
 			style={style}
 			tabIndex={tabIndex}
 			title={title}
-			aria-label={title}
+			aria-label={buttonProps['aria-label'] ?? title}
 		>
 			{renderAction(hovered ? WHITE : unhoveredColor)}
 		</button>
