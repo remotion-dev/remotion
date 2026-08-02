@@ -1,10 +1,16 @@
 import type {SetStateAction} from 'react';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
+import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BACKGROUND, BORDER_BLACK, WHITE} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
+import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {useMenuStructure} from '../helpers/use-menu-structure';
+import {SearchIcon} from '../icons/search';
+import {ModalsContext} from '../state/modals';
+import type {RenderInlineAction} from './InlineAction';
+import {InlineAction} from './InlineAction';
 import {Row} from './layout';
 import {MENU_TOOLBAR_HEIGHT} from './menu-toolbar-height';
 import type {MenuId} from './Menu/MenuItem';
@@ -37,6 +43,7 @@ export const MenuToolbar: React.FC<{
 }> = ({readOnlyStudio}) => {
 	const [selected, setSelected] = useState<string | null>(null);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {setSelectedModal} = useContext(ModalsContext);
 	const browserStudioOperations = getBrowserStudioOperations();
 	const canUndoAndRedo =
 		!readOnlyStudio ||
@@ -130,6 +137,24 @@ export const MenuToolbar: React.FC<{
 		e.stopPropagation();
 	}, []);
 
+	const openQuickSwitcher = useCallback(() => {
+		setSelectedModal({
+			type: 'quick-switcher',
+			mode: 'compositions',
+			invocationTimestamp: Date.now(),
+			assetSelection: null,
+			compositionSelection: null,
+		});
+	}, [setSelectedModal]);
+
+	const renderSearchIcon: RenderInlineAction = useCallback((color) => {
+		return <SearchIcon color={color} width={18} height={18} />;
+	}, []);
+
+	const searchTooltip = areKeyboardShortcutsDisabled()
+		? 'Quick Switcher'
+		: `Quick Switcher (${cmdOrCtrlCharacter}+K)`;
+
 	return (
 		<Row
 			align="center"
@@ -138,7 +163,16 @@ export const MenuToolbar: React.FC<{
 			onPointerDown={onPointerDown}
 		>
 			<div style={fixedWidthLeft}>
-				<SidebarCollapserControl side="left" />
+				{mobileLayout ? (
+					<InlineAction
+						variant={null}
+						onClick={openQuickSwitcher}
+						renderAction={renderSearchIcon}
+						title={searchTooltip}
+					/>
+				) : (
+					<SidebarCollapserControl side="left" />
+				)}
 				{structure.map((s) => {
 					return (
 						<MenuItem
