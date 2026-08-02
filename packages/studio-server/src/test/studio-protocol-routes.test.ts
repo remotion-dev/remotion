@@ -203,12 +203,18 @@ test('discovers an exact Studio target and delivers one install request over HTT
 		expect(discoveryResponse.status).toBe(200);
 		expect(discoveryResponse.headers.get('cache-control')).toBe('no-store');
 		const descriptor = (await discoveryResponse.json()) as {
-			installTarget: {id: string; compositionId: string};
+			capabilities: [
+				{
+					type: 'install-element';
+					target: {id: string; compositionId: string};
+				},
+			];
 		};
-		const {installTarget} = descriptor;
+		const installTarget = descriptor.capabilities[0].target;
 		expect(installTarget.compositionId).toBe('Main');
 
 		const installBody = {
+			operation: 'install-element',
 			protocol: 'remotion-studio-protocol',
 			protocolVersion: 1,
 			targetId: installTarget.id,
@@ -410,18 +416,22 @@ test('sets a public license key in the focused Studio project over HTTP', async 
 		});
 		expect(untrustedDiscovery.status).toBe(200);
 		expect(await untrustedDiscovery.json()).toMatchObject({
-			capabilities: {setLicenseKey: true},
-			installTarget: null,
-			licenseKeyTarget: null,
+			capabilities: [
+				{type: 'install-element', target: null},
+				{type: 'set-license-key', target: null},
+			],
 		});
 
 		const discovery = await fetch(`${origin}/api/studio-protocol`, {
 			headers: {Origin: 'https://www.remotion.pro'},
 		});
 		const descriptor = (await discovery.json()) as {
-			licenseKeyTarget: {id: string};
+			capabilities: [
+				{type: 'install-element'},
+				{type: 'set-license-key'; target: {id: string}},
+			];
 		};
-		const {licenseKeyTarget} = descriptor;
+		const licenseKeyTarget = descriptor.capabilities[1].target;
 		expect(licenseKeyTarget.id).toBeString();
 
 		const validLicenseKey = `rm_pub_${'a'.repeat(48)}`;
@@ -489,7 +499,10 @@ test('sets a public license key in the focused Studio project over HTTP', async 
 			headers: {Origin: 'https://www.remotion.pro'},
 		});
 		const noConfigDescriptor = (await noConfigDiscovery.json()) as {
-			licenseKeyTarget: {id: string};
+			capabilities: [
+				{type: 'install-element'},
+				{type: 'set-license-key'; target: {id: string}},
+			];
 		};
 		loadedConfigFile = null;
 		const noConfigResponse = await fetch(
@@ -502,7 +515,7 @@ test('sets a public license key in the focused Studio project over HTTP', async 
 				},
 				body: JSON.stringify({
 					...body,
-					targetId: noConfigDescriptor.licenseKeyTarget.id,
+					targetId: noConfigDescriptor.capabilities[1].target.id,
 				}),
 			},
 		);

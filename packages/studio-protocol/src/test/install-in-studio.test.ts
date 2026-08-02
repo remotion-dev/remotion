@@ -25,16 +25,20 @@ const descriptor = ({
 	protocol: 'remotion-studio-protocol',
 	protocolVersion: 1,
 	studioVersion: '4.0.502',
-	capabilities: {
-		install: [{payloadType: 'remotion-element', payloadVersions: [1]}],
-	},
 	projectName,
-	installTarget: {
-		id: targetId,
-		expiresAt: 1_010_000,
-		compositionId,
-		lastFocusedAt,
-	},
+	capabilities: [
+		{
+			type: 'install-element',
+			payloadType: 'remotion-element',
+			payloadVersions: [1],
+			target: {
+				id: targetId,
+				expiresAt: 1_010_000,
+				compositionId,
+				lastFocusedAt,
+			},
+		},
+	],
 });
 
 const jsonResponse = (value: unknown, status = 200) =>
@@ -133,7 +137,17 @@ test('distinguishes a compatible Studio without an installable target', async ()
 						projectName: 'Project',
 						targetId: 'target',
 					}),
-					installTarget: null,
+					capabilities: [
+						{
+							...descriptor({
+								compositionId: 'Main',
+								lastFocusedAt: 950_000,
+								projectName: 'Project',
+								targetId: 'target',
+							}).capabilities[0],
+							target: null,
+						},
+					],
 				}),
 			);
 		}

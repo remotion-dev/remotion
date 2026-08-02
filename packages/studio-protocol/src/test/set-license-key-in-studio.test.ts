@@ -18,21 +18,27 @@ const descriptor = ({
 	protocol: 'remotion-studio-protocol',
 	protocolVersion: 1,
 	studioVersion: '4.0.504',
-	capabilities: {
-		install: [{payloadType: 'remotion-element', payloadVersions: [1]}],
-		...(setLicenseKey ? {setLicenseKey: true} : {}),
-	},
 	projectName,
-	installTarget: null,
-	...(setLicenseKey
-		? {
-				licenseKeyTarget: {
-					id: targetId,
-					expiresAt: now + 10_000,
-					lastFocusedAt,
-				},
-			}
-		: {}),
+	capabilities: [
+		{
+			type: 'install-element',
+			payloadType: 'remotion-element',
+			payloadVersions: [1],
+			target: null,
+		},
+		...(setLicenseKey
+			? [
+					{
+						type: 'set-license-key',
+						target: {
+							id: targetId,
+							expiresAt: now + 10_000,
+							lastFocusedAt,
+						},
+					},
+				]
+			: []),
+	],
 });
 
 const jsonResponse = (value: unknown, status = 200) =>
@@ -171,7 +177,15 @@ test('distinguishes old Studios from a Studio without a focused target', async (
 						projectName: 'Project',
 						targetId: 'unused',
 					}),
-					licenseKeyTarget: null,
+					capabilities: descriptor({
+						lastFocusedAt: now,
+						projectName: 'Project',
+						targetId: 'unused',
+					}).capabilities.map((capability) =>
+						capability.type === 'set-license-key'
+							? {...capability, target: null}
+							: capability,
+					),
 				}),
 			),
 	});

@@ -15,7 +15,7 @@ import {writeStudioProtocolError} from './protocol-response';
 type FocusStudioTab = (studioUrl: string) => void;
 
 const studioProtocolInstallRequestSchema = z.object({
-	operation: z.literal('install-element').optional(),
+	operation: z.literal('install-element'),
 	protocol: z.literal('remotion-studio-protocol'),
 	protocolVersion: z.literal(1),
 	targetId: z.string(),

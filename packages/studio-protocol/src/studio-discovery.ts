@@ -10,8 +10,6 @@ export type StudioProtocolInstallTarget = StudioProtocolTarget & {
 	readonly compositionId: string;
 };
 
-export type StudioProtocolLicenseKeyTarget = StudioProtocolTarget;
-
 export type StudioProtocolInstallCapability = {
 	readonly type: 'install-element';
 	readonly payloadType: 'remotion-element';
@@ -33,24 +31,6 @@ export type StudioProtocolDescriptor = {
 	readonly protocolVersion: 1;
 	readonly studioVersion: string;
 	readonly projectName: string | null;
-	readonly capabilities: {
-		readonly install: readonly {
-			readonly payloadType: 'remotion-element';
-			readonly payloadVersions: readonly number[];
-		}[];
-		readonly setLicenseKey?: true;
-	};
-	readonly installTarget: StudioProtocolInstallTarget | null;
-	readonly licenseKeyTarget?: StudioProtocolLicenseKeyTarget | null;
-};
-
-// Studio Protocol v1 shipped with separate capability and target fields.
-// Normalize that wire shape so operation clients can use a discriminated union
-// without breaking discovery for released Studio versions.
-type StudioProtocolClientDescriptor = Pick<
-	StudioProtocolDescriptor,
-	'projectName' | 'protocol' | 'protocolVersion' | 'studioVersion'
-> & {
 	readonly capabilities: readonly StudioProtocolCapability[];
 };
 
@@ -119,6 +99,26 @@ const isInstallTarget = (
 	);
 };
 
+const isCapability = (value: unknown): value is StudioProtocolCapability => {
+	if (!isRecord(value)) {
+		return false;
+	}
+
+	if (value.type === 'install-element') {
+		return (
+			value.payloadType === 'remotion-element' &&
+			Array.isArray(value.payloadVersions) &&
+			value.payloadVersions.every((version) => typeof version === 'number') &&
+			(value.target === null || isInstallTarget(value.target))
+		);
+	}
+
+	return (
+		value.type === 'set-license-key' &&
+		(value.target === null || isTarget(value.target))
+	);
+};
+
 export const isStudioProtocolDescriptor = (
 	value: unknown,
 ): value is StudioProtocolDescriptor => {
@@ -128,60 +128,20 @@ export const isStudioProtocolDescriptor = (
 		value.protocolVersion !== 1 ||
 		typeof value.studioVersion !== 'string' ||
 		!isNullableString(value.projectName) ||
-		!isRecord(value.capabilities) ||
-		!Array.isArray(value.capabilities.install) ||
-		value.capabilities.install.length !== 1
+		!Array.isArray(value.capabilities) ||
+		!value.capabilities.every(isCapability)
 	) {
 		return false;
 	}
 
-	const [installCapability] = value.capabilities.install;
-	return (
-		isRecord(installCapability) &&
-		installCapability.payloadType === 'remotion-element' &&
-		Array.isArray(installCapability.payloadVersions) &&
-		installCapability.payloadVersions.every(
-			(version) => typeof version === 'number',
-		) &&
-		(value.installTarget === null || isInstallTarget(value.installTarget)) &&
-		(value.capabilities.setLicenseKey === undefined ||
-			value.capabilities.setLicenseKey === true) &&
-		(value.licenseKeyTarget === undefined ||
-			value.licenseKeyTarget === null ||
-			isTarget(value.licenseKeyTarget))
+	const capabilityTypes = value.capabilities.map(
+		(capability) => capability.type,
 	);
-};
-
-const normalizeDescriptor = (
-	descriptor: StudioProtocolDescriptor,
-): StudioProtocolClientDescriptor => {
-	const [installCapability] = descriptor.capabilities.install;
-	return {
-		protocol: descriptor.protocol,
-		protocolVersion: descriptor.protocolVersion,
-		studioVersion: descriptor.studioVersion,
-		projectName: descriptor.projectName,
-		capabilities: [
-			{
-				type: 'install-element',
-				payloadType: installCapability!.payloadType,
-				payloadVersions: installCapability!.payloadVersions,
-				target: descriptor.installTarget,
-			},
-			...(descriptor.capabilities.setLicenseKey === true
-				? [
-						{
-							type: 'set-license-key' as const,
-							target: descriptor.licenseKeyTarget ?? null,
-						},
-					]
-				: []),
-		],
-	};
+	return new Set(capabilityTypes).size === capabilityTypes.length;
 };
 
 export const getInstallCapability = (
-	descriptor: StudioProtocolClientDescriptor,
+	descriptor: StudioProtocolDescriptor,
 ): StudioProtocolInstallCapability | null =>
 	descriptor.capabilities.find(
 		(capability): capability is StudioProtocolInstallCapability =>
@@ -189,7 +149,7 @@ export const getInstallCapability = (
 	) ?? null;
 
 export const getSetLicenseKeyCapability = (
-	descriptor: StudioProtocolClientDescriptor,
+	descriptor: StudioProtocolDescriptor,
 ): StudioProtocolSetLicenseKeyCapability | null =>
 	descriptor.capabilities.find(
 		(capability): capability is StudioProtocolSetLicenseKeyCapability =>
@@ -197,7 +157,7 @@ export const getSetLicenseKeyCapability = (
 	) ?? null;
 
 export type DiscoveredStudio = {
-	readonly descriptor: StudioProtocolClientDescriptor;
+	readonly descriptor: StudioProtocolDescriptor;
 	readonly discoveredAt: number;
 	readonly origin: string;
 };
@@ -252,7 +212,7 @@ export const discoverStudios = async (
 			}
 
 			return {
-				descriptor: normalizeDescriptor(value),
+				descriptor: value,
 				discoveredAt: dependencies.now(),
 				origin,
 			};
