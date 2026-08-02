@@ -24,6 +24,8 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 	readonly status: RemInputStatus;
 	readonly formatter?: (str: number | string) => string;
 	readonly formatterStyle?: React.CSSProperties;
+	readonly formatterSubtitle?: (str: number | string) => string;
+	readonly formatterSubtitleStyle?: React.CSSProperties;
 	readonly rightAlign: boolean;
 	readonly small?: boolean;
 	readonly snapToStep?: boolean;
@@ -441,6 +443,8 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		onTextChange,
 		formatter = (q) => String(q),
 		formatterStyle,
+		formatterSubtitle,
+		formatterSubtitleStyle,
 		status,
 		rightAlign,
 		small,
@@ -722,6 +726,11 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			onPointerDown={onPointerDown}
 		>
 			<span style={span}>{formatter(value as string | number)}</span>
+			{formatterSubtitle ? (
+				<span style={formatterSubtitleStyle}>
+					{formatterSubtitle(value as string | number)}
+				</span>
+			) : null}
 		</button>
 	);
 };

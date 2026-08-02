@@ -151,7 +151,7 @@ const makeDefaultGlobalCSS = () => {
 	    position: relative;
 	  }
 
-  .__remotion_input_dragger:hover span {
+	.__remotion_input_dragger:hover > span:first-child {
     color: var(--remotion-cli-internals-blue-hovered) !important;
   }
 

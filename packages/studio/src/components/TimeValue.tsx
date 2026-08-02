@@ -6,7 +6,7 @@ import React, {
 	useRef,
 } from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
-import {WHITE} from '../helpers/colors';
+import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {useKeybinding} from '../helpers/use-keybinding';
@@ -40,6 +40,15 @@ const currentTimeInputStyle: React.CSSProperties = {
 	padding: '4px 6px',
 };
 
+const currentTimeSubtitle: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	display: 'block',
+	fontFamily: 'sans-serif',
+	fontSize: 10,
+	fontWeight: 400,
+	lineHeight: 1,
+};
+
 export const TimeValue: React.FC = () => {
 	const frame = useCurrentFrame();
 	const config = Internals.useUnsafeVideoConfig();
@@ -66,6 +75,10 @@ export const TimeValue: React.FC = () => {
 			return config ? renderFrame(Number(value), config.fps) : String(value);
 		},
 		[config],
+	);
+	const formatterSubtitle = useCallback(
+		(value: string | number) => `Frame ${value}`,
+		[],
 	);
 	useImperativeHandle(
 		Internals.timeValueRef,
@@ -116,6 +129,8 @@ export const TimeValue: React.FC = () => {
 				onValueChange={onValueChange}
 				formatter={formatter}
 				formatterStyle={currentTimeTypography}
+				formatterSubtitle={formatterSubtitle}
+				formatterSubtitleStyle={currentTimeSubtitle}
 				rightAlign={false}
 				status="ok"
 				style={currentTimeInputStyle}
