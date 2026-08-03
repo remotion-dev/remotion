@@ -338,6 +338,12 @@ export const config: VercelConfig = {
 			permanent: false,
 		}),
 		routes.redirect('/captions', '/docs/captions', {permanent: false}),
+		routes.redirect('/docs/animated-captions', '/elements/captions/', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/animated-captions/faq', '/elements/captions/', {
+			permanent: true,
+		}),
 		routes.redirect(
 			'/docs/miscellaneous/snippets/adding-animations',
 			'/docs/animation-math',
