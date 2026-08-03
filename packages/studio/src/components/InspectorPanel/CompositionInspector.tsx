@@ -1,6 +1,13 @@
-import React, {useContext, useEffect, useMemo, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {ExternalLinkIcon} from '../../icons/external-link';
 import {PicIcon} from '../../icons/frame';
 import {SolidIcon} from '../../icons/solid';
 import {FilmIcon} from '../../icons/video';
@@ -63,6 +70,14 @@ const CompositionActions: React.FC<{
 		insertSolid,
 	} = useCompositionActions();
 
+	const openElementsLibrary = useCallback(() => {
+		window.open(
+			'https://www.remotion.dev/elements',
+			'_blank',
+			'noopener,noreferrer',
+		);
+	}, []);
+
 	if (
 		(readOnlyStudio && !canShowInsertSolid) ||
 		(!canShowInsertAsset && !canShowInsertComposition && !canShowInsertSolid)
@@ -103,6 +118,18 @@ const CompositionActions: React.FC<{
 					)}
 				>
 					Add composition...
+				</InspectorInlineAction>
+			) : null}
+			{canShowInsertAsset ? (
+				<InspectorInlineAction
+					disabled={false}
+					onClick={openElementsLibrary}
+					renderIcon={(color) => (
+						<ExternalLinkIcon color={color} style={actionIconStyle} />
+					)}
+					title="Open the Remotion Elements library in a new tab. Install an Element there to send it to this composition."
+				>
+					Browse Elements...
 				</InspectorInlineAction>
 			) : null}
 		</InspectorActionSection>
