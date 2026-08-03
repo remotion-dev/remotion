@@ -279,6 +279,11 @@ export const serveHandler = async (
 		readStream.destroy();
 	});
 
+	if (response.destroyed) {
+		readStream.destroy();
+		return;
+	}
+
 	response.writeHead(response.statusCode || 200, headers);
 	readStream.pipe(response);
 };
