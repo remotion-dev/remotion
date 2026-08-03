@@ -462,7 +462,15 @@ export const handleRoutes = ({
 		}
 
 		if (url.pathname === '/api/studio-protocol/license-key') {
-			return handleStudioProtocolLicenseKey({configFile, request, response});
+			return handleStudioProtocolLicenseKey({
+				configFile,
+				focusStudioTab: (studioUrl) => {
+					focusBrowserTab({url: studioUrl}).catch(() => undefined);
+				},
+				liveEventsServer,
+				request,
+				response,
+			});
 		}
 
 		return handleStudioProtocolInstall({

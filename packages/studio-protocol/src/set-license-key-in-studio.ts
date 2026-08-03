@@ -28,7 +28,7 @@ export type SetLicenseKeyInStudioErrorCode =
 export type SetLicenseKeyInStudioResult =
 	| {
 			readonly success: true;
-			readonly status: 'license-key-set';
+			readonly status: 'awaiting-confirmation';
 			readonly target: {
 				readonly projectName: string | null;
 				readonly studioOrigin: string;
@@ -221,11 +221,11 @@ export const setLicenseKeyInStudioWithDependencies = async (
 		isRecord(result) &&
 		result.protocol === 'remotion-studio-protocol' &&
 		result.protocolVersion === 1 &&
-		result.status === 'license-key-set'
+		result.status === 'awaiting-confirmation'
 	) {
 		return {
 			success: true,
-			status: 'license-key-set',
+			status: 'awaiting-confirmation',
 			target: {
 				projectName: selected.descriptor.projectName,
 				studioOrigin: selected.origin,
