@@ -1,4 +1,7 @@
-import type {ElementDependency} from '@remotion/studio-protocol';
+import type {
+	ElementDependency,
+	ElementInstallationMode,
+} from '@remotion/studio-protocol';
 import type {ComponentType} from 'react';
 import {LiquidContours} from '../../../elements/backgrounds/liquid-contours/liquid-contours';
 import {NotebookPaper} from '../../../elements/backgrounds/notebook-paper/notebook-paper';
@@ -40,6 +43,7 @@ export type ElementDefinition = {
 	readonly preview: ElementPreviewMetadata;
 	readonly previewPadding: number;
 	readonly slug: string;
+	readonly installationMode: ElementInstallationMode;
 	readonly width: number;
 };
 
@@ -66,6 +70,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 0,
 		slug: 'backgrounds/liquid-contours',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'backgrounds/notebook-paper': {
@@ -89,6 +94,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 0,
 		slug: 'backgrounds/notebook-paper',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'backgrounds/paper-texture': {
@@ -113,6 +119,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 0,
 		slug: 'backgrounds/paper-texture',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'backgrounds/rotating-starburst': {
@@ -136,6 +143,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 0,
 		slug: 'backgrounds/rotating-starburst',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'overlays/location-lower-third': {
@@ -159,6 +167,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 300,
 		slug: 'overlays/location-lower-third',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'overlays/lower-third': {
@@ -183,6 +192,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 300,
 		slug: 'overlays/lower-third',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'data/horizontal-bar-chart': {
@@ -207,6 +217,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 56,
 		slug: 'data/horizontal-bar-chart',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'data/number-counter': {
@@ -236,6 +247,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 120,
 		slug: 'data/number-counter',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'data/product-offer': {
@@ -260,6 +272,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 90,
 		slug: 'data/product-offer',
+		installationMode: 'wrapped',
 		width: 1080,
 	},
 	'text/circle-marker': {
@@ -287,6 +300,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 120,
 		slug: 'text/circle-marker',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'text/crossed-off': {
@@ -312,6 +326,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 120,
 		slug: 'text/crossed-off',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'text/news-article-headline-highlight': {
@@ -336,6 +351,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 0,
 		slug: 'text/news-article-headline-highlight',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'text/strike-through': {
@@ -363,6 +379,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 120,
 		slug: 'text/strike-through',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'text/text-marker': {
@@ -388,6 +405,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 120,
 		slug: 'text/text-marker',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'captions/moving-pill-captions': {
@@ -416,6 +434,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 120,
 		slug: 'captions/moving-pill-captions',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	'captions/popping-word-captions': {
@@ -443,6 +462,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 120,
 		slug: 'captions/popping-word-captions',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	'captions/word-highlight-captions': {
@@ -470,6 +490,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 120,
 		slug: 'captions/word-highlight-captions',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 } satisfies Record<string, ElementDefinition>;

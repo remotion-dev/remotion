@@ -4,6 +4,8 @@ import {
 } from './component-drag-data';
 import {isRecord, isValidPackageName} from './validation';
 
+export type ElementInstallationMode = 'wrapped' | 'component-owned-sequence';
+
 export type ElementDependency =
 	| {
 			readonly name: `@remotion/${string}`;
@@ -20,6 +22,7 @@ export type ElementDragData = {
 	element: {
 		dependencies: ElementDependency[];
 		durationInFrames?: number;
+		installationMode?: ElementInstallationMode;
 		slug: string;
 		displayName: string;
 		sourceCode: string;
@@ -130,6 +133,7 @@ export const makeElementDragData = ({
 	durationInFrames,
 	slug,
 	sourceCode,
+	installationMode,
 }: Omit<ElementDragData['element'], 'dependencies'> & {
 	dependencies: ElementDependency[];
 }): ElementDragData => {
@@ -151,6 +155,7 @@ export const makeElementDragData = ({
 			dimensions,
 			displayName,
 			...(durationInFrames === undefined ? {} : {durationInFrames}),
+			...(installationMode === undefined ? {} : {installationMode}),
 			slug,
 			sourceCode,
 		},
@@ -165,6 +170,11 @@ const isDimensions = (value: unknown): value is ComponentDimensions =>
 	typeof value.height === 'number' &&
 	Number.isFinite(value.height) &&
 	value.height > 0;
+
+const isElementInstallationMode = (
+	value: unknown,
+): value is ElementInstallationMode =>
+	value === 'wrapped' || value === 'component-owned-sequence';
 
 const isDuration = (value: unknown): value is number =>
 	typeof value === 'number' &&
@@ -189,6 +199,7 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			durationInFrames,
 			slug,
 			sourceCode,
+			installationMode,
 		} = parsed.element;
 		const validDependencies =
 			Array.isArray(dependencies) && dependencies.length <= 100
@@ -207,6 +218,8 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			validDependencies === null ||
 			!validDependencies.every(isElementDependency) ||
 			(durationInFrames !== undefined && !isDuration(durationInFrames)) ||
+			(installationMode !== undefined &&
+				!isElementInstallationMode(installationMode)) ||
 			(dimensions !== undefined &&
 				dimensions !== null &&
 				!isDimensions(dimensions))
@@ -219,6 +232,7 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			durationInFrames,
 			slug,
 			sourceCode,
+			installationMode,
 		});
 	} catch {
 		return null;

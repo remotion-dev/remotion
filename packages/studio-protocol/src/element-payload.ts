@@ -7,6 +7,7 @@ import {
 	parseElementDragData,
 	type ElementDependency,
 	type ElementDragData,
+	type ElementInstallationMode,
 } from './element-drag-data';
 import {isRecord} from './validation';
 
@@ -21,6 +22,7 @@ export type CreateElementPayloadInput = {
 	readonly dependencies: readonly ElementDependency[];
 	readonly dimensions: ComponentDimensions | null;
 	readonly durationInFrames: number;
+	readonly installationMode?: ElementInstallationMode;
 };
 
 export type StudioElementPayload = ElementDragData & {
@@ -71,6 +73,15 @@ const assertCreateElementPayloadInput = (
 		throw new TypeError(
 			'durationInFrames must be an integer between 1 and 100000000',
 		);
+	if (
+		input.installationMode !== undefined &&
+		input.installationMode !== 'wrapped' &&
+		input.installationMode !== 'component-owned-sequence'
+	) {
+		throw new TypeError(
+			'installationMode must be "wrapped" or "component-owned-sequence"',
+		);
+	}
 };
 
 export const createElementPayload = (
@@ -85,6 +96,7 @@ export const createElementPayload = (
 		durationInFrames: input.durationInFrames,
 		slug: input.slug,
 		sourceCode: input.sourceCode,
+		installationMode: input.installationMode ?? 'wrapped',
 	});
 	const payload: StudioElementPayload = {
 		...constructed.data,

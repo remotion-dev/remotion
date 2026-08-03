@@ -69,6 +69,10 @@ export const insertElementHandler: ApiHandler<
 				throw new Error('from must be a non-negative integer');
 			}
 
+			const installationMode = element.installationMode ?? 'wrapped';
+			const componentOwnsSequence =
+				installationMode === 'component-owned-sequence';
+
 			RenderInternals.Log.trace(
 				{indent: false, logLevel},
 				`[insert-element] Received request for compositionFile="${compositionFile}" compositionId="${compositionId}" element="${element.slug}"`,
@@ -135,18 +139,32 @@ export const insertElementHandler: ApiHandler<
 					componentName: plan.componentName,
 					importName: plan.componentName,
 					importPath: plan.importPath,
-					props: [],
-					position: null,
+					props: componentOwnsSequence
+						? [
+								...(element.durationInFrames === undefined
+									? []
+									: [
+											{
+												name: 'durationInFrames',
+												value: element.durationInFrames,
+											},
+										]),
+								{name: 'name', value: element.displayName},
+							]
+						: [],
+					position: componentOwnsSequence ? position : null,
 				},
-				from: null,
+				from: componentOwnsSequence ? from : null,
 				prettierConfigOverride: null,
-				wrapInSequence: {
-					dimensions: element.dimensions,
-					durationInFrames: element.durationInFrames ?? null,
-					from,
-					name: element.displayName,
-					position,
-				},
+				wrapInSequence: componentOwnsSequence
+					? null
+					: {
+							dimensions: element.dimensions,
+							durationInFrames: element.durationInFrames ?? null,
+							from,
+							name: element.displayName,
+							position,
+						},
 			});
 
 			const finalPlan = await getElementInstallPlan({

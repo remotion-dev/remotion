@@ -3,6 +3,7 @@ import {parseDragData} from '../drag-data';
 import {setStudioDragData} from '../drag-transport';
 import {
 	createElementPayload,
+	parseStudioElementPayload,
 	type CreateElementPayloadInput,
 } from '../element-payload';
 
@@ -17,6 +18,7 @@ const validInput = {
 	durationInFrames: 90,
 	slug: 'lower-third',
 	sourceCode: 'export const LowerThird = () => null;',
+	installationMode: 'component-owned-sequence',
 } satisfies CreateElementPayloadInput;
 
 const createInvalidPayload = (input: unknown) =>
@@ -36,10 +38,12 @@ test('creates one canonical Element payload for HTTP and drag transports', () =>
 			dimensions: {width: 800, height: 200},
 			displayName: 'Lower Third',
 			durationInFrames: 90,
+			installationMode: 'component-owned-sequence',
 			slug: 'lower-third',
 			sourceCode: 'export const LowerThird = () => null;',
 		},
 	});
+	expect(parseStudioElementPayload(payload)).toEqual(payload);
 
 	const data = new Map<string, string>();
 	const dataTransfer = {
@@ -57,9 +61,30 @@ test('creates one canonical Element payload for HTTP and drag transports', () =>
 		parseDragData({mimeType: mimeType!, payload: data.get(mimeType!)!}),
 	).toMatchObject({
 		type: 'element',
-		data: {element: {displayName: 'Lower Third'}},
+		data: {
+			element: {
+				displayName: 'Lower Third',
+				installationMode: 'component-owned-sequence',
+			},
+		},
 		preview: {width: 800, height: 200, durationInFrames: 90},
 	});
+});
+
+test('defaults new Element payloads to wrapped installation', () => {
+	const {installationMode: _installationMode, ...input} = validInput;
+	const payload = createElementPayload(input);
+	expect(payload.element.installationMode).toBe('wrapped');
+});
+
+test('rejects an invalid installation mode from Studio payloads', () => {
+	const payload = createElementPayload(validInput);
+	expect(
+		parseStudioElementPayload({
+			...payload,
+			element: {...payload.element, installationMode: 'no'},
+		}),
+	).toBe(null);
 });
 
 test('rejects invalid Element authoring input with actionable errors', () => {
@@ -128,6 +153,11 @@ test('rejects invalid Element authoring input with actionable errors', () => {
 		{
 			input: {...validInput, durationInFrames: 0},
 			message: 'durationInFrames must be an integer between 1 and 100000000',
+		},
+		{
+			input: {...validInput, installationMode: 'no'},
+			message:
+				'installationMode must be "wrapped" or "component-owned-sequence"',
 		},
 	];
 
