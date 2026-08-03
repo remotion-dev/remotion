@@ -167,7 +167,13 @@
 
 .dependencyList li {
 	max-width: 100%;
+	line-height: 1.45;
 	overflow-wrap: anywhere;
+}
+
+.dependencyList li::marker {
+	color: var(--ifm-color-primary);
+	font-size: 0.85em;
 }
 
 .dependencyList li + li {
