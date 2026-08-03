@@ -88,6 +88,10 @@ export type EventSourceEvent =
 			request: ElementInstallRequest;
 	  }
 	| {
+			type: 'license-key-install-request';
+			licenseKey: string;
+	  }
+	| {
 			type: 'visual-control-values-changed';
 			values: Array<{
 				id: string;
