@@ -309,22 +309,22 @@ describe('Element preview definitions', () => {
 		}
 	});
 
-	test('publishes timed caption styles as separate Elements', () => {
-		const timedCaptionSlugs = elementDefinitionList
+	test('publishes caption treatments as separate Elements', () => {
+		const captionSlugs = elementDefinitionList
 			.map((definition) => definition.slug)
-			.filter((slug) => slug.startsWith('text/timed-captions'))
+			.filter((slug) => slug.startsWith('captions/'))
 			.sort();
 
-		expect(timedCaptionSlugs).toEqual([
-			'text/timed-captions-background',
-			'text/timed-captions-highlight',
-			'text/timed-captions-scale',
+		expect(captionSlugs).toEqual([
+			'captions/moving-pill-captions',
+			'captions/popping-word-captions',
+			'captions/word-highlight-captions',
 		]);
 
-		for (const slug of timedCaptionSlugs) {
+		for (const slug of captionSlugs) {
 			const element = productionElements.find((entry) => entry.name === slug);
 			if (!element) {
-				throw new Error(`Missing timed caption Element for ${slug}`);
+				throw new Error(`Missing caption Element for ${slug}`);
 			}
 
 			const source = readFileSync(element.tsxPath, 'utf8');
