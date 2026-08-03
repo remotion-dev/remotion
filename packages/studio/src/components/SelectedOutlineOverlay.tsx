@@ -59,6 +59,7 @@ import {
 	cropFieldKeys,
 	rotateFieldKey,
 	scaleFieldKey,
+	SELECTED_OUTLINE_CLASS_NAME,
 	transformOriginFieldKey,
 	translateFieldKey,
 	type SelectedOutlineCropDragTarget,
@@ -1501,6 +1502,7 @@ export const SelectedOutlineOverlay: React.FC<{
 	return (
 		<svg
 			ref={overlayRef}
+			className={SELECTED_OUTLINE_CLASS_NAME}
 			style={outlineContainer}
 			width="100%"
 			height="100%"
