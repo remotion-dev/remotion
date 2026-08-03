@@ -16,13 +16,13 @@ Remotion provides several built-in options for transcribing audio to generate ca
 
 ## Comparison
 
-|                      | [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp) | [`@remotion/whisper-web`](/docs/whisper-web)    | [`@remotion/openai-whisper`](/docs/openai-whisper)                                    | [`@remotion/elevenlabs`](/docs/elevenlabs)                                                          |
-| -------------------- | ------------------------------------------------------------ | ----------------------------------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| **Environment**      | Server (Node.js)                                             | Client (Browser)                                | Cloud (API)                                                                           | Cloud (API)                                                                                         |
-| **Speed**            | Fast (depends on hardware)                                   | Slow (WASM overhead)                            | Fast                                                                                  | Fast                                                                                                |
-| **Cost**             | Free                                                         | Free                                            | Paid (OpenAI API pricing)                                                             | Paid (ElevenLabs API pricing)                                                                       |
-| **Offline support**  | ✅                                                           | ✅                                              | ❌                                                                                    | ❌                                                                                                  |
-| **No server needed** | ❌                                                           | ✅                                              | ✅                                                                                    | ✅                                                                                                  |
+|                      | [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp) | [`@remotion/whisper-web`](/docs/whisper-web)    | [`@remotion/openai-whisper`](/docs/openai-whisper)                                    | [`@remotion/elevenlabs`](/docs/elevenlabs)                                               |
+| -------------------- | ------------------------------------------------------------ | ----------------------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| **Environment**      | Server (Node.js)                                             | Client (Browser)                                | Cloud (API)                                                                           | Cloud (API)                                                                              |
+| **Speed**            | Fast (depends on hardware)                                   | Slow (WASM overhead)                            | Fast                                                                                  | Fast                                                                                     |
+| **Cost**             | Free                                                         | Free                                            | Paid (OpenAI API pricing)                                                             | Paid (ElevenLabs API pricing)                                                            |
+| **Offline support**  | ✅                                                           | ✅                                              | ❌                                                                                    | ❌                                                                                       |
+| **No server needed** | ❌                                                           | ✅                                              | ✅                                                                                    | ✅                                                                                       |
 | **Convert function** | [`toCaptions()`](/docs/install-whisper-cpp/to-captions)      | [`toCaptions()`](/docs/whisper-web/to-captions) | [`openaiWhisperApiToCaptions()`](/docs/openai-whisper/openai-whisper-api-to-captions) | [`elevenLabsTranscriptToCaptions()`](/docs/elevenlabs/elevenlabs-transcript-to-captions) |
 
 ## The `Caption` type
@@ -31,7 +31,7 @@ All of these options can output captions in the [`Caption`](/docs/captions/capti
 
 - Enables usage of the APIs in [`@remotion/captions`](/docs/captions/api), such as [`createTikTokStyleCaptions()`](/docs/captions/create-tiktok-style-captions)
 - Matches the format used in the [Remotion Editor Starter](https://remotion.pro/store/editor-starter)
-- Is compatible with the [Animated Captions](https://remotion.pro/store/animated-captions) package
+- Can be displayed using the [caption elements](/elements/captions/)
 
 ## Alternatives
 
