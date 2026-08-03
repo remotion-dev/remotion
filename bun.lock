@@ -225,6 +225,7 @@
         "remotiond": "remotiond-cli.js",
       },
       "dependencies": {
+        "@babel/parser": "7.24.1",
         "@remotion/bundler": "workspace:*",
         "@remotion/media-utils": "workspace:*",
         "@remotion/player": "workspace:*",

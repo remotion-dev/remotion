@@ -18,6 +18,7 @@ const defaultConfigFileTypescript = 'remotion.config.ts';
 let loadedConfigFile: PreparedConfigFile | null = null;
 
 export const getLoadedConfigFile = () => loadedConfigFile?.resolved ?? null;
+export const getLoadedConfigFileCode = () => loadedConfigFile?.code ?? null;
 
 const warnAboutBundlerOverride = () => {
 	const useRspack = rspackOption.getValue({commandLine: parsedCli}).value;

@@ -36,6 +36,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 	loop,
 	setLoop,
 }) => {
+	const keyboardShortcutsDisabled = areKeyboardShortcutsDisabled();
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
 	const {editorShowOutlines, setEditorShowOutlines} = useContext(
 		EditorShowOutlinesContext,
@@ -127,7 +128,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 				label: 'Transparency as checkerboard',
 				value: 'checkerboard',
 				onClick: () => setCheckerboard((current) => !current),
-				keyHint: areKeyboardShortcutsDisabled() ? null : 'T',
+				keyHint: keyboardShortcutsDisabled ? null : 'T',
 				leftItem: checkerboard ? <Checkmark /> : null,
 				subMenu: null,
 				quickSwitcherLabel: null,
@@ -152,7 +153,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 				label: 'Fullscreen',
 				value: 'fullscreen',
 				onClick: () => clickButton('fullscreen-toggle'),
-				keyHint: areKeyboardShortcutsDisabled() ? null : 'F',
+				keyHint: keyboardShortcutsDisabled ? null : 'F',
 				leftItem: null,
 				subMenu: null,
 				quickSwitcherLabel: null,
@@ -176,6 +177,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 		setEditorShowOutlines,
 		setLoop,
 		zoomable,
+		keyboardShortcutsDisabled,
 	]);
 
 	if (values.length === 0) {

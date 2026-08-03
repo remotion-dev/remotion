@@ -1,11 +1,21 @@
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
+import {getConfigFileChangeMessage} from '@remotion/studio-shared';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
+import {
+	classifyConfigFileChange,
+	makeConfigFileFingerprints,
+	type ConfigFileFingerprints,
+} from './config-file-change';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
-import {getLoadedConfigFile, reloadConfig} from './get-config-file-name';
+import {
+	getLoadedConfigFile,
+	getLoadedConfigFileCode,
+	reloadConfig,
+} from './get-config-file-name';
 import {getEnvironmentVariables} from './get-env';
 import {getGitSource} from './get-github-repository';
 import {getInputProps} from './get-input-props';
@@ -85,41 +95,6 @@ export const studioCommand = async (
 	);
 
 	const configFile = getLoadedConfigFile();
-	if (configFile) {
-		let isReloadingConfig = false;
-		StudioServerInternals.installFileWatcher({
-			file: configFile,
-			existenceOnly: false,
-			onChange: async () => {
-				if (isReloadingConfig) {
-					return;
-				}
-
-				isReloadingConfig = true;
-				try {
-					const configWasReloaded = await reloadConfig({
-						resetConfigOptions: ConfigInternals.resetConfigOptions,
-					});
-					if (!configWasReloaded) {
-						return;
-					}
-
-					Log.info(
-						{indent: false, logLevel},
-						chalk.blue('Config file changed. Reloading Studio'),
-					);
-					StudioServerInternals.waitForLiveEventsListener().then((listener) => {
-						listener.sendEventToClient({
-							type: 'config-file-changed',
-						});
-					});
-				} finally {
-					isReloadingConfig = false;
-				}
-			},
-		});
-	}
-
 	let inputProps = getInputProps((newProps) => {
 		StudioServerInternals.waitForLiveEventsListener().then((listener) => {
 			inputProps = newProps;
@@ -194,6 +169,63 @@ export const studioCommand = async (
 		previewSampleRateOption.getValue({commandLine: parsedCli}).value;
 	const getDefaultEditor = () =>
 		defaultEditorOption.getValue({commandLine: parsedCli}).value;
+
+	const startupConfigCode = getLoadedConfigFileCode();
+	if (configFile && startupConfigCode) {
+		let isReloadingConfig = false;
+		let startupConfigFingerprints: ConfigFileFingerprints | null = null;
+		StudioServerInternals.installFileWatcher({
+			file: configFile,
+			existenceOnly: false,
+			onChange: async () => {
+				if (isReloadingConfig) {
+					return;
+				}
+
+				isReloadingConfig = true;
+				try {
+					const configWasReloaded = await reloadConfig({
+						resetConfigOptions: ConfigInternals.resetConfigOptions,
+					});
+					if (!configWasReloaded) {
+						return;
+					}
+
+					const currentConfigCode = getLoadedConfigFileCode();
+					if (!currentConfigCode) {
+						throw new Error('Expected the config file to be loaded');
+					}
+
+					startupConfigFingerprints ??=
+						makeConfigFileFingerprints(startupConfigCode);
+					const changeType = classifyConfigFileChange({
+						currentCode: currentConfigCode,
+						startupFingerprints: startupConfigFingerprints,
+					});
+					const message = getConfigFileChangeMessage(changeType);
+					const renderDefaults = getRenderDefaults(logLevel);
+					const studioRuntimeConfig = getStudioRuntimeConfig();
+					const editorName = await StudioServerInternals.getEditorName({
+						getDefaultEditor,
+						logLevel,
+					});
+
+					Log.info({indent: false, logLevel}, chalk.blue(message));
+					StudioServerInternals.waitForLiveEventsListener().then((listener) => {
+						listener.sendEventToClient({
+							type: 'config-file-changed',
+							changeType,
+							renderDefaults,
+							studioRuntimeConfig,
+							editorName,
+						});
+					});
+				} finally {
+					isReloadingConfig = false;
+				}
+			},
+		});
+	}
 
 	const result = await StudioServerInternals.startStudio({
 		previewEntry: require.resolve('@remotion/studio/previewEntry'),

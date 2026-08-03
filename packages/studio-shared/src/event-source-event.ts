@@ -7,8 +7,11 @@ import type {
 	CanUpdateDefaultPropsResponse,
 	ElementInstallRequest,
 } from './api-requests';
+import type {ConfigFileChangeType} from './config-file-change';
 import type {HotMiddlewareMessage} from './hot-middleware';
+import type {RenderDefaults} from './render-defaults';
 import type {CompletedClientRender, RenderJob} from './render-job';
+import type {StudioRuntimeConfig} from './studio-runtime-config';
 
 export type EventSourceEvent =
 	| {
@@ -27,6 +30,10 @@ export type EventSourceEvent =
 	  }
 	| {
 			type: 'config-file-changed';
+			changeType: ConfigFileChangeType;
+			renderDefaults: RenderDefaults;
+			studioRuntimeConfig: StudioRuntimeConfig;
+			editorName: string | null;
 	  }
 	| {
 			type: 'root-file-changed';

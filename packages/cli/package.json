@@ -36,6 +36,7 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
+		"@babel/parser": "7.24.1",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/player": "workspace:*",
