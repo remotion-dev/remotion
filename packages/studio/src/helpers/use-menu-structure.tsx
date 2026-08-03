@@ -31,6 +31,7 @@ import {SidebarContext} from '../state/sidebar';
 import {getBrowserStudioOperations} from './browser-studio-operations';
 import {checkFullscreenSupport} from './check-fullscreen-support';
 import {StudioServerConnectionCtx} from './client-id';
+import {CURRENT_COLOR} from './colors';
 import {downloadBlob} from './download-blob';
 import {getFileManagerName} from './get-file-manager-name';
 import {getGitMenuItem} from './get-git-menu-item';
@@ -46,7 +47,10 @@ const openExternal = (link: string) => {
 	window.open(link, '_blank');
 };
 
-const ICON_SIZE = 18;
+const inheritColor: React.CSSProperties = {
+	color: 'inherit',
+};
+const ICON_SIZE = 14;
 
 const getFileMenu = ({
 	readOnlyStudio,
@@ -389,17 +393,19 @@ export const useMenuStructure = (
 			{
 				id: 'remotion' as const,
 				label: (
-					<Row align="center" justify="center">
+					<Row align="center" justify="center" style={inheritColor}>
 						<svg
 							width={ICON_SIZE}
 							height={ICON_SIZE}
 							viewBox="0 0 415 426"
 							fill="none"
 							xmlns="http://www.w3.org/2000/svg"
+							style={inheritColor}
 						>
 							<path
 								d="M93.4691 0.0367432C84.4873 0.520935 77.2494 1.93634 69.9553 4.69266C66.3176 6.05219 60.3548 9.0134 57.0734 11.062C43.3476 19.6103 32.8846 32.4606 27.428 47.4154C26.3405 50.3766 23.3966 59.8188 21.5027 66.3185C8.88329 109.768 1.7204 157.277 0.182822 207.561C-0.0609408 215.569 -0.0609408 234.639 0.182822 242.517C1.21413 275.854 4.42055 305.949 10.2334 336.641C12.596 349.063 16.3837 365.75 18.5776 373.33C23.059 388.732 32.2095 401.843 45.2227 411.453C53.9419 417.896 63.8425 422.217 74.8118 424.34C80.0996 425.365 87.075 425.83 92.2127 425.495C99.3194 425.029 113.42 423.148 124.877 421.118C176.517 411.974 224.22 395.604 267.478 372.175C294.874 357.332 318.294 341.26 340.888 321.761C363.408 302.355 382.609 281.478 399.504 258.049C403.423 252.63 405.392 249.464 407.361 245.478C412.424 235.198 414.805 224.974 414.786 213.539C414.786 202.886 412.761 193.425 408.392 183.741C406.292 179.066 404.286 175.714 399.785 169.345C383.21 145.898 364.815 125.467 342.389 105.614C307.624 74.8481 266.335 49.613 220.226 30.9334C210.232 26.8921 200.387 23.335 188.537 19.4799C163.448 11.3413 132.396 4.28293 106.126 0.763062C102.001 0.204346 96.3942 -0.112244 93.4691 0.0367432Z"
-								fill="white"
+								fill={CURRENT_COLOR}
+								style={inheritColor}
 							/>
 						</svg>
 					</Row>
