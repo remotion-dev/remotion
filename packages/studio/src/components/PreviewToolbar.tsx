@@ -62,7 +62,8 @@ const padding: React.CSSProperties = {
 };
 
 const toolbarControl: React.CSSProperties = {
-	display: 'contents',
+	display: 'flex',
+	flexShrink: 0,
 };
 
 const PreviewToolbarControl: React.FC<{
