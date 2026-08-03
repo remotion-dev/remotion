@@ -52,9 +52,19 @@ Do not declare `react`, `react-dom`, or `remotion`; every Remotion project alrea
 
 The preferred width and height, or `null` for an Element without fixed dimensions. Both values must be positive finite numbers.
 
+Studio uses these dimensions for the drag preview, drop position, and the generated `<Sequence>` when `installationMode` is `'wrapped'`. They are not passed to the component as `width` and `height` props when `installationMode` is `'component-owned-sequence'`.
+
 ### durationInFrames
 
 The preferred duration shown while dragging. It must be a positive integer.
+
+### installationMode?<AvailableFrom v="4.0.506" />
+
+Controls how Studio installs the Element. The default is `'wrapped'`.
+
+Use `'wrapped'` for a regular visual component. Studio generates a [`<Sequence>`](/docs/sequence) around the component to provide its timing, name, dimensions, and position.
+
+Use `'component-owned-sequence'` only if the component already owns the one Sequence that should appear in the timeline and be editable in Studio. The component must accept and forward `from`, `durationInFrames`, `name`, and `style` to that Sequence and its rendered outline. It must also define its own rendered dimensions. Studio places timing and absolute positioning props directly on the component call instead of generating an outer Sequence.
 
 ## Return value
 

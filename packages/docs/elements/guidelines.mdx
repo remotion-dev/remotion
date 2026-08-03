@@ -31,13 +31,15 @@ The caption Elements show the distinction: moving a pill between words, popping 
 
 ## Design it for composition
 
-Size the Element to its smallest useful bounding box. Let the surrounding [`<Sequence>`](/docs/sequence) control its placement and duration. Set both dimensions to `null` if it adapts to the composition.
+Size the Element to its smallest useful bounding box. By default, let the [`<Sequence>`](/docs/sequence) generated during installation control its placement and duration. Set both dimensions to `null` if it adapts to the composition.
 
-Do not add internal padding only to improve the gallery preview.
+An Element that already owns the one interactive Sequence users should edit may set `installationMode: 'component-owned-sequence'` in its central definition. In this mode, the public component must accept and forward `from`, `durationInFrames`, `name`, and `style` to its Sequence and rendered outline. It must also define its own rendered dimensions because Element metadata dimensions are not passed as component props.
+
+Do not use the component-owned mode merely to remove markup: The Element needs to remain movable and trimmable through its component-owned Sequence. Do not add internal padding only to improve the gallery preview.
 
 ## Make animations complete
 
-Include an exit animation whenever there is an entrance animation. Animate properties within the Element, such as translation, scale, and opacity; leave placement to the surrounding `<Sequence>`.
+Include an exit animation whenever there is an entrance animation. Animate properties within the Element, such as translation, scale, and opacity; leave placement to the generated wrapper or the component-owned Sequence.
 
 ## Expose useful Studio controls
 

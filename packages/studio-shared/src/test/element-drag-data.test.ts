@@ -69,6 +69,22 @@ test('rejects element drag data without dependencies', () => {
 	).toBe(null);
 });
 
+test('preserves component-owned-sequence Element drag data', () => {
+	const componentOwnedSequenceElement = {
+		...validElement,
+		installationMode: 'component-owned-sequence' as const,
+	};
+	expect(
+		parseElementDragData(
+			JSON.stringify(makeElementDragData(componentOwnedSequenceElement)),
+		),
+	).toEqual({
+		type: 'remotion-element',
+		version: 1,
+		element: {...componentOwnedSequenceElement, durationInFrames: 120},
+	});
+});
+
 test('accepts element drag data with null dimensions', () => {
 	const elementWithoutDimensions = {...validElement, dimensions: null};
 	expect(
@@ -162,6 +178,15 @@ test('rejects invalid element drag data', () => {
 				type: 'remotion-element',
 				version: 1,
 				element: {...validElement, dimensions: {width: 0, height: 260}},
+			}),
+		),
+	).toBe(null);
+	expect(
+		parseElementDragData(
+			JSON.stringify({
+				type: 'remotion-element',
+				version: 1,
+				element: {...validElement, installationMode: 'no'},
 			}),
 		),
 	).toBe(null);

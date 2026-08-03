@@ -336,6 +336,22 @@ describe('Element preview definitions', () => {
 		}
 	});
 
+	test('only caption Elements use a component-owned Sequence', () => {
+		const componentOwnedSequenceSlugs = new Set([
+			'captions/moving-pill-captions',
+			'captions/popping-word-captions',
+			'captions/word-highlight-captions',
+		]);
+
+		for (const definition of elementDefinitionList) {
+			expect(definition.installationMode).toBe(
+				componentOwnedSequenceSlugs.has(definition.slug)
+					? 'component-owned-sequence'
+					: 'wrapped',
+			);
+		}
+	});
+
 	test('declares every external source dependency centrally with a valid version', () => {
 		for (const element of productionElements) {
 			const definition = elementDefinitionList.find(
@@ -454,8 +470,9 @@ describe('Element preview definitions', () => {
 		}
 	});
 
-	test('the Element template includes explicit flat preview URLs', () => {
+	test('the Element template includes explicit defaults and preview URLs', () => {
 		const template = readFileSync(path.join(templateRoot, 'index.mdx'), 'utf8');
+		expect(template).toContain("installationMode: 'wrapped'");
 		expect(template).toContain(
 			"posterUrl: 'https://remotion.media/elements/category-element-title-preview.png'",
 		);
