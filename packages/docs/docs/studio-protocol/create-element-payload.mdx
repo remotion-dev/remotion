@@ -15,7 +15,10 @@ const payload = createElementPayload({
   displayName: 'Lower Third',
   slug: 'lower-third',
   sourceCode: 'export const LowerThird = () => null;',
-  dependencies: ['remotion'],
+  dependencies: [
+    {name: '@remotion/google-fonts', version: null},
+    {name: 'color-namer', version: '1.4.0'},
+  ],
   dimensions: {width: 900, height: 260},
   durationInFrames: 90,
 });
@@ -39,7 +42,11 @@ The complete Element source code. It must contain exactly one exported named com
 
 ### dependencies
 
-An array of npm package names needed by the Element. Duplicate names are removed.
+An array of npm packages needed by the Element. Declare each dependency as an object with `name` and `version` properties. Duplicate names are removed.
+
+For `@remotion/*` packages, set `version` to `null`. Studio installs the version matching the Remotion project. Every non-Remotion package must specify an exact semantic version. Version ranges and tags are not accepted.
+
+Do not declare `react`, `react-dom`, or `remotion`; every Remotion project already provides them.
 
 ### dimensions
 

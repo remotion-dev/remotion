@@ -16,7 +16,7 @@ Choose an existing category and a kebab-case slug. Before creating files, determ
 - Composition width, height, fps, and preview duration
 - Installed Element duration, or `null` when it should adapt to the composition
 - Fixed Element width and height, or `null` for both so it inherits the composition dimensions
-- Every external source dependency as `{name, version}`, using `null` when no exact version is required
+- Every external source dependency as `{name, version}`; use `null` for Remotion packages and an exact semantic version for every non-Remotion package
 - Preview padding, which affects only the docs preview and not the Element bounds
 - A provisional poster frame
 - Explicit poster and video URLs using the flat asset convention:
@@ -46,7 +46,7 @@ Follow the Element Guidelines for the component itself. When using Studio-editab
 
 ## 3. Register the development composition
 
-Import and register the component in `packages/docs/src/components/Elements/element-definitions.ts` using the planned preview metadata. Set `durationInFrames` to the duration used by both the preview and the `<Sequence>` installed into Studio. Declare every external source import in `dependencies` except `react`, `react-dom`, and `remotion`, which are provided by every Remotion project; use exact versions only when the Element requires one. Add the explicit `preview` object next to the render metadata, including `posterUrl` and `videoUrl`. The URLs in this object are the source of truth for publishing; do not add a helper that derives production URLs from the Element slug.
+Import and register the component in `packages/docs/src/components/Elements/element-definitions.ts` using the planned preview metadata. Set `durationInFrames` to the duration used by both the preview and the `<Sequence>` installed into Studio. Declare every external source import in `dependencies` except `react`, `react-dom`, and `remotion`, which are provided by every Remotion project. Use `version: null` for Remotion packages and an exact semantic version for every non-Remotion package; version ranges and tags are not accepted. Add the explicit `preview` object next to the render metadata, including `posterUrl` and `videoUrl`. The URLs in this object are the source of truth for publishing; do not add a helper that derives production URLs from the Element slug.
 
 Do not edit `packages/docs/src/remotion/Root.tsx`. It automatically creates a composition for every central definition using the same sizing and wrapper used by published Elements.
 

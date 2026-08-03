@@ -74,6 +74,7 @@ export {
 	OpenInEditorRequest,
 	OpenInEditorResponse,
 	OpenInFileExplorerRequest,
+	PackageInstallSpec,
 	PasteEffectsRequest,
 	PasteEffectsResponse,
 	PrepareElementInstallRequest,

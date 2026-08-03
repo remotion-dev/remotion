@@ -1,11 +1,11 @@
 import {spawn} from 'node:child_process';
 import {RenderInternals} from '@remotion/renderer';
-import type {ElementDependency} from '@remotion/studio-protocol';
 import {
 	extraPackages,
 	isValidPackageName,
 	type InstallPackageRequest,
 	type InstallPackageResponse,
+	type PackageInstallSpec,
 } from '@remotion/studio-shared';
 import {VERSION} from 'remotion/version';
 import {getInstallCommand} from '../../helpers/install-command';
@@ -19,17 +19,14 @@ const getExtraPackageVersion = (packageName: string): string | null => {
 };
 
 export const getPackageInstallSpec = (
-	dependency: ElementDependency | string,
+	dependency: PackageInstallSpec,
 ): string => {
-	const {name, version} =
-		typeof dependency === 'string'
-			? {name: dependency, version: null}
-			: dependency;
-	const extraVersion = getExtraPackageVersion(name);
-	if (extraVersion) return `${name}@${extraVersion}`;
+	const {name, version} = dependency;
 	if (name === 'remotion' || name.startsWith('@remotion/'))
 		return `${name}@${VERSION}`;
-	return version === null ? name : `${name}@${version}`;
+	if (version !== null) return `${name}@${version}`;
+	const extraVersion = getExtraPackageVersion(name);
+	return extraVersion === null ? name : `${name}@${extraVersion}`;
 };
 
 export const handleInstallPackage: ApiHandler<

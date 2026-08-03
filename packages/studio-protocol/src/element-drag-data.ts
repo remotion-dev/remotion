@@ -4,17 +4,21 @@ import {
 } from './component-drag-data';
 import {isRecord, isValidPackageName} from './validation';
 
-export type ElementDependency = {
-	readonly name: string;
-	readonly version: string | null;
-};
+export type ElementDependency =
+	| {
+			readonly name: `@remotion/${string}`;
+			readonly version: null;
+	  }
+	| {
+			readonly name: string;
+			readonly version: string;
+	  };
 
 export type ElementDragData = {
 	type: 'remotion-element';
 	version: 1;
 	element: {
 		dependencies: ElementDependency[];
-		/** Absent in legacy v1 drag payloads. */
 		durationInFrames?: number;
 		slug: string;
 		displayName: string;
@@ -78,15 +82,46 @@ const packagesProvidedByRemotionProjects = new Set([
 
 const isExactVersion = (value: unknown): value is string =>
 	typeof value === 'string' &&
-	/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/.test(value);
+	/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/.test(
+		value,
+	);
+
+const getElementDependencyError = (value: unknown): string | null => {
+	if (
+		!isRecord(value) ||
+		typeof value.name !== 'string' ||
+		!isValidPackageName(value.name)
+	) {
+		return `Invalid Element dependency: ${JSON.stringify(value)}`;
+	}
+
+	if (packagesProvidedByRemotionProjects.has(value.name)) {
+		return `${JSON.stringify(value.name)} is provided by Remotion projects and must not be declared as an Element dependency.`;
+	}
+
+	if (value.name.startsWith('@remotion/')) {
+		return value.version === null
+			? null
+			: `Remotion Element dependency ${JSON.stringify(value.name)} must use version: null.`;
+	}
+
+	return isExactVersion(value.version)
+		? null
+		: `Non-Remotion Element dependency ${JSON.stringify(value.name)} must declare an exact version.`;
+};
+
+export function assertElementDependency(
+	value: unknown,
+): asserts value is ElementDependency {
+	const error = getElementDependencyError(value);
+	if (error !== null) {
+		throw new TypeError(error);
+	}
+}
 
 export const isElementDependency = (
 	value: unknown,
-): value is ElementDependency =>
-	isRecord(value) &&
-	typeof value.name === 'string' &&
-	isValidPackageName(value.name) &&
-	(value.version === null || isExactVersion(value.version));
+): value is ElementDependency => getElementDependencyError(value) === null;
 
 export const makeElementDragData = ({
 	dependencies,
@@ -96,33 +131,31 @@ export const makeElementDragData = ({
 	slug,
 	sourceCode,
 }: Omit<ElementDragData['element'], 'dependencies'> & {
-	dependencies: (ElementDependency | string)[];
-}): ElementDragData => ({
-	type: 'remotion-element',
-	version: 1,
-	element: {
-		dependencies: Array.from(
-			new Map(
-				dependencies
-					.map((dependency) =>
-						typeof dependency === 'string'
-							? {name: dependency, version: null}
-							: dependency,
-					)
-					.filter(
-						(dependency) =>
-							!packagesProvidedByRemotionProjects.has(dependency.name),
-					)
-					.map((dependency) => [dependency.name, dependency] as const),
-			).values(),
-		),
-		dimensions,
-		displayName,
-		...(durationInFrames === undefined ? {} : {durationInFrames}),
-		slug,
-		sourceCode,
-	},
-});
+	dependencies: ElementDependency[];
+}): ElementDragData => {
+	for (const dependency of dependencies) {
+		assertElementDependency(dependency);
+	}
+
+	return {
+		type: 'remotion-element',
+		version: 1,
+		element: {
+			dependencies: Array.from(
+				new Map(
+					dependencies.map(
+						(dependency) => [dependency.name, dependency] as const,
+					),
+				).values(),
+			),
+			dimensions,
+			displayName,
+			...(durationInFrames === undefined ? {} : {durationInFrames}),
+			slug,
+			sourceCode,
+		},
+	};
+};
 
 const isDimensions = (value: unknown): value is ComponentDimensions =>
 	isRecord(value) &&
@@ -157,16 +190,10 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			slug,
 			sourceCode,
 		} = parsed.element;
-		const normalizedDependencies =
-			dependencies === undefined
-				? []
-				: Array.isArray(dependencies) && dependencies.length <= 100
-					? dependencies.map((dependency) =>
-							typeof dependency === 'string'
-								? {name: dependency, version: null}
-								: dependency,
-						)
-					: null;
+		const validDependencies =
+			Array.isArray(dependencies) && dependencies.length <= 100
+				? dependencies
+				: null;
 		if (
 			!isSlug(slug) ||
 			typeof displayName !== 'string' ||
@@ -177,8 +204,8 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 			sourceCode.length >= 200000 ||
 			getElementComponentNameFromSourceCode(sourceCode) === null ||
 			makeElementFileNameFromSlug(slug) === null ||
-			normalizedDependencies === null ||
-			!normalizedDependencies.every(isElementDependency) ||
+			validDependencies === null ||
+			!validDependencies.every(isElementDependency) ||
 			(durationInFrames !== undefined && !isDuration(durationInFrames)) ||
 			(dimensions !== undefined &&
 				dimensions !== null &&
@@ -186,7 +213,7 @@ export const parseElementDragData = (value: string): ElementDragData | null => {
 		)
 			return null;
 		return makeElementDragData({
-			dependencies: normalizedDependencies,
+			dependencies: validDependencies,
 			dimensions: dimensions ?? null,
 			displayName,
 			durationInFrames,
