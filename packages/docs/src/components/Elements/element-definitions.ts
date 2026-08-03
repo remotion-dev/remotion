@@ -76,8 +76,8 @@ export const elementDefinitions = {
 		description:
 			'A cinematic map route with editable coordinates, location labels, and a camera that follows the flight.',
 		dependencies: [
-			{name: '@turf/turf', version: null},
-			{name: 'maplibre-gl', version: null},
+			{name: '@turf/turf', version: '7.3.2'},
+			{name: 'maplibre-gl', version: '5.24.0'},
 		],
 		displayName: 'Map Flyover',
 		durationInFrames: 240,

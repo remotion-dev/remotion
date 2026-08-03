@@ -37,6 +37,13 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: 'Maps',
+			link: {type: 'doc', id: 'maps/index'},
+			collapsed: false,
+			items: ['maps/map-flyover/index'],
+		},
+		{
+			type: 'category',
 			label: 'Overlays',
 			link: {type: 'doc', id: 'overlays/index'},
 			collapsed: false,
