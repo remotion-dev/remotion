@@ -138,10 +138,8 @@ export const getMissedFramesWithFractionalTrimApplied = async () => {
 	const filename = path.join(outputPath, 'fractional-trim.png');
 
 	await execa(
-		'bun',
+		'node_modules/.bin/remotion',
 		[
-			'x',
-			'remotion',
 			'still',
 			'./build',
 			'video-testing-mp4-offthread',
