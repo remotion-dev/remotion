@@ -243,7 +243,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 								<dt>Duration</dt>
 								<dd>{durationInFrames / fps}s</dd>
 							</div>
-							<div>
+							<div className={styles.dependenciesMetadata}>
 								<dt>Dependencies</dt>
 								<dd>
 									{definition.dependencies.length === 0 ? (

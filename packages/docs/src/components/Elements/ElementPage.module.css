@@ -152,10 +152,22 @@
 	font-weight: 600;
 }
 
+.metadata > .dependenciesMetadata {
+	align-items: stretch;
+	flex-direction: column;
+	gap: 6px;
+	margin-top: 8px;
+}
+
 .dependencyList {
 	margin: 0;
 	padding-left: 18px;
 	text-align: left;
+}
+
+.dependencyList li {
+	max-width: 100%;
+	overflow-wrap: anywhere;
 }
 
 .dependencyList li + li {
