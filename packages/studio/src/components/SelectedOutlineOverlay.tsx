@@ -20,6 +20,7 @@ import {
 	isStudioInteractivityEnabled,
 	isStudioSelectionEnabled,
 } from '../helpers/interactivity-enabled';
+import {useIsFullscreen} from '../helpers/use-is-fullscreen';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
@@ -268,36 +269,6 @@ const SelectedOutlineSnapIndicators: React.FC<{
 const outlinePointEqualityTolerance = 0.5;
 const outlineAreaEqualityTolerance = 0.5;
 const outlineBoundsOverlapTolerance = 0.5;
-
-const getIsFullscreen = () => {
-	return Boolean(
-		document.fullscreenElement ??
-		(document as Document & {webkitFullscreenElement?: Element | null})
-			.webkitFullscreenElement,
-	);
-};
-
-const useIsFullscreen = () => {
-	const [isFullscreen, setIsFullscreen] = useState(getIsFullscreen);
-
-	useEffect(() => {
-		const onFullscreenChange = () => {
-			setIsFullscreen(getIsFullscreen());
-		};
-
-		document.addEventListener('fullscreenchange', onFullscreenChange);
-		document.addEventListener('webkitfullscreenchange', onFullscreenChange);
-		return () => {
-			document.removeEventListener('fullscreenchange', onFullscreenChange);
-			document.removeEventListener(
-				'webkitfullscreenchange',
-				onFullscreenChange,
-			);
-		};
-	}, []);
-
-	return isFullscreen;
-};
 
 const outlinePointsAreEquivalent = (
 	a: SelectedOutline['points'][number],
