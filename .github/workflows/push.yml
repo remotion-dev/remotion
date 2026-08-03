@@ -13,6 +13,8 @@ env:
   FORCE_COLOR: 1
   TURBO_TELEMETRY_DISABLED: 1
   TURBO_NO_UPDATE_NOTIFIER: 1
+  TURBO_SCM_BASE: ${{ github.event.pull_request.base.sha }}
+  TURBO_SCM_HEAD: ${{ github.sha }}
 jobs:
   affected:
     runs-on: ubuntu-latest
@@ -42,14 +44,25 @@ jobs:
 
           full_matrix='{"include":[{"os":"ubuntu-latest","node_version":16},{"os":"windows-latest","node_version":16},{"os":"macos-latest","node_version":25}]}'
           linux_matrix='{"include":[{"os":"ubuntu-latest","node_version":16}]}'
-          turbo_version=$(jq -r '.dependencies.turbo' package.json)
 
-          if ! bunx "turbo@$turbo_version" query affected > affected.json; then
-            echo "Could not determine affected tasks. Running all test groups."
+          run_all_test_groups() {
             for output in lambda nextjs browser webrenderer ssr templates build bundle_example; do
               echo "$output=true" >> "$GITHUB_OUTPUT"
             done
             echo "build_matrix=$full_matrix" >> "$GITHUB_OUTPUT"
+          }
+
+          if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then
+            echo "Push to main. Running all test groups."
+            run_all_test_groups
+            echo "### Full CI after push to main" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          turbo_version=$(jq -r '.dependencies.turbo' package.json)
+          if ! bunx "turbo@$turbo_version" query affected > affected.json; then
+            echo "Could not determine affected tasks. Running all test groups."
+            run_all_test_groups
             exit 0
           fi
 
@@ -311,7 +324,7 @@ jobs:
       - name: Perform stylecheck
         timeout-minutes: 10
         run: |
-          bunx turbo run lint formatting --affected --no-update-notifier
+          bunx turbo run lint formatting ${{ github.event_name == 'pull_request' && '--affected' || '' }} --no-update-notifier
           bun run checkskills
   build:
     name: Build Node ${{ matrix.node_version }} on ${{ matrix.os }}
@@ -349,7 +362,7 @@ jobs:
       - name: Build & Test
         timeout-minutes: 30
         run: |
-          bunx turbo run make test --affected --concurrency=1 --no-update-notifier
+          bunx turbo run make test ${{ github.event_name == 'pull_request' && '--affected' || '' }} --concurrency=1 --no-update-notifier
       - name: Bundle example
         if: matrix.os == 'ubuntu-latest' && (needs.affected.result != 'success' || needs.affected.outputs.bundle_example == 'true')
         run: |
