@@ -14,7 +14,6 @@ import type {TimelineSelection} from './Timeline/TimelineSelection';
 
 export type SelectedOutlineContextMenuOpenResult =
 	| false
-	| void
 	| readonly ComboboxValue[];
 
 export type SelectedOutlineContextMenuOpenHandler = () =>

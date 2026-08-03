@@ -31,7 +31,6 @@ import {
 	stopForcingSpecificCursor,
 } from './ForceSpecificCursor';
 import {useSelectComposition} from './InitialCompositionLoader';
-import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
 	applySelectedOutlineDragAxisLock,
@@ -118,8 +117,6 @@ import {
 	serializeTransformOrigin,
 } from './Timeline/transform-origin-utils';
 import {useSelectAsset} from './use-select-asset';
-
-const emptyContextMenuValues: readonly ComboboxValue[] = [];
 
 export const SelectedOutlineTransformOriginHandle: React.FC<{
 	readonly outline: SelectedOutline;
@@ -466,7 +463,6 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 const SelectedOutlinePolygon: React.FC<{
 	readonly allDragTargets: readonly SelectedOutlineDragTarget[];
 	readonly allDragOutlines: readonly SelectedOutline[];
-	readonly contextMenuValues: readonly ComboboxValue[];
 	readonly dragging: boolean;
 	readonly hovered: boolean;
 	readonly onContextMenuOpen: SelectedOutlineContextMenuOpenHandler;
@@ -490,7 +486,6 @@ const SelectedOutlinePolygon: React.FC<{
 }> = ({
 	allDragTargets,
 	allDragOutlines,
-	contextMenuValues,
 	dragging,
 	hovered,
 	onContextMenuOpen,
@@ -865,8 +860,7 @@ const SelectedOutlinePolygon: React.FC<{
 			/>
 			<ContextMenuForTarget
 				triggerRef={polygonRef}
-				values={[...contextMenuValues]}
-				onOpen={onContextMenuOpen}
+				getItems={onContextMenuOpen}
 			/>
 		</>
 	);
@@ -874,7 +868,6 @@ const SelectedOutlinePolygon: React.FC<{
 
 const SelectedOutlineScaleEdgeLine: React.FC<{
 	readonly allScaleDragTargets: readonly SelectedOutlineScaleDragTarget[];
-	readonly contextMenuValues: readonly ComboboxValue[];
 	readonly dragging: boolean;
 	readonly edge: SelectedOutlineScaleEdge;
 	readonly outline: SelectedOutline;
@@ -888,7 +881,6 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 	readonly target: SelectedOutlineTarget | undefined;
 }> = ({
 	allScaleDragTargets,
-	contextMenuValues,
 	dragging,
 	edge,
 	outline,
@@ -1125,11 +1117,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 				}}
 				onPointerDown={onPointerDown}
 			/>
-			<ContextMenuForTarget
-				triggerRef={lineRef}
-				values={[...contextMenuValues]}
-				onOpen={onContextMenuOpen}
-			/>
+			<ContextMenuForTarget triggerRef={lineRef} getItems={onContextMenuOpen} />
 		</>
 	);
 };
@@ -1146,7 +1134,6 @@ const svgPointToClientPoint = (
 
 const SelectedOutlineRotationCornerHandle: React.FC<{
 	readonly allRotationDragTargets: readonly SelectedOutlineRotationDragTarget[];
-	readonly contextMenuValues: readonly ComboboxValue[];
 	readonly corner: SelectedOutlineRotationCorner;
 	readonly dragging: boolean;
 	readonly outline: SelectedOutline;
@@ -1160,7 +1147,6 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 	readonly target: SelectedOutlineTarget | undefined;
 }> = ({
 	allRotationDragTargets,
-	contextMenuValues,
 	corner,
 	dragging,
 	outline,
@@ -1458,8 +1444,7 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			/>
 			<ContextMenuForTarget
 				triggerRef={circleRef}
-				values={[...contextMenuValues]}
-				onOpen={onContextMenuOpen}
+				getItems={onContextMenuOpen}
 			/>
 		</>
 	);
@@ -1784,7 +1769,6 @@ export const SelectedOutlineElement: React.FC<{
 			<SelectedOutlinePolygon
 				allDragTargets={allDragTargets}
 				allDragOutlines={allDragOutlines}
-				contextMenuValues={emptyContextMenuValues}
 				dragging={dragging}
 				hovered={hovered}
 				outline={outline}
@@ -1808,7 +1792,6 @@ export const SelectedOutlineElement: React.FC<{
 						<SelectedOutlineScaleEdgeLine
 							key={edge}
 							allScaleDragTargets={allScaleDragTargets}
-							contextMenuValues={emptyContextMenuValues}
 							dragging={dragging}
 							edge={edge}
 							outline={outline}
@@ -1827,7 +1810,6 @@ export const SelectedOutlineElement: React.FC<{
 						<SelectedOutlineRotationCornerHandle
 							key={corner}
 							allRotationDragTargets={allRotationDragTargets}
-							contextMenuValues={emptyContextMenuValues}
 							corner={corner}
 							dragging={dragging}
 							outline={outline}

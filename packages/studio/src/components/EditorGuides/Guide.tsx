@@ -225,7 +225,7 @@ const GuideComp: React.FC<{
 			.join(' ');
 	}, [activeClassName]);
 
-	const values = useMemo((): ComboboxValue[] => {
+	const getContextMenuItems = useCallback((): ComboboxValue[] => {
 		return [
 			{
 				id: '1',
@@ -253,7 +253,7 @@ const GuideComp: React.FC<{
 	}, [clearSelection, guide.id, selected, setGuidesList]);
 
 	return (
-		<ContextMenu values={values} onOpen={null}>
+		<ContextMenu getItems={getContextMenuItems}>
 			<div
 				style={guideStyle}
 				onPointerDown={onPointerDown}

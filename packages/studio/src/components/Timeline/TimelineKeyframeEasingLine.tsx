@@ -133,37 +133,8 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 		],
 	);
 
-	const contextMenuValues = useMemo((): ComboboxValue[] => {
-		return [
-			{
-				type: 'item',
-				id: 'linear',
-				keyHint: null,
-				label: 'Linear',
-				leftItem: null,
-				disabled: previewServerState.type !== 'connected',
-				onClick: () => updateEasing(LINEAR_KEYFRAME_EASING),
-				quickSwitcherLabel: null,
-				subMenu: null,
-				value: 'linear',
-			},
-			...KEYFRAME_EASING_PRESETS.map((preset) => ({
-				type: 'item' as const,
-				id: preset.id,
-				keyHint: null,
-				label: preset.label,
-				leftItem: null,
-				disabled: previewServerState.type !== 'connected',
-				onClick: () => updateEasing(preset.easing),
-				quickSwitcherLabel: null,
-				subMenu: null,
-				value: preset.id,
-			})),
-		];
-	}, [previewServerState.type, updateEasing]);
-
-	const onOpenContextMenu = useCallback(
-		(event: MouseEvent) => {
+	const getContextMenuItems = useCallback(
+		(event: MouseEvent): ComboboxValue[] | false => {
 			if (!selectable) {
 				return false;
 			}
@@ -175,9 +146,34 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 				});
 			}
 
-			return contextMenuValues;
+			return [
+				{
+					type: 'item',
+					id: 'linear',
+					keyHint: null,
+					label: 'Linear',
+					leftItem: null,
+					disabled: previewServerState.type !== 'connected',
+					onClick: () => updateEasing(LINEAR_KEYFRAME_EASING),
+					quickSwitcherLabel: null,
+					subMenu: null,
+					value: 'linear',
+				},
+				...KEYFRAME_EASING_PRESETS.map((preset) => ({
+					type: 'item' as const,
+					id: preset.id,
+					keyHint: null,
+					label: preset.label,
+					leftItem: null,
+					disabled: previewServerState.type !== 'connected',
+					onClick: () => updateEasing(preset.easing),
+					quickSwitcherLabel: null,
+					subMenu: null,
+					value: preset.id,
+				})),
+			];
 		},
-		[contextMenuValues, onSelect, selectable, selected],
+		[onSelect, previewServerState.type, selectable, selected, updateEasing],
 	);
 
 	const style = useMemo((): React.CSSProperties | null => {
@@ -245,8 +241,7 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 			</button>
 			<ContextMenuForTarget
 				triggerRef={buttonRef}
-				values={contextMenuValues}
-				onOpen={onOpenContextMenu}
+				getItems={getContextMenuItems}
 			/>
 		</>
 	);

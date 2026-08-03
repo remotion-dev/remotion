@@ -197,7 +197,7 @@ const TimelineContextMenuArea: React.FC<{
 		}
 	}, [canInsertAsset, compositionFile, currentCompositionId, videoConfig]);
 
-	const contextMenuItems = useMemo((): ComboboxValue[] => {
+	const getContextMenuItems = useCallback((): ComboboxValue[] => {
 		return [
 			{
 				type: 'item',
@@ -229,8 +229,7 @@ const TimelineContextMenuArea: React.FC<{
 	return (
 		<ContextMenu
 			ref={timelineVerticalScroll}
-			values={contextMenuItems}
-			onOpen={null}
+			getItems={getContextMenuItems}
 			style={container}
 			className={'css-reset ' + VERTICAL_SCROLLBAR_CLASSNAME}
 		>

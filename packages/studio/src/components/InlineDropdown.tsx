@@ -27,14 +27,17 @@ type OpenState =
 			type: 'open';
 			left: number;
 			top: number;
+			values: ComboboxValue[] | null;
 	  };
 
 export const InlineDropdown = ({
 	values,
+	getItems,
 	unhoveredColor,
 	...props
 }: Omit<InlineActionProps, 'onClick'> & {
-	readonly values: ComboboxValue[];
+	readonly values?: ComboboxValue[];
+	readonly getItems?: () => ComboboxValue[];
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
 	const [opened, setOpened] = useState<OpenState>({type: 'not-open'});
@@ -52,9 +55,19 @@ export const InlineDropdown = ({
 		(e) => {
 			e.preventDefault();
 			e.stopPropagation();
-			setOpened({type: 'open', left: e.clientX, top: e.clientY});
+			const invocationValues = getItems?.() ?? null;
+			if (invocationValues?.length === 0) {
+				return;
+			}
+
+			setOpened({
+				type: 'open',
+				left: e.clientX,
+				top: e.clientY,
+				values: invocationValues,
+			});
 		},
-		[],
+		[getItems],
 	);
 
 	const spaceToBottom = useMemo(() => {
@@ -126,7 +139,7 @@ export const InlineDropdown = ({
 					{...props}
 				/>
 			</div>
-			{portalStyle
+			{portalStyle && opened.type === 'open'
 				? ReactDOM.createPortal(
 						<div style={fullScreenOverlay}>
 							<div style={outerPortal} className="css-reset">
@@ -135,7 +148,7 @@ export const InlineDropdown = ({
 										<MenuContent
 											onNextMenu={noop}
 											onPreviousMenu={noop}
-											values={values}
+											values={opened.values ?? values ?? []}
 											onHide={onHide}
 											leaveLeftSpace
 											preselectIndex={false}

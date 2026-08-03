@@ -46,6 +46,7 @@ import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
 import {getSequenceContextMenuItems} from './get-sequence-context-menu-items';
 import {getTimelineMediaVisualizationLayout} from './get-timeline-media-visualization-layout';
+import {getCurrentFrame} from './imperative-state';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {TimelineImageInfo} from './TimelineImageInfo';
@@ -69,7 +70,7 @@ import {
 import {TimelineVideoInfo} from './TimelineVideoInfo';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
-import {useSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
+import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
 
 const TimelineSequenceFn: React.FC<{
 	readonly s: TSequence;
@@ -321,7 +322,6 @@ const TimelineSequenceInner: React.FC<{
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 	const editorInfo = useDefaultEditorInfo(canUseEditorPicker(previewConnected));
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const selectAsset = useSelectAsset();
 	const selectComposition = useSelectComposition();
 	const confirm = useConfirmationDialog();
@@ -367,6 +367,7 @@ const TimelineSequenceInner: React.FC<{
 
 			e.stopPropagation();
 			if (action === 'open-connected-composition') {
+				const timelinePosition = getCurrentFrame();
 				selectComposition(
 					connectedCompositions[0],
 					true,
@@ -388,7 +389,6 @@ const TimelineSequenceInner: React.FC<{
 			s,
 			selectComposition,
 			sequenceFrameOffset,
-			timelinePosition,
 		],
 	);
 	const canHandleSequenceDoubleClick =
@@ -406,10 +406,6 @@ const TimelineSequenceInner: React.FC<{
 		s.type === 'audio' || s.type === 'video' || s.type === 'image'
 			? s.src
 			: null;
-	const assetLinkInfo = useMemo(
-		() => (mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null),
-		[mediaSrc],
-	);
 	const onDuplicateSequenceFromSource = useCallback(() => {
 		if (!validatedLocation?.source || !nodePathInfo || duplicateDisabled) {
 			return;
@@ -483,22 +479,27 @@ const TimelineSequenceInner: React.FC<{
 		setPropStatuses,
 		validatedLocation?.source,
 	]);
-	const freezeFrameMenuItem = useSequenceFreezeFrameMenuItem({
-		clientId:
-			previewInteractive && previewServerState.type === 'connected'
-				? previewServerState.clientId
-				: null,
-		nodePath,
-		propStatusesForOverride,
-		sequence: s,
-		sequenceFrameOffset,
-		setPropStatuses,
-		timelinePosition,
-		validatedSource: validatedLocation?.source ?? null,
-	});
-	const contextMenuValues = useMemo(() => {
+	const getContextMenuItems = useCallback(() => {
+		if (selectable) {
+			onSelect({shiftKey: false, toggleKey: false});
+		}
+
+		const freezeFrameMenuItem = getSequenceFreezeFrameMenuItem({
+			clientId:
+				previewInteractive && previewServerState.type === 'connected'
+					? previewServerState.clientId
+					: null,
+			nodePath,
+			propStatusesForOverride,
+			sequence: s,
+			sequenceFrameOffset,
+			setPropStatuses,
+			timelinePosition: getCurrentFrame(),
+			validatedSource: validatedLocation?.source ?? null,
+		});
+
 		return getSequenceContextMenuItems({
-			assetLinkInfo,
+			assetLinkInfo: mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null,
 			canOpenInEditor,
 			deleteDisabled,
 			disableInteractivityDisabled,
@@ -519,27 +520,30 @@ const TimelineSequenceInner: React.FC<{
 					: [],
 		});
 	}, [
-		assetLinkInfo,
 		canOpenInEditor,
 		deleteDisabled,
 		disableInteractivityDisabled,
 		duplicateDisabled,
 		editorInfo,
 		fileLocation,
-		freezeFrameMenuItem,
+		mediaSrc,
+		nodePath,
+		onSelect,
 		onDeleteSequenceFromSource,
 		onDisableSequenceInteractivity,
 		onDuplicateSequenceFromSource,
 		openInEditor,
 		originalLocation,
+		previewInteractive,
+		previewServerState,
+		propStatusesForOverride,
 		s,
 		selectAsset,
+		selectable,
+		sequenceFrameOffset,
+		setPropStatuses,
+		validatedLocation?.source,
 	]);
-	const onContextMenuOpen = useCallback(() => {
-		if (selectable) {
-			onSelect({shiftKey: false, toggleKey: false});
-		}
-	}, [onSelect, selectable]);
 	const {frozenFrame} = s;
 
 	const {onPointerDown: onMoveDragPointerDown} = useTimelineSequenceFromDrag({
@@ -708,9 +712,7 @@ const TimelineSequenceInner: React.FC<{
 	);
 
 	return previewConnected || window.remotion_isReadOnlyStudio ? (
-		<ContextMenu values={contextMenuValues} onOpen={onContextMenuOpen}>
-			{sequence}
-		</ContextMenu>
+		<ContextMenu getItems={getContextMenuItems}>{sequence}</ContextMenu>
 	) : (
 		sequence
 	);

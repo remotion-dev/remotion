@@ -1,4 +1,4 @@
-import React, {useContext, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -67,7 +67,7 @@ const ConnectedCompositionRow: React.FC<{
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
 	const resolvedLocation = useResolvedStack(composition.stack);
-	const contextMenuItems = useMemo(
+	const getContextMenuItems = useCallback(
 		() =>
 			getCompositionContextMenuItems({
 				closeMenu: noop,
@@ -83,8 +83,7 @@ const ConnectedCompositionRow: React.FC<{
 
 	return (
 		<ContextMenu
-			values={contextMenuItems}
-			onOpen={null}
+			getItems={getContextMenuItems}
 			style={compositionContextMenuStyle}
 		>
 			<InspectorInlineAction
