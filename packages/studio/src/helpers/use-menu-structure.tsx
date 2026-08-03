@@ -46,7 +46,7 @@ const openExternal = (link: string) => {
 	window.open(link, '_blank');
 };
 
-const ICON_SIZE = 17;
+const ICON_SIZE = 18;
 
 const getFileMenu = ({
 	readOnlyStudio,
