@@ -1,6 +1,5 @@
 import {Internals} from 'remotion';
 import {DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME} from '../components/RenderModal/SchemaEditor/scroll-to-default-props-path';
-import {SELECTED_OUTLINE_CLASS_NAME} from '../components/selected-outline-types';
 import {
 	BLACK,
 	BLUE,
@@ -31,14 +30,6 @@ const makeDefaultGlobalCSS = () => {
   .remotion-splitter {
     user-select: none;
     -webkit-user-select: none;
-  }
-
-  :fullscreen .${SELECTED_OUTLINE_CLASS_NAME} {
-    display: none;
-  }
-
-  :-webkit-full-screen .${SELECTED_OUTLINE_CLASS_NAME} {
-    display: none;
   }
 
   .remotion-splitter-horizontal {

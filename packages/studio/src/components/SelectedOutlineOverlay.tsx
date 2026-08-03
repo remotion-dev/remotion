@@ -59,7 +59,6 @@ import {
 	cropFieldKeys,
 	rotateFieldKey,
 	scaleFieldKey,
-	SELECTED_OUTLINE_CLASS_NAME,
 	transformOriginFieldKey,
 	translateFieldKey,
 	type SelectedOutlineCropDragTarget,
@@ -269,6 +268,36 @@ const SelectedOutlineSnapIndicators: React.FC<{
 const outlinePointEqualityTolerance = 0.5;
 const outlineAreaEqualityTolerance = 0.5;
 const outlineBoundsOverlapTolerance = 0.5;
+
+const getIsFullscreen = () => {
+	return Boolean(
+		document.fullscreenElement ??
+		(document as Document & {webkitFullscreenElement?: Element | null})
+			.webkitFullscreenElement,
+	);
+};
+
+const useIsFullscreen = () => {
+	const [isFullscreen, setIsFullscreen] = useState(getIsFullscreen);
+
+	useEffect(() => {
+		const onFullscreenChange = () => {
+			setIsFullscreen(getIsFullscreen());
+		};
+
+		document.addEventListener('fullscreenchange', onFullscreenChange);
+		document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+		return () => {
+			document.removeEventListener('fullscreenchange', onFullscreenChange);
+			document.removeEventListener(
+				'webkitfullscreenchange',
+				onFullscreenChange,
+			);
+		};
+	}, []);
+
+	return isFullscreen;
+};
 
 const outlinePointsAreEquivalent = (
 	a: SelectedOutline['points'][number],
@@ -671,6 +700,7 @@ export const SelectedOutlineOverlay: React.FC<{
 		TimelineSequenceHoverContext,
 	);
 	const {editorShowGuides, guidesList} = useContext(EditorShowGuidesContext);
+	const isFullscreen = useIsFullscreen();
 	const {frameBack, frameForward, getCurrentFrame, seek} =
 		PlayerInternals.usePlayer();
 	const keybindings = useKeybinding();
@@ -729,6 +759,7 @@ export const SelectedOutlineOverlay: React.FC<{
 
 	const outlineTargets = useMemo((): SelectedOutlineTarget[] => {
 		if (
+			isFullscreen ||
 			!isStudioSelectionEnabled() ||
 			!previewSelectionAvailable ||
 			!editorShowOutlines
@@ -1071,6 +1102,7 @@ export const SelectedOutlineOverlay: React.FC<{
 		getEffectDragOverrides,
 		getScaleLockState,
 		editorShowOutlines,
+		isFullscreen,
 		overrideIdToNodePathMappings,
 		previewInteractive,
 		previewSelectionAvailable,
@@ -1502,7 +1534,6 @@ export const SelectedOutlineOverlay: React.FC<{
 	return (
 		<svg
 			ref={overlayRef}
-			className={SELECTED_OUTLINE_CLASS_NAME}
 			style={outlineContainer}
 			width="100%"
 			height="100%"

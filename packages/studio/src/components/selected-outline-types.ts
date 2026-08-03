@@ -233,7 +233,6 @@ export const scaleFieldKey = 'style.scale';
 export const rotateFieldKey = 'style.rotate';
 export const transformOriginFieldKey = 'style.transformOrigin';
 export const selectedOutlineDragThresholdPx = 4;
-export const SELECTED_OUTLINE_CLASS_NAME = '__remotion-studio-selected-outline';
 
 export const outlineContainer: React.CSSProperties = {
 	position: 'absolute',
