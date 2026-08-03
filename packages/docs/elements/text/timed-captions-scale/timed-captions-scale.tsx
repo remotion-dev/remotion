@@ -44,7 +44,7 @@ const maximumTextWidth = 800;
 const fontWeight = '700';
 const textColor = '#ffffff';
 const highlightColor = '#18ff0e';
-const activeWordScale = 1.2;
+const activeWordScale = 1.03;
 const defaultCombineTokensWithinMilliseconds = 800;
 
 const timedCaptionsScaleSchema = {
