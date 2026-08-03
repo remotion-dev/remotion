@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/starburst",
-	"version": "4.0.504",
+	"version": "4.0.505",
 	"description": "Starburst ray effect for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
