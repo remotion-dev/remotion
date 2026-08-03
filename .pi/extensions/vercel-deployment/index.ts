@@ -232,14 +232,15 @@ const presentWidget = (
 										: {color: 'dim' as const, symbol: '·'};
 						const fullLabel = `Vercel ${status.symbol} ${PREVIEW_LABEL}`;
 						if ([...fullLabel].length <= availableWidth) {
+							const line = `${theme.fg('dim', 'Vercel')} ${theme.fg(
+								status.color,
+								status.symbol,
+							)} ${terminalLink(
+								theme.fg('mdLink', PREVIEW_LABEL),
+								deployment.previewUrl,
+							)}`;
 							return [
-								`${theme.fg('dim', 'Vercel')} ${theme.fg(
-									status.color,
-									status.symbol,
-								)} ${terminalLink(
-									theme.fg('mdLink', PREVIEW_LABEL),
-									deployment.previewUrl,
-								)}`,
+								`${' '.repeat(availableWidth - [...fullLabel].length)}${line}`,
 							];
 						}
 
@@ -247,18 +248,20 @@ const presentWidget = (
 							.slice(0, availableWidth)
 							.join('');
 						return [
-							terminalLink(
+							`${' '.repeat(
+								availableWidth - [...compactLabel].length,
+							)}${terminalLink(
 								theme.fg('mdLink', compactLabel),
 								deployment.previewUrl,
-							),
+							)}`,
 						];
 					},
 					invalidate() {},
 				})
 			: undefined,
-		// Work-context owns a separate, right-aligned widget in this placement.
-		// Keeping a distinct key lets Pi stack both without either extension
-		// replacing the other; this component deliberately renders on the left.
+		// Work-context owns a separate widget in this placement. Keeping a
+		// distinct key lets Pi stack both without either extension replacing the
+		// other, while right alignment makes the two rows read as one status area.
 		{placement: 'belowEditor'},
 	);
 };

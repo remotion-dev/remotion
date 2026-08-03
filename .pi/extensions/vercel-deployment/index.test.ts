@@ -42,7 +42,7 @@ type Handler = (
 	ctx: ExtensionContext,
 ) => void | Promise<void>;
 
-test('shows the remotion PR preview on the left without replacing work-context', async () => {
+test('shows the remotion PR preview on the right without replacing work-context', async () => {
 	const handlers = new Map<string, Handler>();
 	const widgets = new Map<
 		string,
@@ -114,15 +114,15 @@ test('shows the remotion PR preview on the left without replacing work-context',
 		) => {render: (width: number) => string[]}
 	)({}, {fg: (_color, text) => text});
 	const [line] = component.render(80);
-	expect(stripHyperlinks(line)).toBe('Vercel ✓ Preview ↗');
-	expect(line.startsWith('Vercel')).toBe(true);
+	expect(stripHyperlinks(line).trimStart()).toBe('Vercel ✓ Preview ↗');
+	expect(line.startsWith(' ')).toBe(true);
+	expect([...stripHyperlinks(line)].length).toBe(80);
 	expect(line).toContain(`\u001B]8;;${REMOTION_PREVIEW}/\u001B\\Preview ↗`);
 	expect(line).not.toContain('bugs-git-feature');
 
 	for (const width of [0, 1, 5, 9, 12]) {
 		const [narrowLine] = component.render(width);
-		expect([...stripHyperlinks(narrowLine)].length).toBeLessThanOrEqual(width);
-		expect(narrowLine.startsWith(' ')).toBe(false);
+		expect([...stripHyperlinks(narrowLine)].length).toBe(width);
 	}
 
 	await handlers.get('session_shutdown')?.({reason: 'quit'}, context);
