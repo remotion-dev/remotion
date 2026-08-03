@@ -48,6 +48,6 @@ test('uses exported video geometry without changing player timing', () => {
 	).toMatchObject({
 		width: 1920,
 		height: 1080,
-		transform: 'translate(-50%, -50%) rotate(90deg) scale(-1, 1)',
+		transform: 'translate(-50%, -50%) scale(-1, 1) rotate(90deg)',
 	});
 });

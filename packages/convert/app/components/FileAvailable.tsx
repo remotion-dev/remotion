@@ -2,8 +2,7 @@ import type {CropRectangle} from 'mediabunny';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {normalizeVideoRotation} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {Source} from '~/lib/convert-state';
-import type {RotateOrMirrorOrCropState} from '~/lib/default-ui';
-import {defaultRotateOrMirorState} from '~/lib/default-ui';
+import {getDefaultVideoEditState} from '~/lib/default-ui';
 import {isAudioOnly} from '~/lib/is-audio-container';
 import type {RouteAction} from '~/seo';
 import {BackButton} from './BackButton';
@@ -27,10 +26,9 @@ export const FileAvailable: React.FC<{
 
 	const videoThumbnailRef = useRef<VideoThumbnailRef>(null);
 
-	const [enableRotateOrMirrow, setEnableRotateOrMirror] =
-		useState<RotateOrMirrorOrCropState>(() =>
-			defaultRotateOrMirorState(routeAction),
-		);
+	const [videoEditState, setVideoEditState] = useState(() =>
+		getDefaultVideoEditState(routeAction),
+	);
 	const [enableTrim, setEnableTrim] = useState(
 		() =>
 			routeAction.type === 'generic-trim' || routeAction.type === 'trim-format',
@@ -57,12 +55,12 @@ export const FileAvailable: React.FC<{
 	const [waveform, setWaveform] = useState<number[]>([]);
 
 	const actualUserRotation = useMemo(() => {
-		if (enableRotateOrMirrow !== 'rotate') {
+		if (!videoEditState.rotate) {
 			return 0;
 		}
 
 		return normalizeVideoRotation(userRotation);
-	}, [enableRotateOrMirrow, userRotation]);
+	}, [videoEditState.rotate, userRotation]);
 
 	const onWaveformBars = useCallback((bars: number[]) => {
 		setWaveform(bars);
@@ -81,7 +79,7 @@ export const FileAvailable: React.FC<{
 							src={src}
 							isAudio={isAudio}
 							waveform={waveform}
-							crop={enableRotateOrMirrow === 'crop'}
+							crop={videoEditState.crop}
 							trim={enableTrim}
 							trimInFrame={trimInFrame}
 							trimOutFrame={trimOutFrame}
@@ -93,10 +91,8 @@ export const FileAvailable: React.FC<{
 							durationInSeconds={probeResult.durationInSeconds}
 							fps={probeResult.fps}
 							rotation={actualUserRotation}
-							mirrorHorizontal={
-								flipHorizontal && enableRotateOrMirrow === 'mirror'
-							}
-							mirrorVertical={flipVertical && enableRotateOrMirrow === 'mirror'}
+							mirrorHorizontal={flipHorizontal && videoEditState.mirror}
+							mirrorVertical={flipVertical && videoEditState.mirror}
 							onPlaybackTimeChange={setPlaybackTime}
 						/>
 						<div className="h-8" />
@@ -111,10 +107,8 @@ export const FileAvailable: React.FC<{
 						probeResult={probeResult}
 						videoThumbnailRef={videoThumbnailRef}
 						userRotation={actualUserRotation}
-						mirrorHorizontal={
-							flipHorizontal && enableRotateOrMirrow === 'mirror'
-						}
-						mirrorVertical={flipVertical && enableRotateOrMirrow === 'mirror'}
+						mirrorHorizontal={flipHorizontal && videoEditState.mirror}
+						mirrorVertical={flipVertical && videoEditState.mirror}
 						onWaveformBars={onWaveformBars}
 					/>
 					{routeAction.type !== 'generic-probe' &&
@@ -132,7 +126,7 @@ export const FileAvailable: React.FC<{
 										data-hidden={probeDetails}
 									>
 										<ConvertUI
-											crop={enableRotateOrMirrow === 'crop'}
+											videoEditState={videoEditState}
 											inputContainer={probeResult.container}
 											currentVideoCodec={probeResult.videoCodec ?? null}
 											tracks={probeResult.tracks}
@@ -145,8 +139,7 @@ export const FileAvailable: React.FC<{
 											trimInFrame={trimInFrame}
 											trimOutFrame={trimOutFrame}
 											fps={probeResult.fps}
-											enableRotateOrMirror={enableRotateOrMirrow}
-											setEnableRotateOrMirror={setEnableRotateOrMirror}
+											setVideoEditState={setVideoEditState}
 											userRotation={actualUserRotation}
 											setRotation={setRotation}
 											flipHorizontal={flipHorizontal}
@@ -154,7 +147,6 @@ export const FileAvailable: React.FC<{
 											flipVertical={flipVertical}
 											setFlipVertical={setFlipVertical}
 											videoThumbnailRef={videoThumbnailRef}
-											rotation={probeResult.rotation}
 											sampleRate={probeResult.sampleRate}
 											name={probeResult.name}
 											input={probeResult.input}
