@@ -208,7 +208,7 @@ export const elementDefinitions = {
 		elementWidth: 1560,
 		fps: 30,
 		height: 1080,
-		posterFrame: 48,
+		posterFrame: 70,
 		preview: {
 			posterUrl:
 				'https://remotion.media/elements/data-horizontal-bar-chart-preview.png',
