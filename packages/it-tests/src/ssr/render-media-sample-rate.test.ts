@@ -58,6 +58,7 @@ test(
 		await renderMedia({
 			outputLocation: outPath,
 			codec: 'h264',
+			licenseKey: null,
 			serveUrl: exampleBuild,
 			composition: comp,
 			frameRange: [0, 2],
@@ -90,6 +91,7 @@ test(
 		await renderMedia({
 			outputLocation: outPath,
 			codec: 'h264',
+			licenseKey: null,
 			serveUrl: exampleBuild,
 			composition: comp,
 			frameRange: [0, 2],

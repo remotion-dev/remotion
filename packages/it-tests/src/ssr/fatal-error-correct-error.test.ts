@@ -8,6 +8,7 @@ test('Fatal error on frame 10 should yield correct error', async () => {
 	await expect(() => {
 		return renderMedia({
 			codec: 'h264',
+			licenseKey: null,
 			serveUrl: exampleBuild,
 			composition: {
 				durationInFrames: 1000000,

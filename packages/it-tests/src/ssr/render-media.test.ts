@@ -34,6 +34,7 @@ test(
 		await renderMedia({
 			outputLocation: outPath,
 			codec: 'h264',
+			licenseKey: null,
 			serveUrl: exampleBuild,
 			composition: reactSvg,
 			frameRange: [0, 2],
@@ -66,6 +67,7 @@ test('Render video with browser instance not open', async () => {
 	await renderMedia({
 		outputLocation: outPath,
 		codec: 'h264',
+		licenseKey: null,
 		serveUrl: exampleBuild,
 		composition: reactSvg,
 		frameRange: [0, 2],
@@ -85,6 +87,7 @@ test('should fail on invalid CRF', async () => {
 		await renderMedia({
 			outputLocation: outPath,
 			codec: 'h264',
+			licenseKey: null,
 			logLevel: 'error',
 			serveUrl: exampleBuild,
 			// @ts-expect-error
@@ -131,6 +134,7 @@ test('Render video to a buffer', async () => {
 
 	const {buffer, contentType} = await renderMedia({
 		codec: 'h264',
+		licenseKey: null,
 		serveUrl: exampleBuild,
 		composition: reactSvg,
 		frameRange: [0, 2],
@@ -155,6 +159,7 @@ test('Render multiple frame ranges to one video', async () => {
 	try {
 		await renderMedia({
 			codec: 'h264',
+			licenseKey: null,
 			serveUrl: exampleBuild,
 			composition,
 			frameRange: [
@@ -194,6 +199,7 @@ test('Should fail invalid serve URL', async () => {
 	try {
 		await renderMedia({
 			codec: 'h264',
+			licenseKey: null,
 			logLevel: 'error',
 			serveUrl:
 				'https://remotionlambda-gc1w0xbfzl.s3.eu-central-1.amazonaws.com/sites/Ignition-SessionResultStoryVideo/index.html',

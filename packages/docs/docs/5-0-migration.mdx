@@ -111,6 +111,17 @@ The default value of `overwrite` in [`renderMediaOnLambda()`](/docs/lambda/rende
 
 **Required action**: Set `overwrite: false` if an existing file should still cause an error.
 
+In the Go SDK, `Overwrite` is now a `*bool` so that an omitted value can be distinguished from an explicit `false`:
+
+```go
+overwrite := false
+
+options := lambda_go_sdk.RemotionOptions{
+	// Other options...
+	Overwrite: &overwrite,
+}
+```
+
 ## `openBrowser()` now takes a `logLevel` instead of `shouldDumpIo`
 
 The `shouldDumpIo` option has been be removed in 5.0.  

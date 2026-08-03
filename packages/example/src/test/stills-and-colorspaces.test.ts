@@ -148,6 +148,7 @@ test('Bt709 encoding should work', async () => {
 
 	const {buffer} = await renderMedia({
 		codec: 'h264',
+		licenseKey: null,
 		composition,
 		imageFormat: 'png',
 		serveUrl: path.join(exampleDir, 'build'),

@@ -29,7 +29,7 @@ type RemotionOptions struct {
 	DownloadBehavior               map[string]interface{} `json:"downloadBehavior"`
 	Muted                          bool                   `json:"muted"`
 	PreferLossless                 bool                   `json:"preferLossless"`
-	Overwrite                      bool                   `json:"overwrite"`
+	Overwrite                      *bool                  `json:"overwrite"`
 	ForcePathStyle                 bool                   `json:"forcePathStyle"`
 	AudioBitrate                   interface{}            `json:"audioBitrate"`
 	VideoBitrate                   interface{}            `json:"videoBitrate"`
