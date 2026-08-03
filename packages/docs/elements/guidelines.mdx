@@ -20,9 +20,18 @@ Treat references as evidence of a useful video-making need, not as designs to re
 
 ## Keep it focused
 
-An Element should demonstrate one visual idea, technique, or workflow. It should be useful in more than one Remotion project without becoming a complete, highly specific composition.
+An Element should represent one coherent visual treatment, technique, or workflow. It should work without configuration and be useful in more than one Remotion project without becoming a complete, highly specific composition.
 
-If two variants are worth showing, prefer two separate Elements over a variant prop.
+Do not use React props on the public Element component as its user-facing customization API. Expose meaningful customization through Studio controls declared in the Element's `Interactive` schema. Controls may adjust colors, intensity, animation amount, spacing, and minor layout choices when these options make the treatment meaningfully editable, but they should not change its core visual identity.
+
+Do not use a Studio control to switch between unrelated visual treatments merely to combine multiple gallery ideas. Create separate Elements only when each treatment:
+
+- represents a distinct visual technique or user intent;
+- deserves an independent name and preview;
+- is independently discoverable and useful; and
+- would reasonably be selected separately from the gallery.
+
+Sharing an underlying algorithm or workflow does not automatically make two Elements duplicates. Do not create separate Elements for arbitrary presets, minor CSS differences, or every possible Studio-control configuration. Only expose Studio controls that make the Element meaningfully editable.
 
 The Elements gallery provides preview dimensions, frame rate, and duration. The `durationInFrames` value is used both for the preview and for the `<Sequence>` inserted into Studio.
 
