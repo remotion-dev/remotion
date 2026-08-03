@@ -1,14 +1,14 @@
 import type {ComponentDimensions} from './component-drag-data';
 import {makeDragData} from './drag-data';
 import {
+	assertElementDependency,
 	getElementComponentNameFromSourceCode,
-	isElementDependency,
 	makeElementFileNameFromSlug,
 	parseElementDragData,
 	type ElementDependency,
 	type ElementDragData,
 } from './element-drag-data';
-import {isRecord, isValidPackageName} from './validation';
+import {isRecord} from './validation';
 
 const MAX_PAYLOAD_SIZE = 250_000;
 const MAX_SOURCE_CODE_SIZE = 200_000;
@@ -18,7 +18,7 @@ export type CreateElementPayloadInput = {
 	readonly displayName: string;
 	readonly slug: string;
 	readonly sourceCode: string;
-	readonly dependencies: readonly (ElementDependency | string)[];
+	readonly dependencies: readonly ElementDependency[];
 	readonly dimensions: ComponentDimensions | null;
 	readonly durationInFrames: number;
 };
@@ -64,14 +64,7 @@ const assertCreateElementPayloadInput = (
 			`dependencies must contain at most ${MAX_DEPENDENCIES} packages`,
 		);
 	for (const dependency of input.dependencies) {
-		if (
-			(typeof dependency === 'string' && !isValidPackageName(dependency)) ||
-			(typeof dependency !== 'string' && !isElementDependency(dependency))
-		) {
-			throw new TypeError(
-				`Invalid Element dependency: ${JSON.stringify(dependency)}`,
-			);
-		}
+		assertElementDependency(dependency);
 	}
 
 	if (!isDuration(input.durationInFrames))
@@ -86,11 +79,7 @@ export const createElementPayload = (
 	assertCreateElementPayloadInput(input);
 	const constructed = makeDragData({
 		type: 'element',
-		dependencies: input.dependencies.map((dependency) =>
-			typeof dependency === 'string'
-				? {name: dependency, version: null}
-				: dependency,
-		),
+		dependencies: [...input.dependencies],
 		dimensions: input.dimensions,
 		displayName: input.displayName,
 		durationInFrames: input.durationInFrames,

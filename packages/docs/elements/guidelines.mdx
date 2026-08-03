@@ -27,7 +27,7 @@ The caption Elements show the distinction: moving a pill between words, popping 
 - Use stable remote asset URLs and Google Fonts for non-websafe fonts.
 - Avoid project-specific branding or footage, and make colors easy to change.
 - Minimize dependencies. [Remotion Effects](/docs/effects) are an acceptable exception.
-- Declare every external dependency in the central Element definition, except `react`, `react-dom`, and `remotion`. Use exact non-Remotion versions only when required; Remotion packages use the project's installed version.
+- Declare every external dependency in the central Element definition, except `react`, `react-dom`, and `remotion`. Every non-Remotion package must use an exact semantic version; version ranges and tags are not accepted. Remotion packages use `version: null` and are installed at the project's Remotion version.
 
 ## Design it for composition
 

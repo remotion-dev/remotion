@@ -24,6 +24,8 @@ import {Seo} from '../components/Seo';
 const elementsRoot = path.join(__dirname, '..', '..', 'elements');
 const templateRoot = path.join(__dirname, '..', '..', 'elements-template');
 const elementDefinitionList = Object.values(elementDefinitions);
+const exactVersionPattern =
+	/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
 
 type Element = {
 	name: string;
@@ -334,7 +336,7 @@ describe('Element preview definitions', () => {
 		}
 	});
 
-	test('declares every external source dependency centrally', () => {
+	test('declares every external source dependency centrally with a valid version', () => {
 		for (const element of productionElements) {
 			const definition = elementDefinitionList.find(
 				(entry) => entry.slug === element.name,
@@ -350,6 +352,27 @@ describe('Element preview definitions', () => {
 					readFileSync(element.tsxPath, 'utf8'),
 				).sort(),
 			);
+
+			for (const dependency of definition.dependencies) {
+				if (dependency.name.startsWith('@remotion/')) {
+					if (dependency.version !== null) {
+						throw new Error(
+							`${definition.slug} must use version: null for ${dependency.name}`,
+						);
+					}
+
+					continue;
+				}
+
+				if (
+					dependency.version === null ||
+					!exactVersionPattern.test(dependency.version)
+				) {
+					throw new Error(
+						`${definition.slug} must declare an exact version for ${dependency.name}`,
+					);
+				}
+			}
 		}
 	});
 

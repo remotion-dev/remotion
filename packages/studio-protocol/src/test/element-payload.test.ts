@@ -1,22 +1,26 @@
 import {expect, test} from 'bun:test';
 import {parseDragData} from '../drag-data';
 import {setStudioDragData} from '../drag-transport';
-import {createElementPayload} from '../element-payload';
+import {
+	createElementPayload,
+	type CreateElementPayloadInput,
+} from '../element-payload';
 
 const validInput = {
 	dependencies: [
-		'react',
-		'react-dom',
-		'remotion',
-		'@remotion/google-fonts',
-		'@remotion/google-fonts',
+		{name: '@remotion/google-fonts', version: null},
+		{name: 'lodash', version: '4.17.21'},
+		{name: '@remotion/google-fonts', version: null},
 	],
 	dimensions: {width: 800, height: 200},
 	displayName: 'Lower Third',
 	durationInFrames: 90,
 	slug: 'lower-third',
 	sourceCode: 'export const LowerThird = () => null;',
-};
+} satisfies CreateElementPayloadInput;
+
+const createInvalidPayload = (input: unknown) =>
+	createElementPayload(input as CreateElementPayloadInput);
 
 test('creates one canonical Element payload for HTTP and drag transports', () => {
 	const payload = createElementPayload(validInput);
@@ -25,7 +29,10 @@ test('creates one canonical Element payload for HTTP and drag transports', () =>
 		version: 1,
 		durationInFrames: 90,
 		element: {
-			dependencies: [{name: '@remotion/google-fonts', version: null}],
+			dependencies: [
+				{name: '@remotion/google-fonts', version: null},
+				{name: 'lodash', version: '4.17.21'},
+			],
 			dimensions: {width: 800, height: 200},
 			displayName: 'Lower Third',
 			durationInFrames: 90,
@@ -56,10 +63,7 @@ test('creates one canonical Element payload for HTTP and drag transports', () =>
 });
 
 test('rejects invalid Element authoring input with actionable errors', () => {
-	const cases: Array<{
-		input: typeof validInput;
-		message: string;
-	}> = [
+	const cases: Array<{input: unknown; message: string}> = [
 		{
 			input: {...validInput, slug: '../unsafe'},
 			message: 'slug must be a safe lowercase Element slug',
@@ -74,8 +78,48 @@ test('rejects invalid Element authoring input with actionable errors', () => {
 				'sourceCode must contain exactly one exported named React component',
 		},
 		{
-			input: {...validInput, dependencies: ['FS']},
-			message: 'Invalid Element dependency: "FS"',
+			input: {...validInput, dependencies: ['@remotion/google-fonts']},
+			message: 'Invalid Element dependency: "@remotion/google-fonts"',
+		},
+		{
+			input: {
+				...validInput,
+				dependencies: [{name: 'lodash', version: null}],
+			},
+			message:
+				'Non-Remotion Element dependency "lodash" must declare an exact version.',
+		},
+		{
+			input: {
+				...validInput,
+				dependencies: [{name: 'lodash', version: '^4.17.21'}],
+			},
+			message:
+				'Non-Remotion Element dependency "lodash" must declare an exact version.',
+		},
+		{
+			input: {
+				...validInput,
+				dependencies: [{name: 'lodash', version: 'latest'}],
+			},
+			message:
+				'Non-Remotion Element dependency "lodash" must declare an exact version.',
+		},
+		{
+			input: {
+				...validInput,
+				dependencies: [{name: '@remotion/effects', version: '4.0.0'}],
+			},
+			message:
+				'Remotion Element dependency "@remotion/effects" must use version: null.',
+		},
+		{
+			input: {
+				...validInput,
+				dependencies: [{name: 'react', version: '19.0.0'}],
+			},
+			message:
+				'"react" is provided by Remotion projects and must not be declared as an Element dependency.',
 		},
 		{
 			input: {...validInput, dimensions: {width: 0, height: 200}},
@@ -88,6 +132,6 @@ test('rejects invalid Element authoring input with actionable errors', () => {
 	];
 
 	for (const {input, message} of cases) {
-		expect(() => createElementPayload(input)).toThrow(message);
+		expect(() => createInvalidPayload(input)).toThrow(message);
 	}
 });

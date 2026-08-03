@@ -255,6 +255,33 @@ test('discovers an exact Studio target and delivers one install request over HTT
 		});
 		expect(deliveredEvents).toHaveLength(0);
 
+		const invalidDependencyResponse = await fetch(
+			`${origin}/api/studio-protocol/install`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Origin: 'http://localhost:4000',
+				},
+				body: JSON.stringify({
+					...installBody,
+					payload: {
+						...payload,
+						element: {
+							...payload.element,
+							dependencies: [{name: 'lodash', version: null}],
+						},
+					},
+				}),
+			},
+		);
+		expect(invalidDependencyResponse.status).toBe(400);
+		expect(await invalidDependencyResponse.json()).toMatchObject({
+			status: 'error',
+			error: {code: 'invalid-payload'},
+		});
+		expect(deliveredEvents).toHaveLength(0);
+
 		const oversizedResponse = await sendUnfinishedOversizedInstallRequest(
 			`${origin}/api/studio-protocol/install`,
 		);
