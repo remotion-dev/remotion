@@ -475,7 +475,11 @@ export const TimelineEffectPropItem: React.FC<{
 		validatedLocation.source,
 	]);
 
-	const contextMenuValues = useMemo((): ComboboxValue[] => {
+	const getContextMenuItems = useCallback((): ComboboxValue[] => {
+		if (selection.selectable) {
+			selection.onSelect({shiftKey: false, toggleKey: false});
+		}
+
 		return [
 			{
 				type: 'item',
@@ -490,7 +494,7 @@ export const TimelineEffectPropItem: React.FC<{
 				value: 'reset-effect-field',
 			},
 		];
-	}, [canShowReset, onReset]);
+	}, [canShowReset, onReset, selection]);
 
 	const onPropertyDoubleClick = useCallback<
 		React.MouseEventHandler<HTMLDivElement>
@@ -543,12 +547,5 @@ export const TimelineEffectPropItem: React.FC<{
 		</TimelineRowChrome>
 	);
 
-	return (
-		<ContextMenu
-			values={contextMenuValues}
-			onOpen={selection.selectable ? selection.onSelect : null}
-		>
-			{row}
-		</ContextMenu>
-	);
+	return <ContextMenu getItems={getContextMenuItems}>{row}</ContextMenu>;
 };

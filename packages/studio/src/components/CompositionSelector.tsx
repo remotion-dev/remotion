@@ -130,7 +130,7 @@ export const CompositionSelector: React.FC = () => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
-	const rootContextMenuItems = useMemo(() => {
+	const getRootContextMenuItems = useCallback(() => {
 		return getRootCompositionMenuItems({
 			connectionStatus,
 			readOnlyStudio: window.remotion_isReadOnlyStudio,
@@ -349,8 +349,7 @@ export const CompositionSelector: React.FC = () => {
 		<div style={container}>
 			<ContextMenuForTarget
 				triggerRef={listRef}
-				values={rootContextMenuItems}
-				onOpen={null}
+				getItems={getRootContextMenuItems}
 			/>
 			<ExplorerQuickSwitcherTrigger
 				mode="compositions"

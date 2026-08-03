@@ -174,7 +174,7 @@ const EffectPickerResult: React.FC<{
 		onSelected(item);
 	}, [item, onSelected]);
 
-	const contextMenuValues = useMemo((): ComboboxValue[] => {
+	const getContextMenuItems = useCallback((): ComboboxValue[] => {
 		const documentationLink = getEffectDocumentationLink(item);
 
 		return [
@@ -196,7 +196,7 @@ const EffectPickerResult: React.FC<{
 	}, [item]);
 
 	return (
-		<ContextMenu values={contextMenuValues} onOpen={null}>
+		<ContextMenu getItems={getContextMenuItems}>
 			<div
 				ref={ref}
 				style={style}

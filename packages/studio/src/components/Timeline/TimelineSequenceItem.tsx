@@ -47,7 +47,6 @@ import {
 } from '../ExpandedTracksProvider';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {Spacing} from '../layout';
-import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {
 	canEditSelectedOutlineCrop,
@@ -78,7 +77,7 @@ import {
 import {TimelineSequenceName} from './TimelineSequenceName';
 import {useOpenSequenceInEditor} from './use-open-sequence-in-editor';
 import {useRenameSequence} from './use-rename-sequence';
-import {useSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
+import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
 import {useTimelineExpandedTree} from './use-timeline-expanded-tree';
 
 const labelContainerStyle: React.CSSProperties = {
@@ -242,53 +241,6 @@ type SequenceDropTarget =
 			readonly type: 'invalid';
 			readonly reason: string;
 	  };
-
-const TimelineSequenceItemContextMenu: React.FC<{
-	readonly children: React.ReactNode;
-	readonly contextMenuValues: ComboboxValue[];
-	readonly includeFreezeFrameMenuItem: boolean;
-	readonly onOpen: (() => void) | null;
-	readonly freezeFrameMenuItemProps: Omit<
-		Parameters<typeof useSequenceFreezeFrameMenuItem>[0],
-		'timelinePosition'
-	>;
-}> = ({
-	children,
-	contextMenuValues,
-	freezeFrameMenuItemProps,
-	includeFreezeFrameMenuItem,
-	onOpen,
-}) => {
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const freezeFrameMenuItem = useSequenceFreezeFrameMenuItem({
-		...freezeFrameMenuItemProps,
-		timelinePosition,
-	});
-	const values = useMemo(() => {
-		if (!includeFreezeFrameMenuItem || freezeFrameMenuItem === null) {
-			return contextMenuValues;
-		}
-
-		const renameIndex = contextMenuValues.findIndex(
-			(item) => item.id === 'rename-sequence',
-		);
-		if (renameIndex === -1) {
-			return contextMenuValues;
-		}
-
-		return [
-			...contextMenuValues.slice(0, renameIndex + 1),
-			freezeFrameMenuItem,
-			...contextMenuValues.slice(renameIndex + 1),
-		];
-	}, [contextMenuValues, freezeFrameMenuItem, includeFreezeFrameMenuItem]);
-
-	return (
-		<ContextMenu values={values} onOpen={onOpen}>
-			{children}
-		</ContextMenu>
-	);
-};
 
 const TimelineSequenceItemInner: React.FC<{
 	readonly children: React.ReactNode;
@@ -695,11 +647,6 @@ const TimelineSequenceItemInner: React.FC<{
 			? sequence.src
 			: null;
 
-	const assetLinkInfo = useMemo(
-		() => (mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null),
-		[mediaSrc],
-	);
-
 	const isExpanded =
 		previewConnected && nodePathInfo !== null && getIsExpanded(nodePathInfo);
 
@@ -833,11 +780,12 @@ const TimelineSequenceItemInner: React.FC<{
 
 			e.stopPropagation();
 			if (action === 'open-connected-composition') {
+				const timelinePosition = getCurrentFrame();
 				selectComposition(
 					connectedCompositions[0],
 					true,
 					getConnectedCompositionFrame({
-						timelinePosition: getCurrentFrame(),
+						timelinePosition,
 						sequence,
 						sequenceFrameOffset,
 					}),
@@ -923,31 +871,6 @@ const TimelineSequenceItemInner: React.FC<{
 		setIsRenaming(true);
 	}, [canRenameThisSequence]);
 
-	const freezeFrameMenuItemProps = useMemo(
-		() => ({
-			clientId:
-				previewInteractive && previewServerState.type === 'connected'
-					? previewServerState.clientId
-					: null,
-			nodePath,
-			propStatusesForOverride,
-			sequence,
-			sequenceFrameOffset,
-			setPropStatuses,
-			validatedSource: validatedLocation?.source ?? null,
-		}),
-		[
-			nodePath,
-			previewInteractive,
-			previewServerState,
-			propStatusesForOverride,
-			sequence,
-			sequenceFrameOffset,
-			setPropStatuses,
-			validatedLocation?.source,
-		],
-	);
-
 	const canAddEffect =
 		nodePathInfo?.supportsEffects === true &&
 		previewInteractive &&
@@ -1023,9 +946,27 @@ const TimelineSequenceItemInner: React.FC<{
 		);
 	}, [canCrop, nodePathInfo, selectItem]);
 
-	const contextMenuValues = useMemo(() => {
+	const getContextMenuItems = useCallback(() => {
+		if (selectable) {
+			onSelect({shiftKey: false, toggleKey: false});
+		}
+
+		const freezeFrameMenuItem = getSequenceFreezeFrameMenuItem({
+			clientId:
+				previewInteractive && previewServerState.type === 'connected'
+					? previewServerState.clientId
+					: null,
+			nodePath,
+			propStatusesForOverride,
+			sequence,
+			sequenceFrameOffset,
+			setPropStatuses,
+			timelinePosition: getCurrentFrame(),
+			validatedSource: validatedLocation?.source ?? null,
+		});
+
 		return getSequenceContextMenuItems({
-			assetLinkInfo,
+			assetLinkInfo: mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null,
 			canOpenInEditor,
 			deleteDisabled,
 			disableInteractivityDisabled,
@@ -1092,11 +1033,11 @@ const TimelineSequenceItemInner: React.FC<{
 							subMenu: null,
 							value: 'rename-sequence',
 						},
+						...(freezeFrameMenuItem ? [freezeFrameMenuItem] : []),
 					]
 				: [],
 		});
 	}, [
-		assetLinkInfo,
 		canAddEffect,
 		canCrop,
 		canOpenInEditor,
@@ -1106,6 +1047,8 @@ const TimelineSequenceItemInner: React.FC<{
 		duplicateDisabled,
 		editorInfo,
 		fileLocation,
+		mediaSrc,
+		nodePath,
 		nodePathInfo?.supportsEffects,
 		onAddEffect,
 		onCrop,
@@ -1113,10 +1056,18 @@ const TimelineSequenceItemInner: React.FC<{
 		onDisableSequenceInteractivity,
 		onDuplicateSequenceFromSource,
 		onRenameSequence,
+		onSelect,
 		openInEditor,
 		originalLocation,
+		previewInteractive,
+		previewServerState,
+		propStatusesForOverride,
 		selectAsset,
+		selectable,
 		sequence,
+		sequenceFrameOffset,
+		setPropStatuses,
+		validatedLocation?.source,
 	]);
 	const canDropEffect =
 		previewInteractive &&
@@ -1301,14 +1252,9 @@ const TimelineSequenceItemInner: React.FC<{
 	return (
 		<>
 			{previewConnected || window.remotion_isReadOnlyStudio ? (
-				<TimelineSequenceItemContextMenu
-					contextMenuValues={contextMenuValues}
-					freezeFrameMenuItemProps={freezeFrameMenuItemProps}
-					includeFreezeFrameMenuItem={isStudioInteractivityEnabled()}
-					onOpen={selectable ? onSelect : null}
-				>
+				<ContextMenu getItems={getContextMenuItems}>
 					{draggableTrackRow}
-				</TimelineSequenceItemContextMenu>
+				</ContextMenu>
 			) : (
 				draggableTrackRow
 			)}

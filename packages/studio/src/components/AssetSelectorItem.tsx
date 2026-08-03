@@ -623,7 +623,7 @@ const AssetSelectorItem: React.FC<{
 		});
 	}, [relativePath, setSelectedModal]);
 
-	const contextMenu = useMemo((): ComboboxValue[] => {
+	const getContextMenuItems = useCallback((): ComboboxValue[] => {
 		return getAssetContextMenuItems({
 			relativePath,
 			fileManagerName,
@@ -666,7 +666,7 @@ const AssetSelectorItem: React.FC<{
 		);
 
 	return (
-		<ContextMenu values={contextMenu} onOpen={null}>
+		<ContextMenu getItems={getContextMenuItems}>
 			<Row align="center">
 				<div
 					ref={rowRef}

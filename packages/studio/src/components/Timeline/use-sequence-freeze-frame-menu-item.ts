@@ -1,4 +1,3 @@
-import {useCallback, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
 	SequencePropsSubscriptionKey,
@@ -44,7 +43,7 @@ export const calculateSequenceFreezeFrame = ({
 	return Math.min(Math.max(minFrame, rawFreezeFrame), maxFrame);
 };
 
-export const useSequenceFreezeFrameMenuItem = ({
+export const getSequenceFreezeFrameMenuItem = ({
 	clientId,
 	nodePath,
 	propStatusesForOverride,
@@ -80,7 +79,7 @@ export const useSequenceFreezeFrameMenuItem = ({
 		freezeStatus !== null &&
 		freezeStatus.status === 'static';
 
-	const onToggleFreezeFrame = useCallback(() => {
+	const onToggleFreezeFrame = () => {
 		if (
 			!canToggleFreeze ||
 			!sequence.controls ||
@@ -116,34 +115,20 @@ export const useSequenceFreezeFrameMenuItem = ({
 			undoLabel: remove ? 'Unfreeze sequence' : 'Freeze sequence',
 			redoLabel: remove ? 'Freeze sequence again' : 'Unfreeze sequence again',
 		});
-	}, [
-		canToggleFreeze,
-		clientId,
-		isFrozen,
-		nodePath,
-		sequence,
-		sequenceFrameOffset,
-		setPropStatuses,
-		timelinePosition,
-		validatedSource,
-	]);
+	};
 
-	return useMemo(
-		() =>
-			shouldShowFreezeFrameMenuItem(sequence)
-				? {
-						type: 'item' as const,
-						id: 'toggle-freeze-frame',
-						keyHint: null,
-						label: isFrozen ? 'Unfreeze frame' : 'Freeze frame',
-						leftItem: null,
-						disabled: !canToggleFreeze,
-						onClick: onToggleFreezeFrame,
-						quickSwitcherLabel: null,
-						subMenu: null,
-						value: 'toggle-freeze-frame',
-					}
-				: null,
-		[canToggleFreeze, isFrozen, onToggleFreezeFrame, sequence],
-	);
+	return shouldShowFreezeFrameMenuItem(sequence)
+		? {
+				type: 'item' as const,
+				id: 'toggle-freeze-frame',
+				keyHint: null,
+				label: isFrozen ? 'Unfreeze frame' : 'Freeze frame',
+				leftItem: null,
+				disabled: !canToggleFreeze,
+				onClick: onToggleFreezeFrame,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: 'toggle-freeze-frame',
+			}
+		: null;
 };

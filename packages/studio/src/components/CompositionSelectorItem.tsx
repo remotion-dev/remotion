@@ -196,7 +196,7 @@ export const CompositionSelectorItem: React.FC<{
 		item.type === 'composition' ? item.composition.stack : item.folder.stack,
 	);
 
-	const contextMenu = useMemo((): ComboboxValue[] => {
+	const getContextMenuItems = useCallback((): ComboboxValue[] => {
 		if (item.type === 'composition') {
 			return getCompositionContextMenuItems({
 				closeMenu: noop,
@@ -361,7 +361,7 @@ export const CompositionSelectorItem: React.FC<{
 	if (item.type === 'folder') {
 		return (
 			<>
-				<ContextMenu values={contextMenu} onOpen={null}>
+				<ContextMenu getItems={getContextMenuItems}>
 					<Row align="center">
 						<div
 							style={style}
@@ -392,7 +392,7 @@ export const CompositionSelectorItem: React.FC<{
 							<div style={label}>{item.folderName}</div>
 							<Spacing x={0.5} />
 							<CompositionContextButton
-								values={contextMenu}
+								getItems={getContextMenuItems}
 								visible={hovered}
 							/>
 						</div>
@@ -421,7 +421,7 @@ export const CompositionSelectorItem: React.FC<{
 	}
 
 	return (
-		<ContextMenu values={contextMenu} onOpen={null}>
+		<ContextMenu getItems={getContextMenuItems}>
 			<Row align="center">
 				<a
 					ref={compositionRowRef}
@@ -448,7 +448,7 @@ export const CompositionSelectorItem: React.FC<{
 					<div style={label}>{item.composition.id}</div>
 					<Spacing x={0.5} />
 					<CompositionContextButton
-						values={contextMenu}
+						getItems={getContextMenuItems}
 						visible={hovered && !isDragging}
 					/>
 					<SidebarRenderButton
