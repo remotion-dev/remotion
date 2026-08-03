@@ -1154,6 +1154,7 @@ test('Img registers a refForOutline pointing to the rendered image element', () 
 test('Interactive elements register their rendered element for Studio outlines', () => {
 	const registeredSequences: TSequence[] = [];
 	const divRef = React.createRef<HTMLDivElement>();
+	const rectRef = React.createRef<SVGRectElement>();
 	const documentationLink = 'https://www.remotion.dev/docs/interactive';
 
 	render(
@@ -1162,7 +1163,15 @@ test('Interactive elements register their rendered element for Studio outlines',
 				registeredSequences.push(sequence);
 			}}
 		>
-			<Interactive.Div ref={divRef}>Hello</Interactive.Div>
+			<Interactive.Div
+				ref={divRef}
+				cropBottom={0.4}
+				cropLeft={0.1}
+				cropRight={0.2}
+				cropTop={0.3}
+			>
+				Hello
+			</Interactive.Div>
 			<Interactive.Span>World</Interactive.Span>
 			<Interactive.Svg viewBox="0 0 100 100">
 				<Interactive.Circle />
@@ -1170,7 +1179,12 @@ test('Interactive elements register their rendered element for Studio outlines',
 				<Interactive.G />
 				<Interactive.Line />
 				<Interactive.Path />
-				<Interactive.Rect width={100} height={100} />
+				<Interactive.Rect
+					ref={rectRef}
+					cropLeft={0.25}
+					height={100}
+					width={100}
+				/>
 				<Interactive.Text x={50} y={50}>
 					Label
 				</Interactive.Text>
@@ -1223,6 +1237,20 @@ test('Interactive elements register their rendered element for Studio outlines',
 		divRef.current,
 	);
 	expect(getByName('<Interactive.Div>')?.controls).not.toBe(null);
+	expect(divRef.current?.style.clipPath).toBe('inset(30% 20% 40% 10%)');
+	expect(divRef.current?.getAttributeNames()).not.toContain('cropleft');
+	expect(rectRef.current?.style.clipPath).toBe('inset(0% 0% 0% 25%)');
+
+	for (const sequence of registeredSequences) {
+		for (const cropField of [
+			'cropLeft',
+			'cropRight',
+			'cropTop',
+			'cropBottom',
+		]) {
+			expect(sequence.controls?.schema).toHaveProperty(cropField);
+		}
+	}
 
 	for (const displayName of [
 		'<Interactive.Div>',
