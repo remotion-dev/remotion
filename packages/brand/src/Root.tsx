@@ -25,6 +25,10 @@ import {
 } from './Compose/WhatIsRemotion';
 import {DesignSystems, designSystemsDurationInFrames} from './DesignSystems';
 import {
+	DesignSystemsResponsive,
+	designSystemsResponsiveDurationInFrames,
+} from './DesignSystemsResponsive';
+import {
 	DocsPagesShowcase,
 	INSTAGRAM_POST_HEIGHT,
 	INSTAGRAM_POST_WIDTH,
@@ -322,6 +326,14 @@ export const RemotionRoot: React.FC = () => {
 					fps={30}
 					width={1080}
 					height={1080}
+				/>
+				<Composition
+					id="DesignSystemsResponsive"
+					component={DesignSystemsResponsive}
+					durationInFrames={designSystemsResponsiveDurationInFrames}
+					fps={30}
+					width={1350}
+					height={796}
 				/>
 				<Composition
 					id="ApplicationSimpleApp"
