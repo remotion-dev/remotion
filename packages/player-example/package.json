@@ -32,6 +32,7 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src",
 		"dev": "next dev",
-		"build-site": "next build"
+		"build-site": "next build",
+		"testnextjs": "next build"
 	}
 }
