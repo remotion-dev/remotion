@@ -7,30 +7,96 @@ const {fontFamily} = loadFont('normal', {
 	weights: ['700', '800'],
 });
 
-export const HorizontalBarChart: React.FC = () => {
+const data = [
+	{highlighted: true, label: 'Jonny', value: 18},
+	{highlighted: false, label: 'Igor', value: 17},
+	{highlighted: false, label: 'Mehmet', value: 10},
+];
+
+const HEIGHT = Math.round(400 / data.length);
+
+const maxValue = Math.max(...data.map(({value}) => value));
+
+const Bar: React.FC<{
+	readonly highlighted: boolean;
+	readonly label: string;
+	readonly value: number;
+	readonly showInTimeline: boolean;
+}> = ({highlighted, label, showInTimeline, value}) => {
 	const frame = useCurrentFrame();
 
 	return (
 		<Interactive.Div
+			cropRight={interpolate(frame, [14, 47], [1, 0], {
+				easing: [Easing.bezier(0, 0, 0.58, 1)],
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			})}
+			name={'Bar'}
+			showInTimeline={showInTimeline}
+			style={{
+				alignItems: 'center',
+				backgroundColor: highlighted ? '#2858e8' : '#d1d5db',
+				borderRadius: 12,
+				boxSizing: 'border-box',
+				color: highlighted ? '#ffffff' : '#111827',
+				display: 'flex',
+				height: '100%',
+				justifyContent: 'space-between',
+				overflow: 'hidden',
+				padding: '0 34px',
+				width: '100%',
+			}}
+		>
+			<Interactive.Div
+				name={'Label'}
+				showInTimeline={showInTimeline}
+				style={{
+					fontSize: 40,
+					fontWeight: 700,
+					lineHeight: 1,
+					opacity: interpolate(frame, [26, 32], [0, 1], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					}),
+					whiteSpace: 'nowrap',
+				}}
+			>
+				{label}
+			</Interactive.Div>
+			<Interactive.Div
+				name={`${label} value`}
+				showInTimeline={showInTimeline}
+				style={{
+					fontSize: 48,
+					fontWeight: 800,
+					letterSpacing: -1.6,
+					lineHeight: 1,
+					opacity: interpolate(frame, [32, 38], [0, 1], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					}),
+					whiteSpace: 'nowrap',
+				}}
+			>
+				{value}
+			</Interactive.Div>
+		</Interactive.Div>
+	);
+};
+
+export const HorizontalBarChart: React.FC = () => {
+	return (
+		<Interactive.Div
 			name="Chart"
 			style={{
-				backgroundColor: '#f7f4ec',
-				borderRadius: 28,
-				boxSizing: 'border-box',
-				color: '#111827',
-				display: 'flex',
-				flexDirection: 'column',
 				fontFamily,
 				fontVariantNumeric: 'tabular-nums',
 				height: '100%',
-				opacity: interpolate(frame, [0, 8, 108, 119], [0, 1, 1, 0], {
-					easing: Easing.out(Easing.cubic),
-					extrapolateLeft: 'clamp',
-					extrapolateRight: 'clamp',
-				}),
-				overflow: 'hidden',
-				padding: '72px 80px',
-				width: '100%',
+				display: 'flex',
+				flexDirection: 'column',
+				justifyContent: 'center',
+				gap: 42,
 			}}
 		>
 			<Interactive.H1
@@ -41,182 +107,32 @@ export const HorizontalBarChart: React.FC = () => {
 					letterSpacing: -3.8,
 					lineHeight: 0.95,
 					margin: 0,
+					color: '#111827',
 				}}
 			>
-				Revenue by channel
+				Team member pull-ups
 			</Interactive.H1>
-
-			<div
-				style={{
-					display: 'flex',
-					flex: 1,
-					flexDirection: 'column',
-					gap: 42,
-					justifyContent: 'flex-end',
-				}}
-			>
-				<Interactive.Div
-					name="Direct bar"
+			{data.map(({highlighted, label, value}, index) => (
+				<div
+					key={label}
 					style={{
-						alignItems: 'center',
-						backgroundColor: '#2858e8',
-						borderRadius: 12,
-						boxSizing: 'border-box',
-						clipPath: `inset(0 ${interpolate(frame, [8, 32], [100, 0], {
-							easing: Easing.out(Easing.cubic),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						})}% 0 0)`,
-						color: '#ffffff',
-						display: 'flex',
-						height: 136,
-						justifyContent: 'space-between',
-						overflow: 'hidden',
-						padding: '0 34px',
-						width: '100%',
+						height: HEIGHT,
 					}}
 				>
 					<Interactive.Div
-						name="Direct label"
-						style={{
-							fontSize: 40,
-							fontWeight: 700,
-							lineHeight: 1,
-							opacity: interpolate(frame, [24, 30], [0, 1], {
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-							}),
-							whiteSpace: 'nowrap',
-						}}
+						from={8 + index * 6}
+						style={{width: `${(value / maxValue) * 100}%`, height: '100%'}}
+						showInTimeline={false}
 					>
-						Direct
+						<Bar
+							highlighted={highlighted}
+							label={label}
+							showInTimeline={index === 0}
+							value={value}
+						/>
 					</Interactive.Div>
-					<Interactive.Div
-						name="Direct value"
-						style={{
-							fontSize: 48,
-							fontWeight: 800,
-							letterSpacing: -1.6,
-							lineHeight: 1,
-							opacity: interpolate(frame, [25, 31], [0, 1], {
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-							}),
-							whiteSpace: 'nowrap',
-						}}
-					>
-						$24M
-					</Interactive.Div>
-				</Interactive.Div>
-
-				<Interactive.Div
-					name="Retail bar"
-					style={{
-						alignItems: 'center',
-						backgroundColor: '#2858e8',
-						borderRadius: 12,
-						boxSizing: 'border-box',
-						clipPath: `inset(0 ${interpolate(frame, [14, 38], [100, 0], {
-							easing: Easing.out(Easing.cubic),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						})}% 0 0)`,
-						color: '#ffffff',
-						display: 'flex',
-						height: 136,
-						justifyContent: 'space-between',
-						overflow: 'hidden',
-						padding: '0 34px',
-						width: '67%',
-					}}
-				>
-					<Interactive.Div
-						name="Retail label"
-						style={{
-							fontSize: 40,
-							fontWeight: 700,
-							lineHeight: 1,
-							opacity: interpolate(frame, [30, 36], [0, 1], {
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-							}),
-							whiteSpace: 'nowrap',
-						}}
-					>
-						Retail
-					</Interactive.Div>
-					<Interactive.Div
-						name="Retail value"
-						style={{
-							fontSize: 48,
-							fontWeight: 800,
-							letterSpacing: -1.6,
-							lineHeight: 1,
-							opacity: interpolate(frame, [31, 37], [0, 1], {
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-							}),
-							whiteSpace: 'nowrap',
-						}}
-					>
-						$16M
-					</Interactive.Div>
-				</Interactive.Div>
-
-				<Interactive.Div
-					name="Partners bar"
-					style={{
-						alignItems: 'center',
-						backgroundColor: '#2858e8',
-						borderRadius: 12,
-						boxSizing: 'border-box',
-						clipPath: `inset(0 ${interpolate(frame, [20, 44], [100, 0], {
-							easing: Easing.out(Easing.cubic),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						})}% 0 0)`,
-						color: '#ffffff',
-						display: 'flex',
-						height: 136,
-						justifyContent: 'space-between',
-						overflow: 'hidden',
-						padding: '0 34px',
-						width: '38%',
-					}}
-				>
-					<Interactive.Div
-						name="Partners label"
-						style={{
-							fontSize: 40,
-							fontWeight: 700,
-							lineHeight: 1,
-							opacity: interpolate(frame, [36, 42], [0, 1], {
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-							}),
-							whiteSpace: 'nowrap',
-						}}
-					>
-						Partners
-					</Interactive.Div>
-					<Interactive.Div
-						name="Partners value"
-						style={{
-							fontSize: 48,
-							fontWeight: 800,
-							letterSpacing: -1.6,
-							lineHeight: 1,
-							opacity: interpolate(frame, [37, 43], [0, 1], {
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-							}),
-							whiteSpace: 'nowrap',
-						}}
-					>
-						$9M
-					</Interactive.Div>
-				</Interactive.Div>
-			</div>
+				</div>
+			))}
 		</Interactive.Div>
 	);
 };
