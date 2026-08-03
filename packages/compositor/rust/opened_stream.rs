@@ -43,7 +43,9 @@ pub struct LastFrameInfo {
 }
 
 pub fn calc_position(time: f64, time_base: Rational) -> i64 {
-    (time * time_base.1 as f64 / time_base.0 as f64) as i64
+    // Container timestamps use integer time-base ticks. Use the nearest tick so
+    // floating-point imprecision does not put an exact frame time one tick early.
+    (time * time_base.1 as f64 / time_base.0 as f64).round() as i64
 }
 
 pub fn get_time() -> u128 {

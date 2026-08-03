@@ -10,7 +10,8 @@ import {
 export const VideoTesting: React.FC<{
 	codec: 'mp4' | 'webm';
 	type?: 'normal' | 'offthread' | 'codec';
-}> = ({codec, type = 'normal'}) => {
+	trimBefore?: number;
+}> = ({codec, type = 'normal', trimBefore}) => {
 	const {durationInFrames} = useVideoConfig();
 	const videoMp4 = staticFile('framermp4withoutfileextension');
 	const videoWebm = staticFile('framer.webm');
@@ -27,7 +28,10 @@ export const VideoTesting: React.FC<{
 	return (
 		<div>
 			<Sequence durationInFrames={durationInFrames}>
-				<Comp src={codec === 'mp4' ? videoMp4 : videoWebm} />
+				<Comp
+					src={codec === 'mp4' ? videoMp4 : videoWebm}
+					trimBefore={trimBefore}
+				/>
 			</Sequence>
 		</div>
 	);
