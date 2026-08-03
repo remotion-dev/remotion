@@ -147,8 +147,21 @@ export const MyComponent = () => {
 	await new Promise<void>((resolve) =>
 		senderServer.listen(0, '127.0.0.1', resolve),
 	);
+	const address = senderServer.address();
+	if (address === null || typeof address === 'string') {
+		throw new Error('Expected sender server address');
+	}
 
+	const senderUrl = `http://127.0.0.1:${address.port}`;
+	const elementsLibraryRequests: string[] = [];
 	const context = await browser.newContext();
+	await context.route('https://www.remotion.dev/elements', async (route) => {
+		elementsLibraryRequests.push(route.request().url());
+		await route.fulfill({
+			status: 302,
+			headers: {Location: senderUrl},
+		});
+	});
 	try {
 		await waitForUrl(studioUrl, studioProcess);
 		const studioPage = await context.newPage();
@@ -178,13 +191,19 @@ export const MyComponent = () => {
 				],
 			});
 
-		const address = senderServer.address();
-		if (address === null || typeof address === 'string') {
-			throw new Error('Expected sender server address');
-		}
-
-		const senderPage = await context.newPage();
-		await senderPage.goto(`http://127.0.0.1:${address.port}`);
+		await studioPage.locator('[data-sidebar-toggle="right"]').click();
+		const browseElements = studioPage.getByRole('button', {
+			name: 'Browse Elements...',
+		});
+		await expect(browseElements).toBeVisible();
+		const senderPagePromise = context.waitForEvent('page', {timeout: 10_000});
+		await browseElements.click();
+		const senderPage = await senderPagePromise;
+		await senderPage.waitForLoadState('domcontentloaded');
+		expect(elementsLibraryRequests).toEqual([
+			'https://www.remotion.dev/elements',
+		]);
+		await expect(senderPage).toHaveURL(senderUrl);
 		await senderPage.getByRole('button', {name: 'Install in Studio'}).click();
 		await senderPage.waitForFunction(
 			() => document.querySelector('#status')?.textContent !== '',
