@@ -108,6 +108,7 @@ import {
 	Skills2AnnouncementComposition,
 	skills2AnnouncementSchema,
 } from './Skills2Announcement';
+import {Skills2CodeChange} from './Skills2CodeChange';
 import {Skills2Gesture} from './Skills2Gesture';
 import {Skills2Pick} from './Skills2Pick';
 import {Skills2Router} from './Skills2Router';
@@ -143,6 +144,14 @@ export const RemotionRoot: React.FC = () => {
 				height={520}
 			/>
 			<Folder name="announcements">
+				<Composition
+					id="Skills2CodeChange"
+					component={Skills2CodeChange}
+					durationInFrames={180}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
 				<Composition
 					id="Skills2Announcement"
 					component={Skills2AnnouncementComposition}
