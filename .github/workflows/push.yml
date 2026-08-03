@@ -43,8 +43,8 @@ jobs:
         run: |
           set -euo pipefail
 
-          full_matrix='{"include":[{"os":"ubuntu-latest","node_version":16},{"os":"windows-latest","node_version":16},{"os":"macos-latest","node_version":25}]}'
-          linux_matrix='{"include":[{"os":"ubuntu-latest","node_version":16}]}'
+          full_matrix='{"include":[{"os":"ubuntu-latest","node_version":16,"run_build":true},{"os":"windows-latest","node_version":16,"run_build":true},{"os":"macos-latest","node_version":25,"run_build":true}]}'
+          required_matrix='{"include":[{"os":"ubuntu-latest","node_version":16,"run_build":true},{"os":"windows-latest","node_version":16,"run_build":false}]}'
 
           run_all_test_groups() {
             for output in lambda nextjs browser webrenderer ssr templates build bundle_example; do
@@ -95,7 +95,7 @@ jobs:
           set_from_tasks bundle_example bundle-testbed
 
           build=false
-          build_matrix=$linux_matrix
+          build_matrix=$required_matrix
           if jq -e \
             'any(.data.affectedTasks.items[]; .name == "make" or .name == "test")' \
             affected.json > /dev/null; then
@@ -366,12 +366,12 @@ jobs:
     timeout-minutes: 40
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.affected.outputs.build_matrix || '{"include":[{"os":"ubuntu-latest","node_version":16},{"os":"windows-latest","node_version":16},{"os":"macos-latest","node_version":25}]}') }}
+      matrix: ${{ fromJSON(needs.affected.outputs.build_matrix || '{"include":[{"os":"ubuntu-latest","node_version":16,"run_build":true},{"os":"windows-latest","node_version":16,"run_build":true},{"os":"macos-latest","node_version":25,"run_build":true}]}') }}
     env:
       BUN_INSTALL_CACHE_DIR: ${{ matrix.os == 'windows-latest' && 'D:\.bun\install\cache' || '' }}
-      RUN_BUILD: ${{ needs.affected.result != 'success' || needs.affected.outputs.build == 'true' }}
+      RUN_BUILD: ${{ matrix.run_build && (needs.affected.result != 'success' || needs.affected.outputs.build == 'true') }}
       RUN_BUNDLE: ${{ needs.affected.result != 'success' || needs.affected.outputs.bundle_example == 'true' }}
-      RUN_BUILD_JOB: ${{ needs.affected.result != 'success' || needs.affected.outputs.build == 'true' || needs.affected.outputs.bundle_example == 'true' }}
+      RUN_BUILD_JOB: ${{ (matrix.run_build && (needs.affected.result != 'success' || needs.affected.outputs.build == 'true')) || (matrix.os == 'ubuntu-latest' && (needs.affected.result != 'success' || needs.affected.outputs.bundle_example == 'true')) }}
     steps:
       - name: No affected build tasks
         if: env.RUN_BUILD_JOB != 'true'
