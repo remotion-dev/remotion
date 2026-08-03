@@ -127,9 +127,10 @@ export const MyComponent = () => {
 		response.writeHead(200, {'Content-Type': 'text/html'});
 		response.end(`<!doctype html>
 			<button id="install">Install in Studio</button>
+			<button id="license">Configure license in Studio</button>
 			<p id="status"></p>
 			<script type="module">
-				import {createElementPayload, installInStudio} from '/protocol.js';
+				import {createElementPayload, installInStudio, StudioProtocolInternals} from '/protocol.js';
 				const payload = createElementPayload({
 					displayName: 'Protocol Element',
 					slug: 'protocol-element',
@@ -139,7 +140,15 @@ export const MyComponent = () => {
 					durationInFrames: 30,
 				});
 				document.querySelector('#install').onclick = async () => {
+					document.querySelector('#status').textContent = '';
 					const result = await installInStudio({payload});
+					document.querySelector('#status').textContent = JSON.stringify(result);
+				};
+				document.querySelector('#license').onclick = async () => {
+					document.querySelector('#status').textContent = '';
+					const result = await StudioProtocolInternals.setLicenseKeyInStudio({
+						licenseKey: 'rm_pub_${'a'.repeat(48)}',
+					});
 					document.querySelector('#status').textContent = JSON.stringify(result);
 				};
 			</script>`);
@@ -233,6 +242,26 @@ export const MyComponent = () => {
 		);
 		expect(compositionSource).toContain('ProtocolElement');
 		expect(compositionSource).toContain('protocol-element.element');
+
+		await studioPage.bringToFront();
+		await studioPage.mouse.click(500, 300);
+		await senderPage.bringToFront();
+		await senderPage
+			.getByRole('button', {name: 'Configure license in Studio'})
+			.click();
+		await senderPage.waitForFunction(
+			() => document.querySelector('#status')?.textContent !== '',
+		);
+		expect(await senderPage.locator('#status').textContent()).toContain(
+			'awaiting-confirmation',
+		);
+
+		await studioPage.bringToFront();
+		const licenseDialog = studioPage.getByRole('dialog');
+		await expect(licenseDialog.getByText('Configure License')).toBeVisible();
+		await expect(
+			licenseDialog.getByRole('textbox', {name: 'Public license key'}),
+		).toHaveValue(`rm_pub_${'a'.repeat(48)}`);
 	} catch (error) {
 		throw new Error(`${String(error)}\nTemporary Studio logs:\n${studioLogs}`);
 	} finally {

@@ -2,13 +2,15 @@ import type {IncomingMessage, ServerResponse} from 'node:http';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {z} from 'zod';
 import {consumeStudioProtocolTarget} from '../element-install-state';
+import type {LiveEventsServer} from '../live-events';
 import {parseRequestBody, RequestBodyTooLargeError} from '../parse-body';
-import {setPublicLicenseKeyInConfigFile} from '../routes/update-public-license';
 import {
 	getAllowedLicenseKeyOrigin,
 	setStudioProtocolCorsHeaders,
 } from './origin-policy';
 import {writeStudioProtocolError} from './protocol-response';
+
+type FocusStudioTab = (studioUrl: string) => void;
 
 const studioProtocolLicenseKeyRequestSchema = z.object({
 	operation: z.literal('set-license-key'),
@@ -22,10 +24,14 @@ const MAX_STUDIO_PROTOCOL_LICENSE_KEY_BODY_SIZE = 4096;
 
 export const handleStudioProtocolLicenseKey = async ({
 	configFile,
+	focusStudioTab,
+	liveEventsServer,
 	request,
 	response,
 }: {
 	readonly configFile: string | null;
+	readonly focusStudioTab: FocusStudioTab;
+	readonly liveEventsServer: LiveEventsServer;
 	readonly request: IncomingMessage;
 	readonly response: ServerResponse;
 }): Promise<void> => {
@@ -127,27 +133,28 @@ export const handleStudioProtocolLicenseKey = async ({
 		return;
 	}
 
-	try {
-		setPublicLicenseKeyInConfigFile({
-			configFile,
-			publicLicenseKey: parsedRequest.data.licenseKey,
-		});
-	} catch {
+	const delivered = liveEventsServer.sendEventToClientId(target.clientId, {
+		type: 'license-key-install-request',
+		licenseKey: parsedRequest.data.licenseKey,
+	});
+	if (!delivered) {
 		writeStudioProtocolError({
-			code: 'config-write-failed',
-			message: 'Could not update the Remotion config file.',
+			code: 'target-expired',
+			message: 'The selected Remotion Studio tab is no longer connected.',
 			response,
-			status: 500,
+			status: 409,
 		});
 		return;
 	}
+
+	focusStudioTab(target.studioUrl);
 
 	response.writeHead(200, {'Content-Type': 'application/json'});
 	response.end(
 		JSON.stringify({
 			protocol: 'remotion-studio-protocol',
 			protocolVersion: 1,
-			status: 'license-key-set',
+			status: 'awaiting-confirmation',
 		}),
 	);
 };

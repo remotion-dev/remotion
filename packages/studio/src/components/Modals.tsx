@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import ReactDOM from 'react-dom';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
@@ -30,11 +30,26 @@ import {UpdateModal} from './UpdateModal/UpdateModal';
 export const Modals: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
-	const {selectedModal: modalContextType} = useContext(ModalsContext);
+	const {selectedModal: modalContextType, setSelectedModal} =
+		useContext(ModalsContext);
 	const {currentZIndex} = useZIndex();
-	const canRender =
-		useContext(StudioServerConnectionCtx).previewServerState.type ===
-		'connected';
+	const {previewServerState, subscribeToEvent} = useContext(
+		StudioServerConnectionCtx,
+	);
+	const canRender = previewServerState.type === 'connected';
+
+	useEffect(() => {
+		return subscribeToEvent('license-key-install-request', (event) => {
+			if (event.type !== 'license-key-install-request') {
+				return;
+			}
+
+			setSelectedModal({
+				type: 'configure-license',
+				initialPublicLicenseKey: event.licenseKey,
+			});
+		});
+	}, [setSelectedModal, subscribeToEvent]);
 
 	return ReactDOM.createPortal(
 		<>
@@ -85,6 +100,7 @@ export const Modals: React.FC<{
 			)}
 			{modalContextType && modalContextType.type === 'configure-license' && (
 				<ConfigureLicenseModal
+					key={modalContextType.initialPublicLicenseKey}
 					initialPublicLicenseKey={modalContextType.initialPublicLicenseKey}
 				/>
 			)}

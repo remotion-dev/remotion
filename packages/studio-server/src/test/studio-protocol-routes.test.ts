@@ -7,10 +7,6 @@ import path from 'node:path';
 import {createElementPayload} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import {
-	createFileWatcherRegistry,
-	setFileWatcherRegistry,
-} from '../file-watcher';
-import {
 	clearElementInstallStateForTests,
 	updateElementInstallTarget,
 } from '../preview-server/element-install-state';
@@ -351,8 +347,10 @@ test('discovers an exact Studio target and delivers one install request over HTT
 	}
 });
 
-test('sets a public license key in the focused Studio project over HTTP', async () => {
+test('opens a license key confirmation in the focused Studio project over HTTP', async () => {
 	clearElementInstallStateForTests();
+	const deliveredEvents: EventSourceEvent[] = [];
+	const focusedUrls: string[] = [];
 	const directory = mkdtempSync(
 		path.join(tmpdir(), 'remotion-license-protocol-'),
 	);
@@ -366,7 +364,6 @@ test('sets a public license key in the focused Studio project over HTTP', async 
 			'',
 		].join('\n'),
 	);
-	const unsetRegistry = setFileWatcherRegistry(createFileWatcherRegistry());
 	const liveEventsServer: LiveEventsServer = {
 		addNewClientListener: () => () => undefined,
 		closeConnections: () => Promise.resolve(),
@@ -387,7 +384,14 @@ test('sets a public license key in the focused Studio project over HTTP', async 
 				studioUrl: 'http://localhost:3000',
 			});
 		},
-		sendEventToClientId: () => false,
+		sendEventToClientId: (clientId, event) => {
+			if (clientId !== 'focused-studio-tab') {
+				return false;
+			}
+
+			deliveredEvents.push(event);
+			return true;
+		},
 	};
 	const server = createServer((request, response) => {
 		const {pathname} = new URL(request.url ?? '/', 'http://localhost');
@@ -413,6 +417,8 @@ test('sets a public license key in the focused Studio project over HTTP', async 
 
 		handleStudioProtocolLicenseKey({
 			configFile: loadedConfigFile,
+			focusStudioTab: (studioUrl) => focusedUrls.push(studioUrl),
+			liveEventsServer,
 			request,
 			response,
 		}).catch((error) => response.destroy(error));
@@ -498,15 +504,16 @@ test('sets a public license key in the focused Studio project over HTTP', async 
 		expect(await response.json()).toEqual({
 			protocol: 'remotion-studio-protocol',
 			protocolVersion: 1,
-			status: 'license-key-set',
+			status: 'awaiting-confirmation',
 		});
-		expect(readFileSync(configFile, 'utf8')).toBe(
-			[
-				"import {Config} from '@remotion/cli/config';",
-				`Config.setPublicLicenseKey('${validLicenseKey}');`,
-				'',
-			].join('\n'),
-		);
+		expect(readFileSync(configFile, 'utf8')).toContain('rm_pub_old');
+		expect(deliveredEvents).toEqual([
+			{
+				type: 'license-key-install-request',
+				licenseKey: validLicenseKey,
+			},
+		]);
+		expect(focusedUrls).toEqual(['http://localhost:3000']);
 
 		const replay = await fetch(`${origin}/api/studio-protocol/license-key`, {
 			method: 'POST',
@@ -521,6 +528,8 @@ test('sets a public license key in the focused Studio project over HTTP', async 
 			status: 'error',
 			error: {code: 'target-expired'},
 		});
+		expect(deliveredEvents).toHaveLength(1);
+		expect(focusedUrls).toHaveLength(1);
 
 		const noConfigDiscovery = await fetch(`${origin}/api/studio-protocol`, {
 			headers: {Origin: 'https://www.remotion.pro'},
@@ -555,7 +564,6 @@ test('sets a public license key in the focused Studio project over HTTP', async 
 		await new Promise<void>((resolve, reject) => {
 			server.close((error) => (error ? reject(error) : resolve()));
 		});
-		unsetRegistry();
 		rmSync(directory, {recursive: true, force: true});
 		clearElementInstallStateForTests();
 	}
