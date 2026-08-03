@@ -14,13 +14,13 @@ import {
 	cancelRender,
 	Interactive,
 	Sequence,
+	useCurrentFrame,
+	useVideoConfig,
 	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
 	type SequenceControls,
 	type SequenceProps,
-	useCurrentFrame,
-	useVideoConfig,
 } from 'remotion';
 
 type TimedCaptionsHighlightProps = InteractiveBaseProps &
@@ -172,7 +172,6 @@ const CaptionPage: React.FC<{
 					lineHeight: 1.5,
 					maxWidth: maximumTextWidth,
 					paintOrder: 'stroke fill',
-					position: 'relative',
 					textAlign: 'center',
 					WebkitTextStroke: `${textStrokeWidth}px #000000`,
 					whiteSpace: 'normal',
@@ -199,11 +198,7 @@ const CaptionPage: React.FC<{
 								style={{
 									color: isActive ? highlightColor : textColor,
 									display: 'inline-block',
-									position: 'relative',
-									scale: 1,
-									transformOrigin: 'center bottom',
 									whiteSpace: 'pre',
-									zIndex: 1,
 								}}
 							>
 								{visibleText}

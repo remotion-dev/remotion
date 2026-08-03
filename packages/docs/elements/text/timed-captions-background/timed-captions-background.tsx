@@ -17,13 +17,13 @@ import {
 	interpolate,
 	Sequence,
 	spring,
+	useCurrentFrame,
+	useVideoConfig,
 	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
 	type SequenceControls,
 	type SequenceProps,
-	useCurrentFrame,
-	useVideoConfig,
 } from 'remotion';
 
 type TimedCaptionsBackgroundProps = InteractiveBaseProps &
@@ -45,7 +45,6 @@ const maximumTextWidth = 800;
 const fontWeight = '700';
 const textColor = '#ffffff';
 const backgroundColor = '#0b84f3';
-const activeWordScale = 1.2;
 const pillHorizontalPadding = 12;
 const pillVerticalPadding = 12;
 const pillBorderRadius = 10;
@@ -108,14 +107,6 @@ const getActivePageIndex = (
 		),
 	);
 
-const getActiveTokenIndex = (
-	tokens: readonly Pick<TikTokToken, 'fromMs' | 'toMs'>[],
-	timeMs: number,
-) =>
-	tokens.findIndex((token) =>
-		isTimeWithinHalfOpenInterval(timeMs, token.fromMs, token.toMs),
-	);
-
 const getLatestStartedTokenIndex = (
 	tokens: readonly Pick<TikTokToken, 'fromMs'>[],
 	timeMs: number,
@@ -147,10 +138,7 @@ const CaptionPage: React.FC<{
 		);
 		const maximumTokenWidth = Math.max(
 			1,
-			Math.min(
-				availableWidth - pillHorizontalPadding * 2,
-				availableWidth / activeWordScale,
-			),
+			availableWidth - pillHorizontalPadding * 2,
 		);
 		const tokenFontSizes = page.tokens
 			.map((token) => token.text.trim())
@@ -214,7 +202,6 @@ const CaptionPage: React.FC<{
 
 		return () => resizeObserver.disconnect();
 	}, [fontSize, page.tokens]);
-	const activeTokenIndex = getActiveTokenIndex(page.tokens, currentTimeMs);
 	const latestStartedTokenIndex = getLatestStartedTokenIndex(
 		page.tokens,
 		currentTimeMs,
@@ -319,7 +306,6 @@ const CaptionPage: React.FC<{
 					/>
 				) : null}
 				{page.tokens.map((token, tokenIndex) => {
-					const isActive = tokenIndex === activeTokenIndex;
 					const visibleText = token.text.trim();
 					const visibleTextIndex = token.text.indexOf(visibleText);
 					const leadingWhitespace = visibleText
@@ -342,8 +328,6 @@ const CaptionPage: React.FC<{
 									color: textColor,
 									display: 'inline-block',
 									position: 'relative',
-									scale: 1,
-									transformOrigin: 'center bottom',
 									whiteSpace: 'pre',
 									zIndex: 1,
 								}}

@@ -16,13 +16,13 @@ import {
 	interpolate,
 	Sequence,
 	spring,
+	useCurrentFrame,
+	useVideoConfig,
 	type InteractiveBaseProps,
 	type InteractiveTransformProps,
 	type InteractivitySchema,
 	type SequenceControls,
 	type SequenceProps,
-	useCurrentFrame,
-	useVideoConfig,
 } from 'remotion';
 
 type TimedCaptionsScaleProps = InteractiveBaseProps &
@@ -211,7 +211,6 @@ const CaptionPage: React.FC<{
 					lineHeight: 1.5,
 					maxWidth: maximumTextWidth,
 					paintOrder: 'stroke fill',
-					position: 'relative',
 					textAlign: 'center',
 					WebkitTextStroke: `${textStrokeWidth}px #000000`,
 					whiteSpace: 'normal',
@@ -238,11 +237,9 @@ const CaptionPage: React.FC<{
 								style={{
 									color: isActive ? highlightColor : textColor,
 									display: 'inline-block',
-									position: 'relative',
 									scale: getTokenScale({currentTimeMs, fps, token}),
 									transformOrigin: 'center bottom',
 									whiteSpace: 'pre',
-									zIndex: 1,
 								}}
 							>
 								{visibleText}
