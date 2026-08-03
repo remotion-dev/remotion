@@ -105,7 +105,7 @@ jobs:
 
   lambda-tests:
     needs: affected
-    if: needs.affected.outputs.lambda == 'true'
+    if: ${{ !cancelled() && (needs.affected.result != 'success' || needs.affected.outputs.lambda == 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     name: Lambda integration
@@ -134,7 +134,7 @@ jobs:
           cd packages/lambda && bunx remotion browser ensure && bun test src/test/integration --run
   nextjs-tests:
     needs: affected
-    if: needs.affected.outputs.nextjs == 'true'
+    if: ${{ !cancelled() && (needs.affected.result != 'success' || needs.affected.outputs.nextjs == 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     name: Next.js SSR build
@@ -156,7 +156,7 @@ jobs:
           bun run testnextjs
   browser-tests:
     needs: affected
-    if: needs.affected.outputs.browser == 'true'
+    if: ${{ !cancelled() && (needs.affected.result != 'success' || needs.affected.outputs.browser == 'true') }}
     runs-on: macos-latest
     timeout-minutes: 30
     name: Browser tests
@@ -184,7 +184,7 @@ jobs:
           bun run teste2e
   webrenderer-tests:
     needs: affected
-    if: needs.affected.outputs.webrenderer == 'true'
+    if: ${{ !cancelled() && (needs.affected.result != 'success' || needs.affected.outputs.webrenderer == 'true') }}
     runs-on: macos-latest
     timeout-minutes: 30
     name: Web renderer tests
@@ -210,7 +210,7 @@ jobs:
           bun run testbrowserstudio
   ssr-tests:
     needs: affected
-    if: needs.affected.outputs.ssr == 'true'
+    if: ${{ !cancelled() && (needs.affected.result != 'success' || needs.affected.outputs.ssr == 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     name: SSR + Monorepo checks
@@ -250,7 +250,7 @@ jobs:
   template-tests:
     name: Template integration on ${{ matrix.os }}
     needs: affected
-    if: needs.affected.outputs.templates == 'true'
+    if: ${{ !cancelled() && (needs.affected.result != 'success' || needs.affected.outputs.templates == 'true') }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     strategy:
@@ -288,6 +288,7 @@ jobs:
           bun run testtemplates
   lint:
     needs: affected
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     name: Linting + Formatting
@@ -315,12 +316,12 @@ jobs:
   build:
     name: Build Node ${{ matrix.node_version }} on ${{ matrix.os }}
     needs: affected
-    if: needs.affected.outputs.build == 'true'
+    if: ${{ !cancelled() && (needs.affected.result != 'success' || needs.affected.outputs.build == 'true') }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.affected.outputs.build_matrix) }}
+      matrix: ${{ fromJSON(needs.affected.outputs.build_matrix || '{"include":[{"os":"ubuntu-latest","node_version":16},{"os":"windows-latest","node_version":16},{"os":"macos-latest","node_version":25}]}') }}
     env:
       BUN_INSTALL_CACHE_DIR: ${{ matrix.os == 'windows-latest' && 'D:\.bun\install\cache' || '' }}
     steps:
@@ -350,6 +351,6 @@ jobs:
         run: |
           bunx turbo run make test --affected --concurrency=1 --no-update-notifier
       - name: Bundle example
-        if: matrix.os == 'ubuntu-latest' && needs.affected.outputs.bundle_example == 'true'
+        if: matrix.os == 'ubuntu-latest' && (needs.affected.result != 'success' || needs.affected.outputs.bundle_example == 'true')
         run: |
           bunx turbo run bundle-testbed --filter=@remotion/example --no-update-notifier
