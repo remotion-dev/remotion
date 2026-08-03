@@ -32,7 +32,7 @@ const container: React.CSSProperties = {
 };
 
 export const MenuContent: React.FC<{
-	readonly values: ComboboxValue[];
+	readonly values: readonly ComboboxValue[];
 	readonly onHide: () => void;
 	readonly onNextMenu: () => void;
 	readonly onPreviousMenu: () => void;

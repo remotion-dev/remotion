@@ -221,7 +221,7 @@ const ContextMenuPortal: React.FC<{
 						<MenuContent
 							onNextMenu={noop}
 							onPreviousMenu={noop}
-							values={[...opened.values]}
+							values={opened.values}
 							onHide={onHide}
 							leaveLeftSpace
 							preselectIndex={false}
