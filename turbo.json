@@ -16,10 +16,18 @@
 			"dependsOn": ["^make", "@remotion/example#bundle"]
 		},
 		"testtemplates": {
-			"dependsOn": ["^make", "@remotion/example#bundle"]
+			"dependsOn": ["^make", "@remotion/example#bundle"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"$TURBO_ROOT$/packages/template-*/**",
+				"$TURBO_ROOT$/tsconfig.json"
+			]
 		},
 		"testlambda": {
 			"dependsOn": ["^make", "@remotion/example#bundle"]
+		},
+		"@remotion/player-example#testnextjs": {
+			"dependsOn": ["^make"]
 		},
 		"testwebcodecs": {
 			"dependsOn": ["@remotion/webcodecs#make"]
@@ -193,7 +201,13 @@
 		},
 		"@remotion/brand#bundle": {
 			"dependsOn": ["^make"],
-			"inputs": ["src/**", "public/**", "remotion.config.*", "package.json", "tsconfig.json"],
+			"inputs": [
+				"src/**",
+				"public/**",
+				"remotion.config.*",
+				"package.json",
+				"tsconfig.json"
+			],
 			"outputs": ["build"],
 			"outputLogs": "new-only"
 		}
