@@ -13,7 +13,9 @@ import React, {
 import {
 	cancelRender,
 	Interactive,
+	interpolate,
 	Sequence,
+	spring,
 	useCurrentFrame,
 	useVideoConfig,
 	type InteractiveBaseProps,
@@ -23,15 +25,15 @@ import {
 	type SequenceProps,
 } from 'remotion';
 
-type TimedCaptionsHighlightProps = InteractiveBaseProps &
+type PoppingWordCaptionsProps = InteractiveBaseProps &
 	InteractiveTransformProps &
 	Pick<SequenceProps, 'width' | 'height'> & {
 		readonly captions?: Caption[];
 		readonly combineTokensWithinMilliseconds?: number;
 	};
 
-type TimedCaptionsHighlightLayerProps = Omit<
-	TimedCaptionsHighlightProps,
+type PoppingWordCaptionsLayerProps = Omit<
+	PoppingWordCaptionsProps,
 	'captions'
 > & {
 	readonly captions: Caption[];
@@ -42,9 +44,10 @@ const maximumTextWidth = 800;
 const fontWeight = '700';
 const textColor = '#ffffff';
 const highlightColor = '#18ff0e';
+const activeWordScale = 1.03;
 const defaultCombineTokensWithinMilliseconds = 800;
 
-const timedCaptionsHighlightSchema = {
+const poppingWordCaptionsSchema = {
 	...Interactive.baseSchema,
 	...Interactive.captionsSchema,
 	width: {
@@ -108,18 +111,54 @@ const getActiveTokenIndex = (
 		isTimeWithinHalfOpenInterval(timeMs, token.fromMs, token.toMs),
 	);
 
+const getTokenScale = ({
+	currentTimeMs,
+	fps,
+	token,
+}: {
+	readonly currentTimeMs: number;
+	readonly fps: number;
+	readonly token: Pick<TikTokToken, 'fromMs' | 'toMs'>;
+}) => {
+	if (!isTimeWithinHalfOpenInterval(currentTimeMs, token.fromMs, token.toMs)) {
+		return 1;
+	}
+
+	const tokenDurationInFrames = ((token.toMs - token.fromMs) / 1000) * fps;
+	const tokenLocalFrame = ((currentTimeMs - token.fromMs) / 1000) * fps;
+	const animationDurationInFrames = Math.min(4, tokenDurationInFrames / 2);
+	const enterProgress = spring({
+		config: {damping: 200},
+		durationInFrames: animationDurationInFrames,
+		fps,
+		frame: tokenLocalFrame,
+	});
+	const exitProgress = interpolate(
+		tokenLocalFrame,
+		[tokenDurationInFrames - animationDurationInFrames, tokenDurationInFrames],
+		[1, 0],
+		{
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		},
+	);
+
+	return 1 + Math.min(enterProgress, exitProgress) * (activeWordScale - 1);
+};
+
 const CaptionPage: React.FC<{
 	readonly captionAreaWidth: number | null;
 	readonly currentTimeMs: number;
+	readonly fps: number;
 	readonly page: TikTokPage;
 	readonly pageIndex: number;
-}> = ({captionAreaWidth, currentTimeMs, page, pageIndex}) => {
+}> = ({captionAreaWidth, currentTimeMs, fps, page, pageIndex}) => {
 	const fontSize = useMemo(() => {
 		const availableWidth = Math.min(
 			maximumTextWidth,
 			captionAreaWidth ?? maximumTextWidth,
 		);
-		const maximumTokenWidth = Math.max(1, availableWidth);
+		const maximumTokenWidth = Math.max(1, availableWidth / activeWordScale);
 		const tokenFontSizes = page.tokens
 			.map((token) => token.text.trim())
 			.filter(Boolean)
@@ -198,6 +237,8 @@ const CaptionPage: React.FC<{
 								style={{
 									color: isActive ? highlightColor : textColor,
 									display: 'inline-block',
+									scale: getTokenScale({currentTimeMs, fps, token}),
+									transformOrigin: 'center bottom',
 									whiteSpace: 'pre',
 								}}
 							>
@@ -212,7 +253,7 @@ const CaptionPage: React.FC<{
 	);
 };
 
-const TimedCaptionsHighlightContent: React.FC<{
+const PoppingWordCaptionsContent: React.FC<{
 	readonly captionAreaWidth: number | null;
 	readonly captions: Caption[];
 	readonly combineTokensWithinMilliseconds: number;
@@ -246,15 +287,16 @@ const TimedCaptionsHighlightContent: React.FC<{
 			key={`${activePageIndex}-${page.startMs}`}
 			captionAreaWidth={captionAreaWidth}
 			currentTimeMs={currentTimeMs}
+			fps={fps}
 			page={page}
 			pageIndex={activePageIndex}
 		/>
 	);
 };
 
-const TimedCaptionsHighlightInner = forwardRef<
+const PoppingWordCaptionsInner = forwardRef<
 	HTMLDivElement,
-	TimedCaptionsHighlightLayerProps & {
+	PoppingWordCaptionsLayerProps & {
 		readonly controls: SequenceControls | undefined;
 	}
 >(
@@ -293,7 +335,7 @@ const TimedCaptionsHighlightInner = forwardRef<
 				layout="none"
 				{...interactiveProps}
 				controls={controls}
-				name={name ?? '<TimedCaptionsHighlight>'}
+				name={name ?? '<PoppingWordCaptions>'}
 				outlineRef={outlineRef}
 			>
 				<div
@@ -304,7 +346,7 @@ const TimedCaptionsHighlightInner = forwardRef<
 						...style,
 					}}
 				>
-					<TimedCaptionsHighlightContent
+					<PoppingWordCaptionsContent
 						captionAreaWidth={width ?? null}
 						captions={captions}
 						combineTokensWithinMilliseconds={combineTokensWithinMilliseconds}
@@ -316,20 +358,20 @@ const TimedCaptionsHighlightInner = forwardRef<
 	},
 );
 
-const TimedCaptionsHighlightLayer = Interactive.withSchema({
-	Component: TimedCaptionsHighlightInner,
-	componentName: '<TimedCaptionsHighlight>',
+const PoppingWordCaptionsLayer = Interactive.withSchema({
+	Component: PoppingWordCaptionsInner,
+	componentName: '<PoppingWordCaptions>',
 	componentIdentity: null,
-	schema: timedCaptionsHighlightSchema,
+	schema: poppingWordCaptionsSchema,
 	supportsEffects: false,
-}) as React.FC<TimedCaptionsHighlightLayerProps>;
+}) as React.FC<PoppingWordCaptionsLayerProps>;
 
-export const TimedCaptionsHighlight: React.FC<TimedCaptionsHighlightProps> = ({
+export const PoppingWordCaptions: React.FC<PoppingWordCaptionsProps> = ({
 	captions,
 	...props
 }) => {
 	if (captions) {
-		return <TimedCaptionsHighlightLayer {...props} captions={captions} />;
+		return <PoppingWordCaptionsLayer {...props} captions={captions} />;
 	}
 
 	return (
@@ -342,7 +384,7 @@ export const TimedCaptionsHighlight: React.FC<TimedCaptionsHighlightProps> = ({
 				width: 900,
 			}}
 		>
-			<TimedCaptionsHighlightLayer
+			<PoppingWordCaptionsLayer
 				{...props}
 				captions={[
 					{
