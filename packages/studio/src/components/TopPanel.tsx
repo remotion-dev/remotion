@@ -8,7 +8,6 @@ import {CanvasIfSizeIsAvailable} from './CanvasIfSizeIsAvailable';
 import {TitleUpdater} from './CurrentCompositionSideEffects';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {ExplorerPanel} from './ExplorerPanel';
-import MobilePanel from './MobilePanel';
 import {ObserveDefaultProps} from './ObserveDefaultPropsContext';
 import {OptionsPanel} from './OptionsPanel';
 import {PreviewToolbar} from './PreviewToolbar';
@@ -36,9 +35,14 @@ const MIN_SIDEBAR_WIDTH = 250;
 
 export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
 	const {sidebarCollapsedStateLeft} = useContext(SidebarContext);
+	const isMobileLayout = useMobileLayout();
 	const responsiveLeftStatus = useBreakpoint(1200) ? 'collapsed' : 'expanded';
 
 	const actualStateLeft = useMemo((): 'expanded' | 'collapsed' => {
+		if (isMobileLayout) {
+			return 'collapsed';
+		}
+
 		if (sidebarCollapsedStateLeft === 'collapsed') {
 			return 'collapsed';
 		}
@@ -48,7 +52,7 @@ export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
 		}
 
 		return responsiveLeftStatus;
-	}, [sidebarCollapsedStateLeft, responsiveLeftStatus]);
+	}, [isMobileLayout, sidebarCollapsedStateLeft, responsiveLeftStatus]);
 
 	return actualStateLeft;
 };
@@ -97,8 +101,6 @@ const TopPanelInner: React.FC<{
 		setSidebarCollapsedState({left: null, right: 'collapsed'});
 	}, [setSidebarCollapsedState]);
 
-	const isMobileLayout = useMobileLayout();
-
 	return (
 		<ObserveDefaultProps
 			compositionId={
@@ -122,17 +124,11 @@ const TopPanelInner: React.FC<{
 						orientation="vertical"
 					>
 						{actualStateLeft === 'expanded' ? (
-							isMobileLayout ? (
-								<MobilePanel onClose={onCollapseLeft}>
-									<ExplorerPanel readOnlyStudio={readOnlyStudio} />
-								</MobilePanel>
-							) : (
-								<SplitterElement sticky={null} type="flexer">
-									<ExplorerPanel readOnlyStudio={readOnlyStudio} />
-								</SplitterElement>
-							)
+							<SplitterElement sticky={null} type="flexer">
+								<ExplorerPanel readOnlyStudio={readOnlyStudio} />
+							</SplitterElement>
 						) : null}
-						{actualStateLeft === 'expanded' && !isMobileLayout ? (
+						{actualStateLeft === 'expanded' ? (
 							<SplitterHandle
 								allowToCollapse="left"
 								onCollapse={onCollapseLeft}

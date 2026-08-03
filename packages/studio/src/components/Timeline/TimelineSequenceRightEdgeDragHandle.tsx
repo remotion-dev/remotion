@@ -946,7 +946,7 @@ const clearFromDragOverrides = ({
 	}
 };
 
-export const TimelineSequenceLeftEdgeDragHandle: React.FC<{
+const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
@@ -1217,6 +1217,10 @@ export const TimelineSequenceLeftEdgeDragHandle: React.FC<{
 		/>
 	);
 };
+
+export const TimelineSequenceLeftEdgeDragHandle = React.memo(
+	TimelineSequenceLeftEdgeDragHandleInner,
+);
 
 export const useTimelineSequenceFromDrag = ({
 	nodePathInfo,
@@ -1523,7 +1527,7 @@ export const useTimelineSequenceFromDrag = ({
 	};
 };
 
-export const TimelineSequenceRightEdgeDragHandle: React.FC<{
+const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly windowWidth: number;
 	readonly timelineDurationInFrames: number;
@@ -1781,3 +1785,7 @@ export const TimelineSequenceRightEdgeDragHandle: React.FC<{
 		/>
 	);
 };
+
+export const TimelineSequenceRightEdgeDragHandle = React.memo(
+	TimelineSequenceRightEdgeDragHandleInner,
+);

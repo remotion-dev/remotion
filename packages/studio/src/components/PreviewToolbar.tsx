@@ -62,7 +62,8 @@ const padding: React.CSSProperties = {
 };
 
 const toolbarControl: React.CSSProperties = {
-	display: 'contents',
+	display: 'flex',
+	flexShrink: 0,
 };
 
 const PreviewToolbarControl: React.FC<{
@@ -113,6 +114,22 @@ export const PreviewToolbar: React.FC<{
 		<div style={container} className="css-reset">
 			<div style={sideContainer}>
 				<div style={padding} />
+				{isMobileLayout ? null : (
+					<PreviewToolbarControl>
+						<SizeSelector />
+					</PreviewToolbarControl>
+				)}
+				{!isMobileLayout && (isStill || isVideoComposition) ? (
+					<>
+						<Spacing x={2} />
+						<PreviewToolbarControl>
+							<PlaybackRateSelector
+								setPlaybackRate={setPlaybackRate}
+								playbackRate={playbackRate}
+							/>
+						</PreviewToolbarControl>
+					</>
+				) : null}
 				{isMobileLayout ? (
 					<>
 						<PreviewToolbarControl>
@@ -137,19 +154,6 @@ export const PreviewToolbar: React.FC<{
 				) : null}
 			</div>
 			<Flex />
-			{isMobileLayout ? null : (
-				<PreviewToolbarControl>
-					<SizeSelector />
-				</PreviewToolbarControl>
-			)}
-			{!isMobileLayout && (isStill || isVideoComposition) ? (
-				<PreviewToolbarControl>
-					<PlaybackRateSelector
-						setPlaybackRate={setPlaybackRate}
-						playbackRate={playbackRate}
-					/>
-				</PreviewToolbarControl>
-			) : null}
 
 			{isVideoComposition && isMobileLayout ? (
 				<div style={centeredPlayButton}>{playPause}</div>
@@ -208,7 +212,11 @@ export const PreviewToolbar: React.FC<{
 				<FpsCounter playbackSpeed={playbackRate} />
 				<Spacing x={2} />
 				<PreviewToolbarControl>
-					<RenderButton readOnlyStudio={readOnlyStudio} size="compact" />
+					<RenderButton
+						readOnlyStudio={readOnlyStudio}
+						size="compact"
+						narrow={isMobileLayout}
+					/>
 				</PreviewToolbarControl>
 				<Spacing x={1.5} />
 			</div>

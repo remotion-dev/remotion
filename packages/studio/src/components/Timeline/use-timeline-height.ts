@@ -23,9 +23,11 @@ import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
 export const useTimelineHeight = ({
 	shown,
 	hasBeenCut,
+	isStill,
 }: {
 	shown: TimelineTrackData[];
 	hasBeenCut: boolean;
+	isStill: boolean;
 }): number => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -103,11 +105,12 @@ export const useTimelineHeight = ({
 			tracksHeight +
 			TIMELINE_ITEM_BORDER_BOTTOM +
 			(hasBeenCut ? MAX_TIMELINE_TRACKS_NOTICE_HEIGHT : 0) +
-			TIMELINE_TIME_INDICATOR_HEIGHT
+			(isStill ? 0 : TIMELINE_TIME_INDICATOR_HEIGHT)
 		);
 	}, [
 		shown,
 		hasBeenCut,
+		isStill,
 		previewServerConnected,
 		getIsExpanded,
 		propStatuses,

@@ -42,7 +42,8 @@ const TimelineListTrack: React.FC<{
 
 export const TimelineList: React.FC<{
 	readonly timeline: TimelineTrackData[];
-}> = ({timeline}) => {
+	readonly showTimePadding: boolean;
+}> = ({timeline, showTimePadding}) => {
 	const nestedTimeline = useMemo(
 		() => nestTimelineTracks(timeline),
 		[timeline],
@@ -50,7 +51,7 @@ export const TimelineList: React.FC<{
 
 	return (
 		<div style={container}>
-			<TimelineTimePadding />
+			{showTimePadding ? <TimelineTimePadding /> : null}
 			{nestedTimeline.map((nestedTrack) => (
 				<TimelineListTrack
 					key={nestedTrack.track.sequence.id}

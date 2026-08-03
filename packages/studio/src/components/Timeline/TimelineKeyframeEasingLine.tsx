@@ -70,16 +70,20 @@ export const TimelineKeyframeEasingLineVisual = React.memo(
 	TimelineKeyframeEasingLineVisualUnmemoized,
 );
 
-const TimelineKeyframeEasingLineUnmemoized: React.FC<{
+type TimelineKeyframeEasingLineProps = {
 	readonly fromFrame: number;
 	readonly toFrame: number;
 	readonly rowHeight: number;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly segmentIndex: number;
-}> = ({fromFrame, toFrame, rowHeight, nodePathInfo, segmentIndex}) => {
+};
+
+const TimelineKeyframeEasingLineInteraction: React.FC<
+	TimelineKeyframeEasingLineProps & {
+		readonly style: React.CSSProperties;
+	}
+> = ({fromFrame, toFrame, nodePathInfo, segmentIndex, style}) => {
 	const buttonRef = useRef<HTMLButtonElement>(null);
-	const videoConfig = useVideoConfig();
-	const timelineWidth = useContext(TimelineWidthContext);
 	const {selected, onSelect, selectable, selectionItem} =
 		useTimelineEasingSelection({
 			nodePathInfo,
@@ -88,6 +92,13 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 			segmentIndex,
 		});
 	useTimelineMarqueeSelectableItem(selectionItem, buttonRef);
+	const interactiveStyle = useMemo(
+		() => ({
+			...style,
+			pointerEvents: selectable ? ('auto' as const) : ('none' as const),
+		}),
+		[selectable, style],
+	);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const propStatusesRef = useContext(
@@ -176,6 +187,40 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 		[onSelect, previewServerState.type, selectable, selected, updateEasing],
 	);
 
+	const onPointerDown = useTimelineEasingKeyframeDrag({
+		onSelect,
+		selectable,
+		selected,
+		selectionItem,
+	});
+
+	return (
+		<>
+			<button
+				ref={buttonRef}
+				{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
+				type="button"
+				style={interactiveStyle}
+				title={`Easing from frame ${fromFrame} to ${toFrame}`}
+				aria-label={`Select easing from frame ${fromFrame} to ${toFrame}`}
+				onPointerDown={selectable ? onPointerDown : undefined}
+			>
+				<TimelineKeyframeEasingLineVisual selected={selected} />
+			</button>
+			<ContextMenuForTarget
+				triggerRef={buttonRef}
+				getItems={getContextMenuItems}
+			/>
+		</>
+	);
+};
+
+const TimelineKeyframeEasingLineUnmemoized: React.FC<
+	TimelineKeyframeEasingLineProps
+> = ({fromFrame, toFrame, rowHeight, nodePathInfo, segmentIndex}) => {
+	const videoConfig = useVideoConfig();
+	const timelineWidth = useContext(TimelineWidthContext);
+
 	const style = useMemo((): React.CSSProperties | null => {
 		if (timelineWidth === null) {
 			return null;
@@ -202,48 +247,30 @@ const TimelineKeyframeEasingLineUnmemoized: React.FC<{
 		return {
 			...easingLineButton,
 			left,
-			pointerEvents: selectable ? 'auto' : 'none',
 			top: rowHeight / 2,
 			width,
 		};
 	}, [
 		fromFrame,
 		rowHeight,
-		selectable,
 		timelineWidth,
 		toFrame,
 		videoConfig.durationInFrames,
 	]);
-
-	const onPointerDown = useTimelineEasingKeyframeDrag({
-		onSelect,
-		selectable,
-		selected,
-		selectionItem,
-	});
 
 	if (style === null) {
 		return null;
 	}
 
 	return (
-		<>
-			<button
-				ref={buttonRef}
-				{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
-				type="button"
-				style={style}
-				title={`Easing from frame ${fromFrame} to ${toFrame}`}
-				aria-label={`Select easing from frame ${fromFrame} to ${toFrame}`}
-				onPointerDown={selectable ? onPointerDown : undefined}
-			>
-				<TimelineKeyframeEasingLineVisual selected={selected} />
-			</button>
-			<ContextMenuForTarget
-				triggerRef={buttonRef}
-				getItems={getContextMenuItems}
-			/>
-		</>
+		<TimelineKeyframeEasingLineInteraction
+			fromFrame={fromFrame}
+			toFrame={toFrame}
+			rowHeight={rowHeight}
+			nodePathInfo={nodePathInfo}
+			segmentIndex={segmentIndex}
+			style={style}
+		/>
 	);
 };
 

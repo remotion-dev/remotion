@@ -2,8 +2,7 @@ import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
 import {BLACK} from '../../helpers/colors';
 import {useIsStill} from '../../helpers/is-current-selected-still';
-import {Minus} from '../../icons/minus';
-import {Plus} from '../../icons/plus';
+import {CanvasZoomIcon, CanvasZoomOutIcon} from '../../icons/canvas-zoom';
 import {
 	TIMELINE_MAX_ZOOM,
 	TIMELINE_MIN_ZOOM,
@@ -22,10 +21,6 @@ const container: React.CSSProperties = {
 
 const buttonStyle: React.CSSProperties = {
 	fontSize: 24,
-};
-
-const iconStyle: React.CSSProperties = {
-	width: 14,
 };
 
 const TimelineZoomSlider: React.FC<{
@@ -77,11 +72,11 @@ const TimelineZoomSlider: React.FC<{
 	);
 };
 
-export const TimelineZoomControls: React.FC<{
+const TimelineZoomControlsInner: React.FC<{
 	readonly sliderMaxWidth?: number;
 }> = ({sliderMaxWidth}) => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
-	const {setZoom, zoom: zoomMap} = useContext(TimelineZoomCtx);
+	const {setZoom} = useContext(TimelineZoomCtx);
 
 	const onMinusClicked = useCallback(() => {
 		if (canvasContent === null || canvasContent.type !== 'composition') {
@@ -117,8 +112,6 @@ export const TimelineZoomControls: React.FC<{
 		return null;
 	}
 
-	const zoom = zoomMap[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM;
-
 	return (
 		<div style={container}>
 			<ControlButton
@@ -127,9 +120,8 @@ export const TimelineZoomControls: React.FC<{
 				title="Zoom out timeline"
 				role={'ControlButton'}
 				type="button"
-				disabled={TIMELINE_MIN_ZOOM === zoom}
 			>
-				{(color) => <Minus style={iconStyle} color={color} />}
+				{(color) => <CanvasZoomOutIcon color={color} />}
 			</ControlButton>
 			<Spacing x={0.5} />
 			<TimelineZoomSlider maxWidth={sliderMaxWidth} />
@@ -140,10 +132,11 @@ export const TimelineZoomControls: React.FC<{
 				title="Zoom in timeline"
 				role={'button'}
 				type="button"
-				disabled={TIMELINE_MAX_ZOOM === zoom}
 			>
-				{(color) => <Plus color={color} style={iconStyle} />}
+				{(color) => <CanvasZoomIcon color={color} />}
 			</ControlButton>
 		</div>
 	);
 };
+
+export const TimelineZoomControls = React.memo(TimelineZoomControlsInner);

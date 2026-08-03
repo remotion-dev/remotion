@@ -1,3 +1,4 @@
+import {stringifySequenceSubscriptionKey} from '@remotion/studio-shared';
 import React, {useContext} from 'react';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
@@ -31,13 +32,17 @@ const rowSeparator: React.CSSProperties = {
 	height: TIMELINE_ITEM_BORDER_BOTTOM,
 };
 
-const TimelineExpandedKeyframeRowUnmemoized: React.FC<{
+type TimelineExpandedKeyframeRowProps = {
 	readonly height: number;
 	readonly keyframes: ReturnType<typeof getTimelineKeyframes>;
 	readonly canEditEasing: boolean;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly showSeparator: boolean;
-}> = ({height, keyframes, canEditEasing, nodePathInfo, showSeparator}) => {
+};
+
+const TimelineExpandedKeyframeRowUnmemoized: React.FC<
+	TimelineExpandedKeyframeRowProps
+> = ({height, keyframes, canEditEasing, nodePathInfo, showSeparator}) => {
 	const timelineWidth = useContext(TimelineWidthContext);
 	const rowHighlightBackground =
 		useTimelineRowHighlightBackground(nodePathInfo);
@@ -82,6 +87,59 @@ const TimelineExpandedKeyframeRowUnmemoized: React.FC<{
 	);
 };
 
+const areTimelineExpandedKeyframeRowPropsEqual = (
+	prevProps: TimelineExpandedKeyframeRowProps,
+	nextProps: TimelineExpandedKeyframeRowProps,
+) => {
+	if (
+		prevProps.height !== nextProps.height ||
+		prevProps.canEditEasing !== nextProps.canEditEasing ||
+		prevProps.showSeparator !== nextProps.showSeparator ||
+		prevProps.keyframes.length !== nextProps.keyframes.length ||
+		prevProps.nodePathInfo.index !== nextProps.nodePathInfo.index ||
+		prevProps.nodePathInfo.numberOfSequencesWithThisNodePath !==
+			nextProps.nodePathInfo.numberOfSequencesWithThisNodePath ||
+		prevProps.nodePathInfo.supportsEffects !==
+			nextProps.nodePathInfo.supportsEffects ||
+		stringifySequenceSubscriptionKey(
+			prevProps.nodePathInfo.sequenceSubscriptionKey,
+		) !==
+			stringifySequenceSubscriptionKey(
+				nextProps.nodePathInfo.sequenceSubscriptionKey,
+			) ||
+		prevProps.nodePathInfo.auxiliaryKeys.length !==
+			nextProps.nodePathInfo.auxiliaryKeys.length
+	) {
+		return false;
+	}
+
+	const prevVideoConfig =
+		prevProps.nodePathInfo.sequenceSubscriptionKey.videoConfigValues;
+	const nextVideoConfig =
+		nextProps.nodePathInfo.sequenceSubscriptionKey.videoConfigValues;
+	if (
+		prevVideoConfig !== nextVideoConfig &&
+		(prevVideoConfig === null ||
+			nextVideoConfig === null ||
+			prevVideoConfig.durationInFrames !== nextVideoConfig.durationInFrames ||
+			prevVideoConfig.fps !== nextVideoConfig.fps ||
+			prevVideoConfig.height !== nextVideoConfig.height ||
+			prevVideoConfig.width !== nextVideoConfig.width)
+	) {
+		return false;
+	}
+
+	return (
+		prevProps.keyframes.every(
+			(keyframe, index) => keyframe.frame === nextProps.keyframes[index].frame,
+		) &&
+		prevProps.nodePathInfo.auxiliaryKeys.every(
+			(key, index) => key === nextProps.nodePathInfo.auxiliaryKeys[index],
+		)
+	);
+};
+
 export const TimelineExpandedKeyframeRow = React.memo(
 	TimelineExpandedKeyframeRowUnmemoized,
+	areTimelineExpandedKeyframeRowPropsEqual,
 );

@@ -424,7 +424,7 @@ export const InspectorSequenceSection: React.FC<{
 						</span>
 					),
 					disabled: false,
-					onClick: null,
+					onClick: () => openTimelineAssetLink(linkInfo, selectAsset),
 					title: linkInfo.href,
 				};
 			}

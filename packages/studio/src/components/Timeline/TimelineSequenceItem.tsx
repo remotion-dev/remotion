@@ -242,7 +242,7 @@ type SequenceDropTarget =
 			readonly reason: string;
 	  };
 
-export const TimelineSequenceItem: React.FC<{
+const TimelineSequenceItemInner: React.FC<{
 	readonly children: React.ReactNode;
 	readonly sequence: TSequence;
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
@@ -1281,3 +1281,5 @@ export const TimelineSequenceItem: React.FC<{
 		</>
 	);
 };
+
+export const TimelineSequenceItem = React.memo(TimelineSequenceItemInner);

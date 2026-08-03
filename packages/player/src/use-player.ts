@@ -68,7 +68,9 @@ export const usePlayer = (): UsePlayerMethods => {
 				: Math.max(0, newFrame);
 
 			if (video?.id) {
-				setTimelinePosition((c) => ({...c, [video.id]: frameToSeekTo}));
+				setTimelinePosition((c) =>
+					c[video.id] === frameToSeekTo ? c : {...c, [video.id]: frameToSeekTo},
+				);
 			}
 
 			frameRef.current = frameToSeekTo;

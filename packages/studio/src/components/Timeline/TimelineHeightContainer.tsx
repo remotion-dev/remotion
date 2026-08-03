@@ -14,9 +14,10 @@ const baseStyle: React.CSSProperties = {
 const TimelineHeightContainerInner: React.FC<{
 	readonly shown: TimelineTrackData[];
 	readonly hasBeenCut: boolean;
+	readonly isStill: boolean;
 	readonly children: React.ReactNode;
-}> = ({shown, hasBeenCut, children}) => {
-	const height = useTimelineHeight({shown, hasBeenCut});
+}> = ({shown, hasBeenCut, isStill, children}) => {
+	const height = useTimelineHeight({shown, hasBeenCut, isStill});
 
 	const style = useMemo<React.CSSProperties>(
 		() => ({...baseStyle, height}),
