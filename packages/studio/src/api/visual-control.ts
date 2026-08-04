@@ -7,7 +7,7 @@ import {
 } from '../visual-controls/VisualControls';
 
 /**
- * @deprecated
+ * @deprecated Remotion Studio now has integrated interactivity for most components, and we will further develop this interactivity rather than visual controls.
  */
 export const visualControl: VisualControlRef['globalVisualControl'] = (
 	key,
