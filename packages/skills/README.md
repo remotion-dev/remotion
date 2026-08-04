@@ -54,6 +54,12 @@ Use this for static maps, animated routes and markers, geographic explainers, Ma
 
 Invoke a render into a video or a still.
 
+### `/remotion-studio`
+
+Launch a Remotion project in Studio, open its local URL, and configure Studio CLI flags.
+
+> Example prompt: `/remotion-studio Open this project on port 3001`
+
 ### `/remotion-captions`
 
 Guidance for captions and subtitles.
