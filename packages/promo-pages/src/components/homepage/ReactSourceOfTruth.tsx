@@ -18,7 +18,7 @@ export const ReactSourceOfTruth: React.FC = () => {
 						rx="26"
 						ry="10"
 						stroke="currentColor"
-						strokeWidth="6"
+						strokeWidth="5.5"
 					/>
 					<ellipse
 						cx="32"
@@ -26,7 +26,7 @@ export const ReactSourceOfTruth: React.FC = () => {
 						rx="26"
 						ry="10"
 						stroke="currentColor"
-						strokeWidth="6"
+						strokeWidth="5.5"
 						transform="rotate(60 32 32)"
 					/>
 					<ellipse
@@ -35,10 +35,10 @@ export const ReactSourceOfTruth: React.FC = () => {
 						rx="26"
 						ry="10"
 						stroke="currentColor"
-						strokeWidth="6"
+						strokeWidth="5.5"
 						transform="rotate(120 32 32)"
 					/>
-					<circle cx="32" cy="32" fill="currentColor" r="4" />
+					<circle cx="32" cy="32" fill="currentColor" r="3.75" />
 				</svg>
 				{/* Font Awesome Free v7.3.1 by @fontawesome - https://fontawesome.com/license/free - Copyright 2026 Fonticons, Inc. */}
 				<svg
