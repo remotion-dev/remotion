@@ -32,7 +32,7 @@ type ElementPageProps = {
 type InstallStatus =
 	| {type: 'idle'}
 	| {type: 'installing'}
-	| {type: 'success'; message: string; studioUrl: string}
+	| {type: 'success'; message: string}
 	| {type: 'error'; message: string};
 
 export const ElementPage: React.FC<ElementPageProps> = ({
@@ -111,7 +111,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		setInstallStatus({
 			type: 'success',
 			message: `Sent to ${target.projectName ?? 'Remotion Studio'} / ${target.compositionId}. Confirm the installation in Studio.`,
-			studioUrl: target.studioOrigin,
 		});
 	}, [elementPayload]);
 
@@ -216,16 +215,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 											: styles.errorStatus
 									}
 								>
-									{installStatus.message}{' '}
-									{installStatus.type === 'success' ? (
-										<a
-											href={installStatus.studioUrl}
-											rel="noreferrer"
-											target="_blank"
-										>
-											Open Studio
-										</a>
-									) : null}
+									{installStatus.message}
 								</p>
 							) : null}
 						</>
