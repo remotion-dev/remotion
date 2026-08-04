@@ -1,5 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {useTimelineFlex} from '../../state/timeline';
 import type {
 	SplitterDragState,
@@ -105,8 +105,14 @@ export const SplitterContainer: React.FC<{
 		ref,
 	]);
 
-	useLayoutEffect(() => {
-		PlayerInternals.updateAllElementsSizes();
+	useEffect(() => {
+		const frame = requestAnimationFrame(() => {
+			PlayerInternals.updateAllElementsSizes();
+		});
+
+		return () => {
+			cancelAnimationFrame(frame);
+		};
 	});
 
 	return (
