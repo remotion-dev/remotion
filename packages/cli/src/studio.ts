@@ -47,6 +47,7 @@ const {
 	portOption,
 	browserOption,
 	previewSampleRateOption,
+	defaultCodingAgentOption,
 	defaultEditorOption,
 } = BrowserSafeApis.options;
 
@@ -167,6 +168,8 @@ export const studioCommand = async (
 		audioLatencyHintOption.getValue({commandLine: parsedCli}).value;
 	const getPreviewSampleRate = () =>
 		previewSampleRateOption.getValue({commandLine: parsedCli}).value;
+	const getDefaultCodingAgent = () =>
+		defaultCodingAgentOption.getValue({commandLine: parsedCli}).value;
 	const getDefaultEditor = () =>
 		defaultEditorOption.getValue({commandLine: parsedCli}).value;
 
@@ -289,6 +292,7 @@ export const studioCommand = async (
 		forceIPv4: ipv4Option.getValue({commandLine: parsedCli}).value,
 		getAudioLatencyHint,
 		getPreviewSampleRate,
+		getDefaultCodingAgent,
 		getDefaultEditor,
 		enableCrossSiteIsolation,
 		forceNew: forceNewStudioOption.getValue({commandLine: parsedCli}).value,

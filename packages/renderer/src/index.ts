@@ -100,8 +100,8 @@ export {
 } from './frame-range';
 export {
 	GetCompositionsOptions,
-	getCompositions,
 	LegacyGetCompositionsOptions,
+	getCompositions,
 } from './get-compositions';
 export {SilentPart, getSilentParts} from './get-silent-parts';
 export {VideoMetadata, getVideoMetadata} from './get-video-metadata';
@@ -119,6 +119,8 @@ export type {ChromiumOptions} from './open-browser';
 export {ChromeMode} from './options/chrome-mode';
 export {ColorSpace} from './options/color-space';
 export type {Concurrency} from './options/concurrency';
+export {defaultCodingAgentIds} from './options/default-coding-agent';
+export type {DefaultCodingAgent} from './options/default-coding-agent';
 export {
 	customEditorColumnNumberPlaceholder,
 	customEditorLineNumberPlaceholder,

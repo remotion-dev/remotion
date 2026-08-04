@@ -4,6 +4,7 @@ import type {
 	ChromeMode,
 	Codec,
 	ColorSpace,
+	DefaultCodingAgent,
 	LogLevel,
 	PixelFormat,
 	StillImageFormat,
@@ -1008,6 +1009,24 @@ export type UpdateDefaultEditorResponse =
 			reason: string;
 	  };
 
+export type GetDefaultCodingAgentInfoRequest = {};
+export type GetDefaultCodingAgentInfoResponse = {
+	defaultCodingAgent: DefaultCodingAgent | null;
+	installedCodingAgents: {id: DefaultCodingAgent; name: string}[];
+};
+
+export type UpdateDefaultCodingAgentRequest = {
+	defaultCodingAgent: DefaultCodingAgent | null;
+};
+export type UpdateDefaultCodingAgentResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+	  };
+
 export type PackageInstallSpec = {
 	readonly name: string;
 	readonly version: string | null;
@@ -1065,6 +1084,14 @@ export type ApiRoutes = {
 	>;
 	'/api/remove-render': ReqAndRes<RemoveRenderRequest, undefined>;
 	'/api/open-in-editor': ReqAndRes<OpenInEditorRequest, OpenInEditorResponse>;
+	'/api/default-coding-agent-info': ReqAndRes<
+		GetDefaultCodingAgentInfoRequest,
+		GetDefaultCodingAgentInfoResponse
+	>;
+	'/api/update-default-coding-agent': ReqAndRes<
+		UpdateDefaultCodingAgentRequest,
+		UpdateDefaultCodingAgentResponse
+	>;
 	'/api/find-in-file': ReqAndRes<FindInFileRequest, FindInFileResponse>;
 	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
 	'/api/register-client-render': ReqAndRes<CompletedClientRender, void>;
