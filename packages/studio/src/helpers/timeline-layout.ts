@@ -20,6 +20,7 @@ import type {
 } from 'remotion';
 import type {GetIsExpanded} from '../components/ExpandedTracksProvider';
 import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
+import {getRuntimeValueSnapshot} from './use-runtime-values';
 
 export {
 	SCHEMA_FIELD_GROUPS,
@@ -111,7 +112,7 @@ export const buildTimelineTree = ({
 		currentRuntimeValueDotNotation:
 			runtimeValues !== null
 				? runtimeValues
-				: sequence.controls!.runtimeValues.getSnapshot(),
+				: getRuntimeValueSnapshot(sequence.controls),
 		getDragOverrides,
 		propStatuses,
 		nodePath: sequenceSubscriptionKey,

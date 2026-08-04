@@ -27,6 +27,7 @@ import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sor
 import {startPointerSession} from '../../helpers/pointer-session';
 import {sortItemsByNonceHistory} from '../../helpers/sort-by-nonce-history';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {getRuntimeValueSnapshot} from '../../helpers/use-runtime-values';
 import {EditorSnappingContext} from '../../state/editor-snapping';
 import {
 	forceSpecificCursor,
@@ -321,8 +322,9 @@ const getTrimBeforePlaybackRate = (sequence: TSequence) => {
 		return 1;
 	}
 
-	const runtimePlaybackRate =
-		sequence.controls?.runtimeValues.getSnapshot().playbackRate;
+	const runtimePlaybackRate = getRuntimeValueSnapshot(
+		sequence.controls,
+	).playbackRate;
 	return typeof runtimePlaybackRate === 'number' ? runtimePlaybackRate : 1;
 };
 

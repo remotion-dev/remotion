@@ -21,7 +21,10 @@ import {
 } from '../helpers/interactivity-enabled';
 import {useIsFullscreen} from '../helpers/use-is-fullscreen';
 import {useKeybinding} from '../helpers/use-keybinding';
-import {useRuntimeValueSnapshots} from '../helpers/use-runtime-values';
+import {
+	getRuntimeValueSnapshot,
+	useRuntimeValueSnapshots,
+} from '../helpers/use-runtime-values';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
 import {ScaleLockContext} from '../state/scale-lock';
@@ -769,11 +772,11 @@ export const SelectedOutlineOverlay: React.FC<{
 	const outlineRuntimeSnapshots = useRuntimeValueSnapshots(
 		outlineRuntimeControls,
 	);
-	const outlineRuntimeValuesByStore = useMemo(
+	const outlineRuntimeValuesByControls = useMemo(
 		() =>
 			new Map(
 				outlineRuntimeControls.map((controls, index) => [
-					controls.runtimeValues,
+					controls,
 					outlineRuntimeSnapshots[index],
 				]),
 			),
@@ -824,8 +827,8 @@ export const SelectedOutlineOverlay: React.FC<{
 			const sourceFrame = timelinePosition - keyframeDisplayOffset;
 			const dragOverrides = getDragOverrides(nodePath) ?? {};
 			const runtimeValues = controls
-				? (outlineRuntimeValuesByStore.get(controls.runtimeValues) ??
-					controls.runtimeValues.getSnapshot())
+				? (outlineRuntimeValuesByControls.get(controls) ??
+					getRuntimeValueSnapshot(controls))
 				: {};
 			const activeSchema = controls
 				? getSelectedOutlineActiveSchema({
@@ -1137,7 +1140,7 @@ export const SelectedOutlineOverlay: React.FC<{
 		sequences,
 		compositions,
 		timelinePosition,
-		outlineRuntimeValuesByStore,
+		outlineRuntimeValuesByControls,
 	]);
 
 	useEffect(() => {

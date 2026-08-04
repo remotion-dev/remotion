@@ -9,6 +9,7 @@ import type {
 	TSequence,
 } from 'remotion';
 import {Internals} from 'remotion';
+import {getRuntimeValueSnapshot} from '../../helpers/use-runtime-values';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {getSequencePropResetChanges} from './get-sequence-prop-reset-changes';
 import {saveMultipleEffectProps} from './save-effect-prop';
@@ -170,7 +171,7 @@ export const getTimelinePropResetTargets = ({
 			const {merged: sequenceValuesDotNotation} =
 				Internals.computeEffectiveSchemaValuesDotNotation({
 					schema: sequence.controls.schema,
-					currentValue: sequence.controls.runtimeValues.getSnapshot(),
+					currentValue: getRuntimeValueSnapshot(sequence.controls),
 					overrideValues: {},
 					propStatus: sequencePropStatus,
 					frame: null,

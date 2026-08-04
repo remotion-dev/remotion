@@ -60,11 +60,11 @@ export const useTimelineHeight = ({
 		[getIsExpanded, previewServerConnected, shown],
 	);
 	const runtimeValueSnapshots = useRuntimeValueSnapshots(expandedControls);
-	const runtimeValuesByStore = useMemo(
+	const runtimeValuesByControls = useMemo(
 		() =>
 			new Map(
 				expandedControls.map((controls, index) => [
-					controls.runtimeValues,
+					controls,
 					runtimeValueSnapshots[index],
 				]),
 			),
@@ -95,9 +95,7 @@ export const useTimelineHeight = ({
 					includeTextContent: false,
 					includeSourceControls: false,
 					runtimeValues: track.sequence.controls
-						? (runtimeValuesByStore.get(
-								track.sequence.controls.runtimeValues,
-							) ?? null)
+						? (runtimeValuesByControls.get(track.sequence.controls) ?? null)
 						: null,
 				});
 				const filteredTree = filterTimelineExpandedTree({
@@ -150,6 +148,6 @@ export const useTimelineHeight = ({
 		getDragOverrides,
 		getEffectDragOverrides,
 		selectedRowKeys,
-		runtimeValuesByStore,
+		runtimeValuesByControls,
 	]);
 };
