@@ -3,7 +3,7 @@ import {createElementPayload} from '../element-payload';
 import {installInStudioWithDependencies} from '../install-in-studio';
 
 const elementPayload = createElementPayload({
-	dependencies: ['remotion'],
+	dependencies: [],
 	dimensions: {width: 800, height: 200},
 	displayName: 'Lower Third',
 	durationInFrames: 90,

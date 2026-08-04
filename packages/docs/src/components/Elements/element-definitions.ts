@@ -1,9 +1,15 @@
-import type {ElementDependency} from '@remotion/studio-protocol';
+import type {
+	ElementDependency,
+	ElementInstallationMode,
+} from '@remotion/studio-protocol';
 import type {ComponentType} from 'react';
 import {LiquidContours} from '../../../elements/backgrounds/liquid-contours/liquid-contours';
 import {NotebookPaper} from '../../../elements/backgrounds/notebook-paper/notebook-paper';
 import {PaperTexture} from '../../../elements/backgrounds/paper-texture/paper-texture';
 import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburst/rotating-starburst';
+import {MovingPillCaptions} from '../../../elements/captions/moving-pill-captions/moving-pill-captions';
+import {PoppingWordCaptions} from '../../../elements/captions/popping-word-captions/popping-word-captions';
+import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-captions/word-highlight-captions';
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
 import {ProductOffer} from '../../../elements/data/product-offer/product-offer';
@@ -15,9 +21,6 @@ import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
 import {NewsArticleHeadlineHighlight} from '../../../elements/text/news-article-headline-highlight/news-article-headline-highlight';
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
 import {TextMarker} from '../../../elements/text/text-marker/text-marker';
-import {TimedCaptionsBackground} from '../../../elements/text/timed-captions-background/timed-captions-background';
-import {TimedCaptionsHighlight} from '../../../elements/text/timed-captions-highlight/timed-captions-highlight';
-import {TimedCaptionsScale} from '../../../elements/text/timed-captions-scale/timed-captions-scale';
 import type {Contributor} from '../Credits';
 
 export type ElementPreviewMetadata = {
@@ -41,6 +44,7 @@ export type ElementDefinition = {
 	readonly preview: ElementPreviewMetadata;
 	readonly previewPadding: number;
 	readonly slug: string;
+	readonly installationMode: ElementInstallationMode;
 	readonly width: number;
 };
 
@@ -67,6 +71,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 0,
 		slug: 'backgrounds/liquid-contours',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'maps/map-flyover': {
@@ -115,6 +120,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 0,
 		slug: 'backgrounds/notebook-paper',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'backgrounds/paper-texture': {
@@ -139,6 +145,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 0,
 		slug: 'backgrounds/paper-texture',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'backgrounds/rotating-starburst': {
@@ -162,6 +169,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 0,
 		slug: 'backgrounds/rotating-starburst',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'overlays/location-lower-third': {
@@ -185,6 +193,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 300,
 		slug: 'overlays/location-lower-third',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'overlays/lower-third': {
@@ -209,6 +218,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 300,
 		slug: 'overlays/lower-third',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'data/horizontal-bar-chart': {
@@ -224,7 +234,7 @@ export const elementDefinitions = {
 		elementWidth: 1560,
 		fps: 30,
 		height: 1080,
-		posterFrame: 48,
+		posterFrame: 70,
 		preview: {
 			posterUrl:
 				'https://remotion.media/elements/data-horizontal-bar-chart-preview.png',
@@ -233,6 +243,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 56,
 		slug: 'data/horizontal-bar-chart',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'data/number-counter': {
@@ -262,6 +273,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 120,
 		slug: 'data/number-counter',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'data/product-offer': {
@@ -286,6 +298,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 90,
 		slug: 'data/product-offer',
+		installationMode: 'wrapped',
 		width: 1080,
 	},
 	'text/circle-marker': {
@@ -313,6 +326,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 120,
 		slug: 'text/circle-marker',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'text/crossed-off': {
@@ -338,6 +352,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 120,
 		slug: 'text/crossed-off',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'text/news-article-headline-highlight': {
@@ -362,6 +377,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 0,
 		slug: 'text/news-article-headline-highlight',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'text/strike-through': {
@@ -389,6 +405,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 120,
 		slug: 'text/strike-through',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 	'text/text-marker': {
@@ -414,19 +431,21 @@ export const elementDefinitions = {
 		},
 		previewPadding: 120,
 		slug: 'text/text-marker',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
-	'text/timed-captions-background': {
-		category: 'text',
-		component: TimedCaptionsBackground,
+	'captions/moving-pill-captions': {
+		category: 'captions',
+		component: MovingPillCaptions,
 		contributors: [{username: 'JonnyBurger', contribution: null}],
-		description: 'Animated captions with word-level moving background styling.',
+		description:
+			'Synchronized captions with a pill that moves between spoken words.',
 		dependencies: [
 			{name: '@remotion/captions', version: null},
 			{name: '@remotion/google-fonts', version: null},
 			{name: '@remotion/layout-utils', version: null},
 		],
-		displayName: 'Background Timed Captions',
+		displayName: 'Moving Pill Captions',
 		durationInFrames: 210,
 		elementHeight: 180,
 		elementWidth: 900,
@@ -435,25 +454,26 @@ export const elementDefinitions = {
 		posterFrame: 75,
 		preview: {
 			posterUrl:
-				'https://remotion.media/elements/text-timed-captions-background-preview.png',
+				'https://remotion.media/elements/captions-moving-pill-captions-preview.png',
 			videoUrl:
-				'https://remotion.media/elements/text-timed-captions-background-preview.mp4',
+				'https://remotion.media/elements/captions-moving-pill-captions-preview.mp4',
 		},
 		previewPadding: 120,
-		slug: 'text/timed-captions-background',
+		slug: 'captions/moving-pill-captions',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
-	'text/timed-captions-highlight': {
-		category: 'text',
-		component: TimedCaptionsHighlight,
+	'captions/popping-word-captions': {
+		category: 'captions',
+		component: PoppingWordCaptions,
 		contributors: [{username: 'JonnyBurger', contribution: null}],
-		description: 'Animated captions with word-level highlight styling.',
+		description: 'Synchronized captions that pop each spoken word into focus.',
 		dependencies: [
 			{name: '@remotion/captions', version: null},
 			{name: '@remotion/google-fonts', version: null},
 			{name: '@remotion/layout-utils', version: null},
 		],
-		displayName: 'Highlight Timed Captions',
+		displayName: 'Popping Word Captions',
 		durationInFrames: 210,
 		elementHeight: 180,
 		elementWidth: 900,
@@ -462,25 +482,26 @@ export const elementDefinitions = {
 		posterFrame: 75,
 		preview: {
 			posterUrl:
-				'https://remotion.media/elements/text-timed-captions-highlight-preview.png',
+				'https://remotion.media/elements/captions-popping-word-captions-preview.png',
 			videoUrl:
-				'https://remotion.media/elements/text-timed-captions-highlight-preview.mp4',
+				'https://remotion.media/elements/captions-popping-word-captions-preview.mp4',
 		},
 		previewPadding: 120,
-		slug: 'text/timed-captions-highlight',
+		slug: 'captions/popping-word-captions',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
-	'text/timed-captions-scale': {
-		category: 'text',
-		component: TimedCaptionsScale,
+	'captions/word-highlight-captions': {
+		category: 'captions',
+		component: WordHighlightCaptions,
 		contributors: [{username: 'JonnyBurger', contribution: null}],
-		description: 'Animated captions with word-level scale styling.',
+		description: 'Synchronized captions that highlight each spoken word.',
 		dependencies: [
 			{name: '@remotion/captions', version: null},
 			{name: '@remotion/google-fonts', version: null},
 			{name: '@remotion/layout-utils', version: null},
 		],
-		displayName: 'Scale Timed Captions',
+		displayName: 'Word Highlight Captions',
 		durationInFrames: 210,
 		elementHeight: 180,
 		elementWidth: 900,
@@ -489,12 +510,13 @@ export const elementDefinitions = {
 		posterFrame: 75,
 		preview: {
 			posterUrl:
-				'https://remotion.media/elements/text-timed-captions-scale-preview.png',
+				'https://remotion.media/elements/captions-word-highlight-captions-preview.png',
 			videoUrl:
-				'https://remotion.media/elements/text-timed-captions-scale-preview.mp4',
+				'https://remotion.media/elements/captions-word-highlight-captions-preview.mp4',
 		},
 		previewPadding: 120,
-		slug: 'text/timed-captions-scale',
+		slug: 'captions/word-highlight-captions',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 } satisfies Record<string, ElementDefinition>;

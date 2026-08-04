@@ -47,7 +47,11 @@ export type {
 } from './drag-preview-metadata';
 export {setStudioDragData} from './drag-transport';
 export type {EffectDragData} from './effect-drag-data';
-export type {ElementDependency, ElementDragData} from './element-drag-data';
+export type {
+	ElementDependency,
+	ElementDragData,
+	ElementInstallationMode,
+} from './element-drag-data';
 export {
 	createElementPayload,
 	type CreateElementPayloadInput,

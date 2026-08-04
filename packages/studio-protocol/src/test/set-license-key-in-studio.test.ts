@@ -53,7 +53,7 @@ const dependencies = {
 	ports: [3000, 3001],
 };
 
-test('sets the key in the most recently focused Studio project', async () => {
+test('requests confirmation in the most recently focused Studio project', async () => {
 	const requests: Array<{
 		readonly options?: RequestInit;
 		readonly url: string;
@@ -89,7 +89,7 @@ test('sets the key in the most recently focused Studio project', async () => {
 			jsonResponse({
 				protocol: 'remotion-studio-protocol',
 				protocolVersion: 1,
-				status: 'license-key-set',
+				status: 'awaiting-confirmation',
 			}),
 		);
 	};
@@ -101,7 +101,7 @@ test('sets the key in the most recently focused Studio project', async () => {
 		}),
 	).toEqual({
 		success: true,
-		status: 'license-key-set',
+		status: 'awaiting-confirmation',
 		target: {
 			projectName: 'Focused project',
 			studioOrigin: 'http://localhost:3001',

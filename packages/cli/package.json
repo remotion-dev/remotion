@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/cli"
 	},
 	"name": "@remotion/cli",
-	"version": "4.0.504",
+	"version": "4.0.505",
 	"description": "Control Remotion features using the `npx remotion` command",
 	"main": "dist/index.js",
 	"bin": {
@@ -36,6 +36,7 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
+		"@babel/parser": "7.24.1",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/player": "workspace:*",

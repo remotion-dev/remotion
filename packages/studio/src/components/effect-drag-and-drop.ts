@@ -60,7 +60,9 @@ export const addEffectToSequence = async ({
 		const requiredPackage = getRequiredPackageForEffectImportPath(
 			effect.importPath,
 		);
-		await installRequiredPackages(requiredPackage ? [requiredPackage] : []);
+		await installRequiredPackages(
+			requiredPackage ? [{name: requiredPackage, version: null}] : [],
+		);
 
 		const result = await callApi('/api/add-effect', {
 			fileName,

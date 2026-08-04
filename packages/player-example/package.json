@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/player-example"
 	},
 	"name": "@remotion/player-example",
-	"version": "4.0.504",
+	"version": "4.0.505",
 	"private": true,
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
@@ -32,6 +32,7 @@
 		"formatting": "prettier src --check",
 		"lint": "eslint src",
 		"dev": "next dev",
-		"build-site": "next build"
+		"build-site": "next build",
+		"testnextjs": "next build"
 	}
 }

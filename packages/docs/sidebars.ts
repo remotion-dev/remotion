@@ -1682,12 +1682,6 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'link',
-			href: '/docs/animated-captions',
-			label: 'Animated Captions',
-			className: 'pro-item',
-		},
-		{
-			type: 'link',
 			href: '/docs/recorder',
 			label: 'Recorder',
 		},
@@ -1839,22 +1833,6 @@ const sidebars: SidebarsConfig = {
 				'timeline/faq',
 				'timeline/render',
 			],
-		},
-	],
-	animatedCaptionsSidebar: [
-		{
-			type: 'link',
-			href: '/docs',
-			label: '← Back to the main docs',
-		},
-		{
-			type: 'category',
-			label: 'Animated Captions',
-			link: {
-				type: 'doc',
-				id: 'animated-captions/index',
-			},
-			items: ['animated-captions/faq'],
 		},
 	],
 	recorderSidebar: [

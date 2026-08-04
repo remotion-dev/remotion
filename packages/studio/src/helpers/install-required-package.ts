@@ -1,26 +1,20 @@
-import type {ElementDependency} from '@remotion/studio-protocol';
+import type {PackageInstallSpec} from '@remotion/studio-shared';
 import {installPackages} from '../api/install-package';
 import {showNotification} from '../components/Notifications/NotificationCenter';
 
 let installQueue: Promise<void> = Promise.resolve();
 
 const uniqueDependencies = (
-	dependencies: (ElementDependency | string)[],
-): ElementDependency[] =>
+	dependencies: readonly PackageInstallSpec[],
+): PackageInstallSpec[] =>
 	Array.from(
 		new Map(
-			dependencies.map((dependency) => {
-				const normalized =
-					typeof dependency === 'string'
-						? {name: dependency, version: null}
-						: dependency;
-				return [normalized.name, normalized] as const;
-			}),
+			dependencies.map((dependency) => [dependency.name, dependency] as const),
 		).values(),
 	);
 
 export const getMissingPackages = (
-	dependencies: (ElementDependency | string)[],
+	dependencies: readonly PackageInstallSpec[],
 ) => {
 	const installedPackages = window.remotion_installedPackages ?? [];
 	return uniqueDependencies(dependencies).filter(
@@ -30,7 +24,7 @@ export const getMissingPackages = (
 	);
 };
 
-const addInstalledPackages = (dependencies: (ElementDependency | string)[]) => {
+const addInstalledPackages = (dependencies: readonly PackageInstallSpec[]) => {
 	const installedPackages = window.remotion_installedPackages ?? [];
 	window.remotion_installedPackages = Array.from(
 		new Set([
@@ -40,13 +34,13 @@ const addInstalledPackages = (dependencies: (ElementDependency | string)[]) => {
 	);
 };
 
-const formatPackageList = (dependencies: ElementDependency[]) =>
+const formatPackageList = (dependencies: PackageInstallSpec[]) =>
 	dependencies.length === 1
 		? dependencies[0]!.name
 		: `${dependencies.length} packages`;
 
 export const installRequiredPackages = async (
-	dependencies: (ElementDependency | string)[],
+	dependencies: readonly PackageInstallSpec[],
 ): Promise<void> => {
 	const runInstall = async () => {
 		const missingPackages = getMissingPackages(dependencies);

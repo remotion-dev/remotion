@@ -49,6 +49,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		elementWidth,
 		fps,
 		slug,
+		installationMode,
 	} = definition;
 	const [installStatus, setInstallStatus] = useState<InstallStatus>({
 		type: 'idle',
@@ -78,6 +79,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 			durationInFrames,
 			slug,
 			sourceCode,
+			installationMode,
 		});
 	}, [
 		definition.dependencies,
@@ -87,6 +89,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		elementWidth,
 		slug,
 		sourceCode,
+		installationMode,
 	]);
 
 	const installElement = useCallback(async () => {
@@ -252,9 +255,15 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 										<ul className={styles.dependencyList}>
 											{definition.dependencies.map((dependency) => (
 												<li key={dependency.name}>
-													{dependency.version === null
-														? dependency.name
-														: `${dependency.name}@${dependency.version}`}
+													<a
+														href={`https://www.npmjs.com/package/${dependency.name}`}
+														rel="noopener noreferrer"
+														target="_blank"
+													>
+														{dependency.version === null
+															? dependency.name
+															: `${dependency.name}@${dependency.version}`}
+													</a>
 												</li>
 											))}
 										</ul>

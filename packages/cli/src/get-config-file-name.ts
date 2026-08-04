@@ -18,6 +18,7 @@ const defaultConfigFileTypescript = 'remotion.config.ts';
 let loadedConfigFile: PreparedConfigFile | null = null;
 
 export const getLoadedConfigFile = () => loadedConfigFile?.resolved ?? null;
+export const getLoadedConfigFileCode = () => loadedConfigFile?.code ?? null;
 
 const warnAboutBundlerOverride = () => {
 	const useRspack = rspackOption.getValue({commandLine: parsedCli}).value;
@@ -122,13 +123,28 @@ export const loadConfig = async (
 	return null;
 };
 
-export const reloadConfig = async ({
+type ReloadConfigResult<T> =
+	| {type: 'success'; value: T}
+	| {type: 'error'; errorMessage: string}
+	| {type: 'no-config'};
+
+const logConfigReloadError = (errorMessage: string) => {
+	Log.error(
+		{indent: false, logLevel: 'error'},
+		'Could not reload the Remotion config. Keeping the previous configuration.',
+		errorMessage,
+	);
+};
+
+export const reloadConfig = async <T>({
 	resetConfigOptions,
+	getConfigSnapshot,
 }: {
 	resetConfigOptions: () => void;
-}): Promise<boolean> => {
+	getConfigSnapshot: (configFileCode: string) => T | Promise<T>;
+}): Promise<ReloadConfigResult<T>> => {
 	if (!loadedConfigFile) {
-		return false;
+		return {type: 'no-config'};
 	}
 
 	const previousConfigFile = loadedConfigFile;
@@ -141,28 +157,23 @@ export const reloadConfig = async ({
 			previousConfigFile.resolved.endsWith('.js'),
 		);
 	} catch (error) {
-		Log.error(
-			{indent: false, logLevel: 'error'},
-			'Could not reload the Remotion config. Keeping the previous configuration.',
-			error instanceof Error ? error.message : String(error),
-		);
-		return false;
+		const errorMessage = error instanceof Error ? error.message : String(error);
+		logConfigReloadError(errorMessage);
+		return {type: 'error', errorMessage};
 	}
 
 	resetConfigOptions();
 	try {
 		executeConfigFile(nextConfigFile);
-		loadedConfigFile = nextConfigFile;
+		const configSnapshot = await getConfigSnapshot(nextConfigFile.code);
 		warnAboutBundlerOverride();
-		return true;
+		loadedConfigFile = nextConfigFile;
+		return {type: 'success', value: configSnapshot};
 	} catch (error) {
 		resetConfigOptions();
 		executeConfigFile(previousConfigFile);
-		Log.error(
-			{indent: false, logLevel: 'error'},
-			'Could not reload the Remotion config. Keeping the previous configuration.',
-			error instanceof Error ? error.message : String(error),
-		);
-		return false;
+		const errorMessage = error instanceof Error ? error.message : String(error);
+		logConfigReloadError(errorMessage);
+		return {type: 'error', errorMessage};
 	}
 };

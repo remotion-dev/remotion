@@ -24,6 +24,8 @@ import {Seo} from '../components/Seo';
 const elementsRoot = path.join(__dirname, '..', '..', 'elements');
 const templateRoot = path.join(__dirname, '..', '..', 'elements-template');
 const elementDefinitionList = Object.values(elementDefinitions);
+const exactVersionPattern =
+	/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
 
 type Element = {
 	name: string;
@@ -309,22 +311,22 @@ describe('Element preview definitions', () => {
 		}
 	});
 
-	test('publishes timed caption styles as separate Elements', () => {
-		const timedCaptionSlugs = elementDefinitionList
+	test('publishes caption treatments as separate Elements', () => {
+		const captionSlugs = elementDefinitionList
 			.map((definition) => definition.slug)
-			.filter((slug) => slug.startsWith('text/timed-captions'))
+			.filter((slug) => slug.startsWith('captions/'))
 			.sort();
 
-		expect(timedCaptionSlugs).toEqual([
-			'text/timed-captions-background',
-			'text/timed-captions-highlight',
-			'text/timed-captions-scale',
+		expect(captionSlugs).toEqual([
+			'captions/moving-pill-captions',
+			'captions/popping-word-captions',
+			'captions/word-highlight-captions',
 		]);
 
-		for (const slug of timedCaptionSlugs) {
+		for (const slug of captionSlugs) {
 			const element = productionElements.find((entry) => entry.name === slug);
 			if (!element) {
-				throw new Error(`Missing timed caption Element for ${slug}`);
+				throw new Error(`Missing caption Element for ${slug}`);
 			}
 
 			const source = readFileSync(element.tsxPath, 'utf8');
@@ -334,7 +336,23 @@ describe('Element preview definitions', () => {
 		}
 	});
 
-	test('declares every external source dependency centrally', () => {
+	test('only caption Elements use a component-owned Sequence', () => {
+		const componentOwnedSequenceSlugs = new Set([
+			'captions/moving-pill-captions',
+			'captions/popping-word-captions',
+			'captions/word-highlight-captions',
+		]);
+
+		for (const definition of elementDefinitionList) {
+			expect(definition.installationMode).toBe(
+				componentOwnedSequenceSlugs.has(definition.slug)
+					? 'component-owned-sequence'
+					: 'wrapped',
+			);
+		}
+	});
+
+	test('declares every external source dependency centrally with a valid version', () => {
 		for (const element of productionElements) {
 			const definition = elementDefinitionList.find(
 				(entry) => entry.slug === element.name,
@@ -350,6 +368,27 @@ describe('Element preview definitions', () => {
 					readFileSync(element.tsxPath, 'utf8'),
 				).sort(),
 			);
+
+			for (const dependency of definition.dependencies) {
+				if (dependency.name.startsWith('@remotion/')) {
+					if (dependency.version !== null) {
+						throw new Error(
+							`${definition.slug} must use version: null for ${dependency.name}`,
+						);
+					}
+
+					continue;
+				}
+
+				if (
+					dependency.version === null ||
+					!exactVersionPattern.test(dependency.version)
+				) {
+					throw new Error(
+						`${definition.slug} must declare an exact version for ${dependency.name}`,
+					);
+				}
+			}
 		}
 	});
 
@@ -431,8 +470,9 @@ describe('Element preview definitions', () => {
 		}
 	});
 
-	test('the Element template includes explicit flat preview URLs', () => {
+	test('the Element template includes explicit defaults and preview URLs', () => {
 		const template = readFileSync(path.join(templateRoot, 'index.mdx'), 'utf8');
+		expect(template).toContain("installationMode: 'wrapped'");
 		expect(template).toContain(
 			"posterUrl: 'https://remotion.media/elements/category-element-title-preview.png'",
 		);

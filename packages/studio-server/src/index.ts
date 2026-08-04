@@ -62,6 +62,7 @@ import {
 	lockFilePaths,
 } from './preview-server/get-package-manager';
 import {waitForLiveEventsListener} from './preview-server/live-events';
+import {getEditorName} from './preview-server/routes/open-in-editor';
 import {getRemotionVersion} from './preview-server/update-available';
 import {remotionSkillNames} from './remotion-skill-names';
 import {startStudio} from './start-studio';
@@ -107,4 +108,5 @@ export const StudioServerInternals = {
 	detectOutdatedRemotionSkills,
 	parseRemotionSkillVersion,
 	remotionSkillNames,
+	getEditorName,
 };
