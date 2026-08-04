@@ -133,4 +133,5 @@ await run(
 	docusaurusEnv,
 );
 await run('copy convert assets', 'bun', ['copy-convert.ts']);
+await run('generate asset manifest', 'bun', ['generate-asset-manifest.ts']);
 await run('count generated pages', 'bun', ['count-pages.ts']);
