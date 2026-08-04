@@ -50,7 +50,9 @@ export const ReactSourceOfTruth: React.FC = () => {
 				</svg>
 			</div>
 			<p id="react-source-of-truth" className="m-0 font-brand leading-relaxed">
-				React is the source of truth: All changes save back to clean code.
+				Switch workflows at any time.
+				<br />
+				Code is always the source of truth.
 			</p>
 		</section>
 	);
