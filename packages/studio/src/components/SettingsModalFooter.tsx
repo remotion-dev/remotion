@@ -25,7 +25,10 @@ const configFileHint: React.CSSProperties = {
 
 const configFileName: React.CSSProperties = {
 	color: BLUE,
+	fontFamily: 'inherit',
+	fontSize: 13,
 	fontWeight: 'bold',
+	lineHeight: '20px',
 };
 
 export const SettingsModalFooter: React.FC<{
