@@ -9,6 +9,7 @@ export const remotionSkillNames = [
 	'remotion-multimedia',
 	'remotion-render',
 	'remotion-saas',
+	'remotion-studio',
 	'remotion-upgrade',
 ] as const;
 
