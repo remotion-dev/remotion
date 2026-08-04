@@ -212,6 +212,7 @@ export type InspectorInlineActionSegment = {
 export type InspectorInlineActionProps = {
 	readonly children: React.ReactNode;
 	readonly disabled: boolean;
+	readonly iconContainerStyle?: React.CSSProperties;
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement> | null;
 	readonly renderIcon?: (color: string) => React.ReactNode;
 	readonly size?: 'default' | 'compact';
@@ -228,6 +229,7 @@ export type InspectorInlineActionProps = {
 export const InspectorInlineAction: React.FC<InspectorInlineActionProps> = ({
 	children,
 	disabled,
+	iconContainerStyle,
 	onClick,
 	renderIcon,
 	size = 'default',
@@ -261,7 +263,9 @@ export const InspectorInlineAction: React.FC<InspectorInlineActionProps> = ({
 	const mainContent = (
 		<>
 			{renderIcon ? (
-				<span style={inlineLabelIcon}>{renderIcon(CURRENT_COLOR)}</span>
+				<span style={{...inlineLabelIcon, ...iconContainerStyle}}>
+					{renderIcon(CURRENT_COLOR)}
+				</span>
 			) : null}
 			<span style={inlineLabelText}>{children}</span>
 		</>

@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import type {_InternalTypes} from 'remotion';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
-import {ExternalLinkIcon} from '../../icons/external-link';
+import {BrowseElementsIcon} from '../../icons/browse-elements';
 import {PicIcon} from '../../icons/frame';
 import {SolidIcon} from '../../icons/solid';
 import {FilmIcon} from '../../icons/video';
@@ -53,6 +53,18 @@ import {useCompositionActions} from './use-composition-actions';
 const actionIconStyle: React.CSSProperties = {
 	height: 18,
 	width: 18,
+};
+
+const browseElementsIconStyle: React.CSSProperties = {
+	height: 22,
+	width: 22,
+};
+
+const browseElementsIconContainerStyle: React.CSSProperties = {
+	height: 22,
+	marginLeft: -2,
+	marginRight: -2,
+	width: 22,
 };
 
 const CompositionActions: React.FC<{
@@ -123,9 +135,10 @@ const CompositionActions: React.FC<{
 			{canShowInsertAsset ? (
 				<InspectorInlineAction
 					disabled={false}
+					iconContainerStyle={browseElementsIconContainerStyle}
 					onClick={openElementsLibrary}
 					renderIcon={(color) => (
-						<ExternalLinkIcon color={color} style={actionIconStyle} />
+						<BrowseElementsIcon color={color} style={browseElementsIconStyle} />
 					)}
 					title="Open the Remotion Elements library in a new tab. Install an Element there to send it to this composition."
 				>
