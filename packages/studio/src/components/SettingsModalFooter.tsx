@@ -34,9 +34,9 @@ const configFileName: React.CSSProperties = {
 export const SettingsModalFooter: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	const folderLocation = useMemo(() => {
+	const configFileLocation = useMemo(() => {
 		return {
-			source: window.remotion_cwd,
+			source: 'remotion.config.ts',
 			line: 1,
 			column: 1,
 		};
@@ -48,7 +48,7 @@ export const SettingsModalFooter: React.FC<{
 				<div style={configFileHint}>
 					Changes save to
 					<InspectorOpenInEditor
-						location={folderLocation}
+						location={configFileLocation}
 						label={<strong style={configFileName}>remotion.config.ts</strong>}
 					/>
 				</div>
