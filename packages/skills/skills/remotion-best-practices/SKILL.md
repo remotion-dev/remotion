@@ -1,7 +1,7 @@
 ---
 name: remotion-best-practices
 description: Router for all Remotion skills
-version: 4.0.505
+version: 4.0.506
 ---
 
 ## Creating a video
