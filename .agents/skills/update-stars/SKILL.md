@@ -11,5 +11,6 @@ Update:
 
 - `packages/promo-pages/src/components/homepage/CommunityStatsItems.tsx`
 - `packages/promo-pages/src/components/homepage/GitHubButton.tsx`
+- `packages/promo-pages/src/components/team/TrustSection.tsx`
 
 Commit and push to `main`.
