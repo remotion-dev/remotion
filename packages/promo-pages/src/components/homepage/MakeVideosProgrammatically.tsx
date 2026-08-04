@@ -45,7 +45,7 @@ export const MakeVideosProgrammatically: React.FC<{
 				<h2 className="text-2xl fontbrand leading-[1.1] font-medium">
 					{title}
 				</h2>
-				<p className="leading-relaxed">{description}</p>
+				<p className="text-balance leading-relaxed">{description}</p>
 				{showLinks ? <MakeVideosLinks links={links} /> : null}
 			</div>
 		</div>

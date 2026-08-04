@@ -30,6 +30,31 @@ export type InsertElementDropPosition = {
 	readonly centerY: number;
 };
 
+export const getFromForDrop = ({
+	durationInFrames,
+	from,
+	preferCompositionStart,
+}: {
+	durationInFrames: number | null | undefined;
+	from: number | null;
+	preferCompositionStart: boolean | null;
+}): number | null => {
+	if (preferCompositionStart !== true) {
+		return from;
+	}
+
+	if (
+		durationInFrames !== null &&
+		durationInFrames !== undefined &&
+		from !== null &&
+		from >= durationInFrames
+	) {
+		return from;
+	}
+
+	return null;
+};
+
 type InsertableAssetElement = Extract<
 	InsertableCompositionElement,
 	{type: 'asset'}
@@ -726,6 +751,7 @@ export const importAssets = async ({
 	files,
 	fps,
 	from,
+	preferCompositionStart,
 	svgImportMode,
 }: {
 	compositionFile: string;
@@ -735,6 +761,7 @@ export const importAssets = async ({
 	files: File[];
 	fps: number;
 	from: number | null;
+	preferCompositionStart: boolean | null;
 	svgImportMode: 'image' | 'inline';
 }) => {
 	if (files.length === 0) {
@@ -787,7 +814,11 @@ export const importAssets = async ({
 				const svgInserted = await insertCompositionElement({
 					compositionFile,
 					compositionId,
-					from,
+					from: getFromForDrop({
+						durationInFrames: null,
+						from,
+						preferCompositionStart,
+					}),
 					element: {
 						type: 'svg',
 						markup: new TextDecoder().decode(contents),
@@ -834,19 +865,25 @@ export const importAssets = async ({
 
 			const resolvedDimensions = element.dimensions ?? metadata.dimensions;
 
+			const durationInFrames = assetTypeHasDuration(element.assetType)
+				? getDurationInFrames({
+						durationInSeconds: metadata.durationInSeconds,
+						fps,
+					})
+				: null;
+
 			const inserted = await insertCompositionElement({
 				compositionFile,
 				compositionId,
-				from,
+				from: getFromForDrop({
+					durationInFrames,
+					from,
+					preferCompositionStart,
+				}),
 				element: {
 					...element,
 					dimensions: resolvedDimensions,
-					durationInFrames: assetTypeHasDuration(element.assetType)
-						? getDurationInFrames({
-								durationInSeconds: metadata.durationInSeconds,
-								fps,
-							})
-						: null,
+					durationInFrames,
 					position: getAssetPositionForDrop({
 						assetDimensions: resolvedDimensions,
 						destinationDimensions,
@@ -980,6 +1017,7 @@ export const importRemoteAsset = async ({
 	dropPosition,
 	fps,
 	from,
+	preferCompositionStart,
 	url,
 }: {
 	compositionFile: string;
@@ -988,6 +1026,7 @@ export const importRemoteAsset = async ({
 	dropPosition: InsertElementDropPosition | null;
 	fps: number;
 	from: number | null;
+	preferCompositionStart: boolean | null;
 	url: string;
 }) => {
 	try {
@@ -1008,19 +1047,24 @@ export const importRemoteAsset = async ({
 		);
 		const dimensions = element.dimensions ?? metadata.dimensions;
 
+		const durationInFrames = assetTypeHasDuration(element.assetType)
+			? getDurationInFrames({
+					durationInSeconds: metadata.durationInSeconds,
+					fps,
+				})
+			: null;
 		const inserted = await insertCompositionElement({
 			compositionFile,
 			compositionId,
-			from,
+			from: getFromForDrop({
+				durationInFrames,
+				from,
+				preferCompositionStart,
+			}),
 			element: {
 				...element,
 				dimensions,
-				durationInFrames: assetTypeHasDuration(element.assetType)
-					? getDurationInFrames({
-							durationInSeconds: metadata.durationInSeconds,
-							fps,
-						})
-					: null,
+				durationInFrames,
 				position: getAssetPositionForDrop({
 					assetDimensions: dimensions,
 					destinationDimensions,
@@ -1049,12 +1093,14 @@ export const insertRemoteAudio = async ({
 	compositionId,
 	fps,
 	from,
+	preferCompositionStart,
 	url,
 }: {
 	compositionFile: string;
 	compositionId: string;
 	fps: number;
 	from: number | null;
+	preferCompositionStart: boolean | null;
 	url: string;
 }) => {
 	if (!isUrl(url)) {
@@ -1081,7 +1127,11 @@ export const insertRemoteAudio = async ({
 			compositionFile,
 			compositionId,
 			element,
-			from,
+			from: getFromForDrop({
+				durationInFrames: element.durationInFrames,
+				from,
+				preferCompositionStart,
+			}),
 		});
 
 		if (!inserted) {
@@ -1107,6 +1157,7 @@ export const insertExistingAssets = async ({
 	dropPosition,
 	fps,
 	from,
+	preferCompositionStart,
 }: {
 	assetPaths: string[];
 	compositionFile: string;
@@ -1115,6 +1166,7 @@ export const insertExistingAssets = async ({
 	dropPosition: InsertElementDropPosition | null;
 	fps: number;
 	from: number | null;
+	preferCompositionStart: boolean | null;
 }) => {
 	if (assetPaths.length === 0) {
 		return;
@@ -1137,19 +1189,24 @@ export const insertExistingAssets = async ({
 			);
 			const dimensions = element.dimensions ?? metadata.dimensions;
 
+			const durationInFrames = assetTypeHasDuration(element.assetType)
+				? getDurationInFrames({
+						durationInSeconds: metadata.durationInSeconds,
+						fps,
+					})
+				: null;
 			const inserted = await insertCompositionElement({
 				compositionFile,
 				compositionId,
-				from,
+				from: getFromForDrop({
+					durationInFrames,
+					from,
+					preferCompositionStart,
+				}),
 				element: {
 					...element,
 					dimensions,
-					durationInFrames: assetTypeHasDuration(element.assetType)
-						? getDurationInFrames({
-								durationInSeconds: metadata.durationInSeconds,
-								fps,
-							})
-						: null,
+					durationInFrames,
 					position: getAssetPositionForDrop({
 						assetDimensions: dimensions,
 						destinationDimensions,
@@ -1183,18 +1240,24 @@ export const insertComponent = async ({
 	compositionId,
 	dropPosition,
 	from,
+	preferCompositionStart,
 }: {
 	component: ComponentDragData['component'];
 	compositionFile: string;
 	compositionId: string;
 	dropPosition: InsertElementDropPosition | null;
 	from: number | null;
+	preferCompositionStart: boolean | null;
 }) => {
 	try {
 		const inserted = await insertCompositionElement({
 			compositionFile,
 			compositionId,
-			from,
+			from: getFromForDrop({
+				durationInFrames: null,
+				from,
+				preferCompositionStart,
+			}),
 			element: {
 				type: 'component',
 				componentName: component.componentName,
@@ -1242,12 +1305,14 @@ export const insertComposition = async ({
 	compositionId,
 	dropPosition,
 	from,
+	preferCompositionStart,
 }: {
 	composition: CompositionDragData;
 	compositionFile: string;
 	compositionId: string;
 	dropPosition: InsertElementDropPosition | null;
 	from: number | null;
+	preferCompositionStart: boolean | null;
 }) => {
 	if (composition.compositionId === compositionId) {
 		showNotification('Cannot add a composition to itself', 3000);
@@ -1275,7 +1340,11 @@ export const insertComposition = async ({
 		const inserted = await insertCompositionElement({
 			compositionFile,
 			compositionId,
-			from,
+			from: getFromForDrop({
+				durationInFrames: calculated.durationInFrames,
+				from,
+				preferCompositionStart,
+			}),
 			element: {
 				type: 'composition',
 				compositionId: composition.compositionId,

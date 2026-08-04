@@ -25,18 +25,22 @@ import {
 
 const splitButton: React.CSSProperties = {
 	alignItems: 'center',
+	borderRadius: 3,
 	display: 'inline-flex',
 	flexDirection: 'row',
 	flexShrink: 0,
+	gap: 1,
 	height: 24,
+	overflow: 'hidden',
 };
 
 const mainButtonBase: React.CSSProperties = {
 	alignItems: 'center',
 	background: TRANSPARENT,
 	border: 'none',
-	borderRadius: 3,
+	borderRadius: '3px 0 0 3px',
 	color: LIGHT_TEXT,
+	columnGap: 4,
 	display: 'inline-flex',
 	fontFamily: 'sans-serif',
 	fontSize: 11,
@@ -58,11 +62,13 @@ const editorMenuIconSize = 18;
 
 export const InspectorOpenInEditor: React.FC<{
 	readonly location: OriginalPosition | null;
-}> = ({location}) => {
+	readonly label?: React.ReactNode;
+}> = ({label, location}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {tabIndex} = useZIndex();
 	const [hovered, setHovered] = useState(false);
+	const [dropdownOpened, setDropdownOpened] = useState(false);
 	const editorPickerAvailable = canUseEditorPicker(
 		previewServerState.type === 'connected',
 	);
@@ -94,18 +100,31 @@ export const InspectorOpenInEditor: React.FC<{
 		},
 		[openWithEditor],
 	);
+	const mainHovered = hovered && !dropdownOpened;
 	const mainButtonStyle = useMemo((): React.CSSProperties => {
 		return {
 			...mainButtonBase,
 			background: getBackgroundFromHoverState({
-				hovered,
+				hovered: mainHovered,
 				selected: false,
 			}),
-			color: hovered ? WHITE : LIGHT_TEXT,
+			color: mainHovered ? WHITE : LIGHT_TEXT,
 			opacity: canOpenDefault ? 1 : 0.5,
 			pointerEvents: canOpenDefault ? 'auto' : 'none',
 		};
-	}, [canOpenDefault, hovered]);
+	}, [canOpenDefault, mainHovered]);
+	const dropdownForegroundColor =
+		hovered || dropdownOpened ? WHITE : LIGHT_TEXT;
+	const dropdownStyle = useMemo((): React.CSSProperties => {
+		return {
+			background: getBackgroundFromHoverState({
+				hovered,
+				selected: dropdownOpened,
+			}),
+			borderRadius: '0 3px 3px 0',
+			color: dropdownForegroundColor,
+		};
+	}, [dropdownForegroundColor, dropdownOpened, hovered]);
 	const renderDropdownAction: RenderInlineAction = useCallback((color) => {
 		return <CaretDown color={color} small />;
 	}, []);
@@ -137,7 +156,12 @@ export const InspectorOpenInEditor: React.FC<{
 				label: <span style={menuLabel}>Set default editor...</span>,
 				leftItem: null,
 				onClick: () => {
-					setSelectedModal({type: 'configure-default-editor'});
+					setSelectedModal({
+						type: 'settings',
+						initialTab: 'apps',
+						initialPublicLicenseKey:
+							window.remotion_renderDefaults?.publicLicenseKey ?? null,
+					});
 				},
 				quickSwitcherLabel: null,
 				subMenu: null,
@@ -159,23 +183,29 @@ export const InspectorOpenInEditor: React.FC<{
 	}
 
 	return (
-		<div style={splitButton}>
+		<div
+			style={splitButton}
+			onPointerEnter={() => setHovered(true)}
+			onPointerLeave={() => setHovered(false)}
+		>
 			<button
 				aria-label={`Open in ${editorName}`}
 				disabled={!canOpenDefault}
 				onClick={onOpenDefault}
-				onPointerEnter={() => setHovered(true)}
-				onPointerLeave={() => setHovered(false)}
 				style={mainButtonStyle}
 				tabIndex={tabIndex}
 				title={`Open in ${editorName}`}
 				type="button"
 			>
+				{label}
 				<EditorIcon editorId={preferredEditorId} size={editorButtonIconSize} />
 			</button>
 			<InlineDropdown
+				onOpenChange={setDropdownOpened}
 				renderAction={renderDropdownAction}
+				style={dropdownStyle}
 				title="Open in another editor"
+				unhoveredColor={dropdownForegroundColor}
 				values={menuItems}
 				variant="compact"
 			/>

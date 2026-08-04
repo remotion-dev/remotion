@@ -35,6 +35,8 @@ import {
 } from './pixel-format';
 import {validateOutputFilename} from './validate-output-filename';
 export {AvailableOptions, TypeOfOption} from './options';
+export {defaultCodingAgentIds} from './options/default-coding-agent';
+export type {DefaultCodingAgent} from './options/default-coding-agent';
 export {
 	customEditorColumnNumberPlaceholder,
 	customEditorLineNumberPlaceholder,

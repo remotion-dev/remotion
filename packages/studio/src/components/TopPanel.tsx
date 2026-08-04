@@ -1,4 +1,12 @@
-import React, {useCallback, useContext, useEffect, useMemo} from 'react';
+import {PlayerInternals} from '@remotion/player';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+} from 'react';
 import {Internals} from 'remotion';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {useBreakpoint} from '../helpers/use-breakpoint';
@@ -78,6 +86,25 @@ const TopPanelInner: React.FC<{
 
 		return 'expanded';
 	}, [sidebarCollapsedStateRight]);
+	const previousSidebarState = useRef({
+		left: actualStateLeft,
+		right: actualStateRight,
+	});
+
+	useLayoutEffect(() => {
+		if (
+			previousSidebarState.current.left === actualStateLeft &&
+			previousSidebarState.current.right === actualStateRight
+		) {
+			return;
+		}
+
+		previousSidebarState.current = {
+			left: actualStateLeft,
+			right: actualStateRight,
+		};
+		PlayerInternals.updateAllElementsSizes();
+	}, [actualStateLeft, actualStateRight]);
 
 	useEffect(() => {
 		onMounted();

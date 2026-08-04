@@ -12,9 +12,16 @@ const content: React.CSSProperties = {
 export const ModalFooterContainer: React.FC<{
 	readonly children: React.ReactNode;
 	readonly style?: React.CSSProperties;
-}> = ({children, style}) => {
+	readonly noBorder?: boolean;
+}> = ({children, noBorder, style}) => {
 	return (
-		<div style={{...content, ...style, borderTop: BORDER_BLACK}}>
+		<div
+			style={{
+				...content,
+				...style,
+				borderTop: noBorder ? undefined : BORDER_BLACK,
+			}}
+		>
 			{children}
 		</div>
 	);

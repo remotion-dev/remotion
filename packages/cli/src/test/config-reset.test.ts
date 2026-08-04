@@ -37,6 +37,7 @@ test('reset config options restores defaults before reloading config', async () 
 	Config.setStudioPort(4321);
 	Config.setMaxTimelineTracks(123);
 	Config.setChromiumOpenGlRenderer('angle');
+	Config.setDefaultCodingAgent('codex');
 	Config.setDefaultEditor('cursor');
 	Config.setBufferStateDelayInMilliseconds(200);
 	Config.overrideBundlerConfig((config, {bundler}) => ({
@@ -61,6 +62,11 @@ test('reset config options restores defaults before reloading config', async () 
 	expect(
 		BrowserSafeApis.options.glOption.getValue({commandLine: {}}).value,
 	).toBe('angle');
+	expect(
+		BrowserSafeApis.options.defaultCodingAgentOption.getValue({
+			commandLine: {},
+		}).value,
+	).toBe('codex');
 	expect(
 		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
 			.value,
@@ -102,6 +108,11 @@ test('reset config options restores defaults before reloading config', async () 
 		BrowserSafeApis.options.glOption.getValue({commandLine: {}}).value,
 	).toBeNull();
 	expect(
+		BrowserSafeApis.options.defaultCodingAgentOption.getValue({
+			commandLine: {},
+		}).value,
+	).toBeNull();
+	expect(
 		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
 			.value,
 	).toBeNull();
@@ -133,8 +144,9 @@ test('reset config options restores defaults before reloading config', async () 
 	).toBe(true);
 });
 
-test('the CLI editor flag takes precedence over Config.setDefaultEditor()', () => {
+test('CLI app flags take precedence over the configured defaults', () => {
 	ConfigInternals.resetConfigOptions();
+	Config.setDefaultCodingAgent('codex');
 	Config.setDefaultEditor({
 		type: 'custom',
 		name: 'Acme Editor',
@@ -143,10 +155,18 @@ test('the CLI editor flag takes precedence over Config.setDefaultEditor()', () =
 	});
 
 	expect(
+		BrowserSafeApis.options.defaultCodingAgentOption.getValue({
+			commandLine: {'coding-agent': 'cursor'},
+		}),
+	).toEqual({source: 'cli', value: 'cursor'});
+	expect(
 		BrowserSafeApis.options.defaultEditorOption.getValue({
 			commandLine: {editor: 'zed'},
 		}),
 	).toEqual({source: 'cli', value: 'zed'});
+	expect(() => Config.setDefaultCodingAgent('invalid' as 'codex')).toThrow(
+		'Config.setDefaultCodingAgent() must be one of',
+	);
 	expect(() => Config.setDefaultEditor('invalid' as 'cursor')).toThrow(
 		'Config.setDefaultEditor() must be one of',
 	);

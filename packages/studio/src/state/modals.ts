@@ -180,11 +180,9 @@ export type ModalState =
 			type: 'input-props-override';
 	  }
 	| {
-			type: 'configure-license';
+			type: 'settings';
+			initialTab: 'apps' | 'license';
 			initialPublicLicenseKey: string | null;
-	  }
-	| {
-			type: 'configure-default-editor';
 	  }
 	| RenderModalState
 	| WebRenderModalState

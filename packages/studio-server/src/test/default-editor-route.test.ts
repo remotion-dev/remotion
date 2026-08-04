@@ -88,6 +88,7 @@ test('preserves commented and string references to the setter', () => {
 test('exposes only an opaque ID and name for a configured custom editor', async () => {
 	const response = await getDefaultEditorInfoHandler({
 		...apiHandlerContext,
+		getDefaultCodingAgent: () => null,
 		getDefaultEditor: () => ({
 			type: 'custom',
 			name: 'Acme Editor',
@@ -125,6 +126,7 @@ test('keeps the server-side custom editor definition when Studio selects it', as
 		const response = await updateDefaultEditorHandler({
 			...apiHandlerContext,
 			configFile,
+			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => ({
 				type: 'custom',
 				name: 'Acme Editor',
@@ -150,6 +152,7 @@ test('rejects custom editor definitions sent by the browser', async () => {
 		const response = await updateDefaultEditorHandler({
 			...apiHandlerContext,
 			configFile,
+			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
 			input: {
 				defaultEditor: {
@@ -191,6 +194,7 @@ test('removes the configured editor when selecting no preference', async () => {
 			binariesDirectory: null,
 			configFile,
 			entryPoint: '',
+			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => 'vscode',
 			input: {defaultEditor: null},
 			logLevel: 'error',

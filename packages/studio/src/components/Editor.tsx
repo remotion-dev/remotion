@@ -1,6 +1,7 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
+import {useStudioConfigRevision} from '../helpers/client-id';
 import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
 import {getStudioCurrentScaleContext} from '../helpers/studio-fit-padding';
@@ -30,6 +31,7 @@ export const Editor: React.FC<{
 	readonly Root: React.FC;
 	readonly readOnlyStudio: boolean;
 }> = ({Root, readOnlyStudio}) => {
+	useStudioConfigRevision();
 	const [drawElement, setDrawElement] = useState<HTMLDivElement | null>(null);
 	const size = PlayerInternals.useElementSize(drawElement, {
 		triggerOnWindowResize: false,

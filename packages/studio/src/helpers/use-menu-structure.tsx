@@ -55,11 +55,13 @@ const ICON_SIZE = 14;
 const getFileMenu = ({
 	readOnlyStudio,
 	closeMenu,
+	editorName,
 	previewServerState,
 	setSelectedModal,
 }: {
 	readOnlyStudio: boolean;
 	closeMenu: () => void;
+	editorName: string | null;
 	previewServerState: 'connected' | 'init' | 'disconnected';
 	setSelectedModal: (value: React.SetStateAction<ModalState | null>) => void;
 }) => {
@@ -176,11 +178,11 @@ const getFileMenu = ({
 					id: 'open-project-divider',
 				}
 			: null,
-		window.remotion_editorName && !readOnlyStudio
+		editorName && !readOnlyStudio
 			? {
 					id: 'open-in-editor',
 					value: 'open-in-editor',
-					label: `Open in ${window.remotion_editorName}`,
+					label: `Open in ${editorName}`,
 					onClick: async () => {
 						await openInEditor(
 							{
@@ -194,19 +196,13 @@ const getFileMenu = ({
 						)
 							.then(({success}) => {
 								if (!success) {
-									showNotification(
-										`Could not open ${window.remotion_editorName}`,
-										2000,
-									);
+									showNotification(`Could not open ${editorName}`, 2000);
 								}
 							})
 							.catch((err) => {
 								// eslint-disable-next-line no-console
 								console.error(err);
-								showNotification(
-									`Could not open ${window.remotion_editorName}`,
-									2000,
-								);
+								showNotification(`Could not open ${editorName}`, 2000);
 							});
 					},
 					type: 'item' as const,
@@ -339,6 +335,9 @@ export const useMenuStructure = (
 		Internals.CompositionManager,
 	);
 	const {type} = useContext(StudioServerConnectionCtx).previewServerState;
+	const editorName = window.remotion_editorName;
+	const keyboardShortcutsDisabled = areKeyboardShortcutsDisabled();
+	const studioAskAIEnabled = getStudioAskAIEnabled();
 	const canConfigureDefaultEditor =
 		!readOnlyStudio &&
 		type === 'connected' &&
@@ -440,32 +439,15 @@ export const useMenuStructure = (
 						subMenu: null,
 						quickSwitcherLabel: 'Help: Changelog',
 					},
-					canConfigureDefaultEditor
-						? {
-								id: 'default-editor',
-								value: 'default-editor',
-								label: 'Configure default editor...',
-								onClick: () => {
-									closeMenu();
-									setSelectedModal({
-										type: 'configure-default-editor',
-									});
-								},
-								type: 'item' as const,
-								keyHint: null,
-								leftItem: null,
-								subMenu: null,
-								quickSwitcherLabel: 'Configure default editor...',
-							}
-						: null,
 					{
-						id: 'license',
-						value: 'license',
-						label: 'Configure License...',
+						id: 'settings',
+						value: 'settings',
+						label: 'Settings...',
 						onClick: () => {
 							closeMenu();
 							setSelectedModal({
-								type: 'configure-license',
+								type: 'settings',
+								initialTab: canConfigureDefaultEditor ? 'apps' : 'license',
 								initialPublicLicenseKey:
 									window.remotion_renderDefaults?.publicLicenseKey ?? null,
 							});
@@ -474,7 +456,7 @@ export const useMenuStructure = (
 						keyHint: null,
 						leftItem: null,
 						subMenu: null,
-						quickSwitcherLabel: 'Configure License...',
+						quickSwitcherLabel: 'Settings...',
 						disabled: readOnlyStudio || type !== 'connected',
 					},
 					{
@@ -515,6 +497,7 @@ export const useMenuStructure = (
 			getFileMenu({
 				readOnlyStudio,
 				closeMenu,
+				editorName,
 				previewServerState: type,
 				setSelectedModal,
 			}),
@@ -605,7 +588,7 @@ export const useMenuStructure = (
 					},
 					{
 						id: 'enable-snapping',
-						keyHint: areKeyboardShortcutsDisabled() ? null : 'Shift+M',
+						keyHint: keyboardShortcutsDisabled ? null : 'Shift+M',
 						label: 'Enable Snapping',
 						onClick: () => {
 							closeMenu();
@@ -902,7 +885,7 @@ export const useMenuStructure = (
 				label: 'Tools',
 				leaveLeftPadding: false,
 				items: [
-					getStudioAskAIEnabled()
+					studioAskAIEnabled
 						? {
 								id: 'ask-ai',
 								value: 'ask-ai',
@@ -964,7 +947,7 @@ export const useMenuStructure = (
 					{
 						id: 'shortcuts',
 						value: 'shortcuts',
-						label: areKeyboardShortcutsDisabled()
+						label: keyboardShortcutsDisabled
 							? 'Shortcuts (disabled)'
 							: 'Shortcuts',
 						onClick: () => {
@@ -982,7 +965,7 @@ export const useMenuStructure = (
 						leftItem: null,
 						subMenu: null,
 						type: 'item' as const,
-						quickSwitcherLabel: areKeyboardShortcutsDisabled()
+						quickSwitcherLabel: keyboardShortcutsDisabled
 							? 'Show all Keyboard Shortcuts (disabled)'
 							: 'Show all Keyboard Shortcuts',
 					},
@@ -1154,6 +1137,9 @@ export const useMenuStructure = (
 		isFullscreenSupported,
 		remotion_packageManager,
 		mobileLayout,
+		editorName,
+		keyboardShortcutsDisabled,
+		studioAskAIEnabled,
 		size.size,
 		setSize,
 		setEditorZoomGestures,

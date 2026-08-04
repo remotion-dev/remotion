@@ -190,6 +190,7 @@ const TimelineContextMenuArea: React.FC<{
 				destinationDimensions: null,
 				dropPosition: null,
 				from: null,
+				preferCompositionStart: null,
 				svgImportMode: 'image',
 			});
 		} finally {

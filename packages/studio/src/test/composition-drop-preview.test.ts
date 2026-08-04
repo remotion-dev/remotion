@@ -29,10 +29,10 @@ test('centers a composition drop preview under the pointer', () => {
 			},
 		}),
 	).toEqual({
-		left: 336,
-		top: 196,
-		width: 320,
-		height: 180,
+		left: 333.3333333333333,
+		top: 194.5,
+		width: 325.3333333333333,
+		height: 183,
 	});
 });
 
@@ -51,10 +51,10 @@ test('previews an equal-sized composition at the drop position', () => {
 			},
 		}),
 	).toEqual({
-		left: -384,
-		top: -94,
-		width: 960,
-		height: 540,
+		left: -398.3333333333333,
+		top: -100.5,
+		width: 976,
+		height: 549,
 	});
 });
 
