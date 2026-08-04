@@ -37,9 +37,9 @@ export const getFromForDrop = ({
 }: {
 	durationInFrames: number | null | undefined;
 	from: number | null;
-	preferCompositionStart: boolean;
+	preferCompositionStart: boolean | null;
 }): number | null => {
-	if (!preferCompositionStart) {
+	if (preferCompositionStart !== true) {
 		return from;
 	}
 
@@ -751,7 +751,7 @@ export const importAssets = async ({
 	files,
 	fps,
 	from,
-	preferCompositionStart = false,
+	preferCompositionStart,
 	svgImportMode,
 }: {
 	compositionFile: string;
@@ -761,7 +761,7 @@ export const importAssets = async ({
 	files: File[];
 	fps: number;
 	from: number | null;
-	preferCompositionStart?: boolean;
+	preferCompositionStart: boolean | null;
 	svgImportMode: 'image' | 'inline';
 }) => {
 	if (files.length === 0) {
@@ -1017,7 +1017,7 @@ export const importRemoteAsset = async ({
 	dropPosition,
 	fps,
 	from,
-	preferCompositionStart = false,
+	preferCompositionStart,
 	url,
 }: {
 	compositionFile: string;
@@ -1026,7 +1026,7 @@ export const importRemoteAsset = async ({
 	dropPosition: InsertElementDropPosition | null;
 	fps: number;
 	from: number | null;
-	preferCompositionStart?: boolean;
+	preferCompositionStart: boolean | null;
 	url: string;
 }) => {
 	try {
@@ -1093,14 +1093,14 @@ export const insertRemoteAudio = async ({
 	compositionId,
 	fps,
 	from,
-	preferCompositionStart = false,
+	preferCompositionStart,
 	url,
 }: {
 	compositionFile: string;
 	compositionId: string;
 	fps: number;
 	from: number | null;
-	preferCompositionStart?: boolean;
+	preferCompositionStart: boolean | null;
 	url: string;
 }) => {
 	if (!isUrl(url)) {
@@ -1157,7 +1157,7 @@ export const insertExistingAssets = async ({
 	dropPosition,
 	fps,
 	from,
-	preferCompositionStart = false,
+	preferCompositionStart,
 }: {
 	assetPaths: string[];
 	compositionFile: string;
@@ -1166,7 +1166,7 @@ export const insertExistingAssets = async ({
 	dropPosition: InsertElementDropPosition | null;
 	fps: number;
 	from: number | null;
-	preferCompositionStart?: boolean;
+	preferCompositionStart: boolean | null;
 }) => {
 	if (assetPaths.length === 0) {
 		return;
@@ -1240,14 +1240,14 @@ export const insertComponent = async ({
 	compositionId,
 	dropPosition,
 	from,
-	preferCompositionStart = false,
+	preferCompositionStart,
 }: {
 	component: ComponentDragData['component'];
 	compositionFile: string;
 	compositionId: string;
 	dropPosition: InsertElementDropPosition | null;
 	from: number | null;
-	preferCompositionStart?: boolean;
+	preferCompositionStart: boolean | null;
 }) => {
 	try {
 		const inserted = await insertCompositionElement({
@@ -1305,14 +1305,14 @@ export const insertComposition = async ({
 	compositionId,
 	dropPosition,
 	from,
-	preferCompositionStart = false,
+	preferCompositionStart,
 }: {
 	composition: CompositionDragData;
 	compositionFile: string;
 	compositionId: string;
 	dropPosition: InsertElementDropPosition | null;
 	from: number | null;
-	preferCompositionStart?: boolean;
+	preferCompositionStart: boolean | null;
 }) => {
 	if (composition.compositionId === compositionId) {
 		showNotification('Cannot add a composition to itself', 3000);

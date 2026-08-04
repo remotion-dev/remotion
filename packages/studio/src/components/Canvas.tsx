@@ -1278,6 +1278,7 @@ export const Canvas: React.FC<{
 						contentDimensions === 'none' ? null : contentDimensions,
 					dropPosition,
 					from: null,
+					preferCompositionStart: null,
 					svgImportMode,
 				});
 			} finally {

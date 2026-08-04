@@ -54,6 +54,13 @@ test('places timeline drops at the pointer frame', () => {
 			preferCompositionStart: false,
 		}),
 	).toBe(45);
+	expect(
+		getFromForDrop({
+			durationInFrames: 46,
+			from: 45,
+			preferCompositionStart: null,
+		}),
+	).toBe(45);
 });
 
 test('converts media duration to composition frames with two decimals', () => {
