@@ -13,6 +13,7 @@ import {MakeVideosInteractively} from './homepage/MakeVideosInteractively';
 import {MakeVideosProgrammatically} from './homepage/MakeVideosProgrammatically';
 import {NewsletterButton} from './homepage/NewsletterButton';
 import {Pricing} from './homepage/Pricing';
+import {ReactSourceOfTruth} from './homepage/ReactSourceOfTruth';
 import TrustedByBanner from './homepage/TrustedByBanner';
 import {BuiltWithRemotionShowcase} from './homepage/VideoAppsShowcase';
 import {SectionTitle} from './homepage/VideoAppsTitle';
@@ -51,8 +52,7 @@ export const NewLanding: React.FC<{
 								]}
 							/>
 						</div>
-						<br />
-						<br />
+						<ReactSourceOfTruth />
 						<div className={makeVideosRowClassName}>
 							<MakeVideosProgrammatically
 								title="Design systems"

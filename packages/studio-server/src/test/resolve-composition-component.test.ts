@@ -85,6 +85,86 @@ test('resolves recursively through re-exported composition components', async ()
 	}
 });
 
+test('resolves composition components that are imported and then exported', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {ImportedOne, ImportedTwo, LocalComp} from './Barrel';",
+				'export const RemotionRoot = () => {',
+				'\treturn <>',
+				'\t\t<Composition id="imported-one" component={ImportedOne} />',
+				'\t\t<Composition id="imported-two" component={ImportedTwo} />',
+				'\t\t<Composition id="local" component={LocalComp} />',
+				'\t</>;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'Barrel.tsx'),
+			[
+				"import {ImportedOne} from './ImportedOne';",
+				"import {ImportedTwo as ImportedTwoLocal} from './ImportedTwo';",
+				'',
+				'export function LocalComp() {',
+				'\treturn <div>local</div>;',
+				'}',
+				'',
+				'export {ImportedOne, ImportedTwoLocal as ImportedTwo};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'ImportedOne.tsx'),
+			[
+				'',
+				'export function ImportedOne() {',
+				'\treturn <div>one</div>;',
+				'}',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'ImportedTwo.tsx'),
+			[
+				'',
+				'',
+				'export function ImportedTwo() {',
+				'\treturn <div>two</div>;',
+				'}',
+				'',
+			].join('\n'),
+		);
+
+		const locations = await Promise.all(
+			['imported-one', 'imported-two', 'local'].map((compositionId) =>
+				resolveCompositionComponent({
+					remotionRoot: tempDir,
+					compositionFile: 'Root.tsx',
+					compositionId,
+				}),
+			),
+		);
+
+		expect(
+			locations.map(({source, line, canAddSequence}) => ({
+				source,
+				line,
+				canAddSequence,
+			})),
+		).toEqual([
+			{source: 'ImportedOne.tsx', line: 2, canAddSequence: true},
+			{source: 'ImportedTwo.tsx', line: 3, canAddSequence: true},
+			{source: 'Barrel.tsx', line: 4, canAddSequence: true},
+		]);
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
 test('resolves through fallback re-export branch after cycle', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {
@@ -1856,6 +1936,8 @@ test('rejects composition insertion requests that traverse out of the project ro
 			publicDir: tempDir,
 			binariesDirectory: null,
 			configFile: null,
+			getDefaultCodingAgent: () => null,
+			getDefaultEditor: () => null,
 		});
 
 		expect(response.success).toBe(false);

@@ -2,7 +2,7 @@ import {Config} from '@remotion/cli/config';
 import {bundlerOverride} from './src/webpack-override.mjs';
 
 Config.setOverwriteOutput(true);
-Config.setExperimentalRspackEnabled(true);
+Config.setRspack(true);
 Config.overrideBundlerConfig(async (config) => {
 	await new Promise((resolve) => {
 		setTimeout(resolve, 10);

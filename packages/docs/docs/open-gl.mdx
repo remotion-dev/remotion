@@ -9,24 +9,30 @@ When rendering a video in Remotion, different [GL](https://en.wikipedia.org/wiki
 
 The following renderer backends are supported in Remotion:
 
-- <code>null</code> - default, lets Chrome decide
-- <code>angle</code>
+- <code>null</code> - default in Remotion 4.0, lets Chrome decide
+- <code>angle</code> - default in Remotion 5.0
 - <code>egl</code>
 - <code>swiftshader</code>
 - <code>vulkan</code> (from Remotion v4.0.41)
 - <code>angle-egl</code> (from Remotion v4.0.52)
-- <code>swangle</code> - default on Lambda
+- <code>swangle</code> - default on Lambda and Cloud Run
 
-## Recommended renderers
+## Remotion 5.0 default
 
-<Step>1</Step> If you use WebGL/Three.js:
+From Remotion 5.0, `angle` is the default renderer. A compatible GPU is used when available, and Chromium automatically falls back to software rendering through SwiftShader otherwise. No renderer option is needed to make WebGL or WebGPU work.
+
+Lambda and Cloud Run continue to use `swangle` by default.
+
+## Recommended renderers in Remotion 4.0
+
+<Step>1</Step> If you use WebGL, WebGPU or Three.js:
 
 - On a desktop, `angle` is recommended
 - On a [cloud instance with a GPU](/docs/miscellaneous/cloud-gpu), `angle-egl` is recommended
 - On Lambda, use `swangle` (default on Lambda)
 - On a machine with no GPU, `swangle` is recommended. Rendering might be slow.
 
-<Step>2</Step> If you don't use WebGL/Three.js, the default renderer (<code>null</code> on local, <code>swangle</code> on Lambda) are the best choice.<br/>
+<Step>2</Step> If you don't use WebGL, WebGPU or Three.js, the default renderer (<code>null</code> on local, <code>swangle</code> on Lambda and Cloud Run) is the best choice.<br/>
 
 ## Using the GPU
 
@@ -34,7 +40,7 @@ In cases where a GPU could be beneficial for rendering, it can often make sense 
 
 ⚠️ Memory leaks are a known problem with <code>angle</code>. We recommend to split up long renders into multiple parts when rendering large videos, since sometimes renders can fail due to memory leaks.
 
-Currently, GitHub Actions will fail when using <code>angle</code>, since Actions runners don't have a GPU.
+In Remotion 4.0, GitHub Actions will fail when using <code>angle</code>, since Actions runners don't have a GPU.
 
 ## Selecting the renderer backend
 

@@ -18,7 +18,7 @@ import {
 	makeSearchResults,
 	useMenuStructure,
 } from '../../helpers/use-menu-structure';
-import {ModalsContext} from '../../state/modals';
+import {SetSelectedModalContext} from '../../state/modals';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {KeyboardShortcutsExplainer} from '../KeyboardShortcutsExplainer';
 import {Spacing} from '../layout';
@@ -67,7 +67,6 @@ const modeInactive: React.CSSProperties = {
 const modeActive: React.CSSProperties = {
 	...modeItem,
 	color: WHITE,
-	fontWeight: 'bold',
 };
 
 const content: React.CSSProperties = {
@@ -195,7 +194,7 @@ export const QuickSwitcherContent: React.FC<{
 	const actions = useMenuStructure(closeMenu, readOnlyStudio);
 	const [docResults, setDocResults] = useState<AlgoliaState>({type: 'initial'});
 
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	const keybindings = useKeybinding();
 
@@ -467,7 +466,7 @@ export const QuickSwitcherContent: React.FC<{
 
 	const container: React.CSSProperties = useMemo(() => {
 		return {
-			width: showKeyboardShortcuts ? 800 : 500,
+			width: showKeyboardShortcuts ? 800 : 400,
 		};
 	}, [showKeyboardShortcuts]);
 

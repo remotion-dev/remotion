@@ -29,6 +29,10 @@ interface RulerProps {
 	readonly markingGaps: number;
 	readonly orientation: 'horizontal' | 'vertical';
 	readonly size: Size;
+	readonly onPointerSessionStart: (
+		event: React.PointerEvent<HTMLCanvasElement>,
+		guideId: string,
+	) => void;
 }
 
 const makeGuideId = (): string => {
@@ -43,6 +47,7 @@ const Ruler: React.FC<RulerProps> = ({
 	size,
 	markingGaps,
 	orientation,
+	onPointerSessionStart,
 }) => {
 	const rulerCanvasRef = useRef<HTMLCanvasElement | null>(null);
 	const isVerticalRuler = orientation === 'vertical';
@@ -148,6 +153,7 @@ const Ruler: React.FC<RulerProps> = ({
 						},
 					];
 				});
+				onPointerSessionStart(e, guideId);
 			},
 			[
 				shouldCreateGuideRef,
@@ -158,6 +164,7 @@ const Ruler: React.FC<RulerProps> = ({
 				originOffset,
 				unsafeVideoConfig.id,
 				cursor,
+				onPointerSessionStart,
 			],
 		);
 

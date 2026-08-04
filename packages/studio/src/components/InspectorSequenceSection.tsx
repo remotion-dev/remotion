@@ -23,7 +23,7 @@ import {
 import {BorderRadiusIcon} from '../icons/border-radius';
 import {FullscreenIcon} from '../icons/fullscreen';
 import {Plus} from '../icons/plus';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import {AssetFileIcon} from './AssetFileIcon';
 import {InlineAction} from './InlineAction';
 import {InlineCaptionInspector} from './InlineCaptionInspector';
@@ -385,7 +385,7 @@ export const InspectorSequenceSection: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const selectAsset = useSelectAsset();
 	const mediaSrc = getTimelineAssetSrcFromSchema(sequence.controls);
 	const assetSelectionInitialQuery = getAssetSearchQueryForComponent(
@@ -424,7 +424,7 @@ export const InspectorSequenceSection: React.FC<{
 						</span>
 					),
 					disabled: false,
-					onClick: null,
+					onClick: () => openTimelineAssetLink(linkInfo, selectAsset),
 					title: linkInfo.href,
 				};
 			}
@@ -694,6 +694,7 @@ export const InspectorSequenceSection: React.FC<{
 
 	const borderRadiusAction = borderRadiusGroup ? (
 		<InlineAction
+			variant={null}
 			disabled={
 				borderRadiusConversion === null ||
 				previewServerState.type !== 'connected'
@@ -722,6 +723,7 @@ export const InspectorSequenceSection: React.FC<{
 		<div style={sectionHeaderRow}>
 			<div style={effectsHeaderTitle}>Effects</div>
 			<InlineAction
+				variant={null}
 				disabled={!canAddEffect}
 				onClick={onAddEffect}
 				title={canAddEffect ? 'Add effect' : undefined}

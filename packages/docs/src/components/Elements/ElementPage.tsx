@@ -1,7 +1,9 @@
+import Head from '@docusaurus/Head';
 import {
-	DragAndDropInternals,
-	type ComponentDimensions,
-} from '@remotion/drag-and-drop';
+	createElementPayload,
+	installInStudio,
+	setStudioDragData,
+} from '@remotion/studio-protocol';
 import React, {
 	useCallback,
 	useId,
@@ -10,8 +12,9 @@ import React, {
 	type ReactNode,
 } from 'react';
 import {BlueButton, PlainButton} from '../../../components/layout/Button';
+import {Seo} from '../Seo';
 import type {ElementDefinition} from './element-definitions';
-import {setElementDragData, setElementDragImage} from './element-drag-data';
+import {setElementDragImage} from './element-drag-data';
 import {getElementDimensionsLabel} from './element-utils';
 import {ElementPreview} from './ElementPreview';
 import {
@@ -23,20 +26,18 @@ import styles from './ElementPage.module.css';
 type ElementPageProps = {
 	readonly children?: ReactNode;
 	readonly definition: ElementDefinition;
-	readonly dependencies: string[];
 	readonly sourceCode?: string;
 };
 
 type InstallStatus =
 	| {type: 'idle'}
 	| {type: 'installing'}
-	| {type: 'success'; message: string; studioUrl: string}
+	| {type: 'success'; message: string}
 	| {type: 'error'; message: string};
 
 export const ElementPage: React.FC<ElementPageProps> = ({
 	children,
 	definition,
-	dependencies,
 	sourceCode,
 }) => {
 	const {
@@ -48,6 +49,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		elementWidth,
 		fps,
 		slug,
+		installationMode,
 	} = definition;
 	const [installStatus, setInstallStatus] = useState<InstallStatus>({
 		type: 'idle',
@@ -57,12 +59,12 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 	const {height: previewHeight, width: previewWidth} =
 		getElementPreviewDimensions(definition);
 
-	const dragData = useMemo(() => {
+	const elementPayload = useMemo(() => {
 		if (!sourceCode) {
 			return null;
 		}
 
-		const dimensions: ComponentDimensions | null =
+		const dimensions =
 			elementWidth !== null && elementHeight !== null
 				? {
 						width: elementWidth,
@@ -70,36 +72,37 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 					}
 				: null;
 
-		return DragAndDropInternals.makeDragData({
-			type: 'element',
-			dependencies,
+		return createElementPayload({
+			dependencies: definition.dependencies,
 			dimensions,
 			displayName,
 			durationInFrames,
 			slug,
 			sourceCode,
+			installationMode,
 		});
 	}, [
-		dependencies,
+		definition.dependencies,
 		displayName,
 		durationInFrames,
 		elementHeight,
 		elementWidth,
 		slug,
 		sourceCode,
+		installationMode,
 	]);
 
 	const installElement = useCallback(async () => {
-		if (dragData === null) {
+		if (elementPayload === null) {
 			return;
 		}
 
 		setInstallStatus({type: 'installing'});
-		const result = await DragAndDropInternals.installInStudio(dragData);
+		const result = await installInStudio({payload: elementPayload});
 		if (!result.success) {
 			setInstallStatus({
 				type: 'error',
-				message: result.reason,
+				message: result.message,
 			});
 			return;
 		}
@@ -107,12 +110,9 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		const {target} = result;
 		setInstallStatus({
 			type: 'success',
-			message: `Sent to ${target.projectName ?? 'Remotion Studio'}${
-				target.activeCompositionId ? ` / ${target.activeCompositionId}` : ''
-			}. Confirm the install in Studio.`,
-			studioUrl: target.origin,
+			message: `Sent to ${target.projectName ?? 'Remotion Studio'} / ${target.compositionId}. Confirm the installation in Studio.`,
 		});
-	}, [dragData]);
+	}, [elementPayload]);
 
 	const PreviewComponent = useMemo(() => {
 		return () => <ElementPreviewComposition definition={definition} />;
@@ -120,6 +120,13 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 
 	return (
 		<div className={styles.workbench}>
+			<Head>
+				{Seo.renderVideo({
+					height: previewHeight,
+					url: definition.preview.videoUrl,
+					width: previewWidth,
+				})}
+			</Head>
 			<section aria-label="Preview" className={styles.previewColumn}>
 				<div className={styles.previewAndSource}>
 					<ElementPreview
@@ -165,7 +172,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				className={styles.actionsColumn}
 			>
 				<div className={styles.useIt}>
-					{dragData === null ? null : (
+					{elementPayload === null ? null : (
 						<>
 							<div className={styles.actionRow}>
 								<BlueButton
@@ -178,16 +185,16 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 								>
 									{installStatus.type === 'installing'
 										? 'Finding Studio…'
-										: 'Install Element'}
+										: 'Install in Studio'}
 								</BlueButton>
 								<PlainButton
 									draggable
 									fullWidth
 									loading={false}
 									onDragStart={(event) => {
-										setElementDragData({
+										setStudioDragData({
 											dataTransfer: event.dataTransfer,
-											dragData,
+											payload: elementPayload,
 										});
 										setElementDragImage(event.dataTransfer);
 									}}
@@ -208,16 +215,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 											: styles.errorStatus
 									}
 								>
-									{installStatus.message}{' '}
-									{installStatus.type === 'success' ? (
-										<a
-											href={installStatus.studioUrl}
-											rel="noreferrer"
-											target="_blank"
-										>
-											Open Studio
-										</a>
-									) : null}
+									{installStatus.message}
 								</p>
 							) : null}
 						</>
@@ -229,6 +227,38 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 							<div>
 								<dt>Dimensions</dt>
 								<dd>{getElementDimensionsLabel(definition)}</dd>
+							</div>
+							<div>
+								<dt>Preview FPS</dt>
+								<dd>{fps}</dd>
+							</div>
+							<div>
+								<dt>Duration</dt>
+								<dd>{durationInFrames / fps}s</dd>
+							</div>
+							<div className={styles.dependenciesMetadata}>
+								<dt>Dependencies</dt>
+								<dd>
+									{definition.dependencies.length === 0 ? (
+										'None'
+									) : (
+										<ul className={styles.dependencyList}>
+											{definition.dependencies.map((dependency) => (
+												<li key={dependency.name}>
+													<a
+														href={`https://www.npmjs.com/package/${dependency.name}`}
+														rel="noopener noreferrer"
+														target="_blank"
+													>
+														{dependency.version === null
+															? dependency.name
+															: `${dependency.name}@${dependency.version}`}
+													</a>
+												</li>
+											))}
+										</ul>
+									)}
+								</dd>
 							</div>
 						</dl>
 					</div>

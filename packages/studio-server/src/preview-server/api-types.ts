@@ -1,5 +1,9 @@
 import type {IncomingMessage, ServerResponse} from 'node:http';
-import type {LogLevel} from '@remotion/renderer';
+import type {
+	DefaultCodingAgent,
+	DefaultEditor,
+	LogLevel,
+} from '@remotion/renderer';
 import type {RenderJobWithCleanup} from '@remotion/studio-shared';
 
 export type QueueMethods = {
@@ -29,4 +33,6 @@ export type ApiHandler<ReqData, ResData> = (params: {
 	publicDir: string;
 	binariesDirectory: string | null;
 	configFile: string | null;
+	getDefaultCodingAgent: () => DefaultCodingAgent | null;
+	getDefaultEditor: () => DefaultEditor | null;
 }) => Promise<ResData>;

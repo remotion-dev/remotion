@@ -13,11 +13,116 @@ env:
   FORCE_COLOR: 1
   TURBO_TELEMETRY_DISABLED: 1
   TURBO_NO_UPDATE_NOTIFIER: 1
+  TURBO_SCM_BASE: ${{ github.event.pull_request.base.sha }}
+  TURBO_SCM_HEAD: ${{ github.sha }}
 jobs:
+  affected:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    name: Determine affected tests
+    outputs:
+      lambda: ${{ steps.query.outputs.lambda }}
+      nextjs: ${{ steps.query.outputs.nextjs }}
+      browser: ${{ steps.query.outputs.browser }}
+      webrenderer: ${{ steps.query.outputs.webrenderer }}
+      ssr: ${{ steps.query.outputs.ssr }}
+      templates: ${{ steps.query.outputs.templates }}
+      build: ${{ steps.query.outputs.build }}
+      build_matrix: ${{ steps.query.outputs.build_matrix }}
+      bundle_example: ${{ steps.query.outputs.bundle_example }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          filter: blob:none
+      - uses: oven-sh/setup-bun@v2.1.2
+        with:
+          bun-version: 1.3.3
+      - name: Query Turborepo task graph
+        id: query
+        run: |
+          set -euo pipefail
+
+          full_matrix='{"include":[{"os":"ubuntu-latest","node_version":16,"run_build":true},{"os":"windows-latest","node_version":16,"run_build":true},{"os":"macos-latest","node_version":25,"run_build":true}]}'
+          required_matrix='{"include":[{"os":"ubuntu-latest","node_version":16,"run_build":true},{"os":"windows-latest","node_version":16,"run_build":false}]}'
+
+          run_all_test_groups() {
+            for output in lambda nextjs browser webrenderer ssr templates build bundle_example; do
+              echo "$output=true" >> "$GITHUB_OUTPUT"
+            done
+            echo "build_matrix=$full_matrix" >> "$GITHUB_OUTPUT"
+          }
+
+          if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then
+            echo "Push to main. Running all test groups."
+            run_all_test_groups
+            echo "### Full CI after push to main" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          turbo_version=$(jq -r '.dependencies.turbo' package.json)
+          if ! bunx "turbo@$turbo_version" query affected > affected.json; then
+            echo "Could not determine affected tasks. Running all test groups."
+            run_all_test_groups
+            exit 0
+          fi
+
+          task_is_affected() {
+            jq -e --arg task "$1" \
+              'any(.data.affectedTasks.items[]; .name == $task)' \
+              affected.json > /dev/null
+          }
+
+          set_from_tasks() {
+            output=$1
+            shift
+            affected=false
+            for task in "$@"; do
+              if task_is_affected "$task"; then
+                affected=true
+              fi
+            done
+
+            echo "$output=$affected" >> "$GITHUB_OUTPUT"
+          }
+
+          set_from_tasks lambda testlambda
+          set_from_tasks nextjs testnextjs
+          set_from_tasks browser testwebcodecs teste2e
+          set_from_tasks webrenderer testwebrenderer testbrowserstudio
+          set_from_tasks ssr testssr
+          set_from_tasks templates testtemplates
+          set_from_tasks bundle_example bundle-testbed
+
+          build=false
+          build_matrix=$required_matrix
+          if jq -e \
+            'any(.data.affectedTasks.items[]; .name == "make" or .name == "test")' \
+            affected.json > /dev/null; then
+            build=true
+          fi
+
+          if jq -e \
+            'any(.data.affectedTasks.items[]; (.name == "make" or .name == "test") and .package.name != "docs")' \
+            affected.json > /dev/null; then
+            build_matrix=$full_matrix
+          fi
+
+          echo "build=$build" >> "$GITHUB_OUTPUT"
+          echo "build_matrix=$build_matrix" >> "$GITHUB_OUTPUT"
+
+          {
+            echo '### Affected Turborepo tasks'
+            echo
+            jq -r '.data.affectedTasks.items[] | "- `\(.fullName)` (\(.reason.__typename))"' affected.json
+          } >> "$GITHUB_STEP_SUMMARY"
+
   lambda-tests:
+    needs: affected
+    if: ${{ !cancelled() && (needs.affected.result != 'success' || needs.affected.outputs.lambda == 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
-    name: Lambda integration
+    name: Lambda integration tests
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -41,7 +146,24 @@ jobs:
         timeout-minutes: 10
         run: |
           cd packages/lambda && bunx remotion browser ensure && bun test src/test/integration --run
+  lambda-tests-required:
+    needs: [affected, lambda-tests]
+    if: ${{ always() && !cancelled() }}
+    runs-on: ubuntu-latest
+    name: Lambda integration
+    steps:
+      - name: Verify Lambda integration result
+        env:
+          RESULT: ${{ needs.lambda-tests.result }}
+        run: |
+          if [[ "$RESULT" != "success" && "$RESULT" != "skipped" ]]; then
+            echo "Lambda integration tests concluded with $RESULT."
+            exit 1
+          fi
+          echo "Lambda integration tests concluded with $RESULT."
   nextjs-tests:
+    needs: affected
+    if: ${{ !cancelled() && (needs.affected.result != 'success' || needs.affected.outputs.nextjs == 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     name: Next.js SSR build
@@ -57,14 +179,13 @@ jobs:
         run: bun ci
       - name: Cache Turbo
         uses: rharkor/caching-for-turbo@v2.3.11
-      - name: Test Lambda IT
-        run: |
-          bun run build
-      - name: IT tests
+      - name: Build Next.js SSR app
         timeout-minutes: 10
         run: |
-          cd packages/player-example && bun run build-site
+          bun run testnextjs
   browser-tests:
+    needs: affected
+    if: ${{ !cancelled() && (needs.affected.result != 'success' || needs.affected.outputs.browser == 'true') }}
     runs-on: macos-latest
     timeout-minutes: 30
     name: Browser tests
@@ -91,6 +212,8 @@ jobs:
         run: |
           bun run teste2e
   webrenderer-tests:
+    needs: affected
+    if: ${{ !cancelled() && (needs.affected.result != 'success' || needs.affected.outputs.webrenderer == 'true') }}
     runs-on: macos-latest
     timeout-minutes: 30
     name: Web renderer tests
@@ -111,10 +234,15 @@ jobs:
       - name: Test web renderer
         run: |
           bun run testwebrenderer
+      - name: Test Browser Studio
+        run: |
+          bun run testbrowserstudio
   ssr-tests:
+    needs: affected
+    if: ${{ !cancelled() && (needs.affected.result != 'success' || needs.affected.outputs.ssr == 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    name: SSR + Monorepo checks
+    name: SSR + Monorepo tests
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -148,44 +276,25 @@ jobs:
         timeout-minutes: 10
         run: |
           cd packages/it-tests && bun test src/monorepo --run --timeout 40000
-  template-tests-check:
+  ssr-tests-required:
+    needs: [affected, ssr-tests]
+    if: ${{ always() && !cancelled() }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    name: Template tests precheck
-    outputs:
-      should_run: ${{ steps.check.outputs.should_run }}
+    name: SSR + Monorepo checks
     steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 25
-      - uses: oven-sh/setup-bun@v2.1.2
-        with:
-          bun-version: 1.3.3
-      - name: Check if template tests are affected
-        id: check
+      - name: Verify SSR and monorepo result
+        env:
+          RESULT: ${{ needs.ssr-tests.result }}
         run: |
-          set +e
-          bunx turbo-ignore @remotion/it-tests --task=testtemplates
-          status=$?
-          set -e
-
-          if [ "$status" -eq 0 ]; then
-            echo "should_run=false" >> "$GITHUB_OUTPUT"
-            echo "No relevant changes for testtemplates; skipping template-tests."
-          elif [ "$status" -eq 1 ]; then
-            echo "should_run=true" >> "$GITHUB_OUTPUT"
-            echo "Relevant changes detected for testtemplates; running template-tests."
-          else
-            echo "turbo-ignore failed with exit code $status"
-            exit "$status"
+          if [[ "$RESULT" != "success" && "$RESULT" != "skipped" ]]; then
+            echo "SSR and monorepo tests concluded with $RESULT."
+            exit 1
           fi
+          echo "SSR and monorepo tests concluded with $RESULT."
   template-tests:
     name: Template integration on ${{ matrix.os }}
-    needs: template-tests-check
-    if: needs.template-tests-check.outputs.should_run == 'true'
+    needs: affected
+    if: ${{ !cancelled() && (needs.affected.result != 'success' || needs.affected.outputs.templates == 'true') }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     strategy:
@@ -222,11 +331,16 @@ jobs:
         run: |
           bun run testtemplates
   lint:
+    needs: affected
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     name: Linting + Formatting
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          filter: blob:none
       - uses: actions/setup-node@v6
         with:
           node-version: 25
@@ -242,33 +356,41 @@ jobs:
       - name: Perform stylecheck
         timeout-minutes: 10
         run: |
-          bun run stylecheck
+          bunx turbo run lint formatting ${{ github.event_name == 'pull_request' && '--affected' || '' }} --no-update-notifier
+          bun run checkskills
   build:
     name: Build Node ${{ matrix.node_version }} on ${{ matrix.os }}
+    needs: affected
+    if: ${{ !cancelled() }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            node_version: 16
-          - os: windows-latest
-            node_version: 16
-          - os: macos-latest
-            node_version: 25
+      matrix: ${{ fromJSON(needs.affected.outputs.build_matrix || '{"include":[{"os":"ubuntu-latest","node_version":16,"run_build":true},{"os":"windows-latest","node_version":16,"run_build":true},{"os":"macos-latest","node_version":25,"run_build":true}]}') }}
     env:
       BUN_INSTALL_CACHE_DIR: ${{ matrix.os == 'windows-latest' && 'D:\.bun\install\cache' || '' }}
+      RUN_BUILD: ${{ matrix.run_build && (needs.affected.result != 'success' || needs.affected.outputs.build == 'true') }}
+      RUN_BUNDLE: ${{ needs.affected.result != 'success' || needs.affected.outputs.bundle_example == 'true' }}
+      RUN_BUILD_JOB: ${{ (matrix.run_build && (needs.affected.result != 'success' || needs.affected.outputs.build == 'true')) || (matrix.os == 'ubuntu-latest' && (needs.affected.result != 'success' || needs.affected.outputs.bundle_example == 'true')) }}
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - name: No affected build tasks
+        if: env.RUN_BUILD_JOB != 'true'
+        run: echo "No build tasks are affected."
+      - if: env.RUN_BUILD_JOB == 'true'
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          filter: blob:none
+      - if: env.RUN_BUILD_JOB == 'true'
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node_version }}
-      - uses: oven-sh/setup-bun@v2.1.2
+      - if: env.RUN_BUILD_JOB == 'true'
+        uses: oven-sh/setup-bun@v2.1.2
         with:
           bun-version: 1.3.3
       - name: Cache Bun dependencies (Windows)
-        if: matrix.os == 'windows-latest'
+        if: env.RUN_BUILD_JOB == 'true' && matrix.os == 'windows-latest'
         uses: actions/cache@v5
         with:
           path: D:\.bun\install\cache
@@ -276,10 +398,17 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-bun-
       - name: Install
+        if: env.RUN_BUILD_JOB == 'true'
         run: bun ci
       - name: Cache Turbo
+        if: env.RUN_BUILD_JOB == 'true'
         uses: rharkor/caching-for-turbo@v2.3.11
       - name: Build & Test
+        if: env.RUN_BUILD == 'true'
         timeout-minutes: 30
         run: |
-          bun run ci
+          bunx turbo run make test ${{ github.event_name == 'pull_request' && '--affected' || '' }} --concurrency=1 --no-update-notifier
+      - name: Bundle example
+        if: matrix.os == 'ubuntu-latest' && env.RUN_BUNDLE == 'true'
+        run: |
+          bunx turbo run bundle-testbed --filter=@remotion/example --no-update-notifier

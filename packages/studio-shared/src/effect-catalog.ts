@@ -1,4 +1,4 @@
-import type {EffectDragData} from '@remotion/drag-and-drop';
+import type {EffectDragData} from '@remotion/studio-protocol';
 
 export type EffectCatalogItem = {
 	readonly id: string;

@@ -29,6 +29,8 @@ const {
 	publicPathOption,
 	audioLatencyHintOption,
 	darkModeOption,
+	defaultCodingAgentOption,
+	defaultEditorOption,
 	publicLicenseKeyOption,
 	forceNewStudioOption,
 	numberOfSharedAudioTagsOption,
@@ -78,6 +80,8 @@ const {
 	browserOption,
 	sampleRateOption,
 	previewSampleRateOption,
+	rspackOption,
+	skipSkillsOption,
 } = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
@@ -94,6 +98,10 @@ export type CommandLineOptions = {
 		typeof ignoreCertificateErrorsOption
 	> | null;
 	[darkModeOption.cliFlag]: TypeOfOption<typeof darkModeOption> | null;
+	[defaultCodingAgentOption.cliFlag]: TypeOfOption<
+		typeof defaultCodingAgentOption
+	>;
+	[defaultEditorOption.cliFlag]: TypeOfOption<typeof defaultEditorOption>;
 	[disableWebSecurityOption.cliFlag]: TypeOfOption<
 		typeof disableWebSecurityOption
 	> | null;
@@ -190,7 +198,10 @@ export type CommandLineOptions = {
 	[previewSampleRateOption.cliFlag]: TypeOfOption<
 		typeof previewSampleRateOption
 	>;
+	[rspackOption.cliFlag]: TypeOfOption<typeof rspackOption> | null;
+	'experimental-rspack'?: unknown;
 	[isProductionOption.cliFlag]: TypeOfOption<typeof isProductionOption> | null;
+	[skipSkillsOption.cliFlag]: TypeOfOption<typeof skipSkillsOption>;
 };
 
 export const BooleanFlags = [
@@ -216,6 +227,8 @@ export const BooleanFlags = [
 	isProductionOption.cliFlag,
 	forceNewStudioOption.cliFlag,
 	bundleCacheOption.cliFlag,
+	rspackOption.cliFlag,
+	skipSkillsOption.cliFlag,
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
@@ -237,6 +250,7 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 		[isProductionOption.cliFlag]: null,
 		[forceNewStudioOption.cliFlag]: null,
 		[mutedOption.cliFlag]: null,
+		[rspackOption.cliFlag]: null,
 	},
 }) as CommandLineOptions & {
 	_: string[];

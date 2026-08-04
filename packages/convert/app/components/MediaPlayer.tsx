@@ -108,7 +108,7 @@ export const getVideoPreviewStyle = ({
 		top: '50%',
 		width: switchesDimensions ? height : width,
 		height: switchesDimensions ? width : height,
-		transform: `translate(-50%, -50%) rotate(${normalizedRotation}deg) scale(${mirrorHorizontal ? -1 : 1}, ${mirrorVertical ? -1 : 1})`,
+		transform: `translate(-50%, -50%) scale(${mirrorHorizontal ? -1 : 1}, ${mirrorVertical ? -1 : 1}) rotate(${normalizedRotation}deg)`,
 	};
 };
 
@@ -318,11 +318,11 @@ export function VideoPlayer({
 						Loading preview...
 					</div>
 				)}
-				{!isAudio && crop && dimensions ? (
+				{!isAudio && crop && playerDimensions ? (
 					<CropUI
 						setUnclampedRect={setUnclampedRect}
 						unclampedRect={unclampedRect}
-						dimensions={dimensions}
+						dimensions={playerDimensions}
 					/>
 				) : null}
 			</div>

@@ -1,8 +1,7 @@
 ---
 name: remotion-saas
 description: Build an app with Remotion
-metadata:
-  tags: remotion, saas, player, rendering, templates, lambda
+version: 4.0.505
 ---
 
 One can build apps with Remotion.  
@@ -11,7 +10,7 @@ It is possible to have a simple form and hook it up to a render, or have a compl
 ## Choosing a template or a framework
 
 We have several templates for SaaS which can be cloned or used as a reference.
-See [Choosing a framework](framework.md) for help choosing a template or framework. 
+See [Choosing a framework](framework.md) for help choosing a template or framework.
 
 ## The `<Player>`
 

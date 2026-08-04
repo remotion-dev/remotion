@@ -8,7 +8,7 @@ export const useTransparentVideoSource = ({
 	readonly fallbackVideoSrc: string;
 	readonly videoSrc: string;
 }) => {
-	const [src, setSrc] = useState(videoSrc);
+	const [src, setSrc] = useState<string | null>(null);
 
 	useEffect(() => {
 		setSrc(isWebkit() ? fallbackVideoSrc : videoSrc);

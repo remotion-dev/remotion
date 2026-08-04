@@ -201,6 +201,8 @@ The prop type matching `Interactive.premountSchema`.
 
 Every `Interactive` component inherits [`durationInFrames`](/docs/sequence#durationinframes), [`from`](/docs/sequence#from), [`trimBefore`](/docs/sequence#trimbefore), [`freeze`](/docs/sequence#freeze), [`hidden`](/docs/sequence#hidden), [`name`](/docs/sequence#name) and [`showInTimeline`](/docs/sequence#showintimeline) from [`<Sequence>`](/docs/sequence).
 
+Every `Interactive` component also supports [`cropLeft`](/docs/sequence#cropleft), [`cropRight`](/docs/sequence#cropright), [`cropTop`](/docs/sequence#croptop) and [`cropBottom`](/docs/sequence#cropbottom) from <AvailableFrom v="4.0.506" inline />.
+
 ```tsx twoslash title="Timed element"
 import {Interactive} from 'remotion';
 
@@ -208,6 +210,18 @@ export const MyComp: React.FC = () => {
   return (
     <Interactive.Div from={30} durationInFrames={90}>
       Visible from frame 30 to 119
+    </Interactive.Div>
+  );
+};
+```
+
+```tsx twoslash title="Cropped element"
+import {Interactive} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Interactive.Div cropLeft={0.1} cropRight={0.2}>
+      Cropped content
     </Interactive.Div>
   );
 };

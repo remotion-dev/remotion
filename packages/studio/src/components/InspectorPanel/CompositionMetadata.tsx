@@ -49,17 +49,18 @@ const computedValueStyle: React.CSSProperties = {
 	fontFamily: 'sans-serif',
 	fontSize: 12,
 	fontStyle: 'italic',
-	lineHeight: 1.5,
+	lineHeight: '20px',
 };
 
 const dimensionsControls: React.CSSProperties = {
 	alignItems: 'center',
+	color: 'inherit',
 	display: 'flex',
 	fontFamily: 'sans-serif',
-	fontSize: 12,
+	fontSize: 13,
 	gap: 4,
 	justifyContent: 'flex-end',
-	lineHeight: '16px',
+	lineHeight: '20px',
 	minWidth: 0,
 };
 
@@ -85,7 +86,7 @@ const metadataLabelControls: React.CSSProperties = {
 	fontFamily: 'sans-serif',
 	fontSize: 13,
 	gap: 2,
-	lineHeight: '18px',
+	lineHeight: '20px',
 	minWidth: 0,
 };
 
@@ -93,7 +94,7 @@ const metadataLabelText: React.CSSProperties = {
 	color: 'inherit',
 	fontFamily: 'sans-serif',
 	fontSize: 13,
-	lineHeight: '18px',
+	lineHeight: '20px',
 	minWidth: 0,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
@@ -140,6 +141,7 @@ const PresetDropdown: React.FC<{
 				renderAction={renderAction}
 				title={title}
 				values={values}
+				variant="compact"
 			/>
 		</div>
 	);
@@ -463,6 +465,7 @@ export const CompositionMetadata: React.FC<{
 						pendingValue={pendingValues.width ?? null}
 						value={video.width}
 					/>
+					{disabled ? '\u00A0' : null}
 					<CompositionMetadataValue
 						computed={heightIsComputed}
 						disabled={disabled}

@@ -48,6 +48,8 @@ import {TimelineWidthProvider} from './TimelineWidthProvider';
 import {useResolvedStack} from './use-resolved-stack';
 import {useTimelineAssetDrop} from './use-timeline-asset-drop';
 
+const MIN_TIMELINE_LABELS_WIDTH = 240;
+
 const container: React.CSSProperties = {
 	minHeight: '100%',
 	flex: 1,
@@ -188,6 +190,7 @@ const TimelineContextMenuArea: React.FC<{
 				destinationDimensions: null,
 				dropPosition: null,
 				from: null,
+				preferCompositionStart: null,
 				svgImportMode: 'image',
 			});
 		} finally {
@@ -195,7 +198,7 @@ const TimelineContextMenuArea: React.FC<{
 		}
 	}, [canInsertAsset, compositionFile, currentCompositionId, videoConfig]);
 
-	const contextMenuItems = useMemo((): ComboboxValue[] => {
+	const getContextMenuItems = useCallback((): ComboboxValue[] => {
 		return [
 			{
 				type: 'item',
@@ -227,8 +230,7 @@ const TimelineContextMenuArea: React.FC<{
 	return (
 		<ContextMenu
 			ref={timelineVerticalScroll}
-			values={contextMenuItems}
-			onOpen={null}
+			getItems={getContextMenuItems}
 			style={container}
 			className={'css-reset ' + VERTICAL_SCROLLBAR_CLASSNAME}
 		>
@@ -313,9 +315,13 @@ const TimelineInner: React.FC = () => {
 					{isStudioInteractivityEnabled() ? (
 						<TimelineSelectAllKeybindings timeline={shown} />
 					) : null}
-					<TimelineHeightContainer shown={shown} hasBeenCut={hasBeenCut}>
+					<TimelineHeightContainer
+						shown={shown}
+						hasBeenCut={hasBeenCut}
+						isStill={isStill}
+					>
 						{isStill ? (
-							<TimelineList timeline={shown} />
+							<TimelineList timeline={shown} showTimePadding={false} />
 						) : (
 							<TimelineWidthProvider>
 								<TimelinePinchZoom />
@@ -326,13 +332,15 @@ const TimelineInner: React.FC = () => {
 									maxFlex={0.5}
 									minFlex={0.15}
 									maxFlexerSize={null}
+									minFlexerSize={MIN_TIMELINE_LABELS_WIDTH}
 									maxAntiFlexerSize={null}
+									minAntiFlexerSize={null}
 								>
 									<SplitterElement
 										type="flexer"
 										sticky={<TimelineTimePlaceholders />}
 									>
-										<TimelineList timeline={shown} />
+										<TimelineList timeline={shown} showTimePadding />
 									</SplitterElement>
 									<SplitterHandle onCollapse={noop} allowToCollapse="none" />
 									<SplitterElement type="anti-flexer" sticky={null}>

@@ -273,3 +273,147 @@ registerRoot(Root);`,
 		events.filter((event) => event.type === 'default-props-updatable-changed'),
 	).toHaveLength(1);
 });
+
+test('saves sequence props with events and undo history', async () => {
+	const fileName = '/project/src/Composition.tsx';
+	let currentProject: VirtualProject = {
+		rootDir: '/project',
+		entryPoint: '/project/src/index.tsx',
+		files: {
+			'/project/src/index.tsx': `import {registerRoot} from 'remotion';
+import {Root} from './Composition';
+registerRoot(Root);`,
+			[fileName]: `import {Composition, Sequence} from 'remotion';
+export const Component = () => <Sequence from={10} durationInFrames={20} />;
+export const Root = () => <Composition id="MyComp" component={Component} durationInFrames={60} fps={30} width={1280} height={720} />;`,
+		},
+	};
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
+		getStaticFiles: null,
+		getProject: () => currentProject,
+		onProjectChange: (nextProject) => {
+			currentProject = nextProject;
+		},
+	});
+	const events: EventSourceEvent[] = [];
+	operations.subscribeToEvent((event) => events.push(event));
+
+	const request = {
+		fileName: 'src/Composition.tsx',
+		line: 2,
+		column: 31,
+		nodePath: null,
+		componentIdentity: 'dev.remotion.remotion.Sequence',
+		keys: ['from', 'durationInFrames'],
+		assetKeys: [],
+		effects: [],
+		clientId: 'browser-studio',
+		videoConfigValues: {
+			durationInFrames: 60,
+			fps: 30,
+			height: 720,
+			width: 1280,
+		},
+	};
+	const subscription = await operations.subscribeToSequenceProps(request);
+	expect(subscription.success).toBe(true);
+	if (!subscription.success) {
+		throw new Error('Expected sequence props subscription to succeed');
+	}
+
+	expect(subscription.status.props).toEqual({
+		from: {status: 'static', codeValue: 10},
+		durationInFrames: {status: 'static', codeValue: 20},
+	});
+	expect(subscription.nodePath.absolutePath).toBe(fileName);
+
+	const saveResult = await operations.saveSequenceProps({
+		edits: [
+			{
+				fileName: request.fileName,
+				nodePath: subscription.nodePath,
+				key: 'from',
+				value: {type: 'json', serialized: '15'},
+				defaultValue: '0',
+				schema: {
+					from: {
+						type: 'number',
+						default: 0,
+						hiddenFromList: false,
+					},
+					durationInFrames: {
+						type: 'number',
+						default: null,
+						hiddenFromList: false,
+					},
+				},
+				sourceEdit: null,
+			},
+		],
+		addedKeyframes: null,
+		movedKeyframes: null,
+		clientId: request.clientId,
+		undoLabel: 'Update from',
+		redoLabel: 'Update from again',
+	});
+	expect(saveResult.canUpdate).toBe(true);
+	expect(currentProject.files[fileName]).toContain('from={15}');
+	const update = events.findLast(
+		(
+			event,
+		): event is Extract<EventSourceEvent, {type: 'sequence-props-updated'}> =>
+			event.type === 'sequence-props-updated',
+	);
+	expect(update?.fileName).toBe('src/Composition.tsx');
+	expect(update?.result.canUpdate).toBe(true);
+	if (!update?.result.canUpdate) {
+		throw new Error('Expected updated sequence props to be editable');
+	}
+
+	expect(update.result.props.from).toEqual({status: 'static', codeValue: 15});
+	expect(await operations.undo()).toEqual({success: true});
+	expect(currentProject.files[fileName]).toContain('from={10}');
+	expect(await operations.redo()).toEqual({success: true});
+	expect(currentProject.files[fileName]).toContain('from={15}');
+
+	currentProject = {
+		...currentProject,
+		files: {
+			...currentProject.files,
+			[fileName]: currentProject.files[fileName].replace(
+				'<Sequence from={15} durationInFrames={20} />',
+				'<div />',
+			),
+		},
+	};
+	operations.resetHistory();
+	expect(events.findLast((event) => event.type === 'lost-node-path')).toEqual({
+		type: 'lost-node-path',
+		fileName: 'src/Composition.tsx',
+		line: 2,
+		column: 31,
+	});
+
+	await operations.unsubscribeFromSequenceProps({
+		fileName: request.fileName,
+		nodePath: subscription.nodePath,
+		clientId: request.clientId,
+		sequenceKeys: request.keys.slice(),
+		assetKeys: [],
+		effectKeys: [],
+	});
+	const sequenceEventCount = events.filter(
+		(event) =>
+			event.type === 'sequence-props-updated' ||
+			event.type === 'lost-node-path',
+	).length;
+	operations.resetHistory();
+	expect(
+		events.filter(
+			(event) =>
+				event.type === 'sequence-props-updated' ||
+				event.type === 'lost-node-path',
+		),
+	).toHaveLength(sequenceEventCount);
+});

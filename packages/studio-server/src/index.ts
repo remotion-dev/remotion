@@ -36,6 +36,10 @@ import {
 } from './codemods/duplicate-composition';
 import {updateDefaultProps} from './codemods/update-default-props';
 import {
+	detectOutdatedRemotionSkills,
+	parseRemotionSkillVersion,
+} from './detect-outdated-remotion-skills';
+import {
 	createFileWatcherRegistry,
 	installFileWatcher,
 	setFileWatcherRegistry,
@@ -58,8 +62,21 @@ import {
 	lockFilePaths,
 } from './preview-server/get-package-manager';
 import {waitForLiveEventsListener} from './preview-server/live-events';
+import {getEditorName} from './preview-server/routes/open-in-editor';
 import {getRemotionVersion} from './preview-server/update-available';
+import {remotionSkillNames} from './remotion-skill-names';
 import {startStudio} from './start-studio';
+
+export type {
+	RemotionSkillsScope,
+	RemotionSkillsStatus,
+} from './detect-outdated-remotion-skills';
+export type {RemotionSkillName} from './remotion-skill-names';
+export {
+	detectOutdatedRemotionSkills,
+	parseRemotionSkillVersion,
+	remotionSkillNames,
+};
 
 export const StudioServerInternals = {
 	startStudio,
@@ -88,4 +105,8 @@ export const StudioServerInternals = {
 	addCompletedClientRender,
 	getCompletedClientRenders,
 	removeCompletedClientRender,
+	detectOutdatedRemotionSkills,
+	parseRemotionSkillVersion,
+	remotionSkillNames,
+	getEditorName,
 };

@@ -140,7 +140,6 @@ injectCSS(`
 
   .__remotion-timeline-slider {
     appearance: none;
-    width: 100px;
     border-radius: 3px;
     height: 6px;
     background-color: rgba(255, 255, 255, 0.1);

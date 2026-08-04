@@ -93,7 +93,7 @@
 
 @container element-library (min-width: 600px) {
 	.grid {
-		grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+		grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
 		gap: 24px;
 	}
 
@@ -113,7 +113,7 @@
 @container element-library (min-width: 900px) {
 	.grid {
 		grid-template-columns: repeat(
-			auto-fit,
+			auto-fill,
 			minmax(calc((100% - 48px) / 3), 1fr)
 		);
 	}

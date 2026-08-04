@@ -14,8 +14,9 @@ import {getConnectedCompositions} from '../helpers/get-connected-compositions';
 import {getSequenceDoubleClickAction} from '../helpers/get-sequence-double-click-action';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
+import {startPointerSession} from '../helpers/pointer-session';
 import {EditorSnappingContext} from '../state/editor-snapping';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import {callApi} from './call-api';
 import {useConfirmationDialog} from './ConfirmationDialog';
 import {ContextMenuForTarget} from './ContextMenu';
@@ -30,7 +31,6 @@ import {
 	stopForcingSpecificCursor,
 } from './ForceSpecificCursor';
 import {useSelectComposition} from './InitialCompositionLoader';
-import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
 	applySelectedOutlineDragAxisLock,
@@ -99,6 +99,7 @@ import {disableSequenceInteractivity} from './Timeline/disable-sequence-interact
 import {duplicateSequencesFromSource} from './Timeline/duplicate-selected-timeline-item';
 import {commitPendingInspectorFields} from './Timeline/focus-inspector-field';
 import {getSequenceContextMenuItems} from './Timeline/get-sequence-context-menu-items';
+import {getCurrentFrame} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {getTimelineAssetLinkInfo} from './Timeline/timeline-asset-link';
 import {
@@ -116,8 +117,6 @@ import {
 	serializeTransformOrigin,
 } from './Timeline/transform-origin-utils';
 import {useSelectAsset} from './use-select-asset';
-
-const emptyContextMenuValues: readonly ComboboxValue[] = [];
 
 export const SelectedOutlineTransformOriginHandle: React.FC<{
 	readonly outline: SelectedOutline;
@@ -333,9 +332,6 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 			};
 
 			const onPointerUp = () => {
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerUp);
 				window.removeEventListener('keydown', onKeyChange);
 				window.removeEventListener('keyup', onKeyChange);
 				stopForcingSpecificCursor();
@@ -390,9 +386,12 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 					});
 			};
 
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerUp);
+			startPointerSession({
+				event,
+				target: event.currentTarget,
+				onMove: onPointerMove,
+				onEnd: onPointerUp,
+			});
 			window.addEventListener('keydown', onKeyChange);
 			window.addEventListener('keyup', onKeyChange);
 		},
@@ -464,7 +463,6 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 const SelectedOutlinePolygon: React.FC<{
 	readonly allDragTargets: readonly SelectedOutlineDragTarget[];
 	readonly allDragOutlines: readonly SelectedOutline[];
-	readonly contextMenuValues: readonly ComboboxValue[];
 	readonly dragging: boolean;
 	readonly hovered: boolean;
 	readonly onContextMenuOpen: SelectedOutlineContextMenuOpenHandler;
@@ -488,7 +486,6 @@ const SelectedOutlinePolygon: React.FC<{
 }> = ({
 	allDragTargets,
 	allDragOutlines,
-	contextMenuValues,
 	dragging,
 	hovered,
 	onContextMenuOpen,
@@ -509,9 +506,6 @@ const SelectedOutlinePolygon: React.FC<{
 		Internals.VisualModeSettersContext,
 	);
 	const {editorSnapping} = useContext(EditorSnappingContext);
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const timelinePositionRef = useRef(timelinePosition);
-	timelinePositionRef.current = timelinePosition;
 	const polygonRef = useRef<SVGPolygonElement>(null);
 	const points = useMemo(
 		() => outline.points.map(pointToString).join(' '),
@@ -553,7 +547,7 @@ const SelectedOutlinePolygon: React.FC<{
 			const dragStates = getSelectedOutlineDragStates({
 				dragTargets: selected ? allDragTargets : [drag],
 				getDragOverrides,
-				timelinePosition: timelinePositionRef.current,
+				timelinePosition: getCurrentFrame(),
 			});
 			let lastValues = new Map<string, string>();
 			let currentPointerX = startPointerX;
@@ -671,9 +665,6 @@ const SelectedOutlinePolygon: React.FC<{
 			};
 
 			const onPointerUp = () => {
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerUp);
 				window.removeEventListener('keydown', onKeyChange);
 				window.removeEventListener('keyup', onKeyChange);
 				if (dragStarted) {
@@ -738,9 +729,12 @@ const SelectedOutlinePolygon: React.FC<{
 					});
 			};
 
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerUp);
+			startPointerSession({
+				event,
+				target: event.currentTarget,
+				onMove: onPointerMove,
+				onEnd: onPointerUp,
+			});
 			window.addEventListener('keydown', onKeyChange);
 			window.addEventListener('keyup', onKeyChange);
 		},
@@ -866,8 +860,7 @@ const SelectedOutlinePolygon: React.FC<{
 			/>
 			<ContextMenuForTarget
 				triggerRef={polygonRef}
-				values={[...contextMenuValues]}
-				onOpen={onContextMenuOpen}
+				getItems={onContextMenuOpen}
 			/>
 		</>
 	);
@@ -875,7 +868,6 @@ const SelectedOutlinePolygon: React.FC<{
 
 const SelectedOutlineScaleEdgeLine: React.FC<{
 	readonly allScaleDragTargets: readonly SelectedOutlineScaleDragTarget[];
-	readonly contextMenuValues: readonly ComboboxValue[];
 	readonly dragging: boolean;
 	readonly edge: SelectedOutlineScaleEdge;
 	readonly outline: SelectedOutline;
@@ -889,7 +881,6 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 	readonly target: SelectedOutlineTarget | undefined;
 }> = ({
 	allScaleDragTargets,
-	contextMenuValues,
 	dragging,
 	edge,
 	outline,
@@ -905,9 +896,6 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const timelinePositionRef = useRef(timelinePosition);
-	timelinePositionRef.current = timelinePosition;
 	const scaleDrag = target?.scaleDrag ?? null;
 	const selected = target?.selected ?? false;
 	const lineRef = useRef<SVGLineElement>(null);
@@ -944,7 +932,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 			const dragStates = getSelectedOutlineScaleDragStates({
 				dragTargets: selected ? allScaleDragTargets : [scaleDrag],
 				getDragOverrides,
-				timelinePosition: timelinePositionRef.current,
+				timelinePosition: getCurrentFrame(),
 			});
 			let lastValues = new Map<string, number | string>();
 			let dragStarted = false;
@@ -1010,9 +998,6 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 			};
 
 			const onPointerUp = () => {
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerUp);
 				if (dragStarted) {
 					stopForcingSpecificCursor();
 					onDraggingChange(false);
@@ -1081,9 +1066,12 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 					});
 			};
 
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerUp);
+			startPointerSession({
+				event,
+				target: event.currentTarget,
+				onMove: onPointerMove,
+				onEnd: onPointerUp,
+			});
 		},
 		[
 			allScaleDragTargets,
@@ -1129,11 +1117,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 				}}
 				onPointerDown={onPointerDown}
 			/>
-			<ContextMenuForTarget
-				triggerRef={lineRef}
-				values={[...contextMenuValues]}
-				onOpen={onContextMenuOpen}
-			/>
+			<ContextMenuForTarget triggerRef={lineRef} getItems={onContextMenuOpen} />
 		</>
 	);
 };
@@ -1150,7 +1134,6 @@ const svgPointToClientPoint = (
 
 const SelectedOutlineRotationCornerHandle: React.FC<{
 	readonly allRotationDragTargets: readonly SelectedOutlineRotationDragTarget[];
-	readonly contextMenuValues: readonly ComboboxValue[];
 	readonly corner: SelectedOutlineRotationCorner;
 	readonly dragging: boolean;
 	readonly outline: SelectedOutline;
@@ -1164,7 +1147,6 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 	readonly target: SelectedOutlineTarget | undefined;
 }> = ({
 	allRotationDragTargets,
-	contextMenuValues,
 	corner,
 	dragging,
 	outline,
@@ -1181,9 +1163,6 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 		Internals.VisualModeSettersContext,
 	);
 	const {editorSnapping} = useContext(EditorSnappingContext);
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const timelinePositionRef = useRef(timelinePosition);
-	timelinePositionRef.current = timelinePosition;
 	const rotationDrag = target?.rotationDrag ?? null;
 	const selected = target?.selected ?? false;
 	const circleRef = useRef<SVGCircleElement>(null);
@@ -1236,7 +1215,7 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			const dragStates = getSelectedOutlineRotationDragStates({
 				dragTargets: selected ? allRotationDragTargets : [rotationDrag],
 				getDragOverrides,
-				timelinePosition: timelinePositionRef.current,
+				timelinePosition: getCurrentFrame(),
 			});
 			let previousAngle = getAngleDegrees(center, {
 				x: event.clientX,
@@ -1337,9 +1316,6 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			};
 
 			const onPointerUp = () => {
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerUp);
 				window.removeEventListener('keydown', onKeyChange);
 				window.removeEventListener('keyup', onKeyChange);
 				if (dragStarted) {
@@ -1410,9 +1386,12 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 					});
 			};
 
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerUp);
+			startPointerSession({
+				event,
+				target: event.currentTarget,
+				onMove: onPointerMove,
+				onEnd: onPointerUp,
+			});
 			window.addEventListener('keydown', onKeyChange);
 			window.addEventListener('keyup', onKeyChange);
 		},
@@ -1465,8 +1444,7 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			/>
 			<ContextMenuForTarget
 				triggerRef={circleRef}
-				values={[...contextMenuValues]}
-				onOpen={onContextMenuOpen}
+				getItems={onContextMenuOpen}
 			/>
 		</>
 	);
@@ -1517,7 +1495,7 @@ export const SelectedOutlineElement: React.FC<{
 	const selectAsset = useSelectAsset();
 	const selectComposition = useSelectComposition();
 	const {compositions} = useContext(Internals.CompositionManager);
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	const resolveOriginalLocation = React.useCallback(
 		async (resolveTarget: SelectedOutlineTarget) => {
@@ -1572,7 +1550,7 @@ export const SelectedOutlineElement: React.FC<{
 					return;
 				}
 
-				await openOriginalPositionInEditor(originalLocation);
+				await openOriginalPositionInEditor(originalLocation, null);
 			};
 
 			openTargetInEditor().catch((err) => {
@@ -1634,6 +1612,7 @@ export const SelectedOutlineElement: React.FC<{
 			deleteDisabled: sourceEditDisabled,
 			disableInteractivityDisabled,
 			duplicateDisabled: sourceEditDisabled,
+			editorInfo: null,
 			fileLocation,
 			includeSourceEditItems: sourceEditingEnabled,
 			onDeleteSequenceFromSource: async () => {
@@ -1700,7 +1679,7 @@ export const SelectedOutlineElement: React.FC<{
 					return;
 				}
 
-				openOriginalPositionInEditor(originalLocation).catch((err) => {
+				openOriginalPositionInEditor(originalLocation, null).catch((err) => {
 					showNotification((err as Error).message, 2000);
 				});
 			},
@@ -1790,7 +1769,6 @@ export const SelectedOutlineElement: React.FC<{
 			<SelectedOutlinePolygon
 				allDragTargets={allDragTargets}
 				allDragOutlines={allDragOutlines}
-				contextMenuValues={emptyContextMenuValues}
 				dragging={dragging}
 				hovered={hovered}
 				outline={outline}
@@ -1814,7 +1792,6 @@ export const SelectedOutlineElement: React.FC<{
 						<SelectedOutlineScaleEdgeLine
 							key={edge}
 							allScaleDragTargets={allScaleDragTargets}
-							contextMenuValues={emptyContextMenuValues}
 							dragging={dragging}
 							edge={edge}
 							outline={outline}
@@ -1833,7 +1810,6 @@ export const SelectedOutlineElement: React.FC<{
 						<SelectedOutlineRotationCornerHandle
 							key={corner}
 							allRotationDragTargets={allRotationDragTargets}
-							contextMenuValues={emptyContextMenuValues}
 							corner={corner}
 							dragging={dragging}
 							outline={outline}

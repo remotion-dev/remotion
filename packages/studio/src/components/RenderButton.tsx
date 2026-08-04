@@ -15,20 +15,18 @@ import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
-	CURRENT_COLOR,
-	CURRENT_COLOR_LOWERCASE,
-	INPUT_BACKGROUND,
-	BLACK_ALPHA_60,
 	TRANSPARENT,
 	WHITE,
+	WHITE_ALPHA_80,
+	getBackgroundFromHoverState,
 } from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {CaretDown} from '../icons/caret';
 import {ThinRenderIcon} from '../icons/render';
 import {useTimelineInOutFramePosition} from '../state/in-out';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import {HigherZIndex, useZIndex} from '../state/z-index';
-import {COMPACT_CONTROL_ROW_HEIGHT, Row, Spacing} from './layout';
+import {Row, Spacing} from './layout';
 import {MENU_INITIATOR_CLASSNAME, isMenuItem} from './Menu/is-menu-item';
 import {getPortal} from './Menu/portals';
 import {
@@ -39,14 +37,14 @@ import {
 } from './Menu/styles';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {MenuContent} from './NewComposition/MenuContent';
+import {getCurrentFrame} from './Timeline/imperative-state';
 
 const splitButtonContainer: React.CSSProperties = {
 	display: 'inline-flex',
 	flexDirection: 'row',
-	alignItems: 'stretch',
-	borderRadius: 4,
-	border: `1px solid ${BLACK_ALPHA_60}`,
-	backgroundColor: INPUT_BACKGROUND,
+	alignItems: 'center',
+	borderRadius: 3,
+	gap: 1,
 	overflow: 'hidden',
 };
 
@@ -57,18 +55,13 @@ const mainButtonStyle: React.CSSProperties = {
 	paddingBottom: 7,
 	background: TRANSPARENT,
 	border: 'none',
+	borderRadius: '3px 0 0 3px',
 	color: WHITE,
-	cursor: 'pointer',
+	cursor: 'default',
 	display: 'flex',
 	alignItems: 'center',
 	fontSize: 14,
 	fontFamily: 'inherit',
-};
-
-const dividerStyle: React.CSSProperties = {
-	width: 1,
-	backgroundColor: BLACK_ALPHA_60,
-	alignSelf: 'stretch',
 };
 
 const dropdownTriggerStyle: React.CSSProperties = {
@@ -78,10 +71,12 @@ const dropdownTriggerStyle: React.CSSProperties = {
 	paddingBottom: 7,
 	background: TRANSPARENT,
 	border: 'none',
+	borderRadius: '0 3px 3px 0',
 	color: WHITE,
-	cursor: 'pointer',
+	cursor: 'default',
 	display: 'flex',
 	alignItems: 'center',
+	justifyContent: 'center',
 };
 
 const mainButtonContent: React.CSSProperties = {
@@ -98,19 +93,18 @@ const label: React.CSSProperties = {
 	minWidth: 0,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 
-const compactSplitButtonSegmentHeight = COMPACT_CONTROL_ROW_HEIGHT;
+const compactSplitButtonSegmentHeight = 24;
 
 const compactMainButtonStyle: React.CSSProperties = {
 	...mainButtonStyle,
 	boxSizing: 'border-box',
 	height: compactSplitButtonSegmentHeight,
-	paddingLeft: 6,
-	paddingRight: 6,
-	paddingTop: 6,
-	paddingBottom: 6,
+	padding: '0 4px',
 	fontSize: 12,
 };
 
@@ -118,16 +112,14 @@ const compactDropdownTriggerStyle: React.CSSProperties = {
 	...dropdownTriggerStyle,
 	boxSizing: 'border-box',
 	height: compactSplitButtonSegmentHeight,
-	paddingLeft: 5,
-	paddingRight: 5,
-	paddingTop: 6,
-	paddingBottom: 6,
+	padding: 0,
+	width: 20,
 };
 
 const compactMainButtonContent: React.CSSProperties = {
 	...mainButtonContent,
-	paddingLeft: 2,
-	paddingRight: 4,
+	paddingLeft: 0,
+	paddingRight: 0,
 };
 
 const compactLabel: React.CSSProperties = {
@@ -157,16 +149,18 @@ const getInitialRenderType = (readOnlyStudio: boolean): RenderType => {
 	return 'server-render';
 };
 
-export const RenderButton: React.FC<{
+const RenderButtonInner: React.FC<{
 	readonly readOnlyStudio: boolean;
 	readonly size?: 'default' | 'compact';
-}> = ({readOnlyStudio, size: controlSize = 'default'}) => {
+	readonly narrow?: boolean;
+}> = ({readOnlyStudio, size: controlSize = 'default', narrow = false}) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const [preferredRenderType, setPreferredRenderType] = useState<RenderType>(
 		() => getInitialRenderType(readOnlyStudio),
 	);
 	const [dropdownOpened, setDropdownOpened] = useState(false);
+	const [hovered, setHovered] = useState(false);
 	const dropdownRef = useRef<HTMLButtonElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const {currentZIndex} = useZIndex();
@@ -259,18 +253,19 @@ export const RenderButton: React.FC<{
 	const iconStyle: SVGProps<SVGSVGElement> = useMemo(() => {
 		return {
 			style: {
-				height: controlSize === 'compact' ? 14 : 16,
-				color: CURRENT_COLOR,
+				height: controlSize === 'compact' ? 18 : 16,
+				width: controlSize === 'compact' ? 18 : 16,
 				flexShrink: 0,
 			},
 		};
 	}, [controlSize]);
 
 	const video = Internals.useVideo();
-	const {getCurrentFrame} = PlayerInternals.usePlayer();
 
 	const {props} = useContext(Internals.EditorPropsContext);
 
+	// Read the frame when the modal opens instead of subscribing this button to
+	// every timeline position update.
 	const openServerRenderModal = useCallback(
 		(copyCommandOnly: boolean) => {
 			if (!video) {
@@ -341,7 +336,7 @@ export const RenderButton: React.FC<{
 				renderDefaults: defaults,
 			});
 		},
-		[video, setSelectedModal, getCurrentFrame, props, inFrame, outFrame],
+		[video, setSelectedModal, props, inFrame, outFrame],
 	);
 
 	const openClientRenderModal = useCallback(() => {
@@ -380,7 +375,7 @@ export const RenderButton: React.FC<{
 			initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
 			initialPageResponsiveness: 'medium',
 		});
-	}, [video, setSelectedModal, getCurrentFrame, props, inFrame, outFrame]);
+	}, [video, setSelectedModal, props, inFrame, outFrame]);
 
 	const onClick = useCallback(() => {
 		if (renderType === 'render-command') {
@@ -519,10 +514,9 @@ export const RenderButton: React.FC<{
 	const containerStyle = useMemo((): React.CSSProperties => {
 		return {
 			...splitButtonContainer,
-			borderColor: BLACK_ALPHA_60,
-			borderRadius: controlSize === 'compact' ? 0 : 4,
+			borderRadius: controlSize === 'compact' ? 3 : 4,
 			opacity: 1,
-			cursor: 'pointer',
+			cursor: 'default',
 		};
 	}, [controlSize]);
 
@@ -532,6 +526,19 @@ export const RenderButton: React.FC<{
 			: renderType === 'render-command'
 				? 'Render via CLI'
 				: 'Render on web';
+	const showRenderLabel = !narrow || renderType !== 'server-render';
+	const mainHovered = hovered && !dropdownOpened;
+	const mainForegroundColor = mainHovered ? WHITE : WHITE_ALPHA_80;
+	const dropdownForegroundColor =
+		hovered || dropdownOpened ? WHITE : WHITE_ALPHA_80;
+	const mainSegmentBackground = getBackgroundFromHoverState({
+		hovered: mainHovered,
+		selected: false,
+	});
+	const dropdownSegmentBackground = getBackgroundFromHoverState({
+		hovered,
+		selected: dropdownOpened,
+	});
 
 	if (!video) {
 		return null;
@@ -552,12 +559,29 @@ export const RenderButton: React.FC<{
 				onClick={openClientRenderModal}
 				type="button"
 			/>
-			<div ref={containerRef} style={containerStyle} title={tooltip}>
+			<button
+				style={{display: 'none'}}
+				id="render-modal-button-command"
+				onClick={() => openServerRenderModal(true)}
+				type="button"
+			/>
+			<div
+				ref={containerRef}
+				style={containerStyle}
+				title={tooltip}
+				onPointerEnter={() => setHovered(true)}
+				onPointerLeave={() => setHovered(false)}
+			>
 				<button
 					type="button"
-					style={
-						controlSize === 'compact' ? compactMainButtonStyle : mainButtonStyle
-					}
+					aria-label={renderLabel}
+					style={{
+						...(controlSize === 'compact'
+							? compactMainButtonStyle
+							: mainButtonStyle),
+						backgroundColor: mainSegmentBackground,
+						color: mainForegroundColor,
+					}}
 					onClick={onClick}
 					id="render-modal-button"
 				>
@@ -569,30 +593,37 @@ export const RenderButton: React.FC<{
 								: mainButtonContent
 						}
 					>
-						<ThinRenderIcon
-							fill={CURRENT_COLOR_LOWERCASE}
-							svgProps={iconStyle}
-						/>
-						<Spacing x={controlSize === 'compact' ? 0.75 : 1} />
-						<span style={controlSize === 'compact' ? compactLabel : label}>
-							{renderLabel}
-						</span>
+						<ThinRenderIcon fill={mainForegroundColor} svgProps={iconStyle} />
+						{showRenderLabel ? (
+							<>
+								<Spacing x={controlSize === 'compact' ? 0.75 : 1} />
+								<span
+									style={{
+										...(controlSize === 'compact' ? compactLabel : label),
+										color: mainForegroundColor,
+									}}
+								>
+									{renderLabel}
+								</span>
+							</>
+						) : null}
 					</Row>
 				</button>
-				<div style={dividerStyle} />
 				<button
 					ref={dropdownRef}
 					type="button"
-					style={
-						controlSize === 'compact'
+					style={{
+						...(controlSize === 'compact'
 							? compactDropdownTriggerStyle
-							: dropdownTriggerStyle
-					}
+							: dropdownTriggerStyle),
+						backgroundColor: dropdownSegmentBackground,
+						color: dropdownForegroundColor,
+					}}
 					className={MENU_INITIATOR_CLASSNAME}
 					onPointerDown={onPointerDown}
 					onClick={onClickDropdown}
 				>
-					<CaretDown />
+					<CaretDown color={dropdownForegroundColor} />
 				</button>
 			</div>
 			{portalStyle
@@ -626,3 +657,5 @@ export const RenderButton: React.FC<{
 		</>
 	);
 };
+
+export const RenderButton = React.memo(RenderButtonInner);

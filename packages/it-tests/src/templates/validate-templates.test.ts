@@ -235,6 +235,15 @@ describe('Templates should be valid', () => {
 			expect(contents).not.toContain('setExperimentalRspackEnabled');
 		});
 
+		it(`${template.shortName} should enable Rspack`, async () => {
+			const {contents, entryPoint} = await findFile([
+				getFileForTemplate(template, 'remotion.config.ts'),
+				getFileForTemplate(template, 'remotion.config.js'),
+			]);
+			expect(entryPoint).toBeTruthy();
+			expect(contents).toContain('Config.setRspack(true)');
+		});
+
 		it(`${template.shortName} should use good tsconfig values`, async () => {
 			if (template.shortName.includes('JavaScript')) {
 				return;

@@ -19,12 +19,12 @@ import {useCallback, useContext, useMemo, useState} from 'react';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {AudioIcon} from '../../icons/audio';
 import {CertificateIcon} from '../../icons/certificate';
-import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
 import {GearIcon} from '../../icons/gear';
+import {InputPropsIcon} from '../../icons/input-props';
 import type {WebRenderModalState} from '../../state/modals';
-import {ModalsContext} from '../../state/modals';
+import {SetSelectedModalContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -183,7 +183,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	initialPageResponsiveness,
 }) => {
 	const context = useContext(ResolvedCompositionContext);
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {setSidebarCollapsedState} = useContext(SidebarContext);
 	const {addClientStillJob, addClientVideoJob} = useContext(RenderQueueContext);
 	if (!context) {
@@ -642,20 +642,24 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						style={horizontalTab}
 						selected={tab === 'general'}
 						onClick={() => setTab('general')}
+						renderIcon={(color) => (
+							<div style={iconContainer}>
+								<FileIcon color={color} style={icon} />
+							</div>
+						)}
 					>
-						<div style={iconContainer}>
-							<FileIcon style={icon} />
-						</div>
 						General
 					</VerticalTab>
 					<VerticalTab
 						style={horizontalTab}
 						selected={tab === 'data'}
 						onClick={() => setTab('data')}
+						renderIcon={(color) => (
+							<div style={iconContainer}>
+								<InputPropsIcon color={color} style={icon} />
+							</div>
+						)}
 					>
-						<div style={iconContainer}>
-							<DataIcon style={icon} />
-						</div>
 						Input Props
 					</VerticalTab>
 					{renderMode !== 'audio' ? (
@@ -663,10 +667,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							style={horizontalTab}
 							selected={tab === 'picture'}
 							onClick={() => setTab('picture')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<PicIcon color={color} style={icon} />
+								</div>
+							)}
 						>
-							<div style={iconContainer}>
-								<PicIcon style={icon} />
-							</div>
 							Picture
 						</VerticalTab>
 					) : null}
@@ -675,10 +681,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							style={horizontalTab}
 							selected={tab === 'audio'}
 							onClick={() => setTab('audio')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<AudioIcon color={color} style={icon} />
+								</div>
+							)}
 						>
-							<div style={iconContainer}>
-								<AudioIcon style={icon} />
-							</div>
 							Audio
 						</VerticalTab>
 					) : null}
@@ -686,10 +694,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						style={horizontalTab}
 						selected={tab === 'advanced'}
 						onClick={() => setTab('advanced')}
+						renderIcon={(color) => (
+							<div style={iconContainer}>
+								<GearIcon color={color} style={icon} />
+							</div>
+						)}
 					>
-						<div style={iconContainer}>
-							<GearIcon style={icon} />
-						</div>
 						Other
 					</VerticalTab>
 					<VerticalTab
@@ -697,14 +707,17 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 						selected={false}
 						onClick={() =>
 							setSelectedModal({
-								type: 'configure-license',
+								type: 'settings',
+								initialTab: 'license',
 								initialPublicLicenseKey: publicLicenseKey,
 							})
 						}
+						renderIcon={(color) => (
+							<div style={iconContainer}>
+								<CertificateIcon color={color} style={icon} />
+							</div>
+						)}
 					>
-						<div style={iconContainer}>
-							<CertificateIcon style={icon} />
-						</div>
 						License
 					</VerticalTab>
 				</div>

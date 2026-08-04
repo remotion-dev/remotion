@@ -48,6 +48,15 @@ The minimum Node version is now <MinNodeVersion />. The minimum Bun version is <
 
 If you use `@remotion/eslint-config`, the minimum ESLint version is now <MinEslintVersion />.
 
+## WebGL and WebGPU during rendering are now enabled by default
+
+In Remotion 4.0, the default OpenGL renderer was `null`, which would not enable WebGL or WebGPU.
+
+In Remotion 5.0, the default is `angle` with automatic fallback to `swangle`.
+Lambda and Cloud Run continue to use `swangle` by default, because they have no GPU.
+
+**Required action**: If you used `--gl=angle` before, you can now remove it.
+
 ## `selectComposition()` and `getCompositions()` now require `inputProps`
 
 `inputProps` is now required in [`selectComposition()`](/docs/renderer/select-composition) and [`getCompositions()`](/docs/renderer/get-compositions).  
@@ -98,9 +107,9 @@ Previously, they returned the point or tangent at the end of the path.
 
 ## `overwrite` is now `true` by default in `renderMediaOnLambda()`
 
-The default value of `overwrite` has been changed to `true` in `renderMediaOnLambda()`. This skips a check that the file already exists in the S3 bucket, which makes the render start faster.
+The default value of `overwrite` in [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) has changed from `false` to `true`. This skips a check that the file already exists in the S3 bucket, which makes the render start faster.
 
-**Required action**: If you want to keep the old behavior, set `overwrite: false`, explicitly.
+**Required action**: Set `overwrite: false` if an existing file should still cause an error.
 
 ## `openBrowser()` now takes a `logLevel` instead of `shouldDumpIo`
 

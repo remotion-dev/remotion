@@ -13,12 +13,32 @@ test('Studio render defaults keep the startup log level', () => {
 	expect(getRenderDefaults('warn').logLevel).toBe('warn');
 });
 
+test('Rspack can be configured using the current and deprecated APIs', () => {
+	ConfigInternals.resetConfigOptions();
+
+	expect(
+		BrowserSafeApis.options.rspackOption.getValue({commandLine: {}}).value,
+	).toBe(false);
+
+	Config.setRspack(true);
+	expect(
+		BrowserSafeApis.options.rspackOption.getValue({commandLine: {}}).value,
+	).toBe(true);
+
+	Config.setExperimentalRspackEnabled(false);
+	expect(
+		BrowserSafeApis.options.rspackOption.getValue({commandLine: {}}).value,
+	).toBe(false);
+});
+
 test('reset config options restores defaults before reloading config', async () => {
 	ConfigInternals.resetConfigOptions();
 
 	Config.setStudioPort(4321);
 	Config.setMaxTimelineTracks(123);
 	Config.setChromiumOpenGlRenderer('angle');
+	Config.setDefaultCodingAgent('codex');
+	Config.setDefaultEditor('cursor');
 	Config.setBufferStateDelayInMilliseconds(200);
 	Config.overrideBundlerConfig((config, {bundler}) => ({
 		...config,
@@ -42,6 +62,15 @@ test('reset config options restores defaults before reloading config', async () 
 	expect(
 		BrowserSafeApis.options.glOption.getValue({commandLine: {}}).value,
 	).toBe('angle');
+	expect(
+		BrowserSafeApis.options.defaultCodingAgentOption.getValue({
+			commandLine: {},
+		}).value,
+	).toBe('codex');
+	expect(
+		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
+			.value,
+	).toBe('cursor');
 	expect(ConfigInternals.getBufferStateDelayInMilliseconds()).toBe(200);
 	const sharedWebpackConfig = await ConfigInternals.getBundlerOverrideFn()(
 		{mode: 'development'},
@@ -78,6 +107,15 @@ test('reset config options restores defaults before reloading config', async () 
 	expect(
 		BrowserSafeApis.options.glOption.getValue({commandLine: {}}).value,
 	).toBeNull();
+	expect(
+		BrowserSafeApis.options.defaultCodingAgentOption.getValue({
+			commandLine: {},
+		}).value,
+	).toBeNull();
+	expect(
+		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
+			.value,
+	).toBeNull();
 	expect(ConfigInternals.getBufferStateDelayInMilliseconds()).toBeNull();
 	expect(
 		await ConfigInternals.getBundlerOverrideFn()(
@@ -104,6 +142,42 @@ test('reset config options restores defaults before reloading config', async () 
 		BrowserSafeApis.options.overwriteOption.getValue({commandLine: {}}, true)
 			.value,
 	).toBe(true);
+});
+
+test('CLI app flags take precedence over the configured defaults', () => {
+	ConfigInternals.resetConfigOptions();
+	Config.setDefaultCodingAgent('codex');
+	Config.setDefaultEditor({
+		type: 'custom',
+		name: 'Acme Editor',
+		executable: '/opt/acme/editor',
+		arguments: ['--goto', '%TARGET_PATH%:%LINE_NUMBER%:%COLUMN_NUMBER%'],
+	});
+
+	expect(
+		BrowserSafeApis.options.defaultCodingAgentOption.getValue({
+			commandLine: {'coding-agent': 'cursor'},
+		}),
+	).toEqual({source: 'cli', value: 'cursor'});
+	expect(
+		BrowserSafeApis.options.defaultEditorOption.getValue({
+			commandLine: {editor: 'zed'},
+		}),
+	).toEqual({source: 'cli', value: 'zed'});
+	expect(() => Config.setDefaultCodingAgent('invalid' as 'codex')).toThrow(
+		'Config.setDefaultCodingAgent() must be one of',
+	);
+	expect(() => Config.setDefaultEditor('invalid' as 'cursor')).toThrow(
+		'Config.setDefaultEditor() must be one of',
+	);
+	expect(() =>
+		Config.setDefaultEditor({
+			type: 'custom',
+			name: 'Acme Editor',
+			executable: '/opt/acme/editor',
+			arguments: ['--goto'],
+		}),
+	).toThrow('Custom editor arguments must include %TARGET_PATH%');
 });
 
 test('bundler overrides can be fixed at Studio startup', async () => {

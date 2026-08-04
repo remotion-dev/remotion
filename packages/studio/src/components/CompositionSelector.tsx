@@ -1,4 +1,4 @@
-import {DragAndDropInternals} from '@remotion/drag-and-drop';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {compositionDragDataToSymbolicatedStack} from '@remotion/studio-shared';
 import React, {
 	useCallback,
@@ -14,7 +14,7 @@ import {BACKGROUND, WHITE_ALPHA_12} from '../helpers/colors';
 import {createFolderTree} from '../helpers/create-folder-tree';
 import {ExpandedFoldersContext} from '../helpers/persist-open-folders';
 import {sortItemsByNonceHistory} from '../helpers/sort-by-nonce-history';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import {CompositionSelectorItem} from './CompositionSelectorItem';
 import {ContextMenuForTarget} from './ContextMenu';
@@ -127,10 +127,10 @@ export const CompositionSelector: React.FC = () => {
 		Internals.CompositionManager,
 	);
 	const {foldersExpanded} = useContext(ExpandedFoldersContext);
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
-	const rootContextMenuItems = useMemo(() => {
+	const getRootContextMenuItems = useCallback(() => {
 		return getRootCompositionMenuItems({
 			connectionStatus,
 			readOnlyStudio: window.remotion_isReadOnlyStudio,
@@ -230,7 +230,7 @@ export const CompositionSelector: React.FC = () => {
 		(event: React.DragEvent<HTMLElement>) => {
 			if (
 				window.remotion_isReadOnlyStudio ||
-				DragAndDropInternals.getDragPreviewMetadata(event.dataTransfer.types)
+				StudioProtocolInternals.getDragPreviewMetadata(event.dataTransfer.types)
 					?.type !== 'composition'
 			) {
 				stopCompositionListAutoScroll();
@@ -257,7 +257,7 @@ export const CompositionSelector: React.FC = () => {
 	const onRootDragOver = useCallback((event: React.DragEvent<HTMLElement>) => {
 		if (
 			window.remotion_isReadOnlyStudio ||
-			DragAndDropInternals.getDragPreviewMetadata(event.dataTransfer.types)
+			StudioProtocolInternals.getDragPreviewMetadata(event.dataTransfer.types)
 				?.type !== 'composition'
 		) {
 			return;
@@ -290,7 +290,7 @@ export const CompositionSelector: React.FC = () => {
 				return;
 			}
 
-			const parsed = DragAndDropInternals.parseDragData(event.dataTransfer);
+			const parsed = StudioProtocolInternals.parseDragData(event.dataTransfer);
 			if (parsed?.type !== 'composition') {
 				return;
 			}
@@ -349,8 +349,7 @@ export const CompositionSelector: React.FC = () => {
 		<div style={container}>
 			<ContextMenuForTarget
 				triggerRef={listRef}
-				values={rootContextMenuItems}
-				onOpen={null}
+				getItems={getRootContextMenuItems}
 			/>
 			<ExplorerQuickSwitcherTrigger
 				mode="compositions"

@@ -4,6 +4,7 @@ import type {DrawFn} from '../drawn-fn';
 import {setFilter} from '../filter';
 import {applyTextTransform} from './apply-text-transform';
 import {findWords} from './find-line-breaks.text';
+import {getCanvasFontStretch} from './get-canvas-font-stretch';
 import {parsePaintOrder} from './parse-paint-order';
 import {parseTextShadow} from './parse-text-shadow';
 import {drawTextDecoration, getTextDecorations} from './text-decoration';
@@ -66,7 +67,7 @@ export const drawText = ({
 		contextToDraw.font = `${fontStyle} ${fontWeight} ${fontSizePx}px ${fontFamily}`;
 		contextToDraw.fontVariantCaps = fontVariantCaps as CanvasFontVariantCaps;
 		contextToDraw.fontKerning = fontKerning as CanvasFontKerning;
-		contextToDraw.fontStretch = fontStretch as CanvasFontStretch;
+		contextToDraw.fontStretch = getCanvasFontStretch(fontStretch);
 		contextToDraw.textRendering = textRendering as CanvasTextRendering;
 		contextToDraw.fillStyle =
 			// If text is being applied with backgroundClipText, we need to use a solid color otherwise it won't get

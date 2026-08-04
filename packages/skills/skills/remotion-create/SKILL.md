@@ -1,8 +1,7 @@
 ---
 name: remotion-create
 description: Create a new Remotion video
-metadata:
-  tags: remotion
+version: 4.0.505
 ---
 
 These are instructions for making a new Remotion project and composition.  
@@ -40,15 +39,28 @@ By structuring the React Markup following [Remotion Interactivity Best Practices
 
 If Tailwind is requested, see [tailwind.md](tailwind.md) for using TailwindCSS in Remotion.
 
-## Starting preview
+## Open the preview
+
+Start the preview server after building the composition:
 
 ```bash
 npx remotion studio --no-open
 ```
 
 This will start a long-running process and print the server URL for the preview.  
-If server is already started, it will print the URL.
+If the server is already started, it will print the URL.
+If an in-harness browser is available, open it there.
 You can visit a specific composition by navigating to `/[composition-id]`, for example `http://localhost:3000/MapAnimation`.
+
+## Render the video
+
+Only render if the user explicitly asks for it.
+
+```
+npx remotion render
+```
+
+For more options, see [Rendering](../remotion-render/SKILL.md).
 
 ## Follow-up
 

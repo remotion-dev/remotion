@@ -20,6 +20,7 @@ import {
 	isStudioInteractivityEnabled,
 	isStudioSelectionEnabled,
 } from '../helpers/interactivity-enabled';
+import {useIsFullscreen} from '../helpers/use-is-fullscreen';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
@@ -670,6 +671,7 @@ export const SelectedOutlineOverlay: React.FC<{
 		TimelineSequenceHoverContext,
 	);
 	const {editorShowGuides, guidesList} = useContext(EditorShowGuidesContext);
+	const isFullscreen = useIsFullscreen();
 	const {frameBack, frameForward, getCurrentFrame, seek} =
 		PlayerInternals.usePlayer();
 	const keybindings = useKeybinding();
@@ -728,6 +730,7 @@ export const SelectedOutlineOverlay: React.FC<{
 
 	const outlineTargets = useMemo((): SelectedOutlineTarget[] => {
 		if (
+			isFullscreen ||
 			!isStudioSelectionEnabled() ||
 			!previewSelectionAvailable ||
 			!editorShowOutlines
@@ -1070,6 +1073,7 @@ export const SelectedOutlineOverlay: React.FC<{
 		getEffectDragOverrides,
 		getScaleLockState,
 		editorShowOutlines,
+		isFullscreen,
 		overrideIdToNodePathMappings,
 		previewInteractive,
 		previewSelectionAvailable,

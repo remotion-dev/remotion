@@ -1,5 +1,5 @@
 import {useColorMode} from '@docusaurus/theme-common';
-import {DragAndDropInternals} from '@remotion/drag-and-drop';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {Player} from '@remotion/player';
 import React, {useCallback, useMemo, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
@@ -49,7 +49,7 @@ export const EffectsDemo: React.FC<{
 	}, [initialState]);
 
 	const dragData = useMemo(() => {
-		return DragAndDropInternals.makeDragData({
+		return StudioProtocolInternals.makeDragData({
 			type: 'effect',
 			name: demo.effectName,
 			importPath: demo.effectImportPath,

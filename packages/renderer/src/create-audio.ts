@@ -71,7 +71,10 @@ export const createAudio = async ({
 	});
 
 	markAllAssetsAsDownloaded(downloadMap);
-	const assetPositions: Assets = calculateAssetPositions(fileUrlAssets);
+	const assetPositions: Assets = calculateAssetPositions(
+		fileUrlAssets,
+		assets.map((asset) => asset.frame),
+	);
 
 	Log.verbose(
 		{indent, logLevel, tag: 'audio'},

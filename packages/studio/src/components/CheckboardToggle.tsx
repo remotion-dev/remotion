@@ -1,6 +1,6 @@
 import React, {useCallback, useContext} from 'react';
 import {NoReactInternals} from 'remotion/no-react';
-import {BLUE, WHITE} from '../helpers/colors';
+import {BLUE} from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {CheckerboardContext} from '../state/checkerboard';
 import {ControlButton} from './ControlButton';
@@ -27,22 +27,35 @@ export const CheckboardToggle: React.FC = () => {
 			aria-label={accessibilityLabel}
 			onClick={onClick}
 		>
-			<svg
-				aria-hidden="true"
-				focusable="false"
-				data-prefix="fas"
-				data-icon="game-board-alt"
-				className="svg-inline--fa fa-game-board-alt fa-w-16"
-				role="img"
-				xmlns="http://www.w3.org/2000/svg"
-				viewBox="0 0 512 512"
-				style={{width: 16, height: 16}}
-			>
-				<path
-					fill={checkerboard ? BLUE : WHITE}
-					d="M480 0H32A32 32 0 0 0 0 32v448a32 32 0 0 0 32 32h448a32 32 0 0 0 32-32V32a32 32 0 0 0-32-32zm-32 256H256v192H64V256h192V64h192z"
-				/>
-			</svg>
+			{(color) => (
+				<svg
+					aria-hidden="true"
+					focusable="false"
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 512 512"
+					style={{width: 18, height: 18}}
+					fill="none"
+				>
+					<path
+						fill={checkerboard ? BLUE : color}
+						d="M256 48h184c13.3 0 24 10.7 24 24v184H256V48zM48 256h208v208H72c-13.3 0-24-10.7-24-24V256z"
+					/>
+					<rect
+						x="48"
+						y="48"
+						width="416"
+						height="416"
+						rx="24"
+						stroke={checkerboard ? BLUE : color}
+						strokeWidth="32"
+					/>
+					<path
+						d="M256 48v416M48 256h416"
+						stroke={checkerboard ? BLUE : color}
+						strokeWidth="32"
+					/>
+				</svg>
+			)}
 		</ControlButton>
 	);
 };

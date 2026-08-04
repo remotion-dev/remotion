@@ -3,14 +3,14 @@ import {
 	type CompositionDragData,
 	type ComponentProp,
 	type ElementDragData,
-} from '@remotion/drag-and-drop';
+} from '@remotion/studio-protocol';
 import {
 	detectFileType,
 	getRequiredPackageForInsertableElement,
 	isUrl,
 	type DownloadRemoteAssetResponse,
+	type ElementInstallExpectedFileState,
 	type FileType,
-	type InsertElementFileConflict,
 	type InsertableCompositionElement,
 	type InsertableCompositionElementPosition,
 } from '@remotion/studio-shared';
@@ -30,9 +30,30 @@ export type InsertElementDropPosition = {
 	readonly centerY: number;
 };
 
-export type ConfirmElementOverwrite = (
-	conflict: InsertElementFileConflict,
-) => Promise<boolean>;
+export const getFromForDrop = ({
+	durationInFrames,
+	from,
+	preferCompositionStart,
+}: {
+	durationInFrames: number | null | undefined;
+	from: number | null;
+	preferCompositionStart: boolean | null;
+}): number | null => {
+	if (preferCompositionStart !== true) {
+		return from;
+	}
+
+	if (
+		durationInFrames !== null &&
+		durationInFrames !== undefined &&
+		from !== null &&
+		from >= durationInFrames
+	) {
+		return from;
+	}
+
+	return null;
+};
 
 type InsertableAssetElement = Extract<
 	InsertableCompositionElement,
@@ -697,7 +718,9 @@ const insertCompositionElement = async ({
 	from: number | null;
 }) => {
 	const requiredPackage = getRequiredPackageForInsertableElement(element);
-	await installRequiredPackages(requiredPackage ? [requiredPackage] : []);
+	await installRequiredPackages(
+		requiredPackage ? [{name: requiredPackage, version: null}] : [],
+	);
 
 	const result = await callApi('/api/insert-jsx-element', {
 		compositionFile,
@@ -728,6 +751,7 @@ export const importAssets = async ({
 	files,
 	fps,
 	from,
+	preferCompositionStart,
 	svgImportMode,
 }: {
 	compositionFile: string;
@@ -737,6 +761,7 @@ export const importAssets = async ({
 	files: File[];
 	fps: number;
 	from: number | null;
+	preferCompositionStart: boolean | null;
 	svgImportMode: 'image' | 'inline';
 }) => {
 	if (files.length === 0) {
@@ -789,7 +814,11 @@ export const importAssets = async ({
 				const svgInserted = await insertCompositionElement({
 					compositionFile,
 					compositionId,
-					from,
+					from: getFromForDrop({
+						durationInFrames: null,
+						from,
+						preferCompositionStart,
+					}),
 					element: {
 						type: 'svg',
 						markup: new TextDecoder().decode(contents),
@@ -836,19 +865,25 @@ export const importAssets = async ({
 
 			const resolvedDimensions = element.dimensions ?? metadata.dimensions;
 
+			const durationInFrames = assetTypeHasDuration(element.assetType)
+				? getDurationInFrames({
+						durationInSeconds: metadata.durationInSeconds,
+						fps,
+					})
+				: null;
+
 			const inserted = await insertCompositionElement({
 				compositionFile,
 				compositionId,
-				from,
+				from: getFromForDrop({
+					durationInFrames,
+					from,
+					preferCompositionStart,
+				}),
 				element: {
 					...element,
 					dimensions: resolvedDimensions,
-					durationInFrames: assetTypeHasDuration(element.assetType)
-						? getDurationInFrames({
-								durationInSeconds: metadata.durationInSeconds,
-								fps,
-							})
-						: null,
+					durationInFrames,
 					position: getAssetPositionForDrop({
 						assetDimensions: resolvedDimensions,
 						destinationDimensions,
@@ -982,6 +1017,7 @@ export const importRemoteAsset = async ({
 	dropPosition,
 	fps,
 	from,
+	preferCompositionStart,
 	url,
 }: {
 	compositionFile: string;
@@ -990,6 +1026,7 @@ export const importRemoteAsset = async ({
 	dropPosition: InsertElementDropPosition | null;
 	fps: number;
 	from: number | null;
+	preferCompositionStart: boolean | null;
 	url: string;
 }) => {
 	try {
@@ -1010,19 +1047,24 @@ export const importRemoteAsset = async ({
 		);
 		const dimensions = element.dimensions ?? metadata.dimensions;
 
+		const durationInFrames = assetTypeHasDuration(element.assetType)
+			? getDurationInFrames({
+					durationInSeconds: metadata.durationInSeconds,
+					fps,
+				})
+			: null;
 		const inserted = await insertCompositionElement({
 			compositionFile,
 			compositionId,
-			from,
+			from: getFromForDrop({
+				durationInFrames,
+				from,
+				preferCompositionStart,
+			}),
 			element: {
 				...element,
 				dimensions,
-				durationInFrames: assetTypeHasDuration(element.assetType)
-					? getDurationInFrames({
-							durationInSeconds: metadata.durationInSeconds,
-							fps,
-						})
-					: null,
+				durationInFrames,
 				position: getAssetPositionForDrop({
 					assetDimensions: dimensions,
 					destinationDimensions,
@@ -1051,12 +1093,14 @@ export const insertRemoteAudio = async ({
 	compositionId,
 	fps,
 	from,
+	preferCompositionStart,
 	url,
 }: {
 	compositionFile: string;
 	compositionId: string;
 	fps: number;
 	from: number | null;
+	preferCompositionStart: boolean | null;
 	url: string;
 }) => {
 	if (!isUrl(url)) {
@@ -1083,7 +1127,11 @@ export const insertRemoteAudio = async ({
 			compositionFile,
 			compositionId,
 			element,
-			from,
+			from: getFromForDrop({
+				durationInFrames: element.durationInFrames,
+				from,
+				preferCompositionStart,
+			}),
 		});
 
 		if (!inserted) {
@@ -1109,6 +1157,7 @@ export const insertExistingAssets = async ({
 	dropPosition,
 	fps,
 	from,
+	preferCompositionStart,
 }: {
 	assetPaths: string[];
 	compositionFile: string;
@@ -1117,6 +1166,7 @@ export const insertExistingAssets = async ({
 	dropPosition: InsertElementDropPosition | null;
 	fps: number;
 	from: number | null;
+	preferCompositionStart: boolean | null;
 }) => {
 	if (assetPaths.length === 0) {
 		return;
@@ -1139,19 +1189,24 @@ export const insertExistingAssets = async ({
 			);
 			const dimensions = element.dimensions ?? metadata.dimensions;
 
+			const durationInFrames = assetTypeHasDuration(element.assetType)
+				? getDurationInFrames({
+						durationInSeconds: metadata.durationInSeconds,
+						fps,
+					})
+				: null;
 			const inserted = await insertCompositionElement({
 				compositionFile,
 				compositionId,
-				from,
+				from: getFromForDrop({
+					durationInFrames,
+					from,
+					preferCompositionStart,
+				}),
 				element: {
 					...element,
 					dimensions,
-					durationInFrames: assetTypeHasDuration(element.assetType)
-						? getDurationInFrames({
-								durationInSeconds: metadata.durationInSeconds,
-								fps,
-							})
-						: null,
+					durationInFrames,
 					position: getAssetPositionForDrop({
 						assetDimensions: dimensions,
 						destinationDimensions,
@@ -1185,18 +1240,24 @@ export const insertComponent = async ({
 	compositionId,
 	dropPosition,
 	from,
+	preferCompositionStart,
 }: {
 	component: ComponentDragData['component'];
 	compositionFile: string;
 	compositionId: string;
 	dropPosition: InsertElementDropPosition | null;
 	from: number | null;
+	preferCompositionStart: boolean | null;
 }) => {
 	try {
 		const inserted = await insertCompositionElement({
 			compositionFile,
 			compositionId,
-			from,
+			from: getFromForDrop({
+				durationInFrames: null,
+				from,
+				preferCompositionStart,
+			}),
 			element: {
 				type: 'component',
 				componentName: component.componentName,
@@ -1244,12 +1305,14 @@ export const insertComposition = async ({
 	compositionId,
 	dropPosition,
 	from,
+	preferCompositionStart,
 }: {
 	composition: CompositionDragData;
 	compositionFile: string;
 	compositionId: string;
 	dropPosition: InsertElementDropPosition | null;
 	from: number | null;
+	preferCompositionStart: boolean | null;
 }) => {
 	if (composition.compositionId === compositionId) {
 		showNotification('Cannot add a composition to itself', 3000);
@@ -1277,7 +1340,11 @@ export const insertComposition = async ({
 		const inserted = await insertCompositionElement({
 			compositionFile,
 			compositionId,
-			from,
+			from: getFromForDrop({
+				durationInFrames: calculated.durationInFrames,
+				from,
+				preferCompositionStart,
+			}),
 			element: {
 				type: 'composition',
 				compositionId: composition.compositionId,
@@ -1315,50 +1382,38 @@ export const insertComposition = async ({
 export const insertElement = async ({
 	compositionFile,
 	compositionId,
-	confirmOverwrite,
-	dropPosition,
 	element,
+	expectedFileState,
+	position,
 	from,
+	overwriteExisting,
 }: {
 	compositionFile: string;
 	compositionId: string;
-	confirmOverwrite: ConfirmElementOverwrite;
-	dropPosition: InsertElementDropPosition | null;
 	element: ElementDragData['element'];
+	expectedFileState: ElementInstallExpectedFileState;
+	position: InsertableCompositionElementPosition | null;
 	from: number | null;
+	overwriteExisting: boolean;
 }) => {
 	try {
 		await installRequiredPackages(element.dependencies);
 
-		const position = getElementPositionForDrop({
-			dimensions: element.dimensions,
-			dropPosition,
+		const response = await callApi('/api/insert-element', {
+			compositionFile,
+			compositionId,
+			element,
+			expectedFileState,
+			from,
+			overwriteExisting,
+			position,
 		});
-		const callInsertElementApi = (overwriteExisting: boolean) =>
-			callApi('/api/insert-element', {
-				compositionFile,
-				compositionId,
-				element,
-				from,
-				overwriteExisting,
-				position,
-			});
-
-		let response = await callInsertElementApi(false);
-		if (!response.success && response.type === 'file-conflict') {
-			const shouldOverwrite = await confirmOverwrite(response.conflict);
-			if (!shouldOverwrite) {
-				return;
-			}
-
-			response = await callInsertElementApi(true);
-		}
 
 		if (!response.success) {
 			const reason =
 				response.type === 'error'
 					? response.reason
-					: `Element file still conflicts: ${response.conflict.filePath}`;
+					: `Element file changed: ${response.conflict.filePath}`;
 			showNotification(`Could not add Element: ${reason}`, 4000);
 			return;
 		}

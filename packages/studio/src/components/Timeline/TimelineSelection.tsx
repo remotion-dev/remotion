@@ -37,6 +37,7 @@ import {
 	isStudioInteractivityEnabled,
 	isStudioSelectionEnabled,
 } from '../../helpers/interactivity-enabled';
+import {startPointerSession} from '../../helpers/pointer-session';
 import {
 	buildTimelineTree,
 	flattenVisibleTreeNodes,
@@ -54,6 +55,7 @@ import {
 import {selectOptionsSidebarInspectorPanel} from '../options-sidebar-tabs';
 import {getNodeHasKeyframes, getNodeKeyframes} from './get-node-keyframes';
 import {getTimelineEasingSegments} from './get-timeline-easing-segments';
+import {getCurrentFrame} from './imperative-state';
 import {
 	filterTimelineExpandedTree,
 	getSelectedTimelineExpandedRowKeys,
@@ -1071,7 +1073,6 @@ export const TimelineSelectableItemsProvider: React.FC<{
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {selectedItems} = useTimelineSelection();
 	const selectableItems = useMemo(
 		() =>
@@ -1082,7 +1083,7 @@ export const TimelineSelectableItemsProvider: React.FC<{
 				propStatuses,
 				selectedItems,
 				timeline,
-				timelinePosition,
+				timelinePosition: getCurrentFrame(),
 			}),
 		[
 			getDragOverrides,
@@ -1091,7 +1092,6 @@ export const TimelineSelectableItemsProvider: React.FC<{
 			propStatuses,
 			selectedItems,
 			timeline,
-			timelinePosition,
 		],
 	);
 
@@ -1573,10 +1573,7 @@ export const useTimelineMarqueeSelection = () => {
 				return;
 			}
 
-			const {currentTarget: target, pointerId} = event;
-			if (target.setPointerCapture) {
-				target.setPointerCapture(pointerId);
-			}
+			const {currentTarget: target} = event;
 
 			const initialBounds = target.getBoundingClientRect();
 			const marqueeBounds: TimelineMarqueeRect = {
@@ -1603,13 +1600,6 @@ export const useTimelineMarqueeSelection = () => {
 			const selectionBeforeMarquee = selectedItems;
 
 			const cleanup = () => {
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerCancel);
-				if (target.hasPointerCapture?.(pointerId)) {
-					target.releasePointerCapture(pointerId);
-				}
-
 				document.body.style.userSelect = previousUserSelect;
 				document.body.style.webkitUserSelect = previousWebkitUserSelect;
 				setMarqueeRect(null);
@@ -1653,18 +1643,21 @@ export const useTimelineMarqueeSelection = () => {
 				updateSelection(moveEvent.clientX, moveEvent.clientY);
 			};
 
-			const onPointerUp = (upEvent: PointerEvent) => {
-				updateSelection(upEvent.clientX, upEvent.clientY);
-				cleanup();
-			};
+			startPointerSession({
+				event,
+				target,
+				onMove: onPointerMove,
+				onEnd: (reason, endEvent) => {
+					if (
+						(reason === 'pointerup' || reason === 'buttons-released') &&
+						endEvent
+					) {
+						updateSelection(endEvent.clientX, endEvent.clientY);
+					}
 
-			const onPointerCancel = () => {
-				cleanup();
-			};
-
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerCancel);
+					cleanup();
+				},
+			});
 		},
 		[
 			canSelect,

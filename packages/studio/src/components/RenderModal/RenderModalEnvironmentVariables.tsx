@@ -1,15 +1,7 @@
 import React, {useCallback} from 'react';
-import {LIGHT_TEXT} from '../../helpers/colors';
 import {Button} from '../Button';
 import {Spacing} from '../layout';
 import {EnvInput} from './EnvInput';
-
-const title: React.CSSProperties = {
-	fontSize: 14,
-	fontWeight: 'bold',
-	color: LIGHT_TEXT,
-	marginLeft: 16,
-};
 
 const container: React.CSSProperties = {
 	marginTop: 20,
@@ -62,7 +54,6 @@ export const RenderModalEnvironmentVariables: React.FC<{
 
 	return (
 		<div style={container}>
-			<strong style={title}>Environment variables</strong>
 			{envVariables.map((env, i) => {
 				let isDuplicate = false;
 

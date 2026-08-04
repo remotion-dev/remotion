@@ -3,9 +3,11 @@ import {
 	cpSync,
 	existsSync,
 	mkdirSync,
+	readFileSync,
 	readdirSync,
 	rmSync,
 	statSync,
+	writeFileSync,
 } from 'fs';
 import {join, resolve} from 'path';
 import {fileURLToPath} from 'url';
@@ -47,10 +49,10 @@ const addCodexOnlyInstructions = () => {
 
 ## Codex troubleshooting
 
-When running inside Codex, first try starting the Remotion Studio normally:
+When running inside Codex, first try starting the Remotion Studio without opening the system browser:
 
 \`\`\`bash
-npx remotion studio
+npx remotion studio --no-open
 \`\`\`
 
 Only if that fails with file watcher limits such as \`EMFILE: too many open files, watch\`, retry with polling and without opening a browser from Codex:
@@ -63,6 +65,52 @@ If Studio still fails to start from Codex, ask the user to start it manually fro
 `,
 	);
 	console.log('  Added Codex-only troubleshooting instructions');
+};
+
+const makeRemotionCreateOpenPreview = () => {
+	const remotionCreateSkill = join(skillsOut, 'remotion-create', 'SKILL.md');
+	if (!existsSync(remotionCreateSkill)) {
+		return;
+	}
+
+	const currentInstructions = readFileSync(remotionCreateSkill, 'utf8');
+	const previewInstruction = [
+		'Instead of rendering the video, consider starting the preview server for faster iteration:',
+		'Start the preview server after building the composition:',
+	].find((instruction) => currentInstructions.includes(instruction));
+	if (!previewInstruction) {
+		throw new Error('Could not find a remotion-create preview instruction');
+	}
+
+	const codexReplacements = [
+		[
+			previewInstruction,
+			'After creating or updating the video, start the preview server by default:',
+		],
+		[
+			'If an in-harness browser is available, open it there.',
+			'Open the exact URL in the Codex in-app browser. If no browser tool is available yet, use `tool_search` for the in-app browser control tool, then navigate to the local URL.',
+		],
+	] as const;
+
+	let codexInstructions = currentInstructions;
+	for (const [genericInstruction, codexInstruction] of codexReplacements) {
+		if (!codexInstructions.includes(genericInstruction)) {
+			throw new Error(
+				`Could not find remotion-create instruction: ${genericInstruction}`,
+			);
+		}
+
+		codexInstructions = codexInstructions.replace(
+			genericInstruction,
+			codexInstruction,
+		);
+	}
+
+	writeFileSync(remotionCreateSkill, codexInstructions);
+	console.log(
+		'  Made remotion-create open previews in the Codex in-app browser',
+	);
 };
 
 console.log('Building Codex plugin skills...\n');
@@ -78,6 +126,7 @@ if (existsSync(packagesSkillsDir)) {
 	}
 	prepareEmbeddedSkills(skillsOut);
 	addCodexOnlyInstructions();
+	makeRemotionCreateOpenPreview();
 } else {
 	console.warn('Warning: packages/skills/skills/ not found');
 }

@@ -1,5 +1,16 @@
 import {expect, test} from 'bun:test';
+import {findMacOsEditorsFromProcessOutput} from '../helpers/open-in-editor';
 import {findSearchPosition} from '../preview-server/routes/find-in-file';
+
+test('detects current VS Code macOS processes', () => {
+	const process =
+		'/Applications/Visual Studio Code.app/Contents/MacOS/Code --open-url';
+
+	expect(findMacOsEditorsFromProcessOutput(process)).toContainEqual({
+		command: 'code',
+		process: '/Applications/Visual Studio Code.app/Contents/MacOS/Code',
+	});
+});
 
 test('finds a property after the component location', () => {
 	const contents = [

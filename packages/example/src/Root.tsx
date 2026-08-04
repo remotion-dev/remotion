@@ -11,6 +11,7 @@ import {
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import {UseanimatedEmojis} from './AnimatedEmojis';
+import {BarChart} from './BarChart';
 import BetaText, {betaTextSchema} from './BetaText';
 import {NativeBufferStateForImage} from './BufferState/Image';
 import {NativeBufferState} from './BufferState/Simple';
@@ -44,6 +45,7 @@ import {EasingVisualizer} from './EasingVisualizer/EasingVisualizer';
 import {EffectCopySource, EffectCopyTarget} from './EffectCopyTestbed';
 import {EmojiTestbed} from './Emoji';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
+import {UnsymbolicatedErrorOverlayRepro} from './ErrorOverlayE2e/ErrorOverlayRepro';
 import {Expert} from './Expert';
 import {FontDemo} from './Fonts';
 import {FractionalSequenceVideo} from './FractionalSequenceVideo';
@@ -164,6 +166,7 @@ import {TextStroke} from './TextStroke';
 import ThreeBasic from './ThreeBasic';
 import {ThreeHtml} from './ThreeHtml/ThreeHtml';
 import {VideoTextureDemo} from './ThreeScene/Scene';
+import {ThreeWebGPU} from './ThreeWebGPU';
 import {Timeout} from './Timeout';
 import {FitText, fitTextSchema} from './Title/FitText';
 import {AudioTransition} from './Transitions/AudioTransition';
@@ -424,6 +427,14 @@ export const Index: React.FC = () => {
 
 	return (
 		<>
+			<Composition
+				id="AnimatedBarChart"
+				component={BarChart}
+				durationInFrames={180}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
 			<Composition
 				id="switzerland-map"
 				lazyComponent={() => import('./SwitzerlandMap/SwitzerlandMap')}
@@ -1802,6 +1813,14 @@ export const Index: React.FC = () => {
 					durationInFrames={600}
 				/>
 				<Composition
+					id="three-webgpu"
+					component={ThreeWebGPU}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={600}
+				/>
+				<Composition
 					id="three-html"
 					component={ThreeHtml}
 					width={1280}
@@ -2873,6 +2892,16 @@ export const Index: React.FC = () => {
 				fps={30}
 				durationInFrames={30}
 			/>
+			<Folder name="error-overlay">
+				<Composition
+					id="error-overlay-unsymbolicated-e2e"
+					component={UnsymbolicatedErrorOverlayRepro}
+					width={400}
+					height={400}
+					fps={30}
+					durationInFrames={30}
+				/>
+			</Folder>
 			<Composition
 				id="browser-test"
 				component={BrowserTest}

@@ -55,6 +55,9 @@ test('downloads the current Browser Studio project as a runnable archive', async
 	expect(strFromU8(files['tsconfig.json'])).toBe(
 		project.files['/project/tsconfig.json'],
 	);
+	expect(strFromU8(files['remotion.config.ts'])).toBe(
+		project.files['/project/remotion.config.ts'],
+	);
 	expect(files['public/logo.bin']).toEqual(new Uint8Array([0, 127, 128, 255]));
 	expect(Object.keys(files).every((path) => !path.startsWith('/project'))).toBe(
 		true,

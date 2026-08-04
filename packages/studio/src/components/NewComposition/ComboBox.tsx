@@ -3,6 +3,7 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {
 	INPUT_BACKGROUND,
+	LIGHT_TEXT,
 	WHITE_ALPHA_05,
 	BLACK_ALPHA_60,
 	SELECTED_BACKGROUND,
@@ -108,12 +109,14 @@ export const Combobox: React.FC<{
 	readonly style?: React.CSSProperties;
 	readonly title: string;
 	readonly size?: ComboboxSize;
+	readonly unhoveredIconColor?: string;
 }> = ({
 	values,
 	selectedId,
 	style: customStyle,
 	title,
 	size: controlSize = 'default',
+	unhoveredIconColor = LIGHT_TEXT,
 }) => {
 	const [hovered, setIsHovered] = useState(false);
 	const [opened, setOpened] = useState(false);
@@ -316,7 +319,10 @@ export const Combobox: React.FC<{
 					</div>
 				) : null}
 				<Spacing x={controlSize === 'default' ? 1 : 0.5} />{' '}
-				<CaretDown small={controlSize === 'small'} />
+				<CaretDown
+					color={hovered || opened ? WHITE : unhoveredIconColor}
+					small={controlSize === 'small'}
+				/>
 			</button>
 			{portalStyle
 				? ReactDOM.createPortal(

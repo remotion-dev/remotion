@@ -1,9 +1,10 @@
-import type {ComponentProp, ElementDragData} from '@remotion/drag-and-drop';
 import type {
 	AudioCodec,
+	BuiltInEditor,
 	ChromeMode,
 	Codec,
 	ColorSpace,
+	DefaultCodingAgent,
 	LogLevel,
 	PixelFormat,
 	StillImageFormat,
@@ -11,6 +12,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
+import type {ComponentProp, ElementDragData} from '@remotion/studio-protocol';
 import type {
 	_InternalTypes,
 	CannotUpdateSequenceReason,
@@ -51,6 +53,7 @@ export type OpenInFileExplorerRequest = {
 };
 
 export type OpenInEditorRequest = {
+	editorId: EditorPickerId | null;
 	stack: SymbolicatedStackFrame;
 };
 
@@ -850,10 +853,40 @@ export type ConvertFigmaClipboardToSvgResponse =
 			reason: string;
 	  };
 
+export type ElementInstallExpectedFileState =
+	| {
+			exists: false;
+	  }
+	| {
+			exists: true;
+			sourceHash: string;
+	  };
+
+export type PrepareElementInstallRequest = {
+	compositionFile: string;
+	compositionId: string;
+	element: ElementDragData['element'];
+};
+
+export type PrepareElementInstallResponse =
+	| {
+			success: true;
+			plan: {
+				filePath: string;
+				expectedFileState: ElementInstallExpectedFileState;
+			};
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
 export type InsertElementRequest = {
 	compositionFile: string;
 	compositionId: string;
 	element: ElementDragData['element'];
+	expectedFileState: ElementInstallExpectedFileState | null;
 	from: number | null;
 	position: InsertableCompositionElementPosition | null;
 	overwriteExisting: boolean;
@@ -881,6 +914,15 @@ export type InsertElementResponse =
 			stack: string;
 	  };
 
+export type ElementInstallSource =
+	| {
+			type: 'studio-protocol';
+			origin: string;
+	  }
+	| {
+			type: 'drag-and-drop';
+	  };
+
 export type ElementInstallRequest = {
 	id: string;
 	clientId: string;
@@ -888,7 +930,9 @@ export type ElementInstallRequest = {
 	compositionFile: string;
 	compositionId: string;
 	element: ElementDragData['element'];
+	from: number | null;
 	position: InsertableCompositionElementPosition | null;
+	source: ElementInstallSource;
 };
 
 export type UpdateElementInstallTargetRequest = {
@@ -920,6 +964,8 @@ export type UpdateAvailableResponse = {
 	currentVersion: string;
 	latestVersion: string;
 	updateAvailable: boolean;
+	skillsUpdateAvailable: boolean;
+	remotionUpgradeSkillAvailable: boolean;
 	timedOut: boolean;
 	packageManager: PackageManager | 'unknown';
 };
@@ -944,8 +990,50 @@ export type UpdatePublicLicenseResponse =
 			reason: string;
 	  };
 
+export type GetDefaultEditorInfoRequest = {};
+export type EditorPickerId = BuiltInEditor | 'custom';
+export type GetDefaultEditorInfoResponse = {
+	defaultEditor: EditorPickerId | null;
+	installedEditors: {id: EditorPickerId; name: string}[];
+};
+
+export type UpdateDefaultEditorRequest = {
+	defaultEditor: EditorPickerId | null;
+};
+export type UpdateDefaultEditorResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+	  };
+
+export type GetDefaultCodingAgentInfoRequest = {};
+export type GetDefaultCodingAgentInfoResponse = {
+	defaultCodingAgent: DefaultCodingAgent | null;
+	installedCodingAgents: {id: DefaultCodingAgent; name: string}[];
+};
+
+export type UpdateDefaultCodingAgentRequest = {
+	defaultCodingAgent: DefaultCodingAgent | null;
+};
+export type UpdateDefaultCodingAgentResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+	  };
+
+export type PackageInstallSpec = {
+	readonly name: string;
+	readonly version: string | null;
+};
+
 export type InstallPackageRequest = {
-	packageNames: string[];
+	dependencies: PackageInstallSpec[];
 };
 export type InstallPackageResponse = {};
 
@@ -996,6 +1084,14 @@ export type ApiRoutes = {
 	>;
 	'/api/remove-render': ReqAndRes<RemoveRenderRequest, undefined>;
 	'/api/open-in-editor': ReqAndRes<OpenInEditorRequest, OpenInEditorResponse>;
+	'/api/default-coding-agent-info': ReqAndRes<
+		GetDefaultCodingAgentInfoRequest,
+		GetDefaultCodingAgentInfoResponse
+	>;
+	'/api/update-default-coding-agent': ReqAndRes<
+		UpdateDefaultCodingAgentRequest,
+		UpdateDefaultCodingAgentResponse
+	>;
 	'/api/find-in-file': ReqAndRes<FindInFileRequest, FindInFileResponse>;
 	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
 	'/api/register-client-render': ReqAndRes<CompletedClientRender, void>;
@@ -1095,6 +1191,10 @@ export type ApiRoutes = {
 		ConvertFigmaClipboardToSvgResponse
 	>;
 	'/api/insert-element': ReqAndRes<InsertElementRequest, InsertElementResponse>;
+	'/api/prepare-element-install': ReqAndRes<
+		PrepareElementInstallRequest,
+		PrepareElementInstallResponse
+	>;
 	'/api/update-element-install-target': ReqAndRes<
 		UpdateElementInstallTargetRequest,
 		UpdateElementInstallTargetResponse
@@ -1121,6 +1221,14 @@ export type ApiRoutes = {
 	'/api/update-public-license': ReqAndRes<
 		UpdatePublicLicenseRequest,
 		UpdatePublicLicenseResponse
+	>;
+	'/api/default-editor-info': ReqAndRes<
+		GetDefaultEditorInfoRequest,
+		GetDefaultEditorInfoResponse
+	>;
+	'/api/update-default-editor': ReqAndRes<
+		UpdateDefaultEditorRequest,
+		UpdateDefaultEditorResponse
 	>;
 	'/api/install-package': ReqAndRes<
 		InstallPackageRequest,

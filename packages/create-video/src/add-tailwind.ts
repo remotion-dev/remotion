@@ -50,7 +50,7 @@ export const addTailwindToConfig = (projectRoot: string) => {
 		...headerLines,
 		`import { enableTailwind } from '@remotion/tailwind-v4';`,
 		...tailLines,
-		'Config.overrideWebpackConfig(enableTailwind);',
+		'Config.overrideBundlerConfig(enableTailwind);',
 	];
 
 	fs.writeFileSync(configFile, newLines.join('\n') + '\n');

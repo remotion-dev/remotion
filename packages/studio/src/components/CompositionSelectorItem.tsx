@@ -1,4 +1,4 @@
-import {DragAndDropInternals} from '@remotion/drag-and-drop';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {compositionDragDataToSymbolicatedStack} from '@remotion/studio-shared';
 import type {DragEvent, KeyboardEvent, MouseEvent} from 'react';
 import React, {
@@ -26,7 +26,7 @@ import {
 	maybeScrollCompositionSidebarRowIntoView,
 } from '../helpers/sidebar-scroll-into-view';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import {getCompositionContextMenuItems} from './composition-menu-items';
 import {CompositionContextButton} from './CompositionContextButton';
 import {CompositionOrStillIcon} from './CompositionOrStillIcon';
@@ -40,7 +40,7 @@ import {SidebarRenderButton} from './SidebarRenderButton';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 
 const itemStyle: React.CSSProperties = {
-	paddingRight: 10,
+	paddingRight: 2,
 	paddingTop: 5,
 	paddingBottom: 5,
 	fontSize: 13,
@@ -50,11 +50,10 @@ const itemStyle: React.CSSProperties = {
 	alignItems: 'center',
 	marginBottom: 1,
 	marginLeft: 4,
-	marginRight: 4,
 	appearance: 'none',
 	border: 'none',
 	borderRadius: 4,
-	width: 'calc(100% - 8px)',
+	width: 'calc(100% - 4px)',
 	textAlign: 'left',
 	backgroundColor: BACKGROUND,
 	height: COMPACT_CONTROL_ROW_HEIGHT,
@@ -190,14 +189,14 @@ export const CompositionSelectorItem: React.FC<{
 		[onClick],
 	);
 
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
 	const resolvedLocation = useResolvedStack(
 		item.type === 'composition' ? item.composition.stack : item.folder.stack,
 	);
 
-	const contextMenu = useMemo((): ComboboxValue[] => {
+	const getContextMenuItems = useCallback((): ComboboxValue[] => {
 		if (item.type === 'composition') {
 			return getCompositionContextMenuItems({
 				closeMenu: noop,
@@ -229,7 +228,7 @@ export const CompositionSelectorItem: React.FC<{
 
 			setIsDragging(true);
 			event.dataTransfer.effectAllowed = 'copyMove';
-			const dragData = DragAndDropInternals.makeDragData({
+			const dragData = StudioProtocolInternals.makeDragData({
 				type: 'composition',
 				compositionFile: resolvedLocation?.source ?? null,
 				compositionId: item.composition.id,
@@ -250,7 +249,7 @@ export const CompositionSelectorItem: React.FC<{
 			if (
 				item.type !== 'folder' ||
 				window.remotion_isReadOnlyStudio ||
-				DragAndDropInternals.getDragPreviewMetadata(event.dataTransfer.types)
+				StudioProtocolInternals.getDragPreviewMetadata(event.dataTransfer.types)
 					?.type !== 'composition'
 			) {
 				return;
@@ -274,7 +273,7 @@ export const CompositionSelectorItem: React.FC<{
 			if (
 				item.type !== 'folder' ||
 				window.remotion_isReadOnlyStudio ||
-				DragAndDropInternals.getDragPreviewMetadata(event.dataTransfer.types)
+				StudioProtocolInternals.getDragPreviewMetadata(event.dataTransfer.types)
 					?.type !== 'composition'
 			) {
 				return;
@@ -294,7 +293,7 @@ export const CompositionSelectorItem: React.FC<{
 				return;
 			}
 
-			const parsed = DragAndDropInternals.parseDragData(event.dataTransfer);
+			const parsed = StudioProtocolInternals.parseDragData(event.dataTransfer);
 			if (parsed?.type !== 'composition') {
 				return;
 			}
@@ -362,7 +361,7 @@ export const CompositionSelectorItem: React.FC<{
 	if (item.type === 'folder') {
 		return (
 			<>
-				<ContextMenu values={contextMenu} onOpen={null}>
+				<ContextMenu getItems={getContextMenuItems}>
 					<Row align="center">
 						<div
 							style={style}
@@ -393,7 +392,7 @@ export const CompositionSelectorItem: React.FC<{
 							<div style={label}>{item.folderName}</div>
 							<Spacing x={0.5} />
 							<CompositionContextButton
-								values={contextMenu}
+								getItems={getContextMenuItems}
 								visible={hovered}
 							/>
 						</div>
@@ -422,7 +421,7 @@ export const CompositionSelectorItem: React.FC<{
 	}
 
 	return (
-		<ContextMenu values={contextMenu} onOpen={null}>
+		<ContextMenu getItems={getContextMenuItems}>
 			<Row align="center">
 				<a
 					ref={compositionRowRef}
@@ -449,7 +448,7 @@ export const CompositionSelectorItem: React.FC<{
 					<div style={label}>{item.composition.id}</div>
 					<Spacing x={0.5} />
 					<CompositionContextButton
-						values={contextMenu}
+						getItems={getContextMenuItems}
 						visible={hovered && !isDragging}
 					/>
 					<SidebarRenderButton

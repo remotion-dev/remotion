@@ -2,10 +2,10 @@ import type {AnyRemotionOption} from './option';
 
 let rspackEnabled = false;
 
-const cliFlag = 'experimental-rspack' as const;
+const cliFlag = 'rspack' as const;
 
 export const rspackOption = {
-	name: 'Experimental Rspack',
+	name: 'Rspack',
 	cliFlag,
 	description: () => (
 		<>Uses Rspack instead of Webpack as the bundler for the Studio or bundle.</>
@@ -14,8 +14,7 @@ export const rspackOption = {
 	docLink: null,
 	type: false as boolean,
 	getValue: ({commandLine}) => {
-		if (commandLine[cliFlag] !== undefined) {
-			rspackEnabled = true;
+		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
 			return {
 				value: commandLine[cliFlag] as boolean,
 				source: 'cli',

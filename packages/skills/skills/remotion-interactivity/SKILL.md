@@ -1,8 +1,7 @@
 ---
 name: remotion-interactivity
 description: Structure Remotion markup for interactivity
-metadata:
-  tags: remotion, interactivity, studio, visual mode
+version: 4.0.505
 ---
 
 By writing Remotion markup in a specific way, the Remotion Studio is able to recognize the structure of the code and makes it interactive:

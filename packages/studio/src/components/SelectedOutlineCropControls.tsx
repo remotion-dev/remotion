@@ -5,6 +5,7 @@ import {
 	SELECTED_OUTLINE_DROP_SHADOW,
 	TRANSPARENT,
 } from '../helpers/colors';
+import {startPointerSession} from '../helpers/pointer-session';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
@@ -290,9 +291,6 @@ const CropHandle: React.FC<{
 			};
 
 			const onPointerUp = () => {
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerUp);
 				if (dragStarted) {
 					stopForcingSpecificCursor();
 					onDraggingChange(false);
@@ -344,9 +342,12 @@ const CropHandle: React.FC<{
 					});
 			};
 
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerUp);
+			startPointerSession({
+				event,
+				target: event.currentTarget,
+				onMove: onPointerMove,
+				onEnd: onPointerUp,
+			});
 		},
 		[
 			clearDragOverrides,

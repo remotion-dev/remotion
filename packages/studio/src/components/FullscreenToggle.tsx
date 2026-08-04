@@ -1,7 +1,6 @@
 import {useCallback, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {WHITE_HEX} from '../helpers/colors';
 import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
@@ -17,7 +16,9 @@ const accessibilityLabel = [
 	.filter(NoReactInternals.truthy)
 	.join(' ');
 
-export const FullScreenToggle: React.FC<{}> = () => {
+export const FullScreenToggle: React.FC<{
+	readonly hidden: boolean;
+}> = ({hidden}) => {
 	const keybindings = useKeybinding();
 	const {setSize} = useContext(Internals.PreviewSizeContext);
 
@@ -49,13 +50,23 @@ export const FullScreenToggle: React.FC<{}> = () => {
 		};
 	}, [keybindings, onClick]);
 
-	return (
+	return hidden ? (
+		<button
+			id="fullscreen-toggle"
+			type="button"
+			style={{display: 'none'}}
+			onClick={onClick}
+		/>
+	) : (
 		<ControlButton
+			id="fullscreen-toggle"
 			title={accessibilityLabel}
 			aria-label={accessibilityLabel}
 			onClick={onClick}
 		>
-			<FullscreenIcon color={WHITE_HEX} style={{width: 18, height: 18}} />
+			{(color) => (
+				<FullscreenIcon color={color} style={{width: 18, height: 18}} />
+			)}
 		</ControlButton>
 	);
 };

@@ -25,6 +25,10 @@ import {
 } from './Compose/WhatIsRemotion';
 import {DesignSystems, designSystemsDurationInFrames} from './DesignSystems';
 import {
+	DesignSystemsResponsive,
+	designSystemsResponsiveDurationInFrames,
+} from './DesignSystemsResponsive';
+import {
 	DocsPagesShowcase,
 	INSTAGRAM_POST_HEIGHT,
 	INSTAGRAM_POST_WIDTH,
@@ -85,6 +89,7 @@ import {Logo} from './Logo';
 import {LogoCollab, logoCollabSchema} from './LogoCollab/LogoCollab';
 import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
 import NewSticker from './NewSticker';
+import {PreviewToolbarIcons} from './PreviewToolbarIcons';
 import {
 	RulesEnumeration,
 	rulesEnumerationSchema,
@@ -103,6 +108,7 @@ import {
 	Skills2AnnouncementComposition,
 	skills2AnnouncementSchema,
 } from './Skills2Announcement';
+import {Skills2CodeChange} from './Skills2CodeChange';
 import {Skills2Gesture} from './Skills2Gesture';
 import {Skills2Pick} from './Skills2Pick';
 import {Skills2Router} from './Skills2Router';
@@ -129,7 +135,23 @@ import {UpperThird, upperThirdSchema} from './video-elements/UpperThird';
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<Composition
+				id="preview-toolbar-icons"
+				component={PreviewToolbarIcons}
+				durationInFrames={1}
+				fps={30}
+				width={3200}
+				height={520}
+			/>
 			<Folder name="announcements">
+				<Composition
+					id="Skills2CodeChange"
+					component={Skills2CodeChange}
+					durationInFrames={180}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
 				<Composition
 					id="Skills2Announcement"
 					component={Skills2AnnouncementComposition}
@@ -313,6 +335,14 @@ export const RemotionRoot: React.FC = () => {
 					fps={30}
 					width={1080}
 					height={1080}
+				/>
+				<Composition
+					id="DesignSystemsResponsive"
+					component={DesignSystemsResponsive}
+					durationInFrames={designSystemsResponsiveDurationInFrames}
+					fps={30}
+					width={1350}
+					height={796}
 				/>
 				<Composition
 					id="ApplicationSimpleApp"

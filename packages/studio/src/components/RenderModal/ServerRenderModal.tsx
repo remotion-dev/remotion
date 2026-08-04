@@ -29,11 +29,7 @@ import React, {
 } from 'react';
 import type {_InternalTypes} from 'remotion';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
-import {
-	BLUE,
-	BLUE_DISABLED,
-	CURRENT_COLOR_LOWERCASE,
-} from '../../helpers/colors';
+import {BLUE, BLUE_DISABLED} from '../../helpers/colors';
 import {
 	envVariablesArrayToObject,
 	envVariablesObjectToArray,
@@ -49,8 +45,9 @@ import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
 import {GearIcon} from '../../icons/gear';
 import {GifIcon} from '../../icons/gif';
+import {InputPropsIcon} from '../../icons/input-props';
 import {FilmIcon} from '../../icons/video';
-import {ModalsContext} from '../../state/modals';
+import {SetSelectedModalContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -256,7 +253,7 @@ const RenderModal: React.FC<
 	initialChromeMode,
 	renderDefaults,
 }) => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	const context = useContext(ResolvedCompositionContext);
 	if (!context) {
@@ -1400,7 +1397,6 @@ const RenderModal: React.FC<
 			};
 		});
 	}, [availablePixelFormats, pixelFormat]);
-
 	return (
 		<div style={outerModalStyle}>
 			<ModalHeader title={`Render ${resolvedComposition.id}`} />
@@ -1433,10 +1429,12 @@ const RenderModal: React.FC<
 							style={horizontalTab}
 							selected={tab === 'general'}
 							onClick={() => setTab('general')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<FileIcon color={color} style={icon} />
+								</div>
+							)}
 						>
-							<div style={iconContainer}>
-								<FileIcon style={icon} />
-							</div>
 							General
 						</VerticalTab>
 					) : null}
@@ -1445,10 +1443,12 @@ const RenderModal: React.FC<
 							style={horizontalTab}
 							selected={tab === 'data'}
 							onClick={() => setTab('data')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<InputPropsIcon color={color} style={icon} />
+								</div>
+							)}
 						>
-							<div style={iconContainer}>
-								<DataIcon style={icon} />
-							</div>
 							Input Props
 						</VerticalTab>
 					) : null}
@@ -1457,10 +1457,12 @@ const RenderModal: React.FC<
 							style={horizontalTab}
 							selected={tab === 'picture'}
 							onClick={() => setTab('picture')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<PicIcon color={color} style={icon} />
+								</div>
+							)}
 						>
-							<div style={iconContainer}>
-								<PicIcon style={icon} />
-							</div>
 							Picture
 						</VerticalTab>
 					) : null}
@@ -1469,10 +1471,12 @@ const RenderModal: React.FC<
 							style={horizontalTab}
 							selected={tab === 'audio'}
 							onClick={() => setTab('audio')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<AudioIcon color={color} style={icon} />
+								</div>
+							)}
 						>
-							<div style={iconContainer}>
-								<AudioIcon style={icon} />
-							</div>
 							Audio
 						</VerticalTab>
 					) : null}
@@ -1481,10 +1485,12 @@ const RenderModal: React.FC<
 							style={horizontalTab}
 							selected={tab === 'gif'}
 							onClick={() => setTab('gif')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<GifIcon color={color} style={icon} />
+								</div>
+							)}
 						>
-							<div style={iconContainer}>
-								<GifIcon style={icon} />
-							</div>
 							GIF
 						</VerticalTab>
 					) : null}
@@ -1493,10 +1499,12 @@ const RenderModal: React.FC<
 							style={horizontalTab}
 							selected={tab === 'encoding'}
 							onClick={() => setTab('encoding')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<FilmIcon color={color} style={icon} />
+								</div>
+							)}
 						>
-							<div style={iconContainer}>
-								<FilmIcon style={icon} color={CURRENT_COLOR_LOWERCASE} />
-							</div>
 							Encoding
 						</VerticalTab>
 					) : null}
@@ -1505,10 +1513,12 @@ const RenderModal: React.FC<
 							style={horizontalTab}
 							selected={tab === 'environment'}
 							onClick={() => setTab('environment')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<DataIcon color={color} style={icon} />
+								</div>
+							)}
 						>
-							<div style={iconContainer}>
-								<DataIcon style={icon} />
-							</div>
 							Environment
 						</VerticalTab>
 					) : null}
@@ -1517,10 +1527,12 @@ const RenderModal: React.FC<
 							style={horizontalTab}
 							selected={tab === 'advanced'}
 							onClick={() => setTab('advanced')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<GearIcon color={color} style={icon} />
+								</div>
+							)}
 						>
-							<div style={iconContainer}>
-								<GearIcon style={icon} />
-							</div>
 							Other
 						</VerticalTab>
 					) : null}

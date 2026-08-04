@@ -24,7 +24,7 @@ The [`defaultProps`](/docs/composition#defaultprops) is not too big, but the lis
 
 ## Why this error occurs
 
-Remotion is trying to gather a list of compositions using [`getCompositions()`](/docs/renderer/get-compositions), and is copying them from the headless browser into Node.JS. During this operation, the JavaScript object needs to be converted into a string. The upper limit for this is 256MB, however dependending on the machine Remotion runs on, the error may also occur on smaller payloads.
+Remotion is trying to gather a list of compositions using [`getCompositions()`](/docs/renderer/get-compositions), and is copying them from the headless browser into Node.JS. During this operation, the JavaScript object needs to be converted into a string. The upper limit for this is 256MB, however depending on the machine Remotion runs on, the error may also occur on smaller payloads.
 
 ## How to fix the error
 

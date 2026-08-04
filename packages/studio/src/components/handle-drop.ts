@@ -11,16 +11,17 @@ import {
 	isSfxDragEvent,
 } from './drop-handler-data';
 import {getElementDragData} from './element-drag-and-drop';
+import {enqueueElementInstallRequest} from './element-install-request';
 import {
+	getElementPositionForDrop,
+	getFromForDrop,
 	hasSvgFile,
 	importAssets,
 	importRemoteAsset,
 	insertComponent,
 	insertComposition,
-	insertElement,
 	insertExistingAssets,
 	insertRemoteAudio,
-	type ConfirmElementOverwrite,
 	type InsertElementDropPosition,
 } from './import-assets';
 import type {SvgImportMode} from './SvgImportDialog';
@@ -28,23 +29,23 @@ import type {SvgImportMode} from './SvgImportDialog';
 export const handleDrop = async ({
 	chooseSvgImportMode,
 	compositionFile,
-	confirmElementOverwrite,
 	compositionId,
 	destinationDimensions,
 	dropPosition,
 	event,
 	fps,
 	from,
+	preferCompositionStart,
 }: {
 	chooseSvgImportMode: () => Promise<SvgImportMode | null>;
 	compositionFile: string;
-	confirmElementOverwrite: ConfirmElementOverwrite;
 	compositionId: string;
 	destinationDimensions: Dimensions | null;
 	dropPosition: InsertElementDropPosition | null;
 	event: DragEvent;
 	fps: number;
 	from: number | null;
+	preferCompositionStart: boolean;
 }) => {
 	if (isFileDragEvent(event)) {
 		const files = Array.from(event.dataTransfer?.files ?? []);
@@ -67,6 +68,7 @@ export const handleDrop = async ({
 			files,
 			fps,
 			from,
+			preferCompositionStart,
 			svgImportMode,
 		});
 		return;
@@ -86,6 +88,7 @@ export const handleDrop = async ({
 			dropPosition,
 			fps,
 			from,
+			preferCompositionStart,
 		});
 		return;
 	}
@@ -101,6 +104,7 @@ export const handleDrop = async ({
 			compositionId,
 			fps,
 			from,
+			preferCompositionStart,
 			url: sfxUrl,
 		});
 		return;
@@ -118,19 +122,30 @@ export const handleDrop = async ({
 			compositionId,
 			dropPosition,
 			from,
+			preferCompositionStart,
 		});
 		return;
 	}
 
 	const element = getElementDragData(event.dataTransfer);
 	if (element !== null) {
-		await insertElement({
+		enqueueElementInstallRequest({
+			id: crypto.randomUUID(),
+			clientId: 'drag-and-drop',
+			createdAt: Date.now(),
 			compositionFile,
 			compositionId,
-			confirmOverwrite: confirmElementOverwrite,
-			dropPosition,
 			element: element.element,
-			from,
+			from: getFromForDrop({
+				durationInFrames: element.element.durationInFrames,
+				from,
+				preferCompositionStart,
+			}),
+			position: getElementPositionForDrop({
+				dimensions: element.element.dimensions,
+				dropPosition,
+			}),
+			source: {type: 'drag-and-drop'},
 		});
 		return;
 	}
@@ -143,6 +158,7 @@ export const handleDrop = async ({
 			compositionId,
 			dropPosition,
 			from,
+			preferCompositionStart,
 		});
 		return;
 	}
@@ -159,6 +175,7 @@ export const handleDrop = async ({
 		dropPosition,
 		fps,
 		from,
+		preferCompositionStart,
 		url: remoteAssetUrl,
 	});
 };

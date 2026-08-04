@@ -3,7 +3,7 @@ import {PlayerInternals} from '@remotion/player';
 import type {PreviewSize} from 'remotion';
 import {Internals} from 'remotion';
 
-export const STUDIO_FIT_PADDING = 16;
+export const STUDIO_FIT_PADDING = 8;
 
 type CanvasSize = {
 	readonly width: number;

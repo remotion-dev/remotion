@@ -1,7 +1,7 @@
 import type {
 	ComponentDragData,
 	ConstructedDragData,
-} from '@remotion/drag-and-drop';
+} from '@remotion/studio-protocol';
 import React from 'react';
 import {getShapeDragInfo} from './shape-drag-info';
 

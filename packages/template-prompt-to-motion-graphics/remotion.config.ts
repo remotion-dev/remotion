@@ -6,6 +6,7 @@
 import { Config } from "@remotion/cli/config";
 import { webpackOverride } from "./src/remotion/webpack-override.mjs";
 
+Config.setRspack(true);
 Config.setVideoImageFormat("jpeg");
 
-Config.overrideWebpackConfig(webpackOverride);
+Config.overrideBundlerConfig(webpackOverride);

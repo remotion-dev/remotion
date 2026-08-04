@@ -68,6 +68,8 @@ test('follows validated redirects for remote assets', async () => {
 		const response = await downloadRemoteAssetHandler({
 			binariesDirectory: null,
 			configFile: null,
+			getDefaultCodingAgent: () => null,
+			getDefaultEditor: () => null,
 			entryPoint: '',
 			input: {url: 'https://93.184.216.34/raw-link'},
 			logLevel: 'info',
@@ -137,6 +139,8 @@ test('blocks redirects to private IP addresses', async () => {
 			downloadRemoteAssetHandler({
 				binariesDirectory: null,
 				configFile: null,
+				getDefaultCodingAgent: () => null,
+				getDefaultEditor: () => null,
 				entryPoint: '',
 				input: {url: 'https://93.184.216.34/raw-link'},
 				logLevel: 'info',

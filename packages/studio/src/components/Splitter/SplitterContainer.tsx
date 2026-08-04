@@ -6,7 +6,8 @@ import type {
 	SplitterOrientation,
 	TSplitterContext,
 } from './SplitterContext';
-import {SplitterContext} from './SplitterContext';
+import {getClampedSplitterFlex, SplitterContext} from './SplitterContext';
+import {SPLITTER_HANDLE_SIZE} from './SplitterHandle';
 
 const containerRow: React.CSSProperties = {
 	display: 'flex',
@@ -28,7 +29,9 @@ export const SplitterContainer: React.FC<{
 	readonly maxFlex: number;
 	readonly minFlex: number;
 	readonly maxFlexerSize: number | null;
+	readonly minFlexerSize: number | null;
 	readonly maxAntiFlexerSize: number | null;
+	readonly minAntiFlexerSize: number | null;
 	readonly id: string;
 	readonly defaultFlex: number;
 	readonly children: React.ReactNode;
@@ -39,7 +42,9 @@ export const SplitterContainer: React.FC<{
 	maxFlex,
 	minFlex,
 	maxFlexerSize,
+	minFlexerSize,
 	maxAntiFlexerSize,
+	minAntiFlexerSize,
 	id,
 }) => {
 	const [initialTimelineFlex, persistFlex] = useTimelineFlex(id);
@@ -49,10 +54,28 @@ export const SplitterContainer: React.FC<{
 
 	const ref = useRef<HTMLDivElement>(null);
 	const isDragging = useRef<SplitterDragState>(false);
+	const size = PlayerInternals.useElementSize(ref, {
+		triggerOnWindowResize: true,
+		shouldApplyCssTransforms: true,
+	});
+	const availableSize = size
+		? (orientation === 'vertical' ? size.width : size.height) -
+			SPLITTER_HANDLE_SIZE
+		: null;
+	const effectiveFlexValue = getClampedSplitterFlex({
+		availableSize,
+		flexValue,
+		maxAntiFlexerSize,
+		maxFlex,
+		maxFlexerSize,
+		minAntiFlexerSize,
+		minFlex,
+		minFlexerSize,
+	});
 
 	const value: TSplitterContext = useMemo(() => {
 		return {
-			flexValue,
+			flexValue: effectiveFlexValue,
 			ref,
 			setFlexValue,
 			isDragging,
@@ -61,17 +84,21 @@ export const SplitterContainer: React.FC<{
 			maxFlex,
 			minFlex,
 			maxFlexerSize,
+			minFlexerSize,
 			maxAntiFlexerSize,
+			minAntiFlexerSize,
 			defaultFlex,
 			persistFlex,
 		};
 	}, [
 		defaultFlex,
-		flexValue,
+		effectiveFlexValue,
 		id,
 		maxFlex,
 		maxFlexerSize,
+		minFlexerSize,
 		maxAntiFlexerSize,
+		minAntiFlexerSize,
 		minFlex,
 		orientation,
 		persistFlex,

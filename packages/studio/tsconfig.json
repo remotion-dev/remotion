@@ -13,13 +13,10 @@
 			"path": "../core"
 		},
 		{
-			"path": "../canvas-capture"
-		},
-		{
 			"path": "../media-utils"
 		},
 		{
-			"path": "../drag-and-drop"
+			"path": "../studio-protocol"
 		},
 		{
 			"path": "../studio-shared"

@@ -1,0 +1,20 @@
+{
+	"name": "@remotion/canvas-capture-extension",
+	"version": "4.0.505",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"formatting": "oxfmt src bundle.ts --check",
+		"format": "oxfmt src bundle.ts",
+		"lint": "eslint src && tsgo --noEmit",
+		"make": "bun bundle.ts"
+	},
+	"dependencies": {
+		"mediabunny": "catalog:"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"@typescript/native-preview": "catalog:",
+		"eslint": "catalog:"
+	}
+}

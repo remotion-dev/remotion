@@ -9,6 +9,7 @@ import React, {
 import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {WHITE_ALPHA_80} from '../helpers/colors';
 import {isMac} from '../helpers/is-mac';
 import {
 	areKeyboardShortcutsDisabled,
@@ -21,8 +22,8 @@ import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 
 const iconStyle: React.CSSProperties = {
-	width: 16,
-	height: 16,
+	width: 14,
+	height: 14,
 };
 
 export const UndoRedoButtons: React.FC = () => {
@@ -158,11 +159,11 @@ export const UndoRedoButtons: React.FC = () => {
 			: `Redo (${cmdOrCtrlCharacter}+Y)`;
 
 	const renderUndo: RenderInlineAction = useCallback((color) => {
-		return <UndoIcon style={{...iconStyle, color}} />;
+		return <UndoIcon style={iconStyle} color={color} />;
 	}, []);
 
 	const renderRedo: RenderInlineAction = useCallback((color) => {
-		return <RedoIcon style={{...iconStyle, color}} />;
+		return <RedoIcon style={iconStyle} color={color} />;
 	}, []);
 
 	const canUndo = undoFile !== null;
@@ -175,16 +176,20 @@ export const UndoRedoButtons: React.FC = () => {
 	return (
 		<>
 			<InlineAction
+				variant={null}
 				onClick={onUndo}
 				renderAction={renderUndo}
 				title={undoTooltip}
 				disabled={!canUndo}
+				unhoveredColor={WHITE_ALPHA_80}
 			/>
 			<InlineAction
+				variant={null}
 				onClick={onRedo}
 				renderAction={renderRedo}
 				title={redoTooltip}
 				disabled={!canRedo}
+				unhoveredColor={WHITE_ALPHA_80}
 			/>
 		</>
 	);

@@ -1,6 +1,6 @@
 import type {SupportedConfigs} from '~/components/get-supported-configs';
 import {canRotateOrMirror} from './can-rotate-or-mirror';
-import type {RotateOrMirrorOrCropState} from './default-ui';
+import type {VideoEditState} from './default-ui';
 import {isDroppingEverything} from './is-reencoding';
 
 export const isSubmitDisabled = ({
@@ -8,29 +8,35 @@ export const isSubmitDisabled = ({
 	audioConfigIndexSelection,
 	videoConfigIndexSelection,
 	enableConvert,
-	enableRotateOrMirror,
+	videoEditState,
 	enableTrim,
+	enableResize,
 }: {
 	supportedConfigs: SupportedConfigs | null;
 	audioConfigIndexSelection: Record<number, string>;
 	videoConfigIndexSelection: Record<number, string>;
 	enableConvert: boolean;
-	enableRotateOrMirror: RotateOrMirrorOrCropState;
+	videoEditState: VideoEditState;
 	enableTrim: boolean;
+	enableResize: boolean;
 }) => {
 	if (!supportedConfigs) {
 		return true;
 	}
 
-	const allActionsDisabled =
-		!enableConvert && enableRotateOrMirror === null && !enableTrim;
+	const hasVideoEdit =
+		videoEditState.crop ||
+		videoEditState.mirror ||
+		videoEditState.rotate ||
+		enableResize;
+	const allActionsDisabled = !enableConvert && !hasVideoEdit && !enableTrim;
 
 	if (allActionsDisabled) {
 		return true;
 	}
 
-	const isRotatingOrMirroring =
-		enableRotateOrMirror !== null &&
+	const canApplyVideoEdit =
+		hasVideoEdit &&
 		canRotateOrMirror({
 			supportedConfigs,
 			enableConvert,
@@ -45,5 +51,5 @@ export const isSubmitDisabled = ({
 			enableConvert,
 		});
 
-	return !(isRotatingOrMirroring || isConverting || enableTrim);
+	return !(canApplyVideoEdit || isConverting || enableTrim);
 };

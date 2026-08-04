@@ -28,6 +28,8 @@ const callHandler = ({
 	return updateElementInstallTargetHandler({
 		binariesDirectory: null,
 		configFile: null,
+		getDefaultCodingAgent: () => null,
+		getDefaultEditor: () => null,
 		entryPoint: '',
 		input,
 		logLevel: 'info',

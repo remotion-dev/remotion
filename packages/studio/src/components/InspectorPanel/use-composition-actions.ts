@@ -1,4 +1,4 @@
-import {DragAndDropInternals} from '@remotion/drag-and-drop';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import type {InsertJsxElementRequest} from '@remotion/studio-shared';
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals, type _InternalTypes} from 'remotion';
@@ -6,7 +6,7 @@ import {getBrowserStudioOperations} from '../../helpers/browser-studio-operation
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
-import {ModalsContext} from '../../state/modals';
+import {SetSelectedModalContext} from '../../state/modals';
 import {callApi} from '../call-api';
 import {
 	importAssets,
@@ -26,7 +26,7 @@ export const useCompositionActions = () => {
 	const [isAddingSolid, setIsAddingSolid] = useState(false);
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
 	const [isAddingComposition, setIsAddingComposition] = useState(false);
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
@@ -149,6 +149,7 @@ export const useCompositionActions = () => {
 				destinationDimensions: null,
 				dropPosition: null,
 				from: null,
+				preferCompositionStart: null,
 				svgImportMode: 'image',
 			});
 		} finally {
@@ -177,6 +178,7 @@ export const useCompositionActions = () => {
 					destinationDimensions: null,
 					dropPosition: null,
 					from: null,
+					preferCompositionStart: null,
 				});
 			} finally {
 				setIsAddingAsset(false);
@@ -226,7 +228,7 @@ export const useCompositionActions = () => {
 					resolvedLocation?.source ??
 					browserStudioOperations?.getCompositionFile(composition.id) ??
 					null;
-				const compositionDragData = DragAndDropInternals.makeDragData({
+				const compositionDragData = StudioProtocolInternals.makeDragData({
 					type: 'composition',
 					compositionFile: selectedCompositionFile,
 					compositionId: composition.id,
@@ -241,6 +243,7 @@ export const useCompositionActions = () => {
 					compositionId: currentCompositionId,
 					dropPosition: null,
 					from: null,
+					preferCompositionStart: null,
 				});
 			} catch (error) {
 				showNotification(

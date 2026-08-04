@@ -5,7 +5,7 @@ description: Finalize a developed Remotion Element, add it to the docs gallery, 
 
 # Publish a Remotion Element
 
-The source of truth for design and quality criteria is the [Element Guidelines](https://github.com/remotion-dev/remotion/blob/main/packages/docs/elements/guidelines.mdx). Read them completely before making changes. If this skill and the guidelines diverge on acceptance criteria, follow the guidelines.
+The source of truth for design and quality criteria is the [Element Guidelines](../../../packages/docs/elements/guidelines.mdx). Read them completely before making changes. If this skill and the guidelines diverge on acceptance criteria, follow the guidelines.
 
 This skill owns the technical publication workflow. It starts with an Element scaffold created by the [`scaffold-element` skill](../scaffold-element/SKILL.md) and does not create the initial development scaffold.
 
@@ -26,9 +26,9 @@ bun run remotion
 
 ## 2. Perform the publication review
 
-Review the finished source, MDX page, and central definition against the Element Guidelines. Resolve placeholder content and finalize the description, display name, contributors, dimensions, duration, preview padding, poster frame, and `preview` object. Confirm that `posterUrl` and `videoUrl` use flat `https://remotion.media/elements/<category>-<slug>-preview.png` and `.mp4` paths. Preview assets are composited onto the standard background and use MP4 for broad browser, social-card, and embed compatibility, even when the Element itself supports transparency. These explicit URLs are the publishing source of truth.
+Review the finished source, MDX page, and central definition against the Element Guidelines and the technical requirements in the [`scaffold-element` skill](../scaffold-element/SKILL.md). Resolve placeholder content and finalize the description, display name, contributors, dimensions, duration, `installationMode`, declared dependencies, preview padding, poster frame, and `preview` object.
 
-Re-check the technical implementation requirements from the [`scaffold-element` skill](../scaffold-element/SKILL.md): The reusable implementation must remain in one self-contained TSX file, fill its configured bounds without a wrapper `<Sequence>` or preview-only source padding, and leave outer placement to the surrounding project. Animated entrances must have exits with inline, hardcoded frame ranges on useful named `Interactive.*` elements. Inner control names must not repeat the Element display name.
+Confirm that `posterUrl` and `videoUrl` use flat `https://remotion.media/elements/<category>-<slug>-preview.png` and `.mp4` paths. Preview assets are composited onto the standard background and use MP4 for broad browser, social-card, and embed compatibility, even when the Element itself supports transparency. These explicit URLs are the publishing source of truth.
 
 When the Element has Studio-editable controls, also review it using the [interactivity best practices skill](../interactivity-best-practices/SKILL.md).
 

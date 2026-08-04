@@ -1,10 +1,11 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useRef} from 'react';
+import {startPointerSession} from '../../helpers/pointer-session';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from '../ForceSpecificCursor';
-import {SplitterContext} from './SplitterContext';
+import {getSplitterFlexBounds, SplitterContext} from './SplitterContext';
 
 export const SPLITTER_HANDLE_SIZE = 3;
 
@@ -38,7 +39,6 @@ export const SplitterHandle: React.FC<{
 			return;
 		}
 
-		// Cleanup for the listeners that only exist for the duration of a drag.
 		let endDrag: (() => void) | null = null;
 
 		const onPointerDown = (e: PointerEvent) => {
@@ -62,20 +62,15 @@ export const SplitterHandle: React.FC<{
 				(dragContext.orientation === 'vertical'
 					? containerWidth
 					: containerHeight) - SPLITTER_HANDLE_SIZE;
-			const minFlex =
-				dragContext.maxAntiFlexerSize === null || availableSize <= 0
-					? dragContext.minFlex
-					: Math.max(
-							dragContext.minFlex,
-							1 - dragContext.maxAntiFlexerSize / availableSize,
-						);
-			const maxFlex =
-				dragContext.maxFlexerSize === null || availableSize <= 0
-					? dragContext.maxFlex
-					: Math.min(
-							dragContext.maxFlex,
-							dragContext.maxFlexerSize / availableSize,
-						);
+			const {minFlex, maxFlex} = getSplitterFlexBounds({
+				availableSize,
+				maxAntiFlexerSize: dragContext.maxAntiFlexerSize,
+				maxFlex: dragContext.maxFlex,
+				maxFlexerSize: dragContext.maxFlexerSize,
+				minAntiFlexerSize: dragContext.minAntiFlexerSize,
+				minFlex: dragContext.minFlex,
+				minFlexerSize: dragContext.minFlexerSize,
+			});
 			const startFlex = Math.min(
 				maxFlex,
 				Math.max(minFlex, dragContext.flexValue),
@@ -85,7 +80,6 @@ export const SplitterHandle: React.FC<{
 			forceSpecificCursor(
 				dragContext.orientation === 'horizontal' ? 'row-resize' : 'col-resize',
 			);
-			current.classList.add('remotion-splitter-active');
 
 			const getNewValue = (ev: PointerEvent, clamp: boolean) => {
 				if (!dragContext.ref.current) {
@@ -104,18 +98,6 @@ export const SplitterHandle: React.FC<{
 				}
 
 				return newFlex;
-			};
-
-			endDrag = () => {
-				dragContext.isDragging.current = false;
-				stopForcingSpecificCursor();
-				current.classList.remove('remotion-splitter-active');
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerCancel);
-				window.removeEventListener('blur', onWindowBlur);
-				endDrag = null;
-				PlayerInternals.updateAllElementsSizes();
 			};
 
 			const onPointerMove = (ev: PointerEvent) => {
@@ -141,27 +123,25 @@ export const SplitterHandle: React.FC<{
 				}
 			};
 
-			const onPointerUp = (ev: PointerEvent) => {
-				if (!dragContext.isDragging.current) {
-					return;
-				}
+			endDrag = startPointerSession({
+				event: e,
+				target: current,
+				onMove: onPointerMove,
+				onEnd: (reason, endEvent) => {
+					if (
+						(reason === 'pointerup' || reason === 'buttons-released') &&
+						endEvent &&
+						dragContext.isDragging.current
+					) {
+						dragContext.persistFlex(getNewValue(endEvent, true));
+					}
 
-				dragContext.persistFlex(getNewValue(ev, true));
-				endDrag?.();
-			};
-
-			const onPointerCancel = () => {
-				endDrag?.();
-			};
-
-			const onWindowBlur = () => {
-				endDrag?.();
-			};
-
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerCancel);
-			window.addEventListener('blur', onWindowBlur);
+					dragContext.isDragging.current = false;
+					stopForcingSpecificCursor();
+					endDrag = null;
+					PlayerInternals.updateAllElementsSizes();
+				},
+			});
 		};
 
 		current.addEventListener('pointerdown', onPointerDown);
@@ -169,55 +149,6 @@ export const SplitterHandle: React.FC<{
 		return () => {
 			current.removeEventListener('pointerdown', onPointerDown);
 			endDrag?.();
-		};
-	}, []);
-
-	useEffect(() => {
-		const {current} = ref;
-		if (!current) {
-			return;
-		}
-
-		let isMouseDown = false;
-
-		const onMouseDown = () => {
-			isMouseDown = true;
-		};
-
-		const onMouseUp = () => {
-			isMouseDown = false;
-		};
-
-		const onMouseEnter = (e: MouseEvent) => {
-			if (e.button !== 0) {
-				return;
-			}
-
-			if (isMouseDown) {
-				return;
-			}
-
-			current.classList.add('remotion-splitter-hover');
-		};
-
-		const onMouseLeave = (e: MouseEvent) => {
-			if (e.button !== 0) {
-				return;
-			}
-
-			current.classList.remove('remotion-splitter-hover');
-		};
-
-		current.addEventListener('mouseenter', onMouseEnter);
-		current.addEventListener('mouseleave', onMouseLeave);
-		window.addEventListener('mousedown', onMouseDown);
-		window.addEventListener('mouseup', onMouseUp);
-
-		return () => {
-			current.removeEventListener('mouseenter', onMouseEnter);
-			current.removeEventListener('mouseleave', onMouseLeave);
-			window.removeEventListener('mousedown', onMouseDown);
-			window.removeEventListener('mouseup', onMouseUp);
 		};
 	}, []);
 

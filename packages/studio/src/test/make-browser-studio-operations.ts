@@ -18,11 +18,15 @@ export const makeBrowserStudioOperations = (
 		insertSolid: () => unusedOperation('insertSolid'),
 		redo: () => unusedOperation('redo'),
 		renameStaticFile: () => unusedOperation('renameStaticFile'),
+		saveSequenceProps: () => unusedOperation('saveSequenceProps'),
 		subscribeToDefaultProps: () => unusedOperation('subscribeToDefaultProps'),
 		subscribeToEvent: () => unusedOperation('subscribeToEvent'),
+		subscribeToSequenceProps: () => unusedOperation('subscribeToSequenceProps'),
 		undo: () => unusedOperation('undo'),
 		unsubscribeFromDefaultProps: () =>
 			unusedOperation('unsubscribeFromDefaultProps'),
+		unsubscribeFromSequenceProps: () =>
+			unusedOperation('unsubscribeFromSequenceProps'),
 		writeStaticFile: () => unusedOperation('writeStaticFile'),
 		...overrides,
 	};

@@ -1,10 +1,29 @@
 from unittest import TestCase
+from unittest.mock import patch
 
 from remotion_lambda.models import RenderMediaParams, ShouldDownload, Webhook
 from remotion_lambda.remotionclient import RemotionClient
 from remotion_lambda.exception import RemotionInvalidArgumentException
 
+
 class TestRemotionClient(TestCase):
+    def test_overwrite_defaults_to_false_in_v4(self):
+        render_params = RenderMediaParams()
+
+        self.assertFalse(render_params.serialize_params()['overwrite'])
+
+    @patch('remotion_lambda.models.VERSION', '5.0.0')
+    def test_overwrite_defaults_to_true_in_v5(self):
+        render_params = RenderMediaParams()
+
+        self.assertTrue(render_params.serialize_params()['overwrite'])
+
+    @patch('remotion_lambda.models.VERSION', '5.0.0')
+    def test_explicit_false_overwrite_is_preserved_in_v5(self):
+        render_params = RenderMediaParams(overwrite=False)
+
+        self.assertFalse(render_params.serialize_params()['overwrite'])
+
     def test_remotion_construct_request(self):
         client = RemotionClient(
             region="us-east-1", serve_url="testbed", function_name="remotion-render"

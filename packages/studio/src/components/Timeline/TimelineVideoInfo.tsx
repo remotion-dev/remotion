@@ -46,7 +46,7 @@ const filmstripContainerStyle: React.CSSProperties = {
 
 const MAX_FROZEN_FRAME_CACHE_DEVIATION = WEBCODECS_TIMESCALE * 0.05;
 
-export const TimelineVideoInfo: React.FC<{
+const TimelineVideoInfoInner: React.FC<{
 	readonly src: string;
 	readonly visualizationWidth: number;
 	readonly naturalWidth: number;
@@ -483,3 +483,5 @@ export const TimelineVideoInfo: React.FC<{
 		</div>
 	);
 };
+
+export const TimelineVideoInfo = React.memo(TimelineVideoInfoInner);

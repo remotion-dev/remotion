@@ -17,7 +17,7 @@ export const findTypeaheadMenuItem = ({
 	values,
 }: {
 	query: string;
-	values: ComboboxValue[];
+	values: readonly ComboboxValue[];
 }): string | null => {
 	const normalizedQuery = query.trim().toLowerCase();
 

@@ -10,7 +10,11 @@ import {
 	WatchIgnoreNextChangePlugin,
 	webpack,
 } from '@remotion/bundler';
-import type {LogLevel} from '@remotion/renderer';
+import type {
+	DefaultCodingAgent,
+	DefaultEditor,
+	LogLevel,
+} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	GitSource,
@@ -71,6 +75,8 @@ export const startServer = async (options: {
 	forceNew: boolean;
 	rspack: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	getDefaultCodingAgent: () => DefaultCodingAgent | null;
+	getDefaultEditor: () => DefaultEditor | null;
 	configFile: string | null;
 }): Promise<StartServerResult> => {
 	const desiredPort =
@@ -176,6 +182,8 @@ export const startServer = async (options: {
 					getPreviewSampleRate: options.getPreviewSampleRate,
 					enableCrossSiteIsolation: options.enableCrossSiteIsolation,
 					getStudioRuntimeConfig: options.getStudioRuntimeConfig,
+					getDefaultCodingAgent: options.getDefaultCodingAgent,
+					getDefaultEditor: options.getDefaultEditor,
 					configFile: options.configFile,
 				});
 			})

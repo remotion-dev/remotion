@@ -24,7 +24,7 @@ import {
 	type TimelineSelection,
 	useTimelineSelection,
 } from '../Timeline/TimelineSelection';
-import {useSequenceFreezeFrameMenuItem} from '../Timeline/use-sequence-freeze-frame-menu-item';
+import {getSequenceFreezeFrameMenuItem} from '../Timeline/use-sequence-freeze-frame-menu-item';
 import {AlignmentControls} from './AlignmentControls';
 import {
 	InspectorActionSection,
@@ -134,7 +134,7 @@ const SequenceSourceActions: React.FC<{
 			),
 		[propStatuses, selection.nodePathInfo.sequenceSubscriptionKey],
 	);
-	const freezeFrameMenuItem = useSequenceFreezeFrameMenuItem({
+	const freezeFrameMenuItem = getSequenceFreezeFrameMenuItem({
 		clientId:
 			previewServerState.type === 'connected' && isStudioInteractivityEnabled()
 				? previewServerState.clientId
