@@ -100,7 +100,7 @@ export const buildTimelineTree = ({
 	propStatuses: PropStatuses;
 	includeTextContent: boolean;
 	includeSourceControls: boolean;
-	runtimeValues?: Readonly<Record<string, unknown>>;
+	runtimeValues: Readonly<Record<string, unknown>> | null;
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
 	const {sequenceSubscriptionKey, index, auxiliaryKeys, supportsEffects} =
@@ -109,7 +109,9 @@ export const buildTimelineTree = ({
 	const controlFields = getFieldsToShow({
 		schema: sequence.controls!.schema,
 		currentRuntimeValueDotNotation:
-			runtimeValues ?? sequence.controls!.runtimeValues.getSnapshot(),
+			runtimeValues !== null
+				? runtimeValues
+				: sequence.controls!.runtimeValues.getSnapshot(),
 		getDragOverrides,
 		propStatuses,
 		nodePath: sequenceSubscriptionKey,
@@ -258,6 +260,7 @@ export const getExpandedTrackHeight = ({
 		propStatuses,
 		includeTextContent: false,
 		includeSourceControls: false,
+		runtimeValues: null,
 	});
 	const flat = flattenVisibleTreeNodes({nodes: tree, getIsExpanded});
 

@@ -95,8 +95,10 @@ export const useTimelineHeight = ({
 					includeTextContent: false,
 					includeSourceControls: false,
 					runtimeValues: track.sequence.controls
-						? runtimeValuesByStore.get(track.sequence.controls.runtimeValues)
-						: undefined,
+						? (runtimeValuesByStore.get(
+								track.sequence.controls.runtimeValues,
+							) ?? null)
+						: null,
 				});
 				const filteredTree = filterTimelineExpandedTree({
 					nodes: tree,
