@@ -1,7 +1,58 @@
-import {expect, test} from '@playwright/test';
-import {STUDIO_URL} from './constants.mts';
+import fs from 'fs';
+import {expect, test, type Page} from '@playwright/test';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import {STUDIO_URL, effectKeyframeE2eFile} from './constants.mts';
 import {navigateToSchemaTest} from './helpers.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
+
+const dropAssetOnCanvas = async ({
+	assetPath,
+	durationInSeconds,
+	page,
+}: {
+	assetPath: string;
+	durationInSeconds: number;
+	page: Page;
+}) => {
+	const dragData = StudioProtocolInternals.makeDragData({
+		type: 'asset',
+		assetPath,
+		durationInSeconds,
+		height: null,
+		width: null,
+	});
+	await page
+		.locator('.remotion-studio-composition-container')
+		.evaluate((element, data) => {
+			const rect = element.getBoundingClientRect();
+			const dataTransfer = new DataTransfer();
+			dataTransfer.setData(data.mimeType, data.payload);
+			element.dispatchEvent(
+				new DragEvent('drop', {
+					bubbles: true,
+					cancelable: true,
+					clientX: rect.left + rect.width / 2,
+					clientY: rect.top + rect.height / 2,
+					dataTransfer,
+				}),
+			);
+		}, dragData);
+};
+
+const getVideoTag = (source: string, assetPath: string) => {
+	const sourceIndex = source.indexOf(assetPath);
+	if (sourceIndex === -1) {
+		throw new Error(`Could not find ${assetPath} in source`);
+	}
+
+	const tagStart = source.lastIndexOf('<Video', sourceIndex);
+	const tagEnd = source.indexOf('/>', sourceIndex);
+	if (tagStart === -1 || tagEnd === -1) {
+		throw new Error(`Could not find <Video> tag for ${assetPath}`);
+	}
+
+	return source.slice(tagStart, tagEnd + 2);
+};
 
 test.describe('visual mode', () => {
 	test.beforeEach(async () => {
@@ -103,5 +154,47 @@ test.describe('visual mode', () => {
 		await expect(
 			page.getByRole('button', {name: '75', exact: true}),
 		).toBeVisible();
+	});
+
+	test('should place Canvas drops where they are visible at the playhead', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		await expect(
+			page.getByRole('button', {name: '0', exact: true}),
+		).toBeVisible({timeout: 15_000});
+
+		await page.locator('[data-timeline-scrubber]').click();
+		await expect(
+			page.getByRole('button', {name: '45', exact: true}),
+		).toBeVisible();
+
+		await dropAssetOnCanvas({
+			assetPath: 'quick.mov',
+			durationInSeconds: 5.866667,
+			page,
+		});
+		await expect
+			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
+			.toContain('quick.mov');
+		const longVideoTag = getVideoTag(
+			fs.readFileSync(effectKeyframeE2eFile, 'utf-8'),
+			'quick.mov',
+		);
+		expect(longVideoTag).not.toContain('from=');
+
+		await dropAssetOnCanvas({
+			assetPath: 'drums-drumsticks.mp4',
+			durationInSeconds: 0.85,
+			page,
+		});
+		await expect
+			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
+			.toContain('drums-drumsticks.mp4');
+		const shortVideoTag = getVideoTag(
+			fs.readFileSync(effectKeyframeE2eFile, 'utf-8'),
+			'drums-drumsticks.mp4',
+		);
+		expect(shortVideoTag).toContain('from={45}');
 	});
 });

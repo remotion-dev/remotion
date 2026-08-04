@@ -149,6 +149,7 @@ export const useCompositionActions = () => {
 				destinationDimensions: null,
 				dropPosition: null,
 				from: null,
+				preferCompositionStart: null,
 				svgImportMode: 'image',
 			});
 		} finally {
@@ -177,6 +178,7 @@ export const useCompositionActions = () => {
 					destinationDimensions: null,
 					dropPosition: null,
 					from: null,
+					preferCompositionStart: null,
 				});
 			} finally {
 				setIsAddingAsset(false);
@@ -241,6 +243,7 @@ export const useCompositionActions = () => {
 					compositionId: currentCompositionId,
 					dropPosition: null,
 					from: null,
+					preferCompositionStart: null,
 				});
 			} catch (error) {
 				showNotification(

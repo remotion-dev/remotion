@@ -1166,6 +1166,7 @@ export const Canvas: React.FC<{
 					event,
 					fps: config.fps,
 					from: getCurrentFrame(),
+					preferCompositionStart: true,
 				});
 			} finally {
 				setIsAddingAsset(false);
@@ -1277,6 +1278,7 @@ export const Canvas: React.FC<{
 						contentDimensions === 'none' ? null : contentDimensions,
 					dropPosition,
 					from: null,
+					preferCompositionStart: null,
 					svgImportMode,
 				});
 			} finally {

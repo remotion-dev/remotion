@@ -172,6 +172,7 @@ export const useTimelineAssetDrop = () => {
 					event,
 					fps: videoConfig.fps,
 					from: frame,
+					preferCompositionStart: false,
 				});
 			} finally {
 				setIsAddingAsset(false);
