@@ -12,6 +12,10 @@ import {handleCancelRender} from './routes/cancel-render';
 import {compositionComponentInfoHandler} from './routes/composition-component-info';
 import {convertFigmaClipboardToSvgHandler} from './routes/convert-figma-clipboard-to-svg';
 import {
+	getDefaultCodingAgentInfoHandler,
+	updateDefaultCodingAgentHandler,
+} from './routes/default-coding-agent';
+import {
 	getDefaultEditorInfoHandler,
 	updateDefaultEditorHandler,
 } from './routes/default-editor';
@@ -111,6 +115,8 @@ export const allApiRoutes: {
 	'/api/rename-static-file': renameStaticFileHandler,
 	'/api/restart-studio': handleRestartStudio,
 	'/api/update-public-license': updatePublicLicenseHandler,
+	'/api/default-coding-agent-info': getDefaultCodingAgentInfoHandler,
+	'/api/update-default-coding-agent': updateDefaultCodingAgentHandler,
 	'/api/default-editor-info': getDefaultEditorInfoHandler,
 	'/api/update-default-editor': updateDefaultEditorHandler,
 	'/api/install-package': handleInstallPackage,

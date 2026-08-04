@@ -65,6 +65,7 @@ test('rejects cross-origin API requests before calling the handler', async () =>
 				didCallHandler = true;
 				return Promise.resolve({});
 			},
+			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
 			logLevel: 'info',
 			methods: {
@@ -97,6 +98,7 @@ test('allows same-origin API requests from non-local peers', async () => {
 		handler: ({input}) => {
 			return Promise.resolve({input});
 		},
+		getDefaultCodingAgent: () => null,
 		getDefaultEditor: () => null,
 		logLevel: 'info',
 		methods: {
@@ -139,6 +141,7 @@ test('rejects API requests without an Origin header before calling the handler',
 				didCallHandler = true;
 				return Promise.resolve({});
 			},
+			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
 			logLevel: 'info',
 			methods: {
@@ -171,6 +174,7 @@ test('allows GET API requests without an Origin header', async () => {
 		handler: ({input}) => {
 			return Promise.resolve({input});
 		},
+		getDefaultCodingAgent: () => null,
 		getDefaultEditor: () => null,
 		logLevel: 'info',
 		methods: {
@@ -210,6 +214,7 @@ test('allows HEAD API requests without an Origin header', async () => {
 		handler: ({input}) => {
 			return Promise.resolve({input});
 		},
+		getDefaultCodingAgent: () => null,
 		getDefaultEditor: () => null,
 		logLevel: 'info',
 		methods: {
@@ -252,6 +257,7 @@ test('rejects requests with a mismatched Origin scheme before calling the handle
 				didCallHandler = true;
 				return Promise.resolve({});
 			},
+			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
 			logLevel: 'info',
 			methods: {
@@ -284,6 +290,7 @@ test('allows same-origin API requests', async () => {
 		handler: ({getDefaultEditor, input}) => {
 			return Promise.resolve({defaultEditor: getDefaultEditor(), input});
 		},
+		getDefaultCodingAgent: () => null,
 		getDefaultEditor: () => 'cursor',
 		logLevel: 'info',
 		methods: {

@@ -46,6 +46,7 @@ const configMethodLifecycles = {
 	setColorSpace: 'runtime',
 	setConcurrency: 'runtime',
 	setCrf: 'runtime',
+	setDefaultCodingAgent: 'runtime',
 	setDefaultEditor: 'runtime',
 	setDelayRenderTimeoutInMilliseconds: 'runtime',
 	setDeleteAfter: 'runtime',
