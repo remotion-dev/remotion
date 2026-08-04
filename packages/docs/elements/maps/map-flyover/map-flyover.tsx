@@ -151,6 +151,101 @@ const MapFlyoverLayerInner = forwardRef<
 		}, [endCoordinates, startCoordinates]);
 		const routeDistance = useMemo(() => turf.length(route), [route]);
 
+		// Render the basemap once at the closest camera zoom. Per-frame CSS
+		// transforms move this oversized plate without loading new map tiles.
+		const mapPlate = useMemo(() => {
+			const mercatorPoints = route.geometry.coordinates.map((coordinate) =>
+				maplibregl.MercatorCoordinate.fromLngLat({
+					lng: coordinate[0],
+					lat: coordinate[1],
+				}),
+			);
+			const minX = Math.min(...mercatorPoints.map((point) => point.x));
+			const maxX = Math.max(...mercatorPoints.map((point) => point.x));
+			const minY = Math.min(...mercatorPoints.map((point) => point.y));
+			const maxY = Math.max(...mercatorPoints.map((point) => point.y));
+			const spanX = Math.max(0.000001, maxX - minX);
+			const spanY = Math.max(0.000001, maxY - minY);
+			const center = new maplibregl.MercatorCoordinate(
+				(minX + maxX) / 2,
+				(minY + maxY) / 2,
+			).toLngLat();
+			const plateMultiplier = Math.min(4096 / width, 4096 / height);
+			const plateWidth = Math.floor(width * plateMultiplier);
+			const plateHeight = Math.floor(height * plateMultiplier);
+			const maximumOverviewZoom = interpolate(
+				routeDistance,
+				[100, 10000],
+				[7, 3],
+				{
+					extrapolateLeft: 'clamp',
+					extrapolateRight: 'clamp',
+				},
+			);
+			const overviewZoom = Math.min(
+				Math.log2((width * 0.82) / (512 * spanX)),
+				Math.log2((height * 0.72) / (512 * spanY)),
+				maximumOverviewZoom,
+			);
+			const maximumPlateZoom = Math.min(
+				Math.log2(Math.max(1, plateWidth - width) / (512 * spanX)),
+				Math.log2(Math.max(1, plateHeight - height) / (512 * spanY)),
+			);
+			const zoom = Math.max(
+				overviewZoom,
+				Math.min(overviewZoom + 1.25, maximumPlateZoom),
+			);
+
+			return {
+				center,
+				height: plateHeight,
+				overviewZoom,
+				width: plateWidth,
+				zoom,
+			};
+		}, [height, route, routeDistance, width]);
+		const travelProgress = interpolate(frame, [50, 215], [0, 1], {
+			easing: Easing.inOut(Easing.cubic),
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		});
+		const currentDistance = Math.min(
+			routeDistance,
+			Math.max(0.001, routeDistance * travelProgress),
+		);
+		const partialRoute = turf.lineSliceAlong(route, 0, currentDistance);
+		const currentPoint = turf.along(route, currentDistance).geometry
+			.coordinates as [number, number];
+		const cameraTransition = interpolate(frame, [15, 50], [0, 1], {
+			easing: Easing.inOut(Easing.cubic),
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		});
+		const cameraCenter: [number, number] = [
+			interpolate(
+				cameraTransition,
+				[0, 1],
+				[mapPlate.center.lng, currentPoint[0]],
+			),
+			interpolate(
+				cameraTransition,
+				[0, 1],
+				[mapPlate.center.lat, currentPoint[1]],
+			),
+		];
+		const cameraZoom = interpolate(
+			cameraTransition,
+			[0, 1],
+			[mapPlate.overviewZoom, mapPlate.zoom],
+		);
+		const plateScale = 2 ** (cameraZoom - mapPlate.zoom);
+		const projectedCameraCenter = map?.project(cameraCenter);
+		const plateTransform = projectedCameraCenter
+			? `translate(${width / 2 - projectedCameraCenter.x * plateScale}px, ${
+					height / 2 - projectedCameraCenter.y * plateScale
+				}px) scale(${plateScale})`
+			: undefined;
+
 		useEffect(() => {
 			if (!mapContainerRef.current || mapRef.current) {
 				return;
@@ -159,11 +254,13 @@ const MapFlyoverLayerInner = forwardRef<
 			const mapInstance = new maplibregl.Map({
 				container: mapContainerRef.current,
 				style: 'https://demotiles.maplibre.org/style.json',
-				center: [0, 0],
-				zoom: Math.log2(width / 512),
+				center: mapPlate.center,
+				zoom: mapPlate.zoom,
 				interactive: false,
+				attributionControl: false,
 				fadeDuration: 0,
-				renderWorldCopies: false,
+				pixelRatio: 1,
+				renderWorldCopies: true,
 				canvasContextAttributes: {
 					preserveDrawingBuffer: true,
 				},
@@ -173,10 +270,7 @@ const MapFlyoverLayerInner = forwardRef<
 			mapInstance.on('load', () => {
 				mapInstance.addSource('flyover-route', {
 					type: 'geojson',
-					data: turf.lineString([
-						[0, 0],
-						[0.0001, 0],
-					]),
+					data: partialRoute,
 				});
 				mapInstance.addLayer({
 					id: 'flyover-route-glow',
@@ -266,14 +360,29 @@ const MapFlyoverLayerInner = forwardRef<
 						'circle-stroke-width': 4,
 					},
 				});
-				mapInstance.jumpTo({center: [0, 0], zoom: Math.log2(width / 512)});
 				mapInstance.once('idle', () => {
 					setMap(mapInstance);
 					continueRender(loadingHandle);
 				});
 				mapInstance.triggerRepaint();
 			});
-		}, [continueRender, loadingHandle, width]);
+		}, [continueRender, loadingHandle, mapPlate, partialRoute]);
+
+		useEffect(() => {
+			if (!map) {
+				return;
+			}
+
+			const mapPlateHandle = delayRender('Reframing MapLibre map plate');
+			map.jumpTo({
+				bearing: 0,
+				center: mapPlate.center,
+				pitch: 0,
+				zoom: mapPlate.zoom,
+			});
+			map.once('idle', () => continueRender(mapPlateHandle));
+			map.triggerRepaint();
+		}, [continueRender, delayRender, map, mapPlate.center, mapPlate.zoom]);
 
 		useEffect(() => {
 			if (!map) {
@@ -281,53 +390,6 @@ const MapFlyoverLayerInner = forwardRef<
 			}
 
 			const frameHandle = delayRender('Rendering MapLibre flyover frame');
-			const travelProgress = interpolate(frame, [50, 215], [0, 1], {
-				easing: Easing.inOut(Easing.cubic),
-				extrapolateLeft: 'clamp',
-				extrapolateRight: 'clamp',
-			});
-			const currentDistance = Math.min(
-				routeDistance,
-				Math.max(0.001, routeDistance * travelProgress),
-			);
-			const partialRoute = turf.lineSliceAlong(route, 0, currentDistance);
-			const currentPoint = turf.along(route, currentDistance).geometry
-				.coordinates as [number, number];
-			const cameraAltitudeMeters = interpolate(
-				routeDistance,
-				[100, 10000],
-				[180000, 2400000],
-				{
-					extrapolateLeft: 'clamp',
-					extrapolateRight: 'clamp',
-				},
-			);
-			const cameraLatitudeOffset = interpolate(
-				routeDistance,
-				[100, 10000],
-				[0.8, 8],
-				{
-					extrapolateLeft: 'clamp',
-					extrapolateRight: 'clamp',
-				},
-			);
-			const flightCamera = map.calculateCameraOptionsFromTo(
-				new maplibregl.LngLat(
-					currentPoint[0],
-					Math.max(-85, Math.min(85, currentPoint[1] - cameraLatitudeOffset)),
-				),
-				cameraAltitudeMeters,
-				new maplibregl.LngLat(currentPoint[0], currentPoint[1]),
-			);
-			const flightCenter = maplibregl.LngLat.convert(
-				flightCamera.center ?? currentPoint,
-			);
-			const cameraTransition = interpolate(frame, [15, 50], [0, 1], {
-				easing: Easing.inOut(Easing.cubic),
-				extrapolateLeft: 'clamp',
-				extrapolateRight: 'clamp',
-			});
-
 			(map.getSource('flyover-route') as GeoJSONSource).setData(partialRoute);
 			(map.getSource('flyover-endpoints') as GeoJSONSource).setData(
 				turf.featureCollection([
@@ -349,31 +411,11 @@ const MapFlyoverLayerInner = forwardRef<
 			map.setPaintProperty('flyover-route-line', 'line-color', routeColor);
 			map.setPaintProperty('flyover-route-line', 'line-width', lineWidth);
 			map.setPaintProperty('flyover-endpoint-dots', 'circle-color', routeColor);
-			map.jumpTo({
-				bearing: interpolate(
-					cameraTransition,
-					[0, 1],
-					[0, flightCamera.bearing ?? 0],
-				),
-				center: [
-					interpolate(cameraTransition, [0, 1], [0, flightCenter.lng]),
-					interpolate(cameraTransition, [0, 1], [0, flightCenter.lat]),
-				],
-				pitch: interpolate(
-					cameraTransition,
-					[0, 1],
-					[0, flightCamera.pitch ?? 0],
-				),
-				zoom: interpolate(
-					cameraTransition,
-					[0, 1],
-					[Math.log2(width / 512), flightCamera.zoom ?? 4],
-				),
-			});
 			map.once('idle', () => continueRender(frameHandle));
 			map.triggerRepaint();
 		}, [
 			continueRender,
+			currentPoint,
 			delayRender,
 			destinationLabel,
 			endCoordinates,
@@ -381,11 +423,9 @@ const MapFlyoverLayerInner = forwardRef<
 			lineWidth,
 			map,
 			originLabel,
-			route,
+			partialRoute,
 			routeColor,
-			routeDistance,
 			startCoordinates,
-			width,
 		]);
 
 		return (
@@ -413,7 +453,15 @@ const MapFlyoverLayerInner = forwardRef<
 				>
 					<div
 						ref={mapContainerRef}
-						style={{height, position: 'absolute', width}}
+						style={{
+							height: mapPlate.height,
+							opacity: map ? 1 : 0,
+							position: 'absolute',
+							transform: plateTransform,
+							transformOrigin: '0 0',
+							width: mapPlate.width,
+							willChange: 'transform',
+						}}
 					/>
 					<div
 						style={{
@@ -424,6 +472,21 @@ const MapFlyoverLayerInner = forwardRef<
 							position: 'absolute',
 						}}
 					/>
+					<div
+						style={{
+							backgroundColor: 'rgba(255, 255, 255, 0.8)',
+							borderRadius: 4,
+							bottom: 8,
+							color: '#111827',
+							fontFamily: 'sans-serif',
+							fontSize: 12,
+							padding: '3px 6px',
+							position: 'absolute',
+							right: 8,
+						}}
+					>
+						MapLibre
+					</div>
 				</div>
 			</Sequence>
 		);
