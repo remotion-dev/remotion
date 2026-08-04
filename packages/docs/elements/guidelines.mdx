@@ -37,9 +37,13 @@ An Element that already owns the one interactive Sequence users should edit may 
 
 Do not use the component-owned mode merely to remove markup: The Element needs to remain movable and trimmable through its component-owned Sequence. Do not add internal padding only to improve the gallery preview.
 
-## Make animations complete
+## Animate temporary Elements in and out
 
-Include an exit animation whenever there is an entrance animation. Animate properties within the Element, such as translation, scale, and opacity; leave placement to the generated wrapper or the component-owned Sequence.
+If an Element is intended to appear temporarily over other content—such as an overlay, lower third, label, or callout—include both an entrance and an exit animation.
+
+Backgrounds, loops, full-scene treatments, and other Elements that are not expected to enter and leave independently do not need these animations.
+
+Animate properties within the Element, such as translation, scale, and opacity; leave placement to the generated wrapper or the component-owned Sequence.
 
 ## Expose useful Studio controls
 
@@ -51,6 +55,6 @@ Follow the [interactivity best practices](/docs/studio/interactivity-best-practi
 
 ## Choose a representative preview
 
-Choose a poster frame that clearly shows the Element. The video preview should cover its full duration, including entrance and exit animations.
+Choose a poster frame that clearly shows the Element. The video preview should cover the Element's full duration and, when applicable, include its entrance and exit animations.
 
 When ready, [submit the Element](/elements/submit-an-element).
