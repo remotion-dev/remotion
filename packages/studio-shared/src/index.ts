@@ -185,6 +185,10 @@ export {
 	type EffectPropClipboardDataParseResult,
 } from './effect-clipboard-data';
 export {EventSourceEvent} from './event-source-event';
+export {
+	getConfigFileChangeMessage,
+	type ConfigFileChangeType,
+} from './config-file-change';
 export {formatBytes} from './format-bytes';
 export {getAllSchemaKeys, getAssetSchemaKeys} from './get-all-keys';
 export {getDefaultOutLocation} from './get-default-out-name';
