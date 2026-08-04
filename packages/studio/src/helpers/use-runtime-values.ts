@@ -7,6 +7,15 @@ const EMPTY_RUNTIME_VALUE_STORE = {
 	subscribe: () => () => undefined,
 };
 
+type RuntimeValueSelectorResult =
+	| string
+	| number
+	| boolean
+	| bigint
+	| symbol
+	| null
+	| undefined;
+
 export const useRuntimeValues = (
 	controls: SequenceRegistrationControls | null,
 ): Readonly<Record<string, unknown>> => {
@@ -28,7 +37,7 @@ export const useRuntimeValue = (
 	return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
 };
 
-export const useRuntimeValueSelector = <T>({
+export const useRuntimeValueSelector = <T extends RuntimeValueSelectorResult>({
 	controls,
 	selector,
 	isEqual = Object.is,
