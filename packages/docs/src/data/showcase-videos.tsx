@@ -420,6 +420,27 @@ export const showcaseVideos: ShowcaseVideo[] = [
 			name: 'Jim Raptis',
 		},
 	},
+	{
+		title: 'SportGraphics - Matchday graphics for sports clubs',
+		type: 'mux_video',
+		time: '3',
+		muxId: 'o5LORQ00mPIa3ojlseQP2ElqM02rX8JphTxm7qG3o26hI',
+		description:
+			'A template-based platform that turns match data, team lineups and club branding into animated matchday graphics. Remotion is used to define the templates as React components and to render the videos on the platform.',
+		height: 1080,
+		width: 1920,
+		submittedOn: new Date('08-03-2026'),
+		links: [
+			{
+				type: 'video',
+				url: 'https://www.youtube.com/watch?v=EUQ3K0xblK0',
+			},
+			{
+				type: 'website',
+				url: 'https://sportgraphics.app',
+			},
+		],
+	},
 	/*
   {
 		title: 'Clippulse - Animated social media videos',
