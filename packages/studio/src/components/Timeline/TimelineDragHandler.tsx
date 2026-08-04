@@ -57,21 +57,6 @@ const getClientXWithScroll = (x: number) => {
 	return x + (scrollableRef.current?.scrollLeft as number);
 };
 
-type PlayerMethods = ReturnType<typeof PlayerInternals.usePlayer>;
-
-// usePlayer() follows the current frame. Keep that subscription in a
-// non-rendering leaf because the drag handler only reads it during interactions.
-const TimelineDragHandlerPlayerRefUpdater: React.FC<{
-	readonly playerRef: React.RefObject<PlayerMethods | null>;
-}> = ({playerRef}) => {
-	playerRef.current = PlayerInternals.usePlayer();
-	return null;
-};
-
-const TimelineDragHandlerPlayerRefUpdaterMemo = React.memo(
-	TimelineDragHandlerPlayerRefUpdater,
-);
-
 export const TimelineDragHandler: React.FC = () => {
 	const video = Internals.useUnsafeVideoConfig();
 
@@ -116,7 +101,6 @@ const TimelineDragHandlerInner: React.FC = () => {
 	});
 	const {isHighestContext} = useZIndex();
 	const setFrame = Internals.useTimelineSetFrame();
-	const playerRef = useRef<PlayerMethods | null>(null);
 
 	const width = scrollableRef.current?.scrollWidth ?? 0;
 	const left = size?.left ?? 0;
@@ -135,6 +119,8 @@ const TimelineDragHandlerInner: React.FC = () => {
 	>({
 		dragging: false,
 	});
+	const {playing, play, pause, seek} = PlayerInternals.usePlayer();
+
 	const scroller = useRef<Timer | null>(null);
 
 	const stopInterval = () => {
@@ -146,11 +132,6 @@ const TimelineDragHandlerInner: React.FC = () => {
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
-			const player = playerRef.current;
-			if (!player) {
-				return;
-			}
-
 			if (e.button !== 0) {
 				return;
 			}
@@ -175,18 +156,18 @@ const TimelineDragHandlerInner: React.FC = () => {
 				width,
 				extrapolate: 'clamp',
 			});
-			player.seek(frame);
+			seek(frame);
 			setDragging({
 				dragging: true,
-				wasPlaying: player.isPlaying(),
+				wasPlaying: playing,
 				button: e.button,
 				pointerId: e.pointerId,
 				target: e.currentTarget,
 			});
 			e.currentTarget.setPointerCapture?.(e.pointerId);
-			player.pause();
+			pause();
 		},
-		[isHighestContext, videoConfig, left, width],
+		[isHighestContext, videoConfig, left, width, seek, playing, pause],
 	);
 
 	const onPointerMoveScrubbing = useCallback(
@@ -236,7 +217,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 					});
 
 					redrawTimelineSliderFast.current?.draw(nextFrame);
-					playerRef.current?.seek(nextFrame);
+					seek(nextFrame);
 					scrollToTimelineXOffset(scrollPos);
 				};
 
@@ -269,7 +250,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 					});
 
 					redrawTimelineSliderFast.current?.draw(nextFrame);
-					playerRef.current?.seek(nextFrame);
+					seek(nextFrame);
 					scrollToTimelineXOffset(scrollPos);
 				};
 
@@ -280,10 +261,10 @@ const TimelineDragHandlerInner: React.FC = () => {
 				}, 100);
 			} else {
 				stopInterval();
-				playerRef.current?.seek(frame);
+				seek(frame);
 			}
 		},
-		[videoConfig, dragging.dragging, left, width],
+		[videoConfig, dragging.dragging, left, width, seek],
 	);
 
 	const onPointerUpScrubbing = useCallback(
@@ -322,10 +303,10 @@ const TimelineDragHandlerInner: React.FC = () => {
 			});
 
 			if (dragging.wasPlaying) {
-				playerRef.current?.play();
+				play();
 			}
 		},
-		[dragging, left, videoConfig, setFrame, width],
+		[dragging, left, play, videoConfig, setFrame, width],
 	);
 
 	const onPointerCancelScrubbing = useCallback(() => {
@@ -338,9 +319,9 @@ const TimelineDragHandlerInner: React.FC = () => {
 
 		setDragging({dragging: false});
 		if (dragging.wasPlaying) {
-			playerRef.current?.play();
+			play();
 		}
-	}, [dragging]);
+	}, [dragging, play]);
 
 	useEffect(() => {
 		if (!dragging.dragging) {
@@ -393,12 +374,9 @@ const TimelineDragHandlerInner: React.FC = () => {
 	}, []);
 
 	return (
-		<>
-			<TimelineDragHandlerPlayerRefUpdaterMemo playerRef={playerRef} />
-			<div ref={ref} style={style} onPointerDown={onPointerDown}>
-				<div style={inner} className={VERTICAL_SCROLLBAR_CLASSNAME} />
-			</div>
-		</>
+		<div ref={ref} style={style} onPointerDown={onPointerDown}>
+			<div style={inner} className={VERTICAL_SCROLLBAR_CLASSNAME} />
+		</div>
 	);
 };
 
