@@ -11,10 +11,11 @@ export const ReactSourceOfTruth: React.FC = () => {
 				<svg
 					className="h-full w-full overflow-visible"
 					preserveAspectRatio="none"
+					style={{transform: 'translateX(-50px)'}}
 					viewBox="0 0 1000 60"
 				>
 					<path
-						d="M 5 5 C 5 36.5 16 44 32 54"
+						d="M 116 5 C 116 36.5 127 44 143 54"
 						fill="none"
 						stroke={PALETTE.TEXT_COLOR}
 						strokeLinecap="round"
@@ -22,7 +23,7 @@ export const ReactSourceOfTruth: React.FC = () => {
 						vectorEffect="non-scaling-stroke"
 					/>
 					<path
-						d="M 338 5 C 338 36.5 349 44 365 54"
+						d="M 450 5 C 450 36.5 461 44 477 54"
 						fill="none"
 						stroke={PALETTE.TEXT_COLOR}
 						strokeLinecap="round"
@@ -30,7 +31,7 @@ export const ReactSourceOfTruth: React.FC = () => {
 						vectorEffect="non-scaling-stroke"
 					/>
 					<path
-						d="M 671 5 C 671 36.5 682 44 698 54"
+						d="M 784 5 C 784 36.5 773 44 757 54"
 						fill="none"
 						stroke={PALETTE.TEXT_COLOR}
 						strokeLinecap="round"
