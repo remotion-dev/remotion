@@ -5,8 +5,6 @@ import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {ModalsContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import {AskAiModal} from './AskAiModal';
-import {ConfigureDefaultEditorModal} from './ConfigureDefaultEditorModal';
-import {ConfigureLicenseModal} from './ConfigureLicenseModal';
 import {ConfirmationDialog} from './ConfirmationDialog';
 import {EffectPickerModal} from './EffectPickerModal';
 import {InstallPackageModal} from './InstallPackage';
@@ -24,6 +22,7 @@ import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
 import {RenderStatusModal} from './RenderModal/RenderStatusModal';
 import {RenderModalWithLoader} from './RenderModal/ServerRenderModal';
 import {WebRenderModalWithLoader} from './RenderModal/WebRenderModal';
+import {SettingsModal} from './SettingsModal';
 import {SvgImportDialog} from './SvgImportDialog';
 import {UpdateModal} from './UpdateModal/UpdateModal';
 
@@ -45,7 +44,8 @@ export const Modals: React.FC<{
 			}
 
 			setSelectedModal({
-				type: 'configure-license',
+				type: 'settings',
+				initialTab: 'license',
 				initialPublicLicenseKey: event.licenseKey,
 			});
 		});
@@ -98,16 +98,13 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'input-props-override' && (
 				<OverrideInputPropsModal />
 			)}
-			{modalContextType && modalContextType.type === 'configure-license' && (
-				<ConfigureLicenseModal
-					key={modalContextType.initialPublicLicenseKey}
+			{modalContextType && modalContextType.type === 'settings' && (
+				<SettingsModal
+					key={`${modalContextType.initialTab}-${modalContextType.initialPublicLicenseKey}`}
+					initialTab={modalContextType.initialTab}
 					initialPublicLicenseKey={modalContextType.initialPublicLicenseKey}
 				/>
 			)}
-			{modalContextType &&
-				modalContextType.type === 'configure-default-editor' && (
-					<ConfigureDefaultEditorModal />
-				)}
 			{modalContextType && modalContextType.type === 'web-render' && (
 				<WebRenderModalWithLoader {...modalContextType} />
 			)}

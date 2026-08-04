@@ -2,35 +2,40 @@ import type {
 	EditorPickerId,
 	GetDefaultEditorInfoResponse,
 } from '@remotion/studio-shared';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
-import {LIGHT_TEXT} from '../helpers/colors';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {Checkmark} from '../icons/Checkmark';
 import {CustomEditorIcon} from '../icons/custom-editor';
-import {ModalsContext} from '../state/modals';
 import {callApi} from './call-api';
-import {Row, Spacing} from './layout';
+import {Spacing} from './layout';
 import {ModalButton} from './ModalButton';
-import {ModalContainer} from './ModalContainer';
-import {ModalFooterContainer} from './ModalFooter';
-import {ModalHeader} from './ModalHeader';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
+import {SettingsModalFooter} from './SettingsModalFooter';
+
+const container: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+	flexDirection: 'column',
+	minWidth: 0,
+};
 
 const content: React.CSSProperties = {
+	flex: 1,
 	padding: 16,
-	width: 440,
-	maxWidth: 'calc(100vw - 40px)',
 };
 
 const description: React.CSSProperties = {
 	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
+	fontSize: 14,
+	lineHeight: 1.5,
+	margin: 0,
+};
+
+const title: React.CSSProperties = {
+	color: WHITE,
 	fontFamily: 'sans-serif',
 	fontSize: 14,
 	lineHeight: 1.5,
@@ -67,8 +72,9 @@ const customEditorName: React.CSSProperties = {
 
 const NO_PREFERENCE_ID = 'no-preference';
 
-export const ConfigureDefaultEditorModal: React.FC = () => {
-	const {setSelectedModal} = useContext(ModalsContext);
+export const DefaultEditorSettings: React.FC<{
+	readonly onSaved: () => void;
+}> = ({onSaved}) => {
 	const [editorInfo, setEditorInfo] =
 		useState<GetDefaultEditorInfoResponse | null>(null);
 	const [selectedEditor, setSelectedEditor] = useState<EditorPickerId | null>(
@@ -121,10 +127,6 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 		return [noPreference, ...installedEditors];
 	}, [editorInfo?.installedEditors, selectedEditor]);
 
-	const dismiss = useCallback(() => {
-		setSelectedModal(null);
-	}, [setSelectedModal]);
-
 	useEffect(() => {
 		const controller = new AbortController();
 		callApi('/api/default-editor-info', {}, controller.signal)
@@ -167,23 +169,22 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 				return;
 			}
 
-			dismiss();
+			onSaved();
 		} catch (err) {
 			setError((err as Error).message);
 			setIsSubmitting(false);
 		}
-	}, [dismiss, editorInfo, selectedEditor]);
-
-	if (editorInfo === null && error === null) {
-		return null;
-	}
+	}, [editorInfo, onSaved, selectedEditor]);
 
 	return (
-		<ModalContainer onEscape={dismiss} onOutsideClick={dismiss}>
-			<ModalHeader title="Configure default editor" onClose={dismiss} />
+		<div style={container}>
 			<div style={content}>
+				<p style={title}>Default editor</p>
 				<p style={description}>This setting gets saved to your config file.</p>
-				<Spacing y={2} block />
+				<Spacing y={1} block />
+				{editorInfo === null && error === null ? (
+					<p style={description}>Loading installed editors...</p>
+				) : null}
 				{editorInfo?.installedEditors.length === 0 ? (
 					<p style={description}>
 						No supported editors were found on this computer.
@@ -208,16 +209,14 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 					</>
 				) : null}
 			</div>
-			<ModalFooterContainer>
-				<Row justify="flex-end">
-					<ModalButton
-						onClick={submit}
-						disabled={isSubmitting || editorInfo === null}
-					>
-						{isSubmitting ? 'Saving...' : 'Save and reload'}
-					</ModalButton>
-				</Row>
-			</ModalFooterContainer>
-		</ModalContainer>
+			<SettingsModalFooter>
+				<ModalButton
+					onClick={submit}
+					disabled={isSubmitting || editorInfo === null}
+				>
+					{isSubmitting ? 'Saving...' : 'Save and reload'}
+				</ModalButton>
+			</SettingsModalFooter>
+		</div>
 	);
 };
