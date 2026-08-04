@@ -1166,6 +1166,7 @@ export const Canvas: React.FC<{
 					event,
 					fps: config.fps,
 					from: getCurrentFrame(),
+					preferCompositionStart: true,
 				});
 			} finally {
 				setIsAddingAsset(false);

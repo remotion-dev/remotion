@@ -8,8 +8,53 @@ import {
 	getCompositionPositionForDrop,
 	getDurationInFrames,
 	getElementPositionForDrop,
+	getFromForDrop,
 	hasSvgFile,
 } from '../components/import-assets';
+
+test('places Canvas drops at the composition start when they cover the playhead', () => {
+	expect(
+		getFromForDrop({
+			durationInFrames: 46,
+			from: 45,
+			preferCompositionStart: true,
+		}),
+	).toBe(null);
+	expect(
+		getFromForDrop({
+			durationInFrames: null,
+			from: 45,
+			preferCompositionStart: true,
+		}),
+	).toBe(null);
+	expect(
+		getFromForDrop({
+			durationInFrames: undefined,
+			from: 45,
+			preferCompositionStart: true,
+		}),
+	).toBe(null);
+});
+
+test('places Canvas drops at the playhead when their duration would not cover it', () => {
+	expect(
+		getFromForDrop({
+			durationInFrames: 45,
+			from: 45,
+			preferCompositionStart: true,
+		}),
+	).toBe(45);
+});
+
+test('places timeline drops at the pointer frame', () => {
+	expect(
+		getFromForDrop({
+			durationInFrames: 46,
+			from: 45,
+			preferCompositionStart: false,
+		}),
+	).toBe(45);
+});
 
 test('converts media duration to composition frames with two decimals', () => {
 	expect(getDurationInFrames({durationInSeconds: 1.2345, fps: 30})).toBe(37.03);
