@@ -26,7 +26,7 @@ import {
 	maybeScrollCompositionSidebarRowIntoView,
 } from '../helpers/sidebar-scroll-into-view';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import {getCompositionContextMenuItems} from './composition-menu-items';
 import {CompositionContextButton} from './CompositionContextButton';
 import {CompositionOrStillIcon} from './CompositionOrStillIcon';
@@ -189,7 +189,7 @@ export const CompositionSelectorItem: React.FC<{
 		[onClick],
 	);
 
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
 	const resolvedLocation = useResolvedStack(

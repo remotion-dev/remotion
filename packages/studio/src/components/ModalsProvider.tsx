@@ -1,23 +1,23 @@
 import React, {useMemo, useState} from 'react';
-import type {ModalContextType, ModalState} from '../state/modals';
-import {ModalsContext} from '../state/modals';
+import type {ModalState, SetSelectedModalContextType} from '../state/modals';
+import {SelectedModalContext, SetSelectedModalContext} from '../state/modals';
 
 export const ModalsProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	const [modalContextType, setModalContextType] = useState<ModalState | null>(
-		null,
-	);
+	const [selectedModal, setSelectedModal] = useState<ModalState | null>(null);
 
-	const modalsContext = useMemo((): ModalContextType => {
+	const setSelectedModalContext = useMemo((): SetSelectedModalContextType => {
 		return {
-			selectedModal: modalContextType,
-			setSelectedModal: setModalContextType,
+			setSelectedModal,
 		};
-	}, [modalContextType]);
+	}, []);
+
 	return (
-		<ModalsContext.Provider value={modalsContext}>
-			{children}
-		</ModalsContext.Provider>
+		<SetSelectedModalContext.Provider value={setSelectedModalContext}>
+			<SelectedModalContext.Provider value={selectedModal}>
+				{children}
+			</SelectedModalContext.Provider>
+		</SetSelectedModalContext.Provider>
 	);
 };

@@ -1,4 +1,4 @@
-import React, {forwardRef, useContext, useMemo, useState} from 'react';
+import React, {forwardRef, useContext, useMemo, useRef, useState} from 'react';
 import type {
 	JsxComponentIdentity,
 	SequenceControls,
@@ -241,9 +241,8 @@ export const withInteractivitySchema = <
 			: (nodePathMapping.overrideIdToNodePathMappings[overrideId] ?? null);
 
 		// Read the runtime values for every flat key from the JSX props,
-		// memoized on the leaf values so the object reference is stable
-		// when nothing changed — otherwise downstream `useMemo`s churn and
-		// effects (e.g. Sequence registration) re-fire every render.
+		// memoized on the leaf values so the object reference is stable when
+		// nothing changed.
 		const runtimeValues = flatKeys.map((key) =>
 			getRuntimeValueForSchemaKey({
 				flatSchema,
@@ -262,18 +261,28 @@ export const withInteractivitySchema = <
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 			runtimeValues,
 		);
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const currentRuntimeValueDotNotationRef = useRef(
+			currentRuntimeValueDotNotation,
+		);
+		currentRuntimeValueDotNotationRef.current = currentRuntimeValueDotNotation;
 
+		// Keep the controls object stable when animated runtime values change.
+		// Sequence registration depends on this object, while the getter still
+		// exposes the latest values to frame-subscribing consumers.
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const controls = useMemo((): SequenceControls => {
 			return {
 				schema: schemaWithSequenceName,
-				currentRuntimeValueDotNotation,
+				get currentRuntimeValueDotNotation() {
+					return currentRuntimeValueDotNotationRef.current;
+				},
 				overrideId,
 				supportsEffects,
 				componentIdentity,
 				componentName,
 			};
-		}, [currentRuntimeValueDotNotation, overrideId]);
+		}, [overrideId]);
 		setStackForControls(controls, internalStack);
 
 		// 3. Apply drag/code overrides on top of the runtime values.

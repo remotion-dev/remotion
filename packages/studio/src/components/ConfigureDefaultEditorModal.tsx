@@ -12,7 +12,7 @@ import React, {
 import {LIGHT_TEXT} from '../helpers/colors';
 import {Checkmark} from '../icons/Checkmark';
 import {CustomEditorIcon} from '../icons/custom-editor';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import {callApi} from './call-api';
 import {Row, Spacing} from './layout';
 import {ModalButton} from './ModalButton';
@@ -68,7 +68,7 @@ const customEditorName: React.CSSProperties = {
 const NO_PREFERENCE_ID = 'no-preference';
 
 export const ConfigureDefaultEditorModal: React.FC = () => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const [editorInfo, setEditorInfo] =
 		useState<GetDefaultEditorInfoResponse | null>(null);
 	const [selectedEditor, setSelectedEditor] = useState<EditorPickerId | null>(

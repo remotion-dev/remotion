@@ -24,7 +24,7 @@ import {PicIcon} from '../../icons/frame';
 import {GearIcon} from '../../icons/gear';
 import {InputPropsIcon} from '../../icons/input-props';
 import type {WebRenderModalState} from '../../state/modals';
-import {ModalsContext} from '../../state/modals';
+import {SetSelectedModalContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -183,7 +183,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	initialPageResponsiveness,
 }) => {
 	const context = useContext(ResolvedCompositionContext);
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {setSidebarCollapsedState} = useContext(SidebarContext);
 	const {addClientStillJob, addClientVideoJob} = useContext(RenderQueueContext);
 	if (!context) {

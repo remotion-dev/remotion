@@ -57,6 +57,21 @@ const getClientXWithScroll = (x: number) => {
 	return x + (scrollableRef.current?.scrollLeft as number);
 };
 
+type PlayerMethods = ReturnType<typeof PlayerInternals.usePlayer>;
+
+// usePlayer() follows the current frame. Keep that subscription in a
+// non-rendering leaf because the drag handler only reads it during interactions.
+const TimelineDragHandlerPlayerRefUpdater: React.FC<{
+	readonly playerRef: React.RefObject<PlayerMethods | null>;
+}> = ({playerRef}) => {
+	playerRef.current = PlayerInternals.usePlayer();
+	return null;
+};
+
+const TimelineDragHandlerPlayerRefUpdaterMemo = React.memo(
+	TimelineDragHandlerPlayerRefUpdater,
+);
+
 export const TimelineDragHandler: React.FC = () => {
 	const video = Internals.useUnsafeVideoConfig();
 
@@ -101,6 +116,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 	});
 	const {isHighestContext} = useZIndex();
 	const setFrame = Internals.useTimelineSetFrame();
+	const playerRef = useRef<PlayerMethods | null>(null);
 
 	const width = scrollableRef.current?.scrollWidth ?? 0;
 	const left = size?.left ?? 0;
@@ -119,8 +135,6 @@ const TimelineDragHandlerInner: React.FC = () => {
 	>({
 		dragging: false,
 	});
-	const {playing, play, pause, seek} = PlayerInternals.usePlayer();
-
 	const scroller = useRef<Timer | null>(null);
 
 	const stopInterval = () => {
@@ -132,6 +146,11 @@ const TimelineDragHandlerInner: React.FC = () => {
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
+			const player = playerRef.current;
+			if (!player) {
+				return;
+			}
+
 			if (e.button !== 0) {
 				return;
 			}
@@ -156,18 +175,18 @@ const TimelineDragHandlerInner: React.FC = () => {
 				width,
 				extrapolate: 'clamp',
 			});
-			seek(frame);
+			player.seek(frame);
 			setDragging({
 				dragging: true,
-				wasPlaying: playing,
+				wasPlaying: player.isPlaying(),
 				button: e.button,
 				pointerId: e.pointerId,
 				target: e.currentTarget,
 			});
 			e.currentTarget.setPointerCapture?.(e.pointerId);
-			pause();
+			player.pause();
 		},
-		[isHighestContext, videoConfig, left, width, seek, playing, pause],
+		[isHighestContext, videoConfig, left, width],
 	);
 
 	const onPointerMoveScrubbing = useCallback(
@@ -217,7 +236,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 					});
 
 					redrawTimelineSliderFast.current?.draw(nextFrame);
-					seek(nextFrame);
+					playerRef.current?.seek(nextFrame);
 					scrollToTimelineXOffset(scrollPos);
 				};
 
@@ -250,7 +269,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 					});
 
 					redrawTimelineSliderFast.current?.draw(nextFrame);
-					seek(nextFrame);
+					playerRef.current?.seek(nextFrame);
 					scrollToTimelineXOffset(scrollPos);
 				};
 
@@ -261,10 +280,10 @@ const TimelineDragHandlerInner: React.FC = () => {
 				}, 100);
 			} else {
 				stopInterval();
-				seek(frame);
+				playerRef.current?.seek(frame);
 			}
 		},
-		[videoConfig, dragging.dragging, left, width, seek],
+		[videoConfig, dragging.dragging, left, width],
 	);
 
 	const onPointerUpScrubbing = useCallback(
@@ -303,10 +322,10 @@ const TimelineDragHandlerInner: React.FC = () => {
 			});
 
 			if (dragging.wasPlaying) {
-				play();
+				playerRef.current?.play();
 			}
 		},
-		[dragging, left, play, videoConfig, setFrame, width],
+		[dragging, left, videoConfig, setFrame, width],
 	);
 
 	const onPointerCancelScrubbing = useCallback(() => {
@@ -319,9 +338,9 @@ const TimelineDragHandlerInner: React.FC = () => {
 
 		setDragging({dragging: false});
 		if (dragging.wasPlaying) {
-			play();
+			playerRef.current?.play();
 		}
-	}, [dragging, play]);
+	}, [dragging]);
 
 	useEffect(() => {
 		if (!dragging.dragging) {
@@ -374,9 +393,12 @@ const TimelineDragHandlerInner: React.FC = () => {
 	}, []);
 
 	return (
-		<div ref={ref} style={style} onPointerDown={onPointerDown}>
-			<div style={inner} className={VERTICAL_SCROLLBAR_CLASSNAME} />
-		</div>
+		<>
+			<TimelineDragHandlerPlayerRefUpdaterMemo playerRef={playerRef} />
+			<div ref={ref} style={style} onPointerDown={onPointerDown}>
+				<div style={inner} className={VERTICAL_SCROLLBAR_CLASSNAME} />
+			</div>
+		</>
 	);
 };
 

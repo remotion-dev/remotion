@@ -236,6 +236,30 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 	expect(registerCalls).toBe(1);
 });
 
+test('Interactive controls stay registered while runtime values update', () => {
+	const registeredSequences: TSequence[] = [];
+	const onRegisterSequence = (sequence: TSequence) => {
+		registeredSequences.push(sequence);
+	};
+
+	const renderInteractiveDiv = (opacity: number) => (
+		<SequenceTestWrapper onRegisterSequence={onRegisterSequence}>
+			<Interactive.Div style={{opacity}}>Hello</Interactive.Div>
+		</SequenceTestWrapper>
+	);
+	const rendered = render(renderInteractiveDiv(0.25));
+	const controls = registeredSequences.find(
+		(sequence) => sequence.displayName === '<Interactive.Div>',
+	)?.controls;
+
+	expect(controls?.currentRuntimeValueDotNotation['style.opacity']).toBe(0.25);
+	registeredSequences.length = 0;
+	rendered.rerender(renderInteractiveDiv(0.75));
+
+	expect(registeredSequences).toHaveLength(0);
+	expect(controls?.currentRuntimeValueDotNotation['style.opacity']).toBe(0.75);
+});
+
 test('Sequence registers its documentation link', () => {
 	const registeredSequences: TSequence[] = [];
 

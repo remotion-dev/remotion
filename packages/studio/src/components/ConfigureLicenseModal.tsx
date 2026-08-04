@@ -6,7 +6,7 @@ import React, {
 	useState,
 } from 'react';
 import {LIGHT_TEXT, WHITE} from '../helpers/colors';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import {callApi} from './call-api';
 import {Checkbox} from './Checkbox';
 import {Row, Spacing} from './layout';
@@ -79,7 +79,7 @@ const inputLabel: React.CSSProperties = {
 export const ConfigureLicenseModal: React.FC<{
 	readonly initialPublicLicenseKey: string | null;
 }> = ({initialPublicLicenseKey}) => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const initialLicenseType: LicenseType =
 		initialPublicLicenseKey === 'free-license'
 			? 'free'
