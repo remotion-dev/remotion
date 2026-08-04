@@ -204,18 +204,24 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 				return;
 			}
 
-			setFrame((currentFrames) => {
-				const previousFrame =
-					currentFrames[videoId] ?? window.remotion_initialFrame ?? 0;
-				const newFrame = Math.max(0, previousFrame - frames);
-				if (previousFrame === newFrame) {
-					return currentFrames;
-				}
+			const previousFrame =
+				timelineImperativeContext.frameRef.current[videoId] ??
+				window.remotion_initialFrame ??
+				0;
+			const newFrame = Math.max(0, previousFrame - frames);
+			if (previousFrame === newFrame) {
+				return;
+			}
 
-				const nextFrames = {...currentFrames, [videoId]: newFrame};
-				timelineImperativeContext.frameRef.current = nextFrames;
-				return nextFrames;
-			});
+			timelineImperativeContext.frameRef.current = {
+				...timelineImperativeContext.frameRef.current,
+				[videoId]: newFrame,
+			};
+			setFrame((currentFrames) =>
+				currentFrames[videoId] === newFrame
+					? currentFrames
+					: {...currentFrames, [videoId]: newFrame},
+			);
 		},
 		[setFrame, timelineImperativeContext, videoId],
 	);
@@ -230,18 +236,24 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 				return;
 			}
 
-			setFrame((currentFrames) => {
-				const previousFrame =
-					currentFrames[videoId] ?? window.remotion_initialFrame ?? 0;
-				const newFrame = Math.min(lastFrame, previousFrame + frames);
-				if (previousFrame === newFrame) {
-					return currentFrames;
-				}
+			const previousFrame =
+				timelineImperativeContext.frameRef.current[videoId] ??
+				window.remotion_initialFrame ??
+				0;
+			const newFrame = Math.min(lastFrame, previousFrame + frames);
+			if (previousFrame === newFrame) {
+				return;
+			}
 
-				const nextFrames = {...currentFrames, [videoId]: newFrame};
-				timelineImperativeContext.frameRef.current = nextFrames;
-				return nextFrames;
-			});
+			timelineImperativeContext.frameRef.current = {
+				...timelineImperativeContext.frameRef.current,
+				[videoId]: newFrame,
+			};
+			setFrame((currentFrames) =>
+				currentFrames[videoId] === newFrame
+					? currentFrames
+					: {...currentFrames, [videoId]: newFrame},
+			);
 		},
 		[lastFrame, setFrame, timelineImperativeContext, videoId],
 	);

@@ -92,6 +92,16 @@ test('Imperative player methods do not rerender when the frame changes', () => {
 	expect(playerRef.current?.getCurrentFrame()).toBe(30);
 	expect(methodsRef.current?.getCurrentFrame()).toBe(30);
 	expect(methodRenders).toBe(rendersAfterMount);
+
+	act(() => {
+		methodsRef.current?.frameForward(5);
+		expect(methodsRef.current?.getCurrentFrame()).toBe(35);
+		methodsRef.current?.frameBack(2);
+		expect(methodsRef.current?.getCurrentFrame()).toBe(33);
+	});
+
+	expect(playerRef.current?.getCurrentFrame()).toBe(33);
+	expect(methodRenders).toBe(rendersAfterMount);
 });
 
 test('Playing from the last frame resets playback and dismisses the unplayed poster', () => {
