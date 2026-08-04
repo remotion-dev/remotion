@@ -37,6 +37,7 @@ const mainButtonBase: React.CSSProperties = {
 	border: 'none',
 	borderRadius: 3,
 	color: LIGHT_TEXT,
+	columnGap: 4,
 	display: 'inline-flex',
 	fontFamily: 'sans-serif',
 	fontSize: 11,
@@ -58,7 +59,8 @@ const editorMenuIconSize = 18;
 
 export const InspectorOpenInEditor: React.FC<{
 	readonly location: OriginalPosition | null;
-}> = ({location}) => {
+	readonly label?: React.ReactNode;
+}> = ({label, location}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {tabIndex} = useZIndex();
@@ -176,6 +178,7 @@ export const InspectorOpenInEditor: React.FC<{
 				title={`Open in ${editorName}`}
 				type="button"
 			>
+				{label}
 				<EditorIcon editorId={preferredEditorId} size={editorButtonIconSize} />
 			</button>
 			<InlineDropdown

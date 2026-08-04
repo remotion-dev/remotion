@@ -46,9 +46,11 @@ export const SettingsModalFooter: React.FC<{
 		<ModalFooterContainer style={footer} noBorder>
 			<div style={footerRow}>
 				<div style={configFileHint}>
-					Changes save to&nbsp;
-					<strong style={configFileName}>remotion.config.ts</strong>
-					<InspectorOpenInEditor location={folderLocation} />
+					Changes save to
+					<InspectorOpenInEditor
+						location={folderLocation}
+						label={<strong style={configFileName}>remotion.config.ts</strong>}
+					/>
 				</div>
 				{children}
 			</div>
