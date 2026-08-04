@@ -104,6 +104,44 @@ test('Imperative player methods do not rerender when the frame changes', () => {
 	expect(methodRenders).toBe(rendersAfterMount);
 });
 
+test('Player methods fall back when core has no timeline imperative context', () => {
+	const internalsWithOptionalContext = Internals as {
+		TimelineImperativeContext?: typeof Internals.TimelineImperativeContext;
+	};
+	const timelineImperativeContext =
+		internalsWithOptionalContext.TimelineImperativeContext;
+	delete internalsWithOptionalContext.TimelineImperativeContext;
+
+	try {
+		const methodsRef: {current: UsePlayerMethods | null} = {current: null};
+		const renderCustomControls = () =>
+			React.createElement(PlayerMethodsProbe, {
+				onRender: (methods) => {
+					methodsRef.current = methods;
+				},
+			});
+
+		render(
+			React.createElement(Player, {
+				component: () => null,
+				durationInFrames: 100,
+				compositionWidth: 1920,
+				compositionHeight: 1080,
+				fps: 30,
+				controls: true,
+				renderCustomControls,
+			}),
+		);
+
+		expect(methodsRef.current?.getCurrentFrame()).toBe(0);
+		act(() => methodsRef.current?.seek(20));
+		expect(methodsRef.current?.getCurrentFrame()).toBe(20);
+	} finally {
+		internalsWithOptionalContext.TimelineImperativeContext =
+			timelineImperativeContext;
+	}
+});
+
 test('Playing from the last frame resets playback and dismisses the unplayed poster', () => {
 	const playerRef = createRef<PlayerRef>();
 	const Composition = () => null;

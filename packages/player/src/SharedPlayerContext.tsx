@@ -14,6 +14,7 @@ import type {
 	TimelineContextValue,
 } from 'remotion';
 import {Internals} from 'remotion';
+import {CoreTimelineImperativeContextProvider} from './timeline-imperative-context.js';
 import {getPreferredVolume, persistVolume} from './volume-persistence.js';
 
 export const PLAYER_COMP_ID = 'player-comp';
@@ -173,7 +174,7 @@ export const SharedPlayerContexts: React.FC<{
 				<Internals.CanUseRemotionHooksProvider>
 					<Internals.AbsoluteTimeContext.Provider value={timelineContext}>
 						<Internals.PlaybackRateContext.Provider value={playbackRateContext}>
-							<Internals.TimelineImperativeContext.Provider
+							<CoreTimelineImperativeContextProvider
 								value={timelineImperativeContextValue}
 							>
 								<Internals.TimelineContext.Provider value={timelineContext}>
@@ -207,7 +208,7 @@ export const SharedPlayerContexts: React.FC<{
 										</Internals.PrefetchProvider>
 									</Internals.CompositionManager.Provider>
 								</Internals.TimelineContext.Provider>
-							</Internals.TimelineImperativeContext.Provider>
+							</CoreTimelineImperativeContextProvider>
 						</Internals.PlaybackRateContext.Provider>
 					</Internals.AbsoluteTimeContext.Provider>
 				</Internals.CanUseRemotionHooksProvider>

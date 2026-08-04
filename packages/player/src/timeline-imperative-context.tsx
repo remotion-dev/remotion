@@ -18,6 +18,23 @@ export const getTimelineImperativeContext = () => {
 	return getCoreTimelineImperativeContext() ?? PlayerTimelineImperativeContext;
 };
 
+export const CoreTimelineImperativeContextProvider: React.FC<{
+	readonly children: React.ReactNode;
+	readonly value: TimelineImperativeContextValue;
+}> = ({children, value}) => {
+	const TimelineImperativeContext = getCoreTimelineImperativeContext();
+
+	if (!TimelineImperativeContext) {
+		return children;
+	}
+
+	return (
+		<TimelineImperativeContext.Provider value={value}>
+			{children}
+		</TimelineImperativeContext.Provider>
+	);
+};
+
 const LegacyTimelineImperativeContextProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
