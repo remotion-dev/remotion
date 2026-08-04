@@ -1,3 +1,4 @@
+import type {DefaultCodingAgent} from '@remotion/renderer';
 import type {EditorPickerId} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
@@ -8,11 +9,15 @@ import {
 	WHITE,
 	getBackgroundFromHoverState,
 } from '../helpers/colors';
-import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
+import {
+	openInCodingAgent,
+	openOriginalPositionInEditor,
+} from '../helpers/open-in-editor';
 import {CaretDown} from '../icons/caret';
 import {EditorIcon} from '../icons/editor';
 import {SetSelectedModalContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
+import {CodingAgentIcon} from './CodingAgentIcon';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineDropdown} from './InlineDropdown';
 import type {ComboboxValue} from './NewComposition/ComboBox';
@@ -20,6 +25,7 @@ import {showNotification} from './Notifications/NotificationCenter';
 import {
 	canUseEditorPicker,
 	getPreferredEditorId,
+	useDefaultCodingAgentInfo,
 	useDefaultEditorInfo,
 } from './use-default-editor-info';
 
@@ -73,6 +79,7 @@ export const InspectorOpenInEditor: React.FC<{
 		previewServerState.type === 'connected',
 	);
 	const editorInfo = useDefaultEditorInfo(editorPickerAvailable);
+	const codingAgentInfo = useDefaultCodingAgentInfo(editorPickerAvailable);
 
 	const openWithEditor = useCallback(
 		async (editorId: EditorPickerId | null) => {
@@ -90,6 +97,19 @@ export const InspectorOpenInEditor: React.FC<{
 	);
 
 	const preferredEditorId = getPreferredEditorId(editorInfo);
+	const openWithCodingAgent = useCallback(
+		async (codingAgentId: DefaultCodingAgent, codingAgentName: string) => {
+			try {
+				const response = await openInCodingAgent(codingAgentId);
+				if (!response.success) {
+					showNotification(`Could not open ${codingAgentName}`, 2000);
+				}
+			} catch (err) {
+				showNotification((err as Error).message, 2000);
+			}
+		},
+		[],
+	);
 	const editorName = window.remotion_editorName ?? 'default editor';
 	const canOpenDefault =
 		location !== null && window.remotion_editorName !== null;
@@ -146,14 +166,44 @@ export const InspectorOpenInEditor: React.FC<{
 				type: 'item' as const,
 				value: editor.id,
 			}));
+		const codingAgents: ComboboxValue[] = (
+			codingAgentInfo?.installedCodingAgents ?? []
+		).map((codingAgent) => ({
+			id: `open-in-coding-agent-${codingAgent.id}`,
+			keyHint: null,
+			label: <span style={menuLabel}>{codingAgent.name}</span>,
+			leftItem: <CodingAgentIcon iconDataUrl={codingAgent.iconDataUrl} />,
+			onClick: () => {
+				openWithCodingAgent(codingAgent.id, codingAgent.name).catch(
+					() => undefined,
+				);
+			},
+			quickSwitcherLabel: null,
+			subMenu: null,
+			type: 'item' as const,
+			value: `coding-agent-${codingAgent.id}`,
+		}));
+		const editorSection: ComboboxValue[] = alternateEditors.length
+			? [
+					{type: 'section-header', id: 'editors-header', label: 'Editors'},
+					...alternateEditors,
+				]
+			: [];
+		const codingAgentSection: ComboboxValue[] = codingAgents.length
+			? [
+					{type: 'section-header', id: 'agents-header', label: 'Agents'},
+					...codingAgents,
+				]
+			: [];
+		const apps: ComboboxValue[] = [...editorSection, ...codingAgentSection];
 		const settingsItems: ComboboxValue[] = [
-			...(alternateEditors.length > 0
+			...(apps.length > 0
 				? [{type: 'divider' as const, id: 'editor-settings-divider'}]
 				: []),
 			{
-				id: 'set-default-editor',
+				id: 'change-default-apps',
 				keyHint: null,
-				label: <span style={menuLabel}>Set default editor...</span>,
+				label: <span style={menuLabel}>Change default apps...</span>,
 				leftItem: null,
 				onClick: () => {
 					setSelectedModal({
@@ -166,13 +216,15 @@ export const InspectorOpenInEditor: React.FC<{
 				quickSwitcherLabel: null,
 				subMenu: null,
 				type: 'item' as const,
-				value: 'set-default-editor',
+				value: 'change-default-apps',
 			},
 		];
 
-		return [...alternateEditors, ...settingsItems];
+		return [...apps, ...settingsItems];
 	}, [
+		codingAgentInfo?.installedCodingAgents,
 		editorInfo?.installedEditors,
+		openWithCodingAgent,
 		openWithEditor,
 		preferredEditorId,
 		setSelectedModal,
@@ -204,7 +256,7 @@ export const InspectorOpenInEditor: React.FC<{
 				onOpenChange={setDropdownOpened}
 				renderAction={renderDropdownAction}
 				style={dropdownStyle}
-				title="Open in another editor"
+				title="Open in another app"
 				unhoveredColor={dropdownForegroundColor}
 				values={menuItems}
 				variant="compact"

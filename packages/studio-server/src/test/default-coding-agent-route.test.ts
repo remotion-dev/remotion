@@ -31,7 +31,7 @@ test('persists the selected coding agent through the route', async () => {
 			entryPoint: '',
 			getDefaultCodingAgent: () => 'cursor',
 			getDefaultEditor: () => null,
-			input: {defaultCodingAgent: 'codex'},
+			input: {defaultCodingAgent: 'copilot'},
 			logLevel: 'error',
 			methods: {
 				addJob: () => undefined,
@@ -49,7 +49,7 @@ test('persists the selected coding agent through the route', async () => {
 			[
 				"import {Config} from '@remotion/cli/config';",
 				'Config.setOverwriteOutput(true);',
-				"Config.setDefaultCodingAgent('codex');",
+				"Config.setDefaultCodingAgent('copilot');",
 				'',
 			].join('\n'),
 		);
