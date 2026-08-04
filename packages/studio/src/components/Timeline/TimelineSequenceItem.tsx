@@ -33,7 +33,7 @@ import {
 	useRuntimeValue,
 	useRuntimeValueSelector,
 } from '../../helpers/use-runtime-values';
-import {ModalsContext} from '../../state/modals';
+import {SetSelectedModalContext} from '../../state/modals';
 import {useTimelineSequenceHover} from '../../state/timeline-sequence-hover';
 import {callApi} from '../call-api';
 import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
@@ -274,7 +274,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {isHighestContext} = useKeybinding();
 	const selectAsset = useSelectAsset();
 	const selectComposition = useSelectComposition();

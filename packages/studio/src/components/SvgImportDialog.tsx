@@ -1,6 +1,6 @@
 import React, {useCallback, useContext, useEffect, useRef} from 'react';
 import type {SvgImportDialogState} from '../state/modals';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import {Button} from './Button';
 import {Flex, Row, Spacing} from './layout';
 import {ModalButton} from './ModalButton';
@@ -27,7 +27,7 @@ const inlineCode: React.CSSProperties = {
 };
 
 export const useSvgImportDialog = () => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	return useCallback(() => {
 		return new Promise<SvgImportMode | null>((resolve) => {
@@ -55,7 +55,7 @@ export const useSvgImportDialog = () => {
 export const SvgImportDialog: React.FC<{
 	readonly state: SvgImportDialogState;
 }> = ({state}) => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const settledRef = useRef(false);
 
 	const closeCurrentModal = useCallback(() => {

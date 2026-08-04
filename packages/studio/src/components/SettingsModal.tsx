@@ -1,7 +1,7 @@
 import React, {useCallback, useContext, useState} from 'react';
 import {AppsIcon} from '../icons/apps';
 import {CertificateIcon} from '../icons/certificate';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import {DefaultEditorSettings} from './ConfigureDefaultEditorModal';
 import {LicenseSettings} from './ConfigureLicenseModal';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
@@ -40,7 +40,7 @@ export const SettingsModal: React.FC<{
 	readonly initialTab: SettingsTab;
 	readonly initialPublicLicenseKey: string | null;
 }> = ({initialPublicLicenseKey, initialTab}) => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const [tab, setTab] = useState<SettingsTab>(initialTab);
 	const [openedTabs, setOpenedTabs] = useState<SettingsTab[]>([initialTab]);
 

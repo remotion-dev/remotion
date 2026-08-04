@@ -16,7 +16,7 @@ import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
 import {startPointerSession} from '../helpers/pointer-session';
 import {EditorSnappingContext} from '../state/editor-snapping';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import {callApi} from './call-api';
 import {useConfirmationDialog} from './ConfirmationDialog';
 import {ContextMenuForTarget} from './ContextMenu';
@@ -1495,7 +1495,7 @@ export const SelectedOutlineElement: React.FC<{
 	const selectAsset = useSelectAsset();
 	const selectComposition = useSelectComposition();
 	const {compositions} = useContext(Internals.CompositionManager);
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	const resolveOriginalLocation = React.useCallback(
 		async (resolveTarget: SelectedOutlineTarget) => {

@@ -8,7 +8,7 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {PenIcon} from '../../icons/pen';
-import {ModalsContext} from '../../state/modals';
+import {SetSelectedModalContext} from '../../state/modals';
 import {pickFilesToImport} from '../import-assets';
 import {InlineAction} from '../InlineAction';
 import {
@@ -66,7 +66,7 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 		throw new Error('TimelineAssetField rendered for non-asset field');
 	}
 
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const staticFiles = useStaticFiles();
 	const {getSourceAction, initialQuery, sourceAction} = useContext(
 		AssetSelectionContext,
