@@ -89,6 +89,10 @@ export const PreviewServerConnection: React.FC<{
 				showNotification(getConfigFileChangeMessage(newEvent.changeType), 4000);
 			}
 
+			if (newEvent.type === 'config-file-reload-failed') {
+				showNotification(newEvent.errorMessage, 4000);
+			}
+
 			if (newEvent.type === 'init') {
 				latestUndoRedoEvent.current = {
 					type: 'undo-redo-stack-changed',

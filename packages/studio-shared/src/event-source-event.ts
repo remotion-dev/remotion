@@ -36,6 +36,10 @@ export type EventSourceEvent =
 			editorName: string | null;
 	  }
 	| {
+			type: 'config-file-reload-failed';
+			errorMessage: string;
+	  }
+	| {
 			type: 'root-file-changed';
 	  }
 	| {
