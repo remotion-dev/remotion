@@ -2,7 +2,6 @@ import {getAssetSchemaKeys} from '@remotion/studio-shared';
 import type {SequenceRegistrationControls} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {pushUrl} from '../../helpers/url-state';
-import {getRuntimeValueSnapshot} from '../../helpers/use-runtime-values';
 
 type LinkInfo =
 	| {
@@ -40,7 +39,7 @@ export const splitRemoteSourceForMiddleEllipsis = (src: string) => {
 
 export const getTimelineAssetSrcFromSchema = (
 	controls: SequenceRegistrationControls | null,
-	runtimeValues = getRuntimeValueSnapshot(controls),
+	runtimeValues = controls?.runtimeValues.getSnapshot(),
 ): string | null => {
 	if (!controls || !getAssetSchemaKeys(controls.schema).includes('src')) {
 		return null;
