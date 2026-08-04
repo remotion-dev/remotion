@@ -11,7 +11,7 @@ import {
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
 import {CaretDown} from '../icons/caret';
 import {EditorIcon} from '../icons/editor';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineDropdown} from './InlineDropdown';
@@ -65,7 +65,7 @@ export const InspectorOpenInEditor: React.FC<{
 	readonly label?: React.ReactNode;
 }> = ({label, location}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {tabIndex} = useZIndex();
 	const [hovered, setHovered] = useState(false);
 	const [dropdownOpened, setDropdownOpened] = useState(false);

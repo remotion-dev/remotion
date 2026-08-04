@@ -55,7 +55,7 @@
 		"@types/sharp": "0.28.6",
 		"create-video": "workspace:*",
 		"execa": "5.1.1",
-		"postcss": "8.5.18",
+		"postcss": "8.5.23",
 		"postcss-loader": "7.3.4",
 		"postcss-size": "5.0.0",
 		"remotion": "workspace:*",

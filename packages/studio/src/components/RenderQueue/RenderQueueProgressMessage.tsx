@@ -1,5 +1,5 @@
 import React, {useCallback, useContext} from 'react';
-import {ModalsContext} from '../../state/modals';
+import {SetSelectedModalContext} from '../../state/modals';
 import {useZIndex} from '../../state/z-index';
 import {getClientRenderProgressMessage} from './client-render-progress';
 import type {AnyRenderJob} from './context';
@@ -17,7 +17,7 @@ export const RenderQueueProgressMessage: React.FC<{
 		throw new Error('should not have rendered this component');
 	}
 
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {tabIndex} = useZIndex();
 
 	const isClientJob = isClientRenderJob(job);

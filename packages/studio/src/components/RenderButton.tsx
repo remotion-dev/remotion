@@ -24,7 +24,7 @@ import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {CaretDown} from '../icons/caret';
 import {ThinRenderIcon} from '../icons/render';
 import {useTimelineInOutFramePosition} from '../state/in-out';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import {HigherZIndex, useZIndex} from '../state/z-index';
 import {Row, Spacing} from './layout';
 import {MENU_INITIATOR_CLASSNAME, isMenuItem} from './Menu/is-menu-item';
@@ -148,13 +148,13 @@ const getInitialRenderType = (readOnlyStudio: boolean): RenderType => {
 	return 'server-render';
 };
 
-export const RenderButton: React.FC<{
+const RenderButtonInner: React.FC<{
 	readonly readOnlyStudio: boolean;
 	readonly size?: 'default' | 'compact';
 	readonly narrow?: boolean;
 }> = ({readOnlyStudio, size: controlSize = 'default', narrow = false}) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const [preferredRenderType, setPreferredRenderType] = useState<RenderType>(
 		() => getInitialRenderType(readOnlyStudio),
 	);
@@ -264,6 +264,8 @@ export const RenderButton: React.FC<{
 
 	const {props} = useContext(Internals.EditorPropsContext);
 
+	// Read the frame when the modal opens instead of subscribing this button to
+	// every timeline position update.
 	const openServerRenderModal = useCallback(
 		(copyCommandOnly: boolean) => {
 			if (!video) {
@@ -334,7 +336,7 @@ export const RenderButton: React.FC<{
 				renderDefaults: defaults,
 			});
 		},
-		[video, setSelectedModal, getCurrentFrame, props, inFrame, outFrame],
+		[video, setSelectedModal, props, inFrame, outFrame, getCurrentFrame],
 	);
 
 	const openClientRenderModal = useCallback(() => {
@@ -373,7 +375,7 @@ export const RenderButton: React.FC<{
 			initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
 			initialPageResponsiveness: 'medium',
 		});
-	}, [video, setSelectedModal, getCurrentFrame, props, inFrame, outFrame]);
+	}, [video, setSelectedModal, props, inFrame, outFrame, getCurrentFrame]);
 
 	const onClick = useCallback(() => {
 		if (renderType === 'render-command') {
@@ -655,3 +657,5 @@ export const RenderButton: React.FC<{
 		</>
 	);
 };
+
+export const RenderButton = React.memo(RenderButtonInner);
