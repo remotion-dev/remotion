@@ -292,7 +292,20 @@ const commandSucceeded = (command: string[]) => {
 	);
 };
 
-const appendPlanOutputs = (plan: CiPlan) => {
+const commandOutput = (command: string[]) => {
+	const result = Bun.spawnSync(command, {stdout: 'pipe', stderr: 'inherit'});
+	if (result.exitCode !== 0) {
+		return null;
+	}
+
+	return new TextDecoder().decode(result.stdout).trim();
+};
+
+const appendPlanOutputs = (
+	plan: CiPlan,
+	scmBase: string | null,
+	scmHead: string | null,
+) => {
 	const githubOutput = process.env.GITHUB_OUTPUT;
 	if (!githubOutput) {
 		throw new Error('GITHUB_OUTPUT is not set');
@@ -302,6 +315,9 @@ const appendPlanOutputs = (plan: CiPlan) => {
 		githubOutput,
 		[
 			`plan=${JSON.stringify(plan)}`,
+			`full_ci=${plan.full_ci}`,
+			`scm_base=${scmBase ?? ''}`,
+			`scm_head=${scmHead ?? ''}`,
 			`lambda=${plan.lambda}`,
 			`nextjs=${plan.nextjs}`,
 			`browser=${plan.browser}`,
@@ -316,7 +332,11 @@ const appendPlanOutputs = (plan: CiPlan) => {
 	);
 };
 
-const appendPlanSummary = (plan: CiPlan) => {
+const appendPlanSummary = (
+	plan: CiPlan,
+	scmBase: string | null,
+	scmHead: string | null,
+) => {
 	const githubStepSummary = process.env.GITHUB_STEP_SUMMARY;
 	if (!githubStepSummary) {
 		throw new Error('GITHUB_STEP_SUMMARY is not set');
@@ -335,6 +355,9 @@ const appendPlanSummary = (plan: CiPlan) => {
 			'### Required CI plan',
 			'',
 			`- Full CI: ${plan.full_ci}`,
+			...(scmBase && scmHead
+				? [`- Compared commits: \`${scmBase}\` → \`${scmHead}\``]
+				: []),
 			`- Selected suites: ${selected.length ? selected.map((suite) => `\`${suite}\``).join(', ') : 'none'}`,
 			`- Skipped suites: ${skipped.length ? skipped.map((suite) => `\`${suite}\``).join(', ') : 'none'}`,
 			...(plan.fallback_reason
@@ -348,38 +371,53 @@ const appendPlanSummary = (plan: CiPlan) => {
 	);
 };
 
-const createPlanFromEnvironment = () => {
+const createPlanFromEnvironment = (): {
+	plan: CiPlan;
+	scmBase: string | null;
+	scmHead: string | null;
+} => {
 	const eventName = process.env.GITHUB_EVENT_NAME;
 	const ref = process.env.GITHUB_REF;
 	if (!eventName || !ref) {
-		return createCiPlan({
-			full_ci: false,
-			affected_json: null,
-			detector_error: 'GitHub event metadata is missing',
-		});
+		return {
+			plan: createCiPlan({
+				full_ci: false,
+				affected_json: null,
+				detector_error: 'GitHub event metadata is missing',
+			}),
+			scmBase: null,
+			scmHead: null,
+		};
 	}
 	if (eventName === 'push' && ref === 'refs/heads/main') {
-		return createCiPlan({
-			full_ci: true,
-			affected_json: null,
-			detector_error: null,
-		});
+		return {
+			plan: createCiPlan({
+				full_ci: true,
+				affected_json: null,
+				detector_error: null,
+			}),
+			scmBase: null,
+			scmHead: null,
+		};
 	}
 
-	const base = process.env.TURBO_SCM_BASE;
-	const head = process.env.TURBO_SCM_HEAD;
+	const head = process.env.GITHUB_SHA;
+	const base = head ? commandOutput(['git', 'rev-parse', `${head}^1`]) : null;
 	if (
 		!base ||
 		!head ||
-		!commandSucceeded(['git', 'cat-file', '-e', `${base}^{commit}`]) ||
-		!commandSucceeded(['git', 'cat-file', '-e', `${head}^{commit}`]) ||
+		!commandSucceeded(['git', 'cat-file', '-e', `${head}^2`]) ||
 		!commandSucceeded(['git', 'merge-base', '--is-ancestor', base, head])
 	) {
-		return createCiPlan({
-			full_ci: false,
-			affected_json: null,
-			detector_error: 'Git base/head resolution was unsafe',
-		});
+		return {
+			plan: createCiPlan({
+				full_ci: false,
+				affected_json: null,
+				detector_error: 'GitHub PR merge commit resolution was unsafe',
+			}),
+			scmBase: null,
+			scmHead: null,
+		};
 	}
 
 	try {
@@ -392,32 +430,44 @@ const createPlanFromEnvironment = () => {
 		}
 		const query = Bun.spawnSync(
 			['bunx', `turbo@${turboVersion}`, 'query', 'affected'],
-			{stdout: 'pipe', stderr: 'inherit'},
+			{
+				stdout: 'pipe',
+				stderr: 'inherit',
+				env: {...process.env, TURBO_SCM_BASE: base, TURBO_SCM_HEAD: head},
+			},
 		);
 		if (query.exitCode !== 0) {
 			throw new Error('turbo query affected failed');
 		}
 
-		return createCiPlan({
-			full_ci: false,
-			affected_json: new TextDecoder().decode(query.stdout),
-			detector_error: null,
-		});
+		return {
+			plan: createCiPlan({
+				full_ci: false,
+				affected_json: new TextDecoder().decode(query.stdout),
+				detector_error: null,
+			}),
+			scmBase: base,
+			scmHead: head,
+		};
 	} catch (error) {
-		return createCiPlan({
-			full_ci: false,
-			affected_json: null,
-			detector_error: error instanceof Error ? error.message : String(error),
-		});
+		return {
+			plan: createCiPlan({
+				full_ci: false,
+				affected_json: null,
+				detector_error: error instanceof Error ? error.message : String(error),
+			}),
+			scmBase: base,
+			scmHead: head,
+		};
 	}
 };
 
 if (import.meta.main) {
 	const command = process.argv[2];
 	if (command === 'plan') {
-		const plan = createPlanFromEnvironment();
-		appendPlanOutputs(plan);
-		appendPlanSummary(plan);
+		const {plan, scmBase, scmHead} = createPlanFromEnvironment();
+		appendPlanOutputs(plan, scmBase, scmHead);
+		appendPlanSummary(plan, scmBase, scmHead);
 		console.log(JSON.stringify(plan, null, 2));
 	} else if (command === 'validate') {
 		const planJson = process.env.CI_PLAN;

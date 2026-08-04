@@ -13,8 +13,6 @@ env:
   FORCE_COLOR: 1
   TURBO_TELEMETRY_DISABLED: 1
   TURBO_NO_UPDATE_NOTIFIER: 1
-  TURBO_SCM_BASE: ${{ github.event.pull_request.base.sha }}
-  TURBO_SCM_HEAD: ${{ github.sha }}
 jobs:
   affected:
     runs-on: ubuntu-latest
@@ -22,6 +20,9 @@ jobs:
     name: Determine affected tests
     outputs:
       plan: ${{ steps.query.outputs.plan }}
+      full_ci: ${{ steps.query.outputs.full_ci }}
+      scm_base: ${{ steps.query.outputs.scm_base }}
+      scm_head: ${{ steps.query.outputs.scm_head }}
       lambda: ${{ steps.query.outputs.lambda }}
       nextjs: ${{ steps.query.outputs.nextjs }}
       browser: ${{ steps.query.outputs.browser }}
@@ -232,6 +233,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     name: Linting + Formatting
+    env:
+      TURBO_SCM_BASE: ${{ needs.affected.outputs.scm_base }}
+      TURBO_SCM_HEAD: ${{ needs.affected.outputs.scm_head }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -252,7 +256,7 @@ jobs:
       - name: Perform stylecheck
         timeout-minutes: 10
         run: |
-          bunx turbo run lint formatting ${{ github.event_name == 'pull_request' && '--affected' || '' }} --no-update-notifier
+          bunx turbo run lint formatting ${{ github.event_name == 'pull_request' && needs.affected.outputs.full_ci != 'true' && '--affected' || '' }} --no-update-notifier
           bun run checkskills
       - name: Test CI planning contract
         run: bun test ./.github/scripts/ci.test.ts
@@ -267,6 +271,8 @@ jobs:
       matrix: ${{ fromJSON(needs.affected.outputs.build_matrix) }}
     env:
       BUN_INSTALL_CACHE_DIR: ${{ matrix.os == 'windows-latest' && 'D:\.bun\install\cache' || '' }}
+      TURBO_SCM_BASE: ${{ needs.affected.outputs.scm_base }}
+      TURBO_SCM_HEAD: ${{ needs.affected.outputs.scm_head }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -294,7 +300,7 @@ jobs:
         if: needs.affected.outputs.build == 'true'
         timeout-minutes: 30
         run: |
-          bunx turbo run make test ${{ github.event_name == 'pull_request' && '--affected' || '' }} --concurrency=1 --no-update-notifier
+          bunx turbo run make test ${{ github.event_name == 'pull_request' && needs.affected.outputs.full_ci != 'true' && '--affected' || '' }} --concurrency=1 --no-update-notifier
       - name: Bundle example
         if: matrix.os == 'ubuntu-latest' && needs.affected.outputs.bundle_example == 'true'
         run: |
