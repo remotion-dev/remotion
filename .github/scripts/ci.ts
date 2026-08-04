@@ -18,13 +18,8 @@ export const FULL_BUILD_MATRIX: BuildMatrix = {
 	],
 };
 
-// Keep the historical Ubuntu and Windows contexts alive until the ruleset migration
-// is complete. Entries with run_build=false are compatibility no-ops.
-export const COMPATIBILITY_BUILD_MATRIX: BuildMatrix = {
-	include: [
-		{os: 'ubuntu-latest', node_version: 16, run_build: true},
-		{os: 'windows-latest', node_version: 16, run_build: false},
-	],
+export const MINIMAL_BUILD_MATRIX: BuildMatrix = {
+	include: [{os: 'ubuntu-latest', node_version: 16, run_build: true}],
 };
 
 const TASKS_BY_SUITE = {
@@ -180,7 +175,7 @@ export const validateCiPlan = (value: unknown): CiPlan => {
 		}
 		const validAffectedMatrices = [
 			FULL_BUILD_MATRIX,
-			COMPATIBILITY_BUILD_MATRIX,
+			MINIMAL_BUILD_MATRIX,
 		].some((candidate) => JSON.stringify(matrix) === JSON.stringify(candidate));
 		if (!validAffectedMatrices) {
 			throw new Error('Affected CI has an unrecognized build matrix');
@@ -231,9 +226,7 @@ export const createCiPlan = (input: PlannerInput): CiPlan => {
 			templates: selected('templates'),
 			build,
 			bundle_example: bundleExample,
-			build_matrix: hasNonDocsBuild
-				? FULL_BUILD_MATRIX
-				: COMPATIBILITY_BUILD_MATRIX,
+			build_matrix: hasNonDocsBuild ? FULL_BUILD_MATRIX : MINIMAL_BUILD_MATRIX,
 			fallback_reason: null,
 			affected_reasons: reasons,
 		});
@@ -288,11 +281,6 @@ export const validateRequiredCi = (
 			throw new Error(`Selected suite ${suite} concluded with ${result}`);
 		}
 		if (!selected && result !== 'skipped') {
-			// Temporary migration exception: the build matrix emits the historical
-			// Ubuntu/Windows required contexts even when no build work is selected.
-			if (suite === 'build_job' && result === 'success') {
-				continue;
-			}
 			throw new Error(`Unselected suite ${suite} concluded with ${result}`);
 		}
 	}

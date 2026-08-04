@@ -1,8 +1,8 @@
 import {describe, expect, test} from 'bun:test';
 import {
-	COMPATIBILITY_BUILD_MATRIX,
 	createCiPlan,
 	FULL_BUILD_MATRIX,
+	MINIMAL_BUILD_MATRIX,
 	validateCiPlan,
 	validateRequiredCi,
 	type CiPlan,
@@ -52,11 +52,11 @@ const skippedResults = (): RequiredCiResults => ({
 	webrenderer: 'skipped',
 	ssr: 'skipped',
 	templates: 'skipped',
-	build_job: 'success',
+	build_job: 'skipped',
 });
 
 describe('CI plan generation', () => {
-	test('selects only the compatibility build for docs tasks', () => {
+	test('selects only the minimal build matrix for docs tasks', () => {
 		const plan = planFor({
 			tasks: [
 				{name: 'make', packageName: 'docs'},
@@ -66,14 +66,14 @@ describe('CI plan generation', () => {
 
 		expect(plan.full_ci).toBe(false);
 		expect(plan.build).toBe(true);
-		expect(plan.build_matrix).toEqual(COMPATIBILITY_BUILD_MATRIX);
+		expect(plan.build_matrix).toEqual(MINIMAL_BUILD_MATRIX);
 		expect(plan.lambda).toBe(false);
 	});
 
 	test('allows no build or specialized tasks to be affected', () => {
 		const plan = planFor();
 		expect(plan.build).toBe(false);
-		expect(plan.build_matrix).toEqual(COMPATIBILITY_BUILD_MATRIX);
+		expect(plan.build_matrix).toEqual(MINIMAL_BUILD_MATRIX);
 	});
 
 	test('uses the full build matrix for a package source change', () => {
@@ -168,7 +168,11 @@ describe('Required CI result validation', () => {
 		},
 	);
 
-	test('temporarily accepts a successful unselected compatibility build', () => {
-		expect(() => validateRequiredCi(planFor(), skippedResults())).not.toThrow();
+	test('rejects an unselected successful build', () => {
+		const results = skippedResults();
+		results.build_job = 'success';
+		expect(() => validateRequiredCi(planFor(), results)).toThrow(
+			'Unselected suite build_job concluded with success',
+		);
 	});
 });
