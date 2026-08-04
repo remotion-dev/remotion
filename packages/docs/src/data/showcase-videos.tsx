@@ -423,7 +423,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
 	{
 		title: 'SportGraphics - Matchday graphics for sports clubs',
 		type: 'mux_video',
-		time: '3',
+		time: '9',
 		muxId: 'o5LORQ00mPIa3ojlseQP2ElqM02rX8JphTxm7qG3o26hI',
 		description:
 			'A template-based platform that turns match data, team lineups and club branding into animated matchday graphics. Remotion is used to define the templates as React components and to render the videos on the platform.',
