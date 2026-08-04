@@ -54,6 +54,8 @@ The value returned by [`createElementPayload()`](/docs/studio-protocol/create-el
 
 The protocol MIME type contains dimensions and duration metadata so Studio can show a preview before reading the payload.
 
+A `text/plain` fallback is also written so you can switch browser tabs while dragging an Element. The structured payload remains available through the protocol MIME type.
+
 `setStudioDragData()` does not call `setDragImage()`. The website owns the visual drag image.
 
 ## Compatibility
