@@ -91,8 +91,8 @@ export const discoverAvailableCodingAgents = async (
 			)
 		).flat();
 		const knownApplications = definition.applicationNames.flatMap((name) => [
-			path.join('/Applications', name),
-			path.join(context.homeDirectory, 'Applications', name),
+			path.posix.join('/Applications', name),
+			path.posix.join(context.homeDirectory, 'Applications', name),
 		]);
 
 		for (const applicationPath of new Set([
