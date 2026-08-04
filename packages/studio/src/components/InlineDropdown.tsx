@@ -30,6 +30,11 @@ type OpenState =
 			values: ComboboxValue[] | null;
 	  };
 
+const container: React.CSSProperties = {
+	display: 'flex',
+	height: 24,
+};
+
 export const InlineDropdown = ({
 	values,
 	getItems,
@@ -136,7 +141,7 @@ export const InlineDropdown = ({
 
 	return (
 		<>
-			<div ref={ref}>
+			<div ref={ref} style={container}>
 				<InlineAction
 					onClick={onClick}
 					unhoveredColor={opened.type === 'open' ? WHITE : unhoveredColor}
