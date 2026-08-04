@@ -672,7 +672,7 @@ export const SelectedOutlineOverlay: React.FC<{
 	const {editorShowGuides, guidesList} = useContext(EditorShowGuidesContext);
 	const isFullscreen = useIsFullscreen();
 	const {frameBack, frameForward, getCurrentFrame, seek} =
-		PlayerInternals.usePlayer();
+		PlayerInternals.usePlayerMethods();
 	const keybindings = useKeybinding();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const [outlines, setOutlines] = useState<readonly SelectedOutline[]>([]);

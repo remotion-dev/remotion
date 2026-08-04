@@ -44,7 +44,6 @@ export const PlayPause: React.FC<{
 	const [showBufferIndicator, setShowBufferState] = useState<boolean>(false);
 
 	const {
-		playing,
 		play,
 		pause,
 		pauseAndReturnToPlayStart,
@@ -53,7 +52,8 @@ export const PlayPause: React.FC<{
 		frameForward,
 		emitter,
 		getCurrentFrame,
-	} = PlayerInternals.usePlayer();
+	} = PlayerInternals.usePlayerMethods();
+	const [playing] = Internals.Timeline.usePlayingState();
 
 	PlayerInternals.usePlayback({
 		loop,

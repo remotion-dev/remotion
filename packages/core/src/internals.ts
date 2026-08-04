@@ -191,8 +191,10 @@ import {
 	PlaybackRateContext,
 	SetTimelineContext,
 	TimelineContext,
+	TimelineImperativeContext,
 	type PlaybackRateContextValue,
 	type SetTimelineContextValue,
+	type TimelineImperativeContextValue,
 	type TimelineContextValue,
 } from './TimelineContext.js';
 import {truthy} from './truthy.js';
@@ -409,6 +411,7 @@ export const Internals = {
 	TimelinePosition,
 	DelayRenderContextType,
 	TimelineContext,
+	TimelineImperativeContext,
 	PlaybackRateContext,
 	AbsoluteTimeContext,
 	RenderAssetManagerProvider,
@@ -496,6 +499,7 @@ export type {
 	TCompMetadata,
 	TComposition,
 	TimelineContextValue,
+	TimelineImperativeContextValue,
 	TRenderAsset,
 	TSequence,
 	VisibleFieldSchema,

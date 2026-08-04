@@ -38,17 +38,17 @@ if (!output.success) {
 	process.exit(1);
 }
 
-const externalStudioSharedImport =
-	/\bfrom\s*["']@remotion\/studio-shared["']|\bimport\s*\(\s*["']@remotion\/studio-shared["']|\brequire\s*\(\s*["']@remotion\/studio-shared["']/;
+const externalVersionSensitiveImport =
+	/^[^'"\n]*\bfrom\s*["']@remotion\/(?:player|studio-shared)["'];?\s*$|^\s*import\s*["']@remotion\/(?:player|studio-shared)["'];?\s*$/m;
 
 for (const file of output.outputs) {
 	const str = await file.text();
 	if (
 		path.basename(file.path) === 'browser-studio-preview-entry.mjs' &&
-		externalStudioSharedImport.test(str)
+		externalVersionSensitiveImport.test(str)
 	) {
 		throw new Error(
-			'Browser Studio must bundle @remotion/studio-shared into its preview entry so it cannot link against an incompatible published version.',
+			'Browser Studio must bundle version-sensitive workspace packages into its preview entry so it cannot link against an incompatible published version.',
 		);
 	}
 

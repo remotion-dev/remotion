@@ -37,7 +37,6 @@ import {
 } from './Menu/styles';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {MenuContent} from './NewComposition/MenuContent';
-import {getCurrentFrame} from './Timeline/imperative-state';
 
 const splitButtonContainer: React.CSSProperties = {
 	display: 'inline-flex',
@@ -261,6 +260,7 @@ const RenderButtonInner: React.FC<{
 	}, [controlSize]);
 
 	const video = Internals.useVideo();
+	const {getCurrentFrame} = PlayerInternals.usePlayerMethods();
 
 	const {props} = useContext(Internals.EditorPropsContext);
 
@@ -336,7 +336,7 @@ const RenderButtonInner: React.FC<{
 				renderDefaults: defaults,
 			});
 		},
-		[video, setSelectedModal, props, inFrame, outFrame],
+		[video, setSelectedModal, props, inFrame, outFrame, getCurrentFrame],
 	);
 
 	const openClientRenderModal = useCallback(() => {
@@ -375,7 +375,7 @@ const RenderButtonInner: React.FC<{
 			initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
 			initialPageResponsiveness: 'medium',
 		});
-	}, [video, setSelectedModal, props, inFrame, outFrame]);
+	}, [video, setSelectedModal, props, inFrame, outFrame, getCurrentFrame]);
 
 	const onClick = useCallback(() => {
 		if (renderType === 'render-command') {
