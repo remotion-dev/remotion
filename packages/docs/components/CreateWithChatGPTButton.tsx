@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './create-with-chatgpt-button.module.css';
 
 const chatGptDeepLink =
-	'codex://new?prompt=%5B%40Remotion%5D(plugin%3A%2F%2Fremotion%40openai-curated-remote)%20Create%20a%20new%20Remotion%20project.';
+	'codex://new?prompt=%5B%40Remotion%5D(plugin%3A%2F%2Fremotion%40openai-curated-remote)%20Make%20a%20promo%20video%20for%20a%20record%20store.';
 
 export const CreateWithChatGPTButton: React.FC = () => {
 	return (
