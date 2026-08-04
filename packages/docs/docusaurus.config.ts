@@ -75,6 +75,11 @@ const config: Config = {
 					sidebarId: 'apiSidebar',
 				},
 				{
+					to: '/elements',
+					label: 'Elements',
+					position: 'left',
+				},
+				{
 					type: 'dropdown',
 					label: 'Products',
 					position: 'left',
@@ -157,6 +162,10 @@ const config: Config = {
 						{
 							label: 'API Reference',
 							to: '/docs/api',
+						},
+						{
+							label: 'Elements',
+							to: '/elements',
 						},
 						{
 							label: 'Player',
