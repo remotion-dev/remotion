@@ -47,7 +47,7 @@ const Pill: React.FC<{
 		<div
 			className={cn(
 				className,
-				'card leading-none flex flex-wrap justify-center items-center min-w-[200px] min-h-[80px] max-h-[110px] flex-1 p-0',
+				'leading-none flex flex-wrap justify-center items-center min-w-[200px] min-h-[80px] max-h-[110px] flex-1 p-0',
 			)}
 		>
 			{children}
