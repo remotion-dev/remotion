@@ -2,6 +2,7 @@ import React, {useContext, useEffect, useState} from 'react';
 import {Internals} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context.js';
 import {PlayerEmitter} from './event-emitter.js';
+import {TimelineImperativeCompatibilityProvider} from './timeline-imperative-context.js';
 import {useBufferStateEmitter} from './use-buffer-state-emitter.js';
 
 export const PlayerEmitterProvider: React.FC<{
@@ -23,8 +24,10 @@ export const PlayerEmitterProvider: React.FC<{
 	useBufferStateEmitter(emitter);
 
 	return (
-		<PlayerEventEmitterContext.Provider value={emitter}>
-			{children}
-		</PlayerEventEmitterContext.Provider>
+		<TimelineImperativeCompatibilityProvider>
+			<PlayerEventEmitterContext.Provider value={emitter}>
+				{children}
+			</PlayerEventEmitterContext.Provider>
+		</TimelineImperativeCompatibilityProvider>
 	);
 };

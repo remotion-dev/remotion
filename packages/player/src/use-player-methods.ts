@@ -3,6 +3,7 @@ import {useCallback, useContext, useMemo, useRef} from 'react';
 import {Internals, useRemotionEnvironment} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context.js';
 import type {PlayerEmitter} from './event-emitter.js';
+import {getTimelineImperativeContext} from './timeline-imperative-context.js';
 
 export type UsePlayerMethods = {
 	frameBack: (frames: number) => void;
@@ -22,9 +23,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();
 	const {setPlaying} = useContext(Internals.SetTimelineContext);
-	const timelineImperativeContext = useContext(
-		Internals.TimelineImperativeContext,
-	);
+	const timelineImperativeContext = useContext(getTimelineImperativeContext());
 	const audioContext = useContext(Internals.SharedAudioContext);
 	const audioTagsContext = useContext(Internals.SharedAudioTagsContext);
 	const environment = useRemotionEnvironment();
