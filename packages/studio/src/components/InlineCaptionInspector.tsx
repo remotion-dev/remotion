@@ -7,7 +7,10 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import type {SequenceControls, SequencePropsSubscriptionKey} from 'remotion';
+import type {
+	SequencePropsSubscriptionKey,
+	SequenceRegistrationControls,
+} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
@@ -50,7 +53,7 @@ const getCaptionPatches = ({
 
 export const InlineCaptionInspector: React.FC<{
 	readonly captions: Caption[];
-	readonly controls: SequenceControls;
+	readonly controls: SequenceRegistrationControls;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly readOnlyStudio: boolean;
 	readonly validatedLocation: CodePosition;

@@ -12,7 +12,6 @@ import {
 	Internals,
 	type GetDragOverrides,
 	type InteractivitySchema,
-	type TSequence,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
@@ -22,6 +21,7 @@ import {
 } from '../helpers/interactivity-enabled';
 import {useIsFullscreen} from '../helpers/use-is-fullscreen';
 import {useKeybinding} from '../helpers/use-keybinding';
+import {useRuntimeValueSnapshots} from '../helpers/use-runtime-values';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
 import {ScaleLockContext} from '../state/scale-lock';
@@ -129,18 +129,18 @@ export {selectedOutlineDragThresholdPx} from './selected-outline-types';
 
 const getEffectiveCropValue = ({
 	activeSchema,
-	controls,
 	dragOverrides,
 	fieldKey,
 	frame,
 	propStatuses,
+	runtimeValues,
 }: {
 	readonly activeSchema: InteractivitySchema | null;
-	readonly controls: NonNullable<TSequence['controls']> | null;
 	readonly dragOverrides: ReturnType<GetDragOverrides>;
 	readonly fieldKey: string;
 	readonly frame: number;
 	readonly propStatuses: ReturnType<typeof Internals.getPropStatusesCtx>;
+	readonly runtimeValues: Readonly<Record<string, unknown>>;
 }): number => {
 	const fieldSchema = activeSchema?.[fieldKey];
 	if (fieldSchema?.type !== 'number') {
@@ -157,8 +157,7 @@ const getEffectiveCropValue = ({
 					frame,
 					shouldResortToDefaultValueIfUndefined: true,
 				})
-			: (controls?.currentRuntimeValueDotNotation[fieldKey] ??
-				fieldSchema.default);
+			: (runtimeValues[fieldKey] ?? fieldSchema.default);
 
 	return typeof value === 'number' && Number.isFinite(value) ? value : 0;
 };
@@ -727,6 +726,59 @@ export const SelectedOutlineOverlay: React.FC<{
 		},
 		[selectItem],
 	);
+	const outlineRuntimeControls = useMemo(() => {
+		if (
+			isFullscreen ||
+			!isStudioSelectionEnabled() ||
+			!previewSelectionAvailable ||
+			!editorShowOutlines
+		) {
+			return [];
+		}
+
+		const selectedSequenceKeys = getSelectedSequenceKeys(selectedItems);
+		const sequenceKeysContainingSelection =
+			getSequenceKeysContainingSelection(selectedItems);
+		return getSequencesWithSelectableOutlines({
+			sequences,
+			overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			compositions,
+			timelinePosition,
+		}).flatMap(({key, sequence}) => {
+			if (
+				!selectedSequenceKeys.has(key) &&
+				!sequenceKeysContainingSelection.has(key) &&
+				hoveredSequence?.key !== key
+			) {
+				return [];
+			}
+
+			return sequence.controls ? [sequence.controls] : [];
+		});
+	}, [
+		compositions,
+		editorShowOutlines,
+		hoveredSequence?.key,
+		isFullscreen,
+		overrideIdToNodePathMappings,
+		previewSelectionAvailable,
+		selectedItems,
+		sequences,
+		timelinePosition,
+	]);
+	const outlineRuntimeSnapshots = useRuntimeValueSnapshots(
+		outlineRuntimeControls,
+	);
+	const outlineRuntimeValuesByStore = useMemo(
+		() =>
+			new Map(
+				outlineRuntimeControls.map((controls, index) => [
+					controls.runtimeValues,
+					outlineRuntimeSnapshots[index],
+				]),
+			),
+		[outlineRuntimeControls, outlineRuntimeSnapshots],
+	);
 
 	const outlineTargets = useMemo((): SelectedOutlineTarget[] => {
 		if (
@@ -771,11 +823,14 @@ export const SelectedOutlineOverlay: React.FC<{
 			);
 			const sourceFrame = timelinePosition - keyframeDisplayOffset;
 			const dragOverrides = getDragOverrides(nodePath) ?? {};
+			const runtimeValues = controls
+				? (outlineRuntimeValuesByStore.get(controls.runtimeValues) ??
+					controls.runtimeValues.getSnapshot())
+				: {};
 			const activeSchema = controls
 				? getSelectedOutlineActiveSchema({
 						schema: controls.schema,
-						currentRuntimeValueDotNotation:
-							controls.currentRuntimeValueDotNotation,
+						currentRuntimeValueDotNotation: runtimeValues,
 						dragOverrides,
 						propStatus: nodePropStatuses,
 						frame: sourceFrame,
@@ -784,35 +839,35 @@ export const SelectedOutlineOverlay: React.FC<{
 			const cropValues = {
 				cropLeft: getEffectiveCropValue({
 					activeSchema,
-					controls,
 					dragOverrides,
 					fieldKey: cropFieldKeys.left,
 					frame: sourceFrame,
 					propStatuses: nodePropStatuses,
+					runtimeValues,
 				}),
 				cropRight: getEffectiveCropValue({
 					activeSchema,
-					controls,
 					dragOverrides,
 					fieldKey: cropFieldKeys.right,
 					frame: sourceFrame,
 					propStatuses: nodePropStatuses,
+					runtimeValues,
 				}),
 				cropTop: getEffectiveCropValue({
 					activeSchema,
-					controls,
 					dragOverrides,
 					fieldKey: cropFieldKeys.top,
 					frame: sourceFrame,
 					propStatuses: nodePropStatuses,
+					runtimeValues,
 				}),
 				cropBottom: getEffectiveCropValue({
 					activeSchema,
-					controls,
 					dragOverrides,
 					fieldKey: cropFieldKeys.bottom,
 					frame: sourceFrame,
 					propStatuses: nodePropStatuses,
+					runtimeValues,
 				}),
 			};
 			const crop = Internals.resolveSequenceCrop(cropValues);
@@ -1082,6 +1137,7 @@ export const SelectedOutlineOverlay: React.FC<{
 		sequences,
 		compositions,
 		timelinePosition,
+		outlineRuntimeValuesByStore,
 	]);
 
 	useEffect(() => {

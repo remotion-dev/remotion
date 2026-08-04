@@ -6,6 +6,7 @@ import {
 	getEffectFieldsToShow,
 	getFieldsToShow,
 } from '../../helpers/timeline-layout';
+import {useRuntimeValues} from '../../helpers/use-runtime-values';
 import {Plus} from '../../icons/plus';
 import {renderFrame} from '../../state/render-frame';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -53,6 +54,7 @@ export const EasingInspector: React.FC<{
 	readonly selection: EasingSelection;
 }> = ({selection}) => {
 	const track = useTrackForSelection(selection);
+	const runtimeValues = useRuntimeValues(track?.sequence.controls ?? null);
 	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {sequences} = useContext(Internals.SequenceManager);
@@ -101,8 +103,7 @@ export const EasingInspector: React.FC<{
 
 			const sequenceFields = getFieldsToShow({
 				schema: track.sequence.controls.schema,
-				currentRuntimeValueDotNotation:
-					track.sequence.controls.currentRuntimeValueDotNotation,
+				currentRuntimeValueDotNotation: runtimeValues,
 				getDragOverrides,
 				propStatuses,
 				nodePath: easingUpdate.nodePath,
@@ -158,6 +159,7 @@ export const EasingInspector: React.FC<{
 		getDragOverrides,
 		getEffectDragOverrides,
 		propStatuses,
+		runtimeValues,
 		track,
 	]);
 	const fieldLabel = easingDetails?.fieldLabel ?? null;

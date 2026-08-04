@@ -1,4 +1,10 @@
-import React, {forwardRef, useContext, useMemo, useState} from 'react';
+import React, {
+	forwardRef,
+	useContext,
+	useLayoutEffect,
+	useMemo,
+	useState,
+} from 'react';
 import type {
 	JsxComponentIdentity,
 	SequenceControls,
@@ -17,6 +23,7 @@ import {
 	extendSchemaWithSequenceName,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
+import {createRuntimeValueStore} from './runtime-value-store.js';
 import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import {
 	VisualModeDragOverridesContext,
@@ -262,18 +269,29 @@ export const withInteractivitySchema = <
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 			runtimeValues,
 		);
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const [runtimeValueStore] = useState(() =>
+			createRuntimeValueStore(currentRuntimeValueDotNotation),
+		);
+		// Publishing in a layout effect ensures that abandoned renders cannot expose
+		// uncommitted runtime values to Studio consumers.
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			runtimeValueStore.setSnapshot(currentRuntimeValueDotNotation);
+		}, [currentRuntimeValueDotNotation, runtimeValueStore]);
 
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const controls = useMemo((): SequenceControls => {
 			return {
 				schema: schemaWithSequenceName,
 				currentRuntimeValueDotNotation,
+				runtimeValues: runtimeValueStore.store,
 				overrideId,
 				supportsEffects,
 				componentIdentity,
 				componentName,
 			};
-		}, [currentRuntimeValueDotNotation, overrideId]);
+		}, [currentRuntimeValueDotNotation, overrideId, runtimeValueStore.store]);
 		setStackForControls(controls, internalStack);
 
 		// 3. Apply drag/code overrides on top of the runtime values.

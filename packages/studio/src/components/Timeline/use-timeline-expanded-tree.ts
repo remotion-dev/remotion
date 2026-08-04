@@ -2,6 +2,7 @@ import {useContext, useMemo} from 'react';
 import {Internals, type TSequence} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {buildTimelineTree} from '../../helpers/timeline-layout';
+import {useRuntimeValues} from '../../helpers/use-runtime-values';
 import {
 	ExpandedTracksGetterContext,
 	ExpandedTracksSetterContext,
@@ -34,6 +35,7 @@ export const useTimelineExpandedTree = ({
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {selectedItems} = useTimelineSelection();
+	const runtimeValues = useRuntimeValues(sequence.controls);
 
 	const tree = useMemo(
 		() =>
@@ -45,6 +47,7 @@ export const useTimelineExpandedTree = ({
 				propStatuses: visualModePropStatuses,
 				includeTextContent,
 				includeSourceControls,
+				runtimeValues,
 			}),
 		[
 			sequence,
@@ -54,6 +57,7 @@ export const useTimelineExpandedTree = ({
 			visualModePropStatuses,
 			includeTextContent,
 			includeSourceControls,
+			runtimeValues,
 		],
 	);
 	const selectedRowKeys = useMemo(
@@ -91,6 +95,7 @@ export const useTimelineExpandedTree = ({
 		filteredTree,
 		getIsExpanded,
 		propStatuses: visualModePropStatuses,
+		runtimeValues,
 		toggleTrack,
 		tree,
 	};

@@ -91,6 +91,7 @@ export const buildTimelineTree = ({
 	propStatuses,
 	includeTextContent,
 	includeSourceControls,
+	runtimeValues,
 }: {
 	sequence: TSequence;
 	nodePathInfo: SequenceNodePathInfo;
@@ -99,6 +100,7 @@ export const buildTimelineTree = ({
 	propStatuses: PropStatuses;
 	includeTextContent: boolean;
 	includeSourceControls: boolean;
+	runtimeValues?: Readonly<Record<string, unknown>>;
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
 	const {sequenceSubscriptionKey, index, auxiliaryKeys, supportsEffects} =
@@ -107,7 +109,7 @@ export const buildTimelineTree = ({
 	const controlFields = getFieldsToShow({
 		schema: sequence.controls!.schema,
 		currentRuntimeValueDotNotation:
-			sequence.controls!.currentRuntimeValueDotNotation,
+			runtimeValues ?? sequence.controls!.runtimeValues.getSnapshot(),
 		getDragOverrides,
 		propStatuses,
 		nodePath: sequenceSubscriptionKey,
