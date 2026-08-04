@@ -238,7 +238,7 @@ const SectionCheckbox: React.FC<{
 }> = ({checked, onChange, title, subtitle, children}) => {
 	return (
 		<div
-			className="flex flex-row gap-3 cursor-pointer select-none items-center"
+			className="flex flex-row flex-wrap items-start gap-x-3 gap-y-1 cursor-pointer select-none"
 			onClick={() => onChange(!checked)}
 		>
 			<Switch
@@ -246,17 +246,16 @@ const SectionCheckbox: React.FC<{
 				onToggle={() => onChange(!checked)}
 				aria-label={title}
 			/>
-			<div className="flex flex-col">
+			<div className="flex min-w-0 flex-1 flex-col">
 				<div className="fontbrand font-bold text-lg flex flex-row items-center gap-1">
 					{title}
 					{children}
 				</div>
 				<div className="text-muted fontbrand text-sm">{subtitle}</div>
 			</div>
-			<div className="flex-1" />
 			<div
 				className={cn(
-					'fontbrand text-muted transition-opacity duration-150',
+					'fontbrand text-muted transition-opacity duration-150 ml-auto shrink-0 self-start text-right whitespace-normal',
 					checked ? 'hidden' : 'opacity-100',
 				)}
 			>
