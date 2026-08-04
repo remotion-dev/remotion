@@ -8,7 +8,7 @@ import {useMobileLayout} from '../helpers/mobile-layout';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {useMenuStructure} from '../helpers/use-menu-structure';
 import {SearchIcon} from '../icons/search';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {Row} from './layout';
@@ -43,7 +43,7 @@ export const MenuToolbar: React.FC<{
 }> = ({readOnlyStudio}) => {
 	const [selected, setSelected] = useState<string | null>(null);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const browserStudioOperations = getBrowserStudioOperations();
 	const canUndoAndRedo =
 		!readOnlyStudio ||

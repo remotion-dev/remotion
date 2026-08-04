@@ -7,7 +7,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {ModalsContext} from '../../state/modals';
+import {SetSelectedModalContext} from '../../state/modals';
 import {Button} from '../Button';
 import {Row, Spacing} from '../layout';
 import {ModalFooterContainer} from '../ModalFooter';
@@ -37,7 +37,7 @@ const content: React.CSSProperties = {
 export const RenameStaticFileModal: React.FC<{
 	readonly relativePath: string;
 }> = ({relativePath}) => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const staticFiles = useStaticFiles();
 	const [newName, setNewName] = useState(() =>
 		getStaticFileBaseName(relativePath),

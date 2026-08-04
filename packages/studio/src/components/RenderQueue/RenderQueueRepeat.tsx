@@ -5,7 +5,7 @@ import {
 	makeClientRetryPayload,
 	makeRetryPayload,
 } from '../../helpers/retry-payload';
-import {ModalsContext} from '../../state/modals';
+import {SetSelectedModalContext} from '../../state/modals';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import type {
@@ -18,7 +18,7 @@ import {isClientRenderJob} from './context';
 export const RenderQueueRepeatItem: React.FC<{
 	readonly job: AnyRenderJob;
 }> = ({job}) => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	const isClientJob = isClientRenderJob(job);
 

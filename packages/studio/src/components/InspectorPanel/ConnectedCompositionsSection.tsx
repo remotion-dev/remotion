@@ -5,7 +5,7 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {getConnectedCompositions} from '../../helpers/get-connected-compositions';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {noop} from '../../helpers/noop';
-import {ModalsContext} from '../../state/modals';
+import {SetSelectedModalContext} from '../../state/modals';
 import {getCompositionContextMenuItems} from '../composition-menu-items';
 import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
 import {ContextMenu} from '../ContextMenu';
@@ -63,7 +63,7 @@ const ConnectedCompositionRow: React.FC<{
 	readonly composition: _InternalTypes['AnyComposition'];
 }> = ({composition}) => {
 	const selectComposition = useSelectComposition();
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
 	const resolvedLocation = useResolvedStack(composition.stack);

@@ -13,7 +13,7 @@ import {
 	WHITE,
 	WHITE_ALPHA_80,
 } from '../helpers/colors';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
@@ -57,7 +57,7 @@ export type Bug = {
 
 export const UpdateCheck = () => {
 	const [info, setInfo] = useState<UpdateInfo | null>(null);
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {tabIndex} = useZIndex();
 	const [knownBugs, setKnownBugs] = useState<Bug[] | null>(null);
 	const [hovered, setHovered] = useState(false);
