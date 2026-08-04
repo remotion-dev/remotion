@@ -7,14 +7,14 @@ export const ReactSourceOfTruth: React.FC = () => {
 			aria-labelledby="react-source-of-truth"
 			className="mb-16 mt-8 lg:mt-2"
 		>
-			<div aria-hidden="true" className="h-24 w-full lg:h-30">
+			<div aria-hidden="true" className="h-14 w-full">
 				<svg
 					className="h-full w-full overflow-visible"
 					preserveAspectRatio="none"
-					viewBox="0 0 1000 120"
+					viewBox="0 0 1000 60"
 				>
 					<path
-						d="M 116 5 C 116 60 350 50 350 115"
+						d="M 116 5 C 116 36.5 127 44 143 54"
 						fill="none"
 						stroke={PALETTE.TEXT_COLOR}
 						strokeLinecap="round"
@@ -22,7 +22,7 @@ export const ReactSourceOfTruth: React.FC = () => {
 						vectorEffect="non-scaling-stroke"
 					/>
 					<path
-						d="M 450 5 C 450 55 490 80 500 115"
+						d="M 450 5 C 450 36.5 461 44 477 54"
 						fill="none"
 						stroke={PALETTE.TEXT_COLOR}
 						strokeLinecap="round"
@@ -30,7 +30,7 @@ export const ReactSourceOfTruth: React.FC = () => {
 						vectorEffect="non-scaling-stroke"
 					/>
 					<path
-						d="M 784 5 C 784 60 650 50 650 115"
+						d="M 784 5 C 784 36.5 773 44 757 54"
 						fill="none"
 						stroke={PALETTE.TEXT_COLOR}
 						strokeLinecap="round"
