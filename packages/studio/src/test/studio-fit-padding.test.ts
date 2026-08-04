@@ -16,7 +16,7 @@ const makeCanvasSize = (width: number, height: number): Size => ({
 	refresh: () => undefined,
 });
 
-test('adds a 16px horizontal gutter when fitting by width', () => {
+test('adds an 8px horizontal gutter when fitting by width', () => {
 	const canvasSize = makeCanvasSize(1000, 600);
 	const transformation = calculateStudioCanvasTransformation({
 		canvasSize,
@@ -25,14 +25,14 @@ test('adds a 16px horizontal gutter when fitting by width', () => {
 		previewSize: 'auto',
 	});
 
-	expect(transformation.scale).toBeCloseTo((1000 - 32) / 1920);
-	expect(transformation.centerX).toBe(STUDIO_FIT_PADDING);
+	expect(transformation.scale).toBeCloseTo((1000 - 16) / 1920);
+	expect(transformation.centerX).toBeCloseTo(STUDIO_FIT_PADDING);
 	expect(transformation.centerY).toBeCloseTo(
 		(600 - 1080 * transformation.scale) / 2,
 	);
 });
 
-test('adds a 16px vertical gutter when fitting by height', () => {
+test('adds an 8px vertical gutter when fitting by height', () => {
 	const canvasSize = makeCanvasSize(1000, 500);
 	const transformation = calculateStudioCanvasTransformation({
 		canvasSize,
@@ -41,7 +41,7 @@ test('adds a 16px vertical gutter when fitting by height', () => {
 		previewSize: 'auto',
 	});
 
-	expect(transformation.scale).toBeCloseTo((500 - 32) / 1080);
+	expect(transformation.scale).toBeCloseTo((500 - 16) / 1080);
 	expect(transformation.centerX).toBeCloseTo(
 		(1000 - 1920 * transformation.scale) / 2,
 	);
@@ -75,6 +75,6 @@ test('keeps the layout size separate from the auto-fit size', () => {
 	const context = getStudioCurrentScaleContext(canvasSize);
 
 	expect(context.canvasSize).toBe(canvasSize);
-	expect(context.canvasSizeForAuto.width).toBe(1000 - 32);
-	expect(context.canvasSizeForAuto.height).toBe(600 - 32);
+	expect(context.canvasSizeForAuto.width).toBe(1000 - 16);
+	expect(context.canvasSizeForAuto.height).toBe(600 - 16);
 });
