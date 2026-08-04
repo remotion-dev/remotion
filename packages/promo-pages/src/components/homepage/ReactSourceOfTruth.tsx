@@ -14,7 +14,7 @@ export const ReactSourceOfTruth: React.FC = () => {
 					viewBox="0 0 1000 120"
 				>
 					<path
-						d="M 166 5 C 166 60 350 50 350 115"
+						d="M 116 5 C 116 60 350 50 350 115"
 						fill="none"
 						stroke={PALETTE.TEXT_COLOR}
 						strokeLinecap="round"
@@ -22,7 +22,7 @@ export const ReactSourceOfTruth: React.FC = () => {
 						vectorEffect="non-scaling-stroke"
 					/>
 					<path
-						d="M 500 5 C 500 55 490 80 500 115"
+						d="M 450 5 C 450 55 490 80 500 115"
 						fill="none"
 						stroke={PALETTE.TEXT_COLOR}
 						strokeLinecap="round"
@@ -30,7 +30,7 @@ export const ReactSourceOfTruth: React.FC = () => {
 						vectorEffect="non-scaling-stroke"
 					/>
 					<path
-						d="M 834 5 C 834 60 650 50 650 115"
+						d="M 784 5 C 784 60 650 50 650 115"
 						fill="none"
 						stroke={PALETTE.TEXT_COLOR}
 						strokeLinecap="round"
