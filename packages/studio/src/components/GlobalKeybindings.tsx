@@ -78,7 +78,8 @@ export const GlobalKeybindings: React.FC = () => {
 				return false;
 			}
 
-			const {schema, currentRuntimeValueDotNotation} = track.sequence.controls;
+			const {schema, runtimeValues} = track.sequence.controls;
+			const currentRuntimeValueDotNotation = runtimeValues.getSnapshot();
 			if (
 				!hasOwnProperty(schema, fieldKey) &&
 				!hasOwnProperty(currentRuntimeValueDotNotation, fieldKey)

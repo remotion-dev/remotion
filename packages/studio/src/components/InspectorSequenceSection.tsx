@@ -365,7 +365,7 @@ export const InspectorSequenceSection: React.FC<{
 	keyframeDisplayOffset,
 	renderTransformControls,
 }) => {
-	const {tree, propStatuses} = useTimelineExpandedTree({
+	const {tree, propStatuses, runtimeValues} = useTimelineExpandedTree({
 		sequence,
 		nodePathInfo,
 		includeTextContent: true,
@@ -387,7 +387,10 @@ export const InspectorSequenceSection: React.FC<{
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const selectAsset = useSelectAsset();
-	const mediaSrc = getTimelineAssetSrcFromSchema(sequence.controls);
+	const mediaSrc = getTimelineAssetSrcFromSchema(
+		sequence.controls,
+		runtimeValues,
+	);
 	const assetSelectionInitialQuery = getAssetSearchQueryForComponent(
 		sequence.controls.componentIdentity,
 	);
@@ -624,7 +627,7 @@ export const InspectorSequenceSection: React.FC<{
 	);
 	const inlineCaptionValue =
 		schema.captions?.type === 'remotion-captions'
-			? sequence.controls.currentRuntimeValueDotNotation.captions
+			? runtimeValues.captions
 			: null;
 	const inlineCaptions = Array.isArray(inlineCaptionValue)
 		? (inlineCaptionValue as Caption[])

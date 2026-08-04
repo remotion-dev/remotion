@@ -155,6 +155,7 @@ import {
 	loadEditorShowOutlinesOption,
 	persistEditorShowOutlinesOption,
 } from '../state/editor-outlines';
+import {makeRuntimeValueStore} from './make-runtime-value-store';
 
 const makeKey = (
 	nodePath: SequenceNodePath,
@@ -270,7 +271,7 @@ const makeTimelineSequence = ({
 		postmountDisplay,
 		controls: {
 			schema,
-			currentRuntimeValueDotNotation,
+			runtimeValues: makeRuntimeValueStore(currentRuntimeValueDotNotation),
 			overrideId,
 			supportsEffects: true,
 			componentIdentity,
