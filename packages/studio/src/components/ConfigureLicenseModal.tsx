@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {callApi} from './call-api';
 import {Checkbox} from './Checkbox';
-import {Row, Spacing} from './layout';
+import {Spacing} from './layout';
 import {
 	fetchLicenseKeyDetails,
 	hasActiveCompanyLicense,
@@ -11,9 +11,9 @@ import {
 	validateLicenseKey,
 } from './LicenseKeyValidation';
 import {ModalButton} from './ModalButton';
-import {ModalFooterContainer} from './ModalFooter';
 import {RemotionInput} from './NewComposition/RemInput';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
+import {SettingsModalFooter} from './SettingsModalFooter';
 
 type LicenseType = 'free' | 'company' | null;
 
@@ -27,10 +27,6 @@ const container: React.CSSProperties = {
 const content: React.CSSProperties = {
 	flex: 1,
 	padding: 16,
-};
-
-const footer: React.CSSProperties = {
-	flex: 'none',
 };
 
 const description: React.CSSProperties = {
@@ -337,21 +333,19 @@ export const LicenseSettings: React.FC<{
 					</>
 				) : null}
 			</div>
-			<ModalFooterContainer style={footer} noBorder>
-				<Row justify="flex-end">
-					<ModalButton
-						onClick={submit}
-						disabled={
-							isSubmitting ||
-							publicLicenseKey.length === 0 ||
-							(licenseType === 'company' && !companyLicenseKeyIsValid)
-						}
-						autoFocus={licenseType !== 'company'}
-					>
-						{isSubmitting ? 'Submitting...' : 'Submit and reload'}
-					</ModalButton>
-				</Row>
-			</ModalFooterContainer>
+			<SettingsModalFooter>
+				<ModalButton
+					onClick={submit}
+					disabled={
+						isSubmitting ||
+						publicLicenseKey.length === 0 ||
+						(licenseType === 'company' && !companyLicenseKeyIsValid)
+					}
+					autoFocus={licenseType !== 'company'}
+				>
+					{isSubmitting ? 'Submitting...' : 'Submit and reload'}
+				</ModalButton>
+			</SettingsModalFooter>
 		</div>
 	);
 };

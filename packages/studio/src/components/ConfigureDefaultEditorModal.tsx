@@ -7,12 +7,12 @@ import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {Checkmark} from '../icons/Checkmark';
 import {CustomEditorIcon} from '../icons/custom-editor';
 import {callApi} from './call-api';
-import {Row, Spacing} from './layout';
+import {Spacing} from './layout';
 import {ModalButton} from './ModalButton';
-import {ModalFooterContainer} from './ModalFooter';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
+import {SettingsModalFooter} from './SettingsModalFooter';
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -24,10 +24,6 @@ const container: React.CSSProperties = {
 const content: React.CSSProperties = {
 	flex: 1,
 	padding: 16,
-};
-
-const footer: React.CSSProperties = {
-	flex: 'none',
 };
 
 const description: React.CSSProperties = {
@@ -213,16 +209,14 @@ export const DefaultEditorSettings: React.FC<{
 					</>
 				) : null}
 			</div>
-			<ModalFooterContainer style={footer} noBorder>
-				<Row justify="flex-end">
-					<ModalButton
-						onClick={submit}
-						disabled={isSubmitting || editorInfo === null}
-					>
-						{isSubmitting ? 'Saving...' : 'Save and reload'}
-					</ModalButton>
-				</Row>
-			</ModalFooterContainer>
+			<SettingsModalFooter>
+				<ModalButton
+					onClick={submit}
+					disabled={isSubmitting || editorInfo === null}
+				>
+					{isSubmitting ? 'Saving...' : 'Save and reload'}
+				</ModalButton>
+			</SettingsModalFooter>
 		</div>
 	);
 };
