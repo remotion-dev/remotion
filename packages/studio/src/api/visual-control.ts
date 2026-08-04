@@ -6,6 +6,9 @@ import {
 	type VisualControlRef,
 } from '../visual-controls/VisualControls';
 
+/**
+ * @deprecated
+ */
 export const visualControl: VisualControlRef['globalVisualControl'] = (
 	key,
 	value,
