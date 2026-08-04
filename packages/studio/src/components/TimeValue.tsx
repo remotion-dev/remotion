@@ -59,7 +59,7 @@ export const TimeValue: React.FC = () => {
 	const frame = useCurrentFrame();
 	const config = Internals.useUnsafeVideoConfig();
 	const isStill = useIsStill();
-	const {seek, play, pause, toggle} = PlayerInternals.usePlayer();
+	const {seek, play, pause, toggle} = PlayerInternals.usePlayerMethods();
 	const keybindings = useKeybinding();
 	const ref = useRef<HTMLButtonElement>(null);
 

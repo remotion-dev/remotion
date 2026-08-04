@@ -10,6 +10,7 @@ import type {
 	PlaybackRateContextValue,
 	RemotionEnvironment,
 	SetMediaVolumeContextValue,
+	TimelineImperativeContextValue,
 	TimelineContextValue,
 } from 'remotion';
 import {Internals} from 'remotion';
@@ -155,43 +156,58 @@ export const SharedPlayerContexts: React.FC<{
 		};
 	}, []);
 
+	const frameRef = useRef(timelineContext.frame);
+	frameRef.current = timelineContext.frame;
+	const timelineImperativeContextValue =
+		useMemo((): TimelineImperativeContextValue => {
+			return {
+				frameRef,
+				imperativePlaying: timelineContext.imperativePlaying,
+				audioAndVideoTags: timelineContext.audioAndVideoTags,
+			};
+		}, [timelineContext.audioAndVideoTags, timelineContext.imperativePlaying]);
+
 	return (
 		<Internals.RemotionEnvironmentContext.Provider value={env}>
 			<Internals.LogLevelContext.Provider value={logLevelContext}>
 				<Internals.CanUseRemotionHooksProvider>
 					<Internals.AbsoluteTimeContext.Provider value={timelineContext}>
 						<Internals.PlaybackRateContext.Provider value={playbackRateContext}>
-							<Internals.TimelineContext.Provider value={timelineContext}>
-								<Internals.CompositionManager.Provider
-									value={compositionManagerContext}
-								>
-									<Internals.PrefetchProvider>
-										<Internals.DurationsContextProvider>
-											<Internals.MediaVolumeContext.Provider
-												value={mediaVolumeContextValue}
-											>
-												<Internals.SetMediaVolumeContext.Provider
-													value={setMediaVolumeContextValue}
+							<Internals.TimelineImperativeContext.Provider
+								value={timelineImperativeContextValue}
+							>
+								<Internals.TimelineContext.Provider value={timelineContext}>
+									<Internals.CompositionManager.Provider
+										value={compositionManagerContext}
+									>
+										<Internals.PrefetchProvider>
+											<Internals.DurationsContextProvider>
+												<Internals.MediaVolumeContext.Provider
+													value={mediaVolumeContextValue}
 												>
-													<Internals.BufferingProvider>
-														<Internals.SharedAudioContextProvider
-															audioLatencyHint={audioLatencyHint}
-															audioEnabled={shouldCreateAudioContext}
-															previewSampleRate={sampleRate}
-														>
-															<Internals.SharedAudioTagsContextProvider
-																numberOfAudioTags={numberOfSharedAudioTags}
+													<Internals.SetMediaVolumeContext.Provider
+														value={setMediaVolumeContextValue}
+													>
+														<Internals.BufferingProvider>
+															<Internals.SharedAudioContextProvider
+																audioLatencyHint={audioLatencyHint}
+																audioEnabled={shouldCreateAudioContext}
+																previewSampleRate={sampleRate}
 															>
-																{children}
-															</Internals.SharedAudioTagsContextProvider>
-														</Internals.SharedAudioContextProvider>
-													</Internals.BufferingProvider>
-												</Internals.SetMediaVolumeContext.Provider>
-											</Internals.MediaVolumeContext.Provider>
-										</Internals.DurationsContextProvider>
-									</Internals.PrefetchProvider>
-								</Internals.CompositionManager.Provider>
-							</Internals.TimelineContext.Provider>
+																<Internals.SharedAudioTagsContextProvider
+																	numberOfAudioTags={numberOfSharedAudioTags}
+																>
+																	{children}
+																</Internals.SharedAudioTagsContextProvider>
+															</Internals.SharedAudioContextProvider>
+														</Internals.BufferingProvider>
+													</Internals.SetMediaVolumeContext.Provider>
+												</Internals.MediaVolumeContext.Provider>
+											</Internals.DurationsContextProvider>
+										</Internals.PrefetchProvider>
+									</Internals.CompositionManager.Provider>
+								</Internals.TimelineContext.Provider>
+							</Internals.TimelineImperativeContext.Provider>
 						</Internals.PlaybackRateContext.Provider>
 					</Internals.AbsoluteTimeContext.Provider>
 				</Internals.CanUseRemotionHooksProvider>

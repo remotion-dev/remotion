@@ -8,7 +8,7 @@ import {useBrowserMediaSession} from './browser-mediasession.js';
 import {calculateNextFrame} from './calculate-next-frame.js';
 import {useIsBackgrounded} from './is-backgrounded.js';
 import {setGlobalTimeAnchor} from './set-global-time-anchor.js';
-import {usePlayer} from './use-player.js';
+import {type UsePlayerMethods, usePlayerMethods} from './use-player-methods.js';
 
 const shouldForceAnchorChange = (newState: RemotionAudioContextState) => {
 	if (newState === 'suspended' || newState === 'running-to-suspended') {
@@ -45,12 +45,13 @@ export const usePlayback = ({
 	inFrame: number | null;
 	outFrame: number | null;
 	browserMediaControlsBehavior: BrowserMediaControlsBehavior;
-	getCurrentFrame: ReturnType<typeof usePlayer>['getCurrentFrame'];
+	getCurrentFrame: UsePlayerMethods['getCurrentFrame'];
 	muted: boolean;
 }) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const frame = Internals.Timeline.useTimelinePosition();
-	const {playing, pause, emitter, isPlaying} = usePlayer();
+	const [playing] = Internals.Timeline.usePlayingState();
+	const {pause, emitter, isPlaying} = usePlayerMethods();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const sharedAudioContext = useContext(Internals.SharedAudioContext);
 	const logLevel = Internals.useLogLevel();

@@ -260,7 +260,7 @@ export const RenderButton: React.FC<{
 	}, [controlSize]);
 
 	const video = Internals.useVideo();
-	const {getCurrentFrame} = PlayerInternals.usePlayer();
+	const {getCurrentFrame} = PlayerInternals.usePlayerMethods();
 
 	const {props} = useContext(Internals.EditorPropsContext);
 
