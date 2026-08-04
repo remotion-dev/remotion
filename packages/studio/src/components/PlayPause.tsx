@@ -1,11 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useRef,
-	useState,
-} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
@@ -32,63 +26,13 @@ const iconButton: React.CSSProperties = {
 	width: 14,
 };
 
-type PlayerMethods = ReturnType<typeof PlayerInternals.usePlayer>;
-
-type PlaybackControllerProps = {
-	readonly playerRef: React.RefObject<PlayerMethods | null>;
-	readonly onPlayingChange: React.Dispatch<React.SetStateAction<boolean>>;
-	readonly playbackRate: number;
-	readonly loop: boolean;
-	readonly muted: boolean;
-	readonly inFrame: number | null;
-	readonly outFrame: number | null;
-};
-
-// usePlayer() must follow the current frame for playback bookkeeping. Keep that
-// subscription in a non-rendering leaf so the visible controls stay stable.
-const PlaybackControllerInner: React.FC<PlaybackControllerProps> = ({
-	playerRef,
-	onPlayingChange,
-	playbackRate,
-	loop,
-	muted,
-	inFrame,
-	outFrame,
-}) => {
-	const player = PlayerInternals.usePlayer();
-	playerRef.current = player;
-
-	useEffect(() => {
-		onPlayingChange(player.playing);
-	}, [onPlayingChange, player.playing]);
-
-	PlayerInternals.usePlayback({
-		loop,
-		playbackRate,
-		moveToBeginningWhenEnded: true,
-		inFrame,
-		outFrame,
-		getCurrentFrame: player.getCurrentFrame,
-		browserMediaControlsBehavior: {
-			mode: 'register-media-session',
-		},
-		muted,
-	});
-
-	return null;
-};
-
-const PlaybackController = React.memo(PlaybackControllerInner);
-
-type PlayPauseProps = {
+export const PlayPause: React.FC<{
 	readonly playbackRate: number;
 	readonly loop: boolean;
 	readonly bufferStateDelayInMilliseconds: number;
 	readonly muted: boolean;
 	readonly hideNavigationControls: boolean;
-};
-
-const PlayPauseInner: React.FC<PlayPauseProps> = ({
+}> = ({
 	playbackRate,
 	loop,
 	bufferStateDelayInMilliseconds,
@@ -98,19 +42,31 @@ const PlayPauseInner: React.FC<PlayPauseProps> = ({
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const [showBufferIndicator, setShowBufferState] = useState<boolean>(false);
-	const [playing, setPlaying] = useState(false);
-	const playerRef = useRef<PlayerMethods | null>(null);
-	const emitter = useContext(PlayerInternals.PlayerEventEmitterContext);
-	if (!emitter) {
-		throw new Error('Expected Player event emitter context');
-	}
 
-	const play = useCallback((e?: React.SyntheticEvent | PointerEvent) => {
-		playerRef.current?.play(e);
-	}, []);
-	const pause = useCallback(() => {
-		playerRef.current?.pause();
-	}, []);
+	const {
+		playing,
+		play,
+		pause,
+		pauseAndReturnToPlayStart,
+		frameBack,
+		seek,
+		frameForward,
+		emitter,
+		getCurrentFrame,
+	} = PlayerInternals.usePlayer();
+
+	PlayerInternals.usePlayback({
+		loop,
+		playbackRate,
+		moveToBeginningWhenEnded: true,
+		inFrame,
+		outFrame,
+		getCurrentFrame,
+		browserMediaControlsBehavior: {
+			mode: 'register-media-session',
+		},
+		muted,
+	});
 
 	const isStill = useIsStill();
 
@@ -122,7 +78,7 @@ const PlayPauseInner: React.FC<PlayPauseProps> = ({
 
 	const onSpace = useCallback(
 		(e: KeyboardEvent) => {
-			if (playerRef.current?.isPlaying()) {
+			if (playing) {
 				pause();
 			} else {
 				play();
@@ -130,52 +86,45 @@ const PlayPauseInner: React.FC<PlayPauseProps> = ({
 
 			e.preventDefault();
 		},
-		[pause, play],
+		[pause, play, playing],
 	);
 
-	const onEnter = useCallback((e: KeyboardEvent) => {
-		if (playerRef.current?.isPlaying()) {
-			// Don't prevent keyboard navigation
-			e.preventDefault();
-			playerRef.current.pauseAndReturnToPlayStart();
-		}
-	}, []);
+	const onEnter = useCallback(
+		(e: KeyboardEvent) => {
+			if (playing) {
+				// Don't prevent keyboard navigation
+				e.preventDefault();
+				pauseAndReturnToPlayStart();
+			}
+		},
+		[pauseAndReturnToPlayStart, playing],
+	);
 
 	const oneFrameBack = useCallback(() => {
-		const player = playerRef.current;
-		if (!player) {
-			return;
-		}
-
-		player.frameBack(1);
+		frameBack(1);
 		ensureFrameIsInViewport({
 			direction: 'fit-left',
 			durationInFrames: getCurrentDuration(),
-			frame: Math.max(0, player.getCurrentFrame() - 1),
+			frame: Math.max(0, getCurrentFrame() - 1),
 		});
-	}, []);
+	}, [frameBack, getCurrentFrame]);
 
 	const oneFrameForward = useCallback(() => {
-		const player = playerRef.current;
-		if (!player) {
-			return;
-		}
-
-		player.frameForward(1);
+		frameForward(1);
 		ensureFrameIsInViewport({
 			direction: 'fit-right',
 			durationInFrames: getCurrentDuration(),
-			frame: Math.min(getCurrentDuration() - 1, player.getCurrentFrame() + 1),
+			frame: Math.min(getCurrentDuration() - 1, getCurrentFrame() + 1),
 		});
-	}, []);
+	}, [frameForward, getCurrentFrame]);
 
 	const jumpToStart = useCallback(() => {
-		playerRef.current?.seek(inFrame ?? 0);
-	}, [inFrame]);
+		seek(inFrame ?? 0);
+	}, [seek, inFrame]);
 
 	const jumpToEnd = useCallback(() => {
-		playerRef.current?.seek(outFrame ?? getCurrentDuration() - 1);
-	}, [outFrame]);
+		seek(outFrame ?? getCurrentDuration() - 1);
+	}, [seek, outFrame]);
 
 	const keybindings = useKeybinding();
 
@@ -295,30 +244,8 @@ const PlayPauseInner: React.FC<PlayPauseProps> = ({
 		};
 	}, [bufferStateDelayInMilliseconds, emitter]);
 
-	useEffect(() => {
-		const onPlay = () => setPlaying(true);
-		const onPause = () => setPlaying(false);
-
-		emitter.addEventListener('play', onPlay);
-		emitter.addEventListener('pause', onPause);
-
-		return () => {
-			emitter.removeEventListener('play', onPlay);
-			emitter.removeEventListener('pause', onPause);
-		};
-	}, [emitter]);
-
 	return (
 		<>
-			<PlaybackController
-				playerRef={playerRef}
-				onPlayingChange={setPlaying}
-				playbackRate={playbackRate}
-				loop={loop}
-				muted={muted}
-				inFrame={inFrame}
-				outFrame={outFrame}
-			/>
 			{hideNavigationControls ? null : (
 				<ControlButton
 					aria-label="Jump to beginning"
@@ -372,5 +299,3 @@ const PlayPauseInner: React.FC<PlayPauseProps> = ({
 		</>
 	);
 };
-
-export const PlayPause = React.memo(PlayPauseInner);
