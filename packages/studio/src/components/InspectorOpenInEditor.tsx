@@ -137,7 +137,12 @@ export const InspectorOpenInEditor: React.FC<{
 				label: <span style={menuLabel}>Set default editor...</span>,
 				leftItem: null,
 				onClick: () => {
-					setSelectedModal({type: 'configure-default-editor'});
+					setSelectedModal({
+						type: 'settings',
+						initialTab: 'apps',
+						initialPublicLicenseKey:
+							window.remotion_renderDefaults?.publicLicenseKey ?? null,
+					});
 				},
 				quickSwitcherLabel: null,
 				subMenu: null,
