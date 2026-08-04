@@ -88,6 +88,6 @@ git status --short
 
 The focused test now validates that the metadata contains the exact public URLs and that no matching local review assets remain.
 
-Inspect the final diff. It should contain the Element source, page, definition, gallery registration, and public URLs, but not the PNG or MP4. Commit the acceptance cleanup normally to the same pull request branch and push without force. Then use the [`merge` skill](../merge/SKILL.md) to squash merge the pull request and delete its source branch.
+Inspect the final diff. It should contain the Element source, page, definition, gallery registration, and public URLs, but not the PNG or MP4. Commit the acceptance cleanup normally to the same pull request branch and push without force. Then stop and report that the pull request is ready for review. Merging and branch deletion are reviewer actions outside this workflow.
 
 Because the squash merge contains only the final net state, the temporary assets are not added to the reachable history of `main`.
