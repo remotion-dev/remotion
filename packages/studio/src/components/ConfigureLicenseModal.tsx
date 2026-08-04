@@ -1,15 +1,8 @@
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {LIGHT_TEXT, WHITE} from '../helpers/colors';
-import {ModalsContext} from '../state/modals';
 import {callApi} from './call-api';
 import {Checkbox} from './Checkbox';
-import {Row, Spacing} from './layout';
+import {Spacing} from './layout';
 import {
 	fetchLicenseKeyDetails,
 	hasActiveCompanyLicense,
@@ -18,18 +11,22 @@ import {
 	validateLicenseKey,
 } from './LicenseKeyValidation';
 import {ModalButton} from './ModalButton';
-import {ModalContainer} from './ModalContainer';
-import {ModalFooterContainer} from './ModalFooter';
-import {ModalHeader} from './ModalHeader';
 import {RemotionInput} from './NewComposition/RemInput';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
+import {SettingsModalFooter} from './SettingsModalFooter';
 
 type LicenseType = 'free' | 'company' | null;
 
+const container: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+	flexDirection: 'column',
+	minWidth: 0,
+};
+
 const content: React.CSSProperties = {
+	flex: 1,
 	padding: 16,
-	width: 540,
-	maxWidth: 'calc(100vw - 40px)',
 };
 
 const description: React.CSSProperties = {
@@ -38,7 +35,6 @@ const description: React.CSSProperties = {
 	fontSize: 14,
 	lineHeight: 1.5,
 	margin: 0,
-	marginTop: 10,
 };
 
 const descriptionLink: React.CSSProperties = {
@@ -76,10 +72,10 @@ const inputLabel: React.CSSProperties = {
 	marginTop: 10,
 };
 
-export const ConfigureLicenseModal: React.FC<{
+export const LicenseSettings: React.FC<{
 	readonly initialPublicLicenseKey: string | null;
-}> = ({initialPublicLicenseKey}) => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	readonly onSaved: () => void;
+}> = ({initialPublicLicenseKey, onSaved}) => {
 	const initialLicenseType: LicenseType =
 		initialPublicLicenseKey === 'free-license'
 			? 'free'
@@ -100,19 +96,23 @@ export const ConfigureLicenseModal: React.FC<{
 	const [licenseKeyDetails, setLicenseKeyDetails] =
 		useState<LicenseKeyDetails | null>(null);
 
-	const dismiss = useCallback(() => {
-		setSelectedModal(null);
-	}, [setSelectedModal]);
+	const toggleLicenseType = useCallback(
+		(newLicenseType: Exclude<LicenseType, null>) => {
+			setLicenseType((currentLicenseType) =>
+				currentLicenseType === newLicenseType ? null : newLicenseType,
+			);
+			setError(null);
+		},
+		[],
+	);
 
-	const chooseFreeLicense = useCallback(() => {
-		setLicenseType('free');
-		setError(null);
-	}, []);
+	const toggleFreeLicense = useCallback(() => {
+		toggleLicenseType('free');
+	}, [toggleLicenseType]);
 
-	const chooseCompanyLicense = useCallback(() => {
-		setLicenseType('company');
-		setError(null);
-	}, []);
+	const toggleCompanyLicense = useCallback(() => {
+		toggleLicenseType('company');
+	}, [toggleLicenseType]);
 
 	const publicLicenseKey = useMemo(() => {
 		if (licenseType === 'free') {
@@ -205,40 +205,55 @@ export const ConfigureLicenseModal: React.FC<{
 				return;
 			}
 
-			dismiss();
+			onSaved();
 		} catch (err) {
 			setError((err as Error).message);
 			setIsSubmitting(false);
 		}
-	}, [companyLicenseKeyIsValid, dismiss, licenseType, publicLicenseKey]);
+	}, [companyLicenseKeyIsValid, licenseType, onSaved, publicLicenseKey]);
 
 	return (
-		<ModalContainer onEscape={dismiss} onOutsideClick={dismiss}>
-			<ModalHeader title="Configure License" onClose={dismiss} />
+		<div style={container}>
 			<div style={content}>
 				<p style={description}>
-					Remotion is free if you are an individual or company with a headcount
-					of 3 or less. See{' '}
-					<a style={descriptionLink} href="https://remotion.dev/license">
-						LICENSE.md
+					Remotion is free to use if you are an individual or company with a
+					headcount of 3 or less.
+					<br />
+					If used in an organization with 4 people or more, a{' '}
+					<a style={descriptionLink} href="https://remotion.pro/license">
+						Company License
 					</a>
-					.
+					{' needs to be obtained.'}
 				</p>
 				<Spacing y={2} />
-				<div style={checkboxRow} onClick={chooseFreeLicense}>
+				<div
+					style={checkboxRow}
+					onClick={(event) => {
+						if (!(event.target instanceof HTMLInputElement)) {
+							toggleFreeLicense();
+						}
+					}}
+				>
 					<Checkbox
 						checked={licenseType === 'free'}
-						onChange={chooseFreeLicense}
+						onChange={toggleFreeLicense}
 						name="free-license"
 						rounded
 					/>
 					<Spacing x={1} />
 					<div style={checkboxLabel}>I am eligible for the Free License</div>
 				</div>
-				<div style={checkboxRow} onClick={chooseCompanyLicense}>
+				<div
+					style={checkboxRow}
+					onClick={(event) => {
+						if (!(event.target instanceof HTMLInputElement)) {
+							toggleCompanyLicense();
+						}
+					}}
+				>
 					<Checkbox
 						checked={licenseType === 'company'}
-						onChange={chooseCompanyLicense}
+						onChange={toggleCompanyLicense}
 						name="company-license"
 						rounded
 					/>
@@ -318,21 +333,19 @@ export const ConfigureLicenseModal: React.FC<{
 					</>
 				) : null}
 			</div>
-			<ModalFooterContainer>
-				<Row justify="flex-end">
-					<ModalButton
-						onClick={submit}
-						disabled={
-							isSubmitting ||
-							publicLicenseKey.length === 0 ||
-							(licenseType === 'company' && !companyLicenseKeyIsValid)
-						}
-						autoFocus={licenseType !== 'company'}
-					>
-						{isSubmitting ? 'Submitting...' : 'Submit and reload'}
-					</ModalButton>
-				</Row>
-			</ModalFooterContainer>
-		</ModalContainer>
+			<SettingsModalFooter>
+				<ModalButton
+					onClick={submit}
+					disabled={
+						isSubmitting ||
+						publicLicenseKey.length === 0 ||
+						(licenseType === 'company' && !companyLicenseKeyIsValid)
+					}
+					autoFocus={licenseType !== 'company'}
+				>
+					{isSubmitting ? 'Submitting...' : 'Submit and reload'}
+				</ModalButton>
+			</SettingsModalFooter>
+		</div>
 	);
 };

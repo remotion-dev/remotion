@@ -439,32 +439,15 @@ export const useMenuStructure = (
 						subMenu: null,
 						quickSwitcherLabel: 'Help: Changelog',
 					},
-					canConfigureDefaultEditor
-						? {
-								id: 'default-editor',
-								value: 'default-editor',
-								label: 'Configure default editor...',
-								onClick: () => {
-									closeMenu();
-									setSelectedModal({
-										type: 'configure-default-editor',
-									});
-								},
-								type: 'item' as const,
-								keyHint: null,
-								leftItem: null,
-								subMenu: null,
-								quickSwitcherLabel: 'Configure default editor...',
-							}
-						: null,
 					{
-						id: 'license',
-						value: 'license',
-						label: 'Configure License...',
+						id: 'settings',
+						value: 'settings',
+						label: 'Settings...',
 						onClick: () => {
 							closeMenu();
 							setSelectedModal({
-								type: 'configure-license',
+								type: 'settings',
+								initialTab: canConfigureDefaultEditor ? 'apps' : 'license',
 								initialPublicLicenseKey:
 									window.remotion_renderDefaults?.publicLicenseKey ?? null,
 							});
@@ -473,7 +456,7 @@ export const useMenuStructure = (
 						keyHint: null,
 						leftItem: null,
 						subMenu: null,
-						quickSwitcherLabel: 'Configure License...',
+						quickSwitcherLabel: 'Settings...',
 						disabled: readOnlyStudio || type !== 'connected',
 					},
 					{

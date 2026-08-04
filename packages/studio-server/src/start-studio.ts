@@ -6,7 +6,11 @@ import type {
 	RspackOverrideFn,
 	WebpackOverrideFn,
 } from '@remotion/bundler';
-import type {DefaultEditor, LogLevel} from '@remotion/renderer';
+import type {
+	DefaultCodingAgent,
+	DefaultEditor,
+	LogLevel,
+} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	GitSource,
@@ -61,6 +65,7 @@ export const startStudio = async ({
 	forceNew,
 	rspack,
 	getStudioRuntimeConfig,
+	getDefaultCodingAgent,
 	getDefaultEditor,
 	configFile,
 }: {
@@ -92,6 +97,7 @@ export const startStudio = async ({
 	forceNew: boolean;
 	rspack: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	getDefaultCodingAgent: () => DefaultCodingAgent | null;
 	getDefaultEditor: () => DefaultEditor | null;
 	configFile: string | null;
 }): Promise<StartStudioResult> => {
@@ -172,6 +178,7 @@ export const startStudio = async ({
 		forceNew,
 		rspack,
 		getStudioRuntimeConfig,
+		getDefaultCodingAgent,
 		getDefaultEditor,
 		configFile,
 	});

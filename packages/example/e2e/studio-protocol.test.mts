@@ -258,7 +258,9 @@ export const MyComponent = () => {
 
 		await studioPage.bringToFront();
 		const licenseDialog = studioPage.getByRole('dialog');
-		await expect(licenseDialog.getByText('Configure License')).toBeVisible();
+		await expect(
+			licenseDialog.getByText('Settings', {exact: true}),
+		).toBeVisible();
 		await expect(
 			licenseDialog.getByRole('textbox', {name: 'Public license key'}),
 		).toHaveValue(`rm_pub_${'a'.repeat(48)}`);

@@ -30,14 +30,21 @@ type OpenState =
 			values: ComboboxValue[] | null;
 	  };
 
+const container: React.CSSProperties = {
+	display: 'flex',
+	height: 24,
+};
+
 export const InlineDropdown = ({
 	values,
 	getItems,
+	onOpenChange,
 	unhoveredColor,
 	...props
 }: Omit<InlineActionProps, 'onClick'> & {
 	readonly values?: ComboboxValue[];
 	readonly getItems?: () => ComboboxValue[];
+	readonly onOpenChange?: (open: boolean) => void;
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
 	const [opened, setOpened] = useState<OpenState>({type: 'not-open'});
@@ -66,8 +73,9 @@ export const InlineDropdown = ({
 				top: e.clientY,
 				values: invocationValues,
 			});
+			onOpenChange?.(true);
 		},
-		[getItems],
+		[getItems, onOpenChange],
 	);
 
 	const spaceToBottom = useMemo(() => {
@@ -128,11 +136,12 @@ export const InlineDropdown = ({
 
 	const onHide = useCallback(() => {
 		setOpened({type: 'not-open'});
-	}, []);
+		onOpenChange?.(false);
+	}, [onOpenChange]);
 
 	return (
 		<>
-			<div ref={ref}>
+			<div ref={ref} style={container}>
 				<InlineAction
 					onClick={onClick}
 					unhoveredColor={opened.type === 'open' ? WHITE : unhoveredColor}
