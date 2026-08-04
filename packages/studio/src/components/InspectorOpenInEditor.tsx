@@ -3,6 +3,7 @@ import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
+	BACKGROUND,
 	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
@@ -29,9 +30,15 @@ const splitButton: React.CSSProperties = {
 	display: 'inline-flex',
 	flexDirection: 'row',
 	flexShrink: 0,
-	gap: 1,
 	height: 24,
 	overflow: 'hidden',
+};
+
+const separator: React.CSSProperties = {
+	backgroundColor: BACKGROUND,
+	flexShrink: 0,
+	height: 24,
+	width: 1,
 };
 
 const mainButtonBase: React.CSSProperties = {
@@ -200,6 +207,7 @@ export const InspectorOpenInEditor: React.FC<{
 				{label}
 				<EditorIcon editorId={preferredEditorId} size={editorButtonIconSize} />
 			</button>
+			<div style={separator} />
 			<InlineDropdown
 				onOpenChange={setDropdownOpened}
 				renderAction={renderDropdownAction}
