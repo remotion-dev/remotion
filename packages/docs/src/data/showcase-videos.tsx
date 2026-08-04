@@ -432,10 +432,6 @@ export const showcaseVideos: ShowcaseVideo[] = [
 		submittedOn: new Date('08-03-2026'),
 		links: [
 			{
-				type: 'video',
-				url: 'https://www.youtube.com/watch?v=EUQ3K0xblK0',
-			},
-			{
 				type: 'website',
 				url: 'https://sportgraphics.app',
 			},
