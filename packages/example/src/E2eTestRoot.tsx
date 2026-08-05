@@ -17,14 +17,6 @@ import {VisualControls} from './VisualControls';
 export const E2eTestRoot: React.FC = () => {
 	return (
 		<>
-			<Composition
-				id="AnimatedBarChart"
-				component={BarChart}
-				durationInFrames={180}
-				fps={30}
-				width={1280}
-				height={720}
-			/>
 			<Folder name="Schema">
 				<Composition
 					id="schema-test"
@@ -52,6 +44,14 @@ export const E2eTestRoot: React.FC = () => {
 					}}
 				/>
 			</Folder>
+			<Composition
+				id="AnimatedBarChart"
+				component={BarChart}
+				durationInFrames={180}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
 			<Folder name="visual-controls">
 				<Composition
 					id="visual-controls"
