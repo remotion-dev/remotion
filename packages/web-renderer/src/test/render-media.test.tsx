@@ -1,4 +1,9 @@
-import {ALL_FORMATS, BlobSource, Input} from 'mediabunny';
+import {
+	ALL_FORMATS,
+	BlobSource,
+	Input,
+	type StreamTargetChunk,
+} from 'mediabunny';
 import {interpolateColors, useCurrentFrame} from 'remotion';
 import {VERSION} from 'remotion/version';
 import {expect, test} from 'vitest';
@@ -50,6 +55,58 @@ test('should render media on web', async (t) => {
 		},
 		inputProps: {},
 	});
+});
+
+test('should render media to a writable stream', async (t) => {
+	if (t.task.file.projectName === 'webkit') {
+		t.skip();
+		return;
+	}
+
+	const chunks: StreamTargetChunk[] = [];
+	let streamClosed = false;
+	const outputWritable = new WritableStream<StreamTargetChunk>({
+		write: (chunk) => {
+			chunks.push(chunk);
+		},
+		close: () => {
+			streamClosed = true;
+		},
+	});
+
+	const result = await renderMediaOnWeb({
+		composition: {
+			component: () => null,
+			id: 'writable-stream-test',
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 1,
+		},
+		inputProps: {},
+		outputWritable,
+	});
+
+	expect(streamClosed).toBe(true);
+	expect(chunks.length).toBeGreaterThan(0);
+
+	const size = Math.max(
+		...chunks.map((chunk) => chunk.position + chunk.data.byteLength),
+	);
+	const output = new Uint8Array(size);
+	for (const chunk of chunks) {
+		output.set(chunk.data, chunk.position);
+	}
+
+	expect(output.byteLength).toBeGreaterThan(0);
+	using input = new Input({
+		formats: ALL_FORMATS,
+		source: new BlobSource(new Blob([output])),
+	});
+	expect(await input.getPrimaryVideoTrack()).not.toBeNull();
+	await expect(result.getBlob()).rejects.toThrow(
+		'getBlob() is unavailable when outputWritable is used',
+	);
 });
 
 test('should reject invalid page responsiveness values', async () => {

@@ -1,4 +1,4 @@
-import {BufferTarget, StreamTarget} from 'mediabunny';
+import {BufferTarget, StreamTarget, type StreamTargetChunk} from 'mediabunny';
 import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import {VERSION} from 'remotion/version';
@@ -133,6 +133,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends $ZodObject> = {
 	onFrame: OnFrameCallback | null;
 	pageResponsiveness: WebRendererPageResponsiveness;
 	outputTarget: WebRendererOutputTarget | null;
+	outputWritable: WritableStream<StreamTargetChunk> | null;
 	licenseKey: string | null;
 	isProduction: boolean;
 	muted: boolean;
@@ -182,6 +183,7 @@ const internalRenderMediaOnWeb = async <
 	onFrame,
 	pageResponsiveness,
 	outputTarget: userDesiredOutputTarget,
+	outputWritable,
 	licenseKey,
 	muted,
 	scale,
@@ -216,11 +218,13 @@ const internalRenderMediaOnWeb = async <
 	};
 
 	const outputTarget =
-		userDesiredOutputTarget === null
-			? (await canUseWebFsWriter())
-				? 'web-fs'
-				: 'arraybuffer'
-			: userDesiredOutputTarget;
+		outputWritable !== null
+			? null
+			: userDesiredOutputTarget === null
+				? (await canUseWebFsWriter())
+					? 'web-fs'
+					: 'arraybuffer'
+				: userDesiredOutputTarget;
 
 	if (outputTarget === 'web-fs') {
 		await cleanupStaleOpfsFiles();
@@ -384,9 +388,11 @@ const internalRenderMediaOnWeb = async <
 	const webFsTarget =
 		outputTarget === 'web-fs' ? await createWebFsTarget() : null;
 
-	const target = webFsTarget
-		? new StreamTarget(webFsTarget.stream)
-		: new BufferTarget()!;
+	const target = outputWritable
+		? new StreamTarget(outputWritable, {chunked: true})
+		: webFsTarget
+			? new StreamTarget(webFsTarget.stream)
+			: new BufferTarget()!;
 
 	using outputWithCleanup = makeOutputWithCleanup({
 		format,
@@ -646,6 +652,24 @@ const internalRenderMediaOnWeb = async <
 			`Render timings: waitForReady=${internalState.getWaitForReadyTime().toFixed(2)}ms, createFrame=${internalState.getCreateFrameTime().toFixed(2)}ms, addSample=${internalState.getAddSampleTime().toFixed(2)}ms, audioMixing=${internalState.getAudioMixingTime().toFixed(2)}ms`,
 		);
 
+		if (outputWritable) {
+			sendUsageEvent({
+				licenseKey: licenseKey ?? null,
+				succeeded: true,
+				apiName: 'renderMediaOnWeb',
+				isStill: false,
+				isProduction: isProduction ?? true,
+			});
+
+			return {
+				getBlob: () =>
+					Promise.reject(
+						new Error('getBlob() is unavailable when outputWritable is used'),
+					),
+				internalState,
+			};
+		}
+
 		if (webFsTarget) {
 			sendUsageEvent({
 				licenseKey: licenseKey ?? null,
@@ -745,6 +769,7 @@ export const renderMediaOnWeb = <
 				onFrame: options.onFrame ?? null,
 				pageResponsiveness: options.pageResponsiveness ?? 'medium',
 				outputTarget: options.outputTarget ?? null,
+				outputWritable: options.outputWritable ?? null,
 				licenseKey: options.licenseKey ?? null,
 				muted: options.muted ?? false,
 				scale: options.scale ?? 1,
