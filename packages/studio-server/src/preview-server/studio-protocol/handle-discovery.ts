@@ -11,7 +11,6 @@ import {
 } from '../element-install-state';
 import type {LiveEventsServer} from '../live-events';
 import {
-	getAllowedLicenseKeyOrigin,
 	getAllowedStudioProtocolOrigin,
 	setStudioProtocolCorsHeaders,
 } from './origin-policy';
@@ -88,7 +87,7 @@ export const handleStudioProtocolDiscovery = ({
 	readonly request: IncomingMessage;
 	readonly response: ServerResponse;
 }): Promise<void> => {
-	setStudioProtocolCorsHeaders({licenseKey: false, request, response});
+	setStudioProtocolCorsHeaders({request, response});
 	const requestOrigin = getAllowedStudioProtocolOrigin(request.headers.origin);
 	if (requestOrigin === null) {
 		writeStudioProtocolError({
@@ -125,15 +124,12 @@ export const handleStudioProtocolDiscovery = ({
 							purpose: 'install-element',
 							target: installTarget,
 						});
-			const licenseKeyOrigin = getAllowedLicenseKeyOrigin(
-				request.headers.origin,
-			);
 			const issuedLicenseKeyTarget =
-				target === null || licenseKeyOrigin === null
+				target === null
 					? null
 					: issueStudioProtocolTarget({
 							now,
-							origin: licenseKeyOrigin,
+							origin: requestOrigin,
 							purpose: 'set-license-key',
 							target,
 						});

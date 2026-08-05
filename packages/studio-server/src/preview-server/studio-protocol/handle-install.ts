@@ -80,7 +80,7 @@ export const handleStudioProtocolInstall = async ({
 	readonly request: IncomingMessage;
 	readonly response: ServerResponse;
 }): Promise<void> => {
-	setStudioProtocolCorsHeaders({licenseKey: false, request, response});
+	setStudioProtocolCorsHeaders({request, response});
 	const requestOrigin = getAllowedStudioProtocolOrigin(request.headers.origin);
 	if (requestOrigin === null) {
 		writeStudioProtocolError({
