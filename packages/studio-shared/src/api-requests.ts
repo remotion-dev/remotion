@@ -61,6 +61,15 @@ export type OpenInEditorResponse = {
 	success: boolean;
 };
 
+export type OpenInCodingAgentRequest = {
+	codingAgentId: DefaultCodingAgent;
+	prompt: string | null;
+};
+
+export type OpenInCodingAgentResponse = {
+	success: boolean;
+};
+
 export type FindInFileRequest = {
 	fileName: string;
 	lineNumber: number;
@@ -1012,7 +1021,11 @@ export type UpdateDefaultEditorResponse =
 export type GetDefaultCodingAgentInfoRequest = {};
 export type GetDefaultCodingAgentInfoResponse = {
 	defaultCodingAgent: DefaultCodingAgent | null;
-	installedCodingAgents: {id: DefaultCodingAgent; name: string}[];
+	installedCodingAgents: {
+		id: DefaultCodingAgent;
+		name: string;
+		iconDataUrl: string | null;
+	}[];
 };
 
 export type UpdateDefaultCodingAgentRequest = {
@@ -1084,6 +1097,10 @@ export type ApiRoutes = {
 	>;
 	'/api/remove-render': ReqAndRes<RemoveRenderRequest, undefined>;
 	'/api/open-in-editor': ReqAndRes<OpenInEditorRequest, OpenInEditorResponse>;
+	'/api/open-in-coding-agent': ReqAndRes<
+		OpenInCodingAgentRequest,
+		OpenInCodingAgentResponse
+	>;
 	'/api/default-coding-agent-info': ReqAndRes<
 		GetDefaultCodingAgentInfoRequest,
 		GetDefaultCodingAgentInfoResponse

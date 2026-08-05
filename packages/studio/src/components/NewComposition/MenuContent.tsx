@@ -7,6 +7,7 @@ import {useKeybinding} from '../../helpers/use-keybinding';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {MenuDivider} from '../Menu/MenuDivider';
 import type {MenuId} from '../Menu/MenuItem';
+import {MenuSectionHeader} from '../Menu/MenuSectionHeader';
 import type {SubMenuActivated} from '../Menu/MenuSubItem';
 import {MenuSubItem} from '../Menu/MenuSubItem';
 import {
@@ -86,7 +87,7 @@ export const MenuContent: React.FC<{
 	}, []);
 
 	const isItemSelectable = useCallback((v: ComboboxValue) => {
-		return v.type !== 'divider' && !v.disabled;
+		return v.type === 'item' && !v.disabled;
 	}, []);
 
 	const onArrowUp = useCallback(() => {
@@ -147,8 +148,8 @@ export const MenuContent: React.FC<{
 			throw new Error('cannot find item');
 		}
 
-		if (item.type === 'divider') {
-			throw new Error('cannot find divider');
+		if (item.type !== 'item') {
+			throw new Error('cannot select non-interactive menu item');
 		}
 
 		if (item.disabled) {
@@ -173,8 +174,8 @@ export const MenuContent: React.FC<{
 			throw new Error('cannot find item');
 		}
 
-		if (item.type === 'divider') {
-			throw new Error('cannot find divider');
+		if (item.type !== 'item') {
+			throw new Error('cannot select non-interactive menu item');
 		}
 
 		if (!item.subMenu) {
@@ -363,8 +364,8 @@ export const MenuContent: React.FC<{
 			return;
 		}
 
-		if (item.type === 'divider') {
-			throw new Error('should not select divider');
+		if (item.type !== 'item') {
+			throw new Error('should not select non-interactive menu item');
 		}
 
 		if (!item.subMenu && subMenuActivated) {
@@ -399,6 +400,12 @@ export const MenuContent: React.FC<{
 			{values.map((item) => {
 				if (item.type === 'divider') {
 					return <MenuDivider key={item.id} />;
+				}
+
+				if (item.type === 'section-header') {
+					return (
+						<MenuSectionHeader key={item.id}>{item.label}</MenuSectionHeader>
+					);
 				}
 
 				const onClick = (id: string, e: PointerEvent<HTMLDivElement>) => {

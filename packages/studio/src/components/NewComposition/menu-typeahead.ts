@@ -1,7 +1,7 @@
 import type {ComboboxValue} from './ComboBox';
 
 const getLabelToMatch = (value: ComboboxValue): string | null => {
-	if (value.type === 'divider' || value.disabled) {
+	if (value.type !== 'item' || value.disabled) {
 		return null;
 	}
 
@@ -30,7 +30,7 @@ export const findTypeaheadMenuItem = ({
 		return label ? label.toLowerCase().startsWith(normalizedQuery) : false;
 	});
 
-	if (!matched || matched.type === 'divider') {
+	if (!matched || matched.type !== 'item') {
 		return null;
 	}
 

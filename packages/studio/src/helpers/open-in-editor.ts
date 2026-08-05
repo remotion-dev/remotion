@@ -1,3 +1,4 @@
+import type {DefaultCodingAgent} from '@remotion/renderer';
 import type {
 	CompositionComponentInfoResponse,
 	EditorPickerId,
@@ -33,6 +34,13 @@ export const openInEditor = (
 			originalScriptCode,
 		},
 	});
+};
+
+export const openInCodingAgent = (
+	codingAgentId: DefaultCodingAgent,
+	prompt: string | null,
+) => {
+	return callApi('/api/open-in-coding-agent', {codingAgentId, prompt});
 };
 
 export const openOriginalPositionInEditor = async (

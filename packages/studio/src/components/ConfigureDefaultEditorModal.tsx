@@ -4,10 +4,11 @@ import type {
 	GetDefaultEditorInfoResponse,
 } from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {LIGHT_TEXT, WHITE} from '../helpers/colors';
+import {LIGHT_TEXT} from '../helpers/colors';
 import {Checkmark} from '../icons/Checkmark';
-import {CustomEditorIcon} from '../icons/custom-editor';
+import {EditorIcon} from '../icons/editor';
 import {callApi} from './call-api';
+import {CodingAgentIcon} from './CodingAgentIcon';
 import {Spacing} from './layout';
 import {ModalButton} from './ModalButton';
 import type {ComboboxValue} from './NewComposition/ComboBox';
@@ -36,7 +37,7 @@ const description: React.CSSProperties = {
 };
 
 const title: React.CSSProperties = {
-	color: WHITE,
+	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	fontSize: 14,
 	lineHeight: 1.5,
@@ -48,8 +49,8 @@ const comboBoxStyle: React.CSSProperties = {
 	width: '100%',
 };
 
-const customEditorLabel: React.CSSProperties = {
-	display: 'inline-flex',
+const appLabel: React.CSSProperties = {
+	display: 'flex',
 	alignItems: 'center',
 	gap: 8,
 	maxWidth: '100%',
@@ -60,7 +61,7 @@ const customEditorLabel: React.CSSProperties = {
 	lineHeight: 'inherit',
 };
 
-const customEditorName: React.CSSProperties = {
+const appName: React.CSSProperties = {
 	minWidth: 0,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
@@ -107,15 +108,12 @@ export const DefaultEditorSettings: React.FC<{
 				return {
 					id: editor.id,
 					keyHint: null,
-					label:
-						editor.id === 'custom' ? (
-							<span style={customEditorLabel}>
-								<CustomEditorIcon size={null} />
-								<span style={customEditorName}>{editor.name}</span>
-							</span>
-						) : (
-							editor.name
-						),
+					label: (
+						<span style={appLabel}>
+							<EditorIcon editorId={editor.id} size={18} />
+							<span style={appName}>{editor.name}</span>
+						</span>
+					),
 					leftItem: selectedEditor === editor.id ? <Checkmark /> : null,
 					onClick: () => {
 						setSelectedEditor(editor.id);
@@ -152,7 +150,12 @@ export const DefaultEditorSettings: React.FC<{
 			return {
 				id: codingAgent.id,
 				keyHint: null,
-				label: codingAgent.name,
+				label: (
+					<span style={appLabel}>
+						<CodingAgentIcon iconDataUrl={codingAgent.iconDataUrl} />
+						<span style={appName}>{codingAgent.name}</span>
+					</span>
+				),
 				leftItem: selectedCodingAgent === codingAgent.id ? <Checkmark /> : null,
 				onClick: () => {
 					setSelectedCodingAgent(codingAgent.id);
@@ -249,7 +252,6 @@ export const DefaultEditorSettings: React.FC<{
 		<div style={container}>
 			<div style={content}>
 				<p style={title}>Default editor</p>
-				<p style={description}>Used when Remotion Studio opens source files.</p>
 				<Spacing y={1} block />
 				{editorInfo === null && error === null ? (
 					<p style={description}>Loading installed editors...</p>
@@ -269,9 +271,6 @@ export const DefaultEditorSettings: React.FC<{
 				)}
 				<Spacing y={2} block />
 				<p style={title}>Default coding agent</p>
-				<p style={description}>
-					Used when Remotion Studio hands a project to a coding agent.
-				</p>
 				<Spacing y={1} block />
 				{codingAgentInfo === null && error === null ? (
 					<p style={description}>Loading installed coding agents...</p>

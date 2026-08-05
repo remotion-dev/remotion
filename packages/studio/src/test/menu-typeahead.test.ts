@@ -4,6 +4,7 @@ import {findTypeaheadMenuItem} from '../components/NewComposition/menu-typeahead
 
 const values: ComboboxValue[] = [
 	{type: 'divider', id: 'divider-1'},
+	{type: 'section-header', id: 'fruit-header', label: 'Fruit'},
 	{
 		type: 'item',
 		id: 'apple',
@@ -56,7 +57,8 @@ test('matches string label prefix (case-insensitive)', () => {
 	expect(findTypeaheadMenuItem({query: 'AP', values})).toBe('apple');
 });
 
-test('skips dividers and disabled items', () => {
+test('skips dividers, section headers, and disabled items', () => {
+	expect(findTypeaheadMenuItem({query: 'fruit', values})).toBe(null);
 	expect(findTypeaheadMenuItem({query: 'ban', values})).toBe(null);
 });
 
