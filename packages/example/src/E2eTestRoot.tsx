@@ -1,5 +1,5 @@
 import React from 'react';
-import {Composition, Folder} from 'remotion';
+import {AbsoluteFill, Composition, Folder, useCurrentScale} from 'remotion';
 import {BarChart} from './BarChart';
 import {EffectKeyframeE2e} from './EffectKeyframeE2e';
 import {
@@ -14,9 +14,44 @@ import {NewVideoComp} from './NewVideo';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
 import {VisualControls} from './VisualControls';
 
+const UseCurrentScaleOnLoad: React.FC = () => {
+	const scale = useCurrentScale();
+	const measuredElement = React.useRef<HTMLDivElement>(null);
+	const [correctedWidth, setCorrectedWidth] = React.useState<number | null>(
+		null,
+	);
+
+	React.useLayoutEffect(() => {
+		if (!measuredElement.current) {
+			return;
+		}
+
+		setCorrectedWidth(
+			Math.round(measuredElement.current.getBoundingClientRect().width / scale),
+		);
+	}, [scale]);
+
+	return (
+		<AbsoluteFill>
+			<div ref={measuredElement} style={{width: 100}} />
+			<div data-testid="use-current-scale-corrected-width">
+				{correctedWidth}
+			</div>
+		</AbsoluteFill>
+	);
+};
+
 export const E2eTestRoot: React.FC = () => {
 	return (
 		<>
+			<Composition
+				id="use-current-scale-on-load"
+				component={UseCurrentScaleOnLoad}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={30}
+			/>
 			<Folder name="Schema">
 				<Composition
 					id="schema-test"

@@ -1,4 +1,29 @@
 let _portalNode: null | HTMLElement = null;
+let portalNodeCurrentScale = 1;
+let portalNodeCurrentScaleListeners: (() => void)[] = [];
+
+export const getPortalNodeCurrentScale = () => portalNodeCurrentScale;
+
+export const subscribeToPortalNodeCurrentScale = (listener: () => void) => {
+	portalNodeCurrentScaleListeners.push(listener);
+
+	return () => {
+		portalNodeCurrentScaleListeners = portalNodeCurrentScaleListeners.filter(
+			(currentListener) => currentListener !== listener,
+		);
+	};
+};
+
+export const setPortalNodeCurrentScale = (scale: number) => {
+	if (portalNodeCurrentScale === scale) {
+		return;
+	}
+
+	portalNodeCurrentScale = scale;
+	for (const listener of portalNodeCurrentScaleListeners) {
+		listener();
+	}
+};
 
 export const portalNode = () => {
 	if (!_portalNode) {
