@@ -75,8 +75,8 @@ test('discovers installed Linux editors from known locations and PATH', async ()
 	);
 
 	expect(editors.map(({id, process}) => ({id, process}))).toEqual([
-		{id: 'vscode', process: '/custom/bin/code'},
 		{id: 'zed', process: '/home/test/.local/bin/zed'},
+		{id: 'vscode', process: '/custom/bin/code'},
 	]);
 });
 

@@ -1,10 +1,10 @@
 import type {AnyRemotionOption} from './option';
 
 export const defaultEditorIds = [
+	'zed',
 	'vscode',
 	'cursor',
 	'windsurf',
-	'zed',
 	'vscodium',
 	'webstorm',
 	'sublime-text',
