@@ -617,6 +617,50 @@ export const Example: React.FC = () => {
 	);
 });
 
+test('updateSequenceKeyframes writes and recognizes hold easing', async () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example: React.FC = () => {
+	const frame = useCurrentFrame();
+	return (
+		<AbsoluteFill>
+			<div style={{scale: interpolate(frame, [0, 100], [2, 4])}} />
+		</AbsoluteFill>
+	);
+};
+`;
+	const {output, updatedNodePath} = await updateSequenceKeyframes({
+		videoConfigValues: null,
+		input,
+		nodePath: lineColumnToNodePath(input, getLine(input, 'scale')),
+		updates: [
+			{
+				key: 'style.scale',
+				operation: {
+					type: 'easing',
+					segmentIndex: 0,
+					easing: {type: 'step1'},
+				},
+			},
+		],
+	});
+
+	expect(output).toContain('easing: [Easing.step1]');
+	const status = computeSequencePropsStatusFromContent({
+		fileContents: output,
+		nodePath: updatedNodePath,
+		componentIdentity: null,
+		keys: ['style.scale'],
+		effects: [],
+		videoConfigValues: null,
+	});
+	expect(status.props['style.scale']).toMatchObject({
+		status: 'keyframed',
+		easing: [{type: 'step1'}],
+	});
+});
+
 test('updateSequenceKeyframes sets a spring easing segment', async () => {
 	const input = `import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';

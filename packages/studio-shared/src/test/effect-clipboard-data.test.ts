@@ -42,6 +42,16 @@ test('parseEasingClipboardData accepts easing payloads', () => {
 				type: 'easing',
 				version: 1,
 				remotionClipboard: 'easing',
+				easing: {type: 'step1'},
+			}),
+		)?.easing,
+	).toEqual({type: 'step1'});
+	expect(
+		parseEasingClipboardData(
+			JSON.stringify({
+				type: 'easing',
+				version: 1,
+				remotionClipboard: 'easing',
 				easing: {
 					type: 'spring',
 					damping: 12,

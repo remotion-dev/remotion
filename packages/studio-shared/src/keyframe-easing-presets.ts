@@ -7,6 +7,7 @@ export type KeyframeEasingPreset = {
 		| 'ease-in'
 		| 'ease-out'
 		| 'ease-in-out'
+		| 'hold'
 		| 'spring'
 		| 'bouncy-spring'
 		| 'tail-spring';
@@ -15,6 +16,8 @@ export type KeyframeEasingPreset = {
 };
 
 export const LINEAR_KEYFRAME_EASING: KeyframeEasing = {type: 'linear'};
+
+export const HOLD_KEYFRAME_EASING: KeyframeEasing = {type: 'step1'};
 
 export const EASE_KEYFRAME_EASING: KeyframeEasing = {
 	type: 'bezier',
@@ -99,6 +102,11 @@ export const KEYFRAME_EASING_PRESETS: KeyframeEasingPreset[] = [
 		id: 'ease-in-out',
 		label: 'Ease in-out',
 		easing: {type: 'bezier', x1: 0.42, y1: 0, x2: 0.58, y2: 1},
+	},
+	{
+		id: 'hold',
+		label: 'Hold',
+		easing: HOLD_KEYFRAME_EASING,
 	},
 	{
 		id: 'tail-spring',
