@@ -13,7 +13,6 @@ import path from 'node:path';
 import {
 	type BundlerConfiguration,
 	type RspackConfiguration,
-	WatchIgnoreNextChangePlugin,
 	type WebpackConfiguration,
 	webpack,
 } from '@remotion/bundler';
@@ -55,7 +54,10 @@ test('Tailwind watches source files but not the Remotion config', async () => {
 			path.join(tmpdir(), `remotion-tailwind-${bundler}-output-`),
 		);
 		const entryPoint = path.join(fixtureDirectory, 'index.js');
-		const configFile = path.join(fixtureDirectory, 'remotion.config.ts');
+		const configFiles = [
+			path.join(fixtureDirectory, 'remotion.config.ts'),
+			path.join(fixtureDirectory, 'remotion.config.js'),
+		];
 		mkdirSync(path.join(fixtureDirectory, 'node_modules'));
 		symlinkSync(
 			tailwindDirectory,
@@ -70,7 +72,9 @@ test('Tailwind watches source files but not the Remotion config', async () => {
 			path.join(fixtureDirectory, 'style.css'),
 			'@import "tailwindcss" source("./");\n',
 		);
-		writeFileSync(configFile, 'export const value = 1;\n');
+		for (const configFile of configFiles) {
+			writeFileSync(configFile, 'export const value = 1;\n');
+		}
 
 		const baseConfiguration = {
 			context: fixtureDirectory,
@@ -84,12 +88,6 @@ test('Tailwind watches source files but not the Remotion config', async () => {
 		const configuration = enableTailwind(
 			baseConfiguration as WebpackConfiguration | RspackConfiguration,
 		);
-		const watchIgnorePlugin = new WatchIgnoreNextChangePlugin(() => undefined);
-		watchIgnorePlugin.ignoreFilePermanently(configFile);
-		configuration.plugins = [
-			...(configuration.plugins ?? []),
-			watchIgnorePlugin,
-		];
 		const compiler = (
 			bundler === 'webpack'
 				? webpack(configuration as WebpackConfiguration)
@@ -131,9 +129,11 @@ test('Tailwind watches source files but not the Remotion config', async () => {
 			await initialBuild;
 			await new Promise((resolve) => setTimeout(resolve, 1_000));
 			const buildCountBeforeConfigChange = buildCount;
-			writeFileSync(configFile, 'export const value = 2;\n');
-			await new Promise((resolve) => setTimeout(resolve, 1_000));
-			expect(buildCount).toBe(buildCountBeforeConfigChange);
+			for (const configFile of configFiles) {
+				writeFileSync(configFile, 'export const value = 2;\n');
+				await new Promise((resolve) => setTimeout(resolve, 1_000));
+				expect(buildCount).toBe(buildCountBeforeConfigChange);
+			}
 
 			const sourceBuild = waitForNextBuild();
 			writeFileSync(
@@ -153,4 +153,4 @@ test('Tailwind watches source files but not the Remotion config', async () => {
 			rmSync(outputDirectory, {recursive: true, force: true});
 		}
 	}
-});
+}, 15_000);
