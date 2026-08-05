@@ -14,6 +14,7 @@ import {tmpdir} from 'os';
 import {join} from 'path';
 import {pathToFileURL} from 'url';
 import {
+	createTwoslashCacheContext,
 	garbageCollectSharedTwoslashCache,
 	getSharedTwoslashCacheRoot,
 	getTwoslashCacheKey,
@@ -39,6 +40,7 @@ const makeContext = (
 		typescript: '1.0.0',
 		shikiTwoslash: '1.0.0',
 	},
+	workspacePackages: {},
 });
 
 const makeTemporaryDirectory = () => {
@@ -47,33 +49,64 @@ const makeTemporaryDirectory = () => {
 	return directory;
 };
 
-const makeEnvironmentRepository = (
-	root: string,
-	name: string,
-	declaration: string,
-): string => {
+const versions = {
+	twoslash: '1.0.0',
+	shiki: '1.0.0',
+	typescript: '1.0.0',
+	shikiTwoslash: '1.0.0',
+};
+
+const makeEnvironmentRepository = ({
+	lockfile = 'lockfile',
+	name,
+	packages,
+	root,
+}: {
+	lockfile?: string;
+	name: string;
+	packages: Record<
+		string,
+		{declaration: string; dependencies?: Record<string, string>}
+	>;
+	root: string;
+}): string => {
 	const repository = join(root, name);
 	const docsRoot = join(repository, 'packages', 'docs');
-	const packageRoot = join(repository, 'packages', 'example');
 	mkdirSync(docsRoot, {recursive: true});
-	mkdirSync(join(packageRoot, 'dist'), {recursive: true});
-	writeFileSync(join(repository, 'bun.lock'), 'lockfile', 'utf8');
+	writeFileSync(join(repository, 'bun.lock'), lockfile, 'utf8');
 	writeFileSync(join(repository, 'package.json'), '{}', 'utf8');
-	writeFileSync(join(docsRoot, 'package.json'), '{}', 'utf8');
-	writeFileSync(join(packageRoot, 'package.json'), '{}', 'utf8');
-	writeFileSync(join(packageRoot, 'dist', 'index.d.ts'), declaration, 'utf8');
+	writeFileSync(
+		join(docsRoot, 'package.json'),
+		JSON.stringify({name: 'docs'}),
+		'utf8',
+	);
+
+	for (const [packageName, definition] of Object.entries(packages)) {
+		const directoryName = packageName.replace('@remotion/', '');
+		const packageRoot = join(repository, 'packages', directoryName);
+		mkdirSync(join(packageRoot, 'dist'), {recursive: true});
+		writeFileSync(
+			join(packageRoot, 'package.json'),
+			JSON.stringify({
+				name: packageName,
+				dependencies: definition.dependencies,
+			}),
+			'utf8',
+		);
+		writeFileSync(
+			join(packageRoot, 'dist', 'index.d.ts'),
+			definition.declaration,
+			'utf8',
+		);
+	}
+
 	execFileSync('git', ['init', '--quiet', repository]);
-	execFileSync('git', [
-		'-C',
-		repository,
-		'add',
-		'bun.lock',
-		'package.json',
-		'packages/docs/package.json',
-		'packages/example/package.json',
-	]);
+	execFileSync('git', ['-C', repository, 'add', '.']);
 	return docsRoot;
 };
+
+const makeRepositoryContext = (docsRoot: string) =>
+	createTwoslashCacheContext({docsRoot, versions});
 
 afterEach(() => {
 	for (const directory of temporaryDirectories.splice(0)) {
@@ -85,28 +118,155 @@ afterEach(() => {
 });
 
 describe('Twoslash cache keys', () => {
-	test('fingerprint generated workspace declarations', () => {
+	test('invalidate only snippets affected by workspace declarations', () => {
 		const root = makeTemporaryDirectory();
-		const first = makeEnvironmentRepository(
-			root,
-			'first',
-			'export declare const value: string;',
+		const makePackages = ({
+			alpha = 'export declare const alpha: string;',
+			beta = 'export declare const beta: string;',
+			shared = 'export declare const shared: string;',
+		} = {}) => ({
+			'@remotion/alpha': {
+				declaration: alpha,
+				dependencies: {'@remotion/shared': 'workspace:*'},
+			},
+			'@remotion/beta': {declaration: beta},
+			'@remotion/shared': {declaration: shared},
+		});
+		const baseline = makeRepositoryContext(
+			makeEnvironmentRepository({
+				name: 'baseline',
+				packages: makePackages(),
+				root,
+			}),
 		);
-		const second = makeEnvironmentRepository(
-			root,
-			'second',
-			'export declare const value: number;',
+		const unrelatedChange = makeRepositoryContext(
+			makeEnvironmentRepository({
+				name: 'unrelated',
+				packages: makePackages({
+					beta: 'export declare const beta: number;',
+				}),
+				root,
+			}),
 		);
-		const sameAsFirst = makeEnvironmentRepository(
-			root,
-			'third',
-			'export declare const value: string;',
+		const directChange = makeRepositoryContext(
+			makeEnvironmentRepository({
+				name: 'direct',
+				packages: makePackages({
+					alpha: 'export declare const alpha: number;',
+				}),
+				root,
+			}),
 		);
+		const transitiveChange = makeRepositoryContext(
+			makeEnvironmentRepository({
+				name: 'transitive',
+				packages: makePackages({
+					shared: 'export declare const shared: number;',
+				}),
+				root,
+			}),
+		);
+		const alphaCode = "import {alpha} from '@remotion/alpha';\nalpha;";
+		const alphaKey = getTwoslashCacheKey({
+			code: alphaCode,
+			context: baseline,
+			lang: 'ts',
+		});
+		const getAlphaKey = (context: TwoslashCacheContext) =>
+			getTwoslashCacheKey({code: alphaCode, context, lang: 'ts'});
+
+		expect(getAlphaKey(unrelatedChange)).toBe(alphaKey);
+		expect(getAlphaKey(directChange)).not.toBe(alphaKey);
+		expect(getAlphaKey(transitiveChange)).not.toBe(alphaKey);
+
+		const sharedRoot = join(root, 'selective-shared-cache');
+		const baselineCache = {
+			...baseline,
+			localRoot: join(root, 'baseline-cache'),
+			sharedRoot,
+		};
+		writeTwoslashCacheEntry({
+			context: baselineCache,
+			html: '<pre>alpha</pre>',
+			key: alphaKey,
+		});
+		expect(
+			readTwoslashCacheEntry({
+				context: {
+					...unrelatedChange,
+					localRoot: join(root, 'unrelated-cache'),
+					sharedRoot,
+				},
+				key: getAlphaKey(unrelatedChange),
+			}),
+		).toBe('<pre>alpha</pre>');
+		expect(
+			readTwoslashCacheEntry({
+				context: {
+					...directChange,
+					localRoot: join(root, 'direct-cache'),
+					sharedRoot,
+				},
+				key: getAlphaKey(directChange),
+			}),
+		).toBeNull();
+
+		for (const code of [
+			"import type {Alpha} from '@remotion/alpha/subpath';",
+			"import '@remotion/alpha';",
+			"export {alpha} from '@remotion/alpha';",
+			"import('@remotion/alpha');",
+			"require('@remotion/alpha');",
+			'/// <reference types="@remotion/alpha" />',
+		]) {
+			expect(
+				getTwoslashCacheKey({code, context: directChange, lang: 'ts'}),
+			).not.toBe(getTwoslashCacheKey({code, context: baseline, lang: 'ts'}));
+		}
+
+		expect(
+			getTwoslashCacheKey({
+				code: "import {beta} from '@remotion/beta';\nbeta;",
+				context: unrelatedChange,
+				lang: 'ts',
+			}),
+		).not.toBe(
+			getTwoslashCacheKey({
+				code: "import {beta} from '@remotion/beta';\nbeta;",
+				context: baseline,
+				lang: 'ts',
+			}),
+		);
+		expect(
+			getTwoslashCacheKey({
+				code: 'const local = 1;',
+				context: directChange,
+				lang: 'ts',
+			}),
+		).toBe(
+			getTwoslashCacheKey({
+				code: 'const local = 1;',
+				context: baseline,
+				lang: 'ts',
+			}),
+		);
+	});
+
+	test('fingerprint external dependency resolutions globally', () => {
+		const root = makeTemporaryDirectory();
+		const first = makeEnvironmentRepository({
+			name: 'first',
+			packages: {},
+			root,
+		});
+		const second = makeEnvironmentRepository({
+			lockfile: 'updated lockfile',
+			name: 'second',
+			packages: {},
+			root,
+		});
 
 		expect(getTwoslashEnvironmentHash(second)).not.toBe(
-			getTwoslashEnvironmentHash(first),
-		);
-		expect(getTwoslashEnvironmentHash(sameAsFirst)).toBe(
 			getTwoslashEnvironmentHash(first),
 		);
 	});
