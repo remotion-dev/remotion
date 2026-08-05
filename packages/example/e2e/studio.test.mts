@@ -182,10 +182,12 @@ test.describe('visual mode', () => {
 			await quickSwitcher.getByRole('textbox').fill('> Settings');
 			await quickSwitcher.getByText('Settings...', {exact: true}).click();
 			const dialog = page.getByRole('dialog');
-			await expect(dialog.getByTitle('Default editor')).toContainText('Cursor');
-			await expect(dialog.getByTitle('Default coding agent')).toContainText(
-				'Codex',
-			);
+			await expect(
+				dialog.getByTitle('Default editor', {exact: true}),
+			).toContainText('Cursor');
+			await expect(
+				dialog.getByTitle('Default coding agent', {exact: true}),
+			).toContainText('Codex');
 			await dialog.getByText('License', {exact: true}).click();
 			await expect(dialog.locator('input[name="free-license"]')).toBeChecked();
 			expect({codingAgentInfoRequests, editorInfoRequests}).toEqual({
