@@ -12,7 +12,6 @@ import {
 import {isRecord} from './validation';
 
 export type SetLicenseKeyInStudioErrorCode =
-	| 'unsupported-origin'
 	| 'invalid-license-key'
 	| 'no-compatible-studio'
 	| 'studio-upgrade-required'
@@ -45,7 +44,6 @@ export type SetLicenseKeyInStudioDependencies = {
 	readonly fetchFn: StudioProtocolFetcher;
 	readonly now: () => number;
 	readonly ports: readonly number[];
-	readonly pageOrigin: string | null;
 };
 
 export type StudioProtocolSetLicenseKeyRequest = {
@@ -56,42 +54,10 @@ export type StudioProtocolSetLicenseKeyRequest = {
 	readonly licenseKey: string;
 };
 
-const isAllowedLicenseKeyPageOrigin = (origin: string | null): boolean => {
-	if (origin === null) {
-		return false;
-	}
-
-	try {
-		const url = new URL(origin);
-		if (
-			url.protocol === 'http:' &&
-			(url.hostname === 'localhost' || url.hostname === '127.0.0.1')
-		) {
-			return true;
-		}
-
-		return (
-			url.origin === 'https://remotion.pro' ||
-			url.origin === 'https://www.remotion.pro'
-		);
-	} catch {
-		return false;
-	}
-};
-
 export const setLicenseKeyInStudioWithDependencies = async (
 	licenseKey: string,
 	dependencies: SetLicenseKeyInStudioDependencies,
 ): Promise<SetLicenseKeyInStudioResult> => {
-	if (!isAllowedLicenseKeyPageOrigin(dependencies.pageOrigin)) {
-		return {
-			success: false,
-			code: 'unsupported-origin',
-			message:
-				'Setting a Studio license key is only supported on remotion.pro and local development origins.',
-		};
-	}
-
 	if (!isValidPublicLicenseKey(licenseKey)) {
 		return {
 			success: false,
@@ -269,9 +235,5 @@ export const setLicenseKeyInStudio = ({
 	setLicenseKeyInStudioWithDependencies(licenseKey, {
 		fetchFn: fetch,
 		now: Date.now,
-		pageOrigin:
-			typeof globalThis.location === 'undefined'
-				? null
-				: globalThis.location.origin,
 		ports: studioProtocolProbePorts,
 	});

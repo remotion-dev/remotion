@@ -4,10 +4,14 @@ import {build} from 'bun';
 import {getBrowserStudioDependencyVersionsForBuild} from './get-dependency-versions-for-build';
 import {getBrowserStudioReactRefreshFilesForBuild} from './get-react-refresh-files-for-build';
 import {getBrowserStudioSetupEnvironmentForBuild} from './get-setup-environment-for-build';
+import {getBrowserStudioWorkspacePackageExportsForBuild} from './get-workspace-package-exports-for-build';
 import {studioRenderEntryExternal} from './studio-render-entry-external';
 
 const port = Number(process.env.PORT ?? 62338);
 const outDir = path.join(import.meta.dir, '..', '..', 'dist', 'dev');
+const repoDir = path.join(import.meta.dir, '..', '..', '..', '..');
+const workspacePackagesDir = path.join(repoDir, 'packages');
+const workspacePackagePath = '/__remotion_browser_studio_workspace__/';
 
 const headers = {
 	'Cross-Origin-Embedder-Policy': 'credentialless',
@@ -68,6 +72,8 @@ const buildDevAssets = async () => {
 	const dependencyVersions = getBrowserStudioDependencyVersionsForBuild();
 	const reactRefreshFiles = getBrowserStudioReactRefreshFilesForBuild();
 	const setupEnvironment = getBrowserStudioSetupEnvironmentForBuild();
+	const workspacePackageExports =
+		getBrowserStudioWorkspacePackageExportsForBuild();
 	const output = await build({
 		entrypoints: ['src/dev/index.tsx', 'src/browser-studio-worker.ts'],
 		define: {
@@ -75,6 +81,9 @@ const buildDevAssets = async () => {
 				JSON.stringify(dependencyVersions),
 			__BROWSER_STUDIO_REACT_REFRESH_FILES__: JSON.stringify(reactRefreshFiles),
 			__BROWSER_STUDIO_SETUP_ENVIRONMENT__: JSON.stringify(setupEnvironment),
+			__BROWSER_STUDIO_WORKSPACE_PACKAGE_EXPORTS__: JSON.stringify(
+				workspacePackageExports,
+			),
 		},
 		format: 'esm',
 		naming: '[name].mjs',
@@ -145,6 +154,32 @@ const start = async () => {
 			if (url.pathname === '/frame.html') {
 				return responseWithHeaders(frameHtml, {
 					headers: {'Content-Type': contentTypes['.html']},
+				});
+			}
+
+			if (url.pathname.startsWith(workspacePackagePath)) {
+				const relativePath = url.pathname.slice(workspacePackagePath.length);
+				const workspaceAssetPath = path.join(
+					repoDir,
+					path.normalize(relativePath),
+				);
+				if (
+					!workspaceAssetPath.startsWith(`${workspacePackagesDir}${path.sep}`)
+				) {
+					return responseWithHeaders('Not found', {status: 404});
+				}
+
+				const workspaceFile = Bun.file(workspaceAssetPath);
+				if (!(await workspaceFile.exists())) {
+					return responseWithHeaders('Not found', {status: 404});
+				}
+
+				const workspaceContentType =
+					contentTypes[path.extname(workspaceAssetPath)];
+				return responseWithHeaders(workspaceFile, {
+					headers: workspaceContentType
+						? {'Content-Type': workspaceContentType}
+						: undefined,
 				});
 			}
 

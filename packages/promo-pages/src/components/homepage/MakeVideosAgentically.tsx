@@ -21,7 +21,7 @@ export const MakeVideosAgentically: React.FC<{
 	showLinks = true,
 	links = [
 		{label: 'Agent Skills', href: '/docs/ai/skills'},
-		{label: 'Prompts', href: '/prompts'},
+		{label: 'Plugins', href: '/docs/ai/plugins'},
 	],
 	showVideo = true,
 	videoSrc = '/img/render-progress.webm',

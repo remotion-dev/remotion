@@ -11,12 +11,12 @@ Before starting, read the [Element Guidelines](/elements/guidelines). They descr
 
 ## Use the Agent Skills
 
-Two [Agent Skills](https://agentskills.io/) are available in the Remotion repository. They contain the technical workflow, including file layout, metadata, previews, and validation:
+Two [Agent Skills](https://agentskills.io/) define the contribution workflow:
 
-- Use the [`scaffold-element` Agent Skill](https://github.com/remotion-dev/remotion/blob/main/.agents/skills/scaffold-element/SKILL.md) to scaffold and register an Element for development.
-- Use the [`publish-element` Agent Skill](https://github.com/remotion-dev/remotion/blob/main/.agents/skills/publish-element/SKILL.md) after developing and reviewing the Element in Remotion Studio. It adds the Element to the gallery, renders its previews, and runs the final checks.
+- Use the [`scaffold-element` Agent Skill](https://github.com/remotion-dev/remotion/blob/main/.agents/skills/scaffold-element/SKILL.md) to create the repository files and development composition.
+- Use the [`submit-element` Agent Skill](https://github.com/remotion-dev/remotion/blob/main/.agents/skills/submit-element/SKILL.md) after reviewing the Element in Remotion Studio. It adds the Element to the gallery and prepares it for review.
 
-Ask your coding agent to use the appropriate skill. The workflows are separate so you can develop and review an Element before preparing it for publication.
+Ask your coding agent to use the skills in that order.
 
 ## Open the pull request
 
@@ -24,7 +24,9 @@ When submitting an Element as a pull request, include:
 
 - The Element implementation, page, and gallery registration
 - What makes it useful
-- The rendered preview
+- A working PNG and MP4 preview
 - Links to inspiration, if any
+
+The submission skill prepares the previews so they work in the pull request deployment. Keep “Allow edits from maintainers” enabled on the pull request.
 
 [Open a pull request on GitHub](https://github.com/remotion-dev/remotion/compare)

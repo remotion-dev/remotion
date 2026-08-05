@@ -23,8 +23,12 @@ import {TextMarker} from '../../../elements/text/text-marker/text-marker';
 import type {Contributor} from '../Credits';
 
 export type ElementPreviewMetadata = {
-	readonly posterUrl: `https://remotion.media/elements/${string}-preview.png`;
-	readonly videoUrl: `https://remotion.media/elements/${string}-preview.mp4`;
+	readonly posterUrl:
+		| `/elements/${string}-preview.png`
+		| `https://remotion.media/elements/${string}-preview.png`;
+	readonly videoUrl:
+		| `/elements/${string}-preview.mp4`
+		| `https://remotion.media/elements/${string}-preview.mp4`;
 };
 
 export type ElementDefinition = {

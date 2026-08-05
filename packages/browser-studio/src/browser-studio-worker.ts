@@ -15,6 +15,10 @@ import {
 	browserStudioVirtualFilePaths,
 	getBrowserStudioVirtualFiles,
 } from './virtual-files';
+import {
+	getBrowserStudioWorkspacePackageExports,
+	resolveBrowserStudioWorkspacePackage,
+} from './workspace-package-exports';
 
 type BuiltinMemFs = typeof RspackBrowser.builtinMemFs;
 type Compiler = RspackBrowser.Compiler;
@@ -237,12 +241,14 @@ const getBrowserStudioHmrRuntimePlugin = (
 const createCompiler = async ({
 	dependencyResolutions,
 	project,
+	workspacePackageBaseUrl,
 }: Extract<BrowserStudioWorkerCompileRequest, {type: 'init'}>) => {
 	const rspackBrowser = await loadRspackBrowser();
 	const {BrowserHttpImportEsmPlugin, builtinMemFs, rspack} = rspackBrowser;
 	writeInitialFiles({builtinMemFs, project});
 
 	const resolvedVersions = {...browserStudioDependencyVersions};
+	const workspacePackageExports = getBrowserStudioWorkspacePackageExports();
 	const resolvedUrls: Record<string, string> = {};
 	for (const [name, resolution] of Object.entries(dependencyResolutions)) {
 		applyDependencyResolution({
@@ -273,7 +279,11 @@ const createCompiler = async ({
 		entry: {bundle: {asyncChunks: false, import: entryPoints}},
 		experiments: {
 			buildHttp: {
-				allowedUris: ['https://esm.sh/', `${self.location.origin}/`],
+				allowedUris: [
+					'https://esm.sh/',
+					`${self.location.origin}/`,
+					...(workspacePackageBaseUrl ? [workspacePackageBaseUrl] : []),
+				],
 				cacheLocation: false,
 			},
 		},
@@ -351,6 +361,17 @@ const createCompiler = async ({
 				dependencyUrl: ({request}) => {
 					if (!isBarePackageImport(request)) {
 						return undefined;
+					}
+
+					if (workspacePackageBaseUrl) {
+						const workspacePackageUrl = resolveBrowserStudioWorkspacePackage({
+							baseUrl: workspacePackageBaseUrl,
+							packages: workspacePackageExports,
+							request,
+						});
+						if (workspacePackageUrl) {
+							return workspacePackageUrl;
+						}
 					}
 
 					const packageName = getPackageName(request);

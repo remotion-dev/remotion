@@ -20,7 +20,8 @@
 		"test": "bun test src",
 		"remotion": "remotion studio src/remotion/entry.ts",
 		"render-cards": "bun run render-cards.ts",
-		"render-element-previews": "bun run render-element-previews.ts"
+		"render-element-previews": "bun run render-element-previews.ts",
+		"upload-element-preview": "bun run upload-element-preview.ts"
 	},
 	"dependencies": {
 		"@remotion/studio-protocol": "workspace:*",
