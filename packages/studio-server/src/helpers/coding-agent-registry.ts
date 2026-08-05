@@ -446,7 +446,7 @@ export const getCodingAgentLaunchCommand = ({
 		switch (codingAgent.id) {
 			case 'codex':
 				return {
-					command: path.join(
+					command: path.posix.join(
 						codingAgent.applicationPath,
 						'Contents/Resources/codex',
 					),
@@ -455,7 +455,7 @@ export const getCodingAgentLaunchCommand = ({
 				};
 			case 'cursor':
 				return {
-					command: path.join(
+					command: path.posix.join(
 						codingAgent.applicationPath,
 						'Contents/Resources/app/bin/cursor',
 					),
