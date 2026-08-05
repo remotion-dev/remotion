@@ -27,7 +27,10 @@ import {useRuntimeValueSnapshots} from '../helpers/use-runtime-values';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
 import {ScaleLockContext} from '../state/scale-lock';
-import {TimelineSequenceHoverContext} from '../state/timeline-sequence-hover';
+import {
+	useSetTimelineSequenceHover,
+	useTimelineSequenceHoverState,
+} from '../state/timeline-sequence-hover';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
 	clearSelectedOutlineDragOverrides,
@@ -668,9 +671,8 @@ export const SelectedOutlineOverlay: React.FC<{
 	);
 	const {getScaleLockState} = useContext(ScaleLockContext);
 	const {editorShowOutlines} = useContext(EditorShowOutlinesContext);
-	const {hoveredSequence, setHoveredSequence} = useContext(
-		TimelineSequenceHoverContext,
-	);
+	const hoveredSequence = useTimelineSequenceHoverState();
+	const setHoveredSequence = useSetTimelineSequenceHover();
 	const {editorShowGuides, guidesList} = useContext(EditorShowGuidesContext);
 	const isFullscreen = useIsFullscreen();
 	const {frameBack, frameForward, getCurrentFrame, seek} =
