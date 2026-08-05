@@ -192,7 +192,7 @@ export const SequenceInspectorDuplicationSection: React.FC<{
 						margin: '2px 0',
 					}}
 				>
-					Duplicated {numberOfInstances} times
+					{numberOfInstances} instances
 				</span>
 			}
 		>

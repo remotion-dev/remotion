@@ -119,7 +119,7 @@ test.describe('visual mode', () => {
 		await expect(visibleOutlines).toHaveCount(5);
 
 		await firstGridline.click();
-		const duplicationLabel = page.getByText('Duplicated 5 times', {
+		const duplicationLabel = page.getByText('5 instances', {
 			exact: true,
 		});
 		await expect(duplicationLabel).toBeVisible();
