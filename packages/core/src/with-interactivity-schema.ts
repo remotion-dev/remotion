@@ -5,6 +5,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
+import {CanUseRemotionHooks} from './CanUseRemotionHooks.js';
 import type {
 	JsxComponentIdentity,
 	SequenceControls,
@@ -189,8 +190,9 @@ export const withInteractivitySchema = <
 		} = props as Props & {readonly _remotionInternalStack?: string};
 		const cleanProps = propsWithoutInternalStack as Props;
 		const env = useRemotionEnvironment();
+		const canUseRemotionHooks = useContext(CanUseRemotionHooks);
 
-		if (!env.isStudio || env.isRendering) {
+		if (!env.isStudio || env.isRendering || !canUseRemotionHooks) {
 			return React.createElement(Component, {
 				...cleanProps,
 				controls: null,
