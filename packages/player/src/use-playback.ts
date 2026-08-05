@@ -163,6 +163,7 @@ export const usePlayback = ({
 		}
 
 		let hasBeenStopped = false;
+		let audioContextFailed = false;
 		let reqAnimFrameCall:
 			| {
 					type: 'raf';
@@ -201,7 +202,7 @@ export const usePlayback = ({
 				return;
 			}
 
-			if (!muted && !context.buffering.current) {
+			if (!muted && !audioContextFailed && !context.buffering.current) {
 				sharedAudioContext?.resume?.();
 			}
 
@@ -246,8 +247,9 @@ export const usePlayback = ({
 				return;
 			}
 
-			const getIsResumingAudioContext =
-				sharedAudioContext?.getIsResumingAudioContext?.() ?? null;
+			const getIsResumingAudioContext = audioContextFailed
+				? null
+				: (sharedAudioContext?.getIsResumingAudioContext?.() ?? null);
 			if (getIsResumingAudioContext !== null && !muted) {
 				getIsResumingAudioContext.then((result) => {
 					if (hasBeenStopped) {
@@ -255,6 +257,7 @@ export const usePlayback = ({
 					}
 
 					if (result === 'failed') {
+						audioContextFailed = true;
 						sharedAudioContext?.suspend();
 						setPlayerMuted(true);
 					}
@@ -268,7 +271,7 @@ export const usePlayback = ({
 			}
 
 			if (context.buffering.current) {
-				if (!muted) {
+				if (!muted && !audioContextFailed) {
 					sharedAudioContext?.suspend?.();
 				}
 

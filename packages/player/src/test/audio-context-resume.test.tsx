@@ -145,6 +145,7 @@ test('Player mutes and continues after an AudioContext resume stays pending', as
 		expect(playerRef.current?.getCurrentFrame()).toBeGreaterThan(
 			stalledFrame ?? 0,
 		);
+		expect(resumeCalls).toBe(1);
 		expect(animationFrames.size).toBe(1);
 
 		await act(async () => {
