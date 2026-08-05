@@ -97,7 +97,7 @@ export const elementDefinitions = {
 		},
 		previewPadding: 0,
 		slug: 'maps/map-flyover',
-		installationMode: 'wrapped',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	'backgrounds/notebook-paper': {

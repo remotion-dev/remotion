@@ -15,6 +15,7 @@ import {
 	Sequence,
 	interpolate,
 	type InteractiveBaseProps,
+	type InteractiveTransformProps,
 	type InteractivitySchema,
 	type SequenceControls,
 	useCurrentFrame,
@@ -24,14 +25,15 @@ import {
 
 // Reference: https://www.youtube.com/watch?v=D_PtYPnKBJs&t=76s
 // A world map establishes the route before the camera moves in.
-type MapFlyoverLayerProps = InteractiveBaseProps & {
-	readonly destination?: readonly [number, number];
-	readonly destinationLabel?: string;
-	readonly lineWidth?: number;
-	readonly origin?: readonly [number, number];
-	readonly originLabel?: string;
-	readonly routeColor?: string;
-};
+type MapFlyoverLayerProps = InteractiveBaseProps &
+	InteractiveTransformProps & {
+		readonly destination?: readonly [number, number];
+		readonly destinationLabel?: string;
+		readonly lineWidth?: number;
+		readonly origin?: readonly [number, number];
+		readonly originLabel?: string;
+		readonly routeColor?: string;
+	};
 
 const mapFlyoverSchema = {
 	...Interactive.baseSchema,
@@ -77,6 +79,7 @@ const mapFlyoverSchema = {
 		description: 'Route width',
 		hiddenFromList: false,
 	},
+	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const MapFlyoverLayerInner = forwardRef<
@@ -98,6 +101,7 @@ const MapFlyoverLayerInner = forwardRef<
 			originLabel = 'London',
 			routeColor = '#ff5c4d',
 			showInTimeline,
+			style,
 			trimBefore,
 		},
 		ref,
@@ -367,6 +371,7 @@ const MapFlyoverLayerInner = forwardRef<
 						overflow: 'hidden',
 						position: 'absolute',
 						width,
+						...style,
 					}}
 				>
 					<div
@@ -500,16 +505,17 @@ const InteractiveMapFlyoverLayer = Interactive.withSchema({
 	supportsEffects: false,
 }) as React.FC<MapFlyoverLayerProps>;
 
-export const MapFlyover: React.FC = () => {
+export const MapFlyover: React.FC<MapFlyoverLayerProps> = (props) => {
 	return (
 		<InteractiveMapFlyoverLayer
-			name="Container"
+			name="Map Flyover"
 			origin={[-0.1276, 51.5072]}
 			destination={[139.6917, 35.6895]}
 			originLabel="London"
 			destinationLabel="Tokyo"
 			routeColor={'#564dff'}
 			lineWidth={24}
+			{...props}
 		/>
 	);
 };
