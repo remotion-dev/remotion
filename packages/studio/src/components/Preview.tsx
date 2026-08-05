@@ -289,7 +289,6 @@ const PortalContainer: React.FC<{
 	useLayoutEffect(() => {
 		const {current} = portalContainer;
 		current?.appendChild(Internals.portalNode());
-		Internals.setPortalNodeCurrentScale(scale);
 
 		return () => {
 			const portalNode = Internals.portalNode();
@@ -298,6 +297,10 @@ const PortalContainer: React.FC<{
 				Internals.setPortalNodeCurrentScale(1);
 			}
 		};
+	}, []);
+
+	useLayoutEffect(() => {
+		Internals.setPortalNodeCurrentScale(scale);
 	}, [scale]);
 
 	const onPointerDown = useCallback(
