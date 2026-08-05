@@ -451,7 +451,6 @@ export const handleRoutes = ({
 	) {
 		if (request.method === 'OPTIONS') {
 			return handleStudioProtocolOptions({
-				licenseKey: url.pathname === '/api/studio-protocol/license-key',
 				request,
 				response,
 			});
