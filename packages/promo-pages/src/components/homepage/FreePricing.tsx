@@ -320,7 +320,7 @@ export const CompanyPricing: React.FC = () => {
 			<PricingBulletPoint text="Pay according to usage" checked />
 			<PricingBulletPoint text="Prioritized Support" checked />
 			<PricingBulletPoint
-				text="$250 Mux credits (applies only to new Mux customers)"
+				text="$250 Mux credits (for new Mux customers)"
 				checked
 			/>
 			<div style={{height: 30}} />
