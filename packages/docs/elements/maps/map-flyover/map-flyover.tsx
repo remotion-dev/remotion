@@ -1,5 +1,5 @@
 import * as turf from '@turf/turf';
-import maplibregl, {type GeoJSONSource, type Map} from 'maplibre-gl';
+import maplibregl, {type Map} from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import React, {
 	forwardRef,
@@ -239,12 +239,59 @@ const MapFlyoverLayerInner = forwardRef<
 			[mapPlate.overviewZoom, mapPlate.zoom],
 		);
 		const plateScale = 2 ** (cameraZoom - mapPlate.zoom);
-		const projectedCameraCenter = map?.project(cameraCenter);
-		const plateTransform = projectedCameraCenter
-			? `translate(${width / 2 - projectedCameraCenter.x * plateScale}px, ${
-					height / 2 - projectedCameraCenter.y * plateScale
-				}px) scale(${plateScale})`
-			: undefined;
+
+		// Keep frame-reactive graphics out of MapLibre's async render pipeline.
+		// The SVG and basemap use the exact same deterministic plate transform.
+		const projectedOverlay = useMemo(() => {
+			const center = maplibregl.MercatorCoordinate.fromLngLat(mapPlate.center);
+			const worldSize = 512 * 2 ** mapPlate.zoom;
+			const project = (coordinate: readonly [number, number]) => {
+				const mercator = maplibregl.MercatorCoordinate.fromLngLat({
+					lng: coordinate[0],
+					lat: coordinate[1],
+				});
+
+				return {
+					x: (mercator.x - center.x) * worldSize + mapPlate.width / 2,
+					y: (mercator.y - center.y) * worldSize + mapPlate.height / 2,
+				};
+			};
+			const routePath = partialRoute.geometry.coordinates
+				.map((coordinate, index) => {
+					const point = project(coordinate as [number, number]);
+					return `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`;
+				})
+				.join(' ');
+
+			return {
+				current: project(currentPoint),
+				end: project(endCoordinates),
+				routePath,
+				start: project(startCoordinates),
+			};
+		}, [
+			currentPoint,
+			endCoordinates,
+			mapPlate,
+			partialRoute,
+			startCoordinates,
+		]);
+		const projectedCameraCenter = useMemo(() => {
+			const center = maplibregl.MercatorCoordinate.fromLngLat(mapPlate.center);
+			const camera = maplibregl.MercatorCoordinate.fromLngLat({
+				lng: cameraCenter[0],
+				lat: cameraCenter[1],
+			});
+			const worldSize = 512 * 2 ** mapPlate.zoom;
+
+			return {
+				x: (camera.x - center.x) * worldSize + mapPlate.width / 2,
+				y: (camera.y - center.y) * worldSize + mapPlate.height / 2,
+			};
+		}, [cameraCenter, mapPlate]);
+		const plateTransform = `translate(${width / 2 - projectedCameraCenter.x * plateScale}px, ${
+			height / 2 - projectedCameraCenter.y * plateScale
+		}px) scale(${plateScale})`;
 
 		useEffect(() => {
 			if (!mapContainerRef.current || mapRef.current) {
@@ -268,97 +315,11 @@ const MapFlyoverLayerInner = forwardRef<
 			mapRef.current = mapInstance;
 
 			mapInstance.on('load', () => {
-				mapInstance.addSource('flyover-route', {
-					type: 'geojson',
-					data: partialRoute,
-				});
-				mapInstance.addLayer({
-					id: 'flyover-route-glow',
-					type: 'line',
-					source: 'flyover-route',
-					layout: {
-						'line-cap': 'round',
-						'line-join': 'round',
-					},
-					paint: {
-						'line-blur': 8,
-						'line-color': '#ff5c4d',
-						'line-opacity': 0.35,
-						'line-width': 24,
-					},
-				});
-				mapInstance.addLayer({
-					id: 'flyover-route-line',
-					type: 'line',
-					source: 'flyover-route',
-					layout: {
-						'line-cap': 'round',
-						'line-join': 'round',
-					},
-					paint: {
-						'line-color': '#ff5c4d',
-						'line-width': 8,
-					},
-				});
-				mapInstance.addSource('flyover-endpoints', {
-					type: 'geojson',
-					data: turf.featureCollection([]),
-				});
-				mapInstance.addLayer({
-					id: 'flyover-endpoint-dots',
-					type: 'circle',
-					source: 'flyover-endpoints',
-					paint: {
-						'circle-color': '#ff5c4d',
-						'circle-radius': 14,
-						'circle-stroke-color': '#ffffff',
-						'circle-stroke-width': 5,
-					},
-				});
-				mapInstance.addLayer({
-					id: 'flyover-endpoint-numbers',
-					type: 'symbol',
-					source: 'flyover-endpoints',
-					layout: {
-						'text-allow-overlap': true,
-						'text-field': ['get', 'marker'],
-						'text-size': 20,
-					},
-					paint: {
-						'text-color': '#111827',
-					},
-				});
-				mapInstance.addLayer({
-					id: 'flyover-endpoint-labels',
-					type: 'symbol',
-					source: 'flyover-endpoints',
-					layout: {
-						'text-allow-overlap': true,
-						'text-anchor': 'top',
-						'text-field': ['get', 'label'],
-						'text-offset': [0, 1.1],
-						'text-size': 28,
-					},
-					paint: {
-						'text-color': '#111827',
-						'text-halo-color': '#ffffff',
-						'text-halo-width': 3,
-					},
-				});
-				mapInstance.addSource('flyover-traveler', {
-					type: 'geojson',
-					data: turf.featureCollection([]),
-				});
-				mapInstance.addLayer({
-					id: 'flyover-traveler-dot',
-					type: 'circle',
-					source: 'flyover-traveler',
-					paint: {
-						'circle-color': '#ffffff',
-						'circle-radius': 9,
-						'circle-stroke-color': '#111827',
-						'circle-stroke-width': 4,
-					},
+				mapInstance.jumpTo({
+					bearing: 0,
+					center: mapPlate.center,
+					pitch: 0,
+					zoom: mapPlate.zoom,
 				});
 				mapInstance.once('idle', () => {
 					setMap(mapInstance);
@@ -366,7 +327,7 @@ const MapFlyoverLayerInner = forwardRef<
 				});
 				mapInstance.triggerRepaint();
 			});
-		}, [continueRender, loadingHandle, mapPlate, partialRoute]);
+		}, [continueRender, loadingHandle, mapPlate]);
 
 		useEffect(() => {
 			if (!map) {
@@ -374,6 +335,7 @@ const MapFlyoverLayerInner = forwardRef<
 			}
 
 			const mapPlateHandle = delayRender('Reframing MapLibre map plate');
+			map.resize();
 			map.jumpTo({
 				bearing: 0,
 				center: mapPlate.center,
@@ -383,50 +345,6 @@ const MapFlyoverLayerInner = forwardRef<
 			map.once('idle', () => continueRender(mapPlateHandle));
 			map.triggerRepaint();
 		}, [continueRender, delayRender, map, mapPlate.center, mapPlate.zoom]);
-
-		useEffect(() => {
-			if (!map) {
-				return;
-			}
-
-			const frameHandle = delayRender('Rendering MapLibre flyover frame');
-			(map.getSource('flyover-route') as GeoJSONSource).setData(partialRoute);
-			(map.getSource('flyover-endpoints') as GeoJSONSource).setData(
-				turf.featureCollection([
-					turf.point(startCoordinates, {
-						label: originLabel,
-						marker: '1',
-					}),
-					turf.point(endCoordinates, {
-						label: destinationLabel,
-						marker: '2',
-					}),
-				]),
-			);
-			(map.getSource('flyover-traveler') as GeoJSONSource).setData(
-				turf.featureCollection(frame < 50 ? [] : [turf.point(currentPoint)]),
-			);
-			map.setPaintProperty('flyover-route-glow', 'line-color', routeColor);
-			map.setPaintProperty('flyover-route-glow', 'line-width', lineWidth + 16);
-			map.setPaintProperty('flyover-route-line', 'line-color', routeColor);
-			map.setPaintProperty('flyover-route-line', 'line-width', lineWidth);
-			map.setPaintProperty('flyover-endpoint-dots', 'circle-color', routeColor);
-			map.once('idle', () => continueRender(frameHandle));
-			map.triggerRepaint();
-		}, [
-			continueRender,
-			currentPoint,
-			delayRender,
-			destinationLabel,
-			endCoordinates,
-			frame,
-			lineWidth,
-			map,
-			originLabel,
-			partialRoute,
-			routeColor,
-			startCoordinates,
-		]);
 
 		return (
 			<Sequence
@@ -463,6 +381,87 @@ const MapFlyoverLayerInner = forwardRef<
 							willChange: 'transform',
 						}}
 					/>
+					<svg
+						viewBox={`0 0 ${mapPlate.width} ${mapPlate.height}`}
+						style={{
+							height: mapPlate.height,
+							opacity: map ? 1 : 0,
+							overflow: 'visible',
+							pointerEvents: 'none',
+							position: 'absolute',
+							transform: plateTransform,
+							transformOrigin: '0 0',
+							width: mapPlate.width,
+							willChange: 'transform',
+						}}
+					>
+						<path
+							d={projectedOverlay.routePath}
+							fill="none"
+							stroke={routeColor}
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeWidth={lineWidth}
+						/>
+						{[
+							{
+								label: originLabel,
+								marker: '1',
+								point: projectedOverlay.start,
+							},
+							{
+								label: destinationLabel,
+								marker: '2',
+								point: projectedOverlay.end,
+							},
+						].map(({label, marker, point}) => (
+							<g key={marker}>
+								<circle
+									cx={point.x}
+									cy={point.y}
+									fill={routeColor}
+									r={14}
+									stroke="#ffffff"
+									strokeWidth={5}
+								/>
+								<text
+									x={point.x}
+									y={point.y}
+									dominantBaseline="central"
+									fill="#111827"
+									fontFamily="sans-serif"
+									fontSize={20}
+									textAnchor="middle"
+								>
+									{marker}
+								</text>
+								<text
+									x={point.x}
+									y={point.y + 42}
+									fill="#111827"
+									fontFamily="sans-serif"
+									fontSize={28}
+									paintOrder="stroke"
+									stroke="#ffffff"
+									strokeLinejoin="round"
+									strokeWidth={6}
+									textAnchor="middle"
+								>
+									{label}
+								</text>
+							</g>
+						))}
+						{frame >= 50 ? (
+							<circle
+								cx={projectedOverlay.current.x}
+								cy={projectedOverlay.current.y}
+								fill="#ffffff"
+								r={9}
+								stroke="#111827"
+								strokeWidth={4}
+							/>
+						) : null}
+					</svg>
 					<div
 						style={{
 							background:
