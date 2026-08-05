@@ -117,7 +117,7 @@ type SequenceReorderDragData = {
 
 let currentSequenceDrag: SequenceReorderDragData | null = null;
 
-const TimelineSequenceExpandArrow: React.FC<{
+const TimelineSequenceExpandArrowInner: React.FC<{
 	readonly disabled: boolean;
 	readonly isExpanded: boolean;
 	readonly nodePathInfo: SequenceNodePathInfo;
@@ -144,6 +144,10 @@ const TimelineSequenceExpandArrow: React.FC<{
 		/>
 	);
 };
+
+const TimelineSequenceExpandArrow = React.memo(
+	TimelineSequenceExpandArrowInner,
+);
 
 const sequenceReorderWrapper: React.CSSProperties = {
 	position: 'relative',
