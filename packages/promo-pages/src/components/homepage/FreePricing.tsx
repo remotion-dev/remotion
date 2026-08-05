@@ -329,7 +329,9 @@ export const CompanyPricing: React.FC = () => {
 
 	return (
 		<Container>
-			<Audience>For collaborations and companies of 4+ people</Audience>
+			<Audience>
+				Required for collaborations and companies of 4+ people
+			</Audience>
 			<Title>Company License</Title>
 			<PricingBulletPoint text="Create and automate" checked />
 			<PricingBulletPoint text="Commercial use allowed" checked />
