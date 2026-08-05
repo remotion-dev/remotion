@@ -180,6 +180,15 @@ export const articles = [
 		slug: 'ai/mcp',
 	},
 	{
+		id: 'ai/plugins',
+		title: 'Plugins',
+		relativePath: 'docs/ai/plugins.mdx',
+		compId: 'articles-docs-ai-plugins',
+		crumb: 'AI',
+		noAi: false,
+		slug: 'ai/plugins',
+	},
+	{
 		id: 'ai/skills',
 		title: 'Agent Skills',
 		relativePath: 'docs/ai/skills.mdx',
