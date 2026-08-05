@@ -4,13 +4,18 @@ import {defaultCodingAgentIds} from '@remotion/renderer';
 import type {
 	GetDefaultCodingAgentInfoRequest,
 	GetDefaultCodingAgentInfoResponse,
+	OpenInCodingAgentRequest,
+	OpenInCodingAgentResponse,
 	UpdateDefaultCodingAgentRequest,
 	UpdateDefaultCodingAgentResponse,
 } from '@remotion/studio-shared';
 import * as recast from 'recast';
 import {parseAst} from '../../codemods/parse-ast';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
-import {getAvailableCodingAgents} from '../../helpers/coding-agent-registry';
+import {
+	getAvailableCodingAgents,
+	launchCodingAgent,
+} from '../../helpers/coding-agent-registry';
 import type {ApiHandler} from '../api-types';
 
 export const updateDefaultCodingAgentInConfig = ({
@@ -59,10 +64,34 @@ export const getDefaultCodingAgentInfoHandler: ApiHandler<
 	const installedCodingAgents = await getAvailableCodingAgents();
 	return {
 		defaultCodingAgent: getDefaultCodingAgent(),
-		installedCodingAgents: installedCodingAgents.map(({id, name}) => ({
-			id,
-			name,
-		})),
+		installedCodingAgents: installedCodingAgents.map(
+			({iconDataUrl, id, name}) => ({
+				iconDataUrl,
+				id,
+				name,
+			}),
+		),
+	};
+};
+
+export const openInCodingAgentHandler: ApiHandler<
+	OpenInCodingAgentRequest,
+	OpenInCodingAgentResponse
+> = async ({input, logLevel, remotionRoot}) => {
+	const codingAgent = (await getAvailableCodingAgents()).find(
+		(agent) => agent.id === input.codingAgentId,
+	);
+	if (!codingAgent) {
+		return {success: false};
+	}
+
+	return {
+		success: await launchCodingAgent({
+			codingAgent,
+			projectPath: remotionRoot,
+			logLevel,
+			prompt: input.prompt,
+		}),
 	};
 };
 

@@ -73,6 +73,8 @@ export {
 	MoveKeyframesRequest,
 	MoveKeyframesResponse,
 	MoveSequenceKeyframe,
+	OpenInCodingAgentRequest,
+	OpenInCodingAgentResponse,
 	OpenInEditorRequest,
 	OpenInEditorResponse,
 	OpenInFileExplorerRequest,

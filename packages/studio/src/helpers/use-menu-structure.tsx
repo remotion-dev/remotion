@@ -1178,7 +1178,7 @@ const itemToSearchResult = (
 	if (item.subMenu) {
 		return item.subMenu.items
 			.map((subItem) => {
-				if (subItem.type === 'divider') {
+				if (subItem.type !== 'item') {
 					return null;
 				}
 
@@ -1211,7 +1211,7 @@ export const makeSearchResults = (
 	const items: TQuickSwitcherResult[] = actions
 		.map((menu) => {
 			return menu.items.map((item): TQuickSwitcherResult[] | null => {
-				if (item.type === 'divider') {
+				if (item.type !== 'item') {
 					return null;
 				}
 

@@ -13,6 +13,7 @@ import {compositionComponentInfoHandler} from './routes/composition-component-in
 import {convertFigmaClipboardToSvgHandler} from './routes/convert-figma-clipboard-to-svg';
 import {
 	getDefaultCodingAgentInfoHandler,
+	openInCodingAgentHandler,
 	updateDefaultCodingAgentHandler,
 } from './routes/default-coding-agent';
 import {
@@ -79,6 +80,7 @@ export const allApiRoutes: {
 	'/api/find-in-file': findInFileHandler,
 	'/api/open-in-file-explorer': handleOpenInFileExplorer,
 	'/api/open-in-editor': openInEditorHandler,
+	'/api/open-in-coding-agent': openInCodingAgentHandler,
 	'/api/register-client-render': registerClientRenderHandler,
 	'/api/unregister-client-render': unregisterClientRenderHandler,
 	'/api/update-default-props': updateDefaultPropsHandler,
