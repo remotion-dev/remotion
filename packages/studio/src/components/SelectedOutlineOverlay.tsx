@@ -688,6 +688,10 @@ export const SelectedOutlineOverlay: React.FC<{
 	const keyboardNudgeSessionRef =
 		useRef<SelectedOutlineKeyboardNudgeSession | null>(null);
 	const saveKeyboardNudgeSessionRef = useRef<() => void>(() => undefined);
+	const updateOutlinesRef = useRef<() => void>(() => undefined);
+	const resizeObserverRef = useRef<ResizeObserver | null>(null);
+	const resizeObserverAnimationFrameRef = useRef<number | null>(null);
+	const observedOutlineElementsRef = useRef<ReadonlySet<Element>>(new Set());
 	const previewInteractive =
 		previewServerState.type === 'connected' && isStudioInteractivityEnabled();
 	const previewSelectionAvailable =
@@ -718,7 +722,7 @@ export const SelectedOutlineOverlay: React.FC<{
 		},
 		[selectItem],
 	);
-	const outlineRuntimeControls = useMemo(() => {
+	const selectableOutlines = useMemo(() => {
 		if (
 			isFullscreen ||
 			!isStudioSelectionEnabled() ||
@@ -728,15 +732,26 @@ export const SelectedOutlineOverlay: React.FC<{
 			return [];
 		}
 
-		const selectedSequenceKeys = getSelectedSequenceKeys(selectedItems);
-		const sequenceKeysContainingSelection =
-			getSequenceKeysContainingSelection(selectedItems);
 		return getSequencesWithSelectableOutlines({
 			sequences,
 			overrideIdsToNodePaths: overrideIdToNodePathMappings,
 			compositions,
 			timelinePosition,
-		}).flatMap(({key, nodePathInfo, sequence}) => {
+		});
+	}, [
+		compositions,
+		editorShowOutlines,
+		isFullscreen,
+		overrideIdToNodePathMappings,
+		previewSelectionAvailable,
+		sequences,
+		timelinePosition,
+	]);
+	const outlineRuntimeControls = useMemo(() => {
+		const selectedSequenceKeys = getSelectedSequenceKeys(selectedItems);
+		const sequenceKeysContainingSelection =
+			getSequenceKeysContainingSelection(selectedItems);
+		return selectableOutlines.flatMap(({key, nodePathInfo, sequence}) => {
 			const nodePathKey = timelineSequenceNodePathToKey(
 				nodePathInfo.sequenceSubscriptionKey,
 			);
@@ -750,17 +765,7 @@ export const SelectedOutlineOverlay: React.FC<{
 
 			return sequence.controls ? [sequence.controls] : [];
 		});
-	}, [
-		compositions,
-		editorShowOutlines,
-		hoveredSequence?.nodePathKey,
-		isFullscreen,
-		overrideIdToNodePathMappings,
-		previewSelectionAvailable,
-		selectedItems,
-		sequences,
-		timelinePosition,
-	]);
+	}, [hoveredSequence?.nodePathKey, selectedItems, selectableOutlines]);
 	const outlineRuntimeSnapshots = useRuntimeValueSnapshots(
 		outlineRuntimeControls,
 	);
@@ -798,12 +803,6 @@ export const SelectedOutlineOverlay: React.FC<{
 				? previewServerState.clientId
 				: null;
 
-		const selectableOutlines = getSequencesWithSelectableOutlines({
-			sequences,
-			overrideIdsToNodePaths: overrideIdToNodePathMappings,
-			compositions,
-			timelinePosition,
-		});
 		const firstNodePathInfoBySourceNode = new Map<
 			string,
 			SequenceNodePathInfo
@@ -1162,13 +1161,11 @@ export const SelectedOutlineOverlay: React.FC<{
 		getScaleLockState,
 		editorShowOutlines,
 		isFullscreen,
-		overrideIdToNodePathMappings,
 		previewInteractive,
 		previewSelectionAvailable,
 		previewServerState,
 		selectedItems,
-		sequences,
-		compositions,
+		selectableOutlines,
 		timelinePosition,
 		outlineRuntimeValuesByStore,
 	]);
@@ -1462,7 +1459,7 @@ export const SelectedOutlineOverlay: React.FC<{
 						dragStates: getSelectedOutlineDragStates({
 							dragTargets: allDragTargets,
 							getDragOverrides,
-							timelinePosition,
+							timelinePosition: getCurrentFrame(),
 						}),
 						lastValues: new Map(),
 					};
@@ -1512,11 +1509,11 @@ export const SelectedOutlineOverlay: React.FC<{
 		},
 		[
 			allDragTargets,
+			getCurrentFrame,
 			getDragOverrides,
 			seekWithArrowKey,
 			selectedItems.length,
 			setDragOverrides,
-			timelinePosition,
 		],
 	);
 
@@ -1584,48 +1581,74 @@ export const SelectedOutlineOverlay: React.FC<{
 				: nextOutlines,
 		);
 	}, [outlineTargets]);
+	useLayoutEffect(() => {
+		updateOutlinesRef.current = updateOutlines;
+	}, [updateOutlines]);
 
 	useLayoutEffect(() => {
 		updateOutlines();
 	}, [outlineTargets, scale, translationX, translationY, updateOutlines]);
 
 	useLayoutEffect(() => {
-		if (outlineTargets.length === 0 || typeof ResizeObserver === 'undefined') {
+		if (typeof ResizeObserver === 'undefined') {
 			return;
 		}
 
-		let animationFrame: number | null = null;
-
-		const scheduleUpdate = () => {
-			if (animationFrame !== null) {
+		const resizeObserver = new ResizeObserver(() => {
+			if (resizeObserverAnimationFrameRef.current !== null) {
 				return;
 			}
 
-			animationFrame = requestAnimationFrame(() => {
-				animationFrame = null;
-				updateOutlines();
+			resizeObserverAnimationFrameRef.current = requestAnimationFrame(() => {
+				resizeObserverAnimationFrameRef.current = null;
+				updateOutlinesRef.current();
 			});
-		};
+		});
+		resizeObserverRef.current = resizeObserver;
 
-		const resizeObserver = new ResizeObserver(scheduleUpdate);
+		return () => {
+			if (resizeObserverAnimationFrameRef.current !== null) {
+				cancelAnimationFrame(resizeObserverAnimationFrameRef.current);
+				resizeObserverAnimationFrameRef.current = null;
+			}
+
+			resizeObserver.disconnect();
+			resizeObserverRef.current = null;
+			observedOutlineElementsRef.current = new Set();
+		};
+	}, []);
+
+	useLayoutEffect(() => {
+		const resizeObserver = resizeObserverRef.current;
+		if (resizeObserver === null) {
+			return;
+		}
+
+		const nextObservedElements = new Set<Element>();
 		if (overlayRef.current !== null) {
-			resizeObserver.observe(overlayRef.current);
+			nextObservedElements.add(overlayRef.current);
 		}
 
 		for (const target of outlineTargets) {
 			if (target.ref.current !== null) {
-				resizeObserver.observe(target.ref.current);
+				nextObservedElements.add(target.ref.current);
 			}
 		}
 
-		return () => {
-			if (animationFrame !== null) {
-				cancelAnimationFrame(animationFrame);
+		for (const element of observedOutlineElementsRef.current) {
+			if (!nextObservedElements.has(element)) {
+				resizeObserver.unobserve(element);
 			}
+		}
 
-			resizeObserver.disconnect();
-		};
-	}, [outlineTargets, updateOutlines]);
+		for (const element of nextObservedElements) {
+			if (!observedOutlineElementsRef.current.has(element)) {
+				resizeObserver.observe(element);
+			}
+		}
+
+		observedOutlineElementsRef.current = nextObservedElements;
+	}, [outlineTargets]);
 
 	if (outlineTargets.length === 0) {
 		return null;
