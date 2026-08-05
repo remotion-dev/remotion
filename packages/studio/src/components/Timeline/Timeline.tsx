@@ -10,6 +10,7 @@ import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled'
 import {useIsStill} from '../../helpers/is-current-selected-still';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
 import {getStudioMaxTimelineTracks} from '../../helpers/studio-runtime-config';
+import {timelineSequenceNodePathToKey} from '../../helpers/timeline-node-path-key';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import {importAssets, pickFilesToImport} from '../import-assets';
@@ -282,14 +283,35 @@ const TimelineInner: React.FC = () => {
 		);
 	}, [durationInFrames, timeline]);
 
+	// Keep `filtered` complete so a future toggle can show every programmatic
+	// instance without recalculating the timeline or losing its instance index.
+	const collapsed = useMemo(() => {
+		const seenNodePaths = new Set<string>();
+		return filtered.filter((track) => {
+			if (track.nodePathInfo === null) {
+				return true;
+			}
+
+			const key = timelineSequenceNodePathToKey(
+				track.nodePathInfo.sequenceSubscriptionKey,
+			);
+			if (seenNodePaths.has(key)) {
+				return false;
+			}
+
+			seenNodePaths.add(key);
+			return true;
+		});
+	}, [filtered]);
+
 	const maxTimelineTracks = getStudioMaxTimelineTracks();
 	const shown = useMemo(() => {
-		return filtered.length > maxTimelineTracks
-			? filtered.slice(0, maxTimelineTracks)
-			: filtered;
-	}, [filtered, maxTimelineTracks]);
+		return collapsed.length > maxTimelineTracks
+			? collapsed.slice(0, maxTimelineTracks)
+			: collapsed;
+	}, [collapsed, maxTimelineTracks]);
 
-	const hasBeenCut = filtered.length > shown.length;
+	const hasBeenCut = collapsed.length > shown.length;
 
 	return (
 		<TimelineContextMenuArea>

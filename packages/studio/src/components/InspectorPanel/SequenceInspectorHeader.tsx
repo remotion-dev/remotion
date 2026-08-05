@@ -10,7 +10,11 @@ import {InspectorSourceLocation} from '../InspectorSourceLocation';
 import {COMPACT_INLINE_ROW_HEIGHT} from '../layout';
 import {useOpenSequenceInEditor} from '../Timeline/use-open-sequence-in-editor';
 import {useRenameSequence} from '../Timeline/use-rename-sequence';
-import {InspectorInlineAction, InspectorSectionDivider} from './common';
+import {
+	InspectorInlineAction,
+	InspectorSection,
+	InspectorSectionDivider,
+} from './common';
 import {
 	ConnectedCompositionsSection,
 	useConnectedCompositions,
@@ -165,6 +169,38 @@ export const SequenceInspectorHeader: React.FC<{
 	);
 };
 
+export const SequenceInspectorDuplicationSection: React.FC<{
+	readonly track: TimelineTrackData;
+}> = ({track}) => {
+	const numberOfInstances =
+		track.nodePathInfo?.numberOfSequencesWithThisNodePath ?? 0;
+	if (numberOfInstances <= 1) {
+		return null;
+	}
+
+	return (
+		<InspectorSection
+			header={
+				<span
+					style={{
+						color: 'inherit',
+						display: 'block',
+						fontFamily: 'inherit',
+						fontSize: 'inherit',
+						fontWeight: 'normal',
+						lineHeight: 'inherit',
+						margin: '2px 0',
+					}}
+				>
+					{numberOfInstances} instances
+				</span>
+			}
+		>
+			{null}
+		</InspectorSection>
+	);
+};
+
 export const SequenceInspectorSections: React.FC<{
 	readonly track: TimelineTrackData;
 }> = ({track}) => {
@@ -174,6 +210,7 @@ export const SequenceInspectorSections: React.FC<{
 	return (
 		<>
 			<SequenceInspectorHeader sourceLocation={sourceLocation} track={track} />
+			<SequenceInspectorDuplicationSection track={track} />
 			{connectedCompositions.length > 0 ? (
 				<>
 					<InspectorSectionDivider />

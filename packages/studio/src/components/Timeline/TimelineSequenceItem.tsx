@@ -63,6 +63,7 @@ import {getSequenceContextMenuItems} from './get-sequence-context-menu-items';
 import {getCurrentFrame} from './imperative-state';
 import {saveSequenceProps} from './save-sequence-prop';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
+import {TimelineDuplicateCount} from './TimelineDuplicateCount';
 import {
 	TimelineExpandArrowButton,
 	TimelineExpandArrowSpacer,
@@ -335,6 +336,10 @@ const TimelineSequenceItemInner: React.FC<{
 		sequence.displayName === '' && connectedCompositions.length === 1
 			? connectedCompositions[0].id
 			: displayName;
+	const numberOfHiddenDuplicates = Math.max(
+		0,
+		(nodePathInfo?.numberOfSequencesWithThisNodePath ?? 1) - 1,
+	);
 
 	const canDeleteFromSource = Boolean(nodePath && validatedLocation?.source);
 	const nodePathKey = useMemo(
@@ -355,7 +360,9 @@ const TimelineSequenceItemInner: React.FC<{
 		[previewInteractive, sequence.controls, canDeleteFromSource],
 	);
 
-	const duplicateDisabled = deleteDisabled;
+	const isProgrammaticallyDuplicated =
+		(nodePathInfo?.numberOfSequencesWithThisNodePath ?? 1) > 1;
+	const duplicateDisabled = deleteDisabled || isProgrammaticallyDuplicated;
 	const disableInteractivityDisabled =
 		!previewInteractive ||
 		!sequence.showInTimeline ||
@@ -974,6 +981,7 @@ const TimelineSequenceItemInner: React.FC<{
 			editorInfo,
 			fileLocation,
 			includeSourceEditItems: isStudioInteractivityEnabled(),
+			isProgrammaticallyDuplicated,
 			onDeleteSequenceFromSource,
 			onDisableSequenceInteractivity,
 			onDuplicateSequenceFromSource,
@@ -1047,6 +1055,7 @@ const TimelineSequenceItemInner: React.FC<{
 		duplicateDisabled,
 		editorInfo,
 		fileLocation,
+		isProgrammaticallyDuplicated,
 		mediaSrc,
 		nodePath,
 		nodePathInfo?.supportsEffects,
@@ -1218,6 +1227,12 @@ const TimelineSequenceItemInner: React.FC<{
 					onCancelEditing={onCancelRenaming}
 					onSaveName={onSaveName}
 				/>
+				{numberOfHiddenDuplicates > 0 ? (
+					<>
+						<Spacing x={0.5} />
+						<TimelineDuplicateCount count={numberOfHiddenDuplicates} />
+					</>
+				) : null}
 				{mediaSrc ? (
 					<>
 						<Spacing x={0.5} /> <TimelineMediaInfo src={mediaSrc} />

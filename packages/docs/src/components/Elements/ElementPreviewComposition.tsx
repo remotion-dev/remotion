@@ -43,6 +43,7 @@ export const ElementPreviewComposition: React.FC<{
 					alignItems: 'center',
 					justifyContent: 'center',
 				}}
+				showInTimeline={false}
 			>
 				<Sequence height={elementHeight} layout="none" width={elementWidth}>
 					<div
@@ -72,7 +73,10 @@ export const ElementAssetComposition: React.FC<{
 	const definition = getElementDefinition(slug);
 
 	return (
-		<AbsoluteFill style={{backgroundColor: ELEMENT_PREVIEW_BACKGROUND}}>
+		<AbsoluteFill
+			style={{backgroundColor: ELEMENT_PREVIEW_BACKGROUND}}
+			showInTimeline={false}
+		>
 			<ElementPreviewComposition definition={definition} />
 		</AbsoluteFill>
 	);

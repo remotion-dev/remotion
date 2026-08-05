@@ -1,5 +1,6 @@
 import React from 'react';
 import {Composition, Folder} from 'remotion';
+import {BarChart} from './BarChart';
 import {EffectKeyframeE2e} from './EffectKeyframeE2e';
 import {
 	ErrorOverlayRepro,
@@ -43,6 +44,14 @@ export const E2eTestRoot: React.FC = () => {
 					}}
 				/>
 			</Folder>
+			<Composition
+				id="AnimatedBarChart"
+				component={BarChart}
+				durationInFrames={180}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
 			<Folder name="visual-controls">
 				<Composition
 					id="visual-controls"

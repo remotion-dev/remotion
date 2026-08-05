@@ -40,6 +40,7 @@ export const getSequenceContextMenuItems = ({
 	deleteDisabled,
 	disableInteractivityDisabled,
 	duplicateDisabled,
+	isProgrammaticallyDuplicated,
 	fileLocation,
 	includeSourceEditItems,
 	editorInfo,
@@ -57,6 +58,7 @@ export const getSequenceContextMenuItems = ({
 	readonly deleteDisabled: boolean;
 	readonly disableInteractivityDisabled: boolean;
 	readonly duplicateDisabled: boolean;
+	readonly isProgrammaticallyDuplicated: boolean;
 	readonly fileLocation: string | null;
 	readonly includeSourceEditItems: boolean;
 	readonly editorInfo: GetDefaultEditorInfoResponse | null;
@@ -253,7 +255,7 @@ export const getSequenceContextMenuItems = ({
 					keyHint: null,
 					label: 'Duplicate',
 					leftItem: null,
-					disabled: duplicateDisabled,
+					disabled: duplicateDisabled || isProgrammaticallyDuplicated,
 					onClick: onDuplicateSequenceFromSource,
 					quickSwitcherLabel: null,
 					subMenu: null,
@@ -271,7 +273,7 @@ export const getSequenceContextMenuItems = ({
 					type: 'item' as const,
 					id: 'delete-sequence',
 					keyHint: null,
-					label: 'Delete',
+					label: isProgrammaticallyDuplicated ? 'Delete all' : 'Delete',
 					leftItem: null,
 					disabled: deleteDisabled,
 					onClick: onDeleteSequenceFromSource,

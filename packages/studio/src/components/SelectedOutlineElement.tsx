@@ -513,10 +513,10 @@ const SelectedOutlinePolygon: React.FC<{
 	);
 	const drag = target?.drag ?? null;
 	const selected = target?.selected ?? false;
-	const containsSelection = target?.containsSelection ?? false;
+	const showSelectedOutline = target?.showSelectedOutline ?? false;
 	const effectDrop = target?.effectDrop ?? null;
 	const [effectDropHovered, setEffectDropHovered] = useState(false);
-	const visible = containsSelection || hovered;
+	const visible = showSelectedOutline || hovered;
 
 	const onPointerDown = React.useCallback(
 		(event: React.PointerEvent<SVGPolygonElement>) => {
@@ -1600,6 +1600,8 @@ export const SelectedOutlineElement: React.FC<{
 			!sourceEditingEnabled ||
 			!target.sequence.controls ||
 			!nodePath.absolutePath;
+		const isProgrammaticallyDuplicated =
+			target.nodePathInfo.numberOfSequencesWithThisNodePath > 1;
 		const canAddEffect =
 			target.nodePathInfo.supportsEffects &&
 			!sourceEditDisabled &&
@@ -1611,10 +1613,11 @@ export const SelectedOutlineElement: React.FC<{
 			canOpenInEditor,
 			deleteDisabled: sourceEditDisabled,
 			disableInteractivityDisabled,
-			duplicateDisabled: sourceEditDisabled,
+			duplicateDisabled: sourceEditDisabled || isProgrammaticallyDuplicated,
 			editorInfo: null,
 			fileLocation,
 			includeSourceEditItems: sourceEditingEnabled,
+			isProgrammaticallyDuplicated,
 			onDeleteSequenceFromSource: async () => {
 				if (sourceEditDisabled || previewServerState.type !== 'connected') {
 					return;
