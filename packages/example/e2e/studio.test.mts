@@ -130,6 +130,19 @@ test.describe('visual mode', () => {
 		await expect(duplicationLabel).toHaveCSS('line-height', '24px');
 		await expect(duplicationLabel).toHaveCSS('margin-top', '2px');
 		await expect(duplicationLabel).toHaveCSS('margin-bottom', '2px');
+
+		await page
+			.locator('[data-timeline-marquee-item][title="0% gridline"]')
+			.click({button: 'right'});
+		const duplicateMenuItem = page
+			.locator('.__remotion-studio-menu-item')
+			.filter({hasText: 'Duplicate'});
+		await expect(duplicateMenuItem).toHaveCSS('opacity', '0.5');
+		await expect(
+			page
+				.locator('.__remotion-studio-menu-item')
+				.filter({hasText: 'Delete all'}),
+		).toBeVisible();
 	});
 
 	test('should open submenus toward the side with more space', async ({

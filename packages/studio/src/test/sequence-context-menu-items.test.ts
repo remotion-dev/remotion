@@ -83,6 +83,7 @@ test('sequence context menu does not put two dividers between docs and rename', 
 		editorInfo: null,
 		fileLocation: 'src/Video.tsx:10:2',
 		includeSourceEditItems: true,
+		isProgrammaticallyDuplicated: false,
 		onDeleteSequenceFromSource: noop,
 		onDisableSequenceInteractivity: noop,
 		onDuplicateSequenceFromSource: noop,
@@ -132,6 +133,7 @@ test('Interactive.Svg context menu can copy the rendered SVG', () => {
 		editorInfo: null,
 		fileLocation: 'src/Video.tsx:10:2',
 		includeSourceEditItems: true,
+		isProgrammaticallyDuplicated: false,
 		onDeleteSequenceFromSource: noop,
 		onDisableSequenceInteractivity: noop,
 		onDuplicateSequenceFromSource: noop,
@@ -167,6 +169,38 @@ test('Interactive.Svg context menu can copy the rendered SVG', () => {
 	expect(items[copySvgIndex + 1]?.type).toBe('divider');
 });
 
+test('programmatically duplicated sequence menus apply actions to all instances', () => {
+	installTestWindow();
+
+	const items = getSequenceContextMenuItems({
+		assetLinkInfo: null,
+		canOpenInEditor: false,
+		deleteDisabled: false,
+		disableInteractivityDisabled: false,
+		duplicateDisabled: false,
+		editorInfo: null,
+		fileLocation: 'src/Video.tsx:10:2',
+		includeSourceEditItems: true,
+		isProgrammaticallyDuplicated: true,
+		onDeleteSequenceFromSource: noop,
+		onDisableSequenceInteractivity: noop,
+		onDuplicateSequenceFromSource: noop,
+		openInEditor: noop,
+		originalLocation: null,
+		selectAsset: noop,
+		sequence: {} as TSequence,
+	});
+
+	const duplicateItem = items.find((item) => item.id === 'duplicate-sequence');
+	const deleteItem = items.find((item) => item.id === 'delete-sequence');
+	if (duplicateItem?.type !== 'item' || deleteItem?.type !== 'item') {
+		throw new Error('Expected duplicate and delete menu items');
+	}
+
+	expect(duplicateItem.disabled).toBe(true);
+	expect(deleteItem.label).toBe('Delete all');
+});
+
 test('read-only sequence menus only contain non-mutating actions', () => {
 	installTestWindow();
 
@@ -179,6 +213,7 @@ test('read-only sequence menus only contain non-mutating actions', () => {
 		editorInfo: null,
 		fileLocation: 'src/Video.tsx:10:2',
 		includeSourceEditItems: false,
+		isProgrammaticallyDuplicated: false,
 		onDeleteSequenceFromSource: noop,
 		onDisableSequenceInteractivity: noop,
 		onDuplicateSequenceFromSource: noop,

@@ -360,7 +360,9 @@ const TimelineSequenceItemInner: React.FC<{
 		[previewInteractive, sequence.controls, canDeleteFromSource],
 	);
 
-	const duplicateDisabled = deleteDisabled;
+	const isProgrammaticallyDuplicated =
+		(nodePathInfo?.numberOfSequencesWithThisNodePath ?? 1) > 1;
+	const duplicateDisabled = deleteDisabled || isProgrammaticallyDuplicated;
 	const disableInteractivityDisabled =
 		!previewInteractive ||
 		!sequence.showInTimeline ||
@@ -979,6 +981,7 @@ const TimelineSequenceItemInner: React.FC<{
 			editorInfo,
 			fileLocation,
 			includeSourceEditItems: isStudioInteractivityEnabled(),
+			isProgrammaticallyDuplicated,
 			onDeleteSequenceFromSource,
 			onDisableSequenceInteractivity,
 			onDuplicateSequenceFromSource,
@@ -1052,6 +1055,7 @@ const TimelineSequenceItemInner: React.FC<{
 		duplicateDisabled,
 		editorInfo,
 		fileLocation,
+		isProgrammaticallyDuplicated,
 		mediaSrc,
 		nodePath,
 		nodePathInfo?.supportsEffects,

@@ -1600,6 +1600,8 @@ export const SelectedOutlineElement: React.FC<{
 			!sourceEditingEnabled ||
 			!target.sequence.controls ||
 			!nodePath.absolutePath;
+		const isProgrammaticallyDuplicated =
+			target.nodePathInfo.numberOfSequencesWithThisNodePath > 1;
 		const canAddEffect =
 			target.nodePathInfo.supportsEffects &&
 			!sourceEditDisabled &&
@@ -1611,10 +1613,11 @@ export const SelectedOutlineElement: React.FC<{
 			canOpenInEditor,
 			deleteDisabled: sourceEditDisabled,
 			disableInteractivityDisabled,
-			duplicateDisabled: sourceEditDisabled,
+			duplicateDisabled: sourceEditDisabled || isProgrammaticallyDuplicated,
 			editorInfo: null,
 			fileLocation,
 			includeSourceEditItems: sourceEditingEnabled,
+			isProgrammaticallyDuplicated,
 			onDeleteSequenceFromSource: async () => {
 				if (sourceEditDisabled || previewServerState.type !== 'connected') {
 					return;
