@@ -50,8 +50,11 @@ export const TimelineInOutPointToggle: React.FC = () => {
 	const {setInAndOutFrames} = useTimelineSetInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const keybindings = useKeybinding();
-	const {getCurrentFrame, isFirstFrame, isLastFrame} =
-		PlayerInternals.usePlayer();
+	const {getCurrentFrame} = PlayerInternals.usePlayerMethods();
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const isFirstFrame = timelinePosition === 0;
+	const isLastFrame =
+		timelinePosition === (videoConfig?.durationInFrames ?? 1) - 1;
 
 	const onInOutClear = useCallback(
 		(composition: string) => {

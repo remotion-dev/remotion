@@ -1,7 +1,7 @@
 import {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {BLUE, LIGHT_TEXT} from '../helpers/colors';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import {Button} from './Button';
 import {Flex, Spacing} from './layout';
 import {DismissableModal} from './NewComposition/DismissableModal';
@@ -55,7 +55,7 @@ const Inner: React.FC<{}> = () => {
 		return null;
 	});
 
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	const valid = useMemo(() => {
 		if (!value) return true;

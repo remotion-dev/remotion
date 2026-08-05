@@ -3,6 +3,7 @@ import {Internals, type CanUpdateSequencePropStatus} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {useRuntimeValues} from '../../helpers/use-runtime-values';
 import {AlignBottomIcon} from '../../icons/align-bottom';
 import {AlignCenterHorizontalIcon} from '../../icons/align-center-horizontal';
 import {AlignCenterVerticalIcon} from '../../icons/align-center-vertical';
@@ -72,6 +73,7 @@ const AlignmentButton: React.FC<{
 export const AlignmentControls: React.FC<{
 	readonly track: TimelineTrackData;
 }> = ({track}) => {
+	const runtimeValues = useRuntimeValues(track.sequence.controls);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {getDragOverrides} = useContext(
@@ -118,8 +120,7 @@ export const AlignmentControls: React.FC<{
 
 			const activeSchema = getSelectedOutlineActiveSchema({
 				schema: track.sequence.controls.schema,
-				currentRuntimeValueDotNotation:
-					track.sequence.controls.currentRuntimeValueDotNotation,
+				currentRuntimeValueDotNotation: runtimeValues,
 				dragOverrides,
 				propStatus: nodePropStatuses,
 				frame: sourceFrame,
@@ -234,6 +235,7 @@ export const AlignmentControls: React.FC<{
 			currentCompositionMetadata,
 			timelinePosition,
 			propStatuses,
+			runtimeValues,
 			getDragOverrides,
 			setPropStatuses,
 		],
@@ -259,8 +261,7 @@ export const AlignmentControls: React.FC<{
 
 	const renderActiveSchema = getSelectedOutlineActiveSchema({
 		schema: track.sequence.controls.schema,
-		currentRuntimeValueDotNotation:
-			track.sequence.controls.currentRuntimeValueDotNotation,
+		currentRuntimeValueDotNotation: runtimeValues,
 		dragOverrides: renderDragOverrides,
 		propStatus: renderNodePropStatuses,
 		frame: renderSourceFrame,

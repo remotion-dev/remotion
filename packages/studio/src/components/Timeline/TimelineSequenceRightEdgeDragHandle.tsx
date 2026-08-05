@@ -322,7 +322,7 @@ const getTrimBeforePlaybackRate = (sequence: TSequence) => {
 	}
 
 	const runtimePlaybackRate =
-		sequence.controls?.currentRuntimeValueDotNotation.playbackRate;
+		sequence.controls?.runtimeValues.getSnapshot().playbackRate;
 	return typeof runtimePlaybackRate === 'number' ? runtimePlaybackRate : 1;
 };
 

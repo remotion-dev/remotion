@@ -913,6 +913,7 @@ export const getSelectableTimelineItems = ({
 			propStatuses,
 			includeTextContent: false,
 			includeSourceControls: false,
+			runtimeValues: null,
 		});
 		const filteredTree = filterTimelineExpandedTree({
 			nodes: tree,

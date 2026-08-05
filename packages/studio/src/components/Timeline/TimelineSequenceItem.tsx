@@ -29,7 +29,11 @@ import {
 	TIMELINE_LIST_ITEM_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
 import {useKeybinding} from '../../helpers/use-keybinding';
-import {ModalsContext} from '../../state/modals';
+import {
+	useRuntimeValue,
+	useRuntimeValueSelector,
+} from '../../helpers/use-runtime-values';
+import {SetSelectedModalContext} from '../../state/modals';
 import {useTimelineSequenceHover} from '../../state/timeline-sequence-hover';
 import {callApi} from '../call-api';
 import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
@@ -270,7 +274,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {isHighestContext} = useKeybinding();
 	const selectAsset = useSelectAsset();
 	const selectComposition = useSelectComposition();
@@ -659,17 +663,16 @@ const TimelineSequenceItemInner: React.FC<{
 	}, [nodePathInfo, toggleTrack]);
 
 	const codeHiddenStatus = propStatusesForOverride?.hidden;
+	const runtimeHidden = useRuntimeValue(sequence.controls, 'hidden');
 
 	const isItemHidden = useMemo(() => {
 		const propStatus =
 			codeHiddenStatus && codeHiddenStatus.status === 'static'
 				? codeHiddenStatus.codeValue
 				: undefined;
-		const runtimeValue =
-			sequence.controls?.currentRuntimeValueDotNotation.hidden;
-		const effective = (propStatus ?? runtimeValue) as boolean | undefined;
+		const effective = (propStatus ?? runtimeHidden) as boolean | undefined;
 		return effective ?? false;
-	}, [codeHiddenStatus, sequence.controls?.currentRuntimeValueDotNotation]);
+	}, [codeHiddenStatus, runtimeHidden]);
 
 	const onToggleVisibility = useCallback(
 		(type: 'enable' | 'disable') => {
@@ -875,32 +878,29 @@ const TimelineSequenceItemInner: React.FC<{
 		nodePathInfo?.supportsEffects === true &&
 		previewInteractive &&
 		Boolean(validatedLocation?.source);
-	const canCrop = useMemo(() => {
-		if (
-			!previewInteractive ||
-			!sequence.controls ||
-			!nodePathInfo ||
-			!propStatusesForOverride ||
-			!validatedLocation?.source
-		) {
-			return false;
-		}
+	const canCrop = useRuntimeValueSelector({
+		controls: sequence.controls,
+		selector: (runtimeValues) => {
+			if (
+				!previewInteractive ||
+				!sequence.controls ||
+				!nodePathInfo ||
+				!propStatusesForOverride ||
+				!validatedLocation?.source
+			) {
+				return false;
+			}
 
-		const activeSchema = Internals.flattenActiveSchema(
-			sequence.controls.schema,
-			(key) => sequence.controls?.currentRuntimeValueDotNotation[key],
-		);
-		return canEditSelectedOutlineCrop({
-			schema: activeSchema,
-			propStatuses: propStatusesForOverride,
-		});
-	}, [
-		nodePathInfo,
-		previewInteractive,
-		propStatusesForOverride,
-		sequence.controls,
-		validatedLocation?.source,
-	]);
+			const activeSchema = Internals.flattenActiveSchema(
+				sequence.controls.schema,
+				(key) => runtimeValues[key],
+			);
+			return canEditSelectedOutlineCrop({
+				schema: activeSchema,
+				propStatuses: propStatusesForOverride,
+			});
+		},
+	});
 
 	const onAddEffect = useCallback(() => {
 		if (

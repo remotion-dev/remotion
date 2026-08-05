@@ -16,6 +16,7 @@ import type {
 	AnyZodObject,
 	CompProps,
 	LogLevel,
+	PlayableMediaTag,
 	PlaybackRateContextValue,
 	TimelineContextValue,
 } from 'remotion';
@@ -82,6 +83,8 @@ const ThumbnailFn = <
 	}
 
 	const rootRef = useRef<ThumbnailMethods>(null);
+	const imperativePlaying = useRef(false);
+	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 
 	const timelineState: TimelineContextValue = useMemo(() => {
 		const value: TimelineContextValue = {
@@ -89,10 +92,8 @@ const ThumbnailFn = <
 			frame: {
 				[PLAYER_COMP_ID]: frameToDisplay,
 			},
-			imperativePlaying: {
-				current: false,
-			},
-			audioAndVideoTags: {current: []},
+			imperativePlaying,
+			audioAndVideoTags,
 		};
 
 		return value;

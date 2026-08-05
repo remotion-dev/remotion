@@ -23,44 +23,14 @@ export const getAllowedStudioProtocolOrigin = (
 	}
 };
 
-export const getAllowedLicenseKeyOrigin = (
-	origin: string | undefined,
-): string | null => {
-	if (!origin) {
-		return null;
-	}
-
-	try {
-		const url = new URL(origin);
-		if (isLoopbackHttp(url)) {
-			return url.origin;
-		}
-
-		if (
-			url.origin === 'https://remotion.pro' ||
-			url.origin === 'https://www.remotion.pro'
-		) {
-			return url.origin;
-		}
-
-		return null;
-	} catch {
-		return null;
-	}
-};
-
 export const setStudioProtocolCorsHeaders = ({
-	licenseKey,
 	request,
 	response,
 }: {
-	readonly licenseKey: boolean;
 	readonly request: IncomingMessage;
 	readonly response: ServerResponse;
 }): void => {
-	const origin = licenseKey
-		? getAllowedLicenseKeyOrigin(request.headers.origin)
-		: getAllowedStudioProtocolOrigin(request.headers.origin);
+	const origin = getAllowedStudioProtocolOrigin(request.headers.origin);
 	if (origin === null) {
 		return;
 	}
@@ -77,18 +47,14 @@ export const setStudioProtocolCorsHeaders = ({
 };
 
 export const handleStudioProtocolOptions = ({
-	licenseKey,
 	request,
 	response,
 }: {
-	readonly licenseKey: boolean;
 	readonly request: IncomingMessage;
 	readonly response: ServerResponse;
 }): Promise<void> => {
-	setStudioProtocolCorsHeaders({licenseKey, request, response});
-	const origin = licenseKey
-		? getAllowedLicenseKeyOrigin(request.headers.origin)
-		: getAllowedStudioProtocolOrigin(request.headers.origin);
+	setStudioProtocolCorsHeaders({request, response});
+	const origin = getAllowedStudioProtocolOrigin(request.headers.origin);
 	response.writeHead(origin === null ? 403 : 204);
 	response.end();
 	return Promise.resolve();

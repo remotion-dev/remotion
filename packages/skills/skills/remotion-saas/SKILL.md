@@ -1,7 +1,7 @@
 ---
 name: remotion-saas
 description: Build an app with Remotion
-version: 4.0.505
+version: 4.0.506
 ---
 
 One can build apps with Remotion.  

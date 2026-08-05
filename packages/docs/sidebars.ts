@@ -1424,9 +1424,19 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'ai/coding-agents',
 				'ai/skills',
-				'ai/claude-code-plugin',
-				'ai/codex-plugin',
-				'ai/kimi-code-plugin',
+				{
+					type: 'category',
+					label: 'Plugins',
+					link: {
+						type: 'doc',
+						id: 'ai/plugins',
+					},
+					items: [
+						'ai/claude-code-plugin',
+						'ai/codex-plugin',
+						'ai/kimi-code-plugin',
+					],
+				},
 				'ai/bolt',
 				'ai/chatbot',
 				'ai/generate',

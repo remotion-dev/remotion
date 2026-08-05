@@ -243,6 +243,7 @@ const resolveKeyframeControlTarget = ({
 		propStatuses,
 		includeTextContent: false,
 		includeSourceControls: false,
+		runtimeValues: null,
 	});
 	const fieldNode = findFieldNode(
 		tree,

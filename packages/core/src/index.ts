@@ -10,6 +10,7 @@ import type {
 	JsxComponentIdentity,
 	LoopDisplay,
 	SequenceControls,
+	SequenceRegistrationControls,
 	TRenderAsset,
 } from './CompositionManager.js';
 import type {DelayRenderScope} from './delay-render.js';
@@ -33,6 +34,10 @@ import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
 import {Null} from './Null.js';
 import type {ProResProfile} from './prores-profile.js';
 import type {PixelFormat, VideoImageFormat} from './render-types.js';
+import type {
+	RuntimeValueSnapshot,
+	RuntimeValueStore,
+} from './runtime-value-store.js';
 import {Sequence} from './Sequence.js';
 import type {UseBufferState} from './use-buffer-state';
 import type {VideoConfig} from './video-config.js';
@@ -348,7 +353,10 @@ export type {
 	DelayRenderScope,
 	JsxComponentIdentity,
 	LoopDisplay,
+	RuntimeValueSnapshot,
+	RuntimeValueStore,
 	SequenceControls,
+	SequenceRegistrationControls,
 	InteractivitySchemaField,
 	InteractivitySchema,
 	UseBufferState,

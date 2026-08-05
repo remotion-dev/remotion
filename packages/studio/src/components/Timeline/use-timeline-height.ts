@@ -9,6 +9,7 @@ import {
 	getTreeRowHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
 } from '../../helpers/timeline-layout';
+import {useRuntimeValueSnapshots} from '../../helpers/use-runtime-values';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {getNodeHasKeyframes} from './get-node-keyframes';
 import {MAX_TIMELINE_TRACKS_NOTICE_HEIGHT} from './MaxTimelineTracks';
@@ -42,6 +43,33 @@ export const useTimelineHeight = ({
 		() => getSelectedTimelineExpandedRowKeys(selectedItems),
 		[selectedItems],
 	);
+	const expandedControls = useMemo(
+		() =>
+			shown.flatMap((track) => {
+				if (
+					!previewServerConnected ||
+					track.nodePathInfo === null ||
+					!getIsExpanded(track.nodePathInfo) ||
+					track.sequence.controls === null
+				) {
+					return [];
+				}
+
+				return [track.sequence.controls];
+			}),
+		[getIsExpanded, previewServerConnected, shown],
+	);
+	const runtimeValueSnapshots = useRuntimeValueSnapshots(expandedControls);
+	const runtimeValuesByStore = useMemo(
+		() =>
+			new Map(
+				expandedControls.map((controls, index) => [
+					controls.runtimeValues,
+					runtimeValueSnapshots[index],
+				]),
+			),
+		[expandedControls, runtimeValueSnapshots],
+	);
 
 	return useMemo(() => {
 		const tracksHeight = shown.reduce((acc, track) => {
@@ -66,6 +94,11 @@ export const useTimelineHeight = ({
 					propStatuses,
 					includeTextContent: false,
 					includeSourceControls: false,
+					runtimeValues: track.sequence.controls
+						? (runtimeValuesByStore.get(
+								track.sequence.controls.runtimeValues,
+							) ?? null)
+						: null,
 				});
 				const filteredTree = filterTimelineExpandedTree({
 					nodes: tree,
@@ -117,5 +150,6 @@ export const useTimelineHeight = ({
 		getDragOverrides,
 		getEffectDragOverrides,
 		selectedRowKeys,
+		runtimeValuesByStore,
 	]);
 };

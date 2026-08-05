@@ -53,22 +53,22 @@ test('creates one canonical Element payload for HTTP and drag transports', () =>
 	setStudioDragData({dataTransfer, payload});
 
 	expect(dataTransfer.effectAllowed).toBe('copy');
-	const [mimeType] = data.keys();
-	expect(mimeType).toBe(
-		'application/vnd.remotion.drag+json;v=1;type=element;width=800;height=200;duration=90',
-	);
-	expect(
-		parseDragData({mimeType: mimeType!, payload: data.get(mimeType!)!}),
-	).toMatchObject({
-		type: 'element',
-		data: {
-			element: {
-				displayName: 'Lower Third',
-				installationMode: 'component-owned-sequence',
+	const mimeType =
+		'application/vnd.remotion.drag+json;v=1;type=element;width=800;height=200;duration=90';
+	expect([...data.keys()]).toEqual([mimeType, 'text/plain']);
+	expect(data.get('text/plain')).toBe(data.get(mimeType));
+	expect(parseDragData({mimeType, payload: data.get(mimeType)!})).toMatchObject(
+		{
+			type: 'element',
+			data: {
+				element: {
+					displayName: 'Lower Third',
+					installationMode: 'component-owned-sequence',
+				},
 			},
+			preview: {width: 800, height: 200, durationInFrames: 90},
 		},
-		preview: {width: 800, height: 200, durationInFrames: 90},
-	});
+	);
 });
 
 test('defaults new Element payloads to wrapped installation', () => {

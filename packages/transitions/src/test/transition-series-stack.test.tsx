@@ -10,7 +10,7 @@ import {
 	type DragOverrides,
 	type OverrideIdToNodePaths,
 	type PropStatuses,
-	type SequenceControls,
+	type SequenceRegistrationControls,
 } from 'remotion';
 import {linearTiming} from '../timings/linear-timing.js';
 import {TransitionSeries} from '../TransitionSeries.js';
@@ -22,7 +22,7 @@ afterEach(() => {
 type RegisteredSequence = {
 	readonly displayName: string;
 	readonly getStack: () => string | null;
-	readonly controls: SequenceControls | null;
+	readonly controls: SequenceRegistrationControls | null;
 	readonly duration: number;
 	readonly from: number;
 	readonly trimBefore: number | null;
@@ -197,9 +197,8 @@ test('TransitionSeries registers with its own visual mode identity', async () =>
 				sequence.getStack() === childSequenceStack &&
 				sequence.controls?.componentIdentity ===
 					'dev.remotion.transitions.TransitionSeries.Sequence' &&
-				sequence.controls.currentRuntimeValueDotNotation.durationInFrames ===
-					10 &&
-				sequence.controls.currentRuntimeValueDotNotation.trimBefore === 4 &&
+				sequence.controls.runtimeValues.getSnapshot().durationInFrames === 10 &&
+				sequence.controls.runtimeValues.getSnapshot().trimBefore === 4 &&
 				sequence.trimBefore === 4,
 		),
 	).toBe(true);

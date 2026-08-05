@@ -2,7 +2,7 @@ import React, {useContext, useEffect} from 'react';
 import ReactDOM from 'react-dom';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
-import {ModalsContext} from '../state/modals';
+import {SelectedModalContext, SetSelectedModalContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import {AskAiModal} from './AskAiModal';
 import {ConfirmationDialog} from './ConfirmationDialog';
@@ -29,8 +29,8 @@ import {UpdateModal} from './UpdateModal/UpdateModal';
 export const Modals: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
-	const {selectedModal: modalContextType, setSelectedModal} =
-		useContext(ModalsContext);
+	const modalContextType = useContext(SelectedModalContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {currentZIndex} = useZIndex();
 	const {previewServerState, subscribeToEvent} = useContext(
 		StudioServerConnectionCtx,

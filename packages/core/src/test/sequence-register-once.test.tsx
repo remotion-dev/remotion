@@ -6,7 +6,11 @@ import {
 	AnimatedImage,
 	animatedImageSchema,
 } from '../animated-image/AnimatedImage.js';
-import type {SequenceControls, TSequence} from '../CompositionManager.js';
+import type {
+	SequenceControls,
+	SequenceRegistrationControls,
+	TSequence,
+} from '../CompositionManager.js';
 import type {
 	EffectDefinition,
 	EffectDescriptor,
@@ -236,6 +240,93 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 	expect(registerCalls).toBe(1);
 });
 
+test('Interactive runtime values update mounted consumers without re-registering the sequence', () => {
+	const registeredSequences: TSequence[] = [];
+	const onRegisterSequence = (sequence: TSequence) => {
+		registeredSequences.push(sequence);
+	};
+
+	const renderInteractiveDiv = (opacity: number, color: string) => (
+		<SequenceTestWrapper onRegisterSequence={onRegisterSequence}>
+			<Interactive.Div style={{color, opacity}}>Hello</Interactive.Div>
+		</SequenceTestWrapper>
+	);
+	const producer = render(renderInteractiveDiv(0.25, 'red'));
+	const controls = registeredSequences.find(
+		(sequence) => sequence.displayName === '<Interactive.Div>',
+	)?.controls;
+	if (!controls) {
+		throw new Error('Expected Interactive.Div controls');
+	}
+
+	let consumerRenders = 0;
+	const RuntimeOpacity: React.FC<{
+		readonly controls: SequenceRegistrationControls;
+	}> = ({controls: consumerControls}) => {
+		consumerRenders++;
+		const opacity = React.useSyncExternalStore(
+			consumerControls.runtimeValues.subscribe,
+			() => consumerControls.runtimeValues.getSnapshot()['style.opacity'],
+		);
+
+		return <output>{String(opacity)}</output>;
+	};
+
+	const consumer = render(<RuntimeOpacity controls={controls} />);
+
+	expect(consumer.getByText('0.25')).toBeTruthy();
+	expect(consumerRenders).toBe(1);
+	expect(registeredSequences).toHaveLength(1);
+
+	producer.rerender(renderInteractiveDiv(0.75, 'red'));
+	expect(consumer.getByText('0.75')).toBeTruthy();
+	expect(consumerRenders).toBe(2);
+	expect(registeredSequences).toHaveLength(1);
+
+	producer.rerender(renderInteractiveDiv(0.75, 'blue'));
+	expect(consumer.getByText('0.75')).toBeTruthy();
+	expect(consumerRenders).toBe(2);
+	expect(registeredSequences).toHaveLength(1);
+});
+
+test('Interactive runtime values are published only after a render commits', () => {
+	const registeredSequences: TSequence[] = [];
+	const onRegisterSequence = (sequence: TSequence) => {
+		registeredSequences.push(sequence);
+	};
+
+	const never = new Promise<never>(() => undefined);
+	const Suspend: React.FC<{readonly active: boolean}> = ({active}) => {
+		if (active) {
+			throw never;
+		}
+
+		return null;
+	};
+
+	const renderInteractiveDiv = (opacity: number, suspend: boolean) => (
+		<React.Suspense fallback={<span>Suspended</span>}>
+			<SequenceTestWrapper onRegisterSequence={onRegisterSequence}>
+				<Interactive.Div style={{opacity}}>
+					<Suspend active={suspend} />
+				</Interactive.Div>
+			</SequenceTestWrapper>
+		</React.Suspense>
+	);
+	const producer = render(renderInteractiveDiv(0.25, false));
+	const controls = registeredSequences.find(
+		(sequence) => sequence.displayName === '<Interactive.Div>',
+	)?.controls;
+	if (!controls) {
+		throw new Error('Expected Interactive.Div controls');
+	}
+
+	producer.rerender(renderInteractiveDiv(0.75, true));
+
+	expect(producer.getByText('Suspended')).toBeTruthy();
+	expect(controls.runtimeValues.getSnapshot()['style.opacity']).toBe(0.25);
+});
+
 test('Sequence registers its documentation link', () => {
 	const registeredSequences: TSequence[] = [];
 
@@ -388,7 +479,7 @@ test('Series.Sequence registers with its own visual controls', () => {
 	expect(
 		seriesSequences.map(
 			(sequence) =>
-				sequence.controls?.currentRuntimeValueDotNotation.durationInFrames,
+				sequence.controls?.runtimeValues.getSnapshot().durationInFrames,
 		),
 	).toEqual([10, 20]);
 	expect(seriesSequences.map((sequence) => sequence.getStack())).toEqual([

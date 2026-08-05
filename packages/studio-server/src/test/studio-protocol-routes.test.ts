@@ -139,7 +139,6 @@ test('discovers an exact Studio target and delivers one install request over HTT
 		const {pathname} = new URL(request.url ?? '/', 'http://localhost');
 		if (request.method === 'OPTIONS') {
 			handleStudioProtocolOptions({
-				licenseKey: false,
 				request,
 				response,
 			}).catch((error) => response.destroy(error));
@@ -397,7 +396,6 @@ test('opens a license key confirmation in the focused Studio project over HTTP',
 		const {pathname} = new URL(request.url ?? '/', 'http://localhost');
 		if (request.method === 'OPTIONS') {
 			handleStudioProtocolOptions({
-				licenseKey: pathname === '/api/studio-protocol/license-key',
 				request,
 				response,
 			}).catch((error) => response.destroy(error));
@@ -432,31 +430,20 @@ test('opens a license key confirmation in the focused Studio project over HTTP',
 		}
 
 		const origin = `http://127.0.0.1:${address.port}`;
-		const deniedPreflight = await fetch(
+		const licenseKeyPreflight = await fetch(
 			`${origin}/api/studio-protocol/license-key`,
 			{
 				method: 'OPTIONS',
 				headers: {Origin: 'https://example.com'},
 			},
 		);
-		expect(deniedPreflight.status).toBe(403);
-		expect(
-			deniedPreflight.headers.get('access-control-allow-origin'),
-		).toBeNull();
-
-		const untrustedDiscovery = await fetch(`${origin}/api/studio-protocol`, {
-			headers: {Origin: 'https://example.com'},
-		});
-		expect(untrustedDiscovery.status).toBe(200);
-		expect(await untrustedDiscovery.json()).toMatchObject({
-			capabilities: [
-				{type: 'install-element', target: null},
-				{type: 'set-license-key', target: null},
-			],
-		});
+		expect(licenseKeyPreflight.status).toBe(204);
+		expect(licenseKeyPreflight.headers.get('access-control-allow-origin')).toBe(
+			'https://example.com',
+		);
 
 		const discovery = await fetch(`${origin}/api/studio-protocol`, {
-			headers: {Origin: 'https://www.remotion.pro'},
+			headers: {Origin: 'https://example.com'},
 		});
 		const descriptor = (await discovery.json()) as {
 			capabilities: [
@@ -481,7 +468,7 @@ test('opens a license key confirmation in the focused Studio project over HTTP',
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					Origin: 'https://www.remotion.pro',
+					Origin: 'https://example.com',
 				},
 				body: JSON.stringify({...body, licenseKey: 'rm_sec_private'}),
 			},
@@ -497,7 +484,7 @@ test('opens a license key confirmation in the focused Studio project over HTTP',
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Origin: 'https://www.remotion.pro',
+				Origin: 'https://example.com',
 			},
 			body: JSON.stringify(body),
 		});
@@ -519,7 +506,7 @@ test('opens a license key confirmation in the focused Studio project over HTTP',
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Origin: 'https://www.remotion.pro',
+				Origin: 'https://example.com',
 			},
 			body: JSON.stringify(body),
 		});
@@ -532,7 +519,7 @@ test('opens a license key confirmation in the focused Studio project over HTTP',
 		expect(focusedUrls).toHaveLength(1);
 
 		const noConfigDiscovery = await fetch(`${origin}/api/studio-protocol`, {
-			headers: {Origin: 'https://www.remotion.pro'},
+			headers: {Origin: 'https://example.com'},
 		});
 		const noConfigDescriptor = (await noConfigDiscovery.json()) as {
 			capabilities: [
@@ -547,7 +534,7 @@ test('opens a license key confirmation in the focused Studio project over HTTP',
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					Origin: 'https://www.remotion.pro',
+					Origin: 'https://example.com',
 				},
 				body: JSON.stringify({
 					...body,

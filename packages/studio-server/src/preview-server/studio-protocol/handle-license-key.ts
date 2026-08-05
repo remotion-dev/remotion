@@ -5,7 +5,7 @@ import {consumeStudioProtocolTarget} from '../element-install-state';
 import type {LiveEventsServer} from '../live-events';
 import {parseRequestBody, RequestBodyTooLargeError} from '../parse-body';
 import {
-	getAllowedLicenseKeyOrigin,
+	getAllowedStudioProtocolOrigin,
 	setStudioProtocolCorsHeaders,
 } from './origin-policy';
 import {writeStudioProtocolError} from './protocol-response';
@@ -35,8 +35,8 @@ export const handleStudioProtocolLicenseKey = async ({
 	readonly request: IncomingMessage;
 	readonly response: ServerResponse;
 }): Promise<void> => {
-	setStudioProtocolCorsHeaders({licenseKey: true, request, response});
-	const requestOrigin = getAllowedLicenseKeyOrigin(request.headers.origin);
+	setStudioProtocolCorsHeaders({request, response});
+	const requestOrigin = getAllowedStudioProtocolOrigin(request.headers.origin);
 	if (requestOrigin === null) {
 		writeStudioProtocolError({
 			code: 'unsupported-origin',

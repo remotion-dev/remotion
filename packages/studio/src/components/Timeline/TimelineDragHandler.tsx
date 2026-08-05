@@ -119,7 +119,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 	>({
 		dragging: false,
 	});
-	const {playing, play, pause, seek} = PlayerInternals.usePlayer();
+	const {isPlaying, play, pause, seek} = PlayerInternals.usePlayerMethods();
 
 	const scroller = useRef<Timer | null>(null);
 
@@ -159,7 +159,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 			seek(frame);
 			setDragging({
 				dragging: true,
-				wasPlaying: playing,
+				wasPlaying: isPlaying(),
 				button: e.button,
 				pointerId: e.pointerId,
 				target: e.currentTarget,
@@ -167,7 +167,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 			e.currentTarget.setPointerCapture?.(e.pointerId);
 			pause();
 		},
-		[isHighestContext, videoConfig, left, width, seek, playing, pause],
+		[isHighestContext, videoConfig, left, width, seek, isPlaying, pause],
 	);
 
 	const onPointerMoveScrubbing = useCallback(
