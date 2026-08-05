@@ -1,6 +1,7 @@
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import {useContext, useEffect, useRef, useState} from 'react';
 import type {ResolvedStackLocation} from 'remotion';
+import {FastRefreshContext} from '../../fast-refresh-context';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {useResolvedStack} from './use-resolved-stack';
 
@@ -27,10 +28,37 @@ export const useResolveStackAndReactToChange = (
 	getStack: () => string | null,
 ) => {
 	const {subscribeToEvent} = useContext(StudioServerConnectionCtx);
-	const [stack, setStack] = useState<string | null>(() => getStack());
+	const {fastRefreshGeneration, isFastRefreshing} =
+		useContext(FastRefreshContext);
+	const [stackState, setStackState] = useState<{
+		generation: number;
+		stack: string | null;
+	}>(() => ({generation: fastRefreshGeneration, stack: getStack()}));
+	const stack =
+		stackState.generation === fastRefreshGeneration && !isFastRefreshing
+			? stackState.stack
+			: null;
 	const resolvedLocation = useResolvedStack(stack);
 	const resolvedLocationRef = useRef(resolvedLocation);
 	resolvedLocationRef.current = resolvedLocation;
+
+	useEffect(() => {
+		if (isFastRefreshing) {
+			return;
+		}
+
+		const currentStack = getStack();
+		setStackState((previous) => {
+			if (
+				previous.generation === fastRefreshGeneration &&
+				previous.stack === currentStack
+			) {
+				return previous;
+			}
+
+			return {generation: fastRefreshGeneration, stack: currentStack};
+		});
+	}, [fastRefreshGeneration, getStack, isFastRefreshing]);
 
 	useEffect(() => {
 		let interval: Timer | null = null;
@@ -58,7 +86,10 @@ export const useResolveStackAndReactToChange = (
 						interval = null;
 					}
 
-					setStack(newStack);
+					setStackState({
+						generation: fastRefreshGeneration,
+						stack: newStack,
+					});
 				}
 			}, 10);
 		};
@@ -71,7 +102,7 @@ export const useResolveStackAndReactToChange = (
 				clearInterval(interval);
 			}
 		};
-	}, [subscribeToEvent, getStack]);
+	}, [fastRefreshGeneration, subscribeToEvent, getStack]);
 
 	return resolvedLocation;
 };

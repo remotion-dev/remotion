@@ -15,6 +15,7 @@ import {
 	HOT_MIDDLEWARE_WARNING_STYLE,
 } from '../helpers/colors';
 import {subscribeToPreviewServerEvents} from '../helpers/preview-server-events';
+import {notifyFastRefreshStart} from './fast-refresh-events';
 import {processUpdate} from './process-update';
 
 declare global {
@@ -87,6 +88,7 @@ function createReporter() {
 function processMessage(obj: HotMiddlewareMessage) {
 	switch (obj.action) {
 		case 'building':
+			notifyFastRefreshStart();
 			window.remotion_isBuilding?.();
 
 			break;

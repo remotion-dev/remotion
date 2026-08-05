@@ -8,7 +8,10 @@ import {
 	writeFileAndNotifyFileWatchers,
 } from '../file-watcher';
 import {formatLogFileLocation} from './format-log-file-location';
-import {waitForLiveEventsListener} from './live-events';
+import {
+	notifyClientsAboutHmrStart,
+	waitForLiveEventsListener,
+} from './live-events';
 import {suppressBundlerUpdateForFile} from './watch-ignore-next-change';
 
 export interface UndoEntryDescription {
@@ -448,6 +451,10 @@ export function popUndo(): {success: true} | {success: false; reason: string} {
 		redoStack.shift();
 	}
 
+	if (!entry.suppressHmrOnFileRestore) {
+		notifyClientsAboutHmrStart();
+	}
+
 	for (const snapshot of entry.snapshots) {
 		suppressUndoStackInvalidation(snapshot.filePath);
 		if (entry.suppressHmrOnFileRestore) {
@@ -519,6 +526,10 @@ export function popRedo(): {success: true} | {success: false; reason: string} {
 	);
 	if (undoStack.length > MAX_ENTRIES) {
 		undoStack.shift();
+	}
+
+	if (!entry.suppressHmrOnFileRestore) {
+		notifyClientsAboutHmrStart();
 	}
 
 	for (const snapshot of snapshotsWithNewContents) {

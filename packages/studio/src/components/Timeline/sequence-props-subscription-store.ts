@@ -22,6 +22,7 @@ const makeKey = ({
 	assetKeys,
 	effectKeys,
 	videoConfigValues,
+	generation,
 }: {
 	fileName: string;
 	line: number;
@@ -31,8 +32,9 @@ const makeKey = ({
 	assetKeys: string[];
 	effectKeys: string[][];
 	videoConfigValues: VideoConfigValues;
+	generation: number;
 }): Key =>
-	`${fileName}\0${line}\0${column}\0${componentIdentity ?? ''}\0${sequenceKeys.join('\0')}\0${assetKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}\0${JSON.stringify(videoConfigValues)}`;
+	`${fileName}\0${line}\0${column}\0${componentIdentity ?? ''}\0${sequenceKeys.join('\0')}\0${assetKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}\0${JSON.stringify(videoConfigValues)}\0${generation}`;
 
 type SubscribeResult = Awaited<ReturnType<typeof subscribeToSequenceProps>>;
 
@@ -60,6 +62,7 @@ export const acquireSequencePropsSubscription = ({
 	applyOnce,
 	applyEach,
 	videoConfigValues,
+	generation,
 }: {
 	fileName: string;
 	line: number;
@@ -72,6 +75,7 @@ export const acquireSequencePropsSubscription = ({
 	applyOnce: ApplyResult;
 	applyEach: ApplyResult;
 	videoConfigValues: VideoConfigValues;
+	generation: number;
 }): {release: () => void} => {
 	const sequenceKeys = getAllSchemaKeys(schema);
 	const assetKeys = getAssetSchemaKeys(schema);
@@ -85,6 +89,7 @@ export const acquireSequencePropsSubscription = ({
 		assetKeys,
 		effectKeys,
 		videoConfigValues,
+		generation,
 	});
 	let entry = entries.get(key);
 

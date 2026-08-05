@@ -10,6 +10,7 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
+import {FastRefreshContext} from '../../fast-refresh-context';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
 import {acquireSequencePropsSubscription} from './sequence-props-subscription-store';
@@ -40,6 +41,13 @@ export const useSequencePropsSubscription = ({
 	);
 
 	const {previewServerState: state} = useContext(StudioServerConnectionCtx);
+	const {fastRefreshGeneration, isFastRefreshing} =
+		useContext(FastRefreshContext);
+	const fastRefreshStateRef = useRef({
+		fastRefreshGeneration,
+		isFastRefreshing,
+	});
+	fastRefreshStateRef.current = {fastRefreshGeneration, isFastRefreshing};
 	const previousNodePathRef = useRef<SequencePropsSubscriptionKey | null>(null);
 	const overrideIdToNodePathMappingsRef = useRef(overrideIdToNodePathMappings);
 	overrideIdToNodePathMappingsRef.current = overrideIdToNodePathMappings;
@@ -74,6 +82,7 @@ export const useSequencePropsSubscription = ({
 
 	useEffect(() => {
 		if (
+			isFastRefreshing ||
 			!clientId ||
 			!locationSource ||
 			!shouldSubscribeToSourceFile(locationSource) ||
@@ -87,6 +96,7 @@ export const useSequencePropsSubscription = ({
 
 		const nodePathAtResubscribe =
 			overrideIdToNodePathMappingsRef.current[overrideId] ?? null;
+		const subscriptionGeneration = fastRefreshGeneration;
 
 		const {release} = acquireSequencePropsSubscription({
 			fileName: locationSource,
@@ -103,15 +113,26 @@ export const useSequencePropsSubscription = ({
 				height: videoConfig.height,
 				width: videoConfig.width,
 			},
+			generation: subscriptionGeneration,
 			applyOnce: (result) => {
-				if (!result.success) {
+				if (
+					!result.success ||
+					fastRefreshStateRef.current.isFastRefreshing ||
+					fastRefreshStateRef.current.fastRefreshGeneration !==
+						subscriptionGeneration
+				) {
 					return;
 				}
 
 				setPropStatuses(result.nodePath, () => result.status);
 			},
 			applyEach: (result) => {
-				if (!result.success) {
+				if (
+					!result.success ||
+					fastRefreshStateRef.current.isFastRefreshing ||
+					fastRefreshStateRef.current.fastRefreshGeneration !==
+						subscriptionGeneration
+				) {
 					return;
 				}
 
@@ -123,11 +144,7 @@ export const useSequencePropsSubscription = ({
 					? stringifySequenceSubscriptionKey(previousNodePath)
 					: null;
 
-				if (previousNodePathKey === newNodePathKey) {
-					return;
-				}
-
-				if (previousNodePath) {
+				if (previousNodePath && previousNodePathKey !== newNodePathKey) {
 					migrateExpandedTracksForSubscriptionKey(
 						previousNodePath,
 						newNodePath,
@@ -147,6 +164,8 @@ export const useSequencePropsSubscription = ({
 		componentIdentity,
 		effects,
 		effectsSignature,
+		fastRefreshGeneration,
+		isFastRefreshing,
 		locationColumn,
 		locationLine,
 		locationSource,

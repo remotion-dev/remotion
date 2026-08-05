@@ -26,13 +26,13 @@ export const useResolvedStack = (
 		Internals.SequenceStackTracesUpdateContext,
 	);
 
-	const [value, setValue] = useState<ResolvedStackLocation | null>(() => {
-		if (!stack) {
-			return null;
-		}
-
-		return resolvedCache.get(stack) ?? null;
-	});
+	const [resolved, setResolved] = useState<{
+		stack: string | null;
+		value: ResolvedStackLocation | null;
+	}>(() => ({
+		stack,
+		value: stack ? (resolvedCache.get(stack) ?? null) : null,
+	}));
 
 	useEffect(() => {
 		if (!stack) {
@@ -40,7 +40,7 @@ export const useResolvedStack = (
 		}
 
 		if (resolvedCache.has(stack)) {
-			setValue(resolvedCache.get(stack)!);
+			setResolved({stack, value: resolvedCache.get(stack)!});
 			return;
 		}
 
@@ -49,6 +49,10 @@ export const useResolvedStack = (
 		}
 
 		const subs = subscribers.get(stack)!;
+		const setValue = (value: ResolvedStackLocation | null) => {
+			setResolved({stack, value});
+		};
+
 		subs.add(setValue);
 
 		if (!inFlight.has(stack)) {
@@ -76,5 +80,5 @@ export const useResolvedStack = (
 		};
 	}, [stack, updateResolvedStackTrace]);
 
-	return value;
+	return resolved.stack === stack ? resolved.value : null;
 };

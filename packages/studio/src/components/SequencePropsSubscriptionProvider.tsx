@@ -7,6 +7,15 @@ import type {
 	SequencePropsSubscriptionKey,
 	TSequence,
 } from 'remotion';
+import {FastRefreshContext} from '../fast-refresh-context';
+
+type OverrideToNodePathMapWithGeneration = Record<
+	string,
+	{
+		generation: number;
+		nodePath: SequencePropsSubscriptionKey;
+	}
+>;
 
 export const getReadOnlyOverrideIdToNodePathMappings = (
 	sequences: readonly TSequence[],
@@ -38,8 +47,10 @@ export const SequencePropsSubscriptionProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const {sequences} = useContext(Internals.SequenceManager);
+	const {fastRefreshGeneration, isFastRefreshing} =
+		useContext(FastRefreshContext);
 	const [overrideToNodePathMap, setOverrideIdToNodePathMap] =
-		useState<OverrideIdToNodePaths>({});
+		useState<OverrideToNodePathMapWithGeneration>({});
 	const readOnlyOverrideToNodePathMap = useMemo(
 		() =>
 			window.remotion_isReadOnlyStudio
@@ -52,22 +63,42 @@ export const SequencePropsSubscriptionProvider: React.FC<{
 		(overrideId: string, state: SequencePropsSubscriptionKey) => {
 			setOverrideIdToNodePathMap((prev) => {
 				const existing = prev[overrideId];
-				if (existing && existing === state) {
+				if (
+					existing?.generation === fastRefreshGeneration &&
+					existing.nodePath === state
+				) {
 					return prev;
 				}
 
-				return {...prev, [overrideId]: state};
+				return {
+					...prev,
+					[overrideId]: {generation: fastRefreshGeneration, nodePath: state},
+				};
 			});
 		},
-		[],
+		[fastRefreshGeneration],
 	);
+
+	const activeOverrideToNodePathMap = useMemo((): OverrideIdToNodePaths => {
+		if (isFastRefreshing) {
+			return {};
+		}
+
+		return Object.fromEntries(
+			Object.entries(overrideToNodePathMap).flatMap(([overrideId, mapping]) =>
+				mapping.generation === fastRefreshGeneration
+					? [[overrideId, mapping.nodePath]]
+					: [],
+			),
+		);
+	}, [fastRefreshGeneration, isFastRefreshing, overrideToNodePathMap]);
 
 	const getters = useMemo((): OverrideToNodePathGetters => {
 		return {
 			overrideIdToNodePathMappings:
-				readOnlyOverrideToNodePathMap ?? overrideToNodePathMap,
+				readOnlyOverrideToNodePathMap ?? activeOverrideToNodePathMap,
 		};
-	}, [overrideToNodePathMap, readOnlyOverrideToNodePathMap]);
+	}, [activeOverrideToNodePathMap, readOnlyOverrideToNodePathMap]);
 
 	const setters = useMemo((): OverrideToNodeSetters => {
 		return {setOverrideIdToNodePath};

@@ -145,6 +145,13 @@ let liveEventsListener: LiveEventsServer | null = null;
 
 const waiters: Waiter[] = [];
 
+export const notifyClientsAboutHmrStart = () => {
+	liveEventsListener?.sendEventToClient({
+		type: 'hmr',
+		hmrEvent: {action: 'building'},
+	});
+};
+
 export const waitForLiveEventsListener = (): Promise<LiveEventsServer> => {
 	if (liveEventsListener) {
 		return Promise.resolve(liveEventsListener);

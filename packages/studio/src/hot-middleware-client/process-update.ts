@@ -13,6 +13,7 @@
 
 import type {HotMiddlewareOptions, ModuleMap} from '@remotion/studio-shared';
 import {reloadUrl} from '../helpers/url-state';
+import {notifyFastRefreshComplete} from './fast-refresh-events';
 
 if (!__webpack_module__.hot) {
 	throw new Error('[Fast refresh] Hot Module Replacement is disabled.');
@@ -90,11 +91,15 @@ export const processUpdate = function (
 			) {
 				if (applyErr) return handleError(applyErr);
 
-				if (!upToDate()) {
+				const isUpToDate = upToDate();
+				if (!isUpToDate) {
 					check();
 				}
 
 				logUpdates(updatedModules, renewedModules);
+				if (isUpToDate) {
+					notifyFastRefreshComplete();
+				}
 			};
 
 			const applyResult = __webpack_module__.hot?.apply(applyOptions);
@@ -105,6 +110,8 @@ export const processUpdate = function (
 						applyCallback(null, outdatedModules);
 					})
 					.catch((_err: Error) => applyCallback(_err, []));
+			} else {
+				notifyFastRefreshComplete();
 			}
 		};
 
@@ -189,5 +196,7 @@ export const processUpdate = function (
 	const {reload} = options;
 	if (!upToDate(hash) && __webpack_module__.hot?.status() === 'idle') {
 		check();
+	} else {
+		notifyFastRefreshComplete();
 	}
 };
