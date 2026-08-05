@@ -75,6 +75,63 @@ test.describe('visual mode', () => {
 		});
 	});
 
+	test('should collapse programmatically duplicated timeline rows', async ({
+		page,
+	}) => {
+		await page.addInitScript(() => {
+			window.localStorage.setItem(
+				'remotion.sidebarRightCollapsing',
+				'expanded',
+			);
+		});
+		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
+
+		const firstGridline = page.getByText('0% gridline', {exact: true});
+		await expect(firstGridline).toBeVisible({timeout: 15_000});
+		await expect(
+			firstGridline
+				.locator('..')
+				.getByLabel('4 other programmatically duplicated instances are hidden'),
+		).toBeVisible({timeout: 15_000});
+		await expect(page.getByText('25% gridline', {exact: true})).toHaveCount(0);
+		const visibleOutlines = page.locator(
+			'.remotion-studio-composition-container > svg[aria-hidden="true"] > polygon[stroke-opacity="1"]',
+		);
+
+		await firstGridline.hover();
+		await expect(visibleOutlines).toHaveCount(5);
+
+		const northCanvasLabel = page
+			.locator('.remotion-studio-composition-container')
+			.getByText('North', {exact: true});
+		await northCanvasLabel.hover({force: true});
+		await expect(visibleOutlines).toHaveCount(5);
+		const centralCanvasLabel = page
+			.locator('.remotion-studio-composition-container')
+			.getByText('Central', {exact: true});
+		const northLabelTitles = page.getByTitle('North label');
+		const northLabelTitleCountBeforeSelection = await northLabelTitles.count();
+		await centralCanvasLabel.click({force: true});
+		await expect(northLabelTitles).toHaveCount(
+			northLabelTitleCountBeforeSelection + 1,
+		);
+		await page.mouse.move(0, 0);
+		await expect(visibleOutlines).toHaveCount(5);
+
+		await firstGridline.click();
+		const duplicationLabel = page.getByText('Duplicated 5 times', {
+			exact: true,
+		});
+		await expect(duplicationLabel).toBeVisible();
+		await expect(duplicationLabel).toHaveCSS('color', 'rgb(166, 167, 169)');
+		await expect(duplicationLabel).toHaveCSS('font-family', 'sans-serif');
+		await expect(duplicationLabel).toHaveCSS('font-size', '12px');
+		await expect(duplicationLabel).toHaveCSS('font-weight', '400');
+		await expect(duplicationLabel).toHaveCSS('line-height', '24px');
+		await expect(duplicationLabel).toHaveCSS('margin-top', '2px');
+		await expect(duplicationLabel).toHaveCSS('margin-bottom', '2px');
+	});
+
 	test('should open submenus toward the side with more space', async ({
 		page,
 	}) => {

@@ -15,10 +15,12 @@ import {
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
 	isStudioInteractivityEnabled,
 	isStudioSelectionEnabled,
 } from '../helpers/interactivity-enabled';
+import {timelineSequenceNodePathToKey} from '../helpers/timeline-node-path-key';
 import {useIsFullscreen} from '../helpers/use-is-fullscreen';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {useRuntimeValueSnapshots} from '../helpers/use-runtime-values';
@@ -702,18 +704,6 @@ export const SelectedOutlineOverlay: React.FC<{
 		},
 		[setHoveredSequence],
 	);
-	const onHoverChange = useCallback(
-		(key: string | null) => {
-			setHoveredSequence((currentHover) => {
-				if (key !== null) {
-					return {key, source: 'canvas'};
-				}
-
-				return currentHover?.source === 'canvas' ? null : currentHover;
-			});
-		},
-		[setHoveredSequence],
-	);
 	const onSnapPointsChange = useCallback(
 		(snapPoints: readonly SelectedOutlineSnapPoint[]) => {
 			setActiveSnapPoints(snapPoints);
@@ -744,11 +734,14 @@ export const SelectedOutlineOverlay: React.FC<{
 			overrideIdsToNodePaths: overrideIdToNodePathMappings,
 			compositions,
 			timelinePosition,
-		}).flatMap(({key, sequence}) => {
+		}).flatMap(({key, nodePathInfo, sequence}) => {
+			const nodePathKey = timelineSequenceNodePathToKey(
+				nodePathInfo.sequenceSubscriptionKey,
+			);
 			if (
 				!selectedSequenceKeys.has(key) &&
 				!sequenceKeysContainingSelection.has(key) &&
-				hoveredSequence?.key !== key
+				hoveredSequence?.nodePathKey !== nodePathKey
 			) {
 				return [];
 			}
@@ -758,7 +751,7 @@ export const SelectedOutlineOverlay: React.FC<{
 	}, [
 		compositions,
 		editorShowOutlines,
-		hoveredSequence?.key,
+		hoveredSequence?.nodePathKey,
 		isFullscreen,
 		overrideIdToNodePathMappings,
 		previewSelectionAvailable,
@@ -803,12 +796,37 @@ export const SelectedOutlineOverlay: React.FC<{
 				? previewServerState.clientId
 				: null;
 
-		return getSequencesWithSelectableOutlines({
+		const selectableOutlines = getSequencesWithSelectableOutlines({
 			sequences,
 			overrideIdsToNodePaths: overrideIdToNodePathMappings,
 			compositions,
 			timelinePosition,
-		}).map(({key, keyframeDisplayOffset, nodePathInfo, sequence}) => {
+		});
+		const firstNodePathInfoBySourceNode = new Map<
+			string,
+			SequenceNodePathInfo
+		>();
+		const selectedSourceNodeKeys = new Set<string>();
+		for (const {key, nodePathInfo} of selectableOutlines) {
+			const sourceNodeKey = timelineSequenceNodePathToKey(
+				nodePathInfo.sequenceSubscriptionKey,
+			);
+			if (selectedSequenceKeys.has(key)) {
+				selectedSourceNodeKeys.add(sourceNodeKey);
+			}
+
+			const currentFirst = firstNodePathInfoBySourceNode.get(sourceNodeKey);
+			if (
+				currentFirst === undefined ||
+				nodePathInfo.index < currentFirst.index
+			) {
+				firstNodePathInfoBySourceNode.set(sourceNodeKey, nodePathInfo);
+			}
+		}
+
+		return selectableOutlines.map((selectableOutline) => {
+			const {key, keyframeDisplayOffset, nodePathInfo, sequence} =
+				selectableOutline;
 			if (sequence.refForOutline === null) {
 				throw new Error('Expected sequence to have a ref for outline');
 			}
@@ -816,6 +834,15 @@ export const SelectedOutlineOverlay: React.FC<{
 			const selected = selectedSequenceKeys.has(key);
 			const containsSelection = sequenceKeysContainingSelection.has(key);
 			const nodePath = nodePathInfo.sequenceSubscriptionKey;
+			const sourceNodeKey = timelineSequenceNodePathToKey(nodePath);
+			const showSelectedOutline =
+				containsSelection || selectedSourceNodeKeys.has(sourceNodeKey);
+			const selectionNodePathInfo =
+				firstNodePathInfoBySourceNode.get(sourceNodeKey);
+			if (selectionNodePathInfo === undefined) {
+				throw new Error('Expected a first sequence for the source node');
+			}
+
 			const {controls} = sequence;
 			const nodePropStatuses = Internals.getPropStatusesCtx(
 				propStatuses,
@@ -996,7 +1023,11 @@ export const SelectedOutlineOverlay: React.FC<{
 				nodePathInfo,
 				ref: sequence.refForOutline,
 				selected,
-				selection: {type: 'sequence', nodePathInfo},
+				showSelectedOutline,
+				selection: {
+					type: 'sequence',
+					nodePathInfo: selectionNodePathInfo,
+				},
 				sequence,
 				drag: canDrag
 					? {
@@ -1139,6 +1170,46 @@ export const SelectedOutlineOverlay: React.FC<{
 		timelinePosition,
 		outlineRuntimeValuesByStore,
 	]);
+	const nodePathKeyByOutlineKey = useMemo(() => {
+		return new Map(
+			outlineTargets.map((target) => [
+				target.key,
+				timelineSequenceNodePathToKey(
+					target.nodePathInfo.sequenceSubscriptionKey,
+				),
+			]),
+		);
+	}, [outlineTargets]);
+	const onHoverChange = useCallback(
+		(key: string | null) => {
+			setHoveredSequence((currentHover) => {
+				if (key !== null) {
+					const nodePathKey = nodePathKeyByOutlineKey.get(key);
+					if (nodePathKey === undefined) {
+						return currentHover;
+					}
+
+					return {key, nodePathKey, source: 'canvas'};
+				}
+
+				return currentHover?.source === 'canvas' ? null : currentHover;
+			});
+		},
+		[nodePathKeyByOutlineKey, setHoveredSequence],
+	);
+	const hoveredOutlineKeys = useMemo(() => {
+		if (hoveredSequence === null) {
+			return new Set<string>();
+		}
+
+		return new Set(
+			outlineTargets.flatMap((target) =>
+				nodePathKeyByOutlineKey.get(target.key) === hoveredSequence.nodePathKey
+					? [target.key]
+					: [],
+			),
+		);
+	}, [hoveredSequence, nodePathKeyByOutlineKey, outlineTargets]);
 
 	useEffect(() => {
 		if (
@@ -1580,7 +1651,7 @@ export const SelectedOutlineOverlay: React.FC<{
 					allRotationDragTargets={allRotationDragTargets}
 					allScaleDragTargets={allScaleDragTargets}
 					dragging={draggingOutline}
-					hovered={hoveredSequence?.key === outline.key}
+					hovered={hoveredOutlineKeys.has(outline.key)}
 					outline={outline}
 					onDraggingChange={onDraggingChange}
 					onHoverChange={onHoverChange}

@@ -38,6 +38,7 @@ import {
 } from './ConnectedCompositionsSection';
 import type {SequenceSectionSelection} from './inspector-selection';
 import {
+	SequenceInspectorDuplicationSection,
 	SequenceInspectorHeader,
 	useSequenceInspectorSourceLocation,
 } from './SequenceInspectorHeader';
@@ -275,6 +276,7 @@ const SequenceExpandedInspector: React.FC<{
 			onPointerDown={selectSequenceOnInspectorPointerDown}
 		>
 			<SequenceInspectorHeader sourceLocation={sourceLocation} track={track} />
+			<SequenceInspectorDuplicationSection track={track} />
 			{connectedCompositions.length > 0 ? (
 				<>
 					<InspectorSectionDivider />

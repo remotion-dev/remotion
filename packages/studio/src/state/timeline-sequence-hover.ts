@@ -1,10 +1,14 @@
 import type {Dispatch, SetStateAction} from 'react';
 import {createContext, useCallback, useContext, useMemo} from 'react';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
-import {timelineNodePathInfoToKey} from '../helpers/timeline-node-path-key';
+import {
+	timelineNodePathInfoToKey,
+	timelineSequenceNodePathToKey,
+} from '../helpers/timeline-node-path-key';
 
 export type TimelineSequenceHover = {
 	readonly key: string;
+	readonly nodePathKey: string;
 	readonly source: 'canvas' | 'timeline';
 };
 
@@ -34,14 +38,25 @@ export const useTimelineSequenceHover = (
 				: timelineNodePathInfoToKey({...nodePathInfo, auxiliaryKeys: []}),
 		[nodePathInfo],
 	);
+	const nodePathKey = useMemo(
+		() =>
+			nodePathInfo === null
+				? null
+				: timelineSequenceNodePathToKey(nodePathInfo.sequenceSubscriptionKey),
+		[nodePathInfo],
+	);
 
 	const onPointerEnter = useCallback(() => {
-		if (sequenceKey === null) {
+		if (sequenceKey === null || nodePathKey === null) {
 			return;
 		}
 
-		setHoveredSequence({key: sequenceKey, source: 'timeline'});
-	}, [sequenceKey, setHoveredSequence]);
+		setHoveredSequence({
+			key: sequenceKey,
+			nodePathKey,
+			source: 'timeline',
+		});
+	}, [nodePathKey, sequenceKey, setHoveredSequence]);
 
 	const onPointerLeave = useCallback(() => {
 		setHoveredSequence((currentHover) => {
@@ -56,7 +71,8 @@ export const useTimelineSequenceHover = (
 		});
 	}, [sequenceKey, setHoveredSequence]);
 
-	const hovered = sequenceKey !== null && hoveredSequence?.key === sequenceKey;
+	const hovered =
+		nodePathKey !== null && hoveredSequence?.nodePathKey === nodePathKey;
 
 	return useMemo(
 		() => ({hovered, onPointerEnter, onPointerLeave}),

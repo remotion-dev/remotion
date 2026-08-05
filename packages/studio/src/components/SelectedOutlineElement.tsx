@@ -513,10 +513,10 @@ const SelectedOutlinePolygon: React.FC<{
 	);
 	const drag = target?.drag ?? null;
 	const selected = target?.selected ?? false;
-	const containsSelection = target?.containsSelection ?? false;
+	const showSelectedOutline = target?.showSelectedOutline ?? false;
 	const effectDrop = target?.effectDrop ?? null;
 	const [effectDropHovered, setEffectDropHovered] = useState(false);
-	const visible = containsSelection || hovered;
+	const visible = showSelectedOutline || hovered;
 
 	const onPointerDown = React.useCallback(
 		(event: React.PointerEvent<SVGPolygonElement>) => {

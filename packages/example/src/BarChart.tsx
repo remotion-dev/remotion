@@ -80,18 +80,23 @@ const AnimatedBar: React.FC<{item: ChartItem; index: number}> = ({
 				name={`${item.label} column`}
 				style={{
 					width: 100,
+
 					height: interpolate(frame, [start, end], [0, height], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 						easing: Easing.bezier(0.16, 1, 0.3, 1),
 					}),
+
 					borderRadius: '22px 22px 9px 9px',
 					background: `linear-gradient(180deg, ${item.color} 0%, ${item.color}B8 100%)`,
+
 					boxShadow:
 						item.value === 87
 							? `0 0 34px ${item.color}66, inset 0 1px 0 rgba(255,255,255,0.46)`
 							: 'inset 0 1px 0 rgba(255,255,255,0.38)',
+
 					border: '1px solid rgba(255,255,255,0.18)',
+					scale: 0.982,
 				}}
 			/>
 			<Interactive.Div

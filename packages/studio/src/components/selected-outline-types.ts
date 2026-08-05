@@ -28,6 +28,7 @@ export type SelectedOutlineTarget = {
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly ref: React.RefObject<Element | null>;
 	readonly selected: boolean;
+	readonly showSelectedOutline: boolean;
 	readonly selection: TimelineSelection;
 	readonly sequence: TSequence;
 	readonly crop: {
