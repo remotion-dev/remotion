@@ -53,6 +53,7 @@ export type BrowserStudioProps = {
 	project: VirtualProject;
 	readOnly: boolean;
 	iframeSrc?: string;
+	workspacePackageBaseUrl?: string;
 	dependencyResolver?: BrowserStudioDependencyResolver;
 	onCompileStateChange?: (state: CompileState) => void;
 	onProjectChange?: (project: VirtualProject) => void;
@@ -63,6 +64,7 @@ export type BrowserStudioWorkerCompileRequest =
 			type: 'init';
 			project: VirtualProject;
 			dependencyResolutions: Record<string, BrowserStudioDependencyResolution>;
+			workspacePackageBaseUrl: string | null;
 	  }
 	| {
 			type: 'update-project';

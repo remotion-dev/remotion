@@ -83,6 +83,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	dependencyResolver,
 	onCompileStateChange,
 	onProjectChange,
+	workspacePackageBaseUrl,
 }) => {
 	const [state, setState] = useState<CompileState>(makeInitialState);
 	const [iframeHtml, setIframeHtml] = useState<string | null>(null);
@@ -319,6 +320,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				),
 			),
 			project: activeProjectRef.current,
+			workspacePackageBaseUrl: workspacePackageBaseUrl ?? null,
 		};
 
 		worker.postMessage(request);
@@ -335,6 +337,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		hmrAssetManager,
 		publicFileManager,
 		readOnly,
+		workspacePackageBaseUrl,
 		activeProject.entryPoint,
 		activeProject.rootDir,
 	]);
