@@ -1,10 +1,8 @@
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
-import {
-	getConfigFileChangeMessage,
-	type GetDefaultEditorInfoResponse,
-} from '@remotion/studio-shared';
+import type {StudioRuntimeConfig} from '@remotion/studio-shared';
+import {getConfigFileChangeMessage} from '@remotion/studio-shared';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
 import {
@@ -52,6 +50,7 @@ const {
 	previewSampleRateOption,
 	defaultCodingAgentOption,
 	defaultEditorOption,
+	publicLicenseKeyOption,
 } = BrowserSafeApis.options;
 
 export const studioCommand = async (
@@ -151,20 +150,35 @@ export const studioCommand = async (
 		`Using ${useRspack ? 'Rspack' : 'Webpack'} bundler.`,
 	);
 
-	const getStudioRuntimeConfig = () => ({
-		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
-		askAIEnabled: askAIOption.getValue({
+	const getStudioRuntimeConfig = (): StudioRuntimeConfig => {
+		const configuredEditor = defaultEditorOption.getValue({
 			commandLine: parsedCli,
-		}).value,
-		interactivityEnabled: interactivityOption.getValue({
-			commandLine: parsedCli,
-		}).value,
-		keyboardShortcutsEnabled: keyboardShortcutsOption.getValue({
-			commandLine: parsedCli,
-		}).value,
-		bufferStateDelayInMilliseconds:
-			ConfigInternals.getBufferStateDelayInMilliseconds(),
-	});
+		}).value;
+
+		return {
+			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
+			askAIEnabled: askAIOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+			interactivityEnabled: interactivityOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+			keyboardShortcutsEnabled: keyboardShortcutsOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+			bufferStateDelayInMilliseconds:
+				ConfigInternals.getBufferStateDelayInMilliseconds(),
+			defaultCodingAgent: defaultCodingAgentOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+			defaultEditor:
+				typeof configuredEditor === 'object' ? 'custom' : configuredEditor,
+			publicLicenseKey: publicLicenseKeyOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+		};
+	};
+
 	const getNumberOfAudioTags = () =>
 		numberOfSharedAudioTagsOption.getValue({commandLine: parsedCli}).value;
 	const getAudioLatencyHint = () =>
@@ -202,11 +216,6 @@ export const studioCommand = async (
 					const reloadResult = await reloadConfig({
 						resetConfigOptions: ConfigInternals.resetConfigOptions,
 						getConfigSnapshot: async (currentConfigCode) => {
-							const configuredEditor = getDefaultEditor();
-							const defaultEditorId: GetDefaultEditorInfoResponse['defaultEditor'] =
-								typeof configuredEditor === 'object'
-									? 'custom'
-									: configuredEditor;
 							startupConfigFingerprints ??=
 								makeConfigFileFingerprints(startupConfigCode);
 							const configFileChangeType = classifyConfigFileChange({
@@ -216,8 +225,6 @@ export const studioCommand = async (
 
 							return {
 								changeType: configFileChangeType,
-								defaultCodingAgent: getDefaultCodingAgent(),
-								defaultEditor: defaultEditorId,
 								renderDefaults: getRenderDefaults(logLevel),
 								studioRuntimeConfig: getStudioRuntimeConfig(),
 								editorName: await StudioServerInternals.getEditorName({
@@ -236,14 +243,8 @@ export const studioCommand = async (
 						return;
 					}
 
-					const {
-						changeType,
-						defaultCodingAgent,
-						defaultEditor,
-						renderDefaults,
-						studioRuntimeConfig,
-						editorName,
-					} = reloadResult.value;
+					const {changeType, renderDefaults, studioRuntimeConfig, editorName} =
+						reloadResult.value;
 					const message = getConfigFileChangeMessage(changeType);
 
 					Log.info({indent: false, logLevel}, chalk.blue(message));
@@ -251,8 +252,6 @@ export const studioCommand = async (
 						listener.sendEventToClient({
 							type: 'config-file-changed',
 							changeType,
-							defaultCodingAgent,
-							defaultEditor,
 							originatorClientId:
 								event.type === 'deleted'
 									? null

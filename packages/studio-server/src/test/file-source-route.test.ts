@@ -84,9 +84,12 @@ test('serves file source from an origin-less GET request', async () => {
 			getStudioRuntimeConfig: () => ({
 				askAIEnabled: false,
 				bufferStateDelayInMilliseconds: null,
+				defaultCodingAgent: null,
+				defaultEditor: null,
 				interactivityEnabled: true,
 				keyboardShortcutsEnabled: true,
 				maxTimelineTracks: null,
+				publicLicenseKey: null,
 			}),
 			gitSource: null,
 			liveEventsServer: noopLiveEventsServer,

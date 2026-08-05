@@ -37,7 +37,7 @@ export const SettingsProvider: React.FC<{
 		codingAgentInfo: null,
 		editorInfo: null,
 		error: null,
-		publicLicenseKey: window.remotion_renderDefaults?.publicLicenseKey ?? null,
+		publicLicenseKey: window.remotion_studioConfig?.publicLicenseKey ?? null,
 		revision: 0,
 	});
 
@@ -60,10 +60,21 @@ export const SettingsProvider: React.FC<{
 			callApi('/api/default-coding-agent-info', {}, controller.signal),
 		])
 			.then(([editorInfo, codingAgentInfo]) => {
+				const runtimeConfig = window.remotion_studioConfig;
 				setSettings((currentSettings) => ({
 					...currentSettings,
-					codingAgentInfo,
-					editorInfo,
+					codingAgentInfo: {
+						...codingAgentInfo,
+						defaultCodingAgent: runtimeConfig
+							? runtimeConfig.defaultCodingAgent
+							: codingAgentInfo.defaultCodingAgent,
+					},
+					editorInfo: {
+						...editorInfo,
+						defaultEditor: runtimeConfig
+							? runtimeConfig.defaultEditor
+							: editorInfo.defaultEditor,
+					},
 					error: null,
 					revision: currentSettings.revision + 1,
 				}));
@@ -93,17 +104,17 @@ export const SettingsProvider: React.FC<{
 				codingAgentInfo: currentSettings.codingAgentInfo
 					? {
 							...currentSettings.codingAgentInfo,
-							defaultCodingAgent: event.defaultCodingAgent,
+							defaultCodingAgent: event.studioRuntimeConfig.defaultCodingAgent,
 						}
 					: null,
 				editorInfo: currentSettings.editorInfo
 					? {
 							...currentSettings.editorInfo,
-							defaultEditor: event.defaultEditor,
+							defaultEditor: event.studioRuntimeConfig.defaultEditor,
 						}
 					: null,
 				error: null,
-				publicLicenseKey: event.renderDefaults.publicLicenseKey ?? null,
+				publicLicenseKey: event.studioRuntimeConfig.publicLicenseKey,
 				revision: currentSettings.revision + 1,
 			}));
 		});

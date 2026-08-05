@@ -124,9 +124,7 @@ test.describe('visual mode', () => {
 		}
 	});
 
-	test('settings reuse reactive editor and coding agent info', async ({
-		page,
-	}) => {
+	test('settings reuse reactive runtime config', async ({page}) => {
 		const configFile = path.join(exampleDir, 'remotion.config.ts');
 		const configBeforeTest = fs.readFileSync(configFile, 'utf8');
 		let editorInfoRequests = 0;
@@ -173,7 +171,7 @@ test.describe('visual mode', () => {
 
 			fs.writeFileSync(
 				configFile,
-				`${configBeforeTest}\nConfig.setDefaultEditor('cursor');\nConfig.setDefaultCodingAgent('codex');\n`,
+				`${configBeforeTest}\nConfig.setDefaultEditor('cursor');\nConfig.setDefaultCodingAgent('codex');\nConfig.setPublicLicenseKey('free-license');\n`,
 			);
 			await expect
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
@@ -188,6 +186,8 @@ test.describe('visual mode', () => {
 			await expect(dialog.getByTitle('Default coding agent')).toContainText(
 				'Codex',
 			);
+			await dialog.getByText('License', {exact: true}).click();
+			await expect(dialog.locator('input[name="free-license"]')).toBeChecked();
 			expect({codingAgentInfoRequests, editorInfoRequests}).toEqual({
 				codingAgentInfoRequests: 1,
 				editorInfoRequests: 1,
