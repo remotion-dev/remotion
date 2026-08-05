@@ -304,7 +304,32 @@ const MapFlyoverLayerInner = forwardRef<
 
 			const mapInstance = new maplibregl.Map({
 				container: mapContainerRef.current,
-				style: 'https://demotiles.maplibre.org/style.json',
+				// NASA Blue Marble is satellite imagery without political borders.
+				// Source: NASA EOSDIS GIBS, accessed August 2026.
+				style: {
+					version: 8,
+					sources: {
+						'nasa-blue-marble': {
+							type: 'raster',
+							tiles: [
+								'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_NextGeneration/default/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpeg',
+							],
+							tileSize: 256,
+							maxzoom: 8,
+							attribution: 'NASA EOSDIS / GIBS',
+						},
+					},
+					layers: [
+						{
+							id: 'nasa-blue-marble',
+							type: 'raster',
+							source: 'nasa-blue-marble',
+							paint: {
+								'raster-fade-duration': 0,
+							},
+						},
+					],
+				},
 				center: mapPlate.center,
 				zoom: mapPlate.zoom,
 				interactive: false,
@@ -489,7 +514,7 @@ const MapFlyoverLayerInner = forwardRef<
 							right: 8,
 						}}
 					>
-						MapLibre
+						NASA EOSDIS / GIBS
 					</div>
 				</div>
 			</Sequence>
