@@ -10,7 +10,6 @@ const footer: React.CSSProperties = {
 const footerRow: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
-	justifyContent: 'space-between',
 };
 
 const configFileHint: React.CSSProperties = {
@@ -31,9 +30,7 @@ const configFileName: React.CSSProperties = {
 	lineHeight: '20px',
 };
 
-export const SettingsModalFooter: React.FC<{
-	readonly children?: React.ReactNode;
-}> = ({children}) => {
+export const SettingsModalFooter: React.FC = () => {
 	const configFileLocation = useMemo(() => {
 		return {
 			source: 'remotion.config.ts',
@@ -52,7 +49,6 @@ export const SettingsModalFooter: React.FC<{
 						label={<strong style={configFileName}>remotion.config.ts</strong>}
 					/>
 				</div>
-				{children}
 			</div>
 		</ModalFooterContainer>
 	);
