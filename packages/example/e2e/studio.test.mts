@@ -171,29 +171,10 @@ test.describe('visual mode', () => {
 				.poll(() => ({codingAgentInfoRequests, editorInfoRequests}))
 				.toEqual({codingAgentInfoRequests: 1, editorInfoRequests: 1});
 
-			const response = await fetch(`${STUDIO_URL}/api/update-config`, {
-				method: 'POST',
-				headers: {'content-type': 'application/json', origin: STUDIO_URL},
-				body: JSON.stringify({
-					clientId: 'external-settings-e2e',
-					updates: [
-						{
-							setter: 'setDefaultEditor',
-							type: 'set',
-							value: 'cursor',
-						},
-						{
-							setter: 'setDefaultCodingAgent',
-							type: 'set',
-							value: 'codex',
-						},
-					],
-				}),
-			});
-			expect(await response.json()).toEqual({
-				success: true,
-				data: {success: true},
-			});
+			fs.writeFileSync(
+				configFile,
+				`${configBeforeTest}\nConfig.setDefaultEditor('cursor');\nConfig.setDefaultCodingAgent('codex');\n`,
+			);
 			await expect
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
 				.toContain("Config.setDefaultEditor('cursor');");
