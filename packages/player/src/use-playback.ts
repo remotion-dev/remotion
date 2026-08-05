@@ -241,10 +241,18 @@ export const usePlayback = ({
 		};
 
 		const queueNextFrame = () => {
+			if (hasBeenStopped) {
+				return;
+			}
+
 			const getIsResumingAudioContext =
 				sharedAudioContext?.getIsResumingAudioContext?.() ?? null;
 			if (getIsResumingAudioContext !== null && !muted) {
 				getIsResumingAudioContext.then(() => {
+					if (hasBeenStopped) {
+						return;
+					}
+
 					startedTime = performance.now();
 					framesAdvanced = 0;
 					queueNextFrame();
