@@ -25,7 +25,12 @@ const getWorkspacePackageVersions = () => {
 	for (const packageJsonPath of packageJsonGlob.scanSync({cwd: repoDir})) {
 		const packageJson = readPackageJson(join(repoDir, packageJsonPath));
 
-		if (!packageJson.name || !packageJson.version) {
+		if (
+			!packageJson.name ||
+			!packageJson.version ||
+			(packageJson.name !== 'remotion' &&
+				!packageJson.name.startsWith('@remotion/'))
+		) {
 			continue;
 		}
 
@@ -109,6 +114,7 @@ export const getBrowserStudioDependencyVersionsForBuild = (): Record<
 	}
 
 	const workspacePackageVersions = getWorkspacePackageVersions();
+	Object.assign(dependencySpecs, workspacePackageVersions);
 
 	return Object.fromEntries(
 		Object.entries(dependencySpecs)

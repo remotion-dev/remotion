@@ -4,14 +4,31 @@ test('loads the Browser Studio canvas and enables Visual Mode', async ({
 	page,
 }) => {
 	const pageErrors: Error[] = [];
+	const remoteRemotionRequests: string[] = [];
 	const updateAvailableRequests: string[] = [];
+	const workspacePackageRequests: string[] = [];
 	let rejectPageError: (error: Error) => void = () => undefined;
 	const pageError = new Promise<never>((_resolve, reject) => {
 		rejectPageError = reject;
 	});
 	page.on('request', (request) => {
-		if (new URL(request.url()).pathname === '/api/update-available') {
+		const requestUrl = new URL(request.url());
+		if (requestUrl.pathname === '/api/update-available') {
 			updateAvailableRequests.push(request.url());
+		}
+
+		if (
+			requestUrl.pathname.startsWith('/__remotion_browser_studio_workspace__/')
+		) {
+			workspacePackageRequests.push(requestUrl.pathname);
+		}
+
+		if (
+			requestUrl.hostname === 'esm.sh' &&
+			(decodeURIComponent(requestUrl.pathname).includes('/@remotion/') ||
+				/^\/remotion(?:@|\/|$)/.test(requestUrl.pathname))
+		) {
+			remoteRemotionRequests.push(request.url());
 		}
 	});
 	page.on('pageerror', (error) => {
@@ -43,6 +60,16 @@ test('loads the Browser Studio canvas and enables Visual Mode', async ({
 	]);
 
 	expect(pageErrors).toEqual([]);
+	expect(workspacePackageRequests).toContain(
+		'/__remotion_browser_studio_workspace__/packages/core/dist/esm/index.mjs',
+	);
+	expect(workspacePackageRequests).toContain(
+		'/__remotion_browser_studio_workspace__/packages/studio/dist/esm/previewEntry.mjs',
+	);
+	expect(workspacePackageRequests).toContain(
+		'/__remotion_browser_studio_workspace__/packages/transitions/dist/esm/fade.mjs',
+	);
+	expect(remoteRemotionRequests).toEqual([]);
 	expect(updateAvailableRequests).toEqual([]);
 });
 
