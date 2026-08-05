@@ -2,11 +2,13 @@ import {Log, type LogLevel} from '../log.js';
 
 const RESUME_WAIT_TIMEOUT = 1000;
 
+export type AudioContextResumeResult = 'resumed' | 'cancelled' | 'failed';
+
 export const waitUntilActuallyResumed = (
 	audioContext: AudioContext,
 	logLevel: LogLevel,
 	signal: AbortSignal,
-): Promise<void> => {
+): Promise<AudioContextResumeResult> => {
 	return new Promise((resolve) => {
 		const startCurrentTime = audioContext.currentTime;
 		const start = audioContext.getOutputTimestamp();
@@ -15,8 +17,9 @@ export const waitUntilActuallyResumed = (
 		let animationFrame: number | null = null;
 		let timeout: ReturnType<typeof setTimeout> | null = null;
 		let settled = false;
+		let onAbort: () => void = () => undefined;
 
-		const finish = () => {
+		const finish = (result: AudioContextResumeResult) => {
 			if (settled) {
 				return;
 			}
@@ -30,9 +33,11 @@ export const waitUntilActuallyResumed = (
 				clearTimeout(timeout);
 			}
 
-			signal.removeEventListener('abort', finish);
-			resolve();
+			signal.removeEventListener('abort', onAbort);
+			resolve(result);
 		};
+
+		onAbort = () => finish('cancelled');
 
 		const check = () => {
 			animationFrame = null;
@@ -61,7 +66,7 @@ export const waitUntilActuallyResumed = (
 						outputTimestamp.performanceTime?.toFixed(1) ?? 'undefined'
 					}`,
 				);
-				finish();
+				finish('resumed');
 				return;
 			}
 
@@ -69,17 +74,17 @@ export const waitUntilActuallyResumed = (
 		};
 
 		if (signal.aborted) {
-			finish();
+			finish('cancelled');
 			return;
 		}
 
-		signal.addEventListener('abort', finish, {once: true});
+		signal.addEventListener('abort', onAbort, {once: true});
 		timeout = setTimeout(() => {
 			Log.warn(
 				{logLevel, tag: 'audio'},
-				`AudioContext did not resume within ${RESUME_WAIT_TIMEOUT}ms, continuing playback without audio sync`,
+				`AudioContext did not resume within ${RESUME_WAIT_TIMEOUT}ms, muting playback and continuing without audio`,
 			);
-			finish();
+			finish('failed');
 		}, RESUME_WAIT_TIMEOUT);
 		animationFrame = requestAnimationFrame(check);
 	});

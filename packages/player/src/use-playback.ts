@@ -54,6 +54,7 @@ export const usePlayback = ({
 	const {pause, emitter, isPlaying} = usePlayerMethods();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const sharedAudioContext = useContext(Internals.SharedAudioContext);
+	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
 	const logLevel = Internals.useLogLevel();
 
 	// requestAnimationFrame() does not work if the tab is not active.
@@ -248,9 +249,14 @@ export const usePlayback = ({
 			const getIsResumingAudioContext =
 				sharedAudioContext?.getIsResumingAudioContext?.() ?? null;
 			if (getIsResumingAudioContext !== null && !muted) {
-				getIsResumingAudioContext.then(() => {
+				getIsResumingAudioContext.then((result) => {
 					if (hasBeenStopped) {
 						return;
+					}
+
+					if (result === 'failed') {
+						sharedAudioContext?.suspend();
+						setPlayerMuted(true);
 					}
 
 					startedTime = performance.now();
@@ -322,6 +328,7 @@ export const usePlayback = ({
 		context,
 		isPlaying,
 		sharedAudioContext,
+		setPlayerMuted,
 		logLevel,
 		muted,
 	]);

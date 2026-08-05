@@ -78,7 +78,7 @@ const AudioComposition = () => {
 	);
 };
 
-test('Player continues after an AudioContext resume stays pending', async () => {
+test('Player mutes and continues after an AudioContext resume stays pending', async () => {
 	const originalAudioContext = globalThis.AudioContext;
 	const originalRequestAnimationFrame = globalThis.requestAnimationFrame;
 	const originalCancelAnimationFrame = globalThis.cancelAnimationFrame;
@@ -141,6 +141,7 @@ test('Player continues after an AudioContext resume stays pending', async () => 
 		act(flushAnimationFrames);
 
 		expect(playerRef.current?.isPlaying()).toBe(true);
+		expect(playerRef.current?.isMuted()).toBe(true);
 		expect(playerRef.current?.getCurrentFrame()).toBeGreaterThan(
 			stalledFrame ?? 0,
 		);
@@ -153,6 +154,7 @@ test('Player continues after an AudioContext resume stays pending', async () => 
 		expect(animationFrames.size).toBe(0);
 
 		await act(async () => {
+			playerRef.current?.unmute();
 			playerRef.current?.play();
 			await Promise.resolve();
 		});
