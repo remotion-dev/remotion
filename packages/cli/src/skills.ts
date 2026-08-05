@@ -69,6 +69,7 @@ export const skillsCommand = (
 		cwd,
 		env: environment,
 		stdio: 'inherit',
+		shell: process.platform === 'win32',
 	});
 
 	return new Promise<void>((resolve, reject) => {
