@@ -17,7 +17,10 @@ import type {SharedElementSourceNode} from './shared-element-source-node.js';
 import {makeSharedElementSourceNode} from './shared-element-source-node.js';
 import type {RemotionAudioContextState} from './use-audio-context.js';
 import {useSingletonAudioContext} from './use-audio-context.js';
-import {waitUntilActuallyResumed} from './wait-until-actually-resumed.js';
+import {
+	type AudioContextResumeResult,
+	waitUntilActuallyResumed,
+} from './wait-until-actually-resumed.js';
 
 /**
  * This functionality of Remotion will keep a certain amount
@@ -86,7 +89,7 @@ type SharedAudioContextValue = {
 	) => ScheduleAudioNodeResult;
 	resume: () => Promise<void>;
 	suspend: () => Promise<void>;
-	getIsResumingAudioContext: () => Promise<void> | null;
+	getIsResumingAudioContext: () => Promise<AudioContextResumeResult> | null;
 	unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
 };
 
@@ -173,6 +176,12 @@ type NodeToResume = {
 	duration: number;
 };
 
+type AudioContextResumeAttempt = {
+	abortController: AbortController;
+	id: number;
+	promise: Promise<AudioContextResumeResult>;
+};
+
 const shouldSaveForLater = (
 	state: Exclude<RemotionAudioContextState, 'closed'>,
 ) => {
@@ -215,7 +224,8 @@ export const SharedAudioContextProvider: React.FC<{
 		sampleRate,
 	});
 	const audioContextIsPlayingEventually = useRef(false);
-	const isResuming = useRef<Promise<void> | null>(null);
+	const isResuming = useRef<AudioContextResumeAttempt | null>(null);
+	const nextResumeAttemptId = useRef(0);
 
 	const audioSyncAnchor = useMemo(() => ({value: 0}), []);
 
@@ -382,20 +392,34 @@ export const SharedAudioContextProvider: React.FC<{
 		nodesToResume.current.clear();
 
 		const resumePromise = ctxAndGain.resume();
+		const abortController = new AbortController();
+		const resumeAttemptId = nextResumeAttemptId.current++;
 
-		isResuming.current = new Promise<void>((resolve) => {
-			waitUntilActuallyResumed(ctxAndGain.audioContext, logLevel).then(resolve);
+		const waitPromise = new Promise<AudioContextResumeResult>((resolve) => {
+			waitUntilActuallyResumed(
+				ctxAndGain.audioContext,
+				logLevel,
+				abortController.signal,
+			).then(resolve);
 			resumePromise.catch((err) => {
 				Log.warn(
 					{logLevel, tag: 'audio'},
-					'AudioContext resume rejected, continuing without audio sync',
+					'AudioContext resume rejected, muting playback and continuing without audio',
 					err,
 				);
-				resolve();
+				abortController.abort();
+				resolve('failed');
 			});
 		}).finally(() => {
-			isResuming.current = null;
+			if (isResuming.current?.id === resumeAttemptId) {
+				isResuming.current = null;
+			}
 		});
+		isResuming.current = {
+			abortController,
+			id: resumeAttemptId,
+			promise: waitPromise,
+		};
 
 		return resumePromise.catch(() => {
 			// Already logged above; swallow to avoid unhandled rejection
@@ -404,10 +428,12 @@ export const SharedAudioContextProvider: React.FC<{
 	}, [ctxAndGain, logLevel]);
 
 	const getIsResumingAudioContext = useCallback(() => {
-		return isResuming.current;
+		return isResuming.current?.promise ?? null;
 	}, []);
 
 	const suspend = useCallback(() => {
+		isResuming.current?.abortController.abort();
+
 		if (!ctxAndGain) {
 			return Promise.resolve();
 		}

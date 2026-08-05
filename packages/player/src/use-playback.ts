@@ -54,6 +54,7 @@ export const usePlayback = ({
 	const {pause, emitter, isPlaying} = usePlayerMethods();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const sharedAudioContext = useContext(Internals.SharedAudioContext);
+	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
 	const logLevel = Internals.useLogLevel();
 
 	// requestAnimationFrame() does not work if the tab is not active.
@@ -162,6 +163,7 @@ export const usePlayback = ({
 		}
 
 		let hasBeenStopped = false;
+		let audioContextFailed = false;
 		let reqAnimFrameCall:
 			| {
 					type: 'raf';
@@ -200,7 +202,7 @@ export const usePlayback = ({
 				return;
 			}
 
-			if (!muted && !context.buffering.current) {
+			if (!muted && !audioContextFailed && !context.buffering.current) {
 				sharedAudioContext?.resume?.();
 			}
 
@@ -241,10 +243,25 @@ export const usePlayback = ({
 		};
 
 		const queueNextFrame = () => {
-			const getIsResumingAudioContext =
-				sharedAudioContext?.getIsResumingAudioContext?.() ?? null;
+			if (hasBeenStopped) {
+				return;
+			}
+
+			const getIsResumingAudioContext = audioContextFailed
+				? null
+				: (sharedAudioContext?.getIsResumingAudioContext?.() ?? null);
 			if (getIsResumingAudioContext !== null && !muted) {
-				getIsResumingAudioContext.then(() => {
+				getIsResumingAudioContext.then((result) => {
+					if (hasBeenStopped) {
+						return;
+					}
+
+					if (result === 'failed') {
+						audioContextFailed = true;
+						sharedAudioContext?.suspend();
+						setPlayerMuted(true);
+					}
+
 					startedTime = performance.now();
 					framesAdvanced = 0;
 					queueNextFrame();
@@ -254,7 +271,7 @@ export const usePlayback = ({
 			}
 
 			if (context.buffering.current) {
-				if (!muted) {
+				if (!muted && !audioContextFailed) {
 					sharedAudioContext?.suspend?.();
 				}
 
@@ -314,6 +331,7 @@ export const usePlayback = ({
 		context,
 		isPlaying,
 		sharedAudioContext,
+		setPlayerMuted,
 		logLevel,
 		muted,
 	]);
