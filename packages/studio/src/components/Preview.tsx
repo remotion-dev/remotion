@@ -4,6 +4,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 } from 'react';
@@ -285,13 +286,19 @@ const PortalContainer: React.FC<{
 		yCorrection,
 	]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const {current} = portalContainer;
 		current?.appendChild(Internals.portalNode());
+		Internals.setPortalNodeCurrentScale(scale);
+
 		return () => {
-			current?.removeChild(Internals.portalNode());
+			const portalNode = Internals.portalNode();
+			if (current && portalNode.parentNode === current) {
+				current.removeChild(portalNode);
+				Internals.setPortalNodeCurrentScale(1);
+			}
 		};
-	}, []);
+	}, [scale]);
 
 	const onPointerDown = useCallback(
 		(event: PointerEvent) => {

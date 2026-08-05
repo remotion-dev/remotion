@@ -68,6 +68,15 @@ test.describe('visual mode', () => {
 		await expect(page).toHaveTitle(/Remotion/i, {timeout: 15_000});
 	});
 
+	test('should compensate DOM measurements with useCurrentScale() on direct load', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/use-current-scale-on-load`);
+		await expect(
+			page.getByTestId('use-current-scale-corrected-width'),
+		).toHaveText('100', {timeout: 15_000});
+	});
+
 	test('should show the composition list', async ({page}) => {
 		await page.goto(STUDIO_URL);
 		await expect(page.getByRole('button', {name: 'Schema'})).toBeVisible({
