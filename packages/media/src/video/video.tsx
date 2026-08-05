@@ -15,10 +15,14 @@ import type {InnerVideoProps, VideoProps} from './props';
 import {VideoForPreview} from './video-for-preview';
 import {VideoForRendering} from './video-for-rendering';
 
-const {validateMediaTrimProps, resolveTrimProps, validateMediaProps} =
-	Internals;
+const {
+	validateMediaTrimProps,
+	resolveTrimProps,
+	validateMediaProps,
+	useCropStyle,
+} = Internals;
 
-const videoSchema = {
+export const videoSchema: InteractivitySchema = {
 	src: {
 		type: 'asset',
 		default: undefined,
@@ -27,7 +31,6 @@ const videoSchema = {
 	},
 	...Internals.baseSchema,
 	...Internals.premountSchema,
-	...Internals.premountStyleSchema,
 	volume: {
 		type: 'number',
 		min: 0,
@@ -49,6 +52,10 @@ const videoSchema = {
 	muted: {type: 'boolean', default: false, description: 'Muted'},
 	loop: {type: 'boolean', default: false, description: 'Loop'},
 	...Internals.transformSchema,
+	...Interactive.backgroundSchema,
+	...Interactive.borderSchema,
+	...Interactive.borderRadiusSchema,
+	...Interactive.cropSchema,
 } as const satisfies InteractivitySchema;
 
 const InnerVideo: React.FC<
@@ -75,7 +82,7 @@ const InnerVideo: React.FC<
 	trimAfter,
 	trimBefore,
 	volume,
-	stack,
+	_remotionInternalStack,
 	toneFrequency,
 	showInTimeline,
 	debugOverlay,
@@ -138,7 +145,7 @@ const InnerVideo: React.FC<
 				onVideoFrame={onVideoFrame}
 				playbackRate={playbackRate}
 				src={src}
-				stack={stack}
+				_remotionInternalStack={_remotionInternalStack}
 				style={style}
 				volume={volume}
 				toneFrequency={toneFrequency}
@@ -172,7 +179,7 @@ const InnerVideo: React.FC<
 			showInTimeline={showInTimeline}
 			trimAfter={trimAfterValue}
 			trimBefore={trimBeforeValue}
-			stack={stack ?? null}
+			_remotionInternalStack={_remotionInternalStack ?? null}
 			disallowFallbackToOffthreadVideo={disallowFallbackToOffthreadVideo}
 			fallbackOffthreadVideoProps={fallbackOffthreadVideoProps}
 			debugOverlay={debugOverlay ?? false}
@@ -215,7 +222,6 @@ const VideoInner: React.FC<
 	trimAfter,
 	trimBefore,
 	volume,
-	stack,
 	toneFrequency,
 	debugOverlay,
 	headless,
@@ -234,8 +240,15 @@ const VideoInner: React.FC<
 	postmountFor,
 	styleWhilePremounted,
 	styleWhilePostmounted,
+	cropLeft,
+	cropRight,
+	cropTop,
+	cropBottom,
 	...props
 }) => {
+	const sourceStack = controls
+		? (Internals.getStackForControls(controls) ?? undefined)
+		: undefined;
 	const fallbackLogLevel = Internals.useLogLevel();
 	const [mediaVolume] = Internals.useMediaVolumeState();
 	const mediaStartsAt = Internals.useMediaStartsAt();
@@ -327,6 +340,14 @@ const VideoInner: React.FC<
 		styleWhilePostmounted: styleWhilePostmounted ?? null,
 		hideWhilePremounted: 'display-none',
 	});
+	const croppedStyle = useCropStyle({
+		cropLeft,
+		cropRight,
+		cropTop,
+		cropBottom,
+		style: premountingStyle,
+		componentName: '<Video />',
+	});
 
 	if (sequenceDurationInFrames === 0) {
 		return null;
@@ -339,7 +360,6 @@ const VideoInner: React.FC<
 				from={from ?? 0}
 				durationInFrames={videoSequenceDuration}
 				freeze={freeze}
-				_remotionInternalStack={stack}
 				_remotionInternalIsMedia={isMedia}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
@@ -378,12 +398,12 @@ const VideoInner: React.FC<
 					playbackRate={playbackRate ?? 1}
 					showInTimeline={showInTimeline ?? true}
 					src={src}
-					style={premountingStyle ?? {}}
+					style={croppedStyle ?? {}}
 					trimAfter={trimAfter}
 					trimBefore={trimBefore}
 					volume={volume ?? 1}
 					toneFrequency={toneFrequency ?? 1}
-					stack={stack}
+					_remotionInternalStack={sourceStack}
 					debugOverlay={debugOverlay ?? false}
 					headless={headless ?? false}
 					onError={onError}

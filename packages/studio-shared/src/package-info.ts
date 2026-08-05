@@ -1,4 +1,7 @@
-export const packages = [
+import {VERSION} from 'remotion';
+import {shouldReleasePackage} from './release-package-policy';
+
+const allPackages = [
 	'svg-3d-engine',
 	'animation-utils',
 	'animated-emoji',
@@ -8,7 +11,6 @@ export const packages = [
 	'brand',
 	'bundler',
 	'browser-studio',
-	'canvas-capture',
 	'claude-code-plugin',
 	'cli',
 	'cloudrun',
@@ -69,6 +71,7 @@ export const packages = [
 	'serverless-client',
 	'skills',
 	'skills-evals',
+	'studio-codemods',
 	'studio-server',
 	'studio-shared',
 	'studio',
@@ -93,6 +96,7 @@ export const packages = [
 	'remotion-media',
 	'web-renderer',
 	'design',
+	'studio-protocol',
 	'light-leaks',
 	'rough-notation',
 	'starburst',
@@ -101,7 +105,14 @@ export const packages = [
 	'effects',
 ] as const;
 
-export type Pkgs = (typeof packages)[number];
+export type Pkgs = (typeof allPackages)[number];
+
+export const packages = allPackages.filter((pkg) =>
+	shouldReleasePackage({
+		packageName: pkg === 'core' ? 'remotion' : `@remotion/${pkg}`,
+		releaseVersion: VERSION,
+	}),
+);
 
 export type ExtraPackage = {
 	name: string;
@@ -131,7 +142,7 @@ export const extraPackages: ExtraPackage[] = [
 	},
 	{
 		name: 'zod',
-		version: '4.3.6',
+		version: '4.4.3',
 		description: 'TypeScript-first schema validation',
 		docsUrl: 'https://zod.dev',
 	},
@@ -150,7 +161,7 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	lambda: 'Render Remotion videos on AWS Lambda',
 	bundler: 'Bundle Remotion compositions using Webpack',
 	'browser-studio': 'Run Remotion Studio in the browser',
-	'canvas-capture': 'Capture HTML-in-canvas content as a video',
+	'studio-codemods': 'Shared codemods for Remotion Studio',
 	'studio-server': 'Run a Remotion Studio with a server backend',
 	'install-whisper-cpp': 'Helpers for installing and using Whisper.cpp',
 	'whisper-web': 'Helpers for using Whisper.cpp in browser using WASM',
@@ -236,6 +247,8 @@ export const descriptions: {[key in Pkgs]: string | null} = {
 	'remotion-media': null,
 	'web-renderer': 'Render videos in the browser',
 	design: 'Design system',
+	'studio-protocol':
+		'Create Element payloads and request installation into Remotion Studio',
 	'light-leaks': 'Light leak effects for Remotion',
 	'rough-notation': 'Rough annotation primitives for Remotion',
 	'player-a11y': 'Internal accessibility wrapper around @remotion/player',
@@ -254,7 +267,6 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	brand: false,
 	bundler: false,
 	'browser-studio': false,
-	'canvas-capture': false,
 	cli: false,
 	cloudrun: true,
 	'claude-code-plugin': false,
@@ -316,6 +328,7 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	'promo-pages': false,
 	streaming: false,
 	serverless: false,
+	'studio-codemods': false,
 	'studio-server': false,
 	'studio-shared': false,
 	studio: true,
@@ -325,10 +338,16 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	'test-utils': false,
 	three: true,
 	transitions: true,
-	'media-parser': true,
+	'media-parser': shouldReleasePackage({
+		packageName: '@remotion/media-parser',
+		releaseVersion: VERSION,
+	}),
 	'zod-types': true,
 	'zod-types-v3': true,
-	webcodecs: true,
+	webcodecs: shouldReleasePackage({
+		packageName: '@remotion/webcodecs',
+		releaseVersion: VERSION,
+	}),
 	convert: false,
 	captions: true,
 	'openai-whisper': true,
@@ -339,9 +358,16 @@ export const installableMap: {[key in Pkgs]: boolean} = {
 	'remotion-media': false,
 	'web-renderer': false,
 	design: false,
-	'light-leaks': true,
+	'studio-protocol': true,
+	'light-leaks': shouldReleasePackage({
+		packageName: '@remotion/light-leaks',
+		releaseVersion: VERSION,
+	}),
 	'rough-notation': true,
-	starburst: true,
+	starburst: shouldReleasePackage({
+		packageName: '@remotion/starburst',
+		releaseVersion: VERSION,
+	}),
 	vercel: true,
 	sfx: true,
 	effects: true,
@@ -359,7 +385,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	lambda: 'https://www.remotion.dev/docs/lambda',
 	bundler: 'https://www.remotion.dev/docs/bundler',
 	'browser-studio': null,
-	'canvas-capture': null,
+	'studio-codemods': null,
 	'lambda-client': null,
 	'serverless-client': null,
 	'studio-server': null,
@@ -445,6 +471,7 @@ export const apiDocs: {[key in Pkgs]: string | null} = {
 	media: 'https://remotion.dev/docs/media',
 	'web-renderer': 'https://www.remotion.dev/docs/web-renderer/',
 	design: 'https://www.remotion.dev/design',
+	'studio-protocol': 'https://www.remotion.dev/docs/studio-protocol',
 	'light-leaks': 'https://www.remotion.dev/docs/light-leaks',
 	'rough-notation': 'https://www.remotion.dev/docs/rough-notation',
 	starburst: 'https://www.remotion.dev/docs/starburst',

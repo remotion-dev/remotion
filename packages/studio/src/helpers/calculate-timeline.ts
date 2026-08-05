@@ -13,12 +13,11 @@ import {
 	getTimelineVisibleStart,
 } from './get-sequence-visible-range';
 import {getTimelineNestedLevel} from './get-timeline-nestedness';
-import {getTimelineSequenceHash} from './get-timeline-sequence-hash';
 import type {
-	TrackWithHash,
-	TrackWithHashAndOriginalTimings,
+	TimelineTrackData,
+	TimelineTrackWithOriginalTimings,
 } from './get-timeline-sequence-sort-key';
-import {getTimelineSequenceSequenceSortKey} from './get-timeline-sequence-sort-key';
+import {getTimelineSequenceSortKey} from './get-timeline-sequence-sort-key';
 import {sortItemsByNonceHistory} from './sort-by-nonce-history';
 
 const getInheritedLoopDisplay = (
@@ -49,9 +48,9 @@ export const calculateTimeline = ({
 	sequences: TSequence[];
 	overrideIdsToNodePaths: OverrideIdToNodePaths;
 	compositions?: readonly _InternalTypes['AnyComposition'][];
-}): TrackWithHash[] => {
+}): TimelineTrackData[] => {
 	const sortedSequences = sortItemsByNonceHistory(sequences);
-	const tracks: TrackWithHashAndOriginalTimings[] = [];
+	const tracks: TimelineTrackWithOriginalTimings[] = [];
 
 	if (sortedSequences.length === 0) {
 		return [];
@@ -87,30 +86,8 @@ export const calculateTimeline = ({
 		return true;
 	});
 
-	const sameHashes: {[hash: string]: string[]} = {};
-
-	const hashesUsedInRoot: {[rootId: string]: string[]} = {};
-	const cache: {[sequenceId: string]: string} = {};
-
 	for (let i = 0; i < timelineSequences.length; i++) {
 		const sequence = timelineSequences[i];
-		if (!hashesUsedInRoot[sequence.rootId]) {
-			hashesUsedInRoot[sequence.rootId] = [];
-		}
-
-		const actualHash = getTimelineSequenceHash(
-			sequence,
-			sortedSequences,
-			hashesUsedInRoot,
-			cache,
-		);
-
-		if (!sameHashes[actualHash]) {
-			sameHashes[actualHash] = [];
-		}
-
-		sameHashes[actualHash].push(sequence.id);
-
 		const cascadedStart = getCascadedStart(sequence, sortedSequences);
 		const cascadedStartWithTrim = getCascadedStartWithTrim(
 			sequence,
@@ -146,7 +123,6 @@ export const calculateTimeline = ({
 						: sequence.loopDisplay,
 			},
 			depth: getTimelineNestedLevel(sequence, sortedSequences, 0),
-			hash: actualHash,
 			cascadedStart,
 			cascadedDuration: sequence.duration,
 			keyframeDisplayOffset: hasKeyframeRows
@@ -165,45 +141,26 @@ export const calculateTimeline = ({
 		});
 	}
 
-	const uniqueTracks: TrackWithHash[] = [];
-	for (const track of tracks) {
-		const existingTrack = uniqueTracks.find((t) => t.hash === track.hash);
-		if (!existingTrack) {
-			const {cascadedDuration, cascadedStart, ...cleanTrack} = track;
-			uniqueTracks.push(cleanTrack);
-		} else if (
-			existingTrack.connectedCompositions === undefined &&
-			track.connectedCompositions !== undefined
-		) {
-			existingTrack.connectedCompositions = track.connectedCompositions;
-		}
-	}
-
 	const nonceRanks = new Map<string, number>();
 	for (let i = 0; i < tracks.length; i++) {
 		nonceRanks.set(tracks[i].sequence.id, i);
 	}
 
-	const sortedTracks = uniqueTracks.sort((a, b) => {
-		const sortKeyA = getTimelineSequenceSequenceSortKey(
-			a,
-			tracks,
-			sameHashes,
-			nonceRanks,
-		);
-		const sortKeyB = getTimelineSequenceSequenceSortKey(
-			b,
-			tracks,
-			sameHashes,
-			nonceRanks,
-		);
-		return sortKeyA.localeCompare(sortKeyB);
-	});
+	const sortedTracks: TimelineTrackData[] = tracks
+		.sort((a, b) => {
+			const sortKeyA = getTimelineSequenceSortKey(a, tracks, nonceRanks);
+			const sortKeyB = getTimelineSequenceSortKey(b, tracks, nonceRanks);
+			return sortKeyA.localeCompare(sortKeyB);
+		})
+		.map((track) => {
+			const {cascadedDuration, cascadedStart, ...cleanTrack} = track;
+			return cleanTrack;
+		});
 
 	const nodePathIndexCounters = new Map<string, number>();
 
 	return sortedTracks
-		.map((track): TrackWithHash => {
+		.map((track): TimelineTrackData => {
 			if (track.nodePathInfo === null) {
 				return track;
 			}

@@ -1,8 +1,13 @@
 import {expect, test} from 'bun:test';
-import {existsSync} from 'fs';
+import fs, {existsSync} from 'fs';
 import os from 'os';
 import path from 'path';
-import {getCompositions, openBrowser, renderMedia} from '@remotion/renderer';
+import {
+	RenderInternals,
+	getCompositions,
+	openBrowser,
+	renderMedia,
+} from '@remotion/renderer';
 
 const exampleBuild = path.join(__dirname, '..', '..', '..', 'example', 'build');
 
@@ -10,7 +15,8 @@ test(
 	'Render video with browser instance open',
 	async () => {
 		const puppeteerInstance = await openBrowser('chrome');
-		const compositions = await getCompositions(exampleBuild, {
+		const compositions = await getCompositions({
+			serveUrl: exampleBuild,
 			puppeteerInstance,
 			inputProps: {},
 		});
@@ -42,7 +48,10 @@ test(
 );
 
 test('Render video with browser instance not open', async () => {
-	const compositions = await getCompositions(exampleBuild);
+	const compositions = await getCompositions({
+		serveUrl: exampleBuild,
+		inputProps: {},
+	});
 
 	const reactSvg = compositions.find((c) => c.id === 'react-svg');
 
@@ -109,7 +118,10 @@ test('should fail on invalid CRF', async () => {
 });
 
 test('Render video to a buffer', async () => {
-	const compositions = await getCompositions(exampleBuild);
+	const compositions = await getCompositions({
+		serveUrl: exampleBuild,
+		inputProps: {},
+	});
 
 	const reactSvg = compositions.find((c) => c.id === 'react-svg');
 
@@ -127,6 +139,55 @@ test('Render video to a buffer', async () => {
 
 	expect(buffer?.length).toBeGreaterThan(2000);
 	expect(contentType).toBe('video/mp4');
+});
+
+test('Render multiple frame ranges to one video', async () => {
+	const compositions = await getCompositions({
+		serveUrl: exampleBuild,
+		inputProps: {},
+	});
+	const composition = compositions.find((c) => c.id === 'ten-frame-tester');
+	if (!composition) {
+		throw new Error('not found');
+	}
+
+	const outputLocation = path.join(os.tmpdir(), 'multiple-frame-ranges.mp4');
+	try {
+		await renderMedia({
+			codec: 'h264',
+			serveUrl: exampleBuild,
+			composition,
+			frameRange: [
+				[0, 2],
+				[6, 8],
+			],
+			outputLocation,
+			logLevel: 'error',
+		});
+
+		const probe = await RenderInternals.callFf({
+			bin: 'ffprobe',
+			args: [
+				'-v',
+				'error',
+				'-count_frames',
+				'-select_streams',
+				'v:0',
+				'-show_entries',
+				'stream=nb_read_frames',
+				'-of',
+				'default=noprint_wrappers=1:nokey=1',
+				outputLocation,
+			],
+			indent: false,
+			logLevel: 'error',
+			binariesDirectory: null,
+			cancelSignal: undefined,
+		});
+		expect(`${probe.stdout}${probe.stderr}`.trim()).toBe('6');
+	} finally {
+		await fs.promises.rm(outputLocation, {force: true});
+	}
 });
 
 test('Should fail invalid serve URL', async () => {

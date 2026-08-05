@@ -116,7 +116,10 @@ async function internalRenderStillOnWeb<
 
 	const useHtmlInCanvas = await supportsNestedHtmlInCanvas();
 
-	using internalState = makeInternalState();
+	using internalState = makeInternalState({
+		signal,
+		maskImageTimeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
+	});
 
 	using scaffold = createScaffold({
 		width: resolved.width,

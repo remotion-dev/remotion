@@ -1,0 +1,82 @@
+---
+image: /generated/articles-docs-studio-protocol-create-element-payload.png
+title: 'createElementPayload()'
+crumb: '@remotion/studio-protocol'
+---
+
+# createElementPayload()<AvailableFrom v="4.0.502" />
+
+Creates a validated, versioned Element payload for [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) and [`installInStudio()`](/docs/studio-protocol/install-in-studio).
+
+```ts twoslash title="element-payload.ts"
+import {createElementPayload} from '@remotion/studio-protocol';
+
+const payload = createElementPayload({
+  displayName: 'Lower Third',
+  slug: 'lower-third',
+  sourceCode: 'export const LowerThird = () => null;',
+  dependencies: [
+    {name: '@remotion/google-fonts', version: null},
+    {name: 'color-namer', version: '1.4.0'},
+  ],
+  dimensions: {width: 900, height: 260},
+  durationInFrames: 90,
+});
+```
+
+## Arguments
+
+Pass an object with the following properties.
+
+### displayName
+
+The name shown in the Studio confirmation dialog. It must be a non-empty string shorter than 120 characters.
+
+### slug
+
+A lowercase Element identifier. Its final path segment is used to create the `.element.tsx` filename. Directory traversal and unsafe filename characters are rejected.
+
+### sourceCode
+
+The complete Element source code. It must contain exactly one exported named component.
+
+### dependencies
+
+An array of npm packages needed by the Element. Declare each dependency as an object with `name` and `version` properties. Duplicate names are removed.
+
+For `@remotion/*` packages, set `version` to `null`. Studio installs the version matching the Remotion project. Every non-Remotion package must specify an exact semantic version. Version ranges and tags are not accepted.
+
+Do not declare `react`, `react-dom`, or `remotion`; every Remotion project already provides them.
+
+### dimensions
+
+The preferred width and height, or `null` for an Element without fixed dimensions. Both values must be positive finite numbers.
+
+Studio uses these dimensions for the drag preview, drop position, and the generated `<Sequence>` when `installationMode` is `'wrapped'`. They are not passed to the component as `width` and `height` props when `installationMode` is `'component-owned-sequence'`.
+
+### durationInFrames
+
+The preferred duration shown while dragging. It must be a positive integer.
+
+### installationMode?<AvailableFrom v="4.0.506" />
+
+Controls how Studio installs the Element. The default is `'wrapped'`.
+
+Use `'wrapped'` for a regular visual component. Studio generates a [`<Sequence>`](/docs/sequence) around the component to provide its timing, name, dimensions, and position.
+
+Use `'component-owned-sequence'` only if the component already owns the one Sequence that should appear in the timeline and be editable in Studio. The component must accept and forward `from`, `durationInFrames`, `name`, and `style` to that Sequence and its rendered outline. It must also define its own rendered dimensions. Studio places timing and absolute positioning props directly on the component call instead of generating an outer Sequence.
+
+## Return value
+
+A `StudioElementPayload` with payload version `1`. Pass the returned object unchanged to a transport API instead of serializing it manually.
+
+Invalid input throws a `TypeError`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering={false} player={false} studio={false} hideServers />
+
+## See also
+
+- [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data)
+- [`installInStudio()`](/docs/studio-protocol/install-in-studio)

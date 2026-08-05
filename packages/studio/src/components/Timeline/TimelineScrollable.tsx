@@ -5,6 +5,7 @@ import {
 } from '../../helpers/colors';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {scrollableRef} from './timeline-refs';
+import {TimelineAssetDropIndicator} from './TimelineAssetDropIndicator';
 import {
 	TIMELINE_BACKGROUND,
 	useTimelineMarqueeSelection,
@@ -42,11 +43,13 @@ export const TimelineScrollable: React.FC<{
 	return (
 		<div
 			ref={scrollableRef}
+			data-timeline-scrollable="true"
 			style={outer}
 			className={HORIZONTAL_SCROLLBAR_CLASSNAME}
 			onPointerDownCapture={onPointerDownCapture}
 		>
 			<div style={containerStyle}>{children}</div>
+			<TimelineAssetDropIndicator />
 			{marqueeRect === null ? null : (
 				<div
 					style={{

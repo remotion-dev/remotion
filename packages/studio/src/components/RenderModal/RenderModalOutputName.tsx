@@ -28,6 +28,17 @@ const openIconStyle: React.CSSProperties = {
 	flexShrink: 0,
 };
 
+const outputNameRow: React.CSSProperties = {
+	...optionRow,
+	columnGap: 16,
+};
+
+const outputNameInputContainer: React.CSSProperties = {
+	flex: 1,
+	minWidth: 0,
+	maxWidth: 280,
+};
+
 type Props = {
 	readonly existence: boolean;
 	readonly inputStyle: React.CSSProperties;
@@ -60,12 +71,12 @@ export const RenderModalOutputName = ({
 	);
 
 	return (
-		<div style={optionRow}>
+		<div style={outputNameRow}>
 			<Column>
 				<div style={label}>{labelText}</div>
 			</Column>
 			<div style={rightRow}>
-				<div>
+				<div style={outputNameInputContainer}>
 					<RemotionInput
 						status={validationMessage ? 'error' : existence ? 'warning' : 'ok'}
 						style={inputStyle}
@@ -91,6 +102,7 @@ export const RenderModalOutputName = ({
 								message={
 									<span style={existsMessageStyle}>
 										<InlineAction
+											variant={null}
 											onClick={openExistingOutput}
 											renderAction={renderOpenIcon}
 											title={`Open in ${fileManagerName}`}

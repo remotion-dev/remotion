@@ -2,10 +2,12 @@ import {useLocation} from '@remix-run/react';
 import React, {useState} from 'react';
 import type {Source} from '~/lib/convert-state';
 import {TitleProvider} from '~/lib/title-context';
+import {useCanvasCapture} from '~/lib/use-canvas-capture';
 import type {RouteAction} from '~/seo';
 import {getHeaderTitle} from '~/seo';
 import {FileAvailable} from './FileAvailable';
 import {PickFile} from './PickFile';
+import {ReplaceVideo} from './ReplaceVideo';
 
 export const Main: React.FC<{
 	readonly routeAction: RouteAction;
@@ -16,6 +18,7 @@ export const Main: React.FC<{
 	const [src, setSrc] = useState<Source | null>(() => {
 		return url.has('url') ? {type: 'url', url: url.get('url') as string} : null;
 	});
+	useCanvasCapture(setSrc);
 
 	return (
 		<TitleProvider routeAction={routeAction}>
@@ -34,6 +37,7 @@ export const Main: React.FC<{
 						title={getHeaderTitle(routeAction)}
 					/>
 				)}
+				<ReplaceVideo src={src} setSrc={setSrc} />
 			</div>
 		</TitleProvider>
 	);

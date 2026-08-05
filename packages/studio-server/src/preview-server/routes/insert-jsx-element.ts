@@ -1,9 +1,7 @@
 import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {
-	areComponentProps,
-	isComponentIdentifier,
-	isComponentImportPath,
 	isUrl,
 	type InsertJsxElementRequest,
 	type InsertJsxElementResponse,
@@ -112,23 +110,27 @@ const validateElement = (
 			validateDimension('height', element.dimensions.height);
 		}
 
+		if (element.durationInFrames !== null) {
+			validateDimension('durationInFrames', element.durationInFrames);
+		}
+
 		return;
 	}
 
 	if (element.type === 'component') {
-		if (!isComponentIdentifier(element.componentName)) {
+		if (!StudioProtocolInternals.isComponentIdentifier(element.componentName)) {
 			throw new Error('Unsupported component name');
 		}
 
-		if (!isComponentIdentifier(element.importName)) {
+		if (!StudioProtocolInternals.isComponentIdentifier(element.importName)) {
 			throw new Error('Unsupported component import name');
 		}
 
-		if (!isComponentImportPath(element.importPath)) {
+		if (!StudioProtocolInternals.isComponentImportPath(element.importPath)) {
 			throw new Error('Unsupported component import path');
 		}
 
-		if (!areComponentProps(element.props)) {
+		if (!StudioProtocolInternals.areComponentProps(element.props)) {
 			throw new Error('Unsupported component props');
 		}
 
@@ -216,13 +218,20 @@ export const insertJsxElementHandler: ApiHandler<
 	InsertJsxElementRequest,
 	InsertJsxElementResponse
 > = ({
-	input: {compositionFile, compositionId, element},
+	input: {compositionFile, compositionId, element, from},
 	remotionRoot,
 	logLevel,
 }) =>
 	withSourceFileWriteQueue(async () => {
 		try {
 			validateElement(element, remotionRoot);
+			if (
+				from !== null &&
+				(!Number.isInteger(from) || !Number.isFinite(from) || from < 0)
+			) {
+				throw new Error('from must be a non-negative integer');
+			}
+
 			const elementLabel = getElementLabel(element);
 
 			RenderInternals.Log.trace(
@@ -236,6 +245,7 @@ export const insertJsxElementHandler: ApiHandler<
 					compositionFile,
 					compositionId,
 					element,
+					from,
 					prettierConfigOverride: null,
 				});
 

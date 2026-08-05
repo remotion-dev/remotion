@@ -6,9 +6,73 @@ import {
 	getAssetElementFromPath,
 	getComponentDimensions,
 	getCompositionPositionForDrop,
+	getDurationInFrames,
 	getElementPositionForDrop,
+	getFromForDrop,
 	hasSvgFile,
 } from '../components/import-assets';
+
+test('places Canvas drops at the composition start when they cover the playhead', () => {
+	expect(
+		getFromForDrop({
+			durationInFrames: 46,
+			from: 45,
+			preferCompositionStart: true,
+		}),
+	).toBe(null);
+	expect(
+		getFromForDrop({
+			durationInFrames: null,
+			from: 45,
+			preferCompositionStart: true,
+		}),
+	).toBe(null);
+	expect(
+		getFromForDrop({
+			durationInFrames: undefined,
+			from: 45,
+			preferCompositionStart: true,
+		}),
+	).toBe(null);
+});
+
+test('places Canvas drops at the playhead when their duration would not cover it', () => {
+	expect(
+		getFromForDrop({
+			durationInFrames: 45,
+			from: 45,
+			preferCompositionStart: true,
+		}),
+	).toBe(45);
+});
+
+test('places timeline drops at the pointer frame', () => {
+	expect(
+		getFromForDrop({
+			durationInFrames: 46,
+			from: 45,
+			preferCompositionStart: false,
+		}),
+	).toBe(45);
+	expect(
+		getFromForDrop({
+			durationInFrames: 46,
+			from: 45,
+			preferCompositionStart: null,
+		}),
+	).toBe(45);
+});
+
+test('converts media duration to composition frames with two decimals', () => {
+	expect(getDurationInFrames({durationInSeconds: 1.2345, fps: 30})).toBe(37.03);
+	expect(getDurationInFrames({durationInSeconds: 2, fps: 29.97})).toBe(59.94);
+	expect(getDurationInFrames({durationInSeconds: null, fps: 30})).toBe(null);
+	expect(getDurationInFrames({durationInSeconds: 0, fps: 30})).toBe(null);
+	expect(getDurationInFrames({durationInSeconds: -1, fps: 30})).toBe(null);
+	expect(getDurationInFrames({durationInSeconds: Number.NaN, fps: 30})).toBe(
+		null,
+	);
+});
 
 test('maps audio file types to Audio assets', () => {
 	for (const type of ['wav', 'mp3', 'aac', 'flac'] as const) {
@@ -23,6 +87,7 @@ test('maps audio file types to Audio assets', () => {
 			src: `sound.${type}`,
 			srcType: 'static',
 			dimensions: null,
+			durationInFrames: null,
 			position: null,
 		});
 	}
@@ -52,6 +117,7 @@ test('maps animated PNG file types to AnimatedImage assets', () => {
 		src: 'animated-png.png',
 		srcType: 'static',
 		dimensions: {width: 320, height: 180},
+		durationInFrames: null,
 		position: null,
 	});
 });
@@ -72,6 +138,7 @@ test('maps animated WebP file types to AnimatedImage assets', () => {
 		src: 'animated.webp',
 		srcType: 'static',
 		dimensions: {width: 480, height: 290},
+		durationInFrames: null,
 		position: null,
 	});
 });
@@ -92,6 +159,7 @@ test('maps static WebP file types to static image assets', () => {
 		src: 'static.webp',
 		srcType: 'static',
 		dimensions: {width: 480, height: 290},
+		durationInFrames: null,
 		position: null,
 	});
 });
@@ -103,6 +171,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'nested/photo.JPG',
 		srcType: 'static',
 		dimensions: null,
+		durationInFrames: null,
 		position: null,
 	});
 	expect(getAssetElementFromPath('movie.webm')).toEqual({
@@ -111,6 +180,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'movie.webm',
 		srcType: 'static',
 		dimensions: null,
+		durationInFrames: null,
 		position: null,
 	});
 	expect(getAssetElementFromPath('audio.flac')).toEqual({
@@ -119,6 +189,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'audio.flac',
 		srcType: 'static',
 		dimensions: null,
+		durationInFrames: null,
 		position: null,
 	});
 	expect(getAssetElementFromPath('animation.apng')).toEqual({
@@ -127,6 +198,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'animation.apng',
 		srcType: 'static',
 		dimensions: null,
+		durationInFrames: null,
 		position: null,
 	});
 	expect(getAssetElementFromPath('animation.gif')).toEqual({
@@ -135,6 +207,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'animation.gif',
 		srcType: 'static',
 		dimensions: null,
+		durationInFrames: null,
 		position: null,
 	});
 	expect(getAssetElementFromPath('vector.SVG')).toEqual({
@@ -143,6 +216,7 @@ test('maps existing static file paths to insertable assets', () => {
 		src: 'vector.SVG',
 		srcType: 'static',
 		dimensions: null,
+		durationInFrames: null,
 		position: null,
 	});
 });
@@ -159,6 +233,7 @@ test('maps dropped SVG files to image assets', () => {
 		src: 'vector.svg',
 		srcType: 'static',
 		dimensions: null,
+		durationInFrames: null,
 		position: null,
 	});
 });
@@ -235,21 +310,19 @@ test('does not position Elements without a drop position', () => {
 	).toBe(null);
 });
 
-test('aligns a composition with matching destination dimensions', () => {
+test('centers a composition with matching destination dimensions', () => {
 	expect(
 		getCompositionPositionForDrop({
 			compositionDimensions: {width: 1920, height: 1080},
-			destinationDimensions: {width: 1920, height: 1080},
 			dropPosition: {centerX: 400, centerY: 300},
 		}),
-	).toBe(null);
+	).toEqual({x: -560, y: -240});
 });
 
 test('centers a composition with different destination dimensions', () => {
 	expect(
 		getCompositionPositionForDrop({
 			compositionDimensions: {width: 1280, height: 720},
-			destinationDimensions: {width: 1920, height: 1080},
 			dropPosition: {centerX: 400, centerY: 300},
 		}),
 	).toEqual({x: -240, y: -60});

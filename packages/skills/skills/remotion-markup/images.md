@@ -32,7 +32,9 @@ const frame = useCurrentFrame();
 <Img src={staticFile(`avatars/${props.userId}.png`)} />
 
 // Conditional images
-<Img src={staticFile(`icons/${isActive ? "active" : "inactive"}.svg`)} />
+<Img
+  src={staticFile(`icons/${isActive ? "active" : "inactive"}.svg`)}
+/>
 ```
 
 This pattern is useful for:

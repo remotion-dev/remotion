@@ -43,7 +43,8 @@ export const ModalContainer: React.FC<{
 	readonly onOutsideClick: () => void;
 	readonly children: React.ReactNode;
 	readonly noZIndex?: boolean;
-}> = ({children, onEscape, onOutsideClick, noZIndex}) => {
+	readonly panelStyle?: React.CSSProperties;
+}> = ({children, onEscape, onOutsideClick, noZIndex, panelStyle}) => {
 	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
 		// Prevent deselection of currently selected items
 		e.stopPropagation();
@@ -61,8 +62,9 @@ export const ModalContainer: React.FC<{
 				disabled={noZIndex}
 				onOutsideClick={onOutsideClick}
 				onEscape={onEscape}
+				stackOnHighest
 			>
-				<div style={panel}>{children}</div>
+				<div style={{...panel, ...panelStyle}}>{children}</div>
 			</HigherZIndex>
 		</div>
 	);

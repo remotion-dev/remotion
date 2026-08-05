@@ -48,7 +48,7 @@ In which region your Lambda function is deployed.
 
 ### `serveUrl`
 
-A URL pointing to a Remotion project. Use [`deploySite()`](/docs/lambda/deploysite) to deploy a Remotion project.
+A URL pointing to a Remotion project. Create one by building with [`bundle()`](/docs/bundle) and deploying with [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle).
 
 ### `inputProps`
 
@@ -117,7 +117,9 @@ Logs can be read through the CloudWatch URL that this function returns.
 
 ### ~~`dumpBrowserLogs?`~~
 
-Deprecated in v4.0 in favor of [`logLevel`](#loglevel).
+:::info Deprecated
+Use [`logLevel`](#loglevel) instead.
+:::
 
 ## Return value
 

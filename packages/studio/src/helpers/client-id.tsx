@@ -1,4 +1,7 @@
-import type {EventSourceEvent} from '@remotion/studio-shared';
+import {
+	getConfigFileChangeMessage,
+	type EventSourceEvent,
+} from '@remotion/studio-shared';
 import React, {useCallback, useEffect, useMemo, useRef} from 'react';
 import type {WatchRemotionStaticFilesPayload} from 'remotion';
 import {Internals} from 'remotion';
@@ -14,6 +17,7 @@ import {reloadUrl} from './url-state';
 
 type Context = {
 	previewServerState: PreviewServerConnectionState;
+	configFileChangeRevision: number;
 	subscribeToEvent: (
 		type: EventSourceEvent['type'],
 		listener: (event: EventSourceEvent) => void,
@@ -24,6 +28,7 @@ export const StudioServerConnectionCtx = React.createContext<Context>({
 	previewServerState: {
 		type: 'init',
 	},
+	configFileChangeRevision: 0,
 	subscribeToEvent: () => {
 		throw new Error('Context not initalized');
 	},
@@ -36,9 +41,11 @@ type Listeners = {
 
 export const PreviewServerConnection: React.FC<{
 	readonly children: React.ReactNode;
-	readonly readOnlyStudio: boolean;
-}> = ({children, readOnlyStudio}) => {
+}> = ({children}) => {
 	const listeners = useRef<Listeners>([]);
+	const latestUndoRedoEvent = useRef<
+		Extract<EventSourceEvent, {type: 'undo-redo-stack-changed'}> | undefined
+	>(undefined);
 
 	const subscribeToEvent = useCallback(
 		(
@@ -46,6 +53,9 @@ export const PreviewServerConnection: React.FC<{
 			listener: (event: EventSourceEvent) => void,
 		) => {
 			listeners.current.push({type, listener});
+			if (type === 'undo-redo-stack-changed' && latestUndoRedoEvent.current) {
+				listener(latestUndoRedoEvent.current);
+			}
 
 			return () => {
 				listeners.current = listeners.current.filter(
@@ -59,31 +69,45 @@ export const PreviewServerConnection: React.FC<{
 	const [state, setState] = React.useState<PreviewServerConnectionState>({
 		type: 'init',
 	});
+	const [configFileChangeRevision, setConfigFileChangeRevision] =
+		React.useState(0);
 
 	useEffect(() => {
-		if (readOnlyStudio) {
-			return;
-		}
-
 		const handleEvent = (newEvent: EventSourceEvent) => {
 			if (
 				newEvent.type === 'new-input-props' ||
-				newEvent.type === 'new-env-variables' ||
-				newEvent.type === 'config-file-changed'
+				newEvent.type === 'new-env-variables'
 			) {
 				reloadUrl();
 			}
 
+			if (newEvent.type === 'config-file-changed') {
+				window.remotion_renderDefaults = newEvent.renderDefaults;
+				window.remotion_studioConfig = newEvent.studioRuntimeConfig;
+				window.remotion_editorName = newEvent.editorName;
+				setConfigFileChangeRevision((revision) => revision + 1);
+				showNotification(getConfigFileChangeMessage(newEvent.changeType), 4000);
+			}
+
+			if (newEvent.type === 'config-file-reload-failed') {
+				showNotification(newEvent.errorMessage, 4000);
+			}
+
 			if (newEvent.type === 'init') {
+				latestUndoRedoEvent.current = {
+					type: 'undo-redo-stack-changed',
+					undoFile: newEvent.undoFile,
+					redoFile: newEvent.redoFile,
+				};
 				listeners.current.forEach((l) => {
 					if (l.type === 'undo-redo-stack-changed') {
-						l.listener({
-							type: 'undo-redo-stack-changed',
-							undoFile: newEvent.undoFile,
-							redoFile: newEvent.redoFile,
-						});
+						l.listener(latestUndoRedoEvent.current!);
 					}
 				});
+			}
+
+			if (newEvent.type === 'undo-redo-stack-changed') {
+				latestUndoRedoEvent.current = newEvent;
 			}
 
 			if (newEvent.type === 'render-queue-updated') {
@@ -133,18 +157,23 @@ export const PreviewServerConnection: React.FC<{
 			unsubscribeFromEvents();
 			unsubscribeFromConnectionState();
 		};
-	}, [readOnlyStudio]);
+	}, []);
 
 	const context: Context = useMemo(() => {
 		return {
 			previewServerState: state,
+			configFileChangeRevision,
 			subscribeToEvent,
 		};
-	}, [state, subscribeToEvent]);
+	}, [configFileChangeRevision, state, subscribeToEvent]);
 
 	return (
 		<StudioServerConnectionCtx.Provider value={context}>
 			{children}
 		</StudioServerConnectionCtx.Provider>
 	);
+};
+
+export const useStudioConfigRevision = () => {
+	return React.useContext(StudioServerConnectionCtx).configFileChangeRevision;
 };

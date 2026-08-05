@@ -2,8 +2,8 @@ import type {
 	CanUpdateSequencePropStatus,
 	DragOverrideValue,
 	GetDragOverrides,
-	SequencePropsSubscriptionKey,
 	InteractivitySchema,
+	SequencePropsSubscriptionKey,
 } from 'remotion';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -18,20 +18,28 @@ import {
 	vectorLength,
 } from './selected-outline-measurement';
 import type {
+	SelectedOutlineCropDragTarget,
+	SelectedOutlineCropFieldKey,
+	SelectedOutlineCropHandle,
 	SelectedOutlineDragState,
+	SelectedOutlineDragTarget,
 	SelectedOutlineRotationDragState,
 	SelectedOutlineRotationDragTarget,
 	SelectedOutlineScaleDragState,
 	SelectedOutlineScaleDragTarget,
-	SelectedOutlineDragTarget,
+	SelectedOutlineTarget,
+	SelectedOutlineTransformOriginDragTarget,
 } from './selected-outline-types';
 import {
+	cropFieldKeys,
 	rotateFieldKey,
 	scaleFieldKey,
 	selectedOutlineDragThresholdPx,
+	transformOriginFieldKey,
 	translateFieldKey,
 } from './selected-outline-types';
 import {getUvHandlePosition, type UvCoordinate} from './selected-outline-uv';
+import type {AddSequenceKeyframeChange} from './Timeline/call-add-keyframe';
 import type {SaveSequencePropChange} from './Timeline/save-sequence-prop';
 import {
 	getTimelineDisplayDecimalPlaces,
@@ -46,6 +54,11 @@ import {
 	serializeTranslate,
 } from './Timeline/timeline-translate-utils';
 import {getLinkedScale} from './Timeline/TimelineScaleField';
+import {
+	parseTransformOrigin,
+	parsedTransformOriginToUv,
+	serializeTransformOrigin,
+} from './Timeline/transform-origin-utils';
 
 export const getSelectedOutlineActiveSchema = ({
 	schema,
@@ -231,6 +244,212 @@ export const getSelectedOutlineDragChanges = ({
 			value,
 			defaultValue: dragState.defaultValue,
 			schema: dragState.target.schema,
+		});
+	}
+
+	return changes;
+};
+
+export type SelectedOutlineCropValues = Record<
+	SelectedOutlineCropFieldKey,
+	number
+>;
+
+const getSelectedOutlineCropCenter = (
+	crop: SelectedOutlineCropValues,
+): UvCoordinate => [
+	(crop.cropLeft + 1 - crop.cropRight) / 2,
+	(crop.cropTop + 1 - crop.cropBottom) / 2,
+];
+
+export const getSelectedOutlineCropFollowingTransformOrigin = ({
+	dimensions,
+	initialCrop,
+	nextCrop,
+	transformOrigin,
+}: {
+	readonly dimensions: SelectedOutline['dimensions'];
+	readonly initialCrop: SelectedOutlineCropValues;
+	readonly nextCrop: SelectedOutlineCropValues;
+	readonly transformOrigin: SelectedOutlineCropDragTarget['transformOrigin'];
+}): string | null => {
+	if (
+		dimensions === null ||
+		transformOrigin === null ||
+		transformOrigin.propStatus.status !== 'static'
+	) {
+		return null;
+	}
+
+	const parsed = parseTransformOrigin(transformOrigin.value);
+	if (parsed === null) {
+		return null;
+	}
+
+	const currentOrigin = parsedTransformOriginToUv({
+		parsed,
+		width: dimensions.width,
+		height: dimensions.height,
+	});
+	if (currentOrigin === null) {
+		return null;
+	}
+
+	const initialCenter = getSelectedOutlineCropCenter(initialCrop);
+	const originIsAbsent = transformOrigin.propStatus.codeValue === undefined;
+	const originIsAtCropCenter =
+		Math.abs(currentOrigin[0] - initialCenter[0]) <= 0.0001 &&
+		Math.abs(currentOrigin[1] - initialCenter[1]) <= 0.0001;
+	if (!originIsAbsent && !originIsAtCropCenter) {
+		return null;
+	}
+
+	return serializeTransformOrigin({
+		uv: getSelectedOutlineCropCenter(nextCrop),
+		z: parsed.z,
+	});
+};
+
+const cropHandleIncludes = (
+	handle: SelectedOutlineCropHandle,
+	edge: 'left' | 'right' | 'top' | 'bottom',
+) => handle === edge || handle.includes(edge);
+
+export const getSelectedOutlineCropDragValues = ({
+	crop,
+	dimensions,
+	handle,
+	uv,
+}: {
+	readonly crop: SelectedOutlineCropValues;
+	readonly dimensions: SelectedOutline['dimensions'];
+	readonly handle: SelectedOutlineCropHandle;
+	readonly uv: readonly [number, number];
+}): SelectedOutlineCropValues => {
+	const minimumVisibleX = dimensions === null ? 0.001 : 1 / dimensions.width;
+	const minimumVisibleY = dimensions === null ? 0.001 : 1 / dimensions.height;
+	const roundCrop = (value: number, max: number) =>
+		clamp(roundToDecimalPlaces(value, 4), 0, Math.max(0, max));
+	const next = {...crop};
+
+	if (cropHandleIncludes(handle, 'left')) {
+		next.cropLeft = roundCrop(uv[0], 1 - crop.cropRight - minimumVisibleX);
+	}
+
+	if (cropHandleIncludes(handle, 'right')) {
+		next.cropRight = roundCrop(1 - uv[0], 1 - crop.cropLeft - minimumVisibleX);
+	}
+
+	if (cropHandleIncludes(handle, 'top')) {
+		next.cropTop = roundCrop(uv[1], 1 - crop.cropBottom - minimumVisibleY);
+	}
+
+	if (cropHandleIncludes(handle, 'bottom')) {
+		next.cropBottom = roundCrop(1 - uv[1], 1 - crop.cropTop - minimumVisibleY);
+	}
+
+	return next;
+};
+
+export const getSelectedOutlineCropDragChanges = ({
+	dimensions,
+	target,
+	values,
+}: {
+	readonly dimensions: SelectedOutline['dimensions'];
+	readonly target: SelectedOutlineCropDragTarget;
+	readonly values: SelectedOutlineCropValues;
+}): SelectedOutlineDragChange[] => {
+	const changes: SelectedOutlineDragChange[] = [];
+
+	for (const fieldKey of Object.values(cropFieldKeys)) {
+		const field = target.fields[fieldKey];
+		const value = values[fieldKey];
+		if (value === field.value) {
+			continue;
+		}
+
+		if (field.propStatus.status === 'keyframed') {
+			changes.push({
+				type: 'keyframed',
+				fileName: target.nodePath.absolutePath,
+				nodePath: target.nodePath,
+				fieldKey,
+				sourceFrame: target.sourceFrame,
+				value,
+				schema: target.schema,
+				clientId: target.clientId,
+			});
+			continue;
+		}
+
+		const defaultValue =
+			field.defaultValue === undefined
+				? null
+				: JSON.stringify(field.defaultValue);
+		const stringifiedValue = JSON.stringify(value);
+		const shouldSave =
+			value !== field.propStatus.codeValue &&
+			!(
+				defaultValue === stringifiedValue &&
+				field.propStatus.codeValue === undefined
+			);
+
+		if (shouldSave) {
+			changes.push({
+				type: 'static',
+				fileName: target.nodePath.absolutePath,
+				nodePath: target.nodePath,
+				fieldKey,
+				value,
+				defaultValue,
+				schema: target.schema,
+			});
+		}
+	}
+
+	if (
+		changes.length === 0 ||
+		target.transformOrigin === null ||
+		target.transformOrigin.propStatus.status !== 'static'
+	) {
+		return changes;
+	}
+
+	const transformOrigin = getSelectedOutlineCropFollowingTransformOrigin({
+		dimensions,
+		initialCrop: {
+			cropLeft: target.fields.cropLeft.value,
+			cropRight: target.fields.cropRight.value,
+			cropTop: target.fields.cropTop.value,
+			cropBottom: target.fields.cropBottom.value,
+		},
+		nextCrop: values,
+		transformOrigin: target.transformOrigin,
+	});
+	if (transformOrigin === null) {
+		return changes;
+	}
+
+	const transformOriginDefaultValue =
+		target.transformOrigin.defaultValue === undefined
+			? null
+			: JSON.stringify(target.transformOrigin.defaultValue);
+	const shouldSaveTransformOrigin =
+		transformOrigin !== target.transformOrigin.propStatus.codeValue &&
+		!(
+			transformOriginDefaultValue === JSON.stringify(transformOrigin) &&
+			target.transformOrigin.propStatus.codeValue === undefined
+		);
+	if (shouldSaveTransformOrigin) {
+		changes.push({
+			type: 'static',
+			fileName: target.nodePath.absolutePath,
+			nodePath: target.nodePath,
+			fieldKey: transformOriginFieldKey,
+			value: transformOrigin,
+			defaultValue: transformOriginDefaultValue,
+			schema: target.schema,
 		});
 	}
 
@@ -750,6 +969,102 @@ export const compensateTranslateForTransformOrigin = ({
 	return [startTranslate[0] - compensationX, startTranslate[1] - compensationY];
 };
 
+export const getSelectedOutlineTransformOriginDragChanges = ({
+	target,
+	startTranslate,
+	origin,
+	translate,
+}: {
+	readonly target: SelectedOutlineTransformOriginDragTarget;
+	readonly startTranslate: readonly [number, number];
+	readonly origin: string;
+	readonly translate: string;
+}): {
+	readonly staticChanges: SaveSequencePropChange[];
+	readonly keyframedChanges: AddSequenceKeyframeChange[];
+} => {
+	const staticChanges: SaveSequencePropChange[] = [];
+	const keyframedChanges: AddSequenceKeyframeChange[] = [];
+	const originChanged = origin !== target.originValue;
+	const translateChanged = translate !== target.translateValue;
+
+	if (originChanged) {
+		if (target.originPropStatus.status === 'keyframed') {
+			keyframedChanges.push({
+				fileName: target.nodePath.absolutePath,
+				nodePath: target.nodePath,
+				fieldKey: transformOriginFieldKey,
+				sourceFrame: target.sourceFrame,
+				value: origin,
+				schema: target.schema,
+			});
+		} else {
+			staticChanges.push({
+				fileName: target.nodePath.absolutePath,
+				nodePath: target.nodePath,
+				fieldKey: transformOriginFieldKey,
+				value: origin,
+				defaultValue:
+					target.originDefault === undefined
+						? null
+						: JSON.stringify(target.originDefault),
+				schema: target.schema,
+			});
+		}
+	}
+
+	if (!translateChanged) {
+		return {staticChanges, keyframedChanges};
+	}
+
+	if (target.translatePropStatus.status === 'static') {
+		staticChanges.push({
+			fileName: target.nodePath.absolutePath,
+			nodePath: target.nodePath,
+			fieldKey: translateFieldKey,
+			value: translate,
+			defaultValue:
+				target.translateDefault === undefined
+					? null
+					: JSON.stringify(target.translateDefault),
+			schema: target.schema,
+		});
+		return {staticChanges, keyframedChanges};
+	}
+
+	if (target.originPropStatus.status === 'keyframed') {
+		keyframedChanges.push({
+			fileName: target.nodePath.absolutePath,
+			nodePath: target.nodePath,
+			fieldKey: translateFieldKey,
+			sourceFrame: target.sourceFrame,
+			value: translate,
+			schema: target.schema,
+		});
+		return {staticChanges, keyframedChanges};
+	}
+
+	const nextTranslate = parseTranslate(translate);
+	const deltaTranslateX = nextTranslate[0] - startTranslate[0];
+	const deltaTranslateY = nextTranslate[1] - startTranslate[1];
+	for (const keyframe of target.translatePropStatus.keyframes) {
+		const keyframeTranslate = parseTranslate(String(keyframe.value));
+		keyframedChanges.push({
+			fileName: target.nodePath.absolutePath,
+			nodePath: target.nodePath,
+			fieldKey: translateFieldKey,
+			sourceFrame: keyframe.frame,
+			value: serializeTranslate(
+				keyframeTranslate[0] + deltaTranslateX,
+				keyframeTranslate[1] + deltaTranslateY,
+			),
+			schema: target.schema,
+		});
+	}
+
+	return {staticChanges, keyframedChanges};
+};
+
 export const uvsEqual = (
 	left: readonly [number, number],
 	right: readonly [number, number],
@@ -847,4 +1162,68 @@ export const snapSelectedOutlineUv = ({
 export const selectedOutlineTransformOriginSnapThresholdPx =
 	selectedOutlineUvSnapThresholdPx;
 
-export const snapSelectedOutlineTransformOriginUv = snapSelectedOutlineUv;
+const getCroppedOutlineUvSnapTargets = (
+	crop: SelectedOutlineTarget['crop'],
+): readonly UvCoordinate[] => {
+	const {left, top} = crop;
+	const right = 1 - crop.right;
+	const bottom = 1 - crop.bottom;
+	const centerX = (left + right) / 2;
+	const centerY = (top + bottom) / 2;
+
+	return [
+		[left, top],
+		[centerX, top],
+		[right, top],
+		[right, centerY],
+		[right, bottom],
+		[centerX, bottom],
+		[left, bottom],
+		[left, centerY],
+		[centerX, centerY],
+	];
+};
+
+export const snapSelectedOutlineTransformOriginUv = ({
+	crop,
+	point,
+	points,
+	thresholdPx,
+	uv,
+}: {
+	readonly crop: SelectedOutlineTarget['crop'] | null;
+	readonly point: OutlinePoint;
+	readonly points: SelectedOutline['points'];
+	readonly thresholdPx: number | null;
+	readonly uv: UvCoordinate;
+}): UvCoordinate => {
+	const threshold =
+		thresholdPx ?? selectedOutlineTransformOriginSnapThresholdPx;
+
+	if (crop === null) {
+		return snapSelectedOutlineUv({point, points, thresholdPx: threshold, uv});
+	}
+
+	let best: {
+		readonly distance: number;
+		readonly uv: UvCoordinate;
+	} | null = null;
+	const snapTargets = [
+		...selectedOutlineUvSnapTargets,
+		...getCroppedOutlineUvSnapTargets(crop),
+	];
+
+	for (const snapUv of snapTargets) {
+		const snapPoint = getUvHandlePosition(points, snapUv);
+		const distance = Math.hypot(point.x - snapPoint.x, point.y - snapPoint.y);
+		if (distance > threshold) {
+			continue;
+		}
+
+		if (best === null || distance < best.distance) {
+			best = {distance, uv: snapUv};
+		}
+	}
+
+	return best?.uv ?? uv;
+};

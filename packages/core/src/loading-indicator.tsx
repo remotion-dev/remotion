@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill} from './AbsoluteFill.js';
+import {AbsoluteFillElement} from './AbsoluteFillElement.js';
 
 const rotate: React.CSSProperties = {
 	transform: `rotate(90deg)`,
@@ -19,7 +19,7 @@ const container: React.CSSProperties = {
 
 export const Loading: React.FC = () => {
 	return (
-		<AbsoluteFill style={container} id="remotion-comp-loading">
+		<AbsoluteFillElement style={container} id="remotion-comp-loading">
 			<style type="text/css">{`
 				@keyframes anim {
 					from {
@@ -49,6 +49,6 @@ export const Loading: React.FC = () => {
 				/>
 			</svg>
 			<p style={label}>Resolving {'<Suspense>'}...</p>
-		</AbsoluteFill>
+		</AbsoluteFillElement>
 	);
 };

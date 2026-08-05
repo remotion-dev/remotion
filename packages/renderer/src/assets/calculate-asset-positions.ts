@@ -53,6 +53,7 @@ const indexUncompressedAssets = (renderAssets: AudioOrVideoAsset[]) => {
 
 export const calculateAssetPositions = (
 	frames: AudioOrVideoAsset[][],
+	sourceFrames: number[] = frames.map((_, index) => index),
 ): Assets => {
 	const assets: UnsafeAsset[] = [];
 	// Assets that have started but not yet ended, keyed by asset id.
@@ -63,6 +64,14 @@ export const calculateAssetPositions = (
 	const flattened = frames.flat(1);
 	const uncompressedAssets = indexUncompressedAssets(flattened);
 	for (let frame = 0; frame < frames.length; frame++) {
+		if (frame > 0 && sourceFrames[frame] !== sourceFrames[frame - 1] + 1) {
+			for (const openAsset of openAssets.values()) {
+				openAsset.duration = frame - openAsset.startInVideo;
+			}
+
+			openAssets.clear();
+		}
+
 		const current = deduplicateAssets(frames[frame]);
 		const currentIds = new Set(current.map((a) => a.id));
 

@@ -1,4 +1,5 @@
 import {execSync, spawn} from 'node:child_process';
+import {homedir} from 'node:os';
 import {RenderInternals, type LogLevel} from '@remotion/renderer';
 import {StudioServerInternals} from '@remotion/studio-server';
 import {
@@ -12,6 +13,7 @@ import {chalk} from './chalk';
 import {EXTRA_PACKAGES} from './extra-packages';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
+import {updateRemotionSkills} from './update-remotion-skills';
 
 export const resolveExtraPackageVersions = (
 	dependencies: Record<string, string>,
@@ -110,12 +112,14 @@ export const upgradeCommand = async ({
 	remotionRoot,
 	packageManager,
 	version,
+	skipSkills,
 	logLevel,
 	args,
 }: {
 	remotionRoot: string;
 	packageManager: string | undefined;
 	version: string | undefined;
+	skipSkills: boolean;
 	logLevel: LogLevel;
 	args: string[];
 }) => {
@@ -247,6 +251,15 @@ export const upgradeCommand = async ({
 			logLevel,
 		});
 	}
+
+	await updateRemotionSkills({
+		currentVersion: targetVersion,
+		cwd: remotionRoot,
+		homeDirectory: homedir(),
+		skipSkills,
+		logLevel,
+		environment: process.env,
+	});
 
 	Log.info({indent: false, logLevel}, '⏫ Remotion has been upgraded!');
 	Log.info({indent: false, logLevel}, 'https://remotion.dev/changelog');

@@ -7,6 +7,10 @@ import type {EffectDefinition} from './effects/effect-types.js';
 import type {InteractivitySchema} from './interactivity-schema.js';
 import type {NonceHistory} from './nonce.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
+import type {
+	RuntimeValueSnapshot,
+	RuntimeValueStore,
+} from './runtime-value-store.js';
 
 export type TComposition<
 	Schema extends AnyZodObject,
@@ -102,13 +106,17 @@ export type LoopDisplay = {
 
 export type JsxComponentIdentity = string;
 
-export type SequenceControls = {
+export type SequenceRegistrationControls = {
 	schema: InteractivitySchema;
-	currentRuntimeValueDotNotation: Record<string, unknown>;
+	runtimeValues: RuntimeValueStore;
 	overrideId: string;
 	supportsEffects: boolean;
 	componentIdentity: JsxComponentIdentity | null;
 	componentName: string;
+};
+
+export type SequenceControls = SequenceRegistrationControls & {
+	currentRuntimeValueDotNotation: RuntimeValueSnapshot;
 };
 
 export type TSequence = {
@@ -119,14 +127,13 @@ export type TSequence = {
 	displayName: string;
 	documentationLink: string | null;
 	parent: string | null;
-	rootId: string;
 	showInTimeline: boolean;
 	nonce: NonceHistory;
 	loopDisplay: LoopDisplay | undefined;
 	getStack: () => string | null;
 	premountDisplay: number | null;
 	postmountDisplay: number | null;
-	controls: SequenceControls | null;
+	controls: SequenceRegistrationControls | null;
 	refForOutline: React.RefObject<Element | null> | null;
 	effects: readonly EffectDefinition<unknown>[];
 	isInsideSeries: boolean;

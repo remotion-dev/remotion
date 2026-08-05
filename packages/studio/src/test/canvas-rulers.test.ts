@@ -9,12 +9,13 @@ Object.defineProperty(globalThis, 'localStorage', {
 });
 
 const getRulerModules = async () => {
-	const [{applyRulerInsetsToCanvasSize}, {RULER_WIDTH}] = await Promise.all([
-		import('../helpers/ruler-canvas-size'),
-		import('../state/editor-rulers'),
-	]);
+	const [{applyRulerInsetsToCanvasSize, getRulerCanvasSize}, {RULER_WIDTH}] =
+		await Promise.all([
+			import('../helpers/ruler-canvas-size'),
+			import('../state/editor-rulers'),
+		]);
 
-	return {applyRulerInsetsToCanvasSize, RULER_WIDTH};
+	return {applyRulerInsetsToCanvasSize, getRulerCanvasSize, RULER_WIDTH};
 };
 
 const size = {
@@ -47,4 +48,26 @@ test('canvas size is unchanged if rulers are hidden', async () => {
 	expect(applyRulerInsetsToCanvasSize({rulersAreVisible: false, size})).toBe(
 		size,
 	);
+});
+
+test('rulers cover the full inset canvas size', async () => {
+	const {applyRulerInsetsToCanvasSize, getRulerCanvasSize, RULER_WIDTH} =
+		await getRulerModules();
+	const insetSize = applyRulerInsetsToCanvasSize({
+		rulersAreVisible: true,
+		size,
+	});
+
+	expect(
+		getRulerCanvasSize({orientation: 'horizontal', size: insetSize}),
+	).toEqual({
+		height: RULER_WIDTH,
+		width: insetSize.width,
+	});
+	expect(
+		getRulerCanvasSize({orientation: 'vertical', size: insetSize}),
+	).toEqual({
+		height: insetSize.height,
+		width: RULER_WIDTH,
+	});
 });

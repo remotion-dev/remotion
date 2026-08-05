@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {HLS, MP4, QTFF, WEBM} from 'mediabunny';
 import {
+	getDefaultVideoEditState,
 	isConvertEnabledByDefault,
 	isVideoOnlySection,
 } from '../app/lib/default-ui';
@@ -45,6 +46,29 @@ test('only enables the convert controls by default on conversion pages', () => {
 	expect(isConvertEnabledByDefault({type: 'generic-resize'})).toBe(false);
 	expect(isConvertEnabledByDefault({type: 'generic-rotate'})).toBe(false);
 	expect(isConvertEnabledByDefault({type: 'generic-mirror'})).toBe(false);
+});
+
+test('enables each video edit independently based on the route', () => {
+	expect(getDefaultVideoEditState({type: 'generic-crop'})).toEqual({
+		crop: true,
+		mirror: false,
+		rotate: false,
+	});
+	expect(getDefaultVideoEditState({type: 'generic-mirror'})).toEqual({
+		crop: false,
+		mirror: true,
+		rotate: false,
+	});
+	expect(getDefaultVideoEditState({type: 'generic-rotate'})).toEqual({
+		crop: false,
+		mirror: false,
+		rotate: true,
+	});
+	expect(getDefaultVideoEditState({type: 'generic-convert'})).toEqual({
+		crop: false,
+		mirror: false,
+		rotate: false,
+	});
 });
 
 test('keeps the input container by default on editing pages', () => {

@@ -7,15 +7,16 @@ import {useCallback, useContext} from 'react';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	DragOverrideValue,
+	InteractivitySchema,
 	OverrideIdToNodePaths,
 	PropStatuses,
 	SequencePropsSubscriptionKey,
-	InteractivitySchema,
 	TSequence,
 } from 'remotion';
 import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import {startPointerSession} from '../../helpers/pointer-session';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {callMoveKeyframes} from './call-move-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
@@ -573,11 +574,8 @@ export const useTimelineKeyframeDrag = ({
 				return dragTargets;
 			};
 
-			const cleanup = () => {
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerCancel);
-			};
+			let stopPointerSession: (() => void) | null = null;
+			const cleanup = () => stopPointerSession?.();
 
 			const clearActiveOverrides = () => {
 				const targets = dragTargets;
@@ -629,10 +627,12 @@ export const useTimelineKeyframeDrag = ({
 				}
 
 				setDraggedKeyframes(
-					targets.map((target) => ({
-						nodePathInfo: target.nodePathInfo,
-						frame: target.displayFrame + delta,
-					})),
+					shouldDragExistingSelection
+						? targets.map((target) => ({
+								nodePathInfo: target.nodePathInfo,
+								frame: target.displayFrame + delta,
+							}))
+						: [],
 				);
 				applyDragOverrides({
 					delta,
@@ -725,9 +725,18 @@ export const useTimelineKeyframeDrag = ({
 				clearDraggedKeyframes();
 			};
 
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerCancel);
+			stopPointerSession = startPointerSession({
+				event: e,
+				target: e.currentTarget,
+				onMove: onPointerMove,
+				onEnd: (reason) => {
+					if (reason === 'pointerup' || reason === 'buttons-released') {
+						onPointerUp();
+					} else {
+						onPointerCancel();
+					}
+				},
+			});
 		},
 		[
 			clearDragOverrides,
@@ -844,11 +853,8 @@ export const useTimelineEasingKeyframeDrag = ({
 				return dragTargets;
 			};
 
-			const cleanup = () => {
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerCancel);
-			};
+			let stopPointerSession: (() => void) | null = null;
+			const cleanup = () => stopPointerSession?.();
 
 			const clearActiveOverrides = () => {
 				const targets = dragTargets;
@@ -997,9 +1003,18 @@ export const useTimelineEasingKeyframeDrag = ({
 				clearDraggedKeyframes();
 			};
 
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerCancel);
+			stopPointerSession = startPointerSession({
+				event: e,
+				target: e.currentTarget,
+				onMove: onPointerMove,
+				onEnd: (reason) => {
+					if (reason === 'pointerup' || reason === 'buttons-released') {
+						onPointerUp();
+					} else {
+						onPointerCancel();
+					}
+				},
+			});
 		},
 		[
 			clearDragOverrides,

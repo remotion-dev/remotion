@@ -4,13 +4,17 @@ title: '<LightLeak>'
 crumb: '@remotion/light-leaks'
 ---
 
-# &lt;LightLeak&gt;<AvailableFrom v="4.0.415" />
+# ~~&lt;LightLeak&gt;~~<AvailableFrom v="4.0.415" />
+
+:::info Deprecated
+`@remotion/light-leaks` is deprecated and will no longer be published starting with Remotion 5.0. Migrate to [`lightLeak()`](/docs/effects/light-leak) from `@remotion/effects/light-leak`. The `<LightLeak>` component will not be moved to `@remotion/effects`.
+:::
 
 Renders a WebGL-based light leak effect.  
 The effect reveals during the first half of the duration and retracts during the second half.  
 Is a [`<Sequence>`](/docs/sequence) component under the hood and accepts it's props.
 
-Use [`lightLeak()`](/docs/light-leaks/light-leak-effect) to apply the same visual as a canvas effect.
+Use [`lightLeak()` from `@remotion/effects`](/docs/effects/light-leak) to apply the same visual as a canvas effect.
 
 ## Example
 
@@ -58,6 +62,6 @@ Rotates the hue of the light leak in degrees (`0`-`360`).
 
 ## See also
 
-- [`lightLeak()`](/docs/light-leaks/light-leak-effect)
+- [`lightLeak()` from `@remotion/effects`](/docs/effects/light-leak)
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/light-leaks/src/LightLeak.tsx)
 - [`<Sequence>`](/docs/sequence)

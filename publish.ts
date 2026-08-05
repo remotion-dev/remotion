@@ -1,4 +1,3 @@
-import {$} from 'bun';
 import {
 	copyFileSync,
 	existsSync,
@@ -8,10 +7,19 @@ import {
 	unlinkSync,
 } from 'node:fs';
 import path from 'node:path';
+import {$} from 'bun';
 import limit from 'p-limit';
 import {FEATURED_TEMPLATES} from './packages/create-video/src/templates';
+import {shouldReleasePackage} from './packages/studio-shared/src/release-package-policy';
 
 const p = limit(4);
+
+const releaseVersion = JSON.parse(
+	readFileSync(
+		path.join(process.cwd(), 'packages', 'core', 'package.json'),
+		'utf-8',
+	),
+).version as string;
 
 const dirs = readdirSync('packages')
 	.filter((dir) =>
@@ -35,6 +43,15 @@ for (const dir of dirs) {
 	const packageJsonPath = path.join(packagePath, 'package.json');
 	const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
 	if (packageJson.private) {
+		continue;
+	}
+
+	if (
+		!shouldReleasePackage({
+			packageName: packageJson.name,
+			releaseVersion,
+		})
+	) {
 		continue;
 	}
 

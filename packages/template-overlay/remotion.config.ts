@@ -6,6 +6,7 @@
 
 import { Config } from "@remotion/cli/config";
 
+Config.setRspack(true);
 Config.setVideoImageFormat("png");
 Config.setPixelFormat("yuva444p10le");
 Config.setCodec("prores");

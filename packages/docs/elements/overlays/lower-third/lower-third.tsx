@@ -24,7 +24,9 @@ export const NameLowerThird: React.FC = () => {
 				fontFamily: 'Inter',
 				backgroundColor: 'rgba(255, 255, 255, 0.94)',
 				boxShadow: '0 6px 12px rgba(24, 24, 27, 0.2)',
-				border: '1px solid rgba(24, 24, 27, 0.08)',
+				borderWidth: 1,
+				borderStyle: 'solid',
+				borderColor: 'rgba(24, 24, 27, 0.08)',
 				opacity: interpolate(frame, [0, 18, 102, 119], [0, 1, 1, 0], {
 					extrapolateLeft: 'clamp',
 					extrapolateRight: 'clamp',

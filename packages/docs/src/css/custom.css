@@ -223,8 +223,9 @@ code {
 }
 
 .deprecated-item > div > a::after,
+.unmaintained-item > div > a::after,
+.unmaintained-item > a::after,
 .deprecated-item > a::after {
-	content: 'Deprecated';
 	font-size: 12px;
 	opacity: 0.4;
 	border: 1px solid;
@@ -235,6 +236,16 @@ code {
 	margin-left: 6px;
 	border-radius: 4px;
 	transform: none !important;
+}
+
+.deprecated-item > div > a::after,
+.deprecated-item > a::after {
+	content: 'Deprecated';
+}
+
+.unmaintained-item > div > a::after,
+.unmaintained-item > a::after {
+	content: 'Unmaintained';
 }
 
 .wip-item > div > a::after,

@@ -22,6 +22,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'Privacy Policy'}</strong>
 					<div>How Remotion collects, uses, and protects personal data</div>
 				</TOCItem>
+				<TOCItem link="/docs/license/telemetry">
+					<strong>{'Telemetry'}</strong>
+					<div>How Remotion reports rendering usage</div>
+				</TOCItem>
 				<TOCItem link="/docs/license/dpa">
 					<strong>{'DPA Statement'}</strong>
 					<div>

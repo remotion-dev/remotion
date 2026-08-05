@@ -6,6 +6,7 @@ import {visit} from 'unist-util-visit';
 import {cachedTwoslashCall} from './caching';
 import {setupNodeForTwoslashException} from './exceptionMessageDOM';
 import {addIncludes, replaceIncludesInCode} from './includes';
+import {isTwoslashEnabled} from './twoslash-enabled';
 import type {Node} from './unist-types';
 
 type OBJECT = Record<string, unknown>;
@@ -146,7 +147,7 @@ const remarkVisitor =
 			shikiHTML = twoslashSettings.wrapFragments
 				? `<div class="shiki-twoslash-fragment"></div>`
 				: '';
-		} else if (fence.meta.twoslash) {
+		} else if (fence.meta.twoslash && isTwoslashEnabled()) {
 			// Twoslash code block — use cached call
 			const importedCode = replaceIncludesInCode(includes, node.value);
 			try {
@@ -175,7 +176,7 @@ const remarkVisitor =
 				'<button class="copy-button" aria-label="Copy code to clipboard">Copy</button></pre>',
 			);
 		} else {
-			// Regular (non-twoslash) code block
+			// Regular syntax highlighting without type-checking
 			const langAliases: Record<string, string> = {
 				json5: 'json',
 				js: 'javascript',

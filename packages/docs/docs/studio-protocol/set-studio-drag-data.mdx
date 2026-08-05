@@ -1,0 +1,68 @@
+---
+image: /generated/articles-docs-studio-protocol-set-studio-drag-data.png
+title: 'setStudioDragData()'
+crumb: '@remotion/studio-protocol'
+---
+
+# setStudioDragData()<AvailableFrom v="4.0.502" />
+
+Writes an Element payload and its preview metadata to a browser `DataTransfer` object.
+
+```tsx title="DraggableElement.tsx"
+import {
+  createElementPayload,
+  setStudioDragData,
+} from '@remotion/studio-protocol';
+
+const payload = createElementPayload({
+  displayName: 'Lower Third',
+  slug: 'lower-third',
+  sourceCode: 'export const LowerThird = () => null;',
+  dependencies: [],
+  dimensions: {width: 900, height: 260},
+  durationInFrames: 90,
+});
+
+export const DraggableElement = () => (
+  <button
+    draggable
+    onDragStart={(event) => {
+      setStudioDragData({
+        dataTransfer: event.dataTransfer,
+        payload,
+      });
+    }}
+  >
+    Drag into Studio
+  </button>
+);
+```
+
+## Arguments
+
+Pass an object with the following properties.
+
+### dataTransfer
+
+The `DataTransfer` from a browser `dragstart` event. `effectAllowed` is set to `copy`.
+
+### payload
+
+The value returned by [`createElementPayload()`](/docs/studio-protocol/create-element-payload).
+
+## Drag preview
+
+The protocol MIME type contains dimensions and duration metadata so Studio can show a preview before reading the payload.
+
+A `text/plain` fallback is also written so you can switch browser tabs while dragging an Element. The structured payload remains available through the protocol MIME type.
+
+`setStudioDragData()` does not call `setDragImage()`. The website owns the visual drag image.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering={false} player={false} studio={false} hideServers />
+
+## See also
+
+- [`createElementPayload()`](/docs/studio-protocol/create-element-payload)
+- [`installInStudio()`](/docs/studio-protocol/install-in-studio)

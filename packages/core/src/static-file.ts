@@ -138,6 +138,18 @@ export const staticFile = (path: string) => {
 		);
 	}
 
+	if (typeof window !== 'undefined') {
+		// This lookup is primarily used by Browser Studio, where virtual assets
+		// have blob: URLs. Regular Studio sources are already encoded using the
+		// same per-path-segment encoding as the fallback below.
+		const matchingStaticFile = window.remotion_staticFiles?.find(
+			(file) => file.name === trimLeadingSlash(path),
+		);
+		if (matchingStaticFile) {
+			return matchingStaticFile.src;
+		}
+	}
+
 	const preprocessed = encodeBySplitting(path);
 	const preparsed = inner(preprocessed);
 

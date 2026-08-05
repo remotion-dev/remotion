@@ -1,8 +1,5 @@
-import {
-	COMPOSITION_DRAG_MIME_TYPE,
-	compositionDragDataToSymbolicatedStack,
-	parseCompositionDragData,
-} from '@remotion/studio-shared';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import {compositionDragDataToSymbolicatedStack} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -12,25 +9,18 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {
-	BACKGROUND,
-	BLACK_HEX,
-	LIGHT_TEXT,
-	WHITE_ALPHA_12,
-	WHITE_ALPHA_06,
-} from '../helpers/colors';
+import {BACKGROUND, WHITE_ALPHA_12} from '../helpers/colors';
 import {createFolderTree} from '../helpers/create-folder-tree';
 import {ExpandedFoldersContext} from '../helpers/persist-open-folders';
 import {sortItemsByNonceHistory} from '../helpers/sort-by-nonce-history';
-import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import {CompositionSelectorItem} from './CompositionSelectorItem';
 import {ContextMenuForTarget} from './ContextMenu';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {showNotification} from './Notifications/NotificationCenter';
+import {ExplorerQuickSwitcherTrigger} from './QuickSwitcher/ExplorerQuickSwitcherTrigger';
 import {applyCodemod} from './RenderQueue/actions';
 import {getRootCompositionMenuItems} from './root-composition-menu-items';
 
@@ -100,31 +90,6 @@ const container: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 };
 
-const quickSwitcherArea: React.CSSProperties = {
-	padding: '4px 12px',
-	borderBottom: `1px solid ${BLACK_HEX}`,
-};
-
-const quickSwitcherTrigger: React.CSSProperties = {
-	backgroundColor: WHITE_ALPHA_06,
-	borderRadius: 5,
-	padding: '4px 10px',
-	color: LIGHT_TEXT,
-	fontSize: 12,
-	cursor: 'pointer',
-	display: 'flex',
-	alignItems: 'center',
-	justifyContent: 'space-between',
-	border: 'none',
-	width: '100%',
-	appearance: 'none',
-};
-
-const shortcutLabel: React.CSSProperties = {
-	fontSize: 11,
-	opacity: 0.6,
-};
-
 const autoScrollThreshold = 70;
 const maxAutoScrollSpeed = 18;
 
@@ -162,10 +127,10 @@ export const CompositionSelector: React.FC = () => {
 		Internals.CompositionManager,
 	);
 	const {foldersExpanded} = useContext(ExpandedFoldersContext);
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
-	const rootContextMenuItems = useMemo(() => {
+	const getRootContextMenuItems = useCallback(() => {
 		return getRootCompositionMenuItems({
 			connectionStatus,
 			readOnlyStudio: window.remotion_isReadOnlyStudio,
@@ -209,14 +174,6 @@ export const CompositionSelector: React.FC = () => {
 		},
 		[],
 	);
-
-	const openQuickSwitcher = useCallback(() => {
-		setSelectedModal({
-			type: 'quick-switcher',
-			mode: 'compositions',
-			invocationTimestamp: Date.now(),
-		});
-	}, [setSelectedModal]);
 
 	const clearRootDragHover = useCallback(() => {
 		setRootDragHovered(false);
@@ -273,9 +230,8 @@ export const CompositionSelector: React.FC = () => {
 		(event: React.DragEvent<HTMLElement>) => {
 			if (
 				window.remotion_isReadOnlyStudio ||
-				!Array.from(event.dataTransfer.types).includes(
-					COMPOSITION_DRAG_MIME_TYPE,
-				)
+				StudioProtocolInternals.getDragPreviewMetadata(event.dataTransfer.types)
+					?.type !== 'composition'
 			) {
 				stopCompositionListAutoScroll();
 				return;
@@ -301,7 +257,8 @@ export const CompositionSelector: React.FC = () => {
 	const onRootDragOver = useCallback((event: React.DragEvent<HTMLElement>) => {
 		if (
 			window.remotion_isReadOnlyStudio ||
-			!Array.from(event.dataTransfer.types).includes(COMPOSITION_DRAG_MIME_TYPE)
+			StudioProtocolInternals.getDragPreviewMetadata(event.dataTransfer.types)
+				?.type !== 'composition'
 		) {
 			return;
 		}
@@ -333,11 +290,12 @@ export const CompositionSelector: React.FC = () => {
 				return;
 			}
 
-			const raw = event.dataTransfer.getData(COMPOSITION_DRAG_MIME_TYPE);
-			const parsed = raw ? parseCompositionDragData(raw) : null;
-			if (parsed === null) {
+			const parsed = StudioProtocolInternals.parseDragData(event.dataTransfer);
+			if (parsed?.type !== 'composition') {
 				return;
 			}
+
+			const compositionDragData = parsed.data;
 
 			event.preventDefault();
 			event.stopPropagation();
@@ -345,14 +303,14 @@ export const CompositionSelector: React.FC = () => {
 			setRootDragHovered(false);
 
 			const composition = compositions.find(
-				(c) => c.id === parsed.compositionId,
+				(c) => c.id === compositionDragData.compositionId,
 			);
 			if (!composition || composition.folderName === null) {
 				return;
 			}
 
 			const notification = showNotification(
-				`Moving ${parsed.compositionId}...`,
+				`Moving ${compositionDragData.compositionId}...`,
 				null,
 			);
 			const controller = new AbortController();
@@ -361,18 +319,19 @@ export const CompositionSelector: React.FC = () => {
 				const result = await applyCodemod({
 					codemod: {
 						type: 'move-composition-to-folder',
-						idToMove: parsed.compositionId,
+						idToMove: compositionDragData.compositionId,
 						folderName: null,
 						parentName: null,
 					},
 					dryRun: false,
 					signal: controller.signal,
-					symbolicatedStack: compositionDragDataToSymbolicatedStack(parsed),
+					symbolicatedStack:
+						compositionDragDataToSymbolicatedStack(compositionDragData),
 				});
 
 				notification.replaceContent(
 					result.success
-						? `Moved ${parsed.compositionId} outside of folder`
+						? `Moved ${compositionDragData.compositionId} outside of folder`
 						: result.reason,
 					result.success ? 2000 : 4000,
 				);
@@ -390,22 +349,13 @@ export const CompositionSelector: React.FC = () => {
 		<div style={container}>
 			<ContextMenuForTarget
 				triggerRef={listRef}
-				values={rootContextMenuItems}
-				onOpen={null}
+				getItems={getRootContextMenuItems}
 			/>
-			<div style={quickSwitcherArea}>
-				<button
-					type="button"
-					style={quickSwitcherTrigger}
-					onClick={openQuickSwitcher}
-					tabIndex={tabIndex}
-				>
-					Search...
-					{areKeyboardShortcutsDisabled() ? null : (
-						<span style={shortcutLabel}>{cmdOrCtrlCharacter}+K</span>
-					)}
-				</button>
-			</div>
+			<ExplorerQuickSwitcherTrigger
+				mode="compositions"
+				showShortcut
+				tabIndex={tabIndex}
+			/>
 			<div
 				ref={listRef}
 				className="__remotion-vertical-scrollbar"

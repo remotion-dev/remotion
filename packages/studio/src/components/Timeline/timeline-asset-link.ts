@@ -1,5 +1,6 @@
 import {getAssetSchemaKeys} from '@remotion/studio-shared';
-import type {SequenceControls} from 'remotion';
+import type {SequenceRegistrationControls} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {pushUrl} from '../../helpers/url-state';
 
 type LinkInfo =
@@ -37,17 +38,34 @@ export const splitRemoteSourceForMiddleEllipsis = (src: string) => {
 };
 
 export const getTimelineAssetSrcFromSchema = (
-	controls: SequenceControls | null,
+	controls: SequenceRegistrationControls | null,
+	runtimeValues = controls?.runtimeValues.getSnapshot(),
 ): string | null => {
 	if (!controls || !getAssetSchemaKeys(controls.schema).includes('src')) {
 		return null;
 	}
 
-	const {src} = controls.currentRuntimeValueDotNotation;
+	const {src} = runtimeValues ?? {};
 	return typeof src === 'string' ? src : null;
 };
 
 export const getTimelineAssetLinkInfo = (src: string): LinkInfo => {
+	if (src.startsWith(NoReactInternals.FILE_TOKEN)) {
+		const encodedAssetPath = src.slice(NoReactInternals.FILE_TOKEN.length);
+		let assetPath = encodedAssetPath;
+		try {
+			assetPath = encodedAssetPath.split('/').map(decodeURIComponent).join('/');
+		} catch {
+			// Keep the encoded path if it contains an invalid escape sequence.
+		}
+
+		return {
+			kind: 'local',
+			assetPath,
+			title: assetPath,
+		};
+	}
+
 	const staticBase =
 		typeof window === 'undefined' ? null : window.remotion_staticBase;
 

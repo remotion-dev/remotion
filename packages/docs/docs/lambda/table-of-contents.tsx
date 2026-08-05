@@ -34,9 +34,13 @@ export const TableOfContents: React.FC = () => {
 					<strong>deleteSite()</strong>
 					<div>Delete a bundle from S3</div>
 				</TOCItem>
+				<TOCItem link="/docs/lambda/deploysitefrombundle">
+					<strong>deploySiteFromBundle()</strong>
+					<div>Upload an existing bundle to S3</div>
+				</TOCItem>
 				<TOCItem link="/docs/lambda/deploysite">
 					<strong>deploySite()</strong>
-					<div>Bundle and upload a site to S3</div>
+					<div>Deprecated: Bundle and upload a site to S3</div>
 				</TOCItem>
 				<TOCItem link="/docs/lambda/getawsclient">
 					<strong>getAwsClient()</strong>

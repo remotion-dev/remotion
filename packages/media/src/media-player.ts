@@ -500,6 +500,9 @@ export class MediaPlayer {
 				this.videoIteratorManager?.seek({
 					newTime,
 					nonce,
+					fps: this.fps,
+					playbackRate: this.playbackRate,
+					isPlaying: this.playing,
 				}),
 				this.audioIteratorManager?.seek({
 					newTime,

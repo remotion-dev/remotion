@@ -26,10 +26,25 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: 'Captions',
+			link: {type: 'doc', id: 'captions/index'},
+			collapsed: false,
+			items: [
+				'captions/moving-pill-captions/index',
+				'captions/popping-word-captions/index',
+				'captions/word-highlight-captions/index',
+			],
+		},
+		{
+			type: 'category',
 			label: 'Data',
 			link: {type: 'doc', id: 'data/index'},
 			collapsed: false,
-			items: ['data/data-series-chart/index', 'data/number-counter/index'],
+			items: [
+				'data/horizontal-bar-chart/index',
+				'data/number-counter/index',
+				'data/product-offer/index',
+			],
 		},
 		{
 			type: 'category',
@@ -49,6 +64,7 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'text/circle-marker/index',
 				'text/crossed-off/index',
+				'text/news-article-headline-highlight/index',
 				'text/strike-through/index',
 				'text/text-marker/index',
 			],

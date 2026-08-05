@@ -378,7 +378,7 @@ The order is crucial here. Things are done from inside out:
 
 1. Apply a scale so that the dots become smaller over time.
 2. Apply the move animation.
-3. Apply a delay between the animation start of each dot by using Remotion's `<Sequence>` component.
+3. Apply a delay between the animation start of each dot using the `from` prop.
 
 ```tsx twoslash title="src/Trail.tsx"
 // @filename: Move.tsx
@@ -390,7 +390,7 @@ export const Move: React.FC<{
 // @filename: Trail.tsx
 // ---cut---
 import React from 'react';
-import {AbsoluteFill, Sequence} from 'remotion';
+import {AbsoluteFill} from 'remotion';
 import {Move} from './Move';
 
 export const Trail: React.FC<{
@@ -401,19 +401,17 @@ export const Trail: React.FC<{
     <AbsoluteFill>
       {new Array(amount).fill(true).map((a, i) => {
         return (
-          <Sequence from={i * 3}>
-            <AbsoluteFill>
-              <Move delay={0}>
-                <AbsoluteFill
-                  style={{
-                    scale: String(1 - i / amount),
-                  }}
-                >
-                  {children}
-                </AbsoluteFill>
-              </Move>
-            </AbsoluteFill>
-          </Sequence>
+          <AbsoluteFill from={i * 3}>
+            <Move delay={0}>
+              <AbsoluteFill
+                style={{
+                  scale: String(1 - i / amount),
+                }}
+              >
+                {children}
+              </AbsoluteFill>
+            </Move>
+          </AbsoluteFill>
         );
       })}
     </AbsoluteFill>
@@ -589,7 +587,7 @@ export const Trail: React.FC<{
 // @filename: MyComposition.tsx
 // ---cut---
 import React from 'react';
-import {Sequence} from 'remotion';
+import {AbsoluteFill} from 'remotion';
 import {Dot} from './Dot';
 import {Explosion} from './Explosion';
 import {Shrinking} from './Shrinking';
@@ -600,9 +598,9 @@ export const Dots: React.FC = () => {
     <Explosion>
       <Trail amount={4}>
         <Shrinking>
-          <Sequence from={5}>
+          <AbsoluteFill from={5}>
             <Dot />
-          </Sequence>
+          </AbsoluteFill>
         </Shrinking>
       </Trail>
     </Explosion>
@@ -851,7 +849,7 @@ export const Move: React.FC<{
 // @filename: Trail.tsx
 // ---cut---
 import React from 'react';
-import {AbsoluteFill, Sequence} from 'remotion';
+import {AbsoluteFill} from 'remotion';
 import {Move} from './Move';
 
 export const Trail: React.FC<{
@@ -863,23 +861,22 @@ export const Trail: React.FC<{
     <AbsoluteFill>
       {new Array(amount).fill(true).map((a, i) => {
         return (
-          <Sequence from={i * 3}>
-            <AbsoluteFill
-              style={{
-                translate: `0 ${-extraOffset}px`,
-              }}
-            >
-              <Move delay={0}>
-                <AbsoluteFill
-                  style={{
-                    scale: String(1 - i / amount),
-                  }}
-                >
-                  {children}
-                </AbsoluteFill>
-              </Move>
-            </AbsoluteFill>
-          </Sequence>
+          <AbsoluteFill
+            from={i * 3}
+            style={{
+              translate: `0 ${-extraOffset}px`,
+            }}
+          >
+            <Move delay={0}>
+              <AbsoluteFill
+                style={{
+                  scale: String(1 - i / amount),
+                }}
+              >
+                {children}
+              </AbsoluteFill>
+            </Move>
+          </AbsoluteFill>
         );
       })}
     </AbsoluteFill>

@@ -5,6 +5,7 @@ import {
 	COLOR_PICKER_HANDLE_SHADOW,
 	COLOR_PICKER_HUE_GRADIENT,
 } from '../../helpers/colors';
+import {startPointerSession} from '../../helpers/pointer-session';
 
 const SLIDER_HEIGHT = 12;
 const HANDLE_WIDTH = 8;
@@ -53,19 +54,24 @@ export const HueSlider: React.FC<{
 
 			e.preventDefault();
 			updateFromEvent(e.clientX, false);
+			let lastClientX = e.clientX;
 
-			const onMove = (ev: PointerEvent) => {
-				updateFromEvent(ev.clientX, false);
-			};
-
-			const onUp = (ev: PointerEvent) => {
-				window.removeEventListener('pointermove', onMove);
-				window.removeEventListener('pointerup', onUp);
-				updateFromEvent(ev.clientX, true);
-			};
-
-			window.addEventListener('pointermove', onMove);
-			window.addEventListener('pointerup', onUp);
+			startPointerSession({
+				event: e.nativeEvent,
+				target: e.currentTarget,
+				onMove: (ev) => {
+					lastClientX = ev.clientX;
+					updateFromEvent(ev.clientX, false);
+				},
+				onEnd: (reason, ev) => {
+					const shouldUseEndEvent =
+						reason === 'pointerup' || reason === 'buttons-released';
+					updateFromEvent(
+						shouldUseEndEvent && ev ? ev.clientX : lastClientX,
+						true,
+					);
+				},
+			});
 		},
 		[updateFromEvent],
 	);

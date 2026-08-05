@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import {ShortcutHint} from '../error-overlay/remotion-overlay/ShortcutHint';
 import type {ConfirmationDialogState} from '../state/modals';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import {Button} from './Button';
 import type {ConfirmationDialogFunction} from './ConfirmationDialog-types';
 import {Flex, Row, Spacing} from './layout';
@@ -20,13 +20,17 @@ const content: React.CSSProperties = {
 	padding: 16,
 	fontSize: 14,
 	flex: 1,
-	minWidth: 420,
-	maxWidth: 560,
+	width: 'min(600px, calc(100vw - 40px))',
+	minWidth: 0,
 	lineHeight: 1.4,
 };
 
+const footerStyle: React.CSSProperties = {
+	minWidth: 0,
+};
+
 export const useConfirmationDialog = (): ConfirmationDialogFunction => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	return useCallback(
 		(options) => {
@@ -60,7 +64,7 @@ export const useConfirmationDialog = (): ConfirmationDialogFunction => {
 export const ConfirmationDialog: React.FC<{
 	readonly state: ConfirmationDialogState;
 }> = ({state}) => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const settledRef = useRef(false);
 
 	const closeCurrentModal = useCallback(() => {
@@ -126,7 +130,7 @@ export const ConfirmationDialog: React.FC<{
 			<ModalHeader title={state.title} onClose={onCancel} />
 			<form onSubmit={onSubmit}>
 				<div style={content}>{state.message}</div>
-				<ModalFooterContainer>
+				<ModalFooterContainer style={footerStyle}>
 					<Row align="center">
 						<Flex />
 						<Button onClick={onCancel} style={cancelStyle}>

@@ -1,5 +1,6 @@
 import {expect, test} from 'bun:test';
-import {readFileSync} from 'node:fs';
+import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
 import {parseAst} from '../codemods/parse-ast';
@@ -7,6 +8,7 @@ import {JsxElementIdentityMismatchError} from '../preview-server/jsx-component-i
 import {
 	computeSequencePropsStatus,
 	computeSequencePropsStatusFromContent,
+	computeSequencePropsStatusFromFilenameByLocation,
 	lineColumnToNodePath,
 } from '../preview-server/routes/can-update-sequence-props';
 
@@ -37,6 +39,122 @@ const videoConfigValues = {
 	height: 1080,
 	width: 1920,
 };
+
+const getSourceLocation = (source: string, search: string) => {
+	const index = source.indexOf(search);
+	if (index === -1) {
+		throw new Error(`Could not find ${search}`);
+	}
+
+	const linesBeforeMatch = source.slice(0, index).split('\n');
+	return {
+		line: linesBeforeMatch.length,
+		column: linesBeforeMatch.at(-1)?.length ?? 0,
+	};
+};
+
+test('computeSequencePropsStatus should distinguish JSX elements on the same line', () => {
+	const input = `import React from 'react';
+import {AbsoluteFill, Sequence} from 'remotion';
+
+export const Example: React.FC = () => {
+	return <AbsoluteFill><Sequence name="Hook" durationInFrames={150}><HeroScene /></Sequence><Sequence name="Create" from={150} durationInFrames={150}><CreateScene /></Sequence></AbsoluteFill>;
+};
+
+export const Fallback = () => <><Sequence name="First" /><Sequence name="Fallback" from={300} /></>;
+`;
+	const remotionRoot = mkdtempSync(
+		path.join(tmpdir(), 'remotion-jsx-location-'),
+	);
+	const fileName = 'Example.tsx';
+	writeFileSync(path.join(remotionRoot, fileName), input);
+
+	try {
+		const getStatus = (search: string, columnOffset = 0) => {
+			const location = getSourceLocation(input, search);
+
+			return computeSequencePropsStatusFromFilenameByLocation({
+				fileName,
+				line: location.line,
+				column: location.column + columnOffset,
+				componentIdentity: 'dev.remotion.remotion.Sequence',
+				keys: ['name', 'from'],
+				effects: [],
+				remotionRoot,
+				logLevel: 'info',
+				videoConfigValues,
+			});
+		};
+
+		const hook = getStatus('<Sequence name="Hook"');
+		expect(hook.success).toBe(true);
+		if (!hook.success) {
+			throw new Error('Expected the Hook sequence to be found');
+		}
+
+		expect(hook.status.props.name).toEqual({
+			status: 'static',
+			codeValue: 'Hook',
+		});
+
+		const create = getStatus('<Sequence name="Create"');
+		expect(create.success).toBe(true);
+		if (!create.success) {
+			throw new Error('Expected the Create sequence to be found');
+		}
+
+		expect(create.status.props).toMatchObject({
+			name: {status: 'static', codeValue: 'Create'},
+			from: {status: 'static', codeValue: 150},
+		});
+
+		const child = getStatus('<HeroScene');
+		expect(child).toEqual({
+			success: false,
+			status: {canUpdate: false, reason: 'not-found'},
+		});
+
+		const fallback = getStatus('<Sequence name="Fallback"', 1);
+		expect(fallback.success).toBe(true);
+		if (!fallback.success) {
+			throw new Error('Expected the line fallback to find the last sequence');
+		}
+
+		expect(fallback.status.props).toMatchObject({
+			name: {status: 'static', codeValue: 'Fallback'},
+			from: {status: 'static', codeValue: 300},
+		});
+	} finally {
+		rmSync(remotionRoot, {recursive: true, force: true});
+	}
+});
+
+test('computeSequencePropsStatus should ignore source locations outside the project', () => {
+	const remotionRoot = mkdtempSync(
+		path.join(tmpdir(), 'remotion-jsx-location-'),
+	);
+
+	try {
+		expect(
+			computeSequencePropsStatusFromFilenameByLocation({
+				fileName: '../studio/RefreshCompositionOverlay.js',
+				line: 1,
+				column: 1,
+				componentIdentity: null,
+				keys: [],
+				effects: [],
+				remotionRoot,
+				logLevel: 'info',
+				videoConfigValues,
+			}),
+		).toEqual({
+			success: false,
+			status: {canUpdate: false, reason: 'not-found'},
+		});
+	} finally {
+		rmSync(remotionRoot, {recursive: true, force: true});
+	}
+});
 
 test('computeSequencePropsStatus should treat staticFile() asset props as static', () => {
 	const input = `import {Img, staticFile} from 'remotion';
@@ -135,6 +253,463 @@ export const Example: React.FC = () => {
 				},
 			},
 		],
+	});
+});
+
+test('computeSequencePropsStatus should expand a static border shorthand', () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return <AbsoluteFill style={{border: '12px dashed rgba(1, 2, 3, 0.5)'}} />;
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 4),
+		componentIdentity: null,
+		keys: ['style.borderWidth', 'style.borderStyle', 'style.borderColor'],
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(result.props['style.borderWidth']).toEqual({
+		status: 'static',
+		codeValue: 12,
+	});
+	expect(result.props['style.borderStyle']).toEqual({
+		status: 'static',
+		codeValue: 'dashed',
+	});
+	expect(result.props['style.borderColor']).toEqual({
+		status: 'static',
+		codeValue: 'rgba(1, 2, 3, 0.5)',
+	});
+});
+
+test('computeSequencePropsStatus should expand static border radius shorthands', () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return (
+		<>
+			<AbsoluteFill style={{borderRadius: 12}} />
+			<AbsoluteFill style={{borderRadius: '10px 20px 30px 40px'}} />
+		</>
+	);
+};
+`;
+	const keys = [
+		'style.borderTopLeftRadius',
+		'style.borderTopRightRadius',
+		'style.borderBottomRightRadius',
+		'style.borderBottomLeftRadius',
+	];
+	const numeric = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 6),
+		componentIdentity: null,
+		keys,
+		effects: [],
+		videoConfigValues: null,
+	});
+	const pixelValues = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
+		keys,
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(numeric.props).toMatchObject({
+		'style.borderTopLeftRadius': {status: 'static', codeValue: 12},
+		'style.borderTopRightRadius': {status: 'static', codeValue: 12},
+		'style.borderBottomRightRadius': {status: 'static', codeValue: 12},
+		'style.borderBottomLeftRadius': {status: 'static', codeValue: 12},
+	});
+	expect(pixelValues.props).toMatchObject({
+		'style.borderTopLeftRadius': {status: 'static', codeValue: 10},
+		'style.borderTopRightRadius': {status: 'static', codeValue: 20},
+		'style.borderBottomRightRadius': {status: 'static', codeValue: 30},
+		'style.borderBottomLeftRadius': {status: 'static', codeValue: 40},
+	});
+});
+
+test('computeSequencePropsStatus should normalize uniform border radius shorthands', () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return (
+		<>
+			<AbsoluteFill style={{borderRadius: 12}} />
+			<AbsoluteFill style={{borderRadius: '10px'}} />
+			<AbsoluteFill style={{borderRadius: '8px 8px 8px 8px'}} />
+			<AbsoluteFill style={{borderRadius: '10px 20px'}} />
+		</>
+	);
+};
+`;
+	const getStatus = (line: number) =>
+		computeSequencePropsStatusFromContent({
+			fileContents: input,
+			nodePath: getNodePathFromContent(input, line),
+			componentIdentity: null,
+			keys: [
+				'style.borderRadius',
+				'style.borderTopLeftRadius',
+				'style.borderTopRightRadius',
+				'style.borderBottomRightRadius',
+				'style.borderBottomLeftRadius',
+			],
+			effects: [],
+			videoConfigValues: null,
+		});
+
+	expect(getStatus(6).props['style.borderRadius']).toEqual({
+		status: 'static',
+		codeValue: 12,
+	});
+	expect(getStatus(7).props['style.borderRadius']).toEqual({
+		status: 'static',
+		codeValue: 10,
+	});
+	expect(getStatus(8).props['style.borderRadius']).toEqual({
+		status: 'static',
+		codeValue: 8,
+	});
+	expect(getStatus(9).props['style.borderRadius']).toEqual({
+		status: 'computed',
+	});
+	expect(getStatus(9).props['style.borderTopLeftRadius']).toEqual({
+		status: 'static',
+		codeValue: 10,
+	});
+});
+
+test('computeSequencePropsStatus should recognize numeric border radius keyframes', () => {
+	const input = `import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+export const Example = () => {
+	const frame = useCurrentFrame();
+	return <AbsoluteFill style={{borderRadius: interpolate(frame, [0, 30], [0, 24])}} />;
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 5),
+		componentIdentity: null,
+		keys: ['style.borderRadius'],
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(result.props['style.borderRadius']).toMatchObject({
+		status: 'keyframed',
+		interpolationFunction: 'interpolate',
+		keyframes: [
+			{frame: 0, value: 0},
+			{frame: 30, value: 24},
+		],
+	});
+});
+
+test('computeSequencePropsStatus should not guess complex border radius shorthands', () => {
+	for (const borderRadius of ["'50%'", "'10px / 20px'", 'radius']) {
+		const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = ({radius}: {radius: string}) => {
+	return <AbsoluteFill style={{borderRadius: ${borderRadius}}} />;
+};
+`;
+		const result = computeSequencePropsStatusFromContent({
+			fileContents: input,
+			nodePath: getNodePathFromContent(input, 4),
+			componentIdentity: null,
+			keys: ['style.borderTopLeftRadius'],
+			effects: [],
+			videoConfigValues: null,
+		});
+
+		expect(result.props['style.borderTopLeftRadius']).toEqual({
+			status: 'computed',
+		});
+	}
+});
+
+test('computeSequencePropsStatus should reject mixed border radius representations', () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return (
+		<>
+			<AbsoluteFill style={{borderTopLeftRadius: 8, borderRadius: 2}} />
+			<AbsoluteFill style={{borderRadius: 2, borderTopLeftRadius: 8}} />
+		</>
+	);
+};
+`;
+	const getStatus = (line: number) =>
+		computeSequencePropsStatusFromContent({
+			fileContents: input,
+			nodePath: getNodePathFromContent(input, line),
+			componentIdentity: null,
+			keys: [
+				'style.borderRadius',
+				'style.borderTopLeftRadius',
+				'style.borderTopRightRadius',
+				'style.borderBottomRightRadius',
+				'style.borderBottomLeftRadius',
+			],
+			effects: [],
+			videoConfigValues: null,
+		});
+
+	for (const line of [6, 7]) {
+		expect(Object.values(getStatus(line).props)).toEqual(
+			new Array(5).fill({status: 'computed'}),
+		);
+	}
+});
+
+test('computeSequencePropsStatus should not guess a dynamic border shorthand', () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = ({border}: {border: string}) => {
+	return <AbsoluteFill style={{border}} />;
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 4),
+		componentIdentity: null,
+		keys: ['style.borderWidth', 'style.borderStyle', 'style.borderColor'],
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(result.props['style.borderWidth']).toEqual({status: 'computed'});
+	expect(result.props['style.borderStyle']).toEqual({status: 'computed'});
+	expect(result.props['style.borderColor']).toEqual({status: 'computed'});
+});
+
+test('computeSequencePropsStatus should treat side-specific borders as computed', () => {
+	const sideProperties = [
+		"borderLeft: '1px solid red'",
+		'borderRightWidth: 2',
+		"borderTopStyle: 'dashed'",
+		"'borderBottomColor': 'blue'",
+	];
+
+	for (const sideProperty of sideProperties) {
+		const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return <AbsoluteFill style={{${sideProperty}}} />;
+};
+`;
+		const result = computeSequencePropsStatusFromContent({
+			fileContents: input,
+			nodePath: getNodePathFromContent(input, 4),
+			componentIdentity: null,
+			keys: ['style.borderWidth', 'style.borderStyle', 'style.borderColor'],
+			effects: [],
+			videoConfigValues: null,
+		});
+
+		expect(result.props['style.borderWidth']).toEqual({status: 'computed'});
+		expect(result.props['style.borderStyle']).toEqual({status: 'computed'});
+		expect(result.props['style.borderColor']).toEqual({status: 'computed'});
+	}
+});
+
+test('computeSequencePropsStatus should respect border property order', () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return (
+		<>
+			<AbsoluteFill style={{borderWidth: 8, border: '2px solid red'}} />
+			<AbsoluteFill style={{border: '2px solid red', borderWidth: 8}} />
+		</>
+	);
+};
+`;
+	const beforeShorthand = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 6),
+		componentIdentity: null,
+		keys: ['style.borderWidth'],
+		effects: [],
+		videoConfigValues: null,
+	});
+	const afterShorthand = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
+		keys: ['style.borderWidth'],
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(beforeShorthand.props['style.borderWidth']).toEqual({
+		status: 'static',
+		codeValue: 2,
+	});
+	expect(afterShorthand.props['style.borderWidth']).toEqual({
+		status: 'static',
+		codeValue: 8,
+	});
+});
+
+test('computeSequencePropsStatus should apply border shorthand defaults', () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return <AbsoluteFill style={{border: 'solid'}} />;
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 4),
+		componentIdentity: null,
+		keys: ['style.borderWidth', 'style.borderStyle', 'style.borderColor'],
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(result.props['style.borderWidth']).toEqual({
+		status: 'static',
+		codeValue: 3,
+	});
+	expect(result.props['style.borderStyle']).toEqual({
+		status: 'static',
+		codeValue: 'solid',
+	});
+	expect(result.props['style.borderColor']).toEqual({
+		status: 'static',
+		codeValue: 'currentColor',
+	});
+});
+
+test('computeSequencePropsStatus should expand a color-only background shorthand', () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return <AbsoluteFill style={{background: 'rgba(1, 2, 3, 0.5)'}} />;
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 4),
+		componentIdentity: null,
+		keys: ['style.backgroundColor'],
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(result.props['style.backgroundColor']).toEqual({
+		status: 'static',
+		codeValue: 'rgba(1, 2, 3, 0.5)',
+	});
+});
+
+test('computeSequencePropsStatus should treat complex and dynamic background shorthands as computed', () => {
+	const inputs = [
+		`import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return <AbsoluteFill style={{background: 'linear-gradient(red, blue)'}} />;
+};
+`,
+		`import {AbsoluteFill} from 'remotion';
+
+export const Example = ({background}: {background: string}) => {
+	return <AbsoluteFill style={{background}} />;
+};
+`,
+	];
+
+	for (const input of inputs) {
+		const result = computeSequencePropsStatusFromContent({
+			fileContents: input,
+			nodePath: getNodePathFromContent(input, 4),
+			componentIdentity: null,
+			keys: ['style.backgroundColor'],
+			effects: [],
+			videoConfigValues: null,
+		});
+
+		expect(result.props['style.backgroundColor']).toEqual({
+			status: 'computed',
+		});
+	}
+});
+
+test('computeSequencePropsStatus should respect background property order', () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return (
+		<>
+			<AbsoluteFill style={{backgroundColor: 'blue', background: 'red'}} />
+			<AbsoluteFill style={{background: 'red', backgroundColor: 'blue'}} />
+		</>
+	);
+};
+`;
+	const beforeShorthand = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 6),
+		componentIdentity: null,
+		keys: ['style.backgroundColor'],
+		effects: [],
+		videoConfigValues: null,
+	});
+	const afterShorthand = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 7),
+		componentIdentity: null,
+		keys: ['style.backgroundColor'],
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(beforeShorthand.props['style.backgroundColor']).toEqual({
+		status: 'static',
+		codeValue: 'red',
+	});
+	expect(afterShorthand.props['style.backgroundColor']).toEqual({
+		status: 'static',
+		codeValue: 'blue',
+	});
+});
+
+test('computeSequencePropsStatus should allow an independent background image', () => {
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Example = () => {
+	return (
+		<AbsoluteFill
+			style={{
+				backgroundImage: 'linear-gradient(red, blue)',
+				backgroundColor: 'black',
+			}}
+		/>
+	);
+};
+`;
+	const result = computeSequencePropsStatusFromContent({
+		fileContents: input,
+		nodePath: getNodePathFromContent(input, 5),
+		componentIdentity: null,
+		keys: ['style.backgroundColor'],
+		effects: [],
+		videoConfigValues: null,
+	});
+
+	expect(result.props['style.backgroundColor']).toEqual({
+		status: 'static',
+		codeValue: 'black',
 	});
 });
 
@@ -600,6 +1175,37 @@ test('computeSequencePropsStatus should flag computed nested props', () => {
 		status: 'static',
 		codeValue: 2,
 	});
+});
+
+test('computeSequencePropsStatus should preserve nested props from object spreads', () => {
+	const input = `import {Interactive} from 'remotion';
+
+const sharedStyle = {color: 'white'};
+
+export const Example = () => {
+	return (
+		<>
+			<Interactive.Div style={{...sharedStyle, fontSize: 40}} />
+			<Interactive.Div style={{color: 'red', ...sharedStyle}} />
+			<Interactive.Div style={{...sharedStyle, color: 'red'}} />
+		</>
+	);
+};
+`;
+	const getColorStatus = (line: number) => {
+		return computeSequencePropsStatusFromContent({
+			fileContents: input,
+			nodePath: getNodePathFromContent(input, line),
+			componentIdentity: null,
+			keys: ['style.color'],
+			effects: [],
+			videoConfigValues: null,
+		}).props['style.color'];
+	};
+
+	expect(getColorStatus(8)).toEqual({status: 'computed'});
+	expect(getColorStatus(9)).toEqual({status: 'computed'});
+	expect(getColorStatus(10)).toEqual({status: 'static', codeValue: 'red'});
 });
 
 test('computeSequencePropsStatus should flag computed when parent is not an object', () => {

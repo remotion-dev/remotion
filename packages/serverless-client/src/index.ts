@@ -44,6 +44,7 @@ export type {
 	LogLevel,
 	PixelFormat,
 	StillImageFormat,
+	SingleFrameRange,
 	ToOptions,
 	VideoImageFormat,
 	X264Preset,

@@ -15,6 +15,7 @@ import {
 	publishLocalTwoslashCacheEntry,
 	readTwoslashCacheEntry,
 } from '../docusaurus-plugin/src/twoslash-cache';
+import {isTwoslashEnabled} from '../docusaurus-plugin/src/twoslash-enabled';
 import {expandElementSourceReferences} from './plugins/element-source-utils';
 
 const DOCS_ROOT = resolve(import.meta.dirname);
@@ -27,6 +28,9 @@ const WORKER_PATH = join(
 );
 
 const GIB = 1024 * 1024 * 1024;
+const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
+const lowMemoryBuild =
+	isVercel || process.env.REMOTION_DOCS_LOW_MEMORY_BUILD === '1';
 const cpuCount =
 	typeof availableParallelism === 'function'
 		? availableParallelism()
@@ -42,7 +46,9 @@ const workerCountOverride = process.env.TWOSLASH_WORKER_COUNT
 const NUM_WORKERS =
 	workerCountOverride && Number.isFinite(workerCountOverride)
 		? Math.max(1, workerCountOverride)
-		: Math.min(cpuCap, memCap);
+		: lowMemoryBuild
+			? 2
+			: Math.min(cpuCap, memCap);
 
 // Per-worker RSS threshold after which a worker is replaced with a fresh
 // process. Derived from a global budget that leaves 25% of memory for the OS
@@ -54,9 +60,11 @@ const recycleLimitOverride = process.env.TWOSLASH_RECYCLE_LIMIT_BYTES
 const RECYCLE_LIMIT_BYTES =
 	recycleLimitOverride && Number.isFinite(recycleLimitOverride)
 		? recycleLimitOverride
-		: Math.round(
-				Math.min(2.5 * GIB, Math.max(0.75 * GIB, MEM_BUDGET / NUM_WORKERS)),
-			);
+		: lowMemoryBuild
+			? GIB
+			: Math.round(
+					Math.min(2.5 * GIB, Math.max(0.75 * GIB, MEM_BUDGET / NUM_WORKERS)),
+				);
 
 // Blocks per work unit handed to a worker at a time. Small enough for
 // fine-grained work stealing, large enough to amortize dispatch overhead.
@@ -324,6 +332,11 @@ interface WorkerHandle {
 }
 
 async function main() {
+	if (!isTwoslashEnabled()) {
+		console.log('Skipping Twoslash pre-warm because Twoslash is disabled');
+		return;
+	}
+
 	const startTime = performance.now();
 
 	const glob = new Glob('**/*.{mdx,md}');

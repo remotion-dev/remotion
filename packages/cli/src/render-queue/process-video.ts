@@ -87,6 +87,7 @@ export const processVideoJob = async ({
 		concurrency: job.concurrency,
 		everyNthFrame: job.type === 'video' ? job.everyNthFrame : 1,
 		frameRange: [job.startFrame, job.endFrame],
+		selectedFrames: null,
 		quiet: false,
 		shouldOutputImageSequence: job.type === 'sequence',
 		addCleanupCallback,
@@ -131,5 +132,8 @@ export const processVideoJob = async ({
 		keyboardShortcutsEnabled,
 		rspack: fixedConfig.rspack,
 		shouldCache,
+		bundlerOverride: fixedConfig.bundlerOverride,
+		rspackOverride: fixedConfig.rspackOverride,
+		webpackOverride: fixedConfig.webpackOverride,
 	});
 };

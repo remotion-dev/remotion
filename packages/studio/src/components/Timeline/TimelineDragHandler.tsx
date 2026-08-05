@@ -8,7 +8,8 @@ import React, {
 	useState,
 } from 'react';
 import {Internals, useVideoConfig} from 'remotion';
-import {studioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {isStudioSelectionEnabled} from '../../helpers/interactivity-enabled';
+import {startPointerSession} from '../../helpers/pointer-session';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
@@ -85,7 +86,7 @@ export const TimelineDragHandler: React.FC = () => {
 			style={containerStyle}
 			{...{[TIMELINE_SCRUBBER_ATTR]: true}}
 		>
-			{video && studioInteractivityEnabled ? (
+			{video && isStudioSelectionEnabled() ? (
 				<TimelineDragHandlerInnerMemo />
 			) : null}
 		</div>
@@ -111,11 +112,14 @@ const TimelineDragHandlerInner: React.FC = () => {
 		| {
 				dragging: true;
 				wasPlaying: boolean;
+				button: number;
+				pointerId: number;
+				target: HTMLDivElement;
 		  }
 	>({
 		dragging: false,
 	});
-	const {playing, play, pause, seek} = PlayerInternals.usePlayer();
+	const {isPlaying, play, pause, seek} = PlayerInternals.usePlayerMethods();
 
 	const scroller = useRef<Timer | null>(null);
 
@@ -155,11 +159,15 @@ const TimelineDragHandlerInner: React.FC = () => {
 			seek(frame);
 			setDragging({
 				dragging: true,
-				wasPlaying: playing,
+				wasPlaying: isPlaying(),
+				button: e.button,
+				pointerId: e.pointerId,
+				target: e.currentTarget,
 			});
+			e.currentTarget.setPointerCapture?.(e.pointerId);
 			pause();
 		},
-		[isHighestContext, videoConfig, left, width, seek, playing, pause],
+		[isHighestContext, videoConfig, left, width, seek, isPlaying, pause],
 	);
 
 	const onPointerMoveScrubbing = useCallback(
@@ -285,6 +293,10 @@ const TimelineDragHandlerInner: React.FC = () => {
 			});
 
 			setFrame((c) => {
+				if (c[videoConfig.id] === frame) {
+					return c;
+				}
+
 				const newObj = {...c, [videoConfig.id]: frame};
 				Internals.persistCurrentFrame(newObj);
 				return newObj;
@@ -297,18 +309,46 @@ const TimelineDragHandlerInner: React.FC = () => {
 		[dragging, left, play, videoConfig, setFrame, width],
 	);
 
+	const onPointerCancelScrubbing = useCallback(() => {
+		stopInterval();
+		document.body.style.userSelect = '';
+		document.body.style.webkitUserSelect = '';
+		if (!dragging.dragging) {
+			return;
+		}
+
+		setDragging({dragging: false});
+		if (dragging.wasPlaying) {
+			play();
+		}
+	}, [dragging, play]);
+
 	useEffect(() => {
 		if (!dragging.dragging) {
 			return;
 		}
 
-		window.addEventListener('pointermove', onPointerMoveScrubbing);
-		window.addEventListener('pointerup', onPointerUpScrubbing);
-		return () => {
-			window.removeEventListener('pointermove', onPointerMoveScrubbing);
-			window.removeEventListener('pointerup', onPointerUpScrubbing);
-		};
-	}, [dragging.dragging, onPointerMoveScrubbing, onPointerUpScrubbing]);
+		return startPointerSession({
+			event: dragging,
+			target: dragging.target,
+			onMove: onPointerMoveScrubbing,
+			onEnd: (reason, endEvent) => {
+				if (
+					(reason === 'pointerup' || reason === 'buttons-released') &&
+					endEvent
+				) {
+					onPointerUpScrubbing(endEvent);
+				} else {
+					onPointerCancelScrubbing();
+				}
+			},
+		});
+	}, [
+		dragging,
+		onPointerCancelScrubbing,
+		onPointerMoveScrubbing,
+		onPointerUpScrubbing,
+	]);
 
 	const ref = useRef<HTMLDivElement>(null);
 

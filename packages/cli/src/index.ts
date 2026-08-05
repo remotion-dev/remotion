@@ -49,7 +49,8 @@ import {
 	versionsCommand,
 } from './versions';
 
-const {packageManagerOption, versionFlagOption} = BrowserSafeApis.options;
+const {packageManagerOption, skipSkillsOption, versionFlagOption} =
+	BrowserSafeApis.options;
 
 export const cli = async () => {
 	const [command, ...args] = parsedCli._;
@@ -121,6 +122,7 @@ export const cli = async () => {
 				version:
 					versionFlagOption.getValue({commandLine: parsedCli}).value ??
 					undefined,
+				skipSkills: skipSkillsOption.getValue({commandLine: parsedCli}).value,
 				logLevel,
 				args,
 			});
@@ -144,7 +146,10 @@ export const cli = async () => {
 				args: additionalArgs,
 			});
 		} else if (command === 'skills') {
-			await skillsCommand(args, logLevel);
+			await skillsCommand(args, logLevel, {
+				cwd: process.cwd(),
+				environment: process.env,
+			});
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot, logLevel);
 		} else if (command === BROWSER_COMMAND) {

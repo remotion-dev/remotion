@@ -1,6 +1,11 @@
 import {hasAnyTransformCssValue, hasTransformCssValue} from './has-transform';
-import {getMaskImageValue, parseMaskImage} from './mask-image';
-import type {LinearGradientInfo} from './parse-linear-gradient';
+import {makeDOMMatrix} from './make-dom-matrix';
+import {
+	getMaskImageValue,
+	type MaskImageInfo,
+	parseMaskImage,
+	validateUrlMaskImageStyle,
+} from './mask-image';
 import {parseTransformOrigin} from './parse-transform-origin';
 
 /**
@@ -137,7 +142,7 @@ export const calculateTransforms = ({
 
 	let opacity = 1;
 	let elementComputedStyle: CSSStyleDeclaration | null = null;
-	let maskImageInfo: LinearGradientInfo | null = null;
+	let maskImageInfo: MaskImageInfo | null = null;
 	let filterForPrecompositing: string | null = null;
 	while (parent) {
 		// Each node walks its ancestors, so reuse their immutable transform fields
@@ -173,6 +178,10 @@ export const calculateTransforms = ({
 			opacity = parseFloat(computedStyle.opacity);
 			const maskImageValue = getMaskImageValue(computedStyle);
 			maskImageInfo = maskImageValue ? parseMaskImage(maskImageValue) : null;
+			if (maskImageInfo?.type === 'url') {
+				validateUrlMaskImageStyle(computedStyle);
+			}
+
 			filterForPrecompositing = filterRequiresPrecompositing(
 				computedStyle.filter,
 			);
@@ -208,7 +217,7 @@ export const calculateTransforms = ({
 				hasApplicableTransformCssValue && hasTransformCssValue(transformStyle)
 					? transformStyle.transform
 					: undefined;
-			const matrix = new DOMMatrix(toParse);
+			const matrix = makeDOMMatrix(toParse);
 
 			const resetTransforms = makeTransformResetter(parent);
 			const {scale, rotate} = parent.style;
@@ -224,11 +233,11 @@ export const calculateTransforms = ({
 				rotate !== '' &&
 				rotate !== 'none'
 			) {
-				additionalMatrices.push(new DOMMatrix(`rotate(${rotate})`));
+				additionalMatrices.push(makeDOMMatrix(`rotate(${rotate})`));
 			}
 
 			if (hasApplicableTransformCssValue && scale !== '' && scale !== 'none') {
-				additionalMatrices.push(new DOMMatrix(`scale(${scale})`));
+				additionalMatrices.push(makeDOMMatrix(`scale(${scale})`));
 			}
 
 			additionalMatrices.push(matrix);

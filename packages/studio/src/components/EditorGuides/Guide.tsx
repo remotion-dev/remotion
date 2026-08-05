@@ -5,6 +5,7 @@ import {
 	isGuidePointerUpAClick,
 	type GuidePointerDownPosition,
 } from '../../helpers/editor-guide-selection';
+import {startPointerSession} from '../../helpers/pointer-session';
 import type {Guide} from '../../state/editor-guides';
 import {
 	EditorShowGuidesContext,
@@ -37,6 +38,7 @@ const GuideComp: React.FC<{
 		setHoveredGuideId,
 		hoveredGuideId,
 		draggingGuideId,
+		moveGuidePointerRef,
 	} = useContext(EditorShowGuidesContext);
 	const {clearSelection, onSelect, selected} = useTimelineGuideSelection(
 		guide.id,
@@ -94,46 +96,6 @@ const GuideComp: React.FC<{
 		draggingGuideId,
 	]);
 
-	const onPointerDown = useCallback(
-		(e: React.PointerEvent<HTMLDivElement>) => {
-			if (e.button !== 0) {
-				return;
-			}
-
-			e.stopPropagation();
-			e.currentTarget.setPointerCapture(e.pointerId);
-			hasMovedGuideRef.current = false;
-			pointerDownPositionRef.current = {
-				guideId: guide.id,
-				clientX: e.clientX,
-				clientY: e.clientY,
-			};
-			shouldCreateGuideRef.current = false;
-			setDraggingGuideId(() => guide.id);
-		},
-		[guide.id, setDraggingGuideId, shouldCreateGuideRef],
-	);
-
-	const onMouseDown = useCallback(
-		(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-			if (e.button !== 0) {
-				return;
-			}
-
-			e.preventDefault();
-			e.stopPropagation();
-			hasMovedGuideRef.current = false;
-			pointerDownPositionRef.current = {
-				guideId: guide.id,
-				clientX: e.clientX,
-				clientY: e.clientY,
-			};
-			shouldCreateGuideRef.current = false;
-			setDraggingGuideId(() => guide.id);
-		},
-		[guide.id, setDraggingGuideId, shouldCreateGuideRef],
-	);
-
 	const updateHasMovedGuide = useCallback(
 		(clientX: number, clientY: number) => {
 			const pointerDownPosition = pointerDownPositionRef.current;
@@ -153,20 +115,6 @@ const GuideComp: React.FC<{
 			}
 		},
 		[guide.id],
-	);
-
-	const onPointerMove = useCallback(
-		(e: React.PointerEvent<HTMLDivElement>) => {
-			updateHasMovedGuide(e.clientX, e.clientY);
-		},
-		[updateHasMovedGuide],
-	);
-
-	const onMouseMove = useCallback(
-		(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-			updateHasMovedGuide(e.clientX, e.clientY);
-		},
-		[updateHasMovedGuide],
 	);
 
 	const finishGuideInteraction = useCallback(() => {
@@ -198,56 +146,62 @@ const GuideComp: React.FC<{
 		shouldDeleteGuideRef,
 	]);
 
-	const onPointerUp = useCallback(
+	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
-			if (e.currentTarget.hasPointerCapture(e.pointerId)) {
-				e.currentTarget.releasePointerCapture(e.pointerId);
-			}
-
-			const pointerDownPosition = pointerDownPositionRef.current;
-			pointerDownPositionRef.current = null;
-			const shouldDeleteGuide = shouldDeleteGuideRef.current;
-			finishGuideInteraction();
-			if (shouldDeleteGuide) {
+			if (e.button !== 0) {
 				return;
 			}
 
-			if (
-				isGuidePointerUpAClick({
-					pointerDownPosition,
-					guideId: guide.id,
-					clientX: e.clientX,
-					clientY: e.clientY,
-				})
-			) {
-				onSelect();
-			}
-		},
-		[finishGuideInteraction, guide.id, onSelect, shouldDeleteGuideRef],
-	);
+			e.preventDefault();
+			e.stopPropagation();
+			hasMovedGuideRef.current = false;
+			pointerDownPositionRef.current = {
+				guideId: guide.id,
+				clientX: e.clientX,
+				clientY: e.clientY,
+			};
+			shouldCreateGuideRef.current = false;
+			setDraggingGuideId(() => guide.id);
 
-	const onMouseUp = useCallback(
-		(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-			const pointerDownPosition = pointerDownPositionRef.current;
-			pointerDownPositionRef.current = null;
-			const shouldDeleteGuide = shouldDeleteGuideRef.current;
-			finishGuideInteraction();
-			if (shouldDeleteGuide) {
-				return;
-			}
+			startPointerSession({
+				event: e.nativeEvent,
+				target: e.currentTarget,
+				onMove: (moveEvent) => {
+					updateHasMovedGuide(moveEvent.clientX, moveEvent.clientY);
+					moveGuidePointerRef.current?.(moveEvent);
+				},
+				onEnd: (reason, endEvent) => {
+					const pointerDownPosition = pointerDownPositionRef.current;
+					pointerDownPositionRef.current = null;
+					const shouldDeleteGuide = shouldDeleteGuideRef.current;
+					finishGuideInteraction();
+					if (shouldDeleteGuide || reason !== 'pointerup' || !endEvent) {
+						return;
+					}
 
-			if (
-				isGuidePointerUpAClick({
-					pointerDownPosition,
-					guideId: guide.id,
-					clientX: e.clientX,
-					clientY: e.clientY,
-				})
-			) {
-				onSelect();
-			}
+					if (
+						isGuidePointerUpAClick({
+							pointerDownPosition,
+							guideId: guide.id,
+							clientX: endEvent.clientX,
+							clientY: endEvent.clientY,
+						})
+					) {
+						onSelect();
+					}
+				},
+			});
 		},
-		[finishGuideInteraction, guide.id, onSelect, shouldDeleteGuideRef],
+		[
+			finishGuideInteraction,
+			guide.id,
+			moveGuidePointerRef,
+			onSelect,
+			setDraggingGuideId,
+			shouldCreateGuideRef,
+			shouldDeleteGuideRef,
+			updateHasMovedGuide,
+		],
 	);
 
 	const onClick = useCallback(
@@ -262,11 +216,6 @@ const GuideComp: React.FC<{
 		[],
 	);
 
-	const onPointerCancel = useCallback(() => {
-		pointerDownPositionRef.current = null;
-		finishGuideInteraction();
-	}, [finishGuideInteraction]);
-
 	const isActive = selected || hoveredGuideId === guide.id;
 	const activeClassName = isActive ? '__remotion_editor_guide_selected' : null;
 
@@ -276,7 +225,7 @@ const GuideComp: React.FC<{
 			.join(' ');
 	}, [activeClassName]);
 
-	const values = useMemo((): ComboboxValue[] => {
+	const getContextMenuItems = useCallback((): ComboboxValue[] => {
 		return [
 			{
 				id: '1',
@@ -304,16 +253,10 @@ const GuideComp: React.FC<{
 	}, [clearSelection, guide.id, selected, setGuidesList]);
 
 	return (
-		<ContextMenu values={values} onOpen={null}>
+		<ContextMenu getItems={getContextMenuItems}>
 			<div
 				style={guideStyle}
 				onPointerDown={onPointerDown}
-				onPointerMove={onPointerMove}
-				onPointerUp={onPointerUp}
-				onPointerCancel={onPointerCancel}
-				onMouseDown={onMouseDown}
-				onMouseMove={onMouseMove}
-				onMouseUp={onMouseUp}
 				onClick={onClick}
 				className="__remotion_editor_guide"
 				{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}

@@ -1,6 +1,7 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
+import {useStudioConfigRevision} from '../helpers/client-id';
 import {BACKGROUND} from '../helpers/colors';
 import {noop} from '../helpers/noop';
 import {getStudioCurrentScaleContext} from '../helpers/studio-fit-padding';
@@ -9,14 +10,12 @@ import {drawRef} from '../state/canvas-ref';
 import {ScaleLockProvider} from '../state/scale-lock';
 import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
-import {CANVAS_CAPTURE_ENABLED} from './canvas-capture-enabled';
 import {EditorContent} from './EditorContent';
 import {ForceSpecificCursor} from './ForceSpecificCursor';
 import {Modals} from './Modals';
 import {NotificationCenter} from './Notifications/NotificationCenter';
 import {RenderErrorContext} from './RenderErrorContext';
 import {SequencePropsSubscriptionProvider} from './SequencePropsSubscriptionProvider';
-import {StudioCanvasCapture} from './StudioCanvasCapture';
 import {TopPanel} from './TopPanel';
 
 const background: React.CSSProperties = {
@@ -28,13 +27,11 @@ const background: React.CSSProperties = {
 	position: 'absolute',
 };
 
-export const BUFFER_STATE_DELAY_IN_MILLISECONDS =
-	getStudioBufferStateDelayInMilliseconds();
-
 export const Editor: React.FC<{
 	readonly Root: React.FC;
 	readonly readOnlyStudio: boolean;
 }> = ({Root, readOnlyStudio}) => {
+	useStudioConfigRevision();
 	const [drawElement, setDrawElement] = useState<HTMLDivElement | null>(null);
 	const size = PlayerInternals.useElementSize(drawElement, {
 		triggerOnWindowResize: false,
@@ -82,7 +79,7 @@ export const Editor: React.FC<{
 		[renderError],
 	);
 
-	const editor = (
+	return (
 		<HigherZIndex onEscape={noop} onOutsideClick={noop}>
 			<TimelineZoomContext>
 				<SequencePropsSubscriptionProvider>
@@ -100,9 +97,7 @@ export const Editor: React.FC<{
 										<EditorContent readOnlyStudio={readOnlyStudio}>
 											<TopPanel
 												drawRef={setDrawRef}
-												bufferStateDelayInMilliseconds={
-													BUFFER_STATE_DELAY_IN_MILLISECONDS
-												}
+												bufferStateDelayInMilliseconds={getStudioBufferStateDelayInMilliseconds()}
 												onMounted={onMounted}
 												readOnlyStudio={readOnlyStudio}
 											/>
@@ -117,11 +112,5 @@ export const Editor: React.FC<{
 				</SequencePropsSubscriptionProvider>
 			</TimelineZoomContext>
 		</HigherZIndex>
-	);
-
-	return CANVAS_CAPTURE_ENABLED ? (
-		<StudioCanvasCapture density={1.5}>{editor}</StudioCanvasCapture>
-	) : (
-		editor
 	);
 };

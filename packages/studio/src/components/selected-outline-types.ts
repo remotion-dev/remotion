@@ -1,4 +1,5 @@
 import type {
+	CanUpdateSequencePropStatus,
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
 	InteractivitySchema,
@@ -13,7 +14,6 @@ import type {TimelineSelection} from './Timeline/TimelineSelection';
 
 export type SelectedOutlineContextMenuOpenResult =
 	| false
-	| void
 	| readonly ComboboxValue[];
 
 export type SelectedOutlineContextMenuOpenHandler = () =>
@@ -22,6 +22,7 @@ export type SelectedOutlineContextMenuOpenHandler = () =>
 
 export type SelectedOutlineTarget = {
 	readonly key: string;
+	readonly canCrop: boolean;
 	readonly containsSelection: boolean;
 	readonly effectDrop: SelectedOutlineEffectDropTarget | null;
 	readonly nodePathInfo: SequenceNodePathInfo;
@@ -29,11 +30,94 @@ export type SelectedOutlineTarget = {
 	readonly selected: boolean;
 	readonly selection: TimelineSelection;
 	readonly sequence: TSequence;
+	readonly crop: {
+		readonly left: number;
+		readonly right: number;
+		readonly top: number;
+		readonly bottom: number;
+	};
+	readonly cropDrag: SelectedOutlineCropDragTarget | null;
 	readonly drag: SelectedOutlineDragTarget | null;
 	readonly scaleDrag: SelectedOutlineScaleDragTarget | null;
 	readonly rotationDrag: SelectedOutlineRotationDragTarget | null;
 	readonly transformOriginDrag: SelectedOutlineTransformOriginDragTarget | null;
 	readonly uvHandles: readonly SelectedOutlineUvHandle[];
+};
+
+export const cropFieldKeys = {
+	left: 'cropLeft',
+	right: 'cropRight',
+	top: 'cropTop',
+	bottom: 'cropBottom',
+} as const;
+
+export type SelectedOutlineCropEdge = keyof typeof cropFieldKeys;
+export type SelectedOutlineCropFieldKey =
+	(typeof cropFieldKeys)[SelectedOutlineCropEdge];
+
+export const canEditSelectedOutlineCrop = ({
+	schema,
+	propStatuses,
+}: {
+	readonly schema: InteractivitySchema | null;
+	readonly propStatuses:
+		| Record<string, CanUpdateSequencePropStatus>
+		| undefined;
+}): boolean => {
+	for (const fieldKey of Object.values(cropFieldKeys)) {
+		const fieldSchema = schema?.[fieldKey];
+		const propStatus = propStatuses?.[fieldKey];
+		const canEditStatus =
+			propStatus?.status === 'static' ||
+			(propStatus?.status === 'keyframed' &&
+				propStatus.interpolationFunction === 'interpolate');
+
+		if (fieldSchema?.type !== 'number' || !canEditStatus) {
+			return false;
+		}
+	}
+
+	return true;
+};
+
+export type SelectedOutlineCropHandle =
+	| 'top-left'
+	| 'top-right'
+	| 'bottom-left'
+	| 'bottom-right'
+	| 'top'
+	| 'right'
+	| 'bottom'
+	| 'left';
+
+type CropNumberFieldSchema = Extract<
+	InteractivitySchemaField,
+	{type: 'number'}
+>;
+
+export type SelectedOutlineCropField = {
+	readonly defaultValue: number | null | undefined;
+	readonly fieldSchema: CropNumberFieldSchema;
+	readonly propStatus:
+		| CanUpdateSequencePropStatusStatic
+		| CanUpdateSequencePropStatusKeyframed;
+	readonly value: number;
+};
+
+export type SelectedOutlineCropDragTarget = {
+	readonly clientId: string;
+	readonly fields: Record<
+		SelectedOutlineCropFieldKey,
+		SelectedOutlineCropField
+	>;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly schema: InteractivitySchema;
+	readonly sourceFrame: number;
+	readonly transformOrigin: {
+		readonly defaultValue: string | undefined;
+		readonly propStatus: CanUpdateSequencePropStatus;
+		readonly value: string;
+	} | null;
 };
 
 export type SelectedOutlineEffectDropTarget = {

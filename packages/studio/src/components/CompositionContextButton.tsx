@@ -8,8 +8,8 @@ import type {ComboboxValue} from './NewComposition/ComboBox';
 
 export const CompositionContextButton: React.FC<{
 	readonly visible: boolean;
-	readonly values: ComboboxValue[];
-}> = ({visible, values}) => {
+	readonly getItems: () => ComboboxValue[];
+}> = ({visible, getItems}) => {
 	const iconStyle: SVGProps<SVGSVGElement> = useMemo(() => {
 		return {
 			style: {
@@ -32,5 +32,11 @@ export const CompositionContextButton: React.FC<{
 		return null;
 	}
 
-	return <InlineDropdown renderAction={renderAction} values={values} />;
+	return (
+		<InlineDropdown
+			renderAction={renderAction}
+			getItems={getItems}
+			variant={null}
+		/>
+	);
 };

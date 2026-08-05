@@ -10,6 +10,7 @@ import type {
 	JsxComponentIdentity,
 	LoopDisplay,
 	SequenceControls,
+	SequenceRegistrationControls,
 	TRenderAsset,
 } from './CompositionManager.js';
 import type {DelayRenderScope} from './delay-render.js';
@@ -23,6 +24,7 @@ import type {
 	AssetFieldSchema,
 	ArrayFieldSchema,
 	ArrayItemFieldSchema,
+	CaptionsFieldSchema,
 	InteractivitySchemaField,
 	InteractivitySchema,
 } from './interactivity-schema.js';
@@ -32,6 +34,10 @@ import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
 import {Null} from './Null.js';
 import type {ProResProfile} from './prores-profile.js';
 import type {PixelFormat, VideoImageFormat} from './render-types.js';
+import type {
+	RuntimeValueSnapshot,
+	RuntimeValueStore,
+} from './runtime-value-store.js';
 import {Sequence} from './Sequence.js';
 import type {UseBufferState} from './use-buffer-state';
 import type {VideoConfig} from './video-config.js';
@@ -202,6 +208,7 @@ export {Img, ImgProps} from './Img.js';
 export {
 	Interactive,
 	type InteractiveBaseProps,
+	type InteractiveCropProps,
 	type InteractivePremountProps,
 	type InteractiveProps,
 	type InteractiveTransformProps,
@@ -342,10 +349,14 @@ export type {
 	AssetFieldSchema,
 	ArrayFieldSchema,
 	ArrayItemFieldSchema,
+	CaptionsFieldSchema,
 	DelayRenderScope,
 	JsxComponentIdentity,
 	LoopDisplay,
+	RuntimeValueSnapshot,
+	RuntimeValueStore,
 	SequenceControls,
+	SequenceRegistrationControls,
 	InteractivitySchemaField,
 	InteractivitySchema,
 	UseBufferState,

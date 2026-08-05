@@ -32,10 +32,15 @@ import type {
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {parseAst} from '../../codemods/parse-ast';
+import {getCssShorthandForLonghand} from '../../helpers/css-shorthand-properties';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {toImportAgnosticNodePath} from '../../helpers/import-agnostic-node-path';
+import {parseBorderRadiusShorthand} from '../../helpers/parse-border-radius-shorthand';
 import {parseKeyframeEasingExpression} from '../../helpers/parse-keyframe-easing-expression';
-import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
+import {
+	FileOutsideProjectError,
+	resolveFileInsideProject,
+} from '../../helpers/resolve-file-inside-project';
 import {parseVideoConfigNumericExpression} from '../../helpers/video-config-numeric-expression';
 import {
 	getVideoConfigIdentifierValues,
@@ -906,25 +911,71 @@ export const findNodePathForJsxElement = (
 	return foundPath;
 };
 
+const RECAST_TAB_WIDTH = 4;
+
+const sourceColumnToRecastColumn = ({
+	fileContents,
+	line,
+	column,
+}: {
+	fileContents: string;
+	line: number;
+	column: number;
+}) => {
+	const sourceLine = fileContents.split('\n')[line - 1];
+	if (sourceLine === undefined) {
+		return column;
+	}
+
+	let recastColumn = 0;
+	for (let index = 0; index < column; index++) {
+		if (sourceLine[index] === '\t') {
+			recastColumn += RECAST_TAB_WIDTH - (recastColumn % RECAST_TAB_WIDTH);
+		} else {
+			recastColumn++;
+		}
+	}
+
+	return recastColumn;
+};
+
 export const lineColumnToNodePath = (
 	ast: File,
 	targetLine: number,
+	targetColumn?: number,
+	fileContents?: string,
 ): SequenceNodePath | null => {
-	let foundPath: SequenceNodePath | null = null;
+	const lineMatches: SequenceNodePath[] = [];
+	const exactMatches: SequenceNodePath[] = [];
+	const recastTargetColumn =
+		targetColumn === undefined || fileContents === undefined
+			? targetColumn
+			: sourceColumnToRecastColumn({
+					fileContents,
+					line: targetLine,
+					column: targetColumn,
+				});
 
 	recast.types.visit(ast, {
 		visitJSXOpeningElement(p) {
 			const {node} = p;
 			if (node.loc && node.loc.start.line === targetLine) {
-				foundPath = getNodePathForRecastPath(p, ast);
-				return false;
+				const nodePath = getNodePathForRecastPath(p, ast);
+				lineMatches.push(nodePath);
+				if (node.loc.start.column === recastTargetColumn) {
+					exactMatches.push(nodePath);
+				}
 			}
 
 			return this.traverse(p);
 		},
 	});
 
-	return foundPath;
+	if (exactMatches.length === 1) {
+		return exactMatches[0];
+	}
+
+	return lineMatches.at(-1) ?? null;
 };
 
 const PIXEL_VALUE_REGEX = /^-?\d+(\.\d+)?px$/;
@@ -944,6 +995,114 @@ const validateStyleValue = (childKey: string, value: unknown): boolean => {
 	}
 
 	return true;
+};
+
+const getObjectPropertyName = (property: ObjectProperty): string | null => {
+	if (property.key.type === 'Identifier') {
+		return property.key.name;
+	}
+
+	if (property.key.type === 'StringLiteral') {
+		return property.key.value;
+	}
+
+	return null;
+};
+
+const BORDER_RADIUS_SHORTHAND = 'borderRadius';
+const BORDER_RADIUS_LONGHANDS = [
+	'borderTopLeftRadius',
+	'borderTopRightRadius',
+	'borderBottomRightRadius',
+	'borderBottomLeftRadius',
+] as const;
+const BORDER_RADIUS_PROPERTIES = new Set<string>([
+	BORDER_RADIUS_SHORTHAND,
+	...BORDER_RADIUS_LONGHANDS,
+]);
+
+const hasMixedBorderRadiusRepresentation = (
+	jsxElement: JSXOpeningElement,
+): boolean => {
+	const style = jsxElement.attributes.find(
+		(attribute) =>
+			attribute.type === 'JSXAttribute' &&
+			attribute.name.type !== 'JSXNamespacedName' &&
+			attribute.name.name === 'style',
+	);
+	if (
+		!style ||
+		style.type !== 'JSXAttribute' ||
+		style.value?.type !== 'JSXExpressionContainer' ||
+		style.value.expression.type !== 'ObjectExpression'
+	) {
+		return false;
+	}
+
+	let hasShorthand = false;
+	let hasLonghand = false;
+	for (const property of style.value.expression.properties) {
+		if (property.type !== 'ObjectProperty') {
+			continue;
+		}
+
+		const name = getObjectPropertyName(property);
+		hasShorthand ||= name === BORDER_RADIUS_SHORTHAND;
+		hasLonghand ||= BORDER_RADIUS_LONGHANDS.some(
+			(longhand) => longhand === name,
+		);
+	}
+
+	return hasShorthand && hasLonghand;
+};
+
+const getUniformBorderRadius = (value: unknown): number | null => {
+	const parsed = parseBorderRadiusShorthand(value);
+	if (!parsed) {
+		return null;
+	}
+
+	const values = Object.values(parsed);
+	return values.every((radius) => radius === values[0]) ? values[0] : null;
+};
+
+const getBorderRadiusShorthandStatus = ({
+	propValue,
+	ast,
+	videoConfigValues,
+}: {
+	propValue: Expression;
+	ast: File;
+	videoConfigValues: VideoConfigIdentifierValues;
+}): CanUpdatePropStatus => {
+	if (isStaticValue(propValue)) {
+		const uniform = getUniformBorderRadius(extractStaticValue(propValue));
+		return uniform === null ? computedStatus() : staticStatus(uniform, null);
+	}
+
+	const numericExpression = parseVideoConfigNumericExpression({
+		node: propValue,
+		videoConfigValues,
+	});
+	if (numericExpression !== null && numericExpression.value >= 0) {
+		return staticStatus(numericExpression.value, numericExpression);
+	}
+
+	const computed = getComputedStatus(propValue, ast, videoConfigValues);
+	if (
+		computed.status === 'keyframed' &&
+		computed.interpolationFunction === 'interpolate' &&
+		computed.keyframes.every(
+			(keyframe) =>
+				typeof keyframe.value === 'number' &&
+				Number.isFinite(keyframe.value) &&
+				keyframe.value >= 0,
+		)
+	) {
+		return computed;
+	}
+
+	return computedStatus();
 };
 
 const getNestedPropStatus = ({
@@ -987,12 +1146,60 @@ const getNestedPropStatus = ({
 	}
 
 	const objExpr = expression as ObjectExpression;
-	const prop = objExpr.properties.find(
-		(p) =>
-			p.type === 'ObjectProperty' &&
-			((p.key.type === 'Identifier' && p.key.name === childKey) ||
-				(p.key.type === 'StringLiteral' && p.key.value === childKey)),
-	) as ObjectProperty | undefined;
+	const cssShorthand = getCssShorthandForLonghand({
+		parentKey,
+		longhand: childKey,
+	});
+	if (
+		cssShorthand &&
+		objExpr.properties.some((property) => {
+			if (property.type !== 'ObjectProperty') {
+				return false;
+			}
+
+			const propertyName = getObjectPropertyName(property);
+			return (
+				propertyName !== null &&
+				cssShorthand.isUnsupportedProperty(propertyName)
+			);
+		})
+	) {
+		return computedStatus();
+	}
+
+	let prop: ObjectProperty | undefined;
+	for (let index = objExpr.properties.length - 1; index >= 0; index--) {
+		const candidate = objExpr.properties[index];
+		if (candidate.type === 'SpreadElement') {
+			return computedStatus();
+		}
+
+		if (
+			candidate.type === 'ObjectProperty' &&
+			(getObjectPropertyName(candidate) === childKey ||
+				getObjectPropertyName(candidate) === cssShorthand?.shorthand)
+		) {
+			prop = candidate;
+			break;
+		}
+	}
+
+	if (
+		prop &&
+		cssShorthand &&
+		getObjectPropertyName(prop) === cssShorthand.shorthand
+	) {
+		const shorthandValue = prop.value as Expression;
+		if (!isStaticValue(shorthandValue, {allowSpecialValues: false})) {
+			return computedStatus();
+		}
+
+		const staticShorthandValue = extractStaticValue(shorthandValue, {
+			allowSpecialValues: false,
+		});
+		const parsed = cssShorthand.parse(staticShorthandValue);
+		return parsed ? staticStatus(parsed[childKey], null) : computedStatus();
+	}
 
 	if (!prop) {
 		// Property not set in the object, can be added
@@ -1000,6 +1207,14 @@ const getNestedPropStatus = ({
 	}
 
 	const propValue = prop.value as Expression;
+	if (parentKey === 'style' && childKey === BORDER_RADIUS_SHORTHAND) {
+		return getBorderRadiusShorthandStatus({
+			propValue,
+			ast,
+			videoConfigValues,
+		});
+	}
+
 	const staticValueOptions = {allowSpecialValues};
 	if (!isStaticValue(propValue, staticValueOptions)) {
 		const numericExpression = parseVideoConfigNumericExpression({
@@ -1063,7 +1278,17 @@ const computeSequenceOnlyPropsRecord = ({
 		assetKeys,
 	);
 	const filteredProps: Record<string, CanUpdatePropStatus> = {};
+	const mixedBorderRadius = hasMixedBorderRadiusRepresentation(jsxElement);
 	for (const key of keys) {
+		if (
+			mixedBorderRadius &&
+			key.startsWith('style.') &&
+			BORDER_RADIUS_PROPERTIES.has(key.slice('style.'.length))
+		) {
+			filteredProps[key] = computedStatus();
+			continue;
+		}
+
 		if (key === 'children') {
 			const staticChildrenAttribute = getStaticJsxChildrenAttribute(jsxElement);
 			if (staticChildrenAttribute) {
@@ -1201,9 +1426,10 @@ export const computeSequencePropsStatus = ({
 	});
 };
 
-export const computeSequencePropsStatusFromFilenameByLine = ({
+export const computeSequencePropsStatusFromFilenameByLocation = ({
 	fileName,
 	line,
+	column,
 	componentIdentity,
 	keys,
 	assetKeys = [],
@@ -1214,6 +1440,7 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 }: {
 	fileName: string;
 	line: number;
+	column: number;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
 	assetKeys?: string[];
@@ -1232,7 +1459,12 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 		const fileContents = readFileSync(absolutePath, 'utf-8');
 		const ast = parseAst(fileContents);
 
-		const resolvedNodePath = lineColumnToNodePath(ast, line);
+		const resolvedNodePath = lineColumnToNodePath(
+			ast,
+			line,
+			column,
+			fileContents,
+		);
 		if (!resolvedNodePath) {
 			return {
 				status: {
@@ -1264,6 +1496,20 @@ export const computeSequencePropsStatusFromFilenameByLine = ({
 			success: true,
 		};
 	} catch (err) {
+		if (
+			err instanceof FileOutsideProjectError ||
+			err instanceof JsxElementIdentityMismatchError ||
+			err instanceof JsxElementNotFoundAtLocationError
+		) {
+			return {
+				status: {
+					canUpdate: false as const,
+					reason: 'not-found',
+				},
+				success: false,
+			};
+		}
+
 		RenderInternals.Log.error({indent: false, logLevel}, err);
 		return {
 			status: {

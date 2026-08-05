@@ -1,5 +1,6 @@
 import {createRef} from 'react';
 import {getAbsoluteSrc} from './absolute-src.js';
+import {getAnimatedImageDurationInSeconds} from './animated-image/get-duration-in-seconds.js';
 import {AudioForPreview} from './audio/AudioForPreview.js';
 import type {ScheduleAudioNodeResult} from './audio/shared-audio-tags.js';
 import {
@@ -69,6 +70,8 @@ import {
 	getComponentsToAddStacksTo,
 	getSequenceComponent,
 	getSingleChildComponent,
+	getStackForControls,
+	REMOTION_INTERNAL_STACK_PROP,
 } from './enable-sequence-stack-traces.js';
 import {findPropsToDelete} from './find-props-to-delete.js';
 import {
@@ -97,8 +100,8 @@ import {
 	fromField,
 	hiddenField,
 	premountSchema,
-	premountStyleSchema,
 	sequencePremountSchema,
+	sequenceCropSchema,
 	sequenceSchema,
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
@@ -142,6 +145,7 @@ import {
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
 } from './ResolveCompositionConfig.js';
+import {resolveSequenceCrop} from './sequence-crop.js';
 import type {
 	OverrideIdToNodePaths,
 	OverrideToNodePathGetters,
@@ -187,11 +191,14 @@ import {
 	PlaybackRateContext,
 	SetTimelineContext,
 	TimelineContext,
+	TimelineImperativeContext,
 	type PlaybackRateContextValue,
 	type SetTimelineContextValue,
+	type TimelineImperativeContextValue,
 	type TimelineContextValue,
 } from './TimelineContext.js';
 import {truthy} from './truthy.js';
+import {useCropStyle} from './use-crop-style.js';
 import {
 	calculateScale,
 	CurrentScaleContext,
@@ -285,6 +292,7 @@ export const Internals = {
 	useAbsoluteTimelinePosition: TimelinePosition.useAbsoluteTimelinePosition,
 	evaluateVolume,
 	getAbsoluteSrc,
+	getAnimatedImageDurationInSeconds,
 	getAssetDisplayName,
 	Timeline: TimelinePosition,
 	validateMediaTrimProps,
@@ -306,10 +314,10 @@ export const Internals = {
 	sequenceStyleSchema,
 	sequenceVisualStyleSchema,
 	sequencePremountSchema,
+	sequenceCropSchema,
 	textSchema,
 	transformSchema,
 	premountSchema,
-	premountStyleSchema,
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
 	RemotionRootContexts,
@@ -376,6 +384,8 @@ export const Internals = {
 	getComponentsToAddStacksTo,
 	getSequenceComponent,
 	getSingleChildComponent,
+	getStackForControls,
+	REMOTION_INTERNAL_STACK_PROP,
 	CurrentScaleContext,
 	PixelDensityContext,
 	PreviewSizeContext,
@@ -401,6 +411,7 @@ export const Internals = {
 	TimelinePosition,
 	DelayRenderContextType,
 	TimelineContext,
+	TimelineImperativeContext,
 	PlaybackRateContext,
 	AbsoluteTimeContext,
 	RenderAssetManagerProvider,
@@ -431,6 +442,8 @@ export const Internals = {
 	durationInFramesField,
 	freezeField,
 	fromField,
+	resolveSequenceCrop,
+	useCropStyle,
 } as const;
 
 export type {
@@ -486,6 +499,7 @@ export type {
 	TCompMetadata,
 	TComposition,
 	TimelineContextValue,
+	TimelineImperativeContextValue,
 	TRenderAsset,
 	TSequence,
 	VisibleFieldSchema,

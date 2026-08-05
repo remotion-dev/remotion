@@ -3,22 +3,20 @@ import {
 	cpSync,
 	existsSync,
 	mkdirSync,
-	readdirSync,
 	readFileSync,
-	renameSync,
+	readdirSync,
 	rmSync,
 	statSync,
 	writeFileSync,
 } from 'fs';
 import {join, resolve} from 'path';
 import {fileURLToPath} from 'url';
+import {prepareEmbeddedSkills} from '../skills/scripts/prepare-embedded-skills';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const skillsOut = resolve(__dirname, 'skills');
 
 const packagesSkillsDir = resolve(__dirname, '..', 'skills', 'skills');
-const embeddedSkillFilename = 'REFERENCE.md';
-
 if (existsSync(skillsOut)) {
 	rmSync(skillsOut, {recursive: true});
 }
@@ -39,59 +37,6 @@ function copySkillDir(src: string, destName: string) {
 	console.log(`  Copied ${destName}`);
 }
 
-const prepareEmbeddedBestPractices = () => {
-	const embeddedRoot = join(skillsOut, 'remotion-best-practices');
-
-	if (!existsSync(embeddedRoot)) {
-		return;
-	}
-
-	const embeddedSkillNames = readdirSync(embeddedRoot, {withFileTypes: true})
-		.filter((entry) => {
-			const child = join(embeddedRoot, entry.name);
-			return (
-				entry.isDirectory() &&
-				entry.name !== 'rules' &&
-				existsSync(join(child, 'SKILL.md'))
-			);
-		})
-		.map((entry) => entry.name)
-		.sort();
-
-	const rewriteMarkdownFiles = (dir: string) => {
-		for (const entry of readdirSync(dir, {withFileTypes: true})) {
-			const file = join(dir, entry.name);
-			if (entry.isDirectory()) {
-				rewriteMarkdownFiles(file);
-				continue;
-			}
-
-			if (!entry.isFile() || !file.endsWith('.md')) {
-				continue;
-			}
-
-			const contents = readFileSync(file, 'utf-8');
-			let rewritten = contents.replaceAll('../remotion-best-practices/', '../');
-			for (const skillName of embeddedSkillNames) {
-				rewritten = rewritten.replaceAll(
-					`${skillName}/SKILL.md`,
-					`${skillName}/${embeddedSkillFilename}`,
-				);
-			}
-			if (contents !== rewritten) {
-				writeFileSync(file, rewritten);
-			}
-		}
-	};
-
-	rewriteMarkdownFiles(embeddedRoot);
-
-	for (const skillName of embeddedSkillNames) {
-		const child = join(embeddedRoot, skillName);
-		renameSync(join(child, 'SKILL.md'), join(child, embeddedSkillFilename));
-	}
-};
-
 const addCodexOnlyInstructions = () => {
 	const remotionSkill = join(skillsOut, 'remotion-best-practices', 'SKILL.md');
 	if (!existsSync(remotionSkill)) {
@@ -104,10 +49,10 @@ const addCodexOnlyInstructions = () => {
 
 ## Codex troubleshooting
 
-When running inside Codex, first try starting the Remotion Studio normally:
+When running inside Codex, first try starting the Remotion Studio without opening the system browser:
 
 \`\`\`bash
-npx remotion studio
+npx remotion studio --no-open
 \`\`\`
 
 Only if that fails with file watcher limits such as \`EMFILE: too many open files, watch\`, retry with polling and without opening a browser from Codex:
@@ -122,6 +67,52 @@ If Studio still fails to start from Codex, ask the user to start it manually fro
 	console.log('  Added Codex-only troubleshooting instructions');
 };
 
+const makeRemotionCreateOpenPreview = () => {
+	const remotionCreateSkill = join(skillsOut, 'remotion-create', 'SKILL.md');
+	if (!existsSync(remotionCreateSkill)) {
+		return;
+	}
+
+	const currentInstructions = readFileSync(remotionCreateSkill, 'utf8');
+	const previewInstruction = [
+		'Instead of rendering the video, consider starting the preview server for faster iteration:',
+		'Start the preview server after building the composition:',
+	].find((instruction) => currentInstructions.includes(instruction));
+	if (!previewInstruction) {
+		throw new Error('Could not find a remotion-create preview instruction');
+	}
+
+	const codexReplacements = [
+		[
+			previewInstruction,
+			'After creating or updating the video, start the preview server by default:',
+		],
+		[
+			'If an in-harness browser is available, open it there.',
+			'Open the exact URL in the Codex in-app browser. If no browser tool is available yet, use `tool_search` for the in-app browser control tool, then navigate to the local URL.',
+		],
+	] as const;
+
+	let codexInstructions = currentInstructions;
+	for (const [genericInstruction, codexInstruction] of codexReplacements) {
+		if (!codexInstructions.includes(genericInstruction)) {
+			throw new Error(
+				`Could not find remotion-create instruction: ${genericInstruction}`,
+			);
+		}
+
+		codexInstructions = codexInstructions.replace(
+			genericInstruction,
+			codexInstruction,
+		);
+	}
+
+	writeFileSync(remotionCreateSkill, codexInstructions);
+	console.log(
+		'  Made remotion-create open previews in the Codex in-app browser',
+	);
+};
+
 console.log('Building Codex plugin skills...\n');
 
 if (existsSync(packagesSkillsDir)) {
@@ -133,8 +124,9 @@ if (existsSync(packagesSkillsDir)) {
 	for (const folder of skillFolders) {
 		copySkillDir(join(packagesSkillsDir, folder), folder);
 	}
-	prepareEmbeddedBestPractices();
+	prepareEmbeddedSkills(skillsOut);
 	addCodexOnlyInstructions();
+	makeRemotionCreateOpenPreview();
 } else {
 	console.warn('Warning: packages/skills/skills/ not found');
 }

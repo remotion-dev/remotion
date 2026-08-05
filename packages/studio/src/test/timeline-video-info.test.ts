@@ -1,6 +1,11 @@
 import {afterEach, expect, test} from 'bun:test';
-import type {InteractivitySchema, SequenceControls} from 'remotion';
+import type {
+	InteractivitySchema,
+	SequenceRegistrationControls,
+	TSequence,
+} from 'remotion';
 import {getTimelineMediaStartFrame} from '../components/Timeline/get-timeline-media-start-frame';
+import {getTimelineMediaVisualizationLayout} from '../components/Timeline/get-timeline-media-visualization-layout';
 import {getTimelineVideoInfoWidths} from '../components/Timeline/get-timeline-video-info-widths';
 import {
 	getTimelineAssetSrcFromSchema,
@@ -9,7 +14,9 @@ import {
 	splitRemoteSourceForMiddleEllipsis,
 } from '../components/Timeline/timeline-asset-link';
 import {getTimelineVideoFilmstripTimes} from '../components/Timeline/timeline-video-filmstrip-times';
-import {isStaticFileAssetValue} from '../components/Timeline/TimelineAssetField';
+import {toFileToken} from '../components/Timeline/TimelineAssetField';
+import {isVideoWithLastFrameHold} from '../helpers/is-video-with-last-frame-hold';
+import {makeRuntimeValueStore} from './make-runtime-value-store';
 
 type TestWindow = Pick<
 	Window,
@@ -65,10 +72,10 @@ const makeSequenceControls = ({
 }: {
 	schema: InteractivitySchema;
 	currentRuntimeValueDotNotation: Record<string, unknown>;
-}): SequenceControls => ({
+}): SequenceRegistrationControls => ({
 	componentIdentity: null,
 	componentName: 'Test',
-	currentRuntimeValueDotNotation,
+	runtimeValues: makeRuntimeValueStore(currentRuntimeValueDotNotation),
 	overrideId: 'test',
 	schema,
 	supportsEffects: false,
@@ -91,6 +98,32 @@ test('video timeline thumbnails ignore premount and postmount width', () => {
 	expect(withPremount).toEqual(withoutPremount);
 });
 
+test('timeline media visualizations exclude premount and postmount width', () => {
+	expect(
+		getTimelineMediaVisualizationLayout({
+			visualizationWidth: 510,
+			premountWidth: 110,
+			postmountWidth: 20,
+		}),
+	).toEqual({
+		marginLeft: 110,
+		width: 380,
+	});
+});
+
+test('timeline media visualization widths never go negative', () => {
+	expect(
+		getTimelineMediaVisualizationLayout({
+			visualizationWidth: 100,
+			premountWidth: 70,
+			postmountWidth: 70,
+		}),
+	).toEqual({
+		marginLeft: 70,
+		width: 0,
+	});
+});
+
 test('video timeline thumbnail widths never go negative', () => {
 	expect(
 		getTimelineVideoInfoWidths({
@@ -103,6 +136,24 @@ test('video timeline thumbnail widths never go negative', () => {
 		mediaVisualizationWidth: 0,
 		mediaNaturalWidth: 0,
 	});
+});
+
+test('@remotion/media Video holds its last frame', () => {
+	expect(
+		isVideoWithLastFrameHold({
+			type: 'video',
+			controls: {
+				componentIdentity: 'dev.remotion.media.Video',
+			},
+		} as TSequence),
+	).toBe(true);
+
+	expect(
+		isVideoWithLastFrameHold({
+			type: 'video',
+			controls: null,
+		} as TSequence),
+	).toBe(false);
 });
 
 test('video timeline filmstrip range starts at the registered media frame', () => {
@@ -203,11 +254,21 @@ test('inspector ignores runtime src values without a src asset schema', () => {
 	expect(getTimelineAssetSrcFromSchema(null)).toBeNull();
 });
 
-test('only staticFile asset values use the asset picker', () => {
-	expect(isStaticFileAssetValue('remotion-file:video.mp4')).toBe(true);
-	expect(isStaticFileAssetValue('https://example.com/video.mp4')).toBe(false);
-	expect(isStaticFileAssetValue('/video.mp4')).toBe(false);
-	expect(isStaticFileAssetValue(undefined)).toBe(false);
+test('asset selections serialize to staticFile source tokens', () => {
+	expect(toFileToken('video.mp4')).toBe('remotion-file:video.mp4');
+	expect(toFileToken('folder name/video #1.mp4')).toBe(
+		'remotion-file:folder%20name/video%20%231.mp4',
+	);
+});
+
+test('timeline asset links resolve staticFile source tokens', () => {
+	expect(
+		getTimelineAssetLinkInfo('remotion-file:folder%20name/video%20%231.mp4'),
+	).toEqual({
+		kind: 'local',
+		assetPath: 'folder name/video #1.mp4',
+		title: 'folder name/video #1.mp4',
+	});
 });
 
 test('timeline local asset links select the asset and push the asset route', () => {

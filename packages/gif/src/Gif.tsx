@@ -1,11 +1,14 @@
 import React from 'react';
 import {
+	Freeze,
 	Internals,
 	Interactive,
 	Sequence,
 	useRemotionEnvironment,
 	type EffectsProp,
 	type InteractiveBaseProps,
+	type InteractiveCropProps,
+	type InteractivePremountProps,
 	type InteractiveTransformProps,
 	type SequenceControls,
 	type InteractivitySchema,
@@ -17,6 +20,8 @@ import type {RemotionGifProps} from './props';
 const {useMemoizedEffectDefinitions, useMemoizedEffects} = Internals;
 
 export type GifProps = InteractiveBaseProps &
+	InteractiveCropProps &
+	InteractivePremountProps &
 	InteractiveTransformProps &
 	RemotionGifProps & {
 		readonly effects?: EffectsProp;
@@ -26,8 +31,9 @@ export type GifProps = InteractiveBaseProps &
  * @description Displays a GIF that synchronizes with Remotions useCurrentFrame().
  * @see [Documentation](https://remotion.dev/docs/gif)
  */
-const gifSchema = {
+export const gifSchema: InteractivitySchema = {
 	...Internals.baseSchema,
+	...Internals.premountSchema,
 	playbackRate: {
 		type: 'number',
 		min: 0,
@@ -39,6 +45,10 @@ const gifSchema = {
 		keyframable: false,
 	},
 	...Internals.transformSchema,
+	...Interactive.backgroundSchema,
+	...Interactive.borderSchema,
+	...Interactive.borderRadiusSchema,
+	...Interactive.cropSchema,
 } as const satisfies InteractivitySchema;
 
 const GifInner = ({
@@ -54,7 +64,16 @@ const GifInner = ({
 	delayRenderTimeoutInMilliseconds,
 	requestInit,
 	durationInFrames,
+	from,
+	premountFor,
+	postmountFor,
+	styleWhilePremounted,
+	styleWhilePostmounted,
 	style,
+	cropLeft,
+	cropRight,
+	cropTop,
+	cropBottom,
 	controls,
 	effects = [],
 	ref,
@@ -65,6 +84,32 @@ const GifInner = ({
 }) => {
 	const env = useRemotionEnvironment();
 	const refForOutline = React.useRef<HTMLElement | null>(null);
+	const {
+		effectivePostmountFor,
+		effectivePremountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		postmountingActive,
+		premountingActive,
+		premountingStyle,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: durationInFrames ?? Infinity,
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: style ?? null,
+		styleWhilePremounted: styleWhilePremounted ?? null,
+		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		hideWhilePremounted: 'display-none',
+	});
+	const croppedStyle = Internals.useCropStyle({
+		cropLeft,
+		cropRight,
+		cropTop,
+		cropBottom,
+		style: premountingStyle,
+		componentName: '<Gif />',
+	});
 
 	const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 	const memoizedEffects = useMemoizedEffects({
@@ -86,7 +131,7 @@ const GifInner = ({
 		id,
 		delayRenderTimeoutInMilliseconds,
 		requestInit,
-		style,
+		style: croppedStyle ?? undefined,
 		effects: memoizedEffects,
 	};
 
@@ -97,18 +142,25 @@ const GifInner = ({
 	);
 
 	return (
-		<Sequence
-			layout="none"
-			durationInFrames={durationInFrames}
-			name="<Gif>"
-			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/gif/gif"
-			controls={controls}
-			_remotionInternalEffects={memoizedEffectDefinitions}
-			{...sequenceProps}
-			outlineRef={refForOutline}
-		>
-			{inner}
-		</Sequence>
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				durationInFrames={durationInFrames ?? Infinity}
+				name="<Gif>"
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/gif/gif"
+				controls={controls}
+				_remotionInternalEffects={memoizedEffectDefinitions}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+				{...sequenceProps}
+				outlineRef={refForOutline}
+			>
+				{inner}
+			</Sequence>
+		</Freeze>
 	);
 };
 

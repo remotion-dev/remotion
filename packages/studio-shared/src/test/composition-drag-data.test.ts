@@ -1,9 +1,37 @@
 import {expect, test} from 'bun:test';
-import {
-	compositionDragDataToSymbolicatedStack,
-	makeCompositionDragData,
-	parseCompositionDragData,
-} from '../composition-drag-data';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import {compositionDragDataToSymbolicatedStack} from '../composition-drag-data';
+
+const compositionMimeType = StudioProtocolInternals.makeDragData({
+	type: 'composition',
+	compositionFile: null,
+	compositionId: 'Test',
+	width: null,
+	height: null,
+	durationInFrames: null,
+}).mimeType;
+const makeCompositionDragData = ({
+	compositionFile,
+	compositionId,
+}: {
+	compositionFile: string | null;
+	compositionId: string;
+}) =>
+	StudioProtocolInternals.makeDragData({
+		type: 'composition',
+		compositionFile,
+		compositionId,
+		width: null,
+		height: null,
+		durationInFrames: null,
+	}).data;
+const parseCompositionDragData = (payload: string) => {
+	const parsed = StudioProtocolInternals.parseDragData({
+		mimeType: compositionMimeType,
+		payload,
+	});
+	return parsed?.type === 'composition' ? parsed.data : null;
+};
 
 test('parses composition drag data', () => {
 	expect(

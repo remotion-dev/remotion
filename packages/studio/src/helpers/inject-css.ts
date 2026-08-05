@@ -4,18 +4,15 @@ import {
 	BLACK,
 	BLUE,
 	BLUE_HOVERED,
-	BORDER_BLACK,
 	FOCUS_BOX_SHADOW,
 	TRANSPARENT,
 	WHITE,
 } from './colors';
+import {makeHoverableCSS} from './hoverable';
 
 const makeDefaultGlobalCSS = () => {
-	const unhoveredDragAreaFactor = 2;
-	const fromMiddle = 50 / unhoveredDragAreaFactor;
-
-	const hoveredDragAreaFactor = 6;
-	const fromMiddleHovered = 50 / hoveredDragAreaFactor;
+	const dragAreaFactor = 2;
+	const fromMiddle = 50 / dragAreaFactor;
 
 	return `
 	  html {
@@ -36,51 +33,27 @@ const makeDefaultGlobalCSS = () => {
   }
 
   .remotion-splitter-horizontal {
-	    transform: scaleY(${unhoveredDragAreaFactor});
-	    background: linear-gradient(
-	      to bottom,
-	      ${TRANSPARENT} ${50 - fromMiddle}%,
-	      ${BLACK} ${50 - fromMiddle}%,
-	      ${BLACK} ${50 + fromMiddle}%,
-	      ${TRANSPARENT} ${50 + fromMiddle}%
-	    );
-	  }
-
-  .remotion-splitter-horizontal.remotion-splitter-active, .remotion-splitter-horizontal.remotion-splitter-hover {
-	    background: linear-gradient(
-	      to bottom,
-	      ${TRANSPARENT} ${50 - fromMiddleHovered}%,
-	      var(--remotion-cli-internals-blue) ${50 - fromMiddleHovered}%,
-	      var(--remotion-cli-internals-blue) ${50 + fromMiddleHovered}%,
-	      ${TRANSPARENT} ${50 + fromMiddleHovered}%
-	    );
     cursor: row-resize;
-    transform: scaleY(${hoveredDragAreaFactor});
-    z-index: 1000;
+    transform: scaleY(${dragAreaFactor});
+    background: linear-gradient(
+      to bottom,
+      ${TRANSPARENT} ${50 - fromMiddle}%,
+      ${BLACK} ${50 - fromMiddle}%,
+      ${BLACK} ${50 + fromMiddle}%,
+      ${TRANSPARENT} ${50 + fromMiddle}%
+    );
   }
 
   .remotion-splitter-vertical {
-	    transform: scaleX(${unhoveredDragAreaFactor});
-	    background: linear-gradient(
-	      to right,
-	      ${TRANSPARENT} ${50 - fromMiddle}%,
-	      ${BLACK} ${50 - fromMiddle}%,
-	      ${BLACK} ${50 + fromMiddle}%,
-	      ${TRANSPARENT} ${50 + fromMiddle}%
-	    );
-	  }
-
-  .remotion-splitter-vertical.remotion-splitter-active, .remotion-splitter-vertical.remotion-splitter-hover {
-	    background: linear-gradient(
-	      to right,
-	      ${TRANSPARENT} ${50 - fromMiddleHovered}%,
-	      var(--remotion-cli-internals-blue) ${50 - fromMiddleHovered}%,
-	      var(--remotion-cli-internals-blue) ${50 + fromMiddleHovered}%,
-	      ${TRANSPARENT} ${50 + fromMiddleHovered}%
-	    );
-    transform: scaleX(${hoveredDragAreaFactor});
     cursor: col-resize;
-    z-index: 1000;
+    transform: scaleX(${dragAreaFactor});
+    background: linear-gradient(
+      to right,
+      ${TRANSPARENT} ${50 - fromMiddle}%,
+      ${BLACK} ${50 - fromMiddle}%,
+      ${BLACK} ${50 + fromMiddle}%,
+      ${TRANSPARENT} ${50 + fromMiddle}%
+    );
   }
 
   input::-webkit-outer-spin-button,
@@ -91,20 +64,22 @@ const makeDefaultGlobalCSS = () => {
 
   input:focus,
   textarea:focus,
-  button:focus:not(.__remotion_input_dragger):not(.__remotion_color_swatch),
+  button:focus:not(.__remotion_input_dragger):not(.__remotion_color_swatch):not(.__remotion-inspector-section-title),
   a:focus {
 	    outline: none;
 	    box-shadow: ${FOCUS_BOX_SHADOW};
 	  }
 
   .__remotion-composition-selector-item:focus,
-  .__remotion-inspector-inline-action:focus {
+  .__remotion-inspector-inline-action:focus,
+  .__remotion-inspector-section-title:focus {
     outline: none;
     box-shadow: none;
   }
 
   .__remotion-composition-selector-item:focus-visible,
-  .__remotion-inspector-inline-action:focus-visible {
+  .__remotion-inspector-inline-action:focus-visible,
+  .__remotion-inspector-section-title:focus-visible {
     box-shadow: ${FOCUS_BOX_SHADOW};
   }
 
@@ -117,50 +92,67 @@ const makeDefaultGlobalCSS = () => {
 	    box-shadow: ${FOCUS_BOX_SHADOW};
 	  }
 
-  .__remotion_thumb,
-  .__remotion_thumb::-webkit-slider-thumb {
+	  .__remotion_thumb,
+	  .__remotion_thumb::-webkit-slider-thumb {
 	    -webkit-appearance: none;
 	    -webkit-tap-highlight-color: ${TRANSPARENT};
 	  }
 
-  .__remotion_thumb {
-    pointer-events: none;
-    position: absolute;
-    height: 0;
-    outline: none;
-    top: 15.5px;
-    width: 221px;
-    margin-left: -2px;
-    z-index: 2;
-  }
+	  .__remotion_thumb {
+	    appearance: none;
+	    background: transparent;
+	    border: 0;
+	    height: 100%;
+	    left: 0;
+	    margin: 0;
+	    outline: none;
+	    padding: 0;
+	    pointer-events: none;
+	    position: absolute;
+	    top: 0;
+	    width: 100%;
+	    z-index: 2;
+	  }
+
+	  .__remotion_thumb::-moz-range-track {
+	    background: transparent;
+	    border: 0;
+	    height: 6px;
+	  }
+
+	  .__remotion_thumb::-webkit-slider-runnable-track {
+	    background: transparent;
+	    border: 0;
+	    height: 6px;
+	  }
 
 	  /* For Firefox browsers */
 	  .__remotion_thumb::-moz-range-thumb {
-	    border: ${BORDER_BLACK};
-	    border-radius: 2px;
+	    appearance: none;
+	    border: 0;
+	    border-radius: 50%;
 	    cursor: pointer;
-	    height: 37px;
-	    width: 10px;
+	    height: 14px;
+	    width: 14px;
 	    pointer-events: all;
-	    border-color: ${BLACK};
 	    background-color: ${WHITE};
 	    position: relative;
 	  }
 
 	  /* For Chrome browsers */
 	  .__remotion_thumb::-webkit-slider-thumb {
-	    border: ${BORDER_BLACK};
-	    border-radius: 2px;
+	    border: 0;
+	    border-radius: 50%;
 	    cursor: pointer;
-	    height: 39px;
-	    width: 10px;
+	    height: 14px;
+	    margin-top: -4px;
+	    width: 14px;
 	    pointer-events: all;
-	    border-color: ${BLACK};
 	    background-color: ${WHITE};
 	    position: relative;
 	  }
 
-  .__remotion_input_dragger:hover span {
+	.__remotion_input_dragger:hover > span:first-child {
     color: var(--remotion-cli-internals-blue-hovered) !important;
   }
 
@@ -168,6 +160,8 @@ const makeDefaultGlobalCSS = () => {
     color: var(--remotion-cli-internals-blue) !important;
     transition: color 0.2s ease-in-out;
   }
+
+  ${makeHoverableCSS()}
   `.trim();
 };
 

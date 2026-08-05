@@ -6,7 +6,6 @@ import {getTimelineDuration} from './get-timeline-duration.js';
 import {useNonce} from './nonce.js';
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';
-import {useTimelineContext} from './timeline-position-state.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideoConfig} from './use-video-config.js';
 import type {VolumeProp} from './volume-prop.js';
@@ -93,8 +92,6 @@ export const useBasicMediaInTimeline = ({
 	const doesVolumeChange = typeof volume === 'function';
 
 	const nonce = useNonce();
-	const {rootId} = useTimelineContext();
-
 	const startMediaFrom = 0 - mediaStartsAt + (trimBefore ?? 0);
 
 	const memoizedResult = useMemo(() => {
@@ -103,7 +100,6 @@ export const useBasicMediaInTimeline = ({
 			duration,
 			doesVolumeChange,
 			nonce,
-			rootId,
 			finalDisplayName: displayName ?? getAssetDisplayName(src),
 			startMediaFrom,
 			src,
@@ -114,7 +110,6 @@ export const useBasicMediaInTimeline = ({
 		duration,
 		doesVolumeChange,
 		nonce,
-		rootId,
 		displayName,
 		src,
 		startMediaFrom,
@@ -165,7 +160,7 @@ export const useMediaInTimeline = ({
 	const {durationInFrames} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
 
-	const {volumes, duration, doesVolumeChange, nonce, rootId, finalDisplayName} =
+	const {volumes, duration, doesVolumeChange, nonce, finalDisplayName} =
 		useBasicMediaInTimeline({
 			volume,
 			mediaVolume,
@@ -205,7 +200,6 @@ export const useMediaInTimeline = ({
 			parent: parentSequence?.id ?? null,
 			displayName: finalDisplayName,
 			documentationLink,
-			rootId,
 			volume: volumes,
 			showInTimeline: true,
 			nonce: nonce.get(),
@@ -247,7 +241,6 @@ export const useMediaInTimeline = ({
 		postmountDisplay,
 		loopDisplay,
 		documentationLink,
-		rootId,
 		finalDisplayName,
 		isStudio,
 		refForOutline,

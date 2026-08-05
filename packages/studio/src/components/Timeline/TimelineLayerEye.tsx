@@ -5,6 +5,7 @@ import {
 	LIGHT_COLOR,
 	WHITE,
 } from '../../helpers/colors';
+import {startPointerSession} from '../../helpers/pointer-session';
 import type {RenderInlineAction} from '../InlineAction';
 
 const eyeIcon: React.CSSProperties = {
@@ -37,6 +38,10 @@ export const timelineLayerIconContainer: React.CSSProperties = {
 };
 
 let layerPointedDown: null | 'enable' | 'disable' = null;
+let stopLayerPointerSession: (() => void) | null = null;
+let lastPaintedLayerEye: Element | null = null;
+const layerEyeActions = new WeakMap<Element, () => void>();
+const TIMELINE_LAYER_EYE_ATTR = 'data-timeline-layer-eye';
 
 export const TimelineLayerEye: React.FC<{
 	readonly onInvoked: (type: 'enable' | 'disable') => void;
@@ -91,15 +96,30 @@ export const TimelineLayerEye: React.FC<{
 
 			e.preventDefault();
 			e.stopPropagation();
+			stopLayerPointerSession?.();
 			layerPointedDown = hidden ? 'enable' : 'disable';
 			onInvoked(layerPointedDown);
-			window.addEventListener(
-				'pointerup',
-				() => {
-					layerPointedDown = null;
+			lastPaintedLayerEye = e.currentTarget;
+			stopLayerPointerSession = startPointerSession({
+				event: e,
+				target: e.currentTarget,
+				onMove: (moveEvent) => {
+					const pointedElement = document
+						.elementFromPoint(moveEvent.clientX, moveEvent.clientY)
+						?.closest(`[${TIMELINE_LAYER_EYE_ATTR}]`);
+					if (!pointedElement || pointedElement === lastPaintedLayerEye) {
+						return;
+					}
+
+					lastPaintedLayerEye = pointedElement;
+					layerEyeActions.get(pointedElement)?.();
 				},
-				{once: true},
-			);
+				onEnd: () => {
+					layerPointedDown = null;
+					lastPaintedLayerEye = null;
+					stopLayerPointerSession = null;
+				},
+			});
 		},
 		[hidden, onInvoked],
 	);
@@ -118,11 +138,34 @@ export const TimelineLayerEye: React.FC<{
 		}
 	}, [onInvoked]);
 
+	const registerLayerEye = useCallback(
+		(element: HTMLDivElement | null) => {
+			if (element) {
+				layerEyeActions.set(element, () => {
+					if (layerPointedDown) {
+						onInvoked(layerPointedDown);
+					}
+				});
+			}
+		},
+		[onInvoked],
+	);
+
+	const onDoubleClick: React.MouseEventHandler<HTMLDivElement> = useCallback(
+		(e) => {
+			e.stopPropagation();
+		},
+		[],
+	);
+
 	return (
 		<div
+			ref={registerLayerEye}
+			{...{[TIMELINE_LAYER_EYE_ATTR]: true}}
 			style={timelineLayerIconContainer}
 			draggable={false}
 			onDragStart={onDragStart}
+			onDoubleClick={onDoubleClick}
 			onPointerEnter={onPointerEnter}
 			onPointerDown={onPointerDown}
 		>

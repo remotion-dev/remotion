@@ -158,7 +158,10 @@ class Semantic
 				isProduction: null,
 				sampleRate: 48000,
 			});
-		const jsonOutput = toParse.substring(0, toParse.lastIndexOf('}') + 1);
+		const jsonOutput = toParse.substring(
+			toParse.indexOf('{'),
+			toParse.lastIndexOf('}') + 1,
+		);
 		const parsedJson = JSON.parse(jsonOutput);
 
 		expect({

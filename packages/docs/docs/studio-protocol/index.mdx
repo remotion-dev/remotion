@@ -1,0 +1,56 @@
+---
+image: /generated/articles-docs-studio-protocol-index.png
+title: 'Remotion Studio Protocol'
+crumb: '@remotion/studio-protocol'
+---
+
+# Remotion Studio Protocol<AvailableFrom v="4.0.502" />
+
+A versioned protocol for connecting websites to Remotion Studio.
+
+Protocol v1 supports [Remotion Elements](/elements) from the official Remotion Elements library. It provides one Element payload that can be delivered by dragging it into Studio or by requesting installation into the active composition.
+
+<Installation pkg="@remotion/studio-protocol" />
+
+## Usage
+
+```ts twoslash title="element.ts"
+import {
+  createElementPayload,
+  installInStudio,
+} from '@remotion/studio-protocol';
+
+const payload = createElementPayload({
+  displayName: 'Lower Third',
+  slug: 'lower-third',
+  sourceCode: 'export const LowerThird = () => null;',
+  dependencies: [],
+  dimensions: {width: 900, height: 260},
+  durationInFrames: 90,
+});
+
+const result = await installInStudio({payload});
+if (result.success) {
+  console.log(result.status); // "awaiting-confirmation"
+}
+```
+
+A successful request means Studio received the Element and is awaiting confirmation. It does not mean dependencies or source files were installed.
+
+## APIs
+
+import {TableOfContents} from './table-of-contents';
+
+<TableOfContents />
+
+## Supported origins
+
+Any HTTPS website can request an Element installation confirmation. HTTP is supported on `localhost` and `127.0.0.1` for local development.
+
+## Compatibility
+
+Remotion Studio 4.0.502 or newer is required. Browser Studio is not supported in protocol v1.
+
+## License
+
+[Remotion License](/docs/license)

@@ -46,17 +46,6 @@ const getContainerStyle = (height: number): React.CSSProperties => {
 	};
 };
 
-const errorMessage: React.CSSProperties = {
-	fontSize: 13,
-	paddingTop: 6,
-	paddingBottom: 6,
-	paddingLeft: 12,
-	paddingRight: 12,
-	alignSelf: 'flex-start',
-	maxWidth: 450,
-	opacity: 0.75,
-};
-
 const getWaveformErrorMessage = () => {
 	return new Error(
 		'No waveform available. The audio could not be decoded or may not support CORS.',
@@ -129,7 +118,7 @@ const drawLoopedWaveform = ({
 	ctx.fillRect(0, 0, w, h);
 };
 
-export const AudioWaveform: React.FC<{
+const AudioWaveformInner: React.FC<{
 	readonly src: string;
 	readonly height: number;
 	readonly visualizationWidth: number;
@@ -398,14 +387,7 @@ export const AudioWaveform: React.FC<{
 	}, [height, parsedVolume, shouldRenderVolumeOverlay, visualizationWidth]);
 
 	if (error) {
-		return (
-			<div style={getContainerStyle(height)}>
-				<div style={errorMessage}>
-					No waveform available. The audio could not be decoded or may not
-					support CORS.
-				</div>
-			</div>
-		);
+		return null;
 	}
 
 	if (!canUseWorkerPath && !peaks) {
@@ -425,3 +407,5 @@ export const AudioWaveform: React.FC<{
 		</div>
 	);
 };
+
+export const AudioWaveform = React.memo(AudioWaveformInner);

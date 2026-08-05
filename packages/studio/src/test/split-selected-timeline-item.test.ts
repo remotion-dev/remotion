@@ -14,6 +14,7 @@ import {
 	splitSelectedTimelineItems,
 } from '../components/Timeline/split-selected-timeline-item';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import {makeRuntimeValueStore} from './make-runtime-value-store';
 
 const makeKey = (nodePath: SequenceNodePath): SequencePropsSubscriptionKey => ({
 	absolutePath: '/tmp/Comp.tsx',
@@ -43,7 +44,6 @@ const makeSequence = (overrides: Partial<TSequence> = {}): TSequence =>
 		displayName: 'Sequence',
 		documentationLink: null,
 		parent: null,
-		rootId: 'root',
 		showInTimeline: true,
 		nonce: [[0, 0]],
 		loopDisplay: undefined,
@@ -52,7 +52,7 @@ const makeSequence = (overrides: Partial<TSequence> = {}): TSequence =>
 		postmountDisplay: null,
 		controls: {
 			schema: {},
-			currentRuntimeValueDotNotation: {},
+			runtimeValues: makeRuntimeValueStore({}),
 			overrideId: 'override',
 			supportsEffects: true,
 			componentIdentity: null,
@@ -155,7 +155,7 @@ test('getTimelineSequenceSplitEligibility rejects non-editable sequence shapes',
 			sequence: makeSequence({
 				controls: {
 					schema: {},
-					currentRuntimeValueDotNotation: {},
+					runtimeValues: makeRuntimeValueStore({}),
 					overrideId: 'override',
 					supportsEffects: true,
 					componentIdentity: 'dev.remotion.remotion.Solid',

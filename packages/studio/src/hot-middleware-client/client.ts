@@ -142,9 +142,9 @@ export const enableHotMiddleware = () => {
 		processMessage(hmrEvent);
 	};
 
-	// Connect to /events immediately so HMR works before React mounts.
-	// PreviewServerConnection reuses the same EventSource via preview-server-events.
-	if (typeof window !== 'undefined' && typeof EventSource !== 'undefined') {
+	// Connect immediately so HMR works before React mounts. Browser Studio and
+	// the preview server share the same transport-neutral event subscription.
+	if (typeof window !== 'undefined') {
 		if (!unsubscribeFromPreviewServerEvents) {
 			unsubscribeFromPreviewServerEvents = subscribeToPreviewServerEvents(
 				(event) => {

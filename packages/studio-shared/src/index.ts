@@ -14,10 +14,15 @@ export {
 	ApplyCodemodResponse,
 	ApplyVisualControlRequest,
 	ApplyVisualControlResponse,
+	BatchUpdateEffectKeyframeSettings,
+	BatchUpdateKeyframeSettingsRequest,
+	BatchUpdateKeyframeSettingsResponse,
+	BatchUpdateSequenceKeyframeSettings,
 	CanUpdateDefaultPropsResponse,
 	CanUpdateSequencePropsRequest,
 	CancelRenderRequest,
 	CancelRenderResponse,
+	CaptionPatch,
 	CompositionComponentInfoRequest,
 	CompositionComponentInfoResponse,
 	ConvertFigmaClipboardToSvgRequest,
@@ -42,8 +47,18 @@ export {
 	DuplicateEffectResponse,
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse,
+	EditorPickerId,
+	ElementInstallExpectedFileState,
 	ElementInstallRequest,
+	ElementInstallSource,
+	FindInFileRequest,
+	FindInFileResponse,
+	GetDefaultCodingAgentInfoRequest,
+	GetDefaultCodingAgentInfoResponse,
+	GetDefaultEditorInfoRequest,
+	GetDefaultEditorInfoResponse,
 	GoogleFontSourceEdit,
+	InsertElementFileConflict,
 	InsertElementRequest,
 	InsertElementResponse,
 	InsertJsxElementRequest,
@@ -61,8 +76,11 @@ export {
 	OpenInEditorRequest,
 	OpenInEditorResponse,
 	OpenInFileExplorerRequest,
+	PackageInstallSpec,
 	PasteEffectsRequest,
 	PasteEffectsResponse,
+	PrepareElementInstallRequest,
+	PrepareElementInstallResponse,
 	ProjectInfoRequest,
 	ProjectInfoResponse,
 	RedoRequest,
@@ -79,6 +97,11 @@ export {
 	RestartStudioResponse,
 	SaveEffectPropsRequest,
 	SaveEffectPropsResponse,
+	SaveInlineCaptionPatchesRequest,
+	SaveMultipleEffectPropsEdit,
+	SaveMultipleEffectPropsRequest,
+	SaveMultipleEffectPropsResponse,
+	SaveMultipleEffectPropsResult,
 	SaveSequencePropEdit,
 	SaveSequencePropSourceEdit,
 	SaveSequencePropsRequest,
@@ -100,45 +123,32 @@ export {
 	UnsubscribeFromSequencePropsRequest,
 	UpdateAvailableRequest,
 	UpdateAvailableResponse,
+	UpdateDefaultCodingAgentRequest,
+	UpdateDefaultCodingAgentResponse,
+	UpdateDefaultEditorRequest,
+	UpdateDefaultEditorResponse,
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse,
 	UpdateEffectKeyframeSettingsRequest,
 	UpdateEffectKeyframeSettingsResponse,
 	UpdateElementInstallTargetRequest,
 	UpdateElementInstallTargetResponse,
+	UpdatePublicLicenseRequest,
+	UpdatePublicLicenseResponse,
 	UpdateSequenceKeyframeSettingsRequest,
 	UpdateSequenceKeyframeSettingsResponse,
 	type AddEffectKeyframe,
 	type AddSequenceKeyframe,
 	type KeyframeSettings,
 } from './api-requests';
-export {
-	ASSET_DRAG_MIME_TYPE,
-	makeAssetDragData,
-	parseAssetDragData,
-	type AssetDragData,
-} from './asset-drag-data';
+export type {BrowserStudioOperations} from './browser-studio-operations';
 export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
+export {compositionDragDataToSymbolicatedStack} from './composition-drag-data';
 export {
-	COMPONENT_DRAG_MIME_TYPE,
-	areComponentProps,
-	isComponentIdentifier,
-	isComponentImportPath,
-	makeComponentDragData,
-	parseComponentDragData,
-	type ComponentDimensions,
-	type ComponentDragData,
-	type ComponentProp,
-} from './component-drag-data';
-export {
-	COMPOSITION_DRAG_MIME_TYPE,
-	compositionDragDataToSymbolicatedStack,
-	makeCompositionDragData,
-	parseCompositionDragData,
-	type CompositionDragData,
-} from './composition-drag-data';
+	getConfigFileChangeMessage,
+	type ConfigFileChangeType,
+} from './config-file-change';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
-export {getDefinePluginDefinitions} from './define-plugin-definitions';
 export {
 	detectFileType,
 	isImageFileType,
@@ -146,11 +156,6 @@ export {
 	type FileType,
 	type ImageFileType,
 } from './detect-file-type';
-export {
-	REMOTION_DRAG_MIME_TYPES,
-	isRemotionDragMimeType,
-	type RemotionDragMimeType,
-} from './drag-mime-types';
 export {
 	parseEasingClipboardData,
 	parseEasingClipboardDataResult,
@@ -164,7 +169,6 @@ export {
 	getEffectDocumentationPath,
 	getEffectPreviewAlt,
 	getEffectPreviewSource,
-	makeEffectDragDataFromCatalogItem,
 	type EffectCatalogCategory,
 	type EffectCatalogItem,
 } from './effect-catalog';
@@ -188,20 +192,6 @@ export {
 	type EffectPropClipboardData,
 	type EffectPropClipboardDataParseResult,
 } from './effect-clipboard-data';
-export {
-	EFFECT_DRAG_MIME_TYPE,
-	parseEffectDragData,
-	type EffectDragData,
-} from './effect-drag-data';
-export {
-	ELEMENT_DRAG_MIME_TYPE,
-	getElementComponentNameFromSourceCode,
-	isLowercaseElementFileName,
-	makeElementDragData,
-	makeElementFileNameFromSlug,
-	parseElementDragData,
-	type ElementDragData,
-} from './element-drag-data';
 export {EventSourceEvent} from './event-source-event';
 export {formatBytes} from './format-bytes';
 export {getAllSchemaKeys, getAssetSchemaKeys} from './get-all-keys';
@@ -218,6 +208,14 @@ export {
 	ModuleMap,
 	hotMiddlewareOptions,
 } from './hot-middleware';
+export {
+	isKeyframeClipboardFieldType,
+	parseKeyframeClipboardData,
+	parseKeyframeClipboardDataResult,
+	type KeyframeClipboardData,
+	type KeyframeClipboardDataParseResult,
+	type KeyframeClipboardFieldType,
+} from './keyframe-clipboard-data';
 export {
 	CUBIC_KEYFRAME_EASING,
 	EASE_KEYFRAME_EASING,
@@ -240,14 +238,6 @@ export {
 	keyframeInterpolationFunctions,
 	type KeyframeInterpolationFunction,
 } from './keyframe-interpolation-function';
-export {
-	isKeyframeClipboardFieldType,
-	parseKeyframeClipboardData,
-	parseKeyframeClipboardDataResult,
-	type KeyframeClipboardData,
-	type KeyframeClipboardDataParseResult,
-	type KeyframeClipboardFieldType,
-} from './keyframe-clipboard-data';
 export {DEFAULT_TIMELINE_TRACKS} from './max-timeline-tracks';
 export {
 	Pkgs,
@@ -307,11 +297,6 @@ export type {
 	SequenceControls,
 } from './schema-field-info';
 export {
-	SFX_DRAG_MIME_TYPE,
-	parseSfxDragData,
-	type SfxDragData,
-} from './sfx-drag-data';
-export {
 	ScriptLine,
 	SomeStackFrame,
 	StackFrame,
@@ -324,6 +309,11 @@ export {
 } from './studio-entry-points';
 export {studioHtml, type StudioHtmlOptions} from './studio-html';
 export type {StudioRuntimeConfig} from './studio-runtime-config';
+export {
+	BORDER_RADIUS_LONGHAND_KEYS,
+	BORDER_RADIUS_SHORTHAND_KEY,
+	getStylePropertyLonghandKeys,
+} from './style-property-relations';
 
 export type {VisualControlChange} from './codemods';
 export {

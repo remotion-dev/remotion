@@ -10,6 +10,7 @@ import {YouTube} from '../../components/YouTube';
 import {
 	AvailableFrom,
 	MinBunVersion,
+	MinEslintVersion,
 	MinNodeVersion,
 } from '../components/AvailableFrom';
 import {CompatibilityTable} from '../components/CompatibilityTable';
@@ -30,6 +31,7 @@ export default {
 	TsType,
 	MinNodeVersion,
 	MinBunVersion,
+	MinEslintVersion,
 	Options,
 	Credits,
 	YouTube,

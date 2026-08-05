@@ -1,7 +1,7 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals, interpolate} from 'remotion';
 import {useHoverState} from './use-hover-state.js';
-import {usePlayer} from './use-player.js';
+import {usePlayerMethods} from './use-player-methods.js';
 import {useElementSize} from './utils/use-element-size.js';
 
 const getFrameFromX = (
@@ -64,7 +64,7 @@ export const PlayerSeekBar: React.FC<{
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
-	const {seek, play, pause, playing} = usePlayer();
+	const {seek, play, pause, isPlaying} = usePlayerMethods();
 	const frame = Internals.Timeline.useTimelinePosition();
 
 	const [dragging, setDragging] = useState<
@@ -95,15 +95,16 @@ export const PlayerSeekBar: React.FC<{
 				durationInFrames,
 				width,
 			);
+			const wasPlaying = isPlaying();
 			pause();
 			seek(_frame);
 			setDragging({
 				dragging: true,
-				wasPlaying: playing,
+				wasPlaying,
 			});
 			onSeekStart();
 		},
-		[durationInFrames, width, pause, seek, playing, onSeekStart],
+		[durationInFrames, width, isPlaying, pause, seek, onSeekStart],
 	);
 
 	const onPointerMove = useCallback(

@@ -32,21 +32,21 @@ export const MyComp: React.FC = () => {
 
 This will render the text on top of the image.
 
-If you want to only show an element for a certain duration, you can use a [`<Sequence>`](/docs/sequence) component, which by default is also absolutely positioned.
+If you want to only show a layer for a certain duration, pass timing props to [`<AbsoluteFill>`](/docs/absolute-fill).
 
 ```tsx twoslash title="MyComp.tsx"
 import React from 'react';
-import {AbsoluteFill, Img, staticFile, Sequence} from 'remotion';
+import {AbsoluteFill, Img, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
     <AbsoluteFill>
-      <Sequence>
+      <AbsoluteFill>
         <Img src={staticFile('bg.png')} />
-      </Sequence>
-      <Sequence from={60} durationInFrames={40}>
+      </AbsoluteFill>
+      <AbsoluteFill from={60} durationInFrames={40}>
         <h1>This text appears after 60 frames!</h1>
-      </Sequence>
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };
@@ -58,5 +58,4 @@ If you are aware of this behavior, you can use it to your advantage and avoid us
 ## See also
 
 - [`<AbsoluteFill>`](/docs/absolute-fill)
-- [`<Sequence>`](/docs/sequence)
 - [Build a timeline-based video editor](/docs/building-a-timeline)

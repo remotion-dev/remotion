@@ -50,7 +50,7 @@ const confirmDeletingDuplicatedSequences = (
 	});
 };
 
-const deleteSequences = async (
+export const deleteSequencesFromSource = async (
 	nodePathInfos: SequenceNodePathInfo[],
 	confirm: ConfirmationDialogFunction,
 ): Promise<boolean> => {
@@ -69,14 +69,7 @@ const deleteSequences = async (
 		}),
 	})
 		.then((result) => {
-			if (result.success) {
-				showNotification(
-					nodePathInfos.length === 1
-						? 'Removed sequence from source file'
-						: 'Removed sequences from source files',
-					2000,
-				);
-			} else {
+			if (!result.success) {
 				showNotification(result.reason, 4000);
 			}
 
@@ -177,7 +170,7 @@ export const deleteSelectedTimelineItem = ({
 		case 'guide':
 			return null;
 		case 'sequence':
-			return deleteSequences([selection.nodePathInfo], confirm);
+			return deleteSequencesFromSource([selection.nodePathInfo], confirm);
 		case 'sequence-effect':
 			return deleteEffects([
 				{
@@ -467,7 +460,7 @@ export const deleteSelectedTimelineItems = ({
 		case 'guide':
 			return null;
 		case 'sequence':
-			return deleteSequences(
+			return deleteSequencesFromSource(
 				selections
 					.filter(isSequenceRowSelection)
 					.map((selection) => selection.nodePathInfo),

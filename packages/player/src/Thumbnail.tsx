@@ -16,10 +16,11 @@ import type {
 	AnyZodObject,
 	CompProps,
 	LogLevel,
+	PlayableMediaTag,
 	PlaybackRateContextValue,
 	TimelineContextValue,
 } from 'remotion';
-import {Internals, random} from 'remotion';
+import {Internals} from 'remotion';
 import {ThumbnailEmitterContext} from './emitter-context.js';
 import {ThumbnailEmitter} from './event-emitter.js';
 import type {ThumbnailMethods} from './player-methods.js';
@@ -81,8 +82,9 @@ const ThumbnailFn = <
 		}, []);
 	}
 
-	const [thumbnailId] = useState(() => String(random(null)));
 	const rootRef = useRef<ThumbnailMethods>(null);
+	const imperativePlaying = useRef(false);
+	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 
 	const timelineState: TimelineContextValue = useMemo(() => {
 		const value: TimelineContextValue = {
@@ -90,15 +92,12 @@ const ThumbnailFn = <
 			frame: {
 				[PLAYER_COMP_ID]: frameToDisplay,
 			},
-			rootId: thumbnailId,
-			imperativePlaying: {
-				current: false,
-			},
-			audioAndVideoTags: {current: []},
+			imperativePlaying,
+			audioAndVideoTags,
 		};
 
 		return value;
-	}, [frameToDisplay, thumbnailId]);
+	}, [frameToDisplay]);
 
 	const playbackRateContext: PlaybackRateContextValue = useMemo(() => {
 		return {

@@ -1,0 +1,33 @@
+---
+image: /generated/articles-docs-studio-protocol-security.png
+title: 'Studio Protocol security'
+crumb: '@remotion/studio-protocol'
+---
+
+# Studio Protocol security<AvailableFrom v="4.0.503" />
+
+An Element contains executable React source code and may declare npm dependencies. Studio requires confirmation before applying every installation request.
+
+## Confirmation boundary
+
+A successful [`installInStudio()`](/docs/studio-protocol/install-in-studio) result only means the request reached Studio and is awaiting confirmation.
+
+Before confirming, Studio shows the requesting website, target composition and destination file, source code, and every declared dependency with its installation status. Source code and package lifecycle scripts run with the project's file and network access.
+
+Declining the confirmation does not write source files or install packages. Drag-and-drop Element data has no reliable website provenance and is labeled as unverified.
+
+## Allowed origins
+
+Any HTTPS website can request an Element installation confirmation. HTTP is supported only for local development pages on `localhost` or `127.0.0.1`.
+
+Studio reflects only the requesting allowed origin in CORS. It does not use wildcard CORS or cross-origin credentials.
+
+## Target information
+
+Discovery exposes limited metadata needed to present the destination: project name, composition ID, Studio version, focus time, and a short-lived target token. It does not expose project source code or filesystem contents.
+
+Target tokens are opaque, single-use, short-lived, and bound to the requesting origin, selected Studio tab, and composition.
+
+## See also
+
+- [Remotion security best practices](/docs/security)

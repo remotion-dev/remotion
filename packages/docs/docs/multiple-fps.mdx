@@ -39,18 +39,16 @@ const animationProgress = interpolate(frame, [1 * fps, 2 * fps], [0, 1], {
 });
 ```
 
-Also use the `fps` value when specifying `from` and `durationInFrames` of a `<Sequence>`:
+Also use the `fps` value when specifying `from` and `durationInFrames`:
 
 ```tsx twoslash
 import React from 'react';
-import {interpolate, useCurrentFrame, Sequence, useVideoConfig} from 'remotion';
+import {Interactive, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 const frame = useCurrentFrame();
 const {fps, durationInFrames} = useVideoConfig();
 // ---cut---
 // Show for 3 seconds
-<Sequence durationInFrames={3 * fps}>
-  <div />
-</Sequence>;
+<Interactive.Div durationInFrames={3 * fps} />;
 ```
 
 And when passing `fps`, `delay` and `durationInFrames` of a `spring()`:

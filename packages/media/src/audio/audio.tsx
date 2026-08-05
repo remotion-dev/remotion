@@ -16,7 +16,7 @@ import type {AudioProps} from './props';
 
 const {validateMediaProps} = Internals;
 
-const audioSchema = {
+export const audioSchema: InteractivitySchema = {
 	src: {
 		type: 'asset',
 		default: undefined,
@@ -55,7 +55,6 @@ const AudioInner: React.FC<
 	// rest gets drilled down
 	const {
 		name,
-		stack,
 		showInTimeline,
 		controls,
 		from,
@@ -68,6 +67,7 @@ const AudioInner: React.FC<
 		...otherProps
 	} = props;
 	const environment = useRemotionEnvironment();
+	const sourceStack = controls ? Internals.getStackForControls(controls) : null;
 
 	const [mediaVolume] = Internals.useMediaVolumeState();
 	const mediaStartsAt = Internals.useMediaStartsAt();
@@ -168,7 +168,6 @@ const AudioInner: React.FC<
 				from={from ?? 0}
 				durationInFrames={basicInfo.duration}
 				freeze={freeze}
-				_remotionInternalStack={stack}
 				_remotionInternalIsMedia={isMedia}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
@@ -195,7 +194,7 @@ const AudioInner: React.FC<
 						name={name}
 						{...otherProps}
 						style={premountingStyle}
-						stack={stack ?? null}
+						_remotionInternalStack={sourceStack}
 						setMediaDurationInSeconds={setMediaDurationInSeconds}
 					/>
 				)}

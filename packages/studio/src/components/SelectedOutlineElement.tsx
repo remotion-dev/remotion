@@ -12,9 +12,11 @@ import {
 import {formatFileLocation} from '../helpers/format-file-location';
 import {getConnectedCompositions} from '../helpers/get-connected-compositions';
 import {getSequenceDoubleClickAction} from '../helpers/get-sequence-double-click-action';
+import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
+import {startPointerSession} from '../helpers/pointer-session';
 import {EditorSnappingContext} from '../state/editor-snapping';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import {callApi} from './call-api';
 import {useConfirmationDialog} from './ConfirmationDialog';
 import {ContextMenuForTarget} from './ContextMenu';
@@ -29,7 +31,6 @@ import {
 	stopForcingSpecificCursor,
 } from './ForceSpecificCursor';
 import {useSelectComposition} from './InitialCompositionLoader';
-import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
 	applySelectedOutlineDragAxisLock,
@@ -48,6 +49,7 @@ import {
 	getSelectedOutlineScaleDragStates,
 	getSelectedOutlineScaleDragValues,
 	getSelectedOutlineScaleEdgeInfo,
+	getSelectedOutlineTransformOriginDragChanges,
 	getSelectedOutlineTransformOriginLockedAxis,
 	isSelectedOutlineDragPastThreshold,
 	parseCssRotationToRadians,
@@ -76,6 +78,7 @@ import {
 	type SelectedOutlineSnapTarget,
 } from './selected-outline-snap';
 import {
+	cropFieldKeys,
 	rotateFieldKey,
 	scaleFieldKey,
 	transformOriginFieldKey,
@@ -90,15 +93,13 @@ import {
 	getUvCoordinateForPoint,
 	getUvHandlePosition,
 } from './selected-outline-uv';
-import {
-	callAddKeyframes,
-	callAddSequenceKeyframe,
-	type AddSequenceKeyframeChange,
-} from './Timeline/call-add-keyframe';
+import {SelectedOutlineCropControls} from './SelectedOutlineCropControls';
+import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {disableSequenceInteractivity} from './Timeline/disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './Timeline/duplicate-selected-timeline-item';
 import {commitPendingInspectorFields} from './Timeline/focus-inspector-field';
 import {getSequenceContextMenuItems} from './Timeline/get-sequence-context-menu-items';
+import {getCurrentFrame} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {getTimelineAssetLinkInfo} from './Timeline/timeline-asset-link';
 import {
@@ -117,8 +118,6 @@ import {
 } from './Timeline/transform-origin-utils';
 import {useSelectAsset} from './use-select-asset';
 
-const emptyContextMenuValues: readonly ComboboxValue[] = [];
-
 export const SelectedOutlineTransformOriginHandle: React.FC<{
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
@@ -129,6 +128,8 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 	);
 	const {editorSnapping} = useContext(EditorSnappingContext);
 	const transformOriginDrag = target?.transformOriginDrag ?? null;
+	const crop = target?.crop;
+	const transformOriginPoints = outline.uncroppedPoints ?? outline.points;
 
 	const parsed = useMemo(
 		() =>
@@ -149,8 +150,8 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 		});
 	}, [outline.dimensions, parsed]);
 	const position = useMemo(
-		() => (uv === null ? null : getUvHandlePosition(outline.points, uv)),
-		[outline.points, uv],
+		() => (uv === null ? null : getUvHandlePosition(transformOriginPoints, uv)),
+		[transformOriginPoints, uv],
 	);
 
 	const onPointerDown = React.useCallback(
@@ -190,14 +191,6 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 			);
 			const startTranslate = parseTranslate(transformOriginDrag.translateValue);
 			const svgRect = svg.getBoundingClientRect();
-			const defaultOrigin =
-				transformOriginDrag.originDefault !== undefined
-					? JSON.stringify(transformOriginDrag.originDefault)
-					: null;
-			const defaultTranslate =
-				transformOriginDrag.translateDefault !== undefined
-					? JSON.stringify(transformOriginDrag.translateDefault)
-					: null;
 
 			let last: {
 				readonly uv: readonly [number, number];
@@ -216,7 +209,7 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 					x: currentPointerX - svgRect.left,
 					y: currentPointerY - svgRect.top,
 				};
-				const rawUv = getUvCoordinateForPoint(outline.points, point);
+				const rawUv = getUvCoordinateForPoint(transformOriginPoints, point);
 				const lockedAxis = getSelectedOutlineTransformOriginLockedAxis({
 					axisLocked,
 					dimensions,
@@ -231,11 +224,13 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 				const snapPoint =
 					lockedAxis === null
 						? point
-						: getUvHandlePosition(outline.points, axisLockedUv);
+						: getUvHandlePosition(transformOriginPoints, axisLockedUv);
 				const snappedUv = editorSnapping
 					? snapSelectedOutlineTransformOriginUv({
+							crop: crop ?? null,
 							point: snapPoint,
-							points: outline.points,
+							points: transformOriginPoints,
+							thresholdPx: null,
 							uv: axisLockedUv,
 						})
 					: axisLockedUv;
@@ -277,11 +272,37 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 					transformOriginDrag.nodePath,
 					translateFieldKey,
 					transformOriginDrag.translatePropStatus.status === 'keyframed'
-						? Internals.makeKeyframedDragOverride({
-								status: transformOriginDrag.translatePropStatus,
-								frame: transformOriginDrag.sourceFrame,
-								value: translate,
-							})
+						? transformOriginDrag.originPropStatus.status === 'keyframed'
+							? Internals.makeKeyframedDragOverride({
+									status: transformOriginDrag.translatePropStatus,
+									frame: transformOriginDrag.sourceFrame,
+									value: translate,
+								})
+							: {
+									type: 'keyframed',
+									status: {
+										...transformOriginDrag.translatePropStatus,
+										keyframes:
+											transformOriginDrag.translatePropStatus.keyframes.map(
+												(keyframe) => {
+													const keyframeTranslate = parseTranslate(
+														String(keyframe.value),
+													);
+													return {
+														...keyframe,
+														value: serializeTranslate(
+															keyframeTranslate[0] +
+																nextTranslateX -
+																startTranslate[0],
+															keyframeTranslate[1] +
+																nextTranslateY -
+																startTranslate[1],
+														),
+													};
+												},
+											),
+									},
+								}
 						: Internals.makeStaticDragOverride(translate),
 				);
 			};
@@ -311,9 +332,6 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 			};
 
 			const onPointerUp = () => {
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerUp);
 				window.removeEventListener('keydown', onKeyChange);
 				window.removeEventListener('keyup', onKeyChange);
 				stopForcingSpecificCursor();
@@ -324,76 +342,35 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 					return;
 				}
 
-				const originChanged = last.origin !== transformOriginDrag.originValue;
-				const translateChanged =
-					last.translate !== transformOriginDrag.translateValue;
-				if (!originChanged && !translateChanged) {
+				const {staticChanges, keyframedChanges} =
+					getSelectedOutlineTransformOriginDragChanges({
+						target: transformOriginDrag,
+						startTranslate,
+						origin: last.origin,
+						translate: last.translate,
+					});
+				if (staticChanges.length === 0 && keyframedChanges.length === 0) {
 					clearDragOverrides(transformOriginDrag.nodePath);
 					return;
 				}
 
-				const shouldSaveAsKeyframes =
-					transformOriginDrag.originPropStatus.status === 'keyframed' ||
-					transformOriginDrag.translatePropStatus.status === 'keyframed';
-
-				const promise = shouldSaveAsKeyframes
-					? callAddKeyframes({
-							sequenceKeyframes: [
-								originChanged
-									? {
-											fileName: transformOriginDrag.nodePath.absolutePath,
-											nodePath: transformOriginDrag.nodePath,
-											fieldKey: transformOriginFieldKey,
-											sourceFrame: transformOriginDrag.sourceFrame,
-											value: last.origin,
-											schema: transformOriginDrag.schema,
-										}
-									: null,
-								translateChanged
-									? {
-											fileName: transformOriginDrag.nodePath.absolutePath,
-											nodePath: transformOriginDrag.nodePath,
-											fieldKey: translateFieldKey,
-											sourceFrame: transformOriginDrag.sourceFrame,
-											value: last.translate,
-											schema: transformOriginDrag.schema,
-										}
-									: null,
-							].filter(
-								NoReactInternals.truthy,
-							) satisfies AddSequenceKeyframeChange[],
-							effectKeyframes: [],
-							setPropStatuses,
-							clientId: transformOriginDrag.clientId,
-						})
-					: saveSequenceProps({
-							changes: [
-								originChanged
-									? {
-											fileName: transformOriginDrag.nodePath.absolutePath,
-											nodePath: transformOriginDrag.nodePath,
-											fieldKey: transformOriginFieldKey,
-											value: last.origin,
-											defaultValue: defaultOrigin,
-											schema: transformOriginDrag.schema,
-										}
-									: null,
-								translateChanged
-									? {
-											fileName: transformOriginDrag.nodePath.absolutePath,
-											nodePath: transformOriginDrag.nodePath,
-											fieldKey: translateFieldKey,
-											value: last.translate,
-											defaultValue: defaultTranslate,
-											schema: transformOriginDrag.schema,
-										}
-									: null,
-							].filter(NoReactInternals.truthy),
-							setPropStatuses,
-							clientId: transformOriginDrag.clientId,
-							undoLabel: 'Move transform origin',
-							redoLabel: 'Move transform origin back',
-						});
+				const promise =
+					staticChanges.length === 0
+						? callAddKeyframes({
+								sequenceKeyframes: keyframedChanges,
+								effectKeyframes: [],
+								setPropStatuses,
+								clientId: transformOriginDrag.clientId,
+							})
+						: saveSequenceProps({
+								changes: staticChanges,
+								addedKeyframes: keyframedChanges,
+								movedKeyframes: null,
+								setPropStatuses,
+								clientId: transformOriginDrag.clientId,
+								undoLabel: 'Move transform origin',
+								redoLabel: 'Move transform origin back',
+							});
 
 				promise
 					.catch((err) => {
@@ -409,14 +386,18 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 					});
 			};
 
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerUp);
+			startPointerSession({
+				event,
+				target: event.currentTarget,
+				onMove: onPointerMove,
+				onEnd: onPointerUp,
+			});
 			window.addEventListener('keydown', onKeyChange);
 			window.addEventListener('keyup', onKeyChange);
 		},
 		[
 			clearDragOverrides,
+			crop,
 			editorSnapping,
 			onDraggingChange,
 			outline,
@@ -424,6 +405,7 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 			setDragOverrides,
 			setPropStatuses,
 			transformOriginDrag,
+			transformOriginPoints,
 			uv,
 		],
 	);
@@ -481,7 +463,6 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 const SelectedOutlinePolygon: React.FC<{
 	readonly allDragTargets: readonly SelectedOutlineDragTarget[];
 	readonly allDragOutlines: readonly SelectedOutline[];
-	readonly contextMenuValues: readonly ComboboxValue[];
 	readonly dragging: boolean;
 	readonly hovered: boolean;
 	readonly onContextMenuOpen: SelectedOutlineContextMenuOpenHandler;
@@ -505,7 +486,6 @@ const SelectedOutlinePolygon: React.FC<{
 }> = ({
 	allDragTargets,
 	allDragOutlines,
-	contextMenuValues,
 	dragging,
 	hovered,
 	onContextMenuOpen,
@@ -526,9 +506,6 @@ const SelectedOutlinePolygon: React.FC<{
 		Internals.VisualModeSettersContext,
 	);
 	const {editorSnapping} = useContext(EditorSnappingContext);
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const timelinePositionRef = useRef(timelinePosition);
-	timelinePositionRef.current = timelinePosition;
 	const polygonRef = useRef<SVGPolygonElement>(null);
 	const points = useMemo(
 		() => outline.points.map(pointToString).join(' '),
@@ -570,7 +547,7 @@ const SelectedOutlinePolygon: React.FC<{
 			const dragStates = getSelectedOutlineDragStates({
 				dragTargets: selected ? allDragTargets : [drag],
 				getDragOverrides,
-				timelinePosition: timelinePositionRef.current,
+				timelinePosition: getCurrentFrame(),
 			});
 			let lastValues = new Map<string, string>();
 			let currentPointerX = startPointerX;
@@ -688,9 +665,6 @@ const SelectedOutlinePolygon: React.FC<{
 			};
 
 			const onPointerUp = () => {
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerUp);
 				window.removeEventListener('keydown', onKeyChange);
 				window.removeEventListener('keyup', onKeyChange);
 				if (dragStarted) {
@@ -721,6 +695,8 @@ const SelectedOutlinePolygon: React.FC<{
 					staticChanges.length > 0
 						? saveSequenceProps({
 								changes: staticChanges,
+								addedKeyframes: null,
+								movedKeyframes: null,
 								setPropStatuses,
 								clientId: drag.clientId,
 								undoLabel:
@@ -733,18 +709,12 @@ const SelectedOutlinePolygon: React.FC<{
 										: 'Move sequence back',
 							})
 						: Promise.resolve(),
-					...keyframedChanges.map((change) =>
-						callAddSequenceKeyframe({
-							fileName: change.fileName,
-							nodePath: change.nodePath,
-							fieldKey: change.fieldKey,
-							sourceFrame: change.sourceFrame,
-							value: change.value,
-							schema: change.schema,
-							setPropStatuses,
-							clientId: change.clientId,
-						}),
-					),
+					callAddKeyframes({
+						sequenceKeyframes: keyframedChanges,
+						effectKeyframes: [],
+						setPropStatuses,
+						clientId: drag.clientId,
+					}),
 				])
 					.catch((err) => {
 						showNotification(
@@ -759,9 +729,12 @@ const SelectedOutlinePolygon: React.FC<{
 					});
 			};
 
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerUp);
+			startPointerSession({
+				event,
+				target: event.currentTarget,
+				onMove: onPointerMove,
+				onEnd: onPointerUp,
+			});
 			window.addEventListener('keydown', onKeyChange);
 			window.addEventListener('keyup', onKeyChange);
 		},
@@ -887,8 +860,7 @@ const SelectedOutlinePolygon: React.FC<{
 			/>
 			<ContextMenuForTarget
 				triggerRef={polygonRef}
-				values={[...contextMenuValues]}
-				onOpen={onContextMenuOpen}
+				getItems={onContextMenuOpen}
 			/>
 		</>
 	);
@@ -896,7 +868,6 @@ const SelectedOutlinePolygon: React.FC<{
 
 const SelectedOutlineScaleEdgeLine: React.FC<{
 	readonly allScaleDragTargets: readonly SelectedOutlineScaleDragTarget[];
-	readonly contextMenuValues: readonly ComboboxValue[];
 	readonly dragging: boolean;
 	readonly edge: SelectedOutlineScaleEdge;
 	readonly outline: SelectedOutline;
@@ -910,7 +881,6 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 	readonly target: SelectedOutlineTarget | undefined;
 }> = ({
 	allScaleDragTargets,
-	contextMenuValues,
 	dragging,
 	edge,
 	outline,
@@ -926,9 +896,6 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const timelinePositionRef = useRef(timelinePosition);
-	timelinePositionRef.current = timelinePosition;
 	const scaleDrag = target?.scaleDrag ?? null;
 	const selected = target?.selected ?? false;
 	const lineRef = useRef<SVGLineElement>(null);
@@ -965,7 +932,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 			const dragStates = getSelectedOutlineScaleDragStates({
 				dragTargets: selected ? allScaleDragTargets : [scaleDrag],
 				getDragOverrides,
-				timelinePosition: timelinePositionRef.current,
+				timelinePosition: getCurrentFrame(),
 			});
 			let lastValues = new Map<string, number | string>();
 			let dragStarted = false;
@@ -1031,9 +998,6 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 			};
 
 			const onPointerUp = () => {
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerUp);
 				if (dragStarted) {
 					stopForcingSpecificCursor();
 					onDraggingChange(false);
@@ -1065,6 +1029,8 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 					staticChanges.length > 0
 						? saveSequenceProps({
 								changes: staticChanges,
+								addedKeyframes: null,
+								movedKeyframes: null,
 								setPropStatuses,
 								clientId: scaleDrag.clientId,
 								undoLabel:
@@ -1077,18 +1043,12 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 										: 'Scale sequence back',
 							})
 						: Promise.resolve(),
-					...keyframedChanges.map((change) =>
-						callAddSequenceKeyframe({
-							fileName: change.fileName,
-							nodePath: change.nodePath,
-							fieldKey: change.fieldKey,
-							sourceFrame: change.sourceFrame,
-							value: change.value,
-							schema: change.schema,
-							setPropStatuses,
-							clientId: change.clientId,
-						}),
-					),
+					callAddKeyframes({
+						sequenceKeyframes: keyframedChanges,
+						effectKeyframes: [],
+						setPropStatuses,
+						clientId: scaleDrag.clientId,
+					}),
 				])
 					.catch((err) => {
 						showNotification(
@@ -1106,9 +1066,12 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 					});
 			};
 
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerUp);
+			startPointerSession({
+				event,
+				target: event.currentTarget,
+				onMove: onPointerMove,
+				onEnd: onPointerUp,
+			});
 		},
 		[
 			allScaleDragTargets,
@@ -1154,11 +1117,7 @@ const SelectedOutlineScaleEdgeLine: React.FC<{
 				}}
 				onPointerDown={onPointerDown}
 			/>
-			<ContextMenuForTarget
-				triggerRef={lineRef}
-				values={[...contextMenuValues]}
-				onOpen={onContextMenuOpen}
-			/>
+			<ContextMenuForTarget triggerRef={lineRef} getItems={onContextMenuOpen} />
 		</>
 	);
 };
@@ -1175,7 +1134,6 @@ const svgPointToClientPoint = (
 
 const SelectedOutlineRotationCornerHandle: React.FC<{
 	readonly allRotationDragTargets: readonly SelectedOutlineRotationDragTarget[];
-	readonly contextMenuValues: readonly ComboboxValue[];
 	readonly corner: SelectedOutlineRotationCorner;
 	readonly dragging: boolean;
 	readonly outline: SelectedOutline;
@@ -1189,7 +1147,6 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 	readonly target: SelectedOutlineTarget | undefined;
 }> = ({
 	allRotationDragTargets,
-	contextMenuValues,
 	corner,
 	dragging,
 	outline,
@@ -1206,9 +1163,6 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 		Internals.VisualModeSettersContext,
 	);
 	const {editorSnapping} = useContext(EditorSnappingContext);
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const timelinePositionRef = useRef(timelinePosition);
-	timelinePositionRef.current = timelinePosition;
 	const rotationDrag = target?.rotationDrag ?? null;
 	const selected = target?.selected ?? false;
 	const circleRef = useRef<SVGCircleElement>(null);
@@ -1253,7 +1207,7 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			const center = svgPointToClientPoint(
 				getSelectedOutlineRotationPivot({
 					dimensions: outline.dimensions,
-					points: outline.points,
+					points: outline.uncroppedPoints ?? outline.points,
 					transformOriginValue: rotationDrag.transformOriginValue,
 				}),
 				svgRect,
@@ -1261,7 +1215,7 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			const dragStates = getSelectedOutlineRotationDragStates({
 				dragTargets: selected ? allRotationDragTargets : [rotationDrag],
 				getDragOverrides,
-				timelinePosition: timelinePositionRef.current,
+				timelinePosition: getCurrentFrame(),
 			});
 			let previousAngle = getAngleDegrees(center, {
 				x: event.clientX,
@@ -1362,9 +1316,6 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			};
 
 			const onPointerUp = () => {
-				window.removeEventListener('pointermove', onPointerMove);
-				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerUp);
 				window.removeEventListener('keydown', onKeyChange);
 				window.removeEventListener('keyup', onKeyChange);
 				if (dragStarted) {
@@ -1398,6 +1349,8 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 					staticChanges.length > 0
 						? saveSequenceProps({
 								changes: staticChanges,
+								addedKeyframes: null,
+								movedKeyframes: null,
 								setPropStatuses,
 								clientId: rotationDrag.clientId,
 								undoLabel:
@@ -1410,18 +1363,12 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 										: 'Rotate sequence back',
 							})
 						: Promise.resolve(),
-					...keyframedChanges.map((change) =>
-						callAddSequenceKeyframe({
-							fileName: change.fileName,
-							nodePath: change.nodePath,
-							fieldKey: change.fieldKey,
-							sourceFrame: change.sourceFrame,
-							value: change.value,
-							schema: change.schema,
-							setPropStatuses,
-							clientId: change.clientId,
-						}),
-					),
+					callAddKeyframes({
+						sequenceKeyframes: keyframedChanges,
+						effectKeyframes: [],
+						setPropStatuses,
+						clientId: rotationDrag.clientId,
+					}),
 				])
 					.catch((err) => {
 						showNotification(
@@ -1439,9 +1386,12 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 					});
 			};
 
-			window.addEventListener('pointermove', onPointerMove);
-			window.addEventListener('pointerup', onPointerUp);
-			window.addEventListener('pointercancel', onPointerUp);
+			startPointerSession({
+				event,
+				target: event.currentTarget,
+				onMove: onPointerMove,
+				onEnd: onPointerUp,
+			});
 			window.addEventListener('keydown', onKeyChange);
 			window.addEventListener('keyup', onKeyChange);
 		},
@@ -1454,6 +1404,7 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			onDraggingChange,
 			outline.dimensions,
 			outline.points,
+			outline.uncroppedPoints,
 			onSelect,
 			rotationDrag,
 			selected,
@@ -1493,8 +1444,7 @@ const SelectedOutlineRotationCornerHandle: React.FC<{
 			/>
 			<ContextMenuForTarget
 				triggerRef={circleRef}
-				values={[...contextMenuValues]}
-				onOpen={onContextMenuOpen}
+				getItems={onContextMenuOpen}
 			/>
 		</>
 	);
@@ -1545,7 +1495,7 @@ export const SelectedOutlineElement: React.FC<{
 	const selectAsset = useSelectAsset();
 	const selectComposition = useSelectComposition();
 	const {compositions} = useContext(Internals.CompositionManager);
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	const resolveOriginalLocation = React.useCallback(
 		async (resolveTarget: SelectedOutlineTarget) => {
@@ -1600,7 +1550,7 @@ export const SelectedOutlineElement: React.FC<{
 					return;
 				}
 
-				await openOriginalPositionInEditor(originalLocation);
+				await openOriginalPositionInEditor(originalLocation, null);
 			};
 
 			openTargetInEditor().catch((err) => {
@@ -1618,7 +1568,7 @@ export const SelectedOutlineElement: React.FC<{
 	);
 
 	const onContextMenuOpen = React.useCallback(async () => {
-		if (target === undefined || previewServerState.type !== 'connected') {
+		if (target === undefined) {
 			return false;
 		}
 
@@ -1643,13 +1593,18 @@ export const SelectedOutlineElement: React.FC<{
 		const canOpenInEditor = Boolean(
 			window.remotion_editorName && originalLocation,
 		);
-		const disableInteractivityDisabled = !target.sequence.showInTimeline;
+		const sourceEditingEnabled = isStudioInteractivityEnabled();
+		const disableInteractivityDisabled =
+			!sourceEditingEnabled || !target.sequence.showInTimeline;
 		const sourceEditDisabled =
-			!target.sequence.controls || !nodePath.absolutePath;
+			!sourceEditingEnabled ||
+			!target.sequence.controls ||
+			!nodePath.absolutePath;
 		const canAddEffect =
 			target.nodePathInfo.supportsEffects &&
 			!sourceEditDisabled &&
 			previewServerState.type === 'connected';
+		const canCrop = target.canCrop && !sourceEditDisabled;
 
 		return getSequenceContextMenuItems({
 			assetLinkInfo,
@@ -1657,8 +1612,9 @@ export const SelectedOutlineElement: React.FC<{
 			deleteDisabled: sourceEditDisabled,
 			disableInteractivityDisabled,
 			duplicateDisabled: sourceEditDisabled,
+			editorInfo: null,
 			fileLocation,
-			includeSourceEditItems: true,
+			includeSourceEditItems: sourceEditingEnabled,
 			onDeleteSequenceFromSource: async () => {
 				if (sourceEditDisabled || previewServerState.type !== 'connected') {
 					return;
@@ -1687,9 +1643,7 @@ export const SelectedOutlineElement: React.FC<{
 							},
 						],
 					});
-					if (result.success) {
-						showNotification('Removed sequence from source file', 2000);
-					} else {
+					if (!result.success) {
 						showNotification(result.reason, 4000);
 					}
 				} catch (err) {
@@ -1725,49 +1679,79 @@ export const SelectedOutlineElement: React.FC<{
 					return;
 				}
 
-				openOriginalPositionInEditor(originalLocation).catch((err) => {
+				openOriginalPositionInEditor(originalLocation, null).catch((err) => {
 					showNotification((err as Error).message, 2000);
 				});
 			},
 			originalLocation,
 			selectAsset,
 			sequence: target.sequence,
-			sourceActions: [
-				...(target.nodePathInfo.supportsEffects
-					? [
-							{
-								type: 'item' as const,
-								id: 'add-effect',
-								keyHint: null,
-								label: 'Add effect...',
-								leftItem: null,
-								disabled: !canAddEffect,
-								onClick: () => {
-									if (
-										!canAddEffect ||
-										previewServerState.type !== 'connected'
-									) {
-										return;
-									}
+			sourceActions: sourceEditingEnabled
+				? [
+						...(target.nodePathInfo.supportsEffects
+							? [
+									{
+										type: 'item' as const,
+										id: 'add-effect',
+										keyHint: null,
+										label: 'Add effect...',
+										leftItem: null,
+										disabled: !canAddEffect,
+										onClick: () => {
+											if (
+												!canAddEffect ||
+												previewServerState.type !== 'connected'
+											) {
+												return;
+											}
 
-									setSelectedModal({
-										type: 'add-effect',
-										clientId: previewServerState.clientId,
-										fileName: nodePath.absolutePath,
-										nodePath,
-									});
-								},
-								quickSwitcherLabel: null,
-								subMenu: null,
-								value: 'add-effect',
+											setSelectedModal({
+												type: 'add-effect',
+												clientId: previewServerState.clientId,
+												fileName: nodePath.absolutePath,
+												nodePath,
+											});
+										},
+										quickSwitcherLabel: null,
+										subMenu: null,
+										value: 'add-effect',
+									},
+								]
+							: []),
+						{
+							type: 'item' as const,
+							id: 'crop',
+							keyHint: null,
+							label: 'Crop',
+							leftItem: null,
+							disabled: !canCrop,
+							onClick: () => {
+								if (!canCrop) {
+									return;
+								}
+
+								onSelect(
+									{
+										type: 'sequence-prop',
+										nodePathInfo: {
+											...target.nodePathInfo,
+											auxiliaryKeys: ['controls', cropFieldKeys.left],
+										},
+										key: cropFieldKeys.left,
+									},
+									{shiftKey: false, toggleKey: false},
+								);
 							},
-							{
-								type: 'divider' as const,
-								id: 'add-effect-divider',
-							},
-						]
-					: []),
-			],
+							quickSwitcherLabel: null,
+							subMenu: null,
+							value: 'crop',
+						},
+						{
+							type: 'divider' as const,
+							id: 'crop-divider',
+						},
+					]
+				: [],
 		});
 	}, [
 		confirm,
@@ -1785,7 +1769,6 @@ export const SelectedOutlineElement: React.FC<{
 			<SelectedOutlinePolygon
 				allDragTargets={allDragTargets}
 				allDragOutlines={allDragOutlines}
-				contextMenuValues={emptyContextMenuValues}
 				dragging={dragging}
 				hovered={hovered}
 				outline={outline}
@@ -1799,12 +1782,16 @@ export const SelectedOutlineElement: React.FC<{
 				snapTargets={snapTargets}
 				target={target}
 			/>
-			{target?.containsSelection || hovered
+			<SelectedOutlineCropControls
+				outline={outline}
+				onDraggingChange={onDraggingChange}
+				target={target}
+			/>
+			{target?.cropDrag === null && (target.containsSelection || hovered)
 				? (['top', 'right', 'bottom', 'left'] as const).map((edge) => (
 						<SelectedOutlineScaleEdgeLine
 							key={edge}
 							allScaleDragTargets={allScaleDragTargets}
-							contextMenuValues={emptyContextMenuValues}
 							dragging={dragging}
 							edge={edge}
 							outline={outline}
@@ -1816,14 +1803,13 @@ export const SelectedOutlineElement: React.FC<{
 						/>
 					))
 				: null}
-			{target?.containsSelection || hovered
+			{target?.cropDrag === null && (target.containsSelection || hovered)
 				? (
 						['top-left', 'top-right', 'bottom-right', 'bottom-left'] as const
 					).map((corner) => (
 						<SelectedOutlineRotationCornerHandle
 							key={corner}
 							allRotationDragTargets={allRotationDragTargets}
-							contextMenuValues={emptyContextMenuValues}
 							corner={corner}
 							dragging={dragging}
 							outline={outline}

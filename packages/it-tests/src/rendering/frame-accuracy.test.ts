@@ -1,5 +1,8 @@
 import {expect, test} from 'bun:test';
-import {getMissedFramesforCodec} from './test-utils';
+import {
+	getMissedFramesforCodec,
+	getMissedFramesWithFractionalTrimApplied,
+} from './test-utils';
 
 test(
 	'should render correct frames from embedded videos - WebM onthread',
@@ -32,6 +35,15 @@ test(
 	'should render correct frames from embedded videos - MP4 offthread',
 	async () => {
 		const missedFrames = await getMissedFramesforCodec('mp4', 'offthread');
+		expect(missedFrames).toBe(0);
+	},
+	{retry: 3},
+);
+
+test(
+	'should select the containing OffthreadVideo frame for a fractional trim',
+	async () => {
+		const missedFrames = await getMissedFramesWithFractionalTrimApplied();
 		expect(missedFrames).toBe(0);
 	},
 	{retry: 3},

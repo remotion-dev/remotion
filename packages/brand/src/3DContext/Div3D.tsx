@@ -40,7 +40,6 @@ type ExtrudeDivOptionalProps = Partial<{
 	readonly backFace: React.ReactNode;
 	readonly topFace: React.ReactNode;
 	readonly bottomFace: React.ReactNode;
-	readonly stack: string;
 }>;
 
 type ExtrudeDivTransformProps = Partial<{
@@ -129,6 +128,9 @@ const extrudeDivSchema = {
 	scaleY: scaleTransformField('Scale Y'),
 	scaleZ: scaleTransformField('Scale Z'),
 	...Interactive.transformSchema,
+	...Interactive.backgroundSchema,
+	...Interactive.borderSchema,
+	...Interactive.borderRadiusSchema,
 } as const satisfies InteractivitySchema;
 
 const setRef = <ElementType,>(
@@ -415,7 +417,6 @@ const ExtrudeDivInner = React.forwardRef<
 			hidden,
 			name,
 			showInTimeline,
-			stack,
 			controls,
 		},
 		ref,
@@ -491,7 +492,6 @@ const ExtrudeDivInner = React.forwardRef<
 				name={name ?? '<ExtrudeDiv>'}
 				showInTimeline={showInTimeline ?? true}
 				controls={controls ?? undefined}
-				_remotionInternalStack={stack}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/studio/make-component-interactive"
 				outlineRef={outlineRef}
 			>

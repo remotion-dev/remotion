@@ -1,6 +1,12 @@
 import path from 'path';
 import {VERSION} from 'remotion';
 import {studioTableOfContents} from '../../docs/studio/table-of-contents-data';
+import {
+	getElementDocumentationUrl,
+	getElementLibrarySections,
+	isElementCategory,
+	type ElementCategory,
+} from '../components/Elements/element-library-data';
 
 export type RawMarkdownComponentReplacement = {
 	readonly componentName: string;
@@ -132,8 +138,49 @@ const getInstallationMarkdown = (pkg: string) => {
 
 const studioApiPath = path.join('docs', 'studio', 'api.mdx');
 
+const renderElementLibraryMarkdown = (attributes: string) => {
+	const categoryAttribute = getStringAttribute({
+		attributes,
+		name: 'category',
+	});
+	let category: ElementCategory | null;
+
+	if (categoryAttribute !== null) {
+		if (!isElementCategory(categoryAttribute)) {
+			throw new Error(`Invalid Element category: ${categoryAttribute}`);
+		}
+
+		category = categoryAttribute;
+	} else if (/(?:^|\s)category\s*=\s*\{\s*null\s*\}/.test(attributes)) {
+		category = null;
+	} else {
+		throw new Error(
+			'The <ElementLibrary> component is missing a category prop',
+		);
+	}
+
+	return getElementLibrarySections(category)
+		.map((section) => {
+			const list = section.definitions
+				.map(
+					(definition) =>
+						`- [${definition.displayName}](${getElementDocumentationUrl(definition)}) — ${definition.description}`,
+				)
+				.join('\n');
+
+			return category === null ? `## ${section.label}\n\n${list}` : list;
+		})
+		.join('\n\n');
+};
+
 const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement[] =
 	[
+		{
+			componentName: 'ElementLibrary',
+			render: ({attributes}) => renderElementLibraryMarkdown(attributes),
+			removeImport:
+				/^import\s+\{\s*ElementLibrary\s*\}\s+from\s+['"]@site\/src\/components\/Elements\/ElementLibrary['"];?\s*\n/m,
+		},
 		{
 			componentName: 'Installation',
 			render: ({attributes}) => {

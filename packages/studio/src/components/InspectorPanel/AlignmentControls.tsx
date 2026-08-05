@@ -1,7 +1,9 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals, type CanUpdateSequencePropStatus} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
+import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
+import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
+import {useRuntimeValues} from '../../helpers/use-runtime-values';
 import {AlignBottomIcon} from '../../icons/align-bottom';
 import {AlignCenterHorizontalIcon} from '../../icons/align-center-horizontal';
 import {AlignCenterVerticalIcon} from '../../icons/align-center-vertical';
@@ -59,6 +61,7 @@ const AlignmentButton: React.FC<{
 }> = ({onClick, title, Icon, disabled}) => {
 	return (
 		<InlineAction
+			variant={null}
 			title={title}
 			onClick={onClick}
 			renderAction={(color) => <Icon style={iconStyle} color={color} />}
@@ -68,8 +71,9 @@ const AlignmentButton: React.FC<{
 };
 
 export const AlignmentControls: React.FC<{
-	readonly track: TrackWithHash;
+	readonly track: TimelineTrackData;
 }> = ({track}) => {
+	const runtimeValues = useRuntimeValues(track.sequence.controls);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {getDragOverrides} = useContext(
@@ -93,6 +97,7 @@ export const AlignmentControls: React.FC<{
 			direction: 'left' | 'center-h' | 'right' | 'top' | 'center-v' | 'bottom',
 		) => {
 			if (
+				!isStudioInteractivityEnabled() ||
 				previewServerState.type !== 'connected' ||
 				!track.nodePathInfo ||
 				!track.sequence.controls
@@ -115,8 +120,7 @@ export const AlignmentControls: React.FC<{
 
 			const activeSchema = getSelectedOutlineActiveSchema({
 				schema: track.sequence.controls.schema,
-				currentRuntimeValueDotNotation:
-					track.sequence.controls.currentRuntimeValueDotNotation,
+				currentRuntimeValueDotNotation: runtimeValues,
 				dragOverrides,
 				propStatus: nodePropStatuses,
 				frame: sourceFrame,
@@ -192,6 +196,8 @@ export const AlignmentControls: React.FC<{
 
 			if (!propStatus || propStatus.status === 'static') {
 				saveSequenceProps({
+					addedKeyframes: null,
+					movedKeyframes: null,
 					changes: [
 						{
 							fileName: nodePath.absolutePath,
@@ -229,12 +235,14 @@ export const AlignmentControls: React.FC<{
 			currentCompositionMetadata,
 			timelinePosition,
 			propStatuses,
+			runtimeValues,
 			getDragOverrides,
 			setPropStatuses,
 		],
 	);
 
 	if (
+		!isStudioInteractivityEnabled() ||
 		previewServerState.type !== 'connected' ||
 		!track.nodePathInfo ||
 		!track.sequence.controls ||
@@ -253,8 +261,7 @@ export const AlignmentControls: React.FC<{
 
 	const renderActiveSchema = getSelectedOutlineActiveSchema({
 		schema: track.sequence.controls.schema,
-		currentRuntimeValueDotNotation:
-			track.sequence.controls.currentRuntimeValueDotNotation,
+		currentRuntimeValueDotNotation: runtimeValues,
 		dragOverrides: renderDragOverrides,
 		propStatus: renderNodePropStatuses,
 		frame: renderSourceFrame,

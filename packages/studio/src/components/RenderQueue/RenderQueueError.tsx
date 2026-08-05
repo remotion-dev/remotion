@@ -1,5 +1,5 @@
 import React, {useCallback, useContext} from 'react';
-import {ModalsContext} from '../../state/modals';
+import {SetSelectedModalContext} from '../../state/modals';
 import {useZIndex} from '../../state/z-index';
 import type {AnyRenderJob} from './context';
 import {renderQueueItemSubtitleStyle} from './item-style';
@@ -11,7 +11,7 @@ const outputLocation: React.CSSProperties = {
 export const RenderQueueError: React.FC<{
 	readonly job: AnyRenderJob;
 }> = ({job}) => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {tabIndex} = useZIndex();
 
 	const onClick = useCallback(() => {

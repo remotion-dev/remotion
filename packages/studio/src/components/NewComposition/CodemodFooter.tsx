@@ -13,7 +13,7 @@ import React, {
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {resolvedStackToSymbolicated} from '../../helpers/resolved-stack-to-symbolicated';
 import {useKeybinding} from '../../helpers/use-keybinding';
-import {ModalsContext} from '../../state/modals';
+import {SetSelectedModalContext} from '../../state/modals';
 import {Flex, Row, Spacing} from '../layout';
 import {ModalButton} from '../ModalButton';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -86,7 +86,7 @@ export const CodemodFooter: React.FC<{
 	applyCodemod,
 }) => {
 	const [submitting, setSubmitting] = useState(false);
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const [codemodStatus, setCanApplyCodemod] = useState<CodemodStatus>({
 		type: 'loading',
 	});

@@ -1,4 +1,4 @@
-import {ASSET_DRAG_MIME_TYPE, makeAssetDragData} from '@remotion/studio-shared';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import React, {
 	useCallback,
 	useContext,
@@ -7,9 +7,10 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {Internals, type StaticFile} from 'remotion';
+import {Internals, staticFile, type StaticFile} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {deleteStaticFile} from '../api/delete-static-file';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	BACKGROUND,
@@ -23,7 +24,6 @@ import {copyText} from '../helpers/copy-text';
 import type {AssetFolder, AssetStructure} from '../helpers/create-folder-tree';
 import {getFileManagerName} from '../helpers/get-file-manager-name';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
-import {useMobileLayout} from '../helpers/mobile-layout';
 import {
 	markAssetSidebarScrollFromRowClick,
 	maybeScrollAssetSidebarRowIntoView,
@@ -32,10 +32,11 @@ import {pushUrl} from '../helpers/url-state';
 import useAssetDragEvents, {
 	isFileDragEvent,
 } from '../helpers/use-asset-drag-events';
+import {getCachedImageMetadata} from '../helpers/use-image-metadata';
+import {getCachedMediaMetadata} from '../helpers/use-media-metadata';
 import {ClipboardIcon} from '../icons/clipboard';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
-import {ModalsContext} from '../state/modals';
-import {SidebarContext} from '../state/sidebar';
+import {SetSelectedModalContext} from '../state/modals';
 import {AssetFileIcon} from './AssetFileIcon';
 import {useConfirmationDialog} from './ConfirmationDialog';
 import {ContextMenu} from './ContextMenu';
@@ -91,6 +92,130 @@ const labelStyle: React.CSSProperties = {
 const revealIconStyle: React.CSSProperties = {
 	height: 12,
 	color: CURRENT_COLOR,
+};
+
+export const getAssetActionAvailability = ({
+	browserStudioCanMutateAssets,
+	readOnlyStudio,
+	connectionStatus,
+	publicFolderExists,
+}: {
+	browserStudioCanMutateAssets: boolean | null;
+	readOnlyStudio: boolean;
+	connectionStatus: 'init' | 'connected' | 'disconnected';
+	publicFolderExists: string | null;
+}) => {
+	return {
+		mutationsDisabled:
+			browserStudioCanMutateAssets !== true &&
+			(readOnlyStudio || connectionStatus !== 'connected'),
+		fileExplorerDisabled:
+			publicFolderExists === null ||
+			readOnlyStudio ||
+			connectionStatus !== 'connected',
+	};
+};
+
+export const getCanDragAsset = ({
+	readOnlyStudio,
+	relativePath,
+}: {
+	readOnlyStudio: boolean;
+	relativePath: string;
+}) => {
+	return !readOnlyStudio && getAssetElementFromPath(relativePath) !== null;
+};
+
+export const getAssetContextMenuItems = ({
+	relativePath,
+	fileManagerName,
+	copyFileName,
+	copyStaticFilePath,
+	openAssetInExplorer,
+	renameAsset,
+	deleteAsset,
+	fileExplorerDisabled,
+	mutationsDisabled,
+}: {
+	relativePath: string;
+	fileManagerName: string;
+	copyFileName: () => void;
+	copyStaticFilePath: () => void;
+	openAssetInExplorer: () => void;
+	renameAsset: () => void;
+	deleteAsset: () => void;
+	fileExplorerDisabled: boolean;
+	mutationsDisabled: boolean;
+}): ComboboxValue[] => {
+	return [
+		getOpenInNewWindowMenuItem(`/assets/${relativePath}`),
+		{
+			type: 'divider',
+			id: 'open-in-new-window-divider',
+		},
+		{
+			id: 'copy-asset-file-name',
+			keyHint: null,
+			label: 'Copy file name',
+			leftItem: null,
+			onClick: copyFileName,
+			quickSwitcherLabel: 'Copy asset file name',
+			subMenu: null,
+			type: 'item',
+			value: 'copy-asset-file-name',
+		},
+		{
+			id: 'copy-asset-static-file-path',
+			keyHint: null,
+			label: 'Copy staticFile() path',
+			leftItem: null,
+			onClick: copyStaticFilePath,
+			quickSwitcherLabel: 'Copy staticFile() path',
+			subMenu: null,
+			type: 'item',
+			value: 'copy-asset-static-file-path',
+		},
+		{
+			type: 'divider',
+			id: 'asset-file-actions-divider',
+		},
+		{
+			id: 'open-asset-in-explorer',
+			keyHint: null,
+			label: `Show in ${fileManagerName}`,
+			leftItem: null,
+			onClick: openAssetInExplorer,
+			quickSwitcherLabel: `Show asset in ${fileManagerName}`,
+			subMenu: null,
+			type: 'item',
+			value: 'open-asset-in-explorer',
+			disabled: fileExplorerDisabled,
+		},
+		{
+			id: 'rename-asset',
+			keyHint: null,
+			label: 'Rename...',
+			leftItem: null,
+			onClick: renameAsset,
+			quickSwitcherLabel: 'Rename asset...',
+			subMenu: null,
+			type: 'item',
+			value: 'rename-asset',
+			disabled: mutationsDisabled,
+		},
+		{
+			id: 'delete-asset',
+			keyHint: null,
+			label: 'Delete...',
+			leftItem: null,
+			onClick: deleteAsset,
+			quickSwitcherLabel: 'Delete asset...',
+			subMenu: null,
+			type: 'item',
+			value: 'delete-asset',
+			disabled: mutationsDisabled,
+		},
+	];
 };
 
 const AssetFolderItem: React.FC<{
@@ -285,11 +410,9 @@ const AssetSelectorItem: React.FC<{
 	const fileManagerName = getFileManagerName(
 		window.remotion_fileSystemPlatform,
 	);
-	const isMobileLayout = useMobileLayout();
 	const [hovered, setHovered] = useState(false);
 	const [isDragging, setIsDragging] = useState(false);
-	const {setSidebarCollapsedState} = useContext(SidebarContext);
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const confirm = useConfirmationDialog();
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
@@ -316,7 +439,7 @@ const AssetSelectorItem: React.FC<{
 	}, [canvasContent, relativePath]);
 
 	const canDragAsset = useMemo(() => {
-		return !readOnlyStudio && getAssetElementFromPath(relativePath) !== null;
+		return getCanDragAsset({readOnlyStudio, relativePath});
 	}, [readOnlyStudio, relativePath]);
 
 	const onPointerLeave = useCallback(() => {
@@ -336,15 +459,7 @@ const AssetSelectorItem: React.FC<{
 		markAssetSidebarScrollFromRowClick(relativePath);
 		setCanvasContent({type: 'asset', asset: relativePath});
 		pushUrl(`/assets/${relativePath}`);
-		if (isMobileLayout) {
-			setSidebarCollapsedState({left: 'collapsed', right: 'collapsed'});
-		}
-	}, [
-		isMobileLayout,
-		relativePath,
-		setCanvasContent,
-		setSidebarCollapsedState,
-	]);
+	}, [relativePath, setCanvasContent]);
 
 	const onDragStart: React.DragEventHandler<HTMLDivElement> = useCallback(
 		(e) => {
@@ -355,12 +470,39 @@ const AssetSelectorItem: React.FC<{
 
 			setIsDragging(true);
 			e.dataTransfer.effectAllowed = 'copy';
-			e.dataTransfer.setData(
-				ASSET_DRAG_MIME_TYPE,
-				JSON.stringify(makeAssetDragData(relativePath)),
-			);
+			const src = staticFile(relativePath);
+			const imageMetadata =
+				previewFileType === 'image' ? getCachedImageMetadata(src) : null;
+			const mediaMetadata =
+				previewFileType === 'audio' || previewFileType === 'video'
+					? getCachedMediaMetadata(src)
+					: null;
+			const width = imageMetadata?.width ?? mediaMetadata?.width ?? null;
+			const height = imageMetadata?.height ?? mediaMetadata?.height ?? null;
+			const hasDimensions =
+				width !== null &&
+				height !== null &&
+				Number.isInteger(width) &&
+				Number.isInteger(height) &&
+				width > 0 &&
+				height > 0;
+			const durationInSeconds =
+				mediaMetadata?.duration !== undefined &&
+				Number.isFinite(mediaMetadata.duration) &&
+				mediaMetadata.duration > 0
+					? mediaMetadata.duration
+					: null;
+
+			const dragData = StudioProtocolInternals.makeDragData({
+				type: 'asset',
+				assetPath: relativePath,
+				width: hasDimensions ? width : null,
+				height: hasDimensions ? height : null,
+				durationInSeconds,
+			});
+			e.dataTransfer.setData(dragData.mimeType, dragData.payload);
 		},
-		[canDragAsset, relativePath],
+		[canDragAsset, previewFileType, relativePath],
 	);
 
 	const onDragEnd: React.DragEventHandler<HTMLDivElement> = useCallback(() => {
@@ -425,8 +567,13 @@ const AssetSelectorItem: React.FC<{
 		});
 	}, [relativePath]);
 
-	const serverActionDisabled =
-		readOnlyStudio || connectionStatus !== 'connected';
+	const {mutationsDisabled, fileExplorerDisabled} = getAssetActionAvailability({
+		browserStudioCanMutateAssets:
+			getBrowserStudioOperations() === null ? null : true,
+		readOnlyStudio,
+		connectionStatus,
+		publicFolderExists: window.remotion_publicFolderExists,
+	});
 
 	const deleteAsset = useCallback(() => {
 		confirm({
@@ -469,91 +616,35 @@ const AssetSelectorItem: React.FC<{
 			});
 	}, [confirm, relativePath]);
 
-	const contextMenu = useMemo((): ComboboxValue[] => {
-		return [
-			getOpenInNewWindowMenuItem(`/assets/${relativePath}`),
-			{
-				type: 'divider',
-				id: 'open-in-new-window-divider',
-			},
-			{
-				id: 'copy-asset-file-name',
-				keyHint: null,
-				label: 'Copy file name',
-				leftItem: null,
-				onClick: copyFileName,
-				quickSwitcherLabel: 'Copy asset file name',
-				subMenu: null,
-				type: 'item',
-				value: 'copy-asset-file-name',
-			},
-			{
-				id: 'copy-asset-static-file-path',
-				keyHint: null,
-				label: 'Copy staticFile() path',
-				leftItem: null,
-				onClick: copyStaticFilePath,
-				quickSwitcherLabel: 'Copy staticFile() path',
-				subMenu: null,
-				type: 'item',
-				value: 'copy-asset-static-file-path',
-			},
-			{
-				type: 'divider',
-				id: 'asset-file-actions-divider',
-			},
-			{
-				id: 'open-asset-in-explorer',
-				keyHint: null,
-				label: `Show in ${fileManagerName}`,
-				leftItem: null,
-				onClick: openAssetInExplorer,
-				quickSwitcherLabel: `Show asset in ${fileManagerName}`,
-				subMenu: null,
-				type: 'item',
-				value: 'open-asset-in-explorer',
-				disabled:
-					serverActionDisabled || window.remotion_publicFolderExists === null,
-			},
-			{
-				id: 'rename-asset',
-				keyHint: null,
-				label: 'Rename...',
-				leftItem: null,
-				onClick: () => {
-					setSelectedModal({
-						type: 'rename-static-file',
-						relativePath,
-					});
-				},
-				quickSwitcherLabel: 'Rename asset...',
-				subMenu: null,
-				type: 'item',
-				value: 'rename-asset',
-				disabled: serverActionDisabled,
-			},
-			{
-				id: 'delete-asset',
-				keyHint: null,
-				label: 'Delete...',
-				leftItem: null,
-				onClick: deleteAsset,
-				quickSwitcherLabel: 'Delete asset...',
-				subMenu: null,
-				type: 'item',
-				value: 'delete-asset',
-				disabled: serverActionDisabled,
-			},
-		];
+	const renameAsset = useCallback(() => {
+		setSelectedModal({
+			type: 'rename-static-file',
+			relativePath,
+		});
+	}, [relativePath, setSelectedModal]);
+
+	const getContextMenuItems = useCallback((): ComboboxValue[] => {
+		return getAssetContextMenuItems({
+			relativePath,
+			fileManagerName,
+			copyFileName,
+			copyStaticFilePath,
+			openAssetInExplorer,
+			renameAsset,
+			deleteAsset,
+			fileExplorerDisabled,
+			mutationsDisabled,
+		});
 	}, [
 		copyFileName,
 		copyStaticFilePath,
 		deleteAsset,
+		fileExplorerDisabled,
 		fileManagerName,
+		mutationsDisabled,
 		openAssetInExplorer,
+		renameAsset,
 		relativePath,
-		serverActionDisabled,
-		setSelectedModal,
 	]);
 
 	const revealInExplorer: React.MouseEventHandler<HTMLButtonElement> =
@@ -575,7 +666,7 @@ const AssetSelectorItem: React.FC<{
 		);
 
 	return (
-		<ContextMenu values={contextMenu} onOpen={null}>
+		<ContextMenu getItems={getContextMenuItems}>
 			<Row align="center">
 				<div
 					ref={rowRef}
@@ -592,7 +683,7 @@ const AssetSelectorItem: React.FC<{
 					<AssetFileIcon
 						fileType={previewFileType}
 						style={iconStyle}
-						color={LIGHT_TEXT}
+						color={hovered || selected ? WHITE : LIGHT_TEXT}
 					/>
 					<Spacing x={1} />
 					<div style={label}>{item.name}</div>
@@ -600,14 +691,16 @@ const AssetSelectorItem: React.FC<{
 						<>
 							<Spacing x={0.5} />
 							<InlineAction
+								variant={null}
 								title="Copy staticFile() path"
 								renderAction={renderCopyAction}
 								onClick={copyToClipboard}
 							/>
-							{serverActionDisabled ? null : (
+							{fileExplorerDisabled ? null : (
 								<>
 									<Spacing x={0.5} />
 									<InlineAction
+										variant={null}
 										title={`Show in ${fileManagerName}`}
 										renderAction={renderFileExplorerAction}
 										onClick={revealInExplorer}

@@ -14,6 +14,8 @@ export const disableSequenceInteractivity = ({
 	readonly setPropStatuses: SetPropStatuses;
 }): Promise<void> => {
 	return saveSequenceProps({
+		addedKeyframes: null,
+		movedKeyframes: null,
 		changes: [
 			{
 				fileName,

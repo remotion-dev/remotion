@@ -114,13 +114,6 @@ const docusaurusEnv = {
 		: null),
 };
 
-const twoslashEnv = lowMemoryBuild
-	? {
-			TWOSLASH_WORKER_COUNT: process.env.TWOSLASH_WORKER_COUNT ?? '2',
-			TWOSLASH_RECYCLE_LIMIT_BYTES:
-				process.env.TWOSLASH_RECYCLE_LIMIT_BYTES ?? String(1024 * 1024 * 1024),
-		}
-	: {};
 const docusaurusBuild = lowMemoryBuild
 	? {
 			command: 'node',
@@ -133,7 +126,6 @@ const docusaurusBuild = lowMemoryBuild
 
 await run('copy raw docs', 'bun', ['copy-raw-docs.ts']);
 await run('fetch prompt submissions', 'bun', ['fetch-prompt-submissions.ts']);
-await run('prewarm twoslash', 'bun', ['prewarm-twoslash.ts'], twoslashEnv);
 await run(
 	'Docusaurus build',
 	docusaurusBuild.command,
@@ -141,4 +133,5 @@ await run(
 	docusaurusEnv,
 );
 await run('copy convert assets', 'bun', ['copy-convert.ts']);
+await run('generate asset manifest', 'bun', ['generate-asset-manifest.ts']);
 await run('count generated pages', 'bun', ['count-pages.ts']);

@@ -4,6 +4,10 @@ import {parse} from '@babel/parser';
 
 const getPackageName = (importPath) => {
 	if (
+		importPath === 'react' ||
+		importPath.startsWith('react/') ||
+		importPath === 'react-dom' ||
+		importPath.startsWith('react-dom/') ||
 		importPath === 'remotion' ||
 		importPath.startsWith('.') ||
 		importPath.startsWith('/') ||

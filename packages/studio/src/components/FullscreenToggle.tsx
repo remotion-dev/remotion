@@ -1,11 +1,11 @@
 import {useCallback, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {WHITE_HEX} from '../helpers/colors';
 import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
 } from '../helpers/use-keybinding';
+import {FullscreenIcon} from '../icons/fullscreen';
 import {drawRef} from '../state/canvas-ref';
 import {ControlButton} from './ControlButton';
 
@@ -16,7 +16,9 @@ const accessibilityLabel = [
 	.filter(NoReactInternals.truthy)
 	.join(' ');
 
-export const FullScreenToggle: React.FC<{}> = () => {
+export const FullScreenToggle: React.FC<{
+	readonly hidden: boolean;
+}> = ({hidden}) => {
 	const keybindings = useKeybinding();
 	const {setSize} = useContext(Internals.PreviewSizeContext);
 
@@ -48,19 +50,23 @@ export const FullScreenToggle: React.FC<{}> = () => {
 		};
 	}, [keybindings, onClick]);
 
-	return (
+	return hidden ? (
+		<button
+			id="fullscreen-toggle"
+			type="button"
+			style={{display: 'none'}}
+			onClick={onClick}
+		/>
+	) : (
 		<ControlButton
+			id="fullscreen-toggle"
 			title={accessibilityLabel}
 			aria-label={accessibilityLabel}
 			onClick={onClick}
 		>
-			<svg
-				style={{width: 18, height: 18}}
-				viewBox="0 0 448 512"
-				fill={WHITE_HEX}
-			>
-				<path d="M0 180V56c0-13.3 10.7-24 24-24h124c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12H64v84c0 6.6-5.4 12-12 12H12c-6.6 0-12-5.4-12-12zM288 44v40c0 6.6 5.4 12 12 12h84v84c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12V56c0-13.3-10.7-24-24-24H300c-6.6 0-12 5.4-12 12zm148 276h-40c-6.6 0-12 5.4-12 12v84h-84c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h124c13.3 0 24-10.7 24-24V332c0-6.6-5.4-12-12-12zM160 468v-40c0-6.6-5.4-12-12-12H64v-84c0-6.6-5.4-12-12-12H12c-6.6 0-12 5.4-12 12v124c0 13.3 10.7 24 24 24h124c6.6 0 12-5.4 12-12z" />
-			</svg>
+			{(color) => (
+				<FullscreenIcon color={color} style={{width: 18, height: 18}} />
+			)}
 		</ControlButton>
 	);
 };

@@ -45,15 +45,36 @@ import { fade } from "@remotion/transitions/fade";
 Any React component can be used as an overlay. For a ready-made effect, see the **light-leaks** rule.
 
 ```tsx
-import { TransitionSeries } from "@remotion/transitions";
-import { LightLeak } from "@remotion/light-leaks";
+import {lightLeak} from '@remotion/effects/light-leak';
+import {TransitionSeries} from '@remotion/transitions';
+import {interpolate, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
+
+const LightLeakOverlay: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {durationInFrames, height, width} = useVideoConfig();
+
+  return (
+    <Solid
+      width={width}
+      height={height}
+      effects={[
+        lightLeak({
+          progress: interpolate(frame, [0, durationInFrames - 1], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          }),
+        }),
+      ]}
+    />
+  );
+};
 
 <TransitionSeries>
   <TransitionSeries.Sequence durationInFrames={60}>
     <SceneA />
   </TransitionSeries.Sequence>
   <TransitionSeries.Overlay durationInFrames={20}>
-    <LightLeak />
+    <LightLeakOverlay />
   </TransitionSeries.Overlay>
   <TransitionSeries.Sequence durationInFrames={60}>
     <SceneB />
@@ -66,16 +87,37 @@ import { LightLeak } from "@remotion/light-leaks";
 Transitions and overlays can coexist in the same `<TransitionSeries>`, but an overlay cannot be adjacent to a transition or another overlay.
 
 ```tsx
-import { TransitionSeries, linearTiming } from "@remotion/transitions";
-import { fade } from "@remotion/transitions/fade";
-import { LightLeak } from "@remotion/light-leaks";
+import {lightLeak} from '@remotion/effects/light-leak';
+import {TransitionSeries, linearTiming} from '@remotion/transitions';
+import {fade} from '@remotion/transitions/fade';
+import {interpolate, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
+
+const LightLeakOverlay: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {durationInFrames, height, width} = useVideoConfig();
+
+  return (
+    <Solid
+      width={width}
+      height={height}
+      effects={[
+        lightLeak({
+          progress: interpolate(frame, [0, durationInFrames - 1], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          }),
+        }),
+      ]}
+    />
+  );
+};
 
 <TransitionSeries>
   <TransitionSeries.Sequence durationInFrames={60}>
     <SceneA />
   </TransitionSeries.Sequence>
   <TransitionSeries.Overlay durationInFrames={30}>
-    <LightLeak />
+    <LightLeakOverlay />
   </TransitionSeries.Overlay>
   <TransitionSeries.Sequence durationInFrames={60}>
     <SceneB />

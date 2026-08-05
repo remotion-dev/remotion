@@ -2,6 +2,11 @@ import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import type {
+	BundlerOverrideFn,
+	RspackOverrideFn,
+	WebpackOverrideFn,
+} from '@remotion/bundler';
+import type {
 	AudioCodec,
 	Browser,
 	BrowserExecutable,
@@ -88,6 +93,7 @@ export const renderVideoFlow = async ({
 	quiet,
 	concurrency,
 	frameRange,
+	selectedFrames,
 	everyNthFrame,
 	outputLocationFromUI,
 	jpegQuality,
@@ -131,6 +137,9 @@ export const renderVideoFlow = async ({
 	keyboardShortcutsEnabled,
 	shouldCache,
 	sampleRate,
+	bundlerOverride,
+	rspackOverride,
+	webpackOverride,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -158,6 +167,7 @@ export const renderVideoFlow = async ({
 	quiet: boolean;
 	concurrency: number | string | null;
 	frameRange: FrameRange | null;
+	selectedFrames: number[] | null;
 	everyNthFrame: number;
 	jpegQuality: number | undefined;
 	onProgress: JobProgressCallback;
@@ -199,6 +209,9 @@ export const renderVideoFlow = async ({
 	keyboardShortcutsEnabled: boolean;
 	shouldCache: boolean;
 	sampleRate: number;
+	bundlerOverride: BundlerOverrideFn | null;
+	rspackOverride: RspackOverrideFn | null;
+	webpackOverride: WebpackOverrideFn | null;
 }) => {
 	RenderInternals.validateConcurrency({
 		value: concurrency,
@@ -350,6 +363,9 @@ export const renderVideoFlow = async ({
 			keyboardShortcutsEnabled,
 			rspack,
 			shouldCache,
+			bundlerOverride,
+			rspackOverride,
+			webpackOverride,
 		},
 	);
 
@@ -521,14 +537,15 @@ export const renderVideoFlow = async ({
 		? existsSync(absoluteSeparateAudioTo)
 		: false;
 
-	const realFrameRange = RenderInternals.getRealFrameRange(
-		config.durationInFrames,
-		frameRange,
-	);
-	const totalFrames: number[] = RenderInternals.getFramesToRender(
-		realFrameRange,
-		everyNthFrame,
-	);
+	const totalFrames: number[] = selectedFrames
+		? RenderInternals.validateSelectedFrames({
+				frames: selectedFrames,
+				durationInFrames: config.durationInFrames,
+			})
+		: RenderInternals.getFramesToRender(
+				RenderInternals.getRealFrameRanges(config.durationInFrames, frameRange),
+				everyNthFrame,
+			);
 
 	renderingProgress = {
 		frames: 0,
@@ -610,6 +627,8 @@ export const renderVideoFlow = async ({
 			everyNthFrame,
 			envVariables,
 			frameRange,
+			frames: selectedFrames,
+			outputFramesInSequence: false,
 			concurrency: resolvedConcurrency,
 			puppeteerInstance,
 			jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,

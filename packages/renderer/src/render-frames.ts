@@ -21,13 +21,13 @@ import {getShouldUsePartitionedRendering} from './can-use-parallel-encoding';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {defaultOnLog} from './default-on-log';
 import {findRemotionRoot} from './find-closest-package-json';
-import type {FrameRange} from './frame-range';
+import {isMultipleFrameRanges, type FrameRange} from './frame-range';
 import {resolveConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getExtraFramesToCapture} from './get-extra-frames-to-capture';
 import type {CountType} from './get-frame-padded-index';
 import {getFilePadLength} from './get-frame-padded-index';
-import {getRealFrameRange} from './get-frame-to-render';
+import {getRealFrameRanges} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import type {LogLevel} from './log-level';
@@ -58,6 +58,7 @@ import {
 	validateFps,
 } from './validate';
 import {validateScale} from './validate-scale';
+import {validateSelectedFrames} from './validate-selected-frames';
 import {wrapWithErrorHandling} from './wrap-with-error-handling';
 
 const MAX_RETRIES_PER_FRAME = 1;
@@ -78,6 +79,8 @@ type InternalRenderFramesOptions = {
 	imageFormat: VideoImageFormat;
 	jpegQuality: number;
 	frameRange: FrameRange | null;
+	frames: number[] | null;
+	outputFramesInSequence: boolean;
 	everyNthFrame: number;
 	puppeteerInstance: HeadlessBrowser | undefined;
 	browserExecutable: BrowserExecutable | null;
@@ -115,6 +118,8 @@ type InnerRenderFramesOptions = {
 	envVariables: Record<string, string>;
 	imageFormat: VideoImageFormat;
 	frameRange: FrameRange | null;
+	frames: number[] | null;
+	outputFramesInSequence: boolean;
 	everyNthFrame: number;
 	onBrowserLog: null | ((log: BrowserLog) => void);
 	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void);
@@ -177,6 +182,7 @@ export type RenderFramesOptions = Prettify<
 		 */
 		quality?: never;
 		frameRange?: FrameRange | null;
+		frames?: number[];
 		everyNthFrame?: number;
 		/**
 		 * @deprecated Use "logLevel": "verbose" instead
@@ -213,6 +219,8 @@ const innerRenderFrames = async ({
 	jpegQuality,
 	imageFormat,
 	frameRange,
+	frames,
+	outputFramesInSequence,
 	onError,
 	envVariables,
 	onBrowserLog,
@@ -258,15 +266,24 @@ const innerRenderFrames = async ({
 
 	const downloadPromises: Promise<unknown>[] = [];
 
-	const realFrameRange = getRealFrameRange(
-		composition.durationInFrames,
-		frameRange,
-	);
+	const framesToRender = frames
+		? validateSelectedFrames({
+				frames,
+				durationInFrames: composition.durationInFrames,
+			})
+		: getFramesToRender(
+				getRealFrameRanges(composition.durationInFrames, frameRange),
+				everyNthFrame,
+			);
+	const realFrameRange: [number, number] = [
+		framesToRender[0],
+		framesToRender[framesToRender.length - 1],
+	];
 
 	const {
 		extraFramesToCaptureAssetsBackend,
 		extraFramesToCaptureAssetsFrontend,
-		chunkLengthInSeconds,
+		chunkLengthInSeconds: seamlessChunkLengthInSeconds,
 		trimLeftOffset,
 		trimRightOffset,
 	} = getExtraFramesToCapture({
@@ -276,8 +293,10 @@ const innerRenderFrames = async ({
 		forSeamlessAacConcatenation,
 		sampleRate,
 	});
+	const chunkLengthInSeconds = forSeamlessAacConcatenation
+		? seamlessChunkLengthInSeconds
+		: framesToRender.length / composition.fps;
 
-	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
 	const concurrencyOrFramesToRender = Math.min(
@@ -325,8 +344,11 @@ const innerRenderFrames = async ({
 
 	// If rendering a GIF and skipping frames, we must ensure it starts from 0
 	// and then is consecutive so FFMPEG recognizes the sequence
-	const countType: CountType =
-		everyNthFrame === 1 ? 'actual-frames' : 'from-zero';
+	const countType: CountType = outputFramesInSequence
+		? 'from-zero'
+		: everyNthFrame === 1
+			? 'actual-frames'
+			: 'from-zero';
 
 	const filePadLength = getFilePadLength({
 		lastFrame,
@@ -463,6 +485,8 @@ const internalRenderFramesRaw = ({
 	envVariables,
 	everyNthFrame,
 	frameRange,
+	frames,
+	outputFramesInSequence,
 	imageFormat,
 	indent,
 	jpegQuality,
@@ -606,6 +630,8 @@ const internalRenderFramesRaw = ({
 					envVariables,
 					everyNthFrame,
 					frameRange,
+					frames,
+					outputFramesInSequence,
 					imageFormat,
 					jpegQuality,
 					muted,
@@ -712,6 +738,7 @@ export const renderFrames = (
 		envVariables,
 		everyNthFrame,
 		frameRange,
+		frames,
 		imageFormat,
 		jpegQuality,
 		muted,
@@ -742,6 +769,26 @@ export const renderFrames = (
 		);
 	}
 
+	if (frames !== undefined && frameRange !== undefined && frameRange !== null) {
+		throw new Error(
+			'The `frames` and `frameRange` options are mutually exclusive.',
+		);
+	}
+
+	if (frames !== undefined && everyNthFrame !== undefined) {
+		throw new Error(
+			'The `frames` and `everyNthFrame` options are mutually exclusive.',
+		);
+	}
+
+	const validatedFrames =
+		frames === undefined
+			? null
+			: validateSelectedFrames({
+					frames,
+					durationInFrames: composition.durationInFrames,
+				});
+
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
 		throw new Error(
 			"You can only pass the `quality` option if `imageFormat` is 'jpeg'.",
@@ -768,6 +815,11 @@ export const renderFrames = (
 		envVariables: envVariables ?? {},
 		everyNthFrame: everyNthFrame ?? 1,
 		frameRange: frameRange ?? null,
+		frames: validatedFrames,
+		outputFramesInSequence:
+			frameRange !== undefined &&
+			frameRange !== null &&
+			isMultipleFrameRanges(frameRange),
 		imageFormat: imageFormat ?? 'jpeg',
 		indent,
 		jpegQuality: jpegQuality ?? DEFAULT_JPEG_QUALITY,

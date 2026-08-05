@@ -1,9 +1,12 @@
-import type {InstallPackageResponse} from '@remotion/studio-shared';
+import type {
+	InstallPackageResponse,
+	PackageInstallSpec,
+} from '@remotion/studio-shared';
 import {getRemotionEnvironment} from 'remotion';
 import {callApi} from '../components/call-api';
 
 export const installPackages = (
-	packageNames: string[],
+	dependencies: readonly PackageInstallSpec[],
 ): Promise<InstallPackageResponse> => {
 	if (!getRemotionEnvironment().isStudio) {
 		throw new Error('installPackages() is only available in the Studio');
@@ -13,5 +16,7 @@ export const installPackages = (
 		throw new Error('installPackages() is not available in Read-Only Studio');
 	}
 
-	return callApi('/api/install-package', {packageNames});
+	return callApi('/api/install-package', {
+		dependencies: [...dependencies],
+	});
 };

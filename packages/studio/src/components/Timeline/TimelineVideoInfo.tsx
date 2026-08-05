@@ -46,7 +46,7 @@ const filmstripContainerStyle: React.CSSProperties = {
 
 const MAX_FROZEN_FRAME_CACHE_DEVIATION = WEBCODECS_TIMESCALE * 0.05;
 
-export const TimelineVideoInfo: React.FC<{
+const TimelineVideoInfoInner: React.FC<{
 	readonly src: string;
 	readonly visualizationWidth: number;
 	readonly naturalWidth: number;
@@ -61,6 +61,7 @@ export const TimelineVideoInfo: React.FC<{
 	readonly postmountWidth: number;
 	readonly loopDisplay: LoopDisplay | undefined;
 	readonly frozenMediaFrame: number | null;
+	readonly extendLastFrame: boolean;
 }> = ({
 	src,
 	visualizationWidth,
@@ -76,6 +77,7 @@ export const TimelineVideoInfo: React.FC<{
 	postmountWidth,
 	loopDisplay,
 	frozenMediaFrame,
+	extendLastFrame,
 }) => {
 	const {fps} = useVideoConfig();
 	const ref = useRef<HTMLDivElement>(null);
@@ -187,6 +189,7 @@ export const TimelineVideoInfo: React.FC<{
 			}
 
 			extractFrames({
+				repeatLastFrame: extendLastFrame,
 				timestampsInSeconds: ({
 					track,
 				}: {
@@ -324,6 +327,7 @@ export const TimelineVideoInfo: React.FC<{
 		}
 
 		extractFrames({
+			repeatLastFrame: extendLastFrame,
 			timestampsInSeconds: ({
 				track,
 			}: {
@@ -431,6 +435,7 @@ export const TimelineVideoInfo: React.FC<{
 	}, [
 		durationInFrames,
 		error,
+		extendLastFrame,
 		fps,
 		frozenMediaFrame,
 		loopDisplay,
@@ -478,3 +483,5 @@ export const TimelineVideoInfo: React.FC<{
 		</div>
 	);
 };
+
+export const TimelineVideoInfo = React.memo(TimelineVideoInfoInner);

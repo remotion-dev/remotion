@@ -1,8 +1,7 @@
 ---
 name: remotion-captions
-description: Dealing with captions in Remotion
-metadata:
-  tags: subtitles, captions, remotion, json
+description: Transcribing, displaying and animating captions
+version: 4.0.506
 ---
 
 All captions must be processed in JSON. The captions must use the [`Caption`](https://www.remotion.dev/docs/captions/caption.md) type which is the following:

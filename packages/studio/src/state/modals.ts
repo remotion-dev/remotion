@@ -24,6 +24,7 @@ import type {
 import type React from 'react';
 import {createContext} from 'react';
 import type {SequencePropsSubscriptionKey, _InternalTypes} from 'remotion';
+import type {StaticFile} from '../api/get-static-files';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
@@ -50,7 +51,6 @@ export type WebRenderModalState = {
 	initialKeyframeIntervalInSeconds: number | null;
 	initialTransparent: boolean | null;
 	initialMuted: boolean | null;
-	initialLicenseKey: string | null;
 	initialMediaCacheSizeInBytes: number | null;
 	initialPageResponsiveness: WebRendererPageResponsiveness;
 };
@@ -179,6 +179,11 @@ export type ModalState =
 	| {
 			type: 'input-props-override';
 	  }
+	| {
+			type: 'settings';
+			initialTab: 'apps' | 'license';
+			initialPublicLicenseKey: string | null;
+	  }
 	| RenderModalState
 	| WebRenderModalState
 	| {
@@ -198,17 +203,29 @@ export type ModalState =
 			type: 'quick-switcher';
 			mode: QuickSwitcherMode;
 			invocationTimestamp: number;
+			assetSelection: {
+				initialQuery: string;
+				onSelectFile: () => void;
+				onSelected: (asset: StaticFile) => void;
+			} | null;
+			compositionSelection: {
+				excludeCompositionId: string;
+				onSelected: (composition: _InternalTypes['AnyComposition']) => void;
+			} | null;
 	  }
 	| AddEffectModalState
 	| ConfirmationDialogState
 	| SvgImportDialogState;
 
-export type ModalContextType = {
-	selectedModal: ModalState | null;
+export type SetSelectedModalContextType = {
 	setSelectedModal: React.Dispatch<React.SetStateAction<ModalState | null>>;
 };
 
-export const ModalsContext = createContext<ModalContextType>({
-	selectedModal: null,
-	setSelectedModal: () => undefined,
-});
+// Keep modal state separate from its stable setter so opening a modal only
+// updates consumers that need to render the selected modal.
+export const SelectedModalContext = createContext<ModalState | null>(null);
+
+export const SetSelectedModalContext =
+	createContext<SetSelectedModalContextType>({
+		setSelectedModal: () => undefined,
+	});

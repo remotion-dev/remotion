@@ -235,6 +235,9 @@ const sharedSchema = (defaultRoughness: number): InteractivitySchema => ({
 	...colorSchema,
 	...Interactive.textSchema,
 	...textContentSchema,
+	...Interactive.backgroundSchema,
+	...Interactive.borderSchema,
+	...Interactive.borderRadiusSchema,
 });
 
 export const highlightSchema: InteractivitySchema = {
@@ -348,7 +351,6 @@ const makeAnnotationComponent = ({
 	const AnnotationInner: React.FC<
 		InternalAnnotationProps & {
 			readonly controls: SequenceControls | undefined;
-			readonly stack?: string;
 		}
 	> = ({
 		children,
@@ -360,7 +362,6 @@ const makeAnnotationComponent = ({
 		name,
 		showInTimeline,
 		controls,
-		stack,
 		style,
 		progress,
 		seed,
@@ -409,11 +410,13 @@ const makeAnnotationComponent = ({
 				name={name ?? `<${componentName}>`}
 				showInTimeline={showInTimeline ?? true}
 				controls={controls}
-				_remotionInternalStack={stack}
 				_remotionInternalDocumentationLink={`https://www.remotion.dev/docs/rough-notation/${documentationSlug}`}
 				outlineRef={outlineRef}
 			>
-				<span ref={outlineRef} style={{display: 'inline-block'}}>
+				<span
+					ref={outlineRef}
+					style={{display: 'inline-block', position: 'relative'}}
+				>
 					<annotation.Container>
 						{layer === 'behind' ? annotationElement : null}
 						<annotation.Tracker style={style}>{children}</annotation.Tracker>

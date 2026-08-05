@@ -35,6 +35,19 @@ import {
 } from './pixel-format';
 import {validateOutputFilename} from './validate-output-filename';
 export {AvailableOptions, TypeOfOption} from './options';
+export {defaultCodingAgentIds} from './options/default-coding-agent';
+export type {DefaultCodingAgent} from './options/default-coding-agent';
+export {
+	customEditorColumnNumberPlaceholder,
+	customEditorLineNumberPlaceholder,
+	customEditorTargetPathPlaceholder,
+	defaultEditorIds,
+} from './options/default-editor';
+export type {
+	BuiltInEditor,
+	CustomEditor,
+	DefaultEditor,
+} from './options/default-editor';
 export {HardwareAccelerationOption} from './options/hardware-acceleration';
 export {ProResProfile} from './options/prores-profile';
 

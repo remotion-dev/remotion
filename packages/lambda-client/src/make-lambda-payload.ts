@@ -7,12 +7,12 @@ import type {
 	ColorSpace,
 	DeleteAfter,
 	DownloadBehavior,
-	FrameRange,
 	LogLevel,
 	OutNameInput,
 	PixelFormat,
 	Privacy,
 	ServerlessCodec,
+	SingleFrameRange,
 	ServerlessPayloads,
 	ServerlessStartPayload,
 	ServerlessStatusPayload,
@@ -60,7 +60,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	framesPerLambda: number | null;
 	concurrency: number | null;
 	logLevel: LogLevel;
-	frameRange: FrameRange | null;
+	frameRange: SingleFrameRange | null;
 	outName: OutNameInput<AwsProvider> | null;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
@@ -70,7 +70,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	concurrencyPerLambda: number;
 	downloadBehavior: DownloadBehavior;
 	muted: boolean;
-	overwrite: boolean;
+	overwrite: boolean | undefined;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
 	encodingMaxRate: string | null;

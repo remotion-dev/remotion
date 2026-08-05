@@ -35,7 +35,7 @@ import type {
 import {Controls} from './PlayerControls.js';
 import type {RenderVolumeSlider} from './render-volume-slider.js';
 import {usePlayback} from './use-playback.js';
-import {usePlayer} from './use-player.js';
+import {usePlayerMethods} from './use-player-methods.js';
 import {IS_NODE} from './utils/is-node.js';
 import {useClickPreventionOnDoubleClick} from './utils/use-click-prevention-on-double-click.js';
 import {useElementSize} from './utils/use-element-size.js';
@@ -154,6 +154,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [shouldAutoplay, setShouldAutoPlay] = useState(autoPlay);
 	const [isFullscreen, setIsFullscreen] = useState(() => false);
 	const [seeking, setSeeking] = useState(false);
+	const [hasPlayed, setHasPlayed] = useState(false);
 
 	const supportsFullScreen = useMemo(() => {
 		if (typeof document === 'undefined') {
@@ -167,8 +168,21 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		);
 	}, []);
 
-	const player = usePlayer();
-	const playerToggle = player.toggle;
+	const player = usePlayerMethods();
+	const [playing] = Internals.Timeline.usePlayingState();
+	const frame = Internals.Timeline.useTimelinePosition();
+
+	const play = useCallback(
+		(e?: SyntheticEvent | PointerEvent) => {
+			if (player.isPlaying()) {
+				return;
+			}
+
+			setHasPlayed(true);
+			player.play(e);
+		},
+		[player],
+	);
 
 	const {playerMuted, mediaVolume} = useContext(Internals.MediaVolumeContext);
 
@@ -195,11 +209,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	});
 
 	useEffect(() => {
-		if (hasPausedToResume && !player.playing) {
+		if (hasPausedToResume && !playing) {
 			setHasPausedToResume(false);
-			player.play();
+			play();
 		}
-	}, [hasPausedToResume, player]);
+	}, [hasPausedToResume, play, playing]);
 
 	useEffect(() => {
 		const {current} = container;
@@ -230,9 +244,13 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	const toggle = useCallback(
 		(e?: SyntheticEvent | PointerEvent) => {
-			playerToggle(e);
+			if (player.isPlaying()) {
+				player.pause();
+			} else {
+				play(e);
+			}
 		},
-		[playerToggle],
+		[play, player],
 	);
 
 	const requestFullscreen = useCallback(() => {
@@ -380,7 +398,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	useImperativeHandle(ref, () => {
 		const methods: PlayerMethods = {
-			play: player.play,
+			play,
 			pause: () => {
 				// If, after .seek()-ing, the player was explicitly paused, we don't resume
 				setHasPausedToResume(false);
@@ -470,6 +488,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		isMuted,
 		mediaVolume,
 		player,
+		play,
 		requestFullscreen,
 		setPlayerMuted,
 		setMediaVolume,
@@ -570,10 +589,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	useEffect(() => {
 		if (shouldAutoplay) {
-			player.play();
+			play();
 			setShouldAutoPlay(false);
 		}
-	}, [shouldAutoplay, player]);
+	}, [play, shouldAutoplay]);
 
 	const loadingMarkup = useMemo(() => {
 		return renderLoading
@@ -620,8 +639,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		poster &&
 		[
 			showPosterWhenPaused && !player.isPlaying() && !seeking,
-			showPosterWhenEnded && player.isLastFrame && !player.isPlaying(),
-			showPosterWhenUnplayed && !player.hasPlayed && !player.isPlaying(),
+			showPosterWhenEnded &&
+				frame === durationInFrames - 1 &&
+				!player.isPlaying(),
+			showPosterWhenUnplayed && !hasPlayed && !player.isPlaying(),
 			showPosterWhenBuffering && showBufferIndicator && player.isPlaying(),
 			showPosterWhenBufferingAndPaused &&
 				showBufferIndicator &&
@@ -683,8 +704,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			{controls ? (
 				<Controls
 					fps={config.fps}
-					playing={player.playing}
-					toggle={player.toggle}
+					playing={playing}
+					toggle={toggle}
 					durationInFrames={config.durationInFrames}
 					containerRef={container}
 					onFullscreenButtonClick={onFullscreenButtonClick}

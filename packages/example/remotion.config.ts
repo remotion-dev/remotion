@@ -1,10 +1,12 @@
 import {Config} from '@remotion/cli/config';
-import {webpackOverride} from './src/webpack-override.mjs';
+import {bundlerOverride} from './src/webpack-override.mjs';
 
 Config.setOverwriteOutput(true);
-Config.overrideWebpackConfig(async (config) => {
+Config.setRspack(true);
+Config.overrideBundlerConfig(async (config) => {
 	await new Promise((resolve) => {
 		setTimeout(resolve, 10);
 	});
-	return webpackOverride(config);
+	return bundlerOverride(config);
 });
+Config.setEnableCrossSiteIsolation(true);

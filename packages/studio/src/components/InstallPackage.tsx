@@ -69,7 +69,9 @@ export const InstallPackageModal: React.FC<{
 
 		setState({type: 'installing'});
 		try {
-			await installPackages(selectedPackages);
+			await installPackages(
+				selectedPackages.map((name) => ({name, version: null})),
+			);
 			setState({type: 'done'});
 		} catch (err) {
 			setState({type: 'error', error: err as Error});

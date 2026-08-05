@@ -7,9 +7,10 @@ import {timelineNodePathInfoToKey} from '../helpers/timeline-node-path-key';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {CheckerboardContext} from '../state/checkerboard';
 import {EditorSnappingContext} from '../state/editor-snapping';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import {askAiModalRef} from './AskAiModal';
 import {useCompositionNavigation} from './CompositionSelector';
+import {explorerSidebarTabs} from './ExplorerPanelRef';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
 	getTimelineSequenceSelectionKey,
@@ -28,7 +29,7 @@ const hasOwnProperty = (obj: object, key: string) =>
 
 export const GlobalKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {setCheckerboard} = useContext(CheckerboardContext);
 	const {setEditorSnapping} = useContext(EditorSnappingContext);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
@@ -77,7 +78,8 @@ export const GlobalKeybindings: React.FC = () => {
 				return false;
 			}
 
-			const {schema, currentRuntimeValueDotNotation} = track.sequence.controls;
+			const {schema, runtimeValues} = track.sequence.controls;
+			const currentRuntimeValueDotNotation = runtimeValues.getSnapshot();
 			if (
 				!hasOwnProperty(schema, fieldKey) &&
 				!hasOwnProperty(currentRuntimeValueDotNotation, fieldKey)
@@ -146,8 +148,13 @@ export const GlobalKeybindings: React.FC = () => {
 			callback: () => {
 				setSelectedModal({
 					type: 'quick-switcher',
-					mode: 'compositions',
+					mode:
+						explorerSidebarTabs.current?.getSelectedPanel() === 'assets'
+							? 'assets'
+							: 'compositions',
 					invocationTimestamp: Date.now(),
+					assetSelection: null,
+					compositionSelection: null,
 				});
 			},
 			triggerIfInputFieldFocused: true,
@@ -199,6 +206,8 @@ export const GlobalKeybindings: React.FC = () => {
 					type: 'quick-switcher',
 					mode: 'docs',
 					invocationTimestamp: Date.now(),
+					assetSelection: null,
+					compositionSelection: null,
 				});
 			},
 			commandCtrlKey: false,

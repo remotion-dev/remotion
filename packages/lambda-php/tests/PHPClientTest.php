@@ -8,6 +8,23 @@ use Remotion\LambdaPhp\RenderParams;
 
 class PHPClientTest extends TestCase
 {
+    public function testOverwriteDefaultsToFalseInV4()
+    {
+        $params = new RenderParams();
+
+        $this->assertFalse($params->getOverwrite());
+        $this->assertFalse($params->serializeParams()['overwrite']);
+    }
+
+    public function testExplicitOverwriteValueIsPreserved()
+    {
+        $params = new RenderParams(overwrite: false);
+        $this->assertFalse($params->getOverwrite());
+
+        $params->setOverwrite(true);
+        $this->assertTrue($params->getOverwrite());
+    }
+
     public function testClient()
     {
         $client = new PHPClient(

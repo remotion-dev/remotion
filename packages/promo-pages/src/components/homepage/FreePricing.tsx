@@ -26,7 +26,7 @@ const Title: React.FC<{
 const Audience: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	return <div className={'fontbrand text-lg leading-none'}>{children}</div>;
+	return <div className={'fontbrand text-lg leading-snug'}>{children}</div>;
 };
 
 const BottomInfo: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
@@ -137,8 +137,8 @@ export const FreePricing: React.FC = () => {
 			<Audience>For individuals and companies of up to 3 people</Audience>
 			<Title>Free License</Title>
 			<PricingBulletPoint text="Create and automate" checked />
-			<PricingBulletPoint text="Commercial use allowed" checked />
-			<PricingBulletPoint text="Unlimited use" checked />
+			<PricingBulletPoint text="All features included" checked />
+			<PricingBulletPoint text="Unlimited commercial use" checked />
 			<PricingBulletPoint
 				text="Must upgrade when your team grows"
 				checked={false}

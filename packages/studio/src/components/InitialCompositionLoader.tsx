@@ -3,12 +3,10 @@ import {useCallback, useContext, useEffect} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {getKeysToExpand} from '../helpers/create-folder-tree';
-import {useMobileLayout} from '../helpers/mobile-layout';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {persistExpandedFolders} from '../helpers/persist-open-folders';
 import {getRoute, pushUrl} from '../helpers/url-state';
 import {FolderContext} from '../state/folders';
-import {SidebarContext} from '../state/sidebar';
 import {explorerSidebarTabs} from './ExplorerPanelRef';
 import {deriveCanvasContentFromUrl} from './load-canvas-content-from-url';
 import {useSelectAsset} from './use-select-asset';
@@ -18,12 +16,13 @@ export const useSelectComposition = () => {
 	const {setCompositionFoldersExpanded} = useContext(FolderContext);
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 	const setFrame = Internals.useTimelineSetFrame();
-	const isMobileLayout = useMobileLayout();
-	const {setSidebarCollapsedState} = useContext(SidebarContext);
 
 	return useCallback(
 		(
-			c: _InternalTypes['AnyComposition'],
+			c: Pick<
+				_InternalTypes['AnyComposition'],
+				'id' | 'folderName' | 'parentFolderName'
+			>,
 			push: boolean,
 			frame: number | null = null,
 		) => {
@@ -54,18 +53,9 @@ export const useSelectComposition = () => {
 
 					return newState;
 				});
-				if (isMobileLayout) {
-					setSidebarCollapsedState({left: 'collapsed', right: 'collapsed'});
-				}
 			}
 		},
-		[
-			isMobileLayout,
-			setCanvasContent,
-			setCompositionFoldersExpanded,
-			setFrame,
-			setSidebarCollapsedState,
-		],
+		[setCanvasContent, setCompositionFoldersExpanded, setFrame],
 	);
 };
 

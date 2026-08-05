@@ -46,7 +46,12 @@ import type {
 } from './api/deploy-function';
 import {deployFunction} from './api/deploy-function';
 import type {DeploySiteInput, DeploySiteOutput} from './api/deploy-site';
-import {deploySite} from './api/deploy-site';
+import {deploySite as deploySiteImplementation} from './api/deploy-site';
+import type {
+	DeploySiteFromBundleInput,
+	DeploySiteFromBundleOutput,
+} from './api/deploy-site-from-bundle';
+import {deploySiteFromBundle} from './api/deploy-site-from-bundle';
 import type {
 	DownloadMediaInput,
 	DownloadMediaOutput,
@@ -71,6 +76,12 @@ import {
 } from './internals';
 
 export type {WebhookPayload} from '@remotion/lambda-client';
+
+/**
+ * @deprecated Use `bundle()` from `@remotion/bundler`, then pass its output to `deploySiteFromBundle()`.
+ */
+const deploySite: (args: DeploySiteInput) => DeploySiteOutput =
+	deploySiteImplementation;
 
 /**
  * @deprecated Import this from `@remotion/lambda-client` instead
@@ -133,6 +144,7 @@ export {
 	deleteSite,
 	deployFunction,
 	deploySite,
+	deploySiteFromBundle,
 	downloadMedia,
 	estimatePrice,
 	getAwsClient,
@@ -162,6 +174,8 @@ export type {
 	DeleteSiteOutput,
 	DeployFunctionInput,
 	DeployFunctionOutput,
+	DeploySiteFromBundleInput,
+	DeploySiteFromBundleOutput,
 	DeploySiteInput,
 	DeploySiteOutput,
 	DownloadMediaInput,

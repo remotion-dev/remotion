@@ -219,6 +219,8 @@ export const sitesCreateSubcommand = async (
 			enableCaching: BrowserSafeApis.options.bundleCacheOption.getValue({
 				commandLine: CliInternals.parsedCli,
 			}).value,
+			bundlerOverride: ConfigInternals.getBundlerOverrideFn(),
+			rspackOverride: ConfigInternals.getRspackOverrideFn(),
 			webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
 			bypassBucketNameValidation: Boolean(parsedLambdaCli['force-bucket-name']),
 			askAIEnabled,

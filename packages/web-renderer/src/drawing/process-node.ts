@@ -20,6 +20,7 @@ import {
 import {getPrecomposeRectForMask, handleMask} from './handle-mask';
 import {roundToExpandRect} from './round-to-expand-rect';
 import {scaleRect} from './scale-rect';
+import {setTransform} from './transform';
 import {transformDOMRect} from './transform-rect-with-matrix';
 
 export type ProcessNodeReturnValue =
@@ -158,12 +159,13 @@ export const processNode = async ({
 		);
 
 		if (precompositing.needsMaskImage) {
-			handleMask({
-				gradientInfo: precompositing.needsMaskImage,
+			await handleMask({
+				maskImageInfo: precompositing.needsMaskImage,
 				maskRect: dimensions,
 				precomposeRect,
 				tempContext,
 				scale,
+				internalState,
 			});
 			if (waitForPageResponsiveness !== null) {
 				await waitForPageResponsiveness();
@@ -189,25 +191,37 @@ export const processNode = async ({
 		}
 
 		const previousTransform = context.getTransform();
+		const is3DPrecomposition = precompositing.needs3DTransformViaWebGL;
 
-		context.setTransform(new DOMMatrix());
+		if (is3DPrecomposition) {
+			context.setTransform(new DOMMatrix());
+		} else {
+			// Preserve 2D rotation and skew instead of stretching the layer into
+			// the axis-aligned bounds of its transformed corners.
+			setTransform({
+				ctx: context,
+				transform: totalMatrix,
+				parentRect,
+				scale,
+			});
+		}
+
+		const destinationRect = is3DPrecomposition
+			? rectAfterTransforms
+			: precomposeRect;
+		const parentOffsetScale = is3DPrecomposition ? scale : 1;
 
 		const drawPrecomposedCanvas = () => {
-			// Source = full drawable (it always contains the precomposed content
-			// at its native size). Destination = `rectAfterTransforms`, so
-			// `drawImage` stretches when ancestor transforms (e.g. scale) make
-			// the destination smaller/larger than the layer canvas.
-			// See https://github.com/remotion-dev/remotion/issues/7199.
 			context.drawImage(
 				drawable,
 				0,
 				0,
 				drawable.width,
 				drawable.height,
-				rectAfterTransforms.left - parentRect.x * scale,
-				rectAfterTransforms.top - parentRect.y * scale,
-				rectAfterTransforms.width,
-				rectAfterTransforms.height,
+				destinationRect.left - parentRect.x * parentOffsetScale,
+				destinationRect.top - parentRect.y * parentOffsetScale,
+				destinationRect.width,
+				destinationRect.height,
 			);
 		};
 

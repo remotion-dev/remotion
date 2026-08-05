@@ -16,6 +16,7 @@ import {
 	getSchemaFieldGroup,
 	type TimelineTreeNode,
 } from '../helpers/timeline-layout';
+import {makeRuntimeValueStore} from './make-runtime-value-store';
 
 const getStack = () => null;
 
@@ -39,7 +40,7 @@ const makeControls = (
 	overrideId: string,
 ): NonNullable<TSequence['controls']> => ({
 	schema: {},
-	currentRuntimeValueDotNotation: {},
+	runtimeValues: makeRuntimeValueStore({}),
 	overrideId,
 	supportsEffects: false,
 	componentIdentity: null,
@@ -69,7 +70,6 @@ const makeSequence = ({
 	displayName: id,
 	documentationLink: null,
 	parent,
-	rootId: 'root',
 	showInTimeline: true,
 	nonce: [[0, nonce]],
 	loopDisplay: undefined,

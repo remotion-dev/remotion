@@ -23,6 +23,7 @@ import {halftoneLinearGradient} from '../halftone-linear-gradient.js';
 import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
 import {invert} from '../invert.js';
+import {lightLeak} from '../light-leak.js';
 import {lightTrail} from '../light-trail/index.js';
 import {linearGradientTint} from '../linear-gradient-tint.js';
 import {linearGradient} from '../linear-gradient.js';
@@ -51,6 +52,7 @@ import {shine} from '../shine.js';
 import {shrinkwrap} from '../shrinkwrap.js';
 import {skew} from '../skew.js';
 import {speckle} from '../speckle.js';
+import {starburst} from '../starburst.js';
 import {thermalVision} from '../thermal-vision.js';
 import {tint} from '../tint.js';
 import {uvTranslate, xyTranslate} from '../translate.js';
@@ -176,6 +178,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(linearProgressivePixelate().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/linear-progressive-pixelate',
 	);
+	expect(lightLeak().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/light-leak',
+	);
 	expect(lightTrail().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/light-trail',
 	);
@@ -231,6 +236,10 @@ test('@remotion/effects expose documentation links', () => {
 	expect(speckle().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/speckle',
 	);
+	expect(
+		starburst({rays: 12, colors: ['#ff0000', '#00ff00']}).definition
+			.documentationLink,
+	).toBe('https://www.remotion.dev/docs/effects/starburst');
 	expect(thermalVision().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/thermal-vision',
 	);

@@ -1,0 +1,20 @@
+{
+	"manifest_version": 3,
+	"name": "Remotion Canvas Capture",
+	"description": "Record any element on a webpage as a high-resolution WebM.",
+	"version": "0.1.0",
+	"permissions": ["activeTab", "scripting", "storage", "unlimitedStorage"],
+	"action": {
+		"default_title": "Open Remotion Canvas Capture"
+	},
+	"background": {
+		"service_worker": "background.js"
+	},
+	"content_scripts": [
+		{
+			"matches": ["https://remotion.dev/convert*"],
+			"js": ["receiver.js"],
+			"run_at": "document_start"
+		}
+	]
+}

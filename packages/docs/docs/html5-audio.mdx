@@ -97,7 +97,7 @@ export const MyVideo = () => {
 
 ### ~~`startFrom?` / `endAt?`~~
 
-:::note Deprecated
+:::info Deprecated
 These props have been renamed to [`trimBefore`](#trimbefore--trimafter) and [`trimAfter`](#trimbefore--trimafter) in 4.0.319. They will continue to work but you cannot use them together with the new props.
 :::
 
@@ -210,7 +210,7 @@ In the [Remotion Studio](/docs/terminology/studio) or in the [Remotion Player](/
 
 ### `pauseWhenBuffering?`<AvailableFrom v="4.0.111"/>
 
-If set to `true` and the audio is buffering, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false`, but will become `true` in Remotion 5.0.
+If set to `true` and the audio is buffering, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false` in Remotion 4.0 and `true` in Remotion 5.0.
 
 ### `showInTimeline?`<AvailableFrom v="4.0.122"/>
 
@@ -237,12 +237,15 @@ Handle an error playing the audio.
 Corresponds to the [`crossOrigin`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio#attr-crossorigin) attribute of the `<audio>` element.
 One of `"anonymous"`, `"use-credentials"` or `undefined`.
 
-### ~`allowAmplificationDuringRender?`<AvailableFrom v="3.3.17" />~
+### ~~`allowAmplificationDuringRender?`~~<AvailableFrom v="3.3.17" />
 
+:::info Deprecated
 Deprecated since v4.0.279: This prop intended to opt into setting the volume to a value higher than one, even though it would only apply during render.
 
-The option does not make sense anymore, because it is now possible to set the volume higher than `1`.  
 To prevent synthetic amplification, set a volume not higher than 1.
+:::
+
+The option does not make sense anymore, because it is now possible to set the volume higher than `1`.
 
 ## Compatibility
 

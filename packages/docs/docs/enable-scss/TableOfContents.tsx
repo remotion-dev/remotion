@@ -8,7 +8,7 @@ export const TableOfContents: React.FC = () => {
 			<Grid>
 				<TOCItem link="/docs/enable-scss/enable-scss">
 					<strong>{'enableScss()'}</strong>
-					<div>Override the Webpack config to enable SCSS</div>
+					<div>Override the bundler config to enable SCSS</div>
 				</TOCItem>
 			</Grid>
 		</div>

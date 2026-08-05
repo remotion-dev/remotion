@@ -24,6 +24,7 @@ import {
 	type EffectSchemaFieldInfo,
 	type SchemaFieldInfo,
 } from '../../helpers/timeline-layout';
+import {useRuntimeValues} from '../../helpers/use-runtime-values';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {
@@ -32,6 +33,7 @@ import {
 } from '../Timeline/call-delete-keyframe';
 import {callMoveKeyframes} from '../Timeline/call-move-keyframe';
 import {getEasingSelectionAfterKeyframeDelete} from '../Timeline/get-easing-selection-after-keyframe-delete';
+import {getCurrentFrame} from '../Timeline/imperative-state';
 import {parseKeyframeFieldFromNodePath} from '../Timeline/parse-keyframe-field-from-node-path';
 import {TimelineEffectPropValue} from '../Timeline/TimelineEffectPropItem';
 import {
@@ -143,8 +145,8 @@ export const KeyframeInspector: React.FC<{
 	readonly selection: Extract<TimelineSelection, {type: 'keyframe'}>;
 }> = ({selection}) => {
 	const track = useTrackForSelection(selection);
+	const runtimeValues = useRuntimeValues(track?.sequence.controls ?? null);
 	const videoConfig = useVideoConfig();
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {
 		clearDragOverrides,
@@ -187,8 +189,7 @@ export const KeyframeInspector: React.FC<{
 		if (keyframeField.type === 'sequence') {
 			const sequenceFields = getFieldsToShow({
 				schema: track.sequence.controls.schema,
-				currentRuntimeValueDotNotation:
-					track.sequence.controls.currentRuntimeValueDotNotation,
+				currentRuntimeValueDotNotation: runtimeValues,
 				getDragOverrides,
 				propStatuses,
 				nodePath,
@@ -271,6 +272,7 @@ export const KeyframeInspector: React.FC<{
 		getDragOverrides,
 		getEffectDragOverrides,
 		propStatuses,
+		runtimeValues,
 		selection,
 		track,
 	]);
@@ -459,7 +461,7 @@ export const KeyframeInspector: React.FC<{
 						keyframeDisplayOffset: details.keyframeDisplayOffset,
 						nodePathInfo: selection.nodePathInfo,
 						propStatus: details.propStatus,
-						timelinePosition,
+						timelinePosition: getCurrentFrame(),
 					})
 				: null;
 			if (easingSelection !== null) {
@@ -499,7 +501,6 @@ export const KeyframeInspector: React.FC<{
 			selectItems,
 			selection.nodePathInfo,
 			setPropStatuses,
-			timelinePosition,
 		],
 	);
 

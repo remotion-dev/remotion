@@ -75,7 +75,7 @@ Montserrat.loadFont('normal', {
 });
 ```
 
-Call [`loadFont()`](/docs/google-fonts/load-font) to start the loading process. Calling it without arguments loads every style, weight and subset, which can cause unnecessary requests.
+Call [`loadFont()`](/docs/google-fonts/load-font) to start the loading process. In Remotion 4.0, calling it without arguments loads every style, weight and subset, which can cause unnecessary requests. From [v5.0](/docs/5-0-migration), `weights` and `subsets` are required.
 
 Use TypeScript autocomplete to see the available styles. To further narrow down what's being loaded, specify `weights` and `subsets`. If you need multiple styles, call `loadFont()` multiple times.
 

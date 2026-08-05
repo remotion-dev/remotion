@@ -1,10 +1,21 @@
-import React, {forwardRef, useContext, useMemo, useState} from 'react';
+import React, {
+	forwardRef,
+	useContext,
+	useLayoutEffect,
+	useMemo,
+	useState,
+} from 'react';
+import {CanUseRemotionHooks} from './CanUseRemotionHooks.js';
 import type {
 	JsxComponentIdentity,
 	SequenceControls,
 } from './CompositionManager.js';
 import {deleteNestedKey} from './delete-nested-key.js';
 import {getPropStatusesCtx} from './effects/use-memoized-effects.js';
+import {
+	getStackForControls,
+	setStackForControls,
+} from './enable-sequence-stack-traces.js';
 import {
 	flattenActiveSchema,
 	getFlatSchemaWithAllKeys,
@@ -13,6 +24,7 @@ import {
 	extendSchemaWithSequenceName,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
+import {createRuntimeValueStore} from './runtime-value-store.js';
 import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import {
 	VisualModeDragOverridesContext,
@@ -172,11 +184,17 @@ export const withInteractivitySchema = <
 	const flatKeys = Object.keys(flatSchema);
 
 	const Wrapped = forwardRef<unknown, Props>((props, ref) => {
+		const {
+			_remotionInternalStack: internalStack,
+			...propsWithoutInternalStack
+		} = props as Props & {readonly _remotionInternalStack?: string};
+		const cleanProps = propsWithoutInternalStack as Props;
 		const env = useRemotionEnvironment();
+		const canUseRemotionHooks = useContext(CanUseRemotionHooks);
 
-		if (!env.isStudio || env.isReadOnlyStudio || env.isRendering) {
+		if (!env.isStudio || env.isRendering || !canUseRemotionHooks) {
 			return React.createElement(Component, {
-				...props,
+				...cleanProps,
 				controls: null,
 				ref,
 			} as Props & {
@@ -196,9 +214,15 @@ export const withInteractivitySchema = <
 
 		// If the parent has passed `controls`, we should not override it.
 		// @ts-expect-error
-		if (props.controls) {
+		if (cleanProps.controls) {
+			// @ts-expect-error `controls` is injected by another interactive wrapper.
+			const passedControls = cleanProps.controls as SequenceControls;
+			if (getStackForControls(passedControls) === null) {
+				setStackForControls(passedControls, internalStack);
+			}
+
 			return React.createElement(Component, {
-				...props,
+				...cleanProps,
 				ref,
 			} as unknown as Props & {
 				controls: SequenceControls | undefined;
@@ -208,22 +232,22 @@ export const withInteractivitySchema = <
 
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const [overrideId] = useState(() => {
-			const {stack} = props as {stack?: string};
-			if (!stack) {
+			if (!internalStack) {
 				return String(Math.random());
 			}
 
-			const existingOverrideId = stackToOverrideMap[stack];
+			const existingOverrideId = stackToOverrideMap[internalStack];
 			if (existingOverrideId) {
 				return existingOverrideId;
 			}
 
 			const newOverrideId = String(Math.random());
-			stackToOverrideMap[stack] = newOverrideId;
+			stackToOverrideMap[internalStack] = newOverrideId;
 			return newOverrideId;
 		});
-		const nodePath =
-			nodePathMapping.overrideIdToNodePathMappings[overrideId] ?? null;
+		const nodePath = env.isReadOnlyStudio
+			? null
+			: (nodePathMapping.overrideIdToNodePathMappings[overrideId] ?? null);
 
 		// Read the runtime values for every flat key from the JSX props,
 		// memoized on the leaf values so the object reference is stable
@@ -233,32 +257,44 @@ export const withInteractivitySchema = <
 			getRuntimeValueForSchemaKey({
 				flatSchema,
 				key,
-				props: props as Record<string, unknown>,
+				props: cleanProps as Record<string, unknown>,
 			}),
 		);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const currentRuntimeValueDotNotation = useMemo(
 			() =>
 				readValuesFromProps(
-					props as Record<string, unknown>,
+					cleanProps as Record<string, unknown>,
 					flatKeys,
 					flatSchema,
 				),
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 			runtimeValues,
 		);
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const [runtimeValueStore] = useState(() =>
+			createRuntimeValueStore(currentRuntimeValueDotNotation),
+		);
+		// Publishing in a layout effect ensures that abandoned renders cannot expose
+		// uncommitted runtime values to Studio consumers.
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			runtimeValueStore.setSnapshot(currentRuntimeValueDotNotation);
+		}, [currentRuntimeValueDotNotation, runtimeValueStore]);
 
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const controls = useMemo((): SequenceControls => {
 			return {
 				schema: schemaWithSequenceName,
 				currentRuntimeValueDotNotation,
+				runtimeValues: runtimeValueStore.store,
 				overrideId,
 				supportsEffects,
 				componentIdentity,
 				componentName,
 			};
-		}, [currentRuntimeValueDotNotation, overrideId]);
+		}, [currentRuntimeValueDotNotation, overrideId, runtimeValueStore.store]);
+		setStackForControls(controls, internalStack);
 
 		// 3. Apply drag/code overrides on top of the runtime values.
 		// eslint-disable-next-line react-hooks/rules-of-hooks
@@ -290,7 +326,7 @@ export const withInteractivitySchema = <
 		// 5. Apply the active values back onto the props.
 		const mergedProps = mergeValues({
 			flatSchema,
-			props: props as Record<string, unknown>,
+			props: cleanProps as Record<string, unknown>,
 			valuesDotNotation,
 			schemaKeys: activeKeys,
 			propsToDelete,
