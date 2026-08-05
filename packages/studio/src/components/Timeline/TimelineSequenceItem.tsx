@@ -6,6 +6,7 @@ import type {
 	TSequence,
 } from 'remotion';
 import {Internals} from 'remotion';
+import {areSequenceNodePathInfosEqual} from '../../helpers/are-sequence-node-path-infos-equal';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BLACK_ALPHA_85,
@@ -83,7 +84,7 @@ import {TimelineSequenceName} from './TimelineSequenceName';
 import {useOpenSequenceInEditor} from './use-open-sequence-in-editor';
 import {useRenameSequence} from './use-rename-sequence';
 import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
-import {useTimelineExpandedTree} from './use-timeline-expanded-tree';
+import {useTimelineSequenceHasExpandableContent} from './use-timeline-expanded-tree';
 
 const labelContainerStyle: React.CSSProperties = {
 	alignItems: 'center',
@@ -117,21 +118,27 @@ type SequenceReorderDragData = {
 
 let currentSequenceDrag: SequenceReorderDragData | null = null;
 
-const TimelineSequenceExpandArrow: React.FC<{
+type TimelineSequenceExpandArrowProps = {
 	readonly disabled: boolean;
 	readonly isExpanded: boolean;
 	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly onToggleExpand: () => void;
 	readonly sequence: TSequence;
-}> = ({disabled, isExpanded, nodePathInfo, onToggleExpand, sequence}) => {
-	const {filteredTree} = useTimelineExpandedTree({
+};
+
+const TimelineSequenceExpandArrowInner: React.FC<
+	TimelineSequenceExpandArrowProps
+> = ({disabled, isExpanded, nodePathInfo, sequence}) => {
+	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
+	const hasExpandableContent = useTimelineSequenceHasExpandableContent({
 		sequence,
 		nodePathInfo,
-		includeTextContent: false,
-		includeSourceControls: false,
 	});
+	const onToggleExpand = useCallback(
+		() => toggleTrack(nodePathInfo),
+		[nodePathInfo, toggleTrack],
+	);
 
-	if (filteredTree.length === 0) {
+	if (!hasExpandableContent) {
 		return <TimelineExpandArrowSpacer />;
 	}
 
@@ -144,6 +151,26 @@ const TimelineSequenceExpandArrow: React.FC<{
 		/>
 	);
 };
+
+const areTimelineSequenceExpandArrowPropsEqual = (
+	first: TimelineSequenceExpandArrowProps,
+	second: TimelineSequenceExpandArrowProps,
+) => {
+	return (
+		first.disabled === second.disabled &&
+		first.isExpanded === second.isExpanded &&
+		first.sequence.controls?.schema === second.sequence.controls?.schema &&
+		first.sequence.controls?.runtimeValues ===
+			second.sequence.controls?.runtimeValues &&
+		first.sequence.effects === second.sequence.effects &&
+		areSequenceNodePathInfosEqual(first.nodePathInfo, second.nodePathInfo)
+	);
+};
+
+const TimelineSequenceExpandArrow = React.memo(
+	TimelineSequenceExpandArrowInner,
+	areTimelineSequenceExpandArrowPropsEqual,
+);
 
 const sequenceReorderWrapper: React.CSSProperties = {
 	position: 'relative',
@@ -273,7 +300,6 @@ const TimelineSequenceItemInner: React.FC<{
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
-	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {isHighestContext} = useKeybinding();
@@ -660,14 +686,6 @@ const TimelineSequenceItemInner: React.FC<{
 
 	const isExpanded =
 		previewConnected && nodePathInfo !== null && getIsExpanded(nodePathInfo);
-
-	const onToggleExpand = useCallback(() => {
-		if (nodePathInfo === null) {
-			return;
-		}
-
-		toggleTrack(nodePathInfo);
-	}, [nodePathInfo, toggleTrack]);
 
 	const codeHiddenStatus = propStatusesForOverride?.hidden;
 	const runtimeHidden = useRuntimeValue(sequence.controls, 'hidden');
@@ -1182,7 +1200,6 @@ const TimelineSequenceItemInner: React.FC<{
 						disabled={!previewInteractive}
 						isExpanded={isExpanded}
 						nodePathInfo={nodePathInfo}
-						onToggleExpand={onToggleExpand}
 						sequence={sequence}
 					/>
 				) : (

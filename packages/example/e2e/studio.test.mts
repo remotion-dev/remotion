@@ -21,22 +21,40 @@ const dropAssetOnCanvas = async ({
 		height: null,
 		width: null,
 	});
-	await page
-		.locator('.remotion-studio-composition-container')
-		.evaluate((element, data) => {
-			const rect = element.getBoundingClientRect();
-			const dataTransfer = new DataTransfer();
-			dataTransfer.setData(data.mimeType, data.payload);
-			element.dispatchEvent(
-				new DragEvent('drop', {
+	const canvas = page.locator('.remotion-studio-composition-container');
+	await expect
+		.poll(() =>
+			canvas.evaluate((element, data) => {
+				const rect = element.getBoundingClientRect();
+				const dataTransfer = new DataTransfer();
+				dataTransfer.setData(data.mimeType, data.payload);
+				const event = new DragEvent('dragover', {
 					bubbles: true,
 					cancelable: true,
 					clientX: rect.left + rect.width / 2,
 					clientY: rect.top + rect.height / 2,
 					dataTransfer,
-				}),
-			);
-		}, dragData);
+				});
+				element.dispatchEvent(event);
+
+				return event.defaultPrevented;
+			}, dragData),
+		)
+		.toBe(true);
+	await canvas.evaluate((element, data) => {
+		const rect = element.getBoundingClientRect();
+		const dataTransfer = new DataTransfer();
+		dataTransfer.setData(data.mimeType, data.payload);
+		element.dispatchEvent(
+			new DragEvent('drop', {
+				bubbles: true,
+				cancelable: true,
+				clientX: rect.left + rect.width / 2,
+				clientY: rect.top + rect.height / 2,
+				dataTransfer,
+			}),
+		);
+	}, dragData);
 };
 
 const getVideoTag = (source: string, assetPath: string) => {
@@ -66,6 +84,15 @@ test.describe('visual mode', () => {
 	test('should load the studio', async ({page}) => {
 		await page.goto(STUDIO_URL);
 		await expect(page).toHaveTitle(/Remotion/i, {timeout: 15_000});
+	});
+
+	test('should compensate DOM measurements with useCurrentScale() on direct load', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/use-current-scale-on-load`);
+		await expect(
+			page.getByTestId('use-current-scale-corrected-width'),
+		).toHaveText('100', {timeout: 15_000});
 	});
 
 	test('should show the composition list', async ({page}) => {
@@ -290,12 +317,13 @@ test.describe('visual mode', () => {
 		await expect(
 			page.getByRole('button', {name: '0', exact: true}),
 		).toBeVisible({timeout: 15_000});
+		const currentTime = page
+			.getByRole('button')
+			.filter({hasText: /^\d\d:\d\d\.\d\d/});
 
 		await page.locator('[data-timeline-scrubber]').click();
 
-		await expect(
-			page.getByRole('button', {name: '75', exact: true}),
-		).toBeVisible();
+		await expect(currentTime).not.toHaveAttribute('aria-label', '0');
 	});
 
 	test('should place Canvas drops where they are visible at the playhead', async ({

@@ -123,7 +123,7 @@ import {MaxMediaCacheSizeContext} from './max-video-cache-size.js';
 import type {NonceHistory} from './nonce.js';
 import {NonceContext} from './nonce.js';
 import {playbackLogging} from './playback-logging.js';
-import {portalNode} from './portal-node.js';
+import {portalNode, setPortalNodeCurrentScale} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
 import {PremountContext} from './PremountContext.js';
@@ -351,6 +351,7 @@ export const Internals = {
 	getPreviewDomElement,
 	compositionsRef,
 	portalNode,
+	setPortalNodeCurrentScale,
 	waitForRoot,
 	SetTimelineContext,
 	CanUseRemotionHooksProvider,

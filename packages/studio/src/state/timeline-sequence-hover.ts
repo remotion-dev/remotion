@@ -1,5 +1,11 @@
 import type {Dispatch, SetStateAction} from 'react';
-import {createContext, useCallback, useContext, useMemo} from 'react';
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useMemo,
+	useSyncExternalStore,
+} from 'react';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {
 	timelineNodePathInfoToKey,
@@ -12,25 +18,60 @@ export type TimelineSequenceHover = {
 	readonly source: 'canvas' | 'timeline';
 };
 
-type TimelineSequenceHoverState = {
-	readonly hoveredSequence: TimelineSequenceHover | null;
+type TimelineSequenceHoverStore = {
+	readonly getSnapshot: () => TimelineSequenceHover | null;
+	readonly subscribe: (listener: () => void) => () => void;
 	readonly setHoveredSequence: Dispatch<
 		SetStateAction<TimelineSequenceHover | null>
 	>;
 };
 
+export const createTimelineSequenceHoverStore =
+	(): TimelineSequenceHoverStore => {
+		let hoveredSequence: TimelineSequenceHover | null = null;
+		const listeners = new Set<() => void>();
+
+		return {
+			getSnapshot: () => hoveredSequence,
+			subscribe: (listener) => {
+				listeners.add(listener);
+				return () => listeners.delete(listener);
+			},
+			setHoveredSequence: (action) => {
+				const nextHoveredSequence =
+					typeof action === 'function' ? action(hoveredSequence) : action;
+				if (nextHoveredSequence === hoveredSequence) {
+					return;
+				}
+
+				hoveredSequence = nextHoveredSequence;
+				for (const listener of listeners) {
+					listener();
+				}
+			},
+		};
+	};
+
 export const TimelineSequenceHoverContext =
-	createContext<TimelineSequenceHoverState>({
-		hoveredSequence: null,
-		setHoveredSequence: () => undefined,
-	});
+	createContext<TimelineSequenceHoverStore>(createTimelineSequenceHoverStore());
+
+export const useTimelineSequenceHoverState = () => {
+	const store = useContext(TimelineSequenceHoverContext);
+	return useSyncExternalStore(
+		store.subscribe,
+		store.getSnapshot,
+		store.getSnapshot,
+	);
+};
+
+export const useSetTimelineSequenceHover = () => {
+	return useContext(TimelineSequenceHoverContext).setHoveredSequence;
+};
 
 export const useTimelineSequenceHover = (
 	nodePathInfo: SequenceNodePathInfo | null,
 ) => {
-	const {hoveredSequence, setHoveredSequence} = useContext(
-		TimelineSequenceHoverContext,
-	);
+	const store = useContext(TimelineSequenceHoverContext);
 	const sequenceKey = useMemo(
 		() =>
 			nodePathInfo === null
@@ -45,21 +86,41 @@ export const useTimelineSequenceHover = (
 				: timelineSequenceNodePathToKey(nodePathInfo.sequenceSubscriptionKey),
 		[nodePathInfo],
 	);
+	const getSnapshot = useCallback(
+		() =>
+			nodePathKey !== null && store.getSnapshot()?.nodePathKey === nodePathKey,
+		[nodePathKey, store],
+	);
+	const hovered = useSyncExternalStore(
+		store.subscribe,
+		getSnapshot,
+		getSnapshot,
+	);
 
 	const onPointerEnter = useCallback(() => {
 		if (sequenceKey === null || nodePathKey === null) {
 			return;
 		}
 
-		setHoveredSequence({
-			key: sequenceKey,
-			nodePathKey,
-			source: 'timeline',
+		store.setHoveredSequence((currentHover) => {
+			if (
+				currentHover?.key === sequenceKey &&
+				currentHover.nodePathKey === nodePathKey &&
+				currentHover.source === 'timeline'
+			) {
+				return currentHover;
+			}
+
+			return {
+				key: sequenceKey,
+				nodePathKey,
+				source: 'timeline',
+			};
 		});
-	}, [nodePathKey, sequenceKey, setHoveredSequence]);
+	}, [nodePathKey, sequenceKey, store]);
 
 	const onPointerLeave = useCallback(() => {
-		setHoveredSequence((currentHover) => {
+		store.setHoveredSequence((currentHover) => {
 			if (
 				currentHover?.source !== 'timeline' ||
 				currentHover.key !== sequenceKey
@@ -69,10 +130,7 @@ export const useTimelineSequenceHover = (
 
 			return null;
 		});
-	}, [sequenceKey, setHoveredSequence]);
-
-	const hovered =
-		nodePathKey !== null && hoveredSequence?.nodePathKey === nodePathKey;
+	}, [sequenceKey, store]);
 
 	return useMemo(
 		() => ({hovered, onPointerEnter, onPointerLeave}),
