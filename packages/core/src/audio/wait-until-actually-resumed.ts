@@ -82,7 +82,7 @@ export const waitUntilActuallyResumed = (
 		timeout = setTimeout(() => {
 			Log.warn(
 				{logLevel, tag: 'audio'},
-				`AudioContext did not resume within ${RESUME_WAIT_TIMEOUT}ms, muting playback and continuing without audio`,
+				'WARNING: You enabled autoPlay on an unmuted <Player /> and the browser did not allow the video to be started. Remotion muted the <Player /> so it can play. To properly handle this, either set the `muted` prop or remove the `autoPlay` prop',
 			);
 			finish('failed');
 		}, RESUME_WAIT_TIMEOUT);
