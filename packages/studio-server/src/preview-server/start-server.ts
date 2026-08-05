@@ -103,6 +103,9 @@ export const startServer = async (options: {
 			...args,
 		);
 	});
+	if (options.configFile) {
+		watchIgnorePlugin.ignoreFilePermanently(options.configFile);
+	}
 
 	const configArgs = {
 		entry: options.entry,

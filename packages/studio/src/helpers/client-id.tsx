@@ -71,6 +71,7 @@ export const PreviewServerConnection: React.FC<{
 	});
 	const [configFileChangeRevision, setConfigFileChangeRevision] =
 		React.useState(0);
+	const clientId = useRef<string | null>(null);
 
 	useEffect(() => {
 		const handleEvent = (newEvent: EventSourceEvent) => {
@@ -86,7 +87,16 @@ export const PreviewServerConnection: React.FC<{
 				window.remotion_studioConfig = newEvent.studioRuntimeConfig;
 				window.remotion_editorName = newEvent.editorName;
 				setConfigFileChangeRevision((revision) => revision + 1);
-				showNotification(getConfigFileChangeMessage(newEvent.changeType), 4000);
+				const isOwnRuntimeConfigChange =
+					newEvent.changeType === 'runtime' &&
+					newEvent.originatorClientId !== null &&
+					newEvent.originatorClientId === clientId.current;
+				if (!isOwnRuntimeConfigChange) {
+					showNotification(
+						getConfigFileChangeMessage(newEvent.changeType),
+						4000,
+					);
+				}
 			}
 
 			if (newEvent.type === 'config-file-reload-failed') {
@@ -94,6 +104,7 @@ export const PreviewServerConnection: React.FC<{
 			}
 
 			if (newEvent.type === 'init') {
+				clientId.current = newEvent.clientId;
 				latestUndoRedoEvent.current = {
 					type: 'undo-redo-stack-changed',
 					undoFile: newEvent.undoFile,

@@ -1,7 +1,8 @@
 import fs from 'fs';
+import path from 'path';
 import {expect, test, type Page} from '@playwright/test';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
-import {STUDIO_URL, effectKeyframeE2eFile} from './constants.mts';
+import {STUDIO_URL, effectKeyframeE2eFile, exampleDir} from './constants.mts';
 import {navigateToSchemaTest} from './helpers.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
@@ -73,6 +74,54 @@ test.describe('visual mode', () => {
 		await expect(page.getByRole('button', {name: 'Schema'})).toBeVisible({
 			timeout: 15_000,
 		});
+	});
+
+	test('untoggling the free license removes it from the config', async ({
+		page,
+	}) => {
+		const configFile = path.join(exampleDir, 'remotion.config.ts');
+		const configBeforeTest = fs.readFileSync(configFile, 'utf8');
+
+		try {
+			await page.goto(STUDIO_URL);
+			const response = await fetch(`${STUDIO_URL}/api/update-config`, {
+				method: 'POST',
+				headers: {'content-type': 'application/json', origin: STUDIO_URL},
+				body: JSON.stringify({
+					clientId: 'license-settings-e2e',
+					updates: [
+						{
+							setter: 'setPublicLicenseKey',
+							type: 'set',
+							value: 'free-license',
+						},
+					],
+				}),
+			});
+			expect(await response.json()).toEqual({
+				success: true,
+				data: {success: true},
+			});
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.toContain("Config.setPublicLicenseKey('free-license');");
+
+			await page.getByRole('button', {name: /Search\.\.\./}).click();
+			const quickSwitcher = page.getByRole('dialog');
+			await quickSwitcher.getByRole('textbox').fill('> Settings');
+			await quickSwitcher.getByText('Settings...', {exact: true}).click();
+			const dialog = page.getByRole('dialog');
+			await dialog.getByText('License', {exact: true}).click();
+			const freeLicenseToggle = dialog.locator('input[name="free-license"]');
+			await expect(freeLicenseToggle).toBeChecked();
+			await freeLicenseToggle.click();
+
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('Config.setPublicLicenseKey');
+		} finally {
+			fs.writeFileSync(configFile, configBeforeTest);
+		}
 	});
 
 	test('should collapse programmatically duplicated timeline rows', async ({

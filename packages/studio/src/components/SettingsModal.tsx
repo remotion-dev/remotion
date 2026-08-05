@@ -16,6 +16,8 @@ import {
 	optionsPanel,
 	outerModalStyle,
 } from './RenderModal/render-modals';
+import {SettingsProvider} from './SettingsContext';
+import {SettingsModalFooter} from './SettingsModalFooter';
 import {VerticalTab} from './Tabs/vertical';
 
 type SettingsTab = 'apps' | 'license';
@@ -60,54 +62,54 @@ export const SettingsModal: React.FC<{
 
 	return (
 		<DismissableModal panelStyle={outerModalStyle}>
-			<ModalHeader title="Settings" onClose={dismiss} />
-			<div style={horizontalLayout}>
-				<div style={leftSidebar}>
-					<VerticalTab
-						style={horizontalTab}
-						selected={tab === 'apps'}
-						onClick={() => selectTab('apps')}
-						renderIcon={(color) => (
-							<div style={appsIconContainer}>
-								<AppsIcon color={color} style={appsIcon} />
-							</div>
-						)}
-					>
-						Apps
-					</VerticalTab>
-					<VerticalTab
-						style={horizontalTab}
-						selected={tab === 'license'}
-						onClick={() => selectTab('license')}
-						renderIcon={(color) => (
-							<div style={iconContainer}>
-								<CertificateIcon color={color} style={icon} />
-							</div>
-						)}
-					>
-						License
-					</VerticalTab>
+			<SettingsProvider initialPublicLicenseKey={initialPublicLicenseKey}>
+				<ModalHeader title="Settings" onClose={dismiss} />
+				<div style={horizontalLayout}>
+					<div style={leftSidebar}>
+						<VerticalTab
+							style={horizontalTab}
+							selected={tab === 'apps'}
+							onClick={() => selectTab('apps')}
+							renderIcon={(color) => (
+								<div style={appsIconContainer}>
+									<AppsIcon color={color} style={appsIcon} />
+								</div>
+							)}
+						>
+							Apps
+						</VerticalTab>
+						<VerticalTab
+							style={horizontalTab}
+							selected={tab === 'license'}
+							onClick={() => selectTab('license')}
+							renderIcon={(color) => (
+								<div style={iconContainer}>
+									<CertificateIcon color={color} style={icon} />
+								</div>
+							)}
+						>
+							License
+						</VerticalTab>
+					</div>
+					{openedTabs.includes('apps') ? (
+						<div
+							style={tab === 'apps' ? optionsPanel : hiddenPanel}
+							className={VERTICAL_SCROLLBAR_CLASSNAME}
+						>
+							<DefaultEditorSettings />
+						</div>
+					) : null}
+					{openedTabs.includes('license') ? (
+						<div
+							style={tab === 'license' ? optionsPanel : hiddenPanel}
+							className={VERTICAL_SCROLLBAR_CLASSNAME}
+						>
+							<LicenseSettings />
+						</div>
+					) : null}
 				</div>
-				{openedTabs.includes('apps') ? (
-					<div
-						style={tab === 'apps' ? optionsPanel : hiddenPanel}
-						className={VERTICAL_SCROLLBAR_CLASSNAME}
-					>
-						<DefaultEditorSettings onSaved={dismiss} />
-					</div>
-				) : null}
-				{openedTabs.includes('license') ? (
-					<div
-						style={tab === 'license' ? optionsPanel : hiddenPanel}
-						className={VERTICAL_SCROLLBAR_CLASSNAME}
-					>
-						<LicenseSettings
-							initialPublicLicenseKey={initialPublicLicenseKey}
-							onSaved={dismiss}
-						/>
-					</div>
-				) : null}
-			</div>
+				<SettingsModalFooter />
+			</SettingsProvider>
 		</DismissableModal>
 	);
 };

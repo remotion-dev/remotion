@@ -67,6 +67,7 @@ type TraceLogFn = (...args: Parameters<typeof console.log>) => void;
 export class WatchIgnoreNextChangePlugin {
 	private filesToIgnore = new Set<string>();
 	private dirsToIgnore = new Set<string>();
+	private permanentlyIgnoredFiles = new Set<string>();
 	private snapshotFileTimestamps = new Map<string, TimeInfoEntry>();
 	private snapshotDirTimestamps = new Map<string, TimeInfoEntry>();
 	private suppressedFilesHistory = new Set<string>();
@@ -75,6 +76,10 @@ export class WatchIgnoreNextChangePlugin {
 
 	constructor(trace: TraceLogFn) {
 		this.trace = trace;
+	}
+
+	ignoreFilePermanently(file: string): void {
+		this.permanentlyIgnoredFiles.add(file);
 	}
 
 	ignoreNextChange(file: string): void {
@@ -148,8 +153,11 @@ export class WatchIgnoreNextChangePlugin {
 				callback,
 				callbackUndelayed,
 			) => {
+				const getIgnoredFiles = () =>
+					new Set([...self.filesToIgnore, ...self.permanentlyIgnoredFiles]);
+				const getIgnoredDirs = () => self.dirsToIgnore;
 				const isAncestorOfIgnoredFile = (dir: string): boolean => {
-					for (const file of self.filesToIgnore) {
+					for (const file of getIgnoredFiles()) {
 						if (file.startsWith(dir + path.sep)) {
 							return true;
 						}
@@ -163,8 +171,8 @@ export class WatchIgnoreNextChangePlugin {
 					changeTime,
 				) => {
 					if (
-						self.filesToIgnore.has(fileName) ||
-						self.dirsToIgnore.has(fileName) ||
+						getIgnoredFiles().has(fileName) ||
+						getIgnoredDirs().has(fileName) ||
 						isAncestorOfIgnoredFile(fileName)
 					) {
 						self.trace(
@@ -184,12 +192,12 @@ export class WatchIgnoreNextChangePlugin {
 					changedFiles,
 					removedFiles,
 				) => {
-					const hasIgnoredFiles = self.filesToIgnore.size > 0;
+					const hasIgnoredFiles = getIgnoredFiles().size > 0;
 					const suppressedFiles: string[] = [];
 					const suppressedDirs: string[] = [];
 
 					if (fileTimestamps) {
-						for (const file of [...self.filesToIgnore]) {
+						for (const file of getIgnoredFiles()) {
 							const wasInChanged = changedFiles?.has(file) ?? false;
 							if (wasInChanged) {
 								changedFiles!.delete(file);
@@ -202,15 +210,17 @@ export class WatchIgnoreNextChangePlugin {
 
 							if (wasInChanged) {
 								suppressedFiles.push(file);
-								self.suppressedFilesHistory.add(file);
-								self.filesToIgnore.delete(file);
-								self.snapshotFileTimestamps.delete(file);
+								if (!self.permanentlyIgnoredFiles.has(file)) {
+									self.suppressedFilesHistory.add(file);
+									self.filesToIgnore.delete(file);
+									self.snapshotFileTimestamps.delete(file);
+								}
 							}
 						}
 					}
 
 					if (dirTimestamps) {
-						for (const dir of [...self.dirsToIgnore]) {
+						for (const dir of getIgnoredDirs()) {
 							const wasInChanged = changedFiles?.has(dir) ?? false;
 							if (wasInChanged) {
 								changedFiles!.delete(dir);
@@ -230,11 +240,19 @@ export class WatchIgnoreNextChangePlugin {
 					}
 
 					if (removedFiles) {
-						for (const file of self.filesToIgnore) {
-							removedFiles.delete(file);
+						for (const file of getIgnoredFiles()) {
+							const wasRemoved = removedFiles.delete(file);
+							if (wasRemoved && !suppressedFiles.includes(file)) {
+								suppressedFiles.push(file);
+								if (!self.permanentlyIgnoredFiles.has(file)) {
+									self.suppressedFilesHistory.add(file);
+									self.filesToIgnore.delete(file);
+									self.snapshotFileTimestamps.delete(file);
+								}
+							}
 						}
 
-						for (const dir of self.dirsToIgnore) {
+						for (const dir of getIgnoredDirs()) {
 							removedFiles.delete(dir);
 						}
 					}
@@ -368,7 +386,10 @@ export class WatchIgnoreNextChangePlugin {
 						return;
 					}
 
-					if (hasIgnoredFiles) {
+					if (
+						hasIgnoredFiles &&
+						(suppressedFiles.length > 0 || suppressedDirs.length > 0)
+					) {
 						self.trace(
 							'[WatchIgnoreNextChange] Partial suppression. Remaining changes:',
 							changedFiles ? [...changedFiles] : [],
@@ -400,7 +421,7 @@ export class WatchIgnoreNextChangePlugin {
 					watcher.getFileTimeInfoEntries.bind(watcher);
 				watcher.getFileTimeInfoEntries = () => {
 					const entries = originalGetFileTimeInfoEntries();
-					for (const file of self.filesToIgnore) {
+					for (const file of getIgnoredFiles()) {
 						const prev = self.snapshotFileTimestamps.get(file);
 						if (prev !== undefined) {
 							entries.set(file, prev);
@@ -414,7 +435,7 @@ export class WatchIgnoreNextChangePlugin {
 					watcher.getContextTimeInfoEntries.bind(watcher);
 				watcher.getContextTimeInfoEntries = () => {
 					const entries = originalGetContextTimeInfoEntries();
-					for (const dir of self.dirsToIgnore) {
+					for (const dir of getIgnoredDirs()) {
 						const prev = self.snapshotDirTimestamps.get(dir);
 						if (prev !== undefined) {
 							entries.set(dir, prev);
@@ -428,7 +449,7 @@ export class WatchIgnoreNextChangePlugin {
 					const originalGetInfo = watcher.getInfo.bind(watcher);
 					watcher.getInfo = () => {
 						const info = originalGetInfo();
-						for (const file of self.filesToIgnore) {
+						for (const file of getIgnoredFiles()) {
 							info.changes.delete(file);
 							const prev = self.snapshotFileTimestamps.get(file);
 							if (prev !== undefined) {
@@ -436,7 +457,7 @@ export class WatchIgnoreNextChangePlugin {
 							}
 						}
 
-						for (const dir of self.dirsToIgnore) {
+						for (const dir of getIgnoredDirs()) {
 							info.changes.delete(dir);
 							const prev = self.snapshotDirTimestamps.get(dir);
 							if (prev !== undefined) {
@@ -453,11 +474,11 @@ export class WatchIgnoreNextChangePlugin {
 						watcher.getAggregatedChanges.bind(watcher);
 					watcher.getAggregatedChanges = () => {
 						const changes = originalGetAggregatedChanges();
-						for (const file of self.filesToIgnore) {
+						for (const file of getIgnoredFiles()) {
 							changes.delete(file);
 						}
 
-						for (const dir of self.dirsToIgnore) {
+						for (const dir of getIgnoredDirs()) {
 							changes.delete(dir);
 						}
 

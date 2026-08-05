@@ -189,7 +189,7 @@ export const studioCommand = async (
 		StudioServerInternals.installFileWatcher({
 			file: configFile,
 			existenceOnly: false,
-			onChange: async () => {
+			onChange: async (event) => {
 				if (isReloadingConfig) {
 					return;
 				}
@@ -235,6 +235,10 @@ export const studioCommand = async (
 						listener.sendEventToClient({
 							type: 'config-file-changed',
 							changeType,
+							originatorClientId:
+								event.type === 'deleted'
+									? null
+									: (event.originatorClientId ?? null),
 							renderDefaults,
 							studioRuntimeConfig,
 							editorName,

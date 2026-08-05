@@ -32,7 +32,7 @@ const configFileName: React.CSSProperties = {
 };
 
 export const SettingsModalFooter: React.FC<{
-	readonly children: React.ReactNode;
+	readonly children?: React.ReactNode;
 }> = ({children}) => {
 	const configFileLocation = useMemo(() => {
 		return {
