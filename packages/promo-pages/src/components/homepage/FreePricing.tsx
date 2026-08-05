@@ -132,7 +132,9 @@ const textUnitWrapper: React.CSSProperties = {
 	flexDirection: 'column',
 };
 
-export const FreePricing: React.FC = () => {
+export const FreePricing: React.FC<{
+	readonly termsHref: string;
+}> = ({termsHref}) => {
 	return (
 		<Container>
 			<Audience>For individuals and companies of up to 3 people</Audience>
@@ -140,6 +142,20 @@ export const FreePricing: React.FC = () => {
 			<PricingBulletPoint text="Create and automate" checked />
 			<PricingBulletPoint text="All features included" checked />
 			<PricingBulletPoint text="Unlimited commercial use" checked />
+			<PricingBulletPoint
+				text={
+					<>
+						<a
+							href={termsHref}
+							className="underline underline-offset-4 text-inherit"
+						>
+							Terms
+						</a>{' '}
+						apply
+					</>
+				}
+				checked={false}
+			/>
 			<PricingBulletPoint
 				text="Must upgrade when your team grows"
 				checked={false}
