@@ -34,14 +34,14 @@ export const LicenseQuestionsGraphic: React.FC = () => {
 								extrapolateLeft: 'clamp',
 								extrapolateRight: 'clamp',
 							})}
-							x="379"
+							x="274"
 							y="500"
 						/>
 					</clipPath>
 				</defs>
 				<g clipPath="url(#license-line-reveal)">
 					<path
-						d="M385 540H695"
+						d="M280 540H590"
 						fill="none"
 						stroke="black"
 						strokeDasharray="28 28"
@@ -63,7 +63,7 @@ export const LicenseQuestionsGraphic: React.FC = () => {
 				name="Mehmet avatar"
 				style={{
 					height: 280,
-					left: 695,
+					left: 590,
 					opacity: interpolate(frame, [23, 24, 158, 168], [0, 1, 1, 0], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
@@ -144,7 +144,7 @@ export const LicenseQuestionsGraphic: React.FC = () => {
 					display: 'flex',
 					height: 280,
 					justifyContent: 'center',
-					left: 105,
+					left: 0,
 					position: 'absolute',
 					rotate: interpolate(
 						frame,
