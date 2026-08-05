@@ -2,8 +2,16 @@ import type {
 	GetDefaultCodingAgentInfoResponse,
 	GetDefaultEditorInfoResponse,
 } from '@remotion/studio-shared';
-import React, {createContext, useContext, useEffect, useState} from 'react';
-import {useStudioConfigRevision} from '../helpers/client-id';
+import React, {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {callApi} from './call-api';
 
 type SettingsContextValue = {
@@ -12,24 +20,35 @@ type SettingsContextValue = {
 	readonly error: string | null;
 	readonly publicLicenseKey: string | null;
 	readonly revision: number;
+	readonly setPublicLicenseKey: (publicLicenseKey: string | null) => void;
 };
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
 
 export const SettingsProvider: React.FC<{
 	readonly children: React.ReactNode;
-	readonly initialPublicLicenseKey: string | null;
-}> = ({children, initialPublicLicenseKey}) => {
-	const configFileChangeRevision = useStudioConfigRevision();
-	const [settings, setSettings] = useState<SettingsContextValue>({
+}> = ({children}) => {
+	const {previewServerState, subscribeToEvent} = useContext(
+		StudioServerConnectionCtx,
+	);
+	const [settings, setSettings] = useState<
+		Omit<SettingsContextValue, 'setPublicLicenseKey'>
+	>({
 		codingAgentInfo: null,
 		editorInfo: null,
 		error: null,
-		publicLicenseKey: initialPublicLicenseKey,
+		publicLicenseKey: window.remotion_renderDefaults?.publicLicenseKey ?? null,
 		revision: 0,
 	});
 
 	useEffect(() => {
+		if (
+			previewServerState.type !== 'connected' ||
+			getBrowserStudioOperations() !== null
+		) {
+			return;
+		}
+
 		const controller = new AbortController();
 		setSettings((currentSettings) => ({
 			...currentSettings,
@@ -42,11 +61,10 @@ export const SettingsProvider: React.FC<{
 		])
 			.then(([editorInfo, codingAgentInfo]) => {
 				setSettings((currentSettings) => ({
+					...currentSettings,
 					codingAgentInfo,
 					editorInfo,
 					error: null,
-					publicLicenseKey:
-						window.remotion_renderDefaults?.publicLicenseKey ?? null,
 					revision: currentSettings.revision + 1,
 				}));
 			})
@@ -62,10 +80,54 @@ export const SettingsProvider: React.FC<{
 			});
 
 		return () => controller.abort();
-	}, [configFileChangeRevision]);
+	}, [previewServerState.type]);
+
+	useEffect(() => {
+		return subscribeToEvent('config-file-changed', (event) => {
+			if (event.type !== 'config-file-changed') {
+				return;
+			}
+
+			setSettings((currentSettings) => ({
+				...currentSettings,
+				codingAgentInfo: currentSettings.codingAgentInfo
+					? {
+							...currentSettings.codingAgentInfo,
+							defaultCodingAgent: event.defaultCodingAgent,
+						}
+					: null,
+				editorInfo: currentSettings.editorInfo
+					? {
+							...currentSettings.editorInfo,
+							defaultEditor: event.defaultEditor,
+						}
+					: null,
+				error: null,
+				publicLicenseKey: event.renderDefaults.publicLicenseKey ?? null,
+				revision: currentSettings.revision + 1,
+			}));
+		});
+	}, [subscribeToEvent]);
+
+	const setPublicLicenseKey = useCallback((publicLicenseKey: string | null) => {
+		setSettings((currentSettings) => {
+			if (currentSettings.publicLicenseKey === publicLicenseKey) {
+				return currentSettings;
+			}
+
+			return {
+				...currentSettings,
+				publicLicenseKey,
+				revision: currentSettings.revision + 1,
+			};
+		});
+	}, []);
+	const value = useMemo<SettingsContextValue>(() => {
+		return {...settings, setPublicLicenseKey};
+	}, [setPublicLicenseKey, settings]);
 
 	return (
-		<SettingsContext.Provider value={settings}>
+		<SettingsContext.Provider value={value}>
 			{children}
 		</SettingsContext.Provider>
 	);

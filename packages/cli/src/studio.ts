@@ -1,7 +1,10 @@
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
-import {getConfigFileChangeMessage} from '@remotion/studio-shared';
+import {
+	getConfigFileChangeMessage,
+	type GetDefaultEditorInfoResponse,
+} from '@remotion/studio-shared';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
 import {
@@ -199,6 +202,11 @@ export const studioCommand = async (
 					const reloadResult = await reloadConfig({
 						resetConfigOptions: ConfigInternals.resetConfigOptions,
 						getConfigSnapshot: async (currentConfigCode) => {
+							const configuredEditor = getDefaultEditor();
+							const defaultEditorId: GetDefaultEditorInfoResponse['defaultEditor'] =
+								typeof configuredEditor === 'object'
+									? 'custom'
+									: configuredEditor;
 							startupConfigFingerprints ??=
 								makeConfigFileFingerprints(startupConfigCode);
 							const configFileChangeType = classifyConfigFileChange({
@@ -208,6 +216,8 @@ export const studioCommand = async (
 
 							return {
 								changeType: configFileChangeType,
+								defaultCodingAgent: getDefaultCodingAgent(),
+								defaultEditor: defaultEditorId,
 								renderDefaults: getRenderDefaults(logLevel),
 								studioRuntimeConfig: getStudioRuntimeConfig(),
 								editorName: await StudioServerInternals.getEditorName({
@@ -226,8 +236,14 @@ export const studioCommand = async (
 						return;
 					}
 
-					const {changeType, renderDefaults, studioRuntimeConfig, editorName} =
-						reloadResult.value;
+					const {
+						changeType,
+						defaultCodingAgent,
+						defaultEditor,
+						renderDefaults,
+						studioRuntimeConfig,
+						editorName,
+					} = reloadResult.value;
 					const message = getConfigFileChangeMessage(changeType);
 
 					Log.info({indent: false, logLevel}, chalk.blue(message));
@@ -235,6 +251,8 @@ export const studioCommand = async (
 						listener.sendEventToClient({
 							type: 'config-file-changed',
 							changeType,
+							defaultCodingAgent,
+							defaultEditor,
 							originatorClientId:
 								event.type === 'deleted'
 									? null

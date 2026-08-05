@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {AppsIcon} from '../icons/apps';
 import {CertificateIcon} from '../icons/certificate';
 import {SetSelectedModalContext} from '../state/modals';
@@ -16,7 +16,7 @@ import {
 	optionsPanel,
 	outerModalStyle,
 } from './RenderModal/render-modals';
-import {SettingsProvider} from './SettingsContext';
+import {useSettings} from './SettingsContext';
 import {SettingsModalFooter} from './SettingsModalFooter';
 import {VerticalTab} from './Tabs/vertical';
 
@@ -43,6 +43,7 @@ export const SettingsModal: React.FC<{
 	readonly initialPublicLicenseKey: string | null;
 }> = ({initialPublicLicenseKey, initialTab}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {setPublicLicenseKey} = useSettings();
 	const [tab, setTab] = useState<SettingsTab>(initialTab);
 	const [openedTabs, setOpenedTabs] = useState<SettingsTab[]>([initialTab]);
 
@@ -59,10 +60,13 @@ export const SettingsModal: React.FC<{
 			return [...currentOpenedTabs, newTab];
 		});
 	}, []);
+	useEffect(() => {
+		setPublicLicenseKey(initialPublicLicenseKey);
+	}, [initialPublicLicenseKey, setPublicLicenseKey]);
 
 	return (
 		<DismissableModal panelStyle={outerModalStyle}>
-			<SettingsProvider initialPublicLicenseKey={initialPublicLicenseKey}>
+			<>
 				<ModalHeader title="Settings" onClose={dismiss} />
 				<div style={horizontalLayout}>
 					<div style={leftSidebar}>
@@ -109,7 +113,7 @@ export const SettingsModal: React.FC<{
 					) : null}
 				</div>
 				<SettingsModalFooter />
-			</SettingsProvider>
+			</>
 		</DismissableModal>
 	);
 };

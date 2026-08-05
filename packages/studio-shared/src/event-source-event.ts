@@ -6,6 +6,8 @@ import type {
 import type {
 	CanUpdateDefaultPropsResponse,
 	ElementInstallRequest,
+	GetDefaultCodingAgentInfoResponse,
+	GetDefaultEditorInfoResponse,
 } from './api-requests';
 import type {ConfigFileChangeType} from './config-file-change';
 import type {HotMiddlewareMessage} from './hot-middleware';
@@ -34,6 +36,8 @@ export type EventSourceEvent =
 			originatorClientId: string | null;
 			renderDefaults: RenderDefaults;
 			studioRuntimeConfig: StudioRuntimeConfig;
+			defaultCodingAgent: GetDefaultCodingAgentInfoResponse['defaultCodingAgent'];
+			defaultEditor: GetDefaultEditorInfoResponse['defaultEditor'];
 			editorName: string | null;
 	  }
 	| {
