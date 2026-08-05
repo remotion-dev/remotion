@@ -95,7 +95,7 @@ const TimelineSequenceFn: React.FC<{
 	);
 };
 
-const TimelineSequenceCurrentFrameFn: React.FC<{
+const TimelineSequenceCurrentFrame: React.FC<{
 	readonly s: TSequence;
 	readonly displayDurationInFrames: number;
 	readonly premountWidth: number | null;
@@ -250,8 +250,6 @@ const TimelineSequenceCurrentFrameFn: React.FC<{
 		</div>
 	);
 };
-
-const TimelineSequenceCurrentFrame = React.memo(TimelineSequenceCurrentFrameFn);
 
 const TimelineSequenceInner: React.FC<{
 	readonly s: TSequence;
