@@ -16,19 +16,24 @@ test('discovers supported macOS coding agents without launching them', async () 
 					? ['/Custom/Applications/ChatGPT.app']
 					: [],
 			),
-		getIconDataUrl: (id) => Promise.resolve(`data:image/png;base64,${id}-icon`),
 	});
 
-	expect(codingAgents).toEqual([
+	expect(
+		codingAgents.map(({iconDataUrl, ...codingAgent}) => ({
+			...codingAgent,
+			hasBundledPngIcon:
+				iconDataUrl?.startsWith('data:image/png;base64,') ?? false,
+		})),
+	).toEqual([
 		{
 			applicationPath: '/Custom/Applications/ChatGPT.app',
-			iconDataUrl: 'data:image/png;base64,codex-icon',
+			hasBundledPngIcon: true,
 			id: 'codex',
 			name: 'Codex',
 		},
 		{
 			applicationPath: '/Users/test/Applications/Claude.app',
-			iconDataUrl: 'data:image/png;base64,claude-code-icon',
+			hasBundledPngIcon: true,
 			id: 'claude-code',
 			name: 'Claude Code',
 		},
@@ -41,7 +46,6 @@ test('does not report coding agents on unsupported platforms', async () => {
 		homeDirectory: '/home/test',
 		pathExists: () => true,
 		findMacApplications: () => Promise.resolve(['/Applications/ChatGPT.app']),
-		getIconDataUrl: () => Promise.resolve(null),
 	});
 
 	expect(codingAgents).toEqual([]);

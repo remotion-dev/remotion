@@ -1,6 +1,6 @@
 import {execFile, spawn} from 'node:child_process';
-import {existsSync, mkdtempSync, readFileSync, rmSync} from 'node:fs';
-import {homedir, tmpdir} from 'node:os';
+import {existsSync, readFileSync} from 'node:fs';
+import {homedir} from 'node:os';
 import path from 'node:path';
 import {promisify} from 'node:util';
 import type {DefaultCodingAgent, LogLevel} from '@remotion/renderer';
@@ -49,10 +49,6 @@ export type CodingAgentDiscoveryContext = {
 	homeDirectory: string;
 	pathExists: (filePath: string) => boolean;
 	findMacApplications: (bundleIdentifier: string) => Promise<readonly string[]>;
-	getIconDataUrl: (
-		id: DefaultCodingAgent,
-		applicationPath: string,
-	) => Promise<string | null>;
 };
 
 const findMacApplications = async (
@@ -71,58 +67,16 @@ const findMacApplications = async (
 	}
 };
 
-const getMacApplicationIconDataUrl = async (
-	_id: DefaultCodingAgent,
-	applicationPath: string,
-): Promise<string | null> => {
-	const temporaryDirectory = mkdtempSync(
-		path.join(tmpdir(), 'remotion-coding-agent-icon-'),
-	);
-	const macOsIconPath = path.join(temporaryDirectory, 'macos-icon.png');
-	const outputPath = path.join(temporaryDirectory, 'icon.png');
-	try {
-		await execFilePromise('/usr/bin/osascript', [
-			'-l',
-			'JavaScript',
-			'-e',
-			`ObjC.import('AppKit');
-function run(argv) {
-	const icon = $.NSWorkspace.sharedWorkspace.iconForFile(argv[0]);
-	const bitmap = $.NSBitmapImageRep.imageRepWithData(icon.TIFFRepresentation);
-	const png = bitmap.representationUsingTypeProperties(
-		$.NSBitmapImageFileTypePNG,
-		$({}),
-	);
-	return png.writeToFileAtomically(argv[1], true);
-}`,
-			applicationPath,
-			macOsIconPath,
-		]);
-		await execFilePromise('/usr/bin/sips', [
-			'-s',
-			'format',
-			'png',
-			'-z',
-			'64',
-			'64',
-			macOsIconPath,
-			'--out',
-			outputPath,
-		]);
-		return `data:image/png;base64,${readFileSync(outputPath).toString('base64')}`;
-	} catch {
-		return null;
-	} finally {
-		rmSync(temporaryDirectory, {force: true, recursive: true});
-	}
-};
+const getBundledCodingAgentIconDataUrl = (id: DefaultCodingAgent): string =>
+	`data:image/png;base64,${readFileSync(
+		path.join(__dirname, '..', '..', 'web', 'coding-agent-icons', `${id}.png`),
+	).toString('base64')}`;
 
 const defaultDiscoveryContext: CodingAgentDiscoveryContext = {
 	platform: process.platform,
 	homeDirectory: homedir(),
 	pathExists: existsSync,
 	findMacApplications,
-	getIconDataUrl: getMacApplicationIconDataUrl,
 };
 
 export const discoverAvailableCodingAgents = async (
@@ -162,15 +116,10 @@ export const discoverAvailableCodingAgents = async (
 		}
 	}
 
-	return Promise.all(
-		installedCodingAgents.map(async (codingAgent) => ({
-			...codingAgent,
-			iconDataUrl: await context.getIconDataUrl(
-				codingAgent.id,
-				codingAgent.applicationPath,
-			),
-		})),
-	);
+	return installedCodingAgents.map((codingAgent) => ({
+		...codingAgent,
+		iconDataUrl: getBundledCodingAgentIconDataUrl(codingAgent.id),
+	}));
 };
 
 let availableCodingAgents: Promise<readonly InstalledCodingAgent[]> | null =
