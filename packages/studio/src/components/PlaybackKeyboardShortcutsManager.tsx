@@ -8,11 +8,12 @@ export const PlaybackKeyboardShortcutsManager: React.FC<{
 }> = ({setPlaybackRate}) => {
 	const keybindings = useKeybinding();
 
-	const {play, pause, playing} = PlayerInternals.usePlayer();
+	const {play, pause, isPlaying} = PlayerInternals.usePlayerMethods();
 
 	const onJKey = useCallback(() => {
+		const wasPlaying = isPlaying();
 		setPlaybackRate((prevPlaybackRate) => {
-			if (!playing) {
+			if (!wasPlaying) {
 				return -1;
 			}
 
@@ -27,7 +28,7 @@ export const PlaybackKeyboardShortcutsManager: React.FC<{
 			return -4;
 		});
 		play();
-	}, [play, playing, setPlaybackRate]);
+	}, [isPlaying, play, setPlaybackRate]);
 
 	const onKKey = useCallback(() => {
 		setPlaybackRate(1);
@@ -35,8 +36,9 @@ export const PlaybackKeyboardShortcutsManager: React.FC<{
 	}, [pause, setPlaybackRate]);
 
 	const onLKey = useCallback(() => {
+		const wasPlaying = isPlaying();
 		setPlaybackRate((prevPlaybackRate) => {
-			if (!playing) {
+			if (!wasPlaying) {
 				return 1;
 			}
 
@@ -51,7 +53,7 @@ export const PlaybackKeyboardShortcutsManager: React.FC<{
 			return 4;
 		});
 		play();
-	}, [play, playing, setPlaybackRate]);
+	}, [isPlaying, play, setPlaybackRate]);
 
 	useEffect(() => {
 		const jKey = keybindings.registerKeybinding({

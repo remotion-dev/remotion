@@ -115,6 +115,7 @@ export const Comp = () => {
 			publicDir: '',
 			binariesDirectory: null,
 			configFile: null,
+			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
 		});
 

@@ -11,6 +11,7 @@ import {
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import {UseanimatedEmojis} from './AnimatedEmojis';
+import {BarChart} from './BarChart';
 import BetaText, {betaTextSchema} from './BetaText';
 import {NativeBufferStateForImage} from './BufferState/Image';
 import {NativeBufferState} from './BufferState/Simple';
@@ -426,6 +427,14 @@ export const Index: React.FC = () => {
 
 	return (
 		<>
+			<Composition
+				id="AnimatedBarChart"
+				component={BarChart}
+				durationInFrames={180}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
 			<Composition
 				id="switzerland-map"
 				lazyComponent={() => import('./SwitzerlandMap/SwitzerlandMap')}

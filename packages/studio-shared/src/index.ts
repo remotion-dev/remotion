@@ -47,12 +47,14 @@ export {
 	DuplicateEffectResponse,
 	DuplicateJsxNodeRequest,
 	DuplicateJsxNodeResponse,
+	EditorPickerId,
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
 	ElementInstallSource,
-	EditorPickerId,
 	FindInFileRequest,
 	FindInFileResponse,
+	GetDefaultCodingAgentInfoRequest,
+	GetDefaultCodingAgentInfoResponse,
 	GetDefaultEditorInfoRequest,
 	GetDefaultEditorInfoResponse,
 	GoogleFontSourceEdit,
@@ -121,6 +123,8 @@ export {
 	UnsubscribeFromSequencePropsRequest,
 	UpdateAvailableRequest,
 	UpdateAvailableResponse,
+	UpdateDefaultCodingAgentRequest,
+	UpdateDefaultCodingAgentResponse,
 	UpdateDefaultEditorRequest,
 	UpdateDefaultEditorResponse,
 	UpdateDefaultPropsRequest,
@@ -140,6 +144,10 @@ export {
 export type {BrowserStudioOperations} from './browser-studio-operations';
 export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
 export {compositionDragDataToSymbolicatedStack} from './composition-drag-data';
+export {
+	getConfigFileChangeMessage,
+	type ConfigFileChangeType,
+} from './config-file-change';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {
 	detectFileType,
@@ -185,10 +193,6 @@ export {
 	type EffectPropClipboardDataParseResult,
 } from './effect-clipboard-data';
 export {EventSourceEvent} from './event-source-event';
-export {
-	getConfigFileChangeMessage,
-	type ConfigFileChangeType,
-} from './config-file-change';
 export {formatBytes} from './format-bytes';
 export {getAllSchemaKeys, getAssetSchemaKeys} from './get-all-keys';
 export {getDefaultOutLocation} from './get-default-out-name';

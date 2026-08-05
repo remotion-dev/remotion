@@ -1,36 +1,42 @@
 import type {
 	EditorPickerId,
+	GetDefaultCodingAgentInfoResponse,
 	GetDefaultEditorInfoResponse,
 } from '@remotion/studio-shared';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
-import {LIGHT_TEXT} from '../helpers/colors';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {Checkmark} from '../icons/Checkmark';
 import {CustomEditorIcon} from '../icons/custom-editor';
-import {ModalsContext} from '../state/modals';
 import {callApi} from './call-api';
-import {Row, Spacing} from './layout';
+import {Spacing} from './layout';
 import {ModalButton} from './ModalButton';
-import {ModalContainer} from './ModalContainer';
-import {ModalFooterContainer} from './ModalFooter';
-import {ModalHeader} from './ModalHeader';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
+import {SettingsModalFooter} from './SettingsModalFooter';
+
+const container: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+	flexDirection: 'column',
+	minWidth: 0,
+};
 
 const content: React.CSSProperties = {
+	flex: 1,
 	padding: 16,
-	width: 440,
-	maxWidth: 'calc(100vw - 40px)',
 };
 
 const description: React.CSSProperties = {
 	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
+	fontSize: 14,
+	lineHeight: 1.5,
+	margin: 0,
+};
+
+const title: React.CSSProperties = {
+	color: WHITE,
 	fontFamily: 'sans-serif',
 	fontSize: 14,
 	lineHeight: 1.5,
@@ -67,13 +73,18 @@ const customEditorName: React.CSSProperties = {
 
 const NO_PREFERENCE_ID = 'no-preference';
 
-export const ConfigureDefaultEditorModal: React.FC = () => {
-	const {setSelectedModal} = useContext(ModalsContext);
+export const DefaultEditorSettings: React.FC<{
+	readonly onSaved: () => void;
+}> = ({onSaved}) => {
 	const [editorInfo, setEditorInfo] =
 		useState<GetDefaultEditorInfoResponse | null>(null);
+	const [codingAgentInfo, setCodingAgentInfo] =
+		useState<GetDefaultCodingAgentInfoResponse | null>(null);
 	const [selectedEditor, setSelectedEditor] = useState<EditorPickerId | null>(
 		null,
 	);
+	const [selectedCodingAgent, setSelectedCodingAgent] =
+		useState<GetDefaultCodingAgentInfoResponse['defaultCodingAgent']>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const editorValues = useMemo((): ComboboxValue[] => {
@@ -120,22 +131,66 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 
 		return [noPreference, ...installedEditors];
 	}, [editorInfo?.installedEditors, selectedEditor]);
+	const codingAgentValues = useMemo((): ComboboxValue[] => {
+		const noPreference: ComboboxValue = {
+			id: NO_PREFERENCE_ID,
+			keyHint: null,
+			label: 'No preference',
+			leftItem: selectedCodingAgent === null ? <Checkmark /> : null,
+			onClick: () => {
+				setSelectedCodingAgent(null);
+				setError(null);
+			},
+			quickSwitcherLabel: null,
+			subMenu: null,
+			type: 'item',
+			value: NO_PREFERENCE_ID,
+		};
+		const installedCodingAgents = (
+			codingAgentInfo?.installedCodingAgents ?? []
+		).map((codingAgent): ComboboxValue => {
+			return {
+				id: codingAgent.id,
+				keyHint: null,
+				label: codingAgent.name,
+				leftItem: selectedCodingAgent === codingAgent.id ? <Checkmark /> : null,
+				onClick: () => {
+					setSelectedCodingAgent(codingAgent.id);
+					setError(null);
+				},
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: codingAgent.id,
+			};
+		});
 
-	const dismiss = useCallback(() => {
-		setSelectedModal(null);
-	}, [setSelectedModal]);
+		return [noPreference, ...installedCodingAgents];
+	}, [codingAgentInfo?.installedCodingAgents, selectedCodingAgent]);
 
 	useEffect(() => {
 		const controller = new AbortController();
-		callApi('/api/default-editor-info', {}, controller.signal)
-			.then((response) => {
-				setEditorInfo(response);
+		Promise.all([
+			callApi('/api/default-editor-info', {}, controller.signal),
+			callApi('/api/default-coding-agent-info', {}, controller.signal),
+		])
+			.then(([editorResponse, codingAgentResponse]) => {
+				setEditorInfo(editorResponse);
 				setSelectedEditor(
-					response.defaultEditor !== null &&
-						response.installedEditors.some(
-							({id}) => id === response.defaultEditor,
+					editorResponse.defaultEditor !== null &&
+						editorResponse.installedEditors.some(
+							({id}) => id === editorResponse.defaultEditor,
 						)
-						? response.defaultEditor
+						? editorResponse.defaultEditor
+						: null,
+				);
+				setCodingAgentInfo(codingAgentResponse);
+				setSelectedCodingAgent(
+					codingAgentResponse.defaultCodingAgent !== null &&
+						codingAgentResponse.installedCodingAgents.some(
+							({id}) => id === codingAgentResponse.defaultCodingAgent,
+						)
+						? codingAgentResponse.defaultCodingAgent
 						: null,
 				);
 			})
@@ -151,39 +206,54 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 	}, []);
 
 	const submit = useCallback(async () => {
-		if (editorInfo === null) {
+		if (editorInfo === null || codingAgentInfo === null) {
 			return;
 		}
 
 		setIsSubmitting(true);
 		setError(null);
 		try {
-			const response = await callApi('/api/update-default-editor', {
+			const editorResponse = await callApi('/api/update-default-editor', {
 				defaultEditor: selectedEditor,
 			});
-			if (!response.success) {
-				setError(response.reason);
+			if (!editorResponse.success) {
+				setError(editorResponse.reason);
 				setIsSubmitting(false);
 				return;
 			}
 
-			dismiss();
+			const codingAgentResponse = await callApi(
+				'/api/update-default-coding-agent',
+				{defaultCodingAgent: selectedCodingAgent},
+			);
+			if (!codingAgentResponse.success) {
+				setError(codingAgentResponse.reason);
+				setIsSubmitting(false);
+				return;
+			}
+
+			onSaved();
 		} catch (err) {
 			setError((err as Error).message);
 			setIsSubmitting(false);
 		}
-	}, [dismiss, editorInfo, selectedEditor]);
-
-	if (editorInfo === null && error === null) {
-		return null;
-	}
+	}, [
+		codingAgentInfo,
+		editorInfo,
+		onSaved,
+		selectedCodingAgent,
+		selectedEditor,
+	]);
 
 	return (
-		<ModalContainer onEscape={dismiss} onOutsideClick={dismiss}>
-			<ModalHeader title="Configure default editor" onClose={dismiss} />
+		<div style={container}>
 			<div style={content}>
-				<p style={description}>This setting gets saved to your config file.</p>
-				<Spacing y={2} block />
+				<p style={title}>Default editor</p>
+				<p style={description}>Used when Remotion Studio opens source files.</p>
+				<Spacing y={1} block />
+				{editorInfo === null && error === null ? (
+					<p style={description}>Loading installed editors...</p>
+				) : null}
 				{editorInfo?.installedEditors.length === 0 ? (
 					<p style={description}>
 						No supported editors were found on this computer.
@@ -197,6 +267,28 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 						title="Default editor"
 					/>
 				)}
+				<Spacing y={2} block />
+				<p style={title}>Default coding agent</p>
+				<p style={description}>
+					Used when Remotion Studio hands a project to a coding agent.
+				</p>
+				<Spacing y={1} block />
+				{codingAgentInfo === null && error === null ? (
+					<p style={description}>Loading installed coding agents...</p>
+				) : null}
+				{codingAgentInfo?.installedCodingAgents.length === 0 ? (
+					<p style={description}>
+						No supported coding agents were found on this computer.
+					</p>
+				) : null}
+				{codingAgentInfo === null ? null : (
+					<Combobox
+						values={codingAgentValues}
+						selectedId={selectedCodingAgent ?? NO_PREFERENCE_ID}
+						style={comboBoxStyle}
+						title="Default coding agent"
+					/>
+				)}
 				{error ? (
 					<>
 						<Spacing y={1.5} />
@@ -208,16 +300,16 @@ export const ConfigureDefaultEditorModal: React.FC = () => {
 					</>
 				) : null}
 			</div>
-			<ModalFooterContainer>
-				<Row justify="flex-end">
-					<ModalButton
-						onClick={submit}
-						disabled={isSubmitting || editorInfo === null}
-					>
-						{isSubmitting ? 'Saving...' : 'Save and reload'}
-					</ModalButton>
-				</Row>
-			</ModalFooterContainer>
-		</ModalContainer>
+			<SettingsModalFooter>
+				<ModalButton
+					onClick={submit}
+					disabled={
+						isSubmitting || editorInfo === null || codingAgentInfo === null
+					}
+				>
+					{isSubmitting ? 'Saving...' : 'Save and reload'}
+				</ModalButton>
+			</SettingsModalFooter>
+		</div>
 	);
 };

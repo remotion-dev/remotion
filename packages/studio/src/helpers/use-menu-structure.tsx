@@ -25,7 +25,7 @@ import {EditorShowRulersContext} from '../state/editor-rulers';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import type {ModalState} from '../state/modals';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
 import {getBrowserStudioOperations} from './browser-studio-operations';
@@ -318,7 +318,7 @@ export const useMenuStructure = (
 	closeMenu: () => void,
 	readOnlyStudio: boolean,
 ) => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
 	const {editorZoomGestures, setEditorZoomGestures} = useContext(
 		EditorZoomGesturesContext,
@@ -439,32 +439,15 @@ export const useMenuStructure = (
 						subMenu: null,
 						quickSwitcherLabel: 'Help: Changelog',
 					},
-					canConfigureDefaultEditor
-						? {
-								id: 'default-editor',
-								value: 'default-editor',
-								label: 'Configure default editor...',
-								onClick: () => {
-									closeMenu();
-									setSelectedModal({
-										type: 'configure-default-editor',
-									});
-								},
-								type: 'item' as const,
-								keyHint: null,
-								leftItem: null,
-								subMenu: null,
-								quickSwitcherLabel: 'Configure default editor...',
-							}
-						: null,
 					{
-						id: 'license',
-						value: 'license',
-						label: 'Configure License...',
+						id: 'settings',
+						value: 'settings',
+						label: 'Settings...',
 						onClick: () => {
 							closeMenu();
 							setSelectedModal({
-								type: 'configure-license',
+								type: 'settings',
+								initialTab: canConfigureDefaultEditor ? 'apps' : 'license',
 								initialPublicLicenseKey:
 									window.remotion_renderDefaults?.publicLicenseKey ?? null,
 							});
@@ -473,7 +456,7 @@ export const useMenuStructure = (
 						keyHint: null,
 						leftItem: null,
 						subMenu: null,
-						quickSwitcherLabel: 'Configure License...',
+						quickSwitcherLabel: 'Settings...',
 						disabled: readOnlyStudio || type !== 'connected',
 					},
 					{

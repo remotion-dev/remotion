@@ -82,6 +82,7 @@ const makeFixture = () => {
 		return insertElementHandler({
 			binariesDirectory: null,
 			configFile: null,
+			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
 			entryPoint: compositionFile,
 			input,
@@ -123,6 +124,7 @@ const makeFixture = () => {
 		return prepareElementInstallHandler({
 			binariesDirectory: null,
 			configFile: null,
+			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
 			entryPoint: compositionFile,
 			input,

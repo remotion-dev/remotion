@@ -180,11 +180,9 @@ export type ModalState =
 			type: 'input-props-override';
 	  }
 	| {
-			type: 'configure-license';
+			type: 'settings';
+			initialTab: 'apps' | 'license';
 			initialPublicLicenseKey: string | null;
-	  }
-	| {
-			type: 'configure-default-editor';
 	  }
 	| RenderModalState
 	| WebRenderModalState
@@ -219,12 +217,15 @@ export type ModalState =
 	| ConfirmationDialogState
 	| SvgImportDialogState;
 
-export type ModalContextType = {
-	selectedModal: ModalState | null;
+export type SetSelectedModalContextType = {
 	setSelectedModal: React.Dispatch<React.SetStateAction<ModalState | null>>;
 };
 
-export const ModalsContext = createContext<ModalContextType>({
-	selectedModal: null,
-	setSelectedModal: () => undefined,
-});
+// Keep modal state separate from its stable setter so opening a modal only
+// updates consumers that need to render the selected modal.
+export const SelectedModalContext = createContext<ModalState | null>(null);
+
+export const SetSelectedModalContext =
+	createContext<SetSelectedModalContextType>({
+		setSelectedModal: () => undefined,
+	});

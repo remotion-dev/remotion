@@ -49,7 +49,6 @@ const jsonResponse = (value: unknown, status = 200) =>
 
 const dependencies = {
 	now: () => now,
-	pageOrigin: 'https://www.remotion.pro',
 	ports: [3000, 3001],
 };
 
@@ -122,20 +121,13 @@ test('requests confirmation in the most recently focused Studio project', async 
 	});
 });
 
-test('rejects unauthorized origins and malformed keys before discovery', async () => {
+test('rejects malformed keys before discovery', async () => {
 	let requests = 0;
 	const fetchFn = () => {
 		requests++;
 		return Promise.resolve(new Response(null, {status: 404}));
 	};
 
-	expect(
-		await setLicenseKeyInStudioWithDependencies(licenseKey, {
-			...dependencies,
-			fetchFn,
-			pageOrigin: 'https://example.com',
-		}),
-	).toMatchObject({success: false, code: 'unsupported-origin'});
 	expect(
 		await setLicenseKeyInStudioWithDependencies('rm_sec_private', {
 			...dependencies,

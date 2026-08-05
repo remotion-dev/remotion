@@ -42,6 +42,18 @@ Use this for knowledge about compositions, animations, layout, typography, media
 
 > Example prompt: `/remotion-markup Create an animated title card using Inter.`
 
+### `/remotion-studio`
+
+Launch the Studio to see a preview of your video.
+
+> Example prompt: `/remotion-studio`
+
+### `/remotion-render`
+
+Invoke a render into a video or a still.
+
+> Example prompt: `/remotion-render`
+
 ### `/remotion-maps`
 
 Best practices for creating map animations in Remotion.
@@ -49,10 +61,6 @@ Best practices for creating map animations in Remotion.
 Use this for static maps, animated routes and markers, geographic explainers, Mapbox, MapLibre, MapTiler, GeoJSON, and 3D geographic flyovers with CesiumJS.
 
 > Example prompt: `/remotion-maps Animate a route from Los Angeles to New York and make the camera follow it.`
-
-### `/remotion-render`
-
-Invoke a render into a video or a still.
 
 ### `/remotion-captions`
 

@@ -182,6 +182,7 @@ test.skipIf(process.platform === 'win32')(
 				binariesDirectory: null,
 				configFile: null,
 				entryPoint: '',
+				getDefaultCodingAgent: () => null,
 				getDefaultEditor: () => ({
 					type: 'custom',
 					name: 'Acme Editor',
@@ -225,6 +226,7 @@ test('rejects an unknown editor ID at the open-in-editor route', async () => {
 		binariesDirectory: null,
 		configFile: null,
 		entryPoint: '',
+		getDefaultCodingAgent: () => null,
 		getDefaultEditor: () => null,
 		input: {
 			editorId: 'unknown-editor' as never,

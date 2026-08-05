@@ -1,7 +1,7 @@
 ---
 name: remotion-upgrade
 description: Upgrade Remotion, and related packages
-version: 4.0.505
+version: 4.0.506
 ---
 
 # Upgrade Remotion
@@ -23,7 +23,7 @@ version: 4.0.505
 4. If `@remotion/cli` is not available, update the installed Remotion skills:
 
    ```bash
-   npx skills update remotion-best-practices remotion-captions remotion-create remotion-docs remotion-interactivity remotion-maps remotion-markup remotion-multimedia remotion-render remotion-saas remotion-upgrade --yes
+   npx skills update remotion-best-practices remotion-captions remotion-create remotion-docs remotion-interactivity remotion-maps remotion-markup remotion-multimedia remotion-render remotion-saas remotion-studio remotion-upgrade --yes
    ```
 
 5. Review the manifest and lockfile diff. Ensure all Remotion packages use one version and all installed Mediabunny packages use the compatible version. If the CLI is available, run `npx remotion versions` as an additional check.

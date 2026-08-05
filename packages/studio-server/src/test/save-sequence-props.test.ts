@@ -191,6 +191,7 @@ test('saveSequenceProps saves inline caption patches as an undoable source edit'
 			publicDir: '',
 			binariesDirectory: null,
 			configFile: null,
+			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
 		});
 
@@ -298,6 +299,7 @@ export const Comp = () => {
 			publicDir: '',
 			binariesDirectory: null,
 			configFile: null,
+			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
 		});
 
@@ -412,6 +414,7 @@ export const Comp = () => {
 			publicDir: '',
 			binariesDirectory: null,
 			configFile: null,
+			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
 		});
 

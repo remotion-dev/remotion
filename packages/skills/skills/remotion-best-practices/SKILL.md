@@ -1,7 +1,7 @@
 ---
 name: remotion-best-practices
 description: Router for all Remotion skills
-version: 4.0.505
+version: 4.0.506
 ---
 
 ## Creating a video
@@ -31,6 +31,10 @@ By structuring the Remotion markup well, we can allow users to interactively cha
 ## Rendering
 
 For advanced rendering beyond simple `npx remotion render`, see: [Rendering Best Practices](./remotion-render/SKILL.md)
+
+## Opening Remotion Studio
+
+To launch a project in Remotion Studio, open its exact local URL, or configure Studio CLI flags, load [Remotion Studio](./remotion-studio/SKILL.md).
 
 ## Captions
 

@@ -9,7 +9,11 @@ import React, {
 	useState,
 } from 'react';
 import {AbsoluteFillElement} from './AbsoluteFillElement.js';
-import type {LoopDisplay, SequenceControls} from './CompositionManager.js';
+import type {
+	LoopDisplay,
+	SequenceControls,
+	SequenceRegistrationControls,
+} from './CompositionManager.js';
 import type {EffectDefinition} from './effects/effect-types.js';
 import {getStackForControls} from './enable-sequence-stack-traces.js';
 import {Freeze} from './freeze.js';
@@ -402,6 +406,41 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 						: registeredFrozenFrame) *
 						isMedia.data.playbackRate
 			: null;
+	const controlsSchema = controls?.schema;
+	const controlsRuntimeValues = controls?.runtimeValues;
+	const controlsOverrideId = controls?.overrideId;
+	const controlsSupportsEffects = controls?.supportsEffects;
+	const controlsComponentIdentity = controls?.componentIdentity;
+	const controlsComponentName = controls?.componentName;
+	const registrationControls =
+		useMemo((): SequenceRegistrationControls | null => {
+			if (
+				controlsSchema === undefined ||
+				controlsRuntimeValues === undefined ||
+				controlsOverrideId === undefined ||
+				controlsSupportsEffects === undefined ||
+				controlsComponentIdentity === undefined ||
+				controlsComponentName === undefined
+			) {
+				return null;
+			}
+
+			return {
+				schema: controlsSchema,
+				runtimeValues: controlsRuntimeValues,
+				overrideId: controlsOverrideId,
+				supportsEffects: controlsSupportsEffects,
+				componentIdentity: controlsComponentIdentity,
+				componentName: controlsComponentName,
+			};
+		}, [
+			controlsComponentIdentity,
+			controlsComponentName,
+			controlsOverrideId,
+			controlsRuntimeValues,
+			controlsSchema,
+			controlsSupportsEffects,
+		]);
 
 	useEffect(() => {
 		if (!env.isStudio) {
@@ -412,7 +451,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			if (isMedia.type === 'image') {
 				registerSequence({
 					type: 'image',
-					controls: controls ?? null,
+					controls: registrationControls,
 					effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
 					displayName: timelineClipName,
 					documentationLink: resolvedDocumentationLink,
@@ -436,7 +475,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			} else {
 				registerSequence({
 					type: isMedia.type,
-					controls: controls ?? null,
+					controls: registrationControls,
 					effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
 					displayName: timelineClipName,
 					documentationLink: resolvedDocumentationLink,
@@ -485,7 +524,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			getStack: () => stackRef.current,
 			premountDisplay: premountDisplay ?? null,
 			postmountDisplay: postmountDisplay ?? null,
-			controls: controls ?? null,
+			controls: registrationControls,
 			effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
 			refForOutline: refForOutline ?? null,
 			isInsideSeries,
@@ -513,7 +552,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		premountDisplay,
 		postmountDisplay,
 		env.isStudio,
-		controls,
+		registrationControls,
 		_remotionInternalEffects,
 		isMedia,
 		resolvedDocumentationLink,

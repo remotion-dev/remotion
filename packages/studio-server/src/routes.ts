@@ -4,7 +4,11 @@ import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
 import {BundlerInternals} from '@remotion/bundler';
-import type {DefaultEditor, LogLevel} from '@remotion/renderer';
+import type {
+	DefaultCodingAgent,
+	DefaultEditor,
+	LogLevel,
+} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ApiRoutes,
@@ -379,6 +383,7 @@ export const handleRoutes = ({
 	getPreviewSampleRate,
 	enableCrossSiteIsolation,
 	getStudioRuntimeConfig,
+	getDefaultCodingAgent,
 	getDefaultEditor,
 	configFile,
 }: {
@@ -405,6 +410,7 @@ export const handleRoutes = ({
 	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	getDefaultCodingAgent: () => DefaultCodingAgent | null;
 	getDefaultEditor: () => DefaultEditor | null;
 	configFile: string | null;
 }): Promise<void> => {
@@ -445,7 +451,6 @@ export const handleRoutes = ({
 	) {
 		if (request.method === 'OPTIONS') {
 			return handleStudioProtocolOptions({
-				licenseKey: url.pathname === '/api/studio-protocol/license-key',
 				request,
 				response,
 			});
@@ -499,6 +504,7 @@ export const handleRoutes = ({
 				binariesDirectory,
 				publicDir,
 				configFile,
+				getDefaultCodingAgent,
 				getDefaultEditor,
 			});
 		}
