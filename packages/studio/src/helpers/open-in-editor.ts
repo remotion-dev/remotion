@@ -36,8 +36,11 @@ export const openInEditor = (
 	});
 };
 
-export const openInCodingAgent = (codingAgentId: DefaultCodingAgent) => {
-	return callApi('/api/open-in-coding-agent', {codingAgentId});
+export const openInCodingAgent = (
+	codingAgentId: DefaultCodingAgent,
+	prompt: string | null,
+) => {
+	return callApi('/api/open-in-coding-agent', {codingAgentId, prompt});
 };
 
 export const openOriginalPositionInEditor = async (

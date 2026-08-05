@@ -75,6 +75,78 @@ test.describe('visual mode', () => {
 		});
 	});
 
+	test('should pass the copied inspector prompt to editable coding agents', async ({
+		context,
+		page,
+	}) => {
+		await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
+			origin: STUDIO_URL,
+		});
+		await page.route('**/api/default-coding-agent-info', async (route) => {
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {
+						defaultCodingAgent: null,
+						installedCodingAgents: [
+							{id: 'codex', iconDataUrl: null, name: 'Codex'},
+							{
+								id: 'copilot',
+								iconDataUrl: null,
+								name: 'GitHub Copilot',
+							},
+						],
+					},
+				},
+			});
+		});
+
+		const launchRequests: unknown[] = [];
+		await page.route('**/api/open-in-coding-agent', async (route) => {
+			launchRequests.push(route.request().postDataJSON());
+			await route.fulfill({
+				json: {success: true, data: {success: true}},
+			});
+		});
+
+		await page.goto(`${STUDIO_URL}/schema-test`);
+		await page.locator('[data-sidebar-toggle="right"]').click();
+		const sourceLocation = page
+			.getByRole('group', {name: 'Inspector source location'})
+			.first();
+		await expect(sourceLocation).toBeVisible({timeout: 15_000});
+		await sourceLocation.hover();
+
+		await sourceLocation
+			.getByRole('button', {name: 'Copy location for agents'})
+			.click();
+		const copiedPrompt = await page.evaluate(() =>
+			navigator.clipboard.readText(),
+		);
+		expect(copiedPrompt.length).toBeGreaterThan(0);
+
+		const openInAnotherApp = sourceLocation.getByRole('button', {
+			name: 'Open in another app',
+		});
+		await openInAnotherApp.click();
+		await page.getByRole('button', {name: 'Codex', exact: true}).click();
+		await expect.poll(() => launchRequests.length).toBe(1);
+		expect(launchRequests[0]).toEqual({
+			codingAgentId: 'codex',
+			prompt: copiedPrompt,
+		});
+
+		await openInAnotherApp.click();
+		await page
+			.getByRole('button', {name: 'GitHub Copilot', exact: true})
+			.click();
+		await expect.poll(() => launchRequests.length).toBe(2);
+		expect(launchRequests[1]).toEqual({
+			codingAgentId: 'copilot',
+			prompt: null,
+		});
+	});
+
 	test('should open submenus toward the side with more space', async ({
 		page,
 	}) => {

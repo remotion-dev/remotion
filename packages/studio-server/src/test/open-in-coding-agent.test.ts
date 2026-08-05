@@ -13,6 +13,7 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {
 	getCodingAgentLaunchCommand,
+	getCodingAgentLaunchCommands,
 	launchCodingAgent,
 } from '../helpers/coding-agent-registry';
 
@@ -170,6 +171,115 @@ test('constructs Windows coding agent launch commands', () => {
 	});
 });
 
+test('prefills editable macOS coding agents without submitting to Copilot', () => {
+	const projectPath = '/Users/test/My Project';
+	const prompt = 'MySequence in src/Comp.tsx:42';
+
+	expect(
+		getCodingAgentLaunchCommands({
+			codingAgent: {
+				applicationPath: '/Applications/ChatGPT.app',
+				iconDataUrl: null,
+				id: 'codex',
+				launchMode: 'direct',
+				name: 'Codex',
+				platform: 'darwin',
+				terminal: null,
+			},
+			projectPath,
+			prompt,
+		}),
+	).toEqual([
+		{
+			command: 'open',
+			args: [
+				'codex://new?path=%2FUsers%2Ftest%2FMy+Project&prompt=MySequence+in+src%2FComp.tsx%3A42',
+			],
+			cwd: null,
+			waitForExit: false,
+		},
+	]);
+
+	expect(
+		getCodingAgentLaunchCommands({
+			codingAgent: {
+				applicationPath: '/Applications/Cursor.app',
+				iconDataUrl: null,
+				id: 'cursor',
+				launchMode: 'direct',
+				name: 'Cursor',
+				platform: 'darwin',
+				terminal: null,
+			},
+			projectPath,
+			prompt,
+		}),
+	).toEqual([
+		{
+			command: '/Applications/Cursor.app/Contents/Resources/app/bin/cursor',
+			args: ['--glass', '--suppress-popups-on-startup', projectPath],
+			cwd: null,
+			waitForExit: true,
+		},
+		{
+			command: 'open',
+			args: [
+				'cursor://anysphere.cursor-deeplink/prompt?text=MySequence+in+src%2FComp.tsx%3A42',
+			],
+			cwd: null,
+			waitForExit: false,
+		},
+	]);
+
+	expect(
+		getCodingAgentLaunchCommands({
+			codingAgent: {
+				applicationPath: '/Applications/Claude.app',
+				iconDataUrl: null,
+				id: 'claude-code',
+				launchMode: 'direct',
+				name: 'Claude Code',
+				platform: 'darwin',
+				terminal: null,
+			},
+			projectPath,
+			prompt,
+		}),
+	).toEqual([
+		{
+			command: 'open',
+			args: [
+				'claude://code/new?folder=%2FUsers%2Ftest%2FMy+Project&q=MySequence+in+src%2FComp.tsx%3A42',
+			],
+			cwd: null,
+			waitForExit: false,
+		},
+	]);
+
+	expect(
+		getCodingAgentLaunchCommands({
+			codingAgent: {
+				applicationPath: '/Applications/GitHub Copilot.app',
+				iconDataUrl: null,
+				id: 'copilot',
+				launchMode: 'direct',
+				name: 'GitHub Copilot',
+				platform: 'darwin',
+				terminal: null,
+			},
+			projectPath,
+			prompt,
+		}),
+	).toEqual([
+		{
+			command: 'open',
+			args: ['-a', '/Applications/GitHub Copilot.app', projectPath],
+			cwd: null,
+			waitForExit: false,
+		},
+	]);
+});
+
 test.skipIf(process.platform === 'win32')(
 	'launches the project through the coding agent executable',
 	async () => {
@@ -204,6 +314,7 @@ test.skipIf(process.platform === 'win32')(
 				},
 				logLevel: 'error',
 				projectPath: '/Users/test/My Project',
+				prompt: null,
 			});
 			expect(success).toBe(true);
 
@@ -255,6 +366,7 @@ test.skipIf(process.platform === 'win32')(
 				},
 				logLevel: 'error',
 				projectPath,
+				prompt: null,
 			});
 			expect(success).toBe(true);
 

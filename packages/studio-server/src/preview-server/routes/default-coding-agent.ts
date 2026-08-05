@@ -90,6 +90,7 @@ export const openInCodingAgentHandler: ApiHandler<
 			codingAgent,
 			projectPath: remotionRoot,
 			logLevel,
+			prompt: input.prompt,
 		}),
 	};
 };

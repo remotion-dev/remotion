@@ -63,6 +63,7 @@ export type OpenInEditorResponse = {
 
 export type OpenInCodingAgentRequest = {
 	codingAgentId: DefaultCodingAgent;
+	prompt: string | null;
 };
 
 export type OpenInCodingAgentResponse = {

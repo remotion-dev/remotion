@@ -79,6 +79,8 @@ export const InspectorLocationCopy: React.FC<{
 
 	return (
 		<div
+			aria-label="Inspector source location"
+			role="group"
 			style={row}
 			onPointerEnter={() => setHovered(true)}
 			onPointerLeave={() => setHovered(false)}
@@ -94,7 +96,10 @@ export const InspectorLocationCopy: React.FC<{
 						pointerEvents: showAction ? 'auto' : 'none',
 					}}
 				>
-					<InspectorOpenInEditor location={openInEditorLocation} />
+					<InspectorOpenInEditor
+						location={openInEditorLocation}
+						prompt={textToCopy}
+					/>
 					{textToCopy ? (
 						<InlineAction
 							variant={null}

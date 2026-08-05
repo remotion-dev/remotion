@@ -556,47 +556,149 @@ export const getCodingAgentLaunchCommand = ({
 	}
 };
 
-export const launchCodingAgent = ({
+type CodingAgentLaunchCommand = ReturnType<
+	typeof getCodingAgentLaunchCommand
+> & {
+	waitForExit: boolean;
+};
+
+export const getCodingAgentLaunchCommands = ({
+	codingAgent,
+	projectPath,
+	prompt,
+}: {
+	codingAgent: InstalledCodingAgent;
+	projectPath: string;
+	prompt: string | null;
+}): readonly CodingAgentLaunchCommand[] => {
+	const defaultCommand = {
+		...getCodingAgentLaunchCommand({codingAgent, projectPath}),
+		waitForExit: false,
+	};
+
+	if (
+		prompt === null ||
+		codingAgent.platform !== 'darwin' ||
+		codingAgent.id === 'copilot'
+	) {
+		return [defaultCommand];
+	}
+
+	switch (codingAgent.id) {
+		case 'codex': {
+			const deepLink = new URL('codex://new');
+			deepLink.searchParams.set('path', projectPath);
+			deepLink.searchParams.set('prompt', prompt);
+			return [
+				{
+					command: 'open',
+					args: [deepLink.toString()],
+					cwd: null,
+					waitForExit: false,
+				},
+			];
+		}
+
+		case 'cursor': {
+			const deepLink = new URL('cursor://anysphere.cursor-deeplink/prompt');
+			deepLink.searchParams.set('text', prompt);
+			return [
+				{...defaultCommand, waitForExit: true},
+				{
+					command: 'open',
+					args: [deepLink.toString()],
+					cwd: null,
+					waitForExit: false,
+				},
+			];
+		}
+
+		case 'claude-code': {
+			const deepLink = new URL('claude://code/new');
+			deepLink.searchParams.set('folder', projectPath);
+			deepLink.searchParams.set('q', prompt);
+			return [
+				{
+					command: 'open',
+					args: [deepLink.toString()],
+					cwd: null,
+					waitForExit: false,
+				},
+			];
+		}
+
+		default: {
+			const invalidId: never = codingAgent.id;
+			throw new Error(`Unknown coding agent: ${invalidId}`);
+		}
+	}
+};
+
+export const launchCodingAgent = async ({
 	codingAgent,
 	projectPath,
 	logLevel,
+	prompt,
 }: {
 	codingAgent: InstalledCodingAgent;
 	projectPath: string;
 	logLevel: LogLevel;
+	prompt: string | null;
 }): Promise<boolean> => {
-	const {command, args, cwd} = getCodingAgentLaunchCommand({
+	const commands = getCodingAgentLaunchCommands({
 		codingAgent,
 		projectPath,
+		prompt,
 	});
 
-	return new Promise<boolean>((resolve) => {
-		try {
-			const child = spawn(command, args, {
-				cwd: cwd ?? undefined,
-				detached: true,
-				shell: false,
-				stdio: 'ignore',
-			});
-			child.once('error', (error) => {
+	for (const {command, args, cwd, waitForExit} of commands) {
+		const success = await new Promise<boolean>((resolve) => {
+			try {
+				const child = spawn(command, args, {
+					cwd: cwd ?? undefined,
+					detached: !waitForExit,
+					shell: false,
+					stdio: 'ignore',
+				});
+				child.once('error', (error) => {
+					RenderInternals.Log.error(
+						{indent: false, logLevel},
+						`Could not launch coding agent ${codingAgent.name}:`,
+						error,
+					);
+					resolve(false);
+				});
+				if (waitForExit) {
+					child.once('exit', (code) => {
+						if (code !== 0) {
+							RenderInternals.Log.error(
+								{indent: false, logLevel},
+								`Could not launch coding agent ${codingAgent.name}: Process exited with code ${code}`,
+							);
+						}
+
+						resolve(code === 0);
+					});
+				} else {
+					child.once('spawn', () => {
+						child.unref();
+						resolve(true);
+					});
+				}
+			} catch (error) {
 				RenderInternals.Log.error(
 					{indent: false, logLevel},
 					`Could not launch coding agent ${codingAgent.name}:`,
 					error,
 				);
 				resolve(false);
-			});
-			child.once('spawn', () => {
-				child.unref();
-				resolve(true);
-			});
-		} catch (error) {
-			RenderInternals.Log.error(
-				{indent: false, logLevel},
-				`Could not launch coding agent ${codingAgent.name}:`,
-				error,
-			);
-			resolve(false);
+			}
+		});
+
+		if (!success) {
+			return false;
 		}
-	});
+	}
+
+	return true;
 };
