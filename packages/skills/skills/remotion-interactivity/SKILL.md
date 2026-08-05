@@ -44,6 +44,7 @@ Use a prop or variable only when the text is dynamic or reused.
 ## Give interactive elements a descriptive name
 
 Add a `name` prop to elements to make them easily identifyable.
+Avoid computed names, hardcode them.
 
 ```tsx title="Interactive names"
 <>
