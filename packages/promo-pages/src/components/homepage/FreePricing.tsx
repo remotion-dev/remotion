@@ -1,6 +1,7 @@
 import {Switch} from '@remotion/design';
 import React, {useCallback, useMemo} from 'react';
 import {cn} from '../../cn';
+import {useMobileLayout} from './layout/use-mobile-layout';
 import {PricingBulletPoint} from './PricingBulletPoint';
 
 const Container: React.FC<{readonly children: React.ReactNode}> = ({
@@ -236,16 +237,23 @@ const SectionCheckbox: React.FC<{
 	readonly subtitle: React.ReactNode;
 	readonly children?: React.ReactNode;
 }> = ({checked, onChange, title, subtitle, children}) => {
+	const mobileLayout = useMobileLayout();
+
 	return (
 		<div
-			className="flex flex-row gap-3 cursor-pointer select-none items-center"
+			className={cn(
+				'flex flex-row gap-3 cursor-pointer select-none',
+				mobileLayout ? 'items-start' : 'items-center',
+			)}
 			onClick={() => onChange(!checked)}
 		>
-			<Switch
-				active={checked}
-				onToggle={() => onChange(!checked)}
-				aria-label={title}
-			/>
+			<div className={cn('flex shrink-0', mobileLayout && 'pt-1')}>
+				<Switch
+					active={checked}
+					onToggle={() => onChange(!checked)}
+					aria-label={title}
+				/>
+			</div>
 			<div className="flex flex-col">
 				<div className="fontbrand font-bold text-lg flex flex-row items-center gap-1">
 					{title}
@@ -254,19 +262,17 @@ const SectionCheckbox: React.FC<{
 				<div className="text-muted fontbrand text-sm">{subtitle}</div>
 			</div>
 			<div className="flex-1" />
-			<div
-				className={cn(
-					'fontbrand text-muted transition-opacity duration-150',
-					checked ? 'hidden' : 'opacity-100',
-				)}
-			>
-				Not selected
-			</div>
+			{checked || mobileLayout ? null : (
+				<div className="fontbrand text-muted transition-opacity duration-150">
+					Not selected
+				</div>
+			)}
 		</div>
 	);
 };
 
 export const CompanyPricing: React.FC = () => {
+	const mobileLayout = useMobileLayout();
 	const [creatorsSelected, setCreatorsSelected] = React.useState(false);
 	const [automatorsSelected, setAutomatorsSelected] = React.useState(true);
 	const [devSeatCount, setDevSeatCount] = React.useState(3);
@@ -324,7 +330,13 @@ export const CompanyPricing: React.FC = () => {
 				checked={automatorsSelected}
 				onChange={setAutomatorsSelected}
 				title="Remotion for Automators"
-				subtitle="Build video creation tools - $0.01 per render, $100/mo minimum"
+				subtitle={
+					<>
+						Build video creation tools
+						{mobileLayout ? <br /> : ' - '}
+						$0.01 per render, $100/mo minimum
+					</>
+				}
 			/>
 			<div
 				className={cn(
@@ -340,13 +352,11 @@ export const CompanyPricing: React.FC = () => {
 				}}
 				inert={!automatorsSelected}
 			>
-				<div className="overflow-hidden">
-					<p className="text-sm text-muted fontbrand pt-3 pb-1">
-						Intended for companies launching applications and systems; such as
-						video editors, prompt-to-video apps, embedding the Remotion Player,
-						or any other automated video creation. A $100/mo Minimum Spend
-						applies. Developers working on automation projects do not require a
-						Seat.
+				<div className="overflow-hidden pb-2">
+					<p className="text-sm text-muted fontbrand pt-3 pb-1 text-balance">
+						For batch rendering and automated video products, such as video
+						editors, prompt-to-video apps, and embedded Remotion Players.
+						Developers working on these projects don’t need a Seat.
 					</p>
 					<div className="flex flex-row items-center gap-3 sm:gap-4 w-full pt-3 pb-1">
 						<div className="flex-1 min-w-0">
@@ -360,7 +370,7 @@ export const CompanyPricing: React.FC = () => {
 							/>
 						</div>
 
-						<div className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-right tabular-nums">
+						<div className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-left tabular-nums">
 							{new Intl.NumberFormat('en-US').format(cloudRenders)} Renders
 						</div>
 
@@ -381,7 +391,13 @@ export const CompanyPricing: React.FC = () => {
 				checked={creatorsSelected}
 				onChange={setCreatorsSelected}
 				title="Remotion for Creators"
-				subtitle="Create videos for yourself - $25/mo per seat"
+				subtitle={
+					<>
+						Create videos for yourself
+						{mobileLayout ? <br /> : ' - '}
+						$25/mo per seat
+					</>
+				}
 			/>
 			<div
 				className={cn(
@@ -397,11 +413,10 @@ export const CompanyPricing: React.FC = () => {
 				}}
 				inert={!creatorsSelected}
 			>
-				<div className="overflow-hidden">
-					<p className="text-sm text-muted fontbrand pt-3 pb-1">
-						Intended for low volume video creations through coding and
-						prompting, and building motion design systems in a local
-						environment. Get 1 Seat per user.
+				<div className="overflow-hidden pb-2">
+					<p className="text-sm text-muted fontbrand pt-3 pb-1 text-balance">
+						For low volume manual video creation, and building motion design
+						systems in a local environment. Get 1 Seat per user.
 					</p>
 					<div className="flex flex-row items-center gap-3 sm:gap-4 w-full pt-3 pb-1">
 						<div className="flex-1 min-w-0">
@@ -414,7 +429,7 @@ export const CompanyPricing: React.FC = () => {
 							/>
 						</div>
 
-						<div className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-center tabular-nums">
+						<div className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-left tabular-nums">
 							{devSeatCount} {devSeatCount === 1 ? 'Seat' : 'Seats'}
 						</div>
 
@@ -433,7 +448,7 @@ export const CompanyPricing: React.FC = () => {
 				<div className="fontbrand text-muted text-sm">Total</div>
 				<PriceTag>{totalPriceString}/month</PriceTag>
 			</div>
-			<div className="flex flex-col items-end">
+			<div className="flex flex-col items-stretch text-left">
 				<BottomInfo
 					data-visible={showMinimumMessage}
 					className="opacity-0 data-[visible=true]:opacity-100 transition-opacity mt-1"
