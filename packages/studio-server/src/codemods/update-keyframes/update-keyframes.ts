@@ -520,6 +520,11 @@ const createEasingExpression = (easing: KeyframeEasing): ExpressionKind => {
 				b.identifier('Easing'),
 				b.identifier('linear'),
 			) as ExpressionKind;
+		case 'step1':
+			return b.memberExpression(
+				b.identifier('Easing'),
+				b.identifier('step1'),
+			) as ExpressionKind;
 		case 'spring':
 			return b.callExpression(
 				b.memberExpression(b.identifier('Easing'), b.identifier('spring')),

@@ -1,4 +1,5 @@
 import {
+	HOLD_KEYFRAME_EASING,
 	KEYFRAME_EASING_PRESETS,
 	LINEAR_KEYFRAME_EASING,
 } from '@remotion/studio-shared';
@@ -15,12 +16,12 @@ import {Easing, Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BACKGROUND,
+	BLACK_ALPHA_60,
 	BLUE,
-	EASING_SELECTED_BACKGROUND,
 	INPUT_BACKGROUND,
 	LIGHT_TEXT,
+	TRANSPARENT,
 	WHITE,
-	WHITE_ALPHA_05,
 	WHITE_ALPHA_12,
 	WHITE_ALPHA_35,
 	WHITE_ALPHA_72,
@@ -48,7 +49,7 @@ type BezierEasing = Extract<TimelineEasingValue, {type: 'bezier'}>;
 type SpringEasing = Extract<TimelineEasingValue, {type: 'spring'}>;
 type HandleIndex = 0 | 1;
 type Coordinate = 'x' | 'y';
-type EditorMode = 'bezier' | 'spring';
+type EditorMode = 'bezier' | 'hold' | 'spring';
 type SpringNumberKey =
 	| 'damping'
 	| 'durationRestThreshold'
@@ -136,8 +137,9 @@ const SPRING_FALLBACKS: Record<SpringNumberKey, number> = {
 };
 
 const inlineContainer: React.CSSProperties = {
-	width: '100%',
 	minWidth: 0,
+	paddingBottom: 12,
+	width: '100%',
 };
 
 const segmentedControlWrapper: React.CSSProperties = {
@@ -148,29 +150,29 @@ const segmentedControlWrapper: React.CSSProperties = {
 };
 
 const presetButtonsWrapper: React.CSSProperties = {
-	display: 'flex',
-	flexWrap: 'wrap',
-	gap: 6,
-	justifyContent: 'flex-start',
-	marginBottom: 8,
-	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+	border: `1px solid ${BLACK_ALPHA_60}`,
+	borderRadius: 4,
+	boxSizing: 'border-box',
+	display: 'grid',
+	gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+	margin: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 8px`,
+	overflow: 'hidden',
 };
 
 const inspectorPresetButtonsWrapper: React.CSSProperties = {
 	...presetButtonsWrapper,
-	padding: `8px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 0`,
+	margin: `8px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 0`,
 };
 
 const presetButtonBase: React.CSSProperties = {
 	alignItems: 'center',
-	backgroundColor: INPUT_BACKGROUND,
-	border: `1px solid ${WHITE_ALPHA_05}`,
-	borderRadius: 4,
+	backgroundColor: TRANSPARENT,
+	border: 'none',
 	display: 'inline-flex',
 	height: 34,
 	justifyContent: 'center',
 	padding: 0,
-	width: 52,
+	width: '100%',
 };
 
 const presetPreviewSvgStyle: React.CSSProperties = {
@@ -256,7 +258,11 @@ const easingToSpring = (easing: TimelineEasingValue): SpringEasing => {
 };
 
 const easingToMode = (easing: TimelineEasingValue): EditorMode => {
-	return isSpringEasing(easing) ? 'spring' : 'bezier';
+	if (isSpringEasing(easing)) {
+		return 'spring';
+	}
+
+	return easing.type === 'step1' ? 'hold' : 'bezier';
 };
 
 const roundToDecimalPlaces = (value: number, decimalPlaces: number) => {
@@ -374,6 +380,7 @@ const areEasingsEqual = (
 
 	switch (first.type) {
 		case 'linear':
+		case 'step1':
 			return true;
 		case 'spring':
 			return (
@@ -501,6 +508,8 @@ const getEasingFunction = (easing: TimelineEasingValue) => {
 	switch (easing.type) {
 		case 'linear':
 			return Easing.linear;
+		case 'step1':
+			return Easing.step1;
 		case 'bezier':
 			return Easing.bezier(easing.x1, easing.y1, easing.x2, easing.y2);
 		case 'spring':
@@ -520,6 +529,14 @@ const getEasingFunction = (easing: TimelineEasingValue) => {
 };
 
 const getPresetPreviewPath = (easing: TimelineEasingValue) => {
+	if (easing.type === 'step1') {
+		const startX = presetPreviewXToSvg(0);
+		const endX = presetPreviewXToSvg(1);
+		const startY = presetPreviewYToSvg(0);
+		const endY = presetPreviewYToSvg(1);
+		return `M ${startX} ${startY} L ${endX} ${startY} L ${endX} ${endY}`;
+	}
+
 	const easingFunction = getEasingFunction(easing);
 	const samples = 36;
 	const points: string[] = [];
@@ -634,16 +651,22 @@ const EasingPresetButton: React.FC<{
 	readonly preset: EasingPreset;
 }> = ({currentEasing, disabled, onClick, preset}) => {
 	const selected = areEasingsEqual(currentEasing, preset.easing);
+	const [hovered, setHovered] = useState(false);
 	const path = useMemo(
 		() => getPresetPreviewPath(preset.easing),
 		[preset.easing],
 	);
+	const onPointerEnter = useCallback(() => {
+		setHovered(true);
+	}, []);
+	const onPointerLeave = useCallback(() => {
+		setHovered(false);
+	}, []);
 	const style = useMemo(
 		(): React.CSSProperties => ({
 			...presetButtonBase,
-			backgroundColor: selected ? EASING_SELECTED_BACKGROUND : INPUT_BACKGROUND,
-			borderColor: selected ? BLUE : WHITE_ALPHA_05,
-			cursor: disabled ? 'not-allowed' : 'pointer',
+			backgroundColor: selected ? INPUT_BACKGROUND : TRANSPARENT,
+			cursor: disabled ? 'not-allowed' : undefined,
 			opacity: disabled ? 0.45 : 1,
 		}),
 		[disabled, selected],
@@ -660,6 +683,8 @@ const EasingPresetButton: React.FC<{
 			aria-label={`Apply ${preset.label} easing`}
 			disabled={disabled}
 			onClick={handleClick}
+			onPointerEnter={onPointerEnter}
+			onPointerLeave={onPointerLeave}
 		>
 			<svg
 				width={PRESET_PREVIEW_WIDTH}
@@ -672,7 +697,7 @@ const EasingPresetButton: React.FC<{
 				<path
 					d={path}
 					fill="none"
-					stroke={WHITE}
+					stroke={selected || hovered ? WHITE : LIGHT_TEXT}
 					strokeWidth={2}
 					strokeLinecap="round"
 					strokeLinejoin="round"
@@ -965,7 +990,9 @@ export const EasingEditor: React.FC<{
 			const easing =
 				nextMode === 'spring'
 					? serializeSpring(springRef.current)
-					: serializeBezier(bezierRef.current);
+					: nextMode === 'hold'
+						? HOLD_KEYFRAME_EASING
+						: serializeBezier(bezierRef.current);
 			const version = applyLiveEasing(easing);
 			commitEasing(easing, version);
 		},
@@ -986,12 +1013,20 @@ export const EasingEditor: React.FC<{
 				return;
 			}
 
+			if (easing.type === 'step1') {
+				setMode('hold');
+				const holdVersion = applyLiveEasing(HOLD_KEYFRAME_EASING);
+				commitEasing(HOLD_KEYFRAME_EASING, holdVersion);
+				return;
+			}
+
 			const nextBezier = easingToBezier(easing);
 			setMode('bezier');
 			const bezierVersion = setBezierAndPreview(nextBezier);
 			commitEasing(serializeBezier(nextBezier), bezierVersion);
 		},
 		[
+			applyLiveEasing,
 			commitEasing,
 			previewServerState.type,
 			setBezierAndPreview,
@@ -1117,14 +1152,21 @@ export const EasingEditor: React.FC<{
 
 		return points.join(' ');
 	}, [spring]);
+	const holdPath = useMemo(
+		() =>
+			`M ${startPoint.x} ${startPoint.y} L ${endPoint.x} ${startPoint.y} L ${endPoint.x} ${endPoint.y}`,
+		[endPoint, startPoint],
+	);
 
 	const disabled = previewServerState.type !== 'connected';
 	const graphLabels = getEasingGraphLabels(getCurrentEasingUpdates());
-	const currentEasing = useMemo(
-		() =>
-			mode === 'spring' ? serializeSpring(spring) : serializeBezier(bezier),
-		[bezier, mode, spring],
-	);
+	const currentEasing = useMemo(() => {
+		if (mode === 'spring') {
+			return serializeSpring(spring);
+		}
+
+		return mode === 'hold' ? HOLD_KEYFRAME_EASING : serializeBezier(bezier);
+	}, [bezier, mode, spring]);
 	const modeItems = useMemo((): SegmentedControlItem[] => {
 		return [
 			{
@@ -1139,13 +1181,19 @@ export const EasingEditor: React.FC<{
 				onClick: () => switchMode('spring'),
 				selected: mode === 'spring',
 			},
+			{
+				key: 'hold',
+				label: 'Hold',
+				onClick: () => switchMode('hold'),
+				selected: mode === 'hold',
+			},
 		];
 	}, [mode, switchMode]);
 	const coordinatesGrid = useMemo(
 		(): React.CSSProperties => ({
 			...coordinatesGridBase,
 			gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-			padding: '0 12px 12px',
+			padding: '0 12px',
 		}),
 		[],
 	);
@@ -1324,7 +1372,7 @@ export const EasingEditor: React.FC<{
 						</div>
 					</div>
 				</>
-			) : (
+			) : mode === 'spring' ? (
 				<>
 					<svg
 						width={SVG_WIDTH}
@@ -1474,6 +1522,22 @@ export const EasingEditor: React.FC<{
 							</div>
 						</div>
 					</div>
+				</>
+			) : (
+				<>
+					<svg
+						width={SVG_WIDTH}
+						height={SVG_HEIGHT}
+						viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
+						style={svgStyle}
+						aria-label="Hold easing curve"
+					>
+						<EasingGraphScaffold labels={graphLabels} />
+						<path d={holdPath} fill="none" stroke={BLUE} strokeWidth={3} />
+						<circle cx={startPoint.x} cy={startPoint.y} r={4} fill={WHITE} />
+						<circle cx={endPoint.x} cy={endPoint.y} r={4} fill={WHITE} />
+					</svg>
+					{modeSwitcher}
 				</>
 			)}
 		</div>

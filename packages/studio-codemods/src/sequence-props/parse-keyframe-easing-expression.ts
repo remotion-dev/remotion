@@ -5,6 +5,7 @@ import {
 	getBackKeyframeEasing,
 	getOutKeyframeEasing,
 	getPolyKeyframeEasing,
+	HOLD_KEYFRAME_EASING,
 	LINEAR_KEYFRAME_EASING,
 	QUAD_KEYFRAME_EASING,
 } from '@remotion/studio-shared/keyframe-easing-presets';
@@ -51,6 +52,10 @@ const getMemberExpressionKeyframeEasing = (
 ): CanUpdateSequencePropStatusEasing | null => {
 	if (name === 'linear') {
 		return LINEAR_KEYFRAME_EASING;
+	}
+
+	if (name === 'step1') {
+		return HOLD_KEYFRAME_EASING;
 	}
 
 	if (name === 'ease') {
