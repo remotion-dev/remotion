@@ -157,7 +157,7 @@ export const FreePricing: React.FC<{
 				checked={false}
 			/>
 			<PricingBulletPoint
-				text="Must upgrade when your team grows"
+				text="Must upgrade when your organization grows"
 				checked={false}
 			/>
 			<div className={'flex flex-row justify-end mt-4'}>
