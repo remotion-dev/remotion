@@ -1,64 +1,108 @@
 ---
 image: /generated/articles-docs-mediabunny-index.png
 title: Remotion and Mediabunny
-crumb: 'Migration'
-sidebar_label: Remotion and Mediabunny
+crumb: 'Mediabunny'
 ---
 
-[On September 1st 2025, we announced](/blog/mediabunny) that we are combining our efforts and are helping Mediabunny become the definitive multimedia library for the web!
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-As a result, we will be slowing phasing out [`@remotion/media-parser`](/docs/media-parser) and [`@remotion/webcodecs`](/docs/webcodecs) and deprecate it when Mediabunny has reached the same capabilities.
+[Mediabunny](https://mediabunny.dev) is the multimedia library that Remotion uses for parsing, decoding and creating media. You can install it in a Remotion project and keep it in sync with your Remotion installation.
 
-## Should I use Mediabunny or Media Parser?
+## Installation
 
-As of February 2026, we recommend that you now [migrate to Mediabunny](https://mediabunny.dev/guide/quick-start).  
-Media Parser is now deprecated.
+Add `mediabunny` with the version that matches your Remotion installation:
 
-See the snippets in this documentation section to help you migrate.
+<Tabs
+defaultValue="bunx"
+values={[
+{ label: 'bunx', value: 'bunx', },
+{ label: 'npx', value: 'npx', },
+{ label: 'pnpm', value: 'pnpm', },
+{ label: 'yarn', value: 'yarn', },
+]
+}>
+<TabItem value="bunx">
 
-## Differences in features
+```bash
+bunx remotion add mediabunny
+```
 
-Some features are available in Media Parser but not (yet) in Mediabunny, and vice versa.  
-Here are some notable ones:
+  </TabItem>
 
-**Features exclusive to Media Parser**:
+  <TabItem value="npx">
 
-- `.avi` container support
-- Foreign file probing
+```bash
+npx remotion add mediabunny
+```
 
-**Features exclusive to Mediabunny**:
+  </TabItem>
 
-- `.ogg`, `.adts` container support
-- Compression
-- Media Player
-- Video creation
-- Live recording and streaming
-- Tree shaking
+  <TabItem value="pnpm">
 
-Mediabunny is generally faster.  
-Media Parser has higher-level APIs ("`extractFrames()`") while Mediabunny's API is lower-level.  
-Mediabunny has a more permissive license (see below).
+```bash
+pnpm exec remotion add mediabunny
+```
 
-If one of these characteristics is important for you, let this influence your choice.
+  </TabItem>
 
-## How are Remotion and Mediabunny related?
+  <TabItem value="yarn">
 
-Mediabunny is an independent project by [Vanilagy](https://github.com/vanilagy).  
-Remotion is a Gold Sponsor of Mediabunny.
+```bash
+yarn remotion add mediabunny
+```
 
-## Reporting bugs
+  </TabItem>
+</Tabs>
 
-If you can pin down an issue to the Mediabunny library directly, then report an issue under [Mediabunny's repo](https://github.com/vanilagy/mediabunny/issues).  
-If an issue also concerns Remotion usage described in our docs, you can file it within the [Remotion repo](https://github.com/remotion-dev/remotion/issues).
+## Upgrade
 
-## License
+To upgrade Remotion and Mediabunny together, run:
 
-Remotion (the framework), `@remotion/media-parser` and `@remotion/webcodecs` continue to use the [Remotion License](/docs/license).
-If you are using Remotion and are not eligible for the Free License, you continue to require a Company License.
+<Tabs
+defaultValue="bunx"
+values={[
+{ label: 'bunx', value: 'bunx', },
+{ label: 'npx', value: 'npx', },
+{ label: 'pnpm', value: 'pnpm', },
+{ label: 'yarn', value: 'yarn', },
+]
+}>
+<TabItem value="bunx">
 
-[Mediabunny](https://mediabunny.dev) has a more permissive MPL 2.0 license.  
-If you are a company and you are only interested in the multimedia library, you don't need a Company License to use Mediabunny - it is truly open source!
+```bash
+bunx remotion upgrade
+```
 
-## What happens with remotion.dev/convert?
+  </TabItem>
 
-As of October 20th 2025, [remotion.dev/convert](https://remotion.dev/convert) is now updated to use Mediabunny!
+  <TabItem value="npx">
+
+```bash
+npx remotion upgrade
+```
+
+  </TabItem>
+
+  <TabItem value="pnpm">
+
+```bash
+pnpm exec remotion upgrade
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+yarn remotion upgrade
+```
+
+  </TabItem>
+</Tabs>
+
+## Version compatibility
+
+Run [`npx remotion versions`](/docs/cli/versions) to check that Mediabunny is on the version expected by your Remotion installation.
+
+For the full version mapping, see [Mediabunny version used by Remotion](/docs/mediabunny/version).
