@@ -1,7 +1,8 @@
 import fs from 'fs';
+import path from 'path';
 import {expect, test, type Page} from '@playwright/test';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
-import {STUDIO_URL, effectKeyframeE2eFile} from './constants.mts';
+import {STUDIO_URL, effectKeyframeE2eFile, exampleDir} from './constants.mts';
 import {navigateToSchemaTest} from './helpers.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
@@ -100,6 +101,129 @@ test.describe('visual mode', () => {
 		await expect(page.getByRole('button', {name: 'Schema'})).toBeVisible({
 			timeout: 15_000,
 		});
+	});
+
+	test('untoggling the free license removes it from the config', async ({
+		page,
+	}) => {
+		const configFile = path.join(exampleDir, 'remotion.config.ts');
+		const configBeforeTest = fs.readFileSync(configFile, 'utf8');
+
+		try {
+			await page.goto(STUDIO_URL);
+			const response = await fetch(`${STUDIO_URL}/api/update-config`, {
+				method: 'POST',
+				headers: {'content-type': 'application/json', origin: STUDIO_URL},
+				body: JSON.stringify({
+					clientId: 'license-settings-e2e',
+					updates: [
+						{
+							setter: 'setPublicLicenseKey',
+							type: 'set',
+							value: 'free-license',
+						},
+					],
+				}),
+			});
+			expect(await response.json()).toEqual({
+				success: true,
+				data: {success: true},
+			});
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.toContain("Config.setPublicLicenseKey('free-license');");
+
+			await page.getByRole('button', {name: /Search\.\.\./}).click();
+			const quickSwitcher = page.getByRole('dialog');
+			await quickSwitcher.getByRole('textbox').fill('> Settings');
+			await quickSwitcher.getByText('Settings...', {exact: true}).click();
+			const dialog = page.getByRole('dialog');
+			await dialog.getByText('License', {exact: true}).click();
+			const freeLicenseToggle = dialog.locator('input[name="free-license"]');
+			await expect(freeLicenseToggle).toBeChecked();
+			await freeLicenseToggle.click();
+
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.not.toContain('Config.setPublicLicenseKey');
+		} finally {
+			fs.writeFileSync(configFile, configBeforeTest);
+		}
+	});
+
+	test('settings reuse reactive runtime config', async ({page}) => {
+		const configFile = path.join(exampleDir, 'remotion.config.ts');
+		const configBeforeTest = fs.readFileSync(configFile, 'utf8');
+		let editorInfoRequests = 0;
+		let codingAgentInfoRequests = 0;
+		await page.route('**/api/default-editor-info', async (route) => {
+			editorInfoRequests++;
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {
+						defaultEditor: null,
+						installedEditors: [
+							{id: 'vscode', name: 'VS Code'},
+							{id: 'cursor', name: 'Cursor'},
+						],
+					},
+				},
+			});
+		});
+		await page.route('**/api/default-coding-agent-info', async (route) => {
+			codingAgentInfoRequests++;
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {
+						defaultCodingAgent: null,
+						installedCodingAgents: [
+							{id: 'codex', iconDataUrl: null, name: 'Codex'},
+						],
+					},
+				},
+			});
+		});
+
+		try {
+			await page.goto(`${STUDIO_URL}/schema-test`);
+			await page.locator('[data-sidebar-toggle="right"]').click();
+			await expect(
+				page.getByRole('group', {name: 'Inspector source location'}).first(),
+			).toBeVisible({timeout: 15_000});
+			await expect
+				.poll(() => ({codingAgentInfoRequests, editorInfoRequests}))
+				.toEqual({codingAgentInfoRequests: 1, editorInfoRequests: 1});
+
+			fs.writeFileSync(
+				configFile,
+				`${configBeforeTest}\nConfig.setDefaultEditor('cursor');\nConfig.setDefaultCodingAgent('codex');\nConfig.setPublicLicenseKey('free-license');\n`,
+			);
+			await expect
+				.poll(() => fs.readFileSync(configFile, 'utf8'))
+				.toContain("Config.setDefaultEditor('cursor');");
+
+			await page.getByRole('button', {name: /Search\.\.\./}).click();
+			const quickSwitcher = page.getByRole('dialog');
+			await quickSwitcher.getByRole('textbox').fill('> Settings');
+			await quickSwitcher.getByText('Settings...', {exact: true}).click();
+			const dialog = page.getByRole('dialog');
+			await expect(
+				dialog.getByTitle('Default editor', {exact: true}),
+			).toContainText('Cursor');
+			await expect(
+				dialog.getByTitle('Default coding agent', {exact: true}),
+			).toContainText('Codex');
+			await dialog.getByText('License', {exact: true}).click();
+			await expect(dialog.locator('input[name="free-license"]')).toBeChecked();
+			expect({codingAgentInfoRequests, editorInfoRequests}).toEqual({
+				codingAgentInfoRequests: 1,
+				editorInfoRequests: 1,
+			});
+		} finally {
+			fs.writeFileSync(configFile, configBeforeTest);
+		}
 	});
 
 	test('should collapse programmatically duplicated timeline rows', async ({

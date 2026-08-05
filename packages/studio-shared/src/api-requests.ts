@@ -987,17 +987,32 @@ export type ProjectInfoResponse = {
 export type RestartStudioRequest = {};
 export type RestartStudioResponse = {};
 
-export type UpdatePublicLicenseRequest = {
-	publicLicenseKey: string;
-};
-export type UpdatePublicLicenseResponse =
+export type ConfigValue =
+	| string
+	| number
+	| boolean
+	| null
+	| ConfigValue[]
+	| {[key: string]: ConfigValue};
+
+export type ConfigUpdate =
 	| {
-			success: true;
+			setter: string;
+			type: 'delete';
 	  }
 	| {
-			success: false;
-			reason: string;
+			setter: string;
+			type: 'set';
+			value: ConfigValue;
 	  };
+
+export type UpdateConfigRequest = {
+	clientId: string;
+	updates: ConfigUpdate[];
+};
+export type UpdateConfigResponse =
+	| {success: true}
+	| {success: false; reason: string};
 
 export type GetDefaultEditorInfoRequest = {};
 export type EditorPickerId = BuiltInEditor | 'custom';
@@ -1005,18 +1020,6 @@ export type GetDefaultEditorInfoResponse = {
 	defaultEditor: EditorPickerId | null;
 	installedEditors: {id: EditorPickerId; name: string}[];
 };
-
-export type UpdateDefaultEditorRequest = {
-	defaultEditor: EditorPickerId | null;
-};
-export type UpdateDefaultEditorResponse =
-	| {
-			success: true;
-	  }
-	| {
-			success: false;
-			reason: string;
-	  };
 
 export type GetDefaultCodingAgentInfoRequest = {};
 export type GetDefaultCodingAgentInfoResponse = {
@@ -1027,18 +1030,6 @@ export type GetDefaultCodingAgentInfoResponse = {
 		iconDataUrl: string | null;
 	}[];
 };
-
-export type UpdateDefaultCodingAgentRequest = {
-	defaultCodingAgent: DefaultCodingAgent | null;
-};
-export type UpdateDefaultCodingAgentResponse =
-	| {
-			success: true;
-	  }
-	| {
-			success: false;
-			reason: string;
-	  };
 
 export type PackageInstallSpec = {
 	readonly name: string;
@@ -1104,10 +1095,6 @@ export type ApiRoutes = {
 	'/api/default-coding-agent-info': ReqAndRes<
 		GetDefaultCodingAgentInfoRequest,
 		GetDefaultCodingAgentInfoResponse
-	>;
-	'/api/update-default-coding-agent': ReqAndRes<
-		UpdateDefaultCodingAgentRequest,
-		UpdateDefaultCodingAgentResponse
 	>;
 	'/api/find-in-file': ReqAndRes<FindInFileRequest, FindInFileResponse>;
 	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
@@ -1235,17 +1222,10 @@ export type ApiRoutes = {
 		RenameStaticFileResponse
 	>;
 	'/api/restart-studio': ReqAndRes<RestartStudioRequest, RestartStudioResponse>;
-	'/api/update-public-license': ReqAndRes<
-		UpdatePublicLicenseRequest,
-		UpdatePublicLicenseResponse
-	>;
+	'/api/update-config': ReqAndRes<UpdateConfigRequest, UpdateConfigResponse>;
 	'/api/default-editor-info': ReqAndRes<
 		GetDefaultEditorInfoRequest,
 		GetDefaultEditorInfoResponse
-	>;
-	'/api/update-default-editor': ReqAndRes<
-		UpdateDefaultEditorRequest,
-		UpdateDefaultEditorResponse
 	>;
 	'/api/install-package': ReqAndRes<
 		InstallPackageRequest,

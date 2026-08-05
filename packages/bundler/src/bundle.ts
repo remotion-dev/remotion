@@ -452,9 +452,12 @@ export const internalBundle = async (
 		studioRuntimeConfig: {
 			askAIEnabled: actualArgs.askAIEnabled,
 			bufferStateDelayInMilliseconds: actualArgs.bufferStateDelayInMilliseconds,
+			defaultCodingAgent: null,
+			defaultEditor: null,
 			interactivityEnabled: actualArgs.interactivityEnabled,
 			keyboardShortcutsEnabled: actualArgs.keyboardShortcutsEnabled,
 			maxTimelineTracks: actualArgs.maxTimelineTracks,
+			publicLicenseKey: actualArgs.renderDefaults?.publicLicenseKey ?? null,
 		},
 	});
 

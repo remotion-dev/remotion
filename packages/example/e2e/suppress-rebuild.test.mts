@@ -1,6 +1,7 @@
 import fs from 'fs';
+import path from 'path';
 import {expect, test} from '@playwright/test';
-import {rootFile, STUDIO_URL} from './constants.mts';
+import {exampleDir, rootFile, STUDIO_URL} from './constants.mts';
 import {readStudioLogs, stripAnsi} from './helpers.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
@@ -13,7 +14,7 @@ test.describe('suppress webpack rebuild', () => {
 		await stopStudio();
 	});
 
-	test('updating default props via API should not trigger a webpack rebuild, but a manual file edit should', async () => {
+	test('only source file changes should trigger a bundler rebuild', async () => {
 		const logCountBefore = readStudioLogs().length;
 
 		// 1. Update default props via the studio API
@@ -110,5 +111,43 @@ test.describe('suppress webpack rebuild', () => {
 				},
 			)
 			.toBe(true);
+
+		// 3. A config edit should be handled by the dedicated config watcher,
+		// without also triggering a bundler rebuild through Tailwind's scanner.
+		const configFile = path.join(exampleDir, 'remotion.config.ts');
+		const configBeforeEdit = fs.readFileSync(configFile, 'utf-8');
+		const logCountBeforeConfigEdit = readStudioLogs().length;
+
+		try {
+			fs.writeFileSync(configFile, `${configBeforeEdit}\n`);
+
+			await expect
+				.poll(
+					() => {
+						const newLogs = readStudioLogs()
+							.slice(logCountBeforeConfigEdit)
+							.map(stripAnsi);
+						return newLogs.some((log) => log.includes('Config file changed'));
+					},
+					{
+						message: 'Expected the config watcher to handle the config edit',
+						timeout: 10_000,
+					},
+				)
+				.toBe(true);
+
+			await new Promise((resolve) => setTimeout(resolve, 2_000));
+
+			const logsAfterConfigEdit = readStudioLogs()
+				.slice(logCountBeforeConfigEdit)
+				.map(stripAnsi);
+			expect(
+				logsAfterConfigEdit.some(
+					(log) => log.includes('Building...') || log.includes('Built in'),
+				),
+			).toBe(false);
+		} finally {
+			fs.writeFileSync(configFile, configBeforeEdit);
+		}
 	});
 });

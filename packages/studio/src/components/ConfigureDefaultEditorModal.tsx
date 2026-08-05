@@ -1,20 +1,19 @@
 import type {
+	ConfigUpdate,
 	EditorPickerId,
 	GetDefaultCodingAgentInfoResponse,
-	GetDefaultEditorInfoResponse,
 } from '@remotion/studio-shared';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {LIGHT_TEXT} from '../helpers/colors';
 import {Checkmark} from '../icons/Checkmark';
 import {EditorIcon} from '../icons/editor';
-import {callApi} from './call-api';
 import {CodingAgentIcon} from './CodingAgentIcon';
 import {Spacing} from './layout';
-import {ModalButton} from './ModalButton';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
-import {SettingsModalFooter} from './SettingsModalFooter';
+import {useSettings} from './SettingsContext';
+import {useAutoSaveConfig} from './use-auto-save-config';
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -74,19 +73,19 @@ const appName: React.CSSProperties = {
 
 const NO_PREFERENCE_ID = 'no-preference';
 
-export const DefaultEditorSettings: React.FC<{
-	readonly onSaved: () => void;
-}> = ({onSaved}) => {
-	const [editorInfo, setEditorInfo] =
-		useState<GetDefaultEditorInfoResponse | null>(null);
-	const [codingAgentInfo, setCodingAgentInfo] =
-		useState<GetDefaultCodingAgentInfoResponse | null>(null);
+export const DefaultEditorSettings: React.FC = () => {
+	const {
+		codingAgentInfo,
+		editorInfo,
+		error: settingsError,
+		revision,
+	} = useSettings();
 	const [selectedEditor, setSelectedEditor] = useState<EditorPickerId | null>(
 		null,
 	);
 	const [selectedCodingAgent, setSelectedCodingAgent] =
 		useState<GetDefaultCodingAgentInfoResponse['defaultCodingAgent']>(null);
-	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [syncedRevision, setSyncedRevision] = useState(-1);
 	const [error, setError] = useState<string | null>(null);
 	const editorValues = useMemo((): ComboboxValue[] => {
 		const noPreference: ComboboxValue = {
@@ -172,88 +171,76 @@ export const DefaultEditorSettings: React.FC<{
 	}, [codingAgentInfo?.installedCodingAgents, selectedCodingAgent]);
 
 	useEffect(() => {
-		const controller = new AbortController();
-		Promise.all([
-			callApi('/api/default-editor-info', {}, controller.signal),
-			callApi('/api/default-coding-agent-info', {}, controller.signal),
-		])
-			.then(([editorResponse, codingAgentResponse]) => {
-				setEditorInfo(editorResponse);
-				setSelectedEditor(
-					editorResponse.defaultEditor !== null &&
-						editorResponse.installedEditors.some(
-							({id}) => id === editorResponse.defaultEditor,
-						)
-						? editorResponse.defaultEditor
-						: null,
-				);
-				setCodingAgentInfo(codingAgentResponse);
-				setSelectedCodingAgent(
-					codingAgentResponse.defaultCodingAgent !== null &&
-						codingAgentResponse.installedCodingAgents.some(
-							({id}) => id === codingAgentResponse.defaultCodingAgent,
-						)
-						? codingAgentResponse.defaultCodingAgent
-						: null,
-				);
-			})
-			.catch((err) => {
-				if (controller.signal.aborted) {
-					return;
-				}
-
-				setError((err as Error).message);
-			});
-
-		return () => controller.abort();
-	}, []);
-
-	const submit = useCallback(async () => {
 		if (editorInfo === null || codingAgentInfo === null) {
 			return;
 		}
 
-		setIsSubmitting(true);
+		setSelectedEditor(
+			editorInfo.defaultEditor !== null &&
+				editorInfo.installedEditors.some(
+					({id}) => id === editorInfo.defaultEditor,
+				)
+				? editorInfo.defaultEditor
+				: null,
+		);
+		setSelectedCodingAgent(
+			codingAgentInfo.defaultCodingAgent !== null &&
+				codingAgentInfo.installedCodingAgents.some(
+					({id}) => id === codingAgentInfo.defaultCodingAgent,
+				)
+				? codingAgentInfo.defaultCodingAgent
+				: null,
+		);
+		setSyncedRevision(revision);
 		setError(null);
-		try {
-			const editorResponse = await callApi('/api/update-default-editor', {
-				defaultEditor: selectedEditor,
-			});
-			if (!editorResponse.success) {
-				setError(editorResponse.reason);
-				setIsSubmitting(false);
-				return;
-			}
+	}, [codingAgentInfo, editorInfo, revision]);
 
-			const codingAgentResponse = await callApi(
-				'/api/update-default-coding-agent',
-				{defaultCodingAgent: selectedCodingAgent},
-			);
-			if (!codingAgentResponse.success) {
-				setError(codingAgentResponse.reason);
-				setIsSubmitting(false);
-				return;
-			}
+	const updates = useMemo((): ConfigUpdate[] => {
+		// The browser only receives an opaque ID for a custom editor. Omitting the
+		// update preserves its executable and arguments in the existing config call.
+		const editorUpdate: ConfigUpdate[] =
+			selectedEditor === 'custom'
+				? []
+				: [
+						selectedEditor === null
+							? {setter: 'setDefaultEditor', type: 'delete'}
+							: {
+									setter: 'setDefaultEditor',
+									type: 'set',
+									value: selectedEditor,
+								},
+					];
 
-			onSaved();
-		} catch (err) {
-			setError((err as Error).message);
-			setIsSubmitting(false);
-		}
-	}, [
-		codingAgentInfo,
-		editorInfo,
-		onSaved,
-		selectedCodingAgent,
-		selectedEditor,
-	]);
+		return [
+			...editorUpdate,
+			selectedCodingAgent === null
+				? {setter: 'setDefaultCodingAgent', type: 'delete'}
+				: {
+						setter: 'setDefaultCodingAgent',
+						type: 'set',
+						value: selectedCodingAgent,
+					},
+		];
+	}, [selectedCodingAgent, selectedEditor]);
+	const ready =
+		editorInfo !== null &&
+		codingAgentInfo !== null &&
+		syncedRevision === revision;
+	useAutoSaveConfig({
+		enabled: ready,
+		onError: setError,
+		ready,
+		syncRevision: syncedRevision,
+		updates,
+	});
+	const displayedError = error ?? settingsError;
 
 	return (
 		<div style={container}>
 			<div style={content}>
 				<p style={title}>Default editor</p>
 				<Spacing y={1} block />
-				{editorInfo === null && error === null ? (
+				{editorInfo === null && displayedError === null ? (
 					<p style={description}>Loading installed editors...</p>
 				) : null}
 				{editorInfo?.installedEditors.length === 0 ? (
@@ -272,7 +259,7 @@ export const DefaultEditorSettings: React.FC<{
 				<Spacing y={2} block />
 				<p style={title}>Default coding agent</p>
 				<Spacing y={1} block />
-				{codingAgentInfo === null && error === null ? (
+				{codingAgentInfo === null && displayedError === null ? (
 					<p style={description}>Loading installed coding agents...</p>
 				) : null}
 				{codingAgentInfo?.installedCodingAgents.length === 0 ? (
@@ -288,27 +275,17 @@ export const DefaultEditorSettings: React.FC<{
 						title="Default coding agent"
 					/>
 				)}
-				{error ? (
+				{displayedError ? (
 					<>
 						<Spacing y={1.5} />
 						<ValidationMessage
-							message={error}
+							message={displayedError}
 							align="flex-start"
 							type="error"
 						/>
 					</>
 				) : null}
 			</div>
-			<SettingsModalFooter>
-				<ModalButton
-					onClick={submit}
-					disabled={
-						isSubmitting || editorInfo === null || codingAgentInfo === null
-					}
-				>
-					{isSubmitting ? 'Saving...' : 'Save and reload'}
-				</ModalButton>
-			</SettingsModalFooter>
 		</div>
 	);
 };

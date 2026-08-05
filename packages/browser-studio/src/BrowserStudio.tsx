@@ -280,9 +280,12 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				studioRuntimeConfig: {
 					askAIEnabled: false,
 					bufferStateDelayInMilliseconds: null,
+					defaultCodingAgent: null,
+					defaultEditor: null,
 					interactivityEnabled: true,
 					keyboardShortcutsEnabled: true,
 					maxTimelineTracks: null,
+					publicLicenseKey: null,
 				},
 				studioServerCommand: null,
 				title: 'Remotion Studio',
