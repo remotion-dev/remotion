@@ -14,10 +14,11 @@ Before starting, read the [Element Guidelines](/elements/guidelines). They descr
 Three [Agent Skills](https://agentskills.io/) define the contribution workflow:
 
 - Use the [`scaffold-element` Agent Skill](https://github.com/remotion-dev/remotion/blob/main/.agents/skills/scaffold-element/SKILL.md) to create the repository files and development composition.
-- Use the [`submit-element` Agent Skill](https://github.com/remotion-dev/remotion/blob/main/.agents/skills/submit-element/SKILL.md) after reviewing the Element in Remotion Studio. It adds the Element to the gallery and generates the review assets for the pull request.
-- Maintainers use the [`accept-element` Agent Skill](https://github.com/remotion-dev/remotion/blob/main/.agents/skills/accept-element/SKILL.md) to verify and upload the approved assets before merging.
+- Use the [`submit-element` Agent Skill](https://github.com/remotion-dev/remotion/blob/main/.agents/skills/submit-element/SKILL.md) after reviewing the Element in Remotion Studio. It adds the Element to the gallery and selects the correct preview workflow from the authenticated GitHub account's repository permission.
+- Repository writers with upload credentials publish the reviewed previews directly. Other contributors add temporary review assets to the pull request.
+- Maintainers use the [`accept-element` Agent Skill](https://github.com/remotion-dev/remotion/blob/main/.agents/skills/accept-element/SKILL.md) to verify and upload the approved assets from external contributions.
 
-Ask your coding agent to use the appropriate skill. Contributors do not need Remotion's upload credentials.
+Ask your coding agent to use the appropriate skill. External contributors do not need Remotion's upload credentials.
 
 ## Open the pull request
 
@@ -25,9 +26,9 @@ When submitting an Element as a pull request, include:
 
 - The Element implementation, page, and gallery registration
 - What makes it useful
-- The rendered PNG and MP4 preview assets
+- The rendered PNG and MP4 preview assets when using the external contribution path
 - Links to inspiration, if any
 
-The preview assets are temporarily committed so they work in the pull request deployment. A maintainer uploads them to `remotion.media` and removes them from the branch before squash merging. Keep “Allow edits from maintainers” enabled on the pull request; no force push is required.
+For external contributions, the preview assets are temporarily committed so they work in the pull request deployment. A maintainer uploads them to `remotion.media` and removes them from the branch before review is completed. Keep “Allow edits from maintainers” enabled on the pull request; no force push is required. Repository writers upload previews directly and do not add them to the branch.
 
 [Open a pull request on GitHub](https://github.com/remotion-dev/remotion/compare)

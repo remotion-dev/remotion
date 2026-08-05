@@ -6,12 +6,28 @@ import {elementDefinitions} from './src/components/Elements/element-definitions'
 const elementArguments = process.argv.filter((argument) =>
 	argument.startsWith('--element='),
 );
+const sourceArguments = process.argv.filter((argument) =>
+	argument.startsWith('--source='),
+);
 if (process.argv.includes('--element')) {
 	throw new Error('Use --element=<category>/<slug>');
 }
 
+if (process.argv.includes('--source')) {
+	throw new Error('Use --source=render or --source=submission');
+}
+
 if (elementArguments.length !== 1) {
 	throw new Error('Specify exactly one --element=<category>/<slug> argument');
+}
+
+if (sourceArguments.length !== 1) {
+	throw new Error('Specify exactly one --source=render|submission argument');
+}
+
+const source = sourceArguments[0].slice('--source='.length);
+if (source !== 'render' && source !== 'submission') {
+	throw new Error(`Invalid preview source: ${source}`);
 }
 
 const selectedElementSlug = elementArguments[0].slice('--element='.length);
@@ -30,37 +46,64 @@ if (
 	definition.preview.videoUrl !== expectedVideoUrl
 ) {
 	throw new Error(
-		`${definition.slug} must use its local review URLs before it can be accepted`,
+		`${definition.slug} must use its local review URLs before its previews can be uploaded`,
 	);
 }
 
+const sourceDirectory =
+	source === 'render'
+		? path.join(process.cwd(), '.element-previews', definition.slug)
+		: path.join(process.cwd(), 'static', 'elements');
 const assets = [
 	{
 		contentType: 'image/png',
-		filePath: path.join(process.cwd(), 'static', expectedPosterUrl.slice(1)),
+		filePath: path.join(
+			sourceDirectory,
+			source === 'render' ? 'preview.png' : `${assetSlug}-preview.png`,
+		),
 		localUrl: expectedPosterUrl,
 	},
 	{
 		contentType: 'video/mp4',
-		filePath: path.join(process.cwd(), 'static', expectedVideoUrl.slice(1)),
+		filePath: path.join(
+			sourceDirectory,
+			source === 'render' ? 'preview.mp4' : `${assetSlug}-preview.mp4`,
+		),
 		localUrl: expectedVideoUrl,
 	},
 ] as const;
 
 let totalSize = 0;
 for (const asset of assets) {
-	const gitStatus = execFileSync(
-		'git',
-		['status', '--short', '--', asset.filePath],
-		{
-			cwd: process.cwd(),
-			encoding: 'utf8',
-		},
-	);
-	if (gitStatus.trim() !== '') {
-		throw new Error(
-			`Approved preview asset must be committed and unmodified: ${asset.filePath}`,
+	if (source === 'submission') {
+		try {
+			execFileSync(
+				'git',
+				['ls-files', '--error-unmatch', '--', asset.filePath],
+				{
+					cwd: process.cwd(),
+					stdio: 'ignore',
+				},
+			);
+		} catch {
+			throw new Error(
+				`Submitted preview asset must be committed: ${asset.filePath}`,
+			);
+		}
+
+		const gitStatus = execFileSync(
+			'git',
+			['status', '--short', '--', asset.filePath],
+			{
+				cwd: process.cwd(),
+				encoding: 'utf8',
+			},
 		);
+		if (gitStatus.trim() !== '') {
+			throw new Error(
+				`Submitted preview asset must be unmodified: ${asset.filePath}`,
+			);
+		}
 	}
 
 	const file = Bun.file(asset.filePath, {type: asset.contentType});
@@ -150,4 +193,8 @@ for (const asset of assets) {
 console.log('Upload verified. Replace the review URLs with:');
 console.log(`https://remotion.media${expectedPosterUrl}`);
 console.log(`https://remotion.media${expectedVideoUrl}`);
-console.log('Then delete the two files from packages/docs/static/elements.');
+if (source === 'submission') {
+	console.log('Then delete the two files from packages/docs/static/elements.');
+} else {
+	console.log('Keep the ignored .element-previews files out of Git.');
+}

@@ -1,13 +1,13 @@
 ---
 name: accept-element
-description: Accept a contributed Remotion Element by verifying its committed previews, uploading them to R2, removing the temporary assets, and preparing the pull request for squash merge.
+description: Accept an external Remotion Element contribution by verifying its committed previews, uploading them to R2, removing the temporary assets, and preparing the pull request for review.
 ---
 
 # Accept a Remotion Element
 
-This is a maintainer-only workflow. Read the [Element Guidelines](../../../packages/docs/elements/guidelines.mdx), the [`scaffold-element` skill](../scaffold-element/SKILL.md), and the [`submit-element` skill](../submit-element/SKILL.md) completely before making changes.
+This is a maintainer-only workflow for contributions that used the external path in the [`submit-element` skill](../submit-element/SKILL.md). Do not use it for a repository writer's direct submission, which already has public preview URLs and no committed preview assets. Read the [Element Guidelines](../../../packages/docs/elements/guidelines.mdx), the [`scaffold-element` skill](../scaffold-element/SKILL.md), and the `submit-element` skill completely before making changes.
 
-Run this workflow on the contributor's pull request branch. Do not force push. For a pull request from a fork, confirm that “Allow edits from maintainers” is enabled. If the branch cannot be updated, upload only after approval and ask the contributor to apply the URL and asset cleanup described below.
+Run this workflow on the external contributor's pull request branch. Do not force push. For a pull request from a fork, confirm that “Allow edits from maintainers” is enabled. If the branch cannot be updated, upload only after approval and ask the contributor to apply the URL and asset cleanup described below.
 
 ## 1. Confirm the contribution is reviewable
 
@@ -32,19 +32,17 @@ bun run render-element-previews --element=<category>/<slug>
 cd ../..
 ```
 
-Inspect the committed files:
+Give the maintainer these committed asset paths:
 
 - `packages/docs/static/elements/<category>-<slug>-preview.png`
 - `packages/docs/static/elements/<category>-<slug>-preview.mp4`
 
-Compare them visually with the fresh render:
+Also give them the fresh render paths:
 
 - `packages/docs/.element-previews/<category>/<slug>/preview.png`
 - `packages/docs/.element-previews/<category>/<slug>/preview.mp4`
 
-The fresh render must represent the same poster frame and animation as the committed review assets. If it does not, stop and return the contribution to the submission workflow. Do not silently replace an asset that the contributor and reviewers did not approve.
-
-Require explicit maintainer confirmation that the final source and both committed assets are accepted before uploading.
+Ask the maintainer to visually compare the committed assets with the fresh render and confirm that they represent the same poster frame and animation. Stop and wait for explicit approval of the final source and both committed assets before uploading. Do not infer approval from the agent's own inspection. If the maintainer rejects them, return the contribution to the submission workflow.
 
 ## 3. Upload the exact approved files
 
@@ -52,11 +50,13 @@ With maintainer R2 credentials available, run:
 
 ```bash
 cd packages/docs
-bun run upload-element-preview --element=<category>/<slug>
+bun run upload-element-preview \
+  --element=<category>/<slug> \
+  --source=submission
 cd ../..
 ```
 
-This command uploads the exact files from `packages/docs/static/elements`; it does not rerender or delete them. It validates that the assets are committed and unmodified, then checks the local paths, signatures, combined size, uploaded sizes, public HTTP responses, and content types. Do not continue unless both uploads are verified.
+This command uploads the exact files from `packages/docs/static/elements`; it does not rerender or delete them. The explicit submission source validates that the assets are committed and unmodified, then checks the local paths, signatures, combined size, uploaded sizes, public HTTP responses, and content types. Do not continue unless both uploads are verified.
 
 The command prints the public URLs:
 
@@ -88,6 +88,4 @@ git status --short
 
 The focused test now validates that the metadata contains the exact public URLs and that no matching local review assets remain.
 
-Inspect the final diff. It should contain the Element source, page, definition, gallery registration, and public URLs, but not the PNG or MP4. Commit the acceptance cleanup normally to the same pull request branch and push without force. Then stop and report that the pull request is ready for review. Merging and branch deletion are reviewer actions outside this workflow.
-
-Because the squash merge contains only the final net state, the temporary assets are not added to the reachable history of `main`.
+Inspect the final diff. It should contain the Element source, page, definition, gallery registration, and public URLs, but not the PNG or MP4. Commit the acceptance cleanup normally to the same pull request branch and push without force. Then stop and report that the pull request is ready for review.

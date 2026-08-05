@@ -24,7 +24,7 @@ Choose an existing category and a kebab-case slug. Before creating files, determ
   - `/elements/<category>-<slug>-preview.png`
   - `/elements/<category>-<slug>-preview.mp4`
 
-The files do not exist during scaffolding and are not needed by the development composition. The [`submit-element` skill](../submit-element/SKILL.md) renders and adds them to the contribution. Preview videos are always opaque MP4 files for broad browser, social-card, and embed compatibility. Elements that are transparent in a composition are composited onto the standard preview background for these assets.
+The files do not exist during scaffolding and are not needed by the development composition. The [`submit-element` skill](../submit-element/SKILL.md) renders them and either uploads them directly for a repository writer or adds them to an external contribution for review. Preview videos are always opaque MP4 files for broad browser, social-card, and embed compatibility. Elements that are transparent in a composition are composited onto the standard preview background for these assets.
 
 Inspect `packages/docs/elements-template/` and at least one existing Element in the same category. Do not create a new category unless the task explicitly requires one.
 
@@ -45,7 +45,7 @@ Implement only enough of the component in the generated `<slug>.tsx` file to pro
 
 ## 3. Register the development composition
 
-Import and register the component in `packages/docs/src/components/Elements/element-definitions.ts` using the planned preview metadata. Set `installationMode` explicitly and use the same `durationInFrames` for the preview and installed Element. Add the explicit `preview` object next to the render metadata, including the local `posterUrl` and `videoUrl`. Keep the matching local poster URL in the MDX page frontmatter. These paths are replaced with public `https://remotion.media` URLs only after maintainer acceptance.
+Import and register the component in `packages/docs/src/components/Elements/element-definitions.ts` using the planned preview metadata. Set `installationMode` explicitly and use the same `durationInFrames` for the preview and installed Element. Add the explicit `preview` object next to the render metadata, including the local `posterUrl` and `videoUrl`. Keep the matching local poster URL in the MDX page frontmatter. The submission workflow replaces these paths with public `https://remotion.media` URLs after a direct member upload, or the acceptance workflow replaces them after an external contribution is approved.
 
 Do not edit `packages/docs/src/remotion/Root.tsx`. It automatically creates a composition for every central definition using the same sizing and wrapper used by published Elements.
 

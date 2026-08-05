@@ -1,13 +1,13 @@
 ---
 name: submit-element
-description: Finalize a developed Remotion Element, add it to the docs gallery, commit reviewable preview assets, and prepare it for a pull request.
+description: Finalize a developed Remotion Element, add it to the docs gallery, and prepare either a direct member submission or an externally reviewable contribution.
 ---
 
 # Submit a Remotion Element
 
 The source of truth for design and quality criteria is the [Element Guidelines](../../../packages/docs/elements/guidelines.mdx). Read them completely before making changes. If this skill and the guidelines diverge on acceptance criteria, follow the guidelines.
 
-This skill owns the contributor submission workflow. It starts with an Element created by the [`scaffold-element` skill](../scaffold-element/SKILL.md). Maintainers use the [`accept-element` skill](../accept-element/SKILL.md) after approving the contribution.
+This skill owns the contributor submission workflow. It starts with an Element created by the [`scaffold-element` skill](../scaffold-element/SKILL.md). Repository writers upload reviewed previews directly. Other contributors commit temporary review assets that a maintainer later processes with the [`accept-element` skill](../accept-element/SKILL.md).
 
 ## 1. Confirm the Element is ready
 
@@ -24,17 +24,41 @@ cd packages/docs
 bun run remotion
 ```
 
-## 2. Perform the submission review
+## 2. Select the submission path
+
+Determine the authenticated GitHub account's permission on the canonical repository. Do not infer membership from Git remotes, branch names, or commit email.
+
+```bash
+login=$(gh api user --jq '.login' 2>/dev/null || true)
+permission=$(
+  if [ -n "$login" ]; then
+    gh api "repos/remotion-dev/remotion/collaborators/$login/permission" \
+      --jq '.permission' 2>/dev/null || true
+  fi
+)
+printf 'GitHub user: %s\nRepository permission: %s\n' \
+  "${login:-unknown}" "${permission:-unknown}"
+```
+
+Use the **direct member path** only when `permission` is `write`, `maintain`, or `admin`. Before continuing on that path, verify without printing their values that Bun can read both `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`:
+
+```bash
+bun -e 'process.exit(Bun.env.AWS_ACCESS_KEY_ID && Bun.env.AWS_SECRET_ACCESS_KEY ? 0 : 1)'
+```
+
+If a repository writer is missing either credential, stop and report that direct preview upload credentials are required. Do not silently commit temporary assets for them.
+
+Use the **external contribution path** when the permission is `read`, `triage`, `none`, unknown, or the GitHub lookup fails. This path does not require upload credentials.
+
+## 3. Perform the submission review
 
 Review the finished source, MDX page, and central definition against the Element Guidelines and the technical requirements in the [`scaffold-element` skill](../scaffold-element/SKILL.md). Resolve placeholder content and finalize the description, display name, contributors, dimensions, duration, `installationMode`, declared dependencies, preview padding, and poster frame.
 
-The contribution must use review URLs until a maintainer accepts it:
+Keep the local review URLs in place while rendering and reviewing:
 
 - `posterUrl: '/elements/<category>-<slug>-preview.png'`
 - `videoUrl: '/elements/<category>-<slug>-preview.mp4'`
 - `image: /elements/<category>-<slug>-preview.png` in the page frontmatter
-
-Do not use `https://remotion.media` URLs and do not upload to R2. The local URLs allow the contributor and reviewers to see the committed assets in the pull request deployment. The [`accept-element` skill](../accept-element/SKILL.md) replaces them after uploading the approved assets.
 
 Preview assets are composited onto the standard background and use MP4 for broad browser, social-card, and embed compatibility, even when the Element itself supports transparency.
 
@@ -42,7 +66,7 @@ When the Element has Studio-editable controls, also review it using the [interac
 
 If the Element imports a package that is not available to `packages/docs`, add it to `packages/docs/package.json`, run `bun install`, and include `bun.lock`.
 
-## 3. Add it to the gallery
+## 4. Add it to the gallery
 
 - Confirm that the entry in `packages/docs/src/components/Elements/element-definitions.ts` places the Element in the generated overview and category library.
 - Add `'<category>/<slug>/index'` to the matching category in `packages/docs/elements-sidebars.ts`.
@@ -53,7 +77,7 @@ Before considering gallery registration complete, verify that the Element appear
 
 Do not edit `packages/docs/src/remotion/Root.tsx`; Element compositions are derived from the central definitions.
 
-## 4. Render and inspect the previews
+## 5. Render and inspect the previews
 
 Render only the submitted Element:
 
@@ -70,11 +94,33 @@ Inspect these files and give both paths to the developer for visual review:
 - `packages/docs/.element-previews/<category>/<slug>/preview.png`
 - `packages/docs/.element-previews/<category>/<slug>/preview.mp4`
 
-Stop and wait for the developer to explicitly confirm that both previews look correct. Do not copy the assets or finish the submission workflow until that approval is received.
+Stop and wait for the developer to explicitly confirm that both previews look correct. Do not upload or copy the assets until that approval is received.
 
-## 5. Add the approved previews to the contribution
+## 6A. Direct member path: Upload the render
 
-Copy the exact reviewed files to their flat review paths:
+Do not copy the previews into `packages/docs/static/elements` and do not add them to Git. Upload the exact reviewed render:
+
+```bash
+cd packages/docs
+bun run upload-element-preview \
+  --element=<category>/<slug> \
+  --source=render
+cd ../..
+```
+
+The uploader validates the local URLs, signatures, combined size, uploaded sizes, public HTTP responses, and content types. Do not continue unless both uploads are verified.
+
+Then:
+
+1. Replace the local `posterUrl` and `videoUrl` in `packages/docs/src/components/Elements/element-definitions.ts` with the printed `https://remotion.media` URLs.
+2. Replace the local `image` URL in `packages/docs/elements/<category>/<slug>/index.mdx` with the public poster URL.
+3. Confirm that no matching files exist under `packages/docs/static/elements`.
+
+If the Element changes visually after this upload, restore the local URLs, render and review it again, rerun the direct upload, and only then restore the public URLs.
+
+## 6B. External contribution path: Add review assets
+
+Do not upload to R2 or replace the local URLs. Copy the exact reviewed files to their flat review paths:
 
 ```bash
 mkdir -p packages/docs/static/elements
@@ -84,11 +130,11 @@ cp packages/docs/.element-previews/<category>/<slug>/preview.mp4 \
   packages/docs/static/elements/<category>-<slug>-preview.mp4
 ```
 
-The PNG and MP4 must total no more than 10 MiB. Do not add the ignored `.element-previews` directory. The two files under `packages/docs/static/elements` are intentionally tracked and must be included in the pull request so external contributors and reviewers do not get 404 responses.
+The PNG and MP4 must total no more than 10 MiB. Do not add the ignored `.element-previews` directory. The two files under `packages/docs/static/elements` are intentionally tracked and must be included in the pull request so the contributor and reviewers do not get 404 responses.
 
-Do not upload the assets or replace the local URLs. That belongs to the maintainer acceptance workflow.
+The [`accept-element` skill](../accept-element/SKILL.md) uploads the approved assets and replaces the local URLs after review.
 
-## 6. Format and test
+## 7. Format and test
 
 Format the changed TypeScript and TSX files only. For the usual files:
 
@@ -104,9 +150,9 @@ bun test src/test/elements.test.ts
 cd ../..
 ```
 
-The focused test validates that the local URLs match the committed flat assets and that their combined size is within the contribution limit.
+For direct member submissions, the focused test validates the exact public URLs and the absence of local review assets. For external contributions, it validates the local URLs, flat review assets, file signatures, and combined contribution size.
 
-## 7. Run final repository checks
+## 8. Run final repository checks
 
 ```bash
 bun run build
@@ -115,4 +161,6 @@ git diff --check
 git status --short
 ```
 
-Before finishing, verify that the page is listed in the generated overview and category library, the generated raw Markdown, and the sidebar; all checks pass; and only intended files are part of the change. Report the commands run, their results, and the two tracked preview files. If a pull request is opened, keep “Allow edits from maintainers” enabled so the maintainer can complete the [`accept-element` workflow](../accept-element/SKILL.md) without rewriting the branch.
+Before finishing, verify that the page is listed in the generated overview and category library, the generated raw Markdown, and the sidebar; all checks pass; and only intended files are part of the change.
+
+For the direct member path, report the two verified public preview URLs and confirm that no preview assets are tracked. For the external path, report the two tracked review assets and keep “Allow edits from maintainers” enabled if a pull request is opened. In both cases, stop after preparing the contribution for review.
