@@ -70,6 +70,7 @@ import {
 import {EmailSignature} from './EmailSignature';
 import {CodingPrompt, codingPromptSchema} from './HomepageAssets/CodingPrompt';
 import {FolderTreeComposition} from './HomepageAssets/FolderTree';
+import {LicenseQuestionsGraphic} from './HomepageAssets/LicenseQuestionsGraphic';
 import {Map} from './HomepageAssets/Map';
 import {
 	HomepageAssetMaster,
@@ -256,6 +257,14 @@ export const RemotionRoot: React.FC = () => {
 			</Folder>
 			<SvgLogoCompositions />
 			<Folder name="homepage-assets">
+				<Composition
+					id="LicenseQuestionsGraphic"
+					component={LicenseQuestionsGraphic}
+					durationInFrames={180}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
 				<Composition
 					id="NpmInitVideo"
 					component={NpmIniVideo}

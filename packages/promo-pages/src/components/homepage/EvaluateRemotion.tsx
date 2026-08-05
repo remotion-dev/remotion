@@ -1,9 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import {experts} from '../experts';
 import {MakeVideosLinks} from './MakeVideosLinks';
+import {useTransparentVideoSource} from './use-transparent-video-source';
 
 const EvaluateRemotionSection: React.FC = () => {
 	const [dailyAvatars, setDailyAvatars] = useState<string[]>([]);
+	const licenseVideoSrc = useTransparentVideoSource({
+		fallbackVideoSrc: '/img/license-questions.mp4',
+		videoSrc: '/img/license-questions.webm',
+	});
 
 	useEffect(() => {
 		const avatars = experts.map((expert) => expert.image);
@@ -21,7 +26,19 @@ const EvaluateRemotionSection: React.FC = () => {
 	return (
 		<>
 			<div className="flex min-w-0 basis-0 flex-1 flex-col">
-				<div className="aspect-square w-full" />
+				<div className="flex aspect-square w-full items-start">
+					{licenseVideoSrc ? (
+						<video
+							src={licenseVideoSrc}
+							muted
+							autoPlay
+							playsInline
+							loop
+							preload="metadata"
+							className="relative max-h-full max-w-full cursor-default! object-contain"
+						/>
+					) : null}
+				</div>
 				<div className="font-brand">
 					<h2 className="text-2xl fontbrand leading-[1.1] font-medium">
 						License questions?
