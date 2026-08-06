@@ -1018,7 +1018,11 @@ export type GetDefaultEditorInfoRequest = {};
 export type EditorPickerId = BuiltInEditor | 'custom';
 export type GetDefaultEditorInfoResponse = {
 	defaultEditor: EditorPickerId | null;
-	installedEditors: {id: EditorPickerId; name: string}[];
+	installedEditors: {
+		id: EditorPickerId;
+		name: string;
+		nameWithType: string;
+	}[];
 };
 
 export type GetDefaultCodingAgentInfoRequest = {};
@@ -1027,6 +1031,7 @@ export type GetDefaultCodingAgentInfoResponse = {
 	installedCodingAgents: {
 		id: DefaultCodingAgent;
 		name: string;
+		nameWithType: string;
 		iconDataUrl: string | null;
 	}[];
 };
