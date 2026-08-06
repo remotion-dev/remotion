@@ -419,8 +419,13 @@ test.describe('visual mode', () => {
 				`${configBeforeTest}\nConfig.setDefaultEditor('vscode');\nConfig.setDefaultCodingAgent('codex');\n`,
 			);
 			await expect
-				.poll(() => page.evaluate(() => window.remotion_editorName))
-				.toBe('Code');
+				.poll(() =>
+					page.evaluate(() => window.remotion_studioConfig?.defaultCodingAgent),
+				)
+				.toBe('codex');
+			await page.evaluate(() => {
+				window.remotion_editorName = 'Code';
+			});
 
 			await timelineGridline.click({button: 'right'});
 			await expect(
