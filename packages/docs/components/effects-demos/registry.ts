@@ -39,6 +39,7 @@ import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
 import {pixelate} from '@remotion/effects/pixelate';
 import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
 import {radialProgressivePixelate} from '@remotion/effects/radial-progressive-pixelate';
+import {regionBlur} from '@remotion/effects/region-blur';
 import {rings} from '@remotion/effects/rings';
 import {roughenEdges} from '@remotion/effects/roughen-edges';
 import {saturation} from '@remotion/effects/saturation';
@@ -117,6 +118,7 @@ import {
 	RADIAL_PROGRESSIVE_BLUR_PREVIEW_PARAMS,
 } from '../effects/effects-radial-progressive-blur-preview';
 import {EffectsRadialProgressivePixelatePreview} from '../effects/effects-radial-progressive-pixelate-preview';
+import {EffectsRegionBlurPreview} from '../effects/effects-region-blur-preview';
 import {EffectsRingsPreview} from '../effects/effects-rings-preview';
 import {EffectsRoughenEdgesPreview} from '../effects/effects-roughen-edges-preview';
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
@@ -552,6 +554,21 @@ export const effectsDemos: EffectsDemoType[] = [
 		comp: EffectsRadialProgressiveBlurPreview,
 		schema: radialProgressiveBlur().definition.schema,
 		initialValues: RADIAL_PROGRESSIVE_BLUR_PREVIEW_PARAMS,
+	},
+	{
+		...defaults,
+		id: 'effects-region-blur',
+		effectName: 'regionBlur',
+		effectImportPath: '@remotion/effects/region-blur',
+		comp: EffectsRegionBlurPreview,
+		schema: regionBlur({
+			topLeft: [0.28, 0.18],
+			bottomRight: [0.72, 0.82],
+		}).definition.schema,
+		initialValues: {
+			topLeft: [0.28, 0.18],
+			bottomRight: [0.72, 0.82],
+		},
 	},
 	{
 		...defaults,
