@@ -1379,6 +1379,19 @@ test('Interactive elements register their rendered element for Studio outlines',
 		'<Interactive.Circle>',
 		'<Interactive.Ellipse>',
 		'<Interactive.G>',
+		'<Interactive.Line>',
+		'<Interactive.Path>',
+		'<Interactive.Rect>',
+		'<Interactive.Svg>',
+		'<Interactive.Text>',
+	]) {
+		expect(getByName(displayName)?.controls?.schema).toHaveProperty('color');
+	}
+
+	for (const displayName of [
+		'<Interactive.Circle>',
+		'<Interactive.Ellipse>',
+		'<Interactive.G>',
 		'<Interactive.Path>',
 		'<Interactive.Rect>',
 		'<Interactive.Svg>',
