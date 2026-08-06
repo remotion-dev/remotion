@@ -28,6 +28,8 @@ const renderQueue: React.CSSProperties = {
 	background: BACKGROUND,
 	flex: 1,
 	overflowY: 'auto',
+	paddingTop: 2,
+	paddingBottom: 2,
 };
 
 export const RenderQueue: React.FC = () => {
