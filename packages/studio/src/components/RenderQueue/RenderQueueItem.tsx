@@ -70,7 +70,8 @@ export const RenderQueueItem: React.FC<{
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 
 	const isClientJob = isClientRenderJob(job);
-	const {canDrag, onDragStart} = useRenderOutputFileDrag(job);
+	const {canDrag, isDragging, onDragEnd, onDragStart} =
+		useRenderOutputFileDrag(job);
 
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
@@ -194,6 +195,7 @@ export const RenderQueueItem: React.FC<{
 			onClick={onClick}
 			draggable={canDrag}
 			onDragStart={onDragStart}
+			onDragEnd={onDragEnd}
 			className={selected ? SELECTED_CLASSNAME : undefined}
 		>
 			<RenderQueueItemStatus job={job} />
@@ -215,21 +217,25 @@ export const RenderQueueItem: React.FC<{
 				</div>
 			</div>
 			<Spacing x={1} />
-			{canCopyToClipboard ? (
-				<RenderQueueCopyToClipboard job={job as RenderJob} />
-			) : null}
-			{canRepeat ? <RenderQueueRepeatItem job={job} /> : null}
-			{job.status === 'running' ? (
-				<RenderQueueCancelButton job={job} />
-			) : (
-				<RenderQueueRemoveItem job={job} />
-			)}
-			{job.status === 'done' ? (
-				clientBlobInfo ? (
-					<RenderQueueDownloadItem job={job as ClientRenderJob} />
-				) : (
-					<RenderQueueOpenInFinderItem job={job} />
-				)
+			{!isDragging ? (
+				<>
+					{canCopyToClipboard ? (
+						<RenderQueueCopyToClipboard job={job as RenderJob} />
+					) : null}
+					{canRepeat ? <RenderQueueRepeatItem job={job} /> : null}
+					{job.status === 'running' ? (
+						<RenderQueueCancelButton job={job} />
+					) : (
+						<RenderQueueRemoveItem job={job} />
+					)}
+					{job.status === 'done' ? (
+						clientBlobInfo ? (
+							<RenderQueueDownloadItem job={job as ClientRenderJob} />
+						) : (
+							<RenderQueueOpenInFinderItem job={job} />
+						)
+					) : null}
+				</>
 			) : null}
 		</Row>
 	);

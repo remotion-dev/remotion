@@ -20,6 +20,7 @@ const isChrome = () => {
 export const useRenderOutputFileDrag = (job: AnyRenderJob) => {
 	const deletedOutputLocation =
 		'deletedOutputLocation' in job && job.deletedOutputLocation;
+	const [isDragging, setIsDragging] = useState(false);
 	const [clientFile, setClientFile] = useState<{
 		file: File;
 		objectUrl: string;
@@ -130,12 +131,16 @@ export const useRenderOutputFileDrag = (job: AnyRenderJob) => {
 					'DownloadURL',
 					`${mimeType}:${filename}:${source}`,
 				);
+				setIsDragging(true);
 			} catch {
 				event.preventDefault();
 			}
 		},
 		[canDrag, clientFile, job.outName],
 	);
+	const onDragEnd = useCallback(() => {
+		setIsDragging(false);
+	}, []);
 
-	return {canDrag, onDragStart};
+	return {canDrag, isDragging, onDragEnd, onDragStart};
 };

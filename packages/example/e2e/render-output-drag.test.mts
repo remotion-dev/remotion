@@ -76,6 +76,7 @@ test.describe('render output dragging', () => {
 
 			const output = page.getByText(outName, {exact: true});
 			const renderItem = page.locator(`[data-render-queue-item="${id}"]`);
+			const actionButtons = renderItem.locator('button.__remotion-hoverable');
 			expect(
 				await page.evaluate(() => ({
 					dataTransfer: typeof DataTransfer,
@@ -88,6 +89,8 @@ test.describe('render output dragging', () => {
 				maxTouchPoints: 0,
 			});
 			await expect(renderItem).toHaveAttribute('draggable', 'true');
+			const actionButtonCount = await actionButtons.count();
+			expect(actionButtonCount).toBeGreaterThan(0);
 			expect(await output.getAttribute('draggable')).toBeNull();
 			expect(
 				await renderItem.evaluate(
@@ -110,12 +113,15 @@ test.describe('render output dragging', () => {
 			});
 
 			expect(drag.accepted).toBe(true);
+			await expect(actionButtons).toHaveCount(0);
 			const prefix = 'application/octet-stream:render-output-drag-e2e.mp4:';
 			expect(drag.downloadUrl.startsWith(prefix)).toBe(true);
 
 			const response = await fetch(drag.downloadUrl.slice(prefix.length));
 			expect(response.status).toBe(200);
 			expect(Buffer.from(await response.arrayBuffer())).toEqual(contents);
+			await renderItem.dispatchEvent('dragend');
+			await expect(actionButtons).toHaveCount(actionButtonCount);
 
 			await page.evaluate(() => {
 				Object.defineProperty(navigator, 'userAgent', {
