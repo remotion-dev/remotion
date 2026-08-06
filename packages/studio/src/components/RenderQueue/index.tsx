@@ -1,14 +1,10 @@
 import React, {useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {BACKGROUND, BLACK_HEX, LIGHT_TEXT} from '../../helpers/colors';
+import {BACKGROUND, LIGHT_TEXT} from '../../helpers/colors';
 import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {RenderQueueContext} from './context';
 import {RenderQueueItem} from './RenderQueueItem';
-
-const separatorStyle: React.CSSProperties = {
-	borderBottom: `1px solid ${BLACK_HEX}`,
-};
 
 const errorExplanation: React.CSSProperties = {
 	fontSize: 14,
@@ -93,12 +89,11 @@ export const RenderQueue: React.FC = () => {
 		>
 			{jobs.map((j, index) => {
 				return (
-					<div
+					<RenderQueueItem
 						key={j.id}
-						style={index === jobs.length - 1 ? undefined : separatorStyle}
-					>
-						<RenderQueueItem selected={selectedJob === index} job={j} />
-					</div>
+						selected={selectedJob === index}
+						job={j}
+					/>
 				);
 			})}
 		</div>

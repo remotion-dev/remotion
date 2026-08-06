@@ -38,6 +38,10 @@ const container: React.CSSProperties = {
 	flexDirection: 'row',
 	paddingBottom: 10,
 	paddingRight: 4,
+	marginBottom: 1,
+	marginLeft: 4,
+	borderRadius: 4,
+	width: 'calc(100% - 4px)',
 };
 
 const title: React.CSSProperties = {

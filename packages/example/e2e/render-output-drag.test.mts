@@ -89,6 +89,20 @@ test.describe('render output dragging', () => {
 				maxTouchPoints: 0,
 			});
 			await expect(renderItem).toHaveAttribute('draggable', 'true');
+			expect(
+				await renderItem.evaluate((element) => {
+					const style = getComputedStyle(element);
+					return {
+						borderRadius: style.borderRadius,
+						marginBottom: style.marginBottom,
+						marginLeft: style.marginLeft,
+					};
+				}),
+			).toEqual({
+				borderRadius: '4px',
+				marginBottom: '1px',
+				marginLeft: '4px',
+			});
 			const actionButtonCount = await actionButtons.count();
 			expect(actionButtonCount).toBeGreaterThan(0);
 			expect(await output.getAttribute('draggable')).toBeNull();
