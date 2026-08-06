@@ -60,14 +60,30 @@ export const ReplaceVideo: React.FC<{
 			}
 		};
 
+		const onPaste = (e: ClipboardEvent) => {
+			const file = e.clipboardData?.files[0];
+			if (!file) {
+				return;
+			}
+
+			e.preventDefault();
+			if (src === null) {
+				setSrc({type: 'file', file});
+			} else {
+				setFileToReplace(file);
+			}
+		};
+
 		document.addEventListener('dragover', onDragOver, {capture: true});
 		document.addEventListener('dragleave', onDragEnd, {capture: true});
 		document.addEventListener('drop', onDrop, {capture: true});
+		document.addEventListener('paste', onPaste, {capture: true});
 
 		return () => {
 			document.removeEventListener('dragleave', onDragEnd, {capture: true});
 			document.removeEventListener('dragover', onDragOver, {capture: true});
 			document.removeEventListener('drop', onDrop, {capture: true});
+			document.removeEventListener('paste', onPaste, {capture: true});
 		};
 	}, [fileToReplace, setSrc, src]);
 
