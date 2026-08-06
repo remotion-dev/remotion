@@ -314,6 +314,7 @@ const sidebars: SidebarsConfig = {
 				'effects/pixelate',
 				'effects/radial-progressive-blur',
 				'effects/radial-progressive-pixelate',
+				'effects/region-blur',
 				'effects/rings',
 				'effects/roughen-edges',
 				'effects/saturation',
