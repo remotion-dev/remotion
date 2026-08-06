@@ -49,7 +49,7 @@ func TestPrintVersion(t *testing.T) {
 		Composition:  "react-svg",
 		FunctionName: "remotion-render",
 		ServeUrl:     "testbed",
-		Codec:        "h264",
+		Codec:        "gif",
 		Metadata: map[string]string{
 			"Author": "Remotion",
 		},
