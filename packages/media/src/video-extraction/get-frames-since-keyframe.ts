@@ -210,6 +210,11 @@ export const getSinks = async (
 		getDuration: () => {
 			return getDurationOrCompute(input);
 		},
+		// The `Input` owns the source's byte cache and demuxer state, so it has to
+		// be reachable for the sink cache to be able to release it.
+		dispose: () => {
+			input.dispose();
+		},
 	};
 };
 

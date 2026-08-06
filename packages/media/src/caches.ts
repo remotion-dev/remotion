@@ -1,6 +1,7 @@
 import React from 'react';
 import {cancelRender, Internals, type LogLevel} from 'remotion';
 import {makeAudioManager} from './audio-extraction/audio-manager';
+import {clearSinks} from './get-sink';
 import {makeKeyframeManager} from './video-extraction/keyframe-manager';
 
 // Frames can be out of order, but we don't expect them to be more than 0.2 seconds out of order
@@ -8,6 +9,17 @@ export const getSafeWindowOfMonotonicity = (fps: number) => (0.2 * 30) / fps;
 
 export const keyframeManager = makeKeyframeManager();
 export const audioManager = makeAudioManager();
+
+// Releases everything the extraction path holds onto: decoded frames and audio
+// samples, plus the mediabunny `Input`s (container state + source byte cache)
+// behind the sink cache. Without this, the caches are process-lifetime: a
+// finished render keeps its memory until the page goes away, which is a problem
+// when several renders happen in the same tab.
+export const clearMediaCaches = async (logLevel: LogLevel) => {
+	keyframeManager.clearAll(logLevel);
+	audioManager.clearAll();
+	await clearSinks(logLevel);
+};
 
 export const getTotalCacheStats = () => {
 	const keyframeManagerCacheStats = keyframeManager.getCacheStats();

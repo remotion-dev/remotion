@@ -164,6 +164,14 @@ export const makeAudioManager = () => {
 		}
 	};
 
+	const clearAll = () => {
+		for (const iterator of iterators) {
+			iterator.prepareForDeletion();
+		}
+
+		iterators.length = 0;
+	};
+
 	let queue = Promise.resolve<unknown>(undefined);
 
 	return {
@@ -201,5 +209,6 @@ export const makeAudioManager = () => {
 		getIteratorMostInThePast,
 		logOpenFrames,
 		deleteDuplicateIterators,
+		clearAll,
 	};
 };

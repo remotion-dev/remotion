@@ -52,3 +52,27 @@ export const getSink = (
 
 	return promise;
 };
+
+export const clearSinks = async (logLevel: LogLevel) => {
+	const cacheKeys = Object.keys(sinkPromises);
+	if (cacheKeys.length === 0) {
+		return;
+	}
+
+	const promises = cacheKeys.map((cacheKey) => sinkPromises[cacheKey]);
+	for (const cacheKey of cacheKeys) {
+		delete sinkPromises[cacheKey];
+	}
+
+	const sinks = await Promise.allSettled(promises);
+	for (const sink of sinks) {
+		if (sink.status === 'fulfilled') {
+			sink.value.dispose();
+		}
+	}
+
+	Internals.Log.verbose(
+		{logLevel, tag: '@remotion/media'},
+		`Disposed ${cacheKeys.length} sink(s)`,
+	);
+};
