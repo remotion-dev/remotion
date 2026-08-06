@@ -79,7 +79,7 @@ const EvaluateRemotionSection: React.FC = () => {
 								href: 'https://remotion.dev/discord',
 								target: '_blank',
 							},
-							{label: 'Remotion Experts', href: '/experts'},
+							{label: 'Experts', href: '/experts'},
 						]}
 					/>
 				</div>
