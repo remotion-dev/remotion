@@ -201,21 +201,6 @@ export type {
 	SelectedOutlineScaleDragState,
 } from './selected-outline-types';
 
-const SelectedOutlineTimelinePositionSyncerUnmemoized: React.FC<{
-	readonly onTimelinePositionChange: (frame: number) => void;
-}> = ({onTimelinePositionChange}) => {
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	useLayoutEffect(() => {
-		onTimelinePositionChange(timelinePosition);
-	}, [onTimelinePositionChange, timelinePosition]);
-
-	return null;
-};
-
-const SelectedOutlineTimelinePositionSyncer = React.memo(
-	SelectedOutlineTimelinePositionSyncerUnmemoized,
-);
-
 type SelectedOutlineOverlayProps = {
 	readonly compositionHeight: number;
 	readonly compositionWidth: number;
@@ -254,7 +239,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 	const {frameBack, frameForward, getCurrentFrame, seek} =
 		PlayerInternals.usePlayerMethods();
 	const keybindings = useKeybinding();
-	const [timelinePosition, setTimelinePosition] = useState(getCurrentFrame);
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const [draggingOutline, setDraggingOutline] = useState(false);
 	const keyboardNudgeSessionRef =
 		useRef<SelectedOutlineKeyboardNudgeSession | null>(null);
@@ -1092,23 +1077,18 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 	}, [keybindings, onArrowKeyDown, onArrowKeyUp, saveKeyboardNudgeSession]);
 
 	return (
-		<>
-			<SelectedOutlineTimelinePositionSyncer
-				onTimelinePositionChange={setTimelinePosition}
-			/>
-			<SelectedOutlineRenderer
-				compositionHeight={compositionHeight}
-				compositionWidth={compositionWidth}
-				dragging={draggingOutline}
-				getLatestOutlineTargetByKey={getLatestOutlineTargetByKey}
-				getOutlineTargets={getOutlineTargets}
-				onDraggingChange={onDraggingChange}
-				onSelect={selectOutlineItem}
-				scale={scale}
-				sequences={sequences}
-				updateOutlinesRef={updateOutlinesRef}
-			/>
-		</>
+		<SelectedOutlineRenderer
+			compositionHeight={compositionHeight}
+			compositionWidth={compositionWidth}
+			dragging={draggingOutline}
+			getLatestOutlineTargetByKey={getLatestOutlineTargetByKey}
+			getOutlineTargets={getOutlineTargets}
+			onDraggingChange={onDraggingChange}
+			onSelect={selectOutlineItem}
+			scale={scale}
+			sequences={sequences}
+			updateOutlinesRef={updateOutlinesRef}
+		/>
 	);
 };
 
