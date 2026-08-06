@@ -126,7 +126,7 @@ export const ConvertProgress: React.FC<{
 					<div className="border-b-2 border-black" />
 				</>
 			) : null}
-			<div className="p-2">
+			<div className="group/output-details p-2">
 				<div>
 					{newName && isRenaming ? (
 						<input
@@ -158,13 +158,13 @@ export const ConvertProgress: React.FC<{
 									type="button"
 									aria-label="Rename file"
 									title="Rename file"
-									className="ml-1 inline-flex size-6 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
+									className="pointer-events-none ml-1 inline-flex size-6 shrink-0 items-center justify-center rounded-sm opacity-0 transition-opacity group-hover/output-details:pointer-events-auto group-hover/output-details:opacity-100 focus-visible:opacity-100 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
 									onClick={() => setIsRenaming(true)}
 								>
 									<PenIcon
 										aria-hidden="true"
-										color="currentColor"
-										className="size-3.5"
+										color="#000000"
+										className="size-[18px]"
 									/>
 								</button>
 							) : null}

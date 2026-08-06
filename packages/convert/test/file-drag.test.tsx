@@ -82,7 +82,16 @@ test('uses the editable output name when dragging the completed thumbnail', asyn
 		});
 
 		expect(thumbnail.textContent).toBe('');
-		fireEvent.click(rendered.getByRole('button', {name: 'Rename file'}));
+		const renameButton = rendered.getByRole('button', {name: 'Rename file'});
+		expect(renameButton.classList.contains('opacity-0')).toBe(true);
+		expect(
+			renameButton.classList.contains('group-hover/output-details:opacity-100'),
+		).toBe(true);
+		const pen = renameButton.querySelector('svg');
+		expect(pen?.classList.contains('size-[18px]')).toBe(true);
+		expect(pen?.querySelector('path')?.getAttribute('fill')).toBe('#000000');
+
+		fireEvent.click(renameButton);
 		const nameInput = rendered.getByRole('textbox', {name: 'File name'});
 		fireEvent.change(nameInput, {target: {value: 'renamed.mp4'}});
 		fireEvent.keyDown(nameInput, {key: 'Enter'});
