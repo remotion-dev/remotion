@@ -4,7 +4,7 @@ export const ReactSourceOfTruth: React.FC = () => {
 	return (
 		<section
 			aria-labelledby="react-source-of-truth"
-			className="mb-16 mt-[60px] hidden items-center justify-center gap-2 lg:flex"
+			className="mb-16 mt-[60px] hidden items-center justify-center gap-2 min-[900px]:flex"
 		>
 			<div className="flex shrink-0 items-center gap-2">
 				<svg

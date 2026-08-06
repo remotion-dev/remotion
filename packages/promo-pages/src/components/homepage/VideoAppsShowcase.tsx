@@ -148,10 +148,10 @@ export const BuiltWithRemotionShowcase: React.FC = () => {
 				// Prevent this from showing up in search engine results
 				data-nosnippet
 			>
-				<div className={'flex-1 grid grid-cols-1 lg:grid-cols-2'}>
+				<div className={'flex-1 grid grid-cols-1 min-[900px]:grid-cols-2'}>
 					<div
 						className={
-							'w-full aspect-video lg:aspect-square relative overflow-hidden bg-[#eee] cursor-pointer'
+							'w-full aspect-video min-[900px]:aspect-square relative overflow-hidden bg-[#eee] cursor-pointer'
 						}
 						onClick={handlePlayPause}
 					>
@@ -240,7 +240,11 @@ export const BuiltWithRemotionShowcase: React.FC = () => {
 							)}
 						</button>
 					</div>
-					<div className={'p-6 lg:p-10 flex min-w-0 flex-col justify-center'}>
+					<div
+						className={
+							'p-6 min-[900px]:p-10 flex min-w-0 flex-col justify-center'
+						}
+					>
 						<div className="text-3xl font-bold fontbrand mt-0">
 							{videoApps[activeTab].title}
 						</div>

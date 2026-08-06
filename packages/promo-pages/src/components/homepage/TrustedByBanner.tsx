@@ -124,7 +124,7 @@ const TrustedByBanner = () => {
 			<h3 className={'text-center mt-20 mb-10'}>Trusted by</h3>
 			<div
 				className={
-					'text-center flex flex-col lg:flex-row flex-nowrap justify-center items-center gap-10 mb-20'
+					'text-center flex flex-col min-[900px]:flex-row flex-nowrap justify-center items-center gap-10 mb-20'
 				}
 			>
 				{logos.map((logo) => (
