@@ -2,11 +2,13 @@ import React, {useContext, useLayoutEffect, useMemo, useRef} from 'react';
 import type {ResolvedStackLocation} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {formatFileLocation} from '../helpers/format-file-location';
 import {getConnectedCompositions} from '../helpers/get-connected-compositions';
 import {getSequenceDoubleClickAction} from '../helpers/get-sequence-double-click-action';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
-import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
+import {
+	openInCodingAgent as launchCodingAgent,
+	openOriginalPositionInEditor,
+} from '../helpers/open-in-editor';
 import {timelineSequenceNodePathToKey} from '../helpers/timeline-node-path-key';
 import {SetSelectedModalContext} from '../state/modals';
 import {
@@ -39,6 +41,11 @@ import type {
 	TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
+import {
+	canUseEditorPicker,
+	useDefaultCodingAgentInfo,
+	useDefaultEditorInfo,
+} from './use-default-editor-info';
 import {useSelectAsset} from './use-select-asset';
 type SelectedOutlineElementProps = {
 	readonly allRotationDragTargets: readonly SelectedOutlineRotationDragTarget[];
@@ -83,6 +90,11 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	target,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const canConfigureApps = canUseEditorPicker(
+		previewServerState.type === 'connected',
+	);
+	const editorInfo = useDefaultEditorInfo(canConfigureApps);
+	const codingAgentInfo = useDefaultCodingAgentInfo(canConfigureApps);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const updateResolvedStackTrace = useContext(
 		Internals.SequenceStackTracesUpdateContext,
@@ -224,10 +236,6 @@ const SelectedOutlineElementUnmemoized: React.FC<
 
 		const originalLocation = await resolveOriginalLocation(contextMenuTarget);
 
-		const fileLocation = formatFileLocation({
-			location: originalLocation,
-			root: window.remotion_cwd,
-		});
 		const nodePath = contextMenuTarget.nodePathInfo.sequenceSubscriptionKey;
 		const mediaSrc =
 			contextMenuTarget.sequence.type === 'audio' ||
@@ -257,13 +265,23 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		return getSequenceContextMenuItems({
 			assetLinkInfo,
 			canOpenInEditor,
+			codingAgentInfo,
 			deleteDisabled: sourceEditDisabled,
 			disableInteractivityDisabled,
 			duplicateDisabled: sourceEditDisabled || isProgrammaticallyDuplicated,
-			editorInfo: null,
-			fileLocation,
+			editorInfo,
 			includeSourceEditItems: sourceEditingEnabled,
 			isProgrammaticallyDuplicated,
+			onConfigureApps: canConfigureApps
+				? () => {
+						setSelectedModal({
+							type: 'settings',
+							initialTab: 'apps',
+							initialPublicLicenseKey:
+								window.remotion_renderDefaults?.publicLicenseKey ?? null,
+						});
+					}
+				: null,
 			onDeleteSequenceFromSource: async () => {
 				if (sourceEditDisabled || previewServerState.type !== 'connected') {
 					return;
@@ -326,14 +344,27 @@ const SelectedOutlineElementUnmemoized: React.FC<
 					confirm,
 				).catch(() => undefined);
 			},
-			openInEditor: () => {
+			openInCodingAgent: (codingAgentId, codingAgentName, contextForAgents) => {
+				launchCodingAgent(codingAgentId, contextForAgents)
+					.then((response) => {
+						if (!response.success) {
+							showNotification(`Could not open ${codingAgentName}`, 2000);
+						}
+					})
+					.catch((err) => {
+						showNotification((err as Error).message, 2000);
+					});
+			},
+			openInEditor: (editorId) => {
 				if (!originalLocation) {
 					return;
 				}
 
-				openOriginalPositionInEditor(originalLocation, null).catch((err) => {
-					showNotification((err as Error).message, 2000);
-				});
+				openOriginalPositionInEditor(originalLocation, editorId).catch(
+					(err) => {
+						showNotification((err as Error).message, 2000);
+					},
+				);
 			},
 			originalLocation,
 			selectAsset,
@@ -374,7 +405,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 							type: 'item' as const,
 							id: 'crop',
 							keyHint: null,
-							label: 'Crop',
+							label: isProgrammaticallyDuplicated ? 'Crop all' : 'Crop',
 							leftItem: null,
 							disabled: !canCrop,
 							onClick: () => {
@@ -406,7 +437,10 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				: [],
 		});
 	}, [
+		canConfigureApps,
+		codingAgentInfo,
 		confirm,
+		editorInfo,
 		getTarget,
 		onSelect,
 		previewServerState,

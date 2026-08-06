@@ -2151,6 +2151,15 @@ export const articles = [
 		slug: 'effects/radial-progressive-pixelate',
 	},
 	{
+		id: 'effects/region-blur',
+		title: 'regionBlur()',
+		relativePath: 'docs/effects/region-blur.mdx',
+		compId: 'articles-docs-effects-region-blur',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/region-blur',
+	},
+	{
 		id: 'effects/rings',
 		title: 'rings()',
 		relativePath: 'docs/effects/rings.mdx',

@@ -57,7 +57,11 @@ export function Applications() {
 					),
 				}}
 			>
-				<ApplicationSimpleApp kineticTypeFrame={frame >= 167 ? 0 : frame} />
+				<ApplicationSimpleApp
+					kineticTypeColor="#374151"
+					kineticTypeFrame={frame >= 167 ? 0 : frame}
+					kineticTypeSpeed={1.5}
+				/>
 			</Sequence>
 			<Sequence
 				durationInFrames={180}

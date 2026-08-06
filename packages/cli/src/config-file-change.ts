@@ -1,5 +1,8 @@
 import {parse} from '@babel/parser';
-import type {ConfigFileChangeType} from '@remotion/studio-shared';
+import {
+	configMethodLifecycles as sharedConfigMethodLifecycles,
+	type ConfigFileChangeType,
+} from '@remotion/studio-shared';
 import type {Config} from './config';
 
 type ConfigMethodName = {
@@ -11,101 +14,16 @@ type ConfigMethodName = {
 }[keyof typeof Config] &
 	string;
 
+const validateConfigMethodLifecycles = <
+	T extends Record<ConfigMethodName, ConfigFileChangeType>,
+>(
+	lifecycles: T & Record<Exclude<keyof T, ConfigMethodName>, never>,
+) => lifecycles;
+
 // Keep this exhaustive so every new Config method must declare its Studio lifecycle.
-const configMethodLifecycles = {
-	overrideBundlerConfig: 'restart',
-	overrideDuration: 'runtime',
-	overrideFfmpegCommand: 'runtime',
-	overrideFps: 'runtime',
-	overrideHeight: 'runtime',
-	overrideRspackConfig: 'restart',
-	overrideWebpackConfig: 'restart',
-	overrideWidth: 'runtime',
-	setAllowHtmlInCanvasEnabled: 'runtime',
-	setAskAIEnabled: 'runtime',
-	setAudioBitrate: 'runtime',
-	setAudioCodec: 'runtime',
-	setAudioLatencyHint: 'reload',
-	setBeepOnFinish: 'runtime',
-	setBenchmarkConcurrencies: 'runtime',
-	setBenchmarkRuns: 'runtime',
-	setBinariesDirectory: 'restart',
-	setBrowserExecutable: 'runtime',
-	setBufferStateDelayInMilliseconds: 'runtime',
-	setBundleOutDir: 'runtime',
-	setCachingEnabled: 'runtime',
-	setChromeMode: 'runtime',
-	setChromiumDarkMode: 'runtime',
-	setChromiumDisableWebSecurity: 'runtime',
-	setChromiumHeadlessMode: 'runtime',
-	setChromiumIgnoreCertificateErrors: 'runtime',
-	setChromiumMultiProcessOnLinux: 'runtime',
-	setChromiumOpenGlRenderer: 'runtime',
-	setChromiumUserAgent: 'runtime',
-	setCodec: 'runtime',
-	setColorSpace: 'runtime',
-	setConcurrency: 'runtime',
-	setCrf: 'runtime',
-	setDefaultCodingAgent: 'runtime',
-	setDefaultEditor: 'runtime',
-	setDelayRenderTimeoutInMilliseconds: 'runtime',
-	setDeleteAfter: 'runtime',
-	setDisallowParallelEncoding: 'runtime',
-	setDotEnvLocation: 'restart',
-	setEnableCrossSiteIsolation: 'restart',
-	setEnableFolderExpiry: 'runtime',
-	setEncodingBufferSize: 'runtime',
-	setEncodingMaxRate: 'runtime',
-	setEnforceAudioTrack: 'runtime',
-	setEntryPoint: 'restart',
-	setEveryNthFrame: 'runtime',
-	setExperimentalRspackEnabled: 'restart',
-	setForSeamlessAacConcatenation: 'runtime',
-	setForceNewStudioEnabled: 'restart',
-	setFrameRange: 'runtime',
-	setGopSize: 'runtime',
-	setHardwareAcceleration: 'runtime',
-	setIPv4: 'restart',
-	setImageFormat: 'runtime',
-	setImageSequence: 'runtime',
-	setImageSequencePattern: 'runtime',
-	setInteractivityEnabled: 'runtime',
-	setJpegQuality: 'runtime',
-	setKeyboardShortcutsEnabled: 'runtime',
-	setLambdaInsights: 'runtime',
-	setLevel: 'restart',
-	setLogLevel: 'restart',
-	setMaxTimelineTracks: 'runtime',
-	setMetadata: 'runtime',
-	setMuted: 'runtime',
-	setNumberOfGifLoops: 'runtime',
-	setNumberOfSharedAudioTags: 'reload',
-	setOffthreadVideoCacheSizeInBytes: 'runtime',
-	setOutputLocation: 'runtime',
-	setOverwriteOutput: 'runtime',
-	setPixelFormat: 'runtime',
-	setPort: 'restart',
-	setPreferLosslessAudio: 'runtime',
-	setPreviewSampleRate: 'reload',
-	setProResProfile: 'runtime',
-	setPublicDir: 'restart',
-	setPublicLicenseKey: 'runtime',
-	setPublicPath: 'runtime',
-	setQuality: 'runtime',
-	setRendererPort: 'restart',
-	setRepro: 'runtime',
-	setRspack: 'restart',
-	setSampleRate: 'runtime',
-	setScale: 'runtime',
-	setShouldOpenBrowser: 'restart',
-	setStillImageFormat: 'runtime',
-	setStudioPort: 'restart',
-	setTimeoutInMilliseconds: 'runtime',
-	setVideoBitrate: 'runtime',
-	setVideoImageFormat: 'runtime',
-	setWebpackPollingInMilliseconds: 'restart',
-	setX264Preset: 'runtime',
-} satisfies Record<ConfigMethodName, ConfigFileChangeType>;
+const configMethodLifecycles = validateConfigMethodLifecycles(
+	sharedConfigMethodLifecycles,
+);
 
 const getConfigMethodsWithLifecycle = (lifecycle: ConfigFileChangeType) => {
 	return new Set(

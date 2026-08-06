@@ -36,7 +36,7 @@ test(
 				composition: 'react-svg',
 				functionName: 'remotion-render',
 				serveUrl: 'testbed',
-				codec: 'h264',
+				codec: 'gif',
 				audioBitrate: null,
 				audioCodec: null,
 				chromiumOptions: {},

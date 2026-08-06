@@ -11,6 +11,7 @@ const execFilePromise = promisify(execFile);
 export type InstalledCodingAgent = {
 	id: DefaultCodingAgent;
 	name: string;
+	nameWithType: string;
 	applicationPath: string;
 	iconDataUrl: string | null;
 	platform: SupportedCodingAgentPlatform;
@@ -47,6 +48,7 @@ type ExecutableCodingAgentVariant = {
 
 type CodingAgentDefinition = {
 	name: string;
+	nameWithType: string;
 	darwin: DarwinCodingAgentVariant;
 	linux: readonly ExecutableCodingAgentVariant[];
 	win32: readonly ExecutableCodingAgentVariant[];
@@ -109,6 +111,7 @@ const getWindowsEnvironmentPaths = (
 const codingAgentDefinitions = {
 	codex: {
 		name: 'Codex',
+		nameWithType: 'Codex',
 		darwin: {
 			bundleIdentifiers: ['com.openai.codex'],
 			applicationNames: ['ChatGPT.app'],
@@ -154,6 +157,7 @@ const codingAgentDefinitions = {
 	},
 	cursor: {
 		name: 'Cursor',
+		nameWithType: 'Cursor Agent',
 		darwin: {
 			bundleIdentifiers: ['com.todesktop.230313mzl4w4u92'],
 			applicationNames: ['Cursor.app'],
@@ -189,6 +193,7 @@ const codingAgentDefinitions = {
 	},
 	copilot: {
 		name: 'GitHub Copilot',
+		nameWithType: 'GitHub Copilot',
 		darwin: {
 			bundleIdentifiers: ['com.github.githubapp'],
 			applicationNames: ['GitHub Copilot.app'],
@@ -210,6 +215,7 @@ const codingAgentDefinitions = {
 	},
 	'claude-code': {
 		name: 'Claude Code',
+		nameWithType: 'Claude Code',
 		darwin: {
 			bundleIdentifiers: ['com.anthropic.claudefordesktop'],
 			applicationNames: ['Claude.app'],
@@ -385,6 +391,7 @@ export const discoverAvailableCodingAgents = async (
 						id,
 						launchMode: 'direct',
 						name: definition.name,
+						nameWithType: definition.nameWithType,
 						platform,
 						terminal: null,
 					});
@@ -411,6 +418,7 @@ export const discoverAvailableCodingAgents = async (
 					id,
 					launchMode: variant.launchMode,
 					name: definition.name,
+					nameWithType: definition.nameWithType,
 					platform,
 					terminal: variant.launchMode === 'terminal' ? terminal : null,
 				});

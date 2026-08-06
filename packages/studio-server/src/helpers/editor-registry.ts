@@ -11,12 +11,14 @@ const execFilePromise = promisify(execFile);
 export type InstalledEditor = {
 	id: BuiltInEditor;
 	name: string;
+	nameWithType: string;
 	process: string;
 	command: string;
 };
 
 type DarwinEditorVariant = {
 	name: string;
+	nameWithType: string;
 	bundleIdentifiers: readonly string[];
 	applicationNames: readonly string[];
 	executable: string;
@@ -25,6 +27,7 @@ type DarwinEditorVariant = {
 
 type ExecutableEditorVariant = {
 	name: string;
+	nameWithType: string;
 	paths: (context: EditorDiscoveryContext) => readonly string[];
 	commands: readonly string[];
 };
@@ -73,7 +76,8 @@ const editorDefinitions = {
 	vscode: {
 		darwin: [
 			{
-				name: 'VS Code',
+				name: 'Code',
+				nameWithType: 'Code',
 				bundleIdentifiers: ['com.microsoft.VSCode'],
 				applicationNames: ['Visual Studio Code.app'],
 				executable: 'Contents/Resources/app/bin/code',
@@ -81,6 +85,7 @@ const editorDefinitions = {
 			},
 			{
 				name: 'VS Code Insiders',
+				nameWithType: 'VS Code Insiders',
 				bundleIdentifiers: ['com.microsoft.VSCodeInsiders'],
 				applicationNames: ['Visual Studio Code - Insiders.app'],
 				executable: 'Contents/Resources/app/bin/code-insiders',
@@ -89,7 +94,8 @@ const editorDefinitions = {
 		],
 		linux: [
 			{
-				name: 'VS Code',
+				name: 'Code',
+				nameWithType: 'Code',
 				paths: () => [
 					'/usr/share/code/bin/code',
 					'/snap/bin/code',
@@ -100,6 +106,7 @@ const editorDefinitions = {
 			},
 			{
 				name: 'VS Code Insiders',
+				nameWithType: 'VS Code Insiders',
 				paths: () => [
 					'/snap/bin/code-insiders',
 					'/usr/bin/code-insiders',
@@ -110,7 +117,8 @@ const editorDefinitions = {
 		],
 		win32: [
 			{
-				name: 'VS Code',
+				name: 'Code',
+				nameWithType: 'Code',
 				paths: (context) =>
 					getWindowsEnvironmentPaths(context, [
 						'Microsoft VS Code',
@@ -120,6 +128,7 @@ const editorDefinitions = {
 			},
 			{
 				name: 'VS Code Insiders',
+				nameWithType: 'VS Code Insiders',
 				paths: (context) =>
 					getWindowsEnvironmentPaths(context, [
 						'Microsoft VS Code Insiders',
@@ -133,6 +142,7 @@ const editorDefinitions = {
 		darwin: [
 			{
 				name: 'Cursor',
+				nameWithType: 'Cursor Editor',
 				bundleIdentifiers: ['com.todesktop.230313mzl4w4u92'],
 				applicationNames: ['Cursor.app'],
 				executable: 'Contents/Resources/app/bin/cursor',
@@ -142,6 +152,7 @@ const editorDefinitions = {
 		linux: [
 			{
 				name: 'Cursor',
+				nameWithType: 'Cursor Editor',
 				paths: (context) => [
 					'/usr/bin/cursor',
 					'/usr/local/bin/cursor',
@@ -153,6 +164,7 @@ const editorDefinitions = {
 		win32: [
 			{
 				name: 'Cursor',
+				nameWithType: 'Cursor Editor',
 				paths: (context) =>
 					getWindowsEnvironmentPaths(context, ['cursor', 'Cursor.exe']),
 				commands: ['Cursor.exe', 'cursor.cmd'],
@@ -163,6 +175,7 @@ const editorDefinitions = {
 		darwin: [
 			{
 				name: 'Windsurf',
+				nameWithType: 'Windsurf',
 				bundleIdentifiers: ['com.exafunction.windsurf'],
 				applicationNames: ['Windsurf.app'],
 				executable: 'Contents/Resources/app/bin/windsurf',
@@ -172,6 +185,7 @@ const editorDefinitions = {
 		linux: [
 			{
 				name: 'Windsurf',
+				nameWithType: 'Windsurf',
 				paths: (context) => [
 					'/usr/bin/windsurf',
 					'/usr/local/bin/windsurf',
@@ -183,6 +197,7 @@ const editorDefinitions = {
 		win32: [
 			{
 				name: 'Windsurf',
+				nameWithType: 'Windsurf',
 				paths: (context) =>
 					getWindowsEnvironmentPaths(context, ['Windsurf', 'Windsurf.exe']),
 				commands: ['Windsurf.exe', 'windsurf.cmd'],
@@ -193,6 +208,7 @@ const editorDefinitions = {
 		darwin: [
 			{
 				name: 'Zed',
+				nameWithType: 'Zed',
 				bundleIdentifiers: ['dev.zed.Zed'],
 				applicationNames: ['Zed.app'],
 				executable: 'Contents/MacOS/cli',
@@ -200,6 +216,7 @@ const editorDefinitions = {
 			},
 			{
 				name: 'Zed Preview',
+				nameWithType: 'Zed Preview',
 				bundleIdentifiers: ['dev.zed.Zed-Preview'],
 				applicationNames: ['Zed Preview.app'],
 				executable: 'Contents/MacOS/cli',
@@ -209,6 +226,7 @@ const editorDefinitions = {
 		linux: [
 			{
 				name: 'Zed',
+				nameWithType: 'Zed',
 				paths: (context) => [
 					'/usr/bin/zedit',
 					'/usr/bin/zeditor',
@@ -222,6 +240,7 @@ const editorDefinitions = {
 		win32: [
 			{
 				name: 'Zed',
+				nameWithType: 'Zed',
 				paths: (context) =>
 					getWindowsEnvironmentPaths(context, ['Zed', 'Zed.exe']),
 				commands: ['Zed.exe'],
@@ -232,6 +251,7 @@ const editorDefinitions = {
 		darwin: [
 			{
 				name: 'VSCodium',
+				nameWithType: 'VSCodium',
 				bundleIdentifiers: ['com.vscodium', 'com.visualstudio.code.oss'],
 				applicationNames: ['VSCodium.app'],
 				executable: 'Contents/Resources/app/bin/codium',
@@ -241,6 +261,7 @@ const editorDefinitions = {
 		linux: [
 			{
 				name: 'VSCodium',
+				nameWithType: 'VSCodium',
 				paths: (context) => [
 					'/usr/bin/codium',
 					'/usr/share/vscodium-bin/bin/codium',
@@ -257,6 +278,7 @@ const editorDefinitions = {
 		win32: [
 			{
 				name: 'VSCodium',
+				nameWithType: 'VSCodium',
 				paths: (context) =>
 					getWindowsEnvironmentPaths(context, ['VSCodium', 'VSCodium.exe']),
 				commands: ['VSCodium.exe', 'codium.cmd'],
@@ -267,6 +289,7 @@ const editorDefinitions = {
 		darwin: [
 			{
 				name: 'WebStorm',
+				nameWithType: 'WebStorm',
 				bundleIdentifiers: ['com.jetbrains.WebStorm'],
 				applicationNames: ['WebStorm.app'],
 				executable: 'Contents/MacOS/webstorm',
@@ -276,6 +299,7 @@ const editorDefinitions = {
 		linux: [
 			{
 				name: 'WebStorm',
+				nameWithType: 'WebStorm',
 				paths: (context) => [
 					'/snap/bin/webstorm',
 					path.posix.join(
@@ -289,6 +313,7 @@ const editorDefinitions = {
 		win32: [
 			{
 				name: 'WebStorm',
+				nameWithType: 'WebStorm',
 				paths: (context) => {
 					const localAppData = context.env.LOCALAPPDATA;
 					return localAppData
@@ -308,6 +333,7 @@ const editorDefinitions = {
 		darwin: [
 			{
 				name: 'Sublime Text',
+				nameWithType: 'Sublime Text',
 				bundleIdentifiers: [
 					'com.sublimetext.4',
 					'com.sublimetext.3',
@@ -325,6 +351,7 @@ const editorDefinitions = {
 		linux: [
 			{
 				name: 'Sublime Text',
+				nameWithType: 'Sublime Text',
 				paths: () => ['/usr/bin/subl', '/snap/bin/subl'],
 				commands: ['subl'],
 			},
@@ -332,6 +359,7 @@ const editorDefinitions = {
 		win32: [
 			{
 				name: 'Sublime Text',
+				nameWithType: 'Sublime Text',
 				paths: (context) => [
 					...getWindowsEnvironmentPaths(context, [
 						'Sublime Text',
@@ -510,6 +538,7 @@ const findDarwinEditor = async ({
 				return {
 					id,
 					name: variant.name,
+					nameWithType: variant.nameWithType,
 					process: executablePath,
 					command: variant.command,
 				};
@@ -568,6 +597,7 @@ const findExecutableEditor = ({
 			return {
 				id,
 				name: variants[0].name,
+				nameWithType: variants[0].nameWithType,
 				process: executablePath,
 				command: executablePath,
 			};
@@ -580,6 +610,7 @@ const findExecutableEditor = ({
 			return {
 				id,
 				name: variant.name,
+				nameWithType: variant.nameWithType,
 				process: executablePath,
 				command: executablePath,
 			};
