@@ -189,6 +189,13 @@ This prevents the Player from continuing while media or images are still loading
 
 **Required action**: If you want to keep the old behavior, set `pauseWhenBuffering={false}` on video and audio components and `pauseWhenLoading={false}` on `<Img>` explicitly.
 
+## `licenseKey` is now required in `renderMedia()`
+
+`licenseKey` is now a required option in [`renderMedia()`](/docs/renderer/render-media#licensekey).  
+Previously, it was optional and defaulted to `null`.
+
+**Required action**: Pass a license key string, or explicitly set `licenseKey: null`.
+
 ## License changes
 
 Remotion 5.0 has an updated license. View the [license](https://github.com/remotion-dev/remotion/blob/5-0-license/LICENSE.md) here or compare the [changes](https://github.com/remotion-dev/remotion/pull/3750).

@@ -34,6 +34,7 @@ await renderMedia({
   codec: 'h264',
   outputLocation,
   inputProps,
+  licenseKey: null,
 });
 ```
 
@@ -508,7 +509,11 @@ An option to be used only if implementing a distributed renderer, see [Distribut
 
 <Options id="on-browser-download" />
 
-### `licenseKey?`<AvailableFrom v="4.0.409"/>
+### `licenseKey`<AvailableFrom v="4.0.409"/>
+
+_string | null_
+
+Optional in v4.x, required from v5.0.
 
 <Options id="license-key" />
 
