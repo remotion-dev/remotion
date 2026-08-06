@@ -12,7 +12,6 @@ import {
 	WHITE_ALPHA_20,
 	WHITE_ALPHA_50,
 } from '../../helpers/colors';
-import {formatFileLocation} from '../../helpers/format-file-location';
 import {
 	getConnectedCompositionFrame,
 	getSequenceDoubleClickAction,
@@ -329,14 +328,6 @@ const TimelineSequenceInner: React.FC<{
 	const selectComposition = useSelectComposition();
 	const confirm = useConfirmationDialog();
 	const {onSelect, selectable} = useTimelineRowSelection(nodePathInfo);
-	const fileLocation = useMemo(
-		() =>
-			formatFileLocation({
-				location: originalLocation,
-				root: window.remotion_cwd,
-			}),
-		[originalLocation],
-	);
 	const onSequenceDoubleClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
 			if (isTimelineSelectionModifierEvent(e)) {
@@ -496,7 +487,6 @@ const TimelineSequenceInner: React.FC<{
 			disableInteractivityDisabled,
 			duplicateDisabled,
 			editorInfo,
-			fileLocation,
 			includeSourceEditItems: isStudioInteractivityEnabled(),
 			isProgrammaticallyDuplicated,
 			onConfigureApps: canConfigureApps
@@ -530,7 +520,6 @@ const TimelineSequenceInner: React.FC<{
 		disableInteractivityDisabled,
 		duplicateDisabled,
 		editorInfo,
-		fileLocation,
 		isProgrammaticallyDuplicated,
 		mediaSrc,
 		nodePath,

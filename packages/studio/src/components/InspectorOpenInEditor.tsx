@@ -59,10 +59,10 @@ const mainButtonBase: React.CSSProperties = {
 const editorButtonIconSize = 18;
 
 export const InspectorOpenInEditor: React.FC<{
+	readonly contextForAgents?: string | null;
 	readonly location: OriginalPosition | null;
 	readonly label?: React.ReactNode;
-	readonly prompt?: string | null;
-}> = ({label, location, prompt = null}) => {
+}> = ({contextForAgents = null, label, location}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {tabIndex} = useZIndex();
@@ -95,7 +95,7 @@ export const InspectorOpenInEditor: React.FC<{
 			try {
 				const response = await openInCodingAgent(
 					codingAgentId,
-					codingAgentId === 'copilot' ? null : prompt,
+					codingAgentId === 'copilot' ? null : contextForAgents,
 				);
 				if (!response.success) {
 					showNotification(`Could not open ${codingAgentName}`, 2000);
@@ -104,7 +104,7 @@ export const InspectorOpenInEditor: React.FC<{
 				showNotification((err as Error).message, 2000);
 			}
 		},
-		[prompt],
+		[contextForAgents],
 	);
 	const editorName = window.remotion_editorName ?? 'default editor';
 	const canOpenDefault =

@@ -6,6 +6,7 @@ import type {
 } from '@remotion/studio-shared';
 import type {ResolvedStackLocation, TSequence} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {formatContextForAgents} from '../../helpers/format-file-location';
 import {getOpenInMenuItems} from '../get-open-in-menu-items';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -42,7 +43,6 @@ export const getSequenceContextMenuItems = ({
 	disableInteractivityDisabled,
 	duplicateDisabled,
 	isProgrammaticallyDuplicated,
-	fileLocation,
 	includeSourceEditItems,
 	codingAgentInfo,
 	editorInfo,
@@ -63,7 +63,6 @@ export const getSequenceContextMenuItems = ({
 	readonly disableInteractivityDisabled: boolean;
 	readonly duplicateDisabled: boolean;
 	readonly isProgrammaticallyDuplicated: boolean;
-	readonly fileLocation: string | null;
 	readonly includeSourceEditItems: boolean;
 	readonly codingAgentInfo: GetDefaultCodingAgentInfoResponse | null;
 	readonly editorInfo: GetDefaultEditorInfoResponse | null;
@@ -74,6 +73,7 @@ export const getSequenceContextMenuItems = ({
 	readonly openInCodingAgent: (
 		codingAgentId: DefaultCodingAgent,
 		codingAgentName: string,
+		contextForAgents: string | null,
 	) => void;
 	readonly openInEditor: (editorId: EditorPickerId | null) => void;
 	readonly originalLocation: ResolvedStackLocation | null;
@@ -82,15 +82,31 @@ export const getSequenceContextMenuItems = ({
 	readonly sourceActions?: readonly ComboboxValue[];
 }): ComboboxValue[] => {
 	const editorName = window.remotion_editorName;
-	const {documentationLink} = sequence;
 	const isInteractiveSvg =
 		sequence.controls?.componentIdentity === interactiveSvgComponentIdentity;
 	const installedEditors = editorInfo?.installedEditors ?? [];
 	const defaultEditorId =
-		installedEditors.find((editor) => editor.name === editorName)?.id ?? null;
+		installedEditors.find((editor) => editor.nameWithType === editorName)?.id ??
+		null;
 	const defaultCodingAgent = codingAgentInfo?.installedCodingAgents.find(
 		(codingAgent) => codingAgent.id === codingAgentInfo.defaultCodingAgent,
 	);
+	const contextForAgents = formatContextForAgents({
+		location: originalLocation,
+		name: sequence.displayName || sequence.controls?.componentName || null,
+		root: window.remotion_cwd,
+	});
+	const openInCodingAgentWithContext = (
+		codingAgentId: DefaultCodingAgent,
+		codingAgentName: string,
+	) => {
+		openInCodingAgent(
+			codingAgentId,
+			codingAgentName,
+			codingAgentId === 'copilot' ? null : contextForAgents,
+		);
+	};
+
 	const openInMenuItems = onConfigureApps
 		? getOpenInMenuItems({
 				codingAgentInfo,
@@ -99,7 +115,7 @@ export const getSequenceContextMenuItems = ({
 				excludeCodingAgentId: defaultCodingAgent?.id ?? null,
 				excludeEditorId: defaultEditorId,
 				onConfigureApps,
-				onOpenInCodingAgent: openInCodingAgent,
+				onOpenInCodingAgent: openInCodingAgentWithContext,
 				onOpenInEditor: openInEditor,
 			})
 		: [];
@@ -124,11 +140,14 @@ export const getSequenceContextMenuItems = ({
 					type: 'item' as const,
 					id: 'open-in-default-coding-agent',
 					keyHint: null,
-					label: `Open in ${defaultCodingAgent.name}`,
+					label: `Open in ${defaultCodingAgent.nameWithType}`,
 					leftItem: null,
 					disabled: false,
 					onClick: () =>
-						openInCodingAgent(defaultCodingAgent.id, defaultCodingAgent.name),
+						openInCodingAgentWithContext(
+							defaultCodingAgent.id,
+							defaultCodingAgent.nameWithType,
+						),
 					quickSwitcherLabel: null,
 					subMenu: null,
 					value: 'open-in-default-coding-agent',
@@ -154,20 +173,20 @@ export const getSequenceContextMenuItems = ({
 			: null,
 		{
 			type: 'item' as const,
-			id: 'copy-file-location',
+			id: 'copy-context-for-agents',
 			keyHint: null,
-			label: 'Copy file location',
+			label: 'Copy context for agents',
 			leftItem: null,
-			disabled: !fileLocation,
+			disabled: !contextForAgents,
 			onClick: () => {
-				if (!fileLocation) {
+				if (!contextForAgents) {
 					return;
 				}
 
 				navigator.clipboard
-					.writeText(fileLocation)
+					.writeText(contextForAgents)
 					.then(() => {
-						showNotification('Copied file location to clipboard', 1000);
+						showNotification('Copied context for agents', 1000);
 					})
 					.catch((err) => {
 						showNotification(
@@ -178,24 +197,8 @@ export const getSequenceContextMenuItems = ({
 			},
 			quickSwitcherLabel: null,
 			subMenu: null,
-			value: 'copy-file-location',
+			value: 'copy-context-for-agents',
 		},
-		documentationLink
-			? {
-					type: 'item' as const,
-					id: 'open-component-docs',
-					keyHint: null,
-					label: 'Open component docs',
-					leftItem: null,
-					disabled: false,
-					onClick: () => {
-						window.open(documentationLink, '_blank', 'noopener,noreferrer');
-					},
-					quickSwitcherLabel: null,
-					subMenu: null,
-					value: 'open-component-docs',
-				}
-			: null,
 		assetLinkInfo
 			? {
 					type: 'item' as const,
@@ -212,7 +215,7 @@ export const getSequenceContextMenuItems = ({
 					value: 'show-asset',
 				}
 			: null,
-		documentationLink || assetLinkInfo
+		assetLinkInfo
 			? {
 					type: 'divider' as const,
 					id: 'sequence-link-divider',

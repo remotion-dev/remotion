@@ -65,7 +65,8 @@ export const getOpenInMenuItems = ({
 			keyHint: null,
 			label: <span style={menuLabel}>{codingAgent.name}</span>,
 			leftItem: <CodingAgentIcon iconDataUrl={codingAgent.iconDataUrl} />,
-			onClick: () => onOpenInCodingAgent(codingAgent.id, codingAgent.name),
+			onClick: () =>
+				onOpenInCodingAgent(codingAgent.id, codingAgent.nameWithType),
 			quickSwitcherLabel: null,
 			subMenu: null,
 			type: 'item' as const,

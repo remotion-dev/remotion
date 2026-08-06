@@ -58,7 +58,8 @@ test('discovers installed macOS editors by bundle ID without running them', asyn
 		{
 			command: 'cursor',
 			id: 'cursor',
-			name: 'Cursor Editor',
+			name: 'Cursor',
+			nameWithType: 'Cursor Editor',
 			process: cursorExecutable,
 		},
 	]);
@@ -112,7 +113,8 @@ test('uses the configured installed editor instead of legacy detection', async (
 	const cursor: InstalledEditor = {
 		command: '/usr/bin/cursor',
 		id: 'cursor',
-		name: 'Cursor Editor',
+		name: 'Cursor',
+		nameWithType: 'Cursor Editor',
 		process: '/usr/bin/cursor',
 	};
 	let legacyDetectionCalls = 0;
@@ -137,12 +139,14 @@ test('uses the editor selected by the picker without changing the default', asyn
 		command: '/usr/bin/code',
 		id: 'vscode',
 		name: 'Code',
+		nameWithType: 'Code',
 		process: '/usr/bin/code',
 	};
 	const cursor: InstalledEditor = {
 		command: '/usr/bin/cursor',
 		id: 'cursor',
-		name: 'Cursor Editor',
+		name: 'Cursor',
+		nameWithType: 'Cursor Editor',
 		process: '/usr/bin/cursor',
 	};
 	let legacyDetectionCalls = 0;
@@ -215,6 +219,7 @@ test('resolves a custom editor without exposing it to built-in discovery', async
 		type: 'custom',
 		id: 'custom',
 		name: 'Acme Editor',
+		nameWithType: 'Acme Editor',
 		editor: customEditor,
 		executable: '/opt/acme/editor',
 		spawnAsMacApplication: false,
@@ -273,6 +278,7 @@ test('warns once and falls back when the configured editor is unavailable', asyn
 		command: 'code',
 		id: null,
 		name: 'Code',
+		nameWithType: 'Code',
 		process: 'code',
 		type: 'built-in',
 	});

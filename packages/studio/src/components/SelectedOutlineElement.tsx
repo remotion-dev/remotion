@@ -9,7 +9,6 @@ import {
 	TIMELINE_DROP_BLUE_ALPHA_12,
 	TRANSPARENT,
 } from '../helpers/colors';
-import {formatFileLocation} from '../helpers/format-file-location';
 import {getConnectedCompositions} from '../helpers/get-connected-compositions';
 import {getSequenceDoubleClickAction} from '../helpers/get-sequence-double-click-action';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
@@ -1591,10 +1590,6 @@ export const SelectedOutlineElement: React.FC<{
 
 		const originalLocation = await resolveOriginalLocation(target);
 
-		const fileLocation = formatFileLocation({
-			location: originalLocation,
-			root: window.remotion_cwd,
-		});
 		const nodePath = target.nodePathInfo.sequenceSubscriptionKey;
 		const mediaSrc =
 			target.sequence.type === 'audio' ||
@@ -1629,7 +1624,6 @@ export const SelectedOutlineElement: React.FC<{
 			disableInteractivityDisabled,
 			duplicateDisabled: sourceEditDisabled || isProgrammaticallyDuplicated,
 			editorInfo,
-			fileLocation,
 			includeSourceEditItems: sourceEditingEnabled,
 			isProgrammaticallyDuplicated,
 			onConfigureApps: canConfigureApps
@@ -1701,8 +1695,8 @@ export const SelectedOutlineElement: React.FC<{
 					() => undefined,
 				);
 			},
-			openInCodingAgent: (codingAgentId, codingAgentName) => {
-				launchCodingAgent(codingAgentId, null)
+			openInCodingAgent: (codingAgentId, codingAgentName, contextForAgents) => {
+				launchCodingAgent(codingAgentId, contextForAgents)
 					.then((response) => {
 						if (!response.success) {
 							showNotification(`Could not open ${codingAgentName}`, 2000);
@@ -1762,7 +1756,7 @@ export const SelectedOutlineElement: React.FC<{
 							type: 'item' as const,
 							id: 'crop',
 							keyHint: null,
-							label: 'Crop',
+							label: isProgrammaticallyDuplicated ? 'Crop all' : 'Crop',
 							leftItem: null,
 							disabled: !canCrop,
 							onClick: () => {

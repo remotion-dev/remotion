@@ -164,8 +164,12 @@ test.describe('visual mode', () => {
 					data: {
 						defaultEditor: null,
 						installedEditors: [
-							{id: 'vscode', name: 'Code'},
-							{id: 'cursor', name: 'Cursor Editor'},
+							{id: 'vscode', name: 'Code', nameWithType: 'Code'},
+							{
+								id: 'cursor',
+								name: 'Cursor',
+								nameWithType: 'Cursor Editor',
+							},
 						],
 					},
 				},
@@ -179,13 +183,17 @@ test.describe('visual mode', () => {
 					data: {
 						defaultCodingAgent: null,
 						installedCodingAgents: [
-							{id: 'codex', iconDataUrl: null, name: 'Codex'},
+							{
+								id: 'codex',
+								iconDataUrl: null,
+								name: 'Codex',
+								nameWithType: 'Codex',
+							},
 						],
 					},
 				},
 			});
 		});
-
 		try {
 			await page.goto(`${STUDIO_URL}/schema-test`);
 			await page.locator('[data-sidebar-toggle="right"]').click();
@@ -211,7 +219,7 @@ test.describe('visual mode', () => {
 			const dialog = page.getByRole('dialog');
 			await expect(
 				dialog.getByTitle('Default editor', {exact: true}),
-			).toContainText('Cursor Editor');
+			).toHaveText('Cursor');
 			await expect(
 				dialog.getByTitle('Default coding agent', {exact: true}),
 			).toContainText('Codex');
@@ -296,26 +304,137 @@ test.describe('visual mode', () => {
 		).toBeVisible();
 	});
 
-	test('should activate items in portaled context-menu submenus', async ({
+	test('should use standalone and contextual app names in portaled context menus', async ({
+		context,
 		page,
 	}) => {
-		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
-		const firstGridline = page.getByText('0% gridline', {exact: true});
-		await expect(firstGridline).toBeVisible({timeout: 15_000});
+		const configFile = path.join(exampleDir, 'remotion.config.ts');
+		const configBeforeTest = fs.readFileSync(configFile, 'utf8');
+		await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
+			origin: STUDIO_URL,
+		});
+		await page.route('**/api/default-editor-info', async (route) => {
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {
+						defaultEditor: 'cursor',
+						installedEditors: [
+							{
+								id: 'cursor',
+								name: 'Cursor',
+								nameWithType: 'Cursor Editor',
+							},
+							{id: 'vscode', name: 'Code', nameWithType: 'Code'},
+						],
+					},
+				},
+			});
+		});
+		await page.route('**/api/default-coding-agent-info', async (route) => {
+			await route.fulfill({
+				json: {
+					success: true,
+					data: {
+						defaultCodingAgent: 'cursor',
+						installedCodingAgents: [
+							{
+								id: 'cursor',
+								iconDataUrl: null,
+								name: 'Cursor',
+								nameWithType: 'Cursor Agent',
+							},
+							{
+								id: 'codex',
+								iconDataUrl: null,
+								name: 'Codex',
+								nameWithType: 'Codex',
+							},
+						],
+					},
+				},
+			});
+		});
+		const launchRequests: Array<{
+			readonly codingAgentId: string;
+			readonly prompt: string | null;
+		}> = [];
+		await page.route('**/api/open-in-coding-agent', async (route) => {
+			launchRequests.push(route.request().postDataJSON());
+			await route.fulfill({
+				json: {success: true, data: {success: true}},
+			});
+		});
 
-		await page
-			.locator('[data-timeline-marquee-item][title="0% gridline"]')
-			.click({button: 'right'});
-		await page.getByRole('button', {name: 'Open in...', exact: true}).click();
-		await page
-			.getByRole('button', {name: 'Change default apps...', exact: true})
-			.click();
+		try {
+			fs.writeFileSync(
+				configFile,
+				`${configBeforeTest}\nConfig.setDefaultEditor('cursor');\nConfig.setDefaultCodingAgent('cursor');\n`,
+			);
+			await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
+			const firstGridline = page.getByText('0% gridline', {exact: true});
+			await expect(firstGridline).toBeVisible({timeout: 15_000});
+			await page.evaluate(() => {
+				window.remotion_editorName = 'Cursor Editor';
+			});
 
-		const settings = page.getByRole('dialog');
-		await expect(settings.getByText('Apps', {exact: true})).toBeVisible();
-		await expect(
-			settings.getByTitle('Default editor', {exact: true}),
-		).toBeVisible();
+			const timelineGridline = page.locator(
+				'[data-timeline-marquee-item][title="0% gridline"]',
+			);
+			await timelineGridline.click({button: 'right'});
+			await expect(
+				page.getByText('Open in Cursor Editor', {exact: true}),
+			).toBeVisible();
+			await expect(
+				page.getByText('Open in Cursor Agent', {exact: true}),
+			).toBeVisible();
+			await expect(
+				page.getByRole('button', {name: 'Open component docs', exact: true}),
+			).toHaveCount(0);
+			await page
+				.getByRole('button', {name: 'Open in Cursor Agent', exact: true})
+				.click();
+			await expect.poll(() => launchRequests.length).toBe(1);
+			expect(launchRequests[0]?.codingAgentId).toBe('cursor');
+			expect(launchRequests[0]?.prompt).toMatch(
+				/^0% gridline in src\/BarChart\.tsx:\d+$/,
+			);
+			const contextForAgents = launchRequests[0]?.prompt;
+			await timelineGridline.click({button: 'right'});
+			await page
+				.getByRole('button', {name: 'Copy context for agents', exact: true})
+				.click();
+			await expect
+				.poll(() => page.evaluate(() => navigator.clipboard.readText()))
+				.toBe(contextForAgents);
+
+			fs.writeFileSync(
+				configFile,
+				`${configBeforeTest}\nConfig.setDefaultEditor('vscode');\nConfig.setDefaultCodingAgent('codex');\n`,
+			);
+			await expect
+				.poll(() => page.evaluate(() => window.remotion_editorName))
+				.toBe('Code');
+
+			await timelineGridline.click({button: 'right'});
+			await expect(
+				page.getByText('Open in Codex', {exact: true}),
+			).toBeVisible();
+			await page.getByRole('button', {name: 'Open in...', exact: true}).click();
+			await expect(page.getByText('Editors', {exact: true})).toBeVisible();
+			await expect(page.getByText('Agents', {exact: true})).toBeVisible();
+			await expect(
+				page.getByRole('button', {name: 'Cursor', exact: true}),
+			).toHaveCount(2);
+			await page
+				.getByRole('button', {name: 'Change default apps...', exact: true})
+				.click();
+
+			const settings = page.getByRole('dialog');
+			await expect(settings.getByText('Apps', {exact: true})).toBeVisible();
+		} finally {
+			fs.writeFileSync(configFile, configBeforeTest);
+		}
 	});
 
 	test('should dismiss an overflow menu tree with one outside click', async ({
@@ -341,7 +460,7 @@ test.describe('visual mode', () => {
 		).toBeHidden();
 	});
 
-	test('should pass the copied inspector prompt to editable coding agents', async ({
+	test('should pass the copied inspector context to editable coding agents', async ({
 		context,
 		page,
 	}) => {
@@ -355,11 +474,17 @@ test.describe('visual mode', () => {
 					data: {
 						defaultCodingAgent: null,
 						installedCodingAgents: [
-							{id: 'codex', iconDataUrl: null, name: 'Codex'},
+							{
+								id: 'codex',
+								iconDataUrl: null,
+								name: 'Codex',
+								nameWithType: 'Codex',
+							},
 							{
 								id: 'copilot',
 								iconDataUrl: null,
 								name: 'GitHub Copilot',
+								nameWithType: 'GitHub Copilot',
 							},
 						],
 					},
@@ -384,12 +509,12 @@ test.describe('visual mode', () => {
 		await sourceLocation.hover();
 
 		await sourceLocation
-			.getByRole('button', {name: 'Copy location for agents'})
+			.getByRole('button', {name: 'Copy context for agents'})
 			.click();
-		const copiedPrompt = await page.evaluate(() =>
+		const copiedContext = await page.evaluate(() =>
 			navigator.clipboard.readText(),
 		);
-		expect(copiedPrompt.length).toBeGreaterThan(0);
+		expect(copiedContext.length).toBeGreaterThan(0);
 
 		const openInAnotherApp = sourceLocation.getByRole('button', {
 			name: 'Open in another app',
@@ -399,7 +524,7 @@ test.describe('visual mode', () => {
 		await expect.poll(() => launchRequests.length).toBe(1);
 		expect(launchRequests[0]).toEqual({
 			codingAgentId: 'codex',
-			prompt: copiedPrompt,
+			prompt: copiedContext,
 		});
 
 		await openInAnotherApp.click();

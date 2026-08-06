@@ -16,7 +16,6 @@ import {
 	TIMELINE_DROP_BLUE_ALPHA_16,
 	WHITE,
 } from '../../helpers/colors';
-import {formatFileLocation} from '../../helpers/format-file-location';
 import {
 	getConnectedCompositionFrame,
 	getSequenceDoubleClickAction,
@@ -325,14 +324,6 @@ const TimelineSequenceItemInner: React.FC<{
 		openInEditor,
 		originalLocation,
 	} = useOpenSequenceInApps(sequence);
-	const fileLocation = useMemo(
-		() =>
-			formatFileLocation({
-				location: originalLocation,
-				root: window.remotion_cwd,
-			}),
-		[originalLocation],
-	);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -1005,7 +996,6 @@ const TimelineSequenceItemInner: React.FC<{
 			disableInteractivityDisabled,
 			duplicateDisabled,
 			editorInfo,
-			fileLocation,
 			includeSourceEditItems: isStudioInteractivityEnabled(),
 			isProgrammaticallyDuplicated,
 			onConfigureApps: canConfigureApps
@@ -1050,7 +1040,7 @@ const TimelineSequenceItemInner: React.FC<{
 										type: 'item' as const,
 										id: 'crop',
 										keyHint: null,
-										label: 'Crop',
+										label: isProgrammaticallyDuplicated ? 'Crop all' : 'Crop',
 										leftItem: null,
 										disabled: false,
 										onClick: onCrop,
@@ -1093,7 +1083,6 @@ const TimelineSequenceItemInner: React.FC<{
 		disableInteractivityDisabled,
 		duplicateDisabled,
 		editorInfo,
-		fileLocation,
 		isProgrammaticallyDuplicated,
 		mediaSrc,
 		nodePath,

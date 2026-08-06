@@ -46,9 +46,16 @@ export const useOpenSequenceInApps = (sequence: TSequence) => {
 		[canOpenInEditor, originalLocation],
 	);
 	const openInCodingAgent = useCallback(
-		async (codingAgentId: DefaultCodingAgent, codingAgentName: string) => {
+		async (
+			codingAgentId: DefaultCodingAgent,
+			codingAgentName: string,
+			contextForAgents: string | null,
+		) => {
 			try {
-				const response = await launchCodingAgent(codingAgentId, null);
+				const response = await launchCodingAgent(
+					codingAgentId,
+					contextForAgents,
+				);
 				if (!response.success) {
 					showNotification(`Could not open ${codingAgentName}`, 2000);
 				}
