@@ -1,5 +1,6 @@
 import {afterEach, expect, test} from 'bun:test';
 import {cleanup, fireEvent, render, waitFor} from '@testing-library/react';
+import {useState} from 'react';
 import {ConvertProgress} from '../app/components/ConvertProgress';
 import {ReplaceVideo} from '../app/components/ReplaceVideo';
 import {
@@ -14,7 +15,7 @@ afterEach(() => {
 	cleanup();
 });
 
-test('offers the completed thumbnail as a file drag without adding UI', async () => {
+test('uses the editable output name when dragging the completed thumbnail', async () => {
 	const originalCreateObjectUrl = URL.createObjectURL;
 	const originalRevokeObjectUrl = URL.revokeObjectURL;
 	const revokedUrls: string[] = [];
@@ -45,15 +46,18 @@ test('offers the completed thumbnail as a file drag without adding UI', async ()
 	} as unknown as DataTransfer;
 
 	try {
-		const rendered = render(
-			<TitleProvider routeAction={{type: 'generic-convert'}}>
+		const ConvertProgressWithEditableName = () => {
+			const [name, setName] = useState(file.name);
+
+			return (
 				<ConvertProgress
 					bars={[]}
 					done
 					draggableFile={file}
 					duration={1}
 					isReencoding
-					newName={file.name}
+					newName={name}
+					onNameChange={setName}
 					state={{
 						bytesWritten: file.size,
 						hasVideo: true,
@@ -61,6 +65,12 @@ test('offers the completed thumbnail as a file drag without adding UI', async ()
 						overallProgress: 1,
 					}}
 				/>
+			);
+		};
+
+		const rendered = render(
+			<TitleProvider routeAction={{type: 'generic-convert'}}>
+				<ConvertProgressWithEditableName />
 				<ReplaceVideo src={{type: 'file', file}} setSrc={() => undefined} />
 			</TitleProvider>,
 		);
@@ -72,11 +82,29 @@ test('offers the completed thumbnail as a file drag without adding UI', async ()
 		});
 
 		expect(thumbnail.textContent).toBe('');
+		const renameButton = rendered.getByRole('button', {name: 'Rename file'});
+		expect(renameButton.classList.contains('opacity-0')).toBe(true);
+		expect(
+			renameButton.classList.contains('group-hover/output-details:opacity-100'),
+		).toBe(true);
+		const pen = renameButton.querySelector('svg');
+		expect(pen?.classList.contains('size-[18px]')).toBe(true);
+		expect(pen?.querySelector('path')?.getAttribute('fill')).toBe('#000000');
+
+		fireEvent.click(renameButton);
+		const nameInput = rendered.getByRole('textbox', {name: 'File name'});
+		fireEvent.change(nameInput, {target: {value: 'renamed.mp4'}});
+		fireEvent.keyDown(nameInput, {key: 'Enter'});
+		expect(rendered.getByText('renamed.mp4')).not.toBeNull();
+
 		fireEvent.dragStart(thumbnail, {dataTransfer});
 
-		expect(addedFiles).toEqual([file]);
+		expect(addedFiles).toHaveLength(1);
+		expect(addedFiles[0]?.name).toBe('renamed.mp4');
+		expect(addedFiles[0]?.type).toBe(file.type);
+		expect(addedFiles[0]?.size).toBe(file.size);
 		expect(dragData.get('DownloadURL')).toBe(
-			'video/mp4:converted.mp4:blob:converted-output',
+			'video/mp4:renamed.mp4:blob:converted-output',
 		);
 		expect(dragData.get(CONVERTED_OUTPUT_DRAG_TYPE)).toBe('1');
 
@@ -134,6 +162,7 @@ test('does not advertise unsafe outputs as file drags', () => {
 				duration={1}
 				isReencoding
 				newName="converted.mp4"
+				onNameChange={null}
 				state={{
 					bytesWritten: 1,
 					hasVideo: true,
