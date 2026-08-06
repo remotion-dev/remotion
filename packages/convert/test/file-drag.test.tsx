@@ -3,6 +3,7 @@ import {cleanup, fireEvent, render, waitFor} from '@testing-library/react';
 import {ConvertProgress} from '../app/components/ConvertProgress';
 import {ReplaceVideo} from '../app/components/ReplaceVideo';
 import {
+	canOfferFileDrag,
 	CONVERTED_OUTPUT_DRAG_TYPE,
 	MAXIMUM_SAFE_FILE_DRAG_SIZE,
 	isFileDragEligible,
@@ -145,4 +146,31 @@ test('does not advertise unsafe outputs as file drags', () => {
 
 	expect(rendered.getByText('converted.mp4')).not.toBeNull();
 	expect(rendered.container.querySelector('[draggable]')).toBeNull();
+});
+
+test('does not offer file dragging on touch-capable devices', () => {
+	const maxTouchPoints = Object.getOwnPropertyDescriptor(
+		navigator,
+		'maxTouchPoints',
+	);
+
+	Object.defineProperty(navigator, 'maxTouchPoints', {
+		configurable: true,
+		value: 1,
+	});
+
+	try {
+		expect(
+			canOfferFileDrag({
+				fileSize: 1,
+				isFileSystemBacked: true,
+			}),
+		).toBe(false);
+	} finally {
+		if (maxTouchPoints) {
+			Object.defineProperty(navigator, 'maxTouchPoints', maxTouchPoints);
+		} else {
+			delete (navigator as {maxTouchPoints?: number}).maxTouchPoints;
+		}
+	}
 });

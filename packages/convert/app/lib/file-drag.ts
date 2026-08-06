@@ -35,6 +35,7 @@ export const canOfferFileDrag = ({
 		typeof DataTransfer === 'undefined' ||
 		typeof File === 'undefined' ||
 		typeof URL.createObjectURL !== 'function' ||
+		navigator.maxTouchPoints > 0 ||
 		!window.matchMedia('(any-pointer: fine)').matches
 	) {
 		return false;
