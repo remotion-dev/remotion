@@ -1,15 +1,32 @@
-import React from 'react';
+import React, {useLayoutEffect, useState} from 'react';
 import {
 	selectedOutlineSnapIndicatorColor,
 	type SelectedOutlineSnapPoint,
 } from './selected-outline-snap';
 
+export type UpdateSelectedOutlineSnapPoints = (
+	snapPoints: readonly SelectedOutlineSnapPoint[],
+) => void;
+
 export const SelectedOutlineSnapIndicators: React.FC<{
-	readonly activeSnapPoints: readonly SelectedOutlineSnapPoint[];
 	readonly compositionHeight: number;
 	readonly compositionWidth: number;
 	readonly scale: number;
-}> = ({activeSnapPoints, compositionHeight, compositionWidth, scale}) => {
+	readonly updateSnapPointsRef: React.MutableRefObject<UpdateSelectedOutlineSnapPoints>;
+}> = ({compositionHeight, compositionWidth, scale, updateSnapPointsRef}) => {
+	const [activeSnapPoints, setActiveSnapPoints] = useState<
+		readonly SelectedOutlineSnapPoint[]
+	>([]);
+
+	useLayoutEffect(() => {
+		updateSnapPointsRef.current = setActiveSnapPoints;
+		return () => {
+			if (updateSnapPointsRef.current === setActiveSnapPoints) {
+				updateSnapPointsRef.current = () => undefined;
+			}
+		};
+	}, [updateSnapPointsRef]);
+
 	if (activeSnapPoints.length === 0) {
 		return null;
 	}

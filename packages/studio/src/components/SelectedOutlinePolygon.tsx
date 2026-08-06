@@ -286,6 +286,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				window.removeEventListener('keyup', onKeyChange);
 				if (dragStarted) {
 					stopForcingSpecificCursor();
+					onSnapPointsChange([]);
 					onDraggingChange(false);
 				}
 

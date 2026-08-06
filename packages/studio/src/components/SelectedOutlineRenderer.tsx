@@ -16,10 +16,12 @@ import {
 	outlinesAreEqual,
 } from './selected-outline-measurement';
 import {orderOutlinesForRendering} from './selected-outline-order';
-import type {SelectedOutlineSnapPoint} from './selected-outline-snap';
 import type {SelectedOutlineTarget} from './selected-outline-types';
 import {SelectedOutlineElement} from './SelectedOutlineElement';
-import {SelectedOutlineSnapIndicators} from './SelectedOutlineSnapIndicators';
+import {
+	SelectedOutlineSnapIndicators,
+	type UpdateSelectedOutlineSnapPoints,
+} from './SelectedOutlineSnapIndicators';
 import {SelectedOutlineTransformOriginHandle} from './SelectedOutlineTransformOriginHandle';
 import {
 	SelectedOutlineUvHandleCircleLayer,
@@ -68,7 +70,6 @@ const SelectedOutlineHoverCleanup: React.FC<{
 };
 
 const SelectedOutlineRendererUnmemoized: React.FC<{
-	readonly activeSnapPoints: readonly SelectedOutlineSnapPoint[];
 	readonly compositionHeight: number;
 	readonly compositionWidth: number;
 	readonly dragging: boolean;
@@ -77,9 +78,6 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	) => SelectedOutlineTarget | undefined;
 	readonly getOutlineTargets: () => readonly SelectedOutlineTarget[];
 	readonly onDraggingChange: (dragging: boolean) => void;
-	readonly onSnapPointsChange: (
-		snapPoints: readonly SelectedOutlineSnapPoint[],
-	) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
 		interaction?: TimelineSelectionInteraction,
@@ -90,7 +88,6 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	>[0]['sequences'];
 	readonly updateOutlinesRef: React.MutableRefObject<() => void>;
 }> = ({
-	activeSnapPoints,
 	compositionHeight,
 	compositionWidth,
 	dragging,
@@ -98,7 +95,6 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	getOutlineTargets,
 	onDraggingChange,
 	onSelect,
-	onSnapPointsChange,
 	scale,
 	sequences,
 	updateOutlinesRef,
@@ -258,6 +254,13 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 				: [],
 		);
 	}, [renderState.targets]);
+	const updateSnapPointsRef = useRef<UpdateSelectedOutlineSnapPoints>(
+		() => undefined,
+	);
+	const onSnapPointsChange = useCallback<UpdateSelectedOutlineSnapPoints>(
+		(snapPoints) => updateSnapPointsRef.current(snapPoints),
+		[],
+	);
 
 	return (
 		<svg
@@ -269,10 +272,10 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 		>
 			<SelectedOutlineHoverCleanup targets={renderState.targets} />
 			<SelectedOutlineSnapIndicators
-				activeSnapPoints={activeSnapPoints}
 				compositionHeight={compositionHeight}
 				compositionWidth={compositionWidth}
 				scale={scale}
+				updateSnapPointsRef={updateSnapPointsRef}
 			/>
 			{outlinesForRendering.map((outline) => (
 				<SelectedOutlineElement

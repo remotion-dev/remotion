@@ -50,7 +50,6 @@ import {
 	getSequencesWithSelectableOutlines,
 } from './selected-outline-measurement';
 import {orderOutlinesForRendering} from './selected-outline-order';
-import {type SelectedOutlineSnapPoint} from './selected-outline-snap';
 import {
 	canEditSelectedOutlineCrop,
 	cropFieldKeys,
@@ -257,9 +256,6 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 	const keybindings = useKeybinding();
 	const [timelinePosition, setTimelinePosition] = useState(getCurrentFrame);
 	const [draggingOutline, setDraggingOutline] = useState(false);
-	const [activeSnapPoints, setActiveSnapPoints] = useState<
-		readonly SelectedOutlineSnapPoint[]
-	>([]);
 	const keyboardNudgeSessionRef =
 		useRef<SelectedOutlineKeyboardNudgeSession | null>(null);
 	const saveKeyboardNudgeSessionRef = useRef<() => void>(() => undefined);
@@ -276,17 +272,9 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 				setHoveredSequence((currentHover) =>
 					currentHover?.source === 'canvas' ? null : currentHover,
 				);
-			} else {
-				setActiveSnapPoints([]);
 			}
 		},
 		[setHoveredSequence],
-	);
-	const onSnapPointsChange = useCallback(
-		(snapPoints: readonly SelectedOutlineSnapPoint[]) => {
-			setActiveSnapPoints(snapPoints);
-		},
-		[],
 	);
 	const selectOutlineItem = useCallback(
 		(item: TimelineSelection, interaction?: TimelineSelectionInteraction) => {
@@ -1079,7 +1067,6 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 				onTimelinePositionChange={setTimelinePosition}
 			/>
 			<SelectedOutlineRenderer
-				activeSnapPoints={activeSnapPoints}
 				compositionHeight={compositionHeight}
 				compositionWidth={compositionWidth}
 				dragging={draggingOutline}
@@ -1087,7 +1074,6 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 				getOutlineTargets={getOutlineTargets}
 				onDraggingChange={onDraggingChange}
 				onSelect={selectOutlineItem}
-				onSnapPointsChange={onSnapPointsChange}
 				scale={scale}
 				sequences={sequences}
 				updateOutlinesRef={updateOutlinesRef}
