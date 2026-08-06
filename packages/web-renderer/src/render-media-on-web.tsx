@@ -389,7 +389,7 @@ const internalRenderMediaOnWeb = async <
 		outputTarget === 'web-fs' ? await createWebFsTarget() : null;
 
 	const target = outputWritable
-		? new StreamTarget(outputWritable, {chunked: true})
+		? new StreamTarget(outputWritable)
 		: webFsTarget
 			? new StreamTarget(webFsTarget.stream)
 			: new BufferTarget()!;

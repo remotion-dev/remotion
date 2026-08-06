@@ -65,8 +65,14 @@ test('should render media to a writable stream', async (t) => {
 
 	const chunks: StreamTargetChunk[] = [];
 	let streamClosed = false;
+	let firstFrameRendered = false;
+	let receivedChunkBeforeFirstFrame = false;
 	const outputWritable = new WritableStream<StreamTargetChunk>({
 		write: (chunk) => {
+			if (!firstFrameRendered) {
+				receivedChunkBeforeFirstFrame = true;
+			}
+
 			chunks.push(chunk);
 		},
 		close: () => {
@@ -85,10 +91,15 @@ test('should render media to a writable stream', async (t) => {
 		},
 		inputProps: {},
 		outputWritable,
+		onFrame: (frame) => {
+			firstFrameRendered = true;
+			return frame;
+		},
 	});
 
 	expect(streamClosed).toBe(true);
 	expect(chunks.length).toBeGreaterThan(0);
+	expect(receivedChunkBeforeFirstFrame).toBe(true);
 
 	const size = Math.max(
 		...chunks.map((chunk) => chunk.position + chunk.data.byteLength),

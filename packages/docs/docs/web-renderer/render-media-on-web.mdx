@@ -299,7 +299,7 @@ By default, Remotion will automatically choose `"web-fs"` if available, otherwis
 
 _<WritableStream\<<TsType type="StreamTargetChunk" source="mediabunny" />\>>_
 
-Writes the rendered media to a `WritableStream` instead of buffering the complete output in memory or the Origin Private File System.
+Writes rendered media progressively to a `WritableStream` as data becomes available, instead of buffering the complete output in memory or the Origin Private File System.
 This is useful for large renders and for streaming the output to a file, server, or native application.
 
 The stream receives [Mediabunny `StreamTargetChunk`](https://mediabunny.dev/api/StreamTargetChunk) objects containing the data and its byte position.
