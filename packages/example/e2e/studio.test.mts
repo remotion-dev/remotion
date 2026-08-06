@@ -367,13 +367,19 @@ test.describe('visual mode', () => {
 		});
 
 		try {
+			await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
+			const firstGridline = page.getByText('0% gridline', {exact: true});
+			await expect(firstGridline).toBeVisible({timeout: 15_000});
+
 			fs.writeFileSync(
 				configFile,
 				`${configBeforeTest}\nConfig.setDefaultEditor('cursor');\nConfig.setDefaultCodingAgent('cursor');\n`,
 			);
-			await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
-			const firstGridline = page.getByText('0% gridline', {exact: true});
-			await expect(firstGridline).toBeVisible({timeout: 15_000});
+			await expect
+				.poll(() =>
+					page.evaluate(() => window.remotion_studioConfig?.defaultCodingAgent),
+				)
+				.toBe('cursor');
 			await page.evaluate(() => {
 				window.remotion_editorName = 'Cursor Editor';
 			});
