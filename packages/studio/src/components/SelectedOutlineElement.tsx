@@ -91,8 +91,6 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	scale,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const previewInteractive =
-		previewServerState.type === 'connected' && isStudioInteractivityEnabled();
 	const canConfigureApps = canUseEditorPicker(
 		previewServerState.type === 'connected',
 	);
@@ -120,6 +118,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 
 		return getLatestTargetByKey(currentTarget.key);
 	}, [getLatestTargetByKey]);
+	const getLayoutTarget = React.useCallback(() => targetRef.current, []);
 	const hoveredNodePathKey = useMemo(
 		() =>
 			layoutTarget === undefined
@@ -465,11 +464,8 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				dragging={dragging}
 				getAllDragOutlines={getAllDragOutlines}
 				getAllDragTargets={getAllDragTargets}
+				getLayoutTarget={getLayoutTarget}
 				getTarget={getTarget}
-				hasEffectDrop={
-					previewInteractive &&
-					layoutTarget?.sequence.controls?.supportsEffects === true
-				}
 				hasTarget={layoutTarget !== undefined}
 				hovered={hovered}
 				outline={outline}

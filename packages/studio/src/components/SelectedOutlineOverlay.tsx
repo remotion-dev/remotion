@@ -598,8 +598,6 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 					selectedForCrop &&
 					controls !== null &&
 					cropFields !== null;
-				const canDropEffect =
-					previewInteractive && controls?.supportsEffects === true;
 				return [
 					{
 						...layoutTarget,
@@ -621,13 +619,6 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 													value: transformOriginValueForRotation,
 												}
 											: null,
-								}
-							: null,
-						effectDrop: canDropEffect
-							? {
-									clientId: previewServerState.clientId,
-									fileName: nodePath.absolutePath,
-									nodePath,
 								}
 							: null,
 						drag: canDrag

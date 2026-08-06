@@ -42,7 +42,6 @@ export type SelectedOutlineLayoutTarget = {
 
 export type SelectedOutlineTarget = SelectedOutlineLayoutTarget & {
 	readonly canCrop: boolean;
-	readonly effectDrop: SelectedOutlineEffectDropTarget | null;
 	readonly cropDrag: SelectedOutlineCropDragTarget | null;
 	readonly drag: SelectedOutlineDragTarget | null;
 	readonly scaleDrag: SelectedOutlineScaleDragTarget | null;
@@ -124,12 +123,6 @@ export type SelectedOutlineCropDragTarget = {
 		readonly propStatus: CanUpdateSequencePropStatus;
 		readonly value: string;
 	} | null;
-};
-
-export type SelectedOutlineEffectDropTarget = {
-	readonly clientId: string;
-	readonly fileName: string;
-	readonly nodePath: SequencePropsSubscriptionKey;
 };
 
 export type SelectedOutlineDragTarget = {

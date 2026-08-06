@@ -1,10 +1,12 @@
 import React, {useContext, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	BLUE,
 	TIMELINE_DROP_BLUE_ALPHA_12,
 	TRANSPARENT,
 } from '../helpers/colors';
+import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {startPointerSession} from '../helpers/pointer-session';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorSnappingContext} from '../state/editor-snapping';
@@ -44,6 +46,7 @@ import {
 	translateFieldKey,
 	type SelectedOutlineContextMenuOpenHandler,
 	type SelectedOutlineDragTarget,
+	type SelectedOutlineLayoutTarget,
 	type SelectedOutlineTarget,
 } from './selected-outline-types';
 import {callAddKeyframes} from './Timeline/call-add-keyframe';
@@ -61,8 +64,8 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	readonly dragging: boolean;
 	readonly getAllDragOutlines: () => readonly SelectedOutline[];
 	readonly getAllDragTargets: () => readonly SelectedOutlineDragTarget[];
+	readonly getLayoutTarget: () => SelectedOutlineLayoutTarget | undefined;
 	readonly getTarget: () => SelectedOutlineTarget | undefined;
-	readonly hasEffectDrop: boolean;
 	readonly hasTarget: boolean;
 	readonly hovered: boolean;
 	readonly onContextMenuOpen: SelectedOutlineContextMenuOpenHandler;
@@ -88,8 +91,8 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	dragging,
 	getAllDragOutlines,
 	getAllDragTargets,
+	getLayoutTarget,
 	getTarget,
-	hasEffectDrop,
 	hasTarget,
 	hovered,
 	onContextMenuOpen,
@@ -102,6 +105,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	scale,
 	showSelectedOutline,
 }) => {
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
@@ -118,6 +122,26 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	);
 	const [effectDropHovered, setEffectDropHovered] = useState(false);
 	const visible = showSelectedOutline || hovered;
+	const getEffectDropTarget = React.useCallback(() => {
+		if (
+			previewServerState.type !== 'connected' ||
+			!isStudioInteractivityEnabled()
+		) {
+			return null;
+		}
+
+		const target = getLayoutTarget();
+		if (target?.sequence.controls?.supportsEffects !== true) {
+			return null;
+		}
+
+		const nodePath = target.nodePathInfo.sequenceSubscriptionKey;
+		return {
+			clientId: previewServerState.clientId,
+			fileName: nodePath.absolutePath,
+			nodePath,
+		};
+	}, [getLayoutTarget, previewServerState]);
 
 	const onPointerDown = React.useCallback(
 		(event: React.PointerEvent<SVGPolygonElement>) => {
@@ -397,8 +421,12 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 
 	const onEffectDragOver = React.useCallback(
 		(event: React.DragEvent<SVGPolygonElement>) => {
-			const effectDrop = getTarget()?.effectDrop ?? null;
-			if (effectDrop === null || !hasEffectDragType(event.dataTransfer)) {
+			if (!hasEffectDragType(event.dataTransfer)) {
+				return;
+			}
+
+			const effectDrop = getEffectDropTarget();
+			if (effectDrop === null) {
 				return;
 			}
 
@@ -407,7 +435,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			event.dataTransfer.dropEffect = 'copy';
 			setEffectDropHovered(true);
 		},
-		[getTarget],
+		[getEffectDropTarget],
 	);
 
 	const onEffectDragLeave = React.useCallback(
@@ -423,8 +451,12 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 
 	const onEffectDrop = React.useCallback(
 		async (event: React.DragEvent<SVGPolygonElement>) => {
-			const effectDrop = getTarget()?.effectDrop ?? null;
-			if (effectDrop === null || !hasEffectDragType(event.dataTransfer)) {
+			if (!hasEffectDragType(event.dataTransfer)) {
+				return;
+			}
+
+			const effectDrop = getEffectDropTarget();
+			if (effectDrop === null) {
 				return;
 			}
 
@@ -451,7 +483,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				clientId: effectDrop.clientId,
 			});
 		},
-		[getTarget],
+		[getEffectDropTarget],
 	);
 
 	return (
@@ -477,9 +509,9 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				}}
 				onPointerDown={onPointerDown}
 				onDoubleClick={onDoubleClick}
-				onDragOver={hasEffectDrop ? onEffectDragOver : undefined}
-				onDragLeave={hasEffectDrop ? onEffectDragLeave : undefined}
-				onDrop={hasEffectDrop ? onEffectDrop : undefined}
+				onDragOver={onEffectDragOver}
+				onDragLeave={onEffectDragLeave}
+				onDrop={onEffectDrop}
 			/>
 			<ContextMenuForTarget
 				triggerRef={polygonRef}
