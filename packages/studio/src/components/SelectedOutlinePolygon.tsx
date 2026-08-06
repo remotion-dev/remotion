@@ -6,6 +6,7 @@ import {
 	TRANSPARENT,
 } from '../helpers/colors';
 import {startPointerSession} from '../helpers/pointer-session';
+import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {ContextMenuForTarget} from './ContextMenu';
 import {
@@ -36,8 +37,8 @@ import {
 } from './selected-outline-measurement';
 import {
 	findSelectedOutlineSnap,
+	getSelectedOutlineSnapTargets,
 	type SelectedOutlineSnapPoint,
-	type SelectedOutlineSnapTarget,
 } from './selected-outline-snap';
 import {
 	translateFieldKey,
@@ -55,6 +56,8 @@ import type {
 } from './Timeline/TimelineSelection';
 
 const SelectedOutlinePolygonUnmemoized: React.FC<{
+	readonly compositionHeight: number;
+	readonly compositionWidth: number;
 	readonly dragging: boolean;
 	readonly getAllDragOutlines: () => readonly SelectedOutline[];
 	readonly getAllDragTargets: () => readonly SelectedOutlineDragTarget[];
@@ -79,8 +82,9 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	) => boolean;
 	readonly scale: number;
 	readonly showSelectedOutline: boolean;
-	readonly snapTargets: readonly SelectedOutlineSnapTarget[];
 }> = ({
+	compositionHeight,
+	compositionWidth,
 	dragging,
 	getAllDragOutlines,
 	getAllDragTargets,
@@ -97,8 +101,8 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	onDoubleClickTarget,
 	scale,
 	showSelectedOutline,
-	snapTargets,
 }) => {
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
@@ -106,6 +110,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 		Internals.VisualModeSettersContext,
 	);
 	const {editorSnapping} = useContext(EditorSnappingContext);
+	const {editorShowGuides, guidesList} = useContext(EditorShowGuidesContext);
 	const polygonRef = useRef<SVGPolygonElement>(null);
 	const points = useMemo(
 		() => outline.points.map(pointToString).join(' '),
@@ -154,6 +159,8 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			let axisLocked = false;
 			let dragStarted = false;
 			let snappingDisabled = event.metaKey || event.ctrlKey;
+			let snapTargets: ReturnType<typeof getSelectedOutlineSnapTargets> | null =
+				null;
 
 			const updateDragOverrides = () => {
 				const screenDeltaX = currentPointerX - startPointerX;
@@ -186,6 +193,17 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				let {deltaX, deltaY} = dragDelta;
 
 				if (editorSnapping && !snappingDisabled) {
+					snapTargets ??= getSelectedOutlineSnapTargets({
+						compositionHeight,
+						compositionWidth,
+						guides:
+							editorShowGuides && canvasContent?.type === 'composition'
+								? guidesList.filter(
+										(guide) =>
+											guide.compositionId === canvasContent.compositionId,
+									)
+								: [],
+					});
 					const snapResult = findSelectedOutlineSnap({
 						allowX: axisLockedDirection !== 'vertical',
 						allowY: axisLockedDirection !== 'horizontal',
@@ -338,12 +356,17 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			window.addEventListener('keyup', onKeyChange);
 		},
 		[
+			canvasContent,
 			clearDragOverrides,
+			compositionHeight,
+			compositionWidth,
+			editorShowGuides,
 			editorSnapping,
 			getAllDragOutlines,
 			getAllDragTargets,
 			getDragOverrides,
 			getTarget,
+			guidesList,
 			onDraggingChange,
 			onSelect,
 			onSnapPointsChange,
@@ -351,7 +374,6 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			scale,
 			setPropStatuses,
 			setDragOverrides,
-			snapTargets,
 		],
 	);
 

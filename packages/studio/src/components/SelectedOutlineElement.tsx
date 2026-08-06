@@ -18,10 +18,7 @@ import {useConfirmationDialog} from './ConfirmationDialog';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {showNotification} from './Notifications/NotificationCenter';
 import type {SelectedOutline} from './selected-outline-geometry';
-import {
-	type SelectedOutlineSnapPoint,
-	type SelectedOutlineSnapTarget,
-} from './selected-outline-snap';
+import {type SelectedOutlineSnapPoint} from './selected-outline-snap';
 import {
 	cropFieldKeys,
 	type SelectedOutlineDragTarget,
@@ -46,9 +43,14 @@ import {useSelectAsset} from './use-select-asset';
 type SelectedOutlineElementProps = {
 	readonly allRotationDragTargets: readonly SelectedOutlineRotationDragTarget[];
 	readonly allScaleDragTargets: readonly SelectedOutlineScaleDragTarget[];
+	readonly compositionHeight: number;
+	readonly compositionWidth: number;
 	readonly dragging: boolean;
 	readonly getAllDragOutlines: () => readonly SelectedOutline[];
 	readonly getAllDragTargets: () => readonly SelectedOutlineDragTarget[];
+	readonly getLatestTargetByKey: (
+		key: string,
+	) => SelectedOutlineTarget | undefined;
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onSnapPointsChange: (
@@ -59,7 +61,6 @@ type SelectedOutlineElementProps = {
 		interaction: TimelineSelectionInteraction,
 	) => void;
 	readonly scale: number;
-	readonly snapTargets: readonly SelectedOutlineSnapTarget[];
 	readonly target: SelectedOutlineTarget | undefined;
 };
 
@@ -68,15 +69,17 @@ const SelectedOutlineElementUnmemoized: React.FC<
 > = ({
 	allRotationDragTargets,
 	allScaleDragTargets,
+	compositionHeight,
+	compositionWidth,
 	dragging,
 	getAllDragOutlines,
 	getAllDragTargets,
+	getLatestTargetByKey,
 	outline,
 	onDraggingChange,
 	onSnapPointsChange,
 	onSelect,
 	scale,
-	snapTargets,
 	target,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -94,7 +97,14 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	useLayoutEffect(() => {
 		targetRef.current = target;
 	}, [target]);
-	const getTarget = React.useCallback(() => targetRef.current, []);
+	const getTarget = React.useCallback(() => {
+		const currentTarget = targetRef.current;
+		if (currentTarget === undefined) {
+			return undefined;
+		}
+
+		return getLatestTargetByKey(currentTarget.key) ?? currentTarget;
+	}, [getLatestTargetByKey]);
 	const hoveredNodePathKey = useMemo(
 		() =>
 			target === undefined
@@ -109,7 +119,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		(key: string | null) => {
 			setHoveredSequence((currentHover) => {
 				if (key !== null) {
-					const hoverTarget = getTarget();
+					const hoverTarget = targetRef.current;
 					if (hoverTarget === undefined || hoverTarget.key !== key) {
 						return currentHover;
 					}
@@ -126,7 +136,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				return currentHover?.source === 'canvas' ? null : currentHover;
 			});
 		},
-		[getTarget, setHoveredSequence],
+		[setHoveredSequence],
 	);
 
 	const resolveOriginalLocation = React.useCallback(
@@ -409,6 +419,8 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	return (
 		<>
 			<SelectedOutlinePolygon
+				compositionHeight={compositionHeight}
+				compositionWidth={compositionWidth}
 				dragging={dragging}
 				getAllDragOutlines={getAllDragOutlines}
 				getAllDragTargets={getAllDragTargets}
@@ -425,7 +437,6 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				onDoubleClickTarget={onDoubleClickTarget}
 				scale={scale}
 				showSelectedOutline={target?.showSelectedOutline ?? false}
-				snapTargets={snapTargets}
 			/>
 			<SelectedOutlineCropControls
 				outline={outline}
