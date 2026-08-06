@@ -215,8 +215,10 @@ export const elementDefinitions = {
 		height: 1080,
 		posterFrame: 75,
 		preview: {
-			posterUrl: '/elements/overlays-social-endcard-preview.png',
-			videoUrl: '/elements/overlays-social-endcard-preview.mp4',
+			posterUrl:
+				'https://remotion.media/elements/overlays-social-endcard-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/overlays-social-endcard-preview.mp4',
 		},
 		previewPadding: 0,
 		slug: 'overlays/social-endcard',

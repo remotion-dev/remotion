@@ -54,6 +54,7 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'overlays/location-lower-third/index',
 				'overlays/lower-third/index',
+				'overlays/social-endcard/index',
 			],
 		},
 		{

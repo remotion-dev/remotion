@@ -1,7 +1,4 @@
-import {
-	fontFamily as endcardFont,
-	loadFont as loadEndcard,
-} from '@remotion/google-fonts/Inter';
+import {fontFamily, loadFont} from '@remotion/google-fonts/Inter';
 import React from 'react';
 import {
 	AbsoluteFill,
@@ -14,7 +11,7 @@ import {
 	useVideoConfig,
 } from 'remotion';
 
-loadEndcard('normal', {
+loadFont('normal', {
 	weights: ['500'],
 });
 
@@ -29,12 +26,12 @@ const LinkedInIcon: React.FC<{height: number}> = ({height}) => {
 	);
 };
 
-const YouTubeIcon: React.FC<{height: number}> = ({height}) => {
+const XIcon: React.FC<{height: number}> = ({height}) => {
 	return (
-		<svg height={height} viewBox="0 0 576 512">
+		<svg height={height} viewBox="0 0 512 512">
 			<path
 				fill="black"
-				d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.78 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z"
+				d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"
 			/>
 		</svg>
 	);
@@ -67,17 +64,7 @@ const SocialLink: React.FC<{
 	icon: React.ReactNode;
 	indexFromLast: number;
 }> = ({children, icon, indexFromLast}) => {
-	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
-	const opacity = spring({
-		fps,
-		frame,
-		config: {
-			damping: 200,
-		},
-		delay: 35 + ((indexFromLast - 1) / 4) * (30 - 15),
-		durationInFrames: 15,
-	});
 
 	return (
 		<div
@@ -87,7 +74,19 @@ const SocialLink: React.FC<{
 				alignItems: 'center',
 				paddingTop: 20,
 				paddingBottom: 20,
-				opacity,
+				opacity: interpolate(
+					frame,
+					[
+						35 + ((indexFromLast - 1) / 4) * (30 - 15),
+						50 + ((indexFromLast - 1) / 4) * (30 - 15),
+					],
+					[0, 1],
+					{
+						easing: Easing.spring({damping: 200}),
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					},
+				),
 			}}
 		>
 			<div
@@ -149,7 +148,7 @@ const WebsiteLink = () => {
 					name="Website"
 					style={{
 						fontSize: 50,
-						fontFamily: endcardFont,
+						fontFamily,
 						fontWeight: 500,
 						marginLeft: 20,
 						color: 'black',
@@ -162,7 +161,7 @@ const WebsiteLink = () => {
 	);
 };
 
-const FollowButton = () => {
+const SubscribeButton = () => {
 	return (
 		<Interactive.Div
 			style={{
@@ -175,12 +174,12 @@ const FollowButton = () => {
 				justifyContent: 'center',
 				alignItems: 'center',
 				fontSize: 50,
-				fontFamily: endcardFont,
+				fontFamily,
 				fontWeight: 500,
 			}}
-			name={'Follow button'}
+			name="Subscribe button"
 		>
-			{'Follow'}
+			Subscribe
 		</Interactive.Div>
 	);
 };
@@ -199,12 +198,12 @@ const Avatar = () => {
 	);
 };
 
-const FollowCTA = () => {
+const SubscribeCTA = () => {
 	return (
 		<div style={{display: 'inline-flex', alignItems: 'center'}}>
 			<Avatar />
 			<div style={{width: 30}} />
-			<FollowButton />
+			<SubscribeButton />
 		</div>
 	);
 };
@@ -235,7 +234,7 @@ const LeftSide = () => {
 					}),
 				}}
 			>
-				<FollowCTA />
+				<SubscribeCTA />
 			</Interactive.Div>
 			<div style={{marginTop: 80}}>
 				<SocialLink icon={<InstagramIcon height={70} />} indexFromLast={4}>
@@ -243,7 +242,7 @@ const LeftSide = () => {
 						name="Instagram handle"
 						style={{
 							fontSize: 50,
-							fontFamily: endcardFont,
+							fontFamily,
 							fontWeight: 500,
 							marginLeft: 20,
 							color: 'black',
@@ -257,7 +256,7 @@ const LeftSide = () => {
 						name="LinkedIn name"
 						style={{
 							fontSize: 50,
-							fontFamily: endcardFont,
+							fontFamily,
 							fontWeight: 500,
 							marginLeft: 20,
 							color: 'black',
@@ -266,18 +265,18 @@ const LeftSide = () => {
 						Remotion
 					</Interactive.Div>
 				</SocialLink>
-				<SocialLink icon={<YouTubeIcon height={60} />} indexFromLast={2}>
+				<SocialLink icon={<XIcon height={60} />} indexFromLast={2}>
 					<Interactive.Div
-						name="YouTube handle"
+						name="X handle"
 						style={{
 							fontSize: 50,
-							fontFamily: endcardFont,
+							fontFamily,
 							fontWeight: 500,
 							marginLeft: 20,
 							color: 'black',
 						}}
 					>
-						@remotion_dev
+						@remotion
 					</Interactive.Div>
 				</SocialLink>
 				<WebsiteLink />
