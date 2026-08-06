@@ -15,6 +15,7 @@ import {NumberCounter} from '../../../elements/data/number-counter/number-counte
 import {ProductOffer} from '../../../elements/data/product-offer/product-offer';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/lower-third/lower-third';
+import {SocialEndCard} from '../../../elements/overlays/social-endcard/social-endcard';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
 import {NewsArticleHeadlineHighlight} from '../../../elements/text/news-article-headline-highlight/news-article-headline-highlight';
@@ -196,6 +197,29 @@ export const elementDefinitions = {
 		},
 		previewPadding: 300,
 		slug: 'overlays/lower-third',
+		installationMode: 'wrapped',
+		width: 1920,
+	},
+	'overlays/social-endcard': {
+		category: 'overlays',
+		component: SocialEndCard,
+		contributors: [],
+		description:
+			'An animated social follow end card with profile links and recommended-video slots.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
+		displayName: 'Social End Card',
+		durationInFrames: 150,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 75,
+		preview: {
+			posterUrl: '/elements/overlays-social-endcard-preview.png',
+			videoUrl: '/elements/overlays-social-endcard-preview.mp4',
+		},
+		previewPadding: 0,
+		slug: 'overlays/social-endcard',
 		installationMode: 'wrapped',
 		width: 1920,
 	},
