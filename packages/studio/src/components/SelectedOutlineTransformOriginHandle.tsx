@@ -22,6 +22,7 @@ import type {SelectedOutline} from './selected-outline-geometry';
 import {
 	transformOriginFieldKey,
 	translateFieldKey,
+	type SelectedOutlineLayoutTarget,
 	type SelectedOutlineTarget,
 } from './selected-outline-types';
 import {
@@ -41,14 +42,20 @@ import {
 } from './Timeline/transform-origin-utils';
 
 export const SelectedOutlineTransformOriginHandle: React.FC<{
+	readonly getLatestTargetByKey: (
+		key: string,
+	) => SelectedOutlineTarget | undefined;
+	readonly layoutTarget: SelectedOutlineLayoutTarget | undefined;
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
-	readonly target: SelectedOutlineTarget | undefined;
-}> = ({outline, onDraggingChange, target}) => {
+}> = ({getLatestTargetByKey, layoutTarget, outline, onDraggingChange}) => {
 	const {setDragOverrides, clearDragOverrides, setPropStatuses} = useContext(
 		Internals.VisualModeSettersContext,
 	);
 	const {editorSnapping} = useContext(EditorSnappingContext);
+	const target = layoutTarget?.selectedForTransformOrigin
+		? getLatestTargetByKey(layoutTarget.key)
+		: undefined;
 	const transformOriginDrag = target?.transformOriginDrag ?? null;
 	const crop = target?.crop;
 	const transformOriginPoints = outline.uncroppedPoints ?? outline.points;

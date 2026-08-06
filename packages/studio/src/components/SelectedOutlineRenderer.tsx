@@ -16,7 +16,10 @@ import {
 	outlinesAreEqual,
 } from './selected-outline-measurement';
 import {orderOutlinesForRendering} from './selected-outline-order';
-import type {SelectedOutlineTarget} from './selected-outline-types';
+import type {
+	SelectedOutlineLayoutTarget,
+	SelectedOutlineTarget,
+} from './selected-outline-types';
 import {SelectedOutlineElement} from './SelectedOutlineElement';
 import {
 	SelectedOutlineSnapIndicators,
@@ -41,7 +44,7 @@ const outlineContainer: React.CSSProperties = {
 
 type SelectedOutlineRenderState = {
 	readonly outlines: readonly SelectedOutline[];
-	readonly targets: readonly SelectedOutlineTarget[];
+	readonly targets: readonly SelectedOutlineLayoutTarget[];
 };
 
 const emptyRenderState: SelectedOutlineRenderState = {
@@ -50,7 +53,7 @@ const emptyRenderState: SelectedOutlineRenderState = {
 };
 
 const SelectedOutlineHoverCleanup: React.FC<{
-	readonly targets: readonly SelectedOutlineTarget[];
+	readonly targets: readonly SelectedOutlineLayoutTarget[];
 }> = ({targets}) => {
 	const hoveredSequence = useTimelineSequenceHoverState();
 	const setHoveredSequence = useSetTimelineSequenceHover();
@@ -76,7 +79,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	readonly getLatestOutlineTargetByKey: (
 		key: string,
 	) => SelectedOutlineTarget | undefined;
-	readonly getOutlineTargets: () => readonly SelectedOutlineTarget[];
+	readonly getOutlineTargets: () => readonly SelectedOutlineLayoutTarget[];
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
@@ -214,46 +217,59 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 			renderState.outlines.map((outline) => [outline.key, outline]),
 		);
 	}, [renderState.outlines]);
-	const allDragTargets = useMemo(() => {
-		return renderState.targets.flatMap((target) =>
-			(target.selected || target.containsSelection) && target.drag !== null
-				? [target.drag]
-				: [],
-		);
-	}, [renderState.targets]);
-	const allDragOutlines = useMemo(() => {
-		return renderState.targets.flatMap((target) => {
-			if (
-				(!target.selected && !target.containsSelection) ||
-				target.drag === null
-			) {
-				return [];
-			}
-
-			const outline = outlinesByKey.get(target.key);
-			return outline === undefined ? [] : [outline];
-		});
-	}, [outlinesByKey, renderState.targets]);
-	const allDragTargetsRef = useRef(allDragTargets);
-	const allDragOutlinesRef = useRef(allDragOutlines);
+	const targetsRef = useRef(renderState.targets);
+	const outlinesByKeyRef = useRef(outlinesByKey);
 	useLayoutEffect(() => {
-		allDragTargetsRef.current = allDragTargets;
-		allDragOutlinesRef.current = allDragOutlines;
-	}, [allDragOutlines, allDragTargets]);
-	const getAllDragTargets = useCallback(() => allDragTargetsRef.current, []);
-	const getAllDragOutlines = useCallback(() => allDragOutlinesRef.current, []);
-	const allScaleDragTargets = useMemo(() => {
-		return renderState.targets.flatMap((target) =>
-			target.selected && target.scaleDrag !== null ? [target.scaleDrag] : [],
-		);
-	}, [renderState.targets]);
-	const allRotationDragTargets = useMemo(() => {
-		return renderState.targets.flatMap((target) =>
-			target.selected && target.rotationDrag !== null
-				? [target.rotationDrag]
-				: [],
-		);
-	}, [renderState.targets]);
+		targetsRef.current = renderState.targets;
+		outlinesByKeyRef.current = outlinesByKey;
+	}, [outlinesByKey, renderState.targets]);
+	const getAllDragTargets = useCallback(
+		() =>
+			targetsRef.current.flatMap((target) => {
+				if (!target.selected && !target.containsSelection) {
+					return [];
+				}
+
+				const drag = getLatestOutlineTargetByKey(target.key)?.drag ?? null;
+				return drag === null ? [] : [drag];
+			}),
+		[getLatestOutlineTargetByKey],
+	);
+	const getAllDragOutlines = useCallback(
+		() =>
+			targetsRef.current.flatMap((target) => {
+				if (
+					(!target.selected && !target.containsSelection) ||
+					(getLatestOutlineTargetByKey(target.key)?.drag ?? null) === null
+				) {
+					return [];
+				}
+
+				const outline = outlinesByKeyRef.current.get(target.key);
+				return outline === undefined ? [] : [outline];
+			}),
+		[getLatestOutlineTargetByKey],
+	);
+	const getAllScaleDragTargets = useCallback(
+		() =>
+			targetsRef.current.flatMap((target) => {
+				const scaleDrag = target.selected
+					? (getLatestOutlineTargetByKey(target.key)?.scaleDrag ?? null)
+					: null;
+				return scaleDrag === null ? [] : [scaleDrag];
+			}),
+		[getLatestOutlineTargetByKey],
+	);
+	const getAllRotationDragTargets = useCallback(
+		() =>
+			targetsRef.current.flatMap((target) => {
+				const rotationDrag = target.selected
+					? (getLatestOutlineTargetByKey(target.key)?.rotationDrag ?? null)
+					: null;
+				return rotationDrag === null ? [] : [rotationDrag];
+			}),
+		[getLatestOutlineTargetByKey],
+	);
 	const updateSnapPointsRef = useRef<UpdateSelectedOutlineSnapPoints>(
 		() => undefined,
 	);
@@ -280,20 +296,20 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 			{outlinesForRendering.map((outline) => (
 				<SelectedOutlineElement
 					key={outline.key}
-					allRotationDragTargets={allRotationDragTargets}
-					allScaleDragTargets={allScaleDragTargets}
 					compositionHeight={compositionHeight}
 					compositionWidth={compositionWidth}
 					dragging={dragging}
 					getAllDragOutlines={getAllDragOutlines}
 					getAllDragTargets={getAllDragTargets}
+					getAllRotationDragTargets={getAllRotationDragTargets}
+					getAllScaleDragTargets={getAllScaleDragTargets}
 					getLatestTargetByKey={getLatestOutlineTargetByKey}
 					outline={outline}
 					onDraggingChange={onDraggingChange}
 					onSnapPointsChange={onSnapPointsChange}
 					onSelect={onSelect}
 					scale={scale}
-					target={targetsByKey.get(outline.key)}
+					layoutTarget={targetsByKey.get(outline.key)}
 				/>
 			))}
 			{/* Keep transform-origin handles above every transparent outline polygon so SVG hit-testing reaches the selected knob first. */}
@@ -302,7 +318,8 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 					key={`${outline.key}-transform-origin`}
 					outline={outline}
 					onDraggingChange={onDraggingChange}
-					target={targetsByKey.get(outline.key)}
+					getLatestTargetByKey={getLatestOutlineTargetByKey}
+					layoutTarget={targetsByKey.get(outline.key)}
 				/>
 			))}
 			{/* Keep UV controls above every transparent outline polygon so SVG hit-testing reaches the handles first. */}
@@ -310,7 +327,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 				<SelectedOutlineUvHandleConnectionLayer
 					key={`${outline.key}-uv-connection-lines`}
 					outline={outline}
-					target={targetsByKey.get(outline.key)}
+					layoutTarget={targetsByKey.get(outline.key)}
 				/>
 			))}
 			{outlinesForRendering.map((outline) => (
@@ -319,7 +336,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 					onDraggingChange={onDraggingChange}
 					onSelect={onSelect}
 					outline={outline}
-					target={targetsByKey.get(outline.key)}
+					layoutTarget={targetsByKey.get(outline.key)}
 				/>
 			))}
 		</svg>

@@ -24,6 +24,7 @@ import {type SelectedOutlineSnapPoint} from './selected-outline-snap';
 import {
 	cropFieldKeys,
 	type SelectedOutlineDragTarget,
+	type SelectedOutlineLayoutTarget,
 	type SelectedOutlineRotationDragTarget,
 	type SelectedOutlineScaleDragTarget,
 	type SelectedOutlineTarget,
@@ -48,16 +49,17 @@ import {
 } from './use-default-editor-info';
 import {useSelectAsset} from './use-select-asset';
 type SelectedOutlineElementProps = {
-	readonly allRotationDragTargets: readonly SelectedOutlineRotationDragTarget[];
-	readonly allScaleDragTargets: readonly SelectedOutlineScaleDragTarget[];
 	readonly compositionHeight: number;
 	readonly compositionWidth: number;
 	readonly dragging: boolean;
 	readonly getAllDragOutlines: () => readonly SelectedOutline[];
 	readonly getAllDragTargets: () => readonly SelectedOutlineDragTarget[];
+	readonly getAllRotationDragTargets: () => readonly SelectedOutlineRotationDragTarget[];
+	readonly getAllScaleDragTargets: () => readonly SelectedOutlineScaleDragTarget[];
 	readonly getLatestTargetByKey: (
 		key: string,
 	) => SelectedOutlineTarget | undefined;
+	readonly layoutTarget: SelectedOutlineLayoutTarget | undefined;
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onSnapPointsChange: (
@@ -68,28 +70,29 @@ type SelectedOutlineElementProps = {
 		interaction: TimelineSelectionInteraction,
 	) => void;
 	readonly scale: number;
-	readonly target: SelectedOutlineTarget | undefined;
 };
 
 const SelectedOutlineElementUnmemoized: React.FC<
 	SelectedOutlineElementProps
 > = ({
-	allRotationDragTargets,
-	allScaleDragTargets,
 	compositionHeight,
 	compositionWidth,
 	dragging,
 	getAllDragOutlines,
 	getAllDragTargets,
+	getAllRotationDragTargets,
+	getAllScaleDragTargets,
 	getLatestTargetByKey,
+	layoutTarget,
 	outline,
 	onDraggingChange,
 	onSnapPointsChange,
 	onSelect,
 	scale,
-	target,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const previewInteractive =
+		previewServerState.type === 'connected' && isStudioInteractivityEnabled();
 	const canConfigureApps = canUseEditorPicker(
 		previewServerState.type === 'connected',
 	);
@@ -105,28 +108,32 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const setHoveredSequence = useSetTimelineSequenceHover();
-	const targetRef = useRef(target);
+	const targetRef = useRef(layoutTarget);
 	useLayoutEffect(() => {
-		targetRef.current = target;
-	}, [target]);
+		targetRef.current = layoutTarget;
+	}, [layoutTarget]);
 	const getTarget = React.useCallback(() => {
 		const currentTarget = targetRef.current;
 		if (currentTarget === undefined) {
 			return undefined;
 		}
 
-		return getLatestTargetByKey(currentTarget.key) ?? currentTarget;
+		return getLatestTargetByKey(currentTarget.key);
 	}, [getLatestTargetByKey]);
 	const hoveredNodePathKey = useMemo(
 		() =>
-			target === undefined
+			layoutTarget === undefined
 				? null
 				: timelineSequenceNodePathToKey(
-						target.nodePathInfo.sequenceSubscriptionKey,
+						layoutTarget.nodePathInfo.sequenceSubscriptionKey,
 					),
-		[target],
+		[layoutTarget],
 	);
 	const hovered = useIsTimelineSequenceHovered(hoveredNodePathKey);
+	const controlTarget =
+		layoutTarget !== undefined && (layoutTarget.containsSelection || hovered)
+			? getLatestTargetByKey(layoutTarget.key)
+			: undefined;
 	const onHoverChange = React.useCallback(
 		(key: string | null) => {
 			setHoveredSequence((currentHover) => {
@@ -459,8 +466,11 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				getAllDragOutlines={getAllDragOutlines}
 				getAllDragTargets={getAllDragTargets}
 				getTarget={getTarget}
-				hasEffectDrop={target !== undefined && target.effectDrop !== null}
-				hasTarget={target !== undefined}
+				hasEffectDrop={
+					previewInteractive &&
+					layoutTarget?.sequence.controls?.supportsEffects === true
+				}
+				hasTarget={layoutTarget !== undefined}
 				hovered={hovered}
 				outline={outline}
 				onContextMenuOpen={onContextMenuOpen}
@@ -470,18 +480,19 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				onSelect={onSelect}
 				onDoubleClickTarget={onDoubleClickTarget}
 				scale={scale}
-				showSelectedOutline={target?.showSelectedOutline ?? false}
+				showSelectedOutline={layoutTarget?.showSelectedOutline ?? false}
 			/>
 			<SelectedOutlineCropControls
 				outline={outline}
 				onDraggingChange={onDraggingChange}
-				target={target}
+				target={controlTarget}
 			/>
-			{target?.cropDrag === null && (target.containsSelection || hovered)
+			{controlTarget?.cropDrag === null &&
+			(layoutTarget?.containsSelection || hovered)
 				? (['top', 'right', 'bottom', 'left'] as const).map((edge) => (
 						<SelectedOutlineScaleEdgeLine
 							key={edge}
-							allScaleDragTargets={allScaleDragTargets}
+							getAllScaleDragTargets={getAllScaleDragTargets}
 							dragging={dragging}
 							edge={edge}
 							outline={outline}
@@ -489,17 +500,18 @@ const SelectedOutlineElementUnmemoized: React.FC<
 							onDraggingChange={onDraggingChange}
 							onHoverChange={onHoverChange}
 							onSelect={onSelect}
-							target={target}
+							target={controlTarget}
 						/>
 					))
 				: null}
-			{target?.cropDrag === null && (target.containsSelection || hovered)
+			{controlTarget?.cropDrag === null &&
+			(layoutTarget?.containsSelection || hovered)
 				? (
 						['top-left', 'top-right', 'bottom-right', 'bottom-left'] as const
 					).map((corner) => (
 						<SelectedOutlineRotationCornerHandle
 							key={corner}
-							allRotationDragTargets={allRotationDragTargets}
+							getAllRotationDragTargets={getAllRotationDragTargets}
 							corner={corner}
 							dragging={dragging}
 							outline={outline}
@@ -507,7 +519,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 							onDraggingChange={onDraggingChange}
 							onHoverChange={onHoverChange}
 							onSelect={onSelect}
-							target={target}
+							target={controlTarget}
 						/>
 					))
 				: null}

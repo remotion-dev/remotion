@@ -1,5 +1,5 @@
 import type {SelectedOutline} from './selected-outline-geometry';
-import type {SelectedOutlineTarget} from './selected-outline-types';
+import type {SelectedOutlineLayoutTarget} from './selected-outline-types';
 
 const outlinePointEqualityTolerance = 0.5;
 const outlineAreaEqualityTolerance = 0.5;
@@ -84,7 +84,7 @@ type OutlineSequenceParent = {
 	readonly parent: string | null;
 };
 
-const getSequenceId = (target: SelectedOutlineTarget | undefined) => {
+const getSequenceId = (target: SelectedOutlineLayoutTarget | undefined) => {
 	return target?.sequence?.id ?? null;
 };
 
@@ -93,7 +93,7 @@ const getParentBySequenceId = ({
 	targetsByKey,
 }: {
 	readonly sequences: readonly OutlineSequenceParent[];
-	readonly targetsByKey: ReadonlyMap<string, SelectedOutlineTarget>;
+	readonly targetsByKey: ReadonlyMap<string, SelectedOutlineLayoutTarget>;
 }) => {
 	const parentBySequenceId = new Map<string, string | null>();
 
@@ -116,8 +116,8 @@ const isAncestorTarget = ({
 	descendant,
 	parentBySequenceId,
 }: {
-	readonly ancestor: SelectedOutlineTarget;
-	readonly descendant: SelectedOutlineTarget;
+	readonly ancestor: SelectedOutlineLayoutTarget;
+	readonly descendant: SelectedOutlineLayoutTarget;
 	readonly parentBySequenceId: ReadonlyMap<string, string | null>;
 }): boolean => {
 	const ancestorId = getSequenceId(ancestor);
@@ -144,7 +144,7 @@ const orderOutlineGroup = ({
 }: {
 	readonly outlines: readonly SelectedOutline[];
 	readonly parentBySequenceId: ReadonlyMap<string, string | null>;
-	readonly targetsByKey: ReadonlyMap<string, SelectedOutlineTarget>;
+	readonly targetsByKey: ReadonlyMap<string, SelectedOutlineLayoutTarget>;
 }): readonly SelectedOutline[] => {
 	const incomingEdges = new Map<string, Set<string>>();
 	const outgoingEdges = new Map<string, Set<string>>();
@@ -360,7 +360,7 @@ export const orderOutlinesForRendering = ({
 }: {
 	readonly outlines: readonly SelectedOutline[];
 	readonly sequences: readonly OutlineSequenceParent[];
-	readonly targetsByKey: ReadonlyMap<string, SelectedOutlineTarget>;
+	readonly targetsByKey: ReadonlyMap<string, SelectedOutlineLayoutTarget>;
 }): readonly SelectedOutline[] => {
 	const parentBySequenceId = getParentBySequenceId({sequences, targetsByKey});
 

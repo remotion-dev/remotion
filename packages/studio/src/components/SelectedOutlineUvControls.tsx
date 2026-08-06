@@ -1,5 +1,6 @@
 import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLUE, SELECTED_OUTLINE_UV_DROP_SHADOW, WHITE} from '../helpers/colors';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {startPointerSession} from '../helpers/pointer-session';
@@ -14,12 +15,16 @@ import {
 	selectedOutlineRotationSnapStepDegrees,
 } from './selected-outline-drag';
 import type {OutlinePoint, SelectedOutline} from './selected-outline-geometry';
-import {getOutlineSelectionInteraction} from './selected-outline-measurement';
+import {
+	getOutlineSelectionInteraction,
+	getSelectedEffectFieldsBySequenceKey,
+} from './selected-outline-measurement';
 import {
 	getAngleDegrees,
 	getRotationCursor,
 	getSelectedOutlineRotationDeltaDegrees,
 } from './selected-outline-measurement';
+import type {SelectedOutlineLayoutTarget} from './selected-outline-types';
 import {
 	constrainUv,
 	getUvEllipseInteractiveControls,
@@ -27,6 +32,7 @@ import {
 	getUvCoordinateForPoint,
 	getUvHandleConnectionLines,
 	getUvHandlePosition,
+	getSelectedUvHandles,
 	roundNumericUvEllipseValue,
 	roundUvCoordinate,
 	tuplesEqual,
@@ -42,6 +48,7 @@ import type {
 	TimelineSelection,
 	TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
+import {useTimelineSelection} from './Timeline/TimelineSelection';
 
 const getSvgPointFromPointerEvent = ({
 	event,
@@ -1038,11 +1045,54 @@ type UvTarget = {
 	readonly uvHandles: readonly SelectedOutlineUvHandle[];
 };
 
-export const SelectedOutlineUvHandleConnectionLayer: React.FC<{
+const useSelectedOutlineUvTarget = (
+	layoutTarget: SelectedOutlineLayoutTarget,
+): UvTarget => {
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const {selectedItems} = useTimelineSelection();
+	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
+	const {getEffectDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const selectedEffectsBySequenceKey = useMemo(
+		() => getSelectedEffectFieldsBySequenceKey(selectedItems),
+		[selectedItems],
+	);
+
+	return useMemo(() => {
+		return {
+			containsSelection: layoutTarget.containsSelection,
+			nodePathInfo: layoutTarget.nodePathInfo,
+			uvHandles: getSelectedUvHandles({
+				propStatuses,
+				clientId:
+					previewServerState.type === 'connected'
+						? previewServerState.clientId
+						: null,
+				getEffectDragOverrides,
+				nodePath: layoutTarget.nodePathInfo.sequenceSubscriptionKey,
+				selectedEffects: selectedEffectsBySequenceKey.get(layoutTarget.key),
+				sequence: layoutTarget.sequence,
+				sourceFrame: timelinePosition - layoutTarget.keyframeDisplayOffset,
+			}),
+		};
+	}, [
+		getEffectDragOverrides,
+		layoutTarget,
+		previewServerState,
+		propStatuses,
+		selectedEffectsBySequenceKey,
+		timelinePosition,
+	]);
+};
+
+const SelectedOutlineUvHandleConnectionLayerActive: React.FC<{
+	readonly layoutTarget: SelectedOutlineLayoutTarget;
 	readonly outline: SelectedOutline;
-	readonly target: UvTarget | undefined;
-}> = ({outline, target}) => {
-	if (!target?.containsSelection || target.uvHandles.length === 0) {
+}> = ({layoutTarget, outline}) => {
+	const target = useSelectedOutlineUvTarget(layoutTarget);
+	if (!target.containsSelection || target.uvHandles.length === 0) {
 		return null;
 	}
 
@@ -1054,26 +1104,43 @@ export const SelectedOutlineUvHandleConnectionLayer: React.FC<{
 	);
 };
 
-export const SelectedOutlineUvHandleCircleLayer: React.FC<{
+export const SelectedOutlineUvHandleConnectionLayer: React.FC<{
+	readonly layoutTarget: SelectedOutlineLayoutTarget | undefined;
+	readonly outline: SelectedOutline;
+}> = ({layoutTarget, outline}) => {
+	if (layoutTarget?.selectedForUvHandles !== true) {
+		return null;
+	}
+
+	return (
+		<SelectedOutlineUvHandleConnectionLayerActive
+			layoutTarget={layoutTarget}
+			outline={outline}
+		/>
+	);
+};
+
+const SelectedOutlineUvHandleCircleLayerActive: React.FC<{
+	readonly layoutTarget: SelectedOutlineLayoutTarget;
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
 		interaction?: TimelineSelectionInteraction,
 	) => void;
 	readonly outline: SelectedOutline;
-	readonly target: UvTarget | undefined;
-}> = ({onDraggingChange, onSelect, outline, target}) => {
+}> = ({layoutTarget, onDraggingChange, onSelect, outline}) => {
+	const target = useSelectedOutlineUvTarget(layoutTarget);
 	const ellipseControls = useMemo(
 		() =>
 			getUvEllipseInteractiveControls({
-				handles: target?.uvHandles ?? [],
+				handles: target.uvHandles,
 				dimensions: outline.dimensions,
 				points: outline.points,
 			}),
-		[outline.dimensions, outline.points, target?.uvHandles],
+		[outline.dimensions, outline.points, target.uvHandles],
 	);
 
-	if (!target?.containsSelection || target.uvHandles.length === 0) {
+	if (!target.containsSelection || target.uvHandles.length === 0) {
 		return null;
 	}
 
@@ -1117,5 +1184,28 @@ export const SelectedOutlineUvHandleCircleLayer: React.FC<{
 				/>
 			))}
 		</>
+	);
+};
+
+export const SelectedOutlineUvHandleCircleLayer: React.FC<{
+	readonly layoutTarget: SelectedOutlineLayoutTarget | undefined;
+	readonly onDraggingChange: (dragging: boolean) => void;
+	readonly onSelect: (
+		item: TimelineSelection,
+		interaction?: TimelineSelectionInteraction,
+	) => void;
+	readonly outline: SelectedOutline;
+}> = ({layoutTarget, onDraggingChange, onSelect, outline}) => {
+	if (layoutTarget?.selectedForUvHandles !== true) {
+		return null;
+	}
+
+	return (
+		<SelectedOutlineUvHandleCircleLayerActive
+			layoutTarget={layoutTarget}
+			onDraggingChange={onDraggingChange}
+			onSelect={onSelect}
+			outline={outline}
+		/>
 	);
 };

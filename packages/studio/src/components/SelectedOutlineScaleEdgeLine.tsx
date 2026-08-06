@@ -40,7 +40,7 @@ import type {
 } from './Timeline/TimelineSelection';
 
 export const SelectedOutlineScaleEdgeLine: React.FC<{
-	readonly allScaleDragTargets: readonly SelectedOutlineScaleDragTarget[];
+	readonly getAllScaleDragTargets: () => readonly SelectedOutlineScaleDragTarget[];
 	readonly dragging: boolean;
 	readonly edge: SelectedOutlineScaleEdge;
 	readonly outline: SelectedOutline;
@@ -53,7 +53,7 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 	) => void;
 	readonly target: SelectedOutlineTarget | undefined;
 }> = ({
-	allScaleDragTargets,
+	getAllScaleDragTargets,
 	dragging,
 	edge,
 	outline,
@@ -103,7 +103,7 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 
 			const startPointer = {x: event.clientX, y: event.clientY};
 			const dragStates = getSelectedOutlineScaleDragStates({
-				dragTargets: selected ? allScaleDragTargets : [scaleDrag],
+				dragTargets: selected ? getAllScaleDragTargets() : [scaleDrag],
 				getDragOverrides,
 				timelinePosition: getCurrentFrame(),
 			});
@@ -247,8 +247,8 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 			});
 		},
 		[
-			allScaleDragTargets,
 			clearDragOverrides,
+			getAllScaleDragTargets,
 			edgeInfo,
 			getDragOverrides,
 			onDraggingChange,

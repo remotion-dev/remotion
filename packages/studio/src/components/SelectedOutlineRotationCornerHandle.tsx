@@ -46,7 +46,7 @@ import type {
 } from './Timeline/TimelineSelection';
 
 export const SelectedOutlineRotationCornerHandle: React.FC<{
-	readonly allRotationDragTargets: readonly SelectedOutlineRotationDragTarget[];
+	readonly getAllRotationDragTargets: () => readonly SelectedOutlineRotationDragTarget[];
 	readonly corner: SelectedOutlineRotationCorner;
 	readonly dragging: boolean;
 	readonly outline: SelectedOutline;
@@ -59,7 +59,7 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 	) => void;
 	readonly target: SelectedOutlineTarget | undefined;
 }> = ({
-	allRotationDragTargets,
+	getAllRotationDragTargets,
 	corner,
 	dragging,
 	outline,
@@ -126,7 +126,7 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 				svgRect,
 			);
 			const dragStates = getSelectedOutlineRotationDragStates({
-				dragTargets: selected ? allRotationDragTargets : [rotationDrag],
+				dragTargets: selected ? getAllRotationDragTargets() : [rotationDrag],
 				getDragOverrides,
 				timelinePosition: getCurrentFrame(),
 			});
@@ -309,11 +309,11 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 			window.addEventListener('keyup', onKeyChange);
 		},
 		[
-			allRotationDragTargets,
 			clearDragOverrides,
 			cornerInfo,
 			editorSnapping,
 			getDragOverrides,
+			getAllRotationDragTargets,
 			onDraggingChange,
 			outline.dimensions,
 			outline.points,
