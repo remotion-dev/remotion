@@ -69,6 +69,10 @@ import {
 } from './effects/ZigzagLinearBlurShowcase';
 import {EmailSignature} from './EmailSignature';
 import {CodingPrompt, codingPromptSchema} from './HomepageAssets/CodingPrompt';
+import {
+	ExpertsGraphic,
+	expertsGraphicDurationInFrames,
+} from './HomepageAssets/ExpertsGraphic';
 import {FolderTreeComposition} from './HomepageAssets/FolderTree';
 import {LicenseQuestionsGraphic} from './HomepageAssets/LicenseQuestionsGraphic';
 import {Map} from './HomepageAssets/Map';
@@ -257,6 +261,14 @@ export const RemotionRoot: React.FC = () => {
 			</Folder>
 			<SvgLogoCompositions />
 			<Folder name="homepage-assets">
+				<Composition
+					id="ExpertsGraphic"
+					component={ExpertsGraphic}
+					durationInFrames={expertsGraphicDurationInFrames}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
 				<Composition
 					id="LicenseQuestionsGraphic"
 					component={LicenseQuestionsGraphic}

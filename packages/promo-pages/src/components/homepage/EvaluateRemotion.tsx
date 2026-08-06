@@ -1,27 +1,16 @@
-import React, {useEffect, useState} from 'react';
-import {experts} from '../experts';
+import React from 'react';
 import {MakeVideosLinks} from './MakeVideosLinks';
 import {useTransparentVideoSource} from './use-transparent-video-source';
 
 const EvaluateRemotionSection: React.FC = () => {
-	const [dailyAvatars, setDailyAvatars] = useState<string[]>([]);
 	const licenseVideoSrc = useTransparentVideoSource({
 		fallbackVideoSrc: '/img/license-questions.mp4',
 		videoSrc: '/img/license-questions.webm',
 	});
-
-	useEffect(() => {
-		const avatars = experts.map((expert) => expert.image);
-
-		const selectedAvatars: string[] = [];
-		for (let i = 0; i < 3; i++) {
-			const index = Math.floor(Math.random() * avatars.length);
-			selectedAvatars.push(avatars[index]);
-			avatars.splice(index, 1); // Remove selected avatar to avoid duplicates
-		}
-
-		setDailyAvatars(selectedAvatars);
-	}, []);
+	const expertsVideoSrc = useTransparentVideoSource({
+		fallbackVideoSrc: '/img/experts-graphic.mp4',
+		videoSrc: '/img/experts-graphic.webm',
+	});
 
 	return (
 		<>
@@ -64,13 +53,17 @@ const EvaluateRemotionSection: React.FC = () => {
 			</div>
 			<div className="flex min-w-0 basis-0 flex-1 flex-col">
 				<div className="flex aspect-square w-full items-center justify-center pl-5">
-					{dailyAvatars.map((avatar) => (
-						<div
-							key={avatar}
-							className="border-effect bg-muted -ml-5 h-24 w-24 rounded-full bg-cover bg-center"
-							style={{backgroundImage: `url(${avatar})`}}
+					{expertsVideoSrc ? (
+						<video
+							src={expertsVideoSrc}
+							muted
+							autoPlay
+							playsInline
+							loop
+							preload="metadata"
+							className="relative max-h-full max-w-full cursor-default! object-contain"
 						/>
-					))}
+					) : null}
 				</div>
 				<div className="font-brand">
 					<h2 className="text-2xl fontbrand leading-[1.1] font-medium">

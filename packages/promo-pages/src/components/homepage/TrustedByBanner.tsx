@@ -124,12 +124,13 @@ const TrustedByBanner = () => {
 			),
 		},
 	];
+	const orderedLogos = [logos[3], logos[1], logos[2], logos[0]];
 
 	return (
 		<div className="flex min-w-0 basis-0 flex-1 flex-col">
-			<div className="flex aspect-square w-full items-center justify-center">
-				<div className="grid w-full max-w-[260px] grid-cols-2 place-items-center gap-x-8 gap-y-12">
-					{logos.map((logo) => (
+			<div className="flex aspect-square w-full items-center justify-start">
+				<div className="grid w-full max-w-[260px] translate-y-8 grid-cols-2 gap-x-8 gap-y-12">
+					{orderedLogos.map((logo) => (
 						<a
 							key={logo.id}
 							aria-label={logo.label}
