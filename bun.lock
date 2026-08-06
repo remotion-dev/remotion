@@ -377,9 +377,12 @@
         "tailwindcss-animate": "1.0.7",
       },
       "devDependencies": {
+        "@happy-dom/global-registrator": "14.5.1",
         "@remix-run/dev": "2.17.4",
         "@remotion/eslint-config-internal": "workspace:*",
         "@tailwindcss/postcss": "4.2.0",
+        "@testing-library/dom": "10.4.0",
+        "@testing-library/react": "16.1.0",
         "@types/dom-webcodecs": "catalog:",
         "eslint": "catalog:",
         "postcss": "8.5.23",

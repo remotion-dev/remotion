@@ -24,6 +24,7 @@ export const ConvertProgress: React.FC<{
 	readonly bars: number[];
 	readonly startTime?: number;
 	readonly completedTime?: number;
+	readonly draggableFile: File | null;
 }> = ({
 	state,
 	newName,
@@ -33,6 +34,7 @@ export const ConvertProgress: React.FC<{
 	duration,
 	startTime,
 	completedTime,
+	draggableFile,
 }) => {
 	const progress = done ? 1 : state.overallProgress;
 
@@ -51,6 +53,7 @@ export const ConvertProgress: React.FC<{
 						userRotation={0}
 						mirrorHorizontal={false}
 						mirrorVertical={false}
+						draggableFile={done ? draggableFile : null}
 					/>
 					{duration ? (
 						<>
