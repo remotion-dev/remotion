@@ -81,7 +81,7 @@ import {
 	useTimelineSelection,
 } from './TimelineSelection';
 import {TimelineSequenceName} from './TimelineSequenceName';
-import {useOpenSequenceInEditor} from './use-open-sequence-in-editor';
+import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
 import {useRenameSequence} from './use-rename-sequence';
 import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
 import {useTimelineSequenceHasExpandableContent} from './use-timeline-expanded-tree';
@@ -316,8 +316,15 @@ const TimelineSequenceItemInner: React.FC<{
 	const [sequenceDropRejection, setSequenceDropRejection] = useState<
 		string | null
 	>(null);
-	const {canOpenInEditor, editorInfo, openInEditor, originalLocation} =
-		useOpenSequenceInEditor(sequence);
+	const {
+		canOpenInEditor,
+		canConfigureApps,
+		codingAgentInfo,
+		editorInfo,
+		openInCodingAgent,
+		openInEditor,
+		originalLocation,
+	} = useOpenSequenceInApps(sequence);
 	const fileLocation = useMemo(
 		() =>
 			formatFileLocation({
@@ -993,6 +1000,7 @@ const TimelineSequenceItemInner: React.FC<{
 		return getSequenceContextMenuItems({
 			assetLinkInfo: mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null,
 			canOpenInEditor,
+			codingAgentInfo,
 			deleteDisabled,
 			disableInteractivityDisabled,
 			duplicateDisabled,
@@ -1000,9 +1008,20 @@ const TimelineSequenceItemInner: React.FC<{
 			fileLocation,
 			includeSourceEditItems: isStudioInteractivityEnabled(),
 			isProgrammaticallyDuplicated,
+			onConfigureApps: canConfigureApps
+				? () => {
+						setSelectedModal({
+							type: 'settings',
+							initialTab: 'apps',
+							initialPublicLicenseKey:
+								window.remotion_renderDefaults?.publicLicenseKey ?? null,
+						});
+					}
+				: null,
 			onDeleteSequenceFromSource,
 			onDisableSequenceInteractivity,
 			onDuplicateSequenceFromSource,
+			openInCodingAgent,
 			openInEditor,
 			originalLocation,
 			selectAsset,
@@ -1066,8 +1085,10 @@ const TimelineSequenceItemInner: React.FC<{
 	}, [
 		canAddEffect,
 		canCrop,
+		canConfigureApps,
 		canOpenInEditor,
 		canRenameThisSequence,
+		codingAgentInfo,
 		deleteDisabled,
 		disableInteractivityDisabled,
 		duplicateDisabled,
@@ -1084,6 +1105,7 @@ const TimelineSequenceItemInner: React.FC<{
 		onDuplicateSequenceFromSource,
 		onRenameSequence,
 		onSelect,
+		openInCodingAgent,
 		openInEditor,
 		originalLocation,
 		previewInteractive,
@@ -1093,6 +1115,7 @@ const TimelineSequenceItemInner: React.FC<{
 		selectable,
 		sequence,
 		sequenceFrameOffset,
+		setSelectedModal,
 		setPropStatuses,
 		validatedLocation?.source,
 	]);

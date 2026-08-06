@@ -13,7 +13,10 @@ import {formatFileLocation} from '../helpers/format-file-location';
 import {getConnectedCompositions} from '../helpers/get-connected-compositions';
 import {getSequenceDoubleClickAction} from '../helpers/get-sequence-double-click-action';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
-import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
+import {
+	openInCodingAgent as launchCodingAgent,
+	openOriginalPositionInEditor,
+} from '../helpers/open-in-editor';
 import {startPointerSession} from '../helpers/pointer-session';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {SetSelectedModalContext} from '../state/modals';
@@ -116,6 +119,11 @@ import {
 	parsedTransformOriginToUv,
 	serializeTransformOrigin,
 } from './Timeline/transform-origin-utils';
+import {
+	canUseEditorPicker,
+	useDefaultCodingAgentInfo,
+	useDefaultEditorInfo,
+} from './use-default-editor-info';
 import {useSelectAsset} from './use-select-asset';
 
 export const SelectedOutlineTransformOriginHandle: React.FC<{
@@ -1487,6 +1495,11 @@ export const SelectedOutlineElement: React.FC<{
 	target,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const canConfigureApps = canUseEditorPicker(
+		previewServerState.type === 'connected',
+	);
+	const editorInfo = useDefaultEditorInfo(canConfigureApps);
+	const codingAgentInfo = useDefaultCodingAgentInfo(canConfigureApps);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const updateResolvedStackTrace = useContext(
 		Internals.SequenceStackTracesUpdateContext,
@@ -1611,13 +1624,24 @@ export const SelectedOutlineElement: React.FC<{
 		return getSequenceContextMenuItems({
 			assetLinkInfo,
 			canOpenInEditor,
+			codingAgentInfo,
 			deleteDisabled: sourceEditDisabled,
 			disableInteractivityDisabled,
 			duplicateDisabled: sourceEditDisabled || isProgrammaticallyDuplicated,
-			editorInfo: null,
+			editorInfo,
 			fileLocation,
 			includeSourceEditItems: sourceEditingEnabled,
 			isProgrammaticallyDuplicated,
+			onConfigureApps: canConfigureApps
+				? () => {
+						setSelectedModal({
+							type: 'settings',
+							initialTab: 'apps',
+							initialPublicLicenseKey:
+								window.remotion_renderDefaults?.publicLicenseKey ?? null,
+						});
+					}
+				: null,
 			onDeleteSequenceFromSource: async () => {
 				if (sourceEditDisabled || previewServerState.type !== 'connected') {
 					return;
@@ -1677,14 +1701,27 @@ export const SelectedOutlineElement: React.FC<{
 					() => undefined,
 				);
 			},
-			openInEditor: () => {
+			openInCodingAgent: (codingAgentId, codingAgentName) => {
+				launchCodingAgent(codingAgentId, null)
+					.then((response) => {
+						if (!response.success) {
+							showNotification(`Could not open ${codingAgentName}`, 2000);
+						}
+					})
+					.catch((err) => {
+						showNotification((err as Error).message, 2000);
+					});
+			},
+			openInEditor: (editorId) => {
 				if (!originalLocation) {
 					return;
 				}
 
-				openOriginalPositionInEditor(originalLocation, null).catch((err) => {
-					showNotification((err as Error).message, 2000);
-				});
+				openOriginalPositionInEditor(originalLocation, editorId).catch(
+					(err) => {
+						showNotification((err as Error).message, 2000);
+					},
+				);
 			},
 			originalLocation,
 			selectAsset,
@@ -1757,7 +1794,10 @@ export const SelectedOutlineElement: React.FC<{
 				: [],
 		});
 	}, [
+		canConfigureApps,
+		codingAgentInfo,
 		confirm,
+		editorInfo,
 		onSelect,
 		previewServerState,
 		resolveOriginalLocation,

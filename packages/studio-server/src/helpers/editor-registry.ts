@@ -73,7 +73,7 @@ const editorDefinitions = {
 	vscode: {
 		darwin: [
 			{
-				name: 'VS Code',
+				name: 'Code',
 				bundleIdentifiers: ['com.microsoft.VSCode'],
 				applicationNames: ['Visual Studio Code.app'],
 				executable: 'Contents/Resources/app/bin/code',
@@ -89,7 +89,7 @@ const editorDefinitions = {
 		],
 		linux: [
 			{
-				name: 'VS Code',
+				name: 'Code',
 				paths: () => [
 					'/usr/share/code/bin/code',
 					'/snap/bin/code',
@@ -110,7 +110,7 @@ const editorDefinitions = {
 		],
 		win32: [
 			{
-				name: 'VS Code',
+				name: 'Code',
 				paths: (context) =>
 					getWindowsEnvironmentPaths(context, [
 						'Microsoft VS Code',
@@ -132,7 +132,7 @@ const editorDefinitions = {
 	cursor: {
 		darwin: [
 			{
-				name: 'Cursor',
+				name: 'Cursor Editor',
 				bundleIdentifiers: ['com.todesktop.230313mzl4w4u92'],
 				applicationNames: ['Cursor.app'],
 				executable: 'Contents/Resources/app/bin/cursor',
@@ -141,7 +141,7 @@ const editorDefinitions = {
 		],
 		linux: [
 			{
-				name: 'Cursor',
+				name: 'Cursor Editor',
 				paths: (context) => [
 					'/usr/bin/cursor',
 					'/usr/local/bin/cursor',
@@ -152,7 +152,7 @@ const editorDefinitions = {
 		],
 		win32: [
 			{
-				name: 'Cursor',
+				name: 'Cursor Editor',
 				paths: (context) =>
 					getWindowsEnvironmentPaths(context, ['cursor', 'Cursor.exe']),
 				commands: ['Cursor.exe', 'cursor.cmd'],

@@ -58,7 +58,7 @@ test('discovers installed macOS editors by bundle ID without running them', asyn
 		{
 			command: 'cursor',
 			id: 'cursor',
-			name: 'Cursor',
+			name: 'Cursor Editor',
 			process: cursorExecutable,
 		},
 	]);
@@ -112,7 +112,7 @@ test('uses the configured installed editor instead of legacy detection', async (
 	const cursor: InstalledEditor = {
 		command: '/usr/bin/cursor',
 		id: 'cursor',
-		name: 'Cursor',
+		name: 'Cursor Editor',
 		process: '/usr/bin/cursor',
 	};
 	let legacyDetectionCalls = 0;
@@ -136,13 +136,13 @@ test('uses the editor selected by the picker without changing the default', asyn
 	const vscode: InstalledEditor = {
 		command: '/usr/bin/code',
 		id: 'vscode',
-		name: 'VS Code',
+		name: 'Code',
 		process: '/usr/bin/code',
 	};
 	const cursor: InstalledEditor = {
 		command: '/usr/bin/cursor',
 		id: 'cursor',
-		name: 'Cursor',
+		name: 'Cursor Editor',
 		process: '/usr/bin/cursor',
 	};
 	let legacyDetectionCalls = 0;
@@ -243,7 +243,7 @@ test('warns and falls back when a custom editor executable is unavailable', asyn
 		},
 	);
 
-	expect(resolved?.name).toBe('VS Code');
+	expect(resolved?.name).toBe('Code');
 	expect(warnings).toEqual([
 		'The executable for custom editor Acme Editor (/missing/acme) was not found or is not executable. Falling back to automatic editor detection.',
 	]);
@@ -272,7 +272,7 @@ test('warns once and falls back when the configured editor is unavailable', asyn
 	expect(first).toEqual({
 		command: 'code',
 		id: null,
-		name: 'VS Code',
+		name: 'Code',
 		process: 'code',
 		type: 'built-in',
 	});

@@ -1,11 +1,12 @@
+import type {DefaultCodingAgent} from '@remotion/renderer';
 import type {
 	EditorPickerId,
+	GetDefaultCodingAgentInfoResponse,
 	GetDefaultEditorInfoResponse,
 } from '@remotion/studio-shared';
-import {createElement} from 'react';
 import type {ResolvedStackLocation, TSequence} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {EditorIcon} from '../../icons/editor';
+import {getOpenInMenuItems} from '../get-open-in-menu-items';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import type {TimelineAssetLinkInfo} from './timeline-asset-link';
@@ -43,10 +44,13 @@ export const getSequenceContextMenuItems = ({
 	isProgrammaticallyDuplicated,
 	fileLocation,
 	includeSourceEditItems,
+	codingAgentInfo,
 	editorInfo,
+	onConfigureApps,
 	onDeleteSequenceFromSource,
 	onDisableSequenceInteractivity,
 	onDuplicateSequenceFromSource,
+	openInCodingAgent,
 	openInEditor,
 	originalLocation,
 	selectAsset,
@@ -61,10 +65,16 @@ export const getSequenceContextMenuItems = ({
 	readonly isProgrammaticallyDuplicated: boolean;
 	readonly fileLocation: string | null;
 	readonly includeSourceEditItems: boolean;
+	readonly codingAgentInfo: GetDefaultCodingAgentInfoResponse | null;
 	readonly editorInfo: GetDefaultEditorInfoResponse | null;
+	readonly onConfigureApps: (() => void) | null;
 	readonly onDeleteSequenceFromSource: () => void;
 	readonly onDisableSequenceInteractivity: () => void;
 	readonly onDuplicateSequenceFromSource: () => void;
+	readonly openInCodingAgent: (
+		codingAgentId: DefaultCodingAgent,
+		codingAgentName: string,
+	) => void;
 	readonly openInEditor: (editorId: EditorPickerId | null) => void;
 	readonly originalLocation: ResolvedStackLocation | null;
 	readonly selectAsset: (src: string) => void;
@@ -76,6 +86,23 @@ export const getSequenceContextMenuItems = ({
 	const isInteractiveSvg =
 		sequence.controls?.componentIdentity === interactiveSvgComponentIdentity;
 	const installedEditors = editorInfo?.installedEditors ?? [];
+	const defaultEditorId =
+		installedEditors.find((editor) => editor.name === editorName)?.id ?? null;
+	const defaultCodingAgent = codingAgentInfo?.installedCodingAgents.find(
+		(codingAgent) => codingAgent.id === codingAgentInfo.defaultCodingAgent,
+	);
+	const openInMenuItems = onConfigureApps
+		? getOpenInMenuItems({
+				codingAgentInfo,
+				editorDisabled: !canOpenInEditor || !originalLocation,
+				editorInfo,
+				excludeCodingAgentId: defaultCodingAgent?.id ?? null,
+				excludeEditorId: defaultEditorId,
+				onConfigureApps,
+				onOpenInCodingAgent: openInCodingAgent,
+				onOpenInEditor: openInEditor,
+			})
+		: [];
 
 	const items = [
 		editorName
@@ -92,36 +119,37 @@ export const getSequenceContextMenuItems = ({
 					value: 'open-in-editor',
 				}
 			: null,
-		editorName && installedEditors.length > 0
+		defaultCodingAgent
 			? {
 					type: 'item' as const,
-					id: 'open-in-another-editor',
+					id: 'open-in-default-coding-agent',
+					keyHint: null,
+					label: `Open in ${defaultCodingAgent.name}`,
+					leftItem: null,
+					disabled: false,
+					onClick: () =>
+						openInCodingAgent(defaultCodingAgent.id, defaultCodingAgent.name),
+					quickSwitcherLabel: null,
+					subMenu: null,
+					value: 'open-in-default-coding-agent',
+				}
+			: null,
+		onConfigureApps
+			? {
+					type: 'item' as const,
+					id: 'open-in-another-app',
 					keyHint: null,
 					label: 'Open in...',
 					leftItem: null,
-					disabled: !canOpenInEditor || !originalLocation,
+					disabled: false,
 					onClick: () => undefined,
 					quickSwitcherLabel: null,
 					subMenu: {
-						items: installedEditors.map((editor) => ({
-							type: 'item' as const,
-							id: `open-in-${editor.id}`,
-							keyHint: null,
-							label: editor.name,
-							leftItem: createElement(EditorIcon, {
-								editorId: editor.id,
-								size: 18,
-							}),
-							disabled: false,
-							onClick: () => openInEditor(editor.id),
-							quickSwitcherLabel: null,
-							subMenu: null,
-							value: editor.id,
-						})),
+						items: openInMenuItems,
 						leaveLeftSpace: true,
 						preselectIndex: false as const,
 					},
-					value: 'open-in-another-editor',
+					value: 'open-in-another-app',
 				}
 			: null,
 		{

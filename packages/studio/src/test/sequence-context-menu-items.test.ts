@@ -77,6 +77,7 @@ test('sequence context menu does not put two dividers between docs and rename', 
 	const items = getSequenceContextMenuItems({
 		assetLinkInfo: null,
 		canOpenInEditor: false,
+		codingAgentInfo: null,
 		deleteDisabled: false,
 		disableInteractivityDisabled: false,
 		duplicateDisabled: false,
@@ -84,9 +85,11 @@ test('sequence context menu does not put two dividers between docs and rename', 
 		fileLocation: 'src/Video.tsx:10:2',
 		includeSourceEditItems: true,
 		isProgrammaticallyDuplicated: false,
+		onConfigureApps: null,
 		onDeleteSequenceFromSource: noop,
 		onDisableSequenceInteractivity: noop,
 		onDuplicateSequenceFromSource: noop,
+		openInCodingAgent: noop,
 		openInEditor: noop,
 		originalLocation: null,
 		selectAsset: noop,
@@ -108,6 +111,95 @@ test('sequence context menu does not put two dividers between docs and rename', 
 	).toEqual(['divider']);
 });
 
+test('sequence context menu shares alternate apps without repeating defaults', () => {
+	installTestWindow();
+	window.remotion_editorName = 'Cursor Editor';
+
+	const openedEditors: Array<string | null> = [];
+	const openedCodingAgents: string[] = [];
+	let configured = false;
+	const items = getSequenceContextMenuItems({
+		assetLinkInfo: null,
+		canOpenInEditor: true,
+		codingAgentInfo: {
+			defaultCodingAgent: 'codex',
+			installedCodingAgents: [
+				{id: 'codex', name: 'Codex', iconDataUrl: null},
+				{id: 'claude-code', name: 'Claude Code', iconDataUrl: null},
+			],
+		},
+		deleteDisabled: false,
+		disableInteractivityDisabled: false,
+		duplicateDisabled: false,
+		editorInfo: {
+			defaultEditor: 'cursor',
+			installedEditors: [
+				{id: 'cursor', name: 'Cursor Editor'},
+				{id: 'vscode', name: 'Code'},
+			],
+		},
+		fileLocation: 'src/Video.tsx:10:2',
+		includeSourceEditItems: false,
+		isProgrammaticallyDuplicated: false,
+		onConfigureApps: () => {
+			configured = true;
+		},
+		onDeleteSequenceFromSource: noop,
+		onDisableSequenceInteractivity: noop,
+		onDuplicateSequenceFromSource: noop,
+		openInCodingAgent: (codingAgentId) => {
+			openedCodingAgents.push(codingAgentId);
+		},
+		openInEditor: (editorId) => {
+			openedEditors.push(editorId);
+		},
+		originalLocation: {
+			column: 2,
+			line: 10,
+			source: 'src/Video.tsx',
+		},
+		selectAsset: noop,
+		sequence: {} as TSequence,
+	});
+
+	expect(items.slice(0, 3).map((item) => item.id)).toEqual([
+		'open-in-editor',
+		'open-in-default-coding-agent',
+		'open-in-another-app',
+	]);
+	const openIn = items.find((item) => item.id === 'open-in-another-app');
+	if (openIn?.type !== 'item' || openIn.subMenu === null) {
+		throw new Error('Expected Open in submenu');
+	}
+
+	const submenuIds = openIn.subMenu.items.map((item) => item.id);
+	expect(submenuIds).toContain('open-in-vscode');
+	expect(submenuIds).toContain('open-in-coding-agent-claude-code');
+	expect(submenuIds).toContain('change-default-apps');
+	expect(submenuIds).not.toContain('open-in-cursor');
+	expect(submenuIds).not.toContain('open-in-coding-agent-codex');
+
+	const defaultAgent = items.find(
+		(item) => item.id === 'open-in-default-coding-agent',
+	);
+	if (defaultAgent?.type !== 'item') {
+		throw new Error('Expected default coding agent item');
+	}
+
+	defaultAgent.onClick('open-in-default-coding-agent', null);
+	const configure = openIn.subMenu.items.find(
+		(item) => item.id === 'change-default-apps',
+	);
+	if (configure?.type !== 'item') {
+		throw new Error('Expected configure apps item');
+	}
+
+	configure.onClick('change-default-apps', null);
+	expect(openedEditors).toEqual([]);
+	expect(openedCodingAgents).toEqual(['codex']);
+	expect(configured).toBe(true);
+});
+
 test('Interactive.Svg context menu can copy the rendered SVG', () => {
 	installTestWindow();
 
@@ -127,6 +219,7 @@ test('Interactive.Svg context menu can copy the rendered SVG', () => {
 	const items = getSequenceContextMenuItems({
 		assetLinkInfo: null,
 		canOpenInEditor: false,
+		codingAgentInfo: null,
 		deleteDisabled: false,
 		disableInteractivityDisabled: false,
 		duplicateDisabled: false,
@@ -134,9 +227,11 @@ test('Interactive.Svg context menu can copy the rendered SVG', () => {
 		fileLocation: 'src/Video.tsx:10:2',
 		includeSourceEditItems: true,
 		isProgrammaticallyDuplicated: false,
+		onConfigureApps: null,
 		onDeleteSequenceFromSource: noop,
 		onDisableSequenceInteractivity: noop,
 		onDuplicateSequenceFromSource: noop,
+		openInCodingAgent: noop,
 		openInEditor: noop,
 		originalLocation: null,
 		selectAsset: noop,
@@ -175,6 +270,7 @@ test('programmatically duplicated sequence menus apply actions to all instances'
 	const items = getSequenceContextMenuItems({
 		assetLinkInfo: null,
 		canOpenInEditor: false,
+		codingAgentInfo: null,
 		deleteDisabled: false,
 		disableInteractivityDisabled: false,
 		duplicateDisabled: false,
@@ -182,9 +278,11 @@ test('programmatically duplicated sequence menus apply actions to all instances'
 		fileLocation: 'src/Video.tsx:10:2',
 		includeSourceEditItems: true,
 		isProgrammaticallyDuplicated: true,
+		onConfigureApps: null,
 		onDeleteSequenceFromSource: noop,
 		onDisableSequenceInteractivity: noop,
 		onDuplicateSequenceFromSource: noop,
+		openInCodingAgent: noop,
 		openInEditor: noop,
 		originalLocation: null,
 		selectAsset: noop,
@@ -207,6 +305,7 @@ test('read-only sequence menus only contain non-mutating actions', () => {
 	const items = getSequenceContextMenuItems({
 		assetLinkInfo: null,
 		canOpenInEditor: false,
+		codingAgentInfo: null,
 		deleteDisabled: true,
 		disableInteractivityDisabled: true,
 		duplicateDisabled: true,
@@ -214,9 +313,11 @@ test('read-only sequence menus only contain non-mutating actions', () => {
 		fileLocation: 'src/Video.tsx:10:2',
 		includeSourceEditItems: false,
 		isProgrammaticallyDuplicated: false,
+		onConfigureApps: null,
 		onDeleteSequenceFromSource: noop,
 		onDisableSequenceInteractivity: noop,
 		onDuplicateSequenceFromSource: noop,
+		openInCodingAgent: noop,
 		openInEditor: noop,
 		originalLocation: null,
 		selectAsset: noop,

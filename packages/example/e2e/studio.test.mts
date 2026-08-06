@@ -164,8 +164,8 @@ test.describe('visual mode', () => {
 					data: {
 						defaultEditor: null,
 						installedEditors: [
-							{id: 'vscode', name: 'VS Code'},
-							{id: 'cursor', name: 'Cursor'},
+							{id: 'vscode', name: 'Code'},
+							{id: 'cursor', name: 'Cursor Editor'},
 						],
 					},
 				},
@@ -211,7 +211,7 @@ test.describe('visual mode', () => {
 			const dialog = page.getByRole('dialog');
 			await expect(
 				dialog.getByTitle('Default editor', {exact: true}),
-			).toContainText('Cursor');
+			).toContainText('Cursor Editor');
 			await expect(
 				dialog.getByTitle('Default coding agent', {exact: true}),
 			).toContainText('Codex');
@@ -294,6 +294,51 @@ test.describe('visual mode', () => {
 				.locator('.__remotion-studio-menu-item')
 				.filter({hasText: 'Delete all'}),
 		).toBeVisible();
+	});
+
+	test('should activate items in portaled context-menu submenus', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
+		const firstGridline = page.getByText('0% gridline', {exact: true});
+		await expect(firstGridline).toBeVisible({timeout: 15_000});
+
+		await page
+			.locator('[data-timeline-marquee-item][title="0% gridline"]')
+			.click({button: 'right'});
+		await page.getByRole('button', {name: 'Open in...', exact: true}).click();
+		await page
+			.getByRole('button', {name: 'Change default apps...', exact: true})
+			.click();
+
+		const settings = page.getByRole('dialog');
+		await expect(settings.getByText('Apps', {exact: true})).toBeVisible();
+		await expect(
+			settings.getByTitle('Default editor', {exact: true}),
+		).toBeVisible();
+	});
+
+	test('should dismiss an overflow menu tree with one outside click', async ({
+		page,
+	}) => {
+		await page.setViewportSize({width: 800, height: 904});
+		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
+		await expect(page.getByText('0% gridline', {exact: true})).toBeVisible({
+			timeout: 15_000,
+		});
+
+		await page.getByRole('button', {name: 'More actions'}).click();
+		await page
+			.getByRole('button', {name: 'Playback Rate', exact: true})
+			.click();
+		await expect(
+			page.getByRole('button', {name: '1x', exact: true}),
+		).toBeVisible();
+
+		await page.mouse.click(10, 100);
+		await expect(
+			page.getByRole('button', {name: 'Playback Rate', exact: true}),
+		).toBeHidden();
 	});
 
 	test('should pass the copied inspector prompt to editable coding agents', async ({
