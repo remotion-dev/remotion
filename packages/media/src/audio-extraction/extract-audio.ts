@@ -17,6 +17,7 @@ import {
 	isUnsupportedConfigurationError,
 } from '../is-type-of-error';
 import type {MediaRequestInit} from '../request-init';
+import {makeSerializedQueue} from '../serialized-queue';
 
 type ExtractAudioReturnType = Awaited<ReturnType<typeof extractAudioInternal>>;
 
@@ -219,12 +220,10 @@ const extractAudioInternal = async ({
 	}
 };
 
-let queue = Promise.resolve<ExtractAudioReturnType | undefined>(undefined);
+const enqueue = makeSerializedQueue();
 
 export const extractAudio = (
 	params: ExtractAudioParams,
 ): Promise<ExtractAudioReturnType> => {
-	queue = queue.then(() => extractAudioInternal(params));
-
-	return queue as Promise<ExtractAudioReturnType>;
+	return enqueue(() => extractAudioInternal(params));
 };

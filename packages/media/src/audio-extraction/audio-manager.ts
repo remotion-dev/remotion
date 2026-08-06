@@ -1,6 +1,7 @@
 import type {AudioSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
 import {getTotalCacheStats} from '../caches';
+import {makeSerializedQueue} from '../serialized-queue';
 import type {RememberActualMatroskaTimestamps} from '../video-extraction/remember-actual-matroska-timestamps';
 import type {AudioSampleIterator} from './audio-iterator';
 import {makeAudioIterator} from './audio-iterator';
@@ -164,7 +165,7 @@ export const makeAudioManager = () => {
 		}
 	};
 
-	let queue = Promise.resolve<unknown>(undefined);
+	const enqueue = makeSerializedQueue();
 
 	return {
 		getIterator: ({
@@ -184,7 +185,7 @@ export const makeAudioManager = () => {
 			logLevel: LogLevel;
 			maxCacheSize: number;
 		}) => {
-			queue = queue.then(() =>
+			return enqueue(() =>
 				getIterator({
 					src,
 					timeInSeconds,
@@ -195,7 +196,6 @@ export const makeAudioManager = () => {
 					maxCacheSize,
 				}),
 			);
-			return queue as Promise<AudioSampleIterator>;
 		},
 		getCacheStats,
 		getIteratorMostInThePast,

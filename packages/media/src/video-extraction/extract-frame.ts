@@ -3,6 +3,7 @@ import {keyframeManager} from '../caches';
 import {getSink} from '../get-sink';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import type {MediaRequestInit} from '../request-init';
+import {makeSerializedQueue} from '../serialized-queue';
 
 type ExtractFrameResult =
 	| {
@@ -149,12 +150,10 @@ const extractFrameInternal = async ({
 
 type ExtractFrameReturnType = Awaited<ReturnType<typeof extractFrameInternal>>;
 
-let queue = Promise.resolve<ExtractFrameReturnType | undefined>(undefined);
+const enqueue = makeSerializedQueue();
 
 export const extractFrame = (
 	params: ExtractFrameParams,
 ): Promise<ExtractFrameReturnType> => {
-	queue = queue.then(() => extractFrameInternal(params));
-
-	return queue as Promise<ExtractFrameReturnType>;
+	return enqueue(() => extractFrameInternal(params));
 };
