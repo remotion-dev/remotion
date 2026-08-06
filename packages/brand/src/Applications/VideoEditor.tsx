@@ -31,7 +31,7 @@ export function ApplicationVideoEditor({
 					/>
 				}
 				cornerRadius={30}
-				depth={46}
+				depth={120}
 				height={724}
 				name="Video editor"
 				rotationX={-Math.PI / 24}
@@ -81,105 +81,27 @@ export function ApplicationVideoEditor({
 								>
 									<div
 										style={{
-											background:
-												'linear-gradient(180deg, #91d5f2 0%, #d9edf4 58%, #f0b46e 59%, #d76d4e 100%)',
+											backgroundColor: '#f3f4f6',
+											backgroundImage:
+												'conic-gradient(#d1d5db 25%, transparent 0 50%, #d1d5db 0 75%, transparent 0)',
+											backgroundSize: '32px 32px',
 											inset: 0,
 											position: 'absolute',
 										}}
-									>
-										<div
-											style={{
-												backgroundColor: '#fff4c7',
-												borderRadius: '50%',
-												boxShadow: '0 0 24px #fff4c7',
-												height: 48,
-												position: 'absolute',
-												right: 34,
-												top: 34,
-												width: 48,
-											}}
-										/>
-										<div
-											style={{
-												background: 'linear-gradient(145deg, #356d67, #173f43)',
-												clipPath: 'polygon(0 100%, 44% 14%, 100% 100%)',
-												height: 122,
-												left: -18,
-												position: 'absolute',
-												top: 96,
-												width: 210,
-											}}
-										/>
-										<div
-											style={{
-												background: 'linear-gradient(145deg, #4d8580, #24545a)',
-												clipPath: 'polygon(0 100%, 62% 18%, 100% 100%)',
-												height: 108,
-												position: 'absolute',
-												right: -24,
-												top: 116,
-												width: 180,
-											}}
-										/>
-									</div>
-									<div
-										style={{
-											backgroundColor: 'white',
-											boxShadow: '0 7px 18px rgba(4, 18, 28, 0.28)',
-											padding: 5,
-											position: 'absolute',
-											right: 20,
-											top: 62,
-											transform: 'rotate(4deg)',
-											width: 96,
-										}}
-									>
-										<div
-											style={{
-												background:
-													'linear-gradient(150deg, #f7c76f 0%, #f28872 48%, #7a65b6 49%, #443d78 100%)',
-												height: 72,
-												position: 'relative',
-											}}
-										>
-											<div
-												style={{
-													backgroundColor: '#ffe4a6',
-													borderRadius: '50%',
-													height: 22,
-													left: 12,
-													position: 'absolute',
-													top: 10,
-													width: 22,
-												}}
-											/>
-										</div>
-										<div
-											style={{
-												color: '#39404a',
-												fontSize: 8,
-												fontWeight: 700,
-												letterSpacing: 0.9,
-												padding: '5px 1px 1px',
-											}}
-										>
-											IMAGE
-										</div>
-									</div>
+									/>
 									<div
 										style={{
 											bottom: 32,
-											color: 'white',
+											color: '#374151',
 											fontSize: 30,
 											fontWeight: 700,
 											left: 25,
 											letterSpacing: -1.2,
 											lineHeight: 0.88,
 											position: 'absolute',
-											textShadow: '0 2px 10px rgba(6, 20, 28, 0.4)',
 										}}
 									>
-										<KineticType frame={titleFrame} />
+										<KineticType frame={titleFrame * 1.5} />
 										<div
 											style={{
 												border: '2px solid #0b84f3',
@@ -223,6 +145,7 @@ export function ApplicationVideoEditor({
 										display: 'flex',
 										flexDirection: 'column',
 										gap: 8,
+										height: 85,
 										left: 18,
 										position: 'absolute',
 										right: 18,
@@ -230,7 +153,6 @@ export function ApplicationVideoEditor({
 								>
 									<div
 										style={{
-											backgroundColor: '#252930',
 											borderRadius: 5,
 											height: 23,
 											position: 'relative',
@@ -250,7 +172,6 @@ export function ApplicationVideoEditor({
 									</div>
 									<div
 										style={{
-											backgroundColor: '#252930',
 											borderRadius: 5,
 											height: 23,
 											position: 'relative',
@@ -258,7 +179,7 @@ export function ApplicationVideoEditor({
 									>
 										<div
 											style={{
-												backgroundColor: '#8b5cf6',
+												backgroundColor: '#0b84f3',
 												borderRadius: 4,
 												height: '100%',
 												left: '18%',
@@ -270,28 +191,8 @@ export function ApplicationVideoEditor({
 									</div>
 									<div
 										style={{
-											backgroundColor: '#252930',
-											borderRadius: 5,
-											height: 23,
-											position: 'relative',
-										}}
-									>
-										<div
-											style={{
-												backgroundColor: '#2fbf71',
-												borderRadius: 4,
-												height: '100%',
-												left: '0%',
-												opacity: 0.9,
-												position: 'absolute',
-												width: '84%',
-											}}
-										/>
-									</div>
-									<div
-										style={{
 											bottom: 0,
-											left: `${interpolate(titleFrame, [0, 65], [45, 82], {
+											left: `${interpolate(titleFrame, [0, 65], [5, 82], {
 												extrapolateLeft: 'clamp',
 												extrapolateRight: 'clamp',
 											})}%`,
@@ -342,48 +243,67 @@ export function ApplicationVideoEditor({
 						>
 							<div
 								style={{
-									backgroundColor: '#252930',
-									borderBottom: '1px solid #343942',
 									borderRadius: 8,
-									color: '#f4f6f8',
-									fontSize: 15,
-									padding: '12px 10px',
+									padding: '12px 0',
 								}}
 							>
-								Position
+								<div
+									style={{
+										backgroundColor: '#d1d5db',
+										borderRadius: 999,
+										height: 9,
+										opacity: 0.35,
+										width: '68%',
+									}}
+								/>
 							</div>
 							<div
 								style={{
-									borderBottom: '1px solid #343942',
 									borderRadius: 0,
-									color: '#a6adb8',
-									fontSize: 15,
-									padding: '12px 10px',
+									padding: '12px 0',
 								}}
 							>
-								Typography
+								<div
+									style={{
+										backgroundColor: '#d1d5db',
+										borderRadius: 999,
+										height: 9,
+										opacity: 0.3,
+										width: '82%',
+									}}
+								/>
 							</div>
 							<div
 								style={{
-									borderBottom: '1px solid #343942',
 									borderRadius: 0,
-									color: '#a6adb8',
-									fontSize: 15,
-									padding: '12px 10px',
+									padding: '12px 0',
 								}}
 							>
-								Effects
+								<div
+									style={{
+										backgroundColor: '#d1d5db',
+										borderRadius: 999,
+										height: 9,
+										opacity: 0.3,
+										width: '54%',
+									}}
+								/>
 							</div>
 							<div
 								style={{
-									borderBottom: '1px solid #343942',
 									borderRadius: 0,
-									color: '#a6adb8',
-									fontSize: 15,
-									padding: '12px 10px',
+									padding: '12px 0',
 								}}
 							>
-								Animation
+								<div
+									style={{
+										backgroundColor: '#d1d5db',
+										borderRadius: 999,
+										height: 9,
+										opacity: 0.3,
+										width: '72%',
+									}}
+								/>
 							</div>
 							<div
 								style={{
@@ -396,46 +316,34 @@ export function ApplicationVideoEditor({
 									style={{
 										backgroundColor: '#252930',
 										borderRadius: 7,
-										color: '#a6adb8',
-										fontSize: 12,
+										height: 14,
 										padding: '9px 7px',
 									}}
-								>
-									X 312
-								</div>
+								/>
 								<div
 									style={{
 										backgroundColor: '#252930',
 										borderRadius: 7,
-										color: '#a6adb8',
-										fontSize: 12,
+										height: 14,
 										padding: '9px 7px',
 									}}
-								>
-									Y 148
-								</div>
+								/>
 								<div
 									style={{
 										backgroundColor: '#252930',
 										borderRadius: 7,
-										color: '#a6adb8',
-										fontSize: 12,
+										height: 14,
 										padding: '9px 7px',
 									}}
-								>
-									W 456
-								</div>
+								/>
 								<div
 									style={{
 										backgroundColor: '#252930',
 										borderRadius: 7,
-										color: '#a6adb8',
-										fontSize: 12,
+										height: 14,
 										padding: '9px 7px',
 									}}
-								>
-									H 128
-								</div>
+								/>
 							</div>
 						</div>
 					</div>
