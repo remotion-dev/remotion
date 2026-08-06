@@ -4,6 +4,12 @@ description: Router for all Remotion skills
 version: 4.0.506
 ---
 
+## Preserve user changes
+
+Users may make edits in the code outside of the conversation.
+
+If you detect a surprising change made in the meanwhile, don't overwrite it, assume it was intentional or ask for confirmation.
+
 ## Creating a video
 
 If the user asks to make, create, or build a new video or composition, load [Create a new Remotion video](./remotion-create/SKILL.md), whether or not a Remotion project already exists.
