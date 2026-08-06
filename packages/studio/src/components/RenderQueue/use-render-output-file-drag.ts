@@ -1,3 +1,4 @@
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import type {DragEventHandler} from 'react';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {remotion_outputsBase} from '../../helpers/get-asset-metadata';
@@ -125,6 +126,13 @@ export const useRenderOutputFileDrag = (job: AnyRenderJob) => {
 						event.preventDefault();
 						return;
 					}
+				} else {
+					const dragData = StudioProtocolInternals.makeDragData({
+						type: 'render-output',
+						outputPath: job.outName,
+						fileName: filename,
+					});
+					event.dataTransfer.setData(dragData.mimeType, dragData.payload);
 				}
 
 				event.dataTransfer.setData(

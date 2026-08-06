@@ -1,10 +1,20 @@
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import {useCallback, useEffect, useMemo, useRef} from 'react';
 import {NoReactInternals} from 'remotion/no-react';
 
-export const isFileDragEvent = (event: {
+export const isAssetUploadDragEvent = (event: {
 	readonly dataTransfer: DataTransfer;
 }): boolean => {
-	return Array.from(event.dataTransfer.types).includes('Files');
+	return (
+		Array.from(event.dataTransfer.types).includes('Files') ||
+		StudioProtocolInternals.getDragPreviewMetadata(event.dataTransfer.types)
+			?.type === 'render-output'
+	);
+};
+
+export const getRenderOutputDragData = (dataTransfer: DataTransfer) => {
+	const parsed = StudioProtocolInternals.parseDragData(dataTransfer);
+	return parsed?.type === 'render-output' ? parsed.data : null;
 };
 
 function useAssetDragEvents({
@@ -30,7 +40,7 @@ function useAssetDragEvents({
 
 	const onDragEnter: React.DragEventHandler = useCallback(
 		(event) => {
-			if (!isFileDragEvent(event)) {
+			if (!isAssetUploadDragEvent(event)) {
 				return;
 			}
 
@@ -49,7 +59,7 @@ function useAssetDragEvents({
 
 	const onDragLeave: React.DragEventHandler = useCallback(
 		(event) => {
-			if (!isFileDragEvent(event)) {
+			if (!isAssetUploadDragEvent(event)) {
 				return;
 			}
 

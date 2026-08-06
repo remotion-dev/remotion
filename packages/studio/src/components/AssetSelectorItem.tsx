@@ -30,7 +30,7 @@ import {
 } from '../helpers/sidebar-scroll-into-view';
 import {pushUrl} from '../helpers/url-state';
 import useAssetDragEvents, {
-	isFileDragEvent,
+	isAssetUploadDragEvent,
 } from '../helpers/use-asset-drag-events';
 import {getCachedImageMetadata} from '../helpers/use-image-metadata';
 import {getCachedMediaMetadata} from '../helpers/use-media-metadata';
@@ -295,7 +295,7 @@ const AssetFolderItem: React.FC<{
 				title={item.name}
 				onClick={onClick}
 				onDragEnter={(event) => {
-					if (!isFileDragEvent(event)) {
+					if (!isAssetUploadDragEvent(event)) {
 						return;
 					}
 
@@ -306,7 +306,7 @@ const AssetFolderItem: React.FC<{
 					}
 				}}
 				onDragLeave={(event) => {
-					if (!isFileDragEvent(event)) {
+					if (!isAssetUploadDragEvent(event)) {
 						return;
 					}
 

@@ -14,15 +14,21 @@ test.describe('render output dragging', () => {
 		await stopStudio();
 	});
 
-	test('offers a completed render as a downloadable file drag', async ({
+	test('supports external and Assets-panel dragging for completed renders', async ({
 		page,
 	}) => {
 		const id = 'render-output-drag-e2e';
 		const outName = 'out/render-output-drag-e2e.mp4';
 		const absoluteOutput = path.join(exampleDir, outName);
+		const copiedAsset = path.join(
+			exampleDir,
+			'public',
+			'render-output-drag-e2e.mp4',
+		);
 		const contents = Buffer.from('render-output-drag-e2e');
 		fs.mkdirSync(path.dirname(absoluteOutput), {recursive: true});
 		fs.writeFileSync(absoluteOutput, contents);
+		fs.rmSync(copiedAsset, {force: true});
 		const registeredIds: string[] = [];
 
 		try {
@@ -123,10 +129,18 @@ test.describe('render output dragging', () => {
 				return {
 					accepted,
 					downloadUrl: dataTransfer.getData('DownloadURL'),
+					types: Array.from(dataTransfer.types),
 				};
 			});
 
 			expect(drag.accepted).toBe(true);
+			expect(
+				drag.types.some((type) =>
+					type.startsWith(
+						'application/vnd.remotion.drag+json;v=1;type=render-output',
+					),
+				),
+			).toBe(true);
 			await expect(actionButtons).toHaveCount(0);
 			const prefix = 'application/octet-stream:render-output-drag-e2e.mp4:';
 			expect(drag.downloadUrl.startsWith(prefix)).toBe(true);
@@ -136,6 +150,37 @@ test.describe('render output dragging', () => {
 			expect(Buffer.from(await response.arrayBuffer())).toEqual(contents);
 			await renderItem.dispatchEvent('dragend');
 			await expect(actionButtons).toHaveCount(actionButtonCount);
+
+			await page.getByRole('button', {name: 'Assets', exact: true}).click();
+			const assetSelector = page.locator('[data-asset-selector]');
+			await expect(assetSelector).toBeVisible();
+			await renderItem.evaluate((element) => {
+				const target = document.querySelector('[data-asset-selector]');
+				if (!target) {
+					throw new Error('Asset selector not found');
+				}
+
+				const dataTransfer = new DataTransfer();
+				element.dispatchEvent(
+					new DragEvent('dragstart', {
+						bubbles: true,
+						cancelable: true,
+						dataTransfer,
+					}),
+				);
+				target.dispatchEvent(
+					new DragEvent('drop', {
+						bubbles: true,
+						cancelable: true,
+						dataTransfer,
+					}),
+				);
+			});
+			await expect.poll(() => fs.existsSync(copiedAsset)).toBe(true);
+			expect(fs.readFileSync(copiedAsset)).toEqual(contents);
+			await expect(
+				page.getByText('render-output-drag-e2e.mp4', {exact: true}),
+			).toBeVisible();
 
 			await page.evaluate(() => {
 				Object.defineProperty(navigator, 'userAgent', {
@@ -169,6 +214,7 @@ test.describe('render output dragging', () => {
 				}).catch(() => undefined);
 			}
 			fs.rmSync(absoluteOutput, {force: true});
+			fs.rmSync(copiedAsset, {force: true});
 		}
 	});
 });
