@@ -4,8 +4,25 @@ import {getSafeWindowOfMonotonicity, getTotalCacheStats} from '../caches';
 import {renderTimestampRange} from '../render-timestamp-range';
 import {type KeyframeBank, makeKeyframeBank} from './keyframe-bank';
 
+// A bank that was returned within the last N requests for the same src is
+// treated as belonging to another active playhead (a second <Video> of the
+// same src, mounted at a different timeline position) and is exempt from
+// timestamp-based clearing. Without this, the layer furthest ahead in the
+// file deletes the other layers' banks on every request, forcing each of
+// them to re-seek and re-decode from the previous keyframe for every frame.
+// Memory is still bounded: banks that age out of the window are cleared
+// here as before, and `ensureToStayUnderMaxCacheSize()` evicts
+// least-recently-used banks whenever the cache exceeds its budget.
+const RECENTLY_USED_REQUEST_COUNT = 50;
+
 export const makeKeyframeManager = () => {
 	let sources: Record<string, KeyframeBank[]> = {};
+
+	// How many times a bank has been requested for a given src, and at which
+	// request each bank was last handed out. Used to detect banks that other
+	// concurrently-mounted components are actively reading from.
+	let requestCountForSrc: Record<string, number> = {};
+	const lastRequestForBank = new WeakMap<KeyframeBank, number>();
 
 	const addKeyframeBank = ({src, bank}: {src: string; bank: KeyframeBank}) => {
 		sources[src] = sources[src] ?? [];
@@ -167,10 +184,21 @@ export const makeKeyframeManager = () => {
 		}
 
 		const banks = sources[src];
+		const currentRequest = requestCountForSrc[src] ?? 0;
 
 		for (const bank of banks) {
 			const range = bank.getRangeOfTimestamps();
 			if (!range) {
+				continue;
+			}
+
+			// Don't clear (or trim) a bank another playhead is actively reading
+			// from, even if it lies behind this request's timestamp.
+			const lastRequest = lastRequestForBank.get(bank);
+			if (
+				lastRequest !== undefined &&
+				currentRequest - lastRequest < RECENTLY_USED_REQUEST_COUNT
+			) {
 				continue;
 			}
 
@@ -282,6 +310,8 @@ export const makeKeyframeManager = () => {
 		maxCacheSize: number;
 		fps: number;
 	}) => {
+		requestCountForSrc[src] = (requestCountForSrc[src] ?? 0) + 1;
+
 		ensureToStayUnderMaxCacheSize(logLevel, maxCacheSize);
 
 		clearKeyframeBanksBeforeTime({
@@ -297,6 +327,10 @@ export const makeKeyframeManager = () => {
 			src,
 			logLevel,
 		});
+
+		if (keyframeBank) {
+			lastRequestForBank.set(keyframeBank, requestCountForSrc[src]);
+		}
 
 		return keyframeBank;
 	};
@@ -314,6 +348,7 @@ export const makeKeyframeManager = () => {
 		}
 
 		sources = {};
+		requestCountForSrc = {};
 	};
 
 	let queue = Promise.resolve<unknown>(undefined);
