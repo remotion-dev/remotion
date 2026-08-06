@@ -5,7 +5,9 @@ import type {
 	GetDefaultEditorInfoResponse,
 } from '@remotion/studio-shared';
 import React from 'react';
+import {getFileManagerName} from '../helpers/get-file-manager-name';
 import {EditorIcon} from '../icons/editor';
+import {FinderIcon} from '../icons/finder';
 import {CodingAgentIcon} from './CodingAgentIcon';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 
@@ -22,22 +24,30 @@ export const getOpenInMenuItems = ({
 	editorInfo,
 	excludeCodingAgentId,
 	excludeEditorId,
+	fileManagerDisabled,
 	onConfigureApps,
 	onOpenInCodingAgent,
 	onOpenInEditor,
+	onOpenInFileExplorer,
 }: {
 	readonly codingAgentInfo: GetDefaultCodingAgentInfoResponse | null;
 	readonly editorDisabled: boolean;
 	readonly editorInfo: GetDefaultEditorInfoResponse | null;
 	readonly excludeCodingAgentId: DefaultCodingAgent | null;
 	readonly excludeEditorId: EditorPickerId | null;
+	readonly fileManagerDisabled: boolean;
 	readonly onConfigureApps: () => void;
 	readonly onOpenInCodingAgent: (
 		codingAgentId: DefaultCodingAgent,
 		codingAgentName: string,
 	) => void;
 	readonly onOpenInEditor: (editorId: EditorPickerId) => void;
+	readonly onOpenInFileExplorer: () => void;
 }): ComboboxValue[] => {
+	const showFinder = window.remotion_fileSystemPlatform === 'darwin';
+	const fileManagerName = getFileManagerName(
+		window.remotion_fileSystemPlatform,
+	);
 	const editors: ComboboxValue[] = (editorInfo?.installedEditors ?? [])
 		.filter((editor) => editor.id !== excludeEditorId)
 		.map((editor) => ({
@@ -94,7 +104,35 @@ export const getOpenInMenuItems = ({
 					...codingAgents,
 				]
 			: []),
-		...(editors.length > 0 || codingAgents.length > 0
+		...(showFinder
+			? [
+					...(editors.length > 0 || codingAgents.length > 0
+						? [
+								{
+									type: 'divider' as const,
+									id: 'open-in-file-explorer-divider',
+								},
+							]
+						: []),
+					{
+						disabled: fileManagerDisabled,
+						id: 'open-in-file-explorer',
+						keyHint: null,
+						label: <span style={menuLabel}>{fileManagerName}</span>,
+						leftItem: <FinderIcon />,
+						onClick: () => {
+							if (!fileManagerDisabled) {
+								onOpenInFileExplorer();
+							}
+						},
+						quickSwitcherLabel: null,
+						subMenu: null,
+						type: 'item' as const,
+						value: 'file-explorer',
+					},
+				]
+			: []),
+		...(editors.length > 0 || codingAgents.length > 0 || showFinder
 			? [{type: 'divider' as const, id: 'open-in-settings-divider'}]
 			: []),
 		{
