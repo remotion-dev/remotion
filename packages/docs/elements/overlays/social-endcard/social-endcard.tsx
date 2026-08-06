@@ -285,7 +285,7 @@ const LeftSide = () => {
 	);
 };
 
-export const SocialEndCard = () => {
+export const YouTubeEndCard = () => {
 	return (
 		<AbsoluteFill style={{backgroundColor: '#FAFAFA'}} name="Container">
 			<LeftSide />
