@@ -435,46 +435,28 @@ const MapFlyoverLayerInner = forwardRef<
 						/>
 						{[
 							{
+								id: 'origin',
 								label: originLabel,
-								marker: '1',
 								point: projectedOverlay.start,
 							},
 							{
+								id: 'destination',
 								label: destinationLabel,
-								marker: '2',
 								point: projectedOverlay.end,
 							},
-						].map(({label, marker, point}) => (
-							<g key={marker}>
-								<circle
-									cx={point.x}
-									cy={point.y}
-									fill={routeColor}
-									r={14}
-									stroke="#ffffff"
-									strokeWidth={5}
-								/>
+						].map(({id, label, point}) => (
+							<g key={id}>
+								<circle cx={point.x} cy={point.y} fill="#ffffff" r={9} />
 								<text
 									x={point.x}
-									y={point.y}
-									dominantBaseline="central"
-									fill="#111827"
+									y={point.y + 38}
+									fill="#ffffff"
 									fontFamily="sans-serif"
-									fontSize={20}
-									textAnchor="middle"
-								>
-									{marker}
-								</text>
-								<text
-									x={point.x}
-									y={point.y + 42}
-									fill="#111827"
-									fontFamily="sans-serif"
-									fontSize={28}
-									paintOrder="stroke"
-									stroke="#ffffff"
-									strokeLinejoin="round"
-									strokeWidth={6}
+									fontSize={26}
+									fontWeight={600}
+									style={{
+										filter: 'drop-shadow(0 2px 3px rgba(0, 0, 0, 0.9))',
+									}}
 									textAnchor="middle"
 								>
 									{label}
@@ -487,8 +469,6 @@ const MapFlyoverLayerInner = forwardRef<
 								cy={projectedOverlay.current.y}
 								fill="#ffffff"
 								r={9}
-								stroke="#111827"
-								strokeWidth={4}
 							/>
 						) : null}
 					</svg>
