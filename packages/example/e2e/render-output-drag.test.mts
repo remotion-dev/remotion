@@ -23,7 +23,7 @@ test.describe('render output dragging', () => {
 		const contents = Buffer.from('render-output-drag-e2e');
 		fs.mkdirSync(path.dirname(absoluteOutput), {recursive: true});
 		fs.writeFileSync(absoluteOutput, contents);
-		let registered = false;
+		const registeredIds: string[] = [];
 
 		try {
 			await page.setViewportSize({width: 1920, height: 1080});
@@ -72,9 +72,10 @@ test.describe('render output dragging', () => {
 				},
 			});
 			expect(result).toEqual({success: true});
-			registered = true;
+			registeredIds.push(id);
 
 			const output = page.getByText(outName, {exact: true});
+			const renderItem = page.locator(`[data-render-queue-item="${id}"]`);
 			expect(
 				await page.evaluate(() => ({
 					dataTransfer: typeof DataTransfer,
@@ -86,9 +87,15 @@ test.describe('render output dragging', () => {
 				finePointer: true,
 				maxTouchPoints: 0,
 			});
-			await expect(output).toHaveAttribute('draggable', 'true');
+			await expect(renderItem).toHaveAttribute('draggable', 'true');
+			expect(await output.getAttribute('draggable')).toBeNull();
+			expect(
+				await renderItem.evaluate(
+					(element) => getComputedStyle(element).cursor,
+				),
+			).not.toBe('grab');
 
-			const drag = await output.evaluate((element) => {
+			const drag = await renderItem.evaluate((element) => {
 				const dataTransfer = new DataTransfer();
 				const event = new DragEvent('dragstart', {
 					bubbles: true,
@@ -109,11 +116,37 @@ test.describe('render output dragging', () => {
 			const response = await fetch(drag.downloadUrl.slice(prefix.length));
 			expect(response.status).toBe(200);
 			expect(Buffer.from(await response.arrayBuffer())).toEqual(contents);
+
+			await page.evaluate(() => {
+				Object.defineProperty(navigator, 'userAgent', {
+					configurable: true,
+					value: 'Mozilla/5.0 Firefox/141.0',
+				});
+			});
+			const firefoxId = 'render-output-drag-firefox-e2e';
+			const firefoxResult = await apiCall('/api/register-client-render', {
+				id: firefoxId,
+				type: 'client-video',
+				compositionId: 'RenderOutputDrag',
+				outName,
+				startedAt: Date.now(),
+				deletedOutputLocation: false,
+				metadata: {
+					width: 1920,
+					height: 1080,
+					sizeInBytes: contents.length,
+				},
+			});
+			expect(firefoxResult).toEqual({success: true});
+			registeredIds.push(firefoxId);
+			await expect(
+				page.locator(`[data-render-queue-item="${firefoxId}"]`),
+			).toHaveAttribute('draggable', 'false');
 		} finally {
-			if (registered) {
-				await apiCall('/api/unregister-client-render', {id}).catch(
-					() => undefined,
-				);
+			for (const registeredId of registeredIds) {
+				await apiCall('/api/unregister-client-render', {
+					id: registeredId,
+				}).catch(() => undefined);
 			}
 			fs.rmSync(absoluteOutput, {force: true});
 		}

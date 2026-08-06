@@ -30,6 +30,7 @@ import {RenderQueueProgressMessage} from './RenderQueueProgressMessage';
 import {RenderQueueRemoveItem} from './RenderQueueRemoveItem';
 import {RenderQueueRepeatItem} from './RenderQueueRepeat';
 import {RenderQueueSavingMessage} from './RenderQueueSavingMessage';
+import {useRenderOutputFileDrag} from './use-render-output-file-drag';
 
 const container: React.CSSProperties = {
 	padding: 12,
@@ -69,6 +70,7 @@ export const RenderQueueItem: React.FC<{
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 
 	const isClientJob = isClientRenderJob(job);
+	const {canDrag, onDragStart} = useRenderOutputFileDrag(job);
 
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
@@ -184,11 +186,14 @@ export const RenderQueueItem: React.FC<{
 
 	return (
 		<Row
+			data-render-queue-item={job.id}
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 			style={containerStyle}
 			align="center"
 			onClick={onClick}
+			draggable={canDrag}
+			onDragStart={onDragStart}
 			className={selected ? SELECTED_CLASSNAME : undefined}
 		>
 			<RenderQueueItemStatus job={job} />
