@@ -178,7 +178,7 @@ export const FreePricing: React.FC<{
 						<a
 							target="_blank"
 							href="https://www.remotion.dev/docs"
-							className="font-brand text-brand flex flex-row items-center gap-1 no-underline"
+							className="bluelink font-brand flex flex-row items-center gap-1"
 						>
 							No sign up needed - get started{' '}
 							<svg
@@ -227,7 +227,7 @@ export const EnterpriseLicense: React.FC = () => {
 							<span>
 								<a
 									href="https://www.remotion.dev/editor-starter"
-									className="underline underline-offset-4 text-inherit"
+									className="bluelink font-brand"
 								>
 									Editor Starter
 								</a>{' '}
@@ -251,9 +251,7 @@ export const EnterpriseLicense: React.FC = () => {
 					>
 						<PriceTag>
 							<a
-								className={
-									'cursor-pointer no-underline text-inherit hover:text-brand'
-								}
+								className="bluelink"
 								target={'_blank'}
 								href="https://www.remotion.pro/contact"
 							>
