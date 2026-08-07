@@ -208,11 +208,49 @@ const MapFlyoverLayerInner = forwardRef<
 				zoom,
 			};
 		}, [height, route, routeDistance, width]);
-		const travelProgress = interpolate(frame, [50, 215], [0, 1], {
-			easing: Easing.inOut(Easing.cubic),
-			extrapolateLeft: 'clamp',
-			extrapolateRight: 'clamp',
-		});
+		const travelStart = 50;
+		const travelEnd = 205;
+		const travelProgress = interpolate(
+			frame,
+			[travelStart, travelEnd],
+			[0, 1],
+			{
+				easing: Easing.inOut(Easing.quad),
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			},
+		);
+		const originLabelOpacity = interpolate(
+			frame,
+			[travelStart, travelStart + 14],
+			[1, 0],
+			{
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			},
+		);
+		const destinationMarkerProgress = interpolate(
+			frame,
+			[travelEnd, travelEnd + 4],
+			[0.75, 1],
+			{
+				easing: Easing.out(Easing.cubic),
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			},
+		);
+		const destinationLabelOpacity = interpolate(
+			frame,
+			[travelEnd, travelEnd + 4],
+			[0, 1],
+			{
+				easing: Easing.out(Easing.cubic),
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			},
+		);
+		const markerRadius = Math.max(14, lineWidth * 0.65);
+		const markerCenterRadius = markerRadius * 0.27;
 		const currentDistance = Math.min(
 			routeDistance,
 			Math.max(0.001, routeDistance * travelProgress),
@@ -268,18 +306,11 @@ const MapFlyoverLayerInner = forwardRef<
 				.join(' ');
 
 			return {
-				current: project(currentPoint),
 				end: project(endCoordinates),
 				routePath,
 				start: project(startCoordinates),
 			};
-		}, [
-			currentPoint,
-			endCoordinates,
-			mapPlate,
-			partialRoute,
-			startCoordinates,
-		]);
+		}, [endCoordinates, mapPlate, partialRoute, startCoordinates]);
 		const projectedCameraCenter = useMemo(() => {
 			const center = maplibregl.MercatorCoordinate.fromLngLat(mapPlate.center);
 			const camera = maplibregl.MercatorCoordinate.fromLngLat({
@@ -433,44 +464,50 @@ const MapFlyoverLayerInner = forwardRef<
 							strokeLinejoin="round"
 							strokeWidth={lineWidth}
 						/>
-						{[
-							{
-								id: 'origin',
-								label: originLabel,
-								point: projectedOverlay.start,
-							},
-							{
-								id: 'destination',
-								label: destinationLabel,
-								point: projectedOverlay.end,
-							},
-						].map(({id, label, point}) => (
-							<g key={id}>
-								<circle cx={point.x} cy={point.y} fill="#ffffff" r={9} />
-								<text
-									x={point.x}
-									y={point.y + 38}
-									fill="#ffffff"
-									fontFamily="sans-serif"
-									fontSize={26}
-									fontWeight={600}
-									style={{
-										filter: 'drop-shadow(0 2px 3px rgba(0, 0, 0, 0.9))',
-									}}
-									textAnchor="middle"
-								>
-									{label}
-								</text>
+						<g
+							transform={`translate(${projectedOverlay.start.x} ${projectedOverlay.start.y})`}
+						>
+							<circle fill={routeColor} r={markerRadius} />
+							<circle fill="#ffffff" r={markerCenterRadius} />
+						</g>
+						<text
+							x={projectedOverlay.start.x}
+							y={projectedOverlay.start.y + markerRadius + 26}
+							fill="#ffffff"
+							fontFamily="sans-serif"
+							fontSize={26}
+							fontWeight={600}
+							opacity={originLabelOpacity}
+							style={{
+								filter: 'drop-shadow(0 2px 3px rgba(0, 0, 0, 0.9))',
+							}}
+							textAnchor="middle"
+						>
+							{originLabel}
+						</text>
+						{frame >= travelEnd ? (
+							<g
+								transform={`translate(${projectedOverlay.end.x} ${projectedOverlay.end.y}) scale(${destinationMarkerProgress})`}
+							>
+								<circle fill={routeColor} r={markerRadius} />
+								<circle fill="#ffffff" r={markerCenterRadius} />
 							</g>
-						))}
-						{frame >= 50 ? (
-							<circle
-								cx={projectedOverlay.current.x}
-								cy={projectedOverlay.current.y}
-								fill="#ffffff"
-								r={9}
-							/>
 						) : null}
+						<text
+							x={projectedOverlay.end.x}
+							y={projectedOverlay.end.y + markerRadius + 26}
+							fill="#ffffff"
+							fontFamily="sans-serif"
+							fontSize={26}
+							fontWeight={600}
+							opacity={destinationLabelOpacity}
+							style={{
+								filter: 'drop-shadow(0 2px 3px rgba(0, 0, 0, 0.9))',
+							}}
+							textAnchor="middle"
+						>
+							{destinationLabel}
+						</text>
 					</svg>
 					<div
 						style={{
@@ -518,7 +555,7 @@ export const MapFlyover: React.FC<MapFlyoverLayerProps> = (props) => {
 			destination={[139.6917, 35.6895]}
 			originLabel="London"
 			destinationLabel="Tokyo"
-			routeColor={'#564dff'}
+			routeColor={'#ff5c4d'}
 			lineWidth={24}
 			{...props}
 		/>
