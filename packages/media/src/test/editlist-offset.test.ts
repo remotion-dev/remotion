@@ -1,6 +1,6 @@
 import {assert, expect, test} from 'vitest';
 import {extractAudio} from '../audio-extraction/extract-audio';
-import {getMaxVideoCacheSize} from '../caches';
+import {getMaxVideoCacheSize, globalMediaCache} from '../caches';
 
 test('Audio extraction should be correct if there is edit list offset', async () => {
 	// Time: 0.00sec, should return null
@@ -17,6 +17,7 @@ test('Audio extraction should be correct if there is edit list offset', async ()
 		trimAfter: undefined,
 		maxCacheSize: getMaxVideoCacheSize('info'),
 		credentials: undefined,
+		mediaCache: globalMediaCache,
 	});
 	assert(audio1 !== 'cannot-decode');
 	assert(audio1 !== 'unknown-container-format');
@@ -38,6 +39,7 @@ test('Audio extraction should be correct if there is edit list offset', async ()
 		trimAfter: undefined,
 		maxCacheSize: getMaxVideoCacheSize('info'),
 		credentials: undefined,
+		mediaCache: globalMediaCache,
 	});
 	assert(audio2 !== 'cannot-decode');
 	assert(audio2 !== 'unknown-container-format');
@@ -62,6 +64,7 @@ test('Audio extraction should be correct if there is edit list offset', async ()
 		trimAfter: undefined,
 		maxCacheSize: getMaxVideoCacheSize('info'),
 		credentials: undefined,
+		mediaCache: globalMediaCache,
 	});
 	assert(audio3 !== 'cannot-decode');
 	assert(audio3 !== 'unknown-container-format');

@@ -1,5 +1,5 @@
 import {assert, expect, test} from 'vitest';
-import {getMaxVideoCacheSize} from '../caches';
+import {getMaxVideoCacheSize, globalMediaCache} from '../caches';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {extractFrame} from '../video-extraction/extract-frame';
 
@@ -44,6 +44,7 @@ test(
 				fps,
 				maxCacheSize: getMaxVideoCacheSize('info'),
 				credentials: undefined,
+				mediaCache: globalMediaCache,
 			});
 			expect(result.type).toBe('success');
 			assert(result.type === 'success');
