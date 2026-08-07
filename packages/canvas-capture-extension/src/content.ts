@@ -132,7 +132,7 @@ const createController = (): ExtensionController => {
 	const supported = isHtmlInCanvasAvailable();
 	let status = supported
 		? 'Choose an area or the whole page.'
-		: 'Enable chrome://flags/#canvas-draw-element, then reload.';
+		: 'Canvas capture is unavailable because the experimental HTML-in-canvas API is disabled. Open chrome://flags/#canvas-draw-element, set Canvas Draw Element to Enabled, then fully quit and reopen the browser.';
 	let statusIsError = !supported;
 	let selectionStart: {readonly x: number; readonly y: number} | null = null;
 
