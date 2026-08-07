@@ -116,7 +116,7 @@ const SocialLink: React.FC<{
 	);
 };
 
-const WebsiteLink = () => {
+const WebsiteRow = () => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	const opacity = spring({
@@ -132,7 +132,8 @@ const WebsiteLink = () => {
 	return (
 		<>
 			<div style={{height: 80}} />
-			<div
+			<Interactive.Div
+				name="Website row"
 				style={{
 					display: 'flex',
 					flexDirection: 'row',
@@ -166,7 +167,7 @@ const WebsiteLink = () => {
 				>
 					remotion.dev
 				</Interactive.Div>
-			</div>
+			</Interactive.Div>
 		</>
 	);
 };
@@ -247,7 +248,7 @@ const LeftSide = () => {
 				<SubscribeCTA />
 			</Interactive.Div>
 			<div style={{marginTop: 80}}>
-				<Interactive.Div name="Instagram link">
+				<Interactive.Div name="Instagram row">
 					<SocialLink icon={<InstagramIcon height={70} />} indexFromLast={4}>
 						<Interactive.Div
 							name="Instagram handle"
@@ -262,10 +263,10 @@ const LeftSide = () => {
 						</Interactive.Div>
 					</SocialLink>
 				</Interactive.Div>
-				<Interactive.Div name="LinkedIn link">
+				<Interactive.Div name="LinkedIn row">
 					<SocialLink icon={<LinkedInIcon height={60} />} indexFromLast={3}>
 						<Interactive.Div
-							name="LinkedIn name"
+							name="LinkedIn handle"
 							style={{
 								fontSize: 50,
 								fontFamily,
@@ -277,7 +278,7 @@ const LeftSide = () => {
 						</Interactive.Div>
 					</SocialLink>
 				</Interactive.Div>
-				<Interactive.Div name="X link">
+				<Interactive.Div name="X row">
 					<SocialLink icon={<XIcon height={60} />} indexFromLast={2}>
 						<Interactive.Div
 							name="X handle"
@@ -292,7 +293,7 @@ const LeftSide = () => {
 						</Interactive.Div>
 					</SocialLink>
 				</Interactive.Div>
-				<WebsiteLink />
+				<WebsiteRow />
 			</div>
 		</Interactive.Div>
 	);
