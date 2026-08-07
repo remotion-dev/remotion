@@ -398,11 +398,30 @@ export const config: VercelConfig = {
 		routes.redirect('/docs/studio/code-edits', '/docs/studio/interactivity', {
 			permanent: true,
 		}),
-		routes.redirect('/terms', '/docs/license/terms', {permanent: true}),
-		routes.redirect('/privacy', '/docs/license/privacy', {permanent: true}),
-		routes.redirect('/telemetry', '/docs/license/telemetry', {permanent: true}),
-		routes.redirect('/dpa', '/docs/license/dpa', {permanent: true}),
-		routes.redirect('/dpia', '/docs/license/dpia', {permanent: true}),
+		routes.redirect('/terms', '/docs/terms', {permanent: true}),
+		routes.redirect('/privacy', '/docs/privacy', {permanent: true}),
+		routes.redirect('/telemetry', '/docs/telemetry', {permanent: true}),
+		routes.redirect('/dpa', '/docs/dpa', {permanent: true}),
+		routes.redirect('/dpia', '/docs/dpia', {permanent: true}),
+		routes.redirect('/docs/license/terms', '/docs/terms', {permanent: true}),
+		routes.redirect('/docs/license/privacy', '/docs/privacy', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/license/telemetry', '/docs/telemetry', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/license/dpa', '/docs/dpa', {permanent: true}),
+		routes.redirect('/docs/license/dpia', '/docs/dpia', {permanent: true}),
+		routes.redirect(
+			'/docs/license/accessibility-statement-remotion-dev',
+			'/docs/accessibility/dev',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/license/accessibility-statement-remotion-pro',
+			'/docs/accessibility/pro',
+			{permanent: true},
+		),
 		routes.redirect('/docs/ai/claude-code', '/docs/ai/coding-agents', {
 			permanent: false,
 		}),
