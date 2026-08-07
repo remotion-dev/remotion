@@ -314,6 +314,7 @@ const sidebars: SidebarsConfig = {
 				'effects/pixelate',
 				'effects/radial-progressive-blur',
 				'effects/radial-progressive-pixelate',
+				'effects/region-blur',
 				'effects/rings',
 				'effects/roughen-edges',
 				'effects/saturation',
@@ -1434,6 +1435,7 @@ const sidebars: SidebarsConfig = {
 					items: [
 						'ai/claude-code-plugin',
 						'ai/codex-plugin',
+						'ai/cursor-plugin',
 						'ai/kimi-code-plugin',
 					],
 				},
@@ -1643,33 +1645,33 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: 'License, Pricing and Compliance',
+			label: 'License and terms',
 			link: {
 				type: 'doc',
 				id: 'license',
 			},
-			items: [
-				'license/pricing',
-				'license/faq',
-				'license/terms',
-				'license/privacy',
-				'license/telemetry',
-				'license/dpa',
-				'license/dpia',
-				'acknowledgements',
-				{
-					type: 'category',
-					label: 'Accessibility',
-					link: {
-						type: 'doc',
-						id: 'accessibility',
-					},
-					items: [
-						'license/accessibility-statement-remotion-dev',
-						'license/accessibility-statement-remotion-pro',
-					],
-				},
-			],
+			collapsed: true,
+			items: ['license/pricing', 'license/faq', 'terms', 'telemetry'],
+		},
+		{
+			type: 'category',
+			label: 'Legal',
+			link: {
+				type: 'doc',
+				id: 'legal',
+			},
+			collapsed: true,
+			items: ['privacy', 'dpa', 'dpia', 'acknowledgements'],
+		},
+		{
+			type: 'category',
+			label: 'Accessibility',
+			link: {
+				type: 'doc',
+				id: 'accessibility',
+			},
+			collapsed: true,
+			items: ['accessibility/dev', 'accessibility/pro'],
 		},
 
 		{

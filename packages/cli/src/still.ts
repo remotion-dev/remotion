@@ -40,6 +40,7 @@ const {
 	overrideDurationOption,
 	bundleCacheOption,
 	framesOption,
+	publicLicenseKeyOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -221,5 +222,6 @@ export const still = async (
 		bundlerOverride: null,
 		rspackOverride: null,
 		webpackOverride: null,
+		licenseKey: publicLicenseKeyOption.getValue({commandLine: parsedCli}).value,
 	});
 };

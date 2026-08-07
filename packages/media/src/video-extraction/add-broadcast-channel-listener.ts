@@ -1,4 +1,5 @@
 import type {LogLevel} from 'remotion';
+import {globalMediaCache} from '../caches';
 import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
 import {extractFrameAndAudio} from '../extract-frame-and-audio';
 import type {MediaRequestInit} from '../request-init';
@@ -112,6 +113,7 @@ export const addBroadcastChannelListener = () => {
 						maxCacheSize: data.maxCacheSize,
 						credentials: data.credentials,
 						requestInit: data.requestInit,
+						mediaCache: globalMediaCache,
 					});
 
 					if (result.type === 'cannot-decode') {

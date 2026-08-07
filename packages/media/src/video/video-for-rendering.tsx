@@ -21,7 +21,7 @@ import {
 	useRemotionEnvironment,
 	useVideoConfig,
 } from 'remotion';
-import {useMaxMediaCacheSize} from '../caches';
+import {useMaxMediaCacheSize, useRenderMediaCache} from '../caches';
 import {applyVolume} from '../convert-audiodata/apply-volume';
 import {getTargetSampleRate} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
@@ -138,6 +138,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	const videoEnabled = Internals.useVideoEnabled();
 
 	const maxCacheSize = useMaxMediaCacheSize(logLevel);
+	const mediaCache = useRenderMediaCache(logLevel);
 	const effectChainState = Internals.useEffectChainState();
 
 	const [error, setError] = useState<Error | null>(null);
@@ -203,8 +204,17 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			maxCacheSize,
 			credentials,
 			requestInit: initialRequestInit,
+			mediaCache,
 		})
 			.then(async (result) => {
+				if (mediaCache.isDisposed()) {
+					if (result.type === 'success') {
+						result.frame?.close();
+					}
+
+					return;
+				}
+
 				const handleError = (
 					err: Error,
 					clientSideError: Error,
@@ -333,7 +343,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 								height: imageBitmap.height,
 							});
 
-							if (!completed) {
+							if (!completed || mediaCache.isDisposed()) {
 								imageBitmap.close();
 								return;
 							}
@@ -393,6 +403,10 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				continueRender(newHandle);
 			})
 			.catch((err) => {
+				if (mediaCache.isDisposed()) {
+					return;
+				}
+
 				cancelRender(err);
 			});
 
@@ -437,6 +451,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		effectChainState,
 		effects,
 		initialRequestInit,
+		mediaCache,
 	]);
 
 	warnAboutObjectFitInStyleOrClassName({style, className, logLevel});

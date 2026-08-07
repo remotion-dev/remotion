@@ -29,7 +29,7 @@ const TASKS_BY_SUITE = {
 	webrenderer: ['testwebrenderer', 'testbrowserstudio'],
 	ssr: ['testssr'],
 	templates: ['testtemplates'],
-	build: ['make', 'test'],
+	build: ['build', 'make', 'test'],
 	bundle_example: ['bundle-testbed'],
 } as const;
 
@@ -211,7 +211,9 @@ export const createCiPlan = (input: PlannerInput): CiPlan => {
 		const bundleExample = selected('bundle_example');
 		const hasNonDocsBuild = tasks.some(
 			(task) =>
-				(task.name === 'make' || task.name === 'test') &&
+				(task.name === 'build' ||
+					task.name === 'make' ||
+					task.name === 'test') &&
 				task.package.name !== 'docs',
 		);
 

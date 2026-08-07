@@ -30,6 +30,7 @@ export type {
 	MakeDragDataInput,
 	MakeEffectDragDataInput,
 	MakeElementDragDataInput,
+	MakeRenderOutputDragDataInput,
 	MakeSfxDragDataInput,
 	ParsedDragData,
 	RemotionDragData,
@@ -43,6 +44,7 @@ export type {
 	DragPreviewMetadataWithMimeType,
 	EffectDragPreviewMetadata,
 	ElementDragPreviewMetadata,
+	RenderOutputDragPreviewMetadata,
 	SfxDragPreviewMetadata,
 } from './drag-preview-metadata';
 export {setStudioDragData} from './drag-transport';
@@ -52,6 +54,7 @@ export type {
 	ElementDragData,
 	ElementInstallationMode,
 } from './element-drag-data';
+export type {RenderOutputDragData} from './render-output-drag-data';
 export {
 	createElementPayload,
 	type CreateElementPayloadInput,

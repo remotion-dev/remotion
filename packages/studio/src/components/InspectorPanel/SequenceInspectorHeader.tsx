@@ -8,7 +8,7 @@ import {InspectorInfoHeader} from '../InspectorInfoHeader';
 import {InspectorLocationCopy} from '../InspectorLocationCopy';
 import {InspectorSourceLocation} from '../InspectorSourceLocation';
 import {COMPACT_INLINE_ROW_HEIGHT} from '../layout';
-import {useOpenSequenceInEditor} from '../Timeline/use-open-sequence-in-editor';
+import {useOpenSequenceInApps} from '../Timeline/use-open-sequence-in-apps';
 import {useRenameSequence} from '../Timeline/use-rename-sequence';
 import {
 	InspectorInlineAction,
@@ -57,7 +57,7 @@ export const useSequenceInspectorSourceLocation = (
 	sequence: TimelineTrackData['sequence'],
 ): SequenceInspectorSourceLocation => {
 	const {canOpenInEditor, openInEditor, originalLocation} =
-		useOpenSequenceInEditor(sequence);
+		useOpenSequenceInApps(sequence);
 
 	const validatedLocation = useMemo(() => {
 		if (

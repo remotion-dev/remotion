@@ -11,6 +11,7 @@ import {batchUpdateKeyframeSettingsHandler} from './routes/batch-update-keyframe
 import {handleCancelRender} from './routes/cancel-render';
 import {compositionComponentInfoHandler} from './routes/composition-component-info';
 import {convertFigmaClipboardToSvgHandler} from './routes/convert-figma-clipboard-to-svg';
+import {copyRenderOutputToAssetHandler} from './routes/copy-render-output-to-asset';
 import {
 	getDefaultCodingAgentInfoHandler,
 	openInCodingAgentHandler,
@@ -67,6 +68,7 @@ export const allApiRoutes: {
 	>;
 } = {
 	'/api/composition-component-info': compositionComponentInfoHandler,
+	'/api/copy-render-output-to-asset': copyRenderOutputToAssetHandler,
 	'/api/convert-figma-clipboard-to-svg': convertFigmaClipboardToSvgHandler,
 	'/api/cancel': handleCancelRender,
 	'/api/render': handleAddRender,
