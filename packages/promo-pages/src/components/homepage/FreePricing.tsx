@@ -154,12 +154,19 @@ export const FreePricing: React.FC<{
 					<PricingBulletPoint
 						text={
 							<>
-								<a href={termsHref} className="bluelink font-brand">
+								<a
+									href={termsHref}
+									className="underline underline-offset-4 text-inherit font-brand"
+								>
 									Terms
 								</a>{' '}
-								apply (i.e., upgrade when your organization grows)
+								apply
 							</>
 						}
+						checked={false}
+					/>
+					<PricingBulletPoint
+						text="Must upgrade when your organization grows"
 						checked={false}
 					/>
 				</div>
@@ -178,7 +185,7 @@ export const FreePricing: React.FC<{
 						<a
 							target="_blank"
 							href="https://www.remotion.dev/docs"
-							className="bluelink font-brand flex flex-row items-center gap-1"
+							className="font-brand text-brand flex flex-row items-center gap-1 no-underline"
 						>
 							No sign up needed - get started{' '}
 							<svg
@@ -227,7 +234,7 @@ export const EnterpriseLicense: React.FC = () => {
 							<span>
 								<a
 									href="https://www.remotion.dev/editor-starter"
-									className="bluelink font-brand"
+									className="underline underline-offset-4 text-inherit font-brand"
 								>
 									Editor Starter
 								</a>{' '}
@@ -251,7 +258,7 @@ export const EnterpriseLicense: React.FC = () => {
 					>
 						<PriceTag>
 							<a
-								className="bluelink"
+								className="cursor-pointer no-underline text-inherit hover:text-brand"
 								target={'_blank'}
 								href="https://www.remotion.pro/contact"
 							>
@@ -375,7 +382,7 @@ export const CompanyPricing: React.FC = () => {
 						<a
 							href="https://www.mux.com/"
 							target="_blank"
-							className="bluelink font-brand"
+							className="underline underline-offset-4 text-inherit font-brand"
 						>
 							Mux
 						</a>{' '}
