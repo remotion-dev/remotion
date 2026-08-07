@@ -17,8 +17,6 @@ Due to Remotion's [multithreaded rendering and each frame being independent](/do
 Decoded media is cached across all instances of [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio).
 Therefore, the decoded media cache is per-render, not per tag.
 
-Each distinct `src` also has its own read cache for fetched source bytes.
-
 ## Default cache size
 
 By default, the decoded media cache may grow to up to 50% of the available system memory.
