@@ -297,7 +297,7 @@ By default, Remotion will automatically choose `"web-fs"` if available, otherwis
 
 ### `outputWritable?`<AvailableFrom v="4.0.507" />
 
-_<WritableStream\<<TsType type="StreamTargetChunk" source="mediabunny" />\>>_
+_WritableStream&lt;StreamTargetChunk&gt;_
 
 Writes rendered media progressively to a `WritableStream` as data becomes available, instead of buffering the complete output in memory or the Origin Private File System.
 This is useful for large renders and for streaming the output to a file, server, or native application.
