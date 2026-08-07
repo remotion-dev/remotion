@@ -152,7 +152,7 @@ describe('CI plan generation', () => {
 
 describe('Turborepo monorepo test inputs', () => {
 	test(
-		'selects monorepo tests for language SDK changes only',
+		'selects monorepo tests only for declared external inputs',
 		() => {
 			const root = path.resolve(__dirname, '..', '..');
 			const rootPackageJson = JSON.parse(
@@ -172,13 +172,14 @@ describe('Turborepo monorepo test inputs', () => {
 				throw new Error('Missing @remotion/it-tests#testmonorepo task');
 			}
 
-			for (const directory of [
-				'lambda-go',
-				'lambda-php',
-				'lambda-php-example',
-				'lambda-python',
-				'lambda-ruby',
-			]) {
+			const externalChanges = [
+				{directory: 'lambda-go', file: 'synthetic-input.txt'},
+				{directory: 'lambda-php', file: 'synthetic-input.txt'},
+				{directory: 'lambda-php-example', file: 'composer.json'},
+				{directory: 'lambda-python', file: 'synthetic-input.txt'},
+				{directory: 'lambda-ruby', file: 'synthetic-input.txt'},
+			] as const;
+			for (const {directory} of externalChanges) {
 				expect(monorepoTask.inputs).toContain(
 					`$TURBO_ROOT$/packages/${directory}/**`,
 				);
@@ -209,7 +210,6 @@ describe('Turborepo monorepo test inputs', () => {
 				mkdirSync(path.join(fixture, 'packages', 'it-tests'), {
 					recursive: true,
 				});
-				mkdirSync(path.join(fixture, '.github'), {recursive: true});
 				writeJson(path.join(fixture, 'package.json'), {
 					private: true,
 					packageManager: rootPackageJson.packageManager,
@@ -226,29 +226,30 @@ describe('Turborepo monorepo test inputs', () => {
 					private: true,
 					scripts: {testmonorepo: 'echo test'},
 				});
-				for (const directory of [
-					'lambda-go',
-					'lambda-php',
-					'lambda-python',
-					'lambda-ruby',
-				]) {
+				for (const {directory, file} of externalChanges) {
 					const sdkDirectory = path.join(fixture, 'packages', directory);
 					mkdirSync(sdkDirectory, {recursive: true});
-					writeJson(path.join(sdkDirectory, 'package.json'), {
-						name: `@remotion/${directory}`,
-						version: '1.0.0',
-						private: true,
-					});
-					writeFileSync(
-						path.join(sdkDirectory, 'synthetic-input.txt'),
-						'baseline\n',
-					);
+					if (directory !== 'lambda-php-example') {
+						writeJson(path.join(sdkDirectory, 'package.json'), {
+							name: `@remotion/${directory}`,
+							version: '1.0.0',
+							private: true,
+						});
+					}
+					writeFileSync(path.join(sdkDirectory, file), 'baseline\n');
 				}
-				writeFileSync(path.join(fixture, '.gitignore'), '.turbo\n');
+				const unrelatedDirectory = path.join(fixture, 'packages', 'unrelated');
+				mkdirSync(path.join(unrelatedDirectory, 'src'), {recursive: true});
+				writeJson(path.join(unrelatedDirectory, 'package.json'), {
+					name: '@remotion/unrelated',
+					version: '1.0.0',
+					private: true,
+				});
 				writeFileSync(
-					path.join(fixture, '.github', 'unrelated.txt'),
+					path.join(unrelatedDirectory, 'src', 'unrelated.ts'),
 					'baseline\n',
 				);
+				writeFileSync(path.join(fixture, '.gitignore'), '.turbo\n');
 
 				run(['git', 'init', '--quiet'], {});
 				run(['git', 'config', 'user.email', 'ci-test@remotion.dev'], {});
@@ -279,14 +280,9 @@ describe('Turborepo monorepo test inputs', () => {
 					return affectedJson;
 				};
 
-				for (const directory of [
-					'lambda-go',
-					'lambda-php',
-					'lambda-python',
-					'lambda-ruby',
-				]) {
+				for (const {directory, file} of externalChanges) {
 					const affectedJson = affectedForChange(
-						`packages/${directory}/synthetic-input.txt`,
+						`packages/${directory}/${file}`,
 					);
 					const query = JSON.parse(affectedJson) as {
 						data: {affectedTasks: {items: Array<{fullName: string}>}};
@@ -297,7 +293,9 @@ describe('Turborepo monorepo test inputs', () => {
 					expect(planFor({affectedJson}).monorepo).toBe(true);
 				}
 
-				const unrelatedJson = affectedForChange('.github/unrelated.txt');
+				const unrelatedJson = affectedForChange(
+					'packages/unrelated/src/unrelated.ts',
+				);
 				const unrelatedQuery = JSON.parse(unrelatedJson) as {
 					data: {affectedTasks: {items: Array<{fullName: string}>}};
 				};
