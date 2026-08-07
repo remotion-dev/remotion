@@ -49,6 +49,7 @@ const effectEntrypoints = [
 	'src/pattern.ts',
 	'src/radial-progressive-blur.ts',
 	'src/radial-progressive-pixelate.ts',
+	'src/region-blur.ts',
 	'src/rings.ts',
 	'src/saturation.ts',
 	'src/scanlines.ts',

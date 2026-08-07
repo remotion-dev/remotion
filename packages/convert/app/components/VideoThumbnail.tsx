@@ -1,6 +1,13 @@
 import clsx from 'clsx';
 import {FastAverageColor} from 'fast-average-color';
-import React, {useCallback, useImperativeHandle, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useEffect,
+	useImperativeHandle,
+	useRef,
+	useState,
+} from 'react';
+import {setFileDragData} from '~/lib/file-drag';
 import {useIsNarrow} from '~/lib/is-narrow';
 
 export const THUMBNAIL_HEIGHT = Math.round((350 / 16) * 9);
@@ -12,6 +19,8 @@ type Props = {
 	readonly mirrorHorizontal: boolean;
 	readonly mirrorVertical: boolean;
 	readonly initialReveal: boolean;
+	readonly draggableFile?: File | null;
+	readonly draggableFileName?: string | null;
 };
 
 export type VideoThumbnailRef = {
@@ -34,6 +43,8 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 		mirrorHorizontal,
 		mirrorVertical,
 		initialReveal,
+		draggableFile = null,
+		draggableFileName = null,
 	},
 	forwardedRef,
 ) => {
@@ -44,6 +55,22 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 	const [reveal, setReveal] = useState(initialReveal);
 	const [drawn, setDrawn] = useState(false);
 	const [needsRotation, setNeedsRotation] = useState(false);
+	const [dragObjectUrl, setDragObjectUrl] = useState<string | null>(null);
+
+	useEffect(() => {
+		if (!draggableFile) {
+			setDragObjectUrl(null);
+			return;
+		}
+
+		try {
+			const objectUrl = URL.createObjectURL(draggableFile);
+			setDragObjectUrl(objectUrl);
+			return () => URL.revokeObjectURL(objectUrl);
+		} catch {
+			setDragObjectUrl(null);
+		}
+	}, [draggableFile]);
 
 	const onChangeListeners = useRef<(() => void)[]>([]);
 
@@ -116,12 +143,34 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 			? THUMBNAIL_HEIGHT / dimensions.width
 			: 1;
 
+	const canDrag = draggableFile !== null && dragObjectUrl !== null;
+	const onDragStart = useCallback(
+		(event: React.DragEvent<HTMLDivElement>) => {
+			if (
+				!draggableFile ||
+				!dragObjectUrl ||
+				!setFileDragData({
+					dataTransfer: event.dataTransfer,
+					file: draggableFile,
+					fileName: draggableFileName ?? draggableFile.name,
+					objectUrl: dragObjectUrl,
+				})
+			) {
+				event.preventDefault();
+			}
+		},
+		[dragObjectUrl, draggableFile, draggableFileName],
+	);
+
 	return (
 		<div
 			className={clsx(
 				isNarrow && smallThumbOnMobile ? 'border-r-2' : 'border-b-2',
 				'border-black overflow-hidden bg-slate-100',
+				canDrag && 'cursor-grab active:cursor-grabbing',
 			)}
+			draggable={canDrag || undefined}
+			onDragStart={canDrag ? onDragStart : undefined}
 			// +2 to account for border
 			style={{height: THUMBNAIL_HEIGHT * scale + 2}}
 		>

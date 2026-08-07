@@ -1,7 +1,10 @@
+import {MakeVideosLinks} from './MakeVideosLinks';
+
 const TrustedByBanner = () => {
 	const logos = [
 		{
 			id: 'logo1',
+			label: 'GitHub',
 			url: 'https://www.github.com/',
 			light: (
 				<svg
@@ -19,6 +22,7 @@ const TrustedByBanner = () => {
 		},
 		{
 			id: 'logo2',
+			label: 'Musixmatch',
 			url: 'https://www.musixmatch.com/',
 			light: (
 				<svg
@@ -80,6 +84,7 @@ const TrustedByBanner = () => {
 		},
 		{
 			id: 'logo3',
+			label: 'Wistia',
 			url: 'https://www.wistia.com/',
 			light: (
 				<svg
@@ -102,6 +107,7 @@ const TrustedByBanner = () => {
 		},
 		{
 			id: 'logo5',
+			label: 'SoundCloud',
 			url: 'https://www.soundcloud.com/',
 			light: (
 				<svg
@@ -118,27 +124,40 @@ const TrustedByBanner = () => {
 			),
 		},
 	];
+	const orderedLogos = [logos[3], logos[1], logos[2], logos[0]];
 
 	return (
-		<>
-			<h3 className={'text-center mt-20 mb-10'}>Trusted by</h3>
-			<div
-				className={
-					'text-center flex flex-col lg:flex-row flex-nowrap justify-center items-center gap-10 mb-20'
-				}
-			>
-				{logos.map((logo) => (
-					<a
-						key={logo.id}
-						href={logo.url}
-						target="_blank"
-						className="opacity-80 hover:opacity-100 transition-opacity"
-					>
-						{logo.light}
-					</a>
-				))}
+		<div className="flex min-w-0 basis-0 flex-1 flex-col">
+			<div className="flex aspect-square w-full items-center justify-start">
+				<div className="grid w-full max-w-[260px] translate-y-8 grid-cols-2 gap-x-8 gap-y-12">
+					{orderedLogos.map((logo) => (
+						<a
+							key={logo.id}
+							aria-label={logo.label}
+							href={logo.url}
+							target="_blank"
+							className="flex min-h-14 w-full items-center justify-center opacity-80 transition-opacity hover:opacity-100"
+						>
+							{logo.light}
+						</a>
+					))}
+				</div>
 			</div>
-		</>
+			<div className="font-brand">
+				<h2 className="text-2xl fontbrand leading-[1.1] font-medium">
+					In good company
+				</h2>
+				<p className="text-balance leading-relaxed">
+					Over 300 customers put their trust into Remotion.
+				</p>
+				<MakeVideosLinks
+					links={[
+						{label: 'Showcase', href: '/showcase'},
+						{label: 'Success Stories', href: '/success-stories'},
+					]}
+				/>
+			</div>
+		</div>
 	);
 };
 

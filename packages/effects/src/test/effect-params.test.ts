@@ -43,6 +43,11 @@ import {pixelDissolve} from '../pixel-dissolve.js';
 import {pixelate} from '../pixelate.js';
 import {radialProgressiveBlur} from '../radial-progressive-blur/index.js';
 import {radialProgressivePixelate} from '../radial-progressive-pixelate/index.js';
+import {
+	regionBlur,
+	regionBlurSchema,
+	type RegionBlurParams,
+} from '../region-blur/index.js';
 import {rings} from '../rings.js';
 import {roughenEdges} from '../roughen-edges.js';
 import {saturation} from '../saturation.js';
@@ -209,6 +214,10 @@ test('@remotion/effects expose documentation links', () => {
 	expect(radialProgressiveBlur().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/radial-progressive-blur',
 	);
+	expect(
+		regionBlur({topLeft: [0.25, 0.25], bottomRight: [0.75, 0.75]}).definition
+			.documentationLink,
+	).toBe('https://www.remotion.dev/docs/effects/region-blur');
 	expect(radialProgressivePixelate().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/radial-progressive-pixelate',
 	);
@@ -3073,6 +3082,85 @@ test('linearProgressiveBlur() parameters produce distinct effect keys', () => {
 			moreEndBlur.effectKey,
 		]).size,
 	).toBe(5);
+});
+
+test('regionBlur() accepts required params and defaults', () => {
+	const effect = regionBlur({
+		topLeft: [0.2, 0.3],
+		bottomRight: [0.8, 0.9],
+	});
+
+	expect(effect).toBeDefined();
+	expect(regionBlurSchema.blurRadius.default).toBe(40);
+	expect(regionBlurSchema.feather.default).toBe(0);
+	expect(regionBlurSchema.roundness.default).toBe(0);
+});
+
+test('regionBlur() rejects missing coordinates', () => {
+	expect(() =>
+		regionBlur({bottomRight: [0.8, 0.9]} as unknown as RegionBlurParams),
+	).toThrow('"topLeft" must be a [number, number] tuple');
+	expect(() =>
+		regionBlur({topLeft: [0.2, 0.3]} as unknown as RegionBlurParams),
+	).toThrow('"bottomRight" must be a [number, number] tuple');
+});
+
+test('regionBlur() rejects invalid coordinates', () => {
+	expect(() =>
+		regionBlur({
+			topLeft: [0.2, Number.NaN],
+			bottomRight: [0.8, 0.9],
+		}),
+	).toThrow('"topLeft" must be a [number, number] tuple');
+	expect(() =>
+		regionBlur({topLeft: [0.8, 0.3], bottomRight: [0.2, 0.9]}),
+	).toThrow('"topLeft" must be above and to the left of "bottomRight"');
+});
+
+test('regionBlur() accepts coordinates outside the canvas', () => {
+	expect(() =>
+		regionBlur({topLeft: [-0.2, -0.1], bottomRight: [1.2, 1.1]}),
+	).not.toThrow();
+});
+
+test('regionBlur() rejects invalid styling params', () => {
+	expect(() =>
+		regionBlur({
+			topLeft: [0.2, 0.3],
+			bottomRight: [0.8, 0.9],
+			blurRadius: -1,
+		}),
+	).toThrow('"blurRadius" must be >= 0');
+	expect(() =>
+		regionBlur({
+			topLeft: [0.2, 0.3],
+			bottomRight: [0.8, 0.9],
+			feather: Number.NaN,
+		}),
+	).toThrow('"feather" must be a finite number');
+	expect(() =>
+		regionBlur({
+			topLeft: [0.2, 0.3],
+			bottomRight: [0.8, 0.9],
+			roundness: 1.1,
+		}),
+	).toThrow('"roundness" must be <= 1');
+});
+
+test('regionBlur() parameters produce distinct effect keys', () => {
+	const params = {topLeft: [0.2, 0.3], bottomRight: [0.8, 0.9]} as const;
+	const effects = [
+		regionBlur(params),
+		regionBlur({...params, topLeft: [0.1, 0.3]}),
+		regionBlur({...params, bottomRight: [0.9, 0.9]}),
+		regionBlur({...params, blurRadius: 80}),
+		regionBlur({...params, feather: 12}),
+		regionBlur({...params, roundness: 1}),
+	];
+
+	expect(new Set(effects.map((effect) => effect.effectKey)).size).toBe(
+		effects.length,
+	);
 });
 
 test('radialProgressiveBlur() accepts default params', () => {

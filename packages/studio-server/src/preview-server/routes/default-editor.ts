@@ -19,9 +19,19 @@ export const getDefaultEditorInfoHandler: ApiHandler<
 		defaultEditor:
 			typeof configuredEditor === 'object' ? 'custom' : configuredEditor,
 		installedEditors: [
-			...installedEditors.map(({id, name}) => ({id, name})),
+			...installedEditors.map(({id, name, nameWithType}) => ({
+				id,
+				name,
+				nameWithType,
+			})),
 			...(customEditor
-				? [{id: 'custom' as const, name: customEditor.name}]
+				? [
+						{
+							id: 'custom' as const,
+							name: customEditor.name,
+							nameWithType: customEditor.name,
+						},
+					]
 				: []),
 		],
 	};
