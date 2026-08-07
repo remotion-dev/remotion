@@ -25,12 +25,19 @@ test('portable Agent Plugins manifest describes the built package', () => {
 	const manifest = JSON.parse(
 		readFileSync(path.join(packageRoot, 'plugin.json'), 'utf-8'),
 	) as Record<string, unknown>;
+	const codexManifest = JSON.parse(
+		readFileSync(
+			path.join(packageRoot, '.codex-plugin', 'plugin.json'),
+			'utf-8',
+		),
+	) as Record<string, unknown>;
 
 	expect(manifest.$schema).toBe(
 		'https://agent-plugins.org/schemas/1.0.0/plugin.schema.json',
 	);
 	expect(manifest.name).toBe('remotion');
 	expect(manifest.version).toBe(packageJson.version);
+	expect(codexManifest.version).toBe(packageJson.version);
 	expect(Object.keys(manifest).sort()).toEqual(
 		[
 			'$schema',
@@ -45,14 +52,7 @@ test('portable Agent Plugins manifest describes the built package', () => {
 		].sort(),
 	);
 	expect(existsSync(generatedSkillsRoot)).toBe(true);
-	expect(
-		JSON.parse(
-			readFileSync(
-				path.join(packageRoot, '.codex-plugin', 'plugin.json'),
-				'utf-8',
-			),
-		),
-	).toHaveProperty('interface.displayName', 'Remotion');
+	expect(codexManifest).toHaveProperty('interface.displayName', 'Remotion');
 });
 
 const getDirectories = (directory: string) => {

@@ -99,6 +99,7 @@ const publish = async (template: MinimalTemplate) => {
 type AgentPluginPublishTarget = {
 	commitMessage: string;
 	filesToCopy: string[];
+	manifestPaths: string[];
 	name: string;
 	readme?: string;
 	repoName: string;
@@ -108,6 +109,7 @@ type AgentPluginPublishTarget = {
 const publishBuiltAgentPlugin = async ({
 	commitMessage,
 	filesToCopy,
+	manifestPaths,
 	name,
 	readme,
 	repoName,
@@ -148,12 +150,14 @@ const publishBuiltAgentPlugin = async ({
 	const packageJson = JSON.parse(
 		readFileSync(path.join(codexPluginDir, 'package.json'), 'utf-8'),
 	);
-	const pluginJsonPath = path.join(workingDir, 'plugin.json');
-	const pluginJson = JSON.parse(readFileSync(pluginJsonPath, 'utf-8'));
-	writeFileSync(
-		pluginJsonPath,
-		`${JSON.stringify({...pluginJson, version: packageJson.version}, null, '\t')}\n`,
-	);
+	for (const manifestPath of manifestPaths) {
+		const pluginJsonPath = path.join(workingDir, manifestPath);
+		const pluginJson = JSON.parse(readFileSync(pluginJsonPath, 'utf-8'));
+		writeFileSync(
+			pluginJsonPath,
+			`${JSON.stringify({...pluginJson, version: packageJson.version}, null, '\t')}\n`,
+		);
+	}
 
 	await $`git add .`.cwd(workingDir).nothrow();
 	const hasChanges = await $`git status --porcelain`.cwd(workingDir).text();
@@ -191,6 +195,7 @@ const publishAgentPlugins = async () => {
 				'skills',
 				'README.md',
 			],
+			manifestPaths: ['plugin.json', '.codex-plugin/plugin.json'],
 			name: 'codex-plugin',
 			repoName: 'codex-plugin',
 			skillsDir: path.join(codexPluginDir, 'skills'),
@@ -198,6 +203,7 @@ const publishAgentPlugins = async () => {
 		publishBuiltAgentPlugin({
 			commitMessage: 'Update Cursor plugin',
 			filesToCopy: ['LICENSE', 'plugin.json', 'skills'],
+			manifestPaths: ['plugin.json'],
 			name: 'cursor-plugin',
 			readme: 'README.cursor.md',
 			repoName: 'cursor-plugin',
