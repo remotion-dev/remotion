@@ -785,7 +785,7 @@ export const renderVideoFlow = async ({
 		chromeMode,
 		mediaCacheSizeInBytes,
 		onLog,
-		licenseKey,
+		licenseKey: licenseKey === 'free-license' ? null : licenseKey,
 		isProduction: null,
 		sampleRate: resolvedSampleRate,
 	});
