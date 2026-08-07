@@ -513,7 +513,6 @@ const MapFlyoverLayerInner = forwardRef<
 							transform={`translate(${projectedOverlay.start.x} ${projectedOverlay.start.y})`}
 						>
 							<circle fill={routeColor} r={markerRadius} />
-							<circle fill="#ffffff" r={markerCenterRadius} />
 						</g>
 						<text
 							x={projectedOverlay.start.x}
