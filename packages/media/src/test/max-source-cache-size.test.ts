@@ -6,10 +6,8 @@ const loadWithBudget = (mediaCacheSizeInBytes: number | null) => {
 	// The budget is memoized after the first read, so the module has to be
 	// re-imported for every scenario.
 	vi.resetModules();
-	vi.stubGlobal('window', {
-		remotion_mediaCacheSizeInBytes: mediaCacheSizeInBytes,
-		remotion_initialMemoryAvailable: null,
-	});
+	vi.stubGlobal('remotion_mediaCacheSizeInBytes', mediaCacheSizeInBytes);
+	vi.stubGlobal('remotion_initialMemoryAvailable', null);
 
 	return import('../max-cache-size');
 };

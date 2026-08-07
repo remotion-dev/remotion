@@ -14,7 +14,20 @@ import {fileURLToPath} from 'url';
 import {prepareEmbeddedSkills} from '../skills/scripts/prepare-embedded-skills';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const skillsOut = resolve(__dirname, 'skills');
+const clientArgument = process.argv.find((argument) =>
+	argument.startsWith('--client='),
+);
+const client = clientArgument?.slice('--client='.length) ?? 'codex';
+if (client !== 'codex' && client !== 'cursor') {
+	throw new Error(`Unsupported plugin client: ${client}`);
+}
+
+const outputArgument = process.argv.find((argument) =>
+	argument.startsWith('--output='),
+);
+const skillsOut = outputArgument
+	? resolve(outputArgument.slice('--output='.length))
+	: resolve(__dirname, 'skills');
 
 const packagesSkillsDir = resolve(__dirname, '..', 'skills', 'skills');
 if (existsSync(skillsOut)) {
@@ -82,38 +95,35 @@ const makeRemotionCreateOpenPreview = () => {
 		throw new Error('Could not find a remotion-create preview instruction');
 	}
 
-	const codexReplacements = [
+	const replacements = [
 		[
 			previewInstruction,
 			'After creating or updating the video, start the preview server by default:',
 		],
 		[
 			'If an in-harness browser is available, open it there.',
-			'Open the exact URL in the Codex in-app browser. If no browser tool is available yet, use `tool_search` for the in-app browser control tool, then navigate to the local URL.',
+			"Open the exact URL in the agent client's available browser. If no browser tool is available, keep the preview server running and provide the URL to the user.",
 		],
 	] as const;
 
-	let codexInstructions = currentInstructions;
-	for (const [genericInstruction, codexInstruction] of codexReplacements) {
-		if (!codexInstructions.includes(genericInstruction)) {
+	let instructions = currentInstructions;
+	for (const [genericInstruction, replacement] of replacements) {
+		if (!instructions.includes(genericInstruction)) {
 			throw new Error(
 				`Could not find remotion-create instruction: ${genericInstruction}`,
 			);
 		}
 
-		codexInstructions = codexInstructions.replace(
-			genericInstruction,
-			codexInstruction,
-		);
+		instructions = instructions.replace(genericInstruction, replacement);
 	}
 
-	writeFileSync(remotionCreateSkill, codexInstructions);
-	console.log(
-		'  Made remotion-create open previews in the Codex in-app browser',
-	);
+	writeFileSync(remotionCreateSkill, instructions);
+	console.log('  Made remotion-create open previews in the agent browser');
 };
 
-console.log('Building Codex plugin skills...\n');
+console.log(
+	`Building ${client === 'codex' ? 'Codex' : 'Cursor'} plugin skills...\n`,
+);
 
 if (existsSync(packagesSkillsDir)) {
 	const skillFolders = readdirSync(packagesSkillsDir).filter((f) =>
@@ -125,10 +135,12 @@ if (existsSync(packagesSkillsDir)) {
 		copySkillDir(join(packagesSkillsDir, folder), folder);
 	}
 	prepareEmbeddedSkills(skillsOut);
-	addCodexOnlyInstructions();
+	if (client === 'codex') {
+		addCodexOnlyInstructions();
+	}
 	makeRemotionCreateOpenPreview();
 } else {
 	console.warn('Warning: packages/skills/skills/ not found');
 }
 
-console.log('\nDone! Skills assembled in packages/codex-plugin/skills/');
+console.log(`\nDone! Skills assembled in ${skillsOut}`);

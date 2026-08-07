@@ -15,7 +15,7 @@ If the markup is too complex for the Studio to make it interactive, then the val
 
 ## Make an HTML element interactive using `Interactive`
 
-Every HTML and SVG element such as `<div>` can be turned interactive using `Interactive`:
+Every HTML and SVG element (except `<Img>`, it already is interactive) such as `<div>` can be turned interactive using `Interactive`:
 
 ```tsx title="Interactive elements"
 <Interactive.Div
