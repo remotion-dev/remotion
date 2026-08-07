@@ -15,6 +15,32 @@
 		"testssr": {
 			"dependsOn": ["^make", "@remotion/example#bundle"]
 		},
+		"@remotion/it-tests#testmonorepo": {
+			"dependsOn": ["^make"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"$TURBO_ROOT$/.gitignore",
+				"$TURBO_ROOT$/LICENSE.md",
+				"$TURBO_ROOT$/package.json",
+				"$TURBO_ROOT$/packages/*/.gitignore",
+				"$TURBO_ROOT$/packages/*/.npmignore",
+				"$TURBO_ROOT$/packages/*/LICENSE.md",
+				"$TURBO_ROOT$/packages/*/README.md",
+				"$TURBO_ROOT$/packages/*/package.json",
+				"$TURBO_ROOT$/packages/STATS.md",
+				"$TURBO_ROOT$/packages/cli/src/list-of-remotion-packages.ts",
+				"$TURBO_ROOT$/packages/create-video/src/list-of-remotion-packages.ts",
+				"$TURBO_ROOT$/packages/docs/docs/contributing/index.mdx",
+				"$TURBO_ROOT$/packages/lambda-client/src/aws-provider.ts",
+				"$TURBO_ROOT$/packages/lambda/src/api/create-function.ts",
+				"$TURBO_ROOT$/packages/lambda-go/**",
+				"$TURBO_ROOT$/packages/lambda-php/**",
+				"$TURBO_ROOT$/packages/lambda-php-example/**",
+				"$TURBO_ROOT$/packages/lambda-python/**",
+				"$TURBO_ROOT$/packages/lambda-ruby/**",
+				"$TURBO_ROOT$/packages/studio-shared/src/release-package-policy.ts"
+			]
+		},
 		"testtemplates": {
 			"dependsOn": ["^make", "@remotion/example#bundle"],
 			"inputs": [

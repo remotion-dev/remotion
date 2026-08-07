@@ -1,6 +1,6 @@
 import {appendFileSync, readFileSync} from 'node:fs';
 
-export const CI_PLAN_SCHEMA_VERSION = 1;
+export const CI_PLAN_SCHEMA_VERSION = 2;
 
 export type BuildMatrix = {
 	include: Array<{
@@ -28,6 +28,7 @@ const TASKS_BY_SUITE = {
 	browser: ['testwebcodecs', 'teste2e'],
 	webrenderer: ['testwebrenderer', 'testbrowserstudio'],
 	ssr: ['testssr'],
+	monorepo: ['testmonorepo'],
 	templates: ['testtemplates'],
 	build: ['build', 'make', 'test'],
 	bundle_example: ['bundle-testbed'],
@@ -40,19 +41,21 @@ const BOOLEAN_PLAN_KEYS = [
 	'browser',
 	'webrenderer',
 	'ssr',
+	'monorepo',
 	'templates',
 	'build',
 	'bundle_example',
 ] as const;
 
 export type CiPlan = {
-	schema_version: 1;
+	schema_version: 2;
 	full_ci: boolean;
 	lambda: boolean;
 	nextjs: boolean;
 	browser: boolean;
 	webrenderer: boolean;
 	ssr: boolean;
+	monorepo: boolean;
 	templates: boolean;
 	build: boolean;
 	bundle_example: boolean;
@@ -85,6 +88,7 @@ const fullPlan = (
 	browser: true,
 	webrenderer: true,
 	ssr: true,
+	monorepo: true,
 	templates: true,
 	build: true,
 	bundle_example: true,
@@ -225,6 +229,7 @@ export const createCiPlan = (input: PlannerInput): CiPlan => {
 			browser: selected('browser'),
 			webrenderer: selected('webrenderer'),
 			ssr: selected('ssr'),
+			monorepo: selected('monorepo'),
 			templates: selected('templates'),
 			build,
 			bundle_example: bundleExample,
@@ -245,6 +250,7 @@ const getSelectedSuites = (plan: CiPlan) => ({
 	browser: plan.browser,
 	webrenderer: plan.webrenderer,
 	ssr: plan.ssr,
+	monorepo: plan.monorepo,
 	templates: plan.templates,
 	build_job: plan.build || plan.bundle_example,
 });
@@ -259,6 +265,7 @@ export type RequiredCiResults = {
 	browser: string;
 	webrenderer: string;
 	ssr: string;
+	monorepo: string;
 	templates: string;
 	build_job: string;
 };
@@ -325,6 +332,7 @@ const appendPlanOutputs = (
 			`browser=${plan.browser}`,
 			`webrenderer=${plan.webrenderer}`,
 			`ssr=${plan.ssr}`,
+			`monorepo=${plan.monorepo}`,
 			`templates=${plan.templates}`,
 			`build=${plan.build}`,
 			`bundle_example=${plan.bundle_example}`,
