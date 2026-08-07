@@ -115,6 +115,7 @@ export const schemaTestSchema = z.object({
 	description: zTextarea().nullable(),
 	country: z.enum(COUNTRY_NAMES),
 	dropdown: z.enum(['a', 'b', 'c']),
+	optionalEnum: z.enum(['vert', 'jaune', 'orange', 'rouge']).optional(),
 	superSchema: z.array(
 		z.discriminatedUnion('type', [
 			z.object({

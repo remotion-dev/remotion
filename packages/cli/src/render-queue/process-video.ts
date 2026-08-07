@@ -135,5 +135,6 @@ export const processVideoJob = async ({
 		bundlerOverride: fixedConfig.bundlerOverride,
 		rspackOverride: fixedConfig.rspackOverride,
 		webpackOverride: fixedConfig.webpackOverride,
+		licenseKey: job.type === 'video' ? job.licenseKey : null,
 	});
 };

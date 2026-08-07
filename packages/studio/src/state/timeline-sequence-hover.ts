@@ -68,6 +68,17 @@ export const useSetTimelineSequenceHover = () => {
 	return useContext(TimelineSequenceHoverContext).setHoveredSequence;
 };
 
+export const useIsTimelineSequenceHovered = (nodePathKey: string | null) => {
+	const store = useContext(TimelineSequenceHoverContext);
+	const getSnapshot = useCallback(
+		() =>
+			nodePathKey !== null && store.getSnapshot()?.nodePathKey === nodePathKey,
+		[nodePathKey, store],
+	);
+
+	return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
+};
+
 export const useTimelineSequenceHover = (
 	nodePathInfo: SequenceNodePathInfo | null,
 ) => {
@@ -86,16 +97,7 @@ export const useTimelineSequenceHover = (
 				: timelineSequenceNodePathToKey(nodePathInfo.sequenceSubscriptionKey),
 		[nodePathInfo],
 	);
-	const getSnapshot = useCallback(
-		() =>
-			nodePathKey !== null && store.getSnapshot()?.nodePathKey === nodePathKey,
-		[nodePathKey, store],
-	);
-	const hovered = useSyncExternalStore(
-		store.subscribe,
-		getSnapshot,
-		getSnapshot,
-	);
+	const hovered = useIsTimelineSequenceHovered(nodePathKey);
 
 	const onPointerEnter = useCallback(() => {
 		if (sequenceKey === null || nodePathKey === null) {

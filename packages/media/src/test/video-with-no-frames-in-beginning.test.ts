@@ -1,7 +1,11 @@
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import {assert, expect, test} from 'vitest';
 import {audioIteratorManager} from '../audio-iterator-manager';
-import {getMaxVideoCacheSize, keyframeManager} from '../caches';
+import {
+	getMaxVideoCacheSize,
+	globalMediaCache,
+	keyframeManager,
+} from '../caches';
 import {makeNonceManager} from '../nonce-manager';
 import {extractFrame} from '../video-extraction/extract-frame';
 import {videoIteratorManager} from '../video-iterator-manager';
@@ -194,6 +198,7 @@ test('in rendering, should also be smart', async (t) => {
 			fps: 30,
 			maxCacheSize: getMaxVideoCacheSize('info'),
 			credentials: undefined,
+			mediaCache: globalMediaCache,
 		});
 		assert(frame.type === 'success');
 		if (lastFrame) {
@@ -217,6 +222,7 @@ test('in rendering, should also be smart', async (t) => {
 		fps: 30,
 		maxCacheSize: getMaxVideoCacheSize('info'),
 		credentials: undefined,
+		mediaCache: globalMediaCache,
 	});
 
 	assert(firstRealFrame.type === 'success');
