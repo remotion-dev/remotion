@@ -5,6 +5,7 @@ import React, {
 	forwardRef,
 	useEffect,
 	useImperativeHandle,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -18,6 +19,7 @@ import {
 	type InteractiveTransformProps,
 	type InteractivitySchema,
 	type SequenceControls,
+	useBufferState,
 	useCurrentFrame,
 	useDelayRender,
 	useVideoConfig,
@@ -109,6 +111,7 @@ const MapFlyoverLayerInner = forwardRef<
 		const frame = useCurrentFrame();
 		const {height, width} = useVideoConfig();
 		const {continueRender, delayRender} = useDelayRender();
+		const {delayPlayback} = useBufferState();
 		const mapContainerRef = useRef<HTMLDivElement>(null);
 		const mapRef = useRef<Map | null>(null);
 		const outlineRef = useRef<HTMLDivElement>(null);
@@ -257,30 +260,30 @@ const MapFlyoverLayerInner = forwardRef<
 		const markerCenterRadius = markerRadius * 0.27;
 		const destinationMarkerScale = interpolate(
 			frame,
-			[travelEnd, travelEnd + 4, travelEnd + 7],
-			[lineWidth / 2 / markerRadius, 1.18, 1],
+			[travelEnd + 10, travelEnd + 22],
+			[lineWidth / 2 / markerRadius, 1],
 			{
-				easing: Easing.out(Easing.cubic),
+				easing: Easing.inOut(Easing.cubic),
 				extrapolateLeft: 'clamp',
 				extrapolateRight: 'clamp',
 			},
 		);
 		const destinationMarkerCenterScale = interpolate(
 			frame,
-			[travelEnd, travelEnd + 6],
+			[travelEnd + 24, travelEnd + 34],
 			[0, 1],
 			{
-				easing: Easing.out(Easing.cubic),
+				easing: Easing.inOut(Easing.cubic),
 				extrapolateLeft: 'clamp',
 				extrapolateRight: 'clamp',
 			},
 		);
 		const destinationLabelOpacity = interpolate(
 			frame,
-			[travelEnd + 3, travelEnd + 8],
+			[travelEnd + 32, travelEnd + 40],
 			[0, 1],
 			{
-				easing: Easing.out(Easing.cubic),
+				easing: Easing.inOut(Easing.quad),
 				extrapolateLeft: 'clamp',
 				extrapolateRight: 'clamp',
 			},
@@ -361,6 +364,14 @@ const MapFlyoverLayerInner = forwardRef<
 		const plateTransform = `translate(${width / 2 - projectedCameraCenter.x * plateScale}px, ${
 			height / 2 - projectedCameraCenter.y * plateScale
 		}px) scale(${plateScale})`;
+
+		useLayoutEffect(() => {
+			if (map) {
+				return;
+			}
+
+			return delayPlayback().unblock;
+		}, [delayPlayback, map]);
 
 		useEffect(() => {
 			if (!mapContainerRef.current || mapRef.current) {
@@ -519,7 +530,7 @@ const MapFlyoverLayerInner = forwardRef<
 						>
 							{originLabel}
 						</text>
-						{frame >= travelEnd ? (
+						{frame >= travelEnd + 10 ? (
 							<g
 								transform={`translate(${projectedOverlay.end.x} ${projectedOverlay.end.y})`}
 							>

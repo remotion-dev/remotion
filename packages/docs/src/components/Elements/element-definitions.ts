@@ -89,7 +89,7 @@ export const elementDefinitions = {
 			{name: 'maplibre-gl', version: '5.24.0'},
 		],
 		displayName: 'Map Flyover',
-		durationInFrames: 240,
+		durationInFrames: 285,
 		elementHeight: null,
 		elementWidth: null,
 		fps: 30,
