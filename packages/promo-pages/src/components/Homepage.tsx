@@ -18,7 +18,8 @@ import {BuiltWithRemotionShowcase} from './homepage/VideoAppsShowcase';
 import {SectionTitle} from './homepage/VideoAppsTitle';
 import {WriteInReact} from './homepage/WriteInReact';
 
-const makeVideosRowClassName = 'mt-4 md:mt-6 flex flex-col lg:flex-row gap-10';
+const makeVideosRowClassName =
+	'mt-4 min-[900px]:mt-6 flex flex-col min-[900px]:flex-row gap-10';
 
 export const NewLanding: React.FC<{
 	readonly colorMode: ColorMode;
@@ -35,7 +36,7 @@ export const NewLanding: React.FC<{
 					<br />
 					<br />
 					<br />
-					<div className="max-w-[500px] lg:max-w-[1000px] m-auto pl-5 pr-5 overflow-x-clip md:overflow-x-visible relative">
+					<div className="max-w-[500px] min-[900px]:max-w-[1000px] m-auto pl-5 pr-5 overflow-x-clip min-[900px]:overflow-x-visible relative">
 						<WriteInReact />
 						<br />
 						<div className={makeVideosRowClassName}>

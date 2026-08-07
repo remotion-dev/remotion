@@ -34,7 +34,7 @@ export const MakeVideosInteractively: React.FC<{
 		<div
 			ref={ref}
 			className={
-				'flex min-w-0 basis-0 flex-col justify-start items-start lg:mt-0 flex-1'
+				'flex min-w-0 basis-0 flex-col justify-start items-start min-[900px]:mt-0 flex-1'
 			}
 		>
 			<div className="flex aspect-square w-full items-start">
