@@ -20,11 +20,12 @@ the unpacked copy outside the checkout so deleting a worktree cannot break it.
      --repo <remotion-checkout>
    ```
 
-   The script builds with Bun and installs the four unpacked-extension files in
+   The script builds with Bun and installs the seven unpacked-extension files in
    `/Users/jonathanburger/Applications/Remotion Canvas Capture Extension`.
 
 3. Confirm that the installed directory contains `manifest.json`,
-   `background.js`, `content.js`, and `receiver.js`.
+   `background.js`, `content.js`, `popup.css`, `popup.html`, `popup.js`, and
+   `receiver.js`.
 
 ## Reload in Chrome
 
