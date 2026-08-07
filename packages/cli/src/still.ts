@@ -221,5 +221,6 @@ export const still = async (
 		bundlerOverride: null,
 		rspackOverride: null,
 		webpackOverride: null,
+		licenseKey: null,
 	});
 };

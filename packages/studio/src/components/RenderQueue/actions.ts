@@ -42,6 +42,7 @@ export const addStillRenderJob = ({
 	metadata,
 	chromeMode,
 	mediaCacheSizeInBytes,
+	licenseKey,
 }: {
 	compositionId: string;
 	outName: string;
@@ -61,6 +62,7 @@ export const addStillRenderJob = ({
 	metadata: Record<string, string> | null;
 	chromeMode: ChromeMode;
 	mediaCacheSizeInBytes: number | null;
+	licenseKey: string | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -87,6 +89,7 @@ export const addStillRenderJob = ({
 		metadata,
 		chromeMode,
 		mediaCacheSizeInBytes,
+		licenseKey,
 	});
 };
 

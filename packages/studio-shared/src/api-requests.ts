@@ -115,6 +115,7 @@ type AddRenderRequestDynamicFields =
 			scale: number;
 			logLevel: LogLevel;
 			chromeMode: ChromeMode;
+			licenseKey: string | null;
 	  }
 	| {
 			type: 'sequence';

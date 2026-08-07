@@ -119,6 +119,7 @@ type RenderJobDynamicFields =
 			offthreadVideoCacheSizeInBytes: number | null;
 			mediaCacheSizeInBytes: number | null;
 			offthreadVideoThreads: number | null;
+			licenseKey: string | null;
 	  } & RenderJobDynamicStatus)
 	| ({
 			type: 'sequence';
