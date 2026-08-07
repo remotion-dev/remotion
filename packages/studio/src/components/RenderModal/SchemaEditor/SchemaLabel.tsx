@@ -30,6 +30,8 @@ const compactStyles: React.CSSProperties = {
 
 const descriptionStyle: React.CSSProperties = {
 	fontSize: 12,
+	maxWidth: 360,
+	overflowWrap: 'anywhere',
 	padding: 10,
 };
 
