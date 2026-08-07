@@ -15,8 +15,35 @@ test.describe('visual mode', () => {
 		await stopStudio();
 	});
 
-	test('should edit a prop and update source code', async ({page}) => {
+	test('should edit schema props and update source code', async ({page}) => {
 		await navigateToSchemaTest(page);
+
+		await expect(
+			page.getByRole('checkbox', {name: '<null>'}).first(),
+		).toBeVisible();
+
+		const optionalEnumCheckbox = page.getByRole('checkbox', {
+			name: '<undefined>',
+		});
+		const optionalEnumLabel = page.getByText('optionalEnum:', {exact: true});
+		const optionalEnumLabelBefore = await optionalEnumLabel.boundingBox();
+		expect(optionalEnumLabelBefore).not.toBeNull();
+		await expect(optionalEnumCheckbox).toBeChecked();
+		await optionalEnumCheckbox.uncheck();
+
+		await expect(page.getByRole('button', {name: 'vert'})).toBeVisible();
+		const optionalEnumLabelAfter = await optionalEnumLabel.boundingBox();
+		expect(optionalEnumLabelAfter?.x).toBe(optionalEnumLabelBefore?.x);
+		await expect
+			.poll(
+				() =>
+					fs.readFileSync(rootFile, 'utf-8').includes("optionalEnum: 'vert'"),
+				{
+					message: 'Expected the optional enum value to be persisted',
+					timeout: 10_000,
+				},
+			)
+			.toBe(true);
 
 		const titleInput = page
 			.locator(

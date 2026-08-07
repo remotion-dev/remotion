@@ -118,22 +118,22 @@ for (const skillName of readdirSync(skillsRoot)) {
 	console.log('setting version for', path.join('skills', skillName));
 }
 
-const kimiCodePluginManifestPath = path.join(
-	process.cwd(),
-	'packages',
-	'kimi-code-plugin',
-	'.kimi-plugin',
-	'plugin.json',
-);
-if (existsSync(kimiCodePluginManifestPath)) {
-	const manifest = JSON.parse(
-		readFileSync(kimiCodePluginManifestPath, 'utf-8'),
-	);
+const pluginManifestPaths = [
+	path.join('codex-plugin', 'plugin.json'),
+	path.join('codex-plugin', '.codex-plugin', 'plugin.json'),
+	path.join('claude-code-plugin', '.claude-plugin', 'plugin.json'),
+	path.join('kimi-code-plugin', '.kimi-plugin', 'plugin.json'),
+];
+for (const pluginManifestPath of pluginManifestPaths) {
+	const manifestPath = path.join(process.cwd(), 'packages', pluginManifestPath);
+	if (!existsSync(manifestPath)) {
+		continue;
+	}
+
+	const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
 	manifest.version = version;
-	writeFileSync(
-		kimiCodePluginManifestPath,
-		JSON.stringify(manifest, null, '\t') + '\n',
-	);
+	writeFileSync(manifestPath, JSON.stringify(manifest, null, '\t') + '\n');
+	console.log('setting version for', pluginManifestPath);
 }
 
 execSync('bun ensure-correct-version.ts', {

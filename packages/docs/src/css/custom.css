@@ -346,6 +346,10 @@ code {
 	margin-bottom: 0;
 }
 
+.remotion-footer__column .footer__items {
+	font-family: 'GTPlanar';
+}
+
 @media screen and (max-width: 1199px) {
 	.remotion-footer__links {
 		grid-template-columns: 1fr;

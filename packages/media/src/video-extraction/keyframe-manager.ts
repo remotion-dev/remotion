@@ -1,6 +1,6 @@
 import type {VideoSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
-import {getSafeWindowOfMonotonicity, getTotalCacheStats} from '../caches';
+import {getSafeWindowOfMonotonicity} from '../caches';
 import {renderTimestampRange} from '../render-timestamp-range';
 import {type KeyframeBank, makeKeyframeBank} from './keyframe-bank';
 
@@ -15,8 +15,13 @@ import {type KeyframeBank, makeKeyframeBank} from './keyframe-bank';
 // least-recently-used banks whenever the cache exceeds its budget.
 const RECENTLY_USED_REQUEST_COUNT = 50;
 
-export const makeKeyframeManager = () => {
+export const makeKeyframeManager = ({
+	getTotalCacheStats,
+}: {
+	getTotalCacheStats: () => {count: number; totalSize: number};
+}) => {
 	let sources: Record<string, KeyframeBank[]> = {};
+	let disposed = false;
 
 	// How many times a bank has been requested for a given src, and at which
 	// request each bank was last handed out. Used to detect banks that other
@@ -24,9 +29,23 @@ export const makeKeyframeManager = () => {
 	let requestCountForSrc: Record<string, number> = {};
 	const lastRequestForBank = new WeakMap<KeyframeBank, number>();
 
-	const addKeyframeBank = ({src, bank}: {src: string; bank: KeyframeBank}) => {
+	const addKeyframeBank = ({
+		src,
+		bank,
+		logLevel,
+	}: {
+		src: string;
+		bank: KeyframeBank;
+		logLevel: LogLevel;
+	}) => {
+		if (disposed) {
+			bank.prepareForDeletion(logLevel, 'media cache was disposed');
+			return false;
+		}
+
 		sources[src] = sources[src] ?? [];
 		sources[src].push(bank);
+		return true;
 	};
 
 	const logCacheStats = (logLevel: LogLevel) => {
@@ -258,7 +277,9 @@ export const makeKeyframeManager = () => {
 				initialTimestampRequest: timestamp,
 			});
 
-			addKeyframeBank({src, bank: newKeyframeBank});
+			if (!addKeyframeBank({src, bank: newKeyframeBank, logLevel})) {
+				return null;
+			}
 
 			return newKeyframeBank;
 		}
@@ -290,7 +311,9 @@ export const makeKeyframeManager = () => {
 			src,
 		});
 
-		addKeyframeBank({src, bank: replacementKeybank});
+		if (!addKeyframeBank({src, bank: replacementKeybank, logLevel})) {
+			return null;
+		}
 
 		return replacementKeybank;
 	};
@@ -310,6 +333,10 @@ export const makeKeyframeManager = () => {
 		maxCacheSize: number;
 		fps: number;
 	}) => {
+		if (disposed) {
+			return null;
+		}
+
 		requestCountForSrc[src] = (requestCountForSrc[src] ?? 0) + 1;
 
 		ensureToStayUnderMaxCacheSize(logLevel, maxCacheSize);
@@ -351,6 +378,15 @@ export const makeKeyframeManager = () => {
 		requestCountForSrc = {};
 	};
 
+	const dispose = (logLevel: LogLevel) => {
+		if (disposed) {
+			return;
+		}
+
+		disposed = true;
+		clearAll(logLevel);
+	};
+
 	let queue = Promise.resolve<unknown>(undefined);
 
 	return {
@@ -379,10 +415,11 @@ export const makeKeyframeManager = () => {
 					fps,
 				}),
 			);
-			return queue as Promise<KeyframeBank>;
+			return queue as Promise<KeyframeBank | null>;
 		},
 		getCacheStats,
 		clearAll,
+		dispose,
 	};
 };
 

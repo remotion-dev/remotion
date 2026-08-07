@@ -25,6 +25,7 @@ import {
 	type DragPreviewMetadata,
 	type EffectDragPreviewMetadata,
 	type ElementDragPreviewMetadata,
+	type RenderOutputDragPreviewMetadata,
 	type SfxDragPreviewMetadata,
 } from './drag-preview-metadata';
 import {
@@ -37,6 +38,11 @@ import {
 	parseElementDragData,
 	type ElementDragData,
 } from './element-drag-data';
+import {
+	makeRenderOutputDragData,
+	parseRenderOutputDragData,
+	type RenderOutputDragData,
+} from './render-output-drag-data';
 import {
 	makeSfxDragData,
 	parseSfxDragData,
@@ -82,12 +88,19 @@ export type MakeSfxDragDataInput = SfxDragData['sfx'] & {
 	readonly type: 'sfx';
 };
 
+export type MakeRenderOutputDragDataInput = {
+	readonly type: 'render-output';
+	readonly outputPath: string;
+	readonly fileName: string;
+};
+
 export type MakeDragDataInput =
 	| MakeAssetDragDataInput
 	| MakeComponentDragDataInput
 	| MakeCompositionDragDataInput
 	| MakeEffectDragDataInput
 	| MakeElementDragDataInput
+	| MakeRenderOutputDragDataInput
 	| MakeSfxDragDataInput;
 
 export type ConstructedDragData<
@@ -114,6 +127,7 @@ export type RemotionDragData =
 	| CompositionDragData
 	| EffectDragData
 	| ElementDragData
+	| RenderOutputDragData
 	| SfxDragData;
 
 export type ParsedDragData =
@@ -141,6 +155,11 @@ export type ParsedDragData =
 			readonly type: 'element';
 			readonly data: ElementDragData;
 			readonly preview: ElementDragPreviewMetadata;
+	  }
+	| {
+			readonly type: 'render-output';
+			readonly data: RenderOutputDragData;
+			readonly preview: RenderOutputDragPreviewMetadata;
 	  }
 	| {
 			readonly type: 'sfx';
@@ -221,6 +240,9 @@ type MakeDragData = {
 	): ConstructedDragData<CompositionDragData>;
 	(input: MakeEffectDragDataInput): ConstructedDragData<EffectDragData>;
 	(input: MakeElementDragDataInput): ConstructedDragData<ElementDragData>;
+	(
+		input: MakeRenderOutputDragDataInput,
+	): ConstructedDragData<RenderOutputDragData>;
 	(input: MakeSfxDragDataInput): ConstructedDragData<SfxDragData>;
 	(input: MakeDragDataInput): ConstructedDragData;
 };
@@ -281,6 +303,14 @@ export const makeDragData = ((
 					...(input.dimensions ?? {}),
 					durationInFrames: input.durationInFrames,
 				},
+			);
+		case 'render-output':
+			return construct(
+				makeRenderOutputDragData({
+					outputPath: input.outputPath,
+					fileName: input.fileName,
+				}),
+				{type: input.type},
 			);
 		case 'sfx':
 			return construct(makeSfxDragData({name: input.name, url: input.url}), {
@@ -364,6 +394,12 @@ export const parseDragData = (
 			}
 
 			return {type: preview.type, data, preview};
+		}
+
+		case 'render-output': {
+			const data = parseRenderOutputDragData(payload);
+
+			return data === null ? null : {type: preview.type, data, preview};
 		}
 
 		case 'sfx': {

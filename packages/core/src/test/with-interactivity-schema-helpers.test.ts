@@ -465,7 +465,16 @@ test('backgroundSchema exposes the background color style field', () => {
 });
 
 test('svgStrokeSchema exposes SVG stroke controls', () => {
-	expect(Object.keys(svgStrokeSchema)).toEqual(['stroke', 'strokeWidth']);
+	expect(Object.keys(svgStrokeSchema)).toEqual([
+		'color',
+		'stroke',
+		'strokeWidth',
+	]);
+	expect(svgStrokeSchema.color).toMatchObject({
+		type: 'color',
+		default: undefined,
+		description: 'Current color',
+	});
 	expect(svgStrokeSchema.stroke).toMatchObject({
 		type: 'color',
 		default: 'none',
@@ -485,6 +494,7 @@ test('svgStrokeSchema exposes SVG stroke controls', () => {
 test('svgPaintSchema exposes SVG fill and stroke fields', () => {
 	expect(Object.keys(svgPaintSchema)).toEqual([
 		'fill',
+		'color',
 		'stroke',
 		'strokeWidth',
 	]);
@@ -493,6 +503,7 @@ test('svgPaintSchema exposes SVG fill and stroke fields', () => {
 		default: undefined,
 		description: 'Fill',
 	});
+	expect(svgPaintSchema.color).toBe(svgStrokeSchema.color);
 	expect(svgPaintSchema.stroke).toMatchObject({
 		type: 'color',
 		default: 'none',

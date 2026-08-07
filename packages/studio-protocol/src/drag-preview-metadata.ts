@@ -37,12 +37,17 @@ export type SfxDragPreviewMetadata = {
 	readonly type: 'sfx';
 };
 
+export type RenderOutputDragPreviewMetadata = {
+	readonly type: 'render-output';
+};
+
 export type DragPreviewMetadata =
 	| AssetDragPreviewMetadata
 	| ComponentDragPreviewMetadata
 	| CompositionDragPreviewMetadata
 	| EffectDragPreviewMetadata
 	| ElementDragPreviewMetadata
+	| RenderOutputDragPreviewMetadata
 	| SfxDragPreviewMetadata;
 
 export type DragPreviewMetadataWithMimeType = DragPreviewMetadata & {
@@ -214,6 +219,7 @@ export const parseDragMimeType = (
 		type !== 'composition' &&
 		type !== 'effect' &&
 		type !== 'element' &&
+		type !== 'render-output' &&
 		type !== 'sfx'
 	) {
 		return null;
@@ -226,7 +232,7 @@ export const parseDragMimeType = (
 	}
 
 	if (
-		(type === 'effect' || type === 'sfx') &&
+		(type === 'effect' || type === 'render-output' || type === 'sfx') &&
 		(widthValue !== undefined || values.has('duration'))
 	) {
 		return null;
