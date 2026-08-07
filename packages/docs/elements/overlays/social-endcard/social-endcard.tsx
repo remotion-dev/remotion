@@ -155,7 +155,6 @@ const WebsiteLink = () => {
 						fontFamily,
 						fontWeight: 500,
 						marginLeft: 20,
-						color: 'black',
 					}}
 				>
 					remotion.dev
@@ -250,7 +249,6 @@ const LeftSide = () => {
 								fontFamily,
 								fontWeight: 500,
 								marginLeft: 20,
-								color: 'black',
 							}}
 						>
 							@remotion
@@ -266,7 +264,6 @@ const LeftSide = () => {
 								fontFamily,
 								fontWeight: 500,
 								marginLeft: 20,
-								color: 'black',
 							}}
 						>
 							Remotion
@@ -282,7 +279,6 @@ const LeftSide = () => {
 								fontFamily,
 								fontWeight: 500,
 								marginLeft: 20,
-								color: 'black',
 							}}
 						>
 							@remotion
