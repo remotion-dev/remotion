@@ -87,11 +87,13 @@ const MAX_SOURCE_CACHE_SIZE = 64 * 1024 * 1024;
 // how much memory the user said they have. At the 1 GB default this lands at
 // 62.5 MiB, so the common case is effectively unchanged; the difference shows
 // up when someone deliberately renders in a small memory envelope.
-export const getMaxSourceCacheSize = (logLevel: LogLevel) => {
-	const budget = getMaxVideoCacheSize(logLevel);
-
+export const getMaxSourceCacheSizeFromBudget = (budget: number) => {
 	return Math.min(
 		MAX_SOURCE_CACHE_SIZE,
 		Math.max(MIN_SOURCE_CACHE_SIZE, Math.floor(budget / 16)),
 	);
+};
+
+export const getMaxSourceCacheSize = (logLevel: LogLevel) => {
+	return getMaxSourceCacheSizeFromBudget(getMaxVideoCacheSize(logLevel));
 };
