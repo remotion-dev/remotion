@@ -26,9 +26,22 @@ export const SequencePropsObserver = () => {
 		};
 
 		const handleRemapping = (event: EventSourceEvent) => {
-			if (event.type === 'sequence-props-remapped') {
-				pendingRemappings.current.push(event);
+			if (event.type !== 'sequence-props-remapped') {
+				return;
 			}
+
+			// This event arrives before Fast Refresh commits the new tree. Static
+			// overrides from either path would therefore belong to the wrong tree.
+			const notFound = {
+				canUpdate: false as const,
+				reason: 'not-found' as const,
+			};
+			setPropStatuses(event.previousNodePath, () => notFound);
+			if (event.nodePath !== null) {
+				setPropStatuses(event.nodePath, () => notFound);
+			}
+
+			pendingRemappings.current.push(event);
 		};
 
 		const unsubscribe = subscribeToEvent('sequence-props-updated', handleEvent);
@@ -48,15 +61,16 @@ export const SequencePropsObserver = () => {
 		pendingRemappings.current = [];
 
 		for (const event of events) {
-			const {nodePath, result} = event;
-			if (nodePath === null || result === null) {
+			if (event.nodePath === null) {
 				continue;
 			}
 
-			setPropStatuses(nodePath, () => result);
-			migrateExpandedTracksForSubscriptionKey(event.previousNodePath, nodePath);
+			migrateExpandedTracksForSubscriptionKey(
+				event.previousNodePath,
+				event.nodePath,
+			);
 		}
-	}, [fastRefreshes, migrateExpandedTracksForSubscriptionKey, setPropStatuses]);
+	}, [fastRefreshes, migrateExpandedTracksForSubscriptionKey]);
 
 	return null;
 };

@@ -323,6 +323,46 @@ test.describe('visual mode', () => {
 		await expect(
 			canvas.getByText('Bars remain visible', {exact: true}),
 		).toBeVisible();
+		await page.evaluate(() => {
+			const state = window as typeof window & {
+				sequenceRemappingBadFrames?: string[];
+			};
+			state.sequenceRemappingBadFrames = [];
+			const sample = () => {
+				const container = document.querySelector(
+					'.remotion-studio-composition-container',
+				);
+				if (!container) {
+					requestAnimationFrame(sample);
+					return;
+				}
+
+				const regionalGrowthElements = [
+					...container.querySelectorAll('*'),
+				].filter((element) =>
+					[...element.childNodes].some(
+						(child) =>
+							child.nodeType === Node.TEXT_NODE &&
+							child.textContent?.trim() === 'Regional growth',
+					),
+				);
+				if (regionalGrowthElements.length > 1) {
+					state.sequenceRemappingBadFrames?.push('duplicate-title');
+				}
+
+				if (
+					regionalGrowthElements.some(
+						(element) =>
+							getComputedStyle(element).textTransform === 'uppercase',
+					)
+				) {
+					state.sequenceRemappingBadFrames?.push('uppercase-title');
+				}
+
+				requestAnimationFrame(sample);
+			};
+			requestAnimationFrame(sample);
+		});
 
 		const eyebrow = page.locator(
 			'[data-timeline-marquee-item][title="Eyebrow"]',
@@ -346,6 +386,43 @@ test.describe('visual mode', () => {
 		await expect(
 			page.locator('[data-timeline-marquee-item][title="Chart"]'),
 		).toBeVisible();
+
+		await page.getByRole('button', {name: /^Undo/}).click();
+		await expect
+			.poll(() => fs.readFileSync(lostNodePathE2eFile, 'utf-8'))
+			.toContain('name="Eyebrow"');
+		await expect(eyebrow).toBeVisible({timeout: 30_000});
+		await expect(
+			canvas.getByText('Performance overview', {exact: true}),
+		).toBeVisible();
+		await expect(
+			canvas.getByText('Regional growth', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			canvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
+
+		await page.getByRole('button', {name: /^Redo/}).click();
+		await expect
+			.poll(() => fs.readFileSync(lostNodePathE2eFile, 'utf-8'))
+			.not.toContain('name="Eyebrow"');
+		await expect(eyebrow).toHaveCount(0, {timeout: 30_000});
+		await expect(
+			canvas.getByText('Regional growth', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			canvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
+		expect(
+			await page.evaluate(
+				() =>
+					(
+						window as typeof window & {
+							sequenceRemappingBadFrames?: string[];
+						}
+					).sequenceRemappingBadFrames ?? [],
+			),
+		).toEqual([]);
 	});
 
 	test('should use standalone and contextual app names in portaled context menus', async ({

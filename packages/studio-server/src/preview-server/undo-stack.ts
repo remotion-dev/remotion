@@ -5,6 +5,7 @@ import {parseAst} from '../codemods/parse-ast';
 import {readVisualControlValues} from '../codemods/read-visual-control-values';
 import {
 	installFileWatcher,
+	type SequenceNodePathRemapping,
 	writeFileAndNotifyFileWatchers,
 } from '../file-watcher';
 import {formatLogFileLocation} from './format-log-file-location';
@@ -51,6 +52,7 @@ type UndoEntrySnapshot = {
 	newContents: string | null;
 	/** 1-based source line for terminal/IDE file links (e.g. path:line). */
 	logLine: number;
+	nodePathRemappings?: SequenceNodePathRemapping[];
 };
 
 type UndoEntry = {
@@ -156,6 +158,7 @@ export function pushToUndoStack({
 	description,
 	entryType,
 	suppressHmrOnFileRestore,
+	nodePathRemappings,
 }: {
 	filePath: string;
 	oldContents: string;
@@ -166,6 +169,7 @@ export function pushToUndoStack({
 	description: UndoEntryDescription;
 	entryType: UndoEntryType;
 	suppressHmrOnFileRestore: boolean;
+	nodePathRemappings?: SequenceNodePathRemapping[];
 }) {
 	pushTransactionToUndoStack({
 		snapshots: [
@@ -174,6 +178,7 @@ export function pushToUndoStack({
 				oldContents,
 				newContents,
 				logLine,
+				nodePathRemappings,
 			},
 		],
 		logLevel,
@@ -197,6 +202,7 @@ export function pushTransactionToUndoStack({
 		oldContents: string | null;
 		newContents: string | null;
 		logLine: number;
+		nodePathRemappings?: SequenceNodePathRemapping[];
 	}>;
 	logLevel: LogLevel;
 	remotionRoot: string;
@@ -457,10 +463,27 @@ export function popUndo(): {success: true} | {success: false; reason: string} {
 		if (snapshot.oldContents === null) {
 			rmSync(snapshot.filePath, {force: true});
 		} else {
+			// Deleted nodes have no path in the changed source. If they are restored,
+			// their mounted component creates a fresh subscription after Fast Refresh.
+			const reversedNodePathRemappings = snapshot.nodePathRemappings?.flatMap(
+				(remapping): SequenceNodePathRemapping[] => {
+					if (remapping.newNodePath === null) {
+						return [];
+					}
+
+					return [
+						{
+							oldNodePath: remapping.newNodePath,
+							newNodePath: remapping.oldNodePath,
+						},
+					];
+				},
+			);
 			writeFileAndNotifyFileWatchers(
 				snapshot.filePath,
 				snapshot.oldContents,
 				undefined,
+				reversedNodePathRemappings,
 			);
 		}
 	}
@@ -531,6 +554,7 @@ export function popRedo(): {success: true} | {success: false; reason: string} {
 			snapshot.filePath,
 			snapshot.newContents,
 			undefined,
+			snapshot.nodePathRemappings,
 		);
 	}
 

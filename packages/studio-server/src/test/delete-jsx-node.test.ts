@@ -13,7 +13,11 @@ import {setLiveEventsListener} from '../preview-server/live-events';
 import {deleteJsxNodeHandler} from '../preview-server/routes/delete-jsx-node';
 import {subscribeToSequenceProps} from '../preview-server/routes/subscribe-to-sequence-props';
 import {unsubscribeClientSequencePropsWatchers} from '../preview-server/sequence-props-watchers';
-import {clearUndoStackForTests} from '../preview-server/undo-stack';
+import {
+	clearUndoStackForTests,
+	popRedo,
+	popUndo,
+} from '../preview-server/undo-stack';
 import {lineColumnToNodePath} from './test-utils';
 
 const sample = `import React from 'react';
@@ -287,6 +291,52 @@ test('deleting a JSX node remaps subscriptions for following siblings', async ()
 				previousNodePath: lineColumnToNodePath(interactiveSiblings, 8),
 			},
 		]);
+
+		events.length = 0;
+		expect(popUndo()).toEqual({success: true});
+		await Promise.resolve();
+		expect(readFileSync(filePath, 'utf-8')).toBe(interactiveSiblings);
+		expect(events.some((event) => event.type === 'lost-node-path')).toBe(false);
+		expect(
+			events.flatMap((event) => {
+				if (
+					event.type !== 'sequence-props-remapped' ||
+					event.nodePath === null ||
+					event.result === null ||
+					!event.result.canUpdate
+				) {
+					return [];
+				}
+
+				return [
+					{
+						name: event.result.props.name,
+						newNodePath: event.nodePath.nodePath,
+						previousNodePath: event.previousNodePath.nodePath,
+					},
+				];
+			}),
+		).toEqual([
+			{
+				name: {codeValue: 'Title', status: 'static'},
+				newNodePath: lineColumnToNodePath(interactiveSiblings, 7),
+				previousNodePath: lineColumnToNodePath(output, 6),
+			},
+			{
+				name: {codeValue: 'Chart', status: 'static'},
+				newNodePath: lineColumnToNodePath(interactiveSiblings, 8),
+				previousNodePath: lineColumnToNodePath(output, 7),
+			},
+		]);
+
+		events.length = 0;
+		expect(popRedo()).toEqual({success: true});
+		await Promise.resolve();
+		expect(readFileSync(filePath, 'utf-8')).toBe(output);
+		expect(events.some((event) => event.type === 'lost-node-path')).toBe(false);
+		expect(
+			events.filter((event) => event.type === 'sequence-props-remapped'),
+		).toHaveLength(2);
 
 		events.length = 0;
 		writeFileAndNotifyFileWatchers(
