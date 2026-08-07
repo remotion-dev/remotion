@@ -79,6 +79,7 @@ const config: Config = {
 					label: 'Products',
 					position: 'left',
 					items: [
+						{to: '/docs/ai/plugins', label: 'Plugins'},
 						{to: '/player', label: 'Player'},
 						{to: '/lambda', label: 'Lambda'},
 						{to: '/docs/editor-starter', label: 'Editor Starter'},
@@ -92,6 +93,7 @@ const config: Config = {
 					label: 'Resources',
 					position: 'left',
 					items: [
+						{to: '/elements', label: 'Elements'},
 						{to: '/templates', label: 'Templates'},
 						{to: 'https://remotion.dev/prompts', label: 'Prompts'},
 						{to: 'learn', label: 'Learn'},
@@ -149,6 +151,10 @@ const config: Config = {
 						{
 							label: 'Getting started',
 							to: '/docs/',
+						},
+						{
+							label: 'Elements',
+							to: '/elements',
 						},
 						{
 							label: 'Templates',
@@ -245,6 +251,10 @@ const config: Config = {
 							to: 'contact',
 						},
 						{
+							label: 'Investors',
+							to: '/docs/investors',
+						},
+						{
 							label: 'Brand',
 							href: 'https://remotion.dev/brand',
 						},
@@ -270,10 +280,6 @@ const config: Config = {
 							to: '/docs/dpia',
 						},
 						{
-							label: 'Accessibility',
-							to: '/docs/accessibility',
-						},
-						{
 							label: 'Acknowledgments',
 							to: '/docs/acknowledgements',
 						},
@@ -289,6 +295,10 @@ const config: Config = {
 						{
 							label: 'Support',
 							to: '/docs/support',
+						},
+						{
+							label: 'Accessibility',
+							to: '/docs/accessibility',
 						},
 					],
 				},
