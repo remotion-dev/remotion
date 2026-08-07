@@ -145,4 +145,44 @@ test.describe('effect keyframes', () => {
 			)
 			.toBe(true);
 	});
+
+	test('collapses timeline tracks until a property or effect is selected', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		await expect(page).toHaveURL(/effect-keyframe-e2e/, {timeout: 15_000});
+		await page.waitForFunction(
+			() => !document.body.innerText.includes('Loading...'),
+			{timeout: 30_000},
+		);
+
+		const opacityRow = page.getByText('Opacity', {exact: true});
+		await expect(async () => {
+			await page
+				.getByTitle('Timeline expansion', {exact: true})
+				.first()
+				.click();
+			await expect(opacityRow).toHaveCount(1, {timeout: 1_000});
+		}).toPass({timeout: 15_000});
+		await expect(
+			page.locator('button[aria-label="Expand track properties"]'),
+		).toBeVisible();
+
+		await opacityRow.click();
+
+		await expect(
+			page.locator('button[aria-label="Collapse track properties"]'),
+		).toBeVisible();
+		await expect(opacityRow).toHaveCount(2);
+
+		const waveRow = page.getByText('wave()', {exact: true});
+		await expect(async () => {
+			await page.getByTitle('Scale precision', {exact: true}).first().click();
+			await expect(waveRow).toHaveCount(1, {timeout: 1_000});
+		}).toPass({timeout: 15_000});
+
+		await waveRow.click();
+
+		await expect(waveRow).toHaveCount(2);
+	});
 });
