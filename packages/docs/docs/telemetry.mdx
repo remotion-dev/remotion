@@ -47,6 +47,7 @@ Customers who cannot enable telemetry due to company policy must arrange an alte
 The following information is sent:
 
 - License key (if set)
+- IP address of the machine triggering the render
 - Whether this render was a video or a still image
 - Whether this render was in production or development
 
@@ -54,7 +55,6 @@ For [client-side rendering](/docs/client-side-rendering), the following addition
 
 - Domain name (e.g. `https://www.remotion.dev`) - the value of `window.location.origin` of the page performing the render. Server-side rendering does not send a domain name.
 - Whether the render succeeded or failed - server-side rendering only sends events for successful renders.
-- IP address of the end user - the event is sent from the end user's browser, therefore Remotion's servers see their IP address.
 
 No content or metadata of the video rendered, or any user data is collected.
 
