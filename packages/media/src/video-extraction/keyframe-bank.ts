@@ -3,6 +3,7 @@ import {Internals, type LogLevel} from 'remotion';
 import {getSafeWindowOfMonotonicity} from '../caches';
 import {roundTo4Digits} from '../helpers/round-to-4-digits';
 import {renderTimestampRange} from '../render-timestamp-range';
+import {makeSerializedQueue} from '../serialized-queue';
 import {getAllocationSize} from './get-allocation-size';
 
 // duration can be wrong! we shall not rely on it, but calculate it ourselves
@@ -283,7 +284,7 @@ export const makeKeyframeBank = async ({
 		return lastUsed;
 	};
 
-	let queue = Promise.resolve<unknown>(undefined);
+	const enqueue = makeSerializedQueue();
 
 	const firstFrame = await sampleIterator.next();
 	if (!firstFrame.value) {
@@ -384,13 +385,11 @@ export const makeKeyframeBank = async ({
 
 	const keyframeBank: KeyframeBank = {
 		getFrameFromTimestamp: (timestamp: number, fps: number) => {
-			queue = queue.then(() => getFrameFromTimestamp(timestamp, fps));
-			return queue as Promise<VideoSample | null>;
+			return enqueue(() => getFrameFromTimestamp(timestamp, fps));
 		},
 		prepareForDeletion,
 		hasTimestampInSecond: (timestamp: number, fps: number) => {
-			queue = queue.then(() => hasTimestampInSecond(timestamp, fps));
-			return queue as Promise<boolean>;
+			return enqueue(() => hasTimestampInSecond(timestamp, fps));
 		},
 		addFrame,
 		deleteFramesBeforeTimestamp,

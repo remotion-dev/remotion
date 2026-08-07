@@ -2,6 +2,7 @@ import React from 'react';
 import {cancelRender, Internals, type LogLevel} from 'remotion';
 import {makeAudioManager} from './audio-extraction/audio-manager';
 import {makeSinkManager} from './get-sink';
+import {makeSerializedQueue} from './serialized-queue';
 import {makeKeyframeManager} from './video-extraction/keyframe-manager';
 
 // Frames can be out of order, but we don't expect them to be more than 0.2 seconds out of order
@@ -42,8 +43,8 @@ export const makeMediaCache = () => {
 	});
 	managerInstances.keyframe = keyframeManagerInstance;
 	managerInstances.audio = audioManagerInstance;
-	let frameExtractionQueue = Promise.resolve<unknown>(undefined);
-	let audioExtractionQueue = Promise.resolve<unknown>(undefined);
+	const queueFrameExtraction = makeSerializedQueue();
+	const queueAudioExtraction = makeSerializedQueue();
 	let disposed = false;
 
 	return {
@@ -52,16 +53,8 @@ export const makeMediaCache = () => {
 		audioManager: audioManagerInstance,
 		getTotalCacheStats: getCacheStats,
 		isDisposed: () => disposed,
-		queueFrameExtraction: <T>(extract: () => Promise<T>) => {
-			const extraction = frameExtractionQueue.then(extract);
-			frameExtractionQueue = extraction.catch(() => undefined);
-			return extraction;
-		},
-		queueAudioExtraction: <T>(extract: () => Promise<T>) => {
-			const extraction = audioExtractionQueue.then(extract);
-			audioExtractionQueue = extraction.catch(() => undefined);
-			return extraction;
-		},
+		queueFrameExtraction,
+		queueAudioExtraction,
 		dispose: (logLevel: LogLevel) => {
 			if (disposed) {
 				return;

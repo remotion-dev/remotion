@@ -2,6 +2,7 @@ import type {VideoSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
 import {getSafeWindowOfMonotonicity} from '../caches';
 import {renderTimestampRange} from '../render-timestamp-range';
+import {makeSerializedQueue} from '../serialized-queue';
 import {type KeyframeBank, makeKeyframeBank} from './keyframe-bank';
 
 export const makeKeyframeManager = ({
@@ -352,7 +353,7 @@ export const makeKeyframeManager = ({
 		clearAll(logLevel);
 	};
 
-	let queue = Promise.resolve<unknown>(undefined);
+	const enqueue = makeSerializedQueue();
 
 	return {
 		requestKeyframeBank: ({
@@ -370,7 +371,7 @@ export const makeKeyframeManager = ({
 			maxCacheSize: number;
 			fps: number;
 		}) => {
-			queue = queue.then(() =>
+			return enqueue(() =>
 				requestKeyframeBank({
 					timestamp,
 					videoSampleSink,
@@ -380,7 +381,6 @@ export const makeKeyframeManager = ({
 					fps,
 				}),
 			);
-			return queue as Promise<KeyframeBank | null>;
 		},
 		getCacheStats,
 		clearAll,
