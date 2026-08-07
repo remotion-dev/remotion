@@ -69,7 +69,7 @@ chrome.runtime.onMessage.addListener((message) => {
 		return;
 	}
 
-	const url = new URL('https://remotion.dev/convert');
+	const url = new URL('https://www.remotion.dev/convert');
 	url.searchParams.set('canvas-capture', message.captureId);
 	return chrome.tabs.create({url: url.toString()});
 });

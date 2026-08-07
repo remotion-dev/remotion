@@ -12,7 +12,10 @@
 	},
 	"content_scripts": [
 		{
-			"matches": ["https://remotion.dev/convert*"],
+			"matches": [
+				"https://remotion.dev/convert*",
+				"https://www.remotion.dev/convert*"
+			],
 			"js": ["receiver.js"],
 			"run_at": "document_start"
 		}
