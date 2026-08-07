@@ -8,6 +8,15 @@ crumb: 'Lambda'
 
 On this page, a few strategies for optimizing the cost of using Remotion Lambda are presented.
 
+## Use the `@remotion/media` tags
+
+Use [`<Video />`](/docs/media/video) and [`<Audio />`](/docs/media/audio) from [`@remotion/media`](/docs/media) instead of [`<OffthreadVideo />`](/docs/offthreadvideo) or [`<Html5Video />`](/docs/html5-video). On Lambda, this reduces the bill in two ways:
+
+- **Less compute time**: The `@remotion/media` tags are the fastest way to render video. Since Lambda is billed per GB-second, a faster render is directly a cheaper render.
+- **Less data transfer**: They fetch media using byte range requests, so a Lambda function only downloads the part of the file it actually renders. [`<OffthreadVideo />`](/docs/offthreadvideo) downloads the entire file into every function. See [Data transfer cost](/docs/lambda/data-transfer-cost#option-2-use-remotionmedia-tags).
+
+See the [comparison of video tags](/docs/video-tags) for the tradeoffs. Note that some media falls back to [`<OffthreadVideo />`](/docs/offthreadvideo) during rendering, which forgoes these savings — see [Fallback behavior](/docs/media/fallback) for when this happens and how to observe it on Lambda.
+
 ## Less memory
 
 Reducing the memory will linearly decrease the cost. Try out different values for the memory when deploying a Lambda function and see how low you can set it without experiencing a crash.
@@ -35,5 +44,7 @@ See [this video](https://www.youtube.com/watch?v=GUsjj1jsLhw) of how we optimize
 ## See also
 
 - [How much does Remotion Lambda cost?](/docs/lambda/cost-example)
+- [Data transfer cost](/docs/lambda/data-transfer-cost)
+- [Comparison of video tags](/docs/video-tags)
 - [Optimizing for speed](/docs/lambda/optimizing-speed)
 - [Performance](/docs/performance)
