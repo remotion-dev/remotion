@@ -7,24 +7,14 @@ const arrow: React.CSSProperties = {
 	height: 7,
 	display: 'block',
 	overflow: 'visible',
-	marginLeft: 7,
-};
-
-const arrowUp: React.CSSProperties = {
-	...arrow,
-	transform: `translateY(1px)`,
-};
-
-const arrowDown: React.CSSProperties = {
-	...arrow,
-	marginTop: -1,
 };
 
 export const InfoTooltip: React.FC<{
 	readonly children: React.ReactNode;
 	readonly arrowDirection: 'up' | 'down';
 	readonly backgroundColor: string;
-}> = ({children, arrowDirection, backgroundColor}) => {
+	readonly horizontalAlignment: 'left' | 'right';
+}> = ({children, arrowDirection, backgroundColor, horizontalAlignment}) => {
 	const container: React.CSSProperties = useMemo(() => {
 		return {
 			boxShadow:
@@ -37,19 +27,29 @@ export const InfoTooltip: React.FC<{
 			borderRadius: '4px',
 		};
 	}, [arrowDirection, backgroundColor]);
+	const arrowStyle: React.CSSProperties = useMemo(() => {
+		return {
+			...arrow,
+			...(horizontalAlignment === 'left' ? {marginLeft: 7} : {marginRight: 7}),
+			...(arrowDirection === 'up'
+				? {transform: `translateY(1px)`}
+				: {marginTop: -1}),
+		};
+	}, [arrowDirection, horizontalAlignment]);
+
 	return (
 		<div
 			style={{
 				display: 'flex',
 				flexDirection: arrowDirection === 'up' ? 'column-reverse' : 'column',
-				alignItems: 'flex-start',
+				alignItems: horizontalAlignment === 'left' ? 'flex-start' : 'flex-end',
 			}}
 		>
 			<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 				{children}
 			</div>
 			{arrowDirection === 'down' ? (
-				<svg viewBox="0 0 14 7" style={arrowDown}>
+				<svg viewBox="0 0 14 7" style={arrowStyle}>
 					<path
 						d={`M 14 0 L 7 7 L 0 0`}
 						fill={backgroundColor}
@@ -60,7 +60,7 @@ export const InfoTooltip: React.FC<{
 				</svg>
 			) : null}
 			{arrowDirection === 'up' ? (
-				<svg viewBox="0 0 14 7" style={arrowUp}>
+				<svg viewBox="0 0 14 7" style={arrowStyle}>
 					<path
 						d={`M 0 7 L 7 0 L 14 7`}
 						fill={backgroundColor}
