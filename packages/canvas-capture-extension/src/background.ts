@@ -1,23 +1,60 @@
-const togglePanel = {type: 'remotion-canvas-capture-toggle'};
+import {capturePopupTargetMessageType} from './messages';
+
+const captureWindowStorageKey = 'remotion-canvas-capture-window-id';
+let windowAction = Promise.resolve();
+
+const showCaptureWindow = async (tabId: number) => {
+	const stored = await chrome.storage.session.get(captureWindowStorageKey);
+	const storedWindowId = stored[captureWindowStorageKey];
+	if (typeof storedWindowId === 'number') {
+		try {
+			await chrome.windows.update(storedWindowId, {focused: true});
+			await chrome.runtime.sendMessage({
+				type: capturePopupTargetMessageType,
+				tabId,
+			});
+			return;
+		} catch {
+			await chrome.storage.session.remove(captureWindowStorageKey);
+		}
+	}
+
+	const url = new URL(chrome.runtime.getURL('popup.html'));
+	url.searchParams.set('tabId', String(tabId));
+	const captureWindow = await chrome.windows.create({
+		url: url.toString(),
+		type: 'popup',
+		width: 340,
+		height: 435,
+		focused: true,
+	});
+	if (captureWindow.id !== undefined) {
+		await chrome.storage.session.set({
+			[captureWindowStorageKey]: captureWindow.id,
+		});
+	}
+};
 
 chrome.action.onClicked.addListener((tab) => {
 	if (tab.id === undefined) {
 		return;
 	}
 
-	const open = async () => {
-		try {
-			await chrome.tabs.sendMessage(tab.id!, togglePanel);
-		} catch {
-			await chrome.scripting.executeScript({
-				target: {tabId: tab.id!},
-				files: ['content.js'],
-			});
-			await chrome.tabs.sendMessage(tab.id!, togglePanel);
+	const tabId = tab.id;
+	windowAction = windowAction
+		.then(() => showCaptureWindow(tabId))
+		.catch(() => undefined);
+});
+
+chrome.windows.onRemoved.addListener((windowId) => {
+	const clearStoredWindow = async () => {
+		const stored = await chrome.storage.session.get(captureWindowStorageKey);
+		if (stored[captureWindowStorageKey] === windowId) {
+			await chrome.storage.session.remove(captureWindowStorageKey);
 		}
 	};
 
-	open().catch(() => undefined);
+	clearStoredWindow().catch(() => undefined);
 });
 
 chrome.runtime.onMessage.addListener((message) => {
