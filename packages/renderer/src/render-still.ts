@@ -458,7 +458,8 @@ const internalRenderStillRaw = (
 				}
 
 				LicensingInternals.internalRegisterUsageEvent({
-					licenseKey: options.licenseKey,
+					licenseKey:
+						options.licenseKey === 'free-license' ? null : options.licenseKey,
 					event: 'cloud-render',
 					host: null,
 					succeeded: true,
@@ -630,8 +631,7 @@ export const renderStill = (
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
-		licenseKey:
-			effectiveLicenseKey === 'free-license' ? null : effectiveLicenseKey,
+		licenseKey: effectiveLicenseKey,
 		onLog: defaultOnLog,
 		isProduction: isProduction ?? null,
 	});

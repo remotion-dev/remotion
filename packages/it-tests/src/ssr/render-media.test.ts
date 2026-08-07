@@ -66,11 +66,16 @@ test(
 			});
 
 			expect(existsSync(outPath)).toBe(true);
-			expect(
-				fetchSpy.mock.calls.some(([input]) =>
-					String(input).startsWith('https://www.remotion.pro/api/track/'),
-				),
-			).toBe(false);
+			const licensingCall = fetchSpy.mock.calls.find(([input]) =>
+				String(input).startsWith('https://www.remotion.pro/api/track/'),
+			);
+			expect(licensingCall).toBeDefined();
+			expect(JSON.parse(String(licensingCall?.[1]?.body))).toMatchObject({
+				apiKey: null,
+				event: 'cloud-render',
+				host: null,
+				isStill: false,
+			});
 			expect(
 				warnSpy.mock.calls.some((args) =>
 					args.join(' ').includes('Pass "licenseKey" to renderMedia()'),

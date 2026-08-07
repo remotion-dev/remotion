@@ -448,7 +448,7 @@ export const renderStillFlow = async ({
 				printToConsole: true,
 			});
 		},
-		licenseKey: licenseKey === 'free-license' ? null : licenseKey,
+		licenseKey,
 		isProduction: null,
 	});
 

@@ -858,7 +858,7 @@ const internalRenderMediaRaw = ({
 						event: 'cloud-render',
 						host: null,
 						succeeded: true,
-						licenseKey: licenseKey ?? null,
+						licenseKey: licenseKey === 'free-license' ? null : licenseKey,
 						isProduction: isProduction ?? true,
 						isStill: false,
 					})
@@ -1133,8 +1133,7 @@ export const renderMedia = ({
 		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 		chromeMode: chromeMode ?? 'headless-shell',
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
-		licenseKey:
-			effectiveLicenseKey === 'free-license' ? null : effectiveLicenseKey,
+		licenseKey: effectiveLicenseKey,
 		onLog: defaultOnLog,
 		isProduction: isProduction ?? null,
 		sampleRate: sampleRate ?? composition.defaultSampleRate ?? 48000,
