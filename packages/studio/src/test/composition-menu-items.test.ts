@@ -34,7 +34,7 @@ const installTestWindowWithEditor = () => {
 		configurable: true,
 		value: {
 			remotion_cwd: '/project',
-			remotion_editorName: 'VS Code',
+			remotion_editorName: 'Code',
 		},
 	});
 };
@@ -132,8 +132,8 @@ test('editor actions use Open labels and are adjacent', () => {
 		throw new Error('Expected editor actions');
 	}
 
-	expect(compositionItem.label).toBe('Open composition in VS Code');
-	expect(componentItem.label).toBe('Open component in VS Code');
+	expect(compositionItem.label).toBe('Open composition in Code');
+	expect(componentItem.label).toBe('Open component in Code');
 });
 
 test('read-only composition menus keep navigation and copy actions enabled', () => {

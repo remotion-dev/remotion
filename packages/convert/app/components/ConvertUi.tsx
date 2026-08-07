@@ -529,6 +529,16 @@ const ConvertUI = ({
 		setState({type: 'idle'});
 	}, []);
 
+	const onOutputNameChange = useCallback((newName: string) => {
+		setState((currentState) => {
+			if (currentState.type !== 'done') {
+				return currentState;
+			}
+
+			return {...currentState, newName};
+		});
+	}, []);
+
 	const onMirrorClick = useCallback(() => {
 		setVideoEditState((editState) => ({
 			...editState,
@@ -589,6 +599,7 @@ const ConvertUI = ({
 					state={state.state}
 					newName={state.newName}
 					draggableFile={null}
+					onNameChange={null}
 					done={false}
 					duration={durationInSeconds}
 					isReencoding={
@@ -618,6 +629,7 @@ const ConvertUI = ({
 					state={state.state}
 					newName={state.newName}
 					draggableFile={state.draggableFile}
+					onNameChange={onOutputNameChange}
 					duration={durationInSeconds}
 					isReencoding={
 						supportedConfigs !== null &&
