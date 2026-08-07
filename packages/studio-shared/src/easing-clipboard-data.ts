@@ -32,6 +32,7 @@ export const isKeyframeEasing = (value: unknown): value is KeyframeEasing => {
 	return (
 		isRecord(value) &&
 		(value.type === 'linear' ||
+			value.type === 'step1' ||
 			(value.type === 'bezier' &&
 				isFiniteNumber(value.x1) &&
 				isFiniteNumber(value.y1) &&

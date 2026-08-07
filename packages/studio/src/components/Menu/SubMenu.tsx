@@ -1,9 +1,10 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useContext} from 'react';
 import {useMobileLayout} from '../../helpers/mobile-layout';
 import {noop} from '../../helpers/noop';
 import {HigherZIndex} from '../../state/z-index';
 import type {SubMenu} from '../NewComposition/ComboBox';
 import {MenuContent} from '../NewComposition/MenuContent';
+import {isNodeInMenuTree, MenuTreeContext} from './menu-tree-context';
 import type {SubMenuActivated} from './MenuSubItem';
 import {portals} from './portals';
 
@@ -21,15 +22,26 @@ export const SubMenuComponent: React.FC<{
 	onQuitSubMenu,
 }) => {
 	const mobileLayout = useMobileLayout();
+	const menuTreeId = useContext(MenuTreeContext);
 	const onOutsideClick = useCallback(
 		(e: Node) => {
+			if (menuTreeId !== null) {
+				if (isNodeInMenuTree(e, menuTreeId)) {
+					onQuitSubMenu();
+				} else {
+					onQuitFullMenu();
+				}
+
+				return;
+			}
+
 			if (portals.find((p) => p.contains(e)) || mobileLayout) {
 				onQuitSubMenu();
 			} else {
 				onQuitFullMenu();
 			}
 		},
-		[mobileLayout, onQuitFullMenu, onQuitSubMenu],
+		[menuTreeId, mobileLayout, onQuitFullMenu, onQuitSubMenu],
 	);
 
 	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
@@ -40,6 +52,7 @@ export const SubMenuComponent: React.FC<{
 	return (
 		<HigherZIndex onEscape={onQuitFullMenu} onOutsideClick={onOutsideClick}>
 			<div
+				data-remotion-menu-tree-id={menuTreeId ?? undefined}
 				style={portalStyle}
 				className="css-reset"
 				onPointerDown={onPointerDown}

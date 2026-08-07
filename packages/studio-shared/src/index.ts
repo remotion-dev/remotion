@@ -27,6 +27,8 @@ export {
 	CompositionComponentInfoResponse,
 	ConvertFigmaClipboardToSvgRequest,
 	ConvertFigmaClipboardToSvgResponse,
+	CopyRenderOutputToAssetRequest,
+	CopyRenderOutputToAssetResponse,
 	CopyStillToClipboardRequest,
 	DeleteEffectKeyframe,
 	DeleteEffectRequest,
@@ -73,6 +75,8 @@ export {
 	MoveKeyframesRequest,
 	MoveKeyframesResponse,
 	MoveSequenceKeyframe,
+	OpenInCodingAgentRequest,
+	OpenInCodingAgentResponse,
 	OpenInEditorRequest,
 	OpenInEditorResponse,
 	OpenInFileExplorerRequest,
@@ -123,22 +127,20 @@ export {
 	UnsubscribeFromSequencePropsRequest,
 	UpdateAvailableRequest,
 	UpdateAvailableResponse,
-	UpdateDefaultCodingAgentRequest,
-	UpdateDefaultCodingAgentResponse,
-	UpdateDefaultEditorRequest,
-	UpdateDefaultEditorResponse,
+	UpdateConfigRequest,
+	UpdateConfigResponse,
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse,
 	UpdateEffectKeyframeSettingsRequest,
 	UpdateEffectKeyframeSettingsResponse,
 	UpdateElementInstallTargetRequest,
 	UpdateElementInstallTargetResponse,
-	UpdatePublicLicenseRequest,
-	UpdatePublicLicenseResponse,
 	UpdateSequenceKeyframeSettingsRequest,
 	UpdateSequenceKeyframeSettingsResponse,
 	type AddEffectKeyframe,
 	type AddSequenceKeyframe,
+	type ConfigUpdate,
+	type ConfigValue,
 	type KeyframeSettings,
 } from './api-requests';
 export type {BrowserStudioOperations} from './browser-studio-operations';
@@ -148,6 +150,7 @@ export {
 	getConfigFileChangeMessage,
 	type ConfigFileChangeType,
 } from './config-file-change';
+export {configMethodLifecycles} from './config-method-lifecycles';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {
 	detectFileType,
@@ -219,6 +222,7 @@ export {
 export {
 	CUBIC_KEYFRAME_EASING,
 	EASE_KEYFRAME_EASING,
+	HOLD_KEYFRAME_EASING,
 	KEYFRAME_EASING_PRESETS,
 	LINEAR_KEYFRAME_EASING,
 	QUAD_KEYFRAME_EASING,

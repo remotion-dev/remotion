@@ -41,11 +41,17 @@ export interface TwoslashVersions {
 	shikiTwoslash: string;
 }
 
+interface TwoslashWorkspacePackage {
+	dependencies: string[];
+	declarationHash: string;
+}
+
 export interface TwoslashCacheContext {
 	localRoot: string;
 	sharedRoot: string | null;
 	environmentHash: string;
 	versions: TwoslashVersions;
+	workspacePackages: Record<string, TwoslashWorkspacePackage>;
 }
 
 interface SharedCacheHeader {
@@ -170,7 +176,7 @@ const getRepositoryRoot = (docsRoot: string): string => {
 	);
 };
 
-const getTrackedEnvironmentFiles = (repositoryRoot: string): string[] => {
+const getTrackedPackageJsonFiles = (repositoryRoot: string): string[] => {
 	try {
 		const output = execFileSync(
 			'git',
@@ -180,19 +186,14 @@ const getTrackedEnvironmentFiles = (repositoryRoot: string): string[] => {
 				'ls-files',
 				'-z',
 				'--',
-				'bun.lock',
-				'package.json',
 				':(glob)packages/**/package.json',
-				':(glob)packages/**/*.d.ts',
-				':(glob)packages/**/*.d.mts',
-				':(glob)packages/**/*.d.cts',
 			],
 			{encoding: 'buffer', maxBuffer: 10 * 1024 * 1024},
 		);
 
 		return output.toString('utf8').split('\0').filter(Boolean).sort();
 	} catch {
-		return ['bun.lock', 'package.json'];
+		return [];
 	}
 };
 
@@ -235,30 +236,58 @@ export const getTwoslashEnvironmentHash = (docsRoot: string): string => {
 		return cached;
 	}
 
+	// External package versions, TypeScript's ambient types and package-manager
+	// resolutions can affect any snippet. Workspace declarations are fingerprinted
+	// separately so a change to one package does not invalidate every snippet.
 	const hash = createHash('sha256');
-	const trackedFiles = getTrackedEnvironmentFiles(repositoryRoot);
-	const packageDirectories = new Set<string>();
-
-	for (const relativePath of trackedFiles) {
-		const absolutePath = join(repositoryRoot, relativePath);
-		hashFile(hash, repositoryRoot, absolutePath);
-		if (relativePath.endsWith('package.json')) {
-			packageDirectories.add(dirname(absolutePath));
-		}
-	}
-
-	const declarationFiles: string[] = [];
-	for (const packageDirectory of packageDirectories) {
-		collectDeclarationFiles(join(packageDirectory, 'dist'), declarationFiles);
-	}
-
-	for (const declarationFile of declarationFiles.sort()) {
-		hashFile(hash, repositoryRoot, declarationFile);
-	}
-
+	hashFile(hash, repositoryRoot, join(repositoryRoot, 'bun.lock'));
 	const digest = hash.digest('hex');
 	environmentHashCache.set(repositoryRoot, digest);
 	return digest;
+};
+
+const getTwoslashWorkspacePackages = (
+	docsRoot: string,
+): Record<string, TwoslashWorkspacePackage> => {
+	const repositoryRoot = getRepositoryRoot(docsRoot);
+	const packages: Record<string, TwoslashWorkspacePackage> = {};
+
+	for (const relativePackageJsonPath of getTrackedPackageJsonFiles(
+		repositoryRoot,
+	)) {
+		const packageJsonPath = join(repositoryRoot, relativePackageJsonPath);
+		const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as {
+			name?: string;
+			dependencies?: Record<string, string>;
+			devDependencies?: Record<string, string>;
+			optionalDependencies?: Record<string, string>;
+			peerDependencies?: Record<string, string>;
+		};
+		if (!packageJson.name) {
+			continue;
+		}
+
+		const packageDirectory = dirname(packageJsonPath);
+		const declarationFiles: string[] = [];
+		collectDeclarationFiles(join(packageDirectory, 'dist'), declarationFiles);
+		const hash = createHash('sha256');
+		hashFile(hash, repositoryRoot, packageJsonPath);
+		for (const declarationFile of declarationFiles.sort()) {
+			hashFile(hash, repositoryRoot, declarationFile);
+		}
+
+		packages[packageJson.name] = {
+			declarationHash: hash.digest('hex'),
+			dependencies: [
+				...Object.keys(packageJson.dependencies ?? {}),
+				...Object.keys(packageJson.devDependencies ?? {}),
+				...Object.keys(packageJson.optionalDependencies ?? {}),
+				...Object.keys(packageJson.peerDependencies ?? {}),
+			].sort(),
+		};
+	}
+
+	return packages;
 };
 
 export const createTwoslashCacheContext = ({
@@ -273,7 +302,61 @@ export const createTwoslashCacheContext = ({
 		sharedRoot: getSharedTwoslashCacheRoot(docsRoot),
 		environmentHash: getTwoslashEnvironmentHash(docsRoot),
 		versions,
+		workspacePackages: getTwoslashWorkspacePackages(docsRoot),
 	};
+};
+
+const getWorkspacePackageName = (specifier: string): string => {
+	const parts = specifier.split('/');
+	return specifier.startsWith('@') ? parts.slice(0, 2).join('/') : parts[0];
+};
+
+const getImportedWorkspacePackageHashes = (
+	code: string,
+	workspacePackages: Record<string, TwoslashWorkspacePackage>,
+): string[] => {
+	const importedPackages = new Set<string>();
+	const importRegex =
+		/(?:import|export)\s+(?:type\s+)?(?:[^'";]*?\s+from\s*)?['"]([^'"]+)['"]|(?:import|require)\(\s*['"]([^'"]+)['"]\s*\)|\/\/\/\s*<reference\s+types=['"]([^'"]+)['"]/g;
+	for (const match of code.matchAll(importRegex)) {
+		const specifier = match[1] ?? match[2] ?? match[3];
+		if (specifier.startsWith('.') || specifier.startsWith('/')) {
+			continue;
+		}
+
+		const packageName = getWorkspacePackageName(specifier);
+		if (workspacePackages[packageName]) {
+			importedPackages.add(packageName);
+		}
+	}
+
+	const packageClosure = new Set<string>();
+	const visitPackage = (packageName: string) => {
+		if (packageClosure.has(packageName)) {
+			return;
+		}
+
+		const workspacePackage = workspacePackages[packageName];
+		if (!workspacePackage) {
+			return;
+		}
+
+		packageClosure.add(packageName);
+		for (const dependency of workspacePackage.dependencies) {
+			visitPackage(dependency);
+		}
+	};
+
+	for (const packageName of importedPackages) {
+		visitPackage(packageName);
+	}
+
+	return [...packageClosure]
+		.sort()
+		.map(
+			(packageName) =>
+				`${packageName}:${workspacePackages[packageName].declarationHash}`,
+		);
 };
 
 export const getTwoslashCacheKey = ({
@@ -299,6 +382,10 @@ export const getTwoslashCacheKey = ({
 				},
 				versions: context.versions,
 				environmentHash: context.environmentHash,
+				workspacePackages: getImportedWorkspacePackageHashes(
+					code,
+					context.workspacePackages,
+				),
 			}),
 		)
 		.digest('hex');

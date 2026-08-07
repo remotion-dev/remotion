@@ -185,8 +185,8 @@ export const makeRoundedProgress = ({
 		parsePath(
 			translatePath(
 				serializeInstructions(paths),
-				-width / 2 + 1,
-				-height / 2 + 1,
+				-width / 2 + padding,
+				-height / 2 + padding,
 			),
 		),
 	);

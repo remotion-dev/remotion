@@ -123,7 +123,7 @@ import {MaxMediaCacheSizeContext} from './max-video-cache-size.js';
 import type {NonceHistory} from './nonce.js';
 import {NonceContext} from './nonce.js';
 import {playbackLogging} from './playback-logging.js';
-import {portalNode} from './portal-node.js';
+import {portalNode, setPortalNodeCurrentScale} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
 import {PremountContext} from './PremountContext.js';
@@ -131,6 +131,10 @@ import {getRoot, waitForRoot} from './register-root.js';
 import type {RemotionEnvironment} from './remotion-environment-context.js';
 import {RemotionEnvironmentContext} from './remotion-environment-context.js';
 import {RemotionRootContexts} from './RemotionRoot.js';
+import {
+	makeRenderResourceManager,
+	RenderResourceManagerContext,
+} from './render-resource-manager.js';
 import {
 	RenderAssetManager,
 	RenderAssetManagerProvider,
@@ -286,6 +290,8 @@ const compositionSelectorRef = createRef<{
 // API and are less likely to use it
 export const Internals = {
 	MaxMediaCacheSizeContext,
+	makeRenderResourceManager,
+	RenderResourceManagerContext,
 	useUnsafeVideoConfig,
 	useFrameForVolumeProp,
 	useTimelinePosition: TimelinePosition.useTimelinePosition,
@@ -351,6 +357,7 @@ export const Internals = {
 	getPreviewDomElement,
 	compositionsRef,
 	portalNode,
+	setPortalNodeCurrentScale,
 	waitForRoot,
 	SetTimelineContext,
 	CanUseRemotionHooksProvider,

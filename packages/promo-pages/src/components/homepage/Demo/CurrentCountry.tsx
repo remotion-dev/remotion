@@ -1,7 +1,7 @@
-import {getBoundingBox, resetPath} from '@remotion/paths';
 import React from 'react';
 import {
 	AbsoluteFill,
+	Img,
 	interpolate,
 	spring,
 	useCurrentFrame,
@@ -10,24 +10,15 @@ import {
 
 export const CurrentCountry: React.FC<{
 	readonly theme: 'dark' | 'light';
-	readonly countryPaths:
-		| {
-				d: string;
-				class: string;
-		  }[]
-		| null;
+	readonly countryFlag: string | null;
 	readonly countryLabel: string | null;
-}> = ({theme, countryPaths, countryLabel}) => {
+}> = ({theme, countryFlag, countryLabel}) => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
-	if (!countryPaths) {
+	if (!countryFlag || !countryLabel) {
 		return null;
 	}
-
-	const joined = countryPaths.map((p) => p.d).join(' ');
-	const reset = resetPath(joined);
-	const boundingBox = getBoundingBox(reset);
 
 	const progress = spring({
 		fps,
@@ -37,20 +28,6 @@ export const CurrentCountry: React.FC<{
 
 	return (
 		<AbsoluteFill style={{overflow: 'hidden'}}>
-			<AbsoluteFill
-				style={{
-					transform: `scale(${progress})`,
-				}}
-			>
-				<svg
-					viewBox={boundingBox.viewBox}
-					style={{
-						scale: '0.8',
-					}}
-				>
-					<path fill={theme === 'light' ? '#bbb' : '#222'} d={reset} />
-				</svg>
-			</AbsoluteFill>
 			<AbsoluteFill
 				style={{
 					alignItems: 'center',
@@ -76,6 +53,10 @@ export const CurrentCountry: React.FC<{
 				</div>
 				<div
 					style={{
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						gap: 6,
 						lineHeight: 1.1,
 						fontFamily: 'GTPlanar',
 						textAlign: 'center',
@@ -89,7 +70,17 @@ export const CurrentCountry: React.FC<{
 							'translateX(' + interpolate(progress, [0, 1], [100, 0]) + '%)',
 					}}
 				>
-					{countryLabel}
+					<Img
+						src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(countryFlag)}`}
+						style={{
+							width: 38,
+							height: 29,
+							objectFit: 'cover',
+							borderRadius: 3,
+							flex: 'none',
+						}}
+					/>
+					<span>{countryLabel}</span>
 				</div>
 			</AbsoluteFill>
 		</AbsoluteFill>

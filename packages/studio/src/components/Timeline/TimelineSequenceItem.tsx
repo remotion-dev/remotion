@@ -6,6 +6,7 @@ import type {
 	TSequence,
 } from 'remotion';
 import {Internals} from 'remotion';
+import {areSequenceNodePathInfosEqual} from '../../helpers/are-sequence-node-path-infos-equal';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BLACK_ALPHA_85,
@@ -15,7 +16,6 @@ import {
 	TIMELINE_DROP_BLUE_ALPHA_16,
 	WHITE,
 } from '../../helpers/colors';
-import {formatFileLocation} from '../../helpers/format-file-location';
 import {
 	getConnectedCompositionFrame,
 	getSequenceDoubleClickAction,
@@ -63,6 +63,7 @@ import {getSequenceContextMenuItems} from './get-sequence-context-menu-items';
 import {getCurrentFrame} from './imperative-state';
 import {saveSequenceProps} from './save-sequence-prop';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
+import {TimelineDuplicateCount} from './TimelineDuplicateCount';
 import {
 	TimelineExpandArrowButton,
 	TimelineExpandArrowSpacer,
@@ -79,10 +80,10 @@ import {
 	useTimelineSelection,
 } from './TimelineSelection';
 import {TimelineSequenceName} from './TimelineSequenceName';
-import {useOpenSequenceInEditor} from './use-open-sequence-in-editor';
+import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
 import {useRenameSequence} from './use-rename-sequence';
 import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
-import {useTimelineExpandedTree} from './use-timeline-expanded-tree';
+import {useTimelineSequenceHasExpandableContent} from './use-timeline-expanded-tree';
 
 const labelContainerStyle: React.CSSProperties = {
 	alignItems: 'center',
@@ -116,21 +117,27 @@ type SequenceReorderDragData = {
 
 let currentSequenceDrag: SequenceReorderDragData | null = null;
 
-const TimelineSequenceExpandArrow: React.FC<{
+type TimelineSequenceExpandArrowProps = {
 	readonly disabled: boolean;
 	readonly isExpanded: boolean;
 	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly onToggleExpand: () => void;
 	readonly sequence: TSequence;
-}> = ({disabled, isExpanded, nodePathInfo, onToggleExpand, sequence}) => {
-	const {filteredTree} = useTimelineExpandedTree({
+};
+
+const TimelineSequenceExpandArrowInner: React.FC<
+	TimelineSequenceExpandArrowProps
+> = ({disabled, isExpanded, nodePathInfo, sequence}) => {
+	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
+	const hasExpandableContent = useTimelineSequenceHasExpandableContent({
 		sequence,
 		nodePathInfo,
-		includeTextContent: false,
-		includeSourceControls: false,
 	});
+	const onToggleExpand = useCallback(
+		() => toggleTrack(nodePathInfo),
+		[nodePathInfo, toggleTrack],
+	);
 
-	if (filteredTree.length === 0) {
+	if (!hasExpandableContent) {
 		return <TimelineExpandArrowSpacer />;
 	}
 
@@ -143,6 +150,26 @@ const TimelineSequenceExpandArrow: React.FC<{
 		/>
 	);
 };
+
+const areTimelineSequenceExpandArrowPropsEqual = (
+	first: TimelineSequenceExpandArrowProps,
+	second: TimelineSequenceExpandArrowProps,
+) => {
+	return (
+		first.disabled === second.disabled &&
+		first.isExpanded === second.isExpanded &&
+		first.sequence.controls?.schema === second.sequence.controls?.schema &&
+		first.sequence.controls?.runtimeValues ===
+			second.sequence.controls?.runtimeValues &&
+		first.sequence.effects === second.sequence.effects &&
+		areSequenceNodePathInfosEqual(first.nodePathInfo, second.nodePathInfo)
+	);
+};
+
+const TimelineSequenceExpandArrow = React.memo(
+	TimelineSequenceExpandArrowInner,
+	areTimelineSequenceExpandArrowPropsEqual,
+);
 
 const sequenceReorderWrapper: React.CSSProperties = {
 	position: 'relative',
@@ -272,7 +299,6 @@ const TimelineSequenceItemInner: React.FC<{
 	const previewConnected = previewServerState.type === 'connected';
 	const previewInteractive = previewConnected && isStudioInteractivityEnabled();
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
-	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {isHighestContext} = useKeybinding();
@@ -289,16 +315,15 @@ const TimelineSequenceItemInner: React.FC<{
 	const [sequenceDropRejection, setSequenceDropRejection] = useState<
 		string | null
 	>(null);
-	const {canOpenInEditor, editorInfo, openInEditor, originalLocation} =
-		useOpenSequenceInEditor(sequence);
-	const fileLocation = useMemo(
-		() =>
-			formatFileLocation({
-				location: originalLocation,
-				root: window.remotion_cwd,
-			}),
-		[originalLocation],
-	);
+	const {
+		canOpenInEditor,
+		canConfigureApps,
+		codingAgentInfo,
+		editorInfo,
+		openInCodingAgent,
+		openInEditor,
+		originalLocation,
+	} = useOpenSequenceInApps(sequence);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -335,6 +360,10 @@ const TimelineSequenceItemInner: React.FC<{
 		sequence.displayName === '' && connectedCompositions.length === 1
 			? connectedCompositions[0].id
 			: displayName;
+	const numberOfHiddenDuplicates = Math.max(
+		0,
+		(nodePathInfo?.numberOfSequencesWithThisNodePath ?? 1) - 1,
+	);
 
 	const canDeleteFromSource = Boolean(nodePath && validatedLocation?.source);
 	const nodePathKey = useMemo(
@@ -355,7 +384,9 @@ const TimelineSequenceItemInner: React.FC<{
 		[previewInteractive, sequence.controls, canDeleteFromSource],
 	);
 
-	const duplicateDisabled = deleteDisabled;
+	const isProgrammaticallyDuplicated =
+		(nodePathInfo?.numberOfSequencesWithThisNodePath ?? 1) > 1;
+	const duplicateDisabled = deleteDisabled || isProgrammaticallyDuplicated;
 	const disableInteractivityDisabled =
 		!previewInteractive ||
 		!sequence.showInTimeline ||
@@ -653,14 +684,6 @@ const TimelineSequenceItemInner: React.FC<{
 
 	const isExpanded =
 		previewConnected && nodePathInfo !== null && getIsExpanded(nodePathInfo);
-
-	const onToggleExpand = useCallback(() => {
-		if (nodePathInfo === null) {
-			return;
-		}
-
-		toggleTrack(nodePathInfo);
-	}, [nodePathInfo, toggleTrack]);
 
 	const codeHiddenStatus = propStatusesForOverride?.hidden;
 	const runtimeHidden = useRuntimeValue(sequence.controls, 'hidden');
@@ -968,15 +991,27 @@ const TimelineSequenceItemInner: React.FC<{
 		return getSequenceContextMenuItems({
 			assetLinkInfo: mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null,
 			canOpenInEditor,
+			codingAgentInfo,
 			deleteDisabled,
 			disableInteractivityDisabled,
 			duplicateDisabled,
 			editorInfo,
-			fileLocation,
 			includeSourceEditItems: isStudioInteractivityEnabled(),
+			isProgrammaticallyDuplicated,
+			onConfigureApps: canConfigureApps
+				? () => {
+						setSelectedModal({
+							type: 'settings',
+							initialTab: 'apps',
+							initialPublicLicenseKey:
+								window.remotion_renderDefaults?.publicLicenseKey ?? null,
+						});
+					}
+				: null,
 			onDeleteSequenceFromSource,
 			onDisableSequenceInteractivity,
 			onDuplicateSequenceFromSource,
+			openInCodingAgent,
 			openInEditor,
 			originalLocation,
 			selectAsset,
@@ -1005,7 +1040,7 @@ const TimelineSequenceItemInner: React.FC<{
 										type: 'item' as const,
 										id: 'crop',
 										keyHint: null,
-										label: 'Crop',
+										label: isProgrammaticallyDuplicated ? 'Crop all' : 'Crop',
 										leftItem: null,
 										disabled: false,
 										onClick: onCrop,
@@ -1040,13 +1075,15 @@ const TimelineSequenceItemInner: React.FC<{
 	}, [
 		canAddEffect,
 		canCrop,
+		canConfigureApps,
 		canOpenInEditor,
 		canRenameThisSequence,
+		codingAgentInfo,
 		deleteDisabled,
 		disableInteractivityDisabled,
 		duplicateDisabled,
 		editorInfo,
-		fileLocation,
+		isProgrammaticallyDuplicated,
 		mediaSrc,
 		nodePath,
 		nodePathInfo?.supportsEffects,
@@ -1057,6 +1094,7 @@ const TimelineSequenceItemInner: React.FC<{
 		onDuplicateSequenceFromSource,
 		onRenameSequence,
 		onSelect,
+		openInCodingAgent,
 		openInEditor,
 		originalLocation,
 		previewInteractive,
@@ -1066,6 +1104,7 @@ const TimelineSequenceItemInner: React.FC<{
 		selectable,
 		sequence,
 		sequenceFrameOffset,
+		setSelectedModal,
 		setPropStatuses,
 		validatedLocation?.source,
 	]);
@@ -1173,7 +1212,6 @@ const TimelineSequenceItemInner: React.FC<{
 						disabled={!previewInteractive}
 						isExpanded={isExpanded}
 						nodePathInfo={nodePathInfo}
-						onToggleExpand={onToggleExpand}
 						sequence={sequence}
 					/>
 				) : (
@@ -1218,6 +1256,12 @@ const TimelineSequenceItemInner: React.FC<{
 					onCancelEditing={onCancelRenaming}
 					onSaveName={onSaveName}
 				/>
+				{numberOfHiddenDuplicates > 0 ? (
+					<>
+						<Spacing x={0.5} />
+						<TimelineDuplicateCount count={numberOfHiddenDuplicates} />
+					</>
+				) : null}
 				{mediaSrc ? (
 					<>
 						<Spacing x={0.5} /> <TimelineMediaInfo src={mediaSrc} />

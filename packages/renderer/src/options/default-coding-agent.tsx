@@ -3,7 +3,7 @@ import type {AnyRemotionOption} from './option';
 export const defaultCodingAgentIds = [
 	'codex',
 	'cursor',
-	'github-copilot',
+	'copilot',
 	'claude-code',
 ] as const;
 

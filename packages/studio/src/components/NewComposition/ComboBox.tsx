@@ -82,6 +82,12 @@ type DividerItem = {
 	id: string;
 };
 
+type SectionHeaderItem = {
+	type: 'section-header';
+	id: string;
+	label: string;
+};
+
 export type SubMenu = {
 	preselectIndex: number | false;
 	leaveLeftSpace: boolean;
@@ -101,7 +107,7 @@ export type SelectionItem = {
 	disabled?: boolean;
 };
 
-export type ComboboxValue = DividerItem | SelectionItem;
+export type ComboboxValue = DividerItem | SectionHeaderItem | SelectionItem;
 
 export const Combobox: React.FC<{
 	readonly values: ComboboxValue[];

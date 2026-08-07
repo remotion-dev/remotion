@@ -1,6 +1,7 @@
 import {Video} from '@remotion/media';
+import {Input} from 'mediabunny';
 import {AbsoluteFill, staticFile} from 'remotion';
-import {expect, test} from 'vitest';
+import {expect, test, vi} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {testImage} from './utils';
@@ -20,8 +21,9 @@ test('can extract a video frame', async (t) => {
 		);
 	};
 
-	const blob = await (
-		await renderStillOnWeb({
+	const disposeSpy = vi.spyOn(Input.prototype, 'dispose');
+	const render = () =>
+		renderStillOnWeb({
 			licenseKey: 'free-license',
 			composition: {
 				component: Component,
@@ -35,14 +37,27 @@ test('can extract a video frame', async (t) => {
 			frame: 20,
 			inputProps: {},
 			delayRenderTimeoutInMilliseconds: 5000,
-		})
-	).blob({format: 'png'});
+		});
 
-	await testImage({
-		blob,
-		testId: 'video-tag',
-		allowedMismatchedPixelRatio: 0.01,
-	});
+	try {
+		const blob = await (await render()).blob({format: 'png'});
+
+		await testImage({
+			blob,
+			testId: 'video-tag',
+			allowedMismatchedPixelRatio: 0.01,
+		});
+
+		expect(disposeSpy).toHaveBeenCalled();
+		const disposedInputsAfterFirstRender = disposeSpy.mock.calls.length;
+
+		await render();
+		expect(disposeSpy.mock.calls.length).toBeGreaterThan(
+			disposedInputsAfterFirstRender,
+		);
+	} finally {
+		disposeSpy.mockRestore();
+	}
 });
 
 test('cannot render inside an svg tag', async () => {

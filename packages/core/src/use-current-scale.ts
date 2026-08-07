@@ -1,4 +1,8 @@
 import React, {createContext} from 'react';
+import {
+	getPortalNodeCurrentScale,
+	subscribeToPortalNodeCurrentScale,
+} from './portal-node';
 import {useRemotionEnvironment} from './use-remotion-environment';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config';
 
@@ -94,6 +98,16 @@ export const useCurrentScale = (options?: Options) => {
 	const zoomContext = React.useContext(PreviewSizeContext);
 	const config = useUnsafeVideoConfig();
 	const env = useRemotionEnvironment();
+	const [portalScale, setPortalScale] = React.useState(
+		getPortalNodeCurrentScale,
+	);
+
+	React.useEffect(() => {
+		const update = () => setPortalScale(getPortalNodeCurrentScale());
+		update();
+
+		return subscribeToPortalNodeCurrentScale(update);
+	}, []);
 
 	if (hasContext === null || config === null || zoomContext === null) {
 		if (options?.dontThrowIfOutsideOfRemotion) {
@@ -118,10 +132,7 @@ export const useCurrentScale = (options?: Options) => {
 		return hasContext.scale;
 	}
 
-	return calculateScale({
-		canvasSize: hasContext.canvasSizeForAuto,
-		compositionHeight: config.height,
-		compositionWidth: config.width,
-		previewSize: zoomContext.size.size,
-	});
+	// Studio initially renders the composition into an unscaled offscreen portal.
+	// Return the scale that the preview has actually committed to that portal.
+	return portalScale;
 };

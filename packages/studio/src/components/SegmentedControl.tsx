@@ -1,8 +1,8 @@
 import type {PropsWithChildren} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import {
-	INPUT_BACKGROUND,
 	BLACK_ALPHA_60,
+	INPUT_BACKGROUND,
 	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
@@ -23,7 +23,6 @@ const item: React.CSSProperties = {
 	display: 'flex',
 	fontSize: 15,
 	padding: '4px 12px',
-	cursor: 'pointer',
 	appearance: 'none',
 	border: 'none',
 	flex: 1,

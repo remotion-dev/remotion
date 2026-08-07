@@ -23,6 +23,17 @@ import {Seo} from '../components/Seo';
 
 const elementsRoot = path.join(__dirname, '..', '..', 'elements');
 const templateRoot = path.join(__dirname, '..', '..', 'elements-template');
+const staticElementsRoot = path.join(
+	__dirname,
+	'..',
+	'..',
+	'static',
+	'elements',
+);
+const elementSidebars = readFileSync(
+	path.join(__dirname, '..', '..', 'elements-sidebars.ts'),
+	'utf8',
+);
 const elementDefinitionList = Object.values(elementDefinitions);
 const exactVersionPattern =
 	/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
@@ -250,7 +261,7 @@ describe('Element library', () => {
 });
 
 describe('Element social previews', () => {
-	test('uses the published poster in each Element page frontmatter', () => {
+	test('uses the matching poster in each Element page frontmatter', () => {
 		for (const definition of elementDefinitionList) {
 			const mdx = readFileSync(
 				path.join(elementsRoot, definition.slug, 'index.mdx'),
@@ -260,7 +271,7 @@ describe('Element social previews', () => {
 		}
 	});
 
-	test('renders Open Graph video metadata for published previews', () => {
+	test('renders Open Graph video metadata for previews', () => {
 		for (const definition of elementDefinitionList) {
 			const url = definition.preview.videoUrl;
 			const markup = renderToStaticMarkup(
@@ -454,7 +465,7 @@ describe('Element preview definitions', () => {
 		}
 	});
 
-	test('uses stable composition IDs and explicit flat MP4 preview URLs', () => {
+	test('uses stable composition IDs and flat review or published preview paths', () => {
 		const compositionIds = elementDefinitionList.map((definition) =>
 			getElementCompositionId(definition.slug),
 		);
@@ -462,23 +473,59 @@ describe('Element preview definitions', () => {
 
 		for (const definition of elementDefinitionList) {
 			const assetSlug = definition.slug.replaceAll('/', '-');
-			expect(String(definition.preview.posterUrl)).toBe(
-				`https://remotion.media/elements/${assetSlug}-preview.png`,
+			const localPosterUrl = `/elements/${assetSlug}-preview.png`;
+			const localVideoUrl = `/elements/${assetSlug}-preview.mp4`;
+			const publicPosterUrl = `https://remotion.media${localPosterUrl}`;
+			const publicVideoUrl = `https://remotion.media${localVideoUrl}`;
+			const posterPath = path.join(
+				staticElementsRoot,
+				`${assetSlug}-preview.png`,
 			);
-			expect(String(definition.preview.videoUrl)).toBe(
-				`https://remotion.media/elements/${assetSlug}-preview.mp4`,
+			const videoPath = path.join(
+				staticElementsRoot,
+				`${assetSlug}-preview.mp4`,
 			);
+			const usesReviewUrls = definition.preview.posterUrl === localPosterUrl;
+
+			if (usesReviewUrls) {
+				expect(String(definition.preview.videoUrl)).toBe(localVideoUrl);
+
+				const isSubmitted = elementSidebars.includes(
+					`'${definition.slug}/index'`,
+				);
+				expect(existsSync(posterPath)).toBe(isSubmitted);
+				expect(existsSync(videoPath)).toBe(isSubmitted);
+				if (isSubmitted) {
+					const poster = readFileSync(posterPath);
+					const video = readFileSync(videoPath);
+					expect(Array.from(poster.subarray(0, 8))).toEqual([
+						0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+					]);
+					expect(video.subarray(4, 8).toString('ascii')).toBe('ftyp');
+					expect(
+						statSync(posterPath).size + statSync(videoPath).size,
+					).toBeLessThanOrEqual(10 * 1024 * 1024);
+				}
+			} else {
+				expect(String(definition.preview.posterUrl)).toBe(publicPosterUrl);
+				expect(String(definition.preview.videoUrl)).toBe(publicVideoUrl);
+				expect(existsSync(posterPath)).toBe(false);
+				expect(existsSync(videoPath)).toBe(false);
+			}
 		}
 	});
 
-	test('the Element template includes explicit defaults and preview URLs', () => {
+	test('the Element template includes explicit defaults and local preview URLs', () => {
 		const template = readFileSync(path.join(templateRoot, 'index.mdx'), 'utf8');
 		expect(template).toContain("installationMode: 'wrapped'");
 		expect(template).toContain(
-			"posterUrl: 'https://remotion.media/elements/category-element-title-preview.png'",
+			'image: /elements/category-element-title-preview.png',
 		);
 		expect(template).toContain(
-			"videoUrl: 'https://remotion.media/elements/category-element-title-preview.mp4'",
+			"posterUrl: '/elements/category-element-title-preview.png'",
+		);
+		expect(template).toContain(
+			"videoUrl: '/elements/category-element-title-preview.mp4'",
 		);
 	});
 

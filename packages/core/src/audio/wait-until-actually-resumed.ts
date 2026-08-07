@@ -1,16 +1,46 @@
 import {Log, type LogLevel} from '../log.js';
 
+const RESUME_WAIT_TIMEOUT = 1000;
+
+export type AudioContextResumeResult = 'resumed' | 'cancelled' | 'failed';
+
 export const waitUntilActuallyResumed = (
 	audioContext: AudioContext,
 	logLevel: LogLevel,
-): Promise<void> => {
+	signal: AbortSignal,
+): Promise<AudioContextResumeResult> => {
 	return new Promise((resolve) => {
 		const startCurrentTime = audioContext.currentTime;
 		const start = audioContext.getOutputTimestamp();
 		const startOutputPerformanceTime = start.performanceTime;
 		const startWallClock = performance.now();
+		let animationFrame: number | null = null;
+		let timeout: ReturnType<typeof setTimeout> | null = null;
+		let settled = false;
+		let onAbort: () => void = () => undefined;
+
+		const finish = (result: AudioContextResumeResult) => {
+			if (settled) {
+				return;
+			}
+
+			settled = true;
+			if (animationFrame !== null) {
+				cancelAnimationFrame(animationFrame);
+			}
+
+			if (timeout !== null) {
+				clearTimeout(timeout);
+			}
+
+			signal.removeEventListener('abort', onAbort);
+			resolve(result);
+		};
+
+		onAbort = () => finish('cancelled');
 
 		const check = () => {
+			animationFrame = null;
 			const {currentTime} = audioContext;
 			const outputTimestamp = audioContext.getOutputTimestamp();
 			const elapsedWallClock = performance.now() - startWallClock;
@@ -36,13 +66,26 @@ export const waitUntilActuallyResumed = (
 						outputTimestamp.performanceTime?.toFixed(1) ?? 'undefined'
 					}`,
 				);
-				resolve();
+				finish('resumed');
 				return;
 			}
 
-			requestAnimationFrame(check);
+			animationFrame = requestAnimationFrame(check);
 		};
 
-		requestAnimationFrame(check);
+		if (signal.aborted) {
+			finish('cancelled');
+			return;
+		}
+
+		signal.addEventListener('abort', onAbort, {once: true});
+		timeout = setTimeout(() => {
+			Log.warn(
+				{logLevel, tag: 'audio'},
+				'WARNING: You enabled autoPlay on an unmuted <Player /> and the browser did not allow the video to be started. Remotion muted the <Player /> so it can play. To properly handle this, either set the `muted` prop or remove the `autoPlay` prop',
+			);
+			finish('failed');
+		}, RESUME_WAIT_TIMEOUT);
+		animationFrame = requestAnimationFrame(check);
 	});
 };

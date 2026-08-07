@@ -49,6 +49,7 @@
 		"@remotion/studio-server": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
 		"@remotion/tailwind": "workspace:*",
+		"@remotion/tailwind-v4": "workspace:*",
 		"@remotion/transitions": "workspace:*",
 		"@remotion/webcodecs": "workspace:*",
 		"@rspack/core": "1.7.11",
