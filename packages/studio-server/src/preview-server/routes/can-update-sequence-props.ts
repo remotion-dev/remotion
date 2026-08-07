@@ -64,7 +64,8 @@ type PropOutput = KeyframedPropStatus['output'];
 type PropInterpolationFunction = KeyframedPropStatus['interpolationFunction'];
 
 // A file write synchronously notifies every sequence subscription. Status
-// computation is read-only, so all subscribers can share one parsed snapshot.
+// computation is read-only, so all subscribers can share one parsed snapshot
+// until the notification burst has finished.
 let cachedSequencePropsStatusAst: {
 	fileContents: string;
 	ast: File;
@@ -1354,11 +1355,21 @@ export const computeSequencePropsStatusFromContent = ({
 	videoConfigValues: VideoConfigValues | null;
 }): CanUpdateSequencePropsResponseTrue => {
 	if (cachedSequencePropsStatusAst?.fileContents !== fileContents) {
-		cachedSequencePropsStatusAst = {
+		cachedSequencePropsStatusAst = null;
+		const snapshot = {
 			fileContents,
 			ast: parseAst(fileContents),
-			videoConfigIdentifierValues: new Map(),
+			videoConfigIdentifierValues: new Map<
+				string,
+				VideoConfigIdentifierValues
+			>(),
 		};
+		cachedSequencePropsStatusAst = snapshot;
+		queueMicrotask(() => {
+			if (cachedSequencePropsStatusAst === snapshot) {
+				cachedSequencePropsStatusAst = null;
+			}
+		});
 	}
 
 	const {ast} = cachedSequencePropsStatusAst;
