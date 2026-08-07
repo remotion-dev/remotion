@@ -48,6 +48,7 @@ Remotion is extensively documented over more than 1000 pages.
   - [Prompts](https://www.remotion.dev/prompts)
   - [Templates](https://remotion.dev/templates)
 - Components
+  - [Elements](https://remotion.dev/elements)
   - [Effects](https://remotion.dev/effects)
   - [Shapes](https://remotion.dev/docs/shapes)
   - [Transitions](https://remotion.dev/transitions)
