@@ -96,16 +96,27 @@ const publish = async (template: MinimalTemplate) => {
 	await $`git push origin ${defaultBranch.trim()}`.cwd(workingDir);
 };
 
-const publishCodexPlugin = async () => {
+type AgentPluginPublishTarget = {
+	commitMessage: string;
+	filesToCopy: string[];
+	name: string;
+	readme?: string;
+	repoName: string;
+};
+
+const publishBuiltAgentPlugin = async ({
+	commitMessage,
+	filesToCopy,
+	name,
+	readme,
+	repoName,
+}: AgentPluginPublishTarget) => {
 	const codexPluginDir = path.join(__dirname, '..', '..', '..', 'codex-plugin');
 
-	// Run the build step to assemble skills
-	await $`bun build.mts`.cwd(codexPluginDir);
-
 	const tmpDir = tmpdir();
-	const workingDir = path.join(tmpDir, `codex-plugin-${Math.random()}`);
+	const workingDir = path.join(tmpDir, `${repoName}-${Math.random()}`);
 
-	await $`git clone git@github.com:remotion-dev/codex-plugin.git ${workingDir} --depth 1`;
+	await $`git clone git@github.com:remotion-dev/${repoName}.git ${workingDir} --depth 1`;
 
 	const defaultBranch = await $`git branch --show-current`
 		.cwd(workingDir)
@@ -119,22 +130,67 @@ const publishCodexPlugin = async () => {
 		await $`rm ${file}`.cwd(workingDir).quiet();
 	}
 
-	const filesToCopy = ['.codex-plugin', 'assets', 'skills', 'README.md'];
 	for (const entry of filesToCopy) {
 		const src = path.join(codexPluginDir, entry);
 		const dst = path.join(workingDir, entry);
 		cpSync(src, dst, {recursive: true});
 	}
+	if (readme) {
+		cpSync(
+			path.join(codexPluginDir, readme),
+			path.join(workingDir, 'README.md'),
+		);
+	}
+
+	const packageJson = JSON.parse(
+		readFileSync(path.join(codexPluginDir, 'package.json'), 'utf-8'),
+	);
+	const pluginJsonPath = path.join(workingDir, 'plugin.json');
+	const pluginJson = JSON.parse(readFileSync(pluginJsonPath, 'utf-8'));
+	writeFileSync(
+		pluginJsonPath,
+		`${JSON.stringify({...pluginJson, version: packageJson.version}, null, '\t')}\n`,
+	);
 
 	await $`git add .`.cwd(workingDir).nothrow();
 	const hasChanges = await $`git status --porcelain`.cwd(workingDir).text();
 	if (!hasChanges) {
-		console.log('No changes in codex-plugin');
+		console.log(`No changes in ${name}`);
 		return;
 	}
 
-	await $`git commit -m "Update codex plugin"`.cwd(workingDir);
+	await $`git commit -m ${commitMessage}`.cwd(workingDir);
 	await $`git push origin ${defaultBranch.trim()}`.cwd(workingDir);
+};
+
+const publishAgentPlugins = async () => {
+	const codexPluginDir = path.join(__dirname, '..', '..', '..', 'codex-plugin');
+
+	// Both repositories use the same portable Agent Plugin build.
+	await $`bun build.mts`.cwd(codexPluginDir);
+
+	await Promise.all([
+		publishBuiltAgentPlugin({
+			commitMessage: 'Update Codex plugin',
+			filesToCopy: [
+				'.codex-plugin',
+				'assets',
+				'LICENSE',
+				'plugin.json',
+				'skills',
+				'README.md',
+			],
+			name: 'codex-plugin',
+			repoName: 'codex-plugin',
+		}),
+		publishBuiltAgentPlugin({
+			commitMessage: 'Update Cursor plugin',
+			filesToCopy: ['LICENSE', 'plugin.json', 'skills'],
+			name: 'cursor-plugin',
+			readme: 'README.cursor.md',
+			repoName: 'cursor-plugin',
+		}),
+	]);
 };
 
 const publishClaudeCodePlugin = async () => {
@@ -265,7 +321,7 @@ for (let i = 0; i < templates.length; i += CONCURRENCY) {
 
 results.push(
 	...(await Promise.allSettled([
-		publishCodexPlugin(),
+		publishAgentPlugins(),
 		publishClaudeCodePlugin(),
 		publishKimiCodePlugin(),
 	])),

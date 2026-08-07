@@ -10,6 +10,43 @@ const embeddedRoots = [
 	path.join(generatedSkillsRoot, 'remotion-markup'),
 ];
 
+test('portable Agent Plugins manifest describes the built package', () => {
+	const packageJson = JSON.parse(
+		readFileSync(path.join(packageRoot, 'package.json'), 'utf-8'),
+	) as Record<string, unknown>;
+	const manifest = JSON.parse(
+		readFileSync(path.join(packageRoot, 'plugin.json'), 'utf-8'),
+	) as Record<string, unknown>;
+
+	expect(manifest.$schema).toBe(
+		'https://agent-plugins.org/schemas/1.0.0/plugin.schema.json',
+	);
+	expect(manifest.name).toBe('remotion');
+	expect(manifest.version).toBe(packageJson.version);
+	expect(Object.keys(manifest).sort()).toEqual(
+		[
+			'$schema',
+			'author',
+			'description',
+			'homepage',
+			'keywords',
+			'license',
+			'name',
+			'repository',
+			'version',
+		].sort(),
+	);
+	expect(existsSync(generatedSkillsRoot)).toBe(true);
+	expect(
+		JSON.parse(
+			readFileSync(
+				path.join(packageRoot, '.codex-plugin', 'plugin.json'),
+				'utf-8',
+			),
+		),
+	).toHaveProperty('interface.displayName', 'Remotion');
+});
+
 const getDirectories = (directory: string) => {
 	return readdirSync(directory)
 		.filter((entry) => statSync(path.join(directory, entry)).isDirectory())
@@ -82,7 +119,7 @@ test('maps is available from either standalone parent skill', () => {
 	}
 });
 
-test('remotion-create opens the preview in the Codex in-app browser by default', () => {
+test('remotion-create opens the preview in the agent browser by default', () => {
 	const remotionCreateSkill = readFileSync(
 		path.join(generatedSkillsRoot, 'remotion-create', 'SKILL.md'),
 		'utf-8',
@@ -90,19 +127,23 @@ test('remotion-create opens the preview in the Codex in-app browser by default',
 
 	expect(remotionCreateSkill).toContain('start the preview server by default');
 	expect(remotionCreateSkill).toContain(
-		'Open the exact URL in the Codex in-app browser.',
+		"Open the exact URL in the agent client's available browser.",
 	);
+	expect(remotionCreateSkill).not.toContain('Codex in-app browser');
+	expect(remotionCreateSkill).not.toContain('tool_search');
 	expect(remotionCreateSkill).not.toContain(
 		'consider starting the preview server',
 	);
 });
 
-test('Codex troubleshooting does not open the system browser', () => {
+test('agent client troubleshooting does not open the system browser', () => {
 	const remotionSkill = readFileSync(
 		path.join(generatedSkillsRoot, 'remotion-best-practices', 'SKILL.md'),
 		'utf-8',
 	);
 
+	expect(remotionSkill).toContain('## Agent client troubleshooting');
+	expect(remotionSkill).not.toContain('## Codex troubleshooting');
 	expect(remotionSkill).toContain('npx remotion studio --no-open');
 	expect(remotionSkill).not.toMatch(/^npx remotion studio$/m);
 });

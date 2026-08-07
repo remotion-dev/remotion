@@ -37,7 +37,7 @@ function copySkillDir(src: string, destName: string) {
 	console.log(`  Copied ${destName}`);
 }
 
-const addCodexOnlyInstructions = () => {
+const addAgentClientTroubleshootingInstructions = () => {
 	const remotionSkill = join(skillsOut, 'remotion-best-practices', 'SKILL.md');
 	if (!existsSync(remotionSkill)) {
 		return;
@@ -47,24 +47,24 @@ const addCodexOnlyInstructions = () => {
 		remotionSkill,
 		`
 
-## Codex troubleshooting
+## Agent client troubleshooting
 
-When running inside Codex, first try starting the Remotion Studio without opening the system browser:
+When the agent client provides its own browser, first try starting Remotion Studio without opening the system browser:
 
 \`\`\`bash
 npx remotion studio --no-open
 \`\`\`
 
-Only if that fails with file watcher limits such as \`EMFILE: too many open files, watch\`, retry with polling and without opening a browser from Codex:
+Only if that fails with file watcher limits such as \`EMFILE: too many open files, watch\`, retry with polling:
 
 \`\`\`bash
 npx remotion studio --no-open --webpack-poll 1000
 \`\`\`
 
-If Studio still fails to start from Codex, ask the user to start it manually from their macOS Terminal and then continue using the already-running Studio. Sandbox errors while launching Chromium from Codex are likely caused by the Codex/macOS sandbox rather than the Remotion project.
+If Studio still fails to start, ask the user to start it manually from their terminal and then continue using the already-running Studio. Errors while launching Chromium from a sandboxed agent client are likely caused by the client sandbox rather than the Remotion project.
 `,
 	);
-	console.log('  Added Codex-only troubleshooting instructions');
+	console.log('  Added agent-client troubleshooting instructions');
 };
 
 const makeRemotionCreateOpenPreview = () => {
@@ -89,7 +89,7 @@ const makeRemotionCreateOpenPreview = () => {
 		],
 		[
 			'If an in-harness browser is available, open it there.',
-			'Open the exact URL in the Codex in-app browser. If no browser tool is available yet, use `tool_search` for the in-app browser control tool, then navigate to the local URL.',
+			"Open the exact URL in the agent client's available browser. If no browser tool is available, keep the preview server running and provide the URL to the user.",
 		],
 	] as const;
 
@@ -108,9 +108,7 @@ const makeRemotionCreateOpenPreview = () => {
 	}
 
 	writeFileSync(remotionCreateSkill, codexInstructions);
-	console.log(
-		'  Made remotion-create open previews in the Codex in-app browser',
-	);
+	console.log('  Made remotion-create open previews in the agent browser');
 };
 
 console.log('Building Codex plugin skills...\n');
@@ -125,7 +123,7 @@ if (existsSync(packagesSkillsDir)) {
 		copySkillDir(join(packagesSkillsDir, folder), folder);
 	}
 	prepareEmbeddedSkills(skillsOut);
-	addCodexOnlyInstructions();
+	addAgentClientTroubleshootingInstructions();
 	makeRemotionCreateOpenPreview();
 } else {
 	console.warn('Warning: packages/skills/skills/ not found');
