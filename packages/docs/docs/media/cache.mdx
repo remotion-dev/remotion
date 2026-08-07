@@ -5,7 +5,7 @@ sidebar_label: Cache
 crumb: 'API - @remotion/media'
 ---
 
-[`@remotion/media`](/docs/media) keeps a cache of recently decoded video and audio frames.
+[`@remotion/media`](/docs/media) keeps recently decoded video and audio data and fetched source bytes in memory.
 
 ## Mechanism
 
@@ -14,17 +14,27 @@ In order to decode a delta frame, the last keyframe and all the delta frames sin
 
 Due to Remotion's [multithreaded rendering and each frame being independent](/docs/flickering), it is not guaranteed that video frames are needed in their natural order.
 
-The cache is shared across all of the instances of [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio).  
-Therefore, the settings for the cache are per-render, not per tag.
+Decoded media is cached across all instances of [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio).
+Therefore, the decoded media cache is per-render, not per tag.
+
+Each distinct `src` also has its own read cache for fetched source bytes.
 
 ## Default cache size
 
-By default, the cache may grow to up to 50% of the available system memory.  
+By default, the decoded media cache may grow to up to 50% of the available system memory.
 A minimum of 500MB and a maximum of 20GB is enforced.
+
+## Source read cache<AvailableFrom v="4.0.508" />
+
+The read cache size for each distinct `src` is derived from the decoded media cache budget. It is one sixteenth of that budget, with a minimum of 8MiB and a maximum of 64MiB per source.
+
+:::warning
+`mediaCacheSizeInBytes` is not a limit on the total memory used by `@remotion/media`. The decoded media cache is shared, but each distinct `src` has its own read cache. Memory usage therefore also depends on the number of distinct sources.
+:::
 
 ## Customizing the cache size
 
-The rendering APIs allow you to customize this limit on a per-render basis:
+The rendering APIs allow you to customize the decoded media cache budget on a per-render basis. The same value determines the read cache size for each source:
 
 - [`renderMedia()` → `mediaCacheSizeInBytes`](/docs/renderer/render-media#mediacachesizeinbytes)
 - [`renderStill()` → `mediaCacheSizeInBytes`](/docs/renderer/render-still#mediacachesizeinbytes)
