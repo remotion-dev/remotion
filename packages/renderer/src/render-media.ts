@@ -105,7 +105,7 @@ type MoreRenderMediaOptions = ToOptions<typeof optionsMap.renderMedia>;
 type EitherApiKeyOrLicenseKey =
 	true extends typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES
 		? {
-				licenseKey: string | null;
+				licenseKey?: string | null;
 			}
 		:
 				| {
@@ -1034,9 +1034,29 @@ export const renderMedia = ({
 	}
 
 	const licenseKey =
-		'licenseKey' in apiKeyOrLicenseKey ? apiKeyOrLicenseKey.licenseKey : null;
+		'licenseKey' in apiKeyOrLicenseKey &&
+		typeof apiKeyOrLicenseKey.licenseKey === 'string'
+			? apiKeyOrLicenseKey.licenseKey
+			: null;
 	const apiKey =
-		'apiKey' in apiKeyOrLicenseKey ? apiKeyOrLicenseKey.apiKey : null;
+		'apiKey' in apiKeyOrLicenseKey &&
+		typeof apiKeyOrLicenseKey.apiKey === 'string'
+			? apiKeyOrLicenseKey.apiKey
+			: null;
+	const effectiveLicenseKey =
+		(NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+			? licenseKey
+			: (licenseKey ?? apiKey)) ?? null;
+
+	if (
+		NoReactInternals.ENABLE_V5_BREAKING_CHANGES &&
+		effectiveLicenseKey === null
+	) {
+		Log.warn(
+			{indent, logLevel},
+			'Pass "licenseKey" to renderMedia(). If you qualify for the Free License (https://remotion.dev/license), pass "free-license" instead.',
+		);
+	}
 
 	return internalRenderMedia({
 		proResProfile: proResProfile ?? undefined,
@@ -1113,7 +1133,8 @@ export const renderMedia = ({
 		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 		chromeMode: chromeMode ?? 'headless-shell',
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
-		licenseKey: licenseKey ?? apiKey ?? null,
+		licenseKey:
+			effectiveLicenseKey === 'free-license' ? null : effectiveLicenseKey,
 		onLog: defaultOnLog,
 		isProduction: isProduction ?? null,
 		sampleRate: sampleRate ?? composition.defaultSampleRate ?? 48000,

@@ -1,4 +1,4 @@
-import {expect, test} from 'bun:test';
+import {expect, spyOn, test} from 'bun:test';
 import fs, {existsSync} from 'fs';
 import os from 'os';
 import path from 'path';
@@ -8,6 +8,7 @@ import {
 	openBrowser,
 	renderMedia,
 } from '@remotion/renderer';
+import {NoReactInternals} from 'remotion/no-react';
 
 const exampleBuild = path.join(__dirname, '..', '..', '..', 'example', 'build');
 
@@ -30,24 +31,62 @@ test(
 		const tmpDir = os.tmpdir();
 
 		const outPath = path.join(tmpDir, 'out.mp4');
+		const originalFetch = globalThis.fetch;
+		const fetchSpy = spyOn(globalThis, 'fetch').mockImplementation(((
+			input,
+			init,
+		) => {
+			if (String(input).startsWith('https://www.remotion.pro/api/track/')) {
+				return Promise.resolve(
+					new Response(
+						JSON.stringify({
+							success: true,
+							billable: false,
+							classification: 'development',
+						}),
+					),
+				);
+			}
 
-		await renderMedia({
-			outputLocation: outPath,
-			codec: 'h264',
-			serveUrl: exampleBuild,
-			composition: reactSvg,
-			frameRange: [0, 2],
-			puppeteerInstance,
-			metadata: {Author: 'Lunar'},
-			logLevel: 'error',
-		});
-		await puppeteerInstance.close({silent: false});
-		expect(existsSync(outPath)).toBe(true);
+			return originalFetch(input, init);
+		}) as typeof fetch);
+		const warnSpy = spyOn(console, 'warn').mockImplementation(() => undefined);
+
+		try {
+			await renderMedia({
+				outputLocation: outPath,
+				codec: 'h264',
+				serveUrl: exampleBuild,
+				composition: reactSvg,
+				frameRange: [0, 2],
+				puppeteerInstance,
+				metadata: {Author: 'Lunar'},
+				licenseKey: 'free-license',
+				logLevel: 'warn',
+			});
+
+			expect(existsSync(outPath)).toBe(true);
+			expect(
+				fetchSpy.mock.calls.some(([input]) =>
+					String(input).startsWith('https://www.remotion.pro/api/track/'),
+				),
+			).toBe(false);
+			expect(
+				warnSpy.mock.calls.some((args) =>
+					args.join(' ').includes('Pass "licenseKey" to renderMedia()'),
+				),
+			).toBe(false);
+		} finally {
+			fetchSpy.mockRestore();
+			warnSpy.mockRestore();
+			await puppeteerInstance.close({silent: false});
+		}
 	},
 	{retry: 2},
 );
 
 test('Render video with browser instance not open', async () => {
+	const warnSpy = spyOn(console, 'warn').mockImplementation(() => undefined);
 	const compositions = await getCompositions({
 		serveUrl: exampleBuild,
 		inputProps: {},
@@ -63,16 +102,25 @@ test('Render video with browser instance not open', async () => {
 
 	const outPath = path.join(tmpDir, 'subdir', 'out.mp4');
 
-	await renderMedia({
-		outputLocation: outPath,
-		codec: 'h264',
-		serveUrl: exampleBuild,
-		composition: reactSvg,
-		frameRange: [0, 2],
-		metadata: {Author: 'Lunar'},
-		logLevel: 'error',
-	});
-	expect(existsSync(outPath)).toBe(true);
+	try {
+		await renderMedia({
+			outputLocation: outPath,
+			codec: 'h264',
+			serveUrl: exampleBuild,
+			composition: reactSvg,
+			frameRange: [0, 2],
+			metadata: {Author: 'Lunar'},
+			logLevel: 'warn',
+		});
+		expect(existsSync(outPath)).toBe(true);
+		expect(
+			warnSpy.mock.calls.some((args) =>
+				args.join(' ').includes('Pass "licenseKey" to renderMedia()'),
+			),
+		).toBe(NoReactInternals.ENABLE_V5_BREAKING_CHANGES);
+	} finally {
+		warnSpy.mockRestore();
+	}
 });
 
 test('should fail on invalid CRF', async () => {
