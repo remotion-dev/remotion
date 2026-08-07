@@ -154,7 +154,7 @@ export const FreePricing: React.FC<{
 					<PricingBulletPoint
 						text={
 							<>
-								<a href={termsHref} className="bluelink">
+								<a href={termsHref} className="bluelink font-brand">
 									Terms
 								</a>{' '}
 								apply (i.e., upgrade when your organization grows)
@@ -370,7 +370,7 @@ export const CompanyPricing: React.FC = () => {
 			<PricingBulletPoint text="Prioritized Support" checked />
 			<PricingBulletPoint
 				text={
-					<span>
+					<span className="fontbrand">
 						$250{' '}
 						<a
 							href="https://www.mux.com/"
