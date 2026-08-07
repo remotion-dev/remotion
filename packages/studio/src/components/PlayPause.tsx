@@ -26,7 +26,33 @@ const iconButton: React.CSSProperties = {
 	width: 14,
 };
 
-export const PlayPause: React.FC<{
+const browserMediaControlsBehavior = {
+	mode: 'register-media-session',
+} as const;
+
+const PlaybackManager: React.FC<{
+	readonly playbackRate: number;
+	readonly loop: boolean;
+	readonly muted: boolean;
+	readonly inFrame: number | null;
+	readonly outFrame: number | null;
+	readonly getCurrentFrame: () => number;
+}> = ({playbackRate, loop, muted, inFrame, outFrame, getCurrentFrame}) => {
+	PlayerInternals.usePlayback({
+		loop,
+		playbackRate,
+		moveToBeginningWhenEnded: true,
+		inFrame,
+		outFrame,
+		getCurrentFrame,
+		browserMediaControlsBehavior,
+		muted,
+	});
+
+	return null;
+};
+
+const PlayPauseInner: React.FC<{
 	readonly playbackRate: number;
 	readonly loop: boolean;
 	readonly bufferStateDelayInMilliseconds: number;
@@ -52,21 +78,23 @@ export const PlayPause: React.FC<{
 		frameForward,
 		emitter,
 		getCurrentFrame,
+		isPlaying,
 	} = PlayerInternals.usePlayerMethods();
-	const [playing] = Internals.Timeline.usePlayingState();
+	const [playing, setPlaying] = useState(isPlaying);
 
-	PlayerInternals.usePlayback({
-		loop,
-		playbackRate,
-		moveToBeginningWhenEnded: true,
-		inFrame,
-		outFrame,
-		getCurrentFrame,
-		browserMediaControlsBehavior: {
-			mode: 'register-media-session',
-		},
-		muted,
-	});
+	useEffect(() => {
+		const onPlay = () => setPlaying(true);
+		const onPause = () => setPlaying(false);
+
+		setPlaying(isPlaying());
+		emitter.addEventListener('play', onPlay);
+		emitter.addEventListener('pause', onPause);
+
+		return () => {
+			emitter.removeEventListener('play', onPlay);
+			emitter.removeEventListener('pause', onPause);
+		};
+	}, [emitter, isPlaying]);
 
 	const isStill = useIsStill();
 
@@ -246,6 +274,14 @@ export const PlayPause: React.FC<{
 
 	return (
 		<>
+			<PlaybackManager
+				loop={loop}
+				playbackRate={playbackRate}
+				muted={muted}
+				inFrame={inFrame}
+				outFrame={outFrame}
+				getCurrentFrame={getCurrentFrame}
+			/>
 			{hideNavigationControls ? null : (
 				<ControlButton
 					aria-label="Jump to beginning"
@@ -299,3 +335,5 @@ export const PlayPause: React.FC<{
 		</>
 	);
 };
+
+export const PlayPause = React.memo(PlayPauseInner);
