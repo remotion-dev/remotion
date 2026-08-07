@@ -1,5 +1,13 @@
 import {expect, test} from 'bun:test';
-import {existsSync, readdirSync, readFileSync, statSync} from 'node:fs';
+import {
+	existsSync,
+	mkdtempSync,
+	readdirSync,
+	readFileSync,
+	rmSync,
+	statSync,
+} from 'node:fs';
+import {tmpdir} from 'node:os';
 import path from 'node:path';
 
 const packageRoot = path.resolve(import.meta.dir, '..');
@@ -136,16 +144,52 @@ test('remotion-create opens the preview in the agent browser by default', () => 
 	);
 });
 
-test('agent client troubleshooting does not open the system browser', () => {
+test('Codex troubleshooting does not open the system browser', () => {
 	const remotionSkill = readFileSync(
 		path.join(generatedSkillsRoot, 'remotion-best-practices', 'SKILL.md'),
 		'utf-8',
 	);
 
-	expect(remotionSkill).toContain('## Agent client troubleshooting');
-	expect(remotionSkill).not.toContain('## Codex troubleshooting');
+	expect(remotionSkill).toContain('## Codex troubleshooting');
+	expect(remotionSkill).not.toContain('## Agent client troubleshooting');
 	expect(remotionSkill).toContain('npx remotion studio --no-open');
 	expect(remotionSkill).not.toMatch(/^npx remotion studio$/m);
+});
+
+test('Cursor build omits Codex troubleshooting', () => {
+	const cursorSkillsRoot = mkdtempSync(
+		path.join(tmpdir(), 'remotion-cursor-plugin-skills-'),
+	);
+	try {
+		const result = Bun.spawnSync({
+			cmd: [
+				process.execPath,
+				'build.mts',
+				'--client=cursor',
+				`--output=${cursorSkillsRoot}`,
+			],
+			cwd: packageRoot,
+		});
+		if (result.exitCode !== 0) {
+			throw new Error(result.stderr.toString('utf-8'));
+		}
+
+		const remotionSkill = readFileSync(
+			path.join(cursorSkillsRoot, 'remotion-best-practices', 'SKILL.md'),
+			'utf-8',
+		);
+		const remotionCreateSkill = readFileSync(
+			path.join(cursorSkillsRoot, 'remotion-create', 'SKILL.md'),
+			'utf-8',
+		);
+		expect(remotionCreateSkill).toContain(
+			"Open the exact URL in the agent client's available browser.",
+		);
+		expect(remotionSkill).not.toContain('## Codex troubleshooting');
+		expect(remotionSkill).not.toContain('## Agent client troubleshooting');
+	} finally {
+		rmSync(cursorSkillsRoot, {recursive: true});
+	}
 });
 
 test('skill display names match their slash commands', () => {

@@ -14,7 +14,20 @@ import {fileURLToPath} from 'url';
 import {prepareEmbeddedSkills} from '../skills/scripts/prepare-embedded-skills';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const skillsOut = resolve(__dirname, 'skills');
+const clientArgument = process.argv.find((argument) =>
+	argument.startsWith('--client='),
+);
+const client = clientArgument?.slice('--client='.length) ?? 'codex';
+if (client !== 'codex' && client !== 'cursor') {
+	throw new Error(`Unsupported plugin client: ${client}`);
+}
+
+const outputArgument = process.argv.find((argument) =>
+	argument.startsWith('--output='),
+);
+const skillsOut = outputArgument
+	? resolve(outputArgument.slice('--output='.length))
+	: resolve(__dirname, 'skills');
 
 const packagesSkillsDir = resolve(__dirname, '..', 'skills', 'skills');
 if (existsSync(skillsOut)) {
@@ -37,7 +50,7 @@ function copySkillDir(src: string, destName: string) {
 	console.log(`  Copied ${destName}`);
 }
 
-const addAgentClientTroubleshootingInstructions = () => {
+const addCodexOnlyInstructions = () => {
 	const remotionSkill = join(skillsOut, 'remotion-best-practices', 'SKILL.md');
 	if (!existsSync(remotionSkill)) {
 		return;
@@ -47,24 +60,24 @@ const addAgentClientTroubleshootingInstructions = () => {
 		remotionSkill,
 		`
 
-## Agent client troubleshooting
+## Codex troubleshooting
 
-When the agent client provides its own browser, first try starting Remotion Studio without opening the system browser:
+When running inside Codex, first try starting the Remotion Studio without opening the system browser:
 
 \`\`\`bash
 npx remotion studio --no-open
 \`\`\`
 
-Only if that fails with file watcher limits such as \`EMFILE: too many open files, watch\`, retry with polling:
+Only if that fails with file watcher limits such as \`EMFILE: too many open files, watch\`, retry with polling and without opening a browser from Codex:
 
 \`\`\`bash
 npx remotion studio --no-open --webpack-poll 1000
 \`\`\`
 
-If Studio still fails to start, ask the user to start it manually from their terminal and then continue using the already-running Studio. Errors while launching Chromium from a sandboxed agent client are likely caused by the client sandbox rather than the Remotion project.
+If Studio still fails to start from Codex, ask the user to start it manually from their macOS Terminal and then continue using the already-running Studio. Sandbox errors while launching Chromium from Codex are likely caused by the Codex/macOS sandbox rather than the Remotion project.
 `,
 	);
-	console.log('  Added agent-client troubleshooting instructions');
+	console.log('  Added Codex-only troubleshooting instructions');
 };
 
 const makeRemotionCreateOpenPreview = () => {
@@ -82,7 +95,7 @@ const makeRemotionCreateOpenPreview = () => {
 		throw new Error('Could not find a remotion-create preview instruction');
 	}
 
-	const codexReplacements = [
+	const replacements = [
 		[
 			previewInstruction,
 			'After creating or updating the video, start the preview server by default:',
@@ -93,25 +106,24 @@ const makeRemotionCreateOpenPreview = () => {
 		],
 	] as const;
 
-	let codexInstructions = currentInstructions;
-	for (const [genericInstruction, codexInstruction] of codexReplacements) {
-		if (!codexInstructions.includes(genericInstruction)) {
+	let instructions = currentInstructions;
+	for (const [genericInstruction, replacement] of replacements) {
+		if (!instructions.includes(genericInstruction)) {
 			throw new Error(
 				`Could not find remotion-create instruction: ${genericInstruction}`,
 			);
 		}
 
-		codexInstructions = codexInstructions.replace(
-			genericInstruction,
-			codexInstruction,
-		);
+		instructions = instructions.replace(genericInstruction, replacement);
 	}
 
-	writeFileSync(remotionCreateSkill, codexInstructions);
+	writeFileSync(remotionCreateSkill, instructions);
 	console.log('  Made remotion-create open previews in the agent browser');
 };
 
-console.log('Building Codex plugin skills...\n');
+console.log(
+	`Building ${client === 'codex' ? 'Codex' : 'Cursor'} plugin skills...\n`,
+);
 
 if (existsSync(packagesSkillsDir)) {
 	const skillFolders = readdirSync(packagesSkillsDir).filter((f) =>
@@ -123,10 +135,12 @@ if (existsSync(packagesSkillsDir)) {
 		copySkillDir(join(packagesSkillsDir, folder), folder);
 	}
 	prepareEmbeddedSkills(skillsOut);
-	addAgentClientTroubleshootingInstructions();
+	if (client === 'codex') {
+		addCodexOnlyInstructions();
+	}
 	makeRemotionCreateOpenPreview();
 } else {
 	console.warn('Warning: packages/skills/skills/ not found');
 }
 
-console.log('\nDone! Skills assembled in packages/codex-plugin/skills/');
+console.log(`\nDone! Skills assembled in ${skillsOut}`);

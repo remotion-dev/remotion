@@ -102,6 +102,7 @@ type AgentPluginPublishTarget = {
 	name: string;
 	readme?: string;
 	repoName: string;
+	skillsDir: string;
 };
 
 const publishBuiltAgentPlugin = async ({
@@ -110,6 +111,7 @@ const publishBuiltAgentPlugin = async ({
 	name,
 	readme,
 	repoName,
+	skillsDir,
 }: AgentPluginPublishTarget) => {
 	const codexPluginDir = path.join(__dirname, '..', '..', '..', 'codex-plugin');
 
@@ -131,7 +133,8 @@ const publishBuiltAgentPlugin = async ({
 	}
 
 	for (const entry of filesToCopy) {
-		const src = path.join(codexPluginDir, entry);
+		const src =
+			entry === 'skills' ? skillsDir : path.join(codexPluginDir, entry);
 		const dst = path.join(workingDir, entry);
 		cpSync(src, dst, {recursive: true});
 	}
@@ -165,9 +168,17 @@ const publishBuiltAgentPlugin = async ({
 
 const publishAgentPlugins = async () => {
 	const codexPluginDir = path.join(__dirname, '..', '..', '..', 'codex-plugin');
+	const cursorSkillsDir = path.join(
+		tmpdir(),
+		`cursor-plugin-skills-${Math.random()}`,
+	);
 
-	// Both repositories use the same portable Agent Plugin build.
-	await $`bun build.mts`.cwd(codexPluginDir);
+	await Promise.all([
+		$`bun build.mts`.cwd(codexPluginDir),
+		$`bun build.mts --client=cursor --output=${cursorSkillsDir}`.cwd(
+			codexPluginDir,
+		),
+	]);
 
 	await Promise.all([
 		publishBuiltAgentPlugin({
@@ -182,6 +193,7 @@ const publishAgentPlugins = async () => {
 			],
 			name: 'codex-plugin',
 			repoName: 'codex-plugin',
+			skillsDir: path.join(codexPluginDir, 'skills'),
 		}),
 		publishBuiltAgentPlugin({
 			commitMessage: 'Update Cursor plugin',
@@ -189,6 +201,7 @@ const publishAgentPlugins = async () => {
 			name: 'cursor-plugin',
 			readme: 'README.cursor.md',
 			repoName: 'cursor-plugin',
+			skillsDir: cursorSkillsDir,
 		}),
 	]);
 };
