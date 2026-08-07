@@ -361,7 +361,7 @@ When proration is applied:
 
 ## Telemetry {#Telemetry}
 
-Company License Users and Enterprise License Users using Remotion for Automators are required to obtain a license key from [remotion.pro](https://www.remotion.pro) and include it in their rendering configuration (see [technical instructions](/docs/licensing)). The license key enables telemetry, which sends an event for each render performed.
+Company License Users and Enterprise License Users using Remotion for Automators are required to obtain a license key from [remotion.pro](https://www.remotion.pro) and include it in their rendering configuration (see [technical instructions](/docs/telemetry#setting-a-license-key)). The license key enables telemetry, which sends an event for each render performed.
 
 Company License Users need to use the same license key across environments. Whether a render is classified as production, development, or failed depends on the rendering method. For client-side rendering, Remotion classifies local hosts such as `localhost` as development based on the host/domain sent with the telemetry event. For server-side rendering, the User must follow Remotion's technical instructions to configure whether a render is a production or development render. Successful renders that are not classified as development or failed are chargeable renders.
 
@@ -374,7 +374,7 @@ The information collected through telemetry is limited to the following:
 - whether the render was in production or development; and
 - whether the render was a video or a still image.
 
-No information about the content or metadata of the rendered media, or any user data, is collected. For further details, refer to the [telemetry documentation](/docs/client-side-rendering/telemetry#sent-information).
+No information about the content or metadata of the rendered media, or any user data, is collected. For further details, refer to the [telemetry documentation](/docs/telemetry#sent-information).
 
 If a User is unable to enable telemetry due to firewall restrictions, corporate policies, or other technical limitations, the User is required to provide Remotion with a monthly report of their rendering activity as an alternative. Remotion will communicate the format and requirements of such report to the User. The report must be verifiable and accurately reflect the User's actual rendering volume.
 
