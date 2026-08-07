@@ -19,7 +19,7 @@ export const TableOfContents: React.FC = () => {
 				</TOCItem>
 				<TOCItem link="/docs/ai/plugins">
 					<strong>{'Plugins'}</strong>
-					<div>Use Remotion with Codex, Claude Code or Kimi Code</div>
+					<div>Use Remotion with Codex, Claude Code, Cursor or Kimi Code</div>
 				</TOCItem>
 				<TOCItem link="/docs/ai/chatbot">
 					<strong>{'Chatbot'}</strong>

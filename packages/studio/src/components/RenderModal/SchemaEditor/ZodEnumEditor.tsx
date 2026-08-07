@@ -21,7 +21,8 @@ export const ZodEnumEditor: React.FC<{
 	readonly value: string;
 	readonly setValue: UpdaterFunction<string>;
 	readonly onRemove: null | (() => void);
-}> = ({schema, jsonPath, setValue, value, onRemove}) => {
+	readonly mayPad: boolean;
+}> = ({schema, jsonPath, setValue, value, onRemove, mayPad}) => {
 	const onChange: UpdaterFunction<string> = useCallback(
 		(
 			updater: (oldV: string) => string,
@@ -60,7 +61,7 @@ export const ZodEnumEditor: React.FC<{
 	);
 
 	return (
-		<Fieldset shouldPad>
+		<Fieldset shouldPad={mayPad}>
 			<SchemaLabel
 				handleClick={null}
 				jsonPath={jsonPath}
