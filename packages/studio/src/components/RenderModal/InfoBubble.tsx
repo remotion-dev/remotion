@@ -22,7 +22,8 @@ const container: React.CSSProperties = {
 export const InfoBubble: React.FC<{
 	readonly title: string;
 	readonly children: React.ReactNode;
-}> = ({title, children}) => {
+	readonly horizontalAlignment?: 'left' | 'right';
+}> = ({title, children, horizontalAlignment = 'left'}) => {
 	const [hovered, setIsHovered] = useState(false);
 	const [opened, setOpened] = useState(false);
 	const ref = useRef<HTMLButtonElement>(null);
@@ -108,9 +109,11 @@ export const InfoBubble: React.FC<{
 						position: 'fixed',
 						bottom: size.windowSize.height - size.top,
 					}),
-			left: size.left,
+			...(horizontalAlignment === 'left'
+				? {left: size.left}
+				: {right: size.windowSize.width - (size.left + size.width)}),
 		};
-	}, [layout, opened, size]);
+	}, [horizontalAlignment, layout, opened, size]);
 
 	const style = useMemo((): React.CSSProperties => {
 		return {
@@ -149,6 +152,7 @@ export const InfoBubble: React.FC<{
 									<InfoTooltip
 										backgroundColor={INPUT_BACKGROUND}
 										arrowDirection={layout}
+										horizontalAlignment={horizontalAlignment}
 									>
 										{children}
 									</InfoTooltip>

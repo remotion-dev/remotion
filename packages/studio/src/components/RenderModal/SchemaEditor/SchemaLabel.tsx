@@ -1,10 +1,22 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {
+	createContext,
+	useCallback,
+	useContext,
+	useMemo,
+	useState,
+} from 'react';
 import {FAIL_COLOR, LIGHT_TEXT, WHITE} from '../../../helpers/colors';
 import {Flex} from '../../layout';
+import {InfoBubble} from '../InfoBubble';
 import {InlineRemoveButton} from '../InlineRemoveButton';
 import {getSchemaLabel} from './get-schema-label';
 import {DEFAULT_PROPS_PATH_CLASSNAME} from './scroll-to-default-props-path';
 import type {JSONPath} from './zod-types';
+
+export const SchemaDescriptionOverrideContext = createContext<{
+	readonly jsonPath: JSONPath;
+	readonly description: string;
+} | null>(null);
 
 const compactStyles: React.CSSProperties = {
 	fontSize: 12,
@@ -16,14 +28,30 @@ const compactStyles: React.CSSProperties = {
 	flex: 1,
 };
 
+const descriptionStyle: React.CSSProperties = {
+	fontSize: 12,
+	maxWidth: 360,
+	overflowWrap: 'anywhere',
+	padding: 10,
+};
+
 export const SchemaLabel: React.FC<{
 	readonly jsonPath: JSONPath;
 	readonly onRemove: null | (() => void);
 	readonly valid: boolean;
 	readonly suffix: string | null;
 	readonly handleClick: null | (() => void);
-}> = ({jsonPath, onRemove, valid, suffix, handleClick}) => {
+	readonly description: string | null;
+}> = ({jsonPath, onRemove, valid, suffix, handleClick, description}) => {
 	const [clickableButtonHovered, setClickableButtonHovered] = useState(false);
+	const descriptionOverride = useContext(SchemaDescriptionOverrideContext);
+	const displayedDescription =
+		descriptionOverride?.jsonPath.length === jsonPath.length &&
+		descriptionOverride.jsonPath.every(
+			(part, index) => part === jsonPath[index],
+		)
+			? descriptionOverride.description
+			: description;
 
 	const labelStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -68,6 +96,11 @@ export const SchemaLabel: React.FC<{
 			) : (
 				labelContent
 			)}
+			{displayedDescription ? (
+				<InfoBubble title="Field description" horizontalAlignment="right">
+					<div style={descriptionStyle}>{displayedDescription}</div>
+				</InfoBubble>
+			) : null}
 			<Flex />
 			{onRemove ? <InlineRemoveButton onClick={onRemove} /> : null}
 		</div>
