@@ -437,7 +437,16 @@ export const backgroundSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
+const svgColorSchema = {
+	color: {
+		type: 'color',
+		default: undefined,
+		description: 'Current color',
+	},
+} as const satisfies InteractivitySchema;
+
 export const svgStrokeSchema = {
+	...svgColorSchema,
 	stroke: {
 		type: 'color',
 		// `none` is the SVG initial value of stroke.

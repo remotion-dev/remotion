@@ -98,9 +98,10 @@ export const NewLanding: React.FC<{
 						<br />
 						<SectionTitle>Pricing</SectionTitle>
 						<Pricing />
-						<TrustedByBanner />
-						<br />
-						<EvaluateRemotionSection />
+						<div className={makeVideosRowClassName}>
+							<TrustedByBanner />
+							<EvaluateRemotionSection />
+						</div>
 						<br />
 						<br />
 						<br />

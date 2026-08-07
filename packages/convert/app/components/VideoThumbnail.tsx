@@ -20,6 +20,7 @@ type Props = {
 	readonly mirrorVertical: boolean;
 	readonly initialReveal: boolean;
 	readonly draggableFile?: File | null;
+	readonly draggableFileName?: string | null;
 };
 
 export type VideoThumbnailRef = {
@@ -43,6 +44,7 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 		mirrorVertical,
 		initialReveal,
 		draggableFile = null,
+		draggableFileName = null,
 	},
 	forwardedRef,
 ) => {
@@ -150,13 +152,14 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 				!setFileDragData({
 					dataTransfer: event.dataTransfer,
 					file: draggableFile,
+					fileName: draggableFileName ?? draggableFile.name,
 					objectUrl: dragObjectUrl,
 				})
 			) {
 				event.preventDefault();
 			}
 		},
-		[dragObjectUrl, draggableFile],
+		[dragObjectUrl, draggableFile, draggableFileName],
 	);
 
 	return (

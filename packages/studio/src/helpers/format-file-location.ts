@@ -40,7 +40,7 @@ export const formatFileLocation = ({
 	return `${stripLeadingDotSlash(relativeSource)}:${location.line}`;
 };
 
-export const formatLocationForAgents = ({
+export const formatContextForAgents = ({
 	name,
 	location,
 	root,

@@ -17,7 +17,7 @@ import {CaretDown} from '../icons/caret';
 import {EditorIcon} from '../icons/editor';
 import {SetSelectedModalContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
-import {CodingAgentIcon} from './CodingAgentIcon';
+import {getOpenInMenuItems} from './get-open-in-menu-items';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineDropdown} from './InlineDropdown';
 import type {ComboboxValue} from './NewComposition/ComboBox';
@@ -56,21 +56,13 @@ const mainButtonBase: React.CSSProperties = {
 	whiteSpace: 'nowrap',
 };
 
-const menuLabel: React.CSSProperties = {
-	color: 'inherit',
-	fontFamily: 'sans-serif',
-	fontSize: 13,
-	lineHeight: '16px',
-};
-
 const editorButtonIconSize = 18;
-const editorMenuIconSize = 18;
 
 export const InspectorOpenInEditor: React.FC<{
+	readonly contextForAgents?: string | null;
 	readonly location: OriginalPosition | null;
 	readonly label?: React.ReactNode;
-	readonly prompt?: string | null;
-}> = ({label, location, prompt = null}) => {
+}> = ({contextForAgents = null, label, location}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {tabIndex} = useZIndex();
@@ -103,7 +95,7 @@ export const InspectorOpenInEditor: React.FC<{
 			try {
 				const response = await openInCodingAgent(
 					codingAgentId,
-					codingAgentId === 'copilot' ? null : prompt,
+					codingAgentId === 'copilot' ? null : contextForAgents,
 				);
 				if (!response.success) {
 					showNotification(`Could not open ${codingAgentName}`, 2000);
@@ -112,7 +104,7 @@ export const InspectorOpenInEditor: React.FC<{
 				showNotification((err as Error).message, 2000);
 			}
 		},
-		[prompt],
+		[contextForAgents],
 	);
 	const editorName = window.remotion_editorName ?? 'default editor';
 	const canOpenDefault =
@@ -153,81 +145,33 @@ export const InspectorOpenInEditor: React.FC<{
 		return <CaretDown color={color} small />;
 	}, []);
 	const menuItems = useMemo((): ComboboxValue[] => {
-		const alternateEditors: ComboboxValue[] = (
-			editorInfo?.installedEditors ?? []
-		)
-			.filter((editor) => editor.id !== preferredEditorId)
-			.map((editor) => ({
-				id: `open-in-${editor.id}`,
-				keyHint: null,
-				label: <span style={menuLabel}>{editor.name}</span>,
-				leftItem: <EditorIcon editorId={editor.id} size={editorMenuIconSize} />,
-				onClick: () => {
-					openWithEditor(editor.id).catch(() => undefined);
-				},
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item' as const,
-				value: editor.id,
-			}));
-		const codingAgents: ComboboxValue[] = (
-			codingAgentInfo?.installedCodingAgents ?? []
-		).map((codingAgent) => ({
-			id: `open-in-coding-agent-${codingAgent.id}`,
-			keyHint: null,
-			label: <span style={menuLabel}>{codingAgent.name}</span>,
-			leftItem: <CodingAgentIcon iconDataUrl={codingAgent.iconDataUrl} />,
-			onClick: () => {
-				openWithCodingAgent(codingAgent.id, codingAgent.name).catch(
+		return getOpenInMenuItems({
+			codingAgentInfo,
+			editorDisabled: location === null,
+			editorInfo,
+			excludeCodingAgentId: null,
+			excludeEditorId: preferredEditorId,
+			onConfigureApps: () => {
+				setSelectedModal({
+					type: 'settings',
+					initialTab: 'apps',
+					initialPublicLicenseKey:
+						window.remotion_renderDefaults?.publicLicenseKey ?? null,
+				});
+			},
+			onOpenInCodingAgent: (codingAgentId, codingAgentName) => {
+				openWithCodingAgent(codingAgentId, codingAgentName).catch(
 					() => undefined,
 				);
 			},
-			quickSwitcherLabel: null,
-			subMenu: null,
-			type: 'item' as const,
-			value: `coding-agent-${codingAgent.id}`,
-		}));
-		const editorSection: ComboboxValue[] = alternateEditors.length
-			? [
-					{type: 'section-header', id: 'editors-header', label: 'Editors'},
-					...alternateEditors,
-				]
-			: [];
-		const codingAgentSection: ComboboxValue[] = codingAgents.length
-			? [
-					{type: 'section-header', id: 'agents-header', label: 'Agents'},
-					...codingAgents,
-				]
-			: [];
-		const apps: ComboboxValue[] = [...editorSection, ...codingAgentSection];
-		const settingsItems: ComboboxValue[] = [
-			...(apps.length > 0
-				? [{type: 'divider' as const, id: 'editor-settings-divider'}]
-				: []),
-			{
-				id: 'change-default-apps',
-				keyHint: null,
-				label: <span style={menuLabel}>Change default apps...</span>,
-				leftItem: null,
-				onClick: () => {
-					setSelectedModal({
-						type: 'settings',
-						initialTab: 'apps',
-						initialPublicLicenseKey:
-							window.remotion_renderDefaults?.publicLicenseKey ?? null,
-					});
-				},
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item' as const,
-				value: 'change-default-apps',
+			onOpenInEditor: (editorId) => {
+				openWithEditor(editorId).catch(() => undefined);
 			},
-		];
-
-		return [...apps, ...settingsItems];
+		});
 	}, [
-		codingAgentInfo?.installedCodingAgents,
-		editorInfo?.installedEditors,
+		codingAgentInfo,
+		editorInfo,
+		location,
 		openWithCodingAgent,
 		openWithEditor,
 		preferredEditorId,

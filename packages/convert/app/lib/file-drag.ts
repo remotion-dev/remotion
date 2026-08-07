@@ -55,16 +55,25 @@ export const canOfferFileDrag = ({
 export const setFileDragData = ({
 	dataTransfer,
 	file,
+	fileName,
 	objectUrl,
 }: {
 	readonly dataTransfer: DataTransfer;
 	readonly file: File;
+	readonly fileName: string;
 	readonly objectUrl: string;
 }) => {
 	try {
 		dataTransfer.clearData();
 		dataTransfer.effectAllowed = 'copy';
-		const item = dataTransfer.items.add(file);
+		const fileForDrag =
+			file.name === fileName
+				? file
+				: new File([file], fileName, {
+						lastModified: file.lastModified,
+						type: file.type,
+					});
+		const item = dataTransfer.items.add(fileForDrag);
 		if (item === null) {
 			return false;
 		}
@@ -74,7 +83,7 @@ export const setFileDragData = ({
 		// the standards-based File item above.
 		dataTransfer.setData(
 			'DownloadURL',
-			`${file.type || 'application/octet-stream'}:${file.name}:${objectUrl}`,
+			`${fileForDrag.type || 'application/octet-stream'}:${fileForDrag.name}:${objectUrl}`,
 		);
 		dataTransfer.setData(CONVERTED_OUTPUT_DRAG_TYPE, '1');
 		return true;
