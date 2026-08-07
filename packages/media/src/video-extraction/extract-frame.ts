@@ -1,6 +1,5 @@
 import {Internals, type LogLevel} from 'remotion';
-import {keyframeManager} from '../caches';
-import {getSink} from '../get-sink';
+import type {MediaCache} from '../caches';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import type {MediaRequestInit} from '../request-init';
 
@@ -29,6 +28,7 @@ type ExtractFrameParams = {
 	maxCacheSize: number;
 	credentials: RequestCredentials | undefined;
 	requestInit?: MediaRequestInit;
+	mediaCache: MediaCache;
 };
 
 const extractFrameInternal = async ({
@@ -43,8 +43,14 @@ const extractFrameInternal = async ({
 	maxCacheSize,
 	credentials,
 	requestInit,
+	mediaCache,
 }: ExtractFrameParams): Promise<ExtractFrameResult> => {
-	const sink = await getSink(src, logLevel, credentials, requestInit);
+	const sink = await mediaCache.sinkManager.getSink(
+		src,
+		logLevel,
+		credentials,
+		requestInit,
+	);
 
 	const [video, mediaDurationInSecondsRaw] = await Promise.all([
 		sink.getVideo(),
@@ -110,7 +116,7 @@ const extractFrameInternal = async ({
 	// https://discord.com/channels/@me/1127949286789881897/1455728482150518906
 	// Should be able to remove once upgraded to Chrome 145
 	try {
-		const keyframeBank = await keyframeManager.requestKeyframeBank({
+		const keyframeBank = await mediaCache.keyframeManager.requestKeyframeBank({
 			videoSampleSink: video.sampleSink,
 			timestamp: timeInSeconds,
 			src,

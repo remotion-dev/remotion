@@ -1,5 +1,5 @@
 import {type LogLevel} from 'remotion';
-import {audioManager} from '../caches';
+import type {MediaCache} from '../caches';
 import {combineAudioDataAndClosePrevious} from '../convert-audiodata/combine-audiodata';
 import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
 import {
@@ -10,7 +10,6 @@ import {
 	TARGET_NUMBER_OF_CHANNELS,
 	getTargetSampleRate,
 } from '../convert-audiodata/resample-audiodata';
-import {getSink} from '../get-sink';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {
 	isNetworkError,
@@ -34,6 +33,7 @@ type ExtractAudioParams = {
 	maxCacheSize: number;
 	credentials: RequestCredentials | undefined;
 	requestInit?: MediaRequestInit;
+	mediaCache: MediaCache;
 };
 
 const extractAudioInternal = async ({
@@ -50,6 +50,7 @@ const extractAudioInternal = async ({
 	maxCacheSize,
 	credentials,
 	requestInit,
+	mediaCache,
 }: ExtractAudioParams): Promise<
 	| {
 			data: PcmS16AudioData | null;
@@ -60,7 +61,12 @@ const extractAudioInternal = async ({
 	| 'network-error'
 > => {
 	const {getAudio, actualMatroskaTimestamps, isMatroska, getDuration} =
-		await getSink(src, logLevel, credentials, requestInit);
+		await mediaCache.sinkManager.getSink(
+			src,
+			logLevel,
+			credentials,
+			requestInit,
+		);
 
 	let mediaDurationInSeconds: number | null = null;
 	if (loop) {
@@ -101,7 +107,7 @@ const extractAudioInternal = async ({
 	}
 
 	try {
-		const sampleIterator = await audioManager.getIterator({
+		const sampleIterator = await mediaCache.audioManager.getIterator({
 			src,
 			timeInSeconds,
 			audioSampleSink: audio.sampleSink,
@@ -118,7 +124,7 @@ const extractAudioInternal = async ({
 			durationInSeconds,
 		);
 
-		audioManager.logOpenFrames();
+		mediaCache.audioManager.logOpenFrames();
 
 		const audioDataArray: PcmS16AudioData[] = [];
 		for (let i = 0; i < samples.length; i++) {

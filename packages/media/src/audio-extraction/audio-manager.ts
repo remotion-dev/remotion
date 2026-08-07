@@ -1,12 +1,16 @@
 import type {AudioSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
-import {getTotalCacheStats} from '../caches';
 import type {RememberActualMatroskaTimestamps} from '../video-extraction/remember-actual-matroska-timestamps';
 import type {AudioSampleIterator} from './audio-iterator';
 import {makeAudioIterator} from './audio-iterator';
 
-export const makeAudioManager = () => {
+export const makeAudioManager = ({
+	getTotalCacheStats,
+}: {
+	getTotalCacheStats: () => {count: number; totalSize: number};
+}) => {
 	const iterators: AudioSampleIterator[] = [];
+	let disposed = false;
 
 	const makeIterator = ({
 		timeInSeconds,
@@ -95,6 +99,10 @@ export const makeAudioManager = () => {
 		logLevel: LogLevel;
 		maxCacheSize: number;
 	}) => {
+		if (disposed) {
+			throw new Error('Media cache has already been disposed');
+		}
+
 		let attempts = 0;
 		const maxAttempts = 3;
 		while (
@@ -135,6 +143,9 @@ export const makeAudioManager = () => {
 		}
 
 		deleteDuplicateIterators(logLevel);
+		if (disposed) {
+			throw new Error('Media cache has already been disposed');
+		}
 
 		return makeIterator({
 			src,
@@ -162,6 +173,23 @@ export const makeAudioManager = () => {
 		for (const iterator of iterators) {
 			iterator.logOpenFrames();
 		}
+	};
+
+	const clearAll = () => {
+		for (const iterator of iterators) {
+			iterator.prepareForDeletion();
+		}
+
+		iterators.length = 0;
+	};
+
+	const dispose = () => {
+		if (disposed) {
+			return;
+		}
+
+		disposed = true;
+		clearAll();
 	};
 
 	let queue = Promise.resolve<unknown>(undefined);
@@ -201,5 +229,7 @@ export const makeAudioManager = () => {
 		getIteratorMostInThePast,
 		logOpenFrames,
 		deleteDuplicateIterators,
+		clearAll,
+		dispose,
 	};
 };

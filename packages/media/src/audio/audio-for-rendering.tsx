@@ -9,7 +9,7 @@ import {
 	useDelayRender,
 	useRemotionEnvironment,
 } from 'remotion';
-import {useMaxMediaCacheSize} from '../caches';
+import {useMaxMediaCacheSize, useRenderMediaCache} from '../caches';
 import {applyVolume} from '../convert-audiodata/apply-volume';
 import {getTargetSampleRate} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
@@ -85,6 +85,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	);
 
 	const maxCacheSize = useMaxMediaCacheSize(logLevel);
+	const mediaCache = useRenderMediaCache(logLevel);
 
 	const audioEnabled = Internals.useAudioEnabled();
 
@@ -134,8 +135,13 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			maxCacheSize,
 			credentials,
 			requestInit: initialRequestInit,
+			mediaCache,
 		})
 			.then((result) => {
+				if (mediaCache.isDisposed()) {
+					return;
+				}
+
 				const handleError = (
 					error: Error,
 					clientSideError: Error,
@@ -242,6 +248,10 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				continueRender(newHandle);
 			})
 			.catch((error) => {
+				if (mediaCache.isDisposed()) {
+					return;
+				}
+
 				cancelRender(error);
 			});
 
@@ -280,6 +290,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		onError,
 		credentials,
 		initialRequestInit,
+		mediaCache,
 	]);
 
 	if (replaceWithHtml5Audio) {

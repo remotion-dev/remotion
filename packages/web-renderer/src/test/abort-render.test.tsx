@@ -1,3 +1,6 @@
+import {Video} from '@remotion/media';
+import {Input} from 'mediabunny';
+import {staticFile} from 'remotion';
 import {expect, test, vi} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderStillOnWeb} from '../render-still-on-web';
@@ -13,9 +16,10 @@ test('should be able to cancel renderMediaOnWeb()', async (t) => {
 	}
 
 	const Component: React.FC = () => {
-		return null;
+		return <Video src={staticFile('video.mp4')} />;
 	};
 
+	const disposeSpy = vi.spyOn(Input.prototype, 'dispose');
 	const controller = new AbortController();
 
 	const prom = renderMediaOnWeb({
@@ -30,14 +34,19 @@ test('should be able to cancel renderMediaOnWeb()', async (t) => {
 		},
 		signal: controller.signal,
 		inputProps: {},
+		onProgress: ({renderedFrames}) => {
+			if (renderedFrames === 1) {
+				controller.abort();
+			}
+		},
 	});
 
-	await new Promise((resolve) => {
-		setTimeout(resolve, 200);
-	});
-
-	controller.abort();
-	await expect(prom).rejects.toThrow('renderMediaOnWeb() was cancelled');
+	try {
+		await expect(prom).rejects.toThrow('renderMediaOnWeb() was cancelled');
+		expect(disposeSpy).toHaveBeenCalled();
+	} finally {
+		disposeSpy.mockRestore();
+	}
 });
 
 test('should be able to cancel renderStillOnWeb()', async () => {
