@@ -2,12 +2,13 @@ import {REACT_REFRESH_FINISHED_EVENT} from '@remotion/studio-shared';
 
 type ReactRefreshRuntime = {
 	performReactRefresh: () => unknown;
-	__remotionReactRefreshWrapped?: boolean;
+	__remotionReactRefreshWrapped: boolean | null;
 };
 
 const RefreshRuntime = require('react-refresh/runtime') as ReactRefreshRuntime;
+RefreshRuntime.__remotionReactRefreshWrapped ??= null;
 
-if (!RefreshRuntime.__remotionReactRefreshWrapped) {
+if (RefreshRuntime.__remotionReactRefreshWrapped === null) {
 	const originalPerformReactRefresh = RefreshRuntime.performReactRefresh;
 	RefreshRuntime.__remotionReactRefreshWrapped = true;
 	RefreshRuntime.performReactRefresh = () => {

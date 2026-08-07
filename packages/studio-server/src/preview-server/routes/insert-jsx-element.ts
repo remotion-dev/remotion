@@ -262,9 +262,10 @@ export const insertJsxElementHandler: ApiHandler<
 				},
 				entryType: 'insert-jsx-element',
 				suppressHmrOnFileRestore: false,
+				nodePathRemappings: null,
 			});
 			suppressUndoStackInvalidation(fileName);
-			writeFileAndNotifyFileWatchers(fileName, output, undefined);
+			writeFileAndNotifyFileWatchers(fileName, output, undefined, null);
 
 			const locationLabel = formatLogFileLocation({
 				remotionRoot,

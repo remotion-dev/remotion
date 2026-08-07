@@ -200,6 +200,7 @@ export const insertElementHandler: ApiHandler<
 									oldContents: plan.existingElementSource,
 									newContents: element.sourceCode,
 									logLine: 1,
+									nodePathRemappings: null,
 								},
 							]
 						: []),
@@ -208,6 +209,7 @@ export const insertElementHandler: ApiHandler<
 						oldContents: inserted.oldContents,
 						newContents: inserted.output,
 						logLine: inserted.logLine,
+						nodePathRemappings: null,
 					},
 				],
 				logLevel,
@@ -230,6 +232,7 @@ export const insertElementHandler: ApiHandler<
 					plan.elementFileName,
 					element.sourceCode,
 					undefined,
+					null,
 				);
 			}
 
@@ -237,6 +240,7 @@ export const insertElementHandler: ApiHandler<
 				inserted.fileName,
 				inserted.output,
 				undefined,
+				null,
 			);
 
 			const compositionLocationLabel = formatLogFileLocation({

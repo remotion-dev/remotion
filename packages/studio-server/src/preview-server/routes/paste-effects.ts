@@ -83,9 +83,10 @@ export const pasteEffectsHandler: ApiHandler<
 				},
 				entryType: 'paste-effects',
 				suppressHmrOnFileRestore: false,
+				nodePathRemappings: null,
 			});
 			suppressUndoStackInvalidation(absolutePath);
-			writeFileAndNotifyFileWatchers(absolutePath, output, clientId);
+			writeFileAndNotifyFileWatchers(absolutePath, output, clientId, null);
 
 			const locationLabel = formatLogFileLocation({
 				remotionRoot,

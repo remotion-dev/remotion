@@ -53,7 +53,7 @@ type UndoEntrySnapshot = {
 	newContents: string | null;
 	/** 1-based source line for terminal/IDE file links (e.g. path:line). */
 	logLine: number;
-	nodePathRemappings?: SequenceNodePathRemapping[];
+	nodePathRemappings: SequenceNodePathRemapping[] | null;
 };
 
 type UndoEntry = {
@@ -170,7 +170,7 @@ export function pushToUndoStack({
 	description: UndoEntryDescription;
 	entryType: UndoEntryType;
 	suppressHmrOnFileRestore: boolean;
-	nodePathRemappings?: SequenceNodePathRemapping[];
+	nodePathRemappings: SequenceNodePathRemapping[] | null;
 }) {
 	pushTransactionToUndoStack({
 		snapshots: [
@@ -203,7 +203,7 @@ export function pushTransactionToUndoStack({
 		oldContents: string | null;
 		newContents: string | null;
 		logLine: number;
-		nodePathRemappings?: SequenceNodePathRemapping[];
+		nodePathRemappings: SequenceNodePathRemapping[] | null;
 	}>;
 	logLevel: LogLevel;
 	remotionRoot: string;
@@ -276,6 +276,7 @@ export function pushToRedoStack({
 				oldContents,
 				newContents,
 				logLine,
+				nodePathRemappings: null,
 			},
 		],
 		description,
@@ -464,24 +465,25 @@ export function popUndo(): {success: true} | {success: false; reason: string} {
 		if (snapshot.oldContents === null) {
 			rmSync(snapshot.filePath, {force: true});
 		} else {
-			const reversedNodePathRemappings = snapshot.nodePathRemappings?.flatMap(
-				(remapping): SequenceNodePathRemapping[] => {
-					if (remapping.newNodePath === null) {
-						return [];
-					}
+			const reversedNodePathRemappings =
+				snapshot.nodePathRemappings?.flatMap(
+					(remapping): SequenceNodePathRemapping[] => {
+						if (remapping.newNodePath === null) {
+							return [];
+						}
 
-					return [
-						{
-							oldNodePath: remapping.newNodePath,
-							newNodePath: remapping.oldNodePath,
-						},
-					];
-				},
-			);
-			const restoredNodePaths = snapshot.nodePathRemappings?.flatMap(
-				(remapping): SequenceNodePath[] =>
+						return [
+							{
+								oldNodePath: remapping.newNodePath,
+								newNodePath: remapping.oldNodePath,
+							},
+						];
+					},
+				) ?? null;
+			const restoredNodePaths =
+				snapshot.nodePathRemappings?.flatMap((remapping): SequenceNodePath[] =>
 					remapping.newNodePath === null ? [remapping.oldNodePath] : [],
-			);
+				) ?? null;
 			writeFileAndNotifyFileWatchers(
 				snapshot.filePath,
 				snapshot.oldContents,
@@ -560,7 +562,10 @@ export function popRedo(): {success: true} | {success: false; reason: string} {
 			snapshot.filePath,
 			snapshot.newContents,
 			undefined,
-			{nodePathRemappings: snapshot.nodePathRemappings},
+			{
+				nodePathRemappings: snapshot.nodePathRemappings,
+				restoredNodePaths: null,
+			},
 		);
 	}
 

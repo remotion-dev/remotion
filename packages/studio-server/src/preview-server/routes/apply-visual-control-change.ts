@@ -115,10 +115,11 @@ export const applyVisualControlHandler: ApiHandler<
 			},
 			entryType: 'visual-control',
 			suppressHmrOnFileRestore: true,
+			nodePathRemappings: null,
 		});
 		suppressUndoStackInvalidation(absolutePath);
 		suppressBundlerUpdateForFile(absolutePath);
-		writeFileAndNotifyFileWatchers(absolutePath, output, undefined);
+		writeFileAndNotifyFileWatchers(absolutePath, output, undefined, null);
 
 		waitForLiveEventsListener().then((listener) => {
 			listener.sendEventToClient({

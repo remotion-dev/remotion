@@ -136,10 +136,11 @@ export const saveEffectPropsHandler: ApiHandler<
 			},
 			entryType: 'effect-props',
 			suppressHmrOnFileRestore: true,
+			nodePathRemappings: null,
 		});
 		suppressUndoStackInvalidation(absolutePath);
 		suppressBundlerUpdateForFile(absolutePath);
-		writeFileAndNotifyFileWatchers(absolutePath, output, clientId);
+		writeFileAndNotifyFileWatchers(absolutePath, output, clientId, null);
 
 		logEffectUpdate({
 			fileRelativeToRoot,

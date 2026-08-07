@@ -150,7 +150,10 @@ export const saveMultipleEffectPropsHandler: ApiHandler<
 		}
 
 		pushTransactionToUndoStack({
-			snapshots,
+			snapshots: snapshots.map((snapshot) => ({
+				...snapshot,
+				nodePathRemappings: null,
+			})),
 			logLevel,
 			remotionRoot,
 			description: {
@@ -164,7 +167,7 @@ export const saveMultipleEffectPropsHandler: ApiHandler<
 		for (const [absolutePath, output] of outputByPath) {
 			suppressUndoStackInvalidation(absolutePath);
 			suppressBundlerUpdateForFile(absolutePath);
-			writeFileAndNotifyFileWatchers(absolutePath, output, clientId);
+			writeFileAndNotifyFileWatchers(absolutePath, output, clientId, null);
 		}
 
 		for (const index of edits.keys()) {

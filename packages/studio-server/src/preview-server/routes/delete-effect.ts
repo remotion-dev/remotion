@@ -104,12 +104,14 @@ export const deleteEffectHandler: ApiHandler<
 					},
 					entryType: 'delete-effect',
 					suppressHmrOnFileRestore: false,
+					nodePathRemappings: null,
 				});
 				suppressUndoStackInvalidation(update.absolutePath);
 				writeFileAndNotifyFileWatchers(
 					update.absolutePath,
 					update.output,
 					undefined,
+					null,
 				);
 
 				const locationLabel = formatLogFileLocation({

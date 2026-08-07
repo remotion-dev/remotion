@@ -276,7 +276,10 @@ export const deleteKeyframes = async ({
 	}
 
 	pushTransactionToUndoStack({
-		snapshots,
+		snapshots: snapshots.map((snapshot) => ({
+			...snapshot,
+			nodePathRemappings: null,
+		})),
 		logLevel,
 		remotionRoot,
 		description: getBatchDescription({totalKeyframes, firstKeyframe}),
@@ -296,6 +299,7 @@ export const deleteKeyframes = async ({
 			snapshot.filePath,
 			snapshot.newContents,
 			clientId,
+			null,
 		);
 	}
 

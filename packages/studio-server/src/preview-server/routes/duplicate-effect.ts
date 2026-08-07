@@ -96,12 +96,14 @@ export const duplicateEffectHandler: ApiHandler<
 					},
 					entryType: 'duplicate-effect',
 					suppressHmrOnFileRestore: false,
+					nodePathRemappings: null,
 				});
 				suppressUndoStackInvalidation(update.absolutePath);
 				writeFileAndNotifyFileWatchers(
 					update.absolutePath,
 					update.output,
 					undefined,
+					null,
 				);
 
 				const locationLabel = formatLogFileLocation({

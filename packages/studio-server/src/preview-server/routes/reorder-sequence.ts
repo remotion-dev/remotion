@@ -62,9 +62,10 @@ export const reorderSequenceHandler: ApiHandler<
 				},
 				entryType: 'reorder-sequence',
 				suppressHmrOnFileRestore: false,
+				nodePathRemappings: null,
 			});
 			suppressUndoStackInvalidation(absolutePath);
-			writeFileAndNotifyFileWatchers(absolutePath, output, clientId);
+			writeFileAndNotifyFileWatchers(absolutePath, output, clientId, null);
 
 			const locationLabel = formatLogFileLocation({
 				remotionRoot,

@@ -288,7 +288,10 @@ export const moveKeyframes = async ({
 	}
 
 	pushTransactionToUndoStack({
-		snapshots,
+		snapshots: snapshots.map((snapshot) => ({
+			...snapshot,
+			nodePathRemappings: null,
+		})),
 		logLevel,
 		remotionRoot,
 		description: getBatchDescription({totalKeyframes, firstKeyframe}),
@@ -308,6 +311,7 @@ export const moveKeyframes = async ({
 			snapshot.filePath,
 			snapshot.newContents,
 			clientId,
+			null,
 		);
 	}
 

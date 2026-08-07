@@ -251,7 +251,8 @@ export const subscribeToSequencePropsWatchers = ({
 			const wasRestored =
 				event.type === 'changed' &&
 				watcherInfo.deleted &&
-				event.restoredNodePaths?.some(
+				event.restoredNodePaths !== null &&
+				event.restoredNodePaths.some(
 					(restoredNodePath) =>
 						JSON.stringify(restoredNodePath) ===
 						JSON.stringify(watcherInfo.currentNodePath.nodePath),
@@ -265,15 +266,17 @@ export const subscribeToSequencePropsWatchers = ({
 			}
 
 			const remapping =
-				event.type === 'changed' && !wasRestored
-					? event.nodePathRemappings?.find(
+				event.type === 'changed' &&
+				!wasRestored &&
+				event.nodePathRemappings !== null
+					? (event.nodePathRemappings.find(
 							(item) =>
 								JSON.stringify(item.oldNodePath) ===
 								JSON.stringify(watcherInfo.currentNodePath.nodePath),
-						)
-					: undefined;
+						) ?? null)
+					: null;
 			const previousNodePath =
-				remapping || wasRestored ? watcherInfo.currentNodePath : undefined;
+				remapping !== null || wasRestored ? watcherInfo.currentNodePath : null;
 			if (remapping?.newNodePath === null) {
 				watcherInfo.deleted = true;
 				waitForLiveEventsListener().then((listener) => {
@@ -290,7 +293,7 @@ export const subscribeToSequencePropsWatchers = ({
 				return;
 			}
 
-			if (remapping) {
+			if (remapping !== null) {
 				watcherInfo.currentNodePath = {
 					...watcherInfo.currentNodePath,
 					nodePath: remapping.newNodePath,
@@ -325,7 +328,7 @@ export const subscribeToSequencePropsWatchers = ({
 				}
 
 				waitForLiveEventsListener().then((listener) => {
-					if (previousNodePath) {
+					if (previousNodePath !== null) {
 						listener.sendEventToClientId(clientId, {
 							type: 'sequence-props-remapped',
 							fileName,

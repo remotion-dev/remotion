@@ -69,10 +69,16 @@ export const updateDefaultPropsHandler: ApiHandler<
 				},
 				entryType: 'default-props',
 				suppressHmrOnFileRestore: true,
+				nodePathRemappings: null,
 			});
 			suppressUndoStackInvalidation(projectInfo.rootFile);
 			suppressBundlerUpdateForFile(projectInfo.rootFile);
-			writeFileAndNotifyFileWatchers(projectInfo.rootFile, output, undefined);
+			writeFileAndNotifyFileWatchers(
+				projectInfo.rootFile,
+				output,
+				undefined,
+				null,
+			);
 
 			const locationLabel = formatLogFileLocation({
 				remotionRoot,

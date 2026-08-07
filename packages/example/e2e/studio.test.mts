@@ -331,7 +331,7 @@ test.describe('visual mode', () => {
 		await expect(gridlineVisibilityToggle).toBeVisible();
 		await page.evaluate(() => {
 			const state = window as typeof window & {
-				sequenceRemappingBadFrames?: string[];
+				sequenceRemappingBadFrames: string[] | null;
 			};
 			state.sequenceRemappingBadFrames = [];
 			const sample = () => {
@@ -442,7 +442,7 @@ test.describe('visual mode', () => {
 				() =>
 					(
 						window as typeof window & {
-							sequenceRemappingBadFrames?: string[];
+							sequenceRemappingBadFrames: string[] | null;
 						}
 					).sequenceRemappingBadFrames ?? [],
 			),

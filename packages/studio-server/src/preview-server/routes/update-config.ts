@@ -215,6 +215,7 @@ export const updateConfigHandler: ApiHandler<
 		configFile,
 		updateConfigFile({configContents, updates: input.updates}),
 		input.clientId,
+		null,
 	);
 
 	return {success: true};

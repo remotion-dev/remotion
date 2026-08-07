@@ -54,9 +54,10 @@ export const splitJsxSequenceHandler: ApiHandler<
 				},
 				entryType: 'split-jsx-sequence',
 				suppressHmrOnFileRestore: false,
+				nodePathRemappings: null,
 			});
 			suppressUndoStackInvalidation(absolutePath);
-			writeFileAndNotifyFileWatchers(absolutePath, output, undefined);
+			writeFileAndNotifyFileWatchers(absolutePath, output, undefined, null);
 
 			const locationLabel = formatLogFileLocation({
 				remotionRoot,

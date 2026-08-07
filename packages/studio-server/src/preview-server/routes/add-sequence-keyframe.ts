@@ -84,10 +84,11 @@ export const addSequenceKeyframeHandler: ApiHandler<
 			},
 			entryType: 'sequence-props',
 			suppressHmrOnFileRestore: true,
+			nodePathRemappings: null,
 		});
 		suppressUndoStackInvalidation(absolutePath);
 		suppressBundlerUpdateForFile(absolutePath);
-		writeFileAndNotifyFileWatchers(absolutePath, output, clientId);
+		writeFileAndNotifyFileWatchers(absolutePath, output, clientId, null);
 
 		logUpdate({
 			fileRelativeToRoot,

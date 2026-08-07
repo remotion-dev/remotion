@@ -101,7 +101,10 @@ export const deleteJsxNodeHandler: ApiHandler<
 					update.absolutePath,
 					update.output,
 					undefined,
-					{nodePathRemappings: update.nodePathRemappings},
+					{
+						nodePathRemappings: update.nodePathRemappings,
+						restoredNodePaths: null,
+					},
 				);
 
 				const locationLabel = formatLogFileLocation({

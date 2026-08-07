@@ -158,6 +158,8 @@ test('persists an arbitrary valid config setter through the route', async () => 
 			].join('\n'),
 			originatorClientId: 'settings-client',
 			type: 'changed',
+			nodePathRemappings: null,
+			restoredNodePaths: null,
 		});
 	} finally {
 		unwatch();
