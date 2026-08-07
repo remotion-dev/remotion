@@ -22,7 +22,8 @@ export const SchemaLabel: React.FC<{
 	readonly valid: boolean;
 	readonly suffix: string | null;
 	readonly handleClick: null | (() => void);
-}> = ({jsonPath, onRemove, valid, suffix, handleClick}) => {
+	readonly description: string | null;
+}> = ({jsonPath, onRemove, valid, suffix, handleClick, description}) => {
 	const [clickableButtonHovered, setClickableButtonHovered] = useState(false);
 
 	const labelStyle: React.CSSProperties = useMemo(() => {
@@ -43,7 +44,7 @@ export const SchemaLabel: React.FC<{
 	}, []);
 
 	const labelContent = (
-		<span style={labelStyle}>
+		<span style={labelStyle} title={description ?? undefined}>
 			{getSchemaLabel(jsonPath)} {suffix ? suffix : null}
 		</span>
 	);

@@ -10,7 +10,11 @@ import {Spacing} from '../../layout';
 import {createZodValues} from './create-zod-values';
 import {Fieldset} from './Fieldset';
 import {SchemaLabel} from './SchemaLabel';
-import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
+import {
+	getUserFacingDescription,
+	zodSafeParse,
+	type AnyZodSchema,
+} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
@@ -81,6 +85,10 @@ export const ZodOrNullishEditor: React.FC<{
 					onRemove={onRemove}
 					valid={zodValidation.success}
 					suffix={null}
+					description={
+						getUserFacingDescription(schema) ??
+						getUserFacingDescription(innerSchema)
+					}
 				/>
 			) : (
 				<ZodSwitch

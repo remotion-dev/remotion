@@ -34,6 +34,7 @@ export const ZonNonEditableValue: React.FC<{
 				onRemove={null}
 				valid
 				suffix={null}
+				description={null}
 			/>
 			<div style={fullWidth}>
 				<em style={wideEmptyLabel}>{label}</em>

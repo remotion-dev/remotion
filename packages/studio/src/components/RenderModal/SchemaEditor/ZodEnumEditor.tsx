@@ -5,7 +5,11 @@ import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
 import {Fieldset} from './Fieldset';
 import {SchemaLabel} from './SchemaLabel';
-import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
+import {
+	zodSafeParse,
+	type AnyZodSchema,
+	getUserFacingDescription,
+} from './zod-schema-type';
 import {getEnumValues} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
@@ -68,6 +72,7 @@ export const ZodEnumEditor: React.FC<{
 				onRemove={onRemove}
 				valid={zodValidation.success}
 				suffix={null}
+				description={getUserFacingDescription(schema)}
 			/>
 
 			<div style={isRoot ? undefined : container}>

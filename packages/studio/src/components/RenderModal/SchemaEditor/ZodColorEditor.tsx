@@ -4,7 +4,11 @@ import {Row, Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {Fieldset} from './Fieldset';
 import {SchemaLabel} from './SchemaLabel';
-import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
+import {
+	zodSafeParse,
+	type AnyZodSchema,
+	getUserFacingDescription,
+} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
@@ -63,6 +67,7 @@ export const ZodColorEditor: React.FC<{
 				onRemove={onRemove}
 				valid={localValue.success}
 				suffix={null}
+				description={getUserFacingDescription(schema)}
 			/>
 			<div style={fullWidth}>
 				<Row align="center">
