@@ -16,7 +16,7 @@ import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
 
 const labelStyle: React.CSSProperties = {
-	fontFamily: 'sans-serif',
+	fontFamily: 'monospace',
 	fontSize: 12,
 	color: LIGHT_TEXT,
 };
@@ -92,7 +92,7 @@ export const ZodOrNullishEditor: React.FC<{
 					mayPad={false}
 				/>
 			)}
-			<div style={checkBoxWrapper}>
+			<label style={checkBoxWrapper}>
 				<Checkbox
 					checked={isChecked}
 					onChange={onCheckBoxChange}
@@ -100,8 +100,8 @@ export const ZodOrNullishEditor: React.FC<{
 					name={jsonPath.join('.')}
 				/>
 				<Spacing x={1} />
-				<div style={labelStyle}>{String(nullishValue)}</div>
-			</div>
+				<code style={labelStyle}>&lt;{String(nullishValue)}&gt;</code>
+			</label>
 		</Fieldset>
 	);
 };

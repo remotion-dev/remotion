@@ -1,5 +1,9 @@
 import {assert, expect, test} from 'vitest';
-import {getMaxVideoCacheSize, keyframeManager} from '../caches';
+import {
+	getMaxVideoCacheSize,
+	globalMediaCache,
+	keyframeManager,
+} from '../caches';
 import {applyVolume} from '../convert-audiodata/apply-volume';
 import {extractFrameAndAudio} from '../extract-frame-and-audio';
 
@@ -21,6 +25,7 @@ test('Should be able to extract a frame', async () => {
 		fps: 30,
 		maxCacheSize: getMaxVideoCacheSize('info'),
 		credentials: undefined,
+		mediaCache: globalMediaCache,
 	});
 
 	if (result.type === 'cannot-decode') {
@@ -77,6 +82,7 @@ test('Should be able to extract the last frame', async () => {
 		fps: 30,
 		maxCacheSize: getMaxVideoCacheSize('info'),
 		credentials: undefined,
+		mediaCache: globalMediaCache,
 	});
 
 	if (result.type === 'cannot-decode') {
@@ -132,6 +138,7 @@ test('Should manage the cache', async (t) => {
 			fps: 30,
 			maxCacheSize: getMaxVideoCacheSize('info'),
 			credentials: undefined,
+			mediaCache: globalMediaCache,
 		});
 	}
 
@@ -162,6 +169,7 @@ test('Should be apply volume correctly', async () => {
 		fps: 30,
 		maxCacheSize: getMaxVideoCacheSize('info'),
 		credentials: undefined,
+		mediaCache: globalMediaCache,
 	});
 
 	if (result.type === 'cannot-decode') {
@@ -221,6 +229,7 @@ test('Should be able to loop', async () => {
 		fps: 30,
 		maxCacheSize: getMaxVideoCacheSize('info'),
 		credentials: undefined,
+		mediaCache: globalMediaCache,
 	});
 
 	if (result.type === 'cannot-decode') {

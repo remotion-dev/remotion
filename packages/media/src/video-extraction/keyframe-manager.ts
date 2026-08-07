@@ -1,16 +1,35 @@
 import type {VideoSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
-import {getSafeWindowOfMonotonicity, getTotalCacheStats} from '../caches';
+import {getSafeWindowOfMonotonicity} from '../caches';
 import {renderTimestampRange} from '../render-timestamp-range';
 import {makeSerializedQueue} from '../serialized-queue';
 import {type KeyframeBank, makeKeyframeBank} from './keyframe-bank';
 
-export const makeKeyframeManager = () => {
+export const makeKeyframeManager = ({
+	getTotalCacheStats,
+}: {
+	getTotalCacheStats: () => {count: number; totalSize: number};
+}) => {
 	let sources: Record<string, KeyframeBank[]> = {};
+	let disposed = false;
 
-	const addKeyframeBank = ({src, bank}: {src: string; bank: KeyframeBank}) => {
+	const addKeyframeBank = ({
+		src,
+		bank,
+		logLevel,
+	}: {
+		src: string;
+		bank: KeyframeBank;
+		logLevel: LogLevel;
+	}) => {
+		if (disposed) {
+			bank.prepareForDeletion(logLevel, 'media cache was disposed');
+			return false;
+		}
+
 		sources[src] = sources[src] ?? [];
 		sources[src].push(bank);
+		return true;
 	};
 
 	const logCacheStats = (logLevel: LogLevel) => {
@@ -231,7 +250,9 @@ export const makeKeyframeManager = () => {
 				initialTimestampRequest: timestamp,
 			});
 
-			addKeyframeBank({src, bank: newKeyframeBank});
+			if (!addKeyframeBank({src, bank: newKeyframeBank, logLevel})) {
+				return null;
+			}
 
 			return newKeyframeBank;
 		}
@@ -263,7 +284,9 @@ export const makeKeyframeManager = () => {
 			src,
 		});
 
-		addKeyframeBank({src, bank: replacementKeybank});
+		if (!addKeyframeBank({src, bank: replacementKeybank, logLevel})) {
+			return null;
+		}
 
 		return replacementKeybank;
 	};
@@ -283,6 +306,10 @@ export const makeKeyframeManager = () => {
 		maxCacheSize: number;
 		fps: number;
 	}) => {
+		if (disposed) {
+			return null;
+		}
+
 		ensureToStayUnderMaxCacheSize(logLevel, maxCacheSize);
 
 		clearKeyframeBanksBeforeTime({
@@ -317,6 +344,15 @@ export const makeKeyframeManager = () => {
 		sources = {};
 	};
 
+	const dispose = (logLevel: LogLevel) => {
+		if (disposed) {
+			return;
+		}
+
+		disposed = true;
+		clearAll(logLevel);
+	};
+
 	const enqueue = makeSerializedQueue();
 
 	return {
@@ -348,6 +384,7 @@ export const makeKeyframeManager = () => {
 		},
 		getCacheStats,
 		clearAll,
+		dispose,
 	};
 };
 

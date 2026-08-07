@@ -1435,6 +1435,7 @@ const sidebars: SidebarsConfig = {
 					items: [
 						'ai/claude-code-plugin',
 						'ai/codex-plugin',
+						'ai/cursor-plugin',
 						'ai/kimi-code-plugin',
 					],
 				},

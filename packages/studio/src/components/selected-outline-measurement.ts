@@ -5,7 +5,7 @@ import {getBoxQuadsPonyfill} from '../helpers/get-box-quads-ponyfill';
 import type {OutlinePoint, SelectedOutline} from './selected-outline-geometry';
 import {mixPoint} from './selected-outline-geometry';
 import type {
-	SelectedOutlineTarget,
+	SelectedOutlineLayoutTarget,
 	SequenceWithSelectedOutline,
 } from './selected-outline-types';
 import {cropFieldKeys, transformOriginFieldKey} from './selected-outline-types';
@@ -312,7 +312,7 @@ const getElementOutlinePoints = (
 
 export const cropOutlinePoints = (
 	points: SelectedOutline['points'],
-	crop: SelectedOutlineTarget['crop'],
+	crop: SelectedOutlineLayoutTarget['crop'],
 ): SelectedOutline['points'] => {
 	if (
 		crop.left === 0 &&
@@ -586,7 +586,7 @@ export const getSequencesWithSelectableOutlines = ({
 
 export const measureOutlines = (
 	container: SVGSVGElement,
-	targets: readonly SelectedOutlineTarget[],
+	targets: readonly SelectedOutlineLayoutTarget[],
 ): SelectedOutline[] => {
 	const containerRect = container.getBoundingClientRect();
 	const outlines: SelectedOutline[] = [];
