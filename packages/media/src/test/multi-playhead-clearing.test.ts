@@ -115,3 +115,70 @@ test('banks that are no longer being read still get cleared', async () => {
 
 	manager.clearAll('error');
 });
+
+test('a bank is not cleared while it is decoding a frame', async () => {
+	const manager = keyframeManager;
+	manager.clearAll('error');
+	const seeks: number[] = [];
+	let resumeDecoding: () => void = () => undefined;
+	let decodingPaused: () => void = () => undefined;
+	const waitForResume = new Promise<void>((resolve) => {
+		resumeDecoding = resolve;
+	});
+	const waitForDecodingToPause = new Promise<void>((resolve) => {
+		decodingPaused = resolve;
+	});
+	const sink: VideoSampleSink = {
+		getSample() {
+			return Promise.reject(new Error('Not implemented'));
+		},
+		async *samples(start = 0) {
+			seeks.push(start);
+			for (let i = Math.round(Math.floor(start) * FPS); ; i++) {
+				const timestamp = i / FPS;
+				if (start === 0 && timestamp === 0.5) {
+					decodingPaused();
+					await waitForResume;
+				}
+
+				yield makeSample(timestamp);
+			}
+		},
+		async *samplesAtTimestamps() {
+			yield* [];
+		},
+	};
+	const requestBank = (timestamp: number) =>
+		manager.requestKeyframeBank({
+			timestamp,
+			videoSampleSink: sink,
+			src: 'same-video.mp4',
+			logLevel: 'error',
+			maxCacheSize: 100 * 1024 * 1024,
+			fps: FPS,
+		});
+
+	const firstBank = await requestBank(0);
+	if (firstBank === null) {
+		throw new Error('Expected an active keyframe bank');
+	}
+
+	const frameAtOneSecond = firstBank.getFrameFromTimestamp(1, FPS);
+	await waitForDecodingToPause;
+
+	// Age the first bank out of the recency window while it is still decoding.
+	// This exercises the real race: frame extraction runs outside the manager's
+	// request queue, so timestamp clearing can overlap it.
+	for (let i = 0; i < 60; i++) {
+		await requestBank(100);
+	}
+
+	resumeDecoding();
+	expect((await frameAtOneSecond)?.timestamp).toBe(1);
+
+	const reusedBank = await requestBank(1);
+	expect(reusedBank).toBe(firstBank);
+	expect(seeks).toEqual([0, 100]);
+
+	manager.clearAll('error');
+});

@@ -100,6 +100,11 @@ export const makeKeyframeManager = ({
 
 		for (const src in sources) {
 			for (const bank of sources[src]) {
+				numberOfBanks++;
+				if (bank.isBusy()) {
+					continue;
+				}
+
 				const index = sources[src].indexOf(bank);
 
 				const lastUsed = bank.getLastUsed();
@@ -107,45 +112,36 @@ export const makeKeyframeManager = ({
 					mostInThePast = lastUsed;
 					mostInThePastBank = {src, bank, index};
 				}
-
-				numberOfBanks++;
 			}
 		}
 
 		if (!mostInThePastBank) {
-			throw new Error('No keyframe bank found');
+			return {mostInThePastBank: null, numberOfBanks};
 		}
 
 		return {mostInThePastBank, numberOfBanks};
 	};
 
 	const deleteOldestKeyframeBank = (logLevel: LogLevel): {finish: boolean} => {
-		const {
-			mostInThePastBank: {
-				bank: mostInThePastBank,
-				src: mostInThePastSrc,
-				index: mostInThePastIndex,
-			},
-			numberOfBanks,
-		} = getTheKeyframeBankMostInThePast();
+		const {mostInThePastBank, numberOfBanks} =
+			getTheKeyframeBankMostInThePast();
 
-		if (numberOfBanks < 2) {
+		if (numberOfBanks < 2 || mostInThePastBank === null) {
 			return {finish: true};
 		}
 
-		if (mostInThePastBank) {
-			const range = mostInThePastBank.getRangeOfTimestamps();
-			const {framesDeleted} = mostInThePastBank.prepareForDeletion(
-				logLevel,
-				'deleted oldest keyframe bank to stay under max cache size',
+		const {bank, src, index} = mostInThePastBank;
+		const range = bank.getRangeOfTimestamps();
+		const {framesDeleted} = bank.prepareForDeletion(
+			logLevel,
+			'deleted oldest keyframe bank to stay under max cache size',
+		);
+		sources[src].splice(index, 1);
+		if (range) {
+			Internals.Log.verbose(
+				{logLevel, tag: '@remotion/media'},
+				`Deleted ${framesDeleted} frames for src ${src} from ${range?.firstTimestamp}sec to ${range?.lastTimestamp}sec to free up memory.`,
 			);
-			sources[mostInThePastSrc].splice(mostInThePastIndex, 1);
-			if (range) {
-				Internals.Log.verbose(
-					{logLevel, tag: '@remotion/media'},
-					`Deleted ${framesDeleted} frames for src ${mostInThePastSrc} from ${range?.firstTimestamp}sec to ${range?.lastTimestamp}sec to free up memory.`,
-				);
-			}
 		}
 
 		return {finish: false};
@@ -206,6 +202,13 @@ export const makeKeyframeManager = ({
 		const currentRequest = requestCountForSrc[src] ?? 0;
 
 		for (const bank of banks) {
+			// Decoding happens after the manager hands out a bank and therefore
+			// outside the manager queue. Deleting a busy bank would close frames and
+			// its sample iterator while that operation is still using them.
+			if (bank.isBusy()) {
+				continue;
+			}
+
 			const range = bank.getRangeOfTimestamps();
 			if (!range) {
 				continue;
