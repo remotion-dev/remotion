@@ -10,6 +10,20 @@ const embeddedRoots = [
 	path.join(generatedSkillsRoot, 'remotion-markup'),
 ];
 
+test('manifest version matches the Remotion version', () => {
+	const packageJson = JSON.parse(
+		readFileSync(path.join(packageRoot, 'package.json'), 'utf-8'),
+	) as Record<string, unknown>;
+	const manifest = JSON.parse(
+		readFileSync(
+			path.join(packageRoot, '.claude-plugin', 'plugin.json'),
+			'utf-8',
+		),
+	) as Record<string, unknown>;
+
+	expect(manifest.version).toBe(packageJson.version);
+});
+
 const getDirectories = (directory: string) => {
 	return readdirSync(directory)
 		.filter((entry) => statSync(path.join(directory, entry)).isDirectory())

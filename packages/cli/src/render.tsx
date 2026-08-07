@@ -62,6 +62,7 @@ const {
 	bundleCacheOption,
 	sampleRateOption,
 	stillFrameOption,
+	publicLicenseKeyOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -336,5 +337,6 @@ export const render = async (
 		bundlerOverride: null,
 		rspackOverride: null,
 		webpackOverride: null,
+		licenseKey: publicLicenseKeyOption.getValue({commandLine: parsedCli}).value,
 	});
 };

@@ -1,4 +1,5 @@
 import {type LogLevel} from 'remotion';
+import type {MediaCache} from '../caches';
 import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
 import {extractFrameAndAudio} from '../extract-frame-and-audio';
 import {
@@ -46,6 +47,7 @@ export const extractFrameViaBroadcastChannel = async ({
 	maxCacheSize,
 	credentials,
 	requestInit,
+	mediaCache,
 }: {
 	src: string;
 	timeInSeconds: number;
@@ -63,6 +65,7 @@ export const extractFrameViaBroadcastChannel = async ({
 	maxCacheSize: number;
 	credentials: RequestCredentials | undefined;
 	requestInit?: MediaRequestInit;
+	mediaCache: MediaCache;
 }): Promise<ExtractFrameViaBroadcastChannelResult> => {
 	if (isClientSideRendering || window.remotion_isMainTab) {
 		return extractFrameAndAudio({
@@ -81,6 +84,7 @@ export const extractFrameViaBroadcastChannel = async ({
 			maxCacheSize,
 			credentials,
 			requestInit,
+			mediaCache,
 		});
 	}
 

@@ -18,7 +18,7 @@ export const getPreferredEditorId = (
 ): EditorPickerId | null => {
 	return (
 		editorInfo?.installedEditors.find(
-			(editor) => editor.name === window.remotion_editorName,
+			(editor) => editor.nameWithType === window.remotion_editorName,
 		)?.id ?? null
 	);
 };

@@ -1,4 +1,5 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react';
+import {copyRenderOutputToAsset} from '../api/copy-render-output-to-asset';
 import {writeStaticFile} from '../api/write-static-file';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
@@ -7,7 +8,8 @@ import {buildAssetFolderStructure} from '../helpers/create-folder-tree';
 import {toggleBooleanMapKey} from '../helpers/persist-boolean-map';
 import {persistExpandedFolders} from '../helpers/persist-open-folders';
 import useAssetDragEvents, {
-	isFileDragEvent,
+	getRenderOutputDragData,
+	isAssetUploadDragEvent,
 } from '../helpers/use-asset-drag-events';
 import {FolderContext} from '../state/folders';
 import {useZIndex} from '../state/z-index';
@@ -92,7 +94,7 @@ export const AssetSelector: React.FC<{
 	});
 	const onDragOver: React.DragEventHandler<HTMLDivElement> = useCallback(
 		(e) => {
-			if (!isFileDragEvent(e)) {
+			if (!isAssetUploadDragEvent(e)) {
 				return;
 			}
 
@@ -104,20 +106,37 @@ export const AssetSelector: React.FC<{
 	const onDrop: React.DragEventHandler<HTMLDivElement> = useCallback(
 		async (e) => {
 			try {
-				if (!isFileDragEvent(e)) {
+				if (!isAssetUploadDragEvent(e)) {
 					setDropLocation(null);
 					return;
 				}
 
 				e.preventDefault();
 				e.stopPropagation();
+				const assetPath = dropLocation ?? null;
+				const renderOutput = getRenderOutputDragData(e.dataTransfer);
+				if (renderOutput) {
+					const destination = [assetPath, renderOutput.fileName]
+						.filter(Boolean)
+						.join('/');
+					const result = await copyRenderOutputToAsset({
+						outputPath: renderOutput.outputPath,
+						assetPath: destination,
+					});
+					showNotification(
+						result.created
+							? `Created ${destination}`
+							: `${destination} already exists`,
+						3000,
+					);
+					return;
+				}
+
 				const {files} = e.dataTransfer;
 				if (files.length === 0) {
 					setDropLocation(null);
 					return;
 				}
-
-				const assetPath = dropLocation ?? null;
 
 				const makePath = (file: File) => {
 					return [assetPath, file.name].filter(Boolean).join('/');
@@ -165,6 +184,7 @@ export const AssetSelector: React.FC<{
 
 	return (
 		<div
+			data-asset-selector
 			style={container}
 			onDragOver={shouldAllowUpload ? onDragOver : undefined}
 			onDrop={shouldAllowUpload ? onDrop : undefined}

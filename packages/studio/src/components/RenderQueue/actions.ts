@@ -42,6 +42,7 @@ export const addStillRenderJob = ({
 	metadata,
 	chromeMode,
 	mediaCacheSizeInBytes,
+	licenseKey,
 }: {
 	compositionId: string;
 	outName: string;
@@ -61,6 +62,7 @@ export const addStillRenderJob = ({
 	metadata: Record<string, string> | null;
 	chromeMode: ChromeMode;
 	mediaCacheSizeInBytes: number | null;
+	licenseKey: string | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -87,6 +89,7 @@ export const addStillRenderJob = ({
 		metadata,
 		chromeMode,
 		mediaCacheSizeInBytes,
+		licenseKey,
 	});
 };
 
@@ -212,6 +215,7 @@ export const addVideoRenderJob = ({
 	chromeMode,
 	mediaCacheSizeInBytes,
 	sampleRate,
+	licenseKey,
 }: {
 	compositionId: string;
 	outName: string;
@@ -255,6 +259,7 @@ export const addVideoRenderJob = ({
 	chromeMode: ChromeMode;
 	mediaCacheSizeInBytes: number | null;
 	sampleRate: number;
+	licenseKey: string | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -305,6 +310,7 @@ export const addVideoRenderJob = ({
 		chromeMode,
 		mediaCacheSizeInBytes,
 		sampleRate,
+		licenseKey,
 	});
 };
 

@@ -18,10 +18,11 @@ export const getDefaultCodingAgentInfoHandler: ApiHandler<
 	return {
 		defaultCodingAgent: getDefaultCodingAgent(),
 		installedCodingAgents: installedCodingAgents.map(
-			({iconDataUrl, id, name}) => ({
+			({iconDataUrl, id, name, nameWithType}) => ({
 				iconDataUrl,
 				id,
 				name,
+				nameWithType,
 			}),
 		),
 	};

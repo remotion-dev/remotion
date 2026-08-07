@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "Remotion Canvas Capture",
-	"description": "Record any element on a webpage as a high-resolution WebM.",
+	"description": "Record any element on a webpage as a high-resolution MP4 or WebM.",
 	"version": "0.1.0",
 	"permissions": ["activeTab", "scripting", "storage", "unlimitedStorage"],
 	"action": {
