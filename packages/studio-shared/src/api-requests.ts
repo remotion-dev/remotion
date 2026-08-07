@@ -115,6 +115,7 @@ type AddRenderRequestDynamicFields =
 			scale: number;
 			logLevel: LogLevel;
 			chromeMode: ChromeMode;
+			licenseKey: string | null;
 	  }
 	| {
 			type: 'sequence';
@@ -161,6 +162,7 @@ type AddRenderRequestDynamicFields =
 			hardwareAcceleration: HardwareAccelerationOption;
 			chromeMode: ChromeMode;
 			sampleRate: number;
+			licenseKey: string | null;
 	  };
 
 export type CancelRenderRequest = {
