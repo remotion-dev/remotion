@@ -211,12 +211,12 @@ export const updateConfigHandler: ApiHandler<
 	}
 
 	const configContents = readFileSync(configFile, 'utf8');
-	writeFileAndNotifyFileWatchers(
-		configFile,
-		updateConfigFile({configContents, updates: input.updates}),
-		input.clientId,
-		null,
-	);
+	writeFileAndNotifyFileWatchers({
+		file: configFile,
+		content: updateConfigFile({configContents, updates: input.updates}),
+		originatorClientId: input.clientId,
+		metadata: null,
+	});
 
 	return {success: true};
 };

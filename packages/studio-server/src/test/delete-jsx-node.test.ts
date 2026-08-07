@@ -344,12 +344,12 @@ test('deleting a JSX node remaps subscriptions for following siblings', async ()
 		).toHaveLength(3);
 
 		events.length = 0;
-		writeFileAndNotifyFileWatchers(
-			filePath,
-			output.replace('name="Title"', 'name="Updated title"'),
-			undefined,
-			null,
-		);
+		writeFileAndNotifyFileWatchers({
+			file: filePath,
+			content: output.replace('name="Title"', 'name="Updated title"'),
+			originatorClientId: undefined,
+			metadata: null,
+		});
 		await Promise.resolve();
 		expect(events.some((event) => event.type === 'lost-node-path')).toBe(false);
 		expect(

@@ -167,7 +167,12 @@ export const saveMultipleEffectPropsHandler: ApiHandler<
 		for (const [absolutePath, output] of outputByPath) {
 			suppressUndoStackInvalidation(absolutePath);
 			suppressBundlerUpdateForFile(absolutePath);
-			writeFileAndNotifyFileWatchers(absolutePath, output, clientId, null);
+			writeFileAndNotifyFileWatchers({
+				file: absolutePath,
+				content: output,
+				originatorClientId: clientId,
+				metadata: null,
+			});
 		}
 
 		for (const index of edits.keys()) {

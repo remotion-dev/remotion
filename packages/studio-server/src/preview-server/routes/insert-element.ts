@@ -228,20 +228,20 @@ export const insertElementHandler: ApiHandler<
 			suppressUndoStackInvalidation(inserted.fileName);
 
 			if (shouldWriteElementFile) {
-				writeFileAndNotifyFileWatchers(
-					plan.elementFileName,
-					element.sourceCode,
-					undefined,
-					null,
-				);
+				writeFileAndNotifyFileWatchers({
+					file: plan.elementFileName,
+					content: element.sourceCode,
+					originatorClientId: undefined,
+					metadata: null,
+				});
 			}
 
-			writeFileAndNotifyFileWatchers(
-				inserted.fileName,
-				inserted.output,
-				undefined,
-				null,
-			);
+			writeFileAndNotifyFileWatchers({
+				file: inserted.fileName,
+				content: inserted.output,
+				originatorClientId: undefined,
+				metadata: null,
+			});
 
 			const compositionLocationLabel = formatLogFileLocation({
 				remotionRoot,

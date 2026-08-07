@@ -88,7 +88,12 @@ export const addSequenceKeyframeHandler: ApiHandler<
 		});
 		suppressUndoStackInvalidation(absolutePath);
 		suppressBundlerUpdateForFile(absolutePath);
-		writeFileAndNotifyFileWatchers(absolutePath, output, clientId, null);
+		writeFileAndNotifyFileWatchers({
+			file: absolutePath,
+			content: output,
+			originatorClientId: clientId,
+			metadata: null,
+		});
 
 		logUpdate({
 			fileRelativeToRoot,

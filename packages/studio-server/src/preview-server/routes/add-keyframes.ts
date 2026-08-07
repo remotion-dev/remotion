@@ -283,12 +283,12 @@ export const addKeyframes = async ({
 	for (const snapshot of snapshots) {
 		suppressUndoStackInvalidation(snapshot.filePath);
 		suppressBundlerUpdateForFile(snapshot.filePath);
-		writeFileAndNotifyFileWatchers(
-			snapshot.filePath,
-			snapshot.newContents,
-			clientId,
-			null,
-		);
+		writeFileAndNotifyFileWatchers({
+			file: snapshot.filePath,
+			content: snapshot.newContents,
+			originatorClientId: clientId,
+			metadata: null,
+		});
 	}
 
 	for (const log of sequenceLogs) {

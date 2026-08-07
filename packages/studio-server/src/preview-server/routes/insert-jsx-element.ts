@@ -265,7 +265,12 @@ export const insertJsxElementHandler: ApiHandler<
 				nodePathRemappings: null,
 			});
 			suppressUndoStackInvalidation(fileName);
-			writeFileAndNotifyFileWatchers(fileName, output, undefined, null);
+			writeFileAndNotifyFileWatchers({
+				file: fileName,
+				content: output,
+				originatorClientId: undefined,
+				metadata: null,
+			});
 
 			const locationLabel = formatLogFileLocation({
 				remotionRoot,

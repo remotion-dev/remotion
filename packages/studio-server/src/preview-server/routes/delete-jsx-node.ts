@@ -97,15 +97,15 @@ export const deleteJsxNodeHandler: ApiHandler<
 					nodePathRemappings: update.nodePathRemappings,
 				});
 				suppressUndoStackInvalidation(update.absolutePath);
-				writeFileAndNotifyFileWatchers(
-					update.absolutePath,
-					update.output,
-					undefined,
-					{
+				writeFileAndNotifyFileWatchers({
+					file: update.absolutePath,
+					content: update.output,
+					originatorClientId: undefined,
+					metadata: {
 						nodePathRemappings: update.nodePathRemappings,
 						restoredNodePaths: null,
 					},
-				);
+				});
 
 				const locationLabel = formatLogFileLocation({
 					remotionRoot,

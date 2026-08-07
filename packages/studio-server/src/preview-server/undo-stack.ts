@@ -484,15 +484,15 @@ export function popUndo(): {success: true} | {success: false; reason: string} {
 				snapshot.nodePathRemappings?.flatMap((remapping): SequenceNodePath[] =>
 					remapping.newNodePath === null ? [remapping.oldNodePath] : [],
 				) ?? null;
-			writeFileAndNotifyFileWatchers(
-				snapshot.filePath,
-				snapshot.oldContents,
-				undefined,
-				{
+			writeFileAndNotifyFileWatchers({
+				file: snapshot.filePath,
+				content: snapshot.oldContents,
+				originatorClientId: undefined,
+				metadata: {
 					nodePathRemappings: reversedNodePathRemappings,
 					restoredNodePaths,
 				},
-			);
+			});
 		}
 	}
 
@@ -558,15 +558,15 @@ export function popRedo(): {success: true} | {success: false; reason: string} {
 			suppressBundlerUpdateForFile(snapshot.filePath);
 		}
 
-		writeFileAndNotifyFileWatchers(
-			snapshot.filePath,
-			snapshot.newContents,
-			undefined,
-			{
+		writeFileAndNotifyFileWatchers({
+			file: snapshot.filePath,
+			content: snapshot.newContents,
+			originatorClientId: undefined,
+			metadata: {
 				nodePathRemappings: snapshot.nodePathRemappings,
 				restoredNodePaths: null,
 			},
-		);
+		});
 	}
 
 	RenderInternals.Log.verbose(

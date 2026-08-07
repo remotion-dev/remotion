@@ -575,7 +575,12 @@ export const saveSequencePropsHandler: ApiHandler<
 				suppressBundlerUpdateForFile(absolutePath);
 			}
 
-			writeFileAndNotifyFileWatchers(absolutePath, output, clientId, null);
+			writeFileAndNotifyFileWatchers({
+				file: absolutePath,
+				content: output,
+				originatorClientId: clientId,
+				metadata: null,
+			});
 		}
 
 		for (const {edits: groupEdits, fileRelativeToRoot} of editGroups.values()) {

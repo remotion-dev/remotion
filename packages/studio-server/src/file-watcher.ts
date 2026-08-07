@@ -11,6 +11,13 @@ export type FileChangeMetadata = {
 	restoredNodePaths: SequenceNodePath[] | null;
 };
 
+type WriteFileAndNotifyFileWatchersOptions = {
+	file: string;
+	content: string;
+	originatorClientId: string | undefined;
+	metadata: FileChangeMetadata | null;
+};
+
 export type FileChangeEvent =
 	| {type: 'created'; content: string; originatorClientId: string | undefined}
 	| {type: 'deleted'}
@@ -50,10 +57,7 @@ export type FileWatcherRegistry = {
 		unwatch: () => void;
 	};
 	writeFileAndNotifyFileWatchers: (
-		file: string,
-		content: string,
-		originatorClientId: string | undefined,
-		metadata: FileChangeMetadata | null,
+		options: WriteFileAndNotifyFileWatchersOptions,
 	) => void;
 };
 
@@ -172,12 +176,12 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 		};
 	};
 
-	const _writeFileAndNotifyFileWatchers = (
-		file: string,
-		content: string,
-		originatorClientId: string | undefined,
-		metadata: FileChangeMetadata | null,
-	) => {
+	const _writeFileAndNotifyFileWatchers = ({
+		file,
+		content,
+		originatorClientId,
+		metadata,
+	}: WriteFileAndNotifyFileWatchersOptions) => {
 		writeFileSync(file, content);
 
 		const shared = sharedWatchers.get(getRegistryKey(file, false));
@@ -238,15 +242,10 @@ export const installFileWatcher: FileWatcherRegistry['installFileWatcher'] = (
 };
 
 export const writeFileAndNotifyFileWatchers: FileWatcherRegistry['writeFileAndNotifyFileWatchers'] =
-	(file, content, originatorClientId, metadata) => {
+	(options) => {
 		if (!currentRegistry) {
 			return;
 		}
 
-		getFileWatcherRegistry().writeFileAndNotifyFileWatchers(
-			file,
-			content,
-			originatorClientId,
-			metadata,
-		);
+		getFileWatcherRegistry().writeFileAndNotifyFileWatchers(options);
 	};

@@ -107,12 +107,12 @@ export const deleteEffectHandler: ApiHandler<
 					nodePathRemappings: null,
 				});
 				suppressUndoStackInvalidation(update.absolutePath);
-				writeFileAndNotifyFileWatchers(
-					update.absolutePath,
-					update.output,
-					undefined,
-					null,
-				);
+				writeFileAndNotifyFileWatchers({
+					file: update.absolutePath,
+					content: update.output,
+					originatorClientId: undefined,
+					metadata: null,
+				});
 
 				const locationLabel = formatLogFileLocation({
 					remotionRoot,

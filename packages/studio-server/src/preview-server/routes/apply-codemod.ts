@@ -305,14 +305,19 @@ export const applyCodemodHandler: ApiHandler<
 					suppressUndoStackInvalidation(componentFilePath);
 				}
 
-				writeFileAndNotifyFileWatchers(filePath, formatted, undefined, null);
+				writeFileAndNotifyFileWatchers({
+					file: filePath,
+					content: formatted,
+					originatorClientId: undefined,
+					metadata: null,
+				});
 				if (componentFilePath && componentFileContents !== null) {
-					writeFileAndNotifyFileWatchers(
-						componentFilePath,
-						componentFileContents,
-						undefined,
-						null,
-					);
+					writeFileAndNotifyFileWatchers({
+						file: componentFilePath,
+						content: componentFileContents,
+						originatorClientId: undefined,
+						metadata: null,
+					});
 				}
 
 				const logMessage = getCodemodLogMessage(codemod);
