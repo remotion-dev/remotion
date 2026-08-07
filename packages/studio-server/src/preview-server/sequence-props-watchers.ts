@@ -258,6 +258,17 @@ export const subscribeToSequencePropsWatchers = ({
 				: undefined;
 			if (remapping?.newNodePath === null) {
 				watcherInfo.deleted = true;
+				waitForLiveEventsListener().then((listener) => {
+					listener.sendEventToClientId(clientId, {
+						type: 'sequence-props-remapped',
+						fileName,
+						line,
+						column,
+						previousNodePath: watcherInfo.currentNodePath,
+						nodePath: null,
+						result: null,
+					});
+				});
 				return;
 			}
 
@@ -296,11 +307,23 @@ export const subscribeToSequencePropsWatchers = ({
 				}
 
 				waitForLiveEventsListener().then((listener) => {
+					if (previousNodePath) {
+						listener.sendEventToClientId(clientId, {
+							type: 'sequence-props-remapped',
+							fileName,
+							line,
+							column,
+							previousNodePath,
+							nodePath: watcherInfo.currentNodePath,
+							result,
+						});
+						return;
+					}
+
 					listener.sendEventToClientId(clientId, {
 						type: 'sequence-props-updated',
 						fileName,
 						nodePath: watcherInfo.currentNodePath,
-						previousNodePath,
 						result,
 					});
 				});

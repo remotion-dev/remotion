@@ -241,24 +241,41 @@ test('deleting a JSX node remaps subscriptions for following siblings', async ()
 		const updates = events.filter(
 			(
 				event,
-			): event is Extract<EventSourceEvent, {type: 'sequence-props-updated'}> =>
-				event.type === 'sequence-props-updated',
+			): event is Extract<
+				EventSourceEvent,
+				{type: 'sequence-props-remapped'}
+			> => event.type === 'sequence-props-remapped',
 		);
 		expect(events.some((event) => event.type === 'lost-node-path')).toBe(false);
-		expect(updates).toHaveLength(2);
+		expect(updates).toHaveLength(3);
 		expect(
 			updates.map((update) => {
+				if (update.nodePath === null || update.result === null) {
+					return {
+						name: null,
+						newNodePath: null,
+						previousNodePath: update.previousNodePath.nodePath,
+					};
+				}
+
 				if (!update.result.canUpdate) {
-					throw new Error('Expected sequence props to remain editable');
+					throw new Error(
+						'Expected surviving sequence props to remain editable',
+					);
 				}
 
 				return {
 					name: update.result.props.name,
 					newNodePath: update.nodePath.nodePath,
-					previousNodePath: update.previousNodePath?.nodePath,
+					previousNodePath: update.previousNodePath.nodePath,
 				};
 			}),
 		).toEqual([
+			{
+				name: null,
+				newNodePath: null,
+				previousNodePath: lineColumnToNodePath(interactiveSiblings, 6),
+			},
 			{
 				name: {codeValue: 'Title', status: 'static'},
 				newNodePath: lineColumnToNodePath(output, 6),

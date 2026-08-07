@@ -8,8 +8,11 @@ import {useResolvedStack} from './use-resolved-stack';
 // A code change has been made and we cannot re-calculate the stack right away.
 // In that case, we wait for fast refresh, wait for the new stack trace, triggering a new event.
 
-const matchesLostNodePathEvent = (
-	event: Extract<EventSourceEvent, {type: 'lost-node-path'}>,
+const matchesSourceLocation = (
+	event: Extract<
+		EventSourceEvent,
+		{type: 'lost-node-path' | 'sequence-props-remapped'}
+	>,
 	location: ResolvedStackLocation | null,
 ): boolean => {
 	if (!location?.source || !location.line) {
@@ -31,27 +34,32 @@ export const useResolveStackAndReactToChange = (
 	const resolvedLocation = useResolvedStack(stack);
 	const resolvedLocationRef = useRef(resolvedLocation);
 	resolvedLocationRef.current = resolvedLocation;
+	const getStackRef = useRef(getStack);
+	getStackRef.current = getStack;
 
 	useEffect(() => {
 		let interval: Timer | null = null;
 
 		const handleEvent = (event: EventSourceEvent) => {
-			if (event.type !== 'lost-node-path') {
+			if (
+				event.type !== 'lost-node-path' &&
+				event.type !== 'sequence-props-remapped'
+			) {
 				return;
 			}
 
-			if (!matchesLostNodePathEvent(event, resolvedLocationRef.current)) {
+			if (!matchesSourceLocation(event, resolvedLocationRef.current)) {
 				return;
 			}
 
-			const initialStack = getStack();
+			const initialStack = getStackRef.current();
 
 			if (interval !== null) {
 				clearInterval(interval);
 			}
 
 			interval = setInterval(() => {
-				const newStack = getStack();
+				const newStack = getStackRef.current();
 				if (newStack !== initialStack) {
 					if (interval !== null) {
 						clearInterval(interval);
@@ -71,7 +79,7 @@ export const useResolveStackAndReactToChange = (
 				clearInterval(interval);
 			}
 		};
-	}, [subscribeToEvent, getStack]);
+	}, [subscribeToEvent]);
 
 	return resolvedLocation;
 };

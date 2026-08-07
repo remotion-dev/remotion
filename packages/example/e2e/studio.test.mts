@@ -2,8 +2,13 @@ import fs from 'fs';
 import path from 'path';
 import {expect, test, type Page} from '@playwright/test';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
-import {STUDIO_URL, effectKeyframeE2eFile, exampleDir} from './constants.mts';
-import {navigateToSchemaTest} from './helpers.mts';
+import {
+	STUDIO_URL,
+	effectKeyframeE2eFile,
+	exampleDir,
+	lostNodePathE2eFile,
+} from './constants.mts';
+import {navigateToLostNodePathE2e, navigateToSchemaTest} from './helpers.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
 const dropAssetOnCanvas = async ({
@@ -301,6 +306,45 @@ test.describe('visual mode', () => {
 			page
 				.locator('.__remotion-studio-menu-item')
 				.filter({hasText: 'Delete all'}),
+		).toBeVisible();
+	});
+
+	test('should preserve following interactive elements after deleting a sibling', async ({
+		page,
+	}) => {
+		await navigateToLostNodePathE2e(page);
+		const canvas = page.locator('.remotion-studio-composition-container');
+		await expect(
+			canvas.getByText('Performance overview', {exact: true}),
+		).toBeVisible();
+		await expect(
+			canvas.getByText('Regional growth', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			canvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
+
+		const eyebrow = page.locator(
+			'[data-timeline-marquee-item][title="Eyebrow"]',
+		);
+		await eyebrow.click();
+		await page.keyboard.press('Delete');
+
+		await expect
+			.poll(() => fs.readFileSync(lostNodePathE2eFile, 'utf-8'))
+			.not.toContain('name="Eyebrow"');
+		await expect(eyebrow).toHaveCount(0, {timeout: 30_000});
+		await expect(
+			canvas.getByText('Regional growth', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			canvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
+		await expect(
+			page.locator('[data-timeline-marquee-item][title="Title"]'),
+		).toBeVisible();
+		await expect(
+			page.locator('[data-timeline-marquee-item][title="Chart"]'),
 		).toBeVisible();
 	});
 

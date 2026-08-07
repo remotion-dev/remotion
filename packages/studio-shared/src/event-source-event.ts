@@ -73,8 +73,16 @@ export type EventSourceEvent =
 			type: 'sequence-props-updated';
 			fileName: string;
 			nodePath: SequencePropsSubscriptionKey;
-			previousNodePath?: SequencePropsSubscriptionKey;
 			result: CanUpdateSequencePropsResponse;
+	  }
+	| {
+			type: 'sequence-props-remapped';
+			fileName: string;
+			line: number;
+			column: number;
+			previousNodePath: SequencePropsSubscriptionKey;
+			nodePath: SequencePropsSubscriptionKey | null;
+			result: CanUpdateSequencePropsResponse | null;
 	  }
 	| {
 			type: 'lost-node-path';
