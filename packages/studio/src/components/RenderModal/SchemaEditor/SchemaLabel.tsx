@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import {FAIL_COLOR, LIGHT_TEXT, WHITE} from '../../../helpers/colors';
 import {Flex} from '../../layout';
+import {InfoBubble} from '../InfoBubble';
 import {InlineRemoveButton} from '../InlineRemoveButton';
 import {getSchemaLabel} from './get-schema-label';
 import {DEFAULT_PROPS_PATH_CLASSNAME} from './scroll-to-default-props-path';
@@ -25,6 +26,11 @@ const compactStyles: React.CSSProperties = {
 	flexDirection: 'row',
 	alignItems: 'center',
 	flex: 1,
+};
+
+const descriptionStyle: React.CSSProperties = {
+	fontSize: 12,
+	padding: 10,
 };
 
 export const SchemaLabel: React.FC<{
@@ -63,7 +69,7 @@ export const SchemaLabel: React.FC<{
 	}, []);
 
 	const labelContent = (
-		<span style={labelStyle} title={displayedDescription ?? undefined}>
+		<span style={labelStyle}>
 			{getSchemaLabel(jsonPath)} {suffix ? suffix : null}
 		</span>
 	);
@@ -88,6 +94,11 @@ export const SchemaLabel: React.FC<{
 			) : (
 				labelContent
 			)}
+			{displayedDescription ? (
+				<InfoBubble title="Field description">
+					<div style={descriptionStyle}>{displayedDescription}</div>
+				</InfoBubble>
+			) : null}
 			<Flex />
 			{onRemove ? <InlineRemoveButton onClick={onRemove} /> : null}
 		</div>
