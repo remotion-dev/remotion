@@ -1,6 +1,6 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
-import {formatLocationForAgents} from '../helpers/format-file-location';
+import {formatContextForAgents} from '../helpers/format-file-location';
 import {ClipboardIcon} from '../icons/clipboard';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
@@ -46,8 +46,8 @@ export const InspectorLocationCopy: React.FC<{
 }> = ({children, location, name, openInEditorLocation}) => {
 	const [hovered, setHovered] = useState(false);
 	const [focusedWithin, setFocusedWithin] = useState(false);
-	const textToCopy = useMemo(() => {
-		return formatLocationForAgents({
+	const contextForAgents = useMemo(() => {
+		return formatContextForAgents({
 			location,
 			name,
 			root: window.remotion_cwd,
@@ -61,18 +61,18 @@ export const InspectorLocationCopy: React.FC<{
 	const onCopy: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(event) => {
 			event.stopPropagation();
-			if (!textToCopy) {
+			if (!contextForAgents) {
 				return;
 			}
 
-			navigator.clipboard.writeText(textToCopy).catch((err) => {
+			navigator.clipboard.writeText(contextForAgents).catch((err) => {
 				showNotification(
 					`Could not copy to clipboard: ${(err as Error).message}`,
 					2000,
 				);
 			});
 		},
-		[textToCopy],
+		[contextForAgents],
 	);
 
 	const showAction = hovered || focusedWithin;
@@ -88,7 +88,7 @@ export const InspectorLocationCopy: React.FC<{
 			onBlur={() => setFocusedWithin(false)}
 		>
 			<div style={content}>{children}</div>
-			{textToCopy || openInEditorLocation ? (
+			{contextForAgents || openInEditorLocation ? (
 				<div
 					style={{
 						...action,
@@ -97,15 +97,15 @@ export const InspectorLocationCopy: React.FC<{
 					}}
 				>
 					<InspectorOpenInEditor
+						contextForAgents={contextForAgents}
 						location={openInEditorLocation}
-						prompt={textToCopy}
 					/>
-					{textToCopy ? (
+					{contextForAgents ? (
 						<InlineAction
 							variant={null}
 							onClick={onCopy}
 							renderAction={renderCopyAction}
-							title="Copy location for agents"
+							title="Copy context for agents"
 						/>
 					) : null}
 				</div>

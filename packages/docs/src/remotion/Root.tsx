@@ -63,6 +63,7 @@ import {
 	EffectsRadialProgressivePixelatePreview,
 	RADIAL_PROGRESSIVE_PIXELATE_PREVIEW_PARAMS,
 } from '../../components/effects/effects-radial-progressive-pixelate-preview';
+import {EffectsRegionBlurPreview} from '../../components/effects/effects-region-blur-preview';
 import {EffectsRingsPreview} from '../../components/effects/effects-rings-preview';
 import {
 	EffectsRoughenEdgesPreview,
@@ -499,6 +500,19 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={RADIAL_PROGRESSIVE_BLUR_PREVIEW_PARAMS}
+				/>
+				<Still
+					id="effects-region-blur-preview"
+					component={EffectsRegionBlurPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						topLeft: [0.28, 0.18],
+						bottomRight: [0.72, 0.82],
+						blurRadius: 60,
+						feather: 8,
+						roundness: 0.5,
+					}}
 				/>
 				<Still
 					id="effects-radial-progressive-pixelate-preview"

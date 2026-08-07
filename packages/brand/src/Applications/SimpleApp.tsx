@@ -3,9 +3,13 @@ import {ExtrudeDiv} from '../3DContext/Div3D';
 import {KineticType} from './KineticType';
 
 export function ApplicationSimpleApp({
+	kineticTypeColor = '#4290f5',
 	kineticTypeFrame,
+	kineticTypeSpeed = 1,
 }: {
+	readonly kineticTypeColor?: string;
 	readonly kineticTypeFrame?: number;
+	readonly kineticTypeSpeed?: number;
 }) {
 	const frame = useCurrentFrame();
 	const titleFrame = kineticTypeFrame ?? frame;
@@ -31,7 +35,7 @@ export function ApplicationSimpleApp({
 					/>
 				}
 				cornerRadius={30}
-				depth={46}
+				depth={120}
 				height={590}
 				name="Simple application"
 				rotationX={-Math.PI / 24}
@@ -57,36 +61,35 @@ export function ApplicationSimpleApp({
 					<div
 						style={{
 							alignItems: 'center',
-							borderBottom: '2px solid #e5e7eb',
 							display: 'flex',
 							height: 72,
 							justifyContent: 'space-between',
 							padding: '0 26px',
 						}}
 					>
-						<div style={{display: 'flex', gap: 9}}>
+						<div style={{display: 'flex', gap: 13.5}}>
 							<div
 								style={{
 									backgroundColor: '#ff5f57',
 									borderRadius: '50%',
-									height: 16,
-									width: 16,
+									height: 24,
+									width: 24,
 								}}
 							/>
 							<div
 								style={{
 									backgroundColor: '#febc2e',
 									borderRadius: '50%',
-									height: 16,
-									width: 16,
+									height: 24,
+									width: 24,
 								}}
 							/>
 							<div
 								style={{
 									backgroundColor: '#28c840',
 									borderRadius: '50%',
-									height: 16,
-									width: 16,
+									height: 24,
+									width: 24,
 								}}
 							/>
 						</div>
@@ -97,13 +100,13 @@ export function ApplicationSimpleApp({
 							display: 'flex',
 							flexDirection: 'column',
 							gap: 22,
-							padding: 28,
+							padding: '12px 28px 28px',
 						}}
 					>
 						<div
 							style={{
 								alignItems: 'center',
-								backgroundColor: '#111827',
+								backgroundColor: '#e5e7eb',
 								borderRadius: 18,
 								display: 'flex',
 								height: 332,
@@ -112,10 +115,10 @@ export function ApplicationSimpleApp({
 							}}
 						>
 							<KineticType
-								frame={titleFrame}
+								frame={titleFrame * kineticTypeSpeed}
 								style={{
 									alignItems: 'center',
-									color: '#ffffff',
+									color: kineticTypeColor,
 									fontSize: 64,
 									fontWeight: 500,
 									gap: 8,

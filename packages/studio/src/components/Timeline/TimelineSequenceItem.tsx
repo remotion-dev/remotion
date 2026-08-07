@@ -16,7 +16,6 @@ import {
 	TIMELINE_DROP_BLUE_ALPHA_16,
 	WHITE,
 } from '../../helpers/colors';
-import {formatFileLocation} from '../../helpers/format-file-location';
 import {
 	getConnectedCompositionFrame,
 	getSequenceDoubleClickAction,
@@ -81,7 +80,7 @@ import {
 	useTimelineSelection,
 } from './TimelineSelection';
 import {TimelineSequenceName} from './TimelineSequenceName';
-import {useOpenSequenceInEditor} from './use-open-sequence-in-editor';
+import {useOpenSequenceInApps} from './use-open-sequence-in-apps';
 import {useRenameSequence} from './use-rename-sequence';
 import {getSequenceFreezeFrameMenuItem} from './use-sequence-freeze-frame-menu-item';
 import {useTimelineSequenceHasExpandableContent} from './use-timeline-expanded-tree';
@@ -316,16 +315,15 @@ const TimelineSequenceItemInner: React.FC<{
 	const [sequenceDropRejection, setSequenceDropRejection] = useState<
 		string | null
 	>(null);
-	const {canOpenInEditor, editorInfo, openInEditor, originalLocation} =
-		useOpenSequenceInEditor(sequence);
-	const fileLocation = useMemo(
-		() =>
-			formatFileLocation({
-				location: originalLocation,
-				root: window.remotion_cwd,
-			}),
-		[originalLocation],
-	);
+	const {
+		canOpenInEditor,
+		canConfigureApps,
+		codingAgentInfo,
+		editorInfo,
+		openInCodingAgent,
+		openInEditor,
+		originalLocation,
+	} = useOpenSequenceInApps(sequence);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -993,16 +991,27 @@ const TimelineSequenceItemInner: React.FC<{
 		return getSequenceContextMenuItems({
 			assetLinkInfo: mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null,
 			canOpenInEditor,
+			codingAgentInfo,
 			deleteDisabled,
 			disableInteractivityDisabled,
 			duplicateDisabled,
 			editorInfo,
-			fileLocation,
 			includeSourceEditItems: isStudioInteractivityEnabled(),
 			isProgrammaticallyDuplicated,
+			onConfigureApps: canConfigureApps
+				? () => {
+						setSelectedModal({
+							type: 'settings',
+							initialTab: 'apps',
+							initialPublicLicenseKey:
+								window.remotion_renderDefaults?.publicLicenseKey ?? null,
+						});
+					}
+				: null,
 			onDeleteSequenceFromSource,
 			onDisableSequenceInteractivity,
 			onDuplicateSequenceFromSource,
+			openInCodingAgent,
 			openInEditor,
 			originalLocation,
 			selectAsset,
@@ -1031,7 +1040,7 @@ const TimelineSequenceItemInner: React.FC<{
 										type: 'item' as const,
 										id: 'crop',
 										keyHint: null,
-										label: 'Crop',
+										label: isProgrammaticallyDuplicated ? 'Crop all' : 'Crop',
 										leftItem: null,
 										disabled: false,
 										onClick: onCrop,
@@ -1066,13 +1075,14 @@ const TimelineSequenceItemInner: React.FC<{
 	}, [
 		canAddEffect,
 		canCrop,
+		canConfigureApps,
 		canOpenInEditor,
 		canRenameThisSequence,
+		codingAgentInfo,
 		deleteDisabled,
 		disableInteractivityDisabled,
 		duplicateDisabled,
 		editorInfo,
-		fileLocation,
 		isProgrammaticallyDuplicated,
 		mediaSrc,
 		nodePath,
@@ -1084,6 +1094,7 @@ const TimelineSequenceItemInner: React.FC<{
 		onDuplicateSequenceFromSource,
 		onRenameSequence,
 		onSelect,
+		openInCodingAgent,
 		openInEditor,
 		originalLocation,
 		previewInteractive,
@@ -1093,6 +1104,7 @@ const TimelineSequenceItemInner: React.FC<{
 		selectable,
 		sequence,
 		sequenceFrameOffset,
+		setSelectedModal,
 		setPropStatuses,
 		validatedLocation?.source,
 	]);

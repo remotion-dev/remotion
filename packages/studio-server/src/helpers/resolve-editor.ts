@@ -19,11 +19,13 @@ export type ResolvedEditor =
 			type: 'built-in';
 			id: BuiltInEditor | null;
 			name: string;
+			nameWithType: string;
 	  })
 	| (ResolvedCustomEditorExecutable & {
 			type: 'custom';
 			id: 'custom';
 			name: string;
+			nameWithType: string;
 			editor: CustomEditor;
 	  });
 
@@ -89,6 +91,7 @@ export const resolveEditor = async (
 			type: 'custom',
 			id: 'custom',
 			name: defaultEditor.name,
+			nameWithType: defaultEditor.name,
 			editor: defaultEditor,
 		};
 	}
@@ -110,6 +113,7 @@ export const resolveEditor = async (
 				type: 'custom',
 				id: 'custom',
 				name: defaultEditor.name,
+				nameWithType: defaultEditor.name,
 				editor: defaultEditor,
 			};
 		}
@@ -150,5 +154,7 @@ export const resolveEditor = async (
 		type: 'built-in',
 		id: null,
 		name: getDisplayNameForEditor(legacyEditor.command) ?? legacyEditor.command,
+		nameWithType:
+			getDisplayNameForEditor(legacyEditor.command) ?? legacyEditor.command,
 	};
 };
