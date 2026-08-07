@@ -19,30 +19,33 @@ test(
 	'Render video with browser instance open',
 	async () => {
 		const puppeteerInstance = await openBrowser('chrome');
-		const compositions = await getCompositions({
-			serveUrl: exampleBuild,
-			puppeteerInstance,
-			inputProps: {},
-		});
+		try {
+			const compositions = await getCompositions({
+				serveUrl: exampleBuild,
+				puppeteerInstance,
+				inputProps: {},
+			});
 
-		const reactSvg = compositions.find((c) => c.id === 'react-svg');
+			const reactSvg = compositions.find((c) => c.id === 'react-svg');
 
-		if (!reactSvg) {
-			throw new Error('not found');
+			if (!reactSvg) {
+				throw new Error('not found');
+			}
+
+			const tmpDir = os.tmpdir();
+
+			const outPath = path.join(tmpDir, 'out.mp4');
+
+			const {buffer} = await renderStill({
+				output: outPath,
+				serveUrl: exampleBuild,
+				composition: reactSvg,
+				puppeteerInstance,
+			});
+			expect(buffer).toBe(null);
+		} finally {
+			await puppeteerInstance.close({silent: false});
 		}
-
-		const tmpDir = os.tmpdir();
-
-		const outPath = path.join(tmpDir, 'out.mp4');
-
-		const {buffer} = await renderStill({
-			output: outPath,
-			serveUrl: exampleBuild,
-			composition: reactSvg,
-			puppeteerInstance,
-		});
-		expect(buffer).toBe(null);
-		await puppeteerInstance.close({silent: false});
 	},
 	{retry: 3},
 );

@@ -255,19 +255,19 @@ const config: Config = {
 					items: [
 						{
 							label: 'Terms and Conditions',
-							to: '/docs/license/terms',
+							to: '/docs/terms',
 						},
 						{
 							label: 'Privacy Policy',
-							to: '/docs/license/privacy',
+							to: '/docs/privacy',
 						},
 						{
 							label: 'DPA Statement',
-							to: '/docs/license/dpa',
+							to: '/docs/dpa',
 						},
 						{
 							label: 'DPIA Statement',
-							to: '/docs/license/dpia',
+							to: '/docs/dpia',
 						},
 						{
 							label: 'Accessibility',

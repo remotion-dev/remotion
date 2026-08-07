@@ -26,7 +26,7 @@ export const getEditorName = async ({
 		logLevel,
 		preferredEditor: null,
 	});
-	return editor?.name ?? null;
+	return editor?.nameWithType ?? null;
 };
 
 export const openInEditorHandler: ApiHandler<
