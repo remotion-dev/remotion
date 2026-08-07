@@ -64,6 +64,7 @@ test('concurrent playheads on the same src do not clear each other`s banks', asy
 			if (bank === null) {
 				throw new Error('Expected an active keyframe bank');
 			}
+
 			const frame = await bank.getFrameFromTimestamp(timestamp, FPS);
 			expect(frame?.timestamp).toBeCloseTo(timestamp, 3);
 		}
@@ -96,6 +97,7 @@ test('banks that are no longer being read still get cleared', async () => {
 		if (bank === null) {
 			throw new Error('Expected an active keyframe bank');
 		}
+
 		await bank.getFrameFromTimestamp(timestamp, FPS);
 	};
 
