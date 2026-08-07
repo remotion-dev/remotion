@@ -225,12 +225,10 @@ const extractAudioInternal = async ({
 	}
 };
 
-let queue = Promise.resolve<ExtractAudioReturnType | undefined>(undefined);
-
 export const extractAudio = (
 	params: ExtractAudioParams,
 ): Promise<ExtractAudioReturnType> => {
-	queue = queue.then(() => extractAudioInternal(params));
-
-	return queue as Promise<ExtractAudioReturnType>;
+	return params.mediaCache.queueAudioExtraction(() =>
+		extractAudioInternal(params),
+	);
 };

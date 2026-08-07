@@ -343,7 +343,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 								height: imageBitmap.height,
 							});
 
-							if (!completed) {
+							if (!completed || mediaCache.isDisposed()) {
 								imageBitmap.close();
 								return;
 							}

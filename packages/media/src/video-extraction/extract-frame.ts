@@ -155,12 +155,10 @@ const extractFrameInternal = async ({
 
 type ExtractFrameReturnType = Awaited<ReturnType<typeof extractFrameInternal>>;
 
-let queue = Promise.resolve<ExtractFrameReturnType | undefined>(undefined);
-
 export const extractFrame = (
 	params: ExtractFrameParams,
 ): Promise<ExtractFrameReturnType> => {
-	queue = queue.then(() => extractFrameInternal(params));
-
-	return queue as Promise<ExtractFrameReturnType>;
+	return params.mediaCache.queueFrameExtraction(() =>
+		extractFrameInternal(params),
+	);
 };

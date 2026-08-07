@@ -42,6 +42,8 @@ export const makeMediaCache = () => {
 	});
 	managerInstances.keyframe = keyframeManagerInstance;
 	managerInstances.audio = audioManagerInstance;
+	let frameExtractionQueue = Promise.resolve<unknown>(undefined);
+	let audioExtractionQueue = Promise.resolve<unknown>(undefined);
 	let disposed = false;
 
 	return {
@@ -50,6 +52,16 @@ export const makeMediaCache = () => {
 		audioManager: audioManagerInstance,
 		getTotalCacheStats: getCacheStats,
 		isDisposed: () => disposed,
+		queueFrameExtraction: <T>(extract: () => Promise<T>) => {
+			const extraction = frameExtractionQueue.then(extract);
+			frameExtractionQueue = extraction.catch(() => undefined);
+			return extraction;
+		},
+		queueAudioExtraction: <T>(extract: () => Promise<T>) => {
+			const extraction = audioExtractionQueue.then(extract);
+			audioExtractionQueue = extraction.catch(() => undefined);
+			return extraction;
+		},
 		dispose: (logLevel: LogLevel) => {
 			if (disposed) {
 				return;
