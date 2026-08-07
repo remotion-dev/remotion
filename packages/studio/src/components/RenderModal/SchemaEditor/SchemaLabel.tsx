@@ -1,10 +1,21 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {
+	createContext,
+	useCallback,
+	useContext,
+	useMemo,
+	useState,
+} from 'react';
 import {FAIL_COLOR, LIGHT_TEXT, WHITE} from '../../../helpers/colors';
 import {Flex} from '../../layout';
 import {InlineRemoveButton} from '../InlineRemoveButton';
 import {getSchemaLabel} from './get-schema-label';
 import {DEFAULT_PROPS_PATH_CLASSNAME} from './scroll-to-default-props-path';
 import type {JSONPath} from './zod-types';
+
+export const SchemaDescriptionOverrideContext = createContext<{
+	readonly jsonPath: JSONPath;
+	readonly description: string;
+} | null>(null);
 
 const compactStyles: React.CSSProperties = {
 	fontSize: 12,
@@ -25,6 +36,14 @@ export const SchemaLabel: React.FC<{
 	readonly description: string | null;
 }> = ({jsonPath, onRemove, valid, suffix, handleClick, description}) => {
 	const [clickableButtonHovered, setClickableButtonHovered] = useState(false);
+	const descriptionOverride = useContext(SchemaDescriptionOverrideContext);
+	const displayedDescription =
+		descriptionOverride?.jsonPath.length === jsonPath.length &&
+		descriptionOverride.jsonPath.every(
+			(part, index) => part === jsonPath[index],
+		)
+			? descriptionOverride.description
+			: description;
 
 	const labelStyle: React.CSSProperties = useMemo(() => {
 		return {
@@ -44,7 +63,7 @@ export const SchemaLabel: React.FC<{
 	}, []);
 
 	const labelContent = (
-		<span style={labelStyle} title={description ?? undefined}>
+		<span style={labelStyle} title={displayedDescription ?? undefined}>
 			{getSchemaLabel(jsonPath)} {suffix ? suffix : null}
 		</span>
 	);
