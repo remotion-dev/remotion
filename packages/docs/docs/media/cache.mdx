@@ -22,14 +22,6 @@ Therefore, the decoded media cache is per-render, not per tag.
 By default, the decoded media cache may grow to up to 50% of the available system memory.
 A minimum of 500MB and a maximum of 20GB is enforced.
 
-## Source read cache<AvailableFrom v="4.0.508" />
-
-The read cache size for each distinct `src` is derived from the decoded media cache budget. It is one sixteenth of that budget, with a minimum of 8MiB and a maximum of 64MiB per source.
-
-:::warning
-`mediaCacheSizeInBytes` is not a limit on the total memory used by `@remotion/media`. The decoded media cache is shared, but each distinct `src` has its own read cache. Memory usage therefore also depends on the number of distinct sources.
-:::
-
 ## Customizing the cache size
 
 The rendering APIs allow you to customize the decoded media cache budget on a per-render basis. The same value determines the read cache size for each source:
