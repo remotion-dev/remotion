@@ -15,11 +15,11 @@ import {
 	type SelectedOutlineKeyframedDragChange,
 	type SelectedOutlineStaticDragChange,
 } from './selected-outline-drag';
+import type {getSequencesWithSelectableOutlines} from './selected-outline-measurement';
 import {
 	getSelectedSequenceKeys,
 	getSequenceKeysContainingSelection,
 } from './selected-outline-measurement';
-import type {getSequencesWithSelectableOutlines} from './selected-outline-measurement';
 import {
 	translateFieldKey,
 	type SelectedOutlineKeyboardNudgeSession,
@@ -35,10 +35,10 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 	readonly getLatestOutlineTargetByKey: (
 		key: string,
 	) => SelectedOutlineTarget | undefined;
-	readonly selectableOutlines: ReturnType<
+	readonly getSelectableOutlines: () => ReturnType<
 		typeof getSequencesWithSelectableOutlines
 	>;
-}> = ({getLatestOutlineTargetByKey, selectableOutlines}) => {
+}> = ({getLatestOutlineTargetByKey, getSelectableOutlines}) => {
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
@@ -210,6 +210,7 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 			const selectedSequenceKeys = getSelectedSequenceKeys(selectedItems);
 			const sequenceKeysContainingSelection =
 				getSequenceKeysContainingSelection(selectedItems);
+			const selectableOutlines = getSelectableOutlines();
 			const allDragTargets = selectableOutlines.flatMap(({key}) => {
 				if (
 					!selectedSequenceKeys.has(key) &&
@@ -302,8 +303,8 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 			getCurrentFrame,
 			getDragOverrides,
 			getLatestOutlineTargetByKey,
+			getSelectableOutlines,
 			seekWithArrowKey,
-			selectableOutlines,
 			setDragOverrides,
 		],
 	);
