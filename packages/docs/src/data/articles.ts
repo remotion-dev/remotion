@@ -153,6 +153,15 @@ export const articles = [
 		slug: 'ai/coding-agents',
 	},
 	{
+		id: 'ai/cursor-plugin',
+		title: 'Cursor plugin',
+		relativePath: 'docs/ai/cursor-plugin.mdx',
+		compId: 'articles-docs-ai-cursor-plugin',
+		crumb: 'AI',
+		noAi: false,
+		slug: 'ai/cursor-plugin',
+	},
+	{
 		id: 'ai/dynamic-compilation',
 		title: 'Just-in-time compilation of Remotion code',
 		relativePath: 'docs/ai/dynamic-compilation.mdx',

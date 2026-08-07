@@ -1,7 +1,6 @@
 {
-	"$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+	"$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
 	"name": "remotion",
-	"displayName": "Remotion",
 	"version": "4.0.506",
 	"description": "Remotion video creation skills — best practices, animations, audio, captions, 3D, and more for building programmatic videos with React.",
 	"author": {
@@ -9,8 +8,8 @@
 		"email": "hi@remotion.dev",
 		"url": "https://remotion.dev"
 	},
-	"homepage": "https://www.remotion.dev/docs/ai/claude-code-plugin",
-	"repository": "https://github.com/remotion-dev/claude-code-plugin",
+	"homepage": "https://remotion.dev",
+	"repository": "https://github.com/remotion-dev/remotion",
 	"license": "MIT",
 	"keywords": [
 		"remotion",
