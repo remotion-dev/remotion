@@ -265,6 +265,15 @@ export type RenameStaticFileResponse = {
 	success: boolean;
 };
 
+export type CopyRenderOutputToAssetRequest = {
+	outputPath: string;
+	assetPath: string;
+};
+
+export type CopyRenderOutputToAssetResponse = {
+	created: boolean;
+};
+
 export type CanUpdateDefaultPropsResponse =
 	| {
 			canUpdate: true;
@@ -1225,6 +1234,10 @@ export type ApiRoutes = {
 	'/api/rename-static-file': ReqAndRes<
 		RenameStaticFileRequest,
 		RenameStaticFileResponse
+	>;
+	'/api/copy-render-output-to-asset': ReqAndRes<
+		CopyRenderOutputToAssetRequest,
+		CopyRenderOutputToAssetResponse
 	>;
 	'/api/restart-studio': ReqAndRes<RestartStudioRequest, RestartStudioResponse>;
 	'/api/update-config': ReqAndRes<UpdateConfigRequest, UpdateConfigResponse>;
