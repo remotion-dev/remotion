@@ -318,6 +318,11 @@ test('deleting a JSX node remaps subscriptions for following siblings', async ()
 			}),
 		).toEqual([
 			{
+				name: {codeValue: 'Eyebrow', status: 'static'},
+				newNodePath: lineColumnToNodePath(interactiveSiblings, 6),
+				previousNodePath: lineColumnToNodePath(interactiveSiblings, 6),
+			},
+			{
 				name: {codeValue: 'Title', status: 'static'},
 				newNodePath: lineColumnToNodePath(interactiveSiblings, 7),
 				previousNodePath: lineColumnToNodePath(output, 6),
@@ -336,7 +341,7 @@ test('deleting a JSX node remaps subscriptions for following siblings', async ()
 		expect(events.some((event) => event.type === 'lost-node-path')).toBe(false);
 		expect(
 			events.filter((event) => event.type === 'sequence-props-remapped'),
-		).toHaveLength(2);
+		).toHaveLength(3);
 
 		events.length = 0;
 		writeFileAndNotifyFileWatchers(

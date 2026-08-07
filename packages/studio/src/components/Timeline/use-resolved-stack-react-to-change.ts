@@ -54,6 +54,15 @@ export const useResolveStackAndReactToChange = (
 				return;
 			}
 
+			if (
+				event.type === 'sequence-props-remapped' &&
+				event.nodePath !== null &&
+				JSON.stringify(event.previousNodePath) ===
+					JSON.stringify(event.nodePath)
+			) {
+				return;
+			}
+
 			if (!matchesSourceLocation(event, resolvedLocationRef.current)) {
 				return;
 			}

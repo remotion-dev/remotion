@@ -1,6 +1,7 @@
 import {existsSync, rmSync, readFileSync} from 'node:fs';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {SequenceNodePath} from 'remotion';
 import {parseAst} from '../codemods/parse-ast';
 import {readVisualControlValues} from '../codemods/read-visual-control-values';
 import {
@@ -463,8 +464,6 @@ export function popUndo(): {success: true} | {success: false; reason: string} {
 		if (snapshot.oldContents === null) {
 			rmSync(snapshot.filePath, {force: true});
 		} else {
-			// Deleted nodes have no path in the changed source. If they are restored,
-			// their mounted component creates a fresh subscription after Fast Refresh.
 			const reversedNodePathRemappings = snapshot.nodePathRemappings?.flatMap(
 				(remapping): SequenceNodePathRemapping[] => {
 					if (remapping.newNodePath === null) {
@@ -479,11 +478,18 @@ export function popUndo(): {success: true} | {success: false; reason: string} {
 					];
 				},
 			);
+			const restoredNodePaths = snapshot.nodePathRemappings?.flatMap(
+				(remapping): SequenceNodePath[] =>
+					remapping.newNodePath === null ? [remapping.oldNodePath] : [],
+			);
 			writeFileAndNotifyFileWatchers(
 				snapshot.filePath,
 				snapshot.oldContents,
 				undefined,
-				reversedNodePathRemappings,
+				{
+					nodePathRemappings: reversedNodePathRemappings,
+					restoredNodePaths,
+				},
 			);
 		}
 	}
@@ -554,7 +560,7 @@ export function popRedo(): {success: true} | {success: false; reason: string} {
 			snapshot.filePath,
 			snapshot.newContents,
 			undefined,
-			snapshot.nodePathRemappings,
+			{nodePathRemappings: snapshot.nodePathRemappings},
 		);
 	}
 

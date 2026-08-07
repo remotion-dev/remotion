@@ -28,6 +28,9 @@ export const LostNodePathRepro: React.FC = () => {
 			<Interactive.Div name="Title">Regional growth</Interactive.Div>
 			<Interactive.Div name="Chart">
 				<Interactive.Div name="Bars">Bars remain visible</Interactive.Div>
+				{[0, 25, 50, 75, 100].map((tick) => (
+					<Interactive.Div key={tick} name={`${tick}% gridline`} />
+				))}
 			</Interactive.Div>
 			<Sequence
 				durationInFrames={durationInFrames}

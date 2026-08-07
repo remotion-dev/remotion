@@ -323,6 +323,12 @@ test.describe('visual mode', () => {
 		await expect(
 			canvas.getByText('Bars remain visible', {exact: true}),
 		).toBeVisible();
+		const gridline = page.getByText('0% gridline', {exact: true});
+		const gridlineVisibilityToggle = gridline
+			.locator('..')
+			.locator('..')
+			.locator('[data-timeline-layer-eye]');
+		await expect(gridlineVisibilityToggle).toBeVisible();
 		await page.evaluate(() => {
 			const state = window as typeof window & {
 				sequenceRemappingBadFrames?: string[];
@@ -359,6 +365,21 @@ test.describe('visual mode', () => {
 					state.sequenceRemappingBadFrames?.push('uppercase-title');
 				}
 
+				const gridline = [...document.querySelectorAll('div')].find(
+					(element) =>
+						element.childNodes.length === 1 &&
+						element.textContent === '0% gridline',
+				);
+				const gridlineRow = gridline?.parentElement?.parentElement;
+				if (
+					gridlineRow &&
+					!gridlineRow.querySelector('[data-timeline-layer-eye]')
+				) {
+					state.sequenceRemappingBadFrames?.push(
+						'missing-gridline-visibility-toggle',
+					);
+				}
+
 				requestAnimationFrame(sample);
 			};
 			requestAnimationFrame(sample);
@@ -386,6 +407,7 @@ test.describe('visual mode', () => {
 		await expect(
 			page.locator('[data-timeline-marquee-item][title="Chart"]'),
 		).toBeVisible();
+		await expect(gridlineVisibilityToggle).toBeVisible();
 
 		await page.getByRole('button', {name: /^Undo/}).click();
 		await expect
@@ -401,6 +423,7 @@ test.describe('visual mode', () => {
 		await expect(
 			canvas.getByText('Bars remain visible', {exact: true}),
 		).toBeVisible();
+		await expect(gridlineVisibilityToggle).toBeVisible();
 
 		await page.getByRole('button', {name: /^Redo/}).click();
 		await expect
@@ -413,6 +436,7 @@ test.describe('visual mode', () => {
 		await expect(
 			canvas.getByText('Bars remain visible', {exact: true}),
 		).toBeVisible();
+		await expect(gridlineVisibilityToggle).toBeVisible();
 		expect(
 			await page.evaluate(
 				() =>

@@ -144,6 +144,7 @@ export {
 export type {BrowserStudioOperations} from './browser-studio-operations';
 export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
 export {compositionDragDataToSymbolicatedStack} from './composition-drag-data';
+export {REACT_REFRESH_FINISHED_EVENT} from './react-refresh-event';
 export {
 	getConfigFileChangeMessage,
 	type ConfigFileChangeType,

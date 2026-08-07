@@ -217,15 +217,22 @@ export const subscribeToSequencePropsWatchers = ({
 	const {nodePath} = initialResult;
 	const watcherKey = getWatcherKey(nodePath, assetKeys);
 
-	// If a watcher already exists for this key, just bump the ref count
-	if (sequencePropsWatchers[clientId]?.[watcherKey]) {
-		sequencePropsWatchers[clientId][watcherKey].refCount++;
+	const existingWatcher = sequencePropsWatchers[clientId]?.[watcherKey];
+	// If a watcher already exists for this key, just bump the ref count. A
+	// deleted node path may be occupied by another component after Fast Refresh.
+	// In that case, replace the inert watcher while keeping all existing refs.
+	if (existingWatcher && !existingWatcher.deleted) {
+		existingWatcher.refCount++;
 		return initialResult;
+	}
+
+	if (existingWatcher) {
+		existingWatcher.unwatch();
 	}
 
 	const watcherInfo: WatcherInfo = {
 		unwatch: () => undefined,
-		refCount: 1,
+		refCount: (existingWatcher?.refCount ?? 0) + 1,
 		currentNodePath: nodePath,
 		deleted: false,
 	};
@@ -241,21 +248,32 @@ export const subscribeToSequencePropsWatchers = ({
 				return;
 			}
 
-			if (watcherInfo.deleted) {
+			const wasRestored =
+				event.type === 'changed' &&
+				watcherInfo.deleted &&
+				event.restoredNodePaths?.some(
+					(restoredNodePath) =>
+						JSON.stringify(restoredNodePath) ===
+						JSON.stringify(watcherInfo.currentNodePath.nodePath),
+				);
+			if (watcherInfo.deleted && !wasRestored) {
 				return;
 			}
 
+			if (wasRestored) {
+				watcherInfo.deleted = false;
+			}
+
 			const remapping =
-				event.type === 'changed'
+				event.type === 'changed' && !wasRestored
 					? event.nodePathRemappings?.find(
 							(item) =>
 								JSON.stringify(item.oldNodePath) ===
 								JSON.stringify(watcherInfo.currentNodePath.nodePath),
 						)
 					: undefined;
-			const previousNodePath = remapping
-				? watcherInfo.currentNodePath
-				: undefined;
+			const previousNodePath =
+				remapping || wasRestored ? watcherInfo.currentNodePath : undefined;
 			if (remapping?.newNodePath === null) {
 				watcherInfo.deleted = true;
 				waitForLiveEventsListener().then((listener) => {

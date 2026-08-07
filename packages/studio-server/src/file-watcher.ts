@@ -6,6 +6,11 @@ export type SequenceNodePathRemapping = {
 	newNodePath: SequenceNodePath | null;
 };
 
+export type FileChangeMetadata = {
+	nodePathRemappings?: SequenceNodePathRemapping[];
+	restoredNodePaths?: SequenceNodePath[];
+};
+
 export type FileChangeEvent =
 	| {type: 'created'; content: string; originatorClientId: string | undefined}
 	| {type: 'deleted'}
@@ -14,6 +19,7 @@ export type FileChangeEvent =
 			content: string;
 			originatorClientId: string | undefined;
 			nodePathRemappings?: SequenceNodePathRemapping[];
+			restoredNodePaths?: SequenceNodePath[];
 	  };
 
 type OnChange = (event: FileChangeEvent) => void;
@@ -47,7 +53,7 @@ export type FileWatcherRegistry = {
 		file: string,
 		content: string,
 		originatorClientId: string | undefined,
-		nodePathRemappings?: SequenceNodePathRemapping[],
+		metadata?: FileChangeMetadata,
 	) => void;
 };
 
@@ -164,7 +170,7 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 		file: string,
 		content: string,
 		originatorClientId: string | undefined,
-		nodePathRemappings?: SequenceNodePathRemapping[],
+		metadata?: FileChangeMetadata,
 	) => {
 		writeFileSync(file, content);
 
@@ -181,7 +187,8 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 				type: 'changed',
 				content,
 				originatorClientId,
-				nodePathRemappings,
+				nodePathRemappings: metadata?.nodePathRemappings,
+				restoredNodePaths: metadata?.restoredNodePaths,
 			});
 		}
 	};
@@ -225,7 +232,7 @@ export const installFileWatcher: FileWatcherRegistry['installFileWatcher'] = (
 };
 
 export const writeFileAndNotifyFileWatchers: FileWatcherRegistry['writeFileAndNotifyFileWatchers'] =
-	(file, content, originatorClientId, nodePathRemappings) => {
+	(file, content, originatorClientId, metadata) => {
 		if (!currentRegistry) {
 			return;
 		}
@@ -234,6 +241,6 @@ export const writeFileAndNotifyFileWatchers: FileWatcherRegistry['writeFileAndNo
 			file,
 			content,
 			originatorClientId,
-			nodePathRemappings,
+			metadata,
 		);
 	};
