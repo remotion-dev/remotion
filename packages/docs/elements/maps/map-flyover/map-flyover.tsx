@@ -142,16 +142,40 @@ const MapFlyoverLayerInner = forwardRef<
 				npoints: 200,
 			});
 
-			if (greatCircle.geometry.type === 'LineString') {
-				return turf.lineString(greatCircle.geometry.coordinates);
-			}
+			const coordinates =
+				greatCircle.geometry.type === 'LineString'
+					? greatCircle.geometry.coordinates
+					: greatCircle.geometry.coordinates.reduce((longest, segment) =>
+							segment.length > longest.length ? segment : longest,
+						);
+			const startMercator = maplibregl.MercatorCoordinate.fromLngLat({
+				lng: coordinates[0][0],
+				lat: coordinates[0][1],
+			});
+			const endMercator = maplibregl.MercatorCoordinate.fromLngLat({
+				lng: coordinates[coordinates.length - 1][0],
+				lat: coordinates[coordinates.length - 1][1],
+			});
 
-			const longestSegment = greatCircle.geometry.coordinates.reduce(
-				(longest, segment) =>
-					segment.length > longest.length ? segment : longest,
+			return turf.lineString(
+				coordinates.map((coordinate, index) => {
+					const progress = index / (coordinates.length - 1);
+					const greatCirclePoint = maplibregl.MercatorCoordinate.fromLngLat({
+						lng: coordinate[0],
+						lat: coordinate[1],
+					});
+					const straightX =
+						startMercator.x + (endMercator.x - startMercator.x) * progress;
+					const straightY =
+						startMercator.y + (endMercator.y - startMercator.y) * progress;
+					const reducedBend = new maplibregl.MercatorCoordinate(
+						straightX + (greatCirclePoint.x - straightX) * 0.5,
+						straightY + (greatCirclePoint.y - straightY) * 0.5,
+					).toLngLat();
+
+					return [reducedBend.lng, reducedBend.lat];
+				}),
 			);
-
-			return turf.lineString(longestSegment);
 		}, [endCoordinates, startCoordinates]);
 		const routeDistance = useMemo(() => turf.length(route), [route]);
 
@@ -229,10 +253,22 @@ const MapFlyoverLayerInner = forwardRef<
 				extrapolateRight: 'clamp',
 			},
 		);
-		const destinationMarkerProgress = interpolate(
+		const markerRadius = Math.max(14, lineWidth * 0.8);
+		const markerCenterRadius = markerRadius * 0.27;
+		const destinationMarkerScale = interpolate(
 			frame,
-			[travelEnd, travelEnd + 4],
-			[0.75, 1],
+			[travelEnd, travelEnd + 4, travelEnd + 7],
+			[lineWidth / 2 / markerRadius, 1.18, 1],
+			{
+				easing: Easing.out(Easing.cubic),
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			},
+		);
+		const destinationMarkerCenterScale = interpolate(
+			frame,
+			[travelEnd, travelEnd + 6],
+			[0, 1],
 			{
 				easing: Easing.out(Easing.cubic),
 				extrapolateLeft: 'clamp',
@@ -241,7 +277,7 @@ const MapFlyoverLayerInner = forwardRef<
 		);
 		const destinationLabelOpacity = interpolate(
 			frame,
-			[travelEnd, travelEnd + 4],
+			[travelEnd + 3, travelEnd + 8],
 			[0, 1],
 			{
 				easing: Easing.out(Easing.cubic),
@@ -249,8 +285,6 @@ const MapFlyoverLayerInner = forwardRef<
 				extrapolateRight: 'clamp',
 			},
 		);
-		const markerRadius = Math.max(14, lineWidth * 0.65);
-		const markerCenterRadius = markerRadius * 0.27;
 		const currentDistance = Math.min(
 			routeDistance,
 			Math.max(0.001, routeDistance * travelProgress),
@@ -487,10 +521,18 @@ const MapFlyoverLayerInner = forwardRef<
 						</text>
 						{frame >= travelEnd ? (
 							<g
-								transform={`translate(${projectedOverlay.end.x} ${projectedOverlay.end.y}) scale(${destinationMarkerProgress})`}
+								transform={`translate(${projectedOverlay.end.x} ${projectedOverlay.end.y})`}
 							>
-								<circle fill={routeColor} r={markerRadius} />
-								<circle fill="#ffffff" r={markerCenterRadius} />
+								<circle
+									fill={routeColor}
+									r={markerRadius}
+									transform={`scale(${destinationMarkerScale})`}
+								/>
+								<circle
+									fill="#ffffff"
+									r={markerCenterRadius}
+									transform={`scale(${destinationMarkerCenterScale})`}
+								/>
 							</g>
 						) : null}
 						<text
