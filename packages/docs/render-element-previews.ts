@@ -2,14 +2,15 @@ import {mkdirSync, rmSync} from 'fs';
 import path from 'path';
 import {bundle} from '@remotion/bundler';
 import {getCompositions, renderMedia, renderStill} from '@remotion/renderer';
-import {S3Client} from 'bun';
 import {elementDefinitions} from './src/components/Elements/element-definitions';
 import {getElementCompositionId} from './src/components/Elements/element-utils';
 
-const r2Endpoint =
-	'https://2fe488b3b0f4deee223aef7464784c46.r2.cloudflarestorage.com';
-const r2Bucket = 'parser-media';
-const upload = process.argv.includes('--upload');
+if (process.argv.includes('--upload')) {
+	throw new Error(
+		'Preview rendering no longer uploads. Use upload-element-preview after review.',
+	);
+}
+
 const outputDirectoryArgument = process.argv.find((argument) =>
 	argument.startsWith('--output-dir='),
 );
@@ -43,80 +44,6 @@ if (selectedElementSlug !== null && !selectedElementDefinition) {
 const definitionsToRender = selectedElementDefinition
 	? [selectedElementDefinition]
 	: allElementDefinitions;
-
-const getUploadKey = (publicUrl: string) => {
-	const url = new URL(publicUrl);
-	if (
-		url.origin !== 'https://remotion.media' ||
-		!url.pathname.startsWith('/elements/')
-	) {
-		throw new Error(`Unexpected Element preview URL: ${publicUrl}`);
-	}
-
-	return url.pathname.slice(1);
-};
-
-const ensureUploadCredentials = () => {
-	if (!Bun.env.AWS_ACCESS_KEY_ID || !Bun.env.AWS_SECRET_ACCESS_KEY) {
-		throw new Error(
-			'--upload requires AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY',
-		);
-	}
-
-	return {
-		accessKeyId: Bun.env.AWS_ACCESS_KEY_ID,
-		secretAccessKey: Bun.env.AWS_SECRET_ACCESS_KEY,
-	};
-};
-
-const uploadAsset = async ({
-	client,
-	contentType,
-	filePath,
-	key,
-	publicUrl,
-}: {
-	client: S3Client;
-	contentType: string;
-	filePath: string;
-	key: string;
-	publicUrl: string;
-}) => {
-	const file = Bun.file(filePath, {type: contentType});
-	await client.write(key, file);
-
-	const remote = await client.stat(key);
-	if (remote.size !== file.size) {
-		throw new Error(
-			`Uploaded size mismatch for ${key}: expected ${file.size}, got ${remote.size}`,
-		);
-	}
-
-	const response = await fetch(`${publicUrl}?verify=${Date.now()}`, {
-		method: 'HEAD',
-	});
-	if (!response.ok) {
-		throw new Error(`Could not verify ${publicUrl}: HTTP ${response.status}`);
-	}
-
-	const remoteContentType = response.headers.get('content-type');
-	if (remoteContentType !== contentType) {
-		throw new Error(
-			`Unexpected content type for ${publicUrl}: expected ${contentType}, got ${remoteContentType}`,
-		);
-	}
-
-	console.log(`Uploaded ${publicUrl} (${file.size} bytes)`);
-};
-
-const credentials = upload ? ensureUploadCredentials() : null;
-const client = credentials
-	? new S3Client({
-			...credentials,
-			bucket: r2Bucket,
-			endpoint: r2Endpoint,
-		})
-	: null;
 
 if (selectedElementSlug === null) {
 	rmSync(outputDirectory, {force: true, recursive: true});
@@ -163,7 +90,6 @@ for (const actualId of actualCompositionIds) {
 }
 
 for (const definition of definitionsToRender) {
-	const {posterUrl, videoUrl} = definition.preview;
 	const compositionId = getElementCompositionId(definition.slug);
 	const composition = elementCompositions.find(
 		(candidate) => candidate.id === compositionId,
@@ -204,30 +130,9 @@ for (const definition of definitionsToRender) {
 
 	console.log(`Rendered ${pngPath}`);
 	console.log(`Rendered ${videoPath}`);
-
-	if (client) {
-		await uploadAsset({
-			client,
-			contentType: 'image/png',
-			filePath: pngPath,
-			key: getUploadKey(posterUrl),
-			publicUrl: posterUrl,
-		});
-		await uploadAsset({
-			client,
-			contentType: 'video/mp4',
-			filePath: videoPath,
-			key: getUploadKey(videoUrl),
-			publicUrl: videoUrl,
-		});
-	}
 }
 
 const renderedScope = selectedElementSlug
 	? `Element ${selectedElementSlug}`
 	: 'all Element previews';
-console.log(
-	upload
-		? `Rendered and uploaded ${renderedScope}.`
-		: `Rendered ${renderedScope} to ${outputDirectory}.`,
-);
+console.log(`Rendered ${renderedScope} to ${outputDirectory}.`);

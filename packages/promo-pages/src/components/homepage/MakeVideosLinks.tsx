@@ -8,13 +8,19 @@ const icon: React.CSSProperties = {
 export type MakeVideosLink = {
 	readonly label: string;
 	readonly href: string;
+	readonly target?: React.HTMLAttributeAnchorTarget;
 };
 
-export const MakeVideosLinkItem: React.FC<MakeVideosLink> = ({href, label}) => {
+export const MakeVideosLinkItem: React.FC<MakeVideosLink> = ({
+	href,
+	label,
+	target,
+}) => {
 	return (
 		<a
 			className="no-underline text-[var(--subtitle)] font-brand font-medium text-sm inline-flex flex-row items-center"
 			href={href}
+			target={target}
 		>
 			{label}
 			<svg

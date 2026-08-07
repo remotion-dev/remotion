@@ -3,6 +3,9 @@ import {rspack} from '@rspack/core';
 
 const port = Number(process.env.PORT ?? 62338);
 const outputPath = path.join(import.meta.dir, '..', 'dist', 'e2e');
+const repoDir = path.join(import.meta.dir, '..', '..', '..');
+const workspacePackagesDir = path.join(repoDir, 'packages');
+const workspacePackagePath = '/__remotion_browser_studio_workspace__/';
 
 const compile = () =>
 	new Promise<void>((resolve, reject) => {
@@ -83,6 +86,24 @@ Bun.serve({
 			return new Response(document('', null), {
 				headers: {...headers, 'Content-Type': 'text/html'},
 			});
+		}
+
+		if (url.pathname.startsWith(workspacePackagePath)) {
+			const relativePath = url.pathname.slice(workspacePackagePath.length);
+			const workspaceFilePath = path.join(
+				repoDir,
+				path.normalize(relativePath),
+			);
+			if (!workspaceFilePath.startsWith(`${workspacePackagesDir}${path.sep}`)) {
+				return new Response('Not found', {status: 404, headers});
+			}
+
+			const workspaceFile = Bun.file(workspaceFilePath);
+			if (!(await workspaceFile.exists())) {
+				return new Response('Not found', {status: 404, headers});
+			}
+
+			return new Response(workspaceFile, {headers});
 		}
 
 		const filePath = path.join(outputPath, url.pathname);

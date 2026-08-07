@@ -1,6 +1,7 @@
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
+import type {StudioRuntimeConfig} from '@remotion/studio-shared';
 import {getConfigFileChangeMessage} from '@remotion/studio-shared';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
@@ -49,6 +50,7 @@ const {
 	previewSampleRateOption,
 	defaultCodingAgentOption,
 	defaultEditorOption,
+	publicLicenseKeyOption,
 } = BrowserSafeApis.options;
 
 export const studioCommand = async (
@@ -148,20 +150,35 @@ export const studioCommand = async (
 		`Using ${useRspack ? 'Rspack' : 'Webpack'} bundler.`,
 	);
 
-	const getStudioRuntimeConfig = () => ({
-		maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
-		askAIEnabled: askAIOption.getValue({
+	const getStudioRuntimeConfig = (): StudioRuntimeConfig => {
+		const configuredEditor = defaultEditorOption.getValue({
 			commandLine: parsedCli,
-		}).value,
-		interactivityEnabled: interactivityOption.getValue({
-			commandLine: parsedCli,
-		}).value,
-		keyboardShortcutsEnabled: keyboardShortcutsOption.getValue({
-			commandLine: parsedCli,
-		}).value,
-		bufferStateDelayInMilliseconds:
-			ConfigInternals.getBufferStateDelayInMilliseconds(),
-	});
+		}).value;
+
+		return {
+			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
+			askAIEnabled: askAIOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+			interactivityEnabled: interactivityOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+			keyboardShortcutsEnabled: keyboardShortcutsOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+			bufferStateDelayInMilliseconds:
+				ConfigInternals.getBufferStateDelayInMilliseconds(),
+			defaultCodingAgent: defaultCodingAgentOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+			defaultEditor:
+				typeof configuredEditor === 'object' ? 'custom' : configuredEditor,
+			publicLicenseKey: publicLicenseKeyOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+		};
+	};
+
 	const getNumberOfAudioTags = () =>
 		numberOfSharedAudioTagsOption.getValue({commandLine: parsedCli}).value;
 	const getAudioLatencyHint = () =>
@@ -189,7 +206,7 @@ export const studioCommand = async (
 		StudioServerInternals.installFileWatcher({
 			file: configFile,
 			existenceOnly: false,
-			onChange: async () => {
+			onChange: async (event) => {
 				if (isReloadingConfig) {
 					return;
 				}
@@ -235,6 +252,10 @@ export const studioCommand = async (
 						listener.sendEventToClient({
 							type: 'config-file-changed',
 							changeType,
+							originatorClientId:
+								event.type === 'deleted'
+									? null
+									: (event.originatorClientId ?? null),
 							renderDefaults,
 							studioRuntimeConfig,
 							editorName,

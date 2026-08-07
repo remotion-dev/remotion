@@ -1,5 +1,5 @@
-import {stringifySequenceSubscriptionKey} from '@remotion/studio-shared';
 import React, {useContext} from 'react';
+import {areSequenceNodePathInfosEqual} from '../../helpers/are-sequence-node-path-infos-equal';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	TIMELINE_ITEM_BORDER_BOTTOM,
@@ -96,46 +96,16 @@ const areTimelineExpandedKeyframeRowPropsEqual = (
 		prevProps.canEditEasing !== nextProps.canEditEasing ||
 		prevProps.showSeparator !== nextProps.showSeparator ||
 		prevProps.keyframes.length !== nextProps.keyframes.length ||
-		prevProps.nodePathInfo.index !== nextProps.nodePathInfo.index ||
-		prevProps.nodePathInfo.numberOfSequencesWithThisNodePath !==
-			nextProps.nodePathInfo.numberOfSequencesWithThisNodePath ||
-		prevProps.nodePathInfo.supportsEffects !==
-			nextProps.nodePathInfo.supportsEffects ||
-		stringifySequenceSubscriptionKey(
-			prevProps.nodePathInfo.sequenceSubscriptionKey,
-		) !==
-			stringifySequenceSubscriptionKey(
-				nextProps.nodePathInfo.sequenceSubscriptionKey,
-			) ||
-		prevProps.nodePathInfo.auxiliaryKeys.length !==
-			nextProps.nodePathInfo.auxiliaryKeys.length
-	) {
-		return false;
-	}
-
-	const prevVideoConfig =
-		prevProps.nodePathInfo.sequenceSubscriptionKey.videoConfigValues;
-	const nextVideoConfig =
-		nextProps.nodePathInfo.sequenceSubscriptionKey.videoConfigValues;
-	if (
-		prevVideoConfig !== nextVideoConfig &&
-		(prevVideoConfig === null ||
-			nextVideoConfig === null ||
-			prevVideoConfig.durationInFrames !== nextVideoConfig.durationInFrames ||
-			prevVideoConfig.fps !== nextVideoConfig.fps ||
-			prevVideoConfig.height !== nextVideoConfig.height ||
-			prevVideoConfig.width !== nextVideoConfig.width)
-	) {
-		return false;
-	}
-
-	return (
-		prevProps.keyframes.every(
-			(keyframe, index) => keyframe.frame === nextProps.keyframes[index].frame,
-		) &&
-		prevProps.nodePathInfo.auxiliaryKeys.every(
-			(key, index) => key === nextProps.nodePathInfo.auxiliaryKeys[index],
+		!areSequenceNodePathInfosEqual(
+			prevProps.nodePathInfo,
+			nextProps.nodePathInfo,
 		)
+	) {
+		return false;
+	}
+
+	return prevProps.keyframes.every(
+		(keyframe, index) => keyframe.frame === nextProps.keyframes[index].frame,
 	);
 };
 

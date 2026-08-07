@@ -9,11 +9,13 @@ import {
 	TIMELINE_DROP_BLUE_ALPHA_12,
 	TRANSPARENT,
 } from '../helpers/colors';
-import {formatFileLocation} from '../helpers/format-file-location';
 import {getConnectedCompositions} from '../helpers/get-connected-compositions';
 import {getSequenceDoubleClickAction} from '../helpers/get-sequence-double-click-action';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
-import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
+import {
+	openInCodingAgent as launchCodingAgent,
+	openOriginalPositionInEditor,
+} from '../helpers/open-in-editor';
 import {startPointerSession} from '../helpers/pointer-session';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {SetSelectedModalContext} from '../state/modals';
@@ -116,6 +118,11 @@ import {
 	parsedTransformOriginToUv,
 	serializeTransformOrigin,
 } from './Timeline/transform-origin-utils';
+import {
+	canUseEditorPicker,
+	useDefaultCodingAgentInfo,
+	useDefaultEditorInfo,
+} from './use-default-editor-info';
 import {useSelectAsset} from './use-select-asset';
 
 export const SelectedOutlineTransformOriginHandle: React.FC<{
@@ -513,10 +520,10 @@ const SelectedOutlinePolygon: React.FC<{
 	);
 	const drag = target?.drag ?? null;
 	const selected = target?.selected ?? false;
-	const containsSelection = target?.containsSelection ?? false;
+	const showSelectedOutline = target?.showSelectedOutline ?? false;
 	const effectDrop = target?.effectDrop ?? null;
 	const [effectDropHovered, setEffectDropHovered] = useState(false);
-	const visible = containsSelection || hovered;
+	const visible = showSelectedOutline || hovered;
 
 	const onPointerDown = React.useCallback(
 		(event: React.PointerEvent<SVGPolygonElement>) => {
@@ -1487,6 +1494,11 @@ export const SelectedOutlineElement: React.FC<{
 	target,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const canConfigureApps = canUseEditorPicker(
+		previewServerState.type === 'connected',
+	);
+	const editorInfo = useDefaultEditorInfo(canConfigureApps);
+	const codingAgentInfo = useDefaultCodingAgentInfo(canConfigureApps);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const updateResolvedStackTrace = useContext(
 		Internals.SequenceStackTracesUpdateContext,
@@ -1578,10 +1590,6 @@ export const SelectedOutlineElement: React.FC<{
 
 		const originalLocation = await resolveOriginalLocation(target);
 
-		const fileLocation = formatFileLocation({
-			location: originalLocation,
-			root: window.remotion_cwd,
-		});
 		const nodePath = target.nodePathInfo.sequenceSubscriptionKey;
 		const mediaSrc =
 			target.sequence.type === 'audio' ||
@@ -1600,6 +1608,8 @@ export const SelectedOutlineElement: React.FC<{
 			!sourceEditingEnabled ||
 			!target.sequence.controls ||
 			!nodePath.absolutePath;
+		const isProgrammaticallyDuplicated =
+			target.nodePathInfo.numberOfSequencesWithThisNodePath > 1;
 		const canAddEffect =
 			target.nodePathInfo.supportsEffects &&
 			!sourceEditDisabled &&
@@ -1609,12 +1619,23 @@ export const SelectedOutlineElement: React.FC<{
 		return getSequenceContextMenuItems({
 			assetLinkInfo,
 			canOpenInEditor,
+			codingAgentInfo,
 			deleteDisabled: sourceEditDisabled,
 			disableInteractivityDisabled,
-			duplicateDisabled: sourceEditDisabled,
-			editorInfo: null,
-			fileLocation,
+			duplicateDisabled: sourceEditDisabled || isProgrammaticallyDuplicated,
+			editorInfo,
 			includeSourceEditItems: sourceEditingEnabled,
+			isProgrammaticallyDuplicated,
+			onConfigureApps: canConfigureApps
+				? () => {
+						setSelectedModal({
+							type: 'settings',
+							initialTab: 'apps',
+							initialPublicLicenseKey:
+								window.remotion_renderDefaults?.publicLicenseKey ?? null,
+						});
+					}
+				: null,
 			onDeleteSequenceFromSource: async () => {
 				if (sourceEditDisabled || previewServerState.type !== 'connected') {
 					return;
@@ -1674,14 +1695,27 @@ export const SelectedOutlineElement: React.FC<{
 					() => undefined,
 				);
 			},
-			openInEditor: () => {
+			openInCodingAgent: (codingAgentId, codingAgentName, contextForAgents) => {
+				launchCodingAgent(codingAgentId, contextForAgents)
+					.then((response) => {
+						if (!response.success) {
+							showNotification(`Could not open ${codingAgentName}`, 2000);
+						}
+					})
+					.catch((err) => {
+						showNotification((err as Error).message, 2000);
+					});
+			},
+			openInEditor: (editorId) => {
 				if (!originalLocation) {
 					return;
 				}
 
-				openOriginalPositionInEditor(originalLocation, null).catch((err) => {
-					showNotification((err as Error).message, 2000);
-				});
+				openOriginalPositionInEditor(originalLocation, editorId).catch(
+					(err) => {
+						showNotification((err as Error).message, 2000);
+					},
+				);
 			},
 			originalLocation,
 			selectAsset,
@@ -1722,7 +1756,7 @@ export const SelectedOutlineElement: React.FC<{
 							type: 'item' as const,
 							id: 'crop',
 							keyHint: null,
-							label: 'Crop',
+							label: isProgrammaticallyDuplicated ? 'Crop all' : 'Crop',
 							leftItem: null,
 							disabled: !canCrop,
 							onClick: () => {
@@ -1754,7 +1788,10 @@ export const SelectedOutlineElement: React.FC<{
 				: [],
 		});
 	}, [
+		canConfigureApps,
+		codingAgentInfo,
 		confirm,
+		editorInfo,
 		onSelect,
 		previewServerState,
 		resolveOriginalLocation,

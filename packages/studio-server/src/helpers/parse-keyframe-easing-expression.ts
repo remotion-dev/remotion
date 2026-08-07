@@ -5,6 +5,7 @@ import {
 	getBackKeyframeEasing,
 	getOutKeyframeEasing,
 	getPolyKeyframeEasing,
+	HOLD_KEYFRAME_EASING,
 	LINEAR_KEYFRAME_EASING,
 	parseSpringEasingConfig,
 	QUAD_KEYFRAME_EASING,
@@ -51,6 +52,10 @@ const getMemberExpressionKeyframeEasing = (
 ): CanUpdateSequencePropStatusEasing | null => {
 	if (name === 'linear') {
 		return LINEAR_KEYFRAME_EASING;
+	}
+
+	if (name === 'step1') {
+		return HOLD_KEYFRAME_EASING;
 	}
 
 	if (name === 'ease') {

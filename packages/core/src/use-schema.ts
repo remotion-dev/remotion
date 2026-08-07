@@ -57,6 +57,10 @@ export type CanUpdateSequencePropStatusLinearEasing = {
 	type: 'linear';
 };
 
+export type CanUpdateSequencePropStatusStep1Easing = {
+	type: 'step1';
+};
+
 export type CanUpdateSequencePropStatusBezierEasing = {
 	type: 'bezier';
 	x1: number;
@@ -77,6 +81,7 @@ export type CanUpdateSequencePropStatusSpringEasing = {
 
 export type CanUpdateSequencePropStatusEasing =
 	| CanUpdateSequencePropStatusLinearEasing
+	| CanUpdateSequencePropStatusStep1Easing
 	| CanUpdateSequencePropStatusBezierEasing
 	| CanUpdateSequencePropStatusSpringEasing;
 

@@ -23,11 +23,15 @@ test.describe('inspector section collapse', () => {
 			{timeout: 30_000},
 		);
 
-		await page.locator('[title="Foreground"]').first().click();
-
-		await expect(
-			page.getByRole('button', {name: 'Expand Background', exact: true}),
-		).toBeVisible({timeout: 15_000});
+		const foreground = page.locator('[title="Foreground"]').first();
+		const expandBackground = page.getByRole('button', {
+			name: 'Expand Background',
+			exact: true,
+		});
+		await expect(async () => {
+			await foreground.click();
+			await expect(expandBackground).toBeVisible({timeout: 1_000});
+		}).toPass({timeout: 15_000});
 		await expect(
 			page.getByRole('button', {name: 'Expand Border', exact: true}),
 		).toBeVisible();

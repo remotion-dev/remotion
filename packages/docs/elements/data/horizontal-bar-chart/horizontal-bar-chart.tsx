@@ -21,8 +21,7 @@ const Bar: React.FC<{
 	readonly highlighted: boolean;
 	readonly label: string;
 	readonly value: number;
-	readonly showInTimeline: boolean;
-}> = ({highlighted, label, showInTimeline, value}) => {
+}> = ({highlighted, label, value}) => {
 	const frame = useCurrentFrame();
 
 	return (
@@ -33,7 +32,6 @@ const Bar: React.FC<{
 				extrapolateRight: 'clamp',
 			})}
 			name={'Bar'}
-			showInTimeline={showInTimeline}
 			style={{
 				alignItems: 'center',
 				backgroundColor: highlighted ? '#2858e8' : '#d1d5db',
@@ -50,7 +48,6 @@ const Bar: React.FC<{
 		>
 			<Interactive.Div
 				name={'Label'}
-				showInTimeline={showInTimeline}
 				style={{
 					fontSize: 40,
 					fontWeight: 700,
@@ -65,8 +62,7 @@ const Bar: React.FC<{
 				{label}
 			</Interactive.Div>
 			<Interactive.Div
-				name={`${label} value`}
-				showInTimeline={showInTimeline}
+				name="Value"
 				style={{
 					fontSize: 48,
 					fontWeight: 800,
@@ -124,12 +120,7 @@ export const HorizontalBarChart: React.FC = () => {
 						style={{width: `${(value / maxValue) * 100}%`, height: '100%'}}
 						showInTimeline={false}
 					>
-						<Bar
-							highlighted={highlighted}
-							label={label}
-							showInTimeline={index === 0}
-							value={value}
-						/>
+						<Bar highlighted={highlighted} label={label} value={value} />
 					</Interactive.Div>
 				</div>
 			))}

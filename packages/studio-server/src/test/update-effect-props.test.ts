@@ -228,8 +228,12 @@ test('updateEffectProps writes keyframed effect params from clipboard data', () 
 				keyframes: [
 					{frame: 0, value: 0},
 					{frame: 30, value: 1},
+					{frame: 60, value: 0},
 				],
-				easing: [{type: 'bezier', x1: 0.1, y1: 0.2, x2: 0.3, y2: 0.4}],
+				easing: [
+					{type: 'bezier', x1: 0.1, y1: 0.2, x2: 0.3, y2: 0.4},
+					{type: 'step1'},
+				],
 				clamping: {left: 'clamp', right: 'extend'},
 				output: 'perceptual-scale',
 				posterize: 2,
@@ -245,11 +249,13 @@ test('updateEffectProps writes keyframed effect params from clipboard data', () 
 	expect(serialized).toContain('from "remotion"');
 	expect(serialized).toContain('const frame = useCurrentFrame();');
 	expect(serialized).toContain(
-		'opacity: interpolate(frame, [0, 30], [0, 1], {',
+		'opacity: interpolate(frame, [0, 30, 60], [0, 1, 0], {',
 	);
 	expect(serialized).toContain('extrapolateLeft: "clamp"');
 	expect(serialized).toContain('output: "perceptual-scale"');
-	expect(serialized).toContain('easing: [Easing.bezier(0.1, 0.2, 0.3, 0.4)]');
+	expect(serialized).toContain(
+		'easing: [Easing.bezier(0.1, 0.2, 0.3, 0.4), Easing.step1]',
+	);
 	expect(serialized).toContain('posterize: 2');
-	expect(newValueString).toContain('interpolate(frame, [0, 30], [0, 1]');
+	expect(newValueString).toContain('interpolate(frame, [0, 30, 60], [0, 1, 0]');
 });

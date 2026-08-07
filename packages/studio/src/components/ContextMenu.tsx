@@ -4,6 +4,11 @@ import ReactDOM from 'react-dom';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {noop} from '../helpers/noop';
 import {HigherZIndex, useZIndex} from '../state/z-index';
+import {
+	getNextMenuTreeId,
+	isNodeInMenuTree,
+	MenuTreeContext,
+} from './Menu/menu-tree-context';
 import {getPortal} from './Menu/portals';
 import {
 	MAX_MENU_WIDTH,
@@ -83,12 +88,12 @@ const notifyContextMenuOpened = (id: number) => {
 };
 
 const ContextMenuPortal: React.FC<{
+	readonly menuTreeId: number;
 	readonly sizeSource: ContextMenuSizeSource;
 	readonly currentZIndex: number;
 	readonly onHide: () => void;
 	readonly opened: OpenedState;
-}> = ({sizeSource, currentZIndex, onHide, opened}) => {
-	const menuRef = useRef<HTMLDivElement>(null);
+}> = ({menuTreeId, sizeSource, currentZIndex, onHide, opened}) => {
 	const size = PlayerInternals.useElementSize(sizeSource, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
@@ -172,7 +177,8 @@ const ContextMenuPortal: React.FC<{
 				return;
 			}
 
-			if (menuRef.current?.contains(event.target as Node)) {
+			const target = event.target as Node;
+			if (isNodeInMenuTree(target, menuTreeId)) {
 				return;
 			}
 
@@ -191,7 +197,7 @@ const ContextMenuPortal: React.FC<{
 				true,
 			);
 		};
-	}, [onHide]);
+	}, [menuTreeId, onHide]);
 
 	// Prevent deselection of a selected item
 	const onMenuPointerDown = useCallback(
@@ -214,20 +220,22 @@ const ContextMenuPortal: React.FC<{
 					outsideClickButton="primary"
 				>
 					<div
-						ref={menuRef}
+						data-remotion-menu-tree-id={menuTreeId}
 						style={portalStyle}
 						onPointerDown={onMenuPointerDown}
 					>
-						<MenuContent
-							onNextMenu={noop}
-							onPreviousMenu={noop}
-							values={opened.values}
-							onHide={onHide}
-							leaveLeftSpace
-							preselectIndex={false}
-							topItemCanBeUnselected={false}
-							fixedHeight={null}
-						/>
+						<MenuTreeContext.Provider value={menuTreeId}>
+							<MenuContent
+								onNextMenu={noop}
+								onPreviousMenu={noop}
+								values={opened.values}
+								onHide={onHide}
+								leaveLeftSpace
+								preselectIndex={false}
+								topItemCanBeUnselected={false}
+								fixedHeight={null}
+							/>
+						</MenuTreeContext.Provider>
 					</div>
 				</HigherZIndex>
 			</div>
@@ -249,6 +257,7 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 	) => {
 		const ref = useRef<HTMLDivElement>(null);
 		const idRef = useRef(nextContextMenuId++);
+		const menuTreeIdRef = useRef(getNextMenuTreeId());
 		const invocationRef = useRef(0);
 		const getItemsRef = useRef(getItems);
 		getItemsRef.current = getItems;
@@ -348,6 +357,7 @@ export const ContextMenu = React.forwardRef<HTMLDivElement, ContextMenuProps>(
 				</div>
 				{opened.type === 'open' ? (
 					<ContextMenuPortal
+						menuTreeId={menuTreeIdRef.current}
 						sizeSource={ref}
 						currentZIndex={currentZIndex}
 						onHide={onHide}
@@ -366,6 +376,7 @@ export const ContextMenuForTarget: React.FC<{
 	readonly getItems: ContextMenuItemsFactory;
 }> = ({triggerRef, getItems}) => {
 	const idRef = useRef(nextContextMenuId++);
+	const menuTreeIdRef = useRef(getNextMenuTreeId());
 	const invocationRef = useRef(0);
 	const getItemsRef = useRef(getItems);
 	getItemsRef.current = getItems;
@@ -446,6 +457,7 @@ export const ContextMenuForTarget: React.FC<{
 
 	return opened.type === 'open' ? (
 		<ContextMenuPortal
+			menuTreeId={menuTreeIdRef.current}
 			sizeSource={body}
 			currentZIndex={currentZIndex}
 			onHide={onHide}

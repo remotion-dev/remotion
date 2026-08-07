@@ -2,20 +2,8 @@ import type {
 	EditorPickerId,
 	GetDefaultEditorInfoResponse,
 } from '@remotion/studio-shared';
-import {useEffect, useState} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
-import {callApi} from './call-api';
-
-let editorInfoPromise: Promise<GetDefaultEditorInfoResponse> | null = null;
-
-const loadDefaultEditorInfo = () => {
-	editorInfoPromise ??= callApi('/api/default-editor-info', {}).catch((err) => {
-		editorInfoPromise = null;
-		throw err;
-	});
-
-	return editorInfoPromise;
-};
+import {useSettings} from './SettingsContext';
 
 export const canUseEditorPicker = (previewServerConnected: boolean) => {
 	return (
@@ -30,33 +18,17 @@ export const getPreferredEditorId = (
 ): EditorPickerId | null => {
 	return (
 		editorInfo?.installedEditors.find(
-			(editor) => editor.name === window.remotion_editorName,
+			(editor) => editor.nameWithType === window.remotion_editorName,
 		)?.id ?? null
 	);
 };
 
 export const useDefaultEditorInfo = (enabled: boolean) => {
-	const [editorInfo, setEditorInfo] =
-		useState<GetDefaultEditorInfoResponse | null>(null);
+	const {editorInfo} = useSettings();
+	return enabled ? editorInfo : null;
+};
 
-	useEffect(() => {
-		if (!enabled) {
-			return;
-		}
-
-		let cancelled = false;
-		loadDefaultEditorInfo()
-			.then((response) => {
-				if (!cancelled) {
-					setEditorInfo(response);
-				}
-			})
-			.catch(() => undefined);
-
-		return () => {
-			cancelled = true;
-		};
-	}, [enabled]);
-
-	return editorInfo;
+export const useDefaultCodingAgentInfo = (enabled: boolean) => {
+	const {codingAgentInfo} = useSettings();
+	return enabled ? codingAgentInfo : null;
 };

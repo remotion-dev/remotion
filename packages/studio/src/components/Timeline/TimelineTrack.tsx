@@ -15,6 +15,8 @@ import {
 import {TimelineSequence} from './TimelineSequence';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
+const emptyConnectedCompositions = [] as const;
+
 const TimelineTrackUnmemoized: React.FC<{
 	readonly track: TimelineTrackData;
 }> = ({track}) => {
@@ -57,7 +59,9 @@ const TimelineTrackUnmemoized: React.FC<{
 				) : null}
 				<TimelineSequence
 					s={track.sequence}
-					connectedCompositions={track.connectedCompositions ?? []}
+					connectedCompositions={
+						track.connectedCompositions ?? emptyConnectedCompositions
+					}
 					nodePathInfo={track.nodePathInfo}
 					sequenceFrameOffset={track.sequenceFrameOffset}
 				/>

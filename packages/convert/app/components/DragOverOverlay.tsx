@@ -6,7 +6,7 @@ export const DragOverOverlay: React.FC<{
 	return (
 		<div
 			data-active={String(active)}
-			className="inset-0 absolute bg-slate-50 pointer-events-none flex justify-center items-center font-brand flex-col transition-opacity opacity-0 data-[active=true]:opacity-100"
+			className="inset-0 fixed bg-slate-50 pointer-events-none flex justify-center items-center font-brand flex-col transition-opacity opacity-0 data-[active=true]:opacity-100"
 		>
 			<h2 className="text-2xl font-medium">Drop a video</h2>
 			<div className="h-1" />

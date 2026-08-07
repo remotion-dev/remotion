@@ -97,7 +97,7 @@ export const Cards: React.FC<{
 						/>
 					) : index === 2 ? (
 						<CurrentCountry
-							countryPaths={trending?.countryPaths ?? null}
+							countryFlag={trending?.countryFlag ?? null}
 							countryLabel={trending?.countryLabel ?? null}
 							theme={theme}
 						/>

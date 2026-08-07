@@ -31,6 +31,7 @@ export type EventSourceEvent =
 	| {
 			type: 'config-file-changed';
 			changeType: ConfigFileChangeType;
+			originatorClientId: string | null;
 			renderDefaults: RenderDefaults;
 			studioRuntimeConfig: StudioRuntimeConfig;
 			editorName: string | null;
