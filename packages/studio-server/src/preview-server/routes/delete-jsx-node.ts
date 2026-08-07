@@ -9,6 +9,7 @@ import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
+import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
 	printUndoHint,
 	pushToUndoStack,
@@ -75,6 +76,13 @@ export const deleteJsxNodeHandler: ApiHandler<
 					};
 				}),
 			);
+			const nodePathMutation = broadcastSequenceNodePathMutation(
+				updates.map((update) => ({
+					absolutePath: update.absolutePath,
+					remappings: update.nodePathRemappings,
+					restoredNodePaths: [],
+				})),
+			);
 
 			for (const update of updates) {
 				const deletedNodeDescription = getDeletedNodeDescription(
@@ -101,10 +109,7 @@ export const deleteJsxNodeHandler: ApiHandler<
 					file: update.absolutePath,
 					content: update.output,
 					originatorClientId: undefined,
-					metadata: {
-						nodePathRemappings: update.nodePathRemappings,
-						restoredNodePaths: null,
-					},
+					metadata: {skipSequencePropsUpdate: true},
 				});
 
 				const locationLabel = formatLogFileLocation({
@@ -130,6 +135,7 @@ export const deleteJsxNodeHandler: ApiHandler<
 
 			return {
 				success: true,
+				nodePathMutation,
 			};
 		} catch (err) {
 			return {

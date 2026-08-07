@@ -310,10 +310,16 @@ test.describe('visual mode', () => {
 	});
 
 	test('should preserve following interactive elements after deleting a sibling', async ({
+		context,
 		page,
 	}) => {
 		await navigateToLostNodePathE2e(page);
+		const otherPage = await context.newPage();
+		await navigateToLostNodePathE2e(otherPage);
 		const canvas = page.locator('.remotion-studio-composition-container');
+		const otherCanvas = otherPage.locator(
+			'.remotion-studio-composition-container',
+		);
 		await expect(
 			canvas.getByText('Performance overview', {exact: true}),
 		).toBeVisible();
@@ -323,12 +329,21 @@ test.describe('visual mode', () => {
 		await expect(
 			canvas.getByText('Bars remain visible', {exact: true}),
 		).toBeVisible();
+		await expect(
+			otherCanvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
 		const gridline = page.getByText('0% gridline', {exact: true});
 		const gridlineVisibilityToggle = gridline
 			.locator('..')
 			.locator('..')
 			.locator('[data-timeline-layer-eye]');
+		const otherGridlineVisibilityToggle = otherPage
+			.getByText('0% gridline', {exact: true})
+			.locator('..')
+			.locator('..')
+			.locator('[data-timeline-layer-eye]');
 		await expect(gridlineVisibilityToggle).toBeVisible();
+		await expect(otherGridlineVisibilityToggle).toBeVisible();
 		await page.evaluate(() => {
 			const state = window as typeof window & {
 				sequenceRemappingBadFrames: string[] | null;
@@ -402,12 +417,19 @@ test.describe('visual mode', () => {
 			canvas.getByText('Bars remain visible', {exact: true}),
 		).toBeVisible();
 		await expect(
+			otherCanvas.getByText('Regional growth', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			otherCanvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
+		await expect(
 			page.locator('[data-timeline-marquee-item][title="Title"]'),
 		).toBeVisible();
 		await expect(
 			page.locator('[data-timeline-marquee-item][title="Chart"]'),
 		).toBeVisible();
 		await expect(gridlineVisibilityToggle).toBeVisible();
+		await expect(otherGridlineVisibilityToggle).toBeVisible();
 
 		await page.getByRole('button', {name: /^Undo/}).click();
 		await expect
@@ -423,7 +445,17 @@ test.describe('visual mode', () => {
 		await expect(
 			canvas.getByText('Bars remain visible', {exact: true}),
 		).toBeVisible();
+		await expect(
+			otherCanvas.getByText('Performance overview', {exact: true}),
+		).toBeVisible();
+		await expect(
+			otherCanvas.getByText('Regional growth', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			otherCanvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
 		await expect(gridlineVisibilityToggle).toBeVisible();
+		await expect(otherGridlineVisibilityToggle).toBeVisible();
 
 		await page.getByRole('button', {name: /^Redo/}).click();
 		await expect
@@ -436,7 +468,14 @@ test.describe('visual mode', () => {
 		await expect(
 			canvas.getByText('Bars remain visible', {exact: true}),
 		).toBeVisible();
+		await expect(
+			otherCanvas.getByText('Regional growth', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			otherCanvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
 		await expect(gridlineVisibilityToggle).toBeVisible();
+		await expect(otherGridlineVisibilityToggle).toBeVisible();
 		expect(
 			await page.evaluate(
 				() =>

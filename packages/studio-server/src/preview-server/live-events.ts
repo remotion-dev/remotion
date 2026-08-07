@@ -157,6 +157,9 @@ export const waitForLiveEventsListener = (): Promise<LiveEventsServer> => {
 	});
 };
 
+export const getLiveEventsListener = (): LiveEventsServer | null =>
+	liveEventsListener;
+
 export const setLiveEventsListener = (listener: LiveEventsServer) => {
 	liveEventsListener = listener;
 	waiters.forEach((w) => w(listener));

@@ -49,9 +49,19 @@ export const SequencePropsSubscriptionProvider: React.FC<{
 	);
 
 	const setOverrideIdToNodePath = useCallback(
-		(overrideId: string, state: SequencePropsSubscriptionKey) => {
+		(overrideId: string, state: SequencePropsSubscriptionKey | null) => {
 			setOverrideIdToNodePathMap((prev) => {
 				const existing = prev[overrideId];
+				if (state === null) {
+					if (!existing) {
+						return prev;
+					}
+
+					const next = {...prev};
+					delete next[overrideId];
+					return next;
+				}
+
 				if (existing && existing === state) {
 					return prev;
 				}

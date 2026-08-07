@@ -11,6 +11,7 @@ import type {ConfigFileChangeType} from './config-file-change';
 import type {HotMiddlewareMessage} from './hot-middleware';
 import type {RenderDefaults} from './render-defaults';
 import type {CompletedClientRender, RenderJob} from './render-job';
+import type {SequenceNodePathMutation} from './sequence-node-path-mutation';
 import type {StudioRuntimeConfig} from './studio-runtime-config';
 
 export type EventSourceEvent =
@@ -76,13 +77,8 @@ export type EventSourceEvent =
 			result: CanUpdateSequencePropsResponse;
 	  }
 	| {
-			type: 'sequence-props-remapped';
-			fileName: string;
-			line: number;
-			column: number;
-			previousNodePath: SequencePropsSubscriptionKey;
-			nodePath: SequencePropsSubscriptionKey | null;
-			result: CanUpdateSequencePropsResponse | null;
+			type: 'sequence-node-paths-remapped';
+			mutation: SequenceNodePathMutation;
 	  }
 	| {
 			type: 'lost-node-path';

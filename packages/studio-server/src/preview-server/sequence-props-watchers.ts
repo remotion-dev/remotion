@@ -28,7 +28,6 @@ type WatcherInfo = {
 		SubscribeToSequencePropsResponse,
 		{success: true}
 	>['nodePath'];
-	deleted: boolean;
 };
 
 const sequencePropsWatchers: Record<string, Record<string, WatcherInfo>> = {};
@@ -218,23 +217,15 @@ export const subscribeToSequencePropsWatchers = ({
 	const watcherKey = getWatcherKey(nodePath, assetKeys);
 
 	const existingWatcher = sequencePropsWatchers[clientId]?.[watcherKey];
-	// If a watcher already exists for this key, just bump the ref count. A
-	// deleted node path may be occupied by another component after Fast Refresh.
-	// In that case, replace the inert watcher while keeping all existing refs.
-	if (existingWatcher && !existingWatcher.deleted) {
+	if (existingWatcher) {
 		existingWatcher.refCount++;
 		return initialResult;
 	}
 
-	if (existingWatcher) {
-		existingWatcher.unwatch();
-	}
-
 	const watcherInfo: WatcherInfo = {
 		unwatch: () => undefined,
-		refCount: (existingWatcher?.refCount ?? 0) + 1,
+		refCount: 1,
 		currentNodePath: nodePath,
-		deleted: false,
 	};
 	const {unwatch} = installFileWatcher({
 		file: absolutePath,
@@ -248,57 +239,8 @@ export const subscribeToSequencePropsWatchers = ({
 				return;
 			}
 
-			const wasRestored =
-				event.type === 'changed' &&
-				watcherInfo.deleted &&
-				event.restoredNodePaths !== null &&
-				event.restoredNodePaths.some(
-					(restoredNodePath) =>
-						JSON.stringify(restoredNodePath) ===
-						JSON.stringify(watcherInfo.currentNodePath.nodePath),
-				);
-			if (watcherInfo.deleted && !wasRestored) {
+			if (event.type === 'changed' && event.skipSequencePropsUpdate) {
 				return;
-			}
-
-			if (wasRestored) {
-				watcherInfo.deleted = false;
-			}
-
-			const remapping =
-				event.type === 'changed' &&
-				!wasRestored &&
-				event.nodePathRemappings !== null
-					? (event.nodePathRemappings.find(
-							(item) =>
-								JSON.stringify(item.oldNodePath) ===
-								JSON.stringify(watcherInfo.currentNodePath.nodePath),
-						) ?? null)
-					: null;
-			const previousNodePath =
-				remapping !== null || wasRestored ? watcherInfo.currentNodePath : null;
-			if (remapping?.newNodePath === null) {
-				watcherInfo.deleted = true;
-				waitForLiveEventsListener().then((listener) => {
-					listener.sendEventToClientId(clientId, {
-						type: 'sequence-props-remapped',
-						fileName,
-						line,
-						column,
-						previousNodePath: watcherInfo.currentNodePath,
-						nodePath: null,
-						result: null,
-					});
-				});
-				return;
-			}
-
-			if (remapping !== null) {
-				watcherInfo.currentNodePath = {
-					...watcherInfo.currentNodePath,
-					nodePath: remapping.newNodePath,
-				};
-				setCachedNodePath(fileName, line, column, remapping.newNodePath);
 			}
 
 			try {
@@ -328,19 +270,6 @@ export const subscribeToSequencePropsWatchers = ({
 				}
 
 				waitForLiveEventsListener().then((listener) => {
-					if (previousNodePath !== null) {
-						listener.sendEventToClientId(clientId, {
-							type: 'sequence-props-remapped',
-							fileName,
-							line,
-							column,
-							previousNodePath,
-							nodePath: watcherInfo.currentNodePath,
-							result,
-						});
-						return;
-					}
-
 					listener.sendEventToClientId(clientId, {
 						type: 'sequence-props-updated',
 						fileName,

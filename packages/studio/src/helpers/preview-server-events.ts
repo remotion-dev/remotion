@@ -6,6 +6,7 @@ import {
 	BROWSER_STUDIO_OPERATIONS_READY_EVENT,
 	getBrowserStudioOperations,
 } from './browser-studio-operations';
+import {queueSequenceNodePathMutation} from './sequence-node-path-mutations';
 
 export type PreviewServerConnectionState =
 	| {
@@ -38,6 +39,10 @@ const notifyConnectionState = () => {
 };
 
 const dispatch = (event: EventSourceEvent) => {
+	if (event.type === 'sequence-node-paths-remapped') {
+		queueSequenceNodePathMutation(event.mutation);
+	}
+
 	if (event.type === 'init') {
 		lastInitEvent = event;
 		connectionState = {

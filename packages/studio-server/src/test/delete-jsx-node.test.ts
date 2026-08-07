@@ -7,7 +7,6 @@ import {deleteJsxNode, deleteJsxNodes} from '../codemods/delete-jsx-node';
 import {
 	createFileWatcherRegistry,
 	setFileWatcherRegistry,
-	writeFileAndNotifyFileWatchers,
 } from '../file-watcher';
 import {setLiveEventsListener} from '../preview-server/live-events';
 import {deleteJsxNodeHandler} from '../preview-server/routes/delete-jsx-node';
@@ -159,27 +158,33 @@ export const X = () => {
 };
 `;
 
-test('deleting a JSX node remaps subscriptions for following siblings', async () => {
+test('deleting a JSX node broadcasts node path mutations for all clients', async () => {
 	clearUndoStackForTests();
 	const cleanupFileWatcher = setFileWatcherRegistry(
 		createFileWatcherRegistry(),
 	);
-	const events: EventSourceEvent[] = [];
-	const cleanupLiveEvents = setLiveEventsListener({
-		addNewClientListener: () => () => undefined,
-		closeConnections: () => Promise.resolve(),
-		router: () => Promise.resolve(),
-		sendEventToClient: () => undefined,
-		sendEventToClientId: (_clientId, event) => {
-			events.push(event);
-			return true;
-		},
-	});
 	const remotionRoot = mkdtempSync(join(tmpdir(), 'remotion-delete-node-'));
 	const fileName = 'Comp.tsx';
 	const filePath = join(remotionRoot, fileName);
 	const clientId = 'delete-node-test';
 	writeFileSync(filePath, interactiveSiblings);
+	const events: EventSourceEvent[] = [];
+	const mutationBroadcastFileContents: string[] = [];
+	const cleanupLiveEvents = setLiveEventsListener({
+		addNewClientListener: () => () => undefined,
+		closeConnections: () => Promise.resolve(),
+		router: () => Promise.resolve(),
+		sendEventToClient: (event) => {
+			events.push(event);
+			if (event.type === 'sequence-node-paths-remapped') {
+				mutationBroadcastFileContents.push(readFileSync(filePath, 'utf-8'));
+			}
+		},
+		sendEventToClientId: (_clientId, event) => {
+			events.push(event);
+			return true;
+		},
+	});
 	const apiHandlerContext = {
 		binariesDirectory: null,
 		configFile: null,
@@ -234,138 +239,109 @@ test('deleting a JSX node remaps subscriptions for following siblings', async ()
 				],
 			},
 		});
-		expect(response.success).toBe(true);
+		if (!response.success) {
+			throw new Error(response.reason);
+		}
+
 		await Promise.resolve();
 
 		const output = readFileSync(filePath, 'utf-8');
 		expect(output).not.toContain('Eyebrow');
 		expect(output).toContain('name="Title"');
 		expect(output).toContain('name="Chart"');
-
-		const updates = events.filter(
-			(
-				event,
-			): event is Extract<
-				EventSourceEvent,
-				{type: 'sequence-props-remapped'}
-			> => event.type === 'sequence-props-remapped',
-		);
-		expect(events.some((event) => event.type === 'lost-node-path')).toBe(false);
-		expect(updates).toHaveLength(3);
-		expect(
-			updates.map((update) => {
-				if (update.nodePath === null || update.result === null) {
-					return {
-						name: null,
+		expect(response.nodePathMutation.files).toEqual([
+			{
+				absolutePath: filePath,
+				remappings: [
+					{
+						oldNodePath: lineColumnToNodePath(interactiveSiblings, 6),
 						newNodePath: null,
-						previousNodePath: update.previousNodePath.nodePath,
-					};
-				}
-
-				if (!update.result.canUpdate) {
-					throw new Error(
-						'Expected surviving sequence props to remain editable',
-					);
-				}
-
-				return {
-					name: update.result.props.name,
-					newNodePath: update.nodePath.nodePath,
-					previousNodePath: update.previousNodePath.nodePath,
-				};
-			}),
-		).toEqual([
-			{
-				name: null,
-				newNodePath: null,
-				previousNodePath: lineColumnToNodePath(interactiveSiblings, 6),
-			},
-			{
-				name: {codeValue: 'Title', status: 'static'},
-				newNodePath: lineColumnToNodePath(output, 6),
-				previousNodePath: lineColumnToNodePath(interactiveSiblings, 7),
-			},
-			{
-				name: {codeValue: 'Chart', status: 'static'},
-				newNodePath: lineColumnToNodePath(output, 7),
-				previousNodePath: lineColumnToNodePath(interactiveSiblings, 8),
+					},
+					{
+						oldNodePath: lineColumnToNodePath(interactiveSiblings, 7),
+						newNodePath: lineColumnToNodePath(output, 6),
+					},
+					{
+						oldNodePath: lineColumnToNodePath(interactiveSiblings, 8),
+						newNodePath: lineColumnToNodePath(output, 7),
+					},
+				],
+				restoredNodePaths: [],
 			},
 		]);
+		expect(
+			events.filter((event) => event.type === 'sequence-node-paths-remapped'),
+		).toEqual([
+			{
+				type: 'sequence-node-paths-remapped',
+				mutation: response.nodePathMutation,
+			},
+		]);
+		expect(mutationBroadcastFileContents).toEqual([interactiveSiblings]);
+		expect(events.some((event) => event.type === 'lost-node-path')).toBe(false);
+		expect(
+			events.some((event) => event.type === 'sequence-props-updated'),
+		).toBe(false);
 
 		events.length = 0;
-		expect(popUndo()).toEqual({success: true});
+		const undoResponse = popUndo();
+		if (!undoResponse.success || undoResponse.nodePathMutation === null) {
+			throw new Error('Expected undo to include a node path mutation');
+		}
+
 		await Promise.resolve();
 		expect(readFileSync(filePath, 'utf-8')).toBe(interactiveSiblings);
 		expect(events.some((event) => event.type === 'lost-node-path')).toBe(false);
-		expect(
-			events.flatMap((event) => {
-				if (
-					event.type !== 'sequence-props-remapped' ||
-					event.nodePath === null ||
-					event.result === null ||
-					!event.result.canUpdate
-				) {
-					return [];
-				}
-
-				return [
+		expect(undoResponse.nodePathMutation.files).toEqual([
+			{
+				absolutePath: filePath,
+				remappings: [
 					{
-						name: event.result.props.name,
-						newNodePath: event.nodePath.nodePath,
-						previousNodePath: event.previousNodePath.nodePath,
+						oldNodePath: lineColumnToNodePath(output, 6),
+						newNodePath: lineColumnToNodePath(interactiveSiblings, 7),
 					},
-				];
-			}),
+					{
+						oldNodePath: lineColumnToNodePath(output, 7),
+						newNodePath: lineColumnToNodePath(interactiveSiblings, 8),
+					},
+				],
+				restoredNodePaths: [lineColumnToNodePath(interactiveSiblings, 6)],
+			},
+		]);
+		expect(
+			events.filter((event) => event.type === 'sequence-node-paths-remapped'),
 		).toEqual([
 			{
-				name: {codeValue: 'Eyebrow', status: 'static'},
-				newNodePath: lineColumnToNodePath(interactiveSiblings, 6),
-				previousNodePath: lineColumnToNodePath(interactiveSiblings, 6),
+				type: 'sequence-node-paths-remapped',
+				mutation: undoResponse.nodePathMutation,
 			},
-			{
-				name: {codeValue: 'Title', status: 'static'},
-				newNodePath: lineColumnToNodePath(interactiveSiblings, 7),
-				previousNodePath: lineColumnToNodePath(output, 6),
-			},
-			{
-				name: {codeValue: 'Chart', status: 'static'},
-				newNodePath: lineColumnToNodePath(interactiveSiblings, 8),
-				previousNodePath: lineColumnToNodePath(output, 7),
-			},
+		]);
+		expect(mutationBroadcastFileContents).toEqual([
+			interactiveSiblings,
+			output,
 		]);
 
 		events.length = 0;
-		expect(popRedo()).toEqual({success: true});
+		const redoResponse = popRedo();
+		if (!redoResponse.success || redoResponse.nodePathMutation === null) {
+			throw new Error('Expected redo to include a node path mutation');
+		}
+
 		await Promise.resolve();
 		expect(readFileSync(filePath, 'utf-8')).toBe(output);
 		expect(events.some((event) => event.type === 'lost-node-path')).toBe(false);
 		expect(
-			events.filter((event) => event.type === 'sequence-props-remapped'),
-		).toHaveLength(3);
-
-		events.length = 0;
-		writeFileAndNotifyFileWatchers({
-			file: filePath,
-			content: output.replace('name="Title"', 'name="Updated title"'),
-			originatorClientId: undefined,
-			metadata: null,
-		});
-		await Promise.resolve();
-		expect(events.some((event) => event.type === 'lost-node-path')).toBe(false);
-		expect(
-			events.flatMap((event) => {
-				if (
-					event.type !== 'sequence-props-updated' ||
-					!event.result.canUpdate
-				) {
-					return [];
-				}
-
-				return [event.result.props.name];
-			}),
+			events.filter((event) => event.type === 'sequence-node-paths-remapped'),
 		).toEqual([
-			{codeValue: 'Updated title', status: 'static'},
-			{codeValue: 'Chart', status: 'static'},
+			{
+				type: 'sequence-node-paths-remapped',
+				mutation: redoResponse.nodePathMutation,
+			},
+		]);
+		expect(mutationBroadcastFileContents).toEqual([
+			interactiveSiblings,
+			output,
+			interactiveSiblings,
 		]);
 	} finally {
 		unsubscribeClientSequencePropsWatchers(clientId);

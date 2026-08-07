@@ -60,11 +60,11 @@ test('undo and redo restore every file in a transaction', () => {
 			suppressHmrOnFileRestore: true,
 		});
 
-		expect(popUndo()).toEqual({success: true});
+		expect(popUndo()).toEqual({success: true, nodePathMutation: null});
 		expect(readFileSync(firstFile, 'utf-8')).toBe('old first');
 		expect(readFileSync(secondFile, 'utf-8')).toBe('old second');
 
-		expect(popRedo()).toEqual({success: true});
+		expect(popRedo()).toEqual({success: true, nodePathMutation: null});
 		expect(readFileSync(firstFile, 'utf-8')).toBe('new first');
 		expect(readFileSync(secondFile, 'utf-8')).toBe('new second');
 	} finally {

@@ -1,14 +1,7 @@
 import fs, {readFileSync, writeFileSync} from 'node:fs';
-import type {SequenceNodePath} from 'remotion';
-
-export type SequenceNodePathRemapping = {
-	oldNodePath: SequenceNodePath;
-	newNodePath: SequenceNodePath | null;
-};
 
 export type FileChangeMetadata = {
-	nodePathRemappings: SequenceNodePathRemapping[] | null;
-	restoredNodePaths: SequenceNodePath[] | null;
+	skipSequencePropsUpdate: boolean;
 };
 
 type WriteFileAndNotifyFileWatchersOptions = {
@@ -25,8 +18,7 @@ export type FileChangeEvent =
 			type: 'changed';
 			content: string;
 			originatorClientId: string | undefined;
-			nodePathRemappings: SequenceNodePathRemapping[] | null;
-			restoredNodePaths: SequenceNodePath[] | null;
+			skipSequencePropsUpdate: boolean;
 	  };
 
 type OnChange = (event: FileChangeEvent) => void;
@@ -147,8 +139,7 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 					type: 'changed',
 					content,
 					originatorClientId: undefined,
-					nodePathRemappings: null,
-					restoredNodePaths: null,
+					skipSequencePropsUpdate: false,
 				};
 			}
 
@@ -197,8 +188,7 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 				type: 'changed',
 				content,
 				originatorClientId,
-				nodePathRemappings: metadata?.nodePathRemappings ?? null,
-				restoredNodePaths: metadata?.restoredNodePaths ?? null,
+				skipSequencePropsUpdate: metadata?.skipSequencePropsUpdate ?? false,
 			});
 		}
 	};

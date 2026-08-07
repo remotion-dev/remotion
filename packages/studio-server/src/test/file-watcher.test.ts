@@ -58,16 +58,14 @@ test('multiple watchers on the same file share a single OS watcher', () => {
 		type: 'changed',
 		content: 'updated',
 		originatorClientId: undefined,
-		nodePathRemappings: null,
-		restoredNodePaths: null,
+		skipSequencePropsUpdate: false,
 	});
 	expect(cb2).toHaveBeenCalledTimes(1);
 	expect(cb2).toHaveBeenCalledWith({
 		type: 'changed',
 		content: 'updated',
 		originatorClientId: undefined,
-		nodePathRemappings: null,
-		restoredNodePaths: null,
+		skipSequencePropsUpdate: false,
 	});
 
 	w1.unwatch();
@@ -133,8 +131,7 @@ test('unwatching one subscriber does not affect the other', () => {
 		type: 'changed',
 		content: 'after-unwatch',
 		originatorClientId: undefined,
-		nodePathRemappings: null,
-		restoredNodePaths: null,
+		skipSequencePropsUpdate: false,
 	});
 
 	w2.unwatch();

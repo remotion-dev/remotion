@@ -1,16 +1,21 @@
 import {existsSync, rmSync, readFileSync} from 'node:fs';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {
+	RedoResponse,
+	SequenceNodePathRemapping,
+	UndoResponse,
+} from '@remotion/studio-shared';
 import type {SequenceNodePath} from 'remotion';
 import {parseAst} from '../codemods/parse-ast';
 import {readVisualControlValues} from '../codemods/read-visual-control-values';
 import {
 	installFileWatcher,
-	type SequenceNodePathRemapping,
 	writeFileAndNotifyFileWatchers,
 } from '../file-watcher';
 import {formatLogFileLocation} from './format-log-file-location';
 import {waitForLiveEventsListener} from './live-events';
+import {broadcastSequenceNodePathMutation} from './sequence-node-path-mutation';
 import {suppressBundlerUpdateForFile} from './watch-ignore-next-change';
 
 export interface UndoEntryDescription {
@@ -428,7 +433,7 @@ function logFileAction(action: string, filePath: string, logLine: number) {
 	);
 }
 
-export function popUndo(): {success: true} | {success: false; reason: string} {
+export function popUndo(): UndoResponse {
 	const entry = undoStack.pop();
 	if (!entry) {
 		return {success: false, reason: 'Nothing to undo'};
@@ -456,17 +461,15 @@ export function popUndo(): {success: true} | {success: false; reason: string} {
 		redoStack.shift();
 	}
 
-	for (const snapshot of entry.snapshots) {
-		suppressUndoStackInvalidation(snapshot.filePath);
-		if (entry.suppressHmrOnFileRestore) {
-			suppressBundlerUpdateForFile(snapshot.filePath);
+	const files = entry.snapshots.flatMap((snapshot) => {
+		if (snapshot.nodePathRemappings === null) {
+			return [];
 		}
 
-		if (snapshot.oldContents === null) {
-			rmSync(snapshot.filePath, {force: true});
-		} else {
-			const reversedNodePathRemappings =
-				snapshot.nodePathRemappings?.flatMap(
+		return [
+			{
+				absolutePath: snapshot.filePath,
+				remappings: snapshot.nodePathRemappings.flatMap(
 					(remapping): SequenceNodePathRemapping[] => {
 						if (remapping.newNodePath === null) {
 							return [];
@@ -479,19 +482,34 @@ export function popUndo(): {success: true} | {success: false; reason: string} {
 							},
 						];
 					},
-				) ?? null;
-			const restoredNodePaths =
-				snapshot.nodePathRemappings?.flatMap((remapping): SequenceNodePath[] =>
-					remapping.newNodePath === null ? [remapping.oldNodePath] : [],
-				) ?? null;
+				),
+				restoredNodePaths: snapshot.nodePathRemappings.flatMap(
+					(remapping): SequenceNodePath[] =>
+						remapping.newNodePath === null ? [remapping.oldNodePath] : [],
+				),
+			},
+		];
+	});
+	const nodePathMutation =
+		files.length === 0 ? null : broadcastSequenceNodePathMutation(files);
+
+	for (const snapshot of entry.snapshots) {
+		suppressUndoStackInvalidation(snapshot.filePath);
+		if (entry.suppressHmrOnFileRestore) {
+			suppressBundlerUpdateForFile(snapshot.filePath);
+		}
+
+		if (snapshot.oldContents === null) {
+			rmSync(snapshot.filePath, {force: true});
+		} else {
 			writeFileAndNotifyFileWatchers({
 				file: snapshot.filePath,
 				content: snapshot.oldContents,
 				originatorClientId: undefined,
-				metadata: {
-					nodePathRemappings: reversedNodePathRemappings,
-					restoredNodePaths,
-				},
+				metadata:
+					snapshot.nodePathRemappings === null
+						? null
+						: {skipSequencePropsUpdate: true},
 			});
 		}
 	}
@@ -517,10 +535,10 @@ export function popUndo(): {success: true} | {success: false; reason: string} {
 	}
 
 	broadcastState();
-	return {success: true};
+	return {success: true, nodePathMutation};
 }
 
-export function popRedo(): {success: true} | {success: false; reason: string} {
+export function popRedo(): RedoResponse {
 	const entry = redoStack.pop();
 	if (!entry) {
 		return {success: false, reason: 'Nothing to redo'};
@@ -552,6 +570,22 @@ export function popRedo(): {success: true} | {success: false; reason: string} {
 		undoStack.shift();
 	}
 
+	const files = snapshotsWithNewContents.flatMap((snapshot) => {
+		if (snapshot.nodePathRemappings === null) {
+			return [];
+		}
+
+		return [
+			{
+				absolutePath: snapshot.filePath,
+				remappings: snapshot.nodePathRemappings,
+				restoredNodePaths: [],
+			},
+		];
+	});
+	const nodePathMutation =
+		files.length === 0 ? null : broadcastSequenceNodePathMutation(files);
+
 	for (const snapshot of snapshotsWithNewContents) {
 		suppressUndoStackInvalidation(snapshot.filePath);
 		if (entry.suppressHmrOnFileRestore) {
@@ -562,10 +596,10 @@ export function popRedo(): {success: true} | {success: false; reason: string} {
 			file: snapshot.filePath,
 			content: snapshot.newContents,
 			originatorClientId: undefined,
-			metadata: {
-				nodePathRemappings: snapshot.nodePathRemappings,
-				restoredNodePaths: null,
-			},
+			metadata:
+				snapshot.nodePathRemappings === null
+					? null
+					: {skipSequencePropsUpdate: true},
 		});
 	}
 
@@ -590,7 +624,7 @@ export function popRedo(): {success: true} | {success: false; reason: string} {
 	}
 
 	broadcastState();
-	return {success: true};
+	return {success: true, nodePathMutation};
 }
 
 /*
