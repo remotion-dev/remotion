@@ -305,6 +305,45 @@ This is useful for large renders and for streaming the output to a file, server,
 The stream receives [Mediabunny `StreamTargetChunk`](https://mediabunny.dev/api/StreamTargetChunk) objects containing the data and its byte position.
 [`FileSystemWritableFileStream`](https://developer.mozilla.org/en-US/docs/Web/API/FileSystemWritableFileStream) is compatible with this format.
 
+For example, you can render directly to a file selected by the user without keeping the finished video in memory:
+
+```tsx title="RenderButton.tsx"
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+
+const Component: React.FC = () => null;
+
+const renderToFile = async () => {
+  const fileHandle = await window.showSaveFilePicker({
+    suggestedName: 'video.mp4',
+    types: [
+      {
+        description: 'MP4 video',
+        accept: {'video/mp4': ['.mp4']},
+      },
+    ],
+  });
+  const outputWritable = await fileHandle.createWritable();
+
+  await renderMediaOnWeb({
+    composition: {
+      component: Component,
+      durationInFrames: 100,
+      fps: 30,
+      width: 1920,
+      height: 1080,
+      id: 'my-composition',
+    },
+    outputWritable,
+  });
+};
+
+export const RenderButton: React.FC = () => (
+  <button onClick={renderToFile}>Render video</button>
+);
+```
+
+`renderMediaOnWeb()` writes chunks at their correct byte positions and closes the stream when the render finishes. Do not call `getBlob()` when using `outputWritable`.
+
 If both `outputWritable` and `outputTarget` are specified, `outputWritable` takes precedence.
 
 ### `schema?`
