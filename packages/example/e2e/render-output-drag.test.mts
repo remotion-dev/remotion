@@ -176,8 +176,15 @@ test.describe('render output dragging', () => {
 					}),
 				);
 			});
-			await expect.poll(() => fs.existsSync(copiedAsset)).toBe(true);
-			expect(fs.readFileSync(copiedAsset)).toEqual(contents);
+			await expect
+				.poll(() => {
+					if (!fs.existsSync(copiedAsset)) {
+						return false;
+					}
+
+					return fs.readFileSync(copiedAsset).equals(contents);
+				})
+				.toBe(true);
 			await expect(
 				page.getByText('render-output-drag-e2e.mp4', {exact: true}),
 			).toBeVisible();
