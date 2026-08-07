@@ -73,6 +73,7 @@ export type EventSourceEvent =
 			type: 'sequence-props-updated';
 			fileName: string;
 			nodePath: SequencePropsSubscriptionKey;
+			previousNodePath?: SequencePropsSubscriptionKey;
 			result: CanUpdateSequencePropsResponse;
 	  }
 	| {

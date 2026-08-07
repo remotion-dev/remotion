@@ -1,9 +1,20 @@
 import fs, {readFileSync, writeFileSync} from 'node:fs';
+import type {SequenceNodePath} from 'remotion';
+
+export type SequenceNodePathRemapping = {
+	oldNodePath: SequenceNodePath;
+	newNodePath: SequenceNodePath | null;
+};
 
 export type FileChangeEvent =
 	| {type: 'created'; content: string; originatorClientId: string | undefined}
 	| {type: 'deleted'}
-	| {type: 'changed'; content: string; originatorClientId: string | undefined};
+	| {
+			type: 'changed';
+			content: string;
+			originatorClientId: string | undefined;
+			nodePathRemappings?: SequenceNodePathRemapping[];
+	  };
 
 type OnChange = (event: FileChangeEvent) => void;
 
@@ -36,6 +47,7 @@ export type FileWatcherRegistry = {
 		file: string,
 		content: string,
 		originatorClientId: string | undefined,
+		nodePathRemappings?: SequenceNodePathRemapping[],
 	) => void;
 };
 
@@ -152,6 +164,7 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 		file: string,
 		content: string,
 		originatorClientId: string | undefined,
+		nodePathRemappings?: SequenceNodePathRemapping[],
 	) => {
 		writeFileSync(file, content);
 
@@ -164,7 +177,12 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 		shared.existedBefore = true;
 
 		for (const subscriber of shared.subscribers) {
-			subscriber({type: 'changed', content, originatorClientId});
+			subscriber({
+				type: 'changed',
+				content,
+				originatorClientId,
+				nodePathRemappings,
+			});
 		}
 	};
 
@@ -207,7 +225,7 @@ export const installFileWatcher: FileWatcherRegistry['installFileWatcher'] = (
 };
 
 export const writeFileAndNotifyFileWatchers: FileWatcherRegistry['writeFileAndNotifyFileWatchers'] =
-	(file, content, originatorClientId) => {
+	(file, content, originatorClientId, nodePathRemappings) => {
 		if (!currentRegistry) {
 			return;
 		}
@@ -216,5 +234,6 @@ export const writeFileAndNotifyFileWatchers: FileWatcherRegistry['writeFileAndNo
 			file,
 			content,
 			originatorClientId,
+			nodePathRemappings,
 		);
 	};

@@ -24,6 +24,11 @@ import {
 type WatcherInfo = {
 	unwatch: () => void;
 	refCount: number;
+	currentNodePath: Extract<
+		SubscribeToSequencePropsResponse,
+		{success: true}
+	>['nodePath'];
+	deleted: boolean;
 };
 
 const sequencePropsWatchers: Record<string, Record<string, WatcherInfo>> = {};
@@ -218,6 +223,12 @@ export const subscribeToSequencePropsWatchers = ({
 		return initialResult;
 	}
 
+	const watcherInfo: WatcherInfo = {
+		unwatch: () => undefined,
+		refCount: 1,
+		currentNodePath: nodePath,
+		deleted: false,
+	};
 	const {unwatch} = installFileWatcher({
 		file: absolutePath,
 		existenceOnly: false,
@@ -230,10 +241,38 @@ export const subscribeToSequencePropsWatchers = ({
 				return;
 			}
 
+			if (watcherInfo.deleted) {
+				return;
+			}
+
+			const remapping =
+				event.type === 'changed'
+					? event.nodePathRemappings?.find(
+							(item) =>
+								JSON.stringify(item.oldNodePath) ===
+								JSON.stringify(watcherInfo.currentNodePath.nodePath),
+						)
+					: undefined;
+			const previousNodePath = remapping
+				? watcherInfo.currentNodePath
+				: undefined;
+			if (remapping?.newNodePath === null) {
+				watcherInfo.deleted = true;
+				return;
+			}
+
+			if (remapping) {
+				watcherInfo.currentNodePath = {
+					...watcherInfo.currentNodePath,
+					nodePath: remapping.newNodePath,
+				};
+				setCachedNodePath(fileName, line, column, remapping.newNodePath);
+			}
+
 			try {
 				const result = computeSequencePropsStatusFromContent({
 					fileContents: event.content,
-					nodePath: nodePath.nodePath,
+					nodePath: watcherInfo.currentNodePath.nodePath,
 					componentIdentity,
 					keys,
 					assetKeys,
@@ -260,7 +299,8 @@ export const subscribeToSequencePropsWatchers = ({
 					listener.sendEventToClientId(clientId, {
 						type: 'sequence-props-updated',
 						fileName,
-						nodePath,
+						nodePath: watcherInfo.currentNodePath,
+						previousNodePath,
 						result,
 					});
 				});
@@ -284,12 +324,13 @@ export const subscribeToSequencePropsWatchers = ({
 			}
 		},
 	});
+	watcherInfo.unwatch = unwatch;
 
 	if (!sequencePropsWatchers[clientId]) {
 		sequencePropsWatchers[clientId] = {};
 	}
 
-	sequencePropsWatchers[clientId][watcherKey] = {unwatch, refCount: 1};
+	sequencePropsWatchers[clientId][watcherKey] = watcherInfo;
 
 	return initialResult;
 };

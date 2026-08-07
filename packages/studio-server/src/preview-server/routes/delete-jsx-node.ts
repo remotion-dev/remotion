@@ -57,7 +57,7 @@ export const deleteJsxNodeHandler: ApiHandler<
 
 					const fileContents = readFileSync(absolutePath, 'utf-8');
 
-					const {output, formatted, nodeLabels, logLines} =
+					const {output, formatted, nodeLabels, logLines, nodePathRemappings} =
 						await deleteJsxNodes({
 							input: fileContents,
 							nodePaths: fileItems.map((item) => item.nodePath),
@@ -70,6 +70,7 @@ export const deleteJsxNodeHandler: ApiHandler<
 						output,
 						formatted,
 						nodeLabels,
+						nodePathRemappings,
 						logLine: Math.min(...logLines),
 					};
 				}),
@@ -99,6 +100,7 @@ export const deleteJsxNodeHandler: ApiHandler<
 					update.absolutePath,
 					update.output,
 					undefined,
+					update.nodePathRemappings,
 				);
 
 				const locationLabel = formatLogFileLocation({
