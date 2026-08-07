@@ -336,5 +336,6 @@ export const render = async (
 		bundlerOverride: null,
 		rspackOverride: null,
 		webpackOverride: null,
+		licenseKey: null,
 	});
 };

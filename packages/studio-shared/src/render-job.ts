@@ -164,6 +164,7 @@ type RenderJobDynamicFields =
 			separateAudioTo: string | null;
 			hardwareAcceleration: HardwareAccelerationOption;
 			sampleRate: number;
+			licenseKey: string | null;
 	  } & RenderJobDynamicStatus);
 
 import type {ChromiumOptions, OpenGlRenderer} from '@remotion/renderer';

@@ -878,6 +878,7 @@ const RenderModal: React.FC<
 			offthreadVideoThreads,
 			mediaCacheSizeInBytes,
 			sampleRate,
+			licenseKey: renderDefaults.publicLicenseKey,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -934,6 +935,7 @@ const RenderModal: React.FC<
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
 		sampleRate,
+		renderDefaults.publicLicenseKey,
 	]);
 
 	const onClickSequence = useCallback(() => {

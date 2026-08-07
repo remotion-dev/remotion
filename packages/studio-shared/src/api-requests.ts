@@ -161,6 +161,7 @@ type AddRenderRequestDynamicFields =
 			hardwareAcceleration: HardwareAccelerationOption;
 			chromeMode: ChromeMode;
 			sampleRate: number;
+			licenseKey: string | null;
 	  };
 
 export type CancelRenderRequest = {

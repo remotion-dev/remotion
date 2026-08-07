@@ -212,6 +212,7 @@ export const addVideoRenderJob = ({
 	chromeMode,
 	mediaCacheSizeInBytes,
 	sampleRate,
+	licenseKey,
 }: {
 	compositionId: string;
 	outName: string;
@@ -255,6 +256,7 @@ export const addVideoRenderJob = ({
 	chromeMode: ChromeMode;
 	mediaCacheSizeInBytes: number | null;
 	sampleRate: number;
+	licenseKey: string | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -305,6 +307,7 @@ export const addVideoRenderJob = ({
 		chromeMode,
 		mediaCacheSizeInBytes,
 		sampleRate,
+		licenseKey,
 	});
 };
 

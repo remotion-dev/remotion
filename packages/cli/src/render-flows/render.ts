@@ -140,6 +140,7 @@ export const renderVideoFlow = async ({
 	bundlerOverride,
 	rspackOverride,
 	webpackOverride,
+	licenseKey,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -212,6 +213,7 @@ export const renderVideoFlow = async ({
 	bundlerOverride: BundlerOverrideFn | null;
 	rspackOverride: RspackOverrideFn | null;
 	webpackOverride: WebpackOverrideFn | null;
+	licenseKey: string | null;
 }) => {
 	RenderInternals.validateConcurrency({
 		value: concurrency,
@@ -783,7 +785,7 @@ export const renderVideoFlow = async ({
 		chromeMode,
 		mediaCacheSizeInBytes,
 		onLog,
-		licenseKey: null,
+		licenseKey,
 		isProduction: null,
 		sampleRate: resolvedSampleRate,
 	});

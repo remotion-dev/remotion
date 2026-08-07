@@ -67,6 +67,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				offthreadVideoThreads: input.offthreadVideoThreads,
 				mediaCacheSizeInBytes: input.mediaCacheSizeInBytes,
 				sampleRate: input.sampleRate,
+				licenseKey: input.licenseKey,
 			},
 			logLevel,
 		});
