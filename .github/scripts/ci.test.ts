@@ -76,11 +76,16 @@ describe('CI plan generation', () => {
 		expect(plan.build_matrix).toEqual(MINIMAL_BUILD_MATRIX);
 	});
 
-	test('uses the full build matrix for a package source change', () => {
-		const plan = planFor({tasks: [{name: 'make'}, {name: 'test'}]});
-		expect(plan.build).toBe(true);
-		expect(plan.build_matrix).toEqual(FULL_BUILD_MATRIX);
-	});
+	test.each(['build', 'make', 'test'])(
+		'uses the full build matrix when a non-docs %s task is affected',
+		(task) => {
+			const plan = planFor({
+				tasks: [{name: task, packageName: 'template-electron'}],
+			});
+			expect(plan.build).toBe(true);
+			expect(plan.build_matrix).toEqual(FULL_BUILD_MATRIX);
+		},
+	);
 
 	test.each([
 		['lambda', 'testlambda'],

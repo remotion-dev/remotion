@@ -18,11 +18,11 @@ const spacing = 900;
 const initialY = 50 * 7.5;
 export const renderProgressDurationInFrames = 268;
 const rotationReferenceDurationInFrames = 1200;
-const phrases = ['video.mp4', 'thumb.png', 'sound.wav', 'doc.pdf'] as const;
+const phrases = ['video.mp4', 'thumb.png', 'sound.wav', 'funny.gif'] as const;
 const cycleOffsets = [-1, 0, 1] as const;
-const progressStartFrame = -60;
+const progressStartFrame = -54;
 const fadeInDurationInFrames = 6;
-const fadeOutStartFrame = 82;
+const fadeOutStartFrame = 92;
 const fadeOutDurationInFrames = 6;
 
 const modulo = (value: number, by: number) => {

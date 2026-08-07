@@ -1,0 +1,94 @@
+---
+image: /generated/articles-docs-effects-region-blur.png
+slug: /effects/region-blur
+title: regionBlur()
+sidebar_label: regionBlur()
+crumb: '@remotion/effects'
+---
+
+# regionBlur()<AvailableFrom v="4.0.507" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Applies a Gaussian blur inside a rectangular or rounded region.
+
+Use it to obscure faces, license plates, documents, and other sensitive parts of canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas), and [`<Solid>`](/docs/solid).
+
+## Preview
+
+<EffectsDemo type="effects-region-blur" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+import {regionBlur} from '@remotion/effects/region-blur';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[
+          regionBlur({
+            topLeft: [0.3, 0.2],
+            bottomRight: [0.7, 0.8],
+            blurRadius: 60,
+            feather: 8,
+            roundness: 1,
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties.
+
+### `topLeft`
+
+Top-left corner of the blurred region in UV coordinates.
+
+Pass a `[number, number]` tuple where `[0, 0]` is the top-left of the canvas and `[1, 1]` is the bottom-right. Values outside this range place the corner outside the visible area.
+
+### `bottomRight`
+
+Bottom-right corner of the blurred region in UV coordinates.
+
+Both values must be greater than their corresponding `topLeft` values. Values outside the `[0, 1]` range are accepted.
+
+### `blurRadius?`
+
+Gaussian blur radius in pixels. Defaults to `40`. Must be at least `0`.
+
+### `feather?`
+
+Width of the softened region edge in pixels. Defaults to `0`. Must be at least `0`.
+
+Feathering blends the original image into the edge of the blurred region. For anonymization, make the region large enough that recognizable details remain inside the fully blurred area.
+
+### `roundness?`
+
+Corner roundness from `0` to `1`. Defaults to `0`.
+
+`0` creates a rectangle. `1` creates a circle for a square region or a pill for a rectangular region.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`regionBlur()` uses a WebGL2 backend. See [Using WebGL and WebGPU during renders](/docs/webgl).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`blur()`](/docs/effects/blur)
+- [`radialProgressiveBlur()`](/docs/effects/radial-progressive-blur)
+- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/region-blur/index.ts)

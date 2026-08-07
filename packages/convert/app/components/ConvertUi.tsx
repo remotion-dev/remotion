@@ -23,6 +23,7 @@ import {
 	isConvertEnabledByDefault,
 	isVideoOnlySection,
 } from '~/lib/default-ui';
+import {canOfferFileDrag} from '~/lib/file-drag';
 import {getNewName} from '~/lib/generate-new-name';
 import {
 	getActualAudioOperation,
@@ -266,8 +267,14 @@ const ConvertUI = ({
 
 		const run = async () => {
 			const filename = getNewName(name, format);
-			const {getBlob, stream, getWrittenByteCount, close} =
-				await makeWebFsTarget(filename);
+			const {
+				getBlob,
+				stream,
+				getWrittenByteCount,
+				getFileSize,
+				isFileSystemBacked,
+				close,
+			} = await makeWebFsTarget(filename, format.mimeType);
 
 			const output = new Output({
 				format,
@@ -443,14 +450,39 @@ const ConvertUI = ({
 
 				await conversion.execute();
 
-				close();
+				await close();
+				progress.bytesWritten = getWrittenByteCount();
+
+				let outputFilePromise: Promise<File> | null = null;
+				const download = () => {
+					if (outputFilePromise === null) {
+						outputFilePromise = getBlob().catch((error) => {
+							outputFilePromise = null;
+							throw error;
+						});
+					}
+
+					return outputFilePromise;
+				};
+
+				let draggableFile: File | null = null;
+				if (
+					canOfferFileDrag({
+						fileSize: getFileSize(),
+						isFileSystemBacked,
+					})
+				) {
+					try {
+						draggableFile = await download();
+					} catch {
+						draggableFile = null;
+					}
+				}
 
 				setState({
 					type: 'done',
-					download: async () => {
-						const blob = await getBlob();
-						return blob;
-					},
+					download,
+					draggableFile,
 					state: progress,
 					startTime,
 					completedTime: Date.now(),
@@ -495,6 +527,16 @@ const ConvertUI = ({
 
 	const dimissError = useCallback(() => {
 		setState({type: 'idle'});
+	}, []);
+
+	const onOutputNameChange = useCallback((newName: string) => {
+		setState((currentState) => {
+			if (currentState.type !== 'done') {
+				return currentState;
+			}
+
+			return {...currentState, newName};
+		});
 	}, []);
 
 	const onMirrorClick = useCallback(() => {
@@ -556,6 +598,8 @@ const ConvertUI = ({
 				<ConvertProgress
 					state={state.state}
 					newName={state.newName}
+					draggableFile={null}
+					onNameChange={null}
 					done={false}
 					duration={durationInSeconds}
 					isReencoding={
@@ -584,6 +628,8 @@ const ConvertUI = ({
 					done
 					state={state.state}
 					newName={state.newName}
+					draggableFile={state.draggableFile}
+					onNameChange={onOutputNameChange}
 					duration={durationInSeconds}
 					isReencoding={
 						supportedConfigs !== null &&

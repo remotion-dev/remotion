@@ -1,7 +1,7 @@
 import {expect, test} from 'bun:test';
 import {
+	formatContextForAgents,
 	formatFileLocation,
-	formatLocationForAgents,
 } from '../helpers/format-file-location';
 
 test('Should format file locations relative to the project root', () => {
@@ -73,9 +73,9 @@ test('Should not format missing file locations', () => {
 	).toBe(null);
 });
 
-test('Should format composition locations for agents', () => {
+test('Should format composition context for agents', () => {
 	expect(
-		formatLocationForAgents({
+		formatContextForAgents({
 			location: {
 				source: '/Users/example/video/src/Root.tsx',
 				line: 399,
@@ -86,9 +86,9 @@ test('Should format composition locations for agents', () => {
 	).toBe('keyframed-props-test in src/Root.tsx:399');
 });
 
-test('Should format component locations for agents', () => {
+test('Should format component context for agents', () => {
 	expect(
-		formatLocationForAgents({
+		formatContextForAgents({
 			location: {
 				source: '/Users/example/video/src/KeyframesPropsTest.tsx',
 				line: 67,

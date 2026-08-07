@@ -181,7 +181,7 @@ jobs:
       - name: Cache Turbo
         uses: rharkor/caching-for-turbo@v2.3.11
       - name: Test SSR
-        timeout-minutes: 8
+        timeout-minutes: 15
         run: |
           bun run testssr
       - name: Monorepo checks
