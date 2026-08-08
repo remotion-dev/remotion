@@ -488,6 +488,15 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: '@remotion/mac-cursors',
+			link: {
+				type: 'doc',
+				id: 'mac-cursors/mac-cursors-api',
+			},
+			items: ['mac-cursors/mac-os-cursor'],
+		},
+		{
+			type: 'category',
 			label: '@remotion/media',
 			link: {
 				type: 'doc',
