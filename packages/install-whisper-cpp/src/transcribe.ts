@@ -190,21 +190,31 @@ const transcribeToTemporaryFile = async ({
 			signal: signal ?? undefined,
 		});
 		const predictedPath = `${tmpJSONPath}.json`;
+		// The path is fixed and only unlinked on success, so an aborted run leaves
+		// a stale file behind. Anything already here was not written by this run.
+		const staleOutput = existsSync(predictedPath);
 
 		let output: string = '';
+		let sawProgress = false;
 
 		const onData = (data: Buffer) => {
 			const str = data.toString('utf-8');
 			const hasProgress = str.includes('progress =');
 			if (hasProgress) {
+				sawProgress = true;
 				const progress = parseFloat(str.split('progress =')[1].trim());
 				onProgress?.(progress / 100);
 			}
 
 			output += str;
 
-			// Sometimes it hangs here
-			if (str.includes('ggml_metal_free: deallocating')) {
+			// Sometimes it hangs here, but only after the output is written. Where
+			// Metal exists yet cannot be used, Whisper prints the same line while
+			// falling back to CPU at startup, so wait for evidence of actual work.
+			if (
+				str.includes('ggml_metal_free: deallocating') &&
+				(sawProgress || (!staleOutput && existsSync(predictedPath)))
+			) {
 				task.kill();
 			}
 		};
