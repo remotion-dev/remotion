@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Install Canvas Capture Browser'
+  short_description: 'Install the pinned Canvas Capture browser'
+  default_prompt: 'Use $install-canvas-capture-browser to install the pinned Chrome for Testing build for Canvas Capture.'
