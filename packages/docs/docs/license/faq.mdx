@@ -62,6 +62,27 @@ When both options are activated at the same time, a combined Minimum Spend of $1
 
 See the [Terms and Conditions](/docs/terms) for the full definitions.
 
+### What is telemetry and is it mandatory?
+
+Telemetry is a reporting mechanism that sends a small, anonymized event to Remotion each time a render is performed. It is implemented through the [`@remotion/licensing`](/docs/licensing) package and is described in detail on the [Telemetry](/docs/telemetry) page.
+
+Telemetry is **not** a limiting factor. It does not throttle, block, or fail renders - even if the telemetry request itself fails, the render still completes successfully. Its purpose is to give the Remotion team visibility into how the software is used, to ensure accountability, and to provide you with insights into your own rendering activity in the Remotion Dashboard.
+
+The information collected is limited to:
+
+- IP address of the machine triggering the render
+- Domain name (for [client-side rendering](/docs/client-side-rendering) only)
+- Whether the render was in production or development
+- Whether the render was a video or a still image
+
+No content, metadata, or user data from the rendered media is ever collected. See the [Telemetry](/docs/telemetry#sent-information) and [Terms](/docs/terms#Telemetry) pages for the full details, and the [DPA Statement](/docs/dpa) for Remotion's role as an independent controller.
+
+**Who telemetry is mandatory for:** Starting with the Remotion 5.0 release, telemetry becomes mandatory for Company License Users and Enterprise License Users under the "Remotion for Automators" option. These users must obtain a license key from [remotion.pro](https://www.remotion.pro/dashboard) and include it in their rendering configuration so that each render is reported.
+
+**Who telemetry is voluntary for:** Telemetry is voluntary for Free License Users and for companies under the "Remotion for Creators" option. For Free License Users, passing `"free-license"` to the `licenseKey` option declares eligibility for the Free License and disables a console warning. For a Free License User using Remotion in an [automation process](#what-is-considered-an-automation), client-side rendering still sends a telemetry event for every render, even without a `licenseKey`. The event is solely used to verify that Remotion is being used; no content, metadata, or user data from the rendered media is collected.
+
+If you are unable to activate telemetry due to firewall restrictions, corporate policies, or other technical limitations, you must provide Remotion with a monthly verifiable report of your rendering activity as an alternative. Please [contact us](/contact) as this requires an Enterprise License and a custom agreement.
+
 ### What is considered an automation?
 
 An automation is defined as owning code that programmatically calls one of the following APIs or commands:
