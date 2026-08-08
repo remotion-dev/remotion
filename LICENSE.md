@@ -26,6 +26,8 @@ Permission is hereby granted, free of charge, to any person eligible for the "Fr
 
 It is not allowed to copy or modify Remotion source-code for the purpose of selling, renting, licensing, relicensing, or sublicensing your own derivate of Remotion.
 
+It is not allowed to operate a rendering service that allows end-users to bring or upload their own Remotion code, unless Remotion has given prior explicit and written approval. This applies regardless of whether you are eligible for the Free License. See the [Terms and Conditions](https://www.remotion.dev/docs/terms#RenderingService) for the full policy on rendering services.
+
 ### Warranty notice
 
 The Software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of
@@ -52,4 +54,4 @@ Users are required to accept the legally binding [Terms and Conditions](https://
 
 ### FAQs
 
-Are you not sure whether you need a Company License because of an edge case? Here are [frequently asked questions](https://www.remotion.pro/faq).
+Are you not sure whether you need a Company License because of an edge case? Here are [frequently asked questions](https://www.remotion.dev/docs/license/faq).
