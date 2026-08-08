@@ -86,7 +86,10 @@ export const rspackConfig = async ({
 			__filename: 'mock',
 		},
 		entry: getStudioEntryPoints({
-			fastRefreshRuntime: null,
+			fastRefreshRuntime:
+				environment === 'development'
+					? require.resolve('./fast-refresh/notify-on-refresh.js')
+					: null,
 			environmentSetup: require.resolve('./setup-environment'),
 			sequenceStackTraces:
 				environment === 'development'

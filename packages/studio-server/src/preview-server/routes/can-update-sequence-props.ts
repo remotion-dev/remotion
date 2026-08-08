@@ -757,7 +757,7 @@ const getPropsStatus = (
 	return props;
 };
 
-const getNodePathForRecastPath = (
+export const getNodePathForRecastPath = (
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	recastPath: any,
 	ast: File,

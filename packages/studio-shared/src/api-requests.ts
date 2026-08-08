@@ -40,6 +40,7 @@ import type {
 	CompletedClientRender,
 	RequiredChromiumOptions,
 } from './render-job';
+import type {SequenceNodePathMutation} from './sequence-node-path-mutation';
 import type {SymbolicatedStackFrame} from './stack-types';
 import type {EnumPath} from './stringify-default-props';
 
@@ -756,6 +757,7 @@ export type DeleteJsxNodeRequest = {
 export type DeleteJsxNodeResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation;
 	  }
 	| {
 			success: false;
@@ -1061,6 +1063,7 @@ export type UndoRequest = {};
 export type UndoResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation | null;
 	  }
 	| {
 			success: false;
@@ -1071,6 +1074,7 @@ export type RedoRequest = {};
 export type RedoResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation | null;
 	  }
 	| {
 			success: false;

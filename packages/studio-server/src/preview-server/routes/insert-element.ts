@@ -200,6 +200,7 @@ export const insertElementHandler: ApiHandler<
 									oldContents: plan.existingElementSource,
 									newContents: element.sourceCode,
 									logLine: 1,
+									nodePathRemappings: null,
 								},
 							]
 						: []),
@@ -208,6 +209,7 @@ export const insertElementHandler: ApiHandler<
 						oldContents: inserted.oldContents,
 						newContents: inserted.output,
 						logLine: inserted.logLine,
+						nodePathRemappings: null,
 					},
 				],
 				logLevel,
@@ -226,18 +228,20 @@ export const insertElementHandler: ApiHandler<
 			suppressUndoStackInvalidation(inserted.fileName);
 
 			if (shouldWriteElementFile) {
-				writeFileAndNotifyFileWatchers(
-					plan.elementFileName,
-					element.sourceCode,
-					undefined,
-				);
+				writeFileAndNotifyFileWatchers({
+					file: plan.elementFileName,
+					content: element.sourceCode,
+					originatorClientId: undefined,
+					metadata: null,
+				});
 			}
 
-			writeFileAndNotifyFileWatchers(
-				inserted.fileName,
-				inserted.output,
-				undefined,
-			);
+			writeFileAndNotifyFileWatchers({
+				file: inserted.fileName,
+				content: inserted.output,
+				originatorClientId: undefined,
+				metadata: null,
+			});
 
 			const compositionLocationLabel = formatLogFileLocation({
 				remotionRoot,

@@ -53,9 +53,15 @@ export const duplicateJsxNodeHandler: ApiHandler<
 				},
 				entryType: 'duplicate-jsx-node',
 				suppressHmrOnFileRestore: false,
+				nodePathRemappings: null,
 			});
 			suppressUndoStackInvalidation(absolutePath);
-			writeFileAndNotifyFileWatchers(absolutePath, output, undefined);
+			writeFileAndNotifyFileWatchers({
+				file: absolutePath,
+				content: output,
+				originatorClientId: undefined,
+				metadata: null,
+			});
 
 			const locationLabel = formatLogFileLocation({
 				remotionRoot,

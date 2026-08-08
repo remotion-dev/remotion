@@ -13,7 +13,7 @@ export type OverrideToNodePathGetters = {
 export type OverrideToNodeSetters = {
 	setOverrideIdToNodePath: (
 		overrideId: string,
-		nodePath: SequencePropsSubscriptionKey,
+		nodePath: SequencePropsSubscriptionKey | null,
 	) => void;
 };
 

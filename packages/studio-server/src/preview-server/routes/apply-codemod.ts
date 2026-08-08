@@ -249,6 +249,7 @@ export const applyCodemodHandler: ApiHandler<
 						oldContents: input,
 						newContents: null,
 						logLine,
+						nodePathRemappings: null,
 					},
 				];
 				let componentFilePath: string | null = null;
@@ -268,6 +269,7 @@ export const applyCodemodHandler: ApiHandler<
 						oldContents: null,
 						newContents: componentFileContents,
 						logLine: 1,
+						nodePathRemappings: null,
 					});
 					pushTransactionToUndoStack({
 						snapshots,
@@ -294,6 +296,7 @@ export const applyCodemodHandler: ApiHandler<
 						},
 						entryType,
 						suppressHmrOnFileRestore: false,
+						nodePathRemappings: null,
 					});
 				}
 
@@ -302,13 +305,19 @@ export const applyCodemodHandler: ApiHandler<
 					suppressUndoStackInvalidation(componentFilePath);
 				}
 
-				writeFileAndNotifyFileWatchers(filePath, formatted, undefined);
+				writeFileAndNotifyFileWatchers({
+					file: filePath,
+					content: formatted,
+					originatorClientId: undefined,
+					metadata: null,
+				});
 				if (componentFilePath && componentFileContents !== null) {
-					writeFileAndNotifyFileWatchers(
-						componentFilePath,
-						componentFileContents,
-						undefined,
-					);
+					writeFileAndNotifyFileWatchers({
+						file: componentFilePath,
+						content: componentFileContents,
+						originatorClientId: undefined,
+						metadata: null,
+					});
 				}
 
 				const logMessage = getCodemodLogMessage(codemod);

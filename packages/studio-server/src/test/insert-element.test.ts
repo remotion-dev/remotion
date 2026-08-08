@@ -370,7 +370,7 @@ test('overwrites conflicting source and undo restores both files', async () => {
 		);
 		expect(getUndoStack()).toHaveLength(1);
 
-		expect(popUndo()).toEqual({success: true});
+		expect(popUndo()).toEqual({success: true, nodePathMutation: null});
 		expect(readFileSync(fixture.elementFile, 'utf-8')).toBe(
 			existingElementSource,
 		);

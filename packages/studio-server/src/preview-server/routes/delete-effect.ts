@@ -104,13 +104,15 @@ export const deleteEffectHandler: ApiHandler<
 					},
 					entryType: 'delete-effect',
 					suppressHmrOnFileRestore: false,
+					nodePathRemappings: null,
 				});
 				suppressUndoStackInvalidation(update.absolutePath);
-				writeFileAndNotifyFileWatchers(
-					update.absolutePath,
-					update.output,
-					undefined,
-				);
+				writeFileAndNotifyFileWatchers({
+					file: update.absolutePath,
+					content: update.output,
+					originatorClientId: undefined,
+					metadata: null,
+				});
 
 				const locationLabel = formatLogFileLocation({
 					remotionRoot,
