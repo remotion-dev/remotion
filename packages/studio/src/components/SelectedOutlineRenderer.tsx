@@ -205,13 +205,37 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	const targetsByKey = useMemo(() => {
 		return new Map(renderState.targets.map((target) => [target.key, target]));
 	}, [renderState.targets]);
+	// Reordering a captured SVG target can cancel the active pointer session.
+	const outlineRenderingOrderRef = useRef<readonly string[]>([]);
 	const outlinesForRendering = useMemo(() => {
-		return orderOutlinesForRendering({
-			outlines: renderState.outlines,
-			sequences,
-			targetsByKey,
+		if (!dragging || outlineRenderingOrderRef.current.length === 0) {
+			const orderedOutlines = orderOutlinesForRendering({
+				outlines: renderState.outlines,
+				sequences,
+				targetsByKey,
+			});
+			outlineRenderingOrderRef.current = orderedOutlines.map(
+				(outline) => outline.key,
+			);
+			return orderedOutlines;
+		}
+
+		const currentOutlinesByKey = new Map(
+			renderState.outlines.map((outline) => [outline.key, outline]),
+		);
+		const frozenKeys = new Set(outlineRenderingOrderRef.current);
+		const newOutlines = renderState.outlines.filter(
+			(outline) => !frozenKeys.has(outline.key),
+		);
+		outlineRenderingOrderRef.current = [
+			...outlineRenderingOrderRef.current,
+			...newOutlines.map((outline) => outline.key),
+		];
+		return outlineRenderingOrderRef.current.flatMap((key) => {
+			const outline = currentOutlinesByKey.get(key);
+			return outline === undefined ? [] : [outline];
 		});
-	}, [renderState.outlines, sequences, targetsByKey]);
+	}, [dragging, renderState.outlines, sequences, targetsByKey]);
 	const outlinesByKey = useMemo(() => {
 		return new Map(
 			renderState.outlines.map((outline) => [outline.key, outline]),
