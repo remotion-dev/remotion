@@ -182,14 +182,45 @@ export const supportsNestedHtmlInCanvas = (): Promise<boolean> => {
 	return nestedHtmlInCanvasSupport;
 };
 
-const countLayoutSubtreeCanvases = (element: HTMLElement): number => {
-	return Array.from(element.querySelectorAll('canvas')).filter(
-		(canvas) => (canvas as HTMLCanvasWithLayoutSubtree).layoutSubtree === true,
-	).length;
+const isLayoutSubtreeCanvas = (
+	element: Element,
+): element is HTMLCanvasWithLayoutSubtree => {
+	return (
+		element.localName === 'canvas' &&
+		(element as HTMLCanvasWithLayoutSubtree).layoutSubtree === true
+	);
+};
+
+export const getMaxLayoutSubtreeCanvasDepth = (
+	element: HTMLElement,
+): number => {
+	let maxDepth = 0;
+	const stack = Array.from(element.children, (child) => ({
+		element: child,
+		layoutSubtreeDepth: 0,
+	}));
+
+	while (stack.length > 0) {
+		const current = stack.pop()!;
+		const layoutSubtreeDepth =
+			current.layoutSubtreeDepth +
+			(isLayoutSubtreeCanvas(current.element) ? 1 : 0);
+		maxDepth = Math.max(maxDepth, layoutSubtreeDepth);
+
+		for (const child of current.element.children) {
+			stack.push({element: child, layoutSubtreeDepth});
+		}
+	}
+
+	return maxDepth;
 };
 
 export const containsLayoutSubtreeCanvas = (element: HTMLElement): boolean => {
-	return countLayoutSubtreeCanvases(element) > 0;
+	return getMaxLayoutSubtreeCanvasDepth(element) > 0;
+};
+
+export const getNestedPaintCycles = (maxDepth: number): number => {
+	return maxDepth === 0 ? 0 : maxDepth * 2 + 1;
 };
 
 export type HtmlInCanvasContext = {
@@ -276,14 +307,12 @@ export const drawWithHtmlInCanvas = async ({
 	scaledWidth,
 	scaledHeight,
 	waitForRenderReady,
-	useElementImage,
 }: {
 	htmlInCanvasContext: HtmlInCanvasContext;
 	element: HTMLElement;
 	scaledWidth: number;
 	scaledHeight: number;
 	waitForRenderReady: () => Promise<void>;
-	useElementImage: boolean;
 }): Promise<OffscreenCanvasRenderingContext2D> => {
 	const {ctx, layoutCanvas} = htmlInCanvasContext;
 
@@ -296,12 +325,13 @@ export const drawWithHtmlInCanvas = async ({
 	}
 
 	await waitForPaint(layoutCanvas);
-	// Each nested layout canvas needs one paint to run its async effect and a
-	// second paint to propagate the completed bitmap to its parent. One final
-	// cycle records the fully composed tree on the web renderer's root canvas.
-	const nestedPaintCycles = useElementImage
-		? countLayoutSubtreeCanvases(element) * 2 + 1
-		: 0;
+	const nestedLayoutSubtreeDepth = getMaxLayoutSubtreeCanvasDepth(element);
+	// Each nesting level needs one paint to run its async effects and a second
+	// paint to propagate the completed bitmap to its parent. Siblings settle in
+	// parallel during the same deepest-first paint traversal, so the safe bound
+	// is based on maximum depth rather than the total number of canvases. One
+	// final cycle records the fully composed tree on the root canvas.
+	const nestedPaintCycles = getNestedPaintCycles(nestedLayoutSubtreeDepth);
 	for (let i = 0; i < nestedPaintCycles; i++) {
 		await new Promise<void>((resolve) =>
 			requestAnimationFrame(() => resolve()),
@@ -311,7 +341,7 @@ export const drawWithHtmlInCanvas = async ({
 	}
 
 	ctx.reset();
-	if (useElementImage) {
+	if (nestedLayoutSubtreeDepth > 0) {
 		if (typeof layoutCanvas.captureElementImage !== 'function') {
 			throw new Error('canvas.captureElementImage() is unavailable');
 		}
