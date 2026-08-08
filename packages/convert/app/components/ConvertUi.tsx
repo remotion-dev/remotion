@@ -49,6 +49,7 @@ import {ConversionDone} from './ConversionDone';
 import {ConvertForm} from './ConvertForm';
 import {ConvertProgress, convertProgressRef} from './ConvertProgress';
 import {ConvertUiSection} from './ConvertUiSection';
+import {CursorControls} from './CursorControls';
 import {ErrorState} from './ErrorState';
 import {flipVideoFrame} from './flip-video';
 import {makeCrop} from './make-crop';
@@ -85,6 +86,11 @@ const ConvertUI = ({
 	videoEditState,
 	setVideoEditState,
 	cropRect,
+	cursorDataDetected,
+	showCursor,
+	setShowCursor,
+	cursorScale,
+	setCursorScale,
 }: {
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly currentVideoCodec: InputVideoTrack['codec'] | null;
@@ -113,6 +119,11 @@ const ConvertUI = ({
 	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly sampleRate: number | null;
 	readonly cropRect: CropRectangle;
+	readonly cursorDataDetected: boolean;
+	readonly showCursor: boolean;
+	readonly setShowCursor: React.Dispatch<React.SetStateAction<boolean>>;
+	readonly cursorScale: number;
+	readonly setCursorScale: React.Dispatch<React.SetStateAction<number>>;
 }) => {
 	const {crop, mirror, rotate} = videoEditState;
 	const [enableConvert, setEnableConvert] = useState(() =>
@@ -680,6 +691,13 @@ const ConvertUI = ({
 	return (
 		<>
 			<div className="w-full gap-4 flex flex-col">
+				<CursorControls
+					available={cursorDataDetected}
+					showCursor={showCursor}
+					setShowCursor={setShowCursor}
+					cursorScale={cursorScale}
+					setCursorScale={setCursorScale}
+				/>
 				{order.map((section) => {
 					if (inputIsAudioExclusively && isVideoOnlySection(section)) {
 						return null;
