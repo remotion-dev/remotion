@@ -13,6 +13,7 @@ import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-c
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
 import {ProductOffer} from '../../../elements/data/product-offer/product-offer';
+import {MapFlyover} from '../../../elements/maps/map-flyover/map-flyover';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/lower-third/lower-third';
 import {YouTubeEndCard} from '../../../elements/overlays/social-endcard/social-endcard';
@@ -76,6 +77,32 @@ export const elementDefinitions = {
 		previewPadding: 0,
 		slug: 'backgrounds/liquid-contours',
 		installationMode: 'wrapped',
+		width: 1920,
+	},
+	'maps/map-flyover': {
+		category: 'maps',
+		component: MapFlyover,
+		contributors: [],
+		description:
+			'A cinematic map route with editable coordinates, location labels, and a camera that follows the flight.',
+		dependencies: [
+			{name: '@turf/turf', version: '7.3.2'},
+			{name: 'maplibre-gl', version: '5.24.0'},
+		],
+		displayName: 'Map Flyover',
+		durationInFrames: 285,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 90,
+		preview: {
+			posterUrl: 'https://remotion.media/elements/maps-map-flyover-preview.png',
+			videoUrl: 'https://remotion.media/elements/maps-map-flyover-preview.mp4',
+		},
+		previewPadding: 0,
+		slug: 'maps/map-flyover',
+		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
 	'backgrounds/notebook-paper': {
