@@ -50,7 +50,7 @@ Visit [remotion.pro](https://www.remotion.pro/license) for pricing and to buy a 
 
 ### Terms and Conditions
 
-Users are required to accept the legally binding [Terms and Conditions](https://www.remotion.pro/terms) to use the Remotion Software.
+Users are required to accept the legally binding [Terms and Conditions](https://www.remotion.dev/docs/terms) to use the Remotion Software.
 
 ### FAQs
 
