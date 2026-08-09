@@ -538,6 +538,7 @@ test.describe('visual mode', () => {
 		await expect(
 			page.getByRole('button', {name: 'Change default apps...'}),
 		).toBeVisible();
+		// The menu overlay intercepts pointerleave; Escape closes it deterministically.
 		await page.mouse.move(10, 100);
 		await page.keyboard.press('Escape');
 
