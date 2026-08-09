@@ -4,7 +4,7 @@ Record an element—or a whole webpage—as a high-resolution H.264 MP4 or VP9 W
 
 ## Pinned browser setup on macOS
 
-Use [Chrome for Testing at revision `r1631007`](https://storage.googleapis.com/chrome-for-testing-per-commit-public/mac-arm64/r1631007/chrome-mac-arm64.zip) on Apple Silicon. This is the exact Chromium revision where the required HTML-in-canvas implementation is known to work. Chrome for Testing does not auto-update, and unlike an open-source Chromium build, it is built with proprietary codec support so the browser can both encode and play the H.264 MP4 produced by this extension.
+Use [Chrome for Testing `150.0.7842.0` at revision `r1631007`](https://storage.googleapis.com/chrome-for-testing-per-commit-public/mac-arm64/r1631007/chrome-mac-arm64.zip) on Apple Silicon. This is the exact Chromium revision where the required HTML-in-canvas implementation is known to work. Chrome for Testing does not auto-update, and unlike an open-source Chromium build, it is built with proprietary codec support so the browser can both encode and play the H.264 MP4 produced by this extension.
 
 After extracting the archive, move and rename the app to a durable location such as:
 
@@ -34,7 +34,7 @@ Do not replace this browser with Chrome Canary or a normal Chrome installation: 
 
 ## Build and install
 
-1. From the repository root, run `.agents/skills/canvas-capture-extension/scripts/rebuild-extension.sh --repo "$PWD"`. This builds the package and installs the unpacked extension outside the worktree.
+1. From the repository root, run `.agents/skills/canvas-capture-extension/scripts/rebuild-extension.sh --repo "$PWD"`. This verifies the pinned Chrome for Testing version, builds the package, and installs the unpacked extension outside the worktree. If the browser is not at the path shown above, also pass `--browser-executable <path>`.
 2. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 3. Select `/Users/jonathanburger/Applications/Remotion Canvas Capture Extension`.
 4. Enable `chrome://flags/#canvas-draw-element` and restart Chrome if HTML-in-canvas is not already enabled.
