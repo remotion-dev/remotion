@@ -58,17 +58,26 @@ export const getVideoFrameRate = async (
     return null;
   }
 
+  const packetSampleCount = 121;
   const timestamps: number[] = [];
   const sink = new EncodedPacketSink(videoTrack);
+  let endTimestamp = -Infinity;
 
   for await (const packet of sink.packets(undefined, undefined, {
     metadataOnly: true,
   })) {
-    timestamps.push(packet.timestamp);
-
-    if (timestamps.length === 121) {
+    if (
+      timestamps.length >= packetSampleCount &&
+      packet.timestamp >= endTimestamp
+    ) {
       break;
     }
+
+    timestamps.push(packet.timestamp);
+    endTimestamp = Math.max(
+      endTimestamp,
+      packet.timestamp + packet.duration,
+    );
   }
 
   if (timestamps.length < 2) {
@@ -76,6 +85,7 @@ export const getVideoFrameRate = async (
   }
 
   timestamps.sort((a, b) => a - b);
+  timestamps.splice(packetSampleCount);
 
   const intervals = timestamps.slice(1).map((timestamp, index) => {
     return timestamp - timestamps[index];
@@ -108,7 +118,8 @@ Note that:
   We still consider this a constant frame rate video, so we add a tolerance.
 - For the same reason, we snap constant frame rates to common values because the calculation may be slightly off depending on how many packets are read.
   You still want a 30 FPS timeline if the calculation returns, for example, 30.01484 FPS.
-- With too few packet timestamps, some frame rates cannot be distinguished, such as 29.97 and 30 FPS or 59.94 and 60 FPS. We sample up to 121 packet timestamps to reliably detect these fractional frame rates.
+- With too few packet timestamps, some frame rates cannot be distinguished, such as 29.97 and 30 FPS or 59.94 and 60 FPS. We sample 121 packet timestamps to reliably detect these fractional frame rates.
+- Mediabunny returns encoded packets in decode order, which may differ from presentation order when a video uses B-frames. The loop may read a few additional packet timestamps to finish the current group before sorting them and keeping the first 121.
 
 ## Matching a Remotion composition to the frame rate
 
