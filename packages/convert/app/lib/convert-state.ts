@@ -24,6 +24,7 @@ export type ConvertState =
 	| {
 			type: 'done';
 			download: () => Promise<File>;
+			draggableFile: File | null;
 			state: ConvertProgressType;
 			startTime: number;
 			completedTime: number;

@@ -19,7 +19,10 @@ export const MakeVideosInteractively: React.FC<{
 	),
 	description = 'Edit and animate using drag and drop and save back to code.',
 	showLinks = true,
-	links = [{label: 'Remotion Studio', href: '/docs/studio'}],
+	links = [
+		{label: 'Studio', href: '/docs/studio'},
+		{label: 'Elements', href: '/elements'},
+	],
 	showVideo = true,
 	videoSrc = '/img/editing-vp9-chrome.webm',
 	fallbackVideoSrc = '/img/editing-safari.mp4',
@@ -31,7 +34,7 @@ export const MakeVideosInteractively: React.FC<{
 		<div
 			ref={ref}
 			className={
-				'flex min-w-0 basis-0 flex-col justify-start items-start lg:mt-0 flex-1'
+				'flex min-w-0 basis-0 flex-col justify-start items-start min-[900px]:mt-0 flex-1'
 			}
 		>
 			<div className="flex aspect-square w-full items-start">
@@ -58,7 +61,7 @@ export const MakeVideosInteractively: React.FC<{
 				<h2 className="text-2xl fontbrand leading-[1.1] font-medium">
 					{title}
 				</h2>
-				<p className="leading-relaxed">{description}</p>
+				<p className="text-balance leading-relaxed">{description}</p>
 				{showLinks ? <MakeVideosLinks links={links} /> : null}
 			</div>
 		</div>

@@ -21,7 +21,7 @@ export const MakeVideosAgentically: React.FC<{
 	showLinks = true,
 	links = [
 		{label: 'Agent Skills', href: '/docs/ai/skills'},
-		{label: 'Prompts', href: '/prompts'},
+		{label: 'Plugins', href: '/docs/ai/plugins'},
 	],
 	showVideo = true,
 	videoSrc = '/img/render-progress.webm',
@@ -79,7 +79,7 @@ export const MakeVideosAgentically: React.FC<{
 				<h2 className="text-2xl fontbrand leading-[1.1] font-medium">
 					{title}
 				</h2>
-				<p className="leading-relaxed">{description}</p>
+				<p className="text-balance leading-relaxed">{description}</p>
 				{showLinks ? <MakeVideosLinks links={links} /> : null}
 			</div>
 		</div>

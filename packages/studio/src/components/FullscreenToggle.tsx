@@ -1,7 +1,6 @@
 import {useCallback, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {WHITE_HEX} from '../helpers/colors';
 import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
@@ -65,7 +64,9 @@ export const FullScreenToggle: React.FC<{
 			aria-label={accessibilityLabel}
 			onClick={onClick}
 		>
-			<FullscreenIcon color={WHITE_HEX} style={{width: 18, height: 18}} />
+			{(color) => (
+				<FullscreenIcon color={color} style={{width: 18, height: 18}} />
+			)}
 		</ControlButton>
 	);
 };

@@ -22,6 +22,7 @@ import {
 } from './interactivity-schema.js';
 import type {AbsoluteFillLayout, SequenceProps} from './Sequence.js';
 import {Sequence} from './Sequence.js';
+import {useCropStyle} from './use-crop-style.js';
 import {
 	withInteractivitySchema,
 	type WithInteractivitySchemaOptions,
@@ -101,13 +102,13 @@ export type InteractivePremountProps = Pick<
 	| 'styleWhilePostmounted'
 >;
 
-type InteractiveSequenceProps = InteractiveBaseProps;
+type InteractiveManagedProps = InteractiveBaseProps & InteractiveCropProps;
 
 type InteractiveElementProps<Tag extends InteractiveTag> = Omit<
 	React.ComponentPropsWithoutRef<Tag>,
-	keyof InteractiveSequenceProps
+	keyof InteractiveManagedProps
 > &
-	InteractiveSequenceProps;
+	InteractiveManagedProps;
 
 type InteractiveElementComponent<Tag extends InteractiveTag> =
 	React.ComponentType<
@@ -146,6 +147,7 @@ const makeRemotionComponentIdentity = ({
 const interactiveElementSchema = {
 	...baseSchema,
 	...transformSchema,
+	...cropSchema,
 } as const satisfies InteractivitySchema;
 
 const interactiveBackgroundElementSchema = {
@@ -230,10 +232,23 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 			name,
 			showInTimeline,
 			controls,
+			cropLeft,
+			cropRight,
+			cropTop,
+			cropBottom,
+			style,
 			...props
 		} = propsWithControls as Props & {
 			readonly controls: SequenceControls | undefined;
 		};
+		const croppedStyle = useCropStyle({
+			cropLeft,
+			cropRight,
+			cropTop,
+			cropBottom,
+			style: style ?? null,
+			componentName: displayName,
+		});
 		const refForOutline = useRef<ElementType | null>(null);
 		const callbackRef = useCallback(
 			(element: ElementType | null) => {
@@ -259,6 +274,7 @@ const makeInteractiveElement = <Tag extends InteractiveTag>(
 			>
 				{React.createElement(tag, {
 					...props,
+					style: croppedStyle ?? undefined,
 					ref: callbackRef,
 				})}
 			</Sequence>

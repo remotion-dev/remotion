@@ -1,7 +1,11 @@
-import {useContext, useMemo} from 'react';
+import {useCallback, useContext, useMemo} from 'react';
 import {Internals, type TSequence} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {buildTimelineTree} from '../../helpers/timeline-layout';
+import {
+	useRuntimeValues,
+	useRuntimeValueSelector,
+} from '../../helpers/use-runtime-values';
 import {
 	ExpandedTracksGetterContext,
 	ExpandedTracksSetterContext,
@@ -13,6 +17,71 @@ import {
 	isTimelineExpandedNodeSelected,
 } from './timeline-expanded-filter';
 import {useTimelineSelection} from './TimelineSelection';
+
+export const useTimelineSequenceHasExpandableContent = ({
+	sequence,
+	nodePathInfo,
+}: {
+	readonly sequence: TSequence;
+	readonly nodePathInfo: SequenceNodePathInfo;
+}) => {
+	const {propStatuses: visualModePropStatuses} = useContext(
+		Internals.VisualModePropStatusesContext,
+	);
+	const {getDragOverrides, getEffectDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
+	const {selectedItems} = useTimelineSelection();
+	const selectedRowKeys = useMemo(
+		() => getSelectedTimelineExpandedRowKeys(selectedItems),
+		[selectedItems],
+	);
+	const selectHasExpandableContent = useCallback(
+		(runtimeValues: Readonly<Record<string, unknown>>) => {
+			const tree = buildTimelineTree({
+				sequence,
+				nodePathInfo,
+				getDragOverrides,
+				getEffectDragOverrides,
+				propStatuses: visualModePropStatuses,
+				includeTextContent: false,
+				includeSourceControls: false,
+				runtimeValues,
+			});
+
+			return (
+				filterTimelineExpandedTree({
+					nodes: tree,
+					shouldShowNode: (node) =>
+						isTimelineExpandedNodeSelected({
+							nodePathInfo: node.nodePathInfo,
+							selectedRowKeys,
+						}) ||
+						getNodeHasKeyframes({
+							node,
+							nodePath: nodePathInfo.sequenceSubscriptionKey,
+							propStatuses: visualModePropStatuses,
+							getDragOverrides,
+							getEffectDragOverrides,
+						}),
+				}).length > 0
+			);
+		},
+		[
+			getDragOverrides,
+			getEffectDragOverrides,
+			nodePathInfo,
+			selectedRowKeys,
+			sequence,
+			visualModePropStatuses,
+		],
+	);
+
+	return useRuntimeValueSelector({
+		controls: sequence.controls,
+		selector: selectHasExpandableContent,
+	});
+};
 
 export const useTimelineExpandedTree = ({
 	sequence,
@@ -34,6 +103,7 @@ export const useTimelineExpandedTree = ({
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {selectedItems} = useTimelineSelection();
+	const runtimeValues = useRuntimeValues(sequence.controls);
 
 	const tree = useMemo(
 		() =>
@@ -45,6 +115,7 @@ export const useTimelineExpandedTree = ({
 				propStatuses: visualModePropStatuses,
 				includeTextContent,
 				includeSourceControls,
+				runtimeValues,
 			}),
 		[
 			sequence,
@@ -54,6 +125,7 @@ export const useTimelineExpandedTree = ({
 			visualModePropStatuses,
 			includeTextContent,
 			includeSourceControls,
+			runtimeValues,
 		],
 	);
 	const selectedRowKeys = useMemo(
@@ -91,6 +163,7 @@ export const useTimelineExpandedTree = ({
 		filteredTree,
 		getIsExpanded,
 		propStatuses: visualModePropStatuses,
+		runtimeValues,
 		toggleTrack,
 		tree,
 	};

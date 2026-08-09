@@ -1,16 +1,19 @@
 import {canEditEasingForInterpolationFunction} from '@remotion/studio-shared';
-import {useContext, useMemo} from 'react';
+import {useCallback, useContext, useMemo} from 'react';
 import {Internals, type TSequence} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	buildTimelineTree,
 	flattenVisibleTreeNodes,
 	getTreeRowHeight,
+	type TimelineTreeNode,
 } from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
+import {useRuntimeValueSelector} from '../../helpers/use-runtime-values';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {getNodeHasKeyframes, getNodeKeyframes} from './get-node-keyframes';
 import type {getTimelineKeyframes} from './get-timeline-keyframes';
+import {getCurrentFrame} from './imperative-state';
 import {
 	filterTimelineExpandedTree,
 	getSelectedTimelineExpandedRowKeys,
@@ -24,6 +27,51 @@ export type ExpandedTrackKeyframeRow = {
 	readonly canEditEasing: boolean;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly rowKey: string;
+};
+
+const areTimelineTreeLayoutsEqual = (
+	first: TimelineTreeNode[],
+	second: TimelineTreeNode[],
+): boolean => {
+	if (first.length !== second.length) {
+		return false;
+	}
+
+	return first.every((firstNode, index) => {
+		const secondNode = second[index];
+		if (
+			firstNode.kind !== secondNode.kind ||
+			timelineNodePathInfoToKey(firstNode.nodePathInfo) !==
+				timelineNodePathInfoToKey(secondNode.nodePathInfo)
+		) {
+			return false;
+		}
+
+		if (firstNode.kind === 'group' && secondNode.kind === 'group') {
+			return areTimelineTreeLayoutsEqual(
+				firstNode.children,
+				secondNode.children,
+			);
+		}
+
+		if (firstNode.kind !== 'field' || secondNode.kind !== 'field') {
+			return false;
+		}
+
+		if (firstNode.field === null || secondNode.field === null) {
+			return firstNode.field === secondNode.field;
+		}
+
+		return (
+			firstNode.field.kind === secondNode.field.kind &&
+			firstNode.field.key === secondNode.field.key &&
+			firstNode.field.typeName === secondNode.field.typeName &&
+			firstNode.field.rowHeight === secondNode.field.rowHeight &&
+			(firstNode.field.kind !== 'effect-field' ||
+				(secondNode.field.kind === 'effect-field' &&
+					firstNode.field.effectIndex === secondNode.field.effectIndex))
+		);
+	});
 };
 
 const getNodeCanEditEasing = ({
@@ -87,10 +135,8 @@ export const useExpandedTrackKeyframeRows = ({
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {selectedItems} = useTimelineSelection();
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
-
-	const tree = useMemo(
-		() =>
+	const selectTree = useCallback(
+		(runtimeValues: Readonly<Record<string, unknown>>) =>
 			buildTimelineTree({
 				sequence,
 				nodePathInfo,
@@ -99,15 +145,21 @@ export const useExpandedTrackKeyframeRows = ({
 				propStatuses,
 				includeTextContent: false,
 				includeSourceControls: false,
+				runtimeValues,
 			}),
 		[
+			sequence,
 			propStatuses,
 			getDragOverrides,
 			getEffectDragOverrides,
 			nodePathInfo,
-			sequence,
 		],
 	);
+	const tree = useRuntimeValueSelector({
+		controls: sequence.controls,
+		selector: selectTree,
+		isEqual: areTimelineTreeLayoutsEqual,
+	});
 
 	const selectedRowKeys = useMemo(
 		() => getSelectedTimelineExpandedRowKeys(selectedItems),
@@ -167,7 +219,7 @@ export const useExpandedTrackKeyframeRows = ({
 						keyframeDisplayOffset,
 						getDragOverrides,
 						getEffectDragOverrides,
-						timelinePosition,
+						timelinePosition: getCurrentFrame(),
 					}),
 				]),
 			),
@@ -178,7 +230,6 @@ export const useExpandedTrackKeyframeRows = ({
 			keyframeDisplayOffset,
 			nodePathInfo.sequenceSubscriptionKey,
 			propStatuses,
-			timelinePosition,
 		],
 	);
 

@@ -5,23 +5,26 @@ description: Scaffold a new Remotion Element with a correctly configured preview
 
 # Scaffold a Remotion Element
 
-The source of truth for design and quality criteria is the [Element Guidelines](https://github.com/remotion-dev/remotion/blob/main/packages/docs/elements/guidelines.mdx). Read them completely before making changes. If this skill and the guidelines diverge on acceptance criteria, follow the guidelines.
+The source of truth for design and quality criteria is the [Element Guidelines](../../../packages/docs/elements/guidelines.mdx). Read them completely before making changes. If this skill and the guidelines diverge on acceptance criteria, follow the guidelines.
 
-This skill owns the technical scaffolding workflow. Use the [`publish-element` skill](../publish-element/SKILL.md) when the Element is ready for the gallery.
+This skill owns the technical scaffolding workflow. Use the [`submit-element` skill](../submit-element/SKILL.md) when the Element is ready for the gallery.
 
 ## 1. Plan the preview
 
 Choose an existing category and a kebab-case slug. Before creating files, determine the initial preview metadata needed for development:
 
-- Composition width, height, fps, and duration
-- Fixed Element width and height, or `null` for both so it inherits the composition dimensions
+- Composition width, height, fps, and preview duration
+- Installed Element duration
+- Element width and height
+- Installation mode
+- External source dependencies
 - Preview padding, which affects only the docs preview and not the Element bounds
 - A provisional poster frame
-- Explicit poster and video URLs using the flat asset convention:
-  - `https://remotion.media/elements/<category>-<slug>-preview.png`
-  - `https://remotion.media/elements/<category>-<slug>-preview.mp4`
+- Explicit local poster and video review URLs using the flat asset convention:
+  - `/elements/<category>-<slug>-preview.png`
+  - `/elements/<category>-<slug>-preview.mp4`
 
-Preview videos are always opaque MP4 files for broad browser, social-card, and embed compatibility. Elements that are transparent in a composition are composited onto the standard preview background for these assets.
+The files do not exist during scaffolding and are not needed by the development composition. The [`submit-element` skill](../submit-element/SKILL.md) renders them and either uploads them directly for a repository writer or adds them to an external contribution for review. Preview videos are always opaque MP4 files for broad browser, social-card, and embed compatibility. Elements that are transparent in a composition are composited onto the standard preview background for these assets.
 
 Inspect `packages/docs/elements-template/` and at least one existing Element in the same category. Do not create a new category unless the task explicitly requires one.
 
@@ -38,13 +41,11 @@ mv packages/docs/elements/<category>/<slug>/element.tsx \
 
 Adapt the copied `index.mdx` to the production pattern: import `elementDefinitions`, use its `'<category>/<slug>'` entry, and set `sourceFile="./<slug>.tsx"`.
 
-Implement only enough of the component to provide a visible starting point in the intended bounds. Keep the reusable implementation in one self-contained TSX source file. Make the component fill its bounds without adding a wrapper `<Sequence>` or source padding for the preview. Do not use `left`, `right`, `top`, or `bottom` to place the Element itself; the surrounding project owns placement.
-
-Follow the Element Guidelines for the component itself. When using Studio-editable controls, also follow the [interactivity best practices skill](../interactivity-best-practices/SKILL.md). Keep entrance and exit keyframes inline with hardcoded frame ranges on the useful named `Interactive.*` element so they can be adjusted in Studio. Do not repeat the Element display name in inner control names.
+Implement only enough of the component in the generated `<slug>.tsx` file to provide a visible starting point in the intended bounds. Follow the Element Guidelines for the component itself. When using Studio-editable controls, also follow the [interactivity best practices skill](../interactivity-best-practices/SKILL.md).
 
 ## 3. Register the development composition
 
-Import and register the component in `packages/docs/src/components/Elements/element-definitions.ts` using the planned preview metadata. Add the explicit `preview` object next to the render metadata, including `posterUrl` and `videoUrl`. The URLs in this object are the source of truth for publishing; do not add a helper that derives production URLs from the Element slug.
+Import and register the component in `packages/docs/src/components/Elements/element-definitions.ts` using the planned preview metadata. Set `installationMode` explicitly and use the same `durationInFrames` for the preview and installed Element. Add the explicit `preview` object next to the render metadata, including the local `posterUrl` and `videoUrl`. Keep the matching local poster URL in the MDX page frontmatter. The submission workflow replaces these paths with public `https://remotion.media` URLs after a direct member upload, or the acceptance workflow replaces them after an external contribution is approved.
 
 Do not edit `packages/docs/src/remotion/Root.tsx`. It automatically creates a composition for every central definition using the same sizing and wrapper used by published Elements.
 
@@ -65,7 +66,7 @@ bun test src/test/elements.test.ts
 cd ../..
 ```
 
-Do not add the category-index or sidebar entries and do not render final preview assets yet. Those belong to the publishing workflow.
+Do not add the category-index or sidebar entries and do not render preview assets yet. Those belong to the submission workflow.
 
 ## 5. Hand off development
 
@@ -79,4 +80,4 @@ bun run remotion
 
 Then tell them to open the `elements` folder and select `element-<category>-<slug>`. Development should start in that composition so the Element is always evaluated with its configured dimensions, duration, padding, and preview background.
 
-Report the created files, composition ID, focused test result, and that the next step after development is the [`publish-element` skill](../publish-element/SKILL.md).
+Report the created files, composition ID, focused test result, and that the next step after development is the [`submit-element` skill](../submit-element/SKILL.md).

@@ -38,7 +38,7 @@ class RenderParams
     ];
     protected $muted = false;
     protected $preferLossless = false;
-    protected $overwrite = false;
+    protected $overwrite = null;
     protected $audioBitrate = null;
     protected $videoBitrate = null;
     protected $encodingBufferSize = null;
@@ -88,7 +88,7 @@ class RenderParams
         ?int    $concurrency = null,
         ?array  $downloadBehavior = null,
         ?bool   $muted = false,
-        ?bool   $overwrite = false,
+        ?bool   $overwrite = null,
         ?int    $audioBitrate = null,
         ?int    $videoBitrate = null,
         ?string $webhook = null,
@@ -816,7 +816,7 @@ class RenderParams
 
     public function getOverwrite()
     {
-        return $this->overwrite;
+        return $this->overwrite ?? version_compare(Semantic::VERSION, '5.0.0', '>=');
     }
 
     public function getAudioBitrate()

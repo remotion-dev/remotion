@@ -23,8 +23,13 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 	readonly onTextChange: (newVal: string) => void;
 	readonly status: RemInputStatus;
 	readonly formatter?: (str: number | string) => string;
+	readonly formatterStyle?: React.CSSProperties;
+	readonly formatterSubtitle?: (str: number | string) => string;
+	readonly formatterSubtitleStyle?: React.CSSProperties;
+	readonly buttonStyle?: React.CSSProperties;
 	readonly rightAlign: boolean;
 	readonly small?: boolean;
+	readonly allowStepMismatch?: boolean;
 	readonly snapToStep?: boolean;
 	readonly dragDecimalPlaces?: number;
 	readonly dragSensitivity?: number;
@@ -439,9 +444,14 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		value,
 		onTextChange,
 		formatter = (q) => String(q),
+		formatterStyle,
+		formatterSubtitle,
+		formatterSubtitleStyle,
+		buttonStyle,
 		status,
 		rightAlign,
 		small,
+		allowStepMismatch = false,
 		snapToStep = true,
 		dragDecimalPlaces,
 		dragSensitivity = 1,
@@ -461,6 +471,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			step: _step,
 		});
 	}, [_min, _step, snapToStep]);
+	const validationStep = allowStepMismatch ? 'any' : deriveStep;
 
 	const span: React.CSSProperties = useMemo(
 		() => ({
@@ -470,8 +481,9 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			WebkitUserSelect: 'none',
 			fontSize: small ? 12 : 14,
 			fontVariantNumeric: 'tabular-nums',
+			...formatterStyle,
 		}),
-		[dragging, small],
+		[dragging, formatterStyle, small],
 	);
 
 	const onFocus = useCallback(() => {
@@ -543,7 +555,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		const validation = validateInputDraggerValue({
 			max: _max,
 			min: _min,
-			step: deriveStep,
+			step: validationStep,
 			value: newValue,
 		});
 
@@ -556,7 +568,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			fallbackRef.current.setCustomValidity(validation.message);
 			fallbackRef.current.reportValidity();
 		}
-	}, [_max, _min, deriveStep, onEscape, onValueChangeEnd]);
+	}, [_max, _min, onEscape, onValueChangeEnd, validationStep]);
 
 	const onInputKeyDown: React.KeyboardEventHandler<HTMLInputElement> =
 		useCallback(
@@ -695,7 +707,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 					onChange={onInputChange}
 					min={_min}
 					max={_max}
-					step={deriveStep}
+					step={validationStep}
 					defaultValue={value}
 					status={status}
 					rightAlign={rightAlign}
@@ -711,14 +723,24 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		<button
 			ref={ref}
 			type="button"
+			aria-label={props['aria-label']}
 			className={'__remotion_input_dragger'}
-			style={inputDraggerContainerStyle}
+			style={
+				buttonStyle
+					? {...inputDraggerContainerStyle, ...buttonStyle}
+					: inputDraggerContainerStyle
+			}
 			onClick={onClick}
 			onFocus={onFocus}
 			onKeyDown={onKeyDown}
 			onPointerDown={onPointerDown}
 		>
 			<span style={span}>{formatter(value as string | number)}</span>
+			{formatterSubtitle ? (
+				<span style={formatterSubtitleStyle}>
+					{formatterSubtitle(value as string | number)}
+				</span>
+			) : null}
 		</button>
 	);
 };

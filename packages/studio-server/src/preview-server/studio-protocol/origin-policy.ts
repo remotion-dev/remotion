@@ -1,5 +1,9 @@
 import type {IncomingMessage, ServerResponse} from 'node:http';
 
+const isLoopbackHttp = (url: URL) =>
+	url.protocol === 'http:' &&
+	(url.hostname === 'localhost' || url.hostname === '127.0.0.1');
+
 export const getAllowedStudioProtocolOrigin = (
 	origin: string | undefined,
 ): string | null => {
@@ -9,10 +13,7 @@ export const getAllowedStudioProtocolOrigin = (
 
 	try {
 		const url = new URL(origin);
-		const isLoopbackHttp =
-			url.protocol === 'http:' &&
-			(url.hostname === 'localhost' || url.hostname === '127.0.0.1');
-		if (url.protocol !== 'https:' && !isLoopbackHttp) {
+		if (url.protocol !== 'https:' && !isLoopbackHttp(url)) {
 			return null;
 		}
 
@@ -21,10 +22,6 @@ export const getAllowedStudioProtocolOrigin = (
 		return null;
 	}
 };
-
-export const isAllowedStudioProtocolOrigin = (
-	origin: string | undefined,
-): boolean => getAllowedStudioProtocolOrigin(origin) !== null;
 
 export const setStudioProtocolCorsHeaders = ({
 	request,
@@ -57,9 +54,8 @@ export const handleStudioProtocolOptions = ({
 	readonly response: ServerResponse;
 }): Promise<void> => {
 	setStudioProtocolCorsHeaders({request, response});
-	response.writeHead(
-		getAllowedStudioProtocolOrigin(request.headers.origin) === null ? 403 : 204,
-	);
+	const origin = getAllowedStudioProtocolOrigin(request.headers.origin);
+	response.writeHead(origin === null ? 403 : 204);
 	response.end();
 	return Promise.resolve();
 };

@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {BLUE, WHITE} from '../helpers/colors';
+import {BLUE} from '../helpers/colors';
 import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
@@ -50,8 +50,11 @@ export const TimelineInOutPointToggle: React.FC = () => {
 	const {setInAndOutFrames} = useTimelineSetInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const keybindings = useKeybinding();
-	const {getCurrentFrame, isFirstFrame, isLastFrame} =
-		PlayerInternals.usePlayer();
+	const {getCurrentFrame} = PlayerInternals.usePlayerMethods();
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const isFirstFrame = timelinePosition === 0;
+	const isLastFrame =
+		timelinePosition === (videoConfig?.durationInFrames ?? 1) - 1;
 
 	const onInOutClear = useCallback(
 		(composition: string) => {
@@ -304,10 +307,12 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				onContextMenu={clearInMark}
 				disabled={!videoConfig || isFirstFrame}
 			>
-				<TimelineInPointer
-					color={inFrame === null ? WHITE : BLUE}
-					style={style}
-				/>
+				{(color) => (
+					<TimelineInPointer
+						color={inFrame === null ? color : BLUE}
+						style={style}
+					/>
+				)}
 			</ControlButton>
 			<ControlButton
 				title={getTooltipText('Out', 'O')}
@@ -316,10 +321,12 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				onContextMenu={clearOutMark}
 				disabled={!videoConfig || isLastFrame}
 			>
-				<TimelineOutPointer
-					color={outFrame === null ? WHITE : BLUE}
-					style={style}
-				/>
+				{(color) => (
+					<TimelineOutPointer
+						color={outFrame === null ? color : BLUE}
+						style={style}
+					/>
+				)}
 			</ControlButton>
 		</>
 	);

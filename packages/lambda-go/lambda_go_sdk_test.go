@@ -49,7 +49,7 @@ func TestPrintVersion(t *testing.T) {
 		Composition:  "react-svg",
 		FunctionName: "remotion-render",
 		ServeUrl:     "testbed",
-		Codec:        "h264",
+		Codec:        "gif",
 		Metadata: map[string]string{
 			"Author": "Remotion",
 		},
@@ -97,6 +97,61 @@ func TestOverwriteCanBeDisabled(t *testing.T) {
 
 	if payload.Overwrite {
 		t.Fatal("expected an explicit false overwrite value to be preserved")
+	}
+}
+
+func TestRenderPayloadNumberOfGifLoops(t *testing.T) {
+	tests := []struct {
+		name                 string
+		codec                string
+		numberOfGifLoops     int
+		wantNumberOfGifLoops *int
+	}{
+		{name: "default codec omits GIF loops"},
+		{name: "non-GIF codec omits GIF loops", codec: "h264", numberOfGifLoops: 2},
+		{name: "GIF codec includes zero loops", codec: "gif", numberOfGifLoops: 0, wantNumberOfGifLoops: new(0)},
+		{name: "GIF codec includes positive loops", codec: "gif", numberOfGifLoops: 2, wantNumberOfGifLoops: new(2)},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			payload, err := constructRenderInternals(&RemotionOptions{
+				Region:           "us-east-1",
+				Composition:      "react-svg",
+				FunctionName:     "remotion-render",
+				ServeUrl:         "testbed",
+				Codec:            test.codec,
+				NumberOfGifLoops: test.numberOfGifLoops,
+			})
+			if err != nil {
+				t.Fatalf("could not construct render payload: %v", err)
+			}
+
+			jsonData, err := json.Marshal(payload)
+			if err != nil {
+				t.Fatalf("could not marshal render payload: %v", err)
+			}
+
+			var serializedPayload map[string]interface{}
+			if err := json.Unmarshal(jsonData, &serializedPayload); err != nil {
+				t.Fatalf("could not unmarshal render payload: %v", err)
+			}
+
+			serializedLoops, hasNumberOfGifLoops := serializedPayload["numberOfGifLoops"]
+			if test.wantNumberOfGifLoops == nil {
+				if hasNumberOfGifLoops {
+					t.Fatalf("numberOfGifLoops should be omitted, got %v", serializedLoops)
+				}
+				return
+			}
+
+			if !hasNumberOfGifLoops {
+				t.Fatalf("numberOfGifLoops should be %d, but was omitted", *test.wantNumberOfGifLoops)
+			}
+			if serializedLoops != float64(*test.wantNumberOfGifLoops) {
+				t.Fatalf("numberOfGifLoops = %v, want %d", serializedLoops, *test.wantNumberOfGifLoops)
+			}
+		})
 	}
 }
 

@@ -25,7 +25,7 @@ import {EditorShowRulersContext} from '../state/editor-rulers';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import type {ModalState} from '../state/modals';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
 import {getBrowserStudioOperations} from './browser-studio-operations';
@@ -47,26 +47,21 @@ const openExternal = (link: string) => {
 	window.open(link, '_blank');
 };
 
-const rotate: React.CSSProperties = {
-	transform: `rotate(90deg)`,
+const inheritColor: React.CSSProperties = {
 	color: 'inherit',
 };
-const iconContainer: React.CSSProperties = {
-	color: 'inherit',
-};
-const iconPath: React.CSSProperties = {
-	color: 'inherit',
-};
-const ICON_SIZE = 16;
+const ICON_SIZE = 14;
 
 const getFileMenu = ({
 	readOnlyStudio,
 	closeMenu,
+	editorName,
 	previewServerState,
 	setSelectedModal,
 }: {
 	readOnlyStudio: boolean;
 	closeMenu: () => void;
+	editorName: string | null;
 	previewServerState: 'connected' | 'init' | 'disconnected';
 	setSelectedModal: (value: React.SetStateAction<ModalState | null>) => void;
 }) => {
@@ -183,11 +178,11 @@ const getFileMenu = ({
 					id: 'open-project-divider',
 				}
 			: null,
-		window.remotion_editorName && !readOnlyStudio
+		editorName && !readOnlyStudio
 			? {
 					id: 'open-in-editor',
 					value: 'open-in-editor',
-					label: `Open in ${window.remotion_editorName}`,
+					label: `Open in ${editorName}`,
 					onClick: async () => {
 						await openInEditor(
 							{
@@ -201,19 +196,13 @@ const getFileMenu = ({
 						)
 							.then(({success}) => {
 								if (!success) {
-									showNotification(
-										`Could not open ${window.remotion_editorName}`,
-										2000,
-									);
+									showNotification(`Could not open ${editorName}`, 2000);
 								}
 							})
 							.catch((err) => {
 								// eslint-disable-next-line no-console
 								console.error(err);
-								showNotification(
-									`Could not open ${window.remotion_editorName}`,
-									2000,
-								);
+								showNotification(`Could not open ${editorName}`, 2000);
 							});
 					},
 					type: 'item' as const,
@@ -329,7 +318,7 @@ export const useMenuStructure = (
 	closeMenu: () => void,
 	readOnlyStudio: boolean,
 ) => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
 	const {editorZoomGestures, setEditorZoomGestures} = useContext(
 		EditorZoomGesturesContext,
@@ -346,6 +335,9 @@ export const useMenuStructure = (
 		Internals.CompositionManager,
 	);
 	const {type} = useContext(StudioServerConnectionCtx).previewServerState;
+	const editorName = window.remotion_editorName;
+	const keyboardShortcutsDisabled = areKeyboardShortcutsDisabled();
+	const studioAskAIEnabled = getStudioAskAIEnabled();
 	const canConfigureDefaultEditor =
 		!readOnlyStudio &&
 		type === 'connected' &&
@@ -400,20 +392,19 @@ export const useMenuStructure = (
 			{
 				id: 'remotion' as const,
 				label: (
-					<Row align="center" justify="center" style={iconContainer}>
+					<Row align="center" justify="center" style={inheritColor}>
 						<svg
 							width={ICON_SIZE}
 							height={ICON_SIZE}
-							viewBox="-100 -100 400 400"
-							style={rotate}
+							viewBox="0 0 415 426"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+							style={inheritColor}
 						>
 							<path
+								d="M93.4691 0.0367432C84.4873 0.520935 77.2494 1.93634 69.9553 4.69266C66.3176 6.05219 60.3548 9.0134 57.0734 11.062C43.3476 19.6103 32.8846 32.4606 27.428 47.4154C26.3405 50.3766 23.3966 59.8188 21.5027 66.3185C8.88329 109.768 1.7204 157.277 0.182822 207.561C-0.0609408 215.569 -0.0609408 234.639 0.182822 242.517C1.21413 275.854 4.42055 305.949 10.2334 336.641C12.596 349.063 16.3837 365.75 18.5776 373.33C23.059 388.732 32.2095 401.843 45.2227 411.453C53.9419 417.896 63.8425 422.217 74.8118 424.34C80.0996 425.365 87.075 425.83 92.2127 425.495C99.3194 425.029 113.42 423.148 124.877 421.118C176.517 411.974 224.22 395.604 267.478 372.175C294.874 357.332 318.294 341.26 340.888 321.761C363.408 302.355 382.609 281.478 399.504 258.049C403.423 252.63 405.392 249.464 407.361 245.478C412.424 235.198 414.805 224.974 414.786 213.539C414.786 202.886 412.761 193.425 408.392 183.741C406.292 179.066 404.286 175.714 399.785 169.345C383.21 145.898 364.815 125.467 342.389 105.614C307.624 74.8481 266.335 49.613 220.226 30.9334C210.232 26.8921 200.387 23.335 188.537 19.4799C163.448 11.3413 132.396 4.28293 106.126 0.763062C102.001 0.204346 96.3942 -0.112244 93.4691 0.0367432Z"
 								fill={CURRENT_COLOR}
-								stroke={CURRENT_COLOR}
-								style={iconPath}
-								strokeWidth="100"
-								strokeLinejoin="round"
-								d="M 2 172 a 196 100 0 0 0 195 5 A 196 240 0 0 0 100 2.259 A 196 240 0 0 0 2 172 z"
+								style={inheritColor}
 							/>
 						</svg>
 					</Row>
@@ -448,32 +439,15 @@ export const useMenuStructure = (
 						subMenu: null,
 						quickSwitcherLabel: 'Help: Changelog',
 					},
-					canConfigureDefaultEditor
-						? {
-								id: 'default-editor',
-								value: 'default-editor',
-								label: 'Configure default editor...',
-								onClick: () => {
-									closeMenu();
-									setSelectedModal({
-										type: 'configure-default-editor',
-									});
-								},
-								type: 'item' as const,
-								keyHint: null,
-								leftItem: null,
-								subMenu: null,
-								quickSwitcherLabel: 'Configure default editor...',
-							}
-						: null,
 					{
-						id: 'license',
-						value: 'license',
-						label: 'Configure License...',
+						id: 'settings',
+						value: 'settings',
+						label: 'Settings...',
 						onClick: () => {
 							closeMenu();
 							setSelectedModal({
-								type: 'configure-license',
+								type: 'settings',
+								initialTab: canConfigureDefaultEditor ? 'apps' : 'license',
 								initialPublicLicenseKey:
 									window.remotion_renderDefaults?.publicLicenseKey ?? null,
 							});
@@ -482,7 +456,7 @@ export const useMenuStructure = (
 						keyHint: null,
 						leftItem: null,
 						subMenu: null,
-						quickSwitcherLabel: 'Configure License...',
+						quickSwitcherLabel: 'Settings...',
 						disabled: readOnlyStudio || type !== 'connected',
 					},
 					{
@@ -523,6 +497,7 @@ export const useMenuStructure = (
 			getFileMenu({
 				readOnlyStudio,
 				closeMenu,
+				editorName,
 				previewServerState: type,
 				setSelectedModal,
 			}),
@@ -613,7 +588,7 @@ export const useMenuStructure = (
 					},
 					{
 						id: 'enable-snapping',
-						keyHint: areKeyboardShortcutsDisabled() ? null : 'Shift+M',
+						keyHint: keyboardShortcutsDisabled ? null : 'Shift+M',
 						label: 'Enable Snapping',
 						onClick: () => {
 							closeMenu();
@@ -910,7 +885,7 @@ export const useMenuStructure = (
 				label: 'Tools',
 				leaveLeftPadding: false,
 				items: [
-					getStudioAskAIEnabled()
+					studioAskAIEnabled
 						? {
 								id: 'ask-ai',
 								value: 'ask-ai',
@@ -972,7 +947,7 @@ export const useMenuStructure = (
 					{
 						id: 'shortcuts',
 						value: 'shortcuts',
-						label: areKeyboardShortcutsDisabled()
+						label: keyboardShortcutsDisabled
 							? 'Shortcuts (disabled)'
 							: 'Shortcuts',
 						onClick: () => {
@@ -990,7 +965,7 @@ export const useMenuStructure = (
 						leftItem: null,
 						subMenu: null,
 						type: 'item' as const,
-						quickSwitcherLabel: areKeyboardShortcutsDisabled()
+						quickSwitcherLabel: keyboardShortcutsDisabled
 							? 'Show all Keyboard Shortcuts (disabled)'
 							: 'Show all Keyboard Shortcuts',
 					},
@@ -1162,6 +1137,9 @@ export const useMenuStructure = (
 		isFullscreenSupported,
 		remotion_packageManager,
 		mobileLayout,
+		editorName,
+		keyboardShortcutsDisabled,
+		studioAskAIEnabled,
 		size.size,
 		setSize,
 		setEditorZoomGestures,
@@ -1200,7 +1178,7 @@ const itemToSearchResult = (
 	if (item.subMenu) {
 		return item.subMenu.items
 			.map((subItem) => {
-				if (subItem.type === 'divider') {
+				if (subItem.type !== 'item') {
 					return null;
 				}
 
@@ -1233,7 +1211,7 @@ export const makeSearchResults = (
 	const items: TQuickSwitcherResult[] = actions
 		.map((menu) => {
 			return menu.items.map((item): TQuickSwitcherResult[] | null => {
-				if (item.type === 'divider') {
+				if (item.type !== 'item') {
 					return null;
 				}
 

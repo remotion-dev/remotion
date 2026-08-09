@@ -28,10 +28,12 @@ export const getThumbnailDimensions = (dimensions: Dimensions) => {
 
 export const ResizeThumbnail: React.FC<{
 	readonly dimensions: Dimensions;
-	readonly unrotatedDimensions: Dimensions;
 	readonly dimensionsBeforeCrop: Dimensions;
+	readonly sourceDimensions: Dimensions;
 	readonly thumbnailRef: React.RefObject<VideoThumbnailRef | null>;
 	readonly rotation: number;
+	readonly mirrorHorizontal: boolean;
+	readonly mirrorVertical: boolean;
 	readonly scale: number;
 	readonly setResizeMode: React.Dispatch<
 		React.SetStateAction<MediabunnyResize | null>
@@ -45,20 +47,18 @@ export const ResizeThumbnail: React.FC<{
 	scale,
 	setResizeMode,
 	rotation,
-	unrotatedDimensions,
 	inputFocused,
 	cropRect,
 	crop,
 	dimensionsBeforeCrop,
+	sourceDimensions,
+	mirrorHorizontal,
+	mirrorVertical,
 }) => {
 	const ref = useRef<HTMLCanvasElement>(null);
 	const thumbnailDimensions = useMemo(() => {
 		return getThumbnailDimensions(dimensions);
 	}, [dimensions]);
-
-	const unrotatedThumbnailDimensions = useMemo(() => {
-		return getThumbnailDimensions(unrotatedDimensions);
-	}, [unrotatedDimensions]);
 
 	const inner = useMemo(() => {
 		return {
@@ -82,10 +82,14 @@ export const ResizeThumbnail: React.FC<{
 	const drawn = useThumbnailCopy({
 		sourceRef: thumbnailRef,
 		targetRef: ref,
-		dimensions: unrotatedThumbnailDimensions,
+		dimensions: thumbnailDimensions,
 		cropRect,
 		crop,
 		fullDimensionsBeforeCrop: dimensionsBeforeCrop,
+		sourceDimensions,
+		rotation,
+		mirrorHorizontal,
+		mirrorVertical,
 	});
 
 	return (
@@ -105,23 +109,22 @@ export const ResizeThumbnail: React.FC<{
 					ref={ref}
 					style={{
 						position: 'absolute',
-						width: Math.ceil(unrotatedThumbnailDimensions.width * scale),
-						height: Math.ceil(unrotatedThumbnailDimensions.height * scale),
-						transform: `rotate(${rotation}deg)`,
+						width: Math.ceil(thumbnailDimensions.width * scale),
+						height: Math.ceil(thumbnailDimensions.height * scale),
 						transitionProperty: animate ? 'all' : 'none',
 						transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
 						transitionDuration: '150ms',
 						opacity: drawn ? 1 : 0,
 					}}
 					data-animate={animate}
-					width={unrotatedThumbnailDimensions.width}
-					height={unrotatedThumbnailDimensions.height}
+					width={thumbnailDimensions.width}
+					height={thumbnailDimensions.height}
 				/>
 				<ResizeCorner
 					outerDimensions={thumbnailDimensions}
 					innerDimensions={inner}
 					setResizeMode={setResizeMode}
-					videoDimensions={unrotatedDimensions}
+					videoDimensions={dimensions}
 					onEnd={onEnd}
 					onStart={onStart}
 				/>

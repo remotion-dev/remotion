@@ -114,6 +114,7 @@ const isEasing = (value: unknown): value is EffectClipboardEasing => {
 	return (
 		isRecord(value) &&
 		(value.type === 'linear' ||
+			value.type === 'step1' ||
 			(value.type === 'bezier' &&
 				isFiniteNumber(value.x1) &&
 				isFiniteNumber(value.y1) &&

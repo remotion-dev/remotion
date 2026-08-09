@@ -1,15 +1,8 @@
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import type {ConfigUpdate} from '@remotion/studio-shared';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {LIGHT_TEXT, WHITE} from '../helpers/colors';
-import {ModalsContext} from '../state/modals';
-import {callApi} from './call-api';
 import {Checkbox} from './Checkbox';
-import {Row, Spacing} from './layout';
+import {Spacing} from './layout';
 import {
 	fetchLicenseKeyDetails,
 	hasActiveCompanyLicense,
@@ -17,19 +10,23 @@ import {
 	type LicenseKeyDetails,
 	validateLicenseKey,
 } from './LicenseKeyValidation';
-import {ModalButton} from './ModalButton';
-import {ModalContainer} from './ModalContainer';
-import {ModalFooterContainer} from './ModalFooter';
-import {ModalHeader} from './ModalHeader';
 import {RemotionInput} from './NewComposition/RemInput';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
+import {useSettings} from './SettingsContext';
+import {useAutoSaveConfig} from './use-auto-save-config';
 
 type LicenseType = 'free' | 'company' | null;
 
+const container: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+	flexDirection: 'column',
+	minWidth: 0,
+};
+
 const content: React.CSSProperties = {
+	flex: 1,
 	padding: 16,
-	width: 540,
-	maxWidth: 'calc(100vw - 40px)',
 };
 
 const description: React.CSSProperties = {
@@ -38,7 +35,6 @@ const description: React.CSSProperties = {
 	fontSize: 14,
 	lineHeight: 1.5,
 	margin: 0,
-	marginTop: 10,
 };
 
 const descriptionLink: React.CSSProperties = {
@@ -76,23 +72,23 @@ const inputLabel: React.CSSProperties = {
 	marginTop: 10,
 };
 
-export const ConfigureLicenseModal: React.FC<{
-	readonly initialPublicLicenseKey: string | null;
-}> = ({initialPublicLicenseKey}) => {
-	const {setSelectedModal} = useContext(ModalsContext);
+export const LicenseSettings: React.FC = () => {
+	const {error: settingsError, publicLicenseKey, revision} = useSettings();
 	const initialLicenseType: LicenseType =
-		initialPublicLicenseKey === 'free-license'
+		publicLicenseKey === 'free-license'
 			? 'free'
-			: initialPublicLicenseKey === null
+			: publicLicenseKey === null
 				? null
 				: 'company';
 	const [licenseType, setLicenseType] =
 		useState<LicenseType>(initialLicenseType);
 	const [companyLicenseKey, setCompanyLicenseKey] = useState<string>(
-		initialLicenseType === 'company' ? (initialPublicLicenseKey ?? '') : '',
+		initialLicenseType === 'company' ? (publicLicenseKey ?? '') : '',
 	);
-	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [companyLicenseKeyToSave, setCompanyLicenseKeyToSave] =
+		useState(companyLicenseKey);
 	const [error, setError] = useState<string | null>(null);
+	const [syncedRevision, setSyncedRevision] = useState(revision);
 	const [isValidatingLicenseKey, setIsValidatingLicenseKey] = useState(false);
 	const [remoteValidationMessage, setRemoteValidationMessage] = useState<
 		string | null
@@ -100,31 +96,39 @@ export const ConfigureLicenseModal: React.FC<{
 	const [licenseKeyDetails, setLicenseKeyDetails] =
 		useState<LicenseKeyDetails | null>(null);
 
-	const dismiss = useCallback(() => {
-		setSelectedModal(null);
-	}, [setSelectedModal]);
-
-	const chooseFreeLicense = useCallback(() => {
-		setLicenseType('free');
+	useEffect(() => {
+		const nextLicenseType: LicenseType =
+			publicLicenseKey === 'free-license'
+				? 'free'
+				: publicLicenseKey === null
+					? null
+					: 'company';
+		const nextCompanyLicenseKey =
+			nextLicenseType === 'company' ? (publicLicenseKey ?? '') : '';
+		setLicenseType(nextLicenseType);
+		setCompanyLicenseKey(nextCompanyLicenseKey);
+		setCompanyLicenseKeyToSave(nextCompanyLicenseKey);
+		setSyncedRevision(revision);
 		setError(null);
-	}, []);
+	}, [publicLicenseKey, revision]);
 
-	const chooseCompanyLicense = useCallback(() => {
-		setLicenseType('company');
-		setError(null);
-	}, []);
+	const toggleLicenseType = useCallback(
+		(newLicenseType: Exclude<LicenseType, null>) => {
+			setLicenseType((currentLicenseType) =>
+				currentLicenseType === newLicenseType ? null : newLicenseType,
+			);
+			setError(null);
+		},
+		[],
+	);
 
-	const publicLicenseKey = useMemo(() => {
-		if (licenseType === 'free') {
-			return 'free-license';
-		}
+	const toggleFreeLicense = useCallback(() => {
+		toggleLicenseType('free');
+	}, [toggleLicenseType]);
 
-		if (licenseType === 'company') {
-			return companyLicenseKey.trim();
-		}
-
-		return '';
-	}, [companyLicenseKey, licenseType]);
+	const toggleCompanyLicense = useCallback(() => {
+		toggleLicenseType('company');
+	}, [toggleLicenseType]);
 
 	const localLicenseKeyValidation = useMemo(
 		() => validateLicenseKey(companyLicenseKey.trim()),
@@ -179,66 +183,87 @@ export const ConfigureLicenseModal: React.FC<{
 		licenseKeyDetails?.isValid === true &&
 		!isValidatingLicenseKey;
 
-	const submit = useCallback(async () => {
-		if (publicLicenseKey.length === 0) {
-			setError(
-				licenseType === null
-					? 'Select a license type.'
-					: 'Enter your public license key.',
-			);
-			return;
+	const publicLicenseKeyToSave = useMemo(() => {
+		if (licenseType === 'free') {
+			return 'free-license';
 		}
 
-		if (licenseType === 'company' && !companyLicenseKeyIsValid) {
-			return;
+		if (licenseType === 'company') {
+			return companyLicenseKeyToSave;
 		}
 
-		setIsSubmitting(true);
-		setError(null);
-		try {
-			const response = await callApi('/api/update-public-license', {
-				publicLicenseKey,
-			});
-			if (!response.success) {
-				setError(response.reason);
-				setIsSubmitting(false);
-				return;
-			}
+		return '';
+	}, [companyLicenseKeyToSave, licenseType]);
 
-			dismiss();
-		} catch (err) {
-			setError((err as Error).message);
-			setIsSubmitting(false);
+	const updates = useMemo((): ConfigUpdate[] => {
+		if (licenseType === null) {
+			return [{setter: 'setPublicLicenseKey', type: 'delete'}];
 		}
-	}, [companyLicenseKeyIsValid, dismiss, licenseType, publicLicenseKey]);
+
+		return [
+			{
+				setter: 'setPublicLicenseKey',
+				type: 'set',
+				value: publicLicenseKeyToSave,
+			},
+		];
+	}, [licenseType, publicLicenseKeyToSave]);
+	useAutoSaveConfig({
+		enabled:
+			licenseType === null ||
+			(publicLicenseKeyToSave.length > 0 &&
+				(licenseType !== 'company' ||
+					(companyLicenseKeyToSave === companyLicenseKey.trim() &&
+						companyLicenseKeyIsValid))),
+		onError: setError,
+		ready: syncedRevision === revision,
+		syncRevision: syncedRevision,
+		updates,
+	});
+	const displayedError = error ?? settingsError;
 
 	return (
-		<ModalContainer onEscape={dismiss} onOutsideClick={dismiss}>
-			<ModalHeader title="Configure License" onClose={dismiss} />
+		<div style={container}>
 			<div style={content}>
 				<p style={description}>
-					Remotion is free if you are an individual or company with a headcount
-					of 3 or less. See{' '}
-					<a style={descriptionLink} href="https://remotion.dev/license">
-						LICENSE.md
+					Remotion is free to use if you are an individual or company with a
+					headcount of 3 or less.
+					<br />
+					If used in an organization with 4 people or more, a{' '}
+					<a style={descriptionLink} href="https://remotion.pro/license">
+						Company License
 					</a>
-					.
+					{' needs to be obtained.'}
 				</p>
 				<Spacing y={2} />
-				<div style={checkboxRow} onClick={chooseFreeLicense}>
+				<div
+					style={checkboxRow}
+					onClick={(event) => {
+						if (!(event.target instanceof HTMLInputElement)) {
+							toggleFreeLicense();
+						}
+					}}
+				>
 					<Checkbox
 						checked={licenseType === 'free'}
-						onChange={chooseFreeLicense}
+						onChange={toggleFreeLicense}
 						name="free-license"
 						rounded
 					/>
 					<Spacing x={1} />
 					<div style={checkboxLabel}>I am eligible for the Free License</div>
 				</div>
-				<div style={checkboxRow} onClick={chooseCompanyLicense}>
+				<div
+					style={checkboxRow}
+					onClick={(event) => {
+						if (!(event.target instanceof HTMLInputElement)) {
+							toggleCompanyLicense();
+						}
+					}}
+				>
 					<Checkbox
 						checked={licenseType === 'company'}
-						onChange={chooseCompanyLicense}
+						onChange={toggleCompanyLicense}
 						name="company-license"
 						rounded
 					/>
@@ -271,6 +296,9 @@ export const ConfigureLicenseModal: React.FC<{
 								onChange={(event) => {
 									setCompanyLicenseKey(event.target.value);
 									setError(null);
+								}}
+								onBlur={() => {
+									setCompanyLicenseKeyToSave(companyLicenseKey.trim());
 								}}
 								placeholder="rm_pub_..."
 								autoFocus
@@ -307,32 +335,17 @@ export const ConfigureLicenseModal: React.FC<{
 						) : null}
 					</>
 				) : null}
-				{error ? (
+				{displayedError ? (
 					<>
 						<Spacing y={1.5} />
 						<ValidationMessage
-							message={error}
+							message={displayedError}
 							align="flex-start"
 							type="error"
 						/>
 					</>
 				) : null}
 			</div>
-			<ModalFooterContainer>
-				<Row justify="flex-end">
-					<ModalButton
-						onClick={submit}
-						disabled={
-							isSubmitting ||
-							publicLicenseKey.length === 0 ||
-							(licenseType === 'company' && !companyLicenseKeyIsValid)
-						}
-						autoFocus={licenseType !== 'company'}
-					>
-						{isSubmitting ? 'Submitting...' : 'Submit and reload'}
-					</ModalButton>
-				</Row>
-			</ModalFooterContainer>
-		</ModalContainer>
+		</div>
 	);
 };

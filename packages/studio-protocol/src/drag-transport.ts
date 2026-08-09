@@ -16,4 +16,5 @@ export const setStudioDragData = ({
 
 	dataTransfer.effectAllowed = 'copy';
 	dataTransfer.setData(dragData.mimeType, dragData.payload);
+	dataTransfer.setData('text/plain', dragData.payload);
 };

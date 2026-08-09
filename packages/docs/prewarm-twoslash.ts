@@ -15,6 +15,7 @@ import {
 	publishLocalTwoslashCacheEntry,
 	readTwoslashCacheEntry,
 } from '../docusaurus-plugin/src/twoslash-cache';
+import {isTwoslashEnabled} from '../docusaurus-plugin/src/twoslash-enabled';
 import {expandElementSourceReferences} from './plugins/element-source-utils';
 
 const DOCS_ROOT = resolve(import.meta.dirname);
@@ -331,6 +332,11 @@ interface WorkerHandle {
 }
 
 async function main() {
+	if (!isTwoslashEnabled()) {
+		console.log('Skipping Twoslash pre-warm because Twoslash is disabled');
+		return;
+	}
+
 	const startTime = performance.now();
 
 	const glob = new Glob('**/*.{mdx,md}');

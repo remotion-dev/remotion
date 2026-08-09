@@ -39,12 +39,17 @@ const inputs: MakeDragDataInput[] = [
 	},
 	{
 		type: 'element',
-		dependencies: ['@remotion/google-fonts'],
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		slug: 'overlays/lower-third',
 		displayName: 'Lower Third',
 		sourceCode: 'export const LowerThird = () => null;',
 		dimensions: {width: 900, height: 260},
 		durationInFrames: 90,
+	},
+	{
+		type: 'render-output',
+		outputPath: 'out/video.mp4',
+		fileName: 'video.mp4',
 	},
 	{
 		type: 'sfx',
@@ -206,6 +211,18 @@ test('requires a duration for element drags', () => {
 });
 
 test('rejects malformed and mismatched drag data', () => {
+	const renderOutput = StudioProtocolInternals.makeDragData({
+		type: 'render-output',
+		outputPath: 'out/video.mp4',
+		fileName: 'video.mp4',
+	});
+	expect(
+		StudioProtocolInternals.parseDragData({
+			mimeType: renderOutput.mimeType,
+			payload: JSON.stringify({...renderOutput.data, fileName: '../video.mp4'}),
+		}),
+	).toBe(null);
+
 	expect(
 		StudioProtocolInternals.parseDragData({
 			mimeType:

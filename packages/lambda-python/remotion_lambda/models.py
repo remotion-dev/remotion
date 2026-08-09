@@ -309,7 +309,7 @@ class RenderMediaParams:
         default_factory=lambda: PlayInBrowser(type='play-in-browser')
     )
     muted: bool = False
-    overwrite: bool = False
+    overwrite: Optional[bool] = None
     force_path_style: Optional[bool] = None
     audio_bitrate: Optional[int] = None
     video_bitrate: Optional[int] = None
@@ -373,7 +373,11 @@ class RenderMediaParams:
             'downloadBehavior': self.download_behavior,
             'muted': self.muted,
             'version': VERSION,
-            'overwrite': self.overwrite,
+            'overwrite': (
+                self.overwrite
+                if self.overwrite is not None
+                else int(VERSION.split('.', maxsplit=1)[0]) >= 5
+            ),
             'audioBitrate': self.audio_bitrate,
             'videoBitrate': self.video_bitrate,
             'webhook': self.webhook,

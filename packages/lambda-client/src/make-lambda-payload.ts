@@ -70,7 +70,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	concurrencyPerLambda: number;
 	downloadBehavior: DownloadBehavior;
 	muted: boolean;
-	overwrite: boolean;
+	overwrite: boolean | undefined;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
 	encodingMaxRate: string | null;

@@ -26,6 +26,17 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: 'Captions',
+			link: {type: 'doc', id: 'captions/index'},
+			collapsed: false,
+			items: [
+				'captions/moving-pill-captions/index',
+				'captions/popping-word-captions/index',
+				'captions/word-highlight-captions/index',
+			],
+		},
+		{
+			type: 'category',
 			label: 'Data',
 			link: {type: 'doc', id: 'data/index'},
 			collapsed: false,
@@ -43,6 +54,7 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'overlays/location-lower-third/index',
 				'overlays/lower-third/index',
+				'overlays/social-endcard/index',
 			],
 		},
 		{
@@ -56,7 +68,6 @@ const sidebars: SidebarsConfig = {
 				'text/news-article-headline-highlight/index',
 				'text/strike-through/index',
 				'text/text-marker/index',
-				'text/timed-captions/index',
 			],
 		},
 	],

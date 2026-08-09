@@ -1,12 +1,10 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import ReactDOM from 'react-dom';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
-import {ModalsContext} from '../state/modals';
+import {SelectedModalContext, SetSelectedModalContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import {AskAiModal} from './AskAiModal';
-import {ConfigureDefaultEditorModal} from './ConfigureDefaultEditorModal';
-import {ConfigureLicenseModal} from './ConfigureLicenseModal';
 import {ConfirmationDialog} from './ConfirmationDialog';
 import {EffectPickerModal} from './EffectPickerModal';
 import {InstallPackageModal} from './InstallPackage';
@@ -24,17 +22,34 @@ import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
 import {RenderStatusModal} from './RenderModal/RenderStatusModal';
 import {RenderModalWithLoader} from './RenderModal/ServerRenderModal';
 import {WebRenderModalWithLoader} from './RenderModal/WebRenderModal';
+import {SettingsModal} from './SettingsModal';
 import {SvgImportDialog} from './SvgImportDialog';
 import {UpdateModal} from './UpdateModal/UpdateModal';
 
 export const Modals: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
-	const {selectedModal: modalContextType} = useContext(ModalsContext);
+	const modalContextType = useContext(SelectedModalContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {currentZIndex} = useZIndex();
-	const canRender =
-		useContext(StudioServerConnectionCtx).previewServerState.type ===
-		'connected';
+	const {previewServerState, subscribeToEvent} = useContext(
+		StudioServerConnectionCtx,
+	);
+	const canRender = previewServerState.type === 'connected';
+
+	useEffect(() => {
+		return subscribeToEvent('license-key-install-request', (event) => {
+			if (event.type !== 'license-key-install-request') {
+				return;
+			}
+
+			setSelectedModal({
+				type: 'settings',
+				initialTab: 'license',
+				initialPublicLicenseKey: event.licenseKey,
+			});
+		});
+	}, [setSelectedModal, subscribeToEvent]);
 
 	return ReactDOM.createPortal(
 		<>
@@ -83,15 +98,13 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'input-props-override' && (
 				<OverrideInputPropsModal />
 			)}
-			{modalContextType && modalContextType.type === 'configure-license' && (
-				<ConfigureLicenseModal
+			{modalContextType && modalContextType.type === 'settings' && (
+				<SettingsModal
+					key={`${modalContextType.initialTab}-${modalContextType.initialPublicLicenseKey}`}
+					initialTab={modalContextType.initialTab}
 					initialPublicLicenseKey={modalContextType.initialPublicLicenseKey}
 				/>
 			)}
-			{modalContextType &&
-				modalContextType.type === 'configure-default-editor' && (
-					<ConfigureDefaultEditorModal />
-				)}
 			{modalContextType && modalContextType.type === 'web-render' && (
 				<WebRenderModalWithLoader {...modalContextType} />
 			)}

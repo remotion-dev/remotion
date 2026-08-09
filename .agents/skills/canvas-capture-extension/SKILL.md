@@ -20,15 +20,21 @@ the unpacked copy outside the checkout so deleting a worktree cannot break it.
      --repo <remotion-checkout>
    ```
 
-   The script builds with Bun and installs the four unpacked-extension files in
+   The script builds with Bun and installs the seven unpacked-extension files in
    `/Users/jonathanburger/Applications/Remotion Canvas Capture Extension`.
+   Before building, it verifies that the pinned Chrome for Testing
+   `150.0.7842.0` (`r1631007`) is installed. If the browser is installed outside
+   the documented location, pass `--browser-executable <path>`. If it is missing
+   or incompatible, use `$install-canvas-capture-browser` to install it.
 
 3. Confirm that the installed directory contains `manifest.json`,
-   `background.js`, `content.js`, and `receiver.js`.
+   `background.js`, `content.js`, `popup.css`, `popup.html`, `popup.js`, and
+   `receiver.js`.
 
-## Reload in Chrome
+## Reload in Chrome for Testing
 
-- Open `chrome://extensions` manually in Chrome or Chrome Canary.
+- Launch the pinned Chrome for Testing `150.0.7842.0` (`r1631007`) with the
+  dedicated Canvas Capture profile, then open `chrome://extensions` manually.
 - Enable **Developer mode** on `chrome://extensions`.
 - If **Remotion Canvas Capture** already points to the durable directory, click
   **Reload**.

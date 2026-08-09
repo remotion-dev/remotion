@@ -268,6 +268,22 @@ export const serveHandler = async (
 
 	headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
 
+	const readStream = stream;
+
+	// Chrome's media demuxer aborts Range requests constantly while seeking
+	// <Video>/<Audio>. Without this, an aborted request leaves the piped stream
+	// stranded on backpressure and its file descriptor open for the life of the
+	// render process. 'close' fires on completion as well as abort, and
+	// destroy() on an already-ended stream is a no-op.
+	response.on('close', () => {
+		readStream.destroy();
+	});
+
+	if (response.destroyed) {
+		readStream.destroy();
+		return;
+	}
+
 	response.writeHead(response.statusCode || 200, headers);
-	stream.pipe(response);
+	readStream.pipe(response);
 };

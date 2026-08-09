@@ -1,6 +1,7 @@
 ---
 title: Element title
 description: One sentence describing what this element shows.
+image: /elements/category-element-title-preview.png
 ---
 
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
@@ -10,6 +11,7 @@ export const elementDefinition = {
   category: 'category',
   component: ElementComponent,
   contributors: [],
+  dependencies: [],
   description: 'One short sentence explaining what this Element demonstrates and when to use it.',
   displayName: 'Element title',
   durationInFrames: 120,
@@ -19,11 +21,12 @@ export const elementDefinition = {
   height: 1080,
   posterFrame: 60,
   preview: {
-    posterUrl: 'https://remotion.media/elements/category-element-title-preview.png',
-    videoUrl: 'https://remotion.media/elements/category-element-title-preview.mp4',
+    posterUrl: '/elements/category-element-title-preview.png',
+    videoUrl: '/elements/category-element-title-preview.mp4',
   },
   previewPadding: 0,
   slug: 'category/element-title',
+  installationMode: 'wrapped',
   width: 1920,
 };
 

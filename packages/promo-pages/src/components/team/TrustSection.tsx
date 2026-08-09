@@ -166,127 +166,113 @@ const StarIcon: React.FC = () => {
 
 export const TrustSection: React.FC = () => {
 	return (
-		<div className="mt-10">
-			<div className="inline-flex flex-col lg:flex-row gap-4 flex-wrap">
-				<Card className="lg:w-[300px] text-left px-4 py-6 flex-1">
-					<SwissIcon />
-					<div className="h-4" />
-					<div className="font-brand font-bold text-2xl mb-2">
-						Swiss quality
-					</div>
-					<div className="font-brand">
-						We are a company based in Zurich, Switzerland. We{"'"}re far away
-						from the craziness that is Silicon Valley.
-					</div>
-				</Card>
-				<Card className="lg:w-[300px] text-left px-4 py-6 flex-1">
-					<ProfitableIcon />
-					<div className="h-4" />
-					<div className="font-brand font-bold text-2xl mb-2">
-						Sustainable business
-					</div>
-					<div className="font-brand">
-						Remotion is profitable. Aside from our{' '}
-						<a
-							href="/docs/investors"
-							className="text-brand hover:underline underline-offset-4"
-						>
-							early investors
-						</a>
-						, we don{"'"}t need outside investment to sustain the business.
-					</div>
-				</Card>
-				<Card className="lg:w-[300px] text-left px-4 py-6 flex-1">
-					<KeyIcon />
-					<div className="h-4" />
-					<div className="font-brand font-bold text-2xl mb-2">
-						Founder-owned
-					</div>
-					<div className="font-brand">
-						We, the founders, own the company. And we just want one thing: Make
-						programmatic video glorious.
-					</div>
-				</Card>
-			</div>
-			<div className="h-4" />
-			<div className="inline-flex flex-col lg:flex-row gap-4 flex-wrap">
-				<Card className="lg:w-[300px] text-left px-4 py-6 flex-1">
-					<ClockIcon />
-					<div className="h-4" />
-					<div className="font-brand font-bold text-2xl mb-2">
-						5 years and counting
-					</div>
-					<div className="font-brand">
-						Making Remotion since 2021. No plans to change our business model or
-						sell the company.
-					</div>
-				</Card>
-				<Card className="lg:w-[300px] text-left px-4 py-6 flex-1">
-					<ShieldIcon />
-					<div className="h-4" />
-					<div className="font-brand font-bold text-2xl mb-2">
-						Succession plan
-					</div>
-					<div className="font-brand">
-						If something happens to us, the project will fall under{' '}
-						<a
-							href="https://github.com/wcandillon"
-							target="_blank"
-							className="text-brand hover:underline underline-offset-4"
-						>
-							William Candillon
-						</a>
-						{"'s"} supervision.
-					</div>
-				</Card>
-				<Card className="lg:w-[300px] text-left px-4 py-6 flex-1">
-					<UsersIcon />
-					<div className="h-4" />
-					<div className="font-brand font-bold text-2xl mb-2">
-						300+ customers
-					</div>
-					<div className="font-brand">
-						More than 300 companies trust Remotion, from small businesses to
-						FAANG.
-					</div>
-				</Card>
-			</div>
-			<div className="h-4" />
-			<div className="inline-flex flex-col lg:flex-row gap-4 flex-wrap">
-				<Card className="lg:w-[300px] text-left px-4 py-6 flex-1">
-					<CodeIcon />
-					<div className="h-4" />
-					<div className="font-brand font-bold text-2xl mb-2">
-						Source-available
-					</div>
-					<div className="font-brand">
-						Our code is publicly available on GitHub. You can inspect, fork, and
-						self-host it. Full transparency, no black boxes.
-					</div>
-				</Card>
-				<Card className="lg:w-[300px] text-left px-4 py-6 flex-1">
-					<VideoIcon />
-					<div className="h-4" />
-					<div className="font-brand font-bold text-2xl mb-2">
-						2M+ videos/month
-					</div>
-					<div className="font-brand">
-						More than one million videos are rendered with Remotion every month.
-						Battle-tested at scale.
-					</div>
-				</Card>
-				<Card className="lg:w-[300px] text-left px-4 py-6 flex-1">
-					<StarIcon />
-					<div className="h-4" />
-					<div className="font-brand font-bold text-2xl mb-2">
-						50,000+ GitHub stars
-					</div>
-					<div className="font-brand">
-						One of the most popular media projects on GitHub. Trusted by the
-						developer community.
-					</div>
-				</Card>
-			</div>
+		<div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+			<Card className="text-left px-4 py-6">
+				<SwissIcon />
+				<div className="h-4" />
+				<div className="font-brand font-bold text-2xl mb-2">Swiss quality</div>
+				<div className="font-brand">
+					We are a company based in Zurich, Switzerland. We{"'"}re far away from
+					the craziness that is Silicon Valley.
+				</div>
+			</Card>
+			<Card className="text-left px-4 py-6">
+				<ProfitableIcon />
+				<div className="h-4" />
+				<div className="font-brand font-bold text-2xl mb-2">
+					Sustainable business
+				</div>
+				<div className="font-brand">
+					Remotion is profitable. Aside from our{' '}
+					<a
+						href="/docs/investors"
+						className="text-brand hover:underline underline-offset-4"
+					>
+						early investors
+					</a>
+					, we don{"'"}t need outside investment to sustain the business.
+				</div>
+			</Card>
+			<Card className="text-left px-4 py-6">
+				<KeyIcon />
+				<div className="h-4" />
+				<div className="font-brand font-bold text-2xl mb-2">Founder-owned</div>
+				<div className="font-brand">
+					We, the founders, own the company. And we just want one thing: Make
+					programmatic video glorious.
+				</div>
+			</Card>
+			<Card className="text-left px-4 py-6">
+				<ClockIcon />
+				<div className="h-4" />
+				<div className="font-brand font-bold text-2xl mb-2">
+					5 years and counting
+				</div>
+				<div className="font-brand">
+					Making Remotion since 2021. No plans to change our business model or
+					sell the company.
+				</div>
+			</Card>
+			<Card className="text-left px-4 py-6">
+				<ShieldIcon />
+				<div className="h-4" />
+				<div className="font-brand font-bold text-2xl mb-2">
+					Succession plan
+				</div>
+				<div className="font-brand">
+					If something happens to us, the project will fall under{' '}
+					<a
+						href="https://github.com/wcandillon"
+						target="_blank"
+						className="text-brand hover:underline underline-offset-4"
+					>
+						William Candillon
+					</a>
+					{"'s"} supervision.
+				</div>
+			</Card>
+			<Card className="text-left px-4 py-6">
+				<UsersIcon />
+				<div className="h-4" />
+				<div className="font-brand font-bold text-2xl mb-2">400+ customers</div>
+				<div className="font-brand">
+					More than 400 companies trust Remotion, from small businesses to FAANG
+					/ MANGOS.
+				</div>
+			</Card>
+			<Card className="text-left px-4 py-6">
+				<CodeIcon />
+				<div className="h-4" />
+				<div className="font-brand font-bold text-2xl mb-2">
+					Source-available
+				</div>
+				<div className="font-brand">
+					Our code is publicly available on GitHub. You can inspect, fork, and
+					self-host it. Full transparency, no black boxes.
+				</div>
+			</Card>
+			<Card className="text-left px-4 py-6">
+				<VideoIcon />
+				<div className="h-4" />
+				<div className="font-brand font-bold text-2xl mb-2">
+					2M+ videos/month
+				</div>
+				<div className="font-brand">
+					More than two million videos are rendered with Remotion every month.
+					Battle-tested at scale.
+				</div>
+			</Card>
+			<Card className="text-left px-4 py-6">
+				<StarIcon />
+				<div className="h-4" />
+				<div className="font-brand font-bold text-2xl mb-2">
+					55,000+ GitHub stars
+				</div>
+				<div className="font-brand">
+					One of the most popular media projects on GitHub. Trusted by the
+					developer community.
+				</div>
+			</Card>
 		</div>
 	);
 };

@@ -4,12 +4,12 @@
 	},
 	"name": "docs",
 	"private": true,
-	"version": "4.0.503",
+	"version": "4.0.507",
 	"scripts": {
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"docusaurus": "docusaurus",
-		"start": "bun copy-raw-docs.ts && bun fetch-prompt-submissions.ts && bun update-prompt.ts && cd .. && bun run build && cd docs && bunx turbo run prewarm-twoslash --filter=docs --no-update-notifier && docusaurus start --host 0.0.0.0",
+		"start": "bun copy-raw-docs.ts && bun fetch-prompt-submissions.ts && bun update-prompt.ts && cd .. && bun run build && cd docs && if [ \"$REMOTION_DOCS_ENABLE_TWOSLASH\" = \"1\" ]; then echo \"🧪 Twoslash is enabled in development.\"; else echo \"⚡ Twoslash is disabled in development for faster startup.\"; echo \"   Enable it with: REMOTION_DOCS_ENABLE_TWOSLASH=1 bun run start\"; fi && REMOTION_DOCS_DISABLE_TWOSLASH=1 docusaurus start --host 0.0.0.0",
 		"build-docs": "bun build-docs.ts",
 		"prewarm-twoslash": "bun prewarm-twoslash.ts",
 		"swizzle": "docusaurus swizzle",
@@ -20,7 +20,8 @@
 		"test": "bun test src",
 		"remotion": "remotion studio src/remotion/entry.ts",
 		"render-cards": "bun run render-cards.ts",
-		"render-element-previews": "bun run render-element-previews.ts"
+		"render-element-previews": "bun run render-element-previews.ts",
+		"upload-element-preview": "bun run upload-element-preview.ts"
 	},
 	"dependencies": {
 		"@remotion/studio-protocol": "workspace:*",

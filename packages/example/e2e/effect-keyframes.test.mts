@@ -4,8 +4,14 @@ import {expect, test} from '@playwright/test';
 import {wave} from '@remotion/effects/wave';
 import {getAllSchemaKeys} from '@remotion/studio-shared';
 import {apiCall} from './api-call.mts';
-import {effectKeyframeE2eFile} from './constants.mts';
+import {
+	EXPANDED_SIDEBAR_STATE,
+	STUDIO_URL,
+	effectKeyframeE2eFile,
+} from './constants.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
+
+test.use({storageState: EXPANDED_SIDEBAR_STATE});
 
 const getLine = (input: string, search: string) => {
 	const line = input.split('\n').findIndex((l) => l.includes(search));
@@ -94,5 +100,89 @@ test.describe('effect keyframes', () => {
 				},
 			)
 			.toBe(true);
+	});
+
+	test('accepts a scale value that is more precise than its interaction step', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		await expect(page).toHaveURL(/effect-keyframe-e2e/, {timeout: 15_000});
+		await page.waitForFunction(
+			() => !document.body.innerText.includes('Loading...'),
+			{timeout: 30_000},
+		);
+
+		await page.getByTitle('Scale precision', {exact: true}).first().click();
+
+		const scaleRow = page
+			.getByText('Scale', {exact: true})
+			.locator('..')
+			.locator('..');
+		const scaleDragger = scaleRow
+			.locator('button.__remotion_input_dragger')
+			.first();
+		await expect(scaleDragger).toBeVisible({timeout: 15_000});
+		await scaleDragger.click();
+
+		const input = scaleRow.locator('input[type="text"]');
+		await expect(input).toBeVisible();
+		await input.fill('0.525');
+		await input.press('ArrowUp');
+		await expect(input).toHaveValue('0.535');
+		await input.fill('0.525');
+		await input.press('Enter');
+
+		await expect
+			.poll(
+				() => {
+					const content = fs.readFileSync(effectKeyframeE2eFile, 'utf-8');
+					return content.includes('scale: 0.525');
+				},
+				{
+					message: 'Expected the precise scale value to be written to source',
+					timeout: 10_000,
+				},
+			)
+			.toBe(true);
+	});
+
+	test('collapses timeline tracks until a property or effect is selected', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		await expect(page).toHaveURL(/effect-keyframe-e2e/, {timeout: 15_000});
+		await page.waitForFunction(
+			() => !document.body.innerText.includes('Loading...'),
+			{timeout: 30_000},
+		);
+
+		const opacityRow = page.getByText('Opacity', {exact: true});
+		await expect(async () => {
+			await page
+				.getByTitle('Timeline expansion', {exact: true})
+				.first()
+				.click();
+			await expect(opacityRow).toHaveCount(1, {timeout: 1_000});
+		}).toPass({timeout: 15_000});
+		await expect(
+			page.locator('button[aria-label="Expand track properties"]'),
+		).toBeVisible();
+
+		await opacityRow.click();
+
+		await expect(
+			page.locator('button[aria-label="Collapse track properties"]'),
+		).toBeVisible();
+		await expect(opacityRow).toHaveCount(2);
+
+		const waveRow = page.getByText('wave()', {exact: true});
+		await expect(async () => {
+			await page.getByTitle('Scale precision', {exact: true}).first().click();
+			await expect(waveRow).toHaveCount(1, {timeout: 1_000});
+		}).toPass({timeout: 15_000});
+
+		await waveRow.click();
+
+		await expect(waveRow).toHaveCount(2);
 	});
 });

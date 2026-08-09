@@ -872,17 +872,28 @@ export const Canvas: React.FC<{
 			}
 
 			const declaredDependencies = Array.from(
-				new Set(activeElementInstallRequest.element.dependencies),
+				new Map(
+					activeElementInstallRequest.element.dependencies.map((dependency) => [
+						dependency.name,
+						dependency,
+					]),
+				).values(),
 			);
-			const missingPackages = getMissingPackages(declaredDependencies);
+			const missingPackages = getMissingPackages(declaredDependencies).map(
+				(dependency) => dependency.name,
+			);
 			const ignoredDependencies = declaredDependencies.filter(
-				(packageName) =>
-					elementInstallDependencyIgnoreList.includes(packageName) &&
-					!missingPackages.includes(packageName),
+				(dependency) =>
+					elementInstallDependencyIgnoreList.includes(dependency.name) &&
+					!missingPackages.includes(dependency.name),
 			);
-			const dependenciesToReview = declaredDependencies.filter(
-				(packageName) => !ignoredDependencies.includes(packageName),
-			);
+			const dependenciesToReview = declaredDependencies
+				.filter((dependency) => !ignoredDependencies.includes(dependency))
+				.map((dependency) =>
+					dependency.version === null
+						? dependency.name
+						: `${dependency.name}@${dependency.version}`,
+				);
 			const sourceLabel =
 				activeElementInstallRequest.source.type === 'studio-protocol'
 					? activeElementInstallRequest.source.origin
@@ -1155,6 +1166,7 @@ export const Canvas: React.FC<{
 					event,
 					fps: config.fps,
 					from: getCurrentFrame(),
+					preferCompositionStart: true,
 				});
 			} finally {
 				setIsAddingAsset(false);
@@ -1266,6 +1278,7 @@ export const Canvas: React.FC<{
 						contentDimensions === 'none' ? null : contentDimensions,
 					dropPosition,
 					from: null,
+					preferCompositionStart: null,
 					svgImportMode,
 				});
 			} finally {

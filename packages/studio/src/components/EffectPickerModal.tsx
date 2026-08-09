@@ -20,7 +20,10 @@ import {
 import {useKeybinding} from '../helpers/use-keybinding';
 import {EffectsIcon} from '../icons/effects';
 import {ExternalLinkIcon} from '../icons/external-link';
-import {ModalsContext, type AddEffectModalState} from '../state/modals';
+import {
+	type AddEffectModalState,
+	SetSelectedModalContext,
+} from '../state/modals';
 import {ContextMenu} from './ContextMenu';
 import {addEffectToSequence} from './effect-drag-and-drop';
 import {filterEffectCatalog} from './effect-picker-search';
@@ -174,7 +177,7 @@ const EffectPickerResult: React.FC<{
 		onSelected(item);
 	}, [item, onSelected]);
 
-	const contextMenuValues = useMemo((): ComboboxValue[] => {
+	const getContextMenuItems = useCallback((): ComboboxValue[] => {
 		const documentationLink = getEffectDocumentationLink(item);
 
 		return [
@@ -196,7 +199,7 @@ const EffectPickerResult: React.FC<{
 	}, [item]);
 
 	return (
-		<ContextMenu values={contextMenuValues} onOpen={null}>
+		<ContextMenu getItems={getContextMenuItems}>
 			<div
 				ref={ref}
 				style={style}
@@ -222,7 +225,7 @@ const EffectPickerResult: React.FC<{
 const EffectPickerContent: React.FC<{
 	readonly state: AddEffectModalState;
 }> = ({state}) => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const [aboutEffectsHovered, setAboutEffectsHovered] = useState(false);
 	const [query, setQuery] = useState('');
 	const [selectedIndex, setSelectedIndex] = useState(0);

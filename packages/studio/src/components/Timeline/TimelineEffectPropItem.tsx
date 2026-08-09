@@ -338,6 +338,24 @@ export const TimelineEffectPropValue: React.FC<{
 	);
 };
 
+const TimelineEffectPropValueAtCurrentFrame: React.FC<{
+	readonly field: EffectSchemaFieldInfo;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly validatedLocation: CodePosition;
+	readonly keyframeDisplayOffset: number;
+}> = ({field, nodePath, validatedLocation, keyframeDisplayOffset}) => {
+	const timelinePosition = Internals.Timeline.useTimelinePosition();
+
+	return (
+		<TimelineEffectPropValue
+			field={field}
+			nodePath={nodePath}
+			validatedLocation={validatedLocation}
+			sourceFrame={timelinePosition - keyframeDisplayOffset}
+		/>
+	);
+};
+
 export const TimelineEffectPropItem: React.FC<{
 	readonly field: EffectSchemaFieldInfo;
 	readonly validatedLocation: CodePosition;
@@ -362,8 +380,6 @@ export const TimelineEffectPropItem: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const selection = useTimelineRowSelection(nodePathInfo);
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const sourceFrame = timelinePosition - keyframeDisplayOffset;
 	const style = useMemo((): React.CSSProperties => {
 		return field.typeName === 'text-content'
 			? fieldRowBase
@@ -475,7 +491,11 @@ export const TimelineEffectPropItem: React.FC<{
 		validatedLocation.source,
 	]);
 
-	const contextMenuValues = useMemo((): ComboboxValue[] => {
+	const getContextMenuItems = useCallback((): ComboboxValue[] => {
+		if (selection.selectable) {
+			selection.onSelect({shiftKey: false, toggleKey: false});
+		}
+
 		return [
 			{
 				type: 'item',
@@ -490,7 +510,7 @@ export const TimelineEffectPropItem: React.FC<{
 				value: 'reset-effect-field',
 			},
 		];
-	}, [canShowReset, onReset]);
+	}, [canShowReset, onReset, selection]);
 
 	const onPropertyDoubleClick = useCallback<
 		React.MouseEventHandler<HTMLDivElement>
@@ -533,22 +553,15 @@ export const TimelineEffectPropItem: React.FC<{
 				rowDepth={rowDepth}
 				selected={selection.selected}
 			>
-				<TimelineEffectPropValue
+				<TimelineEffectPropValueAtCurrentFrame
 					field={field}
 					nodePath={nodePath}
 					validatedLocation={validatedLocation}
-					sourceFrame={sourceFrame}
+					keyframeDisplayOffset={keyframeDisplayOffset}
 				/>
 			</TimelineFieldRowContent>
 		</TimelineRowChrome>
 	);
 
-	return (
-		<ContextMenu
-			values={contextMenuValues}
-			onOpen={selection.selectable ? selection.onSelect : null}
-		>
-			{row}
-		</ContextMenu>
-	);
+	return <ContextMenu getItems={getContextMenuItems}>{row}</ContextMenu>;
 };

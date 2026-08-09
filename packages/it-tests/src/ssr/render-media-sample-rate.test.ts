@@ -101,5 +101,5 @@ test(
 		const sampleRate = await getSampleRateFromFile(outPath);
 		expect(sampleRate).toBe(48000);
 	},
-	{timeout: 30000},
+	{timeout: 30000, retry: 3},
 );

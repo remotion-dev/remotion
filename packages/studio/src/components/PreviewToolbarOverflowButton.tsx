@@ -1,7 +1,6 @@
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
-import {Internals} from 'remotion';
-import {WHITE} from '../helpers/colors';
+import {WHITE_ALPHA_80} from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {Checkmark} from '../icons/Checkmark';
 import {EllipsisIcon} from '../icons/ellipsis';
@@ -19,7 +18,6 @@ const clickButton = (id: string) => {
 };
 
 export const PreviewToolbarOverflowButton: React.FC<{
-	readonly readOnlyStudio: boolean;
 	readonly showFullscreen: boolean;
 	readonly showPlaybackRate: boolean;
 	readonly showLoop: boolean;
@@ -29,7 +27,6 @@ export const PreviewToolbarOverflowButton: React.FC<{
 	readonly loop: boolean;
 	readonly setLoop: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
-	readOnlyStudio,
 	showFullscreen,
 	showPlaybackRate,
 	showLoop,
@@ -39,7 +36,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 	loop,
 	setLoop,
 }) => {
-	const video = Internals.useVideo();
+	const keyboardShortcutsDisabled = areKeyboardShortcutsDisabled();
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
 	const {editorShowOutlines, setEditorShowOutlines} = useContext(
 		EditorShowOutlinesContext,
@@ -66,60 +63,6 @@ export const PreviewToolbarOverflowButton: React.FC<{
 		(color) => <EllipsisIcon fill={color} svgProps={iconStyle} />,
 		[iconStyle],
 	);
-
-	const renderItems = useMemo((): ComboboxValue[] => {
-		if (readOnlyStudio) {
-			return [
-				{
-					type: 'item',
-					id: 'client-render',
-					label: 'Render on web',
-					value: 'client-render',
-					onClick: () => clickButton('render-modal-button-client'),
-					keyHint: null,
-					leftItem: null,
-					subMenu: null,
-					quickSwitcherLabel: null,
-				},
-				{
-					type: 'item',
-					id: 'render-command',
-					label: 'Render via CLI',
-					value: 'render-command',
-					onClick: () => clickButton('render-modal-button-command'),
-					keyHint: null,
-					leftItem: null,
-					subMenu: null,
-					quickSwitcherLabel: null,
-				},
-			];
-		}
-
-		return [
-			{
-				type: 'item',
-				id: 'server-render',
-				label: 'Server-side render',
-				value: 'server-render',
-				onClick: () => clickButton('render-modal-button-server'),
-				keyHint: null,
-				leftItem: null,
-				subMenu: null,
-				quickSwitcherLabel: null,
-			},
-			{
-				type: 'item',
-				id: 'client-render',
-				label: 'Client-side render',
-				value: 'client-render',
-				onClick: () => clickButton('render-modal-button-client'),
-				keyHint: null,
-				leftItem: null,
-				subMenu: null,
-				quickSwitcherLabel: null,
-			},
-		];
-	}, [readOnlyStudio]);
 
 	const values = useMemo((): ComboboxValue[] => {
 		const items: ComboboxValue[] = [];
@@ -185,7 +128,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 				label: 'Transparency as checkerboard',
 				value: 'checkerboard',
 				onClick: () => setCheckerboard((current) => !current),
-				keyHint: areKeyboardShortcutsDisabled() ? null : 'T',
+				keyHint: keyboardShortcutsDisabled ? null : 'T',
 				leftItem: checkerboard ? <Checkmark /> : null,
 				subMenu: null,
 				quickSwitcherLabel: null,
@@ -210,27 +153,9 @@ export const PreviewToolbarOverflowButton: React.FC<{
 				label: 'Fullscreen',
 				value: 'fullscreen',
 				onClick: () => clickButton('fullscreen-toggle'),
-				keyHint: areKeyboardShortcutsDisabled() ? null : 'F',
+				keyHint: keyboardShortcutsDisabled ? null : 'F',
 				leftItem: null,
 				subMenu: null,
-				quickSwitcherLabel: null,
-			});
-		}
-
-		if (video) {
-			items.push({
-				type: 'item',
-				id: 'render',
-				label: 'Render',
-				value: 'render',
-				onClick: () => undefined,
-				keyHint: null,
-				leftItem: null,
-				subMenu: {
-					items: renderItems,
-					leaveLeftSpace: false,
-					preselectIndex: 0,
-				},
 				quickSwitcherLabel: null,
 			});
 		}
@@ -239,7 +164,6 @@ export const PreviewToolbarOverflowButton: React.FC<{
 	}, [
 		previewSizeItems,
 		playbackRateItems,
-		renderItems,
 		selectedPlaybackRate,
 		selectedPreviewSize,
 		showFullscreen,
@@ -252,8 +176,8 @@ export const PreviewToolbarOverflowButton: React.FC<{
 		setCheckerboard,
 		setEditorShowOutlines,
 		setLoop,
-		video,
 		zoomable,
+		keyboardShortcutsDisabled,
 	]);
 
 	if (values.length === 0) {
@@ -266,7 +190,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 			renderAction={renderAction}
 			values={values}
 			title="More actions"
-			unhoveredColor={WHITE}
+			unhoveredColor={WHITE_ALPHA_80}
 		/>
 	);
 };

@@ -233,6 +233,20 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-region-blur',
+		category: 'Blur & Shadow',
+		label: 'regionBlur()',
+		description: 'Blur a rectangular or rounded region',
+		effect: {
+			name: 'regionBlur',
+			importPath: '@remotion/effects/region-blur',
+			config: {
+				topLeft: [0.28, 0.18],
+				bottomRight: [0.72, 0.82],
+			},
+		},
+	},
+	{
 		id: 'effects-zoom-blur',
 		category: 'Blur & Shadow',
 		label: 'zoomBlur()',

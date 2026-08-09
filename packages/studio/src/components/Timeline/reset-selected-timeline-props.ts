@@ -170,7 +170,7 @@ export const getTimelinePropResetTargets = ({
 			const {merged: sequenceValuesDotNotation} =
 				Internals.computeEffectiveSchemaValuesDotNotation({
 					schema: sequence.controls.schema,
-					currentValue: sequence.controls.currentRuntimeValueDotNotation,
+					currentValue: sequence.controls.runtimeValues.getSnapshot(),
 					overrideValues: {},
 					propStatus: sequencePropStatus,
 					frame: null,

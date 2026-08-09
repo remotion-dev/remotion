@@ -1,6 +1,9 @@
 import {expect, test} from 'bun:test';
+import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {createServer} from 'node:http';
 import {connect} from 'node:net';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
 import {createElementPayload} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
 import {
@@ -10,6 +13,7 @@ import {
 import type {LiveEventsServer} from '../preview-server/live-events';
 import {handleStudioProtocolDiscovery} from '../preview-server/studio-protocol/handle-discovery';
 import {handleStudioProtocolInstall} from '../preview-server/studio-protocol/handle-install';
+import {handleStudioProtocolLicenseKey} from '../preview-server/studio-protocol/handle-license-key';
 import {handleStudioProtocolOptions} from '../preview-server/studio-protocol/origin-policy';
 
 const payload = createElementPayload({
@@ -134,9 +138,10 @@ test('discovers an exact Studio target and delivers one install request over HTT
 	const server = createServer((request, response) => {
 		const {pathname} = new URL(request.url ?? '/', 'http://localhost');
 		if (request.method === 'OPTIONS') {
-			handleStudioProtocolOptions({request, response}).catch((error) =>
-				response.destroy(error),
-			);
+			handleStudioProtocolOptions({
+				request,
+				response,
+			}).catch((error) => response.destroy(error));
 			return;
 		}
 
@@ -193,14 +198,21 @@ test('discovers an exact Studio target and delivers one install request over HTT
 		expect(discoveryResponse.status).toBe(200);
 		expect(discoveryResponse.headers.get('cache-control')).toBe('no-store');
 		const descriptor = (await discoveryResponse.json()) as {
-			installTarget: {id: string; compositionId: string};
+			capabilities: [
+				{
+					type: 'install-element';
+					target: {id: string; compositionId: string};
+				},
+			];
 		};
-		expect(descriptor.installTarget.compositionId).toBe('Main');
+		const installTarget = descriptor.capabilities[0].target;
+		expect(installTarget.compositionId).toBe('Main');
 
 		const installBody = {
+			operation: 'install-element',
 			protocol: 'remotion-studio-protocol',
 			protocolVersion: 1,
-			targetId: descriptor.installTarget.id,
+			targetId: installTarget.id,
 			payload,
 		};
 		const invalidEnvelopeResponse = await fetch(
@@ -233,6 +245,33 @@ test('discovers an exact Studio target and delivers one install request over HTT
 		);
 		expect(invalidPayloadResponse.status).toBe(400);
 		expect(await invalidPayloadResponse.json()).toMatchObject({
+			status: 'error',
+			error: {code: 'invalid-payload'},
+		});
+		expect(deliveredEvents).toHaveLength(0);
+
+		const invalidDependencyResponse = await fetch(
+			`${origin}/api/studio-protocol/install`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Origin: 'http://localhost:4000',
+				},
+				body: JSON.stringify({
+					...installBody,
+					payload: {
+						...payload,
+						element: {
+							...payload.element,
+							dependencies: [{name: 'lodash', version: null}],
+						},
+					},
+				}),
+			},
+		);
+		expect(invalidDependencyResponse.status).toBe(400);
+		expect(await invalidDependencyResponse.json()).toMatchObject({
 			status: 'error',
 			error: {code: 'invalid-payload'},
 		});
@@ -303,6 +342,216 @@ test('discovers an exact Studio target and delivers one install request over HTT
 		await new Promise<void>((resolve, reject) => {
 			server.close((error) => (error ? reject(error) : resolve()));
 		});
+		clearElementInstallStateForTests();
+	}
+});
+
+test('opens a license key confirmation in the focused Studio project over HTTP', async () => {
+	clearElementInstallStateForTests();
+	const deliveredEvents: EventSourceEvent[] = [];
+	const focusedUrls: string[] = [];
+	const directory = mkdtempSync(
+		path.join(tmpdir(), 'remotion-license-protocol-'),
+	);
+	const configFile = path.join(directory, 'remotion.config.ts');
+	let loadedConfigFile: string | null = configFile;
+	writeFileSync(
+		configFile,
+		[
+			"import {Config} from '@remotion/cli/config';",
+			"Config.setPublicLicenseKey('rm_pub_old');",
+			'',
+		].join('\n'),
+	);
+	const liveEventsServer: LiveEventsServer = {
+		addNewClientListener: () => () => undefined,
+		closeConnections: () => Promise.resolve(),
+		router: () => Promise.resolve(),
+		sendEventToClient: (event) => {
+			if (event.type !== 'request-element-install-target') {
+				return;
+			}
+
+			updateElementInstallTarget({
+				requestId: event.requestId,
+				clientId: 'focused-studio-tab',
+				compositionFile: null,
+				compositionId: null,
+				canInstall: false,
+				lastFocusedAt: Date.now(),
+				readOnly: false,
+				studioUrl: 'http://localhost:3000',
+			});
+		},
+		sendEventToClientId: (clientId, event) => {
+			if (clientId !== 'focused-studio-tab') {
+				return false;
+			}
+
+			deliveredEvents.push(event);
+			return true;
+		},
+	};
+	const server = createServer((request, response) => {
+		const {pathname} = new URL(request.url ?? '/', 'http://localhost');
+		if (request.method === 'OPTIONS') {
+			handleStudioProtocolOptions({
+				request,
+				response,
+			}).catch((error) => response.destroy(error));
+			return;
+		}
+
+		if (pathname === '/api/studio-protocol') {
+			handleStudioProtocolDiscovery({
+				gitSource: null,
+				liveEventsServer,
+				remotionRoot: directory,
+				request,
+				response,
+			}).catch((error) => response.destroy(error));
+			return;
+		}
+
+		handleStudioProtocolLicenseKey({
+			configFile: loadedConfigFile,
+			focusStudioTab: (studioUrl) => focusedUrls.push(studioUrl),
+			liveEventsServer,
+			request,
+			response,
+		}).catch((error) => response.destroy(error));
+	});
+	await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+
+	try {
+		const address = server.address();
+		if (address === null || typeof address === 'string') {
+			throw new Error('Expected an HTTP server address');
+		}
+
+		const origin = `http://127.0.0.1:${address.port}`;
+		const licenseKeyPreflight = await fetch(
+			`${origin}/api/studio-protocol/license-key`,
+			{
+				method: 'OPTIONS',
+				headers: {Origin: 'https://example.com'},
+			},
+		);
+		expect(licenseKeyPreflight.status).toBe(204);
+		expect(licenseKeyPreflight.headers.get('access-control-allow-origin')).toBe(
+			'https://example.com',
+		);
+
+		const discovery = await fetch(`${origin}/api/studio-protocol`, {
+			headers: {Origin: 'https://example.com'},
+		});
+		const descriptor = (await discovery.json()) as {
+			capabilities: [
+				{type: 'install-element'},
+				{type: 'set-license-key'; target: {id: string}},
+			];
+		};
+		const licenseKeyTarget = descriptor.capabilities[1].target;
+		expect(licenseKeyTarget.id).toBeString();
+
+		const validLicenseKey = `rm_pub_${'a'.repeat(48)}`;
+		const body = {
+			operation: 'set-license-key',
+			protocol: 'remotion-studio-protocol',
+			protocolVersion: 1,
+			targetId: licenseKeyTarget.id,
+			licenseKey: validLicenseKey,
+		};
+		const invalidKeyResponse = await fetch(
+			`${origin}/api/studio-protocol/license-key`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Origin: 'https://example.com',
+				},
+				body: JSON.stringify({...body, licenseKey: 'rm_sec_private'}),
+			},
+		);
+		expect(invalidKeyResponse.status).toBe(400);
+		expect(await invalidKeyResponse.json()).toMatchObject({
+			status: 'error',
+			error: {code: 'invalid-license-key'},
+		});
+		expect(readFileSync(configFile, 'utf8')).toContain('rm_pub_old');
+
+		const response = await fetch(`${origin}/api/studio-protocol/license-key`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Origin: 'https://example.com',
+			},
+			body: JSON.stringify(body),
+		});
+		expect(await response.json()).toEqual({
+			protocol: 'remotion-studio-protocol',
+			protocolVersion: 1,
+			status: 'awaiting-confirmation',
+		});
+		expect(readFileSync(configFile, 'utf8')).toContain('rm_pub_old');
+		expect(deliveredEvents).toEqual([
+			{
+				type: 'license-key-install-request',
+				licenseKey: validLicenseKey,
+			},
+		]);
+		expect(focusedUrls).toEqual(['http://localhost:3000']);
+
+		const replay = await fetch(`${origin}/api/studio-protocol/license-key`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Origin: 'https://example.com',
+			},
+			body: JSON.stringify(body),
+		});
+		expect(replay.status).toBe(409);
+		expect(await replay.json()).toMatchObject({
+			status: 'error',
+			error: {code: 'target-expired'},
+		});
+		expect(deliveredEvents).toHaveLength(1);
+		expect(focusedUrls).toHaveLength(1);
+
+		const noConfigDiscovery = await fetch(`${origin}/api/studio-protocol`, {
+			headers: {Origin: 'https://example.com'},
+		});
+		const noConfigDescriptor = (await noConfigDiscovery.json()) as {
+			capabilities: [
+				{type: 'install-element'},
+				{type: 'set-license-key'; target: {id: string}},
+			];
+		};
+		loadedConfigFile = null;
+		const noConfigResponse = await fetch(
+			`${origin}/api/studio-protocol/license-key`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Origin: 'https://example.com',
+				},
+				body: JSON.stringify({
+					...body,
+					targetId: noConfigDescriptor.capabilities[1].target.id,
+				}),
+			},
+		);
+		expect(noConfigResponse.status).toBe(409);
+		expect(await noConfigResponse.json()).toMatchObject({
+			status: 'error',
+			error: {code: 'no-config-file'},
+		});
+	} finally {
+		await new Promise<void>((resolve, reject) => {
+			server.close((error) => (error ? reject(error) : resolve()));
+		});
+		rmSync(directory, {recursive: true, force: true});
 		clearElementInstallStateForTests();
 	}
 });

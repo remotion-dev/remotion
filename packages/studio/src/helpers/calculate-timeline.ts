@@ -1,4 +1,3 @@
-import {stringifySequenceSubscriptionKey} from '@remotion/studio-shared';
 import type {
 	_InternalTypes,
 	LoopDisplay,
@@ -19,6 +18,7 @@ import type {
 } from './get-timeline-sequence-sort-key';
 import {getTimelineSequenceSortKey} from './get-timeline-sequence-sort-key';
 import {sortItemsByNonceHistory} from './sort-by-nonce-history';
+import {timelineSequenceNodePathToKey} from './timeline-node-path-key';
 
 const getInheritedLoopDisplay = (
 	sequence: TSequence,
@@ -165,7 +165,7 @@ export const calculateTimeline = ({
 				return track;
 			}
 
-			const key = stringifySequenceSubscriptionKey(
+			const key = timelineSequenceNodePathToKey(
 				track.nodePathInfo.sequenceSubscriptionKey,
 			);
 			const index = nodePathIndexCounters.get(key) ?? 0;
@@ -186,7 +186,7 @@ export const calculateTimeline = ({
 				return track;
 			}
 
-			const key = stringifySequenceSubscriptionKey(
+			const key = timelineSequenceNodePathToKey(
 				track.nodePathInfo.sequenceSubscriptionKey,
 			);
 

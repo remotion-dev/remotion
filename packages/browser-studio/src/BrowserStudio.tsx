@@ -83,6 +83,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	dependencyResolver,
 	onCompileStateChange,
 	onProjectChange,
+	workspacePackageBaseUrl,
 }) => {
 	const [state, setState] = useState<CompileState>(makeInitialState);
 	const [iframeHtml, setIframeHtml] = useState<string | null>(null);
@@ -279,9 +280,12 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				studioRuntimeConfig: {
 					askAIEnabled: false,
 					bufferStateDelayInMilliseconds: null,
+					defaultCodingAgent: null,
+					defaultEditor: null,
 					interactivityEnabled: true,
 					keyboardShortcutsEnabled: true,
 					maxTimelineTracks: null,
+					publicLicenseKey: null,
 				},
 				studioServerCommand: null,
 				title: 'Remotion Studio',
@@ -319,6 +323,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				),
 			),
 			project: activeProjectRef.current,
+			workspacePackageBaseUrl: workspacePackageBaseUrl ?? null,
 		};
 
 		worker.postMessage(request);
@@ -335,6 +340,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		hmrAssetManager,
 		publicFileManager,
 		readOnly,
+		workspacePackageBaseUrl,
 		activeProject.entryPoint,
 		activeProject.rootDir,
 	]);

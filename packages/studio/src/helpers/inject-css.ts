@@ -8,6 +8,7 @@ import {
 	TRANSPARENT,
 	WHITE,
 } from './colors';
+import {makeHoverableCSS} from './hoverable';
 
 const makeDefaultGlobalCSS = () => {
 	const dragAreaFactor = 2;
@@ -151,7 +152,7 @@ const makeDefaultGlobalCSS = () => {
 	    position: relative;
 	  }
 
-  .__remotion_input_dragger:hover span {
+	.__remotion_input_dragger:hover > span:first-child {
     color: var(--remotion-cli-internals-blue-hovered) !important;
   }
 
@@ -159,6 +160,8 @@ const makeDefaultGlobalCSS = () => {
     color: var(--remotion-cli-internals-blue) !important;
     transition: color 0.2s ease-in-out;
   }
+
+  ${makeHoverableCSS()}
   `.trim();
 };
 

@@ -19,7 +19,7 @@ test('resolves a statically imported composition component', async () => {
 	});
 
 	expect(location.source).toBe(path.join('src', 'SchemaTest', 'index.tsx'));
-	expect(location.line).toBe(142);
+	expect(location.line).toBe(146);
 	expect(location.canAddSequence).toBe(true);
 });
 
@@ -1936,6 +1936,7 @@ test('rejects composition insertion requests that traverse out of the project ro
 			publicDir: tempDir,
 			binariesDirectory: null,
 			configFile: null,
+			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
 		});
 

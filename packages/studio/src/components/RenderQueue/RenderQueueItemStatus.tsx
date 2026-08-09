@@ -1,6 +1,6 @@
 import React, {useCallback, useContext} from 'react';
 import {FAIL_COLOR, LIGHT_TEXT, WHITE} from '../../helpers/colors';
-import {ModalsContext} from '../../state/modals';
+import {SetSelectedModalContext} from '../../state/modals';
 import {
 	CircularProgress,
 	RENDER_STATUS_INDICATOR_SIZE,
@@ -24,7 +24,7 @@ const invisibleStyle: React.CSSProperties = {
 export const RenderQueueItemStatus: React.FC<{
 	readonly job: AnyRenderJob;
 }> = ({job}) => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const [hovered, setHovered] = React.useState(false);
 
 	const isClientJob = isClientRenderJob(job);

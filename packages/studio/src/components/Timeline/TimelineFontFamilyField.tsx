@@ -511,7 +511,9 @@ export const TimelineFontFamilyField: React.FC<{
 					return;
 				}
 
-				await installRequiredPackages(['@remotion/google-fonts']);
+				await installRequiredPackages([
+					{name: '@remotion/google-fonts', version: null},
+				]);
 				const googleFont = getGoogleFontSourceEdit({
 					fontFamily: option.value ?? option.label,
 					importName: option.googleFontImportName,

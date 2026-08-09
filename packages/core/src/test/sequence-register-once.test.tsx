@@ -6,7 +6,11 @@ import {
 	AnimatedImage,
 	animatedImageSchema,
 } from '../animated-image/AnimatedImage.js';
-import type {SequenceControls, TSequence} from '../CompositionManager.js';
+import type {
+	SequenceControls,
+	SequenceRegistrationControls,
+	TSequence,
+} from '../CompositionManager.js';
 import type {
 	EffectDefinition,
 	EffectDescriptor,
@@ -236,6 +240,93 @@ test('Sequence calls registerSequence exactly once on mount', () => {
 	expect(registerCalls).toBe(1);
 });
 
+test('Interactive runtime values update mounted consumers without re-registering the sequence', () => {
+	const registeredSequences: TSequence[] = [];
+	const onRegisterSequence = (sequence: TSequence) => {
+		registeredSequences.push(sequence);
+	};
+
+	const renderInteractiveDiv = (opacity: number, color: string) => (
+		<SequenceTestWrapper onRegisterSequence={onRegisterSequence}>
+			<Interactive.Div style={{color, opacity}}>Hello</Interactive.Div>
+		</SequenceTestWrapper>
+	);
+	const producer = render(renderInteractiveDiv(0.25, 'red'));
+	const controls = registeredSequences.find(
+		(sequence) => sequence.displayName === '<Interactive.Div>',
+	)?.controls;
+	if (!controls) {
+		throw new Error('Expected Interactive.Div controls');
+	}
+
+	let consumerRenders = 0;
+	const RuntimeOpacity: React.FC<{
+		readonly controls: SequenceRegistrationControls;
+	}> = ({controls: consumerControls}) => {
+		consumerRenders++;
+		const opacity = React.useSyncExternalStore(
+			consumerControls.runtimeValues.subscribe,
+			() => consumerControls.runtimeValues.getSnapshot()['style.opacity'],
+		);
+
+		return <output>{String(opacity)}</output>;
+	};
+
+	const consumer = render(<RuntimeOpacity controls={controls} />);
+
+	expect(consumer.getByText('0.25')).toBeTruthy();
+	expect(consumerRenders).toBe(1);
+	expect(registeredSequences).toHaveLength(1);
+
+	producer.rerender(renderInteractiveDiv(0.75, 'red'));
+	expect(consumer.getByText('0.75')).toBeTruthy();
+	expect(consumerRenders).toBe(2);
+	expect(registeredSequences).toHaveLength(1);
+
+	producer.rerender(renderInteractiveDiv(0.75, 'blue'));
+	expect(consumer.getByText('0.75')).toBeTruthy();
+	expect(consumerRenders).toBe(2);
+	expect(registeredSequences).toHaveLength(1);
+});
+
+test('Interactive runtime values are published only after a render commits', () => {
+	const registeredSequences: TSequence[] = [];
+	const onRegisterSequence = (sequence: TSequence) => {
+		registeredSequences.push(sequence);
+	};
+
+	const never = new Promise<never>(() => undefined);
+	const Suspend: React.FC<{readonly active: boolean}> = ({active}) => {
+		if (active) {
+			throw never;
+		}
+
+		return null;
+	};
+
+	const renderInteractiveDiv = (opacity: number, suspend: boolean) => (
+		<React.Suspense fallback={<span>Suspended</span>}>
+			<SequenceTestWrapper onRegisterSequence={onRegisterSequence}>
+				<Interactive.Div style={{opacity}}>
+					<Suspend active={suspend} />
+				</Interactive.Div>
+			</SequenceTestWrapper>
+		</React.Suspense>
+	);
+	const producer = render(renderInteractiveDiv(0.25, false));
+	const controls = registeredSequences.find(
+		(sequence) => sequence.displayName === '<Interactive.Div>',
+	)?.controls;
+	if (!controls) {
+		throw new Error('Expected Interactive.Div controls');
+	}
+
+	producer.rerender(renderInteractiveDiv(0.75, true));
+
+	expect(producer.getByText('Suspended')).toBeTruthy();
+	expect(controls.runtimeValues.getSnapshot()['style.opacity']).toBe(0.25);
+});
+
 test('Sequence registers its documentation link', () => {
 	const registeredSequences: TSequence[] = [];
 
@@ -388,7 +479,7 @@ test('Series.Sequence registers with its own visual controls', () => {
 	expect(
 		seriesSequences.map(
 			(sequence) =>
-				sequence.controls?.currentRuntimeValueDotNotation.durationInFrames,
+				sequence.controls?.runtimeValues.getSnapshot().durationInFrames,
 		),
 	).toEqual([10, 20]);
 	expect(seriesSequences.map((sequence) => sequence.getStack())).toEqual([
@@ -1154,6 +1245,7 @@ test('Img registers a refForOutline pointing to the rendered image element', () 
 test('Interactive elements register their rendered element for Studio outlines', () => {
 	const registeredSequences: TSequence[] = [];
 	const divRef = React.createRef<HTMLDivElement>();
+	const rectRef = React.createRef<SVGRectElement>();
 	const documentationLink = 'https://www.remotion.dev/docs/interactive';
 
 	render(
@@ -1162,7 +1254,15 @@ test('Interactive elements register their rendered element for Studio outlines',
 				registeredSequences.push(sequence);
 			}}
 		>
-			<Interactive.Div ref={divRef}>Hello</Interactive.Div>
+			<Interactive.Div
+				ref={divRef}
+				cropBottom={0.4}
+				cropLeft={0.1}
+				cropRight={0.2}
+				cropTop={0.3}
+			>
+				Hello
+			</Interactive.Div>
 			<Interactive.Span>World</Interactive.Span>
 			<Interactive.Svg viewBox="0 0 100 100">
 				<Interactive.Circle />
@@ -1170,7 +1270,12 @@ test('Interactive elements register their rendered element for Studio outlines',
 				<Interactive.G />
 				<Interactive.Line />
 				<Interactive.Path />
-				<Interactive.Rect width={100} height={100} />
+				<Interactive.Rect
+					ref={rectRef}
+					cropLeft={0.25}
+					height={100}
+					width={100}
+				/>
 				<Interactive.Text x={50} y={50}>
 					Label
 				</Interactive.Text>
@@ -1223,6 +1328,20 @@ test('Interactive elements register their rendered element for Studio outlines',
 		divRef.current,
 	);
 	expect(getByName('<Interactive.Div>')?.controls).not.toBe(null);
+	expect(divRef.current?.style.clipPath).toBe('inset(30% 20% 40% 10%)');
+	expect(divRef.current?.getAttributeNames()).not.toContain('cropleft');
+	expect(rectRef.current?.style.clipPath).toBe('inset(0% 0% 0% 25%)');
+
+	for (const sequence of registeredSequences) {
+		for (const cropField of [
+			'cropLeft',
+			'cropRight',
+			'cropTop',
+			'cropBottom',
+		]) {
+			expect(sequence.controls?.schema).toHaveProperty(cropField);
+		}
+	}
 
 	for (const displayName of [
 		'<Interactive.Div>',
@@ -1254,6 +1373,19 @@ test('Interactive elements register their rendered element for Studio outlines',
 		expect(getByName(displayName)?.controls?.schema).toHaveProperty(
 			'strokeWidth',
 		);
+	}
+
+	for (const displayName of [
+		'<Interactive.Circle>',
+		'<Interactive.Ellipse>',
+		'<Interactive.G>',
+		'<Interactive.Line>',
+		'<Interactive.Path>',
+		'<Interactive.Rect>',
+		'<Interactive.Svg>',
+		'<Interactive.Text>',
+	]) {
+		expect(getByName(displayName)?.controls?.schema).toHaveProperty('color');
 	}
 
 	for (const displayName of [

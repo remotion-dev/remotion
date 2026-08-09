@@ -11,6 +11,8 @@ import {
 } from './element-drag-data';
 import {parseStudioElementPayload} from './element-payload';
 import {installInStudioWithDependencies} from './install-in-studio';
+import {isValidPublicLicenseKey} from './license-key';
+import {setLicenseKeyInStudio} from './set-license-key-in-studio';
 
 export type {AssetDragData} from './asset-drag-data';
 export type {
@@ -28,6 +30,7 @@ export type {
 	MakeDragDataInput,
 	MakeEffectDragDataInput,
 	MakeElementDragDataInput,
+	MakeRenderOutputDragDataInput,
 	MakeSfxDragDataInput,
 	ParsedDragData,
 	RemotionDragData,
@@ -41,12 +44,17 @@ export type {
 	DragPreviewMetadataWithMimeType,
 	EffectDragPreviewMetadata,
 	ElementDragPreviewMetadata,
+	RenderOutputDragPreviewMetadata,
 	SfxDragPreviewMetadata,
 } from './drag-preview-metadata';
-export type {EffectDragData} from './effect-drag-data';
-export type {ElementDragData} from './element-drag-data';
-export type {SfxDragData} from './sfx-drag-data';
 export {setStudioDragData} from './drag-transport';
+export type {EffectDragData} from './effect-drag-data';
+export type {
+	ElementDependency,
+	ElementDragData,
+	ElementInstallationMode,
+} from './element-drag-data';
+export type {RenderOutputDragData} from './render-output-drag-data';
 export {
 	createElementPayload,
 	type CreateElementPayloadInput,
@@ -56,9 +64,12 @@ export {
 	installInStudio,
 	type InstallInStudioErrorCode,
 	type InstallInStudioResult,
-	type StudioProtocolDescriptor,
-	type StudioProtocolInstallTarget,
 } from './install-in-studio';
+export type {SfxDragData} from './sfx-drag-data';
+export type {
+	StudioProtocolDescriptor,
+	StudioProtocolInstallTarget,
+} from './studio-discovery';
 
 export const StudioProtocolInternals = {
 	areComponentProps,
@@ -67,8 +78,10 @@ export const StudioProtocolInternals = {
 	isComponentIdentifier,
 	isComponentImportPath,
 	installInStudioWithDependencies,
+	isValidPublicLicenseKey,
 	makeDragData,
 	makeElementFileNameFromSlug,
 	parseDragData,
 	parseStudioElementPayload,
+	setLicenseKeyInStudio,
 };

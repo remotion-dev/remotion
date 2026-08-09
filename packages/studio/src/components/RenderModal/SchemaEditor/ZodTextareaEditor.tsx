@@ -7,7 +7,7 @@ import {RemTextarea} from '../../NewComposition/RemTextarea';
 import {Fieldset} from './Fieldset';
 import {SchemaLabel} from './SchemaLabel';
 import type {AnyZodSchema} from './zod-schema-type';
-import {zodSafeParse} from './zod-schema-type';
+import {zodSafeParse, getUserFacingDescription} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
@@ -64,6 +64,7 @@ export const ZodTextareaEditor: React.FC<{
 				onRemove={onRemove}
 				valid={zodValidation.success}
 				suffix={null}
+				description={getUserFacingDescription(schema)}
 			/>
 			<div style={fullWidth}>
 				<RemTextarea

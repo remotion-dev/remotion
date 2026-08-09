@@ -192,7 +192,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		offthreadVideoCacheSizeInBytes:
 			options.offthreadVideoCacheSizeInBytes ?? null,
 		outName: options.outName ?? null,
-		overwrite: options.overwrite ?? false,
+		overwrite: options.overwrite,
 		pixelFormat: options.pixelFormat ?? undefined,
 		privacy: options.privacy ?? 'public',
 		proResProfile: options.proResProfile ?? undefined,

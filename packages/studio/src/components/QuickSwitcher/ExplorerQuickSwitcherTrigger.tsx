@@ -2,7 +2,7 @@ import React, {useCallback, useContext} from 'react';
 import {cmdOrCtrlCharacter} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {BLACK_HEX, LIGHT_TEXT, WHITE_ALPHA_06} from '../../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../../helpers/use-keybinding';
-import {ModalsContext} from '../../state/modals';
+import {SetSelectedModalContext} from '../../state/modals';
 import type {QuickSwitcherMode} from './NoResults';
 
 const quickSwitcherArea: React.CSSProperties = {
@@ -35,7 +35,7 @@ export const ExplorerQuickSwitcherTrigger: React.FC<{
 	readonly showShortcut: boolean;
 	readonly tabIndex: number;
 }> = ({mode, showShortcut, tabIndex}) => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	const openQuickSwitcher = useCallback(() => {
 		setSelectedModal({

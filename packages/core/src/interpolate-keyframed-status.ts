@@ -24,6 +24,8 @@ const easingToFn = ({
 	switch (easing.type) {
 		case 'linear':
 			return Easing.linear;
+		case 'step1':
+			return Easing.step1;
 		case 'spring':
 			return Easing.spring({
 				allowTail: forceSpringAllowTail ?? easing.allowTail ?? undefined,

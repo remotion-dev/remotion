@@ -80,6 +80,67 @@ const drawReplacedElement = ({
 			? {width: drawable.naturalWidth, height: drawable.naturalHeight}
 			: {width: drawable.width, height: drawable.height};
 
+	if (
+		drawable instanceof HTMLImageElement &&
+		drawable.currentSrc.startsWith('data:image/svg+xml')
+	) {
+		// Chromium and Firefox rasterize SVG image sources at the element's
+		// concrete size, so intrinsic source cropping cuts off most of the image.
+		const containerAspect = dimensions.width / dimensions.height;
+		const imageAspect = intrinsicSize.width / intrinsicSize.height;
+		let destWidth = dimensions.width;
+		let destHeight = dimensions.height;
+		let destX = dimensions.left;
+		let destY = dimensions.top;
+
+		if (
+			objectFit === 'contain' ||
+			(objectFit === 'scale-down' &&
+				(intrinsicSize.width > dimensions.width ||
+					intrinsicSize.height > dimensions.height))
+		) {
+			if (imageAspect > containerAspect) {
+				destWidth = dimensions.width;
+				destHeight = destWidth / imageAspect;
+			} else {
+				destHeight = dimensions.height;
+				destWidth = destHeight * imageAspect;
+			}
+
+			destX = dimensions.left + (dimensions.width - destWidth) / 2;
+			destY = dimensions.top + (dimensions.height - destHeight) / 2;
+		} else if (objectFit === 'cover') {
+			if (imageAspect > containerAspect) {
+				destHeight = dimensions.height;
+				destWidth = destHeight * imageAspect;
+			} else {
+				destWidth = dimensions.width;
+				destHeight = destWidth / imageAspect;
+			}
+
+			destX = dimensions.left + (dimensions.width - destWidth) / 2;
+			destY = dimensions.top + (dimensions.height - destHeight) / 2;
+		} else if (objectFit === 'none' || objectFit === 'scale-down') {
+			destWidth = intrinsicSize.width;
+			destHeight = intrinsicSize.height;
+			destX = dimensions.left + (dimensions.width - destWidth) / 2;
+			destY = dimensions.top + (dimensions.height - destHeight) / 2;
+		}
+
+		contextToDraw.save();
+		contextToDraw.beginPath();
+		contextToDraw.rect(
+			dimensions.left,
+			dimensions.top,
+			dimensions.width,
+			dimensions.height,
+		);
+		contextToDraw.clip();
+		contextToDraw.drawImage(drawable, destX, destY, destWidth, destHeight);
+		contextToDraw.restore();
+		return;
+	}
+
 	const result = calculateObjectFit({
 		objectFit,
 		containerSize: {

@@ -1,13 +1,11 @@
 import type {RenderJob} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {CURRENT_COLOR} from '../../helpers/colors';
-import {useMobileLayout} from '../../helpers/mobile-layout';
 import {
 	makeClientRetryPayload,
 	makeRetryPayload,
 } from '../../helpers/retry-payload';
-import {ModalsContext} from '../../state/modals';
-import {SidebarContext} from '../../state/sidebar';
+import {SetSelectedModalContext} from '../../state/modals';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import type {
@@ -20,9 +18,7 @@ import {isClientRenderJob} from './context';
 export const RenderQueueRepeatItem: React.FC<{
 	readonly job: AnyRenderJob;
 }> = ({job}) => {
-	const {setSelectedModal} = useContext(ModalsContext);
-	const isMobileLayout = useMobileLayout();
-	const {setSidebarCollapsedState} = useContext(SidebarContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	const isClientJob = isClientRenderJob(job);
 
@@ -39,18 +35,8 @@ export const RenderQueueRepeatItem: React.FC<{
 				const retryPayload = makeRetryPayload(job as RenderJob);
 				setSelectedModal(retryPayload);
 			}
-
-			if (isMobileLayout) {
-				setSidebarCollapsedState({left: 'collapsed', right: 'collapsed'});
-			}
 		},
-		[
-			isMobileLayout,
-			job,
-			isClientJob,
-			setSelectedModal,
-			setSidebarCollapsedState,
-		],
+		[job, isClientJob, setSelectedModal],
 	);
 
 	const icon: React.CSSProperties = useMemo(() => {

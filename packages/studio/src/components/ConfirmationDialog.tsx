@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import {ShortcutHint} from '../error-overlay/remotion-overlay/ShortcutHint';
 import type {ConfirmationDialogState} from '../state/modals';
-import {ModalsContext} from '../state/modals';
+import {SetSelectedModalContext} from '../state/modals';
 import {Button} from './Button';
 import type {ConfirmationDialogFunction} from './ConfirmationDialog-types';
 import {Flex, Row, Spacing} from './layout';
@@ -30,7 +30,7 @@ const footerStyle: React.CSSProperties = {
 };
 
 export const useConfirmationDialog = (): ConfirmationDialogFunction => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	return useCallback(
 		(options) => {
@@ -64,7 +64,7 @@ export const useConfirmationDialog = (): ConfirmationDialogFunction => {
 export const ConfirmationDialog: React.FC<{
 	readonly state: ConfirmationDialogState;
 }> = ({state}) => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const settledRef = useRef(false);
 
 	const closeCurrentModal = useCallback(() => {

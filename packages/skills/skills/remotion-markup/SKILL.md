@@ -1,11 +1,17 @@
 ---
 name: remotion-markup
 description: Content, animation and effects best practices
-version: 4.0.503
+version: 4.0.507
 ---
 
 This is guidance for writing Remotion React Markup.
 If this is not relevant, load [Remotion Best Practices](../remotion-best-practices/SKILL.md) instead.
+
+## Preserve user changes
+
+Users may make edits in the code outside of the conversation.
+
+If you detect a surprising change made in the meanwhile, don't overwrite it, assume it was intentional or ask for confirmation.
 
 ## General rules
 

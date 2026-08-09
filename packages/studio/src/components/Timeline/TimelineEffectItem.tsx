@@ -198,9 +198,13 @@ export const TimelineEffectItem: React.FC<{
 		}
 	}, [deleteDisabled, effectIndex, nodePath, validatedLocation.source]);
 
-	const contextMenuValues = useMemo((): ComboboxValue[] => {
+	const getContextMenuItems = useCallback((): ComboboxValue[] => {
 		if (!previewConnected) {
 			return [];
+		}
+
+		if (selection.selectable) {
+			selection.onSelect({shiftKey: false, toggleKey: false});
 		}
 
 		const items: ComboboxValue[] = [];
@@ -251,6 +255,7 @@ export const TimelineEffectItem: React.FC<{
 		documentationLink,
 		onDeleteEffectFromSource,
 		previewConnected,
+		selection,
 	]);
 
 	const onToggle = useCallback(
@@ -503,12 +508,7 @@ export const TimelineEffectItem: React.FC<{
 	);
 
 	return previewConnected ? (
-		<ContextMenu
-			values={contextMenuValues}
-			onOpen={selection.selectable ? selection.onSelect : null}
-		>
-			{draggableRow}
-		</ContextMenu>
+		<ContextMenu getItems={getContextMenuItems}>{draggableRow}</ContextMenu>
 	) : (
 		draggableRow
 	);

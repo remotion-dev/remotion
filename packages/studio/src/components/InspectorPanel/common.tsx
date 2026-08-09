@@ -1,10 +1,17 @@
 import React from 'react';
 import {
+	CURRENT_COLOR,
 	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
 	getBackgroundFromHoverState,
 } from '../../helpers/colors';
+import {
+	HOVERABLE_CLASS_NAME,
+	HOVER_GROUP_CLASS_NAME,
+	HOVER_GROUP_REVEAL_CLASS_NAME,
+	hoverableStyle,
+} from '../../helpers/hoverable';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT, COMPACT_INLINE_ROW_HEIGHT} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
@@ -122,11 +129,9 @@ const INLINE_LABEL_BUTTON_MARGIN = 4;
 const inlineLabelButton: React.CSSProperties = {
 	alignItems: 'center',
 	appearance: 'none',
-	backgroundColor: TRANSPARENT,
 	border: 'none',
 	borderRadius: 4,
 	boxSizing: 'border-box',
-	color: LIGHT_TEXT,
 	cursor: 'default',
 	display: 'flex',
 	fontFamily: 'sans-serif',
@@ -150,7 +155,6 @@ const compactInlineLabelButton: React.CSSProperties = {
 };
 
 const inlineLabelText: React.CSSProperties = {
-	color: LIGHT_TEXT,
 	flex: 1,
 	fontFamily: 'sans-serif',
 	fontSize: 13,
@@ -198,11 +202,6 @@ const segmentedTrailingAction: React.CSSProperties = {
 	width: 28,
 };
 
-const hiddenSegmentedTrailingIcon: React.CSSProperties = {
-	...inlineLabelIcon,
-	opacity: 0,
-};
-
 export type InspectorInlineActionSegment = {
 	readonly disabled: boolean;
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
@@ -213,6 +212,7 @@ export type InspectorInlineActionSegment = {
 export type InspectorInlineActionProps = {
 	readonly children: React.ReactNode;
 	readonly disabled: boolean;
+	readonly iconContainerStyle?: React.CSSProperties;
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement> | null;
 	readonly renderIcon?: (color: string) => React.ReactNode;
 	readonly size?: 'default' | 'compact';
@@ -229,6 +229,7 @@ export type InspectorInlineActionProps = {
 export const InspectorInlineAction: React.FC<InspectorInlineActionProps> = ({
 	children,
 	disabled,
+	iconContainerStyle,
 	onClick,
 	renderIcon,
 	size = 'default',
@@ -236,76 +237,67 @@ export const InspectorInlineAction: React.FC<InspectorInlineActionProps> = ({
 	title,
 	variant = {type: 'single'},
 }) => {
-	const [hovered, setHovered] = React.useState(false);
-	const color = hovered && !disabled ? WHITE : LIGHT_TEXT;
 	const isSegmented = variant.type === 'segmented';
+	// A non-clickable single action (onClick === null) never shows a hover
+	// effect. In the segmented variant, the main segment highlights whenever
+	// the group is hovered, even if it is not clickable itself.
+	const showsHover = !disabled && (onClick !== null || isSegmented);
 	const buttonStyle = React.useMemo(
 		(): React.CSSProperties => ({
 			...(disabled ? inlineLabelButtonDisabled : inlineLabelButton),
-			backgroundColor: getBackgroundFromHoverState({
-				hovered: hovered && !disabled,
-				selected: false,
+			...hoverableStyle({
+				idleBackground: TRANSPARENT,
+				hoverBackground: showsHover
+					? getBackgroundFromHoverState({hovered: true, selected: false})
+					: TRANSPARENT,
+				idleColor: LIGHT_TEXT,
+				hoverColor: showsHover ? WHITE : LIGHT_TEXT,
 			}),
-			color,
 			...(size === 'compact' ? compactInlineLabelButton : null),
 			...(isSegmented ? segmentedMainAction : null),
 			...style,
 		}),
-		[color, disabled, hovered, isSegmented, size, style],
+		[disabled, showsHover, isSegmented, size, style],
 	);
-	const textStyle = React.useMemo(
-		(): React.CSSProperties => ({
-			...inlineLabelText,
-			color,
-		}),
-		[color],
-	);
-
-	const onPointerEnter = React.useCallback(() => {
-		setHovered(true);
-	}, []);
-	const onPointerLeave = React.useCallback(() => {
-		setHovered(false);
-	}, []);
 
 	const mainContent = (
 		<>
 			{renderIcon ? (
-				<span style={inlineLabelIcon}>{renderIcon(color)}</span>
+				<span style={{...inlineLabelIcon, ...iconContainerStyle}}>
+					{renderIcon(CURRENT_COLOR)}
+				</span>
 			) : null}
-			<span style={textStyle}>{children}</span>
+			<span style={inlineLabelText}>{children}</span>
 		</>
 	);
 	const mainAction = onClick ? (
 		<button
-			className="__remotion-inspector-inline-action"
+			className={`__remotion-inspector-inline-action ${HOVERABLE_CLASS_NAME}`}
 			type="button"
 			disabled={disabled}
 			style={buttonStyle}
 			title={title}
 			onClick={onClick}
-			onPointerEnter={disabled || isSegmented ? undefined : onPointerEnter}
-			onPointerLeave={isSegmented ? undefined : onPointerLeave}
 		>
 			{mainContent}
 		</button>
 	) : (
-		<div style={buttonStyle} title={title}>
+		<div className={HOVERABLE_CLASS_NAME} style={buttonStyle} title={title}>
 			{mainContent}
 		</div>
 	);
 
 	if (variant.type === 'segmented') {
-		const trailingColor =
-			hovered && !variant.trailing.disabled ? WHITE : LIGHT_TEXT;
 		const trailingStyle: React.CSSProperties = {
 			...segmentedTrailingAction,
-			backgroundColor: variant.trailing.disabled
-				? TRANSPARENT
-				: getBackgroundFromHoverState({
-						hovered,
-						selected: false,
-					}),
+			...hoverableStyle({
+				idleBackground: TRANSPARENT,
+				hoverBackground: variant.trailing.disabled
+					? TRANSPARENT
+					: getBackgroundFromHoverState({hovered: true, selected: false}),
+				idleColor: LIGHT_TEXT,
+				hoverColor: variant.trailing.disabled ? LIGHT_TEXT : WHITE,
+			}),
 			height:
 				size === 'compact'
 					? COMPACT_INLINE_ROW_HEIGHT
@@ -314,21 +306,21 @@ export const InspectorInlineAction: React.FC<InspectorInlineActionProps> = ({
 		};
 
 		return (
-			<div
-				style={segmentedInlineAction}
-				onPointerEnter={onPointerEnter}
-				onPointerLeave={onPointerLeave}
-			>
+			<div className={HOVER_GROUP_CLASS_NAME} style={segmentedInlineAction}>
 				{mainAction}
 				<button
 					type="button"
+					className={HOVERABLE_CLASS_NAME}
 					disabled={variant.trailing.disabled}
 					style={trailingStyle}
 					title={variant.trailing.title}
 					onClick={variant.trailing.onClick}
 				>
-					<span style={hovered ? inlineLabelIcon : hiddenSegmentedTrailingIcon}>
-						{variant.trailing.renderIcon(trailingColor)}
+					<span
+						className={HOVER_GROUP_REVEAL_CLASS_NAME}
+						style={inlineLabelIcon}
+					>
+						{variant.trailing.renderIcon(CURRENT_COLOR)}
 					</span>
 				</button>
 			</div>

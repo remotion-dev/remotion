@@ -10,6 +10,7 @@ import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled'
 import {useIsStill} from '../../helpers/is-current-selected-still';
 import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
 import {getStudioMaxTimelineTracks} from '../../helpers/studio-runtime-config';
+import {timelineSequenceNodePathToKey} from '../../helpers/timeline-node-path-key';
 import {callApi} from '../call-api';
 import {ContextMenu} from '../ContextMenu';
 import {importAssets, pickFilesToImport} from '../import-assets';
@@ -190,6 +191,7 @@ const TimelineContextMenuArea: React.FC<{
 				destinationDimensions: null,
 				dropPosition: null,
 				from: null,
+				preferCompositionStart: null,
 				svgImportMode: 'image',
 			});
 		} finally {
@@ -197,7 +199,7 @@ const TimelineContextMenuArea: React.FC<{
 		}
 	}, [canInsertAsset, compositionFile, currentCompositionId, videoConfig]);
 
-	const contextMenuItems = useMemo((): ComboboxValue[] => {
+	const getContextMenuItems = useCallback((): ComboboxValue[] => {
 		return [
 			{
 				type: 'item',
@@ -229,8 +231,7 @@ const TimelineContextMenuArea: React.FC<{
 	return (
 		<ContextMenu
 			ref={timelineVerticalScroll}
-			values={contextMenuItems}
-			onOpen={null}
+			getItems={getContextMenuItems}
 			style={container}
 			className={'css-reset ' + VERTICAL_SCROLLBAR_CLASSNAME}
 		>
@@ -282,14 +283,35 @@ const TimelineInner: React.FC = () => {
 		);
 	}, [durationInFrames, timeline]);
 
+	// Keep `filtered` complete so a future toggle can show every programmatic
+	// instance without recalculating the timeline or losing its instance index.
+	const collapsed = useMemo(() => {
+		const seenNodePaths = new Set<string>();
+		return filtered.filter((track) => {
+			if (track.nodePathInfo === null) {
+				return true;
+			}
+
+			const key = timelineSequenceNodePathToKey(
+				track.nodePathInfo.sequenceSubscriptionKey,
+			);
+			if (seenNodePaths.has(key)) {
+				return false;
+			}
+
+			seenNodePaths.add(key);
+			return true;
+		});
+	}, [filtered]);
+
 	const maxTimelineTracks = getStudioMaxTimelineTracks();
 	const shown = useMemo(() => {
-		return filtered.length > maxTimelineTracks
-			? filtered.slice(0, maxTimelineTracks)
-			: filtered;
-	}, [filtered, maxTimelineTracks]);
+		return collapsed.length > maxTimelineTracks
+			? collapsed.slice(0, maxTimelineTracks)
+			: collapsed;
+	}, [collapsed, maxTimelineTracks]);
 
-	const hasBeenCut = filtered.length > shown.length;
+	const hasBeenCut = collapsed.length > shown.length;
 
 	return (
 		<TimelineContextMenuArea>
@@ -315,9 +337,13 @@ const TimelineInner: React.FC = () => {
 					{isStudioInteractivityEnabled() ? (
 						<TimelineSelectAllKeybindings timeline={shown} />
 					) : null}
-					<TimelineHeightContainer shown={shown} hasBeenCut={hasBeenCut}>
+					<TimelineHeightContainer
+						shown={shown}
+						hasBeenCut={hasBeenCut}
+						isStill={isStill}
+					>
 						{isStill ? (
-							<TimelineList timeline={shown} />
+							<TimelineList timeline={shown} showTimePadding={false} />
 						) : (
 							<TimelineWidthProvider>
 								<TimelinePinchZoom />
@@ -330,12 +356,13 @@ const TimelineInner: React.FC = () => {
 									maxFlexerSize={null}
 									minFlexerSize={MIN_TIMELINE_LABELS_WIDTH}
 									maxAntiFlexerSize={null}
+									minAntiFlexerSize={null}
 								>
 									<SplitterElement
 										type="flexer"
 										sticky={<TimelineTimePlaceholders />}
 									>
-										<TimelineList timeline={shown} />
+										<TimelineList timeline={shown} showTimePadding />
 									</SplitterElement>
 									<SplitterHandle onCollapse={noop} allowToCollapse="none" />
 									<SplitterElement type="anti-flexer" sticky={null}>

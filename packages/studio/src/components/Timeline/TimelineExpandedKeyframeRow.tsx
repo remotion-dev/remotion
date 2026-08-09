@@ -1,4 +1,5 @@
 import React, {useContext} from 'react';
+import {areSequenceNodePathInfosEqual} from '../../helpers/are-sequence-node-path-infos-equal';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	TIMELINE_ITEM_BORDER_BOTTOM,
@@ -15,6 +16,7 @@ import {
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const rowClipper: React.CSSProperties = {
+	boxSizing: 'border-box',
 	marginLeft: -TIMELINE_PADDING,
 	marginRight: -TIMELINE_PADDING,
 	overflow: 'hidden',
@@ -30,13 +32,17 @@ const rowSeparator: React.CSSProperties = {
 	height: TIMELINE_ITEM_BORDER_BOTTOM,
 };
 
-const TimelineExpandedKeyframeRowUnmemoized: React.FC<{
+type TimelineExpandedKeyframeRowProps = {
 	readonly height: number;
 	readonly keyframes: ReturnType<typeof getTimelineKeyframes>;
 	readonly canEditEasing: boolean;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly showSeparator: boolean;
-}> = ({height, keyframes, canEditEasing, nodePathInfo, showSeparator}) => {
+};
+
+const TimelineExpandedKeyframeRowUnmemoized: React.FC<
+	TimelineExpandedKeyframeRowProps
+> = ({height, keyframes, canEditEasing, nodePathInfo, showSeparator}) => {
 	const timelineWidth = useContext(TimelineWidthContext);
 	const rowHighlightBackground =
 		useTimelineRowHighlightBackground(nodePathInfo);
@@ -47,7 +53,7 @@ const TimelineExpandedKeyframeRowUnmemoized: React.FC<{
 	return (
 		<>
 			{showSeparator ? <div style={rowSeparator} /> : null}
-			<div style={{...rowClipper, height}}>
+			<div style={{...rowClipper, height, width: timelineWidth ?? undefined}}>
 				<div style={{...row, height}}>
 					{rowHighlightBackground && timelineWidth !== null ? (
 						<div
@@ -81,6 +87,29 @@ const TimelineExpandedKeyframeRowUnmemoized: React.FC<{
 	);
 };
 
+const areTimelineExpandedKeyframeRowPropsEqual = (
+	prevProps: TimelineExpandedKeyframeRowProps,
+	nextProps: TimelineExpandedKeyframeRowProps,
+) => {
+	if (
+		prevProps.height !== nextProps.height ||
+		prevProps.canEditEasing !== nextProps.canEditEasing ||
+		prevProps.showSeparator !== nextProps.showSeparator ||
+		prevProps.keyframes.length !== nextProps.keyframes.length ||
+		!areSequenceNodePathInfosEqual(
+			prevProps.nodePathInfo,
+			nextProps.nodePathInfo,
+		)
+	) {
+		return false;
+	}
+
+	return prevProps.keyframes.every(
+		(keyframe, index) => keyframe.frame === nextProps.keyframes[index].frame,
+	);
+};
+
 export const TimelineExpandedKeyframeRow = React.memo(
 	TimelineExpandedKeyframeRowUnmemoized,
+	areTimelineExpandedKeyframeRowPropsEqual,
 );

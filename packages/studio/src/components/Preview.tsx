@@ -4,8 +4,10 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
+	useState,
 } from 'react';
 import type {CanvasContent} from 'remotion';
 import {Internals} from 'remotion';
@@ -146,6 +148,26 @@ const CompWhenItHasDimensions: React.FC<{
 	readonly assetMetadata: AssetMetadata | null;
 }> = ({contentDimensions, canvasSize, canvasContent, assetMetadata}) => {
 	const {size: previewSize} = useContext(Internals.PreviewSizeContext);
+	const [canvasHovered, setCanvasHovered] = useState(false);
+	const compositionContainerRef = useRef<HTMLDivElement>(null);
+	useEffect(() => {
+		const compositionContainer = compositionContainerRef.current;
+		if (compositionContainer === null) {
+			setCanvasHovered(false);
+			return;
+		}
+
+		const onPointerEnter = () => setCanvasHovered(true);
+		const onPointerLeave = () => setCanvasHovered(false);
+		setCanvasHovered(compositionContainer.matches(':hover'));
+		compositionContainer.addEventListener('pointerenter', onPointerEnter);
+		compositionContainer.addEventListener('pointerleave', onPointerLeave);
+
+		return () => {
+			compositionContainer.removeEventListener('pointerenter', onPointerEnter);
+			compositionContainer.removeEventListener('pointerleave', onPointerLeave);
+		};
+	}, [canvasContent.type]);
 
 	const {centerX, centerY, yCorrection, xCorrection, scale} = useMemo(() => {
 		if (contentDimensions === 'none') {
@@ -239,7 +261,11 @@ const CompWhenItHasDimensions: React.FC<{
 	}
 
 	return (
-		<div className="remotion-studio-composition-container" style={outer}>
+		<div
+			ref={compositionContainerRef}
+			className="remotion-studio-composition-container"
+			style={outer}
+		>
 			<PortalContainer
 				contentDimensions={contentDimensions as Dimensions}
 				scale={scale}
@@ -247,6 +273,7 @@ const CompWhenItHasDimensions: React.FC<{
 				yCorrection={yCorrection}
 			/>
 			<SelectedOutlineOverlay
+				canvasHovered={canvasHovered}
 				compositionHeight={(contentDimensions as Dimensions).height}
 				compositionWidth={(contentDimensions as Dimensions).width}
 				scale={scale}
@@ -285,13 +312,22 @@ const PortalContainer: React.FC<{
 		yCorrection,
 	]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const {current} = portalContainer;
 		current?.appendChild(Internals.portalNode());
+
 		return () => {
-			current?.removeChild(Internals.portalNode());
+			const portalNode = Internals.portalNode();
+			if (current && portalNode.parentNode === current) {
+				current.removeChild(portalNode);
+				Internals.setPortalNodeCurrentScale(1);
+			}
 		};
 	}, []);
+
+	useLayoutEffect(() => {
+		Internals.setPortalNodeCurrentScale(scale);
+	}, [scale]);
 
 	const onPointerDown = useCallback(
 		(event: PointerEvent) => {

@@ -37,7 +37,7 @@ export const MakeVideosProgrammatically: React.FC<{
 						playsInline
 						loop
 						preload="metadata"
-						className="relative max-h-full max-w-full cursor-default! object-contain lg:mb-0 lg:mt-0"
+						className="relative max-h-full max-w-full cursor-default! object-contain min-[900px]:mb-0 min-[900px]:mt-0"
 					/>
 				) : null}
 			</div>
@@ -45,7 +45,7 @@ export const MakeVideosProgrammatically: React.FC<{
 				<h2 className="text-2xl fontbrand leading-[1.1] font-medium">
 					{title}
 				</h2>
-				<p className="leading-relaxed">{description}</p>
+				<p className="text-balance leading-relaxed">{description}</p>
 				{showLinks ? <MakeVideosLinks links={links} /> : null}
 			</div>
 		</div>

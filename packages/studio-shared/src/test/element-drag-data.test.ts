@@ -1,24 +1,19 @@
 import {expect, test} from 'bun:test';
-import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import {
+	StudioProtocolInternals,
+	type ElementDragData,
+} from '@remotion/studio-protocol';
+
+type ElementInput = Omit<ElementDragData['element'], 'durationInFrames'>;
 
 const validElement = {
-	dependencies: ['@remotion/google-fonts'],
+	dependencies: [{name: '@remotion/google-fonts', version: null}],
 	slug: 'overlays/lower-third',
 	displayName: 'Lower Third',
 	sourceCode: 'export const LowerThird = () => null;',
 	dimensions: {width: 900, height: 260},
-};
-const makeElementDragData = (
-	element:
-		| typeof validElement
-		| {
-				dependencies: string[];
-				slug: string;
-				displayName: string;
-				sourceCode: string;
-				dimensions: null;
-		  },
-) =>
+} satisfies ElementInput;
+const makeElementDragData = (element: ElementInput) =>
 	StudioProtocolInternals.makeDragData({
 		type: 'element',
 		...element,
@@ -56,11 +51,11 @@ test('parses element drag data', () => {
 	).toEqual({
 		type: 'remotion-element',
 		version: 1,
-		element: validElement,
+		element: {...validElement, durationInFrames: 120},
 	});
 });
 
-test('accepts older element drag data without dependencies', () => {
+test('rejects element drag data without dependencies', () => {
 	const {dependencies: _dependencies, ...elementWithoutDependencies} =
 		validElement;
 	expect(
@@ -71,10 +66,22 @@ test('accepts older element drag data without dependencies', () => {
 				element: elementWithoutDependencies,
 			}),
 		),
+	).toBe(null);
+});
+
+test('preserves component-owned-sequence Element drag data', () => {
+	const componentOwnedSequenceElement = {
+		...validElement,
+		installationMode: 'component-owned-sequence' as const,
+	};
+	expect(
+		parseElementDragData(
+			JSON.stringify(makeElementDragData(componentOwnedSequenceElement)),
+		),
 	).toEqual({
 		type: 'remotion-element',
 		version: 1,
-		element: {...elementWithoutDependencies, dependencies: []},
+		element: {...componentOwnedSequenceElement, durationInFrames: 120},
 	});
 });
 
@@ -87,7 +94,7 @@ test('accepts element drag data with null dimensions', () => {
 	).toEqual({
 		type: 'remotion-element',
 		version: 1,
-		element: elementWithoutDimensions,
+		element: {...elementWithoutDimensions, durationInFrames: 120},
 	});
 });
 
@@ -179,8 +186,25 @@ test('rejects invalid element drag data', () => {
 			JSON.stringify({
 				type: 'remotion-element',
 				version: 1,
-				element: {...validElement, dependencies: ['--ignore-scripts']},
+				element: {...validElement, installationMode: 'no'},
 			}),
 		),
 	).toBe(null);
+	for (const dependencies of [
+		['@remotion/google-fonts'],
+		['--ignore-scripts'],
+		[{name: 'lodash', version: null}],
+		[{name: 'lodash', version: '^4.17.21'}],
+		[{name: '@remotion/effects', version: '4.0.0'}],
+	]) {
+		expect(
+			parseElementDragData(
+				JSON.stringify({
+					type: 'remotion-element',
+					version: 1,
+					element: {...validElement, dependencies},
+				}),
+			),
+		).toBe(null);
+	}
 });

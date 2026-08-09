@@ -1,20 +1,8 @@
-import type {GitSource} from '@remotion/studio-shared';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
-import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {
-	getGitSourceBranchUrl,
-	getGitSourceName,
-} from '../helpers/get-git-menu-item';
-import {openInEditor} from '../helpers/open-in-editor';
+import React, {useEffect, useMemo, useState} from 'react';
+import {WHITE_ALPHA_80} from '../helpers/colors';
+import {InspectorOpenInEditor} from './InspectorOpenInEditor';
 import {Spacing} from './layout';
 import {MenuCompositionName} from './MenuCompositionName';
-import {showNotification} from './Notifications/NotificationCenter';
 import {Spinner} from './Spinner';
 
 const cwd: React.CSSProperties = {
@@ -24,6 +12,7 @@ const cwd: React.CSSProperties = {
 	alignItems: 'center',
 	justifyContent: 'center',
 	userSelect: 'none',
+	whiteSpace: 'nowrap',
 };
 
 const spinnerSize = 14;
@@ -38,82 +27,17 @@ const noSpinner: React.CSSProperties = {
 	width: spinnerSize,
 };
 
-const projectNameLinkBase: React.CSSProperties = {
-	color: 'inherit',
-	textDecoration: 'none',
-	cursor: 'pointer',
-	fontSize: 'inherit',
-	textUnderlineOffset: 2,
-};
-
-const projectNameLink: React.CSSProperties = {
-	...projectNameLinkBase,
-};
-
-const projectNameLinkHovered: React.CSSProperties = {
-	...projectNameLinkBase,
-	textDecoration: 'underline',
-};
-
 export const MenuBuildIndicator: React.FC<{
 	readonly mobileLayout: boolean;
 }> = ({mobileLayout}) => {
 	const [isBuilding, setIsBuilding] = useState(false);
-	const [projectNameHovered, setProjectNameHovered] = useState(false);
-	const ctx = useContext(StudioServerConnectionCtx).previewServerState;
-
-	const showEditorLink = window.remotion_editorName && ctx.type === 'connected';
-	const showGitLink = !showEditorLink && Boolean(window.remotion_gitSource);
-
-	const handleProjectNameClick = useCallback(async () => {
-		if (showEditorLink) {
-			await openInEditor(
-				{
-					originalFileName: `${window.remotion_cwd}`,
-					originalLineNumber: 1,
-					originalColumnNumber: 1,
-					originalFunctionName: null,
-					originalScriptCode: null,
-				},
-				null,
-			)
-				.then(({success}) => {
-					if (!success) {
-						showNotification(
-							`Could not open ${window.remotion_editorName}`,
-							2000,
-						);
-					}
-				})
-				.catch((err) => {
-					// eslint-disable-next-line no-console
-					console.error(err);
-					showNotification(
-						`Could not open ${window.remotion_editorName}`,
-						2000,
-					);
-				});
-		} else if (showGitLink) {
-			window.open(
-				getGitSourceBranchUrl(window.remotion_gitSource as GitSource),
-				'_blank',
-			);
-		}
-	}, [showEditorLink, showGitLink]);
-
-	const projectNameTitle = useMemo(() => {
-		if (showEditorLink) {
-			return `Open in ${window.remotion_editorName}`;
-		}
-
-		if (showGitLink) {
-			return `Open ${getGitSourceName(window.remotion_gitSource as GitSource)} Repo`;
-		}
-
-		return undefined;
-	}, [showEditorLink, showGitLink]);
-
-	const isClickable = showEditorLink || showGitLink;
+	const folderLocation = useMemo(() => {
+		return {
+			source: window.remotion_cwd,
+			line: 1,
+			column: 1,
+		};
+	}, []);
 
 	useEffect(() => {
 		window.remotion_isBuilding = () => {
@@ -132,37 +56,31 @@ export const MenuBuildIndicator: React.FC<{
 
 	return (
 		<div style={cwd} title={window.remotion_cwd}>
-			{isClickable ? <Spacing x={mobileLayout ? 0.5 : 2} /> : null}
-			{mobileLayout ? null : isBuilding ? (
+			<Spacing x={mobileLayout ? 0.5 : 2} />
+			{window.remotion_projectName}
+			<MenuCompositionName />
+			<InspectorOpenInEditor location={folderLocation} />
+			{mobileLayout ? null : <Spacing x={0.5} />}
+			{mobileLayout ? (
+				isBuilding ? (
+					<>
+						<Spacing x={0.5} />
+						<div style={spinner}>
+							<Spinner
+								duration={0.5}
+								size={spinnerSize}
+								color={WHITE_ALPHA_80}
+							/>
+						</div>
+					</>
+				) : null
+			) : isBuilding ? (
 				<div style={spinner}>
-					<Spinner duration={0.5} size={spinnerSize} />
+					<Spinner duration={0.5} size={spinnerSize} color={WHITE_ALPHA_80} />
 				</div>
 			) : (
 				<div style={noSpinner} />
 			)}
-			{mobileLayout ? null : <Spacing x={0.5} />}
-			{isClickable ? (
-				<a
-					style={projectNameHovered ? projectNameLinkHovered : projectNameLink}
-					title={projectNameTitle}
-					onClick={handleProjectNameClick}
-					onPointerEnter={() => setProjectNameHovered(true)}
-					onPointerLeave={() => setProjectNameHovered(false)}
-				>
-					{window.remotion_projectName}
-				</a>
-			) : (
-				window.remotion_projectName
-			)}
-			<MenuCompositionName />
-			{mobileLayout && isBuilding ? (
-				<>
-					<Spacing x={0.5} />
-					<div style={spinner}>
-						<Spinner duration={0.5} size={spinnerSize} />
-					</div>
-				</>
-			) : null}
 		</div>
 	);
 };

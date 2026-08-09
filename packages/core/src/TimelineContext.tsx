@@ -19,6 +19,12 @@ export type TimelineContextValue = {
 	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
 };
 
+export type TimelineImperativeContextValue = {
+	frameRef: RefObject<Record<string, number>>;
+	imperativePlaying: RefObject<boolean>;
+	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
+};
+
 export type PlaybackRateContextValue = {
 	playbackRate: number;
 	setPlaybackRate: (u: React.SetStateAction<number>) => void;
@@ -39,6 +45,9 @@ export const SetTimelineContext = createContext<SetTimelineContextValue>({
 });
 
 export const TimelineContext = createContext<TimelineContextValue | null>(null);
+
+export const TimelineImperativeContext =
+	createContext<TimelineImperativeContextValue | null>(null);
 
 export const PlaybackRateContext =
 	createContext<PlaybackRateContextValue | null>(null);
@@ -61,6 +70,8 @@ export const TimelineContextProvider: React.FC<{
 	);
 
 	const frame = frameState ?? _frame;
+	const frameRef = useRef(frame);
+	frameRef.current = frame;
 
 	const {delayRender, continueRender} = useDelayRender();
 
@@ -108,6 +119,15 @@ export const TimelineContextProvider: React.FC<{
 		};
 	}, [frame, playing]);
 
+	const timelineImperativeContextValue =
+		useMemo((): TimelineImperativeContextValue => {
+			return {
+				frameRef,
+				imperativePlaying,
+				audioAndVideoTags,
+			};
+		}, []);
+
 	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
 		return {
 			playbackRate,
@@ -125,11 +145,15 @@ export const TimelineContextProvider: React.FC<{
 	return (
 		<AbsoluteTimeContext.Provider value={timelineContextValue}>
 			<PlaybackRateContext.Provider value={playbackRateContextValue}>
-				<TimelineContext.Provider value={timelineContextValue}>
-					<SetTimelineContext.Provider value={setTimelineContextValue}>
-						{children}
-					</SetTimelineContext.Provider>
-				</TimelineContext.Provider>
+				<TimelineImperativeContext.Provider
+					value={timelineImperativeContextValue}
+				>
+					<TimelineContext.Provider value={timelineContextValue}>
+						<SetTimelineContext.Provider value={setTimelineContextValue}>
+							{children}
+						</SetTimelineContext.Provider>
+					</TimelineContext.Provider>
+				</TimelineImperativeContext.Provider>
 			</PlaybackRateContext.Provider>
 		</AbsoluteTimeContext.Provider>
 	);

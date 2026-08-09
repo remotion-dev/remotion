@@ -24,21 +24,19 @@ import {copyText} from '../helpers/copy-text';
 import type {AssetFolder, AssetStructure} from '../helpers/create-folder-tree';
 import {getFileManagerName} from '../helpers/get-file-manager-name';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
-import {useMobileLayout} from '../helpers/mobile-layout';
 import {
 	markAssetSidebarScrollFromRowClick,
 	maybeScrollAssetSidebarRowIntoView,
 } from '../helpers/sidebar-scroll-into-view';
 import {pushUrl} from '../helpers/url-state';
 import useAssetDragEvents, {
-	isFileDragEvent,
+	isAssetUploadDragEvent,
 } from '../helpers/use-asset-drag-events';
 import {getCachedImageMetadata} from '../helpers/use-image-metadata';
 import {getCachedMediaMetadata} from '../helpers/use-media-metadata';
 import {ClipboardIcon} from '../icons/clipboard';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
-import {ModalsContext} from '../state/modals';
-import {SidebarContext} from '../state/sidebar';
+import {SetSelectedModalContext} from '../state/modals';
 import {AssetFileIcon} from './AssetFileIcon';
 import {useConfirmationDialog} from './ConfirmationDialog';
 import {ContextMenu} from './ContextMenu';
@@ -297,7 +295,7 @@ const AssetFolderItem: React.FC<{
 				title={item.name}
 				onClick={onClick}
 				onDragEnter={(event) => {
-					if (!isFileDragEvent(event)) {
+					if (!isAssetUploadDragEvent(event)) {
 						return;
 					}
 
@@ -308,7 +306,7 @@ const AssetFolderItem: React.FC<{
 					}
 				}}
 				onDragLeave={(event) => {
-					if (!isFileDragEvent(event)) {
+					if (!isAssetUploadDragEvent(event)) {
 						return;
 					}
 
@@ -412,11 +410,9 @@ const AssetSelectorItem: React.FC<{
 	const fileManagerName = getFileManagerName(
 		window.remotion_fileSystemPlatform,
 	);
-	const isMobileLayout = useMobileLayout();
 	const [hovered, setHovered] = useState(false);
 	const [isDragging, setIsDragging] = useState(false);
-	const {setSidebarCollapsedState} = useContext(SidebarContext);
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const confirm = useConfirmationDialog();
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
@@ -463,15 +459,7 @@ const AssetSelectorItem: React.FC<{
 		markAssetSidebarScrollFromRowClick(relativePath);
 		setCanvasContent({type: 'asset', asset: relativePath});
 		pushUrl(`/assets/${relativePath}`);
-		if (isMobileLayout) {
-			setSidebarCollapsedState({left: 'collapsed', right: 'collapsed'});
-		}
-	}, [
-		isMobileLayout,
-		relativePath,
-		setCanvasContent,
-		setSidebarCollapsedState,
-	]);
+	}, [relativePath, setCanvasContent]);
 
 	const onDragStart: React.DragEventHandler<HTMLDivElement> = useCallback(
 		(e) => {
@@ -635,7 +623,7 @@ const AssetSelectorItem: React.FC<{
 		});
 	}, [relativePath, setSelectedModal]);
 
-	const contextMenu = useMemo((): ComboboxValue[] => {
+	const getContextMenuItems = useCallback((): ComboboxValue[] => {
 		return getAssetContextMenuItems({
 			relativePath,
 			fileManagerName,
@@ -678,7 +666,7 @@ const AssetSelectorItem: React.FC<{
 		);
 
 	return (
-		<ContextMenu values={contextMenu} onOpen={null}>
+		<ContextMenu getItems={getContextMenuItems}>
 			<Row align="center">
 				<div
 					ref={rowRef}

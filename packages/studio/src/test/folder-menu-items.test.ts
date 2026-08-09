@@ -20,7 +20,7 @@ test('read-only folder menus keep navigation and copy actions enabled', () => {
 		configurable: true,
 		value: {
 			remotion_cwd: '/project',
-			remotion_editorName: 'VS Code',
+			remotion_editorName: 'Code',
 		},
 	});
 	const folder = {

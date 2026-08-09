@@ -1,26 +1,15 @@
 import type {StudioElementPayload} from './element-payload';
+import type {StudioProtocolFetcher} from './studio-discovery';
+import {
+	discoverStudios,
+	fetchWithTimeout,
+	focusedStudioMaxAge,
+	getInstallCapability,
+	hasLegacyStudio,
+	isAbortError,
+	studioProtocolProbePorts,
+} from './studio-discovery';
 import {isRecord} from './validation';
-
-export type StudioProtocolInstallTarget = {
-	readonly id: string;
-	readonly expiresAt: number;
-	readonly compositionId: string;
-	readonly lastFocusedAt: number;
-};
-
-export type StudioProtocolDescriptor = {
-	readonly protocol: 'remotion-studio-protocol';
-	readonly protocolVersion: 1;
-	readonly studioVersion: string;
-	readonly capabilities: {
-		readonly install: readonly {
-			readonly payloadType: 'remotion-element';
-			readonly payloadVersions: readonly number[];
-		}[];
-	};
-	readonly projectName: string | null;
-	readonly installTarget: StudioProtocolInstallTarget | null;
-};
 
 export type InstallInStudioErrorCode =
 	| 'unsupported-origin'
@@ -51,98 +40,29 @@ export type InstallInStudioResult =
 			readonly message: string;
 	  };
 
-type Fetcher = (
-	input: string | URL | Request,
-	options?: RequestInit,
-) => Promise<Response>;
-
 export type InstallInStudioDependencies = {
-	readonly fetchFn: Fetcher;
+	readonly fetchFn: StudioProtocolFetcher;
 	readonly now: () => number;
 	readonly ports: readonly number[];
 	readonly pageOrigin: string | null;
 };
 
-const probePorts = [3000, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009];
-const focusedStudioMaxAge = 5 * 60 * 1000;
-const requestTimeout = 2_000;
+export type StudioProtocolInstallRequest = {
+	readonly operation: 'install-element';
+	readonly protocol: 'remotion-studio-protocol';
+	readonly protocolVersion: 1;
+	readonly targetId: string;
+	readonly payload: StudioElementPayload;
+};
 
 const failure = (
 	code: InstallInStudioErrorCode,
 	message: string,
 ): InstallInStudioResult => ({success: false, code, message});
 
-const fetchWithTimeout = async ({
-	fetchFn,
-	options,
-	url,
-}: {
-	readonly fetchFn: Fetcher;
-	readonly options: RequestInit | null;
-	readonly url: string;
-}) => {
-	const controller = new AbortController();
-	const timeout = setTimeout(() => controller.abort(), requestTimeout);
-	try {
-		return await fetchFn(url, {
-			...(options ?? {}),
-			signal: controller.signal,
-		});
-	} finally {
-		clearTimeout(timeout);
-	}
-};
-
-const isNullableString = (value: unknown): value is string | null =>
-	value === null || typeof value === 'string';
-
-const isInstallTarget = (
-	value: unknown,
-): value is StudioProtocolInstallTarget => {
-	return (
-		isRecord(value) &&
-		typeof value.id === 'string' &&
-		value.id.length > 0 &&
-		typeof value.expiresAt === 'number' &&
-		Number.isFinite(value.expiresAt) &&
-		typeof value.compositionId === 'string' &&
-		value.compositionId.length > 0 &&
-		typeof value.lastFocusedAt === 'number' &&
-		Number.isFinite(value.lastFocusedAt)
-	);
-};
-
-const isDescriptor = (value: unknown): value is StudioProtocolDescriptor => {
-	if (
-		!isRecord(value) ||
-		value.protocol !== 'remotion-studio-protocol' ||
-		value.protocolVersion !== 1 ||
-		typeof value.studioVersion !== 'string' ||
-		!isNullableString(value.projectName) ||
-		!isRecord(value.capabilities) ||
-		!Array.isArray(value.capabilities.install) ||
-		value.capabilities.install.length !== 1
-	) {
-		return false;
-	}
-
-	const [capability] = value.capabilities.install;
-	return (
-		isRecord(capability) &&
-		capability.payloadType === 'remotion-element' &&
-		Array.isArray(capability.payloadVersions) &&
-		capability.payloadVersions.every(
-			(version) => typeof version === 'number',
-		) &&
-		(value.installTarget === null || isInstallTarget(value.installTarget))
-	);
-};
-
-const hasSupportedElementCapability = (
-	descriptor: StudioProtocolDescriptor,
-): boolean => descriptor.capabilities.install[0]!.payloadVersions.includes(1);
-
-const isAllowedOrigin = (origin: string | null): boolean => {
+export const isAllowedStudioProtocolPageOrigin = (
+	origin: string | null,
+): boolean => {
 	if (origin === null) {
 		return false;
 	}
@@ -159,111 +79,11 @@ const isAllowedOrigin = (origin: string | null): boolean => {
 	}
 };
 
-type DiscoveredStudio = {
-	readonly descriptor: StudioProtocolDescriptor;
-	readonly discoveredAt: number;
-	readonly origin: string;
-};
-
-const discoverStudios = async (
-	dependencies: InstallInStudioDependencies,
-): Promise<{
-	readonly studios: DiscoveredStudio[];
-	readonly foundUnsupportedProtocol: boolean;
-	readonly foundInvalidResponse: boolean;
-}> => {
-	let foundUnsupportedProtocol = false;
-	let foundInvalidResponse = false;
-	const studios = await Promise.all(
-		dependencies.ports.map(async (port): Promise<DiscoveredStudio | null> => {
-			const origin = `http://localhost:${port}`;
-			let response: Response;
-			try {
-				response = await fetchWithTimeout({
-					fetchFn: dependencies.fetchFn,
-					options: {cache: 'no-store'},
-					url: `${origin}/api/studio-protocol`,
-				});
-			} catch {
-				return null;
-			}
-
-			if (!response.ok) {
-				return null;
-			}
-
-			let value: unknown;
-			try {
-				value = await response.json();
-			} catch {
-				foundInvalidResponse = true;
-				return null;
-			}
-
-			if (
-				isRecord(value) &&
-				value.protocol === 'remotion-studio-protocol' &&
-				value.protocolVersion !== 1
-			) {
-				foundUnsupportedProtocol = true;
-				return null;
-			}
-
-			if (!isDescriptor(value)) {
-				foundInvalidResponse = true;
-				return null;
-			}
-
-			return {
-				descriptor: value,
-				discoveredAt: dependencies.now(),
-				origin,
-			};
-		}),
-	);
-
-	return {
-		studios: studios.filter(
-			(studio): studio is DiscoveredStudio => studio !== null,
-		),
-		foundUnsupportedProtocol,
-		foundInvalidResponse,
-	};
-};
-
-const hasLegacyStudio = async (
-	dependencies: InstallInStudioDependencies,
-): Promise<boolean> => {
-	const results = await Promise.all(
-		dependencies.ports.map(async (port) => {
-			try {
-				const response = await fetchWithTimeout({
-					fetchFn: dependencies.fetchFn,
-					options: {cache: 'no-store'},
-					url: `http://localhost:${port}/api/element-install-target`,
-				});
-				if (!response.ok) {
-					return false;
-				}
-
-				const value: unknown = await response.json();
-				return isRecord(value) && value.type === 'remotion-studio';
-			} catch {
-				return false;
-			}
-		}),
-	);
-	return results.some(Boolean);
-};
-
-const isAbortError = (error: unknown): boolean =>
-	error instanceof Error && error.name === 'AbortError';
-
 export const installInStudioWithDependencies = async (
 	payload: StudioElementPayload,
 	dependencies: InstallInStudioDependencies,
 ): Promise<InstallInStudioResult> => {
-	if (!isAllowedOrigin(dependencies.pageOrigin)) {
+	if (!isAllowedStudioProtocolPageOrigin(dependencies.pageOrigin)) {
 		return failure(
 			'unsupported-origin',
 			'Install in Studio is only supported on HTTPS websites and local development origins.',
@@ -299,9 +119,12 @@ export const installInStudioWithDependencies = async (
 		);
 	}
 
-	const supportedStudios = discovery.studios.filter(({descriptor}) =>
-		hasSupportedElementCapability(descriptor),
-	);
+	const supportedStudios = discovery.studios.flatMap((studio) => {
+		const capability = getInstallCapability(studio.descriptor);
+		return capability?.payloadVersions.includes(1)
+			? [{...studio, capability}]
+			: [];
+	});
 	if (supportedStudios.length === 0) {
 		return failure(
 			'unsupported-protocol',
@@ -311,8 +134,8 @@ export const installInStudioWithDependencies = async (
 
 	const now = dependencies.now();
 	const installable = supportedStudios
-		.filter(({descriptor}) => {
-			const target = descriptor.installTarget;
+		.filter(({capability}) => {
+			const {target} = capability;
 			return (
 				target !== null &&
 				target.expiresAt > now &&
@@ -321,14 +144,14 @@ export const installInStudioWithDependencies = async (
 		})
 		.sort((a, b) => {
 			const focusDifference =
-				b.descriptor.installTarget!.lastFocusedAt -
-				a.descriptor.installTarget!.lastFocusedAt;
+				b.capability.target!.lastFocusedAt - a.capability.target!.lastFocusedAt;
 			return focusDifference === 0
 				? b.discoveredAt - a.discoveredAt
 				: focusDifference;
 		});
 	const selected = installable[0];
-	if (!selected || selected.descriptor.installTarget === null) {
+	const selectedTarget = selected?.capability.target;
+	if (!selected || selectedTarget === null || selectedTarget === undefined) {
 		return failure(
 			'no-installable-target',
 			'Focus a writable composition in Remotion Studio, then try again.',
@@ -337,18 +160,20 @@ export const installInStudioWithDependencies = async (
 
 	let response: Response;
 	try {
+		const requestBody = {
+			operation: 'install-element',
+			protocol: 'remotion-studio-protocol',
+			protocolVersion: 1,
+			targetId: selectedTarget.id,
+			payload,
+		} satisfies StudioProtocolInstallRequest;
 		response = await fetchWithTimeout({
 			fetchFn: dependencies.fetchFn,
 			url: `${selected.origin}/api/studio-protocol/install`,
 			options: {
 				method: 'POST',
 				headers: {'Content-Type': 'application/json'},
-				body: JSON.stringify({
-					protocol: 'remotion-studio-protocol',
-					protocolVersion: 1,
-					targetId: selected.descriptor.installTarget.id,
-					payload,
-				}),
+				body: JSON.stringify(requestBody),
 			},
 		});
 	} catch (error) {
@@ -382,7 +207,7 @@ export const installInStudioWithDependencies = async (
 			status: 'awaiting-confirmation',
 			target: {
 				projectName: selected.descriptor.projectName,
-				compositionId: selected.descriptor.installTarget.compositionId,
+				compositionId: selectedTarget.compositionId,
 				studioOrigin: selected.origin,
 				studioVersion: selected.descriptor.studioVersion,
 			},
@@ -421,6 +246,6 @@ export const installInStudio = ({
 			typeof globalThis.location === 'undefined'
 				? null
 				: globalThis.location.origin,
-		ports: probePorts,
+		ports: studioProtocolProbePorts,
 	});
 };

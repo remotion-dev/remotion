@@ -314,6 +314,7 @@ const sidebars: SidebarsConfig = {
 				'effects/pixelate',
 				'effects/radial-progressive-blur',
 				'effects/radial-progressive-pixelate',
+				'effects/region-blur',
 				'effects/rings',
 				'effects/roughen-edges',
 				'effects/saturation',
@@ -1236,7 +1237,6 @@ const sidebars: SidebarsConfig = {
 				'client-side-rendering/html-in-canvas',
 				'client-side-rendering/page-responsiveness',
 				'client-side-rendering/cancellation',
-				'client-side-rendering/telemetry',
 				{
 					type: 'link',
 					href: '/docs/web-renderer',
@@ -1424,9 +1424,20 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'ai/coding-agents',
 				'ai/skills',
-				'ai/claude-code-plugin',
-				'ai/codex-plugin',
-				'ai/kimi-code-plugin',
+				{
+					type: 'category',
+					label: 'Plugins',
+					link: {
+						type: 'doc',
+						id: 'ai/plugins',
+					},
+					items: [
+						'ai/claude-code-plugin',
+						'ai/codex-plugin',
+						'ai/cursor-plugin',
+						'ai/kimi-code-plugin',
+					],
+				},
 				'ai/bolt',
 				'ai/chatbot',
 				'ai/generate',
@@ -1633,32 +1644,33 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: 'License, Pricing and Compliance',
+			label: 'License and terms',
 			link: {
 				type: 'doc',
 				id: 'license',
 			},
-			items: [
-				'license/pricing',
-				'license/faq',
-				'license/terms',
-				'license/privacy',
-				'license/dpa',
-				'license/dpia',
-				'acknowledgements',
-				{
-					type: 'category',
-					label: 'Accessibility',
-					link: {
-						type: 'doc',
-						id: 'accessibility',
-					},
-					items: [
-						'license/accessibility-statement-remotion-dev',
-						'license/accessibility-statement-remotion-pro',
-					],
-				},
-			],
+			collapsed: true,
+			items: ['license/pricing', 'license/faq', 'terms', 'telemetry'],
+		},
+		{
+			type: 'category',
+			label: 'Legal',
+			link: {
+				type: 'doc',
+				id: 'legal',
+			},
+			collapsed: true,
+			items: ['privacy', 'dpa', 'dpia', 'acknowledgements'],
+		},
+		{
+			type: 'category',
+			label: 'Accessibility',
+			link: {
+				type: 'doc',
+				id: 'accessibility',
+			},
+			collapsed: true,
+			items: ['accessibility/dev', 'accessibility/pro'],
 		},
 
 		{
@@ -1677,12 +1689,6 @@ const sidebars: SidebarsConfig = {
 			type: 'link',
 			href: '/docs/timeline',
 			label: 'Timeline',
-			className: 'pro-item',
-		},
-		{
-			type: 'link',
-			href: '/docs/animated-captions',
-			label: 'Animated Captions',
 			className: 'pro-item',
 		},
 		{
@@ -1838,22 +1844,6 @@ const sidebars: SidebarsConfig = {
 				'timeline/faq',
 				'timeline/render',
 			],
-		},
-	],
-	animatedCaptionsSidebar: [
-		{
-			type: 'link',
-			href: '/docs',
-			label: '← Back to the main docs',
-		},
-		{
-			type: 'category',
-			label: 'Animated Captions',
-			link: {
-				type: 'doc',
-				id: 'animated-captions/index',
-			},
-			items: ['animated-captions/faq'],
 		},
 	],
 	recorderSidebar: [

@@ -48,9 +48,10 @@ const incomingElementSource =
 const existingElementSource =
 	'export const LowerThird = () => <div>Locally changed</div>;\n';
 
-const element = {
+const element: InsertElementRequest['element'] = {
 	dependencies: [],
 	dimensions: {width: 900, height: 260},
+	durationInFrames: 72,
 	displayName: 'Lower Third',
 	slug: 'overlays/lower-third',
 	sourceCode: incomingElementSource,
@@ -77,23 +78,11 @@ const makeFixture = () => {
 		addNewClientListener: () => () => undefined,
 	});
 
-	const callHandler = (
-		overwriteExisting: boolean,
-		expectedFileState: InsertElementRequest['expectedFileState'] = null,
-	) => {
-		const input: InsertElementRequest = {
-			compositionFile: 'Root.tsx',
-			compositionId: 'target',
-			element,
-			expectedFileState,
-			from: null,
-			overwriteExisting,
-			position: null,
-		};
-
+	const callHandlerWithInput = (input: InsertElementRequest) => {
 		return insertElementHandler({
 			binariesDirectory: null,
 			configFile: null,
+			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
 			entryPoint: compositionFile,
 			input,
@@ -110,6 +99,21 @@ const makeFixture = () => {
 		});
 	};
 
+	const callHandler = (
+		overwriteExisting: boolean,
+		expectedFileState: InsertElementRequest['expectedFileState'] = null,
+	) => {
+		return callHandlerWithInput({
+			compositionFile: 'Root.tsx',
+			compositionId: 'target',
+			element,
+			expectedFileState,
+			from: null,
+			overwriteExisting,
+			position: null,
+		});
+	};
+
 	const prepareInstall = () => {
 		const input: PrepareElementInstallRequest = {
 			compositionFile: 'Root.tsx',
@@ -120,6 +124,7 @@ const makeFixture = () => {
 		return prepareElementInstallHandler({
 			binariesDirectory: null,
 			configFile: null,
+			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
 			entryPoint: compositionFile,
 			input,
@@ -146,6 +151,7 @@ const makeFixture = () => {
 
 	return {
 		callHandler,
+		callHandlerWithInput,
 		cleanup,
 		prepareInstall,
 		compositionFile,
@@ -184,9 +190,40 @@ test('creates a new Element file without an overwrite conflict', async () => {
 		expect(readFileSync(fixture.elementFile, 'utf-8')).toBe(
 			incomingElementSource,
 		);
-		expect(readFileSync(fixture.compositionFile, 'utf-8')).toContain(
-			'<LowerThird',
+		const composition = readFileSync(fixture.compositionFile, 'utf-8');
+		expect(composition).toMatch(
+			/<Sequence\b(?=[^>]*\bdurationInFrames=\{72\})[^>]*>\s*<LowerThird\s*\/>\s*<\/Sequence>/,
 		);
+	} finally {
+		fixture.cleanup();
+	}
+});
+
+test('installs an Element with a component-owned Sequence', async () => {
+	const fixture = makeFixture();
+	try {
+		const response = await fixture.callHandlerWithInput({
+			compositionFile: 'Root.tsx',
+			compositionId: 'target',
+			element: {...element, installationMode: 'component-owned-sequence'},
+			expectedFileState: null,
+			from: 30,
+			overwriteExisting: false,
+			position: {x: 120, y: 80},
+		});
+
+		expect(response).toEqual({success: true});
+		expect(readFileSync(fixture.elementFile, 'utf-8')).toBe(
+			incomingElementSource,
+		);
+		const composition = readFileSync(fixture.compositionFile, 'utf-8');
+		expect(composition).not.toContain('<Sequence');
+		expect(composition).toContain('<LowerThird');
+		expect(composition).toContain('durationInFrames={72}');
+		expect(composition).toContain('from={30}');
+		expect(composition).toContain('name="Lower Third"');
+		expect(composition).toContain("position: 'absolute'");
+		expect(composition).toContain("translate: '120px 80px'");
 	} finally {
 		fixture.cleanup();
 	}

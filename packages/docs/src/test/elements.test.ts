@@ -23,7 +23,20 @@ import {Seo} from '../components/Seo';
 
 const elementsRoot = path.join(__dirname, '..', '..', 'elements');
 const templateRoot = path.join(__dirname, '..', '..', 'elements-template');
+const staticElementsRoot = path.join(
+	__dirname,
+	'..',
+	'..',
+	'static',
+	'elements',
+);
+const elementSidebars = readFileSync(
+	path.join(__dirname, '..', '..', 'elements-sidebars.ts'),
+	'utf8',
+);
 const elementDefinitionList = Object.values(elementDefinitions);
+const exactVersionPattern =
+	/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
 
 type Element = {
 	name: string;
@@ -107,20 +120,18 @@ describe('Elements must follow the colocated single-file format', () => {
 		expect(
 			elementPage.attributes.some((attr) => attr.name === 'sourceCode'),
 		).toBe(true);
-		const dependencies = elementPage.attributes.find(
-			(attribute) => attribute.name === 'dependencies',
-		);
-		expect(dependencies?.value.value).toBe(
-			JSON.stringify(
-				getRemotionElementDependencies(readFileSync(element.tsxPath, 'utf8')),
+		expect(
+			elementPage.attributes.some(
+				(attribute) => attribute.name === 'dependencies',
 			),
-		);
+		).toBe(false);
 	});
 
 	test('extracts dependencies using the TypeScript parser', () => {
 		expect(
 			getRemotionElementDependencies(`
 				import type {FC} from 'react';
+				import {createRoot} from 'react-dom/client';
 				import {loadFont} from '@remotion/google-fonts/Inter';
 				import {AbsoluteFill} from 'remotion';
 				// import value from 'comment-dependency';
@@ -131,12 +142,7 @@ describe('Elements must follow the colocated single-file format', () => {
 
 				export const Element: FC = () => <AbsoluteFill />;
 			`),
-		).toEqual([
-			'react',
-			'@remotion/google-fonts',
-			'actual-reexport',
-			'actual-dynamic',
-		]);
+		).toEqual(['@remotion/google-fonts', 'actual-reexport', 'actual-dynamic']);
 	});
 
 	for (const element of allElements) {
@@ -255,7 +261,7 @@ describe('Element library', () => {
 });
 
 describe('Element social previews', () => {
-	test('uses the published poster in each Element page frontmatter', () => {
+	test('uses the matching poster in each Element page frontmatter', () => {
 		for (const definition of elementDefinitionList) {
 			const mdx = readFileSync(
 				path.join(elementsRoot, definition.slug, 'index.mdx'),
@@ -265,34 +271,35 @@ describe('Element social previews', () => {
 		}
 	});
 
-	test('renders Open Graph video metadata for the published preview', () => {
-		const markup = renderToStaticMarkup(
-			React.createElement(
-				React.Fragment,
-				null,
-				...Seo.renderVideo({
-					height: 420,
-					url: 'https://remotion.media/elements/text-timed-captions-preview.mp4',
-					width: 1140,
-				}),
-			),
-		);
+	test('renders Open Graph video metadata for previews', () => {
+		for (const definition of elementDefinitionList) {
+			const url = definition.preview.videoUrl;
+			const markup = renderToStaticMarkup(
+				React.createElement(
+					React.Fragment,
+					null,
+					...Seo.renderVideo({
+						height: 420,
+						url,
+						width: 1140,
+					}),
+				),
+			);
 
-		expect(markup).toContain(
-			'<meta property="og:video" content="https://remotion.media/elements/text-timed-captions-preview.mp4"/>',
-		);
-		expect(markup).toContain(
-			'<meta property="og:video:secure_url" content="https://remotion.media/elements/text-timed-captions-preview.mp4"/>',
-		);
-		expect(markup).toContain(
-			'<meta property="og:video:type" content="video/mp4"/>',
-		);
-		expect(markup).toContain(
-			'<meta property="og:video:width" content="1140"/>',
-		);
-		expect(markup).toContain(
-			'<meta property="og:video:height" content="420"/>',
-		);
+			expect(markup).toContain(`<meta property="og:video" content="${url}"/>`);
+			expect(markup).toContain(
+				`<meta property="og:video:secure_url" content="${url}"/>`,
+			);
+			expect(markup).toContain(
+				'<meta property="og:video:type" content="video/mp4"/>',
+			);
+			expect(markup).toContain(
+				'<meta property="og:video:width" content="1140"/>',
+			);
+			expect(markup).toContain(
+				'<meta property="og:video:height" content="420"/>',
+			);
+		}
 	});
 });
 
@@ -312,6 +319,87 @@ describe('Element preview definitions', () => {
 
 		for (const [slug, definition] of Object.entries(elementDefinitions)) {
 			expect(definition.slug).toBe(slug);
+		}
+	});
+
+	test('publishes caption treatments as separate Elements', () => {
+		const captionSlugs = elementDefinitionList
+			.map((definition) => definition.slug)
+			.filter((slug) => slug.startsWith('captions/'))
+			.sort();
+
+		expect(captionSlugs).toEqual([
+			'captions/moving-pill-captions',
+			'captions/popping-word-captions',
+			'captions/word-highlight-captions',
+		]);
+
+		for (const slug of captionSlugs) {
+			const element = productionElements.find((entry) => entry.name === slug);
+			if (!element) {
+				throw new Error(`Missing caption Element for ${slug}`);
+			}
+
+			const source = readFileSync(element.tsxPath, 'utf8');
+			expect(source).not.toContain('readonly mode');
+			expect(source).not.toContain('TimedCaptionsMode');
+			expect(source).not.toContain("translate: '109.5px -36px'");
+		}
+	});
+
+	test('only caption Elements use a component-owned Sequence', () => {
+		const componentOwnedSequenceSlugs = new Set([
+			'captions/moving-pill-captions',
+			'captions/popping-word-captions',
+			'captions/word-highlight-captions',
+		]);
+
+		for (const definition of elementDefinitionList) {
+			expect(definition.installationMode).toBe(
+				componentOwnedSequenceSlugs.has(definition.slug)
+					? 'component-owned-sequence'
+					: 'wrapped',
+			);
+		}
+	});
+
+	test('declares every external source dependency centrally with a valid version', () => {
+		for (const element of productionElements) {
+			const definition = elementDefinitionList.find(
+				(entry) => entry.slug === element.name,
+			);
+			if (!definition) {
+				throw new Error(`Missing definition for ${element.name}`);
+			}
+
+			expect(
+				definition.dependencies.map((dependency) => dependency.name).sort(),
+			).toEqual(
+				getRemotionElementDependencies(
+					readFileSync(element.tsxPath, 'utf8'),
+				).sort(),
+			);
+
+			for (const dependency of definition.dependencies) {
+				if (dependency.name.startsWith('@remotion/')) {
+					if (dependency.version !== null) {
+						throw new Error(
+							`${definition.slug} must use version: null for ${dependency.name}`,
+						);
+					}
+
+					continue;
+				}
+
+				if (
+					dependency.version === null ||
+					!exactVersionPattern.test(dependency.version)
+				) {
+					throw new Error(
+						`${definition.slug} must declare an exact version for ${dependency.name}`,
+					);
+				}
+			}
 		}
 	});
 
@@ -376,7 +464,7 @@ describe('Element preview definitions', () => {
 		}
 	});
 
-	test('uses stable composition IDs and explicit flat MP4 preview URLs', () => {
+	test('uses stable composition IDs and flat review or published preview paths', () => {
 		const compositionIds = elementDefinitionList.map((definition) =>
 			getElementCompositionId(definition.slug),
 		);
@@ -384,22 +472,59 @@ describe('Element preview definitions', () => {
 
 		for (const definition of elementDefinitionList) {
 			const assetSlug = definition.slug.replaceAll('/', '-');
-			expect(String(definition.preview.posterUrl)).toBe(
-				`https://remotion.media/elements/${assetSlug}-preview.png`,
+			const localPosterUrl = `/elements/${assetSlug}-preview.png`;
+			const localVideoUrl = `/elements/${assetSlug}-preview.mp4`;
+			const publicPosterUrl = `https://remotion.media${localPosterUrl}`;
+			const publicVideoUrl = `https://remotion.media${localVideoUrl}`;
+			const posterPath = path.join(
+				staticElementsRoot,
+				`${assetSlug}-preview.png`,
 			);
-			expect(String(definition.preview.videoUrl)).toBe(
-				`https://remotion.media/elements/${assetSlug}-preview.mp4`,
+			const videoPath = path.join(
+				staticElementsRoot,
+				`${assetSlug}-preview.mp4`,
 			);
+			const usesReviewUrls = definition.preview.posterUrl === localPosterUrl;
+
+			if (usesReviewUrls) {
+				expect(String(definition.preview.videoUrl)).toBe(localVideoUrl);
+
+				const isSubmitted = elementSidebars.includes(
+					`'${definition.slug}/index'`,
+				);
+				expect(existsSync(posterPath)).toBe(isSubmitted);
+				expect(existsSync(videoPath)).toBe(isSubmitted);
+				if (isSubmitted) {
+					const poster = readFileSync(posterPath);
+					const video = readFileSync(videoPath);
+					expect(Array.from(poster.subarray(0, 8))).toEqual([
+						0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+					]);
+					expect(video.subarray(4, 8).toString('ascii')).toBe('ftyp');
+					expect(
+						statSync(posterPath).size + statSync(videoPath).size,
+					).toBeLessThanOrEqual(10 * 1024 * 1024);
+				}
+			} else {
+				expect(String(definition.preview.posterUrl)).toBe(publicPosterUrl);
+				expect(String(definition.preview.videoUrl)).toBe(publicVideoUrl);
+				expect(existsSync(posterPath)).toBe(false);
+				expect(existsSync(videoPath)).toBe(false);
+			}
 		}
 	});
 
-	test('the Element template includes explicit flat preview URLs', () => {
+	test('the Element template includes explicit defaults and local preview URLs', () => {
 		const template = readFileSync(path.join(templateRoot, 'index.mdx'), 'utf8');
+		expect(template).toContain("installationMode: 'wrapped'");
 		expect(template).toContain(
-			"posterUrl: 'https://remotion.media/elements/category-element-title-preview.png'",
+			'image: /elements/category-element-title-preview.png',
 		);
 		expect(template).toContain(
-			"videoUrl: 'https://remotion.media/elements/category-element-title-preview.mp4'",
+			"posterUrl: '/elements/category-element-title-preview.png'",
+		);
+		expect(template).toContain(
+			"videoUrl: '/elements/category-element-title-preview.mp4'",
 		);
 	});
 

@@ -1,5 +1,9 @@
 import {afterEach, expect, test} from 'bun:test';
-import type {InteractivitySchema, SequenceControls, TSequence} from 'remotion';
+import type {
+	InteractivitySchema,
+	SequenceRegistrationControls,
+	TSequence,
+} from 'remotion';
 import {getTimelineMediaStartFrame} from '../components/Timeline/get-timeline-media-start-frame';
 import {getTimelineMediaVisualizationLayout} from '../components/Timeline/get-timeline-media-visualization-layout';
 import {getTimelineVideoInfoWidths} from '../components/Timeline/get-timeline-video-info-widths';
@@ -12,6 +16,7 @@ import {
 import {getTimelineVideoFilmstripTimes} from '../components/Timeline/timeline-video-filmstrip-times';
 import {toFileToken} from '../components/Timeline/TimelineAssetField';
 import {isVideoWithLastFrameHold} from '../helpers/is-video-with-last-frame-hold';
+import {makeRuntimeValueStore} from './make-runtime-value-store';
 
 type TestWindow = Pick<
 	Window,
@@ -67,10 +72,10 @@ const makeSequenceControls = ({
 }: {
 	schema: InteractivitySchema;
 	currentRuntimeValueDotNotation: Record<string, unknown>;
-}): SequenceControls => ({
+}): SequenceRegistrationControls => ({
 	componentIdentity: null,
 	componentName: 'Test',
-	currentRuntimeValueDotNotation,
+	runtimeValues: makeRuntimeValueStore(currentRuntimeValueDotNotation),
 	overrideId: 'test',
 	schema,
 	supportsEffects: false,

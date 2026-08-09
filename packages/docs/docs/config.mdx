@@ -233,6 +233,20 @@ The [command line flag](/docs/cli/studio#--disable-interactivity) `--disable-int
 
 See [Opening files in a code editor](/docs/studio/open-in-editor) for built-in editor IDs, custom editor configuration, and platform support.
 
+## `setDefaultCodingAgent()`<AvailableFrom v="4.0.506" />
+
+<Options id="coding-agent" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setDefaultCodingAgent('codex');
+```
+
+Available coding agents: `codex`, `cursor`, `copilot`, and `claude-code`.
+
+The [`--coding-agent`](/docs/cli/studio#--coding-agent) command line flag takes precedence over this option.
+
 ## ~~`setAllowHtmlInCanvasEnabled()`~~<AvailableFrom v="4.0.447" />
 
 :::info Deprecated

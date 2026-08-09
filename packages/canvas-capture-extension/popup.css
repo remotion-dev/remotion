@@ -1,0 +1,142 @@
+:root {
+	color-scheme: dark;
+	font-family:
+		Inter,
+		ui-sans-serif,
+		system-ui,
+		-apple-system,
+		sans-serif;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	min-width: 312px;
+	margin: 0;
+	background: #151515;
+	color: #f5f5f5;
+	font-size: 13px;
+	line-height: 1.4;
+}
+
+main {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 14px;
+}
+
+.title {
+	font-size: 14px;
+	font-weight: 650;
+}
+
+.setting,
+.checkbox {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.setting input,
+.setting select {
+	width: 88px;
+	padding: 7px 8px;
+	border: 1px solid #454545;
+	border-radius: 7px;
+	background: #242424;
+	color: white;
+	font: inherit;
+}
+
+.setting select {
+	width: 126px;
+}
+
+.checkbox {
+	justify-content: flex-start;
+	color: #ddd;
+	cursor: pointer;
+}
+
+.checkbox input {
+	width: 16px;
+	height: 16px;
+	margin: 0;
+	accent-color: #db2339;
+}
+
+.checkbox:has(input:disabled) {
+	cursor: default;
+	opacity: 0.45;
+}
+
+.row {
+	display: flex;
+	gap: 8px;
+}
+
+button {
+	min-height: 34px;
+	padding: 7px 10px;
+	border: 1px solid #454545;
+	border-radius: 7px;
+	background: #292929;
+	color: #f5f5f5;
+	font: inherit;
+	font-weight: 550;
+	cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+	background: #363636;
+}
+
+button:disabled {
+	cursor: default;
+	opacity: 0.45;
+}
+
+.row button {
+	flex: 1;
+}
+
+.record {
+	border-color: #ff4d61;
+	background: #db2339;
+}
+
+.record:hover:not(:disabled) {
+	background: #ef3349;
+}
+
+.record.recording {
+	border-color: #fafafa;
+	background: #fafafa;
+	color: #be1830;
+}
+
+.target {
+	padding: 8px 9px;
+	border-radius: 7px;
+	background: #202020;
+	color: #ddd;
+	overflow-wrap: anywhere;
+}
+
+.status {
+	min-height: 18px;
+	color: #aaa;
+	overflow-wrap: anywhere;
+}
+
+.status.error {
+	color: #ff7b8b;
+}
+
+[hidden] {
+	display: none !important;
+}

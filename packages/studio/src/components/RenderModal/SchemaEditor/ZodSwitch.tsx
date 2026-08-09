@@ -151,6 +151,7 @@ export const ZodSwitch: React.FC<{
 				jsonPath={jsonPath}
 				onRemove={onRemove}
 				mayPad={mayPad}
+				schema={schema}
 			/>
 		);
 	}
@@ -239,6 +240,7 @@ export const ZodSwitch: React.FC<{
 				jsonPath={jsonPath}
 				schema={schema}
 				onRemove={onRemove}
+				mayPad={mayPad}
 			/>
 		);
 	}

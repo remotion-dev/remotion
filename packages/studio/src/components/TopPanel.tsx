@@ -1,4 +1,12 @@
-import React, {useCallback, useContext, useEffect, useMemo} from 'react';
+import {PlayerInternals} from '@remotion/player';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+} from 'react';
 import {Internals} from 'remotion';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {useBreakpoint} from '../helpers/use-breakpoint';
@@ -8,7 +16,6 @@ import {CanvasIfSizeIsAvailable} from './CanvasIfSizeIsAvailable';
 import {TitleUpdater} from './CurrentCompositionSideEffects';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {ExplorerPanel} from './ExplorerPanel';
-import MobilePanel from './MobilePanel';
 import {ObserveDefaultProps} from './ObserveDefaultPropsContext';
 import {OptionsPanel} from './OptionsPanel';
 import {PreviewToolbar} from './PreviewToolbar';
@@ -32,12 +39,18 @@ const row: React.CSSProperties = {
 };
 
 const MAX_SIDEBAR_WIDTH = 350;
+const MIN_SIDEBAR_WIDTH = 250;
 
 export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
 	const {sidebarCollapsedStateLeft} = useContext(SidebarContext);
+	const isMobileLayout = useMobileLayout();
 	const responsiveLeftStatus = useBreakpoint(1200) ? 'collapsed' : 'expanded';
 
 	const actualStateLeft = useMemo((): 'expanded' | 'collapsed' => {
+		if (isMobileLayout) {
+			return 'collapsed';
+		}
+
 		if (sidebarCollapsedStateLeft === 'collapsed') {
 			return 'collapsed';
 		}
@@ -47,7 +60,7 @@ export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
 		}
 
 		return responsiveLeftStatus;
-	}, [sidebarCollapsedStateLeft, responsiveLeftStatus]);
+	}, [isMobileLayout, sidebarCollapsedStateLeft, responsiveLeftStatus]);
 
 	return actualStateLeft;
 };
@@ -73,6 +86,25 @@ const TopPanelInner: React.FC<{
 
 		return 'expanded';
 	}, [sidebarCollapsedStateRight]);
+	const previousSidebarState = useRef({
+		left: actualStateLeft,
+		right: actualStateRight,
+	});
+
+	useLayoutEffect(() => {
+		if (
+			previousSidebarState.current.left === actualStateLeft &&
+			previousSidebarState.current.right === actualStateRight
+		) {
+			return;
+		}
+
+		previousSidebarState.current = {
+			left: actualStateLeft,
+			right: actualStateRight,
+		};
+		PlayerInternals.updateAllElementsSizes();
+	}, [actualStateLeft, actualStateRight]);
 
 	useEffect(() => {
 		onMounted();
@@ -96,8 +128,6 @@ const TopPanelInner: React.FC<{
 		setSidebarCollapsedState({left: null, right: 'collapsed'});
 	}, [setSidebarCollapsedState]);
 
-	const isMobileLayout = useMobileLayout();
-
 	return (
 		<ObserveDefaultProps
 			compositionId={
@@ -116,21 +146,16 @@ const TopPanelInner: React.FC<{
 						maxFlexerSize={MAX_SIDEBAR_WIDTH}
 						minFlexerSize={null}
 						maxAntiFlexerSize={null}
+						minAntiFlexerSize={null}
 						id="sidebar-to-preview"
 						orientation="vertical"
 					>
 						{actualStateLeft === 'expanded' ? (
-							isMobileLayout ? (
-								<MobilePanel onClose={onCollapseLeft} side="left">
-									<ExplorerPanel readOnlyStudio={readOnlyStudio} />
-								</MobilePanel>
-							) : (
-								<SplitterElement sticky={null} type="flexer">
-									<ExplorerPanel readOnlyStudio={readOnlyStudio} />
-								</SplitterElement>
-							)
+							<SplitterElement sticky={null} type="flexer">
+								<ExplorerPanel readOnlyStudio={readOnlyStudio} />
+							</SplitterElement>
 						) : null}
-						{actualStateLeft === 'expanded' && !isMobileLayout ? (
+						{actualStateLeft === 'expanded' ? (
 							<SplitterHandle
 								allowToCollapse="left"
 								onCollapse={onCollapseLeft}
@@ -144,6 +169,7 @@ const TopPanelInner: React.FC<{
 								maxFlexerSize={null}
 								minFlexerSize={null}
 								maxAntiFlexerSize={MAX_SIDEBAR_WIDTH}
+								minAntiFlexerSize={MIN_SIDEBAR_WIDTH}
 								id="canvas-to-right-sidebar"
 								orientation="vertical"
 							>
@@ -152,22 +178,16 @@ const TopPanelInner: React.FC<{
 										<CanvasIfSizeIsAvailable />
 									</div>
 								</SplitterElement>
-								{actualStateRight === 'expanded' && !isMobileLayout ? (
+								{actualStateRight === 'expanded' ? (
 									<SplitterHandle
 										allowToCollapse="right"
 										onCollapse={onCollapseRight}
 									/>
 								) : null}
 								{actualStateRight === 'expanded' ? (
-									isMobileLayout ? (
-										<MobilePanel onClose={onCollapseRight} side="right">
-											<OptionsPanel readOnlyStudio={readOnlyStudio} />
-										</MobilePanel>
-									) : (
-										<SplitterElement sticky={null} type="anti-flexer">
-											<OptionsPanel readOnlyStudio={readOnlyStudio} />
-										</SplitterElement>
-									)
+									<SplitterElement sticky={null} type="anti-flexer">
+										<OptionsPanel readOnlyStudio={readOnlyStudio} />
+									</SplitterElement>
 								) : null}
 							</SplitterContainer>
 						</SplitterElement>

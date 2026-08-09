@@ -9,26 +9,27 @@ import type {
 } from 'remotion';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import type {ComboboxValue} from './NewComposition/ComboBox';
-import type {SelectedOutlineUvHandle} from './selected-outline-uv';
 import type {TimelineSelection} from './Timeline/TimelineSelection';
 
 export type SelectedOutlineContextMenuOpenResult =
 	| false
-	| void
 	| readonly ComboboxValue[];
 
 export type SelectedOutlineContextMenuOpenHandler = () =>
 	| SelectedOutlineContextMenuOpenResult
 	| Promise<SelectedOutlineContextMenuOpenResult>;
 
-export type SelectedOutlineTarget = {
+export type SelectedOutlineLayoutTarget = {
 	readonly key: string;
-	readonly canCrop: boolean;
 	readonly containsSelection: boolean;
-	readonly effectDrop: SelectedOutlineEffectDropTarget | null;
+	readonly keyframeDisplayOffset: number;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly ref: React.RefObject<Element | null>;
 	readonly selected: boolean;
+	readonly selectedForCrop: boolean;
+	readonly selectedForTransformOrigin: boolean;
+	readonly selectedForUvHandles: boolean;
+	readonly showSelectedOutline: boolean;
 	readonly selection: TimelineSelection;
 	readonly sequence: TSequence;
 	readonly crop: {
@@ -37,12 +38,15 @@ export type SelectedOutlineTarget = {
 		readonly top: number;
 		readonly bottom: number;
 	};
+};
+
+export type SelectedOutlineTarget = SelectedOutlineLayoutTarget & {
+	readonly canCrop: boolean;
 	readonly cropDrag: SelectedOutlineCropDragTarget | null;
 	readonly drag: SelectedOutlineDragTarget | null;
 	readonly scaleDrag: SelectedOutlineScaleDragTarget | null;
 	readonly rotationDrag: SelectedOutlineRotationDragTarget | null;
 	readonly transformOriginDrag: SelectedOutlineTransformOriginDragTarget | null;
-	readonly uvHandles: readonly SelectedOutlineUvHandle[];
 };
 
 export const cropFieldKeys = {
@@ -119,12 +123,6 @@ export type SelectedOutlineCropDragTarget = {
 		readonly propStatus: CanUpdateSequencePropStatus;
 		readonly value: string;
 	} | null;
-};
-
-export type SelectedOutlineEffectDropTarget = {
-	readonly clientId: string;
-	readonly fileName: string;
-	readonly nodePath: SequencePropsSubscriptionKey;
 };
 
 export type SelectedOutlineDragTarget = {

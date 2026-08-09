@@ -14,7 +14,7 @@ import {
 	type KeyframeClipboardData,
 } from '@remotion/studio-shared';
 import type React from 'react';
-import {useContext, useEffect, useRef} from 'react';
+import {useContext, useEffect} from 'react';
 import {
 	Internals,
 	type OverrideIdToNodePaths,
@@ -52,6 +52,7 @@ import {
 	type EffectsClipboardEnvelope,
 } from './effects-clipboard';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
+import {getCurrentFrame} from './imperative-state';
 import {
 	getKeyframeClipboardDataFromSelections,
 	getPasteKeyframeTarget,
@@ -681,9 +682,6 @@ export const getPasteEffectPropTarget = ({
 
 export const TimelineClipboardKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const timelinePositionRef = useRef(timelinePosition);
-	timelinePositionRef.current = timelinePosition;
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {canSelect} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
@@ -934,7 +932,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 							clientId,
 							confirm,
 							propStatuses,
-							timelinePosition: timelinePositionRef.current,
+							timelinePosition: getCurrentFrame(),
 						});
 						return deletePromise?.then((deleted) => {
 							if (!deleted) {
@@ -1006,7 +1004,7 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 						const keyframeTarget = getPasteKeyframeTarget({
 							selectedItems,
 							payload: keyframeResult.data,
-							timelinePosition: timelinePositionRef.current,
+							timelinePosition: getCurrentFrame(),
 							sequences,
 							overrideIdsToNodePaths: overrideIdToNodePathMappings,
 							propStatuses,
@@ -1349,7 +1347,6 @@ export const TimelineClipboardKeybindings: React.FC = () => {
 		previewServerState,
 		sequencesRef,
 		setPropStatuses,
-		timelinePositionRef,
 	]);
 
 	return null;

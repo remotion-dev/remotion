@@ -1,11 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import {startPointerSession} from '../../helpers/pointer-session';
@@ -353,7 +347,7 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 		};
 	}, []);
 
-	const inContextMenu = useMemo((): ComboboxValue[] => {
+	const getInContextMenuItems = useCallback((): ComboboxValue[] => {
 		return [
 			{
 				id: 'hide-in',
@@ -379,7 +373,7 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 		];
 	}, [setInAndOutFrames, videoConfig.id]);
 
-	const outContextMenu = useMemo((): ComboboxValue[] => {
+	const getOutContextMenuItems = useCallback((): ComboboxValue[] => {
 		return [
 			{
 				id: 'hide-out',
@@ -408,7 +402,7 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 	return (
 		<>
 			{inFrame !== null && (
-				<ContextMenu values={inContextMenu} onOpen={null}>
+				<ContextMenu getItems={getInContextMenuItems}>
 					<TimelineInOutPointerHandle
 						type="in"
 						atFrame={inFrame}
@@ -418,7 +412,7 @@ const TimelineInOutDragHandlerInner: React.FC = () => {
 				</ContextMenu>
 			)}
 			{outFrame !== null && (
-				<ContextMenu values={outContextMenu} onOpen={null}>
+				<ContextMenu getItems={getOutContextMenuItems}>
 					<TimelineInOutPointerHandle
 						type="out"
 						dragging={inOutDragging.dragging === 'out'}

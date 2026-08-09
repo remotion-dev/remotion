@@ -1,7 +1,7 @@
 ---
 name: remotion-interactivity
 description: Structure Remotion markup for interactivity
-version: 4.0.503
+version: 4.0.507
 ---
 
 By writing Remotion markup in a specific way, the Remotion Studio is able to recognize the structure of the code and makes it interactive:
@@ -15,7 +15,7 @@ If the markup is too complex for the Studio to make it interactive, then the val
 
 ## Make an HTML element interactive using `Interactive`
 
-Every HTML and SVG element such as `<div>` can be turned interactive using `Interactive`:
+Every HTML and SVG element (except `<Img>`, it already is interactive) such as `<div>` can be turned interactive using `Interactive`:
 
 ```tsx title="Interactive elements"
 <Interactive.Div
@@ -44,6 +44,7 @@ Use a prop or variable only when the text is dynamic or reused.
 ## Give interactive elements a descriptive name
 
 Add a `name` prop to elements to make them easily identifyable.
+Avoid computed names, hardcode them.
 
 ```tsx title="Interactive names"
 <>

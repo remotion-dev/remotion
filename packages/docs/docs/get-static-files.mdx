@@ -50,7 +50,7 @@ const videoName = files[0].name;
 // ✅ Wrap it in staticFile() instead or use `src`
 const videoSrc = files[0].src;
 
-// Find a file by it's name and import it
+// Find a file by its name and import it
 const data = files.find((f) => {
   return f.name === 'video.mp4';
 }) as StaticFile; // Use `as StaticFile` to assert the file exists

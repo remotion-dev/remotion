@@ -2,7 +2,12 @@ import path from 'path';
 import {build} from 'bun';
 
 const output = await build({
-	entrypoints: ['src/background.ts', 'src/content.ts', 'src/receiver.ts'],
+	entrypoints: [
+		'src/background.ts',
+		'src/content.ts',
+		'src/popup.ts',
+		'src/receiver.ts',
+	],
 	outdir: 'dist',
 	naming: '[name].js',
 	target: 'browser',
@@ -17,5 +22,7 @@ if (!output.success) {
 }
 
 await Bun.write(path.join('dist', 'manifest.json'), Bun.file('manifest.json'));
+await Bun.write(path.join('dist', 'popup.html'), Bun.file('popup.html'));
+await Bun.write(path.join('dist', 'popup.css'), Bun.file('popup.css'));
 
 console.log('Built Chrome extension in packages/canvas-capture-extension/dist');

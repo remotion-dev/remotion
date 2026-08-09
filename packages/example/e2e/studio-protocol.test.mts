@@ -127,9 +127,10 @@ export const MyComponent = () => {
 		response.writeHead(200, {'Content-Type': 'text/html'});
 		response.end(`<!doctype html>
 			<button id="install">Install in Studio</button>
+			<button id="license">Configure license in Studio</button>
 			<p id="status"></p>
 			<script type="module">
-				import {createElementPayload, installInStudio} from '/protocol.js';
+				import {createElementPayload, installInStudio, StudioProtocolInternals} from '/protocol.js';
 				const payload = createElementPayload({
 					displayName: 'Protocol Element',
 					slug: 'protocol-element',
@@ -139,7 +140,15 @@ export const MyComponent = () => {
 					durationInFrames: 30,
 				});
 				document.querySelector('#install').onclick = async () => {
+					document.querySelector('#status').textContent = '';
 					const result = await installInStudio({payload});
+					document.querySelector('#status').textContent = JSON.stringify(result);
+				};
+				document.querySelector('#license').onclick = async () => {
+					document.querySelector('#status').textContent = '';
+					const result = await StudioProtocolInternals.setLicenseKeyInStudio({
+						licenseKey: 'rm_pub_${'a'.repeat(48)}',
+					});
 					document.querySelector('#status').textContent = JSON.stringify(result);
 				};
 			</script>`);
@@ -147,8 +156,21 @@ export const MyComponent = () => {
 	await new Promise<void>((resolve) =>
 		senderServer.listen(0, '127.0.0.1', resolve),
 	);
+	const address = senderServer.address();
+	if (address === null || typeof address === 'string') {
+		throw new Error('Expected sender server address');
+	}
 
+	const senderUrl = `http://127.0.0.1:${address.port}`;
+	const elementsLibraryRequests: string[] = [];
 	const context = await browser.newContext();
+	await context.route('https://www.remotion.dev/elements', async (route) => {
+		elementsLibraryRequests.push(route.request().url());
+		await route.fulfill({
+			status: 302,
+			headers: {Location: senderUrl},
+		});
+	});
 	try {
 		await waitForUrl(studioUrl, studioProcess);
 		const studioPage = await context.newPage();
@@ -169,16 +191,28 @@ export const MyComponent = () => {
 			)
 			.toMatchObject({
 				protocol: 'remotion-studio-protocol',
-				installTarget: {compositionId: 'MyComp'},
+				capabilities: [
+					{
+						type: 'install-element',
+						target: {compositionId: 'MyComp'},
+					},
+					{type: 'set-license-key'},
+				],
 			});
 
-		const address = senderServer.address();
-		if (address === null || typeof address === 'string') {
-			throw new Error('Expected sender server address');
-		}
-
-		const senderPage = await context.newPage();
-		await senderPage.goto(`http://127.0.0.1:${address.port}`);
+		await studioPage.locator('[data-sidebar-toggle="right"]').click();
+		const browseElements = studioPage.getByRole('button', {
+			name: 'Browse Elements...',
+		});
+		await expect(browseElements).toBeVisible();
+		const senderPagePromise = context.waitForEvent('page', {timeout: 10_000});
+		await browseElements.click();
+		const senderPage = await senderPagePromise;
+		await senderPage.waitForLoadState('domcontentloaded');
+		expect(elementsLibraryRequests).toEqual([
+			'https://www.remotion.dev/elements',
+		]);
+		await expect(senderPage).toHaveURL(senderUrl);
 		await senderPage.getByRole('button', {name: 'Install in Studio'}).click();
 		await senderPage.waitForFunction(
 			() => document.querySelector('#status')?.textContent !== '',
@@ -208,6 +242,28 @@ export const MyComponent = () => {
 		);
 		expect(compositionSource).toContain('ProtocolElement');
 		expect(compositionSource).toContain('protocol-element.element');
+
+		await studioPage.bringToFront();
+		await studioPage.mouse.click(500, 300);
+		await senderPage.bringToFront();
+		await senderPage
+			.getByRole('button', {name: 'Configure license in Studio'})
+			.click();
+		await senderPage.waitForFunction(
+			() => document.querySelector('#status')?.textContent !== '',
+		);
+		expect(await senderPage.locator('#status').textContent()).toContain(
+			'awaiting-confirmation',
+		);
+
+		await studioPage.bringToFront();
+		const licenseDialog = studioPage.getByRole('dialog');
+		await expect(
+			licenseDialog.getByText('Settings', {exact: true}),
+		).toBeVisible();
+		await expect(
+			licenseDialog.getByRole('textbox', {name: 'Public license key'}),
+		).toHaveValue(`rm_pub_${'a'.repeat(48)}`);
 	} catch (error) {
 		throw new Error(`${String(error)}\nTemporary Studio logs:\n${studioLogs}`);
 	} finally {

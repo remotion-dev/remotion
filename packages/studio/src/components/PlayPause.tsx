@@ -1,7 +1,6 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useState} from 'react';
 import {Internals} from 'remotion';
-import {WHITE} from '../helpers/colors';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {JumpToStart} from '../icons/jump-to-start';
@@ -16,18 +15,15 @@ import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
 
 const backStyle = {
 	height: 18,
-	color: WHITE,
 };
 
 const forwardBackStyle = {
 	height: 16,
-	color: WHITE,
 };
 
 const iconButton: React.CSSProperties = {
 	height: 14,
 	width: 14,
-	color: WHITE,
 };
 
 export const PlayPause: React.FC<{
@@ -48,18 +44,16 @@ export const PlayPause: React.FC<{
 	const [showBufferIndicator, setShowBufferState] = useState<boolean>(false);
 
 	const {
-		playing,
 		play,
 		pause,
 		pauseAndReturnToPlayStart,
 		frameBack,
 		seek,
 		frameForward,
-		isLastFrame,
-		isFirstFrame,
 		emitter,
 		getCurrentFrame,
-	} = PlayerInternals.usePlayer();
+	} = PlayerInternals.usePlayerMethods();
+	const [playing] = Internals.Timeline.usePlayingState();
 
 	PlayerInternals.usePlayback({
 		loop,
@@ -256,20 +250,20 @@ export const PlayPause: React.FC<{
 				<ControlButton
 					aria-label="Jump to beginning"
 					title="Jump to beginning"
-					disabled={!videoConfig || isFirstFrame}
+					disabled={!videoConfig}
 					onClick={jumpToStart}
 				>
-					<JumpToStart style={backStyle} />
+					{(color) => <JumpToStart style={backStyle} color={color} />}
 				</ControlButton>
 			)}
 			{hideNavigationControls ? null : (
 				<ControlButton
 					aria-label="Step back one frame"
 					title="Step back one frame"
-					disabled={!videoConfig || isFirstFrame}
+					disabled={!videoConfig}
 					onClick={oneFrameBack}
 				>
-					<StepBack style={forwardBackStyle} />
+					{(color) => <StepBack style={forwardBackStyle} color={color} />}
 				</ControlButton>
 			)}
 
@@ -279,25 +273,27 @@ export const PlayPause: React.FC<{
 				onClick={playing ? pause : play}
 				disabled={!videoConfig}
 			>
-				{playing ? (
-					showBufferIndicator ? (
-						<PlayerInternals.BufferingIndicator type="studio" />
+				{(color) =>
+					playing ? (
+						showBufferIndicator ? (
+							<PlayerInternals.BufferingIndicator type="studio" color={color} />
+						) : (
+							<Pause style={iconButton} color={color} />
+						)
 					) : (
-						<Pause style={iconButton} />
+						<Play style={iconButton} color={color} />
 					)
-				) : (
-					<Play style={iconButton} />
-				)}
+				}
 			</ControlButton>
 
 			{hideNavigationControls ? null : (
 				<ControlButton
 					aria-label="Step forward one frame"
 					title="Step forward one frame"
-					disabled={!videoConfig || isLastFrame}
+					disabled={!videoConfig}
 					onClick={oneFrameForward}
 				>
-					<StepForward style={forwardBackStyle} />
+					{(color) => <StepForward style={forwardBackStyle} color={color} />}
 				</ControlButton>
 			)}
 		</>

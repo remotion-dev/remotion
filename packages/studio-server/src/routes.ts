@@ -4,7 +4,11 @@ import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
 import {BundlerInternals} from '@remotion/bundler';
-import type {DefaultEditor, LogLevel} from '@remotion/renderer';
+import type {
+	DefaultCodingAgent,
+	DefaultEditor,
+	LogLevel,
+} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ApiRoutes,
@@ -30,6 +34,7 @@ import {getEditorName} from './preview-server/routes/open-in-editor';
 import {serveStatic} from './preview-server/serve-static';
 import {handleStudioProtocolDiscovery} from './preview-server/studio-protocol/handle-discovery';
 import {handleStudioProtocolInstall} from './preview-server/studio-protocol/handle-install';
+import {handleStudioProtocolLicenseKey} from './preview-server/studio-protocol/handle-license-key';
 import {handleStudioProtocolOptions} from './preview-server/studio-protocol/origin-policy';
 import {validateSameOrigin} from './preview-server/validate-same-origin';
 import {reloadPreviouslySuppressedFiles} from './preview-server/watch-ignore-next-change';
@@ -378,6 +383,7 @@ export const handleRoutes = ({
 	getPreviewSampleRate,
 	enableCrossSiteIsolation,
 	getStudioRuntimeConfig,
+	getDefaultCodingAgent,
 	getDefaultEditor,
 	configFile,
 }: {
@@ -404,6 +410,7 @@ export const handleRoutes = ({
 	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	getDefaultCodingAgent: () => DefaultCodingAgent | null;
 	getDefaultEditor: () => DefaultEditor | null;
 	configFile: string | null;
 }): Promise<void> => {
@@ -439,10 +446,14 @@ export const handleRoutes = ({
 
 	if (
 		url.pathname === '/api/studio-protocol' ||
-		url.pathname === '/api/studio-protocol/install'
+		url.pathname === '/api/studio-protocol/install' ||
+		url.pathname === '/api/studio-protocol/license-key'
 	) {
 		if (request.method === 'OPTIONS') {
-			return handleStudioProtocolOptions({request, response});
+			return handleStudioProtocolOptions({
+				request,
+				response,
+			});
 		}
 
 		if (url.pathname === '/api/studio-protocol') {
@@ -450,6 +461,18 @@ export const handleRoutes = ({
 				gitSource,
 				liveEventsServer,
 				remotionRoot,
+				request,
+				response,
+			});
+		}
+
+		if (url.pathname === '/api/studio-protocol/license-key') {
+			return handleStudioProtocolLicenseKey({
+				configFile,
+				focusStudioTab: (studioUrl) => {
+					focusBrowserTab({url: studioUrl}).catch(() => undefined);
+				},
+				liveEventsServer,
 				request,
 				response,
 			});
@@ -481,6 +504,7 @@ export const handleRoutes = ({
 				binariesDirectory,
 				publicDir,
 				configFile,
+				getDefaultCodingAgent,
 				getDefaultEditor,
 			});
 		}

@@ -1,6 +1,6 @@
 import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared';
 import type React from 'react';
-import {useContext, useEffect, useRef} from 'react';
+import {useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {useKeybinding} from '../../helpers/use-keybinding';
@@ -14,6 +14,7 @@ import {
 	getTimelineSelectionAfterDeletingItems,
 } from './delete-selected-timeline-item';
 import {duplicateSelectedTimelineItems} from './duplicate-selected-timeline-item';
+import {getCurrentFrame} from './imperative-state';
 import {resetSelectedTimelineProps} from './reset-selected-timeline-props';
 import {
 	shouldHandleTimelineDuplicateShortcut,
@@ -44,10 +45,6 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 	const {canSelect} = useTimelineSelection();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const confirm = useConfirmationDialog();
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const timelinePositionRef = useRef(timelinePosition);
-	timelinePositionRef.current = timelinePosition;
-
 	useEffect(() => {
 		if (!canSelect || previewServerState.type !== 'connected') {
 			return;
@@ -55,6 +52,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 
 		const {clientId} = previewServerState;
 		const handleDelete = () => {
+			const timelinePosition = getCurrentFrame();
 			const {selectedItems, clearSelection, selectItems} =
 				currentSelection.current;
 			const sequences = sequencesRef.current;
@@ -84,7 +82,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 				clientId,
 				confirm,
 				propStatuses,
-				timelinePosition: timelinePositionRef.current,
+				timelinePosition,
 			});
 
 			if (deletePromise !== null) {
@@ -96,7 +94,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 								sequences,
 								overrideIdsToNodePaths: overrideIdToNodePathMappings,
 								propStatuses,
-								timelinePosition: timelinePositionRef.current,
+								timelinePosition,
 							});
 							if (nextSelection.length === 0) {
 								clearSelection();
@@ -206,7 +204,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 					sequences: sequencesRef.current,
 					overrideIdsToNodePaths: overrideIdToNodePathMappings,
 					propStatuses: propStatusesRef.current,
-					splitFrame: timelinePositionRef.current,
+					splitFrame: getCurrentFrame(),
 				});
 
 				if (splitPromise === null) {
@@ -238,7 +236,6 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		sequencesRef,
 		setGuidesList,
 		setPropStatuses,
-		timelinePositionRef,
 	]);
 
 	return null;

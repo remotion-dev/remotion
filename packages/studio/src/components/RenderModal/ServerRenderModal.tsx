@@ -47,7 +47,7 @@ import {GearIcon} from '../../icons/gear';
 import {GifIcon} from '../../icons/gif';
 import {InputPropsIcon} from '../../icons/input-props';
 import {FilmIcon} from '../../icons/video';
-import {ModalsContext} from '../../state/modals';
+import {SetSelectedModalContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -253,7 +253,7 @@ const RenderModal: React.FC<
 	initialChromeMode,
 	renderDefaults,
 }) => {
-	const {setSelectedModal} = useContext(ModalsContext);
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	const context = useContext(ResolvedCompositionContext);
 	if (!context) {
@@ -765,6 +765,7 @@ const RenderModal: React.FC<
 			chromeMode,
 			offthreadVideoThreads,
 			mediaCacheSizeInBytes,
+			licenseKey: renderDefaults.publicLicenseKey,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -795,6 +796,7 @@ const RenderModal: React.FC<
 		chromeMode,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
+		renderDefaults.publicLicenseKey,
 	]);
 
 	const [everyNthFrameSetting, setEveryNthFrameSetting] = useState(
@@ -878,6 +880,7 @@ const RenderModal: React.FC<
 			offthreadVideoThreads,
 			mediaCacheSizeInBytes,
 			sampleRate,
+			licenseKey: renderDefaults.publicLicenseKey,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -934,6 +937,7 @@ const RenderModal: React.FC<
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
 		sampleRate,
+		renderDefaults.publicLicenseKey,
 	]);
 
 	const onClickSequence = useCallback(() => {

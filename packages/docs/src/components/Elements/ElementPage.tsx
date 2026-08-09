@@ -26,20 +26,18 @@ import styles from './ElementPage.module.css';
 type ElementPageProps = {
 	readonly children?: ReactNode;
 	readonly definition: ElementDefinition;
-	readonly dependencies: string[];
 	readonly sourceCode?: string;
 };
 
 type InstallStatus =
 	| {type: 'idle'}
 	| {type: 'installing'}
-	| {type: 'success'; message: string; studioUrl: string}
+	| {type: 'success'; message: string}
 	| {type: 'error'; message: string};
 
 export const ElementPage: React.FC<ElementPageProps> = ({
 	children,
 	definition,
-	dependencies,
 	sourceCode,
 }) => {
 	const {
@@ -51,6 +49,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		elementWidth,
 		fps,
 		slug,
+		installationMode,
 	} = definition;
 	const [installStatus, setInstallStatus] = useState<InstallStatus>({
 		type: 'idle',
@@ -74,21 +73,23 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				: null;
 
 		return createElementPayload({
-			dependencies,
+			dependencies: definition.dependencies,
 			dimensions,
 			displayName,
 			durationInFrames,
 			slug,
 			sourceCode,
+			installationMode,
 		});
 	}, [
-		dependencies,
+		definition.dependencies,
 		displayName,
 		durationInFrames,
 		elementHeight,
 		elementWidth,
 		slug,
 		sourceCode,
+		installationMode,
 	]);
 
 	const installElement = useCallback(async () => {
@@ -110,7 +111,6 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		setInstallStatus({
 			type: 'success',
 			message: `Sent to ${target.projectName ?? 'Remotion Studio'} / ${target.compositionId}. Confirm the installation in Studio.`,
-			studioUrl: target.studioOrigin,
 		});
 	}, [elementPayload]);
 
@@ -215,16 +215,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 											: styles.errorStatus
 									}
 								>
-									{installStatus.message}{' '}
-									{installStatus.type === 'success' ? (
-										<a
-											href={installStatus.studioUrl}
-											rel="noreferrer"
-											target="_blank"
-										>
-											Open Studio
-										</a>
-									) : null}
+									{installStatus.message}
 								</p>
 							) : null}
 						</>
@@ -236,6 +227,38 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 							<div>
 								<dt>Dimensions</dt>
 								<dd>{getElementDimensionsLabel(definition)}</dd>
+							</div>
+							<div>
+								<dt>Preview FPS</dt>
+								<dd>{fps}</dd>
+							</div>
+							<div>
+								<dt>Duration</dt>
+								<dd>{durationInFrames / fps}s</dd>
+							</div>
+							<div className={styles.dependenciesMetadata}>
+								<dt>Dependencies</dt>
+								<dd>
+									{definition.dependencies.length === 0 ? (
+										'None'
+									) : (
+										<ul className={styles.dependencyList}>
+											{definition.dependencies.map((dependency) => (
+												<li key={dependency.name}>
+													<a
+														href={`https://www.npmjs.com/package/${dependency.name}`}
+														rel="noopener noreferrer"
+														target="_blank"
+													>
+														{dependency.version === null
+															? dependency.name
+															: `${dependency.name}@${dependency.version}`}
+													</a>
+												</li>
+											))}
+										</ul>
+									)}
+								</dd>
 							</div>
 						</dl>
 					</div>

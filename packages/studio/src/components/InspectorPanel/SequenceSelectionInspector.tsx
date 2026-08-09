@@ -24,7 +24,7 @@ import {
 	type TimelineSelection,
 	useTimelineSelection,
 } from '../Timeline/TimelineSelection';
-import {useSequenceFreezeFrameMenuItem} from '../Timeline/use-sequence-freeze-frame-menu-item';
+import {getSequenceFreezeFrameMenuItem} from '../Timeline/use-sequence-freeze-frame-menu-item';
 import {AlignmentControls} from './AlignmentControls';
 import {
 	InspectorActionSection,
@@ -38,6 +38,7 @@ import {
 } from './ConnectedCompositionsSection';
 import type {SequenceSectionSelection} from './inspector-selection';
 import {
+	SequenceInspectorDuplicationSection,
 	SequenceInspectorHeader,
 	useSequenceInspectorSourceLocation,
 } from './SequenceInspectorHeader';
@@ -134,7 +135,7 @@ const SequenceSourceActions: React.FC<{
 			),
 		[propStatuses, selection.nodePathInfo.sequenceSubscriptionKey],
 	);
-	const freezeFrameMenuItem = useSequenceFreezeFrameMenuItem({
+	const freezeFrameMenuItem = getSequenceFreezeFrameMenuItem({
 		clientId:
 			previewServerState.type === 'connected' && isStudioInteractivityEnabled()
 				? previewServerState.clientId
@@ -275,6 +276,7 @@ const SequenceExpandedInspector: React.FC<{
 			onPointerDown={selectSequenceOnInspectorPointerDown}
 		>
 			<SequenceInspectorHeader sourceLocation={sourceLocation} track={track} />
+			<SequenceInspectorDuplicationSection track={track} />
 			{connectedCompositions.length > 0 ? (
 				<>
 					<InspectorSectionDivider />

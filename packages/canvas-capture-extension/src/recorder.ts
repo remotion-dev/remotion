@@ -1,11 +1,8 @@
-import type {CropRectangle} from 'mediabunny';
+import type {Quality} from 'mediabunny';
+import type {CaptureFormat} from './messages';
 
-type CanvasVideoSource = {
-	add: (
-		timestamp: number,
-		duration: number,
-		encodeOptions?: VideoEncoderEncodeOptions,
-	) => Promise<void>;
+type VideoFrameSource = {
+	add: (frame: VideoFrame) => Promise<void>;
 	close: () => void;
 };
 
@@ -58,44 +55,75 @@ type CaptureMetadata = {
 type RecordingState = {
 	readonly output: RecordingOutput;
 	readonly target: RecordingTarget;
-	readonly source: CanvasVideoSource;
+	readonly source: VideoFrameSource;
 	readonly startedAt: number;
 	readonly mouseMovements: MouseMovement[];
 	readonly pointerClicks: PointerClick[];
 	lastTimestampInSeconds: number | null;
 	lastFramePromise: Promise<void>;
+	pendingFrame: VideoFrame | null;
+	isEncodingFrame: boolean;
+	hasEncodingError: boolean;
+	encodingError: unknown;
 	frameCount: number;
 	captureMetadata: CaptureMetadata | null;
 	isFinalizing: boolean;
 };
 
-export type HtmlInCanvasElement = HTMLCanvasElement & {
-	layoutSubtree?: boolean;
-	requestPaint?: () => void;
+export type HtmlInCanvasElementImage = {
+	readonly width: number;
+	readonly height: number;
+	close: () => void;
 };
 
-export type HtmlInCanvasRenderingContext2D = CanvasRenderingContext2D & {
-	drawElementImage?: (
-		element: Element,
+type DrawElementImageSource = Element | HtmlInCanvasElementImage;
+
+type DrawElementImage = {
+	(
+		element: DrawElementImageSource,
 		dx: number,
 		dy: number,
 		dWidth?: number,
 		dHeight?: number,
-	) => DOMMatrix;
+	): DOMMatrix;
+	(
+		element: DrawElementImageSource,
+		sx: number,
+		sy: number,
+		sWidth: number,
+		sHeight: number,
+		dx: number,
+		dy: number,
+		dWidth?: number,
+		dHeight?: number,
+	): DOMMatrix;
+};
+
+export type HtmlInCanvasElement = HTMLCanvasElement & {
+	layoutSubtree?: boolean;
+	requestPaint?: () => void;
+	captureElementImage?: (element: Element) => HtmlInCanvasElementImage;
+};
+
+export type HtmlInCanvasRenderingContext2D = CanvasRenderingContext2D & {
+	drawElementImage?: DrawElementImage;
 	reset?: () => void;
 };
 
+export type HtmlInCanvasOffscreenRenderingContext2D =
+	OffscreenCanvasRenderingContext2D & {
+		drawElementImage?: DrawElementImage;
+		reset?: () => void;
+	};
+
 type CanvasCaptureRecorderOptions = {
-	readonly canvas: HTMLCanvasElement;
-	readonly crop?: CropRectangle;
+	readonly format: CaptureFormat;
 	readonly getContentRect: () => DOMRect;
 	readonly getDensity: () => number;
 	readonly getFilename: () => string;
 };
 
 const fallbackFrameDurationInSeconds = 1 / 60;
-const recordingVideoBitrate = 120_000_000;
-const recordingKeyFrameIntervalInSeconds = 0.5;
 
 const CAPTURE_METADATA_TAG_KEY = 'REMOTION_CAPTURE_DATA';
 
@@ -108,16 +136,27 @@ export const isHtmlInCanvasAvailable = () => {
 	const context = canvas.getContext(
 		'2d',
 	) as HtmlInCanvasRenderingContext2D | null;
+	const captureContext =
+		typeof OffscreenCanvas === 'undefined'
+			? null
+			: (new OffscreenCanvas(2, 2).getContext(
+					'2d',
+				) as HtmlInCanvasOffscreenRenderingContext2D | null);
 
 	return (
 		typeof canvas.requestPaint === 'function' &&
-		typeof context?.drawElementImage === 'function'
+		typeof canvas.captureElementImage === 'function' &&
+		typeof context?.drawElementImage === 'function' &&
+		typeof captureContext?.drawElementImage === 'function' &&
+		typeof VideoFrame !== 'undefined'
 	);
 };
 
 export const resetCanvas = (
-	context: HtmlInCanvasRenderingContext2D,
-	canvas: HTMLCanvasElement,
+	context:
+		| HtmlInCanvasRenderingContext2D
+		| HtmlInCanvasOffscreenRenderingContext2D,
+	canvas: HTMLCanvasElement | OffscreenCanvas,
 ) => {
 	if (typeof context.reset === 'function') {
 		context.reset();
@@ -128,20 +167,54 @@ export const resetCanvas = (
 	context.clearRect(0, 0, canvas.width, canvas.height);
 };
 
-const roundUpToEven = (value: number) => {
-	const rounded = Math.max(2, Math.ceil(value));
-	return rounded % 2 === 0 ? rounded : rounded + 1;
-};
+const roundDownToEven = (value: number) =>
+	Math.max(2, Math.floor(value / 2) * 2);
 
-export const syncCanvasSize = (
-	canvas: HTMLCanvasElement,
+export const getScaledCanvasSize = (
 	width: number,
 	height: number,
 	density: number,
-) => {
-	const scaledWidth = roundUpToEven(width * density);
-	const scaledHeight = roundUpToEven(height * density);
+) => ({
+	width: roundDownToEven(width * density),
+	height: roundDownToEven(height * density),
+});
 
+const getVideoEncodingOptions = (bitrate: Quality) => ({
+	bitrate,
+	latencyMode: 'realtime' as const,
+});
+
+export const canEncodeCapture = async (
+	format: CaptureFormat,
+	{width, height}: {readonly width: number; readonly height: number},
+) => {
+	const {canEncodeVideo, QUALITY_HIGH} = await import('mediabunny');
+	return canEncodeVideo(format === 'mp4' ? 'avc' : 'vp9', {
+		width,
+		height,
+		...getVideoEncodingOptions(QUALITY_HIGH),
+	});
+};
+
+export const assertCanEncodeCapture = async (
+	format: CaptureFormat,
+	size: {readonly width: number; readonly height: number},
+) => {
+	if (await canEncodeCapture(format, size)) {
+		return;
+	}
+
+	const label = format === 'mp4' ? 'H.264 MP4' : 'VP9 WebM';
+	throw new Error(
+		`${label} encoding is not supported at ${size.width}×${size.height} in this browser. Reduce the scale or select a smaller area.`,
+	);
+};
+
+const setCanvasSize = (
+	canvas: HTMLCanvasElement | OffscreenCanvas,
+	scaledWidth: number,
+	scaledHeight: number,
+) => {
 	if (canvas.width !== scaledWidth) {
 		canvas.width = scaledWidth;
 	}
@@ -149,6 +222,29 @@ export const syncCanvasSize = (
 	if (canvas.height !== scaledHeight) {
 		canvas.height = scaledHeight;
 	}
+};
+
+export const syncCanvasSize = (
+	canvas: HTMLCanvasElement | OffscreenCanvas,
+	width: number,
+	height: number,
+	density: number,
+) => {
+	const size = getScaledCanvasSize(width, height, density);
+	setCanvasSize(canvas, size.width, size.height);
+};
+
+export const syncDisplayCanvasSize = (
+	canvas: HTMLCanvasElement,
+	width: number,
+	height: number,
+	density: number,
+) => {
+	setCanvasSize(
+		canvas,
+		Math.max(1, Math.round(width * density)),
+		Math.max(1, Math.round(height * density)),
+	);
 };
 
 const getCursorForElement = (element: Element | null): string => {
@@ -166,7 +262,7 @@ const getCursorForElement = (element: Element | null): string => {
 	return 'auto';
 };
 
-const addFrame = (recording: RecordingState) => {
+const addFrame = (recording: RecordingState, canvas: OffscreenCanvas) => {
 	const elapsedInSeconds = Math.max(
 		0,
 		(performance.now() - recording.startedAt) / 1000,
@@ -180,24 +276,54 @@ const addFrame = (recording: RecordingState) => {
 					fallbackFrameDurationInSeconds,
 					elapsedInSeconds - recording.lastTimestampInSeconds,
 				);
-	const keyFrame = recording.lastTimestampInSeconds === null;
-
 	recording.lastTimestampInSeconds = timestampInSeconds;
-	recording.lastFramePromise = recording.lastFramePromise.then(async () => {
-		await recording.source.add(timestampInSeconds, durationInSeconds, {
-			keyFrame,
-		});
-		recording.frameCount++;
+	const frame = new VideoFrame(canvas, {
+		timestamp: Math.round(timestampInSeconds * 1_000_000),
+		duration: Math.round(durationInSeconds * 1_000_000),
 	});
+
+	if (recording.hasEncodingError) {
+		frame.close();
+		return;
+	}
+
+	recording.pendingFrame?.close();
+	recording.pendingFrame = frame;
+	if (recording.isEncodingFrame) {
+		return;
+	}
+
+	recording.isEncodingFrame = true;
+	recording.lastFramePromise = (async () => {
+		try {
+			while (recording.pendingFrame) {
+				const frameToEncode = recording.pendingFrame;
+				recording.pendingFrame = null;
+				await recording.source.add(frameToEncode);
+				recording.frameCount++;
+			}
+		} catch (error) {
+			recording.hasEncodingError = true;
+			recording.encodingError = error;
+			recording.pendingFrame?.close();
+			recording.pendingFrame = null;
+			throw error;
+		} finally {
+			recording.isEncodingFrame = false;
+		}
+	})();
 	recording.lastFramePromise.catch(() => undefined);
 };
 
 const finalizeRecording = async (
 	recording: RecordingState,
 	filename: string,
+	format: CaptureFormat,
 ): Promise<File> => {
-	addFrame(recording);
 	await recording.lastFramePromise;
+	if (recording.hasEncodingError) {
+		throw recording.encodingError;
+	}
 
 	if (recording.frameCount === 0) {
 		throw new Error('No frames were added to the canvas recording.');
@@ -224,6 +350,7 @@ const finalizeRecording = async (
 		BufferTarget,
 		Conversion,
 		Input,
+		Mp4OutputFormat,
 		Output,
 		WebMOutputFormat,
 	} = await import('mediabunny');
@@ -233,7 +360,10 @@ const finalizeRecording = async (
 	});
 	const remuxTarget = new BufferTarget();
 	const remuxOutput = new Output({
-		format: new WebMOutputFormat(),
+		format:
+			format === 'mp4'
+				? new Mp4OutputFormat({metadataFormat: 'mdta'})
+				: new WebMOutputFormat(),
 		target: remuxTarget,
 	});
 	const conversion = await Conversion.init({
@@ -250,7 +380,9 @@ const finalizeRecording = async (
 		throw new Error('Mediabunny remux did not return an output buffer.');
 	}
 
-	return new File([remuxTarget.buffer], filename, {type: 'video/webm'});
+	return new File([remuxTarget.buffer], filename, {
+		type: format === 'mp4' ? 'video/mp4' : 'video/webm',
+	});
 };
 
 export class CanvasCaptureRecorder {
@@ -282,22 +414,41 @@ export class CanvasCaptureRecorder {
 			throw new Error('Canvas capture scale must be greater than 0.');
 		}
 
-		const {BufferTarget, CanvasSource, Output, WebMOutputFormat} =
-			await import('mediabunny');
+		const {
+			BufferTarget,
+			Mp4OutputFormat,
+			Output,
+			QUALITY_HIGH,
+			VideoSample,
+			VideoSampleSource,
+			WebMOutputFormat,
+		} = await import('mediabunny');
 		const target = new BufferTarget();
 		const output = new Output({
-			format: new WebMOutputFormat(),
+			format:
+				this.#options.format === 'mp4'
+					? new Mp4OutputFormat()
+					: new WebMOutputFormat(),
 			target,
 		});
-		const source = new CanvasSource(this.#options.canvas, {
-			codec: 'vp9',
-			bitrate: recordingVideoBitrate,
-			latencyMode: 'realtime',
-			keyFrameInterval: recordingKeyFrameIntervalInSeconds,
-			transform: this.#options.crop ? {crop: this.#options.crop} : undefined,
+		const videoSampleSource = new VideoSampleSource({
+			codec: this.#options.format === 'mp4' ? 'avc' : 'vp9',
+			...getVideoEncodingOptions(QUALITY_HIGH),
 		});
+		const source: VideoFrameSource = {
+			add: async (frame) => {
+				const sample = new VideoSample(frame);
+				try {
+					await videoSampleSource.add(sample);
+				} finally {
+					sample.close();
+					frame.close();
+				}
+			},
+			close: () => videoSampleSource.close(),
+		};
 
-		output.addVideoTrack(source);
+		output.addVideoTrack(videoSampleSource);
 		await output.start();
 
 		this.#recording = {
@@ -309,6 +460,10 @@ export class CanvasCaptureRecorder {
 			pointerClicks: [],
 			lastTimestampInSeconds: null,
 			lastFramePromise: Promise.resolve(),
+			pendingFrame: null,
+			isEncodingFrame: false,
+			hasEncodingError: false,
+			encodingError: undefined,
 			frameCount: 0,
 			captureMetadata: null,
 			isFinalizing: false,
@@ -323,7 +478,11 @@ export class CanvasCaptureRecorder {
 
 		recording.isFinalizing = true;
 		try {
-			return await finalizeRecording(recording, this.#options.getFilename());
+			return await finalizeRecording(
+				recording,
+				this.#options.getFilename(),
+				this.#options.format,
+			);
 		} catch (err) {
 			await recording.output.cancel().catch(() => undefined);
 			throw err;
@@ -345,7 +504,7 @@ export class CanvasCaptureRecorder {
 		await this.#recordingAction;
 	};
 
-	addFrame = () => {
+	addFrame = (canvas: OffscreenCanvas) => {
 		const recording = this.#recording;
 		if (!recording || recording.isFinalizing) {
 			return;
@@ -362,8 +521,8 @@ export class CanvasCaptureRecorder {
 				height: rect.height,
 			},
 			canvasSize: {
-				width: this.#options.crop?.width ?? this.#options.canvas.width,
-				height: this.#options.crop?.height ?? this.#options.canvas.height,
+				width: canvas.width,
+				height: canvas.height,
 			},
 			viewport: {
 				width: window.innerWidth,
@@ -372,7 +531,7 @@ export class CanvasCaptureRecorder {
 				scrollY: window.scrollY,
 			},
 		};
-		addFrame(recording);
+		addFrame(recording, canvas);
 	};
 
 	dispose = () => {
@@ -391,6 +550,8 @@ export class CanvasCaptureRecorder {
 		}
 
 		recording.isFinalizing = true;
+		recording.pendingFrame?.close();
+		recording.pendingFrame = null;
 		recording.output.cancel().catch(() => undefined);
 		this.#recording = null;
 	};

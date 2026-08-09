@@ -14,6 +14,7 @@ export type TSplitterContext = {
 	maxFlexerSize: number | null;
 	minFlexerSize: number | null;
 	maxAntiFlexerSize: number | null;
+	minAntiFlexerSize: number | null;
 	defaultFlex: number;
 	id: string;
 	persistFlex: (value: number) => void;
@@ -31,6 +32,7 @@ type SplitterFlexBounds = Pick<
 	| 'maxAntiFlexerSize'
 	| 'maxFlex'
 	| 'maxFlexerSize'
+	| 'minAntiFlexerSize'
 	| 'minFlex'
 	| 'minFlexerSize'
 > & {
@@ -42,6 +44,7 @@ export const getSplitterFlexBounds = ({
 	maxAntiFlexerSize,
 	maxFlex,
 	maxFlexerSize,
+	minAntiFlexerSize,
 	minFlex,
 	minFlexerSize,
 }: SplitterFlexBounds) => {
@@ -62,6 +65,7 @@ export const getSplitterFlexBounds = ({
 		Math.min(
 			maxFlex,
 			maxFlexerSize === null ? 1 : maxFlexerSize / availableSize,
+			minAntiFlexerSize === null ? 1 : 1 - minAntiFlexerSize / availableSize,
 		),
 	);
 
@@ -87,6 +91,7 @@ export const SplitterContext = React.createContext<TSplitterContext>({
 	maxFlexerSize: null,
 	minFlexerSize: null,
 	maxAntiFlexerSize: null,
+	minAntiFlexerSize: null,
 	defaultFlex: 1,
 	id: '--',
 	persistFlex: () => undefined,

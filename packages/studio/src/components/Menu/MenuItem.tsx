@@ -1,12 +1,13 @@
 import {PlayerInternals} from '@remotion/player';
 import type {SetStateAction} from 'react';
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useMemo, useRef} from 'react';
 import ReactDOM from 'react-dom';
 import {
 	WHITE,
 	WHITE_ALPHA_80,
 	getBackgroundFromHoverState,
 } from '../../helpers/colors';
+import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
 import {startPointerSession} from '../../helpers/pointer-session';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
@@ -17,7 +18,6 @@ import {menuContainerTowardsBottom, outerPortal} from './styles';
 
 const container: React.CSSProperties = {
 	fontSize: 13,
-	color: WHITE_ALPHA_80,
 	paddingLeft: 10,
 	paddingRight: 10,
 	cursor: 'default',
@@ -65,7 +65,6 @@ export const MenuItem: React.FC<{
 	onNextMenu,
 	menu,
 }) => {
-	const [hovered, setHovered] = useState(false);
 	const ref = useRef<HTMLButtonElement>(null);
 	const size = PlayerInternals.useElementSize(ref, {
 		triggerOnWindowResize: true,
@@ -76,13 +75,20 @@ export const MenuItem: React.FC<{
 	const containerStyle = useMemo((): React.CSSProperties => {
 		return {
 			...container,
-			color: hovered || selected ? WHITE : WHITE_ALPHA_80,
-			backgroundColor: getBackgroundFromHoverState({
-				hovered,
-				selected,
+			...hoverableStyle({
+				idleBackground: getBackgroundFromHoverState({
+					hovered: false,
+					selected,
+				}),
+				hoverBackground: getBackgroundFromHoverState({
+					hovered: true,
+					selected,
+				}),
+				idleColor: selected ? WHITE : WHITE_ALPHA_80,
+				hoverColor: WHITE,
 			}),
 		};
-	}, [hovered, selected]);
+	}, [selected]);
 
 	const portalStyle = useMemo((): React.CSSProperties | null => {
 		if (!selected || !size) {
@@ -96,14 +102,11 @@ export const MenuItem: React.FC<{
 		};
 	}, [selected, size]);
 
+	// Not for styling (which is done via CSS :hover), but for switching
+	// between menus when a menu is already open.
 	const onPointerEnter = useCallback(() => {
 		onItemHovered(id);
-		setHovered(true);
 	}, [id, onItemHovered]);
-
-	const onPointerLeave = useCallback(() => {
-		setHovered(false);
-	}, []);
 
 	const onPointerDown: React.PointerEventHandler<HTMLButtonElement> =
 		useCallback(
@@ -176,12 +179,11 @@ export const MenuItem: React.FC<{
 				role="button"
 				tabIndex={tabIndex}
 				onPointerEnter={onPointerEnter}
-				onPointerLeave={onPointerLeave}
 				onPointerDown={onPointerDown}
 				onClick={onClick}
 				style={containerStyle}
 				type="button"
-				className={MENU_INITIATOR_CLASSNAME}
+				className={`${MENU_INITIATOR_CLASSNAME} ${HOVERABLE_CLASS_NAME}`}
 			>
 				{itemName}
 			</button>
