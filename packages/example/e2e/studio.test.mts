@@ -526,6 +526,29 @@ test.describe('visual mode', () => {
 		});
 	});
 
+	test('should clear the open-in-editor hover state when closing the menu', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/schema-test`);
+		const openInAnotherApp = page
+			.getByTitle(exampleDir)
+			.getByRole('button', {name: 'Open in another app'});
+
+		await openInAnotherApp.click();
+		await expect(
+			page.getByRole('button', {name: 'Change default apps...'}),
+		).toBeVisible();
+		await page.mouse.click(10, 100);
+
+		await expect(
+			page.getByRole('button', {name: 'Change default apps...'}),
+		).toBeHidden();
+		await expect(openInAnotherApp).toHaveCSS(
+			'background-color',
+			'rgba(0, 0, 0, 0)',
+		);
+	});
+
 	test('should open submenus toward the side with more space', async ({
 		page,
 	}) => {
