@@ -1,6 +1,6 @@
 # Remotion License
 
-Depending on the type of your legal entity, you are granted permission to use the Remotion Software ("Remotion" or "Software") for your project. Individuals and small companies are allowed to use the Software to create media assets (e.g., videos and images) for free (even commercially), while a Company License is required for for-profit organizations and groups of individuals of a certain size. This two-tier system was designed to ensure funding for this Software while still allowing the source code to be available and the program to be free for most. Read below for a simplified license description. For a detailed description please refer to the [Terms and Conditions](#terms-and-conditions).
+Depending on the type of your legal entity, you are granted permission to use the Remotion Software ("Remotion" or "Software") for your project. Individuals and small companies are allowed to use the Software to create media assets (e.g., videos and images) for free (even commercially), while a Company License is required for for-profit organizations and groups of individuals of a certain size. This two-tier system was designed to ensure funding for this Software while still allowing the source code to be available and the program to be free for most. Read below for the exact license description.
 
 - [Free License](#free-license)
 - [Company License](#company-license)
