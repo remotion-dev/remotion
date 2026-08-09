@@ -442,8 +442,7 @@ test.describe('visual mode', () => {
 			page.getByRole('button', {name: '1x', exact: true}),
 		).toBeVisible();
 
-		await page.mouse.move(10, 100);
-		await page.keyboard.press('Escape');
+		await page.mouse.click(10, 100);
 		await expect(
 			page.getByRole('button', {name: 'Playback Rate', exact: true}),
 		).toBeHidden();
@@ -539,7 +538,8 @@ test.describe('visual mode', () => {
 		await expect(
 			page.getByRole('button', {name: 'Change default apps...'}),
 		).toBeVisible();
-		await page.mouse.click(10, 100);
+		await page.mouse.move(10, 100);
+		await page.keyboard.press('Escape');
 
 		await expect(
 			page.getByRole('button', {name: 'Change default apps...'}),
