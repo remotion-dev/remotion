@@ -160,7 +160,7 @@ export const FileAvailable: React.FC<{
 											name={probeResult.name}
 											input={probeResult.input}
 											cropRect={cropOperation}
-											cursorDataDetected={cursorData !== null}
+											cursorData={cursorData}
 											showCursor={showCursor}
 											setShowCursor={setShowCursor}
 											cursorScale={cursorScale}

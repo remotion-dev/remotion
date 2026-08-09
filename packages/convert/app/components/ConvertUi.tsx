@@ -16,6 +16,8 @@ import {
 	calculateNewSizeAfterResizing,
 } from '~/lib/calculate-new-dimensions-from-dimensions';
 import {canRotateOrMirror} from '~/lib/can-rotate-or-mirror';
+import {makeCanvasCaptureVideoProcessor} from '~/lib/canvas-capture-conversion';
+import type {CanvasCaptureCursorData} from '~/lib/canvas-capture-metadata';
 import type {ConvertState, Source} from '~/lib/convert-state';
 import type {ConvertSections, VideoEditState} from '~/lib/default-ui';
 import {
@@ -86,7 +88,7 @@ const ConvertUI = ({
 	videoEditState,
 	setVideoEditState,
 	cropRect,
-	cursorDataDetected,
+	cursorData,
 	showCursor,
 	setShowCursor,
 	cursorScale,
@@ -119,7 +121,7 @@ const ConvertUI = ({
 	readonly setFlipVertical: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly sampleRate: number | null;
 	readonly cropRect: CropRectangle;
-	readonly cursorDataDetected: boolean;
+	readonly cursorData: CanvasCaptureCursorData | null;
 	readonly showCursor: boolean;
 	readonly setShowCursor: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly cursorScale: number;
@@ -185,8 +187,18 @@ const ConvertUI = ({
 		return resampleRate;
 	}, [resampleRate, canResample, resampleUserPreferenceActive]);
 
+	const renderCursor =
+		showCursor &&
+		cursorData !== null &&
+		dimensions !== null &&
+		dimensions !== undefined;
 	const disableVideoCopy =
-		crop || mirror || rotate || trim || resizeOperation !== null;
+		crop ||
+		mirror ||
+		rotate ||
+		trim ||
+		resizeOperation !== null ||
+		renderCursor;
 
 	const supportedConfigs = useSupportedConfigs({
 		outputContainer: actualOutputContainer,
@@ -316,6 +328,9 @@ const ConvertUI = ({
 				startTime,
 				newName: filename,
 			});
+			const cursorProcessors: Array<{
+				readonly dispose: () => Promise<void>;
+			}> = [];
 
 			try {
 				const conversion = await Conversion.init({
@@ -356,9 +371,50 @@ const ConvertUI = ({
 						}
 
 						progress.hasVideo = true;
+						const videoCrop = crop
+							? makeCrop({
+									cropRect,
+									dimensions: dimensionsAfterRotation!,
+									mirrorHorizontal: flipHorizontal && mirror,
+									mirrorVertical: flipVertical && mirror,
+									videoCodec: operation.videoCodec,
+								})
+							: undefined;
+						const cursorProcessor =
+							renderCursor && cursorData && dimensions
+								? makeCanvasCaptureVideoProcessor({
+										cursorData,
+										cursorScale,
+										sourceDimensions: dimensions,
+										rotation: userRotation,
+										crop: videoCrop ?? null,
+										mirrorHorizontal: flipHorizontal && mirror,
+										mirrorVertical: flipVertical && mirror,
+										timestampOffset:
+											trim && fps && trimInFrame !== null
+												? trimInFrame / fps
+												: 0,
+									})
+								: null;
+						if (cursorProcessor) {
+							cursorProcessors.push(cursorProcessor);
+						}
 
 						return {
-							process(sample) {
+							async process(sample) {
+								if (cursorProcessor) {
+									const samples = await cursorProcessor.process(sample);
+									if (videoFrames % 15 === 0 && samples[0]) {
+										const previewFrame = samples[0].toVideoFrame();
+										convertProgressRef.current?.draw(previewFrame);
+										previewFrame.close();
+									}
+
+									progress.millisecondsWritten = sample.timestamp * 1000;
+									videoFrames++;
+									return samples;
+								}
+
 								const flipped = flipVideoFrame({
 									frame: sample.toVideoFrame(),
 									horizontal: flipHorizontal && mirror,
@@ -373,15 +429,7 @@ const ConvertUI = ({
 								videoFrames++;
 								return flipped;
 							},
-							crop: crop
-								? makeCrop({
-										cropRect,
-										dimensions: dimensionsAfterRotation!,
-										mirrorHorizontal: flipHorizontal && mirror,
-										mirrorVertical: flipVertical && mirror,
-										videoCodec: operation.videoCodec,
-									})
-								: undefined,
+							crop: videoCrop,
 							rotate: userRotation as Rotation,
 							forceTranscode: true,
 							...calculateMediabunnyResizeOption(
@@ -504,6 +552,10 @@ const ConvertUI = ({
 					type: 'error',
 					error: error as Error,
 				});
+			} finally {
+				await Promise.all(
+					cursorProcessors.map((processor) => processor.dispose()),
+				);
 			}
 		};
 
@@ -534,6 +586,10 @@ const ConvertUI = ({
 		dimensionsAfterCrop,
 		dimensionsAfterRotation,
 		mirror,
+		cursorData,
+		cursorScale,
+		dimensions,
+		renderCursor,
 	]);
 
 	const dimissError = useCallback(() => {
@@ -692,7 +748,7 @@ const ConvertUI = ({
 		<>
 			<div className="w-full gap-4 flex flex-col">
 				<CursorControls
-					available={cursorDataDetected}
+					available={cursorData !== null}
 					showCursor={showCursor}
 					setShowCursor={setShowCursor}
 					cursorScale={cursorScale}

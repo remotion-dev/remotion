@@ -18,6 +18,28 @@ export type CanvasCaptureCursorData = {
 	readonly mouseMovements: CanvasCaptureMouseMovement[];
 };
 
+export const findCanvasCaptureCursorAtTime = (
+	mouseMovements: readonly CanvasCaptureMouseMovement[],
+	timeInSeconds: number,
+) => {
+	let low = 0;
+	let high = mouseMovements.length - 1;
+	let latest: CanvasCaptureMouseMovement | null = null;
+
+	while (low <= high) {
+		const middle = Math.floor((low + high) / 2);
+		const movement = mouseMovements[middle];
+		if (movement.timeInSeconds <= timeInSeconds) {
+			latest = movement;
+			low = middle + 1;
+		} else {
+			high = middle - 1;
+		}
+	}
+
+	return latest;
+};
+
 const isRecord = (value: unknown): value is Record<string, unknown> => {
 	return typeof value === 'object' && value !== null;
 };
@@ -74,6 +96,8 @@ export const parseCanvasCaptureCursorData = (
 
 	return {
 		captureMetadata: {density: parsed.captureMetadata.density},
-		mouseMovements,
+		mouseMovements: mouseMovements.sort(
+			(a, b) => a.timeInSeconds - b.timeInSeconds,
+		),
 	};
 };
