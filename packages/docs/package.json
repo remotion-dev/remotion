@@ -65,7 +65,6 @@
 		"@remotion/layout-utils": "workspace:*",
 		"@remotion/licensing": "workspace:*",
 		"@remotion/light-leaks": "workspace:*",
-		"@remotion/mac-cursors": "workspace:*",
 		"@remotion/rough-notation": "workspace:*",
 		"@remotion/lottie": "workspace:*",
 		"@remotion/media": "workspace:*",

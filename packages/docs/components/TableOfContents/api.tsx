@@ -15,7 +15,6 @@ import {TableOfContents as LayoutUtilsTableOfContents} from '../../docs/layout-u
 import {TableOfContents as LicensingTableOfContents} from '../../docs/licensing/TableOfContents';
 import {TableOfContents as LightLeaksTableOfContents} from '../../docs/light-leaks/table-of-contents';
 import {TableOfContents as LottieTableOfContents} from '../../docs/lottie/table-of-contents';
-import {TableOfContents as MacCursorsTableOfContents} from '../../docs/mac-cursors/table-of-contents';
 import {TableOfContents as MediaParserTableOfContents} from '../../docs/media-parser/TableOfContents';
 import {TableOfContents as MediaUtilsTableOfContents} from '../../docs/media-utils/table-of-contents';
 import {TableOfContents as NewVideoTableOfContents} from '../../docs/media/table-of-contents';
@@ -33,8 +32,8 @@ import {TableOfContents as SfxTableOfContents} from '../../docs/sfx/table-of-con
 import {TableOfContents as ShapesTableOfContents} from '../../docs/shapes/table-of-contents';
 import {TableOfContents as SkiaTableOfContents} from '../../docs/skia/TableOfContents';
 import {TableOfContents as StarburstTableOfContents} from '../../docs/starburst/table-of-contents';
-import {TableOfContents as StudioProtocolTableOfContents} from '../../docs/studio-protocol/table-of-contents';
 import {TableOfContents as StudioTableOfContents} from '../../docs/studio/TableOfContents';
+import {TableOfContents as StudioProtocolTableOfContents} from '../../docs/studio-protocol/table-of-contents';
 import {TableOfContents as TailwindV4TableOfContents} from '../../docs/tailwind-v4/TableOfContents';
 import {TableOfContents as TailwindTableOfContents} from '../../docs/tailwind/TableOfContents';
 import {TableOfContents as ThreeTableOfContents} from '../../docs/three/TableOfContents';
@@ -119,9 +118,6 @@ export const TableOfContents: React.FC = () => {
 			<h2>@remotion/lottie</h2>
 			<p>Include a Lottie animation in your video</p>
 			<LottieTableOfContents apisOnly />
-			<h2>@remotion/mac-cursors</h2>
-			<p>Render macOS and custom CSS cursors.</p>
-			<MacCursorsTableOfContents />
 			<h2>@remotion/media</h2>
 			<p>
 				An experimental <code>&lt;NewVideo /&gt;</code> tag for embedding
