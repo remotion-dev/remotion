@@ -9,29 +9,17 @@ If you would like to obtain metadata from a video or audio in JavaScript, such a
 
 - Duration
 - Width and height (Dimensions)
-- Frame rate (FPS)
+- Frame rate
 
 then [Mediabunny](https://mediabunny.dev) is the ideal library for doing so.
 
+The example uses the [`getVideoFrameRate()` code snippet](/docs/mediabunny/frame-rate) to determine whether the frame rate is constant or variable.
+
 ## Getting metadata from a URL
 
-```tsx twoslash title="get-media-metadata.ts"
+```tsx title="get-media-metadata.ts"
 import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
-
-const commonFpsValues = [
-  24000 / 1001,
-  24,
-  25,
-  30000 / 1001,
-  30,
-  50,
-  60000 / 1001,
-  60,
-];
-
-const snapToCommonFps = (fps: number) => {
-  return commonFpsValues.find((commonFps) => Math.abs(fps - commonFps) < 0.01) ?? fps;
-};
+import {getVideoFrameRate} from './get-video-frame-rate';
 
 export const getMediaMetadata = async (src: string) => {
   const input = new Input({
@@ -49,10 +37,13 @@ export const getMediaMetadata = async (src: string) => {
         height: await videoTrack.getDisplayHeight(),
       }
     : null;
-  const packetStats = await videoTrack?.computePacketStats(50);
-  const fps = packetStats
-    ? snapToCommonFps(packetStats.averagePacketRate)
-    : null;
+  const frameRate = await getVideoFrameRate(input);
+  const fps =
+    frameRate === null
+      ? null
+      : frameRate.type === 'constant'
+        ? frameRate.rate
+        : frameRate.max;
 
   return {
     durationInSeconds,
@@ -67,60 +58,10 @@ export const getMediaMetadata = async (src: string) => {
   <p>We load a URL (e.g. `https://remotion.media/video.mp4`) and parse it using Mediabunny.</p>
   <p>We don't care which format, so we load all parsers using `ALL_FORMATS`.</p>
   <p>By setting `getRetryDelay` to `() => null`, we prevent Mediabunny from infinitely retrying if the request fails.</p>
-  <p>We compute the duration, the dimensions and the frame rate. If the media file is an audio file, we return `null` for the dimensions and the frame rate.</p>
-  <p>To avoid reading the entire file, we at most read 50 packets to compute the frame rate.</p>
-  <p>The FPS is an estimate based on packet timestamps. We snap it to common FPS values because container timestamp rounding can return values such as `29.999` or `30.006` for videos that are nominally 30 FPS. Values like `29.97` and `59.94` are represented exactly as `30000 / 1001` and `60000 / 1001`.</p>
+  <p>We compute the duration, dimensions, and frame rate. If the media file is an audio file, we return `null` for the dimensions and frame rate.</p>
 </details>
 
-```tsx twoslash title="Usage example"
-// @filename: get-media-metadata.ts
-import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
-
-const commonFpsValues = [
-  24000 / 1001,
-  24,
-  25,
-  30000 / 1001,
-  30,
-  50,
-  60000 / 1001,
-  60,
-];
-
-const snapToCommonFps = (fps: number) => {
-  return commonFpsValues.find((commonFps) => Math.abs(fps - commonFps) < 0.01) ?? fps;
-};
-
-export const getMediaMetadata = async (src: string) => {
-  const input = new Input({
-    formats: ALL_FORMATS,
-    source: new UrlSource(src, {
-      getRetryDelay: () => null,
-    }),
-  });
-
-  const durationInSeconds = await input.computeDuration();
-  const videoTrack = await input.getPrimaryVideoTrack();
-  const dimensions = videoTrack
-    ? {
-        width: await videoTrack.getDisplayWidth(),
-        height: await videoTrack.getDisplayHeight(),
-      }
-    : null;
-  const packetStats = await videoTrack?.computePacketStats(50);
-  const fps = packetStats
-    ? snapToCommonFps(packetStats.averagePacketRate)
-    : null;
-
-  return {
-    durationInSeconds,
-    dimensions,
-    fps,
-  };
-};
-
-// @filename: index.ts
-// ---cut---
+```tsx title="Usage example"
 import {getMediaMetadata} from './get-media-metadata';
 
 const metadata = await getMediaMetadata('https://remotion.media/video.mp4');
@@ -146,3 +87,7 @@ It can return more metadata than the browser, for example the frame rate or the 
 The assets are loaded using `fetch()`, so they must be accessible for the current website and not be blocked by CORS.
 
 In that case, you are better off using the [`getVideoMetadata()`](/docs/get-video-metadata) function from the [`@remotion/media-utils`](/docs/media-utils) package, which uses the `<video>` tag internally.
+
+## See also
+
+- [`getVideoFrameRate()`](/docs/mediabunny/frame-rate)
