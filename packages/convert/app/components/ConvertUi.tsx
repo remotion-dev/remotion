@@ -135,10 +135,15 @@ const ConvertUI = ({
 		() => getDefaultEditOutputFormat(inputContainer),
 		[inputContainer],
 	);
-	const [convertOutputContainer, setConvertOutputContainer] =
-		useState<OutputContainer>(() =>
-			getDefaultConvertOutputFormat({inputContainer, action}),
-		);
+	const defaultConvertOutputContainer = getDefaultConvertOutputFormat({
+		inputContainer,
+		action,
+		cursorMetadataDetected: cursorData !== null,
+	});
+	const [convertOutputContainerOverride, setConvertOutputContainer] =
+		useState<OutputContainer | null>(null);
+	const convertOutputContainer =
+		convertOutputContainerOverride ?? defaultConvertOutputContainer;
 	const actualOutputContainer = enableConvert
 		? convertOutputContainer
 		: editOutputContainer;

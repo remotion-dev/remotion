@@ -191,14 +191,20 @@ export const makeCanvasCaptureVideoProcessor = ({
 		...movement,
 		timeInSeconds: movement.timeInSeconds - timestampOffset,
 	}));
-	const imageCache = new Map<string, Promise<ImageBitmap>>();
+	const imageCache = new Map<string, Promise<HTMLImageElement>>();
 
 	const loadImage = (src: string) => {
 		let image = imageCache.get(src);
 		if (!image) {
-			image = fetch(src)
-				.then((response) => response.blob())
-				.then((blob) => createImageBitmap(blob));
+			image = new Promise((resolve, reject) => {
+				const cursorImage = new Image();
+				cursorImage.onload = () => resolve(cursorImage);
+				cursorImage.onerror = () => {
+					reject(new Error('Could not decode cursor image'));
+				};
+
+				cursorImage.src = src;
+			});
 			imageCache.set(src, image);
 		}
 
@@ -267,8 +273,10 @@ export const makeCanvasCaptureVideoProcessor = ({
 									crop,
 									sampleWidth: sample.displayWidth,
 								});
-							const width = (resolvedCursor.width ?? image.width) * scale;
-							const height = (resolvedCursor.height ?? image.height) * scale;
+							const width =
+								(resolvedCursor.width ?? image.naturalWidth) * scale;
+							const height =
+								(resolvedCursor.height ?? image.naturalHeight) * scale;
 							context.drawImage(
 								image,
 								point.x - resolvedCursor.hotspot.x * scale,
@@ -293,13 +301,7 @@ export const makeCanvasCaptureVideoProcessor = ({
 			return outputSamples;
 		},
 		dispose: async () => {
-			const images = await Promise.allSettled(imageCache.values());
-			for (const image of images) {
-				if (image.status === 'fulfilled') {
-					image.value.close();
-				}
-			}
-
+			await Promise.allSettled(imageCache.values());
 			imageCache.clear();
 		},
 	};
