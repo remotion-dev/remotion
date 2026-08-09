@@ -99,7 +99,8 @@ export const FileAvailable: React.FC<{
 							rotation={actualUserRotation}
 							mirrorHorizontal={flipHorizontal && videoEditState.mirror}
 							mirrorVertical={flipVertical && videoEditState.mirror}
-							cursorData={showCursor ? cursorData : null}
+							cursorData={cursorData}
+							showCursor={showCursor}
 							cursorScale={cursorScale}
 							onPlaybackTimeChange={setPlaybackTime}
 						/>

@@ -53,7 +53,13 @@ test('uses exported video geometry without changing player timing', () => {
 	});
 });
 
-test('uses 60 FPS for canvas capture previews', () => {
-	expect(getPlayerFps(1.54, true)).toBe(60);
-	expect(getPlayerFps(1.54, false)).toBe(1.54);
+test('only uses 60 FPS when cursor metadata was detected', () => {
+	expect(
+		getPlayerFps(1.54, {
+			captureMetadata: {density: 2},
+			mouseMovements: [],
+		}),
+	).toBe(60);
+	expect(getPlayerFps(1.54, null)).toBe(1.54);
+	expect(getPlayerFps(null, null)).toBe(30);
 });

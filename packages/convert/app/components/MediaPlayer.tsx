@@ -18,11 +18,11 @@ import {Filmstrip} from './player/filmstrip';
 
 export const getPlayerFps = (
 	fps: number | null | undefined,
-	canvasCaptureMetadataDetected: boolean,
+	cursorData: CanvasCaptureCursorData | null,
 ) => {
 	// eslint-disable-next-line no-warning-comments
 	// TODO: Remove this override once canvas capture files report a reliable FPS.
-	if (canvasCaptureMetadataDetected) {
+	if (cursorData !== null) {
 		return 60;
 	}
 
@@ -199,6 +199,7 @@ export function VideoPlayer({
 	mirrorHorizontal,
 	mirrorVertical,
 	cursorData,
+	showCursor,
 	cursorScale,
 	onPlaybackTimeChange,
 }: {
@@ -219,6 +220,7 @@ export function VideoPlayer({
 	readonly mirrorHorizontal: boolean;
 	readonly mirrorVertical: boolean;
 	readonly cursorData: CanvasCaptureCursorData | null;
+	readonly showCursor: boolean;
 	readonly cursorScale: number;
 	readonly onPlaybackTimeChange: (timeInSeconds: number) => void;
 	readonly setUnclampedRect: React.Dispatch<
@@ -230,7 +232,7 @@ export function VideoPlayer({
 	const trimFrameToSeekRef = useRef<number | null>(null);
 	const videoSourceUrl = useVideoSourceUrl(source);
 
-	const playerFps = getPlayerFps(fps, cursorData !== null);
+	const playerFps = getPlayerFps(fps, cursorData);
 	const durationInFrames = getDurationInFrames({
 		durationInSeconds,
 		fps: playerFps,
@@ -326,7 +328,7 @@ export function VideoPlayer({
 							rotation,
 							mirrorHorizontal,
 							mirrorVertical,
-							cursorData,
+							cursorData: showCursor ? cursorData : null,
 							cursorScale,
 						}}
 						durationInFrames={durationInFrames}
