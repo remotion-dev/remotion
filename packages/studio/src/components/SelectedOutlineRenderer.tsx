@@ -324,16 +324,6 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 					layoutTarget={targetsByKey.get(outline.key)}
 				/>
 			))}
-			{/* Keep transform-origin handles above every transparent outline polygon so SVG hit-testing reaches the selected knob first. */}
-			{outlinesForRendering.map((outline) => (
-				<SelectedOutlineTransformOriginHandle
-					key={`${outline.key}-transform-origin`}
-					outline={outline}
-					onDraggingChange={onDraggingChange}
-					getLatestTargetByKey={getLatestOutlineTargetByKey}
-					layoutTarget={targetsByKey.get(outline.key)}
-				/>
-			))}
 			{/* Keep UV controls above every transparent outline polygon so SVG hit-testing reaches the handles first. */}
 			{outlinesForRendering.map((outline) => (
 				<SelectedOutlineUvHandleConnectionLayer
@@ -359,6 +349,16 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 					outline={canvasRotationOutline}
 				/>
 			) : null}
+			{/* Keep transform-origin handles above the canvas rotation surface so the knob stays visible in rotation mode and hit-testable while editing the origin. */}
+			{outlinesForRendering.map((outline) => (
+				<SelectedOutlineTransformOriginHandle
+					key={`${outline.key}-transform-origin`}
+					outline={outline}
+					onDraggingChange={onDraggingChange}
+					getLatestTargetByKey={getLatestOutlineTargetByKey}
+					layoutTarget={targetsByKey.get(outline.key)}
+				/>
+			))}
 		</svg>
 	);
 };

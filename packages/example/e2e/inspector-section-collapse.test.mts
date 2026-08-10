@@ -264,6 +264,11 @@ test.describe('inspector section collapse', () => {
 			'[data-remotion-studio-canvas-rotation]',
 		);
 		await expect(canvasRotationSurface).toBeVisible();
+		await expect(
+			page
+				.locator('[data-remotion-studio-transform-origin-handle]')
+				.first(),
+		).toBeVisible();
 		const rotationSurfaceBox = await canvasRotationSurface.boundingBox();
 		if (rotationSurfaceBox === null) {
 			throw new Error('Canvas rotation surface should have a visible layout');

@@ -360,34 +360,6 @@ const calculateOutlineTargets = ({
 		const selectedForCrop = selectedCropInfo?.sequenceKey === key;
 		const selectedForRotation = selectedRotationInfo?.sequenceKey === key;
 		const selectedForUvHandles = selectedEffectsBySequenceKey.has(key);
-		const layoutTarget: SelectedOutlineLayoutTarget = {
-			key,
-			containsSelection,
-			crop,
-			keyframeDisplayOffset,
-			nodePathInfo,
-			ref: sequence.refForOutline,
-			selected,
-			selectedForCrop,
-			selectedForRotation,
-			selectedForTransformOrigin,
-			selectedForUvHandles,
-			showSelectedOutline,
-			selection: {
-				type: 'sequence',
-				nodePathInfo: selectionNodePathInfo,
-			},
-			sequence,
-		};
-		if (mode === 'layout') {
-			return [layoutTarget];
-		}
-
-		const cropFields = getCropDragFields({
-			activeSchema,
-			cropValues,
-			propStatuses: nodePropStatuses,
-		});
 		const fieldSchema = activeSchema?.[translateFieldKey];
 		const propStatus = nodePropStatuses?.[translateFieldKey];
 		const scaleFieldSchema = activeSchema?.[scaleFieldKey];
@@ -411,6 +383,35 @@ const calculateOutlineTargets = ({
 						}) ?? transformOriginFieldSchema.default,
 					)
 				: '50% 50%';
+		const layoutTarget: SelectedOutlineLayoutTarget = {
+			key,
+			containsSelection,
+			crop,
+			keyframeDisplayOffset,
+			nodePathInfo,
+			ref: sequence.refForOutline,
+			selected,
+			selectedForCrop,
+			selectedForRotation,
+			selectedForTransformOrigin,
+			selectedForUvHandles,
+			showSelectedOutline,
+			transformOriginValue: transformOriginValueForRotation,
+			selection: {
+				type: 'sequence',
+				nodePathInfo: selectionNodePathInfo,
+			},
+			sequence,
+		};
+		if (mode === 'layout') {
+			return [layoutTarget];
+		}
+
+		const cropFields = getCropDragFields({
+			activeSchema,
+			cropValues,
+			propStatuses: nodePropStatuses,
+		});
 		const canDragStatus =
 			propStatus?.status === 'static' ||
 			(propStatus?.status === 'keyframed' &&

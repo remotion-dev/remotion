@@ -19,6 +19,7 @@ import {
 	uvsEqual,
 } from './selected-outline-drag';
 import type {SelectedOutline} from './selected-outline-geometry';
+import {getSelectedOutlineRotationPivot} from './selected-outline-measurement';
 import {
 	transformOriginFieldKey,
 	translateFieldKey,
@@ -57,15 +58,20 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 		? getLatestTargetByKey(layoutTarget.key)
 		: undefined;
 	const transformOriginDrag = target?.transformOriginDrag ?? null;
+	const transformOriginValue =
+		transformOriginDrag?.originValue ??
+		(layoutTarget?.selectedForRotation
+			? layoutTarget.transformOriginValue
+			: null);
 	const crop = target?.crop;
 	const transformOriginPoints = outline.uncroppedPoints ?? outline.points;
 
 	const parsed = useMemo(
 		() =>
-			transformOriginDrag === null
+			transformOriginValue === null
 				? null
-				: parseTransformOrigin(transformOriginDrag.originValue),
-		[transformOriginDrag],
+				: parseTransformOrigin(transformOriginValue),
+		[transformOriginValue],
 	);
 	const uv = useMemo(() => {
 		if (parsed === null || outline.dimensions === null) {
@@ -78,10 +84,23 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 			height: outline.dimensions.height,
 		});
 	}, [outline.dimensions, parsed]);
-	const position = useMemo(
-		() => (uv === null ? null : getUvHandlePosition(transformOriginPoints, uv)),
-		[transformOriginPoints, uv],
-	);
+	const position = useMemo(() => {
+		if (layoutTarget?.selectedForRotation) {
+			return getSelectedOutlineRotationPivot({
+				dimensions: outline.dimensions,
+				points: transformOriginPoints,
+				transformOriginValue: layoutTarget.transformOriginValue,
+			});
+		}
+
+		return uv === null ? null : getUvHandlePosition(transformOriginPoints, uv);
+	}, [
+		layoutTarget?.selectedForRotation,
+		layoutTarget?.transformOriginValue,
+		outline.dimensions,
+		transformOriginPoints,
+		uv,
+	]);
 
 	const onPointerDown = React.useCallback(
 		(event: React.PointerEvent<SVGGElement>) => {
@@ -339,19 +358,15 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 		],
 	);
 
-	if (
-		transformOriginDrag === null ||
-		parsed === null ||
-		uv === null ||
-		position === null
-	) {
+	if (position === null) {
 		return null;
 	}
 
 	return (
 		<g
-			pointerEvents="all"
-			cursor="crosshair"
+			data-remotion-studio-transform-origin-handle
+			pointerEvents={transformOriginDrag === null ? 'none' : 'all'}
+			cursor={transformOriginDrag === null ? undefined : 'crosshair'}
 			onPointerDown={onPointerDown}
 			aria-hidden="true"
 			style={{

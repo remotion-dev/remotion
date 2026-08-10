@@ -31,6 +31,7 @@ export type SelectedOutlineLayoutTarget = {
 	readonly selectedForTransformOrigin: boolean;
 	readonly selectedForUvHandles: boolean;
 	readonly showSelectedOutline: boolean;
+	readonly transformOriginValue: string;
 	readonly selection: TimelineSelection;
 	readonly sequence: TSequence;
 	readonly crop: {
