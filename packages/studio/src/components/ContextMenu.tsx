@@ -374,15 +374,27 @@ ContextMenu.displayName = 'ContextMenu';
 export const ContextMenuForTarget: React.FC<{
 	readonly triggerRef: React.RefObject<HTMLElement | SVGElement | null>;
 	readonly getItems: ContextMenuItemsFactory;
-}> = ({triggerRef, getItems}) => {
+	readonly onOpenChange?: (open: boolean) => void;
+}> = ({triggerRef, getItems, onOpenChange = undefined}) => {
 	const idRef = useRef(nextContextMenuId++);
 	const menuTreeIdRef = useRef(getNextMenuTreeId());
 	const invocationRef = useRef(0);
+	const isOpenRef = useRef(false);
 	const getItemsRef = useRef(getItems);
+	const onOpenChangeRef = useRef(onOpenChange);
 	getItemsRef.current = getItems;
+	onOpenChangeRef.current = onOpenChange;
 	const [opened, setOpened] = useState<OpenState>({type: 'not-open'});
 	const [body, setBody] = useState<HTMLElement | null>(null);
 	const {currentZIndex} = useZIndex();
+	const setOpenLifecycleState = useCallback((open: boolean) => {
+		if (isOpenRef.current === open) {
+			return;
+		}
+
+		isOpenRef.current = open;
+		onOpenChangeRef.current?.(open);
+	}, []);
 
 	useEffect(() => {
 		// Access document.body after mount so importing this component stays safe
@@ -402,8 +414,23 @@ export const ContextMenuForTarget: React.FC<{
 			e.stopPropagation();
 
 			const currentInvocation = ++invocationRef.current;
-			const values = await resolveContextMenuItems(getItemsRef.current, e);
+			setOpenLifecycleState(true);
+			let values: readonly ComboboxValue[] | null;
+			try {
+				values = await resolveContextMenuItems(getItemsRef.current, e);
+			} catch (err) {
+				if (currentInvocation === invocationRef.current) {
+					setOpenLifecycleState(false);
+				}
+
+				throw err;
+			}
+
 			if (currentInvocation !== invocationRef.current || values === null) {
+				if (currentInvocation === invocationRef.current) {
+					setOpenLifecycleState(false);
+				}
+
 				return false;
 			}
 
@@ -423,18 +450,21 @@ export const ContextMenuForTarget: React.FC<{
 		return () => {
 			current.removeEventListener('contextmenu', onClick);
 		};
-	}, [triggerRef]);
+	}, [setOpenLifecycleState, triggerRef]);
 
 	useEffect(() => {
 		const invocation = invocationRef;
 		return () => {
 			invocation.current++;
+			setOpenLifecycleState(false);
 		};
-	}, []);
+	}, [setOpenLifecycleState]);
 
 	const onHide = useCallback(() => {
+		invocationRef.current++;
+		setOpenLifecycleState(false);
 		setOpened({type: 'not-open'});
-	}, []);
+	}, [setOpenLifecycleState]);
 
 	useEffect(() => {
 		const onOtherContextMenuOpened = (event: Event) => {

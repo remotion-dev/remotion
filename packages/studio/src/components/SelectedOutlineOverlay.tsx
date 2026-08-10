@@ -625,6 +625,7 @@ type ActiveSelectedOutlineOverlayProps = Omit<
 		timelinePosition: number,
 	) => ReturnType<typeof getSequencesWithSelectableOutlines>;
 	readonly onDraggingChange: (dragging: boolean) => void;
+	readonly onContextMenuOpenChange: (open: boolean) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
 		interaction?: TimelineSelectionInteraction,
@@ -646,6 +647,7 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 	getLatestOutlineTargetByKey,
 	getSelectableOutlines,
 	onDraggingChange,
+	onContextMenuOpenChange,
 	onSelect,
 	scale,
 	selectedSequenceKeys,
@@ -721,6 +723,7 @@ const ActiveSelectedOutlineOverlayUnmemoized: React.FC<
 			getLatestOutlineTargetByKey={getLatestOutlineTargetByKey}
 			getOutlineTargets={getOutlineTargets}
 			onDraggingChange={onDraggingChange}
+			onContextMenuOpenChange={onContextMenuOpenChange}
 			onSelect={onSelect}
 			scale={scale}
 			sequences={sequences}
@@ -761,6 +764,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 	const isFullscreen = useIsFullscreen();
 	const {getCurrentFrame} = PlayerInternals.usePlayerMethods();
 	const [draggingOutline, setDraggingOutline] = useState(false);
+	const [canvasContextMenuOpen, setCanvasContextMenuOpen] = useState(false);
 	const previewSelectionAvailable =
 		previewServerState.type === 'connected' || window.remotion_isReadOnlyStudio;
 	const selectedSequenceKeys = useMemo(
@@ -921,7 +925,10 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 		[selectItem],
 	);
 	const measurementActive =
-		canvasHovered || draggingOutline || hoveredSequence?.source === 'timeline';
+		canvasHovered ||
+		draggingOutline ||
+		canvasContextMenuOpen ||
+		hoveredSequence?.source === 'timeline';
 	useLayoutEffect(() => {
 		if (measurementActive) {
 			return;
@@ -949,6 +956,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 					getLatestOutlineTargetByKey={getLatestOutlineTargetByKey}
 					getSelectableOutlines={getSelectableOutlines}
 					onDraggingChange={onDraggingChange}
+					onContextMenuOpenChange={setCanvasContextMenuOpen}
 					onSelect={selectOutlineItem}
 					scale={scale}
 					selectedSequenceKeys={selectedSequenceKeys}

@@ -81,6 +81,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	) => SelectedOutlineTarget | undefined;
 	readonly getOutlineTargets: () => readonly SelectedOutlineLayoutTarget[];
 	readonly onDraggingChange: (dragging: boolean) => void;
+	readonly onContextMenuOpenChange: (open: boolean) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
 		interaction?: TimelineSelectionInteraction,
@@ -97,6 +98,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 	getLatestOutlineTargetByKey,
 	getOutlineTargets,
 	onDraggingChange,
+	onContextMenuOpenChange,
 	onSelect,
 	scale,
 	sequences,
@@ -306,6 +308,7 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 					getLatestTargetByKey={getLatestOutlineTargetByKey}
 					outline={outline}
 					onDraggingChange={onDraggingChange}
+					onContextMenuOpenChange={onContextMenuOpenChange}
 					onSnapPointsChange={onSnapPointsChange}
 					onSelect={onSelect}
 					scale={scale}

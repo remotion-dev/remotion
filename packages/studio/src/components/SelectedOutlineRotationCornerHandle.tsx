@@ -52,6 +52,7 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onContextMenuOpen: SelectedOutlineContextMenuOpenHandler;
+	readonly onContextMenuOpenChange: (open: boolean) => void;
 	readonly onHoverChange: (key: string | null) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
@@ -65,6 +66,7 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 	outline,
 	onDraggingChange,
 	onContextMenuOpen,
+	onContextMenuOpenChange,
 	onHoverChange,
 	onSelect,
 	target,
@@ -358,6 +360,7 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 			<ContextMenuForTarget
 				triggerRef={circleRef}
 				getItems={onContextMenuOpen}
+				onOpenChange={onContextMenuOpenChange}
 			/>
 		</>
 	);
