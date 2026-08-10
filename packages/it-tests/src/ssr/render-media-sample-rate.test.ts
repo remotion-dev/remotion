@@ -2,9 +2,9 @@ import {expect, test} from 'bun:test';
 import os from 'os';
 import path from 'path';
 import {
-	getCompositions,
 	renderMedia,
 	RenderInternals,
+	selectComposition,
 } from '@remotion/renderer';
 
 const exampleBuild = path.join(__dirname, '..', '..', '..', 'example', 'build');
@@ -42,15 +42,11 @@ const getSampleRateFromFile = async (filePath: string): Promise<number> => {
 test(
 	'Render video with sampleRate 44100 should produce 44100 Hz audio',
 	async () => {
-		const compositions = await getCompositions({
+		const comp = await selectComposition({
+			id: 'audio-testing',
 			serveUrl: exampleBuild,
 			inputProps: {},
 		});
-		const comp = compositions.find((c) => c.id === 'audio-testing');
-
-		if (!comp) {
-			throw new Error('audio-testing composition not found');
-		}
 
 		const tmpDir = os.tmpdir();
 		const outPath = path.join(tmpDir, 'sample-rate-44100.mp4');
@@ -74,15 +70,11 @@ test(
 test(
 	'Render video with default sampleRate should produce 48000 Hz audio',
 	async () => {
-		const compositions = await getCompositions({
+		const comp = await selectComposition({
+			id: 'audio-testing',
 			serveUrl: exampleBuild,
 			inputProps: {},
 		});
-		const comp = compositions.find((c) => c.id === 'audio-testing');
-
-		if (!comp) {
-			throw new Error('audio-testing composition not found');
-		}
 
 		const tmpDir = os.tmpdir();
 		const outPath = path.join(tmpDir, 'sample-rate-default.mp4');
@@ -99,5 +91,5 @@ test(
 		const sampleRate = await getSampleRateFromFile(outPath);
 		expect(sampleRate).toBe(48000);
 	},
-	{timeout: 30000, retry: 3},
+	{timeout: 30000},
 );

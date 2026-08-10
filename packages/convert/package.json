@@ -53,7 +53,6 @@
 		"react-dom": "catalog:",
 		"react-hot-toast": "2.6.0",
 		"remotion": "workspace:*",
-		"shikiji": "0.6.13",
 		"tailwind-merge": "2.5.2",
 		"tailwindcss-animate": "1.0.7"
 	},

@@ -4,104 +4,90 @@ import os from 'os';
 import path from 'path';
 import {
 	RenderInternals,
-	getCompositions,
 	openBrowser,
 	renderMedia,
+	selectComposition,
 } from '@remotion/renderer';
 import {NoReactInternals} from 'remotion/no-react';
 
 const exampleBuild = path.join(__dirname, '..', '..', '..', 'example', 'build');
 
-test(
-	'Render video with browser instance open',
-	async () => {
-		const puppeteerInstance = await openBrowser('chrome');
-		const compositions = await getCompositions({
-			serveUrl: exampleBuild,
-			puppeteerInstance,
-			inputProps: {},
-		});
-
-		const reactSvg = compositions.find((c) => c.id === 'react-svg');
-
-		if (!reactSvg) {
-			throw new Error('not found');
-		}
-
-		const tmpDir = os.tmpdir();
-
-		const outPath = path.join(tmpDir, 'out.mp4');
-		const originalFetch = globalThis.fetch;
-		const fetchSpy = spyOn(globalThis, 'fetch').mockImplementation(((
-			input,
-			init,
-		) => {
-			if (String(input).startsWith('https://www.remotion.pro/api/track/')) {
-				return Promise.resolve(
-					new Response(
-						JSON.stringify({
-							success: true,
-							billable: false,
-							classification: 'development',
-						}),
-					),
-				);
-			}
-
-			return originalFetch(input, init);
-		}) as typeof fetch);
-		const warnSpy = spyOn(console, 'warn').mockImplementation(() => undefined);
-
-		try {
-			await renderMedia({
-				outputLocation: outPath,
-				codec: 'h264',
-				serveUrl: exampleBuild,
-				composition: reactSvg,
-				frameRange: [0, 2],
-				puppeteerInstance,
-				metadata: {Author: 'Lunar'},
-				licenseKey: 'free-license',
-				logLevel: 'warn',
-			});
-
-			expect(existsSync(outPath)).toBe(true);
-			const licensingCall = fetchSpy.mock.calls.find(([input]) =>
-				String(input).startsWith('https://www.remotion.pro/api/track/'),
-			);
-			expect(licensingCall).toBeDefined();
-			expect(JSON.parse(String(licensingCall?.[1]?.body))).toMatchObject({
-				apiKey: null,
-				event: 'cloud-render',
-				host: null,
-				isStill: false,
-			});
-			expect(
-				warnSpy.mock.calls.some((args) =>
-					args.join(' ').includes('Pass "licenseKey" to renderMedia()'),
-				),
-			).toBe(false);
-		} finally {
-			fetchSpy.mockRestore();
-			warnSpy.mockRestore();
-			await puppeteerInstance.close({silent: false});
-		}
-	},
-	{retry: 2},
-);
-
-test('Render video with browser instance not open', async () => {
-	const warnSpy = spyOn(console, 'warn').mockImplementation(() => undefined);
-	const compositions = await getCompositions({
+test('Render video with browser instance open', async () => {
+	const puppeteerInstance = await openBrowser('chrome');
+	const reactSvg = await selectComposition({
+		id: 'react-svg',
 		serveUrl: exampleBuild,
+		puppeteerInstance,
 		inputProps: {},
 	});
 
-	const reactSvg = compositions.find((c) => c.id === 'react-svg');
+	const tmpDir = os.tmpdir();
 
-	if (!reactSvg) {
-		throw new Error('not found');
+	const outPath = path.join(tmpDir, 'out.mp4');
+	const originalFetch = globalThis.fetch;
+	const fetchSpy = spyOn(globalThis, 'fetch').mockImplementation(((
+		input,
+		init,
+	) => {
+		if (String(input).startsWith('https://www.remotion.pro/api/track/')) {
+			return Promise.resolve(
+				new Response(
+					JSON.stringify({
+						success: true,
+						billable: false,
+						classification: 'development',
+					}),
+				),
+			);
+		}
+
+		return originalFetch(input, init);
+	}) as typeof fetch);
+	const warnSpy = spyOn(console, 'warn').mockImplementation(() => undefined);
+
+	try {
+		await renderMedia({
+			outputLocation: outPath,
+			codec: 'h264',
+			serveUrl: exampleBuild,
+			composition: reactSvg,
+			frameRange: [0, 2],
+			puppeteerInstance,
+			metadata: {Author: 'Lunar'},
+			licenseKey: 'free-license',
+			logLevel: 'warn',
+		});
+
+		expect(existsSync(outPath)).toBe(true);
+		const licensingCall = fetchSpy.mock.calls.find(([input]) =>
+			String(input).startsWith('https://www.remotion.pro/api/track/'),
+		);
+		expect(licensingCall).toBeDefined();
+		expect(JSON.parse(String(licensingCall?.[1]?.body))).toMatchObject({
+			apiKey: null,
+			event: 'cloud-render',
+			host: null,
+			isStill: false,
+		});
+		expect(
+			warnSpy.mock.calls.some((args) =>
+				args.join(' ').includes('Pass "licenseKey" to renderMedia()'),
+			),
+		).toBe(false);
+	} finally {
+		fetchSpy.mockRestore();
+		warnSpy.mockRestore();
+		await puppeteerInstance.close({silent: false});
 	}
+});
+
+test('Render video with browser instance not open', async () => {
+	const warnSpy = spyOn(console, 'warn').mockImplementation(() => undefined);
+	const reactSvg = await selectComposition({
+		id: 'react-svg',
+		serveUrl: exampleBuild,
+		inputProps: {},
+	});
 
 	const tmpDir = os.tmpdir();
 
@@ -171,16 +157,11 @@ test('should fail on invalid CRF', async () => {
 });
 
 test('Render video to a buffer', async () => {
-	const compositions = await getCompositions({
+	const reactSvg = await selectComposition({
+		id: 'react-svg',
 		serveUrl: exampleBuild,
 		inputProps: {},
 	});
-
-	const reactSvg = compositions.find((c) => c.id === 'react-svg');
-
-	if (!reactSvg) {
-		throw new Error('not found');
-	}
 
 	const {buffer, contentType} = await renderMedia({
 		codec: 'h264',
@@ -195,14 +176,11 @@ test('Render video to a buffer', async () => {
 });
 
 test('Render multiple frame ranges to one video', async () => {
-	const compositions = await getCompositions({
+	const composition = await selectComposition({
+		id: 'ten-frame-tester',
 		serveUrl: exampleBuild,
 		inputProps: {},
 	});
-	const composition = compositions.find((c) => c.id === 'ten-frame-tester');
-	if (!composition) {
-		throw new Error('not found');
-	}
 
 	const outputLocation = path.join(os.tmpdir(), 'multiple-frame-ranges.mp4');
 	try {

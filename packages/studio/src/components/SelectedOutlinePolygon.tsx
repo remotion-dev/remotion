@@ -69,6 +69,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	readonly hasTarget: boolean;
 	readonly hovered: boolean;
 	readonly onContextMenuOpen: SelectedOutlineContextMenuOpenHandler;
+	readonly onContextMenuOpenChange: (open: boolean) => void;
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onHoverChange: (key: string | null) => void;
@@ -96,6 +97,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	hasTarget,
 	hovered,
 	onContextMenuOpen,
+	onContextMenuOpenChange,
 	outline,
 	onDraggingChange,
 	onHoverChange,
@@ -516,6 +518,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			<ContextMenuForTarget
 				triggerRef={polygonRef}
 				getItems={onContextMenuOpen}
+				onOpenChange={onContextMenuOpenChange}
 			/>
 		</>
 	);
