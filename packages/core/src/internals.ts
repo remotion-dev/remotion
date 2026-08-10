@@ -132,6 +132,10 @@ import type {RemotionEnvironment} from './remotion-environment-context.js';
 import {RemotionEnvironmentContext} from './remotion-environment-context.js';
 import {RemotionRootContexts} from './RemotionRoot.js';
 import {
+	makeRenderResourceManager,
+	RenderResourceManagerContext,
+} from './render-resource-manager.js';
+import {
 	RenderAssetManager,
 	RenderAssetManagerProvider,
 } from './RenderAssetManager.js';
@@ -287,6 +291,8 @@ const compositionSelectorRef = createRef<{
 // API and are less likely to use it
 export const Internals = {
 	MaxMediaCacheSizeContext,
+	makeRenderResourceManager,
+	RenderResourceManagerContext,
 	useUnsafeVideoConfig,
 	useFrameForVolumeProp,
 	useTimelinePosition: TimelinePosition.useTimelinePosition,

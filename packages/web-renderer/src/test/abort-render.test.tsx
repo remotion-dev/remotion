@@ -1,3 +1,7 @@
+import {Audio, Video} from '@remotion/media';
+import {Input} from 'mediabunny';
+import {useEffect} from 'react';
+import {staticFile} from 'remotion';
 import {expect, test, vi} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderStillOnWeb} from '../render-still-on-web';
@@ -13,9 +17,10 @@ test('should be able to cancel renderMediaOnWeb()', async (t) => {
 	}
 
 	const Component: React.FC = () => {
-		return null;
+		return <Video src={staticFile('video.mp4')} />;
 	};
 
+	const disposeSpy = vi.spyOn(Input.prototype, 'dispose');
 	const controller = new AbortController();
 
 	const prom = renderMediaOnWeb({
@@ -30,14 +35,89 @@ test('should be able to cancel renderMediaOnWeb()', async (t) => {
 		},
 		signal: controller.signal,
 		inputProps: {},
+		onProgress: ({renderedFrames}) => {
+			if (renderedFrames === 1) {
+				controller.abort();
+			}
+		},
 	});
 
-	await new Promise((resolve) => {
-		setTimeout(resolve, 200);
+	try {
+		await expect(prom).rejects.toThrow('renderMediaOnWeb() was cancelled');
+		expect(disposeSpy).toHaveBeenCalled();
+	} finally {
+		disposeSpy.mockRestore();
+	}
+});
+
+test('should render successfully after aborting during media extraction', async (t) => {
+	if (t.task.file.projectName !== 'firefox') {
+		t.skip();
+		return;
+	}
+
+	const controller = new AbortController();
+	const AbortingComponent: React.FC = () => {
+		useEffect(() => {
+			const timeout = setTimeout(() => controller.abort(), 0);
+
+			return () => clearTimeout(timeout);
+		}, []);
+
+		return (
+			<>
+				<Video src={staticFile('video.mp4')} />
+				<Audio src={staticFile('dialogue.wav')} />
+			</>
+		);
+	};
+
+	await expect(
+		renderMediaOnWeb({
+			licenseKey: 'free-license',
+			composition: {
+				component: AbortingComponent,
+				id: 'abort-during-media-extraction',
+				width: 100,
+				height: 100,
+				fps: 30,
+				durationInFrames: 10,
+			},
+			signal: controller.signal,
+			container: 'webm',
+			videoCodec: 'vp8',
+			outputTarget: 'arraybuffer',
+			inputProps: {},
+		}),
+	).rejects.toThrow('renderMediaOnWeb() was cancelled');
+
+	const SuccessfulComponent: React.FC = () => {
+		return (
+			<>
+				<Video src={staticFile('video.mp4')} />
+				<Audio src={staticFile('dialogue.wav')} />
+			</>
+		);
+	};
+
+	const result = await renderMediaOnWeb({
+		licenseKey: 'free-license',
+		composition: {
+			component: SuccessfulComponent,
+			id: 'render-after-abort',
+			width: 100,
+			height: 100,
+			fps: 30,
+			durationInFrames: 1,
+		},
+		frameRange: [0, 0],
+		container: 'webm',
+		videoCodec: 'vp8',
+		outputTarget: 'arraybuffer',
+		inputProps: {},
 	});
 
-	controller.abort();
-	await expect(prom).rejects.toThrow('renderMediaOnWeb() was cancelled');
+	expect((await result.getBlob()).size).toBeGreaterThan(0);
 });
 
 test('should be able to cancel renderStillOnWeb()', async () => {

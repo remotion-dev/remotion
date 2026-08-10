@@ -1,6 +1,6 @@
 import {assert, expect, test} from 'vitest';
 import {extractAudio} from '../audio-extraction/extract-audio';
-import {getMaxVideoCacheSize} from '../caches';
+import {getMaxVideoCacheSize, globalMediaCache} from '../caches';
 
 // prettier-ignore
 const expectedFirst100 = [
@@ -36,6 +36,7 @@ test('Audio samples from MP3 should produce identical s16 output on Chrome and F
 		durationInSeconds: 1 / 30,
 		audioStreamIndex: 0,
 		credentials: undefined,
+		mediaCache: globalMediaCache,
 	});
 
 	if (a === 'cannot-decode') {

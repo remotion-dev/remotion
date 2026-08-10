@@ -1,4 +1,6 @@
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
+import type {LogLevel} from 'remotion';
+import {getMaxSourceCacheSize} from './max-cache-size';
 import {
 	getMediaRequestInitFingerprint,
 	normalizeMediaRequestInit,
@@ -48,10 +50,12 @@ export const acquireSharedInput = ({
 	src,
 	credentials,
 	requestInit,
+	logLevel,
 }: {
 	src: string;
 	credentials: RequestCredentials | undefined;
 	requestInit: MediaRequestInit | undefined;
+	logLevel: LogLevel;
 }): {input: Input; cacheKey: string} => {
 	const normalizedRequestInit = normalizeMediaRequestInit(requestInit);
 	const cacheKey = getSharedInputCacheKey({
@@ -71,10 +75,10 @@ export const acquireSharedInput = ({
 		requestInit: normalizedRequestInit,
 	});
 	const input = new Input({
-		source: new UrlSource(
-			src,
-			resolvedRequestInit ? {requestInit: resolvedRequestInit} : undefined,
-		),
+		source: new UrlSource(src, {
+			maxCacheSize: getMaxSourceCacheSize(logLevel),
+			...(resolvedRequestInit ? {requestInit: resolvedRequestInit} : undefined),
+		}),
 		formats: ALL_FORMATS,
 	});
 

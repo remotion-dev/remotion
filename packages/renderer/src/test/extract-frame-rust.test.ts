@@ -42,6 +42,35 @@ test(
 	{timeout: 10000},
 );
 
+test(
+	'Should be able to extract a frame with zero extra threads',
+	async () => {
+		const compositor = startLongRunningCompositor({
+			maximumFrameCacheItemsInBytes: null,
+			logLevel: 'info',
+			indent: false,
+			binariesDirectory: null,
+			extraThreads: 0,
+		});
+
+		const data = await compositor.executeCommand('ExtractFrame', {
+			src: exampleVideos.bigBuckBunny,
+			original_src: exampleVideos.bigBuckBunny,
+			time: 40,
+			transparent: false,
+			tone_mapped: true,
+		});
+		expect(data.length).toBe(1280 * 720 * 3 + BMP_HEADER_SIZE);
+		const header = data.subarray(0, BMP_HEADER_SIZE);
+		expect(Buffer.from([...header.subarray(18, 22)]).readInt32LE(0)).toBe(1280);
+		expect(Buffer.from([...header.subarray(22, 26)]).readInt32LE(0)).toBe(720);
+
+		await compositor.finishCommands();
+		await compositor.waitForDone();
+	},
+	{timeout: 10000},
+);
+
 test('Should be able to start two compositors', async () => {
 	const compositor = startLongRunningCompositor({
 		maximumFrameCacheItemsInBytes: null,

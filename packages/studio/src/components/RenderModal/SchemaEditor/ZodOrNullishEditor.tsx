@@ -9,14 +9,18 @@ import {
 import {Spacing} from '../../layout';
 import {createZodValues} from './create-zod-values';
 import {Fieldset} from './Fieldset';
-import {SchemaLabel} from './SchemaLabel';
-import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
+import {SchemaDescriptionOverrideContext, SchemaLabel} from './SchemaLabel';
+import {
+	getUserFacingDescription,
+	zodSafeParse,
+	type AnyZodSchema,
+} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
 
 const labelStyle: React.CSSProperties = {
-	fontFamily: 'sans-serif',
+	fontFamily: 'monospace',
 	fontSize: 12,
 	color: LIGHT_TEXT,
 };
@@ -60,6 +64,10 @@ export const ZodOrNullishEditor: React.FC<{
 		() => zodSafeParse(schema, value),
 		[schema, value],
 	);
+	const description = getUserFacingDescription(schema);
+	const descriptionOverride = useMemo(() => {
+		return description ? {jsonPath, description} : null;
+	}, [description, jsonPath]);
 
 	const onCheckBoxChange: React.ChangeEventHandler<HTMLInputElement> =
 		useCallback(
@@ -81,7 +89,22 @@ export const ZodOrNullishEditor: React.FC<{
 					onRemove={onRemove}
 					valid={zodValidation.success}
 					suffix={null}
+					description={
+						getUserFacingDescription(schema) ??
+						getUserFacingDescription(innerSchema)
+					}
 				/>
+			) : descriptionOverride ? (
+				<SchemaDescriptionOverrideContext.Provider value={descriptionOverride}>
+					<ZodSwitch
+						value={value}
+						setValue={setValue}
+						jsonPath={jsonPath}
+						schema={innerSchema}
+						onRemove={onRemove}
+						mayPad={false}
+					/>
+				</SchemaDescriptionOverrideContext.Provider>
 			) : (
 				<ZodSwitch
 					value={value}
@@ -92,7 +115,7 @@ export const ZodOrNullishEditor: React.FC<{
 					mayPad={false}
 				/>
 			)}
-			<div style={checkBoxWrapper}>
+			<label style={checkBoxWrapper}>
 				<Checkbox
 					checked={isChecked}
 					onChange={onCheckBoxChange}
@@ -100,8 +123,8 @@ export const ZodOrNullishEditor: React.FC<{
 					name={jsonPath.join('.')}
 				/>
 				<Spacing x={1} />
-				<div style={labelStyle}>{String(nullishValue)}</div>
-			</div>
+				<code style={labelStyle}>&lt;{String(nullishValue)}&gt;</code>
+			</label>
 		</Fieldset>
 	);
 };

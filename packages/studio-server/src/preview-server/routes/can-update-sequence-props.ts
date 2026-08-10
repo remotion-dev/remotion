@@ -63,6 +63,15 @@ type PropPosterize = KeyframedPropStatus['posterize'];
 type PropOutput = KeyframedPropStatus['output'];
 type PropInterpolationFunction = KeyframedPropStatus['interpolationFunction'];
 
+// A file write synchronously notifies every sequence subscription. Status
+// computation is read-only, so all subscribers can share one parsed snapshot
+// until the notification burst has finished.
+let cachedSequencePropsStatusAst: {
+	fileContents: string;
+	ast: File;
+	videoConfigIdentifierValues: Map<string, VideoConfigIdentifierValues>;
+} | null = null;
+
 const staticStatus = (
 	codeValue: unknown,
 	numericExpression: VideoConfigNumericExpression | null,
@@ -1345,11 +1354,40 @@ export const computeSequencePropsStatusFromContent = ({
 	effects: string[][];
 	videoConfigValues: VideoConfigValues | null;
 }): CanUpdateSequencePropsResponseTrue => {
-	const ast = parseAst(fileContents);
-	const videoConfigIdentifierValues = getVideoConfigIdentifierValues({
-		ast,
-		videoConfigValues,
-	});
+	if (cachedSequencePropsStatusAst?.fileContents !== fileContents) {
+		cachedSequencePropsStatusAst = null;
+		const snapshot = {
+			fileContents,
+			ast: parseAst(fileContents),
+			videoConfigIdentifierValues: new Map<
+				string,
+				VideoConfigIdentifierValues
+			>(),
+		};
+		cachedSequencePropsStatusAst = snapshot;
+		queueMicrotask(() => {
+			if (cachedSequencePropsStatusAst === snapshot) {
+				cachedSequencePropsStatusAst = null;
+			}
+		});
+	}
+
+	const {ast} = cachedSequencePropsStatusAst;
+	const videoConfigCacheKey = JSON.stringify(videoConfigValues);
+	let videoConfigIdentifierValues =
+		cachedSequencePropsStatusAst.videoConfigIdentifierValues.get(
+			videoConfigCacheKey,
+		);
+	if (videoConfigIdentifierValues === undefined) {
+		videoConfigIdentifierValues = getVideoConfigIdentifierValues({
+			ast,
+			videoConfigValues,
+		});
+		cachedSequencePropsStatusAst.videoConfigIdentifierValues.set(
+			videoConfigCacheKey,
+			videoConfigIdentifierValues,
+		);
+	}
 
 	const jsxElementNode = findJsxElementNodeAtNodePath(ast, nodePath);
 	const jsxElement = jsxElementNode?.openingElement ?? null;

@@ -1,0 +1,25 @@
+{
+	"$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+	"name": "remotion",
+	"version": "4.0.507",
+	"description": "Remotion video creation skills — best practices, animations, audio, captions, 3D, and more for building programmatic videos with React.",
+	"author": {
+		"name": "Remotion",
+		"email": "hi@remotion.dev",
+		"url": "https://remotion.dev"
+	},
+	"homepage": "https://remotion.dev",
+	"repository": "https://github.com/remotion-dev/remotion",
+	"license": "MIT",
+	"keywords": [
+		"remotion",
+		"video",
+		"react",
+		"animation",
+		"composition",
+		"rendering",
+		"ffmpeg",
+		"captions",
+		"audio"
+	]
+}

@@ -1,15 +1,26 @@
 import type {CropRectangle} from 'mediabunny';
+import type {CaptureFormat} from './messages';
 import {
+	assertCanEncodeCapture,
 	CanvasCaptureRecorder,
+	getScaledCanvasSize,
 	type HtmlInCanvasElement,
+	type HtmlInCanvasOffscreenRenderingContext2D,
 	type HtmlInCanvasRenderingContext2D,
 	resetCanvas,
 	syncCanvasSize,
+	syncDisplayCanvasSize,
 } from './recorder';
 
 const maxCanvasDimension = 32_767;
+const maxEncodedDimension = 32_766;
 
 export type CaptureCrop = CropRectangle;
+
+export type CapturePreflight = {
+	readonly sourceSize: {readonly width: number; readonly height: number};
+	readonly outputSize: {readonly width: number; readonly height: number};
+};
 
 type WrappedElement = {
 	readonly canvas: HtmlInCanvasElement;
@@ -128,20 +139,123 @@ const getPageSize = (
 	height: Math.max(minimum.height, content.scrollHeight, window.innerHeight),
 });
 
+const getWholePageSize = () => ({
+	width: Math.max(
+		document.documentElement.scrollWidth,
+		document.body.scrollWidth,
+		window.innerWidth,
+	),
+	height: Math.max(
+		document.documentElement.scrollHeight,
+		document.body.scrollHeight,
+		window.innerHeight,
+	),
+});
+
+const resolveCrop = (
+	crop: CaptureCrop | null,
+	sourceWidth: number,
+	sourceHeight: number,
+) => {
+	if (!crop) {
+		return null;
+	}
+
+	const left = Math.max(0, Math.min(crop.left, sourceWidth - 1));
+	const top = Math.max(0, Math.min(crop.top, sourceHeight - 1));
+	return {
+		left,
+		top,
+		width: Math.max(1, Math.min(crop.width, sourceWidth - left)),
+		height: Math.max(1, Math.min(crop.height, sourceHeight - top)),
+	};
+};
+
+const validateCaptureSize = ({
+	width,
+	height,
+	crop,
+	scale,
+}: {
+	readonly width: number;
+	readonly height: number;
+	readonly crop: CaptureCrop | null;
+	readonly scale: number;
+}) => {
+	const resolvedCrop = resolveCrop(crop, width, height) ?? {
+		left: 0,
+		top: 0,
+		width,
+		height,
+	};
+	const displayWidth = Math.max(1, Math.round(width * window.devicePixelRatio));
+	const displayHeight = Math.max(
+		1,
+		Math.round(height * window.devicePixelRatio),
+	);
+	const outputSize = getScaledCanvasSize(
+		resolvedCrop.width,
+		resolvedCrop.height,
+		scale,
+	);
+	if (displayWidth > maxCanvasDimension || displayHeight > maxCanvasDimension) {
+		throw new Error(
+			`The display canvas would be ${displayWidth}×${displayHeight} pixels; its maximum side is ${maxCanvasDimension.toLocaleString()} pixels.`,
+		);
+	}
+
+	if (
+		outputSize.width > maxEncodedDimension ||
+		outputSize.height > maxEncodedDimension
+	) {
+		throw new Error(
+			`The encoded frame would be ${outputSize.width}×${outputSize.height} pixels at ${scale}× scale; its maximum even side is ${maxEncodedDimension.toLocaleString()} pixels. Reduce the scale or select a smaller area.`,
+		);
+	}
+
+	return outputSize;
+};
+
+export const getCapturePreflight = ({
+	element,
+	wholePage,
+	scale,
+	crop,
+}: {
+	readonly element: Element | null;
+	readonly wholePage: boolean;
+	readonly scale: number;
+	readonly crop: CaptureCrop | null;
+}): CapturePreflight => {
+	const sourceSize = wholePage
+		? getWholePageSize()
+		: (() => {
+				if (!element?.isConnected) {
+					throw new Error(
+						'Select an element again; the previous target was removed.',
+					);
+				}
+
+				const rect = element.getBoundingClientRect();
+				if (rect.width <= 0 || rect.height <= 0) {
+					throw new Error('The selected element has no visible size.');
+				}
+
+				return {width: rect.width, height: rect.height};
+			})();
+	return {
+		sourceSize,
+		outputSize: validateCaptureSize({
+			...sourceSize,
+			crop,
+			scale,
+		}),
+	};
+};
+
 const wrapWholePage = (): WrappedElement => {
 	const {body} = document;
-	const minimumSize = {
-		width: Math.max(
-			document.documentElement.scrollWidth,
-			body.scrollWidth,
-			window.innerWidth,
-		),
-		height: Math.max(
-			document.documentElement.scrollHeight,
-			body.scrollHeight,
-			window.innerHeight,
-		),
-	};
+	const minimumSize = getWholePageSize();
 	const canvas = document.createElement('canvas') as HtmlInCanvasElement;
 	const content = document.createElement('div');
 	canvas.layoutSubtree = true;
@@ -206,18 +320,22 @@ const wrapWholePage = (): WrappedElement => {
 	};
 };
 
-const getFilename = () => {
+const getFilename = (format: CaptureFormat) => {
 	const host = location.hostname.replace(/[^a-z0-9.-]+/gi, '-') || 'page';
 	const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-	return `remotion-capture-${host}-${timestamp}.webm`;
+	return `remotion-capture-${host}-${timestamp}.${format}`;
 };
 
 export class ElementCapture {
 	readonly #wrapped: WrappedElement;
 	readonly #scale: number;
+	readonly #format: CaptureFormat;
 	readonly #crop: CaptureCrop | null;
 	readonly #recorder: CanvasCaptureRecorder;
 	readonly #context: HtmlInCanvasRenderingContext2D;
+	readonly #captureCanvas: OffscreenCanvas;
+	readonly #captureContext: HtmlInCanvasOffscreenRenderingContext2D;
+	readonly #matteColors: readonly string[];
 	readonly #resizeObserver: ResizeObserver;
 	#restored = false;
 	#paintError: unknown = null;
@@ -226,42 +344,87 @@ export class ElementCapture {
 		element,
 		wholePage,
 		scale,
+		format,
 		crop,
 	}: {
 		readonly element: Element | null;
 		readonly wholePage: boolean;
 		readonly scale: number;
+		readonly format: CaptureFormat;
 		readonly crop: CaptureCrop | null;
 	}) {
 		this.#scale = scale;
+		this.#format = format;
 		this.#crop = crop;
+		this.#matteColors = [
+			'#fff',
+			...(wholePage
+				? [
+						window.getComputedStyle(document.documentElement).backgroundColor,
+						window.getComputedStyle(document.body).backgroundColor,
+					]
+				: []),
+		];
 		this.#wrapped = wholePage ? wrapWholePage() : wrapElement(element!);
 		const context = this.#wrapped.canvas.getContext(
 			'2d',
 		) as HtmlInCanvasRenderingContext2D | null;
-		if (!context || typeof context.drawElementImage !== 'function') {
+		if (
+			!context ||
+			typeof context.drawElementImage !== 'function' ||
+			typeof this.#wrapped.canvas.captureElementImage !== 'function'
+		) {
 			this.#wrapped.restore();
 			throw new Error(
-				'drawElementImage() is not available in this Chrome build.',
+				'The required HTML-in-canvas APIs are unavailable. Open chrome://flags/#canvas-draw-element, set Canvas Draw Element to Enabled, then fully quit and reopen the browser.',
 			);
 		}
 
 		this.#context = context;
-		const sourceSize = this.#wrapped.getSize();
-		this.#assertValidSize(sourceSize.width, sourceSize.height);
-		syncCanvasSize(
-			this.#wrapped.canvas,
-			sourceSize.width,
-			sourceSize.height,
-			this.#scale,
-		);
+		this.#captureCanvas = new OffscreenCanvas(2, 2);
+		const captureContext = this.#captureCanvas.getContext(
+			'2d',
+		) as HtmlInCanvasOffscreenRenderingContext2D | null;
+		if (
+			!captureContext ||
+			typeof captureContext.drawElementImage !== 'function'
+		) {
+			this.#wrapped.restore();
+			throw new Error(
+				'Could not create an HTML-in-canvas OffscreenCanvas 2D context.',
+			);
+		}
+
+		this.#captureContext = captureContext;
+		try {
+			const sourceSize = this.#wrapped.getSize();
+			this.#assertValidSize(sourceSize.width, sourceSize.height);
+			syncDisplayCanvasSize(
+				this.#wrapped.canvas,
+				sourceSize.width,
+				sourceSize.height,
+				window.devicePixelRatio,
+			);
+			const initialCrop = this.#resolveCrop(
+				sourceSize.width,
+				sourceSize.height,
+			) ?? {left: 0, top: 0, ...sourceSize};
+			syncCanvasSize(
+				this.#captureCanvas,
+				initialCrop.width,
+				initialCrop.height,
+				this.#scale,
+			);
+		} catch (error) {
+			this.#wrapped.restore();
+			throw error;
+		}
 
 		this.#recorder = new CanvasCaptureRecorder({
-			canvas: this.#wrapped.canvas,
-			crop: this.#getMediabunnyCrop(sourceSize.width, sourceSize.height),
+			format,
 			getContentRect: this.#getRecordingRect,
 			getDensity: () => this.#scale,
-			getFilename,
+			getFilename: () => getFilename(format),
 		});
 		this.#wrapped.canvas.addEventListener('paint', this.#onPaint);
 		this.#resizeObserver = new ResizeObserver(this.#requestPaint);
@@ -270,8 +433,14 @@ export class ElementCapture {
 
 	start = async () => {
 		const {width, height} = this.#wrapped.getSize();
-		this.#assertValidSize(width, height);
-		syncCanvasSize(this.#wrapped.canvas, width, height, this.#scale);
+		const outputSize = this.#assertValidSize(width, height);
+		await assertCanEncodeCapture(this.#format, outputSize);
+		syncDisplayCanvasSize(
+			this.#wrapped.canvas,
+			width,
+			height,
+			window.devicePixelRatio,
+		);
 		await this.#recorder.startRecording();
 		this.#requestPaint();
 	};
@@ -307,14 +476,12 @@ export class ElementCapture {
 	};
 
 	#assertValidSize = (width: number, height: number) => {
-		if (
-			width * this.#scale > maxCanvasDimension ||
-			height * this.#scale > maxCanvasDimension
-		) {
-			throw new Error(
-				`The ${Math.round(width)}×${Math.round(height)} selection is too large at ${this.#scale}× scale.`,
-			);
-		}
+		return validateCaptureSize({
+			width,
+			height,
+			crop: this.#crop,
+			scale: this.#scale,
+		});
 	};
 
 	#requestPaint = () => {
@@ -322,64 +489,7 @@ export class ElementCapture {
 	};
 
 	#resolveCrop = (sourceWidth: number, sourceHeight: number) => {
-		if (!this.#crop) {
-			return null;
-		}
-
-		const left = Math.max(0, Math.min(this.#crop.left, sourceWidth - 1));
-		const top = Math.max(0, Math.min(this.#crop.top, sourceHeight - 1));
-		return {
-			left,
-			top,
-			width: Math.max(1, Math.min(this.#crop.width, sourceWidth - left)),
-			height: Math.max(1, Math.min(this.#crop.height, sourceHeight - top)),
-		};
-	};
-
-	#getMediabunnyCrop = (
-		sourceWidth: number,
-		sourceHeight: number,
-	): CropRectangle | undefined => {
-		const crop = this.#resolveCrop(sourceWidth, sourceHeight);
-		if (!crop) {
-			return undefined;
-		}
-
-		const left = Math.max(
-			0,
-			Math.min(
-				Math.round(crop.left * this.#scale),
-				this.#wrapped.canvas.width - 1,
-			),
-		);
-		const top = Math.max(
-			0,
-			Math.min(
-				Math.round(crop.top * this.#scale),
-				this.#wrapped.canvas.height - 1,
-			),
-		);
-		const right = Math.max(
-			left + 1,
-			Math.min(
-				Math.round((crop.left + crop.width) * this.#scale),
-				this.#wrapped.canvas.width,
-			),
-		);
-		const bottom = Math.max(
-			top + 1,
-			Math.min(
-				Math.round((crop.top + crop.height) * this.#scale),
-				this.#wrapped.canvas.height,
-			),
-		);
-
-		return {
-			left,
-			top,
-			width: right - left,
-			height: bottom - top,
-		};
+		return resolveCrop(this.#crop, sourceWidth, sourceHeight);
 	};
 
 	#getRecordingRect = () => {
@@ -404,12 +514,56 @@ export class ElementCapture {
 		}
 
 		this.#assertValidSize(width, height);
-		syncCanvasSize(this.#wrapped.canvas, width, height, this.#scale);
+		const crop = this.#resolveCrop(width, height) ?? {
+			left: 0,
+			top: 0,
+			width,
+			height,
+		};
+		syncDisplayCanvasSize(
+			this.#wrapped.canvas,
+			width,
+			height,
+			window.devicePixelRatio,
+		);
+		syncCanvasSize(this.#captureCanvas, crop.width, crop.height, this.#scale);
 		resetCanvas(this.#context, this.#wrapped.canvas);
-		this.#context.scale(this.#scale, this.#scale);
+		const displayScaleX = this.#wrapped.canvas.width / width;
+		const displayScaleY = this.#wrapped.canvas.height / height;
+		this.#context.scale(displayScaleX, displayScaleY);
 		this.#context.drawElementImage!(this.#wrapped.content, 0, 0, width, height);
 
-		this.#recorder.addFrame();
+		const elementImage = this.#wrapped.canvas.captureElementImage!(
+			this.#wrapped.content,
+		);
+		try {
+			resetCanvas(this.#captureContext, this.#captureCanvas);
+			for (const color of this.#matteColors) {
+				this.#captureContext.fillStyle = color;
+				this.#captureContext.fillRect(
+					0,
+					0,
+					this.#captureCanvas.width,
+					this.#captureCanvas.height,
+				);
+			}
+
+			this.#captureContext.drawElementImage!(
+				elementImage,
+				crop.left,
+				crop.top,
+				crop.width,
+				crop.height,
+				0,
+				0,
+				this.#captureCanvas.width,
+				this.#captureCanvas.height,
+			);
+
+			this.#recorder.addFrame(this.#captureCanvas);
+		} finally {
+			elementImage.close();
+		}
 	};
 
 	#onPaint = () => {

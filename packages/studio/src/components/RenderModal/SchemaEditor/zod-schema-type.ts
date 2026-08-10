@@ -166,6 +166,21 @@ export const getZodSchemaDescription = (
 	return schema.description;
 };
 
+// Branded types (zColor(), zTextarea(), zMatrix()) store their marker in the
+// description, so those must not surface as user-facing text.
+const REMOTION_BRAND_PREFIX = '__remotion-';
+
+export const getUserFacingDescription = (
+	schema: AnyZodSchema,
+): string | null => {
+	const description = getZodSchemaDescription(schema);
+	if (!description || description.startsWith(REMOTION_BRAND_PREFIX)) {
+		return null;
+	}
+
+	return description;
+};
+
 /**
  * Get the shape of an object schema.
  * v3: _def.shape() (function)

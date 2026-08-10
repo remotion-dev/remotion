@@ -159,7 +159,7 @@ export const makeAudioIterator = ({
 	const getCacheStats = () => {
 		return {
 			count: cache.getOpenTimestamps().length,
-			size: cache.getOpenTimestamps().reduce((acc, t) => acc + t, 0),
+			size: cache.getTotalSize(),
 		};
 	};
 

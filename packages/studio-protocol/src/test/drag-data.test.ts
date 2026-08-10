@@ -47,6 +47,11 @@ const inputs: MakeDragDataInput[] = [
 		durationInFrames: 90,
 	},
 	{
+		type: 'render-output',
+		outputPath: 'out/video.mp4',
+		fileName: 'video.mp4',
+	},
+	{
 		type: 'sfx',
 		name: 'Whip',
 		url: 'https://remotion.media/whip.wav',
@@ -206,6 +211,18 @@ test('requires a duration for element drags', () => {
 });
 
 test('rejects malformed and mismatched drag data', () => {
+	const renderOutput = StudioProtocolInternals.makeDragData({
+		type: 'render-output',
+		outputPath: 'out/video.mp4',
+		fileName: 'video.mp4',
+	});
+	expect(
+		StudioProtocolInternals.parseDragData({
+			mimeType: renderOutput.mimeType,
+			payload: JSON.stringify({...renderOutput.data, fileName: '../video.mp4'}),
+		}),
+	).toBe(null);
+
 	expect(
 		StudioProtocolInternals.parseDragData({
 			mimeType:

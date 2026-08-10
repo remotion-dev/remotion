@@ -153,6 +153,15 @@ export const articles = [
 		slug: 'ai/coding-agents',
 	},
 	{
+		id: 'ai/cursor-plugin',
+		title: 'Cursor plugin',
+		relativePath: 'docs/ai/cursor-plugin.mdx',
+		compId: 'articles-docs-ai-cursor-plugin',
+		crumb: 'AI',
+		noAi: false,
+		slug: 'ai/cursor-plugin',
+	},
+	{
 		id: 'ai/dynamic-compilation',
 		title: 'Just-in-time compilation of Remotion code',
 		relativePath: 'docs/ai/dynamic-compilation.mdx',
@@ -907,15 +916,6 @@ export const articles = [
 		crumb: 'Client-side rendering',
 		noAi: false,
 		slug: 'client-side-rendering/page-responsiveness',
-	},
-	{
-		id: 'client-side-rendering/telemetry',
-		title: 'Telemetry in client-side rendering',
-		relativePath: 'docs/client-side-rendering/telemetry.mdx',
-		compId: 'articles-docs-client-side-rendering-telemetry',
-		crumb: 'Client-side rendering',
-		noAi: false,
-		slug: 'client-side-rendering/telemetry',
 	},
 	{
 		id: 'clipper',

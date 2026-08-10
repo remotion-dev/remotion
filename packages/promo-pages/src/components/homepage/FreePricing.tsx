@@ -1,6 +1,7 @@
 import {Switch} from '@remotion/design';
 import React, {useCallback, useMemo} from 'react';
 import {cn} from '../../cn';
+import {useMobileLayout} from './layout/use-mobile-layout';
 import {PricingBulletPoint} from './PricingBulletPoint';
 
 const Container: React.FC<{readonly children: React.ReactNode}> = ({
@@ -131,42 +132,74 @@ const textUnitWrapper: React.CSSProperties = {
 	flexDirection: 'column',
 };
 
-export const FreePricing: React.FC = () => {
+export const FreePricing: React.FC<{
+	readonly termsHref: string;
+}> = ({termsHref}) => {
+	const mobileLayout = useMobileLayout();
+
 	return (
 		<Container>
-			<Audience>For individuals and companies of up to 3 people</Audience>
-			<Title>Free License</Title>
-			<PricingBulletPoint text="Create and automate" checked />
-			<PricingBulletPoint text="All features included" checked />
-			<PricingBulletPoint text="Unlimited commercial use" checked />
-			<PricingBulletPoint
-				text="Must upgrade when your team grows"
-				checked={false}
-			/>
-			<div className={'flex flex-row justify-end mt-4'}>
+			<div
+				className={cn(
+					'flex gap-4',
+					mobileLayout ? 'flex-col' : 'flex-row items-end justify-between',
+				)}
+			>
+				<div className={mobileLayout ? undefined : 'flex-1 min-w-0'}>
+					<Audience>For individuals and companies of up to 3 people</Audience>
+					<Title>Free License</Title>
+					<PricingBulletPoint text="Create and automate" checked />
+					<PricingBulletPoint text="All features included" checked />
+					<PricingBulletPoint text="Unlimited commercial use" checked />
+					<PricingBulletPoint
+						text={
+							<>
+								<a
+									href={termsHref}
+									className="underline underline-offset-4 text-inherit font-brand"
+								>
+									Terms
+								</a>{' '}
+								apply
+							</>
+						}
+						checked={false}
+					/>
+					<PricingBulletPoint
+						text="Must upgrade when your organization grows"
+						checked={false}
+					/>
+				</div>
 				<div
-					style={{
-						...textUnitWrapper,
-						alignItems: 'flex-end',
-					}}
+					className={cn(
+						'flex flex-row justify-end shrink-0',
+						mobileLayout && 'mt-4',
+					)}
 				>
-					<a
-						target="_blank"
-						href="https://www.remotion.dev/docs"
-						className="font-brand text-brand flex flex-row items-center gap-1 no-underline"
+					<div
+						style={{
+							...textUnitWrapper,
+							alignItems: 'flex-end',
+						}}
 					>
-						No sign up needed - get started{' '}
-						<svg
-							style={icon}
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 448 512"
+						<a
+							target="_blank"
+							href="https://www.remotion.dev/docs"
+							className="font-brand text-brand flex flex-row items-center gap-1 no-underline"
 						>
-							<path
-								fill="currentColor"
-								d="M438.6 278.6l-160 160C272.4 444.9 264.2 448 256 448s-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L338.8 288H32C14.33 288 .0016 273.7 .0016 256S14.33 224 32 224h306.8l-105.4-105.4c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l160 160C451.1 245.9 451.1 266.1 438.6 278.6z"
-							/>
-						</svg>
-					</a>
+							No sign up needed - get started{' '}
+							<svg
+								style={icon}
+								xmlns="http://www.w3.org/2000/svg"
+								viewBox="0 0 448 512"
+							>
+								<path
+									fill="currentColor"
+									d="M438.6 278.6l-160 160C272.4 444.9 264.2 448 256 448s-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L338.8 288H32C14.33 288 .0016 273.7 .0016 256S14.33 224 32 224h306.8l-105.4-105.4c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l160 160C451.1 245.9 451.1 266.1 438.6 278.6z"
+								/>
+							</svg>
+						</a>
+					</div>
 				</div>
 			</div>
 		</Container>
@@ -174,51 +207,67 @@ export const FreePricing: React.FC = () => {
 };
 
 export const EnterpriseLicense: React.FC = () => {
+	const mobileLayout = useMobileLayout();
+
 	return (
 		<Container>
-			<Audience>For advanced needs</Audience>
-			<Title>Enterprise License</Title>
-			<PricingBulletPoint text="Everything in Company License" checked />
-			<PricingBulletPoint text="Private Slack or Discord" checked />
-			<PricingBulletPoint text="Monthly consulting session" checked />
-			<PricingBulletPoint text="Custom terms, billing and pricing" checked />
-			<PricingBulletPoint text="Compliance forms" checked />
-			<PricingBulletPoint text="Prioritized feature requests" checked />
-			<PricingBulletPoint
-				text={
-					<span>
-						<a
-							href="https://www.remotion.dev/editor-starter"
-							className="underline underline-offset-4 text-inherit"
-						>
-							Editor Starter
-						</a>{' '}
-						included
-					</span>
-				}
-				checked
-			/>
-			<div style={{height: 30}} />
-			<div className={'flex flex-row justify-end'}>
+			<div
+				className={cn(
+					'flex gap-4',
+					mobileLayout ? 'flex-col' : 'flex-row items-end justify-between',
+				)}
+			>
+				<div className={mobileLayout ? undefined : 'flex-1 min-w-0'}>
+					<Audience>For advanced needs</Audience>
+					<Title>Enterprise License</Title>
+					<PricingBulletPoint text="Everything in Company License" checked />
+					<PricingBulletPoint text="Private Slack or Discord" checked />
+					<PricingBulletPoint text="Monthly consulting session" checked />
+					<PricingBulletPoint
+						text="Custom terms, billing and pricing"
+						checked
+					/>
+					<PricingBulletPoint text="Compliance forms" checked />
+					<PricingBulletPoint text="Prioritized feature requests" checked />
+					<PricingBulletPoint
+						text={
+							<span>
+								<a
+									href="https://www.remotion.dev/editor-starter"
+									className="underline underline-offset-4 text-inherit font-brand"
+								>
+									Editor Starter
+								</a>{' '}
+								included
+							</span>
+						}
+						checked
+					/>
+				</div>
 				<div
-					style={{
-						...textUnitWrapper,
-						alignItems: 'flex-end',
-					}}
+					className={cn(
+						'flex flex-row justify-end shrink-0',
+						mobileLayout && 'mt-4',
+					)}
 				>
-					<PriceTag>
-						<a
-							className={
-								'cursor-pointer no-underline text-inherit hover:text-brand'
-							}
-							target={'_blank'}
-							href="https://www.remotion.pro/contact"
-						>
-							Contact us
-						</a>
-					</PriceTag>
-					<div className={'text-[var(--subtitle)] fontbrand text-sm'}>
-						Starting at $500 per month
+					<div
+						style={{
+							...textUnitWrapper,
+							alignItems: 'flex-end',
+						}}
+					>
+						<PriceTag>
+							<a
+								className="cursor-pointer no-underline text-inherit hover:text-brand"
+								target={'_blank'}
+								href="https://www.remotion.pro/contact"
+							>
+								Contact us
+							</a>
+						</PriceTag>
+						<div className={'text-[var(--subtitle)] fontbrand text-sm'}>
+							Starting at $500 per month
+						</div>
 					</div>
 				</div>
 			</div>
@@ -236,16 +285,23 @@ const SectionCheckbox: React.FC<{
 	readonly subtitle: React.ReactNode;
 	readonly children?: React.ReactNode;
 }> = ({checked, onChange, title, subtitle, children}) => {
+	const mobileLayout = useMobileLayout();
+
 	return (
 		<div
-			className="flex flex-row gap-3 cursor-pointer select-none items-center"
+			className={cn(
+				'flex flex-row gap-3 cursor-pointer select-none',
+				mobileLayout ? 'items-start' : 'items-center',
+			)}
 			onClick={() => onChange(!checked)}
 		>
-			<Switch
-				active={checked}
-				onToggle={() => onChange(!checked)}
-				aria-label={title}
-			/>
+			<div className={cn('flex shrink-0', mobileLayout && 'pt-1')}>
+				<Switch
+					active={checked}
+					onToggle={() => onChange(!checked)}
+					aria-label={title}
+				/>
+			</div>
 			<div className="flex flex-col">
 				<div className="fontbrand font-bold text-lg flex flex-row items-center gap-1">
 					{title}
@@ -254,19 +310,17 @@ const SectionCheckbox: React.FC<{
 				<div className="text-muted fontbrand text-sm">{subtitle}</div>
 			</div>
 			<div className="flex-1" />
-			<div
-				className={cn(
-					'fontbrand text-muted transition-opacity duration-150',
-					checked ? 'hidden' : 'opacity-100',
-				)}
-			>
-				Not selected
-			</div>
+			{checked || mobileLayout ? null : (
+				<div className="fontbrand text-muted transition-opacity duration-150">
+					Not selected
+				</div>
+			)}
 		</div>
 	);
 };
 
 export const CompanyPricing: React.FC = () => {
+	const mobileLayout = useMobileLayout();
 	const [creatorsSelected, setCreatorsSelected] = React.useState(false);
 	const [automatorsSelected, setAutomatorsSelected] = React.useState(true);
 	const [devSeatCount, setDevSeatCount] = React.useState(3);
@@ -305,16 +359,36 @@ export const CompanyPricing: React.FC = () => {
 
 	const showEnterpriseMessage = totalPrice >= 500;
 
+	const bottomMessage = showMinimumMessage
+		? 'minimum'
+		: showEnterpriseMessage
+			? 'enterprise'
+			: null;
+
 	return (
 		<Container>
-			<Audience>For collaborations and companies of 4+ people</Audience>
+			<Audience>
+				Required for collaborations and companies of 4+ people
+			</Audience>
 			<Title>Company License</Title>
 			<PricingBulletPoint text="Create and automate" checked />
 			<PricingBulletPoint text="Commercial use allowed" checked />
 			<PricingBulletPoint text="Pay according to usage" checked />
 			<PricingBulletPoint text="Prioritized Support" checked />
 			<PricingBulletPoint
-				text="$250 Mux credits (applies only to new Mux customers)"
+				text={
+					<span className="fontbrand">
+						$250{' '}
+						<a
+							href="https://www.mux.com/"
+							target="_blank"
+							className="underline underline-offset-4 text-inherit font-brand"
+						>
+							Mux
+						</a>{' '}
+						credits (for new Mux customers)
+					</span>
+				}
 				checked
 			/>
 			<div style={{height: 30}} />
@@ -324,7 +398,13 @@ export const CompanyPricing: React.FC = () => {
 				checked={automatorsSelected}
 				onChange={setAutomatorsSelected}
 				title="Remotion for Automators"
-				subtitle="Build video creation tools - $0.01 per render, $100/mo minimum"
+				subtitle={
+					<>
+						Build video creation tools
+						{mobileLayout ? <br /> : ' - '}
+						$0.01 per render, $100/mo minimum
+					</>
+				}
 			/>
 			<div
 				className={cn(
@@ -340,13 +420,11 @@ export const CompanyPricing: React.FC = () => {
 				}}
 				inert={!automatorsSelected}
 			>
-				<div className="overflow-hidden">
-					<p className="text-sm text-muted fontbrand pt-3 pb-1">
-						Intended for companies launching applications and systems; such as
-						video editors, prompt-to-video apps, embedding the Remotion Player,
-						or any other automated video creation. A $100/mo Minimum Spend
-						applies. Developers working on automation projects do not require a
-						Seat.
+				<div className="overflow-hidden pb-2">
+					<p className="text-sm text-muted fontbrand pt-3 pb-1 text-balance">
+						For batch rendering and automated video products, such as video
+						editors, prompt-to-video apps, and embedding the Remotion Player.
+						Developers working on automation projects do not need a Seat.
 					</p>
 					<div className="flex flex-row items-center gap-3 sm:gap-4 w-full pt-3 pb-1">
 						<div className="flex-1 min-w-0">
@@ -360,7 +438,7 @@ export const CompanyPricing: React.FC = () => {
 							/>
 						</div>
 
-						<div className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-right tabular-nums">
+						<div className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-left tabular-nums">
 							{new Intl.NumberFormat('en-US').format(cloudRenders)} Renders
 						</div>
 
@@ -381,7 +459,13 @@ export const CompanyPricing: React.FC = () => {
 				checked={creatorsSelected}
 				onChange={setCreatorsSelected}
 				title="Remotion for Creators"
-				subtitle="Create videos for yourself - $25/mo per seat"
+				subtitle={
+					<>
+						Create videos for yourself
+						{mobileLayout ? <br /> : ' - '}
+						$25/mo per seat
+					</>
+				}
 			/>
 			<div
 				className={cn(
@@ -397,11 +481,11 @@ export const CompanyPricing: React.FC = () => {
 				}}
 				inert={!creatorsSelected}
 			>
-				<div className="overflow-hidden">
-					<p className="text-sm text-muted fontbrand pt-3 pb-1">
-						Intended for low volume video creations through coding and
-						prompting, and building motion design systems in a local
-						environment. Get 1 Seat per user.
+				<div className="overflow-hidden pb-2">
+					<p className="text-sm text-muted fontbrand pt-3 pb-1 text-balance">
+						For low volume manual video creations, and building motion design
+						systems in a local environment (including using AI agents and
+						Remotion Studio). Get 1 Seat per user.
 					</p>
 					<div className="flex flex-row items-center gap-3 sm:gap-4 w-full pt-3 pb-1">
 						<div className="flex-1 min-w-0">
@@ -414,7 +498,7 @@ export const CompanyPricing: React.FC = () => {
 							/>
 						</div>
 
-						<div className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-center tabular-nums">
+						<div className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-left tabular-nums">
 							{devSeatCount} {devSeatCount === 1 ? 'Seat' : 'Seats'}
 						</div>
 
@@ -433,28 +517,40 @@ export const CompanyPricing: React.FC = () => {
 				<div className="fontbrand text-muted text-sm">Total</div>
 				<PriceTag>{totalPriceString}/month</PriceTag>
 			</div>
-			<div className="flex flex-col items-end">
-				<BottomInfo
-					data-visible={showMinimumMessage}
-					className="opacity-0 data-[visible=true]:opacity-100 transition-opacity mt-1"
-				>
-					The minimum is $100 per month for Remotion for Automators
-				</BottomInfo>
-				<BottomInfo
-					data-visible={showEnterpriseMessage}
-					className="opacity-0 data-[visible=true]:opacity-100 transition-opacity mt-1"
-				>
-					At this spend, you are eligible for the Enterprise License.
-					<br /> You can select it when setting up your license, or{' '}
-					<a
-						className="bluelink"
-						target="_blank"
-						href="https://www.remotion.pro/contact"
-					>
-						contact us
-					</a>
-					.
-				</BottomInfo>
+			<div
+				className={cn(
+					'grid ease-out',
+					bottomMessage
+						? 'grid-rows-[1fr] opacity-100'
+						: 'grid-rows-[0fr] opacity-0',
+				)}
+				style={{
+					transition: bottomMessage
+						? 'grid-template-rows 150ms ease-out, opacity 150ms ease-out 75ms'
+						: 'opacity 150ms ease-out, grid-template-rows 150ms ease-out 75ms',
+				}}
+				inert={!bottomMessage}
+			>
+				<div className="overflow-hidden flex flex-col items-stretch text-left">
+					<BottomInfo className="mt-1">
+						{bottomMessage === 'minimum' ? (
+							'The minimum is $100 per month for Remotion for Automators'
+						) : (
+							<>
+								At this spend, you are eligible for the Enterprise License.
+								<br /> You can select it when setting up your license, or{' '}
+								<a
+									className="bluelink"
+									target="_blank"
+									href="https://www.remotion.pro/contact"
+								>
+									contact us
+								</a>
+								.
+							</>
+						)}
+					</BottomInfo>
+				</div>
 			</div>
 			<div className={'flex flex-row justify-end mt-4'}>
 				<div
@@ -465,7 +561,7 @@ export const CompanyPricing: React.FC = () => {
 				>
 					<a
 						href="https://remotion.pro/dashboard"
-						className="font-brand text-brand flex flex-row items-center gap-1 no-underline"
+						className="bluelink font-brand flex flex-row items-center gap-1"
 					>
 						Buy now{' '}
 						<svg

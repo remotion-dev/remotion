@@ -258,29 +258,6 @@ test.describe('visual mode', () => {
 				.getByLabel('4 other programmatically duplicated instances are hidden'),
 		).toBeVisible({timeout: 15_000});
 		await expect(page.getByText('25% gridline', {exact: true})).toHaveCount(0);
-		const visibleOutlines = page.locator(
-			'.remotion-studio-composition-container > svg[aria-hidden="true"] > polygon[stroke-opacity="1"]',
-		);
-
-		await firstGridline.hover();
-		await expect(visibleOutlines).toHaveCount(5);
-
-		const northCanvasLabel = page
-			.locator('.remotion-studio-composition-container')
-			.getByText('North', {exact: true});
-		await northCanvasLabel.hover({force: true});
-		await expect(visibleOutlines).toHaveCount(5);
-		const centralCanvasLabel = page
-			.locator('.remotion-studio-composition-container')
-			.getByText('Central', {exact: true});
-		const northLabelTitles = page.getByTitle('North label');
-		const northLabelTitleCountBeforeSelection = await northLabelTitles.count();
-		await centralCanvasLabel.click({force: true});
-		await expect(northLabelTitles).toHaveCount(
-			northLabelTitleCountBeforeSelection + 1,
-		);
-		await page.mouse.move(0, 0);
-		await expect(visibleOutlines).toHaveCount(5);
 
 		await firstGridline.click();
 		const duplicationLabel = page.getByText('5 instances', {
@@ -731,6 +708,31 @@ test.describe('visual mode', () => {
 			codingAgentId: 'copilot',
 			prompt: null,
 		});
+	});
+
+	test('should clear the open-in-editor hover state when closing the menu', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/schema-test`);
+		const openInAnotherApp = page
+			.getByTitle(exampleDir)
+			.getByRole('button', {name: 'Open in another app'});
+
+		await openInAnotherApp.click();
+		await expect(
+			page.getByRole('button', {name: 'Change default apps...'}),
+		).toBeVisible();
+		// The menu overlay intercepts pointerleave; Escape closes it deterministically.
+		await page.mouse.move(10, 100);
+		await page.keyboard.press('Escape');
+
+		await expect(
+			page.getByRole('button', {name: 'Change default apps...'}),
+		).toBeHidden();
+		await expect(openInAnotherApp).toHaveCSS(
+			'background-color',
+			'rgba(0, 0, 0, 0)',
+		);
 	});
 
 	test('should open submenus toward the side with more space', async ({

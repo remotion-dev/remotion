@@ -116,6 +116,7 @@ type AddRenderRequestDynamicFields =
 			scale: number;
 			logLevel: LogLevel;
 			chromeMode: ChromeMode;
+			licenseKey: string | null;
 	  }
 	| {
 			type: 'sequence';
@@ -162,6 +163,7 @@ type AddRenderRequestDynamicFields =
 			hardwareAcceleration: HardwareAccelerationOption;
 			chromeMode: ChromeMode;
 			sampleRate: number;
+			licenseKey: string | null;
 	  };
 
 export type CancelRenderRequest = {
@@ -264,6 +266,15 @@ export type RenameStaticFileRequest = {
 
 export type RenameStaticFileResponse = {
 	success: boolean;
+};
+
+export type CopyRenderOutputToAssetRequest = {
+	outputPath: string;
+	assetPath: string;
+};
+
+export type CopyRenderOutputToAssetResponse = {
+	created: boolean;
 };
 
 export type CanUpdateDefaultPropsResponse =
@@ -1229,6 +1240,10 @@ export type ApiRoutes = {
 	'/api/rename-static-file': ReqAndRes<
 		RenameStaticFileRequest,
 		RenameStaticFileResponse
+	>;
+	'/api/copy-render-output-to-asset': ReqAndRes<
+		CopyRenderOutputToAssetRequest,
+		CopyRenderOutputToAssetResponse
 	>;
 	'/api/restart-studio': ReqAndRes<RestartStudioRequest, RestartStudioResponse>;
 	'/api/update-config': ReqAndRes<UpdateConfigRequest, UpdateConfigResponse>;
