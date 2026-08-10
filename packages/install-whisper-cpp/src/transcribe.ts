@@ -211,6 +211,8 @@ const transcribeToTemporaryFile = async ({
 			// Sometimes it hangs here, but only after the output is written. Where
 			// Metal exists yet cannot be used, Whisper prints the same line while
 			// falling back to CPU at startup, so wait for evidence of actual work.
+			// If progress is disabled and a stale output exists, we deliberately let
+			// Whisper continue rather than risk killing it and returning stale data.
 			if (
 				str.includes('ggml_metal_free: deallocating') &&
 				(sawProgress || (!staleOutput && existsSync(predictedPath)))
