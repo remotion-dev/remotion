@@ -9,12 +9,22 @@ import {startStudio, stopStudio} from './studio-server.mts';
 
 test.use({storageState: EXPANDED_SIDEBAR_STATE});
 
+let visualMode3DSourceBefore: string;
+
 const read2DTransformRotation = () => {
 	const source = fs.readFileSync(visualMode3DFile, 'utf-8');
 	const sequenceStart = source.indexOf('name="2D transform"');
 	const sequenceEnd = source.indexOf('name="3D transform"');
 	const sequenceSource = source.slice(sequenceStart, sequenceEnd);
 	return /rotate: '([^']+)'/.exec(sequenceSource)?.[1] ?? null;
+};
+
+const read2DTransformScale = () => {
+	const source = fs.readFileSync(visualMode3DFile, 'utf-8');
+	const sequenceStart = source.indexOf('name="2D transform"');
+	const sequenceEnd = source.indexOf('name="3D transform"');
+	const sequenceSource = source.slice(sequenceStart, sequenceEnd);
+	return /scale: ([^,}\n]+)/.exec(sequenceSource)?.[1] ?? null;
 };
 
 const read3DTransformRotation = () => {
@@ -26,11 +36,13 @@ const read3DTransformRotation = () => {
 
 test.describe('inspector section collapse', () => {
 	test.beforeEach(async () => {
+		visualMode3DSourceBefore = fs.readFileSync(visualMode3DFile, 'utf-8');
 		await startStudio();
 	});
 
 	test.afterEach(async () => {
 		await stopStudio();
+		fs.writeFileSync(visualMode3DFile, visualMode3DSourceBefore);
 	});
 
 	test('selects 3D rotation from the sequence context menu', async ({page}) => {
@@ -61,6 +73,69 @@ test.describe('inspector section collapse', () => {
 				exact: true,
 			}),
 		).toBeVisible();
+
+		const rightScaleEdge = page
+			.locator(
+				'[data-remotion-studio-scale-edge="right"][data-remotion-studio-scale-edge-contains-selection="true"]',
+			)
+			.first();
+		await expect(rightScaleEdge).toHaveCount(1);
+		const edgeCenter = await rightScaleEdge.evaluate((element) => {
+			if (!(element instanceof SVGLineElement)) {
+				throw new Error('Scale edge should be an SVG line');
+			}
+
+			const matrix = element.getScreenCTM();
+			if (matrix === null) {
+				throw new Error('Scale edge should have a screen transform');
+			}
+
+			return new DOMPoint(
+				(element.x1.baseVal.value + element.x2.baseVal.value) / 2,
+				(element.y1.baseVal.value + element.y2.baseVal.value) / 2,
+			).matrixTransform(matrix);
+		});
+		expect(
+			await page.evaluate(
+				({x, y}) =>
+					document
+						.elementFromPoint(x, y)
+						?.getAttribute('data-remotion-studio-scale-edge') ?? null,
+				{x: edgeCenter.x, y: edgeCenter.y},
+			),
+		).toBe('right');
+
+		const scaleBefore = read2DTransformScale();
+		await rightScaleEdge.dispatchEvent('pointerdown', {
+			button: 0,
+			buttons: 1,
+			clientX: edgeCenter.x,
+			clientY: edgeCenter.y,
+			pointerId: 1,
+		});
+		await page.evaluate(
+			({x, y}) => {
+				window.dispatchEvent(
+					new PointerEvent('pointermove', {
+						buttons: 1,
+						clientX: x + 60,
+						clientY: y,
+						pointerId: 1,
+					}),
+				);
+				window.dispatchEvent(
+					new PointerEvent('pointerup', {
+						button: 0,
+						buttons: 0,
+						clientX: x + 60,
+						clientY: y,
+						pointerId: 1,
+					}),
+				);
+			},
+			{x: edgeCenter.x, y: edgeCenter.y},
+		);
+		await expect.poll(read2DTransformScale).not.toBe(scaleBefore);
 	});
 
 	test('collapses inactive static sections and lets the user expand them', async ({
@@ -303,7 +378,7 @@ test.describe('inspector section collapse', () => {
 		).toBeVisible();
 		await expect(
 			page.getByRole('button', {name: 'Rotation X', exact: true}).first(),
-		).toContainText('X 30');
+		).not.toContainText('X ');
 		await page.getByTitle('Rotation', {exact: true}).click();
 		const rotationX = page
 			.getByRole('button', {name: 'Rotation X', exact: true})

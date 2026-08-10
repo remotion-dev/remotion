@@ -280,6 +280,10 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 				vectorEffect="non-scaling-stroke"
 				pointerEvents="stroke"
 				cursor={edgeInfo.cursor}
+				data-remotion-studio-scale-edge={edge}
+				data-remotion-studio-scale-edge-contains-selection={
+					target?.containsSelection ?? false
+				}
 				onPointerEnter={() => {
 					if (!dragging) {
 						onHoverChange(outline.key);
