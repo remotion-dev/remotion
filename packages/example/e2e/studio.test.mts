@@ -271,9 +271,20 @@ test.describe('visual mode', () => {
 				exact: true,
 			});
 			await expect(defaultTerminal).toContainText('Ghostty');
-			await expect(
-				defaultTerminal.locator('[data-terminal-icon="ghostty"]'),
-			).toBeVisible();
+			const ghosttyIcon = defaultTerminal.locator(
+				'img[data-terminal-icon="ghostty"]',
+			);
+			await expect(ghosttyIcon).toHaveAttribute(
+				'src',
+				'/api/app-icon/terminal/ghostty.png',
+			);
+			await expect
+				.poll(() =>
+					ghosttyIcon.evaluate(
+						(image) => (image as HTMLImageElement).naturalWidth,
+					),
+				)
+				.toBe(72);
 			await dialog.getByText('License', {exact: true}).click();
 			await expect(dialog.locator('input[name="free-license"]')).toBeChecked();
 			expect({codingAgentInfoRequests, editorInfoRequests}).toEqual({

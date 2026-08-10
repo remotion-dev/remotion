@@ -27,6 +27,7 @@ test('serves app artwork as PNGs', async () => {
 		for (const [url, expectedWidth] of [
 			['/api/app-icon/coding-agent/codex.png', 64],
 			['/api/app-icon/file-manager/finder.png', 36],
+			['/api/app-icon/terminal/ghostty.png', 72],
 			['/api/app-icon/terminal/terminal.png', 72],
 		] as const) {
 			const response = await fetch(`http://127.0.0.1:${address.port}${url}`);

@@ -15,10 +15,6 @@ const iconStyle = (size: number): React.CSSProperties => ({
 const simpleTerminalIcons: Partial<
 	Record<DefaultTerminal, {readonly color: string; readonly path: string}>
 > = {
-	ghostty: {
-		color: '#3551F3',
-		path: 'M12 0C6.7 0 2.4 4.3 2.4 9.6v11.146c0 1.772 1.45 3.267 3.222 3.254a3.18 3.18 0 0 0 1.955-.686 1.96 1.96 0 0 1 2.444 0 3.18 3.18 0 0 0 1.976.686c.75 0 1.436-.257 1.98-.686.715-.563 1.71-.587 2.419-.018.59.476 1.355.743 2.182.699 1.705-.094 3.022-1.537 3.022-3.244V9.601C21.6 4.3 17.302 0 12 0M6.069 6.562a1 1 0 0 1 .46.131l3.578 2.065v.002a.974.974 0 0 1 0 1.687L6.53 12.512a.975.975 0 0 1-.976-1.687L7.67 9.602 5.553 8.38a.975.975 0 0 1 .515-1.818m7.438 2.063h4.7a.975.975 0 1 1 0 1.95h-4.7a.975.975 0 0 1 0-1.95',
-	},
 	warp: {
 		color: '#01A4FF',
 		path: 'M12.035 2.723h9.253A2.712 2.712 0 0 1 24 5.435v10.529a2.712 2.712 0 0 1-2.712 2.713H8.047Zm-1.681 2.6L6.766 19.677h5.598l-.399 1.6H2.712A2.712 2.712 0 0 1 0 18.565V8.036a2.712 2.712 0 0 1 2.712-2.712Z',
@@ -44,6 +40,7 @@ export const TerminalIcon: React.FC<{
 	const hasArtwork =
 		terminalId === 'terminal' ||
 		terminalId === 'iterm2' ||
+		terminalId === 'ghostty' ||
 		terminalId === 'windows-terminal';
 	if (hasArtwork) {
 		return (
