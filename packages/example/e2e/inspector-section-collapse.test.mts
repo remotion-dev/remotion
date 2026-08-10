@@ -126,6 +126,17 @@ test.describe('inspector section collapse', () => {
 		await expect(
 			page.getByRole('button', {name: 'Scale Z', exact: true}),
 		).toBeVisible();
+		const scaleLabelBox = await page
+			.getByTitle('Scale', {exact: true})
+			.boundingBox();
+		const scaleZBox = await page
+			.getByRole('button', {name: 'Scale Z', exact: true})
+			.boundingBox();
+		if (scaleLabelBox === null || scaleZBox === null) {
+			throw new Error('Scale controls should have a visible layout');
+		}
+
+		expect(scaleZBox.y).toBeGreaterThan(scaleLabelBox.y + scaleLabelBox.height);
 		await expect(
 			page.getByRole('button', {name: 'Rotation X', exact: true}),
 		).toBeVisible();
