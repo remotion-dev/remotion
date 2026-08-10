@@ -353,6 +353,7 @@
         "@remotion/captions": "workspace:*",
         "@remotion/design": "workspace:*",
         "@remotion/layout-utils": "workspace:*",
+        "@remotion/mac-cursors": "workspace:*",
         "@remotion/media": "workspace:*",
         "@remotion/paths": "workspace:*",
         "@remotion/player": "workspace:*",
@@ -760,6 +761,7 @@
         "@remotion/layout-utils": "workspace:*",
         "@remotion/light-leaks": "workspace:*",
         "@remotion/lottie": "workspace:*",
+        "@remotion/mac-cursors": "workspace:*",
         "@remotion/media": "workspace:*",
         "@remotion/media-parser": "workspace:*",
         "@remotion/media-utils": "workspace:*",
@@ -1128,6 +1130,24 @@
       },
       "peerDependencies": {
         "lottie-web": "^5",
+        "react": ">=16.8.0",
+        "react-dom": ">=16.8.0",
+      },
+    },
+    "packages/mac-cursors": {
+      "name": "@remotion/mac-cursors",
+      "version": "4.0.507",
+      "dependencies": {
+        "remotion": "workspace:*",
+      },
+      "devDependencies": {
+        "@remotion/eslint-config-internal": "workspace:*",
+        "@typescript/native-preview": "catalog:",
+        "eslint": "catalog:",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+      },
+      "peerDependencies": {
         "react": ">=16.8.0",
         "react-dom": ">=16.8.0",
       },
@@ -4163,6 +4183,8 @@
     "@remotion/light-leaks": ["@remotion/light-leaks@workspace:packages/light-leaks"],
 
     "@remotion/lottie": ["@remotion/lottie@workspace:packages/lottie"],
+
+    "@remotion/mac-cursors": ["@remotion/mac-cursors@workspace:packages/mac-cursors"],
 
     "@remotion/mcp": ["@remotion/mcp@workspace:packages/mcp"],
 
@@ -9919,6 +9941,10 @@
     "@remotion/lottie/react": ["react@19.2.3", "", {}, "sha512-Ku/hhYbVjOQnXDZFv2+RibmLFGwFdeeKHFcOTlrt7xplBnya5OGn/hIRDsqDiSUcfORsDC7MPxwork8jBwsIWA=="],
 
     "@remotion/lottie/react-dom": ["react-dom@19.2.3", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.3" } }, "sha512-yELu4WmLPw5Mr/lmeEpox5rw3RETacE++JgHqQzd2dg+YbJuat3jH4ingc+WPZhxaoFzdv9y33G+F7Nl5O0GBg=="],
+
+    "@remotion/mac-cursors/react": ["react@19.2.3", "", {}, "sha512-Ku/hhYbVjOQnXDZFv2+RibmLFGwFdeeKHFcOTlrt7xplBnya5OGn/hIRDsqDiSUcfORsDC7MPxwork8jBwsIWA=="],
+
+    "@remotion/mac-cursors/react-dom": ["react-dom@19.2.3", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.3" } }, "sha512-yELu4WmLPw5Mr/lmeEpox5rw3RETacE++JgHqQzd2dg+YbJuat3jH4ingc+WPZhxaoFzdv9y33G+F7Nl5O0GBg=="],
 
     "@remotion/mcp/zod": ["zod@4.1.13", "", {}, "sha512-AvvthqfqrAhNH9dnfmrfKzX5upOdjUVJYFqNSlkmGf64gRaTzlPwz99IHYnVs28qYAybvAlBV+H7pn0saFY4Ig=="],
 

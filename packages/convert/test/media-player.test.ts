@@ -2,6 +2,7 @@ import {expect, test} from 'bun:test';
 import {
 	getDurationInFrames,
 	getPlayerDimensions,
+	getPlayerFps,
 	getVideoPreviewStyle,
 } from '../app/components/MediaPlayer';
 
@@ -50,4 +51,10 @@ test('uses exported video geometry without changing player timing', () => {
 		height: 1080,
 		transform: 'translate(-50%, -50%) scale(-1, 1) rotate(90deg)',
 	});
+});
+
+test('uses the probed FPS in the player', () => {
+	expect(getPlayerFps(1.54)).toBe(1.54);
+	expect(getPlayerFps(120)).toBe(120);
+	expect(getPlayerFps(null)).toBe(30);
 });

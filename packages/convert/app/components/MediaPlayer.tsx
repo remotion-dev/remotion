@@ -8,13 +8,17 @@ import {
 	type Dimensions,
 	normalizeVideoRotation,
 } from '~/lib/calculate-new-dimensions-from-dimensions';
+import type {CanvasCaptureCursorData} from '~/lib/canvas-capture-metadata';
 import type {Source} from '~/lib/convert-state';
 import {cn} from '~/lib/utils';
 import {AudioWaveForm, AudioWaveformContainer} from './AudioWaveform';
+import {CanvasCaptureCursor} from './CanvasCaptureCursor';
 import {CropUI} from './crop-ui/CropUi';
 import {Filmstrip} from './player/filmstrip';
 
-export const getPlayerFps = (fps: number | null | undefined) => {
+export const getPlayerFps = (
+	fps: number | null | undefined,
+) => {
 	if (typeof fps !== 'number' || !Number.isFinite(fps) || fps <= 0) {
 		return 30;
 	}
@@ -119,7 +123,18 @@ const RemotionMediaPreview: React.FC<{
 	readonly rotation: number;
 	readonly mirrorHorizontal: boolean;
 	readonly mirrorVertical: boolean;
-}> = ({src, isAudio, waveform, rotation, mirrorHorizontal, mirrorVertical}) => {
+	readonly cursorData: CanvasCaptureCursorData | null;
+	readonly cursorScale: number;
+}> = ({
+	src,
+	isAudio,
+	waveform,
+	rotation,
+	mirrorHorizontal,
+	mirrorVertical,
+	cursorData,
+	cursorScale,
+}) => {
 	const frame = useCurrentFrame();
 	const {durationInFrames, width, height} = useVideoConfig();
 	const progress = frame / Math.max(1, durationInFrames - 1);
@@ -127,9 +142,7 @@ const RemotionMediaPreview: React.FC<{
 	if (!isAudio) {
 		return (
 			<AbsoluteFill style={{backgroundColor: 'black'}}>
-				<Video
-					src={src}
-					objectFit="contain"
+				<div
 					style={getVideoPreviewStyle({
 						width,
 						height,
@@ -137,7 +150,15 @@ const RemotionMediaPreview: React.FC<{
 						mirrorHorizontal,
 						mirrorVertical,
 					})}
-				/>
+				>
+					<Video src={src} style={{width: '100%', height: '100%'}} />
+					{cursorData ? (
+						<CanvasCaptureCursor
+							cursorData={cursorData}
+							cursorScale={cursorScale}
+						/>
+					) : null}
+				</div>
 			</AbsoluteFill>
 		);
 	}
@@ -170,6 +191,9 @@ export function VideoPlayer({
 	rotation,
 	mirrorHorizontal,
 	mirrorVertical,
+	cursorData,
+	showCursor,
+	cursorScale,
 	onPlaybackTimeChange,
 }: {
 	readonly src: Source;
@@ -188,6 +212,9 @@ export function VideoPlayer({
 	readonly rotation: number;
 	readonly mirrorHorizontal: boolean;
 	readonly mirrorVertical: boolean;
+	readonly cursorData: CanvasCaptureCursorData | null;
+	readonly showCursor: boolean;
+	readonly cursorScale: number;
 	readonly onPlaybackTimeChange: (timeInSeconds: number) => void;
 	readonly setUnclampedRect: React.Dispatch<
 		React.SetStateAction<CropRectangle>
@@ -294,6 +321,8 @@ export function VideoPlayer({
 							rotation,
 							mirrorHorizontal,
 							mirrorVertical,
+							cursorData: showCursor ? cursorData : null,
+							cursorScale,
 						}}
 						durationInFrames={durationInFrames}
 						compositionWidth={playerDimensions.width}
