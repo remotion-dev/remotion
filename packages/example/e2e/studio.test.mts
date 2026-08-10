@@ -87,6 +87,44 @@ test.describe('visual mode', () => {
 		await expect(page).toHaveTitle(/Remotion/i, {timeout: 15_000});
 	});
 
+	test('should keep canvas item context menus open', async ({page}) => {
+		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
+		await expect(
+			page.getByRole('button', {name: '0', exact: true}),
+		).toBeVisible({timeout: 15_000});
+		await page.locator('[data-timeline-scrubber]').click();
+		await expect(
+			page.getByRole('button', {name: '90', exact: true}),
+		).toBeVisible();
+
+		const canvasItem = page.getByText('Performance overview', {exact: true});
+		const canvasItemBox = await canvasItem.boundingBox();
+		if (canvasItemBox === null) {
+			throw new Error('Canvas item has no bounding box');
+		}
+
+		const canvasItemCenter = {
+			x: canvasItemBox.x + canvasItemBox.width / 2,
+			y: canvasItemBox.y + canvasItemBox.height / 2,
+		};
+		await page.mouse.move(canvasItemCenter.x, canvasItemCenter.y);
+		await page.waitForTimeout(100);
+		await page.mouse.click(canvasItemCenter.x, canvasItemCenter.y, {
+			button: 'right',
+		});
+		await page.mouse.move(10, 10);
+		// Portals do not reliably trigger pointerleave in headless Chromium.
+		await page
+			.locator('.remotion-studio-composition-container')
+			.dispatchEvent('pointerleave');
+
+		const duplicateButton = page.getByRole('button', {
+			name: 'Duplicate',
+			exact: true,
+		});
+		await expect(duplicateButton).toBeVisible();
+	});
+
 	test('should compensate DOM measurements with useCurrentScale() on direct load', async ({
 		page,
 	}) => {

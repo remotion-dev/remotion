@@ -3,6 +3,7 @@ import type {
 	InputAudioTrack,
 	InputVideoTrack,
 	OutputFormat,
+	VideoCodec,
 } from 'mediabunny';
 import {getEncodableAudioCodecs, getEncodableVideoCodecs} from 'mediabunny';
 import type {AudioOperation, VideoOperation} from './audio-operation';
@@ -12,6 +13,23 @@ import {
 } from './calculate-new-dimensions-from-dimensions';
 import type {MediabunnyResize} from './mediabunny-calculate-resize-option';
 import {ensureAudioEncoderRegistered} from './register-audio-encoder';
+
+export const prioritizeInputVideoCodec = ({
+	inputVideoCodec,
+	supportedCodecs,
+}: {
+	inputVideoCodec: VideoCodec;
+	supportedCodecs: VideoCodec[];
+}): VideoCodec[] => {
+	if (!supportedCodecs.includes(inputVideoCodec)) {
+		return supportedCodecs;
+	}
+
+	return [
+		inputVideoCodec,
+		...supportedCodecs.filter((codec) => codec !== inputVideoCodec),
+	];
+};
 
 const canEncodeAudioCodec = async ({
 	codec,
@@ -109,9 +127,13 @@ export const getVideoTranscodingOptions = async ({
 	});
 
 	const supportedCodecsByContainer = outputContainer.getSupportedVideoCodecs();
+	const codecsByPreference = prioritizeInputVideoCodec({
+		inputVideoCodec,
+		supportedCodecs: supportedCodecsByContainer,
+	});
 
 	const configs: VideoOperation[] = [];
-	for (const codec of supportedCodecsByContainer) {
+	for (const codec of codecsByPreference) {
 		const codecs = await getEncodableVideoCodecs([codec], {
 			height,
 			width,

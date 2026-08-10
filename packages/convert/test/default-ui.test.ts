@@ -83,18 +83,21 @@ test('uses conversion defaults when enabling convert controls', () => {
 		getDefaultConvertOutputFormat({
 			inputContainer: MP4,
 			action: {type: 'generic-trim'},
+			cursorMetadataDetected: false,
 		}),
 	).toBe('webm');
 	expect(
 		getDefaultConvertOutputFormat({
 			inputContainer: HLS,
 			action: {type: 'generic-trim'},
+			cursorMetadataDetected: false,
 		}),
 	).toBe('mp4');
 	expect(
 		getDefaultConvertOutputFormat({
 			inputContainer: MP4,
 			action: {type: 'convert', input: 'mp4', output: 'mov'},
+			cursorMetadataDetected: false,
 		}),
 	).toBe('mov');
 });
@@ -104,12 +107,31 @@ test('uses conversion defaults on conversion pages', () => {
 		getDefaultConvertOutputFormat({
 			inputContainer: MP4,
 			action: {type: 'generic-convert'},
+			cursorMetadataDetected: false,
 		}),
 	).toBe('webm');
 	expect(
 		getDefaultConvertOutputFormat({
 			inputContainer: HLS,
 			action: {type: 'generic-convert'},
+			cursorMetadataDetected: false,
 		}),
 	).toBe('mp4');
+});
+
+test('keeps the input container when cursor metadata is detected', () => {
+	expect(
+		getDefaultConvertOutputFormat({
+			inputContainer: MP4,
+			action: {type: 'generic-convert'},
+			cursorMetadataDetected: true,
+		}),
+	).toBe('mp4');
+	expect(
+		getDefaultConvertOutputFormat({
+			inputContainer: WEBM,
+			action: {type: 'generic-convert'},
+			cursorMetadataDetected: true,
+		}),
+	).toBe('webm');
 });

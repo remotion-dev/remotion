@@ -10,6 +10,10 @@ import {useCallback, useEffect, useMemo, useState} from 'react';
 import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import type {Source} from '~/lib/convert-state';
 import {getDurationOrCompute} from '~/lib/get-duration-or-compute';
+import {
+	getVideoFrameRate,
+	type VideoFrameRate,
+} from '~/lib/get-video-frame-rate';
 
 export type ProbeResult = ReturnType<typeof useProbe>;
 
@@ -17,7 +21,9 @@ export const useProbe = ({src}: {src: Source}) => {
 	const [audioCodec, setAudioCodec] = useState<
 		InputAudioTrack['codec'] | null | undefined
 	>(undefined);
-	const [fps, setFps] = useState<number | null | undefined>(undefined);
+	const [frameRate, setFrameRate] = useState<
+		VideoFrameRate | null | undefined
+	>(undefined);
 	const [isHdr, setHdr] = useState<boolean | undefined>(undefined);
 	const [durationInSeconds, setDurationInSeconds] = useState<
 		number | null | undefined
@@ -53,6 +59,7 @@ export const useProbe = ({src}: {src: Source}) => {
 		const run = async () => {
 			input.getFormat().then((format) => setContainer(format));
 			input.source.getSize().then((s) => setSize(s));
+			getVideoFrameRate(input).then(setFrameRate);
 			getDurationOrCompute(input).then((duration) =>
 				setDurationInSeconds(duration),
 			);
@@ -80,9 +87,6 @@ export const useProbe = ({src}: {src: Source}) => {
 					hasVideoTrack = true;
 					const codec = await track.getCodec();
 					setVideoCodec(codec);
-					track
-						.computePacketStats(50)
-						.then((stats) => setFps(stats.averagePacketRate));
 					const [displayWidth, displayHeight, trackRotation] =
 						await Promise.all([
 							track.getDisplayWidth(),
@@ -112,7 +116,7 @@ export const useProbe = ({src}: {src: Source}) => {
 
 			if (!hasVideoTrack) {
 				setVideoCodec(null);
-				setFps(null);
+				setFrameRate(null);
 				setDimensions(null);
 				setHdr(false);
 			}
@@ -138,11 +142,19 @@ export const useProbe = ({src}: {src: Source}) => {
 		};
 	}, [getStart]);
 
+	const fps =
+		frameRate === undefined || frameRate === null
+			? frameRate
+			: frameRate.type === 'constant'
+				? frameRate.rate
+				: frameRate.max;
+
 	return useMemo(() => {
 		return {
 			tracks,
 			audioCodec,
 			fps,
+			frameRate,
 			name,
 			container,
 			dimensions,
@@ -161,6 +173,7 @@ export const useProbe = ({src}: {src: Source}) => {
 		tracks,
 		audioCodec,
 		fps,
+		frameRate,
 		name,
 		container,
 		dimensions,
