@@ -92,17 +92,9 @@ export const getVideoFrameRate = async (
   });
   const averageInterval =
     intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
-  const toleranceInSeconds = 1 / 1000;
+  const toleranceInSeconds = 1.001 / 1000;
   const intervalSpread = Math.max(...intervals) - Math.min(...intervals);
-  const floatingPointTolerance =
-    Number.EPSILON *
-    Math.max(
-      1,
-      ...sortedTimestamps.map((timestamp) => Math.abs(timestamp)),
-    ) *
-    2;
-  const isConstant =
-    intervalSpread <= toleranceInSeconds + floatingPointTolerance;
+  const isConstant = intervalSpread <= toleranceInSeconds;
 
   if (isConstant) {
     return {
@@ -122,7 +114,7 @@ export const getVideoFrameRate = async (
 Note that:
 
 - Video timestamps have limited precision. For example, Matroska timestamps commonly have millisecond precision, leading to uneven timestamps such as `33 ms`, `67 ms`, and `100 ms`.
-  We still consider this a constant frame rate video, so we allow the intervals to vary by one millisecond.
+  We still consider this a constant frame rate video, so we allow the intervals to vary by slightly more than one millisecond.
 - For the same reason, we snap constant frame rates to common values because the calculation may be slightly off depending on how many packets are read.
   You still want a 30 FPS timeline if the calculation returns, for example, 30.01484 FPS.
 - With too few packet timestamps, some frame rates cannot be distinguished, such as 29.97 and 30 FPS or 59.94 and 60 FPS. We sample 121 packet timestamps to reliably detect these fractional frame rates.
