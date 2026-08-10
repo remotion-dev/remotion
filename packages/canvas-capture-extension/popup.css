@@ -33,8 +33,7 @@ main {
 	font-weight: 650;
 }
 
-.setting,
-.checkbox {
+.setting {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -54,24 +53,6 @@ main {
 
 .setting select {
 	width: 126px;
-}
-
-.checkbox {
-	justify-content: flex-start;
-	color: #ddd;
-	cursor: pointer;
-}
-
-.checkbox input {
-	width: 16px;
-	height: 16px;
-	margin: 0;
-	accent-color: #db2339;
-}
-
-.checkbox:has(input:disabled) {
-	cursor: default;
-	opacity: 0.45;
 }
 
 .row {
