@@ -11,6 +11,7 @@ import {Issue8216} from './Issue8216/Issue8216';
 import {LightLeakExample} from './LightLeak';
 import {LostNodePathRepro} from './LostNodePathE2e/LostNodePathRepro';
 import {NewVideoComp} from './NewVideo';
+import {RotationKeyframeE2e} from './RotationKeyframeE2e';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
 import {VisualControls} from './VisualControls';
 import {VisualMode3D} from './VisualMode3D';
@@ -160,6 +161,14 @@ export const E2eTestRoot: React.FC = () => {
 				height={1080}
 				fps={30}
 				durationInFrames={120}
+			/>
+			<Composition
+				id="rotation-keyframe-e2e"
+				component={RotationKeyframeE2e}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={90}
 			/>
 			<NewVideoComp />
 		</>
