@@ -56,6 +56,7 @@ import {tint} from '@remotion/effects/tint';
 import {uvTranslate, xyTranslate} from '@remotion/effects/translate';
 import {tvSignalOff} from '@remotion/effects/tv-signal-off';
 import {venetianBlinds} from '@remotion/effects/venetian-blinds';
+import {vibrance} from '@remotion/effects/vibrance';
 import {vignette} from '@remotion/effects/vignette';
 import {wave} from '@remotion/effects/wave';
 import {waves} from '@remotion/effects/waves';
@@ -146,6 +147,7 @@ import {
 } from '../effects/effects-translate-preview';
 import {EffectsTvSignalOffPreview} from '../effects/effects-tv-signal-off-preview';
 import {EffectsVenetianBlindsPreview} from '../effects/effects-venetian-blinds-preview';
+import {EffectsVibrancePreview} from '../effects/effects-vibrance-preview';
 import {EffectsVignettePreview} from '../effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../effects/effects-waves-preview';
@@ -259,6 +261,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/white-balance',
 		comp: EffectsWhiteBalancePreview,
 		schema: whiteBalance().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-vibrance',
+		effectName: 'vibrance',
+		effectImportPath: '@remotion/effects/vibrance',
+		comp: EffectsVibrancePreview,
+		schema: vibrance().definition.schema,
 	},
 	{
 		...defaults,

@@ -65,6 +65,7 @@ const effectEntrypoints = [
 	'src/translate.ts',
 	'src/tv-signal-off.ts',
 	'src/venetian-blinds.ts',
+	'src/vibrance.ts',
 	'src/vignette.ts',
 	'src/wave.ts',
 	'src/waves.ts',

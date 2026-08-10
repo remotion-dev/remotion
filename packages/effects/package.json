@@ -324,6 +324,11 @@
 			"module": "./dist/esm/venetian-blinds.mjs",
 			"import": "./dist/esm/venetian-blinds.mjs"
 		},
+		"./vibrance": {
+			"types": "./dist/vibrance.d.ts",
+			"module": "./dist/esm/vibrance.mjs",
+			"import": "./dist/esm/vibrance.mjs"
+		},
 		"./vignette": {
 			"types": "./dist/vignette.d.ts",
 			"module": "./dist/esm/vignette.mjs",
@@ -536,6 +541,9 @@
 			],
 			"venetian-blinds": [
 				"dist/venetian-blinds.d.ts"
+			],
+			"vibrance": [
+				"dist/vibrance.d.ts"
 			],
 			"vignette": [
 				"dist/vignette.d.ts"

@@ -2340,6 +2340,15 @@ export const articles = [
 		slug: 'effects/venetian-blinds',
 	},
 	{
+		id: 'effects/vibrance',
+		title: 'vibrance()',
+		relativePath: 'docs/effects/vibrance.mdx',
+		compId: 'articles-docs-effects-vibrance',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/vibrance',
+	},
+	{
 		id: 'effects/vignette',
 		title: 'vignette()',
 		relativePath: 'docs/effects/vignette.mdx',
