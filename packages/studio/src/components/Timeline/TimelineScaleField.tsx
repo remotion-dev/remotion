@@ -18,11 +18,15 @@ import {timelineLayerIconContainer} from './TimelineLayerEye';
 import {Transform3DModeContext} from './Transform3DModeContext';
 
 const leftDraggerStyle: React.CSSProperties = {
+	paddingBottom: 2,
 	paddingLeft: 0,
+	paddingTop: 2,
 };
 
 const rightDraggerStyle: React.CSSProperties = {
+	paddingBottom: 2,
 	paddingRight: 0,
+	paddingTop: 2,
 };
 
 const containerStyle: React.CSSProperties = {
@@ -498,6 +502,7 @@ export const TimelineScaleField: React.FC<{
 			<InputDragger
 				type="number"
 				value={dragX ?? codeX}
+				buttonStyle={leftDraggerStyle}
 				style={leftDraggerStyle}
 				status="ok"
 				small
@@ -516,6 +521,7 @@ export const TimelineScaleField: React.FC<{
 			<InputDragger
 				type="number"
 				value={dragY ?? codeY}
+				buttonStyle={rightDraggerStyle}
 				style={rightDraggerStyle}
 				status="ok"
 				small
@@ -536,6 +542,7 @@ export const TimelineScaleField: React.FC<{
 					<InputDragger
 						type="number"
 						value={dragZ ?? codeZ}
+						buttonStyle={rightDraggerStyle}
 						style={rightDraggerStyle}
 						status="ok"
 						small

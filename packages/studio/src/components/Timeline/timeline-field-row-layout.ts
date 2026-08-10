@@ -42,6 +42,14 @@ export const timelineFieldValueColumnStyle: React.CSSProperties = {
 	paddingRight: EXPANDED_SECTION_PADDING_RIGHT,
 };
 
+export const timelineCompactStackedFieldValueColumnStyle: React.CSSProperties =
+	{
+		...timelineFieldValueColumnStyle,
+		marginBottom: -2,
+		position: 'relative',
+		top: -2,
+	};
+
 export const timelineStackedFieldContentStyle: React.CSSProperties = {
 	alignSelf: 'stretch',
 	display: 'flex',

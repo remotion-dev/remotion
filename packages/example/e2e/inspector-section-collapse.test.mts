@@ -129,14 +129,22 @@ test.describe('inspector section collapse', () => {
 		const scaleLabelBox = await page
 			.getByTitle('Scale', {exact: true})
 			.boundingBox();
+		const scaleXBox = await page
+			.getByRole('button', {name: 'Scale X', exact: true})
+			.boundingBox();
 		const scaleZBox = await page
 			.getByRole('button', {name: 'Scale Z', exact: true})
 			.boundingBox();
-		if (scaleLabelBox === null || scaleZBox === null) {
+		if (scaleLabelBox === null || scaleXBox === null || scaleZBox === null) {
 			throw new Error('Scale controls should have a visible layout');
 		}
 
-		expect(scaleZBox.y).toBeGreaterThan(scaleLabelBox.y + scaleLabelBox.height);
+		expect(
+			scaleZBox.y - (scaleLabelBox.y + scaleLabelBox.height),
+		).toBeGreaterThanOrEqual(-1);
+		expect(
+			scaleZBox.y - (scaleLabelBox.y + scaleLabelBox.height),
+		).toBeLessThanOrEqual(1);
 		await expect(
 			page.getByRole('button', {name: 'Rotation X', exact: true}),
 		).toBeVisible();
@@ -156,9 +164,13 @@ test.describe('inspector section collapse', () => {
 			throw new Error('Rotation controls should have a visible layout');
 		}
 
-		expect(rotationXBox.y).toBeGreaterThan(
-			rotationLabelBox.y + rotationLabelBox.height,
-		);
+		expect(
+			rotationXBox.y - (rotationLabelBox.y + rotationLabelBox.height),
+		).toBeGreaterThanOrEqual(-1);
+		expect(
+			rotationXBox.y - (rotationLabelBox.y + rotationLabelBox.height),
+		).toBeLessThanOrEqual(1);
+		expect(Math.abs(scaleXBox.x - rotationXBox.x)).toBeLessThanOrEqual(1);
 		await expect(
 			page.getByRole('button', {name: 'Transform origin Z', exact: true}),
 		).toBeVisible();

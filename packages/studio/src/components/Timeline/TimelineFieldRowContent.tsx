@@ -2,6 +2,7 @@ import React, {useContext} from 'react';
 import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
 import {
 	isTimelineFieldStacked,
+	timelineCompactStackedFieldValueColumnStyle,
 	timelineFieldValueColumnStyle,
 	timelineStackedFieldContentStyle,
 } from './timeline-field-row-layout';
@@ -16,6 +17,7 @@ export const TimelineFieldRowContent: React.FC<{
 }> = ({field, rowDepth, selected, children}) => {
 	const transform3DMode = useContext(Transform3DModeContext);
 	const stacked = isTimelineFieldStacked({field, transform3DMode});
+	const compactStacked = stacked && field.typeName !== 'text-content';
 	const label = (
 		<TimelineFieldLabel
 			rowDepth={rowDepth}
@@ -24,7 +26,17 @@ export const TimelineFieldRowContent: React.FC<{
 			stacked={stacked}
 		/>
 	);
-	const value = <div style={timelineFieldValueColumnStyle}>{children}</div>;
+	const value = (
+		<div
+			style={
+				compactStacked
+					? timelineCompactStackedFieldValueColumnStyle
+					: timelineFieldValueColumnStyle
+			}
+		>
+			{children}
+		</div>
+	);
 
 	if (stacked) {
 		return (
