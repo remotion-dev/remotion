@@ -921,7 +921,10 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 		[selectItem],
 	);
 	const measurementActive =
-		canvasHovered || draggingOutline || hoveredSequence?.source === 'timeline';
+		canvasHovered ||
+		draggingOutline ||
+		sequenceKeysContainingSelection.size > 0 ||
+		hoveredSequence?.source === 'timeline';
 	useLayoutEffect(() => {
 		if (measurementActive) {
 			return;
