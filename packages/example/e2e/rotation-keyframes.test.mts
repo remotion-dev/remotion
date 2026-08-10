@@ -1,11 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {expect, test} from '@playwright/test';
-import {
-	EXPANDED_SIDEBAR_STATE,
-	STUDIO_URL,
-	exampleDir,
-} from './constants.mts';
+import {EXPANDED_SIDEBAR_STATE, STUDIO_URL, exampleDir} from './constants.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
 test.use({storageState: EXPANDED_SIDEBAR_STATE});
@@ -18,9 +14,10 @@ const rotationKeyframeFile = path.join(
 
 const readRotationKeyframes = () => {
 	const source = fs.readFileSync(rotationKeyframeFile, 'utf-8');
-	const match = /rotate:\s*interpolate\(\s*frame,\s*\[([^\]]*)\],\s*\[([^\]]*)\]/.exec(
-		source,
-	);
+	const match =
+		/rotate:\s*interpolate\(\s*frame,\s*\[([^\]]*)\],\s*\[([^\]]*)\]/.exec(
+			source,
+		);
 	if (match === null) {
 		throw new Error('Could not read rotation keyframes');
 	}
@@ -55,8 +52,15 @@ test.describe('canvas rotation keyframes', () => {
 			{timeout: 30_000},
 		);
 
-		await page.getByTitle('Keyframed rotation', {exact: true}).first().click();
-		await page.getByTitle('Rotation', {exact: true}).first().click();
+		const keyframedRotation = page
+			.getByTitle('Keyframed rotation', {exact: true})
+			.first();
+		const rotation = page.getByTitle('Rotation', {exact: true}).first();
+		await expect(async () => {
+			await keyframedRotation.click();
+			await expect(rotation).toBeVisible({timeout: 1_000});
+		}).toPass({timeout: 30_000});
+		await rotation.click();
 		const rotationSurface = page.locator(
 			'[data-remotion-studio-canvas-rotation]',
 		);
@@ -80,8 +84,7 @@ test.describe('canvas rotation keyframes', () => {
 						if (
 							document
 								.elementFromPoint(candidate.x, candidate.y)
-								?.closest('[data-remotion-studio-canvas-rotation]') ===
-							surface
+								?.closest('[data-remotion-studio-canvas-rotation]') === surface
 						) {
 							return candidate;
 						}
@@ -97,7 +100,9 @@ test.describe('canvas rotation keyframes', () => {
 		};
 
 		await dragRotationSurface(40, 30);
-		await expect.poll(() => readRotationKeyframes().frames).toEqual([0, 10, 30]);
+		await expect
+			.poll(() => readRotationKeyframes().frames)
+			.toEqual([0, 10, 30]);
 		const firstValueAtFrame10 = readRotationKeyframes().values[1];
 		expect(firstValueAtFrame10).toBeDefined();
 

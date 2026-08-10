@@ -1,5 +1,5 @@
 import fs from 'fs';
-import {expect, test} from '@playwright/test';
+import {expect, type Page, test} from '@playwright/test';
 import {
 	EXPANDED_SIDEBAR_STATE,
 	STUDIO_URL,
@@ -42,6 +42,18 @@ const read3DTransformRotation = () => {
 	return /rotate: '([^']+)'/.exec(sequenceSource)?.[1] ?? null;
 };
 
+const select2DTransformAndWaitForInspector = async (page: Page) => {
+	const transform = page.getByText('2D transform', {exact: true}).first();
+	const show3DTransformControls = page.getByRole('button', {
+		name: 'Show 3D transform controls',
+	});
+
+	await expect(async () => {
+		await transform.click();
+		await expect(show3DTransformControls).toBeVisible({timeout: 1_000});
+	}).toPass({timeout: 30_000});
+};
+
 test.describe('inspector section collapse', () => {
 	test.beforeEach(async () => {
 		visualMode3DSourceBefore = fs.readFileSync(visualMode3DFile, 'utf-8');
@@ -63,7 +75,6 @@ test.describe('inspector section collapse', () => {
 			{timeout: 30_000},
 		);
 
-		const transform = page.getByText('2D transform', {exact: true}).first();
 		const selectedOutline = page
 			.locator('polygon[stroke-opacity="1"][pointer-events="all"]')
 			.first();
@@ -71,7 +82,7 @@ test.describe('inspector section collapse', () => {
 			'[data-remotion-studio-canvas-rotation]',
 		);
 
-		await transform.click();
+		await select2DTransformAndWaitForInspector(page);
 		await expect(
 			page.getByRole('button', {name: 'Show 3D transform controls'}),
 		).toBeVisible();
@@ -94,7 +105,7 @@ test.describe('inspector section collapse', () => {
 			() => !document.body.innerText.includes('Loading...'),
 			{timeout: 30_000},
 		);
-		await transform.click();
+		await select2DTransformAndWaitForInspector(page);
 		await expect(
 			page.getByRole('button', {name: 'Show 3D transform controls'}),
 		).toBeVisible();
@@ -120,8 +131,7 @@ test.describe('inspector section collapse', () => {
 			{timeout: 30_000},
 		);
 
-		const transform = page.getByText('2D transform', {exact: true}).first();
-		await transform.click();
+		await select2DTransformAndWaitForInspector(page);
 		await expect(
 			page.getByRole('button', {name: 'Show 3D transform controls'}),
 		).toBeVisible();
