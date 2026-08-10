@@ -298,6 +298,7 @@ const sidebars: SidebarsConfig = {
 				'effects/halftone-linear-gradient',
 				'effects/hue',
 				'effects/invert',
+				'effects/levels',
 				'effects/linear-gradient',
 				'effects/linear-gradient-tint',
 				'effects/linear-progressive-blur',

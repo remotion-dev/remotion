@@ -23,6 +23,7 @@ import {halftone} from '@remotion/effects/halftone';
 import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
 import {hue} from '@remotion/effects/hue';
 import {invert} from '@remotion/effects/invert';
+import {levels} from '@remotion/effects/levels';
 import {lightLeak} from '@remotion/effects/light-leak';
 import {lightTrail} from '@remotion/effects/light-trail';
 import {linearGradient} from '@remotion/effects/linear-gradient';
@@ -89,6 +90,7 @@ import {EffectsHalftoneLinearGradientPreview} from '../effects/effects-halftone-
 import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../effects/effects-invert-preview';
+import {EffectsLevelsPreview} from '../effects/effects-levels-preview';
 import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
 import {
 	EffectsLightTrailPreview,
@@ -317,6 +319,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/invert',
 		comp: EffectsInvertPreview,
 		schema: invert().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-levels',
+		effectName: 'levels',
+		effectImportPath: '@remotion/effects/levels',
+		comp: EffectsLevelsPreview,
+		schema: levels().definition.schema,
 	},
 	{
 		...defaults,
