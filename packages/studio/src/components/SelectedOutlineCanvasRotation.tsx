@@ -3,6 +3,7 @@ import {Internals} from 'remotion';
 import {TRANSPARENT} from '../helpers/colors';
 import {startPointerSession} from '../helpers/pointer-session';
 import {EditorSnappingContext} from '../state/editor-snapping';
+import {canvasRotationCursor} from './canvas-rotation-cursor';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
@@ -22,7 +23,6 @@ import {
 import type {SelectedOutline} from './selected-outline-geometry';
 import {
 	getAngleDegrees,
-	getRotationCursor,
 	getSelectedOutlineRotationDeltaDegrees,
 	getSelectedOutlineRotationPivot,
 } from './selected-outline-measurement';
@@ -133,7 +133,7 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 						rotationXDeltaDegrees,
 						rotationYDeltaDegrees,
 					});
-					forceSpecificCursor('grabbing');
+					forceSpecificCursor(canvasRotationCursor);
 				} else {
 					const nextAngle = getAngleDegrees(center, {
 						x: moveEvent.clientX,
@@ -155,7 +155,7 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 						dragStates,
 						rotationDeltaDegrees,
 					});
-					forceSpecificCursor(getRotationCursor(rotationDeltaDegrees));
+					forceSpecificCursor(canvasRotationCursor);
 				}
 
 				for (const dragState of dragStates) {
@@ -276,7 +276,7 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 			height="100%"
 			fill={TRANSPARENT}
 			pointerEvents="all"
-			cursor={getRotationCursor(0)}
+			cursor={canvasRotationCursor}
 			onPointerDown={onPointerDown}
 			data-remotion-studio-canvas-rotation
 		/>
