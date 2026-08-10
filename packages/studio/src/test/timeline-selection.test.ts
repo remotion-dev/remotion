@@ -113,6 +113,7 @@ import {
 	getTimelineSelectionAfterInteraction,
 	getTimelineSelectionFromNodePathInfo,
 	getTimelineSelectionKey,
+	getTimelineSequenceSelectionForEscape,
 	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
 	shouldSelectTimelineRowOnPointerDown,
@@ -5153,6 +5154,79 @@ test('Crop prop and keyframe selections target crop handles', () => {
 				type: 'sequence-prop',
 				nodePathInfo: cropNodePathInfo,
 				key: 'style.opacity',
+			},
+		]),
+	).toBe(null);
+});
+
+test('Escape moves crop and rotation selections to the sequence', () => {
+	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
+	const expectedSelection = {
+		type: 'sequence' as const,
+		nodePathInfo: sequenceNodePathInfo,
+	};
+
+	expect(
+		getTimelineSequenceSelectionForEscape([
+			{
+				type: 'sequence-prop',
+				nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'cropLeft']),
+				key: 'cropLeft',
+			},
+		]),
+	).toEqual(expectedSelection);
+	expect(
+		getTimelineSequenceSelectionForEscape([
+			{
+				type: 'sequence-prop',
+				nodePathInfo: makeNodePathInfo(
+					['body', 0],
+					['controls', 'style', 'rotate'],
+				),
+				key: 'style.rotate',
+			},
+		]),
+	).toEqual(expectedSelection);
+	expect(
+		getTimelineSequenceSelectionForEscape([
+			{
+				type: 'keyframe',
+				nodePathInfo: makeNodePathInfo(
+					['body', 0],
+					['controls', 'style', 'rotate'],
+				),
+				frame: 10,
+			},
+		]),
+	).toEqual(expectedSelection);
+	expect(
+		getTimelineSequenceSelectionForEscape([
+			{
+				type: 'easing',
+				nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'cropBottom']),
+				fromFrame: 10,
+				toFrame: 20,
+				segmentIndex: 0,
+			},
+		]),
+	).toEqual(expectedSelection);
+	expect(
+		getTimelineSequenceSelectionForEscape([
+			{
+				type: 'sequence-prop',
+				nodePathInfo: makeNodePathInfo(
+					['body', 0],
+					['controls', 'style', 'opacity'],
+				),
+				key: 'style.opacity',
+			},
+		]),
+	).toBe(null);
+	expect(
+		getTimelineSequenceSelectionForEscape([
+			{
+				type: 'sequence',
+				nodePathInfo: sequenceNodePathInfo,
 			},
 		]),
 	).toBe(null);

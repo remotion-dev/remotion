@@ -53,6 +53,65 @@ test.describe('inspector section collapse', () => {
 		fs.writeFileSync(visualMode3DFile, visualMode3DSourceBefore);
 	});
 
+	test('Escape moves crop and rotation selections to the sequence', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/visual-mode-3d`);
+		await expect(page).toHaveURL(/visual-mode-3d/, {timeout: 15_000});
+		await page.waitForFunction(
+			() => !document.body.innerText.includes('Loading...'),
+			{timeout: 30_000},
+		);
+
+		const transform = page.getByText('2D transform', {exact: true}).first();
+		const selectedOutline = page
+			.locator('polygon[stroke-opacity="1"][pointer-events="all"]')
+			.first();
+		const canvasRotationSurface = page.locator(
+			'[data-remotion-studio-canvas-rotation]',
+		);
+
+		await transform.click();
+		await expect(
+			page.getByRole('button', {name: 'Show 3D transform controls'}),
+		).toBeVisible();
+		await expect(selectedOutline).toBeVisible();
+		await selectedOutline.click({button: 'right'});
+		await page.getByRole('button', {name: 'Rotate', exact: true}).click();
+		await expect(canvasRotationSurface).toBeVisible();
+
+		await page.keyboard.press('Escape');
+		await expect(canvasRotationSurface).not.toBeVisible();
+		await expect(selectedOutline).toBeVisible();
+
+		await page.keyboard.press('Escape');
+		await expect(
+			page.getByRole('button', {name: 'Show 3D transform controls'}),
+		).not.toBeVisible();
+
+		await page.reload();
+		await page.waitForFunction(
+			() => !document.body.innerText.includes('Loading...'),
+			{timeout: 30_000},
+		);
+		await transform.click();
+		await expect(
+			page.getByRole('button', {name: 'Show 3D transform controls'}),
+		).toBeVisible();
+		await expect(selectedOutline).toBeVisible();
+		await selectedOutline.click({button: 'right'});
+		await page.getByRole('button', {name: 'Crop', exact: true}).click();
+		await expect(
+			page.locator('[data-remotion-studio-crop-preview]'),
+		).toBeVisible();
+
+		await page.keyboard.press('Escape');
+		await expect(
+			page.locator('[data-remotion-studio-crop-preview]'),
+		).not.toBeVisible();
+		await expect(selectedOutline).toBeVisible();
+	});
+
 	test('selects 3D rotation from the sequence context menu', async ({page}) => {
 		await page.goto(`${STUDIO_URL}/visual-mode-3d`);
 		await expect(page).toHaveURL(/visual-mode-3d/, {timeout: 15_000});
