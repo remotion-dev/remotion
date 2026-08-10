@@ -38,7 +38,6 @@ export type CaptureControllerState = {
 	readonly finalizing: boolean;
 	readonly scale: number;
 	readonly format: CaptureFormat;
-	readonly includePageBackground: boolean;
 	readonly status: string;
 	readonly error: boolean;
 };
@@ -53,7 +52,6 @@ export type CaptureControllerRequest =
 			readonly command: 'set-options';
 			readonly scale: number;
 			readonly format: CaptureFormat;
-			readonly includePageBackground: boolean;
 	  }
 	| {
 			readonly type: typeof captureControllerMessageType;
@@ -72,7 +70,6 @@ export type CaptureControllerRequest =
 			readonly command: 'start-recording';
 			readonly scale: number;
 			readonly format: CaptureFormat;
-			readonly includePageBackground: boolean;
 	  }
 	| {
 			readonly type: typeof captureControllerMessageType;

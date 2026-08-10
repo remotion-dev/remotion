@@ -1,4 +1,4 @@
-import {type CaptureCrop, ElementCapture, getCapturePreflight} from './capture';
+import {type CaptureCrop, getCapturePreflight, PageCapture} from './capture';
 import {openCaptureInConvert} from './handoff';
 import {
 	isCaptureControllerRequest,
@@ -7,11 +7,7 @@ import {
 	type CaptureControllerState,
 } from './messages';
 import {canEncodeCapture, isHtmlInCanvasAvailable} from './recorder';
-import {
-	findLowestElementContainingRectangle,
-	makeSelectionRectangle,
-	type SelectionRectangle,
-} from './selection';
+import {makeSelectionRectangle, type SelectionRectangle} from './selection';
 
 type ExtensionController = {
 	readonly handleRequest: (
@@ -25,13 +21,7 @@ type ExtensionWindow = Window & {
 
 type SelectedTarget =
 	| {readonly type: 'whole-page'}
-	| {readonly type: 'page-crop'; readonly crop: CaptureCrop}
-	| {
-			readonly type: 'element-crop';
-			readonly element: Element;
-			readonly elementCrop: CaptureCrop;
-			readonly pageCrop: CaptureCrop;
-	  };
+	| {readonly type: 'page-crop'; readonly crop: CaptureCrop};
 
 const extensionWindow = window as ExtensionWindow;
 
@@ -44,15 +34,6 @@ const downloadFile = (file: File) => {
 	anchor.click();
 	anchor.remove();
 	URL.revokeObjectURL(url);
-};
-
-const describeElement = (element: Element) => {
-	const id = element.id ? `#${element.id}` : '';
-	const className =
-		element.classList.length > 0
-			? `.${[...element.classList].slice(0, 2).join('.')}`
-			: '';
-	return `${element.tagName.toLowerCase()}${id}${className}`;
 };
 
 const getContainerLabel = (format: CaptureFormat) =>
@@ -119,12 +100,11 @@ const createController = (): ExtensionController => {
 	shadow.append(style, highlight, selectionLayer);
 
 	let selectedTarget: SelectedTarget | null = null;
-	let capture: ElementCapture | null = null;
+	let capture: PageCapture | null = null;
 	let finalizing = false;
 	let selecting = false;
 	let scale = Math.max(1, window.devicePixelRatio);
 	let format: CaptureFormat = 'mp4';
-	let includePageBackground = false;
 	let encoderSupport: CaptureControllerState['encoderSupport'] = 'unavailable';
 	let outputSize: CaptureControllerState['outputSize'] = null;
 	let encoderSupportCheckId = 0;
@@ -150,15 +130,7 @@ const createController = (): ExtensionController => {
 			return 'Whole page';
 		}
 
-		if (selectedTarget.type === 'page-crop') {
-			return `Page crop (${Math.round(selectedTarget.crop.width)}×${Math.round(selectedTarget.crop.height)})`;
-		}
-
-		if (includePageBackground) {
-			return `Page crop with background (${Math.round(selectedTarget.pageCrop.width)}×${Math.round(selectedTarget.pageCrop.height)})`;
-		}
-
-		return `${describeElement(selectedTarget.element)} crop (${Math.round(selectedTarget.elementCrop.width)}×${Math.round(selectedTarget.elementCrop.height)})`;
+		return `Page crop (${Math.round(selectedTarget.crop.width)}×${Math.round(selectedTarget.crop.height)})`;
 	};
 
 	const resolveCaptureTarget = () => {
@@ -167,26 +139,10 @@ const createController = (): ExtensionController => {
 		}
 
 		if (selectedTarget.type === 'whole-page') {
-			return {element: null, wholePage: true, crop: null};
+			return {crop: null};
 		}
 
-		if (selectedTarget.type === 'page-crop') {
-			return {element: null, wholePage: true, crop: selectedTarget.crop};
-		}
-
-		if (includePageBackground) {
-			return {
-				element: null,
-				wholePage: true,
-				crop: selectedTarget.pageCrop,
-			};
-		}
-
-		return {
-			element: selectedTarget.element,
-			wholePage: false,
-			crop: selectedTarget.elementCrop,
-		};
+		return {crop: selectedTarget.crop};
 	};
 
 	const refreshEncoderSupport = async () => {
@@ -211,8 +167,6 @@ const createController = (): ExtensionController => {
 
 		try {
 			const preflight = getCapturePreflight({
-				element: target.element,
-				wholePage: target.wholePage,
 				scale,
 				crop: target.crop,
 			});
@@ -272,7 +226,7 @@ const createController = (): ExtensionController => {
 
 		const target = resolveCaptureTarget();
 		let rect: Pick<DOMRect, 'left' | 'top' | 'width' | 'height'> | null = null;
-		if (target?.wholePage && target.crop) {
+		if (target?.crop) {
 			const pageRect = document.body.getBoundingClientRect();
 			rect = {
 				left: pageRect.left + target.crop.left,
@@ -280,16 +234,6 @@ const createController = (): ExtensionController => {
 				width: target.crop.width,
 				height: target.crop.height,
 			};
-		} else if (target?.element?.isConnected) {
-			const elementRect = target.element.getBoundingClientRect();
-			rect = target.crop
-				? {
-						left: elementRect.left + target.crop.left,
-						top: elementRect.top + target.crop.top,
-						width: target.crop.width,
-						height: target.crop.height,
-					}
-				: elementRect;
 		}
 
 		if (!rect) {
@@ -315,7 +259,6 @@ const createController = (): ExtensionController => {
 		finalizing,
 		scale,
 		format,
-		includePageBackground,
 		status,
 		error: statusIsError,
 	});
@@ -355,32 +298,11 @@ const createController = (): ExtensionController => {
 		selectionLayer.style.display = 'none';
 		selectionBox.style.display = 'none';
 
-		const target = findLowestElementContainingRectangle({
-			selection,
-			excludedElement: host,
-		});
-		if (!target) {
-			setStatus('No element encompasses that rectangle.', true);
-			return;
-		}
-
-		const pageCrop = getCropRelativeTo(
+		const crop = getCropRelativeTo(
 			selection,
 			document.body.getBoundingClientRect(),
 		);
-		if (target === document.body || target === document.documentElement) {
-			selectedTarget = {type: 'page-crop', crop: pageCrop};
-		} else {
-			selectedTarget = {
-				type: 'element-crop',
-				element: target,
-				elementCrop: getCropRelativeTo(
-					selection,
-					target.getBoundingClientRect(),
-				),
-				pageCrop,
-			};
-		}
+		selectedTarget = {type: 'page-crop', crop};
 
 		encoderSupportKey = null;
 		refreshEncoderSupport().catch(() => undefined);
@@ -423,11 +345,7 @@ const createController = (): ExtensionController => {
 		}
 	});
 
-	const setOptions = (
-		nextScale: number,
-		nextFormat: CaptureFormat,
-		nextIncludePageBackground: boolean,
-	) => {
+	const setOptions = (nextScale: number, nextFormat: CaptureFormat) => {
 		if (!Number.isFinite(nextScale) || nextScale <= 0) {
 			encoderSupportCheckId++;
 			encoderSupport = 'unsupported';
@@ -446,17 +364,12 @@ const createController = (): ExtensionController => {
 			return false;
 		}
 
-		if (
-			scale !== nextScale ||
-			format !== nextFormat ||
-			includePageBackground !== nextIncludePageBackground
-		) {
+		if (scale !== nextScale || format !== nextFormat) {
 			encoderSupportKey = null;
 		}
 
 		scale = nextScale;
 		format = nextFormat;
-		includePageBackground = nextIncludePageBackground;
 		updateHighlight();
 		return true;
 	};
@@ -500,13 +413,7 @@ const createController = (): ExtensionController => {
 
 			if (request.command === 'set-options') {
 				if (!capture && !finalizing) {
-					if (
-						setOptions(
-							request.scale,
-							request.format,
-							request.includePageBackground,
-						)
-					) {
+					if (setOptions(request.scale, request.format)) {
 						await refreshEncoderSupport();
 					}
 				}
@@ -558,13 +465,7 @@ const createController = (): ExtensionController => {
 					return getState();
 				}
 
-				if (
-					!setOptions(
-						request.scale,
-						request.format,
-						request.includePageBackground,
-					)
-				) {
+				if (!setOptions(request.scale, request.format)) {
 					return getState();
 				}
 
@@ -579,23 +480,8 @@ const createController = (): ExtensionController => {
 					return getState();
 				}
 
-				if (!target.wholePage && !target.element?.isConnected) {
-					selectedTarget = null;
-					encoderSupport = 'unavailable';
-					encoderSupportKey = null;
-					outputSize = null;
-					setStatus(
-						'Select an element again; the previous target was removed.',
-						true,
-					);
-					updateHighlight();
-					return getState();
-				}
-
 				try {
-					capture = new ElementCapture({
-						element: target.element,
-						wholePage: target.wholePage,
+					capture = new PageCapture({
 						scale,
 						format,
 						crop: target.crop,

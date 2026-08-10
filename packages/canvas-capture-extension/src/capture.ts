@@ -22,113 +22,11 @@ export type CapturePreflight = {
 	readonly outputSize: {readonly width: number; readonly height: number};
 };
 
-type WrappedElement = {
+type WrappedPage = {
 	readonly canvas: HtmlInCanvasElement;
-	readonly content: Element;
+	readonly content: HTMLElement;
 	readonly getSize: () => {readonly width: number; readonly height: number};
 	readonly restore: () => void;
-};
-
-const copyOuterLayout = ({
-	from,
-	to,
-	width,
-	height,
-}: {
-	readonly from: Element;
-	readonly to: HTMLCanvasElement;
-	readonly width: number;
-	readonly height: number;
-}) => {
-	const computed = window.getComputedStyle(from);
-	const properties = [
-		'top',
-		'right',
-		'bottom',
-		'left',
-		'z-index',
-		'float',
-		'clear',
-		'vertical-align',
-		'align-self',
-		'justify-self',
-		'order',
-		'flex',
-		'grid-area',
-		'margin-top',
-		'margin-right',
-		'margin-bottom',
-		'margin-left',
-	] as const;
-
-	to.style.boxSizing = 'border-box';
-	to.style.display = computed.display === 'inline' ? 'inline-block' : 'block';
-	to.style.position =
-		computed.position === 'static' ? 'relative' : computed.position;
-	to.style.width = `${width}px`;
-	to.style.height = `${height}px`;
-	for (const property of properties) {
-		to.style.setProperty(property, computed.getPropertyValue(property));
-	}
-};
-
-const wrapElement = (element: Element): WrappedElement => {
-	const parent = element.parentNode;
-	if (!parent) {
-		throw new Error('The selected element is no longer attached to the page.');
-	}
-
-	const rect = element.getBoundingClientRect();
-	if (rect.width <= 0 || rect.height <= 0) {
-		throw new Error('The selected element has no visible size.');
-	}
-
-	const marker = document.createComment('remotion-canvas-capture');
-	const originalStyle = element.getAttribute('style');
-	const canvas = document.createElement('canvas') as HtmlInCanvasElement;
-	copyOuterLayout({
-		from: element,
-		to: canvas,
-		width: rect.width,
-		height: rect.height,
-	});
-	canvas.layoutSubtree = true;
-	canvas.setAttribute('layoutsubtree', '');
-
-	parent.insertBefore(marker, element);
-	parent.replaceChild(canvas, element);
-	canvas.appendChild(element);
-
-	if (element instanceof HTMLElement || element instanceof SVGElement) {
-		element.style.position = 'absolute';
-		element.style.inset = '0';
-		element.style.width = '100%';
-		element.style.height = '100%';
-		element.style.margin = '0';
-	}
-
-	return {
-		canvas,
-		content: element,
-		getSize: () => ({width: rect.width, height: rect.height}),
-		restore: () => {
-			if (element instanceof HTMLElement || element instanceof SVGElement) {
-				if (originalStyle === null) {
-					element.removeAttribute('style');
-				} else {
-					element.setAttribute('style', originalStyle);
-				}
-			}
-
-			if (canvas.parentNode) {
-				canvas.parentNode.replaceChild(element, canvas);
-			} else if (marker.parentNode) {
-				marker.parentNode.insertBefore(element, marker.nextSibling);
-			}
-
-			marker.remove();
-		},
-	};
 };
 
 const getPageSize = (
@@ -217,32 +115,13 @@ const validateCaptureSize = ({
 };
 
 export const getCapturePreflight = ({
-	element,
-	wholePage,
 	scale,
 	crop,
 }: {
-	readonly element: Element | null;
-	readonly wholePage: boolean;
 	readonly scale: number;
 	readonly crop: CaptureCrop | null;
 }): CapturePreflight => {
-	const sourceSize = wholePage
-		? getWholePageSize()
-		: (() => {
-				if (!element?.isConnected) {
-					throw new Error(
-						'Select an element again; the previous target was removed.',
-					);
-				}
-
-				const rect = element.getBoundingClientRect();
-				if (rect.width <= 0 || rect.height <= 0) {
-					throw new Error('The selected element has no visible size.');
-				}
-
-				return {width: rect.width, height: rect.height};
-			})();
+	const sourceSize = getWholePageSize();
 	return {
 		sourceSize,
 		outputSize: validateCaptureSize({
@@ -253,7 +132,7 @@ export const getCapturePreflight = ({
 	};
 };
 
-const wrapWholePage = (): WrappedElement => {
+const wrapWholePage = (): WrappedPage => {
 	const {body} = document;
 	const minimumSize = getWholePageSize();
 	const canvas = document.createElement('canvas') as HtmlInCanvasElement;
@@ -326,8 +205,8 @@ const getFilename = (format: CaptureFormat) => {
 	return `remotion-capture-${host}-${timestamp}.${format}`;
 };
 
-export class ElementCapture {
-	readonly #wrapped: WrappedElement;
+export class PageCapture {
+	readonly #wrapped: WrappedPage;
 	readonly #scale: number;
 	readonly #format: CaptureFormat;
 	readonly #crop: CaptureCrop | null;
@@ -341,14 +220,10 @@ export class ElementCapture {
 	#paintError: unknown = null;
 
 	constructor({
-		element,
-		wholePage,
 		scale,
 		format,
 		crop,
 	}: {
-		readonly element: Element | null;
-		readonly wholePage: boolean;
 		readonly scale: number;
 		readonly format: CaptureFormat;
 		readonly crop: CaptureCrop | null;
@@ -358,14 +233,10 @@ export class ElementCapture {
 		this.#crop = crop;
 		this.#matteColors = [
 			'#fff',
-			...(wholePage
-				? [
-						window.getComputedStyle(document.documentElement).backgroundColor,
-						window.getComputedStyle(document.body).backgroundColor,
-					]
-				: []),
+			window.getComputedStyle(document.documentElement).backgroundColor,
+			window.getComputedStyle(document.body).backgroundColor,
 		];
-		this.#wrapped = wholePage ? wrapWholePage() : wrapElement(element!);
+		this.#wrapped = wrapWholePage();
 		const context = this.#wrapped.canvas.getContext(
 			'2d',
 		) as HtmlInCanvasRenderingContext2D | null;
