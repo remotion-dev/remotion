@@ -2367,6 +2367,15 @@ export const articles = [
 		slug: 'effects/waves',
 	},
 	{
+		id: 'effects/white-balance',
+		title: 'whiteBalance()',
+		relativePath: 'docs/effects/white-balance.mdx',
+		compId: 'articles-docs-effects-white-balance',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/white-balance',
+	},
+	{
 		id: 'effects/white-noise',
 		title: 'whiteNoise()',
 		relativePath: 'docs/effects/white-noise.mdx',

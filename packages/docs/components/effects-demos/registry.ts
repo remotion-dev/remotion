@@ -59,6 +59,7 @@ import {venetianBlinds} from '@remotion/effects/venetian-blinds';
 import {vignette} from '@remotion/effects/vignette';
 import {wave} from '@remotion/effects/wave';
 import {waves} from '@remotion/effects/waves';
+import {whiteBalance} from '@remotion/effects/white-balance';
 import {whiteNoise} from '@remotion/effects/white-noise';
 import {zigzag} from '@remotion/effects/zigzag';
 import {zoomBlur} from '@remotion/effects/zoom-blur';
@@ -148,6 +149,7 @@ import {EffectsVenetianBlindsPreview} from '../effects/effects-venetian-blinds-p
 import {EffectsVignettePreview} from '../effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../effects/effects-waves-preview';
+import {EffectsWhiteBalancePreview} from '../effects/effects-white-balance-preview';
 import {EffectsWhiteNoisePreview} from '../effects/effects-white-noise-preview';
 import {EffectsZigzagPreview} from '../effects/effects-zigzag-preview';
 import {EffectsZoomBlurPreview} from '../effects/effects-zoom-blur-preview';
@@ -249,6 +251,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/exposure',
 		comp: EffectsExposurePreview,
 		schema: exposure().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-white-balance',
+		effectName: 'whiteBalance',
+		effectImportPath: '@remotion/effects/white-balance',
+		comp: EffectsWhiteBalancePreview,
+		schema: whiteBalance().definition.schema,
 	},
 	{
 		...defaults,

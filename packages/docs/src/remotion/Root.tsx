@@ -96,6 +96,7 @@ import {EffectsVenetianBlindsPreview} from '../../components/effects/effects-ven
 import {EffectsVignettePreview} from '../../components/effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../../components/effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../../components/effects/effects-waves-preview';
+import {EffectsWhiteBalancePreview} from '../../components/effects/effects-white-balance-preview';
 import {EffectsWhiteNoisePreview} from '../../components/effects/effects-white-noise-preview';
 import {EffectsZigzagPreview} from '../../components/effects/effects-zigzag-preview';
 import {EffectsZoomBlurPreview} from '../../components/effects/effects-zoom-blur-preview';
@@ -288,6 +289,13 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{stops: 1}}
+				/>
+				<Still
+					id="effects-white-balance-preview"
+					component={EffectsWhiteBalancePreview}
+					width={1280}
+					height={720}
+					defaultProps={{temperature: 0.8, tint: 0.2}}
 				/>
 				<Still
 					id="effects-venetian-blinds-preview"

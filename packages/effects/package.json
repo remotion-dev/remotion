@@ -339,6 +339,11 @@
 			"module": "./dist/esm/waves.mjs",
 			"import": "./dist/esm/waves.mjs"
 		},
+		"./white-balance": {
+			"types": "./dist/white-balance.d.ts",
+			"module": "./dist/esm/white-balance.mjs",
+			"import": "./dist/esm/white-balance.mjs"
+		},
 		"./white-noise": {
 			"types": "./dist/white-noise.d.ts",
 			"module": "./dist/esm/white-noise.mjs",
@@ -543,6 +548,9 @@
 			],
 			"zigzag": [
 				"dist/zigzag.d.ts"
+			],
+			"white-balance": [
+				"dist/white-balance.d.ts"
 			],
 			"white-noise": [
 				"dist/white-noise.d.ts"
