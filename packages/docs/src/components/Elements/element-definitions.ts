@@ -94,7 +94,7 @@ export const elementDefinitions = {
 		elementWidth: null,
 		fps: 30,
 		height: 1080,
-		posterFrame: 90,
+		posterFrame: 240,
 		preview: {
 			posterUrl: 'https://remotion.media/elements/maps-map-flyover-preview.png',
 			videoUrl: 'https://remotion.media/elements/maps-map-flyover-preview.mp4',
