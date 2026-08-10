@@ -8,23 +8,26 @@ import {
 	getAvailableCodingAgents,
 	launchCodingAgent,
 } from '../../helpers/coding-agent-registry';
+import {getAvailableTerminals} from '../../helpers/terminal-registry';
 import type {ApiHandler} from '../api-types';
 
 export const getDefaultCodingAgentInfoHandler: ApiHandler<
 	GetDefaultCodingAgentInfoRequest,
 	GetDefaultCodingAgentInfoResponse
-> = async ({getDefaultCodingAgent}) => {
+> = async ({getDefaultCodingAgent, getDefaultTerminal}) => {
 	const installedCodingAgents = await getAvailableCodingAgents();
+	const installedTerminals = await getAvailableTerminals();
 	return {
 		defaultCodingAgent: getDefaultCodingAgent(),
+		defaultTerminal: getDefaultTerminal(),
 		installedCodingAgents: installedCodingAgents.map(
-			({iconDataUrl, id, name, nameWithType}) => ({
-				iconDataUrl,
+			({id, name, nameWithType}) => ({
 				id,
 				name,
 				nameWithType,
 			}),
 		),
+		installedTerminals: installedTerminals.map(({id, name}) => ({id, name})),
 	};
 };
 

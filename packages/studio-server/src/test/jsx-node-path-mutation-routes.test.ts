@@ -80,6 +80,7 @@ test('JSX structure routes broadcast and return node path mutations before writi
 		entryPoint: filePath,
 		getDefaultCodingAgent: () => null,
 		getDefaultEditor: () => null,
+		getDefaultTerminal: () => null,
 		logLevel: 'error' as const,
 		methods: {
 			addJob: () => undefined,

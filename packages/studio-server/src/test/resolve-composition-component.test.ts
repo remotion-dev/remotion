@@ -2001,6 +2001,7 @@ test('rejects composition insertion requests that traverse out of the project ro
 			configFile: null,
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
+			getDefaultTerminal: () => null,
 		});
 
 		expect(response.success).toBe(false);

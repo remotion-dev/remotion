@@ -189,6 +189,7 @@ test.skipIf(process.platform === 'win32')(
 					executable,
 					arguments: [output, '%TARGET_PATH%:%LINE_NUMBER%:%COLUMN_NUMBER%'],
 				}),
+				getDefaultTerminal: () => null,
 				input: {
 					editorId: 'custom',
 					stack: {
@@ -228,6 +229,7 @@ test('rejects an unknown editor ID at the open-in-editor route', async () => {
 		entryPoint: '',
 		getDefaultCodingAgent: () => null,
 		getDefaultEditor: () => null,
+		getDefaultTerminal: () => null,
 		input: {
 			editorId: 'unknown-editor' as never,
 			stack: {

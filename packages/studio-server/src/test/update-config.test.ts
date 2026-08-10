@@ -17,6 +17,7 @@ const apiHandlerContext = {
 	entryPoint: '',
 	getDefaultCodingAgent: () => null,
 	getDefaultEditor: () => null,
+	getDefaultTerminal: () => null,
 	logLevel: 'error' as const,
 	methods: {
 		addJob: () => undefined,

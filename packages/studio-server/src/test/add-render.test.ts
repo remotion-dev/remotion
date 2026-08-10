@@ -14,6 +14,7 @@ test('captures the current public license key for Studio renders', async () => {
 			entryPoint: '',
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
+			getDefaultTerminal: () => null,
 			input,
 			logLevel: 'error',
 			methods: {

@@ -1,7 +1,8 @@
-import type {DefaultCodingAgent} from '@remotion/renderer';
+import type {DefaultCodingAgent, DefaultTerminal} from '@remotion/renderer';
 import type {
 	CompositionComponentInfoResponse,
 	EditorPickerId,
+	OpenInTerminalResponse,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
 import {useEffect, useSyncExternalStore} from 'react';
@@ -41,6 +42,13 @@ export const openInCodingAgent = (
 	prompt: string | null,
 ) => {
 	return callApi('/api/open-in-coding-agent', {codingAgentId, prompt});
+};
+
+export const openInTerminal = (
+	terminalId: DefaultTerminal,
+	directory: string,
+): Promise<OpenInTerminalResponse> => {
+	return callApi('/api/open-in-terminal', {directory, terminalId});
 };
 
 export const openOriginalPositionInEditor = async (

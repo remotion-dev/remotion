@@ -7,6 +7,7 @@ import {BundlerInternals} from '@remotion/bundler';
 import type {
 	DefaultCodingAgent,
 	DefaultEditor,
+	DefaultTerminal,
 	LogLevel,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
@@ -30,6 +31,7 @@ import {getStaticFileFallbackHint} from './preview-server/get-static-file-fallba
 import {handleRequest} from './preview-server/handler';
 import type {LiveEventsServer} from './preview-server/live-events';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
+import {handleAppIcon} from './preview-server/routes/app-icon';
 import {getEditorName} from './preview-server/routes/open-in-editor';
 import {serveStatic} from './preview-server/serve-static';
 import {handleStudioProtocolDiscovery} from './preview-server/studio-protocol/handle-discovery';
@@ -385,6 +387,7 @@ export const handleRoutes = ({
 	getStudioRuntimeConfig,
 	getDefaultCodingAgent,
 	getDefaultEditor,
+	getDefaultTerminal,
 	configFile,
 }: {
 	staticHash: string;
@@ -412,6 +415,7 @@ export const handleRoutes = ({
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
 	getDefaultCodingAgent: () => DefaultCodingAgent | null;
 	getDefaultEditor: () => DefaultEditor | null;
+	getDefaultTerminal: () => DefaultTerminal | null;
 	configFile: string | null;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
@@ -441,6 +445,14 @@ export const handleRoutes = ({
 			res: response,
 			search: url.search,
 			remotionRoot,
+		});
+	}
+
+	if (url.pathname.startsWith('/api/app-icon/')) {
+		return handleAppIcon({
+			pathname: url.pathname,
+			request,
+			response,
 		});
 	}
 
@@ -506,6 +518,7 @@ export const handleRoutes = ({
 				configFile,
 				getDefaultCodingAgent,
 				getDefaultEditor,
+				getDefaultTerminal,
 			});
 		}
 	}

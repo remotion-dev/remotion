@@ -48,6 +48,8 @@ export type {
 	CustomEditor,
 	DefaultEditor,
 } from './options/default-editor';
+export {defaultTerminalIds} from './options/default-terminal';
+export type {DefaultTerminal} from './options/default-terminal';
 export {HardwareAccelerationOption} from './options/hardware-acceleration';
 export {ProResProfile} from './options/prores-profile';
 

@@ -247,6 +247,20 @@ Available coding agents: `codex`, `cursor`, `copilot`, and `claude-code`.
 
 The [`--coding-agent`](/docs/cli/studio#--coding-agent) command line flag takes precedence over this option.
 
+## `setDefaultTerminal()`<AvailableFrom v="4.0.508" />
+
+<Options id="terminal" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setDefaultTerminal('ghostty');
+```
+
+Available terminals: `terminal`, `iterm2`, `ghostty`, `warp`, `wezterm`, `alacritty`, `windows-terminal`, and `gnome-terminal`.
+
+Only installed terminals for the current operating system are shown in Remotion Studio. The [`--terminal`](/docs/cli/studio#--terminal) command line flag takes precedence over this option.
+
 ## ~~`setAllowHtmlInCanvasEnabled()`~~<AvailableFrom v="4.0.447" />
 
 :::info Deprecated

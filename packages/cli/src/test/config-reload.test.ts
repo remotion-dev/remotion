@@ -40,7 +40,7 @@ test('an invalid config reload keeps the previous configuration', async () => {
 	});
 	temporaryDirectory = mkdtempSync(path.join(tmpdir(), 'remotion-config-'));
 	writeConfig(
-		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(4321); Config.setDefaultEditor('cursor'); Config.setDefaultCodingAgent('codex');`,
+		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(4321); Config.setDefaultEditor('cursor'); Config.setDefaultCodingAgent('codex'); Config.setDefaultTerminal('ghostty');`,
 	);
 
 	await loadConfig(temporaryDirectory);
@@ -54,9 +54,13 @@ test('an invalid config reload keeps the previous configuration', async () => {
 			commandLine: {},
 		}).value,
 	).toBe('codex');
+	expect(
+		BrowserSafeApis.options.defaultTerminalOption.getValue({commandLine: {}})
+			.value,
+	).toBe('ghostty');
 
 	writeConfig(
-		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(5678); Config.setDefaultEditor('windsurf'); Config.setDefaultCodingAgent('cursor'); throw new Error('Invalid config');`,
+		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(5678); Config.setDefaultEditor('windsurf'); Config.setDefaultCodingAgent('cursor'); Config.setDefaultTerminal('warp'); throw new Error('Invalid config');`,
 	);
 	expect((await reloadTestConfig()).type).toBe('error');
 	expect(ConfigInternals.getStudioPort()).toBe(4321);
@@ -69,6 +73,10 @@ test('an invalid config reload keeps the previous configuration', async () => {
 			commandLine: {},
 		}).value,
 	).toBe('codex');
+	expect(
+		BrowserSafeApis.options.defaultTerminalOption.getValue({commandLine: {}})
+			.value,
+	).toBe('ghostty');
 
 	writeConfig(
 		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(5678); Config.setDefaultEditor('windsurf'); Config.setDefaultCodingAgent('cursor');`,
@@ -129,6 +137,10 @@ test('an invalid config reload keeps the previous configuration', async () => {
 		BrowserSafeApis.options.defaultCodingAgentOption.getValue({
 			commandLine: {},
 		}).value,
+	).toBeNull();
+	expect(
+		BrowserSafeApis.options.defaultTerminalOption.getValue({commandLine: {}})
+			.value,
 	).toBeNull();
 });
 

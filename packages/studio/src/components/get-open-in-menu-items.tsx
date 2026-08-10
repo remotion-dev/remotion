@@ -1,4 +1,4 @@
-import type {DefaultCodingAgent} from '@remotion/renderer';
+import type {DefaultCodingAgent, DefaultTerminal} from '@remotion/renderer';
 import type {
 	EditorPickerId,
 	GetDefaultCodingAgentInfoResponse,
@@ -8,6 +8,7 @@ import React from 'react';
 import {getFileManagerName} from '../helpers/get-file-manager-name';
 import {EditorIcon} from '../icons/editor';
 import {FinderIcon} from '../icons/finder';
+import {TerminalIcon} from '../icons/terminal';
 import {CodingAgentIcon} from './CodingAgentIcon';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 
@@ -25,10 +26,12 @@ export const getOpenInMenuItems = ({
 	excludeCodingAgentId,
 	excludeEditorId,
 	fileManagerDisabled,
+	folder,
 	onConfigureApps,
 	onOpenInCodingAgent,
 	onOpenInEditor,
 	onOpenInFileExplorer,
+	onOpenInTerminal,
 }: {
 	readonly codingAgentInfo: GetDefaultCodingAgentInfoResponse | null;
 	readonly editorDisabled: boolean;
@@ -36,6 +39,7 @@ export const getOpenInMenuItems = ({
 	readonly excludeCodingAgentId: DefaultCodingAgent | null;
 	readonly excludeEditorId: EditorPickerId | null;
 	readonly fileManagerDisabled: boolean;
+	readonly folder: boolean;
 	readonly onConfigureApps: () => void;
 	readonly onOpenInCodingAgent: (
 		codingAgentId: DefaultCodingAgent,
@@ -43,6 +47,7 @@ export const getOpenInMenuItems = ({
 	) => void;
 	readonly onOpenInEditor: (editorId: EditorPickerId) => void;
 	readonly onOpenInFileExplorer: () => void;
+	readonly onOpenInTerminal?: (terminalId: DefaultTerminal) => void;
 }): ComboboxValue[] => {
 	const showFinder = window.remotion_fileSystemPlatform === 'darwin';
 	const fileManagerName = getFileManagerName(
@@ -74,7 +79,7 @@ export const getOpenInMenuItems = ({
 			id: `open-in-coding-agent-${codingAgent.id}`,
 			keyHint: null,
 			label: <span style={menuLabel}>{codingAgent.name}</span>,
-			leftItem: <CodingAgentIcon iconDataUrl={codingAgent.iconDataUrl} />,
+			leftItem: <CodingAgentIcon codingAgentId={codingAgent.id} size={18} />,
 			onClick: () =>
 				onOpenInCodingAgent(codingAgent.id, codingAgent.nameWithType),
 			quickSwitcherLabel: null,
@@ -82,14 +87,20 @@ export const getOpenInMenuItems = ({
 			type: 'item' as const,
 			value: `coding-agent-${codingAgent.id}`,
 		}));
+	const defaultTerminal = folder
+		? (codingAgentInfo?.installedTerminals.find(
+				(terminal) => terminal.id === codingAgentInfo.defaultTerminal,
+			) ?? null)
+		: null;
+	const showSystemApps = showFinder || defaultTerminal !== null;
 
 	return [
 		...(editors.length > 0
 			? [
 					{
 						type: 'section-header' as const,
-						id: 'editors-header',
-						label: 'Editors',
+						id: 'editor-header',
+						label: 'Editor',
 					},
 					...editors,
 				]
@@ -98,41 +109,69 @@ export const getOpenInMenuItems = ({
 			? [
 					{
 						type: 'section-header' as const,
-						id: 'agents-header',
-						label: 'Agents',
+						id: 'agent-header',
+						label: 'Agent',
 					},
 					...codingAgents,
 				]
 			: []),
-		...(showFinder
+		...(showSystemApps
 			? [
-					...(editors.length > 0 || codingAgents.length > 0
+					...(defaultTerminal
 						? [
 								{
-									type: 'divider' as const,
-									id: 'open-in-file-explorer-divider',
+									type: 'section-header' as const,
+									id: 'terminal-header',
+									label: 'Terminal',
+								},
+								{
+									id: 'open-in-terminal',
+									keyHint: null,
+									label: <span style={menuLabel}>{defaultTerminal.name}</span>,
+									leftItem: (
+										<TerminalIcon terminalId={defaultTerminal.id} size={18} />
+									),
+									onClick: () => onOpenInTerminal?.(defaultTerminal.id),
+									quickSwitcherLabel: null,
+									subMenu: null,
+									type: 'item' as const,
+									value: 'terminal',
 								},
 							]
 						: []),
-					{
-						disabled: fileManagerDisabled,
-						id: 'open-in-file-explorer',
-						keyHint: null,
-						label: <span style={menuLabel}>{fileManagerName}</span>,
-						leftItem: <FinderIcon />,
-						onClick: () => {
-							if (!fileManagerDisabled) {
-								onOpenInFileExplorer();
-							}
-						},
-						quickSwitcherLabel: null,
-						subMenu: null,
-						type: 'item' as const,
-						value: 'file-explorer',
-					},
+					...(showFinder
+						? [
+								...(editors.length > 0 ||
+								codingAgents.length > 0 ||
+								defaultTerminal !== null
+									? [
+											{
+												type: 'divider' as const,
+												id: 'open-in-file-explorer-divider',
+											},
+										]
+									: []),
+								{
+									disabled: fileManagerDisabled,
+									id: 'open-in-file-explorer',
+									keyHint: null,
+									label: <span style={menuLabel}>{fileManagerName}</span>,
+									leftItem: <FinderIcon size={18} />,
+									onClick: () => {
+										if (!fileManagerDisabled) {
+											onOpenInFileExplorer();
+										}
+									},
+									quickSwitcherLabel: null,
+									subMenu: null,
+									type: 'item' as const,
+									value: 'file-explorer',
+								},
+							]
+						: []),
 				]
 			: []),
-		...(editors.length > 0 || codingAgents.length > 0 || showFinder
+		...(editors.length > 0 || codingAgents.length > 0 || showSystemApps
 			? [{type: 'divider' as const, id: 'open-in-settings-divider'}]
 			: []),
 		{

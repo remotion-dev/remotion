@@ -191,6 +191,7 @@ test('deleting a JSX node broadcasts node path mutations for all clients', async
 		entryPoint: filePath,
 		getDefaultCodingAgent: () => null,
 		getDefaultEditor: () => null,
+		getDefaultTerminal: () => null,
 		logLevel: 'error' as const,
 		methods: {
 			addJob: () => undefined,

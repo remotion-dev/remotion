@@ -5,6 +5,7 @@ import type {
 	Codec,
 	ColorSpace,
 	DefaultCodingAgent,
+	DefaultTerminal,
 	LogLevel,
 	PixelFormat,
 	StillImageFormat,
@@ -68,6 +69,15 @@ export type OpenInCodingAgentRequest = {
 };
 
 export type OpenInCodingAgentResponse = {
+	success: boolean;
+};
+
+export type OpenInTerminalRequest = {
+	directory: string;
+	terminalId: DefaultTerminal;
+};
+
+export type OpenInTerminalResponse = {
 	success: boolean;
 };
 
@@ -1046,11 +1056,15 @@ export type GetDefaultEditorInfoResponse = {
 export type GetDefaultCodingAgentInfoRequest = {};
 export type GetDefaultCodingAgentInfoResponse = {
 	defaultCodingAgent: DefaultCodingAgent | null;
+	defaultTerminal: DefaultTerminal | null;
 	installedCodingAgents: {
 		id: DefaultCodingAgent;
 		name: string;
 		nameWithType: string;
-		iconDataUrl: string | null;
+	}[];
+	installedTerminals: {
+		id: DefaultTerminal;
+		name: string;
 	}[];
 };
 
@@ -1123,6 +1137,10 @@ export type ApiRoutes = {
 	>;
 	'/api/find-in-file': ReqAndRes<FindInFileRequest, FindInFileResponse>;
 	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
+	'/api/open-in-terminal': ReqAndRes<
+		OpenInTerminalRequest,
+		OpenInTerminalResponse
+	>;
 	'/api/register-client-render': ReqAndRes<CompletedClientRender, void>;
 	'/api/unregister-client-render': ReqAndRes<{id: string}, void>;
 	'/api/update-default-props': ReqAndRes<

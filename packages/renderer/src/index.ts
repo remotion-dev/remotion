@@ -132,6 +132,8 @@ export type {
 	CustomEditor,
 	DefaultEditor,
 } from './options/default-editor';
+export {defaultTerminalIds} from './options/default-terminal';
+export type {DefaultTerminal} from './options/default-terminal';
 export type {DeleteAfter} from './options/delete-after';
 export {OpenGlRenderer} from './options/gl';
 export {NumberOfGifLoops} from './options/number-of-gif-loops';

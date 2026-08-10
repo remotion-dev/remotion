@@ -8,6 +8,7 @@ const defaultStudioRuntimeConfig: StudioRuntimeConfig = {
 	bufferStateDelayInMilliseconds: null,
 	defaultCodingAgent: null,
 	defaultEditor: null,
+	defaultTerminal: null,
 	interactivityEnabled: true,
 	keyboardShortcutsEnabled: true,
 	maxTimelineTracks: null,

@@ -80,6 +80,8 @@ export {
 	OpenInEditorRequest,
 	OpenInEditorResponse,
 	OpenInFileExplorerRequest,
+	OpenInTerminalRequest,
+	OpenInTerminalResponse,
 	PackageInstallSpec,
 	PasteEffectsRequest,
 	PasteEffectsResponse,

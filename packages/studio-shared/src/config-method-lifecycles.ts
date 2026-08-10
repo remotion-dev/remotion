@@ -36,6 +36,7 @@ export const configMethodLifecycles = {
 	setCrf: 'runtime',
 	setDefaultCodingAgent: 'runtime',
 	setDefaultEditor: 'runtime',
+	setDefaultTerminal: 'runtime',
 	setDelayRenderTimeoutInMilliseconds: 'runtime',
 	setDeleteAfter: 'runtime',
 	setDisallowParallelEncoding: 'runtime',

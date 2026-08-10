@@ -10,3 +10,5 @@ Config.overrideBundlerConfig(async (config) => {
 	return bundlerOverride(config);
 });
 Config.setEnableCrossSiteIsolation(true);
+Config.setDefaultTerminal('terminal');
+Config.setPublicLicenseKey('free-license');

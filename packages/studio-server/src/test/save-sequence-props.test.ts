@@ -193,6 +193,7 @@ test('saveSequenceProps saves inline caption patches as an undoable source edit'
 			configFile: null,
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
+			getDefaultTerminal: () => null,
 		});
 
 		expect(readFileSync(filePath, 'utf-8')).toContain("text: 'Updated'");
@@ -301,6 +302,7 @@ export const Comp = () => {
 			configFile: null,
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
+			getDefaultTerminal: () => null,
 		});
 
 		const output = readFileSync(filePath, 'utf-8');
@@ -416,6 +418,7 @@ export const Comp = () => {
 			configFile: null,
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
+			getDefaultTerminal: () => null,
 		});
 
 		const output = readFileSync(filePath, 'utf-8');

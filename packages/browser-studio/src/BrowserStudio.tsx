@@ -282,6 +282,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 					bufferStateDelayInMilliseconds: null,
 					defaultCodingAgent: null,
 					defaultEditor: null,
+					defaultTerminal: null,
 					interactivityEnabled: true,
 					keyboardShortcutsEnabled: true,
 					maxTimelineTracks: null,

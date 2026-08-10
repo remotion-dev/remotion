@@ -39,6 +39,7 @@ test('reset config options restores defaults before reloading config', async () 
 	Config.setChromiumOpenGlRenderer('angle');
 	Config.setDefaultCodingAgent('codex');
 	Config.setDefaultEditor('cursor');
+	Config.setDefaultTerminal('ghostty');
 	Config.setBufferStateDelayInMilliseconds(200);
 	Config.overrideBundlerConfig((config, {bundler}) => ({
 		...config,
@@ -71,6 +72,10 @@ test('reset config options restores defaults before reloading config', async () 
 		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
 			.value,
 	).toBe('cursor');
+	expect(
+		BrowserSafeApis.options.defaultTerminalOption.getValue({commandLine: {}})
+			.value,
+	).toBe('ghostty');
 	expect(ConfigInternals.getBufferStateDelayInMilliseconds()).toBe(200);
 	const sharedWebpackConfig = await ConfigInternals.getBundlerOverrideFn()(
 		{mode: 'development'},
@@ -116,6 +121,10 @@ test('reset config options restores defaults before reloading config', async () 
 		BrowserSafeApis.options.defaultEditorOption.getValue({commandLine: {}})
 			.value,
 	).toBeNull();
+	expect(
+		BrowserSafeApis.options.defaultTerminalOption.getValue({commandLine: {}})
+			.value,
+	).toBeNull();
 	expect(ConfigInternals.getBufferStateDelayInMilliseconds()).toBeNull();
 	expect(
 		await ConfigInternals.getBundlerOverrideFn()(
@@ -153,6 +162,7 @@ test('CLI app flags take precedence over the configured defaults', () => {
 		executable: '/opt/acme/editor',
 		arguments: ['--goto', '%TARGET_PATH%:%LINE_NUMBER%:%COLUMN_NUMBER%'],
 	});
+	Config.setDefaultTerminal('ghostty');
 
 	expect(
 		BrowserSafeApis.options.defaultCodingAgentOption.getValue({
@@ -164,11 +174,19 @@ test('CLI app flags take precedence over the configured defaults', () => {
 			commandLine: {editor: 'zed'},
 		}),
 	).toEqual({source: 'cli', value: 'zed'});
+	expect(
+		BrowserSafeApis.options.defaultTerminalOption.getValue({
+			commandLine: {terminal: 'wezterm'},
+		}),
+	).toEqual({source: 'cli', value: 'wezterm'});
 	expect(() => Config.setDefaultCodingAgent('invalid' as 'codex')).toThrow(
 		'Config.setDefaultCodingAgent() must be one of',
 	);
 	expect(() => Config.setDefaultEditor('invalid' as 'cursor')).toThrow(
 		'Config.setDefaultEditor() must be one of',
+	);
+	expect(() => Config.setDefaultTerminal('invalid' as 'ghostty')).toThrow(
+		'Config.setDefaultTerminal() must be one of',
 	);
 	expect(() =>
 		Config.setDefaultEditor({

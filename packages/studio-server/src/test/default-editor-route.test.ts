@@ -13,6 +13,7 @@ test('exposes only an opaque ID and name for a configured custom editor', async 
 			executable: '/private/acme/editor',
 			arguments: ['--goto', '%TARGET_PATH%'],
 		}),
+		getDefaultTerminal: () => null,
 		input: {},
 		logLevel: 'error',
 		methods: {

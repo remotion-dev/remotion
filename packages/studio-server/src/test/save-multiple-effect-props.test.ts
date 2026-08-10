@@ -117,6 +117,7 @@ export const Comp = () => {
 			configFile: null,
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
+			getDefaultTerminal: () => null,
 		});
 
 		const output = readFileSync(filePath, 'utf-8');

@@ -2,6 +2,7 @@ import type {IncomingMessage, ServerResponse} from 'node:http';
 import type {
 	DefaultCodingAgent,
 	DefaultEditor,
+	DefaultTerminal,
 	LogLevel,
 } from '@remotion/renderer';
 import type {ApiHandler, QueueMethods} from './api-types';
@@ -21,6 +22,7 @@ export const handleRequest = async <Req, Res>({
 	configFile,
 	getDefaultCodingAgent,
 	getDefaultEditor,
+	getDefaultTerminal,
 }: {
 	remotionRoot: string;
 	publicDir: string;
@@ -31,6 +33,7 @@ export const handleRequest = async <Req, Res>({
 	configFile: string | null;
 	getDefaultCodingAgent: () => DefaultCodingAgent | null;
 	getDefaultEditor: () => DefaultEditor | null;
+	getDefaultTerminal: () => DefaultTerminal | null;
 	handler: ApiHandler<Req, Res>;
 	logLevel: LogLevel;
 	methods: QueueMethods;
@@ -62,6 +65,7 @@ export const handleRequest = async <Req, Res>({
 			configFile,
 			getDefaultCodingAgent,
 			getDefaultEditor,
+			getDefaultTerminal,
 		});
 
 		response.end(

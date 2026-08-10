@@ -17,6 +17,7 @@ import {enableCrossSiteIsolationOption} from './cross-site-isolation';
 import {darkModeOption} from './dark-mode';
 import {defaultCodingAgentOption} from './default-coding-agent';
 import {defaultEditorOption} from './default-editor';
+import {defaultTerminalOption} from './default-terminal';
 import {deleteAfterOption} from './delete-after';
 import {disableGitSourceOption} from './disable-git-source';
 import {disableWebSecurityOption} from './disable-web-security';
@@ -156,6 +157,7 @@ export const allOptions = {
 	darkModeOption,
 	defaultCodingAgentOption,
 	defaultEditorOption,
+	defaultTerminalOption,
 	publicLicenseKeyOption,
 	isProductionOption,
 	askAIOption,
