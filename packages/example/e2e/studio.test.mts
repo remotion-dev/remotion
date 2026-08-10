@@ -780,18 +780,19 @@ test.describe('visual mode', () => {
 		const openInAnotherApp = page
 			.getByTitle(exampleDir)
 			.getByRole('button', {name: 'Open in another app'});
+		const changeDefaultApps = page.getByRole('button', {
+			name: 'Change default apps...',
+		});
 
 		await openInAnotherApp.click();
-		await expect(
-			page.getByRole('button', {name: 'Change default apps...'}),
-		).toBeVisible();
+		await expect(changeDefaultApps).toBeVisible();
 		// The menu overlay intercepts pointerleave; clicking it closes the menu
-		// through the same outside-click path a user would take.
-		await page.mouse.click(10, 100);
-
-		await expect(
-			page.getByRole('button', {name: 'Change default apps...'}),
-		).toBeHidden();
+		// through the same outside-click path a user would take. Retry the click
+		// until the new layer has registered as the highest z-index context.
+		await expect(async () => {
+			await page.mouse.click(10, 100);
+			await expect(changeDefaultApps).toBeHidden({timeout: 1_000});
+		}).toPass({timeout: 10_000});
 		await expect(openInAnotherApp).toHaveCSS(
 			'background-color',
 			'rgba(0, 0, 0, 0)',
