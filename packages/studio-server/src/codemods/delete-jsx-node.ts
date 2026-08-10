@@ -28,6 +28,10 @@ import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {getAstNodePath} from '../helpers/get-ast-node-path';
 import {formatFileContent} from './format-file-content';
+import {
+	captureJsxNodePaths,
+	getNodePathRemappings,
+} from './get-node-path-remappings';
 import {parseAst, serializeAst} from './parse-ast';
 
 const {builders: b, namedTypes} = recast.types;
@@ -421,12 +425,17 @@ export const deleteJsxNodes = async ({
 	formatted: boolean;
 	nodeLabels: string[];
 	logLines: number[];
+	nodePathRemappings: Array<{
+		oldNodePath: SequenceNodePath;
+		newNodePath: SequenceNodePath | null;
+	}>;
 }> => {
 	if (nodePaths.length === 0) {
 		throw new Error('No JSX nodes were specified for deletion');
 	}
 
 	const ast = parseAst(input);
+	const capturedNodePaths = captureJsxNodePaths(ast);
 	const pathsToDelete = nodePaths.map((nodePath) => {
 		const jsxPath = findJsxElementPathForDeletion(ast, nodePath);
 		if (!jsxPath) {
@@ -456,12 +465,18 @@ export const deleteJsxNodes = async ({
 		input: finalFile,
 		prettierConfigOverride,
 	});
+	const nodePathRemappings = getNodePathRemappings({
+		ast,
+		captured: capturedNodePaths,
+		output,
+	});
 
 	return {
 		output,
 		formatted,
 		nodeLabels: pathsToDelete.map(({nodeLabel}) => nodeLabel),
 		logLines: pathsToDelete.map(({logLine}) => logLine),
+		nodePathRemappings,
 	};
 };
 

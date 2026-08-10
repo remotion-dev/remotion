@@ -1,9 +1,25 @@
 import fs, {readFileSync, writeFileSync} from 'node:fs';
 
+export type FileChangeMetadata = {
+	skipSequencePropsUpdate: boolean;
+};
+
+type WriteFileAndNotifyFileWatchersOptions = {
+	file: string;
+	content: string;
+	originatorClientId: string | undefined;
+	metadata: FileChangeMetadata | null;
+};
+
 export type FileChangeEvent =
 	| {type: 'created'; content: string; originatorClientId: string | undefined}
 	| {type: 'deleted'}
-	| {type: 'changed'; content: string; originatorClientId: string | undefined};
+	| {
+			type: 'changed';
+			content: string;
+			originatorClientId: string | undefined;
+			skipSequencePropsUpdate: boolean;
+	  };
 
 type OnChange = (event: FileChangeEvent) => void;
 
@@ -33,9 +49,7 @@ export type FileWatcherRegistry = {
 		unwatch: () => void;
 	};
 	writeFileAndNotifyFileWatchers: (
-		file: string,
-		content: string,
-		originatorClientId: string | undefined,
+		options: WriteFileAndNotifyFileWatchersOptions,
 	) => void;
 };
 
@@ -121,7 +135,12 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 				}
 
 				shared.lastKnownContent = content;
-				event = {type: 'changed', content, originatorClientId: undefined};
+				event = {
+					type: 'changed',
+					content,
+					originatorClientId: undefined,
+					skipSequencePropsUpdate: false,
+				};
 			}
 
 			if (!event) {
@@ -148,11 +167,12 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 		};
 	};
 
-	const _writeFileAndNotifyFileWatchers = (
-		file: string,
-		content: string,
-		originatorClientId: string | undefined,
-	) => {
+	const _writeFileAndNotifyFileWatchers = ({
+		file,
+		content,
+		originatorClientId,
+		metadata,
+	}: WriteFileAndNotifyFileWatchersOptions) => {
 		writeFileSync(file, content);
 
 		const shared = sharedWatchers.get(getRegistryKey(file, false));
@@ -164,7 +184,12 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 		shared.existedBefore = true;
 
 		for (const subscriber of shared.subscribers) {
-			subscriber({type: 'changed', content, originatorClientId});
+			subscriber({
+				type: 'changed',
+				content,
+				originatorClientId,
+				skipSequencePropsUpdate: metadata?.skipSequencePropsUpdate ?? false,
+			});
 		}
 	};
 
@@ -207,14 +232,10 @@ export const installFileWatcher: FileWatcherRegistry['installFileWatcher'] = (
 };
 
 export const writeFileAndNotifyFileWatchers: FileWatcherRegistry['writeFileAndNotifyFileWatchers'] =
-	(file, content, originatorClientId) => {
+	(options) => {
 		if (!currentRegistry) {
 			return;
 		}
 
-		getFileWatcherRegistry().writeFileAndNotifyFileWatchers(
-			file,
-			content,
-			originatorClientId,
-		);
+		getFileWatcherRegistry().writeFileAndNotifyFileWatchers(options);
 	};

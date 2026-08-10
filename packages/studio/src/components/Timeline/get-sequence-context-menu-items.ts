@@ -10,6 +10,7 @@ import {formatContextForAgents} from '../../helpers/format-file-location';
 import {getOpenInMenuItems} from '../get-open-in-menu-items';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {openInFileExplorer} from '../RenderQueue/actions';
 import type {TimelineAssetLinkInfo} from './timeline-asset-link';
 import {openTimelineAssetLink} from './timeline-asset-link';
 
@@ -114,9 +115,21 @@ export const getSequenceContextMenuItems = ({
 				editorInfo,
 				excludeCodingAgentId: defaultCodingAgent?.id ?? null,
 				excludeEditorId: defaultEditorId,
+				fileManagerDisabled: !originalLocation?.source,
 				onConfigureApps,
 				onOpenInCodingAgent: openInCodingAgentWithContext,
 				onOpenInEditor: openInEditor,
+				onOpenInFileExplorer: () => {
+					if (!originalLocation?.source) {
+						return;
+					}
+
+					openInFileExplorer({directory: originalLocation.source}).catch(
+						(err) => {
+							showNotification(`Could not open file: ${err.message}`, 2000);
+						},
+					);
+				},
 			})
 		: [];
 

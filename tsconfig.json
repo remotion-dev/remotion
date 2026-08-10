@@ -271,6 +271,9 @@
 			"path": "./packages/light-leaks"
 		},
 		{
+			"path": "./packages/mac-cursors"
+		},
+		{
 			"path": "./packages/rough-notation"
 		},
 		{

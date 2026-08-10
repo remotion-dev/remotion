@@ -14,6 +14,7 @@ import {dropShadow} from '../drop-shadow/index.js';
 import {duotone} from '../duotone.js';
 import {emboss} from '../emboss.js';
 import {evolve} from '../evolve.js';
+import {exposure} from '../exposure.js';
 import {fisheye} from '../fisheye/index.js';
 import {flannel} from '../flannel.js';
 import {glow} from '../glow/index.js';
@@ -67,6 +68,7 @@ import {venetianBlinds} from '../venetian-blinds.js';
 import {vignette} from '../vignette.js';
 import {wave} from '../wave/index.js';
 import {waves} from '../waves.js';
+import {whiteBalance} from '../white-balance.js';
 import {whiteNoise} from '../white-noise.js';
 import {zigzag} from '../zigzag.js';
 import {zoomBlur} from '../zoom-blur/index.js';
@@ -128,6 +130,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(evolve().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/evolve',
+	);
+	expect(exposure().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/exposure',
 	);
 	expect(dropShadow().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/drop-shadow',
@@ -282,6 +287,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(whiteNoise().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/white-noise',
 	);
+	expect(whiteBalance().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/white-balance',
+	);
 	expect(zoomBlur().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/zoom-blur',
 	);
@@ -300,6 +308,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(liquidContours().definition.label).toBe('liquidContours()');
 	expect(duotone().definition.label).toBe('duotone()');
 	expect(evolve().definition.label).toBe('evolve()');
+	expect(exposure().definition.label).toBe('exposure()');
 	expect(dropShadow().definition.label).toBe('dropShadow()');
 	expect(emboss().definition.label).toBe('emboss()');
 	expect(fisheye().definition.label).toBe('fisheye()');
@@ -358,6 +367,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(wave().definition.label).toBe('wave()');
 	expect(waves().definition.label).toBe('waves()');
 	expect(zigzag().definition.label).toBe('zigzag()');
+	expect(whiteBalance().definition.label).toBe('whiteBalance()');
 	expect(whiteNoise().definition.label).toBe('whiteNoise()');
 	expect(zoomBlur().definition.label).toBe('zoomBlur()');
 });
@@ -941,6 +951,66 @@ test('brightness() amount produces distinct effect keys', () => {
 	const brighter = brightness({amount: 0.4});
 	expect(
 		new Set([darker.effectKey, neutral.effectKey, brighter.effectKey]).size,
+	).toBe(3);
+});
+
+test('exposure() accepts default params', () => {
+	expect(() => exposure()).not.toThrow();
+});
+
+test('exposure() rejects non-finite stops', () => {
+	expect(() => exposure({stops: Number.NaN})).toThrow(
+		'"stops" must be a finite number',
+	);
+});
+
+test('exposure() rejects stops below range', () => {
+	expect(() => exposure({stops: -5.1})).toThrow('"stops" must be >= -5');
+});
+
+test('exposure() rejects stops above range', () => {
+	expect(() => exposure({stops: 5.1})).toThrow('"stops" must be <= 5');
+});
+
+test('exposure() stops produce distinct effect keys', () => {
+	const darker = exposure({stops: -1});
+	const neutral = exposure();
+	const brighter = exposure({stops: 1});
+	expect(
+		new Set([darker.effectKey, neutral.effectKey, brighter.effectKey]).size,
+	).toBe(3);
+});
+
+test('whiteBalance() accepts default params', () => {
+	expect(() => whiteBalance()).not.toThrow();
+});
+
+test('whiteBalance() rejects non-finite parameters', () => {
+	expect(() => whiteBalance({temperature: Number.NaN})).toThrow(
+		'"temperature" must be a finite number',
+	);
+	expect(() => whiteBalance({tint: Number.POSITIVE_INFINITY})).toThrow(
+		'"tint" must be a finite number',
+	);
+});
+
+test('whiteBalance() rejects parameters outside the signed unit interval', () => {
+	expect(() => whiteBalance({temperature: -1.1})).toThrow(
+		'"temperature" must be >= -1',
+	);
+	expect(() => whiteBalance({temperature: 1.1})).toThrow(
+		'"temperature" must be <= 1',
+	);
+	expect(() => whiteBalance({tint: -1.1})).toThrow('"tint" must be >= -1');
+	expect(() => whiteBalance({tint: 1.1})).toThrow('"tint" must be <= 1');
+});
+
+test('whiteBalance() parameters produce distinct effect keys', () => {
+	const neutral = whiteBalance();
+	const warmer = whiteBalance({temperature: 0.5});
+	const moreMagenta = whiteBalance({tint: 0.5});
+	expect(
+		new Set([neutral.effectKey, warmer.effectKey, moreMagenta.effectKey]).size,
 	).toBe(3);
 });
 

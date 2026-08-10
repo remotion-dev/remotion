@@ -17,6 +17,7 @@ import {EffectsDropShadowPreview} from '../../components/effects/effects-drop-sh
 import {EffectsDuotonePreview} from '../../components/effects/effects-duotone-preview';
 import {EffectsEmbossPreview} from '../../components/effects/effects-emboss-preview';
 import {EffectsEvolvePreview} from '../../components/effects/effects-evolve-preview';
+import {EffectsExposurePreview} from '../../components/effects/effects-exposure-preview';
 import {EffectsFisheyePreview} from '../../components/effects/effects-fisheye-preview';
 import {EffectsFlannelPreview} from '../../components/effects/effects-flannel-preview';
 import {EffectsGlowPreview} from '../../components/effects/effects-glow-preview';
@@ -95,6 +96,7 @@ import {EffectsVenetianBlindsPreview} from '../../components/effects/effects-ven
 import {EffectsVignettePreview} from '../../components/effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../../components/effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../../components/effects/effects-waves-preview';
+import {EffectsWhiteBalancePreview} from '../../components/effects/effects-white-balance-preview';
 import {EffectsWhiteNoisePreview} from '../../components/effects/effects-white-noise-preview';
 import {EffectsZigzagPreview} from '../../components/effects/effects-zigzag-preview';
 import {EffectsZoomBlurPreview} from '../../components/effects/effects-zoom-blur-preview';
@@ -280,6 +282,20 @@ export const RemotionRoot: React.FC = () => {
 						direction: 'left',
 						feather: 0.18,
 					}}
+				/>
+				<Still
+					id="effects-exposure-preview"
+					component={EffectsExposurePreview}
+					width={1280}
+					height={720}
+					defaultProps={{stops: 1}}
+				/>
+				<Still
+					id="effects-white-balance-preview"
+					component={EffectsWhiteBalancePreview}
+					width={1280}
+					height={720}
+					defaultProps={{temperature: 0.8, tint: 0.2}}
 				/>
 				<Still
 					id="effects-venetian-blinds-preview"

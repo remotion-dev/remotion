@@ -1,0 +1,212 @@
+---
+image: /generated/articles-docs-mediabunny-frame-rate.png
+title: Getting the frame rate of a video
+crumb: 'Mediabunny'
+sidebar_label: Getting the frame rate
+---
+
+Videos can have one of two types of frame rates:
+
+- Constant frame rate: The time interval between frames is static.
+  30 FPS and 60 FPS are common values for constant frame rate videos.
+- Variable frame rate: The time interval between frames varies.
+  This is most common for screen recordings, where a frame is only sampled when the content has changed.
+
+## Getting the frame rate using Mediabunny
+
+Use [Mediabunny](https://mediabunny.dev) to determine the frame rate of a video.
+
+There is no native method to determine whether a video has a variable frame rate, but you can probe it by reading some packets without causing expensive decoding work.
+
+```ts twoslash title="get-video-frame-rate.ts"
+import {EncodedPacketSink, Input} from 'mediabunny';
+
+export type VideoFrameRate =
+  | {
+      type: 'constant';
+      rate: number;
+    }
+  | {
+      type: 'variable';
+      max: number;
+      average: number;
+    };
+
+const commonFpsValues = [
+  24000 / 1001,
+  24,
+  25,
+  30000 / 1001,
+  30,
+  50,
+  60000 / 1001,
+  60,
+  120,
+];
+
+const snapToCommonFps = (fps: number) => {
+  return commonFpsValues.find(
+    (commonFps) => Math.abs(fps - commonFps) < 0.01,
+  ) ?? fps;
+};
+
+export const getVideoFrameRate = async (
+  input: Input,
+): Promise<VideoFrameRate | null> => {
+  const videoTrack = await input.getPrimaryVideoTrack();
+  if (!videoTrack) {
+    return null;
+  }
+
+  const packetSampleCount = 121;
+  const timestamps = new Set<number>();
+  const sink = new EncodedPacketSink(videoTrack);
+  let endTimestamp = -Infinity;
+
+  for await (const packet of sink.packets(undefined, undefined, {
+    metadataOnly: true,
+  })) {
+    if (
+      timestamps.size >= packetSampleCount &&
+      packet.timestamp >= endTimestamp
+    ) {
+      break;
+    }
+
+    timestamps.add(packet.timestamp);
+    endTimestamp = Math.max(
+      endTimestamp,
+      packet.timestamp + packet.duration,
+    );
+  }
+
+  if (timestamps.size < 2) {
+    return null;
+  }
+
+  const sortedTimestamps = [...timestamps].sort((a, b) => a - b);
+  sortedTimestamps.splice(packetSampleCount);
+
+  const intervals = sortedTimestamps.slice(1).map((timestamp, index) => {
+    return timestamp - sortedTimestamps[index];
+  });
+  const averageInterval =
+    intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
+  const toleranceInSeconds = 1.01 / 1000;
+  const intervalSpread = Math.max(...intervals) - Math.min(...intervals);
+  const isConstant = intervalSpread <= toleranceInSeconds;
+
+  if (isConstant) {
+    return {
+      type: 'constant',
+      rate: snapToCommonFps(1 / averageInterval),
+    };
+  }
+
+  return {
+    type: 'variable',
+    max: 1 / Math.min(...intervals),
+    average: 1 / averageInterval,
+  };
+};
+```
+
+Note that:
+
+- Video timestamps have limited precision. For example, Matroska timestamps commonly have millisecond precision, leading to uneven timestamps such as `33 ms`, `67 ms`, and `100 ms`.
+  We still consider this a constant frame rate video, so we allow the intervals to vary by slightly more than one millisecond (also allowing for floating point inaccuracies).
+- For the same reason, we snap constant frame rates to common values because the calculation may be slightly off depending on how many packets are read.
+  You still want a 30 FPS timeline if the calculation returns, for example, 30.003 FPS.
+- With too few packet timestamps, some frame rates cannot be distinguished, such as 29.97 and 30 FPS or 59.94 and 60 FPS. We sample 121 packet timestamps to reliably detect these fractional frame rates.
+- Mediabunny returns encoded packets in decode order, which may differ from presentation order when a video uses B-frames. The loop may read a few additional packet timestamps to finish the current group before sorting them and keeping the first 121.
+
+## Matching a Remotion composition to the frame rate
+
+For constant frame rate videos, it is recommended to align Remotion's timeline frame rate to the source videos you are importing.
+
+Remotion and pretty much every other video editor do not support variable frame rate timelines or outputting variable frame rate videos.
+You must specify a constant frame rate for your composition.
+
+Changing the frame rate can be lossy.
+
+To minimize frame loss, set the composition frame rate based on the smallest interval between two frames of the source video.
+
+<details>
+<summary>
+Don't use the average frame rate when dealing with variable frame rate videos
+</summary>
+
+Consider a 10-second screen recording where:
+
+- For the first 5 seconds there is no movement on the screen
+- For the next 5 seconds, as the mouse cursor starts moving, frames are written with up to 120 FPS.
+
+A naive implementation would look at Mediabunny's [`averagePacketRate`](https://mediabunny.dev/api/PacketStats#averagepacketrate) and determine that the average FPS is 60.
+
+However, by setting the timeline to 60 FPS, every second frame in the second half of the video will be dropped.
+
+</details>
+
+### Usage example
+
+Use [`calculateMetadata()`](/docs/calculate-metadata) to match the composition FPS to the source video:
+
+```twoslash include frame-rate-helper
+// @filename: get-video-frame-rate.ts
+import type {Input} from 'mediabunny';
+
+export type VideoFrameRate =
+  | {type: 'constant'; rate: number}
+  | {type: 'variable'; max: number; average: number};
+
+export declare const getVideoFrameRate: (
+  input: Input,
+) => Promise<VideoFrameRate | null>;
+```
+
+```ts twoslash title="calculate-metadata.ts"
+// @include: frame-rate-helper
+// @filename: calculate-metadata.ts
+// ---cut---
+import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
+import type {CalculateMetadataFunction} from 'remotion';
+import {getVideoFrameRate} from './get-video-frame-rate';
+
+type Props = {
+  src: string;
+};
+
+export const calculateMetadata: CalculateMetadataFunction<Props> = async ({
+  props,
+}) => {
+  using input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(props.src, {
+      getRetryDelay: () => null,
+    }),
+  });
+
+  const [frameRate, durationInSeconds] = await Promise.all([
+    getVideoFrameRate(input),
+    input.computeDuration(),
+  ]);
+  const fps =
+    frameRate === null
+      ? 30 // Fallback if none or not enough video frames are available
+      : frameRate.type === 'constant'
+        ? frameRate.rate
+        : frameRate.max;
+
+  return {
+    fps,
+    durationInFrames: Math.floor(durationInSeconds * fps),
+  };
+};
+```
+
+If the frame rate cannot be determined, the composition uses 30 FPS.  
+The `durationInFrames` is adjusted to preserve the duration of the source video.
+
+## See also
+
+- [Getting metadata from a video](/docs/mediabunny/metadata)

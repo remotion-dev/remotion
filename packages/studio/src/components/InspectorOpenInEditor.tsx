@@ -1,6 +1,6 @@
 import type {DefaultCodingAgent} from '@remotion/renderer';
 import type {EditorPickerId} from '@remotion/studio-shared';
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
@@ -22,6 +22,7 @@ import type {RenderInlineAction} from './InlineAction';
 import {InlineDropdown} from './InlineDropdown';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
+import {openInFileExplorer} from './RenderQueue/actions';
 import {
 	canUseEditorPicker,
 	getPreferredEditorId,
@@ -68,6 +69,7 @@ export const InspectorOpenInEditor: React.FC<{
 	const {tabIndex} = useZIndex();
 	const [hovered, setHovered] = useState(false);
 	const [dropdownOpened, setDropdownOpened] = useState(false);
+	const ignorePointerEnter = useRef(false);
 	const editorPickerAvailable = canUseEditorPicker(
 		previewServerState.type === 'connected',
 	);
@@ -119,6 +121,7 @@ export const InspectorOpenInEditor: React.FC<{
 	const onDropdownOpenChange = useCallback((open: boolean) => {
 		setDropdownOpened(open);
 		if (!open) {
+			ignorePointerEnter.current = true;
 			setHovered(false);
 		}
 	}, []);
@@ -157,6 +160,7 @@ export const InspectorOpenInEditor: React.FC<{
 			editorInfo,
 			excludeCodingAgentId: null,
 			excludeEditorId: preferredEditorId,
+			fileManagerDisabled: !location?.source,
 			onConfigureApps: () => {
 				setSelectedModal({
 					type: 'settings',
@@ -172,6 +176,15 @@ export const InspectorOpenInEditor: React.FC<{
 			},
 			onOpenInEditor: (editorId) => {
 				openWithEditor(editorId).catch(() => undefined);
+			},
+			onOpenInFileExplorer: () => {
+				if (!location?.source) {
+					return;
+				}
+
+				openInFileExplorer({directory: location.source}).catch((err) => {
+					showNotification(`Could not open file: ${err.message}`, 2000);
+				});
 			},
 		});
 	}, [
@@ -191,8 +204,15 @@ export const InspectorOpenInEditor: React.FC<{
 	return (
 		<div
 			style={splitButton}
-			onPointerEnter={() => setHovered(true)}
-			onPointerLeave={() => setHovered(false)}
+			onPointerEnter={() => {
+				if (!ignorePointerEnter.current) {
+					setHovered(true);
+				}
+			}}
+			onPointerLeave={() => {
+				ignorePointerEnter.current = false;
+				setHovered(false);
+			}}
 		>
 			<button
 				aria-label={`Open in ${editorName}`}

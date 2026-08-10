@@ -13,6 +13,7 @@ import {dropShadow} from '@remotion/effects/drop-shadow';
 import {duotone} from '@remotion/effects/duotone';
 import {emboss} from '@remotion/effects/emboss';
 import {evolve} from '@remotion/effects/evolve';
+import {exposure} from '@remotion/effects/exposure';
 import {fisheye} from '@remotion/effects/fisheye';
 import {flannel} from '@remotion/effects/flannel';
 import {glow} from '@remotion/effects/glow';
@@ -58,6 +59,7 @@ import {venetianBlinds} from '@remotion/effects/venetian-blinds';
 import {vignette} from '@remotion/effects/vignette';
 import {wave} from '@remotion/effects/wave';
 import {waves} from '@remotion/effects/waves';
+import {whiteBalance} from '@remotion/effects/white-balance';
 import {whiteNoise} from '@remotion/effects/white-noise';
 import {zigzag} from '@remotion/effects/zigzag';
 import {zoomBlur} from '@remotion/effects/zoom-blur';
@@ -76,6 +78,7 @@ import {EffectsDropShadowPreview} from '../effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
 import {EffectsEmbossPreview} from '../effects/effects-emboss-preview';
 import {EffectsEvolvePreview} from '../effects/effects-evolve-preview';
+import {EffectsExposurePreview} from '../effects/effects-exposure-preview';
 import {EffectsFisheyePreview} from '../effects/effects-fisheye-preview';
 import {EffectsFlannelPreview} from '../effects/effects-flannel-preview';
 import {EffectsGlowPreview} from '../effects/effects-glow-preview';
@@ -146,6 +149,7 @@ import {EffectsVenetianBlindsPreview} from '../effects/effects-venetian-blinds-p
 import {EffectsVignettePreview} from '../effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../effects/effects-waves-preview';
+import {EffectsWhiteBalancePreview} from '../effects/effects-white-balance-preview';
 import {EffectsWhiteNoisePreview} from '../effects/effects-white-noise-preview';
 import {EffectsZigzagPreview} from '../effects/effects-zigzag-preview';
 import {EffectsZoomBlurPreview} from '../effects/effects-zoom-blur-preview';
@@ -239,6 +243,22 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/evolve',
 		comp: EffectsEvolvePreview,
 		schema: evolve().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-exposure',
+		effectName: 'exposure',
+		effectImportPath: '@remotion/effects/exposure',
+		comp: EffectsExposurePreview,
+		schema: exposure().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-white-balance',
+		effectName: 'whiteBalance',
+		effectImportPath: '@remotion/effects/white-balance',
+		comp: EffectsWhiteBalancePreview,
+		schema: whiteBalance().definition.schema,
 	},
 	{
 		...defaults,

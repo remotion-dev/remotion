@@ -130,14 +130,11 @@ export const HigherZIndex: React.FC<{
 			});
 		};
 
-		// If a menu is opened, then this component will also still receive the pointerdown event.
-		// However we may not interpret it as a outside click, so we need to wait for the next tick
-		requestAnimationFrame(() => {
-			// The third argument `true` registers a capture-phase listener. Some Studio
-			// elements stop pointerdown propagation while still being outside the menu,
-			// so bubbling listeners would miss those clicks and keep the menu open.
-			window.addEventListener('pointerdown', listener, true);
-		});
+		// The capture phase for the pointerdown that opened this layer has already
+		// passed, so installing the listener immediately cannot dismiss the new layer.
+		// Waiting for the next animation frame would leave a window in which a fast
+		// outside click is missed.
+		window.addEventListener('pointerdown', listener, true);
 		return () => {
 			endPointerSession?.();
 			endPointerSession = null;

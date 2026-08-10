@@ -43,6 +43,7 @@ const visualModeSetters = {
 	clearDragOverrides: () => undefined,
 	setEffectDragOverrides: () => undefined,
 	clearEffectDragOverrides: () => undefined,
+	remapPropStatuses: () => undefined,
 	setPropStatuses: () => undefined,
 };
 

@@ -5,7 +5,7 @@ import {
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
 	getCompositionFile,
-	insertSolidIntoProject,
+	insertSolidIntoProjectWithNodePathRemappings,
 	JsxElementIdentityMismatchError,
 	JsxElementNotFoundAtLocationError,
 } from '@remotion/studio-codemods';
@@ -22,7 +22,10 @@ import {makeBrowserStudioProjectArchive} from './download-project';
 import {saveSequencePropsInProject} from './save-sequence-props';
 import type {VirtualProject} from './types';
 
-export {insertSolidIntoProject} from '@remotion/studio-codemods';
+export {
+	insertSolidIntoProject,
+	insertSolidIntoProjectWithNodePathRemappings,
+} from '@remotion/studio-codemods';
 
 export type BrowserStudioOperationsController = BrowserStudioOperations & {
 	emitEvent: (event: EventSourceEvent) => void;
@@ -87,10 +90,12 @@ export const createBrowserStudioOperations = ({
 	const controller = createBrowserStudioProjectController({
 		getStaticFiles,
 		getProject,
-		onProjectChange: (project) => {
+		onProjectChange: (project, metadata) => {
 			onProjectChange(project);
 			refreshDefaultPropsSubscriptions();
-			refreshSequencePropsSubscriptions();
+			if (!metadata.skipSequencePropsUpdate) {
+				refreshSequencePropsSubscriptions();
+			}
 		},
 	});
 
@@ -212,15 +217,26 @@ export const createBrowserStudioOperations = ({
 			),
 		insertSolid: (request) => {
 			try {
-				controller.applyMutation({
-					fileName: request.compositionFile,
-					mutate: (project) =>
-						insertSolidIntoProject({
-							project,
-							request,
-						}),
+				const result = insertSolidIntoProjectWithNodePathRemappings({
+					project: getProject(),
+					request,
 				});
-				return Promise.resolve({success: true});
+				const nodePathMutation = controller.applyMutation({
+					fileName: result.filePath,
+					mutate: () => result.project,
+					nodePathMutationFiles: [
+						{
+							absolutePath: result.filePath,
+							remappings: result.nodePathRemappings,
+							restoredNodePaths: [],
+						},
+					],
+				});
+				if (nodePathMutation === null) {
+					throw new Error('Could not insert <Solid>');
+				}
+
+				return Promise.resolve({success: true, nodePathMutation});
 			} catch (error) {
 				return Promise.resolve({
 					success: false,
@@ -239,6 +255,7 @@ export const createBrowserStudioOperations = ({
 				const firstTarget = request.edits[0] ?? request.captionPatches?.[0];
 				controller.applyMutation({
 					fileName: firstTarget?.fileName ?? 'Sequence props',
+					nodePathMutationFiles: null,
 					mutate: (project) => {
 						const result = saveSequencePropsInProject({project, request});
 						response = result.response;

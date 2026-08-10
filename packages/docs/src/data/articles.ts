@@ -1944,6 +1944,15 @@ export const articles = [
 		slug: 'effects/evolve',
 	},
 	{
+		id: 'effects/exposure',
+		title: 'exposure()',
+		relativePath: 'docs/effects/exposure.mdx',
+		compId: 'articles-docs-effects-exposure',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/exposure',
+	},
+	{
 		id: 'effects/fisheye',
 		title: 'fisheye()',
 		relativePath: 'docs/effects/fisheye.mdx',
@@ -2356,6 +2365,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/waves',
+	},
+	{
+		id: 'effects/white-balance',
+		title: 'whiteBalance()',
+		relativePath: 'docs/effects/white-balance.mdx',
+		compId: 'articles-docs-effects-white-balance',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/white-balance',
 	},
 	{
 		id: 'effects/white-noise',
@@ -4489,6 +4507,15 @@ export const articles = [
 		crumb: 'Mediabunny',
 		noAi: false,
 		slug: 'mediabunny/formats',
+	},
+	{
+		id: 'mediabunny/frame-rate',
+		title: 'Getting the frame rate of a video',
+		relativePath: 'docs/mediabunny/frame-rate.mdx',
+		compId: 'articles-docs-mediabunny-frame-rate',
+		crumb: 'Mediabunny',
+		noAi: false,
+		slug: 'mediabunny/frame-rate',
 	},
 	{
 		id: 'mediabunny/index',

@@ -108,6 +108,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-exposure',
+		category: 'Color',
+		label: 'exposure()',
+		description: 'Stop-based exposure adjustment',
+		effect: {
+			name: 'exposure',
+			importPath: '@remotion/effects/exposure',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-grayscale',
 		category: 'Color',
 		label: 'grayscale()',
@@ -162,6 +173,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 			config: {
 				color: '#1ec8ff',
 			},
+		},
+	},
+	{
+		id: 'effects-white-balance',
+		category: 'Color',
+		label: 'whiteBalance()',
+		description: 'Temperature and tint correction',
+		effect: {
+			name: 'whiteBalance',
+			importPath: '@remotion/effects/white-balance',
+			config: {},
 		},
 	},
 	{

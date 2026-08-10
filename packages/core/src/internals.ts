@@ -180,6 +180,7 @@ import {
 	type CanUpdateSequencePropsResponseTrue,
 	type SequenceNodePath,
 	type SequencePropsSubscriptionKey,
+	type SequencePropsStatusRemapping,
 	type VideoConfigValues,
 } from './SequenceManager.js';
 import {setupEnvVariables} from './setup-env-variables.js';
@@ -498,6 +499,7 @@ export type {
 	InteractivitySchemaField,
 	SequenceNodePath,
 	SequencePropsSubscriptionKey,
+	SequencePropsStatusRemapping,
 	VideoConfigValues,
 	InteractivitySchema,
 	SerializedJSONWithCustomFields,

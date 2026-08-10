@@ -20,6 +20,7 @@ const effectEntrypoints = [
 	'src/duotone.ts',
 	'src/emboss.ts',
 	'src/evolve.ts',
+	'src/exposure.ts',
 	'src/fisheye.ts',
 	'src/flannel.ts',
 	'src/corner-pin.ts',
@@ -68,6 +69,7 @@ const effectEntrypoints = [
 	'src/wave.ts',
 	'src/waves.ts',
 	'src/zigzag.ts',
+	'src/white-balance.ts',
 	'src/white-noise.ts',
 	'src/zoom-blur.ts',
 ];

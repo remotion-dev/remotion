@@ -43,6 +43,7 @@
 		{"path": "../whisper-web"},
 		{"path": "../studio-protocol"},
 		{"path": "../light-leaks"},
+		{"path": "../mac-cursors"},
 		{"path": "../starburst"},
 		{"path": "../sfx"},
 		{"path": "../layout-utils"},

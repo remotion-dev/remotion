@@ -1,4 +1,5 @@
 import type {ApiRoutes} from '@remotion/studio-shared';
+import {queueSequenceNodePathMutationFromApiResponse} from '../helpers/sequence-node-path-mutations';
 
 export const callApi = <Endpoint extends keyof ApiRoutes>(
 	endpoint: Endpoint,
@@ -22,6 +23,7 @@ export const callApi = <Endpoint extends keyof ApiRoutes>(
 						| {success: false; error: string},
 				) => {
 					if (data.success) {
+						queueSequenceNodePathMutationFromApiResponse(data.data);
 						resolve(data.data);
 					} else {
 						reject(new Error(data.error));
