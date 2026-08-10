@@ -25,8 +25,6 @@ import {
 	useVideoConfig,
 } from 'remotion';
 
-// Reference: https://www.youtube.com/watch?v=D_PtYPnKBJs&t=76s
-// A world map establishes the route before the camera moves in.
 type MapFlyoverLayerProps = InteractiveBaseProps &
 	InteractiveTransformProps & {
 		readonly destination?: readonly [number, number];
@@ -204,7 +202,6 @@ const calculateMapPlate = ({
 	return {
 		center,
 		height: plateHeight,
-		overviewZoom,
 		width: plateWidth,
 		zoom,
 	};
@@ -332,8 +329,6 @@ const MapFlyoverLayerInner = forwardRef<
 		);
 		const routeDistance = useMemo(() => turf.length(route), [route]);
 
-		// Render the basemap once at the closest camera zoom. Per-frame CSS
-		// transforms move this oversized plate without loading new map tiles.
 		const mapPlate = useMemo(
 			() => calculateMapPlate({height, route, routeDistance, width}),
 			[height, route, routeDistance, width],
@@ -342,7 +337,7 @@ const MapFlyoverLayerInner = forwardRef<
 			() => projectFlyoverRoute(route, mapPlate),
 			[mapPlate, route],
 		);
-		const travelStart = 50;
+		const travelStart = 0;
 		const travelEnd = 205;
 		const travelProgress = interpolate(
 			frame,
@@ -396,35 +391,9 @@ const MapFlyoverLayerInner = forwardRef<
 			},
 		);
 		const currentPoint = projectedOverlay.pointAtProgress(travelProgress);
-		const cameraTransition = interpolate(frame, [15, 50], [0, 1], {
-			easing: Easing.inOut(Easing.cubic),
-			extrapolateLeft: 'clamp',
-			extrapolateRight: 'clamp',
-		});
-		const projectedCameraCenter = {
-			x: interpolate(
-				cameraTransition,
-				[0, 1],
-				[mapPlate.width / 2, currentPoint.x],
-			),
-			y: interpolate(
-				cameraTransition,
-				[0, 1],
-				[mapPlate.height / 2, currentPoint.y],
-			),
-		};
-		const cameraZoom = interpolate(
-			cameraTransition,
-			[0, 1],
-			[mapPlate.overviewZoom, mapPlate.zoom],
-		);
-		const plateScale = 2 ** (cameraZoom - mapPlate.zoom);
-
-		// Keep frame-reactive graphics out of MapLibre's async render pipeline.
-		// The SVG and basemap use the exact same deterministic plate transform.
-		const plateTransform = `translate(${width / 2 - projectedCameraCenter.x * plateScale}px, ${
-			height / 2 - projectedCameraCenter.y * plateScale
-		}px) scale(${plateScale})`;
+		const plateTransform = `translate(${width / 2 - currentPoint.x}px, ${
+			height / 2 - currentPoint.y
+		}px)`;
 
 		useLayoutEffect(() => {
 			if (map) {
@@ -441,8 +410,6 @@ const MapFlyoverLayerInner = forwardRef<
 
 			const mapInstance = new maplibregl.Map({
 				container: mapContainerRef.current,
-				// NASA Blue Marble is satellite imagery without political borders.
-				// Source: NASA EOSDIS GIBS, accessed August 2026.
 				style: {
 					version: 8,
 					sources: {
