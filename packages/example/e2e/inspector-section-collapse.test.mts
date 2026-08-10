@@ -307,26 +307,28 @@ test.describe('inspector section collapse', () => {
 			),
 		).toBeNull();
 		const rotationBefore = read2DTransformRotation();
-		const insidePoint = await canvasRotationSurface.evaluate((surface) => {
-			const box = surface.getBoundingClientRect();
-			for (let yIndex = 1; yIndex < 10; yIndex++) {
-				for (let xIndex = 1; xIndex < 10; xIndex++) {
-					const point = {
-						x: box.x + (box.width * xIndex) / 10,
-						y: box.y + (box.height * yIndex) / 10,
-					};
-					if (
-						document
-							.elementFromPoint(point.x, point.y)
-							?.closest('[data-remotion-studio-canvas-rotation]') === surface
-					) {
-						return point;
+		const getInteractiveRotationPoint = () =>
+			canvasRotationSurface.evaluate((surface) => {
+				const box = surface.getBoundingClientRect();
+				for (let yIndex = 1; yIndex < 10; yIndex++) {
+					for (let xIndex = 1; xIndex < 10; xIndex++) {
+						const point = {
+							x: box.x + (box.width * xIndex) / 10,
+							y: box.y + (box.height * yIndex) / 10,
+						};
+						if (
+							document
+								.elementFromPoint(point.x, point.y)
+								?.closest('[data-remotion-studio-canvas-rotation]') === surface
+						) {
+							return point;
+						}
 					}
 				}
-			}
 
-			throw new Error('Rotation surface should have an interactive point');
-		});
+				throw new Error('Rotation surface should have an interactive point');
+			});
+		const insidePoint = await getInteractiveRotationPoint();
 		await page.mouse.move(insidePoint.x, insidePoint.y);
 		await page.mouse.down();
 		await page.mouse.move(insidePoint.x + 40, insidePoint.y + 30, {steps: 5});
@@ -337,6 +339,34 @@ test.describe('inspector section collapse', () => {
 		await expect
 			.poll(read2DTransformOrigin)
 			.not.toBe(transformOriginAfter3DRotation);
+
+		const continuedInsidePoint = await getInteractiveRotationPoint();
+		const rotationXControl = page
+			.getByRole('button', {name: 'Rotation X', exact: true})
+			.first();
+		const rotationYControl = page
+			.getByRole('button', {name: 'Rotation Y', exact: true})
+			.first();
+		const readRotationControls = async () =>
+			`${await rotationXControl.textContent()}|${await rotationYControl.textContent()}`;
+		const rotationBeforeLeavingSurface = await readRotationControls();
+		const sourceRotationBeforeLeavingSurface = read2DTransformRotation();
+		await page.mouse.move(continuedInsidePoint.x, continuedInsidePoint.y);
+		await page.mouse.down();
+		await page.mouse.move(outsidePoint.x, outsidePoint.y, {steps: 5});
+		await expect
+			.poll(readRotationControls)
+			.not.toBe(rotationBeforeLeavingSurface);
+		const rotationAfterLeavingSurface = await readRotationControls();
+		await page.mouse.move(outsidePoint.x - 60, outsidePoint.y, {steps: 3});
+		await expect
+			.poll(readRotationControls)
+			.not.toBe(rotationAfterLeavingSurface);
+		await page.mouse.up();
+		await expect
+			.poll(read2DTransformRotation)
+			.not.toBe(sourceRotationBeforeLeavingSurface);
+
 		const rotationAfterInsideDrag = read2DTransformRotation();
 		await page.mouse.move(outsidePoint.x, outsidePoint.y);
 		await page.mouse.down();

@@ -246,9 +246,11 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 					});
 			};
 
+			// The polygon gates pointer-down, while the stable overlay keeps the
+			// session alive after the pointer leaves the selected item.
 			startPointerSession({
 				event,
-				target: event.currentTarget,
+				target: svg,
 				onMove: onPointerMove,
 				onEnd: onPointerUp,
 			});
