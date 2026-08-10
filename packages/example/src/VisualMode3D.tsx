@@ -3,7 +3,7 @@ import {AbsoluteFill, Sequence} from 'remotion';
 
 export const VisualMode3D: React.FC = () => {
 	return (
-		<AbsoluteFill style={{backgroundColor: '#111'}}>
+		<AbsoluteFill style={{backgroundColor: '#111', perspective: 800}}>
 			<Sequence
 				name="2D transform"
 				durationInFrames={120}

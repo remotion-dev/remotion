@@ -289,6 +289,36 @@ test.describe('inspector section collapse', () => {
 		const rotationZBefore = await rotationZ.textContent();
 		const sourceRotationBefore = read3DTransformRotation();
 		await page.locator('[title="3D transform"]').last().hover();
+		const getRotationCornerCenter = async (
+			corner: 'top-left' | 'top-right' | 'bottom-right' | 'bottom-left',
+		) => {
+			const box = await page
+				.locator(
+					`[data-remotion-studio-rotation-corner="${corner}"][data-remotion-studio-rotation-corner-contains-selection="true"]`,
+				)
+				.first()
+				.boundingBox();
+			if (box === null) {
+				throw new Error(`The ${corner} rotation corner should be visible`);
+			}
+
+			return {x: box.x + box.width / 2, y: box.y + box.height / 2};
+		};
+		const [topLeft, topRight, bottomRight, bottomLeft] = await Promise.all([
+			getRotationCornerCenter('top-left'),
+			getRotationCornerCenter('top-right'),
+			getRotationCornerCenter('bottom-right'),
+			getRotationCornerCenter('bottom-left'),
+		]);
+		const topEdgeLength = Math.hypot(
+			topRight.x - topLeft.x,
+			topRight.y - topLeft.y,
+		);
+		const bottomEdgeLength = Math.hypot(
+			bottomRight.x - bottomLeft.x,
+			bottomRight.y - bottomLeft.y,
+		);
+		expect(Math.abs(topEdgeLength - bottomEdgeLength)).toBeGreaterThan(1);
 		const selectedRotationCorner = page
 			.locator(
 				'[data-remotion-studio-rotation-corner="top-right"][data-remotion-studio-rotation-corner-contains-selection="true"]',
@@ -350,5 +380,14 @@ test.describe('inspector section collapse', () => {
 		await expect(rotationX).toHaveText(rotationXBefore ?? '');
 		await expect(rotationY).toHaveText(rotationYBefore ?? '');
 		await expect(rotationZ).not.toHaveText(rotationZBefore ?? '');
+		await expect
+			.poll(async () => {
+				const [nextTopLeft, nextTopRight] = await Promise.all([
+					getRotationCornerCenter('top-left'),
+					getRotationCornerCenter('top-right'),
+				]);
+				return Math.abs(nextTopLeft.y - nextTopRight.y);
+			})
+			.toBeGreaterThan(1);
 	});
 });
