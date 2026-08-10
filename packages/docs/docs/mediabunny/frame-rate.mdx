@@ -92,7 +92,7 @@ export const getVideoFrameRate = async (
   });
   const averageInterval =
     intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
-  const toleranceInSeconds = 1.001 / 1000;
+  const toleranceInSeconds = 1.01 / 1000;
   const intervalSpread = Math.max(...intervals) - Math.min(...intervals);
   const isConstant = intervalSpread <= toleranceInSeconds;
 
