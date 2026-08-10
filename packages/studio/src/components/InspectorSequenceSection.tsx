@@ -766,6 +766,7 @@ export const InspectorSequenceSection: React.FC<{
 						? 'Hide 3D transform controls'
 						: 'Show 3D transform controls'
 			}
+			hoveredColor={show3DTransformControls ? BLUE : undefined}
 			unhoveredColor={show3DTransformControls ? BLUE : LIGHT_TEXT}
 			renderAction={(color) => (
 				<CubeIcon color={color} style={transform3DToggleIcon} />
