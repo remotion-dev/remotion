@@ -13,7 +13,7 @@ import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-c
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
 import {ProductOffer} from '../../../elements/data/product-offer/product-offer';
-import {MapFlyover} from '../../../elements/maps/map-flyover/map-flyover';
+import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/lower-third/lower-third';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
@@ -83,12 +83,12 @@ export const elementDefinitions = {
 		component: MapFlyover,
 		contributors: [],
 		description:
-			'A cinematic map route with editable coordinates, location labels, and a camera that follows the flight.',
+			'An animated map flyover from point A to point B, with editable coordinates, location labels, and a camera that follows the route.',
 		dependencies: [
 			{name: '@turf/turf', version: '7.3.2'},
 			{name: 'maplibre-gl', version: '5.24.0'},
 		],
-		displayName: 'Map Flyover',
+		displayName: 'A-to-B Map Flyover',
 		durationInFrames: 285,
 		elementHeight: null,
 		elementWidth: null,

@@ -666,7 +666,7 @@ const InteractiveMapFlyoverLayer = Interactive.withSchema({
 export const MapFlyover: React.FC<MapFlyoverLayerProps> = (props) => {
 	return (
 		<InteractiveMapFlyoverLayer
-			name="Map Flyover"
+			name="A-to-B Map Flyover"
 			origin={[-0.1276, 51.5072]}
 			destination={[139.6917, 35.6895]}
 			originLabel="London"
