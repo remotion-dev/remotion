@@ -188,9 +188,7 @@ export const TimelineEffectItem: React.FC<{
 					effectIndex,
 				},
 			]);
-			if (result.success) {
-				showNotification('Removed effect from source file', 2000);
-			} else {
+			if (!result.success) {
 				showNotification(result.reason, 4000);
 			}
 		} catch (err) {
