@@ -1944,6 +1944,15 @@ export const articles = [
 		slug: 'effects/evolve',
 	},
 	{
+		id: 'effects/exposure',
+		title: 'exposure()',
+		relativePath: 'docs/effects/exposure.mdx',
+		compId: 'articles-docs-effects-exposure',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/exposure',
+	},
+	{
 		id: 'effects/fisheye',
 		title: 'fisheye()',
 		relativePath: 'docs/effects/fisheye.mdx',

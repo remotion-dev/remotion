@@ -17,6 +17,7 @@ import {EffectsDropShadowPreview} from '../../components/effects/effects-drop-sh
 import {EffectsDuotonePreview} from '../../components/effects/effects-duotone-preview';
 import {EffectsEmbossPreview} from '../../components/effects/effects-emboss-preview';
 import {EffectsEvolvePreview} from '../../components/effects/effects-evolve-preview';
+import {EffectsExposurePreview} from '../../components/effects/effects-exposure-preview';
 import {EffectsFisheyePreview} from '../../components/effects/effects-fisheye-preview';
 import {EffectsFlannelPreview} from '../../components/effects/effects-flannel-preview';
 import {EffectsGlowPreview} from '../../components/effects/effects-glow-preview';
@@ -280,6 +281,13 @@ export const RemotionRoot: React.FC = () => {
 						direction: 'left',
 						feather: 0.18,
 					}}
+				/>
+				<Still
+					id="effects-exposure-preview"
+					component={EffectsExposurePreview}
+					width={1280}
+					height={720}
+					defaultProps={{stops: 1}}
 				/>
 				<Still
 					id="effects-venetian-blinds-preview"

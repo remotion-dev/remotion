@@ -288,6 +288,7 @@ const sidebars: SidebarsConfig = {
 				'effects/duotone',
 				'effects/emboss',
 				'effects/evolve',
+				'effects/exposure',
 				'effects/fisheye',
 				'effects/flannel',
 				'effects/glow',

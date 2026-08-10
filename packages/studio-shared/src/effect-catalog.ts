@@ -108,6 +108,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-exposure',
+		category: 'Color',
+		label: 'exposure()',
+		description: 'Stop-based exposure adjustment',
+		effect: {
+			name: 'exposure',
+			importPath: '@remotion/effects/exposure',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-grayscale',
 		category: 'Color',
 		label: 'grayscale()',

@@ -14,6 +14,7 @@ import {dropShadow} from '../drop-shadow/index.js';
 import {duotone} from '../duotone.js';
 import {emboss} from '../emboss.js';
 import {evolve} from '../evolve.js';
+import {exposure} from '../exposure.js';
 import {fisheye} from '../fisheye/index.js';
 import {flannel} from '../flannel.js';
 import {glow} from '../glow/index.js';
@@ -128,6 +129,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(evolve().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/evolve',
+	);
+	expect(exposure().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/exposure',
 	);
 	expect(dropShadow().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/drop-shadow',
@@ -300,6 +304,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(liquidContours().definition.label).toBe('liquidContours()');
 	expect(duotone().definition.label).toBe('duotone()');
 	expect(evolve().definition.label).toBe('evolve()');
+	expect(exposure().definition.label).toBe('exposure()');
 	expect(dropShadow().definition.label).toBe('dropShadow()');
 	expect(emboss().definition.label).toBe('emboss()');
 	expect(fisheye().definition.label).toBe('fisheye()');
@@ -939,6 +944,33 @@ test('brightness() amount produces distinct effect keys', () => {
 	const darker = brightness({amount: -0.4});
 	const neutral = brightness({amount: 0});
 	const brighter = brightness({amount: 0.4});
+	expect(
+		new Set([darker.effectKey, neutral.effectKey, brighter.effectKey]).size,
+	).toBe(3);
+});
+
+test('exposure() accepts default params', () => {
+	expect(() => exposure()).not.toThrow();
+});
+
+test('exposure() rejects non-finite stops', () => {
+	expect(() => exposure({stops: Number.NaN})).toThrow(
+		'"stops" must be a finite number',
+	);
+});
+
+test('exposure() rejects stops below range', () => {
+	expect(() => exposure({stops: -5.1})).toThrow('"stops" must be >= -5');
+});
+
+test('exposure() rejects stops above range', () => {
+	expect(() => exposure({stops: 5.1})).toThrow('"stops" must be <= 5');
+});
+
+test('exposure() stops produce distinct effect keys', () => {
+	const darker = exposure({stops: -1});
+	const neutral = exposure();
+	const brighter = exposure({stops: 1});
 	expect(
 		new Set([darker.effectKey, neutral.effectKey, brighter.effectKey]).size,
 	).toBe(3);

@@ -1,6 +1,7 @@
 import {expect, test} from 'vitest';
 import {blur} from '../blur.js';
 import {evolve} from '../evolve.js';
+import {exposure} from '../exposure.js';
 import {noise} from '../noise.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
 import {vignette} from '../vignette.js';
@@ -37,6 +38,40 @@ test('evolve() reveals with feather', async () => {
 		blob,
 		testId: 'evolve-left-feather',
 	});
+});
+
+test('exposure() applies stops in linear light and preserves alpha', async () => {
+	const source = document.createElement('canvas');
+	source.width = 1;
+	source.height = 1;
+	const sourceContext = source.getContext('2d');
+	if (!sourceContext) {
+		throw new Error('Could not get source context');
+	}
+
+	sourceContext.putImageData(
+		new ImageData(new Uint8ClampedArray([128, 128, 128, 128]), 1, 1),
+		0,
+		0,
+	);
+
+	const canvas = await renderEffectChainToCanvas({
+		source,
+		width: 1,
+		height: 1,
+		effects: descriptorsToMemoizedEffects([exposure({stops: 1})]),
+	});
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Could not get output context');
+	}
+
+	const pixel = context.getImageData(0, 0, 1, 1).data;
+	expect(pixel[0]).toBeGreaterThanOrEqual(174);
+	expect(pixel[0]).toBeLessThanOrEqual(176);
+	expect(pixel[1]).toBe(pixel[0]);
+	expect(pixel[2]).toBe(pixel[0]);
+	expect(pixel[3]).toBe(128);
 });
 
 test('vignette() color mode works on transparent sources', async () => {

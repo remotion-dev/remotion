@@ -104,6 +104,11 @@
 			"module": "./dist/esm/evolve.mjs",
 			"import": "./dist/esm/evolve.mjs"
 		},
+		"./exposure": {
+			"types": "./dist/exposure.d.ts",
+			"module": "./dist/esm/exposure.mjs",
+			"import": "./dist/esm/exposure.mjs"
+		},
 		"./fisheye": {
 			"types": "./dist/fisheye.d.ts",
 			"module": "./dist/esm/fisheye.mjs",
@@ -394,6 +399,9 @@
 			],
 			"evolve": [
 				"dist/evolve.d.ts"
+			],
+			"exposure": [
+				"dist/exposure.d.ts"
 			],
 			"fisheye": [
 				"dist/fisheye.d.ts"
