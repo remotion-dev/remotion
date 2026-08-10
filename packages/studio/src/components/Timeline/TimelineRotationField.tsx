@@ -278,7 +278,7 @@ export const TimelineRotationField: React.FC<{
 						min={-Infinity}
 						max={Infinity}
 						step={step}
-						formatter={(value) => `${rotationLabel} ${formatter(value)}`}
+						formatter={formatter}
 						rightAlign={false}
 						aria-label={`Rotation ${rotationLabel}`}
 					/>
