@@ -16,6 +16,11 @@ Reducing the memory will linearly decrease the cost. Try out different values fo
 
 A lot of compute time is spent on warming up the Lambda function, opening browsers, uploading and downloading assets. By using less Lambda functions, less overhead is being produced which will ultimately result in lower cost, however also in slower render speeds. See the [Lambda Concurrency](/docs/lambda/concurrency) page for more information.
 
+## Use `<Video>` from `@remotion/media`
+
+We made a new [`<Video>`](/docs/media/video) that we now generally recommend.  
+It can start decoding before the full video is downloaded and avoids full asset downloads too, speeding up the render.
+
 ## Using cheaper regions
 
 Not all AWS regions have the same cost. See the [AWS Lambda](https://aws.amazon.com/lambda/pricing/) pricing chart to see if you are using a region that is more expensive.
