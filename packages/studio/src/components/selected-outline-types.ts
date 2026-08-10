@@ -27,6 +27,7 @@ export type SelectedOutlineLayoutTarget = {
 	readonly ref: React.RefObject<Element | null>;
 	readonly selected: boolean;
 	readonly selectedForCrop: boolean;
+	readonly selectedForRotation: boolean;
 	readonly selectedForTransformOrigin: boolean;
 	readonly selectedForUvHandles: boolean;
 	readonly showSelectedOutline: boolean;
@@ -188,6 +189,8 @@ export type SelectedOutlineRotationDragTarget = {
 	readonly keyframeDisplayOffset: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
+	readonly sourceFrame?: number;
+	readonly transform3DMode?: boolean;
 	readonly transformOriginValue: string;
 };
 
@@ -215,6 +218,8 @@ export type SelectedOutlineRotationDragState = {
 	readonly key: string;
 	readonly sourceFrame: number;
 	readonly startDegrees: number;
+	readonly startRotation?: readonly [number, number, number];
+	readonly startValue?: string;
 	readonly target: SelectedOutlineRotationDragTarget;
 };
 

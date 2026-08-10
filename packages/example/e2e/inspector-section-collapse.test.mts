@@ -1,8 +1,21 @@
 import {expect, test} from '@playwright/test';
-import {EXPANDED_SIDEBAR_STATE, STUDIO_URL} from './constants.mts';
+import fs from 'fs';
+import {
+	EXPANDED_SIDEBAR_STATE,
+	STUDIO_URL,
+	visualMode3DFile,
+} from './constants.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
 test.use({storageState: EXPANDED_SIDEBAR_STATE});
+
+const read2DTransformRotation = () => {
+	const source = fs.readFileSync(visualMode3DFile, 'utf-8');
+	const sequenceStart = source.indexOf('name="2D transform"');
+	const sequenceEnd = source.indexOf('name="3D transform"');
+	const sequenceSource = source.slice(sequenceStart, sequenceEnd);
+	return /rotate: '([^']+)'/.exec(sequenceSource)?.[1] ?? null;
+};
 
 test.describe('inspector section collapse', () => {
 	test.beforeEach(async () => {
@@ -122,18 +135,75 @@ test.describe('inspector section collapse', () => {
 		await expect(
 			page.getByRole('button', {name: 'Rotation X', exact: true}),
 		).toHaveCount(0);
+		await page.getByTitle('Rotation', {exact: true}).click();
+		const compositionContainer = page.locator(
+			'.remotion-studio-composition-container',
+		);
+		const compositionBox = await compositionContainer.boundingBox();
+		if (compositionBox === null) {
+			throw new Error('Composition should have a visible layout');
+		}
+
+		await page.mouse.move(
+			compositionBox.x + compositionBox.width / 2,
+			compositionBox.y + compositionBox.height / 2,
+		);
+		const canvasRotationSurface = page.locator(
+			'[data-remotion-studio-canvas-rotation]',
+		);
+		await expect(canvasRotationSurface).toBeVisible();
+		const rotationSurfaceBox = await canvasRotationSurface.boundingBox();
+		if (rotationSurfaceBox === null) {
+			throw new Error('Canvas rotation surface should have a visible layout');
+		}
+
+		const startX = rotationSurfaceBox.x + rotationSurfaceBox.width * 0.25;
+		const startY = rotationSurfaceBox.y + rotationSurfaceBox.height * 0.25;
+		await page.mouse.move(startX, startY);
+		await page.mouse.down();
+		await page.mouse.move(startX + 60, startY + 80, {steps: 5});
+		await page.mouse.up();
+		await expect.poll(read2DTransformRotation).toMatch(/^-?\d+(?:\.\d+)?deg$/);
+
 		await show3DControls.click();
 		await expect(
 			page.getByRole('button', {name: 'Scale Z', exact: true}),
 		).toBeVisible();
+		await page.getByTitle('Rotation', {exact: true}).click();
+		await page.mouse.move(
+			compositionBox.x + compositionBox.width / 2,
+			compositionBox.y + compositionBox.height / 2,
+		);
+		await expect(canvasRotationSurface).toBeVisible();
+		const threeDRotationSurfaceBox = await canvasRotationSurface.boundingBox();
+		if (threeDRotationSurfaceBox === null) {
+			throw new Error(
+				'3D canvas rotation surface should have a visible layout',
+			);
+		}
+
+		const threeDStartX =
+			threeDRotationSurfaceBox.x + threeDRotationSurfaceBox.width * 0.25;
+		const threeDStartY =
+			threeDRotationSurfaceBox.y + threeDRotationSurfaceBox.height * 0.25;
+		await page.mouse.move(threeDStartX, threeDStartY);
+		await page.mouse.down();
+		await page.mouse.move(threeDStartX + 80, threeDStartY + 60, {steps: 5});
+		await page.mouse.up();
+		await expect
+			.poll(() => read2DTransformRotation()?.split(' ').length)
+			.toBe(4);
 		const scaleLabelBox = await page
 			.getByTitle('Scale', {exact: true})
+			.first()
 			.boundingBox();
 		const scaleXBox = await page
 			.getByRole('button', {name: 'Scale X', exact: true})
+			.first()
 			.boundingBox();
 		const scaleZBox = await page
 			.getByRole('button', {name: 'Scale Z', exact: true})
+			.first()
 			.boundingBox();
 		if (scaleLabelBox === null || scaleXBox === null || scaleZBox === null) {
 			throw new Error('Scale controls should have a visible layout');
@@ -146,19 +216,21 @@ test.describe('inspector section collapse', () => {
 			scaleZBox.y - (scaleLabelBox.y + scaleLabelBox.height),
 		).toBeLessThanOrEqual(1);
 		await expect(
-			page.getByRole('button', {name: 'Rotation X', exact: true}),
+			page.getByRole('button', {name: 'Rotation X', exact: true}).first(),
 		).toBeVisible();
 		await expect(
-			page.getByRole('button', {name: 'Rotation Y', exact: true}),
+			page.getByRole('button', {name: 'Rotation Y', exact: true}).first(),
 		).toBeVisible();
 		await expect(
-			page.getByRole('button', {name: 'Rotation Z', exact: true}),
+			page.getByRole('button', {name: 'Rotation Z', exact: true}).first(),
 		).toBeVisible();
 		const rotationLabelBox = await page
 			.getByTitle('Rotation', {exact: true})
+			.first()
 			.boundingBox();
 		const rotationXBox = await page
 			.getByRole('button', {name: 'Rotation X', exact: true})
+			.first()
 			.boundingBox();
 		if (rotationLabelBox === null || rotationXBox === null) {
 			throw new Error('Rotation controls should have a visible layout');
@@ -172,21 +244,25 @@ test.describe('inspector section collapse', () => {
 		).toBeLessThanOrEqual(1);
 		expect(Math.abs(scaleXBox.x - rotationXBox.x)).toBeLessThanOrEqual(1);
 		await expect(
-			page.getByRole('button', {name: 'Transform origin Z', exact: true}),
+			page
+				.getByRole('button', {name: 'Transform origin Z', exact: true})
+				.first(),
 		).toBeVisible();
 
 		await page.locator('[title="3D transform"]').first().click();
 		await expect(
-			page.getByRole('button', {
-				name: '3D controls are required by the current transform values',
-				exact: true,
-			}),
+			page
+				.getByRole('button', {
+					name: '3D controls are required by the current transform values',
+					exact: true,
+				})
+				.first(),
 		).toBeDisabled();
 		await expect(
-			page.getByRole('button', {name: 'Scale Z', exact: true}),
+			page.getByRole('button', {name: 'Scale Z', exact: true}).first(),
 		).toBeVisible();
 		await expect(
-			page.getByRole('button', {name: 'Rotation X', exact: true}),
+			page.getByRole('button', {name: 'Rotation X', exact: true}).first(),
 		).toContainText('X 30');
 	});
 });

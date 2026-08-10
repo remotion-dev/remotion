@@ -6,12 +6,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import {
-	Internals,
-	type CanUpdateSequencePropStatus,
-	type TSequence,
-} from 'remotion';
-import {NoReactInternals} from 'remotion/no-react';
+import {Internals, type TSequence} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLUE, LIGHT_TEXT, WHITE} from '../helpers/colors';
@@ -30,6 +25,7 @@ import {CubeIcon} from '../icons/cube';
 import {FullscreenIcon} from '../icons/fullscreen';
 import {Plus} from '../icons/plus';
 import {SetSelectedModalContext} from '../state/modals';
+import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {AssetFileIcon} from './AssetFileIcon';
 import {InlineAction} from './InlineAction';
 import {InlineCaptionInspector} from './InlineCaptionInspector';
@@ -52,7 +48,6 @@ import {
 	openTimelineAssetLink,
 	splitRemoteSourceForMiddleEllipsis,
 } from './Timeline/timeline-asset-link';
-import {parseCssRotationToEuler} from './Timeline/timeline-rotation-utils';
 import {
 	AssetSelectionContext,
 	type InspectorSourceAction,
@@ -64,13 +59,11 @@ import {
 } from './Timeline/TimelineRowLayoutContext';
 import {
 	getTimelineSelectionFromNodePathInfo,
+	getTimelineSequenceSelectionKey,
 	TimelineSelectionOrderProvider,
 	type TimelineSelection,
 } from './Timeline/TimelineSelection';
-import {
-	parseTransformOrigin,
-	parseTransformOriginZ,
-} from './Timeline/transform-origin-utils';
+import {propStatusHas3DTransformValue} from './Timeline/transform-3d-mode';
 import {Transform3DModeContext} from './Timeline/Transform3DModeContext';
 import {useTimelineExpandedTree} from './Timeline/use-timeline-expanded-tree';
 import {useSelectAsset} from './use-select-asset';
@@ -353,53 +346,6 @@ const getInspectorControlGroups = (
 	})).filter((group) => group.rows.length > 0);
 };
 
-const has3DTransformValue = ({
-	fieldKey,
-	value,
-}: {
-	readonly fieldKey: string;
-	readonly value: unknown;
-}): boolean => {
-	if (fieldKey === 'style.scale') {
-		return NoReactInternals.parseScaleValue(value)[2] !== 1;
-	}
-
-	if (fieldKey === 'style.rotate') {
-		const rotation = parseCssRotationToEuler(String(value ?? '0deg'));
-		return rotation[0] !== 0 || rotation[1] !== 0;
-	}
-
-	if (fieldKey === 'style.transformOrigin') {
-		const parsed = parseTransformOrigin(value);
-		const z = parsed?.z ? parseTransformOriginZ(parsed.z) : null;
-		return z !== null && z.value !== 0;
-	}
-
-	return false;
-};
-
-const propStatusHas3DTransformValue = ({
-	fieldKey,
-	propStatus,
-	runtimeValue,
-}: {
-	readonly fieldKey: string;
-	readonly propStatus: CanUpdateSequencePropStatus | undefined;
-	readonly runtimeValue: unknown;
-}): boolean => {
-	if (propStatus?.status === 'keyframed') {
-		return propStatus.keyframes.some((keyframe) =>
-			has3DTransformValue({fieldKey, value: keyframe.value}),
-		);
-	}
-
-	return has3DTransformValue({
-		fieldKey,
-		value:
-			propStatus?.status === 'static' ? propStatus.codeValue : runtimeValue,
-	});
-};
-
 export const getInspectorSelectableItems = (
 	rows: readonly FlatTreeRow[],
 ): TimelineSelection[] => {
@@ -445,8 +391,12 @@ export const InspectorSequenceSection: React.FC<{
 	const [automaticSectionExpansion, setAutomaticSectionExpansion] = useState<
 		Readonly<Record<string, boolean>>
 	>({});
-	const [manuallyEnabled3DTransform, setManuallyEnabled3DTransform] =
-		useState(false);
+	const {manuallyEnabledSequenceKeys, setManuallyEnabled} = useContext(
+		Transform3DModeStateContext,
+	);
+	const sequenceKey = getTimelineSequenceSelectionKey(nodePathInfo);
+	const manuallyEnabled3DTransform =
+		manuallyEnabledSequenceKeys.has(sequenceKey);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
@@ -593,8 +543,8 @@ export const InspectorSequenceSection: React.FC<{
 	const show3DTransformControls =
 		automaticallyEnabled3DTransform || manuallyEnabled3DTransform;
 	const onToggle3DTransform = useCallback(() => {
-		setManuallyEnabled3DTransform((enabled) => !enabled);
-	}, []);
+		setManuallyEnabled(sequenceKey, !manuallyEnabled3DTransform);
+	}, [manuallyEnabled3DTransform, sequenceKey, setManuallyEnabled]);
 	const {schema} = sequence.controls;
 	const getControlGroupActivity = useCallback(
 		(group: InspectorControlGroup) => {

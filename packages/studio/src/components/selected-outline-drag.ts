@@ -47,7 +47,9 @@ import {
 } from './Timeline/timeline-field-utils';
 import {
 	parseCssRotationToDegrees,
+	parseCssRotationToEuler,
 	serializeCssRotation,
+	serializeCssRotationFromEuler,
 } from './Timeline/timeline-rotation-utils';
 import {
 	parseTranslate,
@@ -720,7 +722,8 @@ export const getSelectedOutlineRotationDragStates = ({
 		const dragOverrideValue = (getDragOverrides(target.nodePath) ?? {})[
 			rotateFieldKey
 		];
-		const sourceFrame = timelinePosition - target.keyframeDisplayOffset;
+		const sourceFrame =
+			target.sourceFrame ?? timelinePosition - target.keyframeDisplayOffset;
 		const effectiveValue = Internals.getEffectiveVisualModeValue({
 			propStatus: target.propStatus,
 			dragOverrideValue,
@@ -728,6 +731,7 @@ export const getSelectedOutlineRotationDragStates = ({
 			frame: sourceFrame,
 			shouldResortToDefaultValueIfUndefined: true,
 		});
+		const startValue = String(effectiveValue ?? '0deg');
 
 		return {
 			defaultValue:
@@ -736,10 +740,47 @@ export const getSelectedOutlineRotationDragStates = ({
 					: null,
 			key: Internals.makeSequencePropsSubscriptionKey(target.nodePath),
 			sourceFrame,
-			startDegrees: parseCssRotationToDegrees(String(effectiveValue ?? '0deg')),
+			startDegrees: parseCssRotationToDegrees(startValue),
+			startRotation: parseCssRotationToEuler(startValue),
+			startValue,
 			target,
 		};
 	});
+};
+
+export const getSelectedOutline3DRotationDragValues = ({
+	dragStates,
+	rotationXDeltaDegrees,
+	rotationYDeltaDegrees,
+}: {
+	readonly dragStates: readonly SelectedOutlineRotationDragState[];
+	readonly rotationXDeltaDegrees: number;
+	readonly rotationYDeltaDegrees: number;
+}): Map<string, string> => {
+	return new Map(
+		dragStates.map((dragState) => {
+			const decimalPlaces = Math.max(
+				6,
+				getTimelineDisplayDecimalPlaces({
+					defaultDecimalPlaces: 1,
+					step: dragState.target.fieldSchema.step,
+				}),
+			);
+			const startRotation = dragState.startRotation ?? [0, 0, 0];
+
+			return [
+				dragState.key,
+				serializeCssRotationFromEuler({
+					rotation: [
+						startRotation[0] + rotationXDeltaDegrees,
+						startRotation[1] + rotationYDeltaDegrees,
+						startRotation[2],
+					],
+					decimalPlaces,
+				}),
+			];
+		}),
+	);
 };
 
 export const getSelectedOutlineRotationDragValues = ({
@@ -811,10 +852,9 @@ export const getSelectedOutlineRotationDragChanges = ({
 				defaultDecimalPlaces: 1,
 				step: dragState.target.fieldSchema.step,
 			});
-			const startValue = serializeCssRotation(
-				dragState.startDegrees,
-				decimalPlaces,
-			);
+			const startValue =
+				dragState.startValue ??
+				serializeCssRotation(dragState.startDegrees, decimalPlaces);
 			if (value === startValue) {
 				continue;
 			}

@@ -40,6 +40,7 @@ import {
 	compensateTranslateForTransformOrigin,
 	getOutlineSelectionInteraction,
 	getSelectedEffectFieldsBySequenceKey,
+	getSelectedOutline3DRotationDragValues,
 	getSelectedOutlineActiveSchema,
 	getSelectedOutlineCropDragChanges,
 	getSelectedOutlineCropDragValues,
@@ -89,6 +90,7 @@ import {
 } from '../components/Timeline/keyframe-clipboard';
 import {getTimelinePropResetTargets} from '../components/Timeline/reset-selected-timeline-props';
 import {shouldSubscribeToSequenceProps} from '../components/Timeline/should-subscribe-to-sequence-props';
+import {parseCssRotationToEuler} from '../components/Timeline/timeline-rotation-utils';
 import {
 	getEasingClipboardDataFromSelection,
 	getEffectPropClipboardDataFromSelection,
@@ -6225,6 +6227,48 @@ test('Selected outline corner dragging rounds rotation values', () => {
 	});
 
 	expect(lastValues.get(dragStates[0].key)).toBe('32.5deg');
+});
+
+test('Selected outline canvas dragging changes X and Y rotation while preserving Z', () => {
+	const schema = {
+		'style.rotate': {type: 'rotation-css', default: '0deg'},
+	} satisfies InteractivitySchema;
+	const nodePath = makeKey(['body', 0]);
+	const dragStates = [
+		{
+			defaultValue: JSON.stringify('0deg'),
+			key: Internals.makeSequencePropsSubscriptionKey(nodePath),
+			sourceFrame: 12,
+			startDegrees: 30,
+			startRotation: [10, 20, 30],
+			startValue: '0.386017 0.438014 0.811871 38.630009deg',
+			target: {
+				clientId: 'client',
+				propStatus: {
+					status: 'static',
+					codeValue: '0.386017 0.438014 0.811871 38.630009deg',
+				},
+				fieldDefault: '0deg',
+				fieldSchema: schema['style.rotate'],
+				keyframeDisplayOffset: 30,
+				nodePath,
+				schema,
+				transform3DMode: true,
+				transformOriginValue: '50% 50%',
+			},
+		},
+	] satisfies SelectedOutlineRotationDragState[];
+
+	const lastValues = getSelectedOutline3DRotationDragValues({
+		dragStates,
+		rotationXDeltaDegrees: -15,
+		rotationYDeltaDegrees: 25,
+	});
+	const rotation = parseCssRotationToEuler(lastValues.get(dragStates[0].key)!);
+
+	expect(rotation[0]).toBeCloseTo(-5, 4);
+	expect(rotation[1]).toBeCloseTo(45, 4);
+	expect(rotation[2]).toBeCloseTo(30, 4);
 });
 
 test('Selected outline corner dragging snaps rotation to 15 degree increments', () => {
