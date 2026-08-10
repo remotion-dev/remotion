@@ -16,17 +16,21 @@ import type {
 	ObjectProperty,
 	VariableDeclaration,
 } from '@babel/types';
-import {insertSolidIntoSource} from '@remotion/studio-codemods';
 import type {ComponentProp} from '@remotion/studio-protocol';
 import {
 	isUrl,
 	type InsertableCompositionElement,
 	type InsertableCompositionElementPosition,
+	type SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
 import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
 import {NoReactInternals} from 'remotion/no-react';
 import {formatFileContent} from '../codemods/format-file-content';
+import {
+	captureJsxNodePaths,
+	getNodePathRemappings,
+} from '../codemods/get-node-path-remappings';
 import {parseAst, serializeAst} from '../codemods/parse-ast';
 import {stripParenthesizedExtra} from '../codemods/strip-parenthesized-extra';
 import {parseValueExpression} from '../codemods/update-nested-prop';
@@ -2304,6 +2308,7 @@ export const insertJsxElementIntoComposition = async ({
 	output: string;
 	formatted: boolean;
 	logLine: number;
+	nodePathRemappings: SequenceNodePathRemapping[];
 }> => {
 	const location = await resolveCompositionComponentWithFile({
 		remotionRoot,
@@ -2320,79 +2325,70 @@ export const insertJsxElementIntoComposition = async ({
 		remotionRoot,
 		fileName: location.fileName,
 	});
-	let finalFile: string;
-	let logLine: number;
-	if (element.type === 'solid' && from === null && wrapInSequence === null) {
-		const inserted = insertSolidIntoSource({
-			exportName: location.exportName,
-			height: element.height,
-			position: element.position,
-			source: input,
-			width: element.width,
-		});
-		finalFile = inserted.output;
-		logLine = inserted.line;
-	} else {
-		const ast = parseAst(input);
-		if (
-			element.type === 'composition' &&
-			element.compositionId === compositionId
-		) {
-			throw new Error('Cannot insert a composition into itself');
-		}
+	const ast = parseAst(input);
+	const capturedNodePaths = captureJsxNodePaths(ast);
+	if (
+		element.type === 'composition' &&
+		element.compositionId === compositionId
+	) {
+		throw new Error('Cannot insert a composition into itself');
+	}
 
-		const sequenceWrapper =
-			element.type === 'composition'
-				? {
-						dimensions: {width: element.width, height: element.height},
-						durationInFrames: element.durationInFrames,
-						name: element.compositionId,
+	const sequenceWrapper =
+		element.type === 'composition'
+			? {
+					dimensions: {width: element.width, height: element.height},
+					durationInFrames: element.durationInFrames,
+					name: element.compositionId,
+					position: element.position,
+					from,
+				}
+			: from === null ||
+				  element.type === 'asset' ||
+				  element.type === 'svg' ||
+				  element.type === 'component'
+				? wrapInSequence
+				: {
+						dimensions: null,
+						durationInFrames: null,
+						name: null,
 						position: element.position,
 						from,
-					}
-				: from === null ||
-					  element.type === 'asset' ||
-					  element.type === 'svg' ||
-					  element.type === 'component'
-					? wrapInSequence
-					: {
-							dimensions: null,
-							durationInFrames: null,
-							name: null,
-							position: element.position,
-							from,
-						};
-		const elementToInsert = await createInsertableJsxElement({
-			addPositionStyleToComponent: sequenceWrapper === null,
-			ast,
-			destinationFileName: location.fileName,
-			element,
-			from,
-			remotionRoot,
-		});
-		const finalElementToInsert = sequenceWrapper
-			? createSequenceWrappedElement({
-					child: elementToInsert,
-					dimensions: sequenceWrapper.dimensions,
-					durationInFrames: sequenceWrapper.durationInFrames ?? null,
-					from: sequenceWrapper.from,
-					name: sequenceWrapper.name,
-					position: sequenceWrapper.position,
-					sequenceLocalName: ensureSequenceImport(ast),
-				})
-			: elementToInsert;
-		logLine = addElementToComponentRoot({
-			ast,
-			exportName: location.exportName,
-			element: finalElementToInsert,
-		});
-
-		finalFile = serializeAst(ast);
-	}
+					};
+	const elementToInsert = await createInsertableJsxElement({
+		addPositionStyleToComponent: sequenceWrapper === null,
+		ast,
+		destinationFileName: location.fileName,
+		element,
+		from,
+		remotionRoot,
+	});
+	const finalElementToInsert = sequenceWrapper
+		? createSequenceWrappedElement({
+				child: elementToInsert,
+				dimensions: sequenceWrapper.dimensions,
+				durationInFrames: sequenceWrapper.durationInFrames ?? null,
+				from: sequenceWrapper.from,
+				name: sequenceWrapper.name,
+				position: sequenceWrapper.position,
+				sequenceLocalName: ensureSequenceImport(ast),
+			})
+		: elementToInsert;
+	const logLine = addElementToComponentRoot({
+		ast,
+		exportName: location.exportName,
+		element: finalElementToInsert,
+	});
+	const finalFile = serializeAst(ast);
 
 	const {output, formatted} = await formatFileContent({
 		input: finalFile,
 		prettierConfigOverride,
+	});
+	const nodePathRemappings = getNodePathRemappings({
+		ast,
+		captured: capturedNodePaths,
+		output,
 	});
 
 	return {
@@ -2402,5 +2398,6 @@ export const insertJsxElementIntoComposition = async ({
 		output,
 		formatted,
 		logLine,
+		nodePathRemappings,
 	};
 };

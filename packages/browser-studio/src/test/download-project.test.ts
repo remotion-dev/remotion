@@ -38,7 +38,7 @@ test('downloads the current Browser Studio project as a runnable archive', async
 		},
 		from: null,
 	});
-	expect(insertResult).toEqual({success: true});
+	expect(insertResult.success).toBe(true);
 
 	const archive = await operations.downloadProject();
 

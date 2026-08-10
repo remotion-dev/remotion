@@ -10,6 +10,7 @@ import {
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import type {
+	EventSourceEvent,
 	InsertElementRequest,
 	PrepareElementInstallRequest,
 } from '@remotion/studio-shared';
@@ -65,13 +66,29 @@ const makeFixture = () => {
 	const compositionFile = path.join(remotionRoot, 'Root.tsx');
 	const elementFile = path.join(remotionRoot, 'lower-third.element.tsx');
 	writeFileSync(compositionFile, compositionSource);
+	const events: EventSourceEvent[] = [];
+	const contentsAtMutation: string[] = [];
+	const watcherSkipSequencePropsUpdates: boolean[] = [];
 
 	clearUndoStackForTests();
-	const cleanupFileWatcher = setFileWatcherRegistry(
-		createFileWatcherRegistry(),
-	);
+	const fileWatcherRegistry = createFileWatcherRegistry();
+	const cleanupFileWatcher = setFileWatcherRegistry(fileWatcherRegistry);
+	const {unwatch} = fileWatcherRegistry.installFileWatcher({
+		file: compositionFile,
+		existenceOnly: false,
+		onChange: (event) => {
+			if (event.type === 'changed') {
+				watcherSkipSequencePropsUpdates.push(event.skipSequencePropsUpdate);
+			}
+		},
+	});
 	const cleanupLiveEvents = setLiveEventsListener({
-		sendEventToClient: () => undefined,
+		sendEventToClient: (event) => {
+			events.push(event);
+			if (event.type === 'sequence-node-paths-remapped') {
+				contentsAtMutation.push(readFileSync(compositionFile, 'utf-8'));
+			}
+		},
 		sendEventToClientId: () => true,
 		router: () => Promise.resolve(),
 		closeConnections: () => Promise.resolve(),
@@ -143,6 +160,7 @@ const makeFixture = () => {
 
 	const cleanup = () => {
 		clearUndoStackForTests();
+		unwatch();
 		cleanupLiveEvents();
 		cleanupFileWatcher();
 		rmSync(remotionRoot, {force: true, recursive: true});
@@ -155,8 +173,11 @@ const makeFixture = () => {
 		cleanup,
 		prepareInstall,
 		compositionFile,
+		contentsAtMutation,
 		elementFile,
+		events,
 		outsideRoot,
+		watcherSkipSequencePropsUpdates,
 	};
 };
 
@@ -186,7 +207,26 @@ test('creates a new Element file without an overwrite conflict', async () => {
 	try {
 		const response = await fixture.callHandler(false);
 
-		expect(response).toEqual({success: true});
+		if (!response.success) {
+			throw new Error(
+				response.type === 'error'
+					? response.reason
+					: 'Unexpected file conflict',
+			);
+		}
+
+		expect(
+			fixture.events.filter(
+				(event) => event.type === 'sequence-node-paths-remapped',
+			),
+		).toEqual([
+			{
+				type: 'sequence-node-paths-remapped',
+				mutation: response.nodePathMutation,
+			},
+		]);
+		expect(fixture.contentsAtMutation).toEqual([compositionSource]);
+		expect(fixture.watcherSkipSequencePropsUpdates).toEqual([true]);
 		expect(readFileSync(fixture.elementFile, 'utf-8')).toBe(
 			incomingElementSource,
 		);
@@ -212,7 +252,7 @@ test('installs an Element with a component-owned Sequence', async () => {
 			position: {x: 120, y: 80},
 		});
 
-		expect(response).toEqual({success: true});
+		expect(response.success).toBe(true);
 		expect(readFileSync(fixture.elementFile, 'utf-8')).toBe(
 			incomingElementSource,
 		);
@@ -235,7 +275,7 @@ test('reuses an identical Element file without an overwrite conflict', async () 
 		writeFileSync(fixture.elementFile, incomingElementSource);
 		const response = await fixture.callHandler(false);
 
-		expect(response).toEqual({success: true});
+		expect(response.success).toBe(true);
 		expect(readFileSync(fixture.elementFile, 'utf-8')).toBe(
 			incomingElementSource,
 		);
@@ -361,7 +401,7 @@ test('overwrites conflicting source and undo restores both files', async () => {
 		writeFileSync(fixture.elementFile, existingElementSource);
 		const response = await fixture.callHandler(true);
 
-		expect(response).toEqual({success: true});
+		expect(response.success).toBe(true);
 		expect(readFileSync(fixture.elementFile, 'utf-8')).toBe(
 			incomingElementSource,
 		);
@@ -370,7 +410,12 @@ test('overwrites conflicting source and undo restores both files', async () => {
 		);
 		expect(getUndoStack()).toHaveLength(1);
 
-		expect(popUndo()).toEqual({success: true});
+		const undoResponse = popUndo();
+		expect(undoResponse.success).toBe(true);
+		if (!undoResponse.success || undoResponse.nodePathMutation === null) {
+			throw new Error('Expected undo to include a node path mutation');
+		}
+
 		expect(readFileSync(fixture.elementFile, 'utf-8')).toBe(
 			existingElementSource,
 		);
