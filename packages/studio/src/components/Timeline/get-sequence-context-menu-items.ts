@@ -196,17 +196,12 @@ export const getSequenceContextMenuItems = ({
 					return;
 				}
 
-				navigator.clipboard
-					.writeText(contextForAgents)
-					.then(() => {
-						showNotification('Copied context for agents', 1000);
-					})
-					.catch((err) => {
-						showNotification(
-							`Could not copy to clipboard: ${(err as Error).message}`,
-							1000,
-						);
-					});
+				navigator.clipboard.writeText(contextForAgents).catch((err) => {
+					showNotification(
+						`Could not copy to clipboard: ${(err as Error).message}`,
+						1000,
+					);
+				});
 			},
 			quickSwitcherLabel: null,
 			subMenu: null,

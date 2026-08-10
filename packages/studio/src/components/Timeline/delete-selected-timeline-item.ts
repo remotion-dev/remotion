@@ -118,15 +118,6 @@ const deleteEffects = (
 	)
 		.then((result) => {
 			if (result.success) {
-				const singleEffect = effects[0];
-				showNotification(
-					effects.length === 1 && singleEffect?.type === 'single-effect'
-						? 'Removed effect from source file'
-						: effects.length === 1
-							? 'Removed effects from source file'
-							: 'Removed effects from source files',
-					2000,
-				);
 				return true;
 			}
 
