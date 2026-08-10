@@ -4491,6 +4491,15 @@ export const articles = [
 		slug: 'mediabunny/formats',
 	},
 	{
+		id: 'mediabunny/frame-rate',
+		title: 'Getting the frame rate of a video',
+		relativePath: 'docs/mediabunny/frame-rate.mdx',
+		compId: 'articles-docs-mediabunny-frame-rate',
+		crumb: 'Mediabunny',
+		noAi: false,
+		slug: 'mediabunny/frame-rate',
+	},
+	{
 		id: 'mediabunny/index',
 		title: 'Remotion and Mediabunny',
 		relativePath: 'docs/mediabunny/index.mdx',
