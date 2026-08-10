@@ -187,20 +187,26 @@ export const calculateMetadata: CalculateMetadataFunction<Props> = async ({
     }),
   });
 
-  const frameRate = await getVideoFrameRate(input);
-  if (frameRate === null) {
-    return {
-      fps: 30, // Fallback if none or not enough video frames are available
-    };
-  }
+  const [frameRate, durationInSeconds] = await Promise.all([
+    getVideoFrameRate(input),
+    input.computeDuration(),
+  ]);
+  const fps =
+    frameRate === null
+      ? 30 // Fallback if none or not enough video frames are available
+      : frameRate.type === 'constant'
+        ? frameRate.rate
+        : frameRate.max;
 
   return {
-    fps: frameRate.type === 'constant' ? frameRate.rate : frameRate.max,
+    fps,
+    durationInFrames: Math.floor(durationInSeconds * fps),
   };
 };
 ```
 
 If the frame rate cannot be determined, the composition uses 30 FPS.
+The `durationInFrames` is adjusted to preserve the duration of the source video.
 
 ## See also
 
