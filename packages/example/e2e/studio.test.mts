@@ -319,6 +319,25 @@ test.describe('visual mode', () => {
 		).toBeVisible();
 	});
 
+	test('should keep selected canvas outlines visible outside the canvas', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
+
+		const firstGridline = page.getByText('0% gridline', {exact: true});
+		await expect(firstGridline).toBeVisible({timeout: 15_000});
+
+		const canvas = page.locator('.remotion-studio-composition-container');
+		const visibleOutlines = page.locator(
+			'.remotion-studio-composition-container > svg[aria-hidden="true"] polygon[stroke="#0b84f3"][stroke-opacity="1"]',
+		);
+		await canvas.hover();
+		await expect.poll(() => visibleOutlines.count()).toBeGreaterThan(0);
+		await visibleOutlines.first().click({force: true});
+		await page.mouse.move(0, 0);
+		await expect.poll(() => visibleOutlines.count()).toBeGreaterThan(0);
+	});
+
 	test('should use standalone and contextual app names in portaled context menus', async ({
 		context,
 		page,
