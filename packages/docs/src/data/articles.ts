@@ -2043,6 +2043,15 @@ export const articles = [
 		slug: 'effects/invert',
 	},
 	{
+		id: 'effects/levels',
+		title: 'levels()',
+		relativePath: 'docs/effects/levels.mdx',
+		compId: 'articles-docs-effects-levels',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/levels',
+	},
+	{
 		id: 'effects/light-leak',
 		title: 'lightLeak()',
 		relativePath: 'docs/effects/light-leak.mdx',

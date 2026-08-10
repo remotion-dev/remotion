@@ -152,6 +152,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-levels',
+		category: 'Color',
+		label: 'levels()',
+		description: 'Black point, white point, and gamma',
+		effect: {
+			name: 'levels',
+			importPath: '@remotion/effects/levels',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-saturation',
 		category: 'Color',
 		label: 'saturation()',

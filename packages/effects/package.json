@@ -194,6 +194,11 @@
 			"module": "./dist/esm/linear-progressive-pixelate.mjs",
 			"import": "./dist/esm/linear-progressive-pixelate.mjs"
 		},
+		"./levels": {
+			"types": "./dist/levels.d.ts",
+			"module": "./dist/esm/levels.mjs",
+			"import": "./dist/esm/levels.mjs"
+		},
 		"./light-leak": {
 			"types": "./dist/light-leak.d.ts",
 			"module": "./dist/esm/light-leak.mjs",
@@ -463,6 +468,9 @@
 			],
 			"linear-progressive-pixelate": [
 				"dist/linear-progressive-pixelate.d.ts"
+			],
+			"levels": [
+				"dist/levels.d.ts"
 			],
 			"light-leak": [
 				"dist/light-leak.d.ts"

@@ -24,6 +24,7 @@ import {halftoneLinearGradient} from '../halftone-linear-gradient.js';
 import {halftone} from '../halftone.js';
 import {hue} from '../hue.js';
 import {invert} from '../invert.js';
+import {levels} from '../levels.js';
 import {lightLeak} from '../light-leak.js';
 import {lightTrail} from '../light-trail/index.js';
 import {linearGradientTint} from '../linear-gradient-tint.js';
@@ -170,6 +171,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(invert().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/invert',
+	);
+	expect(levels().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/levels',
 	);
 	expect(lines().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/lines',
@@ -328,6 +332,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(pixelDissolve().definition.label).toBe('pixelDissolve()');
 	expect(hue().definition.label).toBe('hue()');
 	expect(invert().definition.label).toBe('invert()');
+	expect(levels().definition.label).toBe('levels()');
 	expect(lines().definition.label).toBe('lines()');
 	expect(linearGradient().definition.label).toBe('linearGradient()');
 	expect(linearGradientTint().definition.label).toBe('linearGradientTint()');
@@ -1040,6 +1045,48 @@ test('vibrance() amount produces distinct effect keys', () => {
 	const vivid = vibrance({amount: 0.5});
 	expect(
 		new Set([muted.effectKey, neutral.effectKey, vivid.effectKey]).size,
+	).toBe(3);
+});
+
+test('levels() accepts default params', () => {
+	expect(() => levels()).not.toThrow();
+});
+
+test('levels() rejects non-finite parameters', () => {
+	expect(() => levels({blackPoint: Number.NaN})).toThrow(
+		'"blackPoint" must be a finite number',
+	);
+	expect(() => levels({whitePoint: Number.POSITIVE_INFINITY})).toThrow(
+		'"whitePoint" must be a finite number',
+	);
+	expect(() => levels({gamma: Number.NaN})).toThrow(
+		'"gamma" must be a finite number',
+	);
+});
+
+test('levels() validates black and white points', () => {
+	expect(() => levels({blackPoint: -0.1})).toThrow('"blackPoint" must be >= 0');
+	expect(() => levels({whitePoint: 1.1})).toThrow('"whitePoint" must be <= 1');
+	expect(() => levels({blackPoint: 0.5, whitePoint: 0.5})).toThrow(
+		'"blackPoint" must be less than "whitePoint"',
+	);
+	expect(() => levels({blackPoint: 0.6, whitePoint: 0.5})).toThrow(
+		'"blackPoint" must be less than "whitePoint"',
+	);
+});
+
+test('levels() validates gamma', () => {
+	expect(() => levels({gamma: 0})).toThrow('"gamma" must be >= 0.01');
+	expect(() => levels({gamma: 10.1})).toThrow('"gamma" must be <= 10');
+});
+
+test('levels() parameters produce distinct effect keys', () => {
+	const neutral = levels();
+	const clipped = levels({blackPoint: 0.1, whitePoint: 0.9});
+	const brighterMidtones = levels({gamma: 2});
+	expect(
+		new Set([neutral.effectKey, clipped.effectKey, brighterMidtones.effectKey])
+			.size,
 	).toBe(3);
 });
 

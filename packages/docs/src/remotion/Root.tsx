@@ -27,6 +27,7 @@ import {EffectsHalftoneLinearGradientPreview} from '../../components/effects/eff
 import {EffectsHalftonePreview} from '../../components/effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../../components/effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../../components/effects/effects-invert-preview';
+import {EffectsLevelsPreview} from '../../components/effects/effects-levels-preview';
 import {EffectsLightLeakPreview} from '../../components/effects/effects-light-leak-preview';
 import {
 	EffectsLightTrailPreview,
@@ -290,6 +291,13 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{stops: 1}}
+				/>
+				<Still
+					id="effects-levels-preview"
+					component={EffectsLevelsPreview}
+					width={1280}
+					height={720}
+					defaultProps={{blackPoint: 0.1, whitePoint: 0.9, gamma: 1.4}}
 				/>
 				<Still
 					id="effects-white-balance-preview"
