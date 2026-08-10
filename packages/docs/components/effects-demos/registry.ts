@@ -47,6 +47,7 @@ import {roughenEdges} from '@remotion/effects/roughen-edges';
 import {saturation} from '@remotion/effects/saturation';
 import {scale} from '@remotion/effects/scale';
 import {scanlines} from '@remotion/effects/scanlines';
+import {shadowsHighlights} from '@remotion/effects/shadows-highlights';
 import {shine} from '@remotion/effects/shine';
 import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import {skew} from '@remotion/effects/skew';
@@ -130,6 +131,7 @@ import {EffectsRoughenEdgesPreview} from '../effects/effects-roughen-edges-previ
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../effects/effects-scanlines-preview';
+import {EffectsShadowsHighlightsPreview} from '../effects/effects-shadows-highlights-preview';
 import {EffectsShinePreview} from '../effects/effects-shine-preview';
 import {
 	EffectsShrinkwrapPreview,
@@ -335,6 +337,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/saturation',
 		comp: EffectsSaturationPreview,
 		schema: saturation().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-shadows-highlights',
+		effectName: 'shadowsHighlights',
+		effectImportPath: '@remotion/effects/shadows-highlights',
+		comp: EffectsShadowsHighlightsPreview,
+		schema: shadowsHighlights().definition.schema,
 	},
 	{
 		...defaults,

@@ -2259,6 +2259,15 @@ export const articles = [
 		slug: 'effects/scanlines',
 	},
 	{
+		id: 'effects/shadows-highlights',
+		title: 'shadowsHighlights()',
+		relativePath: 'docs/effects/shadows-highlights.mdx',
+		compId: 'articles-docs-effects-shadows-highlights',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/shadows-highlights',
+	},
+	{
 		id: 'effects/shine',
 		title: 'shine()',
 		relativePath: 'docs/effects/shine.mdx',

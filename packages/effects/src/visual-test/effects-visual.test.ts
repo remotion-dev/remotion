@@ -5,6 +5,7 @@ import {exposure} from '../exposure.js';
 import {levels} from '../levels.js';
 import {noise} from '../noise.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
+import {shadowsHighlights} from '../shadows-highlights.js';
 import {vibrance} from '../vibrance.js';
 import {vignette} from '../vignette.js';
 import {whiteBalance} from '../white-balance.js';
@@ -212,6 +213,50 @@ test('levels() remaps endpoints and gamma while preserving alpha', async () => {
 	expect(pixels[4]).toBeGreaterThanOrEqual(179);
 	expect(pixels[4]).toBeLessThanOrEqual(182);
 	expect(pixels[8]).toBeGreaterThanOrEqual(254);
+	expect(pixels[3]).toBe(128);
+	expect(pixels[7]).toBe(128);
+	expect(pixels[11]).toBe(128);
+});
+
+test('shadowsHighlights() targets dark and bright tones smoothly', async () => {
+	const source = document.createElement('canvas');
+	source.width = 3;
+	source.height = 1;
+	const sourceContext = source.getContext('2d');
+	if (!sourceContext) {
+		throw new Error('Could not get source context');
+	}
+
+	sourceContext.putImageData(
+		new ImageData(
+			new Uint8ClampedArray([
+				64, 64, 64, 128, 128, 128, 128, 128, 224, 224, 224, 128,
+			]),
+			3,
+			1,
+		),
+		0,
+		0,
+	);
+
+	const canvas = await renderEffectChainToCanvas({
+		source,
+		width: 3,
+		height: 1,
+		effects: descriptorsToMemoizedEffects([
+			shadowsHighlights({shadows: 1, highlights: -1}),
+		]),
+	});
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Could not get output context');
+	}
+
+	const pixels = context.getImageData(0, 0, 3, 1).data;
+	expect(pixels[0]).toBeGreaterThan(64);
+	expect(pixels[4]).toBeGreaterThanOrEqual(126);
+	expect(pixels[4]).toBeLessThanOrEqual(130);
+	expect(pixels[8]).toBeLessThan(224);
 	expect(pixels[3]).toBe(128);
 	expect(pixels[7]).toBe(128);
 	expect(pixels[11]).toBe(128);

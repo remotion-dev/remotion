@@ -322,6 +322,7 @@ const sidebars: SidebarsConfig = {
 				'effects/saturation',
 				'effects/scale',
 				'effects/scanlines',
+				'effects/shadows-highlights',
 				'effects/shine',
 				'effects/shrinkwrap',
 				'effects/skew',

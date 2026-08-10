@@ -55,6 +55,7 @@ import {roughenEdges} from '../roughen-edges.js';
 import {saturation} from '../saturation.js';
 import {scale} from '../scale.js';
 import {scanlines} from '../scanlines.js';
+import {shadowsHighlights} from '../shadows-highlights.js';
 import {shine} from '../shine.js';
 import {shrinkwrap} from '../shrinkwrap.js';
 import {skew} from '../skew.js';
@@ -174,6 +175,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(levels().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/levels',
+	);
+	expect(shadowsHighlights().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/shadows-highlights',
 	);
 	expect(lines().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/lines',
@@ -333,6 +337,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(hue().definition.label).toBe('hue()');
 	expect(invert().definition.label).toBe('invert()');
 	expect(levels().definition.label).toBe('levels()');
+	expect(shadowsHighlights().definition.label).toBe('shadowsHighlights()');
 	expect(lines().definition.label).toBe('lines()');
 	expect(linearGradient().definition.label).toBe('linearGradient()');
 	expect(linearGradientTint().definition.label).toBe('linearGradientTint()');
@@ -1087,6 +1092,47 @@ test('levels() parameters produce distinct effect keys', () => {
 	expect(
 		new Set([neutral.effectKey, clipped.effectKey, brighterMidtones.effectKey])
 			.size,
+	).toBe(3);
+});
+
+test('shadowsHighlights() accepts default params', () => {
+	expect(() => shadowsHighlights()).not.toThrow();
+});
+
+test('shadowsHighlights() rejects non-finite parameters', () => {
+	expect(() => shadowsHighlights({shadows: Number.NaN})).toThrow(
+		'"shadows" must be a finite number',
+	);
+	expect(() =>
+		shadowsHighlights({highlights: Number.POSITIVE_INFINITY}),
+	).toThrow('"highlights" must be a finite number');
+});
+
+test('shadowsHighlights() rejects parameters outside the signed unit interval', () => {
+	expect(() => shadowsHighlights({shadows: -1.1})).toThrow(
+		'"shadows" must be >= -1',
+	);
+	expect(() => shadowsHighlights({shadows: 1.1})).toThrow(
+		'"shadows" must be <= 1',
+	);
+	expect(() => shadowsHighlights({highlights: -1.1})).toThrow(
+		'"highlights" must be >= -1',
+	);
+	expect(() => shadowsHighlights({highlights: 1.1})).toThrow(
+		'"highlights" must be <= 1',
+	);
+});
+
+test('shadowsHighlights() parameters produce distinct effect keys', () => {
+	const neutral = shadowsHighlights();
+	const liftedShadows = shadowsHighlights({shadows: 0.5});
+	const recoveredHighlights = shadowsHighlights({highlights: -0.5});
+	expect(
+		new Set([
+			neutral.effectKey,
+			liftedShadows.effectKey,
+			recoveredHighlights.effectKey,
+		]).size,
 	).toBe(3);
 });
 
