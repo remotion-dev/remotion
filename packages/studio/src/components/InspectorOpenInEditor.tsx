@@ -22,6 +22,7 @@ import type {RenderInlineAction} from './InlineAction';
 import {InlineDropdown} from './InlineDropdown';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
+import {openInFileExplorer} from './RenderQueue/actions';
 import {
 	canUseEditorPicker,
 	getPreferredEditorId,
@@ -159,6 +160,7 @@ export const InspectorOpenInEditor: React.FC<{
 			editorInfo,
 			excludeCodingAgentId: null,
 			excludeEditorId: preferredEditorId,
+			fileManagerDisabled: !location?.source,
 			onConfigureApps: () => {
 				setSelectedModal({
 					type: 'settings',
@@ -174,6 +176,15 @@ export const InspectorOpenInEditor: React.FC<{
 			},
 			onOpenInEditor: (editorId) => {
 				openWithEditor(editorId).catch(() => undefined);
+			},
+			onOpenInFileExplorer: () => {
+				if (!location?.source) {
+					return;
+				}
+
+				openInFileExplorer({directory: location.source}).catch((err) => {
+					showNotification(`Could not open file: ${err.message}`, 2000);
+				});
 			},
 		});
 	}, [
