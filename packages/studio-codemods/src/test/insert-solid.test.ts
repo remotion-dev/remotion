@@ -37,3 +37,24 @@ test('inserts a timeline Solid in a positioned Sequence', () => {
 	expect(result.output).toContain("translate: '120.3px 80px'");
 	expect(result.output).toContain('<Solid width={1280} height={720}');
 });
+
+test('inserts a Solid as a sibling of a component root', () => {
+	const result = insertSolidIntoSource({
+		exportName: 'MyComposition',
+		height: 720,
+		position: null,
+		source: `export const MyComposition = () => (
+	<MapViewport>
+		<MapRegion />
+	</MapViewport>
+);
+`,
+		width: 1280,
+	});
+
+	const rootEnd = result.output.indexOf('</MapViewport>');
+	const solidStart = result.output.indexOf('<Solid');
+	expect(result.output).toContain('<>');
+	expect(rootEnd).toBeGreaterThan(-1);
+	expect(solidStart).toBeGreaterThan(rootEnd);
+});
