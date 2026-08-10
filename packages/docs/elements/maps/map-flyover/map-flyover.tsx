@@ -260,7 +260,7 @@ const MapFlyoverLayerInner = forwardRef<
 		const markerCenterRadius = markerRadius * 0.27;
 		const destinationMarkerScale = interpolate(
 			frame,
-			[travelEnd + 10, travelEnd + 22],
+			[travelEnd + 5, travelEnd + 17],
 			[lineWidth / 2 / markerRadius, 1],
 			{
 				easing: Easing.inOut(Easing.cubic),
@@ -270,7 +270,7 @@ const MapFlyoverLayerInner = forwardRef<
 		);
 		const destinationMarkerCenterScale = interpolate(
 			frame,
-			[travelEnd + 24, travelEnd + 34],
+			[travelEnd + 19, travelEnd + 29],
 			[0, 1],
 			{
 				easing: Easing.inOut(Easing.cubic),
@@ -280,7 +280,7 @@ const MapFlyoverLayerInner = forwardRef<
 		);
 		const destinationLabelOpacity = interpolate(
 			frame,
-			[travelEnd + 32, travelEnd + 40],
+			[travelEnd + 27, travelEnd + 35],
 			[0, 1],
 			{
 				easing: Easing.inOut(Easing.quad),
@@ -529,7 +529,7 @@ const MapFlyoverLayerInner = forwardRef<
 						>
 							{originLabel}
 						</text>
-						{frame >= travelEnd + 10 ? (
+						{frame >= travelEnd + 5 ? (
 							<g
 								transform={`translate(${projectedOverlay.end.x} ${projectedOverlay.end.y})`}
 							>
