@@ -13,6 +13,7 @@ import {LostNodePathRepro} from './LostNodePathE2e/LostNodePathRepro';
 import {NewVideoComp} from './NewVideo';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
 import {VisualControls} from './VisualControls';
+import {VisualMode3D} from './VisualMode3D';
 
 const UseCurrentScaleOnLoad: React.FC = () => {
 	const scale = useCurrentScale();
@@ -151,6 +152,14 @@ export const E2eTestRoot: React.FC = () => {
 				height={720}
 				fps={30}
 				durationInFrames={90}
+			/>
+			<Composition
+				id="visual-mode-3d"
+				component={VisualMode3D}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={120}
 			/>
 			<NewVideoComp />
 		</>

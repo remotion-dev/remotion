@@ -99,5 +99,49 @@ test.describe('inspector section collapse', () => {
 		await expect(
 			page.getByRole('button', {name: 'Expand Layout', exact: true}),
 		).toBeVisible();
+
+		await page.goto(`${STUDIO_URL}/visual-mode-3d`);
+		await expect(page).toHaveURL(/visual-mode-3d/, {timeout: 15_000});
+		await page.waitForFunction(
+			() => !document.body.innerText.includes('Loading...'),
+			{timeout: 30_000},
+		);
+
+		await page.locator('[title="2D transform"]').first().click();
+		const show3DControls = page.getByRole('button', {
+			name: 'Show 3D transform controls',
+			exact: true,
+		});
+		await expect(show3DControls).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Scale Z', exact: true}),
+		).toHaveCount(0);
+		await show3DControls.click();
+		await expect(
+			page.getByRole('button', {name: 'Scale Z', exact: true}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Rotation axis X', exact: true}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Rotation axis Y', exact: true}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Rotation axis Z', exact: true}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Transform origin Z', exact: true}),
+		).toBeVisible();
+
+		await page.locator('[title="3D transform"]').first().click();
+		await expect(
+			page.getByRole('button', {
+				name: '3D controls are required by the current transform values',
+				exact: true,
+			}),
+		).toBeDisabled();
+		await expect(
+			page.getByRole('button', {name: 'Scale Z', exact: true}),
+		).toBeVisible();
 	});
 });

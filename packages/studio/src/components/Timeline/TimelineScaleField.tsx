@@ -15,6 +15,7 @@ import {InputDragger} from '../NewComposition/InputDragger';
 import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
 import {normalizeTimelineNumber} from './timeline-field-utils';
 import {timelineLayerIconContainer} from './TimelineLayerEye';
+import {Transform3DModeContext} from './Transform3DModeContext';
 
 const leftDraggerStyle: React.CSSProperties = {
 	paddingLeft: 0,
@@ -160,13 +161,16 @@ export const TimelineScaleField: React.FC<{
 }) => {
 	const [dragX, setDragX] = useState<number | null>(null);
 	const [dragY, setDragY] = useState<number | null>(null);
+	const [dragZ, setDragZ] = useState<number | null>(null);
 	const dragStartRef = useRef<readonly [number, number] | null>(null);
 	const {getScaleLockState, setScaleLockState} = useContext(ScaleLockContext);
+	const transform3DMode = useContext(Transform3DModeContext);
 
 	const [codeX, codeY, codeZ] = useMemo(
 		() => NoReactInternals.parseScaleValue(effectiveValue),
 		[effectiveValue],
 	);
+	const show3D = transform3DMode || codeZ !== 1;
 
 	const defaultLinked = codeX === codeY;
 	const linked = getScaleLockState({
@@ -206,10 +210,10 @@ export const TimelineScaleField: React.FC<{
 	}, [codeX, codeY, dragX, dragY]);
 
 	const serialize = useCallback(
-		(x: number, y: number) => {
-			return NoReactInternals.serializeScaleValue([x, y, codeZ]);
+		(x: number, y: number, z = dragZ ?? codeZ) => {
+			return NoReactInternals.serializeScaleValue([x, y, z]);
 		},
-		[codeZ],
+		[codeZ, dragZ],
 	);
 
 	const onXChange = useCallback(
@@ -264,6 +268,7 @@ export const TimelineScaleField: React.FC<{
 				dragStartRef.current = null;
 				setDragX(null);
 				setDragY(null);
+				setDragZ(null);
 				onDragEnd();
 			};
 
@@ -312,6 +317,7 @@ export const TimelineScaleField: React.FC<{
 					dragStartRef.current = null;
 					setDragX(null);
 					setDragY(null);
+					setDragZ(null);
 				});
 			}
 		},
@@ -370,6 +376,7 @@ export const TimelineScaleField: React.FC<{
 				dragStartRef.current = null;
 				setDragX(null);
 				setDragY(null);
+				setDragZ(null);
 				onDragEnd();
 			};
 
@@ -418,6 +425,7 @@ export const TimelineScaleField: React.FC<{
 					dragStartRef.current = null;
 					setDragX(null);
 					setDragY(null);
+					setDragZ(null);
 				});
 			}
 		},
@@ -431,6 +439,59 @@ export const TimelineScaleField: React.FC<{
 			linked: !linked,
 		});
 	}, [field.key, linked, scaleLockNodePath, setScaleLockState]);
+
+	const onZChange = useCallback(
+		(newVal: number) => {
+			setDragZ(newVal);
+			onDragValueChange(serialize(dragX ?? codeX, dragY ?? codeY, newVal));
+		},
+		[codeX, codeY, dragX, dragY, onDragValueChange, serialize],
+	);
+
+	const onZChangeEnd = useCallback(
+		(newVal: number) => {
+			const newScale = serialize(dragX ?? codeX, dragY ?? codeY, newVal);
+			const clearDragState = () => {
+				dragStartRef.current = null;
+				setDragX(null);
+				setDragY(null);
+				setDragZ(null);
+				onDragEnd();
+			};
+
+			if (!valuesEqual(newScale, propStatus.codeValue)) {
+				onSave(newScale).finally(clearDragState);
+			} else {
+				clearDragState();
+			}
+		},
+		[
+			codeX,
+			codeY,
+			dragX,
+			dragY,
+			onDragEnd,
+			onSave,
+			propStatus.codeValue,
+			serialize,
+		],
+	);
+
+	const onZTextChange = useCallback(
+		(newVal: string) => {
+			const parsed = Number(newVal);
+			if (Number.isNaN(parsed)) {
+				return;
+			}
+
+			const newScale = serialize(dragX ?? codeX, dragY ?? codeY, parsed);
+			if (!valuesEqual(newScale, propStatus.codeValue)) {
+				setDragZ(parsed);
+				onSave(newScale).finally(() => setDragZ(null));
+			}
+		},
+		[codeX, codeY, dragX, dragY, onSave, propStatus.codeValue, serialize],
+	);
 
 	return (
 		<span style={containerStyle}>
@@ -449,6 +510,7 @@ export const TimelineScaleField: React.FC<{
 				formatter={formatter}
 				rightAlign={false}
 				allowStepMismatch
+				aria-label="Scale X"
 			/>
 			<div style={gapStyle} />
 			<InputDragger
@@ -466,7 +528,30 @@ export const TimelineScaleField: React.FC<{
 				formatter={formatter}
 				rightAlign={false}
 				allowStepMismatch
+				aria-label="Scale Y"
 			/>
+			{show3D ? (
+				<>
+					<div style={gapStyle} />
+					<InputDragger
+						type="number"
+						value={dragZ ?? codeZ}
+						style={rightDraggerStyle}
+						status="ok"
+						small
+						onValueChange={onZChange}
+						onValueChangeEnd={onZChangeEnd}
+						onTextChange={onZTextChange}
+						min={min}
+						max={max}
+						step={step}
+						formatter={formatter}
+						rightAlign={false}
+						allowStepMismatch
+						aria-label="Scale Z"
+					/>
+				</>
+			) : null}
 			<LinkToggle linked={linked} onToggle={onToggleLink} />
 		</span>
 	);

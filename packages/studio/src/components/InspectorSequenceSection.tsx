@@ -6,10 +6,15 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import {Internals, type TSequence} from 'remotion';
+import {
+	Internals,
+	type CanUpdateSequencePropStatus,
+	type TSequence,
+} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {LIGHT_TEXT, WHITE} from '../helpers/colors';
+import {BLUE, LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
@@ -21,6 +26,7 @@ import {
 	type TimelineTreeNode,
 } from '../helpers/timeline-layout';
 import {BorderRadiusIcon} from '../icons/border-radius';
+import {CubeIcon} from '../icons/cube';
 import {FullscreenIcon} from '../icons/fullscreen';
 import {Plus} from '../icons/plus';
 import {SetSelectedModalContext} from '../state/modals';
@@ -46,6 +52,7 @@ import {
 	openTimelineAssetLink,
 	splitRemoteSourceForMiddleEllipsis,
 } from './Timeline/timeline-asset-link';
+import {parseCssRotation} from './Timeline/timeline-rotation-utils';
 import {
 	AssetSelectionContext,
 	type InspectorSourceAction,
@@ -60,6 +67,11 @@ import {
 	TimelineSelectionOrderProvider,
 	type TimelineSelection,
 } from './Timeline/TimelineSelection';
+import {
+	parseTransformOrigin,
+	parseTransformOriginZ,
+} from './Timeline/transform-origin-utils';
+import {Transform3DModeContext} from './Timeline/Transform3DModeContext';
 import {useTimelineExpandedTree} from './Timeline/use-timeline-expanded-tree';
 import {useSelectAsset} from './use-select-asset';
 
@@ -93,6 +105,12 @@ const borderRadiusToggleIcon: React.CSSProperties = {
 	flexShrink: 0,
 	height: 15,
 	width: 15,
+};
+
+const transform3DToggleIcon: React.CSSProperties = {
+	flexShrink: 0,
+	height: 16,
+	width: 16,
 };
 
 const collapsibleSectionHeaderButton: React.CSSProperties = {
@@ -335,6 +353,53 @@ const getInspectorControlGroups = (
 	})).filter((group) => group.rows.length > 0);
 };
 
+const has3DTransformValue = ({
+	fieldKey,
+	value,
+}: {
+	readonly fieldKey: string;
+	readonly value: unknown;
+}): boolean => {
+	if (fieldKey === 'style.scale') {
+		return NoReactInternals.parseScaleValue(value)[2] !== 1;
+	}
+
+	if (fieldKey === 'style.rotate') {
+		const parsed = parseCssRotation(String(value ?? '0deg'));
+		return parsed !== null && (parsed.axis[0] !== 0 || parsed.axis[1] !== 0);
+	}
+
+	if (fieldKey === 'style.transformOrigin') {
+		const parsed = parseTransformOrigin(value);
+		const z = parsed?.z ? parseTransformOriginZ(parsed.z) : null;
+		return z !== null && z.value !== 0;
+	}
+
+	return false;
+};
+
+const propStatusHas3DTransformValue = ({
+	fieldKey,
+	propStatus,
+	runtimeValue,
+}: {
+	readonly fieldKey: string;
+	readonly propStatus: CanUpdateSequencePropStatus | undefined;
+	readonly runtimeValue: unknown;
+}): boolean => {
+	if (propStatus?.status === 'keyframed') {
+		return propStatus.keyframes.some((keyframe) =>
+			has3DTransformValue({fieldKey, value: keyframe.value}),
+		);
+	}
+
+	return has3DTransformValue({
+		fieldKey,
+		value:
+			propStatus?.status === 'static' ? propStatus.codeValue : runtimeValue,
+	});
+};
+
 export const getInspectorSelectableItems = (
 	rows: readonly FlatTreeRow[],
 ): TimelineSelection[] => {
@@ -380,6 +445,8 @@ export const InspectorSequenceSection: React.FC<{
 	const [automaticSectionExpansion, setAutomaticSectionExpansion] = useState<
 		Readonly<Record<string, boolean>>
 	>({});
+	const [manuallyEnabled3DTransform, setManuallyEnabled3DTransform] =
+		useState(false);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
@@ -513,6 +580,21 @@ export const InspectorSequenceSection: React.FC<{
 		propStatuses,
 		nodePathInfo.sequenceSubscriptionKey,
 	);
+	const automaticallyEnabled3DTransform = useMemo(() => {
+		return ['style.scale', 'style.rotate', 'style.transformOrigin'].some(
+			(fieldKey) =>
+				propStatusHas3DTransformValue({
+					fieldKey,
+					propStatus: sequencePropStatuses?.[fieldKey],
+					runtimeValue: runtimeValues[fieldKey],
+				}),
+		);
+	}, [runtimeValues, sequencePropStatuses]);
+	const show3DTransformControls =
+		automaticallyEnabled3DTransform || manuallyEnabled3DTransform;
+	const onToggle3DTransform = useCallback(() => {
+		setManuallyEnabled3DTransform((enabled) => !enabled);
+	}, []);
 	const {schema} = sequence.controls;
 	const getControlGroupActivity = useCallback(
 		(group: InspectorControlGroup) => {
@@ -722,6 +804,25 @@ export const InspectorSequenceSection: React.FC<{
 		/>
 	) : null;
 
+	const transform3DAction = (
+		<InlineAction
+			variant={null}
+			disabled={automaticallyEnabled3DTransform}
+			onClick={onToggle3DTransform}
+			title={
+				automaticallyEnabled3DTransform
+					? '3D controls are required by the current transform values'
+					: show3DTransformControls
+						? 'Hide 3D transform controls'
+						: 'Show 3D transform controls'
+			}
+			unhoveredColor={show3DTransformControls ? BLUE : LIGHT_TEXT}
+			renderAction={(color) => (
+				<CubeIcon color={color} style={transform3DToggleIcon} />
+			)}
+		/>
+	);
+
 	const effectsHeader = (
 		<div style={sectionHeaderRow}>
 			<div style={effectsHeaderTitle}>Effects</div>
@@ -777,6 +878,7 @@ export const InspectorSequenceSection: React.FC<{
 		return (
 			<div style={sectionHeaderRow}>
 				<div style={effectsHeaderTitle}>{group.label}</div>
+				{group.id === 'transforms' ? transform3DAction : null}
 			</div>
 		);
 	};
@@ -806,12 +908,16 @@ export const InspectorSequenceSection: React.FC<{
 								header={renderControlGroupHeader(group)}
 							>
 								{isControlGroupExpanded(group) ? (
-									<>
-										{group.id === 'transforms'
-											? renderTransformControls()
-											: null}
-										{group.rows.map(renderRow)}
-									</>
+									group.id === 'transforms' ? (
+										<Transform3DModeContext.Provider
+											value={show3DTransformControls}
+										>
+											{renderTransformControls()}
+											{group.rows.map(renderRow)}
+										</Transform3DModeContext.Provider>
+									) : (
+										group.rows.map(renderRow)
+									)
 								) : null}
 							</InspectorSection>
 						))}
