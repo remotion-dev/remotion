@@ -97,6 +97,189 @@ const unwrapLongitude = (longitude: number, reference: number) => {
 	return unwrapped;
 };
 
+const createFlyoverRoute = (start: [number, number], end: [number, number]) => {
+	if (
+		Math.abs(start[0] - end[0]) < 0.000001 &&
+		Math.abs(start[1] - end[1]) < 0.000001
+	) {
+		return turf.lineString([start, [start[0] + 0.0001, start[1]]]);
+	}
+
+	const greatCircle = turf.greatCircle(start, end, {npoints: 200});
+	const splitCoordinates =
+		greatCircle.geometry.type === 'LineString'
+			? greatCircle.geometry.coordinates
+			: greatCircle.geometry.coordinates.flat();
+	const coordinates: [number, number][] = [];
+	for (const coordinate of splitCoordinates) {
+		const previousLongitude = coordinates.at(-1)?.[0] ?? coordinate[0];
+		coordinates.push([
+			unwrapLongitude(coordinate[0], previousLongitude),
+			coordinate[1],
+		]);
+	}
+
+	const startMercator = maplibregl.MercatorCoordinate.fromLngLat({
+		lng: coordinates[0][0],
+		lat: coordinates[0][1],
+	});
+	const lastCoordinate = coordinates[coordinates.length - 1];
+	const endMercator = maplibregl.MercatorCoordinate.fromLngLat({
+		lng: lastCoordinate[0],
+		lat: lastCoordinate[1],
+	});
+
+	return turf.lineString(
+		coordinates.map((coordinate, index) => {
+			const progress = index / (coordinates.length - 1);
+			const greatCirclePoint = maplibregl.MercatorCoordinate.fromLngLat({
+				lng: coordinate[0],
+				lat: coordinate[1],
+			});
+			const straightX =
+				startMercator.x + (endMercator.x - startMercator.x) * progress;
+			const straightY =
+				startMercator.y + (endMercator.y - startMercator.y) * progress;
+			const reducedBend = new maplibregl.MercatorCoordinate(
+				straightX + (greatCirclePoint.x - straightX) * 0.5,
+				straightY + (greatCirclePoint.y - straightY) * 0.5,
+			).toLngLat();
+
+			return [reducedBend.lng, reducedBend.lat];
+		}),
+	);
+};
+
+const calculateMapPlate = ({
+	height,
+	route,
+	routeDistance,
+	width,
+}: {
+	height: number;
+	route: ReturnType<typeof createFlyoverRoute>;
+	routeDistance: number;
+	width: number;
+}) => {
+	const mercatorPoints = route.geometry.coordinates.map((coordinate) =>
+		maplibregl.MercatorCoordinate.fromLngLat({
+			lng: coordinate[0],
+			lat: coordinate[1],
+		}),
+	);
+	const minX = Math.min(...mercatorPoints.map((point) => point.x));
+	const maxX = Math.max(...mercatorPoints.map((point) => point.x));
+	const minY = Math.min(...mercatorPoints.map((point) => point.y));
+	const maxY = Math.max(...mercatorPoints.map((point) => point.y));
+	const spanX = Math.max(0.000001, maxX - minX);
+	const spanY = Math.max(0.000001, maxY - minY);
+	const center = new maplibregl.MercatorCoordinate(
+		(minX + maxX) / 2,
+		(minY + maxY) / 2,
+	).toLngLat();
+	const plateMultiplier = Math.min(4096 / width, 4096 / height);
+	const plateWidth = Math.floor(width * plateMultiplier);
+	const plateHeight = Math.floor(height * plateMultiplier);
+	const maximumOverviewZoom = interpolate(routeDistance, [100, 10000], [7, 3], {
+		extrapolateLeft: 'clamp',
+		extrapolateRight: 'clamp',
+	});
+	const overviewZoom = Math.min(
+		Math.log2((width * 0.82) / (512 * spanX)),
+		Math.log2((height * 0.72) / (512 * spanY)),
+		maximumOverviewZoom,
+	);
+	const maximumPlateZoom = Math.min(
+		Math.log2(Math.max(1, plateWidth - width) / (512 * spanX)),
+		Math.log2(Math.max(1, plateHeight - height) / (512 * spanY)),
+	);
+	const maximumCoveredZoom =
+		overviewZoom +
+		Math.log2(Math.min(plateWidth / width, plateHeight / height));
+	const zoom = Math.max(
+		overviewZoom,
+		Math.min(overviewZoom + 1.25, maximumPlateZoom, maximumCoveredZoom),
+	);
+
+	return {
+		center,
+		height: plateHeight,
+		overviewZoom,
+		width: plateWidth,
+		zoom,
+	};
+};
+
+const projectToMapPlate = (
+	coordinate: readonly [number, number],
+	mapPlate: ReturnType<typeof calculateMapPlate>,
+) => {
+	const center = maplibregl.MercatorCoordinate.fromLngLat(mapPlate.center);
+	const mercator = maplibregl.MercatorCoordinate.fromLngLat({
+		lng: coordinate[0],
+		lat: coordinate[1],
+	});
+	const worldSize = 512 * 2 ** mapPlate.zoom;
+
+	return {
+		x: (mercator.x - center.x) * worldSize + mapPlate.width / 2,
+		y: (mercator.y - center.y) * worldSize + mapPlate.height / 2,
+	};
+};
+
+const projectFlyoverRoute = (
+	route: ReturnType<typeof createFlyoverRoute>,
+	mapPlate: ReturnType<typeof calculateMapPlate>,
+) => {
+	let routeLength = 0;
+	let previousProjected: {x: number; y: number} | null = null;
+	const points = route.geometry.coordinates.map((coordinate) => {
+		const projected = projectToMapPlate(
+			coordinate as [number, number],
+			mapPlate,
+		);
+		if (previousProjected) {
+			routeLength += Math.hypot(
+				projected.x - previousProjected.x,
+				projected.y - previousProjected.y,
+			);
+		}
+
+		previousProjected = projected;
+		return {distance: routeLength, ...projected};
+	});
+
+	return {
+		end: points[points.length - 1],
+		pointAtProgress: (progress: number) => {
+			const targetLength = routeLength * progress;
+			const foundPointIndex = points.findIndex(
+				(point) => point.distance >= targetLength,
+			);
+			const nextPointIndex =
+				foundPointIndex === -1
+					? points.length - 1
+					: Math.max(1, foundPointIndex);
+			const nextPoint = points[nextPointIndex];
+			const previousPoint = points[nextPointIndex - 1];
+			const segmentProgress =
+				nextPoint.distance === previousPoint.distance
+					? 0
+					: (targetLength - previousPoint.distance) /
+						(nextPoint.distance - previousPoint.distance);
+
+			return {
+				x: interpolate(segmentProgress, [0, 1], [previousPoint.x, nextPoint.x]),
+				y: interpolate(segmentProgress, [0, 1], [previousPoint.y, nextPoint.y]),
+			};
+		},
+		routePath: points
+			.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`)
+			.join(' '),
+		start: points[0],
+	};
+};
+
 const MapFlyoverLayerInner = forwardRef<
 	HTMLDivElement,
 	MapFlyoverLayerProps & {readonly controls: SequenceControls | undefined}
@@ -143,121 +326,22 @@ const MapFlyoverLayerInner = forwardRef<
 			() => [destination[0], destination[1]] as [number, number],
 			[destination],
 		);
-		const route = useMemo(() => {
-			if (
-				Math.abs(startCoordinates[0] - endCoordinates[0]) < 0.000001 &&
-				Math.abs(startCoordinates[1] - endCoordinates[1]) < 0.000001
-			) {
-				return turf.lineString([
-					startCoordinates,
-					[startCoordinates[0] + 0.0001, startCoordinates[1]],
-				]);
-			}
-
-			const greatCircle = turf.greatCircle(startCoordinates, endCoordinates, {
-				npoints: 200,
-			});
-
-			const splitCoordinates =
-				greatCircle.geometry.type === 'LineString'
-					? greatCircle.geometry.coordinates
-					: greatCircle.geometry.coordinates.flat();
-			const coordinates: [number, number][] = [];
-			for (const coordinate of splitCoordinates) {
-				const previousLongitude = coordinates.at(-1)?.[0] ?? coordinate[0];
-				coordinates.push([
-					unwrapLongitude(coordinate[0], previousLongitude),
-					coordinate[1],
-				]);
-			}
-
-			const startMercator = maplibregl.MercatorCoordinate.fromLngLat({
-				lng: coordinates[0][0],
-				lat: coordinates[0][1],
-			});
-			const endMercator = maplibregl.MercatorCoordinate.fromLngLat({
-				lng: coordinates[coordinates.length - 1][0],
-				lat: coordinates[coordinates.length - 1][1],
-			});
-
-			return turf.lineString(
-				coordinates.map((coordinate, index) => {
-					const progress = index / (coordinates.length - 1);
-					const greatCirclePoint = maplibregl.MercatorCoordinate.fromLngLat({
-						lng: coordinate[0],
-						lat: coordinate[1],
-					});
-					const straightX =
-						startMercator.x + (endMercator.x - startMercator.x) * progress;
-					const straightY =
-						startMercator.y + (endMercator.y - startMercator.y) * progress;
-					const reducedBend = new maplibregl.MercatorCoordinate(
-						straightX + (greatCirclePoint.x - straightX) * 0.5,
-						straightY + (greatCirclePoint.y - straightY) * 0.5,
-					).toLngLat();
-
-					return [reducedBend.lng, reducedBend.lat];
-				}),
-			);
-		}, [endCoordinates, startCoordinates]);
+		const route = useMemo(
+			() => createFlyoverRoute(startCoordinates, endCoordinates),
+			[endCoordinates, startCoordinates],
+		);
 		const routeDistance = useMemo(() => turf.length(route), [route]);
 
 		// Render the basemap once at the closest camera zoom. Per-frame CSS
 		// transforms move this oversized plate without loading new map tiles.
-		const mapPlate = useMemo(() => {
-			const mercatorPoints = route.geometry.coordinates.map((coordinate) =>
-				maplibregl.MercatorCoordinate.fromLngLat({
-					lng: coordinate[0],
-					lat: coordinate[1],
-				}),
-			);
-			const minX = Math.min(...mercatorPoints.map((point) => point.x));
-			const maxX = Math.max(...mercatorPoints.map((point) => point.x));
-			const minY = Math.min(...mercatorPoints.map((point) => point.y));
-			const maxY = Math.max(...mercatorPoints.map((point) => point.y));
-			const spanX = Math.max(0.000001, maxX - minX);
-			const spanY = Math.max(0.000001, maxY - minY);
-			const center = new maplibregl.MercatorCoordinate(
-				(minX + maxX) / 2,
-				(minY + maxY) / 2,
-			).toLngLat();
-			const plateMultiplier = Math.min(4096 / width, 4096 / height);
-			const plateWidth = Math.floor(width * plateMultiplier);
-			const plateHeight = Math.floor(height * plateMultiplier);
-			const maximumOverviewZoom = interpolate(
-				routeDistance,
-				[100, 10000],
-				[7, 3],
-				{
-					extrapolateLeft: 'clamp',
-					extrapolateRight: 'clamp',
-				},
-			);
-			const overviewZoom = Math.min(
-				Math.log2((width * 0.82) / (512 * spanX)),
-				Math.log2((height * 0.72) / (512 * spanY)),
-				maximumOverviewZoom,
-			);
-			const maximumPlateZoom = Math.min(
-				Math.log2(Math.max(1, plateWidth - width) / (512 * spanX)),
-				Math.log2(Math.max(1, plateHeight - height) / (512 * spanY)),
-			);
-			const maximumCoveredZoom =
-				overviewZoom +
-				Math.log2(Math.min(plateWidth / width, plateHeight / height));
-			const zoom = Math.max(
-				overviewZoom,
-				Math.min(overviewZoom + 1.25, maximumPlateZoom, maximumCoveredZoom),
-			);
-
-			return {
-				center,
-				height: plateHeight,
-				overviewZoom,
-				width: plateWidth,
-				zoom,
-			};
-		}, [height, route, routeDistance, width]);
+		const mapPlate = useMemo(
+			() => calculateMapPlate({height, route, routeDistance, width}),
+			[height, route, routeDistance, width],
+		);
+		const projectedOverlay = useMemo(
+			() => projectFlyoverRoute(route, mapPlate),
+			[mapPlate, route],
+		);
 		const travelStart = 50;
 		const travelEnd = 205;
 		const travelProgress = interpolate(
@@ -311,45 +395,24 @@ const MapFlyoverLayerInner = forwardRef<
 				extrapolateRight: 'clamp',
 			},
 		);
-		const currentDistance = Math.min(
-			routeDistance,
-			Math.max(0.001, routeDistance * travelProgress),
-		);
-		const slicedRoute = turf.lineSliceAlong(route, 0, currentDistance);
-		const partialCoordinates: [number, number][] = [];
-		for (const coordinate of slicedRoute.geometry.coordinates) {
-			const previousLongitude =
-				partialCoordinates.at(-1)?.[0] ?? route.geometry.coordinates[0][0];
-			partialCoordinates.push([
-				unwrapLongitude(coordinate[0], previousLongitude),
-				coordinate[1],
-			]);
-		}
-
-		const partialRoute = turf.lineString(partialCoordinates);
-		const pointAlongRoute = turf.along(route, currentDistance).geometry
-			.coordinates as [number, number];
-		const currentPoint: [number, number] = [
-			unwrapLongitude(pointAlongRoute[0], route.geometry.coordinates[0][0]),
-			pointAlongRoute[1],
-		];
+		const currentPoint = projectedOverlay.pointAtProgress(travelProgress);
 		const cameraTransition = interpolate(frame, [15, 50], [0, 1], {
 			easing: Easing.inOut(Easing.cubic),
 			extrapolateLeft: 'clamp',
 			extrapolateRight: 'clamp',
 		});
-		const cameraCenter: [number, number] = [
-			interpolate(
+		const projectedCameraCenter = {
+			x: interpolate(
 				cameraTransition,
 				[0, 1],
-				[mapPlate.center.lng, currentPoint[0]],
+				[mapPlate.width / 2, currentPoint.x],
 			),
-			interpolate(
+			y: interpolate(
 				cameraTransition,
 				[0, 1],
-				[mapPlate.center.lat, currentPoint[1]],
+				[mapPlate.height / 2, currentPoint.y],
 			),
-		];
+		};
 		const cameraZoom = interpolate(
 			cameraTransition,
 			[0, 1],
@@ -359,46 +422,6 @@ const MapFlyoverLayerInner = forwardRef<
 
 		// Keep frame-reactive graphics out of MapLibre's async render pipeline.
 		// The SVG and basemap use the exact same deterministic plate transform.
-		const projectedOverlay = useMemo(() => {
-			const center = maplibregl.MercatorCoordinate.fromLngLat(mapPlate.center);
-			const worldSize = 512 * 2 ** mapPlate.zoom;
-			const project = (coordinate: readonly [number, number]) => {
-				const mercator = maplibregl.MercatorCoordinate.fromLngLat({
-					lng: coordinate[0],
-					lat: coordinate[1],
-				});
-
-				return {
-					x: (mercator.x - center.x) * worldSize + mapPlate.width / 2,
-					y: (mercator.y - center.y) * worldSize + mapPlate.height / 2,
-				};
-			};
-			const routePath = partialRoute.geometry.coordinates
-				.map((coordinate, index) => {
-					const point = project(coordinate as [number, number]);
-					return `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`;
-				})
-				.join(' ');
-
-			return {
-				end: project(route.geometry.coordinates.at(-1) as [number, number]),
-				routePath,
-				start: project(route.geometry.coordinates[0] as [number, number]),
-			};
-		}, [mapPlate, partialRoute, route]);
-		const projectedCameraCenter = useMemo(() => {
-			const center = maplibregl.MercatorCoordinate.fromLngLat(mapPlate.center);
-			const camera = maplibregl.MercatorCoordinate.fromLngLat({
-				lng: cameraCenter[0],
-				lat: cameraCenter[1],
-			});
-			const worldSize = 512 * 2 ** mapPlate.zoom;
-
-			return {
-				x: (camera.x - center.x) * worldSize + mapPlate.width / 2,
-				y: (camera.y - center.y) * worldSize + mapPlate.height / 2,
-			};
-		}, [cameraCenter, mapPlate]);
 		const plateTransform = `translate(${width / 2 - projectedCameraCenter.x * plateScale}px, ${
 			height / 2 - projectedCameraCenter.y * plateScale
 		}px) scale(${plateScale})`;
@@ -542,7 +565,10 @@ const MapFlyoverLayerInner = forwardRef<
 						<path
 							d={projectedOverlay.routePath}
 							fill="none"
+							pathLength={1}
 							stroke={routeColor}
+							strokeDasharray={1}
+							strokeDashoffset={1 - travelProgress}
 							strokeLinecap="round"
 							strokeLinejoin="round"
 							strokeWidth={lineWidth}
