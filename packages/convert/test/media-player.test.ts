@@ -53,13 +53,8 @@ test('uses exported video geometry without changing player timing', () => {
 	});
 });
 
-test('only uses 60 FPS when cursor metadata was detected', () => {
-	expect(
-		getPlayerFps(1.54, {
-			captureMetadata: {density: 2},
-			mouseMovements: [],
-		}),
-	).toBe(60);
-	expect(getPlayerFps(1.54, null)).toBe(1.54);
-	expect(getPlayerFps(null, null)).toBe(30);
+test('uses the probed FPS in the player', () => {
+	expect(getPlayerFps(1.54)).toBe(1.54);
+	expect(getPlayerFps(120)).toBe(120);
+	expect(getPlayerFps(null)).toBe(30);
 });

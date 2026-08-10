@@ -18,14 +18,7 @@ import {Filmstrip} from './player/filmstrip';
 
 export const getPlayerFps = (
 	fps: number | null | undefined,
-	cursorData: CanvasCaptureCursorData | null,
 ) => {
-	// eslint-disable-next-line no-warning-comments
-	// TODO: Remove this override once canvas capture files report a reliable FPS.
-	if (cursorData !== null) {
-		return 60;
-	}
-
 	if (typeof fps !== 'number' || !Number.isFinite(fps) || fps <= 0) {
 		return 30;
 	}
@@ -232,7 +225,7 @@ export function VideoPlayer({
 	const trimFrameToSeekRef = useRef<number | null>(null);
 	const videoSourceUrl = useVideoSourceUrl(source);
 
-	const playerFps = getPlayerFps(fps, cursorData);
+	const playerFps = getPlayerFps(fps);
 	const durationInFrames = getDurationInFrames({
 		durationInSeconds,
 		fps: playerFps,
