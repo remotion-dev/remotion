@@ -9,6 +9,7 @@ import {colorKey} from '../color-key.js';
 import {contourLines} from '../contour-lines.js';
 import {contrast} from '../contrast.js';
 import {cornerPin} from '../corner-pin/index.js';
+import {curves} from '../curves.js';
 import {dotGrid} from '../dot-grid.js';
 import {dropShadow} from '../drop-shadow/index.js';
 import {duotone} from '../duotone.js';
@@ -121,6 +122,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(contrast().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/contrast',
+	);
+	expect(curves().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/curves',
 	);
 	expect(contourLines().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/contour-lines',
@@ -326,6 +330,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(fisheye().definition.label).toBe('fisheye()');
 	expect(flannel().definition.label).toBe('flannel()');
 	expect(cornerPin().definition.label).toBe('cornerPin()');
+	expect(curves().definition.label).toBe('curves()');
 	expect(glow().definition.label).toBe('glow()');
 	expect(grayscale().definition.label).toBe('grayscale()');
 	expect(gridlines().definition.label).toBe('gridlines()');
@@ -1133,6 +1138,82 @@ test('shadowsHighlights() parameters produce distinct effect keys', () => {
 			liftedShadows.effectKey,
 			recoveredHighlights.effectKey,
 		]).size,
+	).toBe(3);
+});
+
+test('curves() accepts default params', () => {
+	expect(() => curves()).not.toThrow();
+});
+
+test('curves() validates curve point counts', () => {
+	expect(() => curves({rgb: [[0, 0]]})).toThrow(
+		'"rgb" must have at least 2 points',
+	);
+	expect(() =>
+		curves({
+			red: Array.from({length: 17}, (_, index) => [index / 16, index / 16]),
+		}),
+	).toThrow('"red" must have at most 16 points');
+});
+
+test('curves() validates point coordinates', () => {
+	expect(() =>
+		curves({
+			green: [
+				[0, 0],
+				[1, Number.NaN],
+			],
+		}),
+	).toThrow('"green[1][1]" must be a finite number');
+	expect(() =>
+		curves({
+			blue: [
+				[-0.1, 0],
+				[1, 1],
+			],
+		}),
+	).toThrow('"blue[0][0]" must be between 0 and 1');
+	expect(() =>
+		curves({
+			blue: [
+				[0, 0],
+				[1, 1.1],
+			],
+		}),
+	).toThrow('"blue[1][1]" must be between 0 and 1');
+});
+
+test('curves() requires strictly increasing input coordinates', () => {
+	expect(() =>
+		curves({
+			rgb: [
+				[0, 0],
+				[0.5, 0.4],
+				[0.5, 0.6],
+				[1, 1],
+			],
+		}),
+	).toThrow('"rgb" point input values must be strictly increasing');
+});
+
+test('curves() channel curves produce distinct effect keys', () => {
+	const neutral = curves();
+	const liftedRgb = curves({
+		rgb: [
+			[0, 0],
+			[0.5, 0.65],
+			[1, 1],
+		],
+	});
+	const cooledBlue = curves({
+		blue: [
+			[0, 0.1],
+			[1, 1],
+		],
+	});
+	expect(
+		new Set([neutral.effectKey, liftedRgb.effectKey, cooledBlue.effectKey])
+			.size,
 	).toBe(3);
 });
 
