@@ -434,10 +434,17 @@ test.describe('visual mode', () => {
 			timeout: 15_000,
 		});
 
+		await page.evaluate(() => {
+			// Keep the menu tree in the interval before the next animation frame to
+			// exercise a fast user's outside click deterministically.
+			window.requestAnimationFrame = () => 0;
+		});
 		await page.getByRole('button', {name: 'More actions'}).click();
-		await page
-			.getByRole('button', {name: 'Playback Rate', exact: true})
-			.click();
+		const playbackRate = page.getByRole('button', {
+			name: 'Playback Rate',
+			exact: true,
+		});
+		await playbackRate.click();
 		await expect(
 			page.getByRole('button', {name: '1x', exact: true}),
 		).toBeVisible();
