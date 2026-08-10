@@ -19,7 +19,7 @@ test('resolves a statically imported composition component', async () => {
 	});
 
 	expect(location.source).toBe(path.join('src', 'SchemaTest', 'index.tsx'));
-	expect(location.line).toBe(143);
+	expect(location.line).toBe(146);
 	expect(location.canAddSequence).toBe(true);
 });
 

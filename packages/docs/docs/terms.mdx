@@ -194,6 +194,8 @@ It is not allowed to copy or modify the Remotion Software for the purpose of sel
 
 It is not allowed to reverse-engineer, disassemble, reverse-compile, or otherwise attempt to derive the source code of any part of the Remotion Software or Services that is not provided by Remotion in source code form.
 
+It is not allowed to operate a rendering service that allows end-users to bring or upload their own Remotion code. Offering a rendering service in this way might obscure the fact that Remotion needs to be licensed, and any such rendering service requires prior explicit and written approval from Remotion. The conditions under which a rendering service may be operated, including acceptable configurations, are described in "[Remotion Software used for a rendering service](#RenderingService)".
+
 Unless otherwise expressly agreed, the software license is non-assignable/non-transferable, which means a license holder is not allowed to assign/transfer the license to anyone else.
 
 It is not permissible to indicate or try to imply in any manner, that a User stands in a qualified relationship with Remotion or that Remotion has endorsed the User without any prior written approval, the User's products or services, or any third party's products and services for any purpose.
@@ -325,7 +327,7 @@ It is acceptable to allow third parties to render videos through a service if th
 
 It is also acceptable for services to generate Remotion code through artificial intelligence and render it.
 
-It is not acceptable for services to allow end-users to bring/upload their own Remotion code. Offering a rendering service in this way might obscure the fact that Remotion needs to be licensed. Any such rendering service requires prior explicit and written approval from Remotion.
+It is not acceptable for services to allow end-users to bring/upload their own Remotion code. Offering a rendering service in this way might obscure the fact that Remotion needs to be licensed. Any such rendering service requires prior explicit and written approval from Remotion. This prohibition is also stated among the "[Disallowed use cases](#Disallowed)", which apply to all Users.
 
 Examples:
 
@@ -361,7 +363,7 @@ When proration is applied:
 
 ## Telemetry {#Telemetry}
 
-Company License Users and Enterprise License Users using Remotion for Automators are required to obtain a license key from [remotion.pro](https://www.remotion.pro) and include it in their rendering configuration (see [technical instructions](/docs/licensing)). The license key enables telemetry, which sends an event for each render performed.
+Company License Users and Enterprise License Users using Remotion for Automators are required to obtain a license key from [remotion.pro](https://www.remotion.pro) and include it in their rendering configuration (see [technical instructions](/docs/telemetry#setting-a-license-key)). The license key enables telemetry, which sends an event for each render performed.
 
 Company License Users need to use the same license key across environments. Whether a render is classified as production, development, or failed depends on the rendering method. For client-side rendering, Remotion classifies local hosts such as `localhost` as development based on the host/domain sent with the telemetry event. For server-side rendering, the User must follow Remotion's technical instructions to configure whether a render is a production or development render. Successful renders that are not classified as development or failed are chargeable renders.
 
@@ -374,7 +376,7 @@ The information collected through telemetry is limited to the following:
 - whether the render was in production or development; and
 - whether the render was a video or a still image.
 
-No information about the content or metadata of the rendered media, or any user data, is collected. For further details, refer to the [telemetry documentation](/docs/client-side-rendering/telemetry#sent-information).
+No information about the content or metadata of the rendered media, or any user data, is collected. For further details, refer to the [telemetry documentation](/docs/telemetry#sent-information).
 
 If a User is unable to enable telemetry due to firewall restrictions, corporate policies, or other technical limitations, the User is required to provide Remotion with a monthly report of their rendering activity as an alternative. Remotion will communicate the format and requirements of such report to the User. The report must be verifiable and accurately reflect the User's actual rendering volume.
 

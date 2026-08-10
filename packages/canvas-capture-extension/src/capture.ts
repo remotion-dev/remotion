@@ -376,7 +376,7 @@ export class ElementCapture {
 		) {
 			this.#wrapped.restore();
 			throw new Error(
-				'The HTML-in-canvas capture APIs are not available in this Chrome build.',
+				'The required HTML-in-canvas APIs are unavailable. Open chrome://flags/#canvas-draw-element, set Canvas Draw Element to Enabled, then fully quit and reopen the browser.',
 			);
 		}
 

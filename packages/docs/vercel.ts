@@ -410,6 +410,13 @@ export const config: VercelConfig = {
 		routes.redirect('/docs/license/telemetry', '/docs/telemetry', {
 			permanent: true,
 		}),
+		routes.redirect(
+			'/docs/client-side-rendering/telemetry',
+			'/docs/telemetry',
+			{
+				permanent: true,
+			},
+		),
 		routes.redirect('/docs/license/dpa', '/docs/dpa', {permanent: true}),
 		routes.redirect('/docs/license/dpia', '/docs/dpia', {permanent: true}),
 		routes.redirect(

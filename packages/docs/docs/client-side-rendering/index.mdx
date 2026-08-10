@@ -63,8 +63,14 @@ const {getBlob} = await renderMediaOnWeb({
 
 Client-side rendering is always enabled in the Remotion Studio from <AvailableFrom v="4.0.491" inline />. Use the "Render on web" button to render in the browser.
 
+## Telemetry
+
+Client-side rendering always sends a telemetry event for every render, even if no license key is set.  
+See [Telemetry](/docs/telemetry) for which information is sent and how to set a license key.
+
 ## See also
 
 - [How it works](/docs/client-side-rendering/how-it-works)
 - [Limitations](/docs/client-side-rendering/limitations)
+- [Telemetry](/docs/telemetry)
 - [Server-side rendering](/docs/ssr)

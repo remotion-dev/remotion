@@ -5,7 +5,11 @@ import {Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {Fieldset} from './Fieldset';
 import {SchemaLabel} from './SchemaLabel';
-import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
+import {
+	zodSafeParse,
+	type AnyZodSchema,
+	getUserFacingDescription,
+} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
@@ -82,6 +86,7 @@ export const ZodDateEditor: React.FC<{
 				onRemove={onRemove}
 				valid={zodValidation.success}
 				suffix={null}
+				description={getUserFacingDescription(schema)}
 			/>
 			<div style={fullWidth}>
 				<RemotionInput

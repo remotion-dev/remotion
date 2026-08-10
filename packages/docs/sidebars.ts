@@ -1237,7 +1237,6 @@ const sidebars: SidebarsConfig = {
 				'client-side-rendering/html-in-canvas',
 				'client-side-rendering/page-responsiveness',
 				'client-side-rendering/cancellation',
-				'client-side-rendering/telemetry',
 				{
 					type: 'link',
 					href: '/docs/web-renderer',

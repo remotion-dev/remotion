@@ -4,7 +4,11 @@ import {fieldsetLabel} from '../layout';
 import {Fieldset} from './Fieldset';
 import {SchemaLabel} from './SchemaLabel';
 import {SchemaVerticalGuide} from './SchemaVerticalGuide';
-import {zodSafeParse, type AnyZodSchema} from './zod-schema-type';
+import {
+	zodSafeParse,
+	type AnyZodSchema,
+	getUserFacingDescription,
+} from './zod-schema-type';
 import {getObjectShape, getZodSchemaType} from './zod-schema-type';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
@@ -69,6 +73,7 @@ export const ZodObjectEditor: React.FC<{
 					jsonPath={jsonPath}
 					onRemove={onRemove}
 					suffix={suffix}
+					description={getUserFacingDescription(schema)}
 					valid={zodValidation.success}
 					handleClick={() => setExpanded(!expanded)}
 				/>

@@ -171,6 +171,7 @@ export class MediaPlayer {
 			src: this.src,
 			credentials,
 			requestInit,
+			logLevel,
 		});
 		this.input = input;
 		this.inputCacheKey = cacheKey;
