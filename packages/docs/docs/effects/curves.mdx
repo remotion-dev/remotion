@@ -1,0 +1,84 @@
+---
+image: /generated/articles-docs-effects-curves.png
+slug: /effects/curves
+title: curves()
+sidebar_label: curves()
+crumb: '@remotion/effects'
+---
+
+# curves()<AvailableFrom v="4.0.508" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Remaps tones with a master RGB curve and optional per-channel curves.
+
+## Preview
+
+<EffectsDemo type="effects-curves" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {Video} from '@remotion/media';
+import {curves} from '@remotion/effects/curves';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[
+        curves({
+          rgb: [
+            [0, 0],
+            [0.5, 0.6],
+            [1, 1],
+          ],
+          red: [
+            [0, 0],
+            [1, 0.95],
+          ],
+        }),
+      ]}
+    />
+  );
+};
+```
+
+## API
+
+You can call `curves()` without arguments or pass an object with the following properties.
+
+### `rgb?`
+
+The master curve, expressed as an array of `[input, output]` points. Defaults to `[[0, 0], [1, 1]]`.
+
+### `red?`
+
+The curve applied to the red channel after the master curve. Defaults to `[[0, 0], [1, 1]]`.
+
+### `green?`
+
+The curve applied to the green channel after the master curve. Defaults to `[[0, 0], [1, 1]]`.
+
+### `blue?`
+
+The curve applied to the blue channel after the master curve. Defaults to `[[0, 0], [1, 1]]`.
+
+Each curve accepts between 2 and 16 points. Both coordinates must be between `0` and `1`, and input coordinates must be strictly increasing. Values between points are linearly interpolated. Values outside the first and last input coordinates use the nearest endpoint output.
+
+The effect remaps unpremultiplied sRGB channel values and preserves alpha.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`levels()`](/docs/effects/levels)
+- [`shadowsHighlights()`](/docs/effects/shadows-highlights)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/curves.ts)

@@ -1,5 +1,6 @@
 import {expect, test} from 'vitest';
 import {blur} from '../blur.js';
+import {curves} from '../curves.js';
 import {evolve} from '../evolve.js';
 import {exposure} from '../exposure.js';
 import {levels} from '../levels.js';
@@ -260,6 +261,58 @@ test('shadowsHighlights() targets dark and bright tones smoothly', async () => {
 	expect(pixels[3]).toBe(128);
 	expect(pixels[7]).toBe(128);
 	expect(pixels[11]).toBe(128);
+});
+
+test('curves() applies master and per-channel curves while preserving alpha', async () => {
+	const source = document.createElement('canvas');
+	source.width = 1;
+	source.height = 1;
+	const sourceContext = source.getContext('2d');
+	if (!sourceContext) {
+		throw new Error('Could not get source context');
+	}
+
+	sourceContext.putImageData(
+		new ImageData(new Uint8ClampedArray([64, 128, 192, 128]), 1, 1),
+		0,
+		0,
+	);
+
+	const canvas = await renderEffectChainToCanvas({
+		source,
+		width: 1,
+		height: 1,
+		effects: descriptorsToMemoizedEffects([
+			curves({
+				rgb: [
+					[0, 0],
+					[0.5, 0.75],
+					[1, 1],
+				],
+				red: [
+					[0, 0],
+					[1, 0.5],
+				],
+				blue: [
+					[0, 0.25],
+					[1, 1],
+				],
+			}),
+		]),
+	});
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Could not get output context');
+	}
+
+	const pixel = context.getImageData(0, 0, 1, 1).data;
+	expect(pixel[0]).toBeGreaterThanOrEqual(46);
+	expect(pixel[0]).toBeLessThanOrEqual(50);
+	expect(pixel[1]).toBeGreaterThanOrEqual(189);
+	expect(pixel[1]).toBeLessThanOrEqual(194);
+	expect(pixel[2]).toBeGreaterThanOrEqual(229);
+	expect(pixel[2]).toBeLessThanOrEqual(234);
+	expect(pixel[3]).toBe(128);
 });
 
 test('vignette() color mode works on transparent sources', async () => {

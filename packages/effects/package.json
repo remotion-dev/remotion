@@ -79,6 +79,11 @@
 			"module": "./dist/esm/contrast.mjs",
 			"import": "./dist/esm/contrast.mjs"
 		},
+		"./curves": {
+			"types": "./dist/curves.d.ts",
+			"module": "./dist/esm/curves.mjs",
+			"import": "./dist/esm/curves.mjs"
+		},
 		"./contour-lines": {
 			"types": "./dist/contour-lines.d.ts",
 			"module": "./dist/esm/contour-lines.mjs",
@@ -404,6 +409,9 @@
 			],
 			"contrast": [
 				"dist/contrast.d.ts"
+			],
+			"curves": [
+				"dist/curves.d.ts"
 			],
 			"contour-lines": [
 				"dist/contour-lines.d.ts"

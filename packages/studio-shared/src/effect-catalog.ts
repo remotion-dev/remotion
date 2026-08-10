@@ -130,6 +130,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-curves',
+		category: 'Color',
+		label: 'curves()',
+		description: 'Master and per-channel tonal curves',
+		effect: {
+			name: 'curves',
+			importPath: '@remotion/effects/curves',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-hue',
 		category: 'Color',
 		label: 'hue()',
