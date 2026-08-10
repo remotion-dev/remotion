@@ -116,6 +116,12 @@ export const InspectorOpenInEditor: React.FC<{
 		},
 		[openWithEditor],
 	);
+	const onDropdownOpenChange = useCallback((open: boolean) => {
+		setDropdownOpened(open);
+		if (!open) {
+			setHovered(false);
+		}
+	}, []);
 	const mainHovered = hovered && !dropdownOpened;
 	const mainButtonStyle = useMemo((): React.CSSProperties => {
 		return {
@@ -201,7 +207,7 @@ export const InspectorOpenInEditor: React.FC<{
 				<EditorIcon editorId={preferredEditorId} size={editorButtonIconSize} />
 			</button>
 			<InlineDropdown
-				onOpenChange={setDropdownOpened}
+				onOpenChange={onDropdownOpenChange}
 				renderAction={renderDropdownAction}
 				style={dropdownStyle}
 				title="Open in another app"
