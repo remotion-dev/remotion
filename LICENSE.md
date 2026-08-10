@@ -13,7 +13,7 @@ Copyright © 2026 [Remotion](https://www.remotion.dev)
 
 You are eligible to use Remotion for free if you are:
 
-- an individual using the Software for personal use
+- an individual
 - an organization or team of individuals with up to 3 people
 - a non-profit or not-for-profit organization
 - evaluating whether Remotion is a good fit, and you are not yet using it in a commercial way
