@@ -84,6 +84,19 @@ const mapFlyoverSchema = {
 	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
+const unwrapLongitude = (longitude: number, reference: number) => {
+	let unwrapped = longitude;
+	while (unwrapped - reference > 180) {
+		unwrapped -= 360;
+	}
+
+	while (unwrapped - reference < -180) {
+		unwrapped += 360;
+	}
+
+	return unwrapped;
+};
+
 const MapFlyoverLayerInner = forwardRef<
 	HTMLDivElement,
 	MapFlyoverLayerProps & {readonly controls: SequenceControls | undefined}
@@ -145,12 +158,19 @@ const MapFlyoverLayerInner = forwardRef<
 				npoints: 200,
 			});
 
-			const coordinates =
+			const splitCoordinates =
 				greatCircle.geometry.type === 'LineString'
 					? greatCircle.geometry.coordinates
-					: greatCircle.geometry.coordinates.reduce((longest, segment) =>
-							segment.length > longest.length ? segment : longest,
-						);
+					: greatCircle.geometry.coordinates.flat();
+			const coordinates: [number, number][] = [];
+			for (const coordinate of splitCoordinates) {
+				const previousLongitude = coordinates.at(-1)?.[0] ?? coordinate[0];
+				coordinates.push([
+					unwrapLongitude(coordinate[0], previousLongitude),
+					coordinate[1],
+				]);
+			}
+
 			const startMercator = maplibregl.MercatorCoordinate.fromLngLat({
 				lng: coordinates[0][0],
 				lat: coordinates[0][1],
@@ -222,9 +242,12 @@ const MapFlyoverLayerInner = forwardRef<
 				Math.log2(Math.max(1, plateWidth - width) / (512 * spanX)),
 				Math.log2(Math.max(1, plateHeight - height) / (512 * spanY)),
 			);
+			const maximumCoveredZoom =
+				overviewZoom +
+				Math.log2(Math.min(plateWidth / width, plateHeight / height));
 			const zoom = Math.max(
 				overviewZoom,
-				Math.min(overviewZoom + 1.25, maximumPlateZoom),
+				Math.min(overviewZoom + 1.25, maximumPlateZoom, maximumCoveredZoom),
 			);
 
 			return {
@@ -292,9 +315,24 @@ const MapFlyoverLayerInner = forwardRef<
 			routeDistance,
 			Math.max(0.001, routeDistance * travelProgress),
 		);
-		const partialRoute = turf.lineSliceAlong(route, 0, currentDistance);
-		const currentPoint = turf.along(route, currentDistance).geometry
+		const slicedRoute = turf.lineSliceAlong(route, 0, currentDistance);
+		const partialCoordinates: [number, number][] = [];
+		for (const coordinate of slicedRoute.geometry.coordinates) {
+			const previousLongitude =
+				partialCoordinates.at(-1)?.[0] ?? route.geometry.coordinates[0][0];
+			partialCoordinates.push([
+				unwrapLongitude(coordinate[0], previousLongitude),
+				coordinate[1],
+			]);
+		}
+
+		const partialRoute = turf.lineString(partialCoordinates);
+		const pointAlongRoute = turf.along(route, currentDistance).geometry
 			.coordinates as [number, number];
+		const currentPoint: [number, number] = [
+			unwrapLongitude(pointAlongRoute[0], route.geometry.coordinates[0][0]),
+			pointAlongRoute[1],
+		];
 		const cameraTransition = interpolate(frame, [15, 50], [0, 1], {
 			easing: Easing.inOut(Easing.cubic),
 			extrapolateLeft: 'clamp',
@@ -343,11 +381,11 @@ const MapFlyoverLayerInner = forwardRef<
 				.join(' ');
 
 			return {
-				end: project(endCoordinates),
+				end: project(route.geometry.coordinates.at(-1) as [number, number]),
 				routePath,
-				start: project(startCoordinates),
+				start: project(route.geometry.coordinates[0] as [number, number]),
 			};
-		}, [endCoordinates, mapPlate, partialRoute, startCoordinates]);
+		}, [mapPlate, partialRoute, route]);
 		const projectedCameraCenter = useMemo(() => {
 			const center = maplibregl.MercatorCoordinate.fromLngLat(mapPlate.center);
 			const camera = maplibregl.MercatorCoordinate.fromLngLat({
