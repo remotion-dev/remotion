@@ -928,6 +928,7 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 		canvasHovered ||
 		draggingOutline ||
 		canvasContextMenuOpen ||
+		sequenceKeysContainingSelection.size > 0 ||
 		hoveredSequence?.source === 'timeline';
 	useLayoutEffect(() => {
 		if (measurementActive) {
