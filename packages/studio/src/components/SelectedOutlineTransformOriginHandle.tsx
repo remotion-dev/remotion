@@ -54,9 +54,11 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 		Internals.VisualModeSettersContext,
 	);
 	const {editorSnapping} = useContext(EditorSnappingContext);
-	const target = layoutTarget?.selectedForTransformOrigin
-		? getLatestTargetByKey(layoutTarget.key)
-		: undefined;
+	const target =
+		layoutTarget?.selectedForTransformOrigin ||
+		layoutTarget?.selectedForRotation
+			? getLatestTargetByKey(layoutTarget.key)
+			: undefined;
 	const transformOriginDrag = target?.transformOriginDrag ?? null;
 	const transformOriginValue =
 		transformOriginDrag?.originValue ??

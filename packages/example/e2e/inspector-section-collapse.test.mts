@@ -1,5 +1,5 @@
-import {expect, test} from '@playwright/test';
 import fs from 'fs';
+import {expect, test} from '@playwright/test';
 import {
 	EXPANDED_SIDEBAR_STATE,
 	STUDIO_URL,
@@ -25,6 +25,14 @@ const read2DTransformScale = () => {
 	const sequenceEnd = source.indexOf('name="3D transform"');
 	const sequenceSource = source.slice(sequenceStart, sequenceEnd);
 	return /scale: ([^,}\n]+)/.exec(sequenceSource)?.[1] ?? null;
+};
+
+const read2DTransformOrigin = () => {
+	const source = fs.readFileSync(visualMode3DFile, 'utf-8');
+	const sequenceStart = source.indexOf('name="2D transform"');
+	const sequenceEnd = source.indexOf('name="3D transform"');
+	const sequenceSource = source.slice(sequenceStart, sequenceEnd);
+	return /transformOrigin: '([^']+)'/.exec(sequenceSource)?.[1] ?? null;
 };
 
 const read3DTransformRotation = () => {
@@ -136,6 +144,67 @@ test.describe('inspector section collapse', () => {
 			{x: edgeCenter.x, y: edgeCenter.y},
 		);
 		await expect.poll(read2DTransformScale).not.toBe(scaleBefore);
+		const canvasRotationSurface = page.locator(
+			'[data-remotion-studio-canvas-rotation]',
+		);
+		await expect(canvasRotationSurface).toBeVisible();
+
+		const transformOriginHandle = page
+			.locator('[data-remotion-studio-transform-origin-handle]')
+			.first();
+		await expect(transformOriginHandle).toBeVisible();
+		const transformOriginCenter = await transformOriginHandle.evaluate(
+			(element) => {
+				const circle = element.querySelector('circle');
+				if (!(circle instanceof SVGCircleElement)) {
+					throw new Error('Transform origin handle should contain a circle');
+				}
+
+				const matrix = circle.getScreenCTM();
+				if (matrix === null) {
+					throw new Error(
+						'Transform origin handle should have a screen transform',
+					);
+				}
+
+				return new DOMPoint(
+					circle.cx.baseVal.value,
+					circle.cy.baseVal.value,
+				).matrixTransform(matrix);
+			},
+		);
+		const transformOriginBefore = read2DTransformOrigin();
+		await transformOriginHandle.dispatchEvent('pointerdown', {
+			button: 0,
+			buttons: 1,
+			clientX: transformOriginCenter.x,
+			clientY: transformOriginCenter.y,
+			pointerId: 2,
+		});
+		await page.evaluate(
+			({x, y}) => {
+				window.dispatchEvent(
+					new PointerEvent('pointermove', {
+						buttons: 1,
+						clientX: x + 30,
+						clientY: y + 20,
+						pointerId: 2,
+					}),
+				);
+				window.dispatchEvent(
+					new PointerEvent('pointerup', {
+						button: 0,
+						buttons: 0,
+						clientX: x + 30,
+						clientY: y + 20,
+						pointerId: 2,
+					}),
+				);
+			},
+			{x: transformOriginCenter.x, y: transformOriginCenter.y},
+		);
+		await expect.poll(read2DTransformOrigin).not.toBe(transformOriginBefore);
+		await expect(canvasRotationSurface).toBeVisible();
 	});
 
 	test('collapses inactive static sections and lets the user expand them', async ({
@@ -265,9 +334,7 @@ test.describe('inspector section collapse', () => {
 		);
 		await expect(canvasRotationSurface).toBeVisible();
 		await expect(
-			page
-				.locator('[data-remotion-studio-transform-origin-handle]')
-				.first(),
+			page.locator('[data-remotion-studio-transform-origin-handle]').first(),
 		).toBeVisible();
 		const rotationSurfaceBox = await canvasRotationSurface.boundingBox();
 		if (rotationSurfaceBox === null) {

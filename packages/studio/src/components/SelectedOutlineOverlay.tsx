@@ -469,7 +469,7 @@ const calculateOutlineTargets = ({
 				propStatus.interpolationFunction === 'interpolate');
 		const canTransformOriginDrag =
 			previewInteractive &&
-			selectedForTransformOrigin &&
+			(selectedForTransformOrigin || selectedForRotation) &&
 			controls !== null &&
 			transformOriginFieldSchema?.type === 'transform-origin' &&
 			fieldSchema?.type === 'translate' &&
