@@ -176,6 +176,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-white-balance',
+		category: 'Color',
+		label: 'whiteBalance()',
+		description: 'Temperature and tint correction',
+		effect: {
+			name: 'whiteBalance',
+			importPath: '@remotion/effects/white-balance',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-linear-gradient',
 		category: 'Color',
 		label: 'linearGradient()',

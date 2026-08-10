@@ -334,6 +334,7 @@ const sidebars: SidebarsConfig = {
 				'effects/vignette',
 				'effects/wave',
 				'effects/waves',
+				'effects/white-balance',
 				'effects/white-noise',
 				'effects/xy-translate',
 				'effects/zigzag',

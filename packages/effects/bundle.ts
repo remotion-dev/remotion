@@ -69,6 +69,7 @@ const effectEntrypoints = [
 	'src/wave.ts',
 	'src/waves.ts',
 	'src/zigzag.ts',
+	'src/white-balance.ts',
 	'src/white-noise.ts',
 	'src/zoom-blur.ts',
 ];
