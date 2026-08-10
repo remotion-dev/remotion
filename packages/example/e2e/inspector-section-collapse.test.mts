@@ -212,56 +212,73 @@ test.describe('inspector section collapse', () => {
 			.locator('[data-remotion-studio-transform-origin-handle]')
 			.first();
 		await expect(transformOriginHandle).toBeVisible();
-		const transformOriginCenter = await transformOriginHandle.evaluate(
-			(element) => {
-				const circle = element.querySelector('circle');
-				if (!(circle instanceof SVGCircleElement)) {
-					throw new Error('Transform origin handle should contain a circle');
-				}
+		const dragTransformOrigin = async ({
+			deltaX,
+			deltaY,
+			pointerId,
+		}: {
+			readonly deltaX: number;
+			readonly deltaY: number;
+			readonly pointerId: number;
+		}) => {
+			const transformOriginCenter = await transformOriginHandle.evaluate(
+				(element) => {
+					const circle = element.querySelector('circle');
+					if (!(circle instanceof SVGCircleElement)) {
+						throw new Error('Transform origin handle should contain a circle');
+					}
 
-				const matrix = circle.getScreenCTM();
-				if (matrix === null) {
-					throw new Error(
-						'Transform origin handle should have a screen transform',
+					const matrix = circle.getScreenCTM();
+					if (matrix === null) {
+						throw new Error(
+							'Transform origin handle should have a screen transform',
+						);
+					}
+
+					return new DOMPoint(
+						circle.cx.baseVal.value,
+						circle.cy.baseVal.value,
+					).matrixTransform(matrix);
+				},
+			);
+			await transformOriginHandle.dispatchEvent('pointerdown', {
+				button: 0,
+				buttons: 1,
+				clientX: transformOriginCenter.x,
+				clientY: transformOriginCenter.y,
+				pointerId,
+			});
+			await page.evaluate(
+				({x, y, moveX, moveY, id}) => {
+					window.dispatchEvent(
+						new PointerEvent('pointermove', {
+							buttons: 1,
+							clientX: x + moveX,
+							clientY: y + moveY,
+							pointerId: id,
+						}),
 					);
-				}
-
-				return new DOMPoint(
-					circle.cx.baseVal.value,
-					circle.cy.baseVal.value,
-				).matrixTransform(matrix);
-			},
-		);
+					window.dispatchEvent(
+						new PointerEvent('pointerup', {
+							button: 0,
+							buttons: 0,
+							clientX: x + moveX,
+							clientY: y + moveY,
+							pointerId: id,
+						}),
+					);
+				},
+				{
+					x: transformOriginCenter.x,
+					y: transformOriginCenter.y,
+					moveX: deltaX,
+					moveY: deltaY,
+					id: pointerId,
+				},
+			);
+		};
 		const transformOriginBefore = read2DTransformOrigin();
-		await transformOriginHandle.dispatchEvent('pointerdown', {
-			button: 0,
-			buttons: 1,
-			clientX: transformOriginCenter.x,
-			clientY: transformOriginCenter.y,
-			pointerId: 2,
-		});
-		await page.evaluate(
-			({x, y}) => {
-				window.dispatchEvent(
-					new PointerEvent('pointermove', {
-						buttons: 1,
-						clientX: x + 30,
-						clientY: y + 20,
-						pointerId: 2,
-					}),
-				);
-				window.dispatchEvent(
-					new PointerEvent('pointerup', {
-						button: 0,
-						buttons: 0,
-						clientX: x + 30,
-						clientY: y + 20,
-						pointerId: 2,
-					}),
-				);
-			},
-			{x: transformOriginCenter.x, y: transformOriginCenter.y},
-		);
+		await dragTransformOrigin({deltaX: 30, deltaY: 20, pointerId: 2});
 		await expect.poll(read2DTransformOrigin).not.toBe(transformOriginBefore);
 		await expect(canvasRotationSurface).toBeVisible();
 
@@ -315,6 +332,11 @@ test.describe('inspector section collapse', () => {
 		await page.mouse.move(insidePoint.x + 40, insidePoint.y + 30, {steps: 5});
 		await page.mouse.up();
 		await expect.poll(read2DTransformRotation).not.toBe(rotationBefore);
+		const transformOriginAfter3DRotation = read2DTransformOrigin();
+		await dragTransformOrigin({deltaX: -20, deltaY: 25, pointerId: 3});
+		await expect
+			.poll(read2DTransformOrigin)
+			.not.toBe(transformOriginAfter3DRotation);
 		const rotationAfterInsideDrag = read2DTransformRotation();
 		await page.mouse.move(outsidePoint.x, outsidePoint.y);
 		await page.mouse.down();

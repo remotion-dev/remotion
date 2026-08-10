@@ -3962,16 +3962,26 @@ test('Transform origin parser rejects unsupported calc values', () => {
 	expect(parseTransformOrigin('calc(50% + 10px) 50%')).toBeNull();
 });
 
-test('Transform origin compensation keeps rotated and scaled elements in place', () => {
-	const next = compensateTranslateForTransformOrigin({
+test('Transform origin compensation supports 2D and 3D rotation', () => {
+	const next2D = compensateTranslateForTransformOrigin({
 		startTranslate: [20, 30],
 		deltaOrigin: [10, 5],
-		rotate: Math.PI / 2,
-		scale: [2, 3],
+		rotation: {axis: [0, 0, 1], degrees: 90},
+		scale: [2, 3, 1],
 	});
 
-	expect(next[0]).toBeCloseTo(-5, 5);
-	expect(next[1]).toBeCloseTo(45, 5);
+	expect(next2D[0]).toBeCloseTo(-5, 5);
+	expect(next2D[1]).toBeCloseTo(45, 5);
+
+	const next3D = compensateTranslateForTransformOrigin({
+		startTranslate: [20, 30],
+		deltaOrigin: [10, 5],
+		rotation: {axis: [1, 0, 0], degrees: 60},
+		scale: [2, 3, 4],
+	});
+
+	expect(next3D[0]).toBeCloseTo(30, 5);
+	expect(next3D[1]).toBeCloseTo(32.5, 5);
 });
 
 const makeTransformOriginDragTarget = ({

@@ -14,7 +14,6 @@ import {
 	compensateTranslateForTransformOrigin,
 	getSelectedOutlineTransformOriginDragChanges,
 	getSelectedOutlineTransformOriginLockedAxis,
-	parseCssRotationToRadians,
 	snapSelectedOutlineTransformOriginUv,
 	uvsEqual,
 } from './selected-outline-drag';
@@ -32,6 +31,7 @@ import {
 } from './selected-outline-uv';
 import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
+import {parseCssRotation} from './Timeline/timeline-rotation-utils';
 import {
 	parseTranslate,
 	serializeTranslate,
@@ -124,9 +124,7 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 				return;
 			}
 
-			const rotation = parseCssRotationToRadians(
-				transformOriginDrag.rotateValue,
-			);
+			const rotation = parseCssRotation(transformOriginDrag.rotateValue);
 			if (rotation === null) {
 				return;
 			}
@@ -136,7 +134,7 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 				return;
 			}
 
-			const [scaleX, scaleY] = NoReactInternals.parseScaleValue(
+			const scale = NoReactInternals.parseScaleValue(
 				transformOriginDrag.scaleValue,
 			);
 			const startTranslate = parseTranslate(transformOriginDrag.translateValue);
@@ -197,8 +195,8 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 					compensateTranslateForTransformOrigin({
 						startTranslate,
 						deltaOrigin,
-						rotate: rotation,
-						scale: [scaleX, scaleY],
+						rotation,
+						scale,
 					});
 				const origin = serializeTransformOrigin({
 					uv: nextUv,

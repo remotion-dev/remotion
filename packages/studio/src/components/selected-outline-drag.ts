@@ -50,6 +50,7 @@ import {
 	parseCssRotationToEuler,
 	serializeCssRotation,
 	serializeCssRotationFromEuler,
+	type ParsedCssRotation,
 } from './Timeline/timeline-rotation-utils';
 import {
 	parseTranslate,
@@ -971,51 +972,37 @@ export const clearSelectedOutlineRotationDragOverrides = ({
 	}
 };
 
-export const parseCssRotationToRadians = (value: string): number | null => {
-	const match = value
-		.trim()
-		.match(/^([+-]?(?:\d+\.?\d*|\.\d+))(deg|rad|turn|grad)$/);
-	if (!match) {
-		return null;
-	}
-
-	const number = Number(match[1]);
-	if (!Number.isFinite(number)) {
-		return null;
-	}
-
-	if (match[2] === 'rad') {
-		return number;
-	}
-
-	if (match[2] === 'turn') {
-		return number * Math.PI * 2;
-	}
-
-	if (match[2] === 'grad') {
-		return (number / 400) * Math.PI * 2;
-	}
-
-	return (number / 180) * Math.PI;
-};
-
 export const compensateTranslateForTransformOrigin = ({
 	startTranslate,
 	deltaOrigin,
-	rotate,
+	rotation,
 	scale,
 }: {
 	readonly startTranslate: readonly [number, number];
 	readonly deltaOrigin: readonly [number, number];
-	readonly rotate: number;
-	readonly scale: readonly [number, number];
+	readonly rotation: ParsedCssRotation;
+	readonly scale: readonly [number, number, number];
 }): readonly [number, number] => {
-	const cos = Math.cos(rotate);
-	const sin = Math.sin(rotate);
-	const matrixA = cos * scale[0];
-	const matrixB = sin * scale[0];
-	const matrixC = -sin * scale[1];
-	const matrixD = cos * scale[1];
+	const [rawAxisX, rawAxisY, rawAxisZ] = rotation.axis;
+	const axisLength = Math.hypot(rawAxisX, rawAxisY, rawAxisZ);
+	if (axisLength === 0) {
+		return [
+			startTranslate[0] + deltaOrigin[0] * (scale[0] - 1),
+			startTranslate[1] + deltaOrigin[1] * (scale[1] - 1),
+		];
+	}
+
+	const axisX = rawAxisX / axisLength;
+	const axisY = rawAxisY / axisLength;
+	const axisZ = rawAxisZ / axisLength;
+	const radians = (rotation.degrees * Math.PI) / 180;
+	const cos = Math.cos(radians);
+	const sin = Math.sin(radians);
+	const oneMinusCos = 1 - cos;
+	const matrixA = (cos + axisX * axisX * oneMinusCos) * scale[0];
+	const matrixB = (axisY * axisX * oneMinusCos + axisZ * sin) * scale[0];
+	const matrixC = (axisX * axisY * oneMinusCos - axisZ * sin) * scale[1];
+	const matrixD = (cos + axisY * axisY * oneMinusCos) * scale[1];
 	const transformedDeltaX = matrixA * deltaOrigin[0] + matrixC * deltaOrigin[1];
 	const transformedDeltaY = matrixB * deltaOrigin[0] + matrixD * deltaOrigin[1];
 	const compensationX = deltaOrigin[0] - transformedDeltaX;
