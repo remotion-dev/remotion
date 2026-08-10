@@ -9,6 +9,7 @@ import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
+import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
 	printUndoHint,
 	pushToUndoStack,
@@ -40,14 +41,20 @@ export const reorderSequenceHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const {output, formatted, sequenceLabel, logLine} = await reorderSequence(
-				{
+			const {output, formatted, sequenceLabel, logLine, nodePathRemappings} =
+				await reorderSequence({
 					input: fileContents,
 					sourceNodePath: sourceNodePath.nodePath,
 					targetNodePath: targetNodePath.nodePath,
 					position,
+				});
+			const nodePathMutation = broadcastSequenceNodePathMutation([
+				{
+					absolutePath,
+					remappings: nodePathRemappings,
+					restoredNodePaths: [],
 				},
-			);
+			]);
 
 			pushToUndoStack({
 				filePath: absolutePath,
@@ -62,14 +69,14 @@ export const reorderSequenceHandler: ApiHandler<
 				},
 				entryType: 'reorder-sequence',
 				suppressHmrOnFileRestore: false,
-				nodePathRemappings: null,
+				nodePathRemappings,
 			});
 			suppressUndoStackInvalidation(absolutePath);
 			writeFileAndNotifyFileWatchers({
 				file: absolutePath,
 				content: output,
 				originatorClientId: clientId,
-				metadata: null,
+				metadata: {skipSequencePropsUpdate: true},
 			});
 
 			const locationLabel = formatLogFileLocation({
@@ -94,6 +101,7 @@ export const reorderSequenceHandler: ApiHandler<
 
 			return {
 				success: true,
+				nodePathMutation,
 			};
 		} catch (err) {
 			return {

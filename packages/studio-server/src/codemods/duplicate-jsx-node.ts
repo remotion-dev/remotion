@@ -21,6 +21,7 @@ import type {
 	VariableDeclarator,
 } from '@babel/types';
 import {cloneNode} from '@babel/types';
+import type {SequenceNodePathRemapping} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {
@@ -28,6 +29,10 @@ import {
 	getJsxElementTagLabel,
 } from './delete-jsx-node';
 import {formatFileContent} from './format-file-content';
+import {
+	captureJsxNodePaths,
+	getNodePathRemappings,
+} from './get-node-path-remappings';
 import {parseAst, serializeAst} from './parse-ast';
 
 const {namedTypes} = recast.types;
@@ -429,8 +434,10 @@ export const duplicateJsxNode = async ({
 	formatted: boolean;
 	nodeLabel: string;
 	logLine: number;
+	nodePathRemappings: SequenceNodePathRemapping[];
 }> => {
 	const ast = parseAst(input);
+	const capturedNodePaths = captureJsxNodePaths(ast);
 	const jsxPath = findJsxElementPathForDeletion(ast, nodePath);
 	if (!jsxPath) {
 		throw new Error(
@@ -452,11 +459,17 @@ export const duplicateJsxNode = async ({
 		input: finalFile,
 		prettierConfigOverride,
 	});
+	const nodePathRemappings = getNodePathRemappings({
+		ast,
+		captured: capturedNodePaths,
+		output,
+	});
 
 	return {
 		output,
 		formatted,
 		nodeLabel,
 		logLine,
+		nodePathRemappings,
 	};
 };

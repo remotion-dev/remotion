@@ -27,8 +27,11 @@ import type {
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {getAstNodePath} from '../helpers/get-ast-node-path';
-import {getNodePathForRecastPath} from '../preview-server/routes/can-update-sequence-props';
 import {formatFileContent} from './format-file-content';
+import {
+	captureJsxNodePaths,
+	getNodePathRemappings,
+} from './get-node-path-remappings';
 import {parseAst, serializeAst} from './parse-ast';
 
 const {builders: b, namedTypes} = recast.types;
@@ -432,19 +435,7 @@ export const deleteJsxNodes = async ({
 	}
 
 	const ast = parseAst(input);
-	const oldNodePaths: Array<{
-		node: JSXOpeningElement;
-		nodePath: SequenceNodePath;
-	}> = [];
-	recast.visit(ast, {
-		visitJSXOpeningElement(p) {
-			oldNodePaths.push({
-				node: p.node as JSXOpeningElement,
-				nodePath: getNodePathForRecastPath(p, ast),
-			});
-			return this.traverse(p);
-		},
-	});
+	const capturedNodePaths = captureJsxNodePaths(ast);
 	const pathsToDelete = nodePaths.map((nodePath) => {
 		const jsxPath = findJsxElementPathForDeletion(ast, nodePath);
 		if (!jsxPath) {
@@ -469,45 +460,15 @@ export const deleteJsxNodes = async ({
 		deleteJsxElementAtPath(jsxPath);
 	}
 
-	const survivingNodes = new Set<JSXOpeningElement>();
-	recast.visit(ast, {
-		visitJSXOpeningElement(p) {
-			survivingNodes.add(p.node as JSXOpeningElement);
-			return this.traverse(p);
-		},
-	});
-
 	const finalFile = serializeAst(ast);
 	const {output, formatted} = await formatFileContent({
 		input: finalFile,
 		prettierConfigOverride,
 	});
-	const finalAst = parseAst(output);
-	const finalNodePaths: SequenceNodePath[] = [];
-	recast.visit(finalAst, {
-		visitJSXOpeningElement(p) {
-			finalNodePaths.push(getNodePathForRecastPath(p, finalAst));
-			return this.traverse(p);
-		},
-	});
-
-	if (finalNodePaths.length !== survivingNodes.size) {
-		throw new Error('Could not map JSX node paths after deleting JSX nodes');
-	}
-
-	let survivingNodeIndex = 0;
-	const nodePathRemappings = oldNodePaths.flatMap(({node, nodePath}) => {
-		const newNodePath = survivingNodes.has(node)
-			? finalNodePaths[survivingNodeIndex++]
-			: null;
-		if (
-			newNodePath !== null &&
-			JSON.stringify(nodePath) === JSON.stringify(newNodePath)
-		) {
-			return [];
-		}
-
-		return [{oldNodePath: nodePath, newNodePath}];
+	const nodePathRemappings = getNodePathRemappings({
+		ast,
+		captured: capturedNodePaths,
+		output,
 	});
 
 	return {

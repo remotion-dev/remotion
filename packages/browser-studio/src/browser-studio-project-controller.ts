@@ -3,19 +3,26 @@ import type {
 	BrowserStudioOperations,
 	EventSourceEvent,
 	RedoResponse,
+	SequenceNodePathMutation,
+	SequenceNodePathRemapping,
 	UndoResponse,
 } from '@remotion/studio-shared';
+import type {SequenceNodePath} from 'remotion';
 import type {VirtualProject} from './types';
+
+type ProjectNodePathMutationFiles = SequenceNodePathMutation['files'];
 
 type HistoryEntry = {
 	before: VirtualProject;
 	after: VirtualProject;
 	fileName: string;
+	nodePathMutationFiles: ProjectNodePathMutationFiles | null;
 };
 
 type ProjectMutation = {
 	fileName: string;
 	mutate: (project: VirtualProject) => VirtualProject;
+	nodePathMutationFiles: ProjectNodePathMutationFiles | null;
 };
 
 const MAX_HISTORY_ENTRIES = 100;
@@ -271,7 +278,7 @@ const getFileSource = ({
 };
 
 export type BrowserStudioProjectController = {
-	applyMutation: (mutation: ProjectMutation) => VirtualProject;
+	applyMutation: (mutation: ProjectMutation) => SequenceNodePathMutation | null;
 	deleteStaticFile: BrowserStudioOperations['deleteStaticFile'];
 	emitEvent: (event: EventSourceEvent) => void;
 	findInFile: BrowserStudioOperations['findInFile'];
@@ -296,7 +303,10 @@ export const createBrowserStudioProjectController = ({
 }: {
 	getStaticFiles: BrowserStudioStaticFilesGetter | null;
 	getProject: () => VirtualProject;
-	onProjectChange: (project: VirtualProject) => void;
+	onProjectChange: (
+		project: VirtualProject,
+		metadata: {skipSequencePropsUpdate: boolean},
+	) => void;
 }): BrowserStudioProjectController => {
 	const resolvedGetStaticFiles: BrowserStudioStaticFilesGetter =
 		getStaticFiles === null
@@ -313,6 +323,8 @@ export const createBrowserStudioProjectController = ({
 	const lastModifiedByPath = new Map<string, number>();
 	let latestHmrEvent: Extract<EventSourceEvent, {type: 'hmr'}> | null = null;
 	let publicFileRevision = 0;
+	const nodePathMutationSessionId = `${Date.now()}:${Math.random()}`;
+	let nodePathMutationCounter = 0;
 
 	const getUndoRedoEvent = (): EventSourceEvent => ({
 		type: 'undo-redo-stack-changed',
@@ -358,38 +370,60 @@ export const createBrowserStudioProjectController = ({
 	const commitProject = ({
 		previousProject,
 		nextProject,
+		nodePathMutationFiles,
 	}: {
 		previousProject: VirtualProject;
 		nextProject: VirtualProject;
-	}) => {
+		nodePathMutationFiles: ProjectNodePathMutationFiles | null;
+	}): SequenceNodePathMutation | null => {
 		const publicFilesChanged = updatePublicFileRevisions(
 			previousProject,
 			nextProject,
 		);
-		onProjectChange(nextProject);
+		const nodePathMutation = nodePathMutationFiles
+			? {
+					mutationId: `${nodePathMutationSessionId}:${++nodePathMutationCounter}`,
+					files: nodePathMutationFiles,
+				}
+			: null;
+		if (nodePathMutation) {
+			emit({type: 'sequence-node-paths-remapped', mutation: nodePathMutation});
+		}
+
+		onProjectChange(nextProject, {
+			skipSequencePropsUpdate: nodePathMutationFiles !== null,
+		});
 		if (publicFilesChanged) {
 			emit(getPublicFilesEvent());
 		}
 
 		emit(getUndoRedoEvent());
+		return nodePathMutation;
 	};
 
-	const applyMutation = ({fileName, mutate}: ProjectMutation) => {
+	const applyMutation = ({
+		fileName,
+		mutate,
+		nodePathMutationFiles,
+	}: ProjectMutation) => {
 		const before = getProject();
 		const after = mutate(before);
 
 		if (after === before) {
-			return before;
+			return null;
 		}
 
-		undoStack.push({before, after, fileName});
+		undoStack.push({before, after, fileName, nodePathMutationFiles});
 		if (undoStack.length > MAX_HISTORY_ENTRIES) {
 			undoStack.shift();
 		}
 
 		redoStack.length = 0;
-		commitProject({previousProject: before, nextProject: after});
-		return after;
+		return commitProject({
+			previousProject: before,
+			nextProject: after,
+			nodePathMutationFiles,
+		});
 	};
 
 	const undo = (): Promise<UndoResponse> => {
@@ -399,11 +433,30 @@ export const createBrowserStudioProjectController = ({
 		}
 
 		redoStack.push(entry);
-		commitProject({
+		const files = entry.nodePathMutationFiles?.map((file) => ({
+			absolutePath: file.absolutePath,
+			remappings: file.remappings.flatMap(
+				(remapping): SequenceNodePathRemapping[] =>
+					remapping.newNodePath === null
+						? []
+						: [
+								{
+									oldNodePath: remapping.newNodePath,
+									newNodePath: remapping.oldNodePath,
+								},
+							],
+			),
+			restoredNodePaths: file.remappings.flatMap(
+				(remapping): SequenceNodePath[] =>
+					remapping.newNodePath === null ? [remapping.oldNodePath] : [],
+			),
+		}));
+		const nodePathMutation = commitProject({
 			previousProject: getProject(),
 			nextProject: entry.before,
+			nodePathMutationFiles: files ?? null,
 		});
-		return Promise.resolve({success: true, nodePathMutation: null});
+		return Promise.resolve({success: true, nodePathMutation});
 	};
 
 	const redo = (): Promise<RedoResponse> => {
@@ -413,11 +466,12 @@ export const createBrowserStudioProjectController = ({
 		}
 
 		undoStack.push(entry);
-		commitProject({
+		const nodePathMutation = commitProject({
 			previousProject: getProject(),
 			nextProject: entry.after,
+			nodePathMutationFiles: entry.nodePathMutationFiles,
 		});
-		return Promise.resolve({success: true, nodePathMutation: null});
+		return Promise.resolve({success: true, nodePathMutation});
 	};
 
 	return {
@@ -433,6 +487,7 @@ export const createBrowserStudioProjectController = ({
 
 				applyMutation({
 					fileName: canonicalPath,
+					nodePathMutationFiles: null,
 					mutate: (project) => {
 						const nextPublicFiles = getCanonicalPublicFiles(project);
 						delete nextPublicFiles[canonicalPath];
@@ -483,6 +538,7 @@ export const createBrowserStudioProjectController = ({
 
 				applyMutation({
 					fileName: oldPath,
+					nodePathMutationFiles: null,
 					mutate: (project) => {
 						const nextPublicFiles = getCanonicalPublicFiles(project);
 						nextPublicFiles[newPath] = nextPublicFiles[oldPath];
@@ -523,6 +579,7 @@ export const createBrowserStudioProjectController = ({
 						: new Uint8Array(contents.slice(0));
 				applyMutation({
 					fileName: canonicalPath,
+					nodePathMutationFiles: null,
 					mutate: (project) => ({
 						...project,
 						publicFiles: {
