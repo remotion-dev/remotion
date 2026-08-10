@@ -479,6 +479,64 @@ test('wraps a self-closing root in a Sequence before inserting', async () => {
 	}
 });
 
+test('inserts an asset as a sibling of a connected composition', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import {Sequence} from 'remotion';",
+				"import {Skills2Announcement} from './Skills2Announcement';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn (',
+				'\t\t<Sequence name="Skills2Announcement">',
+				'\t\t\t<Skills2Announcement />',
+				'\t\t</Sequence>',
+				'\t);',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'asset',
+				assetType: 'video',
+				src: 'clip.mp4',
+				srcType: 'static',
+				dimensions: {width: 1920, height: 1080},
+				durationInFrames: 90,
+				position: null,
+			},
+			from: 42,
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+
+		const connectedCompositionEnd = result.output.indexOf('</Sequence>');
+		const videoStart = result.output.indexOf('<Video');
+		expect(result.output).toContain('<>');
+		expect(connectedCompositionEnd).toBeGreaterThan(-1);
+		expect(videoStart).toBeGreaterThan(connectedCompositionEnd);
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
 test('removes parentheses when wrapping a self-closing root in a Sequence', async () => {
 	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
 	try {

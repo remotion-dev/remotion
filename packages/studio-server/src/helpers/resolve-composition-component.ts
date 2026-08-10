@@ -1866,17 +1866,17 @@ const addElementToComponentRoot = ({
 		);
 	}
 
-	if (rootNode.type === 'JSXElement' && rootNode.openingElement.selfClosing) {
+	if (rootNode.type === 'JSXElement') {
+		const existingRoot = rootNode.openingElement.selfClosing
+			? createSequenceWithChild({
+					child: stripParenthesizedExtra(rootNode),
+					sequenceLocalName: ensureSequenceImport(ast),
+				})
+			: stripParenthesizedExtra(rootNode);
 		const fragment = recast.types.builders.jsxFragment(
 			recast.types.builders.jsxOpeningFragment(),
 			recast.types.builders.jsxClosingFragment(),
-			[
-				createSequenceWithChild({
-					child: stripParenthesizedExtra(rootNode),
-					sequenceLocalName: ensureSequenceImport(ast),
-				}),
-				element,
-			],
+			[existingRoot, element],
 		);
 		let replaced = false;
 		recast.types.visit(ast, {
