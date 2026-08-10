@@ -393,7 +393,9 @@ export class CanvasCaptureRecorder {
 
 	constructor(options: CanvasCaptureRecorderOptions) {
 		this.#options = options;
-		window.addEventListener('pointermove', this.#onPointerMove);
+		window.addEventListener('pointermove', this.#onCursorMove);
+		// Native HTML drag-and-drop suppresses pointermove events while dragging.
+		window.addEventListener('dragover', this.#onCursorMove, true);
 		window.addEventListener('pointerdown', this.#onPointerDown, true);
 		window.addEventListener('pointerup', this.#onPointerUp, true);
 	}
@@ -540,7 +542,8 @@ export class CanvasCaptureRecorder {
 		}
 
 		this.#disposed = true;
-		window.removeEventListener('pointermove', this.#onPointerMove);
+		window.removeEventListener('pointermove', this.#onCursorMove);
+		window.removeEventListener('dragover', this.#onCursorMove, true);
 		window.removeEventListener('pointerdown', this.#onPointerDown, true);
 		window.removeEventListener('pointerup', this.#onPointerUp, true);
 
@@ -556,7 +559,7 @@ export class CanvasCaptureRecorder {
 		this.#recording = null;
 	};
 
-	#onPointerMove = (event: PointerEvent) => {
+	#onCursorMove = (event: MouseEvent) => {
 		const recording = this.#recording;
 		if (!recording || recording.isFinalizing) {
 			return;
