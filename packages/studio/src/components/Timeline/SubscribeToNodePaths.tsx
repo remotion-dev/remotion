@@ -15,7 +15,8 @@ export const SubscribeToNodePaths: FC<{
 	readonly getStack: () => string | null;
 	readonly effects: readonly EffectDefinition<unknown>[];
 }> = ({overrideId, componentIdentity, schema, getStack, effects}) => {
-	const originalLocation = useResolveStackAndReactToChange(getStack);
+	const {resolvedLocation, stack, preferMappedNodePath} =
+		useResolveStackAndReactToChange(getStack);
 
 	const effectSubscriptions = useMemo<InteractivitySchema[]>(() => {
 		return effects
@@ -30,7 +31,9 @@ export const SubscribeToNodePaths: FC<{
 		componentIdentity,
 		schema,
 		effects: effectSubscriptions,
-		originalLocation,
+		originalLocation: resolvedLocation,
+		preferMappedNodePath,
+		stack,
 	});
 
 	return null;

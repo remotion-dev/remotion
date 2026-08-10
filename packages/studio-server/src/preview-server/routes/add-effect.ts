@@ -69,9 +69,15 @@ export const addEffectHandler: ApiHandler<
 				},
 				entryType: 'add-effect',
 				suppressHmrOnFileRestore: false,
+				nodePathRemappings: null,
 			});
 			suppressUndoStackInvalidation(absolutePath);
-			writeFileAndNotifyFileWatchers(absolutePath, output, clientId);
+			writeFileAndNotifyFileWatchers({
+				file: absolutePath,
+				content: output,
+				originatorClientId: clientId,
+				metadata: null,
+			});
 
 			const locationLabel = formatLogFileLocation({
 				remotionRoot,

@@ -3,6 +3,7 @@ import type {EventSourceEvent} from '@remotion/studio-shared';
 import {
 	createBrowserStudioOperations,
 	insertSolidIntoProject,
+	insertSolidIntoProjectWithNodePathRemappings,
 } from '../browser-studio-operations';
 import {createBlankTemplateProject} from '../templates/blank';
 import type {VirtualProject} from '../types';
@@ -137,13 +138,13 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 			position: null,
 		},
 	});
-	expect(result).toEqual({success: true});
+	expect(result.success).toBe(true);
 	expect(currentProject.files['/project/src/MyComponent.tsx']).toContain(
 		'<Solid width={1280}',
 	);
 });
 
-test('wraps a self-closing root and aliases conflicting bindings', () => {
+test('wraps a self-closing root, aliases bindings, and remaps the root', () => {
 	const project: VirtualProject = {
 		rootDir: '/project',
 		entryPoint: '/project/src/index.tsx',
@@ -158,7 +159,21 @@ registerRoot(Root);
 `,
 		},
 	};
-	const updated = insertSolid(project, '/project/src/index.tsx');
+	const {project: updated, nodePathRemappings} =
+		insertSolidIntoProjectWithNodePathRemappings({
+			project,
+			request: {
+				compositionFile: '/project/src/index.tsx',
+				compositionId: 'MyComp',
+				from: null,
+				element: {
+					type: 'solid',
+					width: 1280,
+					height: 720,
+					position: null,
+				},
+			},
+		});
 	const output = updated.files['/project/src/index.tsx'];
 
 	expect(output).toContain(
@@ -166,6 +181,100 @@ registerRoot(Root);
 	);
 	expect(output).toContain('<RemotionSequence>');
 	expect(output).toContain('<RemotionSolid width={1280}');
+	expect(nodePathRemappings).toHaveLength(1);
+	expect(nodePathRemappings[0].newNodePath).not.toEqual(
+		nodePathRemappings[0].oldNodePath,
+	);
+});
+
+test('inserting a Solid broadcasts remappings without refreshing stale subscriptions', async () => {
+	const fileName = '/project/src/Composition.tsx';
+	let currentProject: VirtualProject = {
+		rootDir: '/project',
+		entryPoint: '/project/src/index.tsx',
+		files: {
+			'/project/src/index.tsx': `import {registerRoot} from 'remotion';
+import {Root} from './Composition';
+registerRoot(Root);`,
+			[fileName]: `import {Composition, Sequence} from 'remotion';
+export const Component = () => <Sequence from={10} durationInFrames={20} />;
+export const Root = () => <Composition id="MyComp" component={Component} durationInFrames={60} fps={30} width={1280} height={720} />;`,
+		},
+	};
+	const operations = createBrowserStudioOperations({
+		dependencyVersions: {},
+		getStaticFiles: null,
+		getProject: () => currentProject,
+		onProjectChange: (nextProject) => {
+			currentProject = nextProject;
+		},
+	});
+	const events: EventSourceEvent[] = [];
+	operations.subscribeToEvent((event) => events.push(event));
+	const subscription = await operations.subscribeToSequenceProps({
+		fileName: 'src/Composition.tsx',
+		line: 2,
+		column: 31,
+		nodePath: null,
+		componentIdentity: 'dev.remotion.remotion.Sequence',
+		keys: ['from', 'durationInFrames'],
+		assetKeys: [],
+		effects: [],
+		clientId: 'browser-studio',
+		videoConfigValues: {
+			durationInFrames: 60,
+			fps: 30,
+			height: 720,
+			width: 1280,
+		},
+	});
+	if (!subscription.success) {
+		throw new Error('Expected sequence props subscription to succeed');
+	}
+
+	events.length = 0;
+	const result = await operations.insertSolid({
+		compositionFile: fileName,
+		compositionId: 'MyComp',
+		from: null,
+		element: {
+			type: 'solid',
+			width: 1280,
+			height: 720,
+			position: null,
+		},
+	});
+	if (!result.success) {
+		throw new Error(result.reason);
+	}
+
+	expect(result.nodePathMutation.files).toEqual([
+		{
+			absolutePath: fileName,
+			remappings: [
+				{
+					oldNodePath: subscription.nodePath.nodePath,
+					newNodePath: expect.any(Array),
+				},
+			],
+			restoredNodePaths: [],
+		},
+	]);
+	expect(
+		events.filter((event) => event.type === 'sequence-node-paths-remapped'),
+	).toEqual([
+		{
+			type: 'sequence-node-paths-remapped',
+			mutation: result.nodePathMutation,
+		},
+	]);
+	expect(
+		events.some(
+			(event) =>
+				event.type === 'lost-node-path' ||
+				event.type === 'sequence-props-updated',
+		),
+	).toBe(false);
 });
 
 test('reports invalid timeline Solid input without changing the project', async () => {
@@ -372,9 +481,15 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 	}
 
 	expect(update.result.props.from).toEqual({status: 'static', codeValue: 15});
-	expect(await operations.undo()).toEqual({success: true});
+	expect(await operations.undo()).toEqual({
+		success: true,
+		nodePathMutation: null,
+	});
 	expect(currentProject.files[fileName]).toContain('from={10}');
-	expect(await operations.redo()).toEqual({success: true});
+	expect(await operations.redo()).toEqual({
+		success: true,
+		nodePathMutation: null,
+	});
 	expect(currentProject.files[fileName]).toContain('from={15}');
 
 	currentProject = {

@@ -40,6 +40,7 @@ import type {
 	CompletedClientRender,
 	RequiredChromiumOptions,
 } from './render-job';
+import type {SequenceNodePathMutation} from './sequence-node-path-mutation';
 import type {SymbolicatedStackFrame} from './stack-types';
 import type {EnumPath} from './stringify-default-props';
 
@@ -534,6 +535,7 @@ export type ReorderSequenceRequest = {
 export type ReorderSequenceResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation;
 	  }
 	| {
 			success: false;
@@ -756,6 +758,7 @@ export type DeleteJsxNodeRequest = {
 export type DeleteJsxNodeResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation;
 	  }
 	| {
 			success: false;
@@ -771,6 +774,7 @@ export type DuplicateJsxNodeRequest = {
 export type DuplicateJsxNodeResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation;
 	  }
 	| {
 			success: false;
@@ -787,6 +791,7 @@ export type SplitJsxSequenceRequest = {
 export type SplitJsxSequenceResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation;
 	  }
 	| {
 			success: false;
@@ -852,6 +857,7 @@ export type InsertJsxElementRequest = {
 export type InsertJsxElementResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation;
 	  }
 	| {
 			success: false;
@@ -921,6 +927,7 @@ export type InsertElementFileConflict = {
 export type InsertElementResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation;
 	  }
 	| {
 			success: false;
@@ -1061,6 +1068,7 @@ export type UndoRequest = {};
 export type UndoResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation | null;
 	  }
 	| {
 			success: false;
@@ -1071,6 +1079,7 @@ export type RedoRequest = {};
 export type RedoResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation | null;
 	  }
 	| {
 			success: false;

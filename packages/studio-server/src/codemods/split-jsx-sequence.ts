@@ -12,6 +12,7 @@ import type {
 	ReturnStatement,
 } from '@babel/types';
 import {cloneNode} from '@babel/types';
+import type {SequenceNodePathRemapping} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {
@@ -19,6 +20,10 @@ import {
 	getJsxElementTagLabel,
 } from './delete-jsx-node';
 import {formatFileContent} from './format-file-content';
+import {
+	captureJsxNodePaths,
+	getNodePathRemappings,
+} from './get-node-path-remappings';
 import {parseAst, serializeAst} from './parse-ast';
 
 const {builders: b, namedTypes} = recast.types;
@@ -367,12 +372,14 @@ export const splitJsxSequence = async ({
 	formatted: boolean;
 	nodeLabel: string;
 	logLine: number;
+	nodePathRemappings: SequenceNodePathRemapping[];
 }> => {
 	if (!Number.isInteger(splitFrame)) {
 		throw new Error('Split frame must be an integer');
 	}
 
 	const ast = parseAst(input);
+	const capturedNodePaths = captureJsxNodePaths(ast);
 	const jsxPath = findJsxElementPathForDeletion(ast, nodePath);
 	if (!jsxPath) {
 		throw new Error(
@@ -454,6 +461,11 @@ export const splitJsxSequence = async ({
 		input: finalFile,
 		prettierConfigOverride,
 	});
+	const nodePathRemappings = getNodePathRemappings({
+		ast,
+		captured: capturedNodePaths,
+		output,
+	});
 
 	return {
 		output,
@@ -463,5 +475,6 @@ export const splitJsxSequence = async ({
 			jsxElement.openingElement.loc?.start.line ??
 			jsxElement.loc?.start.line ??
 			1,
+		nodePathRemappings,
 	};
 };

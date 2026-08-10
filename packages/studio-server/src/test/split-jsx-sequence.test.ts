@@ -10,7 +10,7 @@ import {
 import {setLiveEventsListener} from '../preview-server/live-events';
 import {splitJsxSequenceHandler} from '../preview-server/routes/split-jsx-sequence';
 import {getUndoStack} from '../preview-server/undo-stack';
-import {lineColumnToNodePath} from './test-utils';
+import {lineColumnToNodePath, lineContainingToNodePath} from './test-utils';
 
 const wrap = (
 	sequence: string,
@@ -44,6 +44,24 @@ test('splitJsxSequence splits a sequence with no duration', async () => {
 
 	expect(output).toContain('<Sequence from={0} durationInFrames={30} />');
 	expect(output).toContain('<Sequence from={30} trimBefore={30} />');
+});
+
+test('splitJsxSequence remaps following JSX siblings', async () => {
+	const input = wrap(
+		'<Sequence name="split" from={0} durationInFrames={50} />\n\t\t\t<Sequence name="following" />',
+	);
+	const {output, nodePathRemappings} = await splitJsxSequence({
+		input,
+		nodePath: lineContainingToNodePath(input, 'name="split"'),
+		splitFrame: 30,
+	});
+
+	expect(nodePathRemappings).toEqual([
+		{
+			oldNodePath: lineContainingToNodePath(input, 'name="following"'),
+			newNodePath: lineContainingToNodePath(output, 'name="following"'),
+		},
+	]);
 });
 
 test('splitJsxSequence omits right Infinity duration', async () => {

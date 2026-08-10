@@ -2,8 +2,13 @@ import fs from 'fs';
 import path from 'path';
 import {expect, test, type Page} from '@playwright/test';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
-import {STUDIO_URL, effectKeyframeE2eFile, exampleDir} from './constants.mts';
-import {navigateToSchemaTest} from './helpers.mts';
+import {
+	STUDIO_URL,
+	effectKeyframeE2eFile,
+	exampleDir,
+	lostNodePathE2eFile,
+} from './constants.mts';
+import {navigateToLostNodePathE2e, navigateToSchemaTest} from './helpers.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
 const dropAssetOnCanvas = async ({
@@ -338,6 +343,185 @@ test.describe('visual mode', () => {
 		await expect.poll(() => visibleOutlines.count()).toBeGreaterThan(0);
 	});
 
+	test('should preserve following interactive elements after deleting a sibling', async ({
+		context,
+		page,
+	}) => {
+		await navigateToLostNodePathE2e(page);
+		const otherPage = await context.newPage();
+		await navigateToLostNodePathE2e(otherPage);
+		const canvas = page.locator('.remotion-studio-composition-container');
+		const otherCanvas = otherPage.locator(
+			'.remotion-studio-composition-container',
+		);
+		await expect(
+			canvas.getByText('Performance overview', {exact: true}),
+		).toBeVisible();
+		await expect(
+			canvas.getByText('Regional growth', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			canvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
+		await expect(
+			otherCanvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
+		const gridline = page.getByText('0% gridline', {exact: true});
+		const gridlineVisibilityToggle = gridline
+			.locator('..')
+			.locator('..')
+			.locator('[data-timeline-layer-eye]');
+		const otherGridlineVisibilityToggle = otherPage
+			.getByText('0% gridline', {exact: true})
+			.locator('..')
+			.locator('..')
+			.locator('[data-timeline-layer-eye]');
+		await expect(gridlineVisibilityToggle).toBeVisible();
+		await expect(otherGridlineVisibilityToggle).toBeVisible();
+		await page.evaluate(() => {
+			const state = window as typeof window & {
+				sequenceRemappingBadFrames: string[] | null;
+			};
+			state.sequenceRemappingBadFrames = [];
+			const sample = () => {
+				const container = document.querySelector(
+					'.remotion-studio-composition-container',
+				);
+				if (!container) {
+					requestAnimationFrame(sample);
+					return;
+				}
+
+				const regionalGrowthElements = [
+					...container.querySelectorAll('*'),
+				].filter((element) =>
+					[...element.childNodes].some(
+						(child) =>
+							child.nodeType === Node.TEXT_NODE &&
+							child.textContent?.trim() === 'Regional growth',
+					),
+				);
+				if (regionalGrowthElements.length > 1) {
+					state.sequenceRemappingBadFrames?.push('duplicate-title');
+				}
+
+				if (
+					regionalGrowthElements.some(
+						(element) =>
+							getComputedStyle(element).textTransform === 'uppercase',
+					)
+				) {
+					state.sequenceRemappingBadFrames?.push('uppercase-title');
+				}
+
+				const gridline = [...document.querySelectorAll('div')].find(
+					(element) =>
+						element.childNodes.length === 1 &&
+						element.textContent === '0% gridline',
+				);
+				const gridlineRow = gridline?.parentElement?.parentElement;
+				if (
+					gridlineRow &&
+					!gridlineRow.querySelector('[data-timeline-layer-eye]')
+				) {
+					state.sequenceRemappingBadFrames?.push(
+						'missing-gridline-visibility-toggle',
+					);
+				}
+
+				requestAnimationFrame(sample);
+			};
+			requestAnimationFrame(sample);
+		});
+
+		const eyebrow = page.locator(
+			'[data-timeline-marquee-item][title="Eyebrow"]',
+		);
+		await eyebrow.click();
+		await page.keyboard.press('Delete');
+
+		await expect
+			.poll(() => fs.readFileSync(lostNodePathE2eFile, 'utf-8'))
+			.not.toContain('name="Eyebrow"');
+		await expect(eyebrow).toHaveCount(0, {timeout: 30_000});
+		await expect(
+			canvas.getByText('Regional growth', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			canvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
+		await expect(
+			otherCanvas.getByText('Regional growth', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			otherCanvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
+		await expect(
+			page.locator('[data-timeline-marquee-item][title="Title"]'),
+		).toBeVisible();
+		await expect(
+			page.locator('[data-timeline-marquee-item][title="Chart"]'),
+		).toBeVisible();
+		await expect(gridlineVisibilityToggle).toBeVisible();
+		await expect(otherGridlineVisibilityToggle).toBeVisible();
+
+		await page.getByRole('button', {name: /^Undo/}).click();
+		await expect
+			.poll(() => fs.readFileSync(lostNodePathE2eFile, 'utf-8'))
+			.toContain('name="Eyebrow"');
+		await expect(eyebrow).toBeVisible({timeout: 30_000});
+		await expect(
+			canvas.getByText('Performance overview', {exact: true}),
+		).toBeVisible();
+		await expect(
+			canvas.getByText('Regional growth', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			canvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
+		await expect(
+			otherCanvas.getByText('Performance overview', {exact: true}),
+		).toBeVisible();
+		await expect(
+			otherCanvas.getByText('Regional growth', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			otherCanvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
+		await expect(gridlineVisibilityToggle).toBeVisible();
+		await expect(otherGridlineVisibilityToggle).toBeVisible();
+
+		await page.getByRole('button', {name: /^Redo/}).click();
+		await expect
+			.poll(() => fs.readFileSync(lostNodePathE2eFile, 'utf-8'))
+			.not.toContain('name="Eyebrow"');
+		await expect(eyebrow).toHaveCount(0, {timeout: 30_000});
+		await expect(
+			canvas.getByText('Regional growth', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			canvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
+		await expect(
+			otherCanvas.getByText('Regional growth', {exact: true}),
+		).toHaveCount(1);
+		await expect(
+			otherCanvas.getByText('Bars remain visible', {exact: true}),
+		).toBeVisible();
+		await expect(gridlineVisibilityToggle).toBeVisible();
+		await expect(otherGridlineVisibilityToggle).toBeVisible();
+		expect(
+			await page.evaluate(
+				() =>
+					(
+						window as typeof window & {
+							sequenceRemappingBadFrames: string[] | null;
+						}
+					).sequenceRemappingBadFrames ?? [],
+			),
+		).toEqual([]);
+	});
+
 	test('should use standalone and contextual app names in portaled context menus', async ({
 		context,
 		page,
@@ -491,10 +675,17 @@ test.describe('visual mode', () => {
 			timeout: 15_000,
 		});
 
+		await page.evaluate(() => {
+			// Keep the menu tree in the interval before the next animation frame to
+			// exercise a fast user's outside click deterministically.
+			window.requestAnimationFrame = () => 0;
+		});
 		await page.getByRole('button', {name: 'More actions'}).click();
-		await page
-			.getByRole('button', {name: 'Playback Rate', exact: true})
-			.click();
+		const playbackRate = page.getByRole('button', {
+			name: 'Playback Rate',
+			exact: true,
+		});
+		await playbackRate.click();
 		await expect(
 			page.getByRole('button', {name: '1x', exact: true}),
 		).toBeVisible();

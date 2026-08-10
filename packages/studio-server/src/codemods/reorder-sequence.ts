@@ -1,5 +1,8 @@
 import type {JSXElement, JSXFragment} from '@babel/types';
-import type {ReorderSequencePosition} from '@remotion/studio-shared';
+import type {
+	ReorderSequencePosition,
+	SequenceNodePathRemapping,
+} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {
@@ -7,6 +10,10 @@ import {
 	getJsxElementTagLabel,
 } from './delete-jsx-node';
 import {formatFileContent} from './format-file-content';
+import {
+	captureJsxNodePaths,
+	getNodePathRemappings,
+} from './get-node-path-remappings';
 import {parseAst, serializeAst} from './parse-ast';
 
 const {namedTypes} = recast.types;
@@ -47,8 +54,10 @@ export const reorderSequence = async ({
 	formatted: boolean;
 	sequenceLabel: string;
 	logLine: number;
+	nodePathRemappings: SequenceNodePathRemapping[];
 }> => {
 	const ast = parseAst(input);
+	const capturedNodePaths = captureJsxNodePaths(ast);
 	const sourcePath = findJsxElementPathForDeletion(ast, sourceNodePath);
 	if (!sourcePath) {
 		throw new Error(
@@ -113,11 +122,17 @@ export const reorderSequence = async ({
 		input: finalFile,
 		prettierConfigOverride,
 	});
+	const nodePathRemappings = getNodePathRemappings({
+		ast,
+		captured: capturedNodePaths,
+		output,
+	});
 
 	return {
 		output,
 		formatted,
 		sequenceLabel,
 		logLine,
+		nodePathRemappings,
 	};
 };

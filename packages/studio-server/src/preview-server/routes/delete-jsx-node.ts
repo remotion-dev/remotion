@@ -9,6 +9,7 @@ import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
+import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
 	printUndoHint,
 	pushToUndoStack,
@@ -57,7 +58,7 @@ export const deleteJsxNodeHandler: ApiHandler<
 
 					const fileContents = readFileSync(absolutePath, 'utf-8');
 
-					const {output, formatted, nodeLabels, logLines} =
+					const {output, formatted, nodeLabels, logLines, nodePathRemappings} =
 						await deleteJsxNodes({
 							input: fileContents,
 							nodePaths: fileItems.map((item) => item.nodePath),
@@ -70,9 +71,17 @@ export const deleteJsxNodeHandler: ApiHandler<
 						output,
 						formatted,
 						nodeLabels,
+						nodePathRemappings,
 						logLine: Math.min(...logLines),
 					};
 				}),
+			);
+			const nodePathMutation = broadcastSequenceNodePathMutation(
+				updates.map((update) => ({
+					absolutePath: update.absolutePath,
+					remappings: update.nodePathRemappings,
+					restoredNodePaths: [],
+				})),
 			);
 
 			for (const update of updates) {
@@ -93,13 +102,15 @@ export const deleteJsxNodeHandler: ApiHandler<
 					},
 					entryType: 'delete-jsx-node',
 					suppressHmrOnFileRestore: false,
+					nodePathRemappings: update.nodePathRemappings,
 				});
 				suppressUndoStackInvalidation(update.absolutePath);
-				writeFileAndNotifyFileWatchers(
-					update.absolutePath,
-					update.output,
-					undefined,
-				);
+				writeFileAndNotifyFileWatchers({
+					file: update.absolutePath,
+					content: update.output,
+					originatorClientId: undefined,
+					metadata: {skipSequencePropsUpdate: true},
+				});
 
 				const locationLabel = formatLogFileLocation({
 					remotionRoot,
@@ -124,6 +135,7 @@ export const deleteJsxNodeHandler: ApiHandler<
 
 			return {
 				success: true,
+				nodePathMutation,
 			};
 		} catch (err) {
 			return {
