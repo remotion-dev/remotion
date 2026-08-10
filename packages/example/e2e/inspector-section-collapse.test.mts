@@ -205,6 +205,64 @@ test.describe('inspector section collapse', () => {
 		);
 		await expect.poll(read2DTransformOrigin).not.toBe(transformOriginBefore);
 		await expect(canvasRotationSurface).toBeVisible();
+
+		const compositionContainer = page.locator(
+			'.remotion-studio-composition-container',
+		);
+		const compositionBox = await compositionContainer.boundingBox();
+		const rotationSurfaceBox = await canvasRotationSurface.boundingBox();
+		if (compositionBox === null || rotationSurfaceBox === null) {
+			throw new Error('Rotation surface should have a visible layout');
+		}
+
+		expect(rotationSurfaceBox.width).toBeLessThan(compositionBox.width);
+		expect(rotationSurfaceBox.height).toBeLessThan(compositionBox.height);
+		const outsidePoint = {
+			x: compositionBox.x + compositionBox.width - 4,
+			y: compositionBox.y + compositionBox.height - 4,
+		};
+		expect(
+			await page.evaluate(
+				({x, y}) =>
+					document
+						.elementFromPoint(x, y)
+						?.closest('[data-remotion-studio-canvas-rotation]') ?? null,
+				outsidePoint,
+			),
+		).toBeNull();
+		const rotationBefore = read2DTransformRotation();
+		const insidePoint = await canvasRotationSurface.evaluate((surface) => {
+			const box = surface.getBoundingClientRect();
+			for (let yIndex = 1; yIndex < 10; yIndex++) {
+				for (let xIndex = 1; xIndex < 10; xIndex++) {
+					const point = {
+						x: box.x + (box.width * xIndex) / 10,
+						y: box.y + (box.height * yIndex) / 10,
+					};
+					if (
+						document
+							.elementFromPoint(point.x, point.y)
+							?.closest('[data-remotion-studio-canvas-rotation]') === surface
+					) {
+						return point;
+					}
+				}
+			}
+
+			throw new Error('Rotation surface should have an interactive point');
+		});
+		await page.mouse.move(insidePoint.x, insidePoint.y);
+		await page.mouse.down();
+		await page.mouse.move(insidePoint.x + 40, insidePoint.y + 30, {steps: 5});
+		await page.mouse.up();
+		await expect.poll(read2DTransformRotation).not.toBe(rotationBefore);
+		const rotationAfterInsideDrag = read2DTransformRotation();
+		await page.mouse.move(outsidePoint.x, outsidePoint.y);
+		await page.mouse.down();
+		await page.mouse.move(outsidePoint.x + 20, outsidePoint.y + 20);
+		await page.mouse.up();
+		await page.waitForTimeout(200);
+		expect(read2DTransformRotation()).toBe(rotationAfterInsideDrag);
 	});
 
 	test('collapses inactive static sections and lets the user expand them', async ({

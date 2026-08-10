@@ -20,7 +20,6 @@ import type {
 	SelectedOutlineLayoutTarget,
 	SelectedOutlineTarget,
 } from './selected-outline-types';
-import {SelectedOutlineCanvasRotation} from './SelectedOutlineCanvasRotation';
 import {SelectedOutlineElement} from './SelectedOutlineElement';
 import {
 	SelectedOutlineSnapIndicators,
@@ -220,14 +219,6 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 			renderState.outlines.map((outline) => [outline.key, outline]),
 		);
 	}, [renderState.outlines]);
-	const canvasRotationTarget = renderState.targets.find(
-		(target) =>
-			target.selectedForRotation &&
-			(getLatestOutlineTargetByKey(target.key)?.rotationDrag ?? null) !== null,
-	);
-	const canvasRotationOutline = canvasRotationTarget
-		? outlinesByKey.get(canvasRotationTarget.key)
-		: undefined;
 	const targetsRef = useRef(renderState.targets);
 	const outlinesByKeyRef = useRef(outlinesByKey);
 	useLayoutEffect(() => {
@@ -341,14 +332,6 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 					layoutTarget={targetsByKey.get(outline.key)}
 				/>
 			))}
-			{canvasRotationTarget && canvasRotationOutline ? (
-				<SelectedOutlineCanvasRotation
-					getLatestTargetByKey={getLatestOutlineTargetByKey}
-					layoutTarget={canvasRotationTarget}
-					onDraggingChange={onDraggingChange}
-					outline={canvasRotationOutline}
-				/>
-			) : null}
 			{/* Keep transform-origin handles above the canvas rotation surface so the knob stays visible in rotation mode and hit-testable while editing the origin. */}
 			{outlinesForRendering.map((outline) => (
 				<SelectedOutlineTransformOriginHandle

@@ -15,7 +15,6 @@ import {
 	getSelectedOutlineRotationDragChanges,
 	getSelectedOutlineRotationDragStates,
 	getSelectedOutlineRotationDragValues,
-	getSelectedOutlineScaleEdgeInfo,
 	isSelectedOutlineDragPastThreshold,
 	snapSelectedOutlineRotationDeltaDegrees,
 	type SelectedOutlineKeyframedDragChange,
@@ -24,7 +23,6 @@ import {
 import type {SelectedOutline} from './selected-outline-geometry';
 import {
 	getAngleDegrees,
-	getSelectedOutlineRotationCornerInfo,
 	getSelectedOutlineRotationDeltaDegrees,
 	getSelectedOutlineRotationPivot,
 } from './selected-outline-measurement';
@@ -269,62 +267,14 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 			setPropStatuses,
 		],
 	);
-	const cornerHoles = (
-		['top-left', 'top-right', 'bottom-right', 'bottom-left'] as const
-	)
-		.map((corner) => {
-			const {point} = getSelectedOutlineRotationCornerInfo(
-				outline.points,
-				corner,
-			);
-			return `M ${point.x - 12} ${point.y} a 12 12 0 1 0 24 0 a 12 12 0 1 0 -24 0 z`;
-		})
-		.join(' ');
-	const scaleEdgeHoles = (['top', 'right', 'bottom', 'left'] as const)
-		.map((edge) => {
-			const edgeInfo = getSelectedOutlineScaleEdgeInfo(outline.points, edge);
-			if (edgeInfo === null) {
-				return '';
-			}
-
-			const deltaX = edgeInfo.end.x - edgeInfo.start.x;
-			const deltaY = edgeInfo.end.y - edgeInfo.start.y;
-			const length = Math.hypot(deltaX, deltaY);
-			if (length <= 24) {
-				return '';
-			}
-
-			const tangentX = deltaX / length;
-			const tangentY = deltaY / length;
-			const startX = edgeInfo.start.x + tangentX * 12;
-			const startY = edgeInfo.start.y + tangentY * 12;
-			const endX = edgeInfo.end.x - tangentX * 12;
-			const endY = edgeInfo.end.y - tangentY * 12;
-			const offsetX = edgeInfo.normal.x * 6;
-			const offsetY = edgeInfo.normal.y * 6;
-			return `M ${startX + offsetX} ${startY + offsetY} L ${endX + offsetX} ${endY + offsetY} L ${endX - offsetX} ${endY - offsetY} L ${startX - offsetX} ${startY - offsetY} Z`;
-		})
-		.join(' ');
-
 	return (
-		<>
-			<rect
-				x={0}
-				y={0}
-				width="100%"
-				height="100%"
-				fill={TRANSPARENT}
-				pointerEvents="none"
-				data-remotion-studio-canvas-rotation
-			/>
-			<path
-				d={`M -100000 -100000 H 100000 V 100000 H -100000 Z ${cornerHoles} ${scaleEdgeHoles}`}
-				fill={TRANSPARENT}
-				fillRule="evenodd"
-				pointerEvents="fill"
-				cursor={canvasRotationCursor}
-				onPointerDown={onPointerDown}
-			/>
-		</>
+		<polygon
+			points={outline.points.map((point) => `${point.x},${point.y}`).join(' ')}
+			fill={TRANSPARENT}
+			pointerEvents="all"
+			cursor={canvasRotationCursor}
+			onPointerDown={onPointerDown}
+			data-remotion-studio-canvas-rotation
+		/>
 	);
 };

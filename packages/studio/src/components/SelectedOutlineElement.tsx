@@ -31,6 +31,7 @@ import {
 	type SelectedOutlineScaleDragTarget,
 	type SelectedOutlineTarget,
 } from './selected-outline-types';
+import {SelectedOutlineCanvasRotation} from './SelectedOutlineCanvasRotation';
 import {SelectedOutlineCropControls} from './SelectedOutlineCropControls';
 import {SelectedOutlinePolygon} from './SelectedOutlinePolygon';
 import {SelectedOutlineRotationCornerHandle} from './SelectedOutlineRotationCornerHandle';
@@ -521,6 +522,14 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				scale={scale}
 				showSelectedOutline={layoutTarget?.showSelectedOutline ?? false}
 			/>
+			{layoutTarget?.selectedForRotation && controlTarget?.rotationDrag ? (
+				<SelectedOutlineCanvasRotation
+					getLatestTargetByKey={getLatestTargetByKey}
+					layoutTarget={layoutTarget}
+					onDraggingChange={onDraggingChange}
+					outline={outline}
+				/>
+			) : null}
 			<SelectedOutlineCropControls
 				outline={outline}
 				onDraggingChange={onDraggingChange}
