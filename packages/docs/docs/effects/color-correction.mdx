@@ -1,0 +1,120 @@
+---
+image: /generated/articles-docs-effects-color-correction.png
+slug: /effects/color-correction
+title: colorCorrection()
+sidebar_label: colorCorrection()
+crumb: '@remotion/effects'
+---
+
+# colorCorrection()<AvailableFrom v="4.0.508" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Applies common primary color adjustments in one WebGL pass.
+
+## Preview
+
+<EffectsDemo type="effects-color-correction" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {Video} from '@remotion/media';
+import {colorCorrection} from '@remotion/effects/color-correction';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[
+        colorCorrection({
+          exposure: 0.25,
+          contrast: 1.1,
+          shadows: 0.2,
+          highlights: -0.15,
+          temperature: 0.1,
+          vibrance: 0.2,
+        }),
+      ]}
+    />
+  );
+};
+```
+
+Calling `colorCorrection()` without arguments leaves the image unchanged.
+
+## Operation order
+
+Adjustments are applied in this order:
+
+1. Exposure
+2. White balance (`temperature` and `tint`)
+3. Tonal regions (`shadows`, `highlights`, `whites`, and `blacks`)
+4. Contrast
+5. Saturation
+6. Vibrance
+
+The effect uses the same color math as the corresponding standalone effects, while avoiding the intermediate canvases required by an effect chain. Alpha is preserved throughout the pass.
+
+## API
+
+### `exposure?`
+
+The exposure adjustment in stops, from `-5` to `5`. Defaults to `0`.
+
+### `contrast?`
+
+The contrast multiplier. `1` leaves contrast unchanged, `0` produces the pivot color, and values above `1` increase contrast. Defaults to `1`.
+
+### `pivot?`
+
+The center of the contrast adjustment, from `0` to `1`. Defaults to `0.5`.
+
+### `shadows?`
+
+The shadow adjustment from `-1` to `1`. Positive values lift dark regions and negative values suppress them. Defaults to `0`.
+
+### `highlights?`
+
+The highlight adjustment from `-1` to `1`. Positive values brighten light regions and negative values recover them. Defaults to `0`.
+
+### `whites?`
+
+The white-region adjustment from `-1` to `1`. It targets a narrower range near white than `highlights`. Defaults to `0`.
+
+### `blacks?`
+
+The black-region adjustment from `-1` to `1`. It targets a narrower range near black than `shadows`. Defaults to `0`.
+
+### `temperature?`
+
+The blue-to-amber temperature adjustment from `-1` to `1`. Negative values cool the image and positive values warm it. Defaults to `0`.
+
+### `tint?`
+
+The green-to-magenta tint adjustment from `-1` to `1`. Negative values add green and positive values add magenta. Defaults to `0`.
+
+### `saturation?`
+
+The saturation multiplier. `1` leaves saturation unchanged, `0` produces grayscale, and values above `1` increase saturation. Defaults to `1`.
+
+### `vibrance?`
+
+The vibrance adjustment from `-1` to `1`. Positive values emphasize muted colors more than already vivid colors. Defaults to `0`.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`exposure()`](/docs/effects/exposure)
+- [`whiteBalance()`](/docs/effects/white-balance)
+- [`shadowsHighlights()`](/docs/effects/shadows-highlights)
+- [`vibrance()`](/docs/effects/vibrance)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/color-correction.ts)

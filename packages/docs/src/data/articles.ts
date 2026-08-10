@@ -1863,6 +1863,15 @@ export const articles = [
 		slug: 'effects/chromatic-aberration',
 	},
 	{
+		id: 'effects/color-correction',
+		title: 'colorCorrection()',
+		relativePath: 'docs/effects/color-correction.mdx',
+		compId: 'articles-docs-effects-color-correction',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/color-correction',
+	},
+	{
 		id: 'effects/color-key',
 		title: 'colorKey()',
 		relativePath: 'docs/effects/color-key.mdx',

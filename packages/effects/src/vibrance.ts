@@ -1,5 +1,6 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
+import {VIBRANCE_GLSL} from './color-correction-shader-utils.js';
 import {
 	assertOptionalFiniteNumber,
 	validateSignedUnitInterval,
@@ -75,6 +76,8 @@ out vec4 fragColor;
 uniform sampler2D uSource;
 uniform float uAmount;
 
+${VIBRANCE_GLSL}
+
 void main() {
 	vec4 sourceColor = texture(uSource, vUv);
 	float alpha = sourceColor.a;
@@ -85,27 +88,9 @@ void main() {
 	}
 
 	vec3 color = sourceColor.rgb / alpha;
-	float maximum = max(max(color.r, color.g), color.b);
-	float minimum = min(min(color.r, color.g), color.b);
-	float lightness = (maximum + minimum) * 0.5;
-	float chroma = maximum - minimum;
-	float saturationDenominator = 1.0 - abs(2.0 * lightness - 1.0);
-	float saturation = saturationDenominator <= 0.0
-		? 0.0
-		: chroma / saturationDenominator;
+	vec3 adjusted = applyVibrance(color, uAmount);
 
-	if (saturation <= 0.000001) {
-		fragColor = sourceColor;
-		return;
-	}
-
-	float targetSaturation = uAmount >= 0.0
-		? saturation + uAmount * (1.0 - saturation)
-		: saturation * (1.0 + uAmount);
-	vec3 adjusted = vec3(lightness) +
-		(color - vec3(lightness)) * (targetSaturation / saturation);
-
-	fragColor = vec4(clamp(adjusted, 0.0, 1.0) * alpha, alpha);
+	fragColor = vec4(adjusted * alpha, alpha);
 }
 `;
 

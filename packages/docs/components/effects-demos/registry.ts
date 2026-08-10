@@ -4,6 +4,7 @@ import {brightness} from '@remotion/effects/brightness';
 import {burlap} from '@remotion/effects/burlap';
 import {checkerboard} from '@remotion/effects/checkerboard';
 import {chromaticAberration} from '@remotion/effects/chromatic-aberration';
+import {colorCorrection} from '@remotion/effects/color-correction';
 import {colorKey} from '@remotion/effects/color-key';
 import {contourLines} from '@remotion/effects/contour-lines';
 import {contrast} from '@remotion/effects/contrast';
@@ -72,6 +73,7 @@ import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
 import {EffectsBurlapPreview} from '../effects/effects-burlap-preview';
 import {EffectsCheckerboardPreview} from '../effects/effects-checkerboard-preview';
 import {EffectsChromaticAberrationPreview} from '../effects/effects-chromatic-aberration-preview';
+import {EffectsColorCorrectionPreview} from '../effects/effects-color-correction-preview';
 import {EffectsColorKeyPreview} from '../effects/effects-color-key-preview';
 import {EffectsContourLinesPreview} from '../effects/effects-contour-lines-preview';
 import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
@@ -233,6 +235,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		initialValues: {
 			similarity: 0.45,
 		},
+	},
+	{
+		...defaults,
+		id: 'effects-color-correction',
+		effectName: 'colorCorrection',
+		effectImportPath: '@remotion/effects/color-correction',
+		comp: EffectsColorCorrectionPreview,
+		schema: colorCorrection().definition.schema,
 	},
 	{
 		...defaults,

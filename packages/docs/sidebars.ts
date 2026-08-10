@@ -279,6 +279,7 @@ const sidebars: SidebarsConfig = {
 				'effects/burlap',
 				'effects/checkerboard',
 				'effects/chromatic-aberration',
+				'effects/color-correction',
 				'effects/color-key',
 				'effects/contrast',
 				'effects/contour-lines',
