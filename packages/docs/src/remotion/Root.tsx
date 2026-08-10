@@ -93,6 +93,7 @@ import {
 } from '../../components/effects/effects-translate-preview';
 import {EffectsTvSignalOffPreview} from '../../components/effects/effects-tv-signal-off-preview';
 import {EffectsVenetianBlindsPreview} from '../../components/effects/effects-venetian-blinds-preview';
+import {EffectsVibrancePreview} from '../../components/effects/effects-vibrance-preview';
 import {EffectsVignettePreview} from '../../components/effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../../components/effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../../components/effects/effects-waves-preview';
@@ -296,6 +297,13 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{temperature: 0.8, tint: 0.2}}
+				/>
+				<Still
+					id="effects-vibrance-preview"
+					component={EffectsVibrancePreview}
+					width={1280}
+					height={720}
+					defaultProps={{amount: 0.8}}
 				/>
 				<Still
 					id="effects-venetian-blinds-preview"

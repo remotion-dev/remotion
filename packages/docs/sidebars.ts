@@ -331,6 +331,7 @@ const sidebars: SidebarsConfig = {
 				'effects/tv-signal-off',
 				'effects/uv-translate',
 				'effects/venetian-blinds',
+				'effects/vibrance',
 				'effects/vignette',
 				'effects/wave',
 				'effects/waves',

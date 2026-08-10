@@ -4,6 +4,7 @@ import {evolve} from '../evolve.js';
 import {exposure} from '../exposure.js';
 import {noise} from '../noise.js';
 import {pixelDissolve} from '../pixel-dissolve.js';
+import {vibrance} from '../vibrance.js';
 import {vignette} from '../vignette.js';
 import {whiteBalance} from '../white-balance.js';
 import {
@@ -122,6 +123,53 @@ test('whiteBalance() applies temperature and tint while preserving alpha', async
 	expect(magentaPixel[2]).toBeGreaterThan(magentaPixel[1]);
 	expect(Math.abs(magentaPixel[0] - magentaPixel[2])).toBeLessThanOrEqual(1);
 	expect(magentaPixel[3]).toBe(128);
+});
+
+test('vibrance() boosts muted colors more than vivid colors', async () => {
+	const source = document.createElement('canvas');
+	source.width = 3;
+	source.height = 1;
+	const sourceContext = source.getContext('2d');
+	if (!sourceContext) {
+		throw new Error('Could not get source context');
+	}
+
+	sourceContext.putImageData(
+		new ImageData(
+			new Uint8ClampedArray([
+				153, 102, 102, 128, 204, 51, 51, 128, 128, 128, 128, 128,
+			]),
+			3,
+			1,
+		),
+		0,
+		0,
+	);
+
+	const canvas = await renderEffectChainToCanvas({
+		source,
+		width: 3,
+		height: 1,
+		effects: descriptorsToMemoizedEffects([vibrance({amount: 0.5})]),
+	});
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Could not get output context');
+	}
+
+	const pixels = context.getImageData(0, 0, 3, 1).data;
+	const mutedRedChange = pixels[0] - 153;
+	const vividRedChange = pixels[4] - 204;
+	expect(mutedRedChange).toBeGreaterThanOrEqual(45);
+	expect(vividRedChange).toBeGreaterThanOrEqual(20);
+	expect(mutedRedChange).toBeGreaterThan(vividRedChange);
+	expect(pixels[8]).toBeGreaterThanOrEqual(127);
+	expect(pixels[8]).toBeLessThanOrEqual(129);
+	expect(pixels[9]).toBe(pixels[8]);
+	expect(pixels[10]).toBe(pixels[8]);
+	expect(pixels[3]).toBe(128);
+	expect(pixels[7]).toBe(128);
+	expect(pixels[11]).toBe(128);
 });
 
 test('vignette() color mode works on transparent sources', async () => {
