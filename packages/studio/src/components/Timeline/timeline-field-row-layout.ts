@@ -1,6 +1,22 @@
 import type React from 'react';
-import {EXPANDED_SECTION_PADDING_RIGHT} from '../../helpers/timeline-layout';
+import {
+	EXPANDED_SECTION_PADDING_RIGHT,
+	type SchemaFieldInfo,
+} from '../../helpers/timeline-layout';
 import {getTimelineFieldLabelFlexBasis} from './timeline-row-layout';
+
+export const isTimelineFieldStacked = ({
+	field,
+	transform3DMode,
+}: {
+	readonly field: SchemaFieldInfo;
+	readonly transform3DMode: boolean;
+}) => {
+	return (
+		field.typeName === 'text-content' ||
+		(field.typeName === 'rotation-css' && transform3DMode)
+	);
+};
 
 export const getTimelineFieldLabelRowStyle = (
 	depth: number,

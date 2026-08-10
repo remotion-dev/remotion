@@ -135,6 +135,19 @@ test.describe('inspector section collapse', () => {
 		await expect(
 			page.getByRole('button', {name: 'Rotation Z', exact: true}),
 		).toBeVisible();
+		const rotationLabelBox = await page
+			.getByTitle('Rotation', {exact: true})
+			.boundingBox();
+		const rotationXBox = await page
+			.getByRole('button', {name: 'Rotation X', exact: true})
+			.boundingBox();
+		if (rotationLabelBox === null || rotationXBox === null) {
+			throw new Error('Rotation controls should have a visible layout');
+		}
+
+		expect(rotationXBox.y).toBeGreaterThan(
+			rotationLabelBox.y + rotationLabelBox.height,
+		);
 		await expect(
 			page.getByRole('button', {name: 'Transform origin Z', exact: true}),
 		).toBeVisible();
