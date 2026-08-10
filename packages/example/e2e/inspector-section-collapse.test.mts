@@ -33,6 +33,36 @@ test.describe('inspector section collapse', () => {
 		await stopStudio();
 	});
 
+	test('selects 3D rotation from the sequence context menu', async ({page}) => {
+		await page.goto(`${STUDIO_URL}/visual-mode-3d`);
+		await expect(page).toHaveURL(/visual-mode-3d/, {timeout: 15_000});
+		await page.waitForFunction(
+			() => !document.body.innerText.includes('Loading...'),
+			{timeout: 30_000},
+		);
+
+		const transform = page.getByText('2D transform', {exact: true}).first();
+		await transform.click();
+		await expect(
+			page.getByRole('button', {name: 'Show 3D transform controls'}),
+		).toBeVisible();
+		const outline = page
+			.locator('polygon[stroke-opacity="1"][pointer-events="all"]')
+			.first();
+		await expect(outline).toBeVisible();
+		await outline.click({button: 'right'});
+		await page.getByRole('button', {name: /^Rotate(?: all)?$/}).click();
+		await expect(
+			page.getByRole('button', {name: 'Rotation X', exact: true}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {
+				name: 'Hide 3D transform controls',
+				exact: true,
+			}),
+		).toBeVisible();
+	});
+
 	test('collapses inactive static sections and lets the user expand them', async ({
 		page,
 	}) => {
