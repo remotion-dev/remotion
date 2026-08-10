@@ -52,7 +52,7 @@ import {
 	openTimelineAssetLink,
 	splitRemoteSourceForMiddleEllipsis,
 } from './Timeline/timeline-asset-link';
-import {parseCssRotation} from './Timeline/timeline-rotation-utils';
+import {parseCssRotationToEuler} from './Timeline/timeline-rotation-utils';
 import {
 	AssetSelectionContext,
 	type InspectorSourceAction,
@@ -365,8 +365,8 @@ const has3DTransformValue = ({
 	}
 
 	if (fieldKey === 'style.rotate') {
-		const parsed = parseCssRotation(String(value ?? '0deg'));
-		return parsed !== null && (parsed.axis[0] !== 0 || parsed.axis[1] !== 0);
+		const rotation = parseCssRotationToEuler(String(value ?? '0deg'));
+		return rotation[0] !== 0 || rotation[1] !== 0;
 	}
 
 	if (fieldKey === 'style.transformOrigin') {

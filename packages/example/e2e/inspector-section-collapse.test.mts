@@ -116,18 +116,24 @@ test.describe('inspector section collapse', () => {
 		await expect(
 			page.getByRole('button', {name: 'Scale Z', exact: true}),
 		).toHaveCount(0);
+		await expect(
+			page.getByRole('button', {name: 'Rotation Z', exact: true}),
+		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Rotation X', exact: true}),
+		).toHaveCount(0);
 		await show3DControls.click();
 		await expect(
 			page.getByRole('button', {name: 'Scale Z', exact: true}),
 		).toBeVisible();
 		await expect(
-			page.getByRole('button', {name: 'Rotation axis X', exact: true}),
+			page.getByRole('button', {name: 'Rotation X', exact: true}),
 		).toBeVisible();
 		await expect(
-			page.getByRole('button', {name: 'Rotation axis Y', exact: true}),
+			page.getByRole('button', {name: 'Rotation Y', exact: true}),
 		).toBeVisible();
 		await expect(
-			page.getByRole('button', {name: 'Rotation axis Z', exact: true}),
+			page.getByRole('button', {name: 'Rotation Z', exact: true}),
 		).toBeVisible();
 		await expect(
 			page.getByRole('button', {name: 'Transform origin Z', exact: true}),
@@ -143,5 +149,8 @@ test.describe('inspector section collapse', () => {
 		await expect(
 			page.getByRole('button', {name: 'Scale Z', exact: true}),
 		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Rotation X', exact: true}),
+		).toContainText('X 30');
 	});
 });
