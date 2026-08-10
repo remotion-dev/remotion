@@ -8,6 +8,7 @@ import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {insertJsxElementIntoComposition} from '../../helpers/resolve-composition-component';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
+import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
 	printUndoHint,
 	pushTransactionToUndoStack,
@@ -166,7 +167,6 @@ export const insertElementHandler: ApiHandler<
 							position,
 						},
 			});
-
 			const finalPlan = await getElementInstallPlan({
 				compositionFile,
 				compositionId,
@@ -191,6 +191,14 @@ export const insertElementHandler: ApiHandler<
 				throw new Error('Element source changed during installation');
 			}
 
+			const nodePathMutation = broadcastSequenceNodePathMutation([
+				{
+					absolutePath: inserted.fileName,
+					remappings: inserted.nodePathRemappings,
+					restoredNodePaths: [],
+				},
+			]);
+
 			pushTransactionToUndoStack({
 				snapshots: [
 					...(shouldWriteElementFile
@@ -200,6 +208,7 @@ export const insertElementHandler: ApiHandler<
 									oldContents: plan.existingElementSource,
 									newContents: element.sourceCode,
 									logLine: 1,
+									nodePathRemappings: null,
 								},
 							]
 						: []),
@@ -208,6 +217,7 @@ export const insertElementHandler: ApiHandler<
 						oldContents: inserted.oldContents,
 						newContents: inserted.output,
 						logLine: inserted.logLine,
+						nodePathRemappings: inserted.nodePathRemappings,
 					},
 				],
 				logLevel,
@@ -226,18 +236,20 @@ export const insertElementHandler: ApiHandler<
 			suppressUndoStackInvalidation(inserted.fileName);
 
 			if (shouldWriteElementFile) {
-				writeFileAndNotifyFileWatchers(
-					plan.elementFileName,
-					element.sourceCode,
-					undefined,
-				);
+				writeFileAndNotifyFileWatchers({
+					file: plan.elementFileName,
+					content: element.sourceCode,
+					originatorClientId: undefined,
+					metadata: null,
+				});
 			}
 
-			writeFileAndNotifyFileWatchers(
-				inserted.fileName,
-				inserted.output,
-				undefined,
-			);
+			writeFileAndNotifyFileWatchers({
+				file: inserted.fileName,
+				content: inserted.output,
+				originatorClientId: undefined,
+				metadata: {skipSequencePropsUpdate: true},
+			});
 
 			const compositionLocationLabel = formatLogFileLocation({
 				remotionRoot,
@@ -268,7 +280,7 @@ export const insertElementHandler: ApiHandler<
 
 			printUndoHint(logLevel);
 
-			return {success: true};
+			return {success: true, nodePathMutation};
 		} catch (err) {
 			return {
 				success: false,

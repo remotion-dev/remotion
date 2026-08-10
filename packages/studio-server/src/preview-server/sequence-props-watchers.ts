@@ -24,6 +24,10 @@ import {
 type WatcherInfo = {
 	unwatch: () => void;
 	refCount: number;
+	currentNodePath: Extract<
+		SubscribeToSequencePropsResponse,
+		{success: true}
+	>['nodePath'];
 };
 
 const sequencePropsWatchers: Record<string, Record<string, WatcherInfo>> = {};
@@ -212,12 +216,17 @@ export const subscribeToSequencePropsWatchers = ({
 	const {nodePath} = initialResult;
 	const watcherKey = getWatcherKey(nodePath, assetKeys);
 
-	// If a watcher already exists for this key, just bump the ref count
-	if (sequencePropsWatchers[clientId]?.[watcherKey]) {
-		sequencePropsWatchers[clientId][watcherKey].refCount++;
+	const existingWatcher = sequencePropsWatchers[clientId]?.[watcherKey];
+	if (existingWatcher) {
+		existingWatcher.refCount++;
 		return initialResult;
 	}
 
+	const watcherInfo: WatcherInfo = {
+		unwatch: () => undefined,
+		refCount: 1,
+		currentNodePath: nodePath,
+	};
 	const {unwatch} = installFileWatcher({
 		file: absolutePath,
 		existenceOnly: false,
@@ -230,10 +239,14 @@ export const subscribeToSequencePropsWatchers = ({
 				return;
 			}
 
+			if (event.type === 'changed' && event.skipSequencePropsUpdate) {
+				return;
+			}
+
 			try {
 				const result = computeSequencePropsStatusFromContent({
 					fileContents: event.content,
-					nodePath: nodePath.nodePath,
+					nodePath: watcherInfo.currentNodePath.nodePath,
 					componentIdentity,
 					keys,
 					assetKeys,
@@ -260,7 +273,7 @@ export const subscribeToSequencePropsWatchers = ({
 					listener.sendEventToClientId(clientId, {
 						type: 'sequence-props-updated',
 						fileName,
-						nodePath,
+						nodePath: watcherInfo.currentNodePath,
 						result,
 					});
 				});
@@ -284,12 +297,13 @@ export const subscribeToSequencePropsWatchers = ({
 			}
 		},
 	});
+	watcherInfo.unwatch = unwatch;
 
 	if (!sequencePropsWatchers[clientId]) {
 		sequencePropsWatchers[clientId] = {};
 	}
 
-	sequencePropsWatchers[clientId][watcherKey] = {unwatch, refCount: 1};
+	sequencePropsWatchers[clientId][watcherKey] = watcherInfo;
 
 	return initialResult;
 };

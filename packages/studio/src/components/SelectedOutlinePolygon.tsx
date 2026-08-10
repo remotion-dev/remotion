@@ -179,6 +179,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				getDragOverrides,
 				timelinePosition: getCurrentFrame(),
 			});
+			const dragOutlines = selected ? getAllDragOutlines() : [outline];
 			let lastValues = new Map<string, string>();
 			let currentPointerX = startPointerX;
 			let currentPointerY = startPointerY;
@@ -235,7 +236,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 						allowY: axisLockedDirection !== 'horizontal',
 						deltaX,
 						deltaY,
-						outlines: selected ? getAllDragOutlines() : [outline],
+						outlines: dragOutlines,
 						scale,
 						targets: snapTargets,
 					});

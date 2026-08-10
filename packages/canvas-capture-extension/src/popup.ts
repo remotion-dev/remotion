@@ -19,7 +19,6 @@ const scaleInput = getElement<HTMLInputElement>('scale');
 const formatInput = getElement<HTMLSelectElement>('format');
 const selectAreaButton = getElement<HTMLButtonElement>('select-area');
 const wholePageButton = getElement<HTMLButtonElement>('whole-page');
-const backgroundInput = getElement<HTMLInputElement>('include-background');
 const recordButton = getElement<HTMLButtonElement>('record');
 const downloadButton = getElement<HTMLButtonElement>('download');
 const target = getElement<HTMLDivElement>('target');
@@ -39,7 +38,6 @@ const disableControls = () => {
 	formatInput.disabled = true;
 	selectAreaButton.disabled = true;
 	wholePageButton.disabled = true;
-	backgroundInput.disabled = true;
 	recordButton.disabled = true;
 	downloadButton.hidden = true;
 };
@@ -70,10 +68,8 @@ const render = (state: CaptureControllerState) => {
 	}
 
 	formatInput.value = state.format;
-	backgroundInput.checked = state.includePageBackground;
 	scaleInput.disabled = controlsDisabled || state.recording;
 	formatInput.disabled = controlsDisabled || state.recording;
-	backgroundInput.disabled = controlsDisabled || state.recording;
 	selectAreaButton.disabled = controlsDisabled || state.recording;
 	selectAreaButton.textContent = state.selecting
 		? 'Cancel selection'
@@ -150,7 +146,6 @@ const runCommand = async (request: CaptureControllerRequest) => {
 const getOptions = () => ({
 	scale: scaleInput.valueAsNumber,
 	format: formatInput.value as CaptureFormat,
-	includePageBackground: backgroundInput.checked,
 });
 
 const focusTargetPage = async () => {
@@ -202,7 +197,6 @@ const updateOptions = () => {
 
 scaleInput.addEventListener('change', updateOptions);
 formatInput.addEventListener('change', updateOptions);
-backgroundInput.addEventListener('change', updateOptions);
 
 recordButton.addEventListener('click', () => {
 	if (currentState?.recording) {

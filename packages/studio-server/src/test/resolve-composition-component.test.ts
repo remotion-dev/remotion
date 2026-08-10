@@ -8,6 +8,7 @@ import {
 	resolveCompositionComponent,
 } from '../helpers/resolve-composition-component';
 import {insertJsxElementHandler} from '../preview-server/routes/insert-jsx-element';
+import {lineContainingToNodePath} from './test-utils';
 
 const remotionRoot = path.join(__dirname, '..', '..', '..', 'example');
 
@@ -435,18 +436,16 @@ test('wraps a self-closing root in a Sequence before inserting', async () => {
 				'',
 			].join('\n'),
 		);
-		await fs.writeFile(
-			path.join(tempDir, 'MyComp.tsx'),
-			[
-				"import {Video} from '@remotion/media';",
-				"import {staticFile} from 'remotion';",
-				'',
-				'export const MyComp: React.FC = () => {',
-				'\treturn <Video src={staticFile("background.mov")} />;',
-				'};',
-				'',
-			].join('\n'),
-		);
+		const componentInput = [
+			"import {Video} from '@remotion/media';",
+			"import {staticFile} from 'remotion';",
+			'',
+			'export const MyComp: React.FC = () => {',
+			'\treturn <Video src={staticFile("background.mov")} />;',
+			'};',
+			'',
+		].join('\n');
+		await fs.writeFile(path.join(tempDir, 'MyComp.tsx'), componentInput);
 
 		const result = await insertJsxElementIntoComposition({
 			remotionRoot: tempDir,
@@ -474,6 +473,70 @@ test('wraps a self-closing root in a Sequence before inserting', async () => {
 		);
 		expect(result.output).toContain('</Sequence>');
 		expect(result.output).toContain("<Audio src={staticFile('music.mp3')} />");
+		expect(result.nodePathRemappings).toEqual([
+			{
+				oldNodePath: lineContainingToNodePath(componentInput, '<Video'),
+				newNodePath: lineContainingToNodePath(result.output, '<Video'),
+			},
+		]);
+	} finally {
+		await fs.rm(tempDir, {recursive: true, force: true});
+	}
+});
+
+test('inserts an asset as a sibling of a connected composition', async () => {
+	const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'remotion-resolve-'));
+	try {
+		await fs.writeFile(
+			path.join(tempDir, 'Root.tsx'),
+			[
+				"import {Composition} from 'remotion';",
+				"import {MyComp} from './MyComp';",
+				'export const RemotionRoot = () => {',
+				'\treturn <Composition id="test" component={MyComp} />;',
+				'};',
+				'',
+			].join('\n'),
+		);
+		await fs.writeFile(
+			path.join(tempDir, 'MyComp.tsx'),
+			[
+				"import {Sequence} from 'remotion';",
+				"import {Skills2Announcement} from './Skills2Announcement';",
+				'',
+				'export const MyComp: React.FC = () => {',
+				'\treturn (',
+				'\t\t<Sequence name="Skills2Announcement">',
+				'\t\t\t<Skills2Announcement />',
+				'\t\t</Sequence>',
+				'\t);',
+				'};',
+				'',
+			].join('\n'),
+		);
+
+		const result = await insertJsxElementIntoComposition({
+			remotionRoot: tempDir,
+			compositionFile: 'Root.tsx',
+			compositionId: 'test',
+			element: {
+				type: 'asset',
+				assetType: 'video',
+				src: 'clip.mp4',
+				srcType: 'static',
+				dimensions: {width: 1920, height: 1080},
+				durationInFrames: 90,
+				position: null,
+			},
+			from: 42,
+			prettierConfigOverride: {singleQuote: true, useTabs: true},
+		});
+
+		const connectedCompositionEnd = result.output.indexOf('</Sequence>');
+		const videoStart = result.output.indexOf('<Video');
+		expect(result.output).toContain('<>');
+		expect(connectedCompositionEnd).toBeGreaterThan(-1);
+		expect(videoStart).toBeGreaterThan(connectedCompositionEnd);
 	} finally {
 		await fs.rm(tempDir, {recursive: true, force: true});
 	}

@@ -38,3 +38,17 @@ export const lineColumnToNodePath = (
 
 	return result;
 };
+
+export const lineContainingToNodePath = (
+	input: string,
+	search: string,
+): SequenceNodePath => {
+	const line = input
+		.split('\n')
+		.findIndex((sourceLine) => sourceLine.includes(search));
+	if (line === -1) {
+		throw new Error(`Could not find ${JSON.stringify(search)} in source`);
+	}
+
+	return lineColumnToNodePath(input, line + 1);
+};

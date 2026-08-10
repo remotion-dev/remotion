@@ -12,6 +12,7 @@ import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {insertJsxElementIntoComposition} from '../../helpers/resolve-composition-component';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
+import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
 	printUndoHint,
 	pushToUndoStack,
@@ -239,15 +240,29 @@ export const insertJsxElementHandler: ApiHandler<
 				`[insert-jsx-element] Received request for compositionFile="${compositionFile}" compositionId="${compositionId}" element="${element.type}"`,
 			);
 
-			const {fileName, source, oldContents, output, formatted, logLine} =
-				await insertJsxElementIntoComposition({
-					remotionRoot,
-					compositionFile,
-					compositionId,
-					element,
-					from,
-					prettierConfigOverride: null,
-				});
+			const {
+				fileName,
+				source,
+				oldContents,
+				output,
+				formatted,
+				logLine,
+				nodePathRemappings,
+			} = await insertJsxElementIntoComposition({
+				remotionRoot,
+				compositionFile,
+				compositionId,
+				element,
+				from,
+				prettierConfigOverride: null,
+			});
+			const nodePathMutation = broadcastSequenceNodePathMutation([
+				{
+					absolutePath: fileName,
+					remappings: nodePathRemappings,
+					restoredNodePaths: [],
+				},
+			]);
 
 			pushToUndoStack({
 				filePath: fileName,
@@ -262,9 +277,15 @@ export const insertJsxElementHandler: ApiHandler<
 				},
 				entryType: 'insert-jsx-element',
 				suppressHmrOnFileRestore: false,
+				nodePathRemappings,
 			});
 			suppressUndoStackInvalidation(fileName);
-			writeFileAndNotifyFileWatchers(fileName, output, undefined);
+			writeFileAndNotifyFileWatchers({
+				file: fileName,
+				content: output,
+				originatorClientId: undefined,
+				metadata: {skipSequencePropsUpdate: true},
+			});
 
 			const locationLabel = formatLogFileLocation({
 				remotionRoot,
@@ -288,6 +309,7 @@ export const insertJsxElementHandler: ApiHandler<
 
 			return {
 				success: true,
+				nodePathMutation,
 			};
 		} catch (err) {
 			return {

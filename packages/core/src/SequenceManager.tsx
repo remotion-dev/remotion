@@ -50,6 +50,12 @@ export type VisualModeDragOverrides = {
 	getEffectDragOverrides: GetEffectDragOverrides;
 };
 
+export type SequencePropsStatusRemapping = {
+	previousNodePath: SequencePropsSubscriptionKey;
+	nodePath: SequencePropsSubscriptionKey | null;
+	result: CanUpdateSequencePropsResponse | null;
+};
+
 export type VisualModeSetters = {
 	setDragOverrides: (
 		nodePath: SequencePropsSubscriptionKey,
@@ -72,6 +78,9 @@ export type VisualModeSetters = {
 		values: (
 			prev: CanUpdateSequencePropsResponse,
 		) => CanUpdateSequencePropsResponse,
+	) => void;
+	remapPropStatuses: (
+		remappings: readonly SequencePropsStatusRemapping[],
 	) => void;
 };
 
@@ -155,6 +164,9 @@ export const VisualModeSettersContext = React.createContext<VisualModeSetters>({
 		throw new Error('VisualModeSettersContext not initialized');
 	},
 	setPropStatuses: () => {
+		throw new Error('VisualModeSettersContext not initialized');
+	},
+	remapPropStatuses: () => {
 		throw new Error('VisualModeSettersContext not initialized');
 	},
 });
@@ -287,6 +299,28 @@ export const SequenceManagerProvider: React.FC<{
 		},
 		[],
 	);
+	const remapPropStatuses = useCallback(
+		(remappings: readonly SequencePropsStatusRemapping[]) => {
+			setPropStatusesMapState((prev) => {
+				const next = {...prev};
+				for (const remapping of remappings) {
+					delete next[
+						makeSequencePropsSubscriptionKey(remapping.previousNodePath)
+					];
+				}
+
+				for (const remapping of remappings) {
+					if (remapping.nodePath !== null && remapping.result !== null) {
+						next[makeSequencePropsSubscriptionKey(remapping.nodePath)] =
+							remapping.result;
+					}
+				}
+
+				return next;
+			});
+		},
+		[],
+	);
 
 	const registerSequence = useCallback((seq: TSequence) => {
 		setSequences((seqs) => {
@@ -344,6 +378,7 @@ export const SequenceManagerProvider: React.FC<{
 			setEffectDragOverrides,
 			clearEffectDragOverrides,
 			setPropStatuses,
+			remapPropStatuses,
 		};
 	}, [
 		setDragOverrides,
@@ -351,6 +386,7 @@ export const SequenceManagerProvider: React.FC<{
 		setEffectDragOverrides,
 		clearEffectDragOverrides,
 		setPropStatuses,
+		remapPropStatuses,
 	]);
 
 	return (
