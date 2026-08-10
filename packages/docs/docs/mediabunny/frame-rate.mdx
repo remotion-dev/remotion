@@ -59,7 +59,7 @@ export const getVideoFrameRate = async (
   }
 
   const packetSampleCount = 121;
-  const timestamps: number[] = [];
+  const timestamps = new Set<number>();
   const sink = new EncodedPacketSink(videoTrack);
   let endTimestamp = -Infinity;
 
@@ -67,28 +67,28 @@ export const getVideoFrameRate = async (
     metadataOnly: true,
   })) {
     if (
-      timestamps.length >= packetSampleCount &&
+      timestamps.size >= packetSampleCount &&
       packet.timestamp >= endTimestamp
     ) {
       break;
     }
 
-    timestamps.push(packet.timestamp);
+    timestamps.add(packet.timestamp);
     endTimestamp = Math.max(
       endTimestamp,
       packet.timestamp + packet.duration,
     );
   }
 
-  if (timestamps.length < 2) {
+  if (timestamps.size < 2) {
     return null;
   }
 
-  timestamps.sort((a, b) => a - b);
-  timestamps.splice(packetSampleCount);
+  const sortedTimestamps = [...timestamps].sort((a, b) => a - b);
+  sortedTimestamps.splice(packetSampleCount);
 
-  const intervals = timestamps.slice(1).map((timestamp, index) => {
-    return timestamp - timestamps[index];
+  const intervals = sortedTimestamps.slice(1).map((timestamp, index) => {
+    return timestamp - sortedTimestamps[index];
   });
   const averageInterval =
     intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
