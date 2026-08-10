@@ -372,9 +372,15 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 	}
 
 	expect(update.result.props.from).toEqual({status: 'static', codeValue: 15});
-	expect(await operations.undo()).toEqual({success: true});
+	expect(await operations.undo()).toEqual({
+		success: true,
+		nodePathMutation: null,
+	});
 	expect(currentProject.files[fileName]).toContain('from={10}');
-	expect(await operations.redo()).toEqual({success: true});
+	expect(await operations.redo()).toEqual({
+		success: true,
+		nodePathMutation: null,
+	});
 	expect(currentProject.files[fileName]).toContain('from={15}');
 
 	currentProject = {

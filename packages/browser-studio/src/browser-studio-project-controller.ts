@@ -403,7 +403,7 @@ export const createBrowserStudioProjectController = ({
 			previousProject: getProject(),
 			nextProject: entry.before,
 		});
-		return Promise.resolve({success: true});
+		return Promise.resolve({success: true, nodePathMutation: null});
 	};
 
 	const redo = (): Promise<RedoResponse> => {
@@ -417,7 +417,7 @@ export const createBrowserStudioProjectController = ({
 			previousProject: getProject(),
 			nextProject: entry.after,
 		});
-		return Promise.resolve({success: true});
+		return Promise.resolve({success: true, nodePathMutation: null});
 	};
 
 	return {

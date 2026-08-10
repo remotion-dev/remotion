@@ -63,11 +63,11 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 	);
 
 	const {redo, undo} = operations;
-	expect(await undo()).toEqual({success: true});
+	expect(await undo()).toEqual({success: true, nodePathMutation: null});
 	expect(project.files['/project/src/Composition.tsx']).toBe(
 		initialProject.files['/project/src/Composition.tsx'],
 	);
-	expect(await redo()).toEqual({success: true});
+	expect(await redo()).toEqual({success: true, nodePathMutation: null});
 	expect(project.files['/project/src/Composition.tsx']).toContain(
 		'<Solid width={1280}',
 	);
@@ -112,11 +112,11 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 	});
 	expect(project.publicFiles?.['renamed.bin']).toBeUndefined();
 
-	expect(await undo()).toEqual({success: true});
+	expect(await undo()).toEqual({success: true, nodePathMutation: null});
 	expect(project.publicFiles?.['renamed.bin']).toEqual(
 		new Uint8Array([0, 127, 128, 255]),
 	);
-	expect(await undo()).toEqual({success: true});
+	expect(await undo()).toEqual({success: true, nodePathMutation: null});
 	expect(project.publicFiles?.['nested/upload.bin']).toEqual(
 		new Uint8Array([0, 127, 128, 255]),
 	);
