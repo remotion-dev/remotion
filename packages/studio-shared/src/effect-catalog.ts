@@ -174,6 +174,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-shadows-highlights',
+		category: 'Color',
+		label: 'shadowsHighlights()',
+		description: 'Recover dark and bright tonal regions',
+		effect: {
+			name: 'shadowsHighlights',
+			importPath: '@remotion/effects/shadows-highlights',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-tint',
 		category: 'Color',
 		label: 'tint()',

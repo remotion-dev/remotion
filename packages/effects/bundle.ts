@@ -56,6 +56,7 @@ const effectEntrypoints = [
 	'src/saturation.ts',
 	'src/scanlines.ts',
 	'src/scale.ts',
+	'src/shadows-highlights.ts',
 	'src/shine.ts',
 	'src/shrinkwrap.ts',
 	'src/skew.ts',

@@ -279,6 +279,11 @@
 			"module": "./dist/esm/scale.mjs",
 			"import": "./dist/esm/scale.mjs"
 		},
+		"./shadows-highlights": {
+			"types": "./dist/shadows-highlights.d.ts",
+			"module": "./dist/esm/shadows-highlights.mjs",
+			"import": "./dist/esm/shadows-highlights.mjs"
+		},
 		"./shine": {
 			"types": "./dist/shine.d.ts",
 			"module": "./dist/esm/shine.mjs",
@@ -519,6 +524,9 @@
 			],
 			"scale": [
 				"dist/scale.d.ts"
+			],
+			"shadows-highlights": [
+				"dist/shadows-highlights.d.ts"
 			],
 			"shine": [
 				"dist/shine.d.ts"

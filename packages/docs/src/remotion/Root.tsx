@@ -75,6 +75,7 @@ import {
 import {EffectsSaturationPreview} from '../../components/effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../../components/effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../../components/effects/effects-scanlines-preview';
+import {EffectsShadowsHighlightsPreview} from '../../components/effects/effects-shadows-highlights-preview';
 import {EffectsShinePreview} from '../../components/effects/effects-shine-preview';
 import {
 	EffectsShrinkwrapPreview,
@@ -298,6 +299,13 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{blackPoint: 0.1, whitePoint: 0.9, gamma: 1.4}}
+				/>
+				<Still
+					id="effects-shadows-highlights-preview"
+					component={EffectsShadowsHighlightsPreview}
+					width={1280}
+					height={720}
+					defaultProps={{shadows: 0.8, highlights: -0.5}}
 				/>
 				<Still
 					id="effects-white-balance-preview"
