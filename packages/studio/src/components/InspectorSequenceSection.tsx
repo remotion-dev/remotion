@@ -102,8 +102,8 @@ const borderRadiusToggleIcon: React.CSSProperties = {
 
 const transform3DToggleIcon: React.CSSProperties = {
 	flexShrink: 0,
-	height: 16,
-	width: 16,
+	height: 14,
+	width: 14,
 };
 
 const collapsibleSectionHeaderButton: React.CSSProperties = {
