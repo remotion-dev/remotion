@@ -1,10 +1,10 @@
 #!/usr/bin/env bun
-import {$, build, S3Client, type BuildConfig} from 'bun';
-import plugin from 'bun-plugin-tailwind';
 import {cpSync, existsSync, readdirSync, writeFileSync} from 'fs';
 import {rm} from 'fs/promises';
 import path from 'path';
-import {makeAgentsMarkdown} from './src/agents';
+import {$, build, S3Client, type BuildConfig} from 'bun';
+import plugin from 'bun-plugin-tailwind';
+import {makeLlmsText} from './src/llms';
 import variants from './variants.json';
 
 // Print help text if requested
@@ -202,12 +202,17 @@ if (existsSync(indexHtml)) {
 	await rm(indexHtml);
 }
 
+const agentsMarkdown = path.join(filesDir, 'AGENTS.md');
+if (existsSync(agentsMarkdown)) {
+	await rm(agentsMarkdown);
+}
+
 const files = readdirSync(outdir);
 for (const file of files) {
 	cpSync(path.join(outdir, file), path.join(filesDir, file));
 }
 
-writeFileSync(path.join(filesDir, 'AGENTS.md'), makeAgentsMarkdown(variants));
+writeFileSync(path.join(filesDir, 'llms.txt'), makeLlmsText(variants));
 
 if (!Bun.env.AWS_ACCESS_KEY_ID || !Bun.env.AWS_SECRET_ACCESS_KEY) {
 	console.log(
@@ -244,5 +249,10 @@ if (!Bun.env.AWS_ACCESS_KEY_ID || !Bun.env.AWS_SECRET_ACCESS_KEY) {
 
 		await client.write(file, fileToUpload);
 		console.log(`Uploaded ${file}`);
+	}
+
+	if (await client.exists('AGENTS.md')) {
+		await client.delete('AGENTS.md');
+		console.log('Deleted AGENTS.md');
 	}
 }

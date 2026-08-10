@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import variants from '../variants.json';
-import {getCategoryLabel} from './agents';
 import './index.css';
+import {getCategoryLabel} from './llms';
 
 const CopyLink = ({href}: {readonly href: string}) => {
 	const [copied, setCopied] = React.useState(false);
@@ -223,12 +223,6 @@ export function App() {
 				Hosted on Cloudflare R2 Free Tier, allowing for theoretically unlimited
 				bandwidth. <br />
 				Files may be used royalty-free and without attribution.
-				<br />
-				For agents, use{' '}
-				<a href="/AGENTS.md" className="font-brand text-brand hover:underline">
-					AGENTS.md
-				</a>
-				.
 			</p>
 			<div className="flex gap-8 items-start">
 				<Sidebar
