@@ -187,6 +187,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-vibrance',
+		category: 'Color',
+		label: 'vibrance()',
+		description: 'Selective saturation adjustment',
+		effect: {
+			name: 'vibrance',
+			importPath: '@remotion/effects/vibrance',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-linear-gradient',
 		category: 'Color',
 		label: 'linearGradient()',

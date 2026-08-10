@@ -65,6 +65,7 @@ import {uvTranslate, xyTranslate} from '../translate.js';
 import {tvSignalOff} from '../tv-signal-off.js';
 import {publicUvToShaderUv} from '../uv-coordinate.js';
 import {venetianBlinds} from '../venetian-blinds.js';
+import {vibrance} from '../vibrance.js';
 import {vignette} from '../vignette.js';
 import {wave} from '../wave/index.js';
 import {waves} from '../waves.js';
@@ -266,6 +267,9 @@ test('@remotion/effects expose documentation links', () => {
 	expect(venetianBlinds().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/venetian-blinds',
 	);
+	expect(vibrance().definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/vibrance',
+	);
 	expect(uvTranslate().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/uv-translate',
 	);
@@ -361,6 +365,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(tint({color: '#fff'}).definition.label).toBe('tint()');
 	expect(tvSignalOff().definition.label).toBe('tvSignalOff()');
 	expect(venetianBlinds().definition.label).toBe('venetianBlinds()');
+	expect(vibrance().definition.label).toBe('vibrance()');
 	expect(uvTranslate().definition.label).toBe('uvTranslate()');
 	expect(vignette().definition.label).toBe('vignette()');
 	expect(xyTranslate().definition.label).toBe('xyTranslate()');
@@ -1011,6 +1016,30 @@ test('whiteBalance() parameters produce distinct effect keys', () => {
 	const moreMagenta = whiteBalance({tint: 0.5});
 	expect(
 		new Set([neutral.effectKey, warmer.effectKey, moreMagenta.effectKey]).size,
+	).toBe(3);
+});
+
+test('vibrance() accepts default params', () => {
+	expect(() => vibrance()).not.toThrow();
+});
+
+test('vibrance() rejects non-finite amount', () => {
+	expect(() => vibrance({amount: Number.NaN})).toThrow(
+		'"amount" must be a finite number',
+	);
+});
+
+test('vibrance() rejects amount outside the signed unit interval', () => {
+	expect(() => vibrance({amount: -1.1})).toThrow('"amount" must be >= -1');
+	expect(() => vibrance({amount: 1.1})).toThrow('"amount" must be <= 1');
+});
+
+test('vibrance() amount produces distinct effect keys', () => {
+	const muted = vibrance({amount: -0.5});
+	const neutral = vibrance();
+	const vivid = vibrance({amount: 0.5});
+	expect(
+		new Set([muted.effectKey, neutral.effectKey, vivid.effectKey]).size,
 	).toBe(3);
 });
 
