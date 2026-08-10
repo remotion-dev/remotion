@@ -46,6 +46,7 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onContextMenuOpen: SelectedOutlineContextMenuOpenHandler;
+	readonly onContextMenuOpenChange: (open: boolean) => void;
 	readonly onHoverChange: (key: string | null) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
@@ -59,6 +60,7 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 	outline,
 	onDraggingChange,
 	onContextMenuOpen,
+	onContextMenuOpenChange,
 	onHoverChange,
 	onSelect,
 	target,
@@ -290,7 +292,11 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 				}}
 				onPointerDown={onPointerDown}
 			/>
-			<ContextMenuForTarget triggerRef={lineRef} getItems={onContextMenuOpen} />
+			<ContextMenuForTarget
+				triggerRef={lineRef}
+				getItems={onContextMenuOpen}
+				onOpenChange={onContextMenuOpenChange}
+			/>
 		</>
 	);
 };
