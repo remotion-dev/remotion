@@ -23,6 +23,7 @@ import {
 import type {SelectedOutline} from './selected-outline-geometry';
 import {
 	getAngleDegrees,
+	getSelectedOutlineRotationCornerInfo,
 	getSelectedOutlineRotationDeltaDegrees,
 	getSelectedOutlineRotationPivot,
 } from './selected-outline-measurement';
@@ -56,7 +57,7 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 	const {editorSnapping} = useContext(EditorSnappingContext);
 
 	const onPointerDown = React.useCallback(
-		(event: React.PointerEvent<SVGRectElement>) => {
+		(event: React.PointerEvent<SVGPathElement>) => {
 			if (event.button !== 0) {
 				return;
 			}
@@ -267,18 +268,37 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 			setPropStatuses,
 		],
 	);
+	const cornerHoles = (
+		['top-left', 'top-right', 'bottom-right', 'bottom-left'] as const
+	)
+		.map((corner) => {
+			const {point} = getSelectedOutlineRotationCornerInfo(
+				outline.points,
+				corner,
+			);
+			return `M ${point.x - 12} ${point.y} a 12 12 0 1 0 24 0 a 12 12 0 1 0 -24 0 z`;
+		})
+		.join(' ');
 
 	return (
-		<rect
-			x={0}
-			y={0}
-			width="100%"
-			height="100%"
-			fill={TRANSPARENT}
-			pointerEvents="all"
-			cursor={canvasRotationCursor}
-			onPointerDown={onPointerDown}
-			data-remotion-studio-canvas-rotation
-		/>
+		<>
+			<rect
+				x={0}
+				y={0}
+				width="100%"
+				height="100%"
+				fill={TRANSPARENT}
+				pointerEvents="none"
+				data-remotion-studio-canvas-rotation
+			/>
+			<path
+				d={`M -100000 -100000 H 100000 V 100000 H -100000 Z ${cornerHoles}`}
+				fill={TRANSPARENT}
+				fillRule="evenodd"
+				pointerEvents="fill"
+				cursor={canvasRotationCursor}
+				onPointerDown={onPointerDown}
+			/>
+		</>
 	);
 };

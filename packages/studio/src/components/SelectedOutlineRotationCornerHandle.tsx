@@ -78,6 +78,7 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 	const {editorSnapping} = useContext(EditorSnappingContext);
 	const rotationDrag = target?.rotationDrag ?? null;
 	const selected = target?.selected ?? false;
+	const containsSelection = target?.containsSelection ?? false;
 	const circleRef = useRef<SVGCircleElement>(null);
 	const cornerInfo = useMemo(
 		() => getSelectedOutlineRotationCornerInfo(outline.points, corner),
@@ -99,7 +100,8 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 			}
 
 			const interaction = getOutlineSelectionInteraction(event);
-			const shouldUpdateSelection = !selected || interaction.toggleKey;
+			const shouldUpdateSelection =
+				(!selected && !containsSelection) || interaction.toggleKey;
 			if (shouldUpdateSelection && target !== undefined) {
 				onSelect(target.selection, {
 					shiftKey: false,
@@ -310,6 +312,7 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 		},
 		[
 			clearDragOverrides,
+			containsSelection,
 			cornerInfo,
 			editorSnapping,
 			getDragOverrides,
@@ -343,6 +346,10 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 				vectorEffect="non-scaling-stroke"
 				pointerEvents="all"
 				cursor={cornerInfo.cursor}
+				data-remotion-studio-rotation-corner={corner}
+				data-remotion-studio-rotation-corner-contains-selection={
+					containsSelection
+				}
 				onPointerEnter={() => {
 					if (!dragging) {
 						onHoverChange(outline.key);

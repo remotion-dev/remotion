@@ -6271,6 +6271,53 @@ test('Selected outline canvas dragging changes X and Y rotation while preserving
 	expect(rotation[2]).toBeCloseTo(30, 4);
 });
 
+test('Selected outline corner dragging changes Z rotation while preserving X and Y', () => {
+	const schema = {
+		'style.rotate': {type: 'rotation-css', default: '0deg'},
+	} satisfies InteractivitySchema;
+	const nodePath = makeKey(['body', 0]);
+	const dragStates = [
+		{
+			defaultValue: JSON.stringify('0deg'),
+			key: Internals.makeSequencePropsSubscriptionKey(nodePath),
+			sourceFrame: 12,
+			startDegrees: 38.630009,
+			startRotation: [10, 20, 30],
+			startValue: '0.386017 0.438014 0.811871 38.630009deg',
+			target: {
+				clientId: 'client',
+				propStatus: {
+					status: 'static',
+					codeValue: '0.386017 0.438014 0.811871 38.630009deg',
+				},
+				fieldDefault: '0deg',
+				fieldSchema: schema['style.rotate'],
+				keyframeDisplayOffset: 30,
+				nodePath,
+				schema,
+				transform3DMode: true,
+				transformOriginValue: '50% 50%',
+			},
+		},
+	] satisfies SelectedOutlineRotationDragState[];
+
+	const lastValues = getSelectedOutlineRotationDragValues({
+		dragStates,
+		rotationDeltaDegrees: 15,
+	});
+	const rotation = parseCssRotationToEuler(lastValues.get(dragStates[0].key)!);
+
+	expect(rotation[0]).toBeCloseTo(10, 4);
+	expect(rotation[1]).toBeCloseTo(20, 4);
+	expect(rotation[2]).toBeCloseTo(45, 4);
+	expect(
+		snapSelectedOutlineRotationDeltaDegrees({
+			dragStates,
+			rotationDeltaDegrees: 8,
+		}),
+	).toBe(15);
+});
+
 test('Selected outline corner dragging snaps rotation to 15 degree increments', () => {
 	const schema = {
 		'style.rotate': {type: 'rotation-css', default: '0deg'},

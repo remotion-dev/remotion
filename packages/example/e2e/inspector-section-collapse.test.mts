@@ -17,6 +17,13 @@ const read2DTransformRotation = () => {
 	return /rotate: '([^']+)'/.exec(sequenceSource)?.[1] ?? null;
 };
 
+const read3DTransformRotation = () => {
+	const source = fs.readFileSync(visualMode3DFile, 'utf-8');
+	const sequenceStart = source.indexOf('name="3D transform"');
+	const sequenceSource = source.slice(sequenceStart);
+	return /rotate: '([^']+)'/.exec(sequenceSource)?.[1] ?? null;
+};
+
 test.describe('inspector section collapse', () => {
 	test.beforeEach(async () => {
 		await startStudio();
@@ -249,7 +256,10 @@ test.describe('inspector section collapse', () => {
 				.first(),
 		).toBeVisible();
 
-		await page.locator('[title="3D transform"]').first().click();
+		const threeDTransformElement = page
+			.locator('[title="3D transform"]')
+			.first();
+		await threeDTransformElement.click();
 		await expect(
 			page
 				.getByRole('button', {
@@ -264,5 +274,81 @@ test.describe('inspector section collapse', () => {
 		await expect(
 			page.getByRole('button', {name: 'Rotation X', exact: true}).first(),
 		).toContainText('X 30');
+		await page.getByTitle('Rotation', {exact: true}).click();
+		const rotationX = page
+			.getByRole('button', {name: 'Rotation X', exact: true})
+			.first();
+		const rotationY = page
+			.getByRole('button', {name: 'Rotation Y', exact: true})
+			.first();
+		const rotationZ = page
+			.getByRole('button', {name: 'Rotation Z', exact: true})
+			.first();
+		const rotationXBefore = await rotationX.textContent();
+		const rotationYBefore = await rotationY.textContent();
+		const rotationZBefore = await rotationZ.textContent();
+		const sourceRotationBefore = read3DTransformRotation();
+		await page.locator('[title="3D transform"]').last().hover();
+		const selectedRotationCorner = page
+			.locator(
+				'[data-remotion-studio-rotation-corner="top-right"][data-remotion-studio-rotation-corner-contains-selection="true"]',
+			)
+			.first();
+		await expect(selectedRotationCorner).toBeVisible();
+		const selectedRotationCornerBox =
+			await selectedRotationCorner.boundingBox();
+		if (selectedRotationCornerBox === null) {
+			throw new Error('Selected rotation corner should have a visible layout');
+		}
+
+		const cornerX =
+			selectedRotationCornerBox.x + selectedRotationCornerBox.width / 2;
+		const cornerY =
+			selectedRotationCornerBox.y + selectedRotationCornerBox.height / 2;
+		expect(
+			await page.evaluate(
+				({x, y}) =>
+					document
+						.elementFromPoint(x, y)
+						?.getAttribute('data-remotion-studio-rotation-corner') ?? null,
+				{x: cornerX, y: cornerY},
+			),
+		).toBe('top-right');
+		await selectedRotationCorner.dispatchEvent('pointerdown', {
+			button: 0,
+			buttons: 1,
+			clientX: cornerX,
+			clientY: cornerY,
+			pointerId: 1,
+		});
+		await page.evaluate(
+			({x, y}) => {
+				window.dispatchEvent(
+					new PointerEvent('pointermove', {
+						buttons: 1,
+						clientX: x + 60,
+						clientY: y + 40,
+						pointerId: 1,
+					}),
+				);
+				window.dispatchEvent(
+					new PointerEvent('pointerup', {
+						button: 0,
+						buttons: 0,
+						clientX: x + 60,
+						clientY: y + 40,
+						pointerId: 1,
+					}),
+				);
+			},
+			{x: cornerX, y: cornerY},
+		);
+		await expect.poll(read3DTransformRotation).not.toBe(sourceRotationBefore);
+		await expect
+			.poll(() => read3DTransformRotation()?.split(' ').length)
+			.toBe(4);
+		await expect(rotationX).toHaveText(rotationXBefore ?? '');
+		await expect(rotationY).toHaveText(rotationYBefore ?? '');
+		await expect(rotationZ).not.toHaveText(rotationZBefore ?? '');
 	});
 });

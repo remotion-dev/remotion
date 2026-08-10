@@ -796,6 +796,20 @@ export const getSelectedOutlineRotationDragValues = ({
 				defaultDecimalPlaces: 1,
 				step: dragState.target.fieldSchema.step,
 			});
+			const {startRotation} = dragState;
+			if (startRotation !== undefined && dragState.target.transform3DMode) {
+				return [
+					dragState.key,
+					serializeCssRotationFromEuler({
+						rotation: [
+							startRotation[0],
+							startRotation[1],
+							startRotation[2] + rotationDeltaDegrees,
+						],
+						decimalPlaces: Math.max(6, decimalPlaces),
+					}),
+				];
+			}
 
 			return [
 				dragState.key,
@@ -822,13 +836,14 @@ export const snapSelectedOutlineRotationDeltaDegrees = ({
 		return rotationDeltaDegrees;
 	}
 
+	const startDegrees = anchor.startRotation?.[2] ?? anchor.startDegrees;
 	return (
 		Math.round(
-			(anchor.startDegrees + rotationDeltaDegrees) /
+			(startDegrees + rotationDeltaDegrees) /
 				selectedOutlineRotationSnapStepDegrees,
 		) *
 			selectedOutlineRotationSnapStepDegrees -
-		anchor.startDegrees
+		startDegrees
 	);
 };
 
