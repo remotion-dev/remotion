@@ -1,0 +1,62 @@
+---
+image: /generated/articles-docs-effects-exposure.png
+slug: /effects/exposure
+title: exposure()
+sidebar_label: exposure()
+crumb: '@remotion/effects'
+---
+
+# exposure()<AvailableFrom v="4.0.508" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Adjusts exposure in photographic stops. The calculation happens in linear light, making it suitable for correcting footage and images.
+
+## Preview
+
+<EffectsDemo type="effects-exposure" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {Video} from '@remotion/media';
+import {exposure} from '@remotion/effects/exposure';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[exposure({stops: 1})]}
+    />
+  );
+};
+```
+
+## API
+
+You can call `exposure()` without arguments or pass an object with the following properties.
+
+### `stops?`
+
+The exposure adjustment from `-5` to `5`. Defaults to `0`.
+
+One positive stop doubles the light intensity. One negative stop halves it.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Difference from `brightness()`
+
+[`brightness()`](/docs/effects/brightness) adds the same value to each color channel. `exposure()` multiplies light intensity, preserving the photographic relationship between tones.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`brightness()`](/docs/effects/brightness)
+- [`contrast()`](/docs/effects/contrast)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/exposure.ts)

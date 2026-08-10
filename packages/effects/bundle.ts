@@ -20,6 +20,7 @@ const effectEntrypoints = [
 	'src/duotone.ts',
 	'src/emboss.ts',
 	'src/evolve.ts',
+	'src/exposure.ts',
 	'src/fisheye.ts',
 	'src/flannel.ts',
 	'src/corner-pin.ts',
