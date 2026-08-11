@@ -8,7 +8,17 @@ export const CursorControls: React.FC<{
 	readonly setShowCursor: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly cursorScale: number;
 	readonly setCursorScale: React.Dispatch<React.SetStateAction<number>>;
-}> = ({available, showCursor, setShowCursor, cursorScale, setCursorScale}) => {
+	readonly cursorPressedScale: number;
+	readonly setCursorPressedScale: React.Dispatch<React.SetStateAction<number>>;
+}> = ({
+	available,
+	showCursor,
+	setShowCursor,
+	cursorScale,
+	setCursorScale,
+	cursorPressedScale,
+	setCursorPressedScale,
+}) => {
 	if (!available) {
 		return null;
 	}
@@ -31,6 +41,19 @@ export const CursorControls: React.FC<{
 					<div className="flex flex-row text-sm text-gray-700 pt-2">
 						<div className="flex-1">Cursor scale</div>
 						<div className="tabular-nums">{cursorScale.toFixed(2)}×</div>
+					</div>
+					<Slider
+						className="mt-4"
+						aria-label="Pressed cursor scale"
+						min={0.25}
+						max={1}
+						step={0.05}
+						value={[cursorPressedScale]}
+						onValueChange={(value) => setCursorPressedScale(value[0])}
+					/>
+					<div className="flex flex-row text-sm text-gray-700 pt-2">
+						<div className="flex-1">Pressed cursor scale</div>
+						<div className="tabular-nums">{cursorPressedScale.toFixed(2)}×</div>
 					</div>
 				</div>
 			) : null}

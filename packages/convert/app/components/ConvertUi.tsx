@@ -93,6 +93,8 @@ const ConvertUI = ({
 	setShowCursor,
 	cursorScale,
 	setCursorScale,
+	cursorPressedScale,
+	setCursorPressedScale,
 }: {
 	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
 	readonly currentVideoCodec: InputVideoTrack['codec'] | null;
@@ -126,6 +128,8 @@ const ConvertUI = ({
 	readonly setShowCursor: React.Dispatch<React.SetStateAction<boolean>>;
 	readonly cursorScale: number;
 	readonly setCursorScale: React.Dispatch<React.SetStateAction<number>>;
+	readonly cursorPressedScale: number;
+	readonly setCursorPressedScale: React.Dispatch<React.SetStateAction<number>>;
 }) => {
 	const {crop, mirror, rotate} = videoEditState;
 	const [enableConvert, setEnableConvert] = useState(() =>
@@ -390,6 +394,7 @@ const ConvertUI = ({
 								? makeCanvasCaptureVideoProcessor({
 										cursorData,
 										cursorScale,
+										cursorPressedScale,
 										sourceDimensions: dimensions,
 										rotation: userRotation,
 										crop: videoCrop ?? null,
@@ -593,6 +598,7 @@ const ConvertUI = ({
 		mirror,
 		cursorData,
 		cursorScale,
+		cursorPressedScale,
 		dimensions,
 		renderCursor,
 	]);
@@ -758,6 +764,8 @@ const ConvertUI = ({
 					setShowCursor={setShowCursor}
 					cursorScale={cursorScale}
 					setCursorScale={setCursorScale}
+					cursorPressedScale={cursorPressedScale}
+					setCursorPressedScale={setCursorPressedScale}
 				/>
 				{order.map((section) => {
 					if (inputIsAudioExclusively && isVideoOnlySection(section)) {

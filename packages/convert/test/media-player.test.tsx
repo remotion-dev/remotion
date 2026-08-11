@@ -43,6 +43,7 @@ const TrimmingPlayer = () => {
 			cursorData={null}
 			showCursor={false}
 			cursorScale={1}
+			cursorPressedScale={0.8}
 			onPlaybackTimeChange={() => undefined}
 		/>
 	);

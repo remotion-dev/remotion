@@ -17,11 +17,12 @@ test('samples video frames and cursor changes while merging tiny deltas', () => 
 	const moments = getCanvasCaptureSampleMoments({
 		timestamp: 1,
 		duration: 0.04,
-		mouseMovements: [
+		cursorStateChanges: [
 			movement(0.5),
 			movement(1.0005),
 			movement(1.01),
 			movement(1.0104),
+			{timeInSeconds: 1.02},
 			movement(1.0395),
 			movement(1.05),
 		],
@@ -41,9 +42,14 @@ test('samples video frames and cursor changes while merging tiny deltas', () => 
 			timestamp: 1.01,
 			cursorLookupTimestamp: 1.0104,
 		},
+		{
+			timestamp: 1.02,
+			cursorLookupTimestamp: 1.02,
+		},
 	]);
 	expect(moments[0].duration).toBeCloseTo(0.01);
-	expect(moments[1].duration).toBeCloseTo(0.03);
+	expect(moments[1].duration).toBeCloseTo(0.01);
+	expect(moments[2].duration).toBeCloseTo(0.02);
 });
 
 test('maps cursor coordinates through rotation, crop, and resize', () => {
