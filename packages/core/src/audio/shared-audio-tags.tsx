@@ -232,11 +232,19 @@ export const SharedAudioContextProvider: React.FC<{
 		sampleRate,
 	});
 	const audioContextIsPlayingEventually = useRef(false);
-	const experimentalKeepAudioContextAliveRef = useRef(
+	const initialExperimentalKeepAudioContextAlive = useRef(
 		_experimentalKeepAudioContextAlive,
 	);
-	experimentalKeepAudioContextAliveRef.current =
-		_experimentalKeepAudioContextAlive;
+
+	if (
+		initialExperimentalKeepAudioContextAlive.current !==
+		_experimentalKeepAudioContextAlive
+	) {
+		throw new Error(
+			'`_experimentalKeepAudioContextAlive` cannot be changed dynamically.',
+		);
+	}
+
 	const isResuming = useRef<AudioContextResumeAttempt | null>(null);
 	const nextResumeAttemptId = useRef(0);
 
@@ -535,32 +543,9 @@ export const SharedAudioContextProvider: React.FC<{
 		return () => {
 			window.removeEventListener('pointerdown', wake, {capture: true});
 			window.removeEventListener('keydown', wake, {capture: true});
-
-			// When the prop is disabled while playback is active, leave the
-			// context running. The regular playback lifecycle will suspend it on
-			// the next pause. Suspending it here would leave
-			// audioContextIsPlayingEventually out of sync and make resume()
-			// short-circuit while the native context is suspended.
-			if (
-				!experimentalKeepAudioContextAliveRef.current &&
-				!audioContextIsPlayingEventually.current
-			) {
-				ctxAndGain.suspend().catch(() => {});
-			}
+			ctxAndGain.suspend().catch(() => {});
 		};
 	}, [ctxAndGain, _experimentalKeepAudioContextAlive]);
-
-	useEffect(() => {
-		if (!ctxAndGain) {
-			return;
-		}
-
-		return () => {
-			if (experimentalKeepAudioContextAliveRef.current) {
-				ctxAndGain.suspend().catch(() => {});
-			}
-		};
-	}, [ctxAndGain]);
 
 	const audioContextValue: SharedAudioContextValue = useMemo(() => {
 		return {
