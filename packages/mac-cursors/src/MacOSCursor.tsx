@@ -10,7 +10,6 @@ import {macOSCursorNames, resolveCursor} from './resolve-cursor';
 
 export type MacOSCursorProps = InteractiveBaseProps & {
 	readonly cursor: string;
-	readonly scale?: number;
 	readonly className?: string;
 	readonly style?: CSSProperties;
 };
@@ -32,7 +31,6 @@ const MacOSCursorInner: React.FC<
 	MacOSCursorProps & {readonly controls: SequenceControls | undefined}
 > = ({
 	cursor,
-	scale = 1,
 	className,
 	style,
 	durationInFrames,
@@ -74,7 +72,6 @@ const MacOSCursorInner: React.FC<
 						marginLeft: -resolved.hotspot.x,
 						marginTop: -resolved.hotspot.y,
 						transformOrigin: `${resolved.hotspot.x}px ${resolved.hotspot.y}px`,
-						scale,
 						...style,
 					}}
 				/>

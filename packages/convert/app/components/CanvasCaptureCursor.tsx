@@ -32,7 +32,9 @@ export const CanvasCaptureCursor: React.FC<{
 		>
 			<MacOSCursor
 				cursor={cursor.cursor}
-				scale={cursorData.captureMetadata.density * cursorScale}
+				style={{
+					scale: cursorData.captureMetadata.density * cursorScale,
+				}}
 			/>
 		</div>
 	);

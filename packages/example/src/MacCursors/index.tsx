@@ -9,11 +9,10 @@ const customCursor = `url("data:image/svg+xml,${encodeURIComponent(
 export const MacCursorsExample: React.FC = () => {
 	return (
 		<AbsoluteFill style={{backgroundColor: '#ddd'}}>
-			<MacOSCursor cursor="pointer" scale={4} style={{left: 350, top: 540}} />
+			<MacOSCursor cursor="pointer" style={{left: 350, top: 540, scale: 4}} />
 			<MacOSCursor
 				cursor={customCursor}
-				scale={4}
-				style={{left: 730, top: 540}}
+				style={{left: 730, top: 540, scale: 4}}
 			/>
 		</AbsoluteFill>
 	);

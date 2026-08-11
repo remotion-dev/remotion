@@ -429,7 +429,7 @@ const ShowcaseCursor: React.FC<{
 						extrapolateRight: 'clamp',
 					},
 				)}
-				scale={2.5}
+				style={{scale: 2.5}}
 			/>
 		</div>
 	);

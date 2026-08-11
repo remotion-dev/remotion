@@ -113,7 +113,7 @@ export const FxIconComposition: React.FC = () => {
 					width: 32,
 				}}
 			>
-				<MacOSCursor cursor="default" scale={3.25} />
+				<MacOSCursor cursor="default" style={{scale: 3.25}} />
 			</div>
 		</AbsoluteFill>
 	);

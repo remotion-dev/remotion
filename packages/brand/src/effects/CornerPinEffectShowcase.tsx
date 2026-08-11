@@ -356,7 +356,7 @@ const ShowcaseCursor: React.FC<{
 				transform: `translate(${point.x}px, ${point.y}px) scale(${clickScale})`,
 			}}
 		>
-			<MacOSCursor cursor="default" scale={2.5} />
+			<MacOSCursor cursor="default" style={{scale: 2.5}} />
 		</div>
 	);
 };
