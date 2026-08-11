@@ -17,6 +17,7 @@ import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover'
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/lower-third/lower-third';
 import {YouTubeEndCard} from '../../../elements/overlays/social-endcard/social-endcard';
+import {TerminalTyping} from '../../../elements/screens/terminal-typing/terminal-typing';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
 import {NewsArticleHeadlineHighlight} from '../../../elements/text/news-article-headline-highlight/news-article-headline-highlight';
@@ -548,6 +549,34 @@ export const elementDefinitions = {
 		previewPadding: 120,
 		slug: 'captions/word-highlight-captions',
 		installationMode: 'component-owned-sequence',
+		width: 1920,
+	},
+	'screens/terminal-typing': {
+		category: 'screens',
+		component: TerminalTyping,
+		contributors: [
+			{
+				username: 'SriSomanaath',
+				contribution: 'Author',
+			},
+		],
+		description:
+			'A terminal window that types a command and prints its output line by line.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
+		displayName: 'Terminal Typing',
+		durationInFrames: 150,
+		elementHeight: 340,
+		elementWidth: 900,
+		fps: 30,
+		height: 1080,
+		posterFrame: 120,
+		preview: {
+			posterUrl: '/elements/screens-terminal-typing-preview.png',
+			videoUrl: '/elements/screens-terminal-typing-preview.mp4',
+		},
+		previewPadding: 120,
+		slug: 'screens/terminal-typing',
+		installationMode: 'wrapped',
 		width: 1920,
 	},
 } satisfies Record<string, ElementDefinition>;

@@ -66,6 +66,13 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: 'Screens',
+			link: {type: 'doc', id: 'screens/index'},
+			collapsed: false,
+			items: ['screens/terminal-typing/index'],
+		},
+		{
+			type: 'category',
 			label: 'Text',
 			link: {type: 'doc', id: 'text/index'},
 			collapsed: false,
