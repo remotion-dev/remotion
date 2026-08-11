@@ -34,7 +34,9 @@ test('generates the ideal interactive Canvas Capture composition markup', async 
 	const expected = readFileSync(
 		path.join(fixtureDirectory, 'canvas-capture-composition.txt'),
 		'utf-8',
-	);
+	)
+		.replaceAll('\r\n', '\n')
+		.replaceAll('\r', '\n');
 
 	expect(generated).toBe(expected);
 });
