@@ -2,6 +2,7 @@ import React, {
 	createContext,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 } from 'react';
@@ -27,7 +28,7 @@ const EscapeHook: React.FC<{
 }> = ({onEscape}) => {
 	const keybindings = useKeybinding();
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const escape = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'Escape',
@@ -64,6 +65,7 @@ export const HigherZIndex: React.FC<{
 }) => {
 	const context = useContext(ZIndexContext);
 	const highestContext = useContext(HighestZIndexContext);
+	const {registerZIndex, unregisterZIndex} = highestContext;
 	const containerRef = useRef<HTMLDivElement>(null);
 	const stackedIndex = useRef<number | null>(null);
 
@@ -78,14 +80,14 @@ export const HigherZIndex: React.FC<{
 		? context.currentIndex
 		: (stackedIndex.current ?? context.currentIndex + 1);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (disabled) {
 			return;
 		}
 
-		highestContext.registerZIndex(currentIndex);
-		return () => highestContext.unregisterZIndex(currentIndex);
-	}, [currentIndex, highestContext, disabled]);
+		registerZIndex(currentIndex);
+		return () => unregisterZIndex(currentIndex);
+	}, [currentIndex, disabled, registerZIndex, unregisterZIndex]);
 
 	useEffect(() => {
 		if (disabled) {
