@@ -1,6 +1,7 @@
 import {grayscale} from '@remotion/effects/grayscale';
 import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
 import {fontFamily, loadFont} from '@remotion/google-fonts/GeistMono';
+import {MacOSCursor} from '@remotion/mac-cursors';
 import React from 'react';
 import {
 	Easing,
@@ -11,7 +12,6 @@ import {
 	staticFile,
 	useCurrentFrame,
 } from 'remotion';
-import {CursorGlyph} from './CanvasCapturePreview';
 import {
 	EffectHeader,
 	EffectProperties,
@@ -385,19 +385,6 @@ const isCursorDown = (frame: number) => {
 	);
 };
 
-const getCursor = (frame: number) => {
-	if (
-		(frame >= COLUMNS_DRAG_START - 8 && frame <= COLUMNS_DRAG_END) ||
-		(frame >= ROWS_DRAG_START - 8 && frame <= ROWS_DRAG_END) ||
-		(frame >= PROGRESS_TO_ONE_START - 8 && frame <= PROGRESS_TO_ONE_END) ||
-		(frame >= PROGRESS_TO_ZERO_START - 8 && frame <= PROGRESS_TO_ZERO_END)
-	) {
-		return 'resizewesteast';
-	}
-
-	return 'default';
-};
-
 const ShowcaseCursor: React.FC<{
 	readonly frame: number;
 }> = ({frame}) => {
@@ -421,7 +408,29 @@ const ShowcaseCursor: React.FC<{
 				transform: `translate(${point.x}px, ${point.y}px) scale(${clickScale})`,
 			}}
 		>
-			<CursorGlyph cursor={getCursor(frame)} scale={1} cursorScale={2.5} />
+			<MacOSCursor
+				cursor={interpolate(
+					frame,
+					[0, 92, 131, 142, 181, 197, 236, 264, 345],
+					[
+						'default',
+						'resizewesteast',
+						'default',
+						'resizewesteast',
+						'default',
+						'resizewesteast',
+						'default',
+						'resizewesteast',
+						'default',
+					],
+					{
+						easing: Easing.step1,
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					},
+				)}
+				scale={2.5}
+			/>
 		</div>
 	);
 };

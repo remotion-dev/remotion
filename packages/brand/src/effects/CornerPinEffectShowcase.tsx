@@ -1,4 +1,5 @@
 import {cornerPin} from '@remotion/effects/corner-pin';
+import {MacOSCursor} from '@remotion/mac-cursors';
 import React from 'react';
 import {
 	AbsoluteFill,
@@ -9,7 +10,6 @@ import {
 	staticFile,
 	useCurrentFrame,
 } from 'remotion';
-import {CursorGlyph} from '../CanvasCapturePreview';
 import {
 	EffectHeader,
 	EffectProperties,
@@ -356,7 +356,7 @@ const ShowcaseCursor: React.FC<{
 				transform: `translate(${point.x}px, ${point.y}px) scale(${clickScale})`,
 			}}
 		>
-			<CursorGlyph cursor="default" scale={1} cursorScale={2.5} />
+			<MacOSCursor cursor="default" scale={2.5} />
 		</div>
 	);
 };

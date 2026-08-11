@@ -1,4 +1,5 @@
 import {pattern} from '@remotion/effects/pattern';
+import {MacOSCursor} from '@remotion/mac-cursors';
 import React from 'react';
 import {
 	Easing,
@@ -9,7 +10,6 @@ import {
 	staticFile,
 	useCurrentFrame,
 } from 'remotion';
-import {CursorGlyph} from '../CanvasCapturePreview';
 import {
 	EffectHeader,
 	EffectProperties,
@@ -36,8 +36,6 @@ const OFFSET_V_START = 174 + ACTION_DELAY;
 const OFFSET_V_END = 300 + ACTION_DELAY;
 const CURSOR_IN_FRAME = 0;
 const CURSOR_OUT_FRAME = 336 + ACTION_DELAY;
-const ROW_OFFSET_CURSOR_RESIZE_LEAD = 12;
-const OFFSET_V_CURSOR_RESIZE_LEAD = 1;
 const VALUE_DRAG_START_X = 472;
 const VALUE_DRAG_END_X = VALUE_DRAG_START_X + (568 - VALUE_DRAG_START_X) * 2.5;
 const PATTERN_PARAM_FONT_SIZE = 38;
@@ -200,19 +198,6 @@ const isCursorDown = (frame: number) => {
 	);
 };
 
-const getCursor = (frame: number) => {
-	if (
-		(frame >= ROW_OFFSET_START - ROW_OFFSET_CURSOR_RESIZE_LEAD &&
-			frame <= ROW_OFFSET_END) ||
-		(frame >= OFFSET_V_START - OFFSET_V_CURSOR_RESIZE_LEAD &&
-			frame <= OFFSET_V_END)
-	) {
-		return 'resizewesteast';
-	}
-
-	return 'default';
-};
-
 const ShowcaseCursor: React.FC<{
 	readonly frame: number;
 }> = ({frame}) => {
@@ -236,7 +221,19 @@ const ShowcaseCursor: React.FC<{
 				transform: `translate(${point.x}px, ${point.y}px) scale(${clickScale})`,
 			}}
 		>
-			<CursorGlyph cursor={getCursor(frame)} scale={1} cursorScale={2.5} />
+			<MacOSCursor
+				cursor={interpolate(
+					frame,
+					[0, 96, 157, 203, 331],
+					['default', 'resizewesteast', 'default', 'resizewesteast', 'default'],
+					{
+						easing: Easing.step1,
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					},
+				)}
+				scale={2.5}
+			/>
 		</div>
 	);
 };

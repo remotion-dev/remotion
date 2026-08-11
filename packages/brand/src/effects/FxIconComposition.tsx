@@ -1,3 +1,4 @@
+import {MacOSCursor} from '@remotion/mac-cursors';
 import React from 'react';
 import {
 	AbsoluteFill,
@@ -6,7 +7,6 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
-import {CursorGlyph} from '../CanvasCapturePreview';
 
 const TOGGLE_SIZE = 140;
 const ICON_SIZE = (TOGGLE_SIZE / 36) * 31;
@@ -113,7 +113,7 @@ export const FxIconComposition: React.FC = () => {
 					width: 32,
 				}}
 			>
-				<CursorGlyph cursor="default" scale={1} cursorScale={3.25} />
+				<MacOSCursor cursor="default" scale={3.25} />
 			</div>
 		</AbsoluteFill>
 	);

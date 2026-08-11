@@ -93,14 +93,6 @@ const findCursorAtTime = (
 	return latest;
 };
 
-export const CursorGlyph: React.FC<{
-	readonly cursor: string;
-	readonly scale: number;
-	readonly cursorScale: number;
-}> = ({cursor, scale, cursorScale}) => (
-	<MacOSCursor cursor={cursor} scale={scale * cursorScale} />
-);
-
 const CLICK_SCALE = 0.9;
 
 const isPointerDown = (
@@ -157,17 +149,6 @@ const CursorOverlay: React.FC<{
 		return null;
 	}
 
-	const cursorValue = interpolate(
-		timeInSeconds,
-		cursorKeyframes.inputRange,
-		cursorKeyframes.outputRange,
-		{
-			easing: cursorKeyframes.inputRange.length === 1 ? [] : Easing.step1,
-			extrapolateLeft: 'clamp',
-			extrapolateRight: 'clamp',
-		},
-	);
-
 	const scale = cursorData.captureMetadata.density;
 	const clickScale = isPointerDown(cursorData.pointerClicks, timeInSeconds)
 		? CLICK_SCALE
@@ -187,10 +168,19 @@ const CursorOverlay: React.FC<{
 				width: 32,
 			}}
 		>
-			<CursorGlyph
-				cursor={cursorValue}
-				scale={scale}
-				cursorScale={cursorScale}
+			<MacOSCursor
+				cursor={interpolate(
+					timeInSeconds,
+					cursorKeyframes.inputRange,
+					cursorKeyframes.outputRange,
+					{
+						easing: cursorKeyframes.inputRange.length === 1 ? [] : Easing.step1,
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					},
+				)}
+				scale={scale * cursorScale}
+				showInTimeline={false}
 			/>
 		</div>
 	);
