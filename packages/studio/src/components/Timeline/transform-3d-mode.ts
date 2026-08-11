@@ -1,6 +1,7 @@
 import type {CanUpdateSequencePropStatus} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {parseCssRotationToEuler} from './timeline-rotation-utils';
+import {parseTranslate} from './timeline-translate-utils';
 import {
 	parseTransformOrigin,
 	parseTransformOriginZ,
@@ -20,6 +21,11 @@ const has3DTransformValue = ({
 	if (fieldKey === 'style.rotate') {
 		const rotation = parseCssRotationToEuler(String(value ?? '0deg'));
 		return rotation[0] !== 0 || rotation[1] !== 0;
+	}
+
+	if (fieldKey === 'style.translate') {
+		const z = parseTranslate(String(value ?? '0px 0px'))[2];
+		return z !== null && z !== 0;
 	}
 
 	if (fieldKey === 'style.transformOrigin') {

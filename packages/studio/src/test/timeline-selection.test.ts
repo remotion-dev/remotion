@@ -4038,7 +4038,7 @@ test('Transform origin drag keeps static properties static', () => {
 			originKeyframed: false,
 			translateKeyframed: false,
 		}),
-		startTranslate: [10, 20],
+		startTranslate: [10, 20, null],
 		origin: '25% 75%',
 		translate: '13px 24px',
 	});
@@ -4051,14 +4051,29 @@ test('Transform origin drag keeps static properties static', () => {
 });
 
 test('Transform origin drag offsets all animated translate keyframes', () => {
+	const target = makeTransformOriginDragTarget({
+		originKeyframed: false,
+		translateKeyframed: true,
+	});
+	if (target.translatePropStatus.status !== 'keyframed') {
+		throw new Error('Expected a keyframed translate');
+	}
+
 	const changes = getSelectedOutlineTransformOriginDragChanges({
-		target: makeTransformOriginDragTarget({
-			originKeyframed: false,
-			translateKeyframed: true,
-		}),
-		startTranslate: [10, 20],
+		target: {
+			...target,
+			translatePropStatus: {
+				...target.translatePropStatus,
+				keyframes: [
+					{frame: 0, value: '0px 0px 5px'},
+					{frame: 20, value: '20px 40px 25px'},
+				],
+			},
+			translateValue: '10px 20px 15px',
+		},
+		startTranslate: [10, 20, 15],
 		origin: '25% 75%',
-		translate: '13px 24px',
+		translate: '13px 24px 15px',
 	});
 
 	expect(changes.staticChanges.map((change) => change.fieldKey)).toEqual([
@@ -4071,8 +4086,8 @@ test('Transform origin drag offsets all animated translate keyframes', () => {
 			value,
 		})),
 	).toEqual([
-		{fieldKey: 'style.translate', sourceFrame: 0, value: '3px 4px'},
-		{fieldKey: 'style.translate', sourceFrame: 20, value: '23px 44px'},
+		{fieldKey: 'style.translate', sourceFrame: 0, value: '3px 4px 5px'},
+		{fieldKey: 'style.translate', sourceFrame: 20, value: '23px 44px 25px'},
 	]);
 });
 
@@ -4082,7 +4097,7 @@ test('Transform origin drag does not keyframe a static translate', () => {
 			originKeyframed: true,
 			translateKeyframed: false,
 		}),
-		startTranslate: [10, 20],
+		startTranslate: [10, 20, null],
 		origin: '25% 75%',
 		translate: '13px 24px',
 	});
@@ -4104,7 +4119,7 @@ test('Transform origin drag updates both animated properties locally', () => {
 			originKeyframed: true,
 			translateKeyframed: true,
 		}),
-		startTranslate: [10, 20],
+		startTranslate: [10, 20, null],
 		origin: '25% 75%',
 		translate: '13px 24px',
 	});
@@ -5759,9 +5774,10 @@ test('Selected outline dragging applies the same delta to all selected sequences
 			sourceFrame: 12,
 			startX: 10,
 			startY: 20,
+			startZ: 30,
 			target: {
 				clientId: 'client',
-				propStatus: {status: 'static', codeValue: '10px 20px'},
+				propStatus: {status: 'static', codeValue: '10px 20px 30px'},
 				fieldDefault: '0px 0px',
 				keyframeDisplayOffset: 30,
 				nodePath: firstNodePath,
@@ -5774,6 +5790,7 @@ test('Selected outline dragging applies the same delta to all selected sequences
 			sourceFrame: 12,
 			startX: -5,
 			startY: 3,
+			startZ: null,
 			target: {
 				clientId: 'client',
 				propStatus: {status: 'static', codeValue: '-5px 3px'},
@@ -5791,7 +5808,7 @@ test('Selected outline dragging applies the same delta to all selected sequences
 		deltaY: -4.666667,
 	});
 
-	expect(lastValues.get(dragStates[0].key)).toBe('17.3px 15.3px');
+	expect(lastValues.get(dragStates[0].key)).toBe('17.3px 15.3px 30px');
 	expect(lastValues.get(dragStates[1].key)).toBe('2.3px -1.7px');
 	expect(
 		getSelectedOutlineDragChanges({
@@ -5804,7 +5821,7 @@ test('Selected outline dragging applies the same delta to all selected sequences
 			fileName: '/project/src/Comp.tsx',
 			nodePath: firstNodePath,
 			fieldKey: 'style.translate',
-			value: '17.3px 15.3px',
+			value: '17.3px 15.3px 30px',
 			defaultValue: JSON.stringify('0px 0px'),
 			schema,
 		},
@@ -5880,6 +5897,7 @@ test('Selected outline keyboard nudging moves by one or ten pixels', () => {
 			sourceFrame: 12,
 			startX: 10,
 			startY: 20,
+			startZ: null,
 			target: {
 				clientId: 'client',
 				propStatus: {status: 'static', codeValue: '10px 20px'},
@@ -6023,14 +6041,15 @@ test('Selected outline dragging keyframed translate adds a keyframe at the sourc
 			sourceFrame: 20,
 			startX: 50,
 			startY: 25,
+			startZ: 15,
 			target: {
 				clientId: 'client',
 				propStatus: {
 					status: 'keyframed',
 					interpolationFunction: 'interpolate',
 					keyframes: [
-						{frame: 0, value: '0px 0px'},
-						{frame: 40, value: '100px 50px'},
+						{frame: 0, value: '0px 0px 15px'},
+						{frame: 40, value: '100px 50px 15px'},
 					],
 					easing: [{type: 'linear'}],
 					clamping: {left: 'extend', right: 'extend'},
@@ -6051,7 +6070,7 @@ test('Selected outline dragging keyframed translate adds a keyframe at the sourc
 		deltaY: -4,
 	});
 
-	expect(lastValues.get(dragStates[0].key)).toBe('57px 21px');
+	expect(lastValues.get(dragStates[0].key)).toBe('57px 21px 15px');
 	expect(
 		getSelectedOutlineDragChanges({
 			dragStates,
@@ -6064,7 +6083,7 @@ test('Selected outline dragging keyframed translate adds a keyframe at the sourc
 			nodePath,
 			fieldKey: 'style.translate',
 			sourceFrame: 20,
-			value: '57px 21px',
+			value: '57px 21px 15px',
 			schema,
 			clientId: 'client',
 		},
@@ -6072,7 +6091,7 @@ test('Selected outline dragging keyframed translate adds a keyframe at the sourc
 	expect(
 		getSelectedOutlineDragChanges({
 			dragStates,
-			lastValues: new Map([[dragStates[0].key, '50px 25px']]),
+			lastValues: new Map([[dragStates[0].key, '50px 25px 15px']]),
 		}),
 	).toEqual([]);
 });
@@ -6218,6 +6237,8 @@ test('Selected outline corner dragging rotates selected sequences', () => {
 			key: Internals.makeSequencePropsSubscriptionKey(firstNodePath),
 			sourceFrame: 12,
 			startDegrees: 45,
+			startRotation: [0, 0, 45],
+			startValue: '45deg',
 			target: {
 				clientId: 'client',
 				propStatus: {status: 'static', codeValue: '45deg'},
@@ -6226,6 +6247,7 @@ test('Selected outline corner dragging rotates selected sequences', () => {
 				keyframeDisplayOffset: 30,
 				nodePath: firstNodePath,
 				schema,
+				transform3DMode: false,
 				transformOriginValue: '50% 50%',
 			},
 		},
@@ -6234,6 +6256,8 @@ test('Selected outline corner dragging rotates selected sequences', () => {
 			key: Internals.makeSequencePropsSubscriptionKey(secondNodePath),
 			sourceFrame: 12,
 			startDegrees: -10,
+			startRotation: [0, 0, -10],
+			startValue: '-10deg',
 			target: {
 				clientId: 'client',
 				propStatus: {status: 'static', codeValue: '-10deg'},
@@ -6242,6 +6266,7 @@ test('Selected outline corner dragging rotates selected sequences', () => {
 				keyframeDisplayOffset: 30,
 				nodePath: secondNodePath,
 				schema,
+				transform3DMode: false,
 				transformOriginValue: '50% 50%',
 			},
 		},
@@ -6292,6 +6317,8 @@ test('Selected outline corner dragging rounds rotation values', () => {
 			key: Internals.makeSequencePropsSubscriptionKey(nodePath),
 			sourceFrame: 12,
 			startDegrees: 32,
+			startRotation: [0, 0, 32],
+			startValue: '32deg',
 			target: {
 				clientId: 'client',
 				propStatus: {status: 'static', codeValue: '32deg'},
@@ -6300,6 +6327,7 @@ test('Selected outline corner dragging rounds rotation values', () => {
 				keyframeDisplayOffset: 30,
 				nodePath,
 				schema,
+				transform3DMode: false,
 				transformOriginValue: '50% 50%',
 			},
 		},
@@ -6413,6 +6441,8 @@ test('Selected outline corner dragging snaps rotation to 15 degree increments', 
 			key: Internals.makeSequencePropsSubscriptionKey(nodePath),
 			sourceFrame: 12,
 			startDegrees: 32,
+			startRotation: [0, 0, 32],
+			startValue: '32deg',
 			target: {
 				clientId: 'client',
 				propStatus: {status: 'static', codeValue: '32deg'},
@@ -6421,6 +6451,7 @@ test('Selected outline corner dragging snaps rotation to 15 degree increments', 
 				keyframeDisplayOffset: 30,
 				nodePath,
 				schema,
+				transform3DMode: false,
 				transformOriginValue: '50% 50%',
 			},
 		},
@@ -6451,6 +6482,8 @@ test('Selected outline corner dragging snaps selected rotations from the first d
 			key: Internals.makeSequencePropsSubscriptionKey(firstNodePath),
 			sourceFrame: 12,
 			startDegrees: 32,
+			startRotation: [0, 0, 32],
+			startValue: '32deg',
 			target: {
 				clientId: 'client',
 				propStatus: {status: 'static', codeValue: '32deg'},
@@ -6459,6 +6492,7 @@ test('Selected outline corner dragging snaps selected rotations from the first d
 				keyframeDisplayOffset: 30,
 				nodePath: firstNodePath,
 				schema,
+				transform3DMode: false,
 				transformOriginValue: '50% 50%',
 			},
 		},
@@ -6467,6 +6501,8 @@ test('Selected outline corner dragging snaps selected rotations from the first d
 			key: Internals.makeSequencePropsSubscriptionKey(secondNodePath),
 			sourceFrame: 12,
 			startDegrees: -10,
+			startRotation: [0, 0, -10],
+			startValue: '-10deg',
 			target: {
 				clientId: 'client',
 				propStatus: {status: 'static', codeValue: '-10deg'},
@@ -6475,6 +6511,7 @@ test('Selected outline corner dragging snaps selected rotations from the first d
 				keyframeDisplayOffset: 30,
 				nodePath: secondNodePath,
 				schema,
+				transform3DMode: false,
 				transformOriginValue: '50% 50%',
 			},
 		},
@@ -6505,6 +6542,8 @@ test('Selected outline corner dragging keyframed rotation adds a keyframe at the
 			key: Internals.makeSequencePropsSubscriptionKey(nodePath),
 			sourceFrame: 20,
 			startDegrees: 45,
+			startRotation: [0, 0, 45],
+			startValue: '45deg',
 			target: {
 				clientId: 'client',
 				propStatus: {
@@ -6524,6 +6563,7 @@ test('Selected outline corner dragging keyframed rotation adds a keyframe at the
 				keyframeDisplayOffset: 30,
 				nodePath,
 				schema,
+				transform3DMode: false,
 				transformOriginValue: '50% 50%',
 			},
 		},

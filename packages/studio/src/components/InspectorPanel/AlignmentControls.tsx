@@ -170,7 +170,7 @@ export const AlignmentControls: React.FC<{
 					)
 				: String(fieldSchema.default ?? '0px 0px');
 
-			const [currentX, currentY] = parseTranslate(currentTranslate);
+			const [currentX, currentY, currentZ] = parseTranslate(currentTranslate);
 
 			const {x: newX, y: newY} = computeAlignedTranslate({
 				direction,
@@ -181,7 +181,7 @@ export const AlignmentControls: React.FC<{
 				scale,
 			});
 
-			const newValue = serializeTranslate(newX, newY);
+			const newValue = serializeTranslate([newX, newY, currentZ]);
 
 			const undoLabels = {
 				left: 'Align left',

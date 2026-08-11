@@ -531,13 +531,17 @@ export const InspectorSequenceSection: React.FC<{
 		nodePathInfo.sequenceSubscriptionKey,
 	);
 	const automaticallyEnabled3DTransform = useMemo(() => {
-		return ['style.scale', 'style.rotate', 'style.transformOrigin'].some(
-			(fieldKey) =>
-				propStatusHas3DTransformValue({
-					fieldKey,
-					propStatus: sequencePropStatuses?.[fieldKey],
-					runtimeValue: runtimeValues[fieldKey],
-				}),
+		return [
+			'style.translate',
+			'style.scale',
+			'style.rotate',
+			'style.transformOrigin',
+		].some((fieldKey) =>
+			propStatusHas3DTransformValue({
+				fieldKey,
+				propStatus: sequencePropStatuses?.[fieldKey],
+				runtimeValue: runtimeValues[fieldKey],
+			}),
 		);
 	}, [runtimeValues, sequencePropStatuses]);
 	const show3DTransformControls =

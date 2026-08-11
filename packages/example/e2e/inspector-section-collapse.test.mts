@@ -27,6 +27,14 @@ const read2DTransformScale = () => {
 	return /scale: ([^,}\n]+)/.exec(sequenceSource)?.[1] ?? null;
 };
 
+const read2DTransformTranslate = () => {
+	const source = fs.readFileSync(visualMode3DFile, 'utf-8');
+	const sequenceStart = source.indexOf('name="2D transform"');
+	const sequenceEnd = source.indexOf('name="3D transform"');
+	const sequenceSource = source.slice(sequenceStart, sequenceEnd);
+	return /translate: '([^']+)'/.exec(sequenceSource)?.[1] ?? null;
+};
+
 const read2DTransformOrigin = () => {
 	const source = fs.readFileSync(visualMode3DFile, 'utf-8');
 	const sequenceStart = source.indexOf('name="2D transform"');
@@ -490,6 +498,9 @@ test.describe('inspector section collapse', () => {
 			page.getByRole('button', {name: 'Scale Z', exact: true}),
 		).toHaveCount(0);
 		await expect(
+			page.getByRole('button', {name: 'Offset Z', exact: true}),
+		).toHaveCount(0);
+		await expect(
 			page.getByRole('button', {name: 'Rotation Z', exact: true}),
 		).toBeVisible();
 		await expect(
@@ -532,6 +543,9 @@ test.describe('inspector section collapse', () => {
 		await expect(
 			page.getByRole('button', {name: 'Scale Z', exact: true}),
 		).toBeVisible();
+		await expect(
+			page.getByRole('button', {name: 'Offset Z', exact: true}),
+		).toBeVisible();
 		await page.getByTitle('Rotation', {exact: true}).click();
 		await page.mouse.move(
 			compositionBox.x + compositionBox.width / 2,
@@ -571,12 +585,33 @@ test.describe('inspector section collapse', () => {
 		if (scaleLabelBox === null || scaleXBox === null || scaleZBox === null) {
 			throw new Error('Scale controls should have a visible layout');
 		}
+		const offsetLabelBox = await page
+			.getByTitle('Offset', {exact: true})
+			.first()
+			.boundingBox();
+		const offsetX = page
+			.getByRole('button', {name: 'Offset X', exact: true})
+			.first();
+		const offsetXBox = await offsetX.boundingBox();
+		const offsetZ = page
+			.getByRole('button', {name: 'Offset Z', exact: true})
+			.first();
+		const offsetZBox = await offsetZ.boundingBox();
+		if (offsetLabelBox === null || offsetXBox === null || offsetZBox === null) {
+			throw new Error('Offset controls should have a visible layout');
+		}
 
 		expect(
 			scaleZBox.y - (scaleLabelBox.y + scaleLabelBox.height),
 		).toBeGreaterThanOrEqual(-1);
 		expect(
 			scaleZBox.y - (scaleLabelBox.y + scaleLabelBox.height),
+		).toBeLessThanOrEqual(1);
+		expect(
+			offsetZBox.y - (offsetLabelBox.y + offsetLabelBox.height),
+		).toBeGreaterThanOrEqual(-1);
+		expect(
+			offsetZBox.y - (offsetLabelBox.y + offsetLabelBox.height),
 		).toBeLessThanOrEqual(1);
 		await expect(
 			page.getByRole('button', {name: 'Rotation X', exact: true}).first(),
@@ -606,11 +641,26 @@ test.describe('inspector section collapse', () => {
 			rotationXBox.y - (rotationLabelBox.y + rotationLabelBox.height),
 		).toBeLessThanOrEqual(1);
 		expect(Math.abs(scaleXBox.x - rotationXBox.x)).toBeLessThanOrEqual(1);
+		expect(Math.abs(scaleXBox.x - offsetXBox.x)).toBeLessThanOrEqual(1);
 		await expect(
 			page
 				.getByRole('button', {name: 'Transform origin Z', exact: true})
 				.first(),
 		).toBeVisible();
+		await offsetZ.click();
+		const offsetZInput = page.getByRole('textbox', {
+			name: 'Offset Z',
+			exact: true,
+		});
+		await offsetZInput.fill('25');
+		await offsetZInput.press('Enter');
+		await expect.poll(read2DTransformTranslate).toBe('0px 0px 25px');
+		await expect(
+			page.getByRole('button', {
+				name: '3D controls are required by the current transform values',
+				exact: true,
+			}),
+		).toBeDisabled();
 
 		const threeDTransformElement = page
 			.locator('[title="3D transform"]')

@@ -65,6 +65,7 @@ test.describe('canvas rotation keyframes', () => {
 			'[data-remotion-studio-canvas-rotation]',
 		);
 		await expect(rotationSurface).toBeVisible({timeout: 15_000});
+		await page.getByTitle('Keyframe at frame 0', {exact: true}).first().click();
 
 		await page.keyboard.press('g');
 		const currentFrameInput = page.locator('input:focus');

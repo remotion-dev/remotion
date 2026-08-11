@@ -190,8 +190,7 @@ export type SelectedOutlineRotationDragTarget = {
 	readonly keyframeDisplayOffset: number;
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
-	readonly sourceFrame?: number;
-	readonly transform3DMode?: boolean;
+	readonly transform3DMode: boolean;
 	readonly transformOriginValue: string;
 };
 
@@ -201,6 +200,7 @@ export type SelectedOutlineDragState = {
 	readonly sourceFrame: number;
 	readonly startX: number;
 	readonly startY: number;
+	readonly startZ: number | null;
 	readonly target: SelectedOutlineDragTarget;
 };
 
@@ -219,8 +219,8 @@ export type SelectedOutlineRotationDragState = {
 	readonly key: string;
 	readonly sourceFrame: number;
 	readonly startDegrees: number;
-	readonly startRotation?: readonly [number, number, number];
-	readonly startValue?: string;
+	readonly startRotation: readonly [number, number, number];
+	readonly startValue: string;
 	readonly target: SelectedOutlineRotationDragTarget;
 };
 

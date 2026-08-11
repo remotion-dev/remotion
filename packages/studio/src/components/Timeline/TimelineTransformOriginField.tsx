@@ -22,11 +22,15 @@ import {
 import {Transform3DModeContext} from './Transform3DModeContext';
 
 const leftDraggerStyle: React.CSSProperties = {
+	paddingBottom: 2,
 	paddingLeft: 0,
+	paddingTop: 2,
 };
 
 const rightDraggerStyle: React.CSSProperties = {
+	paddingBottom: 2,
 	paddingRight: 0,
+	paddingTop: 2,
 };
 
 const containerStyle: React.CSSProperties = {
@@ -309,6 +313,7 @@ export const TimelineTransformOriginField: React.FC<{
 			<InputDragger
 				type="number"
 				value={dragX ?? percent[0]}
+				buttonStyle={leftDraggerStyle}
 				style={leftDraggerStyle}
 				status="ok"
 				small
@@ -328,6 +333,7 @@ export const TimelineTransformOriginField: React.FC<{
 			<InputDragger
 				type="number"
 				value={dragY ?? percent[1]}
+				buttonStyle={rightDraggerStyle}
 				style={rightDraggerStyle}
 				status="ok"
 				small
@@ -349,6 +355,7 @@ export const TimelineTransformOriginField: React.FC<{
 					<InputDragger
 						type="number"
 						value={dragZ ?? parsedZ?.value ?? 0}
+						buttonStyle={rightDraggerStyle}
 						style={rightDraggerStyle}
 						status="ok"
 						small

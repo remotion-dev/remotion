@@ -439,20 +439,19 @@ const calculateOutlineTargets = ({
 			controls !== null &&
 			rotationFieldSchema?.type === 'rotation-css' &&
 			canRotationDragStatus;
-		const rotationSourceFrame =
-			selectedRotationInfo?.displayFrame === null ||
-			selectedRotationInfo?.displayFrame === undefined
-				? sourceFrame
-				: selectedRotationInfo.displayFrame - keyframeDisplayOffset;
 		const transform3DMode =
 			manuallyEnabled3DTransformSequenceKeys.has(key) ||
-			['style.scale', 'style.rotate', 'style.transformOrigin'].some(
-				(fieldKey) =>
-					propStatusHas3DTransformValue({
-						fieldKey,
-						propStatus: nodePropStatuses?.[fieldKey],
-						runtimeValue: runtimeValues[fieldKey],
-					}),
+			[
+				'style.translate',
+				'style.scale',
+				'style.rotate',
+				'style.transformOrigin',
+			].some((fieldKey) =>
+				propStatusHas3DTransformValue({
+					fieldKey,
+					propStatus: nodePropStatuses?.[fieldKey],
+					runtimeValue: runtimeValues[fieldKey],
+				}),
 			);
 		const transformOriginSourceFrame =
 			selectedTransformOriginInfo?.displayFrame === null ||
@@ -553,9 +552,6 @@ const calculateOutlineTargets = ({
 							keyframeDisplayOffset,
 							nodePath,
 							schema: controls.schema,
-							sourceFrame: selectedForRotation
-								? rotationSourceFrame
-								: undefined,
 							transform3DMode,
 							transformOriginValue: transformOriginValueForRotation,
 						}

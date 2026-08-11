@@ -193,7 +193,7 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 				] as const;
 				const [nextTranslateX, nextTranslateY] =
 					compensateTranslateForTransformOrigin({
-						startTranslate,
+						startTranslate: [startTranslate[0], startTranslate[1]],
 						deltaOrigin,
 						rotation,
 						scale,
@@ -202,7 +202,11 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 					uv: nextUv,
 					z: parsed.z,
 				});
-				const translate = serializeTranslate(nextTranslateX, nextTranslateY);
+				const translate = serializeTranslate([
+					nextTranslateX,
+					nextTranslateY,
+					startTranslate[2],
+				]);
 				last = {uv: nextUv, origin, translate};
 
 				setDragOverrides(
@@ -238,14 +242,15 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 													);
 													return {
 														...keyframe,
-														value: serializeTranslate(
+														value: serializeTranslate([
 															keyframeTranslate[0] +
 																nextTranslateX -
 																startTranslate[0],
 															keyframeTranslate[1] +
 																nextTranslateY -
 																startTranslate[1],
-														),
+															keyframeTranslate[2],
+														]),
 													};
 												},
 											),
