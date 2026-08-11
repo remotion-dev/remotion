@@ -78,6 +78,9 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 				return;
 			}
 
+			const previousSvgCursor = svg.style.cursor;
+			svg.style.cursor = canvasRotationCursor;
+
 			const startPointer = {x: event.clientX, y: event.clientY};
 			const center = svgPointToClientPoint(
 				getSelectedOutlineRotationPivot({
@@ -112,6 +115,7 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 					}
 
 					dragStarted = true;
+					forceSpecificCursor(canvasRotationCursor);
 					onDraggingChange(true);
 				}
 
@@ -133,7 +137,6 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 						rotationXDeltaDegrees,
 						rotationYDeltaDegrees,
 					});
-					forceSpecificCursor(canvasRotationCursor);
 				} else {
 					const nextAngle = getAngleDegrees(center, {
 						x: moveEvent.clientX,
@@ -155,7 +158,6 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 						dragStates,
 						rotationDeltaDegrees,
 					});
-					forceSpecificCursor(canvasRotationCursor);
 				}
 
 				for (const dragState of dragStates) {
@@ -185,6 +187,7 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 			};
 
 			const onPointerUp = () => {
+				svg.style.cursor = previousSvgCursor;
 				if (dragStarted) {
 					stopForcingSpecificCursor();
 					onDraggingChange(false);
