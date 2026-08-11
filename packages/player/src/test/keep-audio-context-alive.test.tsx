@@ -80,9 +80,9 @@ const AudioComposition = () => {
 };
 
 const playAndPause = async ({
-	keepAudioContextAlive,
+	_experimentalKeepAudioContextAlive,
 }: {
-	keepAudioContextAlive: boolean;
+	_experimentalKeepAudioContextAlive: boolean;
 }) => {
 	const originalAudioContext = globalThis.AudioContext;
 	const originalRequestAnimationFrame = globalThis.requestAnimationFrame;
@@ -117,7 +117,7 @@ const playAndPause = async ({
 				compositionWidth={1920}
 				compositionHeight={1080}
 				fps={30}
-				keepAudioContextAlive={keepAudioContextAlive}
+				_experimentalKeepAudioContextAlive={_experimentalKeepAudioContextAlive}
 			/>,
 		);
 
@@ -154,19 +154,19 @@ const playAndPause = async ({
 
 test('Pausing suspends the AudioContext by default', async () => {
 	const {resumeCallsDuringPlay, suspendCallsDuringPause} = await playAndPause({
-		keepAudioContextAlive: false,
+		_experimentalKeepAudioContextAlive: false,
 	});
 
 	expect(resumeCallsDuringPlay).toBe(1);
 	expect(suspendCallsDuringPause).toBe(1);
 });
 
-test('keepAudioContextAlive silences through the gain instead of suspending', async () => {
+test('_experimentalKeepAudioContextAlive silences through the gain instead of suspending', async () => {
 	const {
 		resumeCallsDuringPlay,
 		suspendCallsDuringPause,
 		gainValuesDuringPause,
-	} = await playAndPause({keepAudioContextAlive: true});
+	} = await playAndPause({_experimentalKeepAudioContextAlive: true});
 
 	// The context was already started on mount, so playing does not need to
 	// resume it again.
@@ -175,7 +175,7 @@ test('keepAudioContextAlive silences through the gain instead of suspending', as
 	expect(gainValuesDuringPause).toContain(0);
 });
 
-test('disabling keepAudioContextAlive while playing keeps the context running', async () => {
+test('disabling _experimentalKeepAudioContextAlive while playing keeps the context running', async () => {
 	const originalAudioContext = globalThis.AudioContext;
 	const originalRequestAnimationFrame = globalThis.requestAnimationFrame;
 	const originalCancelAnimationFrame = globalThis.cancelAnimationFrame;
@@ -195,7 +195,7 @@ test('disabling keepAudioContextAlive while playing keeps the context running', 
 				compositionWidth={1920}
 				compositionHeight={1080}
 				fps={30}
-				keepAudioContextAlive
+				_experimentalKeepAudioContextAlive
 			/>,
 		);
 
@@ -213,7 +213,7 @@ test('disabling keepAudioContextAlive while playing keeps the context running', 
 				compositionWidth={1920}
 				compositionHeight={1080}
 				fps={30}
-				keepAudioContextAlive={false}
+				_experimentalKeepAudioContextAlive={false}
 			/>,
 		);
 		expect(nativeSuspendCalls).toBe(0);

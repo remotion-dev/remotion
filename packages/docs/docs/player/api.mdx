@@ -485,7 +485,11 @@ If you pass this prop, the Player **does not** read the starting volume from `lo
 />
 ```
 
-### `keepAudioContextAlive?`<AvailableFrom v="4.0.508" />
+### `_experimentalKeepAudioContextAlive?`<AvailableFrom v="4.0.508" />
+
+<ExperimentalBadge>
+<p>We are currently testing this prop. We might either remove the functionality or rename the prop to a stable name.</p>
+</ExperimentalBadge>
 
 Keeps the [`AudioContext`](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext) running while the Player is paused, instead of suspending it. Pausing lowers the gain to zero rather than stopping the context, so the next `play()` does not have to wait for the context to come back up.
 
@@ -495,11 +499,11 @@ The context is started when the Player mounts if the browser's autoplay policy a
 
 **Example:**
 
-```tsx
+```tsx title="MyPlayer.tsx"
 <Player
   component={MyVideo}
   // ... other props
-  keepAudioContextAlive
+  _experimentalKeepAudioContextAlive
 />
 ```
 

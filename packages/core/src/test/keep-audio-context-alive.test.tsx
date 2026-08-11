@@ -100,7 +100,7 @@ const scheduleAt = (
 	});
 };
 
-const renderProvider = (keepAudioContextAlive: boolean) => {
+const renderProvider = (_experimentalKeepAudioContextAlive: boolean) => {
 	const ref: {
 		current: NonNullable<React.ContextType<typeof SharedAudioContext>> | null;
 	} = {current: null};
@@ -117,7 +117,9 @@ const renderProvider = (keepAudioContextAlive: boolean) => {
 					audioEnabled
 					audioLatencyHint="interactive"
 					previewSampleRate={null}
-					keepAudioContextAlive={keepAudioContextAlive}
+					_experimentalKeepAudioContextAlive={
+						_experimentalKeepAudioContextAlive
+					}
 				>
 					<Probe />
 				</SharedAudioContextProvider>
@@ -163,7 +165,7 @@ test('suspend() suspends the AudioContext by default', async () => {
 	});
 });
 
-test('keepAudioContextAlive silences the gain instead of suspending', async () => {
+test('_experimentalKeepAudioContextAlive silences the gain instead of suspending', async () => {
 	await withMockedAudioContext(async () => {
 		const value = renderProvider(true);
 
@@ -183,7 +185,7 @@ test('keepAudioContextAlive silences the gain instead of suspending', async () =
 	});
 });
 
-test('keepAudioContextAlive queues nodes scheduled while silenced', async () => {
+test('_experimentalKeepAudioContextAlive queues nodes scheduled while silenced', async () => {
 	await withMockedAudioContext(async () => {
 		const value = renderProvider(true);
 

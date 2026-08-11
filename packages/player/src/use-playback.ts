@@ -163,12 +163,12 @@ export const usePlayback = ({
 		}
 
 		if (
-			sharedAudioContext?.keepAudioContextAlive &&
+			sharedAudioContext?._experimentalKeepAudioContextAlive &&
 			sharedAudioContext.audioContext &&
 			!muted
 		) {
-			// With keepAudioContextAlive, the context clock keeps running while
-			// frames are not advancing (pauses, buffering, muted playback), so
+			// With _experimentalKeepAudioContextAlive, the context clock keeps
+			// running while frames are not advancing (pauses, buffering, muted playback), so
 			// the anchor is stale by the length of the stall. Without this mode,
 			// the 'statechange' listener above re-anchors on the
 			// suspended-to-running transition, but that transition never happens
