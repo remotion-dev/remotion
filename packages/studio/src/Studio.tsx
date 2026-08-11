@@ -9,6 +9,12 @@ import {FastRefreshProvider} from './FastRefreshProvider';
 import {injectCSS} from './helpers/inject-css';
 import {ResolveCompositionConfigInStudio} from './ResolveCompositionConfigInStudio';
 
+declare global {
+	interface Window {
+		remotion_experimentalKeepAudioContextAlive: boolean | undefined;
+	}
+}
+
 const getServerDisconnectedDomElement = () => {
 	return document.getElementById('server-disconnected-overlay');
 };
@@ -32,6 +38,9 @@ const StudioInner: React.FC<{
 				numberOfAudioTags={window.remotion_numberOfAudioTags}
 				audioLatencyHint={window.remotion_audioLatencyHint ?? 'playback'}
 				previewSampleRate={window.remotion_previewSampleRate}
+				_experimentalKeepAudioContextAlive={
+					window.remotion_experimentalKeepAudioContextAlive ?? false
+				}
 			>
 				<StaticFilesProvider>
 					<ResolveCompositionConfigInStudio>

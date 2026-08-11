@@ -86,6 +86,7 @@ const handleFallback = async ({
 	getRenderDefaults,
 	getNumberOfAudioTags,
 	getAudioLatencyHint,
+	getExperimentalKeepAudioContextAlive,
 	getPreviewSampleRate,
 	gitSource,
 	logLevel,
@@ -104,6 +105,7 @@ const handleFallback = async ({
 	getRenderDefaults: () => RenderDefaults;
 	getNumberOfAudioTags: () => number;
 	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getExperimentalKeepAudioContextAlive: () => boolean;
 	getPreviewSampleRate: () => number | null;
 	gitSource: GitSource | null;
 	logLevel: LogLevel;
@@ -188,6 +190,7 @@ const handleFallback = async ({
 			logLevel,
 			mode: 'dev',
 			audioLatencyHint: getAudioLatencyHint() ?? 'playback',
+			experimentalKeepAudioContextAlive: getExperimentalKeepAudioContextAlive(),
 			sampleRate: getPreviewSampleRate(),
 			studioRuntimeConfig: getStudioRuntimeConfig(),
 		}),
@@ -381,6 +384,7 @@ export const handleRoutes = ({
 	gitSource,
 	binariesDirectory,
 	getAudioLatencyHint,
+	getExperimentalKeepAudioContextAlive,
 	getPreviewSampleRate,
 	enableCrossSiteIsolation,
 	getStudioRuntimeConfig,
@@ -408,6 +412,7 @@ export const handleRoutes = ({
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
 	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getExperimentalKeepAudioContextAlive: () => boolean;
 	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
@@ -589,6 +594,7 @@ export const handleRoutes = ({
 		gitSource,
 		logLevel,
 		getAudioLatencyHint,
+		getExperimentalKeepAudioContextAlive,
 		getPreviewSampleRate,
 		enableCrossSiteIsolation,
 		getStudioRuntimeConfig,

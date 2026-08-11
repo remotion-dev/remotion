@@ -448,6 +448,7 @@ export const internalBundle = async (
 		logLevel: 'info',
 		mode: 'bundle',
 		audioLatencyHint: actualArgs.audioLatencyHint ?? 'playback',
+		experimentalKeepAudioContextAlive: false,
 		sampleRate: actualArgs.renderDefaults?.sampleRate ?? 48000,
 		studioRuntimeConfig: {
 			askAIEnabled: actualArgs.askAIEnabled,

@@ -73,6 +73,7 @@ test('serves file source from an origin-less GET request', async () => {
 			enableCrossSiteIsolation: false,
 			entryPoint: '',
 			getAudioLatencyHint: () => null,
+			getExperimentalKeepAudioContextAlive: () => false,
 			getCurrentInputProps: () => ({}),
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,

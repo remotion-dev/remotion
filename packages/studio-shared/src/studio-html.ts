@@ -17,6 +17,7 @@ export type StudioHtmlOptions = {
 	completedClientRenders?: unknown | null;
 	numberOfAudioTags: number;
 	audioLatencyHint: AudioContextLatencyCategory;
+	experimentalKeepAudioContextAlive: boolean;
 	sampleRate: number | null;
 	publicFiles: StaticFile[];
 	publicFolderExists: string | null;
@@ -57,6 +58,7 @@ export const studioHtml = ({
 	installedDependencies,
 	packageManager,
 	audioLatencyHint,
+	experimentalKeepAudioContextAlive,
 	sampleRate,
 	logLevel,
 	mode,
@@ -93,6 +95,7 @@ export const studioHtml = ({
 	<body>
 		<script>window.remotion_numberOfAudioTags = ${numberOfAudioTags};</script>
 		<script>window.remotion_audioLatencyHint = "${audioLatencyHint}";</script>
+		<script>window.remotion_experimentalKeepAudioContextAlive = ${experimentalKeepAudioContextAlive};</script>
 		<script>window.remotion_sampleRate = ${sampleRate};</script>
 		<script>window.remotion_previewSampleRate = ${sampleRate};</script>
 		${mode === 'dev' ? `<script>window.remotion_logLevel = "${logLevel}";</script>` : ''}

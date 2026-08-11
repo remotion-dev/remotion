@@ -39,6 +39,7 @@ const {
 	interactivityOption,
 	keyboardShortcutsOption,
 	forceNewStudioOption,
+	experimentalKeepAudioContextAliveOption,
 	numberOfSharedAudioTagsOption,
 	audioLatencyHintOption,
 	ipv4Option,
@@ -183,6 +184,10 @@ export const studioCommand = async (
 		numberOfSharedAudioTagsOption.getValue({commandLine: parsedCli}).value;
 	const getAudioLatencyHint = () =>
 		audioLatencyHintOption.getValue({commandLine: parsedCli}).value;
+	const getExperimentalKeepAudioContextAlive = () =>
+		experimentalKeepAudioContextAliveOption.getValue({
+			commandLine: parsedCli,
+		}).value;
 	const getPreviewSampleRate = () =>
 		previewSampleRateOption.getValue({commandLine: parsedCli}).value;
 	const getDefaultCodingAgent = () =>
@@ -312,6 +317,7 @@ export const studioCommand = async (
 		binariesDirectory,
 		forceIPv4: ipv4Option.getValue({commandLine: parsedCli}).value,
 		getAudioLatencyHint,
+		getExperimentalKeepAudioContextAlive,
 		getPreviewSampleRate,
 		getDefaultCodingAgent,
 		getDefaultEditor,
