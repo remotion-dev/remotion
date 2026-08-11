@@ -217,8 +217,10 @@ export const elementDefinitions = {
 		height: 1080,
 		posterFrame: 60,
 		preview: {
-			posterUrl: '/elements/overlays-name-lower-third-preview.png',
-			videoUrl: '/elements/overlays-name-lower-third-preview.mp4',
+			posterUrl:
+				'https://remotion.media/elements/overlays-name-lower-third-preview.png',
+			videoUrl:
+				'https://remotion.media/elements/overlays-name-lower-third-preview.mp4',
 		},
 		previewPadding: 300,
 		slug: 'overlays/name-lower-third',
