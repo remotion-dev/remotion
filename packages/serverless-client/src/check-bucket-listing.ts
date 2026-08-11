@@ -1,14 +1,14 @@
 export const checkBucketListing = async ({
 	bucketName,
 	region,
+	dnsSuffix,
 }: {
 	bucketName: string;
 	region: string;
+	dnsSuffix: string;
 }) => {
 	try {
-		const res = await fetch(
-			`https://${bucketName}.s3.${region}.amazonaws.com/`,
-		);
+		const res = await fetch(`https://${bucketName}.s3.${region}.${dnsSuffix}/`);
 		if (res.status === 200) {
 			// eslint-disable-next-line no-console
 			console.warn(

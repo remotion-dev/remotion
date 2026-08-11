@@ -202,7 +202,8 @@ export const createFunction = async ({
 		return {FunctionName: functionName};
 	}
 
-	const defaultRoleName = `arn:aws:iam::${accountId}:role/${ROLE_NAME}`;
+	const {partition} = LambdaClientInternals.getAwsRegionMetadata(region);
+	const defaultRoleName = `arn:${partition}:iam::${accountId}:role/${ROLE_NAME}`;
 
 	let vpcConfig: VpcConfig | undefined;
 	if (vpcSubnetIds && vpcSecurityGroupIds) {
@@ -301,6 +302,7 @@ export const createFunction = async ({
 	);
 
 	let state = 'Pending';
+	let currentRuntimeVersionArn: string | null = null;
 
 	while (state === 'Pending') {
 		const getFn = await LambdaClientInternals.getLambdaClient(
@@ -316,6 +318,8 @@ export const createFunction = async ({
 			setTimeout(() => resolve(), 1000);
 		});
 		state = getFn.Configuration?.State as string;
+		currentRuntimeVersionArn =
+			getFn.Configuration?.RuntimeVersionConfig?.RuntimeVersionArn ?? null;
 	}
 
 	RenderInternals.Log.verbose(
@@ -328,9 +332,16 @@ export const createFunction = async ({
 		'Locking the runtime version of the function...',
 	);
 
-	const RuntimeVersionArn = `arn:aws:lambda:${region}::runtime:58a37e8413ed69058c4ac3b1df642118591f17d40def93d6101f867c72cd03c2`;
+	const runtimeVersionArn =
+		partition === 'aws-cn'
+			? currentRuntimeVersionArn
+			: `arn:aws:lambda:${region}::runtime:58a37e8413ed69058c4ac3b1df642118591f17d40def93d6101f867c72cd03c2`;
 
 	try {
+		if (!runtimeVersionArn) {
+			throw new Error('AWS did not return a runtime version ARN.');
+		}
+
 		await LambdaClientInternals.getLambdaClient(
 			region,
 			undefined,
@@ -339,19 +350,19 @@ export const createFunction = async ({
 			new PutRuntimeManagementConfigCommand({
 				FunctionName,
 				UpdateRuntimeOn: 'Manual',
-				RuntimeVersionArn,
+				RuntimeVersionArn: runtimeVersionArn,
 			}),
+		);
+
+		RenderInternals.Log.verbose(
+			{indent: false, logLevel},
+			`Function runtime is locked to ${runtimeVersionArn}`,
 		);
 	} catch {
 		console.warn(
 			'⚠️ Could not lock the runtime version. We recommend to update your policies to prevent your functions from breaking in the future in case the AWS runtime changes. See https://remotion.dev/docs/lambda/feb-2023-incident for an example on how to update your policy.',
 		);
 	}
-
-	RenderInternals.Log.verbose(
-		{indent: false, logLevel},
-		`Function runtime is locked to ${RuntimeVersionArn}`,
-	);
 
 	return {FunctionName: FunctionName as string};
 };

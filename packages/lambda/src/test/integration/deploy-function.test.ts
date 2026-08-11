@@ -5,6 +5,7 @@ import {
 } from '@remotion/lambda-client';
 import {VERSION} from 'remotion/version';
 import {internalDeployFunction} from '../../api/deploy-function';
+import {lambdaInsightsExtensions} from '../../shared/lambda-insights-extensions';
 import {mockFullClientSpecifics} from '../mock-implementation';
 import {
 	clearMockCreateFunctionCalls,
@@ -244,6 +245,66 @@ test('Should validate custom Layers before calling the Provider', async () => {
 	}
 
 	expect(providerCalls).toBe(0);
+});
+
+test('AWS China requires partition-matching custom Layers before Provider calls', async () => {
+	for (const region of ['cn-north-1', 'cn-northwest-1'] as const) {
+		let providerCalls = 0;
+		const providerSpecifics = {
+			...mockImplementation,
+			getAccountId: () => {
+				providerCalls++;
+				return Promise.resolve('123456789012');
+			},
+		};
+		const input = {
+			memorySizeInMb: 2048,
+			region,
+			timeoutInSeconds: 120,
+			createCloudWatchLogGroup: true,
+			customRoleArn: undefined,
+			diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
+			enableLambdaInsights: true,
+			indent: false,
+			logLevel: 'info' as const,
+			providerSpecifics,
+			fullClientSpecifics: mockFullClientSpecifics,
+			runtimePreference: 'default' as const,
+			vpcSecurityGroupIds: undefined,
+			vpcSubnetIds: undefined,
+			cloudWatchLogRetentionPeriodInDays: undefined,
+			requestHandler: null,
+		};
+
+		await expect(
+			internalDeployFunction({...input, customLayerArns: null}),
+		).rejects.toThrow(
+			'customLayerArns must be specified when deploying to AWS China regions',
+		);
+		await expect(
+			internalDeployFunction({
+				...input,
+				customLayerArns: [
+					`arn:aws:lambda:${region}:123456789012:layer:chromium:1`,
+				],
+			}),
+		).rejects.toThrow(`region ${region} uses partition aws-cn`);
+		expect(providerCalls).toBe(0);
+
+		cleanFnStore();
+		clearMockCreateFunctionCalls();
+		const customLayerArns = [
+			`arn:aws-cn:lambda:${region}:123456789012:layer:chromium:1`,
+			`arn:aws-cn:lambda:${region}:123456789012:layer:fonts:2`,
+		];
+		await internalDeployFunction({...input, customLayerArns});
+		expect(getMockCreateFunctionCalls()[0].customLayerArns).toEqual(
+			customLayerArns,
+		);
+		expect(lambdaInsightsExtensions[region]).toBe(
+			`arn:aws-cn:lambda:${region}:488211338238:layer:LambdaInsightsExtension-Arm64:4`,
+		);
+	}
 });
 
 test('Should pass null to the hosted Layer path by default', async () => {

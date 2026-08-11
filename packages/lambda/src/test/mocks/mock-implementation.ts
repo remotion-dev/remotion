@@ -35,6 +35,10 @@ export const mockImplementation: ProviderSpecifics<AwsProvider> = {
 	},
 	getEphemeralStorageForPriceCalculation: () =>
 		LambdaClientInternals.MAX_EPHEMERAL_STORAGE_IN_MB,
+	getBillingCurrency: (region) =>
+		LambdaClientInternals.getAwsRegionMetadata(region).billingCurrency,
+	getServiceDnsSuffix: (region) =>
+		LambdaClientInternals.getAwsRegionMetadata(region).dnsSuffix,
 	getLoggingUrlForMethod: LambdaClientInternals.getCloudwatchMethodUrl,
 	getLoggingUrlForRendererFunction:
 		LambdaClientInternals.getCloudwatchRendererUrl,

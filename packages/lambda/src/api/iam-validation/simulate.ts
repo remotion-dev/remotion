@@ -1,9 +1,10 @@
 import {GetCallerIdentityCommand} from '@aws-sdk/client-sts';
 import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
 import {LambdaClientInternals} from '@remotion/lambda-client';
+import {resolveCallerArnForSimulation} from './resolve-caller-arn';
 import type {EvalDecision, SimulationResult} from './simulate-rule';
 import {simulateRule} from './simulate-rule';
-import {requiredPermissions} from './user-permissions';
+import {getRequiredPermissions} from './user-permissions';
 
 const getEmojiForStatus = (decision: EvalDecision) => {
 	switch (decision) {
@@ -44,41 +45,17 @@ export const simulatePermissions = async (
 		throw new Error('No valid AWS Caller Identity detected');
 	}
 
-	const callerIdentityArnComponents = callerIdentity.Arn.match(
-		/arn:aws:([^:]+)::(\d+):([^/]+)(.*)/,
-	);
-	if (!callerIdentityArnComponents) {
-		throw new Error('Unknown AWS Caller Identity ARN detected');
-	}
-
-	const callerIdentityArnType = callerIdentityArnComponents[1];
-
-	let callerArn;
-	if (
-		callerIdentityArnType === 'iam' &&
-		callerIdentityArnComponents[3] === 'user'
-	) {
-		callerArn = callerIdentity.Arn as string;
-	} else if (
-		callerIdentityArnType === 'sts' &&
-		callerIdentityArnComponents[3] === 'assumed-role'
-	) {
-		const assumedRoleComponents =
-			callerIdentityArnComponents[4].match(/\/([^/]+)\/(.*)/);
-		if (!assumedRoleComponents) {
-			throw new Error(
-				'Unsupported AWS Caller Identity as Assumed-Role ARN detected',
-			);
-		}
-
-		callerArn = `arn:aws:iam::${callerIdentityArnComponents[2]}:role/${assumedRoleComponents[1]}`;
-	} else {
-		throw new Error('Unsupported AWS Caller Identity ARN detected');
-	}
+	const {partition: regionPartition} =
+		LambdaClientInternals.getAwsRegionMetadata(options.region);
+	const callerArn = resolveCallerArnForSimulation({
+		callerIdentityArn: callerIdentity.Arn,
+		region: options.region,
+		regionPartition,
+	});
 
 	const results: SimulationResult[] = [];
 
-	for (const per of requiredPermissions) {
+	for (const per of getRequiredPermissions(regionPartition)) {
 		const result = await simulateRule({
 			actionNames: per.actions,
 			arn: callerArn,

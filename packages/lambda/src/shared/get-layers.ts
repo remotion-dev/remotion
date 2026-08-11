@@ -1,6 +1,6 @@
 import type {AwsRegion, RuntimePreference} from '@remotion/lambda-client';
 import {LambdaClientInternals} from '@remotion/lambda-client';
-import type {AwsLayer} from './hosted-layers';
+import type {AwsLayer, HostedLayerRegion} from './hosted-layers';
 import {hostedLayers} from './hosted-layers';
 
 export const validateRuntimePreference = (option: unknown) => {
@@ -28,8 +28,11 @@ export const getLayers = ({
 	option: RuntimePreference;
 	region: AwsRegion;
 }): AwsLayer[] => {
-	const layers = hostedLayers[region];
-	return layers.filter((layer) => {
+	if (!(region in hostedLayers)) {
+		throw new Error(`Remotion-hosted Layers are not available in ${region}.`);
+	}
+
+	return hostedLayers[region as HostedLayerRegion].filter((layer) => {
 		if (layer.layerArn.includes('emoji-apple')) {
 			return option === 'apple-emojis';
 		}

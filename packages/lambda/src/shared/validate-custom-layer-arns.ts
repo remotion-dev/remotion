@@ -1,4 +1,8 @@
-import type {AwsRegion, RuntimePreference} from '@remotion/lambda-client';
+import {
+	LambdaClientInternals,
+	type AwsRegion,
+	type RuntimePreference,
+} from '@remotion/lambda-client';
 
 const layerVersionArnRegex =
 	/^arn:([a-z0-9][a-z0-9-]*):lambda:([a-z0-9-]+):(\d{12}):layer:([A-Za-z0-9-_]+):(\d+)$/;
@@ -14,7 +18,14 @@ export const validateCustomLayerArns = ({
 	region: AwsRegion;
 	runtimePreference: RuntimePreference;
 }) => {
+	const {partition} = LambdaClientInternals.getAwsRegionMetadata(region);
 	if (customLayerArns === null) {
+		if (partition === 'aws-cn') {
+			throw new Error(
+				'customLayerArns must be specified when deploying to AWS China regions because Remotion-hosted Layers are not available in the aws-cn partition.',
+			);
+		}
+
 		return;
 	}
 
@@ -46,6 +57,12 @@ export const validateCustomLayerArns = ({
 		if (!match) {
 			throw new TypeError(
 				`Invalid Lambda Layer version ARN: ${layerArn}. Expected arn:<partition>:lambda:<region>:<12-digit-account-id>:layer:<layer-name>:<numeric-version>.`,
+			);
+		}
+
+		if (match[1] !== partition) {
+			throw new Error(
+				`The custom Layer ARN ${layerArn} uses partition ${match[1]}, but region ${region} uses partition ${partition}.`,
 			);
 		}
 

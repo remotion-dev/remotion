@@ -27,6 +27,7 @@ import {EventEmitter} from 'node:events';
 import type {StorageClass} from '@aws-sdk/client-s3';
 import type {ProviderSpecifics} from '@remotion/serverless-client';
 import {expiryDays} from '@remotion/serverless-client';
+import {getAwsRegionMetadata} from './aws-region-metadata';
 import {bucketExistsInRegionImplementation} from './bucket-exists';
 import {callFunctionAsyncImplementation} from './call-lambda-async';
 import {callFunctionWithStreamingImplementation} from './call-lambda-streaming';
@@ -124,6 +125,8 @@ export const awsImplementation: ProviderSpecifics<AwsProvider> = {
 		return MAX_EPHEMERAL_STORAGE_IN_MB;
 	},
 	estimatePrice,
+	getBillingCurrency: (region) => getAwsRegionMetadata(region).billingCurrency,
+	getServiceDnsSuffix: (region) => getAwsRegionMetadata(region).dnsSuffix,
 	getLoggingUrlForMethod: getCloudwatchMethodUrl,
 	getLoggingUrlForRendererFunction: getCloudwatchRendererUrl,
 	isFlakyError,

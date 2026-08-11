@@ -395,7 +395,12 @@ const innerStillHandler = async <Provider extends CloudProvider>(
 		size,
 		sizeInBytes: size,
 		bucketName,
-		estimatedPrice: formatCostsInfo(estimatedPrice),
+		estimatedPrice: formatCostsInfo(
+			estimatedPrice,
+			providerSpecifics.getBillingCurrency(
+				insideFunctionSpecifics.getCurrentRegionInFunction(),
+			),
+		),
 		renderId,
 		outKey,
 		receivedArtifacts: receivedArtifact,

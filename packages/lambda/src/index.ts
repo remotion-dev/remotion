@@ -1,4 +1,5 @@
 import type {
+	AwsPartition,
 	AwsRegion,
 	CustomCredentials,
 	DeleteFunctionInput,
@@ -166,6 +167,7 @@ export {
 	validateWebhookSignature,
 };
 export type {
+	AwsPartition,
 	AwsRegion,
 	CustomCredentials,
 	DeleteFunctionInput,
@@ -203,4 +205,5 @@ export type {
 	SimulatePermissionsOutput,
 };
 
+export type {GetPolicyOptions} from './api/iam-validation/suggested-policy';
 export {_InternalOverallRenderProgress};
