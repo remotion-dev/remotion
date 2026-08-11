@@ -91,6 +91,7 @@ type SharedAudioContextValue = {
 	suspend: () => Promise<void>;
 	getIsResumingAudioContext: () => Promise<AudioContextResumeResult> | null;
 	unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
+	keepAudioContextAlive: boolean;
 };
 
 type SharedAudioTagsContextValue = {
@@ -205,7 +206,14 @@ export const SharedAudioContextProvider: React.FC<{
 	readonly audioLatencyHint: AudioContextLatencyCategory;
 	readonly audioEnabled: boolean;
 	readonly previewSampleRate: number | null;
-}> = ({children, audioLatencyHint, audioEnabled, previewSampleRate}) => {
+	readonly keepAudioContextAlive?: boolean;
+}> = ({
+	children,
+	audioLatencyHint,
+	audioEnabled,
+	previewSampleRate,
+	keepAudioContextAlive = false,
+}) => {
 	const logLevel = useLogLevel();
 	const sampleRate = previewSampleRate ?? 48000;
 
@@ -391,6 +399,13 @@ export const SharedAudioContextProvider: React.FC<{
 		});
 		nodesToResume.current.clear();
 
+		if (keepAudioContextAlive && ctxAndGain.audioContext.state === 'running') {
+			// The context was never suspended, so there is nothing to wait for:
+			// the resume-wait machinery, its timeout and the mute-on-failure
+			// path are not entered.
+			return Promise.resolve();
+		}
+
 		const resumePromise = ctxAndGain.resume();
 		const abortController = new AbortController();
 		const resumeAttemptId = nextResumeAttemptId.current++;
@@ -425,7 +440,7 @@ export const SharedAudioContextProvider: React.FC<{
 			// Already logged above; swallow to avoid unhandled rejection
 			// since callers (e.g. use-playback.ts) do not await this.
 		});
-	}, [ctxAndGain, logLevel]);
+	}, [ctxAndGain, keepAudioContextAlive, logLevel]);
 
 	const getIsResumingAudioContext = useCallback(() => {
 		return isResuming.current?.promise ?? null;
@@ -443,8 +458,70 @@ export const SharedAudioContextProvider: React.FC<{
 		}
 
 		audioContextIsPlayingEventually.current = false;
+
+		if (keepAudioContextAlive) {
+			// Silence through the gain instead of suspending, so the context
+			// clock keeps running and the next resume() is instant. Audio that
+			// is already scheduled plays out silently; resume() ramps the gain
+			// back up.
+			ctxAndGain.gainNode.gain.cancelScheduledValues(
+				ctxAndGain.audioContext.currentTime,
+			);
+			ctxAndGain.gainNode.gain.setValueAtTime(
+				0,
+				ctxAndGain.audioContext.currentTime,
+			);
+			return Promise.resolve();
+		}
+
 		return ctxAndGain.suspend();
-	}, [ctxAndGain]);
+	}, [ctxAndGain, keepAudioContextAlive]);
+
+	// With keepAudioContextAlive, start the context as early as possible so
+	// the first play never waits on the suspended→running transition. Where
+	// no autoplay restriction applies (e.g. Electron with
+	// `no-user-gesture-required`), the mount attempt succeeds immediately;
+	// in a browser the first user gesture starts it. suspend() never reaches
+	// the native context in this mode, so once running it stays running.
+	// The cleanup suspends the native context, since Player contexts are
+	// not close()d and must not be left running after unmount.
+	useEffect(() => {
+		if (!keepAudioContextAlive) {
+			return;
+		}
+
+		if (!ctxAndGain) {
+			return;
+		}
+
+		if (typeof window === 'undefined') {
+			return;
+		}
+
+		const wake = () => {
+			if (ctxAndGain.audioContext.state === 'running') {
+				return;
+			}
+
+			ctxAndGain.resume().catch(() => {
+				// A rejection here means autoplay is still blocked; a later
+				// gesture will retry.
+			});
+		};
+
+		wake();
+		window.addEventListener('pointerdown', wake, {
+			capture: true,
+			passive: true,
+		});
+		window.addEventListener('keydown', wake, {capture: true, passive: true});
+
+		return () => {
+			window.removeEventListener('pointerdown', wake, {capture: true});
+			window.removeEventListener('keydown', wake, {capture: true});
+			ctxAndGain.suspend().catch(() => {});
+		};
+	}, [ctxAndGain, keepAudioContextAlive]);
 
 	const audioContextValue: SharedAudioContextValue = useMemo(() => {
 		return {
@@ -458,6 +535,7 @@ export const SharedAudioContextProvider: React.FC<{
 			suspend,
 			getIsResumingAudioContext,
 			unscheduleAudioNode,
+			keepAudioContextAlive,
 		};
 	}, [
 		ctxAndGain,
@@ -468,6 +546,7 @@ export const SharedAudioContextProvider: React.FC<{
 		suspend,
 		getIsResumingAudioContext,
 		unscheduleAudioNode,
+		keepAudioContextAlive,
 	]);
 
 	return (

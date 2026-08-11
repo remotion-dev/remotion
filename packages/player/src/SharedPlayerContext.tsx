@@ -37,6 +37,7 @@ export const SharedPlayerContexts: React.FC<{
 	readonly initialVolume?: number;
 	readonly inputProps: Record<string, unknown>;
 	readonly audioEnabled: boolean;
+	readonly keepAudioContextAlive?: boolean;
 }> = ({
 	children,
 	timelineContext,
@@ -55,6 +56,7 @@ export const SharedPlayerContexts: React.FC<{
 	initialVolume,
 	inputProps,
 	audioEnabled,
+	keepAudioContextAlive,
 }) => {
 	const persistVolumeToStorage = initialVolume === undefined;
 	const compositionManagerContext: CompositionManagerContext = useMemo(() => {
@@ -194,6 +196,7 @@ export const SharedPlayerContexts: React.FC<{
 																audioLatencyHint={audioLatencyHint}
 																audioEnabled={shouldCreateAudioContext}
 																previewSampleRate={sampleRate}
+																keepAudioContextAlive={keepAudioContextAlive}
 															>
 																<Internals.SharedAudioTagsContextProvider
 																	numberOfAudioTags={numberOfSharedAudioTags}

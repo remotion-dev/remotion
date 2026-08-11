@@ -7,7 +7,10 @@ import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
 import {useBrowserMediaSession} from './browser-mediasession.js';
 import {calculateNextFrame} from './calculate-next-frame.js';
 import {useIsBackgrounded} from './is-backgrounded.js';
-import {setGlobalTimeAnchor} from './set-global-time-anchor.js';
+import {
+	ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT,
+	setGlobalTimeAnchor,
+} from './set-global-time-anchor.js';
 import {type UsePlayerMethods, usePlayerMethods} from './use-player-methods.js';
 
 const shouldForceAnchorChange = (newState: RemotionAudioContextState) => {
@@ -160,6 +163,36 @@ export const usePlayback = ({
 		if (!playing) {
 			sharedAudioContext?.suspend?.();
 			return;
+		}
+
+		if (
+			sharedAudioContext?.keepAudioContextAlive &&
+			sharedAudioContext.audioContext &&
+			!muted
+		) {
+			// With keepAudioContextAlive, the context clock keeps running while
+			// frames are not advancing (pauses, buffering, muted playback), so
+			// the time anchor is stale by the length of the stall. Re-derive it
+			// exactly from the current frame before scheduling resumes, and let
+			// the audio iterators reschedule from the corrected anchor. Shifts
+			// below the usual tolerance are left alone. Without this mode,
+			// suspend() froze the clock together with the frame clock and no
+			// correction was needed.
+			const expectedAnchor =
+				sharedAudioContext.audioContext.currentTime -
+				getCurrentFrame() / config.fps / playbackRate;
+			const shift = expectedAnchor - sharedAudioContext.audioSyncAnchor.value;
+			if (Math.abs(shift) >= ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT) {
+				setGlobalTimeAnchor({
+					audioContext: sharedAudioContext.audioContext,
+					audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
+					absoluteTimeInSeconds: getCurrentFrame() / config.fps,
+					globalPlaybackRate: playbackRate,
+					logLevel,
+					force: true,
+				});
+				sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
+			}
 		}
 
 		let hasBeenStopped = false;

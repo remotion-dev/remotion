@@ -100,6 +100,7 @@ export type PlayerProps<
 	readonly sampleRate?: number;
 	readonly volumePersistenceKey?: string;
 	readonly initialVolume?: number;
+	readonly keepAudioContextAlive?: boolean;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -172,6 +173,7 @@ const PlayerFn = <
 		sampleRate = 48000,
 		volumePersistenceKey,
 		initialVolume,
+		keepAudioContextAlive = false,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: RefObject<PlayerRef>,
@@ -449,6 +451,7 @@ const PlayerFn = <
 				logLevel={logLevel}
 				audioLatencyHint={audioLatencyHint}
 				sampleRate={sampleRate}
+				keepAudioContextAlive={keepAudioContextAlive}
 				volumePersistenceKey={volumePersistenceKey}
 				initialVolume={initialVolume}
 				inputProps={actualInputProps}
