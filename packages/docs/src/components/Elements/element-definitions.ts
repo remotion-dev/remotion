@@ -15,7 +15,7 @@ import {NumberCounter} from '../../../elements/data/number-counter/number-counte
 import {ProductOffer} from '../../../elements/data/product-offer/product-offer';
 import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
-import {NameLowerThird} from '../../../elements/overlays/lower-third/lower-third';
+import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-lower-third';
 import {YouTubeEndCard} from '../../../elements/overlays/social-endcard/social-endcard';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
@@ -202,7 +202,7 @@ export const elementDefinitions = {
 		installationMode: 'wrapped',
 		width: 1920,
 	},
-	'overlays/lower-third': {
+	'overlays/name-lower-third': {
 		category: 'overlays',
 		component: NameLowerThird,
 		contributors: [],
@@ -211,19 +211,19 @@ export const elementDefinitions = {
 		dependencies: [{name: '@remotion/google-fonts', version: null}],
 		displayName: 'Name Lower Third',
 		durationInFrames: 120,
-		elementHeight: 138,
-		elementWidth: 680,
+		elementHeight: 132,
+		elementWidth: 534,
 		fps: 30,
 		height: 1080,
 		posterFrame: 60,
 		preview: {
 			posterUrl:
-				'https://remotion.media/elements/overlays-lower-third-preview.png',
+				'https://remotion.media/elements/overlays-name-lower-third-preview.png',
 			videoUrl:
-				'https://remotion.media/elements/overlays-lower-third-preview.mp4',
+				'https://remotion.media/elements/overlays-name-lower-third-preview.mp4',
 		},
 		previewPadding: 300,
-		slug: 'overlays/lower-third',
+		slug: 'overlays/name-lower-third',
 		installationMode: 'wrapped',
 		width: 1920,
 	},

@@ -60,7 +60,7 @@ const sidebars: SidebarsConfig = {
 			collapsed: false,
 			items: [
 				'overlays/location-lower-third/index',
-				'overlays/lower-third/index',
+				'overlays/name-lower-third/index',
 				'overlays/social-endcard/index',
 			],
 		},

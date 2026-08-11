@@ -156,7 +156,7 @@ export default async function middleware(request: Request) {
 
 	// Case 1: .md extension - rewrite to raw markdown
 	// Example: /docs/preview.md → /_raw/docs/preview.md
-	// Example: /elements/overlays/lower-third.md → /_raw/elements/overlays/lower-third.md
+	// Example: /elements/overlays/name-lower-third.md → /_raw/elements/overlays/name-lower-third.md
 	if (pathname.endsWith('.md')) {
 		const targetPath = pathname.replace(/^\/(docs|elements)\//, '/_raw/$1/');
 		return rewrite(new URL(targetPath, request.url));
@@ -164,7 +164,7 @@ export default async function middleware(request: Request) {
 
 	// Case 2: Accept header or user agent prefers markdown - rewrite to raw markdown
 	// Example: /docs/preview + Accept: text/markdown → /_raw/docs/preview.md
-	// Example: /elements/overlays/lower-third + User-Agent: Claude → /_raw/elements/overlays/lower-third.md
+	// Example: /elements/overlays/name-lower-third + User-Agent: Claude → /_raw/elements/overlays/name-lower-third.md
 	const acceptHeader = request.headers.get('accept');
 	const userAgent = request.headers.get('user-agent');
 	if (prefersMarkdown(acceptHeader, userAgent)) {
