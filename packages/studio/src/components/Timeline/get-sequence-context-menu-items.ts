@@ -131,6 +131,7 @@ export const getSequenceContextMenuItems = ({
 						},
 					);
 				},
+				onOpenInTerminal: null,
 			})
 		: [];
 

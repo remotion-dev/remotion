@@ -12,28 +12,29 @@ import {
 const makeContext = ({
 	platform,
 	paths,
-	env = {},
-	macApplications = {},
+	env,
+	macApplications,
 }: {
 	platform: NodeJS.Platform;
 	paths: readonly string[];
-	env?: NodeJS.ProcessEnv;
-	macApplications?: Record<string, readonly string[]>;
+	env: NodeJS.ProcessEnv | null;
+	macApplications: Record<string, readonly string[]> | null;
 }): TerminalDiscoveryContext => {
 	const existingPaths = new Set(paths);
 	return {
 		platform,
-		env,
+		env: env ?? {},
 		homeDirectory: platform === 'win32' ? 'C:\\Users\\test' : '/home/test',
 		pathExists: (filePath) => existingPaths.has(filePath),
 		findMacApplications: (bundleIdentifier) =>
-			Promise.resolve(macApplications[bundleIdentifier] ?? []),
+			Promise.resolve(macApplications?.[bundleIdentifier] ?? []),
 	};
 };
 
 test('discovers supported macOS terminals', async () => {
 	const terminals = await discoverAvailableTerminals(
 		makeContext({
+			env: null,
 			platform: 'darwin',
 			paths: [
 				'/Applications/Terminal.app',
@@ -80,6 +81,7 @@ test('discovers supported Linux terminals from known locations and PATH', async 
 				'/usr/bin/konsole',
 			],
 			env: {PATH: '/custom/bin:/usr/local/bin'},
+			macApplications: null,
 		}),
 	);
 
@@ -104,6 +106,7 @@ test('discovers supported Windows terminals', async () => {
 				LOCALAPPDATA: 'C:\\Users\\test\\AppData\\Local',
 				ProgramFiles: 'C:\\Program Files',
 			},
+			macApplications: null,
 		}),
 	);
 
@@ -124,7 +127,12 @@ test('discovers supported Windows terminals', async () => {
 
 test('does not report terminals on unsupported platforms', async () => {
 	const terminals = await discoverAvailableTerminals(
-		makeContext({platform: 'freebsd', paths: []}),
+		makeContext({
+			env: null,
+			macApplications: null,
+			platform: 'freebsd',
+			paths: [],
+		}),
 	);
 
 	expect(terminals).toEqual([]);

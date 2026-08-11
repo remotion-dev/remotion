@@ -45,6 +45,7 @@ export const SettingsModalFooter: React.FC = () => {
 				<div style={configFileHint}>
 					Changes save to
 					<InspectorOpenInEditor
+						locationType={null}
 						location={configFileLocation}
 						label={<strong style={configFileName}>remotion.config.ts</strong>}
 					/>

@@ -48,7 +48,7 @@ export const getOpenInMenuItems = ({
 	) => void;
 	readonly onOpenInEditor: (editorId: EditorPickerId) => void;
 	readonly onOpenInFileExplorer: () => void;
-	readonly onOpenInTerminal?: (terminalId: TerminalId) => void;
+	readonly onOpenInTerminal: ((terminalId: TerminalId) => void) | null;
 }): ComboboxValue[] => {
 	const showFinder = window.remotion_fileSystemPlatform === 'darwin';
 	const fileManagerName = getFileManagerName(

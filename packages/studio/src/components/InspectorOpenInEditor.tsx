@@ -64,8 +64,8 @@ export const InspectorOpenInEditor: React.FC<{
 	readonly contextForAgents?: string | null;
 	readonly location: OriginalPosition | null;
 	readonly label?: React.ReactNode;
-	readonly locationType?: 'file' | 'folder';
-}> = ({contextForAgents = null, label, location, locationType = 'file'}) => {
+	readonly locationType: 'file' | 'folder' | null;
+}> = ({contextForAgents = null, label, location, locationType}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {tabIndex} = useZIndex();

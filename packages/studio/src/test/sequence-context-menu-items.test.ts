@@ -83,6 +83,7 @@ test('the file manager entry is only shown on macOS', () => {
 			onOpenInCodingAgent: noop,
 			onOpenInEditor: noop,
 			onOpenInFileExplorer: noop,
+			onOpenInTerminal: null,
 		});
 
 	expect(getItems().some((item) => item.id === 'open-in-file-explorer')).toBe(
