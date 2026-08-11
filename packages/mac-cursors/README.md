@@ -1,6 +1,6 @@
 # @remotion/mac-cursors
 
-Internal macOS cursor components for Remotion.
+Internal macOS cursor components for Remotion
 
 ## Usage
 

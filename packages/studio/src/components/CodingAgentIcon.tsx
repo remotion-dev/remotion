@@ -1,26 +1,23 @@
+import type {DefaultCodingAgent} from '@remotion/renderer';
 import React from 'react';
 import {AppsIcon} from '../icons/apps';
 
-const iconStyle: React.CSSProperties = {
-	flexShrink: 0,
-	height: 18,
-	width: 18,
-};
-
 export const CodingAgentIcon: React.FC<{
-	readonly iconDataUrl: string | null;
-}> = ({iconDataUrl}) => {
-	if (iconDataUrl === null) {
-		return <AppsIcon height={18} width={18} />;
+	readonly codingAgentId: DefaultCodingAgent | null;
+	readonly size: number;
+}> = ({codingAgentId, size}) => {
+	if (codingAgentId === null) {
+		return <AppsIcon height={size} width={size} />;
 	}
 
 	return (
 		<img
 			alt=""
 			aria-hidden
+			data-coding-agent-icon={codingAgentId}
 			draggable={false}
-			src={iconDataUrl}
-			style={iconStyle}
+			src={`/api/app-icon/coding-agent/${codingAgentId}.png`}
+			style={{flexShrink: 0, height: size, width: size}}
 		/>
 	);
 };

@@ -157,8 +157,8 @@ import {
 } from './StudioApis/SaveDefaultProps';
 import {TriggerCalculateMetadata} from './StudioApis/TriggerCalculateMetadata';
 import {WriteStaticFile} from './StudioApis/WriteStaticFile';
-import './style.css';
 import {SubtitleArtifact} from './SubtitleArtifact/SubtitleArtifact';
+import './style.css';
 import {SvgFilter} from './SvgFilter';
 import {Tailwind} from './Tailwind';
 import {TenFrameTester} from './TenFrameTester';
@@ -181,6 +181,7 @@ import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoParser} from './VideoParser';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
+import {VisualMode3D} from './VisualMode3D';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
 import {WatchStaticDemo} from './watch-static';
@@ -2748,6 +2749,14 @@ export const Index: React.FC = () => {
 				id="controls-showcase"
 				component={ControlsShowcase}
 				width={2300}
+				height={1080}
+				fps={30}
+				durationInFrames={120}
+			/>
+			<Composition
+				id="visual-mode-3d"
+				component={VisualMode3D}
+				width={1080}
 				height={1080}
 				fps={30}
 				durationInFrames={120}

@@ -1,4 +1,5 @@
 export {splitAnsi, stripAnsi} from './ansi';
+export type {TerminalId} from './terminal';
 export {
 	AddEffectKeyframeRequest,
 	AddEffectKeyframeResponse,
@@ -80,6 +81,8 @@ export {
 	OpenInEditorRequest,
 	OpenInEditorResponse,
 	OpenInFileExplorerRequest,
+	OpenInTerminalRequest,
+	OpenInTerminalResponse,
 	PackageInstallSpec,
 	PasteEffectsRequest,
 	PasteEffectsResponse,

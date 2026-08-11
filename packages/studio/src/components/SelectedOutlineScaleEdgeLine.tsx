@@ -73,6 +73,7 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 	);
 	const scaleDrag = target?.scaleDrag ?? null;
 	const selected = target?.selected ?? false;
+	const containsSelection = target?.containsSelection ?? false;
 	const lineRef = useRef<SVGLineElement>(null);
 	const edgeInfo = useMemo(
 		() => getSelectedOutlineScaleEdgeInfo(outline.points, edge),
@@ -90,7 +91,9 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 
 			const interaction = getOutlineSelectionInteraction(event);
 			const shouldUpdateSelection =
-				!selected || interaction.shiftKey || interaction.toggleKey;
+				(!selected && !containsSelection) ||
+				interaction.shiftKey ||
+				interaction.toggleKey;
 			if (shouldUpdateSelection && target !== undefined) {
 				onSelect(target.selection, interaction);
 			}
@@ -250,6 +253,7 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 		},
 		[
 			clearDragOverrides,
+			containsSelection,
 			getAllScaleDragTargets,
 			edgeInfo,
 			getDragOverrides,
@@ -280,6 +284,10 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 				vectorEffect="non-scaling-stroke"
 				pointerEvents="stroke"
 				cursor={edgeInfo.cursor}
+				data-remotion-studio-scale-edge={edge}
+				data-remotion-studio-scale-edge-contains-selection={
+					target?.containsSelection ?? false
+				}
 				onPointerEnter={() => {
 					if (!dragging) {
 						onHoverChange(outline.key);

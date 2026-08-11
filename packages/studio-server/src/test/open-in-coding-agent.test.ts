@@ -22,7 +22,6 @@ test('constructs macOS coding agent launch commands', () => {
 		getCodingAgentLaunchCommand({
 			codingAgent: {
 				applicationPath: '/Applications/ChatGPT.app',
-				iconDataUrl: null,
 				id: 'codex',
 				launchMode: 'direct',
 				name: 'Codex',
@@ -42,7 +41,6 @@ test('constructs macOS coding agent launch commands', () => {
 		getCodingAgentLaunchCommand({
 			codingAgent: {
 				applicationPath: '/Applications/Cursor.app',
-				iconDataUrl: null,
 				id: 'cursor',
 				launchMode: 'direct',
 				name: 'Cursor',
@@ -61,7 +59,6 @@ test('constructs macOS coding agent launch commands', () => {
 	for (const codingAgent of [
 		{
 			applicationPath: '/Applications/GitHub Copilot.app',
-			iconDataUrl: null,
 			id: 'copilot' as const,
 			launchMode: 'direct' as const,
 			name: 'GitHub Copilot',
@@ -71,7 +68,6 @@ test('constructs macOS coding agent launch commands', () => {
 		},
 		{
 			applicationPath: '/Applications/Claude.app',
-			iconDataUrl: null,
 			id: 'claude-code' as const,
 			launchMode: 'direct' as const,
 			name: 'Claude Code',
@@ -98,7 +94,6 @@ test('constructs Linux coding agent launch commands', () => {
 		getCodingAgentLaunchCommand({
 			codingAgent: {
 				applicationPath: '/usr/local/bin/codex',
-				iconDataUrl: null,
 				id: 'codex',
 				launchMode: 'terminal',
 				name: 'Codex',
@@ -125,7 +120,6 @@ test('constructs Linux coding agent launch commands', () => {
 		getCodingAgentLaunchCommand({
 			codingAgent: {
 				applicationPath: '/usr/bin/cursor',
-				iconDataUrl: null,
 				id: 'cursor',
 				launchMode: 'direct',
 				name: 'Cursor',
@@ -147,7 +141,6 @@ test('constructs Windows coding agent launch commands', () => {
 		getCodingAgentLaunchCommand({
 			codingAgent: {
 				applicationPath: 'C:\\Tools\\copilot.cmd',
-				iconDataUrl: null,
 				id: 'copilot',
 				launchMode: 'terminal',
 				name: 'GitHub Copilot',
@@ -186,7 +179,6 @@ test('prefills editable macOS coding agents without submitting to Copilot', () =
 		getCodingAgentLaunchCommands({
 			codingAgent: {
 				applicationPath: '/Applications/ChatGPT.app',
-				iconDataUrl: null,
 				id: 'codex',
 				launchMode: 'direct',
 				name: 'Codex',
@@ -212,7 +204,6 @@ test('prefills editable macOS coding agents without submitting to Copilot', () =
 		getCodingAgentLaunchCommands({
 			codingAgent: {
 				applicationPath: '/Applications/Cursor.app',
-				iconDataUrl: null,
 				id: 'cursor',
 				launchMode: 'direct',
 				name: 'Cursor',
@@ -244,7 +235,6 @@ test('prefills editable macOS coding agents without submitting to Copilot', () =
 		getCodingAgentLaunchCommands({
 			codingAgent: {
 				applicationPath: '/Applications/Claude.app',
-				iconDataUrl: null,
 				id: 'claude-code',
 				launchMode: 'direct',
 				name: 'Claude Code',
@@ -270,7 +260,6 @@ test('prefills editable macOS coding agents without submitting to Copilot', () =
 		getCodingAgentLaunchCommands({
 			codingAgent: {
 				applicationPath: '/Applications/GitHub Copilot.app',
-				iconDataUrl: null,
 				id: 'copilot',
 				launchMode: 'direct',
 				name: 'GitHub Copilot',
@@ -316,7 +305,6 @@ test.skipIf(process.platform === 'win32')(
 			const success = await launchCodingAgent({
 				codingAgent: {
 					applicationPath,
-					iconDataUrl: null,
 					id: 'codex',
 					launchMode: 'direct',
 					name: 'Codex',
@@ -369,7 +357,6 @@ test.skipIf(process.platform === 'win32')(
 			const success = await launchCodingAgent({
 				codingAgent: {
 					applicationPath,
-					iconDataUrl: null,
 					id: 'codex',
 					launchMode: 'terminal',
 					name: 'Codex',

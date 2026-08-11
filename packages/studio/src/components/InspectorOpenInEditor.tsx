@@ -11,6 +11,7 @@ import {
 } from '../helpers/colors';
 import {
 	openInCodingAgent,
+	openInTerminal,
 	openOriginalPositionInEditor,
 } from '../helpers/open-in-editor';
 import {CaretDown} from '../icons/caret';
@@ -63,7 +64,8 @@ export const InspectorOpenInEditor: React.FC<{
 	readonly contextForAgents?: string | null;
 	readonly location: OriginalPosition | null;
 	readonly label?: React.ReactNode;
-}> = ({contextForAgents = null, label, location}) => {
+	readonly locationType: 'file' | 'folder' | null;
+}> = ({contextForAgents = null, label, location, locationType}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {tabIndex} = useZIndex();
@@ -161,6 +163,7 @@ export const InspectorOpenInEditor: React.FC<{
 			excludeCodingAgentId: null,
 			excludeEditorId: preferredEditorId,
 			fileManagerDisabled: !location?.source,
+			folder: locationType === 'folder',
 			onConfigureApps: () => {
 				setSelectedModal({
 					type: 'settings',
@@ -186,11 +189,30 @@ export const InspectorOpenInEditor: React.FC<{
 					showNotification(`Could not open file: ${err.message}`, 2000);
 				});
 			},
+			onOpenInTerminal: (terminalId) => {
+				if (!location?.source || locationType !== 'folder') {
+					return;
+				}
+
+				openInTerminal(terminalId, location.source)
+					.then((response) => {
+						if (!response.success) {
+							showNotification('Could not open terminal', 2000);
+						}
+					})
+					.catch((err) => {
+						showNotification(
+							`Could not open terminal: ${(err as Error).message}`,
+							2000,
+						);
+					});
+			},
 		});
 	}, [
 		codingAgentInfo,
 		editorInfo,
 		location,
+		locationType,
 		openWithCodingAgent,
 		openWithEditor,
 		preferredEditorId,

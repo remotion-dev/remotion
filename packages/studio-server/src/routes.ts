@@ -30,6 +30,7 @@ import {getStaticFileFallbackHint} from './preview-server/get-static-file-fallba
 import {handleRequest} from './preview-server/handler';
 import type {LiveEventsServer} from './preview-server/live-events';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
+import {handleAppIcon} from './preview-server/routes/app-icon';
 import {getEditorName} from './preview-server/routes/open-in-editor';
 import {serveStatic} from './preview-server/serve-static';
 import {handleStudioProtocolDiscovery} from './preview-server/studio-protocol/handle-discovery';
@@ -441,6 +442,14 @@ export const handleRoutes = ({
 			res: response,
 			search: url.search,
 			remotionRoot,
+		});
+	}
+
+	if (url.pathname.startsWith('/api/app-icon/')) {
+		return handleAppIcon({
+			pathname: url.pathname,
+			request,
+			response,
 		});
 	}
 

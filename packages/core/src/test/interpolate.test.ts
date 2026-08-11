@@ -477,6 +477,12 @@ test('Interpolates rotate strings', () => {
 		'50deg 25deg',
 	);
 	expect(interpolate(15, [0, 30], ['0turn', '0.5turn'])).toBe('0.25turn');
+	expect(interpolate(15, [0, 30], ['x 0deg', 'y 100deg'])).toBe(
+		'0.5 0.5 0 50deg',
+	);
+	expect(interpolate(15, [0, 30], ['0deg', '1 0 0 100deg'])).toBe(
+		'0.5 0 0.5 50deg',
+	);
 });
 
 test('String interpolation supports easing, extrapolation and posterization', () => {
@@ -513,6 +519,10 @@ test('String interpolation throws on type and unit mismatches', () => {
 	expectToThrow(
 		() => interpolate(15, [0, 30], ['0deg', '0.5turn']),
 		/different units on axis 1/,
+	);
+	expectToThrow(
+		() => interpolate(15, [0, 30], ['x 0deg', '0 1 0 0.5turn']),
+		/different units on axis 4/,
 	);
 	expectToThrow(
 		() => interpolate(15, [0, 30], ['0px', '1px 2px 3px 4px']),

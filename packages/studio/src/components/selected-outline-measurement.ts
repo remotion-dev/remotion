@@ -8,7 +8,11 @@ import type {
 	SelectedOutlineLayoutTarget,
 	SequenceWithSelectedOutline,
 } from './selected-outline-types';
-import {cropFieldKeys, transformOriginFieldKey} from './selected-outline-types';
+import {
+	cropFieldKeys,
+	rotateFieldKey,
+	transformOriginFieldKey,
+} from './selected-outline-types';
 import {getUvHandlePosition} from './selected-outline-uv';
 import {parseKeyframeFieldFromNodePath} from './Timeline/parse-keyframe-field-from-node-path';
 import {
@@ -456,6 +460,11 @@ type SelectedTransformOriginInfo = {
 	readonly displayFrame: number | null;
 };
 
+export type SelectedRotationInfo = {
+	readonly sequenceKey: string;
+	readonly displayFrame: number | null;
+};
+
 export type SelectedCropInfo = {
 	readonly sequenceKey: string;
 	readonly displayFrame: number | null;
@@ -527,6 +536,42 @@ export const getSelectedTransformOriginInfo = (
 		field?.type !== 'sequence' ||
 		field.fieldKey !== transformOriginFieldKey
 	) {
+		return null;
+	}
+
+	return {
+		sequenceKey: getTimelineSequenceSelectionKey(selectedItem.nodePathInfo),
+		displayFrame:
+			selectedItem.type === 'keyframe'
+				? selectedItem.frame
+				: selectedItem.fromFrame,
+	};
+};
+
+export const getSelectedRotationInfo = (
+	selectedItems: readonly TimelineSelection[],
+): SelectedRotationInfo | null => {
+	if (selectedItems.length !== 1) {
+		return null;
+	}
+
+	const [selectedItem] = selectedItems;
+	if (
+		selectedItem.type === 'sequence-prop' &&
+		selectedItem.key === rotateFieldKey
+	) {
+		return {
+			sequenceKey: getTimelineSequenceSelectionKey(selectedItem.nodePathInfo),
+			displayFrame: null,
+		};
+	}
+
+	if (selectedItem.type !== 'keyframe' && selectedItem.type !== 'easing') {
+		return null;
+	}
+
+	const field = getKeyframeOrEasingField(selectedItem);
+	if (field?.type !== 'sequence' || field.fieldKey !== rotateFieldKey) {
 		return null;
 	}
 
