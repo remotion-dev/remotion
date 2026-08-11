@@ -1,9 +1,9 @@
 #!/usr/bin/env bun
-import {cpSync, existsSync, readdirSync, writeFileSync} from 'fs';
-import {rm} from 'fs/promises';
-import path from 'path';
 import {$, build, S3Client, type BuildConfig} from 'bun';
 import plugin from 'bun-plugin-tailwind';
+import {cpSync, existsSync, mkdirSync, readdirSync, writeFileSync} from 'fs';
+import {rm} from 'fs/promises';
+import path from 'path';
 import {makeLlmsText} from './src/llms';
 import variants from './variants.json';
 
@@ -192,6 +192,7 @@ const buildTime = (end - start).toFixed(2);
 console.log(`\n✅ Build completed in ${buildTime}ms\n`);
 
 const filesDir = path.join(process.cwd(), 'files');
+mkdirSync(filesDir, {recursive: true});
 
 for await (const file of new Bun.Glob('chunk-*').scan(filesDir)) {
 	await rm(path.join(filesDir, file));

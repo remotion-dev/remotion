@@ -223,6 +223,9 @@ export function App() {
 				Hosted on Cloudflare R2 Free Tier, allowing for theoretically unlimited
 				bandwidth. <br />
 				Files may be used royalty-free and without attribution.
+				<br />
+				You can safely pass this website to an AI agent - a Markdown version of
+				this catalog will be returned automatically.
 			</p>
 			<div className="flex gap-8 items-start">
 				<Sidebar
