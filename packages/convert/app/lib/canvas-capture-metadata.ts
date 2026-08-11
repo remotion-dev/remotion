@@ -9,6 +9,11 @@ export type CanvasCaptureMouseMovement = {
 	readonly cursor: string;
 };
 
+export type CanvasCapturePointerClick = {
+	readonly timeInSeconds: number;
+	readonly type: 'pointer-down' | 'pointer-up';
+};
+
 export type CanvasCaptureMetadata = {
 	readonly density: number;
 };
@@ -16,6 +21,7 @@ export type CanvasCaptureMetadata = {
 export type CanvasCaptureCursorData = {
 	readonly captureMetadata: CanvasCaptureMetadata;
 	readonly mouseMovements: CanvasCaptureMouseMovement[];
+	readonly pointerClicks: CanvasCapturePointerClick[];
 };
 
 export const findCanvasCaptureCursorAtTime = (
@@ -38,6 +44,28 @@ export const findCanvasCaptureCursorAtTime = (
 	}
 
 	return latest;
+};
+
+export const isCanvasCapturePointerDownAtTime = (
+	pointerClicks: readonly CanvasCapturePointerClick[],
+	timeInSeconds: number,
+) => {
+	let low = 0;
+	let high = pointerClicks.length - 1;
+	let latest: CanvasCapturePointerClick | null = null;
+
+	while (low <= high) {
+		const middle = Math.floor((low + high) / 2);
+		const click = pointerClicks[middle];
+		if (click.timeInSeconds <= timeInSeconds) {
+			latest = click;
+			low = middle + 1;
+		} else {
+			high = middle - 1;
+		}
+	}
+
+	return latest?.type === 'pointer-down';
 };
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
@@ -94,9 +122,35 @@ export const parseCanvasCaptureCursorData = (
 		});
 	}
 
+	const pointerClicks: CanvasCapturePointerClick[] = [];
+	if (parsed.pointerClicks !== undefined) {
+		if (!Array.isArray(parsed.pointerClicks)) {
+			return null;
+		}
+
+		for (const click of parsed.pointerClicks) {
+			if (
+				!isRecord(click) ||
+				!isFiniteNumber(click.timeInSeconds) ||
+				click.timeInSeconds < 0 ||
+				(click.type !== 'pointer-down' && click.type !== 'pointer-up')
+			) {
+				return null;
+			}
+
+			pointerClicks.push({
+				timeInSeconds: click.timeInSeconds,
+				type: click.type,
+			});
+		}
+	}
+
 	return {
 		captureMetadata: {density: parsed.captureMetadata.density},
 		mouseMovements: mouseMovements.sort(
+			(a, b) => a.timeInSeconds - b.timeInSeconds,
+		),
+		pointerClicks: pointerClicks.sort(
 			(a, b) => a.timeInSeconds - b.timeInSeconds,
 		),
 	};

@@ -54,6 +54,7 @@ export const FileAvailable: React.FC<{
 	const [trimOutFrame, setTrimOutFrame] = useState<number | null>(null);
 	const [showCursor, setShowCursor] = useState(true);
 	const [cursorScale, setCursorScale] = useState(1);
+	const [cursorPressedScale, setCursorPressedScale] = useState(0.8);
 
 	const [waveform, setWaveform] = useState<number[]>([]);
 
@@ -102,6 +103,7 @@ export const FileAvailable: React.FC<{
 							cursorData={cursorData}
 							showCursor={showCursor}
 							cursorScale={cursorScale}
+							cursorPressedScale={cursorPressedScale}
 							onPlaybackTimeChange={setPlaybackTime}
 						/>
 						<div className="h-8" />
@@ -165,6 +167,8 @@ export const FileAvailable: React.FC<{
 											setShowCursor={setShowCursor}
 											cursorScale={cursorScale}
 											setCursorScale={setCursorScale}
+											cursorPressedScale={cursorPressedScale}
+											setCursorPressedScale={setCursorPressedScale}
 										/>
 									</div>
 								) : null}

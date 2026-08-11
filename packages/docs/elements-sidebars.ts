@@ -60,9 +60,16 @@ const sidebars: SidebarsConfig = {
 			collapsed: false,
 			items: [
 				'overlays/location-lower-third/index',
-				'overlays/lower-third/index',
+				'overlays/name-lower-third/index',
 				'overlays/social-endcard/index',
 			],
+		},
+		{
+			type: 'category',
+			label: 'Storytelling',
+			link: {type: 'doc', id: 'storytelling/index'},
+			collapsed: false,
+			items: ['text/news-article-headline-highlight/index'],
 		},
 		{
 			type: 'category',
@@ -72,7 +79,6 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'text/circle-marker/index',
 				'text/crossed-off/index',
-				'text/news-article-headline-highlight/index',
 				'text/strike-through/index',
 				'text/text-marker/index',
 			],

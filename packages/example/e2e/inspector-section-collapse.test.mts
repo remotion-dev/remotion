@@ -565,8 +565,22 @@ test.describe('inspector section collapse', () => {
 			threeDRotationSurfaceBox.y + threeDRotationSurfaceBox.height * 0.25;
 		await page.mouse.move(threeDStartX, threeDStartY);
 		await page.mouse.down();
+		expect(
+			await canvasRotationSurface.evaluate((surface) =>
+				surface.ownerSVGElement === null
+					? null
+					: getComputedStyle(surface.ownerSVGElement).cursor,
+			),
+		).toContain('data:image/svg+xml');
 		await page.mouse.move(threeDStartX + 80, threeDStartY + 60, {steps: 5});
 		await page.mouse.up();
+		expect(
+			await canvasRotationSurface.evaluate((surface) =>
+				surface.ownerSVGElement === null
+					? null
+					: getComputedStyle(surface.ownerSVGElement).cursor,
+			),
+		).not.toContain('data:image/svg+xml');
 		await expect
 			.poll(() => read2DTransformRotation()?.split(' ').length)
 			.toBe(4);

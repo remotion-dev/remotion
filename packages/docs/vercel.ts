@@ -48,6 +48,16 @@ export const config: VercelConfig = {
 	],
 	redirects: [
 		routes.redirect(
+			'/elements/overlays/lower-third',
+			'/elements/overlays/name-lower-third',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/elements/overlays/lower-third.md',
+			'/elements/overlays/name-lower-third.md',
+			{permanent: true},
+		),
+		routes.redirect(
 			'/changelog',
 			'https://github.com/remotion-dev/remotion/releases',
 			{permanent: false},

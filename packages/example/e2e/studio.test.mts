@@ -92,6 +92,47 @@ test.describe('visual mode', () => {
 		await expect(page).toHaveTitle(/Remotion/i, {timeout: 15_000});
 	});
 
+	test('should preserve the sequence inspector scroll position when adding an effect', async ({
+		page,
+	}) => {
+		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		await expect(page).toHaveURL(/effect-keyframe-e2e/, {timeout: 15_000});
+		const addEffectButton = page.getByTitle('Add effect', {exact: true});
+		if (!(await page.getByRole('button', {name: 'Inspector'}).isVisible())) {
+			await page.locator('[data-sidebar-toggle="right"]').click();
+		}
+
+		await expect(async () => {
+			await page.getByTitle('Scale precision', {exact: true}).first().click();
+			await expect(addEffectButton).toBeVisible({timeout: 1000});
+		}).toPass({timeout: 15_000});
+		const inspector = page
+			.locator('.__remotion-vertical-scrollbar')
+			.filter({has: addEffectButton});
+		await expect(inspector).toHaveCount(1);
+		await inspector.evaluate((element) => {
+			element.scrollTop = element.scrollHeight;
+		});
+		await addEffectButton.click();
+
+		const scrollTopBefore = await inspector.evaluate(
+			(element) => element.scrollTop,
+		);
+		expect(scrollTopBefore).toBeGreaterThan(0);
+		const effectPicker = page.getByRole('dialog');
+		await effectPicker.getByPlaceholder('Search effects...').fill('blur');
+		await effectPicker.getByText('blur()', {exact: true}).click();
+
+		await expect
+			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
+			.toContain("import {blur} from '@remotion/effects/blur';");
+		await expect(page.getByText('blur()', {exact: true})).toBeVisible();
+		const scrollTopAfter = await inspector.evaluate(
+			(element) => element.scrollTop,
+		);
+		expect(scrollTopAfter).toBeGreaterThan(0);
+	});
+
 	test('should keep canvas item context menus open', async ({page}) => {
 		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
 		await expect(
