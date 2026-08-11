@@ -78,10 +78,12 @@ test('the file manager entry is only shown on macOS', () => {
 			excludeCodingAgentId: null,
 			excludeEditorId: null,
 			fileManagerDisabled: false,
+			folder: false,
 			onConfigureApps: noop,
 			onOpenInCodingAgent: noop,
 			onOpenInEditor: noop,
 			onOpenInFileExplorer: noop,
+			onOpenInTerminal: null,
 		});
 
 	expect(getItems().some((item) => item.id === 'open-in-file-explorer')).toBe(
@@ -168,15 +170,14 @@ test('sequence context menu shares alternate apps without repeating defaults', (
 					id: 'cursor',
 					name: 'Cursor',
 					nameWithType: 'Cursor Agent',
-					iconDataUrl: null,
 				},
 				{
 					id: 'claude-code',
 					name: 'Claude Code',
 					nameWithType: 'Claude Code',
-					iconDataUrl: null,
 				},
 			],
+			installedTerminals: [],
 		},
 		deleteDisabled: false,
 		disableInteractivityDisabled: false,

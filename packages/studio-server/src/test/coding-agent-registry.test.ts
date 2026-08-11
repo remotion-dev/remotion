@@ -24,15 +24,6 @@ const makeContext = ({
 	};
 };
 
-const withoutIconData = (
-	codingAgents: Awaited<ReturnType<typeof discoverAvailableCodingAgents>>,
-) =>
-	codingAgents.map(({iconDataUrl, ...codingAgent}) => ({
-		...codingAgent,
-		hasBundledPngIcon:
-			iconDataUrl?.startsWith('data:image/png;base64,') ?? false,
-	}));
-
 test('discovers supported macOS coding agents without launching them', async () => {
 	const codingAgents = await discoverAvailableCodingAgents(
 		makeContext({
@@ -47,10 +38,9 @@ test('discovers supported macOS coding agents without launching them', async () 
 		}),
 	);
 
-	expect(withoutIconData(codingAgents)).toEqual([
+	expect(codingAgents).toEqual([
 		{
 			applicationPath: '/Custom/Applications/ChatGPT.app',
-			hasBundledPngIcon: true,
 			id: 'codex',
 			launchMode: 'direct',
 			name: 'Codex',
@@ -60,7 +50,6 @@ test('discovers supported macOS coding agents without launching them', async () 
 		},
 		{
 			applicationPath: '/home/test/Applications/Claude.app',
-			hasBundledPngIcon: true,
 			id: 'claude-code',
 			launchMode: 'direct',
 			name: 'Claude Code',
@@ -87,7 +76,7 @@ test('discovers Linux coding agents and a terminal from known locations and PATH
 	);
 
 	expect(
-		withoutIconData(codingAgents).map(
+		codingAgents.map(
 			({id, applicationPath, launchMode, platform, terminal}) => ({
 				id,
 				applicationPath,

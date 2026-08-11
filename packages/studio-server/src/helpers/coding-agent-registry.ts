@@ -1,5 +1,5 @@
 import {execFile, spawn} from 'node:child_process';
-import {existsSync, readFileSync} from 'node:fs';
+import {existsSync} from 'node:fs';
 import {homedir} from 'node:os';
 import path from 'node:path';
 import {promisify} from 'node:util';
@@ -13,7 +13,6 @@ export type InstalledCodingAgent = {
 	name: string;
 	nameWithType: string;
 	applicationPath: string;
-	iconDataUrl: string | null;
 	platform: SupportedCodingAgentPlatform;
 	launchMode: 'direct' | 'terminal';
 	terminal: InstalledTerminal | null;
@@ -278,11 +277,6 @@ const findMacApplications = async (
 	}
 };
 
-const getBundledCodingAgentIconDataUrl = (id: DefaultCodingAgent): string =>
-	`data:image/png;base64,${readFileSync(
-		path.join(__dirname, '..', '..', 'web', 'coding-agent-icons', `${id}.png`),
-	).toString('base64')}`;
-
 const defaultDiscoveryContext: CodingAgentDiscoveryContext = {
 	platform: process.platform,
 	env: process.env,
@@ -363,7 +357,7 @@ export const discoverAvailableCodingAgents = async (
 						path: context.env.ComSpec ?? context.env.COMSPEC ?? 'cmd.exe',
 					}
 				: null;
-	const installedCodingAgents: Omit<InstalledCodingAgent, 'iconDataUrl'>[] = [];
+	const installedCodingAgents: InstalledCodingAgent[] = [];
 	for (const id of defaultCodingAgentIds) {
 		const definition = codingAgentDefinitions[id];
 		if (platform === 'darwin') {
@@ -427,10 +421,7 @@ export const discoverAvailableCodingAgents = async (
 		}
 	}
 
-	return installedCodingAgents.map((codingAgent) => ({
-		...codingAgent,
-		iconDataUrl: getBundledCodingAgentIconDataUrl(codingAgent.id),
-	}));
+	return installedCodingAgents;
 };
 
 let availableCodingAgents: Promise<readonly InstalledCodingAgent[]> | null =

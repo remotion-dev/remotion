@@ -54,7 +54,6 @@ test('an invalid config reload keeps the previous configuration', async () => {
 			commandLine: {},
 		}).value,
 	).toBe('codex');
-
 	writeConfig(
 		`const {Config} = require('@remotion/cli/config'); Config.setStudioPort(5678); Config.setDefaultEditor('windsurf'); Config.setDefaultCodingAgent('cursor'); throw new Error('Invalid config');`,
 	);

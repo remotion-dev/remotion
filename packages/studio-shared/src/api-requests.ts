@@ -43,6 +43,7 @@ import type {
 import type {SequenceNodePathMutation} from './sequence-node-path-mutation';
 import type {SymbolicatedStackFrame} from './stack-types';
 import type {EnumPath} from './stringify-default-props';
+import type {TerminalId} from './terminal';
 
 type KeyframeEasing = Extract<
 	CanUpdateSequencePropStatus,
@@ -68,6 +69,15 @@ export type OpenInCodingAgentRequest = {
 };
 
 export type OpenInCodingAgentResponse = {
+	success: boolean;
+};
+
+export type OpenInTerminalRequest = {
+	directory: string;
+	terminalId: TerminalId;
+};
+
+export type OpenInTerminalResponse = {
 	success: boolean;
 };
 
@@ -1050,7 +1060,10 @@ export type GetDefaultCodingAgentInfoResponse = {
 		id: DefaultCodingAgent;
 		name: string;
 		nameWithType: string;
-		iconDataUrl: string | null;
+	}[];
+	installedTerminals: {
+		id: TerminalId;
+		name: string;
 	}[];
 };
 
@@ -1123,6 +1136,10 @@ export type ApiRoutes = {
 	>;
 	'/api/find-in-file': ReqAndRes<FindInFileRequest, FindInFileResponse>;
 	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
+	'/api/open-in-terminal': ReqAndRes<
+		OpenInTerminalRequest,
+		OpenInTerminalResponse
+	>;
 	'/api/register-client-render': ReqAndRes<CompletedClientRender, void>;
 	'/api/unregister-client-render': ReqAndRes<{id: string}, void>;
 	'/api/update-default-props': ReqAndRes<

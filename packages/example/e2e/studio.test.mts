@@ -228,11 +228,11 @@ test.describe('visual mode', () => {
 						installedCodingAgents: [
 							{
 								id: 'codex',
-								iconDataUrl: null,
 								name: 'Codex',
 								nameWithType: 'Codex',
 							},
 						],
+						installedTerminals: [{id: 'ghostty', name: 'Ghostty'}],
 					},
 				},
 			});
@@ -558,16 +558,19 @@ test.describe('visual mode', () => {
 						installedCodingAgents: [
 							{
 								id: 'cursor',
-								iconDataUrl: null,
 								name: 'Cursor',
 								nameWithType: 'Cursor Agent',
 							},
 							{
 								id: 'codex',
-								iconDataUrl: null,
 								name: 'Codex',
 								nameWithType: 'Codex',
 							},
+						],
+						installedTerminals: [
+							{id: 'terminal', name: 'Terminal'},
+							{id: 'iterm2', name: 'iTerm2'},
+							{id: 'windows-terminal', name: 'Windows Terminal'},
 						],
 					},
 				},
@@ -577,8 +580,18 @@ test.describe('visual mode', () => {
 			readonly codingAgentId: string;
 			readonly prompt: string | null;
 		}> = [];
+		const terminalLaunchRequests: Array<{
+			readonly directory: string;
+			readonly terminalId: string;
+		}> = [];
 		await page.route('**/api/open-in-coding-agent', async (route) => {
 			launchRequests.push(route.request().postDataJSON());
+			await route.fulfill({
+				json: {success: true, data: {success: true}},
+			});
+		});
+		await page.route('**/api/open-in-terminal', async (route) => {
+			terminalLaunchRequests.push(route.request().postDataJSON());
 			await route.fulfill({
 				json: {success: true, data: {success: true}},
 			});
@@ -588,6 +601,74 @@ test.describe('visual mode', () => {
 			await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
 			const firstGridline = page.getByText('0% gridline', {exact: true});
 			await expect(firstGridline).toBeVisible({timeout: 15_000});
+			const projectOpenInAnotherApp = page
+				.getByTitle(exampleDir)
+				.getByRole('button', {name: 'Open in another app'});
+			await projectOpenInAnotherApp.click();
+			const terminalButton = page.getByRole('button', {
+				name: 'Terminal',
+				exact: true,
+			});
+			const iTermButton = page.getByRole('button', {
+				name: 'iTerm2',
+				exact: true,
+			});
+			const windowsTerminalButton = page.getByRole('button', {
+				name: 'Windows Terminal',
+				exact: true,
+			});
+			await expect(page.getByText('Editor', {exact: true})).toBeVisible();
+			await expect(page.getByText('Agent', {exact: true})).toBeVisible();
+			await expect(page.getByText('Terminal', {exact: true})).toHaveCount(2);
+			await expect(iTermButton).toBeVisible();
+			await expect(windowsTerminalButton).toBeVisible();
+			await expect(page.getByText('Editors', {exact: true})).toHaveCount(0);
+			await expect(page.getByText('Agents', {exact: true})).toHaveCount(0);
+			const terminalIcon = terminalButton.locator(
+				'img[data-terminal-icon="terminal"]',
+			);
+			await expect(terminalIcon).toHaveAttribute(
+				'src',
+				'/api/app-icon/terminal/terminal.png',
+			);
+			await expect
+				.poll(() =>
+					terminalIcon.evaluate(
+						(image) => (image as HTMLImageElement).naturalWidth,
+					),
+				)
+				.toBe(72);
+			await terminalButton.click();
+			await expect
+				.poll(() => terminalLaunchRequests)
+				.toEqual([{directory: exampleDir, terminalId: 'terminal'}]);
+
+			await projectOpenInAnotherApp.click();
+			await expect(
+				iTermButton.locator('img[data-terminal-icon="iterm2"]'),
+			).toBeVisible();
+			await iTermButton.click();
+			await expect
+				.poll(() => terminalLaunchRequests)
+				.toEqual([
+					{directory: exampleDir, terminalId: 'terminal'},
+					{directory: exampleDir, terminalId: 'iterm2'},
+				]);
+
+			await projectOpenInAnotherApp.click();
+			await expect(
+				windowsTerminalButton.locator(
+					'img[data-terminal-icon="windows-terminal"]',
+				),
+			).toBeVisible();
+			await windowsTerminalButton.click();
+			await expect
+				.poll(() => terminalLaunchRequests)
+				.toEqual([
+					{directory: exampleDir, terminalId: 'terminal'},
+					{directory: exampleDir, terminalId: 'iterm2'},
+					{directory: exampleDir, terminalId: 'windows-terminal'},
+				]);
 
 			fs.writeFileSync(
 				configFile,
@@ -612,12 +693,14 @@ test.describe('visual mode', () => {
 			await expect(
 				page.getByText('Open in Cursor Agent', {exact: true}),
 			).toBeVisible();
+			const cursorAgentButton = page.getByRole('button', {
+				name: 'Open in Cursor Agent',
+				exact: true,
+			});
 			await expect(
 				page.getByRole('button', {name: 'Open component docs', exact: true}),
 			).toHaveCount(0);
-			await page
-				.getByRole('button', {name: 'Open in Cursor Agent', exact: true})
-				.click();
+			await cursorAgentButton.click();
 			await expect.poll(() => launchRequests.length).toBe(1);
 			expect(launchRequests[0]?.codingAgentId).toBe('cursor');
 			expect(launchRequests[0]?.prompt).toMatch(
@@ -650,8 +733,39 @@ test.describe('visual mode', () => {
 				page.getByText('Open in Codex', {exact: true}),
 			).toBeVisible();
 			await page.getByRole('button', {name: 'Open in...', exact: true}).click();
-			await expect(page.getByText('Editors', {exact: true})).toBeVisible();
-			await expect(page.getByText('Agents', {exact: true})).toBeVisible();
+			const cursorAgentIcon = page.locator(
+				'img[data-coding-agent-icon="cursor"]',
+			);
+			await expect(cursorAgentIcon).toHaveAttribute(
+				'src',
+				'/api/app-icon/coding-agent/cursor.png',
+			);
+			await expect
+				.poll(() =>
+					cursorAgentIcon.evaluate(
+						(image) => (image as HTMLImageElement).naturalWidth,
+					),
+				)
+				.toBe(64);
+			const finderIcon = page.locator('img[data-file-manager-icon="finder"]');
+			await expect(finderIcon).toHaveAttribute(
+				'src',
+				'/api/app-icon/file-manager/finder.png',
+			);
+			await expect
+				.poll(() =>
+					finderIcon.evaluate(
+						(image) => (image as HTMLImageElement).naturalWidth,
+					),
+				)
+				.toBe(36);
+			await expect(
+				page.getByRole('button', {name: 'Terminal', exact: true}),
+			).toHaveCount(0);
+			await expect(page.getByText('Editor', {exact: true})).toBeVisible();
+			await expect(page.getByText('Agent', {exact: true})).toBeVisible();
+			await expect(page.getByText('Editors', {exact: true})).toHaveCount(0);
+			await expect(page.getByText('Agents', {exact: true})).toHaveCount(0);
 			await expect(
 				page.getByRole('button', {name: 'Cursor', exact: true}),
 			).toHaveCount(2);
@@ -712,17 +826,16 @@ test.describe('visual mode', () => {
 						installedCodingAgents: [
 							{
 								id: 'codex',
-								iconDataUrl: null,
 								name: 'Codex',
 								nameWithType: 'Codex',
 							},
 							{
 								id: 'copilot',
-								iconDataUrl: null,
 								name: 'GitHub Copilot',
 								nameWithType: 'GitHub Copilot',
 							},
 						],
+						installedTerminals: [],
 					},
 				},
 			});

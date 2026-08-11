@@ -4,6 +4,7 @@ import {AnimatedLogo} from './animated-logo/AnimatedLogo';
 import {AnimatedLogoStringer} from './animated-logo/AnimatedLogoStinger';
 import {AnimatedMaster} from './animated-logo/AnimatedMaster';
 import {ExplodingLogo} from './animated-logo/ExplodingLogo';
+import {AppIcons} from './AppIcons';
 import {
 	ApplicationRenderButton,
 	ApplicationSimpleApp,
@@ -140,6 +141,14 @@ import {UpperThird, upperThirdSchema} from './video-elements/UpperThird';
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<Composition
+				id="app-icons"
+				component={AppIcons}
+				durationInFrames={1}
+				fps={30}
+				width={2048}
+				height={720}
+			/>
 			<Composition
 				id="preview-toolbar-icons"
 				component={PreviewToolbarIcons}
