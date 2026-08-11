@@ -443,7 +443,7 @@ export const RemotionRoot: React.FC = () => {
 					fps={30}
 					durationInFrames={120}
 					defaultProps={{
-						videoFile: staticFile('remotion-studio-canvas-recording.webm'),
+						videoFile: staticFile('remotion-capture-editor-starter.mp4'),
 						cursorScale: 2.5,
 						hidden: null,
 						width: null,

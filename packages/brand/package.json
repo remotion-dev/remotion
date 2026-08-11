@@ -24,6 +24,7 @@
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@remotion/fonts": "workspace:*",
 		"@remotion/google-fonts": "workspace:*",
+		"@remotion/mac-cursors": "workspace:*",
 		"@remotion/media": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/noise": "workspace:*",
