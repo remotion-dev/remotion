@@ -16,9 +16,7 @@ import {CanvasCaptureCursor} from './CanvasCaptureCursor';
 import {CropUI} from './crop-ui/CropUi';
 import {Filmstrip} from './player/filmstrip';
 
-export const getPlayerFps = (
-	fps: number | null | undefined,
-) => {
+export const getPlayerFps = (fps: number | null | undefined) => {
 	if (typeof fps !== 'number' || !Number.isFinite(fps) || fps <= 0) {
 		return 30;
 	}
@@ -367,6 +365,7 @@ export function VideoPlayer({
 					inFrame={trimInFrame}
 					outFrame={trimOutFrame}
 					onTrim={(nextTrim, seekToFrame) => {
+						playerRef.current?.pause();
 						trimFrameToSeekRef.current = seekToFrame;
 						setTrimInFrame(nextTrim.inFrame);
 						setTrimOutFrame(nextTrim.outFrame);
