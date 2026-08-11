@@ -84,6 +84,7 @@ const getFileMenu = ({
 							folderName: null,
 							parentName: null,
 							stack: null,
+							canvasCapture: null,
 						});
 					},
 					type: 'item' as const,

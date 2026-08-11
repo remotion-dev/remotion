@@ -1,4 +1,5 @@
 import type {
+	CanvasCaptureData,
 	RecastCodemod,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
@@ -68,6 +69,7 @@ export const useCreateComposition = ({
 	parentName,
 	selectedFrameRate,
 	size,
+	canvasCapture,
 }: {
 	compositions: _InternalTypes['AnyComposition'][];
 	durationInFrames: number;
@@ -79,6 +81,10 @@ export const useCreateComposition = ({
 		width: number;
 		height: number;
 	};
+	canvasCapture: {
+		readonly data: CanvasCaptureData;
+		readonly videoFileName: string;
+	} | null;
 }) => {
 	const selectComposition = useSelectComposition();
 	const componentName = useMemo(() => toPascalCase(newId), [newId]);
@@ -107,8 +113,17 @@ export const useCreateComposition = ({
 			componentImportPath: `./${componentName}`,
 			folderName,
 			parentName,
+			canvasCapture:
+				canvasCapture === null
+					? null
+					: {
+							data: canvasCapture.data,
+							keyframeFps: Number(selectedFrameRate),
+							videoFileName: canvasCapture.videoFileName,
+						},
 		};
 	}, [
+		canvasCapture,
 		componentName,
 		durationInFrames,
 		folderName,

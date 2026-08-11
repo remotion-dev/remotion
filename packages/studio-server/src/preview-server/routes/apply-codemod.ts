@@ -5,6 +5,7 @@ import type {
 	ApplyCodemodRequest,
 	ApplyCodemodResponse,
 } from '@remotion/studio-shared';
+import {generateCanvasCaptureComposition} from '../../canvas-capture/generate-canvas-capture-composition';
 import {
 	applyCodemodToFile,
 	resolveFilePathFromSymbolicatedStack,
@@ -24,10 +25,26 @@ import {
 import {checkIfTypeScriptFile} from './can-update-default-props';
 import {withSourceFileWriteQueue} from './source-file-write-queue';
 
-const formatNewCompositionFile = (componentName: string) => {
+const formatNewCompositionFile = (
+	codemod: Extract<ApplyCodemodRequest['codemod'], {type: 'new-composition'}>,
+) => {
+	if (codemod.canvasCapture !== null) {
+		return generateCanvasCaptureComposition({
+			componentName: codemod.componentName,
+			compositionId: codemod.newId,
+			data: codemod.canvasCapture.data,
+			durationInFrames: codemod.newDurationInFrames,
+			fps: codemod.newFps,
+			height: codemod.newHeight,
+			keyframeFps: codemod.canvasCapture.keyframeFps,
+			videoFileName: codemod.canvasCapture.videoFileName,
+			width: codemod.newWidth,
+		});
+	}
+
 	return formatOutput(`import React from 'react';
 
-export const ${componentName}: React.FC = () => {
+export const ${codemod.componentName}: React.FC = () => {
 	return null;
 };
 `);
@@ -261,9 +278,7 @@ export const applyCodemodHandler: ApiHandler<
 						throw new Error('Could not determine the new component file path');
 					}
 
-					componentFileContents = await formatNewCompositionFile(
-						codemod.componentName,
-					);
+					componentFileContents = await formatNewCompositionFile(codemod);
 					snapshots.push({
 						filePath: componentFilePath,
 						oldContents: null,

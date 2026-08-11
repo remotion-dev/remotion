@@ -69,12 +69,15 @@ export const parseAndApplyCodemod = ({
 	}
 
 	if (codeMod.type === 'new-composition') {
-		ensureNamedImport({
-			ast: newAst,
-			importedName: 'Composition',
-			sourcePath: 'remotion',
-			localName: 'Composition',
-		});
+		if (codeMod.canvasCapture === null) {
+			ensureNamedImport({
+				ast: newAst,
+				importedName: 'Composition',
+				sourcePath: 'remotion',
+				localName: 'Composition',
+			});
+		}
+
 		ensureNamedImport({
 			ast: newAst,
 			importedName: codeMod.componentName,
