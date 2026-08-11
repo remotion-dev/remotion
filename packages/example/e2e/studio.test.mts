@@ -187,6 +187,47 @@ test.describe('visual mode', () => {
 		});
 	});
 
+	test('should navigate to a newly created composition', async ({page}) => {
+		const compositionId = 'NewlyCreatedComposition';
+		const compositionFile = path.join(
+			exampleDir,
+			'src',
+			`${compositionId}.tsx`,
+		);
+
+		try {
+			await page.goto(`${STUDIO_URL}/schema-test`);
+			await expect(page).toHaveTitle(/schema-test/, {timeout: 15_000});
+
+			await page.getByRole('button', {name: 'File', exact: true}).click();
+			await page
+				.getByRole('button', {name: 'New composition...', exact: true})
+				.click();
+			await page
+				.getByRole('textbox', {name: 'Composition ID'})
+				.fill(compositionId);
+
+			const createButton = page.getByRole('button', {
+				name: /Add to .*/,
+			});
+			await expect(createButton).toBeEnabled();
+			await createButton.click();
+
+			await expect(page).toHaveURL(`${STUDIO_URL}/${compositionId}`, {
+				timeout: 5_000,
+			});
+			await expect(page).toHaveTitle(new RegExp(compositionId), {
+				timeout: 5_000,
+			});
+		} finally {
+			const undoButton = page.getByRole('button', {name: /^Undo/});
+			if (await undoButton.isEnabled()) {
+				await undoButton.click();
+				await expect.poll(() => fs.existsSync(compositionFile)).toBe(false);
+			}
+		}
+	});
+
 	test('untoggling the free license removes it from the config', async ({
 		page,
 	}) => {
