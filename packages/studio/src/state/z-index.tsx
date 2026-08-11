@@ -65,6 +65,7 @@ export const HigherZIndex: React.FC<{
 }) => {
 	const context = useContext(ZIndexContext);
 	const highestContext = useContext(HighestZIndexContext);
+	const {registerZIndex, unregisterZIndex} = highestContext;
 	const containerRef = useRef<HTMLDivElement>(null);
 	const stackedIndex = useRef<number | null>(null);
 
@@ -84,9 +85,9 @@ export const HigherZIndex: React.FC<{
 			return;
 		}
 
-		highestContext.registerZIndex(currentIndex);
-		return () => highestContext.unregisterZIndex(currentIndex);
-	}, [currentIndex, highestContext, disabled]);
+		registerZIndex(currentIndex);
+		return () => unregisterZIndex(currentIndex);
+	}, [currentIndex, disabled, registerZIndex, unregisterZIndex]);
 
 	useEffect(() => {
 		if (disabled) {
