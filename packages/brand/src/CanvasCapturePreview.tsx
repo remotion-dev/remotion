@@ -58,7 +58,6 @@ type CursorRecording = {
 
 export const canvasCapturePreviewSchema = z.object({
 	videoFile: z.string(),
-	cursorScale: z.number(),
 	hidden: z.enum(['cursor', 'screen']).nullable(),
 });
 
@@ -117,39 +116,16 @@ const isPointerDown = (
 
 const CursorOverlay: React.FC<{
 	readonly cursorData: CursorRecording;
-	readonly cursorScale: number;
-}> = ({cursorData, cursorScale}) => {
+}> = ({cursorData}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const timeInSeconds = frame / fps;
 	const cursor = findCursorAtTime(cursorData.mouseMovements, timeInSeconds);
-	const cursorKeyframes = React.useMemo(() => {
-		const inputRange: number[] = [];
-		const outputRange: string[] = [];
-
-		for (const movement of cursorData.mouseMovements) {
-			const lastIndex = inputRange.length - 1;
-			if (inputRange[lastIndex] === movement.timeInSeconds) {
-				outputRange[lastIndex] = movement.cursor;
-				continue;
-			}
-
-			if (outputRange[lastIndex] === movement.cursor) {
-				continue;
-			}
-
-			inputRange.push(movement.timeInSeconds);
-			outputRange.push(movement.cursor);
-		}
-
-		return {inputRange, outputRange};
-	}, [cursorData.mouseMovements]);
 
 	if (!cursor || cursor.canvasX === null || cursor.canvasY === null) {
 		return null;
 	}
 
-	const scale = cursorData.captureMetadata.density;
 	const clickScale = isPointerDown(cursorData.pointerClicks, timeInSeconds)
 		? CLICK_SCALE
 		: 1;
@@ -170,17 +146,16 @@ const CursorOverlay: React.FC<{
 		>
 			<MacOSCursor
 				cursor={interpolate(
-					timeInSeconds,
-					cursorKeyframes.inputRange,
-					cursorKeyframes.outputRange,
+					frame,
+					[6, 64, 68, 99, 164, 166],
+					['default', 'auto', 'pointer', 'e-resize', 'auto', 'default'],
 					{
-						easing: cursorKeyframes.inputRange.length === 1 ? [] : Easing.step1,
+						easing: Easing.step1,
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					},
 				)}
-				scale={scale * cursorScale}
-				showInTimeline={false}
+				scale={15}
 			/>
 		</div>
 	);
@@ -244,7 +219,6 @@ export const calculateCanvasCapturePreviewMetadata: CalculateMetadataFunction<
 
 export const CanvasCapturePreview: React.FC<CanvasCapturePreviewProps> = ({
 	cursorData,
-	cursorScale,
 	videoFile,
 	width,
 	height,
@@ -265,7 +239,7 @@ export const CanvasCapturePreview: React.FC<CanvasCapturePreviewProps> = ({
 				/>
 			) : null}
 			{showCursor && cursorData ? (
-				<CursorOverlay cursorData={cursorData} cursorScale={cursorScale} />
+				<CursorOverlay cursorData={cursorData} />
 			) : null}
 		</AbsoluteFill>
 	);
