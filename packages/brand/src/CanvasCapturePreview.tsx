@@ -43,17 +43,11 @@ type CaptureMetadata = {
 	};
 };
 
-type PointerClick = {
-	readonly timeInSeconds: number;
-	readonly type: 'pointer-down' | 'pointer-up';
-};
-
 type CursorRecording = {
 	readonly startedAt: number;
 	readonly endedAt: number;
 	readonly captureMetadata: CaptureMetadata;
 	readonly mouseMovements: MouseMovement[];
-	readonly pointerClicks?: PointerClick[];
 };
 
 export const canvasCapturePreviewSchema = z.object({
@@ -92,28 +86,6 @@ const findCursorAtTime = (
 	return latest;
 };
 
-const CLICK_SCALE = 0.9;
-
-const isPointerDown = (
-	pointerClicks: readonly PointerClick[] | undefined,
-	timeInSeconds: number,
-) => {
-	if (!pointerClicks) {
-		return false;
-	}
-
-	let down = false;
-	for (const click of pointerClicks) {
-		if (click.timeInSeconds > timeInSeconds) {
-			break;
-		}
-
-		down = click.type === 'pointer-down';
-	}
-
-	return down;
-};
-
 const CursorOverlay: React.FC<{
 	readonly cursorData: CursorRecording;
 }> = ({cursorData}) => {
@@ -126,9 +98,6 @@ const CursorOverlay: React.FC<{
 		return null;
 	}
 
-	const clickScale = isPointerDown(cursorData.pointerClicks, timeInSeconds)
-		? CLICK_SCALE
-		: 1;
 	const x = cursor.canvasX;
 	const y = cursor.canvasY;
 
@@ -138,7 +107,7 @@ const CursorOverlay: React.FC<{
 				position: 'absolute',
 				left: 0,
 				top: 0,
-				transform: `translate(${x}px, ${y}px) scale(${clickScale})`,
+				transform: `translate(${x}px, ${y}px)`,
 				pointerEvents: 'none',
 				height: 32,
 				width: 32,
@@ -155,7 +124,18 @@ const CursorOverlay: React.FC<{
 						extrapolateRight: 'clamp',
 					},
 				)}
-				style={{scale: 6}}
+				style={{
+					scale: interpolate(
+						frame,
+						[0, 79, 82, 110, 161],
+						[6, 5.4, 6, 5.4, 6],
+						{
+							easing: Easing.step1,
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+				}}
 			/>
 		</div>
 	);
