@@ -291,7 +291,14 @@ export const SharedAudioContextProvider: React.FC<{
 				};
 			}
 
-			const saveForLater = shouldSaveForLater(currentState);
+			// With keepAudioContextAlive, the native context stays `running`
+			// while silenced, so the state alone does not reveal that playback
+			// is paused. Queue the node like the suspend path does, otherwise it
+			// would start right away at a stale position and become audible when
+			// the gain ramps back up.
+			const saveForLater =
+				shouldSaveForLater(currentState) ||
+				(keepAudioContextAlive && !audioContextIsPlayingEventually.current);
 
 			if (duration > 0) {
 				if (saveForLater) {
@@ -369,7 +376,7 @@ export const SharedAudioContextProvider: React.FC<{
 						reason: 'missed ' + Math.abs(offset).toFixed(2) + 's',
 					};
 		};
-	}, [ctxAndGain, logLevel]);
+	}, [ctxAndGain, keepAudioContextAlive, logLevel]);
 
 	const resume = useCallback(() => {
 		if (!ctxAndGain) {

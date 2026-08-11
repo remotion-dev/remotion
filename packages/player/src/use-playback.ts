@@ -7,10 +7,7 @@ import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
 import {useBrowserMediaSession} from './browser-mediasession.js';
 import {calculateNextFrame} from './calculate-next-frame.js';
 import {useIsBackgrounded} from './is-backgrounded.js';
-import {
-	ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT,
-	setGlobalTimeAnchor,
-} from './set-global-time-anchor.js';
+import {setGlobalTimeAnchor} from './set-global-time-anchor.js';
 import {type UsePlayerMethods, usePlayerMethods} from './use-player-methods.js';
 
 const shouldForceAnchorChange = (newState: RemotionAudioContextState) => {
@@ -172,25 +169,21 @@ export const usePlayback = ({
 		) {
 			// With keepAudioContextAlive, the context clock keeps running while
 			// frames are not advancing (pauses, buffering, muted playback), so
-			// the time anchor is stale by the length of the stall. Re-derive it
-			// exactly from the current frame before scheduling resumes, and let
-			// the audio iterators reschedule from the corrected anchor. Shifts
-			// below the usual tolerance are left alone. Without this mode,
-			// suspend() froze the clock together with the frame clock and no
-			// correction was needed.
-			const expectedAnchor =
-				sharedAudioContext.audioContext.currentTime -
-				getCurrentFrame() / config.fps / playbackRate;
-			const shift = expectedAnchor - sharedAudioContext.audioSyncAnchor.value;
-			if (Math.abs(shift) >= ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT) {
-				setGlobalTimeAnchor({
-					audioContext: sharedAudioContext.audioContext,
-					audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
-					absoluteTimeInSeconds: getCurrentFrame() / config.fps,
-					globalPlaybackRate: playbackRate,
-					logLevel,
-					force: true,
-				});
+			// the anchor is stale by the length of the stall. Without this mode,
+			// the 'statechange' listener above re-anchors on the
+			// suspended-to-running transition, but that transition never happens
+			// here. Re-anchor from the current frame instead, and tell the audio
+			// iterators so they drop the nodes they queued against the old
+			// anchor and reschedule.
+			const changed = setGlobalTimeAnchor({
+				audioContext: sharedAudioContext.audioContext,
+				audioSyncAnchor: sharedAudioContext.audioSyncAnchor,
+				absoluteTimeInSeconds: getCurrentFrame() / config.fps,
+				globalPlaybackRate: playbackRate,
+				logLevel,
+				force: true,
+			});
+			if (changed) {
 				sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
 			}
 		}
