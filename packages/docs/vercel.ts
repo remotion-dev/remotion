@@ -355,6 +355,11 @@ export const config: VercelConfig = {
 			permanent: true,
 		}),
 		routes.redirect(
+			'/elements/data/product-offer',
+			'/elements/commerce/product-offer',
+			{permanent: true},
+		),
+		routes.redirect(
 			'/docs/miscellaneous/snippets/adding-animations',
 			'/docs/animation-math',
 			{permanent: false},

@@ -37,14 +37,17 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
+			label: 'Commerce',
+			link: {type: 'doc', id: 'commerce/index'},
+			collapsed: false,
+			items: ['commerce/product-offer/index'],
+		},
+		{
+			type: 'category',
 			label: 'Data',
 			link: {type: 'doc', id: 'data/index'},
 			collapsed: false,
-			items: [
-				'data/horizontal-bar-chart/index',
-				'data/number-counter/index',
-				'data/product-offer/index',
-			],
+			items: ['data/horizontal-bar-chart/index', 'data/number-counter/index'],
 		},
 		{
 			type: 'category',
