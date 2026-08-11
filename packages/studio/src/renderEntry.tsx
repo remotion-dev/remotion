@@ -253,6 +253,7 @@ const renderContent = (Root: React.FC) => {
 					numberOfAudioTags={0}
 					audioLatencyHint={window.remotion_audioLatencyHint ?? 'playback'}
 					previewSampleRate={window.remotion_previewSampleRate}
+					_experimentalKeepAudioContextAlive={false}
 				>
 					<Internals.RenderAssetManagerProvider collectAssets={null}>
 						<Root />
@@ -281,6 +282,7 @@ const renderContent = (Root: React.FC) => {
 					numberOfAudioTags={0}
 					audioLatencyHint={window.remotion_audioLatencyHint ?? 'playback'}
 					previewSampleRate={window.remotion_previewSampleRate}
+					_experimentalKeepAudioContextAlive={false}
 				>
 					<Internals.RenderAssetManagerProvider collectAssets={null}>
 						<Root />

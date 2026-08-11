@@ -20,6 +20,7 @@ const makeHtml = ({
 		renderQueue: null,
 		numberOfAudioTags: 0,
 		audioLatencyHint: 'playback',
+		experimentalKeepAudioContextAlive: true,
 		sampleRate: 48000,
 		publicFiles: [
 			{
@@ -52,6 +53,9 @@ test('makes relative bundles resolve public assets from the document URL', () =>
 
 	expect(html).toContain('href="./favicon.ico"');
 	expect(html).toContain('src="./bundle.js"');
+	expect(html).toContain(
+		'window.remotion_experimentalKeepAudioContextAlive = true;',
+	);
 	expect(html).toContain(
 		'window.remotion_staticBase = new URL("./public", window.location.href).pathname;',
 	);

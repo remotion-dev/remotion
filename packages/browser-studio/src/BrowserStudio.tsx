@@ -251,6 +251,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 
 			const html = studioHtml({
 				audioLatencyHint: 'playback',
+				experimentalKeepAudioContextAlive: false,
 				bundleScriptUrl: bundleUrlRef.current,
 				completedClientRenders: [],
 				editorName: null,

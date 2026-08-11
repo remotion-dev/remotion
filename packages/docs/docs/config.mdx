@@ -929,6 +929,26 @@ Config.setAudioLatencyHint('interactive');
 
 The `--audio-latency-hint` command line flag will take precedence over this option.
 
+## `setExperimentalKeepAudioContextAlive()`<AvailableFrom v="4.0.508" />
+
+<ExperimentalBadge>
+  <p>We are currently testing this prop. We might either remove the functionality or rename the prop to a stable name.</p>
+</ExperimentalBadge>
+
+<Options id="experimental-keep-audio-context-alive" />
+<br />
+<br />
+
+Keeps the shared [`AudioContext`](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext) running while the Remotion Studio is paused. Pausing lowers the gain to zero rather than suspending the context, which can reduce latency when resuming playback.
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setExperimentalKeepAudioContextAlive(true);
+```
+
+Changing this option while the Studio is running reloads the page. The `--experimental-keep-audio-context-alive` command line flag will take precedence over this option.
+
 ## `setEnableFolderExpiry()`<AvailableFrom v="4.0.32" />
 
 <Options id="enable-folder-expiry" />

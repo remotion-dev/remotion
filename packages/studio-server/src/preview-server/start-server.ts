@@ -70,6 +70,7 @@ export const startServer = async (options: {
 	binariesDirectory: string | null;
 	forceIPv4: boolean;
 	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getExperimentalKeepAudioContextAlive: () => boolean;
 	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
 	forceNew: boolean;
@@ -179,6 +180,8 @@ export const startServer = async (options: {
 					gitSource: options.gitSource,
 					binariesDirectory: options.binariesDirectory,
 					getAudioLatencyHint: options.getAudioLatencyHint,
+					getExperimentalKeepAudioContextAlive:
+						options.getExperimentalKeepAudioContextAlive,
 					getPreviewSampleRate: options.getPreviewSampleRate,
 					enableCrossSiteIsolation: options.enableCrossSiteIsolation,
 					getStudioRuntimeConfig: options.getStudioRuntimeConfig,

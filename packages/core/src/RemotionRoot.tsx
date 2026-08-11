@@ -25,6 +25,7 @@ export const RemotionRootContexts: React.FC<{
 	readonly videoEnabled: boolean;
 	readonly audioEnabled: boolean;
 	readonly frameState: Record<string, number> | null;
+	readonly _experimentalKeepAudioContextAlive: boolean;
 }> = ({
 	children,
 	numberOfAudioTags,
@@ -34,6 +35,7 @@ export const RemotionRootContexts: React.FC<{
 	videoEnabled,
 	audioEnabled,
 	frameState,
+	_experimentalKeepAudioContextAlive,
 }) => {
 	const nonceContext = useMemo((): TNonceContext => {
 		let counter = 0;
@@ -63,7 +65,9 @@ export const RemotionRootContexts: React.FC<{
 												audioLatencyHint={audioLatencyHint}
 												audioEnabled={audioEnabled}
 												previewSampleRate={previewSampleRate}
-												_experimentalKeepAudioContextAlive={false}
+												_experimentalKeepAudioContextAlive={
+													_experimentalKeepAudioContextAlive
+												}
 											>
 												<SharedAudioTagsContextProvider
 													numberOfAudioTags={numberOfAudioTags}
