@@ -17,25 +17,14 @@ export const getCanvasCaptureImport = async (file: File) => {
 			return null;
 		}
 
-		const [durationFromMetadata, width, height] = await Promise.all([
-			input.getDurationFromMetadata(),
-			videoTrack.getDisplayWidth(),
-			videoTrack.getDisplayHeight(),
-		]);
+		const durationFromMetadata = await input.getDurationFromMetadata();
 		const durationInSeconds =
 			durationFromMetadata ?? (await input.computeDuration([videoTrack]));
-		if (
-			!Number.isFinite(durationInSeconds) ||
-			durationInSeconds <= 0 ||
-			!Number.isFinite(width) ||
-			width <= 0 ||
-			!Number.isFinite(height) ||
-			height <= 0
-		) {
+		if (!Number.isFinite(durationInSeconds) || durationInSeconds <= 0) {
 			return null;
 		}
 
-		return {data, durationInSeconds, file, height, width};
+		return {data, durationInSeconds, file};
 	} catch {
 		return null;
 	} finally {

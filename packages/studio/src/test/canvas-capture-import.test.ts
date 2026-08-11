@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {getCanvasCaptureImport} from '../helpers/get-canvas-capture-import';
 
-test('reads composition defaults and interactions from a Canvas Capture video', async () => {
+test('reads duration and interactions from a Canvas Capture video', async () => {
 	const fileContents = readFileSync(
 		path.join(
 			__dirname,
@@ -21,8 +21,6 @@ test('reads composition defaults and interactions from a Canvas Capture video', 
 		throw new Error('Expected Canvas Capture metadata');
 	}
 
-	expect(result.width).toBe(3026);
-	expect(result.height).toBe(1386);
 	expect(result.durationInSeconds).toBeCloseTo(8.7255, 4);
 	expect(result.data.captureMetadata.density).toBe(6);
 	expect(result.data.mouseMovements.length).toBeGreaterThan(50);

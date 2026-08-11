@@ -143,8 +143,6 @@ export type CanvasCaptureImport = {
 	readonly data: CanvasCaptureData;
 	readonly durationInSeconds: number;
 	readonly file: File;
-	readonly height: number;
-	readonly width: number;
 };
 
 export type ModalState =

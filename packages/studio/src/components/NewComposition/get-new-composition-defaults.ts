@@ -14,6 +14,17 @@ const defaultCompositionDimensions: CompositionDimensions = {
 
 export const getNewCompositionDefaults = (
 	composition: CompositionDimensions | null,
+	canvasCaptureDurationInSeconds: number | null,
 ): CompositionDimensions => {
+	if (canvasCaptureDurationInSeconds !== null) {
+		return {
+			...defaultCompositionDimensions,
+			durationInFrames: Math.max(
+				1,
+				Math.ceil(canvasCaptureDurationInSeconds * 30),
+			),
+		};
+	}
+
 	return composition ?? defaultCompositionDimensions;
 };

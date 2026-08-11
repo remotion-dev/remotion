@@ -53,19 +53,10 @@ const NewCompositionLoaded: React.FC<{
 		resolvedComposition?.type === 'success-and-refreshing'
 			? resolvedComposition.result
 			: null;
-	const defaults = getNewCompositionDefaults(initialComposition);
-	const initialDimensions =
-		canvasCapture === null
-			? defaults
-			: {
-					durationInFrames: Math.max(
-						1,
-						Math.ceil(canvasCapture.durationInSeconds * 30),
-					),
-					fps: 30,
-					height: canvasCapture.height,
-					width: canvasCapture.width,
-				};
+	const initialDimensions = getNewCompositionDefaults(
+		initialComposition,
+		canvasCapture?.durationInSeconds ?? null,
+	);
 	const [newId, setName] = useState(() =>
 		getUniqueCompositionName(compositions),
 	);
