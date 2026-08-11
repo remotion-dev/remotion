@@ -10,9 +10,9 @@ import {RotatingStarburst} from '../../../elements/backgrounds/rotating-starburs
 import {MovingPillCaptions} from '../../../elements/captions/moving-pill-captions/moving-pill-captions';
 import {PoppingWordCaptions} from '../../../elements/captions/popping-word-captions/popping-word-captions';
 import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-captions/word-highlight-captions';
+import {ProductOffer} from '../../../elements/commerce/product-offer/product-offer';
 import {HorizontalBarChart} from '../../../elements/data/horizontal-bar-chart/horizontal-bar-chart';
 import {NumberCounter} from '../../../elements/data/number-counter/number-counter';
-import {ProductOffer} from '../../../elements/data/product-offer/product-offer';
 import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-lower-third';
@@ -307,8 +307,8 @@ export const elementDefinitions = {
 		installationMode: 'wrapped',
 		width: 1920,
 	},
-	'data/product-offer': {
-		category: 'data',
+	'commerce/product-offer': {
+		category: 'commerce',
 		component: ProductOffer,
 		contributors: [],
 		description:
@@ -323,12 +323,12 @@ export const elementDefinitions = {
 		posterFrame: 75,
 		preview: {
 			posterUrl:
-				'https://remotion.media/elements/data-product-offer-preview.png',
+				'https://remotion.media/elements/commerce-product-offer-preview.png',
 			videoUrl:
-				'https://remotion.media/elements/data-product-offer-preview.mp4',
+				'https://remotion.media/elements/commerce-product-offer-preview.mp4',
 		},
 		previewPadding: 90,
-		slug: 'data/product-offer',
+		slug: 'commerce/product-offer',
 		installationMode: 'wrapped',
 		width: 1080,
 	},
