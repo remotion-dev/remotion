@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/studio-codemods",
-	"version": "4.0.507",
+	"version": "4.0.508",
 	"description": "Shared codemods for Remotion Studio",
 	"main": "dist/index.cjs",
 	"types": "dist/index.d.ts",
