@@ -3,7 +3,13 @@ import {Video} from '@remotion/media';
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import React from 'react';
 import type {CalculateMetadataFunction} from 'remotion';
-import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
+import {
+	AbsoluteFill,
+	Easing,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 import {z} from 'zod';
 
 type MouseMovement = {
@@ -125,10 +131,42 @@ const CursorOverlay: React.FC<{
 	const {fps} = useVideoConfig();
 	const timeInSeconds = frame / fps;
 	const cursor = findCursorAtTime(cursorData.mouseMovements, timeInSeconds);
+	const cursorKeyframes = React.useMemo(() => {
+		const inputRange: number[] = [];
+		const outputRange: string[] = [];
+
+		for (const movement of cursorData.mouseMovements) {
+			const lastIndex = inputRange.length - 1;
+			if (inputRange[lastIndex] === movement.timeInSeconds) {
+				outputRange[lastIndex] = movement.cursor;
+				continue;
+			}
+
+			if (outputRange[lastIndex] === movement.cursor) {
+				continue;
+			}
+
+			inputRange.push(movement.timeInSeconds);
+			outputRange.push(movement.cursor);
+		}
+
+		return {inputRange, outputRange};
+	}, [cursorData.mouseMovements]);
 
 	if (!cursor || cursor.canvasX === null || cursor.canvasY === null) {
 		return null;
 	}
+
+	const cursorValue = interpolate(
+		timeInSeconds,
+		cursorKeyframes.inputRange,
+		cursorKeyframes.outputRange,
+		{
+			easing: cursorKeyframes.inputRange.length === 1 ? [] : Easing.step1,
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		},
+	);
 
 	const scale = cursorData.captureMetadata.density;
 	const clickScale = isPointerDown(cursorData.pointerClicks, timeInSeconds)
@@ -150,7 +188,7 @@ const CursorOverlay: React.FC<{
 			}}
 		>
 			<CursorGlyph
-				cursor={cursor.cursor}
+				cursor={cursorValue}
 				scale={scale}
 				cursorScale={cursorScale}
 			/>

@@ -1,3 +1,4 @@
+import {Easing} from './easing.js';
 import {normalizeNumber} from './normalize-number.js';
 
 // Taken from https://github.com/facebook/react-native/blob/0b9ea60b4fee8cacc36e7160e31b91fc114dbc0d/Libraries/Animated/src/nodes/AnimatedInterpolation.js
@@ -866,6 +867,86 @@ const interpolateString = ({
 	});
 };
 
+const interpolateDiscreteString = ({
+	input,
+	inputRange,
+	outputRange,
+	options,
+}: {
+	input: number;
+	inputRange: readonly number[];
+	outputRange: readonly string[];
+	options: InterpolateOptions | undefined;
+}): string => {
+	if (inputRange.length === 1) {
+		return outputRange[0];
+	}
+
+	for (
+		let segmentIndex = 0;
+		segmentIndex < inputRange.length - 1;
+		segmentIndex++
+	) {
+		if (
+			resolveEasingForSegment({
+				easing: options?.easing,
+				segmentIndex,
+			}) !== Easing.step1
+		) {
+			throw new TypeError(
+				'Non-numeric strings can only be interpolated using Easing.step1',
+			);
+		}
+	}
+
+	const posterizedInput =
+		options?.posterize === undefined
+			? input
+			: Math.floor(input / options.posterize) * options.posterize;
+	const inputMin = inputRange[0];
+	const inputMax = inputRange[inputRange.length - 1];
+	let resolvedInput = posterizedInput;
+
+	if (resolvedInput < inputMin) {
+		if (options?.extrapolateLeft === 'identity') {
+			throw new TypeError(
+				'extrapolateLeft: "identity" is not supported for non-numeric strings',
+			);
+		}
+
+		if (options?.extrapolateLeft === 'wrap') {
+			const wrapRange = inputMax - inputMin;
+			resolvedInput =
+				((((resolvedInput - inputMin) % wrapRange) + wrapRange) % wrapRange) +
+				inputMin;
+		} else {
+			return outputRange[0];
+		}
+	}
+
+	if (resolvedInput > inputMax) {
+		if (options?.extrapolateRight === 'identity') {
+			throw new TypeError(
+				'extrapolateRight: "identity" is not supported for non-numeric strings',
+			);
+		}
+
+		if (options?.extrapolateRight === 'wrap') {
+			const wrapRange = inputMax - inputMin;
+			resolvedInput =
+				((((resolvedInput - inputMin) % wrapRange) + wrapRange) % wrapRange) +
+				inputMin;
+		} else {
+			return outputRange[outputRange.length - 1];
+		}
+	}
+
+	const range = findRange(resolvedInput, inputRange);
+	return resolvedInput >= inputRange[range + 1]
+		? outputRange[range + 1]
+		: outputRange[range];
+};
+
 const validateTupleOutputRange = (
 	outputRange: readonly (readonly unknown[])[],
 ): number => {
@@ -1104,7 +1185,37 @@ export function interpolate(
 			);
 		}
 
-		return interpolateString({input, inputRange, outputRange, options});
+		try {
+			return interpolateString({input, inputRange, outputRange, options});
+		} catch (error) {
+			if (!outputRange.every((output) => typeof output === 'string')) {
+				throw error;
+			}
+
+			const hasNonNumericString = outputRange.some((output) => {
+				try {
+					parseStringInterpolationValue(output);
+					return false;
+				} catch (parseError) {
+					return (
+						parseError instanceof TypeError &&
+						parseError.message.includes(
+							'not a supported scale, translate, or rotate value',
+						)
+					);
+				}
+			});
+			if (!hasNonNumericString) {
+				throw error;
+			}
+
+			return interpolateDiscreteString({
+				input,
+				inputRange,
+				outputRange,
+				options,
+			});
+		}
 	}
 
 	if (outputRange.every((output) => Array.isArray(output))) {

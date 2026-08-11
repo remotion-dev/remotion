@@ -243,6 +243,7 @@ export {
 export {
 	canEditEasingForInterpolationFunction,
 	getKeyframeInterpolationFunction,
+	isSchemaFieldHoldOnly,
 	getKeyframeInterpolationFunctionForSchemaField,
 	isInteractivitySchemaFieldKeyframable,
 	isKeyframeInterpolationFunction,

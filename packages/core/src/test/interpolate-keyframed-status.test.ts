@@ -52,6 +52,36 @@ test('holds the previous keyframe value until the segment ends', () => {
 	).toBe(100);
 });
 
+test('holds non-numeric string keyframes until the segment ends', () => {
+	const status: CanUpdateSequencePropStatusKeyframed = {
+		status: 'keyframed',
+		interpolationFunction: 'interpolate',
+		keyframes: [
+			{frame: 0, value: 'default'},
+			{frame: 60, value: 'ne-resize'},
+		],
+		easing: [{type: 'step1'}],
+		clamping: {left: 'clamp', right: 'clamp'},
+		posterize: undefined,
+		output: undefined,
+	};
+
+	expect(
+		interpolateKeyframedStatus({
+			forceSpringAllowTail: null,
+			frame: 59,
+			status,
+		}),
+	).toBe('default');
+	expect(
+		interpolateKeyframedStatus({
+			forceSpringAllowTail: null,
+			frame: 60,
+			status,
+		}),
+	).toBe('ne-resize');
+});
+
 test('interpolates numeric keyframes with perceptual-scale output', () => {
 	const result = interpolateKeyframedStatus({
 		forceSpringAllowTail: null,

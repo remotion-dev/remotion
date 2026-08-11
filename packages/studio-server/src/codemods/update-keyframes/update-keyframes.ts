@@ -13,7 +13,9 @@ import type {
 import {
 	getKeyframeInterpolationFunction,
 	getKeyframeInterpolationFunctionForSchemaField,
+	HOLD_KEYFRAME_EASING,
 	isKeyframeInterpolationFunction,
+	isSchemaFieldHoldOnly,
 	isSchemaFieldKeyframable,
 	LINEAR_KEYFRAME_EASING,
 	type KeyframeInterpolationFunction,
@@ -633,28 +635,30 @@ const normalizeEasingAfterAddingKeyframe = ({
 	nextSegmentCount,
 	insertedKeyframeIndex,
 	nextKeyframeCount,
+	defaultEasing,
 }: {
 	extraArgs: (ExpressionKind | SpreadElementKind)[];
 	previousSegmentCount: number;
 	nextSegmentCount: number;
 	insertedKeyframeIndex: number;
 	nextKeyframeCount: number;
+	defaultEasing: KeyframeEasing;
 }): {
 	extraArgs: (ExpressionKind | SpreadElementKind)[];
 	needsEasingImport: boolean;
 } => {
-	const options = getInlineOptionsFromExtraArgs(extraArgs);
+	const options =
+		getInlineOptionsFromExtraArgs(extraArgs) ??
+		(extraArgs.length === 0 ? createEmptyOptionsExpression() : null);
 	if (!options) {
 		return {extraArgs, needsEasingImport: false};
 	}
 
-	const easing = getExistingEasingArrayOrNull({
-		options,
-		segmentCount: previousSegmentCount,
-	});
-	if (easing === null) {
-		return {extraArgs, needsEasingImport: false};
-	}
+	const easing =
+		getExistingEasingArrayOrNull({
+			options,
+			segmentCount: previousSegmentCount,
+		}) ?? Array.from({length: previousSegmentCount}, () => defaultEasing);
 
 	if (easing.length < nextSegmentCount) {
 		const isSplittingExistingSegment =
@@ -668,18 +672,19 @@ const normalizeEasingAfterAddingKeyframe = ({
 			insertedKeyframeIndex,
 			0,
 			easingIndexToDuplicate === null
-				? LINEAR_KEYFRAME_EASING
+				? defaultEasing
 				: easing[easingIndexToDuplicate],
 		);
 	}
 
 	while (easing.length < nextSegmentCount) {
-		easing.push(LINEAR_KEYFRAME_EASING);
+		easing.push(defaultEasing);
 	}
 
+	const needsEasingImport = setEasingOption({options, easing});
 	return {
 		extraArgs: getExtraArgsWithOptions({extraArgs, options}),
-		needsEasingImport: setEasingOption({options, easing}),
+		needsEasingImport,
 	};
 };
 
@@ -1051,6 +1056,9 @@ const addKeyframe = ({
 	const newOutput = parseValueExpression(value);
 
 	if (existing) {
+		const defaultEasing = isSchemaFieldHoldOnly({schema, key})
+			? HOLD_KEYFRAME_EASING
+			: LINEAR_KEYFRAME_EASING;
 		const existingCalleeName =
 			existing.callee.type === 'Identifier'
 				? (existing.callee.name as KeyframeInterpolationFunction)
@@ -1091,6 +1099,7 @@ const addKeyframe = ({
 							.sort((first, second) => first.frame - second.frame)
 							.findIndex((keyframe) => keyframe.frame === frame),
 						nextKeyframeCount: nextKeyframes.length,
+						defaultEasing,
 					})
 				: {extraArgs: existing.extraArgs, needsEasingImport: false};
 
@@ -1349,6 +1358,15 @@ const applyKeyframeOperation = ({
 	}
 
 	if (operation.type === 'easing') {
+		if (
+			isSchemaFieldHoldOnly({schema, key}) &&
+			operation.easing.type !== 'step1'
+		) {
+			throw new Error(
+				`Cannot update easing: "${key}" only supports Easing.step1`,
+			);
+		}
+
 		const updated = updateKeyframeEasing({
 			expression,
 			segmentIndex: operation.segmentIndex,

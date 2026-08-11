@@ -237,7 +237,9 @@ Controls whether the field can be animated with keyframes.
 
 Default: `true` for `number`, `boolean`, `rotation-css`, `rotation-degrees`, `translate`, `transform-origin`, `scale`, `uv-coordinate` and `color` fields.
 
-`array`, `enum` and `font-family` fields are not keyframable. Fields inside an `enum` variant schema can still be keyframed according to their own `keyframable` setting.
+`array` and `font-family` fields are not keyframable. Fields inside an `enum` variant schema can still be keyframed according to their own `keyframable` setting.
+
+`enum` fields are not keyframable by default. From <AvailableFrom v="4.0.509" inline />, set `keyframable: true` to enable hold keyframes. Remotion Studio generates [`Easing.step1`](/docs/easing#step1) segments because enum values cannot be blended.
 
 Set `keyframable: false` on a keyframable field to show a static control.
 

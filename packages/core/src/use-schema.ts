@@ -182,10 +182,12 @@ export const makeKeyframedDragOverride = ({
 	status,
 	frame,
 	value,
+	defaultEasing = DEFAULT_LINEAR_EASING,
 }: {
 	status: CanUpdateSequencePropStatusKeyframed;
 	frame: number;
 	value: unknown;
+	defaultEasing?: CanUpdateSequencePropStatusEasing;
 }): DragOverrideValue => {
 	const existingIndex = status.keyframes.findIndex(
 		(keyframe) => keyframe.frame === frame,
@@ -210,13 +212,13 @@ export const makeKeyframedDragOverride = ({
 		});
 		const easingToDuplicate =
 			easingIndexToDuplicate === null
-				? DEFAULT_LINEAR_EASING
+				? defaultEasing
 				: easing[easingIndexToDuplicate];
 		easing.splice(insertedKeyframeIndex, 0, easingToDuplicate);
 	}
 
 	while (easing.length < keyframes.length - 1) {
-		easing.push(DEFAULT_LINEAR_EASING);
+		easing.push(defaultEasing);
 	}
 
 	if (easing.length > keyframes.length - 1) {

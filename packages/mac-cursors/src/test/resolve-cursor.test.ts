@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {macOSCursorSchema} from '../MacOSCursor';
 import {resolveCursor} from '../resolve-cursor';
 
 test('resolves named, custom, hidden, and unknown cursors', () => {
@@ -19,4 +20,10 @@ test('resolves named, custom, hidden, and unknown cursors', () => {
 
 	expect(resolveCursor('none')).toBeNull();
 	expect(resolveCursor('not-a-real-cursor')?.hotspot).toEqual({x: 10, y: 9});
+});
+
+test('cursor schema exposes named cursors as a keyframable enum', () => {
+	expect(macOSCursorSchema.cursor.keyframable).toBe(true);
+	expect(macOSCursorSchema.cursor.variants.default).toEqual({});
+	expect(macOSCursorSchema.cursor.variants['ne-resize']).toEqual({});
 });
