@@ -46,6 +46,47 @@ test('Can interpolate a single keyframe', () => {
 	).toBe(9);
 });
 
+test('Can interpolate non-numeric strings in hold mode', () => {
+	expect(
+		interpolate(0, [0, 100, 200], ['default', 'ne-resize', 'pointer'], {
+			easing: [Easing.step1, Easing.step1],
+		}),
+	).toBe('default');
+	expect(
+		interpolate(99.999, [0, 100, 200], ['default', 'ne-resize', 'pointer'], {
+			easing: [Easing.step1, Easing.step1],
+		}),
+	).toBe('default');
+	expect(
+		interpolate(100, [0, 100, 200], ['default', 'ne-resize', 'pointer'], {
+			easing: [Easing.step1, Easing.step1],
+		}),
+	).toBe('ne-resize');
+	expect(
+		interpolate(200, [0, 100, 200], ['default', 'ne-resize', 'pointer'], {
+			easing: [Easing.step1, Easing.step1],
+		}),
+	).toBe('pointer');
+});
+
+test('Non-numeric strings require hold mode', () => {
+	expectToThrow(
+		() => interpolate(50, [0, 100], ['default', 'ne-resize']),
+		/Non-numeric strings can only be interpolated using Easing\.step1/,
+	);
+	expectToThrow(
+		() =>
+			interpolate(50, [0, 100], ['default', 'ne-resize'], {
+				easing: Easing.linear,
+			}),
+		/Non-numeric strings can only be interpolated using Easing\.step1/,
+	);
+});
+
+test('A single non-numeric string keyframe does not require easing', () => {
+	expect(interpolate(100, [20], ['default'])).toBe('default');
+});
+
 test('Easing array with one keyframe accepts no entries', () => {
 	expect(
 		interpolate(0.5, [0], [1], {

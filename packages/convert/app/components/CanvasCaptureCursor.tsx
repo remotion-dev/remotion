@@ -37,16 +37,17 @@ export const CanvasCaptureCursor: React.FC<{
 		>
 			<MacOSCursor
 				cursor={cursor.cursor}
-				scale={
-					cursorData.captureMetadata.density *
-					cursorScale *
-					(isCanvasCapturePointerDownAtTime(
-						cursorData.pointerClicks,
-						timeInSeconds,
-					)
-						? cursorPressedScale
-						: 1)
-				}
+				style={{
+					scale:
+						cursorData.captureMetadata.density *
+						cursorScale *
+						(isCanvasCapturePointerDownAtTime(
+							cursorData.pointerClicks,
+							timeInSeconds,
+						)
+							? cursorPressedScale
+							: 1),
+				}}
 			/>
 		</div>
 	);

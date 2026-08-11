@@ -35,6 +35,7 @@ test('root composition menu creates compositions and folders at the root', () =>
 			folderName: null,
 			parentName: null,
 			stack: null,
+			canvasCapture: null,
 		},
 		{type: 'new-folder', parentName: null, stack: null},
 	]);

@@ -1,4 +1,5 @@
 import {
+	isSchemaFieldHoldOnly,
 	isSchemaFieldKeyframable,
 	optimisticUpdateForEffectPropStatuses,
 } from '@remotion/studio-shared';
@@ -111,6 +112,12 @@ export const TimelineEffectPropValue: React.FC<{
 							status: propStatus,
 							frame: sourceFrame,
 							value,
+							defaultEasing: isSchemaFieldHoldOnly({
+								schema: field.effectSchema,
+								key: field.key,
+							})
+								? {type: 'step1'}
+								: undefined,
 						})
 					: Internals.makeStaticDragOverride(value);
 
@@ -123,6 +130,7 @@ export const TimelineEffectPropValue: React.FC<{
 		},
 		[
 			field.effectIndex,
+			field.effectSchema,
 			field.key,
 			nodePath,
 			propStatus,

@@ -257,6 +257,20 @@ const jsxAttributeWithExpression = (
 const newCompositionElement = (
 	transformation: Extract<RecastCodemod, {type: 'new-composition'}>,
 ): JSXElement => {
+	if (transformation.canvasCapture !== null) {
+		return {
+			type: 'JSXElement',
+			openingElement: {
+				type: 'JSXOpeningElement',
+				name: jsxId(transformation.componentName),
+				attributes: [],
+				selfClosing: true,
+			},
+			closingElement: null,
+			children: [],
+		};
+	}
+
 	return {
 		type: 'JSXElement',
 		openingElement: {

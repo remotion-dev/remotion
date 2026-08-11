@@ -23,6 +23,7 @@ import {
 } from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {getAssetMetadata} from '../helpers/get-asset-metadata';
+import {getCanvasCaptureImport} from '../helpers/get-canvas-capture-import';
 import {
 	applyZoomAroundFocalPoint,
 	getCenterPointWhileScrolling,
@@ -46,6 +47,7 @@ import {canvasRef} from '../state/canvas-ref';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
+import {SetSelectedModalContext} from '../state/modals';
 import {callApi} from './call-api';
 import {
 	getCompositionDropPreviewBox,
@@ -53,7 +55,7 @@ import {
 	type CompositionDropPreview,
 } from './composition-drop-preview';
 import {useConfirmationDialog} from './ConfirmationDialog';
-import {isSupportedDropEvent} from './drop-handler-data';
+import {isFileDragEvent, isSupportedDropEvent} from './drop-handler-data';
 import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
@@ -213,6 +215,7 @@ export const Canvas: React.FC<{
 	const keybindings = useKeybinding();
 	const confirm = useConfirmationDialog();
 	const chooseSvgImportMode = useSvgImportDialog();
+	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const config = Internals.useUnsafeVideoConfig();
 	const areRulersVisible = useIsRulerVisible();
 	const {editorShowGuides} = useContext(EditorShowGuidesContext);
@@ -959,14 +962,17 @@ export const Canvas: React.FC<{
 				return;
 			}
 
-			if (!canDropAssets && !cannotAddSequence) {
+			const mayBeCanvasCapture =
+				isFileDragEvent(event) && !window.remotion_isReadOnlyStudio;
+			if (!canDropAssets && !cannotAddSequence && !mayBeCanvasCapture) {
 				setCompositionDropPreview(null);
 				return;
 			}
 
 			event.preventDefault();
 			if (event.dataTransfer) {
-				event.dataTransfer.dropEffect = canDropAssets ? 'copy' : 'none';
+				event.dataTransfer.dropEffect =
+					canDropAssets || mayBeCanvasCapture ? 'copy' : 'none';
 			}
 
 			if (
@@ -1083,6 +1089,30 @@ export const Canvas: React.FC<{
 				return;
 			}
 
+			if (isFileDragEvent(event) && !window.remotion_isReadOnlyStudio) {
+				event.preventDefault();
+				event.stopPropagation();
+				const files = Array.from(event.dataTransfer?.files ?? []);
+				if (files.length === 1) {
+					setIsAddingAsset(true);
+					try {
+						const canvasCapture = await getCanvasCaptureImport(files[0]);
+						if (canvasCapture !== null) {
+							setSelectedModal({
+								type: 'new-comp',
+								canvasCapture,
+								folderName: null,
+								parentName: null,
+								stack: null,
+							});
+							return;
+						}
+					} finally {
+						setIsAddingAsset(false);
+					}
+				}
+			}
+
 			if (cannotAddSequence) {
 				event.preventDefault();
 				event.stopPropagation();
@@ -1184,6 +1214,7 @@ export const Canvas: React.FC<{
 			editorSnapping,
 			previewSize,
 			size,
+			setSelectedModal,
 		],
 	);
 

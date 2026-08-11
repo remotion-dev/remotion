@@ -1,4 +1,7 @@
-import {isSchemaFieldKeyframable} from '@remotion/studio-shared';
+import {
+	isSchemaFieldHoldOnly,
+	isSchemaFieldKeyframable,
+} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {
 	CanUpdateSequencePropStatus,
@@ -346,10 +349,16 @@ const TimelineSequenceKeyframedValueUnmemoized: React.FC<
 					status: propStatus,
 					frame: sourceFrame,
 					value,
+					defaultEasing: isSchemaFieldHoldOnly({
+						schema,
+						key: field.key,
+					})
+						? {type: 'step1'}
+						: undefined,
 				}),
 			);
 		},
-		[propStatus, field.key, nodePath, setDragOverrides],
+		[propStatus, field.key, nodePath, schema, setDragOverrides],
 	);
 
 	const onKeyframedDragEnd = useCallback(() => {

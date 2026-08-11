@@ -1,5 +1,6 @@
 import {
 	canEditEasingForInterpolationFunction,
+	isSchemaFieldHoldOnly,
 	LINEAR_KEYFRAME_EASING,
 } from '@remotion/studio-shared';
 export {canEditEasingForInterpolationFunction} from '@remotion/studio-shared';
@@ -94,6 +95,10 @@ export const getSelectedEasingUpdate = ({
 		)?.[field.fieldKey];
 		if (
 			sequencePropStatus?.status !== 'keyframed' ||
+			isSchemaFieldHoldOnly({
+				schema: sequence.controls.schema,
+				key: field.fieldKey,
+			}) ||
 			!canEditEasingForInterpolationFunction(
 				sequencePropStatus.interpolationFunction,
 			)
@@ -131,6 +136,10 @@ export const getSelectedEasingUpdate = ({
 			: null;
 	if (
 		effectPropStatus?.status !== 'keyframed' ||
+		isSchemaFieldHoldOnly({
+			schema: effect.schema,
+			key: field.fieldKey,
+		}) ||
 		!canEditEasingForInterpolationFunction(
 			effectPropStatus.interpolationFunction,
 		)

@@ -83,6 +83,8 @@ const macCursorFilenameByCssValue: Record<string, string | null> = {
 	'zoom-out': 'zoomout.svg',
 };
 
+export const macOSCursorNames = Object.keys(macCursorFilenameByCssValue);
+
 const macCursorHotspotByFilename: Record<string, CursorHotspot> = {
 	'beachball.svg': {x: 16, y: 16},
 	'busy.svg': {x: 8, y: 3},

@@ -148,6 +148,15 @@ export {
 } from './api-requests';
 export type {BrowserStudioOperations} from './browser-studio-operations';
 export type {
+	CanvasCaptureData,
+	CanvasCaptureMouseMovement,
+	CanvasCapturePointerClick,
+} from './canvas-capture';
+export {
+	CANVAS_CAPTURE_METADATA_TAG,
+	parseCanvasCaptureData,
+} from './canvas-capture';
+export type {
 	SequenceNodePathMutation,
 	SequenceNodePathRemapping,
 } from './sequence-node-path-mutation';
@@ -243,6 +252,7 @@ export {
 export {
 	canEditEasingForInterpolationFunction,
 	getKeyframeInterpolationFunction,
+	isSchemaFieldHoldOnly,
 	getKeyframeInterpolationFunctionForSchemaField,
 	isInteractivitySchemaFieldKeyframable,
 	isKeyframeInterpolationFunction,
