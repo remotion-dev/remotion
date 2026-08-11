@@ -30,7 +30,6 @@ const callHandler = ({
 		configFile: null,
 		getDefaultCodingAgent: () => null,
 		getDefaultEditor: () => null,
-		getDefaultTerminal: () => null,
 		entryPoint: '',
 		input,
 		logLevel: 'info',

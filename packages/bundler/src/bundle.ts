@@ -454,7 +454,6 @@ export const internalBundle = async (
 			bufferStateDelayInMilliseconds: actualArgs.bufferStateDelayInMilliseconds,
 			defaultCodingAgent: null,
 			defaultEditor: null,
-			defaultTerminal: null,
 			interactivityEnabled: actualArgs.interactivityEnabled,
 			keyboardShortcutsEnabled: actualArgs.keyboardShortcutsEnabled,
 			maxTimelineTracks: actualArgs.maxTimelineTracks,

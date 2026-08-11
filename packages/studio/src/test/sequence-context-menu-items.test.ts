@@ -164,7 +164,6 @@ test('sequence context menu shares alternate apps without repeating defaults', (
 		canOpenInEditor: true,
 		codingAgentInfo: {
 			defaultCodingAgent: 'cursor',
-			defaultTerminal: null,
 			installedCodingAgents: [
 				{
 					id: 'cursor',

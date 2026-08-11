@@ -13,7 +13,6 @@ import {
 import type {
 	DefaultCodingAgent,
 	DefaultEditor,
-	DefaultTerminal,
 	LogLevel,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
@@ -78,7 +77,6 @@ export const startServer = async (options: {
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
 	getDefaultCodingAgent: () => DefaultCodingAgent | null;
 	getDefaultEditor: () => DefaultEditor | null;
-	getDefaultTerminal: () => DefaultTerminal | null;
 	configFile: string | null;
 }): Promise<StartServerResult> => {
 	const desiredPort =
@@ -186,7 +184,6 @@ export const startServer = async (options: {
 					getStudioRuntimeConfig: options.getStudioRuntimeConfig,
 					getDefaultCodingAgent: options.getDefaultCodingAgent,
 					getDefaultEditor: options.getDefaultEditor,
-					getDefaultTerminal: options.getDefaultTerminal,
 					configFile: options.configFile,
 				});
 			})

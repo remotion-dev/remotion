@@ -206,7 +206,6 @@ const getHandlerOptions = <T>({
 	configFile: null,
 	getDefaultCodingAgent: () => null,
 	getDefaultEditor: () => null,
-	getDefaultTerminal: () => null,
 });
 
 test('splitJsxSequenceHandler writes success and failure responses', async () => {

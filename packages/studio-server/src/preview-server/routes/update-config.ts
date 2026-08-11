@@ -1,9 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {
-	defaultCodingAgentIds,
-	defaultEditorIds,
-	defaultTerminalIds,
-} from '@remotion/renderer';
+import {defaultCodingAgentIds, defaultEditorIds} from '@remotion/renderer';
 import {
 	configMethodLifecycles,
 	type ConfigUpdate,
@@ -15,7 +11,6 @@ import * as recast from 'recast';
 import {parseAst} from '../../codemods/parse-ast';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {getAvailableEditors} from '../../helpers/editor-registry';
-import {getAvailableTerminals} from '../../helpers/terminal-registry';
 import type {ApiHandler} from '../api-types';
 
 const validSetterName = /^set[A-Z][A-Za-z0-9]*$/;
@@ -197,28 +192,6 @@ export const updateConfigHandler: ApiHandler<
 				return {
 					success: false,
 					reason: 'The selected editor is not installed.',
-				};
-			}
-		}
-
-		if (update.setter === 'setDefaultTerminal') {
-			if (
-				typeof update.value !== 'string' ||
-				!defaultTerminalIds.includes(
-					update.value as (typeof defaultTerminalIds)[number],
-				)
-			) {
-				return {
-					success: false,
-					reason: `Unknown terminal: ${JSON.stringify(update.value)}`,
-				};
-			}
-
-			const installedTerminals = await getAvailableTerminals();
-			if (!installedTerminals.some(({id}) => id === update.value)) {
-				return {
-					success: false,
-					reason: 'The selected terminal is not installed.',
 				};
 			}
 		}

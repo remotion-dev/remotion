@@ -1,4 +1,5 @@
-import type {DefaultCodingAgent, DefaultTerminal} from '@remotion/renderer';
+import type {DefaultCodingAgent} from '@remotion/renderer';
+import type {TerminalId} from '@remotion/studio-shared';
 import type {
 	EditorPickerId,
 	GetDefaultCodingAgentInfoResponse,
@@ -47,7 +48,7 @@ export const getOpenInMenuItems = ({
 	) => void;
 	readonly onOpenInEditor: (editorId: EditorPickerId) => void;
 	readonly onOpenInFileExplorer: () => void;
-	readonly onOpenInTerminal?: (terminalId: DefaultTerminal) => void;
+	readonly onOpenInTerminal?: (terminalId: TerminalId) => void;
 }): ComboboxValue[] => {
 	const showFinder = window.remotion_fileSystemPlatform === 'darwin';
 	const fileManagerName = getFileManagerName(

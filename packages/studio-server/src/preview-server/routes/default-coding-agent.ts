@@ -14,12 +14,11 @@ import type {ApiHandler} from '../api-types';
 export const getDefaultCodingAgentInfoHandler: ApiHandler<
 	GetDefaultCodingAgentInfoRequest,
 	GetDefaultCodingAgentInfoResponse
-> = async ({getDefaultCodingAgent, getDefaultTerminal}) => {
+> = async ({getDefaultCodingAgent}) => {
 	const installedCodingAgents = await getAvailableCodingAgents();
 	const installedTerminals = await getAvailableTerminals();
 	return {
 		defaultCodingAgent: getDefaultCodingAgent(),
-		defaultTerminal: getDefaultTerminal(),
 		installedCodingAgents: installedCodingAgents.map(
 			({id, name, nameWithType}) => ({
 				id,

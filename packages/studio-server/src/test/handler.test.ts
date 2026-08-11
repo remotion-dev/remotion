@@ -67,7 +67,6 @@ test('rejects cross-origin API requests before calling the handler', async () =>
 			},
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
-			getDefaultTerminal: () => null,
 			logLevel: 'info',
 			methods: {
 				addJob: () => undefined,
@@ -101,7 +100,6 @@ test('allows same-origin API requests from non-local peers', async () => {
 		},
 		getDefaultCodingAgent: () => null,
 		getDefaultEditor: () => null,
-		getDefaultTerminal: () => null,
 		logLevel: 'info',
 		methods: {
 			addJob: () => undefined,
@@ -145,7 +143,6 @@ test('rejects API requests without an Origin header before calling the handler',
 			},
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
-			getDefaultTerminal: () => null,
 			logLevel: 'info',
 			methods: {
 				addJob: () => undefined,
@@ -179,7 +176,6 @@ test('allows GET API requests without an Origin header', async () => {
 		},
 		getDefaultCodingAgent: () => null,
 		getDefaultEditor: () => null,
-		getDefaultTerminal: () => null,
 		logLevel: 'info',
 		methods: {
 			addJob: () => undefined,
@@ -220,7 +216,6 @@ test('allows HEAD API requests without an Origin header', async () => {
 		},
 		getDefaultCodingAgent: () => null,
 		getDefaultEditor: () => null,
-		getDefaultTerminal: () => null,
 		logLevel: 'info',
 		methods: {
 			addJob: () => undefined,
@@ -264,7 +259,6 @@ test('rejects requests with a mismatched Origin scheme before calling the handle
 			},
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
-			getDefaultTerminal: () => null,
 			logLevel: 'info',
 			methods: {
 				addJob: () => undefined,
@@ -298,7 +292,6 @@ test('allows same-origin API requests', async () => {
 		},
 		getDefaultCodingAgent: () => null,
 		getDefaultEditor: () => 'cursor',
-		getDefaultTerminal: () => null,
 		logLevel: 'info',
 		methods: {
 			addJob: () => undefined,

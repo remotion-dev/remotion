@@ -151,6 +151,27 @@ test('builds platform-specific commands that open the requested folder', () => {
 		getTerminalLaunchCommand({
 			directory: '/project',
 			terminal: {
+				applicationPath: '/Applications/Ghostty.app',
+				id: 'ghostty',
+				name: 'Ghostty',
+				platform: 'darwin',
+			},
+		}),
+	).toEqual({
+		args: [
+			'-na',
+			'/Applications/Ghostty.app',
+			'--args',
+			'--working-directory=/project',
+		],
+		command: 'open',
+		cwd: '/project',
+	});
+
+	expect(
+		getTerminalLaunchCommand({
+			directory: '/project',
+			terminal: {
 				applicationPath: '/usr/bin/ghostty',
 				id: 'ghostty',
 				name: 'Ghostty',

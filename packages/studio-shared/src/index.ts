@@ -1,4 +1,5 @@
 export {splitAnsi, stripAnsi} from './ansi';
+export type {TerminalId} from './terminal';
 export {
 	AddEffectKeyframeRequest,
 	AddEffectKeyframeResponse,

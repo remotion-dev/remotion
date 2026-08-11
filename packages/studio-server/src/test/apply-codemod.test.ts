@@ -324,7 +324,6 @@ const getHandlerOptions = <T>({
 	configFile: null,
 	getDefaultCodingAgent: () => null,
 	getDefaultEditor: () => null,
-	getDefaultTerminal: () => null,
 });
 
 const runCompositionCodemodUndoRedoTest = async ({

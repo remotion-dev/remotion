@@ -13,7 +13,6 @@ import type {
 	Crf,
 	DefaultCodingAgent,
 	DefaultEditor,
-	DefaultTerminal,
 	DeleteAfter,
 	FrameRange,
 	NumberOfGifLoops,
@@ -125,7 +124,6 @@ const {
 	darkModeOption,
 	defaultCodingAgentOption,
 	defaultEditorOption,
-	defaultTerminalOption,
 	askAIOption,
 	publicLicenseKeyOption,
 	interactivityOption,
@@ -628,11 +626,6 @@ type FlatConfig = RemotionConfigObject &
 		 * Set the coding agent used by Remotion Studio.
 		 */
 		setDefaultCodingAgent: (codingAgent: DefaultCodingAgent) => void;
-		/**
-		 * Set the terminal used by Remotion Studio.
-		 */
-		setDefaultTerminal: (terminal: DefaultTerminal) => void;
-
 		setDeleteAfter: (day: DeleteAfter | null) => void;
 		/**
 		 * Set whether S3 buckets should be allowed to expire.
@@ -851,7 +844,6 @@ export const Config: FlatConfig = {
 	setPublicLicenseKey: publicLicenseKeyOption.setConfig,
 	setDefaultCodingAgent: defaultCodingAgentOption.setConfig,
 	setDefaultEditor: defaultEditorOption.setConfig,
-	setDefaultTerminal: defaultTerminalOption.setConfig,
 	setForceNewStudioEnabled: forceNewStudioOption.setConfig,
 	setIPv4: ipv4Option.setConfig,
 	setBundleOutDir: outDirOption.setConfig,

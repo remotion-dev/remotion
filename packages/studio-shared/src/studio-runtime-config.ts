@@ -1,8 +1,4 @@
-import type {
-	BuiltInEditor,
-	DefaultCodingAgent,
-	DefaultTerminal,
-} from '@remotion/renderer';
+import type {BuiltInEditor, DefaultCodingAgent} from '@remotion/renderer';
 
 export type StudioRuntimeConfig = {
 	readonly maxTimelineTracks: number | null;
@@ -12,6 +8,5 @@ export type StudioRuntimeConfig = {
 	readonly bufferStateDelayInMilliseconds: number | null;
 	readonly defaultCodingAgent: DefaultCodingAgent | null;
 	readonly defaultEditor: BuiltInEditor | 'custom' | null;
-	readonly defaultTerminal: DefaultTerminal | null;
 	readonly publicLicenseKey: string | null;
 };

@@ -50,7 +50,6 @@ const {
 	previewSampleRateOption,
 	defaultCodingAgentOption,
 	defaultEditorOption,
-	defaultTerminalOption,
 	publicLicenseKeyOption,
 } = BrowserSafeApis.options;
 
@@ -174,9 +173,6 @@ export const studioCommand = async (
 			}).value,
 			defaultEditor:
 				typeof configuredEditor === 'object' ? 'custom' : configuredEditor,
-			defaultTerminal: defaultTerminalOption.getValue({
-				commandLine: parsedCli,
-			}).value,
 			publicLicenseKey: publicLicenseKeyOption.getValue({
 				commandLine: parsedCli,
 			}).value,
@@ -193,8 +189,6 @@ export const studioCommand = async (
 		defaultCodingAgentOption.getValue({commandLine: parsedCli}).value;
 	const getDefaultEditor = () =>
 		defaultEditorOption.getValue({commandLine: parsedCli}).value;
-	const getDefaultTerminal = () =>
-		defaultTerminalOption.getValue({commandLine: parsedCli}).value;
 
 	const startupConfigCode = getLoadedConfigFileCode();
 	if (configFile && startupConfigCode) {
@@ -321,7 +315,6 @@ export const studioCommand = async (
 		getPreviewSampleRate,
 		getDefaultCodingAgent,
 		getDefaultEditor,
-		getDefaultTerminal,
 		enableCrossSiteIsolation,
 		forceNew: forceNewStudioOption.getValue({commandLine: parsedCli}).value,
 		rspack: useRspack,

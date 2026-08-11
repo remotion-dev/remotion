@@ -9,7 +9,6 @@ import type {
 import type {
 	DefaultCodingAgent,
 	DefaultEditor,
-	DefaultTerminal,
 	LogLevel,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
@@ -68,7 +67,6 @@ export const startStudio = async ({
 	getStudioRuntimeConfig,
 	getDefaultCodingAgent,
 	getDefaultEditor,
-	getDefaultTerminal,
 	configFile,
 }: {
 	browserArgs: string;
@@ -101,7 +99,6 @@ export const startStudio = async ({
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
 	getDefaultCodingAgent: () => DefaultCodingAgent | null;
 	getDefaultEditor: () => DefaultEditor | null;
-	getDefaultTerminal: () => DefaultTerminal | null;
 	configFile: string | null;
 }): Promise<StartStudioResult> => {
 	try {
@@ -183,7 +180,6 @@ export const startStudio = async ({
 		getStudioRuntimeConfig,
 		getDefaultCodingAgent,
 		getDefaultEditor,
-		getDefaultTerminal,
 		configFile,
 	});
 

@@ -3,14 +3,14 @@ import {existsSync, statSync} from 'node:fs';
 import {homedir} from 'node:os';
 import path from 'node:path';
 import {promisify} from 'node:util';
-import type {DefaultTerminal} from '@remotion/renderer';
+import type {TerminalId} from '@remotion/studio-shared';
 
 const execFilePromise = promisify(execFile);
 
 type SupportedTerminalPlatform = 'darwin' | 'linux' | 'win32';
 
 export type InstalledTerminal = {
-	id: DefaultTerminal;
+	id: TerminalId;
 	name: string;
 	applicationPath: string;
 	platform: SupportedTerminalPlatform;
@@ -184,7 +184,7 @@ const terminalDefinitions = {
 		},
 		win32: null,
 	},
-} satisfies Record<DefaultTerminal, TerminalDefinition>;
+} satisfies Record<TerminalId, TerminalDefinition>;
 
 const findMacApplications = async (
 	bundleIdentifier: string,
@@ -257,7 +257,7 @@ export const discoverAvailableTerminals = async (
 
 	const installedTerminals: InstalledTerminal[] = [];
 	for (const [id, definition] of Object.entries(terminalDefinitions) as [
-		DefaultTerminal,
+		TerminalId,
 		TerminalDefinition,
 	][]) {
 		const platformDefinition = definition[context.platform];
@@ -351,11 +351,13 @@ export const getTerminalLaunchCommand = ({
 				};
 			case 'ghostty':
 				return {
-					command: path.posix.join(
+					command: 'open',
+					args: [
+						'-na',
 						terminal.applicationPath,
-						'Contents/MacOS/ghostty',
-					),
-					args: [`--working-directory=${directory}`],
+						'--args',
+						`--working-directory=${directory}`,
+					],
 					cwd: directory,
 				};
 			case 'wezterm':

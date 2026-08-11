@@ -31,7 +31,6 @@ const {
 	darkModeOption,
 	defaultCodingAgentOption,
 	defaultEditorOption,
-	defaultTerminalOption,
 	publicLicenseKeyOption,
 	forceNewStudioOption,
 	numberOfSharedAudioTagsOption,
@@ -103,7 +102,6 @@ export type CommandLineOptions = {
 		typeof defaultCodingAgentOption
 	>;
 	[defaultEditorOption.cliFlag]: TypeOfOption<typeof defaultEditorOption>;
-	[defaultTerminalOption.cliFlag]: TypeOfOption<typeof defaultTerminalOption>;
 	[disableWebSecurityOption.cliFlag]: TypeOfOption<
 		typeof disableWebSecurityOption
 	> | null;

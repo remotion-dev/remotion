@@ -225,7 +225,6 @@ test.describe('visual mode', () => {
 					success: true,
 					data: {
 						defaultCodingAgent: null,
-						defaultTerminal: null,
 						installedCodingAgents: [
 							{
 								id: 'codex',
@@ -250,7 +249,7 @@ test.describe('visual mode', () => {
 
 			fs.writeFileSync(
 				configFile,
-				`${configBeforeTest}\nConfig.setDefaultEditor('cursor');\nConfig.setDefaultCodingAgent('codex');\nConfig.setDefaultTerminal('ghostty');\nConfig.setPublicLicenseKey('free-license');\n`,
+				`${configBeforeTest}\nConfig.setDefaultEditor('cursor');\nConfig.setDefaultCodingAgent('codex');\nConfig.setPublicLicenseKey('free-license');\n`,
 			);
 			await expect
 				.poll(() => fs.readFileSync(configFile, 'utf8'))
@@ -267,24 +266,6 @@ test.describe('visual mode', () => {
 			await expect(
 				dialog.getByTitle('Default coding agent', {exact: true}),
 			).toContainText('Codex');
-			const defaultTerminal = dialog.getByTitle('Default terminal', {
-				exact: true,
-			});
-			await expect(defaultTerminal).toContainText('Ghostty');
-			const ghosttyIcon = defaultTerminal.locator(
-				'img[data-terminal-icon="ghostty"]',
-			);
-			await expect(ghosttyIcon).toHaveAttribute(
-				'src',
-				'/api/app-icon/terminal/ghostty.png',
-			);
-			await expect
-				.poll(() =>
-					ghosttyIcon.evaluate(
-						(image) => (image as HTMLImageElement).naturalWidth,
-					),
-				)
-				.toBe(72);
 			await dialog.getByText('License', {exact: true}).click();
 			await expect(dialog.locator('input[name="free-license"]')).toBeChecked();
 			expect({codingAgentInfoRequests, editorInfoRequests}).toEqual({
@@ -574,7 +555,6 @@ test.describe('visual mode', () => {
 					success: true,
 					data: {
 						defaultCodingAgent: 'cursor',
-						defaultTerminal: null,
 						installedCodingAgents: [
 							{
 								id: 'cursor',
@@ -621,11 +601,6 @@ test.describe('visual mode', () => {
 			await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
 			const firstGridline = page.getByText('0% gridline', {exact: true});
 			await expect(firstGridline).toBeVisible({timeout: 15_000});
-			await expect
-				.poll(() =>
-					page.evaluate(() => window.remotion_studioConfig?.defaultTerminal),
-				)
-				.toBe(null);
 			const projectOpenInAnotherApp = page
 				.getByTitle(exampleDir)
 				.getByRole('button', {name: 'Open in another app'});
@@ -668,15 +643,6 @@ test.describe('visual mode', () => {
 				.poll(() => terminalLaunchRequests)
 				.toEqual([{directory: exampleDir, terminalId: 'terminal'}]);
 
-			fs.writeFileSync(
-				configFile,
-				`${configBeforeTest}\nConfig.setDefaultTerminal('iterm2');\n`,
-			);
-			await expect
-				.poll(() =>
-					page.evaluate(() => window.remotion_studioConfig?.defaultTerminal),
-				)
-				.toBe('iterm2');
 			await projectOpenInAnotherApp.click();
 			await expect(
 				iTermButton.locator('img[data-terminal-icon="iterm2"]'),
@@ -689,15 +655,6 @@ test.describe('visual mode', () => {
 					{directory: exampleDir, terminalId: 'iterm2'},
 				]);
 
-			fs.writeFileSync(
-				configFile,
-				`${configBeforeTest}\nConfig.setDefaultTerminal('windows-terminal');\n`,
-			);
-			await expect
-				.poll(() =>
-					page.evaluate(() => window.remotion_studioConfig?.defaultTerminal),
-				)
-				.toBe('windows-terminal');
 			await projectOpenInAnotherApp.click();
 			await expect(
 				windowsTerminalButton.locator(
@@ -866,7 +823,6 @@ test.describe('visual mode', () => {
 					success: true,
 					data: {
 						defaultCodingAgent: null,
-						defaultTerminal: null,
 						installedCodingAgents: [
 							{
 								id: 'codex',

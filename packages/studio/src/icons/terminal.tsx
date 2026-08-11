@@ -1,4 +1,4 @@
-import type {DefaultTerminal} from '@remotion/renderer';
+import type {TerminalId} from '@remotion/studio-shared';
 import React from 'react';
 import {CURRENT_COLOR} from '../helpers/colors';
 import {AppsIcon} from './apps';
@@ -13,7 +13,7 @@ const iconStyle = (size: number): React.CSSProperties => ({
 });
 
 const simpleTerminalIcons: Partial<
-	Record<DefaultTerminal, {readonly color: string; readonly path: string}>
+	Record<TerminalId, {readonly color: string; readonly path: string}>
 > = {
 	warp: {
 		color: '#01A4FF',
@@ -34,7 +34,7 @@ const simpleTerminalIcons: Partial<
 };
 
 export const TerminalIcon: React.FC<{
-	readonly terminalId: DefaultTerminal;
+	readonly terminalId: TerminalId;
 	readonly size: number;
 }> = ({terminalId, size}) => {
 	const hasArtwork =

@@ -68,9 +68,6 @@ export const SettingsProvider: React.FC<{
 						defaultCodingAgent: runtimeConfig
 							? runtimeConfig.defaultCodingAgent
 							: codingAgentInfo.defaultCodingAgent,
-						defaultTerminal: runtimeConfig
-							? runtimeConfig.defaultTerminal
-							: codingAgentInfo.defaultTerminal,
 					},
 					editorInfo: {
 						...editorInfo,
@@ -108,7 +105,6 @@ export const SettingsProvider: React.FC<{
 					? {
 							...currentSettings.codingAgentInfo,
 							defaultCodingAgent: event.studioRuntimeConfig.defaultCodingAgent,
-							defaultTerminal: event.studioRuntimeConfig.defaultTerminal,
 						}
 					: null,
 				editorInfo: currentSettings.editorInfo

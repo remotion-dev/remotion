@@ -7,7 +7,6 @@ import {BundlerInternals} from '@remotion/bundler';
 import type {
 	DefaultCodingAgent,
 	DefaultEditor,
-	DefaultTerminal,
 	LogLevel,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
@@ -387,7 +386,6 @@ export const handleRoutes = ({
 	getStudioRuntimeConfig,
 	getDefaultCodingAgent,
 	getDefaultEditor,
-	getDefaultTerminal,
 	configFile,
 }: {
 	staticHash: string;
@@ -415,7 +413,6 @@ export const handleRoutes = ({
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
 	getDefaultCodingAgent: () => DefaultCodingAgent | null;
 	getDefaultEditor: () => DefaultEditor | null;
-	getDefaultTerminal: () => DefaultTerminal | null;
 	configFile: string | null;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
@@ -518,7 +515,6 @@ export const handleRoutes = ({
 				configFile,
 				getDefaultCodingAgent,
 				getDefaultEditor,
-				getDefaultTerminal,
 			});
 		}
 	}

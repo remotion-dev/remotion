@@ -5,7 +5,6 @@ import type {
 	Codec,
 	ColorSpace,
 	DefaultCodingAgent,
-	DefaultTerminal,
 	LogLevel,
 	PixelFormat,
 	StillImageFormat,
@@ -44,6 +43,7 @@ import type {
 import type {SequenceNodePathMutation} from './sequence-node-path-mutation';
 import type {SymbolicatedStackFrame} from './stack-types';
 import type {EnumPath} from './stringify-default-props';
+import type {TerminalId} from './terminal';
 
 type KeyframeEasing = Extract<
 	CanUpdateSequencePropStatus,
@@ -74,7 +74,7 @@ export type OpenInCodingAgentResponse = {
 
 export type OpenInTerminalRequest = {
 	directory: string;
-	terminalId: DefaultTerminal;
+	terminalId: TerminalId;
 };
 
 export type OpenInTerminalResponse = {
@@ -1056,14 +1056,13 @@ export type GetDefaultEditorInfoResponse = {
 export type GetDefaultCodingAgentInfoRequest = {};
 export type GetDefaultCodingAgentInfoResponse = {
 	defaultCodingAgent: DefaultCodingAgent | null;
-	defaultTerminal: DefaultTerminal | null;
 	installedCodingAgents: {
 		id: DefaultCodingAgent;
 		name: string;
 		nameWithType: string;
 	}[];
 	installedTerminals: {
-		id: DefaultTerminal;
+		id: TerminalId;
 		name: string;
 	}[];
 };

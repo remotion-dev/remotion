@@ -1,4 +1,5 @@
-import type {DefaultCodingAgent, DefaultTerminal} from '@remotion/renderer';
+import type {DefaultCodingAgent} from '@remotion/renderer';
+import type {TerminalId} from '@remotion/studio-shared';
 import type {
 	CompositionComponentInfoResponse,
 	EditorPickerId,
@@ -45,7 +46,7 @@ export const openInCodingAgent = (
 };
 
 export const openInTerminal = (
-	terminalId: DefaultTerminal,
+	terminalId: TerminalId,
 	directory: string,
 ): Promise<OpenInTerminalResponse> => {
 	return callApi('/api/open-in-terminal', {directory, terminalId});
