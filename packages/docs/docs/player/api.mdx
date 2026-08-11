@@ -497,6 +497,8 @@ This is meant for editor-style applications (video editors, DAW-like tools) that
 
 The context is started when the Player mounts if the browser's autoplay policy allows it, otherwise on the first click or key press. It is suspended again when the Player unmounts.
 
+The value cannot be changed after the Player mounts. Doing so throws an error.
+
 **Example:**
 
 ```tsx title="MyPlayer.tsx"
