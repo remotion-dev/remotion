@@ -292,6 +292,7 @@ test('New composition appends to root and adds imports', () => {
 		input: compositionInRoot,
 		codeMod: {
 			type: 'new-composition',
+			canvasCapture: null,
 			newId: 'FreshVideo',
 			componentName: 'FreshVideo',
 			componentImportPath: './FreshVideo',

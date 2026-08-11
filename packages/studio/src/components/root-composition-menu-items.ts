@@ -24,6 +24,7 @@ export const getRootCompositionMenuItems = ({
 					folderName: null,
 					parentName: null,
 					stack: null,
+					canvasCapture: null,
 				});
 			},
 			quickSwitcherLabel: 'New composition...',
