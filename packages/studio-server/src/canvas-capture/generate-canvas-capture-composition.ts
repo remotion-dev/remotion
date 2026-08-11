@@ -185,7 +185,12 @@ export const ${previewComponentName} = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill>
+		<AbsoluteFill
+			style={{
+				width: ${width},
+				height: ${height},
+			}}
+		>
 			<Video
 				src={staticFile(${serialize(videoFileName)})}
 				style={{

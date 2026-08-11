@@ -13,7 +13,12 @@ export const CanvasCapturePreview = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill>
+		<AbsoluteFill
+			style={{
+				width: 1920,
+				height: 1080,
+			}}
+		>
 			<Video
 				src={staticFile('remotion-capture-editor-starter.mp4')}
 				style={{
