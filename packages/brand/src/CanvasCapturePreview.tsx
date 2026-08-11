@@ -155,7 +155,7 @@ const CursorOverlay: React.FC<{
 						extrapolateRight: 'clamp',
 					},
 				)}
-				style={{scale: 1}}
+				style={{scale: 6}}
 			/>
 		</div>
 	);
