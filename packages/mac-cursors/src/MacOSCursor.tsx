@@ -10,6 +10,7 @@ import {macOSCursorNames, resolveCursor} from './resolve-cursor';
 
 export type MacOSCursorProps = InteractiveBaseProps & {
 	readonly cursor: string;
+	readonly customCursor?: string;
 	readonly className?: string;
 	readonly style?: CSSProperties;
 };
@@ -20,8 +21,20 @@ export const macOSCursorSchema = {
 		default: 'default',
 		description: 'Cursor',
 		keyframable: true,
-		variants: Object.fromEntries(
-			macOSCursorNames.map((cursor) => [cursor, {}]),
+		variants: Object.assign(
+			Object.fromEntries<InteractivitySchema>(
+				macOSCursorNames.map((cursor) => [cursor, {}]),
+			),
+			{
+				custom: {
+					customCursor: {
+						type: 'text-content',
+						default: '',
+						description: 'Custom cursor',
+						keyframable: false,
+					},
+				},
+			},
 		),
 	},
 	...Interactive.transformSchema,
@@ -31,6 +44,7 @@ const MacOSCursorInner: React.FC<
 	MacOSCursorProps & {readonly controls: SequenceControls | undefined}
 > = ({
 	cursor,
+	customCursor,
 	className,
 	style,
 	durationInFrames,
@@ -42,7 +56,12 @@ const MacOSCursorInner: React.FC<
 	showInTimeline,
 	controls,
 }) => {
-	const resolved = resolveCursor(cursor);
+	const resolved =
+		cursor === 'custom'
+			? customCursor
+				? resolveCursor(customCursor)
+				: null
+			: resolveCursor(cursor);
 	const refForOutline = React.useRef<HTMLImageElement | null>(null);
 
 	return (
