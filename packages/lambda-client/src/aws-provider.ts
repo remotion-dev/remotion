@@ -13,6 +13,7 @@ export type AwsProvider = {
 		alreadyCreated: boolean;
 		retentionInDays: number;
 		customRoleArn: string;
+		customLayerArns: string[] | null;
 		enableLambdaInsights: boolean;
 		vpcSubnetIds: string;
 		vpcSecurityGroupIds: string;

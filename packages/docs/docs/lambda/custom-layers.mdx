@@ -96,6 +96,30 @@ This will zip the layers and put them as artifacts in the `out` directory.
 You need to do this for every AWS region you want to use Remotion Lambda in.
 :::
 
+## Specify custom Layers while deploying
+
+Pass every runtime Layer to [`deployFunction()`](/docs/lambda/deployfunction#customlayerarns) or `--custom-layer-arns`. The list completely replaces Remotion's hosted Chromium, font, emoji, and CJK Layers.
+
+```ts twoslash title="deploy-lambda.ts"
+import {deployFunction} from '@remotion/lambda';
+
+await deployFunction({
+  region: 'us-east-1',
+  timeoutInSeconds: 120,
+  memorySizeInMb: 2048,
+  createCloudWatchLogGroup: true,
+  customLayerArns: ['arn:aws:lambda:us-east-1:123456789012:layer:custom-chromium:1', 'arn:aws:lambda:us-east-1:123456789012:layer:custom-fonts:3'],
+});
+```
+
+```sh title="Deploy using the CLI"
+npx remotion lambda functions deploy --custom-layer-arns="arn:aws:lambda:us-east-1:123456789012:layer:custom-chromium:1,arn:aws:lambda:us-east-1:123456789012:layer:custom-fonts:3"
+```
+
+Each ARN must include a numeric Layer version and use the function's AWS region. AWS Lambda allows at most five Layers and limits the combined unzipped size of the function and all Layers to 250MB. The Lambda Insights Layer occupies one of the five slots.
+
+You are responsible for keeping custom Layers compatible with Remotion and granting access to their ARNs. When custom Layers are omitted, Remotion continues to use its hosted Layers.
+
 ## Update the Lambda function
 
 Before you continue, make sure a Remotion Lambda function is deployed.
