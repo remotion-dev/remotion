@@ -14,11 +14,7 @@ import {
 import {Banner} from './Brand/Banner';
 import {Comp} from './Brand/Composition';
 import {TriangleDemo} from './Brand/TriangleToSquare';
-import {
-	CanvasCapturePreview,
-	calculateCanvasCapturePreviewMetadata,
-	canvasCapturePreviewSchema,
-} from './CanvasCapturePreview';
+import {CanvasCaptureComposition} from './CanvasCapturePreview';
 import {
 	WhatIsRemotion,
 	whatIsRemotionCalculateMetadata,
@@ -435,22 +431,7 @@ export const RemotionRoot: React.FC = () => {
 					defaultProps={htmlInCanvasAllEffectsDefaultProps}
 					calculateMetadata={calculateHtmlInCanvasAllEffectsMetadata}
 				/>
-				<Composition
-					id="canvas-capture-promo"
-					component={CanvasCapturePreview}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={120}
-					defaultProps={{
-						videoFile: staticFile('remotion-capture-editor-starter.mp4'),
-						hidden: null,
-						width: null,
-						height: null,
-					}}
-					schema={canvasCapturePreviewSchema}
-					calculateMetadata={calculateCanvasCapturePreviewMetadata}
-				/>
+				<CanvasCaptureComposition />
 				<Composition
 					id="canvas-capture-new-sticker"
 					component={NewSticker}
