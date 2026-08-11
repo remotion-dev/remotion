@@ -130,6 +130,8 @@ const stringifyNumber = (value: number): string => {
 	return String(normalizeNumber(value));
 };
 
+class UnsupportedStringInterpolationValueError extends TypeError {}
+
 const parseStringInterpolationComponent = (
 	component: string,
 	value: string,
@@ -140,7 +142,7 @@ const parseStringInterpolationComponent = (
 } => {
 	const match = cssNumberRegex.exec(component);
 	if (match === null) {
-		throw new TypeError(
+		throw new UnsupportedStringInterpolationValueError(
 			`Cannot interpolate "${value}" because "${component}" is not a supported scale, translate, or rotate value`,
 		);
 	}
@@ -1197,12 +1199,7 @@ export function interpolate(
 					parseStringInterpolationValue(output);
 					return false;
 				} catch (parseError) {
-					return (
-						parseError instanceof TypeError &&
-						parseError.message.includes(
-							'not a supported scale, translate, or rotate value',
-						)
-					);
+					return parseError instanceof UnsupportedStringInterpolationValueError;
 				}
 			});
 			if (!hasNonNumericString) {
