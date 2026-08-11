@@ -2,6 +2,7 @@ import React, {
 	createContext,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 } from 'react';
@@ -27,7 +28,7 @@ const EscapeHook: React.FC<{
 }> = ({onEscape}) => {
 	const keybindings = useKeybinding();
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const escape = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'Escape',
@@ -78,7 +79,7 @@ export const HigherZIndex: React.FC<{
 		? context.currentIndex
 		: (stackedIndex.current ?? context.currentIndex + 1);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (disabled) {
 			return;
 		}
