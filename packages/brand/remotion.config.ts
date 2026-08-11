@@ -13,4 +13,3 @@ Config.setOverwriteOutput(true);
 Config.setChromiumOpenGlRenderer('angle');
 Config.overrideBundlerConfig(enableTailwind);
 Config.setEnableCrossSiteIsolation(true);
-Config.setDefaultTerminal('ghostty');
