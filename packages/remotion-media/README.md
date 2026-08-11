@@ -1,6 +1,6 @@
 # @remotion/remotion-media
 
-Private package hosting [remotion.media](https://remotion.media): test media fixtures and a catalog UI for `@remotion/media`.
+Private package hosting [remotion.media](https://remotion.media): test media fixtures and a catalog UI.
 
 ## Development
 
@@ -22,7 +22,7 @@ Place `multiple-audio-streams.mov` in the package root before running `generate`
 
 ## Build and deploy
 
-Bundles the catalog UI and uploads to Cloudflare R2 when `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are set:
+Bundles and pre-renders the catalog UI, generates `llms.txt`, `robots.txt`, and `sitemap.xml`, and uploads everything to Cloudflare R2 when `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are set:
 
 ```bash
 bun run build
@@ -59,4 +59,6 @@ curl -I -H 'Accept: text/html' https://remotion.media/
 curl -I -H 'Accept: text/markdown' https://remotion.media/
 curl -I -A 'Claude-User' https://remotion.media/
 curl -I https://remotion.media/llms.txt
+curl -I https://remotion.media/robots.txt
+curl -I https://remotion.media/sitemap.xml
 ```

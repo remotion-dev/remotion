@@ -1,9 +1,19 @@
 #!/usr/bin/env bun
-import {$, build, S3Client, type BuildConfig} from 'bun';
-import plugin from 'bun-plugin-tailwind';
-import {cpSync, existsSync, mkdirSync, readdirSync, writeFileSync} from 'fs';
+import {
+	cpSync,
+	existsSync,
+	mkdirSync,
+	readdirSync,
+	readFileSync,
+	writeFileSync,
+} from 'fs';
 import {rm} from 'fs/promises';
 import path from 'path';
+import {$, build, S3Client, type BuildConfig} from 'bun';
+import plugin from 'bun-plugin-tailwind';
+import {createElement} from 'react';
+import {renderToString} from 'react-dom/server';
+import {App} from './src/App';
 import {makeLlmsText} from './src/llms';
 import variants from './variants.json';
 
@@ -126,14 +136,15 @@ const formatFileSize = (bytes: number): string => {
 	return `${size.toFixed(2)} ${units[unitIndex]}`;
 };
 
-const hlsContentTypes: Record<string, string> = {
+const explicitContentTypes: Record<string, string> = {
 	'.m3u8': 'application/vnd.apple.mpegurl',
 	'.m4s': 'video/iso.segment',
 	'.ts': 'video/mp2t',
+	'.xml': 'application/xml; charset=utf-8',
 };
 
 const getContentType = (file: string) => {
-	return hlsContentTypes[path.extname(file)];
+	return explicitContentTypes[path.extname(file)];
 };
 
 const r2Endpoint =
@@ -177,6 +188,42 @@ const result = await build({
 	...cliConfig, // Merge in any CLI-provided options
 });
 
+const generatedIndexPath = path.join(outdir, 'index.html');
+const rootPlaceholder = '<div id="root"></div>';
+const generatedIndex = readFileSync(generatedIndexPath, 'utf8');
+if (!generatedIndex.includes(rootPlaceholder)) {
+	throw new Error(`Could not find ${rootPlaceholder} in ${generatedIndexPath}`);
+}
+
+const prerenderedIndex = generatedIndex.replace(
+	rootPlaceholder,
+	`<div id="root">${renderToString(createElement(App))}</div>`,
+);
+writeFileSync(generatedIndexPath, prerenderedIndex);
+writeFileSync(path.join(outdir, 'llms.txt'), makeLlmsText(variants));
+writeFileSync(
+	path.join(outdir, 'robots.txt'),
+	[
+		'User-agent: *',
+		'Allow: /',
+		'',
+		'Sitemap: https://remotion.media/sitemap.xml',
+		'',
+	].join('\n'),
+);
+writeFileSync(
+	path.join(outdir, 'sitemap.xml'),
+	[
+		'<?xml version="1.0" encoding="UTF-8"?>',
+		'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+		'  <url>',
+		'    <loc>https://remotion.media/</loc>',
+		'  </url>',
+		'</urlset>',
+		'',
+	].join('\n'),
+);
+
 // Print the results
 const end = performance.now();
 
@@ -191,7 +238,8 @@ const buildTime = (end - start).toFixed(2);
 
 console.log(`\n✅ Build completed in ${buildTime}ms\n`);
 
-const filesDir = path.join(process.cwd(), 'files');
+const filesDir =
+	Bun.env.REMOTION_MEDIA_FILES_DIR ?? path.join(process.cwd(), 'files');
 mkdirSync(filesDir, {recursive: true});
 
 for await (const file of new Bun.Glob('chunk-*').scan(filesDir)) {
@@ -212,8 +260,6 @@ const files = readdirSync(outdir);
 for (const file of files) {
 	cpSync(path.join(outdir, file), path.join(filesDir, file));
 }
-
-writeFileSync(path.join(filesDir, 'llms.txt'), makeLlmsText(variants));
 
 if (!Bun.env.AWS_ACCESS_KEY_ID || !Bun.env.AWS_SECRET_ACCESS_KEY) {
 	console.log(
