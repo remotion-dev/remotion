@@ -123,6 +123,7 @@ const RemotionMediaPreview: React.FC<{
 	readonly mirrorVertical: boolean;
 	readonly cursorData: CanvasCaptureCursorData | null;
 	readonly cursorScale: number;
+	readonly cursorPressedScale: number;
 }> = ({
 	src,
 	isAudio,
@@ -132,6 +133,7 @@ const RemotionMediaPreview: React.FC<{
 	mirrorVertical,
 	cursorData,
 	cursorScale,
+	cursorPressedScale,
 }) => {
 	const frame = useCurrentFrame();
 	const {durationInFrames, width, height} = useVideoConfig();
@@ -154,6 +156,7 @@ const RemotionMediaPreview: React.FC<{
 						<CanvasCaptureCursor
 							cursorData={cursorData}
 							cursorScale={cursorScale}
+							cursorPressedScale={cursorPressedScale}
 						/>
 					) : null}
 				</div>
@@ -192,6 +195,7 @@ export function VideoPlayer({
 	cursorData,
 	showCursor,
 	cursorScale,
+	cursorPressedScale,
 	onPlaybackTimeChange,
 }: {
 	readonly src: Source;
@@ -213,6 +217,7 @@ export function VideoPlayer({
 	readonly cursorData: CanvasCaptureCursorData | null;
 	readonly showCursor: boolean;
 	readonly cursorScale: number;
+	readonly cursorPressedScale: number;
 	readonly onPlaybackTimeChange: (timeInSeconds: number) => void;
 	readonly setUnclampedRect: React.Dispatch<
 		React.SetStateAction<CropRectangle>
@@ -321,6 +326,7 @@ export function VideoPlayer({
 							mirrorVertical,
 							cursorData: showCursor ? cursorData : null,
 							cursorScale,
+							cursorPressedScale,
 						}}
 						durationInFrames={durationInFrames}
 						compositionWidth={playerDimensions.width}

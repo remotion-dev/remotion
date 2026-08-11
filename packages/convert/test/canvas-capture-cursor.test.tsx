@@ -19,6 +19,7 @@ test('renders the recorded cursor at its captured position in the Player', async
 			fps={30}
 			inputProps={{
 				cursorScale: 0.5,
+				cursorPressedScale: 0.8,
 				cursorData: {
 					captureMetadata: {density: 2},
 					mouseMovements: [
@@ -29,6 +30,7 @@ test('renders the recorded cursor at its captured position in the Player', async
 							cursor: `url("${customCursor}") 6 7, pointer`,
 						},
 					],
+					pointerClicks: [{timeInSeconds: 0, type: 'pointer-down'}],
 				},
 			}}
 		/>,
@@ -37,7 +39,7 @@ test('renders the recorded cursor at its captured position in the Player', async
 	await waitFor(() => {
 		const cursor = rendered.container.querySelector<HTMLImageElement>('img');
 		expect(cursor?.src).toBe(customCursor);
-		expect(cursor?.style.scale).toBe('1');
+		expect(cursor?.style.scale).toBe('0.8');
 		expect(cursor?.style.marginLeft).toBe('-6px');
 		expect(cursor?.style.marginTop).toBe('-7px');
 		expect(cursor?.parentElement?.style.left).toBe('200px');

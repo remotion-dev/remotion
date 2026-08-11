@@ -2,11 +2,11 @@ import {resolveCursor} from '@remotion/mac-cursors';
 import {VideoSample, type CropRectangle} from 'mediabunny';
 import type {Dimensions} from './calculate-new-dimensions-from-dimensions';
 import {normalizeVideoRotation} from './calculate-new-dimensions-from-dimensions';
-import type {
-	CanvasCaptureCursorData,
-	CanvasCaptureMouseMovement,
+import type {CanvasCaptureCursorData} from './canvas-capture-metadata';
+import {
+	findCanvasCaptureCursorAtTime,
+	isCanvasCapturePointerDownAtTime,
 } from './canvas-capture-metadata';
-import {findCanvasCaptureCursorAtTime} from './canvas-capture-metadata';
 
 export const CURSOR_SAMPLE_MERGE_THRESHOLD_IN_SECONDS = 0.001;
 
@@ -19,55 +19,55 @@ export type CanvasCaptureSampleMoment = {
 export const getCanvasCaptureSampleMoments = ({
 	timestamp,
 	duration,
-	mouseMovements,
+	cursorStateChanges,
 }: {
 	readonly timestamp: number;
 	readonly duration: number;
-	readonly mouseMovements: readonly CanvasCaptureMouseMovement[];
+	readonly cursorStateChanges: readonly {readonly timeInSeconds: number}[];
 }): CanvasCaptureSampleMoment[] => {
 	const endTimestamp = timestamp + duration;
 	const moments: Array<Omit<CanvasCaptureSampleMoment, 'duration'>> = [
 		{timestamp, cursorLookupTimestamp: timestamp},
 	];
 	let low = 0;
-	let high = mouseMovements.length;
+	let high = cursorStateChanges.length;
 	while (low < high) {
 		const middle = Math.floor((low + high) / 2);
-		if (mouseMovements[middle].timeInSeconds < timestamp) {
+		if (cursorStateChanges[middle].timeInSeconds < timestamp) {
 			low = middle + 1;
 		} else {
 			high = middle;
 		}
 	}
 
-	for (let index = low; index < mouseMovements.length; index++) {
-		const movement = mouseMovements[index];
-		if (movement.timeInSeconds >= endTimestamp) {
+	for (let index = low; index < cursorStateChanges.length; index++) {
+		const stateChange = cursorStateChanges[index];
+		if (stateChange.timeInSeconds >= endTimestamp) {
 			break;
 		}
 
 		const previousMoment = moments[moments.length - 1];
 		if (
-			movement.timeInSeconds - previousMoment.timestamp <=
+			stateChange.timeInSeconds - previousMoment.timestamp <=
 			CURSOR_SAMPLE_MERGE_THRESHOLD_IN_SECONDS
 		) {
 			moments[moments.length - 1] = {
 				...previousMoment,
-				cursorLookupTimestamp: movement.timeInSeconds,
+				cursorLookupTimestamp: stateChange.timeInSeconds,
 			};
 			continue;
 		}
 
 		if (
-			endTimestamp - movement.timeInSeconds <=
+			endTimestamp - stateChange.timeInSeconds <=
 			CURSOR_SAMPLE_MERGE_THRESHOLD_IN_SECONDS
 		) {
 			continue;
 		}
 
 		moments.push({
-			timestamp: movement.timeInSeconds,
-			cursorLookupTimestamp: movement.timeInSeconds,
+			timestamp: stateChange.timeInSeconds,
+			cursorLookupTimestamp: stateChange.timeInSeconds,
 		});
 	}
 
@@ -171,6 +171,7 @@ export const getCanvasCaptureScaleToSample = ({
 export const makeCanvasCaptureVideoProcessor = ({
 	cursorData,
 	cursorScale,
+	cursorPressedScale,
 	sourceDimensions,
 	rotation,
 	crop,
@@ -180,6 +181,7 @@ export const makeCanvasCaptureVideoProcessor = ({
 }: {
 	readonly cursorData: CanvasCaptureCursorData;
 	readonly cursorScale: number;
+	readonly cursorPressedScale: number;
 	readonly sourceDimensions: Dimensions;
 	readonly rotation: number;
 	readonly crop: CropRectangle | null;
@@ -191,6 +193,13 @@ export const makeCanvasCaptureVideoProcessor = ({
 		...movement,
 		timeInSeconds: movement.timeInSeconds - timestampOffset,
 	}));
+	const pointerClicks = cursorData.pointerClicks.map((click) => ({
+		...click,
+		timeInSeconds: click.timeInSeconds - timestampOffset,
+	}));
+	const cursorStateChanges = [...mouseMovements, ...pointerClicks].sort(
+		(a, b) => a.timeInSeconds - b.timeInSeconds,
+	);
 	const imageCache = new Map<string, Promise<HTMLImageElement>>();
 
 	const loadImage = (src: string) => {
@@ -216,7 +225,7 @@ export const makeCanvasCaptureVideoProcessor = ({
 			const moments = getCanvasCaptureSampleMoments({
 				timestamp: sample.timestamp,
 				duration: sample.duration,
-				mouseMovements,
+				cursorStateChanges,
 			});
 			const sourceFrame = sample.toVideoFrame();
 			const outputSamples: VideoSample[] = [];
@@ -267,6 +276,12 @@ export const makeCanvasCaptureVideoProcessor = ({
 							const scale =
 								cursorData.captureMetadata.density *
 								cursorScale *
+								(isCanvasCapturePointerDownAtTime(
+									pointerClicks,
+									moment.cursorLookupTimestamp,
+								)
+									? cursorPressedScale
+									: 1) *
 								getCanvasCaptureScaleToSample({
 									sourceDimensions,
 									rotation,

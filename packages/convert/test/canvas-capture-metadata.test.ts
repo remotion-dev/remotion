@@ -24,6 +24,10 @@ test('parses cursor data embedded by the canvas capture extension', () => {
 						cursor: 'pointer',
 					},
 				],
+				pointerClicks: [
+					{timeInSeconds: 0.75, type: 'pointer-down'},
+					{timeInSeconds: 1, type: 'pointer-up'},
+				],
 			}),
 		},
 	});
@@ -38,6 +42,10 @@ test('parses cursor data embedded by the canvas capture extension', () => {
 				cursor: 'pointer',
 			},
 		],
+		pointerClicks: [
+			{timeInSeconds: 0.75, type: 'pointer-down'},
+			{timeInSeconds: 1, type: 'pointer-up'},
+		],
 	});
 
 	expect(
@@ -45,5 +53,19 @@ test('parses cursor data embedded by the canvas capture extension', () => {
 			raw: {[CAPTURE_METADATA_TAG_KEY]: '{not JSON'},
 		}),
 	).toBeNull();
+	expect(
+		parseCanvasCaptureCursorData({
+			raw: {
+				[CAPTURE_METADATA_TAG_KEY]: JSON.stringify({
+					captureMetadata: {density: 1},
+					mouseMovements: [],
+				}),
+			},
+		}),
+	).toEqual({
+		captureMetadata: {density: 1},
+		mouseMovements: [],
+		pointerClicks: [],
+	});
 	expect(parseCanvasCaptureCursorData({title: 'Regular video'})).toBeNull();
 });
