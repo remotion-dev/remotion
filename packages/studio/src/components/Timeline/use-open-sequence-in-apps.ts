@@ -20,6 +20,7 @@ export const useOpenSequenceInApps = (sequence: TSequence) => {
 	const previewConnected = previewServerState.type === 'connected';
 	const {resolvedLocation: originalLocation} = useResolveStackAndReactToChange(
 		sequence.getStack,
+		sequence.controls?.overrideId ?? sequence.id,
 	);
 	const editorPickerAvailable = canUseEditorPicker(previewConnected);
 	const editorInfo = useDefaultEditorInfo(editorPickerAvailable);

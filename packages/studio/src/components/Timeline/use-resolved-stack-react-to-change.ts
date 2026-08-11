@@ -26,6 +26,7 @@ const matchesSourceLocation = (
 
 export const useResolveStackAndReactToChange = (
 	getStack: () => string | null,
+	sequenceIdentity: string,
 ) => {
 	const {subscribeToEvent} = useContext(StudioServerConnectionCtx);
 	const {fastRefreshes} = useContext(FastRefreshContext);
@@ -34,13 +35,37 @@ export const useResolveStackAndReactToChange = (
 		preferMappedNodePath: true,
 	}));
 	const resolvedLocationFromStack = useResolvedStack(stackState.stack);
-	const resolvedLocation = hasResolvedStack(stackState.stack)
+	const stackIsResolved = hasResolvedStack(stackState.stack);
+	const lastResolvedLocation = useRef(resolvedLocationFromStack);
+	if (stackIsResolved) {
+		lastResolvedLocation.current = resolvedLocationFromStack;
+	}
+
+	const resolvedLocation = stackIsResolved
 		? resolvedLocationFromStack
-		: null;
+		: stackState.preferMappedNodePath
+			? null
+			: lastResolvedLocation.current;
 	const resolvedLocationRef = useRef(resolvedLocation);
 	resolvedLocationRef.current = resolvedLocation;
 	const getStackRef = useRef(getStack);
 	getStackRef.current = getStack;
+
+	useEffect(() => {
+		const newStack = getStackRef.current();
+		setStackState((current) => {
+			if (newStack === current.stack) {
+				return current;
+			}
+
+			return {
+				stack: newStack,
+				// A different identity means a different selected sequence. Its existing
+				// node path mapping is still preferred.
+				preferMappedNodePath: true,
+			};
+		});
+	}, [sequenceIdentity]);
 
 	useEffect(() => {
 		if (fastRefreshes === 0) {

@@ -215,6 +215,7 @@ const SequenceExpandedInspector: React.FC<{
 	const sourceLocation = useSequenceInspectorSourceLocation(track.sequence);
 	const connectedCompositions = useConnectedCompositions({track});
 	const {validatedLocation} = sourceLocation;
+	const stackKey = track.sequence.getStack();
 	const sequenceSelection = useMemo((): Extract<
 		TimelineSelection,
 		{type: 'sequence'}
@@ -275,7 +276,11 @@ const SequenceExpandedInspector: React.FC<{
 			className={VERTICAL_SCROLLBAR_CLASSNAME}
 			onPointerDown={selectSequenceOnInspectorPointerDown}
 		>
-			<SequenceInspectorHeader sourceLocation={sourceLocation} track={track} />
+			<SequenceInspectorHeader
+				key={stackKey ?? track.sequence.id}
+				sourceLocation={sourceLocation}
+				track={track}
+			/>
 			<SequenceInspectorDuplicationSection track={track} />
 			{connectedCompositions.length > 0 ? (
 				<>
@@ -321,13 +326,7 @@ export const SequenceSelectionInspector: React.FC<{
 		return <InspectorMessage>Sequence inspector unavailable</InspectorMessage>;
 	}
 
-	const stackKey = track.sequence.getStack();
-
 	return (
-		<SequenceExpandedInspector
-			key={stackKey ?? track.sequence.id}
-			track={track}
-			readOnlyStudio={readOnlyStudio}
-		/>
+		<SequenceExpandedInspector track={track} readOnlyStudio={readOnlyStudio} />
 	);
 };
