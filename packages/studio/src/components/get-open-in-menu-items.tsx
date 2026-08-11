@@ -87,12 +87,8 @@ export const getOpenInMenuItems = ({
 			type: 'item' as const,
 			value: `coding-agent-${codingAgent.id}`,
 		}));
-	const defaultTerminal = folder
-		? (codingAgentInfo?.installedTerminals.find(
-				(terminal) => terminal.id === codingAgentInfo.defaultTerminal,
-			) ?? null)
-		: null;
-	const showSystemApps = showFinder || defaultTerminal !== null;
+	const terminals = folder ? (codingAgentInfo?.installedTerminals ?? []) : [];
+	const showSystemApps = showFinder || terminals.length > 0;
 
 	return [
 		...(editors.length > 0
@@ -117,33 +113,31 @@ export const getOpenInMenuItems = ({
 			: []),
 		...(showSystemApps
 			? [
-					...(defaultTerminal
+					...(terminals.length > 0
 						? [
 								{
 									type: 'section-header' as const,
 									id: 'terminal-header',
 									label: 'Terminal',
 								},
-								{
-									id: 'open-in-terminal',
+								...terminals.map((terminal) => ({
+									id: `open-in-terminal-${terminal.id}`,
 									keyHint: null,
-									label: <span style={menuLabel}>{defaultTerminal.name}</span>,
-									leftItem: (
-										<TerminalIcon terminalId={defaultTerminal.id} size={18} />
-									),
-									onClick: () => onOpenInTerminal?.(defaultTerminal.id),
+									label: <span style={menuLabel}>{terminal.name}</span>,
+									leftItem: <TerminalIcon terminalId={terminal.id} size={18} />,
+									onClick: () => onOpenInTerminal?.(terminal.id),
 									quickSwitcherLabel: null,
 									subMenu: null,
 									type: 'item' as const,
-									value: 'terminal',
-								},
+									value: `terminal-${terminal.id}`,
+								})),
 							]
 						: []),
 					...(showFinder
 						? [
 								...(editors.length > 0 ||
 								codingAgents.length > 0 ||
-								defaultTerminal !== null
+								terminals.length > 0
 									? [
 											{
 												type: 'divider' as const,

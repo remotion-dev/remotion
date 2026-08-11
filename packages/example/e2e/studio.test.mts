@@ -574,7 +574,7 @@ test.describe('visual mode', () => {
 					success: true,
 					data: {
 						defaultCodingAgent: 'cursor',
-						defaultTerminal: 'terminal',
+						defaultTerminal: null,
 						installedCodingAgents: [
 							{
 								id: 'cursor',
@@ -625,7 +625,7 @@ test.describe('visual mode', () => {
 				.poll(() =>
 					page.evaluate(() => window.remotion_studioConfig?.defaultTerminal),
 				)
-				.toBe('terminal');
+				.toBe(null);
 			const projectOpenInAnotherApp = page
 				.getByTitle(exampleDir)
 				.getByRole('button', {name: 'Open in another app'});
@@ -634,9 +634,19 @@ test.describe('visual mode', () => {
 				name: 'Terminal',
 				exact: true,
 			});
+			const iTermButton = page.getByRole('button', {
+				name: 'iTerm2',
+				exact: true,
+			});
+			const windowsTerminalButton = page.getByRole('button', {
+				name: 'Windows Terminal',
+				exact: true,
+			});
 			await expect(page.getByText('Editor', {exact: true})).toBeVisible();
 			await expect(page.getByText('Agent', {exact: true})).toBeVisible();
 			await expect(page.getByText('Terminal', {exact: true})).toHaveCount(2);
+			await expect(iTermButton).toBeVisible();
+			await expect(windowsTerminalButton).toBeVisible();
 			await expect(page.getByText('Editors', {exact: true})).toHaveCount(0);
 			await expect(page.getByText('Agents', {exact: true})).toHaveCount(0);
 			const terminalIcon = terminalButton.locator(
@@ -668,10 +678,6 @@ test.describe('visual mode', () => {
 				)
 				.toBe('iterm2');
 			await projectOpenInAnotherApp.click();
-			const iTermButton = page.getByRole('button', {
-				name: 'iTerm2',
-				exact: true,
-			});
 			await expect(
 				iTermButton.locator('img[data-terminal-icon="iterm2"]'),
 			).toBeVisible();
@@ -693,10 +699,6 @@ test.describe('visual mode', () => {
 				)
 				.toBe('windows-terminal');
 			await projectOpenInAnotherApp.click();
-			const windowsTerminalButton = page.getByRole('button', {
-				name: 'Windows Terminal',
-				exact: true,
-			});
 			await expect(
 				windowsTerminalButton.locator(
 					'img[data-terminal-icon="windows-terminal"]',
