@@ -10,6 +10,7 @@ import {
 	ORIGINAL_HOOK_ORDER_CHANGE_E2E_FILE,
 	ORIGINAL_LOST_NODE_PATH_E2E_FILE,
 	ORIGINAL_VISUAL_CONTROLS_FILE,
+	ORIGINAL_VISUAL_MODE_3D_FILE,
 	STUDIO_PORT,
 	STUDIO_URL,
 	e2eEntryPoint,
@@ -21,6 +22,7 @@ import {
 	remotionBin,
 	rootFile,
 	visualControlsFile,
+	visualMode3DFile,
 } from './constants.mts';
 
 let studioProcess: ChildProcess | null = null;
@@ -59,6 +61,13 @@ export async function startStudio(): Promise<void> {
 		);
 	}
 
+	if (!fs.existsSync(ORIGINAL_VISUAL_MODE_3D_FILE)) {
+		fs.writeFileSync(
+			ORIGINAL_VISUAL_MODE_3D_FILE,
+			fs.readFileSync(visualMode3DFile, 'utf-8'),
+		);
+	}
+
 	if (!fs.existsSync(ORIGINAL_EFFECT_KEYFRAME_E2E_FILE)) {
 		fs.writeFileSync(
 			ORIGINAL_EFFECT_KEYFRAME_E2E_FILE,
@@ -92,6 +101,10 @@ export async function startStudio(): Promise<void> {
 	fs.writeFileSync(
 		visualControlsFile,
 		fs.readFileSync(ORIGINAL_VISUAL_CONTROLS_FILE, 'utf-8'),
+	);
+	fs.writeFileSync(
+		visualMode3DFile,
+		fs.readFileSync(ORIGINAL_VISUAL_MODE_3D_FILE, 'utf-8'),
 	);
 	fs.writeFileSync(
 		effectKeyframeE2eFile,
@@ -231,6 +244,13 @@ export async function stopStudio(): Promise<void> {
 		fs.writeFileSync(
 			visualControlsFile,
 			fs.readFileSync(ORIGINAL_VISUAL_CONTROLS_FILE, 'utf-8'),
+		);
+	}
+
+	if (fs.existsSync(ORIGINAL_VISUAL_MODE_3D_FILE)) {
+		fs.writeFileSync(
+			visualMode3DFile,
+			fs.readFileSync(ORIGINAL_VISUAL_MODE_3D_FILE, 'utf-8'),
 		);
 	}
 

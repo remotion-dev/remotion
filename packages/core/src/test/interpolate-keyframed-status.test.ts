@@ -374,3 +374,23 @@ test('interpolates scale strings component-wise', () => {
 	});
 	expect(result).toBe('3 5 2');
 });
+
+test('interpolates 3D rotation keyframes as one property', () => {
+	const result = interpolateKeyframedStatus({
+		forceSpringAllowTail: null,
+		frame: 30,
+		status: {
+			status: 'keyframed',
+			interpolationFunction: 'interpolate',
+			keyframes: [
+				{frame: 0, value: '0deg'},
+				{frame: 60, value: '1 0 0 90deg'},
+			],
+			easing: [{type: 'linear'}],
+			clamping: {left: 'extend', right: 'extend'},
+			posterize: undefined,
+			output: undefined,
+		},
+	});
+	expect(result).toBe('0.5 0 0.5 45deg');
+});

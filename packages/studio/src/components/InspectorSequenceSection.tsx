@@ -9,7 +9,7 @@ import React, {
 import {Internals, type TSequence} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {LIGHT_TEXT, WHITE} from '../helpers/colors';
+import {BLUE, LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
@@ -21,9 +21,11 @@ import {
 	type TimelineTreeNode,
 } from '../helpers/timeline-layout';
 import {BorderRadiusIcon} from '../icons/border-radius';
+import {CubeIcon} from '../icons/cube';
 import {FullscreenIcon} from '../icons/fullscreen';
 import {Plus} from '../icons/plus';
 import {SetSelectedModalContext} from '../state/modals';
+import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {AssetFileIcon} from './AssetFileIcon';
 import {InlineAction} from './InlineAction';
 import {InlineCaptionInspector} from './InlineCaptionInspector';
@@ -57,9 +59,12 @@ import {
 } from './Timeline/TimelineRowLayoutContext';
 import {
 	getTimelineSelectionFromNodePathInfo,
+	getTimelineSequenceSelectionKey,
 	TimelineSelectionOrderProvider,
 	type TimelineSelection,
 } from './Timeline/TimelineSelection';
+import {propStatusHas3DTransformValue} from './Timeline/transform-3d-mode';
+import {Transform3DModeContext} from './Timeline/Transform3DModeContext';
 import {useTimelineExpandedTree} from './Timeline/use-timeline-expanded-tree';
 import {useSelectAsset} from './use-select-asset';
 
@@ -93,6 +98,12 @@ const borderRadiusToggleIcon: React.CSSProperties = {
 	flexShrink: 0,
 	height: 15,
 	width: 15,
+};
+
+const transform3DToggleIcon: React.CSSProperties = {
+	flexShrink: 0,
+	height: 14,
+	width: 14,
 };
 
 const collapsibleSectionHeaderButton: React.CSSProperties = {
@@ -380,6 +391,12 @@ export const InspectorSequenceSection: React.FC<{
 	const [automaticSectionExpansion, setAutomaticSectionExpansion] = useState<
 		Readonly<Record<string, boolean>>
 	>({});
+	const {manuallyEnabledSequenceKeys, setManuallyEnabled} = useContext(
+		Transform3DModeStateContext,
+	);
+	const sequenceKey = getTimelineSequenceSelectionKey(nodePathInfo);
+	const manuallyEnabled3DTransform =
+		manuallyEnabledSequenceKeys.has(sequenceKey);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {getDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
@@ -513,6 +530,25 @@ export const InspectorSequenceSection: React.FC<{
 		propStatuses,
 		nodePathInfo.sequenceSubscriptionKey,
 	);
+	const automaticallyEnabled3DTransform = useMemo(() => {
+		return [
+			'style.translate',
+			'style.scale',
+			'style.rotate',
+			'style.transformOrigin',
+		].some((fieldKey) =>
+			propStatusHas3DTransformValue({
+				fieldKey,
+				propStatus: sequencePropStatuses?.[fieldKey],
+				runtimeValue: runtimeValues[fieldKey],
+			}),
+		);
+	}, [runtimeValues, sequencePropStatuses]);
+	const show3DTransformControls =
+		automaticallyEnabled3DTransform || manuallyEnabled3DTransform;
+	const onToggle3DTransform = useCallback(() => {
+		setManuallyEnabled(sequenceKey, !manuallyEnabled3DTransform);
+	}, [manuallyEnabled3DTransform, sequenceKey, setManuallyEnabled]);
 	const {schema} = sequence.controls;
 	const getControlGroupActivity = useCallback(
 		(group: InspectorControlGroup) => {
@@ -722,6 +758,26 @@ export const InspectorSequenceSection: React.FC<{
 		/>
 	) : null;
 
+	const transform3DAction = (
+		<InlineAction
+			variant={null}
+			disabled={automaticallyEnabled3DTransform}
+			onClick={onToggle3DTransform}
+			title={
+				automaticallyEnabled3DTransform
+					? '3D controls are required by the current transform values'
+					: show3DTransformControls
+						? 'Hide 3D transform controls'
+						: 'Show 3D transform controls'
+			}
+			hoveredColor={show3DTransformControls ? BLUE : undefined}
+			unhoveredColor={show3DTransformControls ? BLUE : LIGHT_TEXT}
+			renderAction={(color) => (
+				<CubeIcon color={color} style={transform3DToggleIcon} />
+			)}
+		/>
+	);
+
 	const effectsHeader = (
 		<div style={sectionHeaderRow}>
 			<div style={effectsHeaderTitle}>Effects</div>
@@ -777,6 +833,7 @@ export const InspectorSequenceSection: React.FC<{
 		return (
 			<div style={sectionHeaderRow}>
 				<div style={effectsHeaderTitle}>{group.label}</div>
+				{group.id === 'transforms' ? transform3DAction : null}
 			</div>
 		);
 	};
@@ -806,12 +863,16 @@ export const InspectorSequenceSection: React.FC<{
 								header={renderControlGroupHeader(group)}
 							>
 								{isControlGroupExpanded(group) ? (
-									<>
-										{group.id === 'transforms'
-											? renderTransformControls()
-											: null}
-										{group.rows.map(renderRow)}
-									</>
+									group.id === 'transforms' ? (
+										<Transform3DModeContext.Provider
+											value={show3DTransformControls}
+										>
+											{renderTransformControls()}
+											{group.rows.map(renderRow)}
+										</Transform3DModeContext.Provider>
+									) : (
+										group.rows.map(renderRow)
+									)
 								) : null}
 							</InspectorSection>
 						))}
