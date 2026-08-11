@@ -25,6 +25,7 @@ export const macOSCursorSchema = {
 			macOSCursorNames.map((cursor) => [cursor, {}]),
 		),
 	},
+	...Interactive.transformSchema,
 } as const satisfies InteractivitySchema;
 
 const MacOSCursorInner: React.FC<
@@ -44,6 +45,7 @@ const MacOSCursorInner: React.FC<
 	controls,
 }) => {
 	const resolved = resolveCursor(cursor);
+	const refForOutline = React.useRef<HTMLImageElement | null>(null);
 
 	return (
 		<Sequence
@@ -56,9 +58,11 @@ const MacOSCursorInner: React.FC<
 			name={name ?? '<MacOSCursor>'}
 			showInTimeline={showInTimeline ?? true}
 			controls={controls}
+			outlineRef={refForOutline}
 		>
 			{resolved ? (
 				<Img
+					ref={refForOutline}
 					className={className}
 					src={resolved.src}
 					showInTimeline={false}

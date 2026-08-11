@@ -26,4 +26,7 @@ test('cursor schema exposes named cursors as a keyframable enum', () => {
 	expect(macOSCursorSchema.cursor.keyframable).toBe(true);
 	expect(macOSCursorSchema.cursor.variants.default).toEqual({});
 	expect(macOSCursorSchema.cursor.variants['ne-resize']).toEqual({});
+	expect(macOSCursorSchema['style.translate'].type).toBe('translate');
+	expect(macOSCursorSchema['style.scale'].type).toBe('scale');
+	expect(macOSCursorSchema['style.rotate'].type).toBe('rotation-css');
 });
