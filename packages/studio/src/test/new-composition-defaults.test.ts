@@ -33,7 +33,7 @@ test('uses 1920x1080 for Canvas Capture while deriving its duration', () => {
 	expect(getNewCompositionDefaults(null, 8.7255)).toEqual({
 		width: 1920,
 		height: 1080,
-		fps: 30,
-		durationInFrames: 262,
+		fps: 60,
+		durationInFrames: 524,
 	});
 });

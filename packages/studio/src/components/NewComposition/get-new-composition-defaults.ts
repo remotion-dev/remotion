@@ -12,6 +12,8 @@ const defaultCompositionDimensions: CompositionDimensions = {
 	durationInFrames: 150,
 };
 
+const canvasCaptureFps = 60;
+
 export const getNewCompositionDefaults = (
 	composition: CompositionDimensions | null,
 	canvasCaptureDurationInSeconds: number | null,
@@ -19,9 +21,10 @@ export const getNewCompositionDefaults = (
 	if (canvasCaptureDurationInSeconds !== null) {
 		return {
 			...defaultCompositionDimensions,
+			fps: canvasCaptureFps,
 			durationInFrames: Math.max(
 				1,
-				Math.ceil(canvasCaptureDurationInSeconds * 30),
+				Math.ceil(canvasCaptureDurationInSeconds * canvasCaptureFps),
 			),
 		};
 	}
