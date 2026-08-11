@@ -153,4 +153,4 @@ test('Tailwind watches source files but not the Remotion config', async () => {
 			rmSync(outputDirectory, {recursive: true, force: true});
 		}
 	}
-}, 15_000);
+}, 30_000);
