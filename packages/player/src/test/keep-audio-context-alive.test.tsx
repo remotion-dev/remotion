@@ -174,3 +174,58 @@ test('keepAudioContextAlive silences through the gain instead of suspending', as
 	expect(suspendCallsDuringPause).toBe(0);
 	expect(gainValuesDuringPause).toContain(0);
 });
+
+test('disabling keepAudioContextAlive while playing keeps the context running', async () => {
+	const originalAudioContext = globalThis.AudioContext;
+	const originalRequestAnimationFrame = globalThis.requestAnimationFrame;
+	const originalCancelAnimationFrame = globalThis.cancelAnimationFrame;
+
+	globalThis.AudioContext =
+		TrackedAudioContext as unknown as typeof AudioContext;
+	globalThis.requestAnimationFrame = () => 1;
+	globalThis.cancelAnimationFrame = () => undefined;
+
+	try {
+		const playerRef = createRef<PlayerRef>();
+		const {rerender} = render(
+			<Player
+				ref={playerRef}
+				component={AudioComposition}
+				durationInFrames={300}
+				compositionWidth={1920}
+				compositionHeight={1080}
+				fps={30}
+				keepAudioContextAlive
+			/>,
+		);
+
+		await act(async () => {
+			playerRef.current?.play();
+			await Promise.resolve();
+		});
+
+		nativeSuspendCalls = 0;
+		rerender(
+			<Player
+				ref={playerRef}
+				component={AudioComposition}
+				durationInFrames={300}
+				compositionWidth={1920}
+				compositionHeight={1080}
+				fps={30}
+				keepAudioContextAlive={false}
+			/>,
+		);
+		expect(nativeSuspendCalls).toBe(0);
+
+		await act(async () => {
+			playerRef.current?.pause();
+			await Promise.resolve();
+		});
+		expect(nativeSuspendCalls).toBe(1);
+	} finally {
+		globalThis.AudioContext = originalAudioContext;
+		globalThis.requestAnimationFrame = originalRequestAnimationFrame;
+		globalThis.cancelAnimationFrame = originalCancelAnimationFrame;
+	}
+});
