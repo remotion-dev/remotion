@@ -63,6 +63,14 @@ Sets the amount of disk storage that is available in the Lambda function. Must b
 
 Use a custom role for the function instead of the default (`arn:aws:iam::[aws-account-id]:role/remotion-lambda-role`)
 
+### `customLayerArns?`<AvailableFrom v="4.0.508" />
+
+An ordered, non-empty array of complete Lambda Layer version ARNs. The specified Layers replace all Remotion-hosted runtime Layers.
+
+Each ARN must include a numeric version and use the function's AWS region. If omitted, Remotion-hosted Layers continue to be selected using `runtimePreference`. Non-default `runtimePreference` values cannot be combined with custom Layers.
+
+See [Custom Layers](/docs/lambda/custom-layers) for usage, limits, compatibility, and IAM requirements.
+
 ### `enableLambdaInsights?`<AvailableFrom v="4.0.61" />
 
 <Options id="enable-lambda-insights" />

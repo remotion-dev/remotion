@@ -41,6 +41,7 @@ type LambdaCommandLineOptions = {
 	['s3-output-provider-region']: AwsRegion | (string & {}) | undefined;
 	['s3-output-provider-force-path-style']: boolean;
 	['custom-role-arn']: string | undefined;
+	['custom-layer-arns']: string | undefined;
 	privacy: Privacy;
 	webhook: string | undefined;
 	['webhook-secret']: string | undefined;
