@@ -39,12 +39,14 @@ export const waitUntilActuallyResumed = (
 
 		onAbort = () => finish('cancelled');
 
-		const hasAudiblyStarted = () => {
+		const hasAudiblyStarted = (
+			startPerformanceTime: number | undefined,
+		): startPerformanceTime is number => {
 			const outputTimestamp = audioContext.getOutputTimestamp();
 			return (
-				startOutputPerformanceTime !== undefined &&
+				startPerformanceTime !== undefined &&
 				outputTimestamp.performanceTime !== undefined &&
-				outputTimestamp.performanceTime > startOutputPerformanceTime &&
+				outputTimestamp.performanceTime > startPerformanceTime &&
 				outputTimestamp.contextTime !== undefined &&
 				outputTimestamp.contextTime > startCurrentTime
 			);
@@ -56,10 +58,10 @@ export const waitUntilActuallyResumed = (
 			const outputTimestamp = audioContext.getOutputTimestamp();
 			const elapsedWallClock = performance.now() - startWallClock;
 
-			if (hasAudiblyStarted()) {
+			if (hasAudiblyStarted(startOutputPerformanceTime)) {
 				Log.verbose(
 					{logLevel, tag: 'audio'},
-					`waitUntilActuallyResumed: getOutputTimestamp.performanceTime advanced from ${startOutputPerformanceTime?.toFixed(
+					`waitUntilActuallyResumed: getOutputTimestamp.performanceTime advanced from ${startOutputPerformanceTime.toFixed(
 						6,
 					)} to ${outputTimestamp.performanceTime?.toFixed(
 						6,
@@ -90,7 +92,7 @@ export const waitUntilActuallyResumed = (
 			// declaring failure so a resume that actually completed is not
 			// reported as failed - the Player would otherwise mute itself even
 			// though playback was started by a user gesture and audio is running.
-			if (hasAudiblyStarted()) {
+			if (hasAudiblyStarted(startOutputPerformanceTime)) {
 				finish('resumed');
 				return;
 			}
