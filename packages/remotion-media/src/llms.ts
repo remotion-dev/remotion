@@ -62,7 +62,7 @@ const formatVariant = (variant: MediaVariant) => {
 	].join('\n');
 };
 
-export const makeAgentsMarkdown = (mediaVariants: readonly MediaVariant[]) => {
+export const makeLlmsText = (mediaVariants: readonly MediaVariant[]) => {
 	const groups = new Map<string, MediaVariant[]>();
 
 	for (const variant of mediaVariants) {
