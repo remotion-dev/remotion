@@ -37,7 +37,7 @@ export const SharedPlayerContexts: React.FC<{
 	readonly initialVolume?: number;
 	readonly inputProps: Record<string, unknown>;
 	readonly audioEnabled: boolean;
-	readonly keepAudioContextAlive?: boolean;
+	readonly keepAudioContextAlive: boolean;
 }> = ({
 	children,
 	timelineContext,

@@ -139,6 +139,7 @@ const ThumbnailFn = <
 				sampleRate={48000}
 				inputProps={passedInputProps}
 				audioEnabled={false}
+				keepAudioContextAlive={false}
 			>
 				<ThumbnailEmitterContext.Provider value={emitter}>
 					<ThumbnailUI

@@ -206,13 +206,13 @@ export const SharedAudioContextProvider: React.FC<{
 	readonly audioLatencyHint: AudioContextLatencyCategory;
 	readonly audioEnabled: boolean;
 	readonly previewSampleRate: number | null;
-	readonly keepAudioContextAlive?: boolean;
+	readonly keepAudioContextAlive: boolean;
 }> = ({
 	children,
 	audioLatencyHint,
 	audioEnabled,
 	previewSampleRate,
-	keepAudioContextAlive = false,
+	keepAudioContextAlive,
 }) => {
 	const logLevel = useLogLevel();
 	const sampleRate = previewSampleRate ?? 48000;

@@ -63,6 +63,7 @@ export const RemotionRootContexts: React.FC<{
 												audioLatencyHint={audioLatencyHint}
 												audioEnabled={audioEnabled}
 												previewSampleRate={previewSampleRate}
+												keepAudioContextAlive={false}
 											>
 												<SharedAudioTagsContextProvider
 													numberOfAudioTags={numberOfAudioTags}
