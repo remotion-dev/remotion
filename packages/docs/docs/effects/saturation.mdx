@@ -1,0 +1,65 @@
+---
+image: /generated/articles-docs-effects-saturation.png
+slug: /effects/saturation
+title: saturation()
+sidebar_label: saturation()
+crumb: '@remotion/effects'
+---
+
+# saturation()<AvailableFrom v="4.0.466" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+A saturation effect that can be applied to canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+Use it when you want to scale color intensity without overlaying a new color.
+
+## Preview
+
+<EffectsDemo type="effects-saturation" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+import {saturation} from '@remotion/effects/saturation';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[saturation({amount: 1.5})]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `saturation()` without arguments.
+
+### `amount?`
+
+Saturation multiplier. `0` makes the layer grayscale, `1` leaves colors unchanged, and values above `1` increase color intensity. Defaults to `1`.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Difference to `tint()`
+
+`saturation()` scales the source colors' chroma. `tint()` blends a new color over the source.
+
+Use `saturation()` for color correction and `tint()` for a color overlay.
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`brightness()`](/docs/effects/brightness)
+- [`hue()`](/docs/effects/hue)
+- [`tint()`](/docs/effects/tint)
+- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/saturation.ts)

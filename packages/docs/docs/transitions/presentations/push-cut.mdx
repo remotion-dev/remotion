@@ -1,0 +1,142 @@
+---
+image: /generated/articles-docs-transitions-presentations-push-cut.png
+crumb: '@remotion/transitions - Presentations'
+title: 'pushCut()'
+---
+
+# pushCut()<AvailableFrom v="4.0.500" />
+
+A hard editorial cut energized by a short punch-in on both scenes and a brief flash at the edit point.
+
+<Demo type="push-cut" />
+
+## Example
+
+```tsx twoslash title="PushCutTransition.tsx"
+import {AbsoluteFill} from 'remotion';
+
+const Letter: React.FC<{
+  children: React.ReactNode;
+  color: string;
+}> = ({children, color}) => {
+  return (
+    <AbsoluteFill
+      style={{
+        alignItems: 'center',
+        backgroundColor: color,
+        color: 'white',
+        fontSize: 200,
+        justifyContent: 'center',
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+// ---cut---
+import {linearTiming, TransitionSeries} from '@remotion/transitions';
+import {pushCut} from '@remotion/transitions/push-cut';
+
+const transitionDurationInFrames = 11;
+const outgoingPunchFrames = 5;
+
+export const PushCutTransition = () => {
+  return (
+    <TransitionSeries>
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <Letter color="#0b84f3">A</Letter>
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Transition
+        presentation={pushCut({
+          cutProgress: outgoingPunchFrames / transitionDurationInFrames,
+        })}
+        timing={linearTiming({
+          durationInFrames: transitionDurationInFrames,
+        })}
+      />
+      <TransitionSeries.Sequence
+        durationInFrames={60 + outgoingPunchFrames}
+      >
+        <AbsoluteFill from={outgoingPunchFrames}>
+          <Letter color="pink">B</Letter>
+        </AbsoluteFill>
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
+```
+
+[`<TransitionSeries>`](/docs/transitions/transitionseries) overlaps both scenes for the complete transition. The incoming scene is hidden before the hard cut, but its local timeline is already advancing. Delay its content by the frames before the cut, as shown above, when its first visible frame should be its local frame `0`.
+
+Use `pushCut()` with a monotonic timing such as [`linearTiming()`](/docs/transitions/timings/lineartiming). A timing that crosses `cutProgress` more than once can cause multiple visibility changes.
+
+## API
+
+`pushCut()` accepts an optional object with the following options:
+
+### `cutProgress?`
+
+The point from `0` to `1` at which the hard cut occurs. Default: `5 / 11`.
+
+### `outgoingScale?`
+
+The scale reached by the outgoing scene at the cut. Default: `1.04`.
+
+### `incomingStartScale?`
+
+The scale of the incoming scene on its first visible frame. Default: `1.04`.
+
+### `incomingEndScale?`
+
+The scale reached by the incoming scene at the end of the transition. Default: `1.07`.
+
+### `transformOrigin?`
+
+The CSS transform origin used for both scenes. Default: `'50% 50%'`.
+
+### `flashColor?`
+
+The color of the flash at the edit point. Default: `'#f5f2ed'`.
+
+### `flashOpacity?`
+
+The peak opacity of the flash, from `0` to `1`. Default: `0.2`.
+
+### `flashFrames?`
+
+The approximate length of the flash tail after the cut, in frames. Default: `2`.
+
+### `outerEnterStyle?`
+
+CSS properties for the outer container of the entering scene.
+
+### `outerExitStyle?`
+
+CSS properties for the outer container of the exiting scene.
+
+### `innerEnterStyle?`
+
+CSS properties for the scaled inner container of the entering scene.
+
+### `innerExitStyle?`
+
+CSS properties for the scaled inner container of the exiting scene.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari hideServers clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this presentation](https://github.com/remotion-dev/remotion/blob/main/packages/transitions/src/presentations/push-cut.tsx)
+- [Presentations](/docs/transitions/presentations)
+- [`<TransitionSeries>`](/docs/transitions/transitionseries)
+
+<Credits
+  contributors={[
+    {
+      username: 'tomvaillant',
+      contribution: 'Author',
+    },
+  ]}
+/>

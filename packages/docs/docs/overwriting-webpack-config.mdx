@@ -1,0 +1,694 @@
+---
+image: /generated/articles-docs-overwriting-webpack-config.png
+id: webpack
+slug: /bundlers
+title: Webpack and Rspack
+crumb: 'How To'
+---
+
+Remotion bundles your project before opening the Studio or rendering media. It supports [Webpack](https://webpack.js.org/) and [Rspack](https://rspack.dev/).
+
+## Bundler roadmap
+
+Remotion used Webpack exclusively until experimental Rspack support was added in v4.0.426. Webpack remains the default bundler.
+
+Rspack is intended to replace Webpack:
+
+- Rspack will soon become the default for newly created projects.
+- In a future major version of Remotion, Webpack support will be removed and Rspack will be the only bundler.
+
+You can enable Rspack now to test your project before this transition.
+
+## Enable Rspack<AvailableFrom v="4.0.426" />
+
+Enable Rspack for CLI commands in [`remotion.config.ts`](/docs/config):
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+Config.setRspack(true);
+```
+
+To enable it for one command, use the `--rspack` flag:
+
+```bash
+npx remotion studio --rspack
+```
+
+The flag is also available for other commands that bundle your project, such as [`render`](/docs/cli/render), [`still`](/docs/cli/still), and [`bundle`](/docs/cli/bundle).
+
+When using the Node.js [`bundle()`](/docs/bundle) API, set `rspack` to `true`:
+
+```ts twoslash title="bundle.ts"
+// @target: esnext
+import {bundle} from '@remotion/bundler';
+
+await bundle({
+  entryPoint: require.resolve('./src/index.ts'),
+  rspack: true,
+});
+```
+
+The [`bundle()`](/docs/bundle#rspack) API and [Cloud Run's `deploySite()`](/docs/cloudrun/deploysite#rspack) have the same `rspack` setting.
+
+## Override the bundler configuration
+
+Remotion provides three config file APIs:
+
+| API                                                                    | When it runs                                                   |
+| ---------------------------------------------------------------------- | -------------------------------------------------------------- |
+| [`Config.overrideBundlerConfig()`](/docs/config#overridebundlerconfig) | With either selected bundler. Runs first.                      |
+| [`Config.overrideWebpackConfig()`](/docs/config#overridewebpackconfig) | Only when Webpack is selected. Runs after the shared override. |
+| [`Config.overrideRspackConfig()`](/docs/config#overriderspackconfig)   | Only when Rspack is selected. Runs after the shared override.  |
+
+You can call each override API more than once. Overrides of the same type run in registration order.
+
+Only use [`Config.overrideBundlerConfig()`](/docs/config#overridebundlerconfig) for changes that are compatible with both bundlers. Many loaders implement an API that works with both bundlers, but you should verify each loader individually.
+
+Webpack and Rspack plugins are not interchangeable. Use the plugin implementation from the selected bundler in its bundler-specific override.
+
+Remotion ships with its own [Webpack configuration](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/webpack-config.ts) and [Rspack configuration](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/rspack-config.ts). Each override receives the previous configuration and returns the next one.
+
+## Webpack overrides in `remotion.config.ts`
+
+In your [`remotion.config.ts`](/docs/config) file, you can call [`Config.overrideWebpackConfig()`](/docs/config#overridewebpackconfig) from `@remotion/cli/config`.
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+Config.overrideWebpackConfig((currentConfiguration) => {
+  return {
+    ...currentConfiguration,
+    module: {
+      ...currentConfiguration.module,
+      rules: [
+        ...(currentConfiguration.module?.rules ?? []),
+        // Add more loaders here
+      ],
+    },
+  };
+});
+```
+
+You may also mutate the configuration object. Return the same object after mutating it:
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+Config.overrideWebpackConfig((config) => {
+  config.module ??= {};
+  config.module.rules ??= [];
+
+  config.module.rules.push({
+    test: /\.txt$/,
+    type: 'asset/source',
+  });
+
+  return config;
+});
+```
+
+:::info
+Using the reducer pattern will help with type safety, give you auto-complete, ensure forwards-compatibility and keep it completely flexible - you can override just one property or pass in a completely new Webpack configuration.
+:::
+
+## Rspack overrides in `remotion.config.ts`<AvailableFrom v="4.0.498" />
+
+Use `Config.overrideRspackConfig()` when [Rspack is enabled](/docs/config#setexperimentalrspackenabled):
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+Config.overrideRspackConfig((currentConfiguration) => {
+  return {
+    ...currentConfiguration,
+    // Rspack-specific configuration
+  };
+});
+```
+
+## When using `bundle()`
+
+The `bundle()` Node.js API does not read `remotion.config.ts`. Pass the overrides directly to [`bundle()`](/docs/bundle). Put an override in a separate file to import it from both `remotion.config.ts` and your Node.js script.
+
+Pass portable changes as `bundlerOverride`.
+
+```ts twoslash title="src/bundler-override.ts"
+import {BundlerOverrideFn} from '@remotion/bundler';
+
+export const bundlerOverride: BundlerOverrideFn = (currentConfiguration) => {
+  return {
+    ...currentConfiguration,
+    // Your override here
+  };
+};
+```
+
+```ts twoslash title="remotion.config.ts"
+// @filename: ./src/bundler-override.ts
+import {BundlerOverrideFn} from '@remotion/bundler';
+export const bundlerOverride: BundlerOverrideFn = (c) => c;
+// @filename: remotion.config.ts
+// ---cut---
+import {Config} from '@remotion/cli/config';
+import {bundlerOverride} from './src/bundler-override';
+
+Config.overrideBundlerConfig(bundlerOverride);
+```
+
+With `bundle`:
+
+```ts twoslash title="my-script.js"
+// @filename: ./src/bundler-override.ts
+import {BundlerOverrideFn} from '@remotion/bundler';
+export const bundlerOverride: BundlerOverrideFn = (c) => c;
+// @filename: remotion.config.ts
+// @target: esnext
+// ---cut---
+import {bundle} from '@remotion/bundler';
+import {bundlerOverride} from './src/bundler-override';
+
+await bundle({
+  entryPoint: require.resolve('./src/index.ts'),
+  bundlerOverride,
+});
+```
+
+For bundler-specific changes, pass `webpackOverride` or `rspackOverride` instead.
+
+## Multiple overrides
+
+If you have multiple overrides, you should curry them:
+
+```tsx twoslash
+import {Config} from '@remotion/cli/config';
+import {enableScss} from '@remotion/enable-scss';
+import {enableTailwind} from '@remotion/tailwind-v4';
+
+Config.overrideBundlerConfig((c) => enableScss(enableTailwind(c)));
+```
+
+You can also call `Config.overrideBundlerConfig()` multiple times in the config file:
+
+```tsx twoslash
+import {Config} from '@remotion/cli/config';
+import {enableScss} from '@remotion/enable-scss';
+import {enableTailwind} from '@remotion/tailwind-v4';
+
+Config.overrideBundlerConfig(enableScss);
+Config.overrideBundlerConfig(enableTailwind);
+```
+
+## Snippets
+
+### Add a plugin
+
+Use Webpack plugins with `Config.overrideWebpackConfig()`:
+
+```ts twoslash title="remotion.config.ts"
+import {webpack} from '@remotion/bundler';
+import {Config} from '@remotion/cli/config';
+
+Config.overrideWebpackConfig((config) => {
+  return {
+    ...config,
+    plugins: [
+      ...(config.plugins ?? []),
+      new webpack.DefinePlugin({
+        MY_CONSTANT: JSON.stringify('value'),
+      }),
+    ],
+  };
+});
+```
+
+Use the equivalent Rspack plugin with `Config.overrideRspackConfig()`:
+
+<Installation pkg="@rspack/core" />
+
+```ts title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+import {DefinePlugin} from '@rspack/core';
+
+Config.overrideRspackConfig((config) => {
+  return {
+    ...config,
+    plugins: [
+      ...(config.plugins ?? []),
+      new DefinePlugin({
+        MY_CONSTANT: JSON.stringify('value'),
+      }),
+    ],
+  };
+});
+```
+
+Do not pass a plugin created by `webpack` to Rspack or a plugin created by `@rspack/core` to Webpack.
+
+### Enabling MDX support
+
+1. Install the following dependencies:
+
+<Installation pkg="@mdx-js/loader @mdx-js/react" />
+
+2. Create a file with the bundler override:
+
+```ts twoslash title="enable-mdx.ts"
+import {BundlerOverrideFn} from '@remotion/bundler';
+// ---cut---
+export const enableMdx: BundlerOverrideFn = (currentConfiguration) => {
+  return {
+    ...currentConfiguration,
+    module: {
+      ...currentConfiguration.module,
+      rules: [
+        ...(currentConfiguration.module?.rules ? currentConfiguration.module.rules : []),
+        {
+          test: /\.mdx?$/,
+          use: [
+            {
+              loader: '@mdx-js/loader',
+              options: {},
+            },
+          ],
+        },
+      ],
+    },
+  };
+};
+```
+
+3. Add it to the config file:
+
+```ts twoslash title="remotion.config.ts"
+// @filename: ./src/enable-mdx.ts
+import {BundlerOverrideFn} from '@remotion/bundler';
+export const enableMdx: BundlerOverrideFn = (c) => c;
+// @filename: remotion.config.ts
+// ---cut---
+import {Config} from '@remotion/cli/config';
+import {enableMdx} from './src/enable-mdx';
+
+Config.overrideBundlerConfig(enableMdx);
+```
+
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle).
+
+5. Create a file which contains `declare module '*.mdx';` in your project to fix a TypeScript error showing up.
+
+### Enable TailwindCSS support
+
+- [TailwindCSS V3](/docs/tailwind)
+- [TailwindCSS V2 (Legacy)](/docs/tailwind-legacy)
+
+### Enable PostCSS support
+
+Use this snippet for generic PostCSS plugins.
+For TailwindCSS, use the [TailwindCSS docs](/docs/tailwind) instead.
+
+1. Install the following dependencies:
+
+<Installation pkg="postcss postcss-loader postcss-size" />
+
+2. Create a file with the bundler override:
+
+```ts twoslash title="src/enable-postcss.ts"
+import {BundlerOverrideFn} from '@remotion/bundler';
+// ---cut---
+export const enablePostCSS: BundlerOverrideFn = (currentConfiguration) => {
+  return {
+    ...currentConfiguration,
+    module: {
+      ...currentConfiguration.module,
+      rules: (currentConfiguration.module?.rules ?? []).map((rule) => {
+        if (!rule || rule === '...') {
+          return rule;
+        }
+
+        if (!rule.test?.toString().includes('.css')) {
+          return rule;
+        }
+
+        const use = Array.isArray(rule.use)
+          ? rule.use
+          : rule.use
+            ? [rule.use]
+            : [];
+
+        return {
+          ...rule,
+          use: [
+            ...use,
+            {
+              loader: 'postcss-loader',
+              options: {
+                postcssOptions: {
+                  plugins: ['postcss-size'],
+                },
+              },
+            },
+          ],
+        };
+      }),
+    },
+  };
+};
+```
+
+3. Add it to the config file:
+
+```ts twoslash title="remotion.config.ts"
+// @filename: ./src/enable-postcss.ts
+import {BundlerOverrideFn} from '@remotion/bundler';
+export const enablePostCSS: BundlerOverrideFn = (c) => c;
+// @filename: remotion.config.ts
+// ---cut---
+import {Config} from '@remotion/cli/config';
+import {enablePostCSS} from './src/enable-postcss';
+
+Config.overrideBundlerConfig(enablePostCSS);
+```
+
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle).
+
+5. Restart the Remotion Studio.
+
+### Enable SASS/SCSS support
+
+The easiest way is to use the `@remotion/enable-scss`.  
+Follow these [instructions](/docs/enable-scss/overview) to enable it.
+
+### Enable SVGR support
+
+This allows you to enable `import` SVG files as React components.
+
+1. Install the following dependency:
+
+<Installation pkg="@svgr/webpack" />
+
+2. Declare an override function:
+
+```ts twoslash title="src/enable-svgr.ts"
+import {WebpackOverrideFn} from '@remotion/bundler';
+
+export const enableSvgr: WebpackOverrideFn = (currentConfiguration) => {
+  return {
+    ...currentConfiguration,
+    module: {
+      ...currentConfiguration.module,
+      rules: [
+        {
+          test: /\.svg$/i,
+          issuer: /\.[jt]sx?$/,
+          resourceQuery: {not: [/url/]}, // Exclude react component if *.svg?url
+          use: ['@svgr/webpack'],
+        },
+        {
+          test: /\.svg$/i,
+          resourceQuery: /url/, // Load *.svg?url as an asset URL
+          type: 'asset/resource',
+        },
+        ...(currentConfiguration.module?.rules ?? []).map((r) => {
+          if (!r) {
+            return r;
+          }
+          if (r === '...') {
+            return r;
+          }
+          if (!r.test?.toString().includes('svg')) {
+            return r;
+          }
+          return {
+            ...r,
+            // Remove Remotion loading SVGs as a URL
+            test: new RegExp(r.test.toString().replace(/svg\|/g, '').slice(1, -1)),
+          };
+        }),
+      ],
+    },
+  };
+};
+```
+
+3. Add the override function to your [`remotion.config.ts`](/docs/config) file:
+
+```ts twoslash title="remotion.config.ts"
+// @filename: ./src/enable-svgr.ts
+import {WebpackOverrideFn} from '@remotion/bundler';
+export const enableSvgr: WebpackOverrideFn = (c) => c;
+// @filename: remotion.config.ts
+// ---cut---
+import {Config} from '@remotion/cli/config';
+import {enableSvgr} from './src/enable-svgr';
+
+Config.overrideWebpackConfig(enableSvgr);
+```
+
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle).
+
+5. Restart the Remotion Studio.
+
+### Enable support for GLSL imports
+
+1. Install the following dependencies:
+
+<Installation pkg="glslify glslify-import-loader glslify-loader raw-loader" />
+
+2. Declare a webpack override:
+
+```ts twoslash title="src/enable.glsl.ts"
+import {WebpackOverrideFn} from '@remotion/bundler';
+
+export const enableGlsl: WebpackOverrideFn = (currentConfiguration) => {
+  return {
+    ...currentConfiguration,
+    module: {
+      ...currentConfiguration.module,
+      rules: [
+        ...(currentConfiguration.module?.rules ? currentConfiguration.module.rules : []),
+        {
+          test: /\.(glsl|vs|fs|vert|frag)$/,
+          exclude: /node_modules/,
+          use: [
+            'glslify-import-loader',
+            {
+              loader: 'raw-loader',
+              options: {esModule: false},
+            },
+            'glslify-loader',
+          ],
+        },
+      ],
+    },
+  };
+};
+```
+
+```ts twoslash title="remotion.config.ts"
+// @filename: ./src/enable-glsl.ts
+import {WebpackOverrideFn} from '@remotion/bundler';
+export const enableGlsl: WebpackOverrideFn = (c) => c;
+
+// @filename: remotion.config.ts
+// ---cut---
+import {Config} from '@remotion/cli/config';
+import {enableGlsl} from './src/enable-glsl';
+
+Config.overrideWebpackConfig(enableGlsl);
+```
+
+3. Add the following to your [entry point](/docs/terminology/entry-point) (e.g. `src/index.ts`):
+
+```ts
+declare module '*.glsl' {
+  const value: string;
+  export default value;
+}
+```
+
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle).
+
+5. Reset the webpack cache by deleting the `node_modules/.cache` folder.
+6. Restart the Remotion Studio.
+
+### Enable WebAssembly
+
+Rspack and Webpack support asynchronous WebAssembly. Webpack's `syncWebAssembly` mode is only supported by Webpack.
+
+#### Asynchronous WebAssembly
+
+Use a shared override to enable asynchronous WebAssembly with either bundler:
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+Config.overrideBundlerConfig((conf) => {
+  return {
+    ...conf,
+    experiments: {
+      ...conf.experiments,
+      asyncWebAssembly: true,
+    },
+  };
+});
+```
+
+Static and dynamic `.wasm` imports are supported.
+
+#### Webpack's synchronous WebAssembly mode
+
+Rspack does not implement Webpack's `syncWebAssembly` experiment. If a library relies on synchronous named exports from a `.wasm` import, use a Webpack-specific override:
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+Config.overrideWebpackConfig((conf) => {
+  return {
+    ...conf,
+    experiments: {
+      ...conf.experiments,
+      syncWebAssembly: true,
+    },
+  };
+});
+```
+
+:::note
+Since Webpack does not allow synchronous WebAssembly code in the main chunk, you most likely need to declare your composition using [`lazyComponent`](/docs/composition#example-using-lazycomponent) instead of `component`. Check out a [demo project](https://github.com/remotion-dev/id3-tags) for an example.
+:::
+
+After changing the configuration, restart the Remotion Studio.
+
+Add the asynchronous override as `bundlerOverride` to your [Node.JS API calls if necessary](#when-using-bundle). Pass the synchronous override as `webpackOverride`.
+
+### Change the `@jsxImportSource`
+
+Webpack uses Remotion's esbuild loader for TypeScript and JSX. Change its `jsxImportSource` option in a Webpack-specific override:
+
+```tsx twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+Config.overrideWebpackConfig((config) => {
+  return {
+    ...config,
+    module: {
+      ...config.module,
+      rules: config.module?.rules?.map((rule) => {
+        // @ts-expect-error
+        if (!rule?.use) {
+          return rule;
+        }
+
+        return {
+          // @ts-expect-error
+          ...rule,
+          // @ts-expect-error
+          use: rule?.use.map((use) => {
+            if (!use?.loader?.includes('esbuild')) {
+              return use;
+            }
+            return {
+              ...use,
+              options: {
+                ...use.options,
+                jsxImportSource: 'react',
+              },
+            };
+          }),
+        };
+      }),
+    },
+  };
+});
+```
+
+Rspack uses its built-in SWC loader instead. Change `jsc.transform.react.importSource` in a Rspack-specific override:
+
+```tsx twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+Config.overrideRspackConfig((config) => {
+  return {
+    ...config,
+    module: {
+      ...config.module,
+      rules: config.module?.rules?.map((rule) => {
+        if (!rule || rule === '...' || !Array.isArray(rule.use)) {
+          return rule;
+        }
+
+        return {
+          ...rule,
+          use: rule.use.map((use) => {
+            if (
+              typeof use === 'string' ||
+              use.loader !== 'builtin:swc-loader'
+            ) {
+              return use;
+            }
+
+            const options = use.options as
+              | {
+                  jsc?: {
+                    transform?: {react?: Record<string, unknown>};
+                  };
+                }
+              | undefined;
+            return {
+              ...use,
+              options: {
+                ...options,
+                jsc: {
+                  ...options?.jsc,
+                  transform: {
+                    ...options?.jsc?.transform,
+                    react: {
+                      ...options?.jsc?.transform?.react,
+                      importSource: 'react',
+                    },
+                  },
+                },
+              },
+            };
+          }),
+        };
+      }),
+    },
+  };
+});
+```
+
+### Use legacy babel loader
+
+See [Using legacy Babel transpilation](/docs/legacy-babel).
+
+## Enable TypeScript aliases
+
+See [TypeScript aliases](/docs/typescript-aliases).
+
+## Customizing configuration file location
+
+You can pass a `--config` option to the command line to specify a custom location for your configuration file.
+
+## Importing ES Modules in remotion.config.ts<AvailableFrom v="4.0.117"/>
+
+The [config file](/docs/config) gets executed in a CommonJS environment. If you want to import ES modules, you can pass an async function to `Config.overrideWebpackConfig`:
+
+```ts twoslash title="remotion.config.ts"
+// @filename: src/enable-sass.ts
+import {WebpackOverrideFn} from '@remotion/bundler';
+export const enableSass: WebpackOverrideFn = (c) => c;
+
+// @filename: remotion.config.ts
+// ---cut---
+import {Config} from '@remotion/cli/config';
+
+Config.overrideWebpackConfig(async (currentConfiguration) => {
+  const {enableSass} = await import('./src/enable-sass');
+  return enableSass(currentConfiguration);
+});
+```
+
+## See also
+
+- [Configuration file](/docs/config)

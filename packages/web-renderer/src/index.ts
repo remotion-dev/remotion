@@ -1,0 +1,49 @@
+import './symbol-dispose';
+
+export type {EmittedArtifact, WebRendererOnArtifact} from './artifact';
+export {canRenderMediaOnWeb} from './can-render-media-on-web';
+export type {
+	CanRenderIssue,
+	CanRenderMediaOnWebOptions,
+	CanRenderMediaOnWebResult,
+} from './can-render-media-on-web';
+export type {FrameRange} from './frame-range';
+export {
+	getEncodableAudioCodecs,
+	getEncodableVideoCodecs,
+	type GetEncodableAudioCodecsOptions,
+	type GetEncodableVideoCodecsOptions,
+} from './get-encodable-codecs';
+export {
+	getDefaultAudioCodecForContainer,
+	getDefaultContainerForCodec,
+	getDefaultVideoCodecForContainer,
+	getSupportedAudioCodecsForContainer,
+	getSupportedVideoCodecsForContainer,
+	isAudioOnlyContainer,
+} from './mediabunny-mappings';
+export type {
+	WebRendererAudioCodec,
+	WebRendererContainer,
+	WebRendererQuality,
+	WebRendererVideoCodec,
+} from './mediabunny-mappings';
+export type {WebRendererOutputTarget} from './output-target';
+export type {WebRendererPageResponsiveness} from './page-responsiveness';
+export {renderMediaOnWeb} from './render-media-on-web';
+export type {
+	RenderMediaOnWebOptions,
+	RenderMediaOnWebProgress,
+	RenderMediaOnWebProgressCallback,
+	RenderMediaOnWebResult,
+	WebRendererHardwareAcceleration,
+} from './render-media-on-web';
+export {renderStillOnWeb} from './render-still-on-web';
+export type {
+	RenderStillOnWebEncodeOptions,
+	RenderStillOnWebImageFormat,
+	RenderStillOnWebOptions,
+	RenderStillOnWebResult,
+} from './render-still-on-web';
+export type {HtmlInCanvasLayerOutcome} from './take-screenshot';
+export type {OnFrameCallback} from './validate-video-frame';

@@ -1,0 +1,51 @@
+---
+image: /generated/articles-docs-sfx-minecraft-hurt.png
+title: 'minecraftHurt'
+crumb: '@remotion/sfx'
+---
+
+# minecraftHurt<AvailableFrom v="4.0.464" />
+
+import {PlayButton} from './PlayButton';
+
+<PlayButton src="https://remotion.media/minecraft-hurt.wav" />
+<br />
+
+A URL pointing to a Minecraft hurt WAV file.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {minecraftHurt} from '@remotion/sfx';
+import {Audio} from '@remotion/media';
+
+const MyVideo = () => {
+  return <Audio src={minecraftHurt} />;
+};
+```
+
+## Value
+
+```bash
+https://remotion.media/minecraft-hurt.wav
+```
+
+## Duration
+
+0.365714 seconds (2 ch,  44100 Hz, Int16, interleaved)
+
+## Attribution
+
+Taken from https://www.myinstants.com/en/instant/minecraft-hurt/.
+This sound is not explicitly released under a free license, but it is probably fine to use given its widespread use.
+Remotion will not take any responsibility for your use of this sound.
+
+## Convert
+
+[Open this file on remotion.dev/convert](https://remotion.dev/convert?url=https%3A%2F%2Fremotion.media%2Fminecraft-hurt.wav)
+
+## See also
+
+- [`bruh`](/docs/sfx/bruh)
+- [`vineBoom`](/docs/sfx/vine-boom)
+- [`windowsXpError`](/docs/sfx/windows-xp-error)

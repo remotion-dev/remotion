@@ -1,0 +1,198 @@
+import React from 'react';
+import {TableOfContents as AnimatedEmojiTableOfContents} from '../../docs/animated-emoji/TableOfContents';
+import {TableOfContents as AnimationUtilsTableOfContents} from '../../docs/animation-utils/table-of-contents';
+import {TableOfContents as BundlerTableOfContents} from '../../docs/bundler/table-of-contents';
+import {TableOfContents as CaptionsTableOfContents} from '../../docs/captions/TableOfContents';
+import {TableOfContents as CloudrunTableOfContents} from '../../docs/cloudrun/table-of-contents';
+import {TableOfContents as ElevenLabsTableOfContents} from '../../docs/elevenlabs/TableOfContents';
+import {TableOfContents as EnableScssTableOfContents} from '../../docs/enable-scss/TableOfContents';
+import {TableOfContents as FontsTableOfContents} from '../../docs/fonts-api/TableOfContents';
+import {TableOfContents as GifTableOfContents} from '../../docs/gif/table-of-contents';
+import {TableOfContents as GoogleFontsTableOfContents} from '../../docs/google-fonts/TableOfContents';
+import {TableOfContents as InstallWhisperCppTableOfContents} from '../../docs/install-whisper-cpp/install-whisper-cpp';
+import {TableOfContents as LambdaTableOfContents} from '../../docs/lambda/table-of-contents';
+import {TableOfContents as LayoutUtilsTableOfContents} from '../../docs/layout-utils/table-of-contents';
+import {TableOfContents as LicensingTableOfContents} from '../../docs/licensing/TableOfContents';
+import {TableOfContents as LightLeaksTableOfContents} from '../../docs/light-leaks/table-of-contents';
+import {TableOfContents as LottieTableOfContents} from '../../docs/lottie/table-of-contents';
+import {TableOfContents as MediaParserTableOfContents} from '../../docs/media-parser/TableOfContents';
+import {TableOfContents as MediaUtilsTableOfContents} from '../../docs/media-utils/table-of-contents';
+import {TableOfContents as NewVideoTableOfContents} from '../../docs/media/table-of-contents';
+import {TableOfContents as MotionBlurTableOfContents} from '../../docs/motion-blur/table-of-contents';
+import {TableOfContents as NoiseTableOfContents} from '../../docs/noise/table-of-contents';
+import {TableOfContents as OpenAiWhisperTableOfContents} from '../../docs/openai-whisper/TableOfContents';
+import {TableOfContents as PathsTableOfContents} from '../../docs/paths/table-of-contents';
+import {PlayerTableOfContents} from '../../docs/player/TableOfContents';
+import {TableOfContents as PreloadTableOfContents} from '../../docs/preload/table-of-contents';
+import {TableOfContents as RemotionTableOfContents} from '../../docs/remotion/table-of-contents';
+import {TableOfContents as RendererTableOfContents} from '../../docs/renderer/TableOfContents';
+import {TableOfContents as RiveTableOfContents} from '../../docs/rive/table-of-contents';
+import {TableOfContents as RoughNotationTableOfContents} from '../../docs/rough-notation/table-of-contents';
+import {TableOfContents as SfxTableOfContents} from '../../docs/sfx/table-of-contents';
+import {TableOfContents as ShapesTableOfContents} from '../../docs/shapes/table-of-contents';
+import {TableOfContents as SkiaTableOfContents} from '../../docs/skia/TableOfContents';
+import {TableOfContents as StarburstTableOfContents} from '../../docs/starburst/table-of-contents';
+import {TableOfContents as StudioTableOfContents} from '../../docs/studio/TableOfContents';
+import {TableOfContents as StudioProtocolTableOfContents} from '../../docs/studio-protocol/table-of-contents';
+import {TableOfContents as TailwindV4TableOfContents} from '../../docs/tailwind-v4/TableOfContents';
+import {TableOfContents as TailwindTableOfContents} from '../../docs/tailwind/TableOfContents';
+import {TableOfContents as ThreeTableOfContents} from '../../docs/three/TableOfContents';
+import {TableOfContents as TransitionsTableOfContents} from '../../docs/transitions/table-of-contents';
+import {TableOfContents as VercelTableOfContents} from '../../docs/vercel/table-of-contents';
+import {TableOfContents as WebcodecsTableOfContents} from '../../docs/webcodecs/TableOfContents';
+import {ZodTypesTableOfContents} from '../../docs/zod-types/TableOfContents';
+import {Grid} from './Grid';
+import {TOCItem} from './TOCItem';
+
+export const TableOfContents: React.FC = () => {
+	return (
+		<div>
+			<Grid>
+				<TOCItem link="/docs/cli">
+					<strong>Command line</strong>
+					<div>
+						Reference for the <code>npx remotion</code> commands
+					</div>
+				</TOCItem>
+				<TOCItem link="/docs/config">
+					<strong>Configuration file</strong>
+					<div>
+						Reference for the <code>remotion.config.ts</code> file
+					</div>
+				</TOCItem>
+			</Grid>
+			<h2>remotion</h2>
+			<p>
+				Core APIs: <code>useCurrentFrame()</code>, <code>interpolate()</code>,
+				etc.
+			</p>
+			<RemotionTableOfContents />
+			<h2>@remotion/animated-emoji</h2>
+			<p>Google Fonts Animated Emojis as Remotion Components</p>
+			<AnimatedEmojiTableOfContents />
+			<h2>@remotion/animation-utils</h2>
+			<p>Obtain info about video and audio.</p>
+			<AnimationUtilsTableOfContents />
+			<h2>@remotion/bundler</h2>
+			<p>Create a Webpack bundle from Node.JS </p>
+			<BundlerTableOfContents />
+			<h2>@remotion/captions</h2>
+			<p>Common operations for subtitles.</p>
+			<CaptionsTableOfContents />
+			<h2>@remotion/cloudrun</h2>
+			<p>Render videos and stills on GCP Cloud Run</p>
+			<CloudrunTableOfContents />
+			<h2>@remotion/elevenlabs</h2>
+			<p>Work with transcriptions from ElevenLabs</p>
+			<ElevenLabsTableOfContents />
+			<h2>@remotion/enable-scss</h2>
+			<p>Bundler override for enabling SASS/SCSS</p>
+			<EnableScssTableOfContents />
+			<h2>@remotion/fonts</h2>
+			<p>Load font files onto a page.</p>
+			<FontsTableOfContents />
+			<h2>@remotion/gif</h2>
+			<p>Include a GIF in your video.</p>
+			<GifTableOfContents />
+			<h2>@remotion/google-fonts</h2>
+			<p>Load Google Fonts onto a page.</p>
+			<GoogleFontsTableOfContents />
+			<h2>@remotion/install-whisper-cpp</h2>
+			<p>Whisper.cpp installation and transcription</p>
+			<InstallWhisperCppTableOfContents />
+			<h2>@remotion/lambda</h2>
+			<p>Render videos and stills on AWS Lambda</p>
+			<LambdaTableOfContents />
+			<h2>@remotion/layout-utils</h2>
+			<p>Layout helpers</p>
+			<LayoutUtilsTableOfContents />
+			<h2>@remotion/licensing</h2>
+			<p>Report and query company license usage</p>
+			<LicensingTableOfContents />
+			<h2>@remotion/light-leaks</h2>
+			<p>Light Leak effects</p>
+			<LightLeaksTableOfContents />
+			<h2>@remotion/rough-notation</h2>
+			<p>Rough annotation primitives</p>
+			<RoughNotationTableOfContents />
+			<h2>@remotion/lottie</h2>
+			<p>Include a Lottie animation in your video</p>
+			<LottieTableOfContents apisOnly />
+			<h2>@remotion/media</h2>
+			<p>
+				An experimental <code>&lt;NewVideo /&gt;</code> tag for embedding
+				videos.
+			</p>
+			<NewVideoTableOfContents />
+			<h2>@remotion/media-parser</h2>
+			<p>A pure JavaScript library for parsing video files</p>
+			<MediaParserTableOfContents />
+			<h2>@remotion/media-utils</h2>
+			<p>Obtain info about video and audio.</p>
+			<MediaUtilsTableOfContents />
+			<h2>@remotion/motion-blur</h2>
+			<p>Apply motion blur effects to components</p>
+			<MotionBlurTableOfContents />
+			<h2>@remotion/noise</h2>
+			<p>Generate noise effects</p>
+			<NoiseTableOfContents />
+			<h2>@remotion/openai-whisper</h2>
+			<p>Work with transcriptions from OpenAI Whisper</p>
+			<OpenAiWhisperTableOfContents />
+			<h2>@remotion/paths</h2>
+			<p>Manipulate and obtain info about SVG paths</p>
+			<PathsTableOfContents />
+			<h2>@remotion/player</h2>
+			<p>Play a Remotion video in the browser.</p>
+			<PlayerTableOfContents />
+			<h2>@remotion/preload</h2>
+			<p>Preload media for the Player</p>
+			<PreloadTableOfContents />
+			<h2>@remotion/renderer</h2>
+			<p>Render video, audio and stills from Node.JS or Bun</p>
+			<RendererTableOfContents />
+			<h2>@remotion/rive</h2>
+			<p>Embed Rive animations in Remotion</p>
+			<RiveTableOfContents />
+			<h2>@remotion/sfx</h2>
+			<p>Sound effects library</p>
+			<SfxTableOfContents />
+			<h2>@remotion/shapes</h2>
+			<p>Generate SVG shapes</p>
+			<ShapesTableOfContents />
+			<h2>@remotion/skia</h2>
+			<p>Low-level graphics using React Native Skia</p>
+			<SkiaTableOfContents />
+			<h2>@remotion/starburst</h2>
+			<p>Starburst Effect</p>
+			<StarburstTableOfContents />
+			<h2>@remotion/studio</h2>
+			<p>APIs for controlling theRemotion Studio</p>
+			<StudioTableOfContents />
+			<h2>@remotion/studio-protocol</h2>
+			<p>Create Element payloads and send them into Remotion Studio</p>
+			<StudioProtocolTableOfContents />
+			<h2>@remotion/tailwind</h2>
+			<p>Bundler override for using TailwindCSS v3</p>
+			<TailwindTableOfContents />
+			<h2>@remotion/tailwind-v4</h2>
+			<p>Bundler override for using TailwindCSS v4</p>
+			<TailwindV4TableOfContents />
+			<h2>@remotion/three</h2>
+			<p>Create 3D videos using React Three Fiber</p>
+			<ThreeTableOfContents />
+			<h2>@remotion/transitions</h2>
+			<p>Transition between scenes</p>
+			<TransitionsTableOfContents apisOnly />
+			<h2>@remotion/vercel</h2>
+			<p>Render videos on Vercel Sandbox</p>
+			<VercelTableOfContents />
+			<h2>@remotion/webcodecs</h2>
+			<p>Converting media using WebCodecs</p>
+			<WebcodecsTableOfContents />
+			<h2>@remotion/zod-types</h2>
+			<p>Zod types enabling Remotion Studio UI</p>
+			<ZodTypesTableOfContents />
+		</div>
+	);
+};

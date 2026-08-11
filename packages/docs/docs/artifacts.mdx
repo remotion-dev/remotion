@@ -1,0 +1,270 @@
+---
+image: /generated/articles-docs-artifacts.png
+title: Emitting Artifacts
+id: artifacts
+crumb: 'Techniques'
+---
+
+# Emitting Artifacts<AvailableFrom v="4.0.176" />
+
+Sometimes you wish to generate additional files when rendering your video. For example:
+
+- A `.srt` subtitle file
+- A `.txt` containing chapters of the video
+- A `CREDITS` file for the assets used in the video
+- Debug information from the render.
+
+You can use the [`<Artifact>`](/docs/artifact) component to emit arbitrary files from your video.
+
+:::note
+Emitting artifacts is not currently supported by `@remotion/cloudrun`.
+:::
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+// @filename: subtitles.tsx
+
+export const generateSubtitles = () => {
+  return ``;
+};
+// @filename: MyComp.tsx
+// ---cut---
+import React from 'react';
+import {Artifact, useCurrentFrame} from 'remotion';
+import {generateSubtitles} from './subtitles';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  return <>{frame === 0 ? <Artifact filename="captions.srt" content={generateSubtitles()} /> : null}</>;
+};
+```
+
+## Rules of artifacts
+
+<Step>1</Step> The asset should only be rendered for one single frame of the video. Otherwise, the asset will get emitted multiple times. <br />
+
+<Step>2</Step> It is possible to emit multiple assets, but they may not have the same filename. <br />
+
+<Step>3</Step> For the <code>content</code> prop it is possible to pass a <code>string</code>, or a <code>Uint8Array</code> for binary data. Passing an <code>Uint8Array</code> should not be considered faster due to it having to be serialized.
+
+## Emitting thumbnails<AvailableFrom v="4.0.290" />
+
+You can emit the image data of the current frame as an artifact.
+
+```tsx twoslash title="Emitting the first frame as a thumbnail"
+import {Artifact, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  return <>{frame === 0 ? <Artifact content={Artifact.Thumbnail} filename="thumbnail.jpeg" /> : null}</>;
+};
+```
+
+<Step>1</Step> The [`content`](/docs/artifact#content) prop should be set to [`Artifact.Thumbnail`](/docs/artifact#artifactthumbnail). <br />
+
+<Step>2</Step> The [`imageFormat`](/docs/renderer/render-media#imageformat) setting determines the format of the image. The extension you pass is meaningless. <br />
+
+<Step>3</Step> The other rules of artifacts still apply. <br />
+
+## Receiving artifacts
+
+### In the CLI or Studio
+
+Artifacts get saved to `out/[composition-id]/[filename]` when rendering a video.
+
+### Using `renderMedia()`, `renderStill()` or `renderFrames()`
+
+Use the [`onArtifact`](/docs/renderer/render-media#onartifact) callback to receive the artifacts.
+
+```tsx twoslash title="render.mjs"
+import type {VideoConfig} from 'remotion';
+
+const composition: VideoConfig = {
+  width: 100,
+  height: 100,
+  fps: 30,
+  defaultProps: {},
+  props: {},
+  defaultCodec: null,
+  defaultOutName: null,
+  defaultVideoImageFormat: null,
+  defaultPixelFormat: null,
+  defaultProResProfile: null,
+  defaultSampleRate: null,
+  id: 'hi',
+  durationInFrames: 100,
+};
+const serveUrl = 'http://localhost:8080';
+const inputProps = {};
+import fs from 'fs';
+// ---cut---
+import {renderMedia, OnArtifact} from '@remotion/renderer';
+
+const onArtifact: OnArtifact = (artifact) => {
+  console.log(artifact.filename); // string
+  console.log(artifact.content); // string | Uint8Array
+  console.log(artifact.frame); // number, frame in the composition which emitted this
+
+  // Example action: Write the artifact to disk
+  fs.writeFileSync(artifact.filename, artifact.content);
+};
+
+await renderMedia({
+  composition,
+  serveUrl,
+  onArtifact,
+  codec: 'h264',
+  inputProps,
+});
+```
+
+### Using `renderMediaOnWeb()` or `renderStillOnWeb()`
+
+Use the [`onArtifact`](/docs/web-renderer/render-media-on-web#onartifact) callback to receive artifacts when rendering using [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web).
+
+```tsx twoslash title="Receiving artifacts with renderMediaOnWeb()"
+import React from 'react';
+import {Artifact, useCurrentFrame} from 'remotion';
+import {renderMediaOnWeb, EmittedArtifact} from '@remotion/web-renderer';
+
+const composition = {
+  id: 'my-comp',
+  width: 1920,
+  height: 1080,
+  fps: 30,
+  durationInFrames: 90,
+};
+
+// ---cut---
+const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  return <>{frame === 0 && <Artifact filename="metadata.json" content={JSON.stringify({title: 'My Video'})} />}</>;
+};
+
+const artifacts: EmittedArtifact[] = [];
+
+await renderMediaOnWeb({
+  composition: {
+    ...composition,
+    component: MyComp,
+  },
+  onArtifact: (artifact) => {
+    console.log(artifact.filename); // string
+    console.log(artifact.content); // string | Uint8Array
+    console.log(artifact.frame); // number
+    artifacts.push(artifact);
+  },
+});
+```
+
+The same callback is available for [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web#onartifact):
+
+```tsx twoslash title="Receiving artifacts with renderStillOnWeb()"
+import React from 'react';
+import {Artifact} from 'remotion';
+import {renderStillOnWeb, EmittedArtifact} from '@remotion/web-renderer';
+
+const composition = {
+  id: 'my-comp',
+  width: 1920,
+  height: 1080,
+  fps: 30,
+  durationInFrames: 1,
+};
+
+// ---cut---
+
+const MyComp: React.FC = () => {
+  return <Artifact filename="thumbnail.png" content={Artifact.Thumbnail} />;
+};
+
+const artifacts: EmittedArtifact[] = [];
+
+await renderStillOnWeb({
+  composition: {
+    ...composition,
+    component: MyComp,
+  },
+  frame: 0,
+  onArtifact: (artifact) => {
+    artifacts.push(artifact);
+  },
+});
+```
+
+### Using the Remotion Lambda CLI
+
+When using [`npx remotion lambda render`](/docs/lambda/cli/render) or [`npx remotion lambda still`](/docs/lambda/cli/still), artifacts get saved to the S3 bucket under the key `renders/[render-id]/artifacts/[filename]`.
+
+They will get logged to the console and you can click them to download them.  
+The `--privacy` option also applies to artifacts.
+
+### Using `renderMediaOnLambda()`
+
+When using [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), artifacts get saved to the S3 bucket under the key `renders/[render-id]/artifacts/[filename]`.
+
+You can obtain a list of currently received assets from [`getRenderProgress()`](/docs/lambda/getrenderprogress#artifacts).
+
+```tsx twoslash title="progress.ts"
+import {getRenderProgress} from '@remotion/lambda/client';
+
+const renderProgress = await getRenderProgress({
+  renderId: 'hi',
+  functionName: 'hi',
+  bucketName: 'hi',
+  region: 'eu-central-1',
+});
+
+for (const artifact of renderProgress.artifacts) {
+  console.log(artifact.filename); // "hello-world.txt"
+  console.log(artifact.sizeInBytes); // 12
+  console.log(artifact.s3Url); // "https://s3.eu-central-1.amazonaws.com/remotion-lambda-abcdef/renders/abcdef/artifacts/hello-world.txt"
+  console.log(artifact.s3Key); // "renders/abcdef/artifacts/hello-world.txt"
+}
+```
+
+### Using `renderStillOnLambda()`
+
+When using [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda), artifacts get saved to the S3 bucket under the key `renders/[render-id]/artifacts/[filename]`.
+
+You can obtain a list of received assets from [`artifacts`](/docs/lambda/renderstillonlambda#artifacts) field of `renderStillOnLambda()`.
+
+```tsx twoslash title="still.ts"
+const serveUrl = 'http://localhost:8080';
+const inputProps = {};
+const functionName = 'hi';
+const composition = 'hi';
+const privacy = 'public' as const;
+const imageFormat = 'png' as const;
+const region = 'eu-central-1' as const;
+
+// ---cut---
+import {renderStillOnLambda} from '@remotion/lambda/client';
+
+const stillResponse = await renderStillOnLambda({
+  functionName,
+  region,
+  serveUrl,
+  composition,
+  inputProps,
+  imageFormat,
+  privacy,
+});
+
+for (const artifact of stillResponse.artifacts) {
+  console.log(artifact.filename); // "hello-world.txt"
+  console.log(artifact.sizeInBytes); // 12
+  console.log(artifact.s3Url); // "https://s3.eu-central-1.amazonaws.com/remotion-lambda-abcdef/renders/abcdef/artifacts/hello-world.txt"
+  console.log(artifact.s3Key); // "renders/abcdef/artifacts/hello-world.txt"
+}
+```
+
+### Using Cloud Run
+
+In the Cloud Run Alpha, emitting artifacts is not supported and will throw an error.  
+We plan on revising Cloud Run to use the same runtime as Lambda in the future and will bring this feature along.
+
+## See also
+
+- [`<Artifact>`](/docs/artifact)

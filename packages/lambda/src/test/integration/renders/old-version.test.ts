@@ -1,0 +1,89 @@
+import {expect, test} from 'bun:test';
+import path from 'path';
+import {ServerlessRoutines} from '@remotion/serverless';
+import {mockImplementation} from '../../mocks/mock-implementation';
+
+test(
+	'Should fail when using an incompatible version',
+	async () => {
+		try {
+			const aha = await mockImplementation.callFunctionSync({
+				type: ServerlessRoutines.launch,
+				payload: {
+					type: ServerlessRoutines.launch,
+					serveUrl: path.join(__dirname, 'old-version-bundle'),
+					chromiumOptions: {},
+					codec: 'h264',
+					composition: 'react-svg',
+					crf: 9,
+					envVariables: {},
+					frameRange: [0, 12],
+					framesPerFunction: 8,
+					concurrency: null,
+					imageFormat: 'png',
+					inputProps: {
+						type: 'payload',
+						payload: '{}',
+					},
+					logLevel: 'warn',
+					maxRetries: 3,
+					outName: null,
+					pixelFormat: 'yuv420p',
+					privacy: 'public',
+					proResProfile: null,
+					x264Preset: null,
+					gopSize: null,
+					jpegQuality: undefined,
+					scale: 1,
+					timeoutInMilliseconds: 12000,
+					numberOfGifLoops: null,
+					everyNthFrame: 1,
+					concurrencyPerFunction: 1,
+					downloadBehavior: {
+						type: 'play-in-browser',
+					},
+					muted: false,
+					overwrite: true,
+					webhook: null,
+					audioBitrate: null,
+					videoBitrate: null,
+					encodingBufferSize: null,
+					encodingMaxRate: null,
+					forceHeight: null,
+					forceWidth: null,
+					forceFps: null,
+					forceDurationInFrames: null,
+					rendererFunctionName: null,
+					bucketName: 'remotion-dev-render',
+					audioCodec: null,
+					renderId: 'test',
+					offthreadVideoCacheSizeInBytes: null,
+					offthreadVideoThreads: null,
+					deleteAfter: null,
+					colorSpace: null,
+					preferLossless: false,
+					forcePathStyle: false,
+					metadata: {Author: 'Lunar'},
+					licenseKey: null,
+					storageClass: null,
+					mediaCacheSizeInBytes: null,
+					isProduction: true,
+					sampleRate: 48000,
+				},
+				functionName: 'remotion-dev-render',
+				region: 'us-east-1',
+				timeoutInTest: 120000,
+				requestHandler: null,
+			});
+			console.log(aha);
+			throw new Error('Should not reach this');
+		} catch (err) {
+			expect((err as Error).message).toContain(
+				'Incompatible site: When visiting',
+			);
+		}
+	},
+	{
+		retry: 3,
+	},
+);

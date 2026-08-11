@@ -1,0 +1,42 @@
+FROM amazonlinux:2023
+
+WORKDIR /usr/app
+# util-linux is needed for setpriv
+RUN yum install git tar gzip unzip util-linux -y
+RUN yum install nodejs -y
+RUN curl -fsSL https://bun.com/install | bash && ln -s /root/.bun/bin/bun /usr/local/bin/bun
+
+# Install the local @remotion/cli build from packed workspace tarballs.
+COPY tarballs/ /usr/app/tarballs/
+COPY local-cli-package.json /usr/app/package.json
+RUN bun install
+ENV PATH="/usr/app/node_modules/.bin:$PATH"
+
+RUN yum install -y \
+  mesa-libgbm	\
+  libX11 \
+  libXrandr \
+  libdrm \
+  libXdamage \
+  libXfixes \
+  libxkbcommon \
+  dbus-libs \
+  libXcomposite \
+  alsa-lib \
+  nss \
+  dbus \
+  pango \
+  cups-libs \
+  at-spi2-core \
+  atk \
+  at-spi2-atk
+COPY ensure-browser.mjs .
+COPY ensure.mjs .
+RUN node ensure.mjs
+
+# Copy the pre-built bundle
+COPY bundle/ /usr/app/bundle/
+
+RUN remotion compositions /usr/app/bundle
+RUN remotion render /usr/app/bundle browser-test /usr/app/out.mp4
+RUN remotion render /usr/app/bundle html-in-canvas /usr/app/out-html-in-canvas.mp4

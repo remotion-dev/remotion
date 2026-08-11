@@ -1,0 +1,15 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"lib": ["dom", "dom.iterable"],
+		"rootDir": "src",
+		"outDir": "dist/cjs",
+		"skipLibCheck": true
+	},
+	"include": ["src"],
+	"references": [
+		{
+			"path": "../core"
+		}
+	]
+}

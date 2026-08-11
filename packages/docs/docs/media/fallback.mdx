@@ -1,0 +1,79 @@
+---
+image: /generated/articles-docs-media-fallback.png
+title: 'Fallback behavior in @remotion/media'
+sidebar_label: 'Fallback behavior'
+crumb: '@remotion/media'
+---
+
+Use [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media) as the primary tags for media.
+
+If a media file cannot be embedded using these tags, Remotion may automatically fall back to [`<OffthreadVideo>`](/docs/offthreadvideo) for video or [`<Html5Audio>`](/docs/html5-audio) for audio from the [`remotion`](/docs/remotion) package.
+
+You usually do not need to choose these fallback tags manually. Configure them only when you need to prevent or customize fallback behavior.
+
+## When a fallback is attempted
+
+Here are some cases where [`@remotion/media`](/docs/media) may fall back to [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Html5Audio>`](/docs/html5-audio) from `remotion`:
+
+- The resource fails to load due to [CORS restrictions](/docs/cors-issues)
+- The container format is not supported by [Mediabunny](/docs/mediabunny/formats)
+- The codec cannot be decoded by WebCodecs (e.g. a H.265 stream during rendering)
+- The video has an alpha channel and the browser does not support WebGL which is required to decode the alpha channel. The default configuration of the headless browser does not have WebGL enabled.
+
+## Observing when a fallback happens
+
+If [`@remotion/media`](/docs/media) falls back to another tag, then a warning message will be logged in the render:
+
+```
+Cannot decode /public/video-h265.mp4, falling back to <OffthreadVideo>
+```
+
+If you are rendering on an environment where the logs are not immediately visible (e.g. Lambda), observe whether a fallback has happened by visiting the logs (e.g. CloudWatch).
+
+## Preventing a fallback from happening
+
+To prevent [`<Video>`](/docs/media/video) from falling back to [`<OffthreadVideo>`](/docs/offthreadvideo), set the [`disallowFallbackToOffthreadVideo`](/docs/media/video#disallowfallbacktooffthreadvideo) prop:
+
+```tsx twoslash title="No fallback to OffthreadVideo"
+import {Video} from '@remotion/media';
+
+export const MyComp: React.FC = () => {
+  return <Video src="https://remotion.media/video.mp4" disallowFallbackToOffthreadVideo />;
+};
+```
+
+To prevent [`<Audio>`](/docs/media/audio) from falling back to [`<Html5Audio>`](/docs/html5-audio) from [`remotion`](/docs/remotion), set the [`disallowFallbackToHtml5Audio`](/docs/media/audio#disallowfallbacktohtml5audio) prop:
+
+```tsx twoslash title="No fallback to HTML5 audio tag"
+import {Audio} from '@remotion/media';
+
+export const MyComp: React.FC = () => {
+  return <Audio src="https://remotion.media/audio.mp3" disallowFallbackToHtml5Audio />;
+};
+```
+
+If a fallback is prevented, the render will be cancelled instead.
+
+## Behavior of the `loop` prop during fallback
+
+The [`loop`](/docs/media/video#loop) prop of [`<Video>`](/docs/media/video) is handled differently depending on the environment:
+
+**During preview**, the fallback uses [`<Html5Video>`](/docs/html5-video), which natively supports the `loop` prop. Looping works as expected.
+
+**During rendering**, [`<OffthreadVideo>`](/docs/offthreadvideo) does not natively support looping. To work around this, `@remotion/media` attempts to determine the duration of the video and automatically wraps [`<OffthreadVideo>`](/docs/offthreadvideo) in a [`<Loop>`](/docs/loop) component.
+
+- In most cases, the duration can be extracted from the media container even if the codec is not supported.
+- If the duration **cannot** be determined (e.g. due to [CORS issues](/docs/cors-issues) or a broken container), the render will fail with an error.
+
+To ensure looping works reliably during rendering, make sure:
+
+- The video file is valid and not corrupted
+- There are no [CORS issues](/docs/cors-issues) preventing the file from being read
+
+## Fallback is not possible in client-side rendering
+
+When using [`@remotion/web-renderer`](/docs/web-renderer) for client-side rendering, fallback to [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Html5Audio>`](/docs/html5-audio) is **not possible**.
+
+This is because these fallback components require server-side capabilities that are not available in the browser.
+
+If a media file cannot be rendered using [`@remotion/media`](/docs/media) during client-side rendering, the render will fail with an error message describing the issue.

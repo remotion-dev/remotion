@@ -1,0 +1,65 @@
+---
+image: /generated/articles-docs-effects-uv-translate.png
+slug: /effects/uv-translate
+title: uvTranslate()
+sidebar_label: uvTranslate()
+crumb: '@remotion/effects'
+---
+
+# uvTranslate()<AvailableFrom v="4.0.467" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+A translate effect that moves a canvas-based component by normalized UV coordinates.
+
+It can be applied to components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+## Preview
+
+<EffectsDemo type="effects-uv-translate" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+import {uvTranslate} from '@remotion/effects/translate';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[uvTranslate({u: 0.1, v: 0.05})]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `uvTranslate()` without arguments.
+
+### `u?`
+
+Horizontal offset in UV coordinates. Defaults to `0`.
+
+`1` equals the full canvas width. Positive values move the image to the right, negative values move it to the left.
+
+### `v?`
+
+Vertical offset in UV coordinates. Defaults to `0`.
+
+`1` equals the full canvas height. Positive values move the image down, negative values move it up.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`xyTranslate()`](/docs/effects/xy-translate)
+- [`scale()`](/docs/effects/scale)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/translate/index.ts)

@@ -1,0 +1,57 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/studio-server"
+	},
+	"name": "@remotion/studio-server",
+	"version": "4.0.508",
+	"description": "Run a Remotion Studio with a server backend",
+	"main": "dist",
+	"scripts": {
+		"lint": "eslint src",
+		"test": "bun test src",
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"make": "tsgo -d"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"contributors": [],
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"dependencies": {
+		"@remotion/studio-protocol": "workspace:*",
+		"@babel/types": "7.24.0",
+		"@babel/parser": "7.24.1",
+		"@svgr/core": "8.1.0",
+		"@svgr/plugin-jsx": "8.1.0",
+		"kiwi-schema": "0.5.0",
+		"semver": "7.5.3",
+		"zod": "catalog:",
+		"prettier": "catalog:",
+		"remotion": "workspace:*",
+		"recast": "0.23.11",
+		"@remotion/bundler": "workspace:*",
+		"@remotion/renderer": "workspace:*",
+		"@remotion/studio-codemods": "workspace:*",
+		"@remotion/studio-shared": "workspace:*",
+		"memfs": "3.4.3",
+		"open": "8.4.2"
+	},
+	"devDependencies": {
+		"ast-types": "0.16.1",
+		"react": "catalog:",
+		"@types/semver": "7.5.3",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "catalog:",
+		"@types/node": "catalog:",
+		"@typescript/native-preview": "catalog:"
+	},
+	"exports": {
+		".": "./dist/index.js",
+		"./package.json": "./package.json"
+	}
+}

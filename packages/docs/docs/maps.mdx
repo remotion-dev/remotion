@@ -1,0 +1,305 @@
+---
+image: /generated/articles-docs-maps.png
+title: Map animations in Remotion
+sidebar_label: Maps
+id: maps
+crumb: 'Techniques'
+---
+
+Create map animations in Remotion using [MapLibre GL JS](https://maplibre.org/maplibre-gl-js/docs/) and [Turf.js](https://turfjs.org/).
+
+<SuggestedPrompt prompt="/remotion-markup Make a new composition with a map. Zoom out from Los Angeles while keeping it in focus, then animate a line from Los Angeles to New York and make the camera follow it." />
+
+## Prerequisites
+
+Install the required packages:
+
+<Installation pkg="maplibre-gl @turf/turf" />
+
+Import the MapLibre stylesheet once, either in the component that renders the map or in an app-level stylesheet:
+
+```tsx twoslash
+import 'maplibre-gl/dist/maplibre-gl.css';
+```
+
+## Adding a map
+
+Use [`useDelayRender()`](/docs/use-delay-render) to wait for the map to load. The container element must have explicit dimensions and `position: "absolute"`.
+
+```tsx twoslash
+import {useEffect, useRef, useState} from 'react';
+import {AbsoluteFill, useDelayRender, useVideoConfig} from 'remotion';
+import maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
+
+const zurich: [number, number] = [8.5417, 47.3769];
+
+export const MapComposition = () => {
+  const ref = useRef<HTMLDivElement>(null);
+  const {delayRender, continueRender} = useDelayRender();
+  const {width, height} = useVideoConfig();
+  const [handle] = useState(() => delayRender('Loading map...'));
+
+  useEffect(() => {
+    if (!ref.current) {
+      return;
+    }
+
+    const map = new maplibregl.Map({
+      container: ref.current,
+      style: 'https://demotiles.maplibre.org/style.json',
+      center: zurich,
+      zoom: 7,
+      interactive: false,
+      attributionControl: false,
+      fadeDuration: 0,
+      canvasContextAttributes: {
+        preserveDrawingBuffer: true,
+      },
+    });
+
+    map.on('load', () => {
+      map.jumpTo({center: zurich, zoom: 7});
+      map.once('idle', () => continueRender(handle));
+    });
+  }, [handle, continueRender]);
+
+  return (
+    <AbsoluteFill>
+      <div ref={ref} style={{width, height, position: 'absolute'}} />
+    </AbsoluteFill>
+  );
+};
+```
+
+Set [`interactive: false`](https://maplibre.org/maplibre-gl-js/docs/API/type-aliases/MapOptions/#interactive) and [`fadeDuration: 0`](https://maplibre.org/maplibre-gl-js/docs/API/type-aliases/MapOptions/#fadeduration) so the map does not run its own animations.
+
+For Remotion renders, do not add a `map.remove()` cleanup function. It can interfere with the render lifecycle.
+
+## Styling the map
+
+Use any valid MapLibre style JSON URL. The stock demo style works as a simple default:
+
+```tsx twoslash
+import maplibregl from 'maplibre-gl';
+// ---cut---
+const map = new maplibregl.Map({
+  container: document.createElement('div'),
+  style: 'https://demotiles.maplibre.org/style.json',
+  center: [0, 0],
+  zoom: 1,
+  interactive: false,
+  fadeDuration: 0,
+});
+```
+
+If you need a custom look, prefer changing your own GeoJSON layers first. Only edit the base style if the composition requires it.
+
+## Drawing lines
+
+Add a GeoJSON line source and layer:
+
+```tsx twoslash
+import maplibregl from 'maplibre-gl';
+const map = {} as maplibregl.Map;
+const lineCoordinates: [number, number][] = [
+  [0, 0],
+  [1, 1],
+];
+// ---cut---
+map.addSource('route', {
+  type: 'geojson',
+  data: {
+    type: 'Feature',
+    properties: {},
+    geometry: {
+      type: 'LineString',
+      coordinates: lineCoordinates,
+    },
+  },
+});
+
+map.addLayer({
+  id: 'route-line',
+  type: 'line',
+  source: 'route',
+  paint: {
+    'line-color': '#000000',
+    'line-width': 5,
+  },
+  layout: {
+    'line-cap': 'round',
+    'line-join': 'round',
+  },
+});
+```
+
+## Animating lines
+
+For curved geodesic paths, such as flight routes, use Turf to create and slice the route:
+
+```tsx twoslash
+import * as turf from '@turf/turf';
+
+const start: [number, number] = [8.5417, 47.3769];
+const end: [number, number] = [-74.006, 40.7128];
+const progress = 0.5;
+// ---cut---
+const greatCircleLine = (from: [number, number], to: [number, number]) => {
+  const route = turf.greatCircle(from, to, {npoints: 100});
+
+  if (route.geometry.type === 'LineString') {
+    return turf.lineString(route.geometry.coordinates);
+  }
+
+  const longestSegment = route.geometry.coordinates.reduce((longest, segment) => {
+    return segment.length > longest.length ? segment : longest;
+  });
+
+  return turf.lineString(longestSegment);
+};
+
+const route = greatCircleLine(start, end);
+const routeDistance = turf.length(route);
+
+// Keep the route non-empty at progress 0; Turf can error on zero-length slices.
+const currentDistance = Math.max(0.001, routeDistance * progress);
+const slicedLine = turf.lineSliceAlong(route, 0, currentDistance);
+```
+
+Update the GeoJSON source for the current frame:
+
+```tsx twoslash
+import maplibregl, {type GeoJSONSource} from 'maplibre-gl';
+import * as turf from '@turf/turf';
+
+const map = {} as maplibregl.Map | null;
+const slicedLine = turf.lineString([
+  [0, 0],
+  [1, 1],
+]);
+// ---cut---
+const source = map?.getSource('route') as GeoJSONSource | undefined;
+source?.setData(slicedLine);
+```
+
+For a visually straight line on the map, use a regular GeoJSON `LineString` between the two points instead of `turf.greatCircle()`.
+
+## Animating the camera
+
+Use `calculateCameraOptionsFromTo()` to move the camera while looking at a target point. A good pattern is to keep the target route and camera route separate, then use Turf to find the current point on each route.
+
+```tsx twoslash
+import {useEffect} from 'react';
+import * as turf from '@turf/turf';
+import {useCurrentFrame, useVideoConfig, useDelayRender} from 'remotion';
+import {interpolate, Easing} from 'remotion';
+import maplibregl, {type Map} from 'maplibre-gl';
+
+const map = {} as Map | null;
+const targetRoute = turf.lineString([
+  [8.5417, 47.3769],
+  [-74.006, 40.7128],
+]);
+const cameraRoute = turf.lineString([
+  [8.5417, 46.2769],
+  [-74.006, 39.6128],
+]);
+const targetRouteDistance = turf.length(targetRoute);
+const cameraRouteDistance = turf.length(cameraRoute);
+// ---cut---
+const frame = useCurrentFrame();
+const {durationInFrames} = useVideoConfig();
+const {delayRender, continueRender} = useDelayRender();
+
+useEffect(() => {
+  if (!map) {
+    return;
+  }
+
+  const handle = delayRender('Moving camera...');
+  const progress = interpolate(frame, [0, durationInFrames - 1], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    easing: Easing.inOut(Easing.cubic),
+  });
+  const target = turf.along(targetRoute, targetRouteDistance * progress).geometry.coordinates;
+  const camera = turf.along(cameraRoute, cameraRouteDistance * progress).geometry.coordinates;
+  const cameraAltitudeMeters = 180000;
+
+  map.jumpTo(
+    map.calculateCameraOptionsFromTo(
+      new maplibregl.LngLat(camera[0], camera[1]),
+      cameraAltitudeMeters,
+      new maplibregl.LngLat(target[0], target[1]),
+    ),
+  );
+
+  map.once('idle', () => continueRender(handle));
+  // Force an idle event even if the camera parameters are unchanged from the previous frame.
+  map.triggerRepaint();
+}, [frame, durationInFrames, map, delayRender, continueRender]);
+```
+
+To make a zoom-out / travel / zoom-in animation, animate travel progress separately from camera altitude. Camera altitude is measured in meters.
+
+## Adding markers
+
+Add circle markers with labels as map-native GeoJSON layers:
+
+```tsx twoslash
+import * as turf from '@turf/turf';
+import maplibregl from 'maplibre-gl';
+const map = {} as maplibregl.Map;
+const LA_COORDS: [number, number] = [-118.2437, 34.0522];
+// ---cut---
+map.addSource('cities', {
+  type: 'geojson',
+  data: turf.featureCollection([
+    turf.point(LA_COORDS, {name: 'Los Angeles'}),
+  ]),
+});
+
+map.addLayer({
+  id: 'city-markers',
+  type: 'circle',
+  source: 'cities',
+  paint: {
+    'circle-radius': 40,
+    'circle-color': '#FF4444',
+    'circle-stroke-width': 4,
+    'circle-stroke-color': '#FFFFFF',
+  },
+});
+
+map.addLayer({
+  id: 'labels',
+  type: 'symbol',
+  source: 'cities',
+  layout: {
+    'text-field': ['get', 'name'],
+    'text-size': 50,
+    'text-offset': [0, 0.5],
+    'text-anchor': 'top',
+  },
+  paint: {
+    'text-color': '#FFFFFF',
+    'text-halo-color': '#000000',
+    'text-halo-width': 2,
+  },
+});
+```
+
+## Rendering
+
+Render map animations with [`--gl=angle`](/docs/gl-options) to enable the GPU. Use single concurrency for WebGL-heavy map renders:
+
+```sh
+npx remotion render <composition-id> out/video.mp4 --gl=angle --concurrency=1
+```
+
+## See also
+
+- [MapLibre GL JS Documentation](https://maplibre.org/maplibre-gl-js/docs/)
+- [Turf.js Documentation](https://turfjs.org/)
+- [`useDelayRender()`](/docs/use-delay-render)

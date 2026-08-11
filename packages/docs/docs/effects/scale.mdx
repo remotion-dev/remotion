@@ -1,0 +1,68 @@
+---
+image: /generated/articles-docs-effects-scale.png
+slug: /effects/scale
+title: scale()
+sidebar_label: scale()
+crumb: '@remotion/effects'
+---
+
+# scale()<AvailableFrom v="4.0.466" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+A scale effect that can be applied to canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+## Preview
+
+<EffectsDemo type="effects-scale" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+import {scale} from '@remotion/effects/scale';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[scale({scale: 0.8})]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties.
+
+### `scale`
+
+The scale factor. Defaults to `1`. Must be greater than 0.
+
+### `horizontal?`
+
+Whether to apply horizontal scaling. Defaults to `true`.
+
+### `vertical?`
+
+Whether to apply vertical scaling. Defaults to `true`.
+
+Set one axis to `false` for a directional scaling:
+
+```tsx
+effects={[scale({scale: 0.9, horizontal: true, vertical: false})]}
+```
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`blur()`](/docs/effects/blur)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/scale/index.ts)

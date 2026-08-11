@@ -1,0 +1,27 @@
+---
+image: /generated/articles-docs-audio-delaying.png
+title: Delaying Audio
+sidebar_label: Delaying Audio
+id: delaying
+crumb: 'Audio'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+Use the [`from`](/docs/media/audio#from) prop to delay the audio from playing.
+
+In the following example, the audio will start playing after 100 frames.
+
+```tsx twoslash {6-8}
+import {AbsoluteFill, staticFile} from 'remotion';
+import {Audio} from '@remotion/media';
+
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Audio from={100} src={staticFile('audio.mp3')} />
+    </AbsoluteFill>
+  );
+};
+```

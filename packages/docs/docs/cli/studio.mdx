@@ -1,0 +1,168 @@
+---
+image: /generated/articles-docs-cli-studio.png
+title: npx remotion studio
+sidebar_label: studio
+crumb: CLI Reference
+---
+
+_Alias: npx remotion preview_
+
+Start the [Remotion Studio](/docs/studio).
+
+```bash
+npx remotion studio <entry-point>?
+```
+
+You may pass an [entry point](/docs/terminology/entry-point) as an argument, otherwise it will be [determined](/docs/terminology/entry-point#which-entry-point-is-being-used).
+
+## Reopen the Studio<AvailableFrom v="4.0.487" />
+
+While `npx remotion studio` is running, press <kbd>s</kbd> in the terminal to reopen the Studio in your browser.
+
+## Flags
+
+### `--props`
+
+<Options id="props" />
+
+:::note
+Inline JSON string isn't supported on Windows shells because it removes the `"` character, use a file name instead.
+:::
+
+### `--config`<AvailableFrom v="1.2.0" />
+
+<Options id="config" />
+
+### `--env-file`<AvailableFrom v="2.2.0" />
+
+<Options id="env-file" />
+
+### `--log`
+
+[Set the log level](/docs/config#setloglevel). Increase or decrease the amount of output. Acceptable values: `error`, `warn`, `info` (_default_), `verbose`
+
+### `--port`
+
+<Options id="port" />
+
+### `--public-dir`<AvailableFrom v="3.2.13" />
+
+<Options id="public-path" />
+
+### `--disable-keyboard-shortcuts`<AvailableFrom v="3.2.11" />
+
+<Options id="disable-keyboard-shortcuts" />
+
+### `--disable-interactivity`<AvailableFrom v="4.0.487" />
+
+<Options id="disable-interactivity" />
+
+### `--editor`<AvailableFrom v="4.0.503" />
+
+<Options id="editor" cli />
+
+```sh title="Terminal"
+npx remotion studio --editor=cursor
+```
+
+### `--coding-agent`<AvailableFrom v="4.0.506" />
+
+<Options id="coding-agent" cli />
+
+```sh title="Terminal"
+npx remotion studio --coding-agent=codex
+```
+
+### `--rspack`<AvailableFrom v="4.0.502" />
+
+<Options id="rspack" />
+
+### `--webpack-poll`<AvailableFrom v="3.3.11" />
+
+<Options id="webpack-poll" />
+
+### `--no-open`<AvailableFrom v="3.3.19" />
+
+<Options id="no-open" />
+
+### `--browser`<AvailableFrom v="3.3.79" />
+
+<Options id="browser" />
+
+You can also configure the browser via environment variables for backwards compatibility:
+
+- `BROWSER` behaves like the `--browser` flag.
+- `BROWSER_ARGS` behaves like the `--browser-args` flag.
+- Setting `BROWSER=none` disables auto-opening of the browser (equivalent to `--no-open`).
+
+### `--browser-args`<AvailableFrom v="3.3.79" />
+
+A set of command line flags that should be passed to the browser. Pass them like this:
+
+```sh
+npx remotion studio --browser-args="--disable-web-security"
+```
+
+### `--beep-on-finish`<AvailableFrom v="4.0.84" />
+
+[Plays a beep sound when the video is finished rendering](/docs/config#setbeeponfinish). This is useful if you are rendering a video in the background and want to be notified when it is finished.
+
+```sh
+npx remotion studio --beep-on-finish
+```
+
+### `--ipv4`<AvailableFrom v="4.0.125" />
+
+<Options id="ipv4" />
+
+```sh
+npx remotion studio --ipv4
+```
+
+### `--number-of-shared-audio-tags`<AvailableFrom v="3.3.2" />
+
+<Options id="number-of-shared-audio-tags" />
+
+```sh
+npx remotion studio --number-of-shared-audio-tags=5
+```
+
+### `--preview-sample-rate`
+
+<Options id="preview-sample-rate" />
+
+```sh
+npx remotion studio --preview-sample-rate=44100
+```
+
+### `--cross-site-isolation`<AvailableFrom v="4.0.364" />
+
+[Enable Cross-Site Isolation in the Studio](/docs/config#setenablecrosssiteisolation).
+
+```sh
+npx remotion studio --enable-cross-site-isolation
+```
+
+### `--disable-ask-ai`<AvailableFrom v="4.0.407" />
+
+[Disable the Ask AI modal in the Studio](/docs/config#setaskaienabled).
+
+```sh
+npx remotion studio --disable-ask-ai
+```
+
+### `--force-new`<AvailableFrom v="4.0.421" />
+
+<Options id="force-new" />
+
+```sh
+npx remotion studio --force-new
+```
+
+### `--public-license-key`<AvailableFrom v="4.0.398" />
+
+<Options id="public-license-key" />
+
+```sh
+npx remotion studio --public-license-key="your-license-key"
+```

@@ -1,0 +1,260 @@
+---
+image: /generated/articles-docs-renderer-types.png
+id: types
+sidebar_label: Types
+title: TypeScript Types Reference
+slug: /renderer/types
+crumb: '@remotion/renderer'
+---
+
+The following types are part of the API of `@remotion/renderer`:
+
+## `Codec`
+
+```tsx twoslash
+import type {Codec} from '@remotion/renderer';
+//                ^?
+```
+
+Refer to the [Encoding guide](/docs/encoding) for more information.
+
+## `AudioCodec`
+
+```tsx twoslash
+import type {AudioCodec} from '@remotion/renderer';
+//                ^?
+```
+
+Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and supported combinations.
+
+## `VideoImageFormat`
+
+```tsx twoslash
+import type {VideoImageFormat} from '@remotion/renderer';
+//                ^?
+```
+
+## `StillImageFormat`
+
+```tsx twoslash
+import type {StillImageFormat} from '@remotion/renderer';
+//                ^?
+```
+
+## `PixelFormat`
+
+```tsx twoslash
+import type {PixelFormat} from '@remotion/renderer';
+//                ^?
+```
+
+## `FrameRange`
+
+```tsx twoslash
+import type {FrameRange} from '@remotion/renderer';
+//                ^?
+```
+
+- A single number renders only that frame
+- A tuple `[start, end]` renders frames from `start` to `end` (inclusive)
+- A tuple `[start, null]` renders frames from `start` to the end of the composition<AvailableFrom v="4.0.421" inline />
+- An array of ordered, non-overlapping tuples renders multiple ranges<AvailableFrom v="4.0.502" inline />
+
+```ts twoslash title="frame-range.ts"
+import type {FrameRange} from '@remotion/renderer';
+// ---cut---
+const frameRange: FrameRange = [
+  [0, 100],
+  [150, 200],
+];
+```
+
+## `Concurrency`
+
+```tsx twoslash
+import type {Concurrency} from '@remotion/renderer';
+//                ^?
+```
+
+## `LogLevel`
+
+```tsx twoslash
+import type {LogLevel} from '@remotion/renderer';
+//                ^?
+```
+
+## `OpenGlRenderer`
+
+```tsx twoslash
+import type {OpenGlRenderer} from '@remotion/renderer';
+//                ^?
+```
+
+## `ChromeMode`
+
+```tsx twoslash
+import type {ChromeMode} from '@remotion/renderer';
+//                ^?
+```
+
+## `ColorSpace`
+
+```tsx twoslash
+import type {ColorSpace} from '@remotion/renderer';
+//                ^?
+```
+
+## `X264Preset`
+
+```tsx twoslash
+import type {X264Preset} from '@remotion/renderer';
+//                ^?
+```
+
+## `Crf`
+
+```tsx twoslash
+import type {Crf} from '@remotion/renderer';
+//            ^?
+```
+
+## `Bitrate`
+
+```tsx twoslash
+import type {Bitrate} from '@remotion/renderer';
+//                ^?
+```
+
+## `ChromiumOptions`
+
+```tsx twoslash
+import type {ChromiumOptions} from '@remotion/renderer';
+//                ^?
+```
+
+## `OnStartData`
+
+```tsx twoslash
+import type {OnStartData} from '@remotion/renderer';
+//                ^?
+```
+
+- `frameCount`: The number of frames that will be rendered
+- `parallelEncoding`: Whether parallel encoding is enabled<AvailableFrom v="4.0.52" inline />
+- `resolvedConcurrency`: The concurrency that will be used<AvailableFrom v="4.0.180" inline />
+
+## `RenderMediaOnProgress`
+
+```tsx twoslash
+import type {RenderMediaOnProgress} from '@remotion/renderer';
+//                ^?
+```
+
+## `StitchingState`
+
+```tsx twoslash
+import type {StitchingState} from '@remotion/renderer';
+//                ^?
+```
+
+- `encoding`: Rendering frames and encoding into video
+- `muxing`: Encoding audio and combining it with video (only when parallel encoding is used)
+
+## `SlowFrame`
+
+```tsx twoslash
+import type {SlowFrame} from '@remotion/renderer';
+//                ^?
+```
+
+## `RenderMediaOnDownload`
+
+```tsx twoslash
+import type {RenderMediaOnDownload} from '@remotion/renderer';
+//                ^?
+```
+
+## `BrowserLog`
+
+```tsx twoslash
+import type {BrowserLog} from '@remotion/renderer';
+//                ^?
+```
+
+- `type`: The `console.*` method (`log`, `warn`, `error`, etc.)
+- `text`: The logged message
+- `stackTrace`: The stack trace of the log
+
+## `FfmpegOverrideFn`
+
+```tsx twoslash
+import type {FfmpegOverrideFn} from '@remotion/renderer';
+//                ^?
+```
+
+## `OnArtifact`
+
+```tsx twoslash
+import type {OnArtifact} from '@remotion/renderer';
+//                ^?
+```
+
+## `EmittedArtifact`
+
+```tsx twoslash
+import type {EmittedArtifact} from '@remotion/renderer';
+//                ^?
+```
+
+- `filename`: The name of the artifact file
+- `content`: The content of the artifact as a `string` or `Uint8Array`
+- `frame`: The frame number at which the artifact was emitted
+
+## `OnBrowserDownload`
+
+```tsx twoslash
+import type {OnBrowserDownload} from '@remotion/renderer';
+//                ^?
+```
+
+## `DownloadBrowserProgressFn`
+
+```tsx twoslash
+import type {DownloadBrowserProgressFn} from '@remotion/renderer';
+//                ^?
+```
+
+## `NumberOfGifLoops`
+
+```tsx twoslash
+import type {NumberOfGifLoops} from '@remotion/renderer';
+//                ^?
+```
+
+## `RenderMediaOptions`
+
+```tsx twoslash
+import type {RenderMediaOptions} from '@remotion/renderer';
+//                ^?
+```
+
+## `RenderStillOptions`
+
+```tsx twoslash
+import type {RenderStillOptions} from '@remotion/renderer';
+//                ^?
+```
+
+## `RenderFramesOptions`
+
+```tsx twoslash
+import type {RenderFramesOptions} from '@remotion/renderer';
+//                ^?
+```
+
+## `SelectCompositionOptions`
+
+```tsx twoslash
+import type {SelectCompositionOptions} from '@remotion/renderer';
+//                ^?
+```

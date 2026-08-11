@@ -1,0 +1,85 @@
+---
+image: /generated/articles-docs-legacy-babel-loader.png
+title: Using legacy Babel transpilation
+id: legacy-babel
+crumb: "How To"
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from '@theme/TabItem';
+
+Remotion uses faster transpilation by default: `esbuild-loader` with Webpack and SWC with Rspack.
+
+To use Babel instead, [override the bundler configuration](/docs/bundlers). Overrides work reducer-style: You receive the default configuration and return the modified configuration.
+
+The `@remotion/babel-loader` compatibility package provides `replaceLoadersWithBabel()` to replace the default JavaScript and TypeScript loaders with Babel.
+
+This should not be necessary in general. We encourage you to [report issues](https://github.com/remotion-dev/remotion/issues/new) with the default transpiler.
+
+## Example
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npm i babel-loader @babel/preset-env @babel/preset-react
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm i babel-loader @babel/preset-env @babel/preset-react
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+yarn add babel-loader @babel/preset-env @babel/preset-react
+```
+
+  </TabItem>
+</Tabs>
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+import { replaceLoadersWithBabel } from "@remotion/babel-loader";
+
+Config.overrideBundlerConfig((currentConfiguration) => {
+  return replaceLoadersWithBabel(currentConfiguration);
+});
+```
+
+## When using `bundle()`
+
+When using the [`bundle()`](/docs/bundle) Node.js API, provide the bundler override directly because Node.js APIs do not read from the config file. To deploy the resulting directory to Lambda, pass it to [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle).
+
+```ts twoslash title="my-script.js"
+// @filename: ./src/bundler-override.ts
+import { BundlerOverrideFn } from "@remotion/bundler";
+export const bundlerOverride: BundlerOverrideFn = (c) => c;
+// @filename: remotion.config.ts
+// @target: esnext
+// ---cut---
+import { bundle } from "@remotion/bundler";
+import { replaceLoadersWithBabel } from "@remotion/babel-loader";
+
+await bundle({
+  entryPoint: require.resolve("./src/index.ts"),
+  bundlerOverride: (config) => replaceLoadersWithBabel(config),
+});
+```
+
+## See also
+
+- [Custom bundler config](/docs/bundlers)

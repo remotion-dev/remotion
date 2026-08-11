@@ -1,0 +1,249 @@
+{
+	"$schema": "https://turbo.build/schema.json",
+	"ui": "stream",
+	"globalEnv": ["ENABLE_EXPERIMENTAL_COREPACK"],
+	"tasks": {
+		"formatting": {
+			"dependsOn": [],
+			"outputLogs": "new-only"
+		},
+		"publishprivate": {
+			"dependsOn": [],
+			"outputLogs": "new-only"
+		},
+		"clean": {},
+		"testssr": {
+			"dependsOn": ["^make", "@remotion/example#bundle"]
+		},
+		"@remotion/it-tests#testmonorepo": {
+			"dependsOn": ["^make"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"$TURBO_ROOT$/.gitignore",
+				"$TURBO_ROOT$/LICENSE.md",
+				"$TURBO_ROOT$/package.json",
+				"$TURBO_ROOT$/packages/*/.gitignore",
+				"$TURBO_ROOT$/packages/*/.npmignore",
+				"$TURBO_ROOT$/packages/*/LICENSE.md",
+				"$TURBO_ROOT$/packages/*/README.md",
+				"$TURBO_ROOT$/packages/*/package.json",
+				"$TURBO_ROOT$/packages/STATS.md",
+				"$TURBO_ROOT$/packages/cli/src/list-of-remotion-packages.ts",
+				"$TURBO_ROOT$/packages/create-video/src/list-of-remotion-packages.ts",
+				"$TURBO_ROOT$/packages/docs/docs/contributing/index.mdx",
+				"$TURBO_ROOT$/packages/lambda-client/src/aws-provider.ts",
+				"$TURBO_ROOT$/packages/lambda/src/api/create-function.ts",
+				"$TURBO_ROOT$/packages/lambda-go/**",
+				"$TURBO_ROOT$/packages/lambda-php/**",
+				"$TURBO_ROOT$/packages/lambda-php-example/**",
+				"$TURBO_ROOT$/packages/lambda-python/**",
+				"$TURBO_ROOT$/packages/lambda-ruby/**",
+				"$TURBO_ROOT$/packages/studio-shared/src/release-package-policy.ts"
+			]
+		},
+		"testtemplates": {
+			"dependsOn": ["^make", "@remotion/example#bundle"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"$TURBO_ROOT$/packages/template-*/**",
+				"$TURBO_ROOT$/tsconfig.json"
+			]
+		},
+		"testlambda": {
+			"dependsOn": ["^make", "@remotion/example#bundle"]
+		},
+		"@remotion/player-example#testnextjs": {
+			"dependsOn": ["^make"]
+		},
+		"testwebcodecs": {
+			"dependsOn": ["@remotion/webcodecs#make"]
+		},
+		"teste2e": {
+			"dependsOn": ["^make"]
+		},
+		"testwebrenderer": {
+			"dependsOn": ["@remotion/web-renderer#make"]
+		},
+		"testbrowserstudio": {
+			"dependsOn": ["@remotion/browser-studio#make"]
+		},
+		"testlayoututils": {
+			"dependsOn": ["@remotion/layout-utils#make"]
+		},
+		"testeffectsvisual": {
+			"dependsOn": ["@remotion/effects#make"]
+		},
+		"build": {
+			"dependsOn": ["^make"],
+			"outputs": ["dist"],
+			"outputLogs": "new-only"
+		},
+		"make": {
+			"dependsOn": ["^make"],
+			"outputs": ["dist"],
+			"outputLogs": "new-only"
+		},
+		"@remotion/example-videos#make": {
+			"dependsOn": ["^make"],
+			"outputs": ["dist", "node_modules/.videos/**"],
+			"outputLogs": "new-only"
+		},
+		"@remotion/example#bundle": {
+			"dependsOn": ["^make", "make"],
+			"outputs": ["build", "./node_modules/.cache"],
+			"outputLogs": "new-only"
+		},
+		"@remotion/example#bundle-testbed": {
+			"dependsOn": ["^make", "make"],
+			"outputs": ["build-testbed", "./node_modules/.cache"],
+			"outputLogs": "new-only"
+		},
+		"@remotion/example#test": {
+			"dependsOn": ["@remotion/example#bundle"],
+			"outputs": [],
+			"outputLogs": "new-only"
+		},
+		"prewarm-twoslash": {
+			"dependsOn": ["^make"],
+			"inputs": [
+				"$TURBO_ROOT$/bun.lock",
+				"$TURBO_ROOT$/package.json",
+				"$TURBO_ROOT$/packages/**/package.json",
+				"$TURBO_ROOT$/packages/**/*.d.ts",
+				"$TURBO_ROOT$/packages/**/*.d.mts",
+				"$TURBO_ROOT$/packages/**/*.d.cts",
+				"docs/**",
+				"blog/**",
+				"learn/**",
+				"new-docs/**",
+				"elements/**",
+				"plugins/element-source-utils.js",
+				"prewarm-twoslash.ts",
+				"twoslash-worker.mjs",
+				"package.json"
+			],
+			"outputs": ["node_modules/.cache/twoslash/**"],
+			"env": [
+				"REMOTION_DOCS_DISABLE_TWOSLASH",
+				"REMOTION_DOCS_ENABLE_TWOSLASH"
+			],
+			"passThroughEnv": [
+				"NODE_OPTIONS",
+				"REMOTION_DOCS_LOW_MEMORY_BUILD",
+				"TWOSLASH_RECYCLE_LIMIT_BYTES",
+				"TWOSLASH_SHARED_CACHE_DIR",
+				"TWOSLASH_SHARED_CACHE_GC_INTERVAL_MS",
+				"TWOSLASH_SHARED_CACHE_MAX_AGE_MS",
+				"TWOSLASH_SHARED_CACHE_MAX_BYTES",
+				"TWOSLASH_STALL_TIMEOUT_MS",
+				"TWOSLASH_WORKER_COUNT",
+				"VERCEL"
+			],
+			"outputLogs": "new-only"
+		},
+		"build-docs": {
+			"dependsOn": [
+				"^make",
+				"make",
+				"prewarm-twoslash",
+				"@remotion/convert#build-spa",
+				"@remotion/brand#bundle",
+				"@remotion/example#bundle-testbed"
+			],
+			"outputs": [".docusaurus", "build"],
+			"env": [
+				"REMOTION_DOCS_DISABLE_TWOSLASH",
+				"REMOTION_DOCS_ENABLE_TWOSLASH"
+			],
+			"outputLogs": "new-only"
+		},
+		"test": {
+			"dependsOn": ["^make", "make"],
+			"outputs": [],
+			"outputLogs": "new-only"
+		},
+		"@remotion/browser-studio#test": {
+			"dependsOn": ["^make", "make"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"$TURBO_ROOT$/packages/template-blank/package.json",
+				"$TURBO_ROOT$/packages/template-blank/remotion.config.ts",
+				"$TURBO_ROOT$/packages/template-blank/src/Composition.tsx",
+				"$TURBO_ROOT$/packages/template-blank/src/Root.tsx",
+				"$TURBO_ROOT$/packages/template-blank/src/index.ts",
+				"$TURBO_ROOT$/packages/template-blank/tsconfig.json"
+			],
+			"outputs": [],
+			"outputLogs": "new-only"
+		},
+		"@remotion/renderer#test": {
+			"dependsOn": [
+				"^make",
+				"make",
+				"@remotion/lambda#make",
+				"@remotion/it-tests#test",
+				"@remotion/example#bundle"
+			],
+			"outputs": [],
+			"outputLogs": "new-only"
+		},
+		"lint": {
+			"dependsOn": [
+				"@remotion/eslint-config-internal#make",
+				"@remotion/eslint-config#make",
+				"^make"
+			],
+			"outputs": [],
+			"outputLogs": "new-only"
+		},
+		"@remotion/google-fonts#make": {
+			"outputs": ["src", ".cache-css", "dist"],
+			"dependsOn": ["^make"],
+			"outputLogs": "new-only"
+		},
+		"@remotion/fig-autocomplete#make": {
+			"outputs": ["src"],
+			"dependsOn": ["^make"],
+			"outputLogs": "new-only"
+		},
+		"@remotion/cloudrun#make": {
+			"dependsOn": ["^make"],
+			"outputs": ["dist", "container/dist", "gcpInstaller/gcpInstaller.tar"],
+			"outputLogs": "new-only"
+		},
+		"@remotion/compositor#make": {
+			"outputs": ["target/debug/build", "target/release/build"],
+			"outputLogs": "new-only"
+		},
+		"@remotion/it-tests#test": {
+			"dependsOn": [
+				"^make",
+				"@remotion/studio#make",
+				"@remotion/example#bundle"
+			],
+			"outputLogs": "new-only"
+		},
+		"@remotion/convert#build-page": {
+			"dependsOn": ["make", "^make"],
+			"outputs": ["build", ".vercel"],
+			"outputLogs": "new-only"
+		},
+		"@remotion/convert#build-spa": {
+			"dependsOn": ["make", "^make"],
+			"outputs": ["spa-dist"],
+			"outputLogs": "new-only"
+		},
+		"@remotion/brand#bundle": {
+			"dependsOn": ["^make"],
+			"inputs": [
+				"src/**",
+				"public/**",
+				"remotion.config.*",
+				"package.json",
+				"tsconfig.json"
+			],
+			"outputs": ["build"],
+			"outputLogs": "new-only"
+		}
+	}
+}

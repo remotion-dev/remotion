@@ -1,0 +1,48 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"noEmit": true,
+		"module": "ESNext",
+		"moduleResolution": "node"
+	},
+	"references": [
+		{
+			"path": "../babel-loader"
+		},
+		{
+			"path": "../bundler"
+		},
+		{
+			"path": "../core"
+		},
+		{
+			"path": "../create-video"
+		},
+		{
+			"path": "../enable-scss"
+		},
+		{
+			"path": "../lambda"
+		},
+		{
+			"path": "../renderer"
+		},
+		{
+			"path": "../install-whisper-cpp"
+		},
+		{
+			"path": "../captions"
+		},
+		{
+			"path": "../studio-shared"
+		},
+		{
+			"path": "../tailwind"
+		},
+		{
+			"path": "../cli"
+		}
+	],
+	"exclude": ["download-whisper.ts"]
+}

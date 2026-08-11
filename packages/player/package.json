@@ -1,0 +1,67 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/player"
+	},
+	"name": "@remotion/player",
+	"version": "4.0.508",
+	"description": "React component for embedding a Remotion preview into your app",
+	"main": "dist/cjs/index.js",
+	"types": "dist/cjs/index.d.ts",
+	"module": "dist/esm/index.mjs",
+	"scripts": {
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"lint": "eslint src",
+		"make": "tsgo -d && bun ensure-correct-version.ts && bun --env-file=../.env.bundle bundle.ts",
+		"test": "bun test src",
+		"prerelease": "cp ../../README.md . && cp ../../LICENSE.md ."
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/cjs/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/cjs/index.js"
+		}
+	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"maintainers": [
+		"Jonny Burger <jonny@remotion.dev>",
+		"Shankhadeep Dey <shankhadeepdey99@gmail.com>"
+	],
+	"license": "SEE LICENSE IN LICENSE.md",
+	"dependencies": {
+		"remotion": "workspace:*"
+	},
+	"peerDependencies": {
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
+	},
+	"devDependencies": {
+		"@testing-library/react": "16.1.0",
+		"@happy-dom/global-registrator": "14.5.1",
+		"csstype": "3.2.3",
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"webpack": "5.105.0",
+		"zod": "catalog:",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "catalog:",
+		"@typescript/native-preview": "catalog:"
+	},
+	"keywords": [
+		"remotion",
+		"ffmpeg",
+		"video",
+		"react",
+		"player"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"homepage": "https://www.remotion.dev/docs/player"
+}

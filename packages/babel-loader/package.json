@@ -1,0 +1,54 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/babel-loader"
+	},
+	"name": "@remotion/babel-loader",
+	"version": "4.0.508",
+	"description": "Babel loader for Remotion",
+	"main": "dist/index.js",
+	"scripts": {
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"lint": "eslint src",
+		"make": "tsgo -d"
+	},
+	"files": [
+		"dist"
+	],
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "SEE LICENSE IN LICENSE.md",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"dependencies": {
+		"@babel/core": "7.29.6",
+		"@babel/plugin-proposal-class-properties": "7.14.5",
+		"@babel/preset-env": "7.23.2",
+		"@babel/preset-react": "7.14.5",
+		"@babel/preset-typescript": "7.23.2",
+		"babel-loader": "8.2.2",
+		"react-refresh": "0.18.0",
+		"webpack": "5.105.0"
+	},
+	"devDependencies": {
+		"@remotion/bundler": "workspace:*",
+		"remotion": "workspace:*",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "catalog:",
+		"@typescript/native-preview": "catalog:"
+	},
+	"peerDependencies": {
+		"@remotion/bundler": "workspace:*"
+	},
+	"keywords": [
+		"remotion",
+		"ffmpeg",
+		"video",
+		"react",
+		"player"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"homepage": "https://www.remotion.dev/docs/legacy-babel"
+}

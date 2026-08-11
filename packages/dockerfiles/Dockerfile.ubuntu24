@@ -1,0 +1,41 @@
+FROM ubuntu:24.04
+
+RUN apt-get update
+RUN apt-get install git curl make unzip -y
+RUN curl -fsSL https://raw.githubusercontent.com/tj/n/master/bin/n | bash -s 20
+RUN curl -fsSL https://bun.com/install | bash && ln -s /root/.bun/bin/bun /usr/local/bin/bun
+WORKDIR /usr/app
+
+# Install the local @remotion/cli build (with our renderer flag changes)
+# from the workspace tarballs packed by run.sh.
+COPY tarballs/ /usr/app/tarballs/
+COPY local-cli-package.json /usr/app/package.json
+RUN bun install
+ENV PATH="/usr/app/node_modules/.bin:$PATH"
+
+RUN apt install -y \
+  libnss3 \
+  libdbus-1-3 \
+  libatk1.0-0 \
+  libasound2t64 \
+  libxrandr2 \
+  libxkbcommon-dev \
+  libxfixes3 \
+  libxcomposite1 \
+  libxdamage1 \
+  libgbm-dev \
+  libcups2 \
+  libcairo2 \
+  libpango-1.0-0 \
+  libatk-bridge2.0-0
+
+COPY ensure-browser.mjs .
+COPY ensure.mjs .
+RUN node ensure.mjs
+
+# Copy the pre-built bundle
+COPY bundle/ /usr/app/bundle/
+
+RUN remotion compositions /usr/app/bundle
+RUN remotion render /usr/app/bundle browser-test /usr/app/out.mp4 --log=verbose
+RUN remotion render /usr/app/bundle html-in-canvas /usr/app/out-html-in-canvas.mp4 --log=verbose

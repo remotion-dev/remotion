@@ -1,0 +1,46 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/create-video"
+	},
+	"name": "create-video",
+	"version": "4.0.508",
+	"description": "Create a new Remotion project",
+	"main": "dist/index.js",
+	"bin": {
+		"create-video": "bin.js"
+	},
+	"scripts": {
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"lint": "eslint src",
+		"test": "bun test src",
+		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "SEE LICENSE IN LICENSE.md",
+	"dependencies": {
+		"chalk": "4.1.2",
+		"execa": "5.1.1",
+		"minimist": "1.2.6",
+		"prompts": "2.4.2",
+		"tar": "7.5.21"
+	},
+	"devDependencies": {
+		"@types/minimist": "1.2.2",
+		"@types/prompts": "2.4.9",
+		"react": "catalog:",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "catalog:",
+		"@typescript/native-preview": "catalog:"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/index.js"
+		}
+	},
+	"homepage": "https://remotion.dev/templates"
+}

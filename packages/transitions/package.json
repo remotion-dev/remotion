@@ -1,0 +1,236 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/transitions"
+	},
+	"name": "@remotion/transitions",
+	"version": "4.0.508",
+	"description": "Library for creating transitions in Remotion",
+	"main": "dist/esm/index.mjs",
+	"module": "dist/esm/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"test": "bun test src",
+		"lint": "eslint src",
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
+	},
+	"author": "Jonny Burger",
+	"contributors": [],
+	"license": "UNLICENSED",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"dependencies": {
+		"remotion": "workspace:*",
+		"@remotion/shapes": "workspace:*",
+		"@remotion/paths": "workspace:*"
+	},
+	"devDependencies": {
+		"@happy-dom/global-registrator": "14.5.1",
+		"remotion": "workspace:*",
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"@remotion/test-utils": "workspace:*",
+		"@remotion/player": "workspace:*",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "catalog:",
+		"@typescript/native-preview": "catalog:"
+	},
+	"peerDependencies": {
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
+	},
+	"keywords": [
+		"remotion",
+		"transitions"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/index.js"
+		},
+		"./fade": {
+			"types": "./dist/presentations/fade.d.ts",
+			"module": "./dist/esm/fade.mjs",
+			"import": "./dist/esm/fade.mjs",
+			"require": "./dist/presentations/fade.js"
+		},
+		"./slide": {
+			"types": "./dist/presentations/slide.d.ts",
+			"module": "./dist/esm/slide.mjs",
+			"import": "./dist/esm/slide.mjs",
+			"require": "./dist/presentations/slide.js"
+		},
+		"./wipe": {
+			"types": "./dist/presentations/wipe.d.ts",
+			"module": "./dist/esm/wipe.mjs",
+			"import": "./dist/esm/wipe.mjs",
+			"require": "./dist/presentations/wipe.js"
+		},
+		"./flip": {
+			"types": "./dist/presentations/flip.d.ts",
+			"module": "./dist/esm/flip.mjs",
+			"import": "./dist/esm/flip.mjs",
+			"require": "./dist/presentations/flip.js"
+		},
+		"./clock-wipe": {
+			"types": "./dist/presentations/clock-wipe.d.ts",
+			"module": "./dist/esm/clock-wipe.mjs",
+			"import": "./dist/esm/clock-wipe.mjs",
+			"require": "./dist/presentations/clock-wipe.js"
+		},
+		"./book-flip": {
+			"types": "./dist/presentations/book-flip.d.ts",
+			"module": "./dist/esm/book-flip.mjs",
+			"import": "./dist/esm/book-flip.mjs",
+			"require": "./dist/presentations/book-flip.js"
+		},
+		"./zoom-blur": {
+			"types": "./dist/presentations/zoom-blur.d.ts",
+			"module": "./dist/esm/zoom-blur.mjs",
+			"import": "./dist/esm/zoom-blur.mjs",
+			"require": "./dist/presentations/zoom-blur.js"
+		},
+		"./dreamy-zoom": {
+			"types": "./dist/presentations/dreamy-zoom.d.ts",
+			"module": "./dist/esm/dreamy-zoom.mjs",
+			"import": "./dist/esm/dreamy-zoom.mjs",
+			"require": "./dist/presentations/dreamy-zoom.js"
+		},
+		"./film-burn": {
+			"types": "./dist/presentations/film-burn.d.ts",
+			"module": "./dist/esm/film-burn.mjs",
+			"import": "./dist/esm/film-burn.mjs",
+			"require": "./dist/presentations/film-burn.js"
+		},
+		"./linear-blur": {
+			"types": "./dist/presentations/linear-blur.d.ts",
+			"module": "./dist/esm/linear-blur.mjs",
+			"import": "./dist/esm/linear-blur.mjs",
+			"require": "./dist/presentations/linear-blur.js"
+		},
+		"./zoom-in-out": {
+			"types": "./dist/presentations/zoom-in-out.d.ts",
+			"module": "./dist/esm/zoom-in-out.mjs",
+			"import": "./dist/esm/zoom-in-out.mjs",
+			"require": "./dist/presentations/zoom-in-out.js"
+		},
+		"./none": {
+			"types": "./dist/presentations/none.d.ts",
+			"module": "./dist/esm/none.mjs",
+			"import": "./dist/esm/none.mjs",
+			"require": "./dist/presentations/none.js"
+		},
+		"./iris": {
+			"types": "./dist/presentations/iris.d.ts",
+			"module": "./dist/esm/iris.mjs",
+			"import": "./dist/esm/iris.mjs",
+			"require": "./dist/presentations/iris.js"
+		},
+		"./dissolve": {
+			"types": "./dist/presentations/dissolve.d.ts",
+			"module": "./dist/esm/dissolve.mjs",
+			"import": "./dist/esm/dissolve.mjs",
+			"require": "./dist/presentations/dissolve.js"
+		},
+		"./ripple": {
+			"types": "./dist/presentations/ripple.d.ts",
+			"module": "./dist/esm/ripple.mjs",
+			"import": "./dist/esm/ripple.mjs",
+			"require": "./dist/presentations/ripple.js"
+		},
+		"./crosswarp": {
+			"types": "./dist/presentations/crosswarp.d.ts",
+			"module": "./dist/esm/crosswarp.mjs",
+			"import": "./dist/esm/crosswarp.mjs",
+			"require": "./dist/presentations/crosswarp.js"
+		},
+		"./cross-zoom": {
+			"types": "./dist/presentations/cross-zoom.d.ts",
+			"module": "./dist/esm/cross-zoom.mjs",
+			"import": "./dist/esm/cross-zoom.mjs",
+			"require": "./dist/presentations/cross-zoom.js"
+		},
+		"./swap": {
+			"types": "./dist/presentations/swap.d.ts",
+			"module": "./dist/esm/swap.mjs",
+			"import": "./dist/esm/swap.mjs",
+			"require": "./dist/presentations/swap.js"
+		},
+		"./push-cut": {
+			"types": "./dist/presentations/push-cut.d.ts",
+			"module": "./dist/esm/push-cut.mjs",
+			"import": "./dist/esm/push-cut.mjs",
+			"require": "./dist/presentations/push-cut.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"typesVersions": {
+		">=1.0": {
+			"wipe": [
+				"dist/presentations/wipe.d.ts"
+			],
+			"slide": [
+				"dist/presentations/slide.d.ts"
+			],
+			"flip": [
+				"dist/presentations/flip.d.ts"
+			],
+			"fade": [
+				"dist/presentations/fade.d.ts"
+			],
+			"none": [
+				"dist/presentations/none.d.ts"
+			],
+			"clock-wipe": [
+				"dist/presentations/clock-wipe.d.ts"
+			],
+			"book-flip": [
+				"dist/presentations/book-flip.d.ts"
+			],
+			"iris": [
+				"dist/presentations/iris.d.ts"
+			],
+			"zoom-blur": [
+				"dist/presentations/zoom-blur.d.ts"
+			],
+			"dreamy-zoom": [
+				"dist/presentations/dreamy-zoom.d.ts"
+			],
+			"film-burn": [
+				"dist/presentations/film-burn.d.ts"
+			],
+			"linear-blur": [
+				"dist/presentations/linear-blur.d.ts"
+			],
+			"zoom-in-out": [
+				"dist/presentations/zoom-in-out.d.ts"
+			],
+			"dissolve": [
+				"dist/presentations/dissolve.d.ts"
+			],
+			"ripple": [
+				"dist/presentations/ripple.d.ts"
+			],
+			"crosswarp": [
+				"dist/presentations/crosswarp.d.ts"
+			],
+			"cross-zoom": [
+				"dist/presentations/cross-zoom.d.ts"
+			],
+			"swap": [
+				"dist/presentations/swap.d.ts"
+			],
+			"push-cut": [
+				"dist/presentations/push-cut.d.ts"
+			]
+		}
+	},
+	"homepage": "https://www.remotion.dev/transitions"
+}

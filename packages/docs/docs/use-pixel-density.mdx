@@ -1,0 +1,46 @@
+---
+image: /generated/articles-docs-use-pixel-density.png
+title: usePixelDensity()
+id: use-pixel-density
+crumb: 'API'
+---
+
+# usePixelDensity()<AvailableFrom v="4.0.472" />
+
+Returns the pixel density factor for the current Remotion render or preview.
+
+During preview, this is `window.devicePixelRatio`. During rendering, this is the [`scale`](/docs/scaling) option.
+
+```tsx twoslash title="MyComp.tsx"
+import {usePixelDensity} from 'remotion';
+
+export const MyComp = () => {
+  const pixelDensity = usePixelDensity();
+
+  return <div>Pixel density: {pixelDensity}</div>;
+};
+```
+
+If the hook is called outside a Remotion context, it throws an error. To return the browser pixel density outside of Remotion, pass `dontThrowIfOutsideOfRemotion: true`. In environments without `window.devicePixelRatio`, the hook returns `1`.
+
+```tsx twoslash title="MyRegularReactComponent.tsx"
+import {usePixelDensity} from 'remotion';
+
+export const MyRegularReactComponent = () => {
+  const pixelDensity = usePixelDensity({
+    dontThrowIfOutsideOfRemotion: true,
+  });
+
+  return <div>Pixel density: {pixelDensity}</div>;
+};
+```
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/use-pixel-density.ts)
+- [Scaling](/docs/scaling)
+- [`useCurrentScale()`](/docs/use-current-scale)

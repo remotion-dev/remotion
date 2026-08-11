@@ -1,0 +1,231 @@
+import type {
+	AudioCodec,
+	ChromeMode,
+	Codec,
+	ColorSpace,
+	LogLevel,
+	OpenGlRenderer,
+	PixelFormat,
+	StillImageFormat,
+	VideoImageFormat,
+	X264Preset,
+} from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
+import type {PackageManager, RenderDefaults} from '@remotion/studio-shared';
+import type {
+	RenderStillOnWebImageFormat,
+	WebRendererAudioCodec,
+	WebRendererContainer,
+	WebRendererHardwareAcceleration,
+	WebRendererPageResponsiveness,
+	WebRendererQuality,
+	WebRendererVideoCodec,
+} from '@remotion/web-renderer';
+import type React from 'react';
+import {createContext} from 'react';
+import type {SequencePropsSubscriptionKey, _InternalTypes} from 'remotion';
+import type {StaticFile} from '../api/get-static-files';
+import type {CompType} from '../components/NewComposition/DuplicateComposition';
+import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
+import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
+import type {Bug, UpdateInfo} from '../components/UpdateCheck';
+
+export type WebRenderModalState = {
+	type: 'web-render';
+	initialFrame: number;
+	compositionId: string;
+	defaultProps: Record<string, unknown>;
+	inFrameMark: number | null;
+	outFrameMark: number | null;
+	initialLogLevel: LogLevel;
+	initialStillImageFormat: RenderStillOnWebImageFormat;
+	initialScale: number;
+	initialDelayRenderTimeout: number;
+	initialDefaultOutName: string | null;
+	initialContainer: WebRendererContainer | null;
+	initialVideoCodec: WebRendererVideoCodec | null;
+	initialAudioCodec: WebRendererAudioCodec | null;
+	initialAudioBitrate: WebRendererQuality | null;
+	initialVideoBitrate: WebRendererQuality | null;
+	initialHardwareAcceleration: WebRendererHardwareAcceleration | null;
+	initialKeyframeIntervalInSeconds: number | null;
+	initialTransparent: boolean | null;
+	initialMuted: boolean | null;
+	initialMediaCacheSizeInBytes: number | null;
+	initialPageResponsiveness: WebRendererPageResponsiveness;
+};
+
+export type RenderModalState = {
+	type: 'server-render';
+	readOnlyStudio: boolean;
+	compositionId: string;
+	initialFrame: number;
+	initialStillImageFormat: StillImageFormat;
+	initialVideoImageFormat: VideoImageFormat | null;
+	initialJpegQuality: number;
+	initialScale: number;
+	initialLogLevel: LogLevel;
+	initialConcurrency: number;
+	initialMuted: boolean;
+	initialEnforceAudioTrack: boolean;
+	initialProResProfile: _InternalTypes['ProResProfile'] | null;
+	initialx264Preset: X264Preset;
+	initialGopSize: number | null;
+	initialPixelFormat: PixelFormat | null;
+	initialVideoBitrate: string | null;
+	initialAudioBitrate: string | null;
+	initialEveryNthFrame: number;
+	initialNumberOfGifLoops: number | null;
+	initialDelayRenderTimeout: number;
+	initialEnvVariables: Record<string, string>;
+	initialDisableWebSecurity: boolean;
+	initialOpenGlRenderer: OpenGlRenderer | null;
+	initialIgnoreCertificateErrors: boolean;
+	initialHeadless: boolean;
+	initialDarkMode: boolean;
+	initialMediaCacheSizeInBytes: number | null;
+	initialOffthreadVideoCacheSizeInBytes: number | null;
+	initialOffthreadVideoThreads: number | null;
+	initialColorSpace: ColorSpace;
+	initialMultiProcessOnLinux: boolean;
+	initialUserAgent: string | null;
+	initialEncodingMaxRate: string | null;
+	initialEncodingBufferSize: string | null;
+	initialForSeamlessAacConcatenation: boolean;
+	initialHardwareAcceleration: HardwareAccelerationOption;
+	initialSampleRate: number;
+	initialBeep: boolean;
+	initialRepro: boolean;
+	initialChromeMode: ChromeMode;
+	minConcurrency: number;
+	maxConcurrency: number;
+	defaultProps: Record<string, unknown>;
+	inFrameMark: number | null;
+	outFrameMark: number | null;
+	defaultConfigurationVideoCodec: Codec;
+	defaultConfigurationAudioCodec: AudioCodec | null;
+	renderTypeOfLastRender: RenderType | null;
+	defaulMetadata: Record<string, string> | null;
+	renderDefaults: RenderDefaults;
+};
+
+export type ConfirmationDialogState = {
+	type: 'confirmation-dialog';
+	id: string;
+	title: string;
+	message: React.ReactNode;
+	confirmLabel: string;
+	cancelLabel: string;
+	onConfirm: () => void;
+	onCancel: () => void;
+};
+
+export type SvgImportDialogState = {
+	type: 'svg-import-dialog';
+	id: string;
+	onImage: () => void;
+	onInline: () => void;
+	onDismiss: () => void;
+};
+
+export type AddEffectModalState = {
+	type: 'add-effect';
+	fileName: string;
+	nodePath: SequencePropsSubscriptionKey;
+	clientId: string;
+};
+
+export type ModalState =
+	| {
+			type: 'new-comp';
+			folderName: string | null;
+			parentName: string | null;
+			stack: string | null;
+	  }
+	| {
+			type: 'new-folder';
+			parentName: string | null;
+			stack: string | null;
+	  }
+	| {
+			type: 'duplicate-comp';
+			compositionId: string;
+			compositionType: CompType;
+	  }
+	| {
+			type: 'delete-comp';
+			compositionId: string;
+	  }
+	| {
+			type: 'rename-comp';
+			compositionId: string;
+	  }
+	| {
+			type: 'delete-folder';
+			folderName: string;
+			parentName: string | null;
+			stack: string | null;
+	  }
+	| {
+			type: 'rename-folder';
+			folderName: string;
+			parentName: string | null;
+			stack: string | null;
+	  }
+	| {
+			type: 'rename-static-file';
+			relativePath: string;
+	  }
+	| {
+			type: 'input-props-override';
+	  }
+	| {
+			type: 'settings';
+			initialTab: 'apps' | 'license';
+			initialPublicLicenseKey: string | null;
+	  }
+	| RenderModalState
+	| WebRenderModalState
+	| {
+			type: 'render-progress';
+			jobId: string;
+	  }
+	| {
+			type: 'update';
+			info: UpdateInfo;
+			knownBugs: Bug[];
+	  }
+	| {
+			type: 'install-packages';
+			packageManager: PackageManager;
+	  }
+	| {
+			type: 'quick-switcher';
+			mode: QuickSwitcherMode;
+			invocationTimestamp: number;
+			assetSelection: {
+				initialQuery: string;
+				onSelectFile: () => void;
+				onSelected: (asset: StaticFile) => void;
+			} | null;
+			compositionSelection: {
+				excludeCompositionId: string;
+				onSelected: (composition: _InternalTypes['AnyComposition']) => void;
+			} | null;
+	  }
+	| AddEffectModalState
+	| ConfirmationDialogState
+	| SvgImportDialogState;
+
+export type SetSelectedModalContextType = {
+	setSelectedModal: React.Dispatch<React.SetStateAction<ModalState | null>>;
+};
+
+// Keep modal state separate from its stable setter so opening a modal only
+// updates consumers that need to render the selected modal.
+export const SelectedModalContext = createContext<ModalState | null>(null);
+
+export const SetSelectedModalContext =
+	createContext<SetSelectedModalContextType>({
+		setSelectedModal: () => undefined,
+	});

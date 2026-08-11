@@ -1,0 +1,50 @@
+---
+image: /generated/articles-docs-client-side-rendering-migration.png
+sidebar_label: Migration
+title: Migrating code to client-side rendering
+crumb: 'FAQ'
+---
+
+We try to support as much code that was written for [server-side rendering](/docs/ssr) as possible.  
+Some code is unsupported or may need changing.
+
+Follow these steps when adapting an existing Remotion project for [client-side rendering](/docs/client-side-rendering).
+
+## Use `useRemotionEnvironment()` instead of `getRemotionEnvironment()`
+
+[`getRemotionEnvironment()`](/docs/get-remotion-environment) is a global API that may conflict with other Remotion instances in your project, such as when you have a [`<Player>`](/docs/player) mounted on the same page.
+
+Start using the [`useRemotionEnvironment()`](/docs/use-remotion-environment) hook instead.
+
+## Use `useDelayRender()` instead of `delayRender()`, `continueRender()` and `cancelRender()`
+
+If you have multiple renders at the same time or another instance of Remotion on the same page, such as a `<Player>`, the [`delayRender()`](/docs/delay-render), [`continueRender()`](/docs/continue-render) and [`cancelRender()`](/docs/cancel-render) functions may conflict.
+
+Start using the [`useDelayRender()`](/docs/use-delay-render) hook instead, which scopes these functions to a composition.
+
+## Ensure assets are available via CORS
+
+Unlike server-side rendering, where video and audio assets are downloaded in a Node.js process, and where images can be captured even if they are [tainted](https://developer.mozilla.org/en-US/docs/Web/HTML/How_to/CORS_enabled_image#security_and_tainted_canvases), in client-side rendering, CORS is enforced and images and canvas may not be tainted.
+
+### Common error messages
+
+If you use an image that doesn't support CORS, you'll see an error like:
+
+```
+Could not draw image with src="https://example.com/image.png" to canvas:
+The image is tainted due to CORS restrictions.
+The server hosting this image must respond with the "Access-Control-Allow-Origin" header.
+```
+
+If an image fails to load entirely (e.g., 404 error, invalid URL), you'll see:
+
+```
+Could not draw image with src="https://example.com/image.png" to canvas:
+The image is in a broken state.
+This usually means the image failed to load - check that the URL is valid and accessible.
+```
+
+## Use `@remotion/media`
+
+The only video and audio tags that are supported are [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from `@remotion/media`.  
+Migrate any `Html5Video`, `Html5Audio` and `<OffthreadVideo>` tags to [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio).

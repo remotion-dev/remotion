@@ -1,0 +1,36 @@
+---
+image: /generated/articles-docs-figma.png
+id: figma
+title: Import from Figma
+crumb: 'The best of both'
+---
+
+# Import from Figma<AvailableFrom v="4.0.495" />
+
+There are two ways to import layers from Figma into Remotion Studio.
+
+## Copy as SVG
+
+This is the more reliable method. Right-click a layer and select **Copy/Paste as** → **Copy as SVG**.
+
+![Copying a layer as SVG in Figma](/img/export-figma/copy-as-svg.png)
+
+Paste the copied layer into Remotion Studio.
+
+## Copy layer directly
+
+You can also copy a layer directly and paste it into Remotion Studio.
+
+Only some layer types are supported. Images are a notable exclusion.
+
+## Copy into code
+
+You can also copy SVG into Remotion markup.
+
+Copy SVG as described above and run it through an [SVG to JSX converter](https://react-svgr.com/playground/). Then paste the result into the React markup that powers your Remotion video.
+
+## See also
+
+- [Blog - SVG Animation with Remotion](https://meje.dev/blog/svg-animtion-with-remotion)
+- [Video - Animating Figma Mockups with Remotion](https://twitter.com/jnybgr/status/1496748768821133312)
+- [Locofy - Export Figma mockups as React components](https://www.locofy.ai)

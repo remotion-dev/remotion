@@ -1,0 +1,121 @@
+---
+image: /generated/articles-docs-ssr.png
+id: ssr
+title: Server-Side Rendering
+crumb: 'The power of'
+sidebar_label: Overview
+---
+
+import {TableOfContents} from './renderer/TableOfContents';
+
+Remotion's rendering engine is built with Node.JS, which makes it easy to render a video in the cloud.
+
+See the [Comparison of SSR options](/docs/compare-ssr) to help you decide which option is best for you.
+
+## Render a video on AWS Lambda
+
+The fastest way to render videos in the cloud is to use [`@remotion/lambda`](/docs/lambda).
+
+## Render using Vercel Sandbox
+
+The easiest way, especially for Vercel customers is to use [Vercel Sandbox](/docs/vercel-sandbox).
+
+## Render a video using Node.js APIs
+
+We provide a set of APIs to render videos using Node.js and Bun.  
+See an [example](/docs/ssr-node) or the [API reference](/docs/renderer) for more information.
+
+## Render using GitHub Actions
+
+You can render a video on GitHub actions. The following workflow assumes a composition ID of `MyComp`
+
+```yaml
+name: Render video
+on:
+  workflow_dispatch:
+jobs:
+  render:
+    name: Render video
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+      - uses: actions/setup-node@main
+      - run: npm i
+      - run: npx remotion render MyComp out/video.mp4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: out.mp4
+          path: out/video.mp4
+```
+
+### With input props
+
+If you have props, you can ask for them using the GitHub Actions input fields.  
+Here we assume a shape of `{titleText: string; titleColor: string}`.
+
+```yaml
+name: Render video
+on:
+  workflow_dispatch:
+    inputs:
+      titleText:
+        description: 'Which text should it say?'
+        required: true
+        default: 'Welcome to Remotion'
+      titleColor:
+        description: 'Which color should it be in?'
+        required: true
+        default: 'black'
+jobs:
+  render:
+    name: Render video
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+      - uses: actions/setup-node@main
+      - run: npm i
+      - run: echo $WORKFLOW_INPUT > input-props.json
+        env:
+          WORKFLOW_INPUT: ${{ toJson(github.event.inputs) }}
+      - run: npx remotion render MyComp out/video.mp4 --props="./input-props.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: out.mp4
+          path: out/video.mp4
+```
+
+<Step>1</Step> Commit the template to a GitHub repository.  
+<Step>2</Step> On GitHub, click the <code>Actions</code> tab.  
+<Step>3</Step> Select the <code>Render video</code> workflow on the left.  
+<Step>4</Step> A <code>Run workflow</code> button should appear. Click it.  
+<Step>5</Step> Fill in the props of the root component and click <code>Run workflow</code>.<br />
+<Step>6</Step> After the rendering is finished, you can download the video under <code>Artifacts</code>.<br />
+
+Note that running the workflow may incur costs. However, the workflow will only run if you actively trigger it.
+
+See also: [Passing input props in GitHub Actions](/docs/passing-props#passing-input-props-in-github-actions)
+
+## Render a video using Docker
+
+See: [Dockerizing a Remotion project](/docs/docker)
+
+## Deploy to a cloud platform
+
+The following guides show how to deploy a Remotion rendering service using the [Node.js/Bun APIs](/docs/renderer) on various cloud platforms:
+
+- [Azure Container Apps](/docs/azure-container-apps) <br/>
+- [Cloudflare Containers](/docs/cloudflare-containers) <br/>
+
+## Render a video using GCP Cloud Run (Alpha)
+
+Check out the experimental [Cloud Run](/docs/cloudrun) package.  
+Note: It not actively being developed - our plan is to port the Lambda runtime to Cloud Run instead of maintaining a separate implementation.
+
+## Telemetry
+
+Server-side rendering APIs only send telemetry when the `licenseKey` option is set.  
+See [Telemetry](/docs/telemetry) for which information is sent and how to set a license key.
+
+## API reference
+
+<TableOfContents />

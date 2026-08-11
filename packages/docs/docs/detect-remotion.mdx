@@ -1,0 +1,29 @@
+---
+image: /generated/articles-docs-detect-remotion.png
+title: Detect if a video was made with Remotion
+sidebar_label: Detect Remotion
+crumb: 'Techniques'
+---
+
+To check whether somebody used Remotion to generate a video:
+
+## Check video metadata
+
+Drag the video into [remotion.dev/convert](https://www.remotion.dev/convert) and inspect the metadata in the left panel.  
+If the video was generated with Remotion, it will include metadata such as `Made with Remotion 4.0.372`.
+
+Alternatively, you can use `ffprobe` in the command line:
+
+```bash
+ffprobe your_video.mp4
+```
+
+The output will include a line like `comment=Made with Remotion 4.0.372`.
+
+## Look for the Remotion Player icon
+
+On a website that uses the Remotion Player, the Play button is rounded like the Remotion logo, unless the controls are disabled or the play button was customized.
+
+## Check for Remotion in the DevTools
+
+Open the DevTools and check if the variable `window.remotion_imported` is defined.

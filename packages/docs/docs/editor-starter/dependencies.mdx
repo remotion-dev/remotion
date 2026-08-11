@@ -1,0 +1,74 @@
+---
+image: /generated/articles-docs-editor-starter-dependencies.png
+title: Dependencies of the Editor Starter
+sidebar_label: Dependencies
+crumb: Editor Starter
+---
+
+The Editor Starter is built in [React 19](https://react.dev/) and [Remotion](https://www.remotion.dev/).  
+The reference implementation is built in [React Router v7](https://reactrouter.com/) with the goal of being easily portable to other frameworks.  
+[Tailwind CSS v4](https://tailwindcss.com/) is used for styling.
+
+## Captions
+
+OpenAI's [Audio API](https://platform.openai.com/docs/guides/speech-to-text) is used for captioning.  
+Captioning is optional, but it is enabled by default and an OpenAI API key is required to use it.
+
+## Asset uploads
+
+[Assets are uploaded by default to AWS S3](/docs/editor-starter/asset-uploads).  
+This means that in order for asset uploads to work, an AWS account is required and AWS S3 needs to be set up.
+
+## Rendering
+
+[Remotion Lambda](/docs/editor-starter/rendering) is used for rendering by default. This requires an AWS account and AWS Lambda setup.
+
+Alternatively, you can enable [client-side rendering](/docs/editor-starter/client-side-rendering), which does not require AWS Lambda.
+
+## Google Fonts
+
+Fonts are loaded from [Google Fonts](https://fonts.google.com/). No API key is required for this.
+
+## NPM packages
+
+import {VERSION} from 'remotion/version';
+
+The following NPM packages are used in the Editor Starter:
+
+```json
+{
+  "@aws-sdk/s3-request-presigner": "^3.1094.0",
+  "@radix-ui/react-context-menu": "^2.3.5",
+  "@radix-ui/react-popover": "^1.1.21",
+  "@radix-ui/react-select": "^2.3.5",
+  "@react-router/node": "^7.18.1",
+  "@react-router/serve": "^7.18.1",
+  "@remotion/captions": "4.0.499",
+  "@remotion/cli": "4.0.499",
+  "@remotion/gif": "4.0.499",
+  "@remotion/google-fonts": "4.0.499",
+  "@remotion/lambda": "4.0.499",
+  "@remotion/layout-utils": "4.0.499",
+  "@remotion/media": "4.0.499",
+  "@remotion/openai-whisper": "4.0.499",
+  "@remotion/player": "4.0.499",
+  "@remotion/rounded-text-box": "4.0.499",
+  "@remotion/shapes": "4.0.499",
+  "@remotion/web-renderer": "4.0.499",
+  "@tanstack/react-virtual": "^3.14.8",
+  "@vercel/react-router": "^1.3.1",
+  "isbot": "^5.2.1",
+  "mediabunny": "1.50.8",
+  "openai": "^6.49.0",
+  "react": "^19.2.8",
+  "react-dom": "^19.2.8",
+  "react-router": "^7.18.1",
+  "remotion": "4.0.499",
+  "sonner": "^2.0.7",
+  "zod": "4.4.3"
+}
+```
+
+It's always recommended to use the latest version of Remotion packages. Currently it is: <a href="https://remotion.dev/changelog"><code>{VERSION}</code></a>.
+
+Run `npx remotion upgrade` to upgrade to the latest version.

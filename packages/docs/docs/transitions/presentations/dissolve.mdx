@@ -1,0 +1,122 @@
+---
+image: /generated/articles-docs-transitions-presentations-dissolve.png
+crumb: '@remotion/transitions - Presentations'
+title: 'dissolve()'
+---
+
+# dissolve()<AvailableFrom v="4.0.465"/>
+
+A presentation that burns through the outgoing scene with a glowing edge, revealing the incoming scene where the burn has progressed past each pixel's luminance threshold.
+
+<Demo type="dissolve" />
+
+:::warning
+This presentation is built with [HTML-in-canvas](/docs/remotion/html-in-canvas) and requires [Google Chrome](https://www.google.com/chrome/) with `chrome://flags/#canvas-draw-element` enabled. It does not work in Firefox or Safari.
+:::
+
+## Example
+
+```tsx twoslash title="DissolveTransition.tsx"
+import {AbsoluteFill} from 'remotion';
+
+const Letter: React.FC<{
+  children: React.ReactNode;
+  color: string;
+}> = ({children, color}) => {
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: color,
+        opacity: 0.9,
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontSize: 200,
+        color: 'white',
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+// ---cut---
+import {linearTiming, TransitionSeries} from '@remotion/transitions';
+import {dissolve} from '@remotion/transitions/dissolve';
+
+const BasicTransition = () => {
+  return (
+    <TransitionSeries>
+      <TransitionSeries.Sequence durationInFrames={40}>
+        <Letter color="#0b84f3">A</Letter>
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Transition
+        presentation={dissolve({})}
+        timing={linearTiming({durationInFrames: 30})}
+      />
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <Letter color="pink">B</Letter>
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
+```
+
+## API
+
+Accepts an object with the following options:
+
+### `lineWidth?`
+
+The width of the glowing burn edge in luminance units. Larger values produce a wider transition region.
+
+Defaults to `0.1`.
+
+### `spreadColor?`
+
+The color of the outer, cooler edge of the burn as a `#rrggbb` hex string.
+
+Defaults to `'#ff0000'` (red).
+
+### `hotColor?`
+
+The color of the inner, hotter core of the burn as a `#rrggbb` hex string.
+
+Defaults to `'#e6e633'` (yellow).
+
+### `pow?`
+
+Exponent applied to the burn color to bias it towards bright highlights. Higher values darken the cooler areas while keeping the hot core bright.
+
+Defaults to `5.0`.
+
+### `intensity?`
+
+Multiplier applied to the burn color after the power curve. Use values greater than `1` to make the edge glow more.
+
+Defaults to `1.0`.
+
+## Compatibility
+
+<CompatibilityTable
+  chrome
+  firefox={false}
+  safari={false}
+  nodejs
+  bun
+  serverlessFunctions
+  clientSideRendering
+  serverSideRendering
+  player
+  studio
+/>
+
+For Preview, Chrome with the `chrome://flags/#canvas-draw-element` flag enabled is required.
+
+## Credits
+
+The fragment shader is adapted from the [`dissolve`](https://gl-transitions.com/editor/dissolve) GL Transition by [hjm1fb](https://github.com/hjm1fb), licensed under MIT.
+
+## See also
+
+- [Source code for this presentation](https://github.com/remotion-dev/remotion/blob/main/packages/transitions/src/presentations/dissolve.tsx)
+- [HTML-in-canvas](/docs/client-side-rendering/html-in-canvas)
+- [Presentations](/docs/transitions/presentations)

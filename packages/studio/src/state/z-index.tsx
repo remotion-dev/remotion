@@ -1,0 +1,182 @@
+import React, {
+	createContext,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+} from 'react';
+import {startPointerSession} from '../helpers/pointer-session';
+import {useKeybinding} from '../helpers/use-keybinding';
+import {HighestZIndexContext} from './highest-z-index';
+import {getClickLock} from './input-dragger-click-lock';
+
+type ZIndex = {
+	currentIndex: number;
+};
+
+const ZIndexContext = createContext<ZIndex>({
+	currentIndex: 0,
+});
+
+const margin: React.CSSProperties = {
+	margin: 'auto',
+};
+
+const EscapeHook: React.FC<{
+	readonly onEscape: () => void;
+}> = ({onEscape}) => {
+	const keybindings = useKeybinding();
+
+	useEffect(() => {
+		const escape = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'Escape',
+			callback: onEscape,
+			commandCtrlKey: false,
+			preventDefault: true,
+			// To dismiss the Quick Switcher menu if input is focused
+			triggerIfInputFieldFocused: true,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+
+		return () => {
+			escape.unregister();
+		};
+	}, [keybindings, onEscape]);
+
+	return null;
+};
+
+export const HigherZIndex: React.FC<{
+	readonly onEscape: () => void;
+	readonly onOutsideClick: (target: Node) => void;
+	readonly children: React.ReactNode;
+	readonly disabled?: boolean;
+	readonly outsideClickButton?: 'any' | 'primary';
+	readonly stackOnHighest?: boolean;
+}> = ({
+	children,
+	onEscape,
+	onOutsideClick,
+	disabled,
+	outsideClickButton = 'any',
+	stackOnHighest = false,
+}) => {
+	const context = useContext(ZIndexContext);
+	const highestContext = useContext(HighestZIndexContext);
+	const containerRef = useRef<HTMLDivElement>(null);
+	const stackedIndex = useRef<number | null>(null);
+
+	if (disabled || !stackOnHighest) {
+		stackedIndex.current = null;
+	} else if (stackedIndex.current === null) {
+		stackedIndex.current =
+			Math.max(context.currentIndex, highestContext.highestIndex) + 1;
+	}
+
+	const currentIndex = disabled
+		? context.currentIndex
+		: (stackedIndex.current ?? context.currentIndex + 1);
+
+	useEffect(() => {
+		if (disabled) {
+			return;
+		}
+
+		highestContext.registerZIndex(currentIndex);
+		return () => highestContext.unregisterZIndex(currentIndex);
+	}, [currentIndex, highestContext, disabled]);
+
+	useEffect(() => {
+		if (disabled) {
+			return;
+		}
+
+		let endPointerSession: (() => void) | null = null;
+
+		const listener = (downEvent: PointerEvent) => {
+			if (outsideClickButton === 'primary' && downEvent.button !== 0) {
+				return;
+			}
+
+			const outsideClick = !containerRef.current?.contains(
+				downEvent.target as Node,
+			);
+			if (!outsideClick) {
+				return;
+			}
+
+			endPointerSession?.();
+			endPointerSession = startPointerSession({
+				event: downEvent,
+				target: downEvent.target as Element,
+				onEnd: (reason, upEvent) => {
+					endPointerSession = null;
+					if (
+						(reason === 'pointerup' || reason === 'buttons-released') &&
+						upEvent &&
+						highestContext.highestIndex === currentIndex &&
+						!getClickLock()
+					) {
+						const target =
+							document.elementFromPoint(upEvent.clientX, upEvent.clientY) ??
+							(upEvent.target as Element);
+						if (document.contains(target)) {
+							upEvent.stopPropagation();
+							onOutsideClick(target);
+						}
+					}
+				},
+			});
+		};
+
+		// The capture phase for the pointerdown that opened this layer has already
+		// passed, so installing the listener immediately cannot dismiss the new layer.
+		// Waiting for the next animation frame would leave a window in which a fast
+		// outside click is missed.
+		window.addEventListener('pointerdown', listener, true);
+		return () => {
+			endPointerSession?.();
+			endPointerSession = null;
+
+			return window.removeEventListener('pointerdown', listener, true);
+		};
+	}, [
+		currentIndex,
+		disabled,
+		highestContext.highestIndex,
+		onOutsideClick,
+		outsideClickButton,
+	]);
+
+	const value = useMemo((): ZIndex => {
+		return {
+			currentIndex,
+		};
+	}, [currentIndex]);
+
+	return (
+		<ZIndexContext.Provider value={value}>
+			{disabled ? null : <EscapeHook onEscape={onEscape} />}
+			<div ref={containerRef} style={margin}>
+				{children}
+			</div>
+		</ZIndexContext.Provider>
+	);
+};
+
+export const useZIndex = () => {
+	const context = useContext(ZIndexContext);
+	const highestContext = useContext(HighestZIndexContext);
+	const isHighestContext = highestContext.highestIndex === context.currentIndex;
+
+	return useMemo(
+		() => ({
+			currentZIndex: context.currentIndex,
+			highestZIndex: highestContext.highestIndex,
+			isHighestContext,
+			tabIndex: isHighestContext ? 0 : -1,
+		}),
+		[context.currentIndex, highestContext.highestIndex, isHighestContext],
+	);
+};

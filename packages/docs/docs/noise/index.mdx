@@ -1,0 +1,53 @@
+---
+image: /generated/articles-docs-noise-index.png
+title: '@remotion/noise'
+---
+
+<AvailableFrom v="3.2.32" />
+
+Utility functions that create a noise effect.
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import {TableOfContents} from './table-of-contents';
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'pnpm', value: 'pnpm', },
+{ label: 'yarn', value: 'yarn', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npm i @remotion/noise
+```
+
+  </TabItem>
+
+  <TabItem value="pnpm">
+
+```bash
+pnpm i @remotion/noise
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+yarn add @remotion/noise
+```
+
+  </TabItem>
+</Tabs>
+
+## Functions
+
+<TableOfContents />
+
+## License
+
+MIT

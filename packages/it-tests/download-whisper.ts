@@ -1,0 +1,33 @@
+import path from 'path';
+import {
+	downloadWhisperModel,
+	installWhisperCpp,
+	transcribe,
+} from '@remotion/install-whisper-cpp';
+
+const to = path.join(process.cwd(), 'whisper.cpp');
+
+await installWhisperCpp({
+	to,
+	version: '1.5.5',
+});
+
+await downloadWhisperModel({
+	model: 'medium.en',
+	folder: to,
+	onProgress: (downloadedBytes, totalBytes) => {
+		const progress = downloadedBytes / totalBytes;
+	},
+});
+
+const transcription = await transcribe({
+	inputPath: path.join(process.cwd(), 'totranscribe.wav'),
+	whisperPath: to,
+	whisperCppVersion: '1.5.5',
+	model: 'medium.en',
+	tokenLevelTimestamps: true,
+	printOutput: false,
+	onProgress: (progress) => {
+		console.log(progress);
+	},
+});

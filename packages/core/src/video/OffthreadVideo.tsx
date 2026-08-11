@@ -1,0 +1,216 @@
+import React, {useCallback} from 'react';
+import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
+import {Sequence} from '../Sequence.js';
+import {useRemotionEnvironment} from '../use-remotion-environment.js';
+import {resolveV5Default} from '../v5-flag.js';
+import {validateMediaProps} from '../validate-media-props.js';
+import {
+	resolveTrimProps,
+	validateMediaTrimProps,
+} from '../validate-start-from-props.js';
+import {OffthreadVideoForRendering} from './OffthreadVideoForRendering.js';
+import type {
+	AllOffthreadVideoProps,
+	RemotionOffthreadVideoProps,
+} from './props.js';
+import {VideoForPreview} from './VideoForPreview.js';
+
+export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
+	props,
+) => {
+	// Should only destruct `startFrom` and `endAt` from props,
+	// rest gets drilled down
+	const {
+		startFrom,
+		endAt,
+		trimBefore,
+		trimAfter,
+		name,
+		pauseWhenBuffering,
+		_remotionInternalStack,
+		showInTimeline,
+		...otherProps
+	} = props;
+	const environment = useRemotionEnvironment();
+	const shouldPauseWhenBuffering = resolveV5Default(pauseWhenBuffering);
+
+	if (environment.isClientSideRendering) {
+		throw new Error(
+			'<OffthreadVideo> is not supported in @remotion/web-renderer. Use <Video> from @remotion/media instead. See https://remotion.dev/docs/client-side-rendering/limitations',
+		);
+	}
+
+	const onDuration = useCallback(() => undefined, []);
+
+	if (typeof props.src !== 'string') {
+		throw new TypeError(
+			`The \`<OffthreadVideo>\` tag requires a string for \`src\`, but got ${JSON.stringify(
+				props.src,
+			)} instead.`,
+		);
+	}
+
+	validateMediaTrimProps({startFrom, endAt, trimBefore, trimAfter});
+
+	const {trimBeforeValue, trimAfterValue} = resolveTrimProps({
+		startFrom,
+		endAt,
+		trimBefore,
+		trimAfter,
+	});
+
+	if (
+		typeof trimBeforeValue !== 'undefined' ||
+		typeof trimAfterValue !== 'undefined'
+	) {
+		return (
+			<Sequence
+				layout="none"
+				from={0 - (trimBeforeValue ?? 0)}
+				showInTimeline={false}
+				durationInFrames={trimAfterValue}
+				name={name}
+			>
+				<InnerOffthreadVideo
+					pauseWhenBuffering={shouldPauseWhenBuffering}
+					{...otherProps}
+					trimAfter={undefined}
+					name={undefined}
+					showInTimeline={showInTimeline}
+					trimBefore={undefined}
+					_remotionInternalStack={undefined}
+					startFrom={undefined}
+					endAt={undefined}
+				/>
+			</Sequence>
+		);
+	}
+
+	validateMediaProps(props, 'Video');
+
+	if (environment.isRendering) {
+		return (
+			<OffthreadVideoForRendering
+				pauseWhenBuffering={shouldPauseWhenBuffering}
+				{...otherProps}
+				trimAfter={undefined}
+				name={undefined}
+				showInTimeline={showInTimeline}
+				trimBefore={undefined}
+				_remotionInternalStack={undefined}
+				startFrom={undefined}
+				endAt={undefined}
+			/>
+		);
+	}
+
+	const {
+		transparent,
+		toneMapped,
+		onAutoPlayError,
+		onVideoFrame,
+		crossOrigin,
+		delayRenderRetries,
+		delayRenderTimeoutInMilliseconds,
+		...propsForPreview
+	} = otherProps;
+
+	return (
+		<VideoForPreview
+			_remotionInternalStack={_remotionInternalStack ?? null}
+			onDuration={onDuration}
+			onlyWarnForMediaSeekingError
+			pauseWhenBuffering={shouldPauseWhenBuffering}
+			showInTimeline={showInTimeline ?? true}
+			onAutoPlayError={onAutoPlayError ?? undefined}
+			onVideoFrame={onVideoFrame ?? null}
+			crossOrigin={crossOrigin}
+			{...propsForPreview}
+			_remotionInternalNativeLoopPassed={false}
+		/>
+	);
+};
+
+/*
+ * @description This method imports and displays a video, similar to <Html5Video />. During rendering, it extracts the exact frame from the video and displays it in an <img> tag
+ * @see [Documentation](https://www.remotion.dev/docs/offthreadvideo)
+ */
+
+export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = ({
+	src,
+	acceptableTimeShiftInSeconds,
+	allowAmplificationDuringRender,
+	audioStreamIndex,
+	crossOrigin,
+	delayRenderRetries,
+	delayRenderTimeoutInMilliseconds,
+	loopVolumeCurveBehavior,
+	muted,
+	name,
+	onAutoPlayError,
+	onError,
+	onVideoFrame,
+	pauseWhenBuffering,
+	playbackRate,
+	preservePitch,
+	showInTimeline,
+	style,
+	toneFrequency,
+	toneMapped,
+	transparent,
+	trimAfter,
+	trimBefore,
+	useWebAudioApi,
+	volume,
+	_remotionInternalNativeLoopPassed,
+	endAt,
+	_remotionInternalStack,
+	startFrom,
+	imageFormat,
+	...props
+}) => {
+	if (imageFormat) {
+		throw new TypeError(
+			`The \`<OffthreadVideo>\` tag does no longer accept \`imageFormat\`. Use the \`transparent\` prop if you want to render a transparent video.`,
+		);
+	}
+
+	return (
+		<InnerOffthreadVideo
+			acceptableTimeShiftInSeconds={acceptableTimeShiftInSeconds}
+			allowAmplificationDuringRender={allowAmplificationDuringRender ?? true}
+			audioStreamIndex={audioStreamIndex ?? 0}
+			crossOrigin={crossOrigin}
+			delayRenderRetries={delayRenderRetries}
+			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
+			loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
+			muted={muted ?? false}
+			name={name}
+			onAutoPlayError={onAutoPlayError ?? null}
+			onError={onError}
+			onVideoFrame={onVideoFrame}
+			pauseWhenBuffering={resolveV5Default(pauseWhenBuffering)}
+			playbackRate={playbackRate ?? 1}
+			preservePitch={preservePitch}
+			toneFrequency={toneFrequency ?? 1}
+			showInTimeline={showInTimeline ?? true}
+			src={src}
+			_remotionInternalStack={_remotionInternalStack}
+			startFrom={startFrom}
+			_remotionInternalNativeLoopPassed={
+				_remotionInternalNativeLoopPassed ?? false
+			}
+			endAt={endAt}
+			style={style}
+			toneMapped={toneMapped ?? true}
+			transparent={transparent ?? false}
+			trimAfter={trimAfter}
+			trimBefore={trimBefore}
+			useWebAudioApi={useWebAudioApi ?? false}
+			volume={volume}
+			{...props}
+		/>
+	);
+};
+
+addSequenceStackTraces(OffthreadVideo);

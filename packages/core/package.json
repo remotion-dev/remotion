@@ -1,0 +1,84 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/core"
+	},
+	"name": "remotion",
+	"version": "4.0.508",
+	"description": "Make videos programmatically",
+	"main": "dist/cjs/index.js",
+	"types": "dist/cjs/index.d.ts",
+	"module": "dist/esm/index.mjs",
+	"scripts": {
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"prepublishOnly": "bun ensure-correct-version.ts && cp ../../README.md . && cp ../../LICENSE.md .",
+		"lint": "eslint src",
+		"test": "bun test src/test",
+		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
+	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "SEE LICENSE IN LICENSE.md",
+	"peerDependencies": {
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
+	},
+	"devDependencies": {
+		"@testing-library/react": "16.1.0",
+		"@testing-library/dom": "10.4.0",
+		"@happy-dom/global-registrator": "14.5.1",
+		"@types/dom-webcodecs": "catalog:",
+		"happy-dom": "20.0.2",
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"webpack": "5.105.0",
+		"zod": "catalog:",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "catalog:",
+		"@typescript/native-preview": "catalog:"
+	},
+	"keywords": [
+		"video",
+		"creation",
+		"editor",
+		"react",
+		"player"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/cjs/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/cjs/index.js"
+		},
+		"./version": {
+			"types": "./dist/cjs/version.d.ts",
+			"module": "./dist/esm/version.mjs",
+			"import": "./dist/esm/version.mjs",
+			"require": "./dist/cjs/version.js"
+		},
+		"./no-react": {
+			"types": "./dist/cjs/no-react.d.ts",
+			"module": "./dist/esm/no-react.mjs",
+			"import": "./dist/esm/no-react.mjs",
+			"require": "./dist/cjs/no-react.js"
+		}
+	},
+	"typesVersions": {
+		">=1.0": {
+			"version": [
+				"dist/cjs/version.d.ts"
+			],
+			"no-react": [
+				"dist/cjs/no-react.d.ts"
+			]
+		}
+	},
+	"homepage": "https://www.remotion.dev/docs/remotion"
+}

@@ -1,0 +1,6 @@
+- different frame rates 15fps, 60fps, 120 fps, 240fps
+- different lengths
+- HDR videos
+- no CORS
+- different audio channel layouts
+- different sample rates

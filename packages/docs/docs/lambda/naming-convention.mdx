@@ -1,0 +1,32 @@
+---
+image: /generated/articles-docs-lambda-naming-convention.png
+id: naming-convention
+title: Function naming convention
+slug: /lambda/naming-convention
+crumb: 'Lambda'
+---
+
+A Remotion Lambda function has the following naming convention:
+
+```
+remotion-render-4-0-372-mem2048mb-disk2048mb-240sec
+                ^^^^^^^    ^^^^       ^^^^   ^^^
+                  |         |          |      |-- Timeout in seconds
+                  |         |          |--------- Disk size in MB
+                  |         |------------------- Memory size in MB
+                  |----------------------------- Remotion version with dots replaced by dashes
+```
+
+When you deploy a function, the name is hardcoded. This has two functions:
+
+- <Step>1</Step> Avoid having multiple functions with the same configuration unnecessarily.
+- <Step>2</Step> Being able to guess the function name using
+<a href="/docs/lambda/speculatefunctionname">
+  <code>speculateFunctionName()</code>
+</a>
+so you don't have to fetch a list of functions in your AWS account.
+
+## See also
+
+- [`speculateFunctionName()`](/docs/lambda/speculatefunctionname)
+- [/docs/lambda/separate-environments](/docs/lambda/separate-environments)

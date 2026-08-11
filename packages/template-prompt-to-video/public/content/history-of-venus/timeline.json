@@ -1,0 +1,1606 @@
+{
+  "elements": [
+    {
+      "startMs": 0,
+      "endMs": 7616,
+      "imageUrl": "83e869e5-18fd-4de9-b70f-dc0f180da912",
+      "enterTransition": "blur",
+      "exitTransition": "blur",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1.5,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 7616
+        }
+      ]
+    },
+    {
+      "startMs": 7616,
+      "endMs": 11935,
+      "imageUrl": "99af6411-714b-4b72-b66e-f6c02a184493",
+      "enterTransition": "blur",
+      "exitTransition": "blur",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.5,
+          "startMs": 0,
+          "endMs": 4319
+        }
+      ]
+    },
+    {
+      "startMs": 11935,
+      "endMs": 18762,
+      "imageUrl": "919d538b-3407-440a-b26a-73a5321a3af0",
+      "enterTransition": "blur",
+      "exitTransition": "blur",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1.5,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 6827
+        }
+      ]
+    },
+    {
+      "startMs": 18762,
+      "endMs": 24753,
+      "imageUrl": "20cf0ab8-49cb-4ead-816d-6af0b588668a",
+      "enterTransition": "blur",
+      "exitTransition": "blur",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.5,
+          "startMs": 0,
+          "endMs": 5991
+        }
+      ]
+    },
+    {
+      "startMs": 24753,
+      "endMs": 28886,
+      "imageUrl": "11f4911a-f39f-4567-8963-41511d05b593",
+      "enterTransition": "blur",
+      "exitTransition": "blur",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1.5,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 4133
+        }
+      ]
+    },
+    {
+      "startMs": 28886,
+      "endMs": 34087,
+      "imageUrl": "5584e376-d02e-48fc-9e47-fc7bf86000af",
+      "enterTransition": "blur",
+      "exitTransition": "blur",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.5,
+          "startMs": 0,
+          "endMs": 5201
+        }
+      ]
+    },
+    {
+      "startMs": 34087,
+      "endMs": 40496,
+      "imageUrl": "33b24fbd-dc71-4692-87af-fdff7661c222",
+      "enterTransition": "blur",
+      "exitTransition": "blur",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1.5,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 6409
+        }
+      ]
+    },
+    {
+      "startMs": 40496,
+      "endMs": 54056,
+      "imageUrl": "90917ba0-8b7c-4309-a784-4f1fdc28d9fb",
+      "enterTransition": "blur",
+      "exitTransition": "blur",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.5,
+          "startMs": 0,
+          "endMs": 13560
+        }
+      ]
+    }
+  ],
+  "text": [
+    {
+      "startMs": 0,
+      "endMs": 685,
+      "text": "Once upon a",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 685,
+      "endMs": 1695,
+      "text": "time, long",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5070892202427698,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 1695,
+      "endMs": 1997,
+      "text": "before",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.650247613480069,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 1997,
+      "endMs": 2612,
+      "text": "telescopes",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 2612,
+      "endMs": 3042,
+      "text": "watched the",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 3042,
+      "endMs": 4145,
+      "text": "sky, people",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5312906191856691,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 4145,
+      "endMs": 4714,
+      "text": "looked up and",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6984326431081123,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 4714,
+      "endMs": 5410,
+      "text": "saw a bright",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6445892502264121,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 5410,
+      "endMs": 6339,
+      "text": "star, not",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 6339,
+      "endMs": 6896,
+      "text": "knowing it was",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 6896,
+      "endMs": 7616,
+      "text": "Venus.",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 7616,
+      "endMs": 8231,
+      "text": "The ancient",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 8231,
+      "endMs": 8916,
+      "text": "Romans named",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.662161653933625,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 8916,
+      "endMs": 9497,
+      "text": "it after their",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 9497,
+      "endMs": 10008,
+      "text": "goddess of",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6388131110354789,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 10008,
+      "endMs": 10600,
+      "text": "love because",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6323294044608418,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 10600,
+      "endMs": 10855,
+      "text": "of its",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 10855,
+      "endMs": 11331,
+      "text": "beautiful",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.689881743853058,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 11331,
+      "endMs": 11935,
+      "text": "glow.",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5843134627873369,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 11935,
+      "endMs": 12690,
+      "text": "Incredibly,",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 12690,
+      "endMs": 13015,
+      "text": "there were",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6822711271671517,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 13015,
+      "endMs": 13560,
+      "text": "times it was",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6171702148398952,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 13560,
+      "endMs": 14025,
+      "text": "called both",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 14025,
+      "endMs": 14524,
+      "text": "the 'Morning",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6213784824708739,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 14524,
+      "endMs": 15522,
+      "text": "Star' and the",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 15522,
+      "endMs": 15917,
+      "text": "'Evening",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.679307191316065,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 15917,
+      "endMs": 16962,
+      "text": "Star'—no one",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6175949484127287,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 16962,
+      "endMs": 17577,
+      "text": "realized they",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 17577,
+      "endMs": 18053,
+      "text": "were the same",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 18053,
+      "endMs": 18762,
+      "text": "planet!",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 18762,
+      "endMs": 19505,
+      "text": "Unlike any",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.59875153690998,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 19505,
+      "endMs": 20376,
+      "text": "other planet,",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5666186805089255,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 20376,
+      "endMs": 21084,
+      "text": "Venus spins",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6654676119000248,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 21084,
+      "endMs": 22152,
+      "text": "backwards, so",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6171542494318256,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 22152,
+      "endMs": 22872,
+      "text": "the Sun rises",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6799068445538758,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 22872,
+      "endMs": 23441,
+      "text": "in the west",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6524040045014661,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 23441,
+      "endMs": 23940,
+      "text": "and sets in",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6973740497614885,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 23940,
+      "endMs": 24753,
+      "text": "the east.",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 24753,
+      "endMs": 25519,
+      "text": "Its days are",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5017647501826319,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 25519,
+      "endMs": 26042,
+      "text": "longer than",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5972452883935493,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 26042,
+      "endMs": 27017,
+      "text": "its years,",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.564986619802243,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 27017,
+      "endMs": 27609,
+      "text": "making time",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6018507711057028,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 27609,
+      "endMs": 28282,
+      "text": "seem strange",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5782847024126105,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 28282,
+      "endMs": 28886,
+      "text": "up there.",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5055966053795952,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 28886,
+      "endMs": 29629,
+      "text": "Volcanoes",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5629222453413919,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 29629,
+      "endMs": 30244,
+      "text": "cover much of",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5699858221834716,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 30244,
+      "endMs": 31034,
+      "text": "its surface,",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5950691148336467,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 31034,
+      "endMs": 31533,
+      "text": "but thick",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5566802724360221,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 31533,
+      "endMs": 31997,
+      "text": "clouds of",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5366881194737613,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 31997,
+      "endMs": 33100,
+      "text": "toxic gas hide",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 33100,
+      "endMs": 33600,
+      "text": "them from our",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6484750077540622,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 33600,
+      "endMs": 34087,
+      "text": "view.",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5735095017110776,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 34087,
+      "endMs": 34807,
+      "text": "Although it is",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 34807,
+      "endMs": 35422,
+      "text": "Earth's twin",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6985425271710941,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 35422,
+      "endMs": 36699,
+      "text": "in size, Venus",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6887989441787467,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 36699,
+      "endMs": 37291,
+      "text": "is the hottest",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6311379480437896,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 37291,
+      "endMs": 38278,
+      "text": "planet, with",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5681166169682664,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 38278,
+      "endMs": 38638,
+      "text": "surface",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.654541893694066,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 38638,
+      "endMs": 39161,
+      "text": "temperatures",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 39161,
+      "endMs": 39753,
+      "text": "high enough to",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6818260316184099,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 39753,
+      "endMs": 40496,
+      "text": "melt lead.",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5424967449824123,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 40496,
+      "endMs": 41274,
+      "text": "Despite its",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5271325069222614,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 41274,
+      "endMs": 41553,
+      "text": "harsh",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 41553,
+      "endMs": 42528,
+      "text": "environment,",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 42528,
+      "endMs": 43213,
+      "text": "it continues",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6036401812144718,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 43213,
+      "endMs": 43828,
+      "text": "to spark our",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 43828,
+      "endMs": 45036,
+      "text": "imagination,",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 45036,
+      "endMs": 45813,
+      "text": "reminding us",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 45813,
+      "endMs": 46603,
+      "text": "that mysteries",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 46603,
+      "endMs": 47334,
+      "text": "often hide in",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6491396876752396,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 47334,
+      "endMs": 48762,
+      "text": "plain sight.",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6418804091035437,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 48762,
+      "endMs": 49482,
+      "text": "People dream",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5264743831317681,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 49482,
+      "endMs": 50608,
+      "text": "that one day,",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 50608,
+      "endMs": 51305,
+      "text": "we might find",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.5898792305191535,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 51305,
+      "endMs": 51734,
+      "text": "a way to",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6063143077570282,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 51734,
+      "endMs": 52385,
+      "text": "explore its",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6772011243839006,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    },
+    {
+      "startMs": 52385,
+      "endMs": 53174,
+      "text": "hidden secrets",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 1,
+          "to": 1,
+          "startMs": 0,
+          "endMs": 300
+        }
+      ]
+    },
+    {
+      "startMs": 53174,
+      "endMs": 54056,
+      "text": "up close.",
+      "position": "center",
+      "animations": [
+        {
+          "type": "scale",
+          "from": 0.6598653425552847,
+          "to": 1.25,
+          "startMs": 0,
+          "endMs": 300
+        },
+        {
+          "type": "scale",
+          "from": 1.25,
+          "to": 1,
+          "startMs": 300,
+          "endMs": 500
+        }
+      ]
+    }
+  ],
+  "audio": [
+    {
+      "startMs": 0,
+      "endMs": 7616,
+      "audioUrl": "83e869e5-18fd-4de9-b70f-dc0f180da912"
+    },
+    {
+      "startMs": 7616,
+      "endMs": 11935,
+      "audioUrl": "99af6411-714b-4b72-b66e-f6c02a184493"
+    },
+    {
+      "startMs": 11935,
+      "endMs": 18762,
+      "audioUrl": "919d538b-3407-440a-b26a-73a5321a3af0"
+    },
+    {
+      "startMs": 18762,
+      "endMs": 24753,
+      "audioUrl": "20cf0ab8-49cb-4ead-816d-6af0b588668a"
+    },
+    {
+      "startMs": 24753,
+      "endMs": 28886,
+      "audioUrl": "11f4911a-f39f-4567-8963-41511d05b593"
+    },
+    {
+      "startMs": 28886,
+      "endMs": 34087,
+      "audioUrl": "5584e376-d02e-48fc-9e47-fc7bf86000af"
+    },
+    {
+      "startMs": 34087,
+      "endMs": 40496,
+      "audioUrl": "33b24fbd-dc71-4692-87af-fdff7661c222"
+    },
+    {
+      "startMs": 40496,
+      "endMs": 54056,
+      "audioUrl": "90917ba0-8b7c-4309-a784-4f1fdc28d9fb"
+    }
+  ],
+  "shortTitle": "History of Venus"
+}

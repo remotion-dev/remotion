@@ -1,0 +1,252 @@
+import {type LogLevel} from 'remotion';
+import type {MediaCache} from '../caches';
+import type {PcmS16AudioData} from '../convert-audiodata/convert-audiodata';
+import {extractFrameAndAudio} from '../extract-frame-and-audio';
+import {
+	normalizeMediaRequestInit,
+	type MediaRequestInit,
+} from '../request-init';
+import type {
+	ExtractFrameRequest,
+	MessageFromMainTab,
+} from './add-broadcast-channel-listener';
+import {
+	addBroadcastChannelListener,
+	waitForMainTabToBeReady,
+} from './add-broadcast-channel-listener';
+
+export type ExtractFrameViaBroadcastChannelResult =
+	| {
+			type: 'success';
+			frame: ImageBitmap | null;
+			audio: PcmS16AudioData | null;
+			durationInSeconds: number | null;
+	  }
+	| {type: 'cannot-decode'; durationInSeconds: number | null}
+	| {type: 'cannot-decode-prores'; durationInSeconds: number | null}
+	| {type: 'cannot-decode-alpha'; durationInSeconds: number | null}
+	| {type: 'network-error'}
+	| {type: 'unknown-container-format'};
+
+addBroadcastChannelListener();
+
+export const extractFrameViaBroadcastChannel = async ({
+	src,
+	timeInSeconds,
+	logLevel,
+	durationInSeconds,
+	playbackRate,
+	includeAudio,
+	includeVideo,
+	isClientSideRendering,
+	loop,
+	audioStreamIndex,
+	trimAfter,
+	trimBefore,
+	fps,
+	maxCacheSize,
+	credentials,
+	requestInit,
+	mediaCache,
+}: {
+	src: string;
+	timeInSeconds: number;
+	durationInSeconds: number;
+	playbackRate: number;
+	logLevel: LogLevel;
+	includeAudio: boolean;
+	includeVideo: boolean;
+	isClientSideRendering: boolean;
+	loop: boolean;
+	audioStreamIndex: number | null;
+	trimAfter: number | undefined;
+	trimBefore: number | undefined;
+	fps: number;
+	maxCacheSize: number;
+	credentials: RequestCredentials | undefined;
+	requestInit?: MediaRequestInit;
+	mediaCache: MediaCache;
+}): Promise<ExtractFrameViaBroadcastChannelResult> => {
+	if (isClientSideRendering || window.remotion_isMainTab) {
+		return extractFrameAndAudio({
+			logLevel,
+			src,
+			timeInSeconds,
+			durationInSeconds,
+			playbackRate,
+			includeAudio,
+			includeVideo,
+			loop,
+			audioStreamIndex,
+			trimAfter,
+			trimBefore,
+			fps,
+			maxCacheSize,
+			credentials,
+			requestInit,
+			mediaCache,
+		});
+	}
+
+	await waitForMainTabToBeReady(window.remotion_broadcastChannel!);
+
+	const requestId = crypto.randomUUID();
+
+	const resolvePromise = new Promise<
+		| {
+				type: 'success';
+				frame: ImageBitmap | null;
+				audio: PcmS16AudioData | null;
+				durationInSeconds: number | null;
+		  }
+		| {type: 'cannot-decode'; durationInSeconds: number | null}
+		| {type: 'cannot-decode-prores'; durationInSeconds: number | null}
+		| {type: 'cannot-decode-alpha'; durationInSeconds: number | null}
+		| {type: 'network-error'}
+		| {type: 'unknown-container-format'}
+	>((resolve, reject) => {
+		const onMessage = (event: MessageEvent) => {
+			const data = event.data as MessageFromMainTab;
+
+			if (!data) {
+				return;
+			}
+
+			if (data.type === 'main-tab-ready') {
+				return;
+			}
+
+			if (data.id !== requestId) {
+				return;
+			}
+
+			if (data.type === 'response-success') {
+				resolve({
+					type: 'success',
+					frame: data.frame ? data.frame : null,
+					audio: data.audio ? data.audio : null,
+					durationInSeconds: data.durationInSeconds
+						? data.durationInSeconds
+						: null,
+				});
+				window.remotion_broadcastChannel!.removeEventListener(
+					'message',
+					onMessage,
+				);
+				return;
+			}
+
+			if (data.type === 'response-error') {
+				reject(data.errorStack);
+				window.remotion_broadcastChannel!.removeEventListener(
+					'message',
+					onMessage,
+				);
+				return;
+			}
+
+			if (data.type === 'response-cannot-decode') {
+				resolve({
+					type: 'cannot-decode',
+					durationInSeconds: data.durationInSeconds,
+				});
+				window.remotion_broadcastChannel!.removeEventListener(
+					'message',
+					onMessage,
+				);
+				return;
+			}
+
+			if (data.type === 'response-cannot-decode-prores') {
+				resolve({
+					type: 'cannot-decode-prores',
+					durationInSeconds: data.durationInSeconds,
+				});
+				window.remotion_broadcastChannel!.removeEventListener(
+					'message',
+					onMessage,
+				);
+				return;
+			}
+
+			if (data.type === 'response-network-error') {
+				resolve({type: 'network-error'});
+				window.remotion_broadcastChannel!.removeEventListener(
+					'message',
+					onMessage,
+				);
+				return;
+			}
+
+			if (data.type === 'response-unknown-container-format') {
+				resolve({type: 'unknown-container-format'});
+				window.remotion_broadcastChannel!.removeEventListener(
+					'message',
+					onMessage,
+				);
+				return;
+			}
+
+			if (data.type === 'response-cannot-decode-alpha') {
+				resolve({
+					type: 'cannot-decode-alpha',
+					durationInSeconds: data.durationInSeconds,
+				});
+				window.remotion_broadcastChannel!.removeEventListener(
+					'message',
+					onMessage,
+				);
+				return;
+			}
+
+			throw new Error(
+				`Invalid message: ${JSON.stringify(data satisfies never)}`,
+			);
+		};
+
+		window.remotion_broadcastChannel!.addEventListener('message', onMessage);
+	});
+
+	const request: ExtractFrameRequest = {
+		type: 'request',
+		src,
+		timeInSeconds,
+		id: requestId,
+		logLevel,
+		durationInSeconds,
+		playbackRate,
+		includeAudio,
+		includeVideo,
+		loop,
+		audioStreamIndex,
+		trimAfter,
+		trimBefore,
+		fps,
+		maxCacheSize,
+		credentials,
+		requestInit: normalizeMediaRequestInit(requestInit),
+	};
+
+	window.remotion_broadcastChannel!.postMessage(request);
+
+	let timeoutId: NodeJS.Timeout | undefined;
+
+	return Promise.race([
+		resolvePromise.then((res) => {
+			clearTimeout(timeoutId);
+			return res;
+		}),
+		new Promise<never>((_, reject) => {
+			timeoutId = setTimeout(
+				() => {
+					reject(
+						new Error(
+							`Timeout while extracting frame at time ${timeInSeconds}sec from ${src}`,
+						),
+					);
+				},
+				Math.max(3_000, window.remotion_puppeteerTimeout - 5_000),
+			);
+		}),
+	]);
+};

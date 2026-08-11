@@ -1,0 +1,43 @@
+---
+image: /generated/articles-docs-mediabunny-new-video.png
+title: <Video> and <Audio> tags
+crumb: 'Mediabunny'
+sidebar_label: <Video> and <Audio> tags
+---
+
+[`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media) are the recommended tags for embedding video and audio in Remotion.
+
+They are based on [Mediabunny](/docs/mediabunny) and WebCodecs and are designed for:
+
+- frame-accurate video rendering
+- fast media extraction
+- minimal data fetching
+
+## Renamed tags from `remotion`
+
+The tags that were previously called `<Video>` and `<Audio>` in the [`remotion`](/docs/remotion) package have been renamed:
+
+- `<Video>` from `remotion` → [`<Html5Video>`](/docs/html5-video)
+- `<Audio>` from `remotion` → [`<Html5Audio>`](/docs/html5-audio)
+
+This makes the HTML5-based tags explicit and leaves `<Video>` and `<Audio>` for the recommended `@remotion/media` tags.
+
+## Which tag am I using?
+
+The HTML5-based tags are imported from the [`remotion`](/docs/remotion) package.
+
+The recommended tags are imported from the [`@remotion/media`](/docs/media) package.
+
+## Why are we renaming the tags?
+
+Users and AIs are intuitively going to reach for `<Video>` and `<Audio>` first because they are the easiest to find.
+
+The best default should therefore be the one that is easiest to find.
+
+## Should I migrate to `@remotion/media`?
+
+Use [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media) for new code.
+
+[`<OffthreadVideo>`](/docs/offthreadvideo), [`<Html5Video>`](/docs/html5-video), and [`<Html5Audio>`](/docs/html5-audio) remain documented for direct use, migration, and fallback-specific behavior.
+
+See: [Comparison of video tags](/docs/video-tags)

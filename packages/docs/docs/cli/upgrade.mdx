@@ -1,0 +1,43 @@
+---
+image: /generated/articles-docs-cli-upgrade.png
+title: npx remotion upgrade
+sidebar_label: upgrade
+crumb: CLI Reference
+---
+
+Upgrades all Remotion-related packages.
+
+If `mediabunny` is installed, it will also be upgraded to the version [compatible with the new Remotion version](/docs/mediabunny/version).
+
+If Remotion Agent Skills are installed in the project's `.agents/skills` directory, they will also be updated. Directories without recognized Remotion skills are left unchanged. Global skills are not updated.
+
+```
+npx remotion upgrade
+```
+
+## Flags
+
+### `--package-manager`<AvailableFrom v="3.2.33"/>
+
+<Options id="package-manager" />
+
+### `--version`<AvailableFrom v="4.0.15"/>
+
+<Options id="version" />
+
+### `--skip-skills`<AvailableFrom v="4.0.503"/>
+
+<Options id="skip-skills" />
+
+## Package manager support
+
+`npm`, `yarn` and `pnpm` are all supported.
+
+## Additional arguments
+
+Any additional arguments you pass to this command will be forwarded as flags to the package manager, before the list of packages.  
+Before v4.0.246, additional arguments were ignored.
+
+## Difference to `npm update`, `yarn upgrade`, `pnpm up`
+
+These commands, when executed without arguments will upgrade all dependencies in your project. We recommend against it because you may unintentionally break other parts of your project when you only wanted to upgrade Remotion.

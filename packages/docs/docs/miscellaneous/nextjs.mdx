@@ -1,0 +1,41 @@
+---
+image: /generated/articles-docs-miscellaneous-nextjs.png
+sidebar_label: Rendering in Next.js
+title: Using @remotion/renderer in Next.js
+crumb: 'FAQ'
+---
+
+The [`@remotion/renderer`](/docs/renderer) package has dependencies on a headless browser and FFmpeg, which makes using it in Next.js a bit tricky.
+
+## Deploy to Vercel
+
+Deploy the Vercel template to render your videos in the cloud:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?demo-description=Render%20your%20Remotion%20videos%20on%20Vercel.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4pq2kfE4t05fMkDCKGsfqz%2F1444f1b559d50391052fdf5102502ac9%2FFlagsmith_Dark.png&demo-title=Remotion%20on%20Vercel&demo-url=https%3A%2F%2Ftemplate-vercel.remotion.dev%2F&from=templates&stores=%5B%7B%22type%22%3A%22blob%22%2C%22access%22%3A%22public%22%7D%5D&project-name=Remotion%20on%20Vercel&project-names=Comma%20separated%20list%20of%20project%20names%2Cto%20match%20the%20root-directories&repository-name=remotion-on-vercel&repository-url=https%3A%2F%2Fgithub.com%2Fremotion-dev%2Ftemplate-vercel&root-directories=List%20of%20directory%20paths%20for%20the%20directories%20to%20clone%20into%20projects)
+
+To learn more, [visit the Remotion on Vercel page](/docs/vercel).
+
+## While self-hosting Next.js
+
+If you are not deploying to Vercel and are sure that you are not running into function size limits, you may be able to use the renderer in Next.js (not officially supported).
+
+```js title="next.config.js"
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  serverExternalPackages: ['@remotion/renderer'],
+};
+
+module.exports = nextConfig;
+```
+
+Also be aware of the following:
+
+- You cannot use `@remotion/bundler` inside an API route, because it includes Webpack, and it's not possible to bundle Webpack with Webpack.  
+  Instead, use `@remotion/bundler` to create a bundle outside the API route and then use the resulting folder in your API route.
+
+- The `@remotion/renderer` package requires an FFmpeg binary from `node_modules`. Because an API route is being bundled, you might need to override the Webpack configuration to ensure the `remotion` binary is being included in it.
+
+## See also
+
+- [Remotion on Vercel](/docs/vercel)

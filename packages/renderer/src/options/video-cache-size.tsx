@@ -1,0 +1,51 @@
+import type {AnyRemotionOption} from './option';
+
+let mediaCacheSizeInBytes: number | null = null;
+
+export const getMediaCacheSizeInBytes = () => {
+	return mediaCacheSizeInBytes;
+};
+
+const cliFlag = 'media-cache-size-in-bytes' as const;
+
+export const mediaCacheSizeInBytesOption = {
+	name: '@remotion/media cache size',
+	cliFlag,
+	description: () => (
+		<>
+			Specify the memory budget for decoded media cached by{' '}
+			<code>&lt;Video&gt;</code> and <code>&lt;Audio&gt;</code> from{' '}
+			<code>@remotion/media</code>, in bytes. This value also determines the
+			maximum read cache size for each distinct media source. It is not a limit
+			on total memory usage. <br />
+			The default is half of the available system memory when the render starts.
+		</>
+	),
+	ssrName: 'mediaCacheSizeInBytes' as const,
+	docLink: 'https://www.remotion.dev/docs/media/cache',
+	type: 0 as number | null,
+	getValue: ({commandLine}) => {
+		if (commandLine[cliFlag] !== undefined) {
+			return {
+				source: 'cli',
+				value: commandLine[cliFlag] as number,
+			};
+		}
+
+		if (mediaCacheSizeInBytes !== null) {
+			return {
+				source: 'config',
+				value: mediaCacheSizeInBytes,
+			};
+		}
+
+		return {
+			source: 'default',
+			value: null,
+		};
+	},
+	setConfig: (size: number | null) => {
+		mediaCacheSizeInBytes = size ?? null;
+	},
+	id: cliFlag,
+} satisfies AnyRemotionOption<number | null>;

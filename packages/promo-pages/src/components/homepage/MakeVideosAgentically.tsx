@@ -1,0 +1,87 @@
+import React, {useEffect, useRef} from 'react';
+import {MakeVideosLinks, type MakeVideosLink} from './MakeVideosLinks';
+import {useTransparentVideoSource} from './use-transparent-video-source';
+
+export const MakeVideosAgentically: React.FC<{
+	readonly title?: React.ReactNode;
+	readonly description?: React.ReactNode;
+	readonly showLinks?: boolean;
+	readonly links?: readonly MakeVideosLink[];
+	readonly showVideo?: boolean;
+	readonly videoSrc?: string;
+	readonly fallbackVideoSrc?: string;
+}> = ({
+	title = (
+		<>
+			<span className="text-[var(--subtitle)]">Make videos</span>
+			<br /> agentically
+		</>
+	),
+	description = 'Turn your idea into a video using your coding agent.',
+	showLinks = true,
+	links = [
+		{label: 'Agent Skills', href: '/docs/ai/skills'},
+		{label: 'Plugins', href: '/docs/ai/plugins'},
+	],
+	showVideo = true,
+	videoSrc = '/img/render-progress.webm',
+	fallbackVideoSrc = '/img/render-progress.mp4',
+}) => {
+	const ref = useRef<HTMLDivElement>(null);
+	const videoRef = useRef<HTMLVideoElement>(null);
+	const src = useTransparentVideoSource({fallbackVideoSrc, videoSrc});
+
+	useEffect(() => {
+		const {current} = ref;
+		if (!current) {
+			return;
+		}
+
+		const callback = (data: IntersectionObserverEntry[]) => {
+			if (data[0].isIntersecting) {
+				videoRef.current?.play();
+			}
+		};
+
+		const observer = new IntersectionObserver(callback, {
+			root: null,
+			threshold: 0.5,
+		});
+		observer.observe(current);
+
+		return () => observer.unobserve(current);
+	}, []);
+
+	return (
+		<div ref={ref} className={'flex min-w-0 basis-0 flex-col flex-1'}>
+			<div className="flex aspect-square w-full items-start">
+				{showVideo && src ? (
+					<video
+						ref={videoRef}
+						src={src}
+						muted
+						autoPlay
+						playsInline
+						loop
+						preload="metadata"
+						style={{
+							width: 400,
+							maxWidth: '100%',
+							maxHeight: '100%',
+							borderRadius: 7,
+							overflow: 'hidden',
+						}}
+						className="cursor-default! relative object-contain"
+					/>
+				) : null}
+			</div>
+			<div className="font-brand">
+				<h2 className="text-2xl fontbrand leading-[1.1] font-medium">
+					{title}
+				</h2>
+				<p className="text-balance leading-relaxed">{description}</p>
+				{showLinks ? <MakeVideosLinks links={links} /> : null}
+			</div>
+		</div>
+	);
+};

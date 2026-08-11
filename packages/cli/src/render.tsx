@@ -1,0 +1,342 @@
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
+import {NoReactInternals} from 'remotion/no-react';
+import {registerCleanupJob} from './cleanup-before-quit';
+import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
+import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
+import {findEntryPoint} from './entry-point';
+import {getCliOptions} from './get-cli-options';
+import {Log} from './log';
+import {parsedCli, quietFlagProvided} from './parsed-cli';
+import {renderVideoFlow} from './render-flows/render';
+
+const {
+	x264Option,
+	audioBitrateOption,
+	offthreadVideoCacheSizeInBytesOption,
+	scaleOption,
+	crfOption,
+	gopSizeOption,
+	jpegQualityOption,
+	videoBitrateOption,
+	enforceAudioOption,
+	mutedOption,
+	colorSpaceOption,
+	disallowParallelEncodingOption,
+	enableMultiprocessOnLinuxOption,
+	glOption,
+	numberOfGifLoopsOption,
+	encodingMaxRateOption,
+	encodingBufferSizeOption,
+	reproOption,
+	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
+	overwriteOption,
+	binariesDirectoryOption,
+	forSeamlessAacConcatenationOption,
+	separateAudioOption,
+	audioCodecOption,
+	publicPathOption,
+	publicDirOption,
+	metadataOption,
+	hardwareAccelerationOption,
+	chromeModeOption,
+	offthreadVideoThreadsOption,
+	audioLatencyHintOption,
+	imageSequencePatternOption,
+	mediaCacheSizeInBytesOption,
+	darkModeOption,
+	askAIOption,
+	keyboardShortcutsOption,
+	rspackOption,
+	browserExecutableOption,
+	everyNthFrameOption,
+	userAgentOption,
+	disableWebSecurityOption,
+	ignoreCertificateErrorsOption,
+	concurrencyOption,
+	overrideHeightOption,
+	overrideWidthOption,
+	overrideFpsOption,
+	overrideDurationOption,
+	bundleCacheOption,
+	sampleRateOption,
+	stillFrameOption,
+	publicLicenseKeyOption,
+} = BrowserSafeApis.options;
+
+export const render = async (
+	remotionRoot: string,
+	args: (string | number)[],
+	logLevel: LogLevel,
+) => {
+	const {
+		file,
+		remainingArgs,
+		reason: entryPointReason,
+	} = findEntryPoint({args, remotionRoot, logLevel, allowDirectory: true});
+
+	if (!file) {
+		Log.error(
+			{indent: false, logLevel},
+			'No entry point specified. Pass more arguments:',
+		);
+		Log.error(
+			{indent: false, logLevel},
+			'   npx remotion render [entry-point] [composition-name] [out-name]',
+		);
+		Log.error(
+			{indent: false, logLevel},
+			'Documentation: https://www.remotion.dev/docs/render',
+		);
+		process.exit(1);
+	}
+
+	const fullEntryPoint = convertEntryPointToServeUrl(file);
+
+	if (stillFrameOption.getValue({commandLine: parsedCli}).source === 'cli') {
+		Log.error(
+			{indent: false, logLevel},
+			'--frame flag was passed to the `render` command. This flag only works with the `still` command. Did you mean `--frames`? See reference: https://www.remotion.dev/docs/cli/',
+		);
+		process.exit(1);
+	}
+
+	const {
+		frameRange,
+		selectedFrames,
+		shouldOutputImageSequence,
+		inputProps,
+		envVariables,
+		ffmpegOverride,
+	} = getCliOptions({
+		isStill: false,
+		logLevel,
+		indent: false,
+	});
+
+	const concurrency = concurrencyOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const height = overrideHeightOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const width = overrideWidthOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const fps = overrideFpsOption.getValue({commandLine: parsedCli}).value;
+	const durationInFrames = overrideDurationOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const browserExecutable = browserExecutableOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const everyNthFrame = everyNthFrameOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	if (selectedFrames !== null && everyNthFrame !== 1) {
+		throw new Error(
+			'Comma-separated `--frames` cannot be combined with `--every-nth-frame`.',
+		);
+	}
+
+	const userAgent = userAgentOption.getValue({commandLine: parsedCli}).value;
+	const disableWebSecurity = disableWebSecurityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const ignoreCertificateErrors = ignoreCertificateErrorsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const x264Preset = x264Option.getValue({commandLine: parsedCli}).value;
+	const audioBitrate = audioBitrateOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const offthreadVideoCacheSizeInBytes =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const scale = scaleOption.getValue({commandLine: parsedCli}).value;
+	const jpegQuality = jpegQualityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const videoBitrate = videoBitrateOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const enforceAudioTrack = enforceAudioOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const muted = mutedOption.getValue({commandLine: parsedCli}).value;
+	const colorSpace = colorSpaceOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const disallowParallelEncoding = disallowParallelEncodingOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const crf = shouldOutputImageSequence
+		? null
+		: crfOption.getValue({commandLine: parsedCli}).value;
+	const gopSize = shouldOutputImageSequence
+		? null
+		: gopSizeOption.getValue({commandLine: parsedCli}).value;
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const gl = glOption.getValue({commandLine: parsedCli}).value;
+	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const encodingMaxRate = encodingMaxRateOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const encodingBufferSize = encodingBufferSizeOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const repro = reproOption.getValue({commandLine: parsedCli}).value;
+	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const headless = headlessOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const overwrite = overwriteOption.getValue(
+		{
+			commandLine: parsedCli,
+		},
+		true,
+	).value;
+	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const forSeamlessAacConcatenation =
+		forSeamlessAacConcatenationOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+
+	const separateAudioTo = separateAudioOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const metadata = metadataOption.getValue({commandLine: parsedCli}).value;
+	const publicPath = publicPathOption.getValue({commandLine: parsedCli}).value;
+	const chromeMode = chromeModeOption.getValue({commandLine: parsedCli}).value;
+	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
+	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
+	const keyboardShortcutsEnabled = keyboardShortcutsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const rspack = rspackOption.getValue({commandLine: parsedCli}).value;
+	const sampleRate = sampleRateOption.getValue({commandLine: parsedCli}).value;
+
+	const chromiumOptions: Required<ChromiumOptions> = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+		darkMode,
+	};
+
+	const audioCodec = audioCodecOption.getValue({commandLine: parsedCli}).value;
+	const publicDir = publicDirOption.getValue({commandLine: parsedCli}).value;
+	const hardwareAcceleration = hardwareAccelerationOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const audioLatencyHint = audioLatencyHintOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const imageSequencePattern = imageSequencePatternOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const shouldCache = bundleCacheOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	await renderVideoFlow({
+		fullEntryPoint,
+		remotionRoot,
+		browserExecutable,
+		indent: false,
+		logLevel,
+		browser: 'chrome',
+		chromiumOptions,
+		scale,
+		shouldOutputImageSequence,
+		publicDir,
+		envVariables,
+		serializedInputPropsWithCustomSchema:
+			NoReactInternals.serializeJSONWithSpecialTypes({
+				indent: undefined,
+				staticBase: null,
+				data: inputProps,
+			}).serializedString,
+		puppeteerTimeout,
+		port: getRendererPortFromConfigFileAndCliFlag(),
+		height,
+		width,
+		fps,
+		durationInFrames,
+		remainingArgs,
+		compositionIdFromUi: null,
+		entryPointReason,
+		overwrite,
+		quiet: quietFlagProvided(),
+		concurrency,
+		everyNthFrame,
+		frameRange,
+		selectedFrames,
+		jpegQuality,
+		onProgress: () => undefined,
+		addCleanupCallback: (label, c) => {
+			registerCleanupJob(label, c);
+		},
+		outputLocationFromUI: null,
+		uiCodec: null,
+		uiImageFormat: null,
+		cancelSignal: null,
+		crf,
+		gopSize,
+		ffmpegOverride,
+		audioBitrate,
+		muted,
+		enforceAudioTrack,
+		proResProfile: undefined,
+		x264Preset,
+		pixelFormat: null,
+		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
+		numberOfGifLoops,
+		audioCodec,
+		disallowParallelEncoding,
+		offthreadVideoCacheSizeInBytes,
+		mediaCacheSizeInBytes,
+		colorSpace,
+		repro,
+		binariesDirectory,
+		forSeamlessAacConcatenation,
+		separateAudioTo,
+		publicPath,
+		metadata,
+		hardwareAcceleration,
+		chromeMode,
+		offthreadVideoThreads,
+		audioLatencyHint,
+		imageSequencePattern,
+		askAIEnabled,
+		keyboardShortcutsEnabled,
+		rspack,
+		sampleRate,
+		shouldCache,
+		bundlerOverride: null,
+		rspackOverride: null,
+		webpackOverride: null,
+		licenseKey: publicLicenseKeyOption.getValue({commandLine: parsedCli}).value,
+	});
+};

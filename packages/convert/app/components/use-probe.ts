@@ -1,0 +1,191 @@
+import type {
+	InputAudioTrack,
+	InputFormat,
+	InputTrack,
+	InputVideoTrack,
+	MetadataTags,
+} from 'mediabunny';
+import {ALL_FORMATS, BlobSource, Input, UrlSource} from 'mediabunny';
+import {useCallback, useEffect, useMemo, useState} from 'react';
+import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
+import type {Source} from '~/lib/convert-state';
+import {getDurationOrCompute} from '~/lib/get-duration-or-compute';
+import {
+	getVideoFrameRate,
+	type VideoFrameRate,
+} from '~/lib/get-video-frame-rate';
+
+export type ProbeResult = ReturnType<typeof useProbe>;
+
+export const useProbe = ({src}: {src: Source}) => {
+	const [audioCodec, setAudioCodec] = useState<
+		InputAudioTrack['codec'] | null | undefined
+	>(undefined);
+	const [frameRate, setFrameRate] = useState<
+		VideoFrameRate | null | undefined
+	>(undefined);
+	const [isHdr, setHdr] = useState<boolean | undefined>(undefined);
+	const [durationInSeconds, setDurationInSeconds] = useState<
+		number | null | undefined
+	>(undefined);
+	const [dimensions, setDimensions] = useState<Dimensions | undefined | null>(
+		undefined,
+	);
+	const name = useMemo(
+		() => (src.type === 'url' ? src.url.split('/').pop()! : src.file.name),
+		[src],
+	);
+	const [videoCodec, setVideoCodec] = useState<
+		InputVideoTrack['codec'] | undefined | null
+	>(undefined);
+	const [rotation, setRotation] = useState<number | null>(null);
+	const [size, setSize] = useState<number | null>(null);
+	const [metadata, setMetadata] = useState<MetadataTags | null>(null);
+	const [tracks, setTracks] = useState<InputTrack[] | null>(null);
+	const [container, setContainer] = useState<InputFormat | null>(null);
+	const [sampleRate, setSampleRate] = useState<number | null>(null);
+	const [done, setDone] = useState(false);
+	const [error, setError] = useState<Error | null>(null);
+
+	const input = useMemo(() => {
+		return new Input({
+			formats: ALL_FORMATS,
+			source:
+				src.type === 'file' ? new BlobSource(src.file) : new UrlSource(src.url),
+		});
+	}, [src]);
+
+	const getStart = useCallback(() => {
+		const run = async () => {
+			input.getFormat().then((format) => setContainer(format));
+			input.source.getSize().then((s) => setSize(s));
+			getVideoFrameRate(input).then(setFrameRate);
+			getDurationOrCompute(input).then((duration) =>
+				setDurationInSeconds(duration),
+			);
+			input.getMetadataTags().then((tags) => setMetadata(tags));
+
+			const trx = await input.getTracks();
+			for (const track of trx) {
+				if (await track.isLive()) {
+					throw new Error(
+						'Live streams are not currently supported by Remotion. Sorry!',
+					);
+				}
+
+				if (await track.isRelativeToUnixEpoch()) {
+					throw new Error(
+						'Streams with UNIX timestamps are not currently supported by Remotion. Sorry!',
+					);
+				}
+			}
+
+			let hasAudioTrack = false;
+			let hasVideoTrack = false;
+			for (const track of trx) {
+				if (track.isVideoTrack()) {
+					hasVideoTrack = true;
+					const codec = await track.getCodec();
+					setVideoCodec(codec);
+					const [displayWidth, displayHeight, trackRotation] =
+						await Promise.all([
+							track.getDisplayWidth(),
+							track.getDisplayHeight(),
+							track.getRotation(),
+						]);
+					setDimensions({
+						width: displayWidth,
+						height: displayHeight,
+					});
+					setRotation(trackRotation);
+					track.hasHighDynamicRange().then((hdr) => setHdr(hdr));
+				} else if (track.isAudioTrack()) {
+					hasAudioTrack = true;
+					const codec = await track.getCodec();
+					setAudioCodec(codec);
+					track.getSampleRate().then((sr) => setSampleRate(sr));
+				}
+			}
+
+			setTracks(trx);
+
+			if (!hasAudioTrack) {
+				setAudioCodec(null);
+				setSampleRate(null);
+			}
+
+			if (!hasVideoTrack) {
+				setVideoCodec(null);
+				setFrameRate(null);
+				setDimensions(null);
+				setHdr(false);
+			}
+		};
+
+		run()
+			.then(() => {
+				setDone(true);
+			})
+			.catch((e) => {
+				setError(e);
+			});
+
+		return () => {
+			input.dispose();
+		};
+	}, [input]);
+
+	useEffect(() => {
+		const cleanup = getStart();
+		return () => {
+			cleanup();
+		};
+	}, [getStart]);
+
+	const fps =
+		frameRate === undefined || frameRate === null
+			? frameRate
+			: frameRate.type === 'constant'
+				? frameRate.rate
+				: frameRate.max;
+
+	return useMemo(() => {
+		return {
+			tracks,
+			audioCodec,
+			fps,
+			frameRate,
+			name,
+			container,
+			dimensions,
+			videoCodec,
+			size,
+			durationInSeconds,
+			isHdr,
+			done,
+			error,
+			rotation,
+			metadata,
+			sampleRate,
+			input,
+		};
+	}, [
+		tracks,
+		audioCodec,
+		fps,
+		frameRate,
+		name,
+		container,
+		dimensions,
+		videoCodec,
+		size,
+		durationInSeconds,
+		isHdr,
+		done,
+		error,
+		rotation,
+		metadata,
+		sampleRate,
+		input,
+	]);
+};

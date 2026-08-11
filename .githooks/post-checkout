@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Only run after branch checkouts, which is what `git worktree add` triggers.
+if [ "${3:-}" != "1" ]; then
+	exit 0
+fi
+
+hook_dir=$(cd "$(dirname "$0")" && pwd)
+"$hook_dir/copy-env-files"

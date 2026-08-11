@@ -1,0 +1,20 @@
+---
+sidebar_label: functions
+title: 'npx remotion lambda functions'
+slug: /lambda/cli/functions
+crumb: 'Lambda CLI Reference'
+---
+
+The `npx remotion lambda functions` command allows you to deploy, view and delete AWS lambda functions that can render videos.
+
+- [`deploy`](/docs/lambda/cli/functions/deploy)
+- [`ls`](/docs/lambda/cli/functions/ls)
+- [`rm`](/docs/lambda/cli/functions/rm)
+- [`rmall`](/docs/lambda/cli/functions/rmall)
+
+You only need one function per AWS region and Remotion version. Suggested reading: [Do I need to deploy a function for each render?](/docs/lambda/faq#do-i-need-to-deploy-a-function-for-each-render)
+
+## See also
+
+- [Do I need to deploy a function for each render?](/docs/lambda/faq#do-i-need-to-deploy-a-function-for-each-render)
+- [Setup guide](/docs/lambda/setup)

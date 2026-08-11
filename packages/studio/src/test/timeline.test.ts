@@ -1,0 +1,445 @@
+import {expect, test} from 'bun:test';
+import type {_InternalTypes, TSequence} from 'remotion';
+import {getTimelineMediaStartFrame} from '../components/Timeline/get-timeline-media-start-frame';
+import {calculateTimeline} from '../helpers/calculate-timeline';
+
+const getStack = () => null;
+
+const withoutKeyframeDisplayOffset = <
+	T extends {keyframeDisplayOffset: number; sequenceFrameOffset: number},
+>(
+	tracks: T[],
+) =>
+	tracks.map(({keyframeDisplayOffset, sequenceFrameOffset, ...track}) => {
+		expect(keyframeDisplayOffset).toBe(0);
+		expect(sequenceFrameOffset).toBe(0);
+		return track;
+	});
+
+test('Should calculate timeline with no sequences', () => {
+	const calculated = calculateTimeline({
+		overrideIdsToNodePaths: {},
+		sequences: [],
+	});
+	expect(calculated).toEqual([]);
+});
+
+test('Should calculate a basic timeline', () => {
+	const calculated = calculateTimeline({
+		overrideIdsToNodePaths: {},
+		sequences: [
+			{
+				displayName: 'Audio',
+				documentationLink: null,
+				duration: 100,
+				from: 0,
+				trimBefore: null,
+				id: '0.1',
+				parent: null,
+				showInTimeline: true,
+				type: 'sequence',
+				nonce: [[0, 0]],
+				getStack,
+				refForOutline: null,
+				isInsideSeries: false,
+				premountDisplay: null,
+				postmountDisplay: null,
+				controls: null,
+				loopDisplay: undefined,
+				effects: [],
+				frozenFrame: null,
+			},
+		],
+	});
+	expect(withoutKeyframeDisplayOffset(calculated)).toEqual([
+		{
+			nodePathInfo: null,
+			depth: 0,
+			sequence: {
+				displayName: 'Audio',
+				documentationLink: null,
+				duration: 100,
+				from: 0,
+				trimBefore: null,
+				id: '0.1',
+				parent: null,
+				showInTimeline: true,
+				premountDisplay: null,
+				postmountDisplay: null,
+				controls: null,
+				loopDisplay: undefined,
+				getStack,
+				refForOutline: null,
+				isInsideSeries: false,
+				type: 'sequence',
+				nonce: [[0, 0]],
+				effects: [],
+				frozenFrame: null,
+			},
+		},
+	]);
+});
+
+test('Should follow order of nesting', () => {
+	const calculated = calculateTimeline({
+		overrideIdsToNodePaths: {},
+		sequences: [
+			{
+				displayName: 'Audio',
+				documentationLink: null,
+				duration: 100,
+				from: 0,
+				trimBefore: null,
+				id: '0.2',
+				parent: '0.1',
+				showInTimeline: true,
+				type: 'sequence',
+				nonce: [[0, 0]],
+				getStack,
+				refForOutline: null,
+				isInsideSeries: false,
+				premountDisplay: null,
+				postmountDisplay: null,
+				controls: null,
+				loopDisplay: undefined,
+				effects: [],
+				frozenFrame: null,
+			},
+			{
+				displayName: 'Audio',
+				documentationLink: null,
+				duration: 100,
+				from: 0,
+				trimBefore: null,
+				id: '0.1',
+				premountDisplay: null,
+				postmountDisplay: null,
+				controls: null,
+				loopDisplay: undefined,
+				parent: null,
+				showInTimeline: true,
+				type: 'sequence',
+				nonce: [[0, 0]],
+				getStack,
+				refForOutline: null,
+				isInsideSeries: false,
+				effects: [],
+				frozenFrame: null,
+			},
+		],
+	});
+	expect(withoutKeyframeDisplayOffset(calculated)).toEqual([
+		{
+			nodePathInfo: null,
+			sequence: {
+				displayName: 'Audio',
+				documentationLink: null,
+				duration: 100,
+				from: 0,
+				trimBefore: null,
+				id: '0.1',
+				premountDisplay: null,
+				postmountDisplay: null,
+				controls: null,
+				loopDisplay: undefined,
+				parent: null,
+				showInTimeline: true,
+				type: 'sequence',
+				nonce: [[0, 0]],
+				getStack,
+				refForOutline: null,
+				isInsideSeries: false,
+				effects: [],
+				frozenFrame: null,
+			},
+			depth: 0,
+		},
+		{
+			nodePathInfo: null,
+			sequence: {
+				displayName: 'Audio',
+				documentationLink: null,
+				duration: 100,
+				from: 0,
+				trimBefore: null,
+				id: '0.2',
+				parent: '0.1',
+				showInTimeline: true,
+				type: 'sequence',
+				nonce: [[0, 0]],
+				getStack,
+				refForOutline: null,
+				isInsideSeries: false,
+				premountDisplay: null,
+				postmountDisplay: null,
+				controls: null,
+				loopDisplay: undefined,
+				effects: [],
+				frozenFrame: null,
+			},
+			depth: 1,
+		},
+	]);
+});
+
+test('Should inherit loop display from parent for media tracks', () => {
+	const calculated = calculateTimeline({
+		overrideIdsToNodePaths: {},
+		sequences: [
+			{
+				effects: [],
+				frozenFrame: null,
+				displayName: 'Loop',
+				documentationLink: null,
+				duration: 100,
+				from: 50,
+				trimBefore: null,
+				id: 'loop',
+				parent: null,
+				showInTimeline: true,
+				type: 'sequence',
+				nonce: [[0, 0]],
+				getStack,
+				refForOutline: null,
+				isInsideSeries: false,
+				premountDisplay: null,
+				postmountDisplay: null,
+				controls: null,
+				loopDisplay: {
+					durationInFrames: 100,
+					numberOfTimes: 3,
+					startOffset: -50,
+				},
+			},
+			{
+				displayName: 'video.mp4',
+				documentationLink: null,
+				duration: 100,
+				from: 0,
+				trimBefore: null,
+				id: 'video',
+				parent: 'loop',
+				showInTimeline: true,
+				type: 'video',
+				nonce: [[0, 1]],
+				getStack,
+				refForOutline: null,
+				isInsideSeries: false,
+				premountDisplay: null,
+				postmountDisplay: null,
+				controls: null,
+				loopDisplay: undefined,
+				src: 'video.mp4',
+				volume: 1,
+				doesVolumeChange: false,
+				startMediaFrom: 0,
+				playbackRate: 1,
+				frozenMediaFrame: null,
+				mediaFrameAtSequenceZero: null,
+				effects: [],
+				frozenFrame: null,
+			},
+		],
+	});
+
+	expect(calculated[1].sequence.loopDisplay).toEqual({
+		durationInFrames: 100,
+		numberOfTimes: 3,
+		startOffset: -50,
+	});
+});
+
+test('Should calculate sequence frame offset for negative from values', () => {
+	const calculated = calculateTimeline({
+		overrideIdsToNodePaths: {},
+		sequences: [
+			{
+				displayName: 'Trimmed',
+				documentationLink: null,
+				duration: 137,
+				from: -37,
+				trimBefore: null,
+				id: 'trimmed',
+				parent: null,
+				showInTimeline: true,
+				type: 'sequence',
+				nonce: [[0, 0]],
+				getStack,
+				refForOutline: null,
+				isInsideSeries: false,
+				premountDisplay: null,
+				postmountDisplay: null,
+				controls: null,
+				loopDisplay: undefined,
+				effects: [],
+				frozenFrame: null,
+			},
+		],
+	});
+
+	expect(calculated[0].sequence.from).toBe(0);
+	expect(calculated[0].sequenceFrameOffset).toBe(37);
+});
+
+test('Should calculate sequence frame offset for trimBefore values', () => {
+	const calculated = calculateTimeline({
+		overrideIdsToNodePaths: {},
+		sequences: [
+			{
+				displayName: 'Trimmed',
+				documentationLink: null,
+				duration: 120,
+				from: 0,
+				trimBefore: 20,
+				id: 'trimmed',
+				parent: null,
+				showInTimeline: true,
+				type: 'sequence',
+				nonce: [[0, 0]],
+				getStack,
+				refForOutline: null,
+				isInsideSeries: false,
+				premountDisplay: null,
+				postmountDisplay: null,
+				controls: null,
+				loopDisplay: undefined,
+				effects: [],
+				frozenFrame: null,
+			},
+		],
+	});
+
+	expect(calculated[0].sequence.from).toBe(0);
+	expect(calculated[0].sequenceFrameOffset).toBe(20);
+});
+
+test('Should account for a parent Sequence trimBefore in video thumbnails', () => {
+	const calculated = calculateTimeline({
+		overrideIdsToNodePaths: {},
+		sequences: [
+			{
+				displayName: 'Independent clip 01',
+				documentationLink: null,
+				duration: 54,
+				from: 24,
+				trimBefore: 24,
+				id: 'sequence',
+				parent: null,
+				showInTimeline: true,
+				type: 'sequence',
+				nonce: [[0, 0]],
+				getStack,
+				refForOutline: null,
+				isInsideSeries: false,
+				premountDisplay: null,
+				postmountDisplay: null,
+				controls: null,
+				loopDisplay: undefined,
+				effects: [],
+				frozenFrame: null,
+			},
+			{
+				displayName: 'Independent video 01',
+				documentationLink: null,
+				duration: 54,
+				from: 0,
+				trimBefore: null,
+				id: 'video',
+				parent: 'sequence',
+				showInTimeline: true,
+				type: 'video',
+				nonce: [[0, 1]],
+				getStack,
+				refForOutline: null,
+				isInsideSeries: false,
+				premountDisplay: null,
+				postmountDisplay: null,
+				controls: null,
+				loopDisplay: undefined,
+				effects: [],
+				frozenFrame: null,
+				frozenMediaFrame: null,
+				mediaFrameAtSequenceZero: 0,
+				src: 'https://remotion.media/video.mp4',
+				volume: 1,
+				doesVolumeChange: false,
+				startMediaFrom: 0,
+				playbackRate: 1,
+			},
+		],
+	});
+	const video = calculated.find((track) => track.sequence.type === 'video');
+
+	if (!video || video.sequence.type !== 'video') {
+		throw new Error('Expected a video track');
+	}
+
+	expect(
+		getTimelineMediaStartFrame({
+			startMediaFrom: video.sequence.startMediaFrom,
+			mediaFrameAtSequenceZero: video.sequence.mediaFrameAtSequenceZero,
+			sequenceFrameOffset: video.sequenceFrameOffset,
+			playbackRate: video.sequence.playbackRate,
+		}),
+	).toBe(24);
+});
+
+test('Should hide descendants of sequences with connected compositions', () => {
+	const LinkedChild = () => null;
+	const makeSequence = ({
+		id,
+		parent,
+		nonce,
+		singleChildComponent,
+	}: {
+		id: string;
+		parent: string | null;
+		nonce: number;
+		singleChildComponent?: unknown;
+	}): TSequence => ({
+		controls: null,
+		displayName: id,
+		documentationLink: null,
+		duration: 100,
+		effects: [],
+		from: 0,
+		frozenFrame: null,
+		getStack,
+		id,
+		isInsideSeries: false,
+		loopDisplay: undefined,
+		nonce: [[0, nonce]],
+		parent,
+		postmountDisplay: null,
+		premountDisplay: null,
+		refForOutline: null,
+		showInTimeline: true,
+		singleChildComponent,
+		trimBefore: null,
+		type: 'sequence',
+	});
+	const connectedComposition = {
+		componentFromProps: LinkedChild,
+	} as unknown as _InternalTypes['AnyComposition'];
+
+	const calculated = calculateTimeline({
+		compositions: [connectedComposition],
+		overrideIdsToNodePaths: {},
+		sequences: [
+			makeSequence({
+				id: 'linked',
+				parent: null,
+				nonce: 0,
+				singleChildComponent: LinkedChild,
+			}),
+			makeSequence({id: 'child', parent: 'linked', nonce: 1}),
+			makeSequence({id: 'grandchild', parent: 'child', nonce: 2}),
+			makeSequence({id: 'sibling', parent: null, nonce: 3}),
+		],
+	});
+
+	expect(calculated.map((track) => track.sequence.id)).toEqual([
+		'linked',
+		'sibling',
+	]);
+});

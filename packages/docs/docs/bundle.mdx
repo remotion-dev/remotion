@@ -1,0 +1,188 @@
+---
+image: /generated/articles-docs-bundle.png
+id: bundle
+title: bundle()
+crumb: '@remotion/bundler'
+---
+
+_Part of the `@remotion/bundler` package._
+
+Bundles a Remotion project using Webpack, or Rspack if enabled, and prepares it for rendering using [`renderMedia()`](/docs/renderer/render-media). [See a full server-side rendering example.](/docs/ssr-node)
+
+You only need to call this function when the source code changes. You can render multiple videos from the same bundle and parametrize them using [input props](/docs/passing-props).
+
+Calling `bundle()` for every video that you render is an anti-pattern.  
+`bundle()` cannot be called in a serverless function, see: [Calling bundle() in bundled code](/docs/troubleshooting/bundling-bundle).
+
+## Example
+
+```tsx twoslash title="render.mjs"
+import path from 'path';
+import {bundle} from '@remotion/bundler';
+
+const serveUrl = await bundle({
+  entryPoint: path.join(process.cwd(), './src/index.ts'),
+  // If you have a bundler override in remotion.config.ts, pass it here as well.
+  webpackOverride: (config) => config,
+});
+```
+
+## Arguments
+
+### `entryPoint`
+
+A `string` containing an absolute path of the entry point of a Remotion project. [In most Remotion project created with the template, the entry point is located at `src/index.ts`](/docs/terminology/entry-point).
+
+### `onProgress?`
+
+A callback function that notifies about the bundling progress. Passes a number between `0` and `100`. Example function:
+
+```ts twoslash
+const onProgress = (progress: number) => {
+  console.log(`Bundling progress: ${progress}%`);
+};
+```
+
+### `webpackOverride?`
+
+A function to override the Webpack config reducer-style. It is not called if `rspack` is `true`. For example:
+
+```ts twoslash
+import {WebpackOverrideFn} from '@remotion/bundler';
+// ---cut---
+const webpackOverride: WebpackOverrideFn = (webpackConfig) => {
+  return {
+    ...webpackConfig,
+    // Override properties
+  };
+};
+```
+
+### `bundlerOverride?`<AvailableFrom v="4.0.498" />
+
+A function that overrides configuration shared by Webpack and Rspack. The second argument identifies the selected bundler.
+
+Use it only for changes compatible with both bundlers. It runs before `webpackOverride` or `rspackOverride`.
+
+```ts twoslash
+import {BundlerOverrideFn} from '@remotion/bundler';
+// ---cut---
+const bundlerOverride: BundlerOverrideFn = (config, {bundler}) => {
+  return {
+    ...config,
+    name: `remotion-${bundler}`,
+  };
+};
+```
+
+### `rspackOverride?`<AvailableFrom v="4.0.498" />
+
+A function to override the Rspack config reducer-style. It is only called if `rspack` is `true`.
+
+```ts twoslash
+import {RspackOverrideFn} from '@remotion/bundler';
+// ---cut---
+const rspackOverride: RspackOverrideFn = (rspackConfig) => {
+  return {
+    ...rspackConfig,
+    // Rspack-specific configuration
+  };
+};
+```
+
+### `outDir?`
+
+Specify a desired output directory. If not passed, the bundle will be created in a temporary directory.
+
+### `askAIEnabled?`
+
+<Options id="disable-ask-ai" />
+
+### `rspack?`
+
+Whether to use [Rspack](https://rspack.dev) instead of Webpack as the bundler. Default `false`.
+
+### `keyboardShortcutsEnabled?`
+
+<Options id="disable-keyboard-shortcuts" />
+
+### `enableCaching?`
+
+<Options id="bundle-cache" />
+
+### `publicPath?`
+
+<Options id="public-path" />
+
+From <AvailableFrom v="4.0.497" inline />, the default `./` makes the bundle relocatable. Earlier versions defaulted to `/`. Pass `/` to retain an origin-root URL.
+
+### `rootDir?`<AvailableFrom v="3.1.6" />
+
+The directory in which the Remotion project is rooted in. This should be set to the directory that contains the `package.json` which installs Remotion. By default, it is the current working directory.
+
+:::note
+The current working directory is the directory from which your program gets executed from. It is not the same as the file where bundle() gets called.
+:::
+
+### `publicDir?`<AvailableFrom v="3.2.13" />
+
+<Options id="public-dir" />
+
+### `onPublicDirCopyProgress?`<AvailableFrom v="3.3.3" />
+
+Reports progress of how many bytes have been written while copying the `public/` directoy. Useful to warn the user if the directory is large that this operation is slow.
+
+### `onSymlinkDetected?`<AvailableFrom v="3.3.3" />
+
+Gets called when a symbolic link is detected in the `public/` directory. Since Remotion will forward the symbolic link, it might be useful to display a hint to the user that if the original symbolic link gets deleted, the bundle will also break.
+
+### `ignoreRegisterRootWarning?`<AvailableFrom v="3.3.46" />
+
+Ignore an error that gets thrown if you pass an entry point file which does not contain `registerRoot`.
+
+## Legacy function signature
+
+Remotion versions earlier than v3.2.17 had the following function signature instead:
+
+```ts
+const bundle: (
+  entryPoint: string,
+  onProgress?: (progress: number) => void,
+  options?: {
+    bundlerOverride?: BundlerOverrideFn;
+    rspackOverride?: RspackOverrideFn;
+    webpackOverride?: WebpackOverrideFn;
+    outDir?: string;
+    enableCaching?: boolean;
+    publicPath?: string;
+    rootDir?: string;
+    publicDir?: string | null;
+  },
+) => Promise<string>;
+```
+
+Example:
+
+```ts
+await bundle('src/index.ts', () => console.log(progress * 100 + '% done'), {
+  webpackOverride,
+});
+```
+
+It is supported through Remotion v4 and removed in Remotion 5.0. Migrate to the options object signature before upgrading.
+
+## Return value
+
+A promise which will resolve into a `string` specifying the output directory.
+
+Pass this directory to [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle) to upload it to Remotion Lambda without bundling again.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/bundle.ts)
+- [Server-Side rendering](/docs/ssr)
+- [getCompositions()](/docs/renderer/get-compositions)
+- [renderMedia()](/docs/renderer/render-media)
+- [stitchFramesToVideo()](/docs/renderer/stitch-frames-to-video)
+- [Calling bundle() in bundled code](/docs/troubleshooting/bundling-bundle)
+- [`deploySiteFromBundle()`](/docs/lambda/deploysitefrombundle)

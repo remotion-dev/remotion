@@ -1,0 +1,53 @@
+---
+image: /generated/articles-docs-starburst-guide.png
+id: starburst
+title: Starburst
+crumb: 'Designing visuals'
+---
+
+# Starburst<AvailableFrom v="4.0.500"/>
+
+The [`starburst()`](/docs/effects/starburst) effect from [`@remotion/effects`](/docs/effects/api) renders a WebGL2-based retro ray pattern.
+
+<Demo type="starburst" />
+
+Apply the effect to a [`<Solid>`](/docs/solid) and animate its parameters with [`interpolate()`](/docs/interpolate):
+
+```tsx twoslash title="MyComp.tsx"
+import {starburst} from '@remotion/effects/starburst';
+import {
+  AbsoluteFill,
+  interpolate,
+  Solid,
+  useCurrentFrame,
+  useVideoConfig,
+} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {width, height, durationInFrames} = useVideoConfig();
+
+  return (
+    <AbsoluteFill>
+      <Solid
+        width={width}
+        height={height}
+        effects={[
+          starburst({
+            rays: 16,
+            colors: ['#ffdd00', '#ff8800'],
+            rotation: interpolate(frame, [0, durationInFrames], [0, 360]),
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+Keeping the `interpolate()` calls inline makes the keyframes editable in [Remotion Studio](/docs/studio/interactivity-best-practices).
+
+## See also
+
+- [`starburst()` API reference](/docs/effects/starburst)
+- [`@remotion/effects`](/docs/effects/api)

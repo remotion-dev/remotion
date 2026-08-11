@@ -1,0 +1,187 @@
+---
+image: /generated/articles-docs-lambda-python.png
+title: Triggering renders from Python
+slug: /lambda/python
+sidebar_label: Rendering from Python
+crumb: '@remotion/lambda'
+---
+
+_available from v4.0.15_
+
+To trigger a Lambda render using Python, install the `remotion-lambda` package using `pip`, by executing `pip install remotion-lambda` from your python project. Use the same version as the `remotion` version you are using from NPM, e.g. `pip install remotion-lambda==4.0.15` (see [newest version](https://remotion.dev/changelog)).
+
+You first need to [complete the Lambda setup](/docs/lambda/setup).
+
+## Limitations
+
+Before v4.0.315: Sending large input props (>200KB) was not supported.
+
+Starting from v4.0.315, the Python SDK automatically handles large input props by uploading them to S3 when they exceed AWS Lambda payload limits. Props larger than 200KB for video renders and 5MB for still renders are automatically compressed using the same logic as the JavaScript SDK. The SDK will automatically find or create an appropriate S3 bucket following Remotion's naming conventions.
+
+## Rendering a video
+
+Below is a snippet showing how to initiate a render request and get its status.
+
+```python title="render_media.py"
+from remotion_lambda import RenderMediaParams, Privacy, ValidStillImageFormats
+from remotion_lambda import RemotionClient
+import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
+# Load env variables
+REMOTION_APP_REGION = os.getenv('REMOTION_APP_REGION')
+if not REMOTION_APP_REGION:
+    raise Exception("REMOTION_APP_REGION is not set")
+
+REMOTION_APP_FUNCTION_NAME = os.getenv('REMOTION_APP_FUNCTION_NAME')
+if not REMOTION_APP_FUNCTION_NAME:
+    raise Exception("REMOTION_APP_FUNCTION_NAME is not set")
+
+REMOTION_APP_SERVE_URL = os.getenv('REMOTION_APP_SERVE_URL')
+if not REMOTION_APP_SERVE_URL:
+    raise Exception("REMOTION_APP_SERVE_URL is not set")
+
+# Construct client
+client = RemotionClient(region=REMOTION_APP_REGION,
+                        serve_url=REMOTION_APP_SERVE_URL,
+                        function_name=REMOTION_APP_FUNCTION_NAME)
+
+# Set render request
+render_params = RenderMediaParams(
+    composition="react-svg",
+    privacy=Privacy.PUBLIC,
+    image_format=ValidStillImageFormats.JPEG,
+    input_props={
+        'hi': 'there'
+    },
+)
+
+render_response = client.render_media_on_lambda(render_params)
+if render_response:
+    # Execute render request
+
+    print("Render ID:", render_response.render_id)
+    print("Bucket name:", render_response.bucket_name)
+
+    # Execute progress request
+    progress_response = client.get_render_progress(
+        render_id=render_response.render_id, bucket_name=render_response.bucket_name)
+
+    while progress_response and not progress_response.done and not progress_response.fatalErrorEncountered:
+        if progress_response.fatalErrorEncountered:
+            print("Fatal error encountered")
+            print(progress_response.errors)
+            break
+        print("Overall progress")
+        print(str(progress_response.overallProgress * 100) + "%")
+        progress_response = client.get_render_progress(
+            render_id=render_response.render_id, bucket_name=render_response.bucket_name)
+    print("Render done!", progress_response.outputFile)
+```
+
+## Large input props _available from v4.0.315_
+
+The Python SDK automatically handles large input props by uploading them to S3 when they exceed AWS Lambda payload limits:
+
+- Video/audio renders: Props larger than ~194KB
+- Still renders: Props larger than ~4.9MB
+
+When large props are detected, they are automatically uploaded to S3 and referenced by the Lambda function. The SDK will find an existing Remotion bucket or create a new one automatically, following the same logic as the JavaScript SDK. This process is transparent to the user.
+
+```python title="large_props_example.py"
+# Large input props are handled automatically
+large_props = {
+    'bigData': ['x' * 1000] * 250,  # ~250KB of data
+    'description': 'This will be automatically uploaded to S3'
+}
+
+render_params = RenderMediaParams(
+    composition="my-composition",
+    input_props=large_props,  # Automatically compressed
+    # ... other parameters
+)
+
+# The render works the same way, compression is handled internally
+response = client.render_media_on_lambda(render_params)
+```
+
+## Rendering an image
+
+Below is a snippet showing how to initiate a still image render. Note that it does not require monitoring the render progress.
+
+```python title="render_still.py"
+from remotion_lambda import RenderStillParams, Privacy, ValidStillImageFormats
+from remotion_lambda import RemotionClient
+import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
+# Load env variables
+REMOTION_APP_REGION = os.getenv('REMOTION_APP_REGION')
+if not REMOTION_APP_REGION:
+    raise Exception("REMOTION_APP_REGION is not set")
+
+REMOTION_APP_FUNCTION_NAME = os.getenv('REMOTION_APP_FUNCTION_NAME')
+if not REMOTION_APP_FUNCTION_NAME:
+    raise Exception("REMOTION_APP_FUNCTION_NAME is not set")
+
+REMOTION_APP_SERVE_URL = os.getenv('REMOTION_APP_SERVE_URL')
+if not REMOTION_APP_SERVE_URL:
+    raise Exception("REMOTION_APP_SERVE_URL is not set")
+
+# Construct client
+client = RemotionClient(region=REMOTION_APP_REGION,
+                        serve_url=REMOTION_APP_SERVE_URL,
+                        function_name=REMOTION_APP_FUNCTION_NAME,
+                        access_key=None, #  deprecated, use session instead
+                        secret_key=None, # deprecated, use session instead
+                        force_path_style=False, # By default False
+                        config=None, # Custom botocore configuration object
+                        session=None, # Pre-configured boto3 Session object (recommended for authentication)
+                        )
+
+# Set render still request
+render_params = RenderStillParams(
+    composition="still-helloworld",
+    privacy=Privacy.PUBLIC,
+    image_format=ValidStillImageFormats.JPEG,
+    input_props={
+        'message': 'Hello from props!'
+    },
+)
+
+render_response = client.render_still_on_lambda(render_params)
+if render_response:
+    # Execute render request
+    print("Render ID:", render_response.render_id)
+    print("Bucket name:", render_response.bucket_name)
+    print("Render done! File at ", render_response.url)
+```
+
+## Breaking changes
+
+### 4.0.380
+
+- Added `config` and `session` parameters to `RemotionClient` constructor.
+- Less error repackaging, redirecting more AWS errors directly to the user.
+
+### 4.0.82
+
+- The `data` field is now `input_props`.
+- `RenderParams` has been renamed to `RenderMediaParams`.
+- `RenderProgress` has been renamed to `RenderMediaProgress`.
+- `RenderResponse` is now `RenderMediaResponse`, and its fields have been updated: `renderId` is now `render_id`, and `bucketName` has been changed to `bucket_name`.
+- The following types have been added: `CostsInfo`,
+  `Privacy`, `ValidStillImageFormats`, `LogLevel`, `OpenGlRenderer`,
+  `ChromiumOptions`, `CustomCredentialsWithoutSensitiveData`, `CustomCredentials`,
+  `OutNameInputObject`, `PlayInBrowser`, `Download`, `DeleteAfter`. These can be used for the fields on `RenderMediaParams` and `RenderStillParams`.
+
+## See also
+
+- [Using Lambda without IAM user](/docs/lambda/without-iam)
+- [Permissions](/docs/lambda/permissions)

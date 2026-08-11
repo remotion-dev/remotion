@@ -1,0 +1,108 @@
+---
+image: /generated/articles-docs-licensing-index.png
+sidebar_label: Overview
+title: '@remotion/licensing'
+crumb: API
+---
+
+_available from v4.0.237_
+
+This package allows holders of the [Company License](/docs/license/pricing) to send events to Remotion to track the usage of renders.  
+Also, it offers an API to programmatically check the usage in order to implement spend controls.
+
+### How do I use this package?
+
+Not directly - pass the `licenseKey` option in the renderer package you use.
+
+**Supported packages**
+
+- [`@remotion/lambda`](/docs/lambda): Pass `licenseKey` to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#licensekey) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#licensekey) to trigger an event.
+- [`@remotion/vercel`](/docs/vercel/api): Pass `licenseKey` to [`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel#licensekey) and [`renderStillOnVercel()`](/docs/vercel/render-still-on-vercel#licensekey) to trigger an event.
+- [`@remotion/renderer`](/docs/renderer): Pass `licenseKey` to [`renderMedia()`](/docs/renderer/render-media#licensekey) and [`renderStill()`](/docs/renderer/render-still#licensekey) to trigger an event.
+- [`@remotion/web-renderer`](/docs/web-renderer): An event is always sent. Pass a real `licenseKey`, or declare eligibility for the free license with `licenseKey: "free-license"`. See [Telemetry](/docs/telemetry#setting-a-license-key).
+
+<details>
+  <summary>Deprecated packages</summary>
+
+- [`@remotion/cloudrun`](/docs/cloudrun): No telemetry is implemented. Use [`@remotion/licensing`](/docs/licensing) directly to track usage.
+- [`@remotion/webcodecs`](/docs/webcodecs): Telemetry was removed in v4.0.399 because this package is no longer monetized.
+
+</details>
+
+On your Company License dashboard on [remotion.pro](https://remotion.pro), you can find your license keys on the License keys page.
+
+### Do I need to use this package?
+
+For all versions below Remotion 5.0, it is **voluntary** to use this package.  
+An exception is [`@remotion/web-renderer`](/docs/web-renderer), which will always send telemetry events.
+
+If you are not eligible for the Free License, you need to get a Company License and are required to keep your allowance up to date.
+
+From Remotion 5.0, telemetry reporting using the `licenseKey` option is **mandatory** for Remotion for Automators (render-based licensing).
+
+For Remotion for Creators (seat-based licensing), telemetry reporting is optional. Remotion for Creators is meant for low-volume rendering within and for your own company, not to serve (personalized) videos to your end users.
+
+### Can I use this package to count renders if I am eligible for the Free License?
+
+Yes, you may still create a project on [remotion.pro](https://remotion.pro) and use this package to count renders.  
+You do not have to pay anything for the renders.  
+This package is only used to count the number of renders, not for billing.
+
+### Will I get charged based on the usage?
+
+This package currently only counts renders, it does not bill you based on them.  
+If you are a Company License holder, you need to manually adjust your seat count on [remotion.pro](https://remotion.pro) to cover all your renders.
+
+However, the plan is to introduce a system that automatically bills you based on the usage, eliminating the need for you to manually adjust the seat count.
+
+### What data is sent?
+
+When a telemetry event is triggered, the following information is sent to Remotion's servers:
+
+- License key
+- Host domain (`window.location.origin`) — only for [`@remotion/web-renderer`](/docs/web-renderer)
+- Event type (e.g. `cloud-render`, `web-render`)
+- Whether the render succeeded or failed
+- Whether it is a production or development render
+
+No information about the rendered media content, metadata, or any user data is collected.
+
+For client-side rendering using [`@remotion/web-renderer`](/docs/web-renderer), the IP address is also recorded.
+
+See [Telemetry](/docs/telemetry) for the source of truth on telemetry.
+
+### Data retention and sharing
+
+Telemetry data is currently retained indefinitely and is not regularly deleted.  
+This data is not shared with any third parties. It is only used internally by Remotion for license accountability.
+
+We plan to introduce a retention policy that automatically deletes telemetry data after a defined period. This has not been implemented yet, but is on our roadmap for the future.
+
+### Note for GDPR Compliance
+
+If you utilize client-side rendering, our licensing package transmits the end-user's IP address to Remotion strictly for license verification and billing metrics. You should ensure your app's privacy policy reflects that limited operational telemetry is shared with technical service providers under Legitimate Interest.
+
+### Does telemetry affect renders?
+
+No. Telemetry never blocks or fails a render. Even if the telemetry request fails or licensing is violated, the render will still complete successfully.
+
+### Can I opt out?
+
+For versions below Remotion 5.0, you can opt out by simply not passing a `licenseKey`. The render will still work.
+
+From Remotion 5.0, opt-out is possible under an [Enterprise License](/docs/license/pricing) agreement if monthly usage reports are provided instead.  
+The Enterprise License has the same per-render pricing, but requires a minimum spend of $500 per month.
+
+## Installation
+
+<Installation pkg="@remotion/licensing" />
+
+## API
+
+import {TableOfContents} from './TableOfContents';
+
+<TableOfContents />
+
+## License
+
+[Remotion License](https://remotion.dev/license)

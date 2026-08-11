@@ -1,0 +1,73 @@
+import type {
+	AudioCodec,
+	ChromeMode,
+	Codec,
+	ColorSpace,
+	LogLevel,
+	OpenGlRenderer,
+	PixelFormat,
+	StillImageFormat,
+	VideoImageFormat,
+	X264Preset,
+} from '@remotion/renderer';
+import type {HardwareAccelerationOption} from '@remotion/renderer/client';
+import type {_InternalTypes} from 'remotion';
+import type {GitSource} from './git-source';
+import type {PackageManager} from './package-manager';
+import type {StudioRuntimeConfig} from './studio-runtime-config';
+
+export type RenderDefaults = {
+	jpegQuality: number;
+	scale: number;
+	logLevel: LogLevel;
+	codec: Codec;
+	concurrency: number;
+	minConcurrency: number;
+	muted: boolean;
+	maxConcurrency: number;
+	stillImageFormat: StillImageFormat;
+	videoImageFormat: VideoImageFormat;
+	audioCodec: AudioCodec | null;
+	enforceAudioTrack: boolean;
+	proResProfile: _InternalTypes['ProResProfile'] | null;
+	x264Preset: X264Preset;
+	gopSize: number | null;
+	pixelFormat: PixelFormat;
+	audioBitrate: string | null;
+	videoBitrate: string | null;
+	encodingBufferSize: string | null;
+	encodingMaxRate: string | null;
+	userAgent: string | null;
+	everyNthFrame: number;
+	numberOfGifLoops: number | null;
+	delayRenderTimeout: number;
+	disableWebSecurity: boolean;
+	openGlRenderer: OpenGlRenderer | null;
+	ignoreCertificateErrors: boolean;
+	mediaCacheSizeInBytes: number | null;
+	offthreadVideoCacheSizeInBytes: number | null;
+	offthreadVideoThreads: number | null;
+	headless: boolean;
+	colorSpace: ColorSpace;
+	multiProcessOnLinux: boolean;
+	darkMode: boolean;
+	beepOnFinish: boolean;
+	repro: boolean;
+	forSeamlessAacConcatenation: boolean;
+	metadata: Record<string, string> | null;
+	hardwareAcceleration: HardwareAccelerationOption;
+	chromeMode: ChromeMode;
+	publicLicenseKey: string | null;
+	outputLocation: string | null;
+	sampleRate: number;
+};
+
+declare global {
+	interface Window {
+		remotion_renderDefaults: RenderDefaults | undefined;
+		remotion_gitSource: GitSource | null;
+		remotion_installedPackages: string[] | null;
+		remotion_packageManager: PackageManager | 'unknown';
+		remotion_studioConfig: StudioRuntimeConfig | null;
+	}
+}

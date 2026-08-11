@@ -1,0 +1,187 @@
+import type {CropRectangle} from 'mediabunny';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
+import {normalizeVideoRotation} from '~/lib/calculate-new-dimensions-from-dimensions';
+import {parseCanvasCaptureCursorData} from '~/lib/canvas-capture-metadata';
+import type {Source} from '~/lib/convert-state';
+import {getDefaultVideoEditState} from '~/lib/default-ui';
+import {isAudioOnly} from '~/lib/is-audio-container';
+import type {RouteAction} from '~/seo';
+import {BackButton} from './BackButton';
+import ConvertUI from './ConvertUi';
+import {Footer} from './Footer';
+import {VideoPlayer} from './MediaPlayer';
+import {Page} from './Page';
+import {Probe} from './Probe';
+import Transcribe from './transcribe/App';
+import {useProbe} from './use-probe';
+import type {VideoThumbnailRef} from './VideoThumbnail';
+
+export const FileAvailable: React.FC<{
+	readonly src: Source;
+	readonly setSrc: React.Dispatch<React.SetStateAction<Source | null>>;
+	readonly routeAction: RouteAction;
+}> = ({src, setSrc, routeAction}) => {
+	const [probeDetails, setProbeDetails] = useState(
+		() => routeAction.type === 'generic-probe',
+	);
+
+	const videoThumbnailRef = useRef<VideoThumbnailRef>(null);
+
+	const [videoEditState, setVideoEditState] = useState(() =>
+		getDefaultVideoEditState(routeAction),
+	);
+	const [enableTrim, setEnableTrim] = useState(
+		() =>
+			routeAction.type === 'generic-trim' || routeAction.type === 'trim-format',
+	);
+
+	const probeResult = useProbe({
+		src,
+	});
+
+	const [userRotation, setRotation] = useState(90);
+	const [flipHorizontal, setFlipHorizontal] = useState(true);
+	const [flipVertical, setFlipVertical] = useState(false);
+	const [cropOperation, setCropOperation] = useState<CropRectangle>(() => {
+		return {
+			left: 0,
+			top: 0,
+			width: Infinity,
+			height: Infinity,
+		};
+	});
+	const [trimInFrame, setTrimInFrame] = useState<number | null>(null);
+	const [trimOutFrame, setTrimOutFrame] = useState<number | null>(null);
+	const [showCursor, setShowCursor] = useState(true);
+	const [cursorScale, setCursorScale] = useState(1);
+
+	const [waveform, setWaveform] = useState<number[]>([]);
+
+	const actualUserRotation = useMemo(() => {
+		if (!videoEditState.rotate) {
+			return 0;
+		}
+
+		return normalizeVideoRotation(userRotation);
+	}, [videoEditState.rotate, userRotation]);
+
+	const onWaveformBars = useCallback((bars: number[]) => {
+		setWaveform(bars);
+	}, []);
+	const isAudio = isAudioOnly({tracks: probeResult.tracks});
+	const [playbackTime, setPlaybackTime] = useState(0);
+	const cursorData = useMemo(() => {
+		return parseCanvasCaptureCursorData(probeResult.metadata);
+	}, [probeResult.metadata]);
+
+	return (
+		<Page className="lg:justify-center pt-6 pb-10 px-4 lg:flex">
+			<div>
+				<BackButton setSrc={setSrc} />
+				<div className="h-4" />
+				{probeResult.error ? null : (
+					<>
+						<VideoPlayer
+							src={src}
+							isAudio={isAudio}
+							waveform={waveform}
+							crop={videoEditState.crop}
+							trim={enableTrim}
+							trimInFrame={trimInFrame}
+							trimOutFrame={trimOutFrame}
+							setTrimInFrame={setTrimInFrame}
+							setTrimOutFrame={setTrimOutFrame}
+							setUnclampedRect={setCropOperation}
+							unclampedRect={cropOperation}
+							dimensions={probeResult.dimensions}
+							durationInSeconds={probeResult.durationInSeconds}
+							fps={probeResult.fps}
+							rotation={actualUserRotation}
+							mirrorHorizontal={flipHorizontal && videoEditState.mirror}
+							mirrorVertical={flipVertical && videoEditState.mirror}
+							cursorData={cursorData}
+							showCursor={showCursor}
+							cursorScale={cursorScale}
+							onPlaybackTimeChange={setPlaybackTime}
+						/>
+						<div className="h-8" />
+					</>
+				)}
+				<div className="lg:inline-flex lg:flex-row items-start">
+					<Probe
+						isAudio={isAudio}
+						src={src}
+						probeDetails={probeDetails}
+						setProbeDetails={setProbeDetails}
+						probeResult={probeResult}
+						videoThumbnailRef={videoThumbnailRef}
+						userRotation={actualUserRotation}
+						mirrorHorizontal={flipHorizontal && videoEditState.mirror}
+						mirrorVertical={flipVertical && videoEditState.mirror}
+						onWaveformBars={onWaveformBars}
+					/>
+					{routeAction.type !== 'generic-probe' &&
+					routeAction.type !== 'transcribe' ? (
+						<>
+							<div className="h-8 lg:h-0 lg:w-8" />
+							<div
+								data-disabled={!(probeResult.done && !probeResult.error)}
+								className="w-full lg:w-[350px] data-[expanded=true]:w-[0px] data-[disabled=true]:opacity-50 data-[disabled=true]:pointer-events-none"
+								data-expanded={probeDetails}
+							>
+								{probeResult.container !== null && probeResult.name !== null ? (
+									<div
+										className="gap-4 data-[hidden=true]:invisible"
+										data-hidden={probeDetails}
+									>
+										<ConvertUI
+											videoEditState={videoEditState}
+											inputContainer={probeResult.container}
+											currentVideoCodec={probeResult.videoCodec ?? null}
+											tracks={probeResult.tracks}
+											setSrc={setSrc}
+											dimensions={probeResult.dimensions}
+											durationInSeconds={probeResult.durationInSeconds ?? null}
+											action={routeAction}
+											trim={enableTrim}
+											setTrim={setEnableTrim}
+											trimInFrame={trimInFrame}
+											trimOutFrame={trimOutFrame}
+											fps={probeResult.fps}
+											setVideoEditState={setVideoEditState}
+											userRotation={actualUserRotation}
+											setRotation={setRotation}
+											flipHorizontal={flipHorizontal}
+											setFlipHorizontal={setFlipHorizontal}
+											flipVertical={flipVertical}
+											setFlipVertical={setFlipVertical}
+											videoThumbnailRef={videoThumbnailRef}
+											sampleRate={probeResult.sampleRate}
+											name={probeResult.name}
+											input={probeResult.input}
+											cropRect={cropOperation}
+											cursorData={cursorData}
+											showCursor={showCursor}
+											setShowCursor={setShowCursor}
+											cursorScale={cursorScale}
+											setCursorScale={setCursorScale}
+										/>
+									</div>
+								) : null}
+							</div>
+						</>
+					) : null}
+					{routeAction.type === 'transcribe' ? (
+						<Transcribe
+							src={src}
+							name={probeResult.name ?? ''}
+							playbackTime={playbackTime}
+						/>
+					) : null}
+				</div>
+				<div className="h-16" />
+				<Footer routeAction={routeAction} />
+			</div>
+		</Page>
+	);
+};

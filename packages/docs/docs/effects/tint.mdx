@@ -1,0 +1,64 @@
+---
+image: /generated/articles-docs-effects-tint.png
+slug: /effects/tint
+title: tint()
+sidebar_label: tint()
+crumb: '@remotion/effects'
+---
+
+# tint()<AvailableFrom v="4.0.466" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+A tint effect that blends a flat color over canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+The tint respects the source's alpha mask, so transparent regions are left untouched.
+
+## Preview
+
+<EffectsDemo type="effects-tint" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+import {tint} from '@remotion/effects/tint';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[tint({color: '#1ec8ff', amount: 0.7})]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties.
+
+### `color`
+
+The color to tint the layer with. Accepts any CSS color string (e.g. `'#ff0080'`, `'red'`, `'rgb(255, 0, 128)'`).
+
+### `amount?`
+
+Blend strength from `0` to `1`. Defaults to `0.5`.
+
+- `0` leaves the layer unchanged.
+- `1` paints the color fully over opaque pixels.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`brightness()`](/docs/effects/brightness)
+- [`hue()`](/docs/effects/hue)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/tint.ts)

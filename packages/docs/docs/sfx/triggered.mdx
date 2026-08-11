@@ -1,0 +1,51 @@
+---
+image: /generated/articles-docs-sfx-triggered.png
+title: 'triggered'
+crumb: '@remotion/sfx'
+---
+
+# triggered<AvailableFrom v="4.0.464" />
+
+import {PlayButton} from './PlayButton';
+
+<PlayButton src="https://remotion.media/triggered.wav" />
+<br />
+
+A URL pointing to a triggered meme sound effect WAV file.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {triggered} from '@remotion/sfx';
+import {Audio} from '@remotion/media';
+
+const MyVideo = () => {
+  return <Audio src={triggered} />;
+};
+```
+
+## Value
+
+```bash
+https://remotion.media/triggered.wav
+```
+
+## Duration
+
+0.696599 seconds (2 channels, 44100 Hz, 16-bit)
+
+## Attribution
+
+Taken from https://www.myinstants.com/en/instant/core-sound-effect-57998/.
+This sound is not explicitly released under a free license, but it is probably fine to use given its widespread use.
+Remotion will not take any responsibility for your use of this sound.
+
+## Convert
+
+[Open this file on remotion.dev/convert](https://remotion.dev/convert?url=https%3A%2F%2Fremotion.media%2Ftriggered.wav)
+
+## See also
+
+- [`bruh`](/docs/sfx/bruh)
+- [`vineBoom`](/docs/sfx/vine-boom)
+- [`windowsXpError`](/docs/sfx/windows-xp-error)

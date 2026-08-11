@@ -1,0 +1,12 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"rootDir": "./src",
+		"outDir": "./dist/cjs",
+		"skipLibCheck": true,
+		"jsx": "react-jsx"
+	},
+	"references": [{"path": "../core"}],
+	"include": ["./src"],
+	"exclude": ["./src/test"]
+}

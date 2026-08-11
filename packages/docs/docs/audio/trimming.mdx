@@ -1,0 +1,32 @@
+---
+image: /generated/articles-docs-audio-trimming.png
+title: Trimming Audio
+sidebar_label: Trimming Audio
+id: trimming
+crumb: 'Audio'
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+The [`<Audio />`](/docs/media/audio) and [`<Video />`](/docs/media/video) tags support the [`trimBefore`](/docs/media/audio#trimbefore) and [`trimAfter`](/docs/media/audio#trimafter) props.  
+[`<Html5Audio />`](/docs/html5-audio) also supports these props.
+
+```tsx twoslash {8} title="MyComp.tsx"
+import {AbsoluteFill, staticFile, useVideoConfig} from 'remotion';
+import {Video} from '@remotion/media';
+
+export const MyComposition = () => {
+  const {fps} = useVideoConfig();
+
+  return (
+    <AbsoluteFill>
+      <Video src={staticFile('video.mp4')} trimBefore={2 * fps} trimAfter={4 * fps} />
+    </AbsoluteFill>
+  );
+};
+```
+
+This makes the media play the range from `00:02:00` to `00:04:00`, meaning it will play for 2 seconds.
+
+The audio will still play immediately at the beginning - to see how to shift the audio to appear later in the composition, see the [next article](/docs/audio/delaying).

@@ -1,0 +1,33 @@
+.container {
+	background-color: #ffffff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.title {
+	font-size: 48px;
+	font-weight: bold;
+	color: #000000;
+}
+
+.subtitle {
+	font-size: 24px;
+	color: #333333;
+}
+
+@media (prefers-color-scheme: dark) {
+	.container {
+		background-color: #1a1a1a;
+	}
+
+	.title {
+		color: #ffffff;
+	}
+
+	.subtitle {
+		color: #cccccc;
+	}
+}

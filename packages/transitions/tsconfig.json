@@ -1,0 +1,9 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"rootDir": "src",
+		"outDir": "dist"
+	},
+	"include": ["./src"],
+	"references": [{"path": "../core"}, {"path": "../test-utils"}]
+}

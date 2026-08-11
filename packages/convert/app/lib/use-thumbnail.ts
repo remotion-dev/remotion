@@ -1,0 +1,86 @@
+import type {Input} from 'mediabunny';
+import {VideoSampleSink} from 'mediabunny';
+import {useCallback, useEffect, useMemo, useState} from 'react';
+import {makeWaveformVisualizer} from './waveform-visualizer';
+
+export const useThumbnailAndWaveform = ({
+	input,
+	onVideoThumbnail,
+	onDone,
+	onWaveformBars,
+}: {
+	input: Input;
+	onVideoThumbnail: (videoFrame: VideoFrame) => Promise<void>;
+	onWaveformBars: (bars: number[]) => void;
+	onDone: () => void;
+}) => {
+	const [err, setError] = useState<Error | null>(null);
+
+	const waveform = useMemo(() => {
+		return makeWaveformVisualizer({
+			onWaveformBars,
+		});
+	}, [onWaveformBars]);
+
+	const execute = useCallback(() => {
+		const getDuration = async () => {
+			const duration = await input.computeDuration();
+			waveform.setDuration(duration);
+		};
+
+		const setVideoTrack = async () => {
+			const videoTrack = await input.getPrimaryVideoTrack();
+
+			if (videoTrack) {
+				if (await videoTrack.isLive()) {
+					throw new Error(
+						'Live streams are not currently supported by Remotion. Sorry!',
+					);
+				}
+
+				if (await videoTrack.isRelativeToUnixEpoch()) {
+					throw new Error(
+						'Streams with UNIX timestamps are not currently supported by Remotion. Sorry!',
+					);
+				}
+
+				const videoSink = new VideoSampleSink(videoTrack);
+				let samples = 0;
+				const iterator = videoSink.samples();
+				for await (const sample of iterator) {
+					samples++;
+					onVideoThumbnail(sample.toVideoFrame());
+					sample.close();
+
+					if (samples === 60) {
+						iterator.return().catch(() => undefined);
+						break;
+					}
+				}
+
+				onDone();
+			}
+		};
+
+		const run = async () => {
+			await getDuration().then(() => Promise.all([setVideoTrack()]));
+			onDone();
+		};
+
+		run().catch((e) => {
+			setError(e);
+		});
+
+		return () => {
+			input.dispose();
+		};
+	}, [onDone, onVideoThumbnail, waveform, input]);
+
+	useEffect(() => {
+		execute();
+	}, [execute]);
+
+	return useMemo(() => {
+		return {err};
+	}, [err]);
+};

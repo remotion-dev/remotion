@@ -1,0 +1,40 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/serverless"
+	},
+	"name": "@remotion/serverless",
+	"version": "4.0.508",
+	"description": "A runtime for distributed rendering",
+	"main": "dist",
+	"scripts": {
+		"lint": "eslint src",
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"test": "bun test src",
+		"make": "tsgo -d"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"contributors": [],
+	"license": "UNLICENSED",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"dependencies": {
+		"@remotion/renderer": "workspace:*",
+		"@remotion/bundler": "workspace:*",
+		"@remotion/licensing": "workspace:*",
+		"@remotion/serverless-client": "workspace:*"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "catalog:",
+		"@typescript/native-preview": "catalog:"
+	},
+	"exports": {
+		".": "./dist/index.js",
+		"./package.json": "./package.json"
+	}
+}

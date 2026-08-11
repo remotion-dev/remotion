@@ -1,0 +1,18 @@
+import {test} from 'vitest';
+import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
+import {boxShadow} from './fixtures/box-shadow';
+import {testImage} from './utils';
+
+test('should render box-shadow', async () => {
+	const blob = await (
+		await renderStillOnWeb({
+			licenseKey: 'free-license',
+			composition: boxShadow,
+			frame: 0,
+			inputProps: {},
+		})
+	).blob({format: 'png'});
+
+	await testImage({blob, testId: 'box-shadow', threshold: 0.01});
+});

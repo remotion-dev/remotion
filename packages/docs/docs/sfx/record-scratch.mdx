@@ -1,0 +1,51 @@
+---
+image: /generated/articles-docs-sfx-record-scratch.png
+title: 'recordScratch'
+crumb: '@remotion/sfx'
+---
+
+# recordScratch<AvailableFrom v="4.0.465" />
+
+import {PlayButton} from './PlayButton';
+
+<PlayButton src="https://remotion.media/record-scratch.wav" />
+<br />
+
+A URL pointing to a record scratch sound effect WAV file.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {recordScratch} from '@remotion/sfx';
+import {Audio} from '@remotion/media';
+
+const MyVideo = () => {
+  return <Audio src={recordScratch} />;
+};
+```
+
+## Value
+
+```bash
+https://remotion.media/record-scratch.wav
+```
+
+## Duration
+
+1.262404 seconds (2 channels, 44100 Hz, 16-bit)
+
+## Attribution
+
+Taken from https://www.myinstants.com/en/instant/record-scratch-sound-effect/.
+This sound is not explicitly released under a free license, but it is probably fine to use given its widespread use.
+Remotion will not take any responsibility for your use of this sound.
+
+## Convert
+
+[Open this file on remotion.dev/convert](https://remotion.dev/convert?url=https%3A%2F%2Fremotion.media%2Frecord-scratch.wav)
+
+## See also
+
+- [`bruh`](/docs/sfx/bruh)
+- [`vineBoom`](/docs/sfx/vine-boom)
+- [`windowsXpError`](/docs/sfx/windows-xp-error)

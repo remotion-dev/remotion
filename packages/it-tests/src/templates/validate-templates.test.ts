@@ -1,0 +1,341 @@
+import {describe, expect, it} from 'bun:test';
+import {existsSync, readFileSync} from 'node:fs';
+import path from 'node:path';
+import {CreateVideoInternals, Template} from 'create-video';
+
+const {FEATURED_TEMPLATES} = CreateVideoInternals;
+const normalizeEol = (contents: string) => {
+	return contents.replaceAll('\r\n', '\n');
+};
+
+const getFileForTemplate = (template: Template, file: string) => {
+	return path.join(process.cwd(), '..', template.templateInMonorepo, file);
+};
+
+const findFile = async (options: string[]) => {
+	let entryPoint: string | null = null;
+	let contents: string | null = null;
+	for (const point of options) {
+		const exists = existsSync(point);
+		if (exists) {
+			const res = readFileSync(point, 'utf-8');
+			entryPoint = point;
+			contents = res;
+			break;
+		}
+	}
+
+	return {entryPoint, contents};
+};
+
+describe('Templates should be valid', () => {
+	for (const template of FEATURED_TEMPLATES) {
+		it(`${template.shortName} should have a valid package.json`, async () => {
+			const packageJson = getFileForTemplate(template, 'package.json');
+
+			const res = readFileSync(packageJson, 'utf8');
+			const body = JSON.parse(res);
+
+			expect(body.dependencies.remotion).toBe('workspace:*');
+			expect(body.dependencies['@remotion/cli']).toMatch('workspace:*');
+			expect(body.dependencies.react).toMatch(/^\^?19/);
+			expect(body.dependencies['react-dom']).toMatch(/^\^?19/);
+
+			if (body.dependencies['@types/web']) {
+				expect(body.dependencies['@types/web']).toInclude('0.0.166');
+			}
+
+			const rootPackageJson = JSON.parse(
+				readFileSync(
+					path.join(process.cwd(), '..', '..', 'package.json'),
+					'utf8',
+				),
+			);
+			const catalog = rootPackageJson.workspaces.catalog;
+
+			if (body.dependencies.mediabunny) {
+				expect(body.dependencies.mediabunny).toBe(catalog.mediabunny);
+			}
+
+			if (body.dependencies['@mediabunny/mp3-encoder']) {
+				expect(body.dependencies['@mediabunny/mp3-encoder']).toBe(
+					catalog['@mediabunny/mp3-encoder'],
+				);
+			}
+
+			if (body.dependencies['@mediabunny/ac3']) {
+				expect(body.dependencies['@mediabunny/ac3']).toBe(
+					catalog['@mediabunny/ac3'],
+				);
+			}
+
+			if (body.dependencies['@mediabunny/aac-encoder']) {
+				expect(body.dependencies['@mediabunny/aac-encoder']).toBe(
+					catalog['@mediabunny/aac-encoder'],
+				);
+			}
+
+			if (body.dependencies['@mediabunny/flac-encoder']) {
+				expect(body.dependencies['@mediabunny/flac-encoder']).toBe(
+					catalog['@mediabunny/flac-encoder'],
+				);
+			}
+
+			expect(body.devDependencies.prettier).toMatch('3.8.1');
+			expect(body.private).toBe(true);
+			expect(body.name).toStartWith('template-');
+
+			// Check that no dependencies use "catalog:" as version
+			if (body.dependencies) {
+				for (const [, version] of Object.entries(body.dependencies)) {
+					expect(version).not.toBe('catalog:');
+				}
+			}
+
+			if (body.devDependencies) {
+				for (const [, version] of Object.entries(body.devDependencies)) {
+					expect(version).not.toBe('catalog:');
+				}
+			}
+
+			if (body.peerDependencies) {
+				for (const [, version] of Object.entries(body.peerDependencies)) {
+					expect(version).not.toBe('catalog:');
+				}
+			}
+
+			if (!template.shortName.includes('JavaScript')) {
+				expect(body.devDependencies['typescript']).toInclude('5.9.3');
+
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				const eitherPluginOrConfig =
+					body.devDependencies['@remotion/eslint-config']?.match(
+						'workspace:*',
+					) ||
+					body.devDependencies['@remotion/eslint-config-flat']?.match(
+						'workspace:*',
+					) ||
+					body.devDependencies['@remotion/eslint-plugin']?.match('workspace:*');
+				expect(eitherPluginOrConfig).toBeTruthy();
+			}
+
+			const scripts = body.scripts;
+			expect(scripts.dev).toMatch(
+				/(remotion\sstudio)|(next dev)|(react-router dev)|(tsx watch)|(tsx src\/studio)|(bun studio\.ts)|(electron-forge start)/,
+			);
+			expect(scripts.build).toMatch(
+				/(remotion\sbundle)|(react-router build)|(next\sbuild)|(tsx src\/render)|(tsc \&\& vite build)|(bun build\.ts)|(electron-forge package)/,
+			);
+		});
+
+		it(`${template.shortName} should not have any lockfiles`, async () => {
+			expect(
+				existsSync(getFileForTemplate(template, 'package-lock.json')),
+			).toBe(false);
+			expect(existsSync(getFileForTemplate(template, 'yarn.lock'))).toBe(false);
+			expect(existsSync(getFileForTemplate(template, 'pnpm-lock.yaml'))).toBe(
+				false,
+			);
+			expect(existsSync(getFileForTemplate(template, 'bun.lockb'))).toBe(false);
+			expect(existsSync(getFileForTemplate(template, 'bun.lock'))).toBe(false);
+		});
+
+		it(`${template.shortName} should have a standard entry point`, async () => {
+			const {contents, entryPoint} = await findFile([
+				getFileForTemplate(template, 'src/index.ts'),
+				getFileForTemplate(template, 'src/index.js'),
+				getFileForTemplate(template, 'remotion/index.ts'),
+				getFileForTemplate(template, 'app/remotion/index.ts'),
+				getFileForTemplate(template, 'src/remotion/index.ts'),
+			]);
+			expect(entryPoint).toBeTruthy();
+			expect(contents).toMatch(/RemotionRoot/);
+		});
+
+		it(`${template.shortName} should have a standard Root file`, async () => {
+			const {contents, entryPoint} = await findFile([
+				getFileForTemplate(template, 'src/Root.tsx'),
+				getFileForTemplate(template, 'src/Root.jsx'),
+				getFileForTemplate(template, 'remotion/Root.tsx'),
+				getFileForTemplate(template, 'app/remotion/Root.tsx'),
+				getFileForTemplate(template, 'src/remotion/Root.tsx'),
+				getFileForTemplate(template, 'src/remotion/Root.tsx'),
+			]);
+			expect(entryPoint).toBeTruthy();
+			expect(contents).toMatch(/export const RemotionRoot/);
+		});
+
+		it(`${template.shortName} should use the new config file format`, async () => {
+			const {contents, entryPoint} = await findFile([
+				getFileForTemplate(template, 'remotion.config.ts'),
+				getFileForTemplate(template, 'remotion.config.js'),
+			]);
+			expect(entryPoint).toBeTruthy();
+			expect(contents).not.toContain('Config.Rendering');
+			expect(contents).not.toContain('Config.Bundling');
+			expect(contents).not.toContain('Config.Log');
+			expect(contents).not.toContain('Config.Puppeteer');
+			expect(contents).not.toContain('Config.Output');
+			expect(contents).not.toContain('Config.Preview');
+		});
+
+		it(`${template.shortName} should keep template-specific packaging files in sync`, async () => {
+			if (template.templateInMonorepo !== 'template-electron') {
+				return;
+			}
+
+			const packageJson = JSON.parse(
+				readFileSync(getFileForTemplate(template, 'package.json'), 'utf8'),
+			);
+			expect(
+				packageJson.optionalDependencies['@remotion/compositor-linux-x64-musl'],
+			).toBe('workspace:*');
+			expect(
+				packageJson.optionalDependencies[
+					'@remotion/compositor-linux-arm64-musl'
+				],
+			).toBe('workspace:*');
+
+			expect(existsSync(getFileForTemplate(template, 'forge.config.ts'))).toBe(
+				true,
+			);
+			expect(existsSync(getFileForTemplate(template, 'forge.env.d.ts'))).toBe(
+				true,
+			);
+			expect(
+				existsSync(getFileForTemplate(template, 'vite.main.config.ts')),
+			).toBe(true);
+			expect(
+				existsSync(getFileForTemplate(template, 'vite.preload.config.ts')),
+			).toBe(true);
+			expect(
+				existsSync(getFileForTemplate(template, 'vite.renderer.config.ts')),
+			).toBe(true);
+			expect(existsSync(getFileForTemplate(template, 'src/main.ts'))).toBe(
+				true,
+			);
+			expect(existsSync(getFileForTemplate(template, 'src/preload.ts'))).toBe(
+				true,
+			);
+			expect(
+				existsSync(getFileForTemplate(template, 'src/remotion-bundle.ts')),
+			).toBe(true);
+			expect(existsSync(getFileForTemplate(template, 'src/renderer.ts'))).toBe(
+				true,
+			);
+			expect(existsSync(getFileForTemplate(template, 'index.html'))).toBe(true);
+		});
+
+		it(`${template.shortName} should not use setExperimentalRspackEnabled`, async () => {
+			const {contents, entryPoint} = await findFile([
+				getFileForTemplate(template, 'remotion.config.ts'),
+				getFileForTemplate(template, 'remotion.config.js'),
+			]);
+			expect(entryPoint).toBeTruthy();
+			expect(contents).not.toContain('setExperimentalRspackEnabled');
+		});
+
+		it(`${template.shortName} should enable Rspack`, async () => {
+			const {contents, entryPoint} = await findFile([
+				getFileForTemplate(template, 'remotion.config.ts'),
+				getFileForTemplate(template, 'remotion.config.js'),
+			]);
+			expect(entryPoint).toBeTruthy();
+			expect(contents).toContain('Config.setRspack(true)');
+		});
+
+		it(`${template.shortName} should use good tsconfig values`, async () => {
+			if (template.shortName.includes('JavaScript')) {
+				return;
+			}
+
+			const {contents} = await findFile([
+				getFileForTemplate(template, 'tsconfig.json'),
+			]);
+			if (template.shortName.includes('Skia')) {
+				expect(contents).toInclude('noUnusedLocals": false');
+			} else {
+				expect(contents).toInclude('noUnusedLocals": true');
+			}
+			if (!template.shortName.includes('Still')) {
+				expect(contents).not.toInclude('outDir');
+			}
+			expect(contents).toInclude('"forceConsistentCasingInFileNames": true');
+
+			if (
+				!template.shortName.includes('Next') &&
+				!template.shortName.includes(
+					'Prompt to Motion Graphics SaaS Starter Kit',
+				)
+			) {
+				expect(contents).not.toInclude('"incremental": true');
+			}
+
+			const tsconfig = JSON.parse(contents!);
+			const usesNodeModuleResolution = [
+				'template-still',
+				'template-skia',
+			].includes(template.templateInMonorepo);
+			if (!usesNodeModuleResolution) {
+				expect(tsconfig.compilerOptions.moduleResolution).toBe('Bundler');
+			}
+		});
+
+		it(`${template.shortName} should use correct prettier`, async () => {
+			const {contents} = await findFile([
+				getFileForTemplate(template, '.prettierrc'),
+			]);
+			expect(contents).toBeTruthy();
+			if (!contents) {
+				throw new Error('Expected .prettierrc to exist');
+			}
+			expect(normalizeEol(contents)).toBe(`{
+  "useTabs": false,
+  "bracketSpacing": true,
+  "tabWidth": 2
+}
+`);
+		});
+		it(`${template.shortName} should reference commands`, async () => {
+			const {contents} = await findFile([
+				getFileForTemplate(template, 'README.md'),
+			]);
+			expect(contents).toInclude('npx remotion upgrade');
+			expect(contents).toInclude('npx remotion render');
+
+			expect(
+				contents?.includes('npm run dev') ||
+					contents?.includes('npx remotion studio'),
+			).toBe(true);
+		});
+		it(`${template.shortName} should be registered in tsconfig.json`, async () => {
+			const tsconfig = path.join(process.cwd(), '..', '..', 'tsconfig.json');
+			const contents = readFileSync(tsconfig, 'utf8');
+			const parsed = JSON.parse(contents);
+
+			const references = parsed.references.map((r: any) =>
+				r.path.replace('./packages/', ''),
+			);
+			if (
+				!template.shortName.includes('JavaScript') &&
+				!template.shortName.includes('Skia')
+			) {
+				expect(references).toContain(template.templateInMonorepo);
+			}
+		});
+		if (!template.shortName.includes('JavaScript')) {
+			it(`${template.shortName} should exclude remotion.config.ts`, async () => {
+				const tsconfig = path.join(
+					process.cwd(),
+					'..',
+					template.templateInMonorepo,
+					'tsconfig.json',
+				);
+				const contents = readFileSync(tsconfig, 'utf8');
+				const parsed = JSON.parse(contents);
+
+				expect(parsed.exclude).toContain('remotion.config.ts');
+			});
+		}
+	}
+});

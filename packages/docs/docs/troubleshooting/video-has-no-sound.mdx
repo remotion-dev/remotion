@@ -1,0 +1,41 @@
+---
+image: /generated/articles-docs-troubleshooting-video-has-no-sound.png
+sidebar_label: Video has no sound
+title: Why does my video not have sound?
+crumb: 'Troubleshooting'
+---
+
+If you rendered a video with Remotion and it appears to have no audio, the most common cause is that you are playing it back in an editor that mutes video by default.
+
+## VS Code and Cursor
+
+VS Code and Cursor have a built-in video player that **plays videos muted by default**. There is no unmute button.
+
+To verify your video has audio, open it in a dedicated media player instead:
+
+- **macOS**: QuickTime Player, IINA, or VLC
+- **Windows**: Windows Media Player, Movies & TV, or VLC
+- **Linux**: VLC or mpv
+
+You can right-click the file in VS Code or Cursor and select **"Reveal in Finder"** (macOS) or **"Reveal in File Explorer"** (Windows) to locate it, then open it with a proper media player.
+
+## Other causes
+
+If the video still has no sound after opening it in a media player:
+
+### No audio source in the composition
+
+Make sure your Remotion composition includes an audio source. You can add audio using [`<Audio>`](/docs/media/audio), or include the audio track of a video using [`<Video>`](/docs/media/video), both from [`@remotion/media`](/docs/media).
+
+### Audio volume set to 0
+
+Check that you have not set the `volume` prop to `0` on your audio or video tags.
+
+### Audio outside the time range
+
+If you are using a [`<Sequence>`](/docs/sequence), make sure the audio component is mounted during the time range you expect. Audio that is not mounted will not be included in the output.
+
+## See also
+
+- [Using audio](/docs/using-audio)
+- [Audio volume](/docs/audio/volume)

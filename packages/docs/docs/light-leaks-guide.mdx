@@ -1,0 +1,152 @@
+---
+image: /generated/articles-docs-light-leaks-guide.png
+id: light-leaks
+title: Light Leaks
+crumb: 'Designing visuals'
+---
+
+# Light Leaks<AvailableFrom v="4.0.500"/>
+
+The [`lightLeak()`](/docs/effects/light-leak) effect from [`@remotion/effects`](/docs/effects/api) renders an animated WebGL2-based light leak overlay. The light leak reveals during the first half of its progress and retracts during the second half.
+
+<Demo type="light-leak" />
+
+Apply the effect to a canvas-based component and animate `progress` with [`useCurrentFrame()`](/docs/use-current-frame):
+
+```tsx twoslash title="MyComp.tsx"
+import {lightLeak} from '@remotion/effects/light-leak';
+import {
+  AbsoluteFill,
+  interpolate,
+  Solid,
+  useCurrentFrame,
+  useVideoConfig,
+} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {durationInFrames, height, width} = useVideoConfig();
+
+  return (
+    <AbsoluteFill style={{backgroundColor: 'black'}}>
+      <Solid
+        width={width}
+        height={height}
+        effects={[
+          lightLeak({
+            seed: 3,
+            hueShift: 30,
+            progress: interpolate(
+              frame,
+              [0, durationInFrames - 1],
+              [0, 1],
+              {
+                extrapolateLeft: 'clamp',
+                extrapolateRight: 'clamp',
+              },
+            ),
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+Keeping the progress calculation inline makes the animation editable in [Remotion Studio](/docs/studio/interactivity-best-practices#effects-should-be-inline-too).
+
+## Changing the seed
+
+The [`seed`](/docs/effects/light-leak#seed) option controls the shape of the light leak pattern. Different values produce different patterns.
+
+```tsx twoslash title="DifferentSeed.tsx"
+import {lightLeak} from '@remotion/effects/light-leak';
+
+const effect = lightLeak({seed: 5});
+```
+
+## Changing the color
+
+Use [`hueShift`](/docs/effects/light-leak#hueshift) to rotate the color of the light leak from `0` to `360` degrees:
+
+- `0` (default) — yellow-to-orange
+- `120` — shifts toward green
+- `240` — shifts toward blue
+
+```tsx twoslash title="BlueHue.tsx"
+import {lightLeak} from '@remotion/effects/light-leak';
+
+const effect = lightLeak({hueShift: 240});
+```
+
+## Using as a transition
+
+Combined with [`<TransitionSeries.Overlay>`](/docs/transitions/transitionseries#transitionseriesoverlay), you can place a light leak at the cut point between two sequences without shortening the timeline.
+
+Create an overlay component that animates the effect across its duration:
+
+```tsx twoslash title="LightLeakTransition.tsx"
+import {lightLeak} from '@remotion/effects/light-leak';
+import {TransitionSeries} from '@remotion/transitions';
+import {
+  AbsoluteFill,
+  interpolate,
+  Solid,
+  useCurrentFrame,
+  useVideoConfig,
+} from 'remotion';
+
+const Fill = ({color}: {color: string}) => (
+  <AbsoluteFill style={{backgroundColor: color}} />
+);
+
+const LightLeakOverlay: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {durationInFrames, height, width} = useVideoConfig();
+
+  return (
+    <Solid
+      width={width}
+      height={height}
+      effects={[
+        lightLeak({
+          progress: interpolate(
+            frame,
+            [0, durationInFrames - 1],
+            [0, 1],
+            {
+              extrapolateLeft: 'clamp',
+              extrapolateRight: 'clamp',
+            },
+          ),
+        }),
+      ]}
+    />
+  );
+};
+
+export const LightLeakTransition: React.FC = () => {
+  return (
+    <TransitionSeries>
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <Fill color="#0b84f3" />
+      </TransitionSeries.Sequence>
+      <TransitionSeries.Overlay durationInFrames={20}>
+        <LightLeakOverlay />
+      </TransitionSeries.Overlay>
+      <TransitionSeries.Sequence durationInFrames={60}>
+        <Fill color="pink" />
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
+  );
+};
+```
+
+At the midpoint, the light leak covers most of the canvas, hiding the cut between scenes.
+
+## See also
+
+- [`lightLeak()` API reference](/docs/effects/light-leak)
+- [`@remotion/effects`](/docs/effects/api)
+- [`<TransitionSeries.Overlay>`](/docs/transitions/transitionseries#transitionseriesoverlay)
+- [Transitions](/docs/transitioning)

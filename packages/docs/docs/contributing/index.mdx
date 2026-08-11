@@ -1,0 +1,173 @@
+---
+image: /generated/articles-docs-contributing-index.png
+title: Contributing to Remotion
+sidebar_label: General information
+crumb: How to be awesome
+---
+
+Issues and pull requests of all sorts are welcome!
+
+For bigger projects, please coordinate with Jonny Burger (<a href="mailto:jonny@remotion.dev">jonny@remotion.dev</a>, <a href="https://remotion.dev/discord">Discord</a>: <code>@jonnyburger</code>) to make sure your changes get merged.
+
+Please note that since we charge for Remotion when companies are using it, this is a **commercial project**.  
+By sending pull requests, you agree that we can use your code changes in a commercial context.
+
+Furthermore, also note that you **cannot redistribute** this project. Please see [LICENSE.md](https://remotion.dev/license) for what's allowed and what's not.
+
+This project is released with a [Contributor Code of Conduct](https://remotion.dev/coc). By participating in this project you agree to abide by its terms.
+
+## Setup
+
+<Step>1</Step> Remotion uses [`Bun`](https://bun.com) v1.3.3 as the package manager for development in this repository. The version must be at least `1.3.3`.
+
+```sh
+curl -fsSL https://bun.com/install | bash -s "bun-v1.3.3"
+```
+
+<Step>2</Step> Clone the Remotion repository:
+
+```sh
+git clone --depth=1 https://github.com/remotion-dev/remotion.git && cd remotion
+```
+
+:::note
+The full Git history of Remotion is large. To save time and disk space, we recommend adding `--depth=1` to only clone the most recent `main` branch.
+:::
+
+<Step>3</Step> Install all dependencies:
+
+```sh
+bun i
+```
+
+<Step>4</Step> Build the project initially:
+
+```sh
+bun run build
+```
+
+<Step>5</Step> Rebuild whenever a file changes:
+
+```sh
+bun run watch
+```
+
+<Step>6</Step> You can start making changes!
+
+## Coming from pnpm
+
+Before using Bun, we used pnpm as the package manager. If you are coming from pnpm, you need to wipe all node_modules folders first before you run `bun i`.
+
+```sh
+bun run cleanall
+```
+
+## Testing your changes
+
+You can start the Testbed using
+
+```sh
+cd packages/example
+bun run dev
+```
+
+You can render a test video using
+
+```sh
+cd packages/example
+bunx remotion render
+```
+
+You can run tests using
+
+```sh
+bun run test
+```
+
+in either a subpackage to run tests for that package or in the root to run all tests.
+
+## Running the `@remotion/player` testbed
+
+You can test changes to [@remotion/player](https://remotion.dev/docs/player) by starting the Player testbed:
+
+```sh
+cd packages/player-example
+bun run dev
+```
+
+For information about testing Remotion components, please consult the [Testing Remotion components](/docs/testing) page. Issues and pull requests of all sorts are welcome!
+
+## Running documentation
+
+You can run the Docusaurus server that powers our docs using:
+
+```sh
+cd packages/docs
+bun run start
+```
+
+## Running the CLI
+
+You can test changes to the CLI by moving to `packages/example` directory and using `bunx` to execute the CLI:
+
+```sh
+cd packages/example
+# Example - Get available compositions
+bunx remotion compositions
+# Example - Render command
+bunx remotion render ten-frame-tester --output ../../out/video.mp4
+```
+
+## Testing Remotion Lambda
+
+In `packages/example`, there is a `runlambda.sh` script that will rebuild the code for the Lambda function, remove any deployed Lambda functions, deploy a new one and render a video.  
+You need to put you [AWS credentials](/docs/lambda/authentication) in a `.env` file of the `packages/example` directory.
+
+```sh
+cd packages/example
+sh ./runlambda.sh
+```
+
+:::note
+This will delete any Lambda functions in your account!
+:::
+
+## Testing Remotion Cloud Run
+
+In `packages/example`, there is a `runcloudrun.sh` script that will rebuild the code for the Cloud Run function, remove any deployed Cloud Run services, deploy a new one and render a video.  
+You need to put you [GCP credentials](/docs/cloudrun/generate-env) in a `.env` file of the `packages/example` directory.
+
+```sh
+cd packages/example
+sh ./runcloudrun.sh
+```
+
+:::note
+This will delete any Cloud Run services in your account!
+:::
+
+## Troubleshooting
+
+If your `bun run build` throws errors, oftentimes it is because of caching issues. You can resolve many of these errors by running
+
+```ts
+bun run clean
+```
+
+in the root directory. Make sure to beforehand kill any `bun run watch` commands, as those might regenerate files as you clean them!
+
+## Developing new transition presentations
+
+To develop new transition presentations, see [here](/docs/contributing/presentation).
+
+## Developing Rust parts
+
+To develop the Rust parts of Remotion, see [here](/docs/contributing/rust).
+
+## See also
+
+- [Implementing a new feature](/docs/contributing/feature)
+- [Implementing a new option](/docs/contributing/option)
+- [Writing documentation](/docs/contributing/docs)
+- [Formatting guidelines](/docs/contributing/formatting)
+- [Authoring Remotion libraries](/docs/authoring-packages)

@@ -1,0 +1,59 @@
+---
+image: /generated/articles-docs-security.png
+sidebar_label: Security
+title: Security Best Practices
+crumb: "FAQ"
+---
+
+Remotion is a software that can generate videos programmatically. It does so by running a headless browser, capturing images, and encoding them into a video. This in itself does not pose a security risk. However, Remotion interacts with the Web, can be used in the cloud and uses the NPM ecosystem.
+
+## Environment variables
+
+When starting the Remotion Studio or running a render via the command line, environment variables that are prefixed with `REMOTION_` and `.env` are passed to the headless browser. You are responsible to ensure those environment variables do not exposed to other services as you are interfacing with the Web.
+
+## Credentials on the web
+
+You should not try to call `renderMediaOnLambda()` or other APIs from `@remotion/lambda` from your app frontend. Those APIs can only be called with AWS credentials, meaning that you would have to expose your AWS credentials to the web. This is a security risk and should be avoided.
+
+## `disableWebSecurity` flag
+
+We provide as a workaround for CORS issues the `disableWebSecurity` flag. This flag disables the same-origin policy in the headless browser. If you are using it, you need to be aware of the implications of it and assess whether this can pose a security risk to you.
+
+## DDoS attacks
+
+APIs such as `renderMedia()` and `renderMediaOnLambda()` may be expensive (computationally or financially) to run. You should ensure that you are not exposing those APIs to the web without authentication or rate limiting. Otherwise, you may be vulnerable to DDoS attacks.
+
+## Dependency Security Scanning
+
+Since Remotion is distributed via NPM, reports of scans of our dependencies can be publicly viewed on platforms such as [Socket](https://socket.dev). You can check specific Remotion packages for vulnerabilities:
+
+- [Core package (`remotion`)](https://socket.dev/npm/package/remotion)
+- [`@remotion/lambda`](https://socket.dev/npm/package/@remotion/lambda)
+- [`@remotion/player`](https://socket.dev/npm/package/@remotion/player)
+
+Make sure to also check other Remotion packages you plan to use by searching for them on Socket or similar security scanning platforms.
+
+## Security Certifications
+
+Remotion does not have security certifications such as ISO27001 or SOC2. This is uncommon for JavaScript packages distributed via NPM. You may find comfort in the fact that there is no data processing done by Remotion's servers. After you obtain a license, you simply run Remotion on your own infrastructure, with no connection to our servers.
+
+## Security Review Process
+
+We generally respond to alerts from GitHub's vulnerability scanner and dependency security advisories. Our process includes:
+
+- Monitoring for security alerts from GitHub's vulnerability scanner (typically alerts from 'moderate' severity and above)
+- Reviewing and addressing reported vulnerabilities in a timely manner
+- Updating dependencies when security patches are available
+- Publishing patched versions as needed
+
+Please note that we handle security situations on an ad-hoc basis and cannot provide guarantees about response times or specific security thresholds.
+
+## General Node.JS security best practices
+
+Often you will use Remotion alongside other Node.js dependencies.  
+You should only install dependencies you trust, since they can run arbitrary code in their `postinstall` scripts.
+Dependencies, including Remotion, may have known vulnerabilities which you can list with the `npm audit` command.
+
+## Reporting of security vulnerabilities
+
+If you believe to have found a security vulnerability, you can report it to hi@remotion.dev

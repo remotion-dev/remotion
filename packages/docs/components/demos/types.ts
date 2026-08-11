@@ -1,0 +1,1687 @@
+import type {LogLevel} from 'remotion';
+import {
+	ClockWipeDemo,
+	CubeDemo,
+	CustomTimingDemo,
+	CustomTransitionDemo,
+	FadeDemo,
+	FlipDemo,
+	IrisDemo,
+	NoneDemo,
+	SlideDemo,
+	SlideDemoLongDurationRest,
+	WipeDemo,
+} from '../transitions/previews';
+import {ArrowDemo} from './Arrow';
+import {BookFlipDocsDemo} from './BookFlipDemo';
+import {CalloutDemo} from './Callout';
+import {CircleDemo} from './Circle';
+import {CrosswarpDocsDemo} from './CrosswarpDemo';
+import {CrossZoomDocsDemo} from './CrossZoomDemo';
+import {DissolveDocsDemo} from './DissolveDemo';
+import {DreamyZoomDocsDemo} from './DreamyZoomDemo';
+import {EllipseDemo} from './Ellipse';
+import {FilmBurnDocsDemo} from './FilmBurnDemo';
+import {HeartDemo} from './Heart';
+import {HtmlInCanvasDocsDemo2DBlur} from './HtmlInCanvasDocsDemo2DBlur';
+import {HtmlInCanvasDocsDemoWebGL} from './HtmlInCanvasDocsDemoWebGL';
+import {HtmlInCanvasDocsDemoWebGPU} from './HtmlInCanvasDocsDemoWebGPU';
+import {LightLeakDemoComp} from './LightLeakDemo';
+import {LinearBlurDocsDemo} from './LinearBlurDemo';
+import {NoiseComp} from './NoiseDemo';
+import {PieDemo} from './Pie';
+import {PolygonDemo} from './Polygon';
+import {PushCutDocsDemo} from './PushCutDemo';
+import {RectDemo} from './Rect';
+import {RippleDocsDemo} from './RippleDemo';
+import {RoughNotationAnimatedSeedDemo} from './RoughNotationAnimatedSeedDemo';
+import {RoughNotationBoxDemo} from './RoughNotationBoxDemo';
+import {RoughNotationBracketDemo} from './RoughNotationBracketDemo';
+import {RoughNotationCircleDemo} from './RoughNotationCircleDemo';
+import {RoughNotationCrossedOffDemo} from './RoughNotationCrossedOffDemo';
+import {RoughNotationHighlightDemo} from './RoughNotationHighlightDemo';
+import {RoughNotationPosterizedProgressDemo} from './RoughNotationPosterizedProgressDemo';
+import {RoughNotationPosterizedSeedDemo} from './RoughNotationPosterizedSeedDemo';
+import {RoughNotationStrikeThroughDemo} from './RoughNotationStrikeThroughDemo';
+import {RoughNotationUnderlineDemo} from './RoughNotationUnderlineDemo';
+import {RoundedTextBox} from './RoundedTextBox';
+import {ShaderDemoComp} from './ShaderDemo';
+import {SparkDemo} from './Spark';
+import {SpringDemo} from './Spring';
+import {StarDemo} from './Star';
+import {StarburstDemoComp} from './StarburstDemo';
+import {AnimationMath} from './SubtractAnimations';
+import {SwapDocsDemo} from './SwapDemo';
+import {TransitionSeriesEnterExitDemoComp} from './TransitionSeriesEnterExitDemo';
+import {TransitionSeriesOverlayDemoComp} from './TransitionSeriesOverlayDemo';
+import {TransitionSeriesTransitionDemoComp} from './TransitionSeriesTransitionDemo';
+import {
+	OpacityDemo,
+	RotateDemo,
+	ScaleDemo,
+	SkewDemo,
+	TranslateDemo,
+} from './Translate';
+import {TriangleDemo} from './Triangle';
+import {ZoomBlurDocsDemo} from './ZoomBlurDemo';
+import {ZoomInOutDocsDemo} from './ZoomInOutDemo';
+
+export type Option = {
+	name: string;
+	optional: 'no' | 'default-enabled' | 'default-disabled';
+	showIf?: {
+		option: string;
+		value: string | number | boolean | null;
+	};
+} & (
+	| {
+			type: 'numeric';
+			min: number;
+			default: number;
+			max: number;
+			step: number;
+	  }
+	| {
+			type: 'boolean';
+			default: boolean;
+	  }
+	| {
+			type: 'enum';
+			default: string;
+			values: string[];
+	  }
+	| {
+			type: 'string';
+			default: string;
+			optional: 'no';
+	  }
+	| {
+			type: 'color';
+			default: string;
+	  }
+	| {
+			type: 'uv-coordinate';
+			min: number;
+			default: readonly [number, number];
+			max: number;
+			step: number;
+	  }
+);
+
+export type DemoType = {
+	id: string;
+	comp: React.FC;
+	compWidth: number;
+	compHeight: number;
+	fps: number;
+	durationInFrames: number;
+	options: Option[];
+	autoPlay: boolean;
+	controls: boolean;
+	logLevel: LogLevel;
+};
+
+export const arrowDemo: DemoType = {
+	comp: ArrowDemo,
+	compWidth: 1280,
+	compHeight: 400,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'arrow',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			default: 300,
+			max: 1000,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'length',
+			optional: 'no',
+		},
+		{
+			default: 185,
+			max: 400,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'headWidth',
+			optional: 'no',
+		},
+		{
+			default: 120,
+			max: 400,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'headLength',
+			optional: 'no',
+		},
+		{
+			default: 80,
+			max: 400,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'shaftWidth',
+			optional: 'no',
+		},
+		{
+			name: 'direction',
+			type: 'enum',
+			default: 'right',
+			values: ['up', 'down', 'left', 'right'],
+			optional: 'no',
+		},
+		{
+			name: 'cornerRadius',
+			default: 0,
+			max: 100,
+			min: 0,
+			step: 1,
+			type: 'numeric',
+			optional: 'no',
+		},
+	],
+};
+
+export const rectDemo: DemoType = {
+	comp: RectDemo,
+	compWidth: 1280,
+	compHeight: 400,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'rect',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			default: 200,
+			max: 1000,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'width',
+			optional: 'no',
+		},
+		{
+			default: 200,
+			max: 1000,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'height',
+			optional: 'no',
+		},
+		{
+			name: 'cornerRadius',
+			default: 0,
+			max: 100,
+			min: 0,
+			step: 1,
+			type: 'numeric',
+			optional: 'no',
+		},
+		{
+			name: 'edgeRoundness',
+			default: 1,
+			max: 2,
+			min: -2,
+			step: 0.01,
+			type: 'numeric',
+			optional: 'default-disabled',
+		},
+		{
+			name: 'debug',
+			type: 'boolean',
+			optional: 'no',
+			default: false,
+		},
+	],
+};
+
+export const calloutDemo: DemoType = {
+	comp: CalloutDemo,
+	compWidth: 1280,
+	compHeight: 400,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'callout',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			default: 500,
+			max: 1000,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'width',
+			optional: 'no',
+		},
+		{
+			default: 200,
+			max: 1000,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'height',
+			optional: 'no',
+		},
+		{
+			default: 40,
+			max: 400,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'pointerLength',
+			optional: 'no',
+		},
+		{
+			default: 60,
+			max: 400,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'pointerBaseWidth',
+			optional: 'no',
+		},
+		{
+			default: 0.5,
+			max: 1,
+			step: 0.01,
+			min: 0,
+			type: 'numeric',
+			name: 'pointerPosition',
+			optional: 'no',
+		},
+		{
+			name: 'pointerDirection',
+			type: 'enum',
+			default: 'down',
+			values: ['up', 'down', 'left', 'right'],
+			optional: 'no',
+		},
+		{
+			name: 'cornerRadius',
+			default: 20,
+			max: 100,
+			min: 0,
+			step: 1,
+			type: 'numeric',
+			optional: 'no',
+		},
+		{
+			name: 'edgeRoundness',
+			default: 1,
+			max: 2,
+			min: -2,
+			step: 0.01,
+			type: 'numeric',
+			optional: 'default-disabled',
+		},
+		{
+			name: 'debug',
+			type: 'boolean',
+			optional: 'no',
+			default: false,
+		},
+	],
+};
+
+export const triangleDemo: DemoType = {
+	comp: TriangleDemo,
+	compWidth: 1280,
+	compHeight: 400,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'triangle',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			default: 200,
+			max: 1000,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'length',
+			optional: 'no',
+		},
+		{
+			name: 'edgeRoundness',
+			default: 1,
+			max: 2,
+			min: -2,
+			step: 0.01,
+			type: 'numeric',
+			optional: 'default-disabled',
+		},
+		{
+			name: 'cornerRadius',
+			default: 0,
+			max: 100,
+			min: 0,
+			step: 1,
+			type: 'numeric',
+			optional: 'no',
+		},
+		{
+			name: 'direction',
+			type: 'enum',
+			default: 'up',
+			values: ['up', 'down', 'left', 'right'],
+			optional: 'no',
+		},
+		{
+			name: 'debug',
+			type: 'boolean',
+			optional: 'no',
+			default: false,
+		},
+	],
+};
+
+export const circleDemo: DemoType = {
+	comp: CircleDemo,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'circle',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			default: 200,
+			max: 1000,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'radius',
+			optional: 'no',
+		},
+	],
+};
+
+export const heartDemo: DemoType = {
+	comp: HeartDemo,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'heart',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			default: 300,
+			max: 1000,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'height',
+			optional: 'no',
+		},
+		{
+			default: 1.1,
+			max: 2,
+			step: 0.01,
+			min: 0.5,
+			type: 'numeric',
+			name: 'aspectRatio',
+			optional: 'no',
+		},
+		{
+			default: 0,
+			max: 0.2,
+			step: 0.01,
+			min: -0.2,
+			type: 'numeric',
+			name: 'depthAdjustment',
+			optional: 'no',
+		},
+		{
+			default: 0,
+			max: 0.3,
+			step: 0.01,
+			min: -0.3,
+			type: 'numeric',
+			name: 'bottomRoundnessAdjustment',
+			optional: 'no',
+		},
+		{
+			type: 'boolean',
+			name: 'debug',
+			optional: 'no',
+			default: true,
+		},
+		{
+			type: 'boolean',
+			name: 'showStrokeInsteadPlaygroundOnly',
+			optional: 'no',
+			default: true,
+		},
+	],
+};
+
+export const translateDemo: DemoType = {
+	comp: TranslateDemo,
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	compHeight: 400,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'translate',
+	options: [
+		{
+			default: 0,
+			max: 800,
+			step: 5,
+			min: -800,
+			type: 'numeric',
+			name: 'translateX',
+			optional: 'no',
+		},
+		{
+			default: 0,
+			max: 800,
+			step: 5,
+			min: -800,
+			type: 'numeric',
+			name: 'translateY',
+			optional: 'no',
+		},
+	],
+};
+
+export const skewDemo: DemoType = {
+	comp: SkewDemo,
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	compHeight: 400,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'skew',
+	options: [
+		{
+			default: 0,
+			max: 180,
+			step: 1,
+			min: -180,
+			type: 'numeric',
+			name: 'skew',
+			optional: 'no',
+		},
+	],
+};
+
+export const scaleDemo: DemoType = {
+	comp: ScaleDemo,
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	compHeight: 400,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'scale',
+	options: [
+		{
+			default: 1,
+			max: 4,
+			step: 0.01,
+			min: -4,
+			type: 'numeric',
+			name: 'scale',
+			optional: 'no',
+		},
+	],
+};
+
+export const opacityDemo: DemoType = {
+	comp: OpacityDemo,
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	compHeight: 400,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'opacity',
+	options: [
+		{
+			default: 1,
+			max: 1,
+			step: 0.01,
+			min: 0,
+			type: 'numeric',
+			name: 'opacity',
+			optional: 'no',
+		},
+	],
+};
+
+export const rotateDemo: DemoType = {
+	comp: RotateDemo,
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	compHeight: 400,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'rotate',
+	options: [
+		{
+			default: 0,
+			max: 180,
+			step: 1,
+			min: -180,
+			type: 'numeric',
+			name: 'rotateZ',
+			optional: 'no',
+		},
+	],
+};
+
+export const pieDemo: DemoType = {
+	comp: PieDemo,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'pie',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			default: 200,
+			max: 1000,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'radius',
+			optional: 'no',
+		},
+		{
+			default: 0.5,
+			step: 0.01,
+			min: 0,
+			max: 1,
+			type: 'numeric',
+			name: 'progress',
+			optional: 'no',
+		},
+		{
+			default: 0,
+			step: 0.01,
+			min: -3.14 * 2,
+			max: 3.14 * 2,
+			type: 'numeric',
+			name: 'rotation',
+			optional: 'no',
+		},
+		{
+			default: true,
+			type: 'boolean',
+			name: 'closePath',
+			optional: 'no',
+		},
+		{
+			default: false,
+			type: 'boolean',
+			name: 'counterClockwise',
+			optional: 'no',
+		},
+		{
+			default: false,
+			type: 'boolean',
+			name: 'showStrokeInsteadPlaygroundOnly',
+			optional: 'no',
+		},
+	],
+};
+
+export const ellipseDemo: DemoType = {
+	comp: EllipseDemo,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'ellipse',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			default: 150,
+			max: 1000,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'rx',
+			optional: 'no',
+		},
+		{
+			default: 200,
+			max: 1000,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'ry',
+			optional: 'no',
+		},
+	],
+};
+export const polygonDemo: DemoType = {
+	comp: PolygonDemo,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'polygon',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			default: 3,
+			max: 12,
+			step: 1,
+			min: 3,
+			type: 'numeric',
+			name: 'points',
+			optional: 'no',
+		},
+		{
+			default: 100,
+			max: 400,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'radius',
+			optional: 'no',
+		},
+		{
+			name: 'cornerRadius',
+			default: 0,
+			max: 140,
+			min: 0,
+			step: 1,
+			type: 'numeric',
+			optional: 'no',
+		},
+		{
+			name: 'edgeRoundness',
+			default: 0,
+			max: 2,
+			min: -2,
+			step: 0.01,
+			type: 'numeric',
+			optional: 'default-disabled',
+		},
+	],
+};
+
+export const sparkDemo: DemoType = {
+	comp: SparkDemo,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'spark',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			default: 100,
+			max: 600,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'width',
+			optional: 'no',
+		},
+		{
+			default: 140,
+			max: 600,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'height',
+			optional: 'no',
+		},
+		{
+			name: 'edgeRoundness',
+			default: 1,
+			max: 2,
+			min: 0,
+			step: 0.01,
+			type: 'numeric',
+			optional: 'no',
+		},
+		{
+			name: 'cornerRadius',
+			default: 0,
+			max: 120,
+			min: 0,
+			step: 1,
+			type: 'numeric',
+			optional: 'no',
+		},
+	],
+};
+
+export const starDemo: DemoType = {
+	comp: StarDemo,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'star',
+	autoPlay: false,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			default: 100,
+			max: 400,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'innerRadius',
+			optional: 'no',
+		},
+		{
+			default: 200,
+			max: 400,
+			step: 5,
+			min: 1,
+			type: 'numeric',
+			name: 'outerRadius',
+			optional: 'no',
+		},
+		{
+			name: 'edgeRoundness',
+			default: 1,
+			max: 2,
+			min: -2,
+			step: 0.01,
+			type: 'numeric',
+			optional: 'default-disabled',
+		},
+		{
+			name: 'points',
+			default: 5,
+			max: 50,
+			min: 3,
+			step: 1,
+			type: 'numeric',
+			optional: 'no',
+		},
+		{
+			name: 'cornerRadius',
+			default: 0,
+			max: 200,
+			min: 0,
+			step: 1,
+			type: 'numeric',
+			optional: 'no',
+		},
+	],
+};
+
+export const noiseDemo: DemoType = {
+	comp: NoiseComp,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'noise',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			default: 0.01,
+			max: 0.025,
+			min: 0.001,
+			step: 0.001,
+			type: 'numeric',
+			name: 'speed',
+			optional: 'no',
+		},
+		{
+			min: 0,
+			max: 100,
+			step: 1,
+			default: 50,
+			name: 'maxOffset',
+			type: 'numeric',
+			optional: 'no',
+		},
+		{
+			name: 'circleRadius',
+			default: 5,
+			max: 20,
+			min: 2,
+			step: 1,
+			type: 'numeric',
+			optional: 'no',
+		},
+	],
+};
+
+export const fadePresentationDemo: DemoType = {
+	comp: FadeDemo,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 60,
+	fps: 30,
+	id: 'fade',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const pushCutPresentationDemo: DemoType = {
+	comp: PushCutDocsDemo,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 60,
+	fps: 30,
+	id: 'push-cut',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const slidePresentationDemo: DemoType = {
+	comp: SlideDemo,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 60,
+	fps: 30,
+	id: 'slide',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			type: 'enum',
+			name: 'direction',
+			default: 'from-left',
+			optional: 'no',
+			values: ['from-left', 'from-bottom', 'from-right', 'from-top'],
+		},
+	],
+};
+export const flipPresentationDemo: DemoType = {
+	comp: FlipDemo,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 60,
+	fps: 30,
+	id: 'flip',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			type: 'enum',
+			name: 'direction',
+			default: 'from-left',
+			optional: 'no',
+			values: ['from-left', 'from-bottom', 'from-right', 'from-top'],
+		},
+	],
+};
+
+export const nonePresentationDemo: DemoType = {
+	comp: NoneDemo,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 60,
+	fps: 30,
+	id: 'none',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const slidePresentationDemoLongThreshold: DemoType = {
+	comp: SlideDemoLongDurationRest,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'slide-long-duration-rest',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const wipePresentationDemo: DemoType = {
+	comp: WipeDemo,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 60,
+	fps: 30,
+	id: 'wipe',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			type: 'enum',
+			name: 'direction',
+			default: 'from-left',
+			optional: 'no',
+			values: [
+				'from-left',
+				'from-top-left',
+				'from-top',
+				'from-top-right',
+				'from-right',
+				'from-bottom-right',
+				'from-bottom',
+				'from-bottom-left',
+			],
+		},
+	],
+};
+
+export const roundedTextBoxDemo: DemoType = {
+	comp: RoundedTextBox,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 60,
+	fps: 30,
+	id: 'rounded-text-box',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			type: 'enum',
+			name: 'textAlign',
+			default: 'center',
+			optional: 'no',
+			values: ['left', 'center', 'right'],
+		},
+		{
+			type: 'numeric',
+			name: 'maxLines',
+			default: 3,
+			max: 10,
+			step: 1,
+			min: 1,
+			optional: 'no',
+		},
+		{
+			type: 'numeric',
+			name: 'borderRadius',
+			default: 20,
+			max: 100,
+			step: 1,
+			min: 0,
+			optional: 'no',
+		},
+		{
+			type: 'numeric',
+			name: 'horizontalPadding',
+			default: 20,
+			max: 100,
+			step: 1,
+			min: 0,
+			optional: 'no',
+		},
+		{
+			type: 'string',
+			name: 'text',
+			default:
+				'Try editing this text and the parameters! A rounded text box, like you see on TikTok, will be created.',
+			optional: 'no',
+		},
+	],
+};
+
+export const clockWipePresentationDemo: DemoType = {
+	comp: ClockWipeDemo,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 60,
+	fps: 30,
+	id: 'clock-wipe',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const irisPresentationDemo: DemoType = {
+	comp: IrisDemo,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'iris',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const cubePresentationDemo: DemoType = {
+	comp: CubeDemo,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 60,
+	fps: 30,
+	id: 'cube',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			type: 'enum',
+			name: 'direction',
+			default: 'from-left',
+			optional: 'no',
+			values: ['from-left', 'from-top', 'from-right', 'from-bottom'],
+		},
+	],
+};
+
+export const zoomBlurPresentationDemo: DemoType = {
+	comp: ZoomBlurDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'zoom-blur',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const dreamyZoomPresentationDemo: DemoType = {
+	comp: DreamyZoomDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'dreamy-zoom',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const filmBurnPresentationDemo: DemoType = {
+	comp: FilmBurnDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'film-burn',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const linearBlurPresentationDemo: DemoType = {
+	comp: LinearBlurDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'linear-blur',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const zoomInOutPresentationDemo: DemoType = {
+	comp: ZoomInOutDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'zoom-in-out',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const bookFlipPresentationDemo: DemoType = {
+	comp: BookFlipDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'book-flip',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const dissolvePresentationDemo: DemoType = {
+	comp: DissolveDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'dissolve',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const ripplePresentationDemo: DemoType = {
+	comp: RippleDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'ripple',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const crosswarpPresentationDemo: DemoType = {
+	comp: CrosswarpDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'crosswarp',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const crossZoomPresentationDemo: DemoType = {
+	comp: CrossZoomDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'cross-zoom',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const swapPresentationDemo: DemoType = {
+	comp: SwapDocsDemo,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'swap',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const customPresentationDemo: DemoType = {
+	comp: CustomTransitionDemo,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 60,
+	fps: 30,
+	id: 'custom-presentation',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const customTimingDemo: DemoType = {
+	comp: CustomTimingDemo,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 60,
+	fps: 30,
+	id: 'custom-timing',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const animationMathDemo: DemoType = {
+	comp: AnimationMath,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 120,
+	fps: 30,
+	id: 'animation-math',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const springDemo: DemoType = {
+	comp: SpringDemo,
+	compHeight: 400,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'spring',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'damping',
+			type: 'numeric',
+			default: 10,
+			min: 0,
+			max: 100,
+			step: 1,
+			optional: 'no',
+		},
+		{
+			name: 'mass',
+			type: 'numeric',
+			default: 1,
+			min: 0.1,
+			max: 10,
+			step: 0.1,
+			optional: 'no',
+		},
+		{
+			name: 'stiffness',
+			type: 'numeric',
+			default: 100,
+			min: 1,
+			max: 500,
+			step: 1,
+			optional: 'no',
+		},
+		{
+			name: 'durationInFrames',
+			type: 'numeric',
+			default: 30,
+			min: 1,
+			max: 120,
+			step: 1,
+			optional: 'default-disabled',
+		},
+		{
+			name: 'overshootClamping',
+			type: 'boolean',
+			default: false,
+			optional: 'no',
+		},
+		{
+			name: 'reverse',
+			type: 'boolean',
+			default: false,
+			optional: 'no',
+		},
+	],
+};
+
+export const shaderDemo: DemoType = {
+	comp: ShaderDemoComp,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 150,
+	fps: 30,
+	id: 'shader',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const springDampingDemo: DemoType = {
+	comp: SpringDemo,
+	compHeight: 400,
+	compWidth: 1280,
+	durationInFrames: 60,
+	fps: 30,
+	id: 'spring-damping',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'damping',
+			type: 'numeric',
+			default: 100,
+			min: 1,
+			max: 200,
+			step: 1,
+			optional: 'no',
+		},
+	],
+};
+
+export const lightLeakDemo: DemoType = {
+	comp: LightLeakDemoComp,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'light-leak',
+	autoPlay: true,
+	controls: true,
+	options: [
+		{
+			name: 'seed',
+			type: 'numeric',
+			default: 0,
+			min: 0,
+			max: 100,
+			step: 1,
+			optional: 'no',
+		},
+		{
+			name: 'hueShift',
+			type: 'numeric',
+			default: 0,
+			min: 0,
+			max: 360,
+			step: 1,
+			optional: 'no',
+		},
+	],
+};
+
+export const roughNotationHighlightDemo: DemoType = {
+	comp: RoughNotationHighlightDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-highlight',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationUnderlineDemo: DemoType = {
+	comp: RoughNotationUnderlineDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-underline',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationStrikeThroughDemo: DemoType = {
+	comp: RoughNotationStrikeThroughDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-strike-through',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationCrossedOffDemo: DemoType = {
+	comp: RoughNotationCrossedOffDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-crossed-off',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationBoxDemo: DemoType = {
+	comp: RoughNotationBoxDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-box',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationBracketDemo: DemoType = {
+	comp: RoughNotationBracketDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-bracket',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationCircleDemo: DemoType = {
+	comp: RoughNotationCircleDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-circle',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationAnimatedSeedDemo: DemoType = {
+	comp: RoughNotationAnimatedSeedDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-animated-seed',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationPosterizedSeedDemo: DemoType = {
+	comp: RoughNotationPosterizedSeedDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-posterized-seed',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const roughNotationPosterizedProgressDemo: DemoType = {
+	comp: RoughNotationPosterizedProgressDemo,
+	compHeight: 500,
+	compWidth: 1080,
+	durationInFrames: 90,
+	fps: 30,
+	id: 'rough-notation-posterized-progress',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const starburstDemo: DemoType = {
+	comp: StarburstDemoComp,
+	compHeight: 720,
+	compWidth: 1280,
+	durationInFrames: 180,
+	fps: 30,
+	id: 'starburst',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [],
+};
+
+export const transitionSeriesTransitionDemo: DemoType = {
+	comp: TransitionSeriesTransitionDemoComp,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 120,
+	fps: 30,
+	id: 'transition-series-transition',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'presentation',
+			type: 'enum',
+			default: 'fade',
+			values: ['fade', 'slide', 'wipe'],
+			optional: 'no',
+		},
+		{
+			name: 'transitionDuration',
+			type: 'numeric',
+			default: 15,
+			min: 5,
+			max: 40,
+			step: 1,
+			optional: 'no',
+		},
+	],
+};
+
+export const transitionSeriesOverlayDemo: DemoType = {
+	comp: TransitionSeriesOverlayDemoComp,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 120,
+	fps: 30,
+	id: 'transition-series-overlay',
+	autoPlay: true,
+	controls: true,
+	options: [
+		{
+			name: 'overlayDuration',
+			type: 'numeric',
+			default: 30,
+			min: 4,
+			max: 60,
+			step: 2,
+			optional: 'no',
+		},
+		{
+			name: 'offset',
+			type: 'numeric',
+			default: 0,
+			min: -20,
+			max: 20,
+			step: 1,
+			optional: 'no',
+		},
+	],
+};
+
+export const transitionSeriesEnterExitDemo: DemoType = {
+	comp: TransitionSeriesEnterExitDemoComp,
+	compHeight: 280,
+	compWidth: 540,
+	durationInFrames: 60,
+	fps: 30,
+	id: 'transition-series-enter-exit',
+	autoPlay: true,
+	controls: false,
+	logLevel: 'info',
+	options: [
+		{
+			name: 'presentation',
+			type: 'enum',
+			default: 'slide',
+			values: ['slide', 'fade', 'wipe'],
+			optional: 'no',
+		},
+	],
+};
+
+export const htmlInCanvasDemo2DBlur: DemoType = {
+	comp: HtmlInCanvasDocsDemo2DBlur,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 120,
+	fps: 30,
+	id: 'html-in-canvas-2d-blur',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const htmlInCanvasDemoWebGL: DemoType = {
+	comp: HtmlInCanvasDocsDemoWebGL,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 120,
+	fps: 30,
+	id: 'html-in-canvas-webgl',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'info',
+	options: [],
+};
+
+export const htmlInCanvasDemoWebGPU: DemoType = {
+	comp: HtmlInCanvasDocsDemoWebGPU,
+	compHeight: 1080,
+	compWidth: 1920,
+	durationInFrames: 120,
+	fps: 30,
+	id: 'html-in-canvas-webgpu',
+	autoPlay: true,
+	controls: true,
+	logLevel: 'trace',
+	options: [],
+};

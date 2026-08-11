@@ -1,0 +1,122 @@
+import type {
+	CanUpdateSequencePropsResponse,
+	SequencePropsSubscriptionKey,
+	StaticFile,
+} from 'remotion';
+import type {
+	CanUpdateDefaultPropsResponse,
+	ElementInstallRequest,
+} from './api-requests';
+import type {ConfigFileChangeType} from './config-file-change';
+import type {HotMiddlewareMessage} from './hot-middleware';
+import type {RenderDefaults} from './render-defaults';
+import type {CompletedClientRender, RenderJob} from './render-job';
+import type {SequenceNodePathMutation} from './sequence-node-path-mutation';
+import type {StudioRuntimeConfig} from './studio-runtime-config';
+
+export type EventSourceEvent =
+	| {
+			type: 'new-input-props';
+			newProps: object;
+	  }
+	| {
+			type: 'init';
+			clientId: string;
+			undoFile: string | null;
+			redoFile: string | null;
+	  }
+	| {
+			type: 'new-env-variables';
+			newEnvVariables: Record<string, string>;
+	  }
+	| {
+			type: 'config-file-changed';
+			changeType: ConfigFileChangeType;
+			originatorClientId: string | null;
+			renderDefaults: RenderDefaults;
+			studioRuntimeConfig: StudioRuntimeConfig;
+			editorName: string | null;
+	  }
+	| {
+			type: 'config-file-reload-failed';
+			errorMessage: string;
+	  }
+	| {
+			type: 'root-file-changed';
+	  }
+	| {
+			type: 'render-queue-updated';
+			queue: RenderJob[];
+	  }
+	| {
+			type: 'render-job-failed';
+			compositionId: string;
+			error: Error;
+	  }
+	| {
+			type: 'watched-file-undeleted';
+			file: string;
+	  }
+	| {
+			type: 'watched-file-deleted';
+			file: string;
+	  }
+	| {
+			type: 'client-renders-updated';
+			renders: CompletedClientRender[];
+	  }
+	| {
+			type: 'new-public-folder';
+			files: StaticFile[];
+			folderExists: string | null;
+	  }
+	| {
+			type: 'sequence-props-updated';
+			fileName: string;
+			nodePath: SequencePropsSubscriptionKey;
+			result: CanUpdateSequencePropsResponse;
+	  }
+	| {
+			type: 'sequence-node-paths-remapped';
+			mutation: SequenceNodePathMutation;
+	  }
+	| {
+			type: 'lost-node-path';
+			fileName: string;
+			line: number;
+			column: number;
+	  }
+	| {
+			type: 'default-props-updatable-changed';
+			compositionId: string;
+			result: CanUpdateDefaultPropsResponse;
+	  }
+	| {
+			type: 'undo-redo-stack-changed';
+			undoFile: string | null;
+			redoFile: string | null;
+	  }
+	| {
+			type: 'request-element-install-target';
+			requestId: string;
+	  }
+	| {
+			type: 'element-install-request';
+			request: ElementInstallRequest;
+	  }
+	| {
+			type: 'license-key-install-request';
+			licenseKey: string;
+	  }
+	| {
+			type: 'visual-control-values-changed';
+			values: Array<{
+				id: string;
+				value: unknown;
+				isUndefined: boolean;
+			}>;
+	  }
+	| {
+			type: 'hmr';
+			hmrEvent: HotMiddlewareMessage;
+	  };

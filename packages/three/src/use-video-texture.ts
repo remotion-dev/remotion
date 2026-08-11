@@ -1,0 +1,132 @@
+import React, {useCallback, useEffect, useState} from 'react';
+import type {Video} from 'remotion';
+import {
+	useCurrentFrame,
+	useDelayRender,
+	useRemotionEnvironment,
+} from 'remotion';
+// eslint-disable-next-line no-restricted-imports
+import type {VideoTexture} from 'three';
+
+export type UseVideoTextureOptions = React.ComponentProps<typeof Video>;
+
+let warned = false;
+
+const warnAboutRequestVideoFrameCallback = () => {
+	if (warned) {
+		return false;
+	}
+
+	warned = true;
+	// eslint-disable-next-line no-console
+	console.warn(
+		'Browser does not support requestVideoFrameCallback. Cannot display video.',
+	);
+};
+
+/*
+ * @description Allows you to use a video in React Three Fiber that is synchronized with Remotion's useCurrentFrame().
+ * @see [Documentation](https://www.remotion.dev/docs/use-video-texture)
+ */
+export const useVideoTexture = (
+	videoRef: React.RefObject<HTMLVideoElement | null>,
+): VideoTexture | null => {
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
+	const [loaded] = useState(() => {
+		if (typeof document === 'undefined') {
+			return 0;
+		}
+
+		return delayRender(`Waiting for texture in useVideoTexture() to be loaded`);
+	});
+
+	const environment = useRemotionEnvironment();
+	const {isClientSideRendering} = environment;
+
+	if (isClientSideRendering) {
+		throw new Error(
+			'useVideoTexture() cannot be used in client side rendering.',
+		);
+	}
+
+	const [videoTexture, setVideoTexture] = useState<VideoTexture | null>(null);
+	const [vidText] = useState(
+		() => import('three/src/textures/VideoTexture.js'),
+	);
+	const frame = useCurrentFrame();
+
+	const onReady = useCallback(() => {
+		vidText
+			.then(({VideoTexture}) => {
+				if (!videoRef.current) {
+					throw new Error('Video not ready');
+				}
+
+				const vt = new VideoTexture(videoRef.current);
+
+				videoRef.current.width = videoRef.current.videoWidth;
+				videoRef.current.height = videoRef.current.videoHeight;
+				setVideoTexture(vt);
+				continueRender(loaded);
+			})
+			.catch((err) => {
+				cancelRender(err);
+			});
+	}, [loaded, vidText, videoRef, continueRender, cancelRender]);
+
+	React.useLayoutEffect(() => {
+		if (!videoRef.current) {
+			return;
+		}
+
+		if (videoRef.current.readyState >= 2) {
+			onReady();
+			return;
+		}
+
+		videoRef.current.addEventListener(
+			'loadeddata',
+			() => {
+				onReady();
+			},
+			{once: true},
+		);
+	}, [loaded, onReady, videoRef]);
+
+	React.useEffect(() => {
+		const {current} = videoRef;
+		if (!current) {
+			return;
+		}
+
+		if (!current.requestVideoFrameCallback) {
+			warnAboutRequestVideoFrameCallback();
+			return;
+		}
+
+		const ready = () => {
+			// Now force a new render so the latest video frame shows up in the canvas
+			// Allow remotion to continue
+		};
+
+		current.requestVideoFrameCallback(ready);
+	}, [frame, loaded, videoRef]);
+
+	useEffect(() => {
+		// Clean up on unmount
+
+		return () => {
+			continueRender(loaded);
+		};
+	}, [loaded, continueRender]);
+
+	if (
+		typeof HTMLVideoElement === 'undefined' ||
+		!HTMLVideoElement.prototype.requestVideoFrameCallback
+	) {
+		continueRender(loaded);
+		return null;
+	}
+
+	return videoTexture;
+};

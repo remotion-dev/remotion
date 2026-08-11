@@ -1,0 +1,17 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"rootDir": "src",
+		"outDir": "dist"
+	},
+	"include": ["src"],
+	"references": [
+		{"path": "../core"},
+		{"path": "../bundler"},
+		{"path": "../lambda-client"},
+		{"path": "../cli"},
+		{"path": "../streaming"},
+		{"path": "../serverless"},
+		{"path": "../renderer"}
+	]
+}

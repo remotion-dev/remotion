@@ -1,0 +1,128 @@
+[
+  {
+    "text": "Welcome",
+    "startMs": 190,
+    "endMs": 620,
+    "timestampMs": 620,
+    "confidence": 0.971204
+  },
+  {
+    "text": " to",
+    "startMs": 620,
+    "endMs": 860,
+    "timestampMs": 940,
+    "confidence": 0.98921
+  },
+  {
+    "text": " the",
+    "startMs": 860,
+    "endMs": 1050,
+    "timestampMs": 1160,
+    "confidence": 0.951931
+  },
+  {
+    "text": " Remotion",
+    "startMs": 1050,
+    "endMs": 1750,
+    "timestampMs": 1340,
+    "confidence": 0.563537
+  },
+  {
+    "text": " Recorder!",
+    "startMs": 1750,
+    "endMs": 3100,
+    "timestampMs": 1980,
+    "confidence": 0.736247
+  },
+  {
+    "text": " You",
+    "startMs": 3100,
+    "endMs": 3340,
+    "timestampMs": 3520,
+    "confidence": 0.995304
+  },
+  {
+    "text": " are",
+    "startMs": 3340,
+    "endMs": 3580,
+    "timestampMs": 3860,
+    "confidence": 0.959327
+  },
+  {
+    "text": " currently",
+    "startMs": 3580,
+    "endMs": 4300,
+    "timestampMs": 4360,
+    "confidence": 0.995323
+  },
+  {
+    "text": " inside",
+    "startMs": 4300,
+    "endMs": 4810,
+    "timestampMs": 4960,
+    "confidence": 0.982441
+  },
+  {
+    "text": " the",
+    "startMs": 4810,
+    "endMs": 5120,
+    "timestampMs": 5240,
+    "confidence": 0.994042
+  },
+  {
+    "text": " Remotion",
+    "startMs": 5120,
+    "endMs": 5660,
+    "timestampMs": 5460,
+    "confidence": 0.936225
+  },
+  {
+    "text": " Studio,",
+    "startMs": 5660,
+    "endMs": 6320,
+    "timestampMs": 6100,
+    "confidence": 0.84111
+  },
+  {
+    "text": " where",
+    "startMs": 6320,
+    "endMs": 6700,
+    "timestampMs": 6480,
+    "confidence": 0.862046
+  },
+  {
+    "text": " you",
+    "startMs": 6700,
+    "endMs": 6880,
+    "timestampMs": 6620,
+    "confidence": 0.997501
+  },
+  {
+    "text": " can",
+    "startMs": 6880,
+    "endMs": 7180,
+    "timestampMs": 6860,
+    "confidence": 0.995171
+  },
+  {
+    "text": " edit",
+    "startMs": 7180,
+    "endMs": 7390,
+    "timestampMs": 7060,
+    "confidence": 0.998557
+  },
+  {
+    "text": " your",
+    "startMs": 7390,
+    "endMs": 7680,
+    "timestampMs": 7380,
+    "confidence": 0.995524
+  },
+  {
+    "text": " video.",
+    "startMs": 7680,
+    "endMs": 8140,
+    "timestampMs": 7780,
+    "confidence": 0.988418
+  }
+]

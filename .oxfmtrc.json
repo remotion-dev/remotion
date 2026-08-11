@@ -1,0 +1,25 @@
+{
+	"$schema": "./node_modules/oxfmt/configuration_schema.json",
+	"singleQuote": true,
+	"bracketSpacing": false,
+	"useTabs": true,
+	"printWidth": 80,
+	"sortImports": {"newlinesBetween": false},
+	"sortPackageJson": false,
+	"ignorePatterns": [
+		"packages/template-*/**",
+		"packages/player-example/**",
+		"packages/example-videos/**",
+		"packages/gif/src/worker/source.ts"
+	],
+	"overrides": [
+		{
+			"files": ["*.md", "*.mdx"],
+			"options": {
+				"useTabs": false,
+				"printWidth": 300,
+				"embeddedLanguageFormatting": "off"
+			}
+		}
+	]
+}

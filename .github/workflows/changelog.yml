@@ -1,0 +1,25 @@
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to post (e.g. v4.0.422). Leave empty for latest.'
+        required: false
+name: Publish latest release
+
+jobs:
+  post:
+    name: Post on Discord
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+      - uses: oven-sh/setup-bun@v2.1.2
+        with:
+          bun-version: 1.3.3
+      - name: Push changelog
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+        run: |
+          cd packages/discord-poster
+          bun post.ts ${{ github.event.inputs.tag }}

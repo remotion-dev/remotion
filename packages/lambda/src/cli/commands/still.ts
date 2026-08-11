@@ -1,0 +1,400 @@
+import path from 'path';
+import {CliInternals} from '@remotion/cli';
+import {ConfigInternals} from '@remotion/cli/config';
+import {AwsProvider, LambdaClientInternals} from '@remotion/lambda-client';
+import {
+	BINARY_NAME,
+	DEFAULT_MAX_RETRIES,
+	DEFAULT_OUTPUT_PRIVACY,
+} from '@remotion/lambda-client/constants';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
+import type {ProviderSpecifics} from '@remotion/serverless';
+import {validatePrivacy} from '@remotion/serverless';
+import {NoReactInternals} from 'remotion/no-react';
+import {internalDownloadMedia} from '../../api/download-media';
+import {validateMaxRetries} from '../../shared/validate-retries';
+import {parsedLambdaCli} from '../args';
+import {getAwsRegion} from '../get-aws-region';
+import {findFunctionName} from '../helpers/find-function-name';
+import {
+	getS3OutputProviderFromCli,
+	makeOutNameWithCustomCredentials,
+} from '../helpers/get-s3-output-provider-from-cli';
+import {quit} from '../helpers/quit';
+import {Log} from '../log';
+import {makeArtifactProgress} from './render/progress';
+
+const {
+	offthreadVideoCacheSizeInBytesOption,
+	offthreadVideoThreadsOption,
+	scaleOption,
+	deleteAfterOption,
+	jpegQualityOption,
+	enableMultiprocessOnLinuxOption,
+	glOption,
+	headlessOption,
+	delayRenderTimeoutInMillisecondsOption,
+	binariesDirectoryOption,
+	mediaCacheSizeInBytesOption,
+	darkModeOption,
+	browserExecutableOption,
+	userAgentOption,
+	disableWebSecurityOption,
+	ignoreCertificateErrorsOption,
+	overrideHeightOption,
+	overrideWidthOption,
+	overrideFpsOption,
+	overrideDurationOption,
+} = BrowserSafeApis.options;
+
+const {
+	parsedCli,
+	determineFinalStillImageFormat,
+	chalk,
+	getCliOptions,
+	formatBytes,
+	getCompositionWithDimensionOverride,
+} = CliInternals;
+
+export const STILL_COMMAND = 'still';
+
+export const stillCommand = async ({
+	args,
+	remotionRoot,
+	logLevel,
+	providerSpecifics,
+}: {
+	args: string[];
+	remotionRoot: string;
+	logLevel: LogLevel;
+	providerSpecifics: ProviderSpecifics<AwsProvider>;
+}) => {
+	const serveUrl = args[0];
+
+	if (!serveUrl) {
+		Log.error({indent: false, logLevel}, 'No serve URL passed.');
+		Log.info(
+			{indent: false, logLevel},
+			'Pass an additional argument specifying a URL where your Remotion project is hosted.',
+		);
+		Log.info({indent: false, logLevel});
+		Log.info(
+			{indent: false, logLevel},
+			`${BINARY_NAME} ${STILL_COMMAND} <serve-url> <composition-id>  [output-location]`,
+		);
+		quit(1);
+	}
+
+	const {envVariables, inputProps, stillFrame} = getCliOptions({
+		isStill: true,
+		logLevel,
+		indent: false,
+	});
+
+	const height = overrideHeightOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const width = overrideWidthOption.getValue({commandLine: parsedCli}).value;
+	const fps = overrideFpsOption.getValue({commandLine: parsedCli}).value;
+	const durationInFrames = overrideDurationOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const browserExecutable = browserExecutableOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const userAgent = userAgentOption.getValue({commandLine: parsedCli}).value;
+	const disableWebSecurity = disableWebSecurityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const ignoreCertificateErrors = ignoreCertificateErrorsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const region = getAwsRegion();
+	let composition = args[1];
+
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const gl = glOption.getValue({commandLine: parsedCli}).value;
+	const headless = headlessOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
+	const chromiumOptions: Required<ChromiumOptions> = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+		darkMode,
+	};
+
+	const timeoutInMilliseconds = delayRenderTimeoutInMillisecondsOption.getValue(
+		{
+			commandLine: parsedCli,
+		},
+	).value;
+	const offthreadVideoCacheSizeInBytes =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	if (!composition) {
+		Log.info(
+			{indent: false, logLevel},
+			'No compositions passed. Fetching compositions...',
+		);
+
+		LambdaClientInternals.validateServeUrl(serveUrl);
+
+		if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
+			throw Error(
+				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.',
+			);
+		}
+
+		const server = await RenderInternals.prepareServer({
+			offthreadVideoThreads: 1,
+			indent: false,
+			port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
+			remotionRoot,
+			logLevel,
+			webpackConfigOrServeUrl: serveUrl,
+			offthreadVideoCacheSizeInBytes,
+			binariesDirectory,
+			forceIPv4: false,
+			sampleRate: 48000,
+		});
+
+		const indent = false;
+
+		const {compositionId} = await getCompositionWithDimensionOverride({
+			args: args.slice(1),
+			compositionIdFromUi: null,
+			indent,
+			serveUrlOrWebpackUrl: serveUrl,
+			logLevel,
+			browserExecutable,
+			chromiumOptions,
+			envVariables,
+			serializedInputPropsWithCustomSchema:
+				NoReactInternals.serializeJSONWithSpecialTypes({
+					indent: undefined,
+					staticBase: null,
+					data: inputProps,
+				}).serializedString,
+			port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
+			puppeteerInstance: undefined,
+			timeoutInMilliseconds,
+			height,
+			width,
+			fps,
+			durationInFrames,
+			server,
+			offthreadVideoCacheSizeInBytes,
+			offthreadVideoThreads,
+			binariesDirectory,
+			onBrowserDownload: CliInternals.defaultBrowserDownloadProgress({
+				indent,
+				logLevel,
+				quiet: CliInternals.quietFlagProvided(),
+				onProgress: () => undefined,
+			}),
+			chromeMode: 'headless-shell',
+			mediaCacheSizeInBytes: mediaCacheSizeInBytes,
+		});
+		composition = compositionId;
+	}
+
+	const downloadName = args[2] ?? null;
+	const outName = parsedLambdaCli['out-name'];
+	const s3OutputProvider = getS3OutputProviderFromCli({
+		endpoint: parsedLambdaCli['s3-output-provider-endpoint'],
+		region: parsedLambdaCli['s3-output-provider-region'],
+		forcePathStyle:
+			parsedLambdaCli['s3-output-provider-force-path-style'] || undefined,
+	});
+	const resolvedOutName = makeOutNameWithCustomCredentials({
+		bucketName: parsedLambdaCli['force-bucket-name'],
+		key: outName,
+		s3OutputProvider,
+	});
+
+	const functionName = await findFunctionName({logLevel, providerSpecifics});
+
+	const maxRetries = parsedLambdaCli['max-retries'] ?? DEFAULT_MAX_RETRIES;
+	validateMaxRetries(maxRetries);
+
+	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
+	validatePrivacy(privacy, true);
+
+	const {stillImageFormatOption} = BrowserSafeApis.options;
+
+	const {format: imageFormat, source: imageFormatReason} =
+		determineFinalStillImageFormat({
+			downloadName,
+			outName: outName ?? null,
+			configuredImageFormat: stillImageFormatOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+			isLambda: true,
+			fromUi: null,
+		});
+
+	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray(
+			`Function: ${CliInternals.makeHyperlink({text: functionName, fallback: functionName, url: `https://${getAwsRegion()}.console.aws.amazon.com/lambda/home#/functions/${functionName}?tab=code`})}`,
+		),
+	);
+
+	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray(
+			`Image Format = ${imageFormat} (${imageFormatReason})`,
+		),
+	);
+
+	const deleteAfter = parsedLambdaCli[deleteAfterOption.cliFlag];
+	const scale = scaleOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const jpegQuality = jpegQualityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+
+	const res = await LambdaClientInternals.internalRenderStillOnLambda({
+		functionName,
+		serveUrl,
+		inputProps,
+		imageFormat,
+		composition,
+		privacy,
+		region,
+		maxRetries,
+		envVariables,
+		frame: stillFrame,
+		jpegQuality,
+		logLevel,
+		outName: resolvedOutName,
+		chromiumOptions,
+		timeoutInMilliseconds,
+		scale,
+		forceHeight: height,
+		forceWidth: width,
+		forceFps: fps,
+		forceDurationInFrames: durationInFrames,
+		onInit: ({cloudWatchLogs, lambdaInsightsUrl}) => {
+			Log.verbose(
+				{indent: false, logLevel},
+				`${CliInternals.makeHyperlink({
+					text: 'CloudWatch Logs',
+					url: cloudWatchLogs,
+					fallback: `CloudWatch Logs: ${cloudWatchLogs}`,
+				})} (if enabled)`,
+			);
+			Log.verbose(
+				{indent: false, logLevel},
+				`${CliInternals.makeHyperlink({
+					text: 'Lambda Insights',
+					url: lambdaInsightsUrl,
+					fallback: `Lambda Insights: ${lambdaInsightsUrl}`,
+				})} (if enabled)`,
+			);
+		},
+		deleteAfter: deleteAfter ?? null,
+		storageClass: parsedLambdaCli['storage-class'] ?? null,
+		licenseKey:
+			parsedLambdaCli[BrowserSafeApis.options.licenseKeyOption.cliFlag] ?? null,
+		downloadBehavior: {type: 'play-in-browser'},
+		forceBucketName: parsedLambdaCli['force-bucket-name'] ?? null,
+		forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
+		indent: false,
+		offthreadVideoCacheSizeInBytes,
+		offthreadVideoThreads: null,
+		requestHandler: null,
+		mediaCacheSizeInBytes,
+		isProduction:
+			parsedLambdaCli[BrowserSafeApis.options.isProductionOption.cliFlag] ??
+			true,
+	});
+	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray(
+			`Render ID: ${CliInternals.makeHyperlink({text: res.renderId, fallback: res.renderId, url: LambdaClientInternals.getS3RenderUrl({bucketName: res.bucketName, renderId: res.renderId, region: getAwsRegion()})})}`,
+		),
+	);
+	Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray(
+			`Bucket: ${CliInternals.makeHyperlink({text: res.bucketName, fallback: res.bucketName, url: `https://${getAwsRegion()}.console.aws.amazon.com/s3/buckets/${res.bucketName}/?region=${getAwsRegion()}`})}`,
+		),
+	);
+
+	const artifactProgress = makeArtifactProgress(res.artifacts);
+	if (artifactProgress) {
+		Log.info(
+			{
+				indent: false,
+				logLevel,
+			},
+			makeArtifactProgress(res.artifacts),
+		);
+	}
+
+	Log.info(
+		{indent: false, logLevel},
+		chalk.blue('+ S3'.padEnd(CliInternals.LABEL_WIDTH)),
+		chalk.blue(
+			CliInternals.makeHyperlink({
+				fallback: res.url,
+				url: res.url,
+				text: res.outKey,
+			}),
+		),
+		chalk.gray(formatBytes(res.sizeInBytes)),
+	);
+
+	if (downloadName) {
+		const {outputPath, sizeInBytes} = await internalDownloadMedia({
+			bucketName: res.bucketName,
+			outPath: downloadName,
+			region,
+			renderId: res.renderId,
+			logLevel,
+			providerSpecifics: providerSpecifics,
+			forcePathStyle: parsedLambdaCli['force-path-style'],
+			signal: new AbortController().signal,
+			customCredentials: s3OutputProvider,
+			onProgress: () => undefined,
+			requestHandler: null,
+		});
+		const relativePath = path.relative(process.cwd(), outputPath);
+		Log.info(
+			{indent: false, logLevel},
+			chalk.blue('↓'.padEnd(CliInternals.LABEL_WIDTH)),
+			chalk.blue(
+				CliInternals.makeHyperlink({
+					url: 'file://' + outputPath,
+					text: relativePath,
+					fallback: outputPath,
+				}),
+			),
+			chalk.gray(formatBytes(sizeInBytes)),
+		);
+	}
+};

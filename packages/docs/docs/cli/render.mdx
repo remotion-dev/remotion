@@ -1,0 +1,289 @@
+---
+image: /generated/articles-docs-cli-render.png
+title: npx remotion render
+sidebar_label: render
+crumb: CLI Reference
+---
+
+Render a video or audio based on the entry point, the composition ID and save it to the output location.
+
+```bash
+npx remotion render <entry-point|serve-url>? <composition-id> <output-location>
+```
+
+You may pass a [Serve URL](/docs/terminology/serve-url) or an [entry point](/docs/terminology/entry-point) as the first argument, otherwise the entry point will be [determined](/docs/terminology/entry-point#which-entry-point-is-being-used).
+
+If `composition-id` is not passed, Remotion will ask you to select a composition.  
+If `output-location` is not passed, the media will be rendered into the `out` folder.
+
+## Flags
+
+Besides choosing a video and output location with the command line arguments, the following flags are supported:
+
+### `--props`
+
+<Options id="props" />
+
+:::note
+Inline JSON string isn't supported on Windows shells because it removes the `"` character, use a file name instead.
+:::
+
+### `--height`<AvailableFrom v="3.2.40" />
+
+<Options id="height" cli />
+
+### `--width`<AvailableFrom v="3.2.40" />
+
+<Options id="width" cli />
+
+### `--fps`<AvailableFrom v="4.0.424" />
+
+<Options id="fps" cli />
+
+### `--duration`<AvailableFrom v="4.0.424" />
+
+<Options id="duration" cli />
+
+### `--concurrency`
+
+<Options id="concurrency" />
+
+### `--pixel-format`
+
+<Options id="pixel-format" />
+
+### `--image-format`<AvailableFrom v="1.4.0" />
+
+<Options id="video-image-format" />
+
+### `--image-sequence-pattern`<AvailableFrom v="4.0.313" />
+
+<Options id="image-sequence-pattern" />
+
+### `--config`<AvailableFrom v="1.2.0" />
+
+<Options id="config" />
+
+### `--env-file`<AvailableFrom v="2.2.0" />
+
+<Options id="env-file" />
+
+### `--jpeg-quality`<AvailableFrom v="4.0.0" />
+
+[Value between 0 and 100 for JPEG rendering quality](/docs/config#setjpegquality). Doesn't work when PNG frames are rendered.
+
+### ~~`--quality`~~<AvailableFrom v="1.4.0" />
+
+Renamed to `--jpeg-quality` in v4.0.0
+
+### `--output` <AvailableFrom v="4.0.0" />
+
+Sets the output file path, as an alternative to the `output-location` positional argument.
+
+### `--overwrite`
+
+[Write to output even if file already exists.](/docs/config#setoverwriteoutput). This flag is enabled by default, use `--overwrite=false` to disable it.
+
+### `--sequence`<AvailableFrom v="1.4.0" />
+
+<Options id="sequence" />
+
+### `--codec`<AvailableFrom v="1.4.0" />
+
+[`h264` or `h265` or `av1` or `png` or `vp8` or `vp9` or `mp3` or `aac` or `wav` or `prores` or `h264-mkv`](/docs/config#setcodec). If you don't supply `--codec`, it will use the H.264 encoder.
+
+If you are rendering on Linux ARM64 GNU, `av1` is not available.
+
+### `--audio-codec`<AvailableFrom v="3.3.42" />
+
+<Options id="audio-codec" />
+
+### `--audio-bitrate`<AvailableFrom v="3.2.32" />
+
+<Options id="audio-bitrate" />
+
+### `--video-bitrate`<AvailableFrom v="3.2.32" />
+
+<Options id="video-bitrate" />
+
+### `--buffer-size`<AvailableFrom v="4.0.78" />
+
+<Options id="buffer-size" />
+
+### `--max-rate`<AvailableFrom v="4.0.78" />
+
+<Options id="max-rate" />
+
+### `--prores-profile`<AvailableFrom v="2.1.6" />
+
+<Options id="prores-profile" />
+
+### `--x264-preset`<AvailableFrom v="4.2.2" />
+
+<Options id="x264-preset" />
+
+### `--gop`<AvailableFrom v="4.0.466" />
+
+<Options id="gop" />
+
+### `--crf`<AvailableFrom v="1.4.0" />
+
+[To set Constant Rate Factor (CRF) of the output](/docs/config#setcrf). Minimum 0. Use this rate control mode if you want to keep the best quality and care less about the file size. This option cannot be set if `--video-bitrate` is set.
+
+:::note
+If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot set a `crf`. Use the [`--video-bitrate`](#--video-bitrate) option instead.
+:::
+
+### `--browser-executable`<AvailableFrom v="1.5.0" />
+
+<Options id="browser-executable" />
+
+### `--chrome-mode`<AvailableFrom v="4.0.248" />
+
+<Options id="chrome-mode" />
+
+### `--scale`
+
+[Scales the output frames by the factor you pass in.](/docs/scaling) For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details. `scale` must be greater than 0 and less than equal to 16. Default: `1`.
+
+### `--frames`<AvailableFrom v="2.0.0" />
+
+<Options id="frames" />
+
+Use a comma-separated list of frame numbers, for example `--frames=0,30,60`, to render specific frames as an image sequence. This automatically enables [`--sequence`](#--sequence).<AvailableFrom v="4.0.502" inline />
+
+Use a comma-separated list of ranges, for example `--frames=0-99,150-199`, to concatenate the selected ranges into one video. Frames between the ranges are omitted. Ranges are inclusive. Add [`--sequence`](#--sequence) to output the selected ranges as images instead. Individual frames and ranges can be combined, for example `--frames=0,30-59,90-`.<AvailableFrom v="4.0.502" inline />
+
+### `--every-nth-frame`<AvailableFrom v="3.1.0" />
+
+<Options id="every-nth-frame" />
+
+For example only every second frame, every third frame and so on. Only works for rendering GIFs. [See here for more details.](/docs/render-as-gif#reducing-frame-rate)
+
+### `--muted`<AvailableFrom v="3.2.1" />
+
+[Disables audio output.](/docs/cli/render#--muted) This option may only be used when rendering a video.
+
+### `--enforce-audio-track`<AvailableFrom v="3.2.1" />
+
+[Render a silent audio track if there wouldn't be one otherwise.](/docs/cli/render#--enforce-audio-track).
+
+### `--disallow-parallel-encoding`<AvailableFrom v="4.0.315" />
+
+Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
+
+### `--number-of-gif-loops`<AvailableFrom v="3.1.0" />
+
+<Options id="number-of-gif-loops" />
+
+### `--color-space`<AvailableFrom v="4.0.28"/>
+
+<Options cli id="color-space" />
+
+### `--hardware-acceleration`<AvailableFrom v="4.0.228" />
+
+<Options cli id="hardware-acceleration" />
+
+### `--bundle-cache`<AvailableFrom v="2.0.0" />
+
+<Options id="bundle-cache" />
+
+### `--log`
+
+[Set the log level](/docs/config#setloglevel). Increase or decrease the amount of output. Acceptable values: `error`, `warn`, `info` (_default_), `verbose`
+
+### `--port`
+
+<Options id="port" />
+
+### `--public-dir`<AvailableFrom v="3.2.13" />
+
+<Options id="public-path" />
+
+### `--timeout`
+
+Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout) in milliseconds. Default: `30000`.
+
+:::info
+Not to be confused with the [`--timeout` flag when deploying a Lambda function](/docs/lambda/cli/functions/deploy#--timeout).
+:::
+
+### `--ignore-certificate-errors`<AvailableFrom v="2.6.5" />
+
+<Options id="ignore-certificate-errors" />
+
+### `--disable-web-security`<AvailableFrom v="2.6.5" />
+
+<Options id="disable-web-security" />
+
+### `--disable-headless`<AvailableFrom v="2.6.5" />
+
+<Options id="disable-headless" />
+
+### `--dark-mode`<AvailableFrom v="4.0.381"/>
+
+<Options id="dark-mode" />
+
+### `--gl`
+
+<Options id="gl" cli />
+
+### `--user-agent`<AvailableFrom v="3.3.83"/>
+
+<Options id="user-agent" />
+
+### `--media-cache-size-in-bytes`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
+
+### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
+
+<Options cli id="offthreadvideo-cache-size-in-bytes" />
+
+### `--offthreadvideo-video-threads`<AvailableFrom v="4.0.261"/>
+
+<Options id="offthreadvideo-video-threads" />
+
+### `--enable-multiprocess-on-linux`<AvailableFrom v="4.0.42"/>
+
+<Options cli id="enable-multiprocess-on-linux" />
+
+### `--repro`<AvailableFrom v="4.0.88" />
+
+<Options id="repro" />
+
+### `--binaries-directory`<AvailableFrom v="4.0.120" />
+
+<Options cli id="binaries-directory" />
+
+### `--rspack`<AvailableFrom v="4.0.502" />
+
+<Options id="rspack" />
+
+### `--sample-rate`<AvailableFrom v="4.0.448" />
+
+<Options cli id="sample-rate" />
+
+### `--for-seamless-aac-concatenation`<AvailableFrom v="4.0.123" />
+
+<Options cli id="for-seamless-aac-concatenation" />
+
+### `--separate-audio-to`<AvailableFrom v="4.0.123" />
+
+<Options cli id="separate-audio-to" />
+
+### `--metadata`<AvailableFrom v="4.0.216" />
+
+<Options cli id="metadata" />
+
+### ~~`--ffmpeg-executable`~~
+
+_removed in v4.0_
+
+[Set a custom `ffmpeg` executable](/docs/config#setffmpegexecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
+
+### ~~`--ffprobe-executable`~~ <AvailableFrom v="3.0.17" />
+
+_removed in v4.0_
+
+[Set a custom `ffprobe` executable](/docs/config#setffprobeexecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.

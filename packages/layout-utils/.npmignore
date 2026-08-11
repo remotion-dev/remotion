@@ -1,0 +1,11 @@
+dist/test/**
+dist/cjs/test
+src
+tsconfig.tsbuildinfo
+*.tgz
+.turbo
+tsconfig.json
+.prettierrc.js
+bundle.ts
+eslint.config.mjs
+vitest.config.ts

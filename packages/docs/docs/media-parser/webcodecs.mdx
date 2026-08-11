@@ -1,0 +1,276 @@
+---
+image: /generated/articles-docs-media-parser-webcodecs.png
+id: webcodecs
+title: Processing video with WebCodecs and @remotion/media-parser
+sidebar_label: WebCodecs
+slug: /media-parser/webcodecs
+crumb: '@remotion/media-parser'
+---
+
+:::warning
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
+[`parseMedia()`](/docs/media-parser/parse-media) is able to extract tracks and samples from audio and video in a format that is suitable for usage with WebCodecs APIs.
+
+## Minimal example
+
+The following snippet is a basic, non-production ready example of how to use `parseMedia()` with WebCodecs.
+
+```tsx twoslash title="Reading video frames"
+// ⚠️ Simple, but non-production ready example
+import {parseMedia, MediaParserOnAudioTrack, MediaParserOnVideoTrack} from '@remotion/media-parser';
+
+const result = await parseMedia({
+  src: 'https://remotion.media/video.mp4',
+  onVideoTrack: ({track}) => {
+    const decoder = new VideoDecoder({
+      output: console.log,
+      error: console.error,
+    });
+
+    decoder.configure(track);
+
+    return (sample) => {
+      decoder.decode(new EncodedVideoChunk(sample));
+    };
+  },
+});
+```
+
+## The importance of queueing
+
+import {WebCodecsQueueing} from './WebCodecsQueueing';
+
+Consider the following video processing pipeline, which converts a video, similarly to what [`convertMedia()`](/docs/webcodecs/convert-media) does.
+
+<WebCodecsQueueing />
+
+The pipeline consists of different steps, each of which have different speeds.  
+For example, the parsing of the media is much faster than the decoding of the video.
+
+This can lead to a "traffic jam" in front of the video decoder, where many samples are queueing quickly.  
+Since this will cause memory to build up, it will negatively impact the performance of the page.
+
+It makes sense to connect the whole pipeline together and throttle each step so it does not perform faster than the next step.  
+In the example above, six queues are required to be managed, with each one of them malfunctioning causing memory to run away.
+
+## How Remotion helps you work with WebCodecs
+
+Since handling queueing correctly is a challenging task, we offer helpers that help you work with WebCodecs.
+
+Remotion's primitives are designed to offer you functionality to implement queueing in a sensible way:
+
+- In [`parseMedia()`](/docs/media-parser/parse-media), callbacks are asnychronous, and as long as they don't resolve, the parsing process will not continue.
+- The helper functions [`createAudioDecoder()`](/docs/webcodecs/create-audio-decoder) and [`createVideoDecoder()`](/docs/webcodecs/create-video-decoder) offer you a helper method `waitForQueueToBeLessThan()` which you can await.
+- For processing video and audio frames as well as encoding video and audio, we don't offer helpers yet, but hope to do so soon.
+
+## Practical considerations
+
+If you use `parseMedia()` with codecs, make the following considerations for your implementation.
+
+### Check if browser has `VideoDecoder` and `AudioDecoder`
+
+As of May 2025, all major browsers support `VideoDecoder` and `AudioDecoder` except Safari, which has support for `VideoDecoder` only.  
+`AudioDecoder` is supported in Safari Technology Preview, meaning that soon, all major browsers will support WebCodecs fully.
+
+Still, it is a good idea to check if the browser supports the decoders.  
+You can opt to skip a track by returning `null` from the callback.
+
+```tsx twoslash title="Rejecting samples"
+// @noErrors
+import type {MediaParserOnAudioTrack, MediaParserOnVideoTrack} from '@remotion/media-parser';
+
+const onVideoTrack: MediaParserOnVideoTrack = ({track}) => {
+  if (typeof VideoDecoder === 'undefined') {
+    return null;
+  }
+
+  const videoDecoder = new VideoDecoder({
+    output: console.log,
+    error: console.error,
+  });
+  // ...
+};
+
+const onAudioTrack: MediaParserOnAudioTrack = ({track}) => {
+  if (typeof AudioDecoder === 'undefined') {
+    return null;
+  }
+
+  const audioDecoder = new AudioDecoder({
+    output: console.log,
+    error: console.error,
+  });
+  // ...
+};
+```
+
+### Check if the browser supports the codec
+
+Not all browsers support all codecs that `parseMedia()` emits.  
+The best way is to use `AudioDecoder.isConfigSupported()` and `VideoDecoder.isConfigSupported()` to check if the browser supports the codec.  
+These are async APIs, fortunately `onAudioTrack` and `onVideoTrack` allow async code as well.
+
+```tsx twoslash title="Checking if the browser supports the codec"
+// @noErrors
+import type {MediaParserOnAudioTrack, MediaParserOnVideoTrack} from '@remotion/media-parser';
+
+const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
+  const videoDecoder = new VideoDecoder({
+    output: console.log,
+    error: console.error,
+  });
+
+  const {supported} = await VideoDecoder.isConfigSupported(track);
+  if (!supported) {
+    return null;
+  }
+
+  // ...
+};
+
+const onAudioTrack: MediaParserOnAudioTrack = async ({track}) => {
+  const audioDecoder = new AudioDecoder({
+    output: console.log,
+    error: console.error,
+  });
+
+  const {supported} = await AudioDecoder.isConfigSupported(track);
+  if (!supported) {
+    return null;
+  }
+
+  // ...
+};
+```
+
+:::note
+Perform these checks in addition to the previously mentioned ones.
+:::
+
+### Error handling
+
+If an error occurs, you get the error in the `error` callback that you passed to the `VideoDecoder` or `AudioDecoder` constructor.  
+The decoder `state` will switch to `"closed"`, however, you will still receive samples.
+
+If the decoder is in `"closed"` state, you should stop passing them to VideoDecoder.
+
+```tsx twoslash title="Error handling"
+import type {MediaParserOnVideoTrack} from '@remotion/media-parser';
+
+const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
+  const videoDecoder = new VideoDecoder({
+    output: console.log,
+    error: console.error,
+  });
+
+  return async (sample) => {
+    if (videoDecoder.state === 'closed') {
+      return;
+    }
+  };
+};
+```
+
+:::note
+
+- The same logic goes for `AudioDecoder`.
+- You should still perform the checks previously mentioned, but they are omitted from this example.  
+  :::
+
+### Handling rotation
+
+WebCodecs do not seem to consider rotation.  
+For example, this [video recorded with an iPhone](https://github.com/remotion-dev/remotion/blob/main/packages/example/public/iphone-hevc.mov) has metadata that it should be displayed at 90 degrees rotation.
+
+`VideoDecoder` is not able to rotate the video for you, so you might need to do it yourself, for example by drawing it to a canvas.  
+Fortunately `parseMedia()` returns the rotation of the track:
+
+```tsx twoslash title="Handling stretched videos"
+import type {MediaParserOnVideoTrack} from '@remotion/media-parser';
+
+const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
+  console.log(track.rotation); // -90
+  return null;
+};
+```
+
+See here for an example of how a [video frame is turned into a bitmap](https://github.com/remotion-dev/remotion/blob/1a99dadcd8e700bf94abdfa3f5506329d6c9c182/packages/example/src/Encoder/SrcEncoder.tsx#L98-L102) and rotated.
+
+### Understanding the different dimensions of a video
+
+As just mentioned, some videos might be stretched or rotated.  
+In an extreme case, it is possible that you stumble opon a video that has three different dimensions.
+
+```tsx twoslash title="Handling stretched videos"
+import type {MediaParserOnVideoTrack} from '@remotion/media-parser';
+
+const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
+  console.log(track);
+  // {
+  //   codedWidth: 1440,
+  //   codedHeight: 1080,
+  //   displayAspectWidth: 1920,
+  //   displayAspectHeight: 1080,
+  //   width: 1080,
+  //   height: 1900,
+  //   ...
+  // }
+
+  return null;
+};
+```
+
+The meaning of it is:
+
+- `codedWidth` and `codedHeight` are the dimensions of the video in the codec's internal format.
+- `displayAspectWidth` and `displayAspectHeight` are scaled dimensions of how the video should be displayed, but with rotation not yet applied.
+  :::note
+  These are not necessarily the actual dimensions of how a video is presented to the user, because rotation is not yet applied.  
+  The fields are named like this because they correspond with what should be passed to `new EncodedVideoChunk()`.
+  :::
+- `width` and `height` are the dimensions of the video how it would be displayed by a Player.
+
+### Google Chrome quirks
+
+We find that as of now, `AudioDecoder.isConfigSupported()` are not 100% reliable. For example, Chrome marks this config as supported, but then throws an error nonetheless.
+
+```tsx
+const config = {codec: 'opus', numberOfChannels: 6, sampleRate: 44100};
+console.log(await AudioDecoder.isConfigSupported(config)); // {supported: true}
+
+const decoder = new AudioDecoder({error: console.error, output: console.log});
+
+decoder.configure(config); // Unsupported configuration. Check isConfigSupported() prior to calling configure().
+```
+
+Consider this in your implementation.
+
+## Why WebCodecs?
+
+WebCodecs is the fastest way to decode videos in the browser.  
+WebAssembly solutions need to strip the CPU-specific optimizations and cannot benefit from hardware acceleration.
+
+Using Remotion Media Parser and WebCodecs is [at least 3 times faster than using WebAssembly solutions](https://github.com/remotion-dev/webcodecs-benchmark) in any scenario we tested.
+
+WebCodecs are built into the browser, meaning decoders and encoders do not need to be loaded.  
+Later in 2025, WebCodecs will be supported in all major browsers.
+
+## With `@remotion/webcodecs`
+
+[`@remotion/webcodecs`](/docs/webcodecs) is a package that uses `@remotion/media-parser` to provide video processing in the browser.  
+It handles various browser quirks and hard implementation details for you.
+
+- Convert, rotate and resize videos: [`convertMedia()`](/docs/webcodecs/convert-media)
+- Decode media: [`createVideoDecoder()`](/docs/webcodecs/create-video-decoder) and [`createAudioDecoder()`](/docs/webcodecs/create-audio-decoder)
+
+## Reference implementation
+
+A testbed with many different codecs and edge cases is available [here](https://github.com/remotion-dev/remotion/blob/main/packages/example/src/DecoderDemo.tsx).  
+Follow [these instructions](https://www.remotion.dev/docs/contributing#testing-your-changes) to run the testbed locally.
+
+## License reminder
+
+Like Remotion itself, this package is licensed under the [Remotion License](https://remotion.dev/license).  
+TL;DR: Individuals and small teams can use this package, but teams of 4+ people [need a company license](/docs/license/pricing).

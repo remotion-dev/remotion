@@ -1,0 +1,118 @@
+---
+slug: faster-lambda
+title: Lambda renders are now faster
+author: Jonny Burger
+author_title: Chief Hacker @ Remotion
+author_url: https://github.com/JonnyBurger
+author_image_url: https://avatars2.githubusercontent.com/u/1629785?s=460&u=12eb94da6070d00fc924761ce06e3a428d01b7e9&v=4
+image: /img/seamless-aac.png
+---
+
+import { AacFile } from "../components/Aac/AacFile";
+import { AacPadding } from "../components/Aac/AacPadding";
+import { AacConcatenationProblem } from "../components/Aac/AacConcatenationProblem";
+import { AacKeyframes } from "../components/Aac/AacKeyframes";
+import { AacConcatenationSolution } from "../components/Aac/AacConcatenationSolution";
+import { AacBenchmarks } from "../components/Aac/Benchmarks";
+
+With Remotion v4.0.130, [Remotion Lambda](/lambda) renders now complete significantly faster!  
+The longer the video, the higher the speedup.
+
+<AacBenchmarks />
+<sub style={{ opacity: 0.5, lineHeight: 1 }}>
+  Rendering a 1920x1080px video with an <code>&lt;OffthreadVideo&gt;</code> tag
+  loading a 15MB Full HD video and looping it. The Lambda function has been
+  given 3000MB of memory.
+</sub>
+<br />
+<br />
+
+Thanks to an innovative audio concatenation strategy that we implemented with help from [Max Schnur](https://github.com/maxpower15) from [Wistia](https://wistia.com/), we can skip an audio re-encoding step at the end.
+
+## Audio is the slow part
+
+Remotion Lambda renders portions of a video in parallel and concatenates them at the end.  
+The slow part is actually not the video, but the audio rendering!
+
+While other codecs are possible, a `.mp4` file usually contains AAC audio.
+
+Concatenating the AAC chunks is usually not possible without creating some artifacts.
+
+## How AAC works
+
+An AAC audio stream contains many packets. Each packet contains exactly 1024 samples.
+
+<AacFile />
+
+<br />
+<br />
+
+The duration of the audio must be divisible by 1024 samples. If your audio does not fit, you must pad the last packet with silence!
+
+<AacPadding />
+<br />
+<br />
+
+When concatenating AAC audio, this padding of silence is noticeable and can be heard as a popping noise:
+
+<AacConcatenationProblem />
+<br />
+<br />
+
+To avoid this artifact, the whole audio needs to be re-encoded at the end. The longer the audio, the worse the problem!
+
+## A packet has dependencies
+
+Making the problem harder, an AAC packet is not self-contained. The waveform also depends on the previous and next packets!
+
+<AacKeyframes />
+<br />
+<br />
+
+This means we cannot create packet-sized audio slices and concatenate them because we'd have to include their padding as well.
+
+## Who can solve this problem?
+
+Online resources such as Stack Overflow were quickly exhausted.
+
+I went to the [RTC.on](https://rtcon.live/) multimedia conference and talked about this problem in my talk.
+
+A few listeners came up to me afterwards and gave me a few ideas. I did a session with [Michał Śledź](https://github.com/mickel8) from [Software Mansion](https://swmansion.com/), all of which helped me even understand the problem we are facing in the first place.
+
+No immediate solution was found, but the problem was put aside when we realized that the [`libfdk-aac`](https://github.com/mstorsjo/fdk-aac) encoder is twice as fast as FFmpeg's native encoder, softened the problem for the moment.
+
+## An innovative way to concatenate AAC
+
+Out of the blue, [Max Schnur](https://github.com/maxpower15) from [Wistia](https://wistia.com/) appeared with a solution and posted it on the [Remotion Discord](https://remotion.dev/discord)!
+
+To seamlessly concatenate AAC:
+
+- Each audio segment needs to have a sample count divisible by 1024
+- Each segment should have extra packets at the beginning and the end to not lose the keyframes.
+- The extra padding will be removed when concatenating them together.
+
+<AacConcatenationSolution />
+<br />
+<br />
+
+There are many tricky aspects to implementing this correctly:
+
+- Each audio segment needs to be a bit longer than previously and they need to be slightly overlapping. Extra frames need to be evaluated, but they don't need to be screenshotted.
+- Video chunks should not contain the padding, hence audio and video need to be separated.
+- Depending on the rounding and the position in the audio, between 1 and 3 extra packets are required.
+- The `inpoint` and `outpoint` FFmpeg filters need to be nano-second precise for correct trimming.
+- All audio layers should be resampled to be the same sample rate (we decided for 48000 Hz)
+- Our timeline positioning, volume curves, pitch correction, playback rate capabilities need to continue working.
+- Rendering only a portion of the timeline will shift the start timestamp, which changes the math for each chunk.
+- The video frame rate of (commonly 30fps) and the audio sample rate of (commonly 48000Hz) do seldomly align. By capturing extra frames, we get too much padding which needs to be trimmed off again for each chunk.
+- The FFmpeg `atempo` filter is imprecise: For example, speeding up 80.000 audio samples by 2x will lead to 40.014 audio samples. Tiny imperfections will lead to seamless concatenation not working at all. To fix this, we had to flip the order of trimming and speeding up audio.
+- Not pictured above, each AAC file has a silence of 512 samples at the beginning of the file. This delays all audio slightly, but by adding a negative offset to the MP4 container, this is usually balanced out.
+
+If all of these factors are accounted for, concatenating AAC chunks will be completely seamless!
+
+<AacFile />
+<br />
+<br />
+
+Upgrade to Remotion 4.0.130 or later to benefit from the faster rendering on Lambda.  
+We look forward to engineer even more performance improvements in the future for lower costs and better user experience!

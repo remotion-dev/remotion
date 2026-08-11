@@ -1,0 +1,94 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda"
+	},
+	"name": "@remotion/lambda",
+	"version": "4.0.508",
+	"description": "Render Remotion videos on AWS Lambda",
+	"main": "dist/index.js",
+	"scripts": {
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"lint": "eslint src",
+		"testlambda": "exit 0",
+		"test": "bun test src/test/unit",
+		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts",
+		"makeruntime": "bun build.ts",
+		"prepublishOnly": "bun build.ts && bun ensure-version-match.js"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "SEE LICENSE IN LICENSE.md",
+	"dependencies": {
+		"@aws-sdk/s3-request-presigner": "catalog:",
+		"@aws-sdk/middleware-flexible-checksums": "catalog:",
+		"@aws-sdk/client-lambda": "catalog:",
+		"@aws-sdk/client-s3": "catalog:",
+		"@aws-sdk/client-sts": "catalog:",
+		"@aws-sdk/client-iam": "catalog:",
+		"@aws-sdk/client-cloudwatch-logs": "catalog:",
+		"@aws-sdk/client-service-quotas": "catalog:",
+		"@aws-sdk/lib-storage": "catalog:",
+		"@remotion/bundler": "workspace:*",
+		"@remotion/cli": "workspace:*",
+		"@remotion/lambda-client": "workspace:*",
+		"@remotion/renderer": "workspace:*",
+		"@remotion/serverless": "workspace:*",
+		"@remotion/streaming": "workspace:*",
+		"@smithy/abort-controller": "4.0.1",
+		"remotion": "workspace:*",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@remotion/bundler": "workspace:*",
+		"@types/express": "5.0.1",
+		"express": "4.21.0",
+		"@remotion/compositor-linux-arm64-gnu": "workspace:*",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"mime-types": "2.1.34",
+		"@types/mime-types": "2.1.1",
+		"@types/minimist": "1.2.2",
+		"eslint": "catalog:",
+		"next": "catalog:",
+		"pureimage": "0.4.13",
+		"@types/node": "catalog:",
+		"@typescript/native-preview": "catalog:"
+	},
+	"peerDependencies": {
+		"@remotion/bundler": "workspace:*"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		},
+		"./client": {
+			"types": "./dist/client.d.ts",
+			"require": "./dist/client.js",
+			"module": "./dist/esm/client.mjs",
+			"import": "./dist/esm/client.mjs"
+		},
+		"./policies": {
+			"types": "./dist/policies.d.ts",
+			"require": "./dist/policies.js",
+			"module": "./dist/esm/policies.mjs",
+			"import": "./dist/esm/policies.mjs"
+		}
+	},
+	"typesVersions": {
+		">=1.0": {
+			"client": [
+				"./dist/client.d.ts"
+			],
+			"policies": [
+				"./dist/policies.d.ts"
+			]
+		}
+	},
+	"homepage": "https://www.remotion.dev/docs/lambda"
+}

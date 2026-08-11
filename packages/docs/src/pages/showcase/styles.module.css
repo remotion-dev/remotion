@@ -1,0 +1,75 @@
+/* stylelint-disable docusaurus/copyright-header */
+
+.hero {
+	padding: 56px 0 32px;
+}
+
+.container {
+	margin: 0 auto;
+	max-width: var(--ifm-container-width);
+	padding: 0 20px;
+	width: 100%;
+}
+
+.title {
+	font-size: clamp(2.75rem, 8vw, 5rem);
+	font-weight: 650;
+	letter-spacing: -0.05em;
+	line-height: 1;
+	margin: 0;
+}
+
+.lede {
+	color: var(--subtitle);
+	font-size: 1.25rem;
+	line-height: 1.65;
+	margin: 20px 0 0;
+	max-width: 68ch;
+}
+
+.note {
+	color: var(--subtitle);
+	font-size: 1rem;
+	line-height: 1.6;
+	margin: 18px 0 0;
+	max-width: 68ch;
+}
+
+.note a {
+	font-weight: 650;
+}
+
+.gallerySection {
+	padding: 20px 0 80px;
+}
+
+.videosMasonry {
+	column-count: 3;
+	column-gap: 24px;
+}
+
+.videosMasonryItem {
+	break-inside: avoid;
+	margin-bottom: 24px;
+	width: 100%;
+}
+
+@media screen and (max-width: 996px) {
+	.videosMasonry {
+		column-count: 2;
+	}
+}
+
+@media screen and (max-width: 650px) {
+	.hero {
+		padding: 44px 0 28px;
+	}
+
+	.videosMasonry {
+		column-count: 1;
+	}
+
+	.lede {
+		font-size: 1.0625rem;
+	}
+}

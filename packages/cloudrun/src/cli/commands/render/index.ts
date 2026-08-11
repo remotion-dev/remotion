@@ -1,0 +1,471 @@
+import {CliInternals} from '@remotion/cli';
+import {ConfigInternals} from '@remotion/cli/config';
+import type {
+	ChromiumOptions,
+	LogLevel,
+	SingleFrameRange,
+} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
+import {NoReactInternals} from 'remotion/no-react';
+import {downloadFile} from '../../../api/download-file';
+import {internalRenderMediaOnCloudrun} from '../../../api/render-media-on-cloudrun';
+import type {CloudrunCodec} from '../../../shared/validate-gcp-codec';
+import {validateServeUrl} from '../../../shared/validate-serveurl';
+import {parsedCloudrunCli} from '../../args';
+import {displayCrashLogs} from '../../helpers/cloudrun-crash-logs';
+import {Log} from '../../log';
+import {renderArgsCheck} from './helpers/renderArgsCheck';
+
+export const RENDER_COMMAND = 'render';
+
+const {
+	audioBitrateOption,
+	x264Option,
+	offthreadVideoCacheSizeInBytesOption,
+	offthreadVideoThreadsOption,
+	scaleOption,
+	crfOption,
+	gopSizeOption,
+	jpegQualityOption,
+	videoBitrateOption,
+	enforceAudioOption,
+	mutedOption,
+	colorSpaceOption,
+	numberOfGifLoopsOption,
+	enableMultiprocessOnLinuxOption,
+	glOption,
+	headlessOption,
+	encodingMaxRateOption,
+	encodingBufferSizeOption,
+	delayRenderTimeoutInMillisecondsOption,
+	binariesDirectoryOption,
+	metadataOption,
+	mediaCacheSizeInBytesOption,
+	darkModeOption,
+	pixelFormatOption,
+	browserExecutableOption,
+	everyNthFrameOption,
+	proResProfileOption,
+	userAgentOption,
+	disableWebSecurityOption,
+	ignoreCertificateErrorsOption,
+	overrideHeightOption,
+	overrideWidthOption,
+	overrideFpsOption,
+	overrideDurationOption,
+	sampleRateOption,
+	concurrencyOption,
+} = BrowserSafeApis.options;
+
+export const renderCommand = async (
+	args: string[],
+	remotionRoot: string,
+	logLevel: LogLevel,
+) => {
+	const {
+		serveUrl,
+		cloudRunUrl,
+		outName,
+		forceBucketName,
+		downloadName,
+		privacy,
+		region,
+	} = await renderArgsCheck(RENDER_COMMAND, args, logLevel);
+
+	const {value: codec, source: codecReason} =
+		BrowserSafeApis.options.videoCodecOption.getValue(
+			{
+				commandLine: CliInternals.parsedCli,
+			},
+			{
+				downloadName,
+				outName: outName ?? null,
+				configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+				uiCodec: null,
+				compositionCodec: null,
+			},
+		);
+
+	const imageFormat = BrowserSafeApis.options.videoImageFormatOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
+	const audioCodec = BrowserSafeApis.options.audioCodecOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
+	const {envVariables, frameRange, inputProps, selectedFrames} =
+		CliInternals.getCliOptions({
+			isStill: false,
+			logLevel,
+			indent: false,
+		});
+	if (
+		selectedFrames !== null ||
+		(Array.isArray(frameRange) && Array.isArray(frameRange[0]))
+	) {
+		throw new Error(
+			'Comma-separated frame selections are only supported by the local `remotion render` command. Pass one frame range to render a video on Cloud Run.',
+		);
+	}
+
+	const singleFrameRange = frameRange as SingleFrameRange | null;
+
+	const height = overrideHeightOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const width = overrideWidthOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const fps = overrideFpsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const durationInFrames = overrideDurationOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const concurrency = concurrencyOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	});
+
+	const pixelFormat = pixelFormatOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const browserExecutable = browserExecutableOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const everyNthFrame = everyNthFrameOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const proResProfile = proResProfileOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const userAgent = userAgentOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const disableWebSecurity = disableWebSecurityOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const ignoreCertificateErrors = ignoreCertificateErrorsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const offthreadVideoCacheSizeInBytes =
+		offthreadVideoCacheSizeInBytesOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value;
+	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const gl = glOption.getValue({commandLine: CliInternals.parsedCli}).value;
+	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const headless = headlessOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const binariesDirectory = binariesDirectoryOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const darkMode = darkModeOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	let composition: string = args[1];
+
+	const chromiumOptions: Required<ChromiumOptions> = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+		darkMode,
+	};
+
+	if (!composition) {
+		Log.info(
+			{indent: false, logLevel},
+			'No compositions passed. Fetching compositions...',
+		);
+
+		validateServeUrl(serveUrl);
+
+		if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
+			throw Error(
+				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.',
+			);
+		}
+
+		const server = RenderInternals.prepareServer({
+			offthreadVideoThreads: 1,
+			indent: false,
+			port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
+			remotionRoot,
+			logLevel,
+			webpackConfigOrServeUrl: serveUrl,
+			offthreadVideoCacheSizeInBytes,
+			binariesDirectory,
+			forceIPv4: false,
+			sampleRate: 48000,
+		});
+
+		const indent = false;
+
+		const {compositionId} =
+			await CliInternals.getCompositionWithDimensionOverride({
+				args: args.slice(1),
+				compositionIdFromUi: null,
+				browserExecutable,
+				chromiumOptions,
+				envVariables,
+				height,
+				width,
+				fps,
+				durationInFrames,
+				indent,
+				port: ConfigInternals.getRendererPortFromConfigFileAndCliFlag(),
+				puppeteerInstance: undefined,
+				serveUrlOrWebpackUrl: serveUrl,
+				timeoutInMilliseconds: puppeteerTimeout,
+				logLevel,
+				server: await server,
+				serializedInputPropsWithCustomSchema:
+					NoReactInternals.serializeJSONWithSpecialTypes({
+						data: inputProps,
+						indent: undefined,
+						staticBase: null,
+					}).serializedString,
+				offthreadVideoCacheSizeInBytes,
+				offthreadVideoThreads,
+				binariesDirectory,
+				onBrowserDownload: CliInternals.defaultBrowserDownloadProgress({
+					indent,
+					logLevel,
+					quiet: CliInternals.quietFlagProvided(),
+					onProgress: () => undefined,
+				}),
+				chromeMode: 'headless-shell',
+				mediaCacheSizeInBytes,
+			});
+		composition = compositionId;
+	}
+
+	// Todo: Check cloudRunUrl is valid, as the error message is obtuse
+	CliInternals.Log.info(
+		{indent: false, logLevel},
+		CliInternals.chalk.gray(
+			`
+Cloud Run Service URL = ${cloudRunUrl}
+Region = ${region}
+Type = media
+Composition = ${composition}
+Codec = ${codec}
+Output Bucket = ${forceBucketName}
+Output File = ${outName ?? 'out.mp4'}
+Output File Privacy = ${privacy}
+${downloadName ? `		Downloaded File = ${downloadName}` : ''}
+			`.trim(),
+		),
+	);
+	Log.info({indent: false, logLevel});
+
+	const renderStart = Date.now();
+	const progressBar = CliInternals.createOverwriteableCliOutput({
+		quiet: CliInternals.quietFlagProvided(),
+		cancelSignal: null,
+		updatesDontOverwrite: false,
+		indent: false,
+		logLevel,
+	});
+
+	const renderProgress: {
+		progress: number;
+		doneIn: number | null;
+	} = {
+		doneIn: null,
+		progress: 0,
+	};
+	const updateProgress = () => {
+		progressBar.update(
+			[
+				`Rendering on Cloud Run: `,
+				CliInternals.makeProgressBar(renderProgress.progress, false),
+				`${renderProgress.doneIn === null ? 'Rendering' : 'Rendered'}`,
+				renderProgress.doneIn === null
+					? `${Math.round(renderProgress.progress * 100)}%`
+					: CliInternals.chalk.gray(`${renderProgress.doneIn}ms`),
+			].join(' '),
+			false,
+		);
+	};
+
+	const updateRenderProgress = (progress: number, error?: boolean) => {
+		if (error) {
+			// exiting progress and adding space
+			Log.info(
+				{indent: false, logLevel},
+				`
+		
+		`,
+			);
+		} else {
+			renderProgress.progress = progress;
+			updateProgress();
+		}
+	};
+
+	const x264Preset = x264Option.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const audioBitrate = audioBitrateOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const scale = scaleOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const crf = crfOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const gopSize = gopSizeOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const jpegQuality = jpegQualityOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const videoBitrate = videoBitrateOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const enforceAudioTrack = enforceAudioOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const muted = mutedOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const colorSpace = colorSpaceOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const numberOfGifLoops = numberOfGifLoopsOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const encodingMaxRate = encodingMaxRateOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const encodingBufferSize = encodingBufferSizeOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const metadata = metadataOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const sampleRate = sampleRateOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+
+	const res = await internalRenderMediaOnCloudrun({
+		cloudRunUrl,
+		serviceName: undefined,
+		region,
+		serveUrl,
+		composition,
+		inputProps,
+		codec: codec as CloudrunCodec,
+		forceBucketName,
+		privacy: parsedCloudrunCli.privacy ?? 'public',
+		outName,
+		updateRenderProgress,
+		jpegQuality,
+		audioCodec: audioCodec ?? undefined,
+		audioBitrate,
+		videoBitrate,
+		encodingMaxRate,
+		encodingBufferSize,
+		proResProfile,
+		x264Preset,
+		gopSize,
+		crf,
+		pixelFormat,
+		imageFormat: imageFormat ?? undefined,
+		scale,
+		everyNthFrame,
+		numberOfGifLoops,
+		frameRange: singleFrameRange ?? undefined,
+		envVariables,
+		chromiumOptions,
+		muted,
+		forceWidth: width,
+		forceHeight: height,
+		forceFps: fps,
+		forceDurationInFrames: durationInFrames,
+		logLevel,
+		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
+		// Special case: Should not use default local concurrency, or from
+		// config file, just when explicitly set
+		concurrency: concurrency.source === 'cli' ? concurrency.value : null,
+		enforceAudioTrack,
+		preferLossless: false,
+		offthreadVideoCacheSizeInBytes,
+		colorSpace,
+		indent: false,
+		downloadBehavior: {type: 'play-in-browser'},
+		metadata,
+		renderIdOverride: parsedCloudrunCli['render-id-override'] ?? null,
+		renderStatusWebhook: parsedCloudrunCli.webhook
+			? {
+					url: parsedCloudrunCli.webhook,
+					headers: {},
+					data: null,
+					webhookProgressInterval: null,
+				}
+			: null,
+		offthreadVideoThreads,
+		mediaCacheSizeInBytes,
+		sampleRate,
+	});
+
+	if (res.type === 'crash') {
+		displayCrashLogs(res, logLevel);
+	} else if (res.type === 'success') {
+		renderProgress.doneIn = Date.now() - renderStart;
+		updateProgress();
+		Log.info(
+			{indent: false, logLevel},
+			`
+		
+		`,
+		);
+		Log.info(
+			{indent: false, logLevel},
+			CliInternals.chalk.blueBright(
+				`
+${res.publicUrl ? `Public URL = ${decodeURIComponent(res.publicUrl)}` : ``}
+Cloud Storage Uri = ${res.cloudStorageUri}
+Size (KB) = ${Math.round(Number(res.size) / 1000)}
+Bucket Name = ${res.bucketName}
+Privacy = ${res.privacy}
+Render ID = ${res.renderId}
+Codec = ${codec} (${codecReason})
+      `.trim(),
+			),
+		);
+
+		if (downloadName) {
+			Log.info({indent: false, logLevel}, '');
+			Log.info({indent: false, logLevel}, 'downloading file...');
+
+			const {outputPath: destination} = await downloadFile({
+				bucketName: res.bucketName,
+				gsutilURI: res.cloudStorageUri,
+				downloadName,
+			});
+
+			Log.info(
+				{indent: false, logLevel},
+				CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`),
+			);
+		}
+	}
+};

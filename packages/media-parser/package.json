@@ -1,0 +1,127 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media-parser"
+	},
+	"name": "@remotion/media-parser",
+	"version": "4.0.508",
+	"main": "dist/index.js",
+	"scripts": {
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"lint": "eslint src",
+		"testwebcodecs": "bun test src/test --timeout=30000",
+		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts",
+		"prepublishOnly": "bun ensure-correct-version.ts"
+	},
+	"devDependencies": {
+		"@remotion/example-videos": "workspace:*",
+		"@types/wicg-file-system-access": "2023.10.5",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "catalog:",
+		"mediabunny": "catalog:",
+		"@types/bun": "catalog:",
+		"@typescript/native-preview": "catalog:"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		},
+		"./node": {
+			"types": "./dist/node.d.ts",
+			"require": "./dist/node.js",
+			"module": "./dist/esm/node.mjs",
+			"import": "./dist/esm/node.mjs"
+		},
+		"./web": {
+			"types": "./dist/web.d.ts",
+			"require": "./dist/web.js",
+			"module": "./dist/esm/web.mjs",
+			"import": "./dist/esm/web.mjs"
+		},
+		"./universal": {
+			"types": "./dist/universal.d.ts",
+			"require": "./dist/universal.js",
+			"module": "./dist/esm/universal.mjs",
+			"import": "./dist/esm/universal.mjs"
+		},
+		"./node-writer": {
+			"types": "./dist/node-writer.d.ts",
+			"require": "./dist/node-writer.js",
+			"module": "./dist/esm/node-writer.mjs",
+			"import": "./dist/esm/node-writer.mjs"
+		},
+		"./worker-web-entry": {
+			"types": "./dist/worker-web-entry.d.ts",
+			"require": "./dist/worker-web-entry.js",
+			"module": "./dist/esm/worker-web-entry.mjs",
+			"import": "./dist/esm/worker-web-entry.mjs"
+		},
+		"./worker-server-entry": {
+			"types": "./dist/worker-server-entry.d.ts",
+			"require": "./dist/worker-server-entry.js",
+			"module": "./dist/esm/worker-server-entry.mjs",
+			"import": "./dist/esm/worker-server-entry.mjs"
+		},
+		"./worker": {
+			"types": "./dist/worker.d.ts",
+			"require": "./dist/worker.js",
+			"module": "./dist/esm/worker.mjs",
+			"import": "./dist/esm/worker.mjs"
+		},
+		"./server-worker": {
+			"types": "./dist/server-worker.d.ts",
+			"require": "./dist/server-worker.js",
+			"module": "./dist/esm/server-worker.mjs",
+			"import": "./dist/esm/server-worker.mjs"
+		}
+	},
+	"typesVersions": {
+		">=1.0": {
+			"node": [
+				"./dist/node.d.ts"
+			],
+			"web": [
+				"./dist/web.d.ts"
+			],
+			"universal": [
+				"./dist/universal.d.ts"
+			],
+			"node-writer": [
+				"./dist/node-writer.d.ts"
+			],
+			"worker-web-entry": [
+				"./dist/worker-web-entry.d.ts"
+			],
+			"worker-server-entry": [
+				"./dist/worker-server-entry.d.ts"
+			],
+			"worker": [
+				"./dist/worker.d.ts"
+			],
+			"server-worker": [
+				"./dist/server-worker.d.ts"
+			]
+		}
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "Remotion License https://remotion.dev/license",
+	"keywords": [
+		"remotion",
+		"ffmpeg",
+		"video",
+		"react",
+		"player"
+	],
+	"homepage": "https://www.remotion.dev/docs/media-parser",
+	"description": "A pure JavaScript library for parsing video files"
+}

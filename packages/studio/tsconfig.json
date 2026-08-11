@@ -1,0 +1,43 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"composite": true,
+		"rootDir": "./src",
+		"outDir": "dist",
+		"skipLibCheck": true,
+		"allowJs": true
+	},
+	"include": ["src"],
+	"references": [
+		{
+			"path": "../core"
+		},
+		{
+			"path": "../media-utils"
+		},
+		{
+			"path": "../studio-protocol"
+		},
+		{
+			"path": "../studio-shared"
+		},
+		{
+			"path": "../timeline-utils"
+		},
+		{
+			"path": "../zod-types"
+		},
+		{
+			"path": "../renderer"
+		},
+		{
+			"path": "../webcodecs"
+		},
+		{
+			"path": "../player"
+		},
+		{
+			"path": "../web-renderer"
+		}
+	]
+}

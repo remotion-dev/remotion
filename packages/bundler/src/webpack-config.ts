@@ -1,0 +1,152 @@
+import {getStudioEntryPoints} from '@remotion/studio-shared/studio-entry-points';
+import webpack, {ProgressPlugin} from 'webpack';
+import {CaseSensitivePathsPlugin} from './case-sensitive-paths';
+import type {LoaderOptions} from './esbuild-loader/interfaces';
+import {ReactFreshWebpackPlugin} from './fast-refresh';
+import {AllowDependencyExpressionPlugin} from './hide-expression-dependency';
+import {IgnorePackFileCacheWarningsPlugin} from './ignore-packfilecache-warnings';
+import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
+import type {
+	BundlerOverrideFn,
+	WebpackConfiguration,
+	WebpackOverrideFn,
+} from './override-types';
+import {
+	computeHashAndFinalConfig,
+	getBaseConfig,
+	getOutputConfig,
+	getResolveConfig,
+	getSharedModuleRules,
+} from './shared-bundler-config';
+import esbuild = require('esbuild');
+export type {WebpackConfiguration, WebpackOverrideFn} from './override-types';
+
+type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
+
+function truthy<T>(value: T): value is Truthy<T> {
+	return Boolean(value);
+}
+
+export const webpackConfig = async ({
+	entry,
+	userDefinedComponent,
+	outDir,
+	environment,
+	bundlerOverride = (f) => f,
+	webpackOverride = (f) => f,
+	onProgress,
+	enableCaching = true,
+	remotionRoot,
+	poll,
+	extraPlugins,
+}: {
+	entry: string;
+	userDefinedComponent: string;
+	outDir: string | null;
+	environment: 'development' | 'production';
+	bundlerOverride: BundlerOverrideFn;
+	webpackOverride: WebpackOverrideFn;
+	onProgress?: (f: number) => void;
+	enableCaching?: boolean;
+	remotionRoot: string;
+	poll: number | null;
+	extraPlugins: webpack.WebpackPluginInstance[];
+}): Promise<[string, WebpackConfiguration]> => {
+	const esbuildLoaderOptions: LoaderOptions = {
+		target: 'chrome85',
+		loader: 'tsx',
+		implementation: esbuild,
+		remotionRoot,
+	};
+
+	let lastProgress = 0;
+
+	const baseConfig: WebpackConfiguration = {
+		...getBaseConfig(environment, poll),
+		entry: getStudioEntryPoints({
+			fastRefreshRuntime:
+				environment === 'development'
+					? require.resolve('./fast-refresh/runtime.js')
+					: null,
+			environmentSetup: require.resolve('./setup-environment'),
+			sequenceStackTraces:
+				environment === 'development'
+					? require.resolve('./setup-sequence-stack-traces')
+					: null,
+			userDefinedComponent,
+			reactShim: require.resolve('../react-shim.js'),
+			studioRenderEntry: entry,
+		}),
+		mode: environment,
+		plugins:
+			environment === 'development'
+				? [
+						new ReactFreshWebpackPlugin(),
+						new CaseSensitivePathsPlugin(),
+						new webpack.HotModuleReplacementPlugin(),
+						new AllowOptionalDependenciesPlugin(),
+						new AllowDependencyExpressionPlugin(),
+						new IgnorePackFileCacheWarningsPlugin(),
+						...extraPlugins,
+					]
+				: [
+						new ProgressPlugin((p) => {
+							if (onProgress) {
+								if ((p === 1 && p > lastProgress) || p - lastProgress > 0.05) {
+									lastProgress = p;
+									onProgress(Number((p * 100).toFixed(2)));
+								}
+							}
+						}),
+						new AllowOptionalDependenciesPlugin(),
+						new AllowDependencyExpressionPlugin(),
+						new IgnorePackFileCacheWarningsPlugin(),
+					],
+		output: getOutputConfig(environment),
+		resolve: getResolveConfig(),
+		module: {
+			rules: [
+				...getSharedModuleRules(),
+				{
+					test: /\.tsx?$/,
+					use: [
+						{
+							loader: require.resolve('./esbuild-loader/index.js'),
+							options: esbuildLoaderOptions,
+						},
+						// Keep the order to match babel-loader
+						environment === 'development'
+							? {
+									loader: require.resolve('./fast-refresh/loader.js'),
+								}
+							: null,
+					].filter(truthy),
+				},
+				{
+					test: /\.jsx?$/,
+					exclude: /node_modules/,
+					use: [
+						{
+							loader: require.resolve('./esbuild-loader/index.js'),
+							options: esbuildLoaderOptions,
+						},
+						environment === 'development'
+							? {
+									loader: require.resolve('./fast-refresh/loader.js'),
+								}
+							: null,
+					].filter(truthy),
+				},
+			],
+		},
+	};
+	const sharedConfig = await bundlerOverride(baseConfig, {bundler: 'webpack'});
+	const conf = await webpackOverride(sharedConfig as WebpackConfiguration);
+
+	return computeHashAndFinalConfig(conf, {
+		enableCaching,
+		environment,
+		outDir,
+		remotionRoot,
+	});
+};

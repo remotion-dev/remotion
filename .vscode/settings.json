@@ -1,0 +1,46 @@
+{
+	"editor.tabSize": 2,
+	"editor.codeActionsOnSave": {
+		"source.organizeImports": "never",
+		"source.fixAll": "explicit"
+	},
+	"editor.defaultFormatter": "oxc.oxc-vscode",
+	"[rust]": {
+		"editor.defaultFormatter": "rust-lang.rust-analyzer"
+	},
+	"python.analysis.extraPaths": [
+		"./packages/lambda-python/src",
+		"./packages/lambda-python/remotion_lambda_sdk"
+	],
+	"[python]": {
+		"editor.defaultFormatter": "ms-python.autopep8"
+	},
+	"[javascript]": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "oxc.oxc-vscode"
+	},
+	"[typescript]": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "oxc.oxc-vscode"
+	},
+	"[typescriptreact]": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "oxc.oxc-vscode"
+	},
+	"[go]": {
+		"editor.defaultFormatter": "golang.go"
+	},
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"typescript.enablePromptUseWorkspaceTsdk": true,
+	"python.terminal.activateEnvironment": false,
+	"rust-analyzer.linkedProjects": ["packages/compositor/Cargo.toml"],
+	"search.exclude": {
+		"packages/**/dist": true
+	},
+	"files.associations": {
+		"*.mdx": "markdown"
+	},
+	"typescript.tsserver.maxTsServerMemory": 4096,
+	"typescript.experimental.useTsgo": true,
+	"typescript.native-preview.tsdk": "node_modules/@typescript/native-preview"
+}

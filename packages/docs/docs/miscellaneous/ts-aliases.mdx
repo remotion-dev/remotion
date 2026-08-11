@@ -1,0 +1,87 @@
+---
+image: /generated/articles-docs-miscellaneous-ts-aliases.png
+title: 'TypeScript aliases'
+id: typescript-aliases
+slug: /typescript-aliases
+crumb: 'How to'
+---
+
+TypeScript path aliases are not resolved by default. Add the matching aliases to the shared [bundler configuration](/docs/bundlers) to use them with Webpack or Rspack.
+
+Assuming you have a file:
+
+```
+ └── src/
+   ├── lib/
+   │   ├── one.ts
+   │   ├── two.ts
+   ├── Root.tsx
+   └── index.ts
+```
+
+and your tsconfig.json has the following `paths`:
+
+```json
+{
+  "compilerOptions": {
+    "paths": {
+      "lib/*": ["./src/lib/*"]
+    }
+  }
+}
+```
+
+you can add the aliases to both bundlers, however you need to add each of them manually:
+
+```ts twoslash title="remotion.config.ts"
+import path from 'path';
+import {Config} from '@remotion/cli/config';
+
+Config.overrideBundlerConfig((config) => {
+  return {
+    ...config,
+    resolve: {
+      ...config.resolve,
+      alias: {
+        ...(config.resolve?.alias ?? {}),
+        lib: path.join(process.cwd(), 'src', 'lib'),
+      },
+    },
+  };
+});
+```
+
+Remember that in the [`bundle()`](/docs/bundle) Node.js API, the config file does not apply, so you need to pass the shared override directly as `bundlerOverride`.
+
+## Automatically syncing Webpack and TypeScript aliases
+
+To not duplicate the aliases in your Webpack override and in your `tsconfig.json`, you can install `tsconfig-paths-webpack-plugin` and use it:
+
+:::note Webpack only
+`tsconfig-paths-webpack-plugin` uses Webpack's resolver API and does not work with Rspack. When using Rspack, add the aliases manually with the shared override above.
+:::
+
+```ts title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
+
+Config.overrideWebpackConfig((config) => {
+  return {
+    ...config,
+    resolve: {
+      ...config.resolve,
+      plugins: [...(config.resolve?.plugins ?? []), new TsconfigPathsPlugin()],
+    },
+  };
+});
+```
+
+:::warning
+A common problem when enabling TypeScript aliases is that `import {} from "remotion"` will start mapping to the `remotion` folder that you may have in your project, like is the case in some of our templates.
+
+We recommend that you don't use TypeScript aliases.
+:::
+
+## See also
+
+- [Bundler configuration](/docs/bundlers)

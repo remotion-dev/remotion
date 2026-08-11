@@ -1,0 +1,84 @@
+---
+image: /generated/articles-docs-effects-starburst.png
+slug: /effects/starburst
+title: starburst()
+sidebar_label: starburst()
+crumb: '@remotion/effects'
+---
+
+# starburst()<AvailableFrom v="4.0.500" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Renders a WebGL2-based retro starburst ray pattern on canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+`starburst()` replaces the underlying pixels instead of blending over them. It is usually the first effect in a chain, or applied to a [`<Solid>`](/docs/solid) before other effects.
+
+## Preview
+
+<EffectsDemo type="effects-starburst" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {starburst} from '@remotion/effects/starburst';
+import {AbsoluteFill, Solid} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Solid
+        width={1280}
+        height={720}
+        effects={[
+          starburst({
+            rays: 16,
+            colors: ['#ff6600', '#ffff00'],
+            rotation: 0,
+            smoothness: 0,
+            origin: [0.5, 0.5],
+          }),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties.
+
+### `rays`
+
+The number of rays in the starburst pattern. Must be between `2` and `100`.
+
+### `colors`
+
+An array with at least two CSS color strings. Colors are assigned to rays cyclically.
+
+### `rotation?`
+
+Rotates the starburst pattern in degrees. Defaults to `0`.
+
+### `smoothness?`
+
+Controls the blend width at each ray boundary. Must be between `0` and `1`. Defaults to `0` for hard edges.
+
+### `origin?`
+
+UV coordinate of the starburst origin. `[0, 0]` is the top-left corner and `[1, 1]` is the bottom-right corner. Defaults to `[0.5, 0.5]`.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`starburst()` uses a WebGL2 backend. See [Using WebGL and WebGPU during renders](/docs/webgl).
+
+## See also
+
+- [Designing a starburst](/docs/starburst)
+- [`@remotion/effects`](/docs/effects/api)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/starburst.ts)

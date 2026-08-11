@@ -1,0 +1,62 @@
+---
+image: /generated/articles-docs-editor-starter-production-checklist.png
+title: Production Checklist
+sidebar_label: Production Checklist
+id: production-checklist
+crumb: Editor Starter
+---
+
+Ready to launch? Congrats!  
+Before shipping your project to production, here are some things you should check.
+
+## Protected endpoints
+
+The [backend routes](/docs/editor-starter/backend-routes) are not protected by authentication or rate limits in the template.
+Did you protect the routes you enabled, including the Lambda rendering routes if you use them?
+
+## Asset cleanup
+
+By default, deleted assets are not automatically cleaned up.  
+Have you implemented [asset cleanup](/docs/editor-starter/asset-cleanup)?
+
+## Remotion Lambda
+
+If you use Remotion Lambda, complete the [Lambda checklist](/docs/lambda/checklist).
+
+By default, the AWS infrastructure is updated whenever you deploy the app.
+[Make production deployments more robust by separating them from development deployments](/docs/editor-starter/rendering#auto-deployment-of-aws-infrastructure).
+
+## Client-side rendering
+
+If you use [client-side rendering](/docs/editor-starter/client-side-rendering), verify that:
+
+- Your supported browsers provide WebCodecs and meet the [browser requirements](/docs/client-side-rendering#browser-support).
+- Your compositions work within the [limitations of client-side rendering](/docs/client-side-rendering/limitations).
+- The user keeps the page open until the render finishes.
+- A temporary downloadable result is sufficient, or you persist the output separately.
+- The chosen [page responsiveness](/docs/client-side-rendering/page-responsiveness) behavior suits your app.
+
+Client-side rendering does not remove the default S3 asset workflow. Assets are still uploaded to S3, so the asset cleanup guidance above still applies.
+
+## Features not included
+
+Did you check the [features not included](/docs/editor-starter/features-not-included) to see if you are missing any important features you need?
+
+## Unintentional features
+
+Did you check the [features](/docs/editor-starter/features) to see if there are any features you are shipping you didn't know about? Disable them if you don't need them.
+
+## Limits
+
+Did you know that by default, there is a limit on the size of [the files that can be uploaded](/docs/editor-starter/asset-uploads#limits) and [the duration of the videos that can be captioned](/docs/editor-starter/captioning#limits)?
+
+Handle it differently if necessary.
+
+## Company License
+
+If you are a company that is not eligible for the Free License, did you purchase a [Remotion Company License](/docs/license)?
+
+---
+
+Congrats if you are shipping your project to production!  
+Post your product in the `#showcase` channel on [Discord](https://remotion.dev/discord).

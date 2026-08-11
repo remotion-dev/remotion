@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  --app: #1f2428;
+  --panel: #1f2428;
+  --panel-edge: #000000;
+  --input: #2f363d;
+  --input-border: rgba(0, 0, 0, 0.6);
+  --input-border-hover: rgba(255, 255, 255, 0.08);
+  --brand: #0b84f3;
+  --brand-bright: #45a9ff;
+  --brand-muted: #284f73;
+  --app-text: #ffffff;
+  --app-muted: #a6a7a9;
+  --app-dim: rgba(255, 255, 255, 0.45);
+}
+
+@theme inline {
+  --color-app: var(--app);
+  --color-panel: var(--panel);
+  --color-panel-edge: var(--panel-edge);
+  --color-input: var(--input);
+  --color-input-border: var(--input-border);
+  --color-input-border-hover: var(--input-border-hover);
+  --color-brand: var(--brand);
+  --color-brand-bright: var(--brand-bright);
+  --color-brand-muted: var(--brand-muted);
+  --color-brand-soft: #8dc8ff;
+  --color-app-text: var(--app-text);
+  --color-app-muted: var(--app-muted);
+  --color-app-dim: var(--app-dim);
+  --font-sans:
+    "SFMono-Regular", "Roboto Mono", "Menlo", "Monaco", "Liberation Mono",
+    "Courier New", monospace;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #react-root {
+    min-height: 100vh;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    background: var(--app);
+    color: var(--app-text);
+  }
+
+  button,
+  input {
+    font: inherit;
+  }
+
+  code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+}

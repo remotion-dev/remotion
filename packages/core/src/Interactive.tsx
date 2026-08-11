@@ -1,0 +1,391 @@
+import React, {forwardRef, useCallback, useRef} from 'react';
+import type {
+	JsxComponentIdentity,
+	SequenceControls,
+} from './CompositionManager.js';
+import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
+import {
+	backgroundSchema,
+	baseSchema,
+	borderRadiusSchema,
+	captionsSchema,
+	borderSchema,
+	cropSchema,
+	premountSchema,
+	sequenceSchema,
+	svgPaintSchema,
+	svgStrokeSchema,
+	textContentSchema,
+	textSchema,
+	transformSchema,
+	type InteractivitySchema,
+} from './interactivity-schema.js';
+import type {AbsoluteFillLayout, SequenceProps} from './Sequence.js';
+import {Sequence} from './Sequence.js';
+import {useCropStyle} from './use-crop-style.js';
+import {
+	withInteractivitySchema,
+	type WithInteractivitySchemaOptions,
+} from './with-interactivity-schema.js';
+
+type InteractiveHtmlTag =
+	| 'a'
+	| 'article'
+	| 'aside'
+	| 'button'
+	| 'code'
+	| 'div'
+	| 'em'
+	| 'footer'
+	| 'h1'
+	| 'h2'
+	| 'h3'
+	| 'h4'
+	| 'h5'
+	| 'h6'
+	| 'header'
+	| 'label'
+	| 'li'
+	| 'main'
+	| 'nav'
+	| 'ol'
+	| 'p'
+	| 'pre'
+	| 'section'
+	| 'small'
+	| 'span'
+	| 'strong'
+	| 'ul';
+
+type InteractiveSvgTag =
+	| 'circle'
+	| 'ellipse'
+	| 'g'
+	| 'line'
+	| 'path'
+	| 'rect'
+	| 'svg'
+	| 'text';
+
+type InteractiveTag = InteractiveHtmlTag | InteractiveSvgTag;
+
+type ElementForTag<Tag extends InteractiveTag> =
+	Tag extends keyof HTMLElementTagNameMap
+		? HTMLElementTagNameMap[Tag]
+		: Tag extends keyof SVGElementTagNameMap
+			? SVGElementTagNameMap[Tag]
+			: Element;
+
+export type InteractiveBaseProps = Pick<
+	SequenceProps,
+	| 'durationInFrames'
+	| 'from'
+	| 'trimBefore'
+	| 'freeze'
+	| 'hidden'
+	| 'name'
+	| 'showInTimeline'
+>;
+
+export type InteractiveTransformProps = Pick<AbsoluteFillLayout, 'style'>;
+
+export type InteractiveCropProps = Pick<
+	SequenceProps,
+	'cropLeft' | 'cropRight' | 'cropTop' | 'cropBottom'
+>;
+
+export type InteractivePremountProps = Pick<
+	AbsoluteFillLayout,
+	| 'premountFor'
+	| 'postmountFor'
+	| 'styleWhilePremounted'
+	| 'styleWhilePostmounted'
+>;
+
+type InteractiveManagedProps = InteractiveBaseProps & InteractiveCropProps;
+
+type InteractiveElementProps<Tag extends InteractiveTag> = Omit<
+	React.ComponentPropsWithoutRef<Tag>,
+	keyof InteractiveManagedProps
+> &
+	InteractiveManagedProps;
+
+type InteractiveElementComponent<Tag extends InteractiveTag> =
+	React.ComponentType<
+		InteractiveElementProps<Tag> & React.RefAttributes<ElementForTag<Tag>>
+	>;
+
+type RemotionComponentIdentityPackage = 'remotion' | `@remotion/${string}`;
+
+const sourcePathToIdentityPrefix = (
+	packageName: RemotionComponentIdentityPackage,
+): string => {
+	if (packageName === 'remotion') {
+		return 'dev.remotion.remotion';
+	}
+
+	if (packageName.startsWith('@remotion/')) {
+		const normalizedPackageName = packageName
+			.slice('@remotion/'.length)
+			.replace(/-([a-z])/g, (_, char: string) => char.toUpperCase());
+		return `dev.remotion.${normalizedPackageName}`;
+	}
+
+	throw new Error(`Unsupported Remotion package name: ${packageName}`);
+};
+
+const makeRemotionComponentIdentity = ({
+	packageName,
+	componentName,
+}: {
+	readonly packageName: RemotionComponentIdentityPackage;
+	readonly componentName: string;
+}): JsxComponentIdentity => {
+	return `${sourcePathToIdentityPrefix(packageName)}.${componentName}`;
+};
+
+const interactiveElementSchema = {
+	...baseSchema,
+	...transformSchema,
+	...cropSchema,
+} as const satisfies InteractivitySchema;
+
+const interactiveBackgroundElementSchema = {
+	...interactiveElementSchema,
+	...backgroundSchema,
+} as const satisfies InteractivitySchema;
+
+const interactiveBorderElementSchema = {
+	...interactiveBackgroundElementSchema,
+	...borderSchema,
+	...borderRadiusSchema,
+} as const satisfies InteractivitySchema;
+
+const interactiveTextElementSchema = {
+	...interactiveBorderElementSchema,
+	...textSchema,
+	...textContentSchema,
+} as const satisfies InteractivitySchema;
+
+const interactiveSvgTextElementSchema = {
+	...interactiveElementSchema,
+	...svgPaintSchema,
+	...textSchema,
+	...textContentSchema,
+} as const satisfies InteractivitySchema;
+
+const interactiveSvgElementSchema = {
+	...interactiveElementSchema,
+	...svgPaintSchema,
+} as const satisfies InteractivitySchema;
+
+const interactiveSvgStrokeElementSchema = {
+	...interactiveElementSchema,
+	...svgStrokeSchema,
+} as const satisfies InteractivitySchema;
+
+const interactiveSvgRootElementSchema = {
+	...interactiveBorderElementSchema,
+	...svgPaintSchema,
+} as const satisfies InteractivitySchema;
+
+const setRef = <ElementType,>(
+	ref: React.ForwardedRef<ElementType>,
+	value: ElementType | null,
+) => {
+	if (typeof ref === 'function') {
+		ref(value);
+	} else if (ref) {
+		ref.current = value;
+	}
+};
+
+const withSchema = <S extends InteractivitySchema, Props extends object>(
+	options: WithInteractivitySchemaOptions<S, Props>,
+): React.ComponentType<Props> => {
+	const Wrapped = withInteractivitySchema(options);
+	addSequenceStackTraces(Wrapped);
+
+	return Wrapped;
+};
+
+const makeInteractiveElement = <Tag extends InteractiveTag>(
+	tag: Tag,
+	displayName: string,
+	schema: InteractivitySchema,
+): InteractiveElementComponent<Tag> => {
+	type ElementType = ElementForTag<Tag>;
+	type Props = InteractiveElementProps<Tag>;
+
+	const Inner = forwardRef<
+		ElementType,
+		Props & {
+			readonly controls: SequenceControls | undefined;
+		}
+	>((propsWithControls, ref) => {
+		const {
+			durationInFrames,
+			from,
+			trimBefore,
+			freeze,
+			hidden,
+			name,
+			showInTimeline,
+			controls,
+			cropLeft,
+			cropRight,
+			cropTop,
+			cropBottom,
+			style,
+			...props
+		} = propsWithControls as Props & {
+			readonly controls: SequenceControls | undefined;
+		};
+		const croppedStyle = useCropStyle({
+			cropLeft,
+			cropRight,
+			cropTop,
+			cropBottom,
+			style: style ?? null,
+			componentName: displayName,
+		});
+		const refForOutline = useRef<ElementType | null>(null);
+		const callbackRef = useCallback(
+			(element: ElementType | null) => {
+				refForOutline.current = element;
+				setRef(ref, element);
+			},
+			[ref],
+		);
+
+		return (
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				trimBefore={trimBefore}
+				durationInFrames={durationInFrames ?? Infinity}
+				freeze={freeze}
+				hidden={hidden}
+				name={name ?? displayName}
+				showInTimeline={showInTimeline ?? true}
+				controls={controls}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/interactive"
+				outlineRef={refForOutline}
+			>
+				{React.createElement(tag, {
+					...props,
+					style: croppedStyle ?? undefined,
+					ref: callbackRef,
+				})}
+			</Sequence>
+		);
+	});
+
+	Inner.displayName = displayName;
+
+	const Wrapped = withSchema({
+		Component: Inner,
+		componentName: displayName,
+		componentIdentity: makeRemotionComponentIdentity({
+			packageName: 'remotion',
+			componentName: displayName.slice(1, -1),
+		}),
+		schema,
+		supportsEffects: false,
+	}) as InteractiveElementComponent<Tag>;
+
+	Wrapped.displayName = displayName;
+
+	return Wrapped;
+};
+
+const makeInteractiveTextElement = <Tag extends InteractiveTag>(
+	tag: Tag,
+	displayName: string,
+) => {
+	return makeInteractiveElement(tag, displayName, interactiveTextElementSchema);
+};
+
+const makeInteractiveSvgElement = <Tag extends InteractiveSvgTag>(
+	tag: Tag,
+	displayName: string,
+) => {
+	return makeInteractiveElement(tag, displayName, interactiveSvgElementSchema);
+};
+
+const makeInteractiveSvgStrokeElement = <Tag extends InteractiveSvgTag>(
+	tag: Tag,
+	displayName: string,
+) => {
+	return makeInteractiveElement(
+		tag,
+		displayName,
+		interactiveSvgStrokeElementSchema,
+	);
+};
+
+/**
+ * @description HTML and SVG elements that are registered in the Remotion Studio timeline and can be visually edited.
+ */
+export const Interactive = {
+	baseSchema,
+	captionsSchema,
+	transformSchema,
+	textSchema,
+	backgroundSchema,
+	borderSchema,
+	borderRadiusSchema,
+	cropSchema,
+	svgPaintSchema,
+	svgStrokeSchema,
+	premountSchema,
+	sequenceSchema,
+	withSchema,
+	_internalMakeRemotionComponentIdentity: makeRemotionComponentIdentity,
+	A: makeInteractiveTextElement('a', '<Interactive.A>'),
+	Article: makeInteractiveTextElement('article', '<Interactive.Article>'),
+	Aside: makeInteractiveTextElement('aside', '<Interactive.Aside>'),
+	Button: makeInteractiveTextElement('button', '<Interactive.Button>'),
+	Circle: makeInteractiveSvgElement('circle', '<Interactive.Circle>'),
+	Code: makeInteractiveTextElement('code', '<Interactive.Code>'),
+	Div: makeInteractiveTextElement('div', '<Interactive.Div>'),
+	Ellipse: makeInteractiveSvgElement('ellipse', '<Interactive.Ellipse>'),
+	Em: makeInteractiveTextElement('em', '<Interactive.Em>'),
+	Footer: makeInteractiveTextElement('footer', '<Interactive.Footer>'),
+	G: makeInteractiveSvgElement('g', '<Interactive.G>'),
+	H1: makeInteractiveTextElement('h1', '<Interactive.H1>'),
+	H2: makeInteractiveTextElement('h2', '<Interactive.H2>'),
+	H3: makeInteractiveTextElement('h3', '<Interactive.H3>'),
+	H4: makeInteractiveTextElement('h4', '<Interactive.H4>'),
+	H5: makeInteractiveTextElement('h5', '<Interactive.H5>'),
+	H6: makeInteractiveTextElement('h6', '<Interactive.H6>'),
+	Header: makeInteractiveTextElement('header', '<Interactive.Header>'),
+	Label: makeInteractiveTextElement('label', '<Interactive.Label>'),
+	Li: makeInteractiveTextElement('li', '<Interactive.Li>'),
+	Line: makeInteractiveSvgStrokeElement('line', '<Interactive.Line>'),
+	Main: makeInteractiveTextElement('main', '<Interactive.Main>'),
+	Nav: makeInteractiveTextElement('nav', '<Interactive.Nav>'),
+	Ol: makeInteractiveTextElement('ol', '<Interactive.Ol>'),
+	P: makeInteractiveTextElement('p', '<Interactive.P>'),
+	Path: makeInteractiveSvgElement('path', '<Interactive.Path>'),
+	Pre: makeInteractiveTextElement('pre', '<Interactive.Pre>'),
+	Rect: makeInteractiveSvgElement('rect', '<Interactive.Rect>'),
+	Section: makeInteractiveTextElement('section', '<Interactive.Section>'),
+	Small: makeInteractiveTextElement('small', '<Interactive.Small>'),
+	Span: makeInteractiveTextElement('span', '<Interactive.Span>'),
+	Strong: makeInteractiveTextElement('strong', '<Interactive.Strong>'),
+	Svg: makeInteractiveElement(
+		'svg',
+		'<Interactive.Svg>',
+		interactiveSvgRootElementSchema,
+	),
+	Text: makeInteractiveElement(
+		'text',
+		'<Interactive.Text>',
+		interactiveSvgTextElementSchema,
+	),
+	Ul: makeInteractiveTextElement('ul', '<Interactive.Ul>'),
+};
+
+export type InteractiveProps<Tag extends InteractiveTag> =
+	InteractiveElementProps<Tag>;

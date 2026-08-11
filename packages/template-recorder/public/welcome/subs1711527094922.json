@@ -1,0 +1,149 @@
+[
+  {
+    "text": "In",
+    "startMs": 0,
+    "endMs": 320,
+    "timestampMs": 1500,
+    "confidence": 0.901755
+  },
+  {
+    "text": " the",
+    "startMs": 320,
+    "endMs": 1380,
+    "timestampMs": 1740,
+    "confidence": 0.998639
+  },
+  {
+    "text": " left",
+    "startMs": 1380,
+    "endMs": 1400,
+    "timestampMs": 1940,
+    "confidence": 0.996934
+  },
+  {
+    "text": " sidebar,",
+    "startMs": 1400,
+    "endMs": 2900,
+    "timestampMs": 2440,
+    "confidence": 0.807074
+  },
+  {
+    "text": " you",
+    "startMs": 2900,
+    "endMs": 3040,
+    "timestampMs": 3000,
+    "confidence": 0.979806
+  },
+  {
+    "text": " have",
+    "startMs": 3040,
+    "endMs": 3360,
+    "timestampMs": 3140,
+    "confidence": 0.992199
+  },
+  {
+    "text": " a",
+    "startMs": 3360,
+    "endMs": 3440,
+    "timestampMs": 3340,
+    "confidence": 0.993013
+  },
+  {
+    "text": " list",
+    "startMs": 3440,
+    "endMs": 3760,
+    "timestampMs": 3500,
+    "confidence": 0.998803
+  },
+  {
+    "text": " of",
+    "startMs": 3760,
+    "endMs": 3920,
+    "timestampMs": 3720,
+    "confidence": 0.995921
+  },
+  {
+    "text": " all",
+    "startMs": 3920,
+    "endMs": 4160,
+    "timestampMs": 3960,
+    "confidence": 0.989002
+  },
+  {
+    "text": " your",
+    "startMs": 4160,
+    "endMs": 4470,
+    "timestampMs": 4180,
+    "confidence": 0.969477
+  },
+  {
+    "text": " videos.",
+    "startMs": 4470,
+    "endMs": 5280,
+    "timestampMs": 4680,
+    "confidence": 0.991565
+  },
+  {
+    "text": " Just",
+    "startMs": 5280,
+    "endMs": 5580,
+    "timestampMs": 5460,
+    "confidence": 0.548289
+  },
+  {
+    "text": " click",
+    "startMs": 5580,
+    "endMs": 5970,
+    "timestampMs": 5740,
+    "confidence": 0.997478
+  },
+  {
+    "text": " on",
+    "startMs": 5970,
+    "endMs": 6130,
+    "timestampMs": 5960,
+    "confidence": 0.987927
+  },
+  {
+    "text": " one",
+    "startMs": 6130,
+    "endMs": 6460,
+    "timestampMs": 6220,
+    "confidence": 0.994526
+  },
+  {
+    "text": " to",
+    "startMs": 6460,
+    "endMs": 6560,
+    "timestampMs": 6560,
+    "confidence": 0.877907
+  },
+  {
+    "text": " start",
+    "startMs": 6560,
+    "endMs": 6840,
+    "timestampMs": 6880,
+    "confidence": 0.946967
+  },
+  {
+    "text": " working",
+    "startMs": 6840,
+    "endMs": 7230,
+    "timestampMs": 7240,
+    "confidence": 0.993678
+  },
+  {
+    "text": " on",
+    "startMs": 7230,
+    "endMs": 7380,
+    "timestampMs": 7400,
+    "confidence": 0.982306
+  },
+  {
+    "text": " it.",
+    "startMs": 7380,
+    "endMs": 8000,
+    "timestampMs": 7700,
+    "confidence": 0.997626
+  }
+]

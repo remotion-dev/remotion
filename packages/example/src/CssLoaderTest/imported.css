@@ -1,0 +1,5 @@
+/* Test: @import handling — this file is imported by another CSS file */
+.imported-style {
+	font-style: italic;
+	color: #a78bfa;
+}

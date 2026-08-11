@@ -1,0 +1,13 @@
+.git
+.turbo
+.cache
+node_modules
+packages/**/.turbo
+packages/**/node_modules
+packages/**/dist
+packages/**/build
+packages/**/.docusaurus
+packages/**/tsconfig.tsbuildinfo
+packages/**/target
+out
+.DS_Store

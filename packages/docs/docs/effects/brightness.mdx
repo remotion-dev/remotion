@@ -1,0 +1,67 @@
+---
+image: /generated/articles-docs-effects-brightness.png
+slug: /effects/brightness
+title: brightness()
+sidebar_label: brightness()
+crumb: '@remotion/effects'
+---
+
+# brightness()<AvailableFrom v="4.0.466" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+A brightness adjustment effect that can be applied to canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+## Preview
+
+<EffectsDemo type="effects-brightness" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+import {brightness} from '@remotion/effects/brightness';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Video src="https://remotion.media/video.mp4" effects={[brightness({amount: 0.25})]} />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `brightness()` without arguments.
+
+### `amount?`
+
+Brightness adjustment amount from `-1` to `1`.
+
+- `0` leaves the layer unchanged
+- positive values brighten the layer
+- negative values darken the layer
+
+Defaults to `0`.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Effect order
+
+If you stack color-correction effects, a common order is:
+
+`brightness()` → `contrast()` → `saturation()` → `hue()`
+
+This keeps each stage predictable and easier to tweak.
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`hue()`](/docs/effects/hue)
+- [`grayscale()`](/docs/effects/grayscale)
+- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/brightness.ts)

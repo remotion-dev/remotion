@@ -1,0 +1,219 @@
+---
+image: /generated/articles-docs-client-side-rendering-limitations.png
+crumb: 'Client-side rendering'
+sidebar_label: Limitations
+title: Limitations of client-side rendering
+---
+
+The browser must support the [WebCodecs API](https://developer.mozilla.org/en-US/docs/Web/API/WebCodecs_API). See [Browser support](/docs/client-side-rendering#browser-support) for minimum browser versions.
+
+Unlike server-side rendering, where a full screenshot it taken, in client-side rendering the layout and styles of your video are being emulated and drawn to a canvas.
+
+It is not feasible to support all CSS properties and factors affecting the visual style of a page, so only the most important styling primitives are supported.
+
+:::info
+If automatic [HTML-in-canvas capture](/docs/client-side-rendering/html-in-canvas) is active, these CSS limitations don't apply because a full screenshot is taken instead.
+:::
+
+## Supported CSS styles
+
+### Positioning and layouting properties
+
+Properties such as `margin`, `left`, `display`, `width`, `height`, `flex`, `flex-direction` affect the position and size of the element. Those are all <a style={{color: 'green'}}>supported</a> because Remotion uses [`.getBoundingClientRect()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect) to obtain the position and size of the element.
+
+The `overflow` property is <a style={{color: 'green'}}>supported</a>.  
+The `object-fit` property is <a style={{color: 'green'}}>supported</a>.  
+The `object-position` property is <a style={{color: 'red'}}>not supported</a> and content is always centered within its container.
+
+### Transformations
+
+The CSS `transform` property is <a style={{color: 'green'}}>supported</a>.  
+The `transform-origin` property is <a style={{color: 'green'}}>supported</a>.  
+The `opacity` property is <a style={{color: 'green'}}>supported</a>.  
+The `scale`, `rotate` and `translate` transformations are <a style={{color: 'green'}}>supported</a>.  
+The `perspective` property is <a style={{color: 'red'}}>not supported</a>.  
+The `perspective-origin` property is <a style={{color: 'red'}}>not supported</a>.  
+The `transform-style` property is <a style={{color: 'red'}}>not supported</a> (defaults to `preserve-3d`, default in CSS is "flat").  
+The `backface-visibility` property is <a style={{color: 'green'}}>supported</a>.
+
+### Backgrounds
+
+The `background-color` property is <a style={{color: 'green'}}>supported</a>.  
+`background-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>.  
+The `background-size` and `background-position` properties are <a style={{color: 'green'}}>supported</a> for linear gradients with pixel or percentage values.<br />
+The `background-clip` property is <a style={{color: 'green'}}>supported</a>.  
+Other `background-image` values and other `background-*` properties are <a style={{color: 'red'}}>not supported</a>.
+
+### Borders and border radius
+
+The `border`, `border-style`, `border-color`, `border-width` properties are <a style={{color: 'green'}}>supported</a>.  
+The `border-radius` property is <a style={{color: 'green'}}>supported</a>, including different values for vertical and horizontal radii.  
+The `corner-shape` property is <a style={{color: 'red'}}>not supported</a>.  
+The `outline` property is <a style={{color: 'green'}}>supported</a>.
+
+### Text properties
+
+The `color` property is <a style={{color: 'green'}}>supported</a>.  
+The `-webkit-text-fill-color` property is <a style={{color: 'green'}}>supported</a>.  
+The `font-family` property is <a style={{color: 'green'}}>supported</a>.  
+The `font-size` property is <a style={{color: 'green'}}>supported</a>.  
+The `font-style` property is <a style={{color: 'green'}}>supported</a>.  
+The `font-weight` property is <a style={{color: 'green'}}>supported</a>.  
+The `line-height` property is <a style={{color: 'green'}}>supported</a>.  
+The `letter-spacing` property is <a style={{color: 'green'}}>supported</a>.
+The `word-spacing` property is <a style={{color: 'green'}}>supported</a>.
+The `text-transform` property is <a style={{color: 'green'}}>supported</a>.
+The `text-rendering` property is <a style={{color: 'green'}}>supported</a>.
+The `font-variant-caps` property is <a style={{color: 'green'}}>supported</a>.
+The `font-kerning` property is <a style={{color: 'green'}}>supported</a>.
+The `font-stretch` property is <a style={{color: 'green'}}>supported</a>. Percentage values are approximated to the closest named stretch supported by the Canvas API.
+The `direction` HTML attribute is <a style={{color: 'green'}}>supported</a>.
+The `writing-mode` property is <a style={{color: 'red'}}>not supported</a>.
+The `text-decoration` property is <a style={{color: 'green'}}>supported</a> for `solid`, `dotted`, `dashed`, `double`, and `wavy` `text-decoration-style` values on `underline`, `overline`, and `line-through` lines with `text-decoration-color` and `text-decoration-thickness`.
+`wavy` lines are approximated with Bézier curves and may not exactly match the browser-native wave shape. Pixel-perfect line positions are <a style={{color: 'red'}}>not supported</a>.
+The `text-shadow` property is <a style={{color: 'green'}}>supported</a>.
+The `-webkit-text-stroke`, `-webkit-text-stroke-color`, `-webkit-text-stroke-width`, `paint-order` properties are <a style={{color: 'green'}}>supported</a>.
+
+## Shadows
+
+Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.  
+`inset` shadows are <a style={{color: 'red'}}>not supported</a>.  
+"Spread radius" is <a style={{color: 'red'}}>not supported</a>.
+
+## Masks
+
+`mask-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>.
+
+`mask-image` with a single raster `url()` is <a style={{color: 'green'}}>supported</a> from <AvailableFrom v="4.0.501" inline /> for same-origin, `data:`, and `blob:` URLs when using `mask-size: 100% 100%`, `mask-position: 0% 0%`, and `mask-repeat: no-repeat`. The mask uses its alpha channel.
+
+Cross-origin URLs, SVG masks, multiple mask layers, luminance masks, and other mask sizing, positioning, or repetition values are <a style={{color: 'red'}}>not supported</a>.
+
+## Filters
+
+The `filter` property is <a style={{color: 'green'}}>supported</a> with the following filter functions:
+
+- `blur()` is <a style={{color: 'green'}}>supported</a>.
+- `brightness()` is <a style={{color: 'green'}}>supported</a>.
+- `contrast()` is <a style={{color: 'green'}}>supported</a>.
+- `drop-shadow()` is <a style={{color: 'green'}}>supported</a>.
+- `grayscale()` is <a style={{color: 'green'}}>supported</a>.
+- `hue-rotate()` is <a style={{color: 'green'}}>supported</a>.
+- `invert()` is <a style={{color: 'green'}}>supported</a>.
+- `opacity()` is <a style={{color: 'green'}}>supported</a>.
+- `saturate()` is <a style={{color: 'green'}}>supported</a>.
+- `sepia()` is <a style={{color: 'green'}}>supported</a>.
+- Multiple combined filters are <a style={{color: 'green'}}>supported</a>.
+- `url()` referencing inline SVG filters is <a style={{color: 'red'}}>not supported</a>.
+
+:::warning
+Filters are not supported in Safari/WebKit. Use Chrome or Firefox for filter support.
+:::
+
+## Supported elements
+
+The following Remotion components are supported:
+
+The [`<Video>`](/docs/media/video) from `@remotion/media` is <a style={{color: 'green'}}>supported</a>.  
+The [`<Audio>`](/docs/media/audio) from `@remotion/media` is <a style={{color: 'green'}}>supported</a>.  
+[`<Img>`](/docs/img) is <a style={{color: 'green'}}>supported</a>, including SVG data URIs.<br />
+[`<Gif>`](/docs/gif) from [`@remotion/gif`](/docs/gif) is <a style={{color: 'green'}}>supported</a>.  
+[`<Rive>`](/docs/rive) from [`@remotion/rive`](/docs/rive) is <a style={{color: 'green'}}>supported</a>.  
+[`<Lottie>`](/docs/lottie) from [`@remotion/lottie`](/docs/lottie) is <a style={{color: 'green'}}>supported</a>.  
+[`<ThreeCanvas>`](/docs/three-canvas) from [`@remotion/three`](/docs/three) is <a style={{color: 'green'}}>supported</a>.  
+[`<SkiaCanvas>`](/docs/skia/skia-canvas) from [`@remotion/skia`](/docs/skia) is <a style={{color: 'green'}}>supported</a>.  
+[`<AnimatedImage>`](/docs/animatedimage) is <a style={{color: 'green'}}>supported</a> when rendering in Chrome.  
+[`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) is <a style={{color: 'green'}}>supported</a> when the component itself is supported, including its [`onPaint`](/docs/remotion/html-in-canvas#onpaint) and [`onInit`](/docs/remotion/html-in-canvas#oninit) callbacks. Automatic [HTML-in-canvas capture](/docs/client-side-rendering/html-in-canvas) requires Chrome or Chromium `152.0.7944.0` or later; older browsers use the built-in DOM composer.<br />
+[`<OffthreadVideo>`](/docs/offthreadvideo) is <a style={{color: 'red'}}>not supported</a>.  
+ → Use [`<Video>`](/docs/media/video) instead.  
+[`<Html5Video>`](/docs/html5-video) is <a style={{color: 'red'}}>not supported</a>.  
+ → Use [`<Video>`](/docs/media/video) instead.  
+[`<Html5Audio>`](/docs/html5-audio) is <a style={{color: 'red'}}>not supported</a>.  
+ → Use [`<Audio>`](/docs/media/audio) instead.  
+[`<AnimatedEmoji>`](/docs/animated-emoji) from [`@remotion/animated-emoji`](/docs/animated-emoji) is <a style={{color: 'red'}}>not supported</a>.  
+→ Use [`<Lottie>`](/docs/lottie) instead.
+
+## Clip path
+
+The `clip-path` property is <a style={{color: 'green'}}>partially supported</a>:
+
+- `clip-path: polygon()` is <a style={{color: 'green'}}>supported</a>.
+- `clip-path: path()` is <a style={{color: 'green'}}>supported</a>.
+- `clip-path: circle()` is <a style={{color: 'green'}}>supported</a>.
+- `clip-path: ellipse()` is <a style={{color: 'green'}}>supported</a>.
+- `clip-path: inset()` is <a style={{color: 'green'}}>supported</a>.
+- `clip-path: url()` referencing SVG `<clipPath>` elements is <a style={{color: 'red'}}>not supported</a>.
+
+## Unsupported styles
+
+All styles not explicitly mentioned are <a style={{color: 'red'}}>not supported</a>.
+Here is a selection of unsupported styles:
+
+- `backdrop-filter`
+- `mix-blend-mode`
+- `background-blend-mode`
+- `z-index`
+  - See [Z-indexing](#z-indexing) below.
+- Any other property not listed in this document.
+
+Over time, we will support more elements and styles. We'll prioritize the most demanded ones.  
+See how you can [contribute](/docs/contributing/web-renderer) to add more supported styles.
+
+## Z-indexing
+
+The CSS property `z-index` is not supported.  
+To control the order of the elements, [order your elements from back to front](/docs/layers).
+
+```tsx twoslash title="The blue square will be drawn on top of the red square"
+import {AbsoluteFill} from 'remotion';
+
+// ---cut---
+const MyComp = () => {
+  return (
+    <AbsoluteFill>
+      <AbsoluteFill>
+        <svg viewBox="0 0 100 100">
+          <rect x="0" y="0" width="100" height="100" fill="red" />
+        </svg>
+      </AbsoluteFill>
+      <AbsoluteFill>
+        <svg viewBox="0 0 100 100">
+          <rect x="0" y="0" width="100" height="100" fill="blue" />
+        </svg>
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+```
+
+## Video and media constraints
+
+The limitations from [`@remotion/media`](/docs/media/support) apply.
+
+## Single concurrency
+
+There is no multithreading for client-side rendering.  
+However, it is fundamentally more efficient because there is less interprocess communication.  
+In addition, in the headful browser, GPU is usually available, which brings performance benefits.
+
+## Page responsiveness
+
+By default, [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web) tries to free the event loop between expensive render phases to keep the page responsive.
+Set [`pageResponsiveness`](/docs/client-side-rendering/page-responsiveness) to `"disabled"` to prioritize render speed instead.
+
+Higher responsiveness settings make renders slower.
+
+## Background tabs
+
+When the browser tab running the render is moved to the background, browsers throttle `requestAnimationFrame` to conserve resources. This could cause rendering to pause or slow down significantly.
+
+Remotion automatically works around this by using a Web Worker timer as a fallback. When the tab is backgrounded and RAF is throttled, the Worker timer takes over to keep the render progressing.
+
+The Worker timer is less precise than `requestAnimationFrame`, so rendering in a background tab will be slower than in a foreground tab. For best performance, keep the tab visible during rendering.
+
+## See also
+
+- [Overview](/docs/client-side-rendering)
+- [How it works](/docs/client-side-rendering/how-it-works)
+- [Server-side rendering](/docs/ssr)
+- [`@remotion/renderer`](/docs/renderer)
+- [`Comparing SSR solutions`](/docs/compare-ssr)

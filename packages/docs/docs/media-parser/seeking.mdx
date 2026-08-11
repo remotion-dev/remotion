@@ -1,0 +1,96 @@
+---
+image: /generated/articles-docs-media-parser-seeking.png
+id: seeking
+title: Seeking
+slug: /media-parser/seeking
+crumb: '@remotion/media-parser'
+---
+
+:::warning
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
+# Seeking<AvailableFrom v="4.0.291" />
+
+In [`parseMedia()`](/docs/media-parser/parse-media), [`parseMediaOnWebWorker()`](/docs/media-parser/parse-media-on-web-worker) and [`parseMediaOnServerWorker()`](/docs/media-parser/parse-media-on-server-worker), you can seek to a different position in the media file.
+
+```tsx twoslash title="Basic seeking"
+import {parseMedia, mediaParserController} from '@remotion/media-parser';
+
+const controller = mediaParserController();
+
+// You can make a seek even before starting a parse
+// This will be considered before emitting the first sample
+controller.seek(5); // Seek to 5 seconds
+
+await parseMedia({
+  src: 'https://remotion.media/video.mp4',
+  controller,
+  onVideoTrack: () => {
+    return () => {
+      // You can also seek inmidst a parse.
+      controller.seek(10); // Seek to 10 seconds
+    };
+  },
+});
+```
+
+Calling [`.seek()`](/docs/media-parser/media-parser-controller#seektimeinseconds-number) will **seek to the best keyframe** that comes before the time you specified.
+
+If there is a keyframe at exactly this time, it may seek to this one.  
+There is no guarantee that this is the last keyframe before the time you specified.
+
+Remember that if you want to decode a video, you always have to start at a keyframe. If you are not interested in the frames before `time`, you still need to decode them, but you may discard them.
+
+```tsx twoslash title="Seeking to a keyframe"
+import {mediaParserController} from '@remotion/media-parser';
+
+const controller = mediaParserController();
+
+controller.seek(5);
+```
+
+## When you cannot seek
+
+It is not allowed to **seek forward** if any of the following [fields](/docs/media-parser/fields) are required:
+
+import {DisallowForwardSeekingFields} from './DisallowForwardSeekingFields';
+
+<DisallowForwardSeekingFields />
+
+The reason for this is that all samples need to be iterated over for these fields to be calculated. By seeking forward, some samples would be skipped which would skew the results.
+
+An error will be thrown if you attempt to do this.
+
+## Simulate a seek<AvailableFrom v="4.0.312" />
+
+You can simulate what would happen if you seeked to a certain time.
+
+```tsx twoslash title="Basic seeking"
+import {parseMedia, mediaParserController} from '@remotion/media-parser';
+
+const controller = mediaParserController();
+
+await parseMedia({
+  src: 'https://remotion.media/video.mp4',
+  controller,
+  onVideoTrack: () => {
+    return async () => {
+      const result = await controller.simulateSeek(3);
+      console.log(result); // { "type": "do-seek", byte: 5763, timeInSeconds: 0 }
+    };
+  },
+});
+```
+
+This is useful if you are considering a seek and only want to execute it if the outcome is desired.  
+The result will be a [`SeekResolution`](/docs/media-parser/types#seekresolution) object.
+
+## How smart is seeking?
+
+The efficiency of seeking depends on the container format.
+
+- **ISO Base Media**: Will use observed keyframes, `stsd` atoms and `mfra` atoms in case of fragmented files.
+- **WebM**: Will use `Cues` and observed keyframes.
+- **WAV**: Will predict the sample number based on the sample rate and block align.
+- **Transport Stream**: Not smart - can only use the previously observed PES headers.

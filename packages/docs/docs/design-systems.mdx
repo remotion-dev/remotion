@@ -1,0 +1,49 @@
+---
+image: /generated/articles-docs-design-systems.png
+title: Motion Design Systems
+crumb: 'Parameterized videos'
+---
+
+Remotion is an excellent tool for collecting your organization's animated design resources. You can:
+
+- Create static and animated assets
+- Organize them as [compositions](/docs/composition) and [folders](/docs/folder) in the Remotion Studio
+- Use HTML and CSS, as well as [shaders](/docs/shaders) and [effects](/docs/effects)
+- Allow parameterization
+- Export assets using server-side or client-side rendering
+
+## Remotion's Design System
+
+Remotion's design system is hosted at [remotion.dev/brand](https://www.remotion.dev/brand), and its source is available in the [Remotion monorepo](https://github.com/remotion-dev/remotion/tree/main/packages/brand).
+
+Use it as inspiration for your own motion design system.
+
+## Hosting the design system
+
+The Remotion Studio can be hosted as a [static deployment](/docs/studio/deploy-static) on many hosts, such as [Vercel](/docs/studio/deploy-static#deploy-to-vercel), Netlify, or Cloudflare.
+
+## Parameterization
+
+You can display a form in the deployed Studio, allowing users to [parameterize your assets](/docs/parameterized-rendering).
+
+## Rendering
+
+When deployed as a static site, you can render assets using [client-side rendering](/docs/client-side-rendering). Exporting assets as transparent ProRes, suitable for elements such as lower thirds, is not yet possible client-side.
+
+In that case, you have two options:
+
+- Use the **Copy CLI command** button in the render dialog to get a command that renders the asset in any terminal.
+- [Deploy the Studio on a VPS](/docs/studio/deploy-server) to retain the ability to render from the Studio.
+
+## License
+
+Remotion is [free for organizations of up to three people](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md). Companies with more employees need to obtain a [Company License](/docs/license/pricing).
+
+If renders are triggered manually on demand, this use case falls under [Remotion for Creators](/docs/license/faq#what-is-the-difference-between-remotion-for-creators-and-remotion-for-automators). If any automation is connected to it, it falls under [Remotion for Automators](/docs/license/faq#what-is-the-difference-between-remotion-for-creators-and-remotion-for-automators).
+
+## See also
+
+- [Remotion Studio](/docs/studio)
+- [Edit default props visually](/docs/visual-editing)
+- [Rendering transparent videos](/docs/transparent-videos)
+- [Server-side rendering](/docs/ssr)

@@ -1,0 +1,103 @@
+import React, {useContext, useEffect, useMemo} from 'react';
+import {Internals} from 'remotion';
+import {BACKGROUND, LIGHT_TEXT} from '../../helpers/colors';
+import {Spacing} from '../layout';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {RenderQueueContext} from './context';
+import {RenderQueueItem} from './RenderQueueItem';
+
+const errorExplanation: React.CSSProperties = {
+	fontSize: 14,
+	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
+	lineHeight: 1.5,
+};
+
+const explainer: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+	flexDirection: 'column',
+	padding: '0 12px',
+	justifyContent: 'center',
+	alignItems: 'center',
+	textAlign: 'center',
+	background: BACKGROUND,
+};
+
+const renderQueue: React.CSSProperties = {
+	background: BACKGROUND,
+	flex: 1,
+	overflowY: 'auto',
+	paddingTop: 4,
+	paddingBottom: 4,
+};
+
+export const RenderQueue: React.FC = () => {
+	const {jobs} = useContext(RenderQueueContext);
+	const {canvasContent} = useContext(Internals.CompositionManager);
+	const previousJobCount = React.useRef(jobs.length);
+	const jobCount = jobs.length;
+
+	const divRef = React.useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		if (!divRef.current) {
+			return;
+		}
+
+		// Scroll down to bottom of render queue if new jobs have been added
+		if (jobCount > previousJobCount.current) {
+			divRef.current.scrollTo({
+				top: divRef.current.scrollHeight,
+				behavior: 'smooth',
+			});
+		}
+
+		previousJobCount.current = jobCount;
+	}, [jobCount]);
+
+	const selectedJob = useMemo(() => {
+		if (!canvasContent) {
+			return -1;
+		}
+
+		if (canvasContent.type === 'output') {
+			for (let i = 0; i < jobs.length; i++) {
+				const job = jobs[i];
+				if (job.status === 'done' && canvasContent.path === `/${job.outName}`) {
+					return i;
+				}
+			}
+		}
+
+		return -1;
+	}, [canvasContent, jobs]);
+
+	if (jobCount === 0) {
+		return (
+			<div style={explainer}>
+				<Spacing y={5} />
+				<div style={errorExplanation}>No renders in the queue.</div>
+				<Spacing y={2} block />
+			</div>
+		);
+	}
+
+	return (
+		<div
+			ref={divRef}
+			style={renderQueue}
+			className={['css-reset', VERTICAL_SCROLLBAR_CLASSNAME].join(' ')}
+		>
+			{jobs.map((j, index) => {
+				return (
+					<RenderQueueItem
+						key={j.id}
+						selected={selectedJob === index}
+						job={j}
+					/>
+				);
+			})}
+		</div>
+	);
+};

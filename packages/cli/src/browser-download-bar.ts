@@ -1,0 +1,144 @@
+import type {ChromeMode, LogLevel, OnBrowserDownload} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
+import type {BrowserDownloadState} from '@remotion/studio-shared';
+import {chalk} from './chalk';
+import {Log} from './log';
+import {makeProgressBar} from './make-progress-bar';
+import {LABEL_WIDTH, createOverwriteableCliOutput} from './progress-bar';
+import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
+import {truthy} from './truthy';
+
+const makeDownloadProgress = ({
+	bytesDownloaded,
+	totalBytes,
+	doneIn,
+	chromeMode,
+}: {
+	totalBytes: number;
+	bytesDownloaded: number;
+	doneIn: number | null;
+	chromeMode: ChromeMode;
+}) => {
+	const progress = bytesDownloaded / totalBytes;
+
+	return [
+		`${doneIn ? 'Got' : 'Getting'} ${
+			chromeMode === 'chrome-for-testing'
+				? 'Chrome for Testing'
+				: 'Headless Shell'
+		}`.padEnd(LABEL_WIDTH, ' '),
+		makeProgressBar(progress, false),
+		doneIn === null
+			? (progress * 100).toFixed(0) + '%'
+			: chalk.gray(`${doneIn}ms`),
+	]
+		.filter(truthy)
+		.join(' ');
+};
+
+export const defaultBrowserDownloadProgress = ({
+	indent,
+	logLevel,
+	quiet,
+	onProgress,
+}: {
+	indent: boolean;
+	logLevel: LogLevel;
+	quiet: boolean;
+	onProgress: (progress: BrowserDownloadState) => void;
+}): OnBrowserDownload => {
+	return ({chromeMode}) => {
+		if (chromeMode === 'chrome-for-testing') {
+			Log.info(
+				{indent, logLevel},
+				'Downloading Chrome for Testing https://www.remotion.dev/chrome-for-testing',
+			);
+		} else {
+			Log.info(
+				{indent, logLevel},
+				chalk.gray(
+					'Downloading Chrome Headless Shell https://www.remotion.dev/chrome-headless-shell',
+				),
+			);
+		}
+
+		const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
+
+		const productName =
+			chromeMode === 'chrome-for-testing'
+				? 'Chrome for Testing'
+				: 'Headless Shell';
+
+		const startedAt = Date.now();
+		let doneIn: number | null = null;
+
+		// Must fire in both logger modes - the Studio UI relies on it to display
+		// the download progress (https://github.com/remotion-dev/remotion/issues/10228).
+		const updateDownloadState = (progress: {
+			alreadyAvailable: boolean;
+			percent: number;
+		}) => {
+			if (progress.percent === 1) {
+				doneIn = Date.now() - startedAt;
+			}
+
+			onProgress({
+				alreadyAvailable: progress.alreadyAvailable,
+				progress: progress.percent,
+				doneIn,
+			});
+		};
+
+		if (updatesDontOverwrite) {
+			let lastProgress = 0;
+			return {
+				version: null,
+				onProgress: (progress) => {
+					updateDownloadState(progress);
+
+					if (progress.downloadedBytes > lastProgress + 10_000_000) {
+						lastProgress = progress.downloadedBytes;
+
+						Log.info(
+							{indent, logLevel},
+							`Getting ${productName} - ${RenderInternals.toMegabytes(
+								progress.downloadedBytes,
+							)}/${RenderInternals.toMegabytes(
+								progress.totalSizeInBytes as number,
+							)}`,
+						);
+					}
+
+					if (progress.percent === 1) {
+						Log.info({indent, logLevel}, `Got ${productName}`);
+					}
+				},
+			};
+		}
+
+		const cliOutput = createOverwriteableCliOutput({
+			quiet,
+			indent,
+			cancelSignal: null,
+			updatesDontOverwrite,
+			logLevel,
+		});
+
+		return {
+			version: null,
+			onProgress: (progress) => {
+				updateDownloadState(progress);
+
+				cliOutput.update(
+					makeDownloadProgress({
+						doneIn,
+						bytesDownloaded: progress.downloadedBytes,
+						totalBytes: progress.totalSizeInBytes,
+						chromeMode,
+					}),
+					progress.percent === 1,
+				);
+			},
+		};
+	};
+};

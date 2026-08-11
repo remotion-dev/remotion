@@ -1,0 +1,73 @@
+---
+image: /generated/articles-docs-posterization.png
+title: Posterization
+id: posterization
+crumb: 'Designing visuals'
+---
+
+# Posterization<AvailableFrom v="4.0.470" />
+
+Posterization makes an animation update in steps instead of changing on every frame.
+Use it for stop-motion, low-frame-rate motion, or a choppy graphic style.
+
+<video
+  src="/img/posterization-comparison.mp4"
+  autoPlay
+  loop
+  muted
+  playsInline
+  style={{width: '100%', borderRadius: 'var(--ifm-global-radius)', marginBottom: 0, aspectRatio: '3 / 1'}}
+/>
+
+## Using `interpolate()`
+
+Pass `posterize` to [`interpolate()`](/docs/interpolate).
+If the input value is the current frame, `posterize: 3` samples the animation every 3 frames.
+
+```tsx twoslash title="MyComposition.tsx"
+import React from 'react';
+import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComposition: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
+      <div
+        style={{
+          width: 120,
+          height: 120,
+          borderRadius: 24,
+          backgroundColor: '#0b84f3',
+          translate: interpolate(frame, [0, 60], ['-200px', '200px'], {
+            posterize: 3,
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          }),
+        }}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+`posterize` quantizes the input before interpolation.
+With `posterize: 3`, frames `0` through `2` use the value for frame `0`, frames `3` through `5` use the value for frame `3`, and so on.
+
+## Colors and styles
+
+[`interpolateColors()`](/docs/interpolate-colors) also accepts `posterize`.
+The same option is available for [`interpolateStyles()`](/docs/animation-utils/interpolate-styles) from [`@remotion/animation-utils`](/docs/animation-utils).
+
+## Studio
+
+When a prop or effect parameter is keyframed in [Remotion Studio](/docs/studio), a `posterize` option in the source interpolation is respected by the preview and timeline data.
+This works for values created with [`interpolate()`](/docs/interpolate) and [`interpolateColors()`](/docs/interpolate-colors).
+
+To edit posterization visually, right-click a keyframed sequence or effect prop in the timeline and click **Keyframe settings...**.
+
+## See also
+
+- [`interpolate()`](/docs/interpolate)
+- [`interpolateColors()`](/docs/interpolate-colors)
+- [`interpolateStyles()`](/docs/animation-utils/interpolate-styles)

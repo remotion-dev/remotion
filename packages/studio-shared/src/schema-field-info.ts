@@ -1,0 +1,464 @@
+import type {
+	ArrayFieldSchema,
+	DragOverrides,
+	EffectDefinition,
+	GetDragOverrides,
+	GetEffectDragOverrides,
+	InteractivitySchema,
+	InteractivitySchemaField,
+	PropStatuses,
+	SequenceControls,
+	SequencePropsSubscriptionKey,
+	VisibleFieldSchema,
+} from 'remotion';
+import {Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
+import {
+	BORDER_RADIUS_LONGHAND_KEYS,
+	BORDER_RADIUS_SHORTHAND_KEY,
+} from './style-property-relations';
+
+export type {DragOverrides, PropStatuses, SequenceControls};
+
+export type SchemaFieldInfo = {
+	key: string;
+	description: string | undefined;
+	typeName: SupportedSchemaType;
+	rowHeight: number;
+	fieldSchema: VisibleFieldSchema;
+	group: SchemaFieldGroup;
+};
+
+export type InteractivitySchemaFieldInfo = SchemaFieldInfo & {
+	readonly kind: 'sequence-field';
+};
+
+export type EffectSchemaFieldInfo = SchemaFieldInfo & {
+	readonly kind: 'effect-field';
+	readonly effectIndex: number;
+	readonly effectSchema: InteractivitySchema;
+};
+
+export type AnySchemaFieldInfo =
+	| InteractivitySchemaFieldInfo
+	| EffectSchemaFieldInfo;
+
+export const SCHEMA_FIELD_ROW_HEIGHT = 22;
+
+export type SchemaFieldGroup =
+	| 'source'
+	| 'controls'
+	| 'transforms'
+	| 'background'
+	| 'border'
+	| 'border-radius'
+	| 'crop'
+	| 'text'
+	| 'layout';
+
+export type SchemaFieldGroupInfo = {
+	readonly id: SchemaFieldGroup;
+	readonly label: string;
+};
+
+export const SCHEMA_FIELD_GROUPS = [
+	{id: 'source', label: 'Source'},
+	{id: 'controls', label: 'Controls'},
+	{id: 'transforms', label: 'Transform'},
+	{id: 'text', label: 'Text'},
+	{id: 'background', label: 'Background'},
+	{id: 'border', label: 'Border'},
+	{id: 'border-radius', label: 'Border radius'},
+	{id: 'crop', label: 'Crop'},
+	{id: 'layout', label: 'Layout'},
+] as const satisfies readonly SchemaFieldGroupInfo[];
+
+const schemaFieldGroupOrder = SCHEMA_FIELD_GROUPS.reduce(
+	(acc, group, index) => {
+		acc[group.id] = index;
+		return acc;
+	},
+	{} as Record<SchemaFieldGroup, number>,
+);
+
+const TRANSFORM_FIELD_KEYS = new Set([
+	'style.transformOrigin',
+	'style.translate',
+	'style.scale',
+	'style.rotate',
+	'style.opacity',
+]);
+
+const CROP_FIELD_KEYS = new Set([
+	'cropLeft',
+	'cropRight',
+	'cropTop',
+	'cropBottom',
+]);
+
+const BORDER_RADIUS_FIELD_KEYS = new Set([
+	'style.borderRadius',
+	'style.borderTopLeftRadius',
+	'style.borderTopRightRadius',
+	'style.borderBottomRightRadius',
+	'style.borderBottomLeftRadius',
+]);
+
+const getBorderRadiusFieldKeysToShow = ({
+	activeSchema,
+	propStatuses,
+	nodePath,
+}: {
+	activeSchema: InteractivitySchema;
+	propStatuses: PropStatuses;
+	nodePath: SequencePropsSubscriptionKey;
+}): ReadonlySet<string> | null => {
+	if (!(BORDER_RADIUS_SHORTHAND_KEY in activeSchema)) {
+		return null;
+	}
+
+	const statuses = Internals.getPropStatusesCtx(propStatuses, nodePath);
+	const shorthand = statuses?.[BORDER_RADIUS_SHORTHAND_KEY];
+	const longhands = BORDER_RADIUS_LONGHAND_KEYS.map((key) => statuses?.[key]);
+
+	// A supported shorthand is canonical even though the server also reports its
+	// expanded longhand values. This keeps one Inspector row and one keyframe track.
+	if (shorthand?.status === 'keyframed') {
+		return new Set([BORDER_RADIUS_SHORTHAND_KEY]);
+	}
+
+	if (shorthand?.status === 'static' && shorthand.codeValue !== undefined) {
+		return new Set([BORDER_RADIUS_SHORTHAND_KEY]);
+	}
+
+	const hasEditableLonghand = longhands.some(
+		(status) =>
+			status?.status === 'keyframed' ||
+			(status?.status === 'static' && status.codeValue !== undefined),
+	);
+	if (hasEditableLonghand) {
+		return new Set(BORDER_RADIUS_LONGHAND_KEYS);
+	}
+
+	// No radius has been authored, an unsupported dynamic shorthand was authored,
+	// or shorthand and longhands were mixed. In all three cases, only show the
+	// shorthand row so duplicate representations never reach the Inspector/timeline.
+	return new Set([BORDER_RADIUS_SHORTHAND_KEY]);
+};
+
+const BORDER_FIELD_KEYS = new Set([
+	'style.borderWidth',
+	'style.borderStyle',
+	'style.borderColor',
+]);
+
+const BACKGROUND_FIELD_KEYS = new Set(['style.backgroundColor']);
+
+const LAYOUT_FIELD_KEYS = new Set(['layout', 'premountFor']);
+
+const TEXT_FIELD_KEYS = new Set([
+	'children',
+	'style.color',
+	'style.fontFamily',
+	'style.fontSize',
+	'style.lineHeight',
+	'style.fontWeight',
+	'style.fontStyle',
+	'style.letterSpacing',
+	'style.textAlign',
+]);
+
+export const getSchemaFieldGroup = (key: string): SchemaFieldGroup => {
+	if (key === 'src') {
+		return 'source';
+	}
+
+	if (TRANSFORM_FIELD_KEYS.has(key)) {
+		return 'transforms';
+	}
+
+	if (CROP_FIELD_KEYS.has(key)) {
+		return 'crop';
+	}
+
+	if (BORDER_RADIUS_FIELD_KEYS.has(key)) {
+		return 'border-radius';
+	}
+
+	if (BORDER_FIELD_KEYS.has(key)) {
+		return 'border';
+	}
+
+	if (BACKGROUND_FIELD_KEYS.has(key)) {
+		return 'background';
+	}
+
+	if (LAYOUT_FIELD_KEYS.has(key)) {
+		return 'layout';
+	}
+
+	if (TEXT_FIELD_KEYS.has(key)) {
+		return 'text';
+	}
+
+	return 'controls';
+};
+
+const sortSchemaFields = <T extends SchemaFieldInfo>(fields: T[]): T[] => {
+	return fields
+		.map((field, index) => ({field, index}))
+		.sort((a, b) => {
+			const groupDiff =
+				schemaFieldGroupOrder[a.field.group] -
+				schemaFieldGroupOrder[b.field.group];
+			return groupDiff === 0 ? a.index - b.index : groupDiff;
+		})
+		.map(({field}) => field);
+};
+
+// Keep this exhaustive so every schema field requires an explicit timeline UI
+// support decision.
+const TIMELINE_SCHEMA_FIELD_TYPE_SUPPORT = {
+	array: true,
+	asset: true,
+	boolean: true,
+	'remotion-captions': false,
+	color: true,
+	enum: true,
+	'font-family': true,
+	hidden: false,
+	number: true,
+	'rotation-css': true,
+	'rotation-degrees': true,
+	scale: true,
+	'text-content': true,
+	'transform-origin': true,
+	translate: true,
+	'uv-coordinate': true,
+} as const satisfies Record<InteractivitySchemaField['type'], boolean>;
+
+type TimelineSchemaFieldTypeSupport = typeof TIMELINE_SCHEMA_FIELD_TYPE_SUPPORT;
+
+type SupportedSchemaType = {
+	[FieldType in keyof TimelineSchemaFieldTypeSupport]: TimelineSchemaFieldTypeSupport[FieldType] extends true
+		? FieldType
+		: never;
+}[keyof TimelineSchemaFieldTypeSupport];
+
+type SupportedSchemaField = Extract<
+	InteractivitySchemaField,
+	{type: SupportedSchemaType}
+>;
+
+const isTimelineSchemaFieldSupported = (
+	field: InteractivitySchemaField,
+): field is SupportedSchemaField =>
+	TIMELINE_SCHEMA_FIELD_TYPE_SUPPORT[field.type];
+
+const getArrayRowCount = ({
+	fieldSchema,
+	value,
+}: {
+	fieldSchema: ArrayFieldSchema;
+	value: unknown;
+}): number => {
+	const items = Array.isArray(value)
+		? value
+		: Array.isArray(fieldSchema.default)
+			? fieldSchema.default
+			: Array.from({length: fieldSchema.minLength ?? 0});
+	const canAdd = items.length < (fieldSchema.maxLength ?? Infinity);
+
+	return Math.max(1, items.length + (canAdd ? 1 : 0));
+};
+
+const getSchemaFieldRowHeight = ({
+	fieldSchema,
+	value,
+}: {
+	fieldSchema: VisibleFieldSchema;
+	value: unknown;
+}) => {
+	if (fieldSchema.type === 'array') {
+		return (
+			getArrayRowCount({
+				fieldSchema,
+				value,
+			}) * SCHEMA_FIELD_ROW_HEIGHT
+		);
+	}
+
+	return SCHEMA_FIELD_ROW_HEIGHT;
+};
+
+const getEffectFieldValue = ({
+	key,
+	dragOverrides,
+	effectStatus,
+}: {
+	key: string;
+	dragOverrides: DragOverrides[string];
+	effectStatus: ReturnType<typeof Internals.getEffectPropStatusesCtx> | null;
+}): unknown => {
+	const dragOverride = Internals.getStaticDragOverrideValue(dragOverrides[key]);
+	if (dragOverride !== undefined) {
+		return dragOverride;
+	}
+
+	if (effectStatus?.type !== 'can-update-effect') {
+		return undefined;
+	}
+
+	const propStatus = effectStatus.props[key];
+	if (propStatus?.status !== 'static') {
+		return undefined;
+	}
+
+	return propStatus.codeValue;
+};
+
+export const getFieldsToShow = ({
+	getDragOverrides,
+	propStatuses,
+	nodePath,
+	schema,
+	currentRuntimeValueDotNotation,
+	includeTextContent,
+}: {
+	schema: InteractivitySchema;
+	currentRuntimeValueDotNotation: Record<string, unknown>;
+	getDragOverrides: GetDragOverrides;
+	propStatuses: PropStatuses;
+	nodePath: SequencePropsSubscriptionKey;
+	includeTextContent?: boolean;
+}): InteractivitySchemaFieldInfo[] | null => {
+	const {merged: valuesDotNotation} =
+		Internals.computeEffectiveSchemaValuesDotNotation({
+			schema,
+			currentValue: currentRuntimeValueDotNotation,
+			overrideValues: getDragOverrides(nodePath),
+			propStatus: Internals.getPropStatusesCtx(propStatuses, nodePath),
+			frame: null,
+		});
+	const activeSchema = Internals.flattenActiveSchema(
+		schema,
+		(key) => valuesDotNotation[key],
+	);
+	const borderRadiusFieldKeysToShow = getBorderRadiusFieldKeysToShow({
+		activeSchema,
+		propStatuses,
+		nodePath,
+	});
+
+	const fields = Object.entries(activeSchema)
+		.map(([key, fieldSchema]): InteractivitySchemaFieldInfo | null => {
+			if (
+				BORDER_RADIUS_FIELD_KEYS.has(key) &&
+				borderRadiusFieldKeysToShow !== null &&
+				!borderRadiusFieldKeysToShow.has(key)
+			) {
+				return null;
+			}
+
+			if (!isTimelineSchemaFieldSupported(fieldSchema)) {
+				return null;
+			}
+
+			const typeName = fieldSchema.type;
+
+			if (fieldSchema.type === 'number' && fieldSchema.hiddenFromList) {
+				return null;
+			}
+
+			if (fieldSchema.type === 'text-content' && !includeTextContent) {
+				return null;
+			}
+
+			// `hidden` is represented as the eye/speaker icon on the timeline track,
+			// so we don't render it as a regular field in the expanded section.
+			if (key === 'hidden') {
+				return null;
+			}
+
+			return {
+				kind: 'sequence-field',
+				key,
+				description: fieldSchema.description,
+				typeName,
+				rowHeight: getSchemaFieldRowHeight({
+					fieldSchema,
+					value: valuesDotNotation[key],
+				}),
+				fieldSchema,
+				group: getSchemaFieldGroup(key),
+			};
+		})
+		.filter(NoReactInternals.truthy);
+
+	return sortSchemaFields(fields);
+};
+
+export const getEffectFieldsToShow = ({
+	effect,
+	effectIndex,
+	nodePath,
+	propStatuses,
+	getEffectDragOverrides,
+}: {
+	effect: EffectDefinition<unknown>;
+	effectIndex: number;
+	nodePath: SequencePropsSubscriptionKey | null;
+	propStatuses: PropStatuses;
+	getEffectDragOverrides: GetEffectDragOverrides;
+}): EffectSchemaFieldInfo[] => {
+	const effectStatus =
+		nodePath === null
+			? null
+			: Internals.getEffectPropStatusesCtx({
+					propStatuses,
+					nodePath,
+					effectIndex,
+				});
+	const dragOverrides =
+		nodePath === null ? {} : getEffectDragOverrides(nodePath, effectIndex);
+	const activeSchema = Internals.flattenActiveSchema(effect.schema, (key) => {
+		return getEffectFieldValue({key, dragOverrides, effectStatus});
+	});
+
+	const fields = Object.entries(activeSchema)
+		.map(([key, fieldSchema]): EffectSchemaFieldInfo | null => {
+			if (!isTimelineSchemaFieldSupported(fieldSchema)) {
+				return null;
+			}
+
+			const typeName = fieldSchema.type;
+
+			if (fieldSchema.type === 'number' && fieldSchema.hiddenFromList) {
+				return null;
+			}
+
+			// `disabled` is represented as the eye icon on the effect timeline row,
+			// so we don't render it as a regular field in the expanded section.
+			if (key === 'disabled') {
+				return null;
+			}
+
+			return {
+				kind: 'effect-field',
+				key,
+				description: fieldSchema.description,
+				typeName,
+				rowHeight: getSchemaFieldRowHeight({
+					fieldSchema,
+					value: getEffectFieldValue({key, dragOverrides, effectStatus}),
+				}),
+				fieldSchema,
+				effectSchema: effect.schema,
+				effectIndex,
+				group: getSchemaFieldGroup(key),
+			};
+		})
+		.filter(NoReactInternals.truthy);
+
+	return sortSchemaFields(fields);
+};

@@ -1,0 +1,72 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda-client"
+	},
+	"name": "@remotion/lambda-client",
+	"version": "4.0.508",
+	"main": "dist/cjs/index.js",
+	"scripts": {
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"test": "bun test src",
+		"lint": "eslint src",
+		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "UNLICENSED",
+	"dependencies": {},
+	"devDependencies": {
+		"@aws-sdk/client-cloudwatch-logs": "catalog:",
+		"@aws-sdk/client-iam": "catalog:",
+		"@aws-sdk/client-lambda": "catalog:",
+		"@aws-sdk/s3-request-presigner": "catalog:",
+		"@aws-sdk/client-s3": "catalog:",
+		"@aws-sdk/client-service-quotas": "catalog:",
+		"@aws-sdk/client-sts": "catalog:",
+		"@aws-sdk/lib-storage": "catalog:",
+		"mime-types": "2.1.34",
+		"@aws-sdk/credential-provider-ini": "catalog:",
+		"@remotion/serverless-client": "workspace:*",
+		"@types/express": "5.0.1",
+		"express": "4.21.0",
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "catalog:",
+		"next": "catalog:",
+		"@types/mime-types": "2.1.1",
+		"@typescript/native-preview": "catalog:"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/cjs/index.d.ts",
+			"require": "./dist/cjs/index.js",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		},
+		"./constants": {
+			"types": "./dist/cjs/constants.d.ts",
+			"require": "./dist/cjs/constants.js",
+			"module": "./dist/esm/constants.mjs",
+			"import": "./dist/esm/constants.mjs"
+		},
+		"./regions": {
+			"types": "./dist/cjs/regions.d.ts",
+			"require": "./dist/cjs/regions.js",
+			"module": "./dist/esm/regions.mjs",
+			"import": "./dist/esm/regions.mjs"
+		}
+	},
+	"typesVersions": {
+		">=1.0": {
+			"constants": [
+				"./dist/cjs/constants.d.ts"
+			],
+			"regions": [
+				"./dist/cjs/regions.d.ts"
+			]
+		}
+	}
+}

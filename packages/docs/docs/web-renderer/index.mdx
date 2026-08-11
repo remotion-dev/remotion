@@ -1,0 +1,37 @@
+---
+image: /generated/articles-docs-web-renderer-index.png
+sidebar_label: Overview
+title: '@remotion/web-renderer'
+crumb: API
+---
+
+This package allows you to render videos and stills directly in the browser, without requiring server-side infrastructure.
+
+The API is stable from <AvailableFrom v="4.0.491" inline />.
+
+### Key differences from server-side rendering
+
+Unlike server-side rendering with [`@remotion/renderer`](/docs/renderer), client-side rendering:
+
+- Runs in the browser instead of Node.js
+- Encodes with WebCodecs using [Mediabunny](/docs/mediabunny) instead of FFmpeg
+- Limited to a subset of tags and CSS properties - see [limitations](/docs/client-side-rendering/limitations)
+- No bundling step - takes components and video config directly
+
+## Installation
+
+<Installation pkg="@remotion/web-renderer" />
+
+## API
+
+import {TableOfContents} from './TableOfContents';
+
+<TableOfContents />
+
+## See also
+
+- [Client-side rendering overview](/docs/client-side-rendering)
+- [How client-side rendering works](/docs/client-side-rendering/how-it-works)
+- [Limitations](/docs/client-side-rendering/limitations)
+- [Telemetry](/docs/telemetry)
+- [Server-side rendering](/docs/ssr)

@@ -1,0 +1,21 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"noEmit": true,
+		"module": "Preserve",
+		"moduleResolution": "bundler",
+		"allowJs": true,
+		"strict": true,
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"isolatedModules": true,
+		"jsx": "react-jsx",
+		"lib": ["ES2021", "DOM"],
+		"paths": {
+			"@/*": ["./src/*"]
+		}
+	},
+	"include": ["src", "generate.ts", "build.ts", "clean.ts", "bun-env.d.ts"],
+	"exclude": ["dist", "node_modules", "files", "out"]
+}

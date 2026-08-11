@@ -1,0 +1,154 @@
+import {
+	useCallback,
+	useImperativeHandle,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
+import type {AnyZodObject} from './any-zod-type.js';
+import type {TComposition} from './CompositionManager';
+import {compositionsRef, type AnyComposition} from './CompositionManager';
+import type {
+	CanvasContent,
+	CompositionManagerContext,
+	CompositionManagerSetters,
+} from './CompositionManagerContext';
+import {
+	CompositionManager,
+	CompositionSetters,
+} from './CompositionManagerContext';
+import type {BaseMetadata} from './CompositionManagerContext.js';
+import type {TFolder} from './Folder';
+import type {NonceHistory} from './nonce.js';
+
+export const CompositionManagerProvider = ({
+	children,
+	onlyRenderComposition,
+	currentCompositionMetadata,
+	initialCompositions,
+	initialCanvasContent,
+}: {
+	readonly children: React.ReactNode;
+	readonly onlyRenderComposition: string | null;
+	readonly currentCompositionMetadata: BaseMetadata | null;
+	readonly initialCompositions: AnyComposition[];
+	readonly initialCanvasContent: CanvasContent | null;
+}) => {
+	const [folders, setFolders] = useState<TFolder[]>([]);
+	const [canvasContent, setCanvasContent] = useState<CanvasContent | null>(
+		initialCanvasContent,
+	);
+	const [compositions, setCompositions] =
+		useState<AnyComposition[]>(initialCompositions);
+
+	// CompositionManagerProvider state
+	const currentcompositionsRef = useRef<AnyComposition[]>(compositions);
+
+	const updateCompositions = useCallback(
+		(updateComps: (comp: AnyComposition[]) => AnyComposition[]) => {
+			setCompositions((comps) => {
+				const updated = updateComps(comps);
+				currentcompositionsRef.current = updated;
+				return updated;
+			});
+		},
+		[],
+	);
+
+	const registerComposition = useCallback(
+		<Schema extends AnyZodObject, Props extends Record<string, unknown>>(
+			comp: TComposition<Schema, Props>,
+		) => {
+			updateCompositions((comps) => {
+				if (comps.find((c) => c.id === comp.id)) {
+					throw new Error(
+						`Multiple composition with id ${comp.id} are registered.`,
+					);
+				}
+
+				return [...comps, comp] as AnyComposition[];
+			});
+		},
+		[updateCompositions],
+	);
+
+	const unregisterComposition = useCallback((id: string) => {
+		setCompositions((comps) => {
+			return comps.filter((c) => c.id !== id);
+		});
+	}, []);
+
+	const registerFolder = useCallback(
+		(
+			name: string,
+			parent: string | null,
+			nonce: NonceHistory,
+			stack: string | null,
+		) => {
+			setFolders((prevFolders) => {
+				return [
+					...prevFolders,
+					{
+						name,
+						parent,
+						nonce,
+						stack,
+					},
+				];
+			});
+		},
+		[],
+	);
+
+	const unregisterFolder = useCallback(
+		(name: string, parent: string | null) => {
+			setFolders((prevFolders) => {
+				return prevFolders.filter(
+					(p) => !(p.name === name && p.parent === parent),
+				);
+			});
+		},
+		[],
+	);
+
+	useImperativeHandle(compositionsRef, () => {
+		return {
+			getCompositions: () => currentcompositionsRef.current,
+		};
+	}, []);
+
+	const compositionManagerSetters = useMemo((): CompositionManagerSetters => {
+		return {
+			registerComposition,
+			unregisterComposition,
+			registerFolder,
+			unregisterFolder,
+			setCanvasContent,
+			onlyRenderComposition,
+		};
+	}, [
+		registerComposition,
+		registerFolder,
+		unregisterComposition,
+		unregisterFolder,
+		onlyRenderComposition,
+	]);
+
+	const compositionManagerContextValue =
+		useMemo((): CompositionManagerContext => {
+			return {
+				compositions,
+				folders,
+				currentCompositionMetadata,
+				canvasContent,
+			};
+		}, [compositions, folders, currentCompositionMetadata, canvasContent]);
+
+	return (
+		<CompositionManager.Provider value={compositionManagerContextValue}>
+			<CompositionSetters.Provider value={compositionManagerSetters}>
+				{children}
+			</CompositionSetters.Provider>
+		</CompositionManager.Provider>
+	);
+};

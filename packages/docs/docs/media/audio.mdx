@@ -1,0 +1,368 @@
+---
+image: /generated/articles-docs-media-audio.png
+title: '<Audio>'
+crumb: 'API - @remotion/media'
+---
+
+[`<Audio>` from `@remotion/media`](/docs/media/audio) is the recommended component for embedding audio in Remotion.
+
+During rendering, it extracts the exact audio using [Mediabunny](/docs/mediabunny) instead of FFmpeg. This keeps the audio in sync with Remotion's timeline.
+
+## Example
+
+```tsx twoslash
+import {AbsoluteFill, staticFile} from 'remotion';
+import {Audio} from '@remotion/media';
+
+export const MyVideo = () => {
+  return (
+    <AbsoluteFill>
+      <Audio src={staticFile('audio.mp3')} />
+    </AbsoluteFill>
+  );
+};
+```
+
+You can load a video from an URL as well:
+
+```tsx twoslash
+import {AbsoluteFill} from 'remotion';
+import {Audio} from '@remotion/media';
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Audio src="https://remotion.media/audio.wav" />
+    </AbsoluteFill>
+  );
+};
+```
+
+## Props
+
+### `src`
+
+The URL of the audio to be rendered. Can be a remote URL or a local file referenced with [`staticFile()`](/docs/staticfile).
+
+### `from?`<AvailableFrom v="4.0.445" />
+
+At which frame this clip should start relative to the parent timeline. Default is `0`. Same meaning as [`from`](/docs/sequence#from) on [`<Sequence>`](/docs/sequence).
+
+### `durationInFrames?`<AvailableFrom v="4.0.445" />
+
+For how many frames the clip stays mounted. Default is `Infinity`. Same meaning as [`durationInFrames`](/docs/sequence#durationinframes) on [`<Sequence>`](/docs/sequence).
+
+:::note
+You can still wrap `<Audio>` in an outer [`<Sequence>`](/docs/sequence). Timing [cascades](/docs/sequence#cascading) like nested sequences.
+:::
+
+```tsx twoslash title="Clip starting at frame 30, lasting 90 frames"
+import {AbsoluteFill, staticFile} from 'remotion';
+import {Audio} from '@remotion/media';
+
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Audio from={30} durationInFrames={90} src={staticFile('audio.mp3')} />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `premountFor?`<AvailableFrom v="4.0.495" />
+
+Mounts the audio for the specified number of frames before its `from` frame, allowing it to buffer before playback starts. See [Premounting](/docs/player/premounting).
+
+### `postmountFor?`<AvailableFrom v="4.0.495" />
+
+Keeps the audio mounted for the specified number of frames after its duration has ended.
+
+### `trimBefore?`
+
+Will remove a portion of the audio at the beginning (left side).
+
+In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
+
+By passing `trimBefore={60}`, the playback starts immediately, but with the first 2 seconds of the audio trimmed away.  
+By passing `trimAfter={120}`, any audio after the 4 second mark in the file will be trimmed away.
+
+The audio will play the range from `00:02:00` to `00:04:00`, meaning the audio will play for 2 seconds.
+
+For exact behavior, see: [Order of operations](/docs/audio/order-of-operations).
+
+```tsx twoslash
+import {AbsoluteFill, staticFile} from 'remotion';
+import {Audio} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Audio src={staticFile('audio.mp3')} trimBefore={60} trimAfter={120} />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `trimAfter?`
+
+Removes a portion of the audio at the end (right side). See [`trimBefore`](#trimbefore) for an explanation.
+
+### `volume?`
+
+Allows you to control the volume of the audio in it's entirety or frame by frame.  
+Read the page on [using audio](/docs/using-audio) to learn more.
+
+```tsx twoslash title="Setting a static volume"
+import {AbsoluteFill, staticFile} from 'remotion';
+import {Audio} from '@remotion/media';
+
+export const MyVideo = () => {
+  return (
+    <AbsoluteFill>
+      <Audio volume={0.5} src={staticFile('background.mp3')} />
+    </AbsoluteFill>
+  );
+};
+```
+
+```tsx twoslash title="Changing the volume over time"
+import {AbsoluteFill, interpolate, staticFile} from 'remotion';
+import {Audio} from '@remotion/media';
+
+export const MyVideo = () => {
+  return (
+    <AbsoluteFill>
+      <Audio volume={(f) => interpolate(f, [0, 30], [0, 1], {extrapolateLeft: 'clamp'})} src={staticFile('voice.mp3')} />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `name?`
+
+A name and that will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of items in the timeline.
+
+### `onError?`<AvailableFrom v="4.0.404" />
+
+Handle errors that occur during audio processing. The callback receives an `Error` and should return either `'fallback'` or `'fail'`.
+
+- Return `'fallback'` to fall back to [`<Html5Audio>`](/docs/html5-audio) (default behavior)
+- Return `'fail'` to fail the render immediately
+
+```tsx twoslash
+import {Audio} from '@remotion/media';
+
+export const MyVideo = () => {
+  return (
+    <Audio
+      src={'https://remotion.media/audio.mp3'}
+      onError={(error) => {
+        console.log('Audio error:', error.message);
+
+        // Return 'fail' to fail the render, or 'fallback' to use <Html5Audio>
+        return 'fallback';
+      }}
+    />
+  );
+};
+```
+
+:::note
+
+- In client-side rendering, the render will always fail regardless of the return value.
+- If you return `'fallback'`, the component will fall back to [`<Html5Audio>`](/docs/html5-audio) which may have its own error handling via [`fallbackHtml5AudioProps.onError`](#onerror-1).
+  :::
+
+### `playbackRate?`
+
+Controls the speed of the audio. `1` is the default and means regular speed, `0.5` slows down the audio so it's twice as long and `2` speeds up the audio so it's twice as fast.
+
+```tsx twoslash title="Example of a audio playing twice as fast"
+import {AbsoluteFill, staticFile} from 'remotion';
+import {Audio} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Audio playbackRate={2} src={'https://remotion.media/audio.mp3'} />
+    </AbsoluteFill>
+  );
+};
+```
+
+:::note
+Playing a audio in reverse is not supported.
+:::
+
+### `loop?`<AvailableFrom v="3.2.29" />
+
+Makes the audio loop indefinitely.
+
+```tsx twoslash title="Example of a looped audio"
+import {Audio} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return <Audio loop src="https://remotion.media/audio.wav" />;
+};
+```
+
+### `loopVolumeCurveBehavior?`
+
+Controls the `frame` which is returned when using the [`volume`](#volume) callback function and adding the [`loop`](#loop) attribute.
+
+Can be either `"repeat"` (default, start from 0 on each iteration) or `"extend"` (keep increasing frames).
+
+### `muted?`
+
+The `muted` prop will be respected. It will lead to no audio being played while still keeping the audio tag mounted. It's value may change over time, for example to only mute a certain section of the audio.
+
+```tsx twoslash title="Example of a muted video"
+import {Audio} from '@remotion/media';
+// ---cut---
+export const MyComposition = () => {
+  return <Audio muted src="https://remotion.media/audio.wav" />;
+};
+```
+
+### `showInTimeline?`
+
+If set to `false`, no layer will be shown in the timeline of the Remotion Studio. The default is `true`.
+
+### `delayRenderTimeoutInMilliseconds?`
+
+Customize the [timeout](/docs/delay-render#modifying-the-timeout) of the [`delayRender()`](/docs/delay-render) call that this component makes.
+
+### `delayRenderRetries?`
+
+Customize the [number of retries](/docs/delay-render#retrying) of the [`delayRender()`](/docs/delay-render) call that this component makes.
+
+### `audioStreamIndex?`
+
+Select the audio stream to use. The default is `0`.
+
+```tsx twoslash
+import {AbsoluteFill} from 'remotion';
+import {Audio} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Audio audioStreamIndex={1} src={'https://remotion.media/multiple-audio-streams.mov'} />
+    </AbsoluteFill>
+  );
+};
+```
+
+### ~~`credentials?`<AvailableFrom v="4.0.437" />~~
+
+:::info Deprecated
+Use [`requestInit`](#requestinit) instead.
+:::
+
+Controls the [`credentials`](https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials) option of the `fetch()` requests made to retrieve the audio data.
+
+Accepts `"omit"`, `"same-origin"` (default behavior of `fetch()`) or `"include"`.
+Set to `"include"` if you need to send cookies or authentication headers to a cross-origin audio URL.
+
+```tsx twoslash
+import {AbsoluteFill} from 'remotion';
+import {Audio} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Audio requestInit={{credentials: 'include'}} src="https://example.com/protected-audio.mp3" />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `requestInit?`<AvailableFrom v="4.0.465" />
+
+Passes [`RequestInit`](https://developer.mozilla.org/en-US/docs/Web/API/RequestInit) options to the `fetch()` requests made to retrieve the audio data.
+
+Set `cache` to `"no-store"` if a CDN or browser cache returns invalid range request responses.
+The value is captured when the component mounts; later updates to the prop are ignored, so passing an inline object is safe.
+
+```tsx twoslash
+import {AbsoluteFill} from 'remotion';
+import {Audio} from '@remotion/media';
+
+// ---cut---
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <Audio requestInit={{cache: 'no-store'}} src="https://remotion.media/audio.mp3" />
+    </AbsoluteFill>
+  );
+};
+```
+
+### `toneFrequency?`
+
+Accepts a number between `0.01` and `2`, where `1` represents the original pitch. Values less than `1` will decrease the pitch, while values greater than `1` will increase it.
+
+A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of `1.5` would increase the pitch by 50%.
+
+The value must stay the same across the entire time the video tag is mounted.
+
+:::warning
+Only works in server-side rendering.  
+Does not currently work in preview or in [client-side rendering](/docs/client-side-rendering/).
+:::
+
+### `fallbackHtml5AudioProps?`
+
+When a [fallback to `<Html5Audio>` from `remotion`](/docs/media/fallback) happens, this prop allows you to pass props to the fallback `<Html5Audio>` component.  
+Only props that are not supported by `<Audio>` from `@remotion/media` need to be specified here - props that apply for both tags will automatically be forwarded and do not need to be specified here.
+
+:::note
+This prop has no effect when using [`@remotion/web-renderer`](/docs/web-renderer) for client-side rendering, as fallback is not possible. See [Fallback is not possible in client-side rendering](/docs/media/fallback#fallback-is-not-possible-in-client-side-rendering).
+:::
+
+#### `onError?`
+
+Maps to [`<Html5Audio />` -> `onError`](/docs/html5-audio#onerror)
+
+#### `useWebAudioApi?`
+
+Maps to [`<Html5Audio />` -> `useWebAudioApi`](/docs/html5-audio#usewebaudioapi)
+
+#### `acceptableTimeShiftInSeconds?`
+
+Maps to [`<Html5Audio />` -> `acceptableTimeShiftInSeconds`](/docs/html5-audio#acceptabletimeshiftinseconds)
+
+#### `pauseWhenBuffering?`
+
+Maps to [`<Html5Audio />` -> `pauseWhenBuffering`](/docs/html5-audio#pausewhenbuffering)
+
+#### `crossOrigin?`
+
+Maps to [`<Html5Audio />` -> `crossOrigin`](/docs/html5-audio#crossorigin)
+
+#### `preservePitch?`<AvailableFrom v="4.0.463" />
+
+Maps to [`<Html5Audio />` -> `preservePitch`](/docs/html5-audio#preservepitch).  
+Only affects preview playback when falling back to [`<Html5Audio>`](/docs/html5-audio).
+
+### `disallowFallbackToHtml5Audio?`
+
+By default, if the audio cannot be embedded using this tag, [a fallback to `<Html5Audio>` from `remotion`](/docs/media/fallback) will be attempted.
+
+Pass this prop to disable the fallback and fail the render instead.
+
+:::note
+When using [`@remotion/web-renderer`](/docs/web-renderer) for client-side rendering, fallback is not possible and the render will always fail if the audio cannot be embedded. See [Fallback is not possible in client-side rendering](/docs/media/fallback#fallback-is-not-possible-in-client-side-rendering).
+:::
+
+## See also
+
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/media/src/audio/audio.tsx)
+- [`<Html5Audio />` (from `remotion`)](/docs/html5-audio)
+- [`<Video />` (from `@remotion/media`)](/docs/media/video)
+- [`<OffthreadVideo>`](/docs/offthreadvideo)

@@ -1,0 +1,129 @@
+---
+image: /generated/articles-docs-media-parser-fast-and-slow.png
+id: fast-and-slow
+title: Fast and slow operations
+slug: /media-parser/fast-and-slow
+crumb: '@remotion/media-parser'
+---
+
+:::warning
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
+[`@remotion/media-parser`](/docs/media-parser) allows you to specify the information that you want to obtain.  
+It then reads as little data as possible to achieve the goal.
+
+There are three types of fields:
+
+- Header-only: Only requires the first few bits of the file to be read.
+- Metadata-only: Only requires the metadata section to be parsed
+- Full parse required: The entire file is read and processed.
+
+Obviously, processing less of the file is faster and you should aim to read only the information you require.
+
+## Full parsing operations
+
+The following [`fields`](/docs/media-parser/fields) require the full file to be read:
+
+- [`slowStructure`](/docs/media-parser/fields#slowstructure)
+- [`slowKeyframes`](/docs/media-parser/fields#slowkeyframes)
+- [`slowFps`](/docs/media-parser/fields#slowfps)
+- [`slowDurationInSeconds`](/docs/media-parser/fields#slowdurationinseconds)
+- [`slowNumberOfFrames`](/docs/media-parser/fields#slownumberofframes)
+- [`slowAudioBitrate`](/docs/media-parser/fields#slowaudiobitrate)
+- [`slowVideoBitrate`](/docs/media-parser/fields#slowvideobitrate)
+
+Generally, if a field is marked as `slow`, it will require the full file to be read.
+
+Also, if an [`onVideoTrack`](/docs/media-parser/parse-media#onvideotrack) or [`onAudioTrack`](/docs/media-parser/parse-media#onvideotrack) handler is passed, and any function returns an callback function, full parsing is required.
+
+## Metadata-only operations
+
+The following [`fields`](/docs/media-parser/fields) require only the metadata section of the video to be parsed:
+
+- [`dimensions`](/docs/media-parser/fields#dimensions)
+- [`durationInSeconds`](/docs/media-parser/fields#durationinseconds)
+- [`fps`](/docs/media-parser/fields#fps)
+- [`videoCodec`](/docs/media-parser/fields#videocodec)
+- [`audioCodec`](/docs/media-parser/fields#audiocodec)
+- [`tracks`](/docs/media-parser/fields#tracks)
+- [`unrotatedDimensions`](/docs/media-parser/fields#unrotateddimensions)
+- [`isHdr`](/docs/media-parser/fields#ishdr)
+- [`rotation`](/docs/media-parser/fields#rotation)
+- [`location`](/docs/media-parser/fields#location)
+- [`keyframes`](/docs/media-parser/fields#keyframes)
+- [`sampleRate`](/docs/media-parser/fields#samplerate)
+- [`numberOfAudioChannels`](/docs/media-parser/fields#numberofaudiochannels)
+- [`m3uStreams`](/docs/media-parser/fields#m3ustreams)
+- [`metadata`](/docs/media-parser/fields#metadata)
+- [`images`](/docs/media-parser/fields#images)
+
+Also, if an [`onVideoTrack`](/docs/media-parser/parse-media#onvideotrack) or [`onAudioTrack`](/docs/media-parser/parse-media#onvideotrack) handler is passed, only the parsing of the metadata section is required if `null` is returned from the handler function.
+
+## Header-only operations
+
+The following [`fields`](/docs/media-parser/fields) require only the first few bytes of the media to be parsed:
+
+- [`name`](/docs/media-parser/fields#name)
+- [`size`](/docs/media-parser/fields#size)
+- [`container`](/docs/media-parser/fields#container)
+- [`mimeType`](/docs/media-parser/fields#mimetype)
+
+## Seeking required
+
+If you load videos from a URL, make sure that they support the `Range` header.  
+Otherwise, `@remotion/media-parser` has no choice but to read the full file if the metadata is at the end of it.
+
+## Example
+
+```tsx twoslash title="Reading header only"
+import {parseMedia} from '@remotion/media-parser';
+
+// ---cut---
+// Some fields only require the first few bytes of the file to be read:
+const result = await parseMedia({
+  src: 'https://remotion.media/video.mp4',
+  fields: {
+    size: true,
+    container: true,
+    internalStats: true,
+  },
+});
+
+console.log(result.internalStats.finalCursorOffset); // 12
+
+// Reading the metadata of the video will only require the metadata section to be parsed.
+// You can also use onVideoTrack() and return null to retrieve track information but to not get the samples.
+const result2 = await parseMedia({
+  src: 'https://remotion.media/video.mp4',
+  fields: {
+    durationInSeconds: true,
+    dimensions: true,
+    internalStats: true,
+  },
+  onVideoTrack: ({track}) => {
+    console.log(track);
+    return null;
+  },
+});
+
+console.log(result2.internalStats.finalCursorOffset); // 4000
+console.log(result2.dimensions);
+
+// Asking for all video samples requires parsing the whole file
+const result3 = await parseMedia({
+  src: 'https://remotion.media/video.mp4',
+  fields: {
+    internalStats: true,
+  },
+  onVideoTrack: () => {
+    return (videoSample) => console.log(videoSample);
+  },
+});
+
+console.log(result3.internalStats.finalCursorOffset); // 1870234802
+```
+
+## See also
+
+- [`parseMedia()`](/docs/media-parser/parse-media)

@@ -1,0 +1,61 @@
+---
+image: /generated/articles-docs-get-remotion-environment.png
+title: getRemotionEnvironment()
+id: get-remotion-environment
+crumb: 'API'
+---
+
+# getRemotionEnvironment()<AvailableFrom v="4.0.25" />
+
+With the `getRemotionEnvironment()` function, you can retrieve information about the current Remotion Environment.
+
+:::info
+Consider using the [`useRemotionEnvironment()`](/docs/use-remotion-environment) hook instead, as it is future-proof for browser rendering scenarios.
+:::
+It returns an object with the following properties:
+
+- `isStudio`: Whether the function got called in the [Remotion Studio](/docs/cli/studio).
+- `isRendering`: Whether the function got called in a render. Also available in the [`calculateMetadata()`](/docs/calculate-metadata) function.
+- `isPlayer`: Whether a [`<Player>`](/docs/player) is mounted on the current page.
+- `isReadOnlyStudio`: Whether in a [statically deployed studio](https://www.remotion.dev/docs/studio/deploy-static), where the [`@remotion/studio`](/docs/studio/api) APIs cannot be used (_available from v4.0.238_)
+- `isClientSideRendering`: Whether the function [got called in a client-side rendering context](/docs/miscellaneous/render-in-browser) (_available from v4.0.344_)
+
+This can be useful if you want components or functions to behave differently depending on the environment.
+
+### Example
+
+```tsx twoslash
+import React from 'react';
+import {getRemotionEnvironment} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const {isStudio, isPlayer, isRendering} = getRemotionEnvironment();
+
+  if (isStudio) {
+    return <div>I'm in the Studio!</div>;
+  }
+
+  if (isPlayer) {
+    return <div>I'm in the Player!</div>;
+  }
+
+  if (isRendering) {
+    return <div>I'm Rendering</div>;
+  }
+
+  return <div>Hello World!</div>;
+};
+```
+
+A more realistic use case: You might want to debounce a request during editing in the Remotion Studio, but not during rendering. See: [debouncing requests](/docs/data-fetching#debouncing-requests)
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="All false" bun="All false" serverlessFunctions="All false" clientSideRendering="Use useRemotionEnvironment()" serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/get-remotion-environment.ts)
+- [`useRemotionEnvironment()`](/docs/use-remotion-environment) - a new preferred way to get the environment information
+- [`useVideoConfig()`](/docs/use-video-config)
+- [Using a different tag in preview and rendering](/docs/video-tags#using-a-different-tag-in-preview-and-rendering)

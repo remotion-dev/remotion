@@ -1,0 +1,58 @@
+{
+	"name": "@remotion/media",
+	"version": "4.0.508",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"module": "dist/esm/index.mjs",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/media"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>, Hunain Ahmed <junaidhunain6@gmail.com>",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"type": "module",
+	"scripts": {
+		"if-node-18+": "node -e \"const [maj]=process.versions.node.split('.').map(Number); process.exit(maj>=18?0:1)\"",
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"lint": "eslint src",
+		"watch": "tsgo -w",
+		"test": "node src/test/execute.mjs",
+		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts"
+	},
+	"dependencies": {
+		"mediabunny": "catalog:",
+		"remotion": "workspace:*",
+		"zod": "catalog:"
+	},
+	"peerDependencies": {
+		"react": ">=16.8.0",
+		"react-dom": ">=16.8.0"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"@remotion/player": "workspace:*",
+		"@vitest/browser-webdriverio": "4.0.9",
+		"eslint": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"vitest": "catalog:",
+		"webdriverio": "9.19.2",
+		"@typescript/native-preview": "catalog:"
+	},
+	"keywords": [],
+	"publishConfig": {
+		"access": "public"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		},
+		"./package.json": "./package.json"
+	},
+	"description": "Experimental WebCodecs-based media tags",
+	"homepage": "https://remotion.dev/docs/media"
+}

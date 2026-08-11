@@ -1,0 +1,257 @@
+import type {
+	DownloadProgress,
+	RenderingProgressInput,
+	RenderJob,
+	StitchingProgressInput,
+} from '@remotion/studio-shared';
+import React, {useCallback, useMemo} from 'react';
+import {FAIL_COLOR, LIGHT_TEXT, WHITE} from '../../helpers/colors';
+import {Spacing} from '../layout';
+import {openInFileExplorer} from '../RenderQueue/actions';
+import {CircularProgress} from '../RenderQueue/CircularProgress';
+import {RenderQueueOpenInFinderItem} from '../RenderQueue/RenderQueueOpenInFolder';
+import {SuccessIcon} from '../RenderQueue/SuccessIcon';
+
+const progressItem: React.CSSProperties = {
+	padding: 10,
+	display: 'flex',
+	flexDirection: 'row',
+	alignItems: 'center',
+};
+
+const label: React.CSSProperties = {
+	fontSize: 14,
+	width: 400,
+	color: WHITE,
+};
+
+const right: React.CSSProperties = {
+	fontSize: 14,
+	color: LIGHT_TEXT,
+	textAlign: 'right',
+	flex: 1,
+};
+
+const BundlingProgress: React.FC<{
+	readonly progress: number;
+	readonly doneIn: number | null;
+}> = ({progress, doneIn}) => {
+	return (
+		<div style={progressItem}>
+			{progress === 1 ? (
+				<SuccessIcon />
+			) : (
+				<CircularProgress progress={progress} />
+			)}
+			<Spacing x={1} />
+			<div style={label}>
+				{progress === 1 ? 'Bundled' : `Bundling ${progress * 100}%`}
+			</div>
+			{doneIn ? <div style={right}>{doneIn}ms</div> : null}
+		</div>
+	);
+};
+
+const failIconStyle: React.CSSProperties = {
+	width: 16,
+	height: 16,
+};
+
+const FailIcon: React.FC = () => {
+	return (
+		<svg style={failIconStyle} viewBox="0 0 512 512">
+			<path
+				fill={FAIL_COLOR}
+				d="M0 160V352L160 512H352L512 352V160L352 0H160L0 160zm353.9 32l-17 17-47 47 47 47 17 17L320 353.9l-17-17-47-47-47 47-17 17L158.1 320l17-17 47-47-47-47-17-17L192 158.1l17 17 47 47 47-47 17-17L353.9 192z"
+			/>
+		</svg>
+	);
+};
+
+const BrowserSetupProgress: React.FC<{
+	readonly progress: number;
+	readonly doneIn: number | null;
+	readonly alreadyAvailable: boolean;
+	readonly error?: boolean;
+	readonly startedBundling: boolean;
+	//	to ensure it only shows already available if we have moved to the next step
+}> = ({progress, doneIn, startedBundling, alreadyAvailable, error}) => {
+	if (error) {
+		return (
+			<div style={progressItem}>
+				<FailIcon />
+				<Spacing x={1} />
+				<div style={label}>Failed to download Headless Shell</div>
+			</div>
+		);
+	}
+
+	// Before the first download callback or the bundling phase, we don't know
+	// yet whether the browser is available - don't show a success state.
+	const stillChecking = alreadyAvailable && progress === 0 && !startedBundling;
+
+	return (
+		<div style={progressItem}>
+			{stillChecking ? (
+				<CircularProgress progress={0} />
+			) : progress === 1 || alreadyAvailable ? (
+				<SuccessIcon />
+			) : (
+				<CircularProgress progress={progress} />
+			)}
+			<Spacing x={1} />
+			<div style={label}>
+				{stillChecking
+					? 'Checking for Headless Shell'
+					: alreadyAvailable && startedBundling
+						? 'Headless browser already available'
+						: progress === 1
+							? 'Downloaded Headless Shell'
+							: `Downloading Headless Shell ${Math.round(progress * 100)}%`}
+			</div>
+			{doneIn ? <div style={right}>{doneIn}ms</div> : null}
+		</div>
+	);
+};
+
+const RenderingProgress: React.FC<{
+	readonly progress: RenderingProgressInput;
+}> = ({progress}) => {
+	return (
+		<div style={progressItem}>
+			{progress.frames === progress.totalFrames ? (
+				<SuccessIcon />
+			) : (
+				<CircularProgress progress={progress.frames / progress.totalFrames} />
+			)}
+			<Spacing x={1} />
+			<div style={label}>
+				{progress.doneIn
+					? `Rendered ${progress.totalFrames} frames`
+					: `Rendering ${progress.frames} / ${progress.totalFrames} frames`}
+			</div>
+			{progress.doneIn ? <div style={right}>{progress.doneIn}ms</div> : null}
+		</div>
+	);
+};
+
+const StitchingProgress: React.FC<{
+	readonly progress: StitchingProgressInput;
+}> = ({progress}) => {
+	return (
+		<div style={progressItem}>
+			{progress.frames === progress.totalFrames ? (
+				<SuccessIcon />
+			) : (
+				<CircularProgress progress={progress.frames / progress.totalFrames} />
+			)}
+			<Spacing x={1} />
+			<div style={label}>
+				{progress.doneIn
+					? `Encoded ${progress.totalFrames} frames`
+					: `Encoding ${progress.frames} / ${progress.totalFrames} frames`}
+			</div>
+			{progress.doneIn ? <div style={right}>{progress.doneIn}ms</div> : null}
+		</div>
+	);
+};
+
+const DownloadsProgress: React.FC<{
+	readonly downloads: DownloadProgress[];
+}> = ({downloads}) => {
+	const allHaveProgress = downloads.every((a) => a.totalBytes);
+	const totalBytes = allHaveProgress
+		? downloads.reduce((a, b) => a + (b.totalBytes as number), 0)
+		: null;
+	const downloaded = allHaveProgress
+		? downloads.reduce((a, b) => a + (b.downloaded as number), 0)
+		: null;
+
+	const progress = allHaveProgress
+		? (downloaded as number) / (totalBytes as number)
+		: 0.1;
+
+	return (
+		<div style={progressItem}>
+			{progress === 1 ? (
+				<SuccessIcon />
+			) : (
+				<CircularProgress progress={progress} />
+			)}
+			<Spacing x={1} />
+			<div style={label}>
+				Downloading {downloads.length} file{downloads.length === 1 ? '' : 's'}
+			</div>
+		</div>
+	);
+};
+
+const OpenFile: React.FC<{
+	readonly job: RenderJob;
+}> = ({job}) => {
+	const labelStyle = useMemo(() => {
+		return {
+			...label,
+			textAlign: 'left' as const,
+			appearance: 'none' as const,
+			border: 0,
+			paddingLeft: 0,
+			cursor: job.deletedOutputLocation ? 'inherit' : 'pointer',
+			textDecoration: job.deletedOutputLocation ? 'line-through' : 'none',
+		};
+	}, [job.deletedOutputLocation]);
+
+	const onClick = useCallback(() => {
+		openInFileExplorer({directory: job.outName});
+	}, [job.outName]);
+
+	return (
+		<div style={progressItem}>
+			<SuccessIcon />
+			<Spacing x={1} />
+			<button style={labelStyle} type="button" onClick={onClick}>
+				{job.outName}
+			</button>
+			<div style={right}>
+				<RenderQueueOpenInFinderItem job={job} />
+			</div>
+		</div>
+	);
+};
+
+export const GuiRenderStatus: React.FC<{
+	readonly job: RenderJob;
+}> = ({job}) => {
+	if (job.status === 'idle' || job.status === 'failed') {
+		throw new Error(
+			'This component should not be rendered when the job is idle',
+		);
+	}
+
+	return (
+		<div>
+			<Spacing y={0.5} />
+			<BrowserSetupProgress
+				{...job.progress.browser}
+				startedBundling={Boolean(job.progress.bundling)}
+			/>
+			{job.progress.bundling && (
+				<BundlingProgress
+					progress={job.progress.bundling.progress}
+					doneIn={job.progress.bundling.doneIn}
+				/>
+			)}
+			{job.progress.rendering ? (
+				<RenderingProgress progress={job.progress.rendering} />
+			) : null}
+			{job.progress.stitching ? (
+				<StitchingProgress progress={job.progress.stitching} />
+			) : null}
+			{job.progress.downloads.length > 0 ? (
+				<DownloadsProgress downloads={job.progress.downloads} />
+			) : null}
+			{job.status === 'done' ? <OpenFile job={job} /> : null}
+			<Spacing y={1} />
+		</div>
+	);
+};

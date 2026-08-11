@@ -1,0 +1,4 @@
+interface:
+  display_name: "Player Example"
+  short_description: "Run the player example locally"
+  default_prompt: "Use $player-example to build Remotion and open the player example locally."

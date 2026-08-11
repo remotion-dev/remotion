@@ -1,0 +1,87 @@
+/*
+	Source code adapted from https://github.com/facebook/create-react-app/tree/main/packages/react-error-overlay and refactored in Typescript. This file is MIT-licensed.
+*/
+
+/* eslint-disable no-eq-null */
+/* eslint-disable eqeqeq */
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+import type {SourceMapInput} from '@jridgewell/trace-mapping';
+import {TraceMap, originalPositionFor} from '@jridgewell/trace-mapping';
+
+export type OriginalPosition = {
+	line: number | null;
+	column: number | null;
+	source: string | null;
+};
+
+export type CodePosition = {
+	line: number;
+	column: number;
+	source: string;
+};
+
+export const getOriginalPosition = (
+	sourceMap: TraceMap,
+	line: number,
+	column: number,
+): OriginalPosition => {
+	const result = originalPositionFor(sourceMap, {
+		line,
+		column,
+	});
+	return {line: result.line, column: result.column, source: result.source};
+};
+
+function extractSourceMapUrl(fileContents: string): string | null {
+	const regex = /\/\/[#@] ?sourceMappingURL=([^\s'"]+)\s*$/gm;
+	let match = null;
+	for (;;) {
+		const next = regex.exec(fileContents);
+		if (next == null) {
+			break;
+		}
+
+		match = next;
+	}
+
+	if (!match?.[1]) {
+		return null;
+	}
+
+	return match[1].toString();
+}
+
+// TODO: Can import this from BrowserSafeApis.getSourceMapRemotely
+export async function getSourceMap(
+	fileUri: string,
+	fileContents: string,
+): Promise<TraceMap | null> {
+	const sm = extractSourceMapUrl(fileContents);
+	if (sm === null) {
+		return null;
+	}
+
+	if (sm.indexOf('data:') === 0) {
+		const base64 = /^data:application\/json;([\w=:"-]+;)*base64,/;
+		const match2 = sm.match(base64);
+		if (!match2) {
+			throw new Error(
+				'Sorry, non-base64 inline source-map encoding is not supported.',
+			);
+		}
+
+		const converted = window.atob(sm.substring(match2[0].length));
+		return new TraceMap(JSON.parse(converted) as SourceMapInput);
+	}
+
+	const index = fileUri.lastIndexOf('/');
+	const url = fileUri.substring(0, index + 1) + sm;
+	const obj = await fetch(url).then((res) => res.json());
+	return new TraceMap(obj as SourceMapInput);
+}

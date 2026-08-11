@@ -1,0 +1,39 @@
+---
+image: /generated/articles-docs-editor-starter-snapping.png
+title: Snapping in the Editor Starter
+sidebar_label: Snapping
+id: snapping
+crumb: Editor Starter
+---
+
+There are two types of snapping in the Editor Starter:
+
+- Timeline snapping
+- Canvas snapping
+
+## Enabling snapping
+
+There is a magnet icon in the toolbar that allows you to enable and disable snapping.  
+By default, this toggle is for both timeline and canvas snapping.
+
+Also, there are 2 feature flags to toggle the features globally:
+
+- [`FEATURE_TIMELINE_SNAPPING`](/docs/editor-starter/features#timeline-snapping)
+- [`FEATURE_CANVAS_SNAPPING`](/docs/editor-starter/features#canvas-snapping)
+
+There is a keyboard shortcut to toggle snapping: <kbd>Shift</kbd>+<kbd>M</kbd>.  
+To toggle it, there is another feature flag:
+
+- [`FEATURE_SNAPPING_SHORTCUT`](/docs/editor-starter/features#snapping-toggle-shortcut)
+
+## Timeline snapping
+
+When timeline snapping is enabled, items in the timeline will snap to other items when dragging them.
+
+## Canvas snapping
+
+When canvas snapping is enabled, items in the canvas will snap to the edges of the canvas, or the center of the canvas, both horizontally and vertically.
+
+## Multiple items
+
+Both timeline and canvas snapping work also when multiple items are selected.

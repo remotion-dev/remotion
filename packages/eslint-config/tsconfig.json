@@ -1,0 +1,15 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"rootDir": "./src",
+		"outDir": "./dist",
+		"skipLibCheck": true,
+		"jsx": "react-jsx"
+	},
+	"include": ["./src"],
+	"references": [
+		{
+			"path": "../eslint-plugin"
+		}
+	]
+}

@@ -1,0 +1,68 @@
+---
+image: /generated/articles-docs-effects-contrast.png
+slug: /effects/contrast
+title: contrast()
+sidebar_label: contrast()
+crumb: '@remotion/effects'
+---
+
+# contrast()<AvailableFrom v="4.0.467" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+A contrast adjustment effect that can be applied to canvas-based components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+## Preview
+
+<EffectsDemo type="effects-contrast" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+import {contrast} from '@remotion/effects/contrast';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Video src="https://remotion.media/video.mp4" effects={[contrast({amount: 1.25})]} />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `contrast()` without arguments.
+
+### `amount?`
+
+Contrast multiplier. Must be `>= 0`.
+
+- `1` leaves the layer unchanged
+- `0` produces a flat mid-gray image
+- values above `1` increase contrast
+- values between `0` and `1` reduce contrast
+
+Defaults to `1`.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Effect order
+
+If you stack color-correction effects, a common order is:
+
+`brightness()` → `contrast()` → `saturation()` → `hue()`
+
+`brightness()` and `contrast()` are not commutative – swapping their order changes the result, because contrast scales around the mid-gray point (`128`) of the current layer.
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`brightness()`](/docs/effects/brightness)
+- [`saturation()`](/docs/effects/saturation)
+- [`hue()`](/docs/effects/hue)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/contrast.ts)

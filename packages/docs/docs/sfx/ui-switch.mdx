@@ -1,0 +1,48 @@
+---
+image: /generated/articles-docs-sfx-ui-switch.png
+title: 'uiSwitch'
+crumb: '@remotion/sfx'
+---
+
+# uiSwitch<AvailableFrom v="4.0.429" />
+
+import {PlayButton} from './PlayButton';
+
+<PlayButton src="https://remotion.media/switch.wav" />
+<br />
+
+A URL pointing to a UI switch sound effect WAV file.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {uiSwitch} from '@remotion/sfx';
+import {Audio} from '@remotion/media';
+
+const MyVideo = () => {
+  return <Audio src={uiSwitch} />;
+};
+```
+
+## Value
+
+```bash
+https://remotion.media/switch.wav
+```
+
+## Duration
+
+0.330 seconds (2 channels, 44100 Hz, 16-bit)
+
+## Attribution
+
+UI Audio - Switch 35 by kenney.nl - [kenney.nl](https://kenney.nl) - License: Creative Commons 0
+
+## Convert
+
+[Open this file on remotion.dev/convert](https://remotion.dev/convert?url=https%3A%2F%2Fremotion.media%2Fswitch.wav)
+
+## See also
+
+- [`mouseClick`](/docs/sfx/mouse-click)
+- [`whip`](/docs/sfx/whip)

@@ -1,0 +1,273 @@
+import path from 'node:path';
+import chalk from 'chalk';
+import execa from 'execa';
+import {addTailwindRootCss, addTailwindToConfig} from './add-tailwind';
+import {createYarnYmlFile} from './add-yarn2-support';
+import {askSkills} from './ask-skills';
+import {askTailwind} from './ask-tailwind';
+import {createPublicFolder} from './create-public-folder';
+import {degit} from './degit';
+import {getCreateVideoHelp} from './help';
+import {makeHyperlink} from './hyperlinks/make-link';
+import {installSkills} from './install-skills';
+import {getLatestRemotionVersion} from './latest-remotion-version';
+import {Log} from './log';
+import {openInEditorFlow} from './open-in-editor-flow';
+import {patchPackageJson} from './patch-package-json';
+import {patchReadmeMd} from './patch-readme';
+import {
+	getDevCommand,
+	getInstallCommand,
+	getPackageManagerVersionOrNull,
+	getRenderCommand,
+	selectPackageManager,
+} from './pkg-managers';
+import prompts from './prompts';
+import {resolveProjectRoot} from './resolve-project-root';
+import {
+	getDirectoryArgument,
+	isHelpFlagSelected,
+	isNoTailwindFlagSelected,
+	isTmpFlagSelected,
+	isYesFlagSelected,
+	selectTemplate,
+} from './select-template';
+
+const gitExists = (commandToCheck: string, argsToCheck: string[]) => {
+	try {
+		execa.sync(commandToCheck, argsToCheck);
+		return true;
+	} catch {
+		return false;
+	}
+};
+
+export const checkGitAvailability = async (
+	cwd: string,
+	commandToCheck: string,
+	argsToCheck: string[],
+): Promise<
+	| {type: 'no-git-repo'}
+	| {type: 'is-git-repo'; location: string}
+	| {type: 'git-not-installed'}
+> => {
+	if (!gitExists(commandToCheck, argsToCheck)) {
+		return {type: 'git-not-installed'};
+	}
+
+	try {
+		const result = await execa('git', ['rev-parse', '--show-toplevel'], {
+			cwd,
+		});
+		return {type: 'is-git-repo', location: result.stdout};
+	} catch {
+		return {
+			type: 'no-git-repo',
+		};
+	}
+};
+
+const getGitStatus = async (root: string): Promise<void> => {
+	// not in git tree, so let's init
+	try {
+		await execa('git', ['init'], {cwd: root});
+		await execa('git', ['add', '--all'], {cwd: root, stdio: 'ignore'});
+		await execa('git', ['commit', '-m', 'Create new Remotion video'], {
+			cwd: root,
+			stdio: 'ignore',
+		});
+		await execa('git', ['branch', '-M', 'main'], {
+			cwd: root,
+			stdio: 'ignore',
+		});
+	} catch (e) {
+		Log.error('Error creating git repository:', e);
+		Log.error('Project has been created nonetheless.');
+		// no-op -- this is just a convenience and we don't care if it fails
+	}
+};
+
+export const init = async () => {
+	if (isHelpFlagSelected()) {
+		Log.info(getCreateVideoHelp());
+		return;
+	}
+
+	Log.info(`Welcome to ${chalk.blue('Remotion')}!`);
+
+	// Get directory argument if provided
+	const directoryArgument = getDirectoryArgument();
+
+	if (isYesFlagSelected() && !directoryArgument && !isTmpFlagSelected()) {
+		Log.error(
+			'A directory name must be specified when using --yes. Example: --yes --blank my-video',
+		);
+		process.exit(1);
+	}
+
+	// Select template first
+	const selectedTemplate = await selectTemplate();
+
+	// If Editor Starter (paid) is selected, show purchase link and exit
+	if (selectedTemplate.cliId === 'editor-starter') {
+		Log.newLine();
+		Log.info(
+			`${chalk.yellow('Editor Starter is a paid template.')}\nGet it here: ${chalk.underline(
+				selectedTemplate.previewURL,
+			)}`,
+		);
+		Log.newLine();
+		return;
+	}
+
+	// Then resolve project root with template info and directory argument
+	const {projectRoot, folderName} = await resolveProjectRoot({
+		directoryArgument,
+		selectedTemplate,
+	});
+
+	const result = await checkGitAvailability(projectRoot, 'git', ['--version']);
+
+	if (result.type === 'git-not-installed') {
+		Log.error(
+			'Git is not installed or not in the path. Install Git to continue.',
+		);
+		process.exit(1);
+	}
+
+	const isInsideGitRepo = result.type === 'is-git-repo';
+
+	if (isInsideGitRepo) {
+		if (!isYesFlagSelected()) {
+			const {shouldContinue} = await prompts({
+				type: 'toggle',
+				name: 'shouldContinue',
+				message: `You are already inside a Git repo (${path.resolve(
+					result.location,
+				)}).\nA new project will be created without initializing a new Git repository. Do you want to continue?`,
+				initial: false,
+				active: 'Yes',
+				inactive: 'No',
+			});
+			if (!shouldContinue) {
+				process.exit(1);
+			}
+		}
+	}
+
+	const latestRemotionVersionPromise = getLatestRemotionVersion({
+		onError: Log.warn,
+	});
+
+	const shouldOverrideTailwind = selectedTemplate.allowEnableTailwind
+		? isYesFlagSelected()
+			? !isNoTailwindFlagSelected()
+			: await askTailwind()
+		: false;
+
+	const shouldInstallSkills = isYesFlagSelected() ? false : await askSkills();
+
+	const pkgManager = selectPackageManager();
+	const pkgManagerVersion = await getPackageManagerVersionOrNull(pkgManager);
+
+	try {
+		await degit({
+			repoOrg: selectedTemplate.org,
+			repoName: selectedTemplate.repoName,
+			dest: projectRoot,
+		});
+		patchReadmeMd(projectRoot, pkgManager, selectedTemplate);
+		if (shouldOverrideTailwind) {
+			addTailwindToConfig(projectRoot);
+			addTailwindRootCss(projectRoot);
+		}
+
+		createPublicFolder(projectRoot);
+
+		const latestVersion = await latestRemotionVersionPromise;
+		patchPackageJson({
+			projectRoot,
+			projectName: folderName,
+			latestRemotionVersion: latestVersion,
+			packageManager: pkgManager,
+			addTailwind: shouldOverrideTailwind,
+		});
+	} catch (e) {
+		Log.error(e);
+		Log.error('Error with template cloning. Aborting');
+		process.exit(1);
+	}
+
+	createYarnYmlFile({
+		pkgManager,
+		pkgManagerVersion,
+		projectRoot,
+	});
+
+	if (!isInsideGitRepo) {
+		await getGitStatus(projectRoot);
+	}
+
+	if (shouldInstallSkills) {
+		await installSkills(projectRoot);
+	}
+
+	const relativeToCurrent = path.relative(process.cwd(), projectRoot);
+	const cdToFolder = relativeToCurrent.startsWith('.')
+		? projectRoot
+		: relativeToCurrent;
+
+	Log.info();
+	Log.info(`Copied to ${chalk.blue(cdToFolder)}.`);
+	Log.info();
+
+	Log.info('Get started by running:');
+	if (cdToFolder !== '') {
+		Log.info(' ' + chalk.blue(`cd ${cdToFolder}`));
+	}
+
+	Log.info(' ' + chalk.blue(getInstallCommand(pkgManager)));
+	Log.info(' ' + chalk.blue(getDevCommand(pkgManager, selectedTemplate)));
+	Log.info('');
+	Log.info('To render a video, run:');
+	Log.info(' ' + chalk.blue(getRenderCommand(pkgManager)));
+	Log.info('');
+	Log.info('Links to get you started:');
+	Log.info(
+		' ' +
+			chalk.blue(
+				makeHyperlink({
+					text: 'remotion.dev/docs',
+					url: 'https://www.remotion.dev/docs',
+					fallback: 'https://www.remotion.dev/docs',
+				}),
+			),
+	);
+	Log.info(
+		' ' +
+			chalk.blue(
+				makeHyperlink({
+					text: 'remotion.dev/prompts',
+					url: 'https://www.remotion.dev/prompts',
+					fallback: 'https://www.remotion.dev/prompts',
+				}),
+			),
+	);
+	Log.info();
+	Log.info('Remotion is free for teams of up to 3.');
+	Log.info(
+		'Adopting Remotion in your company? Visit ' +
+			chalk.blue(
+				makeHyperlink({
+					text: 'remotion.pro/license',
+					url: 'https://remotion.pro/license',
+					fallback: 'https://www.remotion.pro/license',
+				}),
+			),
+	);
+	Log.info();
+
+	if (!isYesFlagSelected()) {
+		await openInEditorFlow(projectRoot);
+	}
+};

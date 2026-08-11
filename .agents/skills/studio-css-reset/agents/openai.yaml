@@ -1,0 +1,4 @@
+interface:
+  display_name: "Studio CSS Reset"
+  short_description: "Guard Studio UI against reset-styled children"
+  default_prompt: "Use $studio-css-reset when changing Remotion Studio UI that nests labels or icons."

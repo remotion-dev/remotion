@@ -1,0 +1,91 @@
+---
+image: /generated/articles-docs-studio-update-default-props.png
+title: updateDefaultProps()
+crumb: "@remotion/studio"
+---
+
+# ~~updateDefaultProps()~~<AvailableFrom v="4.0.154"/>
+
+:::info Deprecated
+This function is an alias for [`saveDefaultProps()`](/docs/studio/save-default-props). Use `saveDefaultProps()` instead.
+
+Before v4.0.437, this function only updated the props in the Props Editor without saving them to the root file.
+Starting from v4.0.437, all prop changes are immediately saved, making this function identical to `saveDefaultProps()`.
+:::
+
+## Examples
+
+```tsx twoslash title="Setting {color: 'green'} as the default props"
+// @target: esnext
+import { saveDefaultProps } from "@remotion/studio";
+
+await saveDefaultProps({
+  compositionId: "my-composition",
+  defaultProps: () => {
+    return {
+      color: "green",
+    };
+  },
+});
+```
+
+You can access the current default props to only override part of it (reducer-style):
+
+```tsx twoslash title="Accessing the current props"
+// @target: esnext
+import { saveDefaultProps } from "@remotion/studio";
+
+await saveDefaultProps({
+  compositionId: "my-composition",
+  defaultProps: ({ savedDefaultProps }) => {
+    return { ...savedDefaultProps, color: "green" };
+  },
+});
+```
+
+If you have a Zod schema, you can also access its runtime value:
+
+```tsx twoslash title="Accessing the Zod schema"
+// @target: esnext
+import { saveDefaultProps } from "@remotion/studio";
+
+await saveDefaultProps({
+  compositionId: "my-composition",
+  defaultProps: ({ schema, savedDefaultProps }) => {
+    // Do something with the Zod schema
+
+    return {
+      ...savedDefaultProps,
+      color: "red",
+    };
+  },
+});
+```
+
+## `unsavedDefaultProps`
+
+:::info
+Before v4.0.437, `unsavedDefaultProps` contained props that were modified in the Props Editor but not yet written back to the root file.
+Starting from v4.0.437, all prop changes are immediately saved, so `unsavedDefaultProps` is now always the same as `savedDefaultProps`.
+
+It is still accepted for backwards compatibility, but you should use `savedDefaultProps` instead.
+:::
+
+## Requirements
+
+In order to use this function:
+
+<Step>1</Step> You need to be inside the Remotion Studio.
+<br />
+<Step>2</Step> The Studio must be running (no static deployment)
+<br />
+<Step>3</Step> <code>zod</code> needs to be installed.
+<br />
+<br />
+
+Otherwise, the function will throw.
+
+## See also
+
+- [`saveDefaultProps()`](/docs/studio/save-default-props)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/studio/src/api/update-default-props.ts)

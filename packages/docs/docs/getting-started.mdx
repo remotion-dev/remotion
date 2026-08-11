@@ -1,0 +1,143 @@
+---
+image: /generated/articles-docs-getting-started.png
+id: getting-started
+title: Creating a new project
+sidebar_label: Installation
+slug: /
+crumb: "Let's begin!"
+---
+
+import {CreateWithChatGPTButton} from '../components/CreateWithChatGPTButton';
+
+## Using ChatGPT
+
+If you have the [ChatGPT desktop app](https://chatgpt.com/download/), it can create a complete Remotion project that you can edit, run, and render locally using the [Remotion plugin](/docs/ai/codex-plugin).
+
+<CreateWithChatGPTButton />
+
+## Coding Agent Prompt
+
+Paste into a coding agent, such as Claude Code, Codex or OpenCode:
+
+> Ensure Node.js is installed.  
+> Install Remotion Skills: `npx -y skills@latest add remotion-dev/skills -g -y`  
+> Then use them to create a video.
+
+## From the command line
+
+```sh
+npx create-video@latest --yes --blank my-video
+cd my-video
+npm i
+npx remotion skills add
+npm run dev
+```
+
+Creates a video in the `my-video` directory, with TailwindCSS, blank template and [Agent Skills](/docs/ai/skills).
+
+Planning to prompt a video using a coding agent?  
+Click [here](/docs/ai/coding-agents) for more detailed beginner instructions.
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Templates
+
+Choose the [template](/templates) that is most suitable for you.
+For your first project, we recommend the [Hello World](/templates/hello-world) template.
+
+## Wizard
+
+Customize the creation of a Remotion project by selecting a package manager, a template and whether to enable Tailwind and Agent Skills.
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'bun', value: 'bun', },
+{ label: 'pnpm', value: 'pnpm', },
+{ label: 'yarn', value: 'yarn', },
+]
+}>
+<TabItem value="npm">
+
+```bash title="Use npm as the package manager"
+npx create-video@latest
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash title="Use pnpm as the package manager"
+pnpm create video
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash title="Use Yarn as the package manager"
+yarn create video
+```
+
+  </TabItem>
+
+  <TabItem value="bun">
+
+```bash title="Use Bun as the package manager and runtime"
+bun create video
+```
+
+:::note
+Bun as a runtime is mostly supported. [Read more here](/docs/bun).
+:::
+
+  </TabItem>
+</Tabs>
+
+After the project has been scaffolded, start the local development server:
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'Regular templates', value: 'npm', },
+{ label: 'Next.js + React Router 7', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
+After the project has been scaffolded, we recommend to open the project in your text editor and starting the [Remotion Studio](/docs/studio):
+
+```bash
+npm run dev
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+After the project has been scaffolded, we recommend to open the project in your text editor and starting the app:
+
+```bash
+npm run dev
+```
+
+To start the [Remotion Studio](/docs/studio):
+
+```bash
+npm run remotion
+```
+
+  </TabItem>
+</Tabs>
+
+## System requirements
+
+To use Remotion, you need at least [Node](https://nodejs.org/en/download/) <MinNodeVersion /> or [Bun](https://bun.sh) <MinBunVersion />.  
+🍎 macOS 15 (Sequoia) or later is required. [Older versions are not supported.](https://github.com/remotion-dev/remotion/issues/7027)  
+🐧 [Linux distros need at least version 2.35 of Libc.](https://github.com/remotion-dev/remotion/issues/2439)  
+They also need to [install some additional packages](/docs/miscellaneous/linux-dependencies).  
+Alpine Linux and nixOS are unsupported.
+
+## Installation in existing projects
+
+Want to install Remotion in an existing project? Go here instead: [Installation in existing projects](/docs/brownfield)

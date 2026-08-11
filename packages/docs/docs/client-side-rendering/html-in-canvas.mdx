@@ -1,0 +1,80 @@
+---
+image: /generated/articles-docs-client-side-rendering-html-in-canvas.png
+title: 'HTML-in-canvas'
+crumb: 'Client-side rendering'
+sidebar_label: HTML-in-canvas
+---
+
+# HTML-in-canvas<AvailableFrom v="4.0.491" />
+
+:::note
+This is not the same as the [`<HtmlInCanvas>`](/docs/html-in-canvas) component for designing visuals. This page describes how [`@remotion/web-renderer`](/docs/web-renderer) uses HTML-in-canvas to capture full frames during client-side rendering.
+:::
+
+On supported Chromium-based browsers, [`@remotion/web-renderer`](/docs/web-renderer) automatically captures full frames using the experimental [HTML-in-canvas](/docs/html-in-canvas) APIs.
+
+:::info
+Use Chrome or Chromium `152.0.7944.0` or later with `chrome://flags/#canvas-draw-element` enabled. The renderer requires nested HTML-in-canvas support before using the native capture path. See [Compatibility](#compatibility) for details.
+:::
+
+If the browser does not pass the nesting support check, the renderer uses the [built-in DOM composer](/docs/client-side-rendering/how-it-works).
+
+## Automatic selection
+
+No option is required. [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web) and [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web) probe nested HTML-in-canvas support and select the capture backend automatically.
+
+```tsx twoslash title="Render a still"
+import {renderStillOnWeb} from '@remotion/web-renderer';
+
+declare const composition: Parameters<typeof renderStillOnWeb>[0]['composition'];
+
+// ---cut---
+await renderStillOnWeb({
+  composition,
+  frame: 0,
+  inputProps: {},
+});
+```
+
+## Check if HTML-in-canvas was used
+
+If HTML-in-canvas was used, you will see a warning in the browser console:
+
+```
+Using Chromium experimental HTML-in-canvas (drawElementImage) for this frame. See https://remotion.dev/docs/client-side-rendering/html-in-canvas
+```
+
+If native capture starts but fails while capturing a frame, a warning is printed and the renderer falls back to the built-in DOM composer:
+
+```
+Not using HTML-in-canvas: drawElementImage failed (...); falling back to the built-in DOM composer.
+```
+
+If the nesting support probe fails, the built-in DOM composer is selected without a warning.
+
+## Compatibility
+
+<CompatibilityTable
+  chrome
+  firefox={false}
+  safari={false}
+  nodejs={''}
+  bun={''}
+  serverlessFunctions=""
+  clientSideRendering
+  serverSideRendering={false}
+  player={false}
+  studio
+  hideServers
+/>
+
+HTML-in-canvas depends on Chromium flag `chrome://flags/#canvas-draw-element`, which must be enabled explicitly.
+
+Use Chrome or Chromium `152.0.7944.0` or later with the flag enabled. This version adds the nested capture behavior required by both the renderer capture canvas and compositions containing [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas). Older versions use the built-in DOM composer.
+
+## See also
+
+- [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas)
+- [How client-side rendering works](/docs/client-side-rendering/how-it-works)
+- [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web)
+- [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web)

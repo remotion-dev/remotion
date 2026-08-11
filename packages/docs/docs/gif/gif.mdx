@@ -1,0 +1,189 @@
+---
+image: /generated/articles-docs-gif-gif.png
+slug: gif
+sidebar_label: '<Gif>'
+title: '<Gif>'
+crumb: '@remotion/gif'
+---
+
+_Part of the [`@remotion/gif`](/docs/gif) package_
+
+Displays a GIF that synchronizes with Remotions [`useCurrentFrame()`](/docs/use-current-frame).
+
+```tsx twoslash
+import {useRef} from 'react';
+import {useVideoConfig} from 'remotion';
+// ---cut---
+import {Gif} from '@remotion/gif';
+
+export const MyComponent: React.FC = () => {
+  const {width, height} = useVideoConfig();
+  const ref = useRef<HTMLCanvasElement>(null);
+
+  return (
+    <Gif
+      ref={ref}
+      src="https://media.giphy.com/media/3o72F7YT6s0EMFI0Za/giphy.gif"
+      width={width}
+      height={height}
+      fit="fill"
+      playbackRate={2}
+    />
+  );
+};
+```
+
+## Props
+
+### `src`
+
+The source of the GIF. Can be an URL or a local image - see [Importing assets](/docs/assets).
+
+:::note
+Remote GIFs need to support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
+
+<details>
+  <summary>More info</summary>
+  <ul>
+    <li>
+      Remotion's origin is usually <code>http://localhost:3000</code>, but it
+      may be different if rendering on Lambda or the port is busy.
+    </li>
+    <li>
+      You can{' '}
+      <a href="/docs/chromium-flags#--disable-web-security">disable CORS</a>{' '}
+      during renders.
+    </li>
+  </ul>
+</details>
+:::
+
+### `width`
+
+The display width.
+
+### `height`
+
+The display height.
+
+### `fit`
+
+Must be one of these values:
+
+- `'fill'`: The GIF will completely fill the container, and will be stretched if necessary. (_default_)
+- `'contain'`: The GIF is scaled to fit the box, while aspect ratio is maintained.
+- `'cover'`: The GIF completely fills the container and maintains it's aspect ratio. It will be cropped if necessary.
+
+### `effects?`<AvailableFrom v="4.0.464" />
+
+Apply [effects](/docs/effects/api) to each GIF frame after it has been drawn to the canvas.
+
+### `onLoad`
+
+Callback that gets called once the GIF has loaded and finished processing. As its only argument, the callback gives the following object:
+
+- `width`: Width of the GIF file in pixels.
+- `height`: Height of the GIF file in pixels.
+- `delays`: Array of timestamps of type `number` containing position of each frame.
+- `frames`: Array of frames of type [`ImageData`](https://developer.mozilla.org/en-US/docs/Web/API/ImageData)
+
+### `style`
+
+Allows to pass in custom CSS styles. You may not pass `width` and `height`, instead use the props `width` and `height` to set the size of the GIF.
+
+### `cropLeft?`<AvailableFrom v="4.0.500" />
+
+Crops the canvas from the left by a ratio between 0 and 1. See [`cropLeft`](/docs/sequence#cropleft) on `<Sequence>`.
+
+### `cropRight?`<AvailableFrom v="4.0.500" />
+
+Crops the canvas from the right by a ratio between 0 and 1. See [`cropRight`](/docs/sequence#cropright) on `<Sequence>`.
+
+### `cropTop?`<AvailableFrom v="4.0.500" />
+
+Crops the canvas from the top by a ratio between 0 and 1. See [`cropTop`](/docs/sequence#croptop) on `<Sequence>`.
+
+### `cropBottom?`<AvailableFrom v="4.0.500" />
+
+Crops the canvas from the bottom by a ratio between 0 and 1. See [`cropBottom`](/docs/sequence#cropbottom) on `<Sequence>`.
+
+### `premountFor?`<AvailableFrom v="4.0.497" />
+
+Mounts the canvas for the specified number of frames before its `from` frame. The canvas carries `display: none` and is frozen at its first frame while premounted.
+
+Use this prop to let the GIF load, parse, and initialize its frame cache before it becomes visible. See [Premounting](/docs/player/premounting).
+
+### `postmountFor?`<AvailableFrom v="4.0.497" />
+
+Keeps the canvas mounted for the specified number of frames after its duration has ended. The canvas is invisible and frozen at its final frame while postmounted.
+
+### `styleWhilePremounted?`<AvailableFrom v="4.0.497" />
+
+CSS styles applied to the canvas while it is premounted. These styles override the default `display: none` and `pointer-events: none` styles.
+
+### `styleWhilePostmounted?`<AvailableFrom v="4.0.497" />
+
+CSS styles applied to the canvas while it is postmounted. These styles override the default `display: none` and `pointer-events: none` styles.
+
+### `loopBehavior`<AvailableFrom v="3.3.4" />
+
+The looping behavior of the GIF. Can be one of these values:
+
+- `'loop'`: The GIF will loop infinitely. (_default_)
+- `'pause-after-finish'`: The GIF will play once and then show the last frame.
+- `'unmount-after-finish'`: The GIF will play once and then unmount. Note that if you attach a `ref`, it will become `null` after the GIF has finished playing.
+
+### `ref`<AvailableFrom v="3.3.88" />
+
+You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to `<Gif>`. If you use TypeScript, you need to type it with `HTMLCanvasElement`.
+
+### playbackRate<AvailableFrom v="4.0.44" />
+
+The `playbackRate` prop controls the playback speed of the GIF animation within your Remotion video. It enables you to adjust how fast or slow the GIF animation plays, allowing for precise synchronization with your video content.
+
+Default: 1 (Normal speed)
+Values:
+
+- `1`: Plays the GIF at normal speed.
+- `< 1`: Slows down the GIF speed (e.g., 0.5 plays it at half speed).
+- `> 1:` Speeds up the GIF speed (e.g., 2.0 plays it at double speed).
+
+### `delayRenderTimeoutInMilliseconds?`<AvailableFrom v="4.0.403" />
+
+Modifies the timeout of the internal [`delayRender()`](/docs/delay-render) call when loading the GIF. By default, Remotion will wait 30 seconds for the GIF to load before timing out. You can increase or decrease this timeout by passing a custom value.
+
+See: [Modifying the timeout](/docs/delay-render#modifying-the-timeout)
+
+```tsx
+<Gif
+  src="https://example.com/large-gif.gif"
+  delayRenderTimeoutInMilliseconds={60000} // 60 seconds
+/>
+```
+
+### `requestInit?`<AvailableFrom v="4.0.471" />
+
+Options that are passed to the internal [`fetch()`](https://developer.mozilla.org/en-US/docs/Web/API/fetch) call when loading the GIF. This can be used to pass credentials or headers for authenticated GIFs.
+
+Remotion manages the internal `signal` option itself, so passing a `signal` in `requestInit` has no effect.
+
+```tsx
+<Gif
+  src="https://example.com/authenticated-gif.gif"
+  requestInit={{
+    credentials: 'include',
+  }}
+/>
+```
+
+## Differences to `<AnimatedImage>`
+
+- `<Gif>` does not support animated AVIF and WebP images.
+- `<Gif>` works in Safari as well since it uses a JavaScript-based GIF decoder.
+- `<Gif>` supports the [`onLoad`](#onload) prop.
+
+## See also
+
+- [`<AnimatedImage>`](/docs/animatedimage)
+- [`getGifDurationInSeconds()`](/docs/gif/get-gif-duration-in-seconds)
+- [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/gif/src/Gif.tsx)

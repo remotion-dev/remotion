@@ -1,0 +1,32 @@
+---
+image: /generated/articles-docs-recorder-roadmap.png
+title: Roadmap
+crumb: Recorder
+---
+
+Here is a list of things that we plan to add.
+
+## ✅ SRT export
+
+The convention on YouTube is to provide subtitles in the form of an `.srt` file instead of burning them in.  
+We plan to add this as a Remotion feature and then enable it in the Recorder.
+
+:::note
+This has been released as of June 23rd, 2024!
+:::
+
+## 9:16 format
+
+We plan to support a new format that makes the videos feel native on Instagram, YouTube Shorts and TikTok.
+
+- Different layout for webcam and display
+- Word-by-word captions
+- Animating the captions
+
+## Improving the editing experience
+
+We plan to add new Remotion APIs and Remotion Studio features to make edits easier than having to use the props editor.
+
+## Give us feedback
+
+Let us know on the [`#recorder`](https://remotion.dev/recorder) channel what you would like to see next.

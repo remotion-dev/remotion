@@ -1,0 +1,84 @@
+---
+image: /generated/articles-docs-paths-cut-path.png
+title: cutPath()
+crumb: "@remotion/paths"
+---
+
+_Part of the [`@remotion/paths`](/docs/paths) package._
+
+Cuts an SVG path at a specified length, returning the portion from the start to that length.
+
+```tsx twoslash
+import { cutPath } from "@remotion/paths";
+
+const path = "M 0 0 L 100 0 L 100 100";
+const cutAtLength = cutPath(path, 50);
+console.log(cutAtLength); // "M 0 0 L 50 0"
+```
+
+## Arguments
+
+### `d`
+
+_string_
+
+A valid SVG path property. For example:
+
+```
+M 0 0 L 100 0 L 100 100 L 0 100 Z
+```
+
+### `length`
+
+_number_
+
+The length at which to cut the path. If the length is greater than the total path length, the entire path is returned. If the length is 0, only the initial move command is returned.
+
+## Return value
+
+A string representing the cut path from the start to the specified length.
+
+## Examples
+
+### Cutting a simple line
+
+```tsx twoslash
+import { cutPath } from "@remotion/paths";
+
+const simpleLine = "M 0 0 L 100 0";
+const halfLine = cutPath(simpleLine, 50);
+console.log(halfLine); // "M 0 0 L 50 0"
+```
+
+### Cutting a path with curves
+
+```tsx twoslash
+import { cutPath } from "@remotion/paths";
+
+const curvePath = "M 0 0 C 50 0 50 50 100 50";
+const cutCurve = cutPath(curvePath, 30);
+console.log(cutCurve); // "M 0 0 C 30 0 30 15 60 15" (approximate)
+```
+
+### Handling edge cases
+
+```tsx twoslash
+import { cutPath } from "@remotion/paths";
+
+const path = "M 0 0 L 100 0";
+
+// Length greater than path length
+const fullPath = cutPath(path, 200);
+console.log(fullPath); // "M 0 0 L 100 0"
+
+// Zero length
+const startOnly = cutPath(path, 0);
+console.log(startOnly); // "M 0 0"
+```
+
+## See also
+
+- [getLength()](/docs/paths/get-length)
+- [getPointAtLength()](/docs/paths/get-point-at-length)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/paths/src/cut-path.ts)
+- [`@remotion/paths`](/docs/paths)

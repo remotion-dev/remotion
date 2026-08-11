@@ -1,0 +1,46 @@
+import {loadFonts} from './base';
+
+export const getInfo = () => ({
+	fontFamily: 'Gveret Levin',
+	importName: 'GveretLevin',
+	version: 'v4',
+	url: 'https://fonts.googleapis.com/css2?family=Gveret+Levin:ital,wght@0,400',
+	unicodeRanges: {
+		hebrew:
+			'U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F',
+		latin:
+			'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
+	},
+	fonts: {
+		normal: {
+			'400': {
+				hebrew:
+					'https://fonts.gstatic.com/s/gveretlevin/v4/0QInMXVI5YS9Rnn7ar449p--9pzTwAM.woff2',
+				latin:
+					'https://fonts.gstatic.com/s/gveretlevin/v4/0QInMXVI5YS9Rnn7ar449p--9JzT.woff2',
+			},
+		},
+	},
+	subsets: ['hebrew', 'latin'],
+});
+
+export const fontFamily = 'Gveret Levin' as const;
+
+type Variants = {
+	normal: {
+		weights: '400';
+		subsets: 'hebrew' | 'latin';
+	};
+};
+
+export const loadFont = <T extends keyof Variants>(
+	style?: T,
+	options?: {
+		weights?: Variants[T]['weights'][];
+		subsets?: Variants[T]['subsets'][];
+		document?: Document;
+		ignoreTooManyRequestsWarning?: boolean;
+	},
+) => {
+	return loadFonts(getInfo(), style, options);
+};

@@ -1,0 +1,60 @@
+---
+title: Element Guidelines
+sidebar_label: Guidelines
+description: Guidelines for creating useful, portable Remotion Elements.
+---
+
+# Element Guidelines
+
+A Remotion Element should be a focused, reusable video building block that can be copied and remixed.
+
+## Use real videos as references
+
+Start with a technique from a published video. Save its link and timestamp, then identify the reusable purpose—for example, emphasizing a phrase or introducing a speaker.
+
+Web components, Remotion libraries, and AI-generated ideas may help with implementation, but they are not evidence that an idea works in a video. Create an original visual treatment; do not copy branding, footage, or proprietary assets.
+
+## Keep it focused
+
+An Element should represent one coherent visual treatment, technique, or workflow. It should work without configuration and be useful across projects.
+
+The caption Elements show the distinction: moving a pill between words, popping words, and highlighting words all serve the same purpose but use distinct visual techniques that users would choose separately. Do not create Elements for arbitrary presets, minor CSS differences, or Studio-control configurations.
+
+## Make it portable
+
+- Keep the implementation self-contained, using HTML, CSS, and React where possible.
+- Avoid global styles, layout side effects, and fullscreen assumptions unless the Element is a background.
+- Use stable remote asset URLs and Google Fonts for non-websafe fonts.
+- Avoid project-specific branding or footage, and make colors easy to change.
+- Minimize dependencies. [Remotion Effects](/docs/effects) are an acceptable exception.
+- Declare every external dependency in the central Element definition, except `react`, `react-dom`, and `remotion`. Every non-Remotion package must use an exact semantic version; version ranges and tags are not accepted. Remotion packages use `version: null` and are installed at the project's Remotion version.
+
+## Design it for composition
+
+Size the Element to its smallest useful bounding box. By default, let the [`<Sequence>`](/docs/sequence) generated during installation control its placement and duration. Set both dimensions to `null` if it adapts to the composition.
+
+An Element that already owns the one interactive Sequence users should edit may set `installationMode: 'component-owned-sequence'` in its central definition. In this mode, the public component must accept and forward `from`, `durationInFrames`, `name`, and `style` to its Sequence and rendered outline. It must also define its own rendered dimensions because Element metadata dimensions are not passed as component props.
+
+Do not use the component-owned mode merely to remove markup: The Element needs to remain movable and trimmable through its component-owned Sequence. Do not add internal padding only to improve the gallery preview.
+
+## Animate temporary Elements in and out
+
+If an Element is intended to appear temporarily over other content—such as an overlay, lower third, label, or callout—include both an entrance and an exit animation.
+
+Backgrounds, loops, full-scene treatments, and other Elements that are not expected to enter and leave independently do not need these animations.
+
+Animate properties within the Element, such as translation, scale, and opacity; leave placement to the generated wrapper or the component-owned Sequence.
+
+## Expose useful Studio controls
+
+Use Studio controls in the Element's `Interactive` schema, not React props on its public component, for user-facing customization. Expose only controls that meaningfully edit the treatment; they may tune details but must not switch between unrelated visual styles.
+
+Give editable objects clear names, using a generic name such as `Container` for the main object and child controls only for separate editing targets.
+
+Follow the [interactivity best practices](/docs/studio/interactivity-best-practices).
+
+## Choose a representative preview
+
+Choose a poster frame that clearly shows the Element. The video preview should cover the Element's full duration and, when applicable, include its entrance and exit animations.
+
+When ready, [submit the Element](/elements/submit-an-element).

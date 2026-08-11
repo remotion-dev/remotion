@@ -1,0 +1,37 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/preload"
+	},
+	"name": "@remotion/preload",
+	"version": "4.0.508",
+	"description": "Preloads assets for use in Remotion",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"lint": "eslint src",
+		"make": "tsgo -d"
+	},
+	"author": "Jonny Burger",
+	"contributors": [],
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"keywords": [
+		"remotion",
+		"preload",
+		"html5",
+		"video"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "catalog:",
+		"@typescript/native-preview": "catalog:"
+	},
+	"homepage": "https://www.remotion.dev/docs/preload"
+}

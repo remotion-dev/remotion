@@ -1,0 +1,75 @@
+---
+image: /generated/articles-docs-troubleshooting-webgl2-context.png
+title: Failed to acquire WebGL2 context
+sidebar_label: Failed to acquire WebGL2 context
+crumb: 'Troubleshooting'
+---
+
+You may see an error like this when rendering a composition that uses WebGL:
+
+```
+Failed to acquire WebGL2 context for blur effect. Pass --gl=angle when using the CLI, set chromiumOptions: { gl: "angle" } when using SSR APIs, or set "OpenGL render backend" to "angle" in the Advanced section when rendering in the Studio. See https://remotion.dev/docs/troubleshooting/webgl2-context
+```
+
+## Fix: use the ANGLE renderer
+
+Enable the ANGLE OpenGL backend so Chromium can create a WebGL context.
+
+### CLI
+
+Pass [`--gl=angle`](/docs/cli/render#--gl) to your render command:
+
+```bash
+npx remotion render MyComp out/video.mp4 --gl=angle
+```
+
+You can also set it as the default in [`remotion.config.ts`](/docs/config):
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setChromiumOpenGlRenderer('angle');
+```
+
+### Server-side rendering APIs
+
+Pass `gl: "angle"` in [`chromiumOptions`](/docs/renderer/render-media#gl):
+
+```tsx twoslash
+const serveUrl = '/path/to/bundle';
+
+import {renderMedia, selectComposition} from '@remotion/renderer';
+
+const composition = await selectComposition({
+  serveUrl,
+  id: 'MyComp',
+});
+
+// ---cut---
+await renderMedia({
+  composition,
+  serveUrl,
+  codec: 'h264',
+  outputLocation: 'out/video.mp4',
+  chromiumOptions: {
+    gl: 'angle',
+  },
+});
+```
+
+This applies to [`renderMedia()`](/docs/renderer/render-media), [`renderStill()`](/docs/renderer/render-still), [`renderFrames()`](/docs/renderer/render-frames), [`getCompositions()`](/docs/renderer/get-compositions), and the [Lambda](/docs/lambda/rendermediaonlambda) and [Vercel](/docs/vercel/render-media-on-vercel) equivalents.
+
+### Remotion Studio
+
+When rendering from the Studio UI, open the render modal, expand **Advanced**, and set **OpenGL render backend** to `angle`.
+
+## Machines without a GPU
+
+If you are on a machine without a GPU (for example AWS Lambda), use [`--gl=swangle`](/docs/gl-options) instead. This is the default on Lambda.
+
+## Related
+
+- [OpenGL renderer backends](/docs/gl-options)
+- [`--gl` Chromium flag](/docs/chromium-flags#--gl)
+- [GPU rendering](/docs/gpu)
+- [`<HtmlInCanvas>` rendering guide](/docs/html-in-canvas#rendering)

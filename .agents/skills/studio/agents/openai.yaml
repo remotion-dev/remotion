@@ -1,0 +1,4 @@
+interface:
+  display_name: "Remotion Studio"
+  short_description: "Start example Studio in browser"
+  default_prompt: "Use $studio to build Remotion and open the example Studio."

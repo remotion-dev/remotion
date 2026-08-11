@@ -1,0 +1,262 @@
+import crypto from 'node:crypto';
+import {existsSync} from 'node:fs';
+import path from 'node:path';
+import type {
+	BundlerOverrideFn,
+	RspackOverrideFn,
+	WebpackOverrideFn,
+} from '@remotion/bundler';
+import type {
+	DefaultCodingAgent,
+	DefaultEditor,
+	LogLevel,
+} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
+import type {
+	GitSource,
+	RenderDefaults,
+	RenderJob,
+	StudioRuntimeConfig,
+} from '@remotion/studio-shared';
+import {getFileWatcherRegistry} from './file-watcher';
+import {getNetworkAddress} from './get-network-address';
+import {maybeOpenBrowser} from './maybe-open-browser';
+import {registerOpenBrowserShortcut} from './open-browser-shortcut';
+import type {QueueMethods} from './preview-server/api-types';
+import {noOpUntilRestart} from './preview-server/close-and-restart';
+import {getAbsolutePublicDir} from './preview-server/get-absolute-public-dir';
+import {
+	setLiveEventsListener,
+	waitForLiveEventsListener,
+} from './preview-server/live-events';
+import {getFiles, initPublicFolderWatch} from './preview-server/public-folder';
+import {startServer} from './preview-server/start-server';
+import {printServerReadyComment, setServerReadyComment} from './server-ready';
+import {watchRootFile} from './watch-root-file';
+
+export type StartStudioResult = {type: 'restarted'} | {type: 'already-running'};
+
+export const startStudio = async ({
+	browserArgs,
+	browserFlag,
+	shouldOpenBrowser,
+	fullEntryPath,
+	logLevel,
+	getCurrentInputProps,
+	getEnvVariables,
+	desiredPort,
+	remotionRoot,
+	relativePublicDir,
+	bundlerOverride,
+	rspackOverride,
+	webpackOverride,
+	poll,
+	getRenderDefaults,
+	getRenderQueue,
+	getNumberOfAudioTags,
+	queueMethods,
+	previewEntry,
+	gitSource,
+	binariesDirectory,
+	forceIPv4,
+	getAudioLatencyHint,
+	getPreviewSampleRate,
+	enableCrossSiteIsolation,
+	forceNew,
+	rspack,
+	getStudioRuntimeConfig,
+	getDefaultCodingAgent,
+	getDefaultEditor,
+	configFile,
+}: {
+	browserArgs: string;
+	browserFlag: string;
+	logLevel: LogLevel;
+	shouldOpenBrowser: boolean;
+	fullEntryPath: string;
+	getCurrentInputProps: () => object;
+	getEnvVariables: () => Record<string, string>;
+	desiredPort: number | null;
+	remotionRoot: string;
+	relativePublicDir: string | null;
+	bundlerOverride: BundlerOverrideFn;
+	rspackOverride: RspackOverrideFn;
+	webpackOverride: WebpackOverrideFn;
+	poll: number | null;
+	getRenderDefaults: () => RenderDefaults;
+	getRenderQueue: () => RenderJob[];
+	getNumberOfAudioTags: () => number;
+	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getPreviewSampleRate: () => number | null;
+	enableCrossSiteIsolation: boolean;
+	queueMethods: QueueMethods;
+	previewEntry: string;
+	gitSource: GitSource | null;
+	binariesDirectory: string | null;
+	forceIPv4: boolean;
+	forceNew: boolean;
+	rspack: boolean;
+	getStudioRuntimeConfig: () => StudioRuntimeConfig;
+	getDefaultCodingAgent: () => DefaultCodingAgent | null;
+	getDefaultEditor: () => DefaultEditor | null;
+	configFile: string | null;
+}): Promise<StartStudioResult> => {
+	try {
+		if (typeof Bun === 'undefined') {
+			process.title = 'node (npx remotion studio)';
+		} else if (typeof Deno === 'undefined') {
+			process.title = 'deno (npx remotiond studio)';
+		} else {
+			process.title = `bun (bunx remotionb studio)`;
+		}
+	} catch {}
+
+	// Validate that the file watcher registry has been initialized
+	getFileWatcherRegistry();
+
+	watchRootFile(remotionRoot, previewEntry);
+	const publicDir = getAbsolutePublicDir({
+		relativePublicDir,
+		remotionRoot,
+	});
+	const hash = crypto.randomBytes(6).toString('hex');
+
+	const outputHashPrefix = '/outputs-';
+	const outputHash = `${outputHashPrefix}${hash}`;
+
+	const staticHashPrefix = '/static-';
+	const staticHash = `${staticHashPrefix}${hash}`;
+
+	initPublicFolderWatch({
+		publicDir,
+		remotionRoot,
+		onUpdate: () => {
+			waitForLiveEventsListener().then((listener) => {
+				const files = getFiles();
+				listener.sendEventToClient({
+					type: 'new-public-folder',
+					files,
+					folderExists:
+						files.length > 0
+							? publicDir
+							: existsSync(publicDir)
+								? publicDir
+								: null,
+				});
+			});
+		},
+		staticHash,
+	});
+
+	const result = await startServer({
+		entry: path.resolve(previewEntry),
+		userDefinedComponent: fullEntryPath,
+		getCurrentInputProps,
+		getEnvVariables,
+		port: desiredPort,
+		remotionRoot,
+		publicDir,
+		bundlerOverride,
+		rspackOverride,
+		webpackOverride,
+		poll,
+		staticHash,
+		staticHashPrefix,
+		outputHash,
+		outputHashPrefix,
+		logLevel,
+		getRenderDefaults,
+		getRenderQueue,
+		getNumberOfAudioTags,
+		queueMethods,
+		gitSource,
+		binariesDirectory,
+		forceIPv4,
+		getAudioLatencyHint,
+		getPreviewSampleRate,
+		enableCrossSiteIsolation,
+		forceNew,
+		rspack,
+		getStudioRuntimeConfig,
+		getDefaultCodingAgent,
+		getDefaultEditor,
+		configFile,
+	});
+
+	if (result.type === 'already-running') {
+		RenderInternals.Log.info(
+			{indent: false, logLevel},
+			`Already running on port ${result.port}.`,
+		);
+		const res = await maybeOpenBrowser({
+			browserArgs,
+			browserFlag,
+			shouldOpenBrowser,
+			url: `http://localhost:${result.port}`,
+			logLevel,
+		});
+		if (res.didOpenBrowser) {
+			RenderInternals.Log.info(
+				{indent: false, logLevel},
+				'Opened browser. Pass --force-new to force a new instance.',
+			);
+		}
+
+		return {type: 'already-running'};
+	}
+
+	const {port, liveEventsServer, close} = result;
+
+	const cleanupLiveEventsListener = setLiveEventsListener(liveEventsServer);
+	const networkAddress = getNetworkAddress();
+	if (networkAddress) {
+		setServerReadyComment(
+			`Local: ${RenderInternals.chalk.underline(
+				`http://localhost:${port}`,
+			)}, Network: ${RenderInternals.chalk.underline(
+				`http://${networkAddress}:${port}`,
+			)}`,
+		);
+	} else {
+		setServerReadyComment(`http://localhost:${port}`);
+	}
+
+	printServerReadyComment('Server ready', logLevel);
+	RenderInternals.Log.info({indent: false, logLevel}, 'Building...');
+	const studioUrl = `http://localhost:${port}`;
+	const openBrowserShortcut = registerOpenBrowserShortcut({
+		browserArgs,
+		browserFlag,
+		url: studioUrl,
+		logLevel,
+	});
+
+	try {
+		await maybeOpenBrowser({
+			browserArgs,
+			browserFlag,
+			shouldOpenBrowser,
+			url: studioUrl,
+			logLevel,
+		});
+
+		await noOpUntilRestart();
+	} finally {
+		openBrowserShortcut.cleanup();
+	}
+
+	RenderInternals.Log.info(
+		{indent: false, logLevel},
+		'Closing server to restart...',
+	);
+
+	await liveEventsServer.closeConnections();
+	cleanupLiveEventsListener();
+	await close();
+	RenderInternals.Log.info(
+		{indent: false, logLevel},
+		RenderInternals.chalk.blue('Restarting server...'),
+	);
+
+	return {type: 'restarted'};
+};

@@ -1,0 +1,169 @@
+---
+image: /generated/articles-docs-sample-rate.png
+title: Audio Sample Rate
+crumb: 'Rendering'
+---
+
+Match the sample rate of your audio input to the output sample rate to get the best audio quality.
+
+## Default behavior
+
+By default, Remotion renders all audio at 48000 Hz (48 kHz).
+
+All audio sources — regardless of their original sample rate — are resampled to the output sample rate during rendering.  
+This means a 44100 Hz source embedded in a Remotion composition will be upsampled to 48000 Hz.
+
+This is because when the Remotion renderer starts, it doesn't know which assets will be added.  
+There can also be multiple audios with multiple sample rates in a single composition, which is why Remotion resamples all audio to 48000 Hz by default.
+
+## Overriding the sample rate<AvailableFrom v="4.0.448" />
+
+You can change the output sample rate:
+
+### Via `renderMedia()`
+
+```ts twoslash title="render.ts"
+// @module: es2022
+// @target: es2017
+import {bundle} from '@remotion/bundler';
+import {renderMedia, selectComposition} from '@remotion/renderer';
+
+const bundled = await bundle({entryPoint: './src/index.ts'});
+
+const composition = await selectComposition({
+  serveUrl: bundled,
+  id: 'MyComp',
+});
+
+await renderMedia({
+  composition,
+  serveUrl: bundled,
+  codec: 'h264',
+  sampleRate: 44100,
+});
+```
+
+### Via `renderMediaOnWeb()`
+
+```tsx twoslash title="web-render.ts"
+// @module: es2022
+// @target: es2017
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+
+const MyComp: React.FC = () => null;
+
+const {getBlob} = await renderMediaOnWeb({
+  composition: {
+    component: MyComp,
+    durationInFrames: 100,
+    fps: 30,
+    width: 1920,
+    height: 1080,
+    id: 'MyComp',
+  },
+  sampleRate: 44100,
+});
+```
+
+### Via CLI flag
+
+```bash
+npx remotion render MyComp --sample-rate=44100
+```
+
+### Via config file
+
+This only affects the default in the Studio and CLI commands.
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+
+Config.setSampleRate(44100);
+```
+
+### Via the Studio render dialog
+
+In the [Remotion Studio](/docs/studio) render dialog, you can select the sample rate from a dropdown in the **Audio** tab.
+
+## Matching the sample rate of your source audio
+
+You can set the sample rate based on input props using [`calculateMetadata()`](/docs/calculate-metadata).
+
+```ts twoslash title="src/Root.tsx"
+// @filename: MyComp.tsx
+import React from 'react';
+
+export type MyCompProps = {
+  src: string;
+};
+
+export const MyComp: React.FC<MyCompProps> = ({src}) => {
+  return <div>{src}</div>;
+};
+
+// @filename: Root.tsx
+// ---cut---
+import React from 'react';
+import {CalculateMetadataFunction, Composition} from 'remotion';
+import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
+import {MyComp, MyCompProps} from './MyComp';
+
+const calculateMetadata: CalculateMetadataFunction<
+  MyCompProps
+> = async ({props}) => {
+  const input = new Input({
+    formats: ALL_FORMATS,
+    source: new UrlSource(props.src, {
+      getRetryDelay: () => null,
+    }),
+  });
+
+  const audioTrack = await input.getPrimaryAudioTrack();
+
+  return {
+    props,
+    defaultSampleRate: audioTrack?.sampleRate ?? undefined,
+  };
+};
+
+export const Root: React.FC = () => {
+  return (
+    <Composition
+      id="MyComp"
+      component={MyComp}
+      durationInFrames={1}
+      fps={30}
+      width={1920}
+      height={1080}
+      defaultProps={{src: 'https://remotion.media/video.mp4'}}
+      calculateMetadata={calculateMetadata}
+    />
+  );
+};
+```
+
+The `defaultSampleRate` returned by `calculateMetadata()` has lower priority than the CLI flag or settings in the Studio dialog.
+
+## Mixing audio with different sample rates
+
+When a composition uses multiple audio sources with different sample rates, all of them are resampled to the single output sample rate. There is no way to preserve multiple sample rates in a single output file — this is a fundamental limitation of audio containers.
+
+Choose the sample rate that matches the majority of your sources, or the highest sample rate among them to minimize quality loss.
+
+## Sample rate during preview
+
+During preview in the [Remotion Studio](/docs/studio), the `AudioContext` sample rate defaults to `48000` Hz.
+
+You can control it via:
+
+- [`Config.setPreviewSampleRate()`](/docs/config#setpreviewsamplerate)
+- `npx remotion studio --preview-sample-rate=44100`
+
+## See also
+
+- [Encoding guide](/docs/encoding)
+- [`calculateMetadata()`](/docs/calculate-metadata)
+- [`Config.setSampleRate()`](/docs/config#setsamplerate)
+- [`renderMedia()`](/docs/renderer/render-media#samplerate)
+- [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#samplerate)
+- [Getting metadata from a video](/docs/mediabunny/metadata)

@@ -1,0 +1,71 @@
+import {NoReactInternals} from 'remotion/no-react';
+import type {AnyRenderJob} from '../components/RenderQueue/context';
+import {isClientRenderJob} from '../components/RenderQueue/context';
+
+let currentItemName: string | null = null;
+let renderJobs: AnyRenderJob[] = [];
+
+export const setCurrentCanvasContentId = (id: string | null) => {
+	if (!id) {
+		currentItemName = id;
+		updateTitle();
+		return;
+	}
+
+	const idWithoutFolder = id.split('/').pop() as string;
+	currentItemName = idWithoutFolder;
+	updateTitle();
+};
+
+export const setRenderJobs = (jobs: AnyRenderJob[]) => {
+	renderJobs = jobs;
+	updateTitle();
+};
+
+const productName = 'Remotion Studio';
+const suffix = `- ${productName}`;
+
+const updateTitle = () => {
+	if (!currentItemName) {
+		document.title = productName;
+		return;
+	}
+
+	const currentCompTitle = `${currentItemName} / ${window.remotion_projectName}`;
+
+	document.title = [
+		getProgressInBrackets(currentItemName, renderJobs),
+		`${currentCompTitle} ${suffix}`,
+	]
+		.filter(NoReactInternals.truthy)
+		.join(' ');
+};
+
+const getProgressInBrackets = (
+	selectedCompositionId: string,
+	jobs: AnyRenderJob[],
+): string | null => {
+	const currentRender = jobs.find((job) => job.status === 'running');
+	if (!currentRender) {
+		return null;
+	}
+
+	if (currentRender.status !== 'running') {
+		throw new Error('expected running job');
+	}
+
+	let progInPercent: number;
+	if (isClientRenderJob(currentRender)) {
+		const {encodedFrames, totalFrames} = currentRender.progress;
+		progInPercent =
+			totalFrames > 0 ? Math.ceil((encodedFrames / totalFrames) * 100) : 0;
+	} else {
+		progInPercent = Math.ceil(currentRender.progress.value * 100);
+	}
+
+	const progressInBrackets =
+		currentRender.compositionId === selectedCompositionId
+			? `[${progInPercent}%]`
+			: `[${progInPercent}% ${currentRender.compositionId}]`;
+	return progressInBrackets;
+};

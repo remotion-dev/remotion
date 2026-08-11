@@ -1,0 +1,11 @@
+node_modules
+build
+dist
+.DS_Store
+out
+public/documentation-pages/
+public/fluid-hand-morphing-and-dissolving-animation-2026-02-18-11-59-25-utc.mov
+public/grainy-retro-hand-pinch.mov
+public/gritty-fist-punch-with-impact-animation-2026-02-18-04-46-33-utc.mov
+public/puppet-master-hand.mov
+public/design-systems-responsive/

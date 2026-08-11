@@ -1,0 +1,46 @@
+* {
+  box-sizing: border-box;
+  color: white;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  color: white;
+}
+
+.spinner {
+  display: flex;
+  position: absolute;
+}
+
+.spinner-item {
+  width: 5px;
+  height: 5px;
+  background-color: white; /* Change the color as needed */
+  border-radius: 50%;
+  margin: 0 5px;
+  animation: bounce 1.4s infinite ease-in-out;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.loader {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #fff;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1.3s linear infinite;
+  margin-left: 4px;
+}

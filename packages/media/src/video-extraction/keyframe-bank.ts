@@ -1,0 +1,418 @@
+import type {VideoSample, VideoSampleSink} from 'mediabunny';
+import {Internals, type LogLevel} from 'remotion';
+import {getSafeWindowOfMonotonicity} from '../caches';
+import {roundTo4Digits} from '../helpers/round-to-4-digits';
+import {renderTimestampRange} from '../render-timestamp-range';
+import {getAllocationSize} from './get-allocation-size';
+
+// duration can be wrong! we shall not rely on it, but calculate it ourselves
+// https://discord.com/channels/@me/1409810025844838481/1470453477217009745 (Rebunny channel)
+export type VideoSampleWithoutDuration = Omit<VideoSample, 'duration'>;
+
+export type KeyframeBank = {
+	src: string;
+	getFrameFromTimestamp: (
+		timestamp: number,
+		fps: number,
+	) => Promise<VideoSampleWithoutDuration | null>;
+	prepareForDeletion: (
+		logLevel: LogLevel,
+		reason: string,
+	) => {framesDeleted: number};
+	deleteFramesBeforeTimestamp: ({
+		logLevel,
+		timestampInSeconds,
+	}: {
+		timestampInSeconds: number;
+		logLevel: LogLevel;
+	}) => void;
+	hasTimestampInSecond: (timestamp: number, fps: number) => Promise<boolean>;
+	addFrame: (frame: VideoSample, logLevel: LogLevel) => void;
+	getOpenFrameCount: () => {
+		size: number;
+		timestamps: number[];
+	};
+	getLastUsed: () => number;
+	isBusy: () => boolean;
+	canSatisfyTimestamp: (timestamp: number) => boolean;
+	getRangeOfTimestamps: () => {
+		firstTimestamp: number;
+		lastTimestamp: number;
+	} | null;
+};
+
+const BIGGEST_ALLOWED_JUMP_FORWARD_SECONDS = 3;
+
+export const makeKeyframeBank = async ({
+	logLevel: parentLogLevel,
+	src,
+	videoSampleSink,
+	initialTimestampRequest,
+}: {
+	logLevel: LogLevel;
+	src: string;
+	videoSampleSink: VideoSampleSink;
+	initialTimestampRequest: number;
+}) => {
+	const sampleIterator = videoSampleSink.samples(
+		roundTo4Digits(initialTimestampRequest),
+	);
+
+	const frames: Record<number, VideoSampleWithoutDuration> = {};
+	const frameTimestamps: number[] = [];
+
+	let hasReachedEndOfVideo = false;
+
+	let lastUsed = Date.now();
+	let allocationSize = 0;
+	let pendingOperations = 0;
+
+	const getMeasuredDurationOfFrame = (timestamp: number) => {
+		const index = frameTimestamps.indexOf(timestamp);
+		if (index === -1) {
+			throw new Error(`Frame ${timestamp} not found`);
+		}
+
+		const nextTimestamp = frameTimestamps[index + 1];
+		if (nextTimestamp === undefined) {
+			return null;
+		}
+
+		return nextTimestamp - timestamp;
+	};
+
+	const getKnownDurationOfFrame = (timestamp: number) => {
+		const measuredDuration = getMeasuredDurationOfFrame(timestamp);
+		if (measuredDuration !== null) {
+			return measuredDuration;
+		}
+
+		if (!hasReachedEndOfVideo) {
+			return null;
+		}
+
+		return (frames[timestamp] as VideoSample).duration ?? 0;
+	};
+
+	const getEstimatedDurationOfFrame = (timestamp: number) => {
+		return (
+			getMeasuredDurationOfFrame(timestamp) ??
+			(frames[timestamp] as VideoSample).duration ??
+			0
+		);
+	};
+
+	const deleteFrameAtTimestamp = (timestamp: number) => {
+		allocationSize -= getAllocationSize(frames[timestamp]);
+		frameTimestamps.splice(frameTimestamps.indexOf(timestamp), 1);
+		frames[timestamp].close();
+		delete frames[timestamp];
+	};
+
+	const deleteFramesBeforeTimestamp = ({
+		logLevel,
+		timestampInSeconds,
+	}: {
+		timestampInSeconds: number;
+		logLevel: LogLevel;
+	}) => {
+		const deletedTimestamps = [];
+		for (const frameTimestamp of frameTimestamps.slice()) {
+			// Don't delete the last frame, since it may be the last one in the video!
+			if (hasReachedEndOfVideo) {
+				const isLast =
+					frameTimestamp === frameTimestamps[frameTimestamps.length - 1];
+				if (isLast) {
+					continue;
+				}
+			}
+
+			if (!frames[frameTimestamp]) {
+				continue;
+			}
+
+			const duration = getKnownDurationOfFrame(frameTimestamp);
+			if (duration === null) {
+				continue;
+			}
+
+			if (frameTimestamp + duration < timestampInSeconds) {
+				deleteFrameAtTimestamp(frameTimestamp);
+				deletedTimestamps.push(frameTimestamp);
+			}
+		}
+
+		if (deletedTimestamps.length > 0) {
+			Internals.Log.verbose(
+				{logLevel, tag: '@remotion/media'},
+				`Deleted ${deletedTimestamps.length} frame${deletedTimestamps.length === 1 ? '' : 's'} ${renderTimestampRange(deletedTimestamps)} for src ${src} because it is lower than ${timestampInSeconds}. Remaining: ${renderTimestampRange(frameTimestamps)}`,
+			);
+		}
+	};
+
+	const hasDecodedEnoughForTimestamp = (timestamp: number) => {
+		const lastFrameTimestamp = frameTimestamps[frameTimestamps.length - 1];
+		if (lastFrameTimestamp === undefined) {
+			return false;
+		}
+
+		const lastFrame = frames[lastFrameTimestamp];
+		// Last frame is unavailable, we return true to not continue the loop,
+		// since we probably have to re-decode everything
+		if (!lastFrame) {
+			return true;
+		}
+
+		if (roundTo4Digits(lastFrameTimestamp) >= roundTo4Digits(timestamp)) {
+			return true;
+		}
+
+		const duration = getKnownDurationOfFrame(lastFrameTimestamp);
+		if (duration === null) {
+			return false;
+		}
+
+		return (
+			roundTo4Digits(lastFrameTimestamp + duration) > roundTo4Digits(timestamp)
+		);
+	};
+
+	const addFrame = (frame: VideoSample, logLevel: LogLevel) => {
+		if (frames[frame.timestamp]) {
+			deleteFrameAtTimestamp(frame.timestamp);
+		}
+
+		frames[frame.timestamp] = frame;
+		frameTimestamps.push(frame.timestamp);
+		allocationSize += getAllocationSize(frame);
+
+		lastUsed = Date.now();
+		Internals.Log.trace(
+			{logLevel, tag: '@remotion/media'},
+			`Added frame at ${frame.timestamp}sec to bank`,
+		);
+	};
+
+	const ensureEnoughFramesForTimestamp = async (
+		timestampInSeconds: number,
+		logLevel: LogLevel,
+		fps: number,
+	) => {
+		while (!hasDecodedEnoughForTimestamp(timestampInSeconds)) {
+			const sample = await sampleIterator.next();
+
+			if (sample.value) {
+				addFrame(sample.value, logLevel);
+			}
+
+			if (sample.done) {
+				hasReachedEndOfVideo = true;
+
+				break;
+			}
+
+			deleteFramesBeforeTimestamp({
+				logLevel: parentLogLevel,
+				timestampInSeconds:
+					timestampInSeconds - getSafeWindowOfMonotonicity(fps),
+			});
+		}
+
+		lastUsed = Date.now();
+	};
+
+	const getFrameFromTimestamp = async (
+		timestampInSeconds: number,
+		fps: number,
+	): Promise<VideoSampleWithoutDuration | null> => {
+		lastUsed = Date.now();
+
+		// If the requested timestamp is before the start of this bank, clamp it to the start.
+		// This matches Chrome's behavior: render the first available frame rather than showing black.
+		// Videos don't always start at timestamp 0 due to encoding artifacts, container format quirks,
+		// and keyframe positioning. Users have no control over this, so we clamp to the first frame.
+		// Test case: https://github.com/remotion-dev/remotion/issues/5915
+		let adjustedTimestamp = timestampInSeconds;
+
+		// If we request a timestamp after the end of the video, return the last frame
+		// same behavior as <video>
+		if (
+			hasReachedEndOfVideo &&
+			roundTo4Digits(adjustedTimestamp) >
+				roundTo4Digits(frameTimestamps[frameTimestamps.length - 1])
+		) {
+			adjustedTimestamp = frameTimestamps[frameTimestamps.length - 1];
+		}
+
+		await ensureEnoughFramesForTimestamp(
+			adjustedTimestamp,
+			parentLogLevel,
+			fps,
+		);
+
+		for (let i = frameTimestamps.length - 1; i >= 0; i--) {
+			const sample = frames[frameTimestamps[i]];
+			if (!sample) {
+				return null;
+			}
+
+			if (
+				roundTo4Digits(sample.timestamp) <= roundTo4Digits(adjustedTimestamp) ||
+				// Match 0.3333333333 to 0.33355555
+				// this does not satisfy the previous condition, since one rounds up and one rounds down
+				Math.abs(sample.timestamp - adjustedTimestamp) <= 0.001
+			) {
+				return sample;
+			}
+		}
+
+		// Return first frame we have
+		return frames[frameTimestamps[0]] ?? null;
+	};
+
+	const hasTimestampInSecond = async (timestamp: number, fps: number) => {
+		return (await getFrameFromTimestamp(timestamp, fps)) !== null;
+	};
+
+	const getOpenFrameCount = () => {
+		return {
+			size: allocationSize,
+			timestamps: frameTimestamps,
+		};
+	};
+
+	const getLastUsed = () => {
+		return lastUsed;
+	};
+
+	let queue = Promise.resolve<unknown>(undefined);
+
+	const firstFrame = await sampleIterator.next();
+	if (!firstFrame.value) {
+		throw new Error('No first frame found');
+	}
+
+	const startTimestampInSeconds = firstFrame.value.timestamp;
+
+	Internals.Log.verbose(
+		{logLevel: parentLogLevel, tag: '@remotion/media'},
+		`Creating keyframe bank from ${startTimestampInSeconds}sec`,
+	);
+	addFrame(firstFrame.value, parentLogLevel);
+
+	const getRangeOfTimestamps = () => {
+		if (frameTimestamps.length === 0) {
+			return null;
+		}
+
+		const firstTimestamp = frameTimestamps[0];
+		const lastTimestamp = frameTimestamps[frameTimestamps.length - 1]!;
+		const lastFrameDuration = getEstimatedDurationOfFrame(lastTimestamp);
+
+		return {
+			firstTimestamp,
+			lastTimestamp: lastTimestamp + lastFrameDuration,
+		};
+	};
+
+	const prepareForDeletion = (logLevel: LogLevel, reason: string) => {
+		const range = getRangeOfTimestamps();
+		if (range) {
+			Internals.Log.verbose(
+				{logLevel, tag: '@remotion/media'},
+				`Preparing for deletion (${reason}) of keyframe bank from ${range?.firstTimestamp}sec to ${range?.lastTimestamp}sec`,
+			);
+		}
+
+		let framesDeleted = 0;
+
+		for (const frameTimestamp of frameTimestamps.slice()) {
+			if (!frames[frameTimestamp]) {
+				continue;
+			}
+
+			deleteFrameAtTimestamp(frameTimestamp);
+			framesDeleted++;
+		}
+
+		// Cleanup frames that have been extracted that might not have been retrieved yet
+		// Must be called after closing the frames
+		sampleIterator.return();
+
+		frameTimestamps.length = 0;
+		return {framesDeleted};
+	};
+
+	const canSatisfyTimestamp = (timestamp: number) => {
+		if (frameTimestamps.length === 0) {
+			return false;
+		}
+
+		const roundedTimestamp = roundTo4Digits(timestamp);
+		const firstFrameTimestamp = roundTo4Digits(frameTimestamps[0]);
+		const range = getRangeOfTimestamps();
+		if (!range) {
+			return false;
+		}
+
+		const lastFrameTimestamp = roundTo4Digits(
+			frameTimestamps[frameTimestamps.length - 1],
+		);
+		const lastFrameEndTimestamp = roundTo4Digits(range.lastTimestamp);
+
+		if (hasReachedEndOfVideo && roundedTimestamp > lastFrameTimestamp) {
+			return true;
+		}
+
+		if (roundedTimestamp < firstFrameTimestamp) {
+			const firstFrameIsInitialFrame =
+				firstFrameTimestamp === startTimestampInSeconds;
+
+			const firstFrameDoesSatisfy =
+				firstFrameIsInitialFrame && roundedTimestamp >= initialTimestampRequest;
+
+			return firstFrameDoesSatisfy;
+		}
+
+		if (
+			roundedTimestamp - BIGGEST_ALLOWED_JUMP_FORWARD_SECONDS >
+			lastFrameEndTimestamp
+		) {
+			return false;
+		}
+
+		return true;
+	};
+
+	const keyframeBank: KeyframeBank = {
+		getFrameFromTimestamp: (timestamp: number, fps: number) => {
+			pendingOperations++;
+			queue = queue
+				.then(() => getFrameFromTimestamp(timestamp, fps))
+				.finally(() => {
+					pendingOperations--;
+				});
+			return queue as Promise<VideoSample | null>;
+		},
+		prepareForDeletion,
+		hasTimestampInSecond: (timestamp: number, fps: number) => {
+			pendingOperations++;
+			queue = queue
+				.then(() => hasTimestampInSecond(timestamp, fps))
+				.finally(() => {
+					pendingOperations--;
+				});
+			return queue as Promise<boolean>;
+		},
+		addFrame,
+		deleteFramesBeforeTimestamp,
+		src,
+		getOpenFrameCount,
+		getLastUsed,
+		isBusy: () => pendingOperations > 0,
+		canSatisfyTimestamp,
+		getRangeOfTimestamps,
+	};
+
+	return keyframeBank;
+};

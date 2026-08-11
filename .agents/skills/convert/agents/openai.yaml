@@ -1,0 +1,4 @@
+interface:
+  display_name: "Convert App"
+  short_description: "Run convert.remotion.dev locally"
+  default_prompt: "Use $convert to build Remotion and open the Convert app locally."

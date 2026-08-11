@@ -1,0 +1,456 @@
+import type {PointerEvent, SetStateAction} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
+import {BLACK_ALPHA_60} from '../../helpers/colors';
+import {useMobileLayout} from '../../helpers/mobile-layout';
+import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
+import {useKeybinding} from '../../helpers/use-keybinding';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {getNextMenuTreeId, MenuTreeContext} from '../Menu/menu-tree-context';
+import {MenuDivider} from '../Menu/MenuDivider';
+import type {MenuId} from '../Menu/MenuItem';
+import {MenuSectionHeader} from '../Menu/MenuSectionHeader';
+import type {SubMenuActivated} from '../Menu/MenuSubItem';
+import {MenuSubItem} from '../Menu/MenuSubItem';
+import {
+	MAX_MENU_WIDTH,
+	MAX_MOBILE_MENU_WIDTH,
+	MENU_VERTICAL_PADDING,
+} from '../Menu/styles';
+import type {ComboboxValue} from './ComboBox';
+import {findTypeaheadMenuItem} from './menu-typeahead';
+
+const BORDER_SIZE = 1;
+
+const container: React.CSSProperties = {
+	paddingTop: MENU_VERTICAL_PADDING,
+	paddingBottom: MENU_VERTICAL_PADDING,
+	border: `${BORDER_SIZE}px solid ${BLACK_ALPHA_60}`,
+	marginLeft: 0 - BORDER_SIZE,
+	overflowY: 'auto',
+	overflowX: 'hidden',
+	scrollbarGutter: 'auto',
+	minWidth: 200,
+	maxWidth: MAX_MENU_WIDTH,
+};
+
+export const MenuContent: React.FC<{
+	readonly values: readonly ComboboxValue[];
+	readonly onHide: () => void;
+	readonly onNextMenu: () => void;
+	readonly onPreviousMenu: () => void;
+	readonly leaveLeftSpace: boolean;
+	readonly preselectIndex: false | number;
+	readonly topItemCanBeUnselected: boolean;
+	readonly fixedHeight: number | null;
+}> = ({
+	onHide,
+	values,
+	preselectIndex,
+	onNextMenu,
+	onPreviousMenu,
+	leaveLeftSpace,
+	topItemCanBeUnselected,
+	fixedHeight,
+}) => {
+	const keybindings = useKeybinding();
+	const containerRef = useRef<HTMLDivElement>(null);
+	const inheritedMenuTreeId = useContext(MenuTreeContext);
+	const localMenuTreeId = useRef(getNextMenuTreeId());
+	const menuTreeId = inheritedMenuTreeId ?? localMenuTreeId.current;
+	const isMobileLayout = useMobileLayout();
+
+	const [subMenuActivated, setSubMenuActivated] =
+		useState<SubMenuActivated>(false);
+	const typeaheadQueryRef = useRef('');
+	const typeaheadTimeoutRef = useRef<number | null>(null);
+
+	if (values[0].type === 'divider') {
+		throw new Error('first value cant be divide');
+	}
+
+	const [selectedItem, setSelectedItem] = useState<string | null>(
+		typeof preselectIndex === 'number' && preselectIndex >= 0
+			? (values[preselectIndex].id as string)
+			: null,
+	);
+
+	const onEscape = useCallback(() => {
+		onHide();
+	}, [onHide]);
+
+	const onItemSelected = useCallback((id: SetStateAction<string | null>) => {
+		setSelectedItem(id);
+	}, []);
+
+	const clearTypeahead = useCallback(() => {
+		typeaheadQueryRef.current = '';
+		if (typeaheadTimeoutRef.current !== null) {
+			window.clearTimeout(typeaheadTimeoutRef.current);
+			typeaheadTimeoutRef.current = null;
+		}
+	}, []);
+
+	const isItemSelectable = useCallback((v: ComboboxValue) => {
+		return v.type === 'item' && !v.disabled;
+	}, []);
+
+	const onArrowUp = useCallback(() => {
+		setSelectedItem((prevItem) => {
+			if (prevItem === null) {
+				return null;
+			}
+
+			const index = values.findIndex((val) => val.id === prevItem);
+			if ((topItemCanBeUnselected && index === 0) || prevItem === null) {
+				return null;
+			}
+
+			const previousItems = values.filter(
+				(v, i) => i < index && isItemSelectable(v),
+			);
+			if (previousItems.length > 0) {
+				return previousItems[previousItems.length - 1].id as MenuId;
+			}
+
+			const firstSelectable = values.find((v) => isItemSelectable(v));
+			if (firstSelectable) {
+				return firstSelectable.id as MenuId;
+			}
+
+			throw new Error('could not find previous item');
+		});
+	}, [topItemCanBeUnselected, values, isItemSelectable]);
+
+	const onArrowDown = useCallback(() => {
+		setSelectedItem((prevItem) => {
+			const index = values.findIndex((val) => val.id === prevItem);
+			const nextItem = values.find((v, i) => i > index && isItemSelectable(v));
+			if (nextItem) {
+				return nextItem.id;
+			}
+
+			const lastSelectable = values
+				.slice()
+				.reverse()
+				.find((v) => isItemSelectable(v));
+
+			if (lastSelectable) {
+				return lastSelectable.id;
+			}
+
+			throw new Error('could not find next item');
+		});
+	}, [values, isItemSelectable]);
+
+	const onEnter = useCallback(() => {
+		if (selectedItem === null) {
+			return onHide();
+		}
+
+		const item = values.find((i) => i.id === selectedItem);
+		if (!item) {
+			throw new Error('cannot find item');
+		}
+
+		if (item.type !== 'item') {
+			throw new Error('cannot select non-interactive menu item');
+		}
+
+		if (item.disabled) {
+			return;
+		}
+
+		if (item.subMenu) {
+			return setSubMenuActivated('without-mouse');
+		}
+
+		onHide();
+		item.onClick(item.id, null);
+	}, [onHide, selectedItem, values]);
+
+	const onArrowRight = useCallback(() => {
+		if (selectedItem === null) {
+			return onNextMenu();
+		}
+
+		const item = values.find((i) => i.id === selectedItem);
+		if (!item) {
+			throw new Error('cannot find item');
+		}
+
+		if (item.type !== 'item') {
+			throw new Error('cannot select non-interactive menu item');
+		}
+
+		if (!item.subMenu) {
+			return onNextMenu();
+		}
+
+		setSubMenuActivated('without-mouse');
+	}, [onNextMenu, selectedItem, values]);
+
+	const onTypeahead = useCallback(
+		(event: KeyboardEvent) => {
+			if (
+				event.ctrlKey ||
+				event.metaKey ||
+				event.altKey ||
+				event.key.length !== 1 ||
+				event.key.trim().length === 0
+			) {
+				return;
+			}
+
+			const {activeElement} = document;
+			if (
+				activeElement instanceof HTMLInputElement ||
+				activeElement instanceof HTMLTextAreaElement
+			) {
+				return;
+			}
+
+			typeaheadQueryRef.current = `${typeaheadQueryRef.current}${event.key}`;
+			const matchedId = findTypeaheadMenuItem({
+				query: typeaheadQueryRef.current,
+				values,
+			});
+			if (matchedId !== null) {
+				setSelectedItem(matchedId);
+			}
+
+			if (typeaheadTimeoutRef.current !== null) {
+				window.clearTimeout(typeaheadTimeoutRef.current);
+			}
+
+			typeaheadTimeoutRef.current = window.setTimeout(() => {
+				typeaheadQueryRef.current = '';
+				typeaheadTimeoutRef.current = null;
+			}, 700);
+		},
+		[values],
+	);
+
+	const containerWithHeight: React.CSSProperties = useMemo(() => {
+		const containerStyles = {...container};
+		if (fixedHeight === null) {
+			containerStyles.maxHeight = 600;
+		} else {
+			containerStyles.maxHeight = fixedHeight;
+		}
+
+		if (isMobileLayout) {
+			containerStyles.maxWidth = MAX_MOBILE_MENU_WIDTH;
+		}
+
+		return containerStyles;
+	}, [fixedHeight, isMobileLayout]);
+
+	useEffect(() => {
+		if (!keybindings.isHighestContext || !getStudioKeyboardShortcutsEnabled()) {
+			return;
+		}
+
+		const onKeyDown = (event: KeyboardEvent) => {
+			onTypeahead(event);
+		};
+
+		window.addEventListener('keydown', onKeyDown);
+		return () => {
+			window.removeEventListener('keydown', onKeyDown);
+			clearTypeahead();
+		};
+	}, [clearTypeahead, keybindings.isHighestContext, onTypeahead]);
+
+	useEffect(() => {
+		return () => {
+			clearTypeahead();
+		};
+	}, [clearTypeahead]);
+
+	useEffect(() => {
+		const escapeBinding = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'Escape',
+			callback: onEscape,
+			commandCtrlKey: false,
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+		const rightBinding = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'ArrowRight',
+			commandCtrlKey: false,
+			callback: onArrowRight,
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+		const leftBinding = keybindings.registerKeybinding({
+			event: 'keydown',
+			commandCtrlKey: false,
+			key: 'ArrowLeft',
+			callback: onPreviousMenu,
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+
+		const downBinding = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'ArrowDown',
+			commandCtrlKey: false,
+			callback: onArrowDown,
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+		const upBinding = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'ArrowUp',
+			callback: onArrowUp,
+			commandCtrlKey: false,
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+		const enterBinding = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'Enter',
+			callback: onEnter,
+			commandCtrlKey: false,
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+		const spaceBinding = keybindings.registerKeybinding({
+			event: 'keyup',
+			key: ' ',
+			callback: onEnter,
+			commandCtrlKey: false,
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+		return () => {
+			escapeBinding.unregister();
+			leftBinding.unregister();
+			rightBinding.unregister();
+			downBinding.unregister();
+			upBinding.unregister();
+			enterBinding.unregister();
+			spaceBinding.unregister();
+		};
+	}, [
+		keybindings,
+		onEscape,
+		onNextMenu,
+		onPreviousMenu,
+		onArrowDown,
+		onArrowUp,
+		onEnter,
+		onArrowRight,
+	]);
+
+	// Disable submenu if not selected
+	useEffect(() => {
+		if (!subMenuActivated) {
+			return;
+		}
+
+		if (selectedItem === null) {
+			return setSubMenuActivated(false);
+		}
+
+		const item = values.find((i) => i.id === selectedItem);
+		if (!item) {
+			// Can happen if resizing the window
+			return;
+		}
+
+		if (item.type !== 'item') {
+			throw new Error('should not select non-interactive menu item');
+		}
+
+		if (!item.subMenu && subMenuActivated) {
+			setSubMenuActivated(false);
+		}
+	}, [selectedItem, subMenuActivated, values]);
+
+	useEffect(() => {
+		const {current} = containerRef;
+		if (!current) {
+			return;
+		}
+
+		const onPointerLeave = () => {
+			if (subMenuActivated) {
+				return;
+			}
+
+			setSelectedItem(null);
+		};
+
+		current.addEventListener('pointerleave', onPointerLeave);
+		return () => current.removeEventListener('pointerleave', onPointerLeave);
+	}, [onHide, subMenuActivated]);
+
+	return (
+		<MenuTreeContext.Provider value={menuTreeId}>
+			<div
+				ref={containerRef}
+				data-remotion-menu-tree-id={menuTreeId}
+				style={containerWithHeight}
+				className={VERTICAL_SCROLLBAR_CLASSNAME}
+			>
+				{values.map((item) => {
+					if (item.type === 'divider') {
+						return <MenuDivider key={item.id} />;
+					}
+
+					if (item.type === 'section-header') {
+						return (
+							<MenuSectionHeader key={item.id}>{item.label}</MenuSectionHeader>
+						);
+					}
+
+					const onClick = (id: string, e: PointerEvent<HTMLDivElement>) => {
+						item.onClick(id, e);
+						if (item.subMenu) {
+							return null;
+						}
+
+						onHide();
+					};
+
+					return (
+						<MenuSubItem
+							key={item.id}
+							selected={item.id === selectedItem}
+							onActionChosen={onClick}
+							onItemSelected={onItemSelected}
+							label={item.label}
+							id={item.id}
+							keyHint={item.keyHint}
+							leaveLeftSpace={leaveLeftSpace}
+							leftItem={item.leftItem}
+							subMenu={item.subMenu}
+							onQuitMenu={onHide}
+							onNextMenu={onNextMenu}
+							subMenuActivated={subMenuActivated}
+							setSubMenuActivated={setSubMenuActivated}
+							disabled={item.disabled}
+						/>
+					);
+				})}
+			</div>
+		</MenuTreeContext.Provider>
+	);
+};

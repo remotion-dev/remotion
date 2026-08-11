@@ -1,0 +1,4533 @@
+{
+	"language_code": "eng",
+	"language_probability": 0.9314611554145813,
+	"text": "[singing] Gimme, gimme, gimme a man after midnight. Won't somebody help me chase the shadows away? Gimme, gimme, gimme a man after midnight. Won't somebody help me chase the shadows away? Gimme, gimme, gimme a man after midnight. Take me through the darkness to the break of the day. Gimme, gimme, gimme a man after midnight. Won't somebody help me chase the shadows away? Gimme, gimme, gimme a man after midnight. Take me through the darkness to the break of the day. Gimme, gimme, gimme a man after midnight. Won't somebody help me chase the shadows away? Gimme, gimme, gimme a man after midnight. Take me through the darkness to the break of the day. Gimme, gimme, gimme a man after midnight. Won't somebody help me chase the shadows away? Gimme, gimme, gimme a man after midnight. Take me through the darkness to the break of the day. Gimme, gimme, gimme a man after midnight. Won't somebody help me chase the shadows away? Gimme, gimme, gimme a man after midnight. Take me through the darkness to the break of the day. There's not a soul out there. No one to hear my prayer. Gimme, gimme, gimme a man after midnight. Won't somebody help me chase the shadows away? Gimme, gimme, gimme a man after midnight. Take me through the darkness to the break of the day. Gimme, gimme, gimme a man after midnight. Won't somebody help me chase the shadows away? Gimme, gimme, gimme a man after midnight. Take me through the darkness to the break of the day. Gimme, gimme, gimme a man after midnight. Won't somebody help me chase the shadows away? Gimme, gimme, gimme a man after midnight. Take me through the darkness to the break of the day. Gimme, gimme, gimme a man after midnight. Won't somebody help me chase the shadows away? Gimme, gimme, gimme a man after midnight. Take me through the darkness to the break of the day.",
+	"words": [
+		{
+			"text": "[singing]",
+			"start": 20.1,
+			"end": 75.96,
+			"type": "audio_event",
+			"logprob": -0.00022769833438778572
+		},
+		{
+			"text": " ",
+			"start": 75.96,
+			"end": 75.96,
+			"type": "spacing",
+			"logprob": -0.026190944015979767
+		},
+		{
+			"text": "Gimme,",
+			"start": 84.239,
+			"end": 84.66,
+			"type": "word",
+			"logprob": -0.013110452398905181
+		},
+		{
+			"text": " ",
+			"start": 84.66,
+			"end": 84.8,
+			"type": "spacing",
+			"logprob": -0.012704155407845974
+		},
+		{
+			"text": "gimme,",
+			"start": 84.8,
+			"end": 85.099,
+			"type": "word",
+			"logprob": -0.006352594277094188
+		},
+		{
+			"text": " ",
+			"start": 85.099,
+			"end": 85.16,
+			"type": "spacing",
+			"logprob": -1.07287787614041e-5
+		},
+		{
+			"text": "gimme",
+			"start": 85.16,
+			"end": 85.62,
+			"type": "word",
+			"logprob": -6.628002074648975e-6
+		},
+		{
+			"text": " ",
+			"start": 85.62,
+			"end": 85.72,
+			"type": "spacing",
+			"logprob": -1.0728830375228426e-6
+		},
+		{
+			"text": "a",
+			"start": 85.72,
+			"end": 85.86,
+			"type": "word",
+			"logprob": -1.0728830375228426e-6
+		},
+		{
+			"text": " ",
+			"start": 85.86,
+			"end": 85.92,
+			"type": "spacing",
+			"logprob": -1.0490362910786644e-5
+		},
+		{
+			"text": "man",
+			"start": 85.92,
+			"end": 86.42,
+			"type": "word",
+			"logprob": -1.0490362910786644e-5
+		},
+		{
+			"text": " ",
+			"start": 86.42,
+			"end": 86.46,
+			"type": "spacing",
+			"logprob": -3.2186455882765586e-6
+		},
+		{
+			"text": "after",
+			"start": 86.46,
+			"end": 86.82,
+			"type": "word",
+			"logprob": -3.2186455882765586e-6
+		},
+		{
+			"text": " ",
+			"start": 86.82,
+			"end": 86.88,
+			"type": "spacing",
+			"logprob": -9.894321920000948e-6
+		},
+		{
+			"text": "midnight.",
+			"start": 86.88,
+			"end": 87.68,
+			"type": "word",
+			"logprob": -4.8232981094366143e-5
+		},
+		{
+			"text": " ",
+			"start": 87.68,
+			"end": 87.8,
+			"type": "spacing",
+			"logprob": -0.00040951924165710807
+		},
+		{
+			"text": "Won't",
+			"start": 87.8,
+			"end": 88.24,
+			"type": "word",
+			"logprob": -0.0002468082674567995
+		},
+		{
+			"text": " ",
+			"start": 88.24,
+			"end": 88.28,
+			"type": "spacing",
+			"logprob": -2.622600959512056e-6
+		},
+		{
+			"text": "somebody",
+			"start": 88.28,
+			"end": 88.86,
+			"type": "word",
+			"logprob": -2.622600959512056e-6
+		},
+		{
+			"text": " ",
+			"start": 88.86,
+			"end": 88.94,
+			"type": "spacing",
+			"logprob": -1.0728830375228426e-6
+		},
+		{
+			"text": "help",
+			"start": 88.94,
+			"end": 89.24,
+			"type": "word",
+			"logprob": -1.0728830375228426e-6
+		},
+		{
+			"text": " ",
+			"start": 89.24,
+			"end": 89.259,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{"text": "me", "start": 89.26, "end": 89.4, "type": "word", "logprob": 0.0},
+		{
+			"text": " ",
+			"start": 89.4,
+			"end": 89.48,
+			"type": "spacing",
+			"logprob": -0.0010400369064882398
+		},
+		{
+			"text": "chase",
+			"start": 89.48,
+			"end": 89.7,
+			"type": "word",
+			"logprob": -0.0010400369064882398
+		},
+		{
+			"text": " ",
+			"start": 89.7,
+			"end": 89.74,
+			"type": "spacing",
+			"logprob": -7.819823804311454e-5
+		},
+		{
+			"text": "the",
+			"start": 89.74,
+			"end": 89.84,
+			"type": "word",
+			"logprob": -7.819823804311454e-5
+		},
+		{
+			"text": " ",
+			"start": 89.84,
+			"end": 89.92,
+			"type": "spacing",
+			"logprob": -1.6927575416048057e-5
+		},
+		{
+			"text": "shadows",
+			"start": 89.92,
+			"end": 90.46,
+			"type": "word",
+			"logprob": -1.6927575416048057e-5
+		},
+		{
+			"text": " ",
+			"start": 90.46,
+			"end": 90.54,
+			"type": "spacing",
+			"logprob": -3.576278118089249e-7
+		},
+		{
+			"text": "away?",
+			"start": 90.54,
+			"end": 91.36,
+			"type": "word",
+			"logprob": -2.2100211890574428e-5
+		},
+		{
+			"text": " ",
+			"start": 91.36,
+			"end": 91.88,
+			"type": "spacing",
+			"logprob": -7.271740287251305e-6
+		},
+		{
+			"text": "Gimme,",
+			"start": 91.88,
+			"end": 92.28,
+			"type": "word",
+			"logprob": -4.390861477077124e-6
+		},
+		{
+			"text": " ",
+			"start": 92.28,
+			"end": 92.36,
+			"type": "spacing",
+			"logprob": -0.00014697425649501383
+		},
+		{
+			"text": "gimme,",
+			"start": 92.36,
+			"end": 92.7,
+			"type": "word",
+			"logprob": -7.6586555223912e-5
+		},
+		{
+			"text": " ",
+			"start": 92.7,
+			"end": 92.84,
+			"type": "spacing",
+			"logprob": -7.939023635117337e-5
+		},
+		{
+			"text": "gimme",
+			"start": 92.84,
+			"end": 93.22,
+			"type": "word",
+			"logprob": -4.7729509230975967e-5
+		},
+		{
+			"text": " ",
+			"start": 93.22,
+			"end": 93.34,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{"text": "a", "start": 93.34, "end": 93.48, "type": "word", "logprob": 0.0},
+		{
+			"text": " ",
+			"start": 93.48,
+			"end": 93.52,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "man",
+			"start": 93.52,
+			"end": 94.02,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 94.02,
+			"end": 94.06,
+			"type": "spacing",
+			"logprob": -3.576278118089249e-7
+		},
+		{
+			"text": "after",
+			"start": 94.06,
+			"end": 94.44,
+			"type": "word",
+			"logprob": -3.576278118089249e-7
+		},
+		{
+			"text": " ",
+			"start": 94.44,
+			"end": 94.52,
+			"type": "spacing",
+			"logprob": -1.9073468138230965e-6
+		},
+		{
+			"text": "midnight.",
+			"start": 94.52,
+			"end": 95.22,
+			"type": "word",
+			"logprob": -1.708664865892236e-6
+		},
+		{
+			"text": " ",
+			"start": 95.22,
+			"end": 95.24,
+			"type": "spacing",
+			"logprob": -2.884823152271565e-5
+		},
+		{
+			"text": "Won't",
+			"start": 95.24,
+			"end": 95.25,
+			"type": "word",
+			"logprob": -1.735662262376536e-5
+		},
+		{
+			"text": " ",
+			"start": 95.25,
+			"end": 95.25,
+			"type": "spacing",
+			"logprob": -5.364403477869928e-6
+		},
+		{
+			"text": "somebody",
+			"start": 95.25,
+			"end": 95.28,
+			"type": "word",
+			"logprob": -5.364403477869928e-6
+		},
+		{
+			"text": " ",
+			"start": 95.28,
+			"end": 95.3,
+			"type": "spacing",
+			"logprob": -4.768370445162873e-7
+		},
+		{
+			"text": "help",
+			"start": 95.3,
+			"end": 95.45,
+			"type": "word",
+			"logprob": -4.768370445162873e-7
+		},
+		{
+			"text": " ",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "spacing",
+			"logprob": -1.9073468138230965e-6
+		},
+		{
+			"text": "me",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "word",
+			"logprob": -1.9073468138230965e-6
+		},
+		{
+			"text": " ",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "spacing",
+			"logprob": -6.318072337307967e-6
+		},
+		{
+			"text": "chase",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "word",
+			"logprob": -6.318072337307967e-6
+		},
+		{
+			"text": " ",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "the",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "spacing",
+			"logprob": -3.4927710657939315e-5
+		},
+		{
+			"text": "shadows",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "word",
+			"logprob": -3.4927710657939315e-5
+		},
+		{
+			"text": " ",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "spacing",
+			"logprob": -1.5497195136049413e-6
+		},
+		{
+			"text": "away?",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "word",
+			"logprob": -1.2874593210199236e-6
+		},
+		{
+			"text": " ",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "spacing",
+			"logprob": -2.622600959512056e-6
+		},
+		{
+			"text": "Gimme,",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "word",
+			"logprob": -1.5894553750210132e-6
+		},
+		{
+			"text": " ",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "spacing",
+			"logprob": -4.911301948595792e-5
+		},
+		{
+			"text": "gimme,",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "word",
+			"logprob": -2.9444054841102723e-5
+		},
+		{
+			"text": " ",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "spacing",
+			"logprob": -0.00013004888023715466
+		},
+		{
+			"text": "gimme",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "word",
+			"logprob": -7.807701185527093e-5
+		},
+		{
+			"text": " ",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{"text": "a", "start": 95.45, "end": 95.45, "type": "word", "logprob": 0.0},
+		{
+			"text": " ",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "man",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "spacing",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": "after",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "word",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": " ",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "spacing",
+			"logprob": -3.576272320060525e-6
+		},
+		{
+			"text": "midnight.",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "word",
+			"logprob": -3.178908728942689e-6
+		},
+		{
+			"text": " ",
+			"start": 95.45,
+			"end": 95.45,
+			"type": "spacing",
+			"logprob": -5.960446742392378e-6
+		},
+		{
+			"text": "Take",
+			"start": 95.45,
+			"end": 95.9,
+			"type": "word",
+			"logprob": -5.960446742392378e-6
+		},
+		{
+			"text": " ",
+			"start": 95.9,
+			"end": 95.94,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "me",
+			"start": 95.94,
+			"end": 96.08,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 96.08,
+			"end": 96.16,
+			"type": "spacing",
+			"logprob": -1.4305104514278355e-6
+		},
+		{
+			"text": "through",
+			"start": 96.16,
+			"end": 96.32,
+			"type": "word",
+			"logprob": -1.4305104514278355e-6
+		},
+		{
+			"text": " ",
+			"start": 96.32,
+			"end": 96.38,
+			"type": "spacing",
+			"logprob": -9.536738616588991e-7
+		},
+		{
+			"text": "the",
+			"start": 96.38,
+			"end": 96.47,
+			"type": "word",
+			"logprob": -9.536738616588991e-7
+		},
+		{
+			"text": " ",
+			"start": 96.47,
+			"end": 96.54,
+			"type": "spacing",
+			"logprob": -0.0014357983600348234
+		},
+		{
+			"text": "darkness",
+			"start": 96.54,
+			"end": 97.04,
+			"type": "word",
+			"logprob": -0.0014357983600348234
+		},
+		{
+			"text": " ",
+			"start": 97.04,
+			"end": 97.1,
+			"type": "spacing",
+			"logprob": -7.152555099310121e-7
+		},
+		{
+			"text": "to",
+			"start": 97.1,
+			"end": 97.3,
+			"type": "word",
+			"logprob": -7.152555099310121e-7
+		},
+		{
+			"text": " ",
+			"start": 97.3,
+			"end": 97.36,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "the",
+			"start": 97.36,
+			"end": 97.46,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 97.46,
+			"end": 97.58,
+			"type": "spacing",
+			"logprob": -0.00034350217902101576
+		},
+		{
+			"text": "break",
+			"start": 97.58,
+			"end": 97.78,
+			"type": "word",
+			"logprob": -0.00034350217902101576
+		},
+		{
+			"text": " ",
+			"start": 97.78,
+			"end": 97.86,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "of",
+			"start": 97.86,
+			"end": 98.02,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 98.02,
+			"end": 98.06,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "the",
+			"start": 98.06,
+			"end": 98.27,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 98.27,
+			"end": 98.34,
+			"type": "spacing",
+			"logprob": -3.576278118089249e-7
+		},
+		{
+			"text": "day.",
+			"start": 98.34,
+			"end": 99.44,
+			"type": "word",
+			"logprob": -2.6822085885669367e-7
+		},
+		{
+			"text": " ",
+			"start": 99.44,
+			"end": 99.48,
+			"type": "spacing",
+			"logprob": -4.768360213347478e-6
+		},
+		{
+			"text": "Gimme,",
+			"start": 99.48,
+			"end": 99.84,
+			"type": "word",
+			"logprob": -2.543125788179168e-6
+		},
+		{
+			"text": " ",
+			"start": 99.84,
+			"end": 99.96,
+			"type": "spacing",
+			"logprob": -2.825220326485578e-5
+		},
+		{
+			"text": "gimme,",
+			"start": 99.96,
+			"end": 100.3,
+			"type": "word",
+			"logprob": -1.4165838059909674e-5
+		},
+		{
+			"text": " ",
+			"start": 100.3,
+			"end": 100.46,
+			"type": "spacing",
+			"logprob": -1.6689160474925302e-5
+		},
+		{
+			"text": "gimme",
+			"start": 100.46,
+			"end": 100.86,
+			"type": "word",
+			"logprob": -1.0204231102761696e-5
+		},
+		{
+			"text": " ",
+			"start": 100.86,
+			"end": 100.98,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "a",
+			"start": 100.98,
+			"end": 101.1,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 101.1,
+			"end": 101.16,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "man",
+			"start": 101.16,
+			"end": 101.64,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 101.64,
+			"end": 101.7,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "after",
+			"start": 101.7,
+			"end": 102.04,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 102.04,
+			"end": 102.1,
+			"type": "spacing",
+			"logprob": -2.145764938177308e-6
+		},
+		{
+			"text": "midnight.",
+			"start": 102.1,
+			"end": 103.02,
+			"type": "word",
+			"logprob": -1.9073466117131627e-6
+		},
+		{
+			"text": " ",
+			"start": 103.02,
+			"end": 103.04,
+			"type": "spacing",
+			"logprob": -3.6238969187252223e-5
+		},
+		{
+			"text": "Won't",
+			"start": 103.04,
+			"end": 103.48,
+			"type": "word",
+			"logprob": -2.1767223368840406e-5
+		},
+		{
+			"text": " ",
+			"start": 103.48,
+			"end": 103.54,
+			"type": "spacing",
+			"logprob": -2.3841830625315197e-6
+		},
+		{
+			"text": "somebody",
+			"start": 103.54,
+			"end": 103.96,
+			"type": "word",
+			"logprob": -2.3841830625315197e-6
+		},
+		{
+			"text": " ",
+			"start": 103.96,
+			"end": 104.16,
+			"type": "spacing",
+			"logprob": -7.152555099310121e-7
+		},
+		{
+			"text": "help",
+			"start": 104.16,
+			"end": 104.46,
+			"type": "word",
+			"logprob": -7.152555099310121e-7
+		},
+		{
+			"text": " ",
+			"start": 104.46,
+			"end": 104.5,
+			"type": "spacing",
+			"logprob": -4.768370445162873e-7
+		},
+		{
+			"text": "me",
+			"start": 104.5,
+			"end": 104.6,
+			"type": "word",
+			"logprob": -4.768370445162873e-7
+		},
+		{
+			"text": " ",
+			"start": 104.6,
+			"end": 104.7,
+			"type": "spacing",
+			"logprob": -7.033323527139146e-6
+		},
+		{
+			"text": "chase",
+			"start": 104.7,
+			"end": 104.94,
+			"type": "word",
+			"logprob": -7.033323527139146e-6
+		},
+		{
+			"text": " ",
+			"start": 104.94,
+			"end": 104.96,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "the",
+			"start": 104.96,
+			"end": 105.1,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 105.1,
+			"end": 105.14,
+			"type": "spacing",
+			"logprob": -1.0013530300057027e-5
+		},
+		{
+			"text": "shadows",
+			"start": 105.14,
+			"end": 105.66,
+			"type": "word",
+			"logprob": -1.0013530300057027e-5
+		},
+		{
+			"text": " ",
+			"start": 105.66,
+			"end": 105.78,
+			"type": "spacing",
+			"logprob": -2.0265558760002023e-6
+		},
+		{
+			"text": "away?",
+			"start": 105.78,
+			"end": 106.58,
+			"type": "word",
+			"logprob": -2.169606659663259e-6
+		},
+		{
+			"text": " ",
+			"start": 106.58,
+			"end": 107.1,
+			"type": "spacing",
+			"logprob": -8.940656698541716e-6
+		},
+		{
+			"text": "Gimme,",
+			"start": 107.1,
+			"end": 107.5,
+			"type": "word",
+			"logprob": -4.569669413238368e-6
+		},
+		{
+			"text": " ",
+			"start": 107.5,
+			"end": 107.6,
+			"type": "spacing",
+			"logprob": -8.702239938429557e-6
+		},
+		{
+			"text": "gimme,",
+			"start": 107.6,
+			"end": 107.94,
+			"type": "word",
+			"logprob": -6.020045778617107e-6
+		},
+		{
+			"text": " ",
+			"start": 107.94,
+			"end": 108.08,
+			"type": "spacing",
+			"logprob": -1.2636104656849056e-5
+		},
+		{
+			"text": "gimme",
+			"start": 108.08,
+			"end": 108.48,
+			"type": "word",
+			"logprob": -7.629346507087576e-6
+		},
+		{
+			"text": " ",
+			"start": 108.48,
+			"end": 108.66,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "a",
+			"start": 108.66,
+			"end": 108.72,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 108.72,
+			"end": 108.78,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "man",
+			"start": 108.78,
+			"end": 108.97,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 108.97,
+			"end": 108.97,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "after",
+			"start": 108.97,
+			"end": 109.18,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 109.18,
+			"end": 109.72,
+			"type": "spacing",
+			"logprob": -9.536738616588991e-7
+		},
+		{
+			"text": "midnight.",
+			"start": 109.72,
+			"end": 110.43,
+			"type": "word",
+			"logprob": -8.609555750796163e-7
+		},
+		{
+			"text": " ",
+			"start": 110.43,
+			"end": 110.68,
+			"type": "spacing",
+			"logprob": -3.576272320060525e-6
+		},
+		{
+			"text": "Take",
+			"start": 110.68,
+			"end": 111.14,
+			"type": "word",
+			"logprob": -3.576272320060525e-6
+		},
+		{
+			"text": " ",
+			"start": 111.14,
+			"end": 111.18,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "me",
+			"start": 111.18,
+			"end": 111.3,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 111.3,
+			"end": 111.399,
+			"type": "spacing",
+			"logprob": -1.0728830375228426e-6
+		},
+		{
+			"text": "through",
+			"start": 111.4,
+			"end": 111.58,
+			"type": "word",
+			"logprob": -1.0728830375228426e-6
+		},
+		{
+			"text": " ",
+			"start": 111.58,
+			"end": 111.64,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "the",
+			"start": 111.64,
+			"end": 111.7,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 111.7,
+			"end": 111.74,
+			"type": "spacing",
+			"logprob": -2.9444261599564925e-5
+		},
+		{
+			"text": "darkness",
+			"start": 111.74,
+			"end": 112.32,
+			"type": "word",
+			"logprob": -2.9444261599564925e-5
+		},
+		{
+			"text": " ",
+			"start": 112.32,
+			"end": 112.34,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "to",
+			"start": 112.34,
+			"end": 112.48,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 112.48,
+			"end": 112.6,
+			"type": "spacing",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": "the",
+			"start": 112.6,
+			"end": 112.72,
+			"type": "word",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": " ",
+			"start": 112.72,
+			"end": 112.8,
+			"type": "spacing",
+			"logprob": -2.9802276912960224e-6
+		},
+		{
+			"text": "break",
+			"start": 112.8,
+			"end": 113.0,
+			"type": "word",
+			"logprob": -2.9802276912960224e-6
+		},
+		{
+			"text": " ",
+			"start": 113.0,
+			"end": 113.06,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "of",
+			"start": 113.06,
+			"end": 113.23,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 113.23,
+			"end": 113.26,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "the",
+			"start": 113.26,
+			"end": 113.46,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 113.46,
+			"end": 113.56,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "day.",
+			"start": 113.56,
+			"end": 114.24,
+			"type": "word",
+			"logprob": -1.1324860853534346e-6
+		},
+		{
+			"text": " ",
+			"start": 114.24,
+			"end": 114.72,
+			"type": "spacing",
+			"logprob": -2.861018856492592e-6
+		},
+		{
+			"text": "Gimme,",
+			"start": 114.72,
+			"end": 115.12,
+			"type": "word",
+			"logprob": -1.6291915206541792e-6
+		},
+		{
+			"text": " ",
+			"start": 115.12,
+			"end": 115.18,
+			"type": "spacing",
+			"logprob": -1.585470999998506e-5
+		},
+		{
+			"text": "gimme,",
+			"start": 115.18,
+			"end": 115.54,
+			"type": "word",
+			"logprob": -8.364455425180495e-6
+		},
+		{
+			"text": " ",
+			"start": 115.54,
+			"end": 115.7,
+			"type": "spacing",
+			"logprob": -1.0490362910786644e-5
+		},
+		{
+			"text": "gimme",
+			"start": 115.7,
+			"end": 116.1,
+			"type": "word",
+			"logprob": -6.294217746471986e-6
+		},
+		{
+			"text": " ",
+			"start": 116.1,
+			"end": 116.22,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "a",
+			"start": 116.22,
+			"end": 116.34,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 116.34,
+			"end": 116.38,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "man",
+			"start": 116.38,
+			"end": 116.66,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 116.66,
+			"end": 116.94,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "after",
+			"start": 116.94,
+			"end": 117.3,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 117.3,
+			"end": 117.34,
+			"type": "spacing",
+			"logprob": -1.1920922133867862e-6
+		},
+		{
+			"text": "midnight.",
+			"start": 117.34,
+			"end": 118.05,
+			"type": "word",
+			"logprob": -1.0728829988377381e-6
+		},
+		{
+			"text": " ",
+			"start": 118.05,
+			"end": 118.26,
+			"type": "spacing",
+			"logprob": -1.823885577323381e-5
+		},
+		{
+			"text": "Won't",
+			"start": 118.26,
+			"end": 118.76,
+			"type": "word",
+			"logprob": -1.0943313463940285e-5
+		},
+		{
+			"text": " ",
+			"start": 118.76,
+			"end": 118.77,
+			"type": "spacing",
+			"logprob": -1.7881377516459906e-6
+		},
+		{
+			"text": "somebody",
+			"start": 118.77,
+			"end": 119.2,
+			"type": "word",
+			"logprob": -1.7881377516459906e-6
+		},
+		{
+			"text": " ",
+			"start": 119.2,
+			"end": 119.38,
+			"type": "spacing",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": "help",
+			"start": 119.38,
+			"end": 119.72,
+			"type": "word",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": " ",
+			"start": 119.72,
+			"end": 119.74,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "me",
+			"start": 119.74,
+			"end": 119.86,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 119.86,
+			"end": 119.96,
+			"type": "spacing",
+			"logprob": -2.264974000354414e-6
+		},
+		{
+			"text": "chase",
+			"start": 119.96,
+			"end": 120.18,
+			"type": "word",
+			"logprob": -2.264974000354414e-6
+		},
+		{
+			"text": " ",
+			"start": 120.18,
+			"end": 120.22,
+			"type": "spacing",
+			"logprob": -7.152555099310121e-7
+		},
+		{
+			"text": "the",
+			"start": 120.22,
+			"end": 120.34,
+			"type": "word",
+			"logprob": -7.152555099310121e-7
+		},
+		{
+			"text": " ",
+			"start": 120.34,
+			"end": 120.4,
+			"type": "spacing",
+			"logprob": -9.059865078597795e-6
+		},
+		{
+			"text": "shadows",
+			"start": 120.4,
+			"end": 120.87,
+			"type": "word",
+			"logprob": -9.059865078597795e-6
+		},
+		{
+			"text": " ",
+			"start": 120.87,
+			"end": 120.92,
+			"type": "spacing",
+			"logprob": -2.264974000354414e-6
+		},
+		{
+			"text": "away?",
+			"start": 120.92,
+			"end": 121.62,
+			"type": "word",
+			"logprob": -2.0027139726153108e-6
+		},
+		{
+			"text": " ",
+			"start": 121.62,
+			"end": 122.34,
+			"type": "spacing",
+			"logprob": -3.6954811548639555e-6
+		},
+		{
+			"text": "Gimme,",
+			"start": 122.34,
+			"end": 122.74,
+			"type": "word",
+			"logprob": -1.9669498480349525e-6
+		},
+		{
+			"text": " ",
+			"start": 122.74,
+			"end": 122.84,
+			"type": "spacing",
+			"logprob": -7.748573807475623e-6
+		},
+		{
+			"text": "gimme,",
+			"start": 122.84,
+			"end": 123.2,
+			"type": "word",
+			"logprob": -6.3776725861923e-6
+		},
+		{
+			"text": " ",
+			"start": 123.2,
+			"end": 123.26,
+			"type": "spacing",
+			"logprob": -4.768360213347478e-6
+		},
+		{
+			"text": "gimme",
+			"start": 123.26,
+			"end": 123.74,
+			"type": "word",
+			"logprob": -3.0994346388979464e-6
+		},
+		{
+			"text": " ",
+			"start": 123.74,
+			"end": 123.82,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "a",
+			"start": 123.82,
+			"end": 123.92,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 123.92,
+			"end": 124.0,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "man",
+			"start": 124.0,
+			"end": 124.17,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 124.17,
+			"end": 124.17,
+			"type": "spacing",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": "after",
+			"start": 124.17,
+			"end": 124.42,
+			"type": "word",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": " ",
+			"start": 124.42,
+			"end": 124.94,
+			"type": "spacing",
+			"logprob": -7.152555099310121e-7
+		},
+		{
+			"text": "midnight.",
+			"start": 124.94,
+			"end": 125.65,
+			"type": "word",
+			"logprob": -6.35782675494233e-7
+		},
+		{
+			"text": " ",
+			"start": 125.65,
+			"end": 125.92,
+			"type": "spacing",
+			"logprob": -4.768360213347478e-6
+		},
+		{
+			"text": "Take",
+			"start": 125.92,
+			"end": 126.14,
+			"type": "word",
+			"logprob": -4.768360213347478e-6
+		},
+		{
+			"text": " ",
+			"start": 126.14,
+			"end": 126.66,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "me",
+			"start": 126.66,
+			"end": 126.67,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 126.67,
+			"end": 126.67,
+			"type": "spacing",
+			"logprob": -8.344646857949556e-7
+		},
+		{
+			"text": "through",
+			"start": 126.67,
+			"end": 127.3,
+			"type": "word",
+			"logprob": -8.344646857949556e-7
+		},
+		{
+			"text": " ",
+			"start": 127.3,
+			"end": 127.34,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "the",
+			"start": 127.34,
+			"end": 127.35,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 127.35,
+			"end": 127.38,
+			"type": "spacing",
+			"logprob": -6.437280717364047e-6
+		},
+		{
+			"text": "darkness",
+			"start": 127.38,
+			"end": 127.54,
+			"type": "word",
+			"logprob": -6.437280717364047e-6
+		},
+		{
+			"text": " ",
+			"start": 127.54,
+			"end": 127.56,
+			"type": "spacing",
+			"logprob": -2.264974000354414e-6
+		},
+		{
+			"text": "to",
+			"start": 127.56,
+			"end": 127.71,
+			"type": "word",
+			"logprob": -2.264974000354414e-6
+		},
+		{
+			"text": " ",
+			"start": 127.71,
+			"end": 128.02,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "the",
+			"start": 128.02,
+			"end": 128.03,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 128.03,
+			"end": 128.26,
+			"type": "spacing",
+			"logprob": -2.0265558760002023e-6
+		},
+		{
+			"text": "break",
+			"start": 128.26,
+			"end": 128.27,
+			"type": "word",
+			"logprob": -2.0265558760002023e-6
+		},
+		{
+			"text": " ",
+			"start": 128.27,
+			"end": 128.66,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "of",
+			"start": 128.66,
+			"end": 129.03,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 129.03,
+			"end": 129.24,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "the",
+			"start": 129.24,
+			"end": 129.87,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 129.87,
+			"end": 129.87,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "day.",
+			"start": 129.87,
+			"end": 129.94,
+			"type": "word",
+			"logprob": -3.27825318890973e-7
+		},
+		{
+			"text": " ",
+			"start": 129.94,
+			"end": 129.96,
+			"type": "spacing",
+			"logprob": -5.245195097813848e-6
+		},
+		{
+			"text": "Gimme,",
+			"start": 129.96,
+			"end": 130.35,
+			"type": "word",
+			"logprob": -2.662333976388709e-6
+		},
+		{
+			"text": " ",
+			"start": 130.35,
+			"end": 130.37,
+			"type": "spacing",
+			"logprob": -4.0531076592742465e-6
+		},
+		{
+			"text": "gimme,",
+			"start": 130.37,
+			"end": 130.82,
+			"type": "word",
+			"logprob": -2.0464220433780156e-6
+		},
+		{
+			"text": " ",
+			"start": 130.82,
+			"end": 130.94,
+			"type": "spacing",
+			"logprob": -3.814689989667386e-6
+		},
+		{
+			"text": "gimme",
+			"start": 130.94,
+			"end": 131.32,
+			"type": "word",
+			"logprob": -2.574916197772836e-6
+		},
+		{
+			"text": " ",
+			"start": 131.32,
+			"end": 131.42,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "a",
+			"start": 131.42,
+			"end": 131.58,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 131.58,
+			"end": 131.64,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "man",
+			"start": 131.64,
+			"end": 132.14,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 132.14,
+			"end": 132.18,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "after",
+			"start": 132.18,
+			"end": 132.5,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 132.5,
+			"end": 132.6,
+			"type": "spacing",
+			"logprob": -7.152555099310121e-7
+		},
+		{
+			"text": "midnight.",
+			"start": 132.6,
+			"end": 133.46,
+			"type": "word",
+			"logprob": -6.622736255697722e-7
+		},
+		{
+			"text": " ",
+			"start": 133.46,
+			"end": 133.52,
+			"type": "spacing",
+			"logprob": -1.1324817933200393e-5
+		},
+		{
+			"text": "Won't",
+			"start": 133.52,
+			"end": 133.96,
+			"type": "word",
+			"logprob": -6.866416322282021e-6
+		},
+		{
+			"text": " ",
+			"start": 133.96,
+			"end": 134.02,
+			"type": "spacing",
+			"logprob": -5.960462772236497e-7
+		},
+		{
+			"text": "somebody",
+			"start": 134.02,
+			"end": 134.58,
+			"type": "word",
+			"logprob": -5.960462772236497e-7
+		},
+		{
+			"text": " ",
+			"start": 134.58,
+			"end": 134.66,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "help",
+			"start": 134.66,
+			"end": 134.94,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 134.94,
+			"end": 134.98,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "me",
+			"start": 134.98,
+			"end": 135.1,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 135.1,
+			"end": 135.18,
+			"type": "spacing",
+			"logprob": -1.311301275563892e-6
+		},
+		{
+			"text": "chase",
+			"start": 135.18,
+			"end": 135.42,
+			"type": "word",
+			"logprob": -1.311301275563892e-6
+		},
+		{
+			"text": " ",
+			"start": 135.42,
+			"end": 135.46,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "the",
+			"start": 135.46,
+			"end": 135.58,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 135.58,
+			"end": 135.64,
+			"type": "spacing",
+			"logprob": -9.417489309271332e-6
+		},
+		{
+			"text": "shadows",
+			"start": 135.64,
+			"end": 136.16,
+			"type": "word",
+			"logprob": -9.417489309271332e-6
+		},
+		{
+			"text": " ",
+			"start": 136.16,
+			"end": 136.28,
+			"type": "spacing",
+			"logprob": -8.344646857949556e-7
+		},
+		{
+			"text": "away?",
+			"start": 136.28,
+			"end": 136.94,
+			"type": "word",
+			"logprob": -9.775156513569527e-7
+		},
+		{
+			"text": " ",
+			"start": 136.94,
+			"end": 137.58,
+			"type": "spacing",
+			"logprob": -2.145764938177308e-6
+		},
+		{
+			"text": "Gimme,",
+			"start": 137.58,
+			"end": 137.96,
+			"type": "word",
+			"logprob": -1.1126188965704387e-6
+		},
+		{
+			"text": " ",
+			"start": 137.96,
+			"end": 138.179,
+			"type": "spacing",
+			"logprob": -8.22540732769994e-6
+		},
+		{
+			"text": "gimme,",
+			"start": 138.18,
+			"end": 138.43,
+			"type": "word",
+			"logprob": -4.11270366384997e-6
+		},
+		{
+			"text": " ",
+			"start": 138.43,
+			"end": 138.56,
+			"type": "spacing",
+			"logprob": -4.6491513785440475e-6
+		},
+		{
+			"text": "gimme",
+			"start": 138.56,
+			"end": 138.94,
+			"type": "word",
+			"logprob": -3.1232767014444105e-6
+		},
+		{
+			"text": " ",
+			"start": 138.94,
+			"end": 139.06,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "a",
+			"start": 139.06,
+			"end": 139.2,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 139.2,
+			"end": 139.24,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "man",
+			"start": 139.24,
+			"end": 139.72,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 139.72,
+			"end": 139.78,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "after",
+			"start": 139.78,
+			"end": 140.1,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 140.1,
+			"end": 140.2,
+			"type": "spacing",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": "midnight.",
+			"start": 140.2,
+			"end": 140.94,
+			"type": "word",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": " ",
+			"start": 140.94,
+			"end": 140.98,
+			"type": "spacing",
+			"logprob": -2.3841830625315197e-6
+		},
+		{
+			"text": "Take",
+			"start": 140.98,
+			"end": 141.62,
+			"type": "word",
+			"logprob": -2.3841830625315197e-6
+		},
+		{
+			"text": " ",
+			"start": 141.62,
+			"end": 141.66,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "me",
+			"start": 141.66,
+			"end": 141.78,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 141.78,
+			"end": 141.86,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "through",
+			"start": 141.86,
+			"end": 142.05,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 142.05,
+			"end": 142.1,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "the",
+			"start": 142.1,
+			"end": 142.18,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 142.18,
+			"end": 142.24,
+			"type": "spacing",
+			"logprob": -5.006777428206988e-6
+		},
+		{
+			"text": "darkness",
+			"start": 142.24,
+			"end": 142.76,
+			"type": "word",
+			"logprob": -5.006777428206988e-6
+		},
+		{
+			"text": " ",
+			"start": 142.76,
+			"end": 142.86,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "to",
+			"start": 142.86,
+			"end": 143.02,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 143.02,
+			"end": 143.08,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "the",
+			"start": 143.08,
+			"end": 143.18,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 143.18,
+			"end": 143.28,
+			"type": "spacing",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": "break",
+			"start": 143.28,
+			"end": 143.5,
+			"type": "word",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": " ",
+			"start": 143.5,
+			"end": 143.56,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "of",
+			"start": 143.56,
+			"end": 143.69,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 143.69,
+			"end": 143.78,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "the",
+			"start": 143.78,
+			"end": 144.05,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 144.05,
+			"end": 144.05,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "day.",
+			"start": 144.05,
+			"end": 144.7,
+			"type": "word",
+			"logprob": -3.576277212147261e-7
+		},
+		{
+			"text": " ",
+			"start": 144.7,
+			"end": 145.2,
+			"type": "spacing",
+			"logprob": -3.4570634852570947e-6
+		},
+		{
+			"text": "Gimme,",
+			"start": 145.2,
+			"end": 145.6,
+			"type": "word",
+			"logprob": -1.8080045928551651e-6
+		},
+		{
+			"text": " ",
+			"start": 145.6,
+			"end": 145.68,
+			"type": "spacing",
+			"logprob": -6.079655122448457e-6
+		},
+		{
+			"text": "gimme,",
+			"start": 145.68,
+			"end": 146.04,
+			"type": "word",
+			"logprob": -5.642553710790328e-6
+		},
+		{
+			"text": " ",
+			"start": 146.04,
+			"end": 146.18,
+			"type": "spacing",
+			"logprob": -6.318072337307967e-6
+		},
+		{
+			"text": "gimme",
+			"start": 146.18,
+			"end": 146.58,
+			"type": "word",
+			"logprob": -3.933894527108351e-6
+		},
+		{
+			"text": " ",
+			"start": 146.58,
+			"end": 146.679,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "a",
+			"start": 146.68,
+			"end": 146.82,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 146.82,
+			"end": 146.88,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "man",
+			"start": 146.88,
+			"end": 147.36,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 147.36,
+			"end": 147.42,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "after",
+			"start": 147.42,
+			"end": 147.76,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 147.76,
+			"end": 147.84,
+			"type": "spacing",
+			"logprob": -7.152555099310121e-7
+		},
+		{
+			"text": "midnight.",
+			"start": 147.84,
+			"end": 148.72,
+			"type": "word",
+			"logprob": -7.417464379007773e-7
+		},
+		{
+			"text": " ",
+			"start": 148.72,
+			"end": 148.74,
+			"type": "spacing",
+			"logprob": -5.245195097813848e-6
+		},
+		{
+			"text": "Won't",
+			"start": 148.74,
+			"end": 149.199,
+			"type": "word",
+			"logprob": -3.218642621050094e-6
+		},
+		{
+			"text": " ",
+			"start": 149.199,
+			"end": 149.24,
+			"type": "spacing",
+			"logprob": -4.768370445162873e-7
+		},
+		{
+			"text": "somebody",
+			"start": 149.24,
+			"end": 149.82,
+			"type": "word",
+			"logprob": -4.768370445162873e-7
+		},
+		{
+			"text": " ",
+			"start": 149.82,
+			"end": 149.9,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "help",
+			"start": 149.9,
+			"end": 150.18,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 150.18,
+			"end": 150.199,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "me",
+			"start": 150.199,
+			"end": 150.34,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 150.34,
+			"end": 150.44,
+			"type": "spacing",
+			"logprob": -1.0728830375228426e-6
+		},
+		{
+			"text": "chase",
+			"start": 150.44,
+			"end": 150.66,
+			"type": "word",
+			"logprob": -1.0728830375228426e-6
+		},
+		{
+			"text": " ",
+			"start": 150.66,
+			"end": 150.699,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "the",
+			"start": 150.699,
+			"end": 150.82,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 150.82,
+			"end": 150.859,
+			"type": "spacing",
+			"logprob": -4.887569048150908e-6
+		},
+		{
+			"text": "shadows",
+			"start": 150.86,
+			"end": 151.42,
+			"type": "word",
+			"logprob": -4.887569048150908e-6
+		},
+		{
+			"text": " ",
+			"start": 151.42,
+			"end": 151.48,
+			"type": "spacing",
+			"logprob": -8.344646857949556e-7
+		},
+		{
+			"text": "away?",
+			"start": 151.48,
+			"end": 152.3,
+			"type": "word",
+			"logprob": -1.1920919405383756e-6
+		},
+		{
+			"text": " ",
+			"start": 152.3,
+			"end": 152.82,
+			"type": "spacing",
+			"logprob": -2.622600959512056e-6
+		},
+		{
+			"text": "Gimme,",
+			"start": 152.82,
+			"end": 153.2,
+			"type": "word",
+			"logprob": -1.311300479756028e-6
+		},
+		{
+			"text": " ",
+			"start": 153.2,
+			"end": 153.3,
+			"type": "spacing",
+			"logprob": -4.768360213347478e-6
+		},
+		{
+			"text": "gimme,",
+			"start": 153.3,
+			"end": 153.66,
+			"type": "word",
+			"logprob": -7.331329840098988e-6
+		},
+		{
+			"text": " ",
+			"start": 153.66,
+			"end": 153.799,
+			"type": "spacing",
+			"logprob": -8.583032467868179e-6
+		},
+		{
+			"text": "gimme",
+			"start": 153.8,
+			"end": 154.2,
+			"type": "word",
+			"logprob": -5.197503193699049e-6
+		},
+		{
+			"text": " ",
+			"start": 154.2,
+			"end": 154.38,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "a",
+			"start": 154.38,
+			"end": 154.44,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 154.44,
+			"end": 154.5,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "man",
+			"start": 154.5,
+			"end": 154.98,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 154.98,
+			"end": 155.019,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "after",
+			"start": 155.02,
+			"end": 155.36,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 155.36,
+			"end": 155.44,
+			"type": "spacing",
+			"logprob": -4.768370445162873e-7
+		},
+		{
+			"text": "midnight.",
+			"start": 155.44,
+			"end": 156.34,
+			"type": "word",
+			"logprob": -5.430643770725712e-7
+		},
+		{
+			"text": " ",
+			"start": 156.34,
+			"end": 156.4,
+			"type": "spacing",
+			"logprob": -3.099436753473128e-6
+		},
+		{
+			"text": "Take",
+			"start": 156.4,
+			"end": 156.86,
+			"type": "word",
+			"logprob": -3.099436753473128e-6
+		},
+		{
+			"text": " ",
+			"start": 156.86,
+			"end": 156.88,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "me",
+			"start": 156.88,
+			"end": 157.02,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 157.02,
+			"end": 157.12,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "through",
+			"start": 157.12,
+			"end": 157.29,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 157.29,
+			"end": 157.3,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "the",
+			"start": 157.3,
+			"end": 157.45,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 157.45,
+			"end": 157.45,
+			"type": "spacing",
+			"logprob": -4.291525328881107e-6
+		},
+		{
+			"text": "darkness",
+			"start": 157.45,
+			"end": 157.98,
+			"type": "word",
+			"logprob": -4.291525328881107e-6
+		},
+		{
+			"text": " ",
+			"start": 157.98,
+			"end": 158.02,
+			"type": "spacing",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": "to",
+			"start": 158.02,
+			"end": 158.18,
+			"type": "word",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": " ",
+			"start": 158.18,
+			"end": 158.3,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "the",
+			"start": 158.3,
+			"end": 158.42,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 158.42,
+			"end": 158.52,
+			"type": "spacing",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": "break",
+			"start": 158.52,
+			"end": 158.76,
+			"type": "word",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": " ",
+			"start": 158.76,
+			"end": 158.799,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "of",
+			"start": 158.8,
+			"end": 158.95,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 158.95,
+			"end": 159.04,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "the",
+			"start": 159.04,
+			"end": 159.18,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 159.18,
+			"end": 159.26,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "day.",
+			"start": 159.26,
+			"end": 159.96,
+			"type": "word",
+			"logprob": -3.555164221324958e-5
+		},
+		{
+			"text": " ",
+			"start": 159.96,
+			"end": 159.96,
+			"type": "spacing",
+			"logprob": -0.38010814785957336
+		},
+		{
+			"text": "There's",
+			"start": 163.08,
+			"end": 195.18,
+			"type": "word",
+			"logprob": -4.235211778385357e-5
+		},
+		{
+			"text": " ",
+			"start": 195.18,
+			"end": 195.22,
+			"type": "spacing",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": "not",
+			"start": 195.22,
+			"end": 195.46,
+			"type": "word",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": " ",
+			"start": 195.46,
+			"end": 195.48,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "a",
+			"start": 195.48,
+			"end": 195.56,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 195.56,
+			"end": 195.64,
+			"type": "spacing",
+			"logprob": -1.6689286894688848e-6
+		},
+		{
+			"text": "soul",
+			"start": 195.64,
+			"end": 196.02,
+			"type": "word",
+			"logprob": -1.6689286894688848e-6
+		},
+		{
+			"text": " ",
+			"start": 196.02,
+			"end": 196.06,
+			"type": "spacing",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": "out",
+			"start": 196.06,
+			"end": 196.32,
+			"type": "word",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": " ",
+			"start": 196.32,
+			"end": 196.42,
+			"type": "spacing",
+			"logprob": -0.0001431601122021675
+		},
+		{
+			"text": "there.",
+			"start": 196.42,
+			"end": 197.08,
+			"type": "word",
+			"logprob": -0.00011991600702761691
+		},
+		{
+			"text": " ",
+			"start": 197.08,
+			"end": 197.08,
+			"type": "spacing",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": "No",
+			"start": 198.8,
+			"end": 198.94,
+			"type": "word",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": " ",
+			"start": 198.94,
+			"end": 199.04,
+			"type": "spacing",
+			"logprob": -8.344646857949556e-7
+		},
+		{
+			"text": "one",
+			"start": 199.04,
+			"end": 199.22,
+			"type": "word",
+			"logprob": -8.344646857949556e-7
+		},
+		{
+			"text": " ",
+			"start": 199.22,
+			"end": 199.28,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "to",
+			"start": 199.28,
+			"end": 199.42,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 199.42,
+			"end": 199.5,
+			"type": "spacing",
+			"logprob": -4.768370445162873e-7
+		},
+		{
+			"text": "hear",
+			"start": 199.5,
+			"end": 199.76,
+			"type": "word",
+			"logprob": -4.768370445162873e-7
+		},
+		{
+			"text": " ",
+			"start": 199.76,
+			"end": 199.859,
+			"type": "spacing",
+			"logprob": -3.576278118089249e-7
+		},
+		{
+			"text": "my",
+			"start": 199.86,
+			"end": 200.06,
+			"type": "word",
+			"logprob": -3.576278118089249e-7
+		},
+		{
+			"text": " ",
+			"start": 200.06,
+			"end": 200.16,
+			"type": "spacing",
+			"logprob": -0.0014644861221313477
+		},
+		{
+			"text": "prayer.",
+			"start": 200.16,
+			"end": 205.74,
+			"type": "word",
+			"logprob": -0.0012560742219258308
+		},
+		{
+			"text": " ",
+			"start": 205.74,
+			"end": 206.14,
+			"type": "spacing",
+			"logprob": -2.753696753643453e-5
+		},
+		{
+			"text": "Gimme,",
+			"start": 206.14,
+			"end": 206.489,
+			"type": "word",
+			"logprob": -0.027771242350960772
+		},
+		{
+			"text": " ",
+			"start": 206.489,
+			"end": 206.66,
+			"type": "spacing",
+			"logprob": -0.00024768622824922204
+		},
+		{
+			"text": "gimme,",
+			"start": 206.66,
+			"end": 208.46,
+			"type": "word",
+			"logprob": -0.0001238828505520928
+		},
+		{
+			"text": " ",
+			"start": 208.46,
+			"end": 208.56,
+			"type": "spacing",
+			"logprob": -8.809178689261898e-5
+		},
+		{
+			"text": "gimme",
+			"start": 208.56,
+			"end": 209.14,
+			"type": "word",
+			"logprob": -5.295043955584333e-5
+		},
+		{
+			"text": " ",
+			"start": 209.14,
+			"end": 209.34,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "a",
+			"start": 209.34,
+			"end": 209.6,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 209.6,
+			"end": 209.68,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "man",
+			"start": 209.68,
+			"end": 209.69,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 209.69,
+			"end": 209.69,
+			"type": "spacing",
+			"logprob": -5.245195097813848e-6
+		},
+		{
+			"text": "after",
+			"start": 209.69,
+			"end": 210.17,
+			"type": "word",
+			"logprob": -5.245195097813848e-6
+		},
+		{
+			"text": " ",
+			"start": 210.17,
+			"end": 210.17,
+			"type": "spacing",
+			"logprob": -5.960462772236497e-7
+		},
+		{
+			"text": "midnight.",
+			"start": 210.17,
+			"end": 210.17,
+			"type": "word",
+			"logprob": -5.298189130876885e-7
+		},
+		{
+			"text": " ",
+			"start": 210.17,
+			"end": 210.17,
+			"type": "spacing",
+			"logprob": -3.9219088648678735e-5
+		},
+		{
+			"text": "Won't",
+			"start": 210.17,
+			"end": 210.17,
+			"type": "word",
+			"logprob": -2.36268205981105e-5
+		},
+		{
+			"text": " ",
+			"start": 210.17,
+			"end": 210.17,
+			"type": "spacing",
+			"logprob": -1.1801649634435307e-5
+		},
+		{
+			"text": "somebody",
+			"start": 210.17,
+			"end": 210.17,
+			"type": "word",
+			"logprob": -1.1801649634435307e-5
+		},
+		{
+			"text": " ",
+			"start": 210.17,
+			"end": 210.17,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "help",
+			"start": 210.17,
+			"end": 210.17,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 210.17,
+			"end": 210.17,
+			"type": "spacing",
+			"logprob": -4.768370445162873e-7
+		},
+		{
+			"text": "me",
+			"start": 210.17,
+			"end": 210.17,
+			"type": "word",
+			"logprob": -4.768370445162873e-7
+		},
+		{
+			"text": " ",
+			"start": 210.17,
+			"end": 210.17,
+			"type": "spacing",
+			"logprob": -3.981510963058099e-5
+		},
+		{
+			"text": "chase",
+			"start": 210.17,
+			"end": 210.2,
+			"type": "word",
+			"logprob": -3.981510963058099e-5
+		},
+		{
+			"text": " ",
+			"start": 210.2,
+			"end": 210.44,
+			"type": "spacing",
+			"logprob": -3.576278118089249e-7
+		},
+		{
+			"text": "the",
+			"start": 210.44,
+			"end": 210.78,
+			"type": "word",
+			"logprob": -3.576278118089249e-7
+		},
+		{
+			"text": " ",
+			"start": 210.78,
+			"end": 210.84,
+			"type": "spacing",
+			"logprob": -1.9788545614574105e-5
+		},
+		{
+			"text": "shadows",
+			"start": 210.84,
+			"end": 212.36,
+			"type": "word",
+			"logprob": -1.9788545614574105e-5
+		},
+		{
+			"text": " ",
+			"start": 212.36,
+			"end": 212.42,
+			"type": "spacing",
+			"logprob": -2.3841830625315197e-6
+		},
+		{
+			"text": "away?",
+			"start": 212.42,
+			"end": 212.96,
+			"type": "word",
+			"logprob": -2.622600914037321e-6
+		},
+		{
+			"text": " ",
+			"start": 212.96,
+			"end": 213.78,
+			"type": "spacing",
+			"logprob": -2.145764938177308e-6
+		},
+		{
+			"text": "Gimme,",
+			"start": 213.78,
+			"end": 214.18,
+			"type": "word",
+			"logprob": -1.2318281505940831e-6
+		},
+		{
+			"text": " ",
+			"start": 214.18,
+			"end": 214.3,
+			"type": "spacing",
+			"logprob": -2.586808113846928e-5
+		},
+		{
+			"text": "gimme,",
+			"start": 214.3,
+			"end": 214.64,
+			"type": "word",
+			"logprob": -1.2973776996716424e-5
+		},
+		{
+			"text": " ",
+			"start": 214.64,
+			"end": 214.76,
+			"type": "spacing",
+			"logprob": -1.645074735279195e-5
+		},
+		{
+			"text": "gimme",
+			"start": 214.76,
+			"end": 215.12,
+			"type": "word",
+			"logprob": -9.918132124653312e-6
+		},
+		{
+			"text": " ",
+			"start": 215.12,
+			"end": 215.22,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "a",
+			"start": 215.22,
+			"end": 215.38,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 215.38,
+			"end": 215.42,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "man",
+			"start": 215.42,
+			"end": 215.7,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 215.7,
+			"end": 215.96,
+			"type": "spacing",
+			"logprob": -7.152555099310121e-7
+		},
+		{
+			"text": "after",
+			"start": 215.96,
+			"end": 216.32,
+			"type": "word",
+			"logprob": -7.152555099310121e-7
+		},
+		{
+			"text": " ",
+			"start": 216.32,
+			"end": 216.38,
+			"type": "spacing",
+			"logprob": -5.960462772236497e-7
+		},
+		{
+			"text": "midnight.",
+			"start": 216.38,
+			"end": 217.34,
+			"type": "word",
+			"logprob": -5.298189130876885e-7
+		},
+		{
+			"text": " ",
+			"start": 217.34,
+			"end": 217.35,
+			"type": "spacing",
+			"logprob": -1.2755313036905136e-5
+		},
+		{
+			"text": "Take",
+			"start": 217.35,
+			"end": 217.78,
+			"type": "word",
+			"logprob": -1.2755313036905136e-5
+		},
+		{
+			"text": " ",
+			"start": 217.78,
+			"end": 217.84,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "me",
+			"start": 217.84,
+			"end": 217.98,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 217.98,
+			"end": 218.04,
+			"type": "spacing",
+			"logprob": -7.152555099310121e-7
+		},
+		{
+			"text": "through",
+			"start": 218.04,
+			"end": 218.24,
+			"type": "word",
+			"logprob": -7.152555099310121e-7
+		},
+		{
+			"text": " ",
+			"start": 218.24,
+			"end": 218.3,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "the",
+			"start": 218.3,
+			"end": 218.38,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 218.38,
+			"end": 218.42,
+			"type": "spacing",
+			"logprob": -1.4066597032069694e-5
+		},
+		{
+			"text": "darkness",
+			"start": 218.42,
+			"end": 219.0,
+			"type": "word",
+			"logprob": -1.4066597032069694e-5
+		},
+		{
+			"text": " ",
+			"start": 219.0,
+			"end": 219.02,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "to",
+			"start": 219.02,
+			"end": 219.2,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 219.2,
+			"end": 219.28,
+			"type": "spacing",
+			"logprob": -3.576278118089249e-7
+		},
+		{
+			"text": "the",
+			"start": 219.28,
+			"end": 219.36,
+			"type": "word",
+			"logprob": -3.576278118089249e-7
+		},
+		{
+			"text": " ",
+			"start": 219.36,
+			"end": 219.5,
+			"type": "spacing",
+			"logprob": -1.1920922133867862e-6
+		},
+		{
+			"text": "break",
+			"start": 219.54,
+			"end": 219.66,
+			"type": "word",
+			"logprob": -1.1920922133867862e-6
+		},
+		{
+			"text": " ",
+			"start": 219.66,
+			"end": 219.74,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "of",
+			"start": 219.74,
+			"end": 219.88,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 219.88,
+			"end": 220.0,
+			"type": "spacing",
+			"logprob": -3.1470757676288486e-5
+		},
+		{
+			"text": "the",
+			"start": 220.0,
+			"end": 220.13,
+			"type": "word",
+			"logprob": -3.1470757676288486e-5
+		},
+		{
+			"text": " ",
+			"start": 220.13,
+			"end": 220.24,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "day.",
+			"start": 220.24,
+			"end": 221.34,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 221.34,
+			"end": 221.4,
+			"type": "spacing",
+			"logprob": -1.311301275563892e-6
+		},
+		{
+			"text": "Gimme,",
+			"start": 221.4,
+			"end": 221.8,
+			"type": "word",
+			"logprob": -7.351234880085636e-7
+		},
+		{
+			"text": " ",
+			"start": 221.8,
+			"end": 221.84,
+			"type": "spacing",
+			"logprob": -7.510157047363464e-6
+		},
+		{
+			"text": "gimme,",
+			"start": 221.84,
+			"end": 222.3,
+			"type": "word",
+			"logprob": -4.3113880868380266e-6
+		},
+		{
+			"text": " ",
+			"start": 222.3,
+			"end": 222.38,
+			"type": "spacing",
+			"logprob": -1.2516897186287679e-5
+		},
+		{
+			"text": "gimme",
+			"start": 222.38,
+			"end": 222.76,
+			"type": "word",
+			"logprob": -7.557822024750749e-6
+		},
+		{
+			"text": " ",
+			"start": 222.76,
+			"end": 222.88,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "a",
+			"start": 222.88,
+			"end": 223.0,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 223.0,
+			"end": 223.06,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "man",
+			"start": 223.06,
+			"end": 223.54,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 223.54,
+			"end": 223.62,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "after",
+			"start": 223.62,
+			"end": 223.92,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 223.92,
+			"end": 224.0,
+			"type": "spacing",
+			"logprob": -8.344646857949556e-7
+		},
+		{
+			"text": "midnight.",
+			"start": 224.0,
+			"end": 224.829,
+			"type": "word",
+			"logprob": -7.417463873732938e-7
+		},
+		{
+			"text": " ",
+			"start": 224.829,
+			"end": 224.96,
+			"type": "spacing",
+			"logprob": -1.490105023549404e-5
+		},
+		{
+			"text": "Won't",
+			"start": 224.96,
+			"end": 225.32,
+			"type": "word",
+			"logprob": -8.964471997785495e-6
+		},
+		{
+			"text": " ",
+			"start": 225.32,
+			"end": 225.42,
+			"type": "spacing",
+			"logprob": -7.152555099310121e-7
+		},
+		{
+			"text": "somebody",
+			"start": 225.42,
+			"end": 226.0,
+			"type": "word",
+			"logprob": -7.152555099310121e-7
+		},
+		{
+			"text": " ",
+			"start": 226.0,
+			"end": 226.08,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "help",
+			"start": 226.08,
+			"end": 226.36,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 226.36,
+			"end": 226.42,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "me",
+			"start": 226.42,
+			"end": 226.52,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 226.52,
+			"end": 226.62,
+			"type": "spacing",
+			"logprob": -2.3841830625315197e-6
+		},
+		{
+			"text": "chase",
+			"start": 226.62,
+			"end": 226.84,
+			"type": "word",
+			"logprob": -2.3841830625315197e-6
+		},
+		{
+			"text": " ",
+			"start": 226.84,
+			"end": 226.88,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "the",
+			"start": 226.88,
+			"end": 227.0,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 227.0,
+			"end": 227.06,
+			"type": "spacing",
+			"logprob": -8.583032467868179e-6
+		},
+		{
+			"text": "shadows",
+			"start": 227.06,
+			"end": 227.6,
+			"type": "word",
+			"logprob": -8.583032467868179e-6
+		},
+		{
+			"text": " ",
+			"start": 227.6,
+			"end": 227.7,
+			"type": "spacing",
+			"logprob": -7.152555099310121e-7
+		},
+		{
+			"text": "away?",
+			"start": 227.7,
+			"end": 228.36,
+			"type": "word",
+			"logprob": -9.53673770709429e-7
+		},
+		{
+			"text": " ",
+			"start": 228.36,
+			"end": 229.01,
+			"type": "spacing",
+			"logprob": -2.9802276912960224e-6
+		},
+		{
+			"text": "Gimme,",
+			"start": 229.01,
+			"end": 229.44,
+			"type": "word",
+			"logprob": -1.569586695874629e-6
+		},
+		{
+			"text": " ",
+			"start": 229.44,
+			"end": 229.52,
+			"type": "spacing",
+			"logprob": -7.510157047363464e-6
+		},
+		{
+			"text": "gimme,",
+			"start": 229.52,
+			"end": 229.84,
+			"type": "word",
+			"logprob": -4.629278843519084e-6
+		},
+		{
+			"text": " ",
+			"start": 229.84,
+			"end": 229.92,
+			"type": "spacing",
+			"logprob": -4.768360213347478e-6
+		},
+		{
+			"text": "gimme",
+			"start": 229.92,
+			"end": 230.36,
+			"type": "word",
+			"logprob": -3.0517509458150015e-6
+		},
+		{
+			"text": " ",
+			"start": 230.36,
+			"end": 230.44,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "a",
+			"start": 230.44,
+			"end": 230.62,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 230.62,
+			"end": 230.68,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "man",
+			"start": 230.68,
+			"end": 230.93,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 230.93,
+			"end": 230.98,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "after",
+			"start": 230.98,
+			"end": 231.58,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 231.58,
+			"end": 231.62,
+			"type": "spacing",
+			"logprob": -7.152555099310121e-7
+		},
+		{
+			"text": "midnight.",
+			"start": 231.62,
+			"end": 232.329,
+			"type": "word",
+			"logprob": -6.35782675494233e-7
+		},
+		{
+			"text": " ",
+			"start": 232.329,
+			"end": 232.64,
+			"type": "spacing",
+			"logprob": -3.099436753473128e-6
+		},
+		{
+			"text": "Take",
+			"start": 232.64,
+			"end": 233.22,
+			"type": "word",
+			"logprob": -3.099436753473128e-6
+		},
+		{
+			"text": " ",
+			"start": 233.22,
+			"end": 233.3,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "me",
+			"start": 233.3,
+			"end": 233.31,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 233.31,
+			"end": 233.32,
+			"type": "spacing",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": "through",
+			"start": 233.32,
+			"end": 233.5,
+			"type": "word",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": " ",
+			"start": 233.5,
+			"end": 233.54,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "the",
+			"start": 233.54,
+			"end": 233.62,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 233.62,
+			"end": 233.68,
+			"type": "spacing",
+			"logprob": -2.9802276912960224e-6
+		},
+		{
+			"text": "darkness",
+			"start": 233.68,
+			"end": 234.28,
+			"type": "word",
+			"logprob": -2.9802276912960224e-6
+		},
+		{
+			"text": " ",
+			"start": 234.28,
+			"end": 234.3,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "to",
+			"start": 234.3,
+			"end": 234.44,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 234.44,
+			"end": 234.46,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "the",
+			"start": 234.46,
+			"end": 234.62,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 234.62,
+			"end": 234.72,
+			"type": "spacing",
+			"logprob": -1.5139465176616795e-5
+		},
+		{
+			"text": "break",
+			"start": 234.72,
+			"end": 234.94,
+			"type": "word",
+			"logprob": -1.5139465176616795e-5
+		},
+		{
+			"text": " ",
+			"start": 234.94,
+			"end": 235.04,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "of",
+			"start": 235.04,
+			"end": 235.9,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 235.9,
+			"end": 235.98,
+			"type": "spacing",
+			"logprob": -3.576278118089249e-7
+		},
+		{
+			"text": "the",
+			"start": 235.98,
+			"end": 236.52,
+			"type": "word",
+			"logprob": -3.576278118089249e-7
+		},
+		{
+			"text": " ",
+			"start": 236.52,
+			"end": 236.54,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "day.",
+			"start": 236.54,
+			"end": 236.6,
+			"type": "word",
+			"logprob": -2.086161714487389e-7
+		},
+		{
+			"text": " ",
+			"start": 236.6,
+			"end": 236.64,
+			"type": "spacing",
+			"logprob": -2.861018856492592e-6
+		},
+		{
+			"text": "Gimme,",
+			"start": 236.64,
+			"end": 237.04,
+			"type": "word",
+			"logprob": -1.5099822784729138e-6
+		},
+		{
+			"text": " ",
+			"start": 237.04,
+			"end": 237.14,
+			"type": "spacing",
+			"logprob": -6.794906312279636e-6
+		},
+		{
+			"text": "gimme,",
+			"start": 237.14,
+			"end": 237.46,
+			"type": "word",
+			"logprob": -3.4371895836216027e-6
+		},
+		{
+			"text": " ",
+			"start": 237.46,
+			"end": 237.6,
+			"type": "spacing",
+			"logprob": -3.6954811548639555e-6
+		},
+		{
+			"text": "gimme",
+			"start": 237.66,
+			"end": 238.0,
+			"type": "word",
+			"logprob": -2.264972405896515e-6
+		},
+		{
+			"text": " ",
+			"start": 238.0,
+			"end": 238.1,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "a",
+			"start": 238.1,
+			"end": 238.24,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 238.24,
+			"end": 238.32,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "man",
+			"start": 238.32,
+			"end": 238.8,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 238.8,
+			"end": 238.86,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "after",
+			"start": 238.86,
+			"end": 239.16,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 239.16,
+			"end": 239.26,
+			"type": "spacing",
+			"logprob": -8.344646857949556e-7
+		},
+		{
+			"text": "midnight.",
+			"start": 239.26,
+			"end": 240.14,
+			"type": "word",
+			"logprob": -7.417463873732938e-7
+		},
+		{
+			"text": " ",
+			"start": 240.14,
+			"end": 240.18,
+			"type": "spacing",
+			"logprob": -5.9960475482512265e-5
+		},
+		{
+			"text": "Won't",
+			"start": 240.18,
+			"end": 240.62,
+			"type": "word",
+			"logprob": -3.602396899964333e-5
+		},
+		{
+			"text": " ",
+			"start": 240.62,
+			"end": 240.7,
+			"type": "spacing",
+			"logprob": -7.152555099310121e-7
+		},
+		{
+			"text": "somebody",
+			"start": 240.7,
+			"end": 241.24,
+			"type": "word",
+			"logprob": -7.152555099310121e-7
+		},
+		{
+			"text": " ",
+			"start": 241.24,
+			"end": 241.32,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "help",
+			"start": 241.32,
+			"end": 241.62,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 241.62,
+			"end": 241.64,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "me",
+			"start": 241.64,
+			"end": 241.76,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 241.76,
+			"end": 241.859,
+			"type": "spacing",
+			"logprob": -1.6689286894688848e-6
+		},
+		{
+			"text": "chase",
+			"start": 241.86,
+			"end": 242.08,
+			"type": "word",
+			"logprob": -1.6689286894688848e-6
+		},
+		{
+			"text": " ",
+			"start": 242.08,
+			"end": 242.1,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "the",
+			"start": 242.1,
+			"end": 242.24,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 242.24,
+			"end": 242.3,
+			"type": "spacing",
+			"logprob": -5.602820692729438e-6
+		},
+		{
+			"text": "shadows",
+			"start": 242.3,
+			"end": 242.82,
+			"type": "word",
+			"logprob": -5.602820692729438e-6
+		},
+		{
+			"text": " ",
+			"start": 242.82,
+			"end": 242.959,
+			"type": "spacing",
+			"logprob": -5.960462772236497e-7
+		},
+		{
+			"text": "away?",
+			"start": 242.96,
+			"end": 243.52,
+			"type": "word",
+			"logprob": -8.344645721081179e-7
+		},
+		{
+			"text": " ",
+			"start": 243.52,
+			"end": 244.24,
+			"type": "spacing",
+			"logprob": -1.1920922133867862e-6
+		},
+		{
+			"text": "Gimme,",
+			"start": 244.24,
+			"end": 244.64,
+			"type": "word",
+			"logprob": -6.357825341751777e-7
+		},
+		{
+			"text": " ",
+			"start": 244.64,
+			"end": 244.84,
+			"type": "spacing",
+			"logprob": -3.933898824470816e-6
+		},
+		{
+			"text": "gimme,",
+			"start": 244.84,
+			"end": 245.08,
+			"type": "word",
+			"logprob": -1.966949412235408e-6
+		},
+		{
+			"text": " ",
+			"start": 245.08,
+			"end": 245.22,
+			"type": "spacing",
+			"logprob": -2.3841830625315197e-6
+		},
+		{
+			"text": "gimme",
+			"start": 245.22,
+			"end": 245.6,
+			"type": "word",
+			"logprob": -1.4781935504970533e-6
+		},
+		{
+			"text": " ",
+			"start": 245.6,
+			"end": 245.78,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "a",
+			"start": 245.78,
+			"end": 245.86,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 245.86,
+			"end": 245.92,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "man",
+			"start": 245.92,
+			"end": 246.42,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 246.42,
+			"end": 246.52,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "after",
+			"start": 246.52,
+			"end": 246.769,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 246.769,
+			"end": 246.88,
+			"type": "spacing",
+			"logprob": -3.576278118089249e-7
+		},
+		{
+			"text": "midnight.",
+			"start": 246.88,
+			"end": 247.64,
+			"type": "word",
+			"logprob": -3.4438233835013915e-7
+		},
+		{
+			"text": " ",
+			"start": 247.64,
+			"end": 247.82,
+			"type": "spacing",
+			"logprob": -2.145764938177308e-6
+		},
+		{
+			"text": "Take",
+			"start": 247.82,
+			"end": 248.28,
+			"type": "word",
+			"logprob": -2.145764938177308e-6
+		},
+		{
+			"text": " ",
+			"start": 248.28,
+			"end": 248.34,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "me",
+			"start": 248.34,
+			"end": 248.44,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 248.44,
+			"end": 248.54,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "through",
+			"start": 248.54,
+			"end": 248.72,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 248.72,
+			"end": 248.76,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "the",
+			"start": 248.76,
+			"end": 248.84,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 248.84,
+			"end": 248.94,
+			"type": "spacing",
+			"logprob": -2.264974000354414e-6
+		},
+		{
+			"text": "darkness",
+			"start": 248.94,
+			"end": 249.42,
+			"type": "word",
+			"logprob": -2.264974000354414e-6
+		},
+		{
+			"text": " ",
+			"start": 249.42,
+			"end": 249.48,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "to",
+			"start": 249.48,
+			"end": 249.64,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 249.64,
+			"end": 249.74,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "the",
+			"start": 249.74,
+			"end": 249.86,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 249.86,
+			"end": 249.96,
+			"type": "spacing",
+			"logprob": -3.576278118089249e-7
+		},
+		{
+			"text": "break",
+			"start": 249.96,
+			"end": 250.16,
+			"type": "word",
+			"logprob": -3.576278118089249e-7
+		},
+		{
+			"text": " ",
+			"start": 250.16,
+			"end": 250.26,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "of",
+			"start": 250.26,
+			"end": 250.42,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 250.42,
+			"end": 250.44,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "the",
+			"start": 250.44,
+			"end": 250.64,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 250.64,
+			"end": 250.72,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "day.",
+			"start": 250.72,
+			"end": 250.92,
+			"type": "word",
+			"logprob": -1.7881387748275301e-7
+		},
+		{
+			"text": " ",
+			"start": 250.92,
+			"end": 251.859,
+			"type": "spacing",
+			"logprob": -2.9802276912960224e-6
+		},
+		{
+			"text": "Gimme,",
+			"start": 251.86,
+			"end": 252.26,
+			"type": "word",
+			"logprob": -1.569586695874629e-6
+		},
+		{
+			"text": " ",
+			"start": 252.26,
+			"end": 252.34,
+			"type": "spacing",
+			"logprob": -6.198863957251888e-6
+		},
+		{
+			"text": "gimme,",
+			"start": 252.34,
+			"end": 252.72,
+			"type": "word",
+			"logprob": -3.099431978625944e-6
+		},
+		{
+			"text": " ",
+			"start": 252.72,
+			"end": 252.84,
+			"type": "spacing",
+			"logprob": -3.576272320060525e-6
+		},
+		{
+			"text": "gimme",
+			"start": 252.84,
+			"end": 253.24,
+			"type": "word",
+			"logprob": -2.7179675726074494e-6
+		},
+		{
+			"text": " ",
+			"start": 253.24,
+			"end": 253.34,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "a",
+			"start": 253.34,
+			"end": 253.48,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 253.48,
+			"end": 253.54,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "man",
+			"start": 253.54,
+			"end": 254.04,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 254.04,
+			"end": 254.1,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "after",
+			"start": 254.1,
+			"end": 254.44,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 254.44,
+			"end": 254.5,
+			"type": "spacing",
+			"logprob": -4.768370445162873e-7
+		},
+		{
+			"text": "midnight.",
+			"start": 254.5,
+			"end": 255.269,
+			"type": "word",
+			"logprob": -4.503461007566835e-7
+		},
+		{
+			"text": " ",
+			"start": 255.269,
+			"end": 255.65,
+			"type": "spacing",
+			"logprob": -8.583032467868179e-6
+		},
+		{
+			"text": "Won't",
+			"start": 255.65,
+			"end": 255.86,
+			"type": "word",
+			"logprob": -5.197503190856878e-6
+		},
+		{
+			"text": " ",
+			"start": 255.86,
+			"end": 255.92,
+			"type": "spacing",
+			"logprob": -3.576278118089249e-7
+		},
+		{
+			"text": "somebody",
+			"start": 255.92,
+			"end": 256.34,
+			"type": "word",
+			"logprob": -3.576278118089249e-7
+		},
+		{
+			"text": " ",
+			"start": 256.34,
+			"end": 256.5,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "help",
+			"start": 256.5,
+			"end": 256.82,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 256.82,
+			"end": 256.86,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "me",
+			"start": 256.86,
+			"end": 257.0,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 257.0,
+			"end": 257.1,
+			"type": "spacing",
+			"logprob": -1.1920922133867862e-6
+		},
+		{
+			"text": "chase",
+			"start": 257.1,
+			"end": 257.34,
+			"type": "word",
+			"logprob": -1.1920922133867862e-6
+		},
+		{
+			"text": " ",
+			"start": 257.34,
+			"end": 257.36,
+			"type": "spacing",
+			"logprob": -3.576278118089249e-7
+		},
+		{
+			"text": "the",
+			"start": 257.36,
+			"end": 257.5,
+			"type": "word",
+			"logprob": -3.576278118089249e-7
+		},
+		{
+			"text": " ",
+			"start": 257.5,
+			"end": 257.54,
+			"type": "spacing",
+			"logprob": -2.0503786799963564e-5
+		},
+		{
+			"text": "shadows",
+			"start": 257.54,
+			"end": 258.06,
+			"type": "word",
+			"logprob": -2.0503786799963564e-5
+		},
+		{
+			"text": " ",
+			"start": 258.06,
+			"end": 258.14,
+			"type": "spacing",
+			"logprob": -1.1920922133867862e-6
+		},
+		{
+			"text": "away?",
+			"start": 258.14,
+			"end": 258.96,
+			"type": "word",
+			"logprob": -1.668928234721534e-6
+		},
+		{
+			"text": " ",
+			"start": 258.96,
+			"end": 259.48,
+			"type": "spacing",
+			"logprob": -3.3378546504536644e-6
+		},
+		{
+			"text": "Gimme,",
+			"start": 259.48,
+			"end": 259.88,
+			"type": "word",
+			"logprob": -1.7086637527086168e-6
+		},
+		{
+			"text": " ",
+			"start": 259.88,
+			"end": 260.04,
+			"type": "spacing",
+			"logprob": -5.006777428206988e-6
+		},
+		{
+			"text": "gimme,",
+			"start": 260.04,
+			"end": 260.32,
+			"type": "word",
+			"logprob": -2.503388714103494e-6
+		},
+		{
+			"text": " ",
+			"start": 260.32,
+			"end": 260.46,
+			"type": "spacing",
+			"logprob": -4.6491513785440475e-6
+		},
+		{
+			"text": "gimme",
+			"start": 260.46,
+			"end": 260.82,
+			"type": "word",
+			"logprob": -2.9325419518499985e-6
+		},
+		{
+			"text": " ",
+			"start": 260.82,
+			"end": 260.98,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "a",
+			"start": 260.98,
+			"end": 261.12,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 261.12,
+			"end": 261.14,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "man",
+			"start": 261.14,
+			"end": 261.62,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 261.62,
+			"end": 261.7,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "after",
+			"start": 261.7,
+			"end": 262.06,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 262.06,
+			"end": 262.1,
+			"type": "spacing",
+			"logprob": -4.768370445162873e-7
+		},
+		{
+			"text": "midnight.",
+			"start": 262.1,
+			"end": 262.87,
+			"type": "word",
+			"logprob": -5.9604620774836e-7
+		},
+		{
+			"text": " ",
+			"start": 262.87,
+			"end": 263.06,
+			"type": "spacing",
+			"logprob": -3.814689989667386e-6
+		},
+		{
+			"text": "Take",
+			"start": 263.06,
+			"end": 263.48,
+			"type": "word",
+			"logprob": -3.814689989667386e-6
+		},
+		{
+			"text": " ",
+			"start": 263.48,
+			"end": 263.54,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "me",
+			"start": 263.54,
+			"end": 263.96,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 263.96,
+			"end": 263.97,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "through",
+			"start": 263.97,
+			"end": 263.97,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 263.97,
+			"end": 263.97,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "the",
+			"start": 263.97,
+			"end": 263.97,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 263.97,
+			"end": 264.0,
+			"type": "spacing",
+			"logprob": -3.933898824470816e-6
+		},
+		{
+			"text": "darkness",
+			"start": 264.0,
+			"end": 264.01,
+			"type": "word",
+			"logprob": -3.933898824470816e-6
+		},
+		{
+			"text": " ",
+			"start": 264.01,
+			"end": 264.02,
+			"type": "spacing",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": "to",
+			"start": 264.02,
+			"end": 264.1,
+			"type": "word",
+			"logprob": -2.3841855067985307e-7
+		},
+		{
+			"text": " ",
+			"start": 264.1,
+			"end": 264.18,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "the",
+			"start": 264.18,
+			"end": 264.62,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 264.62,
+			"end": 265.18,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "break",
+			"start": 265.18,
+			"end": 265.44,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 265.44,
+			"end": 265.46,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "of",
+			"start": 265.46,
+			"end": 265.64,
+			"type": "word",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": " ",
+			"start": 265.64,
+			"end": 265.72,
+			"type": "spacing",
+			"logprob": 0.0
+		},
+		{
+			"text": "the",
+			"start": 265.72,
+			"end": 265.76,
+			"type": "word",
+			"logprob": 0.0
+		},
+		{
+			"text": " ",
+			"start": 265.76,
+			"end": 265.88,
+			"type": "spacing",
+			"logprob": -1.1920928244535389e-7
+		},
+		{
+			"text": "day.",
+			"start": 265.88,
+			"end": 266.6,
+			"type": "word",
+			"logprob": -0.012147432193154728
+		}
+	],
+	"transcription_id": "gGGWPBZvRp9jbLeEj4Bb"
+}

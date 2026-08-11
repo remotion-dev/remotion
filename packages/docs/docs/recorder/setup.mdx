@@ -1,0 +1,95 @@
+---
+image: /generated/articles-docs-recorder-setup.png
+title: Setup
+sidebar_label: Get started
+crumb: Recorder
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Setup
+
+## 1. Fork and clone
+
+Scaffold a new Remotion Recorder project:
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'bun', value: 'bun', },
+{ label: 'pnpm', value: 'pnpm', },
+{ label: 'yarn', value: 'yarn', },
+]
+}>
+<TabItem value="npm">
+
+```bash title="Use npm as the package manager"
+npx create-video@latest --recorder
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash title="Use pnpm as the package manager"
+pnpm create video --recorder
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash title="Use Yarn as the package manager"
+yarn create video --recorder
+```
+
+  </TabItem>
+
+  <TabItem value="bun">
+
+```bash title="Use Bun as the package manager and runtime"
+bun create video --recorder
+```
+
+:::note
+Bun as a runtime is mostly supported. [Read more here](/docs/bun).
+:::
+
+  </TabItem>
+</Tabs>
+
+## 2. Install Bun
+
+The Remotion Recorder requires [Bun](https://bun.sh/), with the minimum version being 1.2. To install it, run
+
+```bash
+curl -fsSL https://bun.sh/install | bash
+```
+
+## 3. Install dependencies
+
+Once Bun is installed, run
+
+```bash
+bun i
+```
+
+to install all the neccessary dependencies.
+
+## 4. Install Whisper.cpp (optional)
+
+This is a good time to initialize Whisper.cpp for captioning.  
+This will install Whisper.cpp and download the model (the default being 1.5GB).
+
+```
+bun sub.ts
+```
+
+## 5. Run the Remotion Recorder
+
+Once done, you are ready to start the Remotion Recorder:
+
+```bash
+bun run dev
+```

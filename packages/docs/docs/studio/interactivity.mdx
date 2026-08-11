@@ -1,0 +1,86 @@
+---
+image: /generated/articles-docs-studio-interactivity.png
+title: Interactivity
+crumb: "Remotion Studio"
+---
+
+# Interactivity<AvailableFrom v="4.0.475" />
+
+Studio interactivity means visual edits that are written back to your codebase.
+
+Edits can be undone with <kbd>⌘/Ctrl</kbd> + <kbd>Z</kbd> and redone with <kbd>⌘/Ctrl</kbd> + <kbd>Y</kbd>.
+
+To write code that remains editable, see [Interactivity best practices](/docs/studio/interactivity-best-practices).
+To make a custom component selectable and editable, see [Make a component interactive](/docs/studio/make-component-interactive).
+
+## Selecting edit targets
+
+- Select sequences, sequence props, effects, effect props, keyframes and easing segments.
+- Hold <kbd>Shift</kbd> to select ranges.
+- Hold <kbd>⌘/Ctrl</kbd> to toggle items.
+- Drag on the timeline to marquee-select sequences, keyframes and easing segments.
+- Press <kbd>⌘/Ctrl</kbd> + <kbd>A</kbd> to select all sequence rows.
+- Use outlines, the selection palette and row highlights to see which items will be affected by the next edit.
+
+## Canvas edits
+
+- Selectable sequences show outlines directly in the preview when they can be edited from the canvas.
+- Drag selected outlines to move sequences by updating `style.translate`.
+- Move multiple selected sequences together.
+- Hold <kbd>Shift</kbd> while dragging outlines to lock movement to one axis.
+- Drag outline edges to scale selected sequences when `style.scale` is editable.
+- Drag outline corners to rotate selected sequences when `style.rotate` is editable.
+- Drag the transform-origin handle to move the transform origin. Studio compensates `style.translate` so the visual position stays stable.
+- Edit keyframed `style.translate`, `style.rotate` or `style.transformOrigin` values from the canvas. Drags create or update keyframes at the current frame.
+
+## Effects in the preview
+
+- Drop effects onto outlined sequences when the sequence supports effects.
+- Drag UV-coordinate handles for selected effects and effect props.
+- Use connected handle lines to see which handles belong together.
+- Copy selected effects with <kbd>⌘/Ctrl</kbd> + <kbd>C</kbd> and paste them with <kbd>⌘/Ctrl</kbd> + <kbd>V</kbd>.
+- Copy and paste individual effect prop values, including keyframed effect params where supported.
+
+## Keyframes
+
+- Select keyframes in the timeline.
+- Drag selected keyframes horizontally to change their frame.
+- Move multiple selected keyframes together.
+- Move keyframes for sequence props and effect props.
+- Press <kbd>Delete</kbd> or <kbd>Backspace</kbd> to delete selected keyframes where supported.
+
+## Easing segments
+
+- Select easing segments between keyframes.
+- Open the easing context menu to set `Linear`, choose a preset or open the custom easing editor.
+- Apply easing edits to all selected easing segments.
+- Copy one selected easing segment with <kbd>⌘/Ctrl</kbd> + <kbd>C</kbd> and paste it onto selected easing segments with <kbd>⌘/Ctrl</kbd> + <kbd>V</kbd>.
+- Press <kbd>Delete</kbd> or <kbd>Backspace</kbd> to reset selected easing segments to linear when only easing segments are selected.
+
+### Supported source easing expressions
+
+Studio can edit easing segments when the [`interpolate()`](/docs/interpolate) or [`interpolateColors()`](/docs/interpolate-colors) `easing` option is inline and uses one of these expressions:
+
+- [`Easing.linear`](/docs/easing#linear)
+- [`Easing.bezier(x1, y1, x2, y2)`](/docs/easing#bezier) with numeric arguments
+- [`Easing.spring()`](/docs/easing#spring) with an inline static config
+- Exact Bezier-compatible helpers<AvailableFrom v="4.0.487" inline />: [`Easing.ease`](/docs/easing#ease), [`Easing.quad`](/docs/easing#quad), [`Easing.cubic`](/docs/easing#cubic), [`Easing.back()`](/docs/easing#back), `Easing.back(s)` with a numeric argument, `Easing.poly(1)`, `Easing.poly(2)` and `Easing.poly(3)`
+- `Easing.in(...)` around a supported easing
+- `Easing.out(...)` around a supported Bezier or linear easing
+- `Easing.inOut(Easing.linear)`
+
+When editing exact Bezier-compatible helpers, Studio writes the easing back as an explicit `Easing.bezier(...)`.
+
+Other helpers such as `Easing.sin`, `Easing.circle`, `Easing.exp`, `Easing.bounce`, `Easing.elastic`, `Easing.poly(4)` and non-linear `Easing.inOut(...)` calls are shown as computed values because they cannot be represented exactly as a single cubic Bezier easing segment.
+
+## Deleting, resetting and duplicating
+
+- Press <kbd>Delete</kbd> or <kbd>Backspace</kbd> to delete selected keyframes, sequences, effects or all effects where supported.
+- Reset selected sequence or effect props to their defaults with <kbd>Delete</kbd> or <kbd>Backspace</kbd> when deletion does not apply.
+- Press <kbd>⌘/Ctrl</kbd> + <kbd>D</kbd> to duplicate selected sequences.
+
+## See also
+
+- [Interactivity best practices](/docs/studio/interactivity-best-practices)
+- [Make a component interactive](/docs/studio/make-component-interactive)
+- [`Interactive`](/docs/interactive)

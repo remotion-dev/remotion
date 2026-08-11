@@ -1,0 +1,38 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/elevenlabs"
+	},
+	"name": "@remotion/elevenlabs",
+	"version": "4.0.508",
+	"description": "Work with the output of the ElevenLabs API",
+	"main": "dist/index.js",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"scripts": {
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"lint": "eslint src",
+		"test": "bun test src",
+		"make": "tsgo -d"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"license": "MIT",
+	"dependencies": {
+		"@remotion/captions": "workspace:*"
+	},
+	"peerDependencies": {},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "catalog:",
+		"@typescript/native-preview": "catalog:"
+	},
+	"keywords": [
+		"remotion",
+		"elevenlabs"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"homepage": "https://www.remotion.dev/docs/elevenlabs"
+}

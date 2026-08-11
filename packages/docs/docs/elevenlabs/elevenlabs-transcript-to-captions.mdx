@@ -1,0 +1,69 @@
+---
+image: /generated/articles-docs-elevenlabs-elevenlabs-transcript-to-captions.png
+title: elevenLabsTranscriptToCaptions()
+crumb: '@remotion/elevenlabs'
+---
+
+# elevenLabsTranscriptToCaptions()<AvailableFrom v="4.0.443"/>
+
+Turns the output from the [ElevenLabs Speech to Text API](https://elevenlabs.io/docs/api-reference/speech-to-text/convert) into an array of [`Caption`](/docs/captions/caption) objects.
+
+This function can be used in any JavaScript environment, but you should not use the ElevenLabs API in the browser because your API key will be exposed.
+
+## Example
+
+When calling the [ElevenLabs Speech to Text API](https://elevenlabs.io/docs/api-reference/speech-to-text/convert), you must set `timestamps_granularity` to `"word"` to include word-level timing in the response.
+
+```tsx title="Example usage"
+import fs from 'fs';
+import {elevenLabsTranscriptToCaptions} from '@remotion/elevenlabs';
+
+const form = new FormData();
+form.append('file', new Blob([fs.readFileSync('audio.mp3')]));
+form.append('model_id', 'scribe_v2');
+form.append('timestamps_granularity', 'word');
+
+const response = await fetch('https://api.elevenlabs.io/v1/speech-to-text', {
+	method: 'POST',
+	headers: {
+		'xi-api-key': process.env.ELEVENLABS_API_KEY!,
+	},
+	body: form,
+});
+
+const transcript = await response.json();
+const {captions} = elevenLabsTranscriptToCaptions({transcript});
+```
+
+## API
+
+### Arguments
+
+An object with the following property:
+
+#### `transcript`
+
+The response from the [ElevenLabs Speech to Text API](https://elevenlabs.io/docs/api-reference/speech-to-text/convert).
+Must include a `words` array with word-level timing — ensure the API is called with `timestamps_granularity` set to `"word"`.
+
+The `words` array should contain objects with the following fields:
+
+- `text`: The word text
+- `type`: `"word"`, `"spacing"`, or `"audio_event"` — only `"word"` entries are used
+- `start`: Start time in seconds
+- `end`: End time in seconds
+
+### Return value
+
+An object with the following property:
+
+#### `captions`
+
+An array of [`Caption`](/docs/captions/caption) objects.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/elevenlabs/src/elevenlabs-transcript-to-captions.ts)
+- [`@remotion/elevenlabs`](/docs/elevenlabs)
+- [`@remotion/openai-whisper`](/docs/openai-whisper)
+- [`@remotion/captions`](/docs/captions/api)

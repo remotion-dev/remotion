@@ -1,0 +1,137 @@
+import {expect, test} from 'bun:test';
+import {HLS, MP4, QTFF, WEBM} from 'mediabunny';
+import {
+	getDefaultVideoEditState,
+	isConvertEnabledByDefault,
+	isVideoOnlySection,
+} from '../app/lib/default-ui';
+import {
+	getDefaultConvertOutputFormat,
+	getDefaultEditOutputFormat,
+} from '../app/lib/get-default-output-format';
+
+test('treats crop as a video-only operation section', () => {
+	expect(isVideoOnlySection('crop')).toBe(true);
+});
+
+test('treats trim as a video-only operation section', () => {
+	expect(isVideoOnlySection('trim')).toBe(true);
+});
+
+test('treats rotate, mirror, and resize as video-only operation sections', () => {
+	expect(isVideoOnlySection('rotate')).toBe(true);
+	expect(isVideoOnlySection('mirror')).toBe(true);
+	expect(isVideoOnlySection('resize')).toBe(true);
+});
+
+test('keeps conversion and resampling available for audio-only files', () => {
+	expect(isVideoOnlySection('convert')).toBe(false);
+	expect(isVideoOnlySection('resample')).toBe(false);
+});
+
+test('only enables the convert controls by default on conversion pages', () => {
+	expect(
+		isConvertEnabledByDefault({
+			type: 'convert',
+			input: 'mp4',
+			output: 'webm',
+		}),
+	).toBe(true);
+	expect(isConvertEnabledByDefault({type: 'generic-convert'})).toBe(true);
+	expect(isConvertEnabledByDefault({type: 'generic-trim'})).toBe(false);
+	expect(isConvertEnabledByDefault({type: 'trim-format', format: 'mp4'})).toBe(
+		false,
+	);
+	expect(isConvertEnabledByDefault({type: 'generic-crop'})).toBe(false);
+	expect(isConvertEnabledByDefault({type: 'generic-resize'})).toBe(false);
+	expect(isConvertEnabledByDefault({type: 'generic-rotate'})).toBe(false);
+	expect(isConvertEnabledByDefault({type: 'generic-mirror'})).toBe(false);
+});
+
+test('enables each video edit independently based on the route', () => {
+	expect(getDefaultVideoEditState({type: 'generic-crop'})).toEqual({
+		crop: true,
+		mirror: false,
+		rotate: false,
+	});
+	expect(getDefaultVideoEditState({type: 'generic-mirror'})).toEqual({
+		crop: false,
+		mirror: true,
+		rotate: false,
+	});
+	expect(getDefaultVideoEditState({type: 'generic-rotate'})).toEqual({
+		crop: false,
+		mirror: false,
+		rotate: true,
+	});
+	expect(getDefaultVideoEditState({type: 'generic-convert'})).toEqual({
+		crop: false,
+		mirror: false,
+		rotate: false,
+	});
+});
+
+test('keeps the input container by default on editing pages', () => {
+	expect(getDefaultEditOutputFormat(MP4)).toBe('mp4');
+	expect(getDefaultEditOutputFormat(WEBM)).toBe('webm');
+	expect(getDefaultEditOutputFormat(QTFF)).toBe('mov');
+	expect(getDefaultEditOutputFormat(HLS)).toBe('mp4');
+});
+
+test('uses conversion defaults when enabling convert controls', () => {
+	expect(
+		getDefaultConvertOutputFormat({
+			inputContainer: MP4,
+			action: {type: 'generic-trim'},
+			cursorMetadataDetected: false,
+		}),
+	).toBe('webm');
+	expect(
+		getDefaultConvertOutputFormat({
+			inputContainer: HLS,
+			action: {type: 'generic-trim'},
+			cursorMetadataDetected: false,
+		}),
+	).toBe('mp4');
+	expect(
+		getDefaultConvertOutputFormat({
+			inputContainer: MP4,
+			action: {type: 'convert', input: 'mp4', output: 'mov'},
+			cursorMetadataDetected: false,
+		}),
+	).toBe('mov');
+});
+
+test('uses conversion defaults on conversion pages', () => {
+	expect(
+		getDefaultConvertOutputFormat({
+			inputContainer: MP4,
+			action: {type: 'generic-convert'},
+			cursorMetadataDetected: false,
+		}),
+	).toBe('webm');
+	expect(
+		getDefaultConvertOutputFormat({
+			inputContainer: HLS,
+			action: {type: 'generic-convert'},
+			cursorMetadataDetected: false,
+		}),
+	).toBe('mp4');
+});
+
+test('keeps the input container when cursor metadata is detected', () => {
+	expect(
+		getDefaultConvertOutputFormat({
+			inputContainer: MP4,
+			action: {type: 'generic-convert'},
+			cursorMetadataDetected: true,
+		}),
+	).toBe('mp4');
+	expect(
+		getDefaultConvertOutputFormat({
+			inputContainer: WEBM,
+			action: {type: 'generic-convert'},
+			cursorMetadataDetected: true,
+		}),
+	).toBe('webm');
+});

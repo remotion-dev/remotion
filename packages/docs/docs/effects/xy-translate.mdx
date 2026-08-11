@@ -1,0 +1,65 @@
+---
+image: /generated/articles-docs-effects-xy-translate.png
+slug: /effects/xy-translate
+title: xyTranslate()
+sidebar_label: xyTranslate()
+crumb: '@remotion/effects'
+---
+
+# xyTranslate()<AvailableFrom v="4.0.467" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+A translate effect that moves a canvas-based component by an absolute pixel offset.
+
+It can be applied to components such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
+
+## Preview
+
+<EffectsDemo type="effects-xy-translate" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {AbsoluteFill} from 'remotion';
+import {Video} from '@remotion/media';
+import {xyTranslate} from '@remotion/effects/translate';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill>
+      <Video
+        src="https://remotion.media/video.mp4"
+        effects={[xyTranslate({x: 120, y: 80})]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `xyTranslate()` without arguments.
+
+### `x?`
+
+Horizontal offset in pixels. Defaults to `0`.
+
+Positive values move the image to the right, negative values move it to the left.
+
+### `y?`
+
+Vertical offset in pixels. Defaults to `0`.
+
+Positive values move the image down, negative values move it up.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`uvTranslate()`](/docs/effects/uv-translate)
+- [`scale()`](/docs/effects/scale)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/translate/index.ts)

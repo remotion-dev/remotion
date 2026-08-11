@@ -1,0 +1,58 @@
+---
+image: /generated/articles-docs-media-parser-webcodecs-timescale.png
+id: webcodecs-timescale
+sidebar_label: WEBCODECS_TIMESCALE
+title: WEBCODECS_TIMESCALE
+crumb: '@remotion/media-parser'
+---
+
+:::warning
+[We are phasing out Media Parser and are moving to Mediabunny](/blog/mediabunny)!
+:::
+
+`@remotion/media-parser` returns all samples with normalized timestamps in microseconds.  
+This means the global timescale is `1_000_000`.
+
+By hardcoding the timescale to `1_000_000`, the samples can be directly passed to [`EncodedVideoChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedVideoChunk) and [`EncodedAudioChunk`](https://developer.mozilla.org/en-US/docs/Web/API/EncodedAudioChunk), which expect the input to be in microseconds.
+
+The `WEBCODECS_TIMESCALE` constant is exported:
+
+```tsx twoslash title="Using WEBCODECS_TIMESCALE"
+import {WEBCODECS_TIMESCALE} from '@remotion/media-parser';
+
+const timescale = WEBCODECS_TIMESCALE; // 1_000_000
+```
+
+To get the time in seconds of a sample, you can divide the timestamp by the `WEBCODECS_TIMESCALE` constant.
+
+```tsx twoslash title="Getting the native timescale"
+import {parseMedia, WEBCODECS_TIMESCALE} from '@remotion/media-parser';
+
+const result2 = await parseMedia({
+  src: 'https://remotion.media/video.mp4',
+  onVideoTrack: ({track}) => {
+    return (sample) => {
+      const timeInSeconds = sample.timestamp / WEBCODECS_TIMESCALE;
+      console.log(timeInSeconds);
+    };
+  },
+});
+```
+
+## Getting the native timescale
+
+If you are interested in the native timescale of a track, you can get it from the `originalTimescale` property.  
+Not all container formats may support this, some may return `1_000_000` instead.
+
+```tsx twoslash title="Getting the native timescale"
+import {parseMedia} from '@remotion/media-parser';
+
+const result2 = await parseMedia({
+  src: 'https://remotion.media/video.mp4',
+  onVideoTrack: ({track}) => {
+    console.log(track.timescale); // 1_000_000, always
+    console.log(track.originalTimescale); // 12800
+    return null;
+  },
+});
+```

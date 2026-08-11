@@ -1,0 +1,5 @@
+pytest
+dotenv
+boto3-stubs[essential]
+mypy
+boto3

@@ -1,0 +1,64 @@
+---
+image: /generated/articles-docs-videos-transparency.png
+title: Embedding transparent videos
+sidebar_label: Adding a transparent video
+crumb: 'How To'
+---
+
+You can embed transparent videos in Remotion.
+
+## With `@remotion/media`
+
+Transparent videos with an alpha channel are natively supported by [`<Video>` from `@remotion/media`](/docs/media/video).
+
+```tsx twoslash title="MyComp.tsx"
+import React from 'react';
+import {Video} from '@remotion/media';
+import {staticFile} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return <Video src={staticFile('transparent.webm')} />;
+};
+```
+
+## Without an alpha channel
+
+To embed a video which does not have an alpha channel but has a black background, add `mixBlendMode: "screen"` to the [`style`](/docs/media/video#style) prop of the [`<Video>`](/docs/media/video) component.
+
+```tsx twoslash title="MyComp.tsx"
+import React from 'react';
+import {Video} from '@remotion/media';
+import {staticFile} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Video
+      src={staticFile('nottransparent.mp4')}
+      style={{
+        mixBlendMode: 'screen',
+      }}
+    />
+  );
+};
+```
+
+## With `<OffthreadVideo>`
+
+To embed a video with an alpha channel using [`<OffthreadVideo>`](/docs/offthreadvideo), enable the [`transparent`](/docs/offthreadvideo#transparent) prop.
+
+```tsx twoslash title="MyComp.tsx"
+import React from 'react';
+import {OffthreadVideo, staticFile} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return <OffthreadVideo src={staticFile('transparent.webm')} transparent />;
+};
+```
+
+## Greenscreen effect
+
+To remove a background based on the color of the pixels, see the [Greenscreen](/docs/greenscreen) page.
+
+## Rendering transparent videos
+
+To export a video with transparency, see [Transparent videos](/docs/transparent-videos/)

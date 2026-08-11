@@ -1,0 +1,61 @@
+---
+image: /generated/articles-docs-cloudrun-getorcreatebucket.png
+id: getorcreatebucket
+title: getOrCreateBucket()
+slug: /cloudrun/getorcreatebucket
+crumb: 'Cloud Run API'
+---
+
+<ExperimentalBadge>
+  <p>
+    Cloud Run is in <a href="/docs/cloudrun/status">Alpha status and not actively being developed.</a>
+  </p>
+</ExperimentalBadge>
+
+Creates a Cloud Storage bucket for Remotion Cloud Run in your GCP project. If one already exists, it will get returned instead.
+
+**Only 1 bucket per region** is necessary for Remotion Cloud Run to function.
+
+```ts twoslash
+import {getOrCreateBucket} from '@remotion/cloudrun';
+
+const {bucketName, alreadyExisted} = await getOrCreateBucket({
+  region: 'us-east1',
+});
+
+console.log(bucketName); // "remotioncloudrun-32df3p"
+```
+
+## Arguments
+
+An object with the following properties:
+
+### `region`
+
+The [GCP region](/docs/cloudrun/region-selection) which you want to create a bucket in.
+
+### `updateBucketState?`
+
+Callback function that returns a state (_string_) of operation. Used by the CLI to provide a progress update. State will be one of the following;
+
+- Checking for existing bucket
+- Creating new bucket
+- Created bucket
+- Using existing bucket
+
+## Return value
+
+A promise resolving to an object with the following properties:
+
+### `bucketName`
+
+The name of your bucket that was found or created.
+
+### `alreadyExisted`
+
+A boolean indicating whether the bucket already existed or was newly created.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/cloudrun/src/api/get-or-create-bucket.ts)
+- [getServices()](/docs/cloudrun/getservices)

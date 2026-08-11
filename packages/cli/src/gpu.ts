@@ -1,0 +1,117 @@
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
+import {defaultBrowserDownloadProgress} from './browser-download-bar';
+import {chalk} from './chalk';
+import {Log} from './log';
+import {parsedCli, quietFlagProvided} from './parsed-cli';
+
+export const GPU_COMMAND = 'gpu';
+
+const {
+	enableMultiprocessOnLinuxOption,
+	glOption,
+	delayRenderTimeoutInMillisecondsOption,
+	headlessOption,
+	chromeModeOption,
+	darkModeOption,
+	browserExecutableOption,
+	userAgentOption,
+	disableWebSecurityOption,
+	ignoreCertificateErrorsOption,
+} = BrowserSafeApis.options;
+
+export const gpuCommand = async (logLevel: LogLevel) => {
+	const browserExecutable = browserExecutableOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const userAgent = userAgentOption.getValue({commandLine: parsedCli}).value;
+	const disableWebSecurity = disableWebSecurityOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const ignoreCertificateErrors = ignoreCertificateErrorsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const enableMultiProcessOnLinux = enableMultiprocessOnLinuxOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const gl = glOption.getValue({commandLine: parsedCli}).value;
+	const puppeteerTimeout = delayRenderTimeoutInMillisecondsOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const headless = headlessOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const chromeMode = chromeModeOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const darkMode = darkModeOption.getValue({commandLine: parsedCli}).value;
+
+	const onBrowserDownload = defaultBrowserDownloadProgress({
+		quiet: quietFlagProvided(),
+		indent: false,
+		logLevel,
+		onProgress: () => undefined,
+	});
+
+	await RenderInternals.internalEnsureBrowser({
+		browserExecutable,
+		indent: false,
+		logLevel,
+		onBrowserDownload,
+		chromeMode,
+	});
+
+	const chromiumOptions: Required<ChromiumOptions> = {
+		disableWebSecurity,
+		enableMultiProcessOnLinux,
+		gl,
+		headless,
+		ignoreCertificateErrors,
+		userAgent,
+		darkMode,
+	};
+
+	const statuses = await RenderInternals.getChromiumGpuInformation({
+		browserExecutable,
+		indent: false,
+		logLevel,
+		chromiumOptions,
+		timeoutInMilliseconds: puppeteerTimeout,
+		onBrowserDownload: defaultBrowserDownloadProgress({
+			indent: false,
+			logLevel,
+			quiet: quietFlagProvided(),
+			onProgress: () => undefined,
+		}),
+		chromeMode,
+		onLog: RenderInternals.defaultOnLog,
+	});
+	for (const {feature, status} of statuses) {
+		Log.info({indent: false, logLevel}, `${feature}: ${colorStatus(status)}`);
+	}
+};
+
+const colorStatus = (status: string) => {
+	if (status === 'Enabled') {
+		return chalk.green(status);
+	}
+
+	if (status === 'Hardware accelerated') {
+		return chalk.green(status);
+	}
+
+	if (status === 'Disabled') {
+		return chalk.red(status);
+	}
+
+	if (status === 'Software only. Hardware acceleration disabled') {
+		return chalk.red(status);
+	}
+
+	if (status === 'Software only, hardware acceleration unavailable') {
+		return chalk.red(status);
+	}
+
+	return status;
+};

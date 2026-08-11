@@ -1,0 +1,68 @@
+---
+image: /generated/articles-docs-troubleshooting-css-animations.png
+sidebar_label: CSS animations
+title: Don't use CSS animations in Remotion
+crumb: "Common mistakes"
+---
+
+The following code does not work in Remotion:
+
+```tsx twoslash title="❌ Don't do this"
+// ---cut---
+const myMarkup = (
+  <div
+    style={{
+      animation: "fadeIn 1s forwards",
+    }}
+  >
+    Hello World!
+  </div>
+);
+```
+
+Similarly, using `transition`, `@keyframes`, or JavaScript-based timers like `setTimeout` to drive animations is also wrong.
+
+## Problem
+
+Remotion renders each frame independently. Frame 30 might be rendered before frame 10, or frame 50 might be rendered twice.  
+Because CSS animations don't know which frame Remotion is currently rendering, the animation state will be wrong and you'll see:
+
+- Flickering or blank frames during rendering
+- Incorrect animation progress
+
+## Solution
+
+Drive all animations using [`useCurrentFrame()`](/docs/use-current-frame). This way, the animation state is derived from the frame number and is deterministic.
+
+Here is an example of a fade-in using [`interpolate()`](/docs/interpolate):
+
+```tsx twoslash title="✅ Do this"
+// ---cut---
+import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
+
+export const FadeIn = () => {
+  const frame = useCurrentFrame();
+  const opacity = interpolate(frame, [0, 30], [0, 1], {
+    extrapolateRight: "clamp",
+  });
+
+  return (
+    <AbsoluteFill
+      style={{
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "white",
+        fontSize: 80,
+      }}
+    >
+      <div style={{ opacity }}>Hello World!</div>
+    </AbsoluteFill>
+  );
+};
+```
+
+## See also
+
+- [Animating properties](/docs/animating-properties)
+- [`interpolate()`](/docs/interpolate)
+- [Flickering](/docs/flickering)

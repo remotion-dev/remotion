@@ -1,0 +1,701 @@
+import {readFileSync} from 'node:fs';
+import {RenderInternals} from '@remotion/renderer';
+import type {
+	AddSequenceKeyframe,
+	SaveInlineCaptionPatchesRequest,
+	MoveEffectKeyframe,
+	MoveSequenceKeyframe,
+	SaveSequencePropEdit,
+	SaveSequencePropsRequest,
+	SaveSequencePropsResponse,
+	SaveSequencePropsResult,
+} from '@remotion/studio-shared';
+import {getAllSchemaKeys, getAssetSchemaKeys} from '@remotion/studio-shared';
+import {updateInlineCaptionPatches} from '../../codemods/update-inline-caption-patches';
+import {
+	updateEffectKeyframes,
+	updateSequenceKeyframes,
+} from '../../codemods/update-keyframes/update-keyframes';
+import {
+	type RemovedProp,
+	type SequencePropsNodeUpdate,
+	updateMultipleSequenceProps,
+} from '../../codemods/update-sequence-props/update-sequence-props';
+import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
+import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
+import type {ApiHandler} from '../api-types';
+import {
+	printUndoHint,
+	pushTransactionToUndoStack,
+	suppressUndoStackInvalidation,
+} from '../undo-stack';
+import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
+import {computeSequencePropsStatusFromContent} from './can-update-sequence-props';
+import {logEffectUpdate} from './log-updates/log-effect-update';
+import {logUpdate} from './log-updates/log-update';
+import {withSourceFileWriteQueue} from './source-file-write-queue';
+
+type ResolvedSequencePropEdit = {
+	index: number;
+	fileName: SaveSequencePropEdit['fileName'];
+	nodePath: SaveSequencePropEdit['nodePath'];
+	key: SaveSequencePropEdit['key'];
+	value: unknown;
+	valueString: string;
+	defaultValue: unknown | null;
+	defaultValueString: string | null;
+	schema: SaveSequencePropEdit['schema'];
+	sourceEdit: SaveSequencePropEdit['sourceEdit'];
+};
+
+type SequencePropEditGroup = {
+	fileRelativeToRoot: string;
+	edits: ResolvedSequencePropEdit[];
+	captionPatches: SaveInlineCaptionPatchesRequest[];
+	addedKeyframes: AddSequenceKeyframe[];
+	movedSequenceKeyframes: ResolvedSequenceKeyframe[];
+	effectKeyframes: ResolvedEffectKeyframe[];
+};
+
+type ResolvedSequenceKeyframe = MoveSequenceKeyframe & {
+	index: number;
+};
+
+type ResolvedEffectKeyframe = MoveEffectKeyframe & {
+	index: number;
+};
+
+const parseSequencePropEditValue = (
+	value: SaveSequencePropEdit['value'],
+): unknown => {
+	if (value.type === 'undefined') {
+		return undefined;
+	}
+
+	return JSON.parse(value.serialized);
+};
+
+const stringifySequencePropEditValue = (value: unknown): string => {
+	if (value === undefined) {
+		return 'undefined';
+	}
+
+	return JSON.stringify(value);
+};
+
+type SequencePropUndoSnapshot = {
+	filePath: string;
+	oldContents: string;
+	newContents: string;
+	logLine: number;
+};
+
+type SequencePropEditResult = {
+	oldValueString: string;
+	logLine: number;
+	removedProps: RemovedProp[];
+	formatted: boolean;
+};
+
+type SequenceKeyframeLog = {
+	fileRelativeToRoot: string;
+	line: number;
+	key: string;
+	oldValueString: string;
+	newValueString: string;
+	formatted: boolean;
+};
+
+type CaptionPatchLog = {
+	fileRelativeToRoot: string;
+	line: number;
+	index: number;
+	oldValueString: string;
+	newValueString: string;
+};
+
+type EffectKeyframeLog = {
+	fileRelativeToRoot: string;
+	line: number;
+	effectName: string;
+	propKey: string;
+	oldValueString: string;
+	newValueString: string;
+	formatted: boolean;
+};
+
+const groupBy = <T>(items: T[], getKey: (item: T) => string): T[][] => {
+	const groups = new Map<string, T[]>();
+	for (const item of items) {
+		const key = getKey(item);
+		const group = groups.get(key) ?? [];
+		group.push(item);
+		groups.set(key, group);
+	}
+
+	return [...groups.values()];
+};
+
+export const convertSequencePropEditToCodemodChange = (
+	edit: Pick<
+		ResolvedSequencePropEdit,
+		'nodePath' | 'key' | 'value' | 'defaultValue' | 'schema' | 'sourceEdit'
+	>,
+): SequencePropsNodeUpdate => {
+	return {
+		nodePath: edit.nodePath.nodePath,
+		updates: [
+			{
+				key: edit.key,
+				value: edit.value,
+				defaultValue: edit.defaultValue,
+				googleFont:
+					edit.sourceEdit?.type === 'google-font' ? edit.sourceEdit.font : null,
+			},
+		],
+		schema: edit.schema,
+		videoConfigValues: edit.nodePath.videoConfigValues,
+	};
+};
+
+export const shouldSuppressHmrForSequencePropEdits = (
+	edits: readonly {
+		key: string;
+		sourceEdit?: SaveSequencePropEdit['sourceEdit'];
+	}[],
+): boolean => {
+	return edits.every(
+		(edit) =>
+			edit.key !== 'showInTimeline' &&
+			(edit.sourceEdit === null || edit.sourceEdit === undefined),
+	);
+};
+
+export const saveSequencePropsHandler: ApiHandler<
+	SaveSequencePropsRequest,
+	SaveSequencePropsResponse
+> = ({
+	input: {
+		edits,
+		addedKeyframes,
+		movedKeyframes,
+		captionPatches = [],
+		clientId,
+		undoLabel,
+		redoLabel,
+	},
+	remotionRoot,
+	logLevel,
+}) =>
+	withSourceFileWriteQueue(async () => {
+		const keyframesToAdd = addedKeyframes === null ? [] : addedKeyframes;
+		const keyframesToMove =
+			movedKeyframes === null
+				? {sequenceKeyframes: [], effectKeyframes: []}
+				: movedKeyframes;
+		const totalKeyframeMoves =
+			keyframesToMove.sequenceKeyframes.length +
+			keyframesToMove.effectKeyframes.length;
+		if (
+			edits.length === 0 &&
+			captionPatches.length === 0 &&
+			keyframesToAdd.length === 0 &&
+			totalKeyframeMoves === 0
+		) {
+			throw new Error('No sequence prop edits to save');
+		}
+
+		RenderInternals.Log.trace(
+			{indent: false, logLevel},
+			`[save-sequence-props] Received request with ${edits.length} edit(s), ${captionPatches.length} caption patch request(s), ${keyframesToAdd.length} added keyframe(s), and ${totalKeyframeMoves} moved keyframe(s)`,
+		);
+
+		const editGroups = new Map<string, SequencePropEditGroup>();
+
+		for (const [index, edit] of edits.entries()) {
+			const parsedValue = parseSequencePropEditValue(edit.value);
+			const parsedDefaultValue =
+				edit.defaultValue !== null ? JSON.parse(edit.defaultValue) : null;
+			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
+				remotionRoot,
+				fileName: edit.fileName,
+				action: 'modify',
+			});
+
+			const group = editGroups.get(absolutePath) ?? {
+				fileRelativeToRoot,
+				edits: [],
+				captionPatches: [],
+				addedKeyframes: [],
+				movedSequenceKeyframes: [],
+				effectKeyframes: [],
+			};
+			group.edits.push({
+				index,
+				fileName: edit.fileName,
+				nodePath: edit.nodePath,
+				key: edit.key,
+				value: parsedValue,
+				valueString: stringifySequencePropEditValue(parsedValue),
+				defaultValue: parsedDefaultValue,
+				defaultValueString:
+					parsedDefaultValue !== null
+						? JSON.stringify(parsedDefaultValue)
+						: null,
+				schema: edit.schema,
+				sourceEdit: edit.sourceEdit,
+			});
+			editGroups.set(absolutePath, group);
+		}
+
+		for (const captionPatch of captionPatches) {
+			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
+				remotionRoot,
+				fileName: captionPatch.fileName,
+				action: 'modify',
+			});
+			const group = editGroups.get(absolutePath) ?? {
+				fileRelativeToRoot,
+				edits: [],
+				captionPatches: [],
+				addedKeyframes: [],
+				movedSequenceKeyframes: [],
+				effectKeyframes: [],
+			};
+			group.captionPatches.push(captionPatch);
+			editGroups.set(absolutePath, group);
+		}
+
+		for (const keyframe of keyframesToAdd) {
+			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
+				remotionRoot,
+				fileName: keyframe.fileName,
+				action: 'modify',
+			});
+			const group = editGroups.get(absolutePath) ?? {
+				fileRelativeToRoot,
+				edits: [],
+				captionPatches: [],
+				addedKeyframes: [],
+				movedSequenceKeyframes: [],
+				effectKeyframes: [],
+			};
+			group.addedKeyframes.push(keyframe);
+			editGroups.set(absolutePath, group);
+		}
+
+		for (const [
+			index,
+			keyframe,
+		] of keyframesToMove.sequenceKeyframes.entries()) {
+			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
+				remotionRoot,
+				fileName: keyframe.fileName,
+				action: 'modify',
+			});
+			const group = editGroups.get(absolutePath) ?? {
+				fileRelativeToRoot,
+				edits: [],
+				captionPatches: [],
+				addedKeyframes: [],
+				movedSequenceKeyframes: [],
+				effectKeyframes: [],
+			};
+			group.movedSequenceKeyframes.push({...keyframe, index});
+			editGroups.set(absolutePath, group);
+		}
+
+		for (const [index, keyframe] of keyframesToMove.effectKeyframes.entries()) {
+			const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
+				remotionRoot,
+				fileName: keyframe.fileName,
+				action: 'modify',
+			});
+			const group = editGroups.get(absolutePath) ?? {
+				fileRelativeToRoot,
+				edits: [],
+				captionPatches: [],
+				addedKeyframes: [],
+				movedSequenceKeyframes: [],
+				effectKeyframes: [],
+			};
+			group.effectKeyframes.push({...keyframe, index});
+			editGroups.set(absolutePath, group);
+		}
+
+		const snapshots: SequencePropUndoSnapshot[] = [];
+		const outputByPath = new Map<string, string>();
+		const resultByIndex = new Map<number, SequencePropEditResult>();
+		const sequenceKeyframeLogs: SequenceKeyframeLog[] = [];
+		const captionPatchLogs: CaptionPatchLog[] = [];
+		const effectKeyframeLogs: EffectKeyframeLog[] = [];
+
+		for (const [absolutePath, group] of editGroups) {
+			const fileContents = readFileSync(absolutePath, 'utf-8');
+			let output = fileContents;
+			let firstLogLine = Number.POSITIVE_INFINITY;
+
+			if (group.edits.length > 0) {
+				const {
+					output: sequencePropsOutput,
+					formatted,
+					results: updateResults,
+				} = await updateMultipleSequenceProps({
+					input: output,
+					changes: group.edits.map(convertSequencePropEditToCodemodChange),
+					prettierConfigOverride: null,
+				});
+				output = sequencePropsOutput;
+				const firstUpdate = updateResults[0];
+				if (firstUpdate) {
+					firstLogLine = Math.min(firstLogLine, firstUpdate.logLine);
+				}
+
+				for (const [resultIndex, result] of updateResults.entries()) {
+					const edit = group.edits[resultIndex];
+					resultByIndex.set(edit.index, {
+						oldValueString: result.oldValueStrings[0],
+						logLine: result.logLine,
+						removedProps: result.removedProps,
+						formatted,
+					});
+				}
+			}
+
+			for (const captionPatchRequest of group.captionPatches) {
+				const result = updateInlineCaptionPatches({
+					input: output,
+					nodePath: captionPatchRequest.nodePath.nodePath,
+					patches: captionPatchRequest.patches,
+				});
+				output = result.output;
+				firstLogLine = Math.min(firstLogLine, result.logLine);
+				for (const [index, patch] of captionPatchRequest.patches.entries()) {
+					const changedFields = result.changedFields[index];
+					if (!changedFields) {
+						throw new Error('Could not determine changed caption fields');
+					}
+
+					captionPatchLogs.push({
+						fileRelativeToRoot: group.fileRelativeToRoot,
+						line: result.logLine,
+						index: patch.index,
+						oldValueString: changedFields
+							.map(
+								(field) =>
+									`${field}: ${patch.before[field as keyof typeof patch.before]}`,
+							)
+							.join(', '),
+						newValueString: changedFields
+							.map(
+								(field) =>
+									`${field}: ${patch.changes[field as keyof typeof patch.changes]}`,
+							)
+							.join(', '),
+					});
+				}
+			}
+
+			for (const keyframeGroup of groupBy(group.addedKeyframes, (keyframe) =>
+				JSON.stringify(keyframe.nodePath.nodePath),
+			)) {
+				const [firstSequenceKeyframe] = keyframeGroup;
+				if (!firstSequenceKeyframe) {
+					continue;
+				}
+
+				const updates = keyframeGroup.map((keyframe) => ({
+					key: keyframe.key,
+					operation: {
+						type: 'add' as const,
+						frame: keyframe.frame,
+						value: JSON.parse(keyframe.value),
+					},
+				}));
+				const result = await updateSequenceKeyframes({
+					input: output,
+					nodePath: firstSequenceKeyframe.nodePath.nodePath,
+					schema: firstSequenceKeyframe.schema,
+					videoConfigValues: firstSequenceKeyframe.nodePath.videoConfigValues,
+					updates,
+				});
+				output = result.output;
+				firstLogLine = Math.min(firstLogLine, result.logLine);
+
+				for (const [updateIndex, update] of updates.entries()) {
+					sequenceKeyframeLogs.push({
+						fileRelativeToRoot: group.fileRelativeToRoot,
+						line: result.logLine,
+						key: update.key,
+						oldValueString: result.oldValueStrings[updateIndex],
+						newValueString: result.newValueStrings[updateIndex],
+						formatted: result.formatted,
+					});
+				}
+			}
+
+			for (const keyframeGroup of groupBy(
+				group.movedSequenceKeyframes,
+				(keyframe) => JSON.stringify(keyframe.nodePath.nodePath),
+			)) {
+				const [firstSequenceKeyframe] = keyframeGroup;
+				if (!firstSequenceKeyframe) {
+					continue;
+				}
+
+				const updates = groupBy(keyframeGroup, (keyframe) => keyframe.key).map(
+					(keyframes) => {
+						const [firstMove] = keyframes;
+						if (!firstMove) {
+							throw new Error('Expected keyframe');
+						}
+
+						return {
+							key: firstMove.key,
+							operation: {
+								type: 'move' as const,
+								moves: keyframes.map((keyframe) => ({
+									fromFrame: keyframe.fromFrame,
+									toFrame: keyframe.toFrame,
+								})),
+							},
+						};
+					},
+				);
+
+				const result = await updateSequenceKeyframes({
+					input: output,
+					nodePath: firstSequenceKeyframe.nodePath.nodePath,
+					schema: firstSequenceKeyframe.schema,
+					videoConfigValues: firstSequenceKeyframe.nodePath.videoConfigValues,
+					updates,
+				});
+				output = result.output;
+				firstLogLine = Math.min(firstLogLine, result.logLine);
+
+				for (const [updateIndex, update] of updates.entries()) {
+					sequenceKeyframeLogs.push({
+						fileRelativeToRoot: group.fileRelativeToRoot,
+						line: result.logLine,
+						key: update.key,
+						oldValueString: result.oldValueStrings[updateIndex],
+						newValueString: result.newValueStrings[updateIndex],
+						formatted: result.formatted,
+					});
+				}
+			}
+
+			for (const keyframeGroup of groupBy(
+				group.effectKeyframes,
+				(keyframe) =>
+					`${JSON.stringify(keyframe.sequenceNodePath.nodePath)}:${
+						keyframe.effectIndex
+					}`,
+			)) {
+				const [firstEffectKeyframe] = keyframeGroup;
+				if (!firstEffectKeyframe) {
+					continue;
+				}
+
+				const updates = groupBy(keyframeGroup, (keyframe) => keyframe.key).map(
+					(keyframes) => {
+						const [firstMove] = keyframes;
+						if (!firstMove) {
+							throw new Error('Expected keyframe');
+						}
+
+						return {
+							key: firstMove.key,
+							operation: {
+								type: 'move' as const,
+								moves: keyframes.map((keyframe) => ({
+									fromFrame: keyframe.fromFrame,
+									toFrame: keyframe.toFrame,
+								})),
+							},
+						};
+					},
+				);
+
+				const result = await updateEffectKeyframes({
+					input: output,
+					sequenceNodePath: firstEffectKeyframe.sequenceNodePath.nodePath,
+					effectIndex: firstEffectKeyframe.effectIndex,
+					schema: firstEffectKeyframe.schema,
+					videoConfigValues:
+						firstEffectKeyframe.sequenceNodePath.videoConfigValues,
+					updates,
+				});
+				output = result.output;
+				firstLogLine = Math.min(firstLogLine, result.logLine);
+
+				for (const [updateIndex, update] of updates.entries()) {
+					effectKeyframeLogs.push({
+						fileRelativeToRoot: group.fileRelativeToRoot,
+						line: result.logLine,
+						effectName: result.effectCallee,
+						propKey: update.key,
+						oldValueString: result.oldValueStrings[updateIndex],
+						newValueString: result.newValueStrings[updateIndex],
+						formatted: result.formatted,
+					});
+				}
+			}
+
+			outputByPath.set(absolutePath, output);
+			snapshots.push({
+				filePath: absolutePath,
+				oldContents: fileContents,
+				newContents: output,
+				logLine: Number.isFinite(firstLogLine) ? firstLogLine : 1,
+			});
+		}
+
+		const undoMessage = `↩️  ${undoLabel}`;
+		const redoMessage = `↪️  ${redoLabel}`;
+		const suppressHmr =
+			captionPatches.length === 0 &&
+			shouldSuppressHmrForSequencePropEdits(edits);
+
+		pushTransactionToUndoStack({
+			snapshots: snapshots.map((snapshot) => ({
+				...snapshot,
+				nodePathRemappings: null,
+			})),
+			logLevel,
+			remotionRoot,
+			description: {undoMessage, redoMessage},
+			entryType: 'sequence-props',
+			suppressHmrOnFileRestore: suppressHmr,
+		});
+
+		for (const [absolutePath, output] of outputByPath) {
+			suppressUndoStackInvalidation(absolutePath);
+			if (suppressHmr) {
+				suppressBundlerUpdateForFile(absolutePath);
+			}
+
+			writeFileAndNotifyFileWatchers({
+				file: absolutePath,
+				content: output,
+				originatorClientId: clientId,
+				metadata: null,
+			});
+		}
+
+		for (const {edits: groupEdits, fileRelativeToRoot} of editGroups.values()) {
+			for (const edit of groupEdits) {
+				const result = resultByIndex.get(edit.index);
+				if (!result) {
+					throw new Error('Could not compute sequence prop edit result');
+				}
+
+				logUpdate({
+					fileRelativeToRoot,
+					line: result.logLine,
+					key: edit.key,
+					oldValueString: result.oldValueString,
+					newValueString: edit.valueString,
+					defaultValueString: edit.defaultValueString,
+					formatted: result.formatted,
+					logLevel,
+					removedProps: result.removedProps,
+					addedProps: [],
+				});
+			}
+		}
+
+		for (const log of captionPatchLogs) {
+			logUpdate({
+				fileRelativeToRoot: log.fileRelativeToRoot,
+				line: log.line,
+				key: `captions[${log.index}]`,
+				oldValueString: log.oldValueString,
+				newValueString: log.newValueString,
+				defaultValueString: null,
+				formatted: true,
+				logLevel,
+				removedProps: [],
+				addedProps: [],
+			});
+		}
+
+		for (const log of sequenceKeyframeLogs) {
+			logUpdate({
+				fileRelativeToRoot: log.fileRelativeToRoot,
+				line: log.line,
+				key: log.key,
+				oldValueString: log.oldValueString,
+				newValueString: log.newValueString,
+				defaultValueString: null,
+				formatted: log.formatted,
+				logLevel,
+				removedProps: [],
+				addedProps: [],
+			});
+		}
+
+		for (const log of effectKeyframeLogs) {
+			logEffectUpdate({
+				fileRelativeToRoot: log.fileRelativeToRoot,
+				line: log.line,
+				effectName: log.effectName,
+				propKey: log.propKey,
+				oldValueString: log.oldValueString,
+				newValueString: log.newValueString,
+				defaultValueString: null,
+				formatted: log.formatted,
+				logLevel,
+				removedProps: [],
+				addedProps: [],
+			});
+		}
+
+		printUndoHint(logLevel);
+
+		const statusTargets = [
+			...new Map(
+				[...edits, ...captionPatches, ...keyframesToAdd].map((target) => [
+					JSON.stringify(target.nodePath),
+					target,
+				]),
+			).values(),
+		];
+		const results: SaveSequencePropsResult[] = statusTargets.map((target) => {
+			const {absolutePath} = resolveFileInsideProject({
+				remotionRoot,
+				fileName: target.fileName,
+				action: 'modify',
+			});
+			const output = outputByPath.get(absolutePath);
+			if (!output) {
+				throw new Error('Could not compute sequence prop edit status');
+			}
+
+			const newStatus = computeSequencePropsStatusFromContent({
+				fileContents: output,
+				keys: getAllSchemaKeys(target.schema),
+				assetKeys: getAssetSchemaKeys(target.schema),
+				nodePath: target.nodePath.nodePath,
+				componentIdentity: null,
+				effects: [],
+				videoConfigValues: target.nodePath.videoConfigValues,
+			});
+
+			return {
+				fileName: target.fileName,
+				nodePath: target.nodePath,
+				props: newStatus.props,
+			};
+		});
+		const firstResult = results[0];
+		if (!firstResult) {
+			throw new Error('Could not compute sequence prop edit status');
+		}
+
+		return {
+			canUpdate: true,
+			props: firstResult.props,
+			results,
+		};
+	});

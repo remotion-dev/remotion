@@ -1,0 +1,99 @@
+---
+image: /generated/articles-docs-shaders.png
+id: shaders
+title: Shaders
+crumb: 'Designing visuals'
+---
+
+You can use shader effects in Remotion to generate backgrounds or transform content.
+
+## Shaders as backgrounds
+
+[`@remotion/effects`](/docs/effects/api) includes many effect presets that can be applied to canvas-based components.
+To create a shader background, apply an effect such as [`halftoneLinearGradient()`](/docs/effects/halftone-linear-gradient) to [`<Solid>`](/docs/solid).
+
+<Demo type="shader" />
+
+```tsx twoslash title="HalftoneBackground.tsx"
+import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
+import {Solid, useVideoConfig} from 'remotion';
+
+export const HalftoneBackground: React.FC = () => {
+  const {width, height} = useVideoConfig();
+
+  return (
+    <Solid
+      width={width}
+      height={height}
+      color="black"
+      effects={[
+        halftoneLinearGradient({
+          firstStopDotSize: 0,
+          secondStopDotSize: 42,
+          firstStopPosition: [0, 0.5],
+          secondStopPosition: [1, 0.5],
+          gridSize: 24,
+          dotColor: '#0b84f3',
+        }),
+      ]}
+    />
+  );
+};
+```
+
+You can also vibe code a custom effect using [`createEffect()`](/docs/create-effect).
+
+## Apply shaders to content
+
+Use [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) to capture HTML content and apply shader effects to its pixels.
+This example applies [`fisheye()`](/docs/effects/fisheye) to a DOM element:
+
+```tsx twoslash title="FisheyeContent.tsx"
+import {fisheye} from '@remotion/effects/fisheye';
+import {AbsoluteFill, HtmlInCanvas, useVideoConfig} from 'remotion';
+
+export const FisheyeContent: React.FC = () => {
+  const {width, height} = useVideoConfig();
+
+  return (
+    <HtmlInCanvas
+      width={width}
+      height={height}
+      effects={[
+        fisheye({
+          fieldOfView: 2.5,
+        }),
+      ]}
+    >
+      <AbsoluteFill
+        style={{
+          alignItems: 'center',
+          backgroundColor: '#0b84f3',
+          color: 'white',
+          fontFamily: 'sans-serif',
+          fontSize: 120,
+          justifyContent: 'center',
+        }}
+      >
+        Hello
+      </AbsoluteFill>
+    </HtmlInCanvas>
+  );
+};
+```
+
+## Rendering
+
+When rendering a video that uses WebGL, pass [`--gl=angle`](/docs/gl-options) to ensure the headless browser can create a WebGL context:
+
+```bash
+bunx remotion render MyComp --gl=angle
+```
+
+Without this flag, the headless browser may not have a WebGL context available.
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas)
+- [`<Solid>`](/docs/solid)

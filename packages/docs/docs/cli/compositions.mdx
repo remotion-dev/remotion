@@ -1,0 +1,128 @@
+---
+image: /generated/articles-docs-cli-compositions.png
+title: npx remotion compositions
+sidebar_label: compositions
+crumb: CLI Reference
+---
+
+<AvailableFrom v="2.6.12" />
+
+Print list of composition IDs based on a path of an entry point.
+
+```bash
+npx remotion compositions <serve-url|entry-file>?
+```
+
+You may pass a [Serve URL](/docs/terminology/serve-url) or an [entry point](/docs/terminology/entry-point) as the first argument, otherwise the entry point will be [determined](/docs/terminology/entry-point#which-entry-point-is-being-used).
+
+## Flags
+
+### `--props`
+
+<Options id="props" />
+
+:::note
+Inline JSON string isn't supported on Windows shells because it removes the `"` character, use a file name instead.
+:::
+
+### `--config`
+
+<Options id="config" />
+
+### `--env-file`<AvailableFrom v="2.2.0" />
+
+<Options id="env-file" />
+
+### `--bundle-cache`
+
+<Options id="bundle-cache" />
+
+### `--log`
+
+[Set the log level](/docs/config#setloglevel). Increase or decrease the amount of output. Acceptable values: `error`, `warn`, `info` (_default_), `verbose`
+
+:::info
+If you don't feel like passing command line flags every time, consider creating a `remotion.config.ts` [config file](/docs/config).
+:::
+
+### `--port`
+
+<Options id="port" />
+
+### `--public-dir`<AvailableFrom v="3.2.13" />
+
+<Options id="public-path" />
+
+### `--timeout`
+
+Define how long it may take to resolve all [`delayRender()`](/docs/delay-render) calls before the composition fetching times out in milliseconds. Default: `30000`.
+
+:::info
+Not to be confused with the [`--timeout` flag when deploying a Lambda function](/docs/lambda/cli/functions/deploy#--timeout).
+:::
+
+### `--ignore-certificate-errors`
+
+<Options id="ignore-certificate-errors" />
+
+### `--disable-web-security`
+
+<Options id="disable-web-security" />
+
+### `--disable-headless`
+
+<Options id="disable-headless" />
+
+### `--dark-mode`<AvailableFrom v="4.0.381"/>
+
+<Options id="dark-mode" />
+
+### `--enable-multiprocess-on-linux`<AvailableFrom v="4.0.42"/>
+
+<Options cli id="enable-multiprocess-on-linux" />
+
+### `--user-agent`<AvailableFrom v="3.3.83"/>
+
+<Options id="user-agent" />
+
+### `--media-cache-size-in-bytes`<AvailableFrom v="4.0.352"/>
+
+<Options id="media-cache-size-in-bytes" />
+
+### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
+
+### `--offthreadvideo-video-threads`<AvailableFrom v="4.0.261"/>
+
+<Options id="offthreadvideo-video-threads" />
+
+### `--binaries-directory`<AvailableFrom v="4.0.120" />
+
+<Options cli id="binaries-directory" />
+
+### `--chrome-mode`<AvailableFrom v="4.0.248" />
+
+<Options id="chrome-mode" />
+
+### `--quiet`, `--q`
+
+Only prints the composition IDs, separated by a space.
+
+### ~~`--ffmpeg-executable`~~
+
+_removed in v4.0_
+
+[Set a custom `ffmpeg` executable](/docs/config#setffmpegexecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
+
+### ~~`--ffprobe-executable`~~
+
+_removed in v4.0_
+
+[Set a custom `ffprobe` executable](/docs/config#setffprobeexecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.
+
+## See also
+
+- [`getCompositions()`](/docs/renderer/get-compositions)
+- [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda)
+- [`npx remotion lambda compositions`](/docs/lambda/cli/compositions)

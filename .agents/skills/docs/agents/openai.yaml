@@ -1,0 +1,4 @@
+interface:
+  display_name: "Docs Site"
+  short_description: "Run the Remotion docs locally"
+  default_prompt: "Use $docs to build Remotion and open the docs site locally."

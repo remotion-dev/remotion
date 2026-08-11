@@ -1,0 +1,58 @@
+---
+image: /generated/articles-docs-audio-sfx.png
+title: Sound effects
+sidebar_label: Sound effects
+crumb: Audio
+---
+
+You can add sound effects to your Remotion video using the [`<Audio>`](/docs/media/audio) tag.
+
+## Using `@remotion/sfx`
+
+The [`@remotion/sfx`](/docs/sfx) package provides a collection of ready-to-use sound effects:
+
+```tsx twoslash title="MyComp.tsx"
+import {whoosh, whip} from '@remotion/sfx';
+import {Audio} from '@remotion/media';
+
+const MyVideo = () => {
+  return (
+    <>
+      <Audio from={0} durationInFrames={30} src={whip} />
+      <Audio from={30} durationInFrames={30} src={whoosh} />
+    </>
+  );
+};
+```
+
+See the [full list of available sounds](/docs/sfx).
+
+## Using the CDN directly
+
+You can also use the [`remotion.media`](https://remotion.media/#category-sound-effects) CDN URLs directly without installing the package:
+
+```tsx twoslash title="MyComp.tsx"
+import {Audio} from '@remotion/media';
+
+const MyVideo = () => {
+  return <Audio src="https://remotion.media/whoosh.wav" />;
+};
+```
+
+## Finding more sound effects
+
+The following sites are good resources for free sound effects:
+
+- [freesound.org](https://freesound.org) — Large community-driven library, many CC0-licensed sounds
+- [kenney.nl](https://kenney.nl) — High-quality game audio assets, all CC0
+- [soundcn.xyz](https://www.soundcn.xyz/) — Curated collection of UI and interaction sounds
+- [ElevenLabs](https://elevenlabs.io/sound-effects) — Generate sound effects by describing them
+
+## Contributing
+
+Want to add a new sound effect? See the [contributing guide](/docs/contributing/sfx).
+
+## See also
+
+- [`@remotion/sfx`](/docs/sfx)
+- [Importing audio](/docs/audio/importing)

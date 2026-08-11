@@ -1,0 +1,38 @@
+---
+image: /generated/articles-docs-lambda-cli-functions-rm.png
+sidebar_label: rm
+title: 'npx remotion lambda functions rm'
+slug: /lambda/cli/functions/rm
+crumb: 'Lambda CLI Reference'
+---
+
+```
+npx remotion lambda functions rm remotion-render-2021-12-16-2048mb-240sec
+```
+
+Removes one or more functions from your AWS infrastructure. Pass a space-separated list of functions you'd like to delete.
+
+<details>
+<summary>
+Example output
+</summary>
+<pre>
+<br/>
+Function name:   remotion-render-2021-12-16-2048mb-240sec<br/>
+Memory:          2048MB<br/>
+Timeout:         120sec<br/>
+Version:         2021-12-16<br/>
+Delete? (Y/n):  Y<br/>
+Deleted!
+<br/>
+
+</pre>
+</details>
+
+## `--region`
+
+The [AWS region](/docs/lambda/region-selection) to select.
+
+## `--yes`, `-y`
+
+Skips confirmation.

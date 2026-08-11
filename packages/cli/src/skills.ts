@@ -1,0 +1,87 @@
+import {spawn} from 'node:child_process';
+import type {LogLevel} from '@remotion/renderer';
+import {chalk} from './chalk';
+import {Log} from './log';
+import {remotionSkillNames} from './remotion-skill-names';
+
+export const printSkillsHelp = (logLevel: LogLevel) => {
+	Log.info({indent: false, logLevel}, chalk.blue('remotion skills'));
+	Log.info(
+		{indent: false, logLevel},
+		'Install or update skills from remotion-dev/skills.',
+	);
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, 'Available subcommands:');
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, chalk.blue('remotion skills add'));
+	Log.info(
+		{indent: false, logLevel},
+		'Install skills from remotion-dev/skills.',
+	);
+	Log.info({indent: false, logLevel});
+	Log.info({indent: false, logLevel}, chalk.blue('remotion skills update'));
+	Log.info(
+		{indent: false, logLevel},
+		'Update skills from remotion-dev/skills.',
+	);
+};
+
+export const skillsCommand = (
+	args: string[],
+	logLevel: LogLevel,
+	{
+		cwd,
+		environment,
+	}: {
+		cwd: string;
+		environment: NodeJS.ProcessEnv;
+	},
+) => {
+	const subcommand = args[0];
+	const restArgs = args.slice(1);
+
+	if (!subcommand || !['add', 'update'].includes(subcommand)) {
+		printSkillsHelp(logLevel);
+		return;
+	}
+
+	const command = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+	const fullArgs =
+		subcommand === 'add'
+			? [
+					'--loglevel=error',
+					'skills@1.5.20',
+					'add',
+					'remotion-dev/skills',
+					...restArgs,
+					'--yes',
+				]
+			: [
+					'--loglevel=error',
+					'skills',
+					'update',
+					...remotionSkillNames,
+					...restArgs,
+					'--yes',
+				];
+
+	const child = spawn(command, fullArgs, {
+		cwd,
+		env: environment,
+		stdio: 'inherit',
+	});
+
+	return new Promise<void>((resolve, reject) => {
+		child.on('exit', (code) => {
+			if (code === 0) {
+				resolve();
+			} else {
+				reject(new Error(`The skills command failed with exit code ${code}`));
+			}
+		});
+
+		child.on('error', (err) => {
+			reject(err);
+		});
+	});
+};

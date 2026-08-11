@@ -1,0 +1,230 @@
+import {PlayerInternals} from '@remotion/player';
+import type {PointerEvent} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import ReactDOM from 'react-dom';
+import {LIGHT_TEXT, TRANSPARENT, WHITE_ALPHA_06} from '../../helpers/colors';
+import {useMobileLayout} from '../../helpers/mobile-layout';
+import {areKeyboardShortcutsDisabled} from '../../helpers/use-keybinding';
+import {CaretRight} from '../../icons/caret';
+import {useZIndex} from '../../state/z-index';
+import {Row, Spacing} from '../layout';
+import type {SubMenu} from '../NewComposition/ComboBox';
+import {MENU_ITEM_CLASSNAME} from './is-menu-item';
+import {getPortal} from './portals';
+import {
+	MAX_MENU_WIDTH,
+	MAX_MOBILE_MENU_WIDTH,
+	MENU_VERTICAL_PADDING,
+	SUBMENU_LEFT_INSET,
+	menuContainerTowardsBottom,
+} from './styles';
+import {SubMenuComponent} from './SubMenu';
+
+const container: React.CSSProperties = {
+	paddingTop: 4,
+	paddingBottom: 4,
+	paddingLeft: 8,
+	paddingRight: 8,
+	cursor: 'default',
+};
+
+const labelStyle: React.CSSProperties = {
+	fontSize: 13,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+	flex: 1,
+};
+
+const keyHintCss: React.CSSProperties = {
+	flexDirection: 'row',
+	color: LIGHT_TEXT,
+	fontSize: 13,
+};
+
+const leftSpace: React.CSSProperties = {
+	width: 20,
+	marginLeft: -2,
+	display: 'inline-flex',
+	justifyContent: 'center',
+	alignItems: 'center',
+};
+
+export type SubMenuActivated = false | 'with-mouse' | 'without-mouse';
+
+export const MenuSubItem: React.FC<{
+	readonly label: React.ReactNode;
+	readonly id: string;
+	readonly onActionChosen: (
+		id: string,
+		e: PointerEvent<HTMLDivElement>,
+	) => void;
+	readonly selected: boolean;
+	readonly onItemSelected: (id: string) => void;
+	readonly keyHint: string | null;
+	readonly leaveLeftSpace: boolean;
+	readonly leftItem: React.ReactNode;
+	readonly subMenu: SubMenu | null;
+	readonly onQuitMenu: () => void;
+	readonly onNextMenu: () => void;
+	readonly subMenuActivated: SubMenuActivated;
+	readonly setSubMenuActivated: React.Dispatch<
+		React.SetStateAction<SubMenuActivated>
+	>;
+	readonly disabled?: boolean;
+}> = ({
+	label,
+	leaveLeftSpace,
+	leftItem,
+	onActionChosen,
+	id,
+	selected,
+	onItemSelected,
+	keyHint,
+	subMenu,
+	onQuitMenu,
+	subMenuActivated,
+	setSubMenuActivated,
+	disabled,
+}) => {
+	const [hovered, setHovered] = useState(false);
+	const ref = useRef<HTMLDivElement>(null);
+	const size = PlayerInternals.useElementSize(ref, {
+		triggerOnWindowResize: true,
+		shouldApplyCssTransforms: true,
+	});
+	const mobileLayout = useMobileLayout();
+	const {currentZIndex} = useZIndex();
+
+	const style = useMemo((): React.CSSProperties => {
+		return {
+			...container,
+			backgroundColor: selected && !disabled ? WHITE_ALPHA_06 : TRANSPARENT,
+			opacity: disabled ? 0.5 : 1,
+			cursor: disabled ? 'not-allowed' : 'default',
+		};
+	}, [selected, disabled]);
+
+	const onPointerUp = useCallback(
+		(e: PointerEvent<HTMLDivElement>) => {
+			if (disabled) {
+				return;
+			}
+
+			if (subMenu) {
+				setSubMenuActivated('with-mouse');
+				setHovered(true);
+				return;
+			}
+
+			onActionChosen(id, e);
+		},
+		[disabled, id, onActionChosen, setSubMenuActivated, subMenu],
+	);
+
+	const onPointerEnter = useCallback(() => {
+		if (disabled) {
+			return;
+		}
+
+		onItemSelected(id);
+		setHovered(true);
+	}, [disabled, id, onItemSelected]);
+
+	const onPointerLeave = useCallback(() => {
+		setHovered(false);
+	}, []);
+
+	const onQuitSubmenu = useCallback(() => {
+		setSubMenuActivated(false);
+	}, [setSubMenuActivated]);
+
+	const portalStyle = useMemo((): React.CSSProperties | null => {
+		if (!selected || !size || !subMenu || !subMenuActivated) {
+			return null;
+		}
+
+		const left = size.left + size.width + SUBMENU_LEFT_INSET;
+		const minSpaceRequired = mobileLayout
+			? MAX_MOBILE_MENU_WIDTH
+			: MAX_MENU_WIDTH;
+		const spaceToLeft = size.left;
+		const spaceToRight = size.windowSize.width - size.left - size.width;
+		const canOpenOnRight =
+			spaceToRight >= minSpaceRequired || spaceToRight >= spaceToLeft;
+
+		return {
+			...menuContainerTowardsBottom,
+			...(canOpenOnRight
+				? {left}
+				: {
+						right: size.windowSize.width - size.left + SUBMENU_LEFT_INSET,
+					}),
+			top: size.top - MENU_VERTICAL_PADDING,
+		};
+	}, [mobileLayout, selected, size, subMenu, subMenuActivated]);
+
+	useEffect(() => {
+		if (!hovered || !subMenu) {
+			return;
+		}
+
+		const hi = setTimeout(() => {
+			setSubMenuActivated('with-mouse');
+		}, 100);
+		return () => clearTimeout(hi);
+	}, [hovered, selected, setSubMenuActivated, subMenu]);
+
+	useEffect(() => {
+		if (selected) {
+			ref.current?.scrollIntoView({
+				// block is vertical alignment, inline is horizontal alignment. So we use "block"
+				block: 'nearest',
+			});
+		}
+	}, [selected]);
+
+	return (
+		<div
+			ref={ref}
+			onPointerEnter={onPointerEnter}
+			onPointerLeave={onPointerLeave}
+			style={style}
+			onPointerUp={onPointerUp}
+			role="button"
+			className={MENU_ITEM_CLASSNAME}
+		>
+			<Row align="center">
+				{leaveLeftSpace ? (
+					<>
+						<div style={leftSpace}>{leftItem}</div>
+						<Spacing x={1} />
+					</>
+				) : null}
+				<div
+					style={labelStyle}
+					{...{title: typeof label === 'string' ? label : undefined}}
+				>
+					{label}
+				</div>{' '}
+				<Spacing x={2} />
+				{subMenu ? <CaretRight /> : null}
+				{keyHint && !areKeyboardShortcutsDisabled() ? (
+					<span style={keyHintCss}>{keyHint}</span>
+				) : null}
+				{portalStyle && subMenu
+					? ReactDOM.createPortal(
+							<SubMenuComponent
+								onQuitFullMenu={onQuitMenu}
+								subMenu={subMenu}
+								onQuitSubMenu={onQuitSubmenu}
+								portalStyle={portalStyle}
+								subMenuActivated={subMenuActivated}
+							/>,
+							getPortal(currentZIndex),
+						)
+					: null}
+			</Row>
+		</div>
+	);
+};

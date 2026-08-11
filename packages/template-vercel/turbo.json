@@ -1,0 +1,17 @@
+{
+  "tasks": {
+    "bundle": {
+      "outputs": [".remotion/**"]
+    },
+    "build": {
+      "dependsOn": ["bundle"],
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": ["BLOB_READ_WRITE_TOKEN"]
+    },
+    "create-snapshot": {
+      "dependsOn": ["bundle"],
+      "env": ["BLOB_READ_WRITE_TOKEN"]
+    }
+  },
+  "dangerouslyDisablePackageManagerCheck": true
+}

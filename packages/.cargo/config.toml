@@ -1,0 +1,6 @@
+# Putting this file into packages/ because VSCode Rust extension
+# only searches 1 level for Cargofiles
+
+[build]
+# Calling the directory "target" and adding it to turbo.json
+target-dir = "compositor/target"

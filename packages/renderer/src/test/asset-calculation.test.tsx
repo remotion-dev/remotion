@@ -1,0 +1,322 @@
+import {expect, test} from 'bun:test';
+import React from 'react';
+import {
+	Html5Audio,
+	Html5Video,
+	interpolate,
+	Sequence,
+	useCurrentFrame,
+} from 'remotion';
+import {calculateAssetPositions} from '../assets/calculate-asset-positions';
+import type {MediaAsset} from '../assets/types';
+import {onlyAudioAndVideoAssets} from '../filter-asset-types';
+import {getAssetsForMarkup} from './get-assets-for-markup';
+
+const basicConfig = {
+	width: 1080,
+	height: 1080,
+	fps: 30,
+	durationInFrames: 60,
+	id: 'hithere',
+};
+
+const getPositions = async (Markup: React.FC) => {
+	const assets = await getAssetsForMarkup(Markup, basicConfig);
+	const onlyAudioAndVideo = assets.map((ass) => {
+		return onlyAudioAndVideoAssets(ass);
+	});
+
+	return calculateAssetPositions(onlyAudioAndVideo);
+};
+
+const withoutId = (asset: MediaAsset) => {
+	const {id, ...others} = asset;
+	return others;
+};
+
+test('Should be able to collect assets', async () => {
+	const assetPositions = await getPositions(() => (
+		<Html5Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
+	));
+	expect(assetPositions.length).toBe(1);
+	expect(withoutId(assetPositions[0])).toEqual({
+		type: 'video',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		duration: 60,
+		startInVideo: 0,
+		trimLeft: 0,
+		volume: 1,
+		playbackRate: 1,
+		toneFrequency: 1,
+		audioStartFrame: 0,
+		audioStreamIndex: 0,
+	});
+});
+
+test('Should get multiple assets', async () => {
+	const assetPositions = await getPositions(() => (
+		<div>
+			<Html5Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
+			<Html5Audio src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp3" />
+		</div>
+	));
+	expect(assetPositions.length).toBe(2);
+	expect(withoutId(assetPositions[0])).toEqual({
+		type: 'video',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		duration: 60,
+		startInVideo: 0,
+		trimLeft: 0,
+		volume: 1,
+		playbackRate: 1,
+		toneFrequency: 1,
+		audioStartFrame: 0,
+		audioStreamIndex: 0,
+	});
+	expect(withoutId(assetPositions[1])).toEqual({
+		type: 'audio',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp3',
+		duration: 60,
+		startInVideo: 0,
+		trimLeft: 0,
+		volume: 1,
+		playbackRate: 1,
+		toneFrequency: 1,
+		audioStartFrame: 0,
+		audioStreamIndex: 0,
+	});
+});
+
+test('Should handle jumps inbetween', async () => {
+	const assetPositions = await getPositions(() => {
+		const frame = useCurrentFrame();
+		return (
+			<div>
+				{frame === 20 ? null : (
+					<Html5Video src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4" />
+				)}
+			</div>
+		);
+	});
+	expect(assetPositions.length).toBe(2);
+	expect(withoutId(assetPositions[0])).toEqual({
+		type: 'video',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		duration: 20,
+		startInVideo: 0,
+		trimLeft: 0,
+		volume: 1,
+		playbackRate: 1,
+		toneFrequency: 1,
+		audioStartFrame: 0,
+		audioStreamIndex: 0,
+	});
+	expect(withoutId(assetPositions[1])).toEqual({
+		type: 'video',
+		src: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+		duration: 39,
+		startInVideo: 21,
+		trimLeft: 21,
+		volume: 1,
+		playbackRate: 1,
+		toneFrequency: 1,
+		audioStartFrame: 0,
+		audioStreamIndex: 0,
+	});
+});
+
+test('Should support sequencing', async () => {
+	const assetPositions = await getPositions(() => {
+		return (
+			<Sequence durationInFrames={30} from={-20}>
+				<Html5Video src={'https://remotion.media/video.mp4'} />
+			</Sequence>
+		);
+	});
+	expect(assetPositions.length).toBe(1);
+	expect(withoutId(assetPositions[0])).toEqual({
+		type: 'video',
+		src: 'https://remotion.media/video.mp4',
+		duration: 10,
+		startInVideo: 0,
+		trimLeft: 20,
+		volume: 1,
+		playbackRate: 1,
+		toneFrequency: 1,
+		audioStartFrame: 20,
+		audioStreamIndex: 0,
+	});
+});
+
+test('Should calculate volumes correctly', async () => {
+	const assetPositions = await getPositions(() => {
+		return (
+			<Html5Video
+				volume={(f) =>
+					interpolate(f, [0, 4], [0, 1], {
+						extrapolateRight: 'clamp',
+					})
+				}
+				src={'https://remotion.media/video.mp4'}
+			/>
+		);
+	});
+	expect(assetPositions.length).toBe(1);
+	expect(withoutId(assetPositions[0])).toEqual({
+		type: 'video',
+		src: 'https://remotion.media/video.mp4',
+		duration: 59,
+		startInVideo: 1,
+		trimLeft: 1,
+		playbackRate: 1,
+		volume: new Array(60)
+			.fill(true)
+			.map((_, i) =>
+				interpolate(i, [0, 4], [0, 1], {extrapolateRight: 'clamp'}),
+			)
+			.filter((f) => f > 0),
+		toneFrequency: 1,
+		audioStartFrame: 0,
+		audioStreamIndex: 0,
+	});
+});
+
+test('Should calculate startFrom correctly (Html5Audio)', async () => {
+	const assetPositions = await getPositions(() => {
+		return (
+			<Sequence from={1}>
+				<Html5Audio
+					trimBefore={100}
+					trimAfter={200}
+					src={'https://remotion.media/video.mp4'}
+					volume={(f) =>
+						interpolate(f, [0, 50, 100], [0, 1, 0], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						})
+					}
+				/>
+			</Sequence>
+		);
+	});
+	expect(assetPositions.length).toBe(1);
+	expect(withoutId(assetPositions[0])).toEqual({
+		type: 'audio',
+		src: 'https://remotion.media/video.mp4',
+		// why duration of 58 and startInVideo of 2?
+		// 60 original duration
+		// minus 1 because of from={1}
+		// minus 1 because the first frame has volume 0 and does not get registered
+		duration: 58,
+		startInVideo: 2,
+		trimLeft: 101,
+		playbackRate: 1,
+		volume: new Array(58).fill(true).map((_, i) =>
+			interpolate(i + 1, [0, 50, 100], [0, 1, 0], {
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			}),
+		),
+		toneFrequency: 1,
+		audioStartFrame: 100,
+		audioStreamIndex: 0,
+	});
+});
+
+const expected: Omit<MediaAsset, 'id'> = {
+	type: 'audio',
+	src: 'https://remotion.media/video.mp4',
+	duration: 29,
+	startInVideo: 1,
+	trimLeft: 11,
+	playbackRate: 1,
+	volume: new Array(29).fill(true).map((_, i) =>
+		interpolate(i + 1, [0, 50, 100], [0, 1, 0], {
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		}),
+	),
+	toneFrequency: 1,
+	audioStartFrame: 10,
+	audioStreamIndex: 0,
+} as const;
+
+test('Should calculate startFrom correctly with negative offset (Html5Audio)', async () => {
+	const assetPositions = await getPositions(() => {
+		return (
+			<Sequence from={-10} durationInFrames={40}>
+				<Html5Audio
+					src={'https://remotion.media/video.mp4'}
+					volume={(f) => {
+						return interpolate(f, [0, 50, 100], [0, 1, 0], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						});
+					}}
+				/>
+			</Sequence>
+		);
+	});
+	expect(assetPositions.length).toBe(1);
+	expect(withoutId(assetPositions[0])).toEqual(expected);
+});
+
+test('same as above, but with <Sequence from={0}> inbetween', async () => {
+	const assetPositions = await getPositions(() => {
+		return (
+			<Sequence from={-10} durationInFrames={40}>
+				<Sequence from={0} layout="none">
+					<Html5Audio
+						src={'https://remotion.media/video.mp4'}
+						volume={(f) => {
+							return interpolate(f, [0, 50, 100], [0, 1, 0], {
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							});
+						}}
+					/>
+				</Sequence>
+			</Sequence>
+		);
+	});
+	expect(assetPositions.length).toBe(1);
+	expect(withoutId(assetPositions[0])).toEqual(expected);
+});
+
+test('same as above, but a positive child offset cancels part of the negative parent offset', async () => {
+	const assetPositions = await getPositions(() => {
+		return (
+			<Sequence from={-20} durationInFrames={40}>
+				<Sequence from={10} layout="none">
+					<Html5Audio
+						src={'https://remotion.media/video.mp4'}
+						volume={(f) => {
+							return interpolate(f, [0, 50, 100], [0, 1, 0], {
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							});
+						}}
+					/>
+				</Sequence>
+			</Sequence>
+		);
+	});
+	expect(assetPositions.length).toBe(1);
+	expect(withoutId(assetPositions[0])).toEqual({
+		type: 'audio',
+		src: 'https://remotion.media/video.mp4',
+		duration: 19,
+		startInVideo: 1,
+		trimLeft: 11,
+		playbackRate: 1,
+		volume: new Array(19).fill(true).map((_, i) =>
+			interpolate(i + 1, [0, 50, 100], [0, 1, 0], {
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			}),
+		),
+		toneFrequency: 1,
+		audioStartFrame: 10,
+		audioStreamIndex: 0,
+	});
+});

@@ -1,0 +1,169 @@
+import React, {useCallback, useMemo, useState} from 'react';
+import {
+	BACKGROUND,
+	LIGHT_TEXT,
+	LINE_COLOR,
+	WHITE,
+} from '../../../helpers/colors';
+import {Plus} from '../../../icons/plus';
+import {
+	useZodIfPossible,
+	useZodTypesIfPossible,
+} from '../../get-zod-if-possible';
+import {Spacing} from '../../layout';
+import {fieldSetText} from '../layout';
+import {createZodValues} from './create-zod-values';
+import type {AnyZodSchema} from './zod-schema-type';
+import {getArrayElement} from './zod-schema-type';
+
+export const VERTICAL_GUIDE_HEIGHT = 24;
+
+const line: React.CSSProperties = {
+	borderBottom: '1px solid ' + LINE_COLOR,
+};
+
+export const SchemaSeparationLine: React.FC = () => {
+	return <div style={line} />;
+};
+
+const arraySeparationLine: React.CSSProperties = {
+	borderBottom: '1px solid ' + LINE_COLOR,
+	marginTop: -VERTICAL_GUIDE_HEIGHT / 2,
+	pointerEvents: 'none',
+	width: '100%',
+	flexBasis: '100%',
+};
+
+export const SchemaArrayItemSeparationLine: React.FC<{
+	readonly onChange: (
+		updater: (oldV: unknown[]) => unknown[],
+		options: {shouldSave: boolean},
+	) => void;
+	readonly index: number;
+	readonly schema: AnyZodSchema;
+	readonly showAddButton: boolean;
+	readonly isLast: boolean;
+}> = ({onChange, index, schema, isLast, showAddButton}) => {
+	const [outerHovered, setOuterHovered] = useState(false);
+	const [innerHovered, setInnerHovered] = useState(false);
+
+	const zodTypes = useZodTypesIfPossible();
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
+	const arrayElement = getArrayElement(schema);
+
+	const onAdd = useCallback(() => {
+		onChange(
+			(oldV) => {
+				return [
+					...oldV.slice(0, index + 1),
+					createZodValues(arrayElement, z, zodTypes),
+					...oldV.slice(index + 1),
+				];
+			},
+			{shouldSave: true},
+		);
+	}, [arrayElement, index, onChange, z, zodTypes]);
+
+	const dynamicAddButtonStyle: React.CSSProperties = useMemo(() => {
+		return {
+			display: 'flex',
+			justifyContent: 'center',
+			height: VERTICAL_GUIDE_HEIGHT,
+			opacity: outerHovered || isLast ? 1 : 0,
+			position: 'absolute',
+			top: '50%',
+			left: '50%',
+			transform: 'translate(-50%, -50%)',
+		};
+	}, [isLast, outerHovered]);
+
+	const inner: React.CSSProperties = useMemo(() => {
+		return {
+			alignItems: 'center',
+			background: BACKGROUND,
+			display: 'flex',
+			height: VERTICAL_GUIDE_HEIGHT,
+			justifyContent: 'center',
+			paddingLeft: 10,
+			paddingRight: 10,
+		};
+	}, []);
+
+	const onOuterMouseEnter = useCallback(() => {
+		setOuterHovered(true);
+	}, []);
+
+	const onOuterMouseLeave = useCallback(() => {
+		setOuterHovered(false);
+	}, []);
+
+	const onInnerMouseEnter = useCallback(() => {
+		setInnerHovered(true);
+	}, []);
+
+	const onInnerMouseLeave = useCallback(() => {
+		setInnerHovered(false);
+	}, []);
+
+	return (
+		<div
+			style={{
+				display: 'flex',
+				flexDirection: 'row',
+				height: VERTICAL_GUIDE_HEIGHT,
+			}}
+		>
+			<div
+				style={{
+					flex: 1,
+					position: 'relative',
+					display: 'flex',
+					flexDirection: 'column',
+					alignItems: 'flex-end',
+				}}
+			>
+				{showAddButton && (
+					<div
+						style={dynamicAddButtonStyle}
+						onPointerEnter={onOuterMouseEnter}
+						onPointerLeave={onOuterMouseLeave}
+					>
+						<div
+							onClick={onAdd}
+							style={inner}
+							onPointerEnter={onInnerMouseEnter}
+							onPointerLeave={onInnerMouseLeave}
+						>
+							<Plus
+								color={innerHovered ? WHITE : LIGHT_TEXT}
+								style={{
+									display: 'block',
+									height: VERTICAL_GUIDE_HEIGHT / 2,
+								}}
+							/>
+						</div>
+					</div>
+				)}
+				<div style={arraySeparationLine} />
+			</div>
+			{isLast ? (
+				<>
+					<Spacing x={1} />
+					<div
+						style={{
+							...fieldSetText,
+							alignItems: 'center',
+							display: 'flex',
+						}}
+					>
+						{']'}
+					</div>
+				</>
+			) : null}
+		</div>
+	);
+};

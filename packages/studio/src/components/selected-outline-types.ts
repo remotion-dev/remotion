@@ -1,0 +1,256 @@
+import type {
+	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropStatusKeyframed,
+	CanUpdateSequencePropStatusStatic,
+	InteractivitySchema,
+	InteractivitySchemaField,
+	SequencePropsSubscriptionKey,
+	TSequence,
+} from 'remotion';
+import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import type {ComboboxValue} from './NewComposition/ComboBox';
+import type {TimelineSelection} from './Timeline/TimelineSelection';
+
+export type SelectedOutlineContextMenuOpenResult =
+	| false
+	| readonly ComboboxValue[];
+
+export type SelectedOutlineContextMenuOpenHandler = () =>
+	| SelectedOutlineContextMenuOpenResult
+	| Promise<SelectedOutlineContextMenuOpenResult>;
+
+export type SelectedOutlineLayoutTarget = {
+	readonly key: string;
+	readonly containsSelection: boolean;
+	readonly keyframeDisplayOffset: number;
+	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly ref: React.RefObject<Element | null>;
+	readonly selected: boolean;
+	readonly selectedForCrop: boolean;
+	readonly selectedForRotation: boolean;
+	readonly selectedForTransformOrigin: boolean;
+	readonly selectedForUvHandles: boolean;
+	readonly showSelectedOutline: boolean;
+	readonly transformOriginValue: string;
+	readonly selection: TimelineSelection;
+	readonly sequence: TSequence;
+	readonly crop: {
+		readonly left: number;
+		readonly right: number;
+		readonly top: number;
+		readonly bottom: number;
+	};
+};
+
+export type SelectedOutlineTarget = SelectedOutlineLayoutTarget & {
+	readonly canCrop: boolean;
+	readonly cropDrag: SelectedOutlineCropDragTarget | null;
+	readonly drag: SelectedOutlineDragTarget | null;
+	readonly scaleDrag: SelectedOutlineScaleDragTarget | null;
+	readonly rotationDrag: SelectedOutlineRotationDragTarget | null;
+	readonly transformOriginDrag: SelectedOutlineTransformOriginDragTarget | null;
+};
+
+export const cropFieldKeys = {
+	left: 'cropLeft',
+	right: 'cropRight',
+	top: 'cropTop',
+	bottom: 'cropBottom',
+} as const;
+
+export type SelectedOutlineCropEdge = keyof typeof cropFieldKeys;
+export type SelectedOutlineCropFieldKey =
+	(typeof cropFieldKeys)[SelectedOutlineCropEdge];
+
+export const canEditSelectedOutlineCrop = ({
+	schema,
+	propStatuses,
+}: {
+	readonly schema: InteractivitySchema | null;
+	readonly propStatuses:
+		| Record<string, CanUpdateSequencePropStatus>
+		| undefined;
+}): boolean => {
+	for (const fieldKey of Object.values(cropFieldKeys)) {
+		const fieldSchema = schema?.[fieldKey];
+		const propStatus = propStatuses?.[fieldKey];
+		const canEditStatus =
+			propStatus?.status === 'static' ||
+			(propStatus?.status === 'keyframed' &&
+				propStatus.interpolationFunction === 'interpolate');
+
+		if (fieldSchema?.type !== 'number' || !canEditStatus) {
+			return false;
+		}
+	}
+
+	return true;
+};
+
+export type SelectedOutlineCropHandle =
+	| 'top-left'
+	| 'top-right'
+	| 'bottom-left'
+	| 'bottom-right'
+	| 'top'
+	| 'right'
+	| 'bottom'
+	| 'left';
+
+type CropNumberFieldSchema = Extract<
+	InteractivitySchemaField,
+	{type: 'number'}
+>;
+
+export type SelectedOutlineCropField = {
+	readonly defaultValue: number | null | undefined;
+	readonly fieldSchema: CropNumberFieldSchema;
+	readonly propStatus:
+		| CanUpdateSequencePropStatusStatic
+		| CanUpdateSequencePropStatusKeyframed;
+	readonly value: number;
+};
+
+export type SelectedOutlineCropDragTarget = {
+	readonly clientId: string;
+	readonly fields: Record<
+		SelectedOutlineCropFieldKey,
+		SelectedOutlineCropField
+	>;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly schema: InteractivitySchema;
+	readonly sourceFrame: number;
+	readonly transformOrigin: {
+		readonly defaultValue: string | undefined;
+		readonly propStatus: CanUpdateSequencePropStatus;
+		readonly value: string;
+	} | null;
+};
+
+export type SelectedOutlineDragTarget = {
+	readonly propStatus:
+		| CanUpdateSequencePropStatusStatic
+		| CanUpdateSequencePropStatusKeyframed;
+	readonly clientId: string;
+	readonly fieldDefault: string | undefined;
+	readonly keyframeDisplayOffset: number;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly schema: InteractivitySchema;
+};
+
+export type SelectedOutlineTransformOriginDragTarget = {
+	readonly clientId: string;
+	readonly keyframeDisplayOffset: number;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly originDefault: string | undefined;
+	readonly originPropStatus:
+		| CanUpdateSequencePropStatusStatic
+		| CanUpdateSequencePropStatusKeyframed;
+	readonly originValue: string;
+	readonly rotateValue: string;
+	readonly scaleValue: number | string;
+	readonly schema: InteractivitySchema;
+	readonly sourceFrame: number;
+	readonly translateDefault: string | undefined;
+	readonly translatePropStatus:
+		| CanUpdateSequencePropStatusStatic
+		| CanUpdateSequencePropStatusKeyframed;
+	readonly translateValue: string;
+};
+
+export type ScaleFieldSchema = Extract<
+	InteractivitySchemaField,
+	{type: 'scale'}
+>;
+export type RotationFieldSchema = Extract<
+	InteractivitySchemaField,
+	{type: 'rotation-css'}
+>;
+
+export type SelectedOutlineScaleDragTarget = {
+	readonly propStatus:
+		| CanUpdateSequencePropStatusStatic
+		| CanUpdateSequencePropStatusKeyframed;
+	readonly clientId: string;
+	readonly fieldDefault: number | string | undefined;
+	readonly fieldSchema: ScaleFieldSchema;
+	readonly keyframeDisplayOffset: number;
+	readonly linked: boolean;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly schema: InteractivitySchema;
+};
+
+export type SelectedOutlineRotationDragTarget = {
+	readonly propStatus:
+		| CanUpdateSequencePropStatusStatic
+		| CanUpdateSequencePropStatusKeyframed;
+	readonly clientId: string;
+	readonly fieldDefault: string | undefined;
+	readonly fieldSchema: RotationFieldSchema;
+	readonly keyframeDisplayOffset: number;
+	readonly nodePath: SequencePropsSubscriptionKey;
+	readonly schema: InteractivitySchema;
+	readonly transform3DMode: boolean;
+	readonly transformOriginValue: string;
+};
+
+export type SelectedOutlineDragState = {
+	readonly defaultValue: string | null;
+	readonly key: string;
+	readonly sourceFrame: number;
+	readonly startX: number;
+	readonly startY: number;
+	readonly startZ: number | null;
+	readonly target: SelectedOutlineDragTarget;
+};
+
+export type SelectedOutlineScaleDragState = {
+	readonly defaultValue: string | null;
+	readonly key: string;
+	readonly sourceFrame: number;
+	readonly startX: number;
+	readonly startY: number;
+	readonly startZ: number;
+	readonly target: SelectedOutlineScaleDragTarget;
+};
+
+export type SelectedOutlineRotationDragState = {
+	readonly defaultValue: string | null;
+	readonly key: string;
+	readonly sourceFrame: number;
+	readonly startDegrees: number;
+	readonly startRotation: readonly [number, number, number];
+	readonly startValue: string;
+	readonly target: SelectedOutlineRotationDragTarget;
+};
+
+export type SequenceWithSelectedOutline = {
+	readonly depth: number;
+	readonly keyframeDisplayOffset: number;
+	readonly key: string;
+	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly sequence: TSequence;
+};
+
+export const translateFieldKey = 'style.translate';
+export const scaleFieldKey = 'style.scale';
+export const rotateFieldKey = 'style.rotate';
+export const transformOriginFieldKey = 'style.transformOrigin';
+export const selectedOutlineDragThresholdPx = 4;
+
+export const outlineContainer: React.CSSProperties = {
+	position: 'absolute',
+	inset: 0,
+	pointerEvents: 'none',
+	overflow: 'visible',
+};
+
+export const emptyContextMenuValues: readonly ComboboxValue[] = [];
+
+export type SelectedOutlineKeyboardNudgeSession = {
+	readonly dragStates: readonly SelectedOutlineDragState[];
+	readonly clientId: string;
+	deltaX: number;
+	deltaY: number;
+	lastValues: ReadonlyMap<string, string>;
+};

@@ -1,0 +1,24 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"rootDir": "src",
+		"outDir": "./dist",
+		"skipLibCheck": true
+	},
+	"references": [
+		{
+			"path": "../renderer"
+		},
+		{
+			"path": "../example-videos"
+		}
+	],
+	"include": ["src"],
+	"exclude": [
+		"./src/worker.module.ts",
+		"./src/test/worker.test.ts",
+		"./src/test/seeking/seek-on-worker.test.ts",
+		"./src/server-worker.module.ts",
+		"./src/bench/vs-mediabunny.ts"
+	]
+}

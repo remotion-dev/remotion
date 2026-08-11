@@ -1,0 +1,56 @@
+:root {
+  --background: #fff;
+  --foreground: #000;
+  --unfocused-border-color: #eaeaea;
+  --focused-border-color: #666;
+
+  --button-disabled-color: #fafafa;
+  --disabled-text-color: #999;
+
+  --geist-border-radius: 5px;
+  --geist-quarter-pad: 6px;
+  --geist-half-pad: 12px;
+  --geist-pad: 24px;
+  --geist-font: "Inter";
+
+  --geist-error: #e00;
+
+  --subtitle: #666;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.cinematics {
+  box-shadow: 0 0 200px rgba(0, 0, 0, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #000000;
+    --unfocused-border-color: #333;
+    --focused-border-color: #888;
+    --foreground: #fff;
+    --button-disabled-color: #111;
+    --geist-error: red;
+    --subtitle: #8d8d8d;
+  }
+  .cinematics {
+    box-shadow: 0 0 200px rgba(255, 255, 255, 0.15);
+  }
+}
+
+body {
+  background-color: var(--background);
+}
+
+input {
+  border: 1px solid var(--unfocused-border-color);
+  transition: border-color 0.15s ease;
+  outline: none;
+}
+
+input:focus {
+  border-color: var(--focused-border-color);
+}

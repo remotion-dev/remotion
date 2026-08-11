@@ -1,0 +1,68 @@
+---
+image: /generated/articles-docs-zod-types-v3.png
+sidebar_label: Zod 3 vs. Zod 4
+title: '@remotion/zod-types-v3'
+crumb: '@remotion/zod-types'
+---
+
+# @remotion/zod-types-v3<AvailableFrom v="4.0.426" />
+
+[`@remotion/zod-types`](/docs/zod-types) creates schemas using Zod v4 since Remotion v4.0.426.
+
+This package is for if you are using Zod v3.22.3 and want to compose functions like [`zColor()`](/docs/zod-types/z-color) with Zod v3.22.3 schemas.
+
+## Installation
+
+<Installation pkg="@remotion/zod-types-v3" />
+
+## Usage
+
+```tsx twoslash title="Using @remotion/zod-types-v3 with Zod v3"
+import {z} from 'zod'; // zod = 3.22.3
+import {zColor} from '@remotion/zod-types-v3';
+
+export const mySchema = z.object({
+  color: zColor(),
+});
+```
+
+The package exports the same [`zColor()`](/docs/zod-types/z-color), [`zTextarea()`](/docs/zod-types/z-textarea), and [`zMatrix()`](/docs/zod-types/z-matrix) functions as [`@remotion/zod-types`](/docs/zod-types), but they return Zod v3.22.3 schema types.
+
+## When to use
+
+Use [`@remotion/zod-types`](/docs/zod-types) with Zod v4:
+
+```tsx twoslash
+import {z} from 'zod'; // zod = 4.x.x
+import {zColor} from '@remotion/zod-types';
+
+export const mySchema = z.object({
+  color: zColor(),
+});
+```
+
+Use [`@remotion/zod-types`](/docs/zod-types) if you are not nesting schemas:
+
+```tsx twoslash
+import {zColor} from '@remotion/zod-types';
+import {visualControl} from '@remotion/studio';
+
+export const myVisualControl = visualControl('my-color', '#fff', zColor());
+```
+
+Use `@remotion/zod-types-v3` with Zod v3.22.3:
+
+```tsx twoslash
+import {z} from 'zod'; // zod = 3.22.3
+import {zColor} from '@remotion/zod-types-v3';
+
+export const mySchema = z.object({
+  color: zColor(),
+});
+```
+
+Other Zod 3.x.x versions are not officially supported.
+
+## See also
+
+- [`@remotion/zod-types`](/docs/zod-types)

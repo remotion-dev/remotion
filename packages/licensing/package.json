@@ -1,0 +1,43 @@
+{
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/licensing"
+	},
+	"name": "@remotion/licensing",
+	"version": "4.0.508",
+	"description": "Manage your Remotion.pro license",
+	"main": "dist",
+	"scripts": {
+		"lint": "eslint src",
+		"formatting": "oxfmt src --check",
+		"format": "oxfmt src",
+		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts",
+		"test": "bun test src/test/prod-domain.test.ts src/test/register-usage-event-retry.test.ts"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"contributors": [],
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"dependencies": {},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"eslint": "catalog:",
+		"msw": "2.12.7",
+		"remotion": "workspace:*",
+		"@typescript/native-preview": "catalog:"
+	},
+	"homepage": "https://www.remotion.dev/docs/licensing",
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs"
+		}
+	}
+}

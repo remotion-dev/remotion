@@ -1,0 +1,509 @@
+import fs, {promises} from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import {promisify} from 'node:util';
+import {isMainThread} from 'node:worker_threads';
+import type {GitSource, RenderDefaults} from '@remotion/studio-shared';
+import {getProjectName} from '@remotion/studio-shared';
+import {NoReactInternals} from 'remotion/no-react';
+import webpack from 'webpack';
+import {copyDir} from './copy-dir';
+import {indexHtml} from './index-html';
+import type {
+	BundlerOverrideFn,
+	RspackOverrideFn,
+	WebpackOverrideFn,
+} from './override-types';
+import {readRecursively} from './read-recursively';
+import {rspackConfig} from './rspack-config';
+import {clearCache} from './webpack-cache';
+import {webpackConfig} from './webpack-config';
+
+const promisified = promisify(webpack);
+
+const looksLikeCacheCorruption = (err: unknown): boolean => {
+	if (!(err instanceof Error)) {
+		return false;
+	}
+
+	const message = err.message + (err.stack ?? '');
+	return (
+		// Webpack wasm-hash crash when reading corrupted cache
+		message.includes('wasm-hash') ||
+		// General cache deserialization failures
+		message.includes('DeserializeError') ||
+		message.includes('Unexpected end of data') ||
+		// Cache pack file read failures
+		message.includes('PackFileCacheStrategy')
+	);
+};
+
+const prepareOutDir = async (specified: string | null) => {
+	if (specified) {
+		await fs.promises.mkdir(specified, {recursive: true});
+		return specified;
+	}
+
+	return fs.promises.mkdtemp(
+		path.join(os.tmpdir(), 'remotion-webpack-bundle-'),
+	);
+};
+
+const trimLeadingSlash = (p: string): string => {
+	if (p.startsWith('/')) {
+		return trimLeadingSlash(p.substr(1));
+	}
+
+	return p;
+};
+
+const trimTrailingSlash = (p: string): string => {
+	if (p.endsWith('/')) {
+		return trimTrailingSlash(p.substr(0, p.length - 1));
+	}
+
+	return p;
+};
+
+export const getBundlePublicPath = (publicPath: string | null): string => {
+	return publicPath ?? './';
+};
+
+export const getBundleStaticHash = (publicPath: string): string => {
+	if (publicPath === './') {
+		return './public';
+	}
+
+	return (
+		'/' +
+		[trimTrailingSlash(trimLeadingSlash(publicPath)), 'public']
+			.filter(Boolean)
+			.join('/')
+	);
+};
+
+export type MandatoryBundleInternalsOptions = {
+	bundlerOverride?: BundlerOverrideFn;
+	rspackOverride?: RspackOverrideFn;
+	webpackOverride: WebpackOverrideFn;
+	outDir: string | null;
+	enableCaching: boolean;
+	publicPath: string | null;
+	rootDir: string | null;
+	publicDir: string | null;
+	onPublicDirCopyProgress: (bytes: number) => void;
+	onSymlinkDetected: (path: string) => void;
+	keyboardShortcutsEnabled: boolean;
+	askAIEnabled: boolean;
+	interactivityEnabled: boolean;
+	rspack: boolean;
+	/**
+	 * If true, the public directory is symlinked into the bundle output instead of copied.
+	 * Safe for throwaway bundles (e.g. CLI render where the output folder is deleted after);
+	 * do not use when the bundle must be self-contained for deployment.
+	 * Has no effect on Windows, where the public directory is always copied.
+	 */
+	symlinkPublicDir: boolean;
+};
+
+type V4LegacyBundleOptions = Partial<MandatoryBundleInternalsOptions>;
+
+export type MandatoryLegacyBundleOptions =
+	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
+		? never
+		: MandatoryBundleInternalsOptions;
+
+export type LegacyBundleOptions =
+	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
+		? never
+		: V4LegacyBundleOptions;
+
+export const getConfig = ({
+	entryPoint,
+	outDir,
+	resolvedRemotionRoot,
+	onProgress,
+	options,
+}: {
+	outDir: string;
+	entryPoint: string;
+	resolvedRemotionRoot: string;
+	onProgress: (progress: number) => void;
+	options: MandatoryBundleInternalsOptions;
+}) => {
+	const configArgs = {
+		entry: path.join(
+			require.resolve('@remotion/studio/renderEntry'),
+			'..',
+			'esm',
+			'renderEntry.mjs',
+		),
+		userDefinedComponent: entryPoint,
+		outDir,
+		environment: 'production' as const,
+		bundlerOverride: options?.bundlerOverride ?? ((f) => f),
+		webpackOverride: options?.webpackOverride ?? ((f) => f),
+		rspackOverride: options?.rspackOverride ?? ((f) => f),
+		onProgress: (p: number) => {
+			onProgress?.(p);
+		},
+		enableCaching: options?.enableCaching ?? true,
+		remotionRoot: resolvedRemotionRoot,
+		poll: null,
+		extraPlugins: [],
+	};
+
+	if (options.rspack) {
+		return rspackConfig(configArgs);
+	}
+
+	return webpackConfig(configArgs);
+};
+
+type NewBundleOptions = {
+	onProgress: (progress: number) => void;
+	ignoreRegisterRootWarning: boolean;
+	onDirectoryCreated: (dir: string) => void;
+	gitSource: GitSource | null;
+	maxTimelineTracks: number | null;
+	bufferStateDelayInMilliseconds: number | null;
+	audioLatencyHint: AudioContextLatencyCategory | null;
+	renderDefaults: RenderDefaults | null;
+};
+
+type MandatoryBundleOptions = {
+	entryPoint: string;
+} & NewBundleOptions &
+	MandatoryBundleInternalsOptions;
+
+export type BundleOptions = {
+	entryPoint: string;
+} & Partial<NewBundleOptions> &
+	Partial<MandatoryBundleInternalsOptions>;
+
+type V4BundleArguments =
+	| [options: BundleOptions]
+	| [
+			entryPoint: string,
+			onProgress?: (progress: number) => void,
+			options?: V4LegacyBundleOptions,
+	  ];
+
+type BundleArguments =
+	typeof NoReactInternals.ENABLE_V5_BREAKING_CHANGES extends true
+		? [options: BundleOptions]
+		: V4BundleArguments;
+
+export const convertBundleArgumentsIntoOptions = (
+	args: V4BundleArguments,
+	enableV5BreakingChanges: boolean,
+): BundleOptions => {
+	if ((args.length as number) === 0) {
+		throw new TypeError('bundle() was called without arguments');
+	}
+
+	const firstArg = args[0];
+	if (typeof firstArg === 'string') {
+		if (!enableV5BreakingChanges) {
+			return {
+				entryPoint: firstArg,
+				onProgress: args[1],
+				...(args[2] ?? {}),
+			};
+		}
+
+		throw new TypeError(
+			'bundle() no longer supports the legacy positional arguments. Pass an options object instead: bundle({entryPoint, onProgress, ...options}).',
+		);
+	}
+
+	if (typeof firstArg.entryPoint !== 'string') {
+		throw new TypeError('bundle() was called without the `entryPoint` option');
+	}
+
+	return firstArg;
+};
+
+const recursionLimit = 5;
+
+export const findClosestFolderWithItem = (
+	currentDir: string,
+	file: string,
+): string | null => {
+	let possibleFile = '';
+	for (let i = 0; i < recursionLimit; i++) {
+		possibleFile = path.join(currentDir, file);
+		const exists = fs.existsSync(possibleFile);
+		if (exists) {
+			return path.dirname(possibleFile);
+		}
+
+		currentDir = path.dirname(currentDir);
+	}
+
+	return null;
+};
+
+const findClosestPackageJsonFolder = (currentDir: string): string | null => {
+	return findClosestFolderWithItem(currentDir, 'package.json');
+};
+
+const validateEntryPoint = async (entryPoint: string) => {
+	const contents = await promises.readFile(entryPoint, 'utf8');
+	if (!contents.includes('registerRoot')) {
+		throw new Error(
+			[
+				`You passed ${entryPoint} as your entry point, but this file does not contain "registerRoot".`,
+				'You should use the file that calls registerRoot() as the entry point.',
+				'To ignore this error, pass "ignoreRegisterRootWarning" to bundle().',
+				'This error cannot be ignored on the CLI.',
+			].join(' '),
+		);
+	}
+};
+
+export const internalBundle = async (
+	actualArgs: MandatoryBundleOptions,
+): Promise<string> => {
+	const entryPoint = path.resolve(process.cwd(), actualArgs.entryPoint);
+	const resolvedRemotionRoot =
+		actualArgs?.rootDir ??
+		findClosestPackageJsonFolder(entryPoint) ??
+		process.cwd();
+
+	if (!actualArgs.ignoreRegisterRootWarning) {
+		await validateEntryPoint(entryPoint);
+	}
+
+	const outDir = await prepareOutDir(actualArgs?.outDir ?? null);
+	actualArgs.onDirectoryCreated?.(outDir);
+
+	// The config might use an override which might use
+	// `process.cwd()`. The context should always be the Remotion root.
+	// This is not supported in worker threads (used for tests)
+	const currentCwd = process.cwd();
+	if (isMainThread) {
+		process.chdir(resolvedRemotionRoot);
+	}
+
+	const {onProgress, ...options} = actualArgs;
+	const [, config] = await getConfig({
+		outDir,
+		entryPoint,
+		resolvedRemotionRoot,
+		onProgress,
+		options,
+	});
+
+	if (actualArgs.rspack) {
+		const {rspack: rspackFn} = require('@rspack/core');
+		const rspackCompiler = rspackFn(config);
+		const rspackOutput = await new Promise<{
+			toJson: (opts: unknown) => {
+				errors?: Array<{message: string; details: string}>;
+			};
+		}>((resolve, reject) => {
+			rspackCompiler.run(
+				(
+					err: Error | null,
+					stats: {
+						toJson: (opts: unknown) => {
+							errors?: Array<{message: string; details: string}>;
+						};
+					},
+				) => {
+					if (err) {
+						reject(err);
+						return;
+					}
+
+					rspackCompiler.close(() => {
+						resolve(stats);
+					});
+				},
+			);
+		});
+
+		if (isMainThread) {
+			process.chdir(currentCwd);
+		}
+
+		const {errors} = rspackOutput.toJson({});
+		if (errors !== undefined && errors.length > 0) {
+			throw new Error(errors[0].message + '\n' + errors[0].details);
+		}
+	} else {
+		const runWebpack = async () => {
+			const output = (await promisified([config as webpack.Configuration])) as
+				| webpack.MultiStats
+				| undefined;
+			if (isMainThread) {
+				process.chdir(currentCwd);
+			}
+
+			if (!output) {
+				throw new Error('Expected webpack output');
+			}
+
+			const {errors} = output.toJson();
+			if (errors !== undefined && errors.length > 0) {
+				throw new Error(errors[0].message + '\n' + errors[0].details);
+			}
+		};
+
+		try {
+			await runWebpack();
+		} catch (err) {
+			if (looksLikeCacheCorruption(err) && actualArgs.enableCaching !== false) {
+				// eslint-disable-next-line no-console
+				console.warn(
+					'Webpack cache appears to be corrupted. Clearing cache and retrying...',
+				);
+				await clearCache(resolvedRemotionRoot, 'production');
+				await runWebpack();
+			} else {
+				throw err;
+			}
+		}
+	}
+
+	const publicPath = getBundlePublicPath(actualArgs.publicPath);
+	const staticHash = getBundleStaticHash(publicPath);
+
+	const from = options?.publicDir
+		? path.resolve(resolvedRemotionRoot, options.publicDir)
+		: path.join(resolvedRemotionRoot, 'public');
+	const to = path.join(outDir, 'public');
+
+	let symlinkWarningShown = false;
+	const showSymlinkWarning = (ent: fs.Dirent, src: string) => {
+		if (symlinkWarningShown) {
+			return;
+		}
+
+		const absolutePath = path.join(src, ent.name);
+		if (options.onSymlinkDetected) {
+			options.onSymlinkDetected(absolutePath);
+			return;
+		}
+
+		symlinkWarningShown = true;
+		// eslint-disable-next-line no-console
+		console.warn(
+			`\nFound a symbolic link in the public folder (${absolutePath}). The symlink will be forwarded into the bundle.`,
+		);
+	};
+
+	if (fs.existsSync(from)) {
+		if (actualArgs.symlinkPublicDir && process.platform !== 'win32') {
+			await fs.promises.symlink(from, to);
+		} else {
+			await copyDir({
+				src: from,
+				dest: to,
+				onSymlinkDetected: showSymlinkWarning,
+				onProgress: (prog) => {
+					return options.onPublicDirCopyProgress?.(prog);
+				},
+				copiedBytes: 0,
+				lastReportedProgress: 0,
+			});
+		}
+	}
+
+	const html = indexHtml({
+		staticHash,
+		publicPath,
+		editorName: null,
+		inputProps: null,
+		remotionRoot: resolvedRemotionRoot,
+		studioServerCommand: null,
+		renderQueue: null,
+		numberOfAudioTags: 0,
+		publicFiles: readRecursively({
+			folder: '.',
+			startPath: from,
+			staticHash,
+			limit: 10000,
+		}).map((f) => {
+			return {
+				...f,
+				name: f.name.split(path.sep).join('/'),
+			};
+		}),
+		includeFavicon: true,
+		title: 'Remotion Bundle',
+		renderDefaults: actualArgs.renderDefaults ?? undefined,
+		publicFolderExists: `${publicPath + (publicPath.endsWith('/') ? '' : '/')}public`,
+		fileSystemPlatform: null,
+		gitSource: actualArgs.gitSource ?? null,
+		projectName: getProjectName({
+			gitSource: actualArgs.gitSource ?? null,
+			resolvedRemotionRoot,
+			basename: path.basename,
+		}),
+		installedDependencies: null,
+		packageManager: 'unknown',
+		// Actual log level is set in setPropsAndEnv()
+		logLevel: 'info',
+		mode: 'bundle',
+		audioLatencyHint: actualArgs.audioLatencyHint ?? 'playback',
+		sampleRate: actualArgs.renderDefaults?.sampleRate ?? 48000,
+		studioRuntimeConfig: {
+			askAIEnabled: actualArgs.askAIEnabled,
+			bufferStateDelayInMilliseconds: actualArgs.bufferStateDelayInMilliseconds,
+			defaultCodingAgent: null,
+			defaultEditor: null,
+			interactivityEnabled: actualArgs.interactivityEnabled,
+			keyboardShortcutsEnabled: actualArgs.keyboardShortcutsEnabled,
+			maxTimelineTracks: actualArgs.maxTimelineTracks,
+			publicLicenseKey: actualArgs.renderDefaults?.publicLicenseKey ?? null,
+		},
+	});
+
+	fs.writeFileSync(path.join(outDir, 'index.html'), html);
+	fs.copyFileSync(
+		path.join(__dirname, '../favicon.ico'),
+		path.join(outDir, 'favicon.ico'),
+	);
+	return outDir;
+};
+
+/*
+ * @description Bundles a Remotion project and prepares it for rendering.
+ * @see [Documentation](https://remotion.dev/docs/bundle)
+ */
+export async function bundle(...args: BundleArguments): Promise<string> {
+	const actualArgs = convertBundleArgumentsIntoOptions(
+		args,
+		NoReactInternals.ENABLE_V5_BREAKING_CHANGES,
+	);
+	const result = await internalBundle({
+		bufferStateDelayInMilliseconds:
+			actualArgs.bufferStateDelayInMilliseconds ?? null,
+		enableCaching: actualArgs.enableCaching ?? true,
+		entryPoint: actualArgs.entryPoint,
+		gitSource: actualArgs.gitSource ?? null,
+		ignoreRegisterRootWarning: actualArgs.ignoreRegisterRootWarning ?? false,
+		maxTimelineTracks: actualArgs.maxTimelineTracks ?? null,
+		onDirectoryCreated: actualArgs.onDirectoryCreated ?? (() => {}),
+		onProgress: actualArgs.onProgress ?? (() => {}),
+		onPublicDirCopyProgress: actualArgs.onPublicDirCopyProgress ?? (() => {}),
+		onSymlinkDetected: actualArgs.onSymlinkDetected ?? (() => {}),
+		outDir: actualArgs.outDir ?? null,
+		publicDir: actualArgs.publicDir ?? null,
+		publicPath: actualArgs.publicPath ?? null,
+		rootDir: actualArgs.rootDir ?? null,
+		bundlerOverride: actualArgs.bundlerOverride ?? ((f) => f),
+		rspackOverride: actualArgs.rspackOverride ?? ((f) => f),
+		webpackOverride: actualArgs.webpackOverride ?? ((f) => f),
+		audioLatencyHint: actualArgs.audioLatencyHint ?? null,
+		renderDefaults: actualArgs.renderDefaults ?? null,
+		askAIEnabled: actualArgs.askAIEnabled ?? true,
+		interactivityEnabled: actualArgs.interactivityEnabled ?? true,
+		keyboardShortcutsEnabled: actualArgs.keyboardShortcutsEnabled ?? true,
+		rspack: actualArgs.rspack ?? false,
+		symlinkPublicDir: actualArgs.symlinkPublicDir ?? false,
+	});
+	return result;
+}
