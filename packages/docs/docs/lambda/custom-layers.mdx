@@ -118,7 +118,11 @@ npx remotion lambda functions deploy --custom-layer-arns="arn:aws:lambda:us-east
 
 Each ARN must include a numeric Layer version and use the function's AWS region. AWS Lambda allows at most five Layers and limits the combined unzipped size of the function and all Layers to 250MB. The Lambda Insights Layer occupies one of the five slots.
 
-You are responsible for keeping custom Layers compatible with Remotion and granting access to their ARNs. When custom Layers are omitted, Remotion continues to use its hosted Layers.
+You are responsible for keeping custom Layers compatible with Remotion. When custom Layers are omitted, Remotion continues to use its hosted Layers.
+
+:::note
+Credentials used to deploy custom Layers need `lambda:GetLayerVersion` permission for the specified Layer ARNs. Updating Layers on an existing function additionally needs `lambda:GetFunctionConfiguration` and `lambda:UpdateFunctionConfiguration`. These permissions must be configured separately.
+:::
 
 ## Update the Lambda function
 
