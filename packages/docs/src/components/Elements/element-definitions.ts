@@ -387,7 +387,7 @@ export const elementDefinitions = {
 		width: 1920,
 	},
 	'text/news-article-headline-highlight': {
-		category: 'text',
+		category: 'storytelling',
 		component: NewsArticleHeadlineHighlight,
 		contributors: [],
 		description:
