@@ -4,6 +4,7 @@ import {homedir} from 'node:os';
 import path from 'node:path';
 import {promisify} from 'node:util';
 import type {TerminalId} from '@remotion/studio-shared';
+import open = require('open');
 
 const execFilePromise = promisify(execFile);
 
@@ -332,25 +333,44 @@ export const getAvailableTerminals = () => {
 	return availableTerminals;
 };
 
-export const getTerminalLaunchCommand = ({
+type TerminalLaunchInstruction =
+	| {
+			type: 'command';
+			command: string;
+			args: string[];
+			cwd: string;
+	  }
+	| {
+			type: 'url';
+			url: string;
+	  };
+
+export const getTerminalLaunchInstruction = ({
 	terminal,
 	directory,
 }: {
 	terminal: InstalledTerminal;
 	directory: string;
-}): {command: string; args: string[]; cwd: string} => {
+}): TerminalLaunchInstruction => {
+	if (terminal.id === 'warp') {
+		const url = new URL('warp://action/new_window');
+		url.searchParams.set('path', directory);
+		return {type: 'url', url: url.href};
+	}
+
 	if (terminal.platform === 'darwin') {
 		switch (terminal.id) {
 			case 'terminal':
 			case 'iterm2':
-			case 'warp':
 				return {
+					type: 'command',
 					command: 'open',
 					args: ['-a', terminal.applicationPath, directory],
 					cwd: directory,
 				};
 			case 'ghostty':
 				return {
+					type: 'command',
 					command: 'open',
 					args: [
 						'-na',
@@ -362,6 +382,7 @@ export const getTerminalLaunchCommand = ({
 				};
 			case 'wezterm':
 				return {
+					type: 'command',
 					command: path.posix.join(
 						terminal.applicationPath,
 						'Contents/MacOS/wezterm',
@@ -371,6 +392,7 @@ export const getTerminalLaunchCommand = ({
 				};
 			case 'alacritty':
 				return {
+					type: 'command',
 					command: path.posix.join(
 						terminal.applicationPath,
 						'Contents/MacOS/alacritty',
@@ -392,26 +414,23 @@ export const getTerminalLaunchCommand = ({
 		switch (terminal.id) {
 			case 'windows-terminal':
 				return {
+					type: 'command',
 					command: terminal.applicationPath,
 					args: ['-d', directory],
 					cwd: directory,
 				};
 			case 'wezterm':
 				return {
+					type: 'command',
 					command: terminal.applicationPath,
 					args: ['start', '--cwd', directory],
 					cwd: directory,
 				};
 			case 'alacritty':
 				return {
+					type: 'command',
 					command: terminal.applicationPath,
 					args: ['--working-directory', directory],
-					cwd: directory,
-				};
-			case 'warp':
-				return {
-					command: terminal.applicationPath,
-					args: [],
 					cwd: directory,
 				};
 			case 'terminal':
@@ -429,30 +448,28 @@ export const getTerminalLaunchCommand = ({
 	switch (terminal.id) {
 		case 'ghostty':
 			return {
+				type: 'command',
 				command: terminal.applicationPath,
 				args: [`--working-directory=${directory}`],
 				cwd: directory,
 			};
-		case 'warp':
-			return {
-				command: terminal.applicationPath,
-				args: [],
-				cwd: directory,
-			};
 		case 'wezterm':
 			return {
+				type: 'command',
 				command: terminal.applicationPath,
 				args: ['start', '--cwd', directory],
 				cwd: directory,
 			};
 		case 'alacritty':
 			return {
+				type: 'command',
 				command: terminal.applicationPath,
 				args: ['--working-directory', directory],
 				cwd: directory,
 			};
 		case 'gnome-terminal':
 			return {
+				type: 'command',
 				command: terminal.applicationPath,
 				args: [`--working-directory=${directory}`],
 				cwd: directory,
@@ -491,10 +508,16 @@ export const launchTerminal = async ({
 		throw new Error('Only folders can be opened in a terminal.');
 	}
 
-	const {command, args, cwd} = getTerminalLaunchCommand({
+	const instruction = getTerminalLaunchInstruction({
 		terminal,
 		directory: resolvedDirectory,
 	});
+	if (instruction.type === 'url') {
+		await open(instruction.url);
+		return;
+	}
+
+	const {command, args, cwd} = instruction;
 	await new Promise<void>((resolve, reject) => {
 		const child = spawn(command, args, {
 			cwd,

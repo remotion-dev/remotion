@@ -5,7 +5,7 @@ import path from 'node:path';
 import type {TerminalDiscoveryContext} from '../helpers/terminal-registry';
 import {
 	discoverAvailableTerminals,
-	getTerminalLaunchCommand,
+	getTerminalLaunchInstruction,
 	launchTerminal,
 } from '../helpers/terminal-registry';
 
@@ -138,9 +138,9 @@ test('does not report terminals on unsupported platforms', async () => {
 	expect(terminals).toEqual([]);
 });
 
-test('builds platform-specific commands that open the requested folder', () => {
+test('builds platform-specific instructions that open the requested folder', () => {
 	expect(
-		getTerminalLaunchCommand({
+		getTerminalLaunchInstruction({
 			directory: '/project',
 			terminal: {
 				applicationPath: '/Applications/Terminal.app',
@@ -150,13 +150,14 @@ test('builds platform-specific commands that open the requested folder', () => {
 			},
 		}),
 	).toEqual({
+		type: 'command',
 		args: ['-a', '/Applications/Terminal.app', '/project'],
 		command: 'open',
 		cwd: '/project',
 	});
 
 	expect(
-		getTerminalLaunchCommand({
+		getTerminalLaunchInstruction({
 			directory: '/project',
 			terminal: {
 				applicationPath: '/Applications/Ghostty.app',
@@ -166,6 +167,7 @@ test('builds platform-specific commands that open the requested folder', () => {
 			},
 		}),
 	).toEqual({
+		type: 'command',
 		args: [
 			'-na',
 			'/Applications/Ghostty.app',
@@ -177,7 +179,7 @@ test('builds platform-specific commands that open the requested folder', () => {
 	});
 
 	expect(
-		getTerminalLaunchCommand({
+		getTerminalLaunchInstruction({
 			directory: '/project',
 			terminal: {
 				applicationPath: '/usr/bin/ghostty',
@@ -187,13 +189,14 @@ test('builds platform-specific commands that open the requested folder', () => {
 			},
 		}),
 	).toEqual({
+		type: 'command',
 		args: ['--working-directory=/project'],
 		command: '/usr/bin/ghostty',
 		cwd: '/project',
 	});
 
 	expect(
-		getTerminalLaunchCommand({
+		getTerminalLaunchInstruction({
 			directory: 'C:\\project',
 			terminal: {
 				applicationPath: 'C:\\WindowsApps\\wt.exe',
@@ -203,10 +206,44 @@ test('builds platform-specific commands that open the requested folder', () => {
 			},
 		}),
 	).toEqual({
+		type: 'command',
 		args: ['-d', 'C:\\project'],
 		command: 'C:\\WindowsApps\\wt.exe',
 		cwd: 'C:\\project',
 	});
+
+	for (const {directory, platform, url} of [
+		{
+			directory: '/project with spaces',
+			platform: 'darwin',
+			url: 'warp://action/new_window?path=%2Fproject+with+spaces',
+		},
+		{
+			directory: '/project with spaces',
+			platform: 'linux',
+			url: 'warp://action/new_window?path=%2Fproject+with+spaces',
+		},
+		{
+			directory: 'C:\\project with spaces',
+			platform: 'win32',
+			url: 'warp://action/new_window?path=C%3A%5Cproject+with+spaces',
+		},
+	] as const) {
+		expect(
+			getTerminalLaunchInstruction({
+				directory,
+				terminal: {
+					applicationPath: '/path/to/warp',
+					id: 'warp',
+					name: 'Warp',
+					platform,
+				},
+			}),
+		).toEqual({
+			type: 'url',
+			url,
+		});
+	}
 });
 
 test('refuses to launch a terminal for a file', async () => {
