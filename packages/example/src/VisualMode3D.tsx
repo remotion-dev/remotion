@@ -25,6 +25,19 @@ export const VisualMode3D: React.FC = () => {
 			>
 				<AbsoluteFill style={{backgroundColor: '#ff4d8d'}} />
 			</Sequence>
+			<Sequence
+				name="Tiny transform"
+				durationInFrames={120}
+				style={{
+					height: 8,
+					rotate: '0deg',
+					scale: 1,
+					translate: '450px 450px',
+					width: 8,
+				}}
+			>
+				<AbsoluteFill style={{backgroundColor: '#44cc88'}} />
+			</Sequence>
 		</AbsoluteFill>
 	);
 };

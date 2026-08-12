@@ -138,6 +138,28 @@ test.describe('inspector section collapse', () => {
 			() => !document.body.innerText.includes('Loading...'),
 			{timeout: 30_000},
 		);
+		const tinyScaleEdges = page.locator(
+			'[data-remotion-studio-scale-edge-contains-selection="true"]',
+		);
+		const tinyTransform = page
+			.getByText('Tiny transform', {exact: true})
+			.first();
+		await expect(async () => {
+			await tinyTransform.click();
+			await expect(tinyScaleEdges).toHaveCount(2, {timeout: 1_000});
+		}).toPass({timeout: 30_000});
+		expect(
+			await tinyScaleEdges.evaluateAll((edges) =>
+				edges.map((edge) =>
+					edge.getAttribute('data-remotion-studio-scale-edge'),
+				),
+			),
+		).toEqual(['right', 'bottom']);
+		await expect(
+			page.locator(
+				'[data-remotion-studio-rotation-corner-contains-selection="true"]',
+			),
+		).toHaveCount(0);
 
 		await select2DTransformAndWaitForInspector(page);
 		await expect(

@@ -43,6 +43,7 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 	readonly getAllScaleDragTargets: () => readonly SelectedOutlineScaleDragTarget[];
 	readonly dragging: boolean;
 	readonly edge: SelectedOutlineScaleEdge;
+	readonly hitWidth: number;
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onContextMenuOpen: SelectedOutlineContextMenuOpenHandler;
@@ -57,6 +58,7 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 	getAllScaleDragTargets,
 	dragging,
 	edge,
+	hitWidth,
 	outline,
 	onDraggingChange,
 	onContextMenuOpen,
@@ -280,7 +282,8 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 				x2={edgeInfo.end.x}
 				y2={edgeInfo.end.y}
 				stroke={TRANSPARENT}
-				strokeWidth={12}
+				strokeWidth={hitWidth}
+				strokeLinecap="butt"
 				vectorEffect="non-scaling-stroke"
 				pointerEvents="stroke"
 				cursor={edgeInfo.cursor}
