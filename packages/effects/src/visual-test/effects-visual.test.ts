@@ -388,6 +388,31 @@ test('colorCorrection() applies endpoint and combined adjustments in one pass', 
 	expect(endpointPixels[0]).toBeGreaterThan(32);
 	expect(endpointPixels[8]).toBeLessThan(224);
 
+	const towardEndpointCanvas = await renderEffectChainToCanvas({
+		source,
+		width: 3,
+		height: 1,
+		effects: descriptorsToMemoizedEffects([
+			colorCorrection({blacks: -1, whites: 1}),
+		]),
+	});
+	const towardEndpointContext = towardEndpointCanvas.getContext('2d');
+	if (!towardEndpointContext) {
+		throw new Error('Could not get toward-endpoint output context');
+	}
+
+	const towardEndpointPixels = towardEndpointContext.getImageData(
+		0,
+		0,
+		3,
+		1,
+	).data;
+	expect(towardEndpointPixels[0]).toBeLessThan(32);
+	expect(towardEndpointPixels[8]).toBeGreaterThan(224);
+	expect(towardEndpointPixels[3]).toBe(128);
+	expect(towardEndpointPixels[7]).toBe(128);
+	expect(towardEndpointPixels[11]).toBe(128);
+
 	const combinedCanvas = await renderEffectChainToCanvas({
 		source,
 		width: 3,

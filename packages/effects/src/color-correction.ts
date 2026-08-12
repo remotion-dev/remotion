@@ -231,6 +231,8 @@ vec3 applyEndpointTones(vec3 color, float blacks, float whites) {
 	blackWeight *= blackWeight;
 	whiteWeight *= whiteWeight;
 
+	// Moving tones toward their named endpoint uses the full adjustment.
+	// Moving them away is damped to avoid flattening the image too aggressively.
 	if (blacks >= 0.0) {
 		color += (vec3(1.0) - color) * blacks * blackWeight * 0.2;
 	} else {
