@@ -33,7 +33,10 @@ export const getNodePathRemappings = ({
 	ast: File;
 	captured: CapturedJsxNodePath[];
 	output: string;
-}): SequenceNodePathRemapping[] => {
+}): {
+	nodePathRemappings: SequenceNodePathRemapping[];
+	finalNodePathByNode: Map<JSXOpeningElement, SequenceNodePath>;
+} => {
 	const nodesAfterMutation: JSXOpeningElement[] = [];
 	recast.visit(ast, {
 		visitJSXOpeningElement(path) {
@@ -60,7 +63,7 @@ export const getNodePathRemappings = ({
 		finalNodePathByNode.set(nodesAfterMutation[i], finalNodePaths[i]);
 	}
 
-	return captured.flatMap(({node, nodePath}) => {
+	const nodePathRemappings = captured.flatMap(({node, nodePath}) => {
 		const newNodePath = finalNodePathByNode.get(node) ?? null;
 		if (
 			newNodePath !== null &&
@@ -71,4 +74,6 @@ export const getNodePathRemappings = ({
 
 		return [{oldNodePath: nodePath, newNodePath}];
 	});
+
+	return {finalNodePathByNode, nodePathRemappings};
 };

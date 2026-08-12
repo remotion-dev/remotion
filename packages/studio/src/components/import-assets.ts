@@ -19,6 +19,7 @@ import {NoReactInternals} from 'remotion/no-react';
 import {getStaticFiles} from '../api/get-static-files';
 import {writeStaticFile} from '../api/write-static-file';
 import {formatFigmaClipboardErrorNotification} from '../helpers/clipboard-figma';
+import {requestInsertedElementSelection} from '../helpers/inserted-element-selection';
 import {installRequiredPackages} from '../helpers/install-required-package';
 import type {Dimensions} from '../helpers/is-current-selected-still';
 import {getMediaMetadata} from '../helpers/use-media-metadata';
@@ -732,6 +733,13 @@ const insertCompositionElement = async ({
 	if (!result.success) {
 		showNotification(result.reason, 4000);
 		return false;
+	}
+
+	if (result.insertedNodePath !== null) {
+		requestInsertedElementSelection({
+			compositionId,
+			nodePath: result.insertedNodePath,
+		});
 	}
 
 	return true;

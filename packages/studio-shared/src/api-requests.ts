@@ -867,6 +867,10 @@ export type InsertJsxElementRequest = {
 export type InsertJsxElementResponse =
 	| {
 			success: true;
+			insertedNodePath: Pick<
+				SequencePropsSubscriptionKey,
+				'absolutePath' | 'nodePath'
+			> | null;
 			nodePathMutation: SequenceNodePathMutation;
 	  }
 	| {

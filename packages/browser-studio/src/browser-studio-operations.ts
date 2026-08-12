@@ -236,7 +236,11 @@ export const createBrowserStudioOperations = ({
 					throw new Error('Could not insert <Solid>');
 				}
 
-				return Promise.resolve({success: true, nodePathMutation});
+				return Promise.resolve({
+					success: true,
+					insertedNodePath: null,
+					nodePathMutation,
+				});
 			} catch (error) {
 				return Promise.resolve({
 					success: false,

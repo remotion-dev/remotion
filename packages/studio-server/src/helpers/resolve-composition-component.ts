@@ -12,6 +12,7 @@ import type {
 	ImportSpecifier,
 	JSXAttribute,
 	JSXElement,
+	JSXOpeningElement,
 	JSXSpreadAttribute,
 	ObjectProperty,
 	VariableDeclaration,
@@ -25,6 +26,7 @@ import {
 } from '@remotion/studio-shared';
 import type {namedTypes} from 'ast-types';
 import * as recast from 'recast';
+import type {SequenceNodePath} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {formatFileContent} from '../codemods/format-file-content';
 import {
@@ -2309,6 +2311,7 @@ export const insertJsxElementIntoComposition = async ({
 	formatted: boolean;
 	logLine: number;
 	nodePathRemappings: SequenceNodePathRemapping[];
+	insertedNodePath: SequenceNodePath | null;
 }> => {
 	const location = await resolveCompositionComponentWithFile({
 		remotionRoot,
@@ -2385,11 +2388,15 @@ export const insertJsxElementIntoComposition = async ({
 		input: finalFile,
 		prettierConfigOverride,
 	});
-	const nodePathRemappings = getNodePathRemappings({
+	const {finalNodePathByNode, nodePathRemappings} = getNodePathRemappings({
 		ast,
 		captured: capturedNodePaths,
 		output,
 	});
+	const insertedNodePath =
+		finalNodePathByNode.get(
+			finalElementToInsert.openingElement as JSXOpeningElement,
+		) ?? null;
 
 	return {
 		fileName: location.fileName,
@@ -2397,6 +2404,7 @@ export const insertJsxElementIntoComposition = async ({
 		oldContents: input,
 		output,
 		formatted,
+		insertedNodePath,
 		logLine,
 		nodePathRemappings,
 	};

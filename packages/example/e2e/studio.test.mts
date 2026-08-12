@@ -1162,13 +1162,16 @@ test.describe('visual mode', () => {
 		await expect(currentTime).not.toHaveAttribute('aria-label', '0');
 	});
 
-	test('should place Canvas drops where they are visible at the playhead', async ({
+	test('should place and select Canvas drops at the playhead', async ({
 		page,
 	}) => {
 		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
 		await expect(
 			page.getByRole('button', {name: '0', exact: true}),
 		).toBeVisible({timeout: 15_000});
+		if (!(await page.getByRole('button', {name: 'Inspector'}).isVisible())) {
+			await page.locator('[data-sidebar-toggle="right"]').click();
+		}
 
 		await page.locator('[data-timeline-scrubber]').click();
 		await expect(
@@ -1183,6 +1186,9 @@ test.describe('visual mode', () => {
 		await expect
 			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
 			.toContain('quick.mov');
+		await expect(
+			page.getByRole('group', {name: 'Inspector source location'}).first(),
+		).toContainText('<Video>', {timeout: 15_000});
 		const longVideoTag = getVideoTag(
 			fs.readFileSync(effectKeyframeE2eFile, 'utf-8'),
 			'quick.mov',
