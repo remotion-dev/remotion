@@ -214,6 +214,18 @@ for (const arch of archs) {
 	}
 
 	const filesInFfmpegFolder2 = readdirSync(ffmpegFolder);
+	if (arch === 'x86_64-pc-windows-gnu') {
+		for (const file of readdirSync(copyDestinations[arch].dir)) {
+			if (
+				file.endsWith('.dll') ||
+				file === 'ffmpeg.exe' ||
+				file === 'ffprobe.exe'
+			) {
+				rmSync(path.join(copyDestinations[arch].dir, file));
+			}
+		}
+	}
+
 	for (const file of filesInFfmpegFolder2) {
 		if (file === 'ffmpeg') {
 			renameSync(
