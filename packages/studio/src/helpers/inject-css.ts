@@ -10,8 +10,6 @@ import {
 } from './colors';
 import {makeHoverableCSS} from './hoverable';
 
-export const PREVIEW_TOOLBAR_CLASS_NAME = '__remotion_preview_toolbar';
-
 const makeDefaultGlobalCSS = () => {
 	const dragAreaFactor = 2;
 	const fromMiddle = 50 / dragAreaFactor;
@@ -71,14 +69,6 @@ const makeDefaultGlobalCSS = () => {
 	    outline: none;
 	    box-shadow: ${FOCUS_BOX_SHADOW};
 	  }
-
-  .${PREVIEW_TOOLBAR_CLASS_NAME} button {
-    border-radius: 0 !important;
-  }
-
-  .${PREVIEW_TOOLBAR_CLASS_NAME} button:focus {
-    box-shadow: none !important;
-  }
 
   .__remotion-composition-selector-item:focus,
   .__remotion-inspector-inline-action:focus,
