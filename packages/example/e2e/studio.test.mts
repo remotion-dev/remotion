@@ -133,6 +133,55 @@ test.describe('visual mode', () => {
 		expect(scrollTopAfter).toBeGreaterThan(0);
 	});
 
+	test('should copy a keyframed property between component types', async ({
+		context,
+		page,
+	}) => {
+		await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
+			origin: STUDIO_URL,
+		});
+		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		await page.bringToFront();
+		await page.evaluate(() => navigator.clipboard.writeText(''));
+		const sourceRow = page.locator(
+			'[data-timeline-marquee-item][title="Copy rotation source"]',
+		);
+		const targetRow = page.locator(
+			'[data-timeline-marquee-item][title="Copy rotation target"]',
+		);
+		await expect(sourceRow).toBeVisible({timeout: 15_000});
+		await page
+			.getByTitle('Copy rotation source', {exact: true})
+			.first()
+			.click({button: 'right'});
+		await page.getByRole('button', {name: 'Rotate', exact: true}).click();
+		await page.keyboard.press('ControlOrMeta+c');
+
+		await page
+			.getByTitle('Copy rotation target', {exact: true})
+			.first()
+			.click({button: 'right'});
+		await page.getByRole('button', {name: 'Rotate', exact: true}).click();
+		await page.keyboard.press('ControlOrMeta+v');
+
+		await expect
+			.poll(() => {
+				const source = fs.readFileSync(effectKeyframeE2eFile, 'utf-8');
+				const targetNameIndex = source.indexOf('name="Copy rotation target"');
+				const tagStart = source.lastIndexOf('<AbsoluteFill', targetNameIndex);
+				const tagEnd = source.indexOf('/>', targetNameIndex);
+				return source.slice(tagStart, tagEnd + 2);
+			})
+			.toContain("rotate: interpolate(frame, [0, 30], ['0deg', '90deg'])");
+
+		await page.getByRole('button', {name: /^Undo/}).click();
+		await expect
+			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf-8'))
+			.toContain(
+				'<AbsoluteFill name="Copy rotation target" style={{rotate: \'0deg\'}} />',
+			);
+	});
+
 	test('should keep canvas item context menus open', async ({page}) => {
 		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
 		await expect(

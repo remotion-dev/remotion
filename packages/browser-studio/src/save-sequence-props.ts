@@ -12,6 +12,7 @@ import type {
 	SaveSequencePropsResult,
 } from '@remotion/studio-shared';
 import {getAllSchemaKeys, getAssetSchemaKeys} from '@remotion/studio-shared';
+import type {SequenceNodePath} from 'remotion';
 import type {VirtualProject} from './types';
 
 const parseSequencePropEditValue = (
@@ -103,6 +104,7 @@ export const saveSequencePropsInProject = ({
 	}
 
 	const nextFiles = {...project.files};
+	const updatedNodePaths = new Map<string, SequenceNodePath>();
 	for (const [absolutePath, mutation] of mutations) {
 		let output = project.files[absolutePath];
 		if (output === undefined) {
@@ -122,12 +124,27 @@ export const saveSequencePropsInProject = ({
 							edit.sourceEdit?.type === 'google-font'
 								? edit.sourceEdit.font
 								: null,
+						clipboardParam:
+							edit.sourceEdit?.type === 'clipboard-param'
+								? edit.sourceEdit.param
+								: null,
 					},
 				],
 				schema: edit.schema,
 				videoConfigValues: edit.nodePath.videoConfigValues,
 			}));
-			output = updateMultipleSequenceProps({input: output, changes}).output;
+			const updateResult = updateMultipleSequenceProps({
+				input: output,
+				changes,
+			});
+			output = updateResult.output;
+			for (const [index, result] of updateResult.results.entries()) {
+				const edit = mutation.edits[index];
+				updatedNodePaths.set(
+					`${absolutePath}:${JSON.stringify(edit.nodePath.nodePath)}`,
+					result.newNodePath,
+				);
+			}
 		}
 
 		for (const captionPatch of mutation.captionPatches) {
@@ -152,7 +169,10 @@ export const saveSequencePropsInProject = ({
 			fileContents: nextFiles[absolutePath],
 			keys: getAllSchemaKeys(target.schema),
 			assetKeys: getAssetSchemaKeys(target.schema),
-			nodePath: target.nodePath.nodePath,
+			nodePath:
+				updatedNodePaths.get(
+					`${absolutePath}:${JSON.stringify(target.nodePath.nodePath)}`,
+				) ?? target.nodePath.nodePath,
 			componentIdentity: null,
 			effects: [],
 			videoConfigValues: target.nodePath.videoConfigValues,
