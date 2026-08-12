@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import {Internals, useVideoConfig} from 'remotion';
 import {isStudioSelectionEnabled} from '../../helpers/interactivity-enabled';
-import {startPointerSession} from '../../helpers/pointer-session';
+import {startCapturedPointerSession} from '../../helpers/pointer-session';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
@@ -328,9 +328,9 @@ const TimelineDragHandlerInner: React.FC = () => {
 			return;
 		}
 
-		return startPointerSession({
+		return startCapturedPointerSession({
 			event: dragging,
-			target: dragging.target,
+			captureTarget: dragging.target,
 			onMove: onPointerMoveScrubbing,
 			onEnd: (reason, endEvent) => {
 				if (

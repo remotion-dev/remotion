@@ -16,7 +16,7 @@ import type {
 import {Internals, useVideoConfig} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {startPointerSession} from '../../helpers/pointer-session';
+import {startCapturedPointerSession} from '../../helpers/pointer-session';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {callMoveKeyframes} from './call-move-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
@@ -725,9 +725,9 @@ export const useTimelineKeyframeDrag = ({
 				clearDraggedKeyframes();
 			};
 
-			stopPointerSession = startPointerSession({
+			stopPointerSession = startCapturedPointerSession({
 				event: e,
-				target: e.currentTarget,
+				captureTarget: e.currentTarget,
 				onMove: onPointerMove,
 				onEnd: (reason) => {
 					if (reason === 'pointerup' || reason === 'buttons-released') {
@@ -1003,9 +1003,9 @@ export const useTimelineEasingKeyframeDrag = ({
 				clearDraggedKeyframes();
 			};
 
-			stopPointerSession = startPointerSession({
+			stopPointerSession = startCapturedPointerSession({
 				event: e,
-				target: e.currentTarget,
+				captureTarget: e.currentTarget,
 				onMove: onPointerMove,
 				onEnd: (reason) => {
 					if (reason === 'pointerup' || reason === 'buttons-released') {

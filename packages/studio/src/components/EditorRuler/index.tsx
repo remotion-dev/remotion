@@ -10,7 +10,7 @@ import {BACKGROUND, RULER_COLOR} from '../../helpers/colors';
 import {getRulerPoints, getRulerScaleRange} from '../../helpers/editor-ruler';
 import type {AssetMetadata} from '../../helpers/get-asset-metadata';
 import type {Dimensions} from '../../helpers/is-current-selected-still';
-import {startPointerSession} from '../../helpers/pointer-session';
+import {startCapturedPointerSession} from '../../helpers/pointer-session';
 import {useStudioCanvasDimensions} from '../../helpers/use-studio-canvas-dimensions';
 import {
 	EditorShowGuidesContext,
@@ -260,9 +260,9 @@ export const EditorRulers: React.FC<{
 
 	const onPointerSessionStart = useCallback(
 		(event: React.PointerEvent<HTMLCanvasElement>, guideId: string) => {
-			startPointerSession({
+			startCapturedPointerSession({
 				event: event.nativeEvent,
-				target: event.currentTarget,
+				captureTarget: event.currentTarget,
 				onMove: (moveEvent) => onMouseMove(moveEvent, guideId),
 				onEnd: () => finishGuideInteraction(guideId),
 			});
