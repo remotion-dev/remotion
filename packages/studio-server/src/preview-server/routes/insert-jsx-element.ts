@@ -264,6 +264,12 @@ export const insertJsxElementHandler: ApiHandler<
 					restoredNodePaths: [],
 				},
 			]);
+			if (insertedNodePath === null) {
+				RenderInternals.Log.warn(
+					{indent: false, logLevel},
+					'Could not determine the inserted JSX element node path. Skipping automatic selection.',
+				);
+			}
 
 			pushToUndoStack({
 				filePath: fileName,
@@ -310,7 +316,10 @@ export const insertJsxElementHandler: ApiHandler<
 
 			return {
 				success: true,
-				insertedNodePath: {absolutePath: fileName, nodePath: insertedNodePath},
+				insertedNodePath:
+					insertedNodePath === null
+						? null
+						: {absolutePath: fileName, nodePath: insertedNodePath},
 				nodePathMutation,
 			};
 		} catch (err) {

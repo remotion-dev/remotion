@@ -2311,7 +2311,7 @@ export const insertJsxElementIntoComposition = async ({
 	formatted: boolean;
 	logLine: number;
 	nodePathRemappings: SequenceNodePathRemapping[];
-	insertedNodePath: SequenceNodePath;
+	insertedNodePath: SequenceNodePath | null;
 }> => {
 	const location = await resolveCompositionComponentWithFile({
 		remotionRoot,
@@ -2393,12 +2393,10 @@ export const insertJsxElementIntoComposition = async ({
 		captured: capturedNodePaths,
 		output,
 	});
-	const insertedNodePath = finalNodePathByNode.get(
-		finalElementToInsert.openingElement as JSXOpeningElement,
-	);
-	if (insertedNodePath === undefined) {
-		throw new Error('Could not determine the inserted JSX element node path');
-	}
+	const insertedNodePath =
+		finalNodePathByNode.get(
+			finalElementToInsert.openingElement as JSXOpeningElement,
+		) ?? null;
 
 	return {
 		fileName: location.fileName,
