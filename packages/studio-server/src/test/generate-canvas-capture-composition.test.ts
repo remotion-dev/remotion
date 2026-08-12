@@ -29,6 +29,8 @@ test('generates the ideal interactive Canvas Capture composition markup', async 
 		height: 1080,
 		keyframeFps: 30,
 		videoFileName: 'remotion-capture-editor-starter.mp4',
+		videoHeight: 1386,
+		videoWidth: 3026,
 		width: 1920,
 	});
 	const expected = readFileSync(

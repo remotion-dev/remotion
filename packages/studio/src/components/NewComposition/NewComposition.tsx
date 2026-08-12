@@ -146,7 +146,12 @@ const NewCompositionLoaded: React.FC<{
 		canvasCapture:
 			canvasCapture === null
 				? null
-				: {data: canvasCapture.data, videoFileName: canvasCapture.file.name},
+				: {
+						data: canvasCapture.data,
+						videoFileName: canvasCapture.file.name,
+						videoHeight: canvasCapture.height,
+						videoWidth: canvasCapture.width,
+					},
 	});
 
 	const createCanvasCaptureComposition = useCallback(

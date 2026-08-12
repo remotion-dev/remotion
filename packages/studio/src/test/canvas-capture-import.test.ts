@@ -22,6 +22,8 @@ test('reads duration and interactions from a Canvas Capture video', async () => 
 	}
 
 	expect(result.durationInSeconds).toBeCloseTo(8.7255, 4);
+	expect(result.width).toBe(3026);
+	expect(result.height).toBe(1386);
 	expect(result.data.captureMetadata.density).toBe(6);
 	expect(result.data.mouseMovements.length).toBeGreaterThan(50);
 	expect(result.data.pointerClicks).toHaveLength(4);

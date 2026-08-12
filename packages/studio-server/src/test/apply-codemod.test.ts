@@ -710,6 +710,8 @@ test('applyCodemodHandler creates an interactive Canvas Capture composition', as
 						type: 'new-composition',
 						canvasCapture: {
 							videoFileName: 'capture.mp4',
+							videoHeight: 1080,
+							videoWidth: 1920,
 							keyframeFps: 30,
 							data: {
 								captureMetadata: {density: 2},
@@ -767,7 +769,11 @@ test('applyCodemodHandler creates an interactive Canvas Capture composition', as
 			"import {MacOSCursor} from '@remotion/mac-cursors'",
 		);
 		expect(componentContents).toContain("src={staticFile('capture.mp4')}");
+		expect(componentContents).toContain('width: 1920');
+		expect(componentContents).toContain('height: 1080');
 		expect(componentContents).toContain('id="FreshCapture"');
+		expect(componentContents).toContain('width={1280}');
+		expect(componentContents).toContain('height={720}');
 
 		const undoResponse = await undoHandler(
 			getHandlerOptions({input: {}, entryPoint, remotionRoot}),
