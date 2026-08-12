@@ -11,6 +11,7 @@ import {
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {getInspectorSelectableItems} from '../components/InspectorSequenceSection';
+import {getSelectedOutlineControlLayout} from '../components/selected-outline-control-layout';
 import type {SelectedOutline} from '../components/selected-outline-geometry';
 import {
 	cropOutlinePoints,
@@ -6629,6 +6630,48 @@ test('Selected outline rotation corners use the outline corners and center', () 
 		'<svg width="24" height="24"',
 	);
 	expect(topRight.cursor).toContain('") 12 12, alias');
+});
+
+test('Selected outline controls adapt to the screen-space outline size', () => {
+	const normal = getSelectedOutlineControlLayout([
+		{x: 0, y: 0},
+		{x: 100, y: 0},
+		{x: 100, y: 50},
+		{x: 0, y: 50},
+	]);
+	const small = getSelectedOutlineControlLayout([
+		{x: 0, y: 0},
+		{x: 24, y: 0},
+		{x: 24, y: 24},
+		{x: 0, y: 24},
+	]);
+	const tiny = getSelectedOutlineControlLayout([
+		{x: 0, y: 0},
+		{x: 8, y: 0},
+		{x: 8, y: 8},
+		{x: 0, y: 8},
+	]);
+	const thin = getSelectedOutlineControlLayout([
+		{x: 0, y: 0},
+		{x: 8, y: 0},
+		{x: 8, y: 40},
+		{x: 0, y: 40},
+	]);
+
+	expect(normal.scaleEdges).toEqual(['top', 'right', 'bottom', 'left']);
+	expect(normal.scaleHitWidth).toEqual({horizontal: 9, vertical: 9});
+	expect(normal.rotationHandleRadius).toBe(6.75);
+	expect(normal.rotationCorners).toHaveLength(4);
+	expect(normal.rotationCorners[0].point.x).toBeCloseTo(-4.773);
+	expect(normal.rotationCorners[0].point.y).toBeCloseTo(-4.773);
+	expect(small.scaleHitWidth).toEqual({horizontal: 4.5, vertical: 4.5});
+	expect(small.rotationHandleRadius).toBe(3.375);
+	expect(small.rotationCorners).toHaveLength(4);
+	expect(tiny.scaleEdges).toEqual(['right', 'bottom']);
+	expect(tiny.rotationCorners).toEqual([]);
+	expect(thin.scaleEdges).toEqual(['top', 'right', 'bottom']);
+	expect(thin.scaleHitWidth).toEqual({horizontal: 9, vertical: 4.5});
+	expect(thin.rotationCorners).toEqual([]);
 });
 
 test('Selected outline rotation pivot follows transform origin', () => {

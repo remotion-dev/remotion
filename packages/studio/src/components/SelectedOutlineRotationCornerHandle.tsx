@@ -49,6 +49,7 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 	readonly getAllRotationDragTargets: () => readonly SelectedOutlineRotationDragTarget[];
 	readonly corner: SelectedOutlineRotationCorner;
 	readonly dragging: boolean;
+	readonly handlePoint: {readonly x: number; readonly y: number};
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onContextMenuOpen: SelectedOutlineContextMenuOpenHandler;
@@ -58,17 +59,20 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 		item: TimelineSelection,
 		interaction: TimelineSelectionInteraction,
 	) => void;
+	readonly radius: number;
 	readonly target: SelectedOutlineTarget | undefined;
 }> = ({
 	getAllRotationDragTargets,
 	corner,
 	dragging,
+	handlePoint,
 	outline,
 	onDraggingChange,
 	onContextMenuOpen,
 	onContextMenuOpenChange,
 	onHoverChange,
 	onSelect,
+	radius,
 	target,
 }) => {
 	const {getDragOverrides} = useContext(
@@ -340,9 +344,9 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 		<>
 			<circle
 				ref={circleRef}
-				cx={cornerInfo.point.x}
-				cy={cornerInfo.point.y}
-				r={12}
+				cx={handlePoint.x}
+				cy={handlePoint.y}
+				r={radius}
 				fill={TRANSPARENT}
 				stroke={TRANSPARENT}
 				vectorEffect="non-scaling-stroke"

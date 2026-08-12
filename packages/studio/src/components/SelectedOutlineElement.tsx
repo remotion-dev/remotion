@@ -20,6 +20,7 @@ import {callApi} from './call-api';
 import {useConfirmationDialog} from './ConfirmationDialog';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {showNotification} from './Notifications/NotificationCenter';
+import {getSelectedOutlineControlLayout} from './selected-outline-control-layout';
 import type {SelectedOutline} from './selected-outline-geometry';
 import {type SelectedOutlineSnapPoint} from './selected-outline-snap';
 import {
@@ -114,6 +115,10 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	const {setManuallyEnabled} = useContext(Transform3DModeStateContext);
 	const setHoveredSequence = useSetTimelineSequenceHover();
 	const targetRef = useRef(layoutTarget);
+	const controlLayout = useMemo(
+		() => getSelectedOutlineControlLayout(outline.points),
+		[outline.points],
+	);
 	useLayoutEffect(() => {
 		targetRef.current = layoutTarget;
 	}, [layoutTarget]);
@@ -537,12 +542,17 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			/>
 			{controlTarget?.cropDrag === null &&
 			(layoutTarget?.containsSelection || hovered)
-				? (['top', 'right', 'bottom', 'left'] as const).map((edge) => (
+				? controlLayout.scaleEdges.map((edge) => (
 						<SelectedOutlineScaleEdgeLine
 							key={edge}
 							getAllScaleDragTargets={getAllScaleDragTargets}
 							dragging={dragging}
 							edge={edge}
+							hitWidth={
+								edge === 'top' || edge === 'bottom'
+									? controlLayout.scaleHitWidth.horizontal
+									: controlLayout.scaleHitWidth.vertical
+							}
 							outline={outline}
 							onContextMenuOpen={onContextMenuOpen}
 							onContextMenuOpenChange={onContextMenuOpenChange}
@@ -555,20 +565,20 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				: null}
 			{controlTarget?.cropDrag === null &&
 			(layoutTarget?.containsSelection || hovered)
-				? (
-						['top-left', 'top-right', 'bottom-right', 'bottom-left'] as const
-					).map((corner) => (
+				? controlLayout.rotationCorners.map(({corner, point}) => (
 						<SelectedOutlineRotationCornerHandle
 							key={corner}
 							getAllRotationDragTargets={getAllRotationDragTargets}
 							corner={corner}
 							dragging={dragging}
+							handlePoint={point}
 							outline={outline}
 							onContextMenuOpen={onContextMenuOpen}
 							onContextMenuOpenChange={onContextMenuOpenChange}
 							onDraggingChange={onDraggingChange}
 							onHoverChange={onHoverChange}
 							onSelect={onSelect}
+							radius={controlLayout.rotationHandleRadius}
 							target={controlTarget}
 						/>
 					))
