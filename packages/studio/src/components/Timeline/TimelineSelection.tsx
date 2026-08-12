@@ -37,7 +37,7 @@ import {
 	isStudioInteractivityEnabled,
 	isStudioSelectionEnabled,
 } from '../../helpers/interactivity-enabled';
-import {startPointerSession} from '../../helpers/pointer-session';
+import {startCapturedPointerSession} from '../../helpers/pointer-session';
 import {
 	buildTimelineTree,
 	flattenVisibleTreeNodes,
@@ -1698,9 +1698,9 @@ export const useTimelineMarqueeSelection = () => {
 				updateSelection(moveEvent.clientX, moveEvent.clientY);
 			};
 
-			startPointerSession({
+			startCapturedPointerSession({
 				event,
-				target,
+				captureTarget: target,
 				onMove: onPointerMove,
 				onEnd: (reason, endEvent) => {
 					if (

@@ -5,7 +5,7 @@ import {
 	LIGHT_COLOR,
 	WHITE,
 } from '../../helpers/colors';
-import {startPointerSession} from '../../helpers/pointer-session';
+import {startCapturedPointerSession} from '../../helpers/pointer-session';
 import type {RenderInlineAction} from '../InlineAction';
 
 const eyeIcon: React.CSSProperties = {
@@ -100,9 +100,9 @@ export const TimelineLayerEye: React.FC<{
 			layerPointedDown = hidden ? 'enable' : 'disable';
 			onInvoked(layerPointedDown);
 			lastPaintedLayerEye = e.currentTarget;
-			stopLayerPointerSession = startPointerSession({
+			stopLayerPointerSession = startCapturedPointerSession({
 				event: e,
-				target: e.currentTarget,
+				captureTarget: e.currentTarget,
 				onMove: (moveEvent) => {
 					const pointedElement = document
 						.elementFromPoint(moveEvent.clientX, moveEvent.clientY)

@@ -24,7 +24,7 @@ import {calculateTimeline} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TRANSPARENT} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {startPointerSession} from '../../helpers/pointer-session';
+import {startCapturedPointerSession} from '../../helpers/pointer-session';
 import {sortItemsByNonceHistory} from '../../helpers/sort-by-nonce-history';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {EditorSnappingContext} from '../../state/editor-snapping';
@@ -1182,9 +1182,9 @@ const TimelineSequenceLeftEdgeDragHandleInner: React.FC<{
 			return;
 		}
 
-		return startPointerSession({
+		return startCapturedPointerSession({
 			event: activeDragState,
-			target: activeDragState.target,
+			captureTarget: activeDragState.target,
 			onMove,
 			onEnd: (reason, endEvent) => {
 				if (
@@ -1502,9 +1502,9 @@ export const useTimelineSequenceFromDrag = ({
 			return;
 		}
 
-		return startPointerSession({
+		return startCapturedPointerSession({
 			event: activeDragState,
-			target: activeDragState.target,
+			captureTarget: activeDragState.target,
 			onMove,
 			onEnd: (reason, endEvent) => {
 				if (
@@ -1750,9 +1750,9 @@ const TimelineSequenceRightEdgeDragHandleInner: React.FC<{
 			return;
 		}
 
-		return startPointerSession({
+		return startCapturedPointerSession({
 			event: activeDragState,
-			target: activeDragState.target,
+			captureTarget: activeDragState.target,
 			onMove,
 			onEnd: (reason, endEvent) => {
 				if (

@@ -356,6 +356,11 @@ test.describe('visual mode', () => {
 				codingAgentInfoRequests: 1,
 				editorInfoRequests: 1,
 			});
+			await page.mouse.move(10, 100);
+			await page.mouse.down();
+			await page.mouse.move(13, 101);
+			await page.mouse.up();
+			await expect(dialog).toBeHidden();
 		} finally {
 			fs.writeFileSync(configFile, configBeforeTest);
 		}
@@ -1070,12 +1075,9 @@ test.describe('visual mode', () => {
 		await openInAnotherApp.click();
 		await expect(changeDefaultApps).toBeVisible();
 		// The menu overlay intercepts pointerleave; clicking it closes the menu
-		// through the same outside-click path a user would take. Retry the click
-		// until the new layer has registered as the highest z-index context.
-		await expect(async () => {
-			await page.mouse.click(10, 100);
-			await expect(changeDefaultApps).toBeHidden({timeout: 1_000});
-		}).toPass({timeout: 10_000});
+		// through the same outside-click path a user would take.
+		await page.mouse.click(10, 100);
+		await expect(changeDefaultApps).toBeHidden();
 		await expect(openInAnotherApp).toHaveCSS(
 			'background-color',
 			'rgba(0, 0, 0, 0)',

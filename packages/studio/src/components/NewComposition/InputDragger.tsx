@@ -7,7 +7,7 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {interpolate} from 'remotion';
 import {BLUE, TRANSPARENT} from '../../helpers/colors';
 import {noop} from '../../helpers/noop';
-import {startPointerSession} from '../../helpers/pointer-session';
+import {startCapturedPointerSession} from '../../helpers/pointer-session';
 import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';
 import {HigherZIndex} from '../../state/z-index';
 import {
@@ -657,9 +657,9 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 				onValueChange(nextValue);
 			};
 
-			startPointerSession({
+			startCapturedPointerSession({
 				event: e.nativeEvent,
-				target,
+				captureTarget: target,
 				onMove: moveListener,
 				onEnd: (reason) => {
 					pointerDownRef.current = false;

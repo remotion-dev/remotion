@@ -5,7 +5,7 @@ import {
 	SELECTED_OUTLINE_DROP_SHADOW,
 	TRANSPARENT,
 } from '../helpers/colors';
-import {startPointerSession} from '../helpers/pointer-session';
+import {startCapturedPointerSession} from '../helpers/pointer-session';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
@@ -342,9 +342,9 @@ const CropHandle: React.FC<{
 					});
 			};
 
-			startPointerSession({
+			startCapturedPointerSession({
 				event,
-				target: event.currentTarget,
+				captureTarget: event.currentTarget,
 				onMove: onPointerMove,
 				onEnd: onPointerUp,
 			});
