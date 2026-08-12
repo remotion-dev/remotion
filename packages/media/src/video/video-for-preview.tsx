@@ -230,7 +230,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 		canvas.height = cached.height;
 		const ctx = canvas.getContext('2d', {
 			alpha: true,
-			desynchronized: true,
 		});
 		if (!ctx) {
 			return;
