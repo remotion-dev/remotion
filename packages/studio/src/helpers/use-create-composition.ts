@@ -29,22 +29,6 @@ const toPascalCase = (value: string) => {
 	return candidate;
 };
 
-const waitForComposition = (compositionId: string) => {
-	return new Promise<void>((resolve) => {
-		const started = Date.now();
-		const interval = window.setInterval(() => {
-			const compositionNames = window.remotion_getCompositionNames?.() ?? [];
-			if (
-				compositionNames.includes(compositionId) ||
-				Date.now() - started > 10000
-			) {
-				window.clearInterval(interval);
-				resolve();
-			}
-		}, 100);
-	});
-};
-
 export const getUniqueCompositionName = (
 	compositions: _InternalTypes['AnyComposition'][],
 ) => {
@@ -155,7 +139,6 @@ export const useCreateComposition = ({
 			});
 
 			if (result.success) {
-				await waitForComposition(newId);
 				selectComposition(
 					{
 						id: newId,
