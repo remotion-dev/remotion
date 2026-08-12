@@ -121,7 +121,8 @@ export const makeRenderQueue = ({
       },
     });
 
-    queue = queue.then(() => processRender(jobId));
+    const render = queue.then(() => processRender(jobId));
+    queue = render.catch(() => undefined);
   };
 
   function createJob(data: JobData) {
