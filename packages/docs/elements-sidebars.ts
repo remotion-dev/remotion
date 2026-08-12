@@ -40,7 +40,10 @@ const sidebars: SidebarsConfig = {
 			label: 'Commerce',
 			link: {type: 'doc', id: 'commerce/index'},
 			collapsed: false,
-			items: ['commerce/product-offer/index'],
+			items: [
+				'commerce/product-discount-callout/index',
+				'commerce/product-offer/index',
+			],
 		},
 		{
 			type: 'category',
