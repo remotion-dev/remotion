@@ -1,10 +1,6 @@
 import React, {useContext, useLayoutEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {
-	BLUE,
-	SELECTED_OUTLINE_DROP_SHADOW,
-	TRANSPARENT,
-} from '../helpers/colors';
+import {BLUE, TRANSPARENT} from '../helpers/colors';
 import {startPointerSession} from '../helpers/pointer-session';
 import {
 	forceSpecificCursor,
@@ -385,7 +381,6 @@ const CropHandle: React.FC<{
 				strokeLinecap="butt"
 				vectorEffect="non-scaling-stroke"
 				pointerEvents="none"
-				style={{filter: SELECTED_OUTLINE_DROP_SHADOW}}
 			/>
 		</>
 	);
