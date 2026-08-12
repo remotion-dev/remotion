@@ -18,15 +18,12 @@ Start by checking:
 3. Whether the PR branch has merge conflicts with the base branch.
 4. The current PR checks or CI failures using the `gh` CLI.
 
-If there are uncommitted changes, untracked files that look relevant, or commits that have not been pushed, stop before changing, committing, or pushing them and ask the user for confirmation.
-
 If there is a merge conflict:
 
 1. Update the local base branch reference.
 2. Rebase or merge the PR branch onto the base branch, following the repository's existing workflow.
 3. Resolve conflicts carefully and preserve both the PR intent and upstream changes.
 4. Run the relevant formatting, tests, or builds for the affected packages.
-5. Ask the user for confirmation before pushing if the conflict resolution creates unpushed commits.
 
 If there is a CI failure:
 
@@ -34,6 +31,5 @@ If there is a CI failure:
 2. Fix the underlying cause instead of retrying or bypassing the failure.
 3. Run the relevant local checks that cover the failure.
 4. Commit the fix if needed.
-5. Ask the user for confirmation before pushing if this creates unpushed commits.
 
 If there are no CI failures, no merge conflicts, and no uncommitted or unpushed changes, report that the PR is already ready.
