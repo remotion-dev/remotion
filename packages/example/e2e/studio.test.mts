@@ -106,13 +106,16 @@ test.describe('visual mode', () => {
 				await page.locator('[data-sidebar-toggle="right"]').click();
 			}
 
-			await page
-				.locator('[data-timeline-marquee-item][title="North bar"]')
-				.click();
-			await page
+			const colorButton = page
 				.getByRole('button', {name: '#000', exact: true})
-				.first()
-				.click();
+				.first();
+			await expect(async () => {
+				await page
+					.locator('[data-timeline-marquee-item][title="North bar"]')
+					.click();
+				await expect(colorButton).toBeVisible({timeout: 1_000});
+			}).toPass({timeout: 15_000});
+			await colorButton.click();
 
 			const hexInput = page.getByRole('textbox', {name: 'Hex'});
 			await expect(hexInput).toBeVisible();
